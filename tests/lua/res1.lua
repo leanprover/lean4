@@ -40,7 +40,7 @@ end
 
 function OR(...)
    -- Nary Or
-   local arg = table.pack(...)
+   local arg = {...}
    if     #arg == 0 then
       return False
    elseif #arg == 1 then
@@ -55,7 +55,7 @@ function OR(...)
 end
 
 function print_types(env, ...)
-   local arg = table.pack(...)
+   local arg = {...}
    local tc  = type_checker(env)
    for i = 1, #arg do
       print(tostring(arg[i]) .. " : " .. tostring(tc:check(arg[i])))

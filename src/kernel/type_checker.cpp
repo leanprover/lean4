@@ -316,7 +316,7 @@ struct type_checker::imp {
             for (unsigned i = 0; i < macro_num_args(e); i++)
                 arg_types.push_back(infer_type_core(macro_arg(e, i), infer_only));
             r = macro_def(e).get_type(e, arg_types.data(), m_tc_ctx);
-            if (!infer_only && macro_def(e).trust_level() <= m_env.trust_lvl()) {
+            if (!infer_only && macro_def(e).trust_level() >= m_env.trust_lvl()) {
                 optional<expr> m = expand_macro(e);
                 if (!m)
                     throw_kernel_exception(m_env, "failed to expand macro", e);

@@ -64,7 +64,7 @@ struct type_checker::imp {
     // Examples:
     // The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
     // The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t))
-    expr_bi_struct_map<expr>   m_infer_type_cache;
+    expr_bi_struct_map<expr>   m_infer_type_cache[2];
     converter_context          m_conv_ctx;
     type_checker_context       m_tc_ctx;
     bool                       m_memoize;
@@ -280,8 +280,8 @@ struct type_checker::imp {
         check_system("type checker");
 
         if (m_memoize) {
-            auto it = m_infer_type_cache.find(e);
-            if (it != m_infer_type_cache.end())
+            auto it = m_infer_type_cache[infer_only].find(e);
+            if (it != m_infer_type_cache[infer_only].end())
                 return it->second;
         }
 
@@ -378,7 +378,7 @@ struct type_checker::imp {
         }
 
         if (m_memoize)
-            m_infer_type_cache.insert(mk_pair(e, r));
+            m_infer_type_cache[infer_only].insert(mk_pair(e, r));
 
         return r;
     }

@@ -51,6 +51,7 @@ struct type_checker::imp {
         type_checker_context(imp & i):m_imp(i) {}
         virtual environment const & env() const { return m_imp.m_env; }
         virtual expr whnf(expr const & e) { return m_imp.whnf(e); }
+        virtual bool is_def_eq(expr const & e1, expr const & e2, delayed_justification & j) { return m_imp.is_def_eq(e1, e2, j); }
         virtual expr infer_type(expr const & e) { return m_imp.infer_type(e); }
         virtual name mk_fresh_name() { return m_imp.m_gen.next(); }
         virtual void add_cnstr(constraint const & c) { m_imp.add_cnstr(c); }

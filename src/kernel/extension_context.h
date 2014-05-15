@@ -11,6 +11,7 @@ namespace lean {
 class expr;
 class constraint;
 class environment;
+class delayed_justification;
 
 /**
    \brief Extension context (aka API provided to macro_definitions and normalizer_extensions).
@@ -26,6 +27,7 @@ public:
     virtual ~extension_context() {}
     virtual environment const & env() const = 0;
     virtual expr whnf(expr const & e) = 0;
+    virtual bool is_def_eq(expr const & e1, expr const & e2, delayed_justification & j) = 0;
     virtual expr infer_type(expr const & e) = 0;
     virtual name mk_fresh_name() = 0;
     virtual void add_cnstr(constraint const & c) = 0;

@@ -45,6 +45,7 @@ struct default_converter : public converter {
         extended_context(default_converter & conv, context &  ctx):m_conv(conv), m_ctx(ctx) {}
         virtual environment const & env() const { return m_conv.m_env; }
         virtual expr whnf(expr const & e) { return m_conv.whnf(e, m_ctx); }
+        virtual bool is_def_eq(expr const & e1, expr const & e2, delayed_justification & j) { return m_conv.is_def_eq(e1, e2, m_ctx, j); }
         virtual expr infer_type(expr const & e) { return m_ctx.infer_type(e); }
         virtual name mk_fresh_name() { return m_ctx.mk_fresh_name(); }
         virtual void add_cnstr(constraint const & c) { m_ctx.add_cnstr(c); }

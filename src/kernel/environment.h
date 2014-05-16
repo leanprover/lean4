@@ -43,18 +43,21 @@ class environment_header {
        >= 1 means do not check imported modules, and do not check macros
        with level less than the value of this field.
     */
-    unsigned m_trust_lvl; //!the given one.
-    bool m_proof_irrel;   //!< true if the kernel assumes proof irrelevance
-    bool m_eta;           //!< true if the kernel uses eta-reduction in convertability checks
-    bool m_impredicative; //!< true if the kernel should treat (universe level 0) as a impredicative Prop/Bool.
+    unsigned m_trust_lvl;     //!the given one.
+    bool m_prop_proof_irrel;  //!< true if the kernel assumes proof irrelevance for Bool/Type (aka Type(0))
+    bool m_eta;               //!< true if the kernel uses eta-reduction in convertability checks
+    bool m_impredicative;     //!< true if the kernel should treat (universe level 0) as a impredicative Prop/Bool.
+    list<name> m_cls_proof_irrel; //!< list of proof irrelevant classes, if we want Id types to be proof irrelevant, we the name 'Id' in this list.
     std::unique_ptr<normalizer_extension const> m_norm_ext;
     void dealloc();
 public:
-    environment_header(unsigned trust_lvl, bool proof_irrel, bool eta, bool impredicative, std::unique_ptr<normalizer_extension const> ext);
+    environment_header(unsigned trust_lvl, bool prop_proof_irrel, bool eta, bool impredicative,
+                       list<name> const & cls_proof_irrel, std::unique_ptr<normalizer_extension const> ext);
     unsigned trust_lvl() const { return m_trust_lvl; }
-    bool proof_irrel() const { return m_proof_irrel; }
+    bool prop_proof_irrel() const { return m_prop_proof_irrel; }
     bool eta() const { return m_eta; }
     bool impredicative() const { return m_impredicative; }
+    list<name> const & cls_proof_irrel() const { return m_cls_proof_irrel; }
     normalizer_extension const & norm_ext() const { return *(m_norm_ext.get()); }
 };
 
@@ -107,8 +110,10 @@ class environment {
     environment(header const & h, environment_id const & id, definitions const & d, name_set const & global_levels, extensions const & ext);
 
 public:
-    environment(unsigned trust_lvl = 0, bool proof_irrel = true, bool eta = true, bool impredicative = true);
-    environment(unsigned trust_lvl, bool proof_irrel, bool eta, bool impredicative, std::unique_ptr<normalizer_extension> ext);
+    environment(unsigned trust_lvl = 0, bool prop_proof_irrel = true, bool eta = true, bool impredicative = true,
+                list<name> const & cls_proof_irrel = list<name>());
+    environment(unsigned trust_lvl, bool prop_proof_irrel, bool eta, bool impredicative, list<name> const & cls_proof_irrel,
+                std::unique_ptr<normalizer_extension> ext);
     ~environment();
 
     /** \brief Return the environment unique identifier. */
@@ -120,8 +125,11 @@ public:
     /** \brief Return the trust level of this environment. */
     unsigned trust_lvl() const { return m_header->trust_lvl(); }
 
-    /** \brief Return true iff the environment assumes proof irrelevance */
-    bool proof_irrel() const { return m_header->proof_irrel(); }
+    /** \brief Return true iff the environment assumes proof irrelevance for Type.{0} (i.e., Bool) */
+    bool prop_proof_irrel() const { return m_header->prop_proof_irrel(); }
+
+    /** \brief Return the list of classes marked as proof irrelevant */
+    list<name> const & cls_proof_irrel() const { return m_header->cls_proof_irrel(); }
 
     /** \brief Return true iff the environment assumes Eta-reduction */
     bool eta() const { return m_header->eta(); }

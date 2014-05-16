@@ -993,7 +993,8 @@ DEFINE_LUA_LIST(certified_definition, push_certified_definition, to_certified_de
 DECL_UDATA(environment)
 static int environment_is_descendant(lua_State * L) { return push_boolean(L, to_environment(L, 1).is_descendant(to_environment(L, 2))); }
 static int environment_trust_lvl(lua_State * L) { return push_integer(L, to_environment(L, 1).trust_lvl()); }
-static int environment_proof_irrel(lua_State * L) { return push_boolean(L, to_environment(L, 1).proof_irrel()); }
+static int environment_prop_proof_irrel(lua_State * L) { return push_boolean(L, to_environment(L, 1).prop_proof_irrel()); }
+static int environment_cls_proof_irrel(lua_State * L) { return push_list_name(L, to_environment(L, 1).cls_proof_irrel()); }
 static int environment_eta(lua_State * L) { return push_boolean(L, to_environment(L, 1).eta()); }
 static int environment_impredicative(lua_State * L) { return push_boolean(L, to_environment(L, 1).impredicative()); }
 static int environment_add_global_level(lua_State * L) { return push_environment(L, to_environment(L, 1).add_global_level(to_name_ext(L, 2))); }
@@ -1003,13 +1004,13 @@ static int environment_get(lua_State * L) { return push_definition(L, to_environ
 static int environment_add(lua_State * L) { return push_environment(L, to_environment(L, 1).add(to_certified_definition(L, 2))); }
 static int environment_replace(lua_State * L) { return push_environment(L, to_environment(L, 1).replace(to_certified_definition(L, 2))); }
 static int mk_empty_environment(lua_State * L) {
-    unsigned trust_lvl = get_uint_named_param(L, 1, "trust_lvl", 0);
-    trust_lvl          = get_uint_named_param(L, 1, "trust_level", trust_lvl);
-    bool proof_irrel   = get_bool_named_param(L, 1, "proof_irrel", true);
-    proof_irrel   = get_bool_named_param(L, 1, "proof_irrelevance", proof_irrel);
-    bool eta           = get_bool_named_param(L, 1, "eta", true);
-    bool impredicative = get_bool_named_param(L, 1, "impredicative", true);
-    return push_environment(L, environment(trust_lvl, proof_irrel, eta, impredicative));
+    unsigned trust_lvl    = get_uint_named_param(L, 1, "trust_lvl", 0);
+    trust_lvl             = get_uint_named_param(L, 1, "trust_level", trust_lvl);
+    bool prop_proof_irrel = get_bool_named_param(L, 1, "prop_proof_irrel", true);
+    bool eta              = get_bool_named_param(L, 1, "eta", true);
+    bool impredicative    = get_bool_named_param(L, 1, "impredicative", true);
+    list<name> const & cls_proof_irrel = get_list_name_named_param(L, 1, "cls_proof_irrel", list<name>());
+    return push_environment(L, environment(trust_lvl, prop_proof_irrel, eta, impredicative, cls_proof_irrel));
 }
 static int environment_forget(lua_State * L) { return push_environment(L, to_environment(L, 1).forget()); }
 
@@ -1018,8 +1019,8 @@ static const struct luaL_Reg environment_m[] = {
     {"is_descendant",     safe_function<environment_is_descendant>},
     {"trust_lvl",         safe_function<environment_trust_lvl>},
     {"trust_level",       safe_function<environment_trust_lvl>},
-    {"proof_irrel",       safe_function<environment_proof_irrel>},
-    {"proof_irrelevance", safe_function<environment_proof_irrel>},
+    {"prop_proof_irrel",  safe_function<environment_prop_proof_irrel>},
+    {"cls_proof_irrel",   safe_function<environment_cls_proof_irrel>},
     {"eta",               safe_function<environment_eta>},
     {"impredicative",     safe_function<environment_impredicative>},
     {"add_global_level",  safe_function<environment_add_global_level>},

@@ -125,5 +125,27 @@ name_set get_name_set_named_param(lua_State * L, int idx, char const * opt_name,
         return def_value;
     }
 }
+
+list<name> get_list_name_named_param(lua_State * L, int idx, char const * opt_name, list<name> const & def_value) {
+    if (lua_istable(L, idx)) {
+        push_string(L, opt_name);
+        lua_gettable(L, idx);
+        if (is_list_name(L, -1) || lua_istable(L, -1)) {
+            list<name> result = to_list_name_ext(L, -1);
+            lua_pop(L, 1);
+            return result;
+        } else if (lua_isnil(L, -1)) {
+            lua_pop(L, 1);
+            return def_value;
+        } else {
+            lua_pop(L, 1);
+            throw exception(sstream() << "field '" << opt_name << "' must be a list of names in table at arg #" << idx);
+        }
+    } else if (idx <= lua_gettop(L) && !lua_isnil(L, idx)) {
+        throw exception(sstream() << "arg #" << idx << " must be a table");
+    } else {
+        return def_value;
+    }
+}
 }
 

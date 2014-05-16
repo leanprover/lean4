@@ -363,6 +363,13 @@ struct default_converter : public converter {
         }
     }
 
+    /** \brief Return true iff t is a constant named f_name or an application of the form (f_name a_1 ... a_k) */
+    bool is_app_of(expr t, name const & f_name) {
+        while (is_app(t))
+            t = app_fn(t);
+        return is_constant(t) && const_name(t) == f_name;
+    }
+
     /** Return true iff t is definitionally equal to s. */
     virtual bool is_def_eq(expr const & t, expr const & s, context & c, delayed_justification & jst) {
         check_system("is_definitionally_equal");
@@ -446,10 +453,21 @@ struct default_converter : public converter {
                 return true;
         }
 
-        if (m_env.proof_irrel()) {
-            // Proof irrelevance support
+        if (m_env.prop_proof_irrel()) {
+            // Proof irrelevance support for Prop/Bool (aka Type.{0})
             expr t_type = c.infer_type(t);
-            return is_prop(t_type, c) && is_def_eq(t_type, c.infer_type(s), c, jst);
+            if (is_prop(t_type, c) && is_def_eq(t_type, c.infer_type(s), c, jst))
+                return true;
+        }
+
+        list<name> const & cls_proof_irrel = m_env.cls_proof_irrel();
+        if (!is_nil(cls_proof_irrel)) {
+            // Proof irrelevance support for classes
+            expr t_type = whnf(c.infer_type(t), c);
+            if (std::any_of(cls_proof_irrel.begin(), cls_proof_irrel.end(),
+                            [&](name const & cls_name) { return is_app_of(t_type, cls_name); }) &&
+                is_def_eq(t_type, c.infer_type(s), c, jst))
+                return true;
         }
 
         return false;

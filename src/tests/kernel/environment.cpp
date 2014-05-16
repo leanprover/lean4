@@ -125,7 +125,7 @@ public:
 };
 
 static void tst3() {
-    environment env(0, true, true, true, std::unique_ptr<normalizer_extension>(new normalizer_extension_tst()));
+    environment env(0, true, true, true, list<name>(), std::unique_ptr<normalizer_extension>(new normalizer_extension_tst()));
     expr A = Const("A");
     expr x = Const("x");
     expr id = Const("id");

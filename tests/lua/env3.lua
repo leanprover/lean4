@@ -14,7 +14,7 @@ local t   = type_checker(env)
 assert(t:is_def_eq(p, q))
 assert(t:is_def_eq(And(p, q), And(q, p)))
 
-env = init(empty_environment({proof_irrel=false}))
+env = init(empty_environment({prop_proof_irrel=false}))
 t   = type_checker(env)
 assert(not t:is_def_eq(p, q))
 assert(not t:is_def_eq(And(p, q), And(q, p)))

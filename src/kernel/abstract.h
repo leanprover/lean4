@@ -21,6 +21,14 @@ inline expr abstract(expr const & e, expr const & s) { return abstract(e, 1, &s)
 inline expr abstract(expr const & e, std::initializer_list<expr> const & l) { return abstract(e, l.size(), l.begin()); }
 
 /**
+    \brief Replace s with variable #i in the given telescope.
+    \pre s is closed
+*/
+telescope abstract(telescope const & t, expr const & s, unsigned i);
+/** \brief Replace s with variable #0 in the given telescope. */
+telescope abstract(telescope const & t, expr const & s);
+
+/**
    \brief Replace the expressions s[0], ..., s[n-1] in e with var(n-1), ..., var(0).
 
    Pointer comparison is used to compare subexpressions of e with the s[i]'s.

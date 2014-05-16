@@ -66,7 +66,7 @@ struct default_converter : public converter {
     /** \brief Try to apply eta-reduction to \c e. */
     expr try_eta(expr const & e) {
         lean_assert(is_lambda(e));
-        expr const & b = binder_body(e);
+        expr const & b = binding_body(e);
         if (is_lambda(b)) {
             expr new_b = try_eta(b);
             if (is_eqp(b, new_b)) {
@@ -74,7 +74,7 @@ struct default_converter : public converter {
             } else if (is_app(new_b) && is_var(app_arg(new_b), 0) && !has_free_var(app_fn(new_b), 0)) {
                 return lower_free_vars(app_fn(new_b), 1);
             } else {
-                return update_binder(e, binder_domain(e), new_b);
+                return update_binder(e, binding_domain(e), new_b);
             }
         } else if (is_app(b) && is_var(app_arg(b), 0) && !has_free_var(app_fn(b), 0)) {
             return lower_free_vars(app_fn(b), 1);
@@ -132,12 +132,12 @@ struct default_converter : public converter {
             if (is_lambda(f)) {
                 unsigned m = 1;
                 unsigned num_args = args.size();
-                while (is_lambda(binder_body(f)) && m < num_args) {
-                    f = binder_body(f);
+                while (is_lambda(binding_body(f)) && m < num_args) {
+                    f = binding_body(f);
                     m++;
                 }
                 lean_assert(m <= num_args);
-                r = whnf_core(mk_rev_app(instantiate(binder_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()), c);
+                r = whnf_core(mk_rev_app(instantiate(binding_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()), c);
             } else {
                 r = is_eqp(f, *it) ? e : mk_rev_app(f, args.size(), args.data());
             }
@@ -183,7 +183,7 @@ struct default_converter : public converter {
         if (is_constant(e)) {
             if (auto d = m_env.find(const_name(e))) {
                 if (d->is_definition() && !is_opaque(*d) && d->get_weight() >= w)
-                    return unfold_name_core(instantiate_params(d->get_value(), d->get_params(), const_level_params(e)), w);
+                    return unfold_name_core(instantiate_params(d->get_value(), d->get_params(), const_levels(e)), w);
             }
         }
         return e;
@@ -300,13 +300,13 @@ struct default_converter : public converter {
         expr_kind k = t.kind();
         buffer<expr> subst;
         do {
-            expr var_t_type = instantiate(binder_domain(t), subst.size(), subst.data());
-            expr var_s_type = instantiate(binder_domain(s), subst.size(), subst.data());
+            expr var_t_type = instantiate(binding_domain(t), subst.size(), subst.data());
+            expr var_s_type = instantiate(binding_domain(s), subst.size(), subst.data());
             if (!is_def_eq(var_t_type, var_s_type, c, jst))
                 return false;
-            subst.push_back(mk_local(c.mk_fresh_name() + binder_name(s), var_s_type));
-            t = binder_body(t);
-            s = binder_body(s);
+            subst.push_back(mk_local(c.mk_fresh_name() + binding_name(s), var_s_type));
+            t = binding_body(t);
+            s = binding_body(s);
         } while (t.kind() == k && s.kind() == k);
         return is_def_eq(instantiate(t, subst.size(), subst.data()), instantiate(s, subst.size(), subst.data()), c, jst);
     }

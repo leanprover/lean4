@@ -61,8 +61,8 @@ void for_each_fn::apply(expr const & e, unsigned offset) {
             todo.emplace_back(app_fn(e), offset);
             goto begin_loop;
         case expr_kind::Lambda: case expr_kind::Pi:
-            todo.emplace_back(binder_body(e), offset + 1);
-            todo.emplace_back(binder_domain(e), offset);
+            todo.emplace_back(binding_body(e), offset + 1);
+            todo.emplace_back(binding_domain(e), offset);
             goto begin_loop;
         case expr_kind::Let:
             todo.emplace_back(let_body(e), offset + 1);

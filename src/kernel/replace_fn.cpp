@@ -94,9 +94,9 @@ expr replace_fn::operator()(expr const & e) {
             pop_rs(2);
             break;
         case expr_kind::Pi: case expr_kind::Lambda:
-            if (check_index(f, 0) && !visit(binder_domain(e), offset))
+            if (check_index(f, 0) && !visit(binding_domain(e), offset))
                 goto begin_loop;
-            if (check_index(f, 1) && !visit(binder_body(e), offset + 1))
+            if (check_index(f, 1) && !visit(binding_body(e), offset + 1))
                 goto begin_loop;
             r = update_binder(e, rs(-2), rs(-1));
             pop_rs(2);

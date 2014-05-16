@@ -116,16 +116,16 @@ static expr read_macro_definition(deserializer & d, unsigned num, expr const * a
     return it->second(d, num, args);
 }
 
-serializer & operator<<(serializer & s, expr_binder_info const & i) {
+serializer & operator<<(serializer & s, binder_info const & i) {
     s.write_bool(i.is_implicit());
     s.write_bool(i.is_cast());
     return s;
 }
 
-static expr_binder_info read_expr_binder_info(deserializer & d) {
+static binder_info read_binder_info(deserializer & d) {
     bool imp = d.read_bool();
     bool cast = d.read_bool();
-    return expr_binder_info(imp, cast);
+    return binder_info(imp, cast);
 }
 
 class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
@@ -141,7 +141,7 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                     s << var_idx(a);
                     break;
                 case expr_kind::Constant:
-                    s << const_name(a) << const_level_params(a);
+                    s << const_name(a) << const_levels(a);
                     break;
                 case expr_kind::Sort:
                     s << sort_level(a);
@@ -157,7 +157,7 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                     write_core(app_fn(a)); write_core(app_arg(a));
                     break;
                 case expr_kind::Lambda: case expr_kind::Pi:
-                    s << binder_name(a) << binder_info(a); write_core(binder_domain(a)); write_core(binder_body(a));
+                    s << binding_name(a) << binding_info(a); write_core(binding_domain(a)); write_core(binding_body(a));
                     break;
                 case expr_kind::Let:
                     s << let_name(a); write_core(let_type(a)); write_core(let_value(a)); write_core(let_body(a));
@@ -180,7 +180,7 @@ public:
     expr read_binder(expr_kind k) {
         deserializer & d = get_owner();
         name n             = read_name(d);
-        expr_binder_info i = read_expr_binder_info(d);
+        binder_info i      = read_binder_info(d);
         expr t             = read();
         return mk_binder(k, n, t, read(), i);
     }
@@ -251,8 +251,8 @@ expr read_expr(deserializer & d) {
 }
 
 // Definition serialization
-static serializer & operator<<(serializer & s, param_names const & ps) { return write_list<name>(s, ps); }
-static param_names read_params(deserializer & d) { return read_list<name>(d); }
+static serializer & operator<<(serializer & s, level_param_names const & ps) { return write_list<name>(s, ps); }
+static level_param_names read_level_params(deserializer & d) { return read_list<name>(d); }
 serializer & operator<<(serializer & s, definition const & d) {
     char k = 0;
     if (d.is_definition()) {
@@ -274,12 +274,12 @@ serializer & operator<<(serializer & s, definition const & d) {
 }
 
 definition read_definition(deserializer & d, unsigned module_idx) {
-    char k = d.read_char();
-    bool has_value  = (k & 1) != 0;
-    bool is_theorem = (k & 8) != 0;
-    name n          = read_name(d);
-    param_names ps  = read_params(d);
-    expr t          = read_expr(d);
+    char k               = d.read_char();
+    bool has_value       = (k & 1) != 0;
+    bool is_theorem      = (k & 8) != 0;
+    name n               = read_name(d);
+    level_param_names ps = read_level_params(d);
+    expr t               = read_expr(d);
     if (has_value) {
         expr v      = read_expr(d);
         if (is_theorem) {

@@ -65,22 +65,22 @@ struct print_expr_fn {
 
     void print_binder(char const * bname, expr const & e, context const & c) {
         out() << bname << " ";
-        if (binder_info(e).is_implicit())
+        if (binding_info(e).is_implicit())
             out() << "{";
-        else if (binder_info(e).is_cast())
+        else if (binding_info(e).is_cast())
             out() << "[";
-        out() << binder_name(e) << " : ";
-        print_child(binder_domain(e), c);
-        if (binder_info(e).is_implicit())
+        out() << binding_name(e) << " : ";
+        print_child(binding_domain(e), c);
+        if (binding_info(e).is_implicit())
             out() << "}";
-        else if (binder_info(e).is_cast())
+        else if (binding_info(e).is_cast())
             out() << "]";
         out() << ", ";
-        print_child(binder_body(e), extend(c, binder_name(e), binder_domain(e)));
+        print_child(binding_body(e), extend(c, binding_name(e), binding_domain(e)));
     }
 
     void print_const(expr const & a) {
-        list<level> const & ls = const_level_params(a);
+        list<level> const & ls = const_levels(a);
         out() << const_name(a);
         if (!is_nil(ls)) {
             out() << ".{";
@@ -104,7 +104,7 @@ struct print_expr_fn {
         case expr_kind::Var: {
             auto e = find(c, var_idx(a));
             if (e)
-                out() << e->first << "#" << var_idx(a);
+                out() << e->get_name() << "#" << var_idx(a);
             else
                 out() << "#" << var_idx(a);
             break;
@@ -122,9 +122,9 @@ struct print_expr_fn {
             if (!is_arrow(a)) {
                 print_binder("Pi", a, c);
             } else {
-                print_child(binder_domain(a), c);
+                print_child(binding_domain(a), c);
                 out() << " -> ";
-                print_arrow_body(binder_body(a), extend(c, binder_name(a), binder_domain(a)));
+                print_arrow_body(binding_body(a), extend(c, binding_binder(a)));
             }
             break;
         case expr_kind::Let:

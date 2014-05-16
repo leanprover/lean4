@@ -35,8 +35,8 @@ static void tst2() {
     lean_assert(instantiate(r, Const("a")) == mk_lambda("x", Type, mk_app({Var(0), Const("a"), Var(1)})));
     lean_assert(instantiate(instantiate(r, Const("a")), Const("b")) ==
                 mk_lambda("x", Type, mk_app({Var(0), Const("a"), Const("b")})));
-    std::cout << instantiate(binder_body(r), Const("a")) << std::endl;
-    lean_assert(instantiate(binder_body(r), Const("a")) == mk_app({Const("a"), Var(0), Var(1)}));
+    std::cout << instantiate(binding_body(r), Const("a")) << std::endl;
+    lean_assert(instantiate(binding_body(r), Const("a")) == mk_app({Const("a"), Var(0), Var(1)}));
     std::cout << instantiate(r, Var(10)) << std::endl;
     lean_assert(instantiate(r, Var(10)) == mk_lambda("x", Type, mk_app({Var(0), Var(11), Var(1)})));
     std::cout << mk_pi("_", Var(3), Var(4)) << std::endl;
@@ -89,7 +89,7 @@ static void tst3() {
     };
     replace_fn replacer(proc, tracer(trace));
     expr t = Fun({{x, A}, {y, A}}, f(x, f(f(f(x, x), f(y, d)), f(d, d))));
-    expr b = binder_body(t);
+    expr b = binding_body(t);
     expr r = replacer(b);
     std::cout << r << "\n";
     lean_assert(r == Fun({y, A}, f(c, f(f(f(c, c), f(y, d)), f(d, d)))));
@@ -97,14 +97,14 @@ static void tst3() {
         std::cout << p.first << " --> " << p.second << "\n";
     }
     lean_assert(trace[c] == Var(1));
-    std::cout << arg(arg(binder_body(r), 2), 2) << "\n";
-    lean_assert(arg(arg(binder_body(r), 2), 2) == f(d, d));
-    lean_assert(trace.find(arg(arg(binder_body(r), 2), 2)) == trace.end());
-    lean_assert(trace.find(binder_body(r)) != trace.end());
-    lean_assert(trace.find(arg(binder_body(r), 2)) != trace.end());
-    lean_assert(trace.find(arg(arg(binder_body(r), 2), 1)) != trace.end());
-    lean_assert(trace.find(arg(arg(arg(binder_body(r), 2), 1), 1)) != trace.end());
-    lean_assert(trace.find(arg(arg(arg(binder_body(r), 2), 1), 2)) == trace.end());
+    std::cout << arg(arg(binding_body(r), 2), 2) << "\n";
+    lean_assert(arg(arg(binding_body(r), 2), 2) == f(d, d));
+    lean_assert(trace.find(arg(arg(binding_body(r), 2), 2)) == trace.end());
+    lean_assert(trace.find(binding_body(r)) != trace.end());
+    lean_assert(trace.find(arg(binding_body(r), 2)) != trace.end());
+    lean_assert(trace.find(arg(arg(binding_body(r), 2), 1)) != trace.end());
+    lean_assert(trace.find(arg(arg(arg(binding_body(r), 2), 1), 1)) != trace.end());
+    lean_assert(trace.find(arg(arg(arg(binding_body(r), 2), 1), 2)) == trace.end());
 }
 
 int main() {

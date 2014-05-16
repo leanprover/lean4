@@ -24,8 +24,8 @@ expr replace_visitor::visit_app(expr const & e) {
 }
 expr replace_visitor::visit_binder(expr const & e) {
     lean_assert(is_binder(e));
-    expr new_d = visit(binder_domain(e));
-    expr new_b = visit(binder_body(e));
+    expr new_d = visit(binding_domain(e));
+    expr new_b = visit(binding_body(e));
     return update_binder(e, new_d, new_b);
 }
 expr replace_visitor::visit_lambda(expr const & e) { return visit_binder(e); }

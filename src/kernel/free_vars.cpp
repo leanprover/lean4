@@ -67,7 +67,7 @@ protected:
             result = apply(app_fn(e), offset) || apply(app_arg(e), offset);
             break;
         case expr_kind::Lambda: case expr_kind::Pi:
-            result = apply(binder_domain(e), offset) || apply(binder_body(e), offset + 1);
+            result = apply(binding_domain(e), offset) || apply(binding_body(e), offset + 1);
             break;
         case expr_kind::Let:
             result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);

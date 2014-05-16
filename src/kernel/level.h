@@ -174,19 +174,19 @@ public:
 };
 template<typename F> level replace(level const & l, F const & f) { return replace_level_fn(f)(l); }
 
-typedef list<name> param_names;
+typedef list<name> level_param_names;
 
 /** \brief If \c l contains a global that is not in \c env, then return it. Otherwise, return none. */
 optional<name> get_undef_global(level const & l, environment const & env);
 
 /** \brief If \c l contains a parameter that is not in \c ps, then return it. Otherwise, return none. */
-optional<name> get_undef_param(level const & l, param_names const & ps);
+optional<name> get_undef_param(level const & l, level_param_names const & ps);
 
 /**
     \brief Instantiate the universe level parameters \c ps occurring in \c l with the levels \c ls.
     \pre length(ps) == length(ls)
 */
-level instantiate(level const & l, param_names const & ps, levels const & ls);
+level instantiate(level const & l, level_param_names const & ps, levels const & ls);
 
 /** \brief Printer for debugging purposes */
 std::ostream & operator<<(std::ostream & out, level const & l);

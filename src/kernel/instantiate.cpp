@@ -61,12 +61,12 @@ expr apply_beta(expr f, unsigned num_args, expr const * args) {
         return mk_rev_app(f, num_args, args);
     } else {
         unsigned m = 1;
-        while (is_lambda(binder_body(f)) && m < num_args) {
-            f = binder_body(f);
+        while (is_lambda(binding_body(f)) && m < num_args) {
+            f = binding_body(f);
             m++;
         }
         lean_assert(m <= num_args);
-        return mk_rev_app(instantiate(binder_body(f), m, args + (num_args - m)), num_args - m, args);
+        return mk_rev_app(instantiate(binding_body(f), m, args + (num_args - m)), num_args - m, args);
     }
 }
 
@@ -106,14 +106,14 @@ expr beta_reduce(expr t) {
     }
 }
 
-expr instantiate_params(expr const & e, param_names const & ps, levels const & ls) {
+expr instantiate_params(expr const & e, level_param_names const & ps, levels const & ls) {
     if (!has_param_univ(e))
         return e;
     return replace(e, [&](expr const & e, unsigned) -> optional<expr> {
             if (!has_param_univ(e))
                 return some_expr(e);
             if (is_constant(e)) {
-                return some_expr(update_constant(e, map_reuse(const_level_params(e),
+                return some_expr(update_constant(e, map_reuse(const_levels(e),
                                                               [&](level const & l) { return instantiate(l, ps, ls); },
                                                               [](level const & l1, level const & l2) { return is_eqp(l1, l2); })));
             } else if (is_sort(e)) {

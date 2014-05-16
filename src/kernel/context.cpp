@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/context.h"
 
 namespace lean {
-std::pair<name, expr> const & lookup(context const & c, unsigned i) {
+binder const & lookup(context const & c, unsigned i) {
     auto const * it = &c;
     while (*it) {
         if (i == 0)
@@ -19,11 +19,11 @@ std::pair<name, expr> const & lookup(context const & c, unsigned i) {
     }
     throw exception("unknown free variable");
 }
-optional<std::pair<name, expr>> find(context const & c, unsigned i) {
+optional<binder> find(context const & c, unsigned i) {
     try {
-        return optional<std::pair<name, expr>>(lookup(c, i));
+        return optional<binder>(lookup(c, i));
     } catch (exception &) {
-        return optional<std::pair<name, expr>>();
+        return optional<binder>();
     }
 }
 }

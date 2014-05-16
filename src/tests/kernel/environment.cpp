@@ -20,43 +20,43 @@ static environment add_def(environment const & env, definition const & d) {
 
 static void tst1() {
     environment env1;
-    auto env2 = add_def(env1, mk_definition("Bool", param_names(), mk_Type(), mk_Bool()));
+    auto env2 = add_def(env1, mk_definition("Bool", level_param_names(), mk_Type(), mk_Bool()));
     lean_assert(!env1.find("Bool"));
     lean_assert(env2.find("Bool"));
     lean_assert(env2.find("Bool")->get_value() == mk_Bool());
     try {
-        auto env3 = add_def(env2, mk_definition("Bool", param_names(), mk_Type(), mk_Bool()));
+        auto env3 = add_def(env2, mk_definition("Bool", level_param_names(), mk_Type(), mk_Bool()));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
     }
     try {
-        auto env4 = add_def(env2, mk_definition("BuggyBool", param_names(), mk_Bool(), mk_Bool()));
+        auto env4 = add_def(env2, mk_definition("BuggyBool", level_param_names(), mk_Bool(), mk_Bool()));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
     }
     try {
-        auto env5 = add_def(env2, mk_definition("Type1", param_names(), mk_metavar("T", mk_sort(mk_meta_univ("l"))), mk_Type()));
+        auto env5 = add_def(env2, mk_definition("Type1", level_param_names(), mk_metavar("T", mk_sort(mk_meta_univ("l"))), mk_Type()));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
     }
     try {
-        auto env6 = add_def(env2, mk_definition("Type1", param_names(), mk_Type(), mk_metavar("T", mk_sort(mk_meta_univ("l")))));
+        auto env6 = add_def(env2, mk_definition("Type1", level_param_names(), mk_Type(), mk_metavar("T", mk_sort(mk_meta_univ("l")))));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
     }
     try {
-        auto env7 = add_def(env2, mk_definition("foo", param_names(), mk_Type() >> mk_Type(), mk_Bool()));
+        auto env7 = add_def(env2, mk_definition("foo", level_param_names(), mk_Type() >> mk_Type(), mk_Bool()));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
     }
     expr A = Const("A");
     expr x = Const("x");
-    auto env3 = add_def(env2, mk_definition("id", param_names(),
+    auto env3 = add_def(env2, mk_definition("id", level_param_names(),
                                             Pi(A, mk_Type(), A >> A),
                                             Fun({{A, mk_Type()}, {x, A}}, x)));
     expr c  = mk_local("c", Bool);
@@ -73,16 +73,16 @@ static void tst1() {
 static void tst2() {
     environment env;
     name base("base");
-    env = add_def(env, mk_var_decl(name(base, 0u), param_names(), Bool >> (Bool >> Bool)));
+    env = add_def(env, mk_var_decl(name(base, 0u), level_param_names(), Bool >> (Bool >> Bool)));
     expr x = Const("x");
     expr y = Const("y");
     for (unsigned i = 1; i <= 100; i++) {
         expr prev = Const(name(base, i-1));
-        env = add_def(env, mk_definition(env, name(base, i), param_names(), Bool >> (Bool >> Bool),
+        env = add_def(env, mk_definition(env, name(base, i), level_param_names(), Bool >> (Bool >> Bool),
                                          Fun({{x, Bool}, {y, Bool}}, prev(prev(x, y), prev(y, x)))));
     }
     expr A = Const("A");
-    env = add_def(env, mk_definition("id", param_names(),
+    env = add_def(env, mk_definition("id", level_param_names(),
                                      Pi(A, mk_Type(), A >> A),
                                      Fun({{A, mk_Type()}, {x, A}}, x)));
     type_checker checker(env, name_generator("tmp"));
@@ -129,7 +129,7 @@ static void tst3() {
     expr A = Const("A");
     expr x = Const("x");
     expr id = Const("id");
-    env = add_def(env, mk_definition("id", param_names(),
+    env = add_def(env, mk_definition("id", level_param_names(),
                                      Pi(A, mk_Type(), A >> A),
                                      Fun({{A, mk_Type()}, {x, A}}, x)));
     expr mk = Const("mk");

@@ -28,8 +28,8 @@ class deep_copy_fn {
         case expr_kind::Sort:
         case expr_kind::Macro:   r = copy(a); break;
         case expr_kind::App:     r = mk_app(apply(app_fn(a)), apply(app_arg(a))); break;
-        case expr_kind::Lambda:  r = mk_lambda(binder_name(a), apply(binder_domain(a)), apply(binder_body(a))); break;
-        case expr_kind::Pi:      r = mk_pi(binder_name(a), apply(binder_domain(a)), apply(binder_body(a))); break;
+        case expr_kind::Lambda:  r = mk_lambda(binding_name(a), apply(binding_domain(a)), apply(binding_body(a))); break;
+        case expr_kind::Pi:      r = mk_pi(binding_name(a), apply(binding_domain(a)), apply(binding_body(a))); break;
         case expr_kind::Let:     r = mk_let(let_name(a), apply(let_type(a)), apply(let_value(a)), apply(let_body(a))); break;
         case expr_kind::Meta:    r = mk_metavar(mlocal_name(a), apply(mlocal_type(a))); break;
         case expr_kind::Local:   r = mk_local(mlocal_name(a), apply(mlocal_type(a))); break;

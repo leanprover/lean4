@@ -380,7 +380,7 @@ level replace_level_fn::apply(level const & l) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-optional<name> get_undef_param(level const & l, param_names const & ps) {
+optional<name> get_undef_param(level const & l, level_param_names const & ps) {
     optional<name> r;
     for_each(l, [&](level const & l) {
             if (!has_param(l) || r)
@@ -420,7 +420,7 @@ level update_max(level const & l, level const & new_lhs, level const & new_rhs) 
         return mk_imax(new_lhs, new_rhs);
 }
 
-level instantiate(level const & l, param_names const & ps, levels const & ls) {
+level instantiate(level const & l, level_param_names const & ps, levels const & ls) {
     lean_assert(length(ps) == length(ls));
     return replace(l, [=](level const & l) {
             if (!has_param(l)) {

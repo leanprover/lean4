@@ -69,7 +69,7 @@ struct type_checker::imp {
     type_checker_context       m_tc_ctx;
     bool                       m_memoize;
     // temp flag
-    param_names                m_params;
+    level_param_names          m_params;
 
     imp(environment const & env, name_generator const & g, constraint_handler & h, std::unique_ptr<converter> && conv, bool memoize):
         m_env(env), m_gen(g), m_chandler(h), m_conv(std::move(conv)), m_conv_ctx(*this), m_tc_ctx(*this),
@@ -84,9 +84,9 @@ struct type_checker::imp {
         \brief Return the body of the given binder, where the free variable #0 is replaced with a fresh local constant.
         It also returns the fresh local constant.
      */
-    std::pair<expr, expr> open_binder_body(expr const & e) {
-        expr local     = mk_local(m_gen.next() + binder_name(e), binder_domain(e));
-        return mk_pair(instantiate(binder_body(e), local), local);
+    std::pair<expr, expr> open_binding_body(expr const & e) {
+        expr local     = mk_local(m_gen.next() + binding_name(e), binding_domain(e));
+        return mk_pair(instantiate(binding_body(e), local), local);
     }
 
     /** \brief Add given constraint to the constraint handler m_chandler. */
@@ -235,7 +235,7 @@ struct type_checker::imp {
                                 [=](formatter const & fmt, options const & o, substitution const & subst) {
                                     return pp_app_type_mismatch(fmt, m_env, o,
                                                                 subst.instantiate_metavars_wo_jst(e),
-                                                                subst.instantiate_metavars_wo_jst(binder_domain(fn_type)),
+                                                                subst.instantiate_metavars_wo_jst(binding_domain(fn_type)),
                                                                 subst.instantiate_metavars_wo_jst(arg_type));
                                 });
     }
@@ -303,7 +303,7 @@ struct type_checker::imp {
         case expr_kind::Constant: {
             definition d    = m_env.get(const_name(e));
             auto const & ps = d.get_params();
-            auto const & ls = const_level_params(e);
+            auto const & ls = const_levels(e);
             if (length(ps) != length(ls))
                 throw_kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '" << const_name(e) << "', #"
                                        << length(ps)  << " expected, #" << length(ls) << " provided");
@@ -332,17 +332,17 @@ struct type_checker::imp {
         }
         case expr_kind::Lambda: {
             if (!infer_only) {
-                expr t = infer_type_core(binder_domain(e), infer_only);
-                ensure_sort(t, binder_domain(e));
+                expr t = infer_type_core(binding_domain(e), infer_only);
+                ensure_sort(t, binding_domain(e));
             }
-            auto b = open_binder_body(e);
-            r = mk_pi(binder_name(e), binder_domain(e), abstract_p(infer_type_core(b.first, infer_only), b.second), binder_info(e));
+            auto b = open_binding_body(e);
+            r = mk_pi(binding_name(e), binding_domain(e), abstract_p(infer_type_core(b.first, infer_only), b.second), binding_info(e));
             break;
         }
         case expr_kind::Pi: {
-            expr t1 = ensure_sort(infer_type_core(binder_domain(e), infer_only), binder_domain(e));
-            auto b  = open_binder_body(e);
-            expr t2 = ensure_sort(infer_type_core(b.first, infer_only), binder_body(e));
+            expr t1 = ensure_sort(infer_type_core(binding_domain(e), infer_only), binding_domain(e));
+            auto b  = open_binding_body(e);
+            expr t2 = ensure_sort(infer_type_core(b.first, infer_only), binding_body(e));
             if (m_env.impredicative())
                 r = mk_sort(mk_imax(sort_level(t1), sort_level(t2)));
             else
@@ -354,14 +354,14 @@ struct type_checker::imp {
             if (!infer_only) {
                 expr a_type = infer_type_core(app_arg(e), infer_only);
                 delayed_justification jst([=]() { return mk_app_mismatch_jst(e, f_type, a_type); });
-                if (!is_def_eq(a_type, binder_domain(f_type), jst)) {
+                if (!is_def_eq(a_type, binding_domain(f_type), jst)) {
                     throw_kernel_exception(m_env, e,
                                            [=](formatter const & fmt, options const & o) {
-                                               return pp_app_type_mismatch(fmt, m_env, o, e, binder_domain(f_type), a_type);
+                                               return pp_app_type_mismatch(fmt, m_env, o, e, binding_domain(f_type), a_type);
                                            });
                 }
             }
-            r = instantiate(binder_body(f_type), app_arg(e));
+            r = instantiate(binding_body(f_type), app_arg(e));
             break;
         }
         case expr_kind::Let:
@@ -387,8 +387,8 @@ struct type_checker::imp {
     }
 
     expr infer_type(expr const & e) { return infer_type_core(e, true); }
-    expr check(expr const & e, param_names const & ps) {
-        flet<param_names> updt(m_params, ps);
+    expr check(expr const & e, level_param_names const & ps) {
+        flet<level_param_names> updt(m_params, ps);
         return infer_type_core(e, false);
     }
     bool is_def_eq(expr const & t, expr const & s) { return m_conv->is_def_eq(t, s, m_conv_ctx); }
@@ -410,7 +410,7 @@ type_checker::type_checker(environment const & env):
 
 type_checker::~type_checker() {}
 expr type_checker::infer(expr const & t) { return m_ptr->infer_type(t); }
-expr type_checker::check(expr const & t, param_names const & ps) { return m_ptr->check(t, ps); }
+expr type_checker::check(expr const & t, level_param_names const & ps) { return m_ptr->check(t, ps); }
 bool type_checker::is_def_eq(expr const & t, expr const & s) { return m_ptr->is_def_eq(t, s); }
 bool type_checker::is_prop(expr const & t) { return m_ptr->is_prop(t); }
 expr type_checker::whnf(expr const & t) { return m_ptr->whnf(t); }

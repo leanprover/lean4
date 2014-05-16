@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <tuple>
 #include "util/list.h"
 #include "kernel/environment.h"
+#include "kernel/context.h"
 
 namespace lean {
 namespace inductive {
@@ -22,8 +23,6 @@ typedef std::tuple<name,              // introduction rule name
                    expr               // result type
                    > intro_rule;
 
-typedef param_names level_params;
-
 /** \brief Inductive datatype */
 typedef std::tuple<name,                // datatype name
                    telescope,           // indices
@@ -32,7 +31,7 @@ typedef std::tuple<name,                // datatype name
 
 /** \brief Declare a finite set of mutually dependent inductive datatypes. */
 environment add_inductive(environment const &          env,
-                          level_params const &         level_params,
+                          level_param_names const &    level_params,
                           telescope const &            params,
                           list<inductive_decl> const & decls,
                           // By default the resultant inductive datatypes live in max(level_params),
@@ -43,7 +42,7 @@ environment add_inductive(environment const &          env,
 /** \brief Declare a single inductive datatype. */
 environment add_inductive(environment const &        env,
                           name const &               ind_name,         // name of new inductive datatype
-                          level_params const &       level_params,     // level parameters
+                          level_param_names const &  level_params,     // level parameters
                           telescope const &          params,           // parameters
                           telescope const &          indices,          // indices
                           list<intro_rule> const &   intro_rules,      // introduction rules

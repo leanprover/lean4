@@ -11,8 +11,10 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-typedef list<std::pair<name, expr>> context;
-inline context extend(context const & c, name const & n, expr const & t) { return cons(mk_pair(n, t), c); }
-std::pair<name, expr> const & lookup(context const & c, unsigned i);
-optional<std::pair<name, expr>> find(context const & c, unsigned i);
+typedef list<binder> context;
+typedef context      telescope;
+inline context extend(context const & c, name const & n, expr const & t) { return cons(binder(n, t), c); }
+inline context extend(context const & c, binder const & b) { return cons(b, c); }
+binder const & lookup(context const & c, unsigned i);
+optional<binder> find(context const & c, unsigned i);
 }

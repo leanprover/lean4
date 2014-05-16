@@ -137,12 +137,12 @@ void expr_app::dealloc(buffer<expr_cell*> & todelete) {
 
 static unsigned dec(unsigned k) { return k == 0 ? 0 : k - 1; }
 
-bool operator==(expr_binder_info const & i1, expr_binder_info const & i2) {
+bool operator==(binder_info const & i1, binder_info const & i2) {
     return i1.is_implicit() == i2.is_implicit() && i1.is_cast() == i2.is_cast() && i1.is_contextual() == i2.is_contextual();
 }
 
 // Expr binders (Lambda, Pi)
-expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const & b, expr_binder_info const & i):
+expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr const & b, binder_info const & i):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
                    t.has_metavar()    || b.has_metavar(),
                    t.has_local()      || b.has_local(),
@@ -153,7 +153,7 @@ expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const
     m_body(b) {
     lean_assert(k == expr_kind::Lambda || k == expr_kind::Pi);
 }
-void expr_binder::dealloc(buffer<expr_cell*> & todelete) {
+void expr_binding::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body, todelete);
     dec_ref(m_binder.m_type, todelete);
     delete(this);
@@ -269,7 +269,7 @@ void expr_cell::dealloc() {
             case expr_kind::Sort:       delete static_cast<expr_sort*>(it); break;
             case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
             case expr_kind::Lambda:
-            case expr_kind::Pi:         static_cast<expr_binder*>(it)->dealloc(todo); break;
+            case expr_kind::Pi:         static_cast<expr_binding*>(it)->dealloc(todo); break;
             case expr_kind::Let:        static_cast<expr_let*>(it)->dealloc(todo); break;
             }
         }
@@ -400,8 +400,8 @@ expr update_rev_app(expr const & e, unsigned num, expr const * new_args) {
 }
 
 expr update_binder(expr const & e, expr const & new_domain, expr const & new_body) {
-    if (!is_eqp(binder_domain(e), new_domain) || !is_eqp(binder_body(e), new_body))
-        return copy_tag(e, mk_binder(e.kind(), binder_name(e), new_domain, new_body, binder_info(e)));
+    if (!is_eqp(binding_domain(e), new_domain) || !is_eqp(binding_body(e), new_body))
+        return copy_tag(e, mk_binder(e.kind(), binding_name(e), new_domain, new_body, binding_info(e)));
     else
         return e;
 }
@@ -428,7 +428,7 @@ expr update_sort(expr const & e, level const & new_level) {
 }
 
 expr update_constant(expr const & e, levels const & new_levels) {
-    if (!is_eqp(const_level_params(e), new_levels))
+    if (!is_eqp(const_levels(e), new_levels))
         return copy_tag(e, mk_constant(const_name(e), new_levels));
     else
         return e;
@@ -467,7 +467,7 @@ bool is_arrow(expr const & t) {
     if (r) {
         return *r;
     } else {
-        bool res = is_pi(t) && !has_free_var(binder_body(t), 0);
+        bool res = is_pi(t) && !has_free_var(binding_body(t), 0);
         t.raw()->set_is_arrow(res);
         return res;
     }
@@ -476,12 +476,12 @@ bool is_arrow(expr const & t) {
 expr copy(expr const & a) {
     switch (a.kind()) {
     case expr_kind::Var:      return mk_var(var_idx(a));
-    case expr_kind::Constant: return mk_constant(const_name(a), const_level_params(a));
+    case expr_kind::Constant: return mk_constant(const_name(a), const_levels(a));
     case expr_kind::Sort:     return mk_sort(sort_level(a));
     case expr_kind::Macro:    return mk_macro(to_macro(a)->m_definition, macro_num_args(a), macro_args(a));
     case expr_kind::App:      return mk_app(app_fn(a), app_arg(a));
-    case expr_kind::Lambda:   return mk_lambda(binder_name(a), binder_domain(a), binder_body(a), binder_info(a));
-    case expr_kind::Pi:       return mk_pi(binder_name(a), binder_domain(a), binder_body(a), binder_info(a));
+    case expr_kind::Lambda:   return mk_lambda(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
+    case expr_kind::Pi:       return mk_pi(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
     case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
     case expr_kind::Meta:     return mk_metavar(mlocal_name(a), mlocal_type(a));
     case expr_kind::Local:    return mk_local(mlocal_name(a), mlocal_type(a));

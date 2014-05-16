@@ -27,17 +27,17 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
         if (const_name(a) != const_name(b))
             return const_name(a) < const_name(b);
         else
-            return is_lt(const_level_params(a), const_level_params(b), use_hash);
+            return is_lt(const_levels(a), const_levels(b), use_hash);
     case expr_kind::App:
         if (app_fn(a) != app_fn(b))
             return is_lt(app_fn(a), app_fn(b), use_hash);
         else
             return is_lt(app_arg(a), app_arg(b), use_hash);
     case expr_kind::Lambda: case expr_kind::Pi:
-        if (binder_domain(a) != binder_domain(b))
-            return is_lt(binder_domain(a), binder_domain(b), use_hash);
+        if (binding_domain(a) != binding_domain(b))
+            return is_lt(binding_domain(a), binding_domain(b), use_hash);
         else
-            return is_lt(binder_body(a), binder_body(b), use_hash);
+            return is_lt(binding_body(a), binding_body(b), use_hash);
     case expr_kind::Sort:
         return is_lt(sort_level(a), sort_level(b), use_hash);
     case expr_kind::Let:

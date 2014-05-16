@@ -146,7 +146,7 @@ protected:
     }
 
     virtual expr visit_constant(expr const & c) {
-        return update_constant(c, visit_levels(const_level_params(c)));
+        return update_constant(c, visit_levels(const_levels(c)));
     }
 
     virtual expr visit_meta(expr const & m) {

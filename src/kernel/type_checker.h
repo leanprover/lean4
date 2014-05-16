@@ -84,7 +84,7 @@ public:
        The result is meaningful only if the constraints sent to the
        constraint handler can be solved.
     */
-    expr check(expr const & t, param_names const & ps = param_names());
+    expr check(expr const & t, level_param_names const & ps = level_param_names());
     /** \brief Return true iff t is definitionally equal to s. */
     bool is_def_eq(expr const & t, expr const & s);
     /** \brief Return true iff t is a proposition. */

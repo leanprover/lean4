@@ -37,7 +37,7 @@ static void tst2() {
     expr B = Const("Bool");
     expr t = Fun({x, B}, Fun({y, B}, x));
     lean_assert(closed(t));
-    lean_assert(!closed(binder_body(t)));
+    lean_assert(!closed(binding_body(t)));
 }
 
 static void tst3() {
@@ -53,7 +53,7 @@ static void tst3() {
     bool flag = true;
     while (is_lambda(r)) {
         flag = flag && closed(r);
-        r = binder_body(r);
+        r = binding_body(r);
     }
 }
 

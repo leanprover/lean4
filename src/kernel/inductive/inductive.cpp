@@ -8,14 +8,14 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace inductive {
-environment add_inductive(environment const & env,  name const & ind_name, level_params const & level_params,
+environment add_inductive(environment const & env,  name const & ind_name, level_param_names const & level_params,
                           telescope const & params, telescope const & indices, list<intro_rule> const & intro_rules,
                           optional<unsigned> const & univ_offset) {
     return add_inductive(env, level_params, params, list<inductive_decl>(std::make_tuple(ind_name, indices, intro_rules)), univ_offset);
 }
 
 environment add_inductive(environment const &          env,
-                          level_params const &         level_params,
+                          level_param_names const &    level_params,
                           telescope const &            params,
                           list<inductive_decl> const & decls,
                           optional<unsigned> const &   univ_offset) {

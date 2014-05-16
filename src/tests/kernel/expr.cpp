@@ -112,7 +112,7 @@ static unsigned count_core(expr const & a, expr_set & s) {
     case expr_kind::App:
         return count_core(app_fn(a), s) + count_core(app_arg(a), s) + 1;
     case expr_kind::Lambda: case expr_kind::Pi:
-        return count_core(binder_domain(a), s) + count_core(binder_body(a), s) + 1;
+        return count_core(binding_domain(a), s) + count_core(binding_body(a), s) + 1;
     case expr_kind::Let:
         return count_core(let_value(a), s) + count_core(let_body(a), s) + 1;
     }

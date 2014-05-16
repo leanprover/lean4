@@ -352,7 +352,14 @@ static int expr_fun(lua_State * L) { return expr_abst<Fun, Fun>(L); }
 static int expr_pi(lua_State * L)  { return expr_abst<Pi, Pi>(L); }
 static int expr_mk_sort(lua_State * L) { return push_expr(L, mk_sort(to_level(L, 1))); }
 static int expr_mk_metavar(lua_State * L) { return push_expr(L, mk_metavar(to_name_ext(L, 1), to_expr(L, 2))); }
-static int expr_mk_local(lua_State * L) { return push_expr(L, mk_local(to_name_ext(L, 1), to_expr(L, 2))); }
+static int expr_mk_local(lua_State * L) {
+    int nargs = lua_gettop(L);
+    name n    = to_name_ext(L, 1);
+    if (nargs == 2)
+        return push_expr(L, mk_local(n, n, to_expr(L, 2)));
+    else
+        return push_expr(L, mk_local(n, to_name_ext(L, 2), to_expr(L, 3)));
+}
 static int expr_get_kind(lua_State * L) { return push_integer(L, static_cast<int>(to_expr(L, 1).kind())); }
 
 // t is a table of pairs {{a1, b1, c1}, ..., {ak, bk, ck}}

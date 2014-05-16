@@ -126,7 +126,8 @@ public:
     friend expr mk_var(unsigned idx);
     friend expr mk_sort(level const & l);
     friend expr mk_constant(name const & n, levels const & ls);
-    friend expr mk_mlocal(bool is_meta, name const & n, expr const & t);
+    friend expr mk_metavar(name const & n, expr const & t);
+    friend expr mk_local(name const & n, name const & pp_n, expr const & t);
     friend expr mk_app(expr const & f, expr const & a);
     friend expr mk_pair(expr const & f, expr const & s, expr const & t);
     friend expr mk_proj(bool fst, expr const & p);
@@ -195,6 +196,17 @@ public:
     expr_mlocal(bool is_meta, name const & n, expr const & t);
     name const & get_name() const { return m_name; }
     expr const & get_type() const { return m_type; }
+};
+
+/** \brief expr_mlocal subclass for local constants. */
+class expr_local : public expr_mlocal {
+    // The name used in the binder that generate this local,
+    // it is only used for pretty printing. This field is ignored
+    // when comparing expressions.
+    name m_pp_name;
+public:
+    expr_local(name const & n, name const & pp_name, expr const & t);
+    name const & get_pp_name() const { return m_pp_name; }
 };
 
 /** \brief Composite expressions */
@@ -415,9 +427,8 @@ inline expr mk_constant(name const & n, levels const & ls) { return expr(new exp
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline expr Const(name const & n) { return mk_constant(n); }
 inline expr mk_macro(macro_definition const & m, unsigned num = 0, expr const * args = nullptr) { return expr(new expr_macro(m, num, args)); }
-inline expr mk_mlocal(bool is_meta, name const & n, expr const & t) { return expr(new expr_mlocal(is_meta, n, t)); }
-inline expr mk_metavar(name const & n, expr const & t) { return mk_mlocal(true, n, t); }
-inline expr mk_local(name const & n, expr const & t) { return mk_mlocal(false, n, t); }
+inline expr mk_metavar(name const & n, expr const & t) { return expr(new expr_mlocal(true, n, t)); }
+inline expr mk_local(name const & n, name const & pp_n, expr const & t) { return expr(new expr_local(n, pp_n, t)); }
 inline expr mk_app(expr const & f, expr const & a) { return expr(new expr_app(f, a)); }
        expr mk_app(expr const & f, unsigned num_args, expr const * args);
        expr mk_app(unsigned num_args, expr const * args);
@@ -493,7 +504,7 @@ inline expr_binding *     to_binding(expr_cell * e)    { lean_assert(is_binder(e
 inline expr_let *         to_let(expr_cell * e)        { lean_assert(is_let(e));         return static_cast<expr_let*>(e); }
 inline expr_sort *        to_sort(expr_cell * e)       { lean_assert(is_sort(e));        return static_cast<expr_sort*>(e); }
 inline expr_mlocal *      to_mlocal(expr_cell * e)     { lean_assert(is_mlocal(e));      return static_cast<expr_mlocal*>(e); }
-inline expr_mlocal *      to_local(expr_cell * e)      { lean_assert(is_local(e));       return static_cast<expr_mlocal*>(e); }
+inline expr_local *       to_local(expr_cell * e)      { lean_assert(is_local(e));       return static_cast<expr_local*>(e); }
 inline expr_mlocal *      to_metavar(expr_cell * e)    { lean_assert(is_metavar(e));     return static_cast<expr_mlocal*>(e); }
 inline expr_macro *       to_macro(expr_cell * e)      { lean_assert(is_macro(e));       return static_cast<expr_macro*>(e); }
 
@@ -505,7 +516,7 @@ inline expr_let *         to_let(expr const & e)         { return to_let(e.raw()
 inline expr_sort *        to_sort(expr const & e)        { return to_sort(e.raw()); }
 inline expr_mlocal *      to_mlocal(expr const & e)      { return to_mlocal(e.raw()); }
 inline expr_mlocal *      to_metavar(expr const & e)     { return to_metavar(e.raw()); }
-inline expr_mlocal *      to_local(expr const & e)       { return to_local(e.raw()); }
+inline expr_local *       to_local(expr const & e)       { return to_local(e.raw()); }
 inline expr_macro *       to_macro(expr const & e)       { return to_macro(e.raw()); }
 // =======================================
 
@@ -561,6 +572,7 @@ inline expr const &   let_type(expr const & e)              { return to_let(e)->
 inline expr const &   let_body(expr const & e)              { return to_let(e)->get_body(); }
 inline name const &   mlocal_name(expr const & e)           { return to_mlocal(e)->get_name(); }
 inline expr const &   mlocal_type(expr const & e)           { return to_mlocal(e)->get_type(); }
+inline name const &   local_pp_name(expr const & e)         { return to_local(e)->get_pp_name(); }
 
 inline bool is_constant(expr const & e, name const & n) { return is_constant(e) && const_name(e) == n; }
 inline bool has_metavar(expr const & e) { return e.has_metavar(); }

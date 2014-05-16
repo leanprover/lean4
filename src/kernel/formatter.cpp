@@ -99,7 +99,7 @@ struct print_expr_fn {
             out() << "?" << mlocal_name(a);
             break;
         case expr_kind::Local:
-            out() << "!" << mlocal_name(a);
+            out() << local_pp_name(a);
             break;
         case expr_kind::Var: {
             auto e = find(c, var_idx(a));

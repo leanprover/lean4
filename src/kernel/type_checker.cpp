@@ -85,7 +85,7 @@ struct type_checker::imp {
         It also returns the fresh local constant.
      */
     std::pair<expr, expr> open_binding_body(expr const & e) {
-        expr local     = mk_local(m_gen.next() + binding_name(e), binding_domain(e));
+        expr local     = mk_local(m_gen.next(), binding_name(e), binding_domain(e));
         return mk_pair(instantiate(binding_body(e), local), local);
     }
 

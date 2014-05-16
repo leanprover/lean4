@@ -59,7 +59,7 @@ static void tst1() {
     auto env3 = add_def(env2, mk_definition("id", level_param_names(),
                                             Pi(A, mk_Type(), A >> A),
                                             Fun({{A, mk_Type()}, {x, A}}, x)));
-    expr c  = mk_local("c", Bool);
+    expr c  = mk_local("c", "c", Bool);
     expr id = Const("id");
     type_checker checker(env3, name_generator("tmp"));
     lean_assert(checker.check(id(Bool)) == Bool >> Bool);
@@ -90,8 +90,8 @@ static void tst2() {
     expr f97 = Const(name(base, 97));
     expr f98 = Const(name(base, 98));
     expr f3  = Const(name(base, 3));
-    expr c1  =  mk_local("c1", Bool);
-    expr c2  = mk_local("c2", Bool);
+    expr c1  =  mk_local("c1", "c1", Bool);
+    expr c2  = mk_local("c2", "c2", Bool);
     expr id = Const("id");
     std::cout << checker.whnf(f3(c1, c2)) << "\n";
     lean_assert_eq(env.find(name(base, 98))->get_weight(), 98);

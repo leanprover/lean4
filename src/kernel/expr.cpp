@@ -114,6 +114,10 @@ void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
     delete(this);
 }
 
+expr_local::expr_local(name const & n, name const & pp_name, expr const & t):
+    expr_mlocal(false, n, t),
+    m_pp_name(pp_name) {}
+
 // Composite expressions
 expr_composite::expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ, unsigned d, unsigned fv_range):
     expr_cell(k, h, has_mv, has_local, has_param_univ),
@@ -263,8 +267,8 @@ void expr_cell::dealloc() {
             switch (it->kind()) {
             case expr_kind::Var:        delete static_cast<expr_var*>(it); break;
             case expr_kind::Macro:      static_cast<expr_macro*>(it)->dealloc(todo); break;
-            case expr_kind::Meta:
-            case expr_kind::Local:      static_cast<expr_mlocal*>(it)->dealloc(todo); break;
+            case expr_kind::Meta:       static_cast<expr_mlocal*>(it)->dealloc(todo); break;
+            case expr_kind::Local:      static_cast<expr_local*>(it)->dealloc(todo); break;
             case expr_kind::Constant:   delete static_cast<expr_const*>(it); break;
             case expr_kind::Sort:       delete static_cast<expr_sort*>(it); break;
             case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
@@ -414,10 +418,12 @@ expr update_let(expr const & e, expr const & new_type, expr const & new_val, exp
 }
 
 expr update_mlocal(expr const & e, expr const & new_type) {
-    if (!is_eqp(mlocal_type(e), new_type))
-        return copy_tag(e, mk_mlocal(is_metavar(e), mlocal_name(e), new_type));
-    else
+    if (is_eqp(mlocal_type(e), new_type))
         return e;
+    else if (is_metavar(e))
+        return copy_tag(e, mk_metavar(mlocal_name(e), new_type));
+    else
+        return copy_tag(e, mk_local(mlocal_name(e), local_pp_name(e), new_type));
 }
 
 expr update_sort(expr const & e, level const & new_level) {
@@ -484,7 +490,7 @@ expr copy(expr const & a) {
     case expr_kind::Pi:       return mk_pi(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
     case expr_kind::Let:      return mk_let(let_name(a), let_type(a), let_value(a), let_body(a));
     case expr_kind::Meta:     return mk_metavar(mlocal_name(a), mlocal_type(a));
-    case expr_kind::Local:    return mk_local(mlocal_name(a), mlocal_type(a));
+    case expr_kind::Local:    return mk_local(mlocal_name(a), local_pp_name(a), mlocal_type(a));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

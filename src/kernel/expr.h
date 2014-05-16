@@ -242,14 +242,18 @@ class binder {
     friend class expr_binding;
     name             m_name;
     expr             m_type;
-    binder_info m_info;
+    binder_info      m_info;
 public:
     binder(name const & n, expr const & t, binder_info const & bi = binder_info()):
         m_name(n), m_type(t), m_info(bi) {}
     name const & get_name() const { return m_name; }
     expr const & get_type() const { return m_type; }
     binder_info const & get_info() const { return m_info; }
+    binder update_type(expr const & t) const { return binder(m_name, t, m_info); }
 };
+
+// Remark: in a telescope T, variable 0 is the last element of the list, and head(T) is variable #(length(T) - 1)
+typedef list<binder> telescope;
 
 /** \brief Lambda and Pi expressions */
 class expr_binding : public expr_composite {

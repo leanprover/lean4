@@ -11,8 +11,8 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
+// Remark: in a nonempty context C, variable 0 is head(C)
 typedef list<binder> context;
-typedef context      telescope;
 inline context extend(context const & c, name const & n, expr const & t) { return cons(binder(n, t), c); }
 inline context extend(context const & c, binder const & b) { return cons(b, c); }
 binder const & lookup(context const & c, unsigned i);

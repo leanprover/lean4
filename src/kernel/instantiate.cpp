@@ -40,6 +40,17 @@ expr instantiate(expr const & e, std::initializer_list<expr> const & l) {  retur
 expr instantiate(expr const & e, unsigned i, expr const & s) { return instantiate(e, i, 1, &s); }
 expr instantiate(expr const & e, expr const & s) { return instantiate(e, 0, s); }
 
+telescope instantiate(telescope const & t, unsigned i, expr const & s) {
+    if (is_nil(t)) {
+        return t;
+    } else {
+        binder const & b = head(t);
+        return telescope(b.update_type(instantiate(b.get_type(), i, s)),
+                         instantiate(tail(t), i+1, s));
+    }
+}
+telescope instantiate(telescope const & t, expr const & s) { return instantiate(t, s); }
+
 bool is_head_beta(expr const & t) {
     expr const * it = &t;
     while (is_app(*it)) {

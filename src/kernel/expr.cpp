@@ -117,6 +117,10 @@ void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
 expr_local::expr_local(name const & n, name const & pp_name, expr const & t):
     expr_mlocal(false, n, t),
     m_pp_name(pp_name) {}
+void expr_local::dealloc(buffer<expr_cell*> & todelete) {
+    dec_ref(m_type, todelete);
+    delete(this);
+}
 
 // Composite expressions
 expr_composite::expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ, unsigned d, unsigned fv_range):

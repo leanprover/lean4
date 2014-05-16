@@ -188,6 +188,7 @@ public:
 
 /** \brief Metavariables and local constants */
 class expr_mlocal : public expr_cell {
+protected:
     name   m_name;
     expr   m_type;
     friend expr_cell;
@@ -204,6 +205,8 @@ class expr_local : public expr_mlocal {
     // it is only used for pretty printing. This field is ignored
     // when comparing expressions.
     name m_pp_name;
+    friend expr_cell;
+    void dealloc(buffer<expr_cell*> & todelete);
 public:
     expr_local(name const & n, name const & pp_name, expr const & t);
     name const & get_pp_name() const { return m_pp_name; }

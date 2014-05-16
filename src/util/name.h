@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "util/list.h"
 
 namespace lean {
-constexpr char const * lean_name_separator = "::";
+constexpr char const * lean_name_separator = ".";
 enum class name_kind { ANONYMOUS, STRING, NUMERAL };
 /**
    \brief Hierarchical names.

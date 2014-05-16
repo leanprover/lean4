@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/formatter.h"
 #include "kernel/context.h"
+#include "kernel/environment.h"
 
 namespace lean {
 /**
@@ -14,6 +15,7 @@ namespace lean {
 */
 struct print_expr_fn {
     std::ostream & m_out;
+    bool m_type0_as_bool;
 
     std::ostream & out() { return m_out; }
 
@@ -38,8 +40,11 @@ struct print_expr_fn {
 
     void print_sort(expr const & a) {
         if (is_zero(sort_level(a))) {
-            out() << "Bool";
-        } else if (is_one(sort_level(a))) {
+            if (m_type0_as_bool)
+                out() << "Bool";
+            else
+                out() << "Type";
+        } else if (m_type0_as_bool && is_one(sort_level(a))) {
             out() << "Type";
         } else {
             out() << "Type.{" << sort_level(a) << "}";
@@ -145,7 +150,7 @@ struct print_expr_fn {
         }
     }
 
-    print_expr_fn(std::ostream & out):m_out(out) {}
+    print_expr_fn(std::ostream & out, bool type0_as_bool = true):m_out(out), m_type0_as_bool(type0_as_bool) {}
 
     void operator()(expr const & e, context const & c) {
         print(e, c);
@@ -160,8 +165,11 @@ std::ostream & operator<<(std::ostream & out, expr const & e) {
 
 class simple_formatter_cell : public formatter_cell {
 public:
-    virtual format operator()(environment const &, expr const & e, options const &) {
-        std::ostringstream s; s << e; return format(s.str());
+    virtual format operator()(environment const & env, expr const & e, options const &) {
+        std::ostringstream s;
+        print_expr_fn pr(s, env.prop_proof_irrel());
+        pr(e, context());
+        return format(s.str());
     }
 };
 formatter mk_simple_formatter() {

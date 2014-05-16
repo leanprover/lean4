@@ -16,12 +16,6 @@ namespace inductive {
 /** \brief Return a normalizer extension for inductive dataypes. */
 std::unique_ptr<normalizer_extension> mk_extension();
 
-/** \brief Simple telescope */
-typedef list<std::tuple<name,             // binder name, used only for pretty printing
-                        expr,             // type
-                        expr_binder_info
-                        >> telescope;
-
 /** \brief Introduction rule */
 typedef std::tuple<name,              // introduction rule name
                    telescope,         // arguments

@@ -22,7 +22,7 @@ environment add_inductive(environment const &          env,
     // TODO(Leo)
     std::cout << "add_inductive\n";
     for (auto l : level_params) { std::cout << l << " "; } std::cout << "\n";
-    for (auto e : params) { std::cout << std::get<0>(e) << " "; } std::cout << "\n";
+    for (auto e : params) { std::cout << e.get_name() << " "; } std::cout << "\n";
     for (auto d : decls) { std::cout << std::get<0>(d) << " "; } std::cout << "\n";
     if (univ_offset) std::cout << "offset: " << *univ_offset << "\n";
     return env;

@@ -149,15 +149,13 @@ expr_binder::expr_binder(expr_kind k, name const & n, expr const & t, expr const
                    t.has_param_univ() || b.has_param_univ(),
                    std::max(get_depth(t), get_depth(b)) + 1,
                    std::max(get_free_var_range(t), dec(get_free_var_range(b)))),
-    m_name(n),
-    m_domain(t),
-    m_body(b),
-    m_info(i) {
+    m_binder(n, t, i),
+    m_body(b) {
     lean_assert(k == expr_kind::Lambda || k == expr_kind::Pi);
 }
 void expr_binder::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body, todelete);
-    dec_ref(m_domain, todelete);
+    dec_ref(m_binder.m_type, todelete);
     delete(this);
 }
 

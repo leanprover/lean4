@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/metavar.h"
 #include "kernel/error_msgs.h"
 #include "kernel/type_checker.h"
+#include "kernel/inductive/inductive.h"
 #include "library/occurs.h"
 #include "library/io_state_stream.h"
 #include "library/expr_lt.h"
@@ -1630,6 +1631,18 @@ static void open_type_checker(lua_State * L) {
     SET_GLOBAL_FUN(type_check, "type_check");
     SET_GLOBAL_FUN(type_check, "check");
     SET_GLOBAL_FUN(add_declaration, "add_decl");
+}
+
+telescope to_telescope(lua_State * L, int idx) {
+    luaL_checktype(L, idx, LUA_TTABLE);
+    lua_pushvalue(L, idx);  // push table on the top
+    int sz = objlen(L, -1); // get table size
+    telescope r;
+    for (int i = sz; i >= 1; i--) {
+        // TODO(Leo)
+    }
+    lua_pop(L, 1); // pop table from the top
+    return r;
 }
 
 void open_kernel_module(lua_State * L) {

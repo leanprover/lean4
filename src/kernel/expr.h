@@ -238,20 +238,33 @@ public:
 bool operator==(expr_binder_info const & i1, expr_binder_info const & i2);
 inline bool operator!=(expr_binder_info const & i1, expr_binder_info const & i2) { return !(i1 == i2); }
 
+class binder {
+    friend class expr_binder;
+    name             m_name;
+    expr             m_type;
+    expr_binder_info m_info;
+public:
+    binder(name const & n, expr const & t, expr_binder_info const & bi):
+        m_name(n), m_type(t), m_info(bi) {}
+    name const & get_name() const { return m_name; }
+    expr const & get_type() const { return m_type; }
+    expr_binder_info const & get_info() const { return m_info; }
+};
+
+typedef list<binder> telescope;
+
 /** \brief Super class for lambda and pi */
 class expr_binder : public expr_composite {
-    name             m_name;
-    expr             m_domain;
+    binder           m_binder;
     expr             m_body;
-    expr_binder_info m_info;
     friend class expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
 public:
     expr_binder(expr_kind k, name const & n, expr const & t, expr const & e, expr_binder_info const & i = expr_binder_info());
-    name const & get_name() const   { return m_name; }
-    expr const & get_domain() const { return m_domain; }
+    name const & get_name() const   { return m_binder.get_name(); }
+    expr const & get_domain() const { return m_binder.get_type(); }
     expr const & get_body() const   { return m_body; }
-    expr_binder_info const & get_info() const { return m_info; }
+    expr_binder_info const & get_info() const { return m_binder.get_info(); }
 };
 
 /** \brief Let expressions */

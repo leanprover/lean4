@@ -74,8 +74,6 @@ public:
     friend definition mk_theorem(name const & n, param_names const & params, expr const & t, expr const & v);
     friend definition mk_axiom(name const & n, param_names const & params, expr const & t);
     friend definition mk_var_decl(name const & n, param_names const & params, expr const & t);
-
-    void write(serializer & s) const;
 };
 
 inline optional<definition> none_definition() { return optional<definition>(); }

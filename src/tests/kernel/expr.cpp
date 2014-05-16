@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/max_sharing.h"
+#include "library/kernel_serializer.h"
 using namespace lean;
 
 static void check_serializer(expr const & e) {

@@ -308,12 +308,6 @@ public:
     virtual unsigned hash() const;
     virtual void write(serializer & s) const = 0;
     typedef std::function<expr(deserializer&, unsigned, expr const *)> reader;
-    static void register_deserializer(std::string const & k, reader rd);
-    struct register_deserializer_fn {
-        register_deserializer_fn(std::string const & k, macro_definition_cell::reader rd) {
-            macro_definition_cell::register_deserializer(k, rd);
-        }
-    };
 };
 
 /** \brief Smart pointer for macro definitions */
@@ -623,13 +617,6 @@ expr update_mlocal(expr const & e, expr const & new_type);
 expr update_sort(expr const & e, level const & new_level);
 expr update_constant(expr const & e, levels const & new_levels);
 expr update_macro(expr const & e, unsigned num, expr const * args);
-// =======================================
-
-// =======================================
-// Serializer/Deserializer
-serializer & operator<<(serializer & s, expr const & e);
-expr read_expr(deserializer & d);
-inline deserializer & operator>>(deserializer & d, expr & e) { e = read_expr(d); return d; }
 // =======================================
 
 std::ostream & operator<<(std::ostream & out, expr const & e);

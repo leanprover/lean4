@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include <utility>
 #include "util/name.h"
 #include "util/optional.h"
-#include "util/serializer.h"
 #include "util/list.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/options.h"
@@ -197,13 +196,6 @@ std::ostream & operator<<(std::ostream & out, level const & l);
    in \c l, eval(A, l) != zero.
 */
 bool is_not_zero(level const & l);
-
-serializer & operator<<(serializer & s, level const & l);
-level read_level(deserializer & d);
-inline deserializer & operator>>(deserializer & d, level & l) { l = read_level(d); return d; }
-
-serializer & operator<<(serializer & s, levels const & ls);
-levels read_levels(deserializer & d);
 
 /** \brief Pretty print the given level expression, unicode characters are used if \c unicode is \c true. */
 format pp(level l, bool unicode, unsigned indent);

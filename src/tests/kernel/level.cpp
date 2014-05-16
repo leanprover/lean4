@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/exception.h"
 #include "kernel/level.h"
+#include "library/kernel_serializer.h"
 using namespace lean;
 
 static void check_serializer(level const & l) {

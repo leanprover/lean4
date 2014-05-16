@@ -9,9 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 
 namespace lean {
-static serializer & operator<<(serializer & s, param_names const & ps) { return write_list<name>(s, ps); }
-static param_names read_params(deserializer & d) { return read_list<name>(d); }
-
 struct definition::cell {
     MK_LEAN_RC();
     name           m_name;
@@ -39,25 +36,6 @@ struct definition::cell {
          bool opaque, unsigned w, module_idx mod_idx, bool use_conv_opt):
         m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_thm),
         m_value(v), m_weight(w), m_module_idx(mod_idx), m_opaque(opaque), m_use_conv_opt(use_conv_opt) {}
-
-    void write(serializer & s) const {
-        char k = 0;
-        if (m_value) {
-            k |= 1;
-            if (m_opaque)
-                k |= 2;
-            if (m_use_conv_opt)
-                k |= 4;
-        }
-        if (m_theorem)
-            k |= 8;
-        s << k << m_name << m_params << m_type;
-        if (m_value) {
-            s << *m_value;
-            if (!m_theorem)
-                s << m_weight;
-        }
-    }
 };
 
 definition g_dummy = mk_axiom(name(), param_names(), expr());
@@ -86,8 +64,6 @@ unsigned definition::get_weight() const { return m_ptr->m_weight; }
 module_idx definition::get_module_idx() const { return m_ptr->m_module_idx; }
 bool definition::use_conv_opt() const { return m_ptr->m_use_conv_opt; }
 
-void definition::write(serializer & s) const { m_ptr->write(s); }
-
 definition mk_definition(name const & n, param_names const & params, expr const & t, expr const & v,
                          bool opaque, unsigned weight, module_idx mod_idx, bool use_conv_opt) {
     return definition(new definition::cell(n, params, t, false, v, opaque, weight, mod_idx, use_conv_opt));
@@ -113,30 +89,5 @@ definition mk_axiom(name const & n, param_names const & params, expr const & t) 
 }
 definition mk_var_decl(name const & n, param_names const & params, expr const & t) {
     return definition(new definition::cell(n, params, t, false));
-}
-
-definition read_definition(deserializer & d, unsigned module_idx) {
-    char k = d.read_char();
-    bool has_value  = (k & 1) != 0;
-    bool is_theorem = (k & 8) != 0;
-    name n          = read_name(d);
-    param_names ps  = read_params(d);
-    expr t          = read_expr(d);
-    if (has_value) {
-        expr v      = read_expr(d);
-        if (is_theorem) {
-            return mk_theorem(n, ps, t, v);
-        } else {
-            unsigned w        = d.read_unsigned();
-            bool is_opaque    = (k & 2) != 0;
-            bool use_conv_opt = (k & 4) != 0;
-            return mk_definition(n, ps, t, v, is_opaque, w, module_idx, use_conv_opt);
-        }
-    } else {
-        if (is_theorem)
-            return mk_axiom(n, ps, t);
-        else
-            return mk_var_decl(n, ps, t);
-    }
 }
 }

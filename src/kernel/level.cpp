@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "util/list.h"
 #include "util/debug.h"
 #include "util/hash.h"
-#include "util/object_serializer.h"
 #include "util/interrupt.h"
 #include "kernel/level.h"
 #include "kernel/environment.h"
@@ -350,90 +349,6 @@ bool is_lt(levels const & as, levels const & bs, bool use_hash) {
     else
         return is_lt(car(as), car(bs), use_hash);
 }
-
-class level_serializer : public object_serializer<level, level::ptr_hash, level::ptr_eq> {
-    typedef object_serializer<level, level::ptr_hash, level::ptr_eq> super;
-public:
-    void write(level const & l) {
-        super::write(l, [&]() {
-                serializer & s = get_owner();
-                auto k = kind(l);
-                s << static_cast<char>(k);
-                switch (k) {
-                case level_kind::Zero:
-                    break;
-                case level_kind::Param: case level_kind::Global: case level_kind::Meta:
-                    s << to_param_core(l).m_id;
-                    break;
-                case level_kind::Max: case level_kind::IMax:
-                    write(to_max_core(l).m_lhs);
-                    write(to_max_core(l).m_rhs);
-                    break;
-                case level_kind::Succ:
-                    write(succ_of(l));
-                    break;
-                }
-            });
-    }
-};
-
-class level_deserializer : public object_deserializer<level> {
-    typedef object_deserializer<level> super;
-public:
-    level read() {
-        return super::read([&]() -> level {
-                deserializer & d = get_owner();
-                auto k = static_cast<level_kind>(d.read_char());
-                switch (k) {
-                case level_kind::Zero:
-                    return mk_level_zero();
-                case level_kind::Param:
-                    return mk_param_univ(read_name(d));
-                case level_kind::Global:
-                    return mk_global_univ(read_name(d));
-                case level_kind::Meta:
-                    return mk_meta_univ(read_name(d));
-                case level_kind::Max: {
-                    level lhs = read();
-                    return mk_max(lhs, read());
-                }
-                case level_kind::IMax: {
-                    level lhs = read();
-                    return mk_imax(lhs, read());
-                }
-                case level_kind::Succ:
-                    return mk_succ(read());
-                }
-                throw_corrupted_file();
-            });
-    }
-};
-
-struct level_sd {
-    unsigned m_s_extid;
-    unsigned m_d_extid;
-    level_sd() {
-        m_s_extid = serializer::register_extension([](){
-                return std::unique_ptr<serializer::extension>(new level_serializer());
-            });
-        m_d_extid = deserializer::register_extension([](){
-                return std::unique_ptr<deserializer::extension>(new level_deserializer());
-            });
-    }
-};
-
-static level_sd g_level_sd;
-
-serializer & operator<<(serializer & s, level const & n) {
-    s.get_extension<level_serializer>(g_level_sd.m_s_extid).write(n);
-    return s;
-}
-
-level read_level(deserializer & d) { return d.get_extension<level_deserializer>(g_level_sd.m_d_extid).read(); }
-
-serializer & operator<<(serializer & s, levels const & ls) { return write_list<level>(s, ls); }
-
-levels read_levels(deserializer & d) { return read_list<level>(d, read_level); }
 
 bool has_param(levels const & ls) { return std::any_of(ls.begin(), ls.end(), [](level const & l) { return has_param(l); }); }
 bool has_global(levels const & ls) { return std::any_of(ls.begin(), ls.end(), [](level const & l) { return has_global(l); }); }

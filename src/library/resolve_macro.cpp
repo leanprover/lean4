@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/free_vars.h"
 #include "library/kernel_bindings.h"
+#include "library/kernel_serializer.h"
 #include "library/bin_app.h"
 
 namespace lean {
@@ -288,7 +289,7 @@ expr mk_resolve_macro(expr const & l, expr const & H1, expr const & H2) {
     return mk_macro(g_resolve_macro_definition, 3, args);
 }
 
-macro_definition_cell::register_deserializer_fn
+register_macro_deserializer_fn
 resolve_macro_des_fn(g_resolve_opcode,
                      [](deserializer &, unsigned num, expr const * args) {
                          if (num != 3)

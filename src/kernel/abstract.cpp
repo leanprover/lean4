@@ -43,7 +43,7 @@ telescope abstract(telescope const & t, expr const & s) { return abstract(t, s, 
 expr abstract_p(expr const & e, unsigned n, expr const * s) {
     lean_assert(std::all_of(s, s+n, closed));
     return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
-            if (closed) {
+            if (closed(e)) {
                 unsigned i = n;
                 while (i > 0) {
                     --i;

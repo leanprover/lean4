@@ -41,19 +41,26 @@ inline expr abstract_p(expr const & e, expr const & s) { return abstract_p(e, 1,
 /**
    \brief Create a lambda expression (lambda (x : t) b), the term b is abstracted using abstract(b, constant(x)).
 */
-inline expr Fun(name const & n, expr const & t, expr const & b) { return mk_lambda(n, t, abstract(b, mk_constant(n))); }
-inline expr Fun(expr const & n, expr const & t, expr const & b) { return mk_lambda(const_name(n), t, abstract(b, n)); }
+inline expr Fun(name const & n, expr const & t, expr const & b, binder_info const & bi = binder_info()) {
+    return mk_lambda(n, t, abstract(b, mk_constant(n)), bi);
+}
+inline expr Fun(expr const & n, expr const & t, expr const & b, binder_info const & bi = binder_info()) {
+    return mk_lambda(const_name(n), t, abstract(b, n), bi);
+}
 inline expr Fun(std::pair<expr const &, expr const &> const & p, expr const & b) { return Fun(p.first, p.second, b); }
-       expr Fun(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b);
+expr Fun(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b);
 
 /**
    \brief Create a Pi expression (pi (x : t) b), the term b is abstracted using abstract(b, constant(x)).
 */
-inline expr Pi(name const & n, expr const & t, expr const & b) { return mk_pi(n, t, abstract(b, mk_constant(n))); }
-inline expr Pi(expr const & n, expr const & t, expr const & b) { return mk_pi(const_name(n), t, abstract(b, n)); }
+inline expr Pi(name const & n, expr const & t, expr const & b, binder_info const & bi = binder_info()) {
+    return mk_pi(n, t, abstract(b, mk_constant(n)), bi);
+}
+inline expr Pi(expr const & n, expr const & t, expr const & b, binder_info const & bi = binder_info()) {
+    return mk_pi(const_name(n), t, abstract(b, n), bi);
+}
 inline expr Pi(std::pair<expr const &, expr const &> const & p, expr const & b) { return Pi(p.first, p.second, b); }
-       expr Pi(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b);
-
+expr Pi(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b);
 
 /**
 -   \brief Create a Let expression (Let x := v in b), the term b is abstracted using abstract(b, x).

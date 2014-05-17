@@ -74,7 +74,7 @@ struct default_converter : public converter {
             } else if (is_app(new_b) && is_var(app_arg(new_b), 0) && !has_free_var(app_fn(new_b), 0)) {
                 return lower_free_vars(app_fn(new_b), 1);
             } else {
-                return update_binder(e, binding_domain(e), new_b);
+                return update_binding(e, binding_domain(e), new_b);
             }
         } else if (is_app(b) && is_var(app_arg(b), 0) && !has_free_var(app_fn(b), 0)) {
             return lower_free_vars(app_fn(b), 1);
@@ -294,9 +294,9 @@ struct default_converter : public converter {
         and
         body(t) is definitionally equal to body(s)
     */
-    bool is_def_eq_binder(expr t, expr s, context & c, delayed_justification & jst) {
+    bool is_def_eq_binding(expr t, expr s, context & c, delayed_justification & jst) {
         lean_assert(t.kind() == s.kind());
-        lean_assert(is_binder(t));
+        lean_assert(is_binding(t));
         expr_kind k = t.kind();
         buffer<expr> subst;
         do {
@@ -323,7 +323,7 @@ struct default_converter : public converter {
         if (t.kind() == s.kind()) {
             switch (t.kind()) {
             case expr_kind::Lambda: case expr_kind::Pi:
-                return to_lbool(is_def_eq_binder(t, s, c, jst));
+                return to_lbool(is_def_eq_binding(t, s, c, jst));
             case expr_kind::Sort:
                 // t and s are Sorts
                 if (is_equivalent(sort_level(t), sort_level(s))) {

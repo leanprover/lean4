@@ -9,6 +9,11 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
+name pick_unused_name(expr const &, name const & s) {
+    // TODO(Leo)
+    return s;
+}
+
 /**
    \brief Very basic printer for expressions.
    It is mainly used when debugging code.
@@ -68,7 +73,7 @@ struct print_expr_fn {
             return print_child(a, c);
     }
 
-    void print_binder(char const * bname, expr const & e, context const & c) {
+    void print_binding(char const * bname, expr const & e, context const & c) {
         out() << bname << " ";
         if (binding_info(e).is_implicit())
             out() << "{";
@@ -121,11 +126,11 @@ struct print_expr_fn {
             print_app(a, c);
             break;
         case expr_kind::Lambda:
-            print_binder("fun", a, c);
+            print_binding("fun", a, c);
             break;
         case expr_kind::Pi:
             if (!is_arrow(a)) {
-                print_binder("Pi", a, c);
+                print_binding("Pi", a, c);
             } else {
                 print_child(binding_domain(a), c);
                 out() << " -> ";

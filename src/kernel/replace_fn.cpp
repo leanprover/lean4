@@ -98,7 +98,7 @@ expr replace_fn::operator()(expr const & e) {
                 goto begin_loop;
             if (check_index(f, 1) && !visit(binding_body(e), offset + 1))
                 goto begin_loop;
-            r = update_binder(e, rs(-2), rs(-1));
+            r = update_binding(e, rs(-2), rs(-1));
             pop_rs(2);
             break;
         case expr_kind::Let:

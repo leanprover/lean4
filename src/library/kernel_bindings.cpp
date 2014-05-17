@@ -248,9 +248,9 @@ expr & to_app(lua_State * L, int idx) {
     return r;
 }
 
-expr & to_binder(lua_State * L, int idx) {
+expr & to_binding(lua_State * L, int idx) {
     expr & r = to_expr(L, idx);
-    if (!is_binder(r))
+    if (!is_binding(r))
         throw exception(sstream() << "arg #" << idx << " must be a binder (i.e., lambda or Pi)");
     return r;
 }
@@ -476,7 +476,7 @@ EXPR_PRED(is_var)
 EXPR_PRED(is_app)
 EXPR_PRED(is_lambda)
 EXPR_PRED(is_pi)
-EXPR_PRED(is_binder)
+EXPR_PRED(is_binding)
 EXPR_PRED(is_let)
 EXPR_PRED(is_macro)
 EXPR_PRED(is_metavar)
@@ -593,10 +593,10 @@ static int expr_abstract(lua_State * L) {
     }
 }
 
-static int binding_name(lua_State * L) { return push_name(L, binding_name(to_binder(L, 1))); }
-static int binding_domain(lua_State * L) { return push_expr(L, binding_domain(to_binder(L, 1))); }
-static int binding_body(lua_State * L) { return push_expr(L, binding_body(to_binder(L, 1))); }
-static int binding_info(lua_State * L) { return push_binder_info(L, binding_info(to_binder(L, 1))); }
+static int binding_name(lua_State * L) { return push_name(L, binding_name(to_binding(L, 1))); }
+static int binding_domain(lua_State * L) { return push_expr(L, binding_domain(to_binding(L, 1))); }
+static int binding_body(lua_State * L) { return push_expr(L, binding_body(to_binding(L, 1))); }
+static int binding_info(lua_State * L) { return push_binder_info(L, binding_info(to_binding(L, 1))); }
 
 static int let_name(lua_State * L) { return push_name(L, let_name(to_let(L, 1))); }
 static int let_type(lua_State * L) { return push_expr(L, let_type(to_let(L, 1))); }
@@ -642,7 +642,7 @@ static const struct luaL_Reg expr_m[] = {
     {"is_app",           safe_function<expr_is_app>},
     {"is_lambda",        safe_function<expr_is_lambda>},
     {"is_pi",            safe_function<expr_is_pi>},
-    {"is_binder",        safe_function<expr_is_binder>},
+    {"is_binding",       safe_function<expr_is_binding>},
     {"is_let",           safe_function<expr_is_let>},
     {"is_macro",         safe_function<expr_is_macro>},
     {"is_meta",          safe_function<expr_is_meta>},

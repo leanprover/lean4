@@ -36,7 +36,7 @@ struct max_sharing_fn::imp {
             res = update_app(a, apply(app_fn(a)), apply(app_arg(a)));
             break;
         case expr_kind::Lambda: case expr_kind::Pi:
-            res = update_binder(a, apply(binding_domain(a)), apply(binding_body(a)));
+            res = update_binding(a, apply(binding_domain(a)), apply(binding_body(a)));
             break;
         case expr_kind::Let:
             res = update_let(a, apply(let_type(a)), apply(let_value(a)), apply(let_body(a)));

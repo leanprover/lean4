@@ -180,12 +180,12 @@ public:
 class expr_deserializer : public object_deserializer<expr> {
     typedef object_deserializer<expr> super;
 public:
-    expr read_binder(expr_kind k) {
-        deserializer & d = get_owner();
+    expr read_binding(expr_kind k) {
+        deserializer & d   = get_owner();
         name n             = read_name(d);
         binder_info i      = read_binder_info(d);
         expr t             = read();
-        return mk_binder(k, n, t, read(), i);
+        return mk_binding(k, n, t, read(), i);
     }
 
     expr read() {
@@ -214,7 +214,7 @@ public:
                     return mk_app(f, read());
                 }
                 case expr_kind::Lambda: case expr_kind::Pi:
-                    return read_binder(k);
+                    return read_binding(k);
                 case expr_kind::Let: {
                     name n = read_name(d);
                     expr t = read();

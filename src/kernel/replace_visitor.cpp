@@ -22,14 +22,14 @@ expr replace_visitor::visit_app(expr const & e) {
     lean_assert(is_app(e));
     return update_app(e, visit(app_fn(e)), visit(app_arg(e)));
 }
-expr replace_visitor::visit_binder(expr const & e) {
-    lean_assert(is_binder(e));
+expr replace_visitor::visit_binding(expr const & e) {
+    lean_assert(is_binding(e));
     expr new_d = visit(binding_domain(e));
     expr new_b = visit(binding_body(e));
-    return update_binder(e, new_d, new_b);
+    return update_binding(e, new_d, new_b);
 }
-expr replace_visitor::visit_lambda(expr const & e) { return visit_binder(e); }
-expr replace_visitor::visit_pi(expr const & e) { return visit_binder(e); }
+expr replace_visitor::visit_lambda(expr const & e) { return visit_binding(e); }
+expr replace_visitor::visit_pi(expr const & e) { return visit_binding(e); }
 expr replace_visitor::visit_let(expr const & e) {
     lean_assert(is_let(e));
     expr new_t = visit(let_type(e));

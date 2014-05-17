@@ -131,7 +131,7 @@ public:
     friend expr mk_app(expr const & f, expr const & a);
     friend expr mk_pair(expr const & f, expr const & s, expr const & t);
     friend expr mk_proj(bool fst, expr const & p);
-    friend expr mk_binder(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i);
+    friend expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i);
     friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & e);
     friend expr mk_macro(macro_definition const & m, unsigned num, expr const * args);
 
@@ -397,7 +397,7 @@ inline bool is_lambda(expr_cell * e)      { return e->kind() == expr_kind::Lambd
 inline bool is_pi(expr_cell * e)          { return e->kind() == expr_kind::Pi; }
 inline bool is_sort(expr_cell * e)        { return e->kind() == expr_kind::Sort; }
 inline bool is_let(expr_cell * e)         { return e->kind() == expr_kind::Let; }
-inline bool is_binder(expr_cell * e)      { return is_lambda(e) || is_pi(e); }
+inline bool is_binding(expr_cell * e)     { return is_lambda(e) || is_pi(e); }
 inline bool is_mlocal(expr_cell * e)      { return is_metavar(e) || is_local(e); }
 
 inline bool is_var(expr const & e)        { return e.kind() == expr_kind::Var; }
@@ -410,7 +410,7 @@ inline bool is_lambda(expr const & e)     { return e.kind() == expr_kind::Lambda
 inline bool is_pi(expr const & e)         { return e.kind() == expr_kind::Pi; }
 inline bool is_sort(expr const & e)       { return e.kind() == expr_kind::Sort; }
 inline bool is_let(expr const & e)        { return e.kind() == expr_kind::Let; }
-inline bool is_binder(expr const & e)     { return is_lambda(e) || is_pi(e); }
+inline bool is_binding(expr const & e)    { return is_lambda(e) || is_pi(e); }
 inline bool is_mlocal(expr const & e)     { return is_metavar(e) || is_local(e); }
 
 bool is_atomic(expr const & e);
@@ -438,14 +438,14 @@ template<typename T> expr mk_app(T const & args) { return mk_app(args.size(), ar
        expr mk_rev_app(unsigned num_args, expr const * args);
 template<typename T> expr mk_rev_app(T const & args) { return mk_rev_app(args.size(), args.data()); }
 template<typename T> expr mk_rev_app(expr const & f, T const & args) { return mk_rev_app(f, args.size(), args.data()); }
-inline expr mk_binder(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i = binder_info()) {
+inline expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i = binder_info()) {
     return expr(new expr_binding(k, n, t, e, i));
 }
 inline expr mk_lambda(name const & n, expr const & t, expr const & e, binder_info const & i = binder_info()) {
-    return mk_binder(expr_kind::Lambda, n, t, e, i);
+    return mk_binding(expr_kind::Lambda, n, t, e, i);
 }
 inline expr mk_pi(name const & n, expr const & t, expr const & e, binder_info const & i = binder_info()) {
-    return mk_binder(expr_kind::Pi, n, t, e, i);
+    return mk_binding(expr_kind::Pi, n, t, e, i);
 }
 inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return expr(new expr_let(n, t, v, e)); }
 inline expr mk_sort(level const & l) { return expr(new expr_sort(l)); }
@@ -500,7 +500,7 @@ expr mk_app_vars(expr const & f, unsigned n);
 inline expr_var *         to_var(expr_cell * e)        { lean_assert(is_var(e));         return static_cast<expr_var*>(e); }
 inline expr_const *       to_constant(expr_cell * e)   { lean_assert(is_constant(e));    return static_cast<expr_const*>(e); }
 inline expr_app *         to_app(expr_cell * e)        { lean_assert(is_app(e));         return static_cast<expr_app*>(e); }
-inline expr_binding *     to_binding(expr_cell * e)    { lean_assert(is_binder(e));      return static_cast<expr_binding*>(e); }
+inline expr_binding *     to_binding(expr_cell * e)    { lean_assert(is_binding(e));     return static_cast<expr_binding*>(e); }
 inline expr_let *         to_let(expr_cell * e)        { lean_assert(is_let(e));         return static_cast<expr_let*>(e); }
 inline expr_sort *        to_sort(expr_cell * e)       { lean_assert(is_sort(e));        return static_cast<expr_sort*>(e); }
 inline expr_mlocal *      to_mlocal(expr_cell * e)     { lean_assert(is_mlocal(e));      return static_cast<expr_mlocal*>(e); }
@@ -636,7 +636,7 @@ struct expr_cell_offset_eqp { unsigned operator()(expr_cell_offset const & p1, e
 expr update_app(expr const & e, expr const & new_fn, expr const & new_arg);
 expr update_rev_app(expr const & e, unsigned num, expr const * new_args);
 template<typename C> expr update_rev_app(expr const & e, C const & c) { return update_rev_app(e, c.size(), c.data()); }
-expr update_binder(expr const & e, expr const & new_domain, expr const & new_body);
+expr update_binding(expr const & e, expr const & new_domain, expr const & new_body);
 expr update_let(expr const & e, expr const & new_type, expr const & new_val, expr const & new_body);
 expr update_mlocal(expr const & e, expr const & new_type);
 expr update_sort(expr const & e, level const & new_level);

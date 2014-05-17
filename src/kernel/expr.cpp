@@ -406,9 +406,9 @@ expr update_rev_app(expr const & e, unsigned num, expr const * new_args) {
     return e;
 }
 
-expr update_binder(expr const & e, expr const & new_domain, expr const & new_body) {
+expr update_binding(expr const & e, expr const & new_domain, expr const & new_body) {
     if (!is_eqp(binding_domain(e), new_domain) || !is_eqp(binding_body(e), new_body))
-        return copy_tag(e, mk_binder(e.kind(), binding_name(e), new_domain, new_body, binding_info(e)));
+        return copy_tag(e, mk_binding(e.kind(), binding_name(e), new_domain, new_body, binding_info(e)));
     else
         return e;
 }

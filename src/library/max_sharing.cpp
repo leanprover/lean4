@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include <functional>
 #include "util/buffer.h"
 #include "util/interrupt.h"
-#include "kernel/max_sharing.h"
+#include "library/max_sharing.h"
 
 namespace lean {
 /**

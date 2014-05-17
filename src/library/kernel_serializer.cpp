@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/object_serializer.h"
 #include "kernel/expr.h"
 #include "kernel/definition.h"
-#include "kernel/max_sharing.h"
+#include "library/max_sharing.h"
 #include "library/kernel_serializer.h"
 
 // Procedures for serializing and deserializing kernel objects (levels, exprs, definitions)

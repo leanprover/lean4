@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include "util/test.h"
+#include "library/max_sharing.h"
 #include "kernel/abstract.h"
-#include "kernel/max_sharing.h"
 using namespace lean;
 
 static void tst1() {

@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
-#include "kernel/max_sharing.h"
+#include "library/max_sharing.h"
 #include "library/kernel_serializer.h"
 using namespace lean;
 

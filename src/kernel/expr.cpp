@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"
 #include "kernel/free_vars.h"
-#include "kernel/max_sharing.h"
 
 namespace lean {
 static expr g_dummy(mk_var(0));

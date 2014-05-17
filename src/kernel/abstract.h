@@ -19,6 +19,8 @@ namespace lean {
 expr abstract(expr const & e, unsigned n, expr const * s);
 inline expr abstract(expr const & e, expr const & s) { return abstract(e, 1, &s); }
 inline expr abstract(expr const & e, std::initializer_list<expr> const & l) { return abstract(e, l.size(), l.begin()); }
+/** \brief Replace s with variable #i in the given telescope. \pre s is closed */
+expr abstract(expr const & e, expr const & s, unsigned i);
 
 /**
     \brief Replace s with variable #i in the given telescope.

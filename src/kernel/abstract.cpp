@@ -26,14 +26,15 @@ expr abstract(expr const & e, unsigned s, unsigned n, expr const * subst) {
         });
 }
 expr abstract(expr const & e, unsigned n, expr const * subst) { return abstract(e, 0, n, subst); }
+expr abstract(expr const & e, expr const & s, unsigned i) { return abstract(e, i, 1, &s); }
 
 telescope abstract(telescope const & t, expr const & s, unsigned i) {
     if (is_nil(t)) {
         return t;
     } else {
         binder const & b = head(t);
-        return telescope(b.update_type(abstract(b.get_type(), i, 1, &s)),
-                         abstract(head(t), s, i+1));
+        return telescope(b.update_type(abstract(b.get_type(), s, i)),
+                         abstract(tail(t), s, i+1));
     }
 }
 

@@ -60,6 +60,8 @@ static level mk_offset(level const & l, int k) {
 static level to_level_ext(lua_State * L, int idx) {
     if (lua_isnumber(L, idx))
         return mk_offset(mk_level_zero(), lua_tonumber(L, idx));
+    else if (lua_isstring(L, idx) || is_name(L, idx))
+        return mk_param_univ(to_name_ext(L, idx));
     else
         return to_level(L, idx);
 }
@@ -84,8 +86,21 @@ static int level_lt(lua_State * L) {
 static int mk_level_zero(lua_State * L)  { return push_level(L, mk_level_zero()); }
 static int mk_level_one(lua_State * L)   { return push_level(L, mk_level_one());  }
 static int mk_level_succ(lua_State * L)  { return push_level(L, mk_succ(to_level_ext(L, 1))); }
-static int mk_level_max(lua_State * L)   { return push_level(L, mk_max(to_level_ext(L, 1), to_level_ext(L, 2))); }
-static int mk_level_imax(lua_State * L)  { return push_level(L, mk_imax(to_level_ext(L, 1), to_level_ext(L, 2))); }
+template<level (*F)(level const & l1, level const & l2)>
+static int mk_level_max_core(lua_State * L)   {
+    int nargs = lua_gettop(L);
+    level r;
+    if (nargs == 0) r = mk_level_zero();
+    else if (nargs == 1) r = to_level_ext(L, 1);
+    else {
+        r = F(to_level_ext(L, nargs - 1), to_level_ext(L, nargs));
+        for (int i = nargs - 2; i >= 1; i--)
+            r = F(to_level_ext(L, i), r);
+    }
+    return push_level(L, r);
+}
+static int mk_level_max(lua_State * L) { return mk_level_max_core<mk_max>(L); }
+static int mk_level_imax(lua_State * L) { return mk_level_max_core<mk_imax>(L); }
 static int mk_param_univ(lua_State * L)  { return push_level(L, mk_param_univ(to_name_ext(L, 1))); }
 static int mk_global_univ(lua_State * L) { return push_level(L, mk_global_univ(to_name_ext(L, 1))); }
 static int mk_meta_univ(lua_State * L)   { return push_level(L, mk_meta_univ(to_name_ext(L, 1))); }
@@ -142,6 +157,9 @@ static int level_instantiate(lua_State * L) {
     return push_level(L, instantiate(to_level(L, 1), ps, ls));
 }
 
+static int level_is_geq_core(lua_State * L) { return push_boolean(L, is_geq_core(to_level(L, 1), to_level_ext(L, 2))); }
+static int level_is_geq(lua_State * L) { return push_boolean(L, is_geq(to_level(L, 1), to_level_ext(L, 2))); }
+
 static const struct luaL_Reg level_m[] = {
     {"__gc",            level_gc}, // never throws
     {"__tostring",      safe_function<level_tostring>},
@@ -164,6 +182,8 @@ static const struct luaL_Reg level_m[] = {
     {"is_equivalent",   safe_function<level_is_equivalent>},
     {"is_eqp",          safe_function<level_is_eqp>},
     {"is_lt",           safe_function<level_lt>},
+    {"is_geq",          safe_function<level_is_geq>},
+    {"is_geq_core",     safe_function<level_is_geq_core>},
     {"id",              safe_function<level_id>},
     {"lhs",             safe_function<level_lhs>},
     {"rhs",             safe_function<level_rhs>},
@@ -189,6 +209,12 @@ static void open_level(lua_State * L) {
     SET_GLOBAL_FUN(mk_param_univ,   "mk_param_univ");
     SET_GLOBAL_FUN(mk_global_univ,  "mk_global_univ");
     SET_GLOBAL_FUN(mk_meta_univ,    "mk_meta_univ");
+    SET_GLOBAL_FUN(mk_level_succ,   "succ_univ");
+    SET_GLOBAL_FUN(mk_level_max,    "max_univ");
+    SET_GLOBAL_FUN(mk_level_imax,   "imax_univ");
+    SET_GLOBAL_FUN(mk_param_univ,   "param_univ");
+    SET_GLOBAL_FUN(mk_global_univ,  "global_univ");
+    SET_GLOBAL_FUN(mk_meta_univ,    "meta_univ");
 
     SET_GLOBAL_FUN(level_pred, "is_level");
 

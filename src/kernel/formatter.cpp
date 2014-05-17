@@ -4,14 +4,44 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <utility>
 #include "kernel/formatter.h"
-#include "kernel/context.h"
 #include "kernel/environment.h"
+#include "kernel/find_fn.h"
+#include "kernel/instantiate.h"
+#include "kernel/free_vars.h"
 
 namespace lean {
-name pick_unused_name(expr const &, name const & s) {
-    // TODO(Leo)
-    return s;
+bool is_used_name(expr const & t, name const & n) {
+    return static_cast<bool>(
+        find(t, [&](expr const & e, unsigned) {
+                return (is_constant(e) && const_name(e) == n)  // t has a constant named n
+                    || (is_local(e) && (mlocal_name(e) == n || local_pp_name(e) == n)); // t has a local constant named n
+            }));
+}
+
+name pick_unused_name(expr const & t, name const & s) {
+    name r = s;
+    unsigned i = 1;
+    while (is_used_name(t, r)) {
+        r = name(s, i);
+        i++;
+    }
+    return r;
+}
+
+std::pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
+    lean_assert(is_binding(b));
+    name n = pick_unused_name(binding_body(b), binding_name(b));
+    expr c = mk_local(n, n, preserve_type ? binding_domain(b) : expr());
+    return mk_pair(instantiate(binding_body(b), c), c);
+}
+
+std::pair<expr, expr> let_body_fresh(expr const & l, bool preserve_type) {
+    lean_assert(is_let(l));
+    name n = pick_unused_name(let_body(l), let_name(l));
+    expr c = mk_local(n, n, preserve_type ? let_type(l) : expr());
+    return mk_pair(instantiate(let_body(l), c), c);
 }
 
 /**
@@ -28,18 +58,18 @@ struct print_expr_fn {
         return ::lean::is_atomic(a) || is_mlocal(a);
     }
 
-    void print_child(expr const & a, context const & c) {
+    void print_child(expr const & a) {
         if (is_atomic(a)) {
-            print(a, c);
+            print(a);
         } else {
-            out() << "("; print(a, c); out() << ")";
+            out() << "("; print(a); out() << ")";
         }
     }
 
-    void print_macro(expr const & a, context const & c) {
+    void print_macro(expr const & a) {
         macro_def(a).display(out());
         for (unsigned i = 0; i < macro_num_args(a); i++) {
-            out() << " "; print_child(macro_arg(a, i), c);
+            out() << " "; print_child(macro_arg(a, i));
         }
     }
 
@@ -56,37 +86,53 @@ struct print_expr_fn {
         }
     }
 
-    void print_app(expr const & e, context const & c) {
+    void print_app(expr const & e) {
         expr const & f = app_fn(e);
         if (is_app(f))
-            print(f, c);
+            print(f);
         else
-            print_child(f, c);
+            print_child(f);
         out() << " ";
-        print_child(app_arg(e), c);
+        print_child(app_arg(e));
     }
 
-    void print_arrow_body(expr const & a, context const & c) {
+    void print_arrow_body(expr const & a) {
         if (is_atomic(a) || is_arrow(a))
-            return print(a, c);
+            return print(a);
         else
-            return print_child(a, c);
+            return print_child(a);
     }
 
-    void print_binding(char const * bname, expr const & e, context const & c) {
+    void print_let(expr const & a) {
+        auto p = let_body_fresh(a);
+        expr const & b = p.first;
+        expr const & n = p.second;
+        out() << "let " << n;
+        out() << " : ";
+        print(let_type(a));
+        out() << " := ";
+        print(let_value(a));
+        out() << " in ";
+        print_child(b);
+    }
+
+    void print_binding(char const * bname, expr const & e) {
+        auto p = binding_body_fresh(e);
+        expr const & b = p.first;
+        expr const & n = p.second;
         out() << bname << " ";
         if (binding_info(e).is_implicit())
             out() << "{";
         else if (binding_info(e).is_cast())
             out() << "[";
-        out() << binding_name(e) << " : ";
-        print_child(binding_domain(e), c);
+        out() << n << " : ";
+        print_child(binding_domain(e));
         if (binding_info(e).is_implicit())
             out() << "}";
         else if (binding_info(e).is_cast())
             out() << "]";
         out() << ", ";
-        print_child(binding_body(e), extend(c, binding_name(e), binding_domain(e)));
+        print_child(b);
     }
 
     void print_const(expr const & a) {
@@ -103,7 +149,7 @@ struct print_expr_fn {
         }
     }
 
-    void print(expr const & a, context const & c) {
+    void print(expr const & a) {
         switch (a.kind()) {
         case expr_kind::Meta:
             out() << "?" << mlocal_name(a);
@@ -111,60 +157,49 @@ struct print_expr_fn {
         case expr_kind::Local:
             out() << local_pp_name(a);
             break;
-        case expr_kind::Var: {
-            auto e = find(c, var_idx(a));
-            if (e)
-                out() << e->get_name() << "#" << var_idx(a);
-            else
-                out() << "#" << var_idx(a);
+        case expr_kind::Var:
+            out() << "#" << var_idx(a);
             break;
-        }
         case expr_kind::Constant:
             print_const(a);
             break;
         case expr_kind::App:
-            print_app(a, c);
+            print_app(a);
             break;
         case expr_kind::Lambda:
-            print_binding("fun", a, c);
+            print_binding("fun", a);
             break;
         case expr_kind::Pi:
             if (!is_arrow(a)) {
-                print_binding("Pi", a, c);
+                print_binding("Pi", a);
             } else {
-                print_child(binding_domain(a), c);
+                print_child(binding_domain(a));
                 out() << " -> ";
-                print_arrow_body(binding_body(a), extend(c, binding_binder(a)));
+                print_arrow_body(lower_free_vars(binding_body(a), 1));
             }
             break;
         case expr_kind::Let:
-            out() << "let " << let_name(a);
-            out() << " : ";
-            print(let_type(a), c);
-            out() << " := ";
-            print(let_value(a), c);
-            out() << " in ";
-            print_child(let_body(a), extend(c, let_name(a), let_value(a)));
+            print_let(a);
             break;
         case expr_kind::Sort:
             print_sort(a);
             break;
         case expr_kind::Macro:
-            print_macro(a, c);
+            print_macro(a);
             break;
         }
     }
 
     print_expr_fn(std::ostream & out, bool type0_as_bool = true):m_out(out), m_type0_as_bool(type0_as_bool) {}
 
-    void operator()(expr const & e, context const & c) {
-        print(e, c);
+    void operator()(expr const & e) {
+        print(e);
     }
 };
 
 std::ostream & operator<<(std::ostream & out, expr const & e) {
     print_expr_fn pr(out);
-    pr(e, context());
+    pr(e);
     return out;
 }
 
@@ -173,7 +208,7 @@ public:
     virtual format operator()(environment const & env, expr const & e, options const &) {
         std::ostringstream s;
         print_expr_fn pr(s, env.prop_proof_irrel());
-        pr(e, context());
+        pr(e);
         return format(s.str());
     }
 };

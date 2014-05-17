@@ -6,10 +6,23 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include <utility>
 #include "util/sexpr/options.h"
 #include "kernel/expr.h"
 
 namespace lean {
+/**
+    \brief Return the body of the binding \c b, where variable #0 is replaced by a local constant with a "fresh" name.
+    The name is considered fresh if it is not used by a constant or local constant occuring in the body of \c b.
+    The fresh constant is also returned (second return value).
+
+    \remark If preserve_type is false, then the local constant will not use binding_domain.
+*/
+std::pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type = false);
+
+/** \brief Return the body of the let-expression \c l, where variable #0 is replaced by a local constant with a "fresh" name. */
+std::pair<expr, expr> let_body_fresh(expr const & l, bool preserve_type = false);
+
 /**
    \brief API for formatting expressions
 */

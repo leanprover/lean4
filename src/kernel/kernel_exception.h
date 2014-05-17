@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/exception.h"
 #include "util/sexpr/options.h"
-#include "kernel/context.h"
 #include "kernel/environment.h"
 #include "kernel/formatter.h"
 

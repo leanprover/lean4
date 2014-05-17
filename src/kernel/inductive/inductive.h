@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include <tuple>
 #include "util/list.h"
 #include "kernel/environment.h"
-#include "kernel/context.h"
 
 namespace lean {
 namespace inductive {

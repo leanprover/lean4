@@ -33,7 +33,7 @@ inline expr const & inductive_decl_type(inductive_decl const & d) { return std::
 inline list<intro_rule> const & inductive_decl_intros(inductive_decl const & d) { return std::get<2>(d); }
 
 /** \brief Declare a finite set of mutually dependent inductive datatypes. */
-environment add_inductive(environment const &          env,
+environment add_inductive(environment                  env,
                           level_param_names const &    level_params,
                           unsigned                     num_params,
                           list<inductive_decl> const & decls);

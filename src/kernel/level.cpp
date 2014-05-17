@@ -659,5 +659,28 @@ bool is_equivalent(level const & lhs, level const & rhs) {
     check_system("level constraints");
     return lhs == rhs || normalize(lhs) == normalize(rhs);
 }
+
+bool is_geq_core(level l1, level l2) {
+    if (l1 == l2)
+        return true;
+    if (is_max(l2))
+        return is_geq(l1, max_lhs(l2)) && is_geq(l1, max_rhs(l2));
+    if (is_imax(l2))
+        return is_geq(l1, imax_lhs(l2)) && is_geq(l1, imax_rhs(l2));
+    if (is_max(l1))
+        return is_geq(max_lhs(l1), l2) || is_geq(max_rhs(l1), l2);
+    if (is_imax(l1))
+        return is_geq(imax_rhs(l1), l2);
+    auto p1 = to_offset(l1);
+    auto p2 = to_offset(l2);
+    if (p1.first == p2.first)
+        return p1.second >= p2.second;
+    if (p1.second == p2.second && p1.second > 0)
+        return is_geq(p1.first, p2.first);
+    return false;
+}
+bool is_geq(level const & l1, level const & l2) {
+    return is_geq_core(normalize(l1), normalize(l2));
+}
 }
 void print(lean::level const & l) { std::cout << l << std::endl; }

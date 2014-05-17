@@ -144,6 +144,17 @@ bool is_equivalent(level const & lhs, level const & rhs);
 /** \brief Return the given level expression normal form */
 level normalize(level const & l);
 
+/**
+   \brief If the result is true, then forall assignments \c A that assigns all parameters, globals and metavariables occuring
+   in \c l1 and \l2, we have that the universe level l1[A] is bigger or equal to l2[A].
+
+   \remark This function assumes l1 and l2 are normalized
+*/
+bool is_geq_core(level l1, level l2);
+
+bool is_geq(level const & l1, level const & l2);
+
+
 typedef list<level> levels;
 
 bool has_meta(levels const & ls);
@@ -192,8 +203,8 @@ level instantiate(level const & l, level_param_names const & ps, levels const & 
 std::ostream & operator<<(std::ostream & out, level const & l);
 
 /**
-   \brief If the result is true, then forall assignments \c A that assigns all parameters and metavariables occuring
-   in \c l, eval(A, l) != zero.
+   \brief If the result is true, then forall assignments \c A that assigns all parameters, globals and metavariables occuring
+   in \c l, l[A] != zero.
 */
 bool is_not_zero(level const & l);
 

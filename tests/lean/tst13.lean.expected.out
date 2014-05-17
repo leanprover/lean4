@@ -1,4 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-λ x x : Bool, x
-let x := ⊤, y := ⊤, z := x ∧ y, f := λ x y : Bool, x ∧ y = y ∧ x = x ∨ y ∨ y in f x y ∨ z

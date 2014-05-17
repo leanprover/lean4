@@ -1,1 +1,0 @@
-print true /\ a

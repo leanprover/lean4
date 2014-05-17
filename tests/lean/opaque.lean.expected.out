@@ -1,7 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'macros'
-  Imported 'subtype'
-  Imported 'optional'
-  Using: subtype
-  Using: optional

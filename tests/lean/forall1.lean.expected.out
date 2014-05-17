@@ -1,6 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Int'
-  Assumed: P
-  Assumed: Ax
-Ax : ∀ x : ℤ, P x

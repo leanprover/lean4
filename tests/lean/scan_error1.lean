@@ -1,4 +1,0 @@
-..
-print "begin"
-..
-print "done"

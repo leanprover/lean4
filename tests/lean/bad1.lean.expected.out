@@ -1,7 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Int'
-  Assumed: g
-  Assumed: a
-  Assumed: b
-  Assumed: H1

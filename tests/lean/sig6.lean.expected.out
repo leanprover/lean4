@@ -1,8 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Assumed: A
-  Assumed: B
-  Assumed: t1
-  Assumed: t2
-  Assumed: pair_Ax
-  Proved: spairext

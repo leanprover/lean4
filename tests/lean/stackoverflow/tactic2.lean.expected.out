@@ -1,7 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-Error (line: 2, pos: 32) deep recursion was detected at 'REPEAT tactical' (potential solution: increase stack space in your system)
-Error (line: 3, pos: 4) invalid 'done' command, proof cannot be produced from this state
-Proof state:
-a : Bool ⊢ a
-Error (line: 4, pos: 0) invalid tactic command, unexpected end of file

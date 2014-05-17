@@ -1,8 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Int'
-ℤ → ℤ → ℤ
-  Assumed: f
-f 0
-f 0 : ℤ → ℤ
-f 0 1 : ℤ

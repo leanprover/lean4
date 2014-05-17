@@ -1,9 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Int'
-  Assumed: PlusComm
-  Assumed: a
-funext (λ x : ℤ, PlusComm a x) : (λ x : ℤ, a + x) = (λ x : ℤ, x + a)
-  Set: lean::pp::implicit
-@funext ℤ (λ x : ℤ, ℤ) (λ x : ℤ, a + x) (λ x : ℤ, x + a) (λ x : ℤ, PlusComm a x) :
-    @eq (∀ x : ℤ, (λ x : ℤ, ℤ) x) (λ x : ℤ, a + x) (λ x : ℤ, x + a)

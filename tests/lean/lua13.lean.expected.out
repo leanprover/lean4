@@ -1,9 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Int'
-  Assumed: x
-  Assumed: y
-  Assumed: z
-  Assumed: f
-λ w : ℤ, f w (f y 0)
-f #0 (f y 0)

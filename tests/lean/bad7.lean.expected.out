@@ -1,8 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Real'
-  Assumed: f
-  Assumed: a
-  Assumed: b
-  Defined: tst
-definition tst : Bool := (λ x y : ℝ, f x y) a b

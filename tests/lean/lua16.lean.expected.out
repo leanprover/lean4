@@ -1,7 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Int'
-  Assumed: a
-  Assumed: b
-Int::add a b
-a + b

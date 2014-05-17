@@ -1,6 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Proved: T
-  Assumed: p
-  Assumed: q
-  Proved: T2

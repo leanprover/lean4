@@ -1,8 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Int'
-  Assumed: P
-  Proved: T1
-  Assumed: Ax
-  Proved: T2
-  Proved: T3

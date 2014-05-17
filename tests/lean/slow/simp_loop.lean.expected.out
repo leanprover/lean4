@@ -1,9 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'tactic'
-  Imported 'macros'
-  Assumed: f
-  Assumed: g
-  Assumed: Ax1
-  Assumed: Ax2
-simp_loop.lean:13:1: error: deep recursion was detected at 'simplifier', this is probably due to a non-terminating set of rewrite rules, you may use a simplifier_monitor object to track the simplifier behavior (see the simplifier manual); if your problem is very big, you may try to increase stack space in your system

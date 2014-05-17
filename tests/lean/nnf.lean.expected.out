@@ -1,8 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Assumed: p
-  Assumed: f
-  Assumed: g
-¬ (∀ x : ℕ, (∃ y : ℕ, p x y ∨ p (f x) (f y)) ∨ f 0 = 1)
-====>
-(∃ x : ℕ, (∀ y : ℕ, ¬ p x y) ∧ (∀ y : ℕ, ¬ p (f x) (f y))) ∧ ¬ f 0 = 1

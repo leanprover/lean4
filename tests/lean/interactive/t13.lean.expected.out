@@ -1,6 +1,0 @@
-#   Set: pp::colors
-  Set: pp::unicode
-  Proved: T1
-theorem T1 (A B : Bool) (assumption : A ∧ B) : B ∧ A :=
-    let lemma1 := and_eliml assumption, lemma2 := and_elimr assumption in and_intro lemma2 lemma1
-# 

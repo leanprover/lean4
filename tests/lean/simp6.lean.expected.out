@@ -1,5 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Assumed: a
-  Assumed: b
-⊤	trans (congr2 (eq (a + b)) (Nat::add_comm b a)) (eq_id (a + b))	false

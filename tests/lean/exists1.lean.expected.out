@@ -1,8 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Int'
-  Assumed: a
-  Assumed: P
-  Assumed: H
-  Proved: T
-theorem T : ∃ x : ℤ, P a a := exists_intro a H

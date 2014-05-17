@@ -1,8 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Int'
-10 + 20 + 20
-0
-10 + 20 + 30 + 40
-λ x : ℤ, x + 10 + x + 20
-230

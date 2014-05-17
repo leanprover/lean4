@@ -1,6 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Int'
-  Assumed: f
-  Assumed: a
-  Defined: tst

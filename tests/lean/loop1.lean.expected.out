@@ -1,4 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-executing: (*print('hello')*)
-hello

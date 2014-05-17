@@ -1,5 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Set: lean::pp::implicit
-let P : ℕ → Bool := λ x : ℕ, @neq ℕ x 0, Q : ∀ x : ℕ, P (x + 1) := λ x : ℕ, Nat::succ_nz x in Q :
-    ∀ x : ℕ, (λ x : ℕ, @neq ℕ x 0) (x + 1)

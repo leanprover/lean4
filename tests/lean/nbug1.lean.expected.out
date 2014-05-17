@@ -1,3 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-nbug1.lean:1:1: error: invalid notation declaration, at least one placeholder expected

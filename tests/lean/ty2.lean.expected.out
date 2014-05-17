@@ -1,8 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Defined: B
-  Defined: T
-  Assumed: N
-  Assumed: x
-  Assumed: a
-  Assumed: H

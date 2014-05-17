@@ -1,8 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'num'
-  Imported 'tactic'
-  Using: num
-  Assumed: a
-  Assumed: b
-  Proved: T1

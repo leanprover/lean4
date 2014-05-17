@@ -1,7 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Int'
-  Assumed: i
-i = 0 : Bool
-  Set: lean::pp::coercion
-i = nat_to_int 0 : Bool

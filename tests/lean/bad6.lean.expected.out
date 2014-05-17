@@ -1,8 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Imported 'Int'
-  Imported 'Real'
-  Assumed: f
-  Assumed: a
-  Assumed: b
-  Defined: tst

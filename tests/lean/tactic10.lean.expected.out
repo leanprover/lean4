@@ -1,8 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Defined: f
-  Defined: g
-  Proved: T1
-  Defined: h
-  Proved: T2
-theorem T2 (a b : Bool) (H : h a b) (H::1 : f b) : a := or_elim H (λ H : a, H) (λ H : b, absurd_elim a H H::1)

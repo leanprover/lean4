@@ -1,5 +1,0 @@
-  Set: pp::colors
-  Set: pp::unicode
-  Proved: simple
-theorem simple (p q r : Bool) (H_pq_qr : (p → q) ∧ (q → r)) (H_p : p) : r :=
-    let P_pq : p → q := and_eliml H_pq_qr, P_qr : q → r := and_elimr H_pq_qr, P_q : q := P_pq H_p in P_qr P_q

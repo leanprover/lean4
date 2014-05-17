@@ -301,7 +301,10 @@ static expr get_expr_from_table(lua_State * L, int t, int i) {
 }
 
 static void throw_invalid_binder_table(int t) {
-    throw exception(sstream() << "arg #" << t << " must be a table {e_1, ..., e_k} where each entry e_i is of the form: {expr, expr}, {expr, expr, bool}, or {expr, expr, binder_info}, each entry represents a binder, the first expression in each entry must be a (local) constant, the second expression is the type, the optional Boolean can be used to mark implicit arguments.");
+    if (t > 0)
+        throw exception(sstream() << "arg #" << t << " must be a table {e_1, ..., e_k} where each entry e_i is of the form: {expr, expr}, {expr, expr, bool}, or {expr, expr, binder_info}, each entry represents a binder, the first expression in each entry must be a (local) constant, the second expression is the type, the optional Boolean can be used to mark implicit arguments.");
+    else
+        throw exception(sstream() << "invalid binder, it must of the form: {expr, expr}, {expr, expr, bool}, or {expr, expr, binder_info}, each entry represents a binder, the first expression in each entry must be a (local) constant, the second expression is the type, the optional Boolean can be used to mark implicit arguments.");
 }
 
 // t is a table of tuples {{a1, b1}, ..., {ak, bk}}
@@ -1669,16 +1672,116 @@ static void open_type_checker(lua_State * L) {
     SET_GLOBAL_FUN(add_declaration, "add_decl");
 }
 
-telescope to_telescope(lua_State * L, int idx) {
+template<typename T, typename F>
+static std::pair<telescope, T> to_telescope(lua_State * L, int idx, T const & v, F const & v_abst) {
     luaL_checktype(L, idx, LUA_TTABLE);
     lua_pushvalue(L, idx);  // push table on the top
     int sz = objlen(L, -1); // get table size
     telescope r;
+    T new_v = v;
     for (int i = sz; i >= 1; i--) {
-        // TODO(Leo)
+        auto const & t    = get_binder_from_table(L, -1, i);
+        expr const & a    = std::get<0>(t);
+        expr const & a_ty = std::get<1>(t);
+        binder_info const & bi = std::get<2>(t);
+        r = telescope(binder(const_name(a), a_ty, bi), abstract(r, a));
+        new_v = v_abst(new_v, a, sz-i);
     }
     lua_pop(L, 1); // pop table from the top
+    return mk_pair(r, new_v);
+}
+static telescope to_telescope(lua_State * L, int idx) {
+    return to_telescope<int>(L, idx, 0, [](int, expr const &, int) { return 0; }).first;
+}
+
+namespace inductive {
+static intro_rule to_intro_rule(lua_State * L, int idx) {
+    luaL_checktype(L, idx, LUA_TTABLE);
+    lua_pushvalue(L, idx);  // push table on the top
+    if (objlen(L, idx) != 3)
+        throw exception("invalid introduction rule, it must have three arguments: name, telescope (arguments), type");
+    lua_rawgeti(L, -1, 1);
+    lua_rawgeti(L, -2, 2);
+    lua_rawgeti(L, -3, 3);
+    name n   = to_name_ext(L, -3);
+    expr ty  = to_expr(L, -1);
+    auto args_ty   = to_telescope<expr>(L, -2, ty,
+                                        [](expr const & v, expr const & a, unsigned i) -> expr {
+                                            return abstract(v, a, i);
+                                        });
+    lua_pop(L, 4);
+    return intro_rule(n, args_ty.first, args_ty.second);
+}
+
+static inductive_decl to_inductive_decl(lua_State * L, int idx) {
+    luaL_checktype(L, idx, LUA_TTABLE);
+    lua_pushvalue(L, idx);  // push table on the top
+    int sz = objlen(L, idx);
+    if (sz < 2)
+        throw exception("invalid inductive decl, it must have at least two arguments: name, indices");
+    list<intro_rule> rs;
+    for (int i = sz; i >= 3; i--) {
+        lua_rawgeti(L, -1, i);
+        rs = list<intro_rule>(to_intro_rule(L, -1), rs);
+        lua_pop(L, 1);
+    }
+    lua_rawgeti(L, -1, 2);
+    telescope const & indices = to_telescope(L, -1);
+    lua_pop(L, 1);
+    lua_rawgeti(L, -1, 1);
+    name const & n    = to_name_ext(L, -1);
+    lua_pop(L, 2);
+    return inductive_decl(n, indices, rs);
+}
+
+inductive_decl abstract(inductive_decl const & d, expr const & a, unsigned i = 0) {
+    telescope const & indices = inductive_decl_indices(d);
+    return inductive_decl(inductive_decl_name(d), abstract(indices, a, i), inductive_decl_intros(d));
+}
+
+list<inductive_decl> abstract(list<inductive_decl> const & ds, expr const & a, unsigned i = 0) {
+    return map(ds, [&](inductive_decl const & d) { return abstract(d, a, i); });
+}
+
+static list<inductive_decl> to_inductive_decls(lua_State * L, int idx) {
+    luaL_checktype(L, idx, LUA_TTABLE);
+    lua_pushvalue(L, idx);  // push table on the top
+    int sz = objlen(L, idx);
+    list<inductive_decl> r;
+    for (int i = sz; i >= 1; i--) {
+        lua_rawgeti(L, -1, i);
+        r = list<inductive_decl>(to_inductive_decl(L, -1), r);
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
     return r;
+}
+
+static int add_inductive(lua_State * L) {
+    int nargs = lua_gettop(L);
+    environment  env          = to_environment(L, 1);
+    level_param_names  ls     = to_level_param_names(L, 2);
+    list<inductive_decl> ds   = to_inductive_decls(L, 4);
+    optional<unsigned> offset(0);
+    if (nargs == 5) {
+        if (lua_isnil(L, 5))
+            offset = optional<unsigned>();
+        else
+            offset = lua_tonumber(L, 5);
+    }
+    auto params_ds =
+        to_telescope<list<inductive_decl>>(L, 3, ds,
+                                           [](list<inductive_decl> const & ds, expr const & a, int i) {
+                                               return abstract(ds, a, i);
+                                           });
+    ds = params_ds.second;
+    telescope const & ps      = params_ds.first;
+    return push_environment(L, add_inductive(env, ls, ps, ds, offset));
+}
+}
+
+static void open_inductive(lua_State * L) {
+    SET_GLOBAL_FUN(inductive::add_inductive, "add_inductive");
 }
 
 void open_kernel_module(lua_State * L) {
@@ -1700,5 +1803,6 @@ void open_kernel_module(lua_State * L) {
     open_substitution(L);
     open_constraint_handler(L);
     open_type_checker(L);
+    open_inductive(L);
 }
 }

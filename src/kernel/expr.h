@@ -631,11 +631,6 @@ struct expr_cell_offset_hash { unsigned operator()(expr_cell_offset const & p) c
 struct expr_cell_offset_eqp { unsigned operator()(expr_cell_offset const & p1, expr_cell_offset const & p2) const { return p1 == p2; } };
 // =======================================
 
-/**
-   \brief Return a shallow copy of \c e
-*/
-expr copy(expr const & e);
-
 // =======================================
 // Update
 expr update_app(expr const & e, expr const & new_fn, expr const & new_arg);

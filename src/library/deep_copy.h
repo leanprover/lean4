@@ -8,6 +8,9 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
+/** \brief Return a shallow copy of \c e */
+expr copy(expr const & e);
+
 /**
     \brief Return a new expression that is equal to the given
     argument, but does not share any memory cell with it.

@@ -90,9 +90,11 @@ template<level (*F)(level const & l1, level const & l2)>
 static int mk_level_max_core(lua_State * L)   {
     int nargs = lua_gettop(L);
     level r;
-    if (nargs == 0) r = mk_level_zero();
-    else if (nargs == 1) r = to_level_ext(L, 1);
-    else {
+    if (nargs == 0) {
+        r = mk_level_zero();
+    } else if (nargs == 1) {
+        r = to_level_ext(L, 1);
+    } else {
         r = F(to_level_ext(L, nargs - 1), to_level_ext(L, nargs));
         for (int i = nargs - 2; i >= 1; i--)
             r = F(to_level_ext(L, i), r);

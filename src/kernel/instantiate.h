@@ -18,11 +18,6 @@ expr instantiate(expr const & e, unsigned i, expr const & s);
 /** \brief Replace free variable \c 0 with \c s in \c e. */
 expr instantiate(expr const & e, expr const & s);
 
-/** \brief Replace free variable \c i with \c s in the telescope t. */
-telescope instantiate(telescope const & t, unsigned i, expr const & s);
-/** \brief Replace free variable \c 0 with \c s in the telescope t. */
-telescope instantiate(telescope const & t, expr const & s);
-
 expr apply_beta(expr f, unsigned num_args, expr const * args);
 bool is_head_beta(expr const & t);
 expr head_beta_reduce(expr const & t);

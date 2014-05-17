@@ -267,9 +267,6 @@ public:
     binder update_type(expr const & t) const { return binder(m_name, t, m_info); }
 };
 
-// Remark: in a telescope T, variable 0 is the last element of the list, and head(T) is variable #(length(T) - 1)
-typedef list<binder> telescope;
-
 /** \brief Lambda and Pi expressions */
 class expr_binding : public expr_composite {
     binder           m_binder;

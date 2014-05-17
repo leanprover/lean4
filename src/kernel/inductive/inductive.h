@@ -23,11 +23,19 @@ typedef std::tuple<name,              // introduction rule name
                    expr               // result type
                    > intro_rule;
 
+inline name const & intro_rule_name(intro_rule const & r) { return std::get<0>(r); }
+inline telescope const & intro_rule_args(intro_rule const & r) { return std::get<1>(r); }
+inline expr const & intro_rule_type(intro_rule const & r) { return std::get<2>(r); }
+
 /** \brief Inductive datatype */
 typedef std::tuple<name,                // datatype name
                    telescope,           // indices
                    list<intro_rule>     // introduction rules for this datatype
                    > inductive_decl;
+
+inline name const & inductive_decl_name(inductive_decl const & d) { return std::get<0>(d); }
+inline telescope const & inductive_decl_indices(inductive_decl const & d) { return std::get<1>(d); }
+inline list<intro_rule> const & inductive_decl_intros(inductive_decl const & d) { return std::get<2>(d); }
 
 /** \brief Declare a finite set of mutually dependent inductive datatypes. */
 environment add_inductive(environment const &          env,

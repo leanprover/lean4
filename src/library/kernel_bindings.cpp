@@ -28,6 +28,14 @@ Author: Leonardo de Moura
 // Lua Bindings for the Kernel classes. We do not include the Lua
 // bindings in the kernel because we do not want to inflate the Kernel.
 
+// In Lua, we can use the notations
+//   - l + k for succ^k(l)
+//   - k     for succ^k(zero)
+// The following definition is a limit on the k's that are considered.
+#ifndef LEAN_MAX_LEVEL_OFFSET_IN_LUA
+#define LEAN_MAX_LEVEL_OFFSET_IN_LUA 1024
+#endif
+
 namespace lean {
 static environment get_global_environment(lua_State * L);
 io_state * get_io_state(lua_State * L);
@@ -37,6 +45,28 @@ DECL_UDATA(level)
 DEFINE_LUA_LIST(level, push_level, to_level)
 
 int push_optional_level(lua_State * L, optional<level> const & l) {  return l ? push_level(L, *l) : push_nil(L); }
+
+static level mk_offset(level const & l, int k) {
+    if (k < 0) throw exception(sstream() << "invalid level offset " << k << ", offsets must be nonnegative");
+    else if (k > LEAN_MAX_LEVEL_OFFSET_IN_LUA) throw exception(sstream() << "invalid level offset " << k << ", offset is too big");
+    level r = l;
+    while (k > 0) {
+        k--;
+        r = mk_succ(r);
+    }
+    return r;
+}
+
+static level to_level_ext(lua_State * L, int idx) {
+    if (lua_isnumber(L, idx))
+        return mk_offset(mk_level_zero(), lua_tonumber(L, idx));
+    else
+        return to_level(L, idx);
+}
+
+static int level_add(lua_State * L) {
+    return push_level(L, mk_offset(to_level(L, 1), luaL_checkinteger(L, 2)));
+}
 
 static int level_tostring(lua_State * L) {
     std::ostringstream out;
@@ -53,9 +83,9 @@ static int level_lt(lua_State * L) {
 }
 static int mk_level_zero(lua_State * L)  { return push_level(L, mk_level_zero()); }
 static int mk_level_one(lua_State * L)   { return push_level(L, mk_level_one());  }
-static int mk_level_succ(lua_State * L)  { return push_level(L, mk_succ(to_level(L, 1))); }
-static int mk_level_max(lua_State * L)   { return push_level(L, mk_max(to_level(L, 1), to_level(L, 2))); }
-static int mk_level_imax(lua_State * L)  { return push_level(L, mk_imax(to_level(L, 1), to_level(L, 2))); }
+static int mk_level_succ(lua_State * L)  { return push_level(L, mk_succ(to_level_ext(L, 1))); }
+static int mk_level_max(lua_State * L)   { return push_level(L, mk_max(to_level_ext(L, 1), to_level_ext(L, 2))); }
+static int mk_level_imax(lua_State * L)  { return push_level(L, mk_imax(to_level_ext(L, 1), to_level_ext(L, 2))); }
 static int mk_param_univ(lua_State * L)  { return push_level(L, mk_param_univ(to_name_ext(L, 1))); }
 static int mk_global_univ(lua_State * L) { return push_level(L, mk_global_univ(to_name_ext(L, 1))); }
 static int mk_meta_univ(lua_State * L)   { return push_level(L, mk_meta_univ(to_name_ext(L, 1))); }
@@ -73,7 +103,7 @@ LEVEL_PRED(has_param)
 LEVEL_PRED(is_not_zero)
 static int level_normalize(lua_State * L)  { return push_level(L, normalize(to_level(L, 1))); }
 static int level_get_kind(lua_State * L) { return push_integer(L, static_cast<int>(kind(to_level(L, 1)))); }
-static int level_is_equivalent(lua_State * L) { return push_boolean(L, is_equivalent(to_level(L, 1), to_level(L, 2))); }
+static int level_is_equivalent(lua_State * L) { return push_boolean(L, is_equivalent(to_level(L, 1), to_level_ext(L, 2))); }
 static int level_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_level(L, 1), to_level(L, 2))); }
 
 static int level_id(lua_State * L) {
@@ -117,6 +147,7 @@ static const struct luaL_Reg level_m[] = {
     {"__tostring",      safe_function<level_tostring>},
     {"__eq",            safe_function<level_eq>},
     {"__lt",            safe_function<level_lt>},
+    {"__add",           safe_function<level_add>},
     {"succ",            safe_function<mk_level_succ>},
     {"kind",            safe_function<level_get_kind>},
     {"is_zero",         safe_function<level_is_zero>},
@@ -381,7 +412,7 @@ static int expr_abst(lua_State * L) {
 
 static int expr_fun(lua_State * L) { return expr_abst<false>(L); }
 static int expr_pi(lua_State * L)  { return expr_abst<true>(L); }
-static int expr_mk_sort(lua_State * L) { return push_expr(L, mk_sort(to_level(L, 1))); }
+static int expr_mk_sort(lua_State * L) { return push_expr(L, mk_sort(to_level_ext(L, 1))); }
 static int expr_mk_metavar(lua_State * L) { return push_expr(L, mk_metavar(to_name_ext(L, 1), to_expr(L, 2))); }
 static int expr_mk_local(lua_State * L) {
     int nargs = lua_gettop(L);
@@ -1365,7 +1396,8 @@ static int constraint_tostring(lua_State * L) {
     return push_string(L, out.str().c_str());
 }
 static int mk_eq_cnstr(lua_State * L) { return push_constraint(L, mk_eq_cnstr(to_expr(L, 1), to_expr(L, 2), to_justification(L, 3))); }
-static int mk_level_cnstr(lua_State * L) { return push_constraint(L, mk_level_cnstr(to_level(L, 1), to_level(L, 2), to_justification(L, 3))); }
+static int mk_level_cnstr(lua_State * L) { return push_constraint(L, mk_level_cnstr(to_level_ext(L, 1), to_level_ext(L, 2),
+                                                                                    to_justification(L, 3))); }
 static int mk_choice_cnstr(lua_State * L) { return push_constraint(L, mk_choice_cnstr(to_expr(L, 1), to_list_expr_ext(L, 2), to_justification(L, 3))); }
 
 static const struct luaL_Reg constraint_m[] = {

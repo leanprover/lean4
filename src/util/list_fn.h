@@ -137,23 +137,31 @@ list<T> append(list<T> const & l1, list<T> const & l2) {
 /**
    \brief Given list <tt>(a_0, ..., a_k)</tt>, return list <tt>(f(a_0), ..., f(a_k))</tt>.
 */
-template<typename T, typename F>
-list<T> map(list<T> const & l, F && f) {
-    static_assert(std::is_same<typename std::result_of<F(T const &)>::type, T>::value,
+template<typename To, typename From, typename F>
+list<To> map2(list<From> const & l, F && f) {
+    static_assert(std::is_same<typename std::result_of<F(From const &)>::type, To>::value,
                   "map: return type of f is not equal to input type");
     if (is_nil(l)) {
-        return l;
+        return list<To>();
     } else {
-        buffer<typename list<T>::cell*> tmp;
+        buffer<typename list<From>::cell*> tmp;
         to_buffer(l, tmp);
         unsigned i = tmp.size();
-        list<T> r;
+        list<To> r;
         while (i > 0) {
             --i;
             r = cons(f(tmp[i]->head()), r);
         }
         return r;
     }
+}
+
+/**
+   \brief Given list <tt>(a_0, ..., a_k)</tt>, return list <tt>(f(a_0), ..., f(a_k))</tt>.
+*/
+template<typename T, typename F>
+list<T> map(list<T> const & l, F && f) {
+    return map2<T, T, F>(l, std::move(f));
 }
 
 /**

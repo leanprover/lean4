@@ -121,7 +121,7 @@ struct add_inductive_fn {
                 // or is never zero (under any parameter assignment).
                 if (!is_zero(sort_level(t)) && !is_not_zero(sort_level(t)))
                     throw kernel_exception(m_env,
-                                           "the resultant universe must be 0 or different"
+                                           "the resultant universe must be 0 or different "
                                            "from zero for all parameter/global level assignments");
                 if (first) {
                     to_prop = is_zero(sort_level(t));
@@ -194,13 +194,13 @@ struct add_inductive_fn {
             return false; // nonrecursive argument
         } else if (is_pi(t)) {
             if (has_it_occ(binding_domain(t)))
-                throw kernel_exception(m_env, sstream() << "arg #" << arg_idx << " of '" << intro_name << "' "
+                throw kernel_exception(m_env, sstream() << "arg #" << (arg_idx + 1) << " of '" << intro_name << "' "
                                        "has a non positive occurrence of the datatypes being declared");
             return check_positivity(instantiate(binding_body(t), mk_local_for(t)), intro_name, arg_idx);
         } else if (is_valid_it_app(t)) {
             return true; // recursive argument
         } else {
-            throw kernel_exception(m_env, sstream() << "arg #" << arg_idx << " of '" << intro_name << "' "
+            throw kernel_exception(m_env, sstream() << "arg #" << (arg_idx + 1) << " of '" << intro_name << "' "
                                    "contain a non valid occurrence of the datatypes being declared");
         }
     }
@@ -219,7 +219,7 @@ struct add_inductive_fn {
         while (is_pi(t)) {
             if (i < m_num_params) {
                 if (!m_tc.is_def_eq(binding_domain(t), m_param_types[i]))
-                    throw kernel_exception(m_env, sstream() << "arg #" << i << " of '" << n << "' "
+                    throw kernel_exception(m_env, sstream() << "arg #" << (i + 1) << " of '" << n << "' "
                                            << "does not match inductive datatypes parameters'");
                 t = instantiate(binding_body(t), m_param_consts[i]);
             } else {
@@ -228,11 +228,11 @@ struct add_inductive_fn {
                 //   1- its level is <= inductive datatype level, OR
                 //   2- m_env is impredicative and inductive datatype is at level 0
                 if (!(is_geq(m_it_levels[d_idx], sort_level(s)) || (is_zero(m_it_levels[d_idx]) && m_env.impredicative())))
-                    throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << i << ") "
+                    throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << (i + 1) << ") "
                                            << "of '" << n << "' is too big for the corresponding inductive datatype");
                 bool is_rec = check_positivity(binding_domain(t), n, i);
                 if (found_rec && !is_rec)
-                    throw kernel_exception(m_env, sstream() << "arg #" << i << " of '" << n << "' "
+                    throw kernel_exception(m_env, sstream() << "arg #" << (i + 1) << " of '" << n << "' "
                                            << "is not recursive, but it occurs after recursive arguments");
                 if (is_rec)
                     found_rec = true;
@@ -241,8 +241,8 @@ struct add_inductive_fn {
                 } else {
                     t = binding_body(t);
                     if (!closed(t))
-                        throw kernel_exception(m_env, sstream() << "invalid occurrence of recursive arg#" << i <<
-                                               " of '" << n << "' the body of the functional type depends on it.");
+                        throw kernel_exception(m_env, sstream() << "invalid occurrence of recursive arg#" << (i+1) <<
+                                               " of '" << n << "', the body of the functional type depends on it.");
                 }
             }
             i++;

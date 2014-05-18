@@ -1,17 +1,23 @@
-local env    = empty_environment()
-local l      = mk_param_univ("l")
-local A      = Const("A")
-local U_l    = mk_sort(l)
-local U_l1   = mk_sort(mk_level_max(l, mk_level_one()))
-local list_l = Const("list", {l})
-local Nat    = Const("nat")
-local vec_l  = Const("vec", {l})
-local zero   = Const("zero")
-local succ   = Const("succ")
+local env      = empty_environment()
+local l        = mk_param_univ("l")
+local A        = Const("A")
+local U_l      = mk_sort(l)
+local U_l1     = mk_sort(max_univ(l, 1)) -- Make sure U_l1 is not Bool/Prop
+local list_l   = Const("list", {l}) -- list.{l}
+local Nat      = Const("nat")
+local vec_l    = Const("vec", {l})  -- vec.{l}
+local zero     = Const("zero")
+local succ     = Const("succ")
 local forest_l = Const("forest", {l})
 local tree_l   = Const("tree",   {l})
-local n      = Const("n")
-env = add_inductive(env, "nat", Type, "zero", Nat, "succ", mk_arrow(Nat, Nat))
+local n        = Const("n")
+env = add_inductive(env,
+                    "nat", Type,
+                    "zero", Nat,
+                    "succ", mk_arrow(Nat, Nat))
+-- In the following inductive datatype, {l} is the list of universe level parameters.
+-- 1 is the number of parameters.
+-- The Boolean true in {A, U_l, true} is marking that this argument is implicit.
 env = add_inductive(env,
                     "list", {l}, 1, mk_arrow(U_l, U_l1),
                     "nil", Pi({{A, U_l, true}}, list_l(A)),
@@ -25,7 +31,9 @@ env = add_inductive(env,
 local And = Const("and")
 local Or  = Const("or")
 local B   = Const("B")
+-- Datatype without introduction rules (aka constructors). It is a uninhabited type.
 env = add_inductive(env, "false", Bool)
+-- Datatype with a single constructor.
 env = add_inductive(env, "true", Bool, "trivial", Const("true"))
 env = add_inductive(env,
                     "and", mk_arrow(Bool, Bool, Bool),

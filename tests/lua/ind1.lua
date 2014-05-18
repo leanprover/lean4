@@ -53,3 +53,12 @@ local tc = type_checker(env)
 print(tc:check(Const("forest", {mk_level_zero()})))
 print(tc:check(Const("vcons", {mk_level_zero()})))
 print(tc:check(Const("consf", {mk_level_zero()})))
+local Even = Const("Even")
+local Odd  = Const("Odd")
+local b    = Const("b")
+env = add_inductive(env, {},
+                    {"Even", mk_arrow(Nat, Bool),
+                     "zero_is_even", Even(zero),
+                     "succ_odd",     Pi(b, Nat, mk_arrow(Odd(b), Even(succ(b))))},
+                    {"Odd", mk_arrow(Nat, Bool),
+                     "succ_even", Pi(b, Nat, mk_arrow(Even(b), Odd(succ(b))))})

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include <utility>
+#include <algorithm>
 #include "util/name_generator.h"
 #include "util/name_set.h"
 #include "kernel/environment.h"

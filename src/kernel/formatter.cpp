@@ -24,7 +24,7 @@ name pick_unused_name(expr const & t, name const & s) {
     name r = s;
     unsigned i = 1;
     while (is_used_name(t, r)) {
-        r = name(s, i);
+        r = name(s).append_after(i);
         i++;
     }
     return r;

@@ -56,4 +56,14 @@ expr FName(std::initializer_list<std::pair<expr const &, expr const &>> const & 
 
 MkBinder(Fun);
 MkBinder(Pi);
+
+expr Pi(unsigned num, expr const * locals, expr const & b) {
+    expr r = b;
+    unsigned i = num;
+    while (i > 0) {
+        --i;
+        r = mk_pi(local_pp_name(locals[i]), mlocal_type(locals[i]), abstract(r, locals[i]));
+    }
+    return r;
+}
 }

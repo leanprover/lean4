@@ -55,7 +55,10 @@ inline expr Pi(expr const & n, expr const & t, expr const & b, binder_info const
 }
 inline expr Pi(std::pair<expr const &, expr const &> const & p, expr const & b) { return Pi(p.first, p.second, b); }
 expr Pi(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b);
-
+/** \brief Create a Pi-expression by abstracting the given local constants over b */
+expr Pi(unsigned num, expr const * locals, expr const & b);
+template<typename T> expr Pi(T const & locals, expr const & b) { return Pi(locals.size(), locals.data(), b); }
+inline expr Pi(expr const & local, expr const & b) { return Pi(1, &local, b); }
 /**
 -   \brief Create a Let expression (Let x := v in b), the term b is abstracted using abstract(b, x).
 -*/

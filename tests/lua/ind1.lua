@@ -70,3 +70,9 @@ env = add_inductive(env, {},
                      "succ_odd",     Pi(b, Nat, mk_arrow(Odd(b), Even(succ(b))))},
                     {"Odd", mk_arrow(Nat, Bool),
                      "succ_even", Pi(b, Nat, mk_arrow(Even(b), Odd(succ(b))))})
+
+local flist_l = Const("flist", {l})
+env = add_inductive(env,
+                    "flist", {l}, 1, mk_arrow(U_l, U_l1),
+                    "fnil", Pi({{A, U_l, true}}, flist_l(A)),
+                    "fcons", Pi({{A, U_l, true}}, mk_arrow(A, mk_arrow(Nat, flist_l(A)), flist_l(A))))

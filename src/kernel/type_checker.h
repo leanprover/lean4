@@ -95,6 +95,8 @@ public:
     expr ensure_pi(expr const & t);
     /** \brief Return a Sort if \c t is convertible to Sort. Throw an exception otherwise. */
     expr ensure_sort(expr const & t);
+
+    void swap(type_checker & tc) { std::swap(m_ptr, tc.m_ptr); }
 };
 
 /**

@@ -34,6 +34,7 @@ struct add_inductive_fn {
     type_checker         m_tc;
 
     level                m_elim_level;   // extra universe level for eliminator.
+    bool                 m_dep_elim;     // true if using dependent elimination
 
     buffer<expr>         m_param_consts; // local constants used to represent global parameters
     buffer<level>        m_it_levels;    // the levels for each inductive datatype in m_decls
@@ -300,6 +301,14 @@ struct add_inductive_fn {
         }
     }
 
+    /** \brief Initialize m_dep_elim flag */
+    void set_dep_elim() {
+        if (m_env.impredicative() && is_zero(m_it_levels[0]))
+            m_dep_elim = false;
+        else
+            m_dep_elim = true;
+    }
+
     /**
         \brief Given t of the form (I As is) where I is one of the inductive datatypes being defined,
         As are the global parameters, and is the actual indices provided to it.
@@ -334,10 +343,14 @@ struct add_inductive_fn {
                 i++;
             }
             info.m_major_premise = mk_local(mk_fresh_name(), "n", mk_app(mk_app(m_it_consts[d_idx], m_param_consts), info.m_indices));
-            name C("C");
+            expr C_ty = mk_sort(m_elim_level);
+            if (m_dep_elim)
+                C_ty = Pi(info.m_major_premise, C_ty);
+            C_ty = Pi(info.m_indices, C_ty);
+            name C_name("C");
             if (get_num_its() > 1)
-                C = name(C).append_after(d_idx+1);
-            info.m_C = mk_local(mk_fresh_name(), C, Pi(info.m_indices, Pi(info.m_major_premise, mk_sort(m_elim_level))));
+                C_name = name(C_name).append_after(d_idx+1);
+            info.m_C = mk_local(mk_fresh_name(), C_name, C_ty);
             m_elim_info.push_back(info);
             d_idx++;
         }
@@ -366,8 +379,11 @@ struct add_inductive_fn {
                 }
                 buffer<expr> it_indices;
                 unsigned it_idx = get_I_indices(t, it_indices);
-                expr intro_app  = mk_app(mk_app(mk_app(mk_constant(intro_rule_name(ir), m_levels), m_param_consts), b), u);
-                expr C_app      = mk_app(mk_app(m_elim_info[it_idx].m_C, it_indices), intro_app);
+                expr C_app      = mk_app(m_elim_info[it_idx].m_C, it_indices);
+                if (m_dep_elim) {
+                    expr intro_app  = mk_app(mk_app(mk_app(mk_constant(intro_rule_name(ir), m_levels), m_param_consts), b), u);
+                    C_app = mk_app(C_app, intro_app);
+                }
                 // populate v using u
                 for (unsigned i = 0; i < u.size(); i++) {
                     expr u_i    = u[i];
@@ -380,8 +396,11 @@ struct add_inductive_fn {
                     }
                     buffer<expr> it_indices;
                     unsigned it_idx = get_I_indices(u_i_ty, it_indices);
-                    expr u_app  = mk_app(u_i, xs);
-                    expr C_app  = mk_app(mk_app(m_elim_info[it_idx].m_C, it_indices), u_app);
+                    expr C_app  = mk_app(m_elim_info[it_idx].m_C, it_indices);
+                    if (m_dep_elim) {
+                        expr u_app  = mk_app(u_i, xs);
+                        C_app = mk_app(C_app, u_app);
+                    }
                     expr v_i_ty = Pi(xs, C_app);
                     expr v_i    = mk_local(mk_fresh_name(), name("v").append_after(i), v_i_ty);
                     v.push_back(v_i);
@@ -398,7 +417,9 @@ struct add_inductive_fn {
     /** \brief Declare elimination rule */
     void declare_elim_rule(inductive_decl const & d, unsigned d_idx) {
         elim_info const & info = m_elim_info[d_idx];
-        expr C_app   = mk_app(mk_app(info.m_C, info.m_indices), info.m_major_premise);
+        expr C_app   = mk_app(info.m_C, info.m_indices);
+        if (m_dep_elim)
+            C_app = mk_app(C_app, info.m_major_premise);
         expr elim_ty = Pi(info.m_indices, Pi(info.m_major_premise, C_app));
         // abstract all introduction rules
         unsigned i = get_num_its();
@@ -428,6 +449,7 @@ struct add_inductive_fn {
 
     /** \brief Declare the eliminator/recursor for each datatype */
     void declare_elim_rules() {
+        set_dep_elim();
         mk_elim_level();
         mk_elim_info();
         unsigned i = 0;

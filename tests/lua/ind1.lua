@@ -29,7 +29,7 @@ env = add_inductive(env,
 -- 1 is the number of parameters.
 -- The Boolean true in {A, U_l, true} is marking that this argument is implicit.
 env = add_inductive(env,
-                    "list", {l}, 1, mk_arrow(U_l, U_l1),
+                    "list", {l}, 1, Pi(A, U_l, U_l1),
                     "nil", Pi({{A, U_l, true}}, list_l(A)),
                     "cons", Pi({{A, U_l, true}}, mk_arrow(A, list_l(A), list_l(A))))
 env = add_inductive(env,
@@ -46,17 +46,17 @@ env = add_inductive(env, "false", Bool)
 -- Datatype with a single constructor.
 env = add_inductive(env, "true", Bool, "trivial", Const("true"))
 env = add_inductive(env,
-                    "and", mk_arrow(Bool, Bool, Bool),
+                    "and", 2, Pi({{A, Bool}, {B, Bool}}, Bool),
                     "and_intro", Pi({{A, Bool, true}, {B, Bool, true}}, mk_arrow(A, B, And(A, B))))
 env = add_inductive(env,
-                    "or", mk_arrow(Bool, Bool, Bool),
+                    "or", 2, Pi({{A, Bool}, {B, Bool}}, Bool),
                     "or_intro_left",  Pi({{A, Bool, true}, {B, Bool, true}}, mk_arrow(A, Or(A, B))),
                     "or_intro_right", Pi({{A, Bool, true}, {B, Bool, true}}, mk_arrow(B, Or(A, B))))
 local P = Const("P")
 local a = Const("a")
 local exists_l = Const("exists", {l})
 env = add_inductive(env,
-                    "exists", {l}, 2, Pi({{A, U_l}}, mk_arrow(mk_arrow(A, Bool), Bool)),
+                    "exists", {l}, 2, Pi({{A, U_l}, {P, mk_arrow(A, Bool)}}, Bool),
                     "exists_intro", Pi({{A, U_l, true}, {P, mk_arrow(A, Bool), true}, {a, A}}, mk_arrow(P(a), exists_l(A, P))))
 
 env = add_inductive(env, {l}, 1,
@@ -73,6 +73,7 @@ display_type(env, Const("vcons", {mk_level_zero()}))
 display_type(env, Const("consf", {mk_level_zero()}))
 display_type(env, Const("forest_rec", {v, u}))
 display_type(env, Const("nat_rec", {v}))
+display_type(env, Const("or_rec"))
 
 local Even = Const("Even")
 local Odd  = Const("Odd")
@@ -89,3 +90,13 @@ env = add_inductive(env,
                     "flist", {l}, 1, mk_arrow(U_l, U_l1),
                     "fnil", Pi({{A, U_l, true}}, flist_l(A)),
                     "fcons", Pi({{A, U_l, true}}, mk_arrow(A, mk_arrow(Nat, flist_l(A)), flist_l(A))))
+
+local eq_l = Const("eq", {l})
+env = add_inductive(env,
+                    "eq", {l}, 2, Pi({{A, U_l}, {a, A}, {b, A}}, Bool),
+                    "refl", Pi({{A, U_l}, {a, A}}, eq_l(A, a, a)))
+display_type(env, Const("eq_rec", {v, u}))
+display_type(env, Const("exists_rec", {v, u}))
+display_type(env, Const("list_rec", {v, u}))
+display_type(env, Const("Even_rec"))
+display_type(env, Const("Odd_rec"))

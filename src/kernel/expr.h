@@ -434,6 +434,7 @@ inline expr mk_app(expr const & f, expr const & a) { return expr(new expr_app(f,
        expr mk_app(unsigned num_args, expr const * args);
 inline expr mk_app(std::initializer_list<expr> const & l) { return mk_app(l.size(), l.begin()); }
 template<typename T> expr mk_app(T const & args) { return mk_app(args.size(), args.data()); }
+template<typename T> expr mk_app(expr const & f, T const & args) { return mk_app(f, args.size(), args.data()); }
        expr mk_rev_app(expr const & f, unsigned num_args, expr const * args);
        expr mk_rev_app(unsigned num_args, expr const * args);
 template<typename T> expr mk_rev_app(T const & args) { return mk_rev_app(args.size(), args.data()); }

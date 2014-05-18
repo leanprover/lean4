@@ -323,10 +323,13 @@ expr mk_app_vars(expr const & f, unsigned n) {
     return r;
 }
 
-void get_app_args(expr const & e, buffer<expr> & args) {
+expr get_app_args(expr const & e, buffer<expr> & args) {
     if (is_app(e)) {
-        get_app_args(app_fn(e), args);
+        expr r = get_app_args(app_fn(e), args);
         args.push_back(app_arg(e));
+        return r;
+    } else {
+        return e;
     }
 }
 

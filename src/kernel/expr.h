@@ -593,8 +593,10 @@ inline bool has_free_var_ge(expr const & e, unsigned low) { return get_free_var_
 /**
     \brief Given \c e of the form <tt>(...(f a1) ... an)</tt>, store a1 ... an in args.
     If \c e is not an application, then nothing is stored in args.
+
+    It returns the f.
 */
-void get_app_args(expr const & e, buffer<expr> & args);
+expr get_app_args(expr const & e, buffer<expr> & args);
 // =======================================
 
 

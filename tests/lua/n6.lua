@@ -1,0 +1,5 @@
+assert(name("a", "b"):append_after(1) == name("a", "b1"))
+assert(name("a", 1):append_after(2) == name("a", 1, "2"))
+assert(name("a", "b"):append_after("k") == name("a", "bk"))
+assert(name("a", "b"):append_before("k") == name("a", "kb"))
+assert(name("a", 1):append_before("k") == name("a", "k", 1))

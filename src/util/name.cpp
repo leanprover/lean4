@@ -278,8 +278,7 @@ bool name::is_atomic() const {
 }
 
 name name::get_prefix() const {
-    lean_assert(!is_atomic());
-    return name(m_ptr->m_prefix);
+    return is_atomic() ? name() : name(m_ptr->m_prefix);
 }
 
 static unsigned num_digits(unsigned k) {
@@ -360,6 +359,32 @@ name operator+(name const & n1, name const & n2) {
         else
             return name(prefix, n2.m_ptr->m_k);
     }
+}
+
+name name::append_before(char const * p) const {
+    if (is_anonymous()) {
+        return name(p);
+    } else if (is_string()) {
+        return name(get_prefix(), (std::string(p) + std::string(get_string())).c_str());
+    } else {
+        return name(name(get_prefix(), p), get_numeral());
+    }
+}
+
+name name::append_after(char const * s) const {
+    if (is_anonymous()) {
+        return name(s);
+    } else if (is_string()) {
+        return name(get_prefix(), (std::string(get_string()) + std::string(s)).c_str());
+    } else {
+        return name(*this, s);
+    }
+}
+
+name name::append_after(unsigned i) const {
+    std::ostringstream s;
+    s << "_" << i;
+    return append_after(s.str().c_str());
 }
 
 enum name_ll_kind { LL_ANON = 0, LL_STRING = 1, LL_INT = 2, LL_STRING_PREFIX = 3, LL_INT_PREFIX = 4 };
@@ -501,19 +526,29 @@ static int name_get_string(lua_State * L) {
     return push_string(L, to_name(L, 1).get_string());
 }
 
+static int name_append_before(lua_State * L) { return push_name(L, to_name(L, 1).append_before(lua_tostring(L, 2))); }
+static int name_append_after(lua_State * L) {
+    if (lua_isnumber(L, 2))
+        return push_name(L, to_name(L, 1).append_after(lua_tonumber(L, 2)));
+    else
+        return push_name(L, to_name(L, 1).append_after(lua_tostring(L, 2)));
+}
+
 static const struct luaL_Reg name_m[] = {
-    {"__gc",         name_gc}, // never throws
-    {"__tostring",   safe_function<name_tostring>},
-    {"__eq",         safe_function<name_eq>},
-    {"__lt",         safe_function<name_lt>},
-    {"is_atomic",    safe_function<name_is_atomic>},
-    {"is_anonymous", safe_function<name_is_anonymous>},
-    {"is_numeral",   safe_function<name_is_numeral>},
-    {"is_string",    safe_function<name_is_string>},
-    {"get_prefix",   safe_function<name_get_prefix>},
-    {"get_numeral",  safe_function<name_get_numeral>},
-    {"get_string",   safe_function<name_get_string>},
-    {"hash",         safe_function<name_hash>},
+    {"__gc",          name_gc}, // never throws
+    {"__tostring",    safe_function<name_tostring>},
+    {"__eq",          safe_function<name_eq>},
+    {"__lt",          safe_function<name_lt>},
+    {"is_atomic",     safe_function<name_is_atomic>},
+    {"is_anonymous",  safe_function<name_is_anonymous>},
+    {"is_numeral",    safe_function<name_is_numeral>},
+    {"is_string",     safe_function<name_is_string>},
+    {"get_prefix",    safe_function<name_get_prefix>},
+    {"get_numeral",   safe_function<name_get_numeral>},
+    {"get_string",    safe_function<name_get_string>},
+    {"hash",          safe_function<name_hash>},
+    {"append_before", safe_function<name_append_before>},
+    {"append_after",  safe_function<name_append_after>},
     {0, 0}
 };
 

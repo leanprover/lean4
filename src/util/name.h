@@ -101,6 +101,25 @@ public:
     /** \brief Concatenate the two given names. */
     friend name operator+(name const & n1, name const & n2);
 
+    /**
+        \brief Given a name of the form a_1.a_2. ... .a_k,
+           If a_k is a string,  return a_1.a_2. ... .a_k', where a_k' is the string p concatenated with a_k.
+           If a_k is a numeral, return a_1.a_2. ... .p.a_k
+    */
+    name append_before(char const * p) const;
+    /**
+        \brief Given a name of the form a_1.a_2. ... .a_k,
+           If a_k is a string,  return a_1.a_2. ... .a_k', where a_k' is the string a_k concatenated with s.
+           If a_k is a numeral, return a_1.a_2. ... .a_k.s
+    */
+    name append_after(char const * s) const;
+    /**
+        \brief Given a name of the form a_1.a_2. ... .a_k,
+           If a_k is a string,  return a_1.a_2. ... .a_k', where a_k' is the string a_k concatenated with _i.
+           If a_k is a numeral, return a_1.a_2. ... .a_k.i
+    */
+    name append_after(unsigned i) const;
+
     friend void swap(name & a, name & b) {
         std::swap(a.m_ptr, b.m_ptr);
     }

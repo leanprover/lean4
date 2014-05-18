@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/instantiate.h"
+#include "kernel/abstract.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/find_fn.h"
 
@@ -27,16 +28,26 @@ struct add_inductive_fn {
     level_param_names    m_level_names;
     unsigned             m_num_params;
     list<inductive_decl> m_decls;
-    unsigned             m_decls_sz;
-    list<level>          m_levels; // m_level_names ==> m_levels
+    unsigned             m_decls_sz;     // length(m_decls)
+    list<level>          m_levels;       // m_level_names ==> m_levels
     name_generator       m_ngen;
     type_checker         m_tc;
 
-    buffer<expr>         m_param_types;
-    buffer<expr>         m_param_consts;
+    level                m_elim_level;   // extra universe level for eliminator.
+
+    buffer<expr>         m_param_consts; // local constants used to represent global parameters
     buffer<level>        m_it_levels;    // the levels for each inductive datatype in m_decls
     buffer<expr>         m_it_consts;    // the constants for each inductive datatype in m_decls
     buffer<unsigned>     m_it_num_args;  // total number of arguments (params + indices) for each inductive datatype in m_decls
+
+    struct elim_info {
+        expr             m_C;              // set former constant
+        buffer<expr>     m_indices;        // local constant for each index
+        expr             m_major_premise;  // major premise for each inductive decl
+        buffer<expr>     m_minor_premises; // minor premise for each introduction rule
+    };
+
+    buffer<elim_info> m_elim_info; // for each datatype being declared
 
     add_inductive_fn(environment                  env,
                      level_param_names const &    level_params,
@@ -57,35 +68,20 @@ struct add_inductive_fn {
         m_tc.swap(tc);
     }
 
-    /** \brief Display types being declared */
-    void display(std::ostream & out) {
-        out << "\nadd_inductive\n";
-        if (!is_nil(m_level_names)) {
-            out << "level params: ";
-            for (auto l : m_level_names) { out << l << " "; }
-            out << "\n";
-        }
-        out << "num params: " << m_num_params << "\n";
-        for (auto d : m_decls) {
-            out << inductive_decl_name(d) << " : " << inductive_decl_type(d) << "\n";
-            for (auto ir : inductive_decl_intros(d)) {
-                out << "  " << intro_rule_name(ir) << " : " << intro_rule_type(ir) << "\n";
-            }
-        }
-    }
-
+    /** \brief Return a fresh name */
     name mk_fresh_name() { return m_ngen.next(); }
 
     /** \brief Create a local constant for the given binding. */
-    expr mk_local_for(expr const & b) {
-        return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b));
-    }
+    expr mk_local_for(expr const & b) { return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b)); }
+
+    /** \brief Return type of the i-th global parameter. */
+    expr get_param_type(unsigned i) { return mlocal_type(m_param_consts[i]); }
 
     /**
        \brief Check if the type of datatypes is well typed, all inductive datatypes have the same parameters,
        and the number of parameters match the argument num_params.
 
-       This method also populates the fields m_param_types and m_param_consts, m_it_levels, m_it_consts.
+       This method also populates the fields m_param_consts, m_it_levels, m_it_consts.
     */
     void check_inductive_types() {
         bool first   = true;
@@ -98,12 +94,11 @@ struct add_inductive_fn {
             while (is_pi(t)) {
                 if (i < m_num_params) {
                     if (first) {
-                        m_param_types.push_back(binding_domain(t));
                         expr l = mk_local_for(t);
                         m_param_consts.push_back(l);
                         t = instantiate(binding_body(t), l);
                     } else {
-                        if (!m_tc.is_def_eq(binding_domain(t), m_param_types[i]))
+                        if (!m_tc.is_def_eq(binding_domain(t), get_param_type(i)))
                             throw kernel_exception(m_env, "parameters of all inductive datatypes must match");
                         t = instantiate(binding_body(t), m_param_consts[i]);
                     }
@@ -164,12 +159,13 @@ struct add_inductive_fn {
         return true;
     }
 
-    /** \brief Return true iff \c t is a valid occurrence of one of the datatypes being defined. */
-    bool is_valid_it_app(expr const & t) {
-        for (unsigned i = 0; i < get_num_its(); i++)
+    /** \brief Return some(i) iff \c t is a valid occurrence of the i-th datatype being defined. */
+    optional<unsigned> is_valid_it_app(expr const & t) {
+        for (unsigned i = 0; i < get_num_its(); i++) {
             if (is_valid_it_app(t, i))
-                return true;
-        return false;
+                return optional<unsigned>(i);
+        }
+        return optional<unsigned>();
     }
 
     /** \brief Return true iff \c e is one of the inductive datatype being declared. */
@@ -185,23 +181,31 @@ struct add_inductive_fn {
     }
 
     /**
-       \brief Check if \c t contains only positive occurrences of the inductive datatypes being declared.
-       Return true iff it is a recursive argument.
+        \brief Return some(d_idx) iff \c t is a recursive argument, \c d_idx is the index of the recursive inductive datatype.
+        Return none otherwise.
     */
-    bool check_positivity(expr t, name const & intro_name, int arg_idx) {
+    optional<unsigned> is_rec_argument(expr t) {
+        t = m_tc.whnf(t);
+        while (is_pi(t))
+            t = m_tc.whnf(binding_body(t));
+        return is_valid_it_app(t);
+    }
+
+    /** \brief Check if \c t contains only positive occurrences of the inductive datatypes being declared. */
+    void check_positivity(expr t, name const & intro_name, int arg_idx) {
         t = m_tc.whnf(t);
         if (!has_it_occ(t)) {
-            return false; // nonrecursive argument
+            // nonrecursive argument
         } else if (is_pi(t)) {
             if (has_it_occ(binding_domain(t)))
                 throw kernel_exception(m_env, sstream() << "arg #" << (arg_idx + 1) << " of '" << intro_name << "' "
                                        "has a non positive occurrence of the datatypes being declared");
-            return check_positivity(instantiate(binding_body(t), mk_local_for(t)), intro_name, arg_idx);
+            check_positivity(instantiate(binding_body(t), mk_local_for(t)), intro_name, arg_idx);
         } else if (is_valid_it_app(t)) {
-            return true; // recursive argument
+            // recursive argument
         } else {
             throw kernel_exception(m_env, sstream() << "arg #" << (arg_idx + 1) << " of '" << intro_name << "' "
-                                   "contain a non valid occurrence of the datatypes being declared");
+                                   "contains a non valid occurrence of the datatypes being declared");
         }
     }
 
@@ -218,7 +222,7 @@ struct add_inductive_fn {
         bool found_rec = false;
         while (is_pi(t)) {
             if (i < m_num_params) {
-                if (!m_tc.is_def_eq(binding_domain(t), m_param_types[i]))
+                if (!m_tc.is_def_eq(binding_domain(t), get_param_type(i)))
                     throw kernel_exception(m_env, sstream() << "arg #" << (i + 1) << " of '" << n << "' "
                                            << "does not match inductive datatypes parameters'");
                 t = instantiate(binding_body(t), m_param_consts[i]);
@@ -230,7 +234,8 @@ struct add_inductive_fn {
                 if (!(is_geq(m_it_levels[d_idx], sort_level(s)) || (is_zero(m_it_levels[d_idx]) && m_env.impredicative())))
                     throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << (i + 1) << ") "
                                            << "of '" << n << "' is too big for the corresponding inductive datatype");
-                bool is_rec = check_positivity(binding_domain(t), n, i);
+                check_positivity(binding_domain(t), n, i);
+                bool is_rec = (bool)is_rec_argument(binding_domain(t)); // NOLINT
                 if (found_rec && !is_rec)
                     throw kernel_exception(m_env, sstream() << "arg #" << (i + 1) << " of '" << n << "' "
                                            << "is not recursive, but it occurs after recursive arguments");
@@ -275,16 +280,171 @@ struct add_inductive_fn {
             for (auto ir : inductive_decl_intros(d))
                 m_env = m_env.add(check(m_env, mk_var_decl(intro_rule_name(ir), m_level_names, intro_rule_type(ir))));
         }
+        updt_type_checker();
+    }
+
+
+    /** \brief Initialize m_elim_level */
+    void mk_elim_level() {
+        if (m_env.impredicative() && is_zero(m_it_levels[0]) && (get_num_its() > 1 || length(inductive_decl_intros(head(m_decls))) != 1)) {
+            // environment is impredicative, datatype maps to Bool/Prop, we have more than one introduction rule.
+            m_elim_level = mk_level_zero();
+        } else {
+            name l("l");
+            int i = 1;
+            while (std::find(m_level_names.begin(), m_level_names.end(), l) != m_level_names.end()) {
+                l = name("l").append_after(i);
+                i++;
+            }
+            m_elim_level = mk_param_univ(l);
+        }
+    }
+
+    /**
+        \brief Given t of the form (I As is) where I is one of the inductive datatypes being defined,
+        As are the global parameters, and is the actual indices provided to it.
+        Return the index of I, and store is in the argument \c indices.
+    */
+    unsigned get_I_indices(expr const & t, buffer<expr> & indices) {
+        optional<unsigned> r = is_valid_it_app(t);
+        lean_assert(r);
+        buffer<expr> all_args;
+        get_app_args(t, all_args);
+        for (unsigned i = m_num_params; i < all_args.size(); i++)
+            indices.push_back(all_args[i]);
+        return *r;
+    }
+
+    /** \brief Populate m_elim_info */
+    void mk_elim_info() {
+        unsigned d_idx = 0;
+        // First, populate the fields, m_C, m_indices, m_major_premise
+        for (auto d : m_decls) {
+            elim_info info;
+            expr t     = inductive_decl_type(d);
+            unsigned i = 0;
+            while (is_pi(t)) {
+                if (i < m_num_params) {
+                    t = instantiate(binding_body(t), m_param_consts[i]);
+                } else {
+                    expr c = mk_local_for(t);
+                    info.m_indices.push_back(c);
+                    t = instantiate(binding_body(t), c);
+                }
+                i++;
+            }
+            info.m_major_premise = mk_local(mk_fresh_name(), "n", mk_app(mk_app(m_it_consts[d_idx], m_param_consts), info.m_indices));
+            name C("C");
+            if (get_num_its() > 1)
+                C = name(C).append_after(d_idx+1);
+            info.m_C = mk_local(mk_fresh_name(), C, Pi(info.m_indices, Pi(info.m_major_premise, mk_sort(m_elim_level))));
+            m_elim_info.push_back(info);
+            d_idx++;
+        }
+        // First, populate the field m_minor_premises
+        unsigned minor_idx = 1;
+        d_idx = 0;
+        for (auto d : m_decls) {
+            for (auto ir : inductive_decl_intros(d)) {
+                buffer<expr> b; // nonrec args
+                buffer<expr> u; // rec args
+                buffer<expr> v; // inductive args
+                expr t     = intro_rule_type(ir);
+                unsigned i = 0;
+                while (is_pi(t)) {
+                    if (i < m_num_params) {
+                        t = instantiate(binding_body(t), m_param_consts[i]);
+                    } else {
+                        expr l = mk_local(mk_fresh_name(), binding_name(t), binding_domain(t));
+                        if (!is_rec_argument(binding_domain(t)))
+                            b.push_back(l);
+                        else
+                            u.push_back(l);
+                        t = instantiate(binding_body(t), l);
+                    }
+                    i++;
+                }
+                buffer<expr> it_indices;
+                unsigned it_idx = get_I_indices(t, it_indices);
+                expr intro_app  = mk_app(mk_app(mk_app(mk_constant(intro_rule_name(ir), m_levels), m_param_consts), b), u);
+                expr C_app      = mk_app(mk_app(m_elim_info[it_idx].m_C, it_indices), intro_app);
+                // populate v using u
+                for (unsigned i = 0; i < u.size(); i++) {
+                    expr u_i    = u[i];
+                    expr u_i_ty = m_tc.whnf(mlocal_type(u_i));
+                    buffer<expr> xs;
+                    while (is_pi(u_i_ty)) {
+                        expr x = mk_local(mk_fresh_name(), binding_name(u_i_ty), binding_domain(u_i_ty));
+                        xs.push_back(x);
+                        u_i_ty = m_tc.whnf(instantiate(binding_body(u_i_ty), x));
+                    }
+                    buffer<expr> it_indices;
+                    unsigned it_idx = get_I_indices(u_i_ty, it_indices);
+                    expr u_app  = mk_app(u_i, xs);
+                    expr C_app  = mk_app(mk_app(m_elim_info[it_idx].m_C, it_indices), u_app);
+                    expr v_i_ty = Pi(xs, C_app);
+                    expr v_i    = mk_local(mk_fresh_name(), name("v").append_after(i), v_i_ty);
+                    v.push_back(v_i);
+                }
+                expr minor_ty = Pi(b, Pi(u, Pi(v, C_app)));
+                expr minor = mk_local(mk_fresh_name(), name("e").append_after(minor_idx), minor_ty);
+                m_elim_info[d_idx].m_minor_premises.push_back(minor);
+                minor_idx++;
+            }
+            d_idx++;
+        }
+    }
+
+    /** \brief Declare elimination rule */
+    void declare_elim_rule(inductive_decl const & d, unsigned d_idx) {
+        elim_info const & info = m_elim_info[d_idx];
+        expr C_app   = mk_app(mk_app(info.m_C, info.m_indices), info.m_major_premise);
+        expr elim_ty = Pi(info.m_indices, Pi(info.m_major_premise, C_app));
+        // abstract all introduction rules
+        unsigned i = get_num_its();
+        while (i > 0) {
+            --i;
+            unsigned j = m_elim_info[i].m_minor_premises.size();
+            while (j > 0) {
+                --j;
+                elim_ty = Pi(m_elim_info[i].m_minor_premises[j], elim_ty);
+            }
+        }
+        // abstract all set formers
+        i = get_num_its();
+        while (i > 0) {
+            --i;
+            elim_ty = Pi(m_elim_info[i].m_C, elim_ty);
+        }
+        elim_ty = Pi(m_param_consts, elim_ty);
+        level_param_names ls;
+        if (is_param(m_elim_level))
+            ls = level_param_names(param_id(m_elim_level), m_level_names);
+        else
+            ls = m_level_names;
+        name elim_name = inductive_decl_name(d).append_after("_rec");
+        m_env = m_env.add(check(m_env, mk_var_decl(elim_name, ls, elim_ty)));
+    }
+
+    /** \brief Declare the eliminator/recursor for each datatype */
+    void declare_elim_rules() {
+        mk_elim_level();
+        mk_elim_info();
+        unsigned i = 0;
+        for (auto d : m_decls) {
+            declare_elim_rule(d, i);
+            i++;
+        }
     }
 
     environment operator()() {
-        display(std::cout);
         if (get_num_its() == 0)
             throw kernel_exception(m_env, "at least one inductive datatype declaration expected");
         check_inductive_types();
         declare_inductive_types();
         check_intro_rules();
         declare_intro_rules();
+        declare_elim_rules();
         return m_env;
     }
 };

@@ -11,6 +11,16 @@ local succ     = Const("succ")
 local forest_l = Const("forest", {l})
 local tree_l   = Const("tree",   {l})
 local n        = Const("n")
+
+env = env:add_global_level("u")
+env = env:add_global_level("v")
+local u        = global_univ("u")
+local v        = global_univ("v")
+
+function display_type(env, t)
+   print(tostring(t) .. " : " .. tostring(type_checker(env):infer(t)))
+end
+
 env = add_inductive(env,
                     "nat", Type,
                     "zero", Nat,
@@ -50,17 +60,20 @@ env = add_inductive(env,
                     "exists_intro", Pi({{A, U_l, true}, {P, mk_arrow(A, Bool), true}, {a, A}}, mk_arrow(P(a), exists_l(A, P))))
 
 env = add_inductive(env, {l}, 1,
-                    {"tree", mk_arrow(U_l, U_l1),
+                    {"tree", Pi(A, U_l, U_l1),
                      "node", Pi({{A, U_l, true}}, mk_arrow(A, forest_l(A), tree_l(A)))
                     },
-                    {"forest", mk_arrow(U_l, U_l1),
+                    {"forest", Pi(A, U_l, U_l1),
                      "emptyf", Pi({{A, U_l, true}}, forest_l(A)),
                      "consf",  Pi({{A, U_l, true}}, mk_arrow(tree_l(A), forest_l(A), forest_l(A)))})
-
 local tc = type_checker(env)
-print(tc:check(Const("forest", {mk_level_zero()})))
-print(tc:check(Const("vcons", {mk_level_zero()})))
-print(tc:check(Const("consf", {mk_level_zero()})))
+
+display_type(env, Const("forest", {mk_level_zero()}))
+display_type(env, Const("vcons", {mk_level_zero()}))
+display_type(env, Const("consf", {mk_level_zero()}))
+display_type(env, Const("forest_rec", {v, u}))
+display_type(env, Const("nat_rec", {v}))
+
 local Even = Const("Even")
 local Odd  = Const("Odd")
 local b    = Const("b")

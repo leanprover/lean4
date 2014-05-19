@@ -33,8 +33,7 @@ env = add_inductive(env,
                     "nil", Pi({{A, U_l, true}}, list_l(A)),
                     "cons", Pi({{A, U_l, true}}, mk_arrow(A, list_l(A), list_l(A))))
 env = add_inductive(env,
-                    "vec", {l}, 1,
-                    mk_arrow(U_l, Nat, U_l1),
+                    "vec", {l}, 1, Pi({{A, U_l}, {n, Nat}}, U_l1),
                     "vnil",  Pi({{A, U_l, true}}, vec_l(A, zero)),
                     "vcons", Pi({{A, U_l, true}, {n, Nat, true}}, mk_arrow(A, vec_l(A, n), vec_l(A, succ(n)))))
 
@@ -87,9 +86,9 @@ env = add_inductive(env, {},
 
 local flist_l = Const("flist", {l})
 env = add_inductive(env,
-                    "flist", {l}, 1, mk_arrow(U_l, U_l1),
+                    "flist", {l}, 1, Pi(A, U_l, U_l1),
                     "fnil", Pi({{A, U_l, true}}, flist_l(A)),
-                    "fcons", Pi({{A, U_l, true}}, mk_arrow(A, mk_arrow(Nat, flist_l(A)), flist_l(A))))
+                    "fcons", Pi({{A, U_l, true}}, mk_arrow(mk_arrow(Nat, A), mk_arrow(Nat, Bool, flist_l(A)), flist_l(A))))
 
 local eq_l = Const("eq", {l})
 env = add_inductive(env,
@@ -100,3 +99,6 @@ display_type(env, Const("exists_rec", {v, u}))
 display_type(env, Const("list_rec", {v, u}))
 display_type(env, Const("Even_rec"))
 display_type(env, Const("Odd_rec"))
+display_type(env, Const("and_rec", {v}))
+display_type(env, Const("vec_rec", {v, u}))
+display_type(env, Const("flist_rec", {v, u}))

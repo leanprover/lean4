@@ -116,23 +116,31 @@ struct print_expr_fn {
         print_child(b);
     }
 
-    void print_binding(char const * bname, expr const & e) {
-        auto p = binding_body_fresh(e);
-        expr const & b = p.first;
-        expr const & n = p.second;
-        out() << bname << " ";
-        if (binding_info(e).is_implicit())
-            out() << "{";
-        else if (binding_info(e).is_cast())
-            out() << "[";
-        out() << n << " : ";
-        print_child(binding_domain(e));
-        if (binding_info(e).is_implicit())
-            out() << "}";
-        else if (binding_info(e).is_cast())
-            out() << "]";
+    void print_binding(char const * bname, expr e) {
+        expr_kind k = e.kind();
+        out() << bname;
+        while (e.kind() == k) {
+            out() << " ";
+            auto p = binding_body_fresh(e);
+            expr const & n = p.second;
+            if (binding_info(e).is_implicit())
+                out() << "{";
+            else if (binding_info(e).is_cast())
+                out() << "[";
+            else
+                out() << "(";
+            out() << n << " : ";
+            print(binding_domain(e));
+            if (binding_info(e).is_implicit())
+                out() << "}";
+            else if (binding_info(e).is_cast())
+                out() << "]";
+            else
+                out() << ")";
+            e = p.first;
+        }
         out() << ", ";
-        print_child(b);
+        print_child(e);
     }
 
     void print_const(expr const & a) {

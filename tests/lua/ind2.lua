@@ -1,4 +1,4 @@
-local env      = empty_environment()
+local env      = environment()
 
 function bad_add_inductive(...)
    arg = {...}
@@ -101,3 +101,9 @@ bad_add_inductive(env,
                   "nat2", Type,
                   "zero2", Nat2,
                   "succ2", Pi(a, Nat2, mk_arrow(eq(Nat2, a, a), Nat2)))
+
+local env      = empty_environment()
+bad_add_inductive(env, -- Environment does not support inductive datatypes
+                  "nat", Type,
+                  "zero", Nat,
+                  "succ", mk_arrow(Nat, Nat))

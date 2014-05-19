@@ -678,6 +678,8 @@ struct add_inductive_fn {
     }
 
     environment operator()() {
+        if (!dynamic_cast<inductive_normalizer_extension const*>(&m_env.norm_ext()))
+            throw kernel_exception(m_env, "environment does not support inductive datatypes");
         if (get_num_its() == 0)
             throw kernel_exception(m_env, "at least one inductive datatype declaration expected");
         check_inductive_types();
@@ -702,66 +704,57 @@ environment add_inductive(environment const & env, name const & ind_name, level_
     return add_inductive(env, level_params, num_params, list<inductive_decl>(inductive_decl(ind_name, type, intro_rules)));
 }
 
-
-/** \brief Normalizer extension for applying inductive datatype computational rules. */
-class inductive_normalizer_extension : public normalizer_extension {
-public:
-    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const {
-        // Reduce terms \c e of the form
-        //    elim_k A C e p[A,b] (intro_k_i A b u)
-        inductive_env_ext const & ext = get_extension(ctx.env());
-        expr const & elim_fn   = get_app_fn(e);
-        if (!is_constant(elim_fn))
-            return none_expr();
-        auto it1 = ext.m_elim_info.find(const_name(elim_fn));
-        if (!it1)
-            return none_expr(); // it is not an eliminator
-        buffer<expr> elim_args;
-        get_app_args(e, elim_args);
-        if (elim_args.size() != it1->m_num_ACe + it1->m_num_indices + 1)
-            return none_expr(); // number of arguments does not match
-        expr intro_app = ctx.whnf(elim_args.back());
-        expr const & intro_fn  = get_app_fn(intro_app);
-        // Last argument must be a constant and an application of a constant.
-        if (!is_constant(intro_fn))
-            return none_expr();
-        // Check if intro_fn is an introduction rule matching elim_fn
-        auto it2 = ext.m_comp_rules.find(const_name(intro_fn));
-        if (!it2 || it2->m_elim_name != const_name(elim_fn))
-            return none_expr();
-        buffer<expr> intro_args;
-        get_app_args(intro_app, intro_args);
-        // Check intro num_args
-        if (intro_args.size() != it1->m_num_params + it2->m_num_bu)
-            return none_expr();
-        // std::cout << "Candidate: " << e << "\n";
-        if (it1->m_num_params > 0) {
-            // Global parameters of elim and intro be definitionally equal
-            delayed_justification jst([=]() { return mk_justification("elim/intro global parameters must match", some_expr(e)); });
-            for (unsigned i = 0; i < it1->m_num_params; i++) {
-                if (!ctx.is_def_eq(elim_args[i], intro_args[i], jst))
-                    return none_expr();
-            }
+optional<expr> inductive_normalizer_extension::operator()(expr const & e, extension_context & ctx) const {
+    // Reduce terms \c e of the form
+    //    elim_k A C e p[A,b] (intro_k_i A b u)
+    inductive_env_ext const & ext = get_extension(ctx.env());
+    expr const & elim_fn   = get_app_fn(e);
+    if (!is_constant(elim_fn))
+        return none_expr();
+    auto it1 = ext.m_elim_info.find(const_name(elim_fn));
+    if (!it1)
+        return none_expr(); // it is not an eliminator
+    buffer<expr> elim_args;
+    get_app_args(e, elim_args);
+    if (elim_args.size() != it1->m_num_ACe + it1->m_num_indices + 1)
+        return none_expr(); // number of arguments does not match
+    expr intro_app = ctx.whnf(elim_args.back());
+    expr const & intro_fn  = get_app_fn(intro_app);
+    // Last argument must be a constant and an application of a constant.
+    if (!is_constant(intro_fn))
+        return none_expr();
+    // Check if intro_fn is an introduction rule matching elim_fn
+    auto it2 = ext.m_comp_rules.find(const_name(intro_fn));
+    if (!it2 || it2->m_elim_name != const_name(elim_fn))
+        return none_expr();
+    buffer<expr> intro_args;
+    get_app_args(intro_app, intro_args);
+    // Check intro num_args
+    if (intro_args.size() != it1->m_num_params + it2->m_num_bu)
+        return none_expr();
+    // std::cout << "Candidate: " << e << "\n";
+    if (it1->m_num_params > 0) {
+        // Global parameters of elim and intro be definitionally equal
+        delayed_justification jst([=]() { return mk_justification("elim/intro global parameters must match", some_expr(e)); });
+        for (unsigned i = 0; i < it1->m_num_params; i++) {
+            if (!ctx.is_def_eq(elim_args[i], intro_args[i], jst))
+                return none_expr();
         }
-        // std::cout << "global params matched\n";
-        // Number of universe levels must match.
-        if (length(const_levels(elim_fn)) != length(it1->m_level_names))
-            return none_expr();
-        buffer<expr> ACebu;
-        for (unsigned i = 0; i < it1->m_num_ACe; i++)
-            ACebu.push_back(elim_args[i]);
-        for (unsigned i = 0; i < it2->m_num_bu; i++)
-            ACebu.push_back(intro_args[it1->m_num_params + i]);
-        std::reverse(ACebu.begin(), ACebu.end());
-        expr r = instantiate(it2->m_comp_rhs_body, ACebu.size(), ACebu.data());
-        r = instantiate_params(r, it1->m_level_names, const_levels(elim_fn));
-        // std::cout << "ELIM/INTRO: " << e << " ==> " << r << "\n";
-        return some_expr(r);
     }
-};
-
-std::unique_ptr<normalizer_extension> mk_extension() {
-    return std::unique_ptr<normalizer_extension>(new inductive_normalizer_extension());
+    // std::cout << "global params matched\n";
+    // Number of universe levels must match.
+    if (length(const_levels(elim_fn)) != length(it1->m_level_names))
+        return none_expr();
+    buffer<expr> ACebu;
+    for (unsigned i = 0; i < it1->m_num_ACe; i++)
+        ACebu.push_back(elim_args[i]);
+    for (unsigned i = 0; i < it2->m_num_bu; i++)
+        ACebu.push_back(intro_args[it1->m_num_params + i]);
+    std::reverse(ACebu.begin(), ACebu.end());
+    expr r = instantiate(it2->m_comp_rhs_body, ACebu.size(), ACebu.data());
+    r = instantiate_params(r, it1->m_level_names, const_levels(elim_fn));
+    // std::cout << "ELIM/INTRO: " << e << " ==> " << r << "\n";
+    return some_expr(r);
 }
 }
 }

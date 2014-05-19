@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 
 namespace lean {
+using inductive::inductive_normalizer_extension;
+
 /** \brief Create standard Lean environment */
 environment mk_environment(unsigned trust_lvl) {
     return environment(trust_lvl,
@@ -14,6 +16,7 @@ environment mk_environment(unsigned trust_lvl) {
                        true /* Eta */,
                        true /* Type.{0} is impredicative */,
                        list<name>() /* No type class has proof irrelevance */,
-                       inductive::mk_extension() /* builtin support for inductive datatypes */);
+                       /* builtin support for inductive datatypes */
+                       std::unique_ptr<normalizer_extension>(new inductive_normalizer_extension()));
 }
 }

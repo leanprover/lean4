@@ -13,8 +13,11 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace inductive {
-/** \brief Return a normalizer extension for inductive dataypes. */
-std::unique_ptr<normalizer_extension> mk_extension();
+/** \brief Normalizer extension for applying inductive datatype computational rules. */
+class inductive_normalizer_extension : public normalizer_extension {
+public:
+    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const;
+};
 
 /** \brief Introduction rule */
 typedef std::pair<name, expr> intro_rule;

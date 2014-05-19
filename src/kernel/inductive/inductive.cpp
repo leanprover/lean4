@@ -23,9 +23,84 @@ environment add_inductive(environment const & env, name const & ind_name, level_
     return add_inductive(env, level_params, num_params, list<inductive_decl>(inductive_decl(ind_name, type, intro_rules)));
 }
 
+/**
+   \brief Helper functional object for processing inductive datatype declarations.
+
+   The implementation is based on the paper: "Inductive Families", Peter Dybjer, 1997
+   The main differences are:
+      - Support for Bool/Prop (when environment is marked as impredicative)
+      - Universe levels
+
+   The support for Bool/Prop is based on the paper: "Inductive Definitions in the System Coq: Rules and Properties",
+   Christine Paulin-Mohring.
+
+   Given a sequence of universe levels parameters (m_level_names), each datatype decls have the form
+         I_k : (A :: \sigma) (a :: \alpha[A]), Type.{l_k}
+               I_k is the name of the k-th inductive datatype
+               A   is the sequence of global parameters (it must have size m_num_params)
+               a   is the sequence of indices
+
+         remark: all mutually recursive inductive datatype decls must use the same sequence of global parameters.
+
+   Each inductive declaration has a sequence of introduction rules of the form
+         intro_k_i : (A :: \sigma) (b :: \beta[A]) (u :: \gama[A, b]), I_k A p[A, b]
+               A is the sequence of global parameters (it must have size m_num_params)
+               b is the sequence of non-recursive arguments (i.e., they do not include any I_k)
+               u is the sequence of recursive arguments (they contain positive occurrences of I_j, j is not necessarily equal to k)
+         each u_i, in the sequence u, is of the form
+               x :: \Epsilon[A, b], I_j A p_i[A, b, x]
+
+         Again, all introduction rules must have the same sequence of global parameters
+
+   The universe levels of arguments b and u must be smaller than or equal to l_k in I_k.
+
+   When the environment is marked as impredicative, then l_k must be 0 (Bool/Prop) or must be different from zero for
+   any instantiation of the universe level parameters (and global level parameters).
+
+   This module produces an eliminator/recursor for each inductive datatype I_k, it has the form.
+   The eliminator has an extra univese level parameter when
+          1- Type.{0} is not impredicative in the given environment
+          2- l_k is never zero (for any universe level assignment)
+          3- There is only one introduction rule
+   Let l' be this extra universe level, in the following rules, and 0 if none of the conditions above hold.
+
+        elim_k : (A :: \sigma)
+                 (C :: (a :: \alpha[A]) (c : I_k A a), Type.{l'})
+                 (e :: \epsilon[A])
+                 (a :: \alpha[A])
+                 (n :: I_k A a),
+               C_k a n
+
+          A is the sequence of global parameters
+          C is the sequence of type formers. The size of the sequence is equal to the number of inductive datatype beging declared.
+             We say C_k is the type former for I_k
+          e is the sequence of minor premises. The size of the sequence is equal to the sum of the length of all introduction rules.
+          a is the sequence of indices, it is equal to sequence occurring in I_k
+          n is the major premise
+
+    The minor premise e_i_j : \epsilon_i_j[A] in (e:: \epsilon[A]) corresponds to the j-th introduction rule in the inductive
+    datatype I_i.
+
+       \epsilon_i_j[A] : (b :: \beta[A]) (u :: \gama[A, b]) (v :: \delta[A, b]), C_i p[A, b] intro_i_j A b u
+
+           b and u are the corresponding arguments in intro_i_j. \delta[A, b] has the same length of \gama[A, b],
+           and \delta_i[A, b] is
+                       (x :: \Epsilon_i[A, b]), C_j p_i[A, b, x] (u_i x)
+           C_j corresponds to the I_j used in u_i
+
+     When the environment is impredicative and l_k is zero, then we use nondependent elimination, and we omit
+     the argument c in C, and v in the minor premises. That is, C becomes
+            (C :: (a :: \alpha[A]), Type.{l'})
+     and \epsilon_i_j[A]
+            \epsilon_i_j[A] : (b :: \beta[A]) (u :: \gama[A, b]), C_i p[A, b]
+
+
+     Finally, this module also generate computational rules for the extended normalizer. Actually, we only generate
+     the right hand side for the rules.
+*/
 struct add_inductive_fn {
     environment          m_env;
-    level_param_names    m_level_names;
+    level_param_names    m_level_names;  // universe level parameters
     unsigned             m_num_params;
     list<inductive_decl> m_decls;
     unsigned             m_decls_sz;     // length(m_decls)
@@ -42,7 +117,7 @@ struct add_inductive_fn {
     buffer<unsigned>     m_it_num_args;  // total number of arguments (params + indices) for each inductive datatype in m_decls
 
     struct elim_info {
-        expr             m_C;              // set former constant
+        expr             m_C;              // type former constant
         buffer<expr>     m_indices;        // local constant for each index
         expr             m_major_premise;  // major premise for each inductive decl
         buffer<expr>     m_minor_premises; // minor premise for each introduction rule
@@ -451,7 +526,7 @@ struct add_inductive_fn {
                 elim_ty = Pi(m_elim_info[i].m_minor_premises[j], elim_ty);
             }
         }
-        // abstract all set formers
+        // abstract all type formers
         i = get_num_its();
         while (i > 0) {
             --i;
@@ -474,7 +549,7 @@ struct add_inductive_fn {
         updt_type_checker();
     }
 
-    /** \brief Store all set formers in \c Cs */
+    /** \brief Store all type formers in \c Cs */
     void collect_Cs(buffer<expr> & Cs) {
         for (unsigned i = 0; i < get_num_its(); i++)
             Cs.push_back(m_elim_info[i].m_C);

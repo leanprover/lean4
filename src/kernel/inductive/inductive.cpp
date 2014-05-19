@@ -122,7 +122,7 @@ struct inductive_env_ext : public environment_extension {
     };
     // mapping from introduction rule name to computation rule data
     rb_map<name, elim_info, name_quick_cmp>  m_elim_info;
-    rb_map<name, comp_rule, name_quick_cmp>  m_com_rules;
+    rb_map<name, comp_rule, name_quick_cmp>  m_comp_rules;
 
     inductive_env_ext() {}
 
@@ -131,7 +131,7 @@ struct inductive_env_ext : public environment_extension {
     }
 
     void add_comp_rhs(name const & n, name const & e, unsigned num_bu, expr const & rhs) {
-        m_com_rules.insert(n, comp_rule(e, num_bu, rhs));
+        m_comp_rules.insert(n, comp_rule(e, num_bu, rhs));
     }
 };
 
@@ -726,7 +726,7 @@ public:
         if (!is_constant(intro_fn))
             return none_expr();
         // Check if intro_fn is an introduction rule matching elim_fn
-        auto it2 = ext.m_com_rules.find(const_name(intro_fn));
+        auto it2 = ext.m_comp_rules.find(const_name(intro_fn));
         if (!it2 || it2->m_elim_name != const_name(elim_fn))
             return none_expr();
         buffer<expr> intro_args;

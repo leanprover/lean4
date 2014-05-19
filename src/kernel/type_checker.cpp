@@ -172,8 +172,11 @@ struct type_checker::imp {
             add_cnstr(mk_eq_cnstr(e, r, j));
             return r;
         } else {
-            throw_kernel_exception(m_env, s,
-                                   [=](formatter const & fmt, options const & o) { return pp_type_expected(fmt, m_env, o, s); });
+            // We don't want m_env (i.e., this->m_env) inside the following closure,
+            // because the type checker may be gone, when the closure is executed.
+            environment env = m_env;
+            throw_kernel_exception(env, s,
+                                   [=](formatter const & fmt, options const & o) { return pp_type_expected(fmt, env, o, s); });
         }
     }
 
@@ -186,9 +189,11 @@ struct type_checker::imp {
             return e;
         } else if (is_meta(e)) {
             buffer<expr> telescope;
-            if (!meta_to_telescope(e, telescope))
-                throw_kernel_exception(m_env, s,
-                                       [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, m_env, o, s); });
+            if (!meta_to_telescope(e, telescope)) {
+                environment env = m_env;
+                throw_kernel_exception(env, s,
+                                       [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, env, o, s); });
+            }
             expr ta    = mk_sort(mk_meta_univ(m_gen.next()));
             expr A     = mk_metavar(m_gen.next(), mk_pi(telescope, ta));
             expr A_xs  = mk_app_vars(A, telescope.size());
@@ -208,8 +213,9 @@ struct type_checker::imp {
             add_cnstr(mk_eq_cnstr(e, r, j));
             return r;
         } else {
-            throw_kernel_exception(m_env, s,
-                                   [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, m_env, o, s); });
+            environment env = m_env;
+            throw_kernel_exception(env, s,
+                                   [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, env, o, s); });
         }
     }
 
@@ -355,9 +361,10 @@ struct type_checker::imp {
                 expr a_type = infer_type_core(app_arg(e), infer_only);
                 delayed_justification jst([=]() { return mk_app_mismatch_jst(e, f_type, a_type); });
                 if (!is_def_eq(a_type, binding_domain(f_type), jst)) {
+                    environment env = m_env;
                     throw_kernel_exception(m_env, e,
                                            [=](formatter const & fmt, options const & o) {
-                                               return pp_app_type_mismatch(fmt, m_env, o, e, binding_domain(f_type), a_type);
+                                               return pp_app_type_mismatch(fmt, env, o, e, binding_domain(f_type), a_type);
                                            });
                 }
             }
@@ -370,9 +377,10 @@ struct type_checker::imp {
                 expr val_type  = infer_type_core(let_value(e), infer_only);
                 delayed_justification jst([=]() { return mk_let_mismatch_jst(e, val_type); });
                 if (!is_def_eq(val_type, let_type(e), jst)) {
-                    throw_kernel_exception(m_env, e,
+                    environment env = m_env;
+                    throw_kernel_exception(env, e,
                                            [=](formatter const & fmt, options const & o) {
-                                               return pp_def_type_mismatch(fmt, m_env, o, let_name(e), let_type(e), val_type);
+                                               return pp_def_type_mismatch(fmt, env, o, let_name(e), let_type(e), val_type);
                                            });
                 }
             }

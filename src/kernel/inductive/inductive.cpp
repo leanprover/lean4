@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/name_generator.h"
 #include "util/sstream.h"
 #include "util/list_fn.h"
+#include "util/rb_map.h"
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/instantiate.h"
@@ -14,18 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "kernel/find_fn.h"
 
-namespace lean {
-namespace inductive {
-static name g_tmp_prefix = name::mk_internal_unique_name();
-
-environment add_inductive(environment const & env, name const & ind_name, level_param_names const & level_params,
-                          unsigned num_params, expr const & type, list<intro_rule> const & intro_rules) {
-    return add_inductive(env, level_params, num_params, list<inductive_decl>(inductive_decl(ind_name, type, intro_rules)));
-}
-
-/**
-   \brief Helper functional object for processing inductive datatype declarations.
-
+/*
    The implementation is based on the paper: "Inductive Families", Peter Dybjer, 1997
    The main differences are:
       - Support for Bool/Prop (when environment is marked as impredicative)
@@ -96,8 +86,56 @@ environment add_inductive(environment const & env, name const & ind_name, level_
 
 
      Finally, this module also generate computational rules for the extended normalizer. Actually, we only generate
-     the right hand side for the rules.
+     the right hand side for the rules. They have the form
+
+        Fun (A, C, e, b, u), elim_k A C e p[A,b] (intro_k_i A b u) ==>
+               Fun (A, C, e, b, u), (e_k_i b u v)
 */
+
+namespace lean {
+namespace inductive {
+static name g_tmp_prefix = name::mk_internal_unique_name();
+
+/** \brief Environment extension used to store the computational rules associated with inductive datatype declarations. */
+struct inductive_env_ext : public environment_extension {
+    struct comp_rule {
+        level_param_names m_level_names; // level parameter names used in computational rule
+        unsigned          m_num_params;  // number of global parameters A
+        unsigned          m_num_ACe;     // sum of number of global parameters A, type formers C, and minor preimises e.
+        unsigned          m_num_bu;      // sum of number of arguments u and v in the corresponding introduction rule.
+        expr              m_comp_rhs;    // computational rule RHS
+        comp_rule(level_param_names const & ls, unsigned num_ps, unsigned num_ace, unsigned num_bu, expr const & rhs):
+            m_level_names(ls), m_num_params(num_ps), m_num_ACe(num_ace), m_num_bu(num_bu), m_comp_rhs(rhs) {}
+    };
+    // mapping from introduction rule name to computation rule data
+    rb_map<name, comp_rule, name_quick_cmp> m_com_rules;
+
+    inductive_env_ext() {}
+
+    void add(name const & n, level_param_names const & ls, unsigned num_ps, unsigned num_ace, unsigned num_bu, expr const & rhs) {
+        m_com_rules.insert(n, comp_rule(ls, num_ps, num_ace, num_bu, rhs));
+    }
+};
+
+/** \brief Auxiliary object for registering the environment extension */
+struct inductive_env_ext_reg {
+    unsigned m_ext_id;
+    inductive_env_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<inductive_env_ext>()); }
+};
+
+static inductive_env_ext_reg g_ext;
+
+/** \brief Retrieve environment extension */
+static inductive_env_ext const & get_extension(environment const & env) {
+    return static_cast<inductive_env_ext const &>(env.get_extension(g_ext.m_ext_id));
+}
+
+/** \brief Update environment extension */
+static environment update(environment const & env, inductive_env_ext const & ext) {
+    return env.update(g_ext.m_ext_id, std::make_shared<inductive_env_ext>(ext));
+}
+
+/** \brief Helper functional object for processing inductive datatype declarations. */
 struct add_inductive_fn {
     environment          m_env;
     level_param_names    m_level_names;  // universe level parameters
@@ -568,6 +606,7 @@ struct add_inductive_fn {
         buffer<expr> C; collect_Cs(C);
         buffer<expr> e; collect_minor_premises(e);
         levels ls = get_elim_level_params();
+        inductive_env_ext ext(get_extension(m_env));
         for (auto d : m_decls) {
             for (auto ir : inductive_decl_intros(d)) {
                 buffer<expr> b;
@@ -608,11 +647,13 @@ struct add_inductive_fn {
                 expr e_app = mk_app(mk_app(mk_app(e[minor_idx], b), u), v);
                 expr comp_rhs   = Fun(m_param_consts, Fun(C, Fun(e, Fun(b, Fun(u, e_app)))));
                 m_tc.check(comp_rhs, get_elim_level_param_names());
-                // TODO(Leo): store computational rule RHS
+                ext.add(intro_rule_name(ir), get_elim_level_param_names(),
+                        m_num_params, m_num_params + C.size() + e.size(), b.size() + u.size(), comp_rhs);
                 minor_idx++;
             }
             d_idx++;
         }
+        m_env = update(m_env, ext);
     }
 
     environment operator()() {
@@ -633,6 +674,11 @@ environment add_inductive(environment                  env,
                           unsigned                     num_params,
                           list<inductive_decl> const & decls) {
     return add_inductive_fn(env, level_params, num_params, decls)();
+}
+
+environment add_inductive(environment const & env, name const & ind_name, level_param_names const & level_params,
+                          unsigned num_params, expr const & type, list<intro_rule> const & intro_rules) {
+    return add_inductive(env, level_params, num_params, list<inductive_decl>(inductive_decl(ind_name, type, intro_rules)));
 }
 }
 }

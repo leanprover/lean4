@@ -153,7 +153,7 @@ unsigned environment::register_extension(std::shared_ptr<environment_extension c
 environment_extension const & environment::get_extension(unsigned id) const {
     if (id >= get_extension_manager().has_ext(id))
         throw_invalid_extension(*this);
-    if (id < m_extensions->size() || !(*m_extensions)[id])
+    if (id >= m_extensions->size() || !(*m_extensions)[id])
         return get_extension_manager().get_initial(id);
     return *((*m_extensions)[id].get());
 }

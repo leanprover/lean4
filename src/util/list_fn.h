@@ -12,9 +12,7 @@ Author: Leonardo de Moura
 #include "util/pair.h"
 
 namespace lean {
-/**
-   \brief Copy the values in the list \c l to the buffer \c r.
-*/
+/** \brief Copy the values in the list \c l to the buffer \c r. */
 template<typename T>
 void to_buffer(list<T> const & l, buffer<T> & r) {
     for (T const & v : l) {
@@ -22,9 +20,7 @@ void to_buffer(list<T> const & l, buffer<T> & r) {
     }
 }
 
-/**
-   \brief Copy the cells in the list \c l to the buffer \c r.
-*/
+/** \brief Copy the cells in the list \c l to the buffer \c r. */
 template<typename T>
 void to_buffer(list<T> const & l, buffer<typename list<T>::cell *> & r) {
     typename list<T>::cell * it = l.raw();
@@ -34,9 +30,7 @@ void to_buffer(list<T> const & l, buffer<typename list<T>::cell *> & r) {
     }
 }
 
-/**
-   \brief Create a list using the values in the cells from \c begin to \c end.
-*/
+/** \brief Create a list using the values in the cells from \c begin to \c end. */
 template<typename T>
 list<T> cells_to_list(typename list<T>::cell * const * begin, typename list<T>::cell * const * end) {
     list<T> r;
@@ -48,17 +42,13 @@ list<T> cells_to_list(typename list<T>::cell * const * begin, typename list<T>::
     return r;
 }
 
-/**
-   \brief Create a list using the values in the cells from \c b.
-*/
+/** \brief Create a list using the values in the cells from \c b. */
 template<typename T>
 list<T> buffer_to_list(buffer<typename list<T>::cell*> const & b) {
     return cells_to_list<T>(b.begin(), b.end());
 }
 
-/**
-   \brief Return the reverse list.
-*/
+/** \brief Return the reverse list. */
 template<typename T>
 list<T> reverse(list<T> const & l) {
     if (is_nil(l)) {
@@ -112,9 +102,7 @@ std::pair<list<T>, list<T>> split_reverse_second(list<T> const & l) {
     }
 }
 
-/**
-   \brief Append two lists
-*/
+/** \brief Append two lists */
 template<typename T>
 list<T> append(list<T> const & l1, list<T> const & l2) {
     if (!l1) {
@@ -134,9 +122,7 @@ list<T> append(list<T> const & l1, list<T> const & l2) {
     }
 }
 
-/**
-   \brief Given list <tt>(a_0, ..., a_k)</tt>, return list <tt>(f(a_0), ..., f(a_k))</tt>.
-*/
+/** \brief Given list <tt>(a_0, ..., a_k)</tt>, return list <tt>(f(a_0), ..., f(a_k))</tt>. */
 template<typename To, typename From, typename F>
 list<To> map2(list<From> const & l, F && f) {
     static_assert(std::is_same<typename std::result_of<F(From const &)>::type, To>::value,
@@ -156,9 +142,7 @@ list<To> map2(list<From> const & l, F && f) {
     }
 }
 
-/**
-   \brief Given list <tt>(a_0, ..., a_k)</tt>, return list <tt>(f(a_0), ..., f(a_k))</tt>.
-*/
+/** \brief Given list <tt>(a_0, ..., a_k)</tt>, return list <tt>(f(a_0), ..., f(a_k))</tt>. */
 template<typename T, typename F>
 list<T> map(list<T> const & l, F && f) {
     return map2<T, T, F>(l, std::move(f));
@@ -192,9 +176,7 @@ list<T> filter(list<T> const & l, P && p) {
     }
 }
 
-/**
-   \brief Remove the last element that satisfies \c p.
-*/
+/** \brief Remove the last element that satisfies \c p. */
 template<typename T, typename P>
 list<T> remove_last(list<T> const & l, P && p) {
     if (!is_nil(l)) {
@@ -285,9 +267,7 @@ list<T> map_reuse(list<T> const & l, F && f, Eq const & eq = Eq()) {
     }
 }
 
-/**
-   \brief Given list <tt>(a_0, ..., a_k)</tt>, exec f(a_0); f(a_1); ... f(a_k)</tt>.
-*/
+/** \brief Given list <tt>(a_0, ..., a_k)</tt>, exec f(a_0); f(a_1); ... f(a_k)</tt>. */
 template<typename T, typename F>
 void for_each(list<T> const & l, F && f) {
     static_assert(std::is_same<typename std::result_of<F(T const &)>::type, void>::value,
@@ -300,9 +280,7 @@ void for_each(list<T> const & l, F && f) {
     }
 }
 
-/**
-   \brief Compare two lists using the binary predicate p.
-*/
+/** \brief Compare two lists using the binary predicate p. */
 template<typename T, typename P>
 bool compare(list<T> const & l1, list<T> const & l2, P && p) {
     static_assert(std::is_same<typename std::result_of<P(T const &, T const &)>::type, bool>::value,
@@ -316,5 +294,11 @@ bool compare(list<T> const & l1, list<T> const & l2, P && p) {
             return false;
     }
     return it1 == end1 && it2 == end2;
+}
+
+/** \brief Return the i-th element of the list */
+template<typename T>
+T const & get_ith(list<T> const & l, unsigned idx) {
+    return idx == 0 ? head(l) : get_ith(tail(l), idx - 1);
 }
 }

@@ -120,12 +120,18 @@ local list_nat_rec1 = Const("list_rec", {U_1, U_1})(Nat)
 display_type(env, list_nat_rec1)
 local h        = Const("h")
 local t        = Const("t")
-local v        = Const("v")
-local l        = Const("l")
-local length   = Fun(l, list_nat, list_nat_rec1(mk_lambda("_", list_nat, Nat), zero, Fun({{h, Nat}, {t, list_nat}, {v, Nat}}, succ(v)), l))
+local lst      = Const("lst")
+local length   = Fun(lst, list_nat, list_nat_rec1(mk_lambda("_", list_nat, Nat), zero, Fun({{h, Nat}, {t, list_nat}, {c, Nat}}, succ(c)), lst))
 local nil_nat  = Const("nil", {U_1})(Nat)
 local cons_nat = Const("cons", {U_1})(Nat)
 print(tc:whnf(length(nil_nat)))
 assert(tc:is_def_eq(length(nil_nat), zero))
 assert(tc:is_def_eq(length(cons_nat(zero, nil_nat)), succ(zero)))
 assert(tc:is_def_eq(length(cons_nat(zero, cons_nat(zero, nil_nat))), succ(succ(zero))))
+
+-- Martin-Lof style identity type
+local Id_l = Const("Id", {l})
+env = add_inductive(env,
+                    "Id", {l}, 1, Pi({{A, U_l}, {a, A}, {b, A}}, Bool),
+                    "Id_refl", Pi({{A, U_l, true}, {b, A}}, Id_l(A, b, b)))
+display_type(env, Const("Id_rec", {v, u}))

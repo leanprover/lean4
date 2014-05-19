@@ -82,11 +82,7 @@ void expr_cell::set_tag(tag t) {
 }
 
 bool is_meta(expr const & e) {
-    expr const * it = &e;
-    while (is_app(*it)) {
-        it = &(app_fn(*it));
-    }
-    return is_metavar(*it);
+    return is_metavar(get_app_fn(e));
 }
 
 // Expr variables
@@ -323,14 +319,32 @@ expr mk_app_vars(expr const & f, unsigned n) {
     return r;
 }
 
-expr get_app_args(expr const & e, buffer<expr> & args) {
-    if (is_app(e)) {
-        expr r = get_app_args(app_fn(e), args);
-        args.push_back(app_arg(e));
-        return r;
-    } else {
-        return e;
+expr const & get_app_args(expr const & e, buffer<expr> & args) {
+    lean_assert(args.empty());
+    expr const * it = &e;
+    while (is_app(*it)) {
+        args.push_back(app_arg(*it));
+        it = &(app_fn(*it));
     }
+    std::reverse(args.begin(), args.end());
+    return *it;
+}
+
+expr const & get_app_rev_args(expr const & e, buffer<expr> & args) {
+    expr const * it = &e;
+    while (is_app(*it)) {
+        args.push_back(app_arg(*it));
+        it = &(app_fn(*it));
+    }
+    return *it;
+}
+
+expr const & get_app_fn(expr const & e) {
+    expr const * it = &e;
+    while (is_app(*it)) {
+        it = &(app_fn(*it));
+    }
+    return *it;
 }
 
 static name g_default_var_name("a");

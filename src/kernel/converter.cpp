@@ -123,12 +123,8 @@ struct default_converter : public converter {
             break;
         case expr_kind::App: {
             buffer<expr> args;
-            expr const * it = &e;
-            while (is_app(*it)) {
-                args.push_back(app_arg(*it));
-                it = &(app_fn(*it));
-            }
-            expr f = whnf_core(*it, c);
+            expr f0 = get_app_rev_args(e, args);
+            expr f = whnf_core(f0, c);
             if (is_lambda(f)) {
                 unsigned m = 1;
                 unsigned num_args = args.size();
@@ -139,7 +135,7 @@ struct default_converter : public converter {
                 lean_assert(m <= num_args);
                 r = whnf_core(mk_rev_app(instantiate(binding_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()), c);
             } else {
-                r = is_eqp(f, *it) ? e : mk_rev_app(f, args.size(), args.data());
+                r = is_eqp(f, f0) ? e : mk_rev_app(f, args.size(), args.data());
             }
             break;
         }}
@@ -197,21 +193,14 @@ struct default_converter : public converter {
     */
     expr unfold_names(expr const & e, unsigned w) {
         if (is_app(e)) {
-            expr const * it = &e;
-            while (is_app(*it)) {
-                it = &(app_fn(*it));
-            }
-            expr f = unfold_name_core(*it, w);
-            if (is_eqp(f, *it)) {
+            expr f0 = get_app_fn(e);
+            expr f  = unfold_name_core(f0, w);
+            if (is_eqp(f, f0)) {
                 return e;
             } else {
                 buffer<expr> args;
-                expr const * it = &e;
-                while (is_app(*it)) {
-                    args.push_back(app_arg(*it));
-                    it = &(app_fn(*it));
-                }
-                return mk_rev_app(f, args.size(), args.data());
+                get_app_rev_args(e, args);
+                return mk_rev_app(f, args);
             }
         } else {
             return unfold_name_core(e, w);
@@ -232,17 +221,7 @@ struct default_converter : public converter {
         \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
         to be expanded.
     */
-    optional<definition> is_delta(expr const & e) {
-        if (is_app(e)) {
-            expr const * it = &e;
-            while (is_app(*it)) {
-                it = &(app_fn(*it));
-            }
-            return is_delta_core(*it);
-        } else {
-            return is_delta_core(e);
-        }
-    }
+    optional<definition> is_delta(expr const & e) { return is_delta_core(get_app_fn(e)); }
 
     /**
         \brief Weak head normal form core procedure that perform delta reduction for non-opaque constants with
@@ -365,8 +344,7 @@ struct default_converter : public converter {
 
     /** \brief Return true iff t is a constant named f_name or an application of the form (f_name a_1 ... a_k) */
     bool is_app_of(expr t, name const & f_name) {
-        while (is_app(t))
-            t = app_fn(t);
+        t = get_app_fn(t);
         return is_constant(t) && const_name(t) == f_name;
     }
 

@@ -597,7 +597,17 @@ inline bool has_free_var_ge(expr const & e, unsigned low) { return get_free_var_
 
     It returns the f.
 */
-expr get_app_args(expr const & e, buffer<expr> & args);
+expr const & get_app_args(expr const & e, buffer<expr> & args);
+/**
+   \brief Similar to \c get_app_args, but arguments are stored in reverse order in \c args.
+   If e is of the form <tt>(...(f a1) ... an)</tt>, then the procedure stores [an, ..., a1] in \c args.
+*/
+expr const & get_app_rev_args(expr const & e, buffer<expr> & args);
+/**
+   \brief Given of the form <tt>(...(f a1) ... an)</tt>, return \c f. If \c e is not an application,
+   then return \c e.
+*/
+expr const & get_app_fn(expr const & e);
 // =======================================
 
 

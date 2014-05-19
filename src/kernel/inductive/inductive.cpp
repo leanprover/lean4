@@ -433,7 +433,7 @@ struct add_inductive_fn {
 
     /** \brief Initialize m_dep_elim flag. */
     void set_dep_elim() {
-        if (m_env.impredicative() && is_zero(m_it_levels[0]))
+        if (m_env.impredicative() && m_env.prop_proof_irrel() && is_zero(m_it_levels[0]))
             m_dep_elim = false;
         else
             m_dep_elim = true;

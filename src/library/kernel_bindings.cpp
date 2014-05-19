@@ -43,7 +43,6 @@ io_state * get_io_state(lua_State * L);
 
 // Level
 DECL_UDATA(level)
-DEFINE_LUA_LIST(level, push_level, to_level)
 
 int push_optional_level(lua_State * L, optional<level> const & l) {  return l ? push_level(L, *l) : push_nil(L); }
 
@@ -66,6 +65,8 @@ static level to_level_ext(lua_State * L, int idx) {
     else
         return to_level(L, idx);
 }
+
+DEFINE_LUA_LIST(level, push_level, to_level_ext)
 
 static int level_add(lua_State * L) {
     return push_level(L, mk_offset(to_level(L, 1), luaL_checkinteger(L, 2)));

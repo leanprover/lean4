@@ -98,22 +98,40 @@ static name g_tmp_prefix = name::mk_internal_unique_name();
 
 /** \brief Environment extension used to store the computational rules associated with inductive datatype declarations. */
 struct inductive_env_ext : public environment_extension {
-    struct comp_rule {
+    struct elim_info {
         level_param_names m_level_names; // level parameter names used in computational rule
         unsigned          m_num_params;  // number of global parameters A
         unsigned          m_num_ACe;     // sum of number of global parameters A, type formers C, and minor preimises e.
-        unsigned          m_num_bu;      // sum of number of arguments u and v in the corresponding introduction rule.
-        expr              m_comp_rhs;    // computational rule RHS
-        comp_rule(level_param_names const & ls, unsigned num_ps, unsigned num_ace, unsigned num_bu, expr const & rhs):
-            m_level_names(ls), m_num_params(num_ps), m_num_ACe(num_ace), m_num_bu(num_bu), m_comp_rhs(rhs) {}
+        unsigned          m_num_indices; // number of inductive datatype indices
+        elim_info() {}
+        elim_info(level_param_names const & ls, unsigned num_ps, unsigned num_ACe, unsigned num_indices):
+            m_level_names(ls), m_num_params(num_ps), m_num_ACe(num_ACe), m_num_indices(num_indices) {}
+    };
+
+    struct comp_rule {
+        name              m_elim_name;     // name of the corresponding eliminator
+        unsigned          m_num_bu;        // sum of number of arguments u and v in the corresponding introduction rule.
+        expr              m_comp_rhs;      // computational rule RHS: Fun (A, C, e, b, u), (e_k_i b u v)
+        expr              m_comp_rhs_body; // body of m_comp_rhs:  (e_k_i b u v)
+        comp_rule() {}
+        comp_rule(name const & e, unsigned num_bu, expr const & rhs):
+            m_elim_name(e), m_num_bu(num_bu), m_comp_rhs(rhs), m_comp_rhs_body(rhs) {
+            while (is_lambda(m_comp_rhs_body))
+                m_comp_rhs_body = binding_body(m_comp_rhs_body);
+        }
     };
     // mapping from introduction rule name to computation rule data
-    rb_map<name, comp_rule, name_quick_cmp> m_com_rules;
+    rb_map<name, elim_info, name_quick_cmp>  m_elim_info;
+    rb_map<name, comp_rule, name_quick_cmp>  m_com_rules;
 
     inductive_env_ext() {}
 
-    void add(name const & n, level_param_names const & ls, unsigned num_ps, unsigned num_ace, unsigned num_bu, expr const & rhs) {
-        m_com_rules.insert(n, comp_rule(ls, num_ps, num_ace, num_bu, rhs));
+    void add_elim(name const & n, level_param_names const & ls, unsigned num_ps, unsigned num_ace, unsigned num_indices) {
+        m_elim_info.insert(n, elim_info(ls, num_ps, num_ace, num_indices));
+    }
+
+    void add_comp_rhs(name const & n, name const & e, unsigned num_bu, expr const & rhs) {
+        m_com_rules.insert(n, comp_rule(e, num_bu, rhs));
     }
 };
 
@@ -599,6 +617,9 @@ struct add_inductive_fn {
             es.append(m_elim_info[i].m_minor_premises);
     }
 
+    /** \brief Return the number of indices of the i-th datatype. */
+    unsigned get_num_indices(unsigned i) { return m_elim_info[i].m_indices.size(); }
+
     /** \brief Create computional rules RHS. They are used by the normalizer extension. */
     void mk_comp_rules_rhs() {
         unsigned d_idx  = 0;
@@ -608,6 +629,7 @@ struct add_inductive_fn {
         levels ls = get_elim_level_params();
         inductive_env_ext ext(get_extension(m_env));
         for (auto d : m_decls) {
+            ext.add_elim(get_elim_name(d), get_elim_level_param_names(), m_num_params, m_num_params + C.size() + e.size(),  get_num_indices(d_idx));
             for (auto ir : inductive_decl_intros(d)) {
                 buffer<expr> b;
                 buffer<expr> u;
@@ -647,8 +669,7 @@ struct add_inductive_fn {
                 expr e_app = mk_app(mk_app(mk_app(e[minor_idx], b), u), v);
                 expr comp_rhs   = Fun(m_param_consts, Fun(C, Fun(e, Fun(b, Fun(u, e_app)))));
                 m_tc.check(comp_rhs, get_elim_level_param_names());
-                ext.add(intro_rule_name(ir), get_elim_level_param_names(),
-                        m_num_params, m_num_params + C.size() + e.size(), b.size() + u.size(), comp_rhs);
+                ext.add_comp_rhs(intro_rule_name(ir), get_elim_name(d_idx), b.size() + u.size(), comp_rhs);
                 minor_idx++;
             }
             d_idx++;
@@ -679,6 +700,68 @@ environment add_inductive(environment                  env,
 environment add_inductive(environment const & env, name const & ind_name, level_param_names const & level_params,
                           unsigned num_params, expr const & type, list<intro_rule> const & intro_rules) {
     return add_inductive(env, level_params, num_params, list<inductive_decl>(inductive_decl(ind_name, type, intro_rules)));
+}
+
+
+/** \brief Normalizer extension for applying inductive datatype computational rules. */
+class inductive_normalizer_extension : public normalizer_extension {
+public:
+    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const {
+        // Reduce terms \c e of the form
+        //    elim_k A C e p[A,b] (intro_k_i A b u)
+        inductive_env_ext const & ext = get_extension(ctx.env());
+        expr const & elim_fn   = get_app_fn(e);
+        if (!is_constant(elim_fn))
+            return none_expr();
+        auto it1 = ext.m_elim_info.find(const_name(elim_fn));
+        if (!it1)
+            return none_expr(); // it is not an eliminator
+        buffer<expr> elim_args;
+        get_app_args(e, elim_args);
+        if (elim_args.size() != it1->m_num_ACe + it1->m_num_indices + 1)
+            return none_expr(); // number of arguments does not match
+        expr intro_app = ctx.whnf(elim_args.back());
+        expr const & intro_fn  = get_app_fn(intro_app);
+        // Last argument must be a constant and an application of a constant.
+        if (!is_constant(intro_fn))
+            return none_expr();
+        // Check if intro_fn is an introduction rule matching elim_fn
+        auto it2 = ext.m_com_rules.find(const_name(intro_fn));
+        if (!it2 || it2->m_elim_name != const_name(elim_fn))
+            return none_expr();
+        buffer<expr> intro_args;
+        get_app_args(intro_app, intro_args);
+        // Check intro num_args
+        if (intro_args.size() != it1->m_num_params + it2->m_num_bu)
+            return none_expr();
+        // std::cout << "Candidate: " << e << "\n";
+        if (it1->m_num_params > 0) {
+            // Global parameters of elim and intro be definitionally equal
+            delayed_justification jst([=]() { return mk_justification("elim/intro global parameters must match", some_expr(e)); });
+            for (unsigned i = 0; i < it1->m_num_params; i++) {
+                if (!ctx.is_def_eq(elim_args[i], intro_args[i], jst))
+                    return none_expr();
+            }
+        }
+        // std::cout << "global params matched\n";
+        // Number of universe levels must match.
+        if (length(const_levels(elim_fn)) != length(it1->m_level_names))
+            return none_expr();
+        buffer<expr> ACebu;
+        for (unsigned i = 0; i < it1->m_num_ACe; i++)
+            ACebu.push_back(elim_args[i]);
+        for (unsigned i = 0; i < it2->m_num_bu; i++)
+            ACebu.push_back(intro_args[it1->m_num_params + i]);
+        std::reverse(ACebu.begin(), ACebu.end());
+        expr r = instantiate(it2->m_comp_rhs_body, ACebu.size(), ACebu.data());
+        r = instantiate_params(r, it1->m_level_names, const_levels(elim_fn));
+        // std::cout << "ELIM/INTRO: " << e << " ==> " << r << "\n";
+        return some_expr(r);
+    }
+};
+
+std::unique_ptr<normalizer_extension> mk_extension() {
+    return std::unique_ptr<normalizer_extension>(new inductive_normalizer_extension());
 }
 }
 }

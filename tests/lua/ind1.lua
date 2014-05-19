@@ -1,4 +1,4 @@
-local env      = empty_environment()
+local env      = environment()
 local l        = mk_param_univ("l")
 local A        = Const("A")
 local U_l      = mk_sort(l)
@@ -18,7 +18,7 @@ local u        = global_univ("u")
 local v        = global_univ("v")
 
 function display_type(env, t)
-   print(tostring(t) .. " : " .. tostring(type_checker(env):infer(t)))
+   print(tostring(t) .. " : " .. tostring(type_checker(env):check(t)))
 end
 
 env = add_inductive(env,
@@ -102,3 +102,30 @@ display_type(env, Const("Odd_rec"))
 display_type(env, Const("and_rec", {v}))
 display_type(env, Const("vec_rec", {v, u}))
 display_type(env, Const("flist_rec", {v, u}))
+
+local U_1      = mk_level_one()
+local n        = Const("n")
+local c        = Const("c")
+local nat_rec1 = Const("nat_rec", {U_1})
+local add      = Fun({{a, Nat}, {b, Nat}}, nat_rec1(mk_lambda("_", Nat, Nat), b, Fun({{n, Nat}, {c, Nat}}, succ(c)), a))
+display_type(env, add)
+local tc = type_checker(env)
+assert(tc:is_def_eq(add(succ(succ(zero)), succ(zero)),
+                    succ(succ(succ(zero)))))
+assert(tc:is_def_eq(add(succ(succ(succ(zero))), succ(succ(zero))),
+                    succ(succ(succ(succ(succ(zero)))))))
+
+local list_nat      = Const("list", {U_1})(Nat)
+local list_nat_rec1 = Const("list_rec", {U_1, U_1})(Nat)
+display_type(env, list_nat_rec1)
+local h        = Const("h")
+local t        = Const("t")
+local v        = Const("v")
+local l        = Const("l")
+local length   = Fun(l, list_nat, list_nat_rec1(mk_lambda("_", list_nat, Nat), zero, Fun({{h, Nat}, {t, list_nat}, {v, Nat}}, succ(v)), l))
+local nil_nat  = Const("nil", {U_1})(Nat)
+local cons_nat = Const("cons", {U_1})(Nat)
+print(tc:whnf(length(nil_nat)))
+assert(tc:is_def_eq(length(nil_nat), zero))
+assert(tc:is_def_eq(length(cons_nat(zero, nil_nat)), succ(zero)))
+assert(tc:is_def_eq(length(cons_nat(zero, cons_nat(zero, nil_nat))), succ(succ(zero))))

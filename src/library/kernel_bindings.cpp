@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
+#include "kernel/standard/standard.h"
 #include "library/occurs.h"
 #include "library/io_state_stream.h"
 #include "library/expr_lt.h"
@@ -1074,6 +1075,13 @@ static int mk_empty_environment(lua_State * L) {
     list<name> const & cls_proof_irrel = get_list_name_named_param(L, 1, "cls_proof_irrel", list<name>());
     return push_environment(L, environment(trust_lvl, prop_proof_irrel, eta, impredicative, cls_proof_irrel));
 }
+static int mk_environment(lua_State * L) {
+    unsigned trust_lvl = 0;
+    if (lua_gettop(L) > 0)
+        trust_lvl = lua_tonumber(L, 1);
+    return push_environment(L, mk_environment(trust_lvl));
+}
+
 static int environment_forget(lua_State * L) { return push_environment(L, to_environment(L, 1).forget()); }
 
 static const struct luaL_Reg environment_m[] = {
@@ -1140,6 +1148,7 @@ static void open_environment(lua_State * L) {
     setfuncs(L, environment_m, 0);
 
     SET_GLOBAL_FUN(mk_empty_environment,   "empty_environment");
+    SET_GLOBAL_FUN(mk_environment,         "environment");
     SET_GLOBAL_FUN(environment_pred,       "is_environment");
     SET_GLOBAL_FUN(get_environment,        "get_environment");
     SET_GLOBAL_FUN(get_environment,        "get_env");

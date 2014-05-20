@@ -167,4 +167,8 @@ environment environment::update(unsigned id, std::shared_ptr<environment_extensi
     (*new_exts)[id] = ext;
     return environment(m_header, m_id, m_definitions, m_global_levels, new_exts);
 }
+
+void environment::for_each(std::function<void(definition const & d)> const & f) const {
+    m_definitions.for_each([&](name const &, definition const & d) { return f(d); });
+}
 }

@@ -196,6 +196,9 @@ public:
         is not pointer equal to the result.
     */
     environment forget() const;
+
+    /** \brief Apply the function \c f to each definition */
+    void for_each(std::function<void(definition const & d)> const & f) const;
 };
 
 class name_generator;

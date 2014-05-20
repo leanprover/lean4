@@ -101,10 +101,10 @@ public:
 };
 
 /**
-   \brief Type check the given definition, and return a certified definition if it is type correct.
-   Throw an exception if the definition is type incorrect.
+   \brief Type check the given declaration, and return a certified declaration if it is type correct.
+   Throw an exception if the declaration is type incorrect.
 */
-certified_definition check(environment const & env, definition const & d,
-                           name_generator const & g, name_set const & extra_opaque = name_set(), bool memoize = true);
-certified_definition check(environment const & env, definition const & d, name_set const & extra_opaque = name_set(), bool memoize = true);
+certified_declaration check(environment const & env, declaration const & d,
+                            name_generator const & g, name_set const & extra_opaque = name_set(), bool memoize = true);
+certified_declaration check(environment const & env, declaration const & d, name_set const & extra_opaque = name_set(), bool memoize = true);
 }

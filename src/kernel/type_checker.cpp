@@ -307,7 +307,7 @@ struct type_checker::imp {
             r = mk_sort(mk_succ(sort_level(e)));
             break;
         case expr_kind::Constant: {
-            definition d    = m_env.get(const_name(e));
+            declaration d    = m_env.get(const_name(e));
             auto const & ps = d.get_params();
             auto const & ls = const_levels(e);
             if (length(ps) != length(ls))
@@ -445,7 +445,7 @@ static void check_name(environment const & env, name const & n) {
         throw_already_declared(env, n);
 }
 
-certified_definition check(environment const & env, definition const & d, name_generator const & g, name_set const & extra_opaque, bool memoize) {
+certified_declaration check(environment const & env, declaration const & d, name_generator const & g, name_set const & extra_opaque, bool memoize) {
     check_no_mlocal(env, d.get_type());
     if (d.is_definition())
         check_no_mlocal(env, d.get_value());
@@ -466,10 +466,10 @@ certified_definition check(environment const & env, definition const & d, name_g
                                    });
         }
     }
-    return certified_definition(env.get_id(), d);
+    return certified_declaration(env.get_id(), d);
 }
 
-certified_definition check(environment const & env, definition const & d, name_set const & extra_opaque, bool memoize) {
+certified_declaration check(environment const & env, declaration const & d, name_set const & extra_opaque, bool memoize) {
     return check(env, d, name_generator(g_tmp_prefix), extra_opaque, memoize);
 }
 }

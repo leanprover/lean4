@@ -830,25 +830,25 @@ static void open_macro_definition(lua_State * L) {
     SET_GLOBAL_FUN(macro_definition_pred, "is_macro_definition");
 }
 
-// definition
-DECL_UDATA(definition)
-int push_optional_definition(lua_State * L, optional<definition> const & e) {  return e ? push_definition(L, *e) : push_nil(L); }
-#define DEFINITION_PRED(P) static int definition_ ## P(lua_State * L) {  return push_boolean(L, to_definition(L, 1).P()); }
-DEFINITION_PRED(is_definition)
-DEFINITION_PRED(is_theorem)
-DEFINITION_PRED(is_axiom)
-DEFINITION_PRED(is_var_decl)
-DEFINITION_PRED(is_opaque)
-DEFINITION_PRED(use_conv_opt)
-static int definition_get_name(lua_State * L) { return push_name(L, to_definition(L, 1).get_name()); }
-static int definition_get_params(lua_State * L) { return push_list_name(L, to_definition(L, 1).get_params()); }
-static int definition_get_type(lua_State * L) { return push_expr(L, to_definition(L, 1).get_type()); }
-static int definition_get_value(lua_State * L) {
-    if (to_definition(L, 1).is_definition())
-        return push_expr(L, to_definition(L, 1).get_value());
-    throw exception("arg #1 must be a definition");
+// declaration
+DECL_UDATA(declaration)
+int push_optional_declaration(lua_State * L, optional<declaration> const & e) {  return e ? push_declaration(L, *e) : push_nil(L); }
+#define DECLARATION_PRED(P) static int declaration_ ## P(lua_State * L) {  return push_boolean(L, to_declaration(L, 1).P()); }
+DECLARATION_PRED(is_definition)
+DECLARATION_PRED(is_theorem)
+DECLARATION_PRED(is_axiom)
+DECLARATION_PRED(is_var_decl)
+DECLARATION_PRED(is_opaque)
+DECLARATION_PRED(use_conv_opt)
+static int declaration_get_name(lua_State * L) { return push_name(L, to_declaration(L, 1).get_name()); }
+static int declaration_get_params(lua_State * L) { return push_list_name(L, to_declaration(L, 1).get_params()); }
+static int declaration_get_type(lua_State * L) { return push_expr(L, to_declaration(L, 1).get_type()); }
+static int declaration_get_value(lua_State * L) {
+    if (to_declaration(L, 1).is_definition())
+        return push_expr(L, to_declaration(L, 1).get_value());
+    throw exception("arg #1 must be a declaration");
 }
-static int definition_get_weight(lua_State * L) { return push_integer(L, to_definition(L, 1).get_weight()); }
+static int declaration_get_weight(lua_State * L) { return push_integer(L, to_declaration(L, 1).get_weight()); }
 static list<name> to_level_param_names(lua_State * L, int _idx) {
     return table_to_list<name>(L, _idx, [](lua_State * L, int idx) -> name {
             if (is_level(L, idx)) {
@@ -864,27 +864,27 @@ static list<name> to_level_param_names(lua_State * L, int _idx) {
             }
         });
 }
-static int definition_get_module_idx(lua_State * L) { return push_integer(L, to_definition(L, 1).get_module_idx()); }
+static int declaration_get_module_idx(lua_State * L) { return push_integer(L, to_declaration(L, 1).get_module_idx()); }
 static int mk_var_decl(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_definition(L, mk_var_decl(to_name_ext(L, 1), level_param_names(), to_expr(L, 2)));
+        return push_declaration(L, mk_var_decl(to_name_ext(L, 1), level_param_names(), to_expr(L, 2)));
     else
-        return push_definition(L, mk_var_decl(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3)));
+        return push_declaration(L, mk_var_decl(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3)));
 }
 static int mk_axiom(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_definition(L, mk_axiom(to_name_ext(L, 1), level_param_names(), to_expr(L, 2)));
+        return push_declaration(L, mk_axiom(to_name_ext(L, 1), level_param_names(), to_expr(L, 2)));
     else
-        return push_definition(L, mk_axiom(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3)));
+        return push_declaration(L, mk_axiom(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3)));
 }
 static int mk_theorem(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 3)
-        return push_definition(L, mk_theorem(to_name_ext(L, 1), level_param_names(), to_expr(L, 2), to_expr(L, 3)));
+        return push_declaration(L, mk_theorem(to_name_ext(L, 1), level_param_names(), to_expr(L, 2), to_expr(L, 3)));
     else
-        return push_definition(L, mk_theorem(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3), to_expr(L, 4)));
+        return push_declaration(L, mk_theorem(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3), to_expr(L, 4)));
 }
 static void get_definition_args(lua_State * L, int idx, bool & opaque, unsigned & weight, module_idx & mod_idx, bool & use_conv_opt) {
     opaque       = get_bool_named_param(L, idx, "opaque", opaque);
@@ -896,60 +896,60 @@ static int mk_definition(lua_State * L) {
     int nargs = lua_gettop(L);
     bool opaque = true; unsigned weight = 0; module_idx mod_idx = 0; bool use_conv_opt = true;
     if (nargs < 3) {
-        throw exception("mk_definition must have at least 3 arguments");
+        throw exception("mk_declaration must have at least 3 arguments");
     } else if (is_environment(L, 1)) {
         if (nargs < 4) {
-            throw exception("mk_definition must have at least 4 arguments, when the first argument is an environment");
+            throw exception("mk_declaration must have at least 4 arguments, when the first argument is an environment");
         } else if (is_expr(L, 3)) {
             get_definition_args(L, 5, opaque, weight, mod_idx, use_conv_opt);
-            return push_definition(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), level_param_names(),
+            return push_declaration(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), level_param_names(),
                                                     to_expr(L, 3), to_expr(L, 4), opaque, mod_idx, use_conv_opt));
         } else {
             get_definition_args(L, 6, opaque, weight, mod_idx, use_conv_opt);
-            return push_definition(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), to_level_param_names(L, 3),
+            return push_declaration(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), to_level_param_names(L, 3),
                                                     to_expr(L, 4), to_expr(L, 5), opaque, mod_idx, use_conv_opt));
         }
     } else {
         if (is_expr(L, 2)) {
             get_definition_args(L, 4, opaque, weight, mod_idx, use_conv_opt);
-            return push_definition(L, mk_definition(to_name_ext(L, 1), level_param_names(), to_expr(L, 2),
+            return push_declaration(L, mk_definition(to_name_ext(L, 1), level_param_names(), to_expr(L, 2),
                                                     to_expr(L, 3), opaque, weight, mod_idx, use_conv_opt));
         } else {
             get_definition_args(L, 5, opaque, weight, mod_idx, use_conv_opt);
-            return push_definition(L, mk_definition(to_name_ext(L, 1), to_level_param_names(L, 2),
+            return push_declaration(L, mk_definition(to_name_ext(L, 1), to_level_param_names(L, 2),
                                                     to_expr(L, 3), to_expr(L, 4), opaque, weight, mod_idx, use_conv_opt));
         }
     }
 }
 
-static const struct luaL_Reg definition_m[] = {
-    {"__gc",             definition_gc}, // never throws
-    {"is_definition",    safe_function<definition_is_definition>},
-    {"is_theorem",       safe_function<definition_is_theorem>},
-    {"is_axiom",         safe_function<definition_is_axiom>},
-    {"is_var_decl",      safe_function<definition_is_var_decl>},
-    {"opaque",           safe_function<definition_is_opaque>},
-    {"use_conv_opt",     safe_function<definition_use_conv_opt>},
-    {"name",             safe_function<definition_get_name>},
-    {"univ_params",      safe_function<definition_get_params>},
-    {"type",             safe_function<definition_get_type>},
-    {"value",            safe_function<definition_get_value>},
-    {"weight",           safe_function<definition_get_weight>},
-    {"module_idx",       safe_function<definition_get_module_idx>},
+static const struct luaL_Reg declaration_m[] = {
+    {"__gc",             declaration_gc}, // never throws
+    {"is_definition",    safe_function<declaration_is_definition>},
+    {"is_theorem",       safe_function<declaration_is_theorem>},
+    {"is_axiom",         safe_function<declaration_is_axiom>},
+    {"is_var_decl",      safe_function<declaration_is_var_decl>},
+    {"opaque",           safe_function<declaration_is_opaque>},
+    {"use_conv_opt",     safe_function<declaration_use_conv_opt>},
+    {"name",             safe_function<declaration_get_name>},
+    {"univ_params",      safe_function<declaration_get_params>},
+    {"type",             safe_function<declaration_get_type>},
+    {"value",            safe_function<declaration_get_value>},
+    {"weight",           safe_function<declaration_get_weight>},
+    {"module_idx",       safe_function<declaration_get_module_idx>},
     {0, 0}
 };
 
-static void open_definition(lua_State * L) {
-    luaL_newmetatable(L, definition_mt);
+static void open_declaration(lua_State * L) {
+    luaL_newmetatable(L, declaration_mt);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
-    setfuncs(L, definition_m, 0);
+    setfuncs(L, declaration_m, 0);
 
-    SET_GLOBAL_FUN(definition_pred, "is_definition");
-    SET_GLOBAL_FUN(mk_var_decl,     "mk_var_decl");
-    SET_GLOBAL_FUN(mk_axiom,        "mk_axiom");
-    SET_GLOBAL_FUN(mk_theorem,      "mk_theorem");
-    SET_GLOBAL_FUN(mk_definition,   "mk_definition");
+    SET_GLOBAL_FUN(declaration_pred, "is_declaration");
+    SET_GLOBAL_FUN(mk_var_decl,      "mk_var_decl");
+    SET_GLOBAL_FUN(mk_axiom,         "mk_axiom");
+    SET_GLOBAL_FUN(mk_theorem,       "mk_theorem");
+    SET_GLOBAL_FUN(mk_definition,    "mk_definition");
 }
 
 // Formatter
@@ -1059,33 +1059,33 @@ static void open_environment_id(lua_State * L) {
     SET_GLOBAL_FUN(environment_id_pred, "is_environment_id");
 }
 
-// certified_definition
-DECL_UDATA(certified_definition)
-static int certified_definition_get_definition(lua_State * L) { return push_definition(L, to_certified_definition(L, 1).get_definition()); }
-static int certified_definition_get_id(lua_State * L) { return push_environment_id(L, to_certified_definition(L, 1). get_id()); }
+// certified_declaration
+DECL_UDATA(certified_declaration)
+static int certified_declaration_get_declaration(lua_State * L) { return push_declaration(L, to_certified_declaration(L, 1).get_declaration()); }
+static int certified_declaration_get_id(lua_State * L) { return push_environment_id(L, to_certified_declaration(L, 1). get_id()); }
 
-static const struct luaL_Reg certified_definition_m[] = {
-    {"__gc",             certified_definition_gc}, // never throws
-    {"definition",       safe_function<certified_definition_get_definition>},
-    {"environment_id",   safe_function<certified_definition_get_id>},
+static const struct luaL_Reg certified_declaration_m[] = {
+    {"__gc",             certified_declaration_gc}, // never throws
+    {"declaration",       safe_function<certified_declaration_get_declaration>},
+    {"environment_id",   safe_function<certified_declaration_get_id>},
     {0, 0}
 };
 
-static void certified_definition_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_certified_definition(tgt, to_certified_definition(src, i));
+static void certified_declaration_migrate(lua_State * src, int i, lua_State * tgt) {
+    push_certified_declaration(tgt, to_certified_declaration(src, i));
 }
 
-static void open_certified_definition(lua_State * L) {
-    luaL_newmetatable(L, certified_definition_mt);
-    set_migrate_fn_field(L, -1, certified_definition_migrate);
+static void open_certified_declaration(lua_State * L) {
+    luaL_newmetatable(L, certified_declaration_mt);
+    set_migrate_fn_field(L, -1, certified_declaration_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
-    setfuncs(L, certified_definition_m, 0);
+    setfuncs(L, certified_declaration_m, 0);
 
-    SET_GLOBAL_FUN(certified_definition_pred, "is_certified_definition");
+    SET_GLOBAL_FUN(certified_declaration_pred, "is_certified_declaration");
 }
-static bool operator!=(certified_definition const &, certified_definition const &) { return true; }
-DEFINE_LUA_LIST(certified_definition, push_certified_definition, to_certified_definition)
+static bool operator!=(certified_declaration const &, certified_declaration const &) { return true; }
+DEFINE_LUA_LIST(certified_declaration, push_certified_declaration, to_certified_declaration)
 
 // Environment
 DECL_UDATA(environment)
@@ -1097,10 +1097,10 @@ static int environment_eta(lua_State * L) { return push_boolean(L, to_environmen
 static int environment_impredicative(lua_State * L) { return push_boolean(L, to_environment(L, 1).impredicative()); }
 static int environment_add_global_level(lua_State * L) { return push_environment(L, to_environment(L, 1).add_global_level(to_name_ext(L, 2))); }
 static int environment_is_global_level(lua_State * L) { return push_boolean(L, to_environment(L, 1).is_global_level(to_name_ext(L, 2))); }
-static int environment_find(lua_State * L) { return push_optional_definition(L, to_environment(L, 1).find(to_name_ext(L, 2))); }
-static int environment_get(lua_State * L) { return push_definition(L, to_environment(L, 1).get(to_name_ext(L, 2))); }
-static int environment_add(lua_State * L) { return push_environment(L, to_environment(L, 1).add(to_certified_definition(L, 2))); }
-static int environment_replace(lua_State * L) { return push_environment(L, to_environment(L, 1).replace(to_certified_definition(L, 2))); }
+static int environment_find(lua_State * L) { return push_optional_declaration(L, to_environment(L, 1).find(to_name_ext(L, 2))); }
+static int environment_get(lua_State * L) { return push_declaration(L, to_environment(L, 1).get(to_name_ext(L, 2))); }
+static int environment_add(lua_State * L) { return push_environment(L, to_environment(L, 1).add(to_certified_declaration(L, 2))); }
+static int environment_replace(lua_State * L) { return push_environment(L, to_environment(L, 1).replace(to_certified_declaration(L, 2))); }
 static int mk_empty_environment(lua_State * L) {
     unsigned trust_lvl    = get_uint_named_param(L, 1, "trust_lvl", 0);
     trust_lvl             = get_uint_named_param(L, 1, "trust_level", trust_lvl);
@@ -1125,9 +1125,9 @@ static int environment_type_check(lua_State * L) { return push_expr(L, type_chec
 static int environment_for_each(lua_State * L) {
     environment const & env = to_environment(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
-    env.for_each([&](definition const & d) {
+    env.for_each([&](declaration const & d) {
             lua_pushvalue(L, 2); // push user-fun
-            push_definition(L, d);
+            push_declaration(L, d);
             pcall(L, 1, 0, 0);
         });
     return 0;
@@ -1758,27 +1758,27 @@ static const struct luaL_Reg type_checker_ref_m[] = {
 static int type_check(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_certified_definition(L, check(to_environment(L, 1), to_definition(L, 2)));
+        return push_certified_declaration(L, check(to_environment(L, 1), to_declaration(L, 2)));
     else if (nargs == 3)
-        return push_certified_definition(L, check(to_environment(L, 1), to_definition(L, 2), to_name_generator(L, 3)));
+        return push_certified_declaration(L, check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3)));
     else if (nargs == 4)
-        return push_certified_definition(L, check(to_environment(L, 1), to_definition(L, 2), to_name_generator(L, 3), to_name_set(L, 4)));
+        return push_certified_declaration(L, check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4)));
     else
-        return push_certified_definition(L, check(to_environment(L, 1), to_definition(L, 2), to_name_generator(L, 3), to_name_set(L, 4),
+        return push_certified_declaration(L, check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4),
                                                   lua_toboolean(L, 5)));
 }
 
 static int add_declaration(lua_State * L) {
     int nargs = lua_gettop(L);
-    optional<certified_definition> d;
+    optional<certified_declaration> d;
     if (nargs == 2)
-        d = check(to_environment(L, 1), to_definition(L, 2));
+        d = check(to_environment(L, 1), to_declaration(L, 2));
     else if (nargs == 3)
-        d = check(to_environment(L, 1), to_definition(L, 2), to_name_generator(L, 3));
+        d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3));
     else if (nargs == 4)
-        d = check(to_environment(L, 1), to_definition(L, 2), to_name_generator(L, 3), to_name_set(L, 4));
+        d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4));
     else
-        d = check(to_environment(L, 1), to_definition(L, 2), to_name_generator(L, 3), to_name_set(L, 4), lua_toboolean(L, 5));
+        d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4), lua_toboolean(L, 5));
     return push_environment(L, to_environment(L, 1).add(*d));
 }
 
@@ -1876,11 +1876,11 @@ void open_kernel_module(lua_State * L) {
     open_expr(L);
     open_list_expr(L);
     open_macro_definition(L);
-    open_definition(L);
+    open_declaration(L);
     open_formatter(L);
     open_environment_id(L);
-    open_certified_definition(L);
-    open_list_certified_definition(L);
+    open_certified_declaration(L);
+    open_list_certified_declaration(L);
     open_environment(L);
     open_io_state(L);
     open_justification(L);

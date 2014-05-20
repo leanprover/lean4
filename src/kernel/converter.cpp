@@ -165,7 +165,7 @@ struct default_converter : public converter {
        D is not a theorem, nor D is in the set m_extra_opaque. To implement this feature, this class has a field
        m_module_idx that is not none when this rule should be applied.
     */
-    bool is_opaque(definition const & d) const {
+    bool is_opaque(declaration const & d) const {
         lean_assert(d.is_definition());
         if (d.is_theorem()) return true;                                       // theorems are always opaque
         if (m_extra_opaque.contains(d.get_name())) return true;                // extra_opaque set overrides opaque flag
@@ -208,20 +208,20 @@ struct default_converter : public converter {
     }
 
     /** \brief Auxiliary method for \c is_delta */
-    optional<definition> is_delta_core(expr const & e) {
+    optional<declaration> is_delta_core(expr const & e) {
         if (is_constant(e)) {
             if (auto d = m_env.find(const_name(e)))
                 if (d->is_definition() && !is_opaque(*d))
                     return d;
         }
-        return none_definition();
+        return none_declaration();
     }
 
     /**
         \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
         to be expanded.
     */
-    optional<definition> is_delta(expr const & e) { return is_delta_core(get_app_fn(e)); }
+    optional<declaration> is_delta(expr const & e) { return is_delta_core(get_app_fn(e)); }
 
     /**
         \brief Weak head normal form core procedure that perform delta reduction for non-opaque constants with

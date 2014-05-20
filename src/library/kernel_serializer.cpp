@@ -7,11 +7,11 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/object_serializer.h"
 #include "kernel/expr.h"
-#include "kernel/definition.h"
+#include "kernel/declaration.h"
 #include "library/max_sharing.h"
 #include "library/kernel_serializer.h"
 
-// Procedures for serializing and deserializing kernel objects (levels, exprs, definitions)
+// Procedures for serializing and deserializing kernel objects (levels, exprs, declarations)
 namespace lean {
 // Universe level serialization
 class level_serializer : public object_serializer<level, level::ptr_hash, level::ptr_eq> {
@@ -254,10 +254,10 @@ expr read_expr(deserializer & d) {
     return d.get_extension<expr_deserializer>(g_expr_sd.m_d_extid).read();
 }
 
-// Definition serialization
+// Declaration serialization
 static serializer & operator<<(serializer & s, level_param_names const & ps) { return write_list<name>(s, ps); }
 static level_param_names read_level_params(deserializer & d) { return read_list<name>(d); }
-serializer & operator<<(serializer & s, definition const & d) {
+serializer & operator<<(serializer & s, declaration const & d) {
     char k = 0;
     if (d.is_definition()) {
         k |= 1;
@@ -277,7 +277,7 @@ serializer & operator<<(serializer & s, definition const & d) {
     return s;
 }
 
-definition read_definition(deserializer & d, unsigned module_idx) {
+declaration read_declaration(deserializer & d, unsigned module_idx) {
     char k               = d.read_char();
     bool has_value       = (k & 1) != 0;
     bool is_theorem      = (k & 8) != 0;

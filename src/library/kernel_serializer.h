@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "util/serializer.h"
-#include "kernel/definition.h"
+#include "kernel/declaration.h"
 
 namespace lean {
 serializer & operator<<(serializer & s, level const & l);
@@ -21,8 +21,8 @@ serializer & operator<<(serializer & s, expr const & e);
 expr read_expr(deserializer & d);
 inline deserializer & operator>>(deserializer & d, expr & e) { e = read_expr(d); return d; }
 
-serializer & operator<<(serializer & s, definition const & d);
-definition read_definition(deserializer & d, unsigned module_idx);
+serializer & operator<<(serializer & s, declaration const & d);
+declaration read_declaration(deserializer & d, unsigned module_idx);
 
 void register_macro_deserializer(std::string const & k, macro_definition_cell::reader rd);
 struct register_macro_deserializer_fn {

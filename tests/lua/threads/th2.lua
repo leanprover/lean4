@@ -2,9 +2,9 @@ S1 = State()
 S2 = State()
 code = [[
   function f(env, prefix, num, type)
-      local r = list_certified_definition()
+      local r = list_certified_declaration()
       for i = 1, num do
-          r = list_certified_definition(type_check(env, mk_var_decl(prefix .. "_" .. i, type)), r)
+          r = list_certified_declaration(type_check(env, mk_var_decl(prefix .. "_" .. i, type)), r)
       end
       return r
   end

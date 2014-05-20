@@ -15,12 +15,12 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 #include "kernel/expr.h"
 #include "kernel/constraint.h"
-#include "kernel/definition.h"
+#include "kernel/declaration.h"
 
 namespace lean {
 class type_checker;
 class environment;
-class certified_definition;
+class certified_declaration;
 
 /**
    \brief The Lean kernel can be instantiated with different normalization extensions.
@@ -98,16 +98,16 @@ public:
 */
 class environment {
     typedef std::shared_ptr<environment_header const>     header;
-    typedef rb_map<name, definition, name_quick_cmp>      definitions;
+    typedef rb_map<name, declaration, name_quick_cmp>     declarations;
     typedef std::shared_ptr<environment_extensions const> extensions;
 
     header         m_header;
     environment_id m_id;
-    definitions    m_definitions;
+    declarations   m_declarations;
     name_set       m_global_levels;
     extensions     m_extensions;
 
-    environment(header const & h, environment_id const & id, definitions const & d, name_set const & global_levels, extensions const & ext);
+    environment(header const & h, environment_id const & id, declarations const & d, name_set const & global_levels, extensions const & ext);
 
 public:
     environment(unsigned trust_lvl = 0, bool prop_proof_irrel = true, bool eta = true, bool impredicative = true,
@@ -140,11 +140,11 @@ public:
     /** \brief Return reference to the normalizer extension associatied with this environment. */
     normalizer_extension const & norm_ext() const { return m_header->norm_ext(); }
 
-    /** \brief Return definition with name \c n (if it is defined in this environment). */
-    optional<definition> find(name const & n) const;
+    /** \brief Return declaration with name \c n (if it is defined in this environment). */
+    optional<declaration> find(name const & n) const;
 
-    /** \brief Return definition with name \c n. Throws and exception if definition does not exist in this environment. */
-    definition get(name const & n) const;
+    /** \brief Return declaration with name \c n. Throws and exception if declaration does not exist in this environment. */
+    declaration get(name const & n) const;
 
     /**
         \brief Add a new global universe level with name \c n
@@ -156,20 +156,20 @@ public:
     bool is_global_level(name const & n) const;
 
     /**
-       \brief Extends the current environment with the given (certified) definition
+       \brief Extends the current environment with the given (certified) declaration
        This method throws an exception if:
-          - The definition was certified in an environment which is not an ancestor of this one.
-          - The environment already contains a definition with the given name.
+          - The declaration was certified in an environment which is not an ancestor of this one.
+          - The environment already contains a declaration with the given name.
     */
-    environment add(certified_definition const & d) const;
+    environment add(certified_declaration const & d) const;
 
     /**
-       \brief Replace the axiom with name <tt>t.get_definition().get_name()</tt> with the theorem t.get_definition().
+       \brief Replace the axiom with name <tt>t.get_declaration().get_name()</tt> with the theorem t.get_declaration().
        This method throws an exception if:
           - The theorem was certified in an environment which is not an ancestor of this one.
-          - The environment does not contain an axiom named <tt>t.get_definition().get_name()</tt>
+          - The environment does not contain an axiom named <tt>t.get_declaration().get_name()</tt>
     */
-    environment replace(certified_definition const & t) const;
+    environment replace(certified_declaration const & t) const;
 
     /**
        \brief Register an environment extension. Every environment
@@ -197,24 +197,24 @@ public:
     */
     environment forget() const;
 
-    /** \brief Apply the function \c f to each definition */
-    void for_each(std::function<void(definition const & d)> const & f) const;
+    /** \brief Apply the function \c f to each declaration */
+    void for_each(std::function<void(declaration const & d)> const & f) const;
 };
 
 class name_generator;
 
 /**
-   \brief A certified definition is one that has been type checked.
-   Only the type_checker class can create certified definitions.
+   \brief A certified declaration is one that has been type checked.
+   Only the type_checker class can create certified declarations.
 */
-class certified_definition {
-    friend certified_definition check(environment const & env, definition const & d, name_generator const & g, name_set const & extra_opaque, bool memoize);
+class certified_declaration {
+    friend certified_declaration check(environment const & env, declaration const & d, name_generator const & g, name_set const & extra_opaque, bool memoize);
     environment_id m_id;
-    definition     m_definition;
-    certified_definition(environment_id const & id, definition const & d):m_id(id), m_definition(d) {}
+    declaration    m_declaration;
+    certified_declaration(environment_id const & id, declaration const & d):m_id(id), m_declaration(d) {}
 public:
-    /** \brief Return the id of the environment that was used to type check this definition. */
+    /** \brief Return the id of the environment that was used to type check this declaration. */
     environment_id const & get_id() const { return m_id; }
-    definition const & get_definition() const { return m_definition; }
+    declaration const & get_declaration() const { return m_declaration; }
 };
 }

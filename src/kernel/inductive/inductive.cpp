@@ -318,7 +318,7 @@ struct add_inductive_fn {
     optional<unsigned> is_rec_argument(expr t) {
         t = m_tc.whnf(t);
         while (is_pi(t))
-            t = m_tc.whnf(binding_body(t));
+            t = m_tc.whnf(instantiate(binding_body(t), mk_local_for(t)));
         return is_valid_it_app(t);
     }
 
@@ -345,7 +345,7 @@ struct add_inductive_fn {
 
        \see check_intro_rules
     */
-    void check_intro_rule(inductive_decl const &, unsigned d_idx, intro_rule const & ir) {
+    void check_intro_rule(unsigned d_idx, intro_rule const & ir) {
         expr t = intro_rule_type(ir);
         name n = intro_rule_name(ir);
         m_tc.check(t, m_level_names);
@@ -400,7 +400,7 @@ struct add_inductive_fn {
         unsigned i = 0;
         for (auto d : m_decls) {
             for (auto ir : inductive_decl_intros(d))
-                check_intro_rule(d, i, ir);
+                check_intro_rule(i, ir);
             i++;
         }
     }

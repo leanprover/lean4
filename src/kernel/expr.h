@@ -608,6 +608,8 @@ expr const & get_app_rev_args(expr const & e, buffer<expr> & args);
    then return \c e.
 */
 expr const & get_app_fn(expr const & e);
+/** \brief Return the name of constant, local, metavar */
+inline name const & named_expr_name(expr const & e) { return is_constant(e) ? const_name(e) : mlocal_name(e); }
 // =======================================
 
 

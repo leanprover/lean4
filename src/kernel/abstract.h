@@ -39,7 +39,7 @@ inline expr Fun(name const & n, expr const & t, expr const & b, binder_info cons
     return mk_lambda(n, t, abstract(b, mk_constant(n)), bi);
 }
 inline expr Fun(expr const & n, expr const & t, expr const & b, binder_info const & bi = binder_info()) {
-    return mk_lambda(const_name(n), t, abstract(b, n), bi);
+    return mk_lambda(named_expr_name(n), t, abstract(b, n), bi);
 }
 inline expr Fun(std::pair<expr const &, expr const &> const & p, expr const & b) { return Fun(p.first, p.second, b); }
 expr Fun(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b);
@@ -55,7 +55,7 @@ inline expr Pi(name const & n, expr const & t, expr const & b, binder_info const
     return mk_pi(n, t, abstract(b, mk_constant(n)), bi);
 }
 inline expr Pi(expr const & n, expr const & t, expr const & b, binder_info const & bi = binder_info()) {
-    return mk_pi(const_name(n), t, abstract(b, n), bi);
+    return mk_pi(named_expr_name(n), t, abstract(b, n), bi);
 }
 inline expr Pi(std::pair<expr const &, expr const &> const & p, expr const & b) { return Pi(p.first, p.second, b); }
 expr Pi(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b);
@@ -67,5 +67,5 @@ inline expr Pi(expr const & local, expr const & b) { return Pi(1, &local, b); }
 -   \brief Create a Let expression (Let x := v in b), the term b is abstracted using abstract(b, x).
 -*/
 inline expr Let(name const & x, expr const & t, expr const & v, expr const & b) { return mk_let(x, t, v, abstract(b, mk_constant(x))); }
-inline expr Let(expr const & x, expr const & t, expr const & v, expr const & b) { return mk_let(const_name(x), t, v, abstract(b, x)); }
+inline expr Let(expr const & x, expr const & t, expr const & v, expr const & b) { return mk_let(named_expr_name(x), t, v, abstract(b, x)); }
 }

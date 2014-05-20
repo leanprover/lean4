@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/expr_lt.h"
 #include "library/kernel_bindings.h"
+#include "library/normalize.h"
 
 // Lua Bindings for the Kernel classes. We do not include the Lua
 // bindings in the kernel because we do not want to inflate the Kernel.
@@ -1117,6 +1118,10 @@ static int mk_environment(lua_State * L) {
 }
 
 static int environment_forget(lua_State * L) { return push_environment(L, to_environment(L, 1).forget()); }
+static int environment_whnf(lua_State * L) { return push_expr(L, type_checker(to_environment(L, 1)).whnf(to_expr(L, 2))); }
+static int environment_normalize(lua_State * L) { return push_expr(L, normalize(to_environment(L, 1), to_expr(L, 2))); }
+static int environment_infer_type(lua_State * L) { return push_expr(L, type_checker(to_environment(L, 1)).infer(to_expr(L, 2))); }
+static int environment_type_check(lua_State * L) { return push_expr(L, type_checker(to_environment(L, 1)).check(to_expr(L, 2))); }
 
 static const struct luaL_Reg environment_m[] = {
     {"__gc",              environment_gc}, // never throws
@@ -1134,6 +1139,10 @@ static const struct luaL_Reg environment_m[] = {
     {"add",               safe_function<environment_add>},
     {"replace",           safe_function<environment_replace>},
     {"forget",            safe_function<environment_forget>},
+    {"whnf",              safe_function<environment_whnf>},
+    {"normalize",         safe_function<environment_normalize>},
+    {"infer_type",        safe_function<environment_infer_type>},
+    {"type_check",        safe_function<environment_type_check>},
     {0, 0}
 };
 

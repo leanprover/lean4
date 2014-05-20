@@ -362,38 +362,63 @@ static expr get_expr_from_table(lua_State * L, int t, int i) {
 }
 
 static void throw_invalid_binder_table(int t) {
+    #define VALID_FORMS "local_name, {local_name, bool}, {expr, expr}, {expr, expr, bool}, or {expr, expr, binder_info}, each entry represents a binder, the first expression in each entry must be a (local) constant, the second expression is the type, the optional Boolean can be used to mark implicit arguments."
     if (t > 0)
-        throw exception(sstream() << "arg #" << t << " must be a table {e_1, ..., e_k} where each entry e_i is of the form: {expr, expr}, {expr, expr, bool}, or {expr, expr, binder_info}, each entry represents a binder, the first expression in each entry must be a (local) constant, the second expression is the type, the optional Boolean can be used to mark implicit arguments.");
+        throw exception(sstream() << "arg #" << t << " must be a table {e_1, ..., e_k} where each entry e_i is of the form: " VALID_FORMS);
     else
-        throw exception(sstream() << "invalid binder, it must of the form: {expr, expr}, {expr, expr, bool}, or {expr, expr, binder_info}, each entry represents a binder, the first expression in each entry must be a (local) constant, the second expression is the type, the optional Boolean can be used to mark implicit arguments.");
+        throw exception(sstream() << "invalid binder, it must of the form: " VALID_FORMS);
 }
 
 // t is a table of tuples {{a1, b1}, ..., {ak, bk}}
-// Each ai and bi is an expression
 // Each tuple represents a binder
 static std::tuple<expr, expr, binder_info> get_binder_from_table(lua_State * L, int t, int i) {
     lua_pushvalue(L, t); // push table on the top
     lua_pushinteger(L, i);
-    lua_gettable(L, -2); // now table {ai, bi} is on the top
+    lua_gettable(L, -2); // now table tuple {ai, bi} is on the top
     int tuple_sz = objlen(L, -1);
+    if (is_expr(L, -1)) {
+        expr const & e = to_expr(L, -1);
+        if (!is_local(e))
+            throw_invalid_binder_table(t);
+        return std::make_tuple(e, mlocal_type(e), binder_info());
+    }
     if (!lua_istable(L, -1) || (tuple_sz != 2 && tuple_sz != 3))
         throw_invalid_binder_table(t);
-    expr ai = get_expr_from_table(L, -1, 1);
+    lua_rawgeti(L, -1, 1);
+    if (!is_expr(L, -1))
+        throw_invalid_binder_table(t);
+    expr ai = to_expr(L, -1);
     if (!is_constant(ai) && !is_local(ai))
         throw_invalid_binder_table(t);
-    expr bi = get_expr_from_table(L, -1, 2);
+    lua_pop(L, 1);
     binder_info ii;
-    if (tuple_sz == 3) {
-        lua_pushinteger(L, 3);
-        lua_gettable(L, -2);
+    lua_rawgeti(L, -1, 2);
+    if (is_expr(L, -1)) {
+        expr bi = to_expr(L, -1);
+        lua_pop(L, 1);
+        if (tuple_sz == 3) {
+            lua_rawgeti(L, -1, 3);
+            if (lua_isboolean(L, -1))
+                ii = binder_info(lua_toboolean(L, -1));
+            else if (is_binder_info(L, -1))
+                ii = to_binder_info(L, -1);
+            else
+                throw_invalid_binder_table(t);
+            lua_pop(L, 1);
+        }
+        return std::make_tuple(ai, bi, ii);
+    } else {
+        if (!is_local(ai))
+            throw_invalid_binder_table(t);
         if (lua_isboolean(L, -1))
             ii = binder_info(lua_toboolean(L, -1));
-        else
+        else if (is_binder_info(L, -1))
             ii = to_binder_info(L, -1);
+        else
+            throw_invalid_binder_table(t);
         lua_pop(L, 1);
+        return std::make_tuple(ai, mlocal_type(ai), ii);
     }
-    lua_pop(L, 2); // pop tuple and t from stack
-    return std::make_tuple(ai, bi, ii);
 }
 
 typedef expr (*MkAbst1)(expr const & n, expr const & t, expr const & b);
@@ -742,6 +767,7 @@ static void open_expr(lua_State * L) {
     SET_GLOBAL_FUN(expr_mk_sort,     "mk_sort");
     SET_GLOBAL_FUN(expr_mk_metavar,  "mk_metavar");
     SET_GLOBAL_FUN(expr_mk_local,    "mk_local");
+    SET_GLOBAL_FUN(expr_mk_local,    "Local");
     SET_GLOBAL_FUN(expr_pred,        "is_expr");
 
     push_expr(L, Bool);

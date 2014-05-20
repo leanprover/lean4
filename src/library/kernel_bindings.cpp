@@ -1122,6 +1122,16 @@ static int environment_whnf(lua_State * L) { return push_expr(L, type_checker(to
 static int environment_normalize(lua_State * L) { return push_expr(L, normalize(to_environment(L, 1), to_expr(L, 2))); }
 static int environment_infer_type(lua_State * L) { return push_expr(L, type_checker(to_environment(L, 1)).infer(to_expr(L, 2))); }
 static int environment_type_check(lua_State * L) { return push_expr(L, type_checker(to_environment(L, 1)).check(to_expr(L, 2))); }
+static int environment_for_each(lua_State * L) {
+    environment const & env = to_environment(L, 1);
+    luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
+    env.for_each([&](definition const & d) {
+            lua_pushvalue(L, 2); // push user-fun
+            push_definition(L, d);
+            pcall(L, 1, 0, 0);
+        });
+    return 0;
+}
 
 static const struct luaL_Reg environment_m[] = {
     {"__gc",              environment_gc}, // never throws
@@ -1143,6 +1153,7 @@ static const struct luaL_Reg environment_m[] = {
     {"normalize",         safe_function<environment_normalize>},
     {"infer_type",        safe_function<environment_infer_type>},
     {"type_check",        safe_function<environment_type_check>},
+    {"for_each",          safe_function<environment_for_each>},
     {0, 0}
 };
 

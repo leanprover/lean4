@@ -846,11 +846,11 @@ static int declaration_get_type(lua_State * L) { return push_expr(L, to_declarat
 static int declaration_get_value(lua_State * L) {
     if (to_declaration(L, 1).is_definition())
         return push_expr(L, to_declaration(L, 1).get_value());
-    throw exception("arg #1 must be a declaration");
+    throw exception("arg #1 must be a definition");
 }
 static int declaration_get_weight(lua_State * L) { return push_integer(L, to_declaration(L, 1).get_weight()); }
 static list<name> to_level_param_names(lua_State * L, int _idx) {
-    return table_to_list<name>(L, _idx, [](lua_State * L, int idx) -> name {
+    return table_to_list<name>(L, _idx, [=](lua_State * L, int idx) -> name {
             if (is_level(L, idx)) {
                 level const & l = to_level(L, idx);
                 if (is_param(l))
@@ -858,7 +858,7 @@ static list<name> to_level_param_names(lua_State * L, int _idx) {
                 else if (is_global(l))
                     return global_id(l);
                 else
-                    throw exception(sstream() << "arg #" << idx << " contain a level expression that is not a parameter/global");
+                    throw exception(sstream() << "arg #" << _idx << " contain a level expression that is not a parameter/global");
             } else {
                 return to_name_ext(L, idx);
             }
@@ -896,10 +896,10 @@ static int mk_definition(lua_State * L) {
     int nargs = lua_gettop(L);
     bool opaque = true; unsigned weight = 0; module_idx mod_idx = 0; bool use_conv_opt = true;
     if (nargs < 3) {
-        throw exception("mk_declaration must have at least 3 arguments");
+        throw exception("mk_definition must have at least 3 arguments");
     } else if (is_environment(L, 1)) {
         if (nargs < 4) {
-            throw exception("mk_declaration must have at least 4 arguments, when the first argument is an environment");
+            throw exception("mk_definition must have at least 4 arguments, when the first argument is an environment");
         } else if (is_expr(L, 3)) {
             get_definition_args(L, 5, opaque, weight, mod_idx, use_conv_opt);
             return push_declaration(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), level_param_names(),

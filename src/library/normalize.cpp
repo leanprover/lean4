@@ -23,6 +23,14 @@ class normalize_fn {
         return update_binding(e, d, b);
     }
 
+    expr normalize_app(expr const & e) {
+        buffer<expr> args;
+        expr f = get_app_rev_args(e, args);
+        for (expr & a : args)
+            a = normalize(a);
+        return mk_rev_app(f, args);
+    }
+
     expr normalize(expr e) {
         e = m_tc.whnf(e);
         switch (e.kind()) {
@@ -34,7 +42,7 @@ class normalize_fn {
         case expr_kind::Lambda: case expr_kind::Pi:
             return normalize_binding(e);
         case expr_kind::App:
-            return update_app(e, app_fn(e), normalize(app_arg(e)));
+            return normalize_app(e);
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }

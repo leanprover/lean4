@@ -430,20 +430,27 @@ static int expr_abst(lua_State * L) {
     if (nargs < 2)
         throw exception("function must have at least 2 arguments");
     if (nargs == 2) {
-        if (!lua_istable(L, 1))
-            throw exception("function expects arg #1 to be of the form '{{expr, expr}, ...}'");
-        int len = objlen(L, 1);
-        if (len == 0)
-            throw exception("function expects arg #1 to be a non-empty table");
-        expr r = to_expr(L, 2);
-        for (int i = len; i >= 1; i--) {
-            auto p = get_binder_from_table(L, 1, i);
+        if (is_expr(L, 1) && is_local(to_expr(L, 1))) {
             if (pi)
-                r = Pi(std::get<0>(p), std::get<1>(p), r, std::get<2>(p));
+                return push_expr(L, Pi(to_expr(L, 1), to_expr(L, 2)));
             else
-                r = Fun(std::get<0>(p), std::get<1>(p), r, std::get<2>(p));
+                return push_expr(L, Fun(to_expr(L, 1), to_expr(L, 2)));
+        } else if (lua_istable(L, 1)) {
+            int len = objlen(L, 1);
+            if (len == 0)
+                throw exception("function expects arg #1 to be a non-empty table");
+            expr r = to_expr(L, 2);
+            for (int i = len; i >= 1; i--) {
+                auto p = get_binder_from_table(L, 1, i);
+                if (pi)
+                    r = Pi(std::get<0>(p), std::get<1>(p), r, std::get<2>(p));
+                else
+                    r = Fun(std::get<0>(p), std::get<1>(p), r, std::get<2>(p));
+            }
+            return push_expr(L, r);
+        } else {
+            throw exception("function expects arg #1 to be a local constant or a table of the form '{{expr, expr}, ...}'");
         }
-        return push_expr(L, r);
     } else {
         if (nargs % 2 == 0)
             throw exception("function must have an odd number of arguments");

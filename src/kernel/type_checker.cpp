@@ -219,18 +219,6 @@ struct type_checker::imp {
         }
     }
 
-    /** \brief Create a justification for the level constraint <tt>lhs <= rhs</tt> associated with constanc \c c. */
-    justification mk_lvl_cnstr_jst(expr const & c, level const & lhs, level const & rhs) {
-        lean_assert(is_constant(c));
-        return mk_justification(c,
-                                [=](formatter const & fmt, options const & o, substitution const & subst) {
-                                    return pp_def_lvl_cnstrs_satisfied(fmt, m_env, o,
-                                                                       subst.instantiate_metavars_wo_jst(c),
-                                                                       subst.instantiate_metavars_wo_jst(lhs),
-                                                                       subst.instantiate_metavars_wo_jst(rhs));
-                                });
-    }
-
     /**
         \brief Create a justification for a application type mismatch,
         \c e is the application, \c fn_type and \c arg_type are the function and argument type.

@@ -15,6 +15,4 @@ format pp_app_type_mismatch(formatter const & fmt, environment const & env, opti
                             expr const & expected_type, expr const & given_type);
 format pp_def_type_mismatch(formatter const & fmt, environment const & env, options const & opts, name const & n,
                             expr const & expected_type, expr const & given_type);
-format pp_def_lvl_cnstrs_satisfied(formatter const & fmt, environment const & env, options const & opts, expr const & e,
-                                   level const & lhs, level const & rhs);
 }

@@ -41,12 +41,4 @@ format pp_def_type_mismatch(formatter const & fmt, environment const & env, opti
     r += pp_indent_expr(fmt, env, opts, given_type);
     return r;
 }
-format pp_def_lvl_cnstrs_satisfied(formatter const & fmt, environment const & env, options const & opts, expr const & e,
-                                   level const & lhs, level const & rhs) {
-    format r("constand definition level constraints are not satisfied");
-    r += pp_indent_expr(fmt, env, opts, e);
-    r += format("level constraint:");
-    r += pp(lhs, rhs, opts);
-    return r;
-}
 }

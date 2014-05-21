@@ -1099,7 +1099,12 @@ static int environment_add_global_level(lua_State * L) { return push_environment
 static int environment_is_global_level(lua_State * L) { return push_boolean(L, to_environment(L, 1).is_global_level(to_name_ext(L, 2))); }
 static int environment_find(lua_State * L) { return push_optional_declaration(L, to_environment(L, 1).find(to_name_ext(L, 2))); }
 static int environment_get(lua_State * L) { return push_declaration(L, to_environment(L, 1).get(to_name_ext(L, 2))); }
-static int environment_add(lua_State * L) { return push_environment(L, to_environment(L, 1).add(to_certified_declaration(L, 2))); }
+static int environment_add(lua_State * L) {
+    if (is_declaration(L, 2))
+        return push_environment(L, to_environment(L, 1).add(to_declaration(L, 2)));
+    else
+        return push_environment(L, to_environment(L, 1).add(to_certified_declaration(L, 2)));
+}
 static int environment_replace(lua_State * L) { return push_environment(L, to_environment(L, 1).replace(to_certified_declaration(L, 2))); }
 static int mk_empty_environment(lua_State * L) {
     unsigned trust_lvl    = get_uint_named_param(L, 1, "trust_lvl", 0);

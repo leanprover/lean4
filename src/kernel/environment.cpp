@@ -75,6 +75,15 @@ declaration environment::get(name const & n) const {
     throw_kernel_exception(env, "invalid declaration, it was checked/certified in an incompatible environment");
 }
 
+environment environment::add(declaration const & d) const {
+    if (trust_lvl() <= LEAN_BELIEVER_TRUST_LEVEL)
+        throw_kernel_exception(*this, "environment trust level does not allow users to add declarations that were not type checked");
+    name const & n = d.get_name();
+    if (find(n))
+        throw_already_declared(*this, n);
+    return environment(m_header, m_id, insert(m_declarations, n, d), m_global_levels, m_extensions);
+}
+
 environment environment::add(certified_declaration const & d) const {
     if (!m_id.is_descendant(d.get_id()))
         throw_incompatible_environment(*this);

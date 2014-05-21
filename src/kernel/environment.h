@@ -17,6 +17,12 @@ Author: Leonardo de Moura
 #include "kernel/constraint.h"
 #include "kernel/declaration.h"
 
+#ifndef LEAN_BELIEVER_TRUST_LEVEL
+// If an environment E is created with a trust level > LEAN_BELIEVER_TRUST_LEVEL, then
+// we can add declarations to E without type checking them.
+#define LEAN_BELIEVER_TRUST_LEVEL 1024
+#endif
+
 namespace lean {
 class type_checker;
 class environment;
@@ -40,11 +46,11 @@ public:
 */
 class environment_header {
     /* In the following field, 0 means untrusted mode (i.e., check everything),
-       >= 1 means do not check imported modules, and do not check macros
-       with level less than the value of this field.
+       higher level allow us to trust the implementation of macros, and even
+       allow us to add declarations without type checking them (e.g., m_trust_lvl > LEAN_BELIEVER_TRUST_LEVEL)
     */
-    unsigned m_trust_lvl;     //!the given one.
-    bool m_prop_proof_irrel;  //!< true if the kernel assumes proof irrelevance for Bool/Type (aka Type(0))
+    unsigned m_trust_lvl;
+    bool m_prop_proof_irrel;  //!< true if the kernel assumes proof irrelevance for Bool/Type (aka Type.{0})
     bool m_eta;               //!< true if the kernel uses eta-reduction in convertability checks
     bool m_impredicative;     //!< true if the kernel should treat (universe level 0) as a impredicative Prop/Bool.
     list<name> m_cls_proof_irrel; //!< list of proof irrelevant classes, if we want Id types to be proof irrelevant, we the name 'Id' in this list.
@@ -162,6 +168,16 @@ public:
           - The environment already contains a declaration with the given name.
     */
     environment add(certified_declaration const & d) const;
+
+    /**
+       \brief Adds a declaration that was not type checked. This method throws an excetion if
+       trust_lvl() <= LEAN_BELIEVER_TRUST_LEVEL.
+       It is mainly when importing pre-compiled .olean files, and trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL.
+
+       \remark If trust_lvl() == 0, then this method will always throw an exception. No matter what is
+       the value of LEAN_BELIEVER_TRUST_LEVEL used to compile Lean.
+    */
+    environment add(declaration const & d) const;
 
     /**
        \brief Replace the axiom with name <tt>t.get_declaration().get_name()</tt> with the theorem t.get_declaration().

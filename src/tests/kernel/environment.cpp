@@ -140,10 +140,29 @@ static void tst3() {
     lean_assert_eq(checker.whnf(proj1(proj1(mk(id(A, mk(a, b)), b)))), a);
 }
 
+class dummy_ext : public environment_extension {};
+
+static void tst4() {
+    environment env;
+    try {
+        env.get_extension(10000);
+        lean_unreachable();
+    } catch (kernel_exception & ex) {
+        std::cout << "expected error: " << ex.what() << "\n";
+    }
+    try {
+        env.update(10000, std::make_shared<dummy_ext>());
+        lean_unreachable();
+    } catch (kernel_exception & ex) {
+        std::cout << "expected error: " << ex.what() << "\n";
+    }
+}
+
 int main() {
     save_stack_info();
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

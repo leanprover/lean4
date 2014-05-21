@@ -11,7 +11,7 @@ code = [[
 ]]
 S1:dostring(code)
 S2:dostring(code)
-local e = empty_environment()
+local e = bare_environment()
 e = add_decl(e, mk_var_decl("N", Type))
 code2 = [[
   e, prefix = ...

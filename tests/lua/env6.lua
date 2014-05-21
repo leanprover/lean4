@@ -1,4 +1,4 @@
-local env = empty_environment()
+local env = bare_environment()
 env = add_decl(env, mk_var_decl("A", Bool))
 local A   = Const("A")
 local x   = Const("x")

@@ -102,7 +102,7 @@ bad_add_inductive(env,
                   "zero2", Nat2,
                   "succ2", Pi(a, Nat2, mk_arrow(eq(Nat2, a, a), Nat2)))
 
-local env      = empty_environment()
+local env      = bare_environment()
 bad_add_inductive(env, -- Environment does not support inductive datatypes
                   "nat", Type,
                   "zero", Nat,

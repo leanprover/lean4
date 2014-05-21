@@ -77,7 +77,7 @@ function assert_some_axioms(env)
    return env
 end
 
-local env = empty_environment({trust_lvl=1})
+local env = bare_environment({trust_lvl=1})
 env = init_env(env)
 env = assert_some_axioms(env)
 
@@ -116,7 +116,7 @@ print(tostring(Pr4) .. " : " .. tostring(tc:check(Pr4)))
 
 print("----------------")
 print("Type checking again, but using trust_lvl=0, macros will be expanded during type checking")
-local env = empty_environment({trust_lvl=0})
+local env = bare_environment({trust_lvl=0})
 env = init_env(env)
 env = assert_some_axioms(env)
 local tc  = type_checker(env)

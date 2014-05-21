@@ -1,4 +1,4 @@
-local env1 = empty_environment()
+local env1 = bare_environment()
 local env2 = add_decl(env1, mk_var_decl("A", Type))
 assert(env2:is_descendant(env1))
 assert(env2:is_descendant(env2))

@@ -9,7 +9,7 @@ local val = 10
 S:eval([[ local f = ...; assert(f(1) == 11) ]], function (x) return x + val end)
 S:eval([[ local o = ...; assert(o == name("a")) ]], name("a"))
 S:eval([[ local o = ...; assert(o == Const("a")) ]], Const("a"))
-S:eval([[ local o = ...; assert(is_environment(o)) ]], empty_environment())
+S:eval([[ local o = ...; assert(is_environment(o)) ]], bare_environment())
 S:eval([[ local o = ...; assert(o == mpz(100)) ]], mpz(100))
 S:eval([[ local o = ...; assert(o == mpq(100)/3) ]], mpq(100)/3)
 S:eval([[ local o = ...; assert(is_options(o)) ]], options())

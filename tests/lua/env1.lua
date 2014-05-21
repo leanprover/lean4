@@ -1,4 +1,4 @@
-local env = empty_environment()
+local env = bare_environment()
 assert(is_environment(env))
 assert(not env:is_global_level("U"))
 local env2 = env:add_global_level("U")

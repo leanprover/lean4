@@ -1,5 +1,5 @@
 assert(not mk_let("a", Type, Var(0), Var(0)):closed())
-local env = empty_environment()
+local env = bare_environment()
 local A   = Const("A")
 env = add_decl(env, mk_var_decl("A", Type))
 env = add_decl(env, mk_var_decl("g", mk_arrow(A, mk_arrow(A, A))))

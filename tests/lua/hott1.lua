@@ -3,7 +3,7 @@
 --    Type.{0} is predicative
 --    No proof irrelevance for Type.{0}
 --    Proof irrelevance for Id types
-local env = empty_environment({prop_proof_irrel=false, impredicative=false, cls_proof_irrel={"Id"}})
+local env = bare_environment({prop_proof_irrel=false, impredicative=false, cls_proof_irrel={"Id"}})
 assert(not env:prop_proof_irrel())
 assert(not env:impredicative())
 assert(env:cls_proof_irrel():head() == name("Id"))

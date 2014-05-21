@@ -1,4 +1,4 @@
-local env = empty_environment()
+local env = bare_environment()
 local t1  = mk_lambda("A", Type, mk_lambda("a", Var(0), Var(0)), binder_info(true))
 local t2  = mk_lambda("A", Type, mk_lambda("a", Var(0), Var(0)))
 print(t1)

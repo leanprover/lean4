@@ -1,4 +1,4 @@
-local env = empty_environment()
+local env = bare_environment()
 env = add_decl(env, mk_var_decl("A", Bool))
 env = add_decl(env, mk_var_decl("T", Type))
 env = add_decl(env, mk_definition("B2", Type, Bool, {opaque=false}))
@@ -42,6 +42,6 @@ assert(not pcall(function()
 
 assert(tc:check(mk_pi("x", Bool, Var(0))) == Bool)
 
-local env = empty_environment({impredicative=false})
+local env = bare_environment({impredicative=false})
 local tc = type_checker(env)
 assert(tc:check(mk_pi("x", Bool, Var(0))) == Type)

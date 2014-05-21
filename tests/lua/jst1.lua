@@ -1,7 +1,7 @@
 assert(is_justification(justification()))
 assert(justification():is_none())
 assert(justification("simple"):is_asserted())
-local env = empty_environment()
+local env = bare_environment()
 local f = Const("f")
 local g = Const("g")
 local a = Const("a")

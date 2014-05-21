@@ -1,4 +1,4 @@
-local env    = empty_environment()
+local env    = bare_environment()
 local l_name = name("l")
 local l      = mk_param_univ(l_name)
 local U_l    = mk_sort(l)

@@ -1,4 +1,4 @@
-local env = empty_environment()
+local env = bare_environment()
 local l      = mk_param_univ("l")
 local A      = Const("A")
 local a      = Const("a")

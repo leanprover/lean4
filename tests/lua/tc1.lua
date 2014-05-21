@@ -1,4 +1,4 @@
-local env = empty_environment()
+local env = bare_environment()
 local g   = name_generator("tst")
 local tc  = type_checker(env, g)
 assert(is_type_checker(tc))

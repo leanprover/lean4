@@ -1106,7 +1106,7 @@ static int environment_add(lua_State * L) {
         return push_environment(L, to_environment(L, 1).add(to_certified_declaration(L, 2)));
 }
 static int environment_replace(lua_State * L) { return push_environment(L, to_environment(L, 1).replace(to_certified_declaration(L, 2))); }
-static int mk_empty_environment(lua_State * L) {
+static int mk_bare_environment(lua_State * L) {
     unsigned trust_lvl    = get_uint_named_param(L, 1, "trust_lvl", 0);
     trust_lvl             = get_uint_named_param(L, 1, "trust_level", trust_lvl);
     bool prop_proof_irrel = get_bool_named_param(L, 1, "prop_proof_irrel", true);
@@ -1206,7 +1206,7 @@ static void open_environment(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, environment_m, 0);
 
-    SET_GLOBAL_FUN(mk_empty_environment,   "empty_environment");
+    SET_GLOBAL_FUN(mk_bare_environment,    "bare_environment");
     SET_GLOBAL_FUN(mk_environment,         "environment");
     SET_GLOBAL_FUN(environment_pred,       "is_environment");
     SET_GLOBAL_FUN(get_environment,        "get_environment");

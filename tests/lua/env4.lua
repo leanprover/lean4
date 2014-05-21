@@ -1,4 +1,4 @@
-local env = empty_environment()
+local env = bare_environment()
 env = add_decl(env, mk_var_decl("A", Bool))
 local c1  = type_check(env, mk_axiom("p", Const("A")))
 local c2  = type_check(env, mk_axiom("q", Const("A")))

@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/standard/standard.h"
+#include "kernel/hott/hott.h"
 #include "library/occurs.h"
 #include "library/io_state_stream.h"
 #include "library/expr_lt.h"
@@ -1115,12 +1116,14 @@ static int mk_bare_environment(lua_State * L) {
     list<name> const & cls_proof_irrel = get_list_name_named_param(L, 1, "cls_proof_irrel", list<name>());
     return push_environment(L, environment(trust_lvl, prop_proof_irrel, eta, impredicative, cls_proof_irrel));
 }
-static int mk_environment(lua_State * L) {
+static unsigned get_trust_lvl(lua_State * L, int i) {
     unsigned trust_lvl = 0;
-    if (lua_gettop(L) > 0)
-        trust_lvl = lua_tonumber(L, 1);
-    return push_environment(L, mk_environment(trust_lvl));
+    if (i <= lua_gettop(L))
+        trust_lvl = lua_tonumber(L, i);
+    return trust_lvl;
 }
+static int mk_environment(lua_State * L)      { return push_environment(L, mk_environment(get_trust_lvl(L, 1))); }
+static int mk_hott_environment(lua_State * L) { return push_environment(L, mk_hott_environment(get_trust_lvl(L, 1))); }
 
 static int environment_forget(lua_State * L) { return push_environment(L, to_environment(L, 1).forget()); }
 static int environment_whnf(lua_State * L) { return push_expr(L, type_checker(to_environment(L, 1)).whnf(to_expr(L, 2))); }
@@ -1208,6 +1211,7 @@ static void open_environment(lua_State * L) {
 
     SET_GLOBAL_FUN(mk_bare_environment,    "bare_environment");
     SET_GLOBAL_FUN(mk_environment,         "environment");
+    SET_GLOBAL_FUN(mk_hott_environment,    "hott_environment");
     SET_GLOBAL_FUN(environment_pred,       "is_environment");
     SET_GLOBAL_FUN(get_environment,        "get_environment");
     SET_GLOBAL_FUN(get_environment,        "get_env");

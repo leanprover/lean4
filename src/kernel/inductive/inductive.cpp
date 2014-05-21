@@ -414,10 +414,38 @@ struct add_inductive_fn {
         updt_type_checker();
     }
 
+    /** \brief Return true if type formers C in the recursors can only map to Type.{0} */
+    bool elim_only_at_universe_zero() {
+        if (!m_env.impredicative() || !is_zero(m_it_levels[0])) {
+            // If Type.{0} is not impredicative or the resultant inductive datatype is not in Type.{0},
+            // then the recursor may return Type.{l} where l is a universe level parameter.
+            return false;
+        }
+        if (get_num_its() > 1 || length(inductive_decl_intros(head(m_decls))) != 1) {
+            // If we have more than one introduction rule, then yes, the type formers can only
+            // map to Type.{0}
+            return true;
+        }
+        // We have only one introduction rule, the final check is, the type of each argument
+        // that is not a parameter must live in Type.{0}.
+        auto ir    = head(inductive_decl_intros(head(m_decls)));
+        expr t     = intro_rule_type(ir);
+        unsigned i = 0;
+        while (is_pi(t)) {
+            if (i >= m_num_params) {
+                expr s = m_tc.ensure_sort(m_tc.infer(binding_domain(t)));
+                if (!is_zero(sort_level(s)))
+                    return true;
+            }
+            t = instantiate(binding_body(t), mk_local_for(t));
+            i++;
+        }
+        return false;
+    }
 
     /** \brief Initialize m_elim_level. */
     void mk_elim_level() {
-        if (m_env.impredicative() && is_zero(m_it_levels[0]) && (get_num_its() > 1 || length(inductive_decl_intros(head(m_decls))) != 1)) {
+        if (elim_only_at_universe_zero()) {
             // environment is impredicative, datatype maps to Bool/Prop, we have more than one introduction rule.
             m_elim_level = mk_level_zero();
         } else {

@@ -95,7 +95,7 @@ env = add_inductive(env,
                     "eq", {l}, 2, Pi({{A, U_l}, {a, A}, {b, A}}, Bool),
                     "refl", Pi({{A, U_l}, {a, A}}, eq_l(A, a, a)))
 display_type(env, Const("eq_rec", {v, u}))
-display_type(env, Const("exists_rec", {v, u}))
+display_type(env, Const("exists_rec", {u}))
 display_type(env, Const("list_rec", {v, u}))
 display_type(env, Const("Even_rec"))
 display_type(env, Const("Odd_rec"))
@@ -129,8 +129,11 @@ assert(tc:is_def_eq(length(cons_nat(zero, nil_nat)), succ(zero)))
 assert(tc:is_def_eq(length(cons_nat(zero, cons_nat(zero, nil_nat))), succ(succ(zero))))
 
 -- Martin-Lof style identity type
+local env  = hott_environment()
 local Id_l = Const("Id", {l})
+env = env:add_global_level("u")
+env = env:add_global_level("v")
 env = add_inductive(env,
-                    "Id", {l}, 1, Pi({{A, U_l}, {a, A}, {b, A}}, Bool),
+                    "Id", {l}, 1, Pi({{A, U_l}, {a, A}, {b, A}}, U_l),
                     "Id_refl", Pi({{A, U_l, true}, {b, A}}, Id_l(A, b, b)))
 display_type(env, Const("Id_rec", {v, u}))

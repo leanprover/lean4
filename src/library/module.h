@@ -24,20 +24,27 @@ environment import_module(environment const & env, std::string const & module);
 */
 void export_module(std::ostream & out, environment const & env);
 
-typedef std::function<environment(environment const & env)> update_env_fn;
+/** \brief An asynchronous update. It goes into a task queue, and can be executed by a different execution thread. */
+typedef std::function<void(shared_environment & env)> asynch_update_fn;
+
+/** \brief Delayed update. It is performed after all imported modules have been loaded.
+    The delayes updates are executed based on the import order.
+    Example: if module A was imported before B, then delayed updates from A
+    are executed before the ones from B.
+*/
+typedef std::function<environment(environment const & env)> delayed_update_fn;
+
 
 /**
    \brief A reader for importing data from a stream using deserializer \c d.
-   There are two way to update the environment being constructed.
-   We can directly update it using \c senv, or we may register a delayed
-   update using \c delayed_update. The delayed updates are executed using
-   an order based on import order. The delayed updates are useful for
-   objects such as rewrite rule sets where the order in which they are
-   constructed matter.
+   There are three ways to update the environment being constructed.
+     1- Direct update it using \c senv.
+     2- Asynchronous update using add_asynch_update.
+     3- Delayed update using add_delayed_update.
 */
-typedef void (*module_object_reader)(deserializer & d,
-                                     shared_environment & senv,
-                                     std::function<void(update_env_fn const &)> & delayed_update);
+typedef void (*module_object_reader)(deserializer & d, module_idx midx, shared_environment & senv,
+                                     std::function<void(asynch_update_fn const &)> & add_asynch_update,
+                                     std::function<void(delayed_update_fn const &)> & add_delayed_update);
 
 /**
    \brief Register a module object reader. The key \c k is used to identify the class of objects

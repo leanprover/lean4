@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <string>
 #include "util/hash.h"
+#include "kernel/type_checker.h"
 #include "library/module.h"
 #include "library/kernel_serializer.h"
 
@@ -86,6 +87,30 @@ environment add(environment const & env, std::string const & k, std::function<vo
 }
 
 static std::string g_decl("decl");
+
+static void declaration_reader(deserializer & d, module_idx midx, shared_environment & senv,
+                               std::function<void(asynch_update_fn const &)> & add_asynch_update,
+                               std::function<void(delayed_update_fn const &)> &) {
+    declaration decl = read_declaration(d, midx);
+    environment env  = senv.env();
+    if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL) {
+        senv.add(decl);
+    } else if (decl.is_theorem()) {
+        // First, we add the theorem as an axiom, and create an asychronous task for
+        // checking the actual theorem, and replace the axiom with the actual theorem.
+        certified_declaration tmp_c = check(env, mk_axiom(decl.get_name(), decl.get_params(), decl.get_type()));
+        senv.add(tmp_c);
+        add_asynch_update([=](shared_environment & senv) {
+                certified_declaration c = check(env, decl);
+                senv.replace(c);
+            });
+    } else {
+        certified_declaration c = check(env, decl);
+        senv.add(c);
+    }
+}
+
+static register_module_object_reader_fn g_reg_decl_reader(g_decl, declaration_reader);
 
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);

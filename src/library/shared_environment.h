@@ -19,12 +19,19 @@ public:
     shared_environment(environment const & env);
     /** \brief Return a copy of the current environment. This is a constant time operation. */
     environment get_environment() const;
+    environment env() const { return get_environment(); }
     /**
         \brief Add the given certified declaration to the environment.
         This is a constant time operation.
         It blocks this object for a small amount of time.
     */
     void add(certified_declaration const & d);
+    /**
+        \brief Add declaration that was not type checked.
+        The method throws an exception if trust_level() <= LEAN_BELIEVER_TRUST_LEVEL
+        It blocks this object for a small amount of time.
+    */
+    void add(declaration const & d);
     /**
         \brief Replace the axiom with name <tt>t.get_declaration().get_name()</tt> with the theorem t.get_declaration().
         This is a constant time operation.

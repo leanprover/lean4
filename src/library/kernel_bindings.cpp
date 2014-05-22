@@ -1745,7 +1745,7 @@ int type_checker_check(lua_State * L) {
     if (nargs <= 2)
         return push_expr(L, to_type_checker_ref(L, 1)->check(to_expr(L, 2), level_param_names()));
     else
-        return push_expr(L, to_type_checker_ref(L, 1)->check(to_expr(L, 2), to_list_name(L, 3)));
+        return push_expr(L, to_type_checker_ref(L, 1)->check(to_expr(L, 2), to_level_param_names(L, 3)));
 }
 int type_checker_infer(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->infer(to_expr(L, 2))); }
 int type_checker_is_def_eq(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_def_eq(to_expr(L, 2), to_expr(L, 3))); }

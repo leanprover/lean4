@@ -16,8 +16,8 @@ namespace lean {
    Modules included directly or indirectly by them are also imported.
    The environment \c env is usually an empty environment.
 */
-environment import_modules(environment const & env, unsigned num_modules, std::string const * modules);
-environment import_module(environment const & env, std::string const & module);
+environment import_modules(environment const & env, unsigned num_modules, std::string const * modules, unsigned num_threads = 1);
+environment import_module(environment const & env, std::string const & module, unsigned num_threads = 1);
 
 /**
    \brief Store/Export module using \c env to the output stream \c out.

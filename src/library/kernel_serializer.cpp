@@ -266,7 +266,7 @@ serializer & operator<<(serializer & s, declaration const & d) {
         if (d.use_conv_opt())
             k |= 4;
     }
-    if (d.is_theorem())
+    if (d.is_theorem() || d.is_axiom())
         k |= 8;
     s << k << d.get_name() << d.get_params() << d.get_type();
     if (d.is_definition()) {
@@ -280,13 +280,13 @@ serializer & operator<<(serializer & s, declaration const & d) {
 declaration read_declaration(deserializer & d, unsigned module_idx) {
     char k               = d.read_char();
     bool has_value       = (k & 1) != 0;
-    bool is_theorem      = (k & 8) != 0;
+    bool is_th_ax        = (k & 8) != 0;
     name n               = read_name(d);
     level_param_names ps = read_level_params(d);
     expr t               = read_expr(d);
     if (has_value) {
         expr v      = read_expr(d);
-        if (is_theorem) {
+        if (is_th_ax) {
             return mk_theorem(n, ps, t, v);
         } else {
             unsigned w        = d.read_unsigned();
@@ -295,7 +295,7 @@ declaration read_declaration(deserializer & d, unsigned module_idx) {
             return mk_definition(n, ps, t, v, is_opaque, w, module_idx, use_conv_opt);
         }
     } else {
-        if (is_theorem)
+        if (is_th_ax)
             return mk_axiom(n, ps, t);
         else
             return mk_var_decl(n, ps, t);

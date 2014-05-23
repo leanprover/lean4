@@ -70,4 +70,9 @@ environment add(environment const & env, std::string const & k, std::function<vo
 
 /** \brief Add the given declaration to the environment, and mark it to be exported. */
 environment add(environment const & env, certified_declaration const & d);
+/**
+    \brief Add the given declaration to the environment, and mark it to be exported.
+    This method throws an exception if the trust_level <= LEAN_BELIEVER_TRUST_LEVEL
+*/
+environment add(environment const & env, declaration const & d);
 }

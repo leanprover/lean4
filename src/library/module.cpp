@@ -129,8 +129,13 @@ static register_module_object_reader_fn g_reg_decl_reader(g_decl, declaration_re
 
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
-    new_env = add(new_env, g_decl, [=](serializer & s) { s << d.get_declaration(); });
-    return new_env;
+    declaration _d = d.get_declaration();
+    return add(new_env, g_decl, [=](serializer & s) { s << _d; });
+}
+
+environment add(environment const & env, declaration const & d) {
+    environment new_env = env.add(d);
+    return add(new_env, g_decl, [=](serializer & s) { s << d; });
 }
 
 struct import_modules_fn {

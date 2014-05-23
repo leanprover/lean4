@@ -76,7 +76,7 @@ void export_module(std::ostream & out, environment const & env) {
     for (auto m : imports)
         s2 << m;
     // store object code
-    s2 << h;
+    s2.write_unsigned(r.size());
     for (unsigned i = 0; i < r.size(); i++)
         s2.write_char(r[i]);
 }

@@ -160,7 +160,7 @@ unsigned environment::register_extension(std::shared_ptr<environment_extension c
 }
 
 environment_extension const & environment::get_extension(unsigned id) const {
-    if (id >= get_extension_manager().has_ext(id))
+    if (!get_extension_manager().has_ext(id))
         throw_invalid_extension(*this);
     if (id >= m_extensions->size() || !(*m_extensions)[id])
         return get_extension_manager().get_initial(id);
@@ -168,7 +168,7 @@ environment_extension const & environment::get_extension(unsigned id) const {
 }
 
 environment environment::update(unsigned id, std::shared_ptr<environment_extension const> const & ext) const {
-    if (id >= get_extension_manager().has_ext(id))
+    if (!get_extension_manager().has_ext(id))
         throw_invalid_extension(*this);
     auto new_exts = std::make_shared<environment_extensions>(*m_extensions);
     if (id >= new_exts->size())

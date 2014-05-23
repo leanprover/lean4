@@ -1142,6 +1142,47 @@ static int environment_for_each(lua_State * L) {
     return 0;
 }
 
+static void to_string_buffer(lua_State * L, int i, buffer<std::string> & r) {
+    if (lua_isstring(L, i)) {
+        r.push_back(lua_tostring(L, i));
+    } else {
+        luaL_checktype(L, i, LUA_TTABLE);
+        lua_pushvalue(L, i);
+        int sz = objlen(L, -1);
+        for (int i = 1; i <= sz; i++) {
+            lua_rawgeti(L, -1, i);
+            r.push_back(lua_tostring(L, -1));
+            lua_pop(L, 1);
+        }
+    }
+}
+
+static int import_modules(environment const & env, lua_State * L, int s) {
+    buffer<std::string> mnames;
+    to_string_buffer(L, s, mnames);
+    unsigned num_threads = 1;
+    if (lua_gettop(L) > s)
+        num_threads = lua_tonumber(L, s+1);
+    return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads));
+}
+
+static int import_modules(lua_State * L) {
+    if (is_environment(L, 1))
+        return import_modules(to_environment(L, 1), L, 2);
+    else
+        return import_modules(environment(), L, 1);
+}
+
+static int import_hott_modules(lua_State * L) {
+    return import_modules(mk_hott_environment(), L, 1);
+}
+
+static int export_module(lua_State * L) {
+    std::ofstream out(lua_tostring(L, 2), std::ofstream::binary);
+    export_module(out, to_environment(L, 1));
+    return 0;
+}
+
 static const struct luaL_Reg environment_m[] = {
     {"__gc",              environment_gc}, // never throws
     {"is_descendant",     safe_function<environment_is_descendant>},
@@ -1163,6 +1204,7 @@ static const struct luaL_Reg environment_m[] = {
     {"infer_type",        safe_function<environment_infer_type>},
     {"type_check",        safe_function<environment_type_check>},
     {"for_each",          safe_function<environment_for_each>},
+    {"export",            safe_function<export_module>},
     {0, 0}
 };
 
@@ -1216,6 +1258,9 @@ static void open_environment(lua_State * L) {
     SET_GLOBAL_FUN(environment_pred,       "is_environment");
     SET_GLOBAL_FUN(get_environment,        "get_environment");
     SET_GLOBAL_FUN(get_environment,        "get_env");
+    SET_GLOBAL_FUN(import_modules,         "import_modules");
+    SET_GLOBAL_FUN(import_hott_modules,    "import_hott_modules");
+    SET_GLOBAL_FUN(export_module,          "export_module");
 }
 
 // IO state
@@ -1789,7 +1834,7 @@ static int add_declaration(lua_State * L) {
         d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4));
     else
         d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4), lua_toboolean(L, 5));
-    return push_environment(L, to_environment(L, 1).add(*d));
+    return push_environment(L, add(to_environment(L, 1), *d));
 }
 
 static void open_type_checker(lua_State * L) {
@@ -1879,53 +1924,6 @@ static void open_inductive(lua_State * L) {
     SET_GLOBAL_FUN(inductive::add_inductive, "add_inductive");
 }
 
-static void to_string_buffer(lua_State * L, int i, buffer<std::string> & r) {
-    if (lua_isstring(L, i)) {
-        r.push_back(lua_tostring(L, i));
-    } else {
-        luaL_checktype(L, i, LUA_TTABLE);
-        lua_pushvalue(L, i);
-        int sz = objlen(L, -1);
-        for (int i = 1; i <= sz; i++) {
-            lua_rawgeti(L, -1, i);
-            r.push_back(lua_tostring(L, -1));
-            lua_pop(L, 1);
-        }
-    }
-}
-
-static int import_modules(environment const & env, lua_State * L, int s) {
-    buffer<std::string> mnames;
-    to_string_buffer(L, s, mnames);
-    unsigned num_threads = 1;
-    if (lua_gettop(L) > s)
-        num_threads = lua_tonumber(L, s+1);
-    return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads));
-}
-
-static int import_modules(lua_State * L) {
-    if (is_environment(L, 1))
-        return import_modules(to_environment(L, 1), L, 2);
-    else
-        return import_modules(environment(), L, 1);
-}
-
-static int import_hott_modules(lua_State * L) {
-    return import_modules(mk_hott_environment(), L, 1);
-}
-
-static int export_module(lua_State * L) {
-    std::ofstream out(lua_tostring(L, 1), std::ofstream::binary);
-    export_module(out, to_environment(L, 2));
-    return 0;
-}
-
-static void open_module(lua_State * L) {
-    SET_GLOBAL_FUN(import_modules,      "import_modules");
-    SET_GLOBAL_FUN(import_hott_modules, "import_hott_modules");
-    SET_GLOBAL_FUN(export_module,       "export_module");
-}
-
 void open_kernel_module(lua_State * L) {
     open_level(L);
     open_list_level(L);
@@ -1946,6 +1944,5 @@ void open_kernel_module(lua_State * L) {
     open_constraint_handler(L);
     open_type_checker(L);
     open_inductive(L);
-    open_module(L);
 }
 }

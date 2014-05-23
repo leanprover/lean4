@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 #include "library/kernel_bindings.h"
 #include "library/normalize.h"
+#include "library/module.h"
 
 // Lua Bindings for the Kernel classes. We do not include the Lua
 // bindings in the kernel because we do not want to inflate the Kernel.
@@ -1878,6 +1879,53 @@ static void open_inductive(lua_State * L) {
     SET_GLOBAL_FUN(inductive::add_inductive, "add_inductive");
 }
 
+static void to_string_buffer(lua_State * L, int i, buffer<std::string> & r) {
+    if (lua_isstring(L, i)) {
+        r.push_back(lua_tostring(L, i));
+    } else {
+        luaL_checktype(L, i, LUA_TTABLE);
+        lua_pushvalue(L, i);
+        int sz = objlen(L, -1);
+        for (int i = 1; i <= sz; i++) {
+            lua_rawgeti(L, -1, i);
+            r.push_back(lua_tostring(L, -1));
+            lua_pop(L, 1);
+        }
+    }
+}
+
+static int import_modules(environment const & env, lua_State * L, int s) {
+    buffer<std::string> mnames;
+    to_string_buffer(L, s, mnames);
+    unsigned num_threads = 1;
+    if (lua_gettop(L) > s)
+        num_threads = lua_tonumber(L, s+1);
+    return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads));
+}
+
+static int import_modules(lua_State * L) {
+    if (is_environment(L, 1))
+        return import_modules(to_environment(L, 1), L, 2);
+    else
+        return import_modules(environment(), L, 1);
+}
+
+static int import_hott_modules(lua_State * L) {
+    return import_modules(mk_hott_environment(), L, 1);
+}
+
+static int export_module(lua_State * L) {
+    std::ofstream out(lua_tostring(L, 1), std::ofstream::binary);
+    export_module(out, to_environment(L, 2));
+    return 0;
+}
+
+static void open_module(lua_State * L) {
+    SET_GLOBAL_FUN(import_modules,      "import_modules");
+    SET_GLOBAL_FUN(import_hott_modules, "import_hott_modules");
+    SET_GLOBAL_FUN(export_module,       "export_module");
+}
+
 void open_kernel_module(lua_State * L) {
     open_level(L);
     open_list_level(L);
@@ -1898,5 +1946,6 @@ void open_kernel_module(lua_State * L) {
     open_constraint_handler(L);
     open_type_checker(L);
     open_inductive(L);
+    open_module(L);
 }
 }

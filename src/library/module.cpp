@@ -167,6 +167,10 @@ struct import_modules_fn {
         m_import_counter(0), m_all_modules_imported(false) {
         if (m_num_threads == 0)
             m_num_threads = 1;
+#if !defined(LEAN_MULTI_THREAD)
+        if (m_num_threads > 1)
+            m_num_threads = 1;
+#endif
     }
 
     module_info_ptr load_module_file(std::string const & mname) {

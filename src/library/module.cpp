@@ -303,6 +303,7 @@ struct import_modules_fn {
                                 while (auto t = next_task()) {
                                     (*t)(m_senv);
                                 }
+                                m_asynch_cv.notify_all();
                             } catch (exception ex) {
                                 thread_exceptions[i].reset(ex.clone());
                             } catch (...) {
@@ -314,6 +315,7 @@ struct import_modules_fn {
             while (auto t = next_task()) {
                 (*t)(m_senv);
             }
+            m_asynch_cv.notify_all();
             for (auto & th : extra_threads)
                 th->join();
         } catch (...) {

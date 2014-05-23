@@ -272,12 +272,12 @@ struct import_modules_fn {
         while (true) {
             check_interrupted();
             unique_lock<mutex> lk(m_asynch_mutex);
-            if (m_all_modules_imported)
-                return optional<asynch_update_fn>();
             if (!m_asynch_tasks.empty()) {
                 asynch_update_fn r = m_asynch_tasks.back();
                 m_asynch_tasks.pop_back();
                 return optional<asynch_update_fn>(r);
+            } else if (m_all_modules_imported) {
+                return optional<asynch_update_fn>();
             } else {
                 m_asynch_cv.wait(lk);
             }

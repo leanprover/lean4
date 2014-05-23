@@ -211,9 +211,11 @@ struct import_modules_fn {
         r->m_module_idx   = m_import_counter;
         m_import_counter++;
         std::swap(r->m_obj_code, code);
+        m_module_info.insert(mk_pair(mname, r));
 
         for (auto i : imports) {
-            r->m_dependents.push_back(load_module_file(i));
+            auto d = load_module_file(i);
+            d->m_dependents.push_back(r);
         }
 
         if (imports.empty())
@@ -344,7 +346,17 @@ struct import_modules_fn {
         return env;
     }
 
+    void store_direct_imports(unsigned num_modules, std::string const * modules) {
+        m_senv.update([&](environment const & env) -> environment {
+                module_ext ext = get_extension(env);
+                for (unsigned i = 0; i < num_modules; i++)
+                    ext.m_direct_imports = list<std::string>(modules[i], ext.m_direct_imports);
+                return update(env, ext);
+            });
+    }
+
     environment operator()(unsigned num_modules, std::string const * modules) {
+        store_direct_imports(num_modules, modules);
         for (unsigned i = 0; i < num_modules; i++)
             load_module_file(modules[i]);
         process_asynch_tasks();

@@ -131,7 +131,9 @@ expr_app::expr_app(expr const & fn, expr const & arg):
                    fn.has_param_univ() || arg.has_param_univ(),
                    std::max(get_depth(fn), get_depth(arg)) + 1,
                    std::max(get_free_var_range(fn), get_free_var_range(arg))),
-    m_fn(fn), m_arg(arg) {}
+    m_fn(fn), m_arg(arg) {
+    m_hash = ::lean::hash(m_hash, m_depth);
+}
 void expr_app::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_fn, todelete);
     dec_ref(m_arg, todelete);

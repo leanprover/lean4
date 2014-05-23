@@ -214,6 +214,7 @@ public:
 
 /** \brief Composite expressions */
 class expr_composite : public expr_cell {
+protected:
     unsigned m_depth;
     unsigned m_free_var_range;
     friend unsigned get_depth(expr const & e);

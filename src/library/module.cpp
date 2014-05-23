@@ -261,8 +261,10 @@ struct import_modules_fn {
                 obj_counter++;
             }
         }
-        if (atomic_fetch_sub_explicit(&m_import_counter, 1u, memory_order_relaxed) == 1u)
+        if (atomic_fetch_sub_explicit(&m_import_counter, 1u, memory_order_relaxed) == 1u) {
             m_all_modules_imported = true;
+            m_asynch_cv.notify_all();
+        }
         // Module was successfully imported, we should notify descendents.
         for (module_info_ptr const & d : r->m_dependents) {
             if (atomic_fetch_sub_explicit(&(d->m_counter), 1u, memory_order_relaxed) == 1u) {

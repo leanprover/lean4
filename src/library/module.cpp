@@ -291,6 +291,8 @@ struct import_modules_fn {
     }
 
     void process_asynch_tasks() {
+        if (m_asynch_tasks.empty())
+            return;
         std::vector<std::unique_ptr<interruptible_thread>> extra_threads;
         std::vector<std::unique_ptr<exception>> thread_exceptions(m_num_threads - 1);
         for (unsigned i = 0; i < m_num_threads - 1; i++) {

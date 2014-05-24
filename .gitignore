@@ -3,6 +3,7 @@
 *.produced.out
 *.md.lua
 *.md.lean
+*.olean
 a.out
 build
 GPATH

@@ -213,7 +213,7 @@ std::ostream & operator<<(std::ostream & out, expr const & e) {
 
 class simple_formatter_cell : public formatter_cell {
 public:
-    virtual format operator()(environment const & env, expr const & e, options const &) {
+    virtual format operator()(environment const & env, expr const & e, options const &) const {
         std::ostringstream s;
         print_expr_fn pr(s, env.prop_proof_irrel());
         pr(e);

@@ -30,7 +30,7 @@ class formatter_cell {
 public:
     virtual ~formatter_cell() {}
     /** \brief Format the given expression. */
-    virtual format operator()(environment const & env, expr const & e, options const & opts) = 0;
+    virtual format operator()(environment const & env, expr const & e, options const & opts) const = 0;
 };
 /**
    \brief Smart-pointer for the actual formatter object (aka \c formatter_cell).

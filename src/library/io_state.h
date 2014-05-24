@@ -25,6 +25,7 @@ class io_state {
 public:
     io_state(formatter const & fmt);
     io_state(options const & opts, formatter const & fmt);
+    io_state(io_state const & ios, std::shared_ptr<output_channel> const & r, std::shared_ptr<output_channel> const d);
     ~io_state();
 
     options get_options() const { return m_options; }

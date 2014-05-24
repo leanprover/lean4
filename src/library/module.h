@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "util/serializer.h"
 #include "library/shared_environment.h"
+#include "library/io_state.h"
 
 namespace lean {
 /**
@@ -16,8 +17,10 @@ namespace lean {
    Modules included directly or indirectly by them are also imported.
    The environment \c env is usually an empty environment.
 */
-environment import_modules(environment const & env, unsigned num_modules, std::string const * modules, unsigned num_threads = 1);
-environment import_module(environment const & env, std::string const & module, unsigned num_threads = 1);
+environment import_modules(environment const & env, unsigned num_modules, std::string const * modules,
+                           unsigned num_threads, io_state const & ios);
+environment import_module(environment const & env, std::string const & module,
+                          unsigned num_threads, io_state const & ios);
 
 /**
    \brief Store/Export module using \c env to the output stream \c out.
@@ -32,8 +35,7 @@ typedef std::function<void(shared_environment & env)> asynch_update_fn;
     Example: if module A was imported before B, then delayed updates from A
     are executed before the ones from B.
 */
-typedef std::function<environment(environment const & env)> delayed_update_fn;
-
+typedef std::function<environment(environment const & env, io_state const & ios)> delayed_update_fn;
 
 /**
    \brief A reader for importing data from a stream using deserializer \c d.

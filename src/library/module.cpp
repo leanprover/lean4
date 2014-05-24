@@ -142,6 +142,7 @@ struct import_modules_fn {
     typedef std::tuple<module_idx, unsigned, delayed_update_fn> delayed_update;
     shared_environment             m_senv;
     unsigned                       m_num_threads;
+    io_state                       m_ios;
     mutex                          m_asynch_mutex;
     condition_variable             m_asynch_cv;
     std::vector<asynch_update_fn>  m_asynch_tasks;
@@ -162,8 +163,8 @@ struct import_modules_fn {
     typedef std::shared_ptr<module_info> module_info_ptr;
     std::unordered_map<std::string, module_info_ptr> m_module_info;
 
-    import_modules_fn(environment const & env, unsigned num_threads):
-        m_senv(env), m_num_threads(num_threads),
+    import_modules_fn(environment const & env, unsigned num_threads, io_state const & ios):
+        m_senv(env), m_num_threads(num_threads), m_ios(ios),
         m_import_counter(0), m_all_modules_imported(false) {
         if (m_num_threads == 0)
             m_num_threads = 1;
@@ -343,7 +344,7 @@ struct import_modules_fn {
                           return std::get<1>(u1) < std::get<1>(u2);
                   });
         for (auto const & d : m_delayed_tasks) {
-            env = std::get<2>(d)(env);
+            env = std::get<2>(d)(env, m_ios);
         }
         return env;
     }
@@ -366,11 +367,13 @@ struct import_modules_fn {
     }
 };
 
-environment import_modules(environment const & env, unsigned num_modules, std::string const * modules, unsigned num_threads) {
-    return import_modules_fn(env, num_threads)(num_modules, modules);
+environment import_modules(environment const & env, unsigned num_modules, std::string const * modules,
+                           unsigned num_threads, io_state const & ios) {
+    return import_modules_fn(env, num_threads, ios)(num_modules, modules);
 }
 
-environment import_module(environment const & env, std::string const & module, unsigned num_threads) {
-    return import_modules(env, 1, &module, num_threads);
+environment import_module(environment const & env, std::string const & module,
+                          unsigned num_threads, io_state const & ios) {
+    return import_modules(env, 1, &module, num_threads, ios);
 }
 }

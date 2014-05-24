@@ -43,6 +43,7 @@ Author: Leonardo de Moura
 namespace lean {
 static environment get_global_environment(lua_State * L);
 io_state * get_io_state(lua_State * L);
+io_state get_tmp_io_state(lua_State * L);
 
 // Level
 DECL_UDATA(level)
@@ -1161,9 +1162,16 @@ static int import_modules(environment const & env, lua_State * L, int s) {
     buffer<std::string> mnames;
     to_string_buffer(L, s, mnames);
     unsigned num_threads = 1;
-    if (lua_gettop(L) > s)
+    int nargs = lua_gettop(L);
+    if (nargs > s)
         num_threads = lua_tonumber(L, s+1);
-    return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads));
+
+    if (nargs > s + 1 && is_io_state(L, s+2))
+        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, to_io_state(L, s+2)));
+    else if (io_state * ios = get_io_state(L))
+        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, *ios));
+    else
+        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, get_tmp_io_state(L)));
 }
 
 static int import_modules(lua_State * L) {
@@ -1395,6 +1403,10 @@ io_state * get_io_state(lua_State * L) {
     }
     lua_pop(L, 1);
     return nullptr;
+}
+
+io_state get_tmp_io_state(lua_State * L) {
+    return io_state(get_global_options(L), get_global_formatter(L));
 }
 
 // Justification

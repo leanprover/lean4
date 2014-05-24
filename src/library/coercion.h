@@ -5,7 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <utility>
 #include "kernel/environment.h"
+#include "library/expr_pair.h"
+#include "library/io_state.h"
+
 namespace lean {
 /**
    \brief Add an new coercion in the given environment.
@@ -28,11 +32,32 @@ namespace lean {
         {l1 ... lk}  Pi (x1 : A1) ... (xn : An) (y: C.{l1 ... lk} x1 ... xn), Type.{L}
 
    \pre \c f is a constant defined in \c env.
+
+   \remark \c ios is used to report warning messages.
 */
-environment add_coercion(environment const & env, expr const & f);
+environment add_coercion(environment const & env, name & f, io_state const & ios);
+environment add_coercion(environment const & env, name const & f, name const & C, io_state const & ios);
 bool is_coercion(environment const & env, expr const & f);
-list<expr_pair> get_coercions(environment const & env, expr const & from, expr const & from_type);
-optional<expr> get_coercion(environment const & env, expr const & from, expr const & from_type, expr const & to_type);
-optional<expr> get_coercion_to_sort(environment const & env, expr const & from, expr const & from_type);
-optional<expr> get_coercion_to_fun(environment const & env, expr const & from, expr const & from_type);
+/** \brief Return true iff the given environment has coercions from a user-class named \c C. */
+bool has_coercions_from(environment const & env, name const & C);
+bool has_coercions_from(environment const & env, expr const & C);
+/** \brief Return true iff the given environment has coercions to a user-class named \c D. */
+bool has_coercions_to(environment const & env, name const & D);
+bool has_coercions_to(environment const & env, expr const & D);
+/**
+   \brief Return a coercion (if it exists) from (C_name.{l1 lk} t_1 ... t_n) to the class named D.
+   The coercion is a unary function that takes a term of type (C_name.{l1 lk} t_1 ... t_n) and returns
+   and element of type (D.{L_1  L_o} s_1 ... s_m)
+*/
+optional<expr> get_coercion(environment const & env, expr const & C, name const & D);
+optional<expr> get_coercion_to_sort(environment const & env, expr const & C);
+optional<expr> get_coercion_to_fun(environment const & env, expr const & C);
+/**
+   \brief Return all user coercions C >-> D for the type C of the form (C_name.{l1 ... lk} t_1 ... t_n)
+   The result is a pair (coercion, user-class D), and is stored in the result buffer \c result.
+   The Boolean result is true if at least one pair is added to \c result.
+
+   \remark The most recent coercions occur first.
+*/
+bool get_user_coercions(environment const & env, expr const & C, buffer<std::pair<expr, name>> & result);
 }

@@ -349,6 +349,16 @@ expr const & get_app_fn(expr const & e) {
     return *it;
 }
 
+unsigned get_app_num_args(expr const & e) {
+    expr const * it = &e;
+    unsigned n = 0;
+    while (is_app(*it)) {
+        it = &(app_fn(*it));
+        n++;
+    }
+    return n;
+}
+
 static name g_default_var_name("a");
 bool is_default_var_name(name const & n) { return n == g_default_var_name; }
 expr mk_arrow(expr const & t, expr const & e) { return mk_pi(g_default_var_name, t, e); }

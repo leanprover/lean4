@@ -147,11 +147,9 @@ static void add_coercion_trans(coercion_ext & ext, io_state const & ios, name co
                                level_param_names const & g_level_params, expr g, expr const & g_type, unsigned g_num_args) {
     expr t = f_type;
     buffer<expr> args;
-    unsigned i = f_num_args;
-    while (i > 0) {
-        i--;
+    for (unsigned i = 0; i <= f_num_args; i++)
         args.push_back(mk_var(i));
-    }
+    expr f_app = apply_beta(f, args.size(), args.data());
     buffer<name> f_arg_names;
     buffer<expr> f_arg_types;
     while (is_pi(t)) {
@@ -159,24 +157,23 @@ static void add_coercion_trans(coercion_ext & ext, io_state const & ios, name co
         f_arg_types.push_back(binding_domain(t));
         t = binding_body(t);
     }
-    expr f_app = apply_beta(f, args.size(), args.data());
     expr D_app = t;
-    buffer<expr> g_args;
-    expr D_cnst = get_app_args(D_app, g_args);
-    if (g_args.size() != g_num_args)
+    buffer<expr> gf_args;
+    gf_args.push_back(f_app);
+    expr D_cnst = get_app_rev_args(D_app, gf_args);
+    if (gf_args.size() != g_num_args + 1)
         return;
-    g_args.push_back(f_app);
     if (length(const_levels(D_cnst)) != length(g_level_params))
         return;
     // C >-> D >-> E
     g  = instantiate_params(g, g_level_params, const_levels(D_cnst));
-    expr gf = apply_beta(g, g_args.size(), g_args.data());
+    expr gf = apply_beta(g, gf_args.size(), gf_args.data());
     expr gf_type = g_type;
     while (is_pi(gf_type))
         gf_type = binding_body(gf_type);
     coercion_class new_cls = *type_to_coercion_class(gf_type);
-    gf_type = instantiate(instantiate_params(gf_type, g_level_params, const_levels(D_cnst)), g_args.size(), g_args.data());
-    i = f_arg_types.size();
+    gf_type = instantiate(instantiate_params(gf_type, g_level_params, const_levels(D_cnst)), gf_args.size(), gf_args.data());
+    unsigned i = f_arg_types.size();
     while (i > 0) {
         --i;
         gf = mk_lambda(f_arg_names[i], f_arg_types[i], gf);

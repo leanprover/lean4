@@ -43,9 +43,6 @@ bool is_coercion(environment const & env, expr const & f);
 /** \brief Return true iff the given environment has coercions from a user-class named \c C. */
 bool has_coercions_from(environment const & env, name const & C);
 bool has_coercions_from(environment const & env, expr const & C);
-/** \brief Return true iff the given environment has coercions to a user-class named \c D. */
-bool has_coercions_to(environment const & env, name const & D);
-bool has_coercions_to(environment const & env, expr const & D);
 /**
    \brief Return a coercion (if it exists) from (C_name.{l1 lk} t_1 ... t_n) to the class named D.
    The coercion is a unary function that takes a term of type (C_name.{l1 lk} t_1 ... t_n) and returns

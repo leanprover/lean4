@@ -66,9 +66,35 @@ struct coercion_info {
 };
 
 struct coercion_ext : public environment_extension {
-    rb_map<name, list<coercion_info>, name_quick_cmp>         m_from;
+    rb_map<name, list<coercion_info>, name_quick_cmp>         m_coercion_info;
+    // m_from and m_to contain "direct" coercions
+    rb_map<name, list<coercion_class>, name_quick_cmp>        m_from;
     rb_map<coercion_class, list<name>, coercion_class_cmp_fn> m_to;
     rb_tree<name, name_quick_cmp>                             m_coercions;
+    coercion_info get_info(name const & from, coercion_class const & to) {
+        auto it = m_coercion_info.find(from);
+        lean_assert(it);
+        for (coercion_info info : *it) {
+            if (info.m_to == to)
+                return info;
+        }
+        lean_unreachable(); // LCOV_EXCL_LINE
+    }
+    void update_from_to(name const & C, coercion_class const & D, io_state const & ios) {
+        auto it1 = m_from.find(C);
+        if (!it1)
+            m_from.insert(C, list<coercion_class>(D));
+        else if (std::find(it1->begin(), it1->end(), D) == it1->end())
+            m_from.insert(C, list<coercion_class>(D, *it1));
+        else
+            ios.get_diagnostic_channel() << "replacing the coercion from '" << C << "' to '" << D << "'\n";
+
+        auto it2 = m_to.find(D);
+        if (!it2)
+            m_to.insert(D, list<name>(C));
+        else if (std::find(it2->begin(), it2->end(), C) == it2->end())
+            m_to.insert(D, list<name>(C, *it2));
+    }
 };
 
 struct coercion_ext_reg {
@@ -139,10 +165,9 @@ optional<coercion_class> type_to_coercion_class(expr const & t) {
 }
 
 static void add_coercion(coercion_ext & ext, name const & C, expr const & f, expr const & f_type,
-                         level_param_names const & ls, unsigned num_args,
-                         coercion_class const & cls, io_state const & ios);
+                         level_param_names const & ls, unsigned num_args, coercion_class const & cls);
 
-static void add_coercion_trans(coercion_ext & ext, io_state const & ios, name const & C,
+static void add_coercion_trans(coercion_ext & ext, name const & C,
                                level_param_names const & f_level_params, expr const & f, expr const & f_type, unsigned f_num_args,
                                level_param_names const & g_level_params, expr g, expr const & g_type, unsigned g_num_args,
                                coercion_class const & g_class) {
@@ -179,35 +204,27 @@ static void add_coercion_trans(coercion_ext & ext, io_state const & ios, name co
         gf = mk_lambda(f_arg_names[i], f_arg_types[i], gf);
         gf_type = mk_pi(f_arg_names[i], f_arg_types[i], gf_type);
     }
-    add_coercion(ext, C, gf, gf_type, f_level_params, f_num_args, g_class, ios);
+    add_coercion(ext, C, gf, gf_type, f_level_params, f_num_args, g_class);
 }
 
 static void add_coercion_trans_to(coercion_ext & ext, name const & C, expr const & f, expr const & f_type,
-                                  level_param_names const & ls, unsigned num_args, coercion_class const & cls,
-                                  io_state const & ios) {
+                                  level_param_names const & ls, unsigned num_args, coercion_class const & cls) {
     // apply transitivity using ext.m_to
     coercion_class C_cls = coercion_class::mk_user(C);
     auto it1 = ext.m_to.find(C_cls);
     if (!it1)
         return;
     for (name const & B : *it1) {
-        auto it2 = ext.m_from.find(B);
-        lean_assert(*it2);
-        for (coercion_info const & info : *it2) {
-            if (info.m_to == C_cls) {
-                // B >-> C >-> D
-                add_coercion_trans(ext, ios, B,
-                                   info.m_level_params, info.m_fun, info.m_fun_type, info.m_num_args,
-                                   ls, f, f_type, num_args, cls);
-                break;
-            }
-        }
+        coercion_info info = ext.get_info(B, C_cls);
+        // B >-> C >-> D
+        add_coercion_trans(ext, B,
+                           info.m_level_params, info.m_fun, info.m_fun_type, info.m_num_args,
+                           ls, f, f_type, num_args, cls);
     }
 }
 
 static void add_coercion_trans_from(coercion_ext & ext, name const & C, expr const & f, expr const & f_type,
-                                    level_param_names const & ls, unsigned num_args,
-                                    coercion_class const & cls, io_state const & ios) {
+                                    level_param_names const & ls, unsigned num_args, coercion_class const & cls) {
     // apply transitivity using ext.m_from
     if (cls.kind() != coercion_class_kind::User)
         return; // nothing to do Sort and Fun classes are terminal
@@ -215,61 +232,48 @@ static void add_coercion_trans_from(coercion_ext & ext, name const & C, expr con
     auto it = ext.m_from.find(D);
     if (!it)
         return;
-    for (coercion_info const & D_info : *it) {
+    for (coercion_class E : *it) {
+        coercion_info info = ext.get_info(D, E);
         // C >-> D >-> E
-        add_coercion_trans(ext, ios, C,
+        add_coercion_trans(ext, C,
                            ls, f, f_type, num_args,
-                           D_info.m_level_params, D_info.m_fun, D_info.m_fun_type, D_info.m_num_args, D_info.m_to);
+                           info.m_level_params, info.m_fun, info.m_fun_type, info.m_num_args, info.m_to);
     }
 }
 
-// Add entry (D, C) to ext.m_to
-static void update_to(coercion_ext & ext, coercion_class const & D, name const & C) {
-    auto it = ext.m_to.find(D);
-    if (it) {
-        ext.m_to.insert(D, list<name>(C, *it));
+static void add_coercion_core(coercion_ext & ext, name const & C, expr const & f, expr const & f_type,
+                              level_param_names const & ls, unsigned num_args,
+                              coercion_class const & cls) {
+    auto it = ext.m_coercion_info.find(C);
+    if (!it) {
+        list<coercion_info> infos(coercion_info(f, f_type, ls, num_args, cls));
+        ext.m_coercion_info.insert(C, infos);
     } else {
-        ext.m_to.insert(D, list<name>(C));
+        list<coercion_info> infos = *it;
+        infos = filter(infos, [&](coercion_info const & info) { return info.m_to != cls; });
+        infos = list<coercion_info>(coercion_info(f, f_type, ls, num_args, cls), infos);
+        ext.m_coercion_info.insert(C, infos);
     }
+    if (is_constant(f))
+        ext.m_coercions.insert(const_name(f));
 }
 
 static void add_coercion(coercion_ext & ext, name const & C, expr const & f, expr const & f_type,
                          level_param_names const & ls, unsigned num_args,
-                         coercion_class const & cls, io_state const & ios) {
+                         coercion_class const & cls) {
     if (cls.kind() == coercion_class_kind::User && C == cls.get_name())
         return;
-    auto it = ext.m_from.find(C);
-    if (!it) {
-        list<coercion_info> infos(coercion_info(f, f_type, ls, num_args, cls));
-        ext.m_from.insert(C, infos);
-        update_to(ext, cls, C);
-    } else {
-        list<coercion_info> infos = *it;
-        bool found = false;
-        for_each(infos, [&](coercion_info const & info) {
-                if (info.m_to == cls) {
-                    ios.get_diagnostic_channel() << "replacing the coercion from '" << C << "' to '" << cls << "'\n";
-                    found = true;
-                }
-            });
-        if (found)
-            infos = filter(infos, [&](coercion_info const & info) { return info.m_to != cls; });
-        infos = list<coercion_info>(coercion_info(f, f_type, ls, num_args, cls), infos);
-        ext.m_from.insert(C, infos);
-        if (!found)
-            update_to(ext, cls, C);
-    }
-    if (is_constant(f))
-        ext.m_coercions.insert(const_name(f));
+    add_coercion_trans_to(ext, C, f, f_type, ls, num_args, cls);
+    add_coercion_trans_from(ext, C, f, f_type, ls, num_args, cls);
+    add_coercion_core(ext, C, f, f_type, ls, num_args, cls);
 }
 
 static environment add_coercion(environment env, name const & C, expr const & f, expr const & f_type,
                                 level_param_names const & ls, unsigned num_args,
                                 coercion_class const & cls, io_state const & ios) {
     coercion_ext ext = get_extension(env);
-    add_coercion_trans_to(ext, C, f, f_type, ls, num_args, cls, ios);
-    add_coercion_trans_from(ext, C, f, f_type, ls, num_args, cls, ios);
-    add_coercion(ext, C, f, f_type, ls, num_args, cls, ios);
+    add_coercion(ext, C, f, f_type, ls, num_args, cls);
+    ext.update_from_to(C, cls, ios);
     name const & f_name = const_name(f);
     env = add(env, g_coercion_key, [=](serializer & s) {
             s << f_name << C;
@@ -328,7 +332,7 @@ bool is_coercion(environment const & env, expr const & f) {
 
 bool has_coercions_from(environment const & env, name const & C) {
     coercion_ext const & ext = get_extension(env);
-    return ext.m_from.contains(C);
+    return ext.m_coercion_info.contains(C);
 }
 
 bool has_coercions_from(environment const & env, expr const & C) {
@@ -336,7 +340,7 @@ bool has_coercions_from(environment const & env, expr const & C) {
     if (!is_constant(C_fn))
         return false;
     coercion_ext const & ext = get_extension(env);
-    auto it = ext.m_from.find(const_name(C_fn));
+    auto it = ext.m_coercion_info.find(const_name(C_fn));
     if (!it)
         return false;
     list<coercion_info> const & cs = *it;
@@ -345,23 +349,13 @@ bool has_coercions_from(environment const & env, expr const & C) {
         length(head(cs).m_level_params) == length(const_levels(C_fn));
 }
 
-bool has_coercions_to(environment const & env, name const & D) {
-    coercion_ext const & ext = get_extension(env);
-    return ext.m_to.contains(coercion_class::mk_user(D));
-}
-
-bool has_coercions_to(environment const & env, expr const & D) {
-    expr const & D_fn = get_app_fn(D);
-    return is_constant(D_fn) && has_coercions_to(env, const_name(D_fn));
-}
-
 optional<expr> get_coercion(environment const & env, expr const & C, coercion_class const & D) {
     buffer<expr> args;
     expr const & C_fn = get_app_rev_args(C, args);
     if (!is_constant(C_fn))
         return none_expr();
     coercion_ext const & ext = get_extension(env);
-    auto it = ext.m_from.find(const_name(C_fn));
+    auto it = ext.m_coercion_info.find(const_name(C_fn));
     if (!it)
         return none_expr();
     for (coercion_info const & info : *it) {
@@ -391,7 +385,7 @@ bool get_user_coercions(environment const & env, expr const & C, buffer<std::pai
     if (!is_constant(C_fn))
         return false;
     coercion_ext const & ext = get_extension(env);
-    auto it = ext.m_from.find(const_name(C_fn));
+    auto it = ext.m_coercion_info.find(const_name(C_fn));
     if (!it)
         return false;
     bool r = false;
@@ -411,7 +405,7 @@ bool get_user_coercions(environment const & env, expr const & C, buffer<std::pai
 template<typename F>
 void for_each_coercion(environment const & env, F && f) {
     coercion_ext const & ext = get_extension(env);
-    ext.m_from.for_each([&](name const & C, list<coercion_info> const & infos) {
+    ext.m_coercion_info.for_each([&](name const & C, list<coercion_info> const & infos) {
             for (auto const & info : infos) {
                 f(C, info);
             }
@@ -462,12 +456,6 @@ static int has_coercions_from(lua_State * L) {
     else
         return push_boolean(L, has_coercions_from(to_environment(L, 1), to_name_ext(L, 2)));
 }
-static int has_coercions_to(lua_State * L) {
-    if (is_expr(L, 2))
-        return push_boolean(L, has_coercions_to(to_environment(L, 1), to_expr(L, 2)));
-    else
-        return push_boolean(L, has_coercions_to(to_environment(L, 1), to_name_ext(L, 2)));
-}
 static int get_coercion(lua_State * L) { return push_optional_expr(L, get_coercion(to_environment(L, 1), to_expr(L, 2), to_name_ext(L, 3))); }
 static int get_coercion_to_sort(lua_State * L) { return push_optional_expr(L, get_coercion_to_sort(to_environment(L, 1), to_expr(L, 2))); }
 static int get_coercion_to_fun(lua_State * L) { return push_optional_expr(L, get_coercion_to_fun(to_environment(L, 1), to_expr(L, 2))); }
@@ -517,7 +505,6 @@ void open_coercion(lua_State * L) {
     SET_GLOBAL_FUN(add_coercion,           "add_coercion");
     SET_GLOBAL_FUN(is_coercion,            "is_coercion");
     SET_GLOBAL_FUN(has_coercions_from,     "has_coercions_from");
-    SET_GLOBAL_FUN(has_coercions_to,       "has_coercions_to");
     SET_GLOBAL_FUN(get_coercion,           "get_coercion");
     SET_GLOBAL_FUN(get_coercion_to_sort,   "get_coercion_to_sort");
     SET_GLOBAL_FUN(get_coercion_to_fun,    "get_coercion_to_fun");

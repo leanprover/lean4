@@ -391,7 +391,7 @@ optional<expr> get_coercion_to_fun(environment const & env, expr const & C) {
     return get_coercion(env, C, coercion_class::mk_fun());
 }
 
-bool get_user_coercions(environment const & env, expr const & C, buffer<std::pair<expr, name>> & result) {
+bool get_user_coercions(environment const & env, expr const & C, buffer<std::tuple<name, expr, expr>> & result) {
     buffer<expr> args;
     expr const & C_fn = get_app_rev_args(C, args);
     if (!is_constant(C_fn))
@@ -407,7 +407,10 @@ bool get_user_coercions(environment const & env, expr const & C, buffer<std::pai
             length(info.m_level_params) == length(const_levels(C_fn))) {
             expr f = instantiate_params(info.m_fun, info.m_level_params, const_levels(C_fn));
             expr c = apply_beta(f, args.size(), args.data());
-            result.emplace_back(c, info.m_to.get_name());
+            expr t = instantiate_params(info.m_fun_type, info.m_level_params, const_levels(C_fn));
+            for (unsigned i = 0; i < args.size(); i++) t = binding_body(t);
+            t = instantiate(t, args.size(), args.data());
+            result.emplace_back(info.m_to.get_name(), c, t);
             r = true;
         }
     }
@@ -472,16 +475,18 @@ static int get_coercion(lua_State * L) { return push_optional_expr(L, get_coerci
 static int get_coercion_to_sort(lua_State * L) { return push_optional_expr(L, get_coercion_to_sort(to_environment(L, 1), to_expr(L, 2))); }
 static int get_coercion_to_fun(lua_State * L) { return push_optional_expr(L, get_coercion_to_fun(to_environment(L, 1), to_expr(L, 2))); }
 static int get_user_coercions(lua_State * L) {
-    buffer<std::pair<expr, name>> r;
+    buffer<std::tuple<name, expr, expr>> r;
     get_user_coercions(to_environment(L, 1), to_expr(L, 2), r);
     lua_newtable(L);
     int i = 1;
     for (auto p : r) {
         lua_newtable(L);
-        push_expr(L, p.first);
+        push_name(L, std::get<0>(p));
         lua_rawseti(L, -2, 1);
-        push_name(L, p.second);
+        push_expr(L, std::get<1>(p));
         lua_rawseti(L, -2, 2);
+        push_expr(L, std::get<2>(p));
+        lua_rawseti(L, -2, 3);
         lua_rawseti(L, -2, i);
         i = i + 1;
     }

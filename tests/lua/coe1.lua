@@ -67,3 +67,16 @@ env2 = add_coercion(env2, "lst2nat")
 print("---------")
 for_each_coercion_user(env2, function(C, D, f) print(tostring(C) .. " >-> " .. tostring(D)) end)
 for_each_coercion_user(env2, function(C, D, f) print(tostring(C) .. " >-> " .. tostring(D) .. " : " .. tostring(f)) end)
+
+assert(has_coercions_from(env2, lst_nat))
+assert(not has_coercions_from(env2, Const("foo")))
+assert(not has_coercions_from(env2, Const("lst", {1})))
+assert(has_coercions_from(env2, Const("vec", {1})(nat, one)))
+assert(not has_coercions_from(env2, Const("vec", {1})(nat)))
+assert(not has_coercions_from(env2, Const("vec")(nat, one)))
+
+print("Coercions (vec nat one): ")
+cs = get_user_coercions(env2, Const("vec", {1})(nat, one))
+for i = 1, #cs do
+   print(tostring(cs[i][1]) .. " : " .. tostring(cs[i][3]) .. " : " .. tostring(cs[i][2]))
+end

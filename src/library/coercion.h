@@ -53,12 +53,12 @@ optional<expr> get_coercion_to_sort(environment const & env, expr const & C);
 optional<expr> get_coercion_to_fun(environment const & env, expr const & C);
 /**
    \brief Return all user coercions C >-> D for the type C of the form (C_name.{l1 ... lk} t_1 ... t_n)
-   The result is a pair (coercion, user-class D), and is stored in the result buffer \c result.
+   The result is a pair (user-class D, coercion, coercion type), and is stored in the result buffer \c result.
    The Boolean result is true if at least one pair is added to \c result.
 
    \remark The most recent coercions occur first.
 */
-bool get_user_coercions(environment const & env, expr const & C, buffer<std::pair<expr, name>> & result);
+bool get_user_coercions(environment const & env, expr const & C, buffer<std::tuple<name, expr, expr>> & result);
 
 void for_each_coercion_user(environment const & env,
                             std::function<void(name const &, name const &, expr const &, level_param_names const &, unsigned)> const & f);

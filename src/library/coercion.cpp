@@ -248,7 +248,7 @@ static void add_coercion(coercion_ext & ext, name const & C, expr const & f, exp
         bool found = false;
         for_each(infos, [&](coercion_info const & info) {
                 if (info.m_to == cls) {
-                    ios.get_diagnostic_channel() << "replacing the coercion from '" << C << "' to '" << cls << "'";
+                    ios.get_diagnostic_channel() << "replacing the coercion from '" << C << "' to '" << cls << "'\n";
                     found = true;
                 }
             });

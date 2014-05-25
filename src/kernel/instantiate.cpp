@@ -56,8 +56,9 @@ bool is_head_beta(expr const & t) {
 }
 
 expr apply_beta(expr f, unsigned num_args, expr const * args) {
-    lean_assert(num_args > 0);
-    if (!is_lambda(f)) {
+    if (num_args == 0) {
+        return f;
+    } else if (!is_lambda(f)) {
         return mk_rev_app(f, num_args, args);
     } else {
         unsigned m = 1;

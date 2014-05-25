@@ -146,16 +146,18 @@ static void add_coercion_trans(coercion_ext & ext, io_state const & ios, name co
                                level_param_names const & f_level_params, expr const & f, expr const & f_type, unsigned f_num_args,
                                level_param_names const & g_level_params, expr g, expr const & g_type, unsigned g_num_args) {
     expr t = f_type;
-    buffer<name> f_arg_names;
-    buffer<expr> f_arg_types;
     buffer<expr> args;
     unsigned i = f_num_args;
+    while (i > 0) {
+        i--;
+        args.push_back(mk_var(i));
+    }
+    buffer<name> f_arg_names;
+    buffer<expr> f_arg_types;
     while (is_pi(t)) {
         f_arg_names.push_back(binding_name(t));
         f_arg_types.push_back(binding_domain(t));
         t = binding_body(t);
-        i--;
-        args.push_back(mk_var(i));
     }
     expr f_app = apply_beta(f, args.size(), args.data());
     expr D_app = t;

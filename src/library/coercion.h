@@ -62,5 +62,12 @@ optional<expr> get_coercion_to_fun(environment const & env, expr const & C);
 */
 bool get_user_coercions(environment const & env, expr const & C, buffer<std::pair<expr, name>> & result);
 
+void for_each_coercion_user(environment const & env,
+                            std::function<void(name const &, name const &, expr const &, level_param_names const &, unsigned)> const & f);
+void for_each_coercion_sort(environment const & env,
+                            std::function<void(name const &, expr const &, level_param_names const &, unsigned)> const & f);
+void for_each_coercion_fun(environment const & env,
+                           std::function<void(name const &, expr const &, level_param_names const &, unsigned)> const & f);
+
 void open_coercion(lua_State * L);
 }

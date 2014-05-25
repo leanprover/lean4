@@ -409,6 +409,37 @@ bool get_user_coercions(environment const & env, expr const & C, buffer<std::pai
     return r;
 }
 
+template<typename F>
+void for_each_coercion(environment const & env, F && f) {
+    coercion_ext const & ext = get_extension(env);
+    ext.m_from.for_each([&](name const & C, list<coercion_info> const & infos) {
+            for (auto const & info : infos) {
+                f(C, info);
+            }
+        });
+}
+
+void for_each_coercion_user(environment const & env,
+                            std::function<void(name const &, name const &, expr const &, level_param_names const &, unsigned)> const & f) {
+    for_each_coercion(env, [&](name const & C, coercion_info const & info) {
+            if (info.m_to.kind() == coercion_class_kind::User) f(C, info.m_to.get_name(), info.m_fun, info.m_level_params, info.m_num_args);
+        });
+}
+
+void for_each_coercion_sort(environment const & env,
+                            std::function<void(name const &, expr const &, level_param_names const &, unsigned)> const & f) {
+    for_each_coercion(env, [&](name const & C, coercion_info const & info) {
+            if (info.m_to.kind() == coercion_class_kind::Sort) f(C, info.m_fun, info.m_level_params, info.m_num_args);
+        });
+}
+
+void for_each_coercion_fun(environment const & env,
+                           std::function<void(name const &, expr const &, level_param_names const &, unsigned)> const & f) {
+    for_each_coercion(env, [&](name const & C, coercion_info const & info) {
+            if (info.m_to.kind() == coercion_class_kind::Fun) f(C, info.m_fun, info.m_level_params, info.m_num_args);
+        });
+}
+
 static int add_coercion(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2)
@@ -453,14 +484,42 @@ static int get_user_coercions(lua_State * L) {
     return 1;
 }
 
+static int for_each_coercion(lua_State * L, coercion_class_kind k) {
+    environment env = to_environment(L, 1);
+    luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
+    for_each_coercion(env, [&](name const & C, coercion_info const & info) {
+            if (info.m_to.kind() != k)
+                return;
+            lua_pushvalue(L, 2); // push user-fun
+            push_name(L, C);
+            int nargs = 4;
+            if (info.m_to.kind() == coercion_class_kind::User) {
+                push_name(L, info.m_to.get_name());
+                nargs++;
+            }
+            push_expr(L, info.m_fun);
+            push_list_name(L, info.m_level_params);
+            push_integer(L, info.m_num_args);
+            pcall(L, nargs, 0, 0);
+        });
+    return 0;
+}
+
+static int for_each_coercion_user(lua_State * L) { return for_each_coercion(L, coercion_class_kind::User); }
+static int for_each_coercion_sort(lua_State * L) { return for_each_coercion(L, coercion_class_kind::Sort); }
+static int for_each_coercion_fun(lua_State * L) { return for_each_coercion(L, coercion_class_kind::Fun); }
+
 void open_coercion(lua_State * L) {
-    SET_GLOBAL_FUN(add_coercion,         "add_coercion");
-    SET_GLOBAL_FUN(is_coercion,          "is_coercion");
-    SET_GLOBAL_FUN(has_coercions_from,   "has_coercions_from");
-    SET_GLOBAL_FUN(has_coercions_to,     "has_coercions_to");
-    SET_GLOBAL_FUN(get_coercion,         "get_coercion");
-    SET_GLOBAL_FUN(get_coercion_to_sort, "get_coercion_to_sort");
-    SET_GLOBAL_FUN(get_coercion_to_fun,  "get_coercion_to_fun");
-    SET_GLOBAL_FUN(get_user_coercions,   "get_user_coercions");
+    SET_GLOBAL_FUN(add_coercion,           "add_coercion");
+    SET_GLOBAL_FUN(is_coercion,            "is_coercion");
+    SET_GLOBAL_FUN(has_coercions_from,     "has_coercions_from");
+    SET_GLOBAL_FUN(has_coercions_to,       "has_coercions_to");
+    SET_GLOBAL_FUN(get_coercion,           "get_coercion");
+    SET_GLOBAL_FUN(get_coercion_to_sort,   "get_coercion_to_sort");
+    SET_GLOBAL_FUN(get_coercion_to_fun,    "get_coercion_to_fun");
+    SET_GLOBAL_FUN(get_user_coercions,     "get_user_coercions");
+    SET_GLOBAL_FUN(for_each_coercion_user, "for_each_coercion_user");
+    SET_GLOBAL_FUN(for_each_coercion_sort, "for_each_coercion_sort");
+    SET_GLOBAL_FUN(for_each_coercion_fun,  "for_each_coercion_fun");
 }
 }

@@ -38,6 +38,7 @@ namespace lean {
 */
 environment add_coercion(environment const & env, name & f, io_state const & ios);
 environment add_coercion(environment const & env, name const & f, name const & C, io_state const & ios);
+bool is_coercion(environment const & env, name const & f);
 bool is_coercion(environment const & env, expr const & f);
 /** \brief Return true iff the given environment has coercions from a user-class named \c C. */
 bool has_coercions_from(environment const & env, name const & C);

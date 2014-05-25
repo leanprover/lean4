@@ -317,13 +317,13 @@ environment add_coercion(environment const & env, name const & f, io_state const
     return add_coercion(env, f, const_name(C), ios);
 }
 
+bool is_coercion(environment const & env, name const & f) {
+    coercion_ext const & ext = get_extension(env);
+    return ext.m_coercions.contains(f);
+}
+
 bool is_coercion(environment const & env, expr const & f) {
-    if (is_constant(f)) {
-        coercion_ext const & ext = get_extension(env);
-        return ext.m_coercions.contains(const_name(f));
-    } else {
-        return false;
-    }
+    return is_constant(f) && is_coercion(env, const_name(f));
 }
 
 bool has_coercions_from(environment const & env, name const & C) {
@@ -450,7 +450,12 @@ static int add_coercion(lua_State * L) {
     else
         return push_environment(L, add_coercion(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3), to_io_state(L, 4)));
 }
-static int is_coercion(lua_State * L) { return push_boolean(L, is_coercion(to_environment(L, 1), to_expr(L, 2))); }
+static int is_coercion(lua_State * L) {
+    if (is_expr(L, 2))
+        return push_boolean(L, is_coercion(to_environment(L, 1), to_expr(L, 2)));
+    else
+        return push_boolean(L, is_coercion(to_environment(L, 1), to_name_ext(L, 2)));
+}
 static int has_coercions_from(lua_State * L) {
     if (is_expr(L, 2))
         return push_boolean(L, has_coercions_from(to_environment(L, 1), to_expr(L, 2)));

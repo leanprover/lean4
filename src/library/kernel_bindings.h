@@ -74,6 +74,7 @@ public:
    \brief Return the Lean state object associated with the given Lua state.
    Return nullptr is there is none.
 */
-io_state * get_io_state(lua_State * L);
+io_state * get_io_state_ptr(lua_State * L);
+io_state get_io_state(lua_State * L);
 void open_io_state(lua_State * L);
 }

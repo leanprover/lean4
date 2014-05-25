@@ -42,8 +42,14 @@ Author: Leonardo de Moura
 
 namespace lean {
 static environment get_global_environment(lua_State * L);
-io_state * get_io_state(lua_State * L);
+io_state * get_io_state_ptr(lua_State * L);
 io_state get_tmp_io_state(lua_State * L);
+io_state get_io_state(lua_State * L) {
+    if (io_state * ios = get_io_state_ptr(L))
+        return *ios;
+    else
+        return get_tmp_io_state(L);
+}
 
 // Level
 DECL_UDATA(level)
@@ -983,7 +989,7 @@ static char g_formatter_key;
 static formatter g_simple_formatter = mk_simple_formatter();
 
 optional<formatter> get_global_formatter_core(lua_State * L) {
-    io_state * io = get_io_state(L);
+    io_state * io = get_io_state_ptr(L);
     if (io != nullptr) {
         return optional<formatter>(io->get_formatter());
     } else {
@@ -1009,7 +1015,7 @@ formatter get_global_formatter(lua_State * L) {
 }
 
 void set_global_formatter(lua_State * L, formatter const & fmt) {
-    io_state * io = get_io_state(L);
+    io_state * io = get_io_state_ptr(L);
     if (io != nullptr) {
         io->set_formatter(fmt);
     } else {
@@ -1020,7 +1026,7 @@ void set_global_formatter(lua_State * L, formatter const & fmt) {
 }
 
 static int get_formatter(lua_State * L) {
-    io_state * io = get_io_state(L);
+    io_state * io = get_io_state_ptr(L);
     if (io != nullptr) {
         return push_formatter(L, io->get_formatter());
     } else {
@@ -1168,10 +1174,8 @@ static int import_modules(environment const & env, lua_State * L, int s) {
 
     if (nargs > s + 1 && is_io_state(L, s+2))
         return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, to_io_state(L, s+2)));
-    else if (io_state * ios = get_io_state(L))
-        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, *ios));
     else
-        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, get_tmp_io_state(L)));
+        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, get_io_state(L)));
 }
 
 static int import_modules(lua_State * L) {
@@ -1304,7 +1308,7 @@ static void print(io_state * ios, bool reg, char const * msg) {
 /** \brief Thread safe version of print function */
 static int print(lua_State * L, int start, bool reg) {
     lock_guard<mutex> lock(g_print_mutex);
-    io_state * ios = get_io_state(L);
+    io_state * ios = get_io_state_ptr(L);
     int n = lua_gettop(L);
     int i;
     lua_getglobal(L, "tostring");
@@ -1370,7 +1374,7 @@ void set_global_io_state(lua_State * L, io_state & ios) {
 
 set_io_state::set_io_state(lua_State * L, io_state & st) {
     m_state = L;
-    m_prev  = get_io_state(L);
+    m_prev  = get_io_state_ptr(L);
     lua_pushlightuserdata(m_state, static_cast<void *>(&g_set_state_key));
     lua_pushlightuserdata(m_state, &st);
     lua_settable(m_state, LUA_REGISTRYINDEX);
@@ -1389,7 +1393,7 @@ set_io_state::~set_io_state() {
         set_global_options(m_state, m_prev->get_options());
 }
 
-io_state * get_io_state(lua_State * L) {
+io_state * get_io_state_ptr(lua_State * L) {
     lua_pushlightuserdata(L, static_cast<void *>(&g_set_state_key));
     lua_gettable(L, LUA_REGISTRYINDEX);
     if (lua_islightuserdata(L, -1)) {

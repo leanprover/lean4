@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
+#include "util/lua.h"
 #include "kernel/environment.h"
 #include "library/expr_pair.h"
 #include "library/io_state.h"
@@ -60,4 +61,6 @@ optional<expr> get_coercion_to_fun(environment const & env, expr const & C);
    \remark The most recent coercions occur first.
 */
 bool get_user_coercions(environment const & env, expr const & C, buffer<std::pair<expr, name>> & result);
+
+void open_coercion(lua_State * L);
 }

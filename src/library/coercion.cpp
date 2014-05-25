@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/coercion.h"
 #include "library/module.h"
 #include "library/kernel_serializer.h"
+#include "library/kernel_bindings.h"
 
 namespace lean {
 enum class coercion_class_kind { User, Sort, Fun };
@@ -407,5 +408,60 @@ bool get_user_coercions(environment const & env, expr const & C, buffer<std::pai
         }
     }
     return r;
+}
+
+static int add_coercion(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 2)
+        return push_environment(L, add_coercion(to_environment(L, 1), to_name_ext(L, 2), get_io_state(L)));
+    else if (nargs == 3 && is_io_state(L, 3))
+        return push_environment(L, add_coercion(to_environment(L, 1), to_name_ext(L, 2), to_io_state(L, 3)));
+    else if (nargs == 3)
+        return push_environment(L, add_coercion(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3), get_io_state(L)));
+    else
+        return push_environment(L, add_coercion(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3), to_io_state(L, 4)));
+}
+static int is_coercion(lua_State * L) { return push_boolean(L, is_coercion(to_environment(L, 1), to_expr(L, 2))); }
+static int has_coercions_from(lua_State * L) {
+    if (is_expr(L, 2))
+        return push_boolean(L, has_coercions_from(to_environment(L, 1), to_expr(L, 2)));
+    else
+        return push_boolean(L, has_coercions_from(to_environment(L, 1), to_name_ext(L, 2)));
+}
+static int has_coercions_to(lua_State * L) {
+    if (is_expr(L, 2))
+        return push_boolean(L, has_coercions_to(to_environment(L, 1), to_expr(L, 2)));
+    else
+        return push_boolean(L, has_coercions_to(to_environment(L, 1), to_name_ext(L, 2)));
+}
+static int get_coercion(lua_State * L) { return push_optional_expr(L, get_coercion(to_environment(L, 1), to_expr(L, 2), to_name_ext(L, 3))); }
+static int get_coercion_to_sort(lua_State * L) { return push_optional_expr(L, get_coercion_to_sort(to_environment(L, 1), to_expr(L, 2))); }
+static int get_coercion_to_fun(lua_State * L) { return push_optional_expr(L, get_coercion_to_fun(to_environment(L, 1), to_expr(L, 2))); }
+static int get_user_coercions(lua_State * L) {
+    buffer<std::pair<expr, name>> r;
+    get_user_coercions(to_environment(L, 1), to_expr(L, 2), r);
+    lua_newtable(L);
+    int i = 1;
+    for (auto p : r) {
+        lua_newtable(L);
+        push_expr(L, p.first);
+        lua_rawseti(L, -2, 1);
+        push_name(L, p.second);
+        lua_rawseti(L, -2, 2);
+        lua_rawseti(L, -2, i);
+        i = i + 1;
+    }
+    return 1;
+}
+
+void open_coercion(lua_State * L) {
+    SET_GLOBAL_FUN(add_coercion,         "add_coercion");
+    SET_GLOBAL_FUN(is_coercion,          "is_coercion");
+    SET_GLOBAL_FUN(has_coercions_from,   "has_coercions_from");
+    SET_GLOBAL_FUN(has_coercions_to,     "has_coercions_to");
+    SET_GLOBAL_FUN(get_coercion,         "get_coercion");
+    SET_GLOBAL_FUN(get_coercion_to_sort, "get_coercion_to_sort");
+    SET_GLOBAL_FUN(get_coercion_to_fun,  "get_coercion_to_fun");
+    SET_GLOBAL_FUN(get_user_coercions,   "get_user_coercions");
 }
 }

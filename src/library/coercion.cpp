@@ -247,11 +247,10 @@ static void add_coercion(coercion_ext & ext, name const & C, expr const & f, exp
         list<coercion_info> infos = *it;
         bool found = false;
         for_each(infos, [&](coercion_info const & info) {
-                if (info.m_to == cls)
+                if (info.m_to == cls) {
                     ios.get_diagnostic_channel() << "replacing the coercion from '" << C << "' to '" << cls << "'";
-                if (is_constant(info.m_fun))
-                    ext.m_coercions.erase(const_name(info.m_fun));
-                found = true;
+                    found = true;
+                }
             });
         if (found)
             infos = filter(infos, [&](coercion_info const & info) { return info.m_to != cls; });

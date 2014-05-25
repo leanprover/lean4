@@ -298,9 +298,9 @@ environment add_coercion(environment const & env, name const & f, name const & C
             expr fn = mk_constant(f, const_levels(C_fn));
             optional<coercion_class> cls = type_to_coercion_class(binding_body(t));
             if (!cls)
-                throw exception(sstream() << "invalid coercion, '" << f << "' does not have the expected type to be used as a coercion");
+                throw exception(sstream() << "invalid coercion, '" << f << "' cannot be used as a coercion from '" << C << "'");
             else if (cls->kind() == coercion_class_kind::User && cls->get_name() == C)
-                throw exception(sstream() << "invalid coercion, '" << f << "' is a coercion from '" << C << "' on itself");
+                throw exception(sstream() << "invalid coercion, '" << f << "' is a coercion from '" << C << "' to itself");
             return add_coercion(env, C, fn, d.get_type(), d.get_params(), num, *cls, ios);
         }
         t = binding_body(t);
@@ -317,7 +317,7 @@ environment add_coercion(environment const & env, name const & f, io_state const
         t = binding_body(t);
     expr C = get_app_fn(binding_domain(t));
     if (!is_constant(C))
-        throw exception(sstream() << "invalid coercion, '" << f << "' does not have the expected type to be used as a coercion");
+        throw exception(sstream() << "invalid coercion, '" << f << "' cannot be used as a coercion");
     return add_coercion(env, f, const_name(C), ios);
 }
 

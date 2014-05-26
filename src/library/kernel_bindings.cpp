@@ -1182,7 +1182,7 @@ static int import_modules(lua_State * L) {
     if (is_environment(L, 1))
         return import_modules(to_environment(L, 1), L, 2);
     else
-        return import_modules(environment(), L, 1);
+        return import_modules(mk_environment(), L, 1);
 }
 
 static int import_hott_modules(lua_State * L) {

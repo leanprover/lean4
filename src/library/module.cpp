@@ -138,6 +138,34 @@ environment add(environment const & env, declaration const & d) {
     return add(new_env, g_decl, [=](serializer & s) { s << d; });
 }
 
+static std::string g_inductive("ind");
+
+environment add_inductive(environment                  env,
+                          level_param_names const &    level_params,
+                          unsigned                     num_params,
+                          list<inductive::inductive_decl> const & decls) {
+    environment new_env = inductive::add_inductive(env, level_params, num_params, decls);
+    return add(new_env, g_inductive, [=](serializer & s) {
+            s << inductive_decls(level_params, num_params, decls);
+        });
+}
+
+environment add_inductive(environment const & env, name const & ind_name, level_param_names const & level_params,
+                          unsigned num_params, expr const & type, list<inductive::intro_rule> const & intro_rules) {
+    return add_inductive(env, level_params, num_params, list<inductive::inductive_decl>(inductive::inductive_decl(ind_name, type, intro_rules)));
+}
+
+static void inductive_reader(deserializer & d, module_idx, shared_environment & senv,
+                             std::function<void(asynch_update_fn const &)>  &,
+                             std::function<void(delayed_update_fn const &)> &) {
+    inductive_decls ds = read_inductive_decls(d);
+    senv.update([&](environment const & env) {
+            return inductive::add_inductive(env, std::get<0>(ds), std::get<1>(ds), std::get<2>(ds));
+        });
+}
+
+static register_module_object_reader_fn g_reg_ind_reader(g_inductive, inductive_reader);
+
 struct import_modules_fn {
     typedef std::tuple<module_idx, unsigned, delayed_update_fn> delayed_update;
     shared_environment             m_senv;

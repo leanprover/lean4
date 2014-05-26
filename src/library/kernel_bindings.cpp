@@ -1926,7 +1926,7 @@ static int add_inductivek(lua_State * L) {
     }
     if (decls.empty())
         throw exception("invalid add_inductive, at least one inductive type must be defined");
-    return push_environment(L, add_inductive(env, ls, num_params, to_list(decls.begin(), decls.end())));
+    return push_environment(L, ::lean::add_inductive(env, ls, num_params, to_list(decls.begin(), decls.end())));
 }
 static int add_inductive(lua_State * L) {
     if (is_name(L, 2) || lua_isstring(L, 2))

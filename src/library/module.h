@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <iostream>
 #include "util/serializer.h"
+#include "kernel/inductive/inductive.h"
 #include "library/shared_environment.h"
 #include "library/io_state.h"
 
@@ -77,4 +78,18 @@ environment add(environment const & env, certified_declaration const & d);
     This method throws an exception if the trust_level <= LEAN_BELIEVER_TRUST_LEVEL
 */
 environment add(environment const & env, declaration const & d);
+
+/** \brief Add the given inductive declaration to the environment, and mark it to be exported. */
+environment add_inductive(environment                  env,
+                          level_param_names const &    level_params,
+                          unsigned                     num_params,
+                          list<inductive::inductive_decl> const & decls);
+
+/** \brief Declare a single inductive datatype. */
+environment add_inductive(environment const &        env,
+                          name const &               ind_name,         // name of new inductive datatype
+                          level_param_names const &  level_params,     // level parameters
+                          unsigned                   num_params,       // number of params
+                          expr const &               type,             // type of the form: params -> indices -> Type
+                          list<inductive::intro_rule> const & intro_rules);     // introduction rules
 }

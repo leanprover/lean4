@@ -727,11 +727,6 @@ environment add_inductive(environment                  env,
     return add_inductive_fn(env, level_params, num_params, decls)();
 }
 
-environment add_inductive(environment const & env, name const & ind_name, level_param_names const & level_params,
-                          unsigned num_params, expr const & type, list<intro_rule> const & intro_rules) {
-    return add_inductive(env, level_params, num_params, list<inductive_decl>(inductive_decl(ind_name, type, intro_rules)));
-}
-
 optional<expr> inductive_normalizer_extension::operator()(expr const & e, extension_context & ctx) const {
     // Reduce terms \c e of the form
     //    elim_k A C e p[A,b] (intro_k_i A b u)

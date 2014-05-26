@@ -301,4 +301,44 @@ declaration read_declaration(deserializer & d, unsigned module_idx) {
             return mk_var_decl(n, ps, t);
     }
 }
+
+using inductive::inductive_decl;
+using inductive::intro_rule;
+using inductive::inductive_decl_name;
+using inductive::inductive_decl_type;
+using inductive::inductive_decl_intros;
+using inductive::intro_rule_name;
+using inductive::intro_rule_type;
+
+serializer & operator<<(serializer & s, inductive_decls const & ds) {
+    s << std::get<0>(ds) << std::get<1>(ds);
+    auto const & ls = std::get<2>(ds);
+    s << length(ls);
+    for (inductive_decl const & d : ls) {
+        s << inductive_decl_name(d) << inductive_decl_type(d) << length(inductive_decl_intros(d));
+        for (intro_rule const & r : inductive_decl_intros(d))
+            s << intro_rule_name(r) << intro_rule_type(r);
+    }
+    return s;
+}
+
+inductive_decls read_inductive_decls(deserializer & d) {
+    level_param_names ps = read_level_params(d);
+    unsigned num_params, num_decls;
+    d >> num_params >> num_decls;
+    buffer<inductive_decl> decls;
+    for (unsigned i = 0; i < num_decls; i++) {
+        name d_name = read_name(d);
+        expr d_type = read_expr(d);
+        unsigned num_intros = d.read_unsigned();
+        buffer<intro_rule> rules;
+        for (unsigned j = 0; j < num_intros; j++) {
+            name r_name = read_name(d);
+            expr r_type = read_expr(d);
+            rules.push_back(intro_rule(r_name, r_type));
+        }
+        decls.push_back(inductive_decl(d_name, d_type, to_list(rules.begin(), rules.end())));
+    }
+    return inductive_decls(ps, num_params, to_list(decls.begin(), decls.end()));
+}
 }

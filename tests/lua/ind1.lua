@@ -128,6 +128,13 @@ assert(tc:is_def_eq(length(nil_nat), zero))
 assert(tc:is_def_eq(length(cons_nat(zero, nil_nat)), succ(zero)))
 assert(tc:is_def_eq(length(cons_nat(zero, cons_nat(zero, nil_nat))), succ(succ(zero))))
 
+env:export("ind1_mod.olean")
+local env2 = import_modules("ind1_mod")
+local tc = type_checker(env2)
+assert(tc:is_def_eq(length(nil_nat), zero))
+assert(tc:is_def_eq(length(cons_nat(zero, nil_nat)), succ(zero)))
+assert(tc:is_def_eq(length(cons_nat(zero, cons_nat(zero, nil_nat))), succ(succ(zero))))
+
 -- Martin-Lof style identity type
 local env  = hott_environment()
 local Id_l = Const("Id", {l})

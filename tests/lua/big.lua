@@ -1,5 +1,6 @@
-import("util.lua")
-f, a, b = Consts("f, a, b")
+f = Const("f")
+a = Const("a")
+b = Const("b")
 nodes = {}
 
 function mk_big(num)

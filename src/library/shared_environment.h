@@ -13,7 +13,7 @@ namespace lean {
 /** \brief Auxiliary object used when multiple threads are trying to populate the same environment. */
 class shared_environment {
     environment          m_env;
-    mutable shared_mutex m_mutex;
+    mutable mutex        m_mutex;
 public:
     shared_environment();
     shared_environment(environment const & env);

@@ -29,8 +29,8 @@ assert(is_name(x)) -- test whether argument is a hierarchical name or not.
 assert(not is_name("x"))
 
 local x1 = name(x, 1) -- x1 is a name composed of the string "x" and number 1
-assert(tostring(x1) == "x::1")
-assert(x1 ~= name("x::1"))  -- x1 is not equal to the string x::1
+assert(tostring(x1) == "x.1")
+assert(x1 ~= name("x.1"))  -- x1 is not equal to the string x.1
 assert(x1 == name("x", 1))
 
 local o = name("lean", "pp", "colors")
@@ -96,37 +96,37 @@ assert(m[a]  == 10)
 -- Lua tables assume that different instances are not equal
 ```
 
-## Splay maps
+## Red-black tree maps
 
-In Lean, we provide splay maps for implementing mappings where the keys are
-Lean objects such as hierarchical names. A splay map is implemented using
-a [splay tree](http://en.wikipedia.org/wiki/Splay_tree), a self-adjusting binary
-search tree. We can also use Lua atomic data types
-as keys in splay maps. However, we should not mix different types in the
-same splay map. The Lean splay map assumes that `<` is a total order on the
+In Lean, we provide red-black tree maps for implementing mappings where the keys are
+Lean objects such as hierarchical names. The maps are implemented on
+top of [red-black tree data structure](http://en.wikipedia.org/wiki/Red%E2%80%93black_tree).
+We can also use Lua atomic data types as keys in these maps.
+However, we should not mix different types in the same map.
+The Lean map assumes that `<` is a total order on the
 keys inserted in the map.
 
 ```lua
-local m = splay_map() -- create an empty splay map
-assert(is_splay_map(m))
+local m = rb_map() -- create an empty red-black tree map
+assert(is_rb_map(m))
 assert(#m == 0)
 local a  = name("a", 1)
 local a1 = name("a", 1)
-m:insert(a, 10)          -- add the entry 'a::1' -> 10
+m:insert(a, 10)          -- add the entry 'a.1' -> 10
 assert(m:find(a1) == 10)
 m:insert(name("b"), 20)
 assert(#m == 2)
-m:erase(a)               -- remove entry with key 'a::1'
+m:erase(a)               -- remove entry with key 'a.1'
 assert(m:find(a) == nil)
 assert(not m:contains(a))
 assert(#m == 1)
 m:insert(name("c"), 30)
-m:for_each(              -- traverse the entries in the splay map
+m:for_each(              -- traverse the entries in the map
     function(k, v)       -- executing the given function
         print(k, v)
     end
 )
-local m2 = m:copy()      -- the splay maps are copied in constant time
+local m2 = m:copy()      -- the maps are copied in constant time
 assert(#m2 == #m)
 m2:insert(name("b", 2), 40)
 assert(#m2 == #m + 1)
@@ -292,8 +292,8 @@ how to create options objects using Lua.
 
 ```lua
 -- Create an options set containing the entries
---   pp::colors  -> false,
---   pp::unicode -> false
+--   pp.colors  -> false,
+--   pp.unicode -> false
 local o1 = options(name("pp", "colors"), false, name("pp", "unicode"), false)
 assert(is_options(o1))
 print(o1)
@@ -304,7 +304,7 @@ print(o2)
 -- An error is raised if the option is not known.
 local ok, ex = pcall(function() options({"pp", "foo"}, true) end)
 assert(not ok)
-assert(ex:what():find("unknown option 'pp::foo'"))
+assert(ex:what():find("unknown option 'pp.foo'"))
 ```
 
 Options objects are non-mutable values. The method `update` returns a new

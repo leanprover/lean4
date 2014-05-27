@@ -85,14 +85,14 @@ ENDFOREACH(T)
 #            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T})
 # ENDFOREACH(T)
 
-# # LEAN LUA DOCS
-# file(GLOB LEANLUADOCS "${LEAN_SOURCE_DIR}/../doc/lua/*.md")
-# FOREACH(T ${LEANLUADOCS})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "leanluadoc_${T_NAME}"
-#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/lua"
-#            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T})
-# ENDFOREACH(T)
+# LEAN LUA DOCS
+file(GLOB LEANLUADOCS "${LEAN_SOURCE_DIR}/../doc/lua/*.md")
+FOREACH(T ${LEANLUADOCS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanluadoc_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/lua"
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T})
+ENDFOREACH(T)
 
 # LEAN LUA THREAD TESTS
 if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Linux"))

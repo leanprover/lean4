@@ -7,6 +7,6 @@ function mk_big(f, depth, val)
 end
 
 local f  = Const("f")
-local r1 = mk_big(f, 20, 0)
-local r2 = mk_big(f, 20, 0)
+local r1 = mk_big(f, 18, 0)
+local r2 = mk_big(f, 18, 0)
 assert(r1 == r2)

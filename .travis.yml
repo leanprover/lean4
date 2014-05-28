@@ -271,7 +271,7 @@ after_script:
      CONFIG_FILE=DartConfiguration.tcl;
      sed -i "s,^MemoryCheckSuppressionFile:\W*$,MemoryCheckSuppressionFile:$MEMCHECK_SUPP," $CONFIG_FILE;
      ulimit -s unlimited;
-     yes "C" | ctest -D ExperimentalMemCheck -VV -I $MEMCHECK_RANGE | ../script/demangle_cpptype.py;
+     yes "C" | ctest -D ExperimentalMemCheck -LE expensive -VV -I $MEMCHECK_RANGE | ../script/demangle_cpptype.py;
   fi
 - if [[ $REPO == BLESSED && $PUSH_TO_CDASH == TRUE ]]; then
       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1`;

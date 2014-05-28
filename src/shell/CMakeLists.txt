@@ -76,6 +76,16 @@ FOREACH(T ${LEANLUATESTS})
            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T_NAME})
 ENDFOREACH(T)
 
+# LEAN LUA SLOW TESTS
+file(GLOB LEANLUASLOWTESTS "${LEAN_SOURCE_DIR}/../tests/lua/slow/*.lua")
+FOREACH(T ${LEANLUASLOWTESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanluaslowtest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua/slow"
+           COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T_NAME})
+  set_tests_properties("leanluaslowtest_${T_NAME}" PROPERTIES LABELS "expensive")
+ENDFOREACH(T)
+
 # # LEAN DOCS
 # file(GLOB LEANDOCS "${LEAN_SOURCE_DIR}/../doc/lean/*.md")
 # FOREACH(T ${LEANDOCS})

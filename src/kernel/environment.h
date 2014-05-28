@@ -74,12 +74,13 @@ public:
 
 typedef std::vector<std::shared_ptr<environment_extension const>> environment_extensions;
 
-/**
-   \brief environment identifier that allows us to track descendants of a given environment.
-*/
+/** \brief environment identifier for tracking descendants of a given environment. */
 class environment_id {
+    friend class environment_id_tester;
     friend class environment; // Only the environment class can create object of this type.
-    list<unsigned> m_trail; //!< trail of ancestors. The unsigned value is redundant, it store the depth of the trail.
+    struct path;
+    path *   m_ptr;
+    unsigned m_depth;
     /**
         \brief Create an identifier for an environment that is a direct descendant of the given one.
         The bool field is just to make sure this constructor is not confused with a copy constructor
@@ -90,6 +91,12 @@ class environment_id {
     /** Create an identifier for an environment that is a direct descendant of the given one. */
     static environment_id mk_descendant(environment_id const & ancestor) { return environment_id(ancestor, true); }
 public:
+    environment_id(environment_id const & id);
+    environment_id(environment_id && id);
+    ~environment_id();
+    environment_id & operator=(environment_id const & s);
+    environment_id & operator=(environment_id && s);
+
     /** \brief Return true iff this object is a descendant of the given one. */
     bool is_descendant(environment_id const & id) const;
 };

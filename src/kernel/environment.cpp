@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <limits>
+#include "util/thread.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 
@@ -28,18 +29,53 @@ environment_header::environment_header(unsigned trust_lvl, bool prop_proof_irrel
 
 environment_extension::~environment_extension() {}
 
-environment_id::environment_id():m_trail(0, list<unsigned>()) {}
+struct environment_id::path {
+    unsigned m_next_depth;
+    unsigned m_start_depth;
+    mutex    m_mutex;
+    path *   m_prev;
+    MK_LEAN_RC(); // Declare m_rc counter
+    void dealloc() { delete this; }
 
-environment_id::environment_id(environment_id const & ancestor, bool):m_trail(car(ancestor.m_trail) + 1, ancestor.m_trail) {}
+    path():m_next_depth(1), m_start_depth(0), m_prev(nullptr), m_rc(1) {}
+    path(unsigned start_depth, path * prev):m_next_depth(start_depth + 1), m_start_depth(start_depth), m_prev(prev), m_rc(1) {
+        if (prev) prev->inc_ref();
+    }
+    ~path() { if (m_prev) m_prev->dec_ref(); }
+};
 
+environment_id::environment_id():m_ptr(new path()), m_depth(0) {}
+environment_id::environment_id(environment_id const & ancestor, bool) {
+    if (ancestor.m_depth == std::numeric_limits<unsigned>::max())
+        throw exception("maximal depth in is_descendant tree has been reached, use 'forget' method to workaround this limitation");
+    unique_lock<mutex> lock(ancestor.m_ptr->m_mutex);
+    if (ancestor.m_ptr->m_next_depth == ancestor.m_depth + 1) {
+        m_ptr   = ancestor.m_ptr;
+        m_depth = ancestor.m_depth + 1;
+        m_ptr->m_next_depth++;
+        m_ptr->inc_ref();
+    } else {
+        m_ptr   = new path(ancestor.m_depth+1, ancestor.m_ptr);
+        m_depth = ancestor.m_depth + 1;
+    }
+    lean_assert(m_depth == ancestor.m_depth+1);
+    lean_assert(m_ptr->m_next_depth == m_depth+1);
+}
+environment_id::environment_id(environment_id const & id):m_ptr(id.m_ptr), m_depth(id.m_depth) { if (m_ptr) m_ptr->inc_ref(); }
+environment_id::environment_id(environment_id && id):m_ptr(id.m_ptr), m_depth(id.m_depth) { id.m_ptr = nullptr; }
+environment_id::~environment_id() { if (m_ptr) m_ptr->dec_ref(); }
+environment_id & environment_id::operator=(environment_id const & s) { m_depth = s.m_depth; LEAN_COPY_REF(s); }
+environment_id & environment_id::operator=(environment_id && s) { m_depth = s.m_depth; LEAN_MOVE_REF(s); }
 bool environment_id::is_descendant(environment_id const & id) const {
-    list<unsigned> const * it = &m_trail;
-    while (!is_nil(*it)) {
-        if (is_eqp(*it, id.m_trail))
+    if (m_depth < id.m_depth)
+        return false;
+    path * p = m_ptr;
+    while (p != nullptr) {
+        if (p == id.m_ptr)
             return true;
-        if (car(*it) < car(id.m_trail))
+        if (p->m_start_depth <= id.m_depth)
             return false;
-        it = &cdr(*it);
+        p = p->m_prev;
     }
     return false;
 }

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <vector>
 #include "util/test.h"
 #include "util/exception.h"
 #include "util/trace.h"
@@ -158,11 +159,88 @@ static void tst4() {
     }
 }
 
+namespace lean {
+class environment_id_tester {
+public:
+    static void tst1() {
+        environment_id id1;
+        environment_id id2 = environment_id::mk_descendant(id1);
+        environment_id id3 = environment_id::mk_descendant(id2);
+        environment_id id4 = environment_id::mk_descendant(id1);
+        environment_id id5 = environment_id::mk_descendant(id3);
+        environment_id id6 = environment_id::mk_descendant(id4);
+        environment_id id7 = environment_id::mk_descendant(id3);
+        environment_id id8 = environment_id::mk_descendant(id7);
+        lean_assert(id1.is_descendant(id1));
+        lean_assert(id2.is_descendant(id1));
+        lean_assert(!id1.is_descendant(id2));
+        lean_assert(id3.is_descendant(id1));
+        lean_assert(id3.is_descendant(id2));
+        lean_assert(id4.is_descendant(id1));
+        lean_assert(!id4.is_descendant(id2));
+        lean_assert(!id4.is_descendant(id3));
+        lean_assert(id5.is_descendant(id3));
+        lean_assert(!id5.is_descendant(id4));
+        lean_assert(id6.is_descendant(id4));
+        lean_assert(!id6.is_descendant(id5));
+        lean_assert(id5.is_descendant(id1));
+        lean_assert(id6.is_descendant(id1));
+        lean_assert(id7.is_descendant(id3));
+        lean_assert(id7.is_descendant(id2));
+        lean_assert(id7.is_descendant(id1));
+        lean_assert(!id7.is_descendant(id4));
+        lean_assert(!id7.is_descendant(id5));
+        lean_assert(!id7.is_descendant(id6));
+        lean_assert(id8.is_descendant(id7));
+        lean_assert(id8.is_descendant(id3));
+        lean_assert(id8.is_descendant(id2));
+        lean_assert(id8.is_descendant(id1));
+        lean_assert(!id8.is_descendant(id4));
+        lean_assert(!id8.is_descendant(id5));
+        lean_assert(!id8.is_descendant(id6));
+    }
+
+    static void tst2() {
+        constexpr unsigned num_paths = 50;
+        constexpr unsigned path_len  = 100;
+        std::vector<environment_id> ids[num_paths];
+        for (unsigned i = 0; i < num_paths; i++) {
+            if (i == 0)
+                ids[i].push_back(environment_id());
+            else
+                ids[i].push_back(environment_id::mk_descendant(ids[i-1][1]));
+            for (unsigned j = 0; j < path_len; j++) {
+                ids[i].push_back(environment_id::mk_descendant(ids[i].back()));
+            }
+        }
+        for (unsigned i = 0; i < num_paths; i++) {
+            for (unsigned j = 0; j < path_len; j++) {
+                for (unsigned k = 0; k < i; k++) {
+                    lean_assert(ids[i][j].is_descendant(ids[k][1]));
+                    lean_assert(ids[i][j].is_descendant(ids[k][0]));
+                    lean_assert(!ids[k][1].is_descendant(ids[i][j]));
+                    lean_assert(!ids[k][0].is_descendant(ids[i][j]));
+                    for (unsigned s = 2; s < path_len; s++) {
+                        lean_assert(!ids[i][j].is_descendant(ids[k][s]));
+                    }
+                }
+                for (unsigned k = 0; k < j; k++) {
+                    lean_assert(ids[i][j].is_descendant(ids[i][k]));
+                    lean_assert(!ids[i][k].is_descendant(ids[i][j]));
+                }
+            }
+        }
+    }
+};
+}
+
 int main() {
     save_stack_info();
     tst1();
     tst2();
     tst3();
     tst4();
+    environment_id_tester::tst1();
+    environment_id_tester::tst2();
     return has_violations() ? 1 : 0;
 }

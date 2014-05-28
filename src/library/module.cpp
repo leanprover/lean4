@@ -22,6 +22,10 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 #include "version.h"
 
+#ifndef LEAN_ASYNCH_IMPORT_THEOREM
+#define LEAN_ASYNCH_IMPORT_THEOREM false
+#endif
+
 namespace lean {
 typedef std::pair<std::string, std::function<void(serializer &)>> writer;
 
@@ -110,7 +114,7 @@ static void declaration_reader(deserializer & d, module_idx midx, shared_environ
     environment env  = senv.env();
     if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL) {
         senv.add(decl);
-    } else if (decl.is_theorem()) {
+    } else if (LEAN_ASYNCH_IMPORT_THEOREM && decl.is_theorem()) {
         // First, we add the theorem as an axiom, and create an asychronous task for
         // checking the actual theorem, and replace the axiom with the actual theorem.
         certified_declaration tmp_c = check(env, mk_axiom(decl.get_name(), decl.get_params(), decl.get_type()));
@@ -200,6 +204,10 @@ struct import_modules_fn {
         if (m_num_threads > 1)
             m_num_threads = 1;
 #endif
+        if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL) {
+            // it doesn't payoff to use multiple threads if we will not type check anything
+            m_num_threads = 1;
+        }
     }
 
     module_info_ptr load_module_file(std::string const & mname) {

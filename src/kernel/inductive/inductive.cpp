@@ -758,7 +758,7 @@ optional<expr> inductive_normalizer_extension::operator()(expr const & e, extens
     // std::cout << "Candidate: " << e << "\n";
     if (it1->m_num_params > 0) {
         // Global parameters of elim and intro be definitionally equal
-        delayed_justification jst([=]() { return mk_justification("elim/intro global parameters must match", some_expr(e)); });
+        simple_delayed_justification jst([=]() { return mk_justification("elim/intro global parameters must match", some_expr(e)); });
         for (unsigned i = 0; i < it1->m_num_params; i++) {
             if (!ctx.is_def_eq(elim_args[i], intro_args[i], jst))
                 return none_expr();

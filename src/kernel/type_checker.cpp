@@ -220,21 +220,6 @@ struct type_checker::imp {
     }
 
     /**
-        \brief Create a justification for a application type mismatch,
-        \c e is the application, \c fn_type and \c arg_type are the function and argument type.
-    */
-    justification mk_app_mismatch_jst(expr const & e, expr const & fn_type, expr const & arg_type) {
-        lean_assert(is_app(e));
-        return mk_justification(e,
-                                [=](formatter const & fmt, options const & o, substitution const & subst) {
-                                    return pp_app_type_mismatch(fmt, m_env, o,
-                                                                subst.instantiate_metavars_wo_jst(e),
-                                                                subst.instantiate_metavars_wo_jst(binding_domain(fn_type)),
-                                                                subst.instantiate_metavars_wo_jst(arg_type));
-                                });
-    }
-
-    /**
         \brief Create a justification for a let definition type mismatch,
         \c e is the let expression, and \c val_type is the type inferred for the let value.
     */
@@ -263,6 +248,33 @@ struct type_checker::imp {
         if (auto n2 = get_undef_param(l, m_params))
             throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '" << *n2 << "'", s);
     }
+
+    /**
+       \brief Create a justification for a application type mismatch,
+       \c e is the application, \c fn_type and \c arg_type are the function and argument type.
+    */
+    struct app_delayed_jst : public delayed_justification {
+        environment const & m_env;
+        expr const & m_e;
+        expr const & m_fn_type;
+        expr const & m_arg_type;
+        optional<justification> m_jst;
+        app_delayed_jst(environment const & env, expr const & e, expr const & f_type, expr const & a_type):
+            m_env(env), m_e(e), m_fn_type(f_type), m_arg_type(a_type) {}
+
+        virtual justification get() {
+            if (!m_jst) {
+                m_jst = mk_justification(m_e,
+                                         [=](formatter const & fmt, options const & o, substitution const & subst) {
+                                             return pp_app_type_mismatch(fmt, m_env, o,
+                                                                         subst.instantiate_metavars_wo_jst(m_e),
+                                                                         subst.instantiate_metavars_wo_jst(binding_domain(m_fn_type)),
+                                                                         subst.instantiate_metavars_wo_jst(m_arg_type));
+                                         });
+            }
+            return *m_jst;
+        }
+    };
 
     /**
         \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
@@ -318,7 +330,7 @@ struct type_checker::imp {
                 if (!m)
                     throw_kernel_exception(m_env, "failed to expand macro", e);
                 expr t = infer_type_core(*m, infer_only);
-                delayed_justification jst([=]() { return mk_macro_jst(e); });
+                simple_delayed_justification jst([=]() { return mk_macro_jst(e); });
                 if (!is_def_eq(r, t, jst))
                     throw_kernel_exception(m_env, g_macro_error_msg, e);
             }
@@ -347,7 +359,7 @@ struct type_checker::imp {
             expr f_type = ensure_pi(infer_type_core(app_fn(e), infer_only), app_fn(e));
             if (!infer_only) {
                 expr a_type = infer_type_core(app_arg(e), infer_only);
-                delayed_justification jst([=]() { return mk_app_mismatch_jst(e, f_type, a_type); });
+                app_delayed_jst jst(m_env, e, f_type, a_type);
                 if (!is_def_eq(a_type, binding_domain(f_type), jst)) {
                     environment env = m_env;
                     throw_kernel_exception(m_env, e,
@@ -363,7 +375,7 @@ struct type_checker::imp {
             if (!infer_only) {
                 ensure_sort(infer_type_core(let_type(e), infer_only), let_type(e));
                 expr val_type  = infer_type_core(let_value(e), infer_only);
-                delayed_justification jst([=]() { return mk_let_mismatch_jst(e, val_type); });
+                simple_delayed_justification jst([=]() { return mk_let_mismatch_jst(e, val_type); });
                 if (!is_def_eq(val_type, let_type(e), jst)) {
                     environment env = m_env;
                     throw_kernel_exception(env, e,

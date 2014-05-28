@@ -144,10 +144,21 @@ std::ostream & operator<<(std::ostream & out, justification const & j);
 
 /** \brief Object to simulate delayed justification creation. */
 class delayed_justification {
+public:
+    virtual ~delayed_justification() {}
+    virtual justification get() = 0;
+};
+
+class no_delayed_justification : public delayed_justification {
+public:
+    virtual justification get() { return justification(); }
+};
+
+class simple_delayed_justification : public delayed_justification {
     optional<justification>        m_jst;
     std::function<justification()> m_mk;
 public:
-    template<typename Mk> delayed_justification(Mk && mk):m_mk(mk) {}
-    justification get() { if (!m_jst) { m_jst = m_mk(); } return *m_jst; }
+    template<typename Mk> simple_delayed_justification(Mk && mk):m_mk(mk) {}
+    virtual justification get() { if (!m_jst) { m_jst = m_mk(); } return *m_jst; }
 };
 }

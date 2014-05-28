@@ -65,14 +65,14 @@ static expr g_var_0(mk_var(0));
    It may be used also by users to avoid tedious steps.
 */
 class resolve_macro_definition_cell : public macro_definition_cell {
-    delayed_justification m_dummy_jst;
+    simple_delayed_justification m_dummy_jst;
 public:
     resolve_macro_definition_cell():m_dummy_jst([] { return mk_justification("resolve macro"); }) {
         m_dummy_jst.get(); // the delayed_justification may be accessed by different threads, thus we force its initialization.
     }
 
     // The following const cast is say because we already initialized the delayed justification in the constructor.
-    delayed_justification & jst() const { return const_cast<delayed_justification&>(m_dummy_jst); }
+    delayed_justification & jst() const { return const_cast<simple_delayed_justification&>(m_dummy_jst); }
 
     static void check_num_args(environment const & env, expr const & m) {
         lean_assert(is_macro(m));

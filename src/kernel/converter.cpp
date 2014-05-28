@@ -12,9 +12,9 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 
 namespace lean {
+static no_delayed_justification g_no_delayed_jst;
 bool converter::is_def_eq(expr const & t, expr const & s, context & c) {
-    delayed_justification j([]() { return justification(); });
-    return is_def_eq(t, s, c, j);
+    return is_def_eq(t, s, c, g_no_delayed_jst);
 }
 
 /** \brief Do nothing converter */

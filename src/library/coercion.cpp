@@ -286,7 +286,7 @@ struct add_coercion_fn {
         add_coercion(C, f, f_type, ls, num_args, cls);
         m_ext.update_from_to(C, cls, m_ios);
         name const & f_name = const_name(f);
-        m_env = add(m_env, g_coercion_key, [=](serializer & s) {
+        m_env = module::add(m_env, g_coercion_key, [=](serializer & s) {
                 s << f_name << C;
             });
         return update(m_env, m_ext);

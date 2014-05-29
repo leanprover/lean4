@@ -1859,7 +1859,7 @@ static int add_declaration(lua_State * L) {
         d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4));
     else
         d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4), lua_toboolean(L, 5));
-    return push_environment(L, add(to_environment(L, 1), *d));
+    return push_environment(L, module::add(to_environment(L, 1), *d));
 }
 
 static void open_type_checker(lua_State * L) {
@@ -1903,7 +1903,7 @@ static int add_inductive1(lua_State * L) {
     buffer<intro_rule> irules;
     for (int i = idx+1; i <= nargs; i+=2)
         irules.push_back(intro_rule(to_name_ext(L, i), to_expr(L, i+1)));
-    return push_environment(L, add_inductive(env, Iname, ls, num_params, Itype, to_list(irules.begin(), irules.end())));
+    return push_environment(L, module::add_inductive(env, Iname, ls, num_params, Itype, to_list(irules.begin(), irules.end())));
 }
 static int add_inductivek(lua_State * L) {
     environment env      = to_environment(L, 1);
@@ -1935,7 +1935,7 @@ static int add_inductivek(lua_State * L) {
     }
     if (decls.empty())
         throw exception("invalid add_inductive, at least one inductive type must be defined");
-    return push_environment(L, ::lean::add_inductive(env, ls, num_params, to_list(decls.begin(), decls.end())));
+    return push_environment(L, module::add_inductive(env, ls, num_params, to_list(decls.begin(), decls.end())));
 }
 static int add_inductive(lua_State * L) {
     if (is_name(L, 2) || lua_isstring(L, 2))

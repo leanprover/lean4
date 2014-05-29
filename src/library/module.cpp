@@ -99,13 +99,14 @@ void register_module_object_reader(std::string const & k, module_object_reader r
     readers[k] = r;
 }
 
+static std::string g_decl("decl");
+
+namespace module {
 environment add(environment const & env, std::string const & k, std::function<void(serializer &)> const & wr) {
     module_ext ext = get_extension(env);
     ext.m_writers  = list<writer>(writer(k, wr), ext.m_writers);
     return update(env, ext);
 }
-
-static std::string g_decl("decl");
 
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
@@ -145,6 +146,7 @@ static void inductive_reader(deserializer & d, module_idx, shared_environment & 
 }
 
 static register_module_object_reader_fn g_reg_ind_reader(g_inductive, inductive_reader);
+} // end of namespace module
 
 struct import_modules_fn {
     typedef std::tuple<module_idx, unsigned, delayed_update_fn> delayed_update;

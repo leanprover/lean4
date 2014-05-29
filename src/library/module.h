@@ -65,6 +65,7 @@ struct register_module_object_reader_fn {
     }
 };
 
+namespace module {
 /**
     \brief Add a function that should be invoked when the environment is exported.
     The key \c k identifies which module_object_reader should be used to deserialize the object
@@ -95,4 +96,5 @@ environment add_inductive(environment const &        env,
                           unsigned                   num_params,       // number of params
                           expr const &               type,             // type of the form: params -> indices -> Type
                           list<inductive::intro_rule> const & intro_rules);     // introduction rules
+}
 }

@@ -13,7 +13,7 @@ function mk_module(midx, imports)
    for i = 1, #imports do
       imp_names[#imp_names + 1] = mod_name(imports[i])
    end
-   local env   = import_modules(imp_names, NumThreads)
+   local env   = import_modules(imp_names, {num_threads=NumThreads})
    if #imports == 0 then
       env = add_decl(env, mk_var_decl(const_name(midx), Bool))
       env = add_decl(env, mk_var_decl("and", mk_arrow(Bool, Bool, Bool)))

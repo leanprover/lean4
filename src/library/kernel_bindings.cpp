@@ -1170,12 +1170,12 @@ static int import_modules(environment const & env, lua_State * L, int s) {
     to_string_buffer(L, s, mnames);
     unsigned num_threads = 1;
     bool     keep_proofs = false;
-    if (nargs > s)
-        num_threads = lua_tonumber(L, s+1);
-    if (nargs > s+1)
-        keep_proofs = lua_toboolean(L, s+2);
-    if (nargs > s+2 && is_io_state(L, s+3))
-        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, keep_proofs, to_io_state(L, s+3)));
+    if (nargs > s) {
+        num_threads = get_uint_named_param(L, s+1, "num_threads", num_threads);
+        keep_proofs = get_bool_named_param(L, s+1, "keep_proofs", keep_proofs);
+    }
+    if (nargs > s+1 && is_io_state(L, s+2))
+        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, keep_proofs, to_io_state(L, s+2)));
     else
         return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, keep_proofs, get_io_state(L)));
 }

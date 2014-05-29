@@ -498,6 +498,20 @@ name to_name_ext(lua_State * L, int idx) {
     }
 }
 
+optional<name> to_optional_name(lua_State * L, int idx) {
+    if (lua_isnil(L, idx))
+        return optional<name>();
+    else
+        return optional<name>(to_name_ext(L, idx));
+}
+
+int push_optional_name(lua_State * L, optional<name> const & n) {
+    if (n)
+        return push_name(L, *n);
+    else
+        return push_nil(L);
+}
+
 static int name_tostring(lua_State * L) { return push_string(L, to_name(L, 1).to_string().c_str()); }
 static int name_eq(lua_State * L) { return push_boolean(L, to_name(L, 1) == to_name(L, 2)); }
 static int name_lt(lua_State * L) { return push_boolean(L, to_name(L, 1) < to_name(L, 2)); }

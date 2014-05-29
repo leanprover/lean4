@@ -76,5 +76,6 @@ public:
 */
 io_state * get_io_state_ptr(lua_State * L);
 io_state get_io_state(lua_State * L);
+io_state to_io_state_ext(lua_State * L, int idx);
 void open_io_state(lua_State * L);
 }

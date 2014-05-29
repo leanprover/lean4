@@ -1280,6 +1280,13 @@ static void open_environment(lua_State * L) {
 // IO state
 DECL_UDATA(io_state)
 
+io_state to_io_state_ext(lua_State * L, int idx) {
+    if (idx <= lua_gettop(L))
+        return to_io_state(L, idx);
+    else
+        return get_io_state(L);
+}
+
 int mk_io_state(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 0)

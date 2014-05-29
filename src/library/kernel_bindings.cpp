@@ -1165,17 +1165,19 @@ static void to_string_buffer(lua_State * L, int i, buffer<std::string> & r) {
 }
 
 static int import_modules(environment const & env, lua_State * L, int s) {
+    int nargs = lua_gettop(L);
     buffer<std::string> mnames;
     to_string_buffer(L, s, mnames);
     unsigned num_threads = 1;
-    int nargs = lua_gettop(L);
+    bool     keep_proofs = false;
     if (nargs > s)
         num_threads = lua_tonumber(L, s+1);
-
-    if (nargs > s + 1 && is_io_state(L, s+2))
-        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, to_io_state(L, s+2)));
+    if (nargs > s+1)
+        keep_proofs = lua_toboolean(L, s+2);
+    if (nargs > s+2 && is_io_state(L, s+3))
+        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, keep_proofs, to_io_state(L, s+3)));
     else
-        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, get_io_state(L)));
+        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, keep_proofs, get_io_state(L)));
 }
 
 static int import_modules(lua_State * L) {

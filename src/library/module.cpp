@@ -107,30 +107,6 @@ environment add(environment const & env, std::string const & k, std::function<vo
 
 static std::string g_decl("decl");
 
-static void declaration_reader(deserializer & d, module_idx midx, shared_environment & senv,
-                               std::function<void(asynch_update_fn const &)>  & add_asynch_update,
-                               std::function<void(delayed_update_fn const &)> &) {
-    declaration decl = read_declaration(d, midx);
-    environment env  = senv.env();
-    if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL) {
-        senv.add(decl);
-    } else if (LEAN_ASYNCH_IMPORT_THEOREM && decl.is_theorem()) {
-        // First, we add the theorem as an axiom, and create an asychronous task for
-        // checking the actual theorem, and replace the axiom with the actual theorem.
-        certified_declaration tmp_c = check(env, mk_axiom(decl.get_name(), decl.get_params(), decl.get_type()));
-        senv.add(tmp_c);
-        add_asynch_update([=](shared_environment & senv) {
-                certified_declaration c = check(env, decl);
-                senv.replace(c);
-            });
-    } else {
-        certified_declaration c = check(env, decl);
-        senv.add(c);
-    }
-}
-
-static register_module_object_reader_fn g_reg_decl_reader(g_decl, declaration_reader);
-
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
     declaration _d = d.get_declaration();
@@ -174,6 +150,7 @@ struct import_modules_fn {
     typedef std::tuple<module_idx, unsigned, delayed_update_fn> delayed_update;
     shared_environment             m_senv;
     unsigned                       m_num_threads;
+    bool                           m_keep_proofs;
     io_state                       m_ios;
     mutex                          m_asynch_mutex;
     condition_variable             m_asynch_cv;
@@ -195,8 +172,8 @@ struct import_modules_fn {
     typedef std::shared_ptr<module_info> module_info_ptr;
     std::unordered_map<std::string, module_info_ptr> m_module_info;
 
-    import_modules_fn(environment const & env, unsigned num_threads, io_state const & ios):
-        m_senv(env), m_num_threads(num_threads), m_ios(ios),
+    import_modules_fn(environment const & env, unsigned num_threads, bool keep_proofs, io_state const & ios):
+        m_senv(env), m_num_threads(num_threads), m_keep_proofs(keep_proofs), m_ios(ios),
         m_import_counter(0), m_all_modules_imported(false) {
         if (m_num_threads == 0)
             m_num_threads = 1;
@@ -273,6 +250,41 @@ struct import_modules_fn {
         add_asynch_task([=](shared_environment &) { import_module(r); });
     }
 
+    declaration theorem2axiom(declaration const & decl) {
+        lean_assert(decl.is_theorem());
+        return mk_axiom(decl.get_name(), decl.get_params(), decl.get_type());
+    }
+
+    void import_decl(deserializer & d, module_idx midx) {
+        declaration decl = read_declaration(d, midx);
+        environment env  = m_senv.env();
+        if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL) {
+            if (!m_keep_proofs && decl.is_theorem())
+                m_senv.add(theorem2axiom(decl));
+            else
+                m_senv.add(decl);
+        } else if (LEAN_ASYNCH_IMPORT_THEOREM && decl.is_theorem()) {
+            // First, we add the theorem as an axiom, and create an asychronous task for
+            // checking the actual theorem, and replace the axiom with the actual theorem.
+            certified_declaration tmp_c = check(env, theorem2axiom(decl));
+            m_senv.add(tmp_c);
+            add_asynch_task([=](shared_environment & m_senv) {
+                    certified_declaration c = check(env, decl);
+                    if (m_keep_proofs)
+                        m_senv.replace(c);
+                });
+        } else {
+            if (!m_keep_proofs && decl.is_theorem()) {
+                // check theorem, but add an axiom
+                check(env, decl);
+                m_senv.add(check(env, theorem2axiom(decl)));
+            } else {
+                certified_declaration c = check(env, decl);
+                m_senv.add(c);
+            }
+        }
+    }
+
     void import_module(module_info_ptr const & r) {
         std::string s(r->m_obj_code.data(), r->m_obj_code.size());
         std::istringstream in(s, std::ios_base::binary);
@@ -291,14 +303,16 @@ struct import_modules_fn {
             d >> k;
             if (k == g_olean_end_file) {
                 break;
+            } else if (k == g_decl) {
+                import_decl(d, r->m_module_idx);
             } else {
                 object_readers & readers = get_object_readers();
                 auto it = readers.find(k);
                 if (it == readers.end())
                     throw exception(sstream() << "file '" << r->m_fname << "' has been corrupted");
                 it->second(d, r->m_module_idx, m_senv, add_asynch_update, add_delayed_update);
-                obj_counter++;
             }
+            obj_counter++;
         }
         if (atomic_fetch_sub_explicit(&m_import_counter, 1u, memory_order_relaxed) == 1u) {
             m_all_modules_imported = true;
@@ -404,12 +418,12 @@ struct import_modules_fn {
 };
 
 environment import_modules(environment const & env, unsigned num_modules, std::string const * modules,
-                           unsigned num_threads, io_state const & ios) {
-    return import_modules_fn(env, num_threads, ios)(num_modules, modules);
+                           unsigned num_threads, bool keep_proofs, io_state const & ios) {
+    return import_modules_fn(env, num_threads, keep_proofs, ios)(num_modules, modules);
 }
 
 environment import_module(environment const & env, std::string const & module,
-                          unsigned num_threads, io_state const & ios) {
-    return import_modules(env, 1, &module, num_threads, ios);
+                          unsigned num_threads, bool keep_proofs, io_state const & ios) {
+    return import_modules(env, 1, &module, num_threads, keep_proofs, ios);
 }
 }

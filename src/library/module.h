@@ -17,11 +17,14 @@ namespace lean {
    \brief Return an environment based on \c env, where all modules in \c modules are imported.
    Modules included directly or indirectly by them are also imported.
    The environment \c env is usually an empty environment.
+
+   If \c keep_proofs is false, then the proof of the imported theorems is discarded after being
+   checked. The idea is to save memory.
 */
 environment import_modules(environment const & env, unsigned num_modules, std::string const * modules,
-                           unsigned num_threads, io_state const & ios);
+                           unsigned num_threads, bool keep_proofs, io_state const & ios);
 environment import_module(environment const & env, std::string const & module,
-                          unsigned num_threads, io_state const & ios);
+                          unsigned num_threads, bool keep_proofs, io_state const & ios);
 
 /**
    \brief Store/Export module using \c env to the output stream \c out.

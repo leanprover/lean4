@@ -37,7 +37,7 @@ end
 
 print("importing...")
 local initt = os.clock()
-local env2  = import_modules(mod_names, 4)
+local env2  = import_modules(mod_names, 4, true)
 print(string.format("elapsed time: %.2f\n", os.clock() - initt))
 for i = 1, NumMods do
    for j = 1, NumThs do

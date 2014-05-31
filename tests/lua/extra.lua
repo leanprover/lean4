@@ -6,6 +6,6 @@ function check_error(f)
     if ok then
        error("unexpected success...")
     else
-       print("caught expected error: ", msg)
+       print("caught expected error: ", msg:what())
     end
 end

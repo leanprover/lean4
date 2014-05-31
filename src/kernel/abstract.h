@@ -46,7 +46,9 @@ expr Fun(std::initializer_list<std::pair<expr const &, expr const &>> const & l,
 /** \brief Create a lambda-expression by abstracting the given local constants over b */
 expr Fun(unsigned num, expr const * locals, expr const & b);
 template<typename T> expr Fun(T const & locals, expr const & b) { return Fun(locals.size(), locals.data(), b); }
-inline expr Fun(expr const & local, expr const & b) { return Fun(1, &local, b); }
+inline expr Fun(expr const & local, expr const & b, binder_info const & bi = binder_info()) {
+    return Fun(local_pp_name(local), mlocal_type(local), abstract(b, local), bi);
+}
 
 /**
    \brief Create a Pi expression (pi (x : t) b), the term b is abstracted using abstract(b, constant(x)).

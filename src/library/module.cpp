@@ -207,7 +207,7 @@ struct import_modules_fn {
         std::string header;
         d1 >> header;
         if (header != g_olean_header)
-            throw exception(sstream() << "file '" << fname << "' does not seem to be a valid object Lean file");
+            throw exception(sstream() << "file '" << fname << "' does not seem to be a valid object Lean file, invalid header");
         unsigned major, minor, claimed_hash;
         d1 >> major >> minor >> claimed_hash;
         // Enforce version?
@@ -224,7 +224,7 @@ struct import_modules_fn {
 
         unsigned computed_hash = hash(code_size, [&](unsigned i) { return code[i]; });
         if (claimed_hash != computed_hash)
-            throw exception(sstream() << "file '" << fname << "' has been corrupted");
+            throw exception(sstream() << "file '" << fname << "' has been corrupted, checksum mismatch");
 
         module_info_ptr r = std::make_shared<module_info>();
         r->m_name         = mname;
@@ -324,7 +324,7 @@ struct import_modules_fn {
                 object_readers & readers = get_object_readers();
                 auto it = readers.find(k);
                 if (it == readers.end())
-                    throw exception(sstream() << "file '" << r->m_fname << "' has been corrupted");
+                    throw exception(sstream() << "file '" << r->m_fname << "' has been corrupted, unknown object");
                 it->second(d, r->m_module_idx, m_senv, add_asynch_update, add_delayed_update);
             }
             obj_counter++;

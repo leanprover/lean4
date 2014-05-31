@@ -1,70 +1,63 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/occurs.h"
-#include "kernel/metavar.h"
-#include "kernel/expr_maps.h"
-#include "kernel/replace_visitor.h"
-#include "library/expr_pair.h"
+#include "kernel/find_fn.h"
 #include "library/placeholder.h"
 #include "library/kernel_bindings.h"
 
 namespace lean {
-static name g_placeholder_name("_");
-expr mk_placeholder(optional<expr> const & t) {
-    return mk_constant(g_placeholder_name, t);
-}
+static name g_placeholder_name = name(name::mk_internal_unique_name(), "_");
 
-bool is_placeholder(expr const & e) {
-    return is_constant(e) && const_name(e) == g_placeholder_name;
+level mk_level_placeholder() { return mk_global_univ(g_placeholder_name); }
+expr mk_expr_placeholder() { return mk_constant(g_placeholder_name); }
+bool is_placeholder(level const & e) { return is_global(e) && global_id(e) == g_placeholder_name; }
+bool is_placeholder(expr const & e) { return is_constant(e) && const_name(e) == g_placeholder_name; }
+
+bool has_placeholder(level const & l) {
+    bool r = false;
+    for_each(l, [&](level const & e) {
+            if (is_placeholder(e))
+                r = true;
+            return !r;
+        });
+    return r;
 }
 
 bool has_placeholder(expr const & e) {
-    return occurs(mk_placeholder(), e);
+    return (bool) find(e, [](expr const & e, unsigned) { // NOLINT
+            if (is_placeholder(e))
+                return true;
+            else if (is_sort(e))
+                return has_placeholder(sort_level(e));
+            else if (is_constant(e))
+                return std::any_of(const_levels(e).begin(), const_levels(e).end(), [](level const & l) { return has_placeholder(l); });
+            else
+                return false;
+        });
 }
 
-class replace_placeholders_with_metavars_proc : public replace_visitor {
-    metavar_env const & m_menv;
-    expr_map<expr> *    m_new2old;
-protected:
-    expr visit_constant(expr const & e, context const & c) {
-        if (is_placeholder(e)) {
-            return m_menv->mk_metavar(c, const_type(e));
-        } else {
-            return e;
-        }
-    }
-
-    expr visit(expr const & e, context const & c) {
-        expr r = replace_visitor::visit(e, c);
-        if (!is_eqp(r, e) && m_new2old)
-            m_new2old->insert(expr_pair(r, e));
-        return r;
-    }
-public:
-    replace_placeholders_with_metavars_proc(metavar_env const & menv, expr_map<expr> * new2old):
-        m_menv(menv),
-        m_new2old(new2old) {
-    }
-};
-
-expr replace_placeholders_with_metavars(expr const & e, metavar_env const & menv, expr_map<expr> * new2old) {
-    replace_placeholders_with_metavars_proc proc(menv, new2old);
-    return proc(e);
+static int mk_level_placeholder(lua_State * L) { return push_level(L, mk_level_placeholder()); }
+static int mk_expr_placeholder(lua_State * L) { return push_expr(L, mk_expr_placeholder()); }
+static int is_placeholder(lua_State * L) {
+    if (is_expr(L, 1))
+        return push_boolean(L, is_placeholder(to_expr(L, 1)));
+    else
+        return push_boolean(L, is_placeholder(to_level(L, 1)));
 }
-
-static int mk_placeholder(lua_State * L) {
-    if (lua_gettop(L) == 0) {
-        return push_expr(L, mk_placeholder());
-    } else {
-        return push_expr(L, mk_placeholder(some_expr(to_expr(L, 1))));
-    }
+static int has_placeholder(lua_State * L) {
+    if (is_expr(L, 1))
+        return push_boolean(L, has_placeholder(to_expr(L, 1)));
+    else
+        return push_boolean(L, has_placeholder(to_level(L, 1)));
 }
 
 void open_placeholder(lua_State * L) {
-    SET_GLOBAL_FUN(mk_placeholder, "mk_placeholder");
+    SET_GLOBAL_FUN(mk_level_placeholder, "mk_level_placeholder");
+    SET_GLOBAL_FUN(mk_expr_placeholder,  "mk_expr_placeholder");
+    SET_GLOBAL_FUN(is_placeholder,       "is_placeholder");
+    SET_GLOBAL_FUN(has_placeholder,      "has_placeholder");
 }
 }

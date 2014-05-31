@@ -10,10 +10,9 @@ Author: Leonardo de Moura
 #include "library/resolve_macro.h"
 #include "library/coercion.h"
 #include "library/private.h"
-
+#include "library/placeholder.h"
 // #include "library/fo_unify.h"
 // #include "library/hop_match.h"
-// #include "library/placeholder.h"
 
 namespace lean {
 inline void open_core_module(lua_State * L) {
@@ -21,8 +20,8 @@ inline void open_core_module(lua_State * L) {
     open_resolve_macro(L);
     open_coercion(L);
     open_private(L);
+    open_placeholder(L);
     // open_fo_unify(L);
-    // open_placeholder(L);
     // open_hop_match(L);
 }
 inline void register_core_module() {

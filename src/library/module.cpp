@@ -99,7 +99,8 @@ void register_module_object_reader(std::string const & k, module_object_reader r
     readers[k] = r;
 }
 
-static std::string g_decl("decl");
+static std::string g_glvl_key("glvl");
+static std::string g_decl_key("decl");
 
 namespace module {
 environment add(environment const & env, std::string const & k, std::function<void(serializer &)> const & wr) {
@@ -108,15 +109,20 @@ environment add(environment const & env, std::string const & k, std::function<vo
     return update(env, ext);
 }
 
+environment add_global_level(environment const & env, name const & l) {
+    environment new_env = env.add_global_level(l);
+    return add(new_env, g_glvl_key, [=](serializer & s) { s << l; });
+}
+
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
     declaration _d = d.get_declaration();
-    return add(new_env, g_decl, [=](serializer & s) { s << _d; });
+    return add(new_env, g_decl_key, [=](serializer & s) { s << _d; });
 }
 
 environment add(environment const & env, declaration const & d) {
     environment new_env = env.add(d);
-    return add(new_env, g_decl, [=](serializer & s) { s << d; });
+    return add(new_env, g_decl_key, [=](serializer & s) { s << d; });
 }
 
 static std::string g_inductive("ind");
@@ -287,6 +293,11 @@ struct import_modules_fn {
         }
     }
 
+    void import_global_level(deserializer & d) {
+        name const l = read_name(d);
+        m_senv.update([=](environment const & env) { return env.add_global_level(l); });
+    }
+
     void import_module(module_info_ptr const & r) {
         std::string s(r->m_obj_code.data(), r->m_obj_code.size());
         std::istringstream in(s, std::ios_base::binary);
@@ -305,8 +316,10 @@ struct import_modules_fn {
             d >> k;
             if (k == g_olean_end_file) {
                 break;
-            } else if (k == g_decl) {
+            } else if (k == g_decl_key) {
                 import_decl(d, r->m_module_idx);
+            } else if (k == g_glvl_key) {
+                import_global_level(d);
             } else {
                 object_readers & readers = get_object_readers();
                 auto it = readers.find(k);

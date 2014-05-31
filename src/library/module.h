@@ -75,6 +75,9 @@ namespace module {
 */
 environment add(environment const & env, std::string const & k, std::function<void(serializer &)> const & writer);
 
+/** \brief Add the global level declaration to the environment, and mark it to be exported. */
+environment add_global_level(environment const & env, name const & l);
+
 /** \brief Add the given declaration to the environment, and mark it to be exported. */
 environment add(environment const & env, certified_declaration const & d);
 /**

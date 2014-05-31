@@ -1104,7 +1104,7 @@ static int environment_prop_proof_irrel(lua_State * L) { return push_boolean(L, 
 static int environment_cls_proof_irrel(lua_State * L) { return push_list_name(L, to_environment(L, 1).cls_proof_irrel()); }
 static int environment_eta(lua_State * L) { return push_boolean(L, to_environment(L, 1).eta()); }
 static int environment_impredicative(lua_State * L) { return push_boolean(L, to_environment(L, 1).impredicative()); }
-static int environment_add_global_level(lua_State * L) { return push_environment(L, to_environment(L, 1).add_global_level(to_name_ext(L, 2))); }
+static int environment_add_global_level(lua_State * L) { return push_environment(L, module::add_global_level(to_environment(L, 1), to_name_ext(L, 2))); }
 static int environment_is_global_level(lua_State * L) { return push_boolean(L, to_environment(L, 1).is_global_level(to_name_ext(L, 2))); }
 static int environment_find(lua_State * L) { return push_optional_declaration(L, to_environment(L, 1).find(to_name_ext(L, 2))); }
 static int environment_get(lua_State * L) { return push_declaration(L, to_environment(L, 1).get(to_name_ext(L, 2))); }

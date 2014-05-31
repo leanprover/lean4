@@ -48,18 +48,8 @@ environment add_alias(environment const & env, name const & a, expr const & e, i
     return update(env, ext);
 }
 
-environment add_aliases(environment const & env, name const & prefix, optional<name> const & new_prefix, io_state const & ios) {
+environment add_aliases(environment const & env, name const & prefix, name const & new_prefix, io_state const & ios) {
     return add_aliases(env, prefix, new_prefix, 0, nullptr, ios);
-}
-
-static name replace_prefix(name const & n, name const & prefix, optional<name> const & new_prefix) {
-    if (n == prefix)
-        return new_prefix ? *new_prefix : name();
-    name p = replace_prefix(n.get_prefix(), prefix, new_prefix);
-    if (n.is_string())
-        return name(p, n.get_string());
-    else
-        return name(p, n.get_numeral());
 }
 
 static optional<expr> get_fix_param(unsigned num_fix_params, std::pair<name, expr> const * fix_params, name const & n) {
@@ -72,12 +62,12 @@ static optional<expr> get_fix_param(unsigned num_fix_params, std::pair<name, exp
 
 static name g_local_name = name::mk_internal_unique_name();
 
-environment add_aliases(environment const & env, name const & prefix, optional<name> const & new_prefix,
+environment add_aliases(environment const & env, name const & prefix, name const & new_prefix,
                         unsigned num_fix_params, std::pair<name, expr> const * fix_params, io_state const & ios) {
     aliases_ext ext = get_extension(env);
     env.for_each([&](declaration const & d) {
             if (is_prefix_of(prefix, d.get_name())) {
-                name a        = replace_prefix(d.get_name(), prefix, new_prefix);
+                name a        = d.get_name().replace_prefix(prefix, new_prefix);
                 check_name(env, a, ios);
                 levels ls     = map2<level>(d.get_params(), [](name const &) { return mk_level_placeholder(); });
                 expr c        = mk_constant(d.get_name(), ls);
@@ -144,11 +134,11 @@ static int add_alias(lua_State * L) {
 static int add_aliases(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2) {
-        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), optional<name>(), get_io_state(L)));
+        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), name(), get_io_state(L)));
     } else if (nargs == 3) {
-        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), to_optional_name(L, 3), get_io_state(L)));
+        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3), get_io_state(L)));
     } else if (nargs == 4 && is_io_state(L, 4)) {
-        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), to_optional_name(L, 3), to_io_state(L, 4)));
+        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3), to_io_state(L, 4)));
     } else {
         buffer<std::pair<name, expr>> fix_params;
         luaL_checktype(L, 4, LUA_TTABLE);
@@ -164,7 +154,7 @@ static int add_aliases(lua_State * L) {
             lua_pop(L, 2);
             fix_params.emplace_back(n, e);
         }
-        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), to_optional_name(L, 3),
+        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3),
                                                fix_params.size(), fix_params.data(), to_io_state_ext(L, 5)));
     }
 }

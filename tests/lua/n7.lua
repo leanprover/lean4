@@ -1,0 +1,7 @@
+local n1 = name("foo", "bar", 1)
+assert(n1:replace_prefix("foo", {"hello", "world"}) == name("hello", "world", "bar", 1))
+assert(n1:replace_prefix("foo2", {"hello", "world"}) == name("foo", "bar", 1))
+assert(n1:replace_prefix("foo", nil) == name("bar", 1))
+assert(n1:replace_prefix("foo", name()) == name("bar", 1))
+assert(n1:replace_prefix({"foo", "bar"}, {"hello", "world"}) == name("hello", "world", 1))
+assert(n1:replace_prefix({"foo", "bar"}, "tst") == name("tst", 1))

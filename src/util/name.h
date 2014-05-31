@@ -121,6 +121,12 @@ public:
     */
     name append_after(unsigned i) const;
 
+    /**
+        \brief If prefix is a prefix of this name, then return a new name where the prefix is replaced with new_prefix.
+        Otherwise, return this name.
+    */
+    name replace_prefix(name const & prefix, name const & new_prefix) const;
+
     friend void swap(name & a, name & b) {
         std::swap(a.m_ptr, b.m_ptr);
     }

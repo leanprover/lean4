@@ -14,7 +14,8 @@ Author: Leonardo de Moura
 namespace lean {
 struct private_ext : public environment_extension {
     unsigned                           m_counter;
-    rb_map<name, name, name_quick_cmp> m_hidden_map;
+    rb_map<name, name, name_quick_cmp> m_map;      // map: user-name   -> hidden-name
+    rb_map<name, name, name_quick_cmp> m_inv_map;  // map: hidden-name -> user-name
     private_ext():m_counter(0) {}
 };
 
@@ -40,7 +41,8 @@ std::pair<environment, name> add_private_name(environment const & env, name cons
     if (extra_hash)
         h = hash(h, *extra_hash);
     name r = name(g_private, h) + n;
-    ext.m_hidden_map.insert(r, n);
+    ext.m_map.insert(n, r);
+    ext.m_inv_map.insert(r, n);
     ext.m_counter++;
     environment new_env = update(env, ext);
     new_env = module::add(new_env, g_prv_key, [=](serializer & s) { s << n << r; });
@@ -54,7 +56,8 @@ static void private_reader(deserializer & d, module_idx, shared_environment & se
     d >> n >> h;
     senv.update([=](environment const & env) -> environment {
             private_ext ext = get_extension(env);
-            ext.m_hidden_map.insert(h, n);
+            // we restore only the mapping hidden-name -> user-name (for pretty printing purposes)
+            ext.m_inv_map.insert(h, n);
             ext.m_counter++;
             return update(env, ext);
         });
@@ -62,12 +65,14 @@ static void private_reader(deserializer & d, module_idx, shared_environment & se
 
 register_module_object_reader_fn g_private_reader(g_prv_key, private_reader);
 
-optional<name> is_private_name(environment const & env, name const & n) {
-    auto it = get_extension(env).m_hidden_map.find(n);
-    if (it)
-        return optional<name>(*it);
-    else
-        return optional<name>();
+optional<name> hidden_to_user_name(environment const & env, name const & n) {
+    auto it = get_extension(env).m_inv_map.find(n);
+    return it ? optional<name>(*it) : optional<name>();
+}
+
+optional<name> user_to_hidden_name(environment const & env, name const & n) {
+    auto it = get_extension(env).m_map.find(n);
+    return it ? optional<name>(*it) : optional<name>();
 }
 
 static int add_private_name(lua_State * L) {
@@ -81,10 +86,12 @@ static int add_private_name(lua_State * L) {
     return 2;
 }
 
-static int is_private_name(lua_State * L) { return push_optional_name(L, is_private_name(to_environment(L, 1), to_name_ext(L, 2))); }
+static int hidden_to_user_name(lua_State * L) { return push_optional_name(L, hidden_to_user_name(to_environment(L, 1), to_name_ext(L, 2))); }
+static int user_to_hidden_name(lua_State * L) { return push_optional_name(L, user_to_hidden_name(to_environment(L, 1), to_name_ext(L, 2))); }
 
 void open_private(lua_State * L) {
-    SET_GLOBAL_FUN(add_private_name, "add_private_name");
-    SET_GLOBAL_FUN(is_private_name, "is_private_name");
+    SET_GLOBAL_FUN(add_private_name,    "add_private_name");
+    SET_GLOBAL_FUN(hidden_to_user_name, "hidden_to_user_name");
+    SET_GLOBAL_FUN(user_to_hidden_name, "user_to_hidden_name");
 }
 }

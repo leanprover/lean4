@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/private.h"
 #include "library/placeholder.h"
 #include "library/aliases.h"
-#include "library/scope.h"
 // #include "library/fo_unify.h"
 // #include "library/hop_match.h"
 
@@ -24,7 +23,6 @@ inline void open_core_module(lua_State * L) {
     open_private(L);
     open_placeholder(L);
     open_aliases(L);
-    open_scope(L);
     // open_fo_unify(L);
     // open_hop_match(L);
 }

@@ -111,6 +111,10 @@ static level_param_core const & to_param_core(level const & l) {
 name const & param_id(level const & l) { lean_assert(is_param(l)); return to_param_core(l).m_id; }
 name const & global_id(level const & l)  { lean_assert(is_global(l));  return to_param_core(l).m_id; }
 name const & meta_id(level const & l)  { lean_assert(is_meta(l));  return to_param_core(l).m_id; }
+name const & level_id(level const & l) {
+    lean_assert(is_param(l) || is_global(l) || is_meta(l));
+    return to_param_core(l).m_id;
+}
 
 void level_cell::dealloc() {
     switch (m_kind) {

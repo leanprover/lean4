@@ -106,6 +106,7 @@ level const & succ_of(level const & l);
 name const & param_id(level const & l);
 name const & global_id(level const & l);
 name const & meta_id(level const & l);
+name const & level_id(level const & l);
 /**
    \brief Return true iff \c l is an explicit level.
    We say a level l is explicit iff

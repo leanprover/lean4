@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/scope.h"
 #include "library/module.h"
 #include "library/update_declaration.h"
+#include "library/level_names.h"
 
 namespace lean {
 namespace scope {
@@ -172,8 +173,9 @@ public:
         m_next_local_pos++;
     }
 
-    void add_definition(declaration const & d) {
+    void add_definition(declaration d) {
         lean_assert(d.is_definition());
+        d = sanitize_level_params(d);
         expr new_type  = convert(d.get_type());
         expr new_value = convert(d.get_value());
         level_param_names level_deps = mk_level_deps();
@@ -323,8 +325,11 @@ environment add_inductive(environment                  env,
         environment new_env = inductive::add_inductive(env, level_params, num_params, decls);
         return add(new_env, [=](abstraction_context & ctx) {
                 // abstract types
+                auto new_ls_decls   = sanitize_level_params(level_params, decls);
+                auto s_level_params = new_ls_decls.first;
+                auto s_decls        = new_ls_decls.second;
                 buffer<inductive_decl> tmp_decls;
-                for (auto const & d : decls) {
+                for (auto const & d : s_decls) {
                     expr new_type = ctx.convert(inductive_decl_type(d));
                     buffer<intro_rule> new_rules;
                     for (auto const & r : inductive_decl_intros(d)) {
@@ -340,7 +345,7 @@ environment add_inductive(environment                  env,
                 levels extra_lvls          = map2<level>(extra_ls, [](name const & n) { return mk_param_univ(n); });
                 dependencies extra_ps      = ctx.mk_var_deps();
                 unsigned new_num_params    = num_params + extra_ps.size();
-                level_param_names new_ls   = append(extra_ls, level_params);
+                level_param_names new_ls   = append(extra_ls, s_level_params);
                 // create Pi(extra_ps, T) where T are the types in the declarations
                 buffer<inductive_decl> new_decls;
                 for (auto const & d : tmp_decls) {
@@ -348,7 +353,7 @@ environment add_inductive(environment                  env,
                     ctx.add_decl_info(inductive_decl_name(d), extra_ls, extra_ps, new_type);
                     buffer<intro_rule> new_rules;
                     for (auto const & r : inductive_decl_intros(d)) {
-                        expr new_rule_type = update_inductive_types(intro_rule_type(r), num_params, decls,
+                        expr new_rule_type = update_inductive_types(intro_rule_type(r), num_params, s_decls,
                                                                     extra_lvls, extra_ps);
                         new_rule_type = ctx.Pi(new_rule_type, extra_ps);
                         new_rules.push_back(intro_rule(intro_rule_name(r), new_rule_type));

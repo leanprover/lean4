@@ -36,6 +36,22 @@ static environment update(environment const & env, private_ext const & ext) {
 static name g_private("private");
 static std::string g_prv_key("prv");
 
+// Make sure the mapping "hidden-name r ==> user-name n" is preserved when we close sections and
+// export .olean files.
+static environment preserve_private_data(environment const & env, name const & r, name const & n) {
+    if (scope::has_open_sections(env)) {
+        return scope::add(env, [=](scope::abstraction_context & ctx) {
+                environment env = ctx.env();
+                private_ext ext = get_extension(env);
+                ext.m_inv_map.insert(r, n);
+                ext.m_counter++;
+                ctx.update_env(preserve_private_data(update(env, ext), r, n));
+            });
+    } else {
+        return module::add(env, g_prv_key, [=](serializer & s) { s << n << r; });
+    }
+}
+
 std::pair<environment, name> add_private_name(environment const & env, name const & n, optional<unsigned> const & extra_hash) {
     private_ext ext = get_extension(env);
     unsigned h      = hash(n.hash(), ext.m_counter);
@@ -46,16 +62,7 @@ std::pair<environment, name> add_private_name(environment const & env, name cons
     ext.m_inv_map.insert(r, n);
     ext.m_counter++;
     environment new_env = update(env, ext);
-    new_env = module::add(new_env, g_prv_key, [=](serializer & s) { s << n << r; });
-    if (scope::has_open_sections(new_env)) {
-        new_env = scope::add(new_env, [=](scope::abstraction_context & ctx) {
-                environment env = ctx.env();
-                private_ext ext = get_extension(env);
-                ext.m_inv_map.insert(r, n);
-                ext.m_counter++;
-                ctx.update_env(update(env, ext));
-            });
-    }
+    new_env = preserve_private_data(new_env, r, n);
     return mk_pair(new_env, r);
 }
 

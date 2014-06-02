@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/scope.h"
 #include "library/module.h"
+#include "library/update_declaration.h"
 
 namespace lean {
 namespace scope {
@@ -181,14 +182,8 @@ public:
         new_type  = Pi(new_type, var_deps);
         new_value = Fun(new_value, var_deps);
         add_decl_info(d.get_name(), level_deps, var_deps, new_type);
-        if (d.is_definition()) {
-            declaration new_d = mk_definition(d.get_name(), new_ls, new_type, new_value, d.is_opaque(),
-                                              d.get_weight(), d.get_module_idx(), d.use_conv_opt());
-            m_env = add(m_env, check(m_env, new_d));
-        } else {
-            declaration new_d = mk_theorem(d.get_name(), new_ls, new_type, new_value);
-            m_env = add(m_env, check(m_env, new_d));
-        }
+        declaration new_d = update_declaration(d, new_ls, new_type, new_value);
+        m_env = add(m_env, check(m_env, new_d));
     }
 };
 

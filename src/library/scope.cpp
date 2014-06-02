@@ -413,8 +413,7 @@ environment end(environment const & env) {
             (*p)(ctx);
             ctx.clear_deps();
         }
-        ext.m_sections = tail(ext.m_sections);
-        return update(ctx.env(), ext);
+        return ctx.env();
     }}
     lean_unreachable(); // LCOV_EXCL_LINE
 }

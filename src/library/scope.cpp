@@ -296,15 +296,13 @@ static expr update_inductive_type(expr const & t, unsigned old_num_params, level
     expr T = get_app_args(t, args);
     lean_assert(old_num_params <= args.size());
     lean_assert(is_constant(T));
-    expr new_T = update_constant(T, append(const_levels(T), extra_ls));
+    expr new_T = update_constant(T, append(extra_ls, const_levels(T)));
     buffer<expr> new_args;
-    for (unsigned i = 0; i < old_num_params; i++)
-        new_args.push_back(args[i]);
     new_args.append(extra_params);
-    for (unsigned i = old_num_params; i < args.size(); i++)
-        new_args.push_back(args[i]);
+    new_args.append(args);
     lean_assert(new_args.size() == args.size() + extra_params.size());
-    return mk_app(new_T, new_args);
+    expr r = mk_app(new_T, new_args);
+    return r;
 }
 
 // Add the extra universe levels and parameters to every occurrence in t of an inductive datatype in \c decls.
@@ -347,7 +345,7 @@ environment add_inductive(environment                  env,
                 levels extra_lvls          = map2<level>(extra_ls, [](name const & n) { return mk_param_univ(n); });
                 dependencies extra_ps      = ctx.mk_var_deps();
                 unsigned new_num_params    = num_params + extra_ps.size();
-                level_param_names new_ls   = append(level_params, extra_ls);
+                level_param_names new_ls   = append(extra_ls, level_params);
                 // create Pi(extra_ps, T) where T are the types in the declarations
                 buffer<inductive_decl> new_decls;
                 for (auto const & d : tmp_decls) {

@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <algorithm>
 #include "util/list.h"
-#include "util/name_map.h"
+#include "util/name_hash_map.h"
 #include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
@@ -41,8 +41,8 @@ struct decl_info {
     }
 };
 
-typedef name_map<decl_info>      decl_info_map;
-typedef name_map<level_info>     level_info_map;
+typedef name_hash_map<decl_info>      decl_info_map;
+typedef name_hash_map<level_info>     level_info_map;
 typedef std::unordered_set<name, name_hash, name_eq> name_hash_set;
 
 class abstraction_context_imp : public abstraction_context {

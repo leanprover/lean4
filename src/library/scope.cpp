@@ -184,10 +184,10 @@ public:
         if (d.is_definition()) {
             declaration new_d = mk_definition(d.get_name(), new_ls, new_type, new_value, d.is_opaque(),
                                               d.get_weight(), d.get_module_idx(), d.use_conv_opt());
-            m_env = module::add(m_env, check(m_env, new_d));
+            m_env = add(m_env, check(m_env, new_d));
         } else {
             declaration new_d = mk_theorem(d.get_name(), new_ls, new_type, new_value);
-            m_env = module::add(m_env, check(m_env, new_d));
+            m_env = add(m_env, check(m_env, new_d));
         }
     }
 };

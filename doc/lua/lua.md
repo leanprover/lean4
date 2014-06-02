@@ -342,3 +342,163 @@ local o = options({'pp', 'unicode'}, false)
 set_options(o)
 assert(get_options():contains{'pp', 'unicode'})
 ```
+
+# Universe levels
+
+Lean supports universe polymorphism. That is, declaration in Lean can
+be parametrized by one or more universe level parameters.
+The declarations can then be instantiated with universe level
+expressions. In the standard Lean front-end, universe levels can be
+omitted, and the Lean elaborator (tries) to infer them automatically
+for users. In this section, we describe the API for creating and using
+universe level expressions.
+
+In Lean, we have a hierarchy of universes: `Type.{0}` : `Type.{1}` :
+`Type.{2}`, ...
+We do not assume our universes are cumulative (like Coq).
+In Lean, when we create an empty environment, we can specify whether
+`Type.{0}` is impredicative or not. The idea is to be able to use
+`Type.{0}` to represent the universe of Propositions.
+
+In Lean, we have the following kinds of universe level expression:
+- `Zero`         : the universe level expression for representing `Type.{0}`.
+- `Succ(l)`      : the successor of universe level `l`.
+- `Max(l1, l2)`  : the maximum of levels `l1` and `l2`.
+- `IMax(l1, l2)` : the "impredicative" maximum. It is defined as
+  `IMax(x, y) = Zero` if `y` is `Zero`, and `Max(x, y)` otherwise.
+- `Param(n)`     : a universe level parameter named `n`.
+- `Global(n)`    : a global universe level named `n`.
+- `Meta(n)`      : a meta universe level named `n`. Meta universe
+  levels are used to identify placeholders that must be automatically
+  constructed by Lean.
+
+The following example demonstrates how to create universe level
+expressions using Lua.
+
+```lua
+local zero = level()    -- Create level Zero
+assert(is_level(zero))  -- zero is a level expression
+assert(zero:is_zero())
+local one  = zero + 1   -- Create level One
+assert(one ~= 1)        -- level one is not the constant 1
+-- We can also use the API mk_level_succ instead of +1
+local two  = mk_level_succ(one) -- Create level Two
+assert(two == one+1)
+assert(two:is_succ())   -- two is of the kind: successor
+assert(two:succ_of() == one)  -- it is the successor of one
+local u = mk_global_univ("u") -- u is a reference to global universe level "u"
+assert(u:is_global())
+assert(u:id() == name("u"))   -- Retrieve u's name
+local l = mk_param_univ("l")  -- l is a reference to a universe level parameter
+assert(l:is_param())
+assert(l:id() == name("l"))
+assert(l:id() ~= "l")         -- The names are not strings, but hierarchical names
+assert(l:kind() == level_kind.Param)
+local m = mk_meta_univ("m")   -- Create a meta universe level named "m"
+assert(m:is_meta())
+assert(m:id() == name("m"))
+print(max_univ(l, u))         -- Create level expression Max(l, u)
+assert(max_univ(l, u):is_max())
+-- The max_univ API applies basic coercions automatically
+assert(max_univ("l", 1) == max_univ(l, one))
+assert(max_univ("l", 1, u) == max_univ(l, max_univ(one, u)))
+-- The max_univ API applies basic simplifications automatically
+assert(max_univ(l, l) == l)
+assert(max_univ(l, zero) == l)
+assert(max_univ(one, zero) == one)
+print(imax_univ(l, u))       -- Create level expression IMax(l, u)
+assert(imax_univ(l, u):is_imax())
+-- The imax_univ API also applies basic coercions automatically
+assert(imax_univ(1, "l") == imax_univ(one, l))
+-- The imax_univ API applies basic simplifications automatically
+assert(imax_univ(l, l) == l)
+assert(imax_univ(l, zero) == zero)
+-- It "knows" that u+1 can never be zero
+assert(imax_univ(l, u+1) == max_univ(l, u+1))
+assert(imax_univ(zero, one) == one)
+assert(imax_univ(one, zero) == zero)
+-- The methods lhs and rhs deconstruct max and imax expressions
+assert(max_univ(l, u):lhs() == l)
+assert(imax_univ(l, u):rhs() == u)
+-- The method is_not_zero if there if for all assignments
+-- of the parameters, globals and meta levels, the resultant
+-- level expression is different from zero.
+assert((l+1):is_not_zero())
+assert(not l:is_not_zero())
+assert(max_univ(l+1, u):is_not_zero())
+-- The method instantiate replaces parameters with level expressions
+assert(max_univ(l, u):instantiate({"l"}, {two}) == max_univ(two, u))
+local l1 = mk_param_univ("l1")
+assert(max_univ(l, l1):instantiate({"l", "l1"}, {two, u+1}) == max_univ(two, u+1))
+-- The method has_meta returns true, if the given level expression
+-- contains meta levels
+assert(max_univ(m, l):has_meta())
+assert(not max_univ(u, l):has_meta())
+-- The is_eqp method checks for pointer equality
+local e1 = max_univ(l, u)
+local e2 = max_univ(l, u)
+-- e1 and e2 are structurally equal, but are stored in different
+-- positions in memory.
+assert(e1 == e2)
+assert(not e1:is_eqp(e2))
+local e3 = e1
+-- e1 and e3 are references to the same level expression.
+assert(e1:is_eqp(e3))
+```
+
+In the previous example, we learned that functions such as `max_univ`
+apply basic simplifications automatically. However, they do not put
+the level expressions in any normal form. We can use the method
+`normalize` for that. The normalization procedure is also use to
+implement the method `is_equivalent` that returns true when two level
+expressions are equivalent. The Lua API also contains the methdo
+`is_geq` that can be used to check whether a level expression
+represents a universe bigger than or equal another one.
+
+```lean
+local l = mk_param_univ("l")
+local u = mk_global_univ("u")
+assert(max_univ(l, 1, u+1):is_equivalent(max_univ(u+1, 1, l)))
+local e1 = max_univ(l, u+1)+1
+assert(e1:normalize() == max_univ(l+1, u+2))
+-- norm is syntax sugar for normalize
+assert(e1:norm() == max_univ(l+1, u+2))
+assert(e1:is_geq(l))
+assert(e1:is_geq(e1))
+assert(e1:is_geq(0))
+assert(e1:is_geq(u+2))
+assert(e1:is_geq(max(l, u)))
+```
+
+We say a universe level is _explicit_ iff it is of the form
+`succ^k(zero)`
+
+```lean
+local zero = level()
+assert(zero:is_explicit())
+local two  = zero+2
+assert(two:is_explicit())
+local l    = mk_param_univ("l")
+assert(not l:is_explicit())
+```
+
+The Lua dictionary `level_kind` contains the id for all universe level
+kinds.
+
+```lean
+local zero = level()
+local one  = zero+1
+local l    = mk_param_univ("l")
+local u    = mk_global_univ("u")
+local m    = mk_meta_univ("m")
+local e1   = max_univ(l, u)
+local e2   = max_univ(m, l)
+assert(zero:kind() == level_kind.Zero)
+assert(one:kind()  == level_kind.Succ)
+assert(l:kind()    == level_kind.Param)
+assert(u:kind()    == level_kind.Global)
+assert(m:kind()    == level_kind.Meta)
+assert(e1:kind()   == level_kind.Max)
+assert(e1:kind()   == level_kind.IMax)
+```
+

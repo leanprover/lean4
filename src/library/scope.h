@@ -13,6 +13,13 @@ namespace lean {
 namespace scope {
 typedef std::vector<expr> dependencies; // local var dependencies
 
+/**
+   \brief API provided to section abstraction functions.
+   Section abstraction functions are executed whenever a
+   section is closed. The are used to abstract the
+   section definitions with respect to universe levels,
+   and parameters/axioms declared inside the section.
+*/
 class abstraction_context {
 protected:
     environment m_env;
@@ -56,6 +63,26 @@ environment add(environment const & env, certified_declaration const & d, binder
     If there are no active sections, then this function behaves like \c module::add.
 */
 environment add(environment const & env, declaration const & d, binder_info const & bi = binder_info());
+
+/**
+    \brief Add the given inductive declaration to the environment and current section.
+    If there are no active sections, then this function behaves like \c module::add_inductive.
+*/
+environment add_inductive(environment                  env,
+                          level_param_names const &    level_params,
+                          unsigned                     num_params,
+                          list<inductive::inductive_decl> const & decls);
+
+/**
+    \brief Declare a single inductive datatype. This is just a helper function implemented on top of
+    the previous (more general) add_inductive.
+*/
+environment add_inductive(environment const &        env,
+                          name const &               ind_name,         // name of new inductive datatype
+                          level_param_names const &  level_params,     // level parameters
+                          unsigned                   num_params,       // number of params
+                          expr const &               type,             // type of the form: params -> indices -> Type
+                          list<inductive::intro_rule> const & intro_rules);     // introduction rules
 
 /**
    \brief Create a section scope. When a section is closed all definitions and theorems are relativized with

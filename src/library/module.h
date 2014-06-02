@@ -91,13 +91,5 @@ environment add_inductive(environment                  env,
                           level_param_names const &    level_params,
                           unsigned                     num_params,
                           list<inductive::inductive_decl> const & decls);
-
-/** \brief Declare a single inductive datatype. */
-environment add_inductive(environment const &        env,
-                          name const &               ind_name,         // name of new inductive datatype
-                          level_param_names const &  level_params,     // level parameters
-                          unsigned                   num_params,       // number of params
-                          expr const &               type,             // type of the form: params -> indices -> Type
-                          list<inductive::intro_rule> const & intro_rules);     // introduction rules
 }
 }

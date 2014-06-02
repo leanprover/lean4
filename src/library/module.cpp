@@ -137,11 +137,6 @@ environment add_inductive(environment                  env,
         });
 }
 
-environment add_inductive(environment const & env, name const & ind_name, level_param_names const & level_params,
-                          unsigned num_params, expr const & type, list<inductive::intro_rule> const & intro_rules) {
-    return add_inductive(env, level_params, num_params, list<inductive::inductive_decl>(inductive::inductive_decl(ind_name, type, intro_rules)));
-}
-
 static void inductive_reader(deserializer & d, module_idx, shared_environment & senv,
                              std::function<void(asynch_update_fn const &)>  &,
                              std::function<void(delayed_update_fn const &)> &) {

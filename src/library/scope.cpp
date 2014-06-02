@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
+#include "kernel/inductive/inductive.h"
 #include "library/scope.h"
 #include "library/module.h"
 
@@ -267,6 +268,113 @@ environment add(environment const & env, declaration const & d, binder_info cons
         return module::add(env, d);
     else
         return save_section_declaration(env.add(d), d, bi);
+}
+
+using inductive::inductive_decl;
+using inductive::inductive_decl_name;
+using inductive::inductive_decl_type;
+using inductive::inductive_decl_intros;
+using inductive::intro_rule;
+using inductive::intro_rule_name;
+using inductive::intro_rule_type;
+
+// Return true iff \c t is one of the inductive types in \c decls
+static bool is_inductive_type(expr const & t, list<inductive_decl> const & decls) {
+    expr fn = get_app_fn(t);
+    return
+        is_constant(fn) &&
+        std::any_of(decls.begin(), decls.end(), [&](inductive_decl const & d) { return inductive_decl_name(d) == const_name(fn); });
+}
+
+// Add the extra universe levels and parameters to the inductive datatype \c t.
+// For example, suppose the old number of arguments and levels is 1, and the datatype has one index.
+// Then, t is of the form (T.{l} A I)  where l and A are the existing levels and parameters, and I is the index.
+// In this instance, this procedure returns the term:
+//        (T.{l extra_ls} A extra_params I)
+static expr update_inductive_type(expr const & t, unsigned old_num_params, levels const & extra_ls, dependencies const & extra_params) {
+    buffer<expr> args;
+    expr T = get_app_args(t, args);
+    lean_assert(old_num_params <= args.size());
+    lean_assert(is_constant(T));
+    expr new_T = update_constant(T, append(const_levels(T), extra_ls));
+    buffer<expr> new_args;
+    for (unsigned i = 0; i < old_num_params; i++)
+        new_args.push_back(args[i]);
+    new_args.append(extra_params);
+    for (unsigned i = old_num_params; i < args.size(); i++)
+        new_args.push_back(args[i]);
+    lean_assert(new_args.size() == args.size() + extra_params.size());
+    return mk_app(new_T, new_args);
+}
+
+// Add the extra universe levels and parameters to every occurrence in t of an inductive datatype in \c decls.
+// See update_inductive_type and is_inductive_type.
+static expr update_inductive_types(expr const & t, unsigned old_num_params, list<inductive_decl> const & decls,
+                                   levels const & extra_ls, dependencies const & extra_params) {
+    return replace(t, [&](expr const & e, unsigned) {
+            if (is_inductive_type(e, decls))
+                return some_expr(update_inductive_type(e, old_num_params, extra_ls, extra_params));
+            else
+                return none_expr();
+        });
+}
+
+environment add_inductive(environment                  env,
+                          level_param_names const &    level_params,
+                          unsigned                     num_params,
+                          list<inductive_decl> const & decls) {
+    scope_ext const & ext = get_extension(env);
+    if (is_nil(ext.m_sections)) {
+        return module::add_inductive(env, level_params, num_params, decls);
+    } else {
+        environment new_env = inductive::add_inductive(env, level_params, num_params, decls);
+        return add(new_env, [=](abstraction_context & ctx) {
+                // abstract types
+                buffer<inductive_decl> tmp_decls;
+                for (auto const & d : decls) {
+                    expr new_type = ctx.convert(inductive_decl_type(d));
+                    buffer<intro_rule> new_rules;
+                    for (auto const & r : inductive_decl_intros(d)) {
+                        expr new_rule_type = ctx.convert(intro_rule_type(r));
+                        new_rules.push_back(intro_rule(intro_rule_name(r), new_rule_type));
+                    }
+                    tmp_decls.push_back(inductive_decl(inductive_decl_name(d),
+                                                       new_type,
+                                                       to_list(new_rules.begin(), new_rules.end())));
+                }
+                // collect new params and level_params
+                level_param_names extra_ls = ctx.mk_level_deps();
+                levels extra_lvls          = map2<level>(extra_ls, [](name const & n) { return mk_param_univ(n); });
+                dependencies extra_ps      = ctx.mk_var_deps();
+                unsigned new_num_params    = num_params + extra_ps.size();
+                level_param_names new_ls   = append(level_params, extra_ls);
+                // create Pi(extra_ps, T) where T are the types in the declarations
+                buffer<inductive_decl> new_decls;
+                for (auto const & d : tmp_decls) {
+                    expr new_type = ctx.Pi(inductive_decl_type(d), extra_ps);
+                    ctx.add_decl_info(inductive_decl_name(d), extra_ls, extra_ps, new_type);
+                    buffer<intro_rule> new_rules;
+                    for (auto const & r : inductive_decl_intros(d)) {
+                        expr new_rule_type = update_inductive_types(intro_rule_type(r), num_params, decls,
+                                                                    extra_lvls, extra_ps);
+                        new_rule_type = ctx.Pi(new_rule_type, extra_ps);
+                        new_rules.push_back(intro_rule(intro_rule_name(r), new_rule_type));
+                        ctx.add_decl_info(intro_rule_name(r), extra_ls, extra_ps, new_rule_type);
+                    }
+                    new_decls.push_back(inductive_decl(inductive_decl_name(d),
+                                                       new_type,
+                                                       to_list(new_rules.begin(), new_rules.end())));
+                }
+                environment env = ctx.env();
+                env = add_inductive(env, new_ls, new_num_params, to_list(new_decls.begin(), new_decls.end()));
+                ctx.update_env(env);
+            });
+    }
+}
+
+environment add_inductive(environment const & env, name const & ind_name, level_param_names const & level_params,
+                          unsigned num_params, expr const & type, list<inductive::intro_rule> const & intro_rules) {
+    return add_inductive(env, level_params, num_params, list<inductive::inductive_decl>(inductive::inductive_decl(ind_name, type, intro_rules)));
 }
 
 environment begin_section(environment const & env) {

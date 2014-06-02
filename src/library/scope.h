@@ -76,6 +76,9 @@ environment begin_namespace(environment const & env, char const * n);
 */
 environment end(environment const & env);
 
+/** \brief Return true iff the given environment has open sections. */
+bool has_open_sections(environment const & env);
+
 /**
    \brief Return the current namespace for \c env. The namespace is composed by the sequence
    of names provided to \c begin_namespace_scope.

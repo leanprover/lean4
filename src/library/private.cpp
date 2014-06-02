@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/hash.h"
 #include "library/private.h"
 #include "library/module.h"
+#include "library/scope.h"
 #include "library/kernel_bindings.h"
 
 namespace lean {
@@ -46,6 +47,15 @@ std::pair<environment, name> add_private_name(environment const & env, name cons
     ext.m_counter++;
     environment new_env = update(env, ext);
     new_env = module::add(new_env, g_prv_key, [=](serializer & s) { s << n << r; });
+    if (scope::has_open_sections(new_env)) {
+        new_env = scope::add(new_env, [=](scope::abstraction_context & ctx) {
+                environment env = ctx.env();
+                private_ext ext = get_extension(env);
+                ext.m_inv_map.insert(r, n);
+                ext.m_counter++;
+                ctx.update_env(update(env, ext));
+            });
+    }
     return mk_pair(new_env, r);
 }
 

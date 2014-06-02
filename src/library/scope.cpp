@@ -311,6 +311,10 @@ environment end(environment const & env) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
+bool has_open_sections(environment const & env) {
+    return !is_nil(get_extension(env).m_sections);
+}
+
 name const & get_namespace(environment const & env) {
     scope_ext const & ext = get_extension(env);
     if (is_nil(ext.m_namespaces))

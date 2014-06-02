@@ -306,14 +306,14 @@ environment add_coercion(environment const & env, name const & f, name const & C
             const_name(C_fn) == C &&
             num == args.size() &&
             check_var_args(args) &&
-            check_levels(const_levels(C_fn), d.get_params())) {
+            check_levels(const_levels(C_fn), d.get_univ_params())) {
             expr fn = mk_constant(f, const_levels(C_fn));
             optional<coercion_class> cls = type_to_coercion_class(binding_body(t));
             if (!cls)
                 throw exception(sstream() << "invalid coercion, '" << f << "' cannot be used as a coercion from '" << C << "'");
             else if (cls->kind() == coercion_class_kind::User && cls->get_name() == C)
                 throw exception(sstream() << "invalid coercion, '" << f << "' is a coercion from '" << C << "' to itself");
-            return add_coercion_fn(env, ios)(C, fn, d.get_type(), d.get_params(), num, *cls);
+            return add_coercion_fn(env, ios)(C, fn, d.get_type(), d.get_univ_params(), num, *cls);
         }
         t = binding_body(t);
         num++;

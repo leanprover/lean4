@@ -164,7 +164,7 @@ public:
 
     void add_local_decl(declaration const & d, binder_info const & bi) {
         lean_assert(d.is_var_decl());
-        lean_assert(is_nil(d.get_params()));
+        lean_assert(is_nil(d.get_univ_params()));
         expr new_type = convert(d.get_type());
         dependencies var_deps = mk_var_deps();
         var_deps.push_back(mk_constant(d.get_name()));
@@ -179,7 +179,7 @@ public:
         expr new_type  = convert(d.get_type());
         expr new_value = convert(d.get_value());
         level_param_names level_deps = mk_level_deps();
-        level_param_names new_ls = append(level_deps, d.get_params());
+        level_param_names new_ls = append(level_deps, d.get_univ_params());
         dependencies var_deps    = mk_var_deps();
         new_type  = Pi(new_type, var_deps);
         new_value = Fun(new_value, var_deps);
@@ -239,7 +239,7 @@ environment add_global_level(environment const & env, name const & l) {
 
 static environment save_section_declaration(environment const & env, declaration const & d, binder_info const & bi) {
     if (d.is_var_decl()) {
-        if (!is_nil(d.get_params()))
+        if (!is_nil(d.get_univ_params()))
             throw exception("section parameters and axiom cannot contain universe level parameter");
         return add(env, [=](abstraction_context & ctx) {
                 static_cast<abstraction_context_imp&>(ctx).add_local_decl(d, bi);

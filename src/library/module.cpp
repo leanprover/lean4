@@ -255,7 +255,7 @@ struct import_modules_fn {
 
     declaration theorem2axiom(declaration const & decl) {
         lean_assert(decl.is_theorem());
-        return mk_axiom(decl.get_name(), decl.get_params(), decl.get_type());
+        return mk_axiom(decl.get_name(), decl.get_univ_params(), decl.get_type());
     }
 
     void import_decl(deserializer & d, module_idx midx) {

@@ -96,7 +96,7 @@ declaration sanitize_level_params(declaration const & d) {
     if (globals.empty())
         return d;
     name_map<name> param_name_map;
-    level_param_names new_ls = sanitize_level_params(d.get_params(), globals, param_name_map);
+    level_param_names new_ls = sanitize_level_params(d.get_univ_params(), globals, param_name_map);
     if (param_name_map.empty())
         return d;
     expr new_type = rename_param_levels(d.get_type(), param_name_map);

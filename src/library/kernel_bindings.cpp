@@ -851,7 +851,7 @@ DECLARATION_PRED(is_var_decl)
 DECLARATION_PRED(is_opaque)
 DECLARATION_PRED(use_conv_opt)
 static int declaration_get_name(lua_State * L) { return push_name(L, to_declaration(L, 1).get_name()); }
-static int declaration_get_params(lua_State * L) { return push_list_name(L, to_declaration(L, 1).get_params()); }
+static int declaration_get_params(lua_State * L) { return push_list_name(L, to_declaration(L, 1).get_univ_params()); }
 static int declaration_get_type(lua_State * L) { return push_expr(L, to_declaration(L, 1).get_type()); }
 static int declaration_get_value(lua_State * L) {
     if (to_declaration(L, 1).is_definition())

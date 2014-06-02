@@ -55,7 +55,7 @@ bool declaration::is_axiom() const      { return is_var_decl() && m_ptr->m_theor
 bool declaration::is_theorem() const    { return is_definition() && m_ptr->m_theorem; }
 
 name declaration::get_name() const { return m_ptr->m_name; }
-level_param_names const & declaration::get_params() const { return m_ptr->m_params; }
+level_param_names const & declaration::get_univ_params() const { return m_ptr->m_params; }
 expr declaration::get_type() const { return m_ptr->m_type; }
 
 bool declaration::is_opaque() const { return m_ptr->m_opaque; }

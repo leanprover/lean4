@@ -58,7 +58,7 @@ public:
     bool is_var_decl() const;
 
     name get_name() const;
-    level_param_names const & get_params() const;
+    level_param_names const & get_univ_params() const;
     expr get_type() const;
 
     expr get_value() const;

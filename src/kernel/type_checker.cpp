@@ -308,7 +308,7 @@ struct type_checker::imp {
             break;
         case expr_kind::Constant: {
             declaration d    = m_env.get(const_name(e));
-            auto const & ps = d.get_params();
+            auto const & ps = d.get_univ_params();
             auto const & ls = const_levels(e);
             if (length(ps) != length(ls))
                 throw_kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '" << const_name(e) << "', #"
@@ -446,7 +446,7 @@ static void check_name(environment const & env, name const & n) {
 }
 
 static void check_duplicated_params(environment const & env, declaration const & d) {
-    level_param_names ls = d.get_params();
+    level_param_names ls = d.get_univ_params();
     while (!is_nil(ls)) {
         auto const & p = head(ls);
         ls = tail(ls);
@@ -464,13 +464,13 @@ certified_declaration check(environment const & env, declaration const & d, name
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
     type_checker checker1(env, g, mk_default_converter(env, optional<module_idx>(), memoize, extra_opaque));
-    checker1.check(d.get_type(), d.get_params());
+    checker1.check(d.get_type(), d.get_univ_params());
     if (d.is_definition()) {
         optional<module_idx> midx;
         if (d.is_opaque())
             midx = optional<module_idx>(d.get_module_idx());
         type_checker checker2(env, g, mk_default_converter(env, midx, memoize, extra_opaque));
-        expr val_type = checker2.check(d.get_value(), d.get_params());
+        expr val_type = checker2.check(d.get_value(), d.get_univ_params());
         if (!checker2.is_def_eq(val_type, d.get_type())) {
             throw_kernel_exception(env, d.get_value(),
                                    [=](formatter const & fmt, options const & o) {

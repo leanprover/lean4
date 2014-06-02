@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 namespace lean {
 static declaration update_declaration(declaration d, optional<level_param_names> const & ps,
                                       optional<expr> const & type, optional<expr> const & value) {
-    level_param_names _ps = ps ? *ps : d.get_params();
+    level_param_names _ps = ps ? *ps : d.get_univ_params();
     expr _type = type ? *type : d.get_type();
     expr _value;
     if (d.is_definition()) {
@@ -18,14 +18,14 @@ static declaration update_declaration(declaration d, optional<level_param_names>
         lean_assert(!value);
     }
     if (d.is_var_decl()) {
-        if (is_eqp(d.get_type(), _type) && is_eqp(d.get_params(), _ps))
+        if (is_eqp(d.get_type(), _type) && is_eqp(d.get_univ_params(), _ps))
             return d;
         if (d.is_axiom())
             return mk_axiom(d.get_name(), _ps, _type);
         else
             return mk_var_decl(d.get_name(), _ps, _type);
     } else {
-        if (is_eqp(d.get_type(), _type) && is_eqp(d.get_value(), _value) && is_eqp(d.get_params(), _ps))
+        if (is_eqp(d.get_type(), _type) && is_eqp(d.get_value(), _value) && is_eqp(d.get_univ_params(), _ps))
             return d;
         if (d.is_theorem())
             return mk_theorem(d.get_name(), _ps, _type, _value);

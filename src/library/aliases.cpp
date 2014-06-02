@@ -69,7 +69,7 @@ environment add_aliases(environment const & env, name const & prefix, name const
             if (is_prefix_of(prefix, d.get_name())) {
                 name a        = d.get_name().replace_prefix(prefix, new_prefix);
                 check_name(env, a, ios);
-                levels ls     = map2<level>(d.get_params(), [](name const &) { return mk_level_placeholder(); });
+                levels ls     = map2<level>(d.get_univ_params(), [](name const &) { return mk_level_placeholder(); });
                 expr c        = mk_constant(d.get_name(), ls);
                 if (num_fix_params > 0) {
                     expr t = d.get_type();

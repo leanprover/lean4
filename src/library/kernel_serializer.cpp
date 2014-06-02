@@ -268,7 +268,7 @@ serializer & operator<<(serializer & s, declaration const & d) {
     }
     if (d.is_theorem() || d.is_axiom())
         k |= 8;
-    s << k << d.get_name() << d.get_params() << d.get_type();
+    s << k << d.get_name() << d.get_univ_params() << d.get_type();
     if (d.is_definition()) {
         s << d.get_value();
         if (!d.is_theorem())

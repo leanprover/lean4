@@ -187,7 +187,7 @@ struct add_inductive_fn {
         m_env(env), m_level_names(level_params), m_num_params(num_params), m_decls(decls),
         m_ngen(g_tmp_prefix), m_tc(m_env) {
         m_decls_sz = length(m_decls);
-        m_levels = map2<level>(level_params, [](name const & n) { return mk_param_univ(n); });
+        m_levels = param_names_to_levels(level_params);
     }
 
     /** \brief Return the number of inductive datatypes being defined. */

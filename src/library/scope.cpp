@@ -39,7 +39,7 @@ struct decl_info {
     decl_info(unsigned pos, level_param_names const & lvl_deps, dependencies const & var_deps, expr const & type,
               binder_info const & bi, bool local):
         m_pos(pos), m_level_deps(lvl_deps), m_var_deps(var_deps), m_type(type), m_binder_info(bi), m_local(local) {
-        m_levels = map2<level>(m_level_deps, [](name const & n) { return mk_param_univ(n); });
+        m_levels = param_names_to_levels(m_level_deps);
     }
 };
 
@@ -342,7 +342,7 @@ environment add_inductive(environment                  env,
                 }
                 // collect new params and level_params
                 level_param_names extra_ls = ctx.mk_level_deps();
-                levels extra_lvls          = map2<level>(extra_ls, [](name const & n) { return mk_param_univ(n); });
+                levels extra_lvls          = param_names_to_levels(extra_ls);
                 dependencies extra_ps      = ctx.mk_var_deps();
                 unsigned new_num_params    = num_params + extra_ps.size();
                 level_param_names new_ls   = append(extra_ls, s_level_params);

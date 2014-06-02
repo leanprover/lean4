@@ -218,5 +218,7 @@ format pp(level const & l, options const & opts = options());
 format pp(level const & lhs, level const & rhs, bool unicode, unsigned indent);
 /** \brief Pretty print lhs <= rhs using the given configuration options. */
 format pp(level const & lhs, level const & rhs, options const & opts = options());
+/** \brief Convert a list of universe level parameter names into a list of levels. */
+levels param_names_to_levels(level_param_names const & ps);
 }
 void print(lean::level const & l);

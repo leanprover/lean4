@@ -686,5 +686,8 @@ bool is_geq_core(level l1, level l2) {
 bool is_geq(level const & l1, level const & l2) {
     return is_geq_core(normalize(l1), normalize(l2));
 }
+levels param_names_to_levels(level_param_names const & ps) {
+    return map2<level>(ps, [](name const & p) { return mk_param_univ(p); });
+}
 }
 void print(lean::level const & l) { std::cout << l << std::endl; }

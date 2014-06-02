@@ -90,7 +90,7 @@ public:
                         if (info.m_local) {
                             return some_expr(update_constant(e, levels()));
                         } else {
-                            return some_expr(mk_app(update_constant(e, append(const_levels(e), info.m_levels)), info.m_var_deps));
+                            return some_expr(mk_app(update_constant(e, append(info.m_levels, const_levels(e))), info.m_var_deps));
                         }
                     } else {
                         levels new_ls = map(const_levels(e), [&](level const & l) { return convert(l); });
@@ -176,7 +176,7 @@ public:
         expr new_type  = convert(d.get_type());
         expr new_value = convert(d.get_value());
         level_param_names level_deps = mk_level_deps();
-        level_param_names new_ls = append(d.get_params(), level_deps);
+        level_param_names new_ls = append(level_deps, d.get_params());
         dependencies var_deps    = mk_var_deps();
         new_type  = Pi(new_type, var_deps);
         new_value = Fun(new_value, var_deps);

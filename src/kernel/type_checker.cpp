@@ -445,12 +445,24 @@ static void check_name(environment const & env, name const & n) {
         throw_already_declared(env, n);
 }
 
+static void check_duplicated_params(environment const & env, declaration const & d) {
+    level_param_names ls = d.get_params();
+    while (!is_nil(ls)) {
+        auto const & p = head(ls);
+        ls = tail(ls);
+        if (std::find(ls.begin(), ls.end(), p) != ls.end()) {
+            throw_kernel_exception(env, sstream() << "failed to add declaration to environment, duplicate universe level parameter: '"
+                                   << p << "'", d.get_type());
+        }
+    }
+}
+
 certified_declaration check(environment const & env, declaration const & d, name_generator const & g, name_set const & extra_opaque, bool memoize) {
     check_no_mlocal(env, d.get_type());
     if (d.is_definition())
         check_no_mlocal(env, d.get_value());
     check_name(env, d.get_name());
-
+    check_duplicated_params(env, d);
     type_checker checker1(env, g, mk_default_converter(env, optional<module_idx>(), memoize, extra_opaque));
     checker1.check(d.get_type(), d.get_params());
     if (d.is_definition()) {

@@ -4,17 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/thread.h"
 #include "kernel/find_fn.h"
 #include "library/placeholder.h"
 #include "library/kernel_bindings.h"
 
 namespace lean {
 static name g_placeholder_name = name(name::mk_internal_unique_name(), "_");
-
-level mk_level_placeholder() { return mk_global_univ(g_placeholder_name); }
-expr mk_expr_placeholder() { return mk_constant(g_placeholder_name); }
-bool is_placeholder(level const & e) { return is_global(e) && global_id(e) == g_placeholder_name; }
-bool is_placeholder(expr const & e) { return is_constant(e) && const_name(e) == g_placeholder_name; }
+static unsigned LEAN_THREAD_LOCAL g_placeholder_counter = 0;
+level mk_level_placeholder() { return mk_global_univ(name(g_placeholder_name, g_placeholder_counter++)); }
+expr mk_expr_placeholder() { return mk_constant(name(g_placeholder_name, g_placeholder_counter++)); }
+static bool is_placeholder(name const & n) { return !n.is_atomic() && n.get_prefix() == g_placeholder_name; }
+bool is_placeholder(level const & e) { return is_global(e) && is_placeholder(global_id(e)); }
+bool is_placeholder(expr const & e) { return is_constant(e) && is_placeholder(const_name(e)); }
 
 bool has_placeholder(level const & l) {
     bool r = false;

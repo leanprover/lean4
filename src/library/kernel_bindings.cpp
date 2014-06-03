@@ -238,6 +238,7 @@ static void open_level(lua_State * L) {
     SET_ENUM("Succ",      level_kind::Succ);
     SET_ENUM("Max",       level_kind::Max);
     SET_ENUM("IMax",      level_kind::IMax);
+    SET_ENUM("Global",    level_kind::Global);
     SET_ENUM("Param",     level_kind::Param);
     SET_ENUM("Meta",      level_kind::Meta);
     lua_setglobal(L, "level_kind");

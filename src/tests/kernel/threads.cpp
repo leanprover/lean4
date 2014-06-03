@@ -51,7 +51,7 @@ static void tst1() {
     a = f(a, a);
     std::vector<thread> ts;
 
-    #if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
+    #if defined(LEAN_MULTI_THREAD)
     for (unsigned i = 0; i < 8; i++) {
         ts.push_back(thread([&](){ save_stack_info(); mk(a); }));
     }

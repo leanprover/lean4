@@ -94,7 +94,7 @@ static void tst1() {
     display(orelse(lazy_list<int>(), take(10, seq(100))));
     display(orelse(take(0, seq(1)), take(10, seq(100))));
     display(orelse(filter(take(100, seq(1)), [](int i) { return i < 0; }), take(10, seq(1000))));
-#if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
+#if defined(LEAN_MULTI_THREAD)
     display(timeout(append(append(take(10, seq(1)), loop()), seq(100)), 5));
     display(take(10, par(seq(1), loop())));
 #endif

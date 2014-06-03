@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 using namespace lean;
 
-#if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
+#if defined(LEAN_MULTI_THREAD)
 void foo() {
     static LEAN_THREAD_LOCAL std::vector<int> v(1024);
     if (v.size() != 1024) {

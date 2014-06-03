@@ -228,7 +228,7 @@ static expr mk_big(unsigned depth) {
 }
 
 static void tst12() {
-#if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
+#if defined(LEAN_MULTI_THREAD)
     expr t = mk_big(18);
     environment env;
     init_test_frontend(env);

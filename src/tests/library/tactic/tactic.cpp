@@ -68,7 +68,7 @@ static void tst1() {
     check_failure(now_tactic(), env, io, ctx, q);
     std::cout << "proof 2: " << orelse(fail_tactic(), t).solve(env, io, ctx, q).get_proof() << "\n";
 
-#if !defined(__APPLE__) && defined(LEAN_MULTI_THREAD)
+#if defined(LEAN_MULTI_THREAD)
     check_failure(try_for(loop_tactic(), 100), env, io, ctx, q);
     std::cout << "proof 1: " << try_for(t, 10000).solve(env, io, s).get_proof() << "\n";
     check_failure(try_for(orelse(try_for(loop_tactic(), 10000),

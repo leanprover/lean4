@@ -25,14 +25,6 @@ environment add_alias(environment const & env, name const & a, expr const & e, i
    \remark \c new_prefix may be the anonymous name.
 */
 environment add_aliases(environment const & env, name const & prefix, name const & new_prefix, io_state const & ios);
-/**
-   \brief Create an alias for each declaration named <tt>prefix.rest</tt>, the alias will also fix the value of parameters
-   in \c fix_params. The argument \c fix_params is a sequence of pairs <tt>(name, expr)</tt>, where the \c name is the
-   name of the parameter to be fixed.
-   Warning messages are generated if the new aliases shadow existing aliases and/or declarations.
-*/
-environment add_aliases(environment const & env, name const & prefix, name const & new_prefix,
-                        unsigned num_fix_params, std::pair<name, expr> const * fix_params, io_state const & ios);
 
 /** \brief If \c t is aliased in \c env, then return its name. Otherwise, return none. */
 optional<name> is_aliased(environment const & env, expr const & t);

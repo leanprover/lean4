@@ -12,6 +12,7 @@ option(BOOST              "BOOST"              OFF)
 option(STATIC             "STATIC"             OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 option(READLINE           "READLINE"           OFF)
+option(CACHE_EXPRS        "CACHE_EXPRS"        ON)
 
 # Added for CTest
 include(CTest)
@@ -38,6 +39,11 @@ if("${MULTI_THREAD}" MATCHES "OFF")
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
 else()
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_MULTI_THREAD")
+endif()
+
+if("${CACHE_EXPRS}" MATCHES "ON")
+  message(STATUS "Lean expression caching enabled (aka partial hashconsing)")
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_CACHE_EXPRS")
 endif()
 
 if("${STATIC}" MATCHES "ON")

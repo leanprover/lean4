@@ -64,6 +64,7 @@ static void tst3() {
 
 int main() {
     save_stack_info();
+    scoped_expr_caching set(false);
     tst1();
     tst2();
     tst3();

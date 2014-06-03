@@ -44,7 +44,10 @@ static void tst1() {
     std::cout << fa(a) << "\n";
     lean_assert(is_eqp(app_fn(fa), f));
     lean_assert(is_eqp(app_arg(fa), a));
-    lean_assert(!is_eqp(fa, f(a)));
+    {
+        scoped_expr_caching set(false);
+        lean_assert(!is_eqp(fa, f(a)));
+    }
     lean_assert(fa(a) == f(a, a));
     std::cout << fa(fa, fa) << "\n";
     std::cout << mk_lambda("x", ty, Var(0)) << "\n";
@@ -159,6 +162,7 @@ static void tst6() {
 }
 
 static void tst7() {
+    scoped_expr_caching set(false);
     expr f  = Const("f");
     expr v  = Var(0);
     expr a1 = max_sharing(f(v, v));
@@ -238,17 +242,20 @@ static void tst11() {
     std::cout << abstract(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) << "\n";
     lean_assert(abstract(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) ==
                 mk_lambda("x", t, f(Var(1), mk_lambda("y", t, f(b, Var(2))))));
-    std::cout << abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) << "\n";
-    lean_assert(abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) ==
-                mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))));
-    std::cout << abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), a) << "\n";
-    lean_assert(abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), a) ==
-                mk_lambda("x", t, f(Var(1), mk_lambda("y", t, f(b, Var(2))))));
-
+    {
+        scoped_expr_caching set(false);
+        std::cout << abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) << "\n";
+        lean_assert(abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) ==
+                    mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))));
+        std::cout << abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), a) << "\n";
+        lean_assert(abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), a) ==
+                    mk_lambda("x", t, f(Var(1), mk_lambda("y", t, f(b, Var(2))))));
+    }
     lean_assert(substitute(f(f(f(a))), f(a), b) == f(f(b)));
 }
 
 static void tst12() {
+    scoped_expr_caching set(false);
     expr f  = Const("f");
     expr v  = Var(0);
     expr a1 = max_sharing(f(v, v));
@@ -305,6 +312,7 @@ static void tst15() {
 }
 
 static void check_copy(expr const & e) {
+    scoped_expr_caching set(false);
     expr c = copy(e);
     lean_assert(!is_eqp(e, c));
     lean_assert(e == c);

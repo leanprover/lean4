@@ -14,9 +14,14 @@ Author: Leonardo de Moura
 #include "util/hash.h"
 #include "util/buffer.h"
 #include "util/object_serializer.h"
+#include "util/lru_cache.h"
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"
 #include "kernel/free_vars.h"
+
+#ifndef LEAN_INITIAL_EXPR_CACHE_CAPACITY
+#define LEAN_INITIAL_EXPR_CACHE_CAPACITY 1024*16
+#endif
 
 namespace lean {
 static expr g_dummy(mk_var(0));
@@ -156,6 +161,7 @@ expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr con
                    std::max(get_free_var_range(t), dec(get_free_var_range(b)))),
     m_binder(n, t, i),
     m_body(b) {
+    m_hash = ::lean::hash(m_hash, m_depth);
     lean_assert(k == expr_kind::Lambda || k == expr_kind::Pi);
 }
 void expr_binding::dealloc(buffer<expr_cell*> & todelete) {
@@ -256,6 +262,45 @@ void expr_macro::dealloc(buffer<expr_cell*> & todelete) {
 expr_macro::~expr_macro() {
     delete[] m_args;
 }
+
+// =======================================
+// Constructors
+
+#ifdef LEAN_CACHE_EXPRS
+typedef lru_cache<expr, expr_hash, is_bi_equal_proc> expr_cache;
+static expr_cache LEAN_THREAD_LOCAL g_expr_cache(LEAN_INITIAL_EXPR_CACHE_CAPACITY);
+static bool       LEAN_THREAD_LOCAL g_expr_cache_enabled = true;
+inline expr cache(expr const & e) {
+    if (g_expr_cache_enabled) {
+        if (auto r = g_expr_cache.insert(e)) {
+            // std::cout << e << "\n===>\n" << *r << "\n";
+            return *r;
+        }
+    }
+    return e;
+}
+bool enable_expr_caching(bool f) {
+    bool r = g_expr_cache_enabled;
+    g_expr_cache_enabled = f;
+    return r;
+}
+#else
+inline expr cache(expr && e) { return e; }
+bool enable_expr_caching(bool) { return true; } // NOLINT
+#endif
+
+expr mk_var(unsigned idx) { return cache(expr(new expr_var(idx))); }
+expr mk_constant(name const & n, levels const & ls) { return cache(expr(new expr_const(n, ls))); }
+expr mk_macro(macro_definition const & m, unsigned num, expr const * args) { return cache(expr(new expr_macro(m, num, args))); }
+expr mk_metavar(name const & n, expr const & t) { return cache(expr(new expr_mlocal(true, n, t))); }
+expr mk_local(name const & n, name const & pp_n, expr const & t) { return cache(expr(new expr_local(n, pp_n, t))); }
+expr mk_app(expr const & f, expr const & a) { return cache(expr(new expr_app(f, a))); }
+expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i) {
+    return cache(expr(new expr_binding(k, n, t, e, i)));
+}
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return cache(expr(new expr_let(n, t, v, e))); }
+expr mk_sort(level const & l) { return cache(expr(new expr_sort(l))); }
+// =======================================
 
 void expr_cell::dealloc() {
     try {

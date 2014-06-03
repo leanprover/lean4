@@ -156,6 +156,7 @@ bool operator==(expr const & a, expr const & b);
 inline bool operator!=(expr const & a, expr const & b) { return !operator==(a, b); }
 /** \brief Similar to ==, but it also compares binder information */
 bool is_bi_equal(expr const & a, expr const & b);
+struct is_bi_equal_proc { bool operator()(expr const & e1, expr const & e2) const { return is_bi_equal(e1, e2); } };
 // =======================================
 
 SPECIALIZE_OPTIONAL_FOR_SMART_PTR(expr)
@@ -422,35 +423,33 @@ bool is_meta(expr const & e);
 
 // =======================================
 // Constructors
-inline expr mk_var(unsigned idx) { return expr(new expr_var(idx)); }
+expr mk_var(unsigned idx);
 inline expr Var(unsigned idx) { return mk_var(idx); }
-inline expr mk_constant(name const & n, levels const & ls) { return expr(new expr_const(n, ls)); }
+expr mk_constant(name const & n, levels const & ls);
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline expr Const(name const & n) { return mk_constant(n); }
-inline expr mk_macro(macro_definition const & m, unsigned num = 0, expr const * args = nullptr) { return expr(new expr_macro(m, num, args)); }
-inline expr mk_metavar(name const & n, expr const & t) { return expr(new expr_mlocal(true, n, t)); }
-inline expr mk_local(name const & n, name const & pp_n, expr const & t) { return expr(new expr_local(n, pp_n, t)); }
-inline expr mk_app(expr const & f, expr const & a) { return expr(new expr_app(f, a)); }
-       expr mk_app(expr const & f, unsigned num_args, expr const * args);
-       expr mk_app(unsigned num_args, expr const * args);
+expr mk_macro(macro_definition const & m, unsigned num = 0, expr const * args = nullptr);
+expr mk_metavar(name const & n, expr const & t);
+expr mk_local(name const & n, name const & pp_n, expr const & t);
+expr mk_app(expr const & f, expr const & a);
+expr mk_app(expr const & f, unsigned num_args, expr const * args);
+expr mk_app(unsigned num_args, expr const * args);
 inline expr mk_app(std::initializer_list<expr> const & l) { return mk_app(l.size(), l.begin()); }
 template<typename T> expr mk_app(T const & args) { return mk_app(args.size(), args.data()); }
 template<typename T> expr mk_app(expr const & f, T const & args) { return mk_app(f, args.size(), args.data()); }
-       expr mk_rev_app(expr const & f, unsigned num_args, expr const * args);
-       expr mk_rev_app(unsigned num_args, expr const * args);
+expr mk_rev_app(expr const & f, unsigned num_args, expr const * args);
+expr mk_rev_app(unsigned num_args, expr const * args);
 template<typename T> expr mk_rev_app(T const & args) { return mk_rev_app(args.size(), args.data()); }
 template<typename T> expr mk_rev_app(expr const & f, T const & args) { return mk_rev_app(f, args.size(), args.data()); }
-inline expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i = binder_info()) {
-    return expr(new expr_binding(k, n, t, e, i));
-}
+expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i = binder_info());
 inline expr mk_lambda(name const & n, expr const & t, expr const & e, binder_info const & i = binder_info()) {
     return mk_binding(expr_kind::Lambda, n, t, e, i);
 }
 inline expr mk_pi(name const & n, expr const & t, expr const & e, binder_info const & i = binder_info()) {
     return mk_binding(expr_kind::Pi, n, t, e, i);
 }
-inline expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return expr(new expr_let(n, t, v, e)); }
-inline expr mk_sort(level const & l) { return expr(new expr_sort(l)); }
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & e);
+expr mk_sort(level const & l);
 
 /** \brief Return <tt>Pi(x.{sz-1}, domain[sz-1], ..., Pi(x.{0}, domain[0], range)...)</tt> */
 expr mk_pi(unsigned sz, expr const * domain, expr const & range);
@@ -495,6 +494,14 @@ inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, 
 
 /** \brief Return application (...((f x_{n-1}) x_{n-2}) ... x_0) */
 expr mk_app_vars(expr const & f, unsigned n);
+
+bool enable_expr_caching(bool f);
+/** \brief Helper class for temporarily enabling/disabling expression caching */
+struct scoped_expr_caching {
+    bool m_old;
+    scoped_expr_caching(bool f) { m_old = enable_expr_caching(f); }
+    ~scoped_expr_caching() { enable_expr_caching(m_old); }
+};
 // =======================================
 
 // =======================================

@@ -769,6 +769,8 @@ static const struct luaL_Reg expr_m[] = {
     {0, 0}
 };
 
+static int enable_expr_caching(lua_State * L) { return push_boolean(L, enable_expr_caching(lua_toboolean(L, 1))); }
+
 static void expr_migrate(lua_State * src, int i, lua_State * tgt) {
     push_expr(tgt, to_expr(src, i));
 }
@@ -799,6 +801,8 @@ static void open_expr(lua_State * L) {
     SET_GLOBAL_FUN(expr_mk_local,    "mk_local");
     SET_GLOBAL_FUN(expr_mk_local,    "Local");
     SET_GLOBAL_FUN(expr_pred,        "is_expr");
+
+    SET_GLOBAL_FUN(enable_expr_caching, "enable_expr_caching");
 
     push_expr(L, Bool);
     lua_setglobal(L, "Bool");

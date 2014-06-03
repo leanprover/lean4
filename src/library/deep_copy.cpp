@@ -59,7 +59,10 @@ public:
         \brief Return a new expression that is equal to the given
         argument, but does not share any memory cell with it.
     */
-    expr operator()(expr const & a) { return apply(a); }
+    expr operator()(expr const & a) {
+        scoped_expr_caching set(false);
+        return apply(a);
+    }
 };
 expr deep_copy(expr const & e) { return deep_copy_fn()(e); }
 }

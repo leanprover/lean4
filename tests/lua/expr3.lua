@@ -93,6 +93,7 @@ assert(f(a, b):abstract(a) == f(Var(0), b))
 assert(f(a, b):abstract({a, b}) == f(Var(1), Var(0)))
 
 assert(a:occurs(f(a)))
+enable_expr_caching(false)
 assert(not f(a):is_eqp(f(a)))
 assert(f(a):arg():is_eqp(a))
 assert(f(a):depth() == 2)

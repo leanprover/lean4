@@ -201,6 +201,7 @@ struct print_expr_fn {
     print_expr_fn(std::ostream & out, bool type0_as_bool = true):m_out(out), m_type0_as_bool(type0_as_bool) {}
 
     void operator()(expr const & e) {
+        scoped_expr_caching set(false);
         print(e);
     }
 };

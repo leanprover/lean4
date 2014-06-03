@@ -284,14 +284,12 @@ static bool is_inductive_type(expr const & t, list<inductive_decl> const & decls
 }
 
 // Add the extra universe levels and parameters to the inductive datatype \c t.
-// For example, suppose the old number of arguments and levels is 1, and the datatype has one index.
-// Then, t is of the form (T.{l} A I)  where l and A are the existing levels and parameters, and I is the index.
+// For example, suppose t is of the form (T.{l} A I)  where l and A are the existing levels and parameters, and I is the index.
 // In this instance, this procedure returns the term:
-//        (T.{l extra_ls} A extra_params I)
-static expr update_inductive_type(expr const & t, unsigned old_num_params, levels const & extra_ls, dependencies const & extra_params) {
+//        (T.{extra_ls l} extra_params A I)
+static expr update_inductive_type(expr const & t, levels const & extra_ls, dependencies const & extra_params) {
     buffer<expr> args;
     expr T = get_app_args(t, args);
-    lean_assert(old_num_params <= args.size());
     lean_assert(is_constant(T));
     expr new_T = update_constant(T, append(extra_ls, const_levels(T)));
     buffer<expr> new_args;
@@ -304,11 +302,11 @@ static expr update_inductive_type(expr const & t, unsigned old_num_params, level
 
 // Add the extra universe levels and parameters to every occurrence in t of an inductive datatype in \c decls.
 // See update_inductive_type and is_inductive_type.
-static expr update_inductive_types(expr const & t, unsigned old_num_params, list<inductive_decl> const & decls,
+static expr update_inductive_types(expr const & t, list<inductive_decl> const & decls,
                                    levels const & extra_ls, dependencies const & extra_params) {
     return replace(t, [&](expr const & e, unsigned) {
             if (is_inductive_type(e, decls))
-                return some_expr(update_inductive_type(e, old_num_params, extra_ls, extra_params));
+                return some_expr(update_inductive_type(e, extra_ls, extra_params));
             else
                 return none_expr();
         });
@@ -353,7 +351,7 @@ environment add_inductive(environment                  env,
                     ctx.add_decl_info(inductive_decl_name(d), extra_ls, extra_ps, new_type);
                     buffer<intro_rule> new_rules;
                     for (auto const & r : inductive_decl_intros(d)) {
-                        expr new_rule_type = update_inductive_types(intro_rule_type(r), num_params, s_decls,
+                        expr new_rule_type = update_inductive_types(intro_rule_type(r), s_decls,
                                                                     extra_lvls, extra_ps);
                         new_rule_type = ctx.Pi(new_rule_type, extra_ps);
                         new_rules.push_back(intro_rule(intro_rule_name(r), new_rule_type));

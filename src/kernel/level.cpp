@@ -665,7 +665,7 @@ bool is_equivalent(level const & lhs, level const & rhs) {
 }
 
 bool is_geq_core(level l1, level l2) {
-    if (l1 == l2)
+    if (l1 == l2 || is_zero(l2))
         return true;
     if (is_max(l2))
         return is_geq(l1, max_lhs(l2)) && is_geq(l1, max_rhs(l2));

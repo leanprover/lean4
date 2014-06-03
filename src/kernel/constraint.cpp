@@ -29,16 +29,6 @@ struct level_constraint_cell : public constraint_cell {
         constraint_cell(constraint_kind::Level, hash(hash(lhs), hash(rhs)), j),
         m_lhs(lhs), m_rhs(rhs) {}
 };
-static unsigned hash(list<expr> const & ls) {
-    return is_nil(ls) ? 17 : hash(car(ls).hash(), hash(cdr(ls)));
-}
-struct choice_constraint_cell : public constraint_cell {
-    expr       m_expr;
-    list<expr> m_choices;
-    choice_constraint_cell(expr const & e, list<expr> const & s, justification const & j):
-        constraint_cell(constraint_kind::Choice, hash(e.hash(), hash(s)), j),
-        m_expr(e), m_choices(s) {}
-};
 
 void constraint_cell::dealloc() {
     switch (m_kind) {
@@ -46,8 +36,6 @@ void constraint_cell::dealloc() {
         delete static_cast<eq_constraint_cell*>(this); break;
     case constraint_kind::Level:
         delete static_cast<level_constraint_cell*>(this); break;
-    case constraint_kind::Choice:
-        delete static_cast<choice_constraint_cell*>(this); break;
     }
 }
 
@@ -67,9 +55,6 @@ constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const &
 constraint mk_level_cnstr(level const & lhs, level const & rhs, justification const & j) {
     return constraint(new level_constraint_cell(lhs, rhs, j));
 }
-constraint mk_choice_cnstr(expr const & t, list<expr> const & s, justification const & j) {
-    return constraint(new choice_constraint_cell(t, s, j));
-}
 
 bool operator==(constraint const & c1, constraint const & c2) {
     if (c1.kind() != c2.kind() || c1.hash() != c2.hash())
@@ -79,10 +64,6 @@ bool operator==(constraint const & c1, constraint const & c2) {
         return cnstr_lhs_expr(c1) == cnstr_lhs_expr(c2) && cnstr_rhs_expr(c1) == cnstr_rhs_expr(c2);
     case constraint_kind::Level:
         return cnstr_lhs_level(c1) == cnstr_lhs_level(c2) && cnstr_rhs_level(c1) == cnstr_rhs_level(c2);
-    case constraint_kind::Choice:
-        return
-            cnstr_choice_expr(c1) == cnstr_choice_expr(c2) &&
-            compare(cnstr_choice_set(c1), cnstr_choice_set(c2), [](expr const & e1, expr const & e2) { return e1 == e2; });
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -91,12 +72,6 @@ expr const & cnstr_lhs_expr(constraint const & c) { lean_assert(is_eq_cnstr(c));
 expr const & cnstr_rhs_expr(constraint const & c) { lean_assert(is_eq_cnstr(c)); return static_cast<eq_constraint_cell*>(c.raw())->m_rhs; }
 level const & cnstr_lhs_level(constraint const & c) { lean_assert(is_level_cnstr(c)); return static_cast<level_constraint_cell*>(c.raw())->m_lhs; }
 level const & cnstr_rhs_level(constraint const & c) { lean_assert(is_level_cnstr(c)); return static_cast<level_constraint_cell*>(c.raw())->m_rhs; }
-expr const & cnstr_choice_expr(constraint const & c) {
-    lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_expr;
-}
-list<expr> const & cnstr_choice_set(constraint const & c) {
-    lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_choices;
-}
 
 constraint updt_eq_cnstr(constraint const & c, expr const & new_lhs, expr const & new_rhs, justification const & new_jst) {
     lean_assert(is_eq_cnstr(c));
@@ -126,15 +101,6 @@ std::ostream & operator<<(std::ostream & out, constraint const & c) {
         break;
     case constraint_kind::Level:
         out << cnstr_lhs_level(c) << " = " << cnstr_rhs_level(c);
-        break;
-    case constraint_kind::Choice:
-        out << cnstr_choice_expr(c) << " ∊ {";
-        bool first = true;
-        for (expr const & e : cnstr_choice_set(c)) {
-            if (first) first = false; else out << ", ";
-            out << e;
-        }
-        out << "}";
         break;
     }
     return out;

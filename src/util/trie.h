@@ -130,6 +130,10 @@ public:
             return optional<trie>();
     }
 
+    optional<Val> value() const {
+        return m_root->m_value;
+    }
+
     void merge(trie const & t) {
         m_root = merge(m_root.steal(), t.m_root);
     }

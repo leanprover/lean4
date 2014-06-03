@@ -29,8 +29,11 @@ static void tst1() {
     lean_assert(!find(t, "abd"));
     t2.display(std::cout);
     ctrie<int> t3 = *t2.find('a');
+    lean_assert(!t3.value());
     lean_assert(*find(t3, "bc") == 10);
     lean_assert(*find(t3, "bd") == 11);
+    ctrie<int> t4 = *(t3.find('b')->find('c'));
+    lean_assert(*t4.value() == 10);
 }
 
 static void tst2() {

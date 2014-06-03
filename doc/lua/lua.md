@@ -455,7 +455,7 @@ expressions are equivalent. The Lua API also contains the methdo
 `is_geq` that can be used to check whether a level expression
 represents a universe bigger than or equal another one.
 
-```lean
+```lua
 local l = mk_param_univ("l")
 local u = mk_global_univ("u")
 assert(max_univ(l, 1, u+1):is_equivalent(max_univ(u+1, 1, l)))
@@ -473,7 +473,7 @@ assert(e1:is_geq(max(l, u)))
 We say a universe level is _explicit_ iff it is of the form
 `succ^k(zero)`
 
-```lean
+```lua
 local zero = level()
 assert(zero:is_explicit())
 local two  = zero+2
@@ -485,7 +485,7 @@ assert(not l:is_explicit())
 The Lua dictionary `level_kind` contains the id for all universe level
 kinds.
 
-```lean
+```lua
 local zero = level()
 local one  = zero+1
 local l    = mk_param_univ("l")

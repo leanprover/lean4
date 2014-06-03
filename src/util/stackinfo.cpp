@@ -90,10 +90,12 @@ size_t get_stack_size(int main) {
 }
 #endif
 
+static bool g_stack_info_init = false;
 static LEAN_THREAD_LOCAL size_t g_stack_size;
 static LEAN_THREAD_LOCAL size_t g_stack_base;
 
 void save_stack_info(bool main) {
+    g_stack_info_init = true;
     g_stack_size = get_stack_size(main);
     char x;
     g_stack_base = reinterpret_cast<size_t>(&x);
@@ -114,7 +116,7 @@ size_t get_available_stack_size() {
 }
 
 void check_stack(char const * component_name) {
-    if (get_used_stack_size() + LEAN_MIN_STACK_SPACE > g_stack_size)
+    if (g_stack_info_init && get_used_stack_size() + LEAN_MIN_STACK_SPACE > g_stack_size)
         throw stack_space_exception(component_name);
 }
 }

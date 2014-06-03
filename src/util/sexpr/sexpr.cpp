@@ -408,7 +408,7 @@ static int mk_sexpr(lua_State * L) {
 static int sexpr_eq(lua_State * L)        { return push_boolean(L, to_sexpr(L, 1) == to_sexpr(L, 2)); }
 static int sexpr_lt(lua_State * L)        { return push_boolean(L, to_sexpr(L, 1) < to_sexpr(L, 2)); }
 
-#define SEXPR_PRED(P) static int sexpr_ ## P(lua_State * L) { return push_boolean(L, P(to_sexpr(L, 1))); }
+#define SEXPR_PRED(P) static int sexpr_ ## P(lua_State * L) { check_num_args(L, 1); return push_boolean(L, P(to_sexpr(L, 1))); }
 
 SEXPR_PRED(is_nil)
 SEXPR_PRED(is_cons)

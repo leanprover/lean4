@@ -64,12 +64,9 @@ DECL_PUSH_CORE(T, T, T &&)
 
 #define DECL_GC(T) static int T ## _gc(lua_State * L) { static_cast<T*>(lua_touserdata(L, 1))->~T(); return 0; }
 
-#define DECL_PRED(T)                                                     \
+#define DECL_PRED(T)                                                    \
 bool is_ ## T(lua_State * L, int idx) { return testudata(L, idx, T ## _mt); } \
-static int T ## _pred(lua_State * L) {                                  \
-    lua_pushboolean(L, is_ ## T(L, 1));                                 \
-    return 1;                                                           \
-}
+static int T ## _pred(lua_State * L) { check_num_args(L, 1); return push_boolean(L, is_ ## T(L, 1)); }
 
 void throw_bad_arg_error(lua_State * L, int i, char const * expected_type);
 
@@ -137,5 +134,14 @@ inline int push_string(lua_State * L, char const * s) { lua_pushstring(L, s); re
 inline int push_integer(lua_State * L, lua_Integer v) { lua_pushinteger(L, v); return 1; }
 inline int push_number(lua_State * L, lua_Number v) { lua_pushnumber(L, v); return 1; }
 inline int push_nil(lua_State * L) { lua_pushnil(L); return 1; }
+// =======================================
+
+// =======================================
+// Extra validation functions
+
+/** \brief Throw an exception if lua_gettop(L) != num */
+void check_num_args(lua_State * L, int num);
+/** \brief Throw an exception if lua_gettop(L) > high */
+void check_atmost_num_args(lua_State * L, int high);
 // =======================================
 }

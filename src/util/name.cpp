@@ -530,7 +530,7 @@ static int name_tostring(lua_State * L) { return push_string(L, to_name(L, 1).to
 static int name_eq(lua_State * L) { return push_boolean(L, to_name(L, 1) == to_name(L, 2)); }
 static int name_lt(lua_State * L) { return push_boolean(L, to_name(L, 1) < to_name(L, 2)); }
 static int name_hash(lua_State * L) { return push_integer(L, to_name(L, 1).hash()); }
-#define NAME_PRED(P) static int name_ ## P(lua_State * L) { return push_boolean(L, to_name(L, 1).P()); }
+#define NAME_PRED(P) static int name_ ## P(lua_State * L) { check_num_args(L, 1); return push_boolean(L, to_name(L, 1).P()); }
 NAME_PRED(is_atomic)
 NAME_PRED(is_anonymous)
 NAME_PRED(is_string)

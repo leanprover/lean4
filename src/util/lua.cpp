@@ -195,5 +195,13 @@ lua_migrate_fn get_migrate_fn(lua_State * L, int i) {
     }
     return nullptr;
 }
+
+void check_num_args(lua_State * L, int num) {
+    if (lua_gettop(L) != num) throw exception("incorrect number of arguments in function application");
+}
+
+void check_atmost_num_args(lua_State * L, int high) {
+    if (lua_gettop(L) > high) throw exception("too many arguments in function application");
+}
 }
 

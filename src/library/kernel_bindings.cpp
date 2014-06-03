@@ -119,7 +119,7 @@ static int mk_level_imax(lua_State * L) { return mk_level_max_core<mk_imax>(L); 
 static int mk_param_univ(lua_State * L)  { return push_level(L, mk_param_univ(to_name_ext(L, 1))); }
 static int mk_global_univ(lua_State * L) { return push_level(L, mk_global_univ(to_name_ext(L, 1))); }
 static int mk_meta_univ(lua_State * L)   { return push_level(L, mk_meta_univ(to_name_ext(L, 1))); }
-#define LEVEL_PRED(P) static int level_ ## P(lua_State * L) { return push_boolean(L, P(to_level(L, 1))); }
+#define LEVEL_PRED(P) static int level_ ## P(lua_State * L) { check_num_args(L, 1); return push_boolean(L, P(to_level(L, 1))); }
 LEVEL_PRED(is_zero)
 LEVEL_PRED(is_param)
 LEVEL_PRED(is_global)
@@ -543,7 +543,7 @@ static int expr_let(lua_State * L) {
     }
 }
 
-#define EXPR_PRED(P) static int expr_ ## P(lua_State * L) {  return push_boolean(L, P(to_expr(L, 1))); }
+#define EXPR_PRED(P) static int expr_ ## P(lua_State * L) { check_num_args(L, 1); return push_boolean(L, P(to_expr(L, 1))); }
 
 EXPR_PRED(is_constant)
 EXPR_PRED(is_var)
@@ -626,11 +626,22 @@ static int expr_lift_free_vars(lua_State * L) {
 }
 
 static int expr_lower_free_vars(lua_State * L) {
+    check_atmost_num_args(L, 3);
     int nargs = lua_gettop(L);
-    if (nargs == 2)
-        return push_expr(L, lower_free_vars(to_expr(L, 1), luaL_checkinteger(L, 2)));
-    else
-        return push_expr(L, lower_free_vars(to_expr(L, 1), luaL_checkinteger(L, 2), luaL_checkinteger(L, 3)));
+    expr const & e = to_expr(L, 1);
+    int s          = luaL_checkinteger(L, 2);
+    if (nargs == 2) {
+        if (has_free_var(e, 0, s))
+            throw exception(sstream() << "invalid lower_free_vars, expression contains free variables with de-Bruijn indices in the range [0, " << s << ")");
+        return push_expr(L, lower_free_vars(e, s));
+    } else {
+        int d = luaL_checkinteger(L, 3);
+        if (s < d)
+            throw exception(sstream() << "invalid lower_free_vars, first argument must be >= second one");
+        if (has_free_var(e, s-d, s))
+            throw exception(sstream() << "invalid lower_free_vars, expression contains free variables with de-Bruijn indices in the range [" << s-d << ", " << s << ")");
+        return push_expr(L, lower_free_vars(e, s, d));
+    }
 }
 
 // Copy Lua table/array elements to r
@@ -844,7 +855,7 @@ static void open_macro_definition(lua_State * L) {
 // declaration
 DECL_UDATA(declaration)
 int push_optional_declaration(lua_State * L, optional<declaration> const & e) {  return e ? push_declaration(L, *e) : push_nil(L); }
-#define DECLARATION_PRED(P) static int declaration_ ## P(lua_State * L) {  return push_boolean(L, to_declaration(L, 1).P()); }
+#define DECLARATION_PRED(P) static int declaration_ ## P(lua_State * L) { check_num_args(L, 1); return push_boolean(L, to_declaration(L, 1).P()); }
 DECLARATION_PRED(is_definition)
 DECLARATION_PRED(is_theorem)
 DECLARATION_PRED(is_axiom)
@@ -1458,7 +1469,7 @@ static int justification_tostring(lua_State * L) {
     return 1;
 }
 
-#define JST_PRED(P) static int justification_ ## P(lua_State * L) { return push_boolean(L, to_justification(L, 1).P()); }
+#define JST_PRED(P) static int justification_ ## P(lua_State * L) { check_num_args(L, 1); return push_boolean(L, to_justification(L, 1).P()); }
 JST_PRED(is_none)
 JST_PRED(is_asserted)
 JST_PRED(is_assumption)
@@ -1555,7 +1566,7 @@ static void open_justification(lua_State * L) {
 // Constraint
 DECL_UDATA(constraint)
 
-#define CNSTR_PRED(P) static int constraint_ ## P(lua_State * L) {  return push_boolean(L, P(to_constraint(L, 1))); }
+#define CNSTR_PRED(P) static int constraint_ ## P(lua_State * L) { check_num_args(L, 1); return push_boolean(L, P(to_constraint(L, 1))); }
 CNSTR_PRED(is_eq_cnstr)
 CNSTR_PRED(is_level_cnstr)
 static int constraint_eq(lua_State * L) { return push_boolean(L, to_constraint(L, 1) == to_constraint(L, 2)); }

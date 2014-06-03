@@ -241,15 +241,19 @@ level mk_param_univ(name const & n) { return level(new level_param_core(level_ki
 level mk_global_univ(name const & n) { return level(new level_param_core(level_kind::Global, n)); }
 level mk_meta_univ(name const & n) { return level(new level_param_core(level_kind::Meta, n)); }
 
+static std::unique_ptr<level> g_zero_ptr;
+static std::unique_ptr<level> g_one_ptr;
 level const & mk_level_zero() {
-    static LEAN_THREAD_LOCAL level g_zero(new level_cell(level_kind::Zero, 7u));
-    return g_zero;
+    if (!g_zero_ptr) g_zero_ptr.reset(new level(new level_cell(level_kind::Zero, 7u)));
+    return *g_zero_ptr;
 }
-
-level const & mk_level_one()  {
-    static LEAN_THREAD_LOCAL level g_one(mk_succ(mk_level_zero()));
-    return g_one;
+level const & mk_level_one() {
+    if (!g_one_ptr) g_one_ptr.reset(new level(mk_succ(mk_level_zero())));
+    return *g_one_ptr;
 }
+// Force g_one_ptr and g_zero_ptr to be created at initialization time.
+// Purpose: avoid any kind of synchronization at mk_level_zero and mk_level_one
+static level g_dummy(mk_level_one());
 
 bool is_one(level const & l) {
     return l == mk_level_one();

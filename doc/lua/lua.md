@@ -456,6 +456,7 @@ expressions are equivalent. The Lua API also contains the methdo
 represents a universe bigger than or equal another one.
 
 ```lua
+local zero = level()
 local l = mk_param_univ("l")
 local u = mk_global_univ("u")
 assert(max_univ(l, 1, u+1):is_equivalent(max_univ(u+1, 1, l)))
@@ -465,9 +466,9 @@ assert(e1:normalize() == max_univ(l+1, u+2))
 assert(e1:norm() == max_univ(l+1, u+2))
 assert(e1:is_geq(l))
 assert(e1:is_geq(e1))
-assert(e1:is_geq(0))
+assert(e1:is_geq(zero))
 assert(e1:is_geq(u+2))
-assert(e1:is_geq(max(l, u)))
+assert(e1:is_geq(max_univ(l, u)))
 ```
 
 We say a universe level is _explicit_ iff it is of the form
@@ -492,13 +493,13 @@ local l    = mk_param_univ("l")
 local u    = mk_global_univ("u")
 local m    = mk_meta_univ("m")
 local e1   = max_univ(l, u)
-local e2   = max_univ(m, l)
+local e2   = imax_univ(m, l)
 assert(zero:kind() == level_kind.Zero)
 assert(one:kind()  == level_kind.Succ)
 assert(l:kind()    == level_kind.Param)
 assert(u:kind()    == level_kind.Global)
 assert(m:kind()    == level_kind.Meta)
 assert(e1:kind()   == level_kind.Max)
-assert(e1:kind()   == level_kind.IMax)
+assert(e2:kind()   == level_kind.IMax)
 ```
 

@@ -91,7 +91,6 @@ Author: Leonardo de Moura
         Fun (A, C, e, b, u), elim_k A C e p[A,b] (intro_k_i A b u) ==>
                Fun (A, C, e, b, u), (e_k_i b u v)
 */
-
 namespace lean {
 namespace inductive {
 static name g_tmp_prefix = name::mk_internal_unique_name();
@@ -657,7 +656,7 @@ struct add_inductive_fn {
         levels ls = get_elim_level_params();
         inductive_env_ext ext(get_extension(m_env));
         for (auto d : m_decls) {
-            ext.add_elim(get_elim_name(d), get_elim_level_param_names(), m_num_params, m_num_params + C.size() + e.size(),  get_num_indices(d_idx));
+            ext.add_elim(get_elim_name(d), get_elim_level_param_names(), m_num_params, m_num_params + C.size() + e.size(), get_num_indices(d_idx));
             for (auto ir : inductive_decl_intros(d)) {
                 buffer<expr> b;
                 buffer<expr> u;
@@ -755,7 +754,6 @@ optional<expr> inductive_normalizer_extension::operator()(expr const & e, extens
     // Check intro num_args
     if (intro_args.size() != it1->m_num_params + it2->m_num_bu)
         return none_expr();
-    // std::cout << "Candidate: " << e << "\n";
     if (it1->m_num_params > 0) {
         // Global parameters of elim and intro be definitionally equal
         simple_delayed_justification jst([=]() { return mk_justification("elim/intro global parameters must match", some_expr(e)); });
@@ -764,7 +762,6 @@ optional<expr> inductive_normalizer_extension::operator()(expr const & e, extens
                 return none_expr();
         }
     }
-    // std::cout << "global params matched\n";
     // Number of universe levels must match.
     if (length(const_levels(elim_fn)) != length(it1->m_level_names))
         return none_expr();
@@ -776,7 +773,6 @@ optional<expr> inductive_normalizer_extension::operator()(expr const & e, extens
     std::reverse(ACebu.begin(), ACebu.end());
     expr r = instantiate(it2->m_comp_rhs_body, ACebu.size(), ACebu.data());
     r = instantiate_params(r, it1->m_level_names, const_levels(elim_fn));
-    // std::cout << "ELIM/INTRO: " << e << " ==> " << r << "\n";
     return some_expr(r);
 }
 }

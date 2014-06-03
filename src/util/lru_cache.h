@@ -74,7 +74,7 @@ class lru_cache {
     clist                                           m_head;
 public:
     lru_cache(unsigned c, Hash const & h = Hash(), Eq const & e = Eq()):
-        m_capacity(std::max(c, 1u)), m_cache(5, entry_hash(h), entry_eq(e)), m_head(&m_head, &m_head) {
+        m_capacity(std::max(c, 1u)), m_cache(c, entry_hash(h), entry_eq(e)), m_head(&m_head, &m_head) {
     }
 
     /**

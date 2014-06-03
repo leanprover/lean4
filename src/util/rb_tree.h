@@ -68,7 +68,6 @@ class rb_tree : public CMP {
 
     static node ensure_unshared(node && n) {
         if (n.is_shared()) {
-            // std::cout << "SHARED\n";
             return node(new node_cell(*n.m_ptr));
         } else {
             return n;

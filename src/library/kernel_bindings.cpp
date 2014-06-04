@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/metavar.h"
 #include "kernel/error_msgs.h"
 #include "kernel/type_checker.h"
+#include "kernel/replace_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/standard/standard.h"
 #include "kernel/hott/hott.h"
@@ -593,7 +594,7 @@ static int expr_fn(lua_State * L) { return push_expr(L, app_fn(to_app(L, 1))); }
 static int expr_arg(lua_State * L) { return push_expr(L, app_arg(to_app(L, 1))); }
 
 static int expr_for_each(lua_State * L) {
-    expr & e = to_expr(L, 1);    // expr
+    expr const & e = to_expr(L, 1);    // expr
     luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
     for_each(e, [&](expr const & a, unsigned offset) {
             lua_pushvalue(L, 2); // push user-fun
@@ -607,6 +608,26 @@ static int expr_for_each(lua_State * L) {
             return r;
         });
     return 0;
+}
+
+static int expr_replace(lua_State * L) {
+    expr const & e = to_expr(L, 1);
+    luaL_checktype(L, 2, LUA_TFUNCTION);
+    expr r = replace(e, [&](expr const & a, unsigned offset) {
+            lua_pushvalue(L, 2);
+            push_expr(L, a);
+            lua_pushinteger(L, offset);
+            pcall(L, 2, 1, 0);
+            if (is_expr(L, -1)) {
+                expr r = to_expr(L, -1);
+                lua_pop(L, 1);
+                return some_expr(r);
+            } else {
+                lua_pop(L, 1);
+                return none_expr();
+            }
+        });
+    return push_expr(L, r);
 }
 
 static int expr_has_free_var(lua_State * L) {
@@ -753,6 +774,7 @@ static const struct luaL_Reg expr_m[] = {
     {"macro_num_args",   safe_function<macro_num_args>},
     {"macro_arg",        safe_function<macro_arg>},
     {"for_each",         safe_function<expr_for_each>},
+    {"replace",          safe_function<expr_replace>},
     {"has_free_var",     safe_function<expr_has_free_var>},
     {"lift_free_vars",   safe_function<expr_lift_free_vars>},
     {"lower_free_vars",  safe_function<expr_lower_free_vars>},

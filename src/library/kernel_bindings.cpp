@@ -245,6 +245,26 @@ static void open_level(lua_State * L) {
     lua_setglobal(L, "level_kind");
 }
 
+static list<name> to_level_param_names(lua_State * L, int _idx) {
+    if (is_list_name(L, _idx)) {
+        return to_list_name(L, _idx);
+    } else{
+        return table_to_list<name>(L, _idx, [=](lua_State * L, int idx) -> name {
+                if (is_level(L, idx)) {
+                    level const & l = to_level(L, idx);
+                    if (is_param(l))
+                        return param_id(l);
+                    else if (is_global(l))
+                        return global_id(l);
+                    else
+                        throw exception(sstream() << "arg #" << _idx << " contain a level expression that is not a parameter/global");
+                } else {
+                    return to_name_ext(L, idx);
+                }
+            });
+    }
+}
+
 // Expr_binder_info
 DECL_UDATA(binder_info)
 static int mk_binder_info(lua_State * L) {
@@ -687,6 +707,10 @@ static int expr_instantiate(lua_State * L) {
     }
 }
 
+static int expr_instantiate_level_params(lua_State * L) {
+    return push_expr(L, instantiate_params(to_expr(L, 1), to_level_param_names(L, 2), to_list_level_ext(L, 3)));
+}
+
 static int expr_abstract(lua_State * L) {
     expr const & e = to_expr(L, 1);
     if (is_expr(L, 2)) {
@@ -779,6 +803,7 @@ static const struct luaL_Reg expr_m[] = {
     {"lift_free_vars",   safe_function<expr_lift_free_vars>},
     {"lower_free_vars",  safe_function<expr_lower_free_vars>},
     {"instantiate",      safe_function<expr_instantiate>},
+    {"instantiate_levels", safe_function<expr_instantiate_level_params>},
     {"abstract",         safe_function<expr_abstract>},
     {"occurs",           safe_function<expr_occurs>},
     {"is_eqp",           safe_function<expr_is_eqp>},
@@ -897,21 +922,6 @@ static int declaration_get_value(lua_State * L) {
     throw exception("arg #1 must be a definition");
 }
 static int declaration_get_weight(lua_State * L) { return push_integer(L, to_declaration(L, 1).get_weight()); }
-static list<name> to_level_param_names(lua_State * L, int _idx) {
-    return table_to_list<name>(L, _idx, [=](lua_State * L, int idx) -> name {
-            if (is_level(L, idx)) {
-                level const & l = to_level(L, idx);
-                if (is_param(l))
-                    return param_id(l);
-                else if (is_global(l))
-                    return global_id(l);
-                else
-                    throw exception(sstream() << "arg #" << _idx << " contain a level expression that is not a parameter/global");
-            } else {
-                return to_name_ext(L, idx);
-            }
-        });
-}
 static int declaration_get_module_idx(lua_State * L) { return push_integer(L, to_declaration(L, 1).get_module_idx()); }
 static int mk_var_decl(lua_State * L) {
     int nargs = lua_gettop(L);

@@ -272,10 +272,8 @@ static expr_cache LEAN_THREAD_LOCAL g_expr_cache(LEAN_INITIAL_EXPR_CACHE_CAPACIT
 static bool       LEAN_THREAD_LOCAL g_expr_cache_enabled = true;
 inline expr cache(expr const & e) {
     if (g_expr_cache_enabled) {
-        if (auto r = g_expr_cache.insert(e)) {
-            // std::cout << e << "\n===>\n" << *r << "\n";
+        if (auto r = g_expr_cache.insert(e))
             return *r;
-        }
     }
     return e;
 }

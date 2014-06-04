@@ -451,7 +451,7 @@ apply basic simplifications automatically. However, they do not put
 the level expressions in any normal form. We can use the method
 `normalize` for that. The normalization procedure is also use to
 implement the method `is_equivalent` that returns true when two level
-expressions are equivalent. The Lua API also contains the methdo
+expressions are equivalent. The Lua API also contains the method
 `is_geq` that can be used to check whether a level expression
 represents a universe bigger than or equal another one.
 

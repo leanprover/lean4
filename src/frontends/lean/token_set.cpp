@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/token_set.h"
+#include <utility>
+#include "frontends/lean/token_set.h"
 
 namespace lean {
 token_set add_command_token(token_set const & s, char const * token) {

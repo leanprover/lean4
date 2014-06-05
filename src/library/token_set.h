@@ -27,6 +27,7 @@ public:
 typedef ctrie<token_info> token_set;
 token_set mk_default_token_set();
 token_set add_command_token(token_set const & s, char const * token);
+token_set add_command_token(token_set const & s, char const * token, char const * val);
 token_set add_token(token_set const & s, char const * token, unsigned prec = 0);
 token_set add_token(token_set const & s, char const * token, char const * val, unsigned prec = 0);
 token_set merge(token_set const & s1, token_set const & s2);

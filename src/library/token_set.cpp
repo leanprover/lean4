@@ -10,6 +10,9 @@ namespace lean {
 token_set add_command_token(token_set const & s, char const * token) {
     return insert(s, token, token_info(token));
 }
+token_set add_command_token(token_set const & s, char const * token, char const * val) {
+    return insert(s, token, token_info(val));
+}
 token_set add_token(token_set const & s, char const * token, unsigned prec) {
     return insert(s, token, token_info(token, prec));
 }
@@ -35,17 +38,46 @@ class init_token_set_fn {
 public:
     token_set m_token_set;
     init_token_set_fn() {
-        char const * builtin[] = {"fun", "forall", "let", "in", "have", "show", "by", "from", "(", ")", "{", "}",
-                                  ".{", "Type", "...", ",", ".", ":", "calc", ":=", "--", "(*", "(--", "->", 0};
-        char const ** it = builtin;
-        while (*it) {
-            m_token_set = add_token(m_token_set, *it);
-            it++;
-        }
-        m_token_set = add_token(m_token_set, g_lambda_unicode, "fun");
-        m_token_set = add_token(m_token_set, g_forall_unicode, "forall");
-        m_token_set = add_token(m_token_set, g_pi_unicode,     "forall");
-        m_token_set = add_token(m_token_set, g_arrow_unicode,  "->");
+            char const * builtin[] = {"fun", "Pi", "let", "in", "have", "show", "by", "from", "(", ")", "{", "}",
+                                      ".{", "Type", "...", ",", ".", ":", "calc", ":=", "--", "(*", "(--", "->",
+                                      "proof", "qed", "private", nullptr};
+
+            char const * commands[] = {"theorem", "axiom", "variable", "definition", "evaluate", "check",
+                                       "print", "variables", "end", "namespace", "section", "import",
+                                       "abbreviation", "inductive", "record", "structure", "module", nullptr};
+
+            std::pair<char const *, char const *> aliases[] =
+                {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},
+                 {g_arrow_unicode, "->"}, {nullptr, nullptr}};
+
+            std::pair<char const *, char const *> cmd_aliases[] =
+                {{"parameter", "variable"}, {"parameters", "variables"}, {"lemma", "theorem"},
+                 {"hypothesis", "axiom"}, {"conjecture", "axiom"}, {"corollary", "theorem"},
+                 {nullptr, nullptr}};
+
+            auto it = builtin;
+            while (*it) {
+                m_token_set = add_token(m_token_set, *it);
+                it++;
+            }
+
+            it = commands;
+            while (*it) {
+                m_token_set = add_command_token(m_token_set, *it);
+                ++it;
+            }
+
+            auto it2 = aliases;
+            while (it2->first) {
+                m_token_set = add_token(m_token_set, it2->first, it2->second);
+                it2++;
+            }
+
+            it2 = cmd_aliases;
+            while (it2->first) {
+                m_token_set = add_command_token(m_token_set, it2->first, it2->second);
+                ++it2;
+            }
     }
 };
 static init_token_set_fn g_init;

@@ -175,6 +175,7 @@ static void tst6() {
 
 static void tst7() {
     std::cout << "start\n";
+    system_import("import_test.lua");
     system_dostring("print('hello'); x = 10;");
     interruptible_thread t1([]() {
             script_state S = get_thread_script_state();
@@ -204,7 +205,8 @@ static void tst8() {
                        "for i = 1, 10000 do\n"
                        "  x = x + 1\n"
                        "end\n"
-                       "print(x)\n");
+                       "print(x)\n"
+                       "print(fact(10))\n");
         });
     t1.join();
 }

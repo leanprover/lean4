@@ -10,12 +10,19 @@ namespace lean {
 /**
     \brief Execute the given piece of code in all global/system script_state objects.
 
-    \remark The code fragments are saved. If a new thread needs to create a new
+    \remark The code fragments are saved. If a thread needs to create a new
     script_state object, all code blocks are executed.
 
     \remark System code should be installed when Lean is started.
 */
 void system_dostring(char const * code);
+/**
+   \brief Import the given module in all global/system script_state objects.
+
+   \remark The module name is saved. If a thread needs to create a new
+   script_state object, all modules are imported.
+*/
+void system_import(char const * fname);
 /**
    \brief Retrieve a script_state object for the current thread.
    The thread has exclusive access until the thread is destroyed,

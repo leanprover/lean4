@@ -5,13 +5,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
+#include <utility>
 #include <string>
 #include "util/thread.h"
+#include "util/pair.h"
 #include "util/script_state.h"
 
 namespace lean {
 static mutex g_code_mutex;
-static std::vector<std::string>  g_code;
+static std::vector<std::pair<bool, std::string>> g_code;
 static mutex g_state_mutex;
 static std::vector<script_state> g_states;
 static std::vector<script_state> g_available_states;
@@ -28,7 +30,23 @@ void system_dostring(char const * code) {
     {
         // Save code for future states
         lock_guard<mutex> lk(g_code_mutex);
-        g_code.push_back(code);
+        g_code.push_back(mk_pair(true, code));
+    }
+}
+
+/** \brief Import \c fname in all states in the pool */
+void system_import(char const * fname) {
+    {
+        // Import file in all existing states
+        lock_guard<mutex> lk(g_state_mutex);
+        for (auto & s : g_states) {
+            s.import(fname);
+        }
+    }
+    {
+        // Save module for future states
+        lock_guard<mutex> lk(g_code_mutex);
+        g_code.push_back(mk_pair(false, fname));
     }
 }
 
@@ -47,8 +65,12 @@ static script_state get_state() {
         // Execute existing code in new state
         lock_guard<mutex> lk(g_code_mutex);
         script_state r;
-        for (auto & c : g_code)
-            r.dostring(c.c_str());
+        for (auto const & p : g_code) {
+            if (p.first)
+                r.dostring(p.second.c_str());
+            else
+                r.import(p.second.c_str());
+        }
         g_states.push_back(r);
         {
             // save new state in vector of all states

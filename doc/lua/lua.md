@@ -503,3 +503,97 @@ assert(e1:kind()   == level_kind.Max)
 assert(e2:kind()   == level_kind.IMax)
 ```
 
+# Expressions
+
+In Lean, we have the following kind of expressions: constants,
+function applications, variables, lambdas, dependent function spaces
+(aka Pis), let expressions, and sorts (aka Type).
+There are three additional kinds of auxiliary
+expressions: local constants, metavariables, and macros.
+
+## Constants
+
+Constants are essentially references to declarations in the
+environment. We can create a variable using
+
+```lua
+local f = mk_constant("f")
+local a = Const("a")       -- Const is an alias for mk_constant
+assert(is_expr(f))         -- f is an expression
+assert(f:is_constant())    -- f is a constant
+```
+Lean supports universe polymorphism. When we define a constant,
+theorem or axiom, we can use universe level parameters.
+Thus, if a declaration `g` has two universe level parameters,
+we instantiate them when we create a reference to `g`.
+
+```lua
+local zero = level()
+local one  = zero+1
+local g01  = mk_constant("g", {zero, one})
+```
+
+The command `mk_constant` automatically applies coercions to level
+expressions. A numeral `n` is automatically converted into
+`level()+n`, and a string `s` into `mk_param_univ(s)`.
+
+```lua
+local g1l = mk_constant("g", {1, "l"})
+```
+
+The method `data()` retrieves the name and universe levels of a
+constant.
+
+```lua
+local gl1 = mk_constant("g", {"l", 1})
+assert(gl1:is_constant())
+local n, ls = gl1:data()
+assert(n == name("g"))
+assert(#ls == 2)
+assert(ls:head() == mk_param_univ("l"))
+assert(ls:tail():head() == level()+1)
+```
+
+## Function applications
+
+In Lean, the expression `f t` is a function application, where `f` is
+a function that is applied to `t`.
+
+```lua
+local f = Const("f")
+local t = Const("t")
+local a = f(t)        -- Creates the term `f t`
+assert(is_expr(a))
+assert(a:is_app())
+```
+
+The method `data()` retrieves the function and argument of an
+application. The methods `fn()` and `arg()` retrieve the function
+and argument respectively.
+
+```lua
+local f = Const("f")
+local t = Const("t")
+local a = f(t)
+assert(a:fn()  == f)
+assert(a:arg() == t)
+local g, b = a:data()
+assert(g == f)
+assert(b == t)
+```
+As usual, we write `f t s` to denote the expression
+`((f t) s)`. The Lua API provides a similar convenience.
+
+```lua
+local f = Const("f")
+local t = Const("t")
+local s = Const("s")
+local a = f(t, s)
+assert(a:fn() == f(t))
+assert(a:fn():fn() == f)
+assert(a:fn():arg() == t)
+assert(a:arg() == s)
+```
+
+
+

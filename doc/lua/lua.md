@@ -595,5 +595,167 @@ assert(a:fn():arg() == t)
 assert(a:arg() == s)
 ```
 
+## Variables
 
+Variables are references to local declarations in lambda and Pi
+expressions. The variables are represented using
+[de Bruijn indices](http://en.wikipedia.org/wiki/De_Bruijn_index).
 
+```lua
+local x = mk_var(0)
+local y = Var(1)    -- Var is an alias for mk_var
+assert(is_expr(x))
+assert(x:is_var())
+assert(x:data() == 0)
+assert(y:data() == 1)
+```
+
+## Lambda abstractions
+
+Lambda abstraction is a converse operation to function
+application. Given a variable `x`, a type `A`, and a term `t` that may or
+may not contain `x`, one can construct the so-called lambda abstraction
+`fun x : A, t`, or using unicode notation `λ x : A, t`.
+There are many APIs for creating lambda abstractions in the Lua API.
+The most basic one is `mk_lambda(x, A, t)`, where `x` is a string or
+hierarchical name, and `A` and `t` are expressions.
+
+```lua
+local x  = Var(0)
+local A  = Const("A")
+local id = mk_lambda("x", A, x) -- create the identity function
+assert(is_expr(id))
+assert(id:is_lambda())
+```
+
+As usual, the method `data()` retrieves the "fields" of a lambda
+abstraction.
+
+```lua
+-- id is the identity function defined above.
+local y, B, v = id:data()
+assert(y == name("x"))
+assert(B == A)
+assert(v == Var(0))
+```
+
+We say a variable is _free_ if it is not bound by any lambda (or Pi)
+abstraction. We say an expression is _closed_ if it does not contain
+free variables. The method `closed()` return `true` iff the expression
+is closed.
+
+```lua
+local f  = Const("f")
+local N  = Const("N")
+assert(not f(Var(0)):closed())
+local l1 = mk_lambda("x", N, f(Var(0)))
+assert(l1:closed())
+local l2 = mk_lambda("x", N, f(Var(1)))
+assert(not l2:closed())
+```
+
+The method `has_free_var(i)` return `true` if the expression contains
+the free variable `i`.
+
+```lua
+local f  = Const("f")
+local N  = Const("N")
+assert(f(Var(0)):has_free_var(0))
+assert(not f(Var(0)):has_free_var(1))
+local l1 = mk_lambda("x", N, f(Var(0)))
+assert(not l1:has_free_var(0))
+local l2 = mk_lambda("x", N, f(Var(1)))
+assert(l2:has_free_var(0))
+assert(not l2:has_free_var(1))
+```
+
+The de Bruijn indices can be lifted and lowered using the methods
+`lift_free_vars` and `lower_free_vars`.
+
+```lua
+local f  = Const("f")
+local N  = Const("N")
+assert(f(Var(0)):lift_free_vars(1) == f(Var(1)))
+assert(f(Var(0)):lift_free_vars(2) == f(Var(2)))
+-- lift the free variables >= 2 by 3
+assert(f(Var(0), Var(2)):lift_free_vars(2, 3) == f(Var(0), Var(5)))
+
+assert(f(Var(1)):lower_free_vars(1) == f(Var(0)))
+assert(f(Var(2)):lower_free_vars(1) == f(Var(1)))
+-- It is an error to invoke t:lower_free_vars(i) when
+-- t contains free variables with indices in [0, n).
+-- In Lua, pcall(fn) stands for protected call, it traps
+-- any error occurred when executing fn.
+assert(not pcall(function()
+    f(Var(1)):lower_free_vars(2)
+end))
+-- lower the free variables >= 2 by 1
+assert(f(Var(0), Var(2)):lower_free_vars(2, 1) ==
+       f(Var(0), Var(1)))
+```
+
+It is not convenient to create complicated lambda abstractions using
+de Bruijn indices. It is usually a very error-prone task.
+To simplify the creation of lambda abstractions, Lean provides local constants.
+A local constant is essentially a pair name and expression, where the
+expression represents the type of the local constant.
+The API `Fun(c, b)` automatically replace the local constant `c` in `b` with
+the variable 0. It does all necessary adjustments when `b` contains nested
+lambda abstractions. The API also provides `Fun({c_1, ..., c_n}, b)` as
+syntax-sugar for `Fun(c_1, ..., Fun(c_n, b)...)`.
+
+```lua
+local N   = Const("N")
+local f   = Const("f")
+local c_1 = Local("c_1", N)
+local c_2 = Local("c_2", N)
+local c_3 = Local("c_3", N)
+assert(Fun(c_1, f(c_1)) == mk_lambda("c_1", N, f(Var(0))))
+assert(Fun({c_1, c_2}, f(c_1, c_2)) ==
+       mk_lambda("c_1", N, mk_lambda("c_2", N, f(Var(1), Var(0)))))
+assert(Fun({c_1, c_2}, f(c_1, Fun(c_3, f(c_2, c_3)))) ==
+       mk_lambda("c_1", N, mk_lambda("c_2", N,
+           f(Var(1), mk_lambda("c_3", N, f(Var(1), Var(0)))))))
+````
+
+Binders can be annotated with `hints` for the Lean _elaborator_.
+For example, we can say a binder is an _implicit argument_, and
+must be inferred automatically by the elaborator.
+These annotations are irrelevant from the kernel's point of view,
+and they are just "propagated" by the Lean type checker.
+The other annotations are explained later in the Section describing
+the elaboration engine.
+
+```lua
+local b = binder_info(true)
+assert(is_binder_info(b))
+assert(b:is_implicit())
+local N   = Const("N")
+local f   = Const("f")
+local c1  = Local("c1", N)
+local c2  = Local("c2", N)
+-- Create the expression
+--    fun {c1 : N} (c2 : N), (f c1 c2)
+-- In Lean, curly braces are used to denote
+-- implicit arguments
+local l   = Fun({{c1, b}, c2}, f(c1, c2))
+local x, T, B, bi = l:data()
+assert(x == name("c1"))
+assert(T == N)
+assert(B == Fun(c2, f(Var(1), c2)))
+assert(bi:is_implicit())
+local y, T, C, bi2 = B:data()
+assert(not bi2:is_implicit())
+```
+
+We can also use the `Fun` API with regular constants and the desired type.
+
+```lua
+local N   = Const("N")
+local f   = Const("f")
+local c   = Const("c")
+assert(Fun(c, N, f(c)) == mk_lambda("c", N, f(Var(0))))
+local d   = Const("d")
+assert(Fun({{c, N}, {d, N}}, f(c, d)) ==
+    mk_lambda("c", N, mk_lambda("d", N, f(Var(1), Var(0)))))
+```

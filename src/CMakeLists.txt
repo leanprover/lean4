@@ -260,7 +260,7 @@ add_subdirectory(tests/library)
 # add_subdirectory(tests/library/rewriter)
 # add_subdirectory(tests/library/tactic)
 # add_subdirectory(tests/library/elaborator)
-# add_subdirectory(tests/frontends/lean)
+add_subdirectory(tests/frontends/lean)
 
 # Include style check
 include(StyleCheck)

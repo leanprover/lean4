@@ -6,31 +6,42 @@ Author: Leonardo de Moura
 */
 #include <sstream>
 #include "util/test.h"
-#include "util/exception.h"
 #include "util/escaped.h"
+#include "util/exception.h"
 #include "frontends/lean/scanner.h"
 using namespace lean;
 
-#define st scanner::token
+#define tk scanner::token_kind
 
-static void scan(char const * str, list<name> const & cmds = list<name>()) {
+static void scan(char const * str, token_set set = mk_default_token_set()) {
     std::istringstream in(str);
-    scanner s(in, "[string]");
-    for (name const & n : cmds) s.add_command_keyword(n);
+    scanner s(set, in, "[string]");
     while (true) {
-        st t = s.scan();
-        if (t == st::Eof)
+        tk k = s.scan();
+        if (k == tk::Eof)
             break;
-        std::cout << t;
-        if (t == st::Id || t == st::CommandId)
-            std::cout << "[" << s.get_name_val() << "]";
-        else if (t == st::IntVal || t == st::DecimalVal)
-            std::cout << "[" << s.get_num_val() << "]";
-        else if (t == st::StringVal)
+        if (k == tk::Identifier)
+            std::cout << "id[" << s.get_name_val() << "]";
+        else if (k == tk::CommandKeyword)
+            std::cout << "cmd[" << s.get_token_info().value() << "]";
+        else if (k == tk::Keyword)
+            std::cout << "tk[" << s.get_token_info().value() << "]";
+        else if (k == tk::Decimal || k == tk::Numeral)
+            std::cout << "n[" << s.get_num_val() << "]";
+        else if (k == tk::String)
             std::cout << "[\"" << escaped(s.get_str_val().c_str()) << "\"]";
-        std::cout << " ";
+        std::cout << ":" << s.get_pos() << ":" << s.get_line() << " ";
     }
     std::cout << "\n";
+}
+
+static void scan_success(char const * str, token_set set = mk_default_token_set()) {
+    try {
+        scan(str, set);
+    } catch (exception & ex) {
+        std::cout << "ERROR: " << ex.what() << "\n";
+        lean_unreachable();
+    }
 }
 
 static void scan_error(char const * str) {
@@ -42,65 +53,114 @@ static void scan_error(char const * str) {
     }
 }
 
-static void check(char const * str, std::initializer_list<scanner::token> const & l, list<name> const & cmds = list<name>()) {
-    auto it = l.begin();
-    std::istringstream in(str);
-    scanner s(in, "[string]");
-    for (name const & n : cmds) s.add_command_keyword(n);
-    while (true) {
-        st t = s.scan();
-        if (t == st::Eof) {
-            lean_assert(it == l.end());
-            return;
+static void check(char const * str, std::initializer_list<tk> const & l,
+                  token_set set = mk_default_token_set()) {
+    try {
+        auto it = l.begin();
+        std::istringstream in(str);
+        scanner s(set, in, "[string]");
+        while (true) {
+            tk k = s.scan();
+            if (k == tk::Eof) {
+                lean_assert(it == l.end());
+                return;
+            }
+            lean_assert(it != l.end());
+            lean_assert_eq(k, *it);
+            ++it;
         }
-        lean_assert(it != l.end());
-        lean_assert(t == *it);
-        ++it;
+    } catch (exception & ex) {
+        std::cout << "ERROR: " << ex.what() << "\n";
+        lean_unreachable();
     }
 }
 
-static void check_name(char const * str, name const & expected) {
+static void check_name(char const * str, name const & expected, token_set set = mk_default_token_set()) {
     std::istringstream in(str);
-    scanner s(in, "[string]");
-    st t = s.scan();
-    lean_assert(t == st::Id);
+    scanner s(set, in, "[string]");
+    tk k = s.scan();
+    lean_assert(k == tk::Identifier);
     lean_assert(s.get_name_val() == expected);
-    lean_assert(s.scan() == st::Eof);
+    lean_assert(s.scan() == tk::Eof);
+}
+
+static void check_keyword(char const * str, name const & expected, token_set set = mk_default_token_set()) {
+    std::istringstream in(str);
+    scanner s(set, in, "[string]");
+    tk k = s.scan();
+    lean_assert(k == tk::Keyword);
+    lean_assert(s.get_token_info().value() == expected);
+    lean_assert(s.scan() == tk::Eof);
 }
 
 static void tst1() {
-    scan("fun(x: forall A : Type, A -> A), x+1 = 2.0 λ");
+    token_set s = mk_default_token_set();
+    s = add_token(s, "+", "plus");
+    s = add_token(s, "=", "eq");
+    scan_success("a..a");
+    check("a..a", {tk::Identifier, tk::Keyword, tk::Keyword, tk::Identifier});
+    check("Type.{0}", {tk::Keyword, tk::Keyword, tk::Numeral, tk::Keyword});
+    s = add_token(s, "ab+cde", "weird1");
+    s = add_token(s, "+cd", "weird2");
+    scan_success("ab+cd", s);
+    check("ab+cd", {tk::Identifier, tk::Keyword}, s);
+    scan_success("ab+cde", s);
+    check("ab+cde", {tk::Keyword}, s);
+    scan_success("Type.{0}");
+    scan_success("0.a a");
+    scan_success("0.");
+    scan_success("0..");
+    scan_success("0..1");
+    scan_success("fun");
+    scan_success("..");
+    scan_success("....");
+    scan_success("....\n..");
+    scan_success("a", s);
+    scan_success("a. b.c..");
+    scan_success(".. ..");
+    scan_success("....\n..");
+    scan_success("fun(x: forall A : Type, A -> A), x+1 = 2.0 λvalue.foo. . . a", s);
 }
 
 static void tst2() {
-    scan("x::name");
-    scan("x::10::foo");
-    check("x::name", {st::Id});
-    check("fun (x : Bool), x", {st::Lambda, st::LeftParen, st::Id, st::Colon, st::Id, st::RightParen, st::Comma, st::Id});
-    check("+++", {st::Id});
-    check("x+y", {st::Id, st::Id, st::Id});
-    check("-- testing", {});
-    check(" 2.31  ", {st::DecimalVal});
-    check(" 333 22", {st::IntVal, st::IntVal});
-    check("Int -> Int", {st::Id, st::Arrow, st::Id});
-    check("Int -+-> Int", {st::Id, st::Id, st::Id});
-    check("x := 10", {st::Id, st::Assign, st::IntVal});
-    check("(x+1):Int", {st::LeftParen, st::Id, st::Id, st::IntVal, st::RightParen, st::Colon, st::Id});
-    check("{x}", {st::LeftCurlyBracket, st::Id, st::RightCurlyBracket});
-    check("\u03BB \u2200 \u2192", {st::Lambda, st::Pi, st::Arrow});
-    scan("++\u2295++x\u2296\u2296");
-    check("++\u2295++x\u2296\u2296", {st::Id, st::Id, st::Id, st::Id, st::Id});
-    scan("x10 ... == (* print('hello') *) have by");
+    scan("x.name");
+    scan("x.foo");
+    check("x.name", {tk::Identifier});
+    check("fun (x : Bool), x", {tk::Keyword, tk::Keyword, tk::Identifier, tk::Keyword, tk::Identifier,
+                 tk::Keyword, tk::Keyword, tk::Identifier});
     check_name("x10", name("x10"));
-    check_name("x::10", name(name("x"), 10));
-    check_name("x::10::bla::0", name(name(name(name("x"), 10), "bla"), 0u));
-    check("0::1", {st::IntVal, st::Colon, st::Colon, st::IntVal});
-    check_name("\u2296\u2296", name("\u2296\u2296"));
-    scan_error("x::1000000000000000000");
-    scan("Theorem a : Bool Axiom b : Int", list<name>({"Theorem", "Axiom"}));
-    check("Theorem a : Bool Axiom b : Int", {st::CommandId, st::Id, st::Colon, st::Id, st::CommandId, st::Id, st::Colon, st::Id}, list<name>({"Theorem", "Axiom"}));
-    scan("foo \"tst\\\"\" : Int");
-    check("foo \"tst\\\"\" : Int", {st::Id, st::StringVal, st::Colon, st::Id});
+    // check_name("x.10", name(name("x"), 10));
+    check_name("x.bla", name({"x", "bla"}));
+
+    scan_error("+++");
+    token_set s = mk_default_token_set();
+    s = add_token(s, "+++", "tplus");
+    check_keyword("+++", "tplus", s);
+    s = add_token(s, "+", "plus");
+    check("x+y", {tk::Identifier, tk::Keyword, tk::Identifier}, s);
+    check("-- testing", {});
+    check("(-- testing --)", {});
+    check("(-- (-- testing\n --) --)", {});
+    check(" 2.31  ", {tk::Decimal});
+    check("2.31", {tk::Decimal});
+    check(" 333 22", {tk::Numeral, tk::Numeral});
+    check("int -> int", {tk::Identifier, tk::Keyword, tk::Identifier});
+    check("int->int", {tk::Identifier, tk::Keyword, tk::Identifier});
+    check_keyword("->", "->");
+    s = add_token(s, "-+->", "arrow");
+    check("Int -+-> Int", {tk::Identifier, tk::Keyword, tk::Identifier}, s);
+    check("x := 10", {tk::Identifier, tk::Keyword, tk::Numeral});
+    check("{x}", {tk::Keyword, tk::Identifier, tk::Keyword});
+    check("\u03BB \u2200 \u2192", {tk::Keyword, tk::Keyword, tk::Keyword});
+    check_keyword("\u03BB", "fun");
+    scan("x10 ... (* print('hello') *) have by");
+    scan("0..1");
+    check("0..1", {tk::Numeral, tk::Keyword, tk::Keyword, tk::Numeral});
+    scan("theorem a : Bool axiom b : Int");
+    check("theorem a : Bool axiom b : Int", {tk::CommandKeyword, tk::Identifier, tk::Keyword, tk::Identifier,
+                tk::CommandKeyword, tk::Identifier, tk::Keyword, tk::Identifier});
+    scan("foo \"ttk\\\"\" : Int");
+    check("foo \"ttk\\\"\" : Int", {tk::Identifier, tk::String, tk::Keyword, tk::Identifier});
     scan_error("\"foo");
     scan("2.13 1.2 0.5");
 }
@@ -109,12 +169,9 @@ static void tst3() {
     scan_error("\"\\");
     scan_error("\"\\a");
     scan("\"\naaa\"");
-    scan_error("foo::0a::1");
+    scan_error("foo.+ 01");
     scan("10.0.");
-    scan("{ } . forall exists let in \u2200 \u2203 := _");
-    std::ostringstream out;
-    out << scanner::token::Eof;
-    lean_assert_eq(out.str(), "EOF");
+    scan("{ } . forall exists let in \u2200 := _");
 }
 
 int main() {

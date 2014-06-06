@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/shared_mutex.h"
 #include "util/interrupt.h"
+#include "util/thread_script_state.h"
 using namespace lean;
 
 #if defined(LEAN_MULTI_THREAD)
@@ -171,14 +172,42 @@ static void tst6() {
     t1.request_interrupt();
     t1.join();
 }
-#else
-static void tst1() {}
-static void tst2() {}
-static void tst3() {}
-static void tst4() {}
-static void tst5() {}
-static void tst6() {}
-#endif
+
+static void tst7() {
+    std::cout << "start\n";
+    system_dostring("print('hello'); x = 10;");
+    interruptible_thread t1([]() {
+            script_state S = get_thread_script_state();
+            S.dostring("print(x)\n"
+                       "for i = 1, 100000 do\n"
+                       "  x = x + 1\n"
+                       "end\n"
+                       "print(x)\n");
+        });
+    interruptible_thread t2([]() {
+            script_state S = get_thread_script_state();
+            S.dostring("print(x)\n"
+                       "for i = 1, 20000 do\n"
+                       "  x = x + 1\n"
+                       "end\n"
+                       "print(x)\n");
+        });
+    t1.join(); t2.join();
+    std::cout << "done\n";
+}
+
+static void tst8() {
+    std::cout << "starting tst8\n";
+    interruptible_thread t1([]() {
+            script_state S = get_thread_script_state();
+            S.dostring("print(x)\n"
+                       "for i = 1, 10000 do\n"
+                       "  x = x + 1\n"
+                       "end\n"
+                       "print(x)\n");
+        });
+    t1.join();
+}
 
 int main() {
     save_stack_info();
@@ -188,5 +217,10 @@ int main() {
     tst4();
     tst5();
     tst6();
+    tst7();
+    tst8();
     return has_violations() ? 1 : 0;
 }
+#else
+int main() { std::cout << "foo\n"; return 0; }
+#endif

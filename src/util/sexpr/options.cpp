@@ -158,7 +158,6 @@ options join(options const & opts1, options const & opts2) {
    an unknow option in Lean.
 */
 options add_prefix(name const & prefix, options const & opts) {
-    std::cout << "prefix: " << prefix << "\n";
     option_declarations const & decls = get_option_declarations();
     return map(opts.m_value, [&](sexpr const & p) {
             name n = prefix + to_name(car(p));

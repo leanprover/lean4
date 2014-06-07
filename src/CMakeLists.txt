@@ -102,7 +102,7 @@ if (("${BOOST}" MATCHES "ON") AND ("${MULTI_THREAD}" MATCHES "ON"))
   find_package(Boost 1.54 COMPONENTS system thread atomic chrono REQUIRED)
   message(STATUS "Boost library will be used to implement multi-threading support")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_USE_BOOST")
-  set(EXTRA_LIBS ${EXTRA_LIBS} -lboost_system -lboost_chrono -lboost_atomic -lboost_thread)
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
 endif()
 
 # MPFR

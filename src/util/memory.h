@@ -8,12 +8,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 size_t get_allocated_memory();
-long long get_thread_allocated_memory();
 void * malloc(size_t sz);
 void * realloc(void * ptr, size_t sz);
 void free(void * ptr);
 }
-
-
-
-

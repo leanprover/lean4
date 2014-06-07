@@ -14,10 +14,6 @@ size_t     get_allocated_memory() {
     return 0;
 }
 
-long long  get_thread_allocated_memory() {
-    return 0;
-}
-
 void * malloc(size_t sz)  {
     void * r = ::malloc(sz);
     if (r || sz == 0)
@@ -105,31 +101,15 @@ public:
     size_t size() const { return m_size; }
 };
 
-class thread_alloc_info {
-    size_t m_size; // It can be negative
-public:
-    thread_alloc_info():m_size(0) {}
-    void inc(size_t sz) { m_size += sz; }
-    void dec(size_t sz) { m_size -= sz; }
-    long long size() const { return static_cast<long long>(m_size); }
-};
-
 static alloc_info                          g_global_memory;
-static thread_alloc_info & get_thread_memory() {
-    // we cannot use MK_THREAD_LOCAL_GET here because it depends on new/delete, and the Lean new/delete invokes this procedure
-    static thread_alloc_info LEAN_THREAD_LOCAL g_info;
-    return g_info;
-}
 
 size_t     get_allocated_memory() { return g_global_memory.size(); }
-long long  get_thread_allocated_memory() { return get_thread_memory().size(); }
 
 void * malloc(size_t sz)  {
     void * r = malloc_core(sz);
     if (r || sz == 0) {
         size_t rsz = malloc_size(r);
         g_global_memory.inc(rsz);
-        get_thread_memory().inc(rsz);
         return r;
     } else {
         throw std::bad_alloc();
@@ -145,11 +125,9 @@ void * realloc(void * ptr, size_t sz) {
     }
     size_t old_sz = malloc_size(ptr);
     g_global_memory.dec(old_sz);
-    get_thread_memory().dec(old_sz);
     void * r = realloc_core(ptr, sz);
     size_t new_sz = malloc_size(r);
     g_global_memory.inc(new_sz);
-    get_thread_memory().inc(new_sz);
     if (r || sz == 0)
         return r;
     else
@@ -160,7 +138,6 @@ void free(void * ptr) {
     if (ptr) {
         size_t sz = malloc_size(ptr);
         g_global_memory.dec(sz);
-        get_thread_memory().dec(sz);
     }
     free_core(ptr);
 }

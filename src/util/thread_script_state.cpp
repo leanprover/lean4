@@ -92,16 +92,18 @@ struct script_state_ref {
     ~script_state_ref() { recycle_state(m_state); }
 };
 
-// We should use std::unique_ptr, but clang++ 3.3.1 crashes when we use it.
-std::shared_ptr<script_state_ref> LEAN_THREAD_LOCAL g_thread_state;
+static std::unique_ptr<script_state_ref> & get_script_state_ref() {
+    static std::unique_ptr<script_state_ref> LEAN_THREAD_LOCAL g_thread_state;
+    if (!g_thread_state)
+        g_thread_state.reset(new script_state_ref());
+    return g_thread_state;
+}
 
 script_state get_thread_script_state() {
-    if (!g_thread_state)
-        g_thread_state = std::make_shared<script_state_ref>();
-    return g_thread_state->m_state;
+    return get_script_state_ref()->m_state;
 }
 
 void release_thread_script_state() {
-    g_thread_state = nullptr;
+    get_script_state_ref().reset(nullptr);
 }
 }

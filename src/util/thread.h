@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -136,10 +136,12 @@ public:
 template<typename T> class lock_guard {
 public:
     lock_guard(T const &) {}
+    ~lock_guard() {}
 };
 template<typename T> class unique_lock {
 public:
     unique_lock(T const &) {}
+    ~unique_lock() {}
 };
 }
 #endif

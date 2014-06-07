@@ -268,11 +268,13 @@ expr_macro::~expr_macro() {
 
 #ifdef LEAN_CACHE_EXPRS
 typedef lru_cache<expr, expr_hash, is_bi_equal_proc> expr_cache;
-static expr_cache LEAN_THREAD_LOCAL g_expr_cache(LEAN_INITIAL_EXPR_CACHE_CAPACITY);
+static std::unique_ptr<expr_cache> LEAN_THREAD_LOCAL g_expr_cache;
 static bool       LEAN_THREAD_LOCAL g_expr_cache_enabled = true;
 inline expr cache(expr const & e) {
     if (g_expr_cache_enabled) {
-        if (auto r = g_expr_cache.insert(e))
+        if (!g_expr_cache)
+            g_expr_cache.reset(new expr_cache(LEAN_INITIAL_EXPR_CACHE_CAPACITY));
+        if (auto r = g_expr_cache->insert(e))
             return *r;
     }
     return e;

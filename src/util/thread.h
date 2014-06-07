@@ -167,20 +167,20 @@ public:
 #endif
 
 #if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
-#define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE)  \
-static T & GETTER_NAME() {                              \
-    LEAN_THREAD_PTR(T) tlocal;                          \
-    if (!tlocal.get())                                  \
-        tlocal.reset(new T(DEF_VALUE));                 \
-    return *tlocal;                                     \
+#define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE)          \
+LEAN_THREAD_PTR(T) GETTER_NAME ## _tlocal;                      \
+static T & GETTER_NAME() {                                      \
+    if (!(GETTER_NAME ## _tlocal).get())                        \
+        (GETTER_NAME ## _tlocal).reset(new T(DEF_VALUE));       \
+    return *(GETTER_NAME ## _tlocal);                           \
 }
 
-#define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME) \
-static T & GETTER_NAME() {                      \
-    LEAN_THREAD_PTR(T) tlocal;                  \
-    if (!tlocal.get())                          \
-        tlocal.reset(new T());                  \
-    return *tlocal;                             \
+#define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME)         \
+LEAN_THREAD_PTR(T) GETTER_NAME ## _tlocal;              \
+static T & GETTER_NAME() {                              \
+    if (!(GETTER_NAME ## _tlocal).get())                \
+        (GETTER_NAME ## _tlocal).reset(new T());        \
+    return *(GETTER_NAME ## _tlocal);                   \
 }
 #else
 // MK_THREAD_LOCAL_GET_DEF and MK_THREAD_LOCAL_GET when LEAN_USE_BOOST is not defined

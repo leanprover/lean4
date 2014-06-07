@@ -21,11 +21,10 @@ void double_floor(double & v);
 
 // Macro to implement transcendental functions using MPFR
 #define LEAN_TRANS_DOUBLE_FUNC(f, v, rnd)       \
-    LEAN_THREAD_PTR(mpfp) t;                    \
-    if (!t.get()) t.reset(new mpfp(53));        \
-    *t = v;                                     \
-    t->f(rnd);                                  \
-    v = t->get_double(rnd);
+    mpfp t(53);                                 \
+    t = v;                                      \
+    t.f(rnd);                                   \
+    v = t.get_double(rnd);
 
 void set_double_rnd(bool plus_inf);
 mpfr_rnd_t get_double_rnd();

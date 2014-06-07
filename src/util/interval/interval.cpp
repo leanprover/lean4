@@ -280,8 +280,8 @@ template<bool compute_intv, bool compute_deps>
 interval<T> & interval<T>::sub(interval<T> const & o, interval_deps & deps) {
     if (compute_intv) {
         using std::swap;
-        T & new_l_val = get_tlocal1();
-        T & new_u_val = get_tlocal2();
+        T new_l_val;
+        T new_u_val;
         xnumeral_kind new_l_kind, new_u_kind;
         lean_trace("numerics", tout << "this: " << *this << " o: " << o << "\n";);
         round_to_minus_inf();
@@ -342,8 +342,8 @@ interval<T> & interval<T>::mul(interval<T> const & o, interval_deps & deps) {
     bool c_o = i2.is_lower_open();
     bool d_o = i2.is_upper_open();
 
-    T & new_l_val = get_tlocal1();
-    T & new_u_val = get_tlocal2();
+    T new_l_val;
+    T new_u_val;
     xnumeral_kind new_l_kind, new_u_kind;
 
     if (i1.is_N()) {
@@ -422,10 +422,10 @@ interval<T> & interval<T>::mul(interval<T> const & o, interval_deps & deps) {
                 deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2 | DEP_IN_UPPER2;
             }
         } else if (i2.is_M()) {
-            T & ad = get_tlocal3(); xnumeral_kind ad_k = XN_NUMERAL;
-            T & bc = get_tlocal4(); xnumeral_kind bc_k = XN_NUMERAL;
-            T & ac = get_tlocal5(); xnumeral_kind ac_k = XN_NUMERAL;
-            T & bd = get_tlocal6(); xnumeral_kind bd_k = XN_NUMERAL;
+            T ad; xnumeral_kind ad_k = XN_NUMERAL;
+            T bc; xnumeral_kind bc_k = XN_NUMERAL;
+            T ac; xnumeral_kind ac_k = XN_NUMERAL;
+            T bd; xnumeral_kind bd_k = XN_NUMERAL;
 
             bool  ad_o = a_o || d_o;
             bool  bc_o = b_o || c_o;
@@ -586,8 +586,8 @@ interval<T> & interval<T>::div(interval<T> const & o, interval_deps & deps) {
         bool c_o = i2.m_lower_open;
         bool d_o = i2.m_upper_open;
 
-        T & new_l_val = get_tlocal1();
-        T & new_u_val = get_tlocal2();
+        T new_l_val;
+        T new_u_val;
         xnumeral_kind new_l_kind, new_u_kind;
 
         if (i1.is_N()) {
@@ -795,7 +795,7 @@ interval<T> & interval<T>::operator-=(T const & o) {
 template<typename T>
 interval<T> & interval<T>::operator*=(T const & o) {
     xnumeral_kind new_l_kind, new_u_kind;
-    T & tmp1 = get_tlocal1();
+    T tmp1;
     if (this->is_zero()) {
         return *this;
     }
@@ -831,7 +831,7 @@ interval<T> & interval<T>::operator*=(T const & o) {
 template<typename T>
 interval<T> & interval<T>::operator/=(T const & o) {
     xnumeral_kind new_l_kind, new_u_kind;
-    T & tmp1 = get_tlocal1();
+    T tmp1;
     if (this->is_zero()) {
         return *this;
     }
@@ -872,8 +872,8 @@ void interval<T>::inv(interval_deps & deps) {
 
     using std::swap;
 
-    T & new_l_val = get_tlocal1();
-    T & new_u_val = get_tlocal2();
+    T new_l_val;
+    T new_u_val;
     xnumeral_kind new_l_kind, new_u_kind;
 
     if (is_P1()) {
@@ -1032,8 +1032,8 @@ void interval<T>::power(unsigned n, interval_deps & deps) {
             // we need both bounds to justify upper bound
             xnumeral_kind un1_kind = lower_kind();
             xnumeral_kind un2_kind = upper_kind();
-            T & un1 = get_tlocal1();
-            T & un2 = get_tlocal2();
+            T un1;
+            T un2;
             if (compute_intv) {
                 swap(un1, m_lower);
                 swap(un2, m_upper);

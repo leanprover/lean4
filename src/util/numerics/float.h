@@ -21,11 +21,10 @@ void float_floor(float & v);
 
 // Macro to implement transcendental functions using MPFR
 #define LEAN_TRANS_FLOAT_FUNC(f, v, rnd)        \
-    LEAN_THREAD_PTR(mpfp) t;                    \
-    if (!t.get()) t.reset(new mpfp(24));        \
-    *t = v;                                     \
-    t->f(rnd);                                  \
-    v = t->get_float(rnd);
+    mpfp t(24);                                 \
+    t = v;                                      \
+    t.f(rnd);                                   \
+    v = t.get_float(rnd);
 
 void set_float_rnd(bool plus_inf);
 mpfr_rnd_t get_float_rnd();

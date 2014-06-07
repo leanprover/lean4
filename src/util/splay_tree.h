@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <algorithm>
 #include <utility>
-#include <vector>
 #include "util/rc.h"
 #include "util/pair.h"
 #include "util/debug.h"
@@ -95,7 +94,7 @@ class splay_tree : public CMP {
         entry(bool r, node * n):m_right(r), m_node(n) {}
     };
 
-    void splay_to_top(std::vector<entry> & path, node * n) {
+    void splay_to_top(buffer<entry, 32> & path, node * n) {
         lean_assert(!n->is_shared());
         while (path.size() > 1) {
             auto p_entry  = path.back(); path.pop_back();
@@ -194,7 +193,7 @@ class splay_tree : public CMP {
         return true;
     }
 
-    void update_parent(std::vector<entry> const & path, node * child) {
+    void update_parent(buffer<entry, 32> const & path, node * child) {
         lean_assert(child);
         if (path.empty()) {
             child->inc_ref();
@@ -223,10 +222,8 @@ class splay_tree : public CMP {
         }
     }
 
-    MK_THREAD_LOCAL_GET_DEF(std::vector<entry>, get_g_path);
-
     bool insert_pull(T const & v, bool is_insert) {
-        std::vector<entry> & path = get_g_path();
+        buffer<entry, 32> path;
         node * n   = m_ptr;
         bool found = false;
         while (true) {
@@ -274,7 +271,7 @@ class splay_tree : public CMP {
 
     void pull_max() {
         if (!m_ptr) return;
-        std::vector<entry> & path = get_g_path();
+        buffer<entry, 32> path;
         node * n   = m_ptr;
         while (true) {
             lean_assert(n);

@@ -65,13 +65,6 @@ class interval {
     void _swap(interval & b);
     bool _eq(interval const & b) const;
 
-    MK_THREAD_LOCAL_GET_DEF(T, get_tlocal1);
-    MK_THREAD_LOCAL_GET_DEF(T, get_tlocal2);
-    MK_THREAD_LOCAL_GET_DEF(T, get_tlocal3);
-    MK_THREAD_LOCAL_GET_DEF(T, get_tlocal4);
-    MK_THREAD_LOCAL_GET_DEF(T, get_tlocal5);
-    MK_THREAD_LOCAL_GET_DEF(T, get_tlocal6);
-
 public:
     template<typename T2> interval & operator=(T2 const & n) { m_lower = n; m_upper = n; set_closed_endpoints(); return *this; }
     interval & operator=(T const & n);

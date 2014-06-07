@@ -34,6 +34,8 @@ unsigned hash_levels(levels const & ls) {
     return r;
 }
 
+MK_THREAD_LOCAL_GET(unsigned, get_hash_alloc_counter, 0)
+
 expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ):
     m_flags(0),
     m_kind(static_cast<unsigned>(k)),
@@ -49,9 +51,8 @@ expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv, bool has_local, bool 
     // Remark: using pointer address as a hash code is not a good idea.
     //    - each execution run will behave differently.
     //    - the hash is not diverse enough
-    static LEAN_THREAD_LOCAL unsigned g_hash_alloc_counter = 0;
-    m_hash_alloc = g_hash_alloc_counter;
-    g_hash_alloc_counter++;
+    m_hash_alloc = get_hash_alloc_counter();
+    get_hash_alloc_counter()++;
 }
 
 void expr_cell::dec_ref(expr & e, buffer<expr_cell*> & todelete) {
@@ -267,22 +268,20 @@ expr_macro::~expr_macro() {
 // Constructors
 
 #ifdef LEAN_CACHE_EXPRS
-static bool LEAN_THREAD_LOCAL g_expr_cache_enabled = true;
 typedef lru_cache<expr, expr_hash, is_bi_equal_proc> expr_cache;
+MK_THREAD_LOCAL_GET(bool, get_expr_cache_enabled, true)
+MK_THREAD_LOCAL_GET(expr_cache, get_expr_cache, LEAN_INITIAL_EXPR_CACHE_CAPACITY);
+bool enable_expr_caching(bool f) {
+    bool r = get_expr_cache_enabled();
+    get_expr_cache_enabled() = f;
+    return r;
+}
 inline expr cache(expr const & e) {
-    if (g_expr_cache_enabled) {
-        LEAN_THREAD_PTR(expr_cache) g_expr_cache;
-        if (!g_expr_cache.get())
-            g_expr_cache.reset(new expr_cache(LEAN_INITIAL_EXPR_CACHE_CAPACITY));
-        if (auto r = g_expr_cache->insert(e))
+    if (get_expr_cache_enabled()) {
+        if (auto r = get_expr_cache().insert(e))
             return *r;
     }
     return e;
-}
-bool enable_expr_caching(bool f) {
-    bool r = g_expr_cache_enabled;
-    g_expr_cache_enabled = f;
-    return r;
 }
 #else
 inline expr cache(expr && e) { return e; }

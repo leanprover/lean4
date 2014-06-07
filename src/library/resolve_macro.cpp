@@ -282,7 +282,7 @@ public:
     virtual void write(serializer & s) const { s.write_string(g_resolve_opcode); }
 };
 
-static macro_definition LEAN_THREAD_LOCAL g_resolve_macro_definition(new resolve_macro_definition_cell());
+static macro_definition g_resolve_macro_definition(new resolve_macro_definition_cell());
 
 expr mk_resolve_macro(expr const & l, expr const & H1, expr const & H2) {
     expr args[3] = {l, H1, H2};

@@ -10,14 +10,13 @@ Author: Soonho Kong
 #include "util/numerics/double.h"
 
 namespace lean {
-
-static LEAN_THREAD_LOCAL mpfr_rnd_t g_rnd;
+MK_THREAD_LOCAL_GET_DEF(mpfr_rnd_t, get_g_rnd);
 void set_double_rnd(bool plus_inf) {
-    g_rnd = plus_inf ? MPFR_RNDU : MPFR_RNDD;
+    get_g_rnd() = plus_inf ? MPFR_RNDU : MPFR_RNDD;
 }
 
 mpfr_rnd_t get_double_rnd() {
-    return g_rnd;
+    return get_g_rnd();
 }
 
 void double_power(double & v, unsigned k) { v = std::pow(v, k); }

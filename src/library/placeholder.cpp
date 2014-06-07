@@ -11,9 +11,15 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_placeholder_name = name(name::mk_internal_unique_name(), "_");
-static unsigned LEAN_THREAD_LOCAL g_placeholder_counter = 0;
-level mk_level_placeholder() { return mk_global_univ(name(g_placeholder_name, g_placeholder_counter++)); }
-expr mk_expr_placeholder() { return mk_constant(name(g_placeholder_name, g_placeholder_counter++)); }
+MK_THREAD_LOCAL_GET(unsigned, get_placeholder_id, 0)
+static unsigned next_placeholder_id() {
+    unsigned & c = get_placeholder_id();
+    unsigned r = c;
+    c++;
+    return r;
+}
+level mk_level_placeholder() { return mk_global_univ(name(g_placeholder_name, next_placeholder_id())); }
+expr mk_expr_placeholder() { return mk_constant(name(g_placeholder_name, next_placeholder_id())); }
 static bool is_placeholder(name const & n) { return !n.is_atomic() && n.get_prefix() == g_placeholder_name; }
 bool is_placeholder(level const & e) { return is_global(e) && is_placeholder(global_id(e)); }
 bool is_placeholder(expr const & e) { return is_constant(e) && is_placeholder(const_name(e)); }

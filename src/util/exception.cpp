@@ -24,9 +24,10 @@ parser_exception::parser_exception(std::string const & msg, char const * fname, 
 parser_exception::parser_exception(sstream const & msg, char const * fname, unsigned l, unsigned p):
     exception(msg), m_fname(fname), m_line(l), m_pos(p) {}
 parser_exception::~parser_exception() noexcept {}
+MK_THREAD_LOCAL_GET_DEF(std::string, get_g_buffer);
 char const * parser_exception::what() const noexcept {
     try {
-        static LEAN_THREAD_LOCAL std::string buffer;
+        std::string & buffer = get_g_buffer();
         std::ostringstream s;
         s << m_fname << ":" << m_line << ":" << m_pos << ": error: " << m_msg;
         buffer = s.str();
@@ -38,7 +39,7 @@ char const * parser_exception::what() const noexcept {
 }
 
 char const * stack_space_exception::what() const noexcept {
-    static LEAN_THREAD_LOCAL std::string buffer;
+    std::string & buffer = get_g_buffer();
     std::ostringstream s;
     s << "deep recursion was detected at '" << m_component_name << "' (potential solution: increase stack space in your system)";
     buffer = s.str();

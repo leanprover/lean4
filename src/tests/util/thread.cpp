@@ -16,8 +16,9 @@ using namespace lean;
 
 #if defined(LEAN_MULTI_THREAD)
 void foo() {
-    static LEAN_THREAD_LOCAL std::vector<int> v(1024);
-    if (v.size() != 1024) {
+    LEAN_THREAD_PTR(std::vector<int>) v;
+    if (!v.get()) v.reset(new std::vector<int>(1024));
+    if (v->size() != 1024) {
         std::cerr << "Error\n";
         exit(1);
     }

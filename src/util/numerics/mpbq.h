@@ -269,13 +269,13 @@ public:
 template<>
 class numeric_traits<mpbq> {
 private:
-    static LEAN_THREAD_LOCAL bool rnd;
+    MK_THREAD_LOCAL_GET(bool, get_rnd, false);
 public:
     static bool precise() { return true; }
     static bool is_zero(mpbq const &  v) { return v.is_zero(); }
     static bool is_pos(mpbq const & v) { return v.is_pos(); }
     static bool is_neg(mpbq const & v) { return v.is_neg(); }
-    static void set_rounding(bool plus_inf) { rnd = plus_inf; }
+    static void set_rounding(bool plus_inf) { get_rnd() = plus_inf; }
     static void neg(mpbq & v) { v.neg(); }
     static void reset(mpbq & v) { v = 0; }
     static mpbq const & zero();

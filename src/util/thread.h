@@ -152,5 +152,32 @@ public:
   #include <boost/thread/tss.hpp>
   #define LEAN_THREAD_PTR(T) static boost::thread_specific_ptr<T>
 #else
-  #define LEAN_THREAD_PTR(T) static std::unique_ptr<T> LEAN_THREAD_LOCAL
+  template<typename T>
+  class thread_specific_ptr {
+      T * m_ptr;
+  public:
+      thread_specific_ptr():m_ptr(nullptr) {}
+      ~thread_specific_ptr() { if (m_ptr) delete m_ptr; }
+      T * get() const { return m_ptr; }
+      void reset(T * ptr) { if (m_ptr) delete m_ptr; m_ptr = ptr; }
+      T * operator->() const { return m_ptr; }
+      T & operator*() { return *m_ptr; }
+  };
+  #define LEAN_THREAD_PTR(T) static thread_specific_ptr<T> LEAN_THREAD_LOCAL
 #endif
+
+#define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE)  \
+static T & GETTER_NAME() {                              \
+    LEAN_THREAD_PTR(T) tlocal;                          \
+    if (!tlocal.get())                                  \
+        tlocal.reset(new T(DEF_VALUE));                 \
+    return *tlocal;                                     \
+}
+
+#define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME) \
+static T & GETTER_NAME() {                      \
+    LEAN_THREAD_PTR(T) tlocal;                  \
+    if (!tlocal.get())                          \
+        tlocal.reset(new T());                  \
+    return *tlocal;                             \
+}

@@ -23,11 +23,12 @@ mpq & mpq::operator=(mpbq const & b) {
     return *this;
 }
 
+MK_THREAD_LOCAL_GET_DEF(mpz, get_tlocal1);
 int cmp(mpq const & a, mpz const & b) {
     if (a.is_integer()) {
         return mpz_cmp(mpq_numref(a.m_val), mpq::zval(b));
     } else {
-        static LEAN_THREAD_LOCAL mpz tmp;
+        mpz & tmp = get_tlocal1();
         mpz_mul(mpq::zval(tmp), mpq_denref(a.m_val), mpq::zval(b));
         return mpz_cmp(mpq_numref(a.m_val), mpq::zval(tmp));
     }
@@ -140,14 +141,16 @@ DECL_UDATA(mpq)
 
 template<int idx>
 static mpq const & to_mpq(lua_State * L) {
-    static LEAN_THREAD_LOCAL mpq arg;
+    LEAN_THREAD_PTR(mpq) arg;
+    if (!arg.get())
+        arg.reset(new mpq());
     switch (lua_type(L, idx)) {
-    case LUA_TNUMBER:       arg = lua_tonumber(L, idx); return arg;
-    case LUA_TSTRING:       arg = mpq(lua_tostring(L, idx)); return arg;
+    case LUA_TNUMBER:       *arg = lua_tonumber(L, idx);      return *arg;
+    case LUA_TSTRING:       *arg = mpq(lua_tostring(L, idx)); return *arg;
     case LUA_TUSERDATA:
         if (is_mpz(L, idx)) {
-            arg = mpq(to_mpz(L, idx));
-            return arg;
+            *arg = mpq(to_mpz(L, idx));
+            return *arg;
         } else {
             return *static_cast<mpq*>(luaL_checkudata(L, idx, mpq_mt));
         }

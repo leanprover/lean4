@@ -9,18 +9,18 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 
 namespace lean {
-static LEAN_THREAD_LOCAL atomic_bool g_interrupt;
+MK_THREAD_LOCAL_GET(atomic_bool, get_g_interrupt, false);
 
 void request_interrupt() {
-    g_interrupt.store(true);
+    get_g_interrupt().store(true);
 }
 
 void reset_interrupt() {
-    g_interrupt.store(false);
+    get_g_interrupt().store(false);
 }
 
 bool interrupt_requested() {
-    return g_interrupt.load();
+    return get_g_interrupt().load();
 }
 
 void check_interrupted() {
@@ -45,7 +45,7 @@ void sleep_for(unsigned ms, unsigned step_ms) {
 }
 
 atomic_bool * interruptible_thread::get_flag_addr() {
-    return &g_interrupt;
+    return &get_g_interrupt();
 }
 
 bool interruptible_thread::interrupted() const {

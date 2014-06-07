@@ -223,8 +223,10 @@ class splay_tree : public CMP {
         }
     }
 
+    MK_THREAD_LOCAL_GET_DEF(std::vector<entry>, get_g_path);
+
     bool insert_pull(T const & v, bool is_insert) {
-        static LEAN_THREAD_LOCAL std::vector<entry> path;
+        std::vector<entry> & path = get_g_path();
         node * n   = m_ptr;
         bool found = false;
         while (true) {
@@ -272,7 +274,7 @@ class splay_tree : public CMP {
 
     void pull_max() {
         if (!m_ptr) return;
-        static LEAN_THREAD_LOCAL std::vector<entry> path;
+        std::vector<entry> & path = get_g_path();
         node * n   = m_ptr;
         while (true) {
             lean_assert(n);

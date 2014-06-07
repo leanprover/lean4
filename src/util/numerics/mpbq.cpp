@@ -9,14 +9,15 @@ Author: Leonardo de Moura
 #include "util/numerics/mpbq.h"
 
 namespace lean {
-
+MK_THREAD_LOCAL_GET_DEF(mpz, get_tlocal1);
+MK_THREAD_LOCAL_GET_DEF(mpz, get_tlocal2);
 bool set(mpbq & a, mpq const & b) {
     if (b.is_integer()) {
         numerator(a.m_num, b);
         a.m_k = 0;
         return true;
     } else {
-        static LEAN_THREAD_LOCAL mpz d;
+        mpz & d = get_tlocal1();
         denominator(d, b);
         unsigned shift;
         if (d.is_power_of_two(shift)) {
@@ -47,7 +48,7 @@ void mpbq::normalize() {
 }
 
 int cmp(mpbq const & a, mpbq const & b) {
-    static LEAN_THREAD_LOCAL mpz tmp;
+    mpz & tmp = get_tlocal1();
     if (a.m_k == b.m_k) {
         return cmp(a.m_num, b.m_num);
     } else if (a.m_k < b.m_k) {
@@ -61,7 +62,7 @@ int cmp(mpbq const & a, mpbq const & b) {
 }
 
 int cmp(mpbq const & a, mpz const & b) {
-    static LEAN_THREAD_LOCAL mpz tmp;
+    mpz & tmp = get_tlocal1();
     if (a.m_k == 0) {
         return cmp(a.m_num, b);
     } else {
@@ -74,8 +75,8 @@ int cmp(mpbq const & a, mpq const & b) {
     if (a.is_integer() && b.is_integer()) {
         return -cmp(b, a.m_num);
     } else {
-        static LEAN_THREAD_LOCAL mpz tmp1;
-        static LEAN_THREAD_LOCAL mpz tmp2;
+        mpz & tmp1 = get_tlocal1();
+        mpz & tmp2 = get_tlocal2();
         // tmp1 <- numerator(a)*denominator(b)
         denominator(tmp1, b); tmp1 *= a.m_num;
         // tmp2 <- numerator(b)*denominator(a)
@@ -93,7 +94,7 @@ mpbq & mpbq::operator+=(mpbq const & a) {
         m_num += a.m_num;
     } else {
         lean_assert(m_k > a.m_k);
-        static LEAN_THREAD_LOCAL mpz tmp;
+        mpz & tmp = get_tlocal1();
         mul2k(tmp, a.m_num, m_k - a.m_k);
         m_num += tmp;
     }
@@ -107,7 +108,7 @@ mpbq & mpbq::add_int(T const & a) {
         m_num += a;
     } else {
         lean_assert(m_k > 0);
-        static LEAN_THREAD_LOCAL mpz tmp;
+        mpz & tmp = get_tlocal1();
         tmp = a;
         mul2k(tmp, tmp, m_k);
         m_num += tmp;
@@ -127,7 +128,7 @@ mpbq & mpbq::operator-=(mpbq const & a) {
         m_num -= a.m_num;
     } else {
         lean_assert(m_k > a.m_k);
-        static LEAN_THREAD_LOCAL mpz tmp;
+        mpz & tmp = get_tlocal1();
         mul2k(tmp, a.m_num, m_k - a.m_k);
         m_num -= tmp;
     }
@@ -141,7 +142,7 @@ mpbq & mpbq::sub_int(T const & a) {
         m_num -= a;
     } else {
         lean_assert(m_k > 0);
-        static LEAN_THREAD_LOCAL mpz tmp;
+        mpz & tmp = get_tlocal1();
         tmp = a;
         mul2k(tmp, tmp, m_k);
         m_num -= tmp;
@@ -303,7 +304,7 @@ bool lt_1div2k(mpbq const & a, unsigned k) {
         return false;
     } else {
         lean_assert(a.m_k > k);
-        static LEAN_THREAD_LOCAL mpz tmp;
+        mpz & tmp = get_tlocal1();
         tmp = 1;
         mul2k(tmp, tmp, a.m_k - k);
         return a.m_num < tmp;

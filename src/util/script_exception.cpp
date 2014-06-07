@@ -70,8 +70,10 @@ char const * script_exception::get_msg() const noexcept {
     return exception::what();
 }
 
+MK_THREAD_LOCAL_GET_DEF(std::string, get_g_buffer)
+
 char const * script_exception::what() const noexcept {
-    static LEAN_THREAD_LOCAL std::string buffer;
+    std::string & buffer = get_g_buffer();
     std::ostringstream strm;
     char const * msg = get_msg();
     char const * space = msg && *msg == ' ' ? "" : " ";
@@ -96,11 +98,13 @@ char const * script_nested_exception::what() const noexcept {
     std::string super_what  = script_exception::what();
     std::string nested_what = get_exception().what();
     {
-        static LEAN_THREAD_LOCAL std::string buffer;
+        std::string buffer;
         std::ostringstream strm;
         strm << super_what << "\n" << nested_what;
         buffer = strm.str();
-        return buffer.c_str();
+        std::string & r_buffer = get_g_buffer();
+        r_buffer = buffer;
+        return r_buffer.c_str();
     }
 }
 }

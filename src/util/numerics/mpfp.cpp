@@ -11,18 +11,18 @@ Author: Soonho Kong
 #include "util/numerics/mpfp.h"
 
 namespace lean {
-static LEAN_THREAD_LOCAL mpfr_rnd_t g_mpfp_rnd = MPFR_RNDN;
+MK_THREAD_LOCAL_GET(mpfr_rnd_t, get_g_mpfp_rnd, MPFR_RNDN);
 
 mpfp numeric_traits<mpfp>::pi_l;
 mpfp numeric_traits<mpfp>::pi_n;
 mpfp numeric_traits<mpfp>::pi_u;
 
 void set_mpfp_rnd(bool plus_inf) {
-    g_mpfp_rnd = plus_inf ? MPFR_RNDU : MPFR_RNDD;
+    get_g_mpfp_rnd() = plus_inf ? MPFR_RNDU : MPFR_RNDD;
 }
 
 mpfr_rnd_t get_mpfp_rnd() {
-    return g_mpfp_rnd;
+    return get_g_mpfp_rnd();
 }
 
 /**

@@ -92,18 +92,20 @@ struct script_state_ref {
     ~script_state_ref() { recycle_state(m_state); }
 };
 
-static std::unique_ptr<script_state_ref> & get_script_state_ref() {
-    static std::unique_ptr<script_state_ref> LEAN_THREAD_LOCAL g_thread_state;
-    if (!g_thread_state)
-        g_thread_state.reset(new script_state_ref());
-    return g_thread_state;
+// If reset == true,  then reset/release the (script_state) thread local storage
+// If reset == false, then return (script_state) thread local
+static script_state * get_script_state_ref(bool reset) {
+    LEAN_THREAD_PTR(script_state_ref) g_thread_state;
+    if (reset) {
+        g_thread_state.reset(nullptr);
+        return nullptr;
+    } else {
+        if (!g_thread_state.get())
+            g_thread_state.reset(new script_state_ref());
+        return &((*g_thread_state).m_state);
+    }
 }
 
-script_state get_thread_script_state() {
-    return get_script_state_ref()->m_state;
-}
-
-void release_thread_script_state() {
-    get_script_state_ref().reset(nullptr);
-}
+script_state get_thread_script_state() { return *get_script_state_ref(false); }
+void release_thread_script_state() { get_script_state_ref(true); }
 }

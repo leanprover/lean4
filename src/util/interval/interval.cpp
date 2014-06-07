@@ -280,8 +280,8 @@ template<bool compute_intv, bool compute_deps>
 interval<T> & interval<T>::sub(interval<T> const & o, interval_deps & deps) {
     if (compute_intv) {
         using std::swap;
-        static LEAN_THREAD_LOCAL T new_l_val;
-        static LEAN_THREAD_LOCAL T new_u_val;
+        T & new_l_val = get_tlocal1();
+        T & new_u_val = get_tlocal2();
         xnumeral_kind new_l_kind, new_u_kind;
         lean_trace("numerics", tout << "this: " << *this << " o: " << o << "\n";);
         round_to_minus_inf();
@@ -342,8 +342,8 @@ interval<T> & interval<T>::mul(interval<T> const & o, interval_deps & deps) {
     bool c_o = i2.is_lower_open();
     bool d_o = i2.is_upper_open();
 
-    static LEAN_THREAD_LOCAL T new_l_val;
-    static LEAN_THREAD_LOCAL T new_u_val;
+    T & new_l_val = get_tlocal1();
+    T & new_u_val = get_tlocal2();
     xnumeral_kind new_l_kind, new_u_kind;
 
     if (i1.is_N()) {
@@ -422,10 +422,10 @@ interval<T> & interval<T>::mul(interval<T> const & o, interval_deps & deps) {
                 deps.m_upper_deps = DEP_IN_LOWER1 | DEP_IN_LOWER2 | DEP_IN_UPPER2;
             }
         } else if (i2.is_M()) {
-            static LEAN_THREAD_LOCAL T ad; static LEAN_THREAD_LOCAL xnumeral_kind ad_k;
-            static LEAN_THREAD_LOCAL T bc; static LEAN_THREAD_LOCAL xnumeral_kind bc_k;
-            static LEAN_THREAD_LOCAL T ac; static LEAN_THREAD_LOCAL xnumeral_kind ac_k;
-            static LEAN_THREAD_LOCAL T bd; static LEAN_THREAD_LOCAL xnumeral_kind bd_k;
+            T & ad = get_tlocal3(); xnumeral_kind ad_k = XN_NUMERAL;
+            T & bc = get_tlocal4(); xnumeral_kind bc_k = XN_NUMERAL;
+            T & ac = get_tlocal5(); xnumeral_kind ac_k = XN_NUMERAL;
+            T & bd = get_tlocal6(); xnumeral_kind bd_k = XN_NUMERAL;
 
             bool  ad_o = a_o || d_o;
             bool  bc_o = b_o || c_o;
@@ -586,8 +586,8 @@ interval<T> & interval<T>::div(interval<T> const & o, interval_deps & deps) {
         bool c_o = i2.m_lower_open;
         bool d_o = i2.m_upper_open;
 
-        static LEAN_THREAD_LOCAL T new_l_val;
-        static LEAN_THREAD_LOCAL T new_u_val;
+        T & new_l_val = get_tlocal1();
+        T & new_u_val = get_tlocal2();
         xnumeral_kind new_l_kind, new_u_kind;
 
         if (i1.is_N()) {
@@ -795,7 +795,7 @@ interval<T> & interval<T>::operator-=(T const & o) {
 template<typename T>
 interval<T> & interval<T>::operator*=(T const & o) {
     xnumeral_kind new_l_kind, new_u_kind;
-    static LEAN_THREAD_LOCAL T tmp1;
+    T & tmp1 = get_tlocal1();
     if (this->is_zero()) {
         return *this;
     }
@@ -831,7 +831,7 @@ interval<T> & interval<T>::operator*=(T const & o) {
 template<typename T>
 interval<T> & interval<T>::operator/=(T const & o) {
     xnumeral_kind new_l_kind, new_u_kind;
-    static LEAN_THREAD_LOCAL T tmp1;
+    T & tmp1 = get_tlocal1();
     if (this->is_zero()) {
         return *this;
     }
@@ -872,8 +872,8 @@ void interval<T>::inv(interval_deps & deps) {
 
     using std::swap;
 
-    static LEAN_THREAD_LOCAL T new_l_val;
-    static LEAN_THREAD_LOCAL T new_u_val;
+    T & new_l_val = get_tlocal1();
+    T & new_u_val = get_tlocal2();
     xnumeral_kind new_l_kind, new_u_kind;
 
     if (is_P1()) {
@@ -1032,8 +1032,8 @@ void interval<T>::power(unsigned n, interval_deps & deps) {
             // we need both bounds to justify upper bound
             xnumeral_kind un1_kind = lower_kind();
             xnumeral_kind un2_kind = upper_kind();
-            static LEAN_THREAD_LOCAL T un1;
-            static LEAN_THREAD_LOCAL T un2;
+            T & un1 = get_tlocal1();
+            T & un2 = get_tlocal2();
             if (compute_intv) {
                 swap(un1, m_lower);
                 swap(un2, m_upper);
@@ -1106,7 +1106,7 @@ T a_div_x_n(T a, T const & x, unsigned n, bool to_plus_inf) {
         numeric_traits<T>::set_rounding(to_plus_inf);
         a /= x;
     } else {
-        static LEAN_THREAD_LOCAL T tmp;
+        T tmp;
         numeric_traits<T>::set_rounding(!to_plus_inf);
         tmp = x;
         numeric_traits<T>::power(tmp, n);
@@ -1141,7 +1141,7 @@ void interval<T>::display(std::ostream & out) const {
 
 template<typename T> void interval<T>::fmod(interval<T> y) {
     T const & yb = numeric_traits<T>::is_neg(m_lower) ? y.m_lower : y.m_upper;
-    static LEAN_THREAD_LOCAL T n;
+    T n;
     numeric_traits<T>::set_rounding(false);
     n = m_lower / yb;
     numeric_traits<T>::floor(n);
@@ -1149,7 +1149,7 @@ template<typename T> void interval<T>::fmod(interval<T> y) {
 }
 
 template<typename T> void interval<T>::fmod(T y) {
-    static LEAN_THREAD_LOCAL T n;
+    T n;
     numeric_traits<T>::set_rounding(false);
     n = m_lower / y;
     numeric_traits<T>::floor(n);
@@ -1781,8 +1781,8 @@ void interval<T>::tan(interval_deps & deps) {
 template<typename T>
 template<bool compute_intv, bool compute_deps>
 void interval<T>::csc  (interval_deps & deps) {
-    static LEAN_THREAD_LOCAL T l;
-    static LEAN_THREAD_LOCAL T u;
+    T l;
+    T u;
     if (compute_intv) {
         l = m_lower;
         u = m_upper;
@@ -1975,8 +1975,8 @@ void interval<T>::sec  (interval_deps & deps) {
 template<typename T>
 template<bool compute_intv, bool compute_deps>
 void interval<T>::cot  (interval_deps & deps) {
-    static LEAN_THREAD_LOCAL T l;
-    static LEAN_THREAD_LOCAL T u;
+    T l;
+    T u;
     if (compute_intv) {
         l = m_lower;
         u = m_upper;

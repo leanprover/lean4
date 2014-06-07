@@ -193,8 +193,8 @@ static void tst5() {
 #define DEFAULT_STEP 5
 #endif
 
-#if defined(LEAN_MULTI_THREAD)
 static void tst6() {
+#if defined(LEAN_MULTI_THREAD) && !defined(__APPLE__)
     int_rb_tree t;
     const unsigned SZ = DEFAULT_SZ;
     for (unsigned i = 0; i < SZ; i++) {
@@ -232,8 +232,8 @@ static void tst6() {
             }
         }
     }
-}
 #endif
+}
 
 int main() {
     tst1();
@@ -241,9 +241,7 @@ int main() {
     tst3();
     tst4();
     tst5();
-#if defined(LEAN_MULTI_THREAD)
     tst6();
-#endif
     return has_violations() ? 1 : 0;
 }
 

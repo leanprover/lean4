@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "util/thread_script_state.h"
 using namespace lean;
 
-#if defined(LEAN_MULTI_THREAD)
+#if defined(LEAN_MULTI_THREAD) && !defined(__APPLE__)
 void foo() {
     LEAN_THREAD_PTR(std::vector<int>) v;
     if (!v.get()) v.reset(new std::vector<int>(1024));

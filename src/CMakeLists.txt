@@ -103,6 +103,10 @@ if (("${BOOST}" MATCHES "ON") AND ("${MULTI_THREAD}" MATCHES "ON"))
   message(STATUS "Boost library will be used to implement multi-threading support")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_USE_BOOST")
   set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
+  if (("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin") AND ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"))
+     # Hide warnings when using Boost and g++ on OSX
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs -Wno-deprecated-declarations")
+  endif()
 endif()
 
 # MPFR

@@ -271,8 +271,10 @@ static bool LEAN_THREAD_LOCAL g_expr_cache_enabled = true;
 typedef lru_cache<expr, expr_hash, is_bi_equal_proc> expr_cache;
 inline expr cache(expr const & e) {
     if (g_expr_cache_enabled) {
-        static expr_cache LEAN_THREAD_LOCAL g_expr_cache(LEAN_INITIAL_EXPR_CACHE_CAPACITY);
-        if (auto r = g_expr_cache.insert(e))
+        LEAN_THREAD_PTR(expr_cache) g_expr_cache;
+        if (!g_expr_cache.get())
+            g_expr_cache.reset(new expr_cache(LEAN_INITIAL_EXPR_CACHE_CAPACITY));
+        if (auto r = g_expr_cache->insert(e))
             return *r;
     }
     return e;

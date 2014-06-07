@@ -146,3 +146,11 @@ public:
 };
 }
 #endif
+
+// LEAN_THREAD_PTR macro
+#if defined(LEAN_USE_BOOST)
+  #include <boost/thread/tss.hpp>
+  #define LEAN_THREAD_PTR(T) static boost::thread_specific_ptr<T>
+#else
+  #define LEAN_THREAD_PTR(T) static std::unique_ptr<T> LEAN_THREAD_LOCAL
+#endif

@@ -32,13 +32,9 @@ std::ostream & operator<<(std::ostream & out, option_kind k) {
     return out;
 }
 
-// Replace with std::unique_ptr after bug in clang++ is fixed
-static std::shared_ptr<option_declarations> g_option_declarations;
-
 option_declarations & get_option_declarations_core() {
-    if (!g_option_declarations)
-        g_option_declarations.reset(new option_declarations());
-    return *g_option_declarations;
+    static option_declarations g_option_declarations;
+    return g_option_declarations;
 }
 
 option_declarations const & get_option_declarations() {

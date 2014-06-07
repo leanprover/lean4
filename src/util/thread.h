@@ -166,7 +166,7 @@ public:
   #define LEAN_THREAD_PTR(T) static thread_specific_ptr<T> LEAN_THREAD_LOCAL
 #endif
 
-#if defined(LEAN_MULTI_THREAD)
+#if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
 #define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE)  \
 static T & GETTER_NAME() {                              \
     LEAN_THREAD_PTR(T) tlocal;                          \
@@ -183,7 +183,9 @@ static T & GETTER_NAME() {                      \
     return *tlocal;                             \
 }
 #else
-// MK_THREAD_LOCAL_GET_DEF and MK_THREAD_LOCAL_GET when LEAN_MULTI_THREAD is OFF
-#define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE) static T & GETTER_NAME() { static T r(DEF_VALUE); return r; }
-#define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME) static T & GETTER_NAME() { static T r; return r; }
+// MK_THREAD_LOCAL_GET_DEF and MK_THREAD_LOCAL_GET when LEAN_USE_BOOST is not defined
+// REMARK: LEAN_THREAD_LOCAL is a 'blank' when LEAN_MULTI_THREAD is not defined.
+// So, the getter is just returning a reference to a global variable if LEAN_MULTI_THREAD is not defined.
+#define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE) static T & GETTER_NAME() { static T LEAN_THREAD_LOCAL r(DEF_VALUE); return r; }
+#define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME) static T & GETTER_NAME() { static T LEAN_THREAD_LOCAL r; return r; }
 #endif

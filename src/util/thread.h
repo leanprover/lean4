@@ -42,6 +42,7 @@ namespace lean {
 void set_thread_stack_size(size_t );
 boost::thread::attributes const & get_thread_attributes();
 using boost::thread;
+using boost::mutex;
 using boost::recursive_mutex;
 using boost::atomic;
 using boost::memory_order_relaxed;

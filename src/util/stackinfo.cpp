@@ -43,16 +43,23 @@ size_t get_stack_size(int main) {
         return curr.rlim_max;
     } else {
         #if defined(LEAN_MULTI_THREAD)
-        // This branch retrieves the default thread size for pthread threads.
-        // This is *not* the stack size of the main thread.
-        pthread_attr_t attr;
-        memset (&attr, 0, sizeof(attr));
-        pthread_attr_init(&attr);
-        size_t result;
-        if (pthread_attr_getstacksize(&attr, &result) != 0) {
-            throw_get_stack_size_failed();
+        {
+            #if defined(LEAN_USE_BOOST)
+            // Boost does seems to be based on pthread on OSX
+            return get_thread_attributes().get_stack_size();
+            #else
+            // This branch retrieves the default thread size for pthread threads.
+            // This is *not* the stack size of the main thread.
+            pthread_attr_t attr;
+            memset (&attr, 0, sizeof(attr));
+            pthread_attr_init(&attr);
+            size_t result;
+            if (pthread_attr_getstacksize(&attr, &result) != 0) {
+                throw_get_stack_size_failed();
+            }
+            return result;
+            #endif
         }
-        return result;
         #else
         return 0;
         #endif

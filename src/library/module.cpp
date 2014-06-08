@@ -358,23 +358,29 @@ struct import_modules_fn {
             return;
         std::vector<std::unique_ptr<interruptible_thread>> extra_threads;
         std::vector<std::unique_ptr<exception>> thread_exceptions(m_num_threads - 1);
+        atomic<int> failed_thread_idx(-1); // >= 0 if error
         for (unsigned i = 0; i < m_num_threads - 1; i++) {
-            extra_threads.push_back(std::unique_ptr<interruptible_thread>(new interruptible_thread([=, &thread_exceptions]() {
+            extra_threads.push_back(std::unique_ptr<interruptible_thread>(new interruptible_thread([=, &thread_exceptions, &failed_thread_idx]() {
                             try {
                                 while (auto t = next_task()) {
                                     (*t)(m_senv);
                                 }
                                 m_asynch_cv.notify_all();
-                            } catch (exception ex) {
+                            } catch (exception & ex) {
                                 thread_exceptions[i].reset(ex.clone());
+                                failed_thread_idx = i;
                             } catch (...) {
                                 thread_exceptions[i].reset(new exception("module import thread failed for unknown reasons"));
+                                failed_thread_idx = i;
                             }
                         })));
         }
         try {
             while (auto t = next_task()) {
                 (*t)(m_senv);
+                int idx = failed_thread_idx;
+                if (idx >= 0)
+                    thread_exceptions[idx]->rethrow();
             }
             m_asynch_cv.notify_all();
             for (auto & th : extra_threads)
@@ -385,10 +391,6 @@ struct import_modules_fn {
             for (auto & th : extra_threads)
                 th->join();
             throw;
-        }
-        for (auto const & ex : thread_exceptions) {
-            if (ex.get())
-                ex->rethrow();
         }
     }
 

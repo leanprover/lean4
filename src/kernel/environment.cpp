@@ -48,7 +48,7 @@ environment_id::environment_id():m_ptr(new path()), m_depth(0) {}
 environment_id::environment_id(environment_id const & ancestor, bool) {
     if (ancestor.m_depth == std::numeric_limits<unsigned>::max())
         throw exception("maximal depth in is_descendant tree has been reached, use 'forget' method to workaround this limitation");
-    unique_lock<mutex> lock(ancestor.m_ptr->m_mutex);
+    lock_guard<mutex> lock(ancestor.m_ptr->m_mutex);
     if (ancestor.m_ptr->m_next_depth == ancestor.m_depth + 1) {
         m_ptr   = ancestor.m_ptr;
         m_depth = ancestor.m_depth + 1;

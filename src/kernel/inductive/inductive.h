@@ -40,5 +40,26 @@ environment add_inductive(environment                  env,
                           level_param_names const &    level_params,
                           unsigned                     num_params,
                           list<inductive_decl> const & decls);
+
+typedef std::tuple<level_param_names, unsigned, list<inductive::inductive_decl>> inductive_decls;
+
+/**
+    \brief If \c n is the name of an inductive declaration in the environment \c env, then return the
+    list of all inductive decls that were simultaneously defined with \c n.
+    Return none otherwise
+*/
+optional<inductive_decls> is_inductive_decl(environment const & env, name const & n);
+
+/**
+   \brief If \c n is the name of an introduction rule in \c env, then return the name of the inductive datatype D
+   s.t. \c n is an introduction rule of D. Otherwise, return none.
+*/
+optional<name> is_intro_rule(environment const & env, name const & n);
+
+/**
+   \brief If \c n is the name of an elimination rule in \c env, then return the name of the inductive datatype D
+   s.t. \c n is an elimination rule of D. Otherwise, return none.
+*/
+optional<name> is_elim_rule(environment const & env, name const & n);
 }
 }

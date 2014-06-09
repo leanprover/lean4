@@ -98,13 +98,14 @@ static name g_tmp_prefix = name::mk_internal_unique_name();
 /** \brief Environment extension used to store the computational rules associated with inductive datatype declarations. */
 struct inductive_env_ext : public environment_extension {
     struct elim_info {
+        name              m_inductive_name; // name of the inductive datatype associated with eliminator
         level_param_names m_level_names; // level parameter names used in computational rule
         unsigned          m_num_params;  // number of global parameters A
         unsigned          m_num_ACe;     // sum of number of global parameters A, type formers C, and minor preimises e.
         unsigned          m_num_indices; // number of inductive datatype indices
         elim_info() {}
-        elim_info(level_param_names const & ls, unsigned num_ps, unsigned num_ACe, unsigned num_indices):
-            m_level_names(ls), m_num_params(num_ps), m_num_ACe(num_ACe), m_num_indices(num_indices) {}
+        elim_info(name const & id_name, level_param_names const & ls, unsigned num_ps, unsigned num_ACe, unsigned num_indices):
+            m_inductive_name(id_name), m_level_names(ls), m_num_params(num_ps), m_num_ACe(num_ACe), m_num_indices(num_indices) {}
     };
 
     struct comp_rule {
@@ -119,18 +120,32 @@ struct inductive_env_ext : public environment_extension {
                 m_comp_rhs_body = binding_body(m_comp_rhs_body);
         }
     };
+
     // mapping from introduction rule name to computation rule data
-    rb_map<name, elim_info, name_quick_cmp>  m_elim_info;
-    rb_map<name, comp_rule, name_quick_cmp>  m_comp_rules;
+    rb_map<name, elim_info, name_quick_cmp>             m_elim_info;
+    rb_map<name, comp_rule, name_quick_cmp>             m_comp_rules;
+    // mapping from intro rule to datatype
+    rb_map<name, name, name_quick_cmp>                  m_intro_info;
+    rb_map<name, inductive_decls, name_quick_cmp>       m_inductive_info;
 
     inductive_env_ext() {}
 
-    void add_elim(name const & n, level_param_names const & ls, unsigned num_ps, unsigned num_ace, unsigned num_indices) {
-        m_elim_info.insert(n, elim_info(ls, num_ps, num_ace, num_indices));
+    void add_elim(name const & n, name const & id_name, level_param_names const & ls, unsigned num_ps, unsigned num_ace, unsigned num_indices) {
+        m_elim_info.insert(n, elim_info(id_name, ls, num_ps, num_ace, num_indices));
     }
 
     void add_comp_rhs(name const & n, name const & e, unsigned num_bu, expr const & rhs) {
         m_comp_rules.insert(n, comp_rule(e, num_bu, rhs));
+    }
+
+    void add_intro_info(name const & ir_name, name const & id_name) {
+        m_intro_info.insert(ir_name, id_name);
+    }
+
+    void add_inductive_info(level_param_names const & ps, unsigned num_params, list<inductive_decl> const & ds) {
+        inductive_decls decls(ps, num_params, ds);
+        for (auto const & d : ds)
+            m_inductive_info.insert(inductive_decl_name(d), decls);
     }
 };
 
@@ -268,6 +283,9 @@ struct add_inductive_fn {
         for (auto d : m_decls) {
             m_env = m_env.add(check(m_env, mk_var_decl(inductive_decl_name(d), m_level_names, inductive_decl_type(d))));
         }
+        inductive_env_ext ext(get_extension(m_env));
+        ext.add_inductive_info(m_level_names, m_num_params, m_decls);
+        m_env = update(m_env, ext);
         updt_type_checker();
     }
 
@@ -406,10 +424,14 @@ struct add_inductive_fn {
 
     /** \brief Add all introduction rules (aka constructors) to environment. */
     void declare_intro_rules() {
+        inductive_env_ext ext(get_extension(m_env));
         for (auto d : m_decls) {
-            for (auto ir : inductive_decl_intros(d))
+            for (auto ir : inductive_decl_intros(d)) {
                 m_env = m_env.add(check(m_env, mk_var_decl(intro_rule_name(ir), m_level_names, intro_rule_type(ir))));
+                ext.add_intro_info(intro_rule_name(ir), inductive_decl_name(d));
+            }
         }
+        m_env = update(m_env, ext);
         updt_type_checker();
     }
 
@@ -656,7 +678,8 @@ struct add_inductive_fn {
         levels ls = get_elim_level_params();
         inductive_env_ext ext(get_extension(m_env));
         for (auto d : m_decls) {
-            ext.add_elim(get_elim_name(d), get_elim_level_param_names(), m_num_params, m_num_params + C.size() + e.size(), get_num_indices(d_idx));
+            ext.add_elim(get_elim_name(d), inductive_decl_name(d), get_elim_level_param_names(), m_num_params,
+                         m_num_params + C.size() + e.size(), get_num_indices(d_idx));
             for (auto ir : inductive_decl_intros(d)) {
                 buffer<expr> b;
                 buffer<expr> u;
@@ -774,6 +797,30 @@ optional<expr> inductive_normalizer_extension::operator()(expr const & e, extens
     expr r = instantiate(it2->m_comp_rhs_body, ACebu.size(), ACebu.data());
     r = instantiate_params(r, it1->m_level_names, const_levels(elim_fn));
     return some_expr(r);
+}
+
+optional<inductive_decls> is_inductive_decl(environment const & env, name const & n) {
+    inductive_env_ext const & ext = get_extension(env);
+    if (auto it = ext.m_inductive_info.find(n))
+        return optional<inductive_decls>(*it);
+    else
+        return optional<inductive_decls>();
+}
+
+optional<name> is_intro_rule(environment const & env, name const & n) {
+    inductive_env_ext const & ext = get_extension(env);
+    if (auto it = ext.m_intro_info.find(n))
+        return optional<name>(*it);
+    else
+        return optional<name>();
+}
+
+optional<name> is_elim_rule(environment const & env, name const & n) {
+    inductive_env_ext const & ext = get_extension(env);
+    if (auto it = ext.m_elim_info.find(n))
+        return optional<name>(it->m_inductive_name);
+    else
+        return optional<name>();
 }
 }
 }

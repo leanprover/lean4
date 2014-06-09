@@ -139,8 +139,10 @@ public:
 
     template<typename F>
     void for_each(F && f) const {
-        buffer<Key> prefix;
-        for_each(f, *this, prefix);
+        if (m_ptr) {
+            buffer<Key> prefix;
+            for_each(f, *this, prefix);
+        }
     }
 
     // for debugging purposes

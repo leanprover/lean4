@@ -118,5 +118,6 @@ public:
     void for_each(std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const;
 };
 }
+typedef notation::parse_table parse_table;
 void open_parse_table(lua_State * L);
 }

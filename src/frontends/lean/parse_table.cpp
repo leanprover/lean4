@@ -6,8 +6,11 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include "util/rb_map.h"
+#include "util/sstream.h"
 #include "kernel/free_vars.h"
+#include "library/kernel_bindings.h"
 #include "frontends/lean/parse_table.h"
+
 namespace lean {
 namespace notation {
 struct action_cell {
@@ -63,7 +66,7 @@ action & action::operator=(action const & s) { LEAN_COPY_REF(s); }
 action & action::operator=(action && s) { LEAN_MOVE_REF(s); }
 action_kind action::kind() const { return m_ptr->m_kind; }
 expr_action_cell * to_expr_action(action_cell * c) {
-    lean_assert(c->m_kind == action_kind::Expr || c->m_kind == action_kind::Exprs);
+    lean_assert(c->m_kind == action_kind::Expr || c->m_kind == action_kind::Exprs || c->m_kind == action_kind::ScopedExpr);
     return static_cast<expr_action_cell*>(c);
 }
 exprs_action_cell * to_exprs_action(action_cell * c) {
@@ -80,7 +83,12 @@ ext_action_cell * to_ext_action(action_cell * c) {
 }
 unsigned action::rbp() const { return to_expr_action(m_ptr)->m_rbp; }
 name const & action::get_sep() const { return to_exprs_action(m_ptr)->m_token_sep; }
-expr const & action::get_rec() const { return to_exprs_action(m_ptr)->m_rec; }
+expr const & action::get_rec() const {
+    if (kind() == action_kind::ScopedExpr)
+        return to_scoped_expr_action(m_ptr)->m_rec;
+    else
+        return to_exprs_action(m_ptr)->m_rec;
+}
 expr const & action::get_initial() const { return to_exprs_action(m_ptr)->m_ini; }
 bool action::is_fold_right() const { return to_exprs_action(m_ptr)->m_fold_right; }
 parse_fn const & action::get_parse_fn() const { return to_ext_action(m_ptr)->m_parse_fn; }
@@ -112,8 +120,8 @@ void action_cell::dealloc() {
     switch (m_kind) {
     case action_kind::Expr:       delete(to_expr_action(this)); break;
     case action_kind::Exprs:      delete(to_exprs_action(this)); break;
-    case action_kind::ScopedExpr: delete(to_exprs_action(this)); break;
-    case action_kind::Ext:        delete(to_scoped_expr_action(this)); break;
+    case action_kind::ScopedExpr: delete(to_scoped_expr_action(this)); break;
+    case action_kind::Ext:        delete(to_ext_action(this)); break;
     default:                      delete this; break;
     }
 }
@@ -138,16 +146,17 @@ action mk_scoped_expr_action(expr const & rec, unsigned rb) {
 action mk_ext_parse_action(parse_fn const & fn) { return action(new ext_action_cell(fn)); }
 
 struct parse_table::cell {
+    bool                                                         m_nud;
     list<expr>                                                   m_accept;
     rb_map<name, std::pair<action, parse_table>, name_quick_cmp> m_children;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc() { delete this; }
-    cell():m_rc(1) {}
-    cell(cell const & c):m_accept(c.m_accept), m_children(c.m_children), m_rc(1) {}
+    cell(bool nud = true):m_nud(nud), m_rc(1) {}
+    cell(cell const & c):m_nud(c.m_nud), m_accept(c.m_accept), m_children(c.m_children), m_rc(1) {}
 };
 
 parse_table::parse_table(cell * c):m_ptr(c) {}
-parse_table::parse_table():m_ptr(new cell()) {}
+parse_table::parse_table(bool nud):m_ptr(new cell(nud)) {}
 parse_table::parse_table(parse_table const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
 parse_table::parse_table(parse_table && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
 parse_table::~parse_table() { if (m_ptr) m_ptr->dec_ref(); }
@@ -166,8 +175,10 @@ list<expr> const & parse_table::is_accepting() const {
 }
 
 // scoped_expr_actions must occur after a Binder/Binders.
-static void validate_transitions(unsigned num, transition const * ts, expr const & a) {
+static void validate_transitions(bool nud, unsigned num, transition const * ts, expr const & a) {
     unsigned nargs = 0;
+    if (!nud)
+        nargs++; // led tables have an implicit left argument
     bool found_binder = false;
     for (unsigned i = 0; i < num; i++) {
         action const & a = ts[i].get_action();
@@ -191,11 +202,10 @@ static void validate_transitions(unsigned num, transition const * ts, expr const
         throw exception("invalid notation declaration, expression template has more free variables than arguments");
 }
 
-parse_table parse_table::add(unsigned num, transition const * ts, expr const & a, bool overload) const {
-    validate_transitions(num, ts, a);
+parse_table parse_table::add_core(unsigned num, transition const * ts, expr const & a, bool overload) const {
     parse_table r(*this);
     if (num == 0) {
-        if (overload)
+        if (!overload)
             r.m_ptr->m_accept = list<expr>(a);
         else
             r.m_ptr->m_accept = list<expr>(a, r.m_ptr->m_accept);
@@ -206,16 +216,21 @@ parse_table parse_table::add(unsigned num, transition const * ts, expr const & a
             action const & act        = it->first;
             parse_table const & child = it->second;
             if (act.is_compatible(ts->get_action())) {
-                new_child = child.add(num-1, ts+1, a, overload);
+                new_child = child.add_core(num-1, ts+1, a, overload);
             } else {
-                new_child = parse_table().add(num-1, ts+1, a, overload);
+                new_child = parse_table().add_core(num-1, ts+1, a, overload);
             }
         } else {
-            new_child = parse_table().add(num-1, ts+1, a, overload);
+            new_child = parse_table().add_core(num-1, ts+1, a, overload);
         }
         r.m_ptr->m_children.insert(ts->get_token(), mk_pair(ts->get_action(), new_child));
     }
     return r;
+}
+
+parse_table parse_table::add(unsigned num, transition const * ts, expr const & a, bool overload) const {
+    validate_transitions(is_nud(), num, ts, a);
+    return add_core(num, ts, a, overload);
 }
 
 void parse_table::for_each(buffer<transition> & ts, std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const {
@@ -223,7 +238,7 @@ void parse_table::for_each(buffer<transition> & ts, std::function<void(unsigned,
         fn(ts.size(), ts.data(), m_ptr->m_accept);
     m_ptr->m_children.for_each([&](name const & k, std::pair<action, parse_table> const & p) {
             ts.push_back(transition(k, p.first));
-            for_each(ts, fn);
+            p.second.for_each(ts, fn);
             ts.pop_back();
         });
 }
@@ -234,6 +249,8 @@ void parse_table::for_each(std::function<void(unsigned, transition const *, list
 }
 
 parse_table parse_table::merge(parse_table const & s, bool overload) const {
+    if (is_nud() != s.is_nud())
+        throw exception("invalid parse table merge, tables have different kinds");
     parse_table r(*this);
     s.for_each([&](unsigned num, transition const * ts, list<expr> const & accept) {
             for (expr const & a : accept)
@@ -241,5 +258,218 @@ parse_table parse_table::merge(parse_table const & s, bool overload) const {
         });
     return r;
 }
+
+bool parse_table::is_nud() const { return m_ptr->m_nud; }
+
+typedef action notation_action;
+DECL_UDATA(notation_action)
+
+static int mk_skip_action(lua_State * L) { return push_notation_action(L, mk_skip_action()); }
+static int mk_binder_action(lua_State * L) { return push_notation_action(L, mk_binder_action()); }
+static int mk_binders_action(lua_State * L) { return push_notation_action(L, mk_binders_action()); }
+static int mk_expr_action(lua_State * L) {
+    int nargs = lua_gettop(L);
+    unsigned rbp = nargs == 0 ? 0 : lua_tonumber(L, 1);
+    return push_notation_action(L, mk_expr_action(rbp));
+}
+static int mk_exprs_action(lua_State * L) {
+    int nargs = lua_gettop(L);
+    unsigned rbp = nargs <= 4 ? 0 : lua_tonumber(L, 5);
+    return push_notation_action(L, mk_exprs_action(to_name_ext(L, 1),
+                                                             to_expr(L, 2),
+                                                             to_expr(L, 3),
+                                                             lua_toboolean(L, 4), rbp));
+}
+static int mk_scoped_expr_action(lua_State * L) {
+    int nargs = lua_gettop(L);
+    unsigned rbp = nargs <= 1 ? 0 : lua_tonumber(L, 2);
+    return push_notation_action(L, mk_scoped_expr_action(to_expr(L, 1), rbp));
+}
+static int is_compatible(lua_State * L) {
+    return push_boolean(L, to_notation_action(L, 1).is_compatible(to_notation_action(L, 2)));
+}
+static void check_action(lua_State * L, int idx, std::initializer_list<action_kind> const & ks) {
+    action_kind k = to_notation_action(L, idx).kind();
+    if (std::find(ks.begin(), ks.end(), k) == ks.end())
+        throw exception(sstream() << "arg #" << idx << " is a notation action, but it has an unexpected kind");
+}
+static int kind(lua_State * L) { return push_integer(L, static_cast<unsigned>(to_notation_action(L, 1).kind())); }
+static int rbp(lua_State * L) {
+    check_action(L, 1, { action_kind::Expr, action_kind::Exprs, action_kind::ScopedExpr });
+    return push_integer(L, to_notation_action(L, 1).rbp());
+}
+static int sep(lua_State * L) {
+    check_action(L, 1, { action_kind::Exprs });
+    return push_name(L, to_notation_action(L, 1).get_sep());
+}
+static int rec(lua_State * L) {
+    check_action(L, 1, { action_kind::Exprs, action_kind::ScopedExpr });
+    return push_expr(L, to_notation_action(L, 1).get_rec());
+}
+static int initial(lua_State * L) {
+    check_action(L, 1, { action_kind::Exprs });
+    return push_expr(L, to_notation_action(L, 1).get_initial());
+}
+static int is_fold_right(lua_State * L) {
+    check_action(L, 1, { action_kind::Exprs });
+    return push_boolean(L, to_notation_action(L, 1).is_fold_right());
+}
+
+static const struct luaL_Reg notation_action_m[] = {
+    {"__gc",             notation_action_gc},
+    {"is_compatible",    safe_function<is_compatible>},
+    {"kind",             safe_function<kind>},
+    {"rbp",              safe_function<rbp>},
+    {"sep",              safe_function<sep>},
+    {"separator",        safe_function<sep>},
+    {"rec",              safe_function<rec>},
+    {"initial",          safe_function<initial>},
+    {"is_fold_right",    safe_function<is_fold_right>},
+    {0, 0}
+};
+
+static void open_notation_action(lua_State * L) {
+    luaL_newmetatable(L, notation_action_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, notation_action_m, 0);
+
+    SET_GLOBAL_FUN(notation_action_pred,   "is_notation_action");
+    SET_GLOBAL_FUN(mk_skip_action,         "skip_notation_action");
+    SET_GLOBAL_FUN(mk_binder_action,       "binder_notation_action");
+    SET_GLOBAL_FUN(mk_binders_action,      "binders_notation_action");
+    SET_GLOBAL_FUN(mk_expr_action,         "expr_notation_action");
+    SET_GLOBAL_FUN(mk_exprs_action,        "exprs_notation_action");
+    SET_GLOBAL_FUN(mk_scoped_expr_action,  "scoped_expr_notation_action");
+
+    push_notation_action(L, mk_skip_action());
+    lua_setglobal(L, "Skip");
+    push_notation_action(L, mk_binder_action());
+    lua_setglobal(L, "Binder");
+    push_notation_action(L, mk_binders_action());
+    lua_setglobal(L, "Binders");
+
+    lua_newtable(L);
+    SET_ENUM("Skip",        action_kind::Skip);
+    SET_ENUM("Expr",        action_kind::Expr);
+    SET_ENUM("Exprs",       action_kind::Exprs);
+    SET_ENUM("Binder",      action_kind::Binder);
+    SET_ENUM("Binders",     action_kind::Binders);
+    SET_ENUM("ScopedExpr",  action_kind::ScopedExpr);
+    SET_ENUM("Ext",         action_kind::Ext);
+    lua_setglobal(L, "notation_action_kind");
+}
+
+static notation_action to_notation_action_ext(lua_State * L, int idx) {
+    if (is_notation_action(L, idx)) {
+        return to_notation_action(L, idx);
+    } else if (lua_isnumber(L, idx)) {
+        return mk_expr_action(lua_tonumber(L, idx));
+    } else {
+        throw exception("notation_action expected");
+    }
+}
+
+DECL_UDATA(parse_table)
+static int mk_parse_table(lua_State * L) {
+    int nargs = lua_gettop(L);
+    bool nud  = nargs == 0 || lua_toboolean(L, 1);
+    return push_parse_table(L, parse_table(nud));
+}
+static int add(lua_State * L) {
+    int nargs = lua_gettop(L);
+    buffer<transition> ts;
+    luaL_checktype(L, 2, LUA_TTABLE);
+    int sz = objlen(L, 2);
+    for (int i = 1; i <= sz; i++) {
+        lua_rawgeti(L, 2, i);
+        if (lua_isstring(L, -1) || is_name(L, -1)) {
+            ts.push_back(transition(to_name_ext(L, -1), mk_expr_action()));
+            lua_pop(L, 1);
+        } else {
+            luaL_checktype(L, -1, LUA_TTABLE);
+            lua_rawgeti(L, -1, 1);
+            lua_rawgeti(L, -2, 2);
+            ts.push_back(transition(to_name_ext(L, -2), to_notation_action_ext(L, -1)));
+            lua_pop(L, 3);
+        }
+    }
+    bool overload = (nargs <= 3) || lua_toboolean(L, 4);
+    return push_parse_table(L, to_parse_table(L, 1).add(ts.size(), ts.data(), to_expr(L, 3), overload));
+}
+
+static int merge(lua_State * L) {
+    int nargs = lua_gettop(L);
+    bool overload = (nargs >= 2) && lua_toboolean(L, 2);
+    return push_parse_table(L, to_parse_table(L, 1).merge(to_parse_table(L, 2), overload));
+}
+
+static int find(lua_State * L) {
+    auto p = to_parse_table(L, 1).find(to_name_ext(L, 2));
+    if (p) {
+        push_notation_action(L, p->first);
+        push_parse_table(L, p->second);
+        return 2;
+    } else {
+        return push_nil(L);
+    }
+}
+
+static int is_accepting(lua_State * L) {
+    list<expr> const & l = to_parse_table(L, 1).is_accepting();
+    if (is_nil(l))
+        return push_nil(L);
+    else
+        return push_list_expr(L, l);
+}
+
+static int for_each(lua_State * L) {
+    parse_table const & t = to_parse_table(L, 1);
+    luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
+    t.for_each([&](unsigned num, transition const * ts, list<expr> const & as) {
+            lua_pushvalue(L, 2);
+            lua_newtable(L);
+            for (unsigned i = 0; i < num; i++) {
+                lua_newtable(L);
+                push_name(L, ts[i].get_token());
+                lua_rawseti(L, -2, 1);
+                push_notation_action(L, ts[i].get_action());
+                lua_rawseti(L, -2, 2);
+                lua_rawseti(L, -2, i+1);
+            }
+            push_list_expr(L, as);
+            pcall(L, 2, 0, 0);
+        });
+    return 0;
+}
+
+static int is_nud(lua_State * L) {
+    return push_boolean(L, to_parse_table(L, 1).is_nud());
+}
+
+static const struct luaL_Reg parse_table_m[] = {
+    {"__gc",             parse_table_gc},
+    {"add",              safe_function<add>},
+    {"merge",            safe_function<merge>},
+    {"find",             safe_function<find>},
+    {"is_accepting",     safe_function<is_accepting>},
+    {"for_each",         safe_function<for_each>},
+    {"is_nud",           safe_function<is_nud>},
+    {0, 0}
+};
+
+static void open_parse_table(lua_State * L) {
+    luaL_newmetatable(L, parse_table_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, parse_table_m, 0);
+
+    SET_GLOBAL_FUN(parse_table_pred,   "is_parse_table");
+    SET_GLOBAL_FUN(mk_parse_table,     "parse_table");
+}
+}
+void open_parse_table(lua_State * L) {
+    notation::open_notation_action(L);
+    notation::open_parse_table(L);
 }
 }

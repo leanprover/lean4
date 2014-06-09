@@ -24,6 +24,7 @@ UDATA_DEFS(io_state)
 int push_optional_expr(lua_State * L, optional<expr> const & e);
 int push_optional_justification(lua_State * L, optional<justification> const & j);
 int push_optional_declaration(lua_State * L, optional<declaration> const & e);
+int push_list_expr(lua_State * L, list<expr> const & l);
 /**
    \brief Return the formatter object associated with the given Lua State.
    This procedure checks for options at:

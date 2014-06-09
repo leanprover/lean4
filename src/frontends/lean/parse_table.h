@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <utility>
 #include "util/buffer.h"
+#include "util/lua.h"
 #include "kernel/expr.h"
 #include "frontends/lean/token_set.h"
 
@@ -99,15 +100,17 @@ class parse_table {
     struct cell;
     cell * m_ptr;
     explicit parse_table(cell * c);
+    parse_table add_core(unsigned num, transition const * ts, expr const & a, bool overload) const;
     void for_each(buffer<transition> & ts, std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const;
 public:
-    parse_table();
+    parse_table(bool nud = true);
     parse_table(parse_table const & s);
     parse_table(parse_table && s);
     ~parse_table();
     parse_table & operator=(parse_table const & n);
     parse_table & operator=(parse_table&& n);
 
+    bool is_nud() const;
     parse_table add(unsigned num, transition const * ts, expr const & a, bool overload) const;
     parse_table merge(parse_table const & s, bool overload) const;
     optional<std::pair<action, parse_table>> find(name const & tk) const;
@@ -115,4 +118,5 @@ public:
     void for_each(std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const;
 };
 }
+void open_parse_table(lua_State * L);
 }

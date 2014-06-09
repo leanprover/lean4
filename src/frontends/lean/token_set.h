@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/trie.h"
 #include "util/name.h"
+#include "util/lua.h"
 
 namespace lean {
 class token_info {
@@ -25,12 +26,14 @@ public:
 };
 
 typedef ctrie<token_info> token_set;
+token_set mk_token_set();
 token_set mk_default_token_set();
 token_set add_command_token(token_set const & s, char const * token);
 token_set add_command_token(token_set const & s, char const * token, char const * val);
 token_set add_token(token_set const & s, char const * token, unsigned prec = 0);
 token_set add_token(token_set const & s, char const * token, char const * val, unsigned prec = 0);
-token_set merge(token_set const & s1, token_set const & s2);
+void for_each(token_set const & s, std::function<void(char const *, token_info const&)> const & fn);
 token_set const * find(token_set const & s, char c);
 token_info const * value_of(token_set const & s);
+void open_token_set(lua_State * L);
 }

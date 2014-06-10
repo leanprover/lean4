@@ -12,6 +12,9 @@ struct parser_ext : public environment_extension {
     token_table m_tokens;
     parse_table m_nud;
     parse_table m_led;
+    parser_ext() {
+        m_tokens = mk_default_token_table();
+    }
 };
 
 struct parser_ext_reg {

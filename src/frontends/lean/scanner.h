@@ -8,7 +8,9 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "util/name.h"
 #include "util/numerics/mpq.h"
+#include "kernel/environment.h"
 #include "frontends/lean/token_table.h"
+
 
 namespace lean {
 /**
@@ -22,22 +24,22 @@ class scanner {
 public:
     enum class token_kind {Keyword, CommandKeyword, ScriptBlock, Identifier, Numeral, Decimal, String, Eof};
 protected:
-    token_table        m_tokens;
-    std::istream &     m_stream;
-    std::string        m_stream_name;
+    token_table const * m_tokens;
+    std::istream &      m_stream;
+    std::string         m_stream_name;
 
-    int                m_spos;  // current position
-    int                m_sline; // current line
-    char               m_curr;  // current char;
+    int                 m_spos;  // current position
+    int                 m_sline; // current line
+    char                m_curr;  // current char;
 
-    int                m_pos;   // start position of the token
-    int                m_line;  // line of the token
+    int                 m_pos;   // start position of the token
+    int                 m_line;  // line of the token
 
-    name               m_name_val;
-    token_info const * m_token_info;
-    mpq                m_num_val;
-    std::string        m_buffer;
-    std::string        m_aux_buffer;
+    name                m_name_val;
+    token_info const *  m_token_info;
+    mpq                 m_num_val;
+    std::string         m_buffer;
+    std::string         m_aux_buffer;
 
     [[ noreturn ]] void throw_exception(char const * msg) const;
     void next();
@@ -60,11 +62,11 @@ protected:
     token_kind read_key_cmd_id();
 
 public:
-    scanner(token_table const & tks, std::istream & strm, char const * strm_name = nullptr);
+    scanner(std::istream & strm, char const * strm_name = nullptr);
 
     int get_line() const { return m_line; }
     int get_pos() const { return m_pos; }
-    token_kind scan();
+    token_kind scan(environment const & env);
 
     mpq const & get_num_val() const { return m_num_val; }
     name const & get_name_val() const { return m_name_val; }

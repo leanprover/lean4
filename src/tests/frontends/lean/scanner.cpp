@@ -9,15 +9,16 @@ Author: Leonardo de Moura
 #include "util/escaped.h"
 #include "util/exception.h"
 #include "frontends/lean/scanner.h"
+#include "frontends/lean/parser_config.h"
 using namespace lean;
 
 #define tk scanner::token_kind
 
-static void scan(char const * str, token_table set = mk_default_token_table()) {
+static void scan(char const * str, environment const & env = environment()) {
     std::istringstream in(str);
-    scanner s(set, in, "[string]");
+    scanner s(in, "[string]");
     while (true) {
-        tk k = s.scan();
+        tk k = s.scan(env);
         if (k == tk::Eof)
             break;
         if (k == tk::Identifier)
@@ -35,9 +36,9 @@ static void scan(char const * str, token_table set = mk_default_token_table()) {
     std::cout << "\n";
 }
 
-static void scan_success(char const * str, token_table set = mk_default_token_table()) {
+static void scan_success(char const * str, environment const & env = environment()) {
     try {
-        scan(str, set);
+        scan(str, env);
     } catch (exception & ex) {
         std::cout << "ERROR: " << ex.what() << "\n";
         lean_unreachable();
@@ -54,13 +55,13 @@ static void scan_error(char const * str) {
 }
 
 static void check(char const * str, std::initializer_list<tk> const & l,
-                  token_table set = mk_default_token_table()) {
+                  environment const & env = environment()) {
     try {
         auto it = l.begin();
         std::istringstream in(str);
-        scanner s(set, in, "[string]");
+        scanner s(in, "[string]");
         while (true) {
-            tk k = s.scan();
+            tk k = s.scan(env);
             if (k == tk::Eof) {
                 lean_assert(it == l.end());
                 return;
@@ -75,37 +76,40 @@ static void check(char const * str, std::initializer_list<tk> const & l,
     }
 }
 
-static void check_name(char const * str, name const & expected, token_table set = mk_default_token_table()) {
+static void check_name(char const * str, name const & expected, environment const & env = environment()) {
     std::istringstream in(str);
-    scanner s(set, in, "[string]");
-    tk k = s.scan();
+    scanner s(in, "[string]");
+    tk k = s.scan(env);
     lean_assert(k == tk::Identifier);
     lean_assert(s.get_name_val() == expected);
-    lean_assert(s.scan() == tk::Eof);
+    lean_assert(s.scan(env) == tk::Eof);
 }
 
-static void check_keyword(char const * str, name const & expected, token_table set = mk_default_token_table()) {
+static void check_keyword(char const * str, name const & expected, environment const & env = environment()) {
     std::istringstream in(str);
-    scanner s(set, in, "[string]");
-    tk k = s.scan();
+    scanner s(in, "[string]");
+    tk k = s.scan(env);
     lean_assert(k == tk::Keyword);
     lean_assert(s.get_token_info().value() == expected);
-    lean_assert(s.scan() == tk::Eof);
+    lean_assert(s.scan(env) == tk::Eof);
 }
 
 static void tst1() {
-    token_table s = mk_default_token_table();
+    environment env;
+    token_table s = get_token_table(env);
     s = add_token(s, "+", "plus");
     s = add_token(s, "=", "eq");
+    env = update_token_table(env, s);
     scan_success("a..a");
     check("a..a", {tk::Identifier, tk::Keyword, tk::Keyword, tk::Identifier});
     check("Type.{0}", {tk::Keyword, tk::Keyword, tk::Numeral, tk::Keyword});
     s = add_token(s, "ab+cde", "weird1");
     s = add_token(s, "+cd", "weird2");
-    scan_success("ab+cd", s);
-    check("ab+cd", {tk::Identifier, tk::Keyword}, s);
-    scan_success("ab+cde", s);
-    check("ab+cde", {tk::Keyword}, s);
+    env = update_token_table(env, s);
+    scan_success("ab+cd", env);
+    check("ab+cd", {tk::Identifier, tk::Keyword}, env);
+    scan_success("ab+cde", env);
+    check("ab+cde", {tk::Keyword}, env);
     scan_success("Type.{0}");
     scan_success("0.a a");
     scan_success("0.");
@@ -115,11 +119,11 @@ static void tst1() {
     scan_success("..");
     scan_success("....");
     scan_success("....\n..");
-    scan_success("a", s);
+    scan_success("a", env);
     scan_success("a. b.c..");
     scan_success(".. ..");
     scan_success("....\n..");
-    scan_success("fun(x: forall A : Type, A -> A), x+1 = 2.0 λvalue.foo. . . a", s);
+    scan_success("fun(x: forall A : Type, A -> A), x+1 = 2.0 λvalue.foo. . . a", env);
 }
 
 static void tst2() {
@@ -133,11 +137,14 @@ static void tst2() {
     check_name("x.bla", name({"x", "bla"}));
 
     scan_error("+++");
+    environment env;
     token_table s = mk_default_token_table();
     s = add_token(s, "+++", "tplus");
-    check_keyword("+++", "tplus", s);
+    env = update_token_table(env, s);
+    check_keyword("+++", "tplus", env);
     s = add_token(s, "+", "plus");
-    check("x+y", {tk::Identifier, tk::Keyword, tk::Identifier}, s);
+    env = update_token_table(env, s);
+    check("x+y", {tk::Identifier, tk::Keyword, tk::Identifier}, env);
     check("-- testing", {});
     check("(-- testing --)", {});
     check("(-- (-- testing\n --) --)", {});
@@ -148,7 +155,8 @@ static void tst2() {
     check("int->int", {tk::Identifier, tk::Keyword, tk::Identifier});
     check_keyword("->", "->");
     s = add_token(s, "-+->", "arrow");
-    check("Int -+-> Int", {tk::Identifier, tk::Keyword, tk::Identifier}, s);
+    env = update_token_table(env, s);
+    check("Int -+-> Int", {tk::Identifier, tk::Keyword, tk::Identifier}, env);
     check("x := 10", {tk::Identifier, tk::Keyword, tk::Numeral});
     check("{x}", {tk::Keyword, tk::Identifier, tk::Keyword});
     check("\u03BB \u2200 \u2192", {tk::Keyword, tk::Keyword, tk::Keyword});
@@ -174,10 +182,28 @@ static void tst3() {
     scan("{ } . forall exists let in \u2200 := _");
 }
 
+static void tst4(unsigned N) {
+    std::string big;
+    for (unsigned i = 0; i < N; i++)
+        big += "aaa ";
+    std::istringstream in(big);
+    environment env;
+    scanner s(in, "[string]");
+    unsigned i = 0;
+    while (true) {
+        tk k = s.scan(env);
+        if (k == tk::Eof)
+            break;
+        i++;
+    }
+    std::cout << i << "\n";
+}
+
 int main() {
     save_stack_info();
     tst1();
     tst2();
     tst3();
+    tst4(100000);
     return has_violations() ? 1 : 0;
 }

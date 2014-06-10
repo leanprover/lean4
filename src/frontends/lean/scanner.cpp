@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/exception.h"
 #include "frontends/lean/scanner.h"
+#include "frontends/lean/parser_config.h"
 
 namespace lean {
 void scanner::next() {
@@ -211,7 +212,7 @@ auto scanner::read_key_cmd_id() -> token_kind {
     static char const * error_msg = "unexpected token";
     char c = curr();
     unsigned num_cs = 1; // number of characters read
-    token_table const * it    = find(m_tokens, c);
+    token_table const * it    = find(*m_tokens, c);
     token_info const * info = nullptr;
     unsigned key_size       = 0;
     if (it) {
@@ -278,7 +279,8 @@ static name g_begin_script_tk("(*");
 static name g_begin_comment_tk("--");
 static name g_begin_comment_block_tk("(--");
 
-auto scanner::scan() -> token_kind {
+auto scanner::scan(environment const & env) -> token_kind {
+    m_tokens = &get_token_table(env);
     while (true) {
         char c = curr();
         m_pos  = m_spos;
@@ -318,8 +320,8 @@ auto scanner::scan() -> token_kind {
     }
 }
 
-scanner::scanner(token_table const & tks, std::istream & strm, char const * strm_name):
-    m_tokens(tks), m_stream(strm), m_spos(0), m_sline(1), m_curr(0), m_pos(0), m_line(1),
+scanner::scanner(std::istream & strm, char const * strm_name):
+    m_tokens(nullptr), m_stream(strm), m_spos(0), m_sline(1), m_curr(0), m_pos(0), m_line(1),
     m_token_info(nullptr) {
     m_stream_name = strm_name ? strm_name : "[unknown]";
     next();

@@ -60,7 +60,7 @@ public:
     friend action mk_exprs_action(name const & sep, expr const & rec, expr const & ini, bool right, unsigned rbp);
     friend action mk_binder_action();
     friend action mk_binders_action();
-    friend action mk_scoped_expr_action(expr const & rec, unsigned rbp);
+    friend action mk_scoped_expr_action(expr const & rec, unsigned rbp, bool lambda);
     friend action mk_ext_parse_action(parse_fn const & fn);
 
     action_kind kind() const;
@@ -69,6 +69,7 @@ public:
     expr const & get_rec() const;
     expr const & get_initial() const;
     bool is_fold_right() const;
+    bool use_lambda_abstraction() const;
     parse_fn const & get_parse_fn() const;
 
     bool is_compatible(action const & a) const;
@@ -79,7 +80,7 @@ action mk_expr_action(unsigned rbp = 0);
 action mk_exprs_action(name const & sep, expr const & rec, expr const & ini, bool right, unsigned rbp = 0);
 action mk_binder_action();
 action mk_binders_action();
-action mk_scoped_expr_action(expr const & rec, unsigned rbp = 0);
+action mk_scoped_expr_action(expr const & rec, unsigned rbp = 0, bool lambda = true);
 action mk_proc_action(parse_fn const & fn);
 
 class transition {

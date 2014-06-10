@@ -109,3 +109,11 @@ assert(parse_table_size(p) == 4)
 
 local p3 = parse_table()
 check_error(function() p:merge(p3) end)
+
+local a = scoped_expr_notation_action(Var(0), 10)
+assert(a:use_lambda_abstraction())
+local a = scoped_expr_notation_action(Var(0), 10, false)
+assert(not a:use_lambda_abstraction())
+local a = scoped_expr_notation_action(Var(0), 10, true)
+assert(a:use_lambda_abstraction())
+assert(a:rbp() == 10)

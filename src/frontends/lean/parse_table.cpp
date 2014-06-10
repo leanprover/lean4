@@ -45,10 +45,11 @@ struct exprs_action_cell : public expr_action_cell {
 
 struct scoped_expr_action_cell : public expr_action_cell {
     expr m_rec;
-
-    scoped_expr_action_cell(expr const & rec, unsigned rb):
+    bool m_lambda;
+    scoped_expr_action_cell(expr const & rec, unsigned rb, bool lambda):
         expr_action_cell(action_kind::ScopedExpr, rb),
-        m_rec(rec) {}
+        m_rec(rec),
+        m_lambda(lambda) {}
 };
 
 struct ext_action_cell : public action_cell {
@@ -89,6 +90,7 @@ expr const & action::get_rec() const {
     else
         return to_exprs_action(m_ptr)->m_rec;
 }
+bool action::use_lambda_abstraction() const { return to_scoped_expr_action(m_ptr)->m_lambda; }
 expr const & action::get_initial() const { return to_exprs_action(m_ptr)->m_ini; }
 bool action::is_fold_right() const { return to_exprs_action(m_ptr)->m_fold_right; }
 parse_fn const & action::get_parse_fn() const { return to_ext_action(m_ptr)->m_parse_fn; }
@@ -140,8 +142,8 @@ action mk_exprs_action(name const & sep, expr const & rec, expr const & ini, boo
                         "must not contain free variables with de Bruijn indices greater than 1");
     return action(new exprs_action_cell(sep, rec, ini, right, rbp));
 }
-action mk_scoped_expr_action(expr const & rec, unsigned rb) {
-    return action(new scoped_expr_action_cell(rec, rb));
+action mk_scoped_expr_action(expr const & rec, unsigned rb, bool lambda) {
+    return action(new scoped_expr_action_cell(rec, rb, lambda));
 }
 action mk_ext_parse_action(parse_fn const & fn) { return action(new ext_action_cell(fn)); }
 
@@ -283,7 +285,8 @@ static int mk_exprs_action(lua_State * L) {
 static int mk_scoped_expr_action(lua_State * L) {
     int nargs = lua_gettop(L);
     unsigned rbp = nargs <= 1 ? 0 : lua_tonumber(L, 2);
-    return push_notation_action(L, mk_scoped_expr_action(to_expr(L, 1), rbp));
+    bool lambda = (nargs <= 2) || lua_toboolean(L, 3);
+    return push_notation_action(L, mk_scoped_expr_action(to_expr(L, 1), rbp, lambda));
 }
 static int is_compatible(lua_State * L) {
     return push_boolean(L, to_notation_action(L, 1).is_compatible(to_notation_action(L, 2)));
@@ -314,17 +317,22 @@ static int is_fold_right(lua_State * L) {
     check_action(L, 1, { action_kind::Exprs });
     return push_boolean(L, to_notation_action(L, 1).is_fold_right());
 }
+static int use_lambda_abstraction(lua_State * L) {
+    check_action(L, 1, { action_kind::ScopedExpr });
+    return push_boolean(L, to_notation_action(L, 1).use_lambda_abstraction());
+}
 
 static const struct luaL_Reg notation_action_m[] = {
-    {"__gc",             notation_action_gc},
-    {"is_compatible",    safe_function<is_compatible>},
-    {"kind",             safe_function<kind>},
-    {"rbp",              safe_function<rbp>},
-    {"sep",              safe_function<sep>},
-    {"separator",        safe_function<sep>},
-    {"rec",              safe_function<rec>},
-    {"initial",          safe_function<initial>},
-    {"is_fold_right",    safe_function<is_fold_right>},
+    {"__gc",                   notation_action_gc},
+    {"is_compatible",          safe_function<is_compatible>},
+    {"kind",                   safe_function<kind>},
+    {"rbp",                    safe_function<rbp>},
+    {"sep",                    safe_function<sep>},
+    {"separator",              safe_function<sep>},
+    {"rec",                    safe_function<rec>},
+    {"initial",                safe_function<initial>},
+    {"is_fold_right",          safe_function<is_fold_right>},
+    {"use_lambda_abstraction", safe_function<use_lambda_abstraction>},
     {0, 0}
 };
 

@@ -25,15 +25,15 @@ public:
     unsigned precedence() const { return m_precedence; }
 };
 
-typedef ctrie<token_info> token_set;
-token_set mk_token_set();
-token_set mk_default_token_set();
-token_set add_command_token(token_set const & s, char const * token);
-token_set add_command_token(token_set const & s, char const * token, char const * val);
-token_set add_token(token_set const & s, char const * token, unsigned prec = 0);
-token_set add_token(token_set const & s, char const * token, char const * val, unsigned prec = 0);
-void for_each(token_set const & s, std::function<void(char const *, token_info const&)> const & fn);
-token_set const * find(token_set const & s, char c);
-token_info const * value_of(token_set const & s);
-void open_token_set(lua_State * L);
+typedef ctrie<token_info> token_table;
+token_table mk_token_table();
+token_table mk_default_token_table();
+token_table add_command_token(token_table const & s, char const * token);
+token_table add_command_token(token_table const & s, char const * token, char const * val);
+token_table add_token(token_table const & s, char const * token, unsigned prec = 0);
+token_table add_token(token_table const & s, char const * token, char const * val, unsigned prec = 0);
+void for_each(token_table const & s, std::function<void(char const *, token_info const&)> const & fn);
+token_table const * find(token_table const & s, char c);
+token_info const * value_of(token_table const & s);
+void open_token_table(lua_State * L);
 }

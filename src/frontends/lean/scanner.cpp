@@ -211,7 +211,7 @@ auto scanner::read_key_cmd_id() -> token_kind {
     static char const * error_msg = "unexpected token";
     char c = curr();
     unsigned num_cs = 1; // number of characters read
-    token_set const * it    = find(m_tokens, c);
+    token_table const * it    = find(m_tokens, c);
     token_info const * info = nullptr;
     unsigned key_size       = 0;
     if (it) {
@@ -318,7 +318,7 @@ auto scanner::scan() -> token_kind {
     }
 }
 
-scanner::scanner(token_set const & tks, std::istream & strm, char const * strm_name):
+scanner::scanner(token_table const & tks, std::istream & strm, char const * strm_name):
     m_tokens(tks), m_stream(strm), m_spos(0), m_sline(1), m_curr(0), m_pos(0), m_line(1),
     m_token_info(nullptr) {
     m_stream_name = strm_name ? strm_name : "[unknown]";

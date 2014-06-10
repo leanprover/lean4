@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/lua.h"
 #include "kernel/expr.h"
-#include "frontends/lean/token_set.h"
+#include "frontends/lean/token_table.h"
 
 namespace lean {
 class parser_context;

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "util/name.h"
 #include "util/numerics/mpq.h"
-#include "frontends/lean/token_set.h"
+#include "frontends/lean/token_table.h"
 
 namespace lean {
 /**
@@ -22,7 +22,7 @@ class scanner {
 public:
     enum class token_kind {Keyword, CommandKeyword, ScriptBlock, Identifier, Numeral, Decimal, String, Eof};
 protected:
-    token_set          m_tokens;
+    token_table        m_tokens;
     std::istream &     m_stream;
     std::string        m_stream_name;
 
@@ -60,7 +60,7 @@ protected:
     token_kind read_key_cmd_id();
 
 public:
-    scanner(token_set const & tks, std::istream & strm, char const * strm_name = nullptr);
+    scanner(token_table const & tks, std::istream & strm, char const * strm_name = nullptr);
 
     int get_line() const { return m_line; }
     int get_pos() const { return m_pos; }

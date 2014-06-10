@@ -13,7 +13,7 @@ using namespace lean;
 
 #define tk scanner::token_kind
 
-static void scan(char const * str, token_set set = mk_default_token_set()) {
+static void scan(char const * str, token_table set = mk_default_token_table()) {
     std::istringstream in(str);
     scanner s(set, in, "[string]");
     while (true) {
@@ -35,7 +35,7 @@ static void scan(char const * str, token_set set = mk_default_token_set()) {
     std::cout << "\n";
 }
 
-static void scan_success(char const * str, token_set set = mk_default_token_set()) {
+static void scan_success(char const * str, token_table set = mk_default_token_table()) {
     try {
         scan(str, set);
     } catch (exception & ex) {
@@ -54,7 +54,7 @@ static void scan_error(char const * str) {
 }
 
 static void check(char const * str, std::initializer_list<tk> const & l,
-                  token_set set = mk_default_token_set()) {
+                  token_table set = mk_default_token_table()) {
     try {
         auto it = l.begin();
         std::istringstream in(str);
@@ -75,7 +75,7 @@ static void check(char const * str, std::initializer_list<tk> const & l,
     }
 }
 
-static void check_name(char const * str, name const & expected, token_set set = mk_default_token_set()) {
+static void check_name(char const * str, name const & expected, token_table set = mk_default_token_table()) {
     std::istringstream in(str);
     scanner s(set, in, "[string]");
     tk k = s.scan();
@@ -84,7 +84,7 @@ static void check_name(char const * str, name const & expected, token_set set = 
     lean_assert(s.scan() == tk::Eof);
 }
 
-static void check_keyword(char const * str, name const & expected, token_set set = mk_default_token_set()) {
+static void check_keyword(char const * str, name const & expected, token_table set = mk_default_token_table()) {
     std::istringstream in(str);
     scanner s(set, in, "[string]");
     tk k = s.scan();
@@ -94,7 +94,7 @@ static void check_keyword(char const * str, name const & expected, token_set set
 }
 
 static void tst1() {
-    token_set s = mk_default_token_set();
+    token_table s = mk_default_token_table();
     s = add_token(s, "+", "plus");
     s = add_token(s, "=", "eq");
     scan_success("a..a");
@@ -133,7 +133,7 @@ static void tst2() {
     check_name("x.bla", name({"x", "bla"}));
 
     scan_error("+++");
-    token_set s = mk_default_token_set();
+    token_table s = mk_default_token_table();
     s = add_token(s, "+++", "tplus");
     check_keyword("+++", "tplus", s);
     s = add_token(s, "+", "plus");

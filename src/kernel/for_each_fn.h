@@ -19,7 +19,7 @@ namespace lean {
     The argument \c F must be a lambda (function object) containing the method
 
     <code>
-    void operator()(expr const & e, unsigned offset)
+    bool operator()(expr const & e, unsigned offset)
     </code>
 
     The \c offset is the number of binders under which \c e occurs.

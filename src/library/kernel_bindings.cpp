@@ -1300,12 +1300,14 @@ void set_global_environment(lua_State * L, environment const & env) {
     lua_settable(L, LUA_REGISTRYINDEX);
 }
 
-set_environment::set_environment(lua_State * L, environment const & env) {
+set_environment::set_environment(lua_State * L, environment & env):
+    m_env(env) {
     m_state = L;
     set_global_environment(L, env);
 }
 
 set_environment::~set_environment() {
+    m_env = get_global_environment(m_state);
     lua_pushlightuserdata(m_state, static_cast<void *>(&g_set_environment_key));
     lua_pushnil(m_state);
     lua_settable(m_state, LUA_REGISTRYINDEX);
@@ -1325,6 +1327,11 @@ int get_environment(lua_State * L) {
     return push_environment(L, get_global_environment(L));
 }
 
+int set_environment(lua_State * L) {
+    set_global_environment(L, to_environment(L, 1));
+    return 0;
+}
+
 static void environment_migrate(lua_State * src, int i, lua_State * tgt) {
     push_environment(tgt, to_environment(src, i));
 }
@@ -1342,6 +1349,8 @@ static void open_environment(lua_State * L) {
     SET_GLOBAL_FUN(environment_pred,       "is_environment");
     SET_GLOBAL_FUN(get_environment,        "get_environment");
     SET_GLOBAL_FUN(get_environment,        "get_env");
+    SET_GLOBAL_FUN(set_environment,        "set_environment");
+    SET_GLOBAL_FUN(set_environment,        "set_env");
     SET_GLOBAL_FUN(import_modules,         "import_modules");
     SET_GLOBAL_FUN(import_hott_modules,    "import_hott_modules");
     SET_GLOBAL_FUN(export_module,          "export_module");

@@ -30,24 +30,14 @@ add_test(lean_unknown_file2 ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_C
 #     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lean ${T})
 # ENDFOREACH(T)
 
-# # LEAN TESTS
-# file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
-# FOREACH(T ${LEANTESTS})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "leantest_${T_NAME}"
-#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-#            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T_NAME})
-# ENDFOREACH(T)
-
-# # LEAN PP TESTS
-# # For making sure that Lean can parse the output produced by its pretty printer
-# file(GLOB LEANPPTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
-# FOREACH(T ${LEANPPTESTS})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "leanpptest_${T_NAME}"
-#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-#            COMMAND "./test_single_pp.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T})
-# ENDFOREACH(T)
+# LEAN TESTS
+file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
+FOREACH(T ${LEANTESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leantest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t 100000" ${T_NAME})
+ENDFOREACH(T)
 
 # # LEAN INTERACTIVE TESTS
 # file(GLOB LEANINTERACTIVETESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.lean")

@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "frontends/lean/parser_config.h"
+#include "frontends/lean/builtin_cmds.h"
+#include "frontends/lean/builtin_tactic_cmds.h"
 
 namespace lean {
 parser_config::parser_config() {

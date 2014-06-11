@@ -1,0 +1,4 @@
+-- set_option default configuration for tests
+-- TODO(Leo): uncomment
+-- set_option pp.colors  false
+-- set_option pp.unicode true

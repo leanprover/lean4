@@ -15,8 +15,9 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/io_state.h"
+#include "library/kernel_bindings.h"
 #include "frontends/lean/scanner.h"
-#include "frontends/lean/cmd_table.h"
+#include "frontends/lean/parser_config.h"
 #include "frontends/lean/parser_pos_provider.h"
 
 namespace lean {
@@ -38,6 +39,8 @@ struct parser_error : public exception {
     virtual exception * clone() const { return new parser_error(m_msg.c_str(), m_pos); }
     virtual void rethrow() const { throw *this; }
 };
+
+struct interrupt_parser {};
 
 class parser {
     typedef std::pair<expr, unsigned> local_entry;
@@ -73,10 +76,26 @@ class parser {
 
     void sync_command();
     void protected_call(std::function<void()> && f, std::function<void()> && sync);
+    template<typename F>
+    typename std::result_of<F(lua_State * L)>::type using_script(F && f) {
+        return m_ss->apply([&](lua_State * L) {
+                set_io_state    set1(L, m_ios);
+                set_environment set2(L, m_env);
+                return f(L);
+            });
+    }
 
     tag get_tag(expr e);
 
     void updt_options();
+
+    parser_config const & cfg() const { return get_parser_config(env()); }
+    cmd_table const & cmds() const { return cfg().m_cmds; }
+
+    void parse_command();
+    void parse_script(bool as_expr = false);
+    bool parse_commands();
+
 public:
     parser(environment const & env, io_state const & ios,
            std::istream & strm, char const * str_name,
@@ -95,7 +114,7 @@ public:
     tactic parse_tactic(unsigned rbp = 0);
 
     /** \brief Return the current position information */
-    pos_info pos() const { return mk_pair(m_scanner.get_line(), m_scanner.get_pos()); }
+    pos_info pos() const { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }
     void save_pos(expr e, pos_info p);
 
     /** \brief Read the next token. */
@@ -104,6 +123,8 @@ public:
     scanner::token_kind curr() const { return m_curr; }
     /** \brief Read the next token if the current one is not End-of-file. */
     void next() { if (m_curr != scanner::token_kind::Eof) scan(); }
+    /** \brief Return true iff the current token is equal to \c tk */
+    bool curr_is_token(name const & tk) const;
 
     mpq const & get_num_val() const { return m_scanner.get_num_val(); }
     name const & get_name_val() const { return m_scanner.get_name_val(); }
@@ -112,6 +133,11 @@ public:
     std::string const & get_stream_name() const { return m_scanner.get_stream_name(); }
 
     /** parse all commands in the input stream */
-    bool operator()();
+    bool operator()() { return parse_commands(); }
 };
+
+bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,
+                    script_state * S, bool use_exceptions);
+bool parse_commands(environment & env, io_state & ios, char const * fname, script_state * S,
+                    bool use_exceptions);
 }

@@ -73,7 +73,7 @@ FOREACH(T ${LEANLUATESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanluatest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua"
-           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T_NAME})
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t 100000" ${T_NAME})
 ENDFOREACH(T)
 
 # LEAN LUA SLOW TESTS
@@ -82,7 +82,7 @@ FOREACH(T ${LEANLUASLOWTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanluaslowtest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua/slow"
-           COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T_NAME})
+           COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t 100000" ${T_NAME})
   set_tests_properties("leanluaslowtest_${T_NAME}" PROPERTIES LABELS "expensive")
 ENDFOREACH(T)
 
@@ -101,7 +101,7 @@ FOREACH(T ${LEANLUADOCS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanluadoc_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/lua"
-           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T})
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t 100000" ${T})
 ENDFOREACH(T)
 
 # LEAN LUA THREAD TESTS
@@ -112,7 +112,7 @@ if((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Linux"))
       GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
       add_test(NAME "leanluathreadtest_${T_NAME}"
         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lua/threads"
-        COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T})
+        COMMAND "../test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t 100000" ${T})
     ENDFOREACH(T)
   endif()
 endif()

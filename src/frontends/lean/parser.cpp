@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include "util/interrupt.h"
 #include "util/script_exception.h"
+#include "util/sstream.h"
 #include "library/io_state_stream.h"
 #include "library/parser_nested_exception.h"
 #include "library/error_handling/error_handling.h"
@@ -129,6 +131,14 @@ void parser::save_pos(expr e, pos_info p) {
     m_pos_table->insert(mk_pair(get_tag(e), p));
 }
 
+bool parser::curr_is_token(name const & tk) const {
+    return
+        (curr() == scanner::token_kind::Keyword || curr() == scanner::token_kind::CommandKeyword) &&
+        get_token_info().value() == tk;
+}
+
+static name g_period(".");
+
 expr parser::parse_expr(unsigned /* rbp */) {
     // TODO(Leo):
     return expr();
@@ -146,5 +156,78 @@ expr parser::parse_scoped_expr(unsigned num_locals, expr const * locals, unsigne
 tactic parser::parse_tactic(unsigned /* rbp */) {
     // TODO(Leo):
     return tactic();
+}
+
+void parser::parse_command() {
+    lean_assert(curr() == scanner::token_kind::CommandKeyword);
+    name const & cmd_name = get_token_info().value();
+    if (auto it = cmds().find(cmd_name)) {
+        next();
+        m_env = it->get_fn()(*this);
+    } else {
+        auto p = pos();
+        next();
+        throw parser_error(sstream() << "unknown command '" << cmd_name << "'", p);
+    }
+}
+
+void parser::parse_script(bool as_expr) {
+    m_last_script_pos = pos();
+    if (!m_ss)
+        throw exception("failed to execute Lua script, parser does not have a Lua interpreter");
+    std::string script_code = m_scanner.get_str_val();
+    if (as_expr)
+        script_code = "return " + script_code;
+    next();
+    using_script([&](lua_State * L) {
+            dostring(L, script_code.c_str());
+        });
+}
+
+bool parser::parse_commands() {
+    try {
+        bool done = false;
+        while (!done) {
+            protected_call([&]() {
+                    check_interrupted();
+                    switch (curr()) {
+                    case scanner::token_kind::CommandKeyword:
+                        parse_command();
+                        break;
+                    case scanner::token_kind::ScriptBlock:
+                        parse_script();
+                        break;
+                    case scanner::token_kind::Eof:
+                        done = true;
+                        break;
+                    case scanner::token_kind::Keyword:
+                        if (curr_is_token(g_period)) {
+                            next();
+                            break;
+                        }
+                    default:
+                        throw parser_error("command expected", pos());
+                    }
+                },
+                [&]() { sync_command(); });
+        }
+    } catch (interrupt_parser) {}
+    return !m_found_errors;
+}
+
+
+bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, script_state * S, bool use_exceptions) {
+    parser p(env, ios, in, strm_name, S, use_exceptions);
+    bool r = p();
+    ios = p.ios();
+    env = p.env();
+    return r;
+}
+
+bool parse_commands(environment & env, io_state & ios, char const * fname, script_state * S, bool use_exceptions) {
+    std::ifstream in(fname);
+    if (in.bad() || in.fail())
+        throw exception(sstream() << "failed to open file '" << fname << "'");
+    return parse_commands(env, ios, in, fname, S, use_exceptions);
 }
 }

@@ -19,13 +19,15 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/formatter.h"
+#include "kernel/standard/standard.h"
+#include "library/io_state_stream.h"
 #include "library/error_handling/error_handling.h"
+#include "frontends/lean/parser.h"
 #if 0
 #include "kernel/io_state.h"
 #include "library/printer.h"
 #include "library/kernel_bindings.h"
-#include "library/io_state_stream.h"
-#include "frontends/lean/parser.h"
+
 #include "frontends/lean/shell.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/register_module.h"
@@ -40,6 +42,7 @@ using lean::environment;
 using lean::io_state;
 using lean::io_state_stream;
 using lean::regular;
+using lean::mk_environment;
 
 #if 0
 using lean::shell;
@@ -75,7 +78,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --luahook=num -c  how often the Lua interpreter checks the interrupted flag,\n";
     std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
     std::cout << "                    0 means 'do not check'.\n";
-    std::cout << "  --trust -t        trust imported modules\n";
+    std::cout << "  --trust=num -t    trust level (default: 0) \n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
@@ -102,12 +105,11 @@ static struct option g_long_options[] = {
     {"lean",       no_argument,       0, 'l'},
     {"olean",      no_argument,       0, 'b'},
     {"lua",        no_argument,       0, 'u'},
-    {"nokernel",   no_argument,       0, 'n'},
     {"path",       no_argument,       0, 'p'},
     {"luahook",    required_argument, 0, 'c'},
     {"githash",    no_argument,       0, 'g'},
     {"output",     required_argument, 0, 'o'},
-    {"trust",      no_argument,       0, 't'},
+    {"trust",      required_argument, 0, 't'},
     {"quiet",      no_argument,       0, 'q'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",     required_argument, 0, 's'},
@@ -115,17 +117,22 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
+#if defined(LEAN_USE_BOOST)
+static char const * g_opt_str = "qlupgvhc:012s:012t:012o:";
+#else
+static char const * g_opt_str = "qlupgvhc:012t:012o:";
+#endif
+
 int main(int argc, char ** argv) {
     lean::save_stack_info();
     lean::register_modules();
-    // bool no_kernel      = false;
     // bool export_objects = false;
-    // bool trust_imported = false;
-    // bool quiet          = false;
+    unsigned trust_lvl  = 0;
+    bool quiet          = false;
     std::string output;
     input_kind default_k = input_kind::Lean; // default
     while (true) {
-        int c = getopt_long(argc, argv, "qtnlupgvhc:012s:012o:", g_long_options, NULL);
+        int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
             break; // end of command line
         switch (c) {
@@ -156,19 +163,15 @@ int main(int argc, char ** argv) {
         case 's':
             lean::set_thread_stack_size(atoi(optarg)*1024);
             break;
-        case 'n':
-            // no_kernel = true;
-            break;
         case 'o':
             output = optarg;
             // export_objects = true;
             break;
         case 't':
-            // trust_imported = true;
-            // lean::set_default_trust_imported_for_lua(true);
+            trust_lvl = atoi(optarg);
             break;
         case 'q':
-            // quiet = true;
+            quiet = true;
             break;
         default:
             std::cerr << "Unknown command line option\n";
@@ -177,19 +180,16 @@ int main(int argc, char ** argv) {
         }
     }
 
+    environment env = mk_environment(trust_lvl);
     io_state ios(lean::mk_simple_formatter());
-    // environment env;
-    // env->set_trusted_imported(trust_imported);
-    // io_state ios = init_frontend(env, no_kernel);
-    // if (quiet)
-    //     ios.set_option("verbose", false);
+    if (quiet)
+        ios.set_option("verbose", false);
 
     script_state S;
-
-    // S.apply([&](lua_State * L) {
-    //         set_global_environment(L, env);
-    //         set_global_io_state(L, ios);
-    //     });
+    S.apply([&](lua_State * L) {
+            set_global_environment(L, env);
+            set_global_io_state(L, ios);
+        });
 
     try {
         if (optind >= argc) {
@@ -227,8 +227,8 @@ int main(int argc, char ** argv) {
                     }
                 }
                 if (k == input_kind::Lean) {
-                    // if (!parse_commands(env, ios, argv[i], &S, false, false))
-                    //    ok = false;
+                    if (!parse_commands(env, ios, argv[i], &S, false))
+                        ok = false;
                 } else if (k == input_kind::OLean) {
                     // try {
                     //    env->load(std::string(argv[i]), ios);
@@ -240,7 +240,6 @@ int main(int argc, char ** argv) {
                     try {
                         S.dofile(argv[i]);
                     } catch (lean::exception & ex) {
-                        environment env; // TODO(Leo): use global environment
                         ::lean::display_error(regular(env, ios), nullptr, ex);
                         ok = false;
                     }
@@ -253,7 +252,7 @@ int main(int argc, char ** argv) {
             return ok ? 0 : 1;
         }
     } catch (lean::exception & ex) {
-        // ::lean::display_error(ios, nullptr, ex);
+        ::lean::display_error(regular(env, ios), nullptr, ex);
     }
     return 1;
 }

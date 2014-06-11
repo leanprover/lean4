@@ -38,6 +38,7 @@ struct cmd_info_tmpl {
 public:
     cmd_info_tmpl(name const & n, char const * d, F const & fn):
         m_name(n), m_descr(d), m_fn(fn) {}
+    cmd_info_tmpl() {}
     name const & get_name() const { return m_name; }
     std::string const & get_descr() const { return m_descr; }
     F const & get_fn() const { return m_fn; }

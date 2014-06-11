@@ -86,15 +86,28 @@ class parser {
     }
 
     tag get_tag(expr e);
+    expr copy_with_new_pos(expr const & e, pos_info p);
 
     void updt_options();
 
     parser_config const & cfg() const { return get_parser_config(env()); }
     cmd_table const & cmds() const { return cfg().m_cmds; }
+    parse_table const & nud() const { return cfg().m_nud; }
+    parse_table const & led() const { return cfg().m_led; }
 
     void parse_command();
     void parse_script(bool as_expr = false);
     bool parse_commands();
+    unsigned curr_lbp() const;
+    expr parse_nud();
+    expr parse_led(expr left);
+    expr parse_nud_keyword();
+    expr parse_led_keyword(expr left);
+    expr parse_id();
+    expr parse_numeral_expr();
+    expr parse_decimal_expr();
+    expr parse_string_expr();
+    expr mk_app(expr fn, expr arg, pos_info const & p);
 
 public:
     parser(environment const & env, io_state const & ios,
@@ -115,7 +128,10 @@ public:
 
     /** \brief Return the current position information */
     pos_info pos() const { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }
-    void save_pos(expr e, pos_info p);
+    expr save_pos(expr e, pos_info p);
+    expr rec_save_pos(expr const & e, pos_info p);
+    pos_info pos_of(expr const & e, pos_info default_pos);
+    pos_info pos_of(expr const & e) { return pos_of(e, pos()); }
 
     /** \brief Read the next token. */
     void scan() { m_curr = m_scanner.scan(m_env); }

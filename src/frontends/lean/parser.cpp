@@ -5,11 +5,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include <limits>
 #include "util/interrupt.h"
 #include "util/script_exception.h"
 #include "util/sstream.h"
+#include "kernel/for_each_fn.h"
 #include "library/io_state_stream.h"
 #include "library/parser_nested_exception.h"
+#include "library/aliases.h"
+#include "library/private.h"
+#include "library/choice.h"
+#include "library/deep_copy.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 
@@ -127,8 +133,36 @@ tag parser::get_tag(expr e) {
     return t;
 }
 
-void parser::save_pos(expr e, pos_info p) {
+expr parser::save_pos(expr e, pos_info p) {
     m_pos_table->insert(mk_pair(get_tag(e), p));
+    return e;
+}
+
+expr parser::rec_save_pos(expr const & e, pos_info p) {
+    unsigned m = std::numeric_limits<unsigned>::max();
+    pos_info dummy(m, 0);
+    for_each(e, [&](expr const & e, unsigned) {
+            if (pos_of(e, dummy).first == m) {
+                save_pos(e, p);
+                return true;
+            }  else {
+                return false;
+            }
+        });
+    return e;
+}
+
+/** \brief Create a copy of \c e, and the position of new expression with p */
+expr parser::copy_with_new_pos(expr const & e, pos_info p) {
+    return rec_save_pos(deep_copy(e), p);
+}
+
+pos_info parser::pos_of(expr const & e, pos_info default_pos) {
+    auto it = m_pos_table->find(get_tag(e));
+    if (it == m_pos_table->end())
+        return default_pos;
+    else
+        return it->second;
 }
 
 bool parser::curr_is_token(name const & tk) const {
@@ -137,11 +171,98 @@ bool parser::curr_is_token(name const & tk) const {
         get_token_info().value() == tk;
 }
 
-static name g_period(".");
+expr parser::mk_app(expr fn, expr arg, pos_info const & p) {
+    return save_pos(::lean::mk_app(fn, arg), p);
+}
 
-expr parser::parse_expr(unsigned /* rbp */) {
-    // TODO(Leo):
+// expr parser::copy_expr(expr const & e, pos_info const & p) {
+//     return replace(e, [](
+// }
+
+expr parser::parse_nud_keyword() {
+    // TODO(Leo)
     return expr();
+}
+
+expr parser::parse_led_keyword(expr /* left */) {
+    // TODO(Leo)
+    return expr();
+}
+expr parser::parse_id() {
+    auto p  = pos();
+    name id = get_name_val();
+    next();
+    auto it1 = m_local_decls.find(id);
+    // locals
+    if (it1 != m_local_decls.end())
+        return copy_with_new_pos(it1->second.first, p);
+    // globals
+    if (m_env.find(id))
+        return save_pos(mk_constant(id), p);
+    // private globals
+    if (auto prv_id = user_to_hidden_name(m_env, id))
+        return save_pos(mk_constant(*prv_id), p);
+    // aliases
+    auto as = get_aliases(m_env, id);
+    if (!is_nil(as)) {
+        buffer<expr> new_as;
+        for (auto const & e : as)
+            new_as.push_back(copy_with_new_pos(e, p));
+        return mk_choice(new_as.size(), new_as.data());
+    }
+    throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
+}
+
+expr parser::parse_numeral_expr() {
+    // TODO(Leo)
+    return expr();
+}
+
+expr parser::parse_decimal_expr() {
+    // TODO(Leo)
+    return expr();
+}
+
+expr parser::parse_string_expr() {
+    // TODO(Leo)
+    return expr();
+}
+
+expr parser::parse_nud() {
+    switch (curr()) {
+    case scanner::token_kind::Keyword:     return parse_nud_keyword();
+    case scanner::token_kind::Identifier:  return parse_id();
+    case scanner::token_kind::Numeral:     return parse_numeral_expr();
+    case scanner::token_kind::Decimal:     return parse_decimal_expr();
+    case scanner::token_kind::String:      return parse_string_expr();
+    default: throw parser_error("invalid expression, unexpected token", pos());
+    }
+}
+
+expr parser::parse_led(expr left) {
+    switch (curr()) {
+    case scanner::token_kind::Keyword:     return parse_led_keyword(left);
+    case scanner::token_kind::Identifier:  return mk_app(left, parse_id(), pos_of(left));
+    case scanner::token_kind::Numeral:     return mk_app(left, parse_numeral_expr(), pos_of(left));
+    case scanner::token_kind::Decimal:     return mk_app(left, parse_decimal_expr(), pos_of(left));
+    case scanner::token_kind::String:      return mk_app(left, parse_string_expr(), pos_of(left));
+    default:                               return left;
+    }
+}
+
+unsigned parser::curr_lbp() const {
+    if (curr() == scanner::token_kind::Keyword)
+        return get_token_info().precedence();
+    else
+        return 0;
+}
+
+expr parser::parse_expr(unsigned rbp) {
+    expr left = parse_nud();
+    while (rbp < curr_lbp()) {
+        left = parse_led(left);
+    }
+    return left;
 }
 
 expr parser::parse_scoped_expr(unsigned num_locals, expr const * locals, unsigned rbp) {
@@ -184,7 +305,10 @@ void parser::parse_script(bool as_expr) {
         });
 }
 
+static name g_period(".");
 bool parser::parse_commands() {
+    // We disable hash-consing while parsing to make sure the pos-info are correct.
+    scoped_expr_caching disable(false);
     try {
         bool done = false;
         while (!done) {

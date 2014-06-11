@@ -35,4 +35,6 @@ typedef cmd_info_tmpl<tactic_command_fn> tactic_cmd_info;
 
 typedef rb_map<name, cmd_info,        name_quick_cmp> cmd_table;
 typedef rb_map<name, tactic_cmd_info, name_quick_cmp> tactic_cmd_table;
+
+inline void add_cmd(cmd_table & t, cmd_info const & cmd) { t.insert(cmd.get_name(), cmd); }
 }

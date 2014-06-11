@@ -143,5 +143,7 @@ inline int push_nil(lua_State * L) { lua_pushnil(L); return 1; }
 void check_num_args(lua_State * L, int num);
 /** \brief Throw an exception if lua_gettop(L) > high */
 void check_atmost_num_args(lua_State * L, int high);
+/** \brief Throw an exception if lua_gettop(L) < low */
+void check_atleast_num_args(lua_State * L, int low);
 // =======================================
 }

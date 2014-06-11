@@ -40,56 +40,61 @@ static char const * g_pi_unicode     = "\u03A0";
 static char const * g_forall_unicode = "\u2200";
 static char const * g_arrow_unicode  = "\u2192";
 
-// Auxiliary class for creating the initial token set
-class init_token_table_fn {
-public:
-    token_table m_token_table;
-    init_token_table_fn() {
-            char const * builtin[] = {"fun", "Pi", "let", "in", "have", "show", "by", "from", "(", ")", "{", "}",
-                                      ".{", "Type", "...", ",", ".", ":", "calc", ":=", "--", "(*", "(--", "->",
-                                      "proof", "qed", "private", nullptr};
+token_table init_token_table() {
+    token_table t;
+    char const * builtin[] = {"fun", "Pi", "let", "in", "have", "show", "by", "from", "(", ")", "{", "}",
+                              ".{", "Type", "...", ",", ".", ":", "calc", ":=", "--", "(*", "(--", "->",
+                              "proof", "qed", "private", nullptr};
 
-            char const * commands[] = {"theorem", "axiom", "variable", "definition", "evaluate", "check",
-                                       "print", "variables", "end", "namespace", "section", "import",
-                                       "abbreviation", "inductive", "record", "structure", "module", nullptr};
+    char const * commands[] = {"theorem", "axiom", "variable", "definition", "evaluate", "check",
+                               "print", "variables", "end", "namespace", "section", "import",
+                               "abbreviation", "inductive", "record", "structure", "module", nullptr};
 
-            std::pair<char const *, char const *> aliases[] =
-                {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},
-                 {g_arrow_unicode, "->"}, {nullptr, nullptr}};
+    std::pair<char const *, char const *> aliases[] =
+        {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},
+         {g_arrow_unicode, "->"}, {nullptr, nullptr}};
 
-            std::pair<char const *, char const *> cmd_aliases[] =
-                {{"parameter", "variable"}, {"parameters", "variables"}, {"lemma", "theorem"},
-                 {"hypothesis", "axiom"}, {"conjecture", "axiom"}, {"corollary", "theorem"},
-                 {nullptr, nullptr}};
+    std::pair<char const *, char const *> cmd_aliases[] =
+        {{"parameter", "variable"}, {"parameters", "variables"}, {"lemma", "theorem"},
+         {"hypothesis", "axiom"}, {"conjecture", "axiom"}, {"corollary", "theorem"},
+         {nullptr, nullptr}};
 
-            auto it = builtin;
-            while (*it) {
-                m_token_table = add_token(m_token_table, *it);
-                it++;
-            }
-
-            it = commands;
-            while (*it) {
-                m_token_table = add_command_token(m_token_table, *it);
-                ++it;
-            }
-
-            auto it2 = aliases;
-            while (it2->first) {
-                m_token_table = add_token(m_token_table, it2->first, it2->second);
-                it2++;
-            }
-
-            it2 = cmd_aliases;
-            while (it2->first) {
-                m_token_table = add_command_token(m_token_table, it2->first, it2->second);
-                ++it2;
-            }
+    auto it = builtin;
+    while (*it) {
+        t = add_token(t, *it);
+        it++;
     }
-};
-static init_token_table_fn g_init;
+
+    it = commands;
+    while (*it) {
+        t = add_command_token(t, *it);
+        ++it;
+    }
+
+    auto it2 = aliases;
+    while (it2->first) {
+        t = add_token(t, it2->first, it2->second);
+        it2++;
+    }
+
+    it2 = cmd_aliases;
+    while (it2->first) {
+        t = add_command_token(t, it2->first, it2->second);
+        ++it2;
+    }
+    return t;
+}
+
+token_table mk_default_token_table() {
+    static optional<token_table> r;
+    if (!r)
+        r = init_token_table();
+    return *r;
+}
+
+static token_table g_init(mk_default_token_table());
+
 token_table mk_token_table() { return token_table(); }
-token_table mk_default_token_table() { return g_init.m_token_table; }
 
 DECL_UDATA(token_table)
 static int mk_token_table(lua_State * L) { return push_token_table(L, mk_token_table()); }

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <sstream>
+#include <string>
 #include "util/test.h"
 #include "util/escaped.h"
 #include "util/exception.h"
@@ -13,6 +14,16 @@ Author: Leonardo de Moura
 using namespace lean;
 
 #define tk scanner::token_kind
+
+token_table const & get_token_table(environment const & env) {
+    return get_parser_config(env).m_tokens;
+}
+
+environment update_token_table(environment const & env, token_table const & t) {
+    parser_config cfg = get_parser_config(env);
+    cfg.m_tokens = t;
+    return update_parser_config(env, cfg);
+}
 
 static void scan(char const * str, environment const & env = environment()) {
     std::istringstream in(str);

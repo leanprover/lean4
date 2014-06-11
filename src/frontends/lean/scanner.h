@@ -72,6 +72,8 @@ public:
     name const & get_name_val() const { return m_name_val; }
     std::string const & get_str_val() const { return m_buffer; }
     token_info const & get_token_info() const { lean_assert(m_token_info); return *m_token_info; }
+
+    std::string const & get_stream_name() const { return m_stream_name; }
 };
 std::ostream & operator<<(std::ostream & out, scanner::token_kind k);
 }

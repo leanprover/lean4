@@ -8,14 +8,18 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/parse_table.h"
+#include "frontends/lean/cmd_table.h"
 
 namespace lean {
-token_table const & get_token_table(environment const & env);
-parse_table const & get_nud_parse_table(environment const & env);
-parse_table const & get_led_parse_table(environment const & env);
+struct parser_config {
+    token_table      m_tokens;
+    parse_table      m_nud;
+    parse_table      m_led;
+    cmd_table        m_cmds;
+    tactic_cmd_table m_tactic_cmds;
+    parser_config();
+};
 
-environment update_token_table(environment const & env, token_table const & t);
-environment update_nud_parse_table(environment const & env, parse_table const & t);
-environment update_led_parse_table(environment const & env, parse_table const & t);
-environment update_parse_config(environment const & env, token_table const & tk, parse_table const & nud, parse_table const & led);
+parser_config const & get_parser_config(environment const & env);
+environment update_parser_config(environment const & env, parser_config const & c);
 }

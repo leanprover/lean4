@@ -12,9 +12,9 @@ Author: Leonardo de Moura
 #include "frontends/lean/token_table.h"
 
 namespace lean {
-class parser_context;
+class parser;
 namespace notation {
-typedef std::function<expr(parser_context &, unsigned, expr const *)> parse_fn;
+typedef std::function<expr(parser &, unsigned, expr const *)> parse_fn;
 
 enum class action_kind { Skip, Expr, Exprs, Binder, Binders, ScopedExpr, Ext };
 struct action_cell;

@@ -280,7 +280,7 @@ static name g_begin_comment_tk("--");
 static name g_begin_comment_block_tk("(--");
 
 auto scanner::scan(environment const & env) -> token_kind {
-    m_tokens = &get_token_table(env);
+    m_tokens = &get_parser_config(env).m_tokens;
     while (true) {
         char c = curr();
         m_pos  = m_spos;

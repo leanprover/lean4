@@ -147,12 +147,12 @@ static void tst2() {
     // check_name("x.10", name(name("x"), 10));
     check_name("x.bla", name({"x", "bla"}));
 
-    scan_error("+++");
+    scan_error("***");
     environment env;
     token_table s = mk_default_token_table();
-    s = add_token(s, "+++", "tplus");
+    s = add_token(s, "***", "tplus");
     env = update_token_table(env, s);
-    check_keyword("+++", "tplus", env);
+    check_keyword("***", "tplus", env);
     s = add_token(s, "+", "plus");
     env = update_token_table(env, s);
     check("x+y", {tk::Identifier, tk::Keyword, tk::Identifier}, env);
@@ -188,7 +188,7 @@ static void tst3() {
     scan_error("\"\\");
     scan_error("\"\\a");
     scan("\"\naaa\"");
-    scan_error("foo.+ 01");
+    scan_error("foo.* 01");
     scan("10.0.");
     scan("{ } . forall exists let in \u2200 := _");
 }

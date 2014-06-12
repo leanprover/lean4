@@ -5,9 +5,23 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "frontends/lean/builtin_exprs.h"
+#include "frontends/lean/parser.h"
 
 namespace lean {
 namespace notation {
+static name g_llevel_curly(".{");
+static name g_rcurly("}");
+
+static expr parse_Type(parser & p, unsigned, expr const *) {
+    if (p.curr_is_token(g_llevel_curly)) {
+        p.next();
+        level l = p.parse_level();
+        p.check_token_next(g_rcurly, "invalid Type expression, '}' expected");
+        return mk_sort(l);
+    } else {
+        return mk_sort(p.mk_new_level_param());
+    }
+}
 
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
@@ -19,6 +33,7 @@ parse_table init_nud_table() {
     r.add({transition("(", Expr), transition(")", Skip)}, x0);
     r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
     r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
+    r.add({transition("Type", mk_ext_action(parse_Type))}, x0);
     return r;
 }
 

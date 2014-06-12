@@ -145,7 +145,7 @@ action mk_exprs_action(name const & sep, expr const & rec, expr const & ini, boo
 action mk_scoped_expr_action(expr const & rec, unsigned rb, bool lambda) {
     return action(new scoped_expr_action_cell(rec, rb, lambda));
 }
-action mk_ext_parse_action(parse_fn const & fn) { return action(new ext_action_cell(fn)); }
+action mk_ext_action(parse_fn const & fn) { return action(new ext_action_cell(fn)); }
 
 struct parse_table::cell {
     bool                                                         m_nud;

@@ -61,7 +61,7 @@ public:
     friend action mk_binder_action();
     friend action mk_binders_action();
     friend action mk_scoped_expr_action(expr const & rec, unsigned rbp, bool lambda);
-    friend action mk_ext_parse_action(parse_fn const & fn);
+    friend action mk_ext_action(parse_fn const & fn);
 
     action_kind kind() const;
     unsigned rbp() const;
@@ -81,7 +81,7 @@ action mk_exprs_action(name const & sep, expr const & rec, expr const & ini, boo
 action mk_binder_action();
 action mk_binders_action();
 action mk_scoped_expr_action(expr const & rec, unsigned rbp = 0, bool lambda = true);
-action mk_proc_action(parse_fn const & fn);
+action mk_ext_action(parse_fn const & fn);
 
 class transition {
     name           m_token;

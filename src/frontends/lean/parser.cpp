@@ -174,6 +174,15 @@ bool parser::curr_is_token(name const & tk) const {
         get_token_info().value() == tk;
 }
 
+bool parser::curr_is_token_or_id(name const & tk) const {
+    if (curr() == scanner::token_kind::Keyword || curr() == scanner::token_kind::CommandKeyword)
+        return get_token_info().value() == tk;
+    else if (curr() == scanner::token_kind::Identifier)
+        return get_name_val() == tk;
+    else
+        return false;
+}
+
 void parser::check_token_next(name const & tk, char const * msg) {
     if (!curr_is_token(tk))
         throw parser_error(msg, pos());
@@ -209,6 +218,124 @@ static name g_lcurly("{");
 static name g_rcurly("}");
 static name g_lbracket("[");
 static name g_rbracket("]");
+static name g_add("+");
+static name g_max("max");
+static name g_imax("imax");
+static name g_cup("\u2294");
+static unsigned g_level_add_prec = 10;
+static unsigned g_level_cup_prec = 5;
+
+unsigned parser::parse_small_nat() {
+    auto p  = pos();
+    mpz val = get_num_val().get_numerator();
+    next();
+    lean_assert(val >= 0);
+    if (!val.is_unsigned_int())
+        throw parser_error("invalid level expression, value does not fit in a machine integer", p);
+    return val.get_unsigned_int();
+}
+
+static level lift(level l, unsigned k) {
+    while (k > 0) {
+        k--;
+        l = mk_succ(l);
+    }
+    return l;
+}
+
+unsigned parser::curr_level_lbp() const {
+    if (curr_is_token(g_cup))
+        return g_level_cup_prec;
+    else if (curr_is_token(g_add))
+        return g_level_add_prec;
+    else
+        return 0;
+}
+
+level parser::parse_max_imax(bool is_max) {
+    auto p = pos();
+    next();
+    buffer<level> lvls;
+    while (curr_is_identifier() || curr_is_numeral() || curr_is_token(g_lparen)) {
+        lvls.push_back(parse_level());
+    }
+    if (lvls.size() < 2)
+        throw parser_error("invalid level expression, max must have at least two arguments", p);
+    unsigned i = lvls.size() - 1;
+    level r = lvls[i];
+    while (i > 0) {
+        --i;
+        if (is_max)
+            r = mk_max(lvls[i], r);
+        else
+            r = mk_imax(lvls[i], r);
+    }
+    return r;
+}
+
+level parser::parse_level_id() {
+    auto p  = pos();
+    name id = get_name_val();
+    next();
+    auto it = m_local_level_decls.find(id);
+    if (it != m_local_level_decls.end())
+        return it->second.first;
+    if (m_env.is_global_level(id))
+        return mk_global_univ(id);
+    throw parser_error(sstream() << "unknown level '" << id << "'", p);
+}
+
+level parser::parse_level_nud() {
+    if (curr_is_token_or_id(g_max)) {
+        return parse_max_imax(true);
+    } else if (curr_is_token_or_id(g_imax)) {
+        return parse_max_imax(false);
+    } else if (curr_is_token(g_lparen)) {
+        next();
+        level l = parse_level();
+        check_token_next(g_rparen, "invalid level expression, ')' expected");
+        return l;
+    } else if (curr_is_numeral()) {
+        unsigned k = parse_small_nat();
+        return lift(level(), k);
+    } else if (curr_is_identifier()) {
+        return parse_level_id();
+    } else {
+        throw parser_error("invalid level expression", pos());
+    }
+}
+
+level parser::parse_level_led(level left) {
+    auto p = pos();
+    if (curr_is_token(g_cup)) {
+        next();
+        level right = parse_level(g_level_cup_prec);
+        return mk_max(left, right);
+    } else if (curr_is_token(g_add)) {
+        next();
+        if (curr_is_numeral()) {
+            unsigned k = parse_small_nat();
+            return lift(left, k);
+        } else {
+            throw parser_error("invalid level expression, right hand side of '+' (aka universe lift operator) must be a numeral", p);
+        }
+    } else {
+        throw parser_error("invalid level expression", p);
+    }
+}
+
+level parser::parse_level(unsigned rbp) {
+    level left = parse_level_nud();
+    while (rbp < curr_level_lbp()) {
+        left = parse_level_led(left);
+    }
+    return left;
+}
+
+level parser::mk_new_level_param() {
+    // TODO(Leo)
+    return level();
+}
 
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */
 parameter parser::parse_binder_core(binder_info const & bi) {

@@ -44,7 +44,9 @@ struct interrupt_parser {};
 
 class parser {
     typedef std::pair<expr, unsigned> local_entry;
+    typedef std::pair<level, unsigned> local_level_entry;
     typedef scoped_map<name, local_entry, name_hash, name_eq> local_decls;
+    typedef scoped_map<name, local_level_entry, name_hash, name_eq> local_level_decls;
 
     environment             m_env;
     io_state                m_ios;
@@ -56,6 +58,7 @@ class parser {
     scanner                 m_scanner;
     scanner::token_kind     m_curr;
     local_decls             m_local_decls;
+    local_level_decls       m_local_level_decls;
     pos_info                m_last_cmd_pos;
     pos_info                m_last_script_pos;
     unsigned                m_next_tag_idx;
@@ -94,9 +97,17 @@ class parser {
     cmd_table const & cmds() const { return cfg().m_cmds; }
     parse_table const & nud() const { return cfg().m_nud; }
     parse_table const & led() const { return cfg().m_led; }
+    /** \brief Return true if the current token is a keyword named \c tk or an identifier named \c tk */
+    bool curr_is_token_or_id(name const & tk) const;
 
     void add_local_entry(name const & n, expr const & e);
     void add_local_decl(expr const & t);
+
+    unsigned curr_level_lbp() const;
+    level parse_max_imax(bool is_max);
+    level parse_level_id();
+    level parse_level_nud();
+    level parse_level_led(level left);
 
     void parse_command();
     void parse_script(bool as_expr = false);
@@ -126,6 +137,10 @@ public:
     script_state * ss() const { return m_ss; }
 
     void parse_names(buffer<std::pair<pos_info, name>> & result);
+    unsigned parse_small_nat();
+
+    level parse_level(unsigned rbp = 0);
+    level mk_new_level_param();
 
     parameter parse_binder();
     void parse_binders(buffer<parameter> & r);
@@ -145,6 +160,7 @@ public:
     expr rec_save_pos(expr const & e, pos_info p);
     pos_info pos_of(expr const & e, pos_info default_pos);
     pos_info pos_of(expr const & e) { return pos_of(e, pos()); }
+    pos_info cmd_pos() const { return m_last_cmd_pos; }
 
     /** \brief Read the next token. */
     void scan() { m_curr = m_scanner.scan(m_env); }
@@ -152,9 +168,11 @@ public:
     scanner::token_kind curr() const { return m_curr; }
     /** \brief Return true iff the current token is an identifier */
     bool curr_is_identifier() const { return curr() == scanner::token_kind::Identifier; }
+    /** \brief Return true iff the current token is a numeral */
+    bool curr_is_numeral() const { return curr() == scanner::token_kind::Numeral; }
     /** \brief Read the next token if the current one is not End-of-file. */
     void next() { if (m_curr != scanner::token_kind::Eof) scan(); }
-    /** \brief Return true iff the current token is equal to \c tk */
+    /** \brief Return true iff the current token is a keyword (or command keyword) named \c tk */
     bool curr_is_token(name const & tk) const;
     /** \brief Check current token, and move to next characther, throw exception if current token is not \c tk. */
     void check_token_next(name const & tk, char const * msg);

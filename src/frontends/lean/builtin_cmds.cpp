@@ -9,6 +9,18 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_raw("raw");
+
+environment universe_cmd(parser & p) {
+    if (p.curr_is_identifier()) {
+        // TODO(Leo): take namespace and scopes into account
+        name n = p.get_name_val();
+        p.next();
+        return p.env().add_global_level(n);
+    } else {
+        throw parser_error("invalid universe declaration, identifier expected", p.cmd_pos());
+    }
+}
+
 environment print_cmd(parser & p) {
     if (p.curr() == scanner::token_kind::String) {
         p.regular_stream() << p.get_str_val() << "\n";
@@ -25,7 +37,8 @@ environment print_cmd(parser & p) {
 
 cmd_table init_cmd_table() {
     cmd_table r;
-    add_cmd(r, cmd_info("print", "print a string", print_cmd));
+    add_cmd(r, cmd_info("print",    "print a string", print_cmd));
+    add_cmd(r, cmd_info("universe", "declare a global universe level", universe_cmd));
     return r;
 }
 

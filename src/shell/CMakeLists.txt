@@ -19,7 +19,7 @@ add_test(lean_luahook2 ${CMAKE_CURRENT_BINARY_DIR}/lean -c 100 "${LEAN_SOURCE_DI
 # add_test(lean_lua1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "--lua" "${LEAN_SOURCE_DIR}/../tests/lua/single.lua")
 # add_test(lean_lua2 ${LEAN_SOURCE_DIR}/cmake/redirect.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "-u" "${LEAN_SOURCE_DIR}/../tests/lua/single.lua")
 add_test(lean_unknown_option ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "-z")
-# add_test(lean_unknown_file1 ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
+add_test(lean_unknown_file1 ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
 add_test(lean_unknown_file2 ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lua")
 
 # # LEAN EXAMPLES
@@ -37,6 +37,15 @@ FOREACH(T ${LEANTESTS})
   add_test(NAME "leantest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t 100000" ${T_NAME})
+ENDFOREACH(T)
+
+# LEAN RUN TESTS
+file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/run/*.lean")
+FOREACH(T ${LEANRUNTESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanruntest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
+           COMMAND "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
 # # LEAN INTERACTIVE TESTS

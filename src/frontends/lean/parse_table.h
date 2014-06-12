@@ -113,6 +113,9 @@ public:
 
     bool is_nud() const;
     parse_table add(unsigned num, transition const * ts, expr const & a, bool overload) const;
+    parse_table add(std::initializer_list<transition> const & ts, expr const & a) const {
+        return add(ts.size(), ts.begin(), a, true);
+    }
     parse_table merge(parse_table const & s, bool overload) const;
     optional<std::pair<action, parse_table>> find(name const & tk) const;
     list<expr> const & is_accepting() const;

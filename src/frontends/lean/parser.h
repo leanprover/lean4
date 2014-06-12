@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/io_state.h"
+#include "library/io_state_stream.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/parser_config.h"
@@ -101,10 +102,11 @@ class parser {
     void parse_script(bool as_expr = false);
     bool parse_commands();
     unsigned curr_lbp() const;
+    expr parse_notation(parse_table t, expr * left);
+    expr parse_nud_notation();
+    expr parse_led_notation(expr left);
     expr parse_nud();
     expr parse_led(expr left);
-    expr parse_nud_keyword();
-    expr parse_led_keyword(expr left);
     expr parse_id();
     expr parse_numeral_expr();
     expr parse_decimal_expr();
@@ -162,6 +164,9 @@ public:
     std::string const & get_str_val() const { return m_scanner.get_str_val(); }
     token_info const & get_token_info() const { return m_scanner.get_token_info(); }
     std::string const & get_stream_name() const { return m_scanner.get_stream_name(); }
+
+    regular regular_stream() const { return regular(env(), ios()); }
+    diagnostic diagnostic_stream() const { return diagnostic(env(), ios()); }
 
     /** parse all commands in the input stream */
     bool operator()() { return parse_commands(); }

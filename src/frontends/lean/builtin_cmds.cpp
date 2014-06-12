@@ -8,10 +8,15 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 
 namespace lean {
+static name g_raw("raw");
 environment print_cmd(parser & p) {
     if (p.curr() == scanner::token_kind::String) {
-        regular(p.env(), p.ios()) << p.get_str_val() << "\n";
+        p.regular_stream() << p.get_str_val() << "\n";
         p.next();
+    } else if (p.curr_is_token(g_raw)) {
+        p.next();
+        expr e = p.parse_expr();
+        p.regular_stream() << e << "\n";
     } else {
         throw parser_error("invalid print command", p.pos());
     }
@@ -31,4 +36,3 @@ cmd_table get_builtin_cmds() {
     return *r;
 }
 }
-

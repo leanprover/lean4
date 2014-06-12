@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
-#include "library/io_state_stream.h"
+#include "kernel/instantiate.h"
 #include "library/parser_nested_exception.h"
 #include "library/aliases.h"
 #include "library/private.h"
@@ -56,16 +56,16 @@ void parser::updt_options() {
 }
 
 void parser::display_error_pos(unsigned line, unsigned pos) {
-    regular(m_env, m_ios) << get_stream_name() << ":" << line << ":";
+    regular_stream() << get_stream_name() << ":" << line << ":";
     if (pos != static_cast<unsigned>(-1))
-        regular(m_env, m_ios) << pos << ":";
-    regular(m_env, m_ios) << " error:";
+        regular_stream() << pos << ":";
+    regular_stream() << " error:";
 }
 void parser::display_error_pos(pos_info p) { display_error_pos(p.first, p.second); }
 
 void parser::display_error(char const * msg, unsigned line, unsigned pos) {
     display_error_pos(line, pos);
-    regular(m_env, m_ios) << " " << msg << endl;
+    regular_stream() << " " << msg << endl;
 }
 
 void parser::display_error(char const * msg, pos_info p) {
@@ -74,7 +74,7 @@ void parser::display_error(char const * msg, pos_info p) {
 
 void parser::display_error(exception const & ex) {
     parser_pos_provider pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    ::lean::display_error(regular(m_env, m_ios), &pos_provider, ex);
+    ::lean::display_error(regular_stream(), &pos_provider, ex);
 }
 
 void parser::throw_parser_exception(char const * msg, pos_info p) {
@@ -99,7 +99,7 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
     //     CATCH(display_error(ex),
     //           throw parser_exception(ex.what(), m_strm_name.c_str(), ex.m_pos.first, ex.m_pos.second));
     } catch (parser_exception & ex) {
-        CATCH(regular(m_env, m_ios) << ex.what() << endl,
+        CATCH(regular_stream() << ex.what() << endl,
               throw);
     } catch (parser_error & ex) {
         CATCH(display_error(ex.what(), ex.m_pos),
@@ -107,7 +107,7 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
     } catch (interrupted & ex) {
         reset_interrupt();
         if (m_verbose)
-            regular(m_env, m_ios) << "!!!Interrupted!!!" << endl;
+            regular_stream() << "!!!Interrupted!!!" << endl;
         sync();
         if (m_use_exceptions)
             throw;
@@ -238,12 +238,12 @@ parameter parser::parse_binder() {
     } else if (curr_is_token(g_lcurly)) {
         next();
         auto p = parse_binder_core(mk_implicit_binder_info());
-        check_token_next(g_rparen, "invalid binder, '}' expected");
+        check_token_next(g_rcurly, "invalid binder, '}' expected");
         return p;
     } else if (curr_is_token(g_lbracket)) {
         next();
         auto p = parse_binder_core(mk_cast_binder_info());
-        check_token_next(g_rparen, "invalid binder, ']' expected");
+        check_token_next(g_rbracket, "invalid binder, ']' expected");
         return p;
     } else {
         throw parser_error("invalid binder, '(', '{', '[' or identifier expected", pos());
@@ -282,11 +282,11 @@ void parser::parse_binders_core(buffer<parameter> & r) {
     } else if (curr_is_token(g_lcurly)) {
         next();
         parse_binder_block(r, mk_implicit_binder_info());
-        check_token_next(g_rparen, "invalid binder, '}' expected");
+        check_token_next(g_rcurly, "invalid binder, '}' expected");
     } else if (curr_is_token(g_lbracket)) {
         next();
         parse_binder_block(r, mk_cast_binder_info());
-        check_token_next(g_rparen, "invalid binder, ']' expected");
+        check_token_next(g_rbracket, "invalid binder, ']' expected");
     } else {
         return;
     }
@@ -301,15 +301,112 @@ void parser::parse_binders(buffer<parameter> & r) {
         throw parser_error("invalid binder, '(', '{', '[' or identifier expected", pos());
 }
 
-expr parser::parse_nud_keyword() {
-    // TODO(Leo)
-    return expr();
+expr parser::parse_notation(parse_table t, expr * left) {
+    lean_assert(curr() == scanner::token_kind::Keyword);
+    auto p = pos();
+    buffer<expr>      args;
+    buffer<parameter> ps;
+    if (left)
+        args.push_back(*left);
+    while (true) {
+        if (curr() != scanner::token_kind::Keyword)
+            break;
+        auto p = t.find(get_token_info().value());
+        if (!p)
+            break;
+        next();
+        notation::action const & a = p->first;
+        switch (a.kind()) {
+        case notation::action_kind::Skip:
+            break;
+        case notation::action_kind::Expr:
+            args.push_back(parse_expr(a.rbp()));
+            break;
+        case notation::action_kind::Exprs: {
+            buffer<expr> r_args;
+            r_args.push_back(parse_expr(a.rbp()));
+            while (curr_is_token(a.get_sep())) {
+                r_args.push_back(parse_expr(a.rbp()));
+            }
+            expr r = instantiate(a.get_initial(), args.size(), args.data());
+            if (a.is_fold_right()) {
+                unsigned i = r_args.size();
+                while (!i > 0) {
+                    --i;
+                    args.push_back(r_args[i]);
+                    args.push_back(r);
+                    r = instantiate(a.get_rec(), args.size(), args.data());
+                    args.pop_back(); args.pop_back();
+                }
+            } else {
+                for (unsigned i = 0; i < r_args.size(); i++) {
+                    args.push_back(r_args[i]);
+                    args.push_back(r);
+                    r = instantiate(a.get_rec(), args.size(), args.data());
+                    args.pop_back(); args.pop_back();
+                }
+            }
+            args.push_back(r);
+            break;
+        }
+        case notation::action_kind::Binder:
+            ps.push_back(parse_binder());
+            break;
+        case notation::action_kind::Binders:
+            parse_binders(ps);
+            break;
+        case notation::action_kind::ScopedExpr: {
+            expr r = parse_scoped_expr(ps, a.rbp());
+            if (is_var(a.get_rec(), 0)) {
+                r = abstract(ps, r, a.use_lambda_abstraction());
+            } else {
+                unsigned i = ps.size();
+                while (i > 0) {
+                    --i;
+                    expr const & l = ps[i].m_local;
+                    if (a.use_lambda_abstraction())
+                        r = Fun(l, r, ps[i].m_bi);
+                    else
+                        r = Pi(l, r, ps[i].m_bi);
+                    args.push_back(r);
+                    r = instantiate(a.get_rec(), args.size(), args.data());
+                    args.pop_back();
+                }
+            }
+            args.push_back(r);
+            break;
+        }
+        case notation::action_kind::Ext:
+            args.push_back(a.get_parse_fn()(*this, args.size(), args.data()));
+            break;
+        }
+        t = p->second;
+    }
+    list<expr> const & as = t.is_accepting();
+    if (is_nil(as)) {
+        if (p == pos())
+            throw parser_error(sstream() << "invalid expression", pos());
+        else
+            throw parser_error(sstream() << "invalid expression starting at " << p.first << ":" << p.second, pos());
+    }
+    buffer<expr> cs;
+    for (expr const & a : as) {
+        cs.push_back(instantiate(a, args.size(), args.data()));
+    }
+    return mk_choice(cs.size(), cs.data());
 }
 
-expr parser::parse_led_keyword(expr /* left */) {
-    // TODO(Leo)
-    return expr();
+expr parser::parse_nud_notation() {
+    return parse_notation(cfg().m_nud, nullptr);
 }
+
+expr parser::parse_led_notation(expr left) {
+    if (cfg().m_led.find(get_token_info().value()))
+        return parse_notation(cfg().m_led, &left);
+    else
+        return mk_app(left, parse_nud_notation(), pos_of(left));
+}
+
 expr parser::parse_id() {
     auto p  = pos();
     name id = get_name_val();
@@ -352,7 +449,7 @@ expr parser::parse_string_expr() {
 
 expr parser::parse_nud() {
     switch (curr()) {
-    case scanner::token_kind::Keyword:     return parse_nud_keyword();
+    case scanner::token_kind::Keyword:     return parse_nud_notation();
     case scanner::token_kind::Identifier:  return parse_id();
     case scanner::token_kind::Numeral:     return parse_numeral_expr();
     case scanner::token_kind::Decimal:     return parse_decimal_expr();
@@ -363,7 +460,7 @@ expr parser::parse_nud() {
 
 expr parser::parse_led(expr left) {
     switch (curr()) {
-    case scanner::token_kind::Keyword:     return parse_led_keyword(left);
+    case scanner::token_kind::Keyword:     return parse_led_notation(left);
     case scanner::token_kind::Identifier:  return mk_app(left, parse_id(), pos_of(left));
     case scanner::token_kind::Numeral:     return mk_app(left, parse_numeral_expr(), pos_of(left));
     case scanner::token_kind::Decimal:     return mk_app(left, parse_decimal_expr(), pos_of(left));
@@ -373,10 +470,17 @@ expr parser::parse_led(expr left) {
 }
 
 unsigned parser::curr_lbp() const {
-    if (curr() == scanner::token_kind::Keyword)
+    switch (curr()) {
+    case scanner::token_kind::Keyword:
         return get_token_info().precedence();
-    else
+    case scanner::token_kind::CommandKeyword: case scanner::token_kind::Eof:
+    case scanner::token_kind::ScriptBlock:
         return 0;
+    case scanner::token_kind::Identifier:     case scanner::token_kind::Numeral:
+    case scanner::token_kind::Decimal:        case scanner::token_kind::String:
+        return std::numeric_limits<unsigned>::max();
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 expr parser::parse_expr(unsigned rbp) {
@@ -413,9 +517,9 @@ expr parser::abstract(unsigned num_params, parameter const * ps, expr const & e,
         name const & n = local_pp_name(l);
         expr type  = ::lean::abstract(mlocal_type(l), i, locals.data());
         if (lambda)
-            r = mk_lambda(n, type, r);
+            r = mk_lambda(n, type, r, ps[i].m_bi);
         else
-            r = mk_pi(n, type, r);
+            r = mk_pi(n, type, r, ps[i].m_bi);
     }
     return r;
 }

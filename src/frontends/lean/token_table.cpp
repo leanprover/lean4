@@ -42,9 +42,9 @@ static char const * g_arrow_unicode  = "\u2192";
 
 token_table init_token_table() {
     token_table t;
-    char const * builtin[] = {"fun", "Pi", "let", "in", "have", "show", "by", "from", "(", ")", "{", "}",
+    char const * builtin[] = {"fun", "Pi", "let", "in", "have", "show", "by", "from", "(", ")", "{", "}", "[", "]",
                               ".{", "Type", "...", ",", ".", ":", "calc", ":=", "--", "(*", "(--", "->",
-                              "proof", "qed", "private", nullptr};
+                              "proof", "qed", "private", "raw", "Bool", nullptr};
 
     char const * commands[] = {"theorem", "axiom", "variable", "definition", "evaluate", "check",
                                "print", "variables", "end", "namespace", "section", "import",

@@ -23,11 +23,10 @@ Author: Leonardo de Moura
 namespace lean {
 struct parameter {
     pos_info    m_pos;
-    name        m_name;
-    expr        m_type;
+    expr        m_local;
     binder_info m_bi;
-    parameter(pos_info const & p, name const & n, expr const & t, binder_info const & bi):
-        m_pos(p), m_name(n), m_type(t), m_bi(bi) {}
+    parameter(pos_info const & p, expr const & l, binder_info const & bi):
+        m_pos(p), m_local(l), m_bi(bi) {}
     parameter():m_pos(0, 0) {}
 };
 
@@ -95,6 +94,9 @@ class parser {
     parse_table const & nud() const { return cfg().m_nud; }
     parse_table const & led() const { return cfg().m_led; }
 
+    void add_local_entry(name const & n, expr const & e);
+    void add_local_decl(expr const & t);
+
     void parse_command();
     void parse_script(bool as_expr = false);
     bool parse_commands();
@@ -107,6 +109,9 @@ class parser {
     expr parse_numeral_expr();
     expr parse_decimal_expr();
     expr parse_string_expr();
+    parameter parse_binder_core(binder_info const & bi);
+    void parse_binder_block(buffer<parameter> & r, binder_info const & bi);
+    void parse_binders_core(buffer<parameter> & r);
     expr mk_app(expr fn, expr arg, pos_info const & p);
 
 public:
@@ -118,11 +123,17 @@ public:
     io_state const & ios() const { return m_ios; }
     script_state * ss() const { return m_ss; }
 
+    void parse_names(buffer<std::pair<pos_info, name>> & result);
+
     parameter parse_binder();
     void parse_binders(buffer<parameter> & r);
 
     expr parse_expr(unsigned rbp = 0);
     expr parse_scoped_expr(unsigned num_locals, expr const * locals, unsigned rbp = 0);
+    expr parse_scoped_expr(unsigned num_params, parameter const * ps, unsigned rbp = 0);
+    expr parse_scoped_expr(buffer<parameter> & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
+    expr abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda = true);
+    expr abstract(buffer<parameter> const & ps, expr const & e, bool lambda = true) { return abstract(ps.size(), ps.data(), e, lambda); }
 
     tactic parse_tactic(unsigned rbp = 0);
 
@@ -137,10 +148,14 @@ public:
     void scan() { m_curr = m_scanner.scan(m_env); }
     /** \brief Return the current token */
     scanner::token_kind curr() const { return m_curr; }
+    /** \brief Return true iff the current token is an identifier */
+    bool curr_is_identifier() const { return curr() == scanner::token_kind::Identifier; }
     /** \brief Read the next token if the current one is not End-of-file. */
     void next() { if (m_curr != scanner::token_kind::Eof) scan(); }
     /** \brief Return true iff the current token is equal to \c tk */
     bool curr_is_token(name const & tk) const;
+    /** \brief Check current token, and move to next characther, throw exception if current token is not \c tk. */
+    void check_token_next(name const & tk, char const * msg);
 
     mpq const & get_num_val() const { return m_scanner.get_num_val(); }
     name const & get_name_val() const { return m_scanner.get_name_val(); }

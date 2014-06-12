@@ -252,6 +252,9 @@ public:
     bool is_contextual() const { return m_contextual; }
 };
 
+inline binder_info mk_implicit_binder_info() { return binder_info(true); }
+inline binder_info mk_cast_binder_info() { return binder_info(false, true); }
+
 bool operator==(binder_info const & i1, binder_info const & i2);
 inline bool operator!=(binder_info const & i1, binder_info const & i2) { return !(i1 == i2); }
 

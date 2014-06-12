@@ -4,17 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <utility>
 #include <string>
 #include <limits>
 #include "util/interrupt.h"
 #include "util/script_exception.h"
 #include "util/sstream.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/abstract.h"
 #include "library/io_state_stream.h"
 #include "library/parser_nested_exception.h"
 #include "library/aliases.h"
 #include "library/private.h"
 #include "library/choice.h"
+#include "library/placeholder.h"
 #include "library/deep_copy.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
@@ -171,13 +174,132 @@ bool parser::curr_is_token(name const & tk) const {
         get_token_info().value() == tk;
 }
 
+void parser::check_token_next(name const & tk, char const * msg) {
+    if (!curr_is_token(tk))
+        throw parser_error(msg, pos());
+    next();
+}
+
 expr parser::mk_app(expr fn, expr arg, pos_info const & p) {
     return save_pos(::lean::mk_app(fn, arg), p);
 }
 
-// expr parser::copy_expr(expr const & e, pos_info const & p) {
-//     return replace(e, [](
-// }
+void parser::add_local_entry(name const & n, expr const & e) {
+    m_local_decls.insert(n, local_entry(e, m_local_decls.size()));
+}
+
+void parser::add_local_decl(expr const & e) {
+    lean_assert(is_local(e));
+    add_local_entry(local_pp_name(e), e);
+}
+
+/** \brief Parse a sequence of identifiers <tt>ID*</tt>. Store the result in \c result. */
+void parser::parse_names(buffer<std::pair<pos_info, name>> & result) {
+    while (curr_is_identifier()) {
+        result.emplace_back(pos(), get_name_val());
+        next();
+    }
+}
+
+static name g_period(".");
+static name g_colon(":");
+static name g_lparen("(");
+static name g_rparen(")");
+static name g_lcurly("{");
+static name g_rcurly("}");
+static name g_lbracket("[");
+static name g_rbracket("]");
+
+/** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */
+parameter parser::parse_binder_core(binder_info const & bi) {
+    auto p  = pos();
+    if (!curr_is_identifier())
+        throw parser_error("invalid binder, identifier expected", p);
+    name id = get_name_val();
+    next();
+    expr type;
+    if (curr_is_token(g_colon)) {
+        next();
+        type = parse_expr();
+    } else {
+        type = save_pos(mk_expr_placeholder(), p);
+    }
+    return parameter(p, save_pos(mk_local(id, id, type), p), bi);
+}
+
+parameter parser::parse_binder() {
+    if (curr_is_identifier()) {
+        return parse_binder_core(binder_info());
+    } else if (curr_is_token(g_lparen)) {
+        next();
+        auto p = parse_binder_core(binder_info());
+        check_token_next(g_rparen, "invalid binder, ')' expected");
+        return p;
+    } else if (curr_is_token(g_lcurly)) {
+        next();
+        auto p = parse_binder_core(mk_implicit_binder_info());
+        check_token_next(g_rparen, "invalid binder, '}' expected");
+        return p;
+    } else if (curr_is_token(g_lbracket)) {
+        next();
+        auto p = parse_binder_core(mk_cast_binder_info());
+        check_token_next(g_rparen, "invalid binder, ']' expected");
+        return p;
+    } else {
+        throw parser_error("invalid binder, '(', '{', '[' or identifier expected", pos());
+    }
+}
+
+/**
+   \brief Parse <tt>ID ... ID ':' expr</tt>, where the expression
+   represents the type of the identifiers.
+*/
+void parser::parse_binder_block(buffer<parameter> & r, binder_info const & bi) {
+    buffer<std::pair<pos_info, name>> names;
+    parse_names(names);
+    if (names.empty())
+        throw parser_error("invalid binder, identifier expected", pos());
+    optional<expr> type;
+    if (curr_is_token(g_colon)) {
+        next();
+        type = parse_expr();
+    }
+    for (auto p : names) {
+        expr arg_type = type ? *type : save_pos(mk_expr_placeholder(), p.first);
+        expr local = mk_local(p.second, p.second, arg_type);
+        add_local_decl(local);
+        r.push_back(parameter(p.first, local, bi));
+    }
+}
+
+void parser::parse_binders_core(buffer<parameter> & r) {
+    if (curr_is_identifier()) {
+        parse_binder_block(r, binder_info());
+    } else if (curr_is_token(g_lparen)) {
+        next();
+        parse_binder_block(r, binder_info());
+        check_token_next(g_rparen, "invalid binder, ')' expected");
+    } else if (curr_is_token(g_lcurly)) {
+        next();
+        parse_binder_block(r, mk_implicit_binder_info());
+        check_token_next(g_rparen, "invalid binder, '}' expected");
+    } else if (curr_is_token(g_lbracket)) {
+        next();
+        parse_binder_block(r, mk_cast_binder_info());
+        check_token_next(g_rparen, "invalid binder, ']' expected");
+    } else {
+        return;
+    }
+    parse_binders_core(r);
+}
+
+void parser::parse_binders(buffer<parameter> & r) {
+    local_decls::mk_scope scope(m_local_decls);
+    unsigned old_sz = r.size();
+    parse_binders_core(r);
+    if (old_sz == r.size())
+        throw parser_error("invalid binder, '(', '{', '[' or identifier expected", pos());
+}
 
 expr parser::parse_nud_keyword() {
     // TODO(Leo)
@@ -267,11 +389,35 @@ expr parser::parse_expr(unsigned rbp) {
 
 expr parser::parse_scoped_expr(unsigned num_locals, expr const * locals, unsigned rbp) {
     local_decls::mk_scope scope(m_local_decls);
-    for (unsigned i = 0; i < num_locals; i++) {
-        lean_assert(is_local(locals[i]));
-        m_local_decls.insert(local_pp_name(locals[i]), local_entry(locals[i], m_local_decls.size()));
-    }
+    for (unsigned i = 0; i < num_locals; i++)
+        add_local_decl(locals[i]);
     return parse_expr(rbp);
+}
+
+expr parser::parse_scoped_expr(unsigned num_params, parameter const * ps, unsigned rbp) {
+    local_decls::mk_scope scope(m_local_decls);
+    for (unsigned i = 0; i < num_params; i++)
+        add_local_decl(ps[i].m_local);
+    return parse_expr(rbp);
+}
+
+expr parser::abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda) {
+    buffer<expr> locals;
+    for (unsigned i = 0; i < num_params; i++)
+        locals.push_back(ps[i].m_local);
+    expr r = ::lean::abstract(e, locals.size(), locals.data());
+    unsigned i = num_params;
+    while (i > 0) {
+        --i;
+        expr const & l = ps[i].m_local;
+        name const & n = local_pp_name(l);
+        expr type  = ::lean::abstract(mlocal_type(l), i, locals.data());
+        if (lambda)
+            r = mk_lambda(n, type, r);
+        else
+            r = mk_pi(n, type, r);
+    }
+    return r;
 }
 
 tactic parser::parse_tactic(unsigned /* rbp */) {
@@ -305,7 +451,6 @@ void parser::parse_script(bool as_expr) {
         });
 }
 
-static name g_period(".");
 bool parser::parse_commands() {
     // We disable hash-consing while parsing to make sure the pos-info are correct.
     scoped_expr_caching disable(false);

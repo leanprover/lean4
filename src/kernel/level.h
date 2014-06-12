@@ -165,6 +165,7 @@ bool has_param(levels const & ls);
 /** \brief An arbitrary (monotonic) total order on universe level terms. */
 bool is_lt(level const & l1, level const & l2, bool use_hash);
 bool is_lt(levels const & as, levels const & bs, bool use_hash);
+struct level_quick_cmp { int operator()(level const & l1, level const & l2) const { return is_lt(l1, l2, true) ? -1 : (l1 == l2 ? 0 : 1); } };
 
 /** \brief Functional for applying <tt>F</tt> to each level expressions. */
 class for_each_level_fn {

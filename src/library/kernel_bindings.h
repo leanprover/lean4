@@ -21,6 +21,7 @@ UDATA_DEFS(justification)
 UDATA_DEFS(constraint)
 UDATA_DEFS(substitution)
 UDATA_DEFS(io_state)
+int push_optional_level(lua_State * L, optional<level> const & e);
 int push_optional_expr(lua_State * L, optional<expr> const & e);
 int push_optional_justification(lua_State * L, optional<justification> const & j);
 int push_optional_declaration(lua_State * L, optional<declaration> const & e);

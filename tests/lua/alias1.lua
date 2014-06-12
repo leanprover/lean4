@@ -19,8 +19,8 @@ env = add_inductive(env,
 
 env:for_each(function(d) print(d:name()) end)
 env = add_aliases(env, "nat", "natural")
-assert(get_aliases(env, {"natural", "zero"}):head() == zero)
-assert(get_aliases(env, {"natural", "nat"}):head() == nat)
+assert(get_alias_exprs(env, {"natural", "zero"}):head() == zero)
+assert(get_alias_exprs(env, {"natural", "nat"}):head() == nat)
 assert(is_aliased(env, nat) == name("natural", "nat"))
 
 env = add_inductive(env,
@@ -29,15 +29,15 @@ env = add_inductive(env,
                     name("list", "cons"), Pi({{A, U_l, true}}, mk_arrow(A, list_l(A), list_l(A))))
 
 env = add_aliases(env, "list", "lst")
-print(not get_aliases(env, {"lst", "list_rec"}):is_nil())
+print(not get_alias_exprs(env, {"lst", "list_rec"}):is_nil())
 env = add_aliases(env, "list")
-print(get_aliases(env, "list_rec"):head())
-assert(not get_aliases(env, "list_rec"):is_nil())
-assert(not get_aliases(env, {"lst", "list_rec"}):is_nil())
+print(get_alias_exprs(env, "list_rec"):head())
+assert(not get_alias_exprs(env, "list_rec"):is_nil())
+assert(not get_alias_exprs(env, {"lst", "list_rec"}):is_nil())
 
 env = add_aliases(env, "list", "l")
-print(get_aliases(env, {"l", "list"}):head())
-print(get_aliases(env, {"l", "cons"}):head())
+print(get_alias_exprs(env, {"l", "list"}):head())
+print(get_alias_exprs(env, {"l", "cons"}):head())
 
 local A = Local("A", mk_sort(1))
 local R = Local("R", mk_arrow(A, A, Bool))
@@ -45,5 +45,5 @@ local a = Local("a", A)
 local b = Local("b", A)
 
 env = add_alias(env, "z", zero)
-assert(get_aliases(env, "z"):head() == zero)
-assert(get_aliases(env, "zz"):is_nil())
+assert(get_alias_exprs(env, "z"):head() == zero)
+assert(get_alias_exprs(env, "zz"):is_nil())

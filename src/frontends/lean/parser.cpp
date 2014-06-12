@@ -549,7 +549,7 @@ expr parser::parse_id() {
     if (auto prv_id = user_to_hidden_name(m_env, id))
         return save_pos(mk_constant(*prv_id), p);
     // aliases
-    auto as = get_aliases(m_env, id);
+    auto as = get_alias_exprs(m_env, id);
     if (!is_nil(as)) {
         buffer<expr> new_as;
         for (auto const & e : as)

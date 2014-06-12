@@ -10,11 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-/**
-    \brief Add the alias \c a for expression \c e. \c e must not have
-    free variables. Warning messages are generated if the new alias shadows
-    existing aliases and/or declarations.
-*/
+/** \brief Add the alias \c a for expression \c e. \c e must not have free variables. */
 environment add_alias(environment const & env, name const & a, expr const & e);
 /**
    \brief Create an alias for each declaration named <tt>prefix.rest</tt>.
@@ -29,7 +25,20 @@ environment add_aliases(environment const & env, name const & prefix, name const
 optional<name> is_aliased(environment const & env, expr const & t);
 
 /** \brief Return expressions associated with the given alias. */
-list<expr> get_aliases(environment const & env, name const & n);
+list<expr> get_alias_exprs(environment const & env, name const & n);
+
+/**
+    \brief Add the alias \c a for the level expression \c l. An error is generated if the new alias shadows
+    existing aliases and/or declarations. We don't have "choice" construct for universe
+    levels.
+*/
+environment add_alias(environment const & env, name const & a, level const & l);
+
+/** \brief If \c l is aliased in \c env, then return its name. Otherwise, return none. */
+optional<name> is_aliased(environment const & env, level const & l);
+
+/** \brief Return the level associated with the given alias. */
+optional<level> get_alias_level(environment const & env, name const & n);
 
 void open_aliases(lua_State * L);
 }

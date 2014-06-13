@@ -17,7 +17,7 @@ env = add_inductive(env,
                     name("nat", "zero"), nat,
                     name("nat", "succ"), mk_arrow(nat, nat))
 
-env:for_each(function(d) print(d:name()) end)
+env:for_each_decl(function(d) print(d:name()) end)
 env = add_aliases(env, "nat", "natural")
 assert(get_alias_exprs(env, {"natural", "zero"}):head() == zero)
 assert(get_alias_exprs(env, {"natural", "nat"}):head() == nat)

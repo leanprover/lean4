@@ -12,14 +12,6 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief Add the alias \c a for expression \c e. \c e must not have free variables. */
 environment add_alias(environment const & env, name const & a, expr const & e);
-/**
-   \brief Create an alias for each declaration named <tt>prefix.rest</tt>.
-   The alias for <tt>prefix.rest</tt> is <tt>new_prefix.rest</tt>.
-   Warning messages are generated if the new aliases shadow existing aliases and/or declarations.
-
-   \remark \c new_prefix may be the anonymous name.
-*/
-environment add_aliases(environment const & env, name const & prefix, name const & new_prefix);
 
 /** \brief If \c t is aliased in \c env, then return its name. Otherwise, return none. */
 optional<name> is_aliased(environment const & env, expr const & t);
@@ -39,6 +31,19 @@ optional<name> is_aliased(environment const & env, level const & l);
 
 /** \brief Return the level associated with the given alias. */
 optional<level> get_alias_level(environment const & env, name const & n);
+
+/**
+   \brief Create an alias for each declaration named <tt>prefix.rest</tt>.
+   The alias for <tt>prefix.rest</tt> is <tt>new_prefix.rest</tt>.
+
+   The command will also create aliases for universe level declarations.
+   However, an error is thrown if the universe level shadows existing aliases and/or declarations.
+   We don't have "choice" construct for universe levels.
+
+   \remark \c new_prefix may be the anonymous name.
+*/
+environment add_aliases(environment const & env, name const & prefix, name const & new_prefix,
+                        unsigned num_exceptions = 0, name const * exceptions = nullptr);
 
 void open_aliases(lua_State * L);
 }

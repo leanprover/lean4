@@ -12,8 +12,8 @@ local forest_l = Const("forest", {l})
 local tree_l   = Const("tree",   {l})
 local n        = Const("n")
 
-env = env:add_global_level("u")
-env = env:add_global_level("v")
+env = env:add_universe("u")
+env = env:add_universe("v")
 local u        = global_univ("u")
 local v        = global_univ("v")
 
@@ -138,8 +138,8 @@ assert(tc:is_def_eq(length(cons_nat(zero, cons_nat(zero, nil_nat))), succ(succ(z
 -- Martin-Lof style identity type
 local env  = hott_environment()
 local Id_l = Const("Id", {l})
-env = env:add_global_level("u")
-env = env:add_global_level("v")
+env = env:add_universe("u")
+env = env:add_universe("v")
 env = add_inductive(env,
                     "Id", {l}, 1, Pi({{A, U_l}, {a, A}, {b, A}}, U_l),
                     "Id_refl", Pi({{A, U_l, true}, {b, A}}, Id_l(A, b, b)))

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
+#include <algorithm>
 #include "util/rb_map.h"
 #include "util/name_generator.h"
 #include "util/sstream.h"
@@ -57,19 +58,6 @@ environment add_alias(environment const & env, name const & a, expr const & e) {
     return update(env, ext);
 }
 
-environment add_aliases(environment const & env, name const & prefix, name const & new_prefix) {
-    aliases_ext ext = get_extension(env);
-    env.for_each([&](declaration const & d) {
-            if (is_prefix_of(prefix, d.get_name())) {
-                name a        = d.get_name().replace_prefix(prefix, new_prefix);
-                levels ls     = map2<level>(d.get_univ_params(), [](name const &) { return mk_level_placeholder(); });
-                expr c        = mk_constant(d.get_name(), ls);
-                ext.add_alias(a, c);
-            }
-        });
-    return update(env, ext);
-}
-
 optional<name> is_aliased(environment const & env, expr const & t) {
     auto it = get_extension(env).m_inv_aliases.find(t);
     return it ? optional<name>(*it) : optional<name>();
@@ -81,7 +69,7 @@ list<expr> get_alias_exprs(environment const & env, name const & n) {
 }
 
 environment add_alias(environment const & env, name const & a, level const & l) {
-    if (env.is_global_level(a))
+    if (env.is_universe(a))
         throw exception(sstream() << "universe level alias '" << a << "' shadows existing global universe level");
     aliases_ext ext = get_extension(env);
     ext.add_alias(a, l);
@@ -98,20 +86,38 @@ optional<level> get_alias_level(environment const & env, name const & n) {
     return it ? some_level(*it) : optional<level>();
 }
 
+// Return true iff \c n is (prefix + ex) for some ex in exceptions
+static bool is_exception(name const & n, name const & prefix, unsigned num_exceptions, name const * exceptions) {
+    return std::any_of(exceptions, exceptions + num_exceptions, [&](name const & ex) { return (prefix + ex) == n; });
+}
+
+environment add_aliases(environment const & env, name const & prefix, name const & new_prefix,
+                        unsigned num_exceptions, name const * exceptions) {
+    aliases_ext ext = get_extension(env);
+    env.for_each_declaration([&](declaration const & d) {
+            if (is_prefix_of(prefix, d.get_name()) && !is_exception(d.get_name(), prefix, num_exceptions, exceptions)) {
+                name a        = d.get_name().replace_prefix(prefix, new_prefix);
+                levels ls     = map2<level>(d.get_univ_params(), [](name const &) { return mk_level_placeholder(); });
+                expr c        = mk_constant(d.get_name(), ls);
+                ext.add_alias(a, c);
+            }
+        });
+    env.for_each_universe([&](name const & u) {
+            if (is_prefix_of(prefix, u) && !is_exception(u, prefix, num_exceptions, exceptions)) {
+                name a = u.replace_prefix(prefix, new_prefix);
+                if (env.is_universe(a))
+                    throw exception(sstream() << "universe level alias '" << a << "' shadows existing global universe level");
+                ext.add_alias(a, mk_global_univ(u));
+            }
+        });
+    return update(env, ext);
+}
+
 static int add_alias(lua_State * L) {
     if (is_expr(L, 3))
         return push_environment(L, add_alias(to_environment(L, 1), to_name_ext(L, 2), to_expr(L, 3)));
     else
         return push_environment(L, add_alias(to_environment(L, 1), to_name_ext(L, 2), to_level(L, 3)));
-}
-
-static int add_aliases(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 2) {
-        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), name()));
-    } else {
-        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3)));
-    }
 }
 
 static int is_aliased(lua_State * L) {
@@ -127,6 +133,26 @@ static int get_alias_exprs(lua_State * L) {
 
 static int get_alias_level(lua_State * L) {
     return push_optional_level(L, get_alias_level(to_environment(L, 1), to_name_ext(L, 2)));
+}
+
+static int add_aliases(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 2) {
+        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), name()));
+    } else if (nargs == 3) {
+        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3)));
+    } else {
+        buffer<name> exs;
+        luaL_checktype(L, 4, LUA_TTABLE);
+        int n = objlen(L, 4);
+        for (int i = 1; i <= n; i++) {
+            lua_rawgeti(L, 4, i);
+            exs.push_back(to_name_ext(L, -1));
+            lua_pop(L, 1);
+        }
+        return push_environment(L, add_aliases(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3),
+                                               exs.size(), exs.data()));
+    }
 }
 
 void open_aliases(lua_State * L) {

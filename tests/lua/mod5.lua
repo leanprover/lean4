@@ -47,9 +47,9 @@ end
 
 mk_modules()
 local env = import_modules(mod_name(NumMods))
-env:for_each(function(d)
-                print(d:name())
-             end
+env:for_each_decl(function(d)
+                     print(d:name())
+                  end
 )
 for i = 1, NumMods do
    assert(env:get(const_name(i)):is_definition())

@@ -109,8 +109,8 @@ environment add(environment const & env, std::string const & k, std::function<vo
     return update(env, ext);
 }
 
-environment add_global_level(environment const & env, name const & l) {
-    environment new_env = env.add_global_level(l);
+environment add_universe(environment const & env, name const & l) {
+    environment new_env = env.add_universe(l);
     return add(new_env, g_glvl_key, [=](serializer & s) { s << l; });
 }
 
@@ -293,9 +293,9 @@ struct import_modules_fn {
         }
     }
 
-    void import_global_level(deserializer & d) {
+    void import_universe(deserializer & d) {
         name const l = read_name(d);
-        m_senv.update([=](environment const & env) { return env.add_global_level(l); });
+        m_senv.update([=](environment const & env) { return env.add_universe(l); });
     }
 
     void import_module(module_info_ptr const & r) {
@@ -319,7 +319,7 @@ struct import_modules_fn {
             } else if (k == g_decl_key) {
                 import_decl(d, r->m_module_idx);
             } else if (k == g_glvl_key) {
-                import_global_level(d);
+                import_universe(d);
             } else {
                 object_readers & readers = get_object_readers();
                 auto it = readers.find(k);

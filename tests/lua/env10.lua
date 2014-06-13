@@ -36,7 +36,7 @@ env = add_inductive(env,
                     "inl", Pi({A, B, a}, coproduct_l1l2(A, B)),
                     "inr", Pi({A, B, b}, coproduct_l1l2(A, B)))
 
-env:for_each(function(d)
-                print(tostring(d:name()) .. " : " .. tostring(d:type()))
-             end
+env:for_each_decl(function(d)
+                     print(tostring(d:name()) .. " : " .. tostring(d:type()))
+                  end
 )

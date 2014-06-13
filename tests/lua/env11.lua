@@ -17,8 +17,8 @@ end
 
 expected_error(function() env1:add(c3) end)
 expected_error(function() env2:add(c1) end)
-env3 = env2:add_global_level("u")
-expected_error(function() env3:add_global_level("u") end)
+env3 = env2:add_universe("u")
+expected_error(function() env3:add_universe("u") end)
 expected_error(function() check(env2, mk_theorem("H1", A, Const("H1"))) end)
 local c4   = check(env1b, mk_theorem("H2", A, Const("H1")))
 expected_error(function() env3:add(c4) end)

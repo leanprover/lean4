@@ -16,8 +16,8 @@ env = add_inductive(env,
                     "Acc", {l}, 2, Pi({A, R, x}, mk_sort(l+1)),
                     "Acc_intro", Pi({A, R, x}, mk_arrow(Pi(y, mk_arrow(R(y, x), Acc(A, R, y))), Acc(A, R, x))))
 
-env = env:add_global_level("u")
-env = env:add_global_level("v")
+env = env:add_universe("u")
+env = env:add_universe("v")
 local u = global_univ("u")
 local v = global_univ("v")
 display_type(env, Const("Acc_rec", {v, u}))

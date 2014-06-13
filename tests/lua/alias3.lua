@@ -1,0 +1,13 @@
+local env = environment()
+env = add_decl(env, mk_var_decl(name("foo", "x"), Bool))
+env = add_decl(env, mk_var_decl(name("foo", "y"), Bool))
+env = add_decl(env, mk_var_decl(name("foo", "z"), Bool))
+env = env:add_universe(name("foo", "u"))
+env = env:add_universe(name("foo", "v"))
+env = add_aliases(env, "foo", "bla", {"z", "v"})
+assert(not get_alias_exprs(env, {"bla", "x"}):is_nil())
+assert(not get_alias_exprs(env, {"bla", "y"}):is_nil())
+assert(get_alias_exprs(env, {"bla", "z"}):is_nil())
+assert(get_alias_level(env, {"bla", "u"}))
+assert(not get_alias_level(env, {"bla", "v"}))
+

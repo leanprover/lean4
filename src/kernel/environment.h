@@ -163,10 +163,10 @@ public:
         \brief Add a new global universe level with name \c n
         This method throws an exception if the environment already contains a level named \c n.
     */
-    environment add_global_level(name const & n) const;
+    environment add_universe(name const & n) const;
 
     /** \brief Return true iff the environment has a universe level named \c n. */
-    bool is_global_level(name const & n) const;
+    bool is_universe(name const & n) const;
 
     /**
        \brief Extends the current environment with the given (certified) declaration
@@ -221,7 +221,10 @@ public:
     environment forget() const;
 
     /** \brief Apply the function \c f to each declaration */
-    void for_each(std::function<void(declaration const & d)> const & f) const;
+    void for_each_declaration(std::function<void(declaration const & d)> const & f) const;
+
+    /** \brief Apply the function \c f to each universe */
+    void for_each_universe(std::function<void(name const & u)> const & f) const;
 };
 
 class name_generator;

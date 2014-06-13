@@ -129,14 +129,14 @@ environment environment::add(certified_declaration const & d) const {
     return environment(m_header, m_id, insert(m_declarations, n, d.get_declaration()), m_global_levels, m_extensions);
 }
 
-environment environment::add_global_level(name const & n) const {
+environment environment::add_universe(name const & n) const {
     if (m_global_levels.contains(n))
         throw_kernel_exception(*this,
                                "invalid global universe level declaration, environment already contains a universe level with the given name");
     return environment(m_header, m_id, m_declarations, insert(m_global_levels, n), m_extensions);
 }
 
-bool environment::is_global_level(name const & n) const {
+bool environment::is_universe(name const & n) const {
     return m_global_levels.contains(n);
 }
 
@@ -213,7 +213,11 @@ environment environment::update(unsigned id, std::shared_ptr<environment_extensi
     return environment(m_header, m_id, m_declarations, m_global_levels, new_exts);
 }
 
-void environment::for_each(std::function<void(declaration const & d)> const & f) const {
+void environment::for_each_declaration(std::function<void(declaration const & d)> const & f) const {
     m_declarations.for_each([&](name const &, declaration const & d) { return f(d); });
+}
+
+void environment::for_each_universe(std::function<void(name const & n)> const & f) const {
+    m_global_levels.for_each([&](name const & n) { return f(n); });
 }
 }

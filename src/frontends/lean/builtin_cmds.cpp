@@ -15,7 +15,7 @@ environment universe_cmd(parser & p) {
         // TODO(Leo): take namespace and scopes into account
         name n = p.get_name_val();
         p.next();
-        return p.env().add_global_level(n);
+        return p.env().add_universe(n);
     } else {
         throw parser_error("invalid universe declaration, identifier expected", p.cmd_pos());
     }

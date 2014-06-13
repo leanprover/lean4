@@ -34,7 +34,7 @@ assert(not pcall(function()
                     print(tc:check(id_1_1))
                  end
 ))
-local env2 = env:add_global_level("u")
+local env2 = env:add_universe("u")
 assert(env2:is_descendant(env))
 assert(not env:is_descendant(env2))
 local tc2 = type_checker(env2)

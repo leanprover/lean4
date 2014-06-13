@@ -280,7 +280,7 @@ level parser::parse_level_id() {
     auto it = m_local_level_decls.find(id);
     if (it != m_local_level_decls.end())
         return it->second.first;
-    if (m_env.is_global_level(id))
+    if (m_env.is_universe(id))
         return mk_global_univ(id);
     throw parser_error(sstream() << "unknown level '" << id << "'", p);
 }

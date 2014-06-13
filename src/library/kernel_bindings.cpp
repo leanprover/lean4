@@ -1152,10 +1152,10 @@ static int environment_prop_proof_irrel(lua_State * L) { return push_boolean(L, 
 static int environment_cls_proof_irrel(lua_State * L) { return push_list_name(L, to_environment(L, 1).cls_proof_irrel()); }
 static int environment_eta(lua_State * L) { return push_boolean(L, to_environment(L, 1).eta()); }
 static int environment_impredicative(lua_State * L) { return push_boolean(L, to_environment(L, 1).impredicative()); }
-static int environment_add_global_level(lua_State * L) {
-    return push_environment(L, module::add_global_level(to_environment(L, 1), to_name_ext(L, 2)));
+static int environment_add_universe(lua_State * L) {
+    return push_environment(L, module::add_universe(to_environment(L, 1), to_name_ext(L, 2)));
 }
-static int environment_is_global_level(lua_State * L) { return push_boolean(L, to_environment(L, 1).is_global_level(to_name_ext(L, 2))); }
+static int environment_is_universe(lua_State * L) { return push_boolean(L, to_environment(L, 1).is_universe(to_name_ext(L, 2))); }
 static int environment_find(lua_State * L) { return push_optional_declaration(L, to_environment(L, 1).find(to_name_ext(L, 2))); }
 static int environment_get(lua_State * L) { return push_declaration(L, to_environment(L, 1).get(to_name_ext(L, 2))); }
 static int environment_add(lua_State * L) {
@@ -1188,12 +1188,22 @@ static int environment_whnf(lua_State * L) { return push_expr(L, type_checker(to
 static int environment_normalize(lua_State * L) { return push_expr(L, normalize(to_environment(L, 1), to_expr(L, 2))); }
 static int environment_infer_type(lua_State * L) { return push_expr(L, type_checker(to_environment(L, 1)).infer(to_expr(L, 2))); }
 static int environment_type_check(lua_State * L) { return push_expr(L, type_checker(to_environment(L, 1)).check(to_expr(L, 2))); }
-static int environment_for_each(lua_State * L) {
+static int environment_for_each_decl(lua_State * L) {
     environment const & env = to_environment(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
-    env.for_each([&](declaration const & d) {
+    env.for_each_declaration([&](declaration const & d) {
             lua_pushvalue(L, 2); // push user-fun
             push_declaration(L, d);
+            pcall(L, 1, 0, 0);
+        });
+    return 0;
+}
+static int environment_for_each_universe(lua_State * L) {
+    environment const & env = to_environment(L, 1);
+    luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
+    env.for_each_universe([&](name const & u) {
+            lua_pushvalue(L, 2); // push user-fun
+            push_name(L, u);
             pcall(L, 1, 0, 0);
         });
     return 0;
@@ -1256,8 +1266,8 @@ static const struct luaL_Reg environment_m[] = {
     {"cls_proof_irrel",       safe_function<environment_cls_proof_irrel>},
     {"eta",                   safe_function<environment_eta>},
     {"impredicative",         safe_function<environment_impredicative>},
-    {"add_global_level",      safe_function<environment_add_global_level>},
-    {"is_global_level",       safe_function<environment_is_global_level>},
+    {"add_universe",          safe_function<environment_add_universe>},
+    {"is_universe",           safe_function<environment_is_universe>},
     {"find",                  safe_function<environment_find>},
     {"get",                   safe_function<environment_get>},
     {"add",                   safe_function<environment_add>},
@@ -1267,7 +1277,10 @@ static const struct luaL_Reg environment_m[] = {
     {"normalize",             safe_function<environment_normalize>},
     {"infer_type",            safe_function<environment_infer_type>},
     {"type_check",            safe_function<environment_type_check>},
-    {"for_each",              safe_function<environment_for_each>},
+    {"for_each_declaration",  safe_function<environment_for_each_decl>},
+    {"for_each_decl",         safe_function<environment_for_each_decl>},
+    {"for_each_universe",     safe_function<environment_for_each_universe>},
+    {"for_each_univ",         safe_function<environment_for_each_universe>},
     {"export",                safe_function<export_module>},
     {0, 0}
 };

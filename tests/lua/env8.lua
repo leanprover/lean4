@@ -7,7 +7,7 @@ env = add_inductive(env,
                     "succ", mk_arrow(nat, nat))
 
 -- Display all declarations in the environment
-env:for_each(function(d)
-                print(tostring(d:name()) .. " : " .. tostring(d:type()))
-             end
+env:for_each_decl(function(d)
+                     print(tostring(d:name()) .. " : " .. tostring(d:type()))
+                  end
 )

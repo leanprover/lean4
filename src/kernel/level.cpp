@@ -405,7 +405,7 @@ optional<name> get_undef_global(level const & l, environment const & env) {
     for_each(l, [&](level const & l) {
             if (!has_global(l) || r)
                 return false;
-            if (is_global(l) && !env.is_global_level(global_id(l)))
+            if (is_global(l) && !env.is_universe(global_id(l)))
                 r = global_id(l);
             return true;
         });

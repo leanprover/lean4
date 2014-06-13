@@ -33,7 +33,7 @@ env = add_decl(env, mk_theorem("trans", {l},
 local symm_l = Const("symm", {l})
 local trans_l = Const("trans", {l})
 print(env:get("trans"):value())
-env = env:add_global_level("u")
+env = env:add_universe("u")
 local u       = mk_global_univ("u")
 local tc      = type_checker(env)
 print(tc:check(Const("trans", {u})))

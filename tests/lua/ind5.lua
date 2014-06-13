@@ -11,7 +11,7 @@ env = add_inductive(env,
                     "inj", Pi(A, retraction))
 
 local u = global_univ("u")
-env = env:add_global_level("u")
+env = env:add_universe("u")
 local a = Local("a", Bool)
 local r = Local("r", retraction)
 

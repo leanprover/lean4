@@ -19,7 +19,7 @@ static expr parse_Type(parser & p, unsigned, expr const *) {
         p.check_token_next(g_rcurly, "invalid Type expression, '}' expected");
         return mk_sort(l);
     } else {
-        return mk_sort(p.mk_new_level_param());
+        return p.mk_Type();
     }
 }
 

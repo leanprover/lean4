@@ -64,10 +64,10 @@ class parser {
     unsigned                m_next_tag_idx;
     bool                    m_found_errors;
     pos_info_table_ptr      m_pos_table;
-
-    enum class scope_kind { Scope, Namespace, Structure };
-    std::vector<name>       m_namespace_prefixes;
-    std::vector<scope_kind> m_scope_kinds;
+    // If m_type_use_placeholder is true, then the token Type is parsed as Type.{_}.
+    // if it is false, then it is parsed as Type.{l} where l is a fresh parameter,
+    // and is automatically inserted into m_local_level_decls.
+    bool                    m_type_use_placeholder;
 
     void display_error_pos(unsigned line, unsigned pos);
     void display_error_pos(pos_info p);
@@ -99,9 +99,6 @@ class parser {
     parse_table const & led() const { return cfg().m_led; }
     /** \brief Return true if the current token is a keyword named \c tk or an identifier named \c tk */
     bool curr_is_token_or_id(name const & tk) const;
-
-    void add_local_entry(name const & n, expr const & e);
-    void add_local_decl(expr const & t);
 
     unsigned curr_level_lbp() const;
     level parse_max_imax(bool is_max);
@@ -140,7 +137,6 @@ public:
     unsigned parse_small_nat();
 
     level parse_level(unsigned rbp = 0);
-    level mk_new_level_param();
 
     parameter parse_binder();
     void parse_binders(buffer<parameter> & r);
@@ -153,6 +149,25 @@ public:
     expr abstract(buffer<parameter> const & ps, expr const & e, bool lambda = true) { return abstract(ps.size(), ps.data(), e, lambda); }
 
     tactic parse_tactic(unsigned rbp = 0);
+
+    void push_local_scope();
+    void pop_local_scope();
+    void add_local_level(name const & n, level const & l);
+    void add_local_expr(name const & n, expr const & e);
+    void add_local(expr const & t);
+    /**
+       \brief Specify how the method mk_Type behaves. When <tt>set_type_use_placeholder(true)</tt>, then
+       it returns <tt>'Type.{_}'</tt>, where '_' is placeholder that instructs the Lean elaborator to
+       automalically infer a universe level expression for '_'. When <tt>set_type_use_placeholder(false)</tt>,
+       then it returns <tt>'Type.{l}'</tt>, where \c l is a fresh universe level parameter.
+       The new parameter is automatically added to \c m_local_level_decls.
+
+       \remark When the parse is created the flag is set to false.
+       \remark Before parsing a command, the parser automatically "caches" the current value, and
+       restores it after the command is parsed (or aborted).
+    */
+    void set_type_use_placeholder(bool f) { m_type_use_placeholder = f; }
+    expr mk_Type();
 
     /** \brief Return the current position information */
     pos_info pos() const { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }

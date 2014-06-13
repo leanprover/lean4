@@ -15,34 +15,78 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/aliases.h"
 #include "library/placeholder.h"
+#include "library/scoped_ext.h"
 
 namespace lean {
+struct aliases_ext;
+static aliases_ext const & get_extension(environment const & env);
+static environment update(environment const & env, aliases_ext const & ext);
+
 struct aliases_ext : public environment_extension {
-    rb_map<name, list<expr>, name_quick_cmp>  m_aliases;
-    rb_map<expr, name,       expr_quick_cmp>  m_inv_aliases;
-    rb_map<name, level,      name_quick_cmp>  m_level_aliases;
-    rb_map<level, name,      level_quick_cmp> m_inv_level_aliases;
+    struct state {
+        rb_map<name, list<expr>, name_quick_cmp>  m_aliases;
+        rb_map<expr, name,       expr_quick_cmp>  m_inv_aliases;
+        rb_map<name, level,      name_quick_cmp>  m_level_aliases;
+        rb_map<level, name,      level_quick_cmp> m_inv_level_aliases;
+    };
+    state       m_state;
+    list<state> m_scopes;
+
     void add_alias(name const & a, expr const & e) {
-        auto it = m_aliases.find(a);
+        auto it = m_state.m_aliases.find(a);
         if (it)
-            m_aliases.insert(a, list<expr>(e, *it));
+            m_state.m_aliases.insert(a, list<expr>(e, *it));
         else
-            m_aliases.insert(a, list<expr>(e));
-        m_inv_aliases.insert(e, a);
+            m_state.m_aliases.insert(a, list<expr>(e));
+        m_state.m_inv_aliases.insert(e, a);
     }
 
     void add_alias(name const & a, level const & l) {
-        auto it = m_level_aliases.find(a);
+        auto it = m_state.m_level_aliases.find(a);
         if (it)
             throw exception(sstream() << "universe level alias '" << a << "' shadows existing alias");
-        m_level_aliases.insert(a, l);
-        m_inv_level_aliases.insert(l, a);
+        m_state.m_level_aliases.insert(a, l);
+        m_state.m_inv_level_aliases.insert(l, a);
+    }
+
+    void push() {
+        m_scopes = list<state>(m_state, m_scopes);
+    }
+
+    void pop() {
+        m_state  = head(m_scopes);
+        m_scopes = tail(m_scopes);
+    }
+
+    static environment using_namespace(environment const & env, io_state const &, name const &) {
+        // do nothing, aliases are treated in a special way in the frontend.
+        return env;
+    }
+
+    static environment push_scope(environment const & env) {
+        aliases_ext ext = get_extension(env);
+        ext.push();
+        environment new_env = update(env, ext);
+        if (!in_section(new_env))
+            new_env = add_aliases(new_env, get_namespace(new_env), name());
+        return new_env;
+    }
+
+    static environment pop_scope(environment const & env) {
+        aliases_ext ext = get_extension(env);
+        ext.pop();
+        return update(env, ext);
     }
 };
 
+static name g_aliases("aliases");
+
 struct aliases_ext_reg {
     unsigned m_ext_id;
-    aliases_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<aliases_ext>()); }
+    aliases_ext_reg() {
+        register_scoped_ext(g_aliases, aliases_ext::using_namespace, aliases_ext::push_scope, aliases_ext::pop_scope);
+        m_ext_id = environment::register_extension(std::make_shared<aliases_ext>());
+    }
 };
 static aliases_ext_reg g_ext;
 static aliases_ext const & get_extension(environment const & env) {
@@ -59,12 +103,12 @@ environment add_alias(environment const & env, name const & a, expr const & e) {
 }
 
 optional<name> is_aliased(environment const & env, expr const & t) {
-    auto it = get_extension(env).m_inv_aliases.find(t);
+    auto it = get_extension(env).m_state.m_inv_aliases.find(t);
     return it ? optional<name>(*it) : optional<name>();
 }
 
 list<expr> get_alias_exprs(environment const & env, name const & n) {
-    auto it = get_extension(env).m_aliases.find(n);
+    auto it = get_extension(env).m_state.m_aliases.find(n);
     return it ? *it : list<expr>();
 }
 
@@ -77,12 +121,12 @@ environment add_alias(environment const & env, name const & a, level const & l) 
 }
 
 optional<name> is_aliased(environment const & env, level const & l) {
-    auto it = get_extension(env).m_inv_level_aliases.find(l);
+    auto it = get_extension(env).m_state.m_inv_level_aliases.find(l);
     return it ? optional<name>(*it) : optional<name>();
 }
 
 optional<level> get_alias_level(environment const & env, name const & n) {
-    auto it = get_extension(env).m_level_aliases.find(n);
+    auto it = get_extension(env).m_state.m_level_aliases.find(n);
     return it ? some_level(*it) : optional<level>();
 }
 

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "util/script_exception.h"
 #include "util/sstream.h"
+#include "util/flet.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
@@ -42,6 +43,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_env(env), m_ios(ios), m_ss(ss),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name), m_pos_table(std::make_shared<pos_info_table>()) {
+    m_type_use_placeholder = true;
     m_found_errors = false;
     updt_options();
     m_next_tag_idx = 0;
@@ -193,13 +195,31 @@ expr parser::mk_app(expr fn, expr arg, pos_info const & p) {
     return save_pos(::lean::mk_app(fn, arg), p);
 }
 
-void parser::add_local_entry(name const & n, expr const & e) {
+void parser::push_local_scope() {
+    m_local_level_decls.push();
+    m_local_decls.push();
+}
+
+void parser::pop_local_scope() {
+    m_local_level_decls.pop();
+    m_local_decls.pop();
+}
+
+void parser::add_local_level(name const & n, level const & l) {
+    if (m_env.is_universe(n))
+        throw exception(sstream() << "invalid universe declaration, '" << n << "' shadows a global universe");
+    if (m_local_level_decls.contains(n))
+        throw exception(sstream() << "invalid universe declaration, '" << n << "' shadows a local universe");
+    m_local_level_decls.insert(n, local_level_entry(l, m_local_level_decls.size()));
+}
+
+void parser::add_local_expr(name const & n, expr const & e) {
     m_local_decls.insert(n, local_entry(e, m_local_decls.size()));
 }
 
-void parser::add_local_decl(expr const & e) {
+void parser::add_local(expr const & e) {
     lean_assert(is_local(e));
-    add_local_entry(local_pp_name(e), e);
+    add_local_expr(local_pp_name(e), e);
 }
 
 /** \brief Parse a sequence of identifiers <tt>ID*</tt>. Store the result in \c result. */
@@ -214,6 +234,7 @@ static name g_period(".");
 static name g_colon(":");
 static name g_lparen("(");
 static name g_rparen(")");
+static name g_llevel_curly(".{");
 static name g_lcurly("{");
 static name g_rcurly("}");
 static name g_lbracket("[");
@@ -282,7 +303,9 @@ level parser::parse_level_id() {
         return it->second.first;
     if (m_env.is_universe(id))
         return mk_global_univ(id);
-    throw parser_error(sstream() << "unknown level '" << id << "'", p);
+    if (auto it = get_alias_level(m_env, id))
+        return *it;
+    throw parser_error(sstream() << "unknown universe '" << id << "'", p);
 }
 
 level parser::parse_level_nud() {
@@ -332,9 +355,21 @@ level parser::parse_level(unsigned rbp) {
     return left;
 }
 
-level parser::mk_new_level_param() {
-    // TODO(Leo)
-    return level();
+expr parser::mk_Type() {
+    if (m_type_use_placeholder) {
+        return mk_sort(mk_level_placeholder());
+    } else {
+        unsigned i = 1;
+        name l("l");
+        name r = l.append_after(i);
+        while (m_local_level_decls.contains(r) || m_env.is_universe(r)) {
+            i++;
+            r = l.append_after(i);
+        }
+        level lvl = mk_param_univ(r);
+        add_local_level(r, lvl);
+        return mk_sort(lvl);
+    }
 }
 
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */
@@ -394,7 +429,7 @@ void parser::parse_binder_block(buffer<parameter> & r, binder_info const & bi) {
     for (auto p : names) {
         expr arg_type = type ? *type : save_pos(mk_expr_placeholder(), p.first);
         expr local = mk_local(p.second, p.second, arg_type);
-        add_local_decl(local);
+        add_local(local);
         r.push_back(parameter(p.first, local, bi));
     }
 }
@@ -542,21 +577,41 @@ expr parser::parse_id() {
     // locals
     if (it1 != m_local_decls.end())
         return copy_with_new_pos(it1->second.first, p);
+    buffer<level> lvl_buffer;
+    auto p_lvl = pos();
+    levels ls;
+    if (curr_is_token(g_llevel_curly)) {
+        next();
+        while (!curr_is_token(g_rcurly)) {
+            lvl_buffer.push_back(parse_level());
+        }
+        next();
+        ls = to_list(lvl_buffer.begin(), lvl_buffer.end());
+    }
+    optional<expr> r;
     // globals
     if (m_env.find(id))
-        return save_pos(mk_constant(id), p);
+        r = save_pos(mk_constant(id, ls), p);
     // private globals
-    if (auto prv_id = user_to_hidden_name(m_env, id))
-        return save_pos(mk_constant(*prv_id), p);
+    else if (auto prv_id = user_to_hidden_name(m_env, id))
+        r = save_pos(mk_constant(*prv_id, ls), p);
     // aliases
     auto as = get_alias_exprs(m_env, id);
     if (!is_nil(as)) {
+        if (!is_nil(ls))
+            throw parser_error(sstream() << "explicit universe levels are not supported for overloaded/aliased identifier '" << id << "' "
+                               << "solutions: use a fully qualified name; or use non-overloaded alias", p_lvl);
         buffer<expr> new_as;
-        for (auto const & e : as)
+        if (r)
+            new_as.push_back(*r);
+        for (auto const & e : as) {
             new_as.push_back(copy_with_new_pos(e, p));
-        return mk_choice(new_as.size(), new_as.data());
+        }
+        r = mk_choice(new_as.size(), new_as.data());
     }
-    throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
+    if (!r)
+        throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
+    return *r;
 }
 
 expr parser::parse_numeral_expr() {
@@ -621,14 +676,14 @@ expr parser::parse_expr(unsigned rbp) {
 expr parser::parse_scoped_expr(unsigned num_locals, expr const * locals, unsigned rbp) {
     local_decls::mk_scope scope(m_local_decls);
     for (unsigned i = 0; i < num_locals; i++)
-        add_local_decl(locals[i]);
+        add_local(locals[i]);
     return parse_expr(rbp);
 }
 
 expr parser::parse_scoped_expr(unsigned num_params, parameter const * ps, unsigned rbp) {
     local_decls::mk_scope scope(m_local_decls);
     for (unsigned i = 0; i < num_params; i++)
-        add_local_decl(ps[i].m_local);
+        add_local(ps[i].m_local);
     return parse_expr(rbp);
 }
 
@@ -658,6 +713,8 @@ tactic parser::parse_tactic(unsigned /* rbp */) {
 
 void parser::parse_command() {
     lean_assert(curr() == scanner::token_kind::CommandKeyword);
+    flet<bool> save1(m_type_use_placeholder, m_type_use_placeholder);
+    m_last_cmd_pos = pos();
     name const & cmd_name = get_token_info().value();
     if (auto it = cmds().find(cmd_name)) {
         next();

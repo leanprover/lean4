@@ -43,7 +43,7 @@ struct parser_error : public exception {
 struct interrupt_parser {};
 
 class parser {
-    typedef std::pair<expr, unsigned> local_entry;
+    typedef std::pair<parameter, unsigned> local_entry;
     typedef std::pair<level, unsigned> local_level_entry;
     typedef scoped_map<name, local_entry, name_hash, name_eq> local_decls;
     typedef scoped_map<name, local_level_entry, name_hash, name_eq> local_level_decls;
@@ -133,42 +133,6 @@ public:
     io_state const & ios() const { return m_ios; }
     script_state * ss() const { return m_ss; }
 
-    void parse_names(buffer<std::pair<pos_info, name>> & result);
-    unsigned parse_small_nat();
-
-    level parse_level(unsigned rbp = 0);
-
-    parameter parse_binder();
-    void parse_binders(buffer<parameter> & r);
-
-    expr parse_expr(unsigned rbp = 0);
-    expr parse_scoped_expr(unsigned num_locals, expr const * locals, unsigned rbp = 0);
-    expr parse_scoped_expr(unsigned num_params, parameter const * ps, unsigned rbp = 0);
-    expr parse_scoped_expr(buffer<parameter> & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
-    expr abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda = true);
-    expr abstract(buffer<parameter> const & ps, expr const & e, bool lambda = true) { return abstract(ps.size(), ps.data(), e, lambda); }
-
-    tactic parse_tactic(unsigned rbp = 0);
-
-    void push_local_scope();
-    void pop_local_scope();
-    void add_local_level(name const & n, level const & l);
-    void add_local_expr(name const & n, expr const & e);
-    void add_local(expr const & t);
-    /**
-       \brief Specify how the method mk_Type behaves. When <tt>set_type_use_placeholder(true)</tt>, then
-       it returns <tt>'Type.{_}'</tt>, where '_' is placeholder that instructs the Lean elaborator to
-       automalically infer a universe level expression for '_'. When <tt>set_type_use_placeholder(false)</tt>,
-       then it returns <tt>'Type.{l}'</tt>, where \c l is a fresh universe level parameter.
-       The new parameter is automatically added to \c m_local_level_decls.
-
-       \remark When the parse is created the flag is set to false.
-       \remark Before parsing a command, the parser automatically "caches" the current value, and
-       restores it after the command is parsed (or aborted).
-    */
-    void set_type_use_placeholder(bool f) { m_type_use_placeholder = f; }
-    expr mk_Type();
-
     /** \brief Return the current position information */
     pos_info pos() const { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }
     expr save_pos(expr e, pos_info p);
@@ -191,6 +155,8 @@ public:
     bool curr_is_token(name const & tk) const;
     /** \brief Check current token, and move to next characther, throw exception if current token is not \c tk. */
     void check_token_next(name const & tk, char const * msg);
+    /** \brief Check if the current token is an identifier, if it is return it and move to next token, otherwise throw an exception. */
+    name check_id_next(char const * msg);
 
     mpq const & get_num_val() const { return m_scanner.get_num_val(); }
     name const & get_name_val() const { return m_scanner.get_name_val(); }
@@ -200,6 +166,50 @@ public:
 
     regular regular_stream() const { return regular(env(), ios()); }
     diagnostic diagnostic_stream() const { return diagnostic(env(), ios()); }
+
+    void parse_names(buffer<std::pair<pos_info, name>> & result);
+    unsigned parse_small_nat();
+
+    level parse_level(unsigned rbp = 0);
+
+    parameter parse_binder();
+    void parse_binders(buffer<parameter> & r);
+
+    expr parse_expr(unsigned rbp = 0);
+    expr parse_scoped_expr(unsigned num_params, parameter const * ps, unsigned rbp = 0);
+    expr parse_scoped_expr(buffer<parameter> & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
+    expr abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda = true);
+    expr abstract(buffer<parameter> const & ps, expr const & e, bool lambda = true) { return abstract(ps.size(), ps.data(), e, lambda); }
+    expr lambda_abstract(buffer<parameter> const & ps, expr const & e) { return abstract(ps, e, true); }
+    expr pi_abstract(buffer<parameter> const & ps, expr const & e) { return abstract(ps, e, false); }
+
+    tactic parse_tactic(unsigned rbp = 0);
+
+    void push_local_scope();
+    void pop_local_scope();
+    struct local_scope { parser & m_p; local_scope(parser & p):m_p(p) { p.push_local_scope(); } ~local_scope() { m_p.pop_local_scope(); } };
+    void add_local_level(name const & n, level const & l);
+    void add_local_expr(name const & n, expr const & e, binder_info const & bi = binder_info());
+    void add_local(expr const & t);
+    /** \brief Position of the local level declaration named \c n in the sequence of local level decls. */
+    optional<unsigned> get_local_level_index(name const & n) const;
+    /** \brief Position of the local declaration named \c n in the sequence of local decls. */
+    optional<unsigned> get_local_index(name const & n) const;
+    /**
+       \brief Specify how the method mk_Type behaves. When <tt>set_type_use_placeholder(true)</tt>, then
+       it returns <tt>'Type.{_}'</tt>, where '_' is placeholder that instructs the Lean elaborator to
+       automalically infer a universe level expression for '_'. When <tt>set_type_use_placeholder(false)</tt>,
+       then it returns <tt>'Type.{l}'</tt>, where \c l is a fresh universe level parameter.
+       The new parameter is automatically added to \c m_local_level_decls.
+
+       \remark When the parse is created the flag is set to false.
+       \remark Before parsing a command, the parser automatically "caches" the current value, and
+       restores it after the command is parsed (or aborted).
+    */
+    void set_type_use_placeholder(bool f) { m_type_use_placeholder = f; }
+    expr mk_Type();
+
+    expr elaborate(expr const & e, level_param_names const &);
 
     /** parse all commands in the input stream */
     bool operator()() { return parse_commands(); }

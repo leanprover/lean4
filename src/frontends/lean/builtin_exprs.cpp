@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "frontends/lean/builtin_exprs.h"
+#include "frontends/lean/token_table.h"
 #include "frontends/lean/parser.h"
 
 namespace lean {
@@ -38,8 +39,8 @@ parse_table init_nud_table() {
 }
 
 parse_table init_led_table() {
-    parse_table r;
-    // TODO(Leo)
+    parse_table r(false);
+    r.add({transition("->", mk_expr_action(get_arrow_prec() + 1))}, mk_arrow(Var(0), Var(2)));
     return r;
 }
 }

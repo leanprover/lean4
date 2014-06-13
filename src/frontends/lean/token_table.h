@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/lua.h"
 
 namespace lean {
+unsigned get_arrow_prec();
 class token_info {
     bool        m_command;
     name        m_value;

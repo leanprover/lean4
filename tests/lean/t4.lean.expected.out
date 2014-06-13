@@ -1,0 +1,34 @@
+N : Type
+a : N
+Bool -> Bool : Type
+F.{2} : Type.{2} -> Type.{2}
+F.{u} : Type.{u} -> Type.{u}
+f : N -> N -> N
+len.{1} : Pi (A : Type) (n : N) (v : vec.{1} A n), N
+B -> B : Bool
+A -> A : Type.{l_1}
+C : Type.{l_2}
+t4.lean:24:6: error: unknown identifier 'A'
+R.{1 0} : Type -> Bool
+fun (x : N) (y : N), x : N -> N -> N
+choice N tst.N
+tst.N
+N
+foo.M
+tst.M : Type.{2}
+foo.M : Type.{3}
+foo.M : Type.{3}
+t4.lean:47:6: error: unknown identifier 'M'
+ok
+Declarations:
+tst.M
+tst.N
+N
+a
+F
+R
+len
+vec
+f
+foo.M
+-------------

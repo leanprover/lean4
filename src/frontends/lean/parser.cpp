@@ -191,6 +191,14 @@ void parser::check_token_next(name const & tk, char const * msg) {
     next();
 }
 
+name parser::check_id_next(char const * msg) {
+    if (!curr_is_identifier())
+        throw parser_error(msg, pos());
+    name r = get_name_val();
+    next();
+    return r;
+}
+
 expr parser::mk_app(expr fn, expr arg, pos_info const & p) {
     return save_pos(::lean::mk_app(fn, arg), p);
 }
@@ -213,13 +221,29 @@ void parser::add_local_level(name const & n, level const & l) {
     m_local_level_decls.insert(n, local_level_entry(l, m_local_level_decls.size()));
 }
 
-void parser::add_local_expr(name const & n, expr const & e) {
-    m_local_decls.insert(n, local_entry(e, m_local_decls.size()));
+void parser::add_local_expr(name const & n, expr const & e, binder_info const & bi) {
+    m_local_decls.insert(n, local_entry(parameter(pos(), e, bi), m_local_decls.size()));
 }
 
 void parser::add_local(expr const & e) {
     lean_assert(is_local(e));
     add_local_expr(local_pp_name(e), e);
+}
+
+optional<unsigned> parser::get_local_level_index(name const & n) const {
+    auto it = m_local_level_decls.find(n);
+    if (it != m_local_level_decls.end())
+        return optional<unsigned>(it->second.second);
+    else
+        return optional<unsigned>();
+}
+
+optional<unsigned> parser::get_local_index(name const & n) const {
+    auto it = m_local_decls.find(n);
+    if (it != m_local_decls.end())
+        return optional<unsigned>(it->second.second);
+    else
+        return optional<unsigned>();
 }
 
 /** \brief Parse a sequence of identifiers <tt>ID*</tt>. Store the result in \c result. */
@@ -370,6 +394,11 @@ expr parser::mk_Type() {
         add_local_level(r, lvl);
         return mk_sort(lvl);
     }
+}
+
+expr parser::elaborate(expr const & e, level_param_names const &) {
+    // TODO(Leo):
+    return e;
 }
 
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */
@@ -576,7 +605,7 @@ expr parser::parse_id() {
     auto it1 = m_local_decls.find(id);
     // locals
     if (it1 != m_local_decls.end())
-        return copy_with_new_pos(it1->second.first, p);
+        return copy_with_new_pos(it1->second.first.m_local, p);
     buffer<level> lvl_buffer;
     auto p_lvl = pos();
     levels ls;
@@ -673,18 +702,15 @@ expr parser::parse_expr(unsigned rbp) {
     return left;
 }
 
-expr parser::parse_scoped_expr(unsigned num_locals, expr const * locals, unsigned rbp) {
-    local_decls::mk_scope scope(m_local_decls);
-    for (unsigned i = 0; i < num_locals; i++)
-        add_local(locals[i]);
-    return parse_expr(rbp);
-}
-
 expr parser::parse_scoped_expr(unsigned num_params, parameter const * ps, unsigned rbp) {
-    local_decls::mk_scope scope(m_local_decls);
-    for (unsigned i = 0; i < num_params; i++)
-        add_local(ps[i].m_local);
-    return parse_expr(rbp);
+    if (num_params == 0) {
+        return parse_expr(rbp);
+    } else {
+        local_decls::mk_scope scope(m_local_decls);
+        for (unsigned i = 0; i < num_params; i++)
+            add_local(ps[i].m_local);
+        return parse_expr(rbp);
+    }
 }
 
 expr parser::abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda) {

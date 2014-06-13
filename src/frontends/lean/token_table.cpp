@@ -8,6 +8,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/token_table.h"
 
 namespace lean {
+static unsigned g_arrow_prec = 25;
+unsigned get_arrow_prec() { return g_arrow_prec; }
 token_table add_command_token(token_table const & s, char const * token) {
     return insert(s, token, token_info(token));
 }
@@ -41,25 +43,28 @@ static char const * g_forall_unicode = "\u2200";
 static char const * g_arrow_unicode  = "\u2192";
 static char const * g_cup            = "\u2294";
 
-
 token_table init_token_table() {
     token_table t;
     char const * builtin[] = {"fun", "Pi", "let", "in", "have", "show", "by", "from", "(", ")", "{", "}", "[", "]",
-                              ".{", "Type", "...", ",", ".", ":", "calc", ":=", "--", "(*", "(--", "->",
+                              ".{", "Type", "...", ",", ".", ":", "calc", ":=", "--", "(*", "(--",
                               "proof", "qed", "private", "raw", "Bool", "+", g_cup, nullptr};
 
-    char const * commands[] = {"theorem", "axiom", "variable", "definition", "evaluate", "check",
-                               "print", "variables", "end", "namespace", "section", "import",
+    char const * commands[] = {"theorem", "axiom", "variable", "definition", "{axiom}", "{variable}", "[variable]",
+                               "variables", "{variables}", "[variables]",
+                               "evaluate", "check", "print", "end", "namespace", "section", "import",
                                "abbreviation", "inductive", "record", "structure", "module", "universe",
                                nullptr};
 
     std::pair<char const *, char const *> aliases[] =
         {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},
-         {g_arrow_unicode, "->"}, {nullptr, nullptr}};
+         {nullptr, nullptr}};
 
     std::pair<char const *, char const *> cmd_aliases[] =
         {{"parameter", "variable"}, {"parameters", "variables"}, {"lemma", "theorem"},
          {"hypothesis", "axiom"}, {"conjecture", "axiom"}, {"corollary", "theorem"},
+         {"{parameter}", "{variable}"}, {"{parameters}", "{variables}"},
+         {"[parameter]", "[variable]"}, {"[parameters]", "[variables]"},
+         {"{hypothesis}", "{axiom}"}, {"{conjecture}", "{axiom}"},
          {nullptr, nullptr}};
 
     auto it = builtin;
@@ -67,6 +72,7 @@ token_table init_token_table() {
         t = add_token(t, *it);
         it++;
     }
+    t = add_token(t, "->", get_arrow_prec());
 
     it = commands;
     while (*it) {
@@ -79,6 +85,7 @@ token_table init_token_table() {
         t = add_token(t, it2->first, it2->second);
         it2++;
     }
+    t = add_token(t, g_arrow_unicode, "->", get_arrow_prec());
 
     it2 = cmd_aliases;
     while (it2->first) {

@@ -56,7 +56,39 @@ static void tst1() {
     lean_assert(s.find(30) == s.end());
 }
 
+static void tst2() {
+    scoped_map<int, int> s;
+    s.push();
+    s.insert(10, 20);
+    lean_assert(s.find(10)->second == 20);
+    lean_assert(s.contains(10));
+    s.pop();
+    lean_assert(!s.contains(10));
+    s.push();
+    s.insert(10, 30);
+    lean_assert(s.find(10)->second == 30);
+    lean_assert(s.num_scopes() == 1);
+    s.keep();
+    lean_assert(s.num_scopes() == 0);
+    lean_assert(s.find(10)->second == 30);
+    s.push();
+    s.push();
+    s.insert(1, 3);
+    lean_assert(s.num_scopes() == 2);
+    lean_assert(s.find(1)->second == 3);
+    s.keep();
+    lean_assert(s.find(1)->second == 3);
+    lean_assert(s.num_scopes() == 1);
+    lean_assert(s.size() == 2);
+    s.pop();
+    lean_assert(!s.contains(1));
+    lean_assert(s.num_scopes() == 0);
+    lean_assert(s.find(10)->second == 30);
+    lean_assert(s.size() == 1);
+}
+
 int main() {
     tst1();
+    tst2();
     return has_violations() ? 1 : 0;
 }

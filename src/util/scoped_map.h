@@ -93,6 +93,14 @@ public:
         m_scopes.resize(num_scopes() - num);
     }
 
+    /** \brief Remove the top scope without 'undoing' the operations. */
+    void keep() {
+        lean_assert(num_scopes() > 0);
+        m_scopes.pop_back();
+        if (at_base_lvl())
+            m_actions.clear();
+    }
+
     /** \brief Return true iff the map is empty */
     bool empty() const {
         return m_map.empty();
@@ -149,6 +157,10 @@ public:
 
     const_iterator end() const {
         return m_map.end();
+    }
+
+    bool contains(Key const & k) const {
+        return find(k) != end();
     }
 
     /** \brief (For debugging) Display the content of this scoped map. */

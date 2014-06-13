@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "util/hash.h"
 #include "library/private.h"
 #include "library/module.h"
-#include "library/scope.h"
 #include "library/kernel_bindings.h"
 
 namespace lean {
@@ -39,17 +38,7 @@ static std::string g_prv_key("prv");
 // Make sure the mapping "hidden-name r ==> user-name n" is preserved when we close sections and
 // export .olean files.
 static environment preserve_private_data(environment const & env, name const & r, name const & n) {
-    if (scope::has_open_sections(env)) {
-        return scope::add(env, [=](scope::abstraction_context & ctx) {
-                environment env = ctx.env();
-                private_ext ext = get_extension(env);
-                ext.m_inv_map.insert(r, n);
-                ext.m_counter++;
-                ctx.update_env(preserve_private_data(update(env, ext), r, n));
-            });
-    } else {
-        return module::add(env, g_prv_key, [=](serializer & s) { s << n << r; });
-    }
+    return module::add(env, g_prv_key, [=](serializer & s) { s << n << r; });
 }
 
 std::pair<environment, name> add_private_name(environment const & env, name const & n, optional<unsigned> const & extra_hash) {

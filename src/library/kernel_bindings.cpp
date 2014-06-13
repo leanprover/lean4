@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/normalize.h"
 #include "library/module.h"
-#include "library/scope.h"
 
 // Lua Bindings for the Kernel classes. We do not include the Lua
 // bindings in the kernel because we do not want to inflate the Kernel.
@@ -1154,20 +1153,16 @@ static int environment_cls_proof_irrel(lua_State * L) { return push_list_name(L,
 static int environment_eta(lua_State * L) { return push_boolean(L, to_environment(L, 1).eta()); }
 static int environment_impredicative(lua_State * L) { return push_boolean(L, to_environment(L, 1).impredicative()); }
 static int environment_add_global_level(lua_State * L) {
-    return push_environment(L, scope::add_global_level(to_environment(L, 1), to_name_ext(L, 2)));
+    return push_environment(L, module::add_global_level(to_environment(L, 1), to_name_ext(L, 2)));
 }
 static int environment_is_global_level(lua_State * L) { return push_boolean(L, to_environment(L, 1).is_global_level(to_name_ext(L, 2))); }
 static int environment_find(lua_State * L) { return push_optional_declaration(L, to_environment(L, 1).find(to_name_ext(L, 2))); }
 static int environment_get(lua_State * L) { return push_declaration(L, to_environment(L, 1).get(to_name_ext(L, 2))); }
 static int environment_add(lua_State * L) {
-    int nargs = lua_gettop(L);
-    binder_info info;
-    if (nargs > 2)
-        info = to_binder_info(L, 3);
     if (is_declaration(L, 2))
-        return push_environment(L, scope::add(to_environment(L, 1), to_declaration(L, 2), info));
+        return push_environment(L, module::add(to_environment(L, 1), to_declaration(L, 2)));
     else
-        return push_environment(L, scope::add(to_environment(L, 1), to_certified_declaration(L, 2), info));
+        return push_environment(L, module::add(to_environment(L, 1), to_certified_declaration(L, 2)));
 }
 static int environment_replace(lua_State * L) { return push_environment(L, to_environment(L, 1).replace(to_certified_declaration(L, 2))); }
 static int mk_bare_environment(lua_State * L) {
@@ -1252,15 +1247,6 @@ static int export_module(lua_State * L) {
     return 0;
 }
 
-static int begin_section_scope(lua_State * L) { return push_environment(L, scope::begin_section(to_environment(L, 1))); }
-static int begin_namespace_scope(lua_State * L) { return push_environment(L, scope::begin_namespace(to_environment(L, 1), lua_tostring(L, 2))); }
-static int end_scope(lua_State * L) { return push_environment(L, scope::end(to_environment(L, 1))); }
-static int get_namespace(lua_State * L) { return push_name(L, scope::get_namespace(to_environment(L, 1))); }
-static int get_name_in_namespace(lua_State * L) {
-    return push_name(L, scope::get_name_in_namespace(to_environment(L, 1), to_name_ext(L, 2)));
-}
-static int namespace_find(lua_State * L) { return push_optional_declaration(L, scope::find(to_environment(L, 1), to_name_ext(L, 2))); }
-
 static const struct luaL_Reg environment_m[] = {
     {"__gc",                  environment_gc}, // never throws
     {"is_descendant",         safe_function<environment_is_descendant>},
@@ -1283,12 +1269,6 @@ static const struct luaL_Reg environment_m[] = {
     {"type_check",            safe_function<environment_type_check>},
     {"for_each",              safe_function<environment_for_each>},
     {"export",                safe_function<export_module>},
-    {"begin_section_scope",   safe_function<begin_section_scope>},
-    {"begin_namespace_scope", safe_function<begin_namespace_scope>},
-    {"end_scope",             safe_function<end_scope>},
-    {"get_namespace",         safe_function<get_namespace>},
-    {"get_name_in_namespace", safe_function<get_name_in_namespace>},
-    {"namespace_find",        safe_function<namespace_find>},
     {0, 0}
 };
 
@@ -1928,7 +1908,7 @@ static int add_declaration(lua_State * L) {
         d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4));
     else
         d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4), lua_toboolean(L, 5));
-    return push_environment(L, scope::add(to_environment(L, 1), *d));
+    return push_environment(L, module::add(to_environment(L, 1), *d));
 }
 
 static void open_type_checker(lua_State * L) {
@@ -1972,7 +1952,7 @@ static int add_inductive1(lua_State * L) {
     buffer<intro_rule> irules;
     for (int i = idx+1; i <= nargs; i+=2)
         irules.push_back(intro_rule(to_name_ext(L, i), to_expr(L, i+1)));
-    return push_environment(L, scope::add_inductive(env, Iname, ls, num_params, Itype, to_list(irules.begin(), irules.end())));
+    return push_environment(L, module::add_inductive(env, Iname, ls, num_params, Itype, to_list(irules.begin(), irules.end())));
 }
 static int add_inductivek(lua_State * L) {
     environment env      = to_environment(L, 1);
@@ -2004,7 +1984,7 @@ static int add_inductivek(lua_State * L) {
     }
     if (decls.empty())
         throw exception("invalid add_inductive, at least one inductive type must be defined");
-    return push_environment(L, scope::add_inductive(env, ls, num_params, to_list(decls.begin(), decls.end())));
+    return push_environment(L, module::add_inductive(env, ls, num_params, to_list(decls.begin(), decls.end())));
 }
 static int add_inductive(lua_State * L) {
     if (is_name(L, 2) || lua_isstring(L, 2))

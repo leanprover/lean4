@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/aliases.h"
 #include "library/choice.h"
+#include "library/scoped_ext.h"
 // #include "library/hop_match.h"
 
 namespace lean {
@@ -24,6 +25,7 @@ inline void open_core_module(lua_State * L) {
     open_placeholder(L);
     open_aliases(L);
     open_choice(L);
+    open_scoped_ext(L);
     // open_hop_match(L);
 }
 inline void register_core_module() {

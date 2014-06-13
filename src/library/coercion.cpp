@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/kernel_serializer.h"
 #include "library/kernel_bindings.h"
+#include "library/scoped_ext.h"
 
 namespace lean {
 enum class coercion_class_kind { User, Sort, Fun };
@@ -65,7 +66,7 @@ struct coercion_info {
         m_fun(f), m_fun_type(f_type), m_level_params(ls), m_num_args(num), m_to(cls) {}
 };
 
-struct coercion_ext : public environment_extension {
+struct coercion_state : public environment_extension {
     rb_map<name, list<coercion_info>, name_quick_cmp>         m_coercion_info;
     // m_from and m_to contain "direct" coercions
     rb_map<name, list<coercion_class>, name_quick_cmp>        m_from;
@@ -96,32 +97,6 @@ struct coercion_ext : public environment_extension {
             m_to.insert(D, list<name>(C, *it2));
     }
 };
-
-struct coercion_ext_reg {
-    unsigned m_ext_id;
-    coercion_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<coercion_ext>()); }
-};
-
-static coercion_ext_reg g_ext;
-static coercion_ext const & get_extension(environment const & env) {
-    return static_cast<coercion_ext const &>(env.get_extension(g_ext.m_ext_id));
-}
-static environment update(environment const & env, coercion_ext const & ext) {
-    return env.update(g_ext.m_ext_id, std::make_shared<coercion_ext>(ext));
-}
-
-// key used for module serialization
-static std::string g_coercion_key = "coerce";
-static void coercion_reader(deserializer & d, module_idx, shared_environment &,
-                            std::function<void(asynch_update_fn const &)> &,
-                            std::function<void(delayed_update_fn const &)> & add_delayed_update) {
-    name f, C;
-    d >> f >> C;
-    add_delayed_update([=](environment const & env, io_state const & ios) -> environment {
-            return add_coercion(env, f, C, ios);
-        });
-}
-register_module_object_reader_fn g_coercion_reader(g_coercion_key, coercion_reader);
 
 static void check_pi(name const & f, expr const & t) {
     if (!is_pi(t))
@@ -173,8 +148,7 @@ static arrows insert(arrows const & a, name const & C, coercion_class const & D)
 }
 
 struct add_coercion_fn {
-    environment      m_env;
-    coercion_ext     m_ext;
+    coercion_state   m_state;
     arrows           m_visited;
     io_state const & m_ios;
 
@@ -222,11 +196,11 @@ struct add_coercion_fn {
                                level_param_names const & ls, unsigned num_args, coercion_class const & cls) {
         // apply transitivity using ext.m_to
         coercion_class C_cls = coercion_class::mk_user(C);
-        auto it1 = m_ext.m_to.find(C_cls);
+        auto it1 = m_state.m_to.find(C_cls);
         if (!it1)
             return;
         for (name const & B : *it1) {
-            coercion_info info = m_ext.get_info(B, C_cls);
+            coercion_info info = m_state.get_info(B, C_cls);
             // B >-> C >-> D
             add_coercion_trans(B, info.m_level_params, info.m_fun, info.m_fun_type, info.m_num_args,
                                ls, f, f_type, num_args, cls);
@@ -239,11 +213,11 @@ struct add_coercion_fn {
         if (cls.kind() != coercion_class_kind::User)
             return; // nothing to do Sort and Fun classes are terminal
         name const & D = cls.get_name();
-        auto it = m_ext.m_from.find(D);
+        auto it = m_state.m_from.find(D);
         if (!it)
             return;
         for (coercion_class E : *it) {
-            coercion_info info = m_ext.get_info(D, E);
+            coercion_info info = m_state.get_info(D, E);
             // C >-> D >-> E
             add_coercion_trans(C, ls, f, f_type, num_args,
                                info.m_level_params, info.m_fun, info.m_fun_type, info.m_num_args, info.m_to);
@@ -252,18 +226,18 @@ struct add_coercion_fn {
 
     void add_coercion_core(name const & C, expr const & f, expr const & f_type,
                            level_param_names const & ls, unsigned num_args, coercion_class const & cls) {
-        auto it = m_ext.m_coercion_info.find(C);
+        auto it = m_state.m_coercion_info.find(C);
         if (!it) {
             list<coercion_info> infos(coercion_info(f, f_type, ls, num_args, cls));
-            m_ext.m_coercion_info.insert(C, infos);
+            m_state.m_coercion_info.insert(C, infos);
         } else {
             list<coercion_info> infos = *it;
             infos = filter(infos, [&](coercion_info const & info) { return info.m_to != cls; });
             infos = list<coercion_info>(coercion_info(f, f_type, ls, num_args, cls), infos);
-            m_ext.m_coercion_info.insert(C, infos);
+            m_state.m_coercion_info.insert(C, infos);
         }
         if (is_constant(f))
-            m_ext.m_coercions.insert(const_name(f));
+            m_state.m_coercions.insert(const_name(f));
     }
 
     void add_coercion(name const & C, expr const & f, expr const & f_type,
@@ -278,22 +252,18 @@ struct add_coercion_fn {
         add_coercion_trans_from(C, f, f_type, ls, num_args, cls);
     }
 
-    add_coercion_fn(environment const & env, io_state const & ios):
-        m_env(env), m_ext(get_extension(env)), m_ios(ios) {}
+    add_coercion_fn(coercion_state const & s, io_state const & ios):
+        m_state(s), m_ios(ios) {}
 
-    environment operator()(name const & C, expr const & f, expr const & f_type,
-                           level_param_names const & ls, unsigned num_args, coercion_class const & cls) {
+    coercion_state operator()(name const & C, expr const & f, expr const & f_type,
+                              level_param_names const & ls, unsigned num_args, coercion_class const & cls) {
         add_coercion(C, f, f_type, ls, num_args, cls);
-        m_ext.update_from_to(C, cls, m_ios);
-        name const & f_name = const_name(f);
-        m_env = module::add(m_env, g_coercion_key, [=](serializer & s) {
-                s << f_name << C;
-            });
-        return update(m_env, m_ext);
+        m_state.update_from_to(C, cls, m_ios);
+        return m_state;
     }
 };
 
-environment add_coercion(environment const & env, name const & f, name const & C, io_state const & ios) {
+coercion_state add_coercion(environment const & env, io_state const & ios, coercion_state const & st, name const & f, name const & C) {
     declaration d = env.get(f);
     unsigned num = 0;
     buffer<expr> args;
@@ -313,12 +283,44 @@ environment add_coercion(environment const & env, name const & f, name const & C
                 throw exception(sstream() << "invalid coercion, '" << f << "' cannot be used as a coercion from '" << C << "'");
             else if (cls->kind() == coercion_class_kind::User && cls->get_name() == C)
                 throw exception(sstream() << "invalid coercion, '" << f << "' is a coercion from '" << C << "' to itself");
-            return add_coercion_fn(env, ios)(C, fn, d.get_type(), d.get_univ_params(), num, *cls);
+            return add_coercion_fn(st, ios)(C, fn, d.get_type(), d.get_univ_params(), num, *cls);
         }
         t = binding_body(t);
         num++;
         check_pi(f, t);
     }
+}
+
+typedef std::pair<name, name> coercion_entry;
+struct coercion_config {
+    typedef coercion_state  state;
+    typedef coercion_entry  entry;
+    static void add_entry(environment const & env, io_state const & ios, state & s, entry const & e) {
+        s = add_coercion(env, ios, s, e.first, e.second);
+    }
+    static name const & get_class_name() {
+        static name g_class_name("coercion");
+        return g_class_name;
+    }
+    static std::string const & get_serialization_key() {
+        static std::string g_key("coerce");
+        return g_key;
+    }
+    static void  write_entry(serializer & s, entry const & e) {
+        s << e.first << e.second;
+    }
+    static entry read_entry(deserializer & d) {
+        entry e;
+        d >> e.first >> e.second;
+        return e;
+    }
+};
+
+template class scoped_ext<coercion_config>;
+typedef scoped_ext<coercion_config> coercion_ext;
+
+environment add_coercion(environment const & env, name const & f, name const & C, io_state const & ios) {
+    return coercion_ext::add_entry(env, ios, coercion_entry(f, C));
 }
 
 environment add_coercion(environment const & env, name const & f, io_state const & ios) {
@@ -334,7 +336,7 @@ environment add_coercion(environment const & env, name const & f, io_state const
 }
 
 bool is_coercion(environment const & env, name const & f) {
-    coercion_ext const & ext = get_extension(env);
+    coercion_state const & ext = coercion_ext::get_state(env);
     return ext.m_coercions.contains(f);
 }
 
@@ -343,7 +345,7 @@ bool is_coercion(environment const & env, expr const & f) {
 }
 
 bool has_coercions_from(environment const & env, name const & C) {
-    coercion_ext const & ext = get_extension(env);
+    coercion_state const & ext = coercion_ext::get_state(env);
     return ext.m_coercion_info.contains(C);
 }
 
@@ -351,7 +353,7 @@ bool has_coercions_from(environment const & env, expr const & C) {
     expr const & C_fn = get_app_fn(C);
     if (!is_constant(C_fn))
         return false;
-    coercion_ext const & ext = get_extension(env);
+    coercion_state const & ext = coercion_ext::get_state(env);
     auto it = ext.m_coercion_info.find(const_name(C_fn));
     if (!it)
         return false;
@@ -366,7 +368,7 @@ optional<expr> get_coercion(environment const & env, expr const & C, coercion_cl
     expr const & C_fn = get_app_rev_args(C, args);
     if (!is_constant(C_fn))
         return none_expr();
-    coercion_ext const & ext = get_extension(env);
+    coercion_state const & ext = coercion_ext::get_state(env);
     auto it = ext.m_coercion_info.find(const_name(C_fn));
     if (!it)
         return none_expr();
@@ -396,7 +398,7 @@ bool get_user_coercions(environment const & env, expr const & C, buffer<std::tup
     expr const & C_fn = get_app_rev_args(C, args);
     if (!is_constant(C_fn))
         return false;
-    coercion_ext const & ext = get_extension(env);
+    coercion_state const & ext = coercion_ext::get_state(env);
     auto it = ext.m_coercion_info.find(const_name(C_fn));
     if (!it)
         return false;
@@ -419,7 +421,7 @@ bool get_user_coercions(environment const & env, expr const & C, buffer<std::tup
 
 template<typename F>
 void for_each_coercion(environment const & env, F && f) {
-    coercion_ext const & ext = get_extension(env);
+    coercion_state const & ext = coercion_ext::get_state(env);
     ext.m_coercion_info.for_each([&](name const & C, list<coercion_info> const & infos) {
             for (auto const & info : infos) {
                 f(C, info);

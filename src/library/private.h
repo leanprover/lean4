@@ -31,18 +31,5 @@ std::pair<environment, name> add_private_name(environment const & env, name cons
 */
 optional<name> hidden_to_user_name(environment const & env, name const & n);
 
-/**
-    \brief Return the hidden name associated with the user name \c n.
-
-    \remark The "user name" is the argument provided to \c add_private_name, and "hidden name" is the name returned
-    by \c add_private_name.
-
-    \remark The mapping user -> hidden name is *not* stored in .olean files.
-    In this way, users don't have "access" to the names.
-
-    \see add_private_name
-*/
-optional<name> user_to_hidden_name(environment const & env, name const & n);
-
 void open_private(lua_State * L);
 }

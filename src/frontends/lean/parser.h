@@ -195,6 +195,8 @@ public:
     optional<unsigned> get_local_level_index(name const & n) const;
     /** \brief Position of the local declaration named \c n in the sequence of local decls. */
     optional<unsigned> get_local_index(name const & n) const;
+    /** \brief Return the local parameter named \c n */
+    optional<parameter> get_local(name const & n) const;
     /**
        \brief Specify how the method mk_Type behaves. When <tt>set_type_use_placeholder(true)</tt>, then
        it returns <tt>'Type.{_}'</tt>, where '_' is placeholder that instructs the Lean elaborator to
@@ -210,6 +212,7 @@ public:
     expr mk_Type();
 
     expr elaborate(expr const & e, level_param_names const &);
+    std::pair<expr, expr> elaborate(expr const & t, expr const & v, level_param_names const &);
 
     /** parse all commands in the input stream */
     bool operator()() { return parse_commands(); }

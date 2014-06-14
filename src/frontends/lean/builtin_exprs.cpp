@@ -40,7 +40,7 @@ parse_table init_nud_table() {
 
 parse_table init_led_table() {
     parse_table r(false);
-    r.add({transition("->", mk_expr_action(get_arrow_prec() + 1))}, mk_arrow(Var(0), Var(2)));
+    r.add({transition("->", mk_expr_action(get_arrow_prec()-1))}, mk_arrow(Var(0), Var(2)));
     return r;
 }
 }

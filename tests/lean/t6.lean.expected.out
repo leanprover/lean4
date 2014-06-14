@@ -1,0 +1,3 @@
+id.{2} : Pi {A : Type.{2}} (a : A), A
+refl.{1} : Pi {A : Type} (R : A -> A -> Bool), Bool
+symm.{1} : Pi {A : Type} (R : A -> A -> Bool), Bool

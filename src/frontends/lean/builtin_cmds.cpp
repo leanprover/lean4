@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
+#include "library/private.h"
 #include "library/locals.h"
 #include "frontends/lean/parser.h"
 
@@ -18,6 +19,9 @@ static name g_raw("raw");
 static name g_llevel_curly(".{");
 static name g_rcurly("}");
 static name g_colon(":");
+static name g_assign(":=");
+static name g_private("[private]");
+static name g_inline("[inline]");
 
 static void check_atomic(name const & n) {
     if (!n.is_atomic())
@@ -138,6 +142,121 @@ environment cast_variable_cmd(parser & p) {
     return variable_cmd_core(p, false, mk_cast_binder_info());
 }
 
+// Collect local (section) constants occurring in type and value, sort them, and store in section_ps
+static void collect_section_locals(expr const & type, expr const & value, parser const & p, buffer<parameter> & section_ps) {
+    name_set ls = collect_locals(type, collect_locals(value));
+    ls.for_each([&](name const & n) {
+            section_ps.push_back(*p.get_local(n));
+        });
+    std::sort(section_ps.begin(), section_ps.end(), [&](parameter const & p1, parameter const & p2) {
+            return *p.get_local_index(mlocal_name(p1.m_local)) < *p.get_local_index(mlocal_name(p2.m_local));
+        });
+}
+
+static void parse_modifiers(parser & p, bool & is_private, bool & is_opaque) {
+    while (true) {
+        if (p.curr_is_token(g_private)) {
+            is_private = true;
+            p.next();
+        } else if (p.curr_is_token(g_inline)) {
+            is_opaque = false;
+            p.next();
+        } else {
+            break;
+        }
+    }
+}
+
+// Wrap \c e with the "explicit macro", the idea is to inform the elaborator
+// preprocessor, that we do not need create metavariables for implicit arguments
+static expr mark_explicit(expr const & e) {
+    // TODO(Leo)
+    return e;
+}
+
+environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
+    bool is_private = false;
+    parse_modifiers(p, is_private, is_opaque);
+    if (is_theorem && !is_opaque)
+        throw exception("invalid theorem declaration, theorems cannot be transparent");
+    name n = p.check_id_next("invalid declaration, identifier expected");
+    check_atomic(n);
+    environment env = p.env();
+    name real_n; // real name for this declaration
+    if (is_private) {
+        auto env_n = add_private_name(env, n, optional<unsigned>(hash(p.pos().first, p.pos().second)));
+        env    = env_n.first;
+        real_n = env_n.second;
+    } else {
+        name const & ns = get_namespace(env);
+        real_n     = ns + n;
+    }
+    buffer<name> ls_buffer;
+    expr type, value;
+    level_param_names ls;
+    {
+        parser::local_scope scope(p);
+        parse_univ_params(p, ls_buffer);
+        p.set_type_use_placeholder(false);
+        buffer<parameter> ps;
+        if (!p.curr_is_token(g_colon))
+            p.parse_binders(ps);
+        p.check_token_next(g_colon, "invalid declaration, ':' expected");
+        type = p.parse_scoped_expr(ps);
+        p.check_token_next(g_assign, "invalid declaration, ':=' expected");
+        p.set_type_use_placeholder(true);
+        value = p.parse_scoped_expr(ps);
+        type = p.pi_abstract(ps, type);
+        value = p.lambda_abstract(ps, value);
+        update_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
+        ls = to_list(ls_buffer.begin(), ls_buffer.end());
+    }
+    if (in_section(env)) {
+        buffer<parameter> section_ps;
+        collect_section_locals(type, value, p, section_ps);
+        type = p.pi_abstract(section_ps, type);
+        value = p.lambda_abstract(section_ps, value);
+        buffer<level> section_ls_buffer;
+        for (name const & l : ls) {
+            if (p.get_local_level_index(l))
+                section_ls_buffer.push_back(mk_param_univ(l));
+            else
+                break;
+        }
+        levels section_ls = to_list(section_ls_buffer.begin(), section_ls_buffer.end());
+        buffer<expr> section_args;
+        for (auto const & p : section_ps)
+            section_args.push_back(p.m_local);
+        expr ref = mk_app(mark_explicit(mk_constant(real_n, section_ls)), section_args);
+        p.add_local_expr(n, ref);
+    } else {
+        if (real_n != n)
+            env = add_alias(env, n, mk_constant(real_n));
+    }
+    if (is_theorem) {
+        // TODO(Leo): delay theorems
+        auto type_value = p.elaborate(type, value, ls);
+        type  = type_value.first;
+        value = type_value.second;
+        env = env.add(check(env, mk_theorem(real_n, ls, type, value)));
+    } else {
+        auto type_value = p.elaborate(type, value, ls);
+        type  = type_value.first;
+        value = type_value.second;
+        env = env.add(check(env, mk_definition(env, real_n, ls, type, value, is_opaque)));
+    }
+    return env;
+}
+environment definition_cmd(parser & p) {
+    return definition_cmd_core(p, false, true);
+}
+environment abbreviation_cmd(parser & p) {
+    return definition_cmd_core(p, false, false);
+}
+environment theorem_cmd(parser & p) {
+    return definition_cmd_core(p, true, true);
+}
+
 environment print_cmd(parser & p) {
     if (p.curr() == scanner::token_kind::String) {
         p.regular_stream() << p.get_str_val() << "\n";
@@ -190,6 +309,9 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("[variable]",   "declare a new cast parameter", cast_variable_cmd));
     add_cmd(r, cmd_info("axiom",        "declare a new axiom", axiom_cmd));
     add_cmd(r, cmd_info("{axiom}",      "declare a new implicit axiom", implicit_axiom_cmd));
+    add_cmd(r, cmd_info("definition",   "add new definition", definition_cmd));
+    add_cmd(r, cmd_info("abbreviation", "add new abbreviation (aka transparent definition)", abbreviation_cmd));
+    add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
     return r;
 }

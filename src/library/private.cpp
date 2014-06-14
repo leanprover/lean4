@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 namespace lean {
 struct private_ext : public environment_extension {
     unsigned                           m_counter;
-    rb_map<name, name, name_quick_cmp> m_map;      // map: user-name   -> hidden-name
     rb_map<name, name, name_quick_cmp> m_inv_map;  // map: hidden-name -> user-name
     private_ext():m_counter(0) {}
 };
@@ -47,7 +46,6 @@ std::pair<environment, name> add_private_name(environment const & env, name cons
     if (extra_hash)
         h = hash(h, *extra_hash);
     name r = name(g_private, h) + n;
-    ext.m_map.insert(n, r);
     ext.m_inv_map.insert(r, n);
     ext.m_counter++;
     environment new_env = update(env, ext);
@@ -76,11 +74,6 @@ optional<name> hidden_to_user_name(environment const & env, name const & n) {
     return it ? optional<name>(*it) : optional<name>();
 }
 
-optional<name> user_to_hidden_name(environment const & env, name const & n) {
-    auto it = get_extension(env).m_map.find(n);
-    return it ? optional<name>(*it) : optional<name>();
-}
-
 static int add_private_name(lua_State * L) {
     int nargs = lua_gettop(L);
     optional<unsigned> h;
@@ -93,11 +86,9 @@ static int add_private_name(lua_State * L) {
 }
 
 static int hidden_to_user_name(lua_State * L) { return push_optional_name(L, hidden_to_user_name(to_environment(L, 1), to_name_ext(L, 2))); }
-static int user_to_hidden_name(lua_State * L) { return push_optional_name(L, user_to_hidden_name(to_environment(L, 1), to_name_ext(L, 2))); }
 
 void open_private(lua_State * L) {
     SET_GLOBAL_FUN(add_private_name,    "add_private_name");
     SET_GLOBAL_FUN(hidden_to_user_name, "hidden_to_user_name");
-    SET_GLOBAL_FUN(user_to_hidden_name, "user_to_hidden_name");
 }
 }

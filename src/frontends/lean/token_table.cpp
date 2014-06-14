@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <limits>
 #include <utility>
 #include "frontends/lean/token_table.h"
 
 namespace lean {
 static unsigned g_arrow_prec = 25;
+static unsigned g_max_prec   = std::numeric_limits<unsigned>::max();
+static unsigned g_plus_prec  = 65;
+static unsigned g_cup_prec   = 75;
 unsigned get_arrow_prec() { return g_arrow_prec; }
 token_table add_command_token(token_table const & s, char const * token) {
     return insert(s, token, token_info(token));
@@ -45,12 +49,16 @@ static char const * g_cup            = "\u2294";
 
 token_table init_token_table() {
     token_table t;
-    char const * builtin[] = {"fun", "Pi", "let", "in", "have", "show", "by", "from", "(", ")", "{", "}", "[", "]",
-                              ".{", "Type", "...", ",", ".", ":", "calc", ":=", "--", "(*", "(--",
-                              "proof", "qed", "private", "raw", "Bool", "+", g_cup, nullptr};
+    std::pair<char const *, unsigned> builtin[] =
+        {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"have", 0}, {"show", 0}, {"by", 0},
+         {"from", 0}, {"(", g_max_prec}, {")", 0}, {"{", g_max_prec}, {"}", 0},
+         {"[", g_max_prec}, {"]", 0}, {".{", 0}, {"Type", g_max_prec},
+         {"...", 0}, {",", 0}, {".", 0}, {":", 0}, {"calc", 0}, {":=", 0}, {"--", 0},
+         {"(*", 0}, {"(--", 0}, {"proof", 0}, {"qed", 0}, {"raw", 0}, {"Bool", g_max_prec},
+         {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {nullptr, 0}};
 
     char const * commands[] = {"theorem", "axiom", "variable", "definition", "{axiom}", "{variable}", "[variable]",
-                               "variables", "{variables}", "[variables]",
+                               "variables", "{variables}", "[variables]", "[private]", "[inline]", "abbreviation",
                                "evaluate", "check", "print", "end", "namespace", "section", "import",
                                "abbreviation", "inductive", "record", "structure", "module", "universe",
                                nullptr};
@@ -68,29 +76,28 @@ token_table init_token_table() {
          {nullptr, nullptr}};
 
     auto it = builtin;
-    while (*it) {
-        t = add_token(t, *it);
+    while (it->first) {
+        t = add_token(t, it->first, it->second);
         it++;
     }
-    t = add_token(t, "->", get_arrow_prec());
 
-    it = commands;
-    while (*it) {
-        t = add_command_token(t, *it);
-        ++it;
+    auto it2 = commands;
+    while (*it2) {
+        t = add_command_token(t, *it2);
+        ++it2;
     }
 
-    auto it2 = aliases;
-    while (it2->first) {
-        t = add_token(t, it2->first, it2->second);
-        it2++;
+    auto it3 = aliases;
+    while (it3->first) {
+        t = add_token(t, it3->first, it3->second);
+        it3++;
     }
     t = add_token(t, g_arrow_unicode, "->", get_arrow_prec());
 
-    it2 = cmd_aliases;
-    while (it2->first) {
-        t = add_command_token(t, it2->first, it2->second);
-        ++it2;
+    auto it4 = cmd_aliases;
+    while (it4->first) {
+        t = add_command_token(t, it4->first, it4->second);
+        ++it4;
     }
     return t;
 }

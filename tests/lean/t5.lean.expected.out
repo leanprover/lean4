@@ -1,0 +1,5 @@
+g : N -> N
+foo.h : N
+private.3156207665.q : N
+foo.h : N
+t5.lean:13:6: error: unknown identifier 'q'

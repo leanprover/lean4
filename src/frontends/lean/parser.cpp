@@ -246,6 +246,14 @@ optional<unsigned> parser::get_local_index(name const & n) const {
         return optional<unsigned>();
 }
 
+optional<parameter> parser::get_local(name const & n) const {
+    auto it = m_local_decls.find(n);
+    if (it != m_local_decls.end())
+        return optional<parameter>(it->second.first);
+    else
+        return optional<parameter>();
+}
+
 /** \brief Parse a sequence of identifiers <tt>ID*</tt>. Store the result in \c result. */
 void parser::parse_names(buffer<std::pair<pos_info, name>> & result) {
     while (curr_is_identifier()) {
@@ -399,6 +407,10 @@ expr parser::mk_Type() {
 expr parser::elaborate(expr const & e, level_param_names const &) {
     // TODO(Leo):
     return e;
+}
+
+std::pair<expr, expr> parser::elaborate(expr const & t, expr const & v, level_param_names const &) {
+    return mk_pair(t, v);
 }
 
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */
@@ -621,9 +633,6 @@ expr parser::parse_id() {
     // globals
     if (m_env.find(id))
         r = save_pos(mk_constant(id, ls), p);
-    // private globals
-    else if (auto prv_id = user_to_hidden_name(m_env, id))
-        r = save_pos(mk_constant(*prv_id, ls), p);
     // aliases
     auto as = get_alias_exprs(m_env, id);
     if (!is_nil(as)) {

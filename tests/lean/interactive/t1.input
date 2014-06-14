@@ -1,0 +1,8 @@
+print "hello"
+print "block1"
+#ACK
+print "block2"
+-- comment
+print "block2b"
+#ACK
+print "block3"

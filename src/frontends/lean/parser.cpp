@@ -41,11 +41,13 @@ bool     get_parser_show_errors(options const & opts)  { return opts.get_bool(g_
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name,
                script_state * ss, bool use_exceptions,
-               local_level_decls const & lds, local_expr_decls const & eds):
+               local_level_decls const & lds, local_expr_decls const & eds,
+               unsigned line):
     m_env(env), m_ios(ios), m_ss(ss),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name), m_local_level_decls(lds), m_local_decls(eds),
     m_pos_table(std::make_shared<pos_info_table>()) {
+    m_scanner.set_line(line);
     m_type_use_placeholder = true;
     m_found_errors = false;
     updt_options();

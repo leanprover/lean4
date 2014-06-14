@@ -127,7 +127,8 @@ public:
            std::istream & strm, char const * str_name,
            script_state * ss = nullptr, bool use_exceptions = false,
            local_level_decls const & lds = local_level_decls(),
-           local_expr_decls const & eds = local_expr_decls());
+           local_expr_decls const & eds = local_expr_decls(),
+           unsigned line = 1);
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }

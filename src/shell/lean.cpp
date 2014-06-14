@@ -24,14 +24,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
-#if 0
-#include "kernel/io_state.h"
-#include "library/printer.h"
-#include "library/kernel_bindings.h"
-#include "frontends/lean/shell.h"
-#include "frontends/lean/frontend.h"
-#include "frontends/lean/register_module.h"
-#endif
+#include "frontends/lean/interactive.h"
 #include "frontends/lua/register_modules.h"
 #include "version.h"
 #include "githash.h" // NOLINT
@@ -43,13 +36,6 @@ using lean::io_state;
 using lean::io_state_stream;
 using lean::regular;
 using lean::mk_environment;
-
-#if 0
-using lean::shell;
-using lean::parser;
-using lean::invoke_debugger;
-using lean::notify_assertion_violation;
-#endif
 
 enum class input_kind { Unspecified, Lean, OLean, Lua };
 
@@ -80,6 +66,7 @@ static void display_help(std::ostream & out) {
     std::cout << "                    0 means 'do not check'.\n";
     std::cout << "  --trust=num -t    trust level (default: 0) \n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
+    std::cout << "  --interactive -i  read blocks of commands from the input stream\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
@@ -100,27 +87,28 @@ static char const * get_file_extension(char const * fname) {
 }
 
 static struct option g_long_options[] = {
-    {"version",    no_argument,       0, 'v'},
-    {"help",       no_argument,       0, 'h'},
-    {"lean",       no_argument,       0, 'l'},
-    {"olean",      no_argument,       0, 'b'},
-    {"lua",        no_argument,       0, 'u'},
-    {"path",       no_argument,       0, 'p'},
-    {"luahook",    required_argument, 0, 'c'},
-    {"githash",    no_argument,       0, 'g'},
-    {"output",     required_argument, 0, 'o'},
-    {"trust",      required_argument, 0, 't'},
-    {"quiet",      no_argument,       0, 'q'},
+    {"version",     no_argument,       0, 'v'},
+    {"help",        no_argument,       0, 'h'},
+    {"lean",        no_argument,       0, 'l'},
+    {"olean",       no_argument,       0, 'b'},
+    {"lua",         no_argument,       0, 'u'},
+    {"path",        no_argument,       0, 'p'},
+    {"luahook",     required_argument, 0, 'c'},
+    {"githash",     no_argument,       0, 'g'},
+    {"output",      required_argument, 0, 'o'},
+    {"trust",       required_argument, 0, 't'},
+    {"interactive", no_argument,       0, 'i'},
+    {"quiet",       no_argument,       0, 'q'},
 #if defined(LEAN_USE_BOOST)
-    {"tstack",     required_argument, 0, 's'},
+    {"tstack",      required_argument, 0, 's'},
 #endif
     {0, 0, 0, 0}
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "qlupgvhc:012s:012t:012o:";
+static char const * g_opt_str = "iqlupgvhc:012s:012t:012o:";
 #else
-static char const * g_opt_str = "qlupgvhc:012t:012o:";
+static char const * g_opt_str = "iqlupgvhc:012t:012o:";
 #endif
 
 int main(int argc, char ** argv) {
@@ -129,6 +117,7 @@ int main(int argc, char ** argv) {
     bool export_objects = false;
     unsigned trust_lvl  = 0;
     bool quiet          = false;
+    bool interactive    = false;
     std::string output;
     input_kind default_k = input_kind::Lean; // default
     while (true) {
@@ -136,6 +125,9 @@ int main(int argc, char ** argv) {
         if (c == -1)
             break; // end of command line
         switch (c) {
+        case 'i':
+            interactive = true;
+            break;
         case 'v':
             display_header(std::cout);
             return 0;
@@ -192,67 +184,50 @@ int main(int argc, char ** argv) {
         });
 
     try {
-        if (optind >= argc) {
-            display_header(std::cout);
-            signal(SIGINT, on_ctrl_c);
-            if (default_k == input_kind::Lean) {
-#if defined(LEAN_WINDOWS)
-                std::cout << "Type 'exit.' to exit or 'help.' for help."<< std::endl;
-#else
-                std::cout << "Type Ctrl-D or 'exit.' to exit or 'help.' for help."<< std::endl;
-#endif
-                // shell sh(env, &S);
-                // int status = sh() ? 0 : 1;
-                // if (export_objects)
-                //    env->export_objects(output);
-                // return status;
-                return 0;
+        bool ok = true;
+        for (int i = optind; i < argc; i++) {
+            char const * ext = get_file_extension(argv[i]);
+            input_kind k     = default_k;
+            if (ext) {
+                if (strcmp(ext, "lean") == 0) {
+                    k = input_kind::Lean;
+                } else if (strcmp(ext, "olean") == 0) {
+                    k = input_kind::OLean;
+                } else if (strcmp(ext, "lua") == 0) {
+                    k = input_kind::Lua;
+                }
+            }
+            if (k == input_kind::Lean) {
+                if (!parse_commands(env, ios, argv[i], &S, false))
+                    ok = false;
+            } else if (k == input_kind::OLean) {
+                // try {
+                //    env->load(std::string(argv[i]), ios);
+                // } catch (lean::exception & ex) {
+                //    std::cerr << "Failed to load binary file '" << argv[i] << "': " << ex.what() << "\n";
+                //    ok = false;
+                // }
+            } else if (k == input_kind::Lua) {
+                try {
+                    S.dofile(argv[i]);
+                } catch (lean::exception & ex) {
+                    ::lean::display_error(regular(env, ios), nullptr, ex);
+                    ok = false;
+                }
             } else {
-                lean_assert(default_k == input_kind::Lua);
-                S.import("repl");
-                return 0;
+                lean_unreachable(); // LCOV_EXCL_LINE
             }
-        } else {
-            bool ok = true;
-            for (int i = optind; i < argc; i++) {
-                char const * ext = get_file_extension(argv[i]);
-                input_kind k     = default_k;
-                if (ext) {
-                    if (strcmp(ext, "lean") == 0) {
-                        k = input_kind::Lean;
-                    } else if (strcmp(ext, "olean") == 0) {
-                        k = input_kind::OLean;
-                    } else if (strcmp(ext, "lua") == 0) {
-                        k = input_kind::Lua;
-                    }
-                }
-                if (k == input_kind::Lean) {
-                    if (!parse_commands(env, ios, argv[i], &S, false))
-                        ok = false;
-                } else if (k == input_kind::OLean) {
-                    // try {
-                    //    env->load(std::string(argv[i]), ios);
-                    // } catch (lean::exception & ex) {
-                    //    std::cerr << "Failed to load binary file '" << argv[i] << "': " << ex.what() << "\n";
-                    //    ok = false;
-                    // }
-                } else if (k == input_kind::Lua) {
-                    try {
-                        S.dofile(argv[i]);
-                    } catch (lean::exception & ex) {
-                        ::lean::display_error(regular(env, ios), nullptr, ex);
-                        ok = false;
-                    }
-                } else {
-                    lean_unreachable(); // LCOV_EXCL_LINE
-                }
-            }
-            if (export_objects) {
-                std::ofstream out(output, std::ofstream::binary);
-                export_module(out, env);
-            }
-            return ok ? 0 : 1;
         }
+        if (ok && interactive && default_k == input_kind::Lean) {
+            signal(SIGINT, on_ctrl_c);
+            lean::interactive in(env, ios, S);
+            in(std::cin, "[stdin]");
+        }
+        if (export_objects) {
+            std::ofstream out(output, std::ofstream::binary);
+            export_module(out, env);
+        }
+        return ok ? 0 : 1;
     } catch (lean::exception & ex) {
         ::lean::display_error(regular(env, ios), nullptr, ex);
     }

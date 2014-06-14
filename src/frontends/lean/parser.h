@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
-#include "util/scoped_map.h"
 #include "util/script_state.h"
 #include "util/name_map.h"
 #include "util/exception.h"
@@ -18,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/scanner.h"
+#include "frontends/lean/local_decls.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/parser_pos_provider.h"
 
@@ -41,13 +41,10 @@ struct parser_error : public exception {
 };
 
 struct interrupt_parser {};
+typedef local_decls<parameter> local_expr_decls;
+typedef local_decls<level>     local_level_decls;
 
 class parser {
-    typedef std::pair<parameter, unsigned> local_entry;
-    typedef std::pair<level, unsigned> local_level_entry;
-    typedef scoped_map<name, local_entry, name_hash, name_eq> local_decls;
-    typedef scoped_map<name, local_level_entry, name_hash, name_eq> local_level_decls;
-
     environment             m_env;
     io_state                m_ios;
     script_state *          m_ss;
@@ -57,8 +54,8 @@ class parser {
 
     scanner                 m_scanner;
     scanner::token_kind     m_curr;
-    local_decls             m_local_decls;
     local_level_decls       m_local_level_decls;
+    local_expr_decls        m_local_decls;
     pos_info                m_last_cmd_pos;
     pos_info                m_last_script_pos;
     unsigned                m_next_tag_idx;
@@ -128,11 +125,15 @@ class parser {
 public:
     parser(environment const & env, io_state const & ios,
            std::istream & strm, char const * str_name,
-           script_state * ss = nullptr, bool use_exceptions = false);
+           script_state * ss = nullptr, bool use_exceptions = false,
+           local_level_decls const & lds = local_level_decls(),
+           local_expr_decls const & eds = local_expr_decls());
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
     script_state * ss() const { return m_ss; }
+    local_level_decls const & get_local_level_decls() const { return m_local_level_decls; }
+    local_expr_decls const & get_local_expr_decls() const { return m_local_decls; }
 
     /** \brief Return the current position information */
     pos_info pos() const { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }
@@ -195,9 +196,9 @@ public:
     void add_local_expr(name const & n, expr const & e, binder_info const & bi = binder_info());
     void add_local(expr const & t);
     /** \brief Position of the local level declaration named \c n in the sequence of local level decls. */
-    optional<unsigned> get_local_level_index(name const & n) const;
+    unsigned get_local_level_index(name const & n) const;
     /** \brief Position of the local declaration named \c n in the sequence of local decls. */
-    optional<unsigned> get_local_index(name const & n) const;
+    unsigned get_local_index(name const & n) const;
     /** \brief Return the local parameter named \c n */
     optional<parameter> get_local(name const & n) const;
     /**

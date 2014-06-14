@@ -80,7 +80,7 @@ static void update_parameters(buffer<name> & ls_buffer, name_set const & found, 
                 ls_buffer.push_back(n);
         });
     std::sort(ls_buffer.begin(), ls_buffer.end(), [&](name const & n1, name const & n2) {
-            return *p.get_local_level_index(n1) < *p.get_local_level_index(n2);
+            return p.get_local_level_index(n1) < p.get_local_level_index(n2);
         });
 }
 
@@ -149,7 +149,7 @@ static void collect_section_locals(expr const & type, expr const & value, parser
             section_ps.push_back(*p.get_local(n));
         });
     std::sort(section_ps.begin(), section_ps.end(), [&](parameter const & p1, parameter const & p2) {
-            return *p.get_local_index(mlocal_name(p1.m_local)) < *p.get_local_index(mlocal_name(p2.m_local));
+            return p.get_local_index(mlocal_name(p1.m_local)) < p.get_local_index(mlocal_name(p2.m_local));
         });
 }
 

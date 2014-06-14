@@ -40,10 +40,12 @@ bool     get_parser_show_errors(options const & opts)  { return opts.get_bool(g_
 
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name,
-               script_state * ss, bool use_exceptions):
+               script_state * ss, bool use_exceptions,
+               local_level_decls const & lds, local_expr_decls const & eds):
     m_env(env), m_ios(ios), m_ss(ss),
     m_verbose(true), m_use_exceptions(use_exceptions),
-    m_scanner(strm, strm_name), m_pos_table(std::make_shared<pos_info_table>()) {
+    m_scanner(strm, strm_name), m_local_level_decls(lds), m_local_decls(eds),
+    m_pos_table(std::make_shared<pos_info_table>()) {
     m_type_use_placeholder = true;
     m_found_errors = false;
     updt_options();
@@ -239,11 +241,11 @@ void parser::add_local_level(name const & n, level const & l) {
         throw exception(sstream() << "invalid universe declaration, '" << n << "' shadows a global universe");
     if (m_local_level_decls.contains(n))
         throw exception(sstream() << "invalid universe declaration, '" << n << "' shadows a local universe");
-    m_local_level_decls.insert(n, local_level_entry(l, m_local_level_decls.size()));
+    m_local_level_decls.insert(n, l);
 }
 
 void parser::add_local_expr(name const & n, expr const & e, binder_info const & bi) {
-    m_local_decls.insert(n, local_entry(parameter(pos(), e, bi), m_local_decls.size()));
+    m_local_decls.insert(n, parameter(pos(), e, bi));
 }
 
 void parser::add_local(expr const & e) {
@@ -251,26 +253,17 @@ void parser::add_local(expr const & e) {
     add_local_expr(local_pp_name(e), e);
 }
 
-optional<unsigned> parser::get_local_level_index(name const & n) const {
-    auto it = m_local_level_decls.find(n);
-    if (it != m_local_level_decls.end())
-        return optional<unsigned>(it->second.second);
-    else
-        return optional<unsigned>();
+unsigned parser::get_local_level_index(name const & n) const {
+    return m_local_level_decls.find_idx(n);
 }
 
-optional<unsigned> parser::get_local_index(name const & n) const {
-    auto it = m_local_decls.find(n);
-    if (it != m_local_decls.end())
-        return optional<unsigned>(it->second.second);
-    else
-        return optional<unsigned>();
+unsigned parser::get_local_index(name const & n) const {
+    return m_local_decls.find_idx(n);
 }
 
 optional<parameter> parser::get_local(name const & n) const {
-    auto it = m_local_decls.find(n);
-    if (it != m_local_decls.end())
-        return optional<parameter>(it->second.first);
+    if (auto it = m_local_decls.find(n))
+        return optional<parameter>(*it);
     else
         return optional<parameter>();
 }
@@ -355,9 +348,8 @@ level parser::parse_level_id() {
     auto p  = pos();
     name id = get_name_val();
     next();
-    auto it = m_local_level_decls.find(id);
-    if (it != m_local_level_decls.end())
-        return it->second.first;
+    if (auto it = m_local_level_decls.find(id))
+        return *it;
     if (m_env.is_universe(id))
         return mk_global_univ(id);
     if (auto it = get_alias_level(m_env, id))
@@ -522,7 +514,7 @@ void parser::parse_binders_core(buffer<parameter> & r) {
 }
 
 void parser::parse_binders(buffer<parameter> & r) {
-    local_decls::mk_scope scope(m_local_decls);
+    local_expr_decls::mk_scope scope(m_local_decls);
     unsigned old_sz = r.size();
     parse_binders_core(r);
     if (old_sz == r.size())
@@ -639,7 +631,6 @@ expr parser::parse_id() {
     auto p  = pos();
     name id = get_name_val();
     next();
-    auto it1 = m_local_decls.find(id);
     buffer<level> lvl_buffer;
     levels ls;
     if (curr_is_token(g_llevel_curly)) {
@@ -651,8 +642,8 @@ expr parser::parse_id() {
         ls = to_list(lvl_buffer.begin(), lvl_buffer.end());
     }
     // locals
-    if (it1 != m_local_decls.end())
-        return copy_with_new_pos(propagate_levels(it1->second.first.m_local, ls), p);
+    if (auto it1 = m_local_decls.find(id))
+        return copy_with_new_pos(propagate_levels(it1->m_local, ls), p);
     optional<expr> r;
     // globals
     if (m_env.find(id))
@@ -736,7 +727,7 @@ expr parser::parse_scoped_expr(unsigned num_params, parameter const * ps, unsign
     if (num_params == 0) {
         return parse_expr(rbp);
     } else {
-        local_decls::mk_scope scope(m_local_decls);
+        local_expr_decls::mk_scope scope(m_local_decls);
         for (unsigned i = 0; i < num_params; i++)
             add_local(ps[i].m_local);
         return parse_expr(rbp);

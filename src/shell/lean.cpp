@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/formatter.h"
 #include "kernel/standard/standard.h"
+#include "library/module.h"
 #include "library/io_state_stream.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
@@ -27,7 +28,6 @@ Author: Leonardo de Moura
 #include "kernel/io_state.h"
 #include "library/printer.h"
 #include "library/kernel_bindings.h"
-
 #include "frontends/lean/shell.h"
 #include "frontends/lean/frontend.h"
 #include "frontends/lean/register_module.h"
@@ -126,7 +126,7 @@ static char const * g_opt_str = "qlupgvhc:012t:012o:";
 int main(int argc, char ** argv) {
     lean::save_stack_info();
     lean::register_modules();
-    // bool export_objects = false;
+    bool export_objects = false;
     unsigned trust_lvl  = 0;
     bool quiet          = false;
     std::string output;
@@ -165,7 +165,7 @@ int main(int argc, char ** argv) {
             break;
         case 'o':
             output = optarg;
-            // export_objects = true;
+            export_objects = true;
             break;
         case 't':
             trust_lvl = atoi(optarg);
@@ -247,8 +247,10 @@ int main(int argc, char ** argv) {
                     lean_unreachable(); // LCOV_EXCL_LINE
                 }
             }
-            // if (export_objects)
-            //    env->export_objects(output);
+            if (export_objects) {
+                std::ofstream out(output, std::ofstream::binary);
+                export_module(out, env);
+            }
             return ok ? 0 : 1;
         }
     } catch (lean::exception & ex) {

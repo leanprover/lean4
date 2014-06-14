@@ -6,6 +6,7 @@ install(TARGETS lean DESTINATION bin)
 # add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 # add_test(example1_stdin2 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "-l" "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 # add_test(example1_stdin3 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "--lean" "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
+# add_test(lean_export ${CMAKE_CURRENT_BINARY_DIR}/lean "-o simple.olean" "${LEAN_SOURCE_DIR}/../tests/lean/run/simple.lean")
 add_test(lean_help1 ${CMAKE_CURRENT_BINARY_DIR}/lean --help)
 add_test(lean_help2 ${CMAKE_CURRENT_BINARY_DIR}/lean --h)
 add_test(lean_version1 ${CMAKE_CURRENT_BINARY_DIR}/lean --version)
@@ -47,15 +48,6 @@ FOREACH(T ${LEANRUNTESTS})
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
            COMMAND "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
-
-# # LEAN INTERACTIVE TESTS
-# file(GLOB LEANINTERACTIVETESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.lean")
-# FOREACH(T ${LEANINTERACTIVETESTS})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "leaninteractivetest_${T_NAME}"
-#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
-#            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-# ENDFOREACH(T)
 
 # # LEAN SLOW TESTS
 # file(GLOB LEANSLOWTESTS "${LEAN_SOURCE_DIR}/../tests/lean/slow/*.lean")

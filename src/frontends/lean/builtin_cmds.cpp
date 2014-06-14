@@ -37,7 +37,7 @@ environment universe_cmd(parser & p) {
     } else {
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
-        env = env.add_universe(full_n);
+        env = module::add_universe(env, full_n);
         if (!ns.is_anonymous())
             env = add_alias(env, n, mk_global_univ(full_n));
     }
@@ -115,9 +115,9 @@ environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi)
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
         if (is_axiom)
-            env = env.add(check(env, mk_axiom(full_n, ls, type)));
+            env = module::add(env, check(env, mk_axiom(full_n, ls, type)));
         else
-            env = env.add(check(env, mk_var_decl(full_n, ls, type)));
+            env = module::add(env, check(env, mk_var_decl(full_n, ls, type)));
         if (!ns.is_anonymous())
             env = add_alias(env, n, mk_constant(full_n));
         return env;
@@ -238,12 +238,12 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
         auto type_value = p.elaborate(type, value, ls);
         type  = type_value.first;
         value = type_value.second;
-        env = env.add(check(env, mk_theorem(real_n, ls, type, value)));
+        env = module::add(env, check(env, mk_theorem(real_n, ls, type, value)));
     } else {
         auto type_value = p.elaborate(type, value, ls);
         type  = type_value.first;
         value = type_value.second;
-        env = env.add(check(env, mk_definition(env, real_n, ls, type, value, is_opaque)));
+        env = module::add(env, check(env, mk_definition(env, real_n, ls, type, value, is_opaque)));
     }
     return env;
 }

@@ -299,14 +299,18 @@ static name g_cup("\u2294");
 static unsigned g_level_add_prec = 10;
 static unsigned g_level_cup_prec = 5;
 
-unsigned parser::parse_small_nat() {
-    auto p  = pos();
+unsigned parser::get_small_nat() {
     mpz val = get_num_val().get_numerator();
-    next();
     lean_assert(val >= 0);
     if (!val.is_unsigned_int())
-        throw parser_error("invalid level expression, value does not fit in a machine integer", p);
+        throw parser_error("invalid level expression, value does not fit in a machine integer", pos());
     return val.get_unsigned_int();
+}
+
+unsigned parser::parse_small_nat() {
+    unsigned r = get_small_nat();
+    next();
+    return r;
 }
 
 static level lift(level l, unsigned k) {

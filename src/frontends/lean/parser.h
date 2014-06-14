@@ -141,6 +141,7 @@ public:
     pos_info pos_of(expr const & e, pos_info default_pos);
     pos_info pos_of(expr const & e) { return pos_of(e, pos()); }
     pos_info cmd_pos() const { return m_last_cmd_pos; }
+    void set_line(unsigned p) { return m_scanner.set_line(p); }
 
     /** \brief Read the next token. */
     void scan() { m_curr = m_scanner.scan(m_env); }
@@ -169,6 +170,7 @@ public:
     diagnostic diagnostic_stream() const { return diagnostic(env(), ios()); }
 
     void parse_names(buffer<std::pair<pos_info, name>> & result);
+    unsigned get_small_nat();
     unsigned parse_small_nat();
 
     level parse_level(unsigned rbp = 0);

@@ -297,6 +297,15 @@ environment check_cmd(parser & p) {
     return p.env();
 }
 
+environment set_line_cmd(parser & p) {
+    if (!p.curr_is_numeral())
+        throw parser_error("invalid #setline command, numeral expected", p.pos());
+    unsigned r = p.get_small_nat();
+    p.set_line(r);
+    p.next();
+    return p.env();
+}
+
 cmd_table init_cmd_table() {
     cmd_table r;
     add_cmd(r, cmd_info("print",        "print a string", print_cmd));
@@ -313,6 +322,7 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("abbreviation", "add new abbreviation (aka transparent definition)", abbreviation_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
+    add_cmd(r, cmd_info("#setline",     "modify the current line number, it only affects error/report messages", set_line_cmd));
     return r;
 }
 

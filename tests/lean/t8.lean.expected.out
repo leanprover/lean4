@@ -1,0 +1,5 @@
+t8.lean:1002:0: error: command expected
+t8.lean:34:0: error: command expected
+ok
+t8.lean:37:0: error: invalid expression, unexpected token
+done

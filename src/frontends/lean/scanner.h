@@ -67,6 +67,7 @@ public:
     int get_line() const { return m_line; }
     int get_pos() const { return m_pos; }
     token_kind scan(environment const & env);
+    void set_line(unsigned p);
 
     mpq const & get_num_val() const { return m_num_val; }
     name const & get_name_val() const { return m_name_val; }

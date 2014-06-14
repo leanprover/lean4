@@ -11,6 +11,11 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_config.h"
 
 namespace lean {
+void scanner::set_line(unsigned p) {
+    m_line  = p;
+    m_sline = p;
+}
+
 void scanner::next() {
     lean_assert(m_curr != EOF);
     m_curr = m_stream.get();

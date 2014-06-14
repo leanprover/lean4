@@ -12,7 +12,7 @@ namespace lean {
 static unsigned g_arrow_prec = 25;
 static unsigned g_max_prec   = std::numeric_limits<unsigned>::max();
 static unsigned g_plus_prec  = 65;
-static unsigned g_cup_prec   = 75;
+static unsigned g_cup_prec   = 60;
 unsigned get_arrow_prec() { return g_arrow_prec; }
 token_table add_command_token(token_table const & s, char const * token) {
     return insert(s, token, token_info(token));

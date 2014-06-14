@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/flet.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/parser_nested_exception.h"
@@ -160,6 +161,26 @@ expr parser::rec_save_pos(expr const & e, pos_info p) {
 /** \brief Create a copy of \c e, and the position of new expression with p */
 expr parser::copy_with_new_pos(expr const & e, pos_info p) {
     return rec_save_pos(deep_copy(e), p);
+}
+
+/** \brief Add \c ls to constants occurring in \c e. */
+expr parser::propagate_levels(expr const & e, levels const & ls) {
+    if (is_nil(ls)) {
+        return e;
+    } else {
+        return replace(e, [&](expr const & e, unsigned) {
+                if (is_constant(e)) {
+                    auto it = m_env.find(const_name(e));
+                    if (it) {
+                        level_param_names const & univ_ps = it->get_univ_params();
+                        levels const & old_ls = const_levels(e);
+                        if (length(old_ls) + length(ls) <= length(univ_ps))
+                            return some_expr(update_constant(e, append(old_ls, ls)));
+                    }
+                }
+                return none_expr();
+            });
+    }
 }
 
 pos_info parser::pos_of(expr const & e, pos_info default_pos) {
@@ -615,11 +636,7 @@ expr parser::parse_id() {
     name id = get_name_val();
     next();
     auto it1 = m_local_decls.find(id);
-    // locals
-    if (it1 != m_local_decls.end())
-        return copy_with_new_pos(it1->second.first.m_local, p);
     buffer<level> lvl_buffer;
-    auto p_lvl = pos();
     levels ls;
     if (curr_is_token(g_llevel_curly)) {
         next();
@@ -629,6 +646,9 @@ expr parser::parse_id() {
         next();
         ls = to_list(lvl_buffer.begin(), lvl_buffer.end());
     }
+    // locals
+    if (it1 != m_local_decls.end())
+        return copy_with_new_pos(propagate_levels(it1->second.first.m_local, ls), p);
     optional<expr> r;
     // globals
     if (m_env.find(id))
@@ -636,14 +656,11 @@ expr parser::parse_id() {
     // aliases
     auto as = get_alias_exprs(m_env, id);
     if (!is_nil(as)) {
-        if (!is_nil(ls))
-            throw parser_error(sstream() << "explicit universe levels are not supported for overloaded/aliased identifier '" << id << "' "
-                               << "solutions: use a fully qualified name; or use non-overloaded alias", p_lvl);
         buffer<expr> new_as;
         if (r)
             new_as.push_back(*r);
         for (auto const & e : as) {
-            new_as.push_back(copy_with_new_pos(e, p));
+            new_as.push_back(copy_with_new_pos(propagate_levels(e, ls), p));
         }
         r = mk_choice(new_as.size(), new_as.data());
     }

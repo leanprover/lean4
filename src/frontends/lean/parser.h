@@ -90,6 +90,7 @@ class parser {
 
     tag get_tag(expr e);
     expr copy_with_new_pos(expr const & e, pos_info p);
+    expr propagate_levels(expr const & e, levels const & ls);
 
     void updt_options();
 

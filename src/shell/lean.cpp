@@ -37,7 +37,7 @@ using lean::io_state_stream;
 using lean::regular;
 using lean::mk_environment;
 
-enum class input_kind { Unspecified, Lean, OLean, Lua };
+enum class input_kind { Unspecified, Lean, Lua };
 
 static void on_ctrl_c(int ) {
     lean::request_interrupt();
@@ -52,8 +52,6 @@ static void display_help(std::ostream & out) {
     std::cout << "Input format:\n";
     std::cout << "  --lean            use parser for Lean default input format for files,\n";
     std::cout << "                    with unknown extension (default)\n";
-    std::cout << "  --olean           use parser for Lean binary input format for files\n";
-    std::cout << "                    with unknown extension\n";
     std::cout << "  --lua             use Lua parser for files with unknown extension\n";
     std::cout << "Miscellaneous:\n";
     std::cout << "  --help -h         display this message\n";
@@ -90,7 +88,6 @@ static struct option g_long_options[] = {
     {"version",     no_argument,       0, 'v'},
     {"help",        no_argument,       0, 'h'},
     {"lean",        no_argument,       0, 'l'},
-    {"olean",       no_argument,       0, 'b'},
     {"lua",         no_argument,       0, 'u'},
     {"path",        no_argument,       0, 'p'},
     {"luahook",     required_argument, 0, 'c'},
@@ -143,9 +140,6 @@ int main(int argc, char ** argv) {
         case 'u':
             default_k = input_kind::Lua;
             break;
-        case 'b':
-            default_k = input_kind::OLean;
-            break;
         case 'c':
             script_state::set_check_interrupt_freq(atoi(optarg));
             break;
@@ -191,8 +185,6 @@ int main(int argc, char ** argv) {
             if (ext) {
                 if (strcmp(ext, "lean") == 0) {
                     k = input_kind::Lean;
-                } else if (strcmp(ext, "olean") == 0) {
-                    k = input_kind::OLean;
                 } else if (strcmp(ext, "lua") == 0) {
                     k = input_kind::Lua;
                 }
@@ -200,13 +192,6 @@ int main(int argc, char ** argv) {
             if (k == input_kind::Lean) {
                 if (!parse_commands(env, ios, argv[i], &S, false))
                     ok = false;
-            } else if (k == input_kind::OLean) {
-                // try {
-                //    env->load(std::string(argv[i]), ios);
-                // } catch (lean::exception & ex) {
-                //    std::cerr << "Failed to load binary file '" << argv[i] << "': " << ex.what() << "\n";
-                //    ok = false;
-                // }
             } else if (k == input_kind::Lua) {
                 try {
                     S.dofile(argv[i]);

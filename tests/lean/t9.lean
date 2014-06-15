@@ -8,8 +8,8 @@ variable b : N
 variable add : N → N → N
 variable mul : N → N → N
 namespace foo
-  infixl + : add
-  infixl * : mul
+  infixl + := add
+  infixl * := mul
   check a+b*a
 end
 -- Notation is not avaiable outside the namespace

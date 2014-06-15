@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 namespace lean {
 static name g_max("max");
 static name g_colon(":");
+static name g_assign(":=");
 
 static std::string parse_symbol(parser & p, char const * msg) {
     name n;
@@ -71,7 +72,7 @@ environment mixfix_cmd(parser & p, mixfix_kind k) {
                            "solution: use the 'precedence' command", p.pos());
     if (k == mixfix_kind::infixr && *prec == 0)
         throw parser_error("invalid infixr declaration, precedence must be greater than zero", p.pos());
-    p.check_token_next(g_colon, "invalid notation declaration, ':' expected");
+    p.check_token_next(g_assign, "invalid notation declaration, ':=' expected");
     expr f = p.parse_expr();
     char const * tks = tk.c_str();
     switch (k) {

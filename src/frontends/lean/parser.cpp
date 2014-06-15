@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/deep_copy.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/notation_cmd.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -316,6 +317,11 @@ static name g_add("+");
 static name g_max("max");
 static name g_imax("imax");
 static name g_cup("\u2294");
+static name g_infix("infix");
+static name g_infixl("infixl");
+static name g_infixr("infixr");
+static name g_postfix("postfix");
+static name g_notation("postfix");
 static unsigned g_level_add_prec = 10;
 static unsigned g_level_cup_prec = 5;
 
@@ -524,7 +530,21 @@ void parser::parse_binders_core(buffer<parameter> & r) {
         parse_binder_block(r, binder_info());
     } else if (curr_is_token(g_lparen)) {
         next();
-        parse_binder_block(r, binder_info());
+        if (curr_is_token(g_infix) || curr_is_token(g_infixl)) {
+            next();
+            m_env = infixl_cmd(*this);
+        } else if (curr_is_token(g_infixr)) {
+            next();
+            m_env = infixr_cmd(*this);
+        } else if (curr_is_token(g_postfix)) {
+            next();
+            m_env = postfix_cmd(*this);
+        } else if (curr_is_token(g_notation)) {
+            next();
+            m_env = notation_cmd(*this);
+        } else {
+            parse_binder_block(r, binder_info());
+        }
         check_token_next(g_rparen, "invalid binder, ')' expected");
     } else if (curr_is_token(g_lcurly)) {
         next();
@@ -540,12 +560,14 @@ void parser::parse_binders_core(buffer<parameter> & r) {
     parse_binders_core(r);
 }
 
-void parser::parse_binders(buffer<parameter> & r) {
+local_environment parser::parse_binders(buffer<parameter> & r) {
+    flet<environment> save(m_env, m_env); // save environment
     local_expr_decls::mk_scope scope(m_local_decls);
     unsigned old_sz = r.size();
     parse_binders_core(r);
     if (old_sz == r.size())
         throw parser_error("invalid binder, '(', '{', '[' or identifier expected", pos());
+    return local_environment(m_env);
 }
 
 expr parser::parse_notation(parse_table t, expr * left) {
@@ -553,6 +575,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
     auto p = pos();
     buffer<expr>      args;
     buffer<parameter> ps;
+    local_environment lenv(m_env);
     if (left)
         args.push_back(*left);
     while (true) {
@@ -601,10 +624,10 @@ expr parser::parse_notation(parse_table t, expr * left) {
             ps.push_back(parse_binder());
             break;
         case notation::action_kind::Binders:
-            parse_binders(ps);
+            lenv = parse_binders(ps);
             break;
         case notation::action_kind::ScopedExpr: {
-            expr r = parse_scoped_expr(ps, a.rbp());
+            expr r = parse_scoped_expr(ps, lenv, a.rbp());
             if (is_var(a.get_rec(), 0)) {
                 r = abstract(ps, r, a.use_lambda_abstraction());
             } else {
@@ -753,7 +776,8 @@ expr parser::parse_expr(unsigned rbp) {
     return left;
 }
 
-expr parser::parse_scoped_expr(unsigned num_params, parameter const * ps, unsigned rbp) {
+expr parser::parse_scoped_expr(unsigned num_params, parameter const * ps, local_environment const & lenv, unsigned rbp) {
+    flet<environment> let(m_env, lenv.m_env);
     if (num_params == 0) {
         return parse_expr(rbp);
     } else {

@@ -43,6 +43,11 @@ struct parser_error : public exception {
 struct interrupt_parser {};
 typedef local_decls<parameter> local_expr_decls;
 typedef local_decls<level>     local_level_decls;
+class local_environment {
+    friend parser;
+    environment m_env;
+    local_environment(environment const & env):m_env(env) {}
+};
 
 class parser {
     environment             m_env;
@@ -183,10 +188,16 @@ public:
     level parse_level(unsigned rbp = 0);
 
     parameter parse_binder();
-    void parse_binders(buffer<parameter> & r);
+    local_environment parse_binders(buffer<parameter> & r);
 
     expr parse_expr(unsigned rbp = 0);
-    expr parse_scoped_expr(unsigned num_params, parameter const * ps, unsigned rbp = 0);
+    expr parse_scoped_expr(unsigned num_params, parameter const * ps, local_environment const & lenv, unsigned rbp = 0);
+    expr parse_scoped_expr(buffer<parameter> & ps, local_environment const & lenv, unsigned rbp = 0) {
+        return parse_scoped_expr(ps.size(), ps.data(), lenv, rbp);
+    }
+    expr parse_scoped_expr(unsigned num_params, parameter const * ps, unsigned rbp = 0) {
+        return parse_scoped_expr(num_params, ps, local_environment(m_env), rbp);
+    }
     expr parse_scoped_expr(buffer<parameter> & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
     expr abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda = true);
     expr abstract(buffer<parameter> const & ps, expr const & e, bool lambda = true) { return abstract(ps.size(), ps.data(), e, lambda); }

@@ -89,16 +89,22 @@ environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi)
     name n = p.check_id_next("invalid declaration, identifier expected");
     check_atomic(n);
     buffer<name> ls_buffer;
-    buffer<parameter> ps;
     if (p.curr_is_token(g_llevel_curly) && in_section(p.env()))
         throw parser_error("invalid declaration, axioms/parameters occurring in sections cannot be universe polymorphic", p.pos());
     local_scope_if_not_section scope(p);
     parse_univ_params(p, ls_buffer);
     p.set_type_use_placeholder(false);
-    if (!p.curr_is_token(g_colon))
-        p.parse_binders(ps);
-    p.check_token_next(g_colon, "invalid declaration, ':' expected");
-    expr type = p.parse_scoped_expr(ps);
+    expr type;
+    if (!p.curr_is_token(g_colon)) {
+        buffer<parameter> ps;
+        auto lenv = p.parse_binders(ps);
+        p.check_token_next(g_colon, "invalid declaration, ':' expected");
+        type = p.parse_scoped_expr(ps, lenv);
+        type = p.pi_abstract(ps, type);
+    } else {
+        p.next();
+        type = p.parse_expr();
+    }
     level_param_names ls;
     if (in_section(p.env())) {
         ls = to_level_param_names(collect_univ_params(type));
@@ -106,7 +112,6 @@ environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi)
         update_parameters(ls_buffer, collect_univ_params(type), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
-    type = p.pi_abstract(ps, type);
     type = p.elaborate(type, ls);
     if (in_section(p.env())) {
         p.add_local_expr(n, mk_local(n, n, type), bi);
@@ -199,16 +204,23 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
         parser::local_scope scope(p);
         parse_univ_params(p, ls_buffer);
         p.set_type_use_placeholder(false);
-        buffer<parameter> ps;
-        if (!p.curr_is_token(g_colon))
-            p.parse_binders(ps);
-        p.check_token_next(g_colon, "invalid declaration, ':' expected");
-        type = p.parse_scoped_expr(ps);
-        p.check_token_next(g_assign, "invalid declaration, ':=' expected");
-        p.set_type_use_placeholder(true);
-        value = p.parse_scoped_expr(ps);
-        type = p.pi_abstract(ps, type);
-        value = p.lambda_abstract(ps, value);
+        if (!p.curr_is_token(g_colon)) {
+            buffer<parameter> ps;
+            auto lenv = p.parse_binders(ps);
+            p.check_token_next(g_colon, "invalid declaration, ':' expected");
+            type = p.parse_scoped_expr(ps, lenv);
+            p.check_token_next(g_assign, "invalid declaration, ':=' expected");
+            p.set_type_use_placeholder(true);
+            value = p.parse_scoped_expr(ps, lenv);
+            type = p.pi_abstract(ps, type);
+            value = p.lambda_abstract(ps, value);
+        } else {
+            p.next();
+            type = p.parse_expr();
+            p.check_token_next(g_assign, "invalid declaration, ':=' expected");
+            p.set_type_use_placeholder(true);
+            value = p.parse_expr();
+        }
         update_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }

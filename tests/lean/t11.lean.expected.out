@@ -1,0 +1,3 @@
+Exists (fun (x : A), (p x)) : bool
+Exists (fun (x : A), (Exists (fun (y : A), (q x y)))) : bool
+fun (x : A), x : A -> A

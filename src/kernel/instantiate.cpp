@@ -40,6 +40,27 @@ expr instantiate(expr const & e, std::initializer_list<expr> const & l) {  retur
 expr instantiate(expr const & e, unsigned i, expr const & s) { return instantiate(e, i, 1, &s); }
 expr instantiate(expr const & e, expr const & s) { return instantiate(e, 0, s); }
 
+expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
+    if (closed(a))
+        return a;
+    return replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
+            if (offset >= get_free_var_range(m))
+                return some_expr(m); // expression m does not contain free variables with idx >= offset
+            if (is_var(m)) {
+                unsigned vidx = var_idx(m);
+                if (vidx >= offset) {
+                    unsigned h = offset + n;
+                    if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
+                        return some_expr(lift_free_vars(subst[n - (vidx - offset) - 1], offset));
+                    } else {
+                        return some_expr(mk_var(vidx - n));
+                    }
+                }
+            }
+            return none_expr();
+        });
+}
+
 bool is_head_beta(expr const & t) {
     expr const * it = &t;
     while (is_app(*it)) {

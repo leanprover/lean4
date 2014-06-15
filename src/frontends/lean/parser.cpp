@@ -164,7 +164,32 @@ expr parser::rec_save_pos(expr const & e, pos_info p) {
 
 /** \brief Create a copy of \c e, and the position of new expression with p */
 expr parser::copy_with_new_pos(expr const & e, pos_info p) {
-    return rec_save_pos(deep_copy(e), p);
+    switch (e.kind()) {
+    case expr_kind::Sort: case expr_kind::Constant: case expr_kind::Meta:
+    case expr_kind::Local: case expr_kind::Var:
+        return save_pos(copy(e), p);
+    case expr_kind::App:
+        return save_pos(::lean::mk_app(copy_with_new_pos(app_fn(e), p),
+                                       copy_with_new_pos(app_arg(e), p)),
+                        p);
+    case expr_kind::Lambda: case expr_kind::Pi:
+        return save_pos(update_binding(e,
+                                       copy_with_new_pos(binding_domain(e), p),
+                                       copy_with_new_pos(binding_body(e), p)),
+                        p);
+    case expr_kind::Let:
+        return save_pos(update_let(e,
+                                   copy_with_new_pos(let_type(e), p),
+                                   copy_with_new_pos(let_value(e), p),
+                                   copy_with_new_pos(let_body(e), p)),
+                        p);
+    case expr_kind::Macro: {
+        buffer<expr> args;
+        for (unsigned i = 0; i < macro_num_args(e); i++)
+            args.push_back(copy_with_new_pos(macro_arg(e, i), p));
+        return save_pos(update_macro(e, args.size(), args.data()), p);
+    }}
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 /** \brief Add \c ls to constants occurring in \c e. */
@@ -548,23 +573,24 @@ expr parser::parse_notation(parse_table t, expr * left) {
             buffer<expr> r_args;
             r_args.push_back(parse_expr(a.rbp()));
             while (curr_is_token(a.get_sep())) {
+                next();
                 r_args.push_back(parse_expr(a.rbp()));
             }
-            expr r = instantiate(a.get_initial(), args.size(), args.data());
+            expr r = instantiate_rev(a.get_initial(), args.size(), args.data());
             if (a.is_fold_right()) {
                 unsigned i = r_args.size();
-                while (!i > 0) {
+                while (i > 0) {
                     --i;
                     args.push_back(r_args[i]);
                     args.push_back(r);
-                    r = instantiate(a.get_rec(), args.size(), args.data());
+                    r = instantiate_rev(a.get_rec(), args.size(), args.data());
                     args.pop_back(); args.pop_back();
                 }
             } else {
                 for (unsigned i = 0; i < r_args.size(); i++) {
                     args.push_back(r_args[i]);
                     args.push_back(r);
-                    r = instantiate(a.get_rec(), args.size(), args.data());
+                    r = instantiate_rev(a.get_rec(), args.size(), args.data());
                     args.pop_back(); args.pop_back();
                 }
             }
@@ -591,7 +617,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
                     else
                         r = Pi(l, r, ps[i].m_bi);
                     args.push_back(r);
-                    r = instantiate(a.get_rec(), args.size(), args.data());
+                    r = instantiate_rev(a.get_rec(), args.size(), args.data());
                     args.pop_back();
                 }
             }
@@ -613,7 +639,8 @@ expr parser::parse_notation(parse_table t, expr * left) {
     }
     buffer<expr> cs;
     for (expr const & a : as) {
-        cs.push_back(instantiate(a, args.size(), args.data()));
+        expr r = instantiate_rev(copy_with_new_pos(a, p), args.size(), args.data());
+        cs.push_back(r);
     }
     return mk_choice(cs.size(), cs.data());
 }

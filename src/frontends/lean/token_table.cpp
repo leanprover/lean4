@@ -65,7 +65,7 @@ token_table init_token_table() {
                                "variables", "{variables}", "[variables]", "[private]", "[inline]", "abbreviation",
                                "evaluate", "check", "print", "end", "namespace", "section", "import",
                                "abbreviation", "inductive", "record", "structure", "module", "universe",
-                               "precedence", "infixl", "infixr", "infix", "postfix", "#setline", nullptr};
+                               "precedence", "infixl", "infixr", "infix", "postfix", "notation", "#setline", nullptr};
 
     std::pair<char const *, char const *> aliases[] =
         {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},

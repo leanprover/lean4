@@ -18,6 +18,9 @@ expr instantiate(expr const & e, unsigned i, expr const & s);
 /** \brief Replace free variable \c 0 with \c s in \c e. */
 expr instantiate(expr const & e, expr const & s);
 
+/** \brief Replace the free variables with indices 0, ..., n-1 with s[n-1], ..., s[0] in e. */
+expr instantiate_rev(expr const & e, unsigned n, expr const * s);
+
 expr apply_beta(expr f, unsigned num_args, expr const * args);
 bool is_head_beta(expr const & t);
 expr head_beta_reduce(expr const & t);

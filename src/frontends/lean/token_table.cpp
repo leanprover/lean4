@@ -32,6 +32,10 @@ token_table const * find(token_table const & s, char c) {
 token_info const * value_of(token_table const & s) {
     return s.value();
 }
+optional<unsigned> get_precedence(token_table const & s, char const * token) {
+    auto it = find(s, token);
+    return it ? optional<unsigned>(it->precedence()) : optional<unsigned>();
+}
 void for_each(token_table const & s, std::function<void(char const *, token_info const &)> const & fn) {
     s.for_each([&](unsigned num, char const * keys, token_info const & info) {
             buffer<char> str;
@@ -61,7 +65,7 @@ token_table init_token_table() {
                                "variables", "{variables}", "[variables]", "[private]", "[inline]", "abbreviation",
                                "evaluate", "check", "print", "end", "namespace", "section", "import",
                                "abbreviation", "inductive", "record", "structure", "module", "universe",
-                               "#setline", nullptr};
+                               "precedence", "infixl", "infixr", "infix", "postfix", "#setline", nullptr};
 
     std::pair<char const *, char const *> aliases[] =
         {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},

@@ -8,6 +8,11 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 
 namespace lean {
+static io_state g_dummy_ios(mk_simple_formatter());
+io_state const & get_dummy_ios() {
+    return g_dummy_ios;
+}
+
 io_state::io_state(formatter const & fmt):
     m_formatter(fmt),
     m_regular_channel(std::make_shared<stdout_channel>()),

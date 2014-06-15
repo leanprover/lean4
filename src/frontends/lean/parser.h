@@ -91,12 +91,9 @@ class parser {
 
     void updt_options();
 
-    parser_config const & cfg() const { return get_parser_config(env()); }
-    cmd_table const & cmds() const { return cfg().m_cmds; }
-    parse_table const & nud() const { return cfg().m_nud; }
-    parse_table const & led() const { return cfg().m_led; }
-    /** \brief Return true if the current token is a keyword named \c tk or an identifier named \c tk */
-    bool curr_is_token_or_id(name const & tk) const;
+    cmd_table const & cmds() const { return get_cmd_table(env()); }
+    parse_table const & nud() const { return get_nud_table(env()); }
+    parse_table const & led() const { return get_led_table(env()); }
 
     unsigned curr_level_lbp() const;
     level parse_max_imax(bool is_max);
@@ -153,6 +150,14 @@ public:
     bool curr_is_identifier() const { return curr() == scanner::token_kind::Identifier; }
     /** \brief Return true iff the current token is a numeral */
     bool curr_is_numeral() const { return curr() == scanner::token_kind::Numeral; }
+    /** \brief Return true iff the current token is a string */
+    bool curr_is_string() const { return curr() == scanner::token_kind::String; }
+    /** \brief Return true iff the current token is a keyword */
+    bool curr_is_keyword() const { return curr() == scanner::token_kind::Keyword; }
+    /** \brief Return true iff the current token is a keyword */
+    bool curr_is_quoted_symbol() const { return curr() == scanner::token_kind::QuotedSymbol; }
+    /** \brief Return true if the current token is a keyword named \c tk or an identifier named \c tk */
+    bool curr_is_token_or_id(name const & tk) const;
     /** \brief Read the next token if the current one is not End-of-file. */
     void next() { if (m_curr != scanner::token_kind::Eof) scan(); }
     /** \brief Return true iff the current token is a keyword (or command keyword) named \c tk */

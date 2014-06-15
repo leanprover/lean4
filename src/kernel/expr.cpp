@@ -417,10 +417,20 @@ expr mk_pi(unsigned sz, expr const * domain, expr const & range) {
     return r;
 }
 
-expr Bool = mk_sort(mk_level_zero());
-expr Type = mk_sort(mk_level_one());
-expr mk_Bool() { return Bool; }
-expr mk_Type() { return Type; }
+expr mk_Bool() {
+    static optional<expr> Bool;
+    if (!Bool) Bool = mk_sort(mk_level_zero());
+    return *Bool;
+}
+
+expr mk_Type() {
+    static optional<expr> Type;
+    if (!Type) Type = mk_sort(mk_level_one());
+    return *Type;
+}
+
+expr Bool = mk_Bool();
+expr Type = mk_Type();
 
 unsigned get_depth(expr const & e) {
     switch (e.kind()) {

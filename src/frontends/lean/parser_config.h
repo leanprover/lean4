@@ -11,15 +11,14 @@ Author: Leonardo de Moura
 #include "frontends/lean/cmd_table.h"
 
 namespace lean {
-struct parser_config {
-    token_table      m_tokens;
-    parse_table      m_nud;
-    parse_table      m_led;
-    cmd_table        m_cmds;
-    tactic_cmd_table m_tactic_cmds;
-    parser_config();
-};
-
-parser_config const & get_parser_config(environment const & env);
-environment update_parser_config(environment const & env, parser_config const & c);
+environment add_token(environment const & env, char const * val, unsigned prec);
+environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a);
+environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a);
+environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a);
+environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a);
+token_table const & get_token_table(environment const & env);
+parse_table const & get_nud_table(environment const & env);
+parse_table const & get_led_table(environment const & env);
+cmd_table const & get_cmd_table(environment const & env);
+tactic_cmd_table const & get_tactic_cmd_table(environment const & env);
 }

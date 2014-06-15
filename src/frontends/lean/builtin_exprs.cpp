@@ -30,17 +30,17 @@ parse_table init_nud_table() {
     action Binders(mk_binders_action());
     expr x0 = mk_var(0);
     parse_table r;
-    r.add({transition("Bool", Skip)}, Bool);
-    r.add({transition("(", Expr), transition(")", Skip)}, x0);
-    r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
-    r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
-    r.add({transition("Type", mk_ext_action(parse_Type))}, x0);
+    r = r.add({transition("Bool", Skip)}, mk_Bool());
+    r = r.add({transition("(", Expr), transition(")", Skip)}, x0);
+    r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
+    r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
+    r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);
     return r;
 }
 
 parse_table init_led_table() {
     parse_table r(false);
-    r.add({transition("->", mk_expr_action(get_arrow_prec()-1))}, mk_arrow(Var(0), Var(2)));
+    r = r.add({transition("->", mk_expr_action(get_arrow_prec()-1))}, mk_arrow(Var(0), Var(2)));
     return r;
 }
 }

@@ -1,0 +1,3 @@
+add a (mul b a) : N
+t9.lean:16:8: error: invalid expression
+add a (mul b a) : N

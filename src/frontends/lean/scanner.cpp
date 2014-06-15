@@ -22,12 +22,16 @@ void scanner::next() {
     m_spos++;
 }
 
-void scanner::check_not_eof(char const * error_msg) const {
+void scanner::check_not_eof(char const * error_msg) {
     if (curr() == EOF) throw_exception(error_msg);
 }
 
-[[ noreturn ]] void scanner::throw_exception(char const * msg) const {
-    throw parser_exception(msg, m_stream_name.c_str(), m_sline, m_spos);
+[[ noreturn ]] void scanner::throw_exception(char const * msg) {
+    unsigned line = m_sline;
+    unsigned pos  = m_spos;
+    while (curr() != EOF && !std::isspace(curr()))
+        next();
+    throw parser_exception(msg, m_stream_name.c_str(), line, pos);
 }
 
 auto scanner::read_string() -> token_kind {
@@ -53,6 +57,27 @@ auto scanner::read_string() -> token_kind {
         }
         m_buffer += c;
         next();
+    }
+}
+
+auto scanner::read_quoted_symbol() -> token_kind {
+    lean_assert(curr() == '`');
+    next();
+    if (std::isdigit(curr()))
+        throw_exception("first character of a quoted symbols cannot be a digit");
+    m_buffer.clear();
+    while (true) {
+        check_not_eof("unexpected quoted identifier");
+        char c = curr();
+        next();
+        if (c == '`') {
+            m_name_val = name(m_buffer.c_str());
+            return token_kind::QuotedSymbol;
+        } else if (c != ' ' && c != '\"' && c != '\n' && c != '\t') {
+            m_buffer += c;
+        } else {
+            throw_exception("invalid quoted symbol, invalid character");
+        }
     }
 }
 
@@ -225,7 +250,6 @@ auto scanner::read_key_cmd_id() -> token_kind {
         if (info)
             key_size = 1;
     }
-
     std::string & id_part = m_buffer;
     bool is_id = is_id_first(c);
     unsigned id_size = 0;
@@ -285,7 +309,7 @@ static name g_begin_comment_tk("--");
 static name g_begin_comment_block_tk("(--");
 
 auto scanner::scan(environment const & env) -> token_kind {
-    m_tokens = &get_parser_config(env).m_tokens;
+    m_tokens = &get_token_table(env);
     while (true) {
         char c = curr();
         m_pos  = m_spos;
@@ -299,6 +323,8 @@ auto scanner::scan(environment const & env) -> token_kind {
             break;
         case '\"':
             return read_string();
+        case '`':
+            return read_quoted_symbol();
         case -1:
             return token_kind::Eof;
         default:

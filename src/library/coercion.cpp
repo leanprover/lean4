@@ -66,7 +66,7 @@ struct coercion_info {
         m_fun(f), m_fun_type(f_type), m_level_params(ls), m_num_args(num), m_to(cls) {}
 };
 
-struct coercion_state : public environment_extension {
+struct coercion_state {
     rb_map<name, list<coercion_info>, name_quick_cmp>         m_coercion_info;
     // m_from and m_to contain "direct" coercions
     rb_map<name, list<coercion_class>, name_quick_cmp>        m_from;

@@ -59,7 +59,7 @@ struct ext_action_cell : public action_cell {
 };
 
 action::action(action_cell * ptr):m_ptr(ptr) { lean_assert(ptr); }
-action::action():action(g_skip_action) {}
+action::action():action(mk_skip_action()) {}
 action::action(action const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
 action::action(action && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
 action::~action() { if (m_ptr) m_ptr->dec_ref(); }
@@ -128,13 +128,21 @@ void action_cell::dealloc() {
     }
 }
 
-action action::g_skip_action(new action_cell(action_kind::Skip));
-action action::g_binder_action(new action_cell(action_kind::Binder));
-action action::g_binders_action(new action_cell(action_kind::Binders));
-
-action mk_skip_action() { return action::g_skip_action; }
-action mk_binder_action() { return action::g_binder_action; }
-action mk_binders_action() { return action::g_binders_action; }
+action mk_skip_action() {
+    static optional<action> r;
+    if (!r) r = action(new action_cell(action_kind::Skip));
+    return *r;
+}
+action mk_binder_action() {
+    static optional<action> r;
+    if (!r) r = action(new action_cell(action_kind::Binder));
+    return *r;
+}
+action mk_binders_action() {
+    static optional<action> r;
+    if (!r) r = action(new action_cell(action_kind::Binders));
+    return *r;
+}
 action mk_expr_action(unsigned rbp) { return action(new expr_action_cell(rbp)); }
 action mk_exprs_action(name const & sep, expr const & rec, expr const & ini, bool right, unsigned rbp) {
     if (get_free_var_range(rec) > 2)
@@ -205,7 +213,7 @@ static void validate_transitions(bool nud, unsigned num, transition const * ts, 
 }
 
 parse_table parse_table::add_core(unsigned num, transition const * ts, expr const & a, bool overload) const {
-    parse_table r(*this);
+    parse_table r(new cell(*m_ptr));
     if (num == 0) {
         if (!overload)
             r.m_ptr->m_accept = list<expr>(a);

@@ -22,7 +22,7 @@ namespace lean {
 */
 class scanner {
 public:
-    enum class token_kind {Keyword, CommandKeyword, ScriptBlock, Identifier, Numeral, Decimal, String, Eof};
+    enum class token_kind {Keyword, CommandKeyword, ScriptBlock, Identifier, Numeral, Decimal, String, QuotedSymbol, Eof};
 protected:
     token_table const * m_tokens;
     std::istream &      m_stream;
@@ -41,13 +41,13 @@ protected:
     std::string         m_buffer;
     std::string         m_aux_buffer;
 
-    [[ noreturn ]] void throw_exception(char const * msg) const;
+    [[ noreturn ]] void throw_exception(char const * msg);
     void next();
     char curr() const { return m_curr; }
     char curr_next() { char c = curr(); next(); return c; }
     void new_line() { m_sline++; m_spos = 0; }
     void update_line() { if (curr() == '\n') new_line(); }
-    void check_not_eof(char const * error_msg) const;
+    void check_not_eof(char const * error_msg);
     bool is_next_digit();
     bool is_next_id_rest();
     void move_back(std::streamoff offset);
@@ -60,6 +60,7 @@ protected:
     token_kind read_number();
     token_kind read_script_block();
     token_kind read_key_cmd_id();
+    token_kind read_quoted_symbol();
 
 public:
     scanner(std::istream & strm, char const * strm_name = nullptr);

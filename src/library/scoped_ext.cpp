@@ -69,8 +69,9 @@ environment push_scope(environment const & env, io_state const & ios, name const
     ext.m_namespaces = list<name>(new_n, ext.m_namespaces);
     ext.m_in_section = list<bool>(n.is_anonymous(), ext.m_in_section);
     environment r = update(env, ext);
-    for (auto const & t : get_exts())
+    for (auto const & t : get_exts()) {
         r = std::get<2>(t)(r);
+    }
     if (!n.is_anonymous())
         r = using_namespace(r, ios, n);
     return r;
@@ -83,8 +84,9 @@ environment pop_scope(environment const & env) {
     ext.m_namespaces = tail(ext.m_namespaces);
     ext.m_in_section = tail(ext.m_in_section);
     environment r = update(env, ext);
-    for (auto const & t : get_exts())
+    for (auto const & t : get_exts()) {
         r = std::get<3>(t)(r);
+    }
     return r;
 }
 

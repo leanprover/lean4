@@ -119,11 +119,11 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
         if (m_use_exceptions)
             throw;
     } catch (script_exception & ex) {
-         reset_interrupt();
-         CATCH(display_error(ex), throw_nested_exception(ex, m_last_script_pos));
+        reset_interrupt();
+        CATCH(display_error(ex), throw_nested_exception(ex, m_last_script_pos));
     } catch (exception & ex) {
-         reset_interrupt();
-         CATCH(display_error(ex), throw_nested_exception(ex, m_last_cmd_pos));
+        reset_interrupt();
+        CATCH(display_error(ex), throw_nested_exception(ex, m_last_cmd_pos));
     }
 }
 
@@ -619,12 +619,12 @@ expr parser::parse_notation(parse_table t, expr * left) {
 }
 
 expr parser::parse_nud_notation() {
-    return parse_notation(cfg().m_nud, nullptr);
+    return parse_notation(nud(), nullptr);
 }
 
 expr parser::parse_led_notation(expr left) {
-    if (cfg().m_led.find(get_token_info().value()))
-        return parse_notation(cfg().m_led, &left);
+    if (led().find(get_token_info().value()))
+        return parse_notation(led(), &left);
     else
         return mk_app(left, parse_nud_notation(), pos_of(left));
 }
@@ -712,6 +712,7 @@ unsigned parser::curr_lbp() const {
         return 0;
     case scanner::token_kind::Identifier:     case scanner::token_kind::Numeral:
     case scanner::token_kind::Decimal:        case scanner::token_kind::String:
+    case scanner::token_kind::QuotedSymbol:
         return std::numeric_limits<unsigned>::max();
     }
     lean_unreachable(); // LCOV_EXCL_LINE

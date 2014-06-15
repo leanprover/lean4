@@ -15,16 +15,6 @@ using namespace lean;
 
 #define tk scanner::token_kind
 
-token_table const & get_token_table(environment const & env) {
-    return get_parser_config(env).m_tokens;
-}
-
-environment update_token_table(environment const & env, token_table const & t) {
-    parser_config cfg = get_parser_config(env);
-    cfg.m_tokens = t;
-    return update_parser_config(env, cfg);
-}
-
 static void scan(char const * str, environment const & env = environment()) {
     std::istringstream in(str);
     scanner s(in, "[string]");
@@ -108,15 +98,13 @@ static void check_keyword(char const * str, name const & expected, environment c
 static void tst1() {
     environment env;
     token_table s = get_token_table(env);
-    s = add_token(s, "+", "plus");
-    s = add_token(s, "=", "eq");
-    env = update_token_table(env, s);
+    env = add_token(env, "+", 0);
+    env = add_token(env, "=", 0);
     scan_success("a..a");
     check("a..a", {tk::Identifier, tk::Keyword, tk::Keyword, tk::Identifier});
     check("Type.{0}", {tk::Keyword, tk::Keyword, tk::Numeral, tk::Keyword});
-    s = add_token(s, "ab+cde", "weird1");
-    s = add_token(s, "+cd", "weird2");
-    env = update_token_table(env, s);
+    env = add_token(env, "ab+cde", 0);
+    env = add_token(env, "+cd", 0);
     scan_success("ab+cd", env);
     check("ab+cd", {tk::Identifier, tk::Keyword}, env);
     scan_success("ab+cde", env);
@@ -150,11 +138,9 @@ static void tst2() {
     scan_error("***");
     environment env;
     token_table s = mk_default_token_table();
-    s = add_token(s, "***", "tplus");
-    env = update_token_table(env, s);
-    check_keyword("***", "tplus", env);
-    s = add_token(s, "+", "plus");
-    env = update_token_table(env, s);
+    env = add_token(env, "***", 0);
+    check_keyword("***", "***", env);
+    env = add_token(env, "+", 0);
     check("x+y", {tk::Identifier, tk::Keyword, tk::Identifier}, env);
     check("-- testing", {});
     check("(-- testing --)", {});
@@ -165,8 +151,7 @@ static void tst2() {
     check("int -> int", {tk::Identifier, tk::Keyword, tk::Identifier});
     check("int->int", {tk::Identifier, tk::Keyword, tk::Identifier});
     check_keyword("->", "->");
-    s = add_token(s, "-+->", "arrow");
-    env = update_token_table(env, s);
+    env = add_token(env, "-+->", 0);
     check("Int -+-> Int", {tk::Identifier, tk::Keyword, tk::Identifier}, env);
     check("x := 10", {tk::Identifier, tk::Keyword, tk::Numeral});
     check("{x}", {tk::Keyword, tk::Identifier, tk::Keyword});

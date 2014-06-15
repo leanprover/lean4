@@ -264,7 +264,7 @@ struct type_checker::imp {
 
         virtual justification get() {
             if (!m_jst) {
-                m_jst = mk_justification(m_e,
+                m_jst = mk_justification(app_arg(m_e),
                                          [=](formatter const & fmt, options const & o, substitution const & subst) {
                                              return pp_app_type_mismatch(fmt, m_env, o,
                                                                          subst.instantiate_metavars_wo_jst(m_e),
@@ -362,7 +362,7 @@ struct type_checker::imp {
                 app_delayed_jst jst(m_env, e, f_type, a_type);
                 if (!is_def_eq(a_type, binding_domain(f_type), jst)) {
                     environment env = m_env;
-                    throw_kernel_exception(m_env, e,
+                    throw_kernel_exception(m_env, app_arg(e),
                                            [=](formatter const & fmt, options const & o) {
                                                return pp_app_type_mismatch(fmt, env, o, e, binding_domain(f_type), a_type);
                                            });

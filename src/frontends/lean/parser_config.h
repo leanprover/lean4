@@ -12,10 +12,12 @@ Author: Leonardo de Moura
 
 namespace lean {
 environment add_token(environment const & env, char const * val, unsigned prec);
-environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a);
-environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a);
-environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a);
-environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a);
+environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a, bool overload = true);
+environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a, bool overload = true);
+environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a,
+                             bool overload = true);
+environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a,
+                             bool overload = true);
 token_table const & get_token_table(environment const & env);
 parse_table const & get_nud_table(environment const & env);
 parse_table const & get_led_table(environment const & env);

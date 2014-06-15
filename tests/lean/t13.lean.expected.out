@@ -1,0 +1,2 @@
+choice (g a b) (f a b)
+fun (h : A -> A -> A), (h a b) : (A -> A -> A) -> A

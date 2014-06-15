@@ -71,7 +71,7 @@ using notation::mk_skip_action;
 using notation::transition;
 using notation::action;
 
-environment mixfix_cmd(parser & p, mixfix_kind k) {
+static environment mixfix_cmd(parser & p, mixfix_kind k, bool overload) {
     std::string tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
     optional<unsigned> prec = parse_optional_precedence(p);
     environment env = p.env();
@@ -91,18 +91,18 @@ environment mixfix_cmd(parser & p, mixfix_kind k) {
     char const * tks = tk.c_str();
     switch (k) {
     case mixfix_kind::infixl:
-        return add_led_notation(env, {transition(tks, mk_expr_action(*prec))}, mk_app(f, Var(1), Var(0)));
+        return add_led_notation(env, {transition(tks, mk_expr_action(*prec))}, mk_app(f, Var(1), Var(0)), overload);
     case mixfix_kind::infixr:
-        return add_led_notation(env, {transition(tks, mk_expr_action(*prec-1))}, mk_app(f, Var(1), Var(0)));
+        return add_led_notation(env, {transition(tks, mk_expr_action(*prec-1))}, mk_app(f, Var(1), Var(0)), overload);
     case mixfix_kind::postfix:
-        return add_led_notation(env, {transition(tks, mk_skip_action())}, mk_app(f, Var(0)));
+        return add_led_notation(env, {transition(tks, mk_skip_action())}, mk_app(f, Var(0)), overload);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-environment infixl_cmd(parser & p) { return mixfix_cmd(p, mixfix_kind::infixl); }
-environment infixr_cmd(parser & p) { return mixfix_cmd(p, mixfix_kind::infixr); }
-environment postfix_cmd(parser & p) { return mixfix_cmd(p, mixfix_kind::postfix); }
+environment infixl_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mixfix_kind::infixl, overload); }
+environment infixr_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mixfix_kind::infixr, overload); }
+environment postfix_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mixfix_kind::postfix, overload); }
 
 static name parse_quoted_symbol(parser & p, environment & env) {
     if (p.curr_is_quoted_symbol()) {
@@ -144,7 +144,7 @@ static void parse_notation_local(parser & p, buffer<expr> & locals) {
     }
 }
 
-action parse_action(parser & p, environment & env, buffer<expr> & locals) {
+static action parse_action(parser & p, environment & env, buffer<expr> & locals) {
     if (p.curr_is_token(g_colon)) {
         p.next();
         if (p.curr_is_numeral()) {
@@ -197,7 +197,7 @@ action parse_action(parser & p, environment & env, buffer<expr> & locals) {
     }
 }
 
-environment notation_cmd(parser & p) {
+environment notation_cmd_core(parser & p, bool overload) {
     environment env = p.env();
     buffer<expr>       locals;
     buffer<transition> ts;
@@ -234,8 +234,8 @@ environment notation_cmd(parser & p) {
         throw parser_error("invalid notation declaration, empty notation is not allowed", p.pos());
     expr n = parse_notation_expr(p, locals);
     if (is_nud)
-        return add_nud_notation(env, ts.size(), ts.data(), n);
+        return add_nud_notation(env, ts.size(), ts.data(), n, overload);
     else
-        return add_led_notation(env, ts.size(), ts.data(), n);
+        return add_led_notation(env, ts.size(), ts.data(), n, overload);
 }
 }

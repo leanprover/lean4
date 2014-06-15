@@ -532,16 +532,16 @@ void parser::parse_binders_core(buffer<parameter> & r) {
         next();
         if (curr_is_token(g_infix) || curr_is_token(g_infixl)) {
             next();
-            m_env = infixl_cmd(*this);
+            m_env = infixl_cmd_core(*this, false);
         } else if (curr_is_token(g_infixr)) {
             next();
-            m_env = infixr_cmd(*this);
+            m_env = infixr_cmd_core(*this, false);
         } else if (curr_is_token(g_postfix)) {
             next();
-            m_env = postfix_cmd(*this);
+            m_env = postfix_cmd_core(*this, false);
         } else if (curr_is_token(g_notation)) {
             next();
-            m_env = notation_cmd(*this);
+            m_env = notation_cmd_core(*this, false);
         } else {
             parse_binder_block(r, binder_info());
         }

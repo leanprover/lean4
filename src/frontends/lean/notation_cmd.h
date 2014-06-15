@@ -9,8 +9,12 @@ Author: Leonardo de Moura
 namespace lean {
 class parser;
 environment precedence_cmd(parser & p);
-environment notation_cmd(parser & p);
-environment infixl_cmd(parser & p);
-environment infixr_cmd(parser & p);
-environment postfix_cmd(parser & p);
+environment notation_cmd_core(parser & p, bool overload);
+environment infixl_cmd_core(parser & p, bool overload);
+environment infixr_cmd_core(parser & p, bool overload);
+environment postfix_cmd_core(parser & p, bool overload);
+inline environment notation_cmd(parser & p) { return notation_cmd_core(p, true); }
+inline environment infixl_cmd(parser & p) { return infixl_cmd_core(p, true); }
+inline environment infixr_cmd(parser & p) { return infixr_cmd_core(p, true); }
+inline environment postfix_cmd(parser & p) { return postfix_cmd_core(p, true); }
 }

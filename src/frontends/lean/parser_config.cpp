@@ -136,9 +136,10 @@ struct notation_entry {
     bool             m_is_nud;
     list<transition> m_transitions;
     expr             m_expr;
+    bool             m_overload;
     notation_entry():m_is_nud(true) {}
-    notation_entry(bool is_nud, list<transition> const & ts, expr const & e):
-        m_is_nud(is_nud), m_transitions(ts), m_expr(e) {}
+    notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload):
+        m_is_nud(is_nud), m_transitions(ts), m_expr(e), m_overload(overload) {}
 };
 
 struct notation_config {
@@ -148,9 +149,9 @@ struct notation_config {
         buffer<transition> ts;
         to_buffer(e.m_transitions, ts);
         if (e.m_is_nud)
-            s.m_nud = s.m_nud.add(ts.size(), ts.data(), e.m_expr, true);
+            s.m_nud = s.m_nud.add(ts.size(), ts.data(), e.m_expr, e.m_overload);
         else
-            s.m_led = s.m_led.add(ts.size(), ts.data(), e.m_expr, true);
+            s.m_led = s.m_led.add(ts.size(), ts.data(), e.m_expr, e.m_overload);
     }
     static name const & get_class_name() {
         static name g_class_name("notation");
@@ -161,40 +162,40 @@ struct notation_config {
         return g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
-        s << e.m_is_nud << e.m_expr;
+        s << e.m_is_nud << e.m_overload << e.m_expr;
         s << length(e.m_transitions);
         for (auto const & t : e.m_transitions)
             s << t;
     }
     static entry read_entry(deserializer & d) {
-        bool is_nud; expr e;
-        d >> is_nud >> e;
+        bool is_nud, overload; expr e;
+        d >> is_nud >> overload >> e;
         unsigned sz;
         d >> sz;
         buffer<transition> ts;
         for (unsigned i = 0; i < sz; i++)
             ts.push_back(read_transition(d));
-        return entry(is_nud, to_list(ts.begin(), ts.end()), e);
+        return entry(is_nud, to_list(ts.begin(), ts.end()), e, overload);
     }
 };
 
 template class scoped_ext<notation_config>;
 typedef scoped_ext<notation_config> notation_ext;
 
-environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a) {
-    return notation_ext::add_entry(env, get_dummy_ios(), notation_entry(true, to_list(ts, ts+num), a));
+environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a, bool overload) {
+    return notation_ext::add_entry(env, get_dummy_ios(), notation_entry(true, to_list(ts, ts+num), a, overload));
 }
 
-environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a) {
-    return notation_ext::add_entry(env, get_dummy_ios(), notation_entry(false, to_list(ts, ts+num), a));
+environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a, bool overload) {
+    return notation_ext::add_entry(env, get_dummy_ios(), notation_entry(false, to_list(ts, ts+num), a, overload));
 }
 
-environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a) {
-    return add_nud_notation(env, ts.size(), ts.begin(), a);
+environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a, bool overload) {
+    return add_nud_notation(env, ts.size(), ts.begin(), a, overload);
 }
 
-environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a) {
-    return add_led_notation(env, ts.size(), ts.begin(), a);
+environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a, bool overload) {
+    return add_led_notation(env, ts.size(), ts.begin(), a, overload);
 }
 
 parse_table const & get_nud_table(environment const & env) {

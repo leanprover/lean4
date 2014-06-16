@@ -18,6 +18,8 @@ static name g_in("in");
 static name g_colon(":");
 static name g_assign(":=");
 static name g_comma(",");
+static name g_from("from");
+static name g_by("by");
 
 static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos) {
     if (p.curr_is_token(g_llevel_curly)) {
@@ -97,6 +99,46 @@ static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     return r;
 }
 
+static expr parse_proof(parser & p, expr const & prop) {
+    if (p.curr_is_token(g_from)) {
+        p.next();
+        return p.parse_expr();
+    } else if (p.curr_is_token(g_by)) {
+        auto pos = p.pos();
+        p.next();
+        tactic t = p.parse_tactic();
+        expr r = p.save_pos(mk_expr_placeholder(some_expr(prop)), pos);
+        p.save_hint(r, t);
+        return r;
+    } else {
+        throw parser_error("invalid expression, 'by' or 'from' expected", p.pos());
+    }
+}
+
+static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos) {
+    name id    = p.check_id_next("invalid 'have' declaration, identifier expected");
+    p.check_token_next(g_colon, "invalid 'have' declaration, ':' expected");
+    expr prop  = p.parse_expr();
+    p.check_token_next(g_comma, "invalid 'have' declaration, ',' expected");
+    expr proof = parse_proof(p, prop);
+    p.check_token_next(g_comma, "invalid 'have' declaration, ',' expected");
+    parser::local_scope scope(p);
+    expr l = p.save_pos(mk_local(id, prop), pos);
+    p.add_local(l);
+    expr body  = abstract(p.parse_expr(), l);
+    // remark: mk_contextual_info(false) informs the elaborator that prop should not occur inside metavariables.
+    expr r     = p.save_pos(mk_lambda(id, prop, body, mk_contextual_info(false)), pos);
+    return p.save_pos(mk_app(r, proof), pos);
+}
+
+static name H_show("H_show");
+static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos) {
+    expr prop  = p.parse_expr();
+    p.check_token_next(g_comma, "invalid 'show' declaration, ',' expected");
+    expr proof = parse_proof(p, prop);
+    return p.save_pos(mk_let(H_show, prop, proof, Var(0)), pos);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -105,6 +147,8 @@ parse_table init_nud_table() {
     parse_table r;
     r = r.add({transition("_", mk_ext_action(parse_placeholder))}, x0);
     r = r.add({transition("by", mk_ext_action(parse_by))}, x0);
+    r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
+    r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("(", Expr), transition(")", Skip)}, x0);
     r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);

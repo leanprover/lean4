@@ -39,6 +39,23 @@ RegisterBoolOption(g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS, "(lean
 bool     get_parser_show_errors(options const & opts)  { return opts.get_bool(g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS); }
 // ==========================================
 
+parser::local_scope::local_scope(parser & p):
+    m_p(p), m_env(p.env()) {
+    p.push_local_scope();
+}
+parser::local_scope::~local_scope() {
+    m_p.pop_local_scope();
+    m_p.m_env = m_env;
+}
+
+parser::param_universe_scope::param_universe_scope(parser & p):m_p(p), m_old(m_p.m_type_use_placeholder) {
+    m_p.m_type_use_placeholder = false;
+}
+
+parser::param_universe_scope::~param_universe_scope() {
+    m_p.m_type_use_placeholder = m_old;
+}
+
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name,
                script_state * ss, bool use_exceptions,
@@ -255,12 +272,14 @@ expr parser::mk_app(expr fn, expr arg, pos_info const & p) {
 }
 
 void parser::push_local_scope() {
-    m_local_level_decls.push();
+    if (m_type_use_placeholder)
+        m_local_level_decls.push();
     m_local_decls.push();
 }
 
 void parser::pop_local_scope() {
-    m_local_level_decls.pop();
+    if (m_type_use_placeholder)
+        m_local_level_decls.pop();
     m_local_decls.pop();
 }
 
@@ -530,21 +549,8 @@ void parser::parse_binders_core(buffer<parameter> & r) {
         parse_binder_block(r, binder_info());
     } else if (curr_is_token(g_lparen)) {
         next();
-        if (curr_is_token(g_infix) || curr_is_token(g_infixl)) {
-            next();
-            m_env = infixl_cmd_core(*this, false);
-        } else if (curr_is_token(g_infixr)) {
-            next();
-            m_env = infixr_cmd_core(*this, false);
-        } else if (curr_is_token(g_postfix)) {
-            next();
-            m_env = postfix_cmd_core(*this, false);
-        } else if (curr_is_token(g_notation)) {
-            next();
-            m_env = notation_cmd_core(*this, false);
-        } else {
+        if (!parse_local_notation_decl())
             parse_binder_block(r, binder_info());
-        }
         check_token_next(g_rparen, "invalid binder, ')' expected");
     } else if (curr_is_token(g_lcurly)) {
         next();
@@ -568,6 +574,28 @@ local_environment parser::parse_binders(buffer<parameter> & r) {
     if (old_sz == r.size())
         throw parser_error("invalid binder, '(', '{', '[' or identifier expected", pos());
     return local_environment(m_env);
+}
+
+bool parser::parse_local_notation_decl() {
+    if (curr_is_token(g_infix) || curr_is_token(g_infixl)) {
+        next();
+        m_env = infixl_cmd_core(*this, false);
+        return true;
+    } else if (curr_is_token(g_infixr)) {
+        next();
+        m_env = infixr_cmd_core(*this, false);
+        return true;
+    } else if (curr_is_token(g_postfix)) {
+        next();
+        m_env = postfix_cmd_core(*this, false);
+        return true;
+    } else if (curr_is_token(g_notation)) {
+        next();
+        m_env = notation_cmd_core(*this, false);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 expr parser::parse_notation(parse_table t, expr * left) {
@@ -777,11 +805,11 @@ expr parser::parse_expr(unsigned rbp) {
 }
 
 expr parser::parse_scoped_expr(unsigned num_params, parameter const * ps, local_environment const & lenv, unsigned rbp) {
-    flet<environment> let(m_env, lenv.m_env);
     if (num_params == 0) {
         return parse_expr(rbp);
     } else {
-        local_expr_decls::mk_scope scope(m_local_decls);
+        local_scope scope(*this);
+        m_env = lenv;
         for (unsigned i = 0; i < num_params; i++)
             add_local(ps[i].m_local);
         return parse_expr(rbp);
@@ -814,7 +842,6 @@ tactic parser::parse_tactic(unsigned /* rbp */) {
 
 void parser::parse_command() {
     lean_assert(curr() == scanner::token_kind::CommandKeyword);
-    flet<bool> save1(m_type_use_placeholder, m_type_use_placeholder);
     m_last_cmd_pos = pos();
     name const & cmd_name = get_token_info().value();
     if (auto it = cmds().find(cmd_name)) {

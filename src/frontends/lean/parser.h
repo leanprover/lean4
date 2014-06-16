@@ -43,11 +43,7 @@ struct parser_error : public exception {
 struct interrupt_parser {};
 typedef local_decls<parameter> local_expr_decls;
 typedef local_decls<level>     local_level_decls;
-class local_environment {
-    friend parser;
-    environment m_env;
-    local_environment(environment const & env):m_env(env) {}
-};
+typedef environment            local_environment;
 
 class parser {
     environment             m_env;
@@ -124,6 +120,12 @@ class parser {
     void parse_binders_core(buffer<parameter> & r);
     expr mk_app(expr fn, expr arg, pos_info const & p);
 
+    friend environment section_cmd(parser & p);
+    friend environment end_scoped_cmd(parser & p);
+
+    void push_local_scope();
+    void pop_local_scope();
+
 public:
     parser(environment const & env, io_state const & ios,
            std::istream & strm, char const * str_name,
@@ -185,6 +187,8 @@ public:
     unsigned get_small_nat();
     unsigned parse_small_nat();
 
+    bool parse_local_notation_decl();
+
     level parse_level(unsigned rbp = 0);
 
     parameter parse_binder();
@@ -206,9 +210,7 @@ public:
 
     tactic parse_tactic(unsigned rbp = 0);
 
-    void push_local_scope();
-    void pop_local_scope();
-    struct local_scope { parser & m_p; local_scope(parser & p):m_p(p) { p.push_local_scope(); } ~local_scope() { m_p.pop_local_scope(); } };
+    struct local_scope { parser & m_p; environment m_env; local_scope(parser & p); ~local_scope(); };
     void add_local_level(name const & n, level const & l);
     void add_local_expr(name const & n, expr const & e, binder_info const & bi = binder_info());
     void add_local(expr const & t);
@@ -219,17 +221,13 @@ public:
     /** \brief Return the local parameter named \c n */
     optional<parameter> get_local(name const & n) const;
     /**
-       \brief Specify how the method mk_Type behaves. When <tt>set_type_use_placeholder(true)</tt>, then
-       it returns <tt>'Type.{_}'</tt>, where '_' is placeholder that instructs the Lean elaborator to
-       automalically infer a universe level expression for '_'. When <tt>set_type_use_placeholder(false)</tt>,
-       then it returns <tt>'Type.{l}'</tt>, where \c l is a fresh universe level parameter.
-       The new parameter is automatically added to \c m_local_level_decls.
-
-       \remark When the parse is created the flag is set to false.
-       \remark Before parsing a command, the parser automatically "caches" the current value, and
-       restores it after the command is parsed (or aborted).
+        \brief By default, \c mk_Type returns <tt>Type.{_}</tt> where '_' is a new placeholder.
+        This scope object allows us to temporarily change this behavior.
+        In any scope containing this object, \c mk_Type returns <tt>Type.{l}</tt>, where
+        \c l is a fresh universe level parameter.
+        The new parameter is automatically added to \c m_local_level_decls.
     */
-    void set_type_use_placeholder(bool f) { m_type_use_placeholder = f; }
+    struct param_universe_scope { parser & m_p; bool m_old; param_universe_scope(parser &); ~param_universe_scope(); };
     expr mk_Type();
 
     expr elaborate(expr const & e, level_param_names const &);

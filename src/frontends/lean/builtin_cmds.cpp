@@ -62,18 +62,6 @@ static void parse_univ_params(parser & p, buffer<name> & ps) {
     }
 }
 
-struct local_scope_if_not_section {
-    parser & m_p;
-    local_scope_if_not_section(parser & p):m_p(p) {
-        if (!in_section(p.env()))
-            p.push_local_scope();
-    }
-    ~local_scope_if_not_section() {
-        if (!in_section(m_p.env()))
-            m_p.pop_local_scope();
-    }
-};
-
 static void update_parameters(buffer<name> & ls_buffer, name_set const & found, parser const & p) {
     unsigned old_sz = ls_buffer.size();
     found.for_each([&](name const & n) {
@@ -91,9 +79,11 @@ environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi)
     buffer<name> ls_buffer;
     if (p.curr_is_token(g_llevel_curly) && in_section(p.env()))
         throw parser_error("invalid declaration, axioms/parameters occurring in sections cannot be universe polymorphic", p.pos());
-    local_scope_if_not_section scope(p);
+    optional<parser::local_scope> scope1;
+    if (!in_section(p.env()))
+        scope1.emplace(p);
     parse_univ_params(p, ls_buffer);
-    p.set_type_use_placeholder(false);
+    parser::param_universe_scope scope2(p);
     expr type;
     if (!p.curr_is_token(g_colon)) {
         buffer<parameter> ps;
@@ -201,24 +191,28 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
     expr type, value;
     level_param_names ls;
     {
-        parser::local_scope scope(p);
+        parser::local_scope scope1(p);
         parse_univ_params(p, ls_buffer);
-        p.set_type_use_placeholder(false);
         if (!p.curr_is_token(g_colon)) {
             buffer<parameter> ps;
-            auto lenv = p.parse_binders(ps);
-            p.check_token_next(g_colon, "invalid declaration, ':' expected");
-            type = p.parse_scoped_expr(ps, lenv);
+            optional<local_environment> lenv;
+            {
+                parser::param_universe_scope scope2(p);
+                lenv = p.parse_binders(ps);
+                p.check_token_next(g_colon, "invalid declaration, ':' expected");
+                type = p.parse_scoped_expr(ps, *lenv);
+            }
             p.check_token_next(g_assign, "invalid declaration, ':=' expected");
-            p.set_type_use_placeholder(true);
-            value = p.parse_scoped_expr(ps, lenv);
+            value = p.parse_scoped_expr(ps, *lenv);
             type = p.pi_abstract(ps, type);
             value = p.lambda_abstract(ps, value);
         } else {
             p.next();
-            type = p.parse_expr();
+            {
+                parser::param_universe_scope scope2(p);
+                type = p.parse_expr();
+            }
             p.check_token_next(g_assign, "invalid declaration, ':=' expected");
-            p.set_type_use_placeholder(true);
             value = p.parse_expr();
         }
         update_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);

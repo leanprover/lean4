@@ -85,6 +85,10 @@ static expr parse_let_expr(parser & p, unsigned, expr const *) {
     return parse_let(p);
 }
 
+static expr parse_placeholder(parser &, unsigned, expr const *) {
+    return mk_expr_placeholder();
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -92,6 +96,7 @@ parse_table init_nud_table() {
     expr x0 = mk_var(0);
     parse_table r;
     r = r.add({transition("Bool", Skip)}, mk_Bool());
+    r = r.add({transition("_", mk_ext_action(parse_placeholder))}, x0);
     r = r.add({transition("(", Expr), transition(")", Skip)}, x0);
     r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);

@@ -55,7 +55,7 @@ token_table init_token_table() {
     token_table t;
     std::pair<char const *, unsigned> builtin[] =
         {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"have", 0}, {"show", 0}, {"by", 0},
-         {"from", 0}, {"(", g_max_prec}, {")", 0}, {"{", g_max_prec}, {"}", 0},
+         {"from", 0}, {"(", g_max_prec}, {")", 0}, {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
          {"[", g_max_prec}, {"]", 0}, {".{", 0}, {"Type", g_max_prec},
          {"...", 0}, {",", 0}, {".", 0}, {":", 0}, {"calc", 0}, {":=", 0}, {"--", 0},
          {"(*", 0}, {"(--", 0}, {"proof", 0}, {"qed", 0}, {"raw", 0}, {"Bool", g_max_prec},

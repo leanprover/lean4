@@ -19,7 +19,7 @@ expr abstract(expr const & e, unsigned s, unsigned n, expr const * subst) {
                 while (i > 0) {
                     --i;
                     if (subst[i] == e)
-                        return some_expr(mk_var(offset + s + n - i - 1));
+                        return some_expr(copy_tag(e, mk_var(offset + s + n - i - 1)));
                 }
             }
             return none_expr();
@@ -36,7 +36,7 @@ expr abstract_p(expr const & e, unsigned n, expr const * s) {
                 while (i > 0) {
                     --i;
                     if (is_eqp(s[i], e))
-                        return some_expr(mk_var(offset + n - i - 1));
+                        return some_expr(copy_tag(e, mk_var(offset + n - i - 1)));
                 }
             }
             return none_expr();

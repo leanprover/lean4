@@ -463,7 +463,7 @@ unsigned get_free_var_range(expr const & e) {
 bool operator==(expr const & a, expr const & b) { return expr_eq_fn()(a, b); }
 bool is_bi_equal(expr const & a, expr const & b) { return expr_eq_fn(true)(a, b); }
 
-static expr copy_tag(expr const & e, expr && new_e) {
+expr copy_tag(expr const & e, expr && new_e) {
     tag t = e.get_tag();
     if (t != nulltag)
         new_e.set_tag(t);

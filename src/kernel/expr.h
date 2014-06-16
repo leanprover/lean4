@@ -149,6 +149,8 @@ public:
                     expr const & a7, expr const & a8) const;
 };
 
+expr copy_tag(expr const & e, expr && new_e);
+
 // =======================================
 // Structural equality
 /** \brief Binder information is ignored in the following predicate */

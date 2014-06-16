@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/name.h"
 namespace lean {
-/**
-   \brief Return the LEAN_PATH string
-*/
+/** \brief Initialize the lean_path for the given kernel instance */
+void init_lean_path(char const * kernel_instance_name);
+/** \brief Return the LEAN_PATH string */
 char const * get_lean_path();
 /**
    \brief Search the file \c fname in the LEAN_PATH. Throw an

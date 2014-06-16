@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/formatter.h"
 #include "kernel/standard/standard.h"
+#include "kernel/hott/hott.h"
 #include "library/module.h"
 #include "library/io_state_stream.h"
 #include "library/error_handling/error_handling.h"
@@ -36,6 +37,7 @@ using lean::io_state;
 using lean::io_state_stream;
 using lean::regular;
 using lean::mk_environment;
+using lean::mk_hott_environment;
 
 enum class input_kind { Unspecified, Lean, Lua };
 
@@ -65,6 +67,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --trust=num -t    trust level (default: 0) \n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
     std::cout << "  --interactive -i  read blocks of commands from the input stream\n";
+    std::cout << "  --hott            use Homotopy Type Theory kernel and libraries\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
@@ -96,6 +99,7 @@ static struct option g_long_options[] = {
     {"trust",       required_argument, 0, 't'},
     {"interactive", no_argument,       0, 'i'},
     {"quiet",       no_argument,       0, 'q'},
+    {"hott",        no_argument,       0, 'H'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",      required_argument, 0, 's'},
 #endif
@@ -103,10 +107,12 @@ static struct option g_long_options[] = {
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "iqlupgvhc:012s:012t:012o:";
+static char const * g_opt_str = "Hiqlupgvhc:012s:012t:012o:";
 #else
-static char const * g_opt_str = "iqlupgvhc:012t:012o:";
+static char const * g_opt_str = "Hiqlupgvhc:012t:012o:";
 #endif
+
+enum class lean_mode { Standard, HoTT };
 
 int main(int argc, char ** argv) {
     lean::save_stack_info();
@@ -115,6 +121,7 @@ int main(int argc, char ** argv) {
     unsigned trust_lvl  = 0;
     bool quiet          = false;
     bool interactive    = false;
+    lean_mode mode      = lean_mode::Standard;
     std::string output;
     input_kind default_k = input_kind::Lean; // default
     while (true) {
@@ -122,6 +129,10 @@ int main(int argc, char ** argv) {
         if (c == -1)
             break; // end of command line
         switch (c) {
+        case 'H':
+            mode = lean_mode::HoTT;
+            lean::init_lean_path("hott");
+            break;
         case 'i':
             interactive = true;
             break;
@@ -166,7 +177,7 @@ int main(int argc, char ** argv) {
         }
     }
 
-    environment env = mk_environment(trust_lvl);
+    environment env = mode == lean_mode::Standard ? mk_environment(trust_lvl) : mk_hott_environment(trust_lvl);
     io_state ios(lean::mk_simple_formatter());
     if (quiet)
         ios.set_option("verbose", false);

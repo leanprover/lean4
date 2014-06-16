@@ -923,7 +923,7 @@ void parser::parse_imports() {
         }
     }
     m_env = import_modules(m_env, olean_files.size(), olean_files.data(), m_num_threads, true, m_ios);
-    using_script([&](lua_State *) {
+    using_script([&](lua_State *) { // NOLINT
             m_ss->exec_unprotected([&]() {
                     for (auto const & f : lua_files) {
                         m_ss->import_explicit(f.c_str());

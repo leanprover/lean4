@@ -279,15 +279,16 @@ struct default_converter : public converter {
         expr_kind k = t.kind();
         buffer<expr> subst;
         do {
-            expr var_t_type = instantiate(binding_domain(t), subst.size(), subst.data());
-            expr var_s_type = instantiate(binding_domain(s), subst.size(), subst.data());
+            expr var_t_type = instantiate_rev(binding_domain(t), subst.size(), subst.data());
+            expr var_s_type = instantiate_rev(binding_domain(s), subst.size(), subst.data());
             if (!is_def_eq(var_t_type, var_s_type, c, jst))
                 return false;
             subst.push_back(mk_local(c.mk_fresh_name(), binding_name(s), var_s_type));
             t = binding_body(t);
             s = binding_body(s);
         } while (t.kind() == k && s.kind() == k);
-        return is_def_eq(instantiate(t, subst.size(), subst.data()), instantiate(s, subst.size(), subst.data()), c, jst);
+        return is_def_eq(instantiate_rev(t, subst.size(), subst.data()),
+                         instantiate_rev(s, subst.size(), subst.data()), c, jst);
     }
 
     /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */

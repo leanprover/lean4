@@ -1,0 +1,1 @@
+print raw (by skip)

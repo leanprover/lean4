@@ -44,6 +44,7 @@ struct interrupt_parser {};
 typedef local_decls<parameter> local_expr_decls;
 typedef local_decls<level>     local_level_decls;
 typedef environment            local_environment;
+typedef std::unordered_map<unsigned, tactic> hint_table;
 
 class parser {
     environment             m_env;
@@ -62,6 +63,7 @@ class parser {
     unsigned                m_next_tag_idx;
     bool                    m_found_errors;
     pos_info_table_ptr      m_pos_table;
+    hint_table              m_hints;
     // If m_type_use_placeholder is true, then the token Type is parsed as Type.{_}.
     // if it is false, then it is parsed as Type.{l} where l is a fresh parameter,
     // and is automatically inserted into m_local_level_decls.
@@ -95,6 +97,7 @@ class parser {
     cmd_table const & cmds() const { return get_cmd_table(env()); }
     parse_table const & nud() const { return get_nud_table(env()); }
     parse_table const & led() const { return get_led_table(env()); }
+    tactic_cmd_table const & tactic_cmds() const { return get_tactic_cmd_table(env()); }
 
     unsigned curr_level_lbp() const;
     level parse_max_imax(bool is_max);
@@ -229,6 +232,9 @@ public:
     */
     struct param_universe_scope { parser & m_p; bool m_old; param_universe_scope(parser &); ~param_universe_scope(); };
     expr mk_Type();
+
+    /** \brief Use tactic \c t for "synthesizing" the placeholder \c e. */
+    void save_hint(expr const & e, tactic const & t);
 
     expr elaborate(expr const & e, level_param_names const &);
     std::pair<expr, expr> elaborate(expr const & t, expr const & v, level_param_names const &);

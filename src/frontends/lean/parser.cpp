@@ -609,11 +609,11 @@ expr parser::parse_notation(parse_table t, expr * left) {
     while (true) {
         if (curr() != scanner::token_kind::Keyword)
             break;
-        auto p = t.find(get_token_info().value());
-        if (!p)
+        auto r = t.find(get_token_info().value());
+        if (!r)
             break;
         next();
-        notation::action const & a = p->first;
+        notation::action const & a = r->first;
         switch (a.kind()) {
         case notation::action_kind::Skip:
             break;
@@ -676,10 +676,10 @@ expr parser::parse_notation(parse_table t, expr * left) {
             break;
         }
         case notation::action_kind::Ext:
-            args.push_back(a.get_parse_fn()(*this, args.size(), args.data()));
+            args.push_back(a.get_parse_fn()(*this, args.size(), args.data(), p));
             break;
         }
-        t = p->second;
+        t = r->second;
     }
     list<expr> const & as = t.is_accepting();
     if (is_nil(as)) {
@@ -836,8 +836,27 @@ expr parser::abstract(unsigned num_params, parameter const * ps, expr const & e,
 }
 
 tactic parser::parse_tactic(unsigned /* rbp */) {
-    // TODO(Leo):
-    return tactic();
+    if (curr_is_token(g_lparen)) {
+        next();
+        auto r = parse_tactic();
+        check_token_next(g_rparen, "invalid tactic, ')' expected");
+        return r;
+    } else if (curr_is_identifier()) {
+        auto p  = pos();
+        name id = get_name_val();
+        next();
+        if (auto it = tactic_cmds().find(id)) {
+            return it->get_fn()(*this);
+        } else {
+            throw parser_error(sstream() << "unknown tactic '" << id << "'", p);
+        }
+    } else {
+        throw parser_error("invalid tactic, '(' or tactic name expected", pos());
+    }
+}
+
+void parser::save_hint(expr const & e, tactic const & t) {
+    m_hints.insert(mk_pair(get_tag(e), t));
 }
 
 void parser::parse_command() {

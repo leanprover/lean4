@@ -10,11 +10,12 @@ Author: Leonardo de Moura
 #include "util/lua.h"
 #include "kernel/expr.h"
 #include "frontends/lean/token_table.h"
+#include "frontends/lean/parser_pos_provider.h"
 
 namespace lean {
 class parser;
 namespace notation {
-typedef std::function<expr(parser &, unsigned, expr const *)> parse_fn;
+typedef std::function<expr(parser &, unsigned, expr const *, pos_info const &)> parse_fn;
 
 enum class action_kind { Skip, Expr, Exprs, Binder, Binders, ScopedExpr, Ext };
 struct action_cell;

@@ -19,22 +19,22 @@ static name g_colon(":");
 static name g_assign(":=");
 static name g_comma(",");
 
-static expr parse_Type(parser & p, unsigned, expr const *) {
+static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos) {
     if (p.curr_is_token(g_llevel_curly)) {
         p.next();
         level l = p.parse_level();
         p.check_token_next(g_rcurly, "invalid Type expression, '}' expected");
-        return mk_sort(l);
+        return p.save_pos(mk_sort(l), pos);
     } else {
-        return p.mk_Type();
+        return p.save_pos(p.mk_Type(), pos);
     }
 }
 
-static expr parse_let(parser & p);
-static expr parse_let_body(parser & p) {
+static expr parse_let(parser & p, pos_info const & pos);
+static expr parse_let_body(parser & p, pos_info const & pos) {
     if (p.curr_is_token(g_comma)) {
         p.next();
-        return parse_let(p);
+        return parse_let(p, pos);
     } else if (p.curr_is_token(g_in)) {
         p.next();
         return p.parse_expr();
@@ -43,10 +43,10 @@ static expr parse_let_body(parser & p) {
     }
 }
 
-static expr parse_let(parser & p) {
+static expr parse_let(parser & p, pos_info const & pos) {
     parser::local_scope scope1(p);
     if (p.parse_local_notation_decl()) {
-        return parse_let_body(p);
+        return parse_let_body(p, pos);
     } else {
         name id = p.check_id_next("invalid let declaration, identifier expected");
         expr type, value;
@@ -76,17 +76,24 @@ static expr parse_let(parser & p) {
         }
         expr l = mk_local(id, id, type);
         p.add_local(l);
-        expr body = abstract(parse_let_body(p), l);
-        return mk_let(id, type, value, body);
+        expr body = abstract(parse_let_body(p, pos), l);
+        return p.save_pos(mk_let(id, type, value, body), pos);
     }
 }
 
-static expr parse_let_expr(parser & p, unsigned, expr const *) {
-    return parse_let(p);
+static expr parse_let_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return parse_let(p, pos);
 }
 
-static expr parse_placeholder(parser &, unsigned, expr const *) {
-    return mk_expr_placeholder();
+static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return p.save_pos(mk_expr_placeholder(), pos);
+}
+
+static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
+    tactic t = p.parse_tactic();
+    expr r = p.save_pos(mk_expr_placeholder(), pos);
+    p.save_hint(r, t);
+    return r;
 }
 
 parse_table init_nud_table() {
@@ -96,6 +103,7 @@ parse_table init_nud_table() {
     expr x0 = mk_var(0);
     parse_table r;
     r = r.add({transition("_", mk_ext_action(parse_placeholder))}, x0);
+    r = r.add({transition("by", mk_ext_action(parse_by))}, x0);
     r = r.add({transition("(", Expr), transition(")", Skip)}, x0);
     r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);

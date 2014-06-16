@@ -7,7 +7,14 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 
 namespace lean {
+tactic parse_skip_tactic(parser &) {
+    // TODO(Leo): this is just for testing
+    return tactic();
+}
+
 tactic_cmd_table get_builtin_tactic_cmds() {
-    return tactic_cmd_table();
+    tactic_cmd_table t;
+    t.insert("skip", tactic_cmd_info("skip", "dummy tactic", parse_skip_tactic));
+    return t;
 }
 }

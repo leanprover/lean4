@@ -1,3 +1,4 @@
+abbreviation Bool : Type.{1} := Type.{0}
 section
   parameter A : Type
 

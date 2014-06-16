@@ -1,3 +1,4 @@
+definition Bool : Type.{1} := Type.{0}
 section
   {parameter} A : Type  -- Mark A as implicit parameter
   parameter   R : A → A → Bool

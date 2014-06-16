@@ -1,3 +1,4 @@
+definition Bool : Type.{1} := Type.{0}
 print raw ((Bool))
 print raw Bool
 print raw fun (x y : Bool), x x

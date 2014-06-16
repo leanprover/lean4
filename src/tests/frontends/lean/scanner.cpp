@@ -129,7 +129,7 @@ static void tst2() {
     scan("x.name");
     scan("x.foo");
     check("x.name", {tk::Identifier});
-    check("fun (x : Bool), x", {tk::Keyword, tk::Keyword, tk::Identifier, tk::Keyword, tk::Keyword,
+    check("fun (x : Bool), x", {tk::Keyword, tk::Keyword, tk::Identifier, tk::Keyword, tk::Identifier,
                  tk::Keyword, tk::Keyword, tk::Identifier});
     check_name("x10", name("x10"));
     // check_name("x.10", name(name("x"), 10));
@@ -161,7 +161,7 @@ static void tst2() {
     scan("0..1");
     check("0..1", {tk::Numeral, tk::Keyword, tk::Keyword, tk::Numeral});
     scan("theorem a : Bool axiom b : Int");
-    check("theorem a : Bool axiom b : Int", {tk::CommandKeyword, tk::Identifier, tk::Keyword, tk::Keyword,
+    check("theorem a : Bool axiom b : Int", {tk::CommandKeyword, tk::Identifier, tk::Keyword, tk::Identifier,
                 tk::CommandKeyword, tk::Identifier, tk::Keyword, tk::Identifier});
     scan("foo \"ttk\\\"\" : Int");
     check("foo \"ttk\\\"\" : Int", {tk::Identifier, tk::String, tk::Keyword, tk::Identifier});

@@ -8,7 +8,7 @@ len.{1} : Pi (A : Type) (n : N) (v : vec.{1} A n), N
 B -> B : Bool
 A -> A : Type.{l_1}
 C : Type.{l_2}
-t4.lean:24:6: error: unknown identifier 'A'
+t4.lean:25:6: error: unknown identifier 'A'
 R.{1 0} : Type -> Bool
 fun (x : N) (y : N), x : N -> N -> N
 choice N tst.N
@@ -18,7 +18,7 @@ foo.M
 tst.M : Type.{2}
 foo.M : Type.{3}
 foo.M : Type.{3}
-t4.lean:47:6: error: unknown identifier 'M'
+t4.lean:48:6: error: unknown identifier 'M'
 ok
 Declarations:
 tst.M
@@ -31,4 +31,5 @@ len
 vec
 f
 foo.M
+Bool
 -------------

@@ -95,7 +95,6 @@ parse_table init_nud_table() {
     action Binders(mk_binders_action());
     expr x0 = mk_var(0);
     parse_table r;
-    r = r.add({transition("Bool", Skip)}, mk_Bool());
     r = r.add({transition("_", mk_ext_action(parse_placeholder))}, x0);
     r = r.add({transition("(", Expr), transition(")", Skip)}, x0);
     r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);

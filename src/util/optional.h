@@ -59,6 +59,7 @@ public:
     void emplace(Args&&... args) {
         if (m_some)
             m_value.~T();
+        m_some = true;
         new (&m_value) T(args...);
     }
 

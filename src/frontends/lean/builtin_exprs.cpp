@@ -48,11 +48,12 @@ static expr parse_let(parser & p, pos_info const & pos) {
     if (p.parse_local_notation_decl()) {
         return parse_let_body(p, pos);
     } else {
-        name id = p.check_id_next("invalid let declaration, identifier expected");
+        auto pos = p.pos();
+        name id  = p.check_id_next("invalid let declaration, identifier expected");
         expr type, value;
         if (p.curr_is_token(g_assign)) {
             p.next();
-            type  = mk_expr_placeholder();
+            type  = p.save_pos(mk_expr_placeholder(), pos);
             value = p.parse_expr();
         } else if (p.curr_is_token(g_colon)) {
             p.next();
@@ -67,14 +68,14 @@ static expr parse_let(parser & p, pos_info const & pos) {
                 p.next();
                 type  = p.parse_scoped_expr(ps, lenv);
             } else {
-                type  = mk_expr_placeholder();
+                type  = p.save_pos(mk_expr_placeholder(), pos);
             }
             p.check_token_next(g_assign, "invalid let declaration, ':=' expected");
             value = p.parse_scoped_expr(ps, lenv);
             type  = p.pi_abstract(ps, type);
             value = p.lambda_abstract(ps, value);
         }
-        expr l = mk_local(id, id, type);
+        expr l = p.save_pos(mk_local(id, id, type), pos);
         p.add_local(l);
         expr body = abstract(parse_let_body(p, pos), l);
         return p.save_pos(mk_let(id, type, value, body), pos);

@@ -74,6 +74,7 @@ static void update_parameters(buffer<name> & ls_buffer, name_set const & found, 
 }
 
 environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi) {
+    auto pos = p.pos();
     name n = p.check_id_next("invalid declaration, identifier expected");
     check_atomic(n);
     buffer<name> ls_buffer;
@@ -104,7 +105,7 @@ environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi)
     }
     type = p.elaborate(type, ls);
     if (in_section(p.env())) {
-        p.add_local_expr(n, mk_local(n, n, type), bi);
+        p.add_local_expr(n, p.save_pos(mk_local(n, n, type), pos), bi);
         return p.env();
     } else {
         environment env = p.env();
@@ -313,8 +314,13 @@ environment set_line_cmd(parser & p) {
     return p.env();
 }
 
+environment exit_cmd(parser &) {
+    throw interrupt_parser();
+}
+
 cmd_table init_cmd_table() {
     cmd_table r;
+    add_cmd(r, cmd_info("exit",         "exit", exit_cmd));
     add_cmd(r, cmd_info("print",        "print a string", print_cmd));
     add_cmd(r, cmd_info("universe",     "declare a global universe level", universe_cmd));
     add_cmd(r, cmd_info("section",      "open a new section", section_cmd));

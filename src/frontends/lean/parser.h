@@ -206,10 +206,12 @@ public:
         return parse_scoped_expr(num_params, ps, local_environment(m_env), rbp);
     }
     expr parse_scoped_expr(buffer<parameter> & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
-    expr abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda = true);
-    expr abstract(buffer<parameter> const & ps, expr const & e, bool lambda = true) { return abstract(ps.size(), ps.data(), e, lambda); }
-    expr lambda_abstract(buffer<parameter> const & ps, expr const & e) { return abstract(ps, e, true); }
-    expr pi_abstract(buffer<parameter> const & ps, expr const & e) { return abstract(ps, e, false); }
+    expr abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda, pos_info const & p);
+    expr abstract(buffer<parameter> const & ps, expr const & e, bool lambda, pos_info const & p) { return abstract(ps.size(), ps.data(), e, lambda, p); }
+    expr lambda_abstract(buffer<parameter> const & ps, expr const & e, pos_info const & p) { return abstract(ps, e, true, p); }
+    expr pi_abstract(buffer<parameter> const & ps, expr const & e, pos_info const & p) { return abstract(ps, e, false, p); }
+    expr lambda_abstract(buffer<parameter> const & ps, expr const & e) { return lambda_abstract(ps, e, pos_of(e)); }
+    expr pi_abstract(buffer<parameter> const & ps, expr const & e) { return pi_abstract(ps, e, pos_of(e)); }
 
     tactic parse_tactic(unsigned rbp = 0);
 

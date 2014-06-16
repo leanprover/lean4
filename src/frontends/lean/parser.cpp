@@ -538,7 +538,7 @@ void parser::parse_binder_block(buffer<parameter> & r, binder_info const & bi) {
     }
     for (auto p : names) {
         expr arg_type = type ? *type : save_pos(mk_expr_placeholder(), p.first);
-        expr local = mk_local(p.second, p.second, arg_type);
+        expr local = save_pos(mk_local(p.second, p.second, arg_type), p.first);
         add_local(local);
         r.push_back(parameter(p.first, local, bi));
     }
@@ -604,6 +604,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
     buffer<expr>      args;
     buffer<parameter> ps;
     local_environment lenv(m_env);
+    pos_info binder_pos;
     if (left)
         args.push_back(*left);
     while (true) {
@@ -649,24 +650,26 @@ expr parser::parse_notation(parse_table t, expr * left) {
             break;
         }
         case notation::action_kind::Binder:
+            binder_pos = pos();
             ps.push_back(parse_binder());
             break;
         case notation::action_kind::Binders:
+            binder_pos = pos();
             lenv = parse_binders(ps);
             break;
         case notation::action_kind::ScopedExpr: {
             expr r = parse_scoped_expr(ps, lenv, a.rbp());
             if (is_var(a.get_rec(), 0)) {
-                r = abstract(ps, r, a.use_lambda_abstraction());
+                r = abstract(ps, r, a.use_lambda_abstraction(), binder_pos);
             } else {
                 unsigned i = ps.size();
                 while (i > 0) {
                     --i;
                     expr const & l = ps[i].m_local;
                     if (a.use_lambda_abstraction())
-                        r = Fun(l, r, ps[i].m_bi);
+                        r = save_pos(Fun(l, r, ps[i].m_bi), binder_pos);
                     else
-                        r = Pi(l, r, ps[i].m_bi);
+                        r = save_pos(Pi(l, r, ps[i].m_bi), binder_pos);
                     args.push_back(r);
                     r = instantiate_rev(a.get_rec(), args.size(), args.data());
                     args.pop_back();
@@ -816,7 +819,7 @@ expr parser::parse_scoped_expr(unsigned num_params, parameter const * ps, local_
     }
 }
 
-expr parser::abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda) {
+expr parser::abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda, pos_info const & p) {
     buffer<expr> locals;
     for (unsigned i = 0; i < num_params; i++)
         locals.push_back(ps[i].m_local);
@@ -831,6 +834,7 @@ expr parser::abstract(unsigned num_params, parameter const * ps, expr const & e,
             r = mk_lambda(n, type, r, ps[i].m_bi);
         else
             r = mk_pi(n, type, r, ps[i].m_bi);
+        r = save_pos(r, p);
     }
     return r;
 }

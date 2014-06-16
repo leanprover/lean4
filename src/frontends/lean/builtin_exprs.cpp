@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/abstract.h"
+#include "library/placeholder.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/parser.h"
@@ -12,6 +14,10 @@ namespace lean {
 namespace notation {
 static name g_llevel_curly(".{");
 static name g_rcurly("}");
+static name g_in("in");
+static name g_colon(":");
+static name g_assign(":=");
+static name g_comma(",");
 
 static expr parse_Type(parser & p, unsigned, expr const *) {
     if (p.curr_is_token(g_llevel_curly)) {
@@ -22,6 +28,61 @@ static expr parse_Type(parser & p, unsigned, expr const *) {
     } else {
         return p.mk_Type();
     }
+}
+
+static expr parse_let(parser & p);
+static expr parse_let_body(parser & p) {
+    if (p.curr_is_token(g_comma)) {
+        p.next();
+        return parse_let(p);
+    } else if (p.curr_is_token(g_in)) {
+        p.next();
+        return p.parse_expr();
+    } else {
+        throw parser_error("invalid let declaration, 'in' or ',' expected", p.pos());
+    }
+}
+
+static expr parse_let(parser & p) {
+    parser::local_scope scope1(p);
+    if (p.parse_local_notation_decl()) {
+        return parse_let_body(p);
+    } else {
+        name id = p.check_id_next("invalid let declaration, identifier expected");
+        expr type, value;
+        if (p.curr_is_token(g_assign)) {
+            p.next();
+            type  = mk_expr_placeholder();
+            value = p.parse_expr();
+        } else if (p.curr_is_token(g_colon)) {
+            p.next();
+            type = p.parse_expr();
+            p.check_token_next(g_assign, "invalid declaration, ':=' expected");
+            value = p.parse_expr();
+        } else {
+            parser::local_scope scope2(p);
+            buffer<parameter> ps;
+            auto lenv = p.parse_binders(ps);
+            if (p.curr_is_token(g_colon)) {
+                p.next();
+                type  = p.parse_scoped_expr(ps, lenv);
+            } else {
+                type  = mk_expr_placeholder();
+            }
+            p.check_token_next(g_assign, "invalid let declaration, ':=' expected");
+            value = p.parse_scoped_expr(ps, lenv);
+            type  = p.pi_abstract(ps, type);
+            value = p.lambda_abstract(ps, value);
+        }
+        expr l = mk_local(id, id, type);
+        p.add_local(l);
+        expr body = abstract(parse_let_body(p), l);
+        return mk_let(id, type, value, body);
+    }
+}
+
+static expr parse_let_expr(parser & p, unsigned, expr const *) {
+    return parse_let(p);
 }
 
 parse_table init_nud_table() {
@@ -35,6 +96,7 @@ parse_table init_nud_table() {
     r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
     r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);
+    r = r.add({transition("let", mk_ext_action(parse_let_expr))}, x0);
     return r;
 }
 

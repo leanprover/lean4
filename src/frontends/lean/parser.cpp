@@ -496,7 +496,7 @@ parameter parser::parse_binder_core(binder_info const & bi) {
     } else {
         type = save_pos(mk_expr_placeholder(), p);
     }
-    return parameter(p, save_pos(mk_local(id, id, type), p), bi);
+    return parameter(p, save_pos(mk_local(id, type), p), bi);
 }
 
 parameter parser::parse_binder() {
@@ -538,7 +538,7 @@ void parser::parse_binder_block(buffer<parameter> & r, binder_info const & bi) {
     }
     for (auto p : names) {
         expr arg_type = type ? *type : save_pos(mk_expr_placeholder(), p.first);
-        expr local = save_pos(mk_local(p.second, p.second, arg_type), p.first);
+        expr local = save_pos(mk_local(p.second, arg_type), p.first);
         add_local(local);
         r.push_back(parameter(p.first, local, bi));
     }

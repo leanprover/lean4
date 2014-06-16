@@ -105,7 +105,7 @@ environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi)
     }
     type = p.elaborate(type, ls);
     if (in_section(p.env())) {
-        p.add_local_expr(n, p.save_pos(mk_local(n, n, type), pos), bi);
+        p.add_local_expr(n, p.save_pos(mk_local(n, type), pos), bi);
         return p.env();
     } else {
         environment env = p.env();

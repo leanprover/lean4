@@ -33,14 +33,14 @@ name pick_unused_name(expr const & t, name const & s) {
 std::pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
     lean_assert(is_binding(b));
     name n = pick_unused_name(binding_body(b), binding_name(b));
-    expr c = mk_local(n, n, preserve_type ? binding_domain(b) : expr());
+    expr c = mk_local(n, preserve_type ? binding_domain(b) : expr());
     return mk_pair(instantiate(binding_body(b), c), c);
 }
 
 std::pair<expr, expr> let_body_fresh(expr const & l, bool preserve_type) {
     lean_assert(is_let(l));
     name n = pick_unused_name(let_body(l), let_name(l));
-    expr c = mk_local(n, n, preserve_type ? let_type(l) : expr());
+    expr c = mk_local(n, preserve_type ? let_type(l) : expr());
     return mk_pair(instantiate(let_body(l), c), c);
 }
 

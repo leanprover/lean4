@@ -436,6 +436,7 @@ inline expr Const(name const & n) { return mk_constant(n); }
 expr mk_macro(macro_definition const & m, unsigned num = 0, expr const * args = nullptr);
 expr mk_metavar(name const & n, expr const & t);
 expr mk_local(name const & n, name const & pp_n, expr const & t);
+inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t); }
 expr mk_app(expr const & f, expr const & a);
 expr mk_app(expr const & f, unsigned num_args, expr const * args);
 expr mk_app(unsigned num_args, expr const * args);

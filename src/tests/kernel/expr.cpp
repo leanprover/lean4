@@ -349,7 +349,7 @@ static void tst18() {
     expr f = Const("f");
     expr x = Var(0);
     expr a = Const("a");
-    expr l = mk_local("m", "m", Bool);
+    expr l = mk_local("m", Bool);
     expr m = mk_metavar("m", Bool);
     check_serializer(l);
     lean_assert(!has_local(m));

@@ -512,7 +512,7 @@ static int expr_mk_local(lua_State * L) {
     int nargs = lua_gettop(L);
     name n    = to_name_ext(L, 1);
     if (nargs == 2)
-        return push_expr(L, mk_local(n, n, to_expr(L, 2)));
+        return push_expr(L, mk_local(n, to_expr(L, 2)));
     else
         return push_expr(L, mk_local(n, to_name_ext(L, 2), to_expr(L, 3)));
 }

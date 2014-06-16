@@ -136,7 +136,7 @@ static void parse_notation_local(parser & p, buffer<expr> & locals) {
     if (p.curr_is_identifier()) {
         name n = p.get_name_val();
         p.next();
-        expr l = mk_local(n, n, g_local_type); // remark: the type doesn't matter
+        expr l = mk_local(n, g_local_type); // remark: the type doesn't matter
         p.add_local_expr(n, l);
         locals.push_back(l);
     } else {
@@ -221,7 +221,7 @@ environment notation_cmd_core(parser & p, bool overload) {
             name n   = p.get_name_val();
             p.next();
             action a = parse_action(p, env, locals);
-            expr l = mk_local(n, n, g_local_type);
+            expr l = mk_local(n, g_local_type);
             p.add_local_expr(n, l);
             locals.push_back(l);
             ts.push_back(transition(tk, a));

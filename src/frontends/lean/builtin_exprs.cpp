@@ -75,7 +75,7 @@ static expr parse_let(parser & p, pos_info const & pos) {
             type  = p.pi_abstract(ps, type);
             value = p.lambda_abstract(ps, value);
         }
-        expr l = p.save_pos(mk_local(id, id, type), pos);
+        expr l = p.save_pos(mk_local(id, type), pos);
         p.add_local(l);
         expr body = abstract(parse_let_body(p, pos), l);
         return p.save_pos(mk_let(id, type, value, body), pos);

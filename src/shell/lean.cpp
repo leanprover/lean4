@@ -68,6 +68,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --quiet -q        do not print verbose messages\n";
     std::cout << "  --interactive -i  read blocks of commands from the input stream\n";
     std::cout << "  --hott            use Homotopy Type Theory kernel and libraries\n";
+    std::cout << "  --threads=num -r  number of threads used to process lean files\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
@@ -100,6 +101,7 @@ static struct option g_long_options[] = {
     {"interactive", no_argument,       0, 'i'},
     {"quiet",       no_argument,       0, 'q'},
     {"hott",        no_argument,       0, 'H'},
+    {"threads",     required_argument, 0, 'r'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",      required_argument, 0, 's'},
 #endif
@@ -107,9 +109,9 @@ static struct option g_long_options[] = {
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "Hiqlupgvhc:012s:012t:012o:";
+static char const * g_opt_str = "Hiqlupgvhr:012c:012s:012t:012o:";
 #else
-static char const * g_opt_str = "Hiqlupgvhc:012t:012o:";
+static char const * g_opt_str = "Hiqlupgvhr:012c:012t:012o:";
 #endif
 
 enum class lean_mode { Standard, HoTT };
@@ -117,11 +119,12 @@ enum class lean_mode { Standard, HoTT };
 int main(int argc, char ** argv) {
     lean::save_stack_info();
     lean::register_modules();
-    bool export_objects = false;
-    unsigned trust_lvl  = 0;
-    bool quiet          = false;
-    bool interactive    = false;
-    lean_mode mode      = lean_mode::Standard;
+    bool export_objects  = false;
+    unsigned trust_lvl   = 0;
+    bool quiet           = false;
+    bool interactive     = false;
+    lean_mode mode       = lean_mode::Standard;
+    unsigned num_threads = 1;
     std::string output;
     input_kind default_k = input_kind::Lean; // default
     while (true) {
@@ -129,6 +132,9 @@ int main(int argc, char ** argv) {
         if (c == -1)
             break; // end of command line
         switch (c) {
+        case 'r':
+            num_threads = atoi(optarg);
+            break;
         case 'H':
             mode = lean_mode::HoTT;
             lean::init_lean_path("hott");
@@ -201,7 +207,7 @@ int main(int argc, char ** argv) {
                 }
             }
             if (k == input_kind::Lean) {
-                if (!parse_commands(env, ios, argv[i], &S, false))
+                if (!parse_commands(env, ios, argv[i], &S, false, num_threads))
                     ok = false;
             } else if (k == input_kind::Lua) {
                 try {
@@ -216,7 +222,7 @@ int main(int argc, char ** argv) {
         }
         if (ok && interactive && default_k == input_kind::Lean) {
             signal(SIGINT, on_ctrl_c);
-            lean::interactive in(env, ios, S);
+            lean::interactive in(env, ios, S, num_threads);
             in(std::cin, "[stdin]");
         }
         if (export_objects) {

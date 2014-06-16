@@ -17,9 +17,11 @@ char const * get_lean_path();
    exception if the file was not found.
 */
 std::string find_file(std::string fname);
-
 std::string find_file(std::string fname, std::initializer_list<char const *> const & exts);
 
+/** \brief Hierarchical names are converted into paths using the path separator. Example: foo.bar is converted into foo/bar */
+std::string find_file(name const & fname);
+std::string find_file(name const & fname, std::initializer_list<char const *> const & exts);
 
 /** \brief Return true iff fname ends with ".lean" */
 bool is_lean_file(std::string const & fname);

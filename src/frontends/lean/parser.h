@@ -53,6 +53,7 @@ class parser {
     bool                    m_verbose;
     bool                    m_use_exceptions;
     bool                    m_show_errors;
+    unsigned                m_num_threads;
 
     scanner                 m_scanner;
     scanner::token_kind     m_curr;
@@ -105,6 +106,7 @@ class parser {
     level parse_level_nud();
     level parse_level_led(level left);
 
+    void parse_imports();
     void parse_command();
     void parse_script(bool as_expr = false);
     bool parse_commands();
@@ -133,6 +135,7 @@ public:
     parser(environment const & env, io_state const & ios,
            std::istream & strm, char const * str_name,
            script_state * ss = nullptr, bool use_exceptions = false,
+           unsigned num_threads = 1,
            local_level_decls const & lds = local_level_decls(),
            local_expr_decls const & eds = local_expr_decls(),
            unsigned line = 1);
@@ -246,7 +249,7 @@ public:
 };
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,
-                    script_state * S, bool use_exceptions);
+                    script_state * S, bool use_exceptions, unsigned num_threads);
 bool parse_commands(environment & env, io_state & ios, char const * fname, script_state * S,
-                    bool use_exceptions);
+                    bool use_exceptions, unsigned num_threads);
 }

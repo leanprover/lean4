@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/script_exception.h"
 #include "util/sstream.h"
 #include "util/flet.h"
+#include "util/lean_path.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
@@ -21,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/placeholder.h"
 #include "library/deep_copy.h"
+#include "library/module.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/notation_cmd.h"
@@ -58,7 +60,7 @@ parser::param_universe_scope::~param_universe_scope() {
 
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name,
-               script_state * ss, bool use_exceptions,
+               script_state * ss, bool use_exceptions, unsigned num_threads,
                local_level_decls const & lds, local_expr_decls const & eds,
                unsigned line):
     m_env(env), m_ios(ios), m_ss(ss),
@@ -66,6 +68,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_scanner(strm, strm_name), m_local_level_decls(lds), m_local_decls(eds),
     m_pos_table(std::make_shared<pos_info_table>()) {
     m_scanner.set_line(line);
+    m_num_threads = num_threads;
     m_type_use_placeholder = true;
     m_found_errors = false;
     updt_options();
@@ -340,7 +343,8 @@ static name g_infix("infix");
 static name g_infixl("infixl");
 static name g_infixr("infixr");
 static name g_postfix("postfix");
-static name g_notation("postfix");
+static name g_notation("notation");
+static name g_import("import");
 static unsigned g_level_add_prec = 10;
 static unsigned g_level_cup_prec = 5;
 
@@ -890,11 +894,49 @@ void parser::parse_script(bool as_expr) {
         });
 }
 
+static optional<std::string> find_file(name const & f, char const * ext) {
+    try {
+        return optional<std::string>(find_file(f, {ext}));
+    } catch (...) {
+        return optional<std::string>();
+    }
+}
+
+void parser::parse_imports() {
+    buffer<std::string> olean_files;
+    buffer<std::string> lua_files;
+    while (curr_is_token(g_import)) {
+        m_last_cmd_pos = pos();
+        next();
+        while (curr_is_identifier()) {
+            name f            = get_name_val();
+            if (auto it = find_file(f, ".lua")) {
+                if (!m_ss)
+                    throw parser_error("invalid import, Lua interpreter is not available", pos());
+                lua_files.push_back(*it);
+            } else if (auto it = find_file(f, ".olean")) {
+                olean_files.push_back(*it);
+            } else {
+                throw parser_error(sstream() << "invalid import, unknow module '" << f << "'", pos());
+            }
+            next();
+        }
+    }
+    m_env = import_modules(m_env, olean_files.size(), olean_files.data(), m_num_threads, true, m_ios);
+    using_script([&](lua_State *) {
+            m_ss->exec_unprotected([&]() {
+                    for (auto const & f : lua_files) {
+                        m_ss->import_explicit(f.c_str());
+                    }});
+        });
+}
+
 bool parser::parse_commands() {
     // We disable hash-consing while parsing to make sure the pos-info are correct.
     scoped_expr_caching disable(false);
     try {
         bool done = false;
+        parse_imports();
         while (!done) {
             protected_call([&]() {
                     check_interrupted();
@@ -924,18 +966,19 @@ bool parser::parse_commands() {
 }
 
 
-bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, script_state * S, bool use_exceptions) {
-    parser p(env, ios, in, strm_name, S, use_exceptions);
+bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, script_state * S, bool use_exceptions,
+                    unsigned num_threads) {
+    parser p(env, ios, in, strm_name, S, use_exceptions, num_threads);
     bool r = p();
     ios = p.ios();
     env = p.env();
     return r;
 }
 
-bool parse_commands(environment & env, io_state & ios, char const * fname, script_state * S, bool use_exceptions) {
+bool parse_commands(environment & env, io_state & ios, char const * fname, script_state * S, bool use_exceptions, unsigned num_threads) {
     std::ifstream in(fname);
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");
-    return parse_commands(env, ios, in, fname, S, use_exceptions);
+    return parse_commands(env, ios, in, fname, S, use_exceptions, num_threads);
 }
 }

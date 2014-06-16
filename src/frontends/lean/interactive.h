@@ -35,6 +35,7 @@ class interactive {
     environment               m_env;
     io_state                  m_ios;
     script_state              m_ss;
+    unsigned                  m_num_threads;
     local_level_decls         m_lds;
     local_expr_decls          m_eds;
     unsigned                  m_line;
@@ -47,6 +48,7 @@ class interactive {
     void restore(unsigned new_line, std::string & block);
 public:
     interactive(environment const & env, io_state const & ios, script_state const & ss,
+                unsigned num_threads = 1,
                 char const * ack_cmd = "#ACK", char const * snapshot_cmd = "#SNAPSHOT",
                 char const * res_cmd = "#RESTORE", char const * restart_cmd = "#RESTART");
     environment const & env() const { return m_env; }

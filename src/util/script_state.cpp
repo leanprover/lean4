@@ -128,7 +128,7 @@ struct script_state::imp {
     }
 
     bool import(char const * fname) {
-        return import_explicit(find_file(fname));
+        return import_explicit(find_file(std::string(fname)));
     }
 };
 

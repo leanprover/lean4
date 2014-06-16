@@ -218,6 +218,14 @@ std::string find_file(std::string fname) {
     return find_file(fname, {".olean", ".lean", ".lua"});
 }
 
+std::string find_file(name const & fname) {
+    return find_file(fname.to_string(g_sep_str.c_str()));
+}
+
+std::string find_file(name const & fname, std::initializer_list<char const *> const & exts) {
+    return find_file(fname.to_string(g_sep_str.c_str()), exts);
+}
+
 char const * get_lean_path() {
     return g_lean_path.c_str();
 }

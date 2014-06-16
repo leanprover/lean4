@@ -265,6 +265,7 @@ struct import_modules_fn {
 
     void import_decl(deserializer & d, module_idx midx) {
         declaration decl = read_declaration(d, midx);
+        lean_assert(!decl.is_definition() || decl.get_module_idx() == midx);
         environment env  = m_senv.env();
         if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL) {
             if (!m_keep_proofs && decl.is_theorem())

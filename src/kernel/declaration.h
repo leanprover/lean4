@@ -71,7 +71,7 @@ public:
                                     expr const & v, bool opaque, module_idx mod_idx, bool use_conv_opt);
     friend declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v, bool opaque,
                                     unsigned weight, module_idx mod_idx, bool use_conv_opt);
-    friend declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
+    friend declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, module_idx mod_idx);
     friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
     friend declaration mk_var_decl(name const & n, level_param_names const & params, expr const & t);
 };
@@ -84,7 +84,7 @@ declaration mk_definition(name const & n, level_param_names const & params, expr
                          bool opaque = false, unsigned weight = 0, module_idx mod_idx = 0, bool use_conv_opt = true);
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v,
                          bool opaque = false, module_idx mod_idx = 0, bool use_conv_opt = true);
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
+declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, module_idx mod_idx = 0);
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
 declaration mk_var_decl(name const & n, level_param_names const & params, expr const & t);
 }

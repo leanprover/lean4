@@ -81,8 +81,8 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
         });
     return mk_definition(n, params, t, v, opaque, w+1, mod_idx, use_conv_opt);
 }
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v) {
-    return declaration(new declaration::cell(n, params, t, true, v, true, 0, 0, false));
+declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, module_idx mod_idx) {
+    return declaration(new declaration::cell(n, params, t, true, v, true, 0, mod_idx, false));
 }
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
     return declaration(new declaration::cell(n, params, t, true));

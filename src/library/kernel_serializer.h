@@ -28,7 +28,7 @@ struct register_macro_deserializer_fn {
 };
 
 serializer & operator<<(serializer & s, declaration const & d);
-declaration read_declaration(deserializer & d, unsigned module_idx);
+declaration read_declaration(deserializer & d, module_idx midx);
 
 typedef std::tuple<level_param_names, unsigned, list<inductive::inductive_decl>> inductive_decls;
 serializer & operator<<(serializer & s, inductive_decls const & ds);

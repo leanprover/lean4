@@ -277,7 +277,7 @@ serializer & operator<<(serializer & s, declaration const & d) {
     return s;
 }
 
-declaration read_declaration(deserializer & d, unsigned module_idx) {
+declaration read_declaration(deserializer & d, module_idx midx) {
     char k               = d.read_char();
     bool has_value       = (k & 1) != 0;
     bool is_th_ax        = (k & 8) != 0;
@@ -287,12 +287,12 @@ declaration read_declaration(deserializer & d, unsigned module_idx) {
     if (has_value) {
         expr v      = read_expr(d);
         if (is_th_ax) {
-            return mk_theorem(n, ps, t, v);
+            return mk_theorem(n, ps, t, v, midx);
         } else {
             unsigned w        = d.read_unsigned();
             bool is_opaque    = (k & 2) != 0;
             bool use_conv_opt = (k & 4) != 0;
-            return mk_definition(n, ps, t, v, is_opaque, w, module_idx, use_conv_opt);
+            return mk_definition(n, ps, t, v, is_opaque, w, midx, use_conv_opt);
         }
     } else {
         if (is_th_ax)

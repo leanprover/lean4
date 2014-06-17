@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include "util/hash.h"
 #include "kernel/expr.h"
+#include "library/expr_lt.h"
 
 namespace lean {
 typedef std::pair<expr, expr> expr_pair;
@@ -26,5 +27,11 @@ struct expr_pair_eq {
 /** \brief Functional object for comparing expression pairs using pointer equality. */
 struct expr_pair_eqp {
     unsigned operator()(expr_pair const & p1, expr_pair const & p2) const { return is_eqp(p1.first, p2.first) && is_eqp(p1.second, p2.second); }
+};
+inline bool is_lt(expr_pair const & p1, expr_pair const & p2, bool use_hash) {
+    return is_lt(p1.first, p2.first, use_hash) || (p1.first == p2.first && is_lt(p1.second, p2.second, use_hash));
+}
+struct expr_pair_quick_cmp {
+    int operator()(expr_pair const & p1, expr_pair const & p2) const { return is_lt(p1, p2, true) ? -1 : (p1 == p2 ? 0 : 1);  }
 };
 }

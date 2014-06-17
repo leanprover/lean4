@@ -26,6 +26,7 @@ static name g_private("[private]");
 static name g_inline("[inline]");
 static name g_true("true");
 static name g_false("false");
+static name g_options("options");
 
 static void check_atomic(name const & n) {
     if (!n.is_atomic())
@@ -270,12 +271,15 @@ environment theorem_cmd(parser & p) {
 
 environment print_cmd(parser & p) {
     if (p.curr() == scanner::token_kind::String) {
-        p.regular_stream() << p.get_str_val() << "\n";
+        p.regular_stream() << p.get_str_val() << endl;
         p.next();
-    } else if (p.curr_is_token(g_raw)) {
+    } else if (p.curr_is_token_or_id(g_raw)) {
         p.next();
         expr e = p.parse_expr();
-        p.regular_stream() << e << "\n";
+        p.regular_stream() << e << endl;
+    } else if (p.curr_is_token_or_id(g_options)) {
+        p.next();
+        p.regular_stream() << p.ios().get_options() << endl;
     } else {
         throw parser_error("invalid print command", p.pos());
     }

@@ -511,13 +511,8 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("abbreviation", "add new abbreviation (aka transparent definition)", abbreviation_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
-    add_cmd(r, cmd_info("precedence",   "set token left binding power", precedence_cmd));
-    add_cmd(r, cmd_info("infixl",       "declare a new infix (left) notation", infixl_cmd));
-    add_cmd(r, cmd_info("infix",        "declare a new infix (left) notation", infixl_cmd));
-    add_cmd(r, cmd_info("infixr",       "declare a new infix (right) notation", infixr_cmd));
-    add_cmd(r, cmd_info("postfix",      "declare a new postfix notation", postfix_cmd));
-    add_cmd(r, cmd_info("notation",     "declare a new notation", notation_cmd));
     add_cmd(r, cmd_info("#setline",     "modify the current line number, it only affects error/report messages", set_line_cmd));
+    register_notation_cmds(r);
     register_calc_cmds(r);
     return r;
 }

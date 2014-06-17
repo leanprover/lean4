@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 #include "frontends/lean/parser_config.h"
+#include "frontends/lean/cmd_table.h"
 namespace lean {
 class parser;
 
@@ -15,13 +16,11 @@ environment notation_cmd_core(parser & p, bool overload);
 environment infixl_cmd_core(parser & p, bool overload);
 environment infixr_cmd_core(parser & p, bool overload);
 environment postfix_cmd_core(parser & p, bool overload);
-inline environment notation_cmd(parser & p) { return notation_cmd_core(p, true); }
-inline environment infixl_cmd(parser & p) { return infixl_cmd_core(p, true); }
-inline environment infixr_cmd(parser & p) { return infixr_cmd_core(p, true); }
-inline environment postfix_cmd(parser & p) { return postfix_cmd_core(p, true); }
 
 /** \brief Return true iff the current token is a notation declaration */
 bool curr_is_notation_decl(parser & p);
 /** \brief Parse a notation declaration, throws an error if the current token is not a "notation declaration". */
 notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & new_tokens);
+
+void register_notation_cmds(cmd_table & r);
 }

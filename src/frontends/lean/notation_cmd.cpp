@@ -297,4 +297,18 @@ notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & n
         throw parser_error("invalid notation, 'infix', 'infixl', 'infixr', 'postfix' or 'notation' expected", p.pos());
     }
 }
+
+environment notation_cmd(parser & p) { return notation_cmd_core(p, true); }
+environment infixl_cmd(parser & p) { return infixl_cmd_core(p, true); }
+environment infixr_cmd(parser & p) { return infixr_cmd_core(p, true); }
+environment postfix_cmd(parser & p) { return postfix_cmd_core(p, true); }
+
+void register_notation_cmds(cmd_table & r) {
+    add_cmd(r, cmd_info("precedence",   "set token left binding power", precedence_cmd));
+    add_cmd(r, cmd_info("infixl",       "declare a new infix (left) notation", infixl_cmd));
+    add_cmd(r, cmd_info("infix",        "declare a new infix (left) notation", infixl_cmd));
+    add_cmd(r, cmd_info("infixr",       "declare a new infix (right) notation", infixr_cmd));
+    add_cmd(r, cmd_info("postfix",      "declare a new postfix notation", postfix_cmd));
+    add_cmd(r, cmd_info("notation",     "declare a new notation", notation_cmd));
+}
 }

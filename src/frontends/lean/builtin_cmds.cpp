@@ -86,7 +86,26 @@ static void update_parameters(buffer<name> & ls_buffer, name_set const & found, 
         });
 }
 
-environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi) {
+static environment declare_var(parser & p, environment env,
+                               name const & n, level_param_names const & ls, expr const & type,
+                               bool is_axiom, binder_info const & bi, pos_info const & pos) {
+    if (in_section(p.env())) {
+        p.add_local_expr(n, p.save_pos(mk_local(n, type), pos), bi);
+        return env;
+    } else {
+        name const & ns = get_namespace(env);
+        name full_n  = ns + n;
+        if (is_axiom)
+            env = module::add(env, check(env, mk_axiom(full_n, ls, type)));
+        else
+            env = module::add(env, check(env, mk_var_decl(full_n, ls, type)));
+        if (!ns.is_anonymous())
+            env = add_alias(env, n, mk_constant(full_n));
+        return env;
+    }
+}
+
+static environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi) {
     auto pos = p.pos();
     name n = p.check_id_next("invalid declaration, identifier expected");
     check_atomic(n);
@@ -117,21 +136,7 @@ environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi)
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
     type = p.elaborate(type, ls);
-    if (in_section(p.env())) {
-        p.add_local_expr(n, p.save_pos(mk_local(n, type), pos), bi);
-        return p.env();
-    } else {
-        environment env = p.env();
-        name const & ns = get_namespace(env);
-        name full_n  = ns + n;
-        if (is_axiom)
-            env = module::add(env, check(env, mk_axiom(full_n, ls, type)));
-        else
-            env = module::add(env, check(env, mk_var_decl(full_n, ls, type)));
-        if (!ns.is_anonymous())
-            env = add_alias(env, n, mk_constant(full_n));
-        return env;
-    }
+    return declare_var(p, p.env(), n, ls, type, is_axiom, bi, pos);
 }
 environment variable_cmd(parser & p) {
     return variable_cmd_core(p, false, binder_info());
@@ -150,6 +155,39 @@ environment implicit_axiom_cmd(parser & p) {
 environment cast_variable_cmd(parser & p) {
     check_in_section(p);
     return variable_cmd_core(p, false, mk_cast_binder_info());
+}
+
+static environment variables_cmd_core(parser & p, bool is_axiom, binder_info const & bi) {
+    auto pos = p.pos();
+    buffer<name> ids;
+    while (!p.curr_is_token(g_colon)) {
+        name id = p.check_id_next("invalid parameters declaration, identifier expected");
+        check_atomic(id);
+        ids.push_back(id);
+    }
+    p.next();
+    optional<parser::local_scope> scope1;
+    if (!in_section(p.env()))
+        scope1.emplace(p);
+    parser::param_universe_scope scope2(p);
+    expr type = p.parse_expr();
+    level_param_names ls = to_level_param_names(collect_univ_params(type));
+    type = p.elaborate(type, ls);
+    environment env = p.env();
+    for (auto id : ids)
+        env = declare_var(p, env, id, ls, type, is_axiom, bi, pos);
+    return env;
+}
+environment variables_cmd(parser & p) {
+    return variables_cmd_core(p, false, binder_info());
+}
+environment implicit_variables_cmd(parser & p) {
+    check_in_section(p);
+    return variables_cmd_core(p, false, mk_implicit_binder_info());
+}
+environment cast_variables_cmd(parser & p) {
+    check_in_section(p);
+    return variables_cmd_core(p, false, mk_cast_binder_info());
 }
 
 // Collect local (section) constants occurring in type and value, sort them, and store in section_ps
@@ -465,6 +503,9 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("[variable]",   "declare a new cast parameter", cast_variable_cmd));
     add_cmd(r, cmd_info("axiom",        "declare a new axiom", axiom_cmd));
     add_cmd(r, cmd_info("{axiom}",      "declare a new implicit axiom", implicit_axiom_cmd));
+    add_cmd(r, cmd_info("variables",    "declare new parameters", variables_cmd));
+    add_cmd(r, cmd_info("{variables}",  "declare new implict parameters", implicit_variables_cmd));
+    add_cmd(r, cmd_info("[variables]",  "declare new cast parameters", cast_variables_cmd));
     add_cmd(r, cmd_info("definition",   "add new definition", definition_cmd));
     add_cmd(r, cmd_info("abbreviation", "add new abbreviation (aka transparent definition)", abbreviation_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));

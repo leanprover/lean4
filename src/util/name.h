@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <functional>
 #include <algorithm>
+#include <utility>
 #include "util/lua.h"
 #include "util/serializer.h"
 #include "util/optional.h"
@@ -166,6 +167,15 @@ struct name_quick_cmp { int operator()(name const & n1, name const & n2) const {
 inline bool independent(name const & a, name const & b) {
     return !is_prefix_of(a, b) && !is_prefix_of(b, a);
 }
+
+typedef std::pair<name, name> name_pair;
+struct name_pair_quick_cmp {
+    int operator()(name_pair const & p1, name_pair const & p2) const {
+        int r = cmp(p1.first, p2.first);
+        if (r != 0) return r;
+        return cmp(p1.second, p2.second);
+    }
+};
 
 serializer & operator<<(serializer & s, name const & n);
 name read_name(deserializer & d);

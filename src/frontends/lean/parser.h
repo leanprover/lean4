@@ -117,7 +117,6 @@ class parser {
     expr parse_nud_notation();
     expr parse_led_notation(expr left);
     expr parse_nud();
-    expr parse_led(expr left);
     expr parse_id();
     expr parse_numeral_expr();
     expr parse_decimal_expr();
@@ -209,6 +208,7 @@ public:
     local_environment parse_binders(buffer<parameter> & r);
 
     expr parse_expr(unsigned rbp = 0);
+    expr parse_led(expr left);
     expr parse_scoped_expr(unsigned num_params, parameter const * ps, local_environment const & lenv, unsigned rbp = 0);
     expr parse_scoped_expr(buffer<parameter> & ps, local_environment const & lenv, unsigned rbp = 0) {
         return parse_scoped_expr(ps.size(), ps.data(), lenv, rbp);

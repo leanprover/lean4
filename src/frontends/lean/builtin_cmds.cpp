@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/private.h"
 #include "library/locals.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/calc.h"
 #include "frontends/lean/notation_cmd.h"
 
 namespace lean {
@@ -517,6 +518,7 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("postfix",      "declare a new postfix notation", postfix_cmd));
     add_cmd(r, cmd_info("notation",     "declare a new notation", notation_cmd));
     add_cmd(r, cmd_info("#setline",     "modify the current line number, it only affects error/report messages", set_line_cmd));
+    register_calc_cmds(r);
     return r;
 }
 

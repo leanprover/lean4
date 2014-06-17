@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "kernel/environment.h"
 #include "library/module.h"
+#include "frontends/lean/parser.h"
 
 namespace lean {
 struct calc_ext : public environment_extension {
@@ -144,4 +145,25 @@ static void calc_trans_reader(deserializer & d, module_idx, shared_environment &
         });
 }
 register_module_object_reader_fn g_calc_trans_reader(g_calc_trans_key, calc_trans_reader);
+
+environment calc_subst_cmd(parser & p) {
+    name id = p.check_id_next("invalid 'calc_subst' command, identifier expected");
+    return add_calc_subst(p.env(), id);
+}
+
+environment calc_refl_cmd(parser & p) {
+    name id = p.check_id_next("invalid 'calc_refl' command, identifier expected");
+    return add_calc_refl(p.env(), id);
+}
+
+environment calc_trans_cmd(parser & p) {
+    name id = p.check_id_next("invalid 'calc_trans' command, identifier expected");
+    return add_calc_trans(p.env(), id);
+}
+
+void register_calc_cmds(cmd_table & r) {
+    add_cmd(r, cmd_info("calc_subst",     "set the substitution rule that is used by the calculational proof '{...}' notation", calc_subst_cmd));
+    add_cmd(r, cmd_info("calc_refl",      "set the reflexivity rule for an operator, this command is relevant for the calculational proof '{...}' notation", calc_refl_cmd));
+    add_cmd(r, cmd_info("calc_trans",     "set the transitivity rule for a pair of operators, this command is relevant for the calculational proof '{...}' notation", calc_trans_cmd));
+}
 }

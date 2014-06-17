@@ -17,12 +17,6 @@ using notation::transition;
 using notation::action;
 using notation::action_kind;
 
-struct token_entry {
-    std::string m_token;
-    unsigned    m_prec;
-    token_entry(std::string const & tk, unsigned prec):m_token(tk), m_prec(prec) {}
-};
-
 struct token_state {
     token_table m_table;
     token_state() { m_table = mk_default_token_table(); }
@@ -55,8 +49,12 @@ struct token_config {
 template class scoped_ext<token_config>;
 typedef scoped_ext<token_config> token_ext;
 
+environment add_token(environment const & env, token_entry const & e) {
+    return token_ext::add_entry(env, get_dummy_ios(), e);
+}
+
 environment add_token(environment const & env, char const * val, unsigned prec) {
-    return token_ext::add_entry(env, get_dummy_ios(), token_entry(val, prec));
+    return add_token(env, token_entry(val, prec));
 }
 
 token_table const & get_token_table(environment const & env) {
@@ -132,16 +130,6 @@ struct notation_state {
     }
 };
 
-struct notation_entry {
-    bool             m_is_nud;
-    list<transition> m_transitions;
-    expr             m_expr;
-    bool             m_overload;
-    notation_entry():m_is_nud(true) {}
-    notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload):
-        m_is_nud(is_nud), m_transitions(ts), m_expr(e), m_overload(overload) {}
-};
-
 struct notation_config {
     typedef notation_state  state;
     typedef notation_entry  entry;
@@ -182,12 +170,16 @@ struct notation_config {
 template class scoped_ext<notation_config>;
 typedef scoped_ext<notation_config> notation_ext;
 
+environment add_notation(environment const & env, notation_entry const & e) {
+    return notation_ext::add_entry(env, get_dummy_ios(), e);
+}
+
 environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a, bool overload) {
-    return notation_ext::add_entry(env, get_dummy_ios(), notation_entry(true, to_list(ts, ts+num), a, overload));
+    return add_notation(env, notation_entry(true, to_list(ts, ts+num), a, overload));
 }
 
 environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a, bool overload) {
-    return notation_ext::add_entry(env, get_dummy_ios(), notation_entry(false, to_list(ts, ts+num), a, overload));
+    return add_notation(env, notation_entry(false, to_list(ts, ts+num), a, overload));
 }
 
 environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a, bool overload) {

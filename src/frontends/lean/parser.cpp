@@ -339,11 +339,6 @@ static name g_add("+");
 static name g_max("max");
 static name g_imax("imax");
 static name g_cup("\u2294");
-static name g_infix("infix");
-static name g_infixl("infixl");
-static name g_infixr("infixr");
-static name g_postfix("postfix");
-static name g_notation("notation");
 static name g_import("import");
 static unsigned g_level_add_prec = 10;
 static unsigned g_level_cup_prec = 5;
@@ -589,21 +584,12 @@ local_environment parser::parse_binders(buffer<parameter> & r) {
 }
 
 bool parser::parse_local_notation_decl() {
-    if (curr_is_token(g_infix) || curr_is_token(g_infixl)) {
-        next();
-        m_env = infixl_cmd_core(*this, false);
-        return true;
-    } else if (curr_is_token(g_infixr)) {
-        next();
-        m_env = infixr_cmd_core(*this, false);
-        return true;
-    } else if (curr_is_token(g_postfix)) {
-        next();
-        m_env = postfix_cmd_core(*this, false);
-        return true;
-    } else if (curr_is_token(g_notation)) {
-        next();
-        m_env = notation_cmd_core(*this, false);
+    if (curr_is_notation_decl(*this)) {
+        buffer<token_entry> new_tokens;
+        auto ne = ::lean::parse_notation(*this, false, new_tokens);
+        for (auto const & te : new_tokens)
+            m_env = add_token(m_env, te);
+        m_env = add_notation(m_env, ne);
         return true;
     } else {
         return false;

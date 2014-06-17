@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <utility>
 #include <limits>
 #include <string>
 #include "kernel/abstract.h"
@@ -21,6 +22,11 @@ static name g_foldr("foldr");
 static name g_foldl("foldl");
 static name g_binder("binder");
 static name g_binders("binders");
+static name g_infix("infix");
+static name g_infixl("infixl");
+static name g_infixr("infixr");
+static name g_postfix("postfix");
+static name g_notation("notation");
 
 static std::string parse_symbol(parser & p, char const * msg) {
     name n;
@@ -71,14 +77,15 @@ using notation::mk_skip_action;
 using notation::transition;
 using notation::action;
 
-static environment mixfix_cmd(parser & p, mixfix_kind k, bool overload) {
+static std::pair<notation_entry, optional<token_entry>> parse_mixfix_notation(parser & p, mixfix_kind k, bool overload) {
     std::string tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
     optional<unsigned> prec = parse_optional_precedence(p);
-    environment env = p.env();
+    environment const & env = p.env();
+    optional<token_entry> new_token;
     if (!prec) {
         prec = get_precedence(get_token_table(env), tk.c_str());
     } else if (prec != get_precedence(get_token_table(env), tk.c_str())) {
-        env = add_token(env, tk.c_str(), *prec);
+        new_token = token_entry(tk.c_str(), *prec);
     }
 
     if (!prec)
@@ -91,21 +98,44 @@ static environment mixfix_cmd(parser & p, mixfix_kind k, bool overload) {
     char const * tks = tk.c_str();
     switch (k) {
     case mixfix_kind::infixl:
-        return add_led_notation(env, {transition(tks, mk_expr_action(*prec))}, mk_app(f, Var(1), Var(0)), overload);
+        return mk_pair(notation_entry(false, list<transition>(transition(tks, mk_expr_action(*prec))),
+                                      mk_app(f, Var(1), Var(0)), overload),
+                       new_token);
     case mixfix_kind::infixr:
-        return add_led_notation(env, {transition(tks, mk_expr_action(*prec-1))}, mk_app(f, Var(1), Var(0)), overload);
+        return mk_pair(notation_entry(false, list<transition>(transition(tks, mk_expr_action(*prec-1))),
+                                      mk_app(f, Var(1), Var(0)), overload),
+                       new_token);
     case mixfix_kind::postfix:
-        return add_led_notation(env, {transition(tks, mk_skip_action())}, mk_app(f, Var(0)), overload);
+        return mk_pair(notation_entry(false, list<transition>(transition(tks, mk_skip_action())),
+                                      mk_app(f, Var(0)), overload),
+                       new_token);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+static notation_entry parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, buffer<token_entry> & new_tokens) {
+    auto nt = parse_mixfix_notation(p, k, overload);
+    if (nt.second)
+        new_tokens.push_back(*nt.second);
+    return nt.first;
+}
+
+static environment mixfix_cmd(parser & p, mixfix_kind k, bool overload) {
+    auto nt = parse_mixfix_notation(p, k, overload);
+    environment env = p.env();
+    if (nt.second)
+        env = add_token(env, *nt.second);
+    env = add_notation(env, nt.first);
+    return env;
 }
 
 environment infixl_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mixfix_kind::infixl, overload); }
 environment infixr_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mixfix_kind::infixr, overload); }
 environment postfix_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mixfix_kind::postfix, overload); }
 
-static name parse_quoted_symbol(parser & p, environment & env) {
+static name parse_quoted_symbol(parser & p, buffer<token_entry> & new_tokens) {
     if (p.curr_is_quoted_symbol()) {
+        environment const & env = p.env();
         auto tk   = p.get_name_val();
         auto tks  = tk.to_string();
         auto tkcs = tks.c_str();
@@ -115,9 +145,9 @@ static name parse_quoted_symbol(parser & p, environment & env) {
             unsigned prec = parse_precedence(p, "invalid notation declaration, precedence (small numeral) expected");
             auto old_prec = get_precedence(get_token_table(env), tkcs);
             if (!old_prec || prec != *old_prec)
-                env = add_token(env, tkcs, prec);
+                new_tokens.push_back(token_entry(tkcs, prec));
         } else if (!get_precedence(get_token_table(env), tkcs)) {
-            env = add_token(env, tkcs, 0);
+            new_tokens.push_back(token_entry(tkcs, 0));
         }
         return tk;
     } else {
@@ -144,7 +174,7 @@ static void parse_notation_local(parser & p, buffer<expr> & locals) {
     }
 }
 
-static action parse_action(parser & p, environment & env, buffer<expr> & locals) {
+static action parse_action(parser & p, buffer<expr> & locals, buffer<token_entry> & new_tokens) {
     if (p.curr_is_token(g_colon)) {
         p.next();
         if (p.curr_is_numeral()) {
@@ -159,7 +189,7 @@ static action parse_action(parser & p, environment & env, buffer<expr> & locals)
                 bool is_fold_right = p.curr_is_token_or_id(g_foldr);
                 p.next();
                 auto prec = parse_optional_precedence(p);
-                name sep  = parse_quoted_symbol(p, env);
+                name sep  = parse_quoted_symbol(p, new_tokens);
                 expr rec;
                 {
                     parser::local_scope scope(p);
@@ -197,8 +227,7 @@ static action parse_action(parser & p, environment & env, buffer<expr> & locals)
     }
 }
 
-environment notation_cmd_core(parser & p, bool overload) {
-    environment env = p.env();
+notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry> & new_tokens) {
     buffer<expr>       locals;
     buffer<transition> ts;
     parser::local_scope scope(p);
@@ -208,7 +237,7 @@ environment notation_cmd_core(parser & p, bool overload) {
         is_nud = false;
     }
     while (!p.curr_is_token(g_assign)) {
-        name tk = parse_quoted_symbol(p, env);
+        name tk = parse_quoted_symbol(p, new_tokens);
         if (p.curr_is_quoted_symbol() || p.curr_is_token(g_assign)) {
             ts.push_back(transition(tk, mk_skip_action()));
         } else if (p.curr_is_token_or_id(g_binder)) {
@@ -220,7 +249,7 @@ environment notation_cmd_core(parser & p, bool overload) {
         } else if (p.curr_is_identifier()) {
             name n   = p.get_name_val();
             p.next();
-            action a = parse_action(p, env, locals);
+            action a = parse_action(p, locals, new_tokens);
             expr l = mk_local(n, g_local_type);
             p.add_local_expr(n, l);
             locals.push_back(l);
@@ -233,9 +262,39 @@ environment notation_cmd_core(parser & p, bool overload) {
     if (ts.empty())
         throw parser_error("invalid notation declaration, empty notation is not allowed", p.pos());
     expr n = parse_notation_expr(p, locals);
-    if (is_nud)
-        return add_nud_notation(env, ts.size(), ts.data(), n, overload);
-    else
-        return add_led_notation(env, ts.size(), ts.data(), n, overload);
+    return notation_entry(is_nud, to_list(ts.begin(), ts.end()), n, overload);
+}
+
+environment notation_cmd_core(parser & p, bool overload) {
+    environment env = p.env();
+    buffer<token_entry> new_tokens;
+    auto ne = parse_notation_core(p, overload, new_tokens);
+    for (auto const & te : new_tokens)
+        env = add_token(env, te);
+    env = add_notation(env, ne);
+    return env;
+}
+
+bool curr_is_notation_decl(parser & p) {
+    return p.curr_is_token(g_infix) || p.curr_is_token(g_infixl) || p.curr_is_token(g_infixr) ||
+        p.curr_is_token(g_postfix) || p.curr_is_token(g_notation);
+}
+
+notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & new_tokens) {
+    if (p.curr_is_token(g_infix) || p.curr_is_token(g_infixl)) {
+        p.next();
+        return parse_mixfix_notation(p, mixfix_kind::infixl, overload, new_tokens);
+    } else if (p.curr_is_token(g_infixr)) {
+        p.next();
+        return parse_mixfix_notation(p, mixfix_kind::infixr, overload, new_tokens);
+    } else if (p.curr_is_token(g_postfix)) {
+        p.next();
+        return parse_mixfix_notation(p, mixfix_kind::postfix, overload, new_tokens);
+    } else if (p.curr_is_token(g_notation)) {
+        p.next();
+        return parse_notation_core(p, overload, new_tokens);
+    } else {
+        throw parser_error("invalid notation, 'infix', 'infixl', 'infixr', 'postfix' or 'notation' expected", p.pos());
+    }
 }
 }

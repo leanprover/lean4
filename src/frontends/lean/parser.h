@@ -69,6 +69,10 @@ class parser {
     // if it is false, then it is parsed as Type.{l} where l is a fresh parameter,
     // and is automatically inserted into m_local_level_decls.
     bool                    m_type_use_placeholder;
+    // By default, when the parser finds a unknown identifier, it signs an error.
+    // When the following flag is true, it creates a constant.
+    // This flag is when we are trying to parse mutually recursive declarations.
+    bool                    m_no_undef_id_error;
 
     void display_error_pos(unsigned line, unsigned pos);
     void display_error_pos(pos_info p);
@@ -244,6 +248,14 @@ public:
 
     /** \brief Use tactic \c t for "synthesizing" the placeholder \c e. */
     void save_hint(expr const & e, tactic const & t);
+
+    /**
+        \brief By default, when the parser finds a unknown identifier, it signs an error.
+        This scope object temporarily changes this behavior. In any scope where this object
+        is declared, the parse creates a constant even when the identifier is unknown.
+        This behavior is useful when we are trying to parse mutually recursive declarations.
+    */
+    struct no_undef_id_error_scope { parser & m_p; bool m_old; no_undef_id_error_scope(parser &); ~no_undef_id_error_scope(); };
 
     expr elaborate(expr const & e, level_param_names const &);
     std::pair<expr, expr> elaborate(expr const & t, expr const & v, level_param_names const &);

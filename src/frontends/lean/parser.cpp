@@ -53,9 +53,15 @@ parser::local_scope::~local_scope() {
 parser::param_universe_scope::param_universe_scope(parser & p):m_p(p), m_old(m_p.m_type_use_placeholder) {
     m_p.m_type_use_placeholder = false;
 }
-
 parser::param_universe_scope::~param_universe_scope() {
     m_p.m_type_use_placeholder = m_old;
+}
+
+parser::no_undef_id_error_scope::no_undef_id_error_scope(parser & p):m_p(p), m_old(m_p.m_no_undef_id_error) {
+    m_p.m_no_undef_id_error = true;
+}
+parser::no_undef_id_error_scope::~no_undef_id_error_scope() {
+    m_p.m_no_undef_id_error = m_old;
 }
 
 parser::parser(environment const & env, io_state const & ios,
@@ -70,6 +76,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_scanner.set_line(line);
     m_num_threads = num_threads;
     m_type_use_placeholder = true;
+    m_no_undef_id_error    = false;
     m_found_errors = false;
     updt_options();
     m_next_tag_idx = 0;
@@ -740,6 +747,8 @@ expr parser::parse_id() {
         }
         r = mk_choice(new_as.size(), new_as.data());
     }
+    if (m_no_undef_id_error)
+        r = mk_constant(id, ls);
     if (!r)
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
     return *r;

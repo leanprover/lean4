@@ -169,6 +169,8 @@ public:
     /** \brief Return true iff the current token is a keyword */
     bool curr_is_keyword() const { return curr() == scanner::token_kind::Keyword; }
     /** \brief Return true iff the current token is a keyword */
+    bool curr_is_command() const { return curr() == scanner::token_kind::CommandKeyword; }
+    /** \brief Return true iff the current token is a keyword */
     bool curr_is_quoted_symbol() const { return curr() == scanner::token_kind::QuotedSymbol; }
     /** \brief Return true if the current token is a keyword named \c tk or an identifier named \c tk */
     bool curr_is_token_or_id(name const & tk) const;

@@ -35,7 +35,7 @@ struct token_config {
         s.m_table = add_token(s.m_table, e.m_token.c_str(), e.m_prec);
     }
     static name const & get_class_name() {
-        static name g_class_name("token");
+        static name g_class_name("notation");
         return g_class_name;
     }
     static std::string const & get_serialization_key() {

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "util/sstream.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
 #include "library/io_state_stream.h"
 #include "library/scoped_ext.h"
@@ -23,6 +24,8 @@ static name g_colon(":");
 static name g_assign(":=");
 static name g_private("[private]");
 static name g_inline("[inline]");
+static name g_true("true");
+static name g_false("false");
 
 static void check_atomic(name const & n) {
     if (!n.is_atomic())
@@ -318,8 +321,48 @@ environment exit_cmd(parser &) {
     throw interrupt_parser();
 }
 
+environment set_option_cmd(parser & p) {
+    auto id_pos = p.pos();
+    name id = p.check_id_next("invalid set option, identifier (i.e., option name) expected");
+    auto decl_it = get_option_declarations().find(id);
+    if (decl_it == get_option_declarations().end()) {
+        // add "lean" prefix
+        name lean_id = name("lean") + id;
+        decl_it = get_option_declarations().find(lean_id);
+        if (decl_it == get_option_declarations().end()) {
+            throw parser_error(sstream() << "unknown option '" << id << "', type 'help options.' for list of available options", id_pos);
+        } else {
+            id = lean_id;
+        }
+    }
+    option_kind k = decl_it->second.kind();
+    if (k == BoolOption) {
+        if (p.curr_is_token_or_id(g_true))
+            p.set_option(id, true);
+        else if (p.curr_is_token_or_id(g_false))
+            p.set_option(id, false);
+        else
+            throw parser_error("invalid Boolean option value, 'true' or 'false' expected", p.pos());
+        p.next();
+    } else if (k == StringOption) {
+        if (!p.curr_is_string())
+            throw parser_error("invalid option value, given option is not a string", p.pos());
+        p.set_option(id, p.get_str_val());
+        p.next();
+    } else if (k == DoubleOption) {
+        p.set_option(id, p.parse_double());
+    } else if (k == UnsignedOption || k == IntOption) {
+        p.set_option(id, p.parse_small_nat());
+    } else {
+        throw parser_error("invalid option value, 'true', 'false', string, integer or decimal value expected", p.pos());
+    }
+    p.updt_options();
+    return p.env();
+}
+
 cmd_table init_cmd_table() {
     cmd_table r;
+    add_cmd(r, cmd_info("set_option",   "set configuration option", set_option_cmd));
     add_cmd(r, cmd_info("exit",         "exit", exit_cmd));
     add_cmd(r, cmd_info("print",        "print a string", print_cmd));
     add_cmd(r, cmd_info("universe",     "declare a global universe level", universe_cmd));

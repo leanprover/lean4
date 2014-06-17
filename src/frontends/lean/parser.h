@@ -93,8 +93,6 @@ class parser {
     expr copy_with_new_pos(expr const & e, pos_info p);
     expr propagate_levels(expr const & e, levels const & ls);
 
-    void updt_options();
-
     cmd_table const & cmds() const { return get_cmd_table(env()); }
     parse_table const & nud() const { return get_nud_table(env()); }
     parse_table const & led() const { return get_led_table(env()); }
@@ -146,6 +144,9 @@ public:
     local_level_decls const & get_local_level_decls() const { return m_local_level_decls; }
     local_expr_decls const & get_local_expr_decls() const { return m_local_decls; }
 
+    void updt_options();
+    template<typename T> void set_option(name const & n, T const & v) { m_ios.set_option(n, v); }
+
     /** \brief Return the current position information */
     pos_info pos() const { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }
     expr save_pos(expr e, pos_info p);
@@ -192,6 +193,7 @@ public:
     void parse_names(buffer<std::pair<pos_info, name>> & result);
     unsigned get_small_nat();
     unsigned parse_small_nat();
+    double parse_double();
 
     bool parse_local_notation_decl();
 

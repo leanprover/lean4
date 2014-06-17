@@ -357,9 +357,17 @@ unsigned parser::get_small_nat() {
 }
 
 unsigned parser::parse_small_nat() {
+    if (!curr_is_numeral())
+        throw parser_error("(small) natural number expected", pos());
     unsigned r = get_small_nat();
     next();
     return r;
+}
+
+double parser::parse_double() {
+    if (curr() != scanner::token_kind::Decimal)
+        throw parser_error("decimal value expected", pos());
+    return get_num_val().get_double();
 }
 
 static level lift(level l, unsigned k) {

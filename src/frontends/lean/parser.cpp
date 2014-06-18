@@ -1049,11 +1049,61 @@ static unsigned to_rbp(lua_State * L, int idx) {
     return idx < nargs ? 0 : lua_tointeger(L, idx);
 }
 
+typedef std::pair<local_environment, std::vector<parameter>> local_scope_cell;
+typedef std::shared_ptr<local_scope_cell> local_scope;
+DECL_UDATA(local_scope);
+static const struct luaL_Reg local_scope_m[] = {
+    {"__gc",  local_scope_gc},
+    {0, 0}
+};
+int push_local_scope_ext(lua_State * L, local_environment const & lenv, buffer<parameter> const & ps) {
+    local_scope r = std::make_shared<local_scope_cell>();
+    r->first = lenv;
+    for (auto const & p : ps)
+        r->second.push_back(p);
+    return push_local_scope(L, r);
+}
+
+static void open_local_scope(lua_State * L) {
+    luaL_newmetatable(L, local_scope_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, local_scope_m, 0);
+
+    SET_GLOBAL_FUN(local_scope_pred, "is_local_scope");
+}
+
 #define gparser get_global_parser(L)
 
 static int parse_level(lua_State * L) {  return push_level(L, gparser.parse_level(to_rbp(L, 1))); }
 static int parse_expr(lua_State * L) { return push_expr(L, gparser.parse_expr(to_rbp(L, 1))); }
 static int parse_led(lua_State * L) { return push_expr(L, gparser.parse_led(to_expr(L, 1))); }
+static int parse_binders(lua_State * L) {
+    buffer<parameter> ps;
+    auto lenv = gparser.parse_binders(ps);
+    return push_local_scope_ext(L, lenv, ps);
+}
+static int parse_binder(lua_State * L) {
+    buffer<parameter> ps;
+    ps.push_back(gparser.parse_binder());
+    return push_local_scope_ext(L, gparser.env(), ps);
+}
+static int parse_scoped_expr(lua_State * L) {
+    local_scope const & s = to_local_scope(L, 1);
+    unsigned rbp    = to_rbp(L, 2);
+    return push_expr(L, gparser.parse_scoped_expr(s->second.size(), s->second.data(), s->first, rbp));
+}
+static int lambda_abstract(lua_State * L) {
+    int nargs = lua_gettop(L);
+    local_scope const & s = to_local_scope(L, 1);
+    expr const & e = to_expr(L, 2);
+    expr r;
+    if (nargs == 2)
+        r = gparser.abstract(s->second.size(), s->second.data(), e, true, gparser.pos_of(e));
+    else
+        r = gparser.abstract(s->second.size(), s->second.data(), e, true, pos_info(lua_tointeger(L, 3), lua_tointeger(L, 4)));
+    return push_expr(L, r);
+}
 static int next(lua_State * L) { gparser.next(); return 0; }
 static int curr(lua_State * L) { return push_integer(L, static_cast<unsigned>(gparser.curr())); }
 static int curr_is_token(lua_State * L) { return push_boolean(L, gparser.curr_is_token(to_name_ext(L, 1))); }
@@ -1090,10 +1140,17 @@ static int env(lua_State * L) { return push_environment(L, gparser.env()); }
 static int ios(lua_State * L) { return push_io_state(L, gparser.ios()); }
 
 void open_parser(lua_State * L) {
+    open_local_scope(L);
+
     lua_newtable(L);
     SET_FUN(parse_expr,            "parse_expr");
     SET_FUN(parse_level,           "parse_level");
     SET_FUN(parse_led,             "parse_led");
+    SET_FUN(parse_binders,         "parse_binders");
+    SET_FUN(parse_binder,          "parse_binder");
+    SET_FUN(parse_scoped_expr,     "parse_scoped_expr");
+    SET_FUN(lambda_abstract,       "lambda_abstract");
+    SET_FUN(lambda_abstract,       "abstract");
     SET_FUN(next,                  "next");
     SET_FUN(curr,                  "curr");
     SET_FUN(curr_is_token,         "curr_is_token");

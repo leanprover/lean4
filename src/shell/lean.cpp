@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "util/script_state.h"
 #include "util/thread.h"
+#include "util/thread_script_state.h"
 #include "util/lean_path.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
@@ -188,11 +189,9 @@ int main(int argc, char ** argv) {
     if (quiet)
         ios.set_option("verbose", false);
 
-    script_state S;
-    S.apply([&](lua_State * L) {
-            set_global_environment(L, env);
-            set_global_io_state(L, ios);
-        });
+    script_state S = lean::get_thread_script_state();
+    set_global_environment(S.get_state(), env);
+    set_global_io_state(S.get_state(), ios);
 
     try {
         bool ok = true;
@@ -207,7 +206,7 @@ int main(int argc, char ** argv) {
                 }
             }
             if (k == input_kind::Lean) {
-                if (!parse_commands(env, ios, argv[i], &S, false, num_threads))
+                if (!parse_commands(env, ios, argv[i], false, num_threads))
                     ok = false;
             } else if (k == input_kind::Lua) {
                 try {
@@ -222,7 +221,7 @@ int main(int argc, char ** argv) {
         }
         if (ok && interactive && default_k == input_kind::Lean) {
             signal(SIGINT, on_ctrl_c);
-            lean::interactive in(env, ios, S, num_threads);
+            lean::interactive in(env, ios, num_threads);
             in(std::cin, "[stdin]");
         }
         if (export_objects) {

@@ -7,8 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include <lua.hpp>
-#include "util/thread.h"
-#include "util/unlock_guard.h"
 
 namespace lean {
 /**
@@ -20,8 +18,6 @@ public:
 private:
     std::shared_ptr<imp> m_ptr;
     friend script_state to_script_state(lua_State * L);
-    mutex & get_mutex();
-    lua_State * get_state();
     friend class data_channel;
 public:
     static void set_check_interrupt_freq(unsigned count);
@@ -55,34 +51,10 @@ public:
     */
     bool import_explicit(char const * fname);
 
-    /**
-       \brief Execute \c f in the using the internal Lua State.
-    */
-    template<typename F>
-    typename std::result_of<F(lua_State * L)>::type apply(F && f) {
-        lock_guard<mutex> lock(get_mutex());
-        return f(get_state());
-    }
+    lua_State * get_state();
 
     typedef void (*reg_fn)(lua_State *); // NOLINT
     static void register_module(reg_fn f);
-
-    /**
-       \brief Auxiliary function for writing API bindings
-       that release the lock to this object while executing
-       \c f.
-    */
-    template<typename F>
-    void exec_unprotected(F && f) {
-        unlock_guard unlock(get_mutex());
-        f();
-    }
-
-    template<typename F>
-    void exec_protected(F && f) {
-        lock_guard<mutex> lock(get_mutex());
-        f();
-    }
 };
 /**
    \brief Return a reference to the script_state object that is wrapping \c L.

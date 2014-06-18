@@ -102,10 +102,10 @@ struct scoped_set_parser {
 
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name,
-               script_state * ss, bool use_exceptions, unsigned num_threads,
+               bool use_exceptions, unsigned num_threads,
                local_level_decls const & lds, local_expr_decls const & eds,
                unsigned line):
-    m_env(env), m_ios(ios), m_ss(ss),
+    m_env(env), m_ios(ios),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name), m_local_level_decls(lds), m_local_decls(eds),
     m_pos_table(std::make_shared<pos_info_table>()) {
@@ -731,8 +731,6 @@ expr parser::parse_notation(parse_table t, expr * left) {
             break;
         }
         case notation::action_kind::LuaExt:
-            if (!m_ss)
-                throw parser_error("failed to use notation implemented in Lua, parser does not contain a Lua state", p);
             using_script([&](lua_State * L) {
                     scoped_set_parser scope(L, *this);
                     lua_getglobal(L, a.get_lua_fn().c_str());
@@ -955,8 +953,6 @@ void parser::parse_command() {
 
 void parser::parse_script(bool as_expr) {
     m_last_script_pos = pos();
-    if (!m_ss)
-        throw exception("failed to execute Lua script, parser does not have a Lua interpreter");
     std::string script_code = m_scanner.get_str_val();
     if (as_expr)
         script_code = "return " + script_code;
@@ -983,8 +979,6 @@ void parser::parse_imports() {
         while (curr_is_identifier()) {
             name f            = get_name_val();
             if (auto it = find_file(f, ".lua")) {
-                if (!m_ss)
-                    throw parser_error("invalid import, Lua interpreter is not available", pos());
                 lua_files.push_back(*it);
             } else if (auto it = find_file(f, ".olean")) {
                 olean_files.push_back(*it);
@@ -995,11 +989,10 @@ void parser::parse_imports() {
         }
     }
     m_env = import_modules(m_env, olean_files.size(), olean_files.data(), m_num_threads, true, m_ios);
-    using_script([&](lua_State *) { // NOLINT
-            m_ss->exec_unprotected([&]() {
-                    for (auto const & f : lua_files) {
-                        m_ss->import_explicit(f.c_str());
-                    }});
+    using_script([&](lua_State * L) {
+            for (auto const & f : lua_files) {
+                to_script_state(L).import_explicit(f.c_str());
+            }
         });
 }
 
@@ -1037,29 +1030,27 @@ bool parser::parse_commands() {
     return !m_found_errors;
 }
 
-bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, script_state * S, bool use_exceptions,
+bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions,
                     unsigned num_threads) {
-    parser p(env, ios, in, strm_name, S, use_exceptions, num_threads);
+    parser p(env, ios, in, strm_name, use_exceptions, num_threads);
     bool r = p();
     ios = p.ios();
     env = p.env();
     return r;
 }
 
-bool parse_commands(environment & env, io_state & ios, char const * fname, script_state * S, bool use_exceptions, unsigned num_threads) {
+bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads) {
     std::ifstream in(fname);
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");
-    return parse_commands(env, ios, in, fname, S, use_exceptions, num_threads);
+    return parse_commands(env, ios, in, fname, use_exceptions, num_threads);
 }
 
 static int parse_expr(lua_State * L) {
     script_state S = to_script_state(L);
     int nargs = lua_gettop(L);
     expr r;
-    S.exec_unprotected([&]() {
-            r = get_global_parser(L).parse_expr(nargs == 0 ? 0 : lua_tointeger(L, 1));
-        });
+    r = get_global_parser(L).parse_expr(nargs == 0 ? 0 : lua_tointeger(L, 1));
     return push_expr(L, r);
 }
 

@@ -12,9 +12,9 @@ Author: Leonardo de Moura
 #include "frontends/lean/interactive.h"
 
 namespace lean {
-interactive::interactive(environment const & env, io_state const & ios, script_state const & ss, unsigned num_threads,
+interactive::interactive(environment const & env, io_state const & ios, unsigned num_threads,
                          char const * ack_cmd, char const * snapshot_cmd, char const * restore_cmd, char const * restart_cmd):
-    m_env(env), m_ios(ios), m_ss(ss), m_num_threads(num_threads), m_line(1),
+    m_env(env), m_ios(ios), m_num_threads(num_threads), m_line(1),
     m_ack_cmd(ack_cmd), m_snapshot_cmd(snapshot_cmd), m_restore_cmd(restore_cmd), m_restart_cmd(restart_cmd) {
     save_snapshot();
 }
@@ -22,7 +22,7 @@ interactive::interactive(environment const & env, io_state const & ios, script_s
 void interactive::parse_block(std::string const & str, char const * strm_name) {
     if (str.size() > 0) {
         std::istringstream block(str);
-        parser p(m_env, m_ios, block, strm_name, &m_ss, false, m_num_threads, m_lds, m_eds, m_line);
+        parser p(m_env, m_ios, block, strm_name, false, m_num_threads, m_lds, m_eds, m_line);
         p();
         m_env  = p.env();
         m_ios  = p.ios();

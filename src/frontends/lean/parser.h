@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 #include "util/name_map.h"
 #include "util/exception.h"
+#include "util/thread_script_state.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/io_state.h"
@@ -49,7 +50,6 @@ typedef std::unordered_map<unsigned, tactic> hint_table;
 class parser {
     environment             m_env;
     io_state                m_ios;
-    script_state *          m_ss;
     bool                    m_verbose;
     bool                    m_use_exceptions;
     bool                    m_show_errors;
@@ -86,11 +86,10 @@ class parser {
     void protected_call(std::function<void()> && f, std::function<void()> && sync);
     template<typename F>
     typename std::result_of<F(lua_State * L)>::type using_script(F && f) {
-        return m_ss->apply([&](lua_State * L) {
-                set_io_state    set1(L, m_ios);
-                set_environment set2(L, m_env);
-                return f(L);
-            });
+        script_state S = get_thread_script_state();
+        set_io_state    set1(S.get_state(), m_ios);
+        set_environment set2(S.get_state(), m_env);
+        return f(S.get_state());
     }
 
     tag get_tag(expr e);
@@ -134,15 +133,13 @@ class parser {
 public:
     parser(environment const & env, io_state const & ios,
            std::istream & strm, char const * str_name,
-           script_state * ss = nullptr, bool use_exceptions = false,
-           unsigned num_threads = 1,
+           bool use_exceptions = false, unsigned num_threads = 1,
            local_level_decls const & lds = local_level_decls(),
            local_expr_decls const & eds = local_expr_decls(),
            unsigned line = 1);
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
-    script_state * ss() const { return m_ss; }
     local_level_decls const & get_local_level_decls() const { return m_local_level_decls; }
     local_expr_decls const & get_local_expr_decls() const { return m_local_decls; }
 
@@ -266,9 +263,7 @@ public:
     bool operator()() { return parse_commands(); }
 };
 
-bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,
-                    script_state * S, bool use_exceptions, unsigned num_threads);
-bool parse_commands(environment & env, io_state & ios, char const * fname, script_state * S,
-                    bool use_exceptions, unsigned num_threads);
+bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions, unsigned num_threads);
+bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads);
 void open_parser(lua_State * L);
 }

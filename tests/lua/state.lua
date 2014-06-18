@@ -1,5 +1,0 @@
-s = State()
-s:eval([[ y = 5; print(x); print(y); ]])
-s:set("x", 10)
-s:set("y", nil)
-s:eval([[ print(x); print(y); ]])

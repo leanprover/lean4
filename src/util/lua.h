@@ -45,6 +45,7 @@ template<lua_CFunction F> void set_global_function(lua_State * L, char const * n
     lua_setglobal(L, name);
 }
 #define SET_GLOBAL_FUN(F, N) set_global_function<F>(L, N)
+#define SET_FUN(F, N) lua_pushstring(L, N); lua_pushcfunction(L, safe_function<F>); lua_settable(L, -3)
 
 // Auxiliary macro for creating a Lua table that stores enumeration values
 #define SET_ENUM(N, V) lua_pushstring(L, N); lua_pushinteger(L, static_cast<int>(V)); lua_settable(L, -3)

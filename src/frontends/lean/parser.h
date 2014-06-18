@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/name_map.h"
 #include "util/exception.h"
 #include "util/thread_script_state.h"
+#include "util/script_exception.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/io_state.h"
@@ -86,10 +87,14 @@ class parser {
     void protected_call(std::function<void()> && f, std::function<void()> && sync);
     template<typename F>
     typename std::result_of<F(lua_State * L)>::type using_script(F && f) {
-        script_state S = get_thread_script_state();
-        set_io_state    set1(S, m_ios);
-        set_environment set2(S, m_env);
-        return f(S.get_state());
+        try {
+            script_state S = get_thread_script_state();
+            set_io_state    set1(S, m_ios);
+            set_environment set2(S, m_env);
+            return f(S.get_state());
+        } catch (script_nested_exception & ex) {
+            ex.get_exception().rethrow();
+        }
     }
 
     tag get_tag(expr e);

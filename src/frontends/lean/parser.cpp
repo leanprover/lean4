@@ -731,6 +731,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
             break;
         }
         case notation::action_kind::LuaExt:
+            m_last_script_pos = p;
             using_script([&](lua_State * L) {
                     scoped_set_parser scope(L, *this);
                     lua_getglobal(L, a.get_lua_fn().c_str());
@@ -745,7 +746,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
                     if (!is_expr(L, -1))
                         throw parser_error(sstream() << "failed to use notation implemented in Lua, value returned by function '"
                                            << a.get_lua_fn() << "' is not an expression", p);
-                    args.push_back(to_expr(L, -1));
+                    args.push_back(rec_save_pos(to_expr(L, -1), p));
                     lua_pop(L, 1);
                 });
             break;
@@ -1043,15 +1044,84 @@ bool parse_commands(environment & env, io_state & ios, char const * fname, bool 
     return parse_commands(env, ios, in, fname, use_exceptions, num_threads);
 }
 
-static int parse_expr(lua_State * L) {
-    script_state S = to_script_state(L);
+static unsigned to_rbp(lua_State * L, int idx) {
     int nargs = lua_gettop(L);
-    expr r;
-    r = get_global_parser(L).parse_expr(nargs == 0 ? 0 : lua_tointeger(L, 1));
-    return push_expr(L, r);
+    return idx < nargs ? 0 : lua_tointeger(L, idx);
 }
 
+#define gparser get_global_parser(L)
+
+static int parse_level(lua_State * L) {  return push_level(L, gparser.parse_level(to_rbp(L, 1))); }
+static int parse_expr(lua_State * L) { return push_expr(L, gparser.parse_expr(to_rbp(L, 1))); }
+static int parse_led(lua_State * L) { return push_expr(L, gparser.parse_led(to_expr(L, 1))); }
+static int next(lua_State * L) { gparser.next(); return 0; }
+static int curr(lua_State * L) { return push_integer(L, static_cast<unsigned>(gparser.curr())); }
+static int curr_is_token(lua_State * L) { return push_boolean(L, gparser.curr_is_token(to_name_ext(L, 1))); }
+static int curr_is_token_or_id(lua_State * L) { return push_boolean(L, gparser.curr_is_token_or_id(to_name_ext(L, 1))); }
+static int curr_is_identifier(lua_State * L) { return push_boolean(L, gparser.curr_is_identifier()); }
+static int curr_is_numeral(lua_State * L) { return push_boolean(L, gparser.curr_is_numeral()); }
+static int curr_is_string(lua_State * L) { return push_boolean(L, gparser.curr_is_string()); }
+static int curr_is_keyword(lua_State * L) { return push_boolean(L, gparser.curr_is_keyword()); }
+static int curr_is_command(lua_State * L) { return push_boolean(L, gparser.curr_is_command()); }
+static int curr_is_quoted_symbol(lua_State * L) { return push_boolean(L, gparser.curr_is_quoted_symbol()); }
+static int check_token_next(lua_State * L) { gparser.check_token_next(to_name_ext(L, 1), lua_tostring(L, 2)); return 0; }
+static int check_id_next(lua_State * L) { return push_name(L, gparser.check_id_next(lua_tostring(L, 1))); }
+static int pos(lua_State * L) {
+    auto pos = gparser.pos();
+    push_integer(L, pos.first);
+    push_integer(L, pos.second);
+    return 2;
+}
+static int save_pos(lua_State * L) {
+    return push_expr(L, gparser.save_pos(to_expr(L, 1), pos_info(lua_tointeger(L, 2), lua_tointeger(L, 3))));
+}
+static int pos_of(lua_State * L) {
+    int nargs = lua_gettop(L);
+    pos_info pos;
+    if (nargs == 1)
+        pos = gparser.pos_of(to_expr(L, 1));
+    else
+        pos = gparser.pos_of(to_expr(L, 1), pos_info(lua_tointeger(L, 2), lua_tointeger(L, 3)));
+    push_integer(L, pos.first);
+    push_integer(L, pos.second);
+    return 2;
+}
+static int env(lua_State * L) { return push_environment(L, gparser.env()); }
+static int ios(lua_State * L) { return push_io_state(L, gparser.ios()); }
+
 void open_parser(lua_State * L) {
-    SET_GLOBAL_FUN(parse_expr, "parse_expr");
+    lua_newtable(L);
+    SET_FUN(parse_expr,            "parse_expr");
+    SET_FUN(parse_level,           "parse_level");
+    SET_FUN(parse_led,             "parse_led");
+    SET_FUN(next,                  "next");
+    SET_FUN(curr,                  "curr");
+    SET_FUN(curr_is_token,         "curr_is_token");
+    SET_FUN(curr_is_token_or_id,   "curr_is_token_or_id");
+    SET_FUN(curr_is_identifier,    "curr_is_identifier");
+    SET_FUN(curr_is_numeral,       "curr_is_numeral");
+    SET_FUN(curr_is_string,        "curr_is_string");
+    SET_FUN(curr_is_keyword,       "curr_is_keyword");
+    SET_FUN(curr_is_command,       "curr_is_command");
+    SET_FUN(curr_is_quoted_symbol, "curr_is_quoted_symbol");
+    SET_FUN(check_token_next,      "check_token_next");
+    SET_FUN(check_id_next,         "check_id_next");
+    SET_FUN(pos,                   "pos");
+    SET_FUN(save_pos,              "save_pos");
+    SET_FUN(pos_of,                "pos_of");
+    SET_FUN(env,                   "env");
+    SET_FUN(ios,                   "ios");
+    lua_setglobal(L, "parser");
+
+    lua_newtable(L);
+    SET_ENUM("Keyword",         scanner::token_kind::Keyword);
+    SET_ENUM("CommandKeyword",  scanner::token_kind::CommandKeyword);
+    SET_ENUM("ScriptBlock",     scanner::token_kind::ScriptBlock);
+    SET_ENUM("Identifier",      scanner::token_kind::Identifier);
+    SET_ENUM("Numeral",         scanner::token_kind::Numeral);
+    SET_ENUM("Decimal",         scanner::token_kind::Decimal);
+    SET_ENUM("String",          scanner::token_kind::String);
+    SET_ENUM("QuotedSymbol",    scanner::token_kind::QuotedSymbol);
+    lua_setglobal(L, "token_kind");
 }
 }

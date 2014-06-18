@@ -37,11 +37,9 @@ static const struct luaL_Reg name_set_m[] = {
     {"erase",    safe_function<name_set_erase>},
     {0, 0}
 };
-static void name_set_migrate(lua_State * src, int i, lua_State * tgt) { push_name_set(tgt, to_name_set(src, i)); }
 
 void open_name_set(lua_State * L) {
     luaL_newmetatable(L, name_set_mt);
-    set_migrate_fn_field(L, -1, name_set_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, name_set_m, 0);

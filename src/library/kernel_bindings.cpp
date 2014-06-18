@@ -817,13 +817,8 @@ static const struct luaL_Reg expr_m[] = {
 
 static int enable_expr_caching(lua_State * L) { return push_boolean(L, enable_expr_caching(lua_toboolean(L, 1))); }
 
-static void expr_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_expr(tgt, to_expr(src, i));
-}
-
 static void open_expr(lua_State * L) {
     luaL_newmetatable(L, expr_mt);
-    set_migrate_fn_field(L, -1, expr_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, expr_m, 0);
@@ -1128,13 +1123,8 @@ static const struct luaL_Reg certified_declaration_m[] = {
     {0, 0}
 };
 
-static void certified_declaration_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_certified_declaration(tgt, to_certified_declaration(src, i));
-}
-
 static void open_certified_declaration(lua_State * L) {
     luaL_newmetatable(L, certified_declaration_mt);
-    set_migrate_fn_field(L, -1, certified_declaration_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, certified_declaration_m, 0);
@@ -1328,13 +1318,8 @@ int set_environment(lua_State * L) {
     return 0;
 }
 
-static void environment_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_environment(tgt, to_environment(src, i));
-}
-
 static void open_environment(lua_State * L) {
     luaL_newmetatable(L, environment_mt);
-    set_migrate_fn_field(L, -1, environment_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, environment_m, 0);

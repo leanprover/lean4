@@ -171,31 +171,6 @@ int safe_function_wrapper(lua_State * L, lua_CFunction f) {
     return lua_error(L);
 }
 
-void set_migrate_fn_field(lua_State * L, int i, lua_migrate_fn fn) {
-    lean_assert(lua_istable(L, i));
-    lua_pushvalue(L, i); // copy table to the top of the stack
-    lua_pushlightuserdata(L, reinterpret_cast<void*>(fn));
-    lua_setfield(L, -2, "___migrate");
-    lua_pop(L, 1); // remove table from the stack
-}
-
-/**
-   \brief Return the value of the ___migrate field from metatable
-   for the userdata at position \c i.
-*/
-lua_migrate_fn get_migrate_fn(lua_State * L, int i) {
-    if (lua_getmetatable(L, i)) {
-        lua_getfield(L, -1, "___migrate");
-        if (lua_islightuserdata(L, -1)) {
-            lua_migrate_fn r = reinterpret_cast<lua_migrate_fn>(lua_touserdata(L, -1));
-            lua_pop(L, 2);
-            return r;
-        }
-        lua_pop(L, 2);
-    }
-    return nullptr;
-}
-
 void check_num_args(lua_State * L, int num) {
     if (lua_gettop(L) != num) throw exception("incorrect number of arguments to function");
 }

@@ -113,21 +113,6 @@ UDATA_DEFS_CORE(T)
 // =======================================
 
 // =======================================
-// Goodies for installing code for migrating objects
-// between different lua_State objects
-typedef void (*lua_migrate_fn)(lua_State * src, int i, lua_State * tgt);
-/**
-   \brief Set the field ___migrate in the metatable at position \c i with \c fn.
-*/
-void set_migrate_fn_field(lua_State * src, int i, lua_migrate_fn fn);
-/**
-   \brief Return the value of the ___migrate field from metatable
-   for the userdata at position \c i.
-*/
-lua_migrate_fn get_migrate_fn(lua_State * src, int i);
-// =======================================
-
-// =======================================
 // Useful macros
 inline int push_boolean(lua_State * L, bool b) { lua_pushboolean(L, b); return 1; }
 inline int push_string(lua_State * L, char const * s) { lua_pushstring(L, s); return 1; }

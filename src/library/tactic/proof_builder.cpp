@@ -129,21 +129,8 @@ static const struct luaL_Reg proof_builder_m[] = {
     {0, 0}
 };
 
-static void proof_map_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_proof_map(tgt, to_proof_map(src, i));
-}
-
-static void assignment_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_assignment(tgt, to_assignment(src, i));
-}
-
-static void proof_builder_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_proof_builder(tgt, to_proof_builder(src, i));
-}
-
 void open_proof_builder(lua_State * L) {
     luaL_newmetatable(L, proof_map_mt);
-    set_migrate_fn_field(L, -1, proof_map_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, proof_map_m, 0);
@@ -152,7 +139,6 @@ void open_proof_builder(lua_State * L) {
     SET_GLOBAL_FUN(mk_proof_map, "proof_map");
 
     luaL_newmetatable(L, assignment_mt);
-    set_migrate_fn_field(L, -1, assignment_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, assignment_m, 0);
@@ -161,7 +147,6 @@ void open_proof_builder(lua_State * L) {
     SET_GLOBAL_FUN(mk_assignment, "assignment");
 
     luaL_newmetatable(L, proof_builder_mt);
-    set_migrate_fn_field(L, -1, proof_builder_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, proof_builder_m, 0);

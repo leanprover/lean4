@@ -89,13 +89,8 @@ static const struct luaL_Reg exception_m[] = {
     {0, 0}
 };
 
-static void exception_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_exception(tgt, to_exception(src, i));
-}
-
 void open_exception(lua_State * L) {
     luaL_newmetatable(L, exception_mt);
-    set_migrate_fn_field(L, -1, exception_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, exception_m, 0);

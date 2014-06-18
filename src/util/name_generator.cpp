@@ -37,11 +37,9 @@ static const struct luaL_Reg name_generator_m[] = {
     {"mk_child", safe_function<name_generator_mk_child>},
     {0, 0}
 };
-static void name_generator_migrate(lua_State * src, int i, lua_State * tgt) { push_name_generator(tgt, to_name_generator(src, i)); }
 
 void open_name_generator(lua_State * L) {
     luaL_newmetatable(L, name_generator_mt);
-    set_migrate_fn_field(L, -1, name_generator_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, name_generator_m, 0);

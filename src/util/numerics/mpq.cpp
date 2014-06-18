@@ -234,13 +234,8 @@ static const struct luaL_Reg mpq_m[] = {
     {0, 0}
 };
 
-static void mpq_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_mpq(tgt, to_mpq(src, i));
-}
-
 void open_mpq(lua_State * L) {
     luaL_newmetatable(L, mpq_mt);
-    set_migrate_fn_field(L, -1, mpq_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, mpq_m, 0);

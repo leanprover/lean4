@@ -316,17 +316,8 @@ static const struct luaL_Reg proof_state_m[] = {
     {0, 0}
 };
 
-static void goals_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_goals(tgt, to_goals(src, i));
-}
-
-static void proof_state_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_proof_state(tgt, to_proof_state(src, i));
-}
-
 void open_proof_state(lua_State * L) {
     luaL_newmetatable(L, goals_mt);
-    set_migrate_fn_field(L, -1, goals_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, goals_m, 0);
@@ -335,7 +326,6 @@ void open_proof_state(lua_State * L) {
     SET_GLOBAL_FUN(mk_goals, "goals");
 
     luaL_newmetatable(L, proof_state_mt);
-    set_migrate_fn_field(L, -1, proof_state_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, proof_state_m, 0);

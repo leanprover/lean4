@@ -583,15 +583,10 @@ static const struct luaL_Reg name_m[] = {
     {0, 0}
 };
 
-static void name_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_name(tgt, to_name(src, i));
-}
-
 DEFINE_LUA_LIST(name, push_name, to_name_ext)
 
 void open_name(lua_State * L) {
     luaL_newmetatable(L, name_mt);
-    set_migrate_fn_field(L, -1, name_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, name_m, 0);

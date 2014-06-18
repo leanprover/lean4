@@ -73,13 +73,8 @@ static const struct luaL_Reg cex_builder_m[] = {
     {0, 0}
 };
 
-static void cex_builder_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_cex_builder(tgt, to_cex_builder(src, i));
-}
-
 void open_cex_builder(lua_State * L) {
     luaL_newmetatable(L, cex_builder_mt);
-    set_migrate_fn_field(L, -1, cex_builder_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, cex_builder_m, 0);

@@ -302,17 +302,8 @@ static const struct luaL_Reg goal_m[] = {
     {0, 0}
 };
 
-static void hypotheses_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_hypotheses(tgt, to_hypotheses(src, i));
-}
-
-static void goal_migrate(lua_State * src, int i, lua_State * tgt) {
-    push_goal(tgt, to_goal(src, i));
-}
-
 void open_goal(lua_State * L) {
     luaL_newmetatable(L, hypotheses_mt);
-    set_migrate_fn_field(L, -1, hypotheses_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, hypotheses_m, 0);
@@ -321,7 +312,6 @@ void open_goal(lua_State * L) {
     SET_GLOBAL_FUN(mk_hypotheses, "hypotheses");
 
     luaL_newmetatable(L, goal_mt);
-    set_migrate_fn_field(L, -1, goal_migrate);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, goal_m, 0);

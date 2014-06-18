@@ -989,11 +989,8 @@ void parser::parse_imports() {
         }
     }
     m_env = import_modules(m_env, olean_files.size(), olean_files.data(), m_num_threads, true, m_ios);
-    using_script([&](lua_State * L) {
-            for (auto const & f : lua_files) {
-                to_script_state(L).import_explicit(f.c_str());
-            }
-        });
+    for (auto const & f : lua_files)
+        system_import(f.c_str());
 }
 
 bool parser::parse_commands() {

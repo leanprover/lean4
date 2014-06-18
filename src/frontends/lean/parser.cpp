@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/deep_copy.h"
 #include "library/module.h"
+#include "library/scoped_ext.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/notation_cmd.h"
@@ -55,6 +56,13 @@ parser::param_universe_scope::param_universe_scope(parser & p):m_p(p), m_old(m_p
     m_p.m_type_use_placeholder = false;
 }
 parser::param_universe_scope::~param_universe_scope() {
+    m_p.m_type_use_placeholder = m_old;
+}
+
+parser::placeholder_universe_scope::placeholder_universe_scope(parser & p):m_p(p), m_old(m_p.m_type_use_placeholder) {
+    m_p.m_type_use_placeholder = true;
+}
+parser::placeholder_universe_scope::~placeholder_universe_scope() {
     m_p.m_type_use_placeholder = m_old;
 }
 
@@ -817,7 +825,7 @@ expr parser::parse_id() {
         r = mk_choice(new_as.size(), new_as.data());
     }
     if (m_no_undef_id_error)
-        r = mk_constant(id, ls);
+        r = mk_constant(get_namespace(m_env) + id, ls);
     if (!r)
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
     return *r;

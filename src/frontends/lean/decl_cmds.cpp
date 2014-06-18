@@ -38,7 +38,7 @@ environment universe_cmd(parser & p) {
     return env;
 }
 
-void parse_univ_params(parser & p, buffer<name> & ps) {
+bool parse_univ_params(parser & p, buffer<name> & ps) {
     if (p.curr_is_token(g_llevel_curly)) {
         p.next();
         while (!p.curr_is_token(g_rcurly)) {
@@ -47,10 +47,13 @@ void parse_univ_params(parser & p, buffer<name> & ps) {
             ps.push_back(l);
         }
         p.next();
+        return true;
+    } else{
+        return false;
     }
 }
 
-void update_parameters(buffer<name> & ls_buffer, name_set const & found, parser const & p) {
+void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found, parser const & p) {
     unsigned old_sz = ls_buffer.size();
     found.for_each([&](name const & n) {
             if (std::find(ls_buffer.begin(), ls_buffer.begin() + old_sz, n) == ls_buffer.begin() + old_sz)
@@ -107,7 +110,7 @@ environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi)
     if (in_section(p.env())) {
         ls = to_level_param_names(collect_univ_params(type));
     } else {
-        update_parameters(ls_buffer, collect_univ_params(type), p);
+        update_univ_parameters(ls_buffer, collect_univ_params(type), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
     type = p.elaborate(type, ls);
@@ -132,15 +135,20 @@ environment cast_variable_cmd(parser & p) {
     return variable_cmd_core(p, false, mk_cast_binder_info());
 }
 
-// Collect local (section) constants occurring in type and value, sort them, and store in section_ps
-void collect_section_locals(expr const & type, expr const & value, parser const & p, buffer<parameter> & section_ps) {
-    name_set ls = collect_locals(type, collect_locals(value));
-    ls.for_each([&](name const & n) {
+// Sort local_names by order of occurrence in the section, and copy the associated parameters to section_ps
+void mk_section_params(name_set const & local_names, parser const & p, buffer<parameter> & section_ps) {
+    local_names.for_each([&](name const & n) {
             section_ps.push_back(*p.get_local(n));
         });
     std::sort(section_ps.begin(), section_ps.end(), [&](parameter const & p1, parameter const & p2) {
             return p.get_local_index(mlocal_name(p1.m_local)) < p.get_local_index(mlocal_name(p2.m_local));
         });
+}
+
+// Collect local (section) constants occurring in type and value, sort them, and store in section_ps
+void collect_section_locals(expr const & type, expr const & value, parser const & p, buffer<parameter> & section_ps) {
+    name_set ls = collect_locals(type, collect_locals(value));
+    return mk_section_params(ls, p, section_ps);
 }
 
 static void parse_modifiers(parser & p, bool & is_private, bool & is_opaque) {
@@ -155,6 +163,18 @@ static void parse_modifiers(parser & p, bool & is_private, bool & is_opaque) {
             break;
         }
     }
+}
+
+// Return the levels in \c ls that are defined in the section
+levels collect_section_levels(level_param_names const & ls, parser & p) {
+    buffer<level> section_ls_buffer;
+    for (name const & l : ls) {
+        if (p.get_local_level_index(l))
+            section_ls_buffer.push_back(mk_param_univ(l));
+        else
+            break;
+    }
+    return to_list(section_ls_buffer.begin(), section_ls_buffer.end());
 }
 
 environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
@@ -202,7 +222,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
             p.check_token_next(g_assign, "invalid declaration, ':=' expected");
             value = p.parse_expr();
         }
-        update_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
+        update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
     if (in_section(env)) {
@@ -210,14 +230,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
         collect_section_locals(type, value, p, section_ps);
         type = p.pi_abstract(section_ps, type);
         value = p.lambda_abstract(section_ps, value);
-        buffer<level> section_ls_buffer;
-        for (name const & l : ls) {
-            if (p.get_local_level_index(l))
-                section_ls_buffer.push_back(mk_param_univ(l));
-            else
-                break;
-        }
-        levels section_ls = to_list(section_ls_buffer.begin(), section_ls_buffer.end());
+        levels section_ls = collect_section_levels(ls, p);
         buffer<expr> section_args;
         for (auto const & p : section_ps)
             section_args.push_back(p.m_local);

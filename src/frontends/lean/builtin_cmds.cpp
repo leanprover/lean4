@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
 #include "frontends/lean/notation_cmd.h"
+#include "frontends/lean/inductive_cmd.h"
 #include "frontends/lean/decl_cmds.h"
 
 namespace lean {
@@ -217,6 +218,7 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
     add_cmd(r, cmd_info("#setline",     "modify the current line number, it only affects error/report messages", set_line_cmd));
     register_decl_cmds(r);
+    register_inductive_cmd(r);
     register_notation_cmds(r);
     register_calc_cmds(r);
     return r;

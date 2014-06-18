@@ -18,21 +18,13 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/kernel_bindings.h"
+#include "frontends/lean/parameter.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/parser_pos_provider.h"
 
 namespace lean {
-struct parameter {
-    pos_info    m_pos;
-    expr        m_local;
-    binder_info m_bi;
-    parameter(pos_info const & p, expr const & l, binder_info const & bi):
-        m_pos(p), m_local(l), m_bi(bi) {}
-    parameter():m_pos(0, 0) {}
-};
-
 /** \brief Exception used to track parsing erros, it does not leak outside of this class. */
 struct parser_error : public exception {
     pos_info m_pos;
@@ -248,6 +240,8 @@ public:
         The new parameter is automatically added to \c m_local_level_decls.
     */
     struct param_universe_scope { parser & m_p; bool m_old; param_universe_scope(parser &); ~param_universe_scope(); };
+    /** \brief Switch back to <tt>Type.{_}</tt>, see \c param_universe_scope */
+    struct placeholder_universe_scope { parser & m_p; bool m_old; placeholder_universe_scope(parser &); ~placeholder_universe_scope(); };
     expr mk_Type();
 
     /** \brief Use tactic \c t for "synthesizing" the placeholder \c e. */

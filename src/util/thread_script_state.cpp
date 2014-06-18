@@ -40,7 +40,7 @@ void system_import(char const * fname) {
         // Import file in all existing states
         lock_guard<mutex> lk(g_state_mutex);
         for (auto & s : g_states) {
-            s.import(fname);
+            s.import_explicit(fname);
         }
     }
     {

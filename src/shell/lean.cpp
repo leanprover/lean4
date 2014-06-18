@@ -184,14 +184,11 @@ int main(int argc, char ** argv) {
         }
     }
 
+    script_state S = lean::get_thread_script_state();
     environment env = mode == lean_mode::Standard ? mk_environment(trust_lvl) : mk_hott_environment(trust_lvl);
     io_state ios(lean::mk_simple_formatter());
     if (quiet)
         ios.set_option("verbose", false);
-
-    script_state S = lean::get_thread_script_state();
-    set_global_environment(S.get_state(), env);
-    set_global_io_state(S.get_state(), ios);
 
     try {
         bool ok = true;
@@ -210,7 +207,7 @@ int main(int argc, char ** argv) {
                     ok = false;
             } else if (k == input_kind::Lua) {
                 try {
-                    S.dofile(argv[i]);
+                    lean::system_import(argv[i]);
                 } catch (lean::exception & ex) {
                     ::lean::display_error(regular(env, ios), nullptr, ex);
                     ok = false;

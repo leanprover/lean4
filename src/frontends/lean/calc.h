@@ -7,5 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "frontends/lean/cmd_table.h"
 namespace lean {
+class parser;
 void register_calc_cmds(cmd_table & r);
+expr parse_calc(parser & p);
 }

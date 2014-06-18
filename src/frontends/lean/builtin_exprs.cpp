@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/token_table.h"
+#include "frontends/lean/calc.h"
 #include "frontends/lean/parser.h"
 
 namespace lean {
@@ -139,6 +140,10 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
     return p.save_pos(mk_let(H_show, prop, proof, Var(0)), pos);
 }
 
+static expr parse_calc_expr(parser & p, unsigned, expr const *, pos_info const &) {
+    return parse_calc(p);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -154,6 +159,7 @@ parse_table init_nud_table() {
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
     r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);
     r = r.add({transition("let", mk_ext_action(parse_let_expr))}, x0);
+    r = r.add({transition("calc", mk_ext_action(parse_calc_expr))}, x0);
     return r;
 }
 

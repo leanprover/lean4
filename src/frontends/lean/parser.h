@@ -124,7 +124,6 @@ class parser {
     parameter parse_binder_core(binder_info const & bi);
     void parse_binder_block(buffer<parameter> & r, binder_info const & bi);
     void parse_binders_core(buffer<parameter> & r);
-    expr mk_app(expr fn, expr arg, pos_info const & p);
 
     friend environment section_cmd(parser & p);
     friend environment end_scoped_cmd(parser & p);
@@ -158,6 +157,9 @@ public:
     pos_info pos_of(expr const & e) { return pos_of(e, pos()); }
     pos_info cmd_pos() const { return m_last_cmd_pos; }
     void set_line(unsigned p) { return m_scanner.set_line(p); }
+
+    expr mk_app(expr fn, expr arg, pos_info const & p);
+    expr mk_app(std::initializer_list<expr> const & args, pos_info const & p);
 
     /** \brief Read the next token. */
     void scan() { m_curr = m_scanner.scan(m_env); }

@@ -281,6 +281,17 @@ expr parser::mk_app(expr fn, expr arg, pos_info const & p) {
     return save_pos(::lean::mk_app(fn, arg), p);
 }
 
+expr parser::mk_app(std::initializer_list<expr> const & args, pos_info const & p) {
+    unsigned nargs = args.size();
+    lean_assert(nargs >= 2);
+    auto it = args.begin();
+    expr r = *it;
+    it++;
+    for (; it != args.end(); it++)
+        r = mk_app(r, *it, p);
+    return r;
+}
+
 void parser::push_local_scope() {
     if (m_type_use_placeholder)
         m_local_level_decls.push();

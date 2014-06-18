@@ -39,6 +39,8 @@ using lean::io_state_stream;
 using lean::regular;
 using lean::mk_environment;
 using lean::mk_hott_environment;
+using lean::set_environment;
+using lean::set_io_state;
 
 enum class input_kind { Unspecified, Lean, Lua };
 
@@ -184,11 +186,13 @@ int main(int argc, char ** argv) {
         }
     }
 
-    script_state S = lean::get_thread_script_state();
     environment env = mode == lean_mode::Standard ? mk_environment(trust_lvl) : mk_hott_environment(trust_lvl);
     io_state ios(lean::mk_simple_formatter());
     if (quiet)
         ios.set_option("verbose", false);
+    script_state S = lean::get_thread_script_state();
+    set_environment set1(S, env);
+    set_io_state    set2(S, ios);
 
     try {
         bool ok = true;

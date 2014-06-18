@@ -87,8 +87,8 @@ class parser {
     template<typename F>
     typename std::result_of<F(lua_State * L)>::type using_script(F && f) {
         script_state S = get_thread_script_state();
-        set_io_state    set1(S.get_state(), m_ios);
-        set_environment set2(S.get_state(), m_env);
+        set_io_state    set1(S, m_ios);
+        set_environment set2(S, m_env);
         return f(S.get_state());
     }
 

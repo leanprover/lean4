@@ -1286,34 +1286,34 @@ static const struct luaL_Reg environment_m[] = {
 };
 
 static char g_set_environment_key;
-
-void set_global_environment(lua_State * L, environment const & env) {
+static environment * get_global_environment_ptr(lua_State * L) {
     lua_pushlightuserdata(L, static_cast<void *>(&g_set_environment_key));
-    push_environment(L, env);
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    if (!lua_islightuserdata(L, -1))
+        return nullptr;
+    environment * r = static_cast<environment*>(const_cast<void*>(lua_topointer(L, -1)));
+    lua_pop(L, 1);
+    return r;
+}
+static void set_global_environment_ptr(lua_State * L, environment * env) {
+    lua_pushlightuserdata(L, static_cast<void *>(&g_set_environment_key));
+    lua_pushlightuserdata(L, static_cast<void *>(env));
     lua_settable(L, LUA_REGISTRYINDEX);
 }
+static environment get_global_environment(lua_State * L) {
+    environment * env = get_global_environment_ptr(L);
+    if (env == nullptr)
+        throw exception("Lua state does not have an environment object");
+    return *env;
+}
 
-set_environment::set_environment(lua_State * L, environment & env):
-    m_env(env) {
-    m_state = L;
-    set_global_environment(L, env);
+set_environment::set_environment(lua_State * L, environment & env):m_state(L) {
+    m_old_env = get_global_environment_ptr(L);
+    set_global_environment_ptr(L, &env);
 }
 
 set_environment::~set_environment() {
-    m_env = get_global_environment(m_state);
-    lua_pushlightuserdata(m_state, static_cast<void *>(&g_set_environment_key));
-    lua_pushnil(m_state);
-    lua_settable(m_state, LUA_REGISTRYINDEX);
-}
-
-static environment get_global_environment(lua_State * L) {
-    lua_pushlightuserdata(L, static_cast<void *>(&g_set_environment_key));
-    lua_gettable(L, LUA_REGISTRYINDEX);
-    if (!is_environment(L, -1))
-        return environment(); // return empty environment
-    environment r = to_environment(L, -1);
-    lua_pop(L, 1);
-    return r;
+    set_global_environment_ptr(m_state, m_old_env);
 }
 
 int get_environment(lua_State * L) {
@@ -1321,7 +1321,10 @@ int get_environment(lua_State * L) {
 }
 
 int set_environment(lua_State * L) {
-    set_global_environment(L, to_environment(L, 1));
+    environment * env = get_global_environment_ptr(L);
+    if (env == nullptr)
+        throw exception("Lua state does not have an environment object");
+    *env = to_environment(L, 1);
     return 0;
 }
 

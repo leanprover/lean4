@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/lua.h"
+#include "util/script_state.h"
 #include "kernel/environment.h"
 
 namespace lean {
@@ -52,10 +52,11 @@ void set_global_environment(lua_State * L, environment const & env);
    with an environment object.
 */
 class set_environment {
-    environment & m_env;
     lua_State *   m_state;
+    environment * m_old_env;
 public:
     set_environment(lua_State * L, environment & env);
+    set_environment(script_state & S, environment & env):set_environment(S.get_state(), env) {}
     ~set_environment();
 };
 
@@ -70,7 +71,8 @@ class set_io_state {
     io_state *  m_prev;
     options     m_prev_options;
 public:
-    set_io_state(lua_State * L, io_state & st);
+    set_io_state(lua_State * L, io_state & ios);
+    set_io_state(script_state & S, io_state & ios):set_io_state(S.get_state(), ios) {}
     ~set_io_state();
 };
 /**

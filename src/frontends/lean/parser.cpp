@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <string>
 #include <limits>
+#include <vector>
 #include "util/interrupt.h"
 #include "util/script_exception.h"
 #include "util/sstream.h"

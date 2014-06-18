@@ -18,13 +18,13 @@ token_table add_command_token(token_table const & s, char const * token) {
     return insert(s, token, token_info(token));
 }
 token_table add_command_token(token_table const & s, char const * token, char const * val) {
-    return insert(s, token, token_info(val));
+    return insert(s, token, token_info(token, val));
 }
 token_table add_token(token_table const & s, char const * token, unsigned prec) {
     return insert(s, token, token_info(token, prec));
 }
 token_table add_token(token_table const & s, char const * token, char const * val, unsigned prec) {
-    return insert(s, token, token_info(val, prec));
+    return insert(s, token, token_info(token, val, prec));
 }
 token_table const * find(token_table const & s, char c) {
     return s.find(c);

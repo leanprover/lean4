@@ -135,7 +135,7 @@ environment infixl_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mi
 environment infixr_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mixfix_kind::infixr, overload); }
 environment postfix_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mixfix_kind::postfix, overload); }
 
-static name parse_quoted_symbol(parser & p, buffer<token_entry> & new_tokens) {
+static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens) {
     if (p.curr_is_quoted_symbol()) {
         environment const & env = p.env();
         auto tk   = p.get_name_val();
@@ -152,8 +152,12 @@ static name parse_quoted_symbol(parser & p, buffer<token_entry> & new_tokens) {
             new_tokens.push_back(token_entry(tkcs, 0));
         }
         return tk;
+    } else if (p.curr_is_keyword()) {
+        auto tk = p.get_token_info().token();
+        p.next();
+        return tk;
     } else {
-        throw parser_error("invalid notation declaration, quoted symbol expected", p.pos());
+        throw parser_error("invalid notation declaration, symbol expected", p.pos());
     }
 }
 
@@ -176,7 +180,7 @@ static void parse_notation_local(parser & p, buffer<expr> & locals) {
     }
 }
 
-static action parse_action(parser & p, buffer<expr> & locals, buffer<token_entry> & new_tokens) {
+static action parse_action(parser & p, name const & prev_token, buffer<expr> & locals, buffer<token_entry> & new_tokens) {
     if (p.curr_is_token(g_colon)) {
         p.next();
         if (p.curr_is_numeral()) {
@@ -195,7 +199,7 @@ static action parse_action(parser & p, buffer<expr> & locals, buffer<token_entry
                 bool is_fold_right = p.curr_is_token_or_id(g_foldr);
                 p.next();
                 auto prec = parse_optional_precedence(p);
-                name sep  = parse_quoted_symbol(p, new_tokens);
+                name sep  = parse_quoted_symbol_or_token(p, new_tokens);
                 expr rec;
                 {
                     parser::local_scope scope(p);
@@ -234,7 +238,11 @@ static action parse_action(parser & p, buffer<expr> & locals, buffer<token_entry
             }
         }
     } else {
-        return mk_expr_action();
+        auto prec = get_precedence(get_token_table(p.env()), prev_token.to_string().c_str());
+        if (prec)
+            return mk_expr_action(*prec);
+        else
+            return mk_expr_action();
     }
 }
 
@@ -248,10 +256,8 @@ notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry
         is_nud = false;
     }
     while (!p.curr_is_token(g_assign)) {
-        name tk = parse_quoted_symbol(p, new_tokens);
-        if (p.curr_is_quoted_symbol() || p.curr_is_token(g_assign)) {
-            ts.push_back(transition(tk, mk_skip_action()));
-        } else if (p.curr_is_token_or_id(g_binder)) {
+        name tk = parse_quoted_symbol_or_token(p, new_tokens);
+        if (p.curr_is_token_or_id(g_binder)) {
             p.next();
             ts.push_back(transition(tk, mk_binder_action()));
         } else if (p.curr_is_token_or_id(g_binders)) {
@@ -260,11 +266,13 @@ notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry
         } else if (p.curr_is_identifier()) {
             name n   = p.get_name_val();
             p.next();
-            action a = parse_action(p, locals, new_tokens);
+            action a = parse_action(p, tk, locals, new_tokens);
             expr l = mk_local(n, g_local_type);
             p.add_local_expr(n, l);
             locals.push_back(l);
             ts.push_back(transition(tk, a));
+        } else if (p.curr_is_quoted_symbol() || p.curr_is_keyword() || p.curr_is_token(g_assign)) {
+            ts.push_back(transition(tk, mk_skip_action()));
         } else {
             throw parser_error("invalid notation declaration, quoted-symbol, identifier, 'binder', 'binders' expected", p.pos());
         }

@@ -15,13 +15,21 @@ namespace lean {
 unsigned get_arrow_prec();
 class token_info {
     bool        m_command;
+    name        m_token;
     name        m_value;
     unsigned    m_precedence;
 public:
     token_info():m_command(true) {}
-    token_info(char const * val):m_command(true), m_value(val), m_precedence(0) {}
-    token_info(char const * val, unsigned prec):m_command(false), m_value(val), m_precedence(prec) {}
+    token_info(char const * val):
+        m_command(true), m_token(val), m_value(val), m_precedence(0) {}
+    token_info(char const * token, char const * val):
+        m_command(true), m_token(token), m_value(val), m_precedence(0) {}
+    token_info(char const * val, unsigned prec):
+        m_command(false), m_token(val), m_value(val), m_precedence(prec) {}
+    token_info(char const * token, char const * val, unsigned prec):
+        m_command(false), m_token(token), m_value(val), m_precedence(prec) {}
     bool is_command() const { return m_command; }
+    name const & token() const { return m_token; }
     name const & value() const { return m_value; }
     unsigned precedence() const { return m_precedence; }
 };

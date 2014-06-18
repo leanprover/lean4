@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/placeholder.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/util.h"
 
 namespace lean {
 struct calc_ext : public environment_extension {
@@ -211,7 +212,7 @@ static void decode_expr(expr const & e, buffer<calc_pred> & preds, pos_info cons
 
 // Create (op _ _ ... _)
 static expr mk_op_fn(parser & p, name const & op, unsigned num_placeholders, pos_info const & pos) {
-    expr r = p.save_pos(mk_constant(op), pos);
+    expr r = p.save_pos(mark_explicit(mk_constant(op)), pos);
     while (num_placeholders > 0) {
         num_placeholders--;
         r = p.mk_app(r, p.save_pos(mk_expr_placeholder(), pos), pos);

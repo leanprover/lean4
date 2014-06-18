@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include <utility>
 #include "util/rb_map.h"
 #include "util/sstream.h"
@@ -58,6 +59,12 @@ struct ext_action_cell : public action_cell {
         action_cell(action_kind::Ext), m_parse_fn(fn) {}
 };
 
+struct ext_lua_action_cell : public action_cell {
+    std::string m_lua_fn;
+    ext_lua_action_cell(char const * fn):
+        action_cell(action_kind::LuaExt), m_lua_fn(fn) {}
+};
+
 action::action(action_cell * ptr):m_ptr(ptr) { lean_assert(ptr); }
 action::action():action(mk_skip_action()) {}
 action::action(action const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
@@ -82,6 +89,10 @@ ext_action_cell * to_ext_action(action_cell * c) {
     lean_assert(c->m_kind == action_kind::Ext);
     return static_cast<ext_action_cell*>(c);
 }
+ext_lua_action_cell * to_ext_lua_action(action_cell * c) {
+    lean_assert(c->m_kind == action_kind::LuaExt);
+    return static_cast<ext_lua_action_cell*>(c);
+}
 unsigned action::rbp() const { return to_expr_action(m_ptr)->m_rbp; }
 name const & action::get_sep() const { return to_exprs_action(m_ptr)->m_token_sep; }
 expr const & action::get_rec() const {
@@ -94,6 +105,7 @@ bool action::use_lambda_abstraction() const { return to_scoped_expr_action(m_ptr
 expr const & action::get_initial() const { return to_exprs_action(m_ptr)->m_ini; }
 bool action::is_fold_right() const { return to_exprs_action(m_ptr)->m_fold_right; }
 parse_fn const & action::get_parse_fn() const { return to_ext_action(m_ptr)->m_parse_fn; }
+std::string const & action::get_lua_fn() const { return to_ext_lua_action(m_ptr)->m_lua_fn; }
 bool action::is_compatible(action const & a) const {
     if (kind() != a.kind())
         return false;
@@ -102,6 +114,8 @@ bool action::is_compatible(action const & a) const {
         return true;
     case action_kind::Ext:
         return m_ptr == a.m_ptr;
+    case action_kind::LuaExt:
+        return get_lua_fn() == a.get_lua_fn();
     case action_kind::Expr:
         return rbp() == a.rbp();
     case action_kind::Exprs:
@@ -124,6 +138,7 @@ void action_cell::dealloc() {
     case action_kind::Exprs:      delete(to_exprs_action(this)); break;
     case action_kind::ScopedExpr: delete(to_scoped_expr_action(this)); break;
     case action_kind::Ext:        delete(to_ext_action(this)); break;
+    case action_kind::LuaExt:     delete(to_ext_lua_action(this)); break;
     default:                      delete this; break;
     }
 }
@@ -154,6 +169,7 @@ action mk_scoped_expr_action(expr const & rec, unsigned rb, bool lambda) {
     return action(new scoped_expr_action_cell(rec, rb, lambda));
 }
 action mk_ext_action(parse_fn const & fn) { return action(new ext_action_cell(fn)); }
+action mk_ext_lua_action(char const * fn) { return action(new ext_lua_action_cell(fn)); }
 
 struct parse_table::cell {
     bool                                                         m_nud;
@@ -196,7 +212,7 @@ static void validate_transitions(bool nud, unsigned num, transition const * ts, 
         case action_kind::Binder: case action_kind::Binders:
             found_binder = true;
             break;
-        case action_kind::Expr: case action_kind::Exprs: case action_kind::Ext:
+        case action_kind::Expr: case action_kind::Exprs: case action_kind::Ext: case action_kind::LuaExt:
             nargs++;
             break;
         case action_kind::ScopedExpr:
@@ -296,6 +312,14 @@ static int mk_scoped_expr_action(lua_State * L) {
     bool lambda = (nargs <= 2) || lua_toboolean(L, 3);
     return push_notation_action(L, mk_scoped_expr_action(to_expr(L, 1), rbp, lambda));
 }
+static int mk_ext_lua_action(lua_State * L) {
+    char const * fn = lua_tostring(L, 1);
+    lua_getglobal(L, fn);
+    if (lua_isnil(L, -1))
+        throw exception("arg #1 is a unknown function name");
+    lua_pop(L, 1);
+    return push_notation_action(L, mk_ext_lua_action(fn));
+}
 static int is_compatible(lua_State * L) {
     return push_boolean(L, to_notation_action(L, 1).is_compatible(to_notation_action(L, 2)));
 }
@@ -329,6 +353,10 @@ static int use_lambda_abstraction(lua_State * L) {
     check_action(L, 1, { action_kind::ScopedExpr });
     return push_boolean(L, to_notation_action(L, 1).use_lambda_abstraction());
 }
+static int fn(lua_State * L) {
+    check_action(L, 1, { action_kind::LuaExt });
+    return push_string(L, to_notation_action(L, 1).get_lua_fn().c_str());
+}
 
 static const struct luaL_Reg notation_action_m[] = {
     {"__gc",                   notation_action_gc},
@@ -341,6 +369,7 @@ static const struct luaL_Reg notation_action_m[] = {
     {"initial",                safe_function<initial>},
     {"is_fold_right",          safe_function<is_fold_right>},
     {"use_lambda_abstraction", safe_function<use_lambda_abstraction>},
+    {"fn",                     safe_function<fn>},
     {0, 0}
 };
 
@@ -357,6 +386,7 @@ static void open_notation_action(lua_State * L) {
     SET_GLOBAL_FUN(mk_expr_action,         "expr_notation_action");
     SET_GLOBAL_FUN(mk_exprs_action,        "exprs_notation_action");
     SET_GLOBAL_FUN(mk_scoped_expr_action,  "scoped_expr_notation_action");
+    SET_GLOBAL_FUN(mk_ext_lua_action,      "ext_action");
 
     push_notation_action(L, mk_skip_action());
     lua_setglobal(L, "Skip");
@@ -373,6 +403,7 @@ static void open_notation_action(lua_State * L) {
     SET_ENUM("Binders",     action_kind::Binders);
     SET_ENUM("ScopedExpr",  action_kind::ScopedExpr);
     SET_ENUM("Ext",         action_kind::Ext);
+    SET_ENUM("LuaExt",      action_kind::LuaExt);
     lua_setglobal(L, "notation_action_kind");
 }
 

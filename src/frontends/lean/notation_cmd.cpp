@@ -27,6 +27,7 @@ static name g_infixl("infixl");
 static name g_infixr("infixr");
 static name g_postfix("postfix");
 static name g_notation("notation");
+static name g_call("call");
 
 static std::string parse_symbol(parser & p, char const * msg) {
     name n;
@@ -74,6 +75,7 @@ using notation::mk_binders_action;
 using notation::mk_exprs_action;
 using notation::mk_scoped_expr_action;
 using notation::mk_skip_action;
+using notation::mk_ext_lua_action;
 using notation::transition;
 using notation::action;
 
@@ -180,6 +182,10 @@ static action parse_action(parser & p, buffer<expr> & locals, buffer<token_entry
         if (p.curr_is_numeral()) {
             unsigned prec = parse_precedence(p, "invalid notation declaration, small numeral expected");
             return mk_expr_action(prec);
+        } else if (p.curr_is_string()) {
+            std::string fn = p.get_str_val();
+            p.next();
+            return mk_ext_lua_action(fn.c_str());
         } else if (p.curr_is_token_or_id(g_scoped)) {
             p.next();
             return mk_scoped_expr_action(mk_var(0));
@@ -218,6 +224,11 @@ static action parse_action(parser & p, buffer<expr> & locals, buffer<token_entry
                 }
                 p.check_token_next(g_rparen, "invalid scoped notation argument, ')' expected");
                 return mk_scoped_expr_action(rec, prec ? *prec : 0);
+            } else if (p.curr_is_token_or_id(g_call)) {
+                p.next();
+                name fn = p.check_id_next("invalid call notation argument, identifier expected");
+                p.check_token_next(g_rparen, "invalid call notation argument, ')' expected");
+                return mk_ext_lua_action(fn.to_string().c_str());
             } else {
                 throw parser_error("invalid notation declaration, 'foldl', 'foldr' or 'scoped' expected", p.pos());
             }

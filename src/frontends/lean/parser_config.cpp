@@ -75,6 +75,9 @@ serializer & operator<<(serializer & s, action const & a) {
     case action_kind::ScopedExpr:
         s << a.get_rec() << a.rbp() << a.use_lambda_abstraction();
         break;
+    case action_kind::LuaExt:
+        s << a.get_lua_fn();
+        break;
     case action_kind::Ext:
         lean_unreachable();
     }
@@ -104,6 +107,8 @@ action read_action(deserializer & d) {
         d >> rec >> rbp >> use_lambda_abstraction;
         return notation::mk_scoped_expr_action(rec, rbp, use_lambda_abstraction);
     }
+    case action_kind::LuaExt:
+        return notation::mk_ext_lua_action(d.read_string().c_str());
     case action_kind::Ext:
         break;
     }

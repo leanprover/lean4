@@ -64,6 +64,42 @@ parser::no_undef_id_error_scope::~no_undef_id_error_scope() {
     m_p.m_no_undef_id_error = m_old;
 }
 
+static char g_parser_key;
+void set_global_parser(lua_State * L, parser * p) {
+    lua_pushlightuserdata(L, static_cast<void *>(&g_parser_key));
+    lua_pushlightuserdata(L, static_cast<void *>(p));
+    lua_settable(L, LUA_REGISTRYINDEX);
+}
+
+parser * get_global_parser_ptr(lua_State * L) {
+    lua_pushlightuserdata(L, static_cast<void *>(&g_parser_key));
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    if (!lua_islightuserdata(L, -1))
+        return nullptr;
+    parser * p = static_cast<parser*>(const_cast<void*>(lua_topointer(L, -1)));
+    lua_pop(L, 1);
+    return p;
+}
+
+parser & get_global_parser(lua_State * L) {
+    parser * p = get_global_parser_ptr(L);
+    if (p == nullptr)
+        throw exception("there is no Lean parser on the Lua stack");
+    return *p;
+}
+
+struct scoped_set_parser {
+    lua_State * m_state;
+    parser *    m_old;
+    scoped_set_parser(lua_State * L, parser & p):m_state(L) {
+        m_old = get_global_parser_ptr(L);
+        set_global_parser(L, &p);
+    }
+    ~scoped_set_parser() {
+        set_global_parser(m_state, m_old);
+    }
+};
+
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name,
                script_state * ss, bool use_exceptions, unsigned num_threads,
@@ -694,10 +730,32 @@ expr parser::parse_notation(parse_table t, expr * left) {
             args.push_back(r);
             break;
         }
+        case notation::action_kind::LuaExt:
+            if (!m_ss)
+                throw parser_error("failed to use notation implemented in Lua, parser does not contain a Lua state", p);
+            using_script([&](lua_State * L) {
+                    scoped_set_parser scope(L, *this);
+                    lua_getglobal(L, a.get_lua_fn().c_str());
+                    if (!lua_isfunction(L, -1))
+                        throw parser_error(sstream() << "failed to use notation implemented in Lua, Lua state does not contain function '"
+                                           << a.get_lua_fn() << "'", p);
+                    lua_pushinteger(L, p.first);
+                    lua_pushinteger(L, p.second);
+                    for (unsigned i = 0; i < args.size(); i++)
+                        push_expr(L, args[i]);
+                    pcall(L, args.size() + 2, 1, 0);
+                    if (!is_expr(L, -1))
+                        throw parser_error(sstream() << "failed to use notation implemented in Lua, value returned by function '"
+                                           << a.get_lua_fn() << "' is not an expression", p);
+                    args.push_back(to_expr(L, -1));
+                    lua_pop(L, 1);
+                });
+            break;
         case notation::action_kind::Ext:
             args.push_back(a.get_parse_fn()(*this, args.size(), args.data(), p));
             break;
         }
+
         t = r->second;
     }
     list<expr> const & as = t.is_accepting();
@@ -979,7 +1037,6 @@ bool parser::parse_commands() {
     return !m_found_errors;
 }
 
-
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, script_state * S, bool use_exceptions,
                     unsigned num_threads) {
     parser p(env, ios, in, strm_name, S, use_exceptions, num_threads);
@@ -994,5 +1051,19 @@ bool parse_commands(environment & env, io_state & ios, char const * fname, scrip
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");
     return parse_commands(env, ios, in, fname, S, use_exceptions, num_threads);
+}
+
+static int parse_expr(lua_State * L) {
+    script_state S = to_script_state(L);
+    int nargs = lua_gettop(L);
+    expr r;
+    S.exec_unprotected([&]() {
+            r = get_global_parser(L).parse_expr(nargs == 0 ? 0 : lua_tointeger(L, 1));
+        });
+    return push_expr(L, r);
+}
+
+void open_parser(lua_State * L) {
+    SET_GLOBAL_FUN(parse_expr, "parse_expr");
 }
 }

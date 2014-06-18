@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <string>
 #include <utility>
 #include "util/buffer.h"
 #include "util/lua.h"
@@ -17,7 +18,7 @@ class parser;
 namespace notation {
 typedef std::function<expr(parser &, unsigned, expr const *, pos_info const &)> parse_fn;
 
-enum class action_kind { Skip, Expr, Exprs, Binder, Binders, ScopedExpr, Ext };
+enum class action_kind { Skip, Expr, Exprs, Binder, Binders, ScopedExpr, Ext, LuaExt };
 struct action_cell;
 
 /**
@@ -63,6 +64,7 @@ public:
     friend action mk_binders_action();
     friend action mk_scoped_expr_action(expr const & rec, unsigned rbp, bool lambda);
     friend action mk_ext_action(parse_fn const & fn);
+    friend action mk_ext_lua_action(char const * lua_fn);
 
     action_kind kind() const;
     unsigned rbp() const;
@@ -72,6 +74,7 @@ public:
     bool is_fold_right() const;
     bool use_lambda_abstraction() const;
     parse_fn const & get_parse_fn() const;
+    std::string const & get_lua_fn() const;
 
     bool is_compatible(action const & a) const;
 };
@@ -83,6 +86,7 @@ action mk_binder_action();
 action mk_binders_action();
 action mk_scoped_expr_action(expr const & rec, unsigned rbp = 0, bool lambda = true);
 action mk_ext_action(parse_fn const & fn);
+action mk_ext_lua_action(char const * lua_fn);
 
 class transition {
     name           m_token;

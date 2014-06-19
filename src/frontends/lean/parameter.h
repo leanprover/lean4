@@ -10,11 +10,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct parameter {
-    pos_info    m_pos;
     expr        m_local;
     binder_info m_bi;
-    parameter(pos_info const & p, expr const & l, binder_info const & bi):
-        m_pos(p), m_local(l), m_bi(bi) {}
-    parameter():m_pos(0, 0) {}
+    parameter(expr const & l, binder_info const & bi):
+        m_local(l), m_bi(bi) {}
+    parameter() {}
 };
 }

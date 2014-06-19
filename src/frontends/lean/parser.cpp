@@ -358,7 +358,7 @@ void parser::add_local_level(name const & n, level const & l) {
 }
 
 void parser::add_local_expr(name const & n, expr const & e, binder_info const & bi) {
-    m_local_decls.insert(n, parameter(pos(), e, bi));
+    m_local_decls.insert(n, parameter(e, bi));
 }
 
 void parser::add_local(expr const & e) {
@@ -566,7 +566,7 @@ parameter parser::parse_binder_core(binder_info const & bi) {
     } else {
         type = save_pos(mk_expr_placeholder(), p);
     }
-    return parameter(p, save_pos(mk_local(id, type), p), bi);
+    return parameter(save_pos(mk_local(id, type), p), bi);
 }
 
 parameter parser::parse_binder() {
@@ -610,7 +610,7 @@ void parser::parse_binder_block(buffer<parameter> & r, binder_info const & bi) {
         expr arg_type = type ? *type : save_pos(mk_expr_placeholder(), p.first);
         expr local = save_pos(mk_local(p.second, arg_type), p.first);
         add_local(local);
-        r.push_back(parameter(p.first, local, bi));
+        r.push_back(parameter(local, bi));
     }
 }
 

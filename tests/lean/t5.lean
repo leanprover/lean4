@@ -6,9 +6,8 @@ check g
 namespace foo
   definition h : N := f a
   check h
-  definition [private] q : N := f a
+  definition q [private] : N := f a
   check q
 end
 check foo.h
 check q -- Error q is now hidden
-

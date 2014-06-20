@@ -1,4 +1,4 @@
-definition [inline] Bool : Type.{1} := Type.{0}
+definition Bool [inline] : Type.{1} := Type.{0}
 
 inductive or (A B : Bool) : Bool :=
 | or_intro_left  : A → or A B

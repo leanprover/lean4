@@ -178,12 +178,12 @@ levels collect_section_levels(level_param_names const & ls, parser & p) {
 }
 
 environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
+    name n = p.check_id_next("invalid declaration, identifier expected");
+    check_atomic(n);
     bool is_private = false;
     parse_modifiers(p, is_private, is_opaque);
     if (is_theorem && !is_opaque)
         throw exception("invalid theorem declaration, theorems cannot be transparent");
-    name n = p.check_id_next("invalid declaration, identifier expected");
-    check_atomic(n);
     environment env = p.env();
     name real_n; // real name for this declaration
     if (is_private) {

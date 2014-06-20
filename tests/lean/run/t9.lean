@@ -1,4 +1,4 @@
-definition [inline] bool : Type.{1} := Type.{0}
+definition bool [inline] : Type.{1} := Type.{0}
 definition and (p q : bool) : bool
 := ∀ c : bool, (p → q → c) →  c
 infixl `∧` 25 := and
@@ -12,4 +12,3 @@ theorem and_comm (p q : bool) (H : p ∧ q) : q ∧ p
 := have H1 : p, from and_elim_left p q H,
    have H2 : q, from and_elim_right p q H,
    show q ∧ p, from and_intro q p H2 H1
-

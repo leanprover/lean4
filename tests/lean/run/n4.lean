@@ -1,4 +1,4 @@
-definition [inline] Bool : Type.{1} := Type.{0}
+definition Bool [inline] : Type.{1} := Type.{0}
 section
   variable N : Type.{1}
   variables a b c : N

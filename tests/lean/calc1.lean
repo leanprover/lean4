@@ -1,5 +1,5 @@
 variable A : Type.{1}
-definition [inline] bool : Type.{1} := Type.{0}
+definition bool [inline] : Type.{1} := Type.{0}
 variable eq : A → A → bool
 infixl `=` 50 := eq
 axiom subst (P : A → bool) (a b : A) (H1 : a = b) (H2 : P a) : P b

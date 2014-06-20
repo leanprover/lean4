@@ -5,7 +5,7 @@ section
   parameter   R : A → A → Bool
   parameter   B : Type
   definition  id (a : A) : A := a
-  definition [private] refl : Bool := ∀ (a : A), R a a
+  definition  refl [private] : Bool := ∀ (a : A), R a a
   definition  symm : Bool := ∀ (a b : A), R a b → R b a
   definition  trans : Bool := ∀ (a b c : A), R a b → R b c → R a c
   definition  equivalence : Bool := and (and refl symm) trans

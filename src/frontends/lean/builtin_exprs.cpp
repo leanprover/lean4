@@ -22,6 +22,8 @@ static name g_comma(",");
 static name g_fact("[fact]");
 static name g_from("from");
 static name g_using("using");
+static name g_then("then");
+static name g_have("have");
 static name g_by("by");
 
 static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos) {
@@ -151,7 +153,7 @@ static void parse_have_modifiers(parser & p, bool & is_fact) {
     }
 }
 
-static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> const & prev_local) {
     auto id_pos  = p.pos();
     bool is_fact = false;
     name id      = p.check_id_next("invalid 'have' declaration, identifier expected");
@@ -164,16 +166,39 @@ static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos)
         prop  = p.save_pos(mk_expr_placeholder(), id_pos);
     }
     p.check_token_next(g_comma, "invalid 'have' declaration, ',' expected");
-    expr proof = parse_proof(p, prop);
+    expr proof;
+    if (prev_local) {
+        parser::local_scope scope(p);
+        p.add_local(*prev_local);
+        auto proof_pos = p.pos();
+        proof = parse_proof(p, prop);
+        proof = p.save_pos(Fun(*prev_local, proof), proof_pos);
+        proof = p.save_pos(proof(*prev_local), proof_pos);
+    } else {
+        proof = parse_proof(p, prop);
+    }
     p.check_token_next(g_comma, "invalid 'have' declaration, ',' expected");
     parser::local_scope scope(p);
     expr l = p.save_pos(mk_local(id, prop), pos);
     binder_info bi = mk_contextual_info(is_fact);
     p.add_local(l, bi);
-    expr body  = abstract(p.parse_expr(), l);
+    expr body;
+    if (p.curr_is_token(g_then)) {
+        auto then_pos = p.pos();
+        p.next();
+        p.check_token_next(g_have, "invalid 'then have' declaration, 'have' expected");
+        body  = parse_have_core(p, then_pos, some_expr(l));
+    } else {
+        body  = p.parse_expr();
+    }
     // remark: mk_contextual_info(false) informs the elaborator that prop should not occur inside metavariables.
-    expr r     = p.save_pos(mk_lambda(id, prop, body, bi), pos);
+    body = abstract(body, l);
+    expr r = p.save_pos(mk_lambda(id, prop, body, bi), pos);
     return p.save_pos(mk_app(r, proof), pos);
+}
+
+static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return parse_have_core(p, pos, none_expr());
 }
 
 static name H_show("H_show");

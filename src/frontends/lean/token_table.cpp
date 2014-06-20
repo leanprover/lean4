@@ -54,7 +54,7 @@ static char const * g_cup            = "\u2294";
 token_table init_token_table() {
     token_table t;
     std::pair<char const *, unsigned> builtin[] =
-        {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"have", 0}, {"show", 0}, {"by", 0},
+        {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"have", 0}, {"show", 0}, {"by", 0}, {"then", 0},
          {"from", 0}, {"(", g_max_prec}, {")", 0}, {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
          {"[", g_max_prec}, {"]", 0}, {".{", 0}, {"Type", g_max_prec}, {"|", 0}, {"with", 0},
          {"...", 0}, {",", 0}, {".", 0}, {":", 0}, {"calc", 0}, {":=", 0}, {"--", 0},

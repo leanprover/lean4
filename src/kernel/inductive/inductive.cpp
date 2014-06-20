@@ -375,7 +375,7 @@ struct add_inductive_fn {
                                            << "does not match inductive datatypes parameters'");
                 t = instantiate(binding_body(t), m_param_consts[i]);
             } else {
-                expr s = m_tc.ensure_sort(m_tc.infer(binding_domain(t)));
+                expr s = m_tc.ensure_type(binding_domain(t));
                 // the sort is ok IF
                 //   1- its level is <= inductive datatype level, OR
                 //   2- m_env is impredicative and inductive datatype is at level 0
@@ -454,7 +454,7 @@ struct add_inductive_fn {
         unsigned i = 0;
         while (is_pi(t)) {
             if (i >= m_num_params) {
-                expr s = m_tc.ensure_sort(m_tc.infer(binding_domain(t)));
+                expr s = m_tc.ensure_type(binding_domain(t));
                 if (!is_zero(sort_level(s)))
                     return true;
             }

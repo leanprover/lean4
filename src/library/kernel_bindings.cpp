@@ -1859,8 +1859,18 @@ int mk_type_checker(lua_State * L) {
     }
 }
 int type_checker_whnf(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->whnf(to_expr(L, 2))); }
-int type_checker_ensure_pi(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->ensure_pi(to_expr(L, 2))); }
-int type_checker_ensure_sort(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->ensure_sort(to_expr(L, 2))); }
+int type_checker_ensure_pi(lua_State * L) {
+    if (lua_gettop(L) == 2)
+        return push_expr(L, to_type_checker_ref(L, 1)->ensure_pi(to_expr(L, 2)));
+    else
+        return push_expr(L, to_type_checker_ref(L, 1)->ensure_pi(to_expr(L, 2), to_expr(L, 3)));
+}
+int type_checker_ensure_sort(lua_State * L) {
+    if (lua_gettop(L) == 2)
+        return push_expr(L, to_type_checker_ref(L, 1)->ensure_sort(to_expr(L, 2)));
+    else
+        return push_expr(L, to_type_checker_ref(L, 1)->ensure_sort(to_expr(L, 2), to_expr(L, 3)));
+}
 int type_checker_check(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs <= 2)

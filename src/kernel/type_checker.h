@@ -92,10 +92,19 @@ public:
     bool is_prop(expr const & t);
     /** \brief Return the weak head normal form of \c t. */
     expr whnf(expr const & t);
-    /** \brief Return a Pi if \c t is convertible to a Pi type. Throw an exception otherwise. */
-    expr ensure_pi(expr const & t);
+    /** \brief Return a Pi if \c t is convertible to a Pi type. Throw an exception otherwise.
+        The argument \c s is used when reporting errors */
+    expr ensure_pi(expr const & t, expr const & s);
+    expr ensure_pi(expr const & t) { return ensure_pi(t, t); }
+    /** \brief Mare sure type of \c e is a Pi, and return it. Throw an exception otherwise. */
+    expr ensure_fun(expr const & e) { return ensure_pi(infer(e), e); }
+    /** \brief Return a Sort if \c t is convertible to Sort. Throw an exception otherwise.
+        The argument \c s is used when reporting errors. */
+    expr ensure_sort(expr const & t, expr const & s);
     /** \brief Return a Sort if \c t is convertible to Sort. Throw an exception otherwise. */
-    expr ensure_sort(expr const & t);
+    expr ensure_sort(expr const & t) { return ensure_sort(t, t); }
+    /** \brief Mare sure type of \c e is a sort, and return it. Throw an exception otherwise. */
+    expr ensure_type(expr const & e) { return ensure_sort(infer(e), e); }
 
     void swap(type_checker & tc) { std::swap(m_ptr, tc.m_ptr); }
 };

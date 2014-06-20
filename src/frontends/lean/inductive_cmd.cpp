@@ -134,7 +134,7 @@ static void set_result_universes(buffer<inductive_decl> & decls, level_param_nam
                 while (is_pi(t)) {
                     if (i >= num_params) {
                         try {
-                            expr s = tc.ensure_sort(tc.infer(binding_domain(t)));
+                            expr s = tc.ensure_type(binding_domain(t));
                             level lvl = sort_level(s);
                             if (std::find(lvls.begin(), lvls.end(), lvl) == lvls.end())
                                 lvls.push_back(lvl);
@@ -339,5 +339,3 @@ void register_inductive_cmd(cmd_table & r) {
     add_cmd(r, cmd_info("inductive",   "declare an inductive datatype", inductive_cmd));
 }
 }
-
-

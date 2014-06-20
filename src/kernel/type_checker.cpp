@@ -422,8 +422,8 @@ expr type_checker::check(expr const & t, level_param_names const & ps) { return 
 bool type_checker::is_def_eq(expr const & t, expr const & s) { return m_ptr->is_def_eq(t, s); }
 bool type_checker::is_prop(expr const & t) { return m_ptr->is_prop(t); }
 expr type_checker::whnf(expr const & t) { return m_ptr->whnf(t); }
-expr type_checker::ensure_pi(expr const & t) { return m_ptr->ensure_pi(t, t); }
-expr type_checker::ensure_sort(expr const & t) { return m_ptr->ensure_sort(t, t); }
+expr type_checker::ensure_pi(expr const & t, expr const & s) { return m_ptr->ensure_pi(t, s); }
+expr type_checker::ensure_sort(expr const & t, expr const & s) { return m_ptr->ensure_sort(t, s); }
 
 static void check_no_metavar(environment const & env, expr const & e) {
     if (has_metavar(e))

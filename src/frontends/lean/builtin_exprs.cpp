@@ -19,6 +19,7 @@ static name g_in("in");
 static name g_colon(":");
 static name g_assign(":=");
 static name g_comma(",");
+static name g_fact("[fact]");
 static name g_from("from");
 static name g_using("using");
 static name g_by("by");
@@ -143,9 +144,18 @@ static expr parse_proof(parser & p, expr const & prop) {
     }
 }
 
+static void parse_have_modifiers(parser & p, bool & is_fact) {
+    if (p.curr_is_token(g_fact)) {
+        p.next();
+        is_fact = true;
+    }
+}
+
 static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos) {
-    auto id_pos = p.pos();
-    name id     = p.check_id_next("invalid 'have' declaration, identifier expected");
+    auto id_pos  = p.pos();
+    bool is_fact = false;
+    name id      = p.check_id_next("invalid 'have' declaration, identifier expected");
+    parse_have_modifiers(p, is_fact);
     expr prop;
     if (p.curr_is_token(g_colon)) {
         p.next();
@@ -158,7 +168,7 @@ static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos)
     p.check_token_next(g_comma, "invalid 'have' declaration, ',' expected");
     parser::local_scope scope(p);
     expr l = p.save_pos(mk_local(id, prop), pos);
-    binder_info bi = mk_contextual_info(false);
+    binder_info bi = mk_contextual_info(is_fact);
     p.add_local(l, bi);
     expr body  = abstract(p.parse_expr(), l);
     // remark: mk_contextual_info(false) informs the elaborator that prop should not occur inside metavariables.

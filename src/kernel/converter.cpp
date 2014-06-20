@@ -413,19 +413,19 @@ struct default_converter : public converter {
 
         // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
         if (is_app(t_n) && is_app(s_n)) {
-            expr it1 = t_n;
-            expr it2 = s_n;
-            bool ok  = true;
-            do {
-                if (!is_def_eq(app_arg(it1), app_arg(it2), c, jst)) {
-                    ok = false;
-                    break;
+            buffer<expr> t_args;
+            buffer<expr> s_args;
+            expr t_fn = get_app_args(t_n, t_args);
+            expr s_fn = get_app_args(s_n, s_args);
+            if (is_def_eq(t_fn, s_fn, c, jst) && t_args.size() == s_args.size()) {
+                unsigned i = 0;
+                for (; i < t_args.size(); i++) {
+                    if (!is_def_eq(t_args[i], s_args[i], c, jst))
+                        break;
                 }
-                it1 = app_fn(it1);
-                it2 = app_fn(it2);
-            } while (is_app(it1) && is_app(it2));
-            if (ok && is_def_eq(it1, it2, c, jst))
-                return true;
+                if (i == t_args.size())
+                    return true;
+            }
         }
 
         if (m_env.prop_proof_irrel()) {
@@ -443,6 +443,11 @@ struct default_converter : public converter {
                             [&](name const & cls_name) { return is_app_of(t_type, cls_name); }) &&
                 is_def_eq(t_type, c.infer_type(s), c, jst))
                 return true;
+        }
+
+        if (has_metavar(t_n) || has_metavar(s_n)) {
+            c.add_cnstr(mk_eq_cnstr(t_n, s_n, jst.get()));
+            return true;
         }
 
         return false;

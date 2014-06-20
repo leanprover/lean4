@@ -127,6 +127,8 @@ struct print_expr_fn {
                 out() << "{";
             else if (binding_info(e).is_cast())
                 out() << "[";
+            else if (!binding_info(e).is_contextual())
+                out() << "[[";
             else
                 out() << "(";
             out() << n << " : ";
@@ -135,6 +137,8 @@ struct print_expr_fn {
                 out() << "}";
             else if (binding_info(e).is_cast())
                 out() << "]";
+            else if (!binding_info(e).is_contextual())
+                out() << "]]";
             else
                 out() << ")";
             e = p.first;

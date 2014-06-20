@@ -20,6 +20,7 @@ static name g_colon(":");
 static name g_assign(":=");
 static name g_comma(",");
 static name g_from("from");
+static name g_using("using");
 static name g_by("by");
 
 static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos) {
@@ -102,33 +103,66 @@ static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
 
 static expr parse_proof(parser & p, expr const & prop) {
     if (p.curr_is_token(g_from)) {
+        // parse: 'from' expr
         p.next();
         return p.parse_expr();
     } else if (p.curr_is_token(g_by)) {
+        // parse: 'by' tactic
         auto pos = p.pos();
         p.next();
         tactic t = p.parse_tactic();
         expr r = p.save_pos(mk_expr_placeholder(some_expr(prop)), pos);
         p.save_hint(r, t);
         return r;
+    } else if (p.curr_is_token(g_using)) {
+        // parse: 'using' locals* ',' proof
+        auto using_pos = p.pos();
+        p.next();
+        parser::local_scope scope(p);
+        buffer<expr> locals;
+        while (!p.curr_is_token(g_comma)) {
+            auto id_pos = p.pos();
+            expr l      = p.parse_expr();
+            if (!is_local(l))
+                throw parser_error("invalid 'using' declaration for 'have', local expected", id_pos);
+            p.add_local(l);
+            locals.push_back(l);
+        }
+        p.next(); // consume ','
+        expr pr = parse_proof(p, prop);
+        unsigned i = locals.size();
+        while (i > 0) {
+            --i;
+            expr l = locals[i];
+            pr = p.save_pos(Fun(l, pr), using_pos);
+            pr = p.save_pos(pr(l), using_pos);
+        }
+        return pr;
     } else {
-        throw parser_error("invalid expression, 'by' or 'from' expected", p.pos());
+        throw parser_error("invalid expression, 'by', 'using' or 'from' expected", p.pos());
     }
 }
 
 static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos) {
-    name id    = p.check_id_next("invalid 'have' declaration, identifier expected");
-    p.check_token_next(g_colon, "invalid 'have' declaration, ':' expected");
-    expr prop  = p.parse_expr();
+    auto id_pos = p.pos();
+    name id     = p.check_id_next("invalid 'have' declaration, identifier expected");
+    expr prop;
+    if (p.curr_is_token(g_colon)) {
+        p.next();
+        prop  = p.parse_expr();
+    } else {
+        prop  = p.save_pos(mk_expr_placeholder(), id_pos);
+    }
     p.check_token_next(g_comma, "invalid 'have' declaration, ',' expected");
     expr proof = parse_proof(p, prop);
     p.check_token_next(g_comma, "invalid 'have' declaration, ',' expected");
     parser::local_scope scope(p);
     expr l = p.save_pos(mk_local(id, prop), pos);
-    p.add_local(l);
+    binder_info bi = mk_contextual_info(false);
+    p.add_local(l, bi);
     expr body  = abstract(p.parse_expr(), l);
     // remark: mk_contextual_info(false) informs the elaborator that prop should not occur inside metavariables.
-    expr r     = p.save_pos(mk_lambda(id, prop, body, mk_contextual_info(false)), pos);
+    expr r     = p.save_pos(mk_lambda(id, prop, body, bi), pos);
     return p.save_pos(mk_app(r, proof), pos);
 }
 

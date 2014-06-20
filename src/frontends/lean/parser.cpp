@@ -357,13 +357,17 @@ void parser::add_local_level(name const & n, level const & l) {
     m_local_level_decls.insert(n, l);
 }
 
-void parser::add_local_expr(name const & n, expr const & e, binder_info const & bi) {
-    m_local_decls.insert(n, parameter(e, bi));
+void parser::add_local_expr(name const & n, parameter const & p) {
+    m_local_decls.insert(n, p);
 }
 
-void parser::add_local(expr const & e) {
+void parser::add_local_expr(name const & n, expr const & e, binder_info const & bi) {
+    add_local_expr(n, parameter(e, bi));
+}
+
+void parser::add_local(expr const & e, binder_info const & bi) {
     lean_assert(is_local(e));
-    add_local_expr(local_pp_name(e), e);
+    add_local_expr(local_pp_name(e), e, bi);
 }
 
 unsigned parser::get_local_level_index(name const & n) const {
@@ -609,7 +613,7 @@ void parser::parse_binder_block(buffer<parameter> & r, binder_info const & bi) {
     for (auto p : names) {
         expr arg_type = type ? *type : save_pos(mk_expr_placeholder(), p.first);
         expr local = save_pos(mk_local(p.second, arg_type), p.first);
-        add_local(local);
+        add_local_expr(p.second, parameter(local, bi));
         r.push_back(parameter(local, bi));
     }
 }
@@ -898,7 +902,7 @@ expr parser::parse_scoped_expr(unsigned num_params, parameter const * ps, local_
         local_scope scope(*this);
         m_env = lenv;
         for (unsigned i = 0; i < num_params; i++)
-            add_local(ps[i].m_local);
+            add_local(ps[i].m_local, ps[i].m_bi);
         return parse_expr(rbp);
     }
 }

@@ -224,8 +224,9 @@ public:
 
     struct local_scope { parser & m_p; environment m_env; local_scope(parser & p); ~local_scope(); };
     void add_local_level(name const & n, level const & l);
+    void add_local_expr(name const & n, parameter const & p);
     void add_local_expr(name const & n, expr const & e, binder_info const & bi = binder_info());
-    void add_local(expr const & t);
+    void add_local(expr const & e, binder_info const & bi = binder_info());
     /** \brief Position of the local level declaration named \c n in the sequence of local level decls. */
     unsigned get_local_level_index(name const & n) const;
     /** \brief Position of the local declaration named \c n in the sequence of local decls. */

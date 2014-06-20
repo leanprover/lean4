@@ -8,9 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-/** \brief Auxiliary exception used to sign that constraints cannot be created when \c m_cnstrs_enabled flag is false. */
-struct add_cnstr_exception {};
-
 class converter {
 public:
     /** \brief Abstract context that must be provided to a converter object. */

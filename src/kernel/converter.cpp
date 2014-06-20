@@ -330,17 +330,13 @@ struct default_converter : public converter {
        This method is used to implement an optimization in the method \c is_def_eq.
     */
     bool is_def_eq_args(expr t, expr s, context & c, delayed_justification & jst) {
-        try {
-            while (is_app(t) && is_app(s)) {
-                if (!is_def_eq(app_arg(t), app_arg(s), c, jst))
-                    return false;
-                t = app_fn(t);
-                s = app_fn(s);
-            }
-            return !is_app(t) && !is_app(s);
-        } catch (add_cnstr_exception &) {
-            return false;
+        while (is_app(t) && is_app(s)) {
+            if (!is_def_eq(app_arg(t), app_arg(s), c, jst))
+                return false;
+            t = app_fn(t);
+            s = app_fn(s);
         }
+        return !is_app(t) && !is_app(s);
     }
 
     /** \brief Return true iff t is a constant named f_name or an application of the form (f_name a_1 ... a_k) */

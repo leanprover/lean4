@@ -168,11 +168,33 @@ static void tst4() {
           list<int>({ 1, 2, 2, 4, 2, 4, 4, 8, 2, 4, 4, 8, 4, 8, 8, 16 }));
 }
 
+class gen {
+    unsigned m_next;
+public:
+    gen():m_next(0) {}
+    unsigned next() { unsigned r = m_next; m_next++; return r; }
+};
+
+lazy_list<unsigned> mk_gen(std::shared_ptr<gen> const & g) {
+    return mk_lazy_list<unsigned>([=]() { return some(mk_pair(g->next(), mk_gen(g))); });
+}
+
+lazy_list<unsigned> mk_gen() {
+    return mk_gen(std::make_shared<gen>());
+}
+
+void tst5() {
+    auto l = mk_gen();
+    display(take(10, l));
+    display(take(10, l));
+}
+
 int main() {
     save_stack_info();
     tst1();
     tst2();
     tst3();
     tst4();
+    tst5();
     return has_violations() ? 1 : 0;
 }

@@ -8,7 +8,7 @@ local b   = Const("b")
 print(t(b))
 assert(tc:whnf(t(b)) == b)
 local cs  = {}
-local tc2 = type_checker(env, g, constraint_handler(function (c) print(c); cs[#cs+1] = c end))
+local tc2 = type_checker(env, g, function (c) print(c); cs[#cs+1] = c end)
 assert(tc:check(Bool) == mk_sort(mk_level_one()))
 print(tc:infer(t))
 local m   = mk_metavar("m1", mk_metavar("m2", mk_sort(mk_meta_univ("u"))))

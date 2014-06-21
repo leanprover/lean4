@@ -27,8 +27,8 @@ no_constraints_allowed_exception::no_constraints_allowed_exception():exception("
 exception * no_constraints_allowed_exception::clone() const { return new no_constraints_allowed_exception(); }
 void no_constraints_allowed_exception::rethrow() const { throw *this; }
 
-void no_constraint_handler::add_cnstr(constraint const &) {
-    throw no_constraints_allowed_exception();
+add_cnstr_fn mk_no_contranint_fn() {
+    return add_cnstr_fn([](constraint const &) { throw no_constraints_allowed_exception(); });
 }
 
 /** \brief Auxiliary functional object used to implement type checker. */
@@ -58,7 +58,7 @@ struct type_checker::imp {
 
     environment                m_env;
     name_generator             m_gen;
-    constraint_handler &       m_chandler;
+    add_cnstr_fn               m_add_cnstr_fn;
     std::unique_ptr<converter> m_conv;
     // In the type checker cache, we must take into account binder information.
     // Examples:
@@ -71,8 +71,8 @@ struct type_checker::imp {
     // temp flag
     level_param_names          m_params;
 
-    imp(environment const & env, name_generator const & g, constraint_handler & h, std::unique_ptr<converter> && conv, bool memoize):
-        m_env(env), m_gen(g), m_chandler(h), m_conv(std::move(conv)), m_conv_ctx(*this), m_tc_ctx(*this),
+    imp(environment const & env, name_generator const & g, add_cnstr_fn const & h, std::unique_ptr<converter> && conv, bool memoize):
+        m_env(env), m_gen(g), m_add_cnstr_fn(h), m_conv(std::move(conv)), m_conv_ctx(*this), m_tc_ctx(*this),
         m_memoize(memoize) {}
 
     optional<expr> expand_macro(expr const & m) {
@@ -89,9 +89,9 @@ struct type_checker::imp {
         return mk_pair(instantiate(binding_body(e), local), local);
     }
 
-    /** \brief Add given constraint to the constraint handler m_chandler. */
+    /** \brief Add given constraint using m_add_cnstr_fn. */
     void add_cnstr(constraint const & c) {
-        m_chandler.add_cnstr(c);
+        m_add_cnstr_fn(c);
     }
 
     /** \brief Return true iff \c t and \c s are definitionally equal */
@@ -403,18 +403,19 @@ struct type_checker::imp {
     expr whnf(expr const & t) { return m_conv->whnf(t, m_conv_ctx); }
 };
 
-no_constraint_handler g_no_constraint_handler;
+static add_cnstr_fn g_no_constraint_fn = mk_no_contranint_fn();
 
-type_checker::type_checker(environment const & env, name_generator const & g, constraint_handler & h, std::unique_ptr<converter> && conv, bool memoize):
+type_checker::type_checker(environment const & env, name_generator const & g, add_cnstr_fn const & h,
+                           std::unique_ptr<converter> && conv, bool memoize):
     m_ptr(new imp(env, g, h, std::move(conv), memoize)) {}
 
 type_checker::type_checker(environment const & env, name_generator const & g, std::unique_ptr<converter> && conv, bool memoize):
-    type_checker(env, g, g_no_constraint_handler, std::move(conv), memoize) {}
+    type_checker(env, g, g_no_constraint_fn, std::move(conv), memoize) {}
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
 type_checker::type_checker(environment const & env):
-    type_checker(env, name_generator(g_tmp_prefix), g_no_constraint_handler, mk_default_converter(env), true) {}
+    type_checker(env, name_generator(g_tmp_prefix), g_no_constraint_fn, mk_default_converter(env), true) {}
 
 type_checker::~type_checker() {}
 expr type_checker::infer(expr const & t) { return m_ptr->infer_type(t); }

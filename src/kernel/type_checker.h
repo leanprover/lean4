@@ -15,17 +15,10 @@ Author: Leonardo de Moura
 #include "kernel/converter.h"
 
 namespace lean {
-class constraint_handler {
-public:
-    virtual ~constraint_handler() {}
-    virtual void add_cnstr(constraint const & c) = 0;
-};
+typedef std::function<void(constraint const & c)> add_cnstr_fn;
 
 /** \brief This handler always throw an exception (\c no_constraints_allowed_exception) when \c add_cnstr is invoked. */
-class no_constraint_handler : public constraint_handler {
-public:
-    virtual void add_cnstr(constraint const & c);
-};
+add_cnstr_fn mk_no_contranint_fn();
 
 /** \brief Exception used in \c no_constraint_handler. */
 class no_constraints_allowed_exception : public exception {
@@ -51,9 +44,9 @@ public:
 
        memoize: if true, then inferred types are memoized/cached
     */
-    type_checker(environment const & env, name_generator const & g, constraint_handler & h, std::unique_ptr<converter> && conv,
+    type_checker(environment const & env, name_generator const & g, add_cnstr_fn const & h, std::unique_ptr<converter> && conv,
                  bool memoize = true);
-    type_checker(environment const & env, name_generator const & g, constraint_handler & h, bool memoize = true):
+    type_checker(environment const & env, name_generator const & g, add_cnstr_fn const & h, bool memoize = true):
         type_checker(env, g, h, mk_default_converter(env), memoize) {}
     /**
        \brief Similar to the previous constructor, but if a method tries to create a constraint, then an

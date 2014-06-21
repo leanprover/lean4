@@ -136,10 +136,50 @@ static void tst3() {
     std::cout << s.instantiate_metavars(m1(a, b, g(a))).first << "\n";
 }
 
+static void tst4() {
+    expr m1  = mk_metavar("m1", Bool);
+    expr m2  = mk_metavar("m2", Bool);
+    expr m3  = mk_metavar("m3", Bool);
+    level l1 = mk_meta_univ("l1");
+    level u  = mk_global_univ("u");
+    substitution s;
+    name_set exprs;
+    name_set lvls;
+    expr f  = Const("f");
+    expr g  = Const("g");
+    expr a  = Const("a");
+    expr T1 = mk_sort(l1);
+    expr T2 = mk_sort(u);
+    expr t  = f(T1, T2, m1, m2);
+    lean_assert(s.instantiate_metavars(t, &lvls, &exprs).first == t);
+    lean_assert(exprs.contains("m1"));
+    lean_assert(exprs.contains("m2"));
+    lean_assert(!exprs.contains("m3"));
+    lean_assert(lvls.contains("l1"));
+    s = s.assign(m1, a, justification());
+    s = s.assign(m2, m3, justification());
+    lvls  = name_set();
+    exprs = name_set();
+    lean_assert(s.instantiate_metavars(t, &lvls, &exprs).first == f(T1, T2, a, m3));
+    lean_assert(!exprs.contains("m1"));
+    lean_assert(!exprs.contains("m2"));
+    lean_assert(exprs.contains("m3"));
+    lean_assert(lvls.contains("l1"));
+    s = s.assign(l1, level(), justification());
+    lvls  = name_set();
+    exprs = name_set();
+    lean_assert(s.instantiate_metavars(t, &lvls, &exprs).first == f(Bool, T2, a, m3));
+    lean_assert(!exprs.contains("m1"));
+    lean_assert(!exprs.contains("m2"));
+    lean_assert(exprs.contains("m3"));
+    lean_assert(!lvls.contains("l1"));
+}
+
 int main() {
     save_stack_info();
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

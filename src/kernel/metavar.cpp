@@ -93,7 +93,7 @@ substitution substitution::assign(name const & m, level const & l) const {
     return assign(m, l, justification());
 }
 
-std::pair<level, justification> substitution::d_instantiate_metavars(level const & l, bool use_jst, bool updt) {
+std::pair<level, justification> substitution::d_instantiate_metavars(level const & l, bool use_jst, bool updt, name_set * unassigned) {
     if (!has_meta(l))
         return mk_pair(l, justification());
     justification j;
@@ -104,7 +104,7 @@ std::pair<level, justification> substitution::d_instantiate_metavars(level const
             } else if (is_meta(l)) {
                 auto p1 = get_assignment(l);
                 if (p1) {
-                    auto p2 = d_instantiate_metavars(p1->first, use_jst, updt);
+                    auto p2 = d_instantiate_metavars(p1->first, use_jst, updt, unassigned);
                     if (use_jst) {
                         justification new_jst = mk_composite1(p1->second, p2.second);
                         if (updt)
@@ -114,6 +114,8 @@ std::pair<level, justification> substitution::d_instantiate_metavars(level const
                         d_assign(meta_id(l), p2.first);
                     }
                     return some_level(p2.first);
+                } else if (unassigned) {
+                    unassigned->insert(meta_id(l));
                 }
             }
             return none_level();
@@ -127,11 +129,13 @@ protected:
     justification  m_jst;
     bool           m_use_jst;
     bool           m_update;
+    name_set *     m_unassigned_lvls;
+    name_set *     m_unassigned_exprs;
 
     void save_jst(justification const & j) { m_jst = mk_composite1(m_jst, j); }
 
     level visit_level(level const & l) {
-        auto p1 = m_subst.d_instantiate_metavars(l, m_use_jst, m_update);
+        auto p1 = m_subst.d_instantiate_metavars(l, m_use_jst, m_update, m_unassigned_lvls);
         if (m_use_jst)
             save_jst(p1.second);
         return p1.first;
@@ -159,17 +163,19 @@ protected:
                 return p1->first;
             } else if (m_use_jst) {
                 if (m_update) {
-                    auto p2 = m_subst.d_instantiate_metavars(p1->first);
+                    auto p2 = m_subst.d_instantiate_metavars(p1->first, m_unassigned_lvls, m_unassigned_exprs);
                     justification new_jst = mk_composite1(p1->second, p2.second);
                     m_subst.d_assign(m_name, p2.first, new_jst);
                     save_jst(new_jst);
                     return p2.first;
                 } else {
-                    auto p2 = m_subst.instantiate_metavars(p1->first);
+                    auto p2 = m_subst.instantiate_metavars(p1->first, m_unassigned_lvls, m_unassigned_exprs);
                     save_jst(mk_composite1(p1->second, p2.second));
                     return p2.first;
                 }
             } else {
+                lean_assert(m_unassigned_exprs == nullptr);
+                lean_assert(m_unassigned_lvls == nullptr);
                 if (m_update) {
                     expr r = m_subst.d_instantiate_metavars_wo_jst(p1->first);
                     m_subst.d_assign(m_name, r);
@@ -179,6 +185,8 @@ protected:
                 }
             }
         } else {
+            if (m_unassigned_exprs)
+                m_unassigned_exprs->insert(m_name);
             return m;
         }
     }
@@ -209,53 +217,54 @@ protected:
     }
 
 public:
-    instantiate_metavars_fn(substitution & s, bool use_jst, bool updt):
-        m_subst(s), m_use_jst(use_jst), m_update(updt) {}
+    instantiate_metavars_fn(substitution & s, bool use_jst, bool updt, name_set * unassigned_lvls, name_set * unassigned_exprs):
+        m_subst(s), m_use_jst(use_jst), m_update(updt), m_unassigned_lvls(unassigned_lvls), m_unassigned_exprs(unassigned_exprs) {}
     justification const & get_justification() const { return m_jst; }
 };
 
-std::pair<expr, justification> substitution::instantiate_metavars(expr const & e) const {
+std::pair<expr, justification> substitution::instantiate_metavars(expr const & e, name_set * unassigned_lvls, name_set * unassigned_exprs) const {
     substitution s(*this);
-    instantiate_metavars_fn fn(s, true, false);
+    instantiate_metavars_fn fn(s, true, false, unassigned_lvls, unassigned_exprs);
     expr r = fn(e);
     return mk_pair(r, fn.get_justification());
 }
 
-std::pair<expr, justification> substitution::d_instantiate_metavars(expr const & e) {
-    instantiate_metavars_fn fn(*this, true, true);
+std::pair<expr, justification> substitution::d_instantiate_metavars(expr const & e, name_set * unassigned_lvls, name_set * unassigned_exprs) {
+    instantiate_metavars_fn fn(*this, true, true, unassigned_lvls, unassigned_exprs);
     expr r = fn(e);
     return mk_pair(r, fn.get_justification());
 }
 
-std::tuple<expr, justification, substitution> substitution::updt_instantiate_metavars(expr const & e) const {
+std::tuple<expr, justification, substitution> substitution::updt_instantiate_metavars(expr const & e, name_set * unassigned_lvls,
+                                                                                      name_set * unassigned_exprs) const {
     substitution s(*this);
-    instantiate_metavars_fn fn(s, true, true);
+    instantiate_metavars_fn fn(s, true, true, unassigned_lvls, unassigned_exprs);
     expr r = fn(e);
     return std::make_tuple(r, fn.get_justification(), s);
 }
 
-std::pair<level, justification> substitution::instantiate_metavars(level const & l) const {
+std::pair<level, justification> substitution::instantiate_metavars(level const & l, name_set * unassigned) const {
     substitution s(*this);
-    return s.d_instantiate_metavars(l, true, false);
+    return s.d_instantiate_metavars(l, true, false, unassigned);
 }
 
 expr substitution::instantiate_metavars_wo_jst(expr const & e) const {
     substitution s(*this);
-    return instantiate_metavars_fn(s, false, false)(e);
+    return instantiate_metavars_fn(s, false, false, nullptr, nullptr)(e);
 }
 
 expr substitution::d_instantiate_metavars_wo_jst(expr const & e) {
-    return instantiate_metavars_fn(*this, false, true)(e);
+    return instantiate_metavars_fn(*this, false, true, nullptr, nullptr)(e);
 }
 
 std::pair<expr, substitution> substitution::updt_instantiate_metavars_wo_jst(expr const & e) const {
     substitution s(*this);
-    return mk_pair(instantiate_metavars_fn(s, false, true)(e), s);
+    return mk_pair(instantiate_metavars_fn(s, false, true, nullptr, nullptr)(e), s);
 }
 
 level substitution::instantiate_metavars_wo_jst(level const & l) const {
     substitution s(*this);
-    return s.d_instantiate_metavars(l, false, false).first;
+    return s.d_instantiate_metavars(l, false, false, nullptr).first;
 }
 
 bool substitution::occurs_expr(name const & m, expr const & e) const {

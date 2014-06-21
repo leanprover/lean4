@@ -22,15 +22,9 @@ inline expr abstract(expr const & e, std::initializer_list<expr> const & l) { re
 /** \brief Replace s with variable #i in the given expression. \pre s is closed */
 expr abstract(expr const & e, expr const & s, unsigned i);
 
-/**
-   \brief Replace the expressions s[0], ..., s[n-1] in e with var(n-1), ..., var(0).
-
-   Pointer comparison is used to compare subexpressions of e with the s[i]'s.
-
-   \pre s[0], ..., s[n-1] must be closed expressions (i.e., no free variables).
-*/
-expr abstract_p(expr const & e, unsigned n, expr const * s);
-inline expr abstract_p(expr const & e, expr const & s) { return abstract_p(e, 1, &s); }
+/** \brief Similar to abstract, but all values in s are local constants. */
+expr abstract_locals(expr const & e, unsigned n, expr const * s);
+inline expr abstract_local(expr const & e, expr const & s) { return abstract_locals(e, 1, &s); }
 
 /**
    \brief Create a lambda expression (lambda (x : t) b), the term b is abstracted using abstract(b, constant(x)).

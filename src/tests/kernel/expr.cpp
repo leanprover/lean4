@@ -242,15 +242,6 @@ static void tst11() {
     std::cout << abstract(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) << "\n";
     lean_assert(abstract(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) ==
                 mk_lambda("x", t, f(Var(1), mk_lambda("y", t, f(b, Var(2))))));
-    {
-        scoped_expr_caching set(false);
-        std::cout << abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) << "\n";
-        lean_assert(abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) ==
-                    mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))));
-        std::cout << abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), a) << "\n";
-        lean_assert(abstract_p(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), a) ==
-                    mk_lambda("x", t, f(Var(1), mk_lambda("y", t, f(b, Var(2))))));
-    }
     lean_assert(substitute(f(f(f(a))), f(a), b) == f(f(b)));
 }
 

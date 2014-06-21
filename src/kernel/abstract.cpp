@@ -28,20 +28,25 @@ expr abstract(expr const & e, unsigned s, unsigned n, expr const * subst) {
 expr abstract(expr const & e, unsigned n, expr const * subst) { return abstract(e, 0, n, subst); }
 expr abstract(expr const & e, expr const & s, unsigned i) { return abstract(e, i, 1, &s); }
 
-expr abstract_p(expr const & e, unsigned n, expr const * s) {
-    lean_assert(std::all_of(s, s+n, closed));
-    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
+expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
+    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return closed(e) && is_local(e); }));
+    if (!has_local(e))
+        return e;
+    return replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
+            if (!has_local(m))
+                return some_expr(m); // expression m does not contain local constants
             if (closed(e)) {
                 unsigned i = n;
                 while (i > 0) {
                     --i;
-                    if (is_eqp(s[i], e))
-                        return some_expr(copy_tag(e, mk_var(offset + n - i - 1)));
+                    if (subst[i] == m)
+                        return some_expr(copy_tag(m, mk_var(offset + n - i - 1)));
                 }
             }
             return none_expr();
         });
 }
+
 #define MkBinder(FName)                                                 \
 expr FName(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b) { \
     expr r = b;                                                         \

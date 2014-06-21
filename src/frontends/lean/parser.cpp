@@ -109,12 +109,14 @@ struct scoped_set_parser {
     }
 };
 
+static name g_tmp_prefix = name::mk_internal_unique_name();
+
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name,
                bool use_exceptions, unsigned num_threads,
                local_level_decls const & lds, local_expr_decls const & eds,
                unsigned line):
-    m_env(env), m_ios(ios),
+    m_env(env), m_ios(ios), m_ngen(g_tmp_prefix),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name), m_local_level_decls(lds), m_local_decls(eds),
     m_pos_table(std::make_shared<pos_info_table>()) {
@@ -796,10 +798,7 @@ expr parser::parse_led_notation(expr left) {
         return mk_app(left, parse_nud_notation(), pos_of(left));
 }
 
-expr parser::parse_id() {
-    auto p  = pos();
-    name id = get_name_val();
-    next();
+expr parser::id_to_expr(name const & id, pos_info const & p) {
     buffer<level> lvl_buffer;
     levels ls;
     if (curr_is_token(g_llevel_curly)) {
@@ -833,6 +832,13 @@ expr parser::parse_id() {
     if (!r)
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
     return *r;
+}
+
+expr parser::parse_id() {
+    auto p  = pos();
+    name id = get_name_val();
+    next();
+    return id_to_expr(id, p);
 }
 
 expr parser::parse_numeral_expr() {

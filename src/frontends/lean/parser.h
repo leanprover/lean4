@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "util/thread_script_state.h"
 #include "util/script_exception.h"
+#include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
 #include "library/io_state.h"
@@ -43,11 +44,11 @@ typedef std::unordered_map<unsigned, tactic> hint_table;
 class parser {
     environment             m_env;
     io_state                m_ios;
+    name_generator          m_ngen;
     bool                    m_verbose;
     bool                    m_use_exceptions;
     bool                    m_show_errors;
     unsigned                m_num_threads;
-
     scanner                 m_scanner;
     scanner::token_kind     m_curr;
     local_level_decls       m_local_level_decls;
@@ -143,6 +144,8 @@ public:
     void updt_options();
     template<typename T> void set_option(name const & n, T const & v) { m_ios.set_option(n, v); }
 
+    name mk_fresh_name() { return m_ngen.next(); }
+
     /** \brief Return the current position information */
     pos_info pos() const { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }
     expr save_pos(expr e, pos_info p);
@@ -202,6 +205,9 @@ public:
 
     parameter parse_binder();
     local_environment parse_binders(buffer<parameter> & r);
+
+    /** \brief Convert an identifier into an expression (constant or local constant) based on the current scope */
+    expr id_to_expr(name const & id, pos_info const & p);
 
     expr parse_expr(unsigned rbp = 0);
     expr parse_led(expr left);

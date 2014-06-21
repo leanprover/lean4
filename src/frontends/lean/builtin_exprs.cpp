@@ -146,24 +146,35 @@ static expr parse_proof(parser & p, expr const & prop) {
     }
 }
 
-static void parse_have_modifiers(parser & p, bool & is_fact) {
+static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> const & prev_local) {
+    auto id_pos       = p.pos();
+    bool is_fact      = false;
+    name id;
+    expr prop;
     if (p.curr_is_token(g_fact)) {
         p.next();
-        is_fact = true;
-    }
-}
-
-static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> const & prev_local) {
-    auto id_pos  = p.pos();
-    bool is_fact = false;
-    name id      = p.check_id_next("invalid 'have' declaration, identifier expected");
-    parse_have_modifiers(p, is_fact);
-    expr prop;
-    if (p.curr_is_token(g_colon)) {
+        is_fact       = true;
+        id            = p.mk_fresh_name();
+        prop          = p.parse_expr();
+    } else if (p.curr_is_identifier()) {
+        id = p.get_name_val();
         p.next();
-        prop  = p.parse_expr();
+        if (p.curr_is_token(g_fact)) {
+            p.next();
+            p.check_token_next(g_colon, "invalid 'have' declaration, ':' expected");
+            is_fact   = true;
+            prop      = p.parse_expr();
+        } else if (p.curr_is_token(g_colon)) {
+            p.next();
+            prop      = p.parse_expr();
+        } else {
+            expr left = p.id_to_expr(id, id_pos);
+            id        = p.mk_fresh_name();
+            prop      = p.parse_led(left);
+        }
     } else {
-        prop  = p.save_pos(mk_expr_placeholder(), id_pos);
+        id            = p.mk_fresh_name();
+        prop          = p.parse_expr();
     }
     p.check_token_next(g_comma, "invalid 'have' declaration, ',' expected");
     expr proof;

@@ -1757,6 +1757,28 @@ static int subst_instantiate(lua_State * L) {
     return 2;
 }
 
+static int subst_for_each_expr(lua_State * L) {
+    substitution const & s = to_substitution(L, 1);
+    luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
+    s.for_each_expr([&](name const & n, expr const & e, justification const & j) {
+            lua_pushvalue(L, 2); // push user-fun
+            push_name(L, n); push_expr(L, e); push_justification(L, j);
+            pcall(L, 3, 0, 0);
+        });
+    return 0;
+}
+
+static int subst_for_each_level(lua_State * L) {
+    substitution const & s = to_substitution(L, 1);
+    luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
+    s.for_each_level([&](name const & n, level const & l, justification const & j) {
+            lua_pushvalue(L, 2); // push user-fun
+            push_name(L, n); push_level(L, l); push_justification(L, j);
+            pcall(L, 3, 0, 0);
+        });
+    return 0;
+}
+
 static const struct luaL_Reg substitution_m[] = {
     {"__gc",                   substitution_gc},
     {"get_expr",               safe_function<subst_get_expr>},
@@ -1771,6 +1793,8 @@ static const struct luaL_Reg substitution_m[] = {
     {"get_level_assignment",   safe_function<subst_get_level_assignment>},
     {"get_assignment",         safe_function<subst_get_assignment>},
     {"instantiate",            safe_function<subst_instantiate>},
+    {"for_each_expr",          safe_function<subst_for_each_expr>},
+    {"for_each_level",         safe_function<subst_for_each_level>},
     {0, 0}
 };
 

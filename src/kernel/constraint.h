@@ -6,8 +6,13 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <algorithm>
+#include "util/lazy_list.h"
+#include "util/list.h"
+#include "util/name_generator.h"
 #include "kernel/expr.h"
 #include "kernel/justification.h"
+#include "kernel/metavar.h"
+
 namespace lean {
 /**
    \brief The lean kernel type checker produces two kinds of constraints:
@@ -21,8 +26,31 @@ namespace lean {
    metavariables or level metavariables.
 
    Each constraint is associated with a justification object.
+
+   \remark We also have choice constraints that are used by elaborator to specify
+   the possible solutions for a metavariable. The choice constraints are not used by
+   the kernel.
 */
-enum class constraint_kind { Eq, Level };
+enum class constraint_kind { Eq, Level, Choice };
+class constraint;
+typedef list<constraint> constraints;
+typedef std::tuple<expr, justification, constraints> choice_fn_result;
+/**
+   \brief A choice_fn is used to enumerate the possible solutions for a metavariable.
+   The input arguments are:
+        - an inferred type (if available)
+        - substitution map (metavar -> value)
+        - name generator
+
+   The result is a lazy_list of choices, i.e., tuples containing:
+        - an expression representing one of the possible solutions
+        - a justification for it (this is used to accumulate the justification for the substitutions used).
+        - a list of new constraints (that is, the solution is only valid if the additional constraints can be solved)
+
+   One application of choice constraints is overloaded notation.
+*/
+typedef std::function<lazy_list<choice_fn_result>(optional<expr> const &, substitution const &, name_generator const &)> choice_fn;
+
 struct constraint_cell;
 class constraint {
     constraint_cell * m_ptr;
@@ -33,7 +61,6 @@ public:
     ~constraint();
 
     constraint_kind kind() const;
-    unsigned hash() const;
     justification const & get_justification() const;
 
     constraint & operator=(constraint const & c);
@@ -44,18 +71,18 @@ public:
 
     friend constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
     friend constraint mk_level_cnstr(level const & lhs, level const & rhs, justification const & j);
+    friend constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, justification const & j);
 
     constraint_cell * raw() const { return m_ptr; }
 };
 
-bool operator==(constraint const & c1, constraint const & c2);
-inline bool operator!=(constraint const & c1, constraint const & c2) { return !(c1 == c2); }
-
 constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
 constraint mk_level_cnstr(level const & lhs, level const & rhs, justification const & j);
+constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, justification const & j);
 
 inline bool is_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::Eq; }
 inline bool is_level_cnstr(constraint const & c) { return c.kind() == constraint_kind::Level; }
+inline bool is_choice_cnstr(constraint const & c) { return c.kind() == constraint_kind::Choice; }
 
 /** \brief Return the lhs of an equality constraint. */
 expr const & cnstr_lhs_expr(constraint const & c);
@@ -65,19 +92,11 @@ expr const & cnstr_rhs_expr(constraint const & c);
 level const & cnstr_lhs_level(constraint const & c);
 /** \brief Return the rhs of an level constraint. */
 level const & cnstr_rhs_level(constraint const & c);
-
-/** \brief Update equality constraint c with new_lhs, new_rhs and justification. */
-constraint updt_eq_cnstr(constraint const & c, expr const & new_lhs, expr const & new_rhs, justification const & new_jst);
-/** \brief Update equality constraint c with new_lhs and new_rhs, but keeping the same justification. */
-constraint updt_eq_cnstr(constraint const & c, expr const & new_lhs, expr const & new_rhs);
-/** \brief Update level constraint c with new_lhs, new_rhs and justification. */
-constraint updt_level_cnstr(constraint const & c, level const & new_lhs, level const & new_rhs, justification const & new_jst);
-/** \brief Update level constraint c with new_lhs and new_rhs, but keeping the same justification. */
-constraint updt_level_cnstr(constraint const & c, level const & new_lhs, level const & new_rhs);
+/** \brief Return the metavariable associated with a choice constraint */
+expr const & cnstr_mvar(constraint const & c);
+/** \brief Return the choice_fn associated with a choice constraint. */
+choice_fn const & cnstr_choice_fn(constraint const & c);
 
 /** \brief Printer for debugging purposes */
 std::ostream & operator<<(std::ostream & out, constraint const & c);
-
-typedef list<constraint> constraints;
-inline constraints add(constraints const & cs, constraint const & c) { return cons(c, cs); }
 }

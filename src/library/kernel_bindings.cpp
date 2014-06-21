@@ -1595,10 +1595,8 @@ DECL_UDATA(constraint)
 #define CNSTR_PRED(P) static int constraint_ ## P(lua_State * L) { check_num_args(L, 1); return push_boolean(L, P(to_constraint(L, 1))); }
 CNSTR_PRED(is_eq_cnstr)
 CNSTR_PRED(is_level_cnstr)
-static int constraint_eq(lua_State * L) { return push_boolean(L, to_constraint(L, 1) == to_constraint(L, 2)); }
 static int constraint_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_constraint(L, 1), to_constraint(L, 2))); }
 static int constraint_get_kind(lua_State * L) { return push_integer(L, static_cast<int>(to_constraint(L, 1).kind())); }
-static int constraint_hash(lua_State * L) { return push_integer(L, to_constraint(L, 1).hash()); }
 static int constraint_jst(lua_State * L) { return push_justification(L, to_constraint(L, 1).get_justification()); }
 static int constraint_lhs(lua_State * L) {
     constraint const & c = to_constraint(L, 1);
@@ -1629,12 +1627,10 @@ static int mk_level_cnstr(lua_State * L) { return push_constraint(L, mk_level_cn
 static const struct luaL_Reg constraint_m[] = {
     {"__gc",            constraint_gc}, // never throws
     {"__tostring",      safe_function<constraint_tostring>},
-    {"__eq",            safe_function<constraint_eq>},
     {"is_eq",           safe_function<constraint_is_eq_cnstr>},
     {"is_level",        safe_function<constraint_is_level_cnstr>},
     {"is_eqp",          safe_function<constraint_is_eqp>},
     {"kind",            safe_function<constraint_get_kind>},
-    {"hash",            safe_function<constraint_hash>},
     {"lhs",             safe_function<constraint_lhs>},
     {"rhs",             safe_function<constraint_rhs>},
     {"justification",   safe_function<constraint_jst>},

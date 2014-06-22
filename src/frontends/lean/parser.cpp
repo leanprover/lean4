@@ -329,8 +329,7 @@ expr parser::mk_app(expr fn, expr arg, pos_info const & p) {
 }
 
 expr parser::mk_app(std::initializer_list<expr> const & args, pos_info const & p) {
-    unsigned nargs = args.size();
-    lean_assert(nargs >= 2);
+    lean_assert(args.size() >= 2);
     auto it = args.begin();
     expr r = *it;
     it++;

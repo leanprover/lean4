@@ -38,15 +38,6 @@ public:
 class type_checker {
     typedef scoped_map<expr, expr, expr_hash, is_bi_equal_proc> cache;
 
-    class converter_context : public converter::context {
-        type_checker & m_tc;
-    public:
-        converter_context(type_checker & tc):m_tc(tc) {}
-        virtual name mk_fresh_name() { return m_tc.m_gen.next(); }
-        virtual expr infer_type(expr const & e) { return m_tc.infer_type(e); }
-        virtual void add_cnstr(constraint const & c) { m_tc.add_cnstr(c); }
-    };
-
     /** \brief Interface type_checker <-> macro & normalizer_extension */
     class type_checker_context : public extension_context {
         type_checker & m_tc;
@@ -69,7 +60,6 @@ class type_checker {
     // The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
     // The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t))
     cache                      m_infer_type_cache[2];
-    converter_context          m_conv_ctx;
     type_checker_context       m_tc_ctx;
     bool                       m_memoize;
     // temp flag
@@ -87,6 +77,8 @@ class type_checker {
         void keep();
     };
 
+    friend class converter; // allow converter to access the following methods
+    name mk_fresh_name() { return m_gen.next(); }
     optional<expr> expand_macro(expr const & m);
     std::pair<expr, expr> open_binding_body(expr const & e);
     void add_cnstr(constraint const & c);
@@ -100,6 +92,7 @@ class type_checker {
     expr infer_type_core(expr const & e, bool infer_only);
     expr infer_type(expr const & e);
     bool is_def_eq(expr const & t, expr const & s, delayed_justification & jst);
+    extension_context & get_extension() { return m_tc_ctx; }
 
 public:
     /**

@@ -8,21 +8,19 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
+class type_checker;
+
 class converter {
+protected:
+    name mk_fresh_name(type_checker & tc);
+    expr infer_type(type_checker & tc, expr const & e);
+    void add_cnstr(type_checker & tc, constraint const & c);
+    extension_context & get_extension(type_checker & tc);
 public:
-    /** \brief Abstract context that must be provided to a converter object. */
-    class context {
-    public:
-        virtual name mk_fresh_name() = 0;
-        virtual expr infer_type(expr const & e) = 0;
-        virtual void add_cnstr(constraint const & c) = 0;
-    };
-
     virtual ~converter() {}
-
-    virtual expr whnf(expr const & e, context & c) = 0;
-    virtual bool is_def_eq(expr const & t, expr const & s, context & c, delayed_justification & j) = 0;
-    bool is_def_eq(expr const & t, expr const & s, context & c);
+    virtual expr whnf(expr const & e, type_checker & c) = 0;
+    virtual bool is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & j) = 0;
+    bool is_def_eq(expr const & t, expr const & s, type_checker & c);
 };
 
 std::unique_ptr<converter> mk_dummy_converter();

@@ -10,22 +10,28 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
+#include "kernel/type_checker.h"
 
 namespace lean {
 static no_delayed_justification g_no_delayed_jst;
-bool converter::is_def_eq(expr const & t, expr const & s, context & c) {
+bool converter::is_def_eq(expr const & t, expr const & s, type_checker & c) {
     return is_def_eq(t, s, c, g_no_delayed_jst);
 }
 
 /** \brief Do nothing converter */
 struct dummy_converter : public converter {
-    virtual expr whnf(expr const & e, context &) { return e; }
-    virtual bool is_def_eq(expr const &, expr const &, context &, delayed_justification &) { return true; }
+    virtual expr whnf(expr const & e, type_checker &) { return e; }
+    virtual bool is_def_eq(expr const &, expr const &, type_checker &, delayed_justification &) { return true; }
 };
 
 std::unique_ptr<converter> mk_dummy_converter() {
     return std::unique_ptr<converter>(new dummy_converter());
 }
+
+name converter::mk_fresh_name(type_checker & tc) { return tc.mk_fresh_name(); }
+expr converter::infer_type(type_checker & tc, expr const & e) { return tc.infer_type(e); }
+void converter::add_cnstr(type_checker & tc, constraint const & c) { return tc.add_cnstr(c); }
+extension_context & converter::get_extension(type_checker & tc) { return tc.get_extension(); }
 
 struct default_converter : public converter {
     environment           m_env;
@@ -38,29 +44,14 @@ struct default_converter : public converter {
     default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize, name_set const & extra_opaque):
         m_env(env), m_module_idx(mod_idx), m_memoize(memoize), m_extra_opaque(extra_opaque) {}
 
-    class extended_context : public extension_context {
-        default_converter & m_conv;
-        context &           m_ctx;
-    public:
-        extended_context(default_converter & conv, context &  ctx):m_conv(conv), m_ctx(ctx) {}
-        virtual environment const & env() const { return m_conv.m_env; }
-        virtual expr whnf(expr const & e) { return m_conv.whnf(e, m_ctx); }
-        virtual bool is_def_eq(expr const & e1, expr const & e2, delayed_justification & j) { return m_conv.is_def_eq(e1, e2, m_ctx, j); }
-        virtual expr infer_type(expr const & e) { return m_ctx.infer_type(e); }
-        virtual name mk_fresh_name() { return m_ctx.mk_fresh_name(); }
-        virtual void add_cnstr(constraint const & c) { m_ctx.add_cnstr(c); }
-    };
-
-    optional<expr> expand_macro(expr const & m, context & c) {
+    optional<expr> expand_macro(expr const & m, type_checker & c) {
         lean_assert(is_macro(m));
-        extended_context xctx(*this, c);
-        return macro_def(m).expand(m, xctx);
+        return macro_def(m).expand(m, get_extension(c));
     }
 
     /** \brief Apply normalizer extensions to \c e. */
-    optional<expr> norm_ext(expr const & e, context & c) {
-        extended_context xctx(*this, c);
-        return m_env.norm_ext()(e, xctx);
+    optional<expr> norm_ext(expr const & e, type_checker & c) {
+        return m_env.norm_ext()(e, get_extension(c));
     }
 
     /** \brief Try to apply eta-reduction to \c e. */
@@ -84,7 +75,7 @@ struct default_converter : public converter {
     }
 
     /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
-    expr whnf_core(expr const & e, context & c) {
+    expr whnf_core(expr const & e, type_checker & c) {
         check_system("whnf");
 
         // handle easy cases
@@ -231,7 +222,7 @@ struct default_converter : public converter {
 
         \remark This method does not use normalization extensions attached in the environment.
     */
-    expr whnf_core(expr e, unsigned w, context & c) {
+    expr whnf_core(expr e, unsigned w, type_checker & c) {
         while (true) {
             expr new_e = unfold_names(whnf_core(e, c), w);
             if (is_eqp(e, new_e))
@@ -241,7 +232,7 @@ struct default_converter : public converter {
     }
 
     /** \brief Put expression \c t in weak head normal form */
-    virtual expr whnf(expr const & e_prime, context & c) {
+    virtual expr whnf(expr const & e_prime, type_checker & c) {
         expr e = e_prime;
         // check cache
         if (m_memoize) {
@@ -273,7 +264,7 @@ struct default_converter : public converter {
         and
         body(t) is definitionally equal to body(s)
     */
-    bool is_def_eq_binding(expr t, expr s, context & c, delayed_justification & jst) {
+    bool is_def_eq_binding(expr t, expr s, type_checker & c, delayed_justification & jst) {
         lean_assert(t.kind() == s.kind());
         lean_assert(is_binding(t));
         expr_kind k = t.kind();
@@ -283,7 +274,7 @@ struct default_converter : public converter {
             expr var_s_type = instantiate_rev(binding_domain(s), subst.size(), subst.data());
             if (!is_def_eq(var_t_type, var_s_type, c, jst))
                 return false;
-            subst.push_back(mk_local(c.mk_fresh_name(), binding_name(s), var_s_type));
+            subst.push_back(mk_local(mk_fresh_name(c), binding_name(s), var_s_type));
             t = binding_body(t);
             s = binding_body(s);
         } while (t.kind() == k && s.kind() == k);
@@ -292,12 +283,12 @@ struct default_converter : public converter {
     }
 
     /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */
-    lbool quick_is_def_eq(expr const & t, expr const & s, context & c, delayed_justification & jst) {
+    lbool quick_is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst) {
         if (t == s)
             return l_true; // t and s are structurally equal
         if (is_meta(t) || is_meta(s)) {
             // if t or s is a metavariable (or the application of a metavariable), then add constraint
-            c.add_cnstr(mk_eq_cnstr(t, s, jst.get()));
+            add_cnstr(c, mk_eq_cnstr(t, s, jst.get()));
             return l_true;
         }
         if (t.kind() == s.kind()) {
@@ -309,7 +300,7 @@ struct default_converter : public converter {
                 if (is_equivalent(sort_level(t), sort_level(s))) {
                     return l_true;
                 } else if (has_meta(sort_level(t)) || has_meta(sort_level(s))) {
-                    c.add_cnstr(mk_level_eq_cnstr(sort_level(t), sort_level(s), jst.get()));
+                    add_cnstr(c, mk_level_eq_cnstr(sort_level(t), sort_level(s), jst.get()));
                     return l_true;
                 } else {
                     return l_false;
@@ -329,7 +320,7 @@ struct default_converter : public converter {
        \brief Return true if arguments of \c t are definitionally equal to arguments of \c s.
        This method is used to implement an optimization in the method \c is_def_eq.
     */
-    bool is_def_eq_args(expr t, expr s, context & c, delayed_justification & jst) {
+    bool is_def_eq_args(expr t, expr s, type_checker & c, delayed_justification & jst) {
         while (is_app(t) && is_app(s)) {
             if (!is_def_eq(app_arg(t), app_arg(s), c, jst))
                 return false;
@@ -346,7 +337,7 @@ struct default_converter : public converter {
     }
 
     /** Return true iff t is definitionally equal to s. */
-    virtual bool is_def_eq(expr const & t, expr const & s, context & c, delayed_justification & jst) {
+    virtual bool is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst) {
         check_system("is_definitionally_equal");
         lbool r = quick_is_def_eq(t, s, c, jst);
         if (r != l_undef) return r == l_true;
@@ -430,31 +421,31 @@ struct default_converter : public converter {
 
         if (m_env.prop_proof_irrel()) {
             // Proof irrelevance support for Prop/Bool (aka Type.{0})
-            expr t_type = c.infer_type(t);
-            if (is_prop(t_type, c) && is_def_eq(t_type, c.infer_type(s), c, jst))
+            expr t_type = infer_type(c, t);
+            if (is_prop(t_type, c) && is_def_eq(t_type, infer_type(c, s), c, jst))
                 return true;
         }
 
         list<name> const & cls_proof_irrel = m_env.cls_proof_irrel();
         if (!is_nil(cls_proof_irrel)) {
             // Proof irrelevance support for classes
-            expr t_type = whnf(c.infer_type(t), c);
+            expr t_type = whnf(infer_type(c, t), c);
             if (std::any_of(cls_proof_irrel.begin(), cls_proof_irrel.end(),
                             [&](name const & cls_name) { return is_app_of(t_type, cls_name); }) &&
-                is_def_eq(t_type, c.infer_type(s), c, jst))
+                is_def_eq(t_type, infer_type(c, s), c, jst))
                 return true;
         }
 
         if (has_metavar(t_n) || has_metavar(s_n)) {
-            c.add_cnstr(mk_eq_cnstr(t_n, s_n, jst.get()));
+            add_cnstr(c, mk_eq_cnstr(t_n, s_n, jst.get()));
             return true;
         }
 
         return false;
     }
 
-    bool is_prop(expr const & e, context & c) {
-        return whnf(c.infer_type(e), c) == Bool;
+    bool is_prop(expr const & e, type_checker & c) {
+        return whnf(infer_type(c, e), c) == Bool;
     }
 };
 

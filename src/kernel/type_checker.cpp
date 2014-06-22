@@ -410,14 +410,14 @@ expr type_checker::ensure_pi(expr const & e, expr const & s) {
 /** \brief Return true iff \c t and \c s are definitionally equal */
 bool type_checker::is_def_eq(expr const & t, expr const & s, delayed_justification & jst) {
     scope mk_scope(*this);
-    bool r = m_conv->is_def_eq(t, s, m_conv_ctx, jst);
+    bool r = m_conv->is_def_eq(t, s, *this, jst);
     if (r) mk_scope.keep();
     return r;
 }
 
 bool type_checker::is_def_eq(expr const & t, expr const & s) {
     scope mk_scope(*this);
-    bool r = m_conv->is_def_eq(t, s, m_conv_ctx);
+    bool r = m_conv->is_def_eq(t, s, *this);
     if (r) mk_scope.keep();
     return r;
 }
@@ -436,7 +436,7 @@ bool type_checker::is_prop(expr const & e) {
 }
 
 expr type_checker::whnf(expr const & t) {
-    return m_conv->whnf(t, m_conv_ctx);
+    return m_conv->whnf(t, *this);
 }
 
 void type_checker::push() {
@@ -460,7 +460,7 @@ static add_cnstr_fn g_no_constraint_fn = mk_no_contranint_fn();
 
 type_checker::type_checker(environment const & env, name_generator const & g, add_cnstr_fn const & h,
                            std::unique_ptr<converter> && conv, bool memoize):
-    m_env(env), m_gen(g), m_add_cnstr_fn(h), m_conv(std::move(conv)), m_conv_ctx(*this), m_tc_ctx(*this),
+    m_env(env), m_gen(g), m_add_cnstr_fn(h), m_conv(std::move(conv)), m_tc_ctx(*this),
     m_memoize(memoize), m_cache_cs(false) {
 }
 

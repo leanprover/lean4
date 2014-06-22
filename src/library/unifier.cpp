@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <memory>
 #include <vector>
+#include "util/interrupt.h"
 #include "util/luaref.h"
 #include "util/lazy_list_fn.h"
 #include "kernel/for_each_fn.h"
@@ -174,7 +175,7 @@ struct unifier_fn {
     name_to_cnstrs   m_mlvl_occs;
 
     struct case_split {
-        justification    m_curr_assumption; // object used to justify current split
+        unsigned         m_assumption_idx; // idx of the current assumption
         justification    m_failed_justifications; // justifications for failed branches
         // snapshot of the state
         substitution     m_subst;
@@ -190,8 +191,8 @@ struct unifier_fn {
     };
     typedef std::vector<std::unique_ptr<case_split>> case_split_stack;
 
-    case_split_stack m_case_splits;
-    justification    m_conflict;
+    case_split_stack        m_case_splits;
+    optional<justification> m_conflict;
 
     unifier_fn(environment const & env, unsigned num_cs, constraint const * cs,
                name_generator const & ngen, substitution const & s, unifier_plugin const & p,
@@ -206,7 +207,14 @@ struct unifier_fn {
         }
     }
 
-    bool in_conflict() const { return !m_conflict.is_none(); }
+    void check_system() {
+        check_interrupted();
+        // TODO(Leo): check if exceeded the maximum number of steps
+    }
+
+    bool in_conflict() const { return (bool)m_conflict; } // NOLINT
+    void set_conflict(justification const & j) { m_conflict = j; }
+    void reset_conflict() { m_conflict = optional<justification>(); lean_assert(!in_conflict()); }
 
     template<bool MVar>
     void add_occ(name const & m, unsigned cidx) {
@@ -282,7 +290,7 @@ struct unifier_fn {
     }
 
     enum status { Assigned, Failed, Continue };
-    status process_metavar(expr const & lhs, expr const & rhs, justification const & j) {
+    status process_metavar_eq(expr const & lhs, expr const & rhs, justification const & j) {
         if (!is_meta(lhs))
             return Continue;
         buffer<expr> locals;
@@ -290,7 +298,7 @@ struct unifier_fn {
         if (!m || (is_meta(rhs) && get_app_fn(rhs) == *m))
             return Continue;
         if (!occurs_context_check(rhs, *m, locals)) {
-            m_conflict = j;
+            set_conflict(j);
             return Failed;
         }
         lean_assert(!m_subst.is_assigned(*m));
@@ -302,6 +310,7 @@ struct unifier_fn {
     }
 
     bool process_eq_constraint(constraint const & c) {
+        lean_assert(is_eq_cnstr(c));
         // instantiate
         name_set unassigned_lvls, unassigned_exprs;
         auto lhs_jst = m_subst.instantiate_metavars(cnstr_lhs_expr(c), &unassigned_lvls, &unassigned_exprs);
@@ -314,13 +323,13 @@ struct unifier_fn {
 
         justification new_jst = mk_composite1(mk_composite1(c.get_justification(), lhs_jst.second), rhs_jst.second);
         if (!has_metavar(lhs) && !has_metavar(rhs)) {
-            m_conflict = new_jst;
+            set_conflict(new_jst);
             return false; // trivial failure
         }
 
-        status st = process_metavar(lhs, rhs, new_jst);
+        status st = process_metavar_eq(lhs, rhs, new_jst);
         if (st != Continue) return st == Assigned;
-        st = process_metavar(rhs, lhs, new_jst);
+        st = process_metavar_eq(rhs, lhs, new_jst);
         if (st != Continue) return st == Assigned;
 
         if (lhs != cnstr_lhs_expr(c) || rhs != cnstr_rhs_expr(c)) {
@@ -328,7 +337,7 @@ struct unifier_fn {
             if (m_tc.is_def_eq(lhs, rhs, new_jst)) {
                 return true;
             } else {
-                m_conflict = new_jst;
+                set_conflict(new_jst);
                 return false;
             }
         }
@@ -341,7 +350,7 @@ struct unifier_fn {
         return true;
     }
 
-    status process_meta_lvl(level const & lhs, level const & rhs, justification const & j) {
+    status process_metavar_eq(level const & lhs, level const & rhs, justification const & j) {
         if (!is_meta(lhs))
             return Continue;
         bool contains = occurs(lhs, rhs);
@@ -359,34 +368,49 @@ struct unifier_fn {
         }
     }
 
-    bool process_lvl_constraint(constraint const & c) {
+    bool process_level_eq_constraint(constraint const & c) {
+        lean_assert(is_level_eq_cnstr(c));
         name_set unassigned_lvls;
         auto lhs_jst = m_subst.instantiate_metavars(cnstr_lhs_level(c), &unassigned_lvls);
         auto rhs_jst = m_subst.instantiate_metavars(cnstr_rhs_level(c), &unassigned_lvls);
-        level const & lhs = lhs_jst.first;
-        level const & rhs = rhs_jst.first;
+        level lhs = lhs_jst.first;
+        level rhs = rhs_jst.first;
+
+        lhs = normalize(lhs);
+        rhs = normalize(rhs);
+        while (is_succ(lhs) && is_succ(rhs)) {
+            lhs = succ_of(lhs);
+            rhs = succ_of(rhs);
+        }
 
         if (lhs == rhs)
             return true; // trivial constraint
 
         justification new_jst = mk_composite1(mk_composite1(c.get_justification(), lhs_jst.second), rhs_jst.second);
         if (!has_meta(lhs) && !has_meta(rhs)) {
-            m_conflict = new_jst;
+            set_conflict(new_jst);
             return false; // trivial failure
         }
 
-        status st = process_meta_lvl(lhs, rhs, new_jst);
+        status st = process_metavar_eq(lhs, rhs, new_jst);
         if (st != Continue) return st == Assigned;
-        st = process_meta_lvl(rhs, lhs, new_jst);
+        st = process_metavar_eq(rhs, lhs, new_jst);
         if (st != Continue) return st == Assigned;
 
-        add_delayed(c, &unassigned_lvls, nullptr);
+        if (lhs != cnstr_lhs_level(c) || rhs != cnstr_rhs_level(c)) {
+            constraint new_c = mk_level_eq_cnstr(lhs, rhs, new_jst);
+            add_delayed(new_c, &unassigned_lvls, nullptr);
+        } else {
+            add_delayed(c, &unassigned_lvls, nullptr);
+        }
+
         return true;
     }
 
     bool process_constraint(constraint const & c) {
         if (in_conflict())
             return false;
+        check_system();
         switch (c.kind()) {
         case constraint_kind::Choice:
             add_active(c, nullptr, nullptr);
@@ -394,7 +418,7 @@ struct unifier_fn {
         case constraint_kind::Eq:
             return process_eq_constraint(c);
         case constraint_kind::LevelEq:
-            return process_lvl_constraint(c);
+            return process_level_eq_constraint(c);
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }
@@ -417,20 +441,89 @@ struct unifier_fn {
         return true;
     }
 
-    optional<substitution> next() {
-        // TODO(Leo): if m_use_exception == true, then throw exception instead of returning none.
-        if (in_conflict())
-            return optional<substitution>();
-        if (!m_first) {
-            if (m_case_splits.empty())
-                return optional<substitution>();
-            // TODO(Leo): force backtrack
+    bool resolve_conflict() {
+        lean_assert(in_conflict());
+        while (!m_case_splits.empty()) {
+            std::unique_ptr<case_split> & d = m_case_splits.back();
+            if (depends_on(*m_conflict, d->m_assumption_idx)) {
+                d->m_failed_justifications = mk_composite1(d->m_failed_justifications, *m_conflict);
+                if (d->next(*this)) {
+                    reset_conflict();
+                    return true;
+                }
+            }
+            m_case_splits.pop_back();
         }
-        m_first = false;
-        if (m_active.empty() || m_delayed.empty())
-            return optional<substitution>(m_subst);
-        // TODO(Leo): search
+        return false;
+    }
+
+    optional<substitution> failure() {
+        // TODO(Leo): if m_use_exception == true, then throw exception instead of returning none.
         return optional<substitution>();
+    }
+
+    bool process_choice_constraint(constraint const & c) {
+        lean_assert(is_choice_cnstr(c));
+        // TODO(Leo)
+        return true;
+    }
+
+    bool process_plugin_constraint(constraint const & c) {
+        lean_assert(!is_choice_cnstr(c));
+        lazy_list<constraints> alts = m_plugin(c, m_ngen.mk_child());
+        auto r = alts.pull();
+        if (!r)
+            return false;
+        // TODO(Leo): create backtracking point
+        return true;
+    }
+
+    bool process_next_active() {
+        lean_assert(!m_active.empty());
+        constraint c = m_active.min()->first;
+        m_active.erase_min();
+        if (is_choice_cnstr(c))
+            return process_choice_constraint(c);
+        else
+            return process_plugin_constraint(c);
+    }
+
+    bool process_next_delayed() {
+        // TODO(Leo)
+        return true;
+    }
+
+    optional<substitution> next() {
+        if (in_conflict())
+            return failure();
+        if (!m_case_splits.empty()) {
+            justification all_assumptions;
+            for (auto const & cs : m_case_splits)
+                all_assumptions = mk_composite1(all_assumptions, mk_assumption_justification(cs->m_assumption_idx));
+            set_conflict(all_assumptions);
+            if (!resolve_conflict())
+                return failure();
+        } else if (m_first) {
+            m_first = false;
+        } else {
+            // This is not the first run, and there are no case-splits.
+            // We don't throw an exception since there are no more solutions.
+            return optional<substitution>();
+        }
+        while (!m_active.empty() || !m_delayed.empty()) {
+            check_system();
+            lean_assert(!in_conflict());
+            bool ok = true;
+            if (!m_active.empty())
+                ok = process_next_active();
+            else
+                ok = process_next_delayed();
+            if (!ok && !resolve_conflict())
+                return failure();
+        }
+        lean_assert(!in_conflict())
+        lean_assert(m_active.empty() && m_delayed.empty());
+        return optional<substitution>(m_subst);
     }
 };
 
@@ -460,7 +553,6 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
     name_generator new_ngen(ngen);
     bool failed = false;
     type_checker tc(env, new_ngen.mk_child(), [&](constraint const & c) {
-            std::cout << "cnstr: " << c << "\n";
             if (!failed) {
                 auto r = unify_simple(s, c);
                 switch (r.first) {

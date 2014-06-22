@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
+#include <memory>
+#include <vector>
 #include "util/luaref.h"
 #include "util/lazy_list_fn.h"
 #include "kernel/for_each_fn.h"
@@ -14,23 +16,28 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 
 namespace lean {
-static std::pair<unify_status, substitution> unify_simple_core(substitution const & s, expr const & lhs, expr const & rhs,
-                                                               justification const & j) {
-    lean_assert(is_meta(lhs));
-    buffer<expr> args;
-    expr const & m = get_app_args(lhs, args);
-    lean_assert(is_metavar(m));
+// If \c e is a metavariable ?m or a term of the form (?m l_1 ... l_n) where
+// l_1 ... l_n are distinct local variables, then return ?m, and store l_1 ... l_n in args.
+// Otherwise return none.
+optional<expr> is_simple_meta(expr const & e, buffer<expr> & args) {
+    expr const & m = get_app_args(e, args);
+    if (!is_metavar(m))
+        return none_expr();
     for (auto it = args.begin(); it != args.end(); it++) {
         if (!is_local(*it) || std::find(args.begin(), it, *it) != it)
-            return mk_pair(unify_status::Unsupported, s);
+            return none_expr();
     }
-    if (is_meta(rhs) && get_app_fn(rhs) == m)
-        return mk_pair(unify_status::Unsupported, s);
+    return some_expr(m);
+}
+
+// Return true if \c e does not contain the metavariable \c m, and all local
+// constants are in \c e are in \c locals
+bool occurs_context_check(expr const & e, expr const & m, buffer<expr> const & locals) {
     bool failed = false;
-    for_each(rhs, [&](expr const & e, unsigned) {
+    for_each(e, [&](expr const & e, unsigned) {
             if (failed)
                 return false;
-            if (is_local(e) && std::find(args.begin(), args.end(), e) == args.end()) {
+            if (is_local(e) && std::find(locals.begin(), locals.end(), e) == locals.end()) {
                 // right-hand-side contains variable that is not in the scope
                 // of metavariable.
                 failed = true;
@@ -45,15 +52,33 @@ static std::pair<unify_status, substitution> unify_simple_core(substitution cons
             // metavariables and/or local constants.
             return has_metavar(e) || has_local(e);
         });
-    if (failed)
-        return mk_pair(unify_status::Failed, s);
-    expr v = abstract_locals(rhs, args.size(), args.data());
-    unsigned i = args.size();
+    return !failed;
+}
+
+// Create a lambda abstraction by abstracting the local constants \c locals in \c e
+expr lambda_abstract_locals(expr const & e, buffer<expr> const & locals) {
+    expr v = abstract_locals(e, locals.size(), locals.data());
+    unsigned i = locals.size();
     while (i > 0) {
         --i;
-        v = mk_lambda(local_pp_name(args[i]), mlocal_type(args[i]), v);
+        v = mk_lambda(local_pp_name(locals[i]), mlocal_type(locals[i]), v);
     }
-    return mk_pair(unify_status::Solved, s.assign(mlocal_name(m), v, j));
+    return v;
+}
+
+static std::pair<unify_status, substitution> unify_simple_core(substitution const & s, expr const & lhs, expr const & rhs,
+                                                               justification const & j) {
+    lean_assert(is_meta(lhs));
+    buffer<expr> args;
+    auto m = is_simple_meta(lhs, args);
+    if (!m || (is_meta(rhs) && get_app_fn(rhs) == *m)) {
+        return mk_pair(unify_status::Unsupported, s);
+    } else if (!occurs_context_check(rhs, *m, args)) {
+        return mk_pair(unify_status::Failed, s);
+    } else {
+        expr v = lambda_abstract_locals(rhs, args);
+        return mk_pair(unify_status::Solved, s.assign(mlocal_name(*m), v, j));
+    }
 }
 
 std::pair<unify_status, substitution> unify_simple(substitution const & s, expr const & lhs, expr const & rhs, justification const & j) {
@@ -69,19 +94,25 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, expr 
         return mk_pair(unify_status::Unsupported, s);
 }
 
-std::pair<unify_status, substitution> unify_simple_core(substitution const & s, level const & lhs, level const & rhs, justification const & j) {
-    lean_assert(is_meta(lhs));
+// Return true if m occurs in e
+bool occurs(level const & m, level const & e) {
+    lean_assert(is_meta(m));
     bool contains = false;
-    for_each(rhs, [&](level const & l) {
+    for_each(e, [&](level const & l) {
             if (contains)
                 return false;
-            if (l == lhs) {
-                // occurs-check failed
+            if (l == m) {
                 contains = true;
                 return false;
             }
-            return true;
+            return has_meta(l);
         });
+    return contains;
+}
+
+std::pair<unify_status, substitution> unify_simple_core(substitution const & s, level const & lhs, level const & rhs, justification const & j) {
+    lean_assert(is_meta(lhs));
+    bool contains = occurs(lhs, rhs);
     if (contains) {
         if (is_succ(rhs))
             return mk_pair(unify_status::Failed, s);
@@ -115,21 +146,290 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, const
         return mk_pair(unify_status::Unsupported, s);
 }
 
-struct unifier_fn {
-    environment    m_env;
-    name_generator m_ngen;
-    substitution   m_subst;
-    unifier_plugin m_plugin;
-    bool           m_use_exception;
+static constraint g_dont_care_cnstr = mk_eq_cnstr(expr(), expr(), justification());
 
-    unifier_fn(environment const & env, unsigned /* num_cs */, constraint const * /* cs */,
+struct unifier_fn {
+    typedef std::pair<constraint, unsigned> cnstr; // constraint + idx
+    struct cnstr_cmp {
+        int operator()(cnstr const & c1, cnstr const & c2) const { return c1.second < c2.second ? -1 : (c1.second == c2.second ? 0 : 1); }
+    };
+    struct unsigned_cmp {
+        int operator()(unsigned i1, unsigned i2) const { return i1 < i2 ? -1 : (i1 == i2 ? 0 : 1); }
+    };
+    typedef rb_tree<cnstr, cnstr_cmp> cnstr_set;
+    typedef rb_tree<unsigned, unsigned_cmp> cnstr_idx_set;
+    typedef rb_map<name, cnstr_idx_set, name_quick_cmp> name_to_cnstrs;
+
+    environment      m_env;
+    name_generator   m_ngen;
+    substitution     m_subst;
+    unifier_plugin   m_plugin;
+    type_checker     m_tc;
+    bool             m_use_exception;
+    bool             m_first;
+    unsigned         m_next_cidx;
+    cnstr_set        m_active;
+    cnstr_set        m_delayed;
+    name_to_cnstrs   m_mvar_occs;
+    name_to_cnstrs   m_mlvl_occs;
+
+    struct case_split {
+        justification    m_curr_assumption; // object used to justify current split
+        justification    m_failed_justifications; // justifications for failed branches
+        // snapshot of the state
+        substitution     m_subst;
+        cnstr_set        m_active;
+        cnstr_set        m_delayed;
+        name_to_cnstrs   m_mvar_occs;
+        name_to_cnstrs   m_mlvl_occs;
+        case_split(unifier_fn & u):
+            m_subst(u.m_subst), m_active(u.m_active), m_delayed(u.m_delayed), m_mvar_occs(u.m_mvar_occs), m_mlvl_occs(u.m_mlvl_occs)
+            {}
+        virtual ~case_split() {}
+        virtual bool next(unifier_fn & owner) = 0;
+    };
+    typedef std::vector<std::unique_ptr<case_split>> case_split_stack;
+
+    case_split_stack m_case_splits;
+    justification    m_conflict;
+
+    unifier_fn(environment const & env, unsigned num_cs, constraint const * cs,
                name_generator const & ngen, substitution const & s, unifier_plugin const & p,
                bool use_exception):
-        m_env(env), m_ngen(ngen), m_subst(s), m_plugin(p), m_use_exception(use_exception) {
+        m_env(env), m_ngen(ngen), m_subst(s), m_plugin(p),
+        m_tc(env, m_ngen.mk_child(), [=](constraint const & c) { process_constraint(c); }),
+        m_use_exception(use_exception) {
+        m_next_cidx = 0;
+        m_first     = true;
+        for (unsigned i = 0; i < num_cs; i++) {
+            process_constraint(cs[i]);
+        }
+    }
+
+    bool in_conflict() const { return !m_conflict.is_none(); }
+
+    template<bool MVar>
+    void add_occ(name const & m, unsigned cidx) {
+        cnstr_idx_set s;
+        name_to_cnstrs & map = MVar ? m_mvar_occs : m_mlvl_occs;
+        auto it = map.find(m);
+        if (!it)
+            s = *it;
+        if (!s.contains(cidx)) {
+            s.insert(cidx);
+            map.insert(m, s);
+        }
+    }
+
+    void add_mvar_occ(name const & m, unsigned cidx) { add_occ<true>(m, cidx); }
+    void add_mlvl_occ(name const & m, unsigned cidx) { add_occ<false>(m, cidx); }
+
+    void add_occs(unsigned cidx, name_set const * mlvl_occs, name_set const * mvar_occs) {
+        if (mlvl_occs) {
+            mlvl_occs->for_each([=](name const & m) {
+                    add_mlvl_occ(m, cidx);
+                });
+        }
+        if (mvar_occs) {
+            mvar_occs->for_each([=](name const & m) {
+                    add_mvar_occ(m, cidx);
+                });
+        }
+    }
+
+    void add_active(constraint const & c, name_set const * mlvl_occs, name_set const * mvar_occs) {
+        m_active.insert(cnstr(c, m_next_cidx));
+        add_occs(m_next_cidx, mlvl_occs, mvar_occs);
+        m_next_cidx++;
+    }
+
+    void add_delayed(constraint const & c, name_set const * mlvl_occs, name_set const * mvar_occs) {
+        m_delayed.insert(cnstr(c, m_next_cidx));
+        add_occs(m_next_cidx, mlvl_occs, mvar_occs);
+        m_next_cidx++;
+    }
+
+    bool assign(expr const & m, expr const & v, justification const & j) {
+        lean_assert(is_metavar(m));
+        m_subst = m_subst.assign(m, v, j);
+        auto it = m_mvar_occs.find(mlocal_name(m));
+        if (it) {
+            cnstr_idx_set s = *it;
+            m_mvar_occs.erase(mlocal_name(m));
+            s.for_each([&](unsigned cidx) {
+                    process_constraint_cidx(cidx);
+                });
+            return !in_conflict();
+        } else {
+            return true;
+        }
+    }
+
+    bool assign(level const & m, level const & v, justification const & j) {
+        lean_assert(is_meta(m));
+        m_subst = m_subst.assign(m, v, j);
+        auto it = m_mlvl_occs.find(meta_id(m));
+        if (it) {
+            cnstr_idx_set s = *it;
+            m_mlvl_occs.erase(meta_id(m));
+            s.for_each([&](unsigned cidx) {
+                    process_constraint_cidx(cidx);
+                });
+            return !in_conflict();
+        } else {
+            return true;
+        }
+    }
+
+    enum status { Assigned, Failed, Continue };
+    status process_metavar(expr const & lhs, expr const & rhs, justification const & j) {
+        if (!is_meta(lhs))
+            return Continue;
+        buffer<expr> locals;
+        auto m = is_simple_meta(lhs, locals);
+        if (!m || (is_meta(rhs) && get_app_fn(rhs) == *m))
+            return Continue;
+        if (!occurs_context_check(rhs, *m, locals)) {
+            m_conflict = j;
+            return Failed;
+        }
+        lean_assert(!m_subst.is_assigned(*m));
+        if (assign(*m, lambda_abstract_locals(rhs, locals), j)) {
+            return Assigned;
+        } else {
+            return Failed;
+        }
+    }
+
+    bool process_eq_constraint(constraint const & c) {
+        // instantiate
+        name_set unassigned_lvls, unassigned_exprs;
+        auto lhs_jst = m_subst.instantiate_metavars(cnstr_lhs_expr(c), &unassigned_lvls, &unassigned_exprs);
+        auto rhs_jst = m_subst.instantiate_metavars(cnstr_rhs_expr(c), &unassigned_lvls, &unassigned_exprs);
+        expr const & lhs = lhs_jst.first;
+        expr const & rhs = rhs_jst.first;
+
+        if (lhs == rhs)
+            return true; // trivial constraint
+
+        justification new_jst = mk_composite1(mk_composite1(c.get_justification(), lhs_jst.second), rhs_jst.second);
+        if (!has_metavar(lhs) && !has_metavar(rhs)) {
+            m_conflict = new_jst;
+            return false; // trivial failure
+        }
+
+        status st = process_metavar(lhs, rhs, new_jst);
+        if (st != Continue) return st == Assigned;
+        st = process_metavar(rhs, lhs, new_jst);
+        if (st != Continue) return st == Assigned;
+
+        if (lhs != cnstr_lhs_expr(c) || rhs != cnstr_rhs_expr(c)) {
+            // some metavariables were instantiated, try is_def_eq again
+            if (m_tc.is_def_eq(lhs, rhs, new_jst)) {
+                return true;
+            } else {
+                m_conflict = new_jst;
+                return false;
+            }
+        }
+
+        if (is_meta(lhs) || is_meta(rhs)) {
+            add_delayed(c, &unassigned_lvls, &unassigned_exprs);
+        } else {
+            add_active(c, &unassigned_lvls, &unassigned_exprs);
+        }
+        return true;
+    }
+
+    status process_meta_lvl(level const & lhs, level const & rhs, justification const & j) {
+        if (!is_meta(lhs))
+            return Continue;
+        bool contains = occurs(lhs, rhs);
+        if (contains) {
+            if (is_succ(rhs))
+                return Failed;
+            else
+                return Continue;
+        }
+        lean_assert(!m_subst.is_assigned(lhs));
+        if (assign(lhs, rhs, j)) {
+            return Assigned;
+        } else {
+            return Failed;
+        }
+    }
+
+    bool process_lvl_constraint(constraint const & c) {
+        name_set unassigned_lvls;
+        auto lhs_jst = m_subst.instantiate_metavars(cnstr_lhs_level(c), &unassigned_lvls);
+        auto rhs_jst = m_subst.instantiate_metavars(cnstr_rhs_level(c), &unassigned_lvls);
+        level const & lhs = lhs_jst.first;
+        level const & rhs = rhs_jst.first;
+
+        if (lhs == rhs)
+            return true; // trivial constraint
+
+        justification new_jst = mk_composite1(mk_composite1(c.get_justification(), lhs_jst.second), rhs_jst.second);
+        if (!has_meta(lhs) && !has_meta(rhs)) {
+            m_conflict = new_jst;
+            return false; // trivial failure
+        }
+
+        status st = process_meta_lvl(lhs, rhs, new_jst);
+        if (st != Continue) return st == Assigned;
+        st = process_meta_lvl(rhs, lhs, new_jst);
+        if (st != Continue) return st == Assigned;
+
+        add_delayed(c, &unassigned_lvls, nullptr);
+        return true;
+    }
+
+    bool process_constraint(constraint const & c) {
+        if (in_conflict())
+            return false;
+        switch (c.kind()) {
+        case constraint_kind::Choice:
+            add_active(c, nullptr, nullptr);
+            return true;
+        case constraint_kind::Eq:
+            return process_eq_constraint(c);
+        case constraint_kind::Level:
+            return process_lvl_constraint(c);
+        }
+        lean_unreachable(); // LCOV_EXCL_LINE
+    }
+
+    bool process_constraint_cidx(unsigned cidx) {
+        if (in_conflict())
+            return false;
+        cnstr c(g_dont_care_cnstr, cidx);
+        if (auto it = m_active.find(c)) {
+            lean_assert(!m_delayed.contains(c));
+            constraint c2 = it->first;
+            m_active.erase(c);
+            return process_constraint(c2);
+        }
+        if (auto it = m_delayed.find(c)) {
+            constraint c2 = it->first;
+            m_delayed.erase(c);
+            return process_constraint(c2);
+        }
+        return true;
     }
 
     optional<substitution> next() {
-        // TODO(Leo)
+        // TODO(Leo): if m_use_exception == true, then throw exception instead of returning none.
+        if (in_conflict())
+            return optional<substitution>();
+        if (!m_first) {
+            if (m_case_splits.empty())
+                return optional<substitution>();
+            // TODO(Leo): force backtrack
+        }
+        m_first = false;
+        if (m_active.empty() || m_delayed.empty())
+            return optional<substitution>(m_subst);
+        // TODO(Leo): search
         return optional<substitution>();
     }
 };
@@ -160,6 +460,7 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
     name_generator new_ngen(ngen);
     bool failed = false;
     type_checker tc(env, new_ngen.mk_child(), [&](constraint const & c) {
+            std::cout << "cnstr: " << c << "\n";
             if (!failed) {
                 auto r = unify_simple(s, c);
                 switch (r.first) {

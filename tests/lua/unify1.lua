@@ -9,6 +9,7 @@ function test_unify_simple(lhs, rhs, expected)
                           print("  " .. tostring(n) .. " := " .. tostring(v))
       end)
    end
+   if r ~= expected then print("r: " .. r) end
    assert(r == expected)
 end
 

@@ -12,6 +12,7 @@ function test_unify(env, lhs, rhs, num_s)
       end)
       n = n + 1
    end
+   if num_s ~= n then print("n: " .. n) end
    assert(num_s == n)
 end
 

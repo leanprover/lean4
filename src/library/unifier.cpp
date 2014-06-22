@@ -221,7 +221,7 @@ struct unifier_fn {
         cnstr_idx_set s;
         name_to_cnstrs & map = MVar ? m_mvar_occs : m_mlvl_occs;
         auto it = map.find(m);
-        if (!it)
+        if (it)
             s = *it;
         if (!s.contains(cidx)) {
             s.insert(cidx);
@@ -472,8 +472,10 @@ struct unifier_fn {
         lean_assert(!is_choice_cnstr(c));
         lazy_list<constraints> alts = m_plugin(c, m_ngen.mk_child());
         auto r = alts.pull();
-        if (!r)
+        if (!r) {
+            set_conflict(c.get_justification());
             return false;
+        }
         // TODO(Leo): create backtracking point
         return true;
     }

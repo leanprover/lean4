@@ -1830,7 +1830,7 @@ static void get_type_checker_args(lua_State * L, int idx, optional<module_idx> &
     extra_opaque = get_name_set_named_param(L, idx, "extra_opaque", name_set());
 }
 
-int mk_type_checker(lua_State * L) {
+static int mk_type_checker(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 1) {
         return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1)));
@@ -1857,29 +1857,37 @@ int mk_type_checker(lua_State * L) {
         }
     }
 }
-int type_checker_whnf(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->whnf(to_expr(L, 2))); }
-int type_checker_ensure_pi(lua_State * L) {
+static int type_checker_whnf(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->whnf(to_expr(L, 2))); }
+static int type_checker_ensure_pi(lua_State * L) {
     if (lua_gettop(L) == 2)
         return push_expr(L, to_type_checker_ref(L, 1)->ensure_pi(to_expr(L, 2)));
     else
         return push_expr(L, to_type_checker_ref(L, 1)->ensure_pi(to_expr(L, 2), to_expr(L, 3)));
 }
-int type_checker_ensure_sort(lua_State * L) {
+static int type_checker_ensure_sort(lua_State * L) {
     if (lua_gettop(L) == 2)
         return push_expr(L, to_type_checker_ref(L, 1)->ensure_sort(to_expr(L, 2)));
     else
         return push_expr(L, to_type_checker_ref(L, 1)->ensure_sort(to_expr(L, 2), to_expr(L, 3)));
 }
-int type_checker_check(lua_State * L) {
+static int type_checker_check(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs <= 2)
         return push_expr(L, to_type_checker_ref(L, 1)->check(to_expr(L, 2), level_param_names()));
     else
         return push_expr(L, to_type_checker_ref(L, 1)->check(to_expr(L, 2), to_level_param_names(L, 3)));
 }
-int type_checker_infer(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->infer(to_expr(L, 2))); }
-int type_checker_is_def_eq(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_def_eq(to_expr(L, 2), to_expr(L, 3))); }
-int type_checker_is_prop(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_prop(to_expr(L, 2))); }
+static int type_checker_infer(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->infer(to_expr(L, 2))); }
+static int type_checker_is_def_eq(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_def_eq(to_expr(L, 2), to_expr(L, 3))); }
+static int type_checker_is_prop(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_prop(to_expr(L, 2))); }
+static int type_checker_push(lua_State * L) { to_type_checker_ref(L, 1)->push(); return 0; }
+static int type_checker_pop(lua_State * L) {
+    if (to_type_checker_ref(L, 1)->num_scopes() == 0)
+        throw exception("invalid pop method, type_checker does not have backtracking points");
+    to_type_checker_ref(L, 1)->pop();
+    return 0;
+}
+static int type_checker_num_scopes(lua_State * L) { return push_integer(L, to_type_checker_ref(L, 1)->num_scopes()); }
 
 static const struct luaL_Reg type_checker_ref_m[] = {
     {"__gc",        type_checker_ref_gc},
@@ -1890,6 +1898,9 @@ static const struct luaL_Reg type_checker_ref_m[] = {
     {"infer",       safe_function<type_checker_infer>},
     {"is_def_eq",   safe_function<type_checker_is_def_eq>},
     {"is_prop",     safe_function<type_checker_is_prop>},
+    {"push",        safe_function<type_checker_push>},
+    {"pop",         safe_function<type_checker_pop>},
+    {"num_scopes",  safe_function<type_checker_num_scopes>},
     {0, 0}
 };
 

@@ -100,6 +100,13 @@ public:
     /** \brief Mare sure type of \c e is a sort, and return it. Throw an exception otherwise. */
     expr ensure_type(expr const & e) { return ensure_sort(infer(e), e); }
 
+    /** \brief Create a backtracking point for cache and generated constraints. */
+    void push();
+    /** \brief Restore backtracking point. */
+    void pop();
+    /** \brief Return the number of backtracking points. */
+    unsigned num_scopes() const;
+
     void swap(type_checker & tc) { std::swap(m_ptr, tc.m_ptr); }
 };
 

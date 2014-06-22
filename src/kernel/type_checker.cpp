@@ -487,6 +487,20 @@ struct type_checker::imp {
         return r;
     }
     expr whnf(expr const & t) { return m_conv->whnf(t, m_conv_ctx); }
+    void push() {
+        lean_assert(!m_cache_cs);
+        m_infer_type_cache[0].push();
+        m_infer_type_cache[1].push();
+    }
+    void pop() {
+        lean_assert(!m_cache_cs);
+        m_infer_type_cache[0].pop();
+        m_infer_type_cache[1].pop();
+    }
+    unsigned num_scopes() const {
+        lean_assert(m_infer_type_cache[0].num_scopes() == m_infer_type_cache[1].num_scopes());
+        return m_infer_type_cache[0].num_scopes();
+    }
 };
 
 static add_cnstr_fn g_no_constraint_fn = mk_no_contranint_fn();
@@ -512,6 +526,9 @@ bool type_checker::is_prop(expr const & t) { return m_ptr->is_prop(t); }
 expr type_checker::whnf(expr const & t) { return m_ptr->whnf(t); }
 expr type_checker::ensure_pi(expr const & t, expr const & s) { return m_ptr->ensure_pi(t, s); }
 expr type_checker::ensure_sort(expr const & t, expr const & s) { return m_ptr->ensure_sort(t, s); }
+void type_checker::push() { m_ptr->push(); }
+void type_checker::pop() { m_ptr->pop(); }
+unsigned type_checker::num_scopes() const { return m_ptr->num_scopes(); }
 
 static void check_no_metavar(environment const & env, expr const & e) {
     if (has_metavar(e))

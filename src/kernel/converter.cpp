@@ -412,14 +412,12 @@ struct default_converter : public converter {
         }
 
         // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
-        bool is_same_fn_app = false;
         if (is_app(t_n) && is_app(s_n)) {
             buffer<expr> t_args;
             buffer<expr> s_args;
             expr t_fn = get_app_args(t_n, t_args);
             expr s_fn = get_app_args(s_n, s_args);
             if (t_fn == s_fn && t_args.size() == s_args.size()) {
-                is_same_fn_app = true;
                 unsigned i = 0;
                 for (; i < t_args.size(); i++) {
                     if (!is_def_eq(t_args[i], s_args[i], c, jst))
@@ -447,7 +445,7 @@ struct default_converter : public converter {
                 return true;
         }
 
-        if (!is_same_fn_app && (has_metavar(t_n) || has_metavar(s_n))) {
+        if (has_metavar(t_n) || has_metavar(s_n)) {
             c.add_cnstr(mk_eq_cnstr(t_n, s_n, jst.get()));
             return true;
         }

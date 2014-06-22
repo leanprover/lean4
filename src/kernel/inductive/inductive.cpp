@@ -169,6 +169,7 @@ static environment update(environment const & env, inductive_env_ext const & ext
 
 /** \brief Helper functional object for processing inductive datatype declarations. */
 struct add_inductive_fn {
+    typedef std::unique_ptr<type_checker> type_checker_ptr;
     environment          m_env;
     level_param_names    m_level_names;  // universe level parameters
     unsigned             m_num_params;
@@ -176,7 +177,7 @@ struct add_inductive_fn {
     unsigned             m_decls_sz;     // length(m_decls)
     list<level>          m_levels;       // m_level_names ==> m_levels
     name_generator       m_ngen;
-    type_checker         m_tc;
+    type_checker_ptr     m_tc;
 
     level                m_elim_level;   // extra universe level for eliminator.
     bool                 m_dep_elim;     // true if using dependent elimination
@@ -199,7 +200,7 @@ struct add_inductive_fn {
                      unsigned                     num_params,
                      list<inductive_decl> const & decls):
         m_env(env), m_level_names(level_params), m_num_params(num_params), m_decls(decls),
-        m_ngen(g_tmp_prefix), m_tc(m_env) {
+        m_ngen(g_tmp_prefix), m_tc(new type_checker(m_env)) {
         m_decls_sz = length(m_decls);
         m_levels = param_names_to_levels(level_params);
     }
@@ -209,9 +210,10 @@ struct add_inductive_fn {
 
     /** \brief Make sure the latest environment is being used by m_tc. */
     void updt_type_checker() {
-        type_checker tc(m_env);
-        m_tc.swap(tc);
+        m_tc.reset(new type_checker(m_env));
     }
+
+    type_checker & tc() { return *(m_tc.get()); }
 
     /** \brief Return a fresh name. */
     name mk_fresh_name() { return m_ngen.next(); }
@@ -233,7 +235,7 @@ struct add_inductive_fn {
         bool to_prop = false; // set to true if the inductive datatypes live in Bool/Prop (Type 0)
         for (auto d : m_decls) {
             expr t = inductive_decl_type(d);
-            m_tc.check(t, m_level_names);
+            tc().check(t, m_level_names);
             unsigned i  = 0;
             m_it_num_args.push_back(0);
             while (is_pi(t)) {
@@ -243,7 +245,7 @@ struct add_inductive_fn {
                         m_param_consts.push_back(l);
                         t = instantiate(binding_body(t), l);
                     } else {
-                        if (!m_tc.is_def_eq(binding_domain(t), get_param_type(i)))
+                        if (!tc().is_def_eq(binding_domain(t), get_param_type(i)))
                             throw kernel_exception(m_env, "parameters of all inductive datatypes must match");
                         t = instantiate(binding_body(t), m_param_consts[i]);
                     }
@@ -255,7 +257,7 @@ struct add_inductive_fn {
             }
             if (i != m_num_params)
                 throw kernel_exception(m_env, "number of parameters mismatch in inductive datatype declaration");
-            t = m_tc.ensure_sort(t);
+            t = tc().ensure_sort(t);
             if (m_env.impredicative()) {
                 // if the environment is impredicative, then the resultant universe is 0 (Bool/Prop),
                 // or is never zero (under any parameter assignment).
@@ -298,7 +300,7 @@ struct add_inductive_fn {
     bool is_valid_it_app(expr const & t, unsigned d_idx) {
         buffer<expr> args;
         expr I = get_app_args(t, args);
-        if (!m_tc.is_def_eq(I, m_it_consts[d_idx]) || args.size() != m_it_num_args[d_idx])
+        if (!tc().is_def_eq(I, m_it_consts[d_idx]) || args.size() != m_it_num_args[d_idx])
             return false;
         for (unsigned i = 0; i < m_num_params; i++) {
             if (m_param_consts[i] != args[i])
@@ -333,15 +335,15 @@ struct add_inductive_fn {
         Return none otherwise.
     */
     optional<unsigned> is_rec_argument(expr t) {
-        t = m_tc.whnf(t);
+        t = tc().whnf(t);
         while (is_pi(t))
-            t = m_tc.whnf(instantiate(binding_body(t), mk_local_for(t)));
+            t = tc().whnf(instantiate(binding_body(t), mk_local_for(t)));
         return is_valid_it_app(t);
     }
 
     /** \brief Check if \c t contains only positive occurrences of the inductive datatypes being declared. */
     void check_positivity(expr t, name const & intro_name, int arg_idx) {
-        t = m_tc.whnf(t);
+        t = tc().whnf(t);
         if (!has_it_occ(t)) {
             // nonrecursive argument
         } else if (is_pi(t)) {
@@ -365,17 +367,17 @@ struct add_inductive_fn {
     void check_intro_rule(unsigned d_idx, intro_rule const & ir) {
         expr t = intro_rule_type(ir);
         name n = intro_rule_name(ir);
-        m_tc.check(t, m_level_names);
+        tc().check(t, m_level_names);
         unsigned i     = 0;
         bool found_rec = false;
         while (is_pi(t)) {
             if (i < m_num_params) {
-                if (!m_tc.is_def_eq(binding_domain(t), get_param_type(i)))
+                if (!tc().is_def_eq(binding_domain(t), get_param_type(i)))
                     throw kernel_exception(m_env, sstream() << "arg #" << (i + 1) << " of '" << n << "' "
                                            << "does not match inductive datatypes parameters'");
                 t = instantiate(binding_body(t), m_param_consts[i]);
             } else {
-                expr s = m_tc.ensure_type(binding_domain(t));
+                expr s = tc().ensure_type(binding_domain(t));
                 // the sort is ok IF
                 //   1- its level is <= inductive datatype level, OR
                 //   2- m_env is impredicative and inductive datatype is at level 0
@@ -454,7 +456,7 @@ struct add_inductive_fn {
         unsigned i = 0;
         while (is_pi(t)) {
             if (i >= m_num_params) {
-                expr s = m_tc.ensure_type(binding_domain(t));
+                expr s = tc().ensure_type(binding_domain(t));
                 if (!is_zero(sort_level(s)))
                     return true;
             }
@@ -566,12 +568,12 @@ struct add_inductive_fn {
                 // populate v using u
                 for (unsigned i = 0; i < u.size(); i++) {
                     expr u_i    = u[i];
-                    expr u_i_ty = m_tc.whnf(mlocal_type(u_i));
+                    expr u_i_ty = tc().whnf(mlocal_type(u_i));
                     buffer<expr> xs;
                     while (is_pi(u_i_ty)) {
                         expr x = mk_local_for(u_i_ty);
                         xs.push_back(x);
-                        u_i_ty = m_tc.whnf(instantiate(binding_body(u_i_ty), x));
+                        u_i_ty = tc().whnf(instantiate(binding_body(u_i_ty), x));
                     }
                     buffer<expr> it_indices;
                     unsigned it_idx = get_I_indices(u_i_ty, it_indices);
@@ -702,12 +704,12 @@ struct add_inductive_fn {
                 if (m_dep_elim) {
                     for (unsigned i = 0; i < u.size(); i++) {
                         expr u_i    = u[i];
-                        expr u_i_ty = m_tc.whnf(mlocal_type(u_i));
+                        expr u_i_ty = tc().whnf(mlocal_type(u_i));
                         buffer<expr> xs;
                         while (is_pi(u_i_ty)) {
                             expr x = mk_local_for(u_i_ty);
                             xs.push_back(x);
-                            u_i_ty = m_tc.whnf(instantiate(binding_body(u_i_ty), x));
+                            u_i_ty = tc().whnf(instantiate(binding_body(u_i_ty), x));
                         }
                         buffer<expr> it_indices;
                         unsigned it_idx = get_I_indices(u_i_ty, it_indices);
@@ -718,7 +720,7 @@ struct add_inductive_fn {
                 }
                 expr e_app = mk_app(mk_app(mk_app(e[minor_idx], b), u), v);
                 expr comp_rhs   = Fun(m_param_consts, Fun(C, Fun(e, Fun(b, Fun(u, e_app)))));
-                m_tc.check(comp_rhs, get_elim_level_param_names());
+                tc().check(comp_rhs, get_elim_level_param_names());
                 ext.add_comp_rhs(intro_rule_name(ir), get_elim_name(d_idx), b.size() + u.size(), comp_rhs);
                 minor_idx++;
             }

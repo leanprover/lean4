@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "util/name_generator.h"
 #include "util/name_set.h"
+#include "util/scoped_map.h"
 #include "kernel/environment.h"
 #include "kernel/constraint.h"
 #include "kernel/converter.h"
@@ -35,8 +36,71 @@ public:
    The type checker produces constraints, and they are sent to the constraint handler.
 */
 class type_checker {
-    struct imp;
-    std::unique_ptr<imp> m_ptr;
+    typedef scoped_map<expr, expr, expr_hash, is_bi_equal_proc> cache;
+
+    class converter_context : public converter::context {
+        type_checker & m_tc;
+    public:
+        converter_context(type_checker & tc):m_tc(tc) {}
+        virtual name mk_fresh_name() { return m_tc.m_gen.next(); }
+        virtual expr infer_type(expr const & e) { return m_tc.infer_type(e); }
+        virtual void add_cnstr(constraint const & c) { m_tc.add_cnstr(c); }
+    };
+
+    /** \brief Interface type_checker <-> macro & normalizer_extension */
+    class type_checker_context : public extension_context {
+        type_checker & m_tc;
+    public:
+        type_checker_context(type_checker & tc):m_tc(tc) {}
+        virtual environment const & env() const { return m_tc.m_env; }
+        virtual expr whnf(expr const & e) { return m_tc.whnf(e); }
+        virtual bool is_def_eq(expr const & e1, expr const & e2, delayed_justification & j) { return m_tc.is_def_eq(e1, e2, j); }
+        virtual expr infer_type(expr const & e) { return m_tc.infer_type(e); }
+        virtual name mk_fresh_name() { return m_tc.m_gen.next(); }
+        virtual void add_cnstr(constraint const & c) { m_tc.add_cnstr(c); }
+    };
+
+    environment                m_env;
+    name_generator             m_gen;
+    add_cnstr_fn               m_add_cnstr_fn;
+    std::unique_ptr<converter> m_conv;
+    // In the type checker cache, we must take into account binder information.
+    // Examples:
+    // The type of (lambda x : A, t)   is (Pi x : A, typeof(t))
+    // The type of (lambda {x : A}, t) is (Pi {x : A}, typeof(t))
+    cache                      m_infer_type_cache[2];
+    converter_context          m_conv_ctx;
+    type_checker_context       m_tc_ctx;
+    bool                       m_memoize;
+    // temp flag
+    level_param_names          m_params;
+    buffer<constraint>         m_cs;        // temporary cache of constraints
+    bool                       m_cache_cs;  // true if we should cache the constraints; false if we should send to m_add_cnstr_fn
+
+    struct scope {
+        type_checker &   m_tc;
+        unsigned         m_old_cs_size;
+        bool             m_old_cache_cs;
+        bool             m_keep;
+        scope(type_checker & tc);
+        ~scope();
+        void keep();
+    };
+
+    optional<expr> expand_macro(expr const & m);
+    std::pair<expr, expr> open_binding_body(expr const & e);
+    void add_cnstr(constraint const & c);
+    bool meta_to_telescope(expr const & e, buffer<expr> & telescope);
+    bool meta_to_telescope_core(expr const & e, buffer<expr> & telescope, buffer<optional<expr>> & locals);
+    expr ensure_sort_core(expr e, expr const & s);
+    expr ensure_pi_core(expr e, expr const & s);
+    justification mk_let_mismatch_jst(expr const & e, expr const & val_type);
+    justification mk_macro_jst(expr const & e);
+    void check_level(level const & l, expr const & s);
+    expr infer_type_core(expr const & e, bool infer_only);
+    expr infer_type(expr const & e);
+    bool is_def_eq(expr const & t, expr const & s, delayed_justification & jst);
+
 public:
     /**
        \brief Create a type checker for the given environment. The auxiliary names created by this
@@ -69,7 +133,7 @@ public:
        The result is meaningful only if the constraints sent to the
        constraint handler can be solved.
    */
-    expr infer(expr const & t);
+    expr infer(expr const & t) { return infer_type(t); }
 
     /**
        \brief Type check the given expression, and return the type of \c t.
@@ -106,8 +170,6 @@ public:
     void pop();
     /** \brief Return the number of backtracking points. */
     unsigned num_scopes() const;
-
-    void swap(type_checker & tc) { std::swap(m_ptr, tc.m_ptr); }
 };
 
 /**

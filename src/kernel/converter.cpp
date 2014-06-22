@@ -404,6 +404,7 @@ struct default_converter : public converter {
 
         // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
         if (is_app(t_n) && is_app(s_n)) {
+            type_checker::scope scope(c);
             buffer<expr> t_args;
             buffer<expr> s_args;
             expr t_fn = get_app_args(t_n, t_args);
@@ -414,26 +415,34 @@ struct default_converter : public converter {
                     if (!is_def_eq(t_args[i], s_args[i], c, jst))
                         break;
                 }
-                if (i == t_args.size())
+                if (i == t_args.size()) {
+                    scope.keep();
                     return true;
+                }
             }
         }
 
         if (m_env.prop_proof_irrel()) {
             // Proof irrelevance support for Prop/Bool (aka Type.{0})
+            type_checker::scope scope(c);
             expr t_type = infer_type(c, t);
-            if (is_prop(t_type, c) && is_def_eq(t_type, infer_type(c, s), c, jst))
+            if (is_prop(t_type, c) && is_def_eq(t_type, infer_type(c, s), c, jst)) {
+                scope.keep();
                 return true;
+            }
         }
 
         list<name> const & cls_proof_irrel = m_env.cls_proof_irrel();
         if (!is_nil(cls_proof_irrel)) {
             // Proof irrelevance support for classes
+            type_checker::scope scope(c);
             expr t_type = whnf(infer_type(c, t), c);
             if (std::any_of(cls_proof_irrel.begin(), cls_proof_irrel.end(),
                             [&](name const & cls_name) { return is_app_of(t_type, cls_name); }) &&
-                is_def_eq(t_type, infer_type(c, s), c, jst))
+                is_def_eq(t_type, infer_type(c, s), c, jst)) {
+                scope.keep();
                 return true;
+            }
         }
 
         if (has_metavar(t_n) || has_metavar(s_n)) {

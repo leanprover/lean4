@@ -67,16 +67,6 @@ class type_checker {
     buffer<constraint>         m_cs;        // temporary cache of constraints
     bool                       m_cache_cs;  // true if we should cache the constraints; false if we should send to m_add_cnstr_fn
 
-    struct scope {
-        type_checker &   m_tc;
-        unsigned         m_old_cs_size;
-        bool             m_old_cache_cs;
-        bool             m_keep;
-        scope(type_checker & tc);
-        ~scope();
-        void keep();
-    };
-
     friend class converter; // allow converter to access the following methods
     name mk_fresh_name() { return m_gen.next(); }
     optional<expr> expand_macro(expr const & m);
@@ -93,6 +83,17 @@ class type_checker {
     expr infer_type(expr const & e);
     bool is_def_eq(expr const & t, expr const & s, delayed_justification & jst);
     extension_context & get_extension() { return m_tc_ctx; }
+public:
+    class scope {
+        type_checker &   m_tc;
+        unsigned         m_old_cs_size;
+        bool             m_old_cache_cs;
+        bool             m_keep;
+    public:
+        scope(type_checker & tc);
+        ~scope();
+        void keep();
+    };
 
 public:
     /**

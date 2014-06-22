@@ -25,7 +25,7 @@ struct level_constraint_cell : public constraint_cell {
     level m_lhs;
     level m_rhs;
     level_constraint_cell(level const & lhs, level const & rhs, justification const & j):
-        constraint_cell(constraint_kind::Level, j),
+        constraint_cell(constraint_kind::LevelEq, j),
         m_lhs(lhs), m_rhs(rhs) {}
 };
 struct choice_constraint_cell : public constraint_cell {
@@ -40,7 +40,7 @@ void constraint_cell::dealloc() {
     switch (m_kind) {
     case constraint_kind::Eq:
         delete static_cast<eq_constraint_cell*>(this); break;
-    case constraint_kind::Level:
+    case constraint_kind::LevelEq:
         delete static_cast<level_constraint_cell*>(this); break;
     case constraint_kind::Choice:
         delete static_cast<choice_constraint_cell*>(this); break;
@@ -59,7 +59,7 @@ justification const & constraint::get_justification() const { lean_assert(m_ptr)
 constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j) {
     return constraint(new eq_constraint_cell(lhs, rhs, j));
 }
-constraint mk_level_cnstr(level const & lhs, level const & rhs, justification const & j) {
+constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j) {
     return constraint(new level_constraint_cell(lhs, rhs, j));
 }
 constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, justification const & j) {
@@ -69,32 +69,17 @@ constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, justification c
 
 expr const & cnstr_lhs_expr(constraint const & c) { lean_assert(is_eq_cnstr(c)); return static_cast<eq_constraint_cell*>(c.raw())->m_lhs; }
 expr const & cnstr_rhs_expr(constraint const & c) { lean_assert(is_eq_cnstr(c)); return static_cast<eq_constraint_cell*>(c.raw())->m_rhs; }
-level const & cnstr_lhs_level(constraint const & c) { lean_assert(is_level_cnstr(c)); return static_cast<level_constraint_cell*>(c.raw())->m_lhs; }
-level const & cnstr_rhs_level(constraint const & c) { lean_assert(is_level_cnstr(c)); return static_cast<level_constraint_cell*>(c.raw())->m_rhs; }
+level const & cnstr_lhs_level(constraint const & c) {
+    lean_assert(is_level_eq_cnstr(c));
+    return static_cast<level_constraint_cell*>(c.raw())->m_lhs;
+}
+level const & cnstr_rhs_level(constraint const & c) {
+    lean_assert(is_level_eq_cnstr(c));
+    return static_cast<level_constraint_cell*>(c.raw())->m_rhs;
+}
 expr const & cnstr_mvar(constraint const & c) { lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_mvar; }
 choice_fn const & cnstr_choice_fn(constraint const & c) {
     lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_fn;
-}
-
-constraint updt_eq_cnstr(constraint const & c, expr const & new_lhs, expr const & new_rhs, justification const & new_jst) {
-    lean_assert(is_eq_cnstr(c));
-    if (!is_eqp(cnstr_lhs_expr(c), new_lhs) || !is_eqp(cnstr_rhs_expr(c), new_rhs))
-        return mk_eq_cnstr(new_lhs, new_rhs, new_jst);
-    else
-        return c;
-}
-constraint updt_eq_cnstr(constraint const & c, expr const & new_lhs, expr const & new_rhs) {
-    return updt_eq_cnstr(c, new_lhs, new_rhs, c.get_justification());
-}
-constraint updt_level_cnstr(constraint const & c, level const & new_lhs, level const & new_rhs, justification const & new_jst) {
-    lean_assert(is_level_cnstr(c));
-    if (!is_eqp(cnstr_lhs_level(c), new_lhs) || !is_eqp(cnstr_rhs_level(c), new_rhs))
-        return mk_level_cnstr(new_lhs, new_rhs, new_jst);
-    else
-        return c;
-}
-constraint updt_level_cnstr(constraint const & c, level const & new_lhs, level const & new_rhs) {
-    return updt_level_cnstr(c, new_lhs, new_rhs, c.get_justification());
 }
 
 std::ostream & operator<<(std::ostream & out, constraint const & c) {
@@ -102,7 +87,7 @@ std::ostream & operator<<(std::ostream & out, constraint const & c) {
     case constraint_kind::Eq:
         out << cnstr_lhs_expr(c) << " ≈ " << cnstr_rhs_expr(c);
         break;
-    case constraint_kind::Level:
+    case constraint_kind::LevelEq:
         out << cnstr_lhs_level(c) << " = " << cnstr_rhs_level(c);
         break;
     case constraint_kind::Choice:

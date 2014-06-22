@@ -140,7 +140,7 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, level
 std::pair<unify_status, substitution> unify_simple(substitution const & s, constraint const & c) {
     if (is_eq_cnstr(c))
         return unify_simple(s, cnstr_lhs_expr(c), cnstr_rhs_expr(c), c.get_justification());
-    else if (is_level_cnstr(c))
+    else if (is_level_eq_cnstr(c))
         return unify_simple(s, cnstr_lhs_level(c), cnstr_rhs_level(c), c.get_justification());
     else
         return mk_pair(unify_status::Unsupported, s);
@@ -393,7 +393,7 @@ struct unifier_fn {
             return true;
         case constraint_kind::Eq:
             return process_eq_constraint(c);
-        case constraint_kind::Level:
+        case constraint_kind::LevelEq:
             return process_lvl_constraint(c);
         }
         lean_unreachable(); // LCOV_EXCL_LINE

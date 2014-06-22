@@ -1594,7 +1594,8 @@ DECL_UDATA(constraint)
 
 #define CNSTR_PRED(P) static int constraint_ ## P(lua_State * L) { check_num_args(L, 1); return push_boolean(L, P(to_constraint(L, 1))); }
 CNSTR_PRED(is_eq_cnstr)
-CNSTR_PRED(is_level_cnstr)
+CNSTR_PRED(is_level_eq_cnstr)
+CNSTR_PRED(is_choice_cnstr)
 static int constraint_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_constraint(L, 1), to_constraint(L, 2))); }
 static int constraint_get_kind(lua_State * L) { return push_integer(L, static_cast<int>(to_constraint(L, 1).kind())); }
 static int constraint_jst(lua_State * L) { return push_justification(L, to_constraint(L, 1).get_justification()); }
@@ -1602,7 +1603,7 @@ static int constraint_lhs(lua_State * L) {
     constraint const & c = to_constraint(L, 1);
     if (is_eq_cnstr(c))
         return push_expr(L, cnstr_lhs_expr(c));
-    else if (is_level_cnstr(c))
+    else if (is_level_eq_cnstr(c))
         return push_level(L, cnstr_lhs_level(c));
     else
         throw exception("arg #1 must be an equality/level constraint");
@@ -1611,7 +1612,7 @@ static int constraint_rhs(lua_State * L) {
     constraint const & c = to_constraint(L, 1);
     if (is_eq_cnstr(c))
         return push_expr(L, cnstr_rhs_expr(c));
-    else if (is_level_cnstr(c))
+    else if (is_level_eq_cnstr(c))
         return push_level(L, cnstr_rhs_level(c));
     else
         throw exception("arg #1 must be an equality/level constraint");
@@ -1622,13 +1623,14 @@ static int constraint_tostring(lua_State * L) {
     return push_string(L, out.str().c_str());
 }
 static int mk_eq_cnstr(lua_State * L) { return push_constraint(L, mk_eq_cnstr(to_expr(L, 1), to_expr(L, 2), to_justification(L, 3))); }
-static int mk_level_cnstr(lua_State * L) { return push_constraint(L, mk_level_cnstr(to_level_ext(L, 1), to_level_ext(L, 2),
-                                                                                    to_justification(L, 3))); }
+static int mk_level_eq_cnstr(lua_State * L) { return push_constraint(L, mk_level_eq_cnstr(to_level_ext(L, 1), to_level_ext(L, 2),
+                                                                                          to_justification(L, 3))); }
 static const struct luaL_Reg constraint_m[] = {
     {"__gc",            constraint_gc}, // never throws
     {"__tostring",      safe_function<constraint_tostring>},
     {"is_eq",           safe_function<constraint_is_eq_cnstr>},
-    {"is_level",        safe_function<constraint_is_level_cnstr>},
+    {"is_level_eq",     safe_function<constraint_is_level_eq_cnstr>},
+    {"is_choice",       safe_function<constraint_is_choice_cnstr>},
     {"is_eqp",          safe_function<constraint_is_eqp>},
     {"kind",            safe_function<constraint_get_kind>},
     {"lhs",             safe_function<constraint_lhs>},
@@ -1643,13 +1645,14 @@ static void open_constraint(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, constraint_m, 0);
 
-    SET_GLOBAL_FUN(constraint_pred,  "is_constraint");
-    SET_GLOBAL_FUN(mk_eq_cnstr,      "mk_eq_cnstr");
-    SET_GLOBAL_FUN(mk_level_cnstr,   "mk_level_cnstr");
+    SET_GLOBAL_FUN(constraint_pred,   "is_constraint");
+    SET_GLOBAL_FUN(mk_eq_cnstr,       "mk_eq_cnstr");
+    SET_GLOBAL_FUN(mk_level_eq_cnstr, "mk_level_eq_cnstr");
 
     lua_newtable(L);
     SET_ENUM("Eq",          constraint_kind::Eq);
-    SET_ENUM("Level",       constraint_kind::Level);
+    SET_ENUM("LevelEq",     constraint_kind::LevelEq);
+    SET_ENUM("Choice",      constraint_kind::Choice);
     lua_setglobal(L, "constraint_kind");
 }
 

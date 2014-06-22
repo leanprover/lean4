@@ -168,6 +168,7 @@ struct unifier_fn {
     type_checker     m_tc;
     bool             m_use_exception;
     bool             m_first;
+    unsigned         m_next_assumption_idx;
     unsigned         m_next_cidx;
     cnstr_set        m_active;
     cnstr_set        m_delayed;
@@ -177,19 +178,47 @@ struct unifier_fn {
     struct case_split {
         unsigned         m_assumption_idx; // idx of the current assumption
         justification    m_failed_justifications; // justifications for failed branches
-        // snapshot of the state
+        // snapshot of unifier's state
         substitution     m_subst;
         cnstr_set        m_active;
         cnstr_set        m_delayed;
         name_to_cnstrs   m_mvar_occs;
         name_to_cnstrs   m_mlvl_occs;
+
+        // Save unifier's state
         case_split(unifier_fn & u):
-            m_subst(u.m_subst), m_active(u.m_active), m_delayed(u.m_delayed), m_mvar_occs(u.m_mvar_occs), m_mlvl_occs(u.m_mlvl_occs)
-            {}
+            m_assumption_idx(u.m_next_assumption_idx), m_subst(u.m_subst), m_active(u.m_active), m_delayed(u.m_delayed),
+            m_mvar_occs(u.m_mvar_occs), m_mlvl_occs(u.m_mlvl_occs) {
+            u.m_next_assumption_idx++;
+            u.m_tc.push();
+        }
+
+        // Restore unifier's state with saved values, and update m_assumption_idx and m_failed_justifications
+        void restore_state(unifier_fn & u) {
+            lean_assert(u.in_conflict());
+            u.m_tc.pop();   // restore type checker state
+            u.m_tc.push();
+            u.m_subst     = m_subst;
+            u.m_active    = m_active;
+            u.m_delayed   = m_delayed;
+            u.m_mvar_occs = m_mvar_occs;
+            u.m_mlvl_occs = m_mlvl_occs;
+            m_assumption_idx = u.m_next_assumption_idx;
+            m_failed_justifications = mk_composite1(m_failed_justifications, *u.m_conflict);
+            u.m_next_assumption_idx++;
+            u.m_conflict  = optional<justification>();
+        }
+
         virtual ~case_split() {}
-        virtual bool next(unifier_fn & owner) = 0;
+        virtual bool next(unifier_fn & u) = 0;
     };
     typedef std::vector<std::unique_ptr<case_split>> case_split_stack;
+
+    struct plugin_case_split : public case_split {
+        lazy_list<constraints> m_tail;
+        plugin_case_split(unifier_fn & u, lazy_list<constraints> const & tail):case_split(u), m_tail(tail) {}
+        virtual bool next(unifier_fn & u) { return u.next_plugin_case_split(*this); }
+    };
 
     case_split_stack        m_case_splits;
     optional<justification> m_conflict;
@@ -200,6 +229,7 @@ struct unifier_fn {
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(p),
         m_tc(env, m_ngen.mk_child(), [=](constraint const & c) { process_constraint(c); }),
         m_use_exception(use_exception) {
+        m_next_assumption_idx = 0;
         m_next_cidx = 0;
         m_first     = true;
         for (unsigned i = 0; i < num_cs; i++) {
@@ -214,6 +244,7 @@ struct unifier_fn {
 
     bool in_conflict() const { return (bool)m_conflict; } // NOLINT
     void set_conflict(justification const & j) { m_conflict = j; }
+    void update_conflict(justification const & j) { m_conflict = j; }
     void reset_conflict() { m_conflict = optional<justification>(); lean_assert(!in_conflict()); }
 
     template<bool MVar>
@@ -260,6 +291,10 @@ struct unifier_fn {
     bool assign(expr const & m, expr const & v, justification const & j) {
         lean_assert(is_metavar(m));
         m_subst = m_subst.assign(m, v, j);
+        expr m_type = mlocal_type(m);
+        expr v_type = m_tc.infer(v);
+        if (in_conflict() || !m_tc.is_def_eq(m_type, v_type, j))
+            return false;
         auto it = m_mvar_occs.find(mlocal_name(m));
         if (it) {
             cnstr_idx_set s = *it;
@@ -441,6 +476,10 @@ struct unifier_fn {
         return true;
     }
 
+    void add_case_split(std::unique_ptr<case_split> && cs) {
+        m_case_splits.push_back(std::move(cs));
+    }
+
     bool resolve_conflict() {
         lean_assert(in_conflict());
         while (!m_case_splits.empty()) {
@@ -452,6 +491,7 @@ struct unifier_fn {
                     return true;
                 }
             }
+            m_tc.pop();
             m_case_splits.pop_back();
         }
         return false;
@@ -468,6 +508,27 @@ struct unifier_fn {
         return true;
     }
 
+    // Process constraints in \c cs, and append justification \c j to them.
+    bool process_constraints(constraints const & cs, justification const & j) {
+        for (constraint const & c : cs)
+            process_constraint(update_justification(c, mk_composite1(c.get_justification(), j)));
+        return !in_conflict();
+    }
+
+    bool next_plugin_case_split(plugin_case_split & cs) {
+        auto r = cs.m_tail.pull();
+        if (r) {
+            cs.restore_state(*this);
+            lean_assert(!in_conflict());
+            cs.m_tail = r->second;
+            return process_constraints(r->first, mk_assumption_justification(cs.m_assumption_idx));
+        } else {
+            // update conflict
+            update_conflict(mk_composite1(*m_conflict, cs.m_failed_justifications));
+            return false;
+        }
+    }
+
     bool process_plugin_constraint(constraint const & c) {
         lean_assert(!is_choice_cnstr(c));
         lazy_list<constraints> alts = m_plugin(c, m_ngen.mk_child());
@@ -475,9 +536,12 @@ struct unifier_fn {
         if (!r) {
             set_conflict(c.get_justification());
             return false;
+        } else {
+            // create a backtracking point
+            justification a = mk_assumption_justification(m_next_assumption_idx);
+            add_case_split(std::unique_ptr<case_split>(new plugin_case_split(*this, r->second)));
+            return process_constraints(r->first, a);
         }
-        // TODO(Leo): create backtracking point
-        return true;
     }
 
     bool process_next_active() {

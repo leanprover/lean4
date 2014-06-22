@@ -82,6 +82,18 @@ choice_fn const & cnstr_choice_fn(constraint const & c) {
     lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_fn;
 }
 
+constraint update_justification(constraint const & c, justification const & j) {
+    switch (c.kind()) {
+    case constraint_kind::Eq:
+        return mk_eq_cnstr(cnstr_lhs_expr(c), cnstr_rhs_expr(c), j);
+    case constraint_kind::LevelEq:
+        return mk_level_eq_cnstr(cnstr_lhs_level(c), cnstr_rhs_level(c), j);
+    case constraint_kind::Choice:
+        return mk_choice_cnstr(cnstr_mvar(c), cnstr_choice_fn(c), j);
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+
 std::ostream & operator<<(std::ostream & out, constraint const & c) {
     switch (c.kind()) {
     case constraint_kind::Eq:

@@ -84,6 +84,8 @@ inline bool is_eq_cnstr(constraint const & c) { return c.kind() == constraint_ki
 inline bool is_level_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::LevelEq; }
 inline bool is_choice_cnstr(constraint const & c) { return c.kind() == constraint_kind::Choice; }
 
+constraint update_justification(constraint const & c, justification const & j);
+
 /** \brief Return the lhs of an equality constraint. */
 expr const & cnstr_lhs_expr(constraint const & c);
 /** \brief Return the rhs of an equality constraint. */

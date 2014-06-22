@@ -161,4 +161,11 @@ public:
     template<typename Mk> simple_delayed_justification(Mk && mk):m_mk(mk) {}
     virtual justification get() { if (!m_jst) { m_jst = m_mk(); } return *m_jst; }
 };
+
+class as_delayed_justification : public delayed_justification {
+    justification m_jst;
+public:
+    as_delayed_justification(justification const & j):m_jst(j) {}
+    virtual justification get() { return m_jst; }
+};
 }

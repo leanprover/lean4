@@ -400,6 +400,10 @@ struct type_checker::imp {
         return infer_type_core(e, false);
     }
     bool is_def_eq(expr const & t, expr const & s) { return m_conv->is_def_eq(t, s, m_conv_ctx); }
+    bool is_def_eq(expr const & t, expr const & s, justification const & j) {
+        as_delayed_justification djst(j);
+        return is_def_eq(t, s, djst);
+    }
     expr whnf(expr const & t) { return m_conv->whnf(t, m_conv_ctx); }
 };
 
@@ -421,6 +425,7 @@ type_checker::~type_checker() {}
 expr type_checker::infer(expr const & t) { return m_ptr->infer_type(t); }
 expr type_checker::check(expr const & t, level_param_names const & ps) { return m_ptr->check(t, ps); }
 bool type_checker::is_def_eq(expr const & t, expr const & s) { return m_ptr->is_def_eq(t, s); }
+bool type_checker::is_def_eq(expr const & t, expr const & s, justification const & j) { return m_ptr->is_def_eq(t, s, j); }
 bool type_checker::is_prop(expr const & t) { return m_ptr->is_prop(t); }
 expr type_checker::whnf(expr const & t) { return m_ptr->whnf(t); }
 expr type_checker::ensure_pi(expr const & t, expr const & s) { return m_ptr->ensure_pi(t, s); }

@@ -81,6 +81,7 @@ public:
     expr check(expr const & t, level_param_names const & ps = level_param_names());
     /** \brief Return true iff t is definitionally equal to s. */
     bool is_def_eq(expr const & t, expr const & s);
+    bool is_def_eq(expr const & t, expr const & s, justification const & j);
     /** \brief Return true iff t is a proposition. */
     bool is_prop(expr const & t);
     /** \brief Return the weak head normal form of \c t. */

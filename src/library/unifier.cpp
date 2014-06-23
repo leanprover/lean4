@@ -915,7 +915,6 @@ struct unifier_fn {
         return true;
     }
 
-
     /** \brief Process the next constraint in the constraint queue m_cnstrs */
     bool process_next() {
         lean_assert(!m_cnstrs.empty());

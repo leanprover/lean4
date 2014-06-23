@@ -148,6 +148,8 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, const
 }
 
 static constraint g_dont_care_cnstr = mk_eq_cnstr(expr(), expr(), justification());
+static unsigned g_first_delayed      = 1u << 28;
+static unsigned g_first_very_delayed = 1u << 30;
 
 struct unifier_fn {
     typedef std::pair<constraint, unsigned> cnstr; // constraint + idx
@@ -170,8 +172,7 @@ struct unifier_fn {
     bool             m_first;
     unsigned         m_next_assumption_idx;
     unsigned         m_next_cidx;
-    cnstr_set        m_active;
-    cnstr_set        m_delayed;
+    cnstr_set        m_cnstrs;
     name_to_cnstrs   m_mvar_occs;
     name_to_cnstrs   m_mlvl_occs;
 
@@ -180,14 +181,13 @@ struct unifier_fn {
         justification    m_failed_justifications; // justifications for failed branches
         // snapshot of unifier's state
         substitution     m_subst;
-        cnstr_set        m_active;
-        cnstr_set        m_delayed;
+        cnstr_set        m_cnstrs;
         name_to_cnstrs   m_mvar_occs;
         name_to_cnstrs   m_mlvl_occs;
 
         // Save unifier's state
         case_split(unifier_fn & u):
-            m_assumption_idx(u.m_next_assumption_idx), m_subst(u.m_subst), m_active(u.m_active), m_delayed(u.m_delayed),
+            m_assumption_idx(u.m_next_assumption_idx), m_subst(u.m_subst), m_cnstrs(u.m_cnstrs),
             m_mvar_occs(u.m_mvar_occs), m_mlvl_occs(u.m_mlvl_occs) {
             u.m_next_assumption_idx++;
             u.m_tc.push();
@@ -199,8 +199,7 @@ struct unifier_fn {
             u.m_tc.pop();   // restore type checker state
             u.m_tc.push();
             u.m_subst     = m_subst;
-            u.m_active    = m_active;
-            u.m_delayed   = m_delayed;
+            u.m_cnstrs    = m_cnstrs;
             u.m_mvar_occs = m_mvar_occs;
             u.m_mlvl_occs = m_mlvl_occs;
             m_assumption_idx = u.m_next_assumption_idx;
@@ -285,16 +284,19 @@ struct unifier_fn {
         }
     }
 
-    void add_active(constraint const & c, name_set const * mlvl_occs, name_set const * mvar_occs) {
-        m_active.insert(cnstr(c, m_next_cidx));
-        add_occs(m_next_cidx, mlvl_occs, mvar_occs);
+    void add_cnstr(constraint const & c, name_set const * mlvl_occs, name_set const * mvar_occs, unsigned start_cidx = 0) {
+        unsigned cidx = m_next_cidx + start_cidx;
+        m_cnstrs.insert(cnstr(c, cidx));
+        add_occs(cidx, mlvl_occs, mvar_occs);
         m_next_cidx++;
     }
 
-    void add_delayed(constraint const & c, name_set const * mlvl_occs, name_set const * mvar_occs) {
-        m_delayed.insert(cnstr(c, m_next_cidx));
-        add_occs(m_next_cidx, mlvl_occs, mvar_occs);
-        m_next_cidx++;
+    void add_delayed_cnstr(constraint const & c, name_set const * mlvl_occs, name_set const * mvar_occs) {
+        add_cnstr(c, mlvl_occs, mvar_occs, g_first_delayed);
+    }
+
+    void add_very_delayed_cnstr(constraint const & c, name_set const * mlvl_occs, name_set const * mvar_occs) {
+        add_cnstr(c, mlvl_occs, mvar_occs, g_first_very_delayed);
     }
 
     bool assign(expr const & m, expr const & v, justification const & j) {
@@ -386,10 +388,12 @@ struct unifier_fn {
             }
         }
 
-        if (is_meta(lhs) || is_meta(rhs)) {
-            add_delayed(c, &unassigned_lvls, &unassigned_exprs);
+        if (is_meta(lhs) && is_meta(rhs)) {
+            add_very_delayed_cnstr(c, &unassigned_lvls, &unassigned_exprs);
+        } else if (is_meta(lhs) || is_meta(rhs)) {
+            add_delayed_cnstr(c, &unassigned_lvls, &unassigned_exprs);
         } else {
-            add_active(c, &unassigned_lvls, &unassigned_exprs);
+            add_cnstr(c, &unassigned_lvls, &unassigned_exprs);
         }
         return true;
     }
@@ -443,9 +447,9 @@ struct unifier_fn {
 
         if (lhs != cnstr_lhs_level(c) || rhs != cnstr_rhs_level(c)) {
             constraint new_c = mk_level_eq_cnstr(lhs, rhs, new_jst);
-            add_delayed(new_c, &unassigned_lvls, nullptr);
+            add_delayed_cnstr(new_c, &unassigned_lvls, nullptr);
         } else {
-            add_delayed(c, &unassigned_lvls, nullptr);
+            add_delayed_cnstr(c, &unassigned_lvls, nullptr);
         }
 
         return true;
@@ -457,7 +461,7 @@ struct unifier_fn {
         check_system();
         switch (c.kind()) {
         case constraint_kind::Choice:
-            add_active(c, nullptr, nullptr);
+            add_cnstr(c, nullptr, nullptr);
             return true;
         case constraint_kind::Eq:
             return process_eq_constraint(c);
@@ -471,15 +475,9 @@ struct unifier_fn {
         if (in_conflict())
             return false;
         cnstr c(g_dont_care_cnstr, cidx);
-        if (auto it = m_active.find(c)) {
-            lean_assert(!m_delayed.contains(c));
+        if (auto it = m_cnstrs.find(c)) {
             constraint c2 = it->first;
-            m_active.erase(c);
-            return process_constraint(c2);
-        }
-        if (auto it = m_delayed.find(c)) {
-            constraint c2 = it->first;
-            m_delayed.erase(c);
+            m_cnstrs.erase(c);
             return process_constraint(c2);
         }
         return true;
@@ -588,19 +586,40 @@ struct unifier_fn {
         }
     }
 
-    bool process_next_active() {
-        lean_assert(!m_active.empty());
-        constraint c = m_active.min()->first;
-        m_active.erase_min();
-        if (is_choice_cnstr(c))
-            return process_choice_constraint(c);
-        else
-            return process_plugin_constraint(c);
+    bool process_flex_rigid(constraint const &) {
+        // TODO(Leo):
+        return true;
     }
 
-    bool process_next_delayed() {
-        // TODO(Leo)
+    bool process_flex_flex(constraint const &) {
+        // TODO(Leo):
         return true;
+    }
+
+    static bool is_flex_rigid(constraint const & c) {
+        if (!is_eq_cnstr(c))
+            return false;
+        bool is_lhs_meta = is_meta(cnstr_lhs_expr(c));
+        bool is_rhs_meta = is_meta(cnstr_rhs_expr(c));
+        return is_lhs_meta != is_rhs_meta;
+    }
+
+    static bool is_flex_flex(constraint const & c) {
+        return is_eq_cnstr(c) && is_meta(cnstr_lhs_expr(c)) && is_meta(cnstr_rhs_expr(c));
+    }
+
+    bool process_next() {
+        lean_assert(!m_cnstrs.empty());
+        constraint c = m_cnstrs.min()->first;
+        m_cnstrs.erase_min();
+        if (is_choice_cnstr(c))
+            return process_choice_constraint(c);
+        else if (is_flex_rigid(c))
+            return process_flex_rigid(c);
+        else if (is_flex_flex(c))
+            return process_flex_flex(c);
+        else
+            return process_plugin_constraint(c);
     }
 
     optional<substitution> next() {
@@ -620,19 +639,15 @@ struct unifier_fn {
             // We don't throw an exception since there are no more solutions.
             return optional<substitution>();
         }
-        while (!m_active.empty() || !m_delayed.empty()) {
+        while (!m_cnstrs.empty()) {
             check_system();
             lean_assert(!in_conflict());
-            bool ok = true;
-            if (!m_active.empty())
-                ok = process_next_active();
-            else
-                ok = process_next_delayed();
+            bool ok = process_next();
             if (!ok && !resolve_conflict())
                 return failure();
         }
-        lean_assert(!in_conflict())
-        lean_assert(m_active.empty() && m_delayed.empty());
+        lean_assert(!in_conflict());
+        lean_assert(m_cnstrs.empty());
         return optional<substitution>(m_subst);
     }
 };

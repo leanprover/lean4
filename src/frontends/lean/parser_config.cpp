@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "util/sstream.h"
 #include "library/scoped_ext.h"
 #include "library/kernel_serializer.h"
 #include "frontends/lean/parser_config.h"
@@ -193,6 +194,18 @@ environment add_nud_notation(environment const & env, std::initializer_list<nota
 
 environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a, bool overload) {
     return add_led_notation(env, ts.size(), ts.begin(), a, overload);
+}
+
+environment overwrite_notation(environment const & env, name const & n) {
+    auto it = notation_ext::get_entries(env, n);
+    if (!it)
+        throw exception(sstream() << "unknown namespace '" << n << "'");
+    environment r = env;
+    for (notation_entry e : *it) {
+        e.m_overload = false;
+        r = add_notation(r, e);
+    }
+    return r;
 }
 
 parse_table const & get_nud_table(environment const & env) {

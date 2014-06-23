@@ -224,6 +224,12 @@ static expr parse_calc_expr(parser & p, unsigned, expr const *, pos_info const &
     return parse_calc(p);
 }
 
+static expr parse_overwrite_notation(parser & p, unsigned, expr const *, pos_info const &) {
+    name n = p.check_id_next("invalid '#' local notation, identifier expected");
+    environment env = overwrite_notation(p.env(), n);
+    return p.parse_scoped_expr(0, nullptr, env);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -240,6 +246,7 @@ parse_table init_nud_table() {
     r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);
     r = r.add({transition("let", mk_ext_action(parse_let_expr))}, x0);
     r = r.add({transition("calc", mk_ext_action(parse_calc_expr))}, x0);
+    r = r.add({transition("#", mk_ext_action(parse_overwrite_notation))}, x0);
     return r;
 }
 

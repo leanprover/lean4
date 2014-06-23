@@ -174,6 +174,9 @@ public:
     static state const & get_state(environment const & env) {
         return get(env).m_state;
     }
+    static list<entry> const * get_entries(environment const & env, name const & n) {
+        return get(env).m_entries.find(n);
+    }
 };
 
 template<typename Config>

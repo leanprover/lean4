@@ -44,4 +44,6 @@ parse_table const & get_nud_table(environment const & env);
 parse_table const & get_led_table(environment const & env);
 cmd_table const & get_cmd_table(environment const & env);
 tactic_cmd_table const & get_tactic_cmd_table(environment const & env);
+/** \brief Force notation from namespace \c n to shadow any existing notation */
+environment overwrite_notation(environment const & env, name const & n);
 }

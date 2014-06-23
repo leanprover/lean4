@@ -901,15 +901,11 @@ expr parser::parse_expr(unsigned rbp) {
 }
 
 expr parser::parse_scoped_expr(unsigned num_params, parameter const * ps, local_environment const & lenv, unsigned rbp) {
-    if (num_params == 0) {
-        return parse_expr(rbp);
-    } else {
-        local_scope scope(*this);
-        m_env = lenv;
-        for (unsigned i = 0; i < num_params; i++)
-            add_local(ps[i].m_local, ps[i].m_bi);
-        return parse_expr(rbp);
-    }
+    local_scope scope(*this);
+    m_env = lenv;
+    for (unsigned i = 0; i < num_params; i++)
+        add_local(ps[i].m_local, ps[i].m_bi);
+    return parse_expr(rbp);
 }
 
 expr parser::abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda, pos_info const & p) {

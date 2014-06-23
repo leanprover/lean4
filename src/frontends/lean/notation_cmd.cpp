@@ -166,7 +166,7 @@ static expr parse_notation_expr(parser & p, buffer<expr> const & locals) {
     return abstract(r, locals.size(), locals.data());
 }
 
-static expr g_local_type = Bool; // type used in notation local declarations, it is irrelevant
+static expr g_local_type = mk_Bool(); // type used in notation local declarations, it is irrelevant
 
 static void parse_notation_local(parser & p, buffer<expr> & locals) {
     if (p.curr_is_identifier()) {

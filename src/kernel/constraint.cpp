@@ -31,9 +31,10 @@ struct level_constraint_cell : public constraint_cell {
 struct choice_constraint_cell : public constraint_cell {
     expr      m_mvar;
     choice_fn m_fn;
-    choice_constraint_cell(expr const & mvar, choice_fn const & fn, justification const & j):
+    bool      m_delayed;
+    choice_constraint_cell(expr const & mvar, choice_fn const & fn, bool delayed, justification const & j):
         constraint_cell(constraint_kind::Choice, j),
-        m_mvar(mvar), m_fn(fn) {}
+        m_mvar(mvar), m_fn(fn), m_delayed(delayed) {}
 };
 
 void constraint_cell::dealloc() {
@@ -62,9 +63,9 @@ constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const &
 constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j) {
     return constraint(new level_constraint_cell(lhs, rhs, j));
 }
-constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, justification const & j) {
+constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, bool delayed, justification const & j) {
     lean_assert(is_meta(m));
-    return constraint(new choice_constraint_cell(m, fn, j));
+    return constraint(new choice_constraint_cell(m, fn, delayed, j));
 }
 
 expr const & cnstr_lhs_expr(constraint const & c) { lean_assert(is_eq_cnstr(c)); return static_cast<eq_constraint_cell*>(c.raw())->m_lhs; }
@@ -81,6 +82,9 @@ expr const & cnstr_mvar(constraint const & c) { lean_assert(is_choice_cnstr(c));
 choice_fn const & cnstr_choice_fn(constraint const & c) {
     lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_fn;
 }
+bool cnstr_delayed(constraint const & c) {
+    lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_delayed;
+}
 
 constraint update_justification(constraint const & c, justification const & j) {
     switch (c.kind()) {
@@ -89,7 +93,7 @@ constraint update_justification(constraint const & c, justification const & j) {
     case constraint_kind::LevelEq:
         return mk_level_eq_cnstr(cnstr_lhs_level(c), cnstr_rhs_level(c), j);
     case constraint_kind::Choice:
-        return mk_choice_cnstr(cnstr_mvar(c), cnstr_choice_fn(c), j);
+        return mk_choice_cnstr(cnstr_mvar(c), cnstr_choice_fn(c), cnstr_delayed(c), j);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -103,7 +107,9 @@ std::ostream & operator<<(std::ostream & out, constraint const & c) {
         out << cnstr_lhs_level(c) << " = " << cnstr_rhs_level(c);
         break;
     case constraint_kind::Choice:
-        out << "choice " << cnstr_mvar(c);
+        out << "choice ";
+        if (cnstr_delayed(c)) out << "[delayed] ";
+        out << cnstr_mvar(c);
         break;
     }
     return out;

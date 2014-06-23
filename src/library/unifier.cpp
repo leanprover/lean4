@@ -651,7 +651,10 @@ struct unifier_fn {
         switch (c.kind()) {
         case constraint_kind::Choice:
             // Choice constraints are never considered easy.
-            add_cnstr(c, nullptr, nullptr);
+            if (cnstr_delayed(c))
+                add_very_delayed_cnstr(c, nullptr, nullptr);
+            else
+                add_cnstr(c, nullptr, nullptr);
             return true;
         case constraint_kind::Eq:
             return process_eq_constraint(c);

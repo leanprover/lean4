@@ -71,14 +71,14 @@ public:
 
     friend constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
     friend constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j);
-    friend constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, justification const & j);
+    friend constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, bool delayed, justification const & j);
 
     constraint_cell * raw() const { return m_ptr; }
 };
 
 constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
 constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j);
-constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, justification const & j);
+constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, bool delayed, justification const & j);
 
 inline bool is_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::Eq; }
 inline bool is_level_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::LevelEq; }
@@ -98,6 +98,8 @@ level const & cnstr_rhs_level(constraint const & c);
 expr const & cnstr_mvar(constraint const & c);
 /** \brief Return the choice_fn associated with a choice constraint. */
 choice_fn const & cnstr_choice_fn(constraint const & c);
+/** \brief Return true iff choice constraint must be delayed. */
+bool cnstr_delayed(constraint const & c);
 
 /** \brief Printer for debugging purposes */
 std::ostream & operator<<(std::ostream & out, constraint const & c);

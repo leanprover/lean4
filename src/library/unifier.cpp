@@ -871,9 +871,17 @@ struct unifier_fn {
             // The term (fun (ctx), local) is not well-formed.
             imitate = false;
         } else {
-            // we don't support macros
             lean_assert(is_macro(rhs));
-            imitate = false;
+            // create an auxiliary metavariable for each macro argument
+            buffer<expr> sargs;
+            for (unsigned i = 0; i < macro_num_args(rhs); i++) {
+                expr maux = mk_aux_metavar_for(mtype);
+                cs.push_back(mk_eq_cnstr(mk_app(maux, margs), macro_arg(rhs, i), j));
+                sargs.push_back(mk_app_vars(maux, margs.size()));
+            }
+            expr v = mk_macro(macro_def(rhs), sargs.size(), sargs.data());
+            v = mk_lambda_for(mtype, v);
+            cs.push_back(mk_eq_cnstr(m, v, j));
         }
         if (imitate)
             alts.push_back(to_list(cs.begin(), cs.end()));

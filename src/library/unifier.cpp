@@ -151,6 +151,7 @@ static constraint g_dont_care_cnstr = mk_eq_cnstr(expr(), expr(), justification(
 static unsigned g_first_delayed      = 1u << 28;
 static unsigned g_first_very_delayed = 1u << 30;
 
+/** \brief Auxiliary functional object for implementing simultaneous higher-order unification */
 struct unifier_fn {
     typedef std::pair<constraint, unsigned> cnstr; // constraint + idx
     struct cnstr_cmp {
@@ -168,14 +169,40 @@ struct unifier_fn {
     substitution     m_subst;
     unifier_plugin   m_plugin;
     type_checker     m_tc;
-    bool             m_use_exception;
-    bool             m_first;
-    unsigned         m_next_assumption_idx;
-    unsigned         m_next_cidx;
+    bool             m_use_exception; //!< True if we should throw an exception when there are no more solutions.
+    bool             m_first; //!< True if we still have to generate the first solution.
+    unsigned         m_next_assumption_idx; //!< Next assumption index.
+    unsigned         m_next_cidx; //!< Next constraint index.
+    /**
+       \brief "Queue" of constraints to be solved.
+
+       We implement it using a red-black-tree because:
+       1- Our red-black-trees support a O(1) copy operation. So, it is cheap to create a snapshot
+       whenever we create a backtracking point.
+
+       2- We can easily remove any constraint from the queue in O(n log n). We do that when
+       a metavariable \c m is assigned, and we want to instantiate it in all constraints that
+       contains it.
+    */
     cnstr_set        m_cnstrs;
+    /**
+        \brief The following two maps are indices. The map a metavariable name \c m to the se of all constraint indices that contain \c m.
+        We use these indices whenever a metavariable \c m is assigned. In this case, we used these indices to
+        remove any constraint that contains \c m from \c m_cnstrs, instantiate \c m, and reprocess them.
+
+        \remark \c m_mvar_occs is for regular metavariables, and \c m_mlvl_occs is for universe metavariables.
+    */
     name_to_cnstrs   m_mvar_occs;
     name_to_cnstrs   m_mlvl_occs;
 
+    /**
+        \brief Base class for the case-splits created by the unifier.
+
+        We have three different kinds of case splits:
+        1- unifier plugin
+        2- choice constraints
+        3- higher-order unification
+    */
     struct case_split {
         unsigned         m_assumption_idx; // idx of the current assumption
         justification    m_failed_justifications; // justifications for failed branches
@@ -185,7 +212,7 @@ struct unifier_fn {
         name_to_cnstrs   m_mvar_occs;
         name_to_cnstrs   m_mlvl_occs;
 
-        // Save unifier's state
+        /** \brief Save unifier's state */
         case_split(unifier_fn & u):
             m_assumption_idx(u.m_next_assumption_idx), m_subst(u.m_subst), m_cnstrs(u.m_cnstrs),
             m_mvar_occs(u.m_mvar_occs), m_mlvl_occs(u.m_mlvl_occs) {
@@ -193,7 +220,7 @@ struct unifier_fn {
             u.m_tc.push();
         }
 
-        // Restore unifier's state with saved values, and update m_assumption_idx and m_failed_justifications
+        /** \brief Restore unifier's state with saved values, and update m_assumption_idx and m_failed_justifications. */
         void restore_state(unifier_fn & u) {
             lean_assert(u.in_conflict());
             u.m_tc.pop();   // restore type checker state
@@ -229,7 +256,7 @@ struct unifier_fn {
     };
 
     case_split_stack        m_case_splits;
-    optional<justification> m_conflict;
+    optional<justification> m_conflict; //!< if different from none, then there is a conflict.
 
     unifier_fn(environment const & env, unsigned num_cs, constraint const * cs,
                name_generator const & ngen, substitution const & s, unifier_plugin const & p,
@@ -255,6 +282,12 @@ struct unifier_fn {
     void update_conflict(justification const & j) { m_conflict = j; }
     void reset_conflict() { m_conflict = optional<justification>(); lean_assert(!in_conflict()); }
 
+    /**
+        \brief Update occurrence index with entry <tt>m -> cidx</tt>, where \c m is the name of a metavariable,
+        and \c cidx is the index of a constraint that contains \c m.
+
+        \remark \c MVar is true if \c m is a regular metavariable, and false if it is a universe metavariable.
+    */
     template<bool MVar>
     void add_occ(name const & m, unsigned cidx) {
         cnstr_idx_set s;
@@ -268,7 +301,9 @@ struct unifier_fn {
         }
     }
 
+    /** \see add_occ */
     void add_mvar_occ(name const & m, unsigned cidx) { add_occ<true>(m, cidx); }
+    /** \see add_occ */
     void add_mlvl_occ(name const & m, unsigned cidx) { add_occ<false>(m, cidx); }
 
     void add_occs(unsigned cidx, name_set const * mlvl_occs, name_set const * mvar_occs) {
@@ -284,6 +319,7 @@ struct unifier_fn {
         }
     }
 
+    /** \brief Add constraint to the constraint queue */
     void add_cnstr(constraint const & c, name_set const * mlvl_occs, name_set const * mvar_occs, unsigned start_cidx = 0) {
         unsigned cidx = m_next_cidx + start_cidx;
         m_cnstrs.insert(cnstr(c, cidx));
@@ -291,14 +327,27 @@ struct unifier_fn {
         m_next_cidx++;
     }
 
+    /**
+        \brief Add (delayed) constraint to the constraint queue. Delayed constraints are processed after regular constraints
+        added with \c add_cnstr
+    */
     void add_delayed_cnstr(constraint const & c, name_set const * mlvl_occs, name_set const * mvar_occs) {
         add_cnstr(c, mlvl_occs, mvar_occs, g_first_delayed);
     }
 
+    /**
+       \brief Add (very delayed) constraint to the constraint queue. Very delayed constraints are processed after
+       regular and delayed constraints added with \c add_cnstr and \c add_delayed_cnstr.
+    */
     void add_very_delayed_cnstr(constraint const & c, name_set const * mlvl_occs, name_set const * mvar_occs) {
         add_cnstr(c, mlvl_occs, mvar_occs, g_first_very_delayed);
     }
 
+    /**
+       \brief Assign \c v to metavariable \c m with justification \c j.
+       The type of v and m are inferred, and is_def_eq is invoked.
+       Any constraint that contains \c m is revisited.
+    */
     bool assign(expr const & m, expr const & v, justification const & j) {
         lean_assert(is_metavar(m));
         m_subst = m_subst.assign(m, v, j);
@@ -319,6 +368,10 @@ struct unifier_fn {
         }
     }
 
+    /**
+       \brief Assign \c v to universe metavariable \c m with justification \c j.
+       Any constraint that contains \c m is revisted.
+    */
     bool assign(level const & m, level const & v, justification const & j) {
         lean_assert(is_meta(m));
         m_subst = m_subst.assign(m, v, j);
@@ -336,6 +389,12 @@ struct unifier_fn {
     }
 
     enum status { Assigned, Failed, Continue };
+    /**
+       \brief Process constraints of the form <tt>lhs =?= rhs</tt> where lhs is of the form <tt>?m</tt> or <tt>(?m l_1 .... l_n)</tt>,
+       where all \c l_i are distinct local variables. In this case, the method returns Assigned, if the method assign succeeds.
+       The method returns \c Failed if \c rhs contains <tt>?m</tt>, or it contains a local constant not in <tt>{l_1, ..., l_n}</tt>.
+       Otherwise, it returns \c Continue.
+    */
     status process_metavar_eq(expr const & lhs, expr const & rhs, justification const & j) {
         if (!is_meta(lhs))
             return Continue;
@@ -355,29 +414,39 @@ struct unifier_fn {
         }
     }
 
+    /** \brief Process an equality constraints. */
     bool process_eq_constraint(constraint const & c) {
         lean_assert(is_eq_cnstr(c));
-        // instantiate
+        // instantiate assigned metavariables
         name_set unassigned_lvls, unassigned_exprs;
         auto lhs_jst = m_subst.instantiate_metavars(cnstr_lhs_expr(c), &unassigned_lvls, &unassigned_exprs);
         auto rhs_jst = m_subst.instantiate_metavars(cnstr_rhs_expr(c), &unassigned_lvls, &unassigned_exprs);
-        expr const & lhs = lhs_jst.first;
-        expr const & rhs = rhs_jst.first;
+        expr lhs = lhs_jst.first;
+        expr rhs = rhs_jst.first;
 
         if (lhs == rhs)
             return true; // trivial constraint
 
+        // Update justification using the justification of the instantiated metavariables
         justification new_jst = mk_composite1(mk_composite1(c.get_justification(), lhs_jst.second), rhs_jst.second);
         if (!has_metavar(lhs) && !has_metavar(rhs)) {
             set_conflict(new_jst);
             return false; // trivial failure
         }
 
+        // Handle higher-order pattern matching.
         status st = process_metavar_eq(lhs, rhs, new_jst);
         if (st != Continue) return st == Assigned;
         st = process_metavar_eq(rhs, lhs, new_jst);
         if (st != Continue) return st == Assigned;
 
+        // Make sure the lhs/rhs are in weak-head-normal-form, when the other one is meta.
+        if (is_meta(lhs))
+            rhs = m_tc.whnf(rhs);
+        else if (is_meta(rhs))
+            lhs = m_tc.whnf(lhs);
+
+        // If lhs or rhs were updated, then invoke is_def_eq again.
         if (lhs != cnstr_lhs_expr(c) || rhs != cnstr_rhs_expr(c)) {
             // some metavariables were instantiated, try is_def_eq again
             if (m_tc.is_def_eq(lhs, rhs, new_jst)) {
@@ -389,15 +458,24 @@ struct unifier_fn {
         }
 
         if (is_meta(lhs) && is_meta(rhs)) {
+            // flex-flex constraints are delayed the most.
             add_very_delayed_cnstr(c, &unassigned_lvls, &unassigned_exprs);
         } else if (is_meta(lhs) || is_meta(rhs)) {
+            // flex-rigid constraints are delayed.
             add_delayed_cnstr(c, &unassigned_lvls, &unassigned_exprs);
         } else {
+            // this constraints require the unifier plugin to be solved
             add_cnstr(c, &unassigned_lvls, &unassigned_exprs);
         }
         return true;
     }
 
+    /**
+       \brief Process a universe level constraints of the form <tt>?m =?= rhs</tt>. It fails if rhs contains \c ?m and
+       is definitely bigger than \c ?m.
+
+       TODO(Leo): we should improve this method in the future. It is doing only very basic things.
+    */
     status process_metavar_eq(level const & lhs, level const & rhs, justification const & j) {
         if (!is_meta(lhs))
             return Continue;
@@ -416,16 +494,20 @@ struct unifier_fn {
         }
     }
 
+    /** \brief Process a universe level contraints. */
     bool process_level_eq_constraint(constraint const & c) {
         lean_assert(is_level_eq_cnstr(c));
+        // instantiate assigned metavariables
         name_set unassigned_lvls;
         auto lhs_jst = m_subst.instantiate_metavars(cnstr_lhs_level(c), &unassigned_lvls);
         auto rhs_jst = m_subst.instantiate_metavars(cnstr_rhs_level(c), &unassigned_lvls);
         level lhs = lhs_jst.first;
         level rhs = rhs_jst.first;
 
+        // normalize lhs and rhs
         lhs = normalize(lhs);
         rhs = normalize(rhs);
+        // eliminate outermost succs
         while (is_succ(lhs) && is_succ(rhs)) {
             lhs = succ_of(lhs);
             rhs = succ_of(rhs);
@@ -455,12 +537,18 @@ struct unifier_fn {
         return true;
     }
 
+    /**
+        \brief Process the given constraint \c c. "Easy" constraints are solved, and the remaining ones
+        are added to the constraint queue m_cnstrs. By "easy", see the methods
+        #process_eq_constraint and #process_level_eq_constraint.
+    */
     bool process_constraint(constraint const & c) {
         if (in_conflict())
             return false;
         check_system();
         switch (c.kind()) {
         case constraint_kind::Choice:
+            // Choice constraints are never considered easy.
             add_cnstr(c, nullptr, nullptr);
             return true;
         case constraint_kind::Eq:
@@ -471,6 +559,10 @@ struct unifier_fn {
         lean_unreachable(); // LCOV_EXCL_LINE
     }
 
+    /**
+       \brief Process constraint with index \c cidx. The constraint is removed
+       from the constraint queue, and the method #process_constraint is invoked.
+    */
     bool process_constraint_cidx(unsigned cidx) {
         if (in_conflict())
             return false;
@@ -509,7 +601,7 @@ struct unifier_fn {
         return optional<substitution>();
     }
 
-    // Process constraints in \c cs, and append justification \c j to them.
+    /** \brief Process constraints in \c cs, and append justification \c j to them. */
     bool process_constraints(constraints const & cs, justification const & j) {
         for (constraint const & c : cs)
             process_constraint(update_justification(c, mk_composite1(c.get_justification(), j)));
@@ -596,6 +688,7 @@ struct unifier_fn {
         return true;
     }
 
+    /** \brief Return true iff \c c is a flex-rigid constraint. */
     static bool is_flex_rigid(constraint const & c) {
         if (!is_eq_cnstr(c))
             return false;
@@ -604,10 +697,12 @@ struct unifier_fn {
         return is_lhs_meta != is_rhs_meta;
     }
 
+    /** \brief Return true iff \c c is a flex-flex constraint */
     static bool is_flex_flex(constraint const & c) {
         return is_eq_cnstr(c) && is_meta(cnstr_lhs_expr(c)) && is_meta(cnstr_rhs_expr(c));
     }
 
+    /** \brief Process the next constraint in the constraint queue m_cnstrs */
     bool process_next() {
         lean_assert(!m_cnstrs.empty());
         constraint c = m_cnstrs.min()->first;
@@ -622,6 +717,7 @@ struct unifier_fn {
             return process_plugin_constraint(c);
     }
 
+    /** \brief Produce the next solution */
     optional<substitution> next() {
         if (in_conflict())
             return failure();

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "util/luaref.h"
 #include "util/lazy_list_fn.h"
+#include "util/sstream.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
@@ -18,6 +19,17 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 
 namespace lean {
+static name g_unifier_max_steps      {"unifier", "max_steps"};
+RegisterUnsignedOption(g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS, "(unifier) maximum number of steps");
+static name g_unifier_use_exceptions {"unifier", "use_exceptions"};
+RegisterBoolOption(g_unifier_use_exceptions, true, "(unifier) throw an exception when there are no more solutions");
+unsigned get_unifier_max_steps(options const & opts) {
+    return opts.get_unsigned(g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS);
+}
+bool get_unifier_use_exceptions(options const & opts) {
+    return opts.get_bool(g_unifier_use_exceptions, true);
+}
+
 // If \c e is a metavariable ?m or a term of the form (?m l_1 ... l_n) where
 // l_1 ... l_n are distinct local variables, then return ?m, and store l_1 ... l_n in args.
 // Otherwise return none.
@@ -171,6 +183,8 @@ struct unifier_fn {
     unifier_plugin   m_plugin;
     type_checker     m_tc;
     bool             m_use_exception; //!< True if we should throw an exception when there are no more solutions.
+    unsigned         m_max_steps;
+    unsigned         m_num_steps;
     bool             m_first; //!< True if we still have to generate the first solution.
     unsigned         m_next_assumption_idx; //!< Next assumption index.
     unsigned         m_next_cidx; //!< Next constraint index.
@@ -267,10 +281,10 @@ struct unifier_fn {
 
     unifier_fn(environment const & env, unsigned num_cs, constraint const * cs,
                name_generator const & ngen, substitution const & s, unifier_plugin const & p,
-               bool use_exception):
+               bool use_exception, unsigned max_steps):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(p),
         m_tc(env, m_ngen.mk_child(), [=](constraint const & c) { process_constraint(c); }),
-        m_use_exception(use_exception) {
+        m_use_exception(use_exception), m_max_steps(max_steps), m_num_steps(0) {
         m_next_assumption_idx = 0;
         m_next_cidx = 0;
         m_first     = true;
@@ -281,7 +295,11 @@ struct unifier_fn {
 
     void check_system() {
         check_interrupted();
-        // TODO(Leo): check if exceeded the maximum number of steps
+        if (m_num_steps > m_max_steps)
+            throw exception(sstream() << "unifier maximum number of steps (" << m_max_steps << ") exceeded, " <<
+                            "the maximum number of steps can be increased by setting the option unifier.max_steps " <<
+                            "(remark: the unifier uses higher order unification and unification-hints, which may trigger non-termination");
+        m_num_steps++;
     }
 
     bool in_conflict() const { return (bool)m_conflict; } // NOLINT
@@ -681,8 +699,11 @@ struct unifier_fn {
     }
 
     optional<substitution> failure() {
-        // TODO(Leo): if m_use_exception == true, then throw exception instead of returning none.
-        return optional<substitution>();
+        lean_assert(in_conflict());
+        if (m_use_exception)
+            throw unifier_exception(*m_conflict);
+        else
+            return optional<substitution>();
     }
 
     /** \brief Process constraints in \c cs, and append justification \c j to them. */
@@ -942,16 +963,28 @@ lazy_list<substitution> unify(std::shared_ptr<unifier_fn> const & u) {
 }
 
 lazy_list<substitution> unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              unifier_plugin const & p, bool use_exception) {
-    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, ngen, substitution(), p, use_exception));
+                              unifier_plugin const & p, bool use_exception, unsigned max_steps) {
+    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, ngen, substitution(), p, use_exception, max_steps));
+}
+
+lazy_list<substitution> unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator const & ngen,
+                              unifier_plugin const & p, options const & o) {
+    return unify(env, num_cs, cs, ngen, p, get_unifier_use_exceptions(o), get_unifier_max_steps(o));
 }
 
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              bool use_exception) {
-    return unify(env, num_cs, cs, ngen, [](constraint const &, name_generator const &) { return lazy_list<constraints>(); }, use_exception);
+                              bool use_exception, unsigned max_steps) {
+    return unify(env, num_cs, cs, ngen, [](constraint const &, name_generator const &) { return lazy_list<constraints>(); },
+                 use_exception, max_steps);
 }
 
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, unifier_plugin const & p) {
+lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
+                              options const & o) {
+    return unify(env, num_cs, cs, ngen, get_unifier_use_exceptions(o), get_unifier_max_steps(o));
+}
+
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, unifier_plugin const & p,
+                              unsigned max_steps) {
     substitution s;
     buffer<constraint> cs;
     name_generator new_ngen(ngen);
@@ -974,12 +1007,21 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
     } else if (cs.empty()) {
         return lazy_list<substitution>(s);
     } else {
-        return unify(std::make_shared<unifier_fn>(env, cs.size(), cs.data(), ngen, s, p, false));
+        return unify(std::make_shared<unifier_fn>(env, cs.size(), cs.data(), ngen, s, p, false, max_steps));
     }
 }
 
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen) {
-    return unify(env, lhs, rhs, ngen, [](constraint const &, name_generator const &) { return lazy_list<constraints>(); });
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, unifier_plugin const & p,
+                              options const & o) {
+    return unify(env, lhs, rhs, ngen, p, get_unifier_max_steps(o));
+}
+
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, unsigned max_steps) {
+    return unify(env, lhs, rhs, ngen, [](constraint const &, name_generator const &) { return lazy_list<constraints>(); }, max_steps);
+}
+
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, options const & o) {
+    return unify(env, lhs, rhs, ngen, get_unifier_max_steps(o));
 }
 
 static int unify_simple(lua_State * L) {
@@ -1103,12 +1145,20 @@ static int unify(lua_State * L) {
     if (is_expr(L, 2)) {
         if (nargs == 3)
             r = unify(env, to_expr(L, 2), to_expr(L, 3), name_generator(g_tmp_prefix));
+        else if (nargs == 4 && is_options(L, 4))
+            r = unify(env, to_expr(L, 2), to_expr(L, 3), name_generator(g_tmp_prefix), to_options(L, 4));
         else if (nargs == 4 && is_name_generator(L, 4))
             r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4));
         else if (nargs == 4)
             r = unify(env, to_expr(L, 2), to_expr(L, 3), name_generator(g_tmp_prefix), to_unifier_plugin(L, 4));
-        else
+        else if (nargs == 5 && is_name_generator(L, 4) && is_options(L, 5))
+            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), to_options(L, 5));
+        else if (nargs == 5 && is_options(L, 5))
+            r = unify(env, to_expr(L, 2), to_expr(L, 3), name_generator(g_tmp_prefix), to_unifier_plugin(L, 4), to_options(L, 5));
+        else if (nargs == 5)
             r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), to_unifier_plugin(L, 5));
+        else
+            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), to_unifier_plugin(L, 5), to_options(L, 6));
     } else {
         buffer<constraint> cs;
         to_constraint_buffer(L, 2, cs);
@@ -1116,10 +1166,18 @@ static int unify(lua_State * L) {
             r = unify(env, cs.size(), cs.data(), name_generator(g_tmp_prefix));
         else if (nargs == 3 && is_name_generator(L, 3))
             r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3));
+        else if (nargs == 3 && is_options(L, 3))
+            r = unify(env, cs.size(), cs.data(), name_generator(g_tmp_prefix), to_options(L, 3));
         else if (nargs == 3)
             r = unify(env, cs.size(), cs.data(), name_generator(g_tmp_prefix), to_unifier_plugin(L, 3));
-        else
+        else if (nargs == 4 && is_name_generator(L, 3) && is_options(L, 4))
+            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3), to_options(L, 4));
+        else if (nargs == 4 && is_options(L, 4))
+            r = unify(env, cs.size(), cs.data(), name_generator(g_tmp_prefix), to_unifier_plugin(L, 3), to_options(L, 4));
+        else if (nargs == 4)
             r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3), to_unifier_plugin(L, 4));
+        else
+            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3), to_unifier_plugin(L, 4), to_options(L, 5));
     }
     return push_substitution_seq_it(L, r);
 }

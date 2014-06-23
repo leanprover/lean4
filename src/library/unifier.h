@@ -10,9 +10,14 @@ Author: Leonardo de Moura
 #include "util/lua.h"
 #include "util/lazy_list.h"
 #include "util/name_generator.h"
+#include "util/sexpr/options.h"
 #include "kernel/constraint.h"
 #include "kernel/environment.h"
 #include "kernel/metavar.h"
+
+#ifndef LEAN_DEFAULT_UNIFIER_MAX_STEPS
+#define LEAN_DEFAULT_UNIFIER_MAX_STEPS 10000
+#endif
 
 namespace lean {
 enum class unify_status { Solved, Failed, Unsupported };
@@ -34,11 +39,30 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, const
 typedef std::function<lazy_list<constraints>(constraint const &, name_generator const &)> unifier_plugin;
 
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              unifier_plugin const & p, bool use_exception = true);
+                              unifier_plugin const & p, bool use_exception = true, unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              bool use_exception = true);
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, unifier_plugin const & p);
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen);
+                              bool use_exception = true, unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
+lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
+                              unifier_plugin const & p, options const & o);
+lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
+                              options const & o);
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, unifier_plugin const & p,
+                              unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
+                              unsigned max_sharing = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, unifier_plugin const & p,
+                              options const & o);
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
+                              options const & o);
+
+class unifier_exception : public exception {
+    justification m_jst;
+public:
+    unifier_exception(justification const & j):exception("unifier exception"), m_jst(j) {}
+    virtual exception * clone() const { return new unifier_exception(m_jst); }
+    virtual void rethrow() const { throw *this; }
+    justification const & get_justification() const { return m_jst; }
+};
 
 void open_unifier(lua_State * L);
 }

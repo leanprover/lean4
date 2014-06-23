@@ -15,7 +15,9 @@ local m = mk_metavar("m", mk_metavar("m_ty", mk_sort(mk_meta_univ("u"))))
 local cs  = {}
 local tc  = type_checker(env, name_generator("foo"), function (c) print(c); cs[#cs+1] = c end)
 assert(tc:is_def_eq(carrier(m), real))
-assert(not unify(env, cs)())
+local o   = options({"unifier", "use_exceptions"}, false)
+print(o)
+assert(not unify(env, cs, o)())
 
 function hint(c, ngen)
    local lhs = c:lhs()
@@ -44,4 +46,4 @@ function display_solutions(ss)
    end
 end
 
-display_solutions(unify(env, cs, hint))
+display_solutions(unify(env, cs, hint, o))

@@ -61,8 +61,8 @@ token_table init_token_table() {
          {"(*", 0}, {"(--", 0}, {"proof", 0}, {"qed", 0},
          {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {nullptr, 0}};
 
-    char const * commands[] = {"theorem", "axiom", "variable", "definition", "{axiom}", "{variable}", "[variable]",
-                               "variables", "{variables}", "[variables]", "[private]", "[inline]", "[fact]", "abbreviation",
+    char const * commands[] = {"theorem", "axiom", "variable", "definition",
+                               "variables", "[private]", "[inline]", "[fact]", "abbreviation",
                                "evaluate", "check", "print", "end", "namespace", "section", "import",
                                "abbreviation", "inductive", "record", "structure", "module", "universe",
                                "precedence", "infixl", "infixr", "infix", "postfix", "notation", "exit", "set_option",
@@ -75,9 +75,6 @@ token_table init_token_table() {
     std::pair<char const *, char const *> cmd_aliases[] =
         {{"parameter", "variable"}, {"parameters", "variables"}, {"lemma", "theorem"},
          {"hypothesis", "axiom"}, {"conjecture", "axiom"}, {"corollary", "theorem"},
-         {"{parameter}", "{variable}"}, {"{parameters}", "{variables}"},
-         {"[parameter]", "[variable]"}, {"[parameters]", "[variables]"},
-         {"{hypothesis}", "{axiom}"}, {"{conjecture}", "{axiom}"},
          {nullptr, nullptr}};
 
     auto it = builtin;

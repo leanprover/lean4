@@ -16,7 +16,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_llevel_curly(".{");
+static name g_lcurly("{");
 static name g_rcurly("}");
+static name g_lbracket("[");
+static name g_rbracket("]");
 static name g_colon(":");
 static name g_assign(":=");
 static name g_private("[private]");
@@ -36,6 +39,28 @@ environment universe_cmd(parser & p) {
             env = add_alias(env, n, mk_global_univ(full_n));
     }
     return env;
+}
+
+binder_info parse_open_binder_info(parser & p) {
+    if (p.curr_is_token(g_lcurly)) {
+        check_in_section(p);
+        p.next();
+        return mk_implicit_binder_info();
+    } else if (p.curr_is_token(g_lbracket)) {
+        check_in_section(p);
+        p.next();
+        return mk_cast_binder_info();
+    } else {
+        return binder_info();
+    }
+}
+
+void parse_close_binder_info(parser & p, binder_info const & bi) {
+    if (bi.is_implicit()) {
+        p.check_token_next(g_rcurly, "invalid declaration, '}' expected");
+    } else if (bi.is_cast()) {
+        p.check_token_next(g_rbracket, "invalid declaration, ']' expected");
+    }
 }
 
 bool parse_univ_params(parser & p, buffer<name> & ps) {
@@ -83,8 +108,9 @@ static environment declare_var(parser & p, environment env,
     }
 }
 
-environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi) {
+environment variable_cmd_core(parser & p, bool is_axiom) {
     auto pos = p.pos();
+    binder_info bi = parse_open_binder_info(p);
     name n = p.check_id_next("invalid declaration, identifier expected");
     check_atomic(n);
     buffer<name> ls_buffer;
@@ -106,6 +132,7 @@ environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi)
         p.next();
         type = p.parse_expr();
     }
+    parse_close_binder_info(p, bi);
     level_param_names ls;
     if (in_section(p.env())) {
         ls = to_level_param_names(collect_univ_params(type));
@@ -117,22 +144,10 @@ environment variable_cmd_core(parser & p, bool is_axiom, binder_info const & bi)
     return declare_var(p, p.env(), n, ls, type, is_axiom, bi, pos);
 }
 environment variable_cmd(parser & p) {
-    return variable_cmd_core(p, false, binder_info());
+    return variable_cmd_core(p, false);
 }
 environment axiom_cmd(parser & p)    {
-    return variable_cmd_core(p, true, binder_info());
-}
-environment implicit_variable_cmd(parser & p) {
-    check_in_section(p);
-    return variable_cmd_core(p, false, mk_implicit_binder_info());
-}
-environment implicit_axiom_cmd(parser & p) {
-    check_in_section(p);
-    return variable_cmd_core(p, true, mk_implicit_binder_info());
-}
-environment cast_variable_cmd(parser & p) {
-    check_in_section(p);
-    return variable_cmd_core(p, false, mk_cast_binder_info());
+    return variable_cmd_core(p, true);
 }
 
 // Sort local_names by order of occurrence in the section, and copy the associated parameters to section_ps
@@ -264,9 +279,10 @@ environment theorem_cmd(parser & p) {
     return definition_cmd_core(p, true, true);
 }
 
-static environment variables_cmd_core(parser & p, bool is_axiom, binder_info const & bi) {
+static environment variables_cmd(parser & p) {
     auto pos = p.pos();
     buffer<name> ids;
+    binder_info bi = parse_open_binder_info(p);
     while (!p.curr_is_token(g_colon)) {
         name id = p.check_id_next("invalid parameters declaration, identifier expected");
         check_atomic(id);
@@ -278,37 +294,23 @@ static environment variables_cmd_core(parser & p, bool is_axiom, binder_info con
         scope1.emplace(p);
     parser::param_universe_scope scope2(p);
     expr type = p.parse_expr();
+    parse_close_binder_info(p, bi);
     level_param_names ls = to_level_param_names(collect_univ_params(type));
     type = p.elaborate(type, ls);
     environment env = p.env();
     for (auto id : ids)
-        env = declare_var(p, env, id, ls, type, is_axiom, bi, pos);
+        env = declare_var(p, env, id, ls, type, true, bi, pos);
     return env;
 }
-environment variables_cmd(parser & p) {
-    return variables_cmd_core(p, false, binder_info());
-}
-environment implicit_variables_cmd(parser & p) {
-    check_in_section(p);
-    return variables_cmd_core(p, false, mk_implicit_binder_info());
-}
-environment cast_variables_cmd(parser & p) {
-    check_in_section(p);
-    return variables_cmd_core(p, false, mk_cast_binder_info());
-}
+
 
 void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("universe",     "declare a global universe level", universe_cmd));
     add_cmd(r, cmd_info("variable",     "declare a new parameter", variable_cmd));
-    add_cmd(r, cmd_info("{variable}",   "declare a new implict parameter", implicit_variable_cmd));
-    add_cmd(r, cmd_info("[variable]",   "declare a new cast parameter", cast_variable_cmd));
     add_cmd(r, cmd_info("axiom",        "declare a new axiom", axiom_cmd));
-    add_cmd(r, cmd_info("{axiom}",      "declare a new implicit axiom", implicit_axiom_cmd));
     add_cmd(r, cmd_info("definition",   "add new definition", definition_cmd));
     add_cmd(r, cmd_info("abbreviation", "add new abbreviation (aka transparent definition)", abbreviation_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("variables",    "declare new parameters", variables_cmd));
-    add_cmd(r, cmd_info("{variables}",  "declare new implict parameters", implicit_variables_cmd));
-    add_cmd(r, cmd_info("[variables]",  "declare new cast parameters", cast_variables_cmd));
 }
 }

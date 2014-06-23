@@ -1,7 +1,7 @@
 definition Bool : Type.{1} := Type.{0}
 variable and : Bool → Bool → Bool
 section
-  {parameter} A : Type  -- Mark A as implicit parameter
+  parameter {A : Type}  -- Mark A as implicit parameter
   parameter   R : A → A → Bool
   parameter   B : Type
   definition  id (a : A) : A := a

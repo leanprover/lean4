@@ -17,7 +17,7 @@ section
    variable A  : Type
    variable B  : Bool
    hypothesis H : B
-   {parameter} C : Type
+   parameter {C : Type}
    check B -> B
    check A → A
    check C

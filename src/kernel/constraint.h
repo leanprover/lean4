@@ -38,7 +38,7 @@ typedef std::tuple<expr, justification, constraints> choice_fn_result;
 /**
    \brief A choice_fn is used to enumerate the possible solutions for a metavariable.
    The input arguments are:
-        - an inferred type (if available)
+        - an inferred type
         - substitution map (metavar -> value)
         - name generator
 
@@ -49,7 +49,7 @@ typedef std::tuple<expr, justification, constraints> choice_fn_result;
 
    One application of choice constraints is overloaded notation.
 */
-typedef std::function<lazy_list<choice_fn_result>(optional<expr> const &, substitution const &, name_generator const &)> choice_fn;
+typedef std::function<lazy_list<choice_fn_result>(expr const &, substitution const &, name_generator const &)> choice_fn;
 
 struct constraint_cell;
 class constraint {

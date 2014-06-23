@@ -1643,7 +1643,7 @@ static choice_fn to_choice_fn(lua_State * L, int idx) {
             push_substitution(L, s);
             push_name_generator(L, ngen);
             pcall(L, 3, 1, 0);
-            buffer<choice_fn_result> r;
+            buffer<a_choice> r;
             if (lua_isnil(L, -1)) {
                 // do nothing
             } else if (lua_istable(L, -1)) {
@@ -1652,7 +1652,7 @@ static choice_fn to_choice_fn(lua_State * L, int idx) {
                 for (int i = 1; i <= num; i++) {
                     lua_rawgeti(L, -1, i);
                     if (is_expr(L, -1)) {
-                        r.push_back(choice_fn_result(to_expr(L, -1), justification(), constraints()));
+                        r.push_back(a_choice(to_expr(L, -1), justification(), constraints()));
                     } else if (lua_istable(L, -1) && objlen(L, -1) == 3) {
                         lua_rawgeti(L, -1, 1);
                         expr c = to_expr(L, -1);
@@ -1676,7 +1676,7 @@ static choice_fn to_choice_fn(lua_State * L, int idx) {
                                             "where the third element of each triple is an array of constraints");
                         }
                         lua_pop(L, 1);
-                        r.push_back(choice_fn_result(c, j, to_list(cs.begin(), cs.end())));
+                        r.push_back(a_choice(c, j, to_list(cs.begin(), cs.end())));
                     } else {
                         throw exception("invalid choice function, result must be an array of triples");
                     }
@@ -1704,6 +1704,22 @@ static int mk_choice_cnstr(lua_State * L) {
         return push_constraint(L, mk_choice_cnstr(m, fn, lua_toboolean(L, 3), to_justification(L, 4)));
 }
 
+static int constraint_expr(lua_State * L) {
+    constraint const & c = to_constraint(L, 1);
+    if (is_choice_cnstr(c))
+        return push_expr(L, cnstr_expr(c));
+    else
+        throw exception("arg #1 must be a choice constraint");
+}
+
+static int constraint_delayed(lua_State * L) {
+    constraint const & c = to_constraint(L, 1);
+    if (is_choice_cnstr(c))
+        return push_boolean(L, cnstr_delayed(c));
+    else
+        throw exception("arg #1 must be a choice constraint");
+}
+
 static const struct luaL_Reg constraint_m[] = {
     {"__gc",            constraint_gc}, // never throws
     {"__tostring",      safe_function<constraint_tostring>},
@@ -1715,6 +1731,8 @@ static const struct luaL_Reg constraint_m[] = {
     {"lhs",             safe_function<constraint_lhs>},
     {"rhs",             safe_function<constraint_rhs>},
     {"justification",   safe_function<constraint_jst>},
+    {"expr",            safe_function<constraint_expr>},
+    {"delayed",         safe_function<constraint_delayed>},
     {0, 0}
 };
 

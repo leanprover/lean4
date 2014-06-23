@@ -262,11 +262,11 @@ struct unifier_fn {
     };
 
     struct choice_case_split : public case_split {
-        expr                        m_mvar;
-        justification               m_jst;
-        lazy_list<choice_fn_result> m_tail;
-        choice_case_split(unifier_fn & u, expr const & mvar, justification const & j, lazy_list<choice_fn_result> const & tail):
-            case_split(u), m_mvar(mvar), m_jst(j), m_tail(tail) {}
+        expr                 m_expr;
+        justification        m_jst;
+        lazy_list<a_choice>  m_tail;
+        choice_case_split(unifier_fn & u, expr const & expr, justification const & j, lazy_list<a_choice> const & tail):
+            case_split(u), m_expr(expr), m_jst(j), m_tail(tail) {}
         virtual bool next(unifier_fn & u) { return u.next_choice_case_split(*this); }
     };
 
@@ -716,7 +716,7 @@ struct unifier_fn {
         return !in_conflict();
     }
 
-    bool process_choice_result(expr const & m, choice_fn_result const & r, justification j) {
+    bool process_choice_result(expr const & m, a_choice const & r, justification j) {
         j = mk_composite1(j, std::get<1>(r));
         return
             process_constraint(mk_eq_cnstr(m, std::get<0>(r), j)) &&
@@ -730,7 +730,7 @@ struct unifier_fn {
             lean_assert(!in_conflict());
             cs.m_tail = r->second;
             justification a = mk_assumption_justification(cs.m_assumption_idx);
-            return process_choice_result(cs.m_mvar, r->first, mk_composite1(cs.m_jst, a));
+            return process_choice_result(cs.m_expr, r->first, mk_composite1(cs.m_jst, a));
         } else {
             // update conflict
             update_conflict(mk_composite1(*m_conflict, cs.m_failed_justifications));
@@ -740,9 +740,8 @@ struct unifier_fn {
 
     bool process_choice_constraint(constraint const & c) {
         lean_assert(is_choice_cnstr(c));
-        expr const &   m     = cnstr_mvar(c);
+        expr const &   m     = cnstr_expr(c);
         choice_fn const & fn = cnstr_choice_fn(c);
-        lean_assert(is_meta(m));
         auto m_type_jst      = m_subst.instantiate_metavars(m_tc.infer(m), nullptr, nullptr);
         auto rlist           = fn(m_type_jst.first, m_subst, m_ngen.mk_child());
         auto r               = rlist.pull();

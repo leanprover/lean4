@@ -29,12 +29,12 @@ struct level_constraint_cell : public constraint_cell {
         m_lhs(lhs), m_rhs(rhs) {}
 };
 struct choice_constraint_cell : public constraint_cell {
-    expr      m_mvar;
+    expr      m_expr;
     choice_fn m_fn;
     bool      m_delayed;
-    choice_constraint_cell(expr const & mvar, choice_fn const & fn, bool delayed, justification const & j):
+    choice_constraint_cell(expr const & e, choice_fn const & fn, bool delayed, justification const & j):
         constraint_cell(constraint_kind::Choice, j),
-        m_mvar(mvar), m_fn(fn), m_delayed(delayed) {}
+        m_expr(e), m_fn(fn), m_delayed(delayed) {}
 };
 
 void constraint_cell::dealloc() {
@@ -78,7 +78,7 @@ level const & cnstr_rhs_level(constraint const & c) {
     lean_assert(is_level_eq_cnstr(c));
     return static_cast<level_constraint_cell*>(c.raw())->m_rhs;
 }
-expr const & cnstr_mvar(constraint const & c) { lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_mvar; }
+expr const & cnstr_expr(constraint const & c) { lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_expr; }
 choice_fn const & cnstr_choice_fn(constraint const & c) {
     lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_fn;
 }
@@ -93,7 +93,7 @@ constraint update_justification(constraint const & c, justification const & j) {
     case constraint_kind::LevelEq:
         return mk_level_eq_cnstr(cnstr_lhs_level(c), cnstr_rhs_level(c), j);
     case constraint_kind::Choice:
-        return mk_choice_cnstr(cnstr_mvar(c), cnstr_choice_fn(c), cnstr_delayed(c), j);
+        return mk_choice_cnstr(cnstr_expr(c), cnstr_choice_fn(c), cnstr_delayed(c), j);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -109,7 +109,7 @@ std::ostream & operator<<(std::ostream & out, constraint const & c) {
     case constraint_kind::Choice:
         out << "choice ";
         if (cnstr_delayed(c)) out << "[delayed] ";
-        out << cnstr_mvar(c);
+        out << cnstr_expr(c);
         break;
     }
     return out;

@@ -34,7 +34,7 @@ namespace lean {
 enum class constraint_kind { Eq, LevelEq, Choice };
 class constraint;
 typedef list<constraint> constraints;
-typedef std::tuple<expr, justification, constraints> choice_fn_result;
+typedef std::tuple<expr, justification, constraints> a_choice; // a choice produced by the choice_fn
 /**
    \brief A choice_fn is used to enumerate the possible solutions for a metavariable.
    The input arguments are:
@@ -49,7 +49,7 @@ typedef std::tuple<expr, justification, constraints> choice_fn_result;
 
    One application of choice constraints is overloaded notation.
 */
-typedef std::function<lazy_list<choice_fn_result>(expr const &, substitution const &, name_generator const &)> choice_fn;
+typedef std::function<lazy_list<a_choice>(expr const &, substitution const &, name_generator const &)> choice_fn;
 
 struct constraint_cell;
 class constraint {
@@ -94,8 +94,8 @@ expr const & cnstr_rhs_expr(constraint const & c);
 level const & cnstr_lhs_level(constraint const & c);
 /** \brief Return the rhs of an level constraint. */
 level const & cnstr_rhs_level(constraint const & c);
-/** \brief Return the metavariable associated with a choice constraint */
-expr const & cnstr_mvar(constraint const & c);
+/** \brief Return the expression associated with a choice constraint */
+expr const & cnstr_expr(constraint const & c);
 /** \brief Return the choice_fn associated with a choice constraint. */
 choice_fn const & cnstr_choice_fn(constraint const & c);
 /** \brief Return true iff choice constraint must be delayed. */

@@ -403,9 +403,14 @@ unsigned get_app_num_args(expr const & e) {
     return n;
 }
 
-static name g_default_var_name("a");
-bool is_default_var_name(name const & n) { return n == g_default_var_name; }
-expr mk_arrow(expr const & t, expr const & e) { return mk_pi(g_default_var_name, t, e); }
+static name const & get_default_var_name() {
+    static name r("a");
+    return r;
+}
+static name const & g_default_var_name = get_default_var_name(); // force it to be initialized
+
+bool is_default_var_name(name const & n) { return n == get_default_var_name(); }
+expr mk_arrow(expr const & t, expr const & e) { return mk_pi(get_default_var_name(), t, e); }
 
 expr mk_pi(unsigned sz, expr const * domain, expr const & range) {
     expr r = range;

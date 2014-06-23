@@ -911,7 +911,8 @@ struct unifier_fn {
     }
 
     bool process_flex_flex(constraint const &) {
-        // TODO(Leo):
+        // We just ignore flex-flex constraints.
+        // This kind of constraint does not occur very often.
         return true;
     }
 

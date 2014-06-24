@@ -4,7 +4,7 @@ add_library(library deep_copy.cpp expr_lt.cpp io_state.cpp occurs.cpp
   normalize.cpp shared_environment.cpp module.cpp coercion.cpp
   private.cpp placeholder.cpp aliases.cpp level_names.cpp
   update_declaration.cpp choice.cpp scoped_ext.cpp locals.cpp
-  unifier.cpp)
+  unifier.cpp explicit.cpp)
 # hop_match.cpp)
 
 target_link_libraries(library ${LEAN_LIBS})

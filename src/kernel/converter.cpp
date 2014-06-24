@@ -445,11 +445,6 @@ struct default_converter : public converter {
             }
         }
 
-        if (has_metavar(t_n) || has_metavar(s_n)) {
-            add_cnstr(c, mk_eq_cnstr(t_n, s_n, jst.get()));
-            return true;
-        }
-
         return false;
     }
 

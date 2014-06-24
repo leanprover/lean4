@@ -34,12 +34,8 @@ local ng  = name_generator("foo")
 local tc  = type_checker(env, ng, function (c) print(c); cs[#cs+1] = c end)
 local m1  = mk_metavar("m1", Bool)
 print("before is_def_eq")
-assert(tc:is_def_eq(and_intro(m1, q(a)), and_intro(q(a), q(b))))
--- The constraint and_intro(m1, q(a)) == and_intro(q(a), q(b)) is added.
--- Reason: a unification hint may be able to solve it
-assert(#cs == 1)
-assert(cs[1]:lhs() == and_intro(m1, q(a)))
-assert(cs[1]:rhs() == and_intro(q(a), q(b)))
+assert(not tc:is_def_eq(and_intro(m1, q(a)), and_intro(q(a), q(b))))
+assert(#cs == 0)
 local cs  = {}
 local tc  = type_checker(env, ng, function (c) print(c); cs[#cs+1] = c end)
 assert(tc:is_def_eq(foo_intro(m1, q(a), Ax1), foo_intro(q(a), q(a), Ax2)))

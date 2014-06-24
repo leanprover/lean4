@@ -12,9 +12,7 @@ env = add_decl(env, mk_var_decl("nat_group", group))
 local real_group = Const("real_group")
 local nat_group  = Const("nat_group")
 local m = mk_metavar("m", mk_metavar("m_ty", mk_sort(mk_meta_univ("u"))))
-local cs  = {}
-local tc  = type_checker(env, name_generator("foo"), function (c) print(c); cs[#cs+1] = c end)
-assert(tc:is_def_eq(carrier(m), real))
+local cs  = { mk_eq_cnstr(carrier(m), real) }
 local o   = options({"unifier", "use_exceptions"}, false)
 print(o)
 assert(not unify(env, cs, o)())

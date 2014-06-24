@@ -159,9 +159,6 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                 case expr_kind::Lambda: case expr_kind::Pi:
                     s << binding_name(a) << binding_info(a); write_core(binding_domain(a)); write_core(binding_body(a));
                     break;
-                case expr_kind::Let:
-                    s << let_name(a); write_core(let_type(a)); write_core(let_value(a)); write_core(let_body(a));
-                    break;
                 case expr_kind::Meta:
                     s << mlocal_name(a); write_core(mlocal_type(a));
                     break;
@@ -215,12 +212,6 @@ public:
                 }
                 case expr_kind::Lambda: case expr_kind::Pi:
                     return read_binding(k);
-                case expr_kind::Let: {
-                    name n = read_name(d);
-                    expr t = read();
-                    expr v = read();
-                    return mk_let(n, t, v, read());
-                }
                 case expr_kind::Meta: {
                     name n = read_name(d);
                     return mk_metavar(n, read());
@@ -341,4 +332,13 @@ inductive_decls read_inductive_decls(deserializer & d) {
     }
     return inductive_decls(ps, num_params, to_list(decls.begin(), decls.end()));
 }
+
+
+static register_macro_deserializer_fn
+let_macro_des_fn(get_let_macro_opcode(),
+                 [](deserializer &, unsigned num, expr const * args) {
+                     if (num != 1)
+                         throw_corrupted_file();
+                     return mk_let_macro(args[0]);
+                 });
 }

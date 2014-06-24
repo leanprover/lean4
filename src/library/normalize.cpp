@@ -37,8 +37,6 @@ class normalize_fn {
         case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
         case expr_kind::Meta: case expr_kind::Local: case expr_kind::Macro:
             return e;
-        case expr_kind::Let:
-            lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Lambda: case expr_kind::Pi:
             return normalize_binding(e);
         case expr_kind::App:

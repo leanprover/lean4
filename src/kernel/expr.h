@@ -40,11 +40,10 @@ class expr;
           |   App           expr expr
           |   Lambda        name expr expr
           |   Pi            name expr expr
-          |   Let           name expr expr expr
 
           |   Macro         macro
 */
-enum class expr_kind { Var, Sort, Constant, Meta, Local, App, Lambda, Pi, Let, Macro };
+enum class expr_kind { Var, Sort, Constant, Meta, Local, App, Lambda, Pi, Macro };
 class expr_cell {
 protected:
     // The bits of the following field mean:
@@ -132,7 +131,6 @@ public:
     friend expr mk_pair(expr const & f, expr const & s, expr const & t);
     friend expr mk_proj(bool fst, expr const & p);
     friend expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i);
-    friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & e);
     friend expr mk_macro(macro_definition const & m, unsigned num, expr const * args);
 
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
@@ -290,23 +288,6 @@ public:
     binder const & get_binder() const { return m_binder; }
 };
 
-/** \brief Let expressions */
-class expr_let : public expr_composite {
-    name    m_name;
-    expr    m_type;
-    expr    m_value;
-    expr    m_body;
-    friend class expr_cell;
-    void dealloc(buffer<expr_cell*> & todelete);
-public:
-    expr_let(name const & n, expr const & t, expr const & v, expr const & b);
-    ~expr_let();
-    name const & get_name() const   { return m_name; }
-    expr const & get_type() const   { return m_type; }
-    expr const & get_value() const  { return m_value; }
-    expr const & get_body() const   { return m_body; }
-};
-
 /** \brief Sort */
 class expr_sort : public expr_cell {
     level    m_level;
@@ -404,7 +385,6 @@ inline bool is_app(expr_cell * e)         { return e->kind() == expr_kind::App; 
 inline bool is_lambda(expr_cell * e)      { return e->kind() == expr_kind::Lambda; }
 inline bool is_pi(expr_cell * e)          { return e->kind() == expr_kind::Pi; }
 inline bool is_sort(expr_cell * e)        { return e->kind() == expr_kind::Sort; }
-inline bool is_let(expr_cell * e)         { return e->kind() == expr_kind::Let; }
 inline bool is_binding(expr_cell * e)     { return is_lambda(e) || is_pi(e); }
 inline bool is_mlocal(expr_cell * e)      { return is_metavar(e) || is_local(e); }
 
@@ -417,7 +397,6 @@ inline bool is_app(expr const & e)        { return e.kind() == expr_kind::App; }
 inline bool is_lambda(expr const & e)     { return e.kind() == expr_kind::Lambda; }
 inline bool is_pi(expr const & e)         { return e.kind() == expr_kind::Pi; }
 inline bool is_sort(expr const & e)       { return e.kind() == expr_kind::Sort; }
-inline bool is_let(expr const & e)        { return e.kind() == expr_kind::Let; }
 inline bool is_binding(expr const & e)    { return is_lambda(e) || is_pi(e); }
 inline bool is_mlocal(expr const & e)     { return is_metavar(e) || is_local(e); }
 
@@ -455,7 +434,6 @@ inline expr mk_lambda(name const & n, expr const & t, expr const & e, binder_inf
 inline expr mk_pi(name const & n, expr const & t, expr const & e, binder_info const & i = binder_info()) {
     return mk_binding(expr_kind::Pi, n, t, e, i);
 }
-expr mk_let(name const & n, expr const & t, expr const & v, expr const & e);
 expr mk_sort(level const & l);
 
 /** \brief Return <tt>Pi(x.{sz-1}, domain[sz-1], ..., Pi(x.{0}, domain[0], range)...)</tt> */
@@ -517,7 +495,6 @@ inline expr_var *         to_var(expr_cell * e)        { lean_assert(is_var(e));
 inline expr_const *       to_constant(expr_cell * e)   { lean_assert(is_constant(e));    return static_cast<expr_const*>(e); }
 inline expr_app *         to_app(expr_cell * e)        { lean_assert(is_app(e));         return static_cast<expr_app*>(e); }
 inline expr_binding *     to_binding(expr_cell * e)    { lean_assert(is_binding(e));     return static_cast<expr_binding*>(e); }
-inline expr_let *         to_let(expr_cell * e)        { lean_assert(is_let(e));         return static_cast<expr_let*>(e); }
 inline expr_sort *        to_sort(expr_cell * e)       { lean_assert(is_sort(e));        return static_cast<expr_sort*>(e); }
 inline expr_mlocal *      to_mlocal(expr_cell * e)     { lean_assert(is_mlocal(e));      return static_cast<expr_mlocal*>(e); }
 inline expr_local *       to_local(expr_cell * e)      { lean_assert(is_local(e));       return static_cast<expr_local*>(e); }
@@ -528,7 +505,6 @@ inline expr_var *         to_var(expr const & e)         { return to_var(e.raw()
 inline expr_const *       to_constant(expr const & e)    { return to_constant(e.raw()); }
 inline expr_app *         to_app(expr const & e)         { return to_app(e.raw()); }
 inline expr_binding *     to_binding(expr const & e)     { return to_binding(e.raw()); }
-inline expr_let *         to_let(expr const & e)         { return to_let(e.raw()); }
 inline expr_sort *        to_sort(expr const & e)        { return to_sort(e.raw()); }
 inline expr_mlocal *      to_mlocal(expr const & e)      { return to_mlocal(e.raw()); }
 inline expr_mlocal *      to_metavar(expr const & e)     { return to_metavar(e.raw()); }
@@ -557,10 +533,6 @@ inline expr const &   binding_body(expr_cell * e)          { return to_binding(e
 inline binder_info const & binding_info(expr_cell * e)     { return to_binding(e)->get_info(); }
 inline binder const & binding_binder(expr_cell * e)        { return to_binding(e)->get_binder(); }
 inline level const &  sort_level(expr_cell * e)            { return to_sort(e)->get_level(); }
-inline name const &   let_name(expr_cell * e)              { return to_let(e)->get_name(); }
-inline expr const &   let_value(expr_cell * e)             { return to_let(e)->get_value(); }
-inline expr const &   let_type(expr_cell * e)              { return to_let(e)->get_type(); }
-inline expr const &   let_body(expr_cell * e)              { return to_let(e)->get_body(); }
 inline name const &   mlocal_name(expr_cell * e)           { return to_mlocal(e)->get_name(); }
 inline expr const &   mlocal_type(expr_cell * e)           { return to_mlocal(e)->get_type(); }
 
@@ -582,10 +554,6 @@ inline expr const &   binding_body(expr const & e)          { return to_binding(
 inline binder_info const & binding_info(expr const & e)     { return to_binding(e)->get_info(); }
 inline binder const & binding_binder(expr const & e)        { return to_binding(e)->get_binder(); }
 inline level const &  sort_level(expr const & e)            { return to_sort(e)->get_level(); }
-inline name const &   let_name(expr const & e)              { return to_let(e)->get_name(); }
-inline expr const &   let_value(expr const & e)             { return to_let(e)->get_value(); }
-inline expr const &   let_type(expr const & e)              { return to_let(e)->get_type(); }
-inline expr const &   let_body(expr const & e)              { return to_let(e)->get_body(); }
 inline name const &   mlocal_name(expr const & e)           { return to_mlocal(e)->get_name(); }
 inline expr const &   mlocal_type(expr const & e)           { return to_mlocal(e)->get_type(); }
 inline name const &   local_pp_name(expr const & e)         { return to_local(e)->get_pp_name(); }
@@ -666,11 +634,18 @@ expr update_app(expr const & e, expr const & new_fn, expr const & new_arg);
 expr update_rev_app(expr const & e, unsigned num, expr const * new_args);
 template<typename C> expr update_rev_app(expr const & e, C const & c) { return update_rev_app(e, c.size(), c.data()); }
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body);
-expr update_let(expr const & e, expr const & new_type, expr const & new_val, expr const & new_body);
 expr update_mlocal(expr const & e, expr const & new_type);
 expr update_sort(expr const & e, level const & new_level);
 expr update_constant(expr const & e, levels const & new_levels);
 expr update_macro(expr const & e, unsigned num, expr const * args);
+// =======================================
+
+// =======================================
+// Auxiliary macro for "marking" let-expressions
+expr mk_let_macro(expr const & e);
+bool is_let_macro(expr const & e);
+expr let_macro_arg(expr const & e);
+std::string const & get_let_macro_opcode();
 // =======================================
 
 std::ostream & operator<<(std::ostream & out, expr const & e);

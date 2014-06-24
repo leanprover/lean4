@@ -117,8 +117,6 @@ static unsigned count_core(expr const & a, expr_set & s) {
         return count_core(app_fn(a), s) + count_core(app_arg(a), s) + 1;
     case expr_kind::Lambda: case expr_kind::Pi:
         return count_core(binding_domain(a), s) + count_core(binding_body(a), s) + 1;
-    case expr_kind::Let:
-        return count_core(let_value(a), s) + count_core(let_body(a), s) + 1;
     }
     return 0;
 }
@@ -269,7 +267,7 @@ static void tst13() {
 }
 
 static void tst14() {
-    expr l = mk_let("a", Bool, Const("b"), Var(0));
+    expr l = Const("b");
     check_serializer(l);
     std::cout << l << "\n";
     lean_assert(closed(l));
@@ -292,11 +290,6 @@ static void tst15() {
     lean_assert(has_metavar(Pi({a, m}, a)));
     lean_assert(has_metavar(Fun({a, Type}, m)));
     lean_assert(has_metavar(Fun({a, m}, a)));
-    lean_assert(!has_metavar(Let(a, Type, Bool, a)));
-    lean_assert(!has_metavar(mk_let(name("a"), Type, f(x), f(f(x)))));
-    lean_assert(has_metavar(mk_let(name("a"), m, f(x), f(f(x)))));
-    lean_assert(has_metavar(mk_let(name("a"), Type, f(m), f(f(x)))));
-    lean_assert(has_metavar(mk_let(name("a"), Type, f(x), f(f(m)))));
     lean_assert(has_metavar(f(a, a, m)));
     lean_assert(has_metavar(f(a, m, a, a)));
     lean_assert(!has_metavar(f(a, a, a, a)));
@@ -317,7 +310,6 @@ static void tst16() {
     check_copy(mk_metavar("M", Bool));
     check_copy(mk_lambda("x", a, Var(0)));
     check_copy(mk_pi("x", a, Var(0)));
-    check_copy(mk_let("x", Bool, a, Var(0)));
 }
 
 static void tst17() {
@@ -358,10 +350,6 @@ static void tst18() {
     lean_assert(has_local(Pi({a, l}, a)));
     lean_assert(has_local(Fun({a, Type}, l)));
     lean_assert(has_local(Fun({a, l}, a)));
-    lean_assert(!has_local(Let(a, Type, Bool, a)));
-    lean_assert(has_local(mk_let(name("a"), l, f(x), f(f(x)))));
-    lean_assert(has_local(mk_let(name("a"), Type, f(l), f(f(x)))));
-    lean_assert(has_local(mk_let(name("a"), Type, f(x), f(f(l)))));
     lean_assert(has_local(f(a, a, l)));
     lean_assert(has_local(f(a, l, a, a)));
     lean_assert(!has_local(f(a, a, a, a)));

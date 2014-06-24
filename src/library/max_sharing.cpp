@@ -38,9 +38,6 @@ struct max_sharing_fn::imp {
         case expr_kind::Lambda: case expr_kind::Pi:
             res = update_binding(a, apply(binding_domain(a)), apply(binding_body(a)));
             break;
-        case expr_kind::Let:
-            res = update_let(a, apply(let_type(a)), apply(let_value(a)), apply(let_body(a)));
-            break;
         case expr_kind::Meta:  case expr_kind::Local:
             res = update_mlocal(a, apply(mlocal_type(a)));
             break;

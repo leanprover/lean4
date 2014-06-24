@@ -22,7 +22,6 @@ local l2 = mk_lambda("a", Bool, Var(0), binder_info(true, false))
 assert(not l1:binding_info():is_implicit())
 assert(l2:binding_info():is_implicit())
 
-local let1 = mk_let("a", Bool, Const("true"), f(Var(0)))
 
 local b = Const("b")
 local pi3 = Pi({{a, Bool}, {b, Bool}}, a)

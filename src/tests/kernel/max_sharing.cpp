@@ -25,11 +25,6 @@ static void tst1() {
     std::cout << F2 << "\n";
     lean_assert(is_eqp(app_arg(app_fn(F2)), app_arg(F2)));
     max_fn.clear();
-    F1 = f(Let(x, Type, f(a1), f(x, x)), Let(y, Type, f(a1), f(y, y)));
-    lean_assert(!is_eqp(app_arg(app_fn(F1)), app_arg(F1)));
-    F2 = max_fn(F1);
-    std::cout << F2 << "\n";
-    lean_assert(is_eqp(app_arg(app_fn(F2)), app_arg(F2)));
 }
 
 static void tst2() {

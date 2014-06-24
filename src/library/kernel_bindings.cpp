@@ -325,13 +325,6 @@ expr & to_macro_app(lua_State * L, int idx) {
     return r;
 }
 
-expr & to_let(lua_State * L, int idx) {
-    expr & r = to_expr(L, idx);
-    if (!is_let(r))
-        throw exception(sstream() << "arg #" << idx << " must be a let-expression");
-    return r;
-}
-
 static int expr_tostring(lua_State * L) {
     std::ostringstream out;
     formatter fmt   = get_global_formatter(L);
@@ -382,16 +375,6 @@ static int expr_mk_arrow(lua_State * L) {
     for (int i = nargs - 2; i >= 1; i--)
         r = mk_arrow(to_expr(L, i), r);
     return push_expr(L, r);
-}
-static int expr_mk_let(lua_State * L) { return push_expr(L, mk_let(to_name_ext(L, 1), to_expr(L, 2), to_expr(L, 3), to_expr(L, 4))); }
-
-static expr get_expr_from_table(lua_State * L, int t, int i) {
-    lua_pushvalue(L, t); // push table to the top
-    lua_pushinteger(L, i);
-    lua_gettable(L, -2);
-    expr r = to_expr(L, -1);
-    lua_pop(L, 2); // remove table and value
-    return r;
 }
 
 static void throw_invalid_binder_table(int t) {
@@ -519,51 +502,6 @@ static int expr_mk_local(lua_State * L) {
 }
 static int expr_get_kind(lua_State * L) { return push_integer(L, static_cast<int>(to_expr(L, 1).kind())); }
 
-// t is a table of pairs {{a1, b1, c1}, ..., {ak, bk, ck}}
-// ai, bi and ci are expressions
-static std::tuple<expr, expr, expr> get_expr_triple_from_table(lua_State * L, int t, int i) {
-    lua_pushvalue(L, t); // push table on the top
-    lua_pushinteger(L, i);
-    lua_gettable(L, -2); // now table {ai, bi, ci} is on the top
-    if (!lua_istable(L, -1) || objlen(L, -1) != 3)
-        throw exception(sstream() << "arg #" << t << " must be of the form '{{expr, expr, expr}, ...}'");
-    expr ai = get_expr_from_table(L, -1, 1);
-    expr bi = get_expr_from_table(L, -1, 2);
-    expr ci = get_expr_from_table(L, -1, 3);
-    lua_pop(L, 2); // pop table {ai, bi, ci} and t from stack
-    return std::make_tuple(ai, bi, ci);
-}
-
-static int expr_let(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs < 2)
-        throw exception("function must have at least 2 arguments");
-    if (nargs == 2) {
-        if (!lua_istable(L, 1))
-            throw exception("function expects arg #1 to be of the form '{{expr, expr, expr}, ...}'");
-        int len = objlen(L, 1);
-        if (len == 0)
-            throw exception("function expects arg #1 to be a non-empty table");
-        expr r = to_expr(L, 2);
-        for (int i = len; i >= 1; i--) {
-            auto p = get_expr_triple_from_table(L, 1, i);
-            r = Let(std::get<0>(p), std::get<1>(p), std::get<2>(p), r);
-        }
-        return push_expr(L, r);
-    } else {
-        if ((nargs - 1) % 3 != 0)
-            throw exception("function must have 3*n + 1 arguments");
-        expr r = to_expr(L, nargs);
-        for (int i = nargs - 1; i >= 1; i-=3) {
-            if (is_expr(L, i - 2))
-                r = Let(to_expr(L, i - 2), to_expr(L, i - 1), to_expr(L, i), r);
-            else
-                r = Let(to_name_ext(L, i - 2), to_expr(L, i - 1), to_expr(L, i), r);
-        }
-        return push_expr(L, r);
-    }
-}
-
 #define EXPR_PRED(P) static int expr_ ## P(lua_State * L) { check_num_args(L, 1); return push_boolean(L, P(to_expr(L, 1))); }
 
 EXPR_PRED(is_constant)
@@ -572,7 +510,6 @@ EXPR_PRED(is_app)
 EXPR_PRED(is_lambda)
 EXPR_PRED(is_pi)
 EXPR_PRED(is_binding)
-EXPR_PRED(is_let)
 EXPR_PRED(is_macro)
 EXPR_PRED(is_metavar)
 EXPR_PRED(is_local)
@@ -600,8 +537,6 @@ static int expr_fields(lua_State * L) {
     case expr_kind::Lambda:
     case expr_kind::Pi:
         push_name(L, binding_name(e)); push_expr(L, binding_domain(e)); push_expr(L, binding_body(e)); push_binder_info(L, binding_info(e)); return 4;
-    case expr_kind::Let:
-        push_name(L, let_name(e));  push_expr(L, let_type(e)); push_expr(L, let_value(e)); push_expr(L, let_body(e)); return 4;
     case expr_kind::Meta:
     case expr_kind::Local:
         push_name(L, mlocal_name(e)); push_expr(L, mlocal_type(e)); return 2;
@@ -728,11 +663,6 @@ static int binding_domain(lua_State * L) { return push_expr(L, binding_domain(to
 static int binding_body(lua_State * L) { return push_expr(L, binding_body(to_binding(L, 1))); }
 static int binding_info(lua_State * L) { return push_binder_info(L, binding_info(to_binding(L, 1))); }
 
-static int let_name(lua_State * L) { return push_name(L, let_name(to_let(L, 1))); }
-static int let_type(lua_State * L) { return push_expr(L, let_type(to_let(L, 1))); }
-static int let_value(lua_State * L) { return push_expr(L, let_value(to_let(L, 1))); }
-static int let_body(lua_State * L) { return push_expr(L, let_body(to_let(L, 1))); }
-
 static int expr_occurs(lua_State * L) { return push_boolean(L, occurs(to_expr(L, 1), to_expr(L, 2))); }
 static int expr_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_expr(L, 1), to_expr(L, 2))); }
 static int expr_hash(lua_State * L) { return push_integer(L, to_expr(L, 1).hash()); }
@@ -773,7 +703,6 @@ static const struct luaL_Reg expr_m[] = {
     {"is_lambda",        safe_function<expr_is_lambda>},
     {"is_pi",            safe_function<expr_is_pi>},
     {"is_binding",       safe_function<expr_is_binding>},
-    {"is_let",           safe_function<expr_is_let>},
     {"is_macro",         safe_function<expr_is_macro>},
     {"is_meta",          safe_function<expr_is_meta>},
     {"has_free_vars",    safe_function<expr_has_free_vars>},
@@ -790,10 +719,6 @@ static const struct luaL_Reg expr_m[] = {
     {"binding_domain",   safe_function<binding_domain>},
     {"binding_body",     safe_function<binding_body>},
     {"binding_info",     safe_function<binding_info>},
-    {"let_name",         safe_function<let_name>},
-    {"let_type",         safe_function<let_type>},
-    {"let_value",        safe_function<let_value>},
-    {"let_body",         safe_function<let_body>},
     {"macro_def",        safe_function<macro_def>},
     {"macro_num_args",   safe_function<macro_num_args>},
     {"macro_arg",        safe_function<macro_arg>},
@@ -832,12 +757,10 @@ static void open_expr(lua_State * L) {
     SET_GLOBAL_FUN(expr_mk_lambda,   "mk_lambda");
     SET_GLOBAL_FUN(expr_mk_pi,       "mk_pi");
     SET_GLOBAL_FUN(expr_mk_arrow,    "mk_arrow");
-    SET_GLOBAL_FUN(expr_mk_let,      "mk_let");
     SET_GLOBAL_FUN(expr_mk_macro,    "mk_macro");
     SET_GLOBAL_FUN(expr_fun,         "fun");
     SET_GLOBAL_FUN(expr_fun,         "Fun");
     SET_GLOBAL_FUN(expr_pi,          "Pi");
-    SET_GLOBAL_FUN(expr_let,         "Let");
     SET_GLOBAL_FUN(expr_mk_sort,     "mk_sort");
     SET_GLOBAL_FUN(expr_mk_metavar,  "mk_metavar");
     SET_GLOBAL_FUN(expr_mk_local,    "mk_local");
@@ -861,7 +784,6 @@ static void open_expr(lua_State * L) {
     SET_ENUM("App",      expr_kind::App);
     SET_ENUM("Lambda",   expr_kind::Lambda);
     SET_ENUM("Pi",       expr_kind::Pi);
-    SET_ENUM("Let",      expr_kind::Let);
     SET_ENUM("Macro",    expr_kind::Macro);
     lua_setglobal(L, "expr_kind");
 }

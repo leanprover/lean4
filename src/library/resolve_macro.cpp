@@ -289,7 +289,7 @@ expr mk_resolve_macro(expr const & l, expr const & H1, expr const & H2) {
     return mk_macro(g_resolve_macro_definition, 3, args);
 }
 
-register_macro_deserializer_fn
+static register_macro_deserializer_fn
 resolve_macro_des_fn(g_resolve_opcode,
                      [](deserializer &, unsigned num, expr const * args) {
                          if (num != 3)

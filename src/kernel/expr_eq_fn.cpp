@@ -58,12 +58,6 @@ bool expr_eq_fn::apply(expr const & a, expr const & b) {
                 return false;
         }
         return true;
-    case expr_kind::Let:
-        m_counter++;
-        return
-            apply(let_type(a), let_type(b)) &&
-            apply(let_value(a), let_value(b)) &&
-            apply(let_body(a), let_body(b));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

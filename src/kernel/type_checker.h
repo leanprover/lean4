@@ -76,7 +76,6 @@ class type_checker {
     bool meta_to_telescope_core(expr const & e, buffer<expr> & telescope, buffer<optional<expr>> & locals);
     expr ensure_sort_core(expr e, expr const & s);
     expr ensure_pi_core(expr e, expr const & s);
-    justification mk_let_mismatch_jst(expr const & e, expr const & val_type);
     justification mk_macro_jst(expr const & e);
     void check_level(level const & l, expr const & s);
     expr infer_type_core(expr const & e, bool infer_only);

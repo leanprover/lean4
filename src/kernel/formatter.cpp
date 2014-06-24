@@ -37,13 +37,6 @@ std::pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
     return mk_pair(instantiate(binding_body(b), c), c);
 }
 
-std::pair<expr, expr> let_body_fresh(expr const & l, bool preserve_type) {
-    lean_assert(is_let(l));
-    name n = pick_unused_name(let_body(l), let_name(l));
-    expr c = mk_local(n, preserve_type ? let_type(l) : expr());
-    return mk_pair(instantiate(let_body(l), c), c);
-}
-
 /**
    \brief Very basic printer for expressions.
    It is mainly used when debugging code.
@@ -66,10 +59,35 @@ struct print_expr_fn {
         }
     }
 
+    bool print_let(expr const & a) {
+        if (!is_let_macro(a))
+            return false;
+        expr l = let_macro_arg(a);
+        if (!is_app(l) || !is_lambda(app_fn(l)))
+            return false;
+        name n = binding_name(app_fn(l));
+        expr t = binding_domain(app_fn(l));
+        expr b = binding_body(app_fn(l));
+        expr v = app_arg(l);
+        n      = pick_unused_name(b, n);
+        expr c = mk_local(n, expr());
+        b      = instantiate(b, c);
+        out() << "let " << c;
+        out() << " : ";
+        print(t);
+        out() << " := ";
+        print(v);
+        out() << " in ";
+        print_child(b);
+        return true;
+    }
+
     void print_macro(expr const & a) {
-        macro_def(a).display(out());
-        for (unsigned i = 0; i < macro_num_args(a); i++) {
-            out() << " "; print_child(macro_arg(a, i));
+        if (!print_let(a)) {
+            macro_def(a).display(out());
+            for (unsigned i = 0; i < macro_num_args(a); i++) {
+                out() << " "; print_child(macro_arg(a, i));
+            }
         }
     }
 
@@ -101,19 +119,6 @@ struct print_expr_fn {
             return print(a);
         else
             return print_child(a);
-    }
-
-    void print_let(expr const & a) {
-        auto p = let_body_fresh(a);
-        expr const & b = p.first;
-        expr const & n = p.second;
-        out() << "let " << n;
-        out() << " : ";
-        print(let_type(a));
-        out() << " := ";
-        print(let_value(a));
-        out() << " in ";
-        print_child(b);
     }
 
     void print_binding(char const * bname, expr e) {
@@ -189,9 +194,6 @@ struct print_expr_fn {
                 out() << " -> ";
                 print_arrow_body(lower_free_vars(binding_body(a), 1));
             }
-            break;
-        case expr_kind::Let:
-            print_let(a);
             break;
         case expr_kind::Sort:
             print_sort(a);

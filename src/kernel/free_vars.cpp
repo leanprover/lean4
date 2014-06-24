@@ -69,9 +69,6 @@ protected:
         case expr_kind::Lambda: case expr_kind::Pi:
             result = apply(binding_domain(e), offset) || apply(binding_body(e), offset + 1);
             break;
-        case expr_kind::Let:
-            result = apply(let_type(e), offset) || apply(let_value(e), offset) || apply(let_body(e), offset + 1);
-            break;
         case expr_kind::Macro:
             for (unsigned i = 0; i < macro_num_args(e); i++) {
                 if (apply(macro_arg(e, i), offset)) {

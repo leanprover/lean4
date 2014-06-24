@@ -30,7 +30,6 @@ protected:
     virtual expr visit_binding(expr const &);
     virtual expr visit_lambda(expr const &);
     virtual expr visit_pi(expr const &);
-    virtual expr visit_let(expr const &);
     virtual expr visit(expr const &);
 public:
     expr operator()(expr const & e) { return visit(e); }

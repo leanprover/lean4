@@ -31,18 +31,8 @@ static void tst1() {
     lean_assert(beta_reduce(F3) == f(a, a));
 }
 
-static void tst2() {
-    expr x = Const("x");
-    expr a = Const("a");
-    expr f = Const("f");
-    expr N = Const("N");
-    expr F1 = Let(x, N, a, f(x));
-    lean_assert(head_beta_reduce(F1) == F1);
-}
-
 int main() {
     save_stack_info();
     tst1();
-    tst2();
     return has_violations() ? 1 : 0;
 }

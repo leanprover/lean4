@@ -822,7 +822,6 @@ struct unifier_fn {
         expr mtype = mlocal_type(m);
         buffer<constraints> alts;
         lean_assert(!is_var(rhs)); // rhs can't be a free variable (this is an invariant of the approach we are using).
-        lean_assert(!is_let(rhs)); // rhs can't be a let, since the rhs is in whnf.
         // Add Projections to alts
         unsigned vidx = margs.size() - 1;
         for (expr const & marg : margs) {

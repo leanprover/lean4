@@ -40,14 +40,6 @@ bool is_lt(expr const & a, expr const & b, bool use_hash) {
             return is_lt(binding_body(a), binding_body(b), use_hash);
     case expr_kind::Sort:
         return is_lt(sort_level(a), sort_level(b), use_hash);
-    case expr_kind::Let:
-        if (let_type(a) != let_type(b)) {
-            return is_lt(let_type(a), let_type(b), use_hash);
-        } else if (let_value(a) != let_value(b)){
-            return is_lt(let_value(a), let_value(b), use_hash);
-        } else {
-            return is_lt(let_body(a), let_body(b), use_hash);
-        }
     case expr_kind::Local: case expr_kind::Meta:
         if (mlocal_name(a) != mlocal_name(b))
             return mlocal_name(a) < mlocal_name(b);

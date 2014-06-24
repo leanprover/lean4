@@ -83,7 +83,7 @@ struct default_converter : public converter {
         case expr_kind::Var:  case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local:
         case expr_kind::Pi:   case expr_kind::Constant:
             return e;
-        case expr_kind::Lambda: case expr_kind::Macro:  case expr_kind::Let:  case expr_kind::App:
+        case expr_kind::Lambda: case expr_kind::Macro: case expr_kind::App:
             break;
         }
 
@@ -108,9 +108,6 @@ struct default_converter : public converter {
                 r = whnf_core(*m, c);
             else
                 r = e;
-            break;
-        case expr_kind::Let:
-            r = whnf_core(instantiate(let_body(e), let_value(e)), c);
             break;
         case expr_kind::App: {
             buffer<expr> args;
@@ -308,7 +305,7 @@ struct default_converter : public converter {
             case expr_kind::Meta:
                 lean_unreachable(); // LCOV_EXCL_LINE
             case expr_kind::Var: case expr_kind::Local: case expr_kind::App:
-            case expr_kind::Constant: case expr_kind::Macro:  case expr_kind::Let:
+            case expr_kind::Constant: case expr_kind::Macro:
                 // We do not handle these cases in this method.
                 break;
             }

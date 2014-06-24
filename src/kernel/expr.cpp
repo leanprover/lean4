@@ -178,27 +178,6 @@ expr_sort::expr_sort(level const & l):
 }
 expr_sort::~expr_sort() {}
 
-// Expr Let
-expr_let::expr_let(name const & n, expr const & t, expr const & v, expr const & b):
-    expr_composite(expr_kind::Let, ::lean::hash(v.hash(), b.hash()),
-                   t.has_metavar()    || v.has_metavar()    || b.has_metavar(),
-                   t.has_local()      || v.has_local()      || b.has_local(),
-                   t.has_param_univ() || v.has_param_univ() || b.has_param_univ(),
-                   std::max({get_depth(t), get_depth(v), get_depth(b)}) + 1,
-                   std::max({get_free_var_range(t), get_free_var_range(v), dec(get_free_var_range(b))})),
-    m_name(n),
-    m_type(t),
-    m_value(v),
-    m_body(b) {
-}
-void expr_let::dealloc(buffer<expr_cell*> & todelete) {
-    dec_ref(m_body, todelete);
-    dec_ref(m_value, todelete);
-    dec_ref(m_type, todelete);
-    delete(this);
-}
-expr_let::~expr_let() {}
-
 // Macro definition
 bool macro_definition_cell::lt(macro_definition_cell const &) const { return false; }
 bool macro_definition_cell::operator==(macro_definition_cell const & other) const { return typeid(*this) == typeid(other); }
@@ -297,7 +276,6 @@ expr mk_app(expr const & f, expr const & a) { return cache(expr(new expr_app(f, 
 expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i) {
     return cache(expr(new expr_binding(k, n, t, e, i)));
 }
-expr mk_let(name const & n, expr const & t, expr const & v, expr const & e) { return cache(expr(new expr_let(n, t, v, e))); }
 expr mk_sort(level const & l) { return cache(expr(new expr_sort(l))); }
 // =======================================
 
@@ -319,7 +297,6 @@ void expr_cell::dealloc() {
             case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
             case expr_kind::Lambda:
             case expr_kind::Pi:         static_cast<expr_binding*>(it)->dealloc(todo); break;
-            case expr_kind::Let:        static_cast<expr_let*>(it)->dealloc(todo); break;
             }
         }
     } catch (std::bad_alloc&) {
@@ -443,7 +420,7 @@ unsigned get_depth(expr const & e) {
     case expr_kind::Meta: case expr_kind::Local:
         return 1;
     case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Macro:
-    case expr_kind::App:    case expr_kind::Let:
+    case expr_kind::App:
         return static_cast<expr_composite*>(e.raw())->m_depth;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -458,7 +435,7 @@ unsigned get_free_var_range(expr const & e) {
     case expr_kind::Meta: case expr_kind::Local:
         return get_free_var_range(mlocal_type(e));
     case expr_kind::Lambda: case expr_kind::Pi:
-    case expr_kind::App:    case expr_kind::Let:
+    case expr_kind::App:
     case expr_kind::Macro:
         return static_cast<expr_composite*>(e.raw())->m_free_var_range;
     }
@@ -497,13 +474,6 @@ expr update_rev_app(expr const & e, unsigned num, expr const * new_args) {
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body) {
     if (!is_eqp(binding_domain(e), new_domain) || !is_eqp(binding_body(e), new_body))
         return copy_tag(e, mk_binding(e.kind(), binding_name(e), new_domain, new_body, binding_info(e)));
-    else
-        return e;
-}
-
-expr update_let(expr const & e, expr const & new_type, expr const & new_val, expr const & new_body) {
-    if (!is_eqp(let_type(e), new_type) || !is_eqp(let_value(e), new_val) || !is_eqp(let_body(e), new_body))
-        return copy_tag(e, mk_let(let_name(e), new_type, new_val, new_body));
     else
         return e;
 }
@@ -551,9 +521,9 @@ bool is_atomic(expr const & e) {
         return true;
     case expr_kind::Macro:
         return to_macro(e)->get_num_args() == 0;
-    case expr_kind::App:      case expr_kind::Let:
-    case expr_kind::Meta:     case expr_kind::Local:
-    case expr_kind::Lambda:   case expr_kind::Pi:
+    case expr_kind::App:      case expr_kind::Meta:
+    case expr_kind::Local:    case expr_kind::Lambda:
+    case expr_kind::Pi:
         return false;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -569,4 +539,37 @@ bool is_arrow(expr const & t) {
         return res;
     }
 }
+
+static name g_let("let");
+std::string const & get_let_macro_opcode() {
+    static std::string g_let_macro_opcode("let");
+    return g_let_macro_opcode;
+}
+
+/**
+   \brief We use a macro to mark expressions that denote "let"-expressions.
+   This marks have no real semantic meaning, but are used by Lean's pretty printer.
+*/
+class let_macro_definition_cell : public macro_definition_cell {
+    static void check_macro(expr const & m) {
+        if (!is_macro(m) || macro_num_args(m) != 1)
+            throw exception("invalid 'let' macro");
+    }
+public:
+    virtual name get_name() const { return g_let; }
+    virtual expr get_type(expr const & m, expr const * arg_types, extension_context &) const {
+        check_macro(m);
+        return arg_types[0];
+    }
+    virtual optional<expr> expand(expr const & m, extension_context &) const {
+        check_macro(m);
+        return some_expr(macro_arg(m, 0));
+    }
+    virtual void write(serializer & s) const { s.write_string(get_let_macro_opcode()); }
+};
+
+static macro_definition g_let_macro_definition(new let_macro_definition_cell());
+expr mk_let_macro(expr const & e) { return mk_macro(g_let_macro_definition, 1, &e); }
+bool is_let_macro(expr const & e) { return is_macro(e) && macro_def(e) == g_let_macro_definition; }
+expr let_macro_arg(expr const & e) { lean_assert(is_let_macro(e)); return macro_arg(e, 0); }
 }

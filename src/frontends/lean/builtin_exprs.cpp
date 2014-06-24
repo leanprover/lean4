@@ -20,6 +20,7 @@ static name g_colon(":");
 static name g_assign(":=");
 static name g_comma(",");
 static name g_fact("[fact]");
+static name g_inline("[inline]");
 static name g_from("from");
 static name g_using("using");
 static name g_then("then");
@@ -50,6 +51,25 @@ static expr parse_let_body(parser & p, pos_info const & pos) {
     }
 }
 
+static expr mk_let(parser & p, name const & id, expr const & t, expr const & v, expr const & b, pos_info const & pos, binder_info const & bi) {
+    expr l = p.save_pos(mk_lambda(id, t, b, bi), pos);
+    return p.save_pos(mk_let_macro(p.save_pos(mk_app(l, v), pos)), pos);
+}
+
+static void parse_let_modifiers(parser & p, bool & is_fact, bool & is_opaque) {
+    while (true) {
+        if (p.curr_is_token(g_fact)) {
+            is_fact = true;
+            p.next();
+        } else if (p.curr_is_token(g_inline)) {
+            is_opaque = false;
+            p.next();
+        } else {
+            break;
+        }
+    }
+}
+
 static expr parse_let(parser & p, pos_info const & pos) {
     parser::local_scope scope1(p);
     if (p.parse_local_notation_decl()) {
@@ -57,12 +77,18 @@ static expr parse_let(parser & p, pos_info const & pos) {
     } else {
         auto pos = p.pos();
         name id  = p.check_id_next("invalid let declaration, identifier expected");
+        bool is_opaque = true;
+        bool is_fact   = false;
         expr type, value;
+        parse_let_modifiers(p, is_fact, is_opaque);
         if (p.curr_is_token(g_assign)) {
             p.next();
-            type  = p.save_pos(mk_expr_placeholder(), pos);
+            if (is_opaque)
+                type  = p.save_pos(mk_expr_placeholder(), pos);
             value = p.parse_expr();
         } else if (p.curr_is_token(g_colon)) {
+            if (!is_opaque)
+                throw parser_error("invalid let 'inline' declaration, explicit type must not be provided", p.pos());
             p.next();
             type = p.parse_expr();
             p.check_token_next(g_assign, "invalid declaration, ':=' expected");
@@ -72,20 +98,28 @@ static expr parse_let(parser & p, pos_info const & pos) {
             buffer<parameter> ps;
             auto lenv = p.parse_binders(ps);
             if (p.curr_is_token(g_colon)) {
+                if (!is_opaque)
+                    throw parser_error("invalid let 'inline' declaration, explicit type must not be provided", p.pos());
                 p.next();
                 type  = p.parse_scoped_expr(ps, lenv);
-            } else {
+            } else if (is_opaque) {
                 type  = p.save_pos(mk_expr_placeholder(), pos);
             }
             p.check_token_next(g_assign, "invalid let declaration, ':=' expected");
             value = p.parse_scoped_expr(ps, lenv);
-            type  = p.pi_abstract(ps, type);
+            if (is_opaque)
+                type  = p.pi_abstract(ps, type);
             value = p.lambda_abstract(ps, value);
         }
-        expr l = p.save_pos(mk_local(id, type), pos);
-        p.add_local(l);
-        expr body = abstract(parse_let_body(p, pos), l);
-        return p.save_pos(mk_let(id, type, value, body), pos);
+        if (is_opaque) {
+            expr l = p.save_pos(mk_local(id, type), pos);
+            p.add_local(l);
+            expr body = abstract(parse_let_body(p, pos), l);
+            return mk_let(p, id, type, value, body, pos, mk_contextual_info(is_fact));
+        } else  {
+            p.add_local_expr(id, value, mk_contextual_info(false));
+            return parse_let_body(p, pos);
+        }
     }
 }
 
@@ -217,7 +251,7 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
     expr prop  = p.parse_expr();
     p.check_token_next(g_comma, "invalid 'show' declaration, ',' expected");
     expr proof = parse_proof(p, prop);
-    return p.save_pos(mk_let(H_show, prop, proof, Var(0)), pos);
+    return mk_let(p, H_show, prop, proof, Var(0), pos, mk_contextual_info(false));
 }
 
 static expr parse_calc_expr(parser & p, unsigned, expr const *, pos_info const &) {

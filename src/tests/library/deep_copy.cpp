@@ -17,7 +17,7 @@ static void tst1() {
     expr t = Type;
     expr z = Const("z");
     expr m = mk_metavar("a", Type);
-    expr F = mk_let("z", mk_Bool(), Type, mk_pi("y", t, mk_lambda("x", t, f(f(f(x, a), Const("10")), f(x, m)))));
+    expr F = mk_pi("y", t, mk_lambda("x", t, f(f(f(x, a), Const("10")), f(x, m))));
     expr G = deep_copy(F);
     lean_assert(F == G);
     lean_assert(!is_eqp(F, G));

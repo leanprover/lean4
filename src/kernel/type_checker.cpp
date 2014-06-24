@@ -203,20 +203,6 @@ expr type_checker::ensure_pi_core(expr e, expr const & s) {
     }
 }
 
-/**
-   \brief Create a justification for a let definition type mismatch,
-   \c e is the let expression, and \c val_type is the type inferred for the let value.
-*/
-justification type_checker::mk_let_mismatch_jst(expr const & e, expr const & val_type) {
-    lean_assert(is_let(e));
-    return mk_justification(e,
-                            [=](formatter const & fmt, options const & o, substitution const & subst) {
-                                return pp_def_type_mismatch(fmt, m_env, o, let_name(e),
-                                                            subst.instantiate_metavars_wo_jst(let_type(e)),
-                                                            subst.instantiate_metavars_wo_jst(val_type));
-                            });
-}
-
 static constexpr char const * g_macro_error_msg = "failed to type check macro expansion";
 
 justification type_checker::mk_macro_jst(expr const & e) {
@@ -343,23 +329,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
         }
         r = instantiate(binding_body(f_type), app_arg(e));
         break;
-    }
-    case expr_kind::Let:
-        if (!infer_only) {
-            ensure_sort_core(infer_type_core(let_type(e), infer_only), let_type(e));
-            expr val_type  = infer_type_core(let_value(e), infer_only);
-            simple_delayed_justification jst([=]() { return mk_let_mismatch_jst(e, val_type); });
-            if (!is_def_eq(val_type, let_type(e), jst)) {
-                environment env = m_env;
-                throw_kernel_exception(env, e,
-                                       [=](formatter const & fmt, options const & o) {
-                                           return pp_def_type_mismatch(fmt, env, o, let_name(e), let_type(e), val_type);
-                                       });
-            }
-        }
-        r = infer_type_core(instantiate(let_body(e), let_value(e)), infer_only);
-        break;
-    }
+    }}
 
     if (m_memoize)
         m_infer_type_cache[infer_only].insert(mk_pair(e, r));

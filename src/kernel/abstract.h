@@ -61,9 +61,4 @@ template<typename T> expr Pi(T const & locals, expr const & b) { return Pi(local
 inline expr Pi(expr const & local, expr const & b, binder_info const & bi = binder_info()) {
     return Pi(local_pp_name(local), mlocal_type(local), abstract(b, local), bi);
 }
-/**
--   \brief Create a Let expression (Let x := v in b), the term b is abstracted using abstract(b, x).
--*/
-inline expr Let(name const & x, expr const & t, expr const & v, expr const & b) { return mk_let(x, t, v, abstract(b, mk_constant(x))); }
-inline expr Let(expr const & x, expr const & t, expr const & v, expr const & b) { return mk_let(named_expr_name(x), t, v, abstract(b, x)); }
 }

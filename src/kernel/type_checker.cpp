@@ -233,32 +233,21 @@ void type_checker::check_level(level const & l, expr const & s) {
         throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '" << *n2 << "'", s);
 }
 
-/**
-   \brief Create a justification for a application type mismatch,
-   \c e is the application, \c fn_type and \c arg_type are the function and argument type.
-*/
-struct app_delayed_jst : public delayed_justification {
-    environment const & m_env;
-    expr const & m_e;
-    expr const & m_fn_type;
-    expr const & m_arg_type;
-    optional<justification> m_jst;
-    app_delayed_jst(environment const & env, expr const & e, expr const & f_type, expr const & a_type):
-        m_env(env), m_e(e), m_fn_type(f_type), m_arg_type(a_type) {}
+app_delayed_justification::app_delayed_justification(environment const & env, expr const & e, expr const & f_type, expr const & a_type):
+    m_env(env), m_e(e), m_fn_type(f_type), m_arg_type(a_type) {}
 
-    virtual justification get() {
-        if (!m_jst) {
-            m_jst = mk_justification(app_arg(m_e),
-                                     [=](formatter const & fmt, options const & o, substitution const & subst) {
-                                         return pp_app_type_mismatch(fmt, m_env, o,
-                                                                     subst.instantiate_metavars_wo_jst(m_e),
-                                                                     subst.instantiate_metavars_wo_jst(binding_domain(m_fn_type)),
-                                                                     subst.instantiate_metavars_wo_jst(m_arg_type));
-                                     });
-        }
-        return *m_jst;
+justification app_delayed_justification::get() {
+    if (!m_jst) {
+        m_jst = mk_justification(app_arg(m_e),
+                                 [=](formatter const & fmt, options const & o, substitution const & subst) {
+                                     return pp_app_type_mismatch(fmt, m_env, o,
+                                                                 subst.instantiate_metavars_wo_jst(m_e),
+                                                                 subst.instantiate_metavars_wo_jst(binding_domain(m_fn_type)),
+                                                                 subst.instantiate_metavars_wo_jst(m_arg_type));
+                                 });
     }
-};
+    return *m_jst;
+}
 
 /**
    \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
@@ -343,7 +332,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
         expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), app_fn(e));
         if (!infer_only) {
             expr a_type = infer_type_core(app_arg(e), infer_only);
-            app_delayed_jst jst(m_env, e, f_type, a_type);
+            app_delayed_justification jst(m_env, e, f_type, a_type);
             if (!is_def_eq(a_type, binding_domain(f_type), jst)) {
                 environment env = m_env;
                 throw_kernel_exception(m_env, app_arg(e),

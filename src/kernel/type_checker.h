@@ -81,7 +81,6 @@ class type_checker {
     void check_level(level const & l, expr const & s);
     expr infer_type_core(expr const & e, bool infer_only);
     expr infer_type(expr const & e);
-    bool is_def_eq(expr const & t, expr const & s, delayed_justification & jst);
     extension_context & get_extension() { return m_tc_ctx; }
 public:
     class scope {
@@ -140,6 +139,7 @@ public:
     /** \brief Return true iff t is definitionally equal to s. */
     bool is_def_eq(expr const & t, expr const & s);
     bool is_def_eq(expr const & t, expr const & s, justification const & j);
+    bool is_def_eq(expr const & t, expr const & s, delayed_justification & jst);
     /** \brief Return true iff t is a proposition. */
     bool is_prop(expr const & t);
     /** \brief Return the weak head normal form of \c t. */
@@ -173,4 +173,19 @@ public:
 certified_declaration check(environment const & env, declaration const & d,
                             name_generator const & g, name_set const & extra_opaque = name_set(), bool memoize = true);
 certified_declaration check(environment const & env, declaration const & d, name_set const & extra_opaque = name_set(), bool memoize = true);
+
+/**
+   \brief Create a justification for a application type mismatch,
+   \c e is the application, \c fn_type and \c arg_type are the function and argument type.
+*/
+class app_delayed_justification : public delayed_justification {
+    environment const & m_env;
+    expr const & m_e;
+    expr const & m_fn_type;
+    expr const & m_arg_type;
+    optional<justification> m_jst;
+public:
+    app_delayed_justification(environment const & env, expr const & e, expr const & f_type, expr const & a_type);
+    virtual justification get();
+};
 }

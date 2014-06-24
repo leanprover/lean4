@@ -10,6 +10,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_choice_name("choice");
+[[ noreturn ]] static void throw_ex() { throw exception("unexpected occurrence of 'choice' expression"); }
+
 // We encode a 'choice' expression using a macro.
 // This is a trick to avoid creating a new kind of expression.
 // 'Choice' expressions are temporary objects used by the elaborator,
@@ -19,9 +21,9 @@ public:
     virtual name get_name() const { return g_choice_name; }
     // Choice expressions must be replaced with metavariables before invoking the type checker.
     // Choice expressions cannot be exported. They are transient/auxiliary objects.
-    virtual expr get_type(expr const &, expr const *, extension_context &) const { lean_unreachable(); }
-    virtual optional<expr> expand(expr const &, extension_context &) const { lean_unreachable(); }
-    virtual void write(serializer &) const { lean_unreachable(); }
+    virtual expr get_type(expr const &, expr const *, extension_context &) const { throw_ex(); }
+    virtual optional<expr> expand(expr const &, extension_context &) const { throw_ex(); }
+    virtual void write(serializer &) const { throw_ex(); }
 };
 
 static macro_definition g_choice(new choice_macro_cell());

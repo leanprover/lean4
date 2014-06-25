@@ -41,4 +41,18 @@ format pp_def_type_mismatch(formatter const & fmt, environment const & env, opti
     r += pp_indent_expr(fmt, env, opts, given_type);
     return r;
 }
+
+format pp_decl_has_metavars(formatter const & fmt, environment const & env, options const & opts, name const & n,
+                            expr const & e, bool is_type) {
+    format r("failed to add declaration '");
+    r += format(n);
+    r += format("' to environment, ");
+    if (is_type)
+        r += format("type");
+    else
+        r += format("value");
+    r += format(" has metavariables");
+    r += pp_indent_expr(fmt, env, opts, e);
+    return r;
+}
 }

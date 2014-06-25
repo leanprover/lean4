@@ -15,4 +15,6 @@ format pp_app_type_mismatch(formatter const & fmt, environment const & env, opti
                             expr const & expected_type, expr const & given_type);
 format pp_def_type_mismatch(formatter const & fmt, environment const & env, options const & opts, name const & n,
                             expr const & expected_type, expr const & given_type);
+format pp_decl_has_metavars(formatter const & fmt, environment const & env, options const & opts, name const & n,
+                            expr const & e, bool is_type);
 }

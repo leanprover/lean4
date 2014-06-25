@@ -433,9 +433,12 @@ type_checker::type_checker(environment const & env):
 
 type_checker::~type_checker() {}
 
-static void check_no_metavar(environment const & env, expr const & e) {
+static void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type) {
     if (has_metavar(e))
-        throw_kernel_exception(env, "failed to add declaration to environment, it contains metavariables", e);
+        throw_kernel_exception(env, e,
+                               [=](formatter const & fmt, options const & o) {
+                                   return pp_decl_has_metavars(fmt, env, o, n, e, is_type);
+                               });
 }
 
 static void check_no_local(environment const & env, expr const & e) {
@@ -443,8 +446,8 @@ static void check_no_local(environment const & env, expr const & e) {
         throw_kernel_exception(env, "failed to add declaration to environment, it contains local constants", e);
 }
 
-static void check_no_mlocal(environment const & env, expr const & e) {
-    check_no_metavar(env, e);
+static void check_no_mlocal(environment const & env, name const & n, expr const & e, bool is_type) {
+    check_no_metavar(env, n, e, is_type);
     check_no_local(env, e);
 }
 
@@ -466,9 +469,9 @@ static void check_duplicated_params(environment const & env, declaration const &
 }
 
 certified_declaration check(environment const & env, declaration const & d, name_generator const & g, name_set const & extra_opaque, bool memoize) {
-    check_no_mlocal(env, d.get_type());
     if (d.is_definition())
-        check_no_mlocal(env, d.get_value());
+        check_no_mlocal(env, d.get_name(), d.get_value(), false);
+    check_no_mlocal(env, d.get_name(), d.get_type(), true);
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
     type_checker checker1(env, g, mk_default_converter(env, optional<module_idx>(), memoize, extra_opaque));

@@ -855,9 +855,12 @@ struct unifier_fn {
                 cs.push_back(mk_eq_cnstr(mk_app(maux, margs), rarg, j));
                 sargs.push_back(mk_app_vars(maux, margs.size()));
             }
-            expr v = mk_app(f, sargs);
-            v = mk_lambda_for(mtype, v);
-            cs.push_back(mk_eq_cnstr(m, v, j));
+            f = abstract_locals(f, margs.size(), margs.data());
+            if (!has_local(f)) {
+                expr v = mk_app(f, sargs);
+                v = mk_lambda_for(mtype, v);
+                cs.push_back(mk_eq_cnstr(m, v, j));
+            }
         } else if (is_binding(rhs)) {
             expr maux1  = mk_aux_metavar_for(mtype);
             cs.push_back(mk_eq_cnstr(mk_app(maux1, margs), binding_domain(rhs), j));

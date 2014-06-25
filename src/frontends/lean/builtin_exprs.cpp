@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "library/placeholder.h"
+#include "library/explicit.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/calc.h"
@@ -264,6 +265,11 @@ static expr parse_overwrite_notation(parser & p, unsigned, expr const *, pos_inf
     return p.parse_scoped_expr(0, nullptr, env);
 }
 
+static expr parse_explicit_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+    expr e = p.parse_expr(get_max_prec());
+    return p.save_pos(mk_explicit(e), pos);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -281,6 +287,7 @@ parse_table init_nud_table() {
     r = r.add({transition("let", mk_ext_action(parse_let_expr))}, x0);
     r = r.add({transition("calc", mk_ext_action(parse_calc_expr))}, x0);
     r = r.add({transition("#", mk_ext_action(parse_overwrite_notation))}, x0);
+    r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     return r;
 }
 

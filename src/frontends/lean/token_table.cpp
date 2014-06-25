@@ -13,6 +13,7 @@ static unsigned g_arrow_prec = 25;
 static unsigned g_max_prec   = std::numeric_limits<unsigned>::max();
 static unsigned g_plus_prec  = 65;
 static unsigned g_cup_prec   = 60;
+unsigned get_max_prec() { return g_max_prec; }
 unsigned get_arrow_prec() { return g_arrow_prec; }
 token_table add_command_token(token_table const & s, char const * token) {
     return insert(s, token, token_info(token));
@@ -58,7 +59,7 @@ token_table init_token_table() {
          {"from", 0}, {"(", g_max_prec}, {")", 0}, {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
          {"[", g_max_prec}, {"]", 0}, {".{", 0}, {"Type", g_max_prec}, {"|", 0}, {"with", 0},
          {"...", 0}, {",", 0}, {".", 0}, {":", 0}, {"calc", 0}, {":=", 0}, {"--", 0}, {"#", 0},
-         {"(*", 0}, {"(--", 0}, {"proof", 0}, {"qed", 0},
+         {"(*", 0}, {"(--", 0}, {"proof", 0}, {"qed", 0}, {"@", 0},
          {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {nullptr, 0}};
 
     char const * commands[] = {"theorem", "axiom", "variable", "definition",

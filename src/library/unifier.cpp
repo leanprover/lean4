@@ -75,7 +75,8 @@ expr lambda_abstract_locals(expr const & e, buffer<expr> const & locals) {
     unsigned i = locals.size();
     while (i > 0) {
         --i;
-        v = mk_lambda(local_pp_name(locals[i]), mlocal_type(locals[i]), v);
+        expr t = abstract_locals(mlocal_type(locals[i]), i, locals.data());
+        v = mk_lambda(local_pp_name(locals[i]), t, v);
     }
     return v;
 }

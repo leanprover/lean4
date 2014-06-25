@@ -818,10 +818,10 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         for (auto const & e : as) {
             new_as.push_back(copy_with_new_pos(propagate_levels(e, ls), p));
         }
-        r = mk_choice(new_as.size(), new_as.data());
+        r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
     }
     if (m_no_undef_id_error)
-        r = mk_constant(get_namespace(m_env) + id, ls);
+        r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
     if (!r)
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
     return *r;

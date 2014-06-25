@@ -368,7 +368,7 @@ public:
             if (coercion_worked) {
                 a = new_a;
                 r = mk_app(f, a, e.get_tag());
-            } else if (coercion_worked) {
+            } else {
                 if (has_metavar(a_type) || has_metavar(d_type)) {
                     // rely on unification hints to solve this constraint
                     add_cnstr(mk_eq_cnstr(a_type, d_type, j.get()));

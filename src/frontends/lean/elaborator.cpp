@@ -25,7 +25,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 class elaborator {
-    typedef scoped_map<expr, expr, expr_hash_alloc, expr_eqp> cache;
     typedef list<parameter> context;
     typedef std::vector<constraint> constraints;
 
@@ -36,7 +35,6 @@ class elaborator {
     type_checker   m_tc;
     substitution   m_subst;
     context        m_ctx;
-    cache          m_cache;
     justification  m_accumulated; // accumulate justification of eagerly used substitutions
     constraints    m_constraints;
 
@@ -55,13 +53,11 @@ class elaborator {
             m_old_ctx    = m_main.m_ctx;
             m_main.m_ctx = ctx;
             m_main.m_tc.push();
-            m_main.m_cache.push();
             m_main.m_subst = s;
         }
         ~scope() {
             m_main.m_ctx = m_old_ctx;
             m_main.m_tc.pop();
-            m_main.m_cache.pop();
             m_main.m_constraints.clear();
             m_main.m_accumulated = justification();
             m_main.m_subst = substitution();
@@ -116,11 +112,17 @@ public:
         m_subst(s), m_ctx(ctx) {
     }
 
-    expr mk_local(name const & n, expr const & t) { return ::lean::mk_local(m_ngen.next(), n, t); }
+    expr mk_local(name const & n, expr const & t) {
+        return ::lean::mk_local(m_ngen.next(), n, t);
+    }
+
     expr infer_type(expr const & e) {
         lean_assert(closed(e));
         return m_tc.infer(e); }
-    expr whnf(expr const & e) { return m_tc.whnf(e); }
+
+    expr whnf(expr const & e) {
+        return m_tc.whnf(e);
+    }
 
     /** \brief Clear constraint buffer \c m_constraints, and associated datastructures
         \c m_subst and \c m_accumulated.
@@ -349,19 +351,24 @@ public:
         expr d_type = binding_domain(f_t.second);
         expr a      = visit_expecting_type_of(app_arg(e), d_type);
         expr a_type = instantiate_metavars(infer_type(a));
-        app_delayed_justification j(m_env, e, f_t.second, a_type);
+        expr r      = mk_app(f, a, e.get_tag());
+        app_delayed_justification j(m_env, r, f_t.second, a_type);
         if (!m_tc.is_def_eq(a_type, d_type, j)) {
             // try coercions
             optional<expr> c     = get_coercion(a_type, d_type, binding_info(f_t.second).is_cast());
             bool coercion_worked = false;
+            expr new_a;
             if (c) {
-                expr new_a      = mk_app(*c, a, a.get_tag());
+                new_a           = mk_app(*c, a, a.get_tag());
                 expr new_a_type = instantiate_metavars(infer_type(new_a));
                 coercion_worked = m_tc.is_def_eq(new_a_type, d_type, j);
             } else {
                 coercion_worked = false;
             }
-            if (!coercion_worked) {
+            if (coercion_worked) {
+                a = new_a;
+                r = mk_app(f, a, e.get_tag());
+            } else if (coercion_worked) {
                 if (has_metavar(a_type) || has_metavar(d_type)) {
                     // rely on unification hints to solve this constraint
                     add_cnstr(mk_eq_cnstr(a_type, d_type, j.get()));
@@ -374,7 +381,7 @@ public:
                 }
             }
         }
-        return mk_app(f, a, e.get_tag());
+        return r;
     }
 
     expr visit_placeholder(expr const & e) {
@@ -495,9 +502,6 @@ public:
     }
 
     expr visit(expr const & e) {
-        auto it = m_cache.find(e);
-        if (it != m_cache.end())
-            return it->second;
         expr r;
         if (is_explicit(e)) {
             r    = visit_core(get_explicit_arg(e));
@@ -514,7 +518,6 @@ public:
                 }
             }
         }
-        m_cache.insert(e, r);
         return r;
     }
 

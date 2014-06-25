@@ -224,12 +224,18 @@ app_delayed_justification::app_delayed_justification(environment const & env, ex
 
 justification app_delayed_justification::get() {
     if (!m_jst) {
-        m_jst = mk_justification(app_arg(m_e),
+        // We should not have a reference to this object inside the closure.
+        // So, we create the following locals that will be captured by the closure instead of 'this'.
+        environment env = m_env;
+        expr e          = m_e;
+        expr fn_type    = m_fn_type;
+        expr arg_type   = m_arg_type;
+        m_jst = mk_justification(app_arg(e),
                                  [=](formatter const & fmt, options const & o, substitution const & subst) {
-                                     return pp_app_type_mismatch(fmt, m_env, o,
-                                                                 subst.instantiate_metavars_wo_jst(m_e),
-                                                                 subst.instantiate_metavars_wo_jst(binding_domain(m_fn_type)),
-                                                                 subst.instantiate_metavars_wo_jst(m_arg_type));
+                                     return pp_app_type_mismatch(fmt, env, o,
+                                                                 subst.instantiate_metavars_wo_jst(e),
+                                                                 subst.instantiate_metavars_wo_jst(binding_domain(fn_type)),
+                                                                 subst.instantiate_metavars_wo_jst(arg_type));
                                  });
     }
     return *m_jst;

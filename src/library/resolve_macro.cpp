@@ -131,9 +131,9 @@ public:
         expr C2    = arg_types[2];
         buffer<expr> R; // resolvent
         if (!collect(C1, l, R, ctx))
-            throw_kernel_exception(env, "invalid resolve macro positive literal was not found", m);
+            throw_kernel_exception(env, "invalid resolve macro, positive literal was not found", m);
         if (!collect(C2, not_l, R, ctx))
-            throw_kernel_exception(env, "invalid resolve macro neative literal was not found", m);
+            throw_kernel_exception(env, "invalid resolve macro, negative literal was not found", m);
         return mk_bin_rop(g_or, g_false, R.size(), R.data());
     }
 

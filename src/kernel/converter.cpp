@@ -279,6 +279,26 @@ struct default_converter : public converter {
                          instantiate_rev(s, subst.size(), subst.data()), c, jst);
     }
 
+    bool is_def_eq(level const & l1, level const & l2, type_checker & c, delayed_justification & jst) {
+        if (is_equivalent(l1, l2)) {
+            return true;
+        } else if (has_meta(l1) || has_meta(l2)) {
+            add_cnstr(c, mk_level_eq_cnstr(l1, l2, jst.get()));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool is_def_eq(levels const & ls1, levels const & ls2, type_checker & c, delayed_justification & jst) {
+        if (is_nil(ls1) && is_nil(ls2))
+            return true;
+        else if (!is_nil(ls1) && !is_nil(ls2))
+            return is_def_eq(head(ls1), head(ls2), c, jst) && is_def_eq(tail(ls1), tail(ls2), c, jst);
+        else
+            return false;
+    }
+
     /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */
     lbool quick_is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst) {
         if (t == s)
@@ -293,15 +313,7 @@ struct default_converter : public converter {
             case expr_kind::Lambda: case expr_kind::Pi:
                 return to_lbool(is_def_eq_binding(t, s, c, jst));
             case expr_kind::Sort:
-                // t and s are Sorts
-                if (is_equivalent(sort_level(t), sort_level(s))) {
-                    return l_true;
-                } else if (has_meta(sort_level(t)) || has_meta(sort_level(s))) {
-                    add_cnstr(c, mk_level_eq_cnstr(sort_level(t), sort_level(s), jst.get()));
-                    return l_true;
-                } else {
-                    return l_false;
-                }
+                return to_lbool(is_def_eq(sort_level(t), sort_level(s), c, jst));
             case expr_kind::Meta:
                 lean_unreachable(); // LCOV_EXCL_LINE
             case expr_kind::Var: case expr_kind::Local: case expr_kind::App:
@@ -399,6 +411,10 @@ struct default_converter : public converter {
             if (r != l_undef) return r == l_true;
         }
 
+        if (is_constant(t_n) && is_constant(s_n) && const_name(t_n) == const_name(s_n) &&
+            is_def_eq(const_levels(t_n), const_levels(s_n), c, jst))
+            return true;
+
         // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
         if (is_app(t_n) && is_app(s_n)) {
             type_checker::scope scope(c);
@@ -406,7 +422,7 @@ struct default_converter : public converter {
             buffer<expr> s_args;
             expr t_fn = get_app_args(t_n, t_args);
             expr s_fn = get_app_args(s_n, s_args);
-            if (t_fn == s_fn && t_args.size() == s_args.size()) {
+            if (is_def_eq(t_fn, s_fn, c, jst) && t_args.size() == s_args.size()) {
                 unsigned i = 0;
                 for (; i < t_args.size(); i++) {
                     if (!is_def_eq(t_args[i], s_args[i], c, jst))

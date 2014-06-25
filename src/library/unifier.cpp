@@ -457,8 +457,12 @@ struct unifier_fn {
         m_subst = m_subst.assign(m, v, j);
         expr m_type = mlocal_type(m);
         expr v_type = m_tc.infer(v);
-        if (in_conflict() || !m_tc.is_def_eq(m_type, v_type, j))
+        if (in_conflict())
             return false;
+        if (!m_tc.is_def_eq(m_type, v_type, j)) {
+            set_conflict(j);
+            return false;
+        }
         auto it = m_mvar_occs.find(mlocal_name(m));
         if (it) {
             cnstr_idx_set s = *it;

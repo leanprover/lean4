@@ -236,8 +236,12 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
             {
                 parser::param_universe_scope scope2(p);
                 lenv = p.parse_binders(ps);
-                p.check_token_next(g_colon, "invalid declaration, ':' expected");
-                type = p.parse_scoped_expr(ps, *lenv);
+                if (p.curr_is_token(g_colon)) {
+                    p.next();
+                    type = p.parse_scoped_expr(ps, *lenv);
+                } else {
+                    type = p.save_pos(mk_expr_placeholder(), p.pos());
+                }
             }
             p.check_token_next(g_assign, "invalid declaration, ':=' expected");
             value = p.parse_scoped_expr(ps, *lenv);

@@ -708,7 +708,7 @@ struct unifier_fn {
     optional<substitution> failure() {
         lean_assert(in_conflict());
         if (m_use_exception)
-            throw unifier_exception(*m_conflict);
+            throw unifier_exception(*m_conflict, m_subst);
         else
             return optional<substitution>();
     }

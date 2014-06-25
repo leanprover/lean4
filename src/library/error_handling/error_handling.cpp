@@ -11,10 +11,8 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/for_each_fn.h"
 #include "library/io_state_stream.h"
-// #include "library/elaborator/elaborator_justification.h"
-// #include "library/elaborator/elaborator_exception.h"
+#include "library/unifier.h"
 #include "library/parser_nested_exception.h"
-// #include "library/unsolved_metavar_exception.h"
 
 namespace lean {
 void display_error_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
@@ -51,13 +49,12 @@ static void display_error(io_state_stream const & ios, pos_info_provider const *
     ios << " " << ex << endl;
 }
 
-// static void display_error(io_state_stream const & ios, pos_info_provider const * p, elaborator_exception const & ex) {
-//     formatter fmt = ios.get_formatter();
-//     options opts  = ios.get_options();
-//     auto j = ex.get_justification();
-//     j = remove_detail(j);
-//     ios << mk_pair(j.pp(fmt, opts, p, true), opts) << endl;
-// }
+static void display_error(io_state_stream const & ios, pos_info_provider const * p, unifier_exception const & ex) {
+    formatter fmt = ios.get_formatter();
+    options opts  = ios.get_options();
+    auto j = ex.get_justification();
+    ios << mk_pair(j.pp(fmt, opts, p, ex.get_substitution()), opts) << endl;
+}
 
 // struct delta_pos_info_provider : public pos_info_provider {
 //     unsigned m_delta;
@@ -132,37 +129,11 @@ static void display_error(io_state_stream const & ios, pos_info_provider const *
 //     ios << ex.what() << endl;
 // }
 
-// static void display_error(io_state_stream const & ios, pos_info_provider const * p, unsolved_metavar_exception const & ex) {
-//     display_error_pos(ios, p, ex.get_expr());
-//     formatter fmt = ios.get_formatter();
-//     options opts  = ios.get_options();
-//     unsigned indent = get_pp_indent(opts);
-//     format r = nest(indent, compose(line(), fmt(ex.get_expr(), opts)));
-//     ios << " " << ex.what() << mk_pair(r, opts) << endl;
-//     if (p) {
-//         name_set already_displayed;
-//         for_each(ex.get_expr(), [&](expr const & e, unsigned) -> bool {
-//                 if (is_metavar(e)) {
-//                     name const & m = metavar_name(e);
-//                     if (already_displayed.find(m) == already_displayed.end()) {
-//                         already_displayed.insert(m);
-//                         for (unsigned i = 0; i < indent; i++) ios << " ";
-//                         display_error_pos(ios, p, e);
-//                         ios << " unsolved metavar " << m << endl;
-//                     }
-//                 }
-//                 return true;
-//             });
-//     }
-// }
-
 void display_error(io_state_stream const & ios, pos_info_provider const * p, exception const & ex) {
     if (auto k_ex = dynamic_cast<kernel_exception const *>(&ex)) {
         display_error(ios, p, *k_ex);
-    // } else if (auto e_ex = dynamic_cast<elaborator_exception const *>(&ex)) {
-    //     display_error(ios, p, *e_ex);
-    // } else if (auto m_ex = dynamic_cast<unsolved_metavar_exception const *>(&ex)) {
-    //     display_error(ios, p, *m_ex);
+    } else if (auto e_ex = dynamic_cast<unifier_exception const *>(&ex)) {
+        display_error(ios, p, *e_ex);
     } else if (auto ls_ex = dynamic_cast<script_nested_exception const *>(&ex)) {
         display_error(ios, p, *ls_ex);
     } else if (auto s_ex = dynamic_cast<script_exception const *>(&ex)) {

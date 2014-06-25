@@ -60,11 +60,13 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
 
 class unifier_exception : public exception {
     justification m_jst;
+    substitution  m_subst;
 public:
-    unifier_exception(justification const & j):exception("unifier exception"), m_jst(j) {}
-    virtual exception * clone() const { return new unifier_exception(m_jst); }
+    unifier_exception(justification const & j, substitution const & s):exception("unifier exception"), m_jst(j), m_subst(s) {}
+    virtual exception * clone() const { return new unifier_exception(m_jst, m_subst); }
     virtual void rethrow() const { throw *this; }
     justification const & get_justification() const { return m_jst; }
+    substitution const & get_substitution() const { return m_subst; }
 };
 
 void open_unifier(lua_State * L);

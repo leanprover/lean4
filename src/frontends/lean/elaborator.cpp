@@ -159,7 +159,7 @@ public:
         auto ss = unify_simple(m_subst, c);
         m_subst = ss.second;
         if (ss.first == unify_status::Failed)
-            throw unifier_exception(c.get_justification());
+            throw unifier_exception(c.get_justification(), m_subst);
     }
 
     /**

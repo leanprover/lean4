@@ -18,11 +18,4 @@ void check_in_section(parser const & p) {
     if (!in_section(p.env()))
         throw exception(sstream() << "invalid command, it must be used in a section");
 }
-
-// Wrap \c e with the "explicit macro", the idea is to inform the elaborator
-// preprocessor, that we do not need create metavariables for implicit arguments
-expr mark_explicit(expr const & e) {
-    // TODO(Leo)
-    return e;
-}
 }

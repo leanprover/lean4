@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/placeholder.h"
 #include "library/aliases.h"
+#include "library/explicit.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -161,7 +162,7 @@ static void set_result_universes(buffer<inductive_decl> & decls, level_param_nam
 static environment create_alias(environment const & env, name const & full_id, name const & id, levels const & section_leves,
                                 buffer<parameter> const & section_params, parser & p) {
     if (in_section(env)) {
-        expr r = mark_explicit(mk_constant(full_id, section_leves));
+        expr r = mk_explicit(mk_constant(full_id, section_leves));
         for (unsigned i = 0; i < section_params.size(); i++)
             r = mk_app(r, section_params[i].m_local);
         p.add_local_expr(id, r);

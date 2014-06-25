@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/notation_cmd.h"
+#include "frontends/lean/elaborator.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -542,13 +543,12 @@ expr parser::mk_Type() {
     }
 }
 
-expr parser::elaborate(expr const & e, level_param_names const &) {
-    // TODO(Leo):
-    return e;
+expr parser::elaborate(expr const & e) {
+    return ::lean::elaborate(m_env, m_ios, e);
 }
 
-std::pair<expr, expr> parser::elaborate(expr const & t, expr const & v, level_param_names const &) {
-    return mk_pair(t, v);
+std::pair<expr, expr> parser::elaborate(name const & n, expr const & t, expr const & v) {
+    return ::lean::elaborate(m_env, m_ios, n, t, v);
 }
 
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */

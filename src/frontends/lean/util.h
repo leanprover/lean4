@@ -10,5 +10,4 @@ namespace lean {
 class parser;
 void check_atomic(name const & n);
 void check_in_section(parser const & p);
-expr mark_explicit(expr const & e);
 }

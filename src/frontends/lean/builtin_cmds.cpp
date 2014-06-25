@@ -71,7 +71,7 @@ environment end_scoped_cmd(parser & p) {
 environment check_cmd(parser & p) {
     expr e   = p.parse_expr();
     level_param_names ls = to_level_param_names(collect_univ_params(e));
-    e = p.elaborate(e, ls);
+    e = p.elaborate(e);
     expr type = type_checker(p.env()).check(e, ls);
     p.regular_stream() << e << " : " << type << endl;
     return p.env();

@@ -20,6 +20,9 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+unsigned get_unifier_max_steps(options const & opts);
+bool get_unifier_use_exceptions(options const & opts);
+
 enum class unify_status { Solved, Failed, Unsupported };
 /**
     \brief Handle the easy-cases: first-order unification, higher-order patterns, identical terms, and terms without metavariables.

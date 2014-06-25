@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/private.h"
 #include "library/locals.h"
+#include "library/explicit.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 
@@ -140,7 +141,7 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
         update_univ_parameters(ls_buffer, collect_univ_params(type), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
-    type = p.elaborate(type, ls);
+    type = p.elaborate(type);
     return declare_var(p, p.env(), n, ls, type, is_axiom, bi, pos);
 }
 environment variable_cmd(parser & p) {
@@ -249,7 +250,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
         buffer<expr> section_args;
         for (auto const & p : section_ps)
             section_args.push_back(p.m_local);
-        expr ref = mk_app(mark_explicit(mk_constant(real_n, section_ls)), section_args);
+        expr ref = mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_args);
         p.add_local_expr(n, ref);
     } else {
         if (real_n != n)
@@ -257,12 +258,12 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
     }
     if (is_theorem) {
         // TODO(Leo): delay theorems
-        auto type_value = p.elaborate(type, value, ls);
+        auto type_value = p.elaborate(n, type, value);
         type  = type_value.first;
         value = type_value.second;
         env = module::add(env, check(env, mk_theorem(real_n, ls, type, value)));
     } else {
-        auto type_value = p.elaborate(type, value, ls);
+        auto type_value = p.elaborate(n, type, value);
         type  = type_value.first;
         value = type_value.second;
         env = module::add(env, check(env, mk_definition(env, real_n, ls, type, value, is_opaque)));
@@ -296,7 +297,7 @@ static environment variables_cmd(parser & p) {
     expr type = p.parse_expr();
     parse_close_binder_info(p, bi);
     level_param_names ls = to_level_param_names(collect_univ_params(type));
-    type = p.elaborate(type, ls);
+    type = p.elaborate(type);
     environment env = p.env();
     for (auto id : ids)
         env = declare_var(p, env, id, ls, type, true, bi, pos);

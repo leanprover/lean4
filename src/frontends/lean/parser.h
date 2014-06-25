@@ -262,8 +262,8 @@ public:
     */
     struct no_undef_id_error_scope { parser & m_p; bool m_old; no_undef_id_error_scope(parser &); ~no_undef_id_error_scope(); };
 
-    expr elaborate(expr const & e, level_param_names const &);
-    std::pair<expr, expr> elaborate(expr const & t, expr const & v, level_param_names const &);
+    expr elaborate(expr const & e);
+    std::pair<expr, expr> elaborate(name const & n, expr const & t, expr const & v);
 
     /** parse all commands in the input stream */
     bool operator()() { return parse_commands(); }

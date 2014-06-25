@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/flet.h"
 #include "util/list_fn.h"
+#include "util/lazy_list_fn.h"
 #include "util/sstream.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
@@ -30,38 +31,14 @@ class elaborator {
 
     environment    m_env;
     io_state       m_ios;
-    cache          m_cache;
+    unifier_plugin m_plugin;
     name_generator m_ngen;
     type_checker   m_tc;
     substitution   m_subst;
     context        m_ctx;
+    cache          m_cache;
     justification  m_accumulated; // accumulate justification of eagerly used substitutions
     constraints    m_constraints;
-
-public:
-    elaborator(environment const & env, io_state const & ios, name_generator const & ngen,
-               substitution const & s = substitution(), context const & ctx = context()):
-        m_env(env), m_ios(ios), m_ngen(ngen),
-        m_tc(env, m_ngen.mk_child(), [=](constraint const & c) { add_cnstr(c); }),
-        m_subst(s), m_ctx(ctx) {
-    }
-
-    expr mk_local(name const & n, expr const & t) { return ::lean::mk_local(m_ngen.next(), n, t); }
-    expr infer_type(expr const & e) { return m_tc.infer(e); }
-    expr whnf(expr const & e) { return m_tc.whnf(e); }
-
-    /** \brief Clear constraint buffer \c m_constraints, and associated datastructures
-        \c m_subst and \c m_accumulated.
-
-        \remark \c m_subst contains solutions obtained by eagerly solving the "easy" constraints
-        in \c m_subst, and \c m_accumulated store the justifications of all substitutions eagerly
-        applied.
-    */
-    void clear_constraints() {
-        m_constraints.clear();
-        m_subst = substitution();
-        m_accumulated = justification();
-    }
 
     /**
         \brief Auxiliary object for creating backtracking points.
@@ -92,6 +69,71 @@ public:
             lean_assert(m_main.m_accumulated.is_none());
         }
     };
+
+    struct choice_elaborator {
+        elaborator & m_elab;
+        expr         m_choice;
+        context      m_ctx;
+        substitution m_subst;
+        unsigned     m_idx;
+        choice_elaborator(elaborator & elab, expr const & c, context const & ctx, substitution const & s):
+            m_elab(elab), m_choice(c), m_ctx(ctx), m_subst(s), m_idx(0) {
+        }
+
+        optional<a_choice> next() {
+            while (m_idx < get_num_choices(m_choice)) {
+                expr const & c = get_choice(m_choice, m_idx);
+                m_idx++;
+                try {
+                    scope s(m_elab, m_ctx, m_subst);
+                    expr r = m_elab.visit(c);
+                    justification j = m_elab.m_accumulated;
+                    list<constraint> cs = to_list(m_elab.m_constraints.begin(), m_elab.m_constraints.end());
+                    return optional<a_choice>(r, j, cs);
+                } catch (exception &) {}
+            }
+            return optional<a_choice>();
+        }
+    };
+
+    lazy_list<a_choice> choose(std::shared_ptr<choice_elaborator> const & c) {
+        return mk_lazy_list<a_choice>([=]() {
+                auto s = c->next();
+                if (s)
+                    return some(mk_pair(*s, choose(c)));
+                else
+                    return lazy_list<a_choice>::maybe_pair();
+            });
+    }
+
+public:
+    elaborator(environment const & env, io_state const & ios, name_generator const & ngen,
+               substitution const & s = substitution(), context const & ctx = context()):
+        m_env(env), m_ios(ios),
+        m_plugin([](constraint const &, name_generator const &) { return lazy_list<list<constraint>>(); }),
+        m_ngen(ngen), m_tc(env, m_ngen.mk_child(), [=](constraint const & c) { add_cnstr(c); },
+                           mk_default_converter(m_env, optional<module_idx>(0))),
+        m_subst(s), m_ctx(ctx) {
+    }
+
+    expr mk_local(name const & n, expr const & t) { return ::lean::mk_local(m_ngen.next(), n, t); }
+    expr infer_type(expr const & e) {
+        lean_assert(closed(e));
+        return m_tc.infer(e); }
+    expr whnf(expr const & e) { return m_tc.whnf(e); }
+
+    /** \brief Clear constraint buffer \c m_constraints, and associated datastructures
+        \c m_subst and \c m_accumulated.
+
+        \remark \c m_subst contains solutions obtained by eagerly solving the "easy" constraints
+        in \c m_subst, and \c m_accumulated store the justifications of all substitutions eagerly
+        applied.
+    */
+    void clear_constraints() {
+        m_constraints.clear();
+        m_subst = substitution();
+        m_accumulated = justification();
+    }
 
     void add_cnstr_core(constraint const & c) {
         m_constraints.push_back(c);
@@ -246,10 +288,10 @@ public:
     expr visit_choice(expr const & e, optional<expr> const & t) {
         lean_assert(is_choice(e));
         // Possible optimization: try to lookahead and discard some of the alternatives.
-        expr m  = mk_meta(t, e.get_tag());
-        auto choice_fn = [=](expr const &, substitution const & /* s */, name_generator const & /* ngen */) {
-            // TODO(Leo)
-            return lazy_list<a_choice>();
+        expr m      = mk_meta(t, e.get_tag());
+        context ctx = m_ctx;
+        auto choice_fn = [=](expr const & /* t */, substitution const & s, name_generator const & /* ngen */) {
+            return choose(std::make_shared<choice_elaborator>(*this, e, ctx, s));
         };
         justification j = mk_justification("overloading", some_expr(e));
         add_cnstr(mk_choice_cnstr(m, choice_fn, false, j));
@@ -460,17 +502,85 @@ public:
         if (is_explicit(e)) {
             r    = visit_core(get_explicit_arg(e));
         } else {
-            tag  g      = e.get_tag();
-            expr r_type = whnf(infer_type(r));
-            expr imp_arg;
-            while (is_pi(r_type) && binding_info(r_type).is_implicit()) {
-                imp_arg = mk_meta(some_expr(binding_domain(r_type)), g);
-                r       = mk_app(r, imp_arg, g);
-                r_type  = whnf(instantiate(binding_body(r_type), imp_arg));
+            r    = visit_core(e);
+            if (!is_lambda(r)) {
+                tag  g      = e.get_tag();
+                expr r_type = whnf(infer_type(r));
+                expr imp_arg;
+                while (is_pi(r_type) && binding_info(r_type).is_implicit()) {
+                    imp_arg = mk_meta(some_expr(binding_domain(r_type)), g);
+                    r       = mk_app(r, imp_arg, g);
+                    r_type  = whnf(instantiate(binding_body(r_type), imp_arg));
+                }
             }
         }
         m_cache.insert(e, r);
         return r;
     }
+
+    lazy_list<substitution> solve() {
+        buffer<constraint> cs;
+        cs.append(m_constraints);
+        m_constraints.clear();
+        // for (auto c : cs) { std::cout << "   " << c << "\n"; }
+        return unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), m_plugin,
+                     true, get_unifier_max_steps(m_ios.get_options()));
+    }
+
+    expr operator()(expr const & e) {
+        // std::cout << "e: " << e << "\n";
+        expr r  = visit(e);
+        auto p  = solve().pull();
+        lean_assert(p);
+        // std::cout << "r: " << r << "\n";
+        substitution s = p->first;
+        // std::cout << "sol: " << s.instantiate_metavars_wo_jst(r) << "\n";
+        return s.instantiate_metavars_wo_jst(r);
+    }
+
+    std::pair<expr, expr> operator()(expr const & t, expr const & v, name const & n) {
+        // std::cout << "t:   " << t   << "\n";
+        // std::cout << "v:   " << v   << "\n";
+        expr r_t      = visit(t);
+        // std::cout << "r_t: " << r_t << "\n";
+        expr r_v      = visit(v);
+        // std::cout << "r_v: " << r_v << "\n";
+        expr r_v_type = infer_type(r_v);
+        environment env = m_env;
+        justification j = mk_justification(v, [=](formatter const & fmt, options const & o, substitution const & subst) {
+                return pp_def_type_mismatch(fmt, env, o, n,
+                                            subst.instantiate_metavars_wo_jst(r_t),
+                                            subst.instantiate_metavars_wo_jst(r_v_type));
+            });
+        if (!m_tc.is_def_eq(r_v_type, r_t, j)) {
+            throw_kernel_exception(env, v,
+                                   [=](formatter const & fmt, options const & o) {
+                                       return pp_def_type_mismatch(fmt, env, o, n, r_t, r_v_type);
+                                   });
+        }
+
+        auto p  = solve().pull();
+        lean_assert(p);
+        substitution s = p->first;
+        // std::cout << "sol: " << s.instantiate_metavars_wo_jst(r_t) << "\n";
+        // std::cout << "     " << s.instantiate_metavars_wo_jst(r_v) << "\n";
+        return mk_pair(s.instantiate_metavars_wo_jst(r_t),
+                       s.instantiate_metavars_wo_jst(r_v));
+    }
 };
+
+static name g_tmp_prefix = name::mk_internal_unique_name();
+
+expr elaborate(environment const & env, io_state const & ios, expr const & e, name_generator const & ngen,
+               substitution const & s, list<parameter> const & ctx) {
+    return elaborator(env, ios, ngen, s, ctx)(e);
+}
+
+expr elaborate(environment const & env, io_state const & ios, expr const & e) {
+    return elaborate(env, ios, e, name_generator(g_tmp_prefix), substitution(), list<parameter>());
+}
+
+std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v) {
+    return elaborator(env, ios, name_generator(g_tmp_prefix))(t, v, n);
+}
 }

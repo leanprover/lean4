@@ -230,7 +230,7 @@ justification app_delayed_justification::get() {
         expr e          = m_e;
         expr fn_type    = m_fn_type;
         expr arg_type   = m_arg_type;
-        m_jst = mk_justification(app_arg(e),
+        m_jst = mk_justification(e,
                                  [=](formatter const & fmt, options const & o, substitution const & subst) {
                                      return pp_app_type_mismatch(fmt, env, o,
                                                                  subst.instantiate_metavars_wo_jst(e),

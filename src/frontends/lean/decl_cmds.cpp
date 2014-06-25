@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
 #include "library/private.h"
+#include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/explicit.h"
 #include "frontends/lean/parser.h"
@@ -216,7 +217,20 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
     {
         parser::local_scope scope1(p);
         parse_univ_params(p, ls_buffer);
-        if (!p.curr_is_token(g_colon)) {
+        if (p.curr_is_token(g_assign)) {
+            auto pos = p.pos();
+            p.next();
+            type  = p.save_pos(mk_expr_placeholder(), pos);
+            value = p.parse_expr();
+        } else if (p.curr_is_token(g_colon)) {
+            p.next();
+            {
+                parser::param_universe_scope scope2(p);
+                type = p.parse_expr();
+            }
+            p.check_token_next(g_assign, "invalid declaration, ':=' expected");
+            value = p.parse_expr();
+        } else {
             buffer<parameter> ps;
             optional<local_environment> lenv;
             {
@@ -229,14 +243,6 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
             value = p.parse_scoped_expr(ps, *lenv);
             type = p.pi_abstract(ps, type);
             value = p.lambda_abstract(ps, value);
-        } else {
-            p.next();
-            {
-                parser::param_universe_scope scope2(p);
-                type = p.parse_expr();
-            }
-            p.check_token_next(g_assign, "invalid declaration, ':=' expected");
-            value = p.parse_expr();
         }
         update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());

@@ -586,6 +586,10 @@ expr const & get_app_args(expr const & e, buffer<expr> & args);
    If e is of the form <tt>(...(f a1) ... an)</tt>, then the procedure stores [an, ..., a1] in \c args.
 */
 expr const & get_app_rev_args(expr const & e, buffer<expr> & args);
+/**
+   \brief Given an application \c e of the form <tt>(...(f a1) ... an)</tt>, store f, a1, ... an in args.
+*/
+void flat_app(expr const & e, buffer<expr> & args);
 /** \brief Given \c e of the form <tt>(...(f a_1) ... a_n)</tt>, return \c f. If \c e is not an application, then return \c e. */
 expr const & get_app_fn(expr const & e);
 /** \brief Given \c e of the form <tt>(...(f a_1) ... a_n)</tt>, return \c n. If \c e is not an application, then return 0. */

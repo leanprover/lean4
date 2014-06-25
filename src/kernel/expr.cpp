@@ -343,14 +343,21 @@ expr mk_app_vars(expr const & f, unsigned n) {
 }
 
 expr const & get_app_args(expr const & e, buffer<expr> & args) {
-    lean_assert(args.empty());
+    unsigned sz = args.size();
     expr const * it = &e;
     while (is_app(*it)) {
         args.push_back(app_arg(*it));
         it = &(app_fn(*it));
     }
-    std::reverse(args.begin(), args.end());
+    std::reverse(args.begin() + sz, args.end());
     return *it;
+}
+
+void flat_app(expr const & e, buffer<expr> & args) {
+    unsigned i = args.size();
+    args.push_back(expr());
+    expr const & f = get_app_args(e, args);
+    args[i] = f;
 }
 
 expr const & get_app_rev_args(expr const & e, buffer<expr> & args) {

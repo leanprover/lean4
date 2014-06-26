@@ -61,7 +61,7 @@ public:
        \brief Convert this justification into a format object. This method is usually used to report
        "error" messages to users.
     */
-    format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, substitution const & s);
+    format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, substitution const & s) const;
     /**
        \brief Return an expression associated with the justification object.
     */

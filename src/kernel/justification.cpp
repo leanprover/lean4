@@ -194,7 +194,7 @@ optional<expr> justification::get_main_expr() const {
         }
     }
 }
-format justification::pp(formatter const & fmt, options const & opts, pos_info_provider const * p, substitution const & s) {
+format justification::pp(formatter const & fmt, options const & opts, pos_info_provider const * p, substitution const & s) const {
     justification_cell * it = m_ptr;
     while (true) {
         if (!it)

@@ -36,7 +36,7 @@ namespace lean {
 
    \remark \c ios is used to report warning messages.
 */
-environment add_coercion(environment const & env, name & f, io_state const & ios);
+environment add_coercion(environment const & env, name const & f, io_state const & ios);
 environment add_coercion(environment const & env, name const & f, name const & C, io_state const & ios);
 bool is_coercion(environment const & env, name const & f);
 bool is_coercion(environment const & env, expr const & f);

@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
 #include "library/locals.h"
+#include "library/coercion.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -33,6 +34,7 @@ static name g_declarations("declarations");
 static name g_decls("decls");
 static name g_hiding("hiding");
 static name g_renaming("renaming");
+static name g_colon(":");
 
 environment print_cmd(parser & p) {
     if (p.curr() == scanner::token_kind::String) {
@@ -206,6 +208,23 @@ environment using_cmd(parser & p) {
     return env;
 }
 
+environment coercion_cmd(parser & p) {
+    auto pos = p.pos();
+    expr f   = p.parse_expr();
+    if (!is_constant(f))
+        throw parser_error("invalid 'coercion' command, constant expected", pos);
+    if (p.curr_is_token(g_colon)) {
+        p.next();
+        pos = p.pos();
+        expr C = p.parse_expr();
+        if (!is_constant(C))
+            throw parser_error("invalid 'coercion' command, constant expected", pos);
+        return add_coercion(p.env(), const_name(f), const_name(C), p.ios());
+    } else {
+        return add_coercion(p.env(), const_name(f), p.ios());
+    }
+}
+
 cmd_table init_cmd_table() {
     cmd_table r;
     add_cmd(r, cmd_info("using",        "create aliases for declarations, and use objects defined in other namespaces", using_cmd));
@@ -216,6 +235,7 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("namespace",    "open a new namespace", namespace_cmd));
     add_cmd(r, cmd_info("end",          "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
+    add_cmd(r, cmd_info("coercion",     "add a new coercion", coercion_cmd));
     add_cmd(r, cmd_info("#setline",     "modify the current line number, it only affects error/report messages", set_line_cmd));
     register_decl_cmds(r);
     register_inductive_cmd(r);

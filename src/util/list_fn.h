@@ -176,6 +176,12 @@ list<T> filter(list<T> const & l, P && p) {
     }
 }
 
+/** \brief Remove all occurrences of \c a from \c l */
+template<typename T>
+list<T> remove(list<T> const & l, T const & a) {
+    return filter(l, [&](T const & v) { return a != v; });
+}
+
 /** \brief Remove the last element that satisfies \c p. */
 template<typename T, typename P>
 list<T> remove_last(list<T> const & l, P && p) {

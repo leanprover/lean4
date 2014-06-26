@@ -234,7 +234,7 @@ parse_table parse_table::add_core(unsigned num, transition const * ts, expr cons
         if (!overload)
             r.m_ptr->m_accept = list<expr>(a);
         else
-            r.m_ptr->m_accept = list<expr>(a, r.m_ptr->m_accept);
+            r.m_ptr->m_accept = list<expr>(a, remove(r.m_ptr->m_accept, a));
     } else {
         auto * it = r.m_ptr->m_children.find(ts->get_token());
         parse_table new_child;

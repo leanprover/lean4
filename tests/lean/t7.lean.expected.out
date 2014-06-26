@@ -1,5 +1,5 @@
-id.{2} ?2.1 : ?2.1 -> ?2.1
-trans.{1} ?2.1 : (?2.1 -> ?2.1 -> Bool) -> Bool
-symm.{1} ?2.1 : (?2.1 -> ?2.1 -> Bool) -> Bool
-equivalence.{1} ?2.1 : (?2.1 -> ?2.1 -> Bool) -> Bool
+id.{2} ?M.1 : ?M.1 -> ?M.1
+trans.{1} ?M.1 : (?M.1 -> ?M.1 -> Bool) -> Bool
+symm.{1} ?M.1 : (?M.1 -> ?M.1 -> Bool) -> Bool
+equivalence.{1} ?M.1 : (?M.1 -> ?M.1 -> Bool) -> Bool
 fun {A : Type.{l_1}} (R : A -> A -> Bool), (and (and (private.3808308840.refl.{l_1} A R) (symm.{l_1} A R)) (trans.{l_1} A R))

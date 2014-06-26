@@ -37,6 +37,24 @@ std::pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
     return mk_pair(instantiate(binding_body(b), c), c);
 }
 
+static name g_internal("M");
+name fix_internal_name(name const & a) {
+    if (a.is_atomic()) {
+        if (a.is_numeral())
+            return g_internal;
+        else
+            return a;
+    } else {
+        name p = fix_internal_name(a.get_prefix());
+        if (p == a.get_prefix())
+            return a;
+        else if (a.is_numeral())
+            return name(p, a.get_numeral());
+        else
+            return name(p, a.get_string());
+    }
+}
+
 /**
    \brief Very basic printer for expressions.
    It is mainly used when debugging code.
@@ -176,10 +194,10 @@ struct print_expr_fn {
     void print(expr const & a) {
         switch (a.kind()) {
         case expr_kind::Meta:
-            out() << "?" << mlocal_name(a);
+            out() << "?" << fix_internal_name(mlocal_name(a));
             break;
         case expr_kind::Local:
-            out() << local_pp_name(a);
+            out() << fix_internal_name(local_pp_name(a));
             break;
         case expr_kind::Var:
             out() << "#" << var_idx(a);

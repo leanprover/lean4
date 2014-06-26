@@ -348,14 +348,22 @@ public:
         expr f      = visit(app_fn(e));
         auto f_t    = ensure_fun(f);
         f           = f_t.first;
-        expr d_type = binding_domain(f_t.second);
+        expr f_type = f_t.second;
+        lean_assert(is_pi(f_type));
+        while (is_pi(f_type) && binding_info(f_type).is_strict_implicit()) {
+            tag g        = f.get_tag();
+            expr imp_arg = mk_meta(some_expr(binding_domain(f_type)), g);
+            f            = mk_app(f, imp_arg, g);
+            f_type       = whnf(instantiate(binding_body(f_type), imp_arg));
+        }
+        expr d_type = binding_domain(f_type);
         expr a      = visit_expecting_type_of(app_arg(e), d_type);
         expr a_type = instantiate_metavars(infer_type(a));
         expr r      = mk_app(f, a, e.get_tag());
-        app_delayed_justification j(m_env, r, f_t.second, a_type);
+        app_delayed_justification j(m_env, r, f_type, a_type);
         if (!m_tc.is_def_eq(a_type, d_type, j)) {
             // try coercions
-            optional<expr> c     = get_coercion(a_type, d_type, binding_info(f_t.second).is_cast());
+            optional<expr> c     = get_coercion(a_type, d_type, binding_info(f_type).is_cast());
             bool coercion_worked = false;
             expr new_a;
             if (c) {

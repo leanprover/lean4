@@ -149,7 +149,11 @@ void expr_app::dealloc(buffer<expr_cell*> & todelete) {
 static unsigned dec(unsigned k) { return k == 0 ? 0 : k - 1; }
 
 bool operator==(binder_info const & i1, binder_info const & i2) {
-    return i1.is_implicit() == i2.is_implicit() && i1.is_cast() == i2.is_cast() && i1.is_contextual() == i2.is_contextual();
+    return
+        i1.is_implicit() == i2.is_implicit() &&
+        i1.is_cast() == i2.is_cast() &&
+        i1.is_contextual() == i2.is_contextual() &&
+        i1.is_strict_implicit() == i2.is_strict_implicit();
 }
 
 // Expr binders (Lambda, Pi)

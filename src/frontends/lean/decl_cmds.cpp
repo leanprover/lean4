@@ -20,6 +20,8 @@ namespace lean {
 static name g_llevel_curly(".{");
 static name g_lcurly("{");
 static name g_rcurly("}");
+static name g_ldcurly("⦃");
+static name g_rdcurly("⦄");
 static name g_lbracket("[");
 static name g_rbracket("]");
 static name g_colon(":");
@@ -47,11 +49,20 @@ binder_info parse_open_binder_info(parser & p) {
     if (p.curr_is_token(g_lcurly)) {
         check_in_section(p);
         p.next();
-        return mk_implicit_binder_info();
+        if (p.curr_is_token(g_lcurly)) {
+            p.next();
+            return mk_strict_implicit_binder_info();
+        } else {
+            return mk_implicit_binder_info();
+        }
     } else if (p.curr_is_token(g_lbracket)) {
         check_in_section(p);
         p.next();
         return mk_cast_binder_info();
+    } else if (p.curr_is_token(g_ldcurly)) {
+        check_in_section(p);
+        p.next();
+        return mk_strict_implicit_binder_info();
     } else {
         return binder_info();
     }
@@ -62,6 +73,13 @@ void parse_close_binder_info(parser & p, binder_info const & bi) {
         p.check_token_next(g_rcurly, "invalid declaration, '}' expected");
     } else if (bi.is_cast()) {
         p.check_token_next(g_rbracket, "invalid declaration, ']' expected");
+    } else if (bi.is_strict_implicit()) {
+        if (p.curr_is_token(g_lcurly)) {
+            p.next();
+            p.check_token_next(g_rdcurly, "invalid declaration, '}' expected");
+        } else {
+            p.check_token_next(g_rdcurly, "invalid declaration, '⦄' expected");
+        }
     }
 }
 

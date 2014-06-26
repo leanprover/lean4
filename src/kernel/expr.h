@@ -241,18 +241,21 @@ public:
    is only used for elaboration.
 */
 class binder_info {
-    unsigned m_implicit:1;   //! if true, binder argument is an implicit argument
-    unsigned m_cast:1;       //! if true, binder argument is a target for using cast
-    unsigned m_contextual:1; //! if true, binder argument is assumed to be part of the context, and may be argument for metavariables.
+    unsigned m_implicit:1;        //! if true, binder argument is an implicit argument
+    unsigned m_cast:1;            //! if true, binder argument is a target for using cast
+    unsigned m_contextual:1;      //! if true, binder argument is assumed to be part of the context, and may be argument for metavariables.
+    unsigned m_strict_implicit:1; //! if true, binder argument is assumed to be a strict implicit argument
 public:
-    binder_info(bool implicit = false, bool cast = false, bool contextual = true):
-        m_implicit(implicit), m_cast(cast), m_contextual(contextual) {}
+    binder_info(bool implicit = false, bool cast = false, bool contextual = true, bool strict_implicit = false):
+        m_implicit(implicit), m_cast(cast), m_contextual(contextual), m_strict_implicit(strict_implicit) {}
     bool is_implicit() const { return m_implicit; }
     bool is_cast() const { return m_cast; }
     bool is_contextual() const { return m_contextual; }
+    bool is_strict_implicit() const { return m_strict_implicit; }
 };
 
 inline binder_info mk_implicit_binder_info() { return binder_info(true); }
+inline binder_info mk_strict_implicit_binder_info() { return binder_info(false, false, true, true); }
 inline binder_info mk_cast_binder_info() { return binder_info(false, true); }
 inline binder_info mk_contextual_info(bool f) { return binder_info(false, false, f); }
 

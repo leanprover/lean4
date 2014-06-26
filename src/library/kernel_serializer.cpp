@@ -119,13 +119,17 @@ static expr read_macro_definition(deserializer & d, unsigned num, expr const * a
 serializer & operator<<(serializer & s, binder_info const & i) {
     s.write_bool(i.is_implicit());
     s.write_bool(i.is_cast());
+    s.write_bool(i.is_contextual());
+    s.write_bool(i.is_strict_implicit());
     return s;
 }
 
 static binder_info read_binder_info(deserializer & d) {
-    bool imp = d.read_bool();
-    bool cast = d.read_bool();
-    return binder_info(imp, cast);
+    bool imp   = d.read_bool();
+    bool cast  = d.read_bool();
+    bool ctx   = d.read_bool();
+    bool s_imp = d.read_bool();
+    return binder_info(imp, cast, ctx, s_imp);
 }
 
 class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {

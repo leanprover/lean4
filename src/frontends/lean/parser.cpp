@@ -396,6 +396,8 @@ static name g_rparen(")");
 static name g_llevel_curly(".{");
 static name g_lcurly("{");
 static name g_rcurly("}");
+static name g_ldcurly("⦃");
+static name g_rdcurly("⦄");
 static name g_lbracket("[");
 static name g_rbracket("]");
 static name g_add("+");
@@ -578,16 +580,29 @@ parameter parser::parse_binder() {
         return p;
     } else if (curr_is_token(g_lcurly)) {
         next();
-        auto p = parse_binder_core(mk_implicit_binder_info());
-        check_token_next(g_rcurly, "invalid binder, '}' expected");
-        return p;
+        if (curr_is_token(g_lcurly)) {
+            next();
+            auto p = parse_binder_core(mk_strict_implicit_binder_info());
+            check_token_next(g_rcurly, "invalid binder, '}' expected");
+            check_token_next(g_rcurly, "invalid binder, '}' expected");
+            return p;
+        } else {
+            auto p = parse_binder_core(mk_implicit_binder_info());
+            check_token_next(g_rcurly, "invalid binder, '}' expected");
+            return p;
+        }
     } else if (curr_is_token(g_lbracket)) {
         next();
         auto p = parse_binder_core(mk_cast_binder_info());
         check_token_next(g_rbracket, "invalid binder, ']' expected");
         return p;
+    } else if (curr_is_token(g_ldcurly)) {
+        next();
+        auto p = parse_binder_core(mk_strict_implicit_binder_info());
+        check_token_next(g_rdcurly, "invalid binder, '⦄' expected");
+        return p;
     } else {
-        throw parser_error("invalid binder, '(', '{', '[' or identifier expected", pos());
+        throw parser_error("invalid binder, '(', '{', '[', '{{', '⦃' or identifier expected", pos());
     }
 }
 
@@ -623,12 +638,23 @@ void parser::parse_binders_core(buffer<parameter> & r) {
         check_token_next(g_rparen, "invalid binder, ')' expected");
     } else if (curr_is_token(g_lcurly)) {
         next();
-        parse_binder_block(r, mk_implicit_binder_info());
-        check_token_next(g_rcurly, "invalid binder, '}' expected");
+        if (curr_is_token(g_lcurly)) {
+            next();
+            parse_binder_block(r, mk_strict_implicit_binder_info());
+            check_token_next(g_rcurly, "invalid binder, '}' expected");
+            check_token_next(g_rcurly, "invalid binder, '}' expected");
+        } else {
+            parse_binder_block(r, mk_implicit_binder_info());
+            check_token_next(g_rcurly, "invalid binder, '}' expected");
+        }
     } else if (curr_is_token(g_lbracket)) {
         next();
         parse_binder_block(r, mk_cast_binder_info());
         check_token_next(g_rbracket, "invalid binder, ']' expected");
+    } else if (curr_is_token(g_ldcurly)) {
+        next();
+        parse_binder_block(r, mk_strict_implicit_binder_info());
+        check_token_next(g_rdcurly, "invalid binder, '⦄' expected");
     } else {
         return;
     }
@@ -641,7 +667,7 @@ local_environment parser::parse_binders(buffer<parameter> & r) {
     unsigned old_sz = r.size();
     parse_binders_core(r);
     if (old_sz == r.size())
-        throw parser_error("invalid binder, '(', '{', '[' or identifier expected", pos());
+        throw parser_error("invalid binder, '(', '{', '[', '{{', '⦃' or identifier expected", pos());
     return local_environment(m_env);
 }
 

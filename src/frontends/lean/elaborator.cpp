@@ -525,29 +525,21 @@ public:
         buffer<constraint> cs;
         cs.append(m_constraints);
         m_constraints.clear();
-        // for (auto c : cs) { std::cout << "   " << c << "\n"; }
         return unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), m_plugin,
                      true, get_unifier_max_steps(m_ios.get_options()));
     }
 
     expr operator()(expr const & e) {
-        // std::cout << "e: " << e << "\n";
         expr r  = visit(e);
         auto p  = solve().pull();
         lean_assert(p);
-        // std::cout << "r: " << r << "\n";
         substitution s = p->first;
-        // std::cout << "sol: " << s.instantiate_metavars_wo_jst(r) << "\n";
         return s.instantiate_metavars_wo_jst(r);
     }
 
     std::pair<expr, expr> operator()(expr const & t, expr const & v, name const & n) {
-        // std::cout << "t:   " << t   << "\n";
-        // std::cout << "v:   " << v   << "\n";
         expr r_t      = visit(t);
-        // std::cout << "r_t: " << r_t << "\n";
         expr r_v      = visit(v);
-        // std::cout << "r_v: " << r_v << "\n";
         expr r_v_type = infer_type(r_v);
         environment env = m_env;
         justification j = mk_justification(v, [=](formatter const & fmt, options const & o, substitution const & subst) {
@@ -565,8 +557,6 @@ public:
         auto p  = solve().pull();
         lean_assert(p);
         substitution s = p->first;
-        // std::cout << "sol: " << s.instantiate_metavars_wo_jst(r_t) << "\n";
-        // std::cout << "     " << s.instantiate_metavars_wo_jst(r_v) << "\n";
         return mk_pair(s.instantiate_metavars_wo_jst(r_t),
                        s.instantiate_metavars_wo_jst(r_v));
     }

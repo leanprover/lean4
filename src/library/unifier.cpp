@@ -11,10 +11,12 @@ Author: Leonardo de Moura
 #include "util/luaref.h"
 #include "util/lazy_list_fn.h"
 #include "util/sstream.h"
+#include "util/lbool.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
+#include "library/occurs.h"
 #include "library/unifier.h"
 #include "library/kernel_bindings.h"
 
@@ -44,29 +46,52 @@ optional<expr> is_simple_meta(expr const & e, buffer<expr> & args) {
     return some_expr(m);
 }
 
-// Return true if \c e does not contain the metavariable \c m, and all local
-// constants are in \c e are in \c locals
-bool occurs_context_check(expr const & e, expr const & m, buffer<expr> const & locals) {
+// Return true if all local constants in \c e are in locals
+bool context_check(expr const & e, buffer<expr> const & locals) {
     bool failed = false;
     for_each(e, [&](expr const & e, unsigned) {
             if (failed)
                 return false;
             if (is_local(e) && std::find(locals.begin(), locals.end(), e) == locals.end()) {
-                // right-hand-side contains variable that is not in the scope
-                // of metavariable.
                 failed = true;
                 return false;
             }
-            if (is_metavar(e) && e == m) {
-                // occurs-check failed
-                failed = true;
-                return false;
-            }
-            // we only need to continue exploring e if it contains
-            // metavariables and/or local constants.
-            return has_metavar(e) || has_local(e);
+            return true;
         });
     return !failed;
+}
+
+// Return
+//   - l_undef if \c e contains a metavariable application that contains
+//     a local constant not in locals
+//   - l_true if \c e does not contain the metavariable \c m, and all local
+//     constants are in \c e are in \c locals.
+//   - l_false if \c e contains \c m or it contains a local constant \c l
+//     not in locals that is not in a metavariable application.
+lbool occurs_context_check(expr const & e, expr const & m, buffer<expr> const & locals) {
+    expr root = e;
+    lbool r = l_true;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (r == l_false) {
+                return false;
+            } else if (is_local(e) && std::find(locals.begin(), locals.end(), e) == locals.end()) {
+                // right-hand-side contains variable that is not in the scope
+                // of metavariable.
+                r = l_false;
+                return false;
+            } else if (is_meta(e)) {
+                if (!context_check(e, locals) || occurs(m, e))
+                    r = l_undef;
+                if (get_app_fn(e) == m)
+                    r = l_false;
+                return false; // do not visit children
+            } else {
+                // we only need to continue exploring e if it contains
+                // metavariables and/or local constants.
+                return has_metavar(e) || has_local(e);
+            }
+        });
+    return r;
 }
 
 // Create a lambda abstraction by abstracting the local constants \c locals in \c e
@@ -86,14 +111,18 @@ static std::pair<unify_status, substitution> unify_simple_core(substitution cons
     lean_assert(is_meta(lhs));
     buffer<expr> args;
     auto m = is_simple_meta(lhs, args);
-    if (!m || (is_meta(rhs) && get_app_fn(rhs) == *m)) {
+    if (!m || is_meta(rhs)) {
         return mk_pair(unify_status::Unsupported, s);
-    } else if (!occurs_context_check(rhs, *m, args)) {
-        return mk_pair(unify_status::Failed, s);
     } else {
-        expr v = lambda_abstract_locals(rhs, args);
-        return mk_pair(unify_status::Solved, s.assign(mlocal_name(*m), v, j));
+        switch (occurs_context_check(rhs, *m, args)) {
+        case l_false: return mk_pair(unify_status::Failed, s);
+        case l_undef: mk_pair(unify_status::Unsupported, s);
+        case l_true: {
+            expr v = lambda_abstract_locals(rhs, args);
+            return mk_pair(unify_status::Solved, s.assign(mlocal_name(*m), v, j));
+        }}
     }
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 std::pair<unify_status, substitution> unify_simple(substitution const & s, expr const & lhs, expr const & rhs, justification const & j) {
@@ -509,18 +538,23 @@ struct unifier_fn {
             return Continue;
         buffer<expr> locals;
         auto m = is_simple_meta(lhs, locals);
-        if (!m || (is_meta(rhs) && get_app_fn(rhs) == *m))
+        if (!m || is_meta(rhs))
             return Continue;
-        if (!occurs_context_check(rhs, *m, locals)) {
+        switch (occurs_context_check(rhs, *m, locals)) {
+        case l_false:
             set_conflict(j);
             return Failed;
+        case l_undef:
+            return Continue;
+        case l_true:
+            lean_assert(!m_subst.is_assigned(*m));
+            if (assign(*m, lambda_abstract_locals(rhs, locals), j)) {
+                return Assigned;
+            } else {
+                return Failed;
+            }
         }
-        lean_assert(!m_subst.is_assigned(*m));
-        if (assign(*m, lambda_abstract_locals(rhs, locals), j)) {
-            return Assigned;
-        } else {
-            return Failed;
-        }
+        lean_unreachable(); // LCOV_EXCL_LINE
     }
 
     /** \brief Process an equality constraints. */

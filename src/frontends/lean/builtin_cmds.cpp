@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
+#include "kernel/abstract.h"
 #include "library/io_state_stream.h"
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
@@ -72,6 +73,10 @@ environment end_scoped_cmd(parser & p) {
 
 environment check_cmd(parser & p) {
     expr e   = p.parse_expr();
+    buffer<parameter> section_ps;
+    name_set locals = collect_locals(e);
+    mk_section_params(collect_locals(e), p, section_ps);
+    e = p.lambda_abstract(section_ps, e);
     level_param_names ls = to_level_param_names(collect_univ_params(e));
     e = p.elaborate(e);
     expr type = type_checker(p.env()).check(e, ls);

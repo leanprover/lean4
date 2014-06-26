@@ -5,9 +5,9 @@ F.{2} : Type.{2} -> Type.{2}
 F.{u} : Type.{u} -> Type.{u}
 f : N -> N -> N
 len.{1} : Pi (A : Type) (n : N) (v : vec.{1} A n), N
-B -> B : Bool
-A -> A : Type.{l_1}
-C : Type.{l_2}
+fun (B : Bool), (B -> B) : Bool -> Bool
+fun (A : Type.{l_1}), (A -> A) : Type.{l_1} -> Type.{l_1}
+fun {C : Type.{l_2}}, C : Type.{l_2} -> Type.{l_2}
 t4.lean:25:6: error: unknown identifier 'A'
 R.{1 0} : Type -> Bool
 fun (x : N) (y : N), x : N -> N -> N

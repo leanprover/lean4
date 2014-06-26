@@ -317,6 +317,6 @@ expr parse_calc(parser & p) {
     buffer<expr> choices;
     for (auto const & s : steps)
         choices.push_back(step_proof(s));
-    return mk_choice(choices.size(), choices.data());
+    return p.save_pos(mk_choice(choices.size(), choices.data()), pos);
 }
 }

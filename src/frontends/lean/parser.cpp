@@ -803,7 +803,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
         expr r = instantiate_rev(copy_with_new_pos(a, p), args.size(), args.data());
         cs.push_back(r);
     }
-    return mk_choice(cs.size(), cs.data());
+    return save_pos(mk_choice(cs.size(), cs.data()), p);
 }
 
 expr parser::parse_nud_notation() {

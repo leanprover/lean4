@@ -295,7 +295,7 @@ public:
         auto choice_fn = [=](expr const & /* t */, substitution const & s, name_generator const & /* ngen */) {
             return choose(std::make_shared<choice_elaborator>(*this, e, ctx, s));
         };
-        justification j = mk_justification("overloading", some_expr(e));
+        justification j = mk_justification("none of the overloads is applicable", some_expr(e));
         add_cnstr(mk_choice_cnstr(m, choice_fn, false, j));
         return m;
     }

@@ -689,12 +689,25 @@ struct unifier_fn {
         m_case_splits.push_back(std::move(cs));
     }
 
+    // This method is used only for debugging purposes.
+    void display(std::ostream & out, justification const & j, unsigned indent = 0) {
+        for (unsigned i = 0; i < indent; i++)
+            out << " ";
+        out << j.pp(mk_simple_formatter(), options(), nullptr, m_subst) << "\n";
+        if (j.is_composite()) {
+            display(out, composite_child1(j), indent+2);
+            display(out, composite_child2(j), indent+2);
+        }
+    }
+
     bool resolve_conflict() {
         lean_assert(in_conflict());
+        // Remark: we must save the value of m_conflict because d->next(*this) may change it.
+        justification conflict = *m_conflict;
         while (!m_case_splits.empty()) {
             std::unique_ptr<case_split> & d = m_case_splits.back();
-            if (depends_on(*m_conflict, d->m_assumption_idx)) {
-                d->m_failed_justifications = mk_composite1(d->m_failed_justifications, *m_conflict);
+            if (depends_on(conflict, d->m_assumption_idx)) {
+                d->m_failed_justifications = mk_composite1(d->m_failed_justifications, conflict);
                 if (d->next(*this)) {
                     reset_conflict();
                     return true;

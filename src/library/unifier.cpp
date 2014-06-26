@@ -1027,7 +1027,7 @@ struct unifier_fn {
     }
 };
 
-lazy_list<substitution> unify(std::shared_ptr<unifier_fn> const & u) {
+lazy_list<substitution> unify(std::shared_ptr<unifier_fn> u) {
     return mk_lazy_list<substitution>([=]() {
             auto s = u->next();
             if (s)

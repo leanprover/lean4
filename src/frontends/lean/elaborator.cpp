@@ -98,7 +98,7 @@ class elaborator {
         }
     };
 
-    lazy_list<a_choice> choose(std::shared_ptr<choice_elaborator> const & c) {
+    lazy_list<a_choice> choose(std::shared_ptr<choice_elaborator> c) {
         return mk_lazy_list<a_choice>([=]() {
                 auto s = c->next();
                 if (s)

@@ -15,11 +15,5 @@ local m3   = mk_metavar("m3", mk_metavar("m4", mk_sort(mk_meta_univ("l"))))
 print("step4")
 env:type_check(m3)
 print("step5")
--- The following call fails, because the type checker will try to
--- create a constraint, but constraint generation is not supported by
--- the type checker used to implement the method type_check
-assert(not pcall(function()
-                    env:type_check(m3(a))
-                 end
-))
+print(env:type_check(m3(a)))
 print("before end")

@@ -52,9 +52,8 @@ print(tc:check(Fun({{A, mk_sort(u)}, {a, A}, {b, A}, {c, A}, {d, A},
                    trans_u(A, a, b, d,
                            symm_u(A, b, a, H1),
                            trans_u(A, b, c, d, H2, H3)))))
-local cs  = {}
 local g   = name_generator("tst")
-local tc2 = type_checker(env, g, function (c) print(c); cs[#cs+1] = c end)
+local tc2 = type_checker(env, g)
 print("=================")
 local f     = Const("f")
 local mf_ty = mk_metavar("f_ty", Pi(A, mk_sort(u), mk_sort(mk_meta_univ("l_f"))))
@@ -63,8 +62,7 @@ print(tc2:check(Fun({{A, mk_sort(u)}, {f, mf_ty(A)}, {a, A}},
                     id_u(mA1(A, f, a), f(a), a))))
 
 
-local cs  = {}
-local tc2 = type_checker(env, g, function (c) print(c); cs[#cs+1] = c end)
+local tc2 = type_checker(env, g)
 local scope = {{A, mk_sort(u)}, {a, A}, {b, A}, {c, A}, {d, A}, {H1, id_u(A, b, a)},
                {H2, id_u(A, b, c)}, {H3, id_u(A, c, d)}}
 local mP  = mk_metavar("P", Pi(scope, mk_metavar("P_ty", Pi(scope, mk_sort(mk_meta_univ("l_P"))))(A, a, b, c, d, H1, H2, H3)))(A, a, b, c, d, H1, H2, H3)

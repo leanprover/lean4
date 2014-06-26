@@ -24,48 +24,19 @@ Author: Leonardo de Moura
 namespace lean {
 static name g_x_name("x");
 
-no_constraints_allowed_exception::no_constraints_allowed_exception():exception("constraints are not allowed in this type checker") {}
-exception * no_constraints_allowed_exception::clone() const { return new no_constraints_allowed_exception(); }
-void no_constraints_allowed_exception::rethrow() const { throw *this; }
-
-add_cnstr_fn mk_no_contranint_fn() {
-    return add_cnstr_fn([](constraint const &) { throw no_constraints_allowed_exception(); });
-}
-
 type_checker::scope::scope(type_checker & tc):
-    m_tc(tc), m_old_cs_size(m_tc.m_cs.size()), m_old_cache_cs(m_tc.m_cache_cs), m_keep(false) {
-    m_tc.m_infer_type_cache[0].push();
-    m_tc.m_infer_type_cache[1].push();
-    m_tc.m_cache_cs = true;
+    m_tc(tc), m_keep(false) {
+    m_tc.push();
 }
 type_checker::scope::~scope() {
-    if (m_keep) {
-        // keep results
-        m_tc.m_infer_type_cache[0].keep();
-        m_tc.m_infer_type_cache[1].keep();
-    } else {
-        // restore caches
-        m_tc.m_infer_type_cache[0].pop();
-        m_tc.m_infer_type_cache[1].pop();
-        m_tc.m_cs.shrink(m_old_cs_size);
-    }
-    m_tc.m_cache_cs = m_old_cache_cs;
+    if (m_keep)
+        m_tc.keep();
+    else
+        m_tc.pop();
 }
 
 void type_checker::scope::keep() {
     m_keep = true;
-    if (!m_old_cache_cs) {
-        lean_assert(m_old_cs_size == 0);
-        // send results to m_add_cnstr_fn
-        try {
-            for (auto const & c : m_tc.m_cs)
-                m_tc.m_add_cnstr_fn(c);
-        } catch (...) {
-            m_tc.m_cs.clear();
-            throw;
-        }
-        m_tc.m_cs.clear();
-    }
 }
 
 optional<expr> type_checker::expand_macro(expr const & m) {
@@ -84,10 +55,17 @@ std::pair<expr, expr> type_checker::open_binding_body(expr const & e) {
 
 /** \brief Add given constraint using m_add_cnstr_fn. */
 void type_checker::add_cnstr(constraint const & c) {
-    if (m_cache_cs)
-        m_cs.push_back(c);
-    else
-        m_add_cnstr_fn(c);
+    m_cs.push_back(c);
+}
+
+optional<constraint> type_checker::next_cnstr() {
+    if (m_cs_qhead < m_cs.size()) {
+        constraint c = m_cs[m_cs_qhead];
+        m_cs_qhead++;
+        return optional<constraint>(c);
+    } else {
+        return optional<constraint>();
+    }
 }
 
 /**
@@ -405,15 +383,23 @@ expr type_checker::whnf(expr const & t) {
 }
 
 void type_checker::push() {
-    lean_assert(!m_cache_cs);
     m_infer_type_cache[0].push();
     m_infer_type_cache[1].push();
+    m_trail.emplace_back(m_cs.size(), m_cs_qhead);
 }
 
 void type_checker::pop() {
-    lean_assert(!m_cache_cs);
     m_infer_type_cache[0].pop();
     m_infer_type_cache[1].pop();
+    m_cs.shrink(m_trail.back().first);
+    m_cs_qhead = m_trail.back().second;
+    m_trail.pop_back();
+}
+
+void type_checker::keep() {
+    m_infer_type_cache[0].keep();
+    m_infer_type_cache[1].keep();
+    m_trail.pop_back();
 }
 
 unsigned type_checker::num_scopes() const {
@@ -421,21 +407,16 @@ unsigned type_checker::num_scopes() const {
     return m_infer_type_cache[0].num_scopes();
 }
 
-static add_cnstr_fn g_no_constraint_fn = mk_no_contranint_fn();
-
-type_checker::type_checker(environment const & env, name_generator const & g, add_cnstr_fn const & h,
-                           std::unique_ptr<converter> && conv, bool memoize):
-    m_env(env), m_gen(g), m_add_cnstr_fn(h), m_conv(std::move(conv)), m_tc_ctx(*this),
-    m_memoize(memoize), m_cache_cs(false) {
-}
-
 type_checker::type_checker(environment const & env, name_generator const & g, std::unique_ptr<converter> && conv, bool memoize):
-    type_checker(env, g, g_no_constraint_fn, std::move(conv), memoize) {}
+    m_env(env), m_gen(g), m_conv(std::move(conv)), m_tc_ctx(*this),
+    m_memoize(memoize) {
+    m_cs_qhead = 0;
+}
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
 type_checker::type_checker(environment const & env):
-    type_checker(env, name_generator(g_tmp_prefix), g_no_constraint_fn, mk_default_converter(env), true) {}
+    type_checker(env, name_generator(g_tmp_prefix), mk_default_converter(env), true) {}
 
 type_checker::~type_checker() {}
 

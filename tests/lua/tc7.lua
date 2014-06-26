@@ -11,9 +11,8 @@ env = add_decl(env, mk_definition("h", mk_arrow(N, N), Fun(x, f(x)), {opaque=fal
 local h = Const("h")
 local a = Const("a")
 local m1   = mk_metavar("m1", N)
-local cs   = {}
 local ngen = name_generator("tst")
-local tc   = type_checker(env, ngen, function (c) print(c); cs[#cs+1] = c end)
+local tc   = type_checker(env, ngen)
 assert(not tc:is_def_eq(f(m1), g(a)))
 assert(not tc:is_def_eq(f(m1), a))
 assert(not tc:is_def_eq(f(a), a))

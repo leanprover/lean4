@@ -30,38 +30,32 @@ local Ax2 = Const("Ax2")
 local Ax3 = Const("Ax3")
 local foo_intro  = Const("foo_intro")
 local foo_intro2 = Const("foo_intro2")
-local cs  = {}
 local ng  = name_generator("foo")
-local tc  = type_checker(env, ng, function (c) print(c); cs[#cs+1] = c end)
+local tc  = type_checker(env, ng)
 local m1  = mk_metavar("m1", Bool)
 print("before is_def_eq")
 assert(not tc:is_def_eq(and_intro(m1, q(a)), and_intro(q(a), q(b))))
-assert(#cs == 0)
-local cs  = {}
-local tc  = type_checker(env, ng, function (c) print(c); cs[#cs+1] = c end)
+assert(not tc:next_cnstr())
+local tc  = type_checker(env, ng)
 assert(tc:is_def_eq(foo_intro(m1, q(a), q(a), Ax1), foo_intro(q(a), q(a), q(a), Ax2)))
-assert(#cs == 1) -- constraint is used, but there is an alternative that does not use it
-assert(cs[1]:lhs() == m1)
-assert(cs[1]:rhs() == q(a))
-cs = {}
-local tc  = type_checker(env, ng, function (c) print(c); cs[#cs+1] = c end)
-assert(#cs == 0)
+local c = tc:next_cnstr()
+assert(c)
+assert(not tc:next_cnstr())
+assert(c:lhs() == m1)
+assert(c:rhs() == q(a))
+local tc  = type_checker(env, ng)
+assert(not tc:next_cnstr())
 print(tostring(foo_intro) .. " : " .. tostring(tc:check(foo_intro)))
 print(tostring(foo_intro2) .. " : " .. tostring(tc:check(foo_intro2)))
 assert(tc:is_def_eq(foo_intro, foo_intro2))
 print("before is_def_eq2")
 assert(tc:is_def_eq(foo_intro(m1, q(a), q(b), Ax1), foo_intro2(q(a), q(a), q(a), Ax2)))
-assert(#cs == 0) -- constraint should be ignored since we have shown definitional equality using proof irrelevance
-cs = {}
-local tc  = type_checker(env, ng, function (c) print(c); cs[#cs+1] = c end)
+assert(not tc:next_cnstr())
+local tc  = type_checker(env, ng)
 print("before failure")
 assert(not pcall(function() print(tc:check(and_intro(m1, q(a), Ax1, Ax3))) end))
-assert(#cs == 0) -- the check failed, so the constraints should be preserved
-cs = {}
+assert(not tc:next_cnstr())
 print("before success")
 print(tc:check(and_intro(m1, q(a), Ax1, Ax2)))
-assert(#cs == 1) -- the check succeeded, and we must get one constraint
-
--- Demo: infer method may generate constraints
--- local m2  = mk_metavar("m2", mk_metavar("ty_m2", mk_sort(mk_meta_univ("s_m2"))))
--- print(tc:infer(mk_pi("x", m2, Var(0))))
+assert(tc:next_cnstr())
+assert(not tc:next_cnstr())

@@ -66,6 +66,11 @@ class elaborator {
         }
     };
 
+    void consume_tc_cnstrs() {
+        while (auto c = m_tc.next_cnstr())
+            m_constraints.push_back(*c);
+    }
+
     struct choice_elaborator {
         elaborator & m_elab;
         expr         m_choice;
@@ -84,6 +89,7 @@ class elaborator {
                     scope s(m_elab, m_ctx, m_subst);
                     expr r = m_elab.visit(c);
                     justification j = m_elab.m_accumulated;
+                    m_elab.consume_tc_cnstrs();
                     list<constraint> cs = to_list(m_elab.m_constraints.begin(), m_elab.m_constraints.end());
                     return optional<a_choice>(r, j, cs);
                 } catch (exception &) {}
@@ -107,8 +113,7 @@ public:
                substitution const & s = substitution(), context const & ctx = context()):
         m_env(env), m_ios(ios),
         m_plugin([](constraint const &, name_generator const &) { return lazy_list<list<constraint>>(); }),
-        m_ngen(ngen), m_tc(env, m_ngen.mk_child(), [=](constraint const & c) { add_cnstr(c); },
-                           mk_default_converter(m_env, optional<module_idx>(0))),
+        m_ngen(ngen), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, optional<module_idx>(0))),
         m_subst(s), m_ctx(ctx) {
     }
 
@@ -530,6 +535,7 @@ public:
     }
 
     lazy_list<substitution> solve() {
+        consume_tc_cnstrs();
         buffer<constraint> cs;
         cs.append(m_constraints);
         m_constraints.clear();

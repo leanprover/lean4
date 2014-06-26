@@ -284,7 +284,7 @@ struct unifier_fn {
                name_generator const & ngen, substitution const & s, unifier_plugin const & p,
                bool use_exception, unsigned max_steps):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(p),
-        m_tc(env, m_ngen.mk_child(), [=](constraint const & c) { process_constraint(c); }),
+        m_tc(env, m_ngen.mk_child()),
         m_use_exception(use_exception), m_max_steps(max_steps), m_num_steps(0) {
         m_next_assumption_idx = 0;
         m_next_cidx = 0;
@@ -936,6 +936,14 @@ struct unifier_fn {
         return true;
     }
 
+    void consume_tc_cnstrs() {
+        while (auto c = m_tc.next_cnstr()) {
+            if (in_conflict())
+                return;
+            process_constraint(*c);
+        }
+    }
+
     /** \brief Process the next constraint in the constraint queue m_cnstrs */
     bool process_next() {
         lean_assert(!m_cnstrs.empty());
@@ -969,11 +977,14 @@ struct unifier_fn {
             // We don't throw an exception since there are no more solutions.
             return optional<substitution>();
         }
-        while (!m_cnstrs.empty()) {
-            check_system();
-            lean_assert(!in_conflict());
-            bool ok = process_next();
-            if (!ok && !resolve_conflict())
+        while (true) {
+            consume_tc_cnstrs();
+            if (!in_conflict()) {
+                if (m_cnstrs.empty())
+                    break;
+                process_next();
+            }
+            if (in_conflict() && !resolve_conflict())
                 return failure();
         }
         lean_assert(!in_conflict());
@@ -1016,25 +1027,15 @@ lazy_list<substitution> unify(environment const & env, unsigned num_cs, constrai
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, unifier_plugin const & p,
                               unsigned max_steps) {
     substitution s;
-    buffer<constraint> cs;
     name_generator new_ngen(ngen);
-    bool failed = false;
-    type_checker tc(env, new_ngen.mk_child(), [&](constraint const & c) {
-            if (!failed) {
-                auto r = unify_simple(s, c);
-                switch (r.first) {
-                case unify_status::Solved:
-                    s = r.second; break;
-                case unify_status::Failed:
-                    failed = true; break;
-                case unify_status::Unsupported:
-                    cs.push_back(c); break;
-                }
-            }
-        });
-    if (!tc.is_def_eq(lhs, rhs) || failed) {
+    type_checker tc(env, new_ngen.mk_child());
+    if (!tc.is_def_eq(lhs, rhs))
         return lazy_list<substitution>();
-    } else if (cs.empty()) {
+    buffer<constraint> cs;
+    while (auto c = tc.next_cnstr()) {
+        cs.push_back(*c);
+    }
+    if (cs.empty()) {
         return lazy_list<substitution>(s);
     } else {
         return unify(std::make_shared<unifier_fn>(env, cs.size(), cs.data(), ngen, s, p, false, max_steps));

@@ -6,17 +6,19 @@ env = add_decl(env, mk_var_decl("a", N))
 local f = Const("f")
 local a = Const("a")
 local m1   = mk_metavar("m1", mk_metavar("m2", mk_sort(mk_meta_univ("l"))))
-local cs   = {}
 local ngen = name_generator("tst")
-local tc   = type_checker(env, ngen, function (c) print(c); cs[#cs+1] = c end)
+local tc   = type_checker(env, ngen)
 assert(tc:num_scopes() == 0)
 tc:push()
 assert(tc:num_scopes() == 1)
 print(tc:check(f(m1)))
-assert(#cs == 1)
+assert(tc:next_cnstr())
+assert(not tc:next_cnstr())
 print(tc:check(f(f(m1))))
-assert(#cs == 1) -- New constraint is not generated
+assert(not tc:next_cnstr()) -- New constraint is not generated
 tc:pop() -- forget that we checked f(m1)
 print(tc:check(f(m1)))
-assert(#cs == 2) -- constraint is generated again
+-- constraint is generated again
+assert(tc:next_cnstr())
+assert(not tc:next_cnstr())
 check_error(function() tc:pop() end)

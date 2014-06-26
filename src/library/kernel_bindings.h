@@ -25,6 +25,7 @@ int push_optional_level(lua_State * L, optional<level> const & e);
 int push_optional_expr(lua_State * L, optional<expr> const & e);
 int push_optional_justification(lua_State * L, optional<justification> const & j);
 int push_optional_declaration(lua_State * L, optional<declaration> const & e);
+int push_optional_constraint(lua_State * L, optional<constraint> const & c);
 int push_list_expr(lua_State * L, list<expr> const & l);
 /**
    \brief Return the formatter object associated with the given Lua State.

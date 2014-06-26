@@ -16,19 +16,6 @@ Author: Leonardo de Moura
 #include "kernel/converter.h"
 
 namespace lean {
-typedef std::function<void(constraint const & c)> add_cnstr_fn;
-
-/** \brief This handler always throw an exception (\c no_constraints_allowed_exception) when \c add_cnstr is invoked. */
-add_cnstr_fn mk_no_contranint_fn();
-
-/** \brief Exception used in \c no_constraint_handler. */
-class no_constraints_allowed_exception : public exception {
-public:
-    no_constraints_allowed_exception();
-    virtual exception * clone() const;
-    virtual void rethrow() const;
-};
-
 /**
    \brief Lean Type Checker. It can also be used to infer types, check whether a
    type \c A is convertible to a type \c B, etc.
@@ -53,7 +40,6 @@ class type_checker {
 
     environment                m_env;
     name_generator             m_gen;
-    add_cnstr_fn               m_add_cnstr_fn;
     std::unique_ptr<converter> m_conv;
     // In the type checker cache, we must take into account binder information.
     // Examples:
@@ -65,7 +51,8 @@ class type_checker {
     // temp flag
     level_param_names          m_params;
     buffer<constraint>         m_cs;        // temporary cache of constraints
-    bool                       m_cache_cs;  // true if we should cache the constraints; false if we should send to m_add_cnstr_fn
+    unsigned                   m_cs_qhead;
+    buffer<std::pair<unsigned, unsigned>> m_trail;
 
     friend class converter; // allow converter to access the following methods
     name mk_fresh_name() { return m_gen.next(); }
@@ -82,31 +69,11 @@ class type_checker {
     expr infer_type(expr const & e);
     extension_context & get_extension() { return m_tc_ctx; }
 public:
-    class scope {
-        type_checker &   m_tc;
-        unsigned         m_old_cs_size;
-        bool             m_old_cache_cs;
-        bool             m_keep;
-    public:
-        scope(type_checker & tc);
-        ~scope();
-        void keep();
-    };
-
-public:
     /**
        \brief Create a type checker for the given environment. The auxiliary names created by this
        type checker are based on the given name generator.
 
        memoize: if true, then inferred types are memoized/cached
-    */
-    type_checker(environment const & env, name_generator const & g, add_cnstr_fn const & h, std::unique_ptr<converter> && conv,
-                 bool memoize = true);
-    type_checker(environment const & env, name_generator const & g, add_cnstr_fn const & h, bool memoize = true):
-        type_checker(env, g, h, mk_default_converter(env), memoize) {}
-    /**
-       \brief Similar to the previous constructor, but if a method tries to create a constraint, then an
-       exception is thrown.
     */
     type_checker(environment const & env, name_generator const & g, std::unique_ptr<converter> && conv, bool memoize = true);
     type_checker(environment const & env, name_generator const & g, bool memoize = true):
@@ -157,12 +124,23 @@ public:
     /** \brief Mare sure type of \c e is a sort, and return it. Throw an exception otherwise. */
     expr ensure_type(expr const & e) { return ensure_sort(infer(e), e); }
 
-    /** \brief Create a backtracking point for cache and generated constraints. */
-    void push();
-    /** \brief Restore backtracking point. */
-    void pop();
     /** \brief Return the number of backtracking points. */
     unsigned num_scopes() const;
+    /** \brief Consume next constraint in the produced constraint queue */
+    optional<constraint> next_cnstr();
+
+    void push();
+    void pop();
+    void keep();
+
+    class scope {
+        type_checker &   m_tc;
+        bool             m_keep;
+    public:
+        scope(type_checker & tc);
+        ~scope();
+        void keep();
+    };
 };
 
 /**

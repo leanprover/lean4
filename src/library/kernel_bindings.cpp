@@ -1518,7 +1518,7 @@ static void open_justification(lua_State * L) {
 
 // Constraint
 DECL_UDATA(constraint)
-
+int push_optional_constraint(lua_State * L, optional<constraint> const & c) {  return c ? push_constraint(L, *c) : push_nil(L); }
 #define CNSTR_PRED(P) static int constraint_ ## P(lua_State * L) { check_num_args(L, 1); return push_boolean(L, P(to_constraint(L, 1))); }
 CNSTR_PRED(is_eq_cnstr)
 CNSTR_PRED(is_level_eq_cnstr)
@@ -1835,18 +1835,6 @@ static void open_substitution(lua_State * L) {
     SET_GLOBAL_FUN(substitution_pred, "is_substitution");
 }
 
-// add_cnstr_fn
-add_cnstr_fn to_add_cnstr_fn(lua_State * L, int idx) {
-    luaL_checktype(L, idx, LUA_TFUNCTION); // user-fun
-    luaref f(L, idx);
-    return add_cnstr_fn([=](constraint const & c) {
-            lua_State * L = f.get_state();
-            f.push();
-            push_constraint(L, c);
-            pcall(L, 1, 0, 0);
-        });
-}
-
 // type_checker
 typedef std::shared_ptr<type_checker> type_checker_ref;
 DECL_UDATA(type_checker_ref)
@@ -1863,25 +1851,13 @@ static int mk_type_checker(lua_State * L) {
         return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1)));
     } else if (nargs == 2) {
         return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2)));
-    } else if (nargs == 3 && lua_isfunction(L, 3)) {
-        return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2),
-                                                                       to_add_cnstr_fn(L, 3)));
     } else {
         optional<module_idx> mod_idx; bool memoize; name_set extra_opaque;
-        if (nargs == 3) {
-            get_type_checker_args(L, 3, mod_idx, memoize, extra_opaque);
-            auto t = std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2),
-                                                    mk_default_converter(to_environment(L, 1), mod_idx, memoize, extra_opaque),
-                                                    memoize);
-            return push_type_checker_ref(L, t);
-        } else {
-            get_type_checker_args(L, 4, mod_idx, memoize, extra_opaque);
-            auto t = std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2),
-                                                    to_add_cnstr_fn(L, 3),
-                                                    mk_default_converter(to_environment(L, 1), mod_idx, memoize, extra_opaque),
-                                                    memoize);
-            return push_type_checker_ref(L, t);
-        }
+        get_type_checker_args(L, 3, mod_idx, memoize, extra_opaque);
+        auto t = std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2),
+                                                mk_default_converter(to_environment(L, 1), mod_idx, memoize, extra_opaque),
+                                                memoize);
+        return push_type_checker_ref(L, t);
     }
 }
 static int type_checker_whnf(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->whnf(to_expr(L, 2))); }
@@ -1914,7 +1890,14 @@ static int type_checker_pop(lua_State * L) {
     to_type_checker_ref(L, 1)->pop();
     return 0;
 }
+static int type_checker_keep(lua_State * L) {
+    if (to_type_checker_ref(L, 1)->num_scopes() == 0)
+        throw exception("invalid pop method, type_checker does not have backtracking points");
+    to_type_checker_ref(L, 1)->keep();
+    return 0;
+}
 static int type_checker_num_scopes(lua_State * L) { return push_integer(L, to_type_checker_ref(L, 1)->num_scopes()); }
+static int type_checker_next_cnstr(lua_State * L) { return push_optional_constraint(L, to_type_checker_ref(L, 1)->next_cnstr()); }
 
 static const struct luaL_Reg type_checker_ref_m[] = {
     {"__gc",        type_checker_ref_gc},
@@ -1927,6 +1910,8 @@ static const struct luaL_Reg type_checker_ref_m[] = {
     {"is_prop",     safe_function<type_checker_is_prop>},
     {"push",        safe_function<type_checker_push>},
     {"pop",         safe_function<type_checker_pop>},
+    {"keep",        safe_function<type_checker_keep>},
+    {"next_cnstr",  safe_function<type_checker_next_cnstr>},
     {"num_scopes",  safe_function<type_checker_num_scopes>},
     {0, 0}
 };

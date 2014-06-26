@@ -65,13 +65,10 @@ class scoped_ext : public environment_extension {
     }
 
     void register_entry_core(name n, entry const & e) {
-        while (!n.is_anonymous()) {
-            if (auto it = m_entries.find(n))
-                m_entries.insert(n, list<entry>(e, *it));
-            else
-                m_entries.insert(n, list<entry>(e));
-            n = n.get_prefix();
-        }
+        if (auto it = m_entries.find(n))
+            m_entries.insert(n, list<entry>(e, *it));
+        else
+            m_entries.insert(n, list<entry>(e));
     }
 
     void add_entry_core(environment const & env, io_state const & ios, entry const & e) {

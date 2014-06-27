@@ -887,7 +887,7 @@ struct unifier_fn {
                 constraint c1 = mk_eq_cnstr(marg, rhs, j);
                 constraint c2 = mk_eq_cnstr(m, mk_lambda_for(mtype, mk_var(vidx)), j);
                 alts.push_back(constraints({c1, c2}));
-            } else if (is_local(marg) && marg == rhs) {
+            } else if (is_local(marg) && is_local(rhs) && mlocal_name(marg) == mlocal_name(rhs)) {
                 // if the argument is local, and rhs is equal to it, then we also add a projection
                 constraint c1 = mk_eq_cnstr(m, mk_lambda_for(mtype, mk_var(vidx)), j);
                 alts.push_back(constraints(c1));
@@ -916,8 +916,9 @@ struct unifier_fn {
         } else if (is_binding(rhs)) {
             expr maux1  = mk_aux_metavar_for(mtype);
             cs.push_back(mk_eq_cnstr(mk_app(maux1, margs), binding_domain(rhs), j));
-            expr pi     = mk_pi(binding_name(rhs), binding_domain(rhs), binding_body(rhs));
-            expr mtype2 = replace_range(mtype, pi); // trick for "extending" the context
+            expr dontcare;
+            expr tmp_pi = mk_pi(binding_name(rhs), mk_app_vars(maux1, margs.size()), dontcare); // trick for "extending" the context
+            expr mtype2 = replace_range(mtype, tmp_pi); // trick for "extending" the context
             expr maux2  = mk_aux_metavar_for(mtype2);
             expr new_local = mk_local(m_ngen.next(), binding_name(rhs), binding_domain(rhs));
             cs.push_back(mk_eq_cnstr(mk_app(mk_app(maux2, margs), new_local), instantiate(binding_body(rhs), new_local), j));

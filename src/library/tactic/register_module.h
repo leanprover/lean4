@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
-// #include "library/tactic/proof_state.h"
+#include "library/tactic/proof_state.h"
 // #include "library/tactic/tactic.h"
 // #include "library/tactic/apply_tactic.h"
 // #include "library/tactic/simplify_tactic.h"
@@ -17,7 +17,7 @@ namespace lean {
 inline void open_tactic_module(lua_State * L) {
     open_goal(L);
     open_proof_builder(L);
-    // open_proof_state(L);
+    open_proof_state(L);
     // open_tactic(L);
     // open_apply_tactic(L);
     // open_simplify_tactic(L);

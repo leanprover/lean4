@@ -1,13 +1,15 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
 #include <utility>
 #include "util/sstream.h"
-#include "kernel/kernel.h"
+#include "util/interrupt.h"
 #include "kernel/type_checker.h"
+#include "kernel/instantiate.h"
+#include "kernel/abstract.h"
 #include "library/io_state_stream.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/proof_state.h"
@@ -16,18 +18,25 @@ Author: Leonardo de Moura
 #define LEAN_PROOF_STATE_GOAL_NAMES false
 #endif
 
+#ifndef LEAN_PROOF_STATE_MINIMIZE_CONTEXTUAL
+#define LEAN_PROOF_STATE_MINIMIZE_CONTEXTUAL true
+#endif
+
 namespace lean {
-static name g_proof_state_goal_names       {"tactic", "proof_state", "goal_names"};
+static name g_proof_state_goal_names          {"tactic", "goal_names"};
+static name g_proof_state_minimize_contextual {"tactic", "mimimize_contextual"};
 RegisterBoolOption(g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES, "(tactic) display goal names when pretty printing proof state");
-bool get_proof_state_goal_names(options const & opts) {
-    return opts.get_bool(g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES);
+RegisterBoolOption(g_proof_state_minimize_contextual, LEAN_PROOF_STATE_MINIMIZE_CONTEXTUAL,
+                   "(tactic) only hypotheses, that are not propositions, are marked as 'contextual'");
+bool get_proof_state_goal_names(options const & opts) { return opts.get_bool(g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES); }
+bool get_proof_state_minimize_contextual(options const & opts) {
+    return opts.get_bool(g_proof_state_minimize_contextual, LEAN_PROOF_STATE_MINIMIZE_CONTEXTUAL);
 }
 
 optional<name> get_ith_goal_name(goals const & gs, unsigned i) {
     unsigned j = 1;
     for (auto const & p : gs) {
-        if (i == j)
-            return some(p.first);
+        if (i == j) return some(p.first);
         j++;
     }
     return optional<name>();
@@ -40,125 +49,120 @@ precision mk_union(precision p1, precision p2) {
     else return precision::UnderOver;
 }
 
-bool trust_proof(precision p) {
-    return p == precision::Precise || p == precision::Over;
-}
+bool trust_proof(precision p) { return p == precision::Precise || p == precision::Over; }
+bool trust_cex(precision p) { return p == precision::Precise || p == precision::Under; }
 
-bool trust_cex(precision p) {
-    return p == precision::Precise || p == precision::Under;
-}
-
-format proof_state::pp(formatter const & fmt, options const & opts) const {
+format proof_state::pp(environment const & env, formatter const & fmt, options const & opts) const {
     bool show_goal_names = get_proof_state_goal_names(opts);
     unsigned indent      = get_pp_indent(opts);
     format r;
     bool first = true;
     for (auto const & p : get_goals()) {
-        if (first)
-            first = false;
-        else
-            r += line();
+        if (first) first = false; else r += line();
         if (show_goal_names) {
-            r += group(format{format(p.first), colon(), nest(indent, compose(line(), p.second.pp(fmt, opts)))});
+            r += group(format{format(p.first), colon(), nest(indent, compose(line(), p.second.pp(env, fmt, opts)))});
         } else {
-            r += p.second.pp(fmt, opts);
+            r += p.second.pp(env, fmt, opts);
         }
     }
-    if (first) {
-        r = format("no goals");
-    }
+    if (first) r = format("no goals");
     return r;
+}
+
+goals map_goals(proof_state const & s, std::function<optional<goal>(name const & gn, goal const & g)> const & f) {
+    return map_filter(s.get_goals(), [=](std::pair<name, goal> const & in, std::pair<name, goal> & out) -> bool {
+            check_interrupted();
+            optional<goal> new_goal = f(in.first, in.second);
+            if (new_goal) {
+                out.first  = in.first;
+                out.second = *new_goal;
+                return true;
+            } else {
+                return false;
+            }
+        });
 }
 
 bool proof_state::is_proof_final_state() const {
     return empty(get_goals()) && trust_proof(get_precision());
 }
 
-bool proof_state::is_cex_final_state() const {
-    if (length(get_goals()) == 1 && trust_cex(get_precision())) {
-        goal const & g = head(get_goals()).second;
-        return is_false(g.get_conclusion()) && empty(g.get_hypotheses());
-    } else {
-        return false;
-    }
-}
-
 void proof_state::get_goal_names(name_set & r) const {
-    for (auto const & p : get_goals()) {
+    for (auto const & p : get_goals())
         r.insert(p.first);
-    }
-}
-
-name arg_to_hypothesis_name(name const & n, expr const & d, ro_environment const & env, context const & ctx, optional<metavar_env> const & menv) {
-    if (is_default_arrow_var_name(n) && is_proposition(d, env, ctx, to_ro_menv(menv)))
-        return name("H");
-    else
-        return n;
 }
 
 static name g_main("main");
-
-proof_state to_proof_state(ro_environment const & env, context ctx, expr t) {
-    list<std::pair<name, expr>> extra_binders;
-    while (is_pi(t)) {
-        name vname = arg_to_hypothesis_name(abst_name(t), abst_domain(t), env, ctx);
-        extra_binders.emplace_front(vname, abst_domain(t));
-        ctx = extend(ctx, vname, abst_domain(t));
-        t   = abst_body(t);
-    }
-    auto gfn                 = to_goal(env, ctx, t);
-    goal g                   = gfn.first;
-    goal_proof_fn fn         = gfn.second;
-    proof_builder pr_builder = mk_proof_builder(
-        [=](proof_map const & m, assignment const &) -> expr {
-            expr pr = fn(find(m, g_main));
-            for (auto p : extra_binders)
-                pr = mk_lambda(p.first, p.second, pr);
-            return pr;
+proof_builder_fn mk_init_proof_builder(list<expr> const & locals) {
+    return proof_builder_fn([=](proof_map const & m, substitution const &) -> expr {
+            expr r = find(m, g_main);
+            for (expr const & l : locals)
+                r = Fun(l, r);
+            return r;
         });
-    cex_builder cex_builder = mk_cex_builder_for(g_main);
-    return proof_state(goals(mk_pair(g_main, g)), metavar_env(), pr_builder, cex_builder);
+}
+
+static proof_state to_proof_state(environment const * env, expr const & mvar, name_generator ngen) {
+    if (!is_metavar(mvar))
+        throw exception("invalid 'to_proof_state', argument is not a metavariable");
+    optional<type_checker> tc;
+    if (env)
+        tc.emplace(*env, ngen.mk_child());
+    expr t = mlocal_type(mvar);
+    list<expr> init_ls;
+    hypotheses hs;
+    while (is_pi(t)) {
+        expr l  = mk_local(ngen.next(), binding_name(t), binding_domain(t));
+        bool c  = true;
+        if (tc)
+            c   = !tc->is_prop(binding_domain(t));
+        hs      = hypotheses(hypothesis(l, c), hs);
+        t       = instantiate(binding_body(t), l);
+        init_ls = list<expr>(l, init_ls);
+    }
+    goals gs(mk_pair(g_main, goal(hs, t)));
+    return proof_state(gs, mk_init_proof_builder(init_ls), mk_cex_builder_for(g_main), ngen, init_ls);
+}
+
+static name g_tmp_prefix = name::mk_internal_unique_name();
+proof_state to_proof_state(expr const & mvar, name_generator const & ngen) { return to_proof_state(nullptr, mvar, ngen); }
+proof_state to_proof_state(expr const & mvar) { return to_proof_state(mvar, name_generator(g_tmp_prefix)); }
+proof_state to_proof_state(environment const & env, expr const & mvar, name_generator const & ngen, options const & opts) {
+    bool min_ctx = get_proof_state_minimize_contextual(opts) && env.impredicative();
+    if (!min_ctx)
+        return to_proof_state(mvar, ngen);
+    else
+        return to_proof_state(&env, mvar, ngen);
+}
+proof_state to_proof_state(environment const & env, expr const & meta, options const & opts) {
+    return to_proof_state(env, meta, name_generator(g_tmp_prefix), opts);
 }
 
 io_state_stream const & operator<<(io_state_stream const & out, proof_state & s) {
     options const & opts = out.get_options();
-    out.get_stream() << mk_pair(s.pp(out.get_formatter(), opts), opts);
+    out.get_stream() << mk_pair(s.pp(out.get_environment(), out.get_formatter(), opts), opts);
     return out;
 }
 
 DECL_UDATA(goals)
 
 static int mk_goals(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 0) {
-        return push_goals(L, goals());
-    } else if (nargs == 1) {
-        // convert a Lua table of the form {{n_1, g_1}, ..., {n_n, g_n}} into a goal list
-        goals gs;
-        int len = objlen(L, 1);
-        for (int i = len; i >= 1; i--) {
-            lua_pushinteger(L, i);
-            lua_gettable(L, 1);  // now table {n_i, g_i} is on the top
-            if (!lua_istable(L, -1) || objlen(L, -1) != 2)
-                throw exception("arg #1 must be of the form '{{name, goal}, ...}'");
-            lua_pushinteger(L, 1);
-            lua_gettable(L, -2);
-            name n_i = to_name_ext(L, -1);
-            lua_pop(L, 1);  // remove n_i from the stack
-            lua_pushinteger(L, 2);
-            lua_gettable(L, -2);
-            goal g_i = to_goal(L, -1);
-            lua_pop(L, 2); // remove the g_i and table {n_i, g_i} from the stack
-            gs = goals(mk_pair(n_i, g_i), gs);
-        }
-        return push_goals(L, gs);
-    } else if (nargs == 2) {
-        return push_goals(L, goals(mk_pair(to_name_ext(L, 1), to_goal(L, 2)), goals()));
-    } else if (nargs == 3) {
-        return push_goals(L, goals(mk_pair(to_name_ext(L, 1), to_goal(L, 2)), to_goals(L, 3)));
-    } else {
-        throw exception("goals functions expects 0 (empty list), 2 (name & goal for singleton goal list), or 3 (name & goal & goal list) arguments");
+    int i = lua_gettop(L);
+    goals r;
+    if (i > 0 && is_goals(L, i)) {
+        r = to_goals(L, i);
+        i--;
     }
+    while (i > 0) {
+        lua_rawgeti(L, i, 1);
+        lua_rawgeti(L, i, 2);
+        if (!(lua_isstring(L, -2) || is_name(L, -2)) || !is_goal(L, -1))
+            throw exception(sstream() << "arg #" << i << " must be a pair: name, goal");
+        r = goals(mk_pair(to_name_ext(L, -2), to_goal(L, -1)), r);
+        lua_pop(L, 2);
+        i--;
+    }
+    return push_goals(L, r);
 }
 
 static int goals_is_nil(lua_State * L) {
@@ -225,76 +229,65 @@ DECL_UDATA(proof_state)
 
 static int mk_proof_state(lua_State * L) {
     int nargs = lua_gettop(L);
-    if (nargs == 0) {
-        return push_proof_state(L, proof_state());
-    } else if (nargs == 4) {
-        return push_proof_state(L, proof_state(to_goals(L, 1), to_metavar_env(L, 2), to_proof_builder(L, 3), to_cex_builder(L, 4)));
+    if (nargs == 2) {
+        return push_proof_state(L, proof_state(to_proof_state(L, 1), to_goals(L, 2)));
     } else if (nargs == 3) {
         return push_proof_state(L, proof_state(to_proof_state(L, 1), to_goals(L, 2), to_proof_builder(L, 3)));
+    } else if (nargs == 4) {
+        return push_proof_state(L, proof_state(to_proof_state(L, 1), to_goals(L, 2), to_proof_builder(L, 3), to_name_generator(L, 4)));
     } else {
-        throw exception("proof_state expectes 0, 3, or 4 arguments");
+        throw exception("proof_state invalid number of arguments");
     }
 }
 
 static int to_proof_state(lua_State * L) {
-    return push_proof_state(L, to_proof_state(to_environment(L, 1), to_context(L, 2), to_expr(L, 3)));
+    int nargs = lua_gettop(L);
+    if (nargs == 1)
+        return push_proof_state(L, to_proof_state(to_expr(L, 1)));
+    else if (nargs == 2 && is_expr(L, 1))
+        return push_proof_state(L, to_proof_state(to_expr(L, 1), to_name_generator(L, 2)));
+    else if (nargs == 2)
+        return push_proof_state(L, to_proof_state(to_environment(L, 1), to_expr(L, 2)));
+    else if (nargs == 3)
+        return push_proof_state(L, to_proof_state(to_environment(L, 1), to_expr(L, 2), to_options(L, 3)));
+    else
+        return push_proof_state(L, to_proof_state(to_environment(L, 1), to_expr(L, 2), to_name_generator(L, 3), to_options(L, 4)));
 }
 
 static int proof_state_tostring(lua_State * L) {
     std::ostringstream out;
     proof_state & s = to_proof_state(L, 1);
-    formatter fmt = get_global_formatter(L);
-    options opts  = get_global_options(L);
-    out << mk_pair(s.pp(fmt, opts), opts);
+    environment env = get_global_environment(L);
+    formatter fmt   = get_global_formatter(L);
+    options opts    = get_global_options(L);
+    out << mk_pair(s.pp(env, fmt, opts), opts);
     lua_pushstring(L, out.str().c_str());
     return 1;
 }
 
-static int proof_state_get_precision(lua_State * L) {
-    lua_pushinteger(L, static_cast<int>(to_proof_state(L, 1).get_precision()));
-    return 1;
+static int proof_state_get_precision(lua_State * L) { return push_integer(L, static_cast<int>(to_proof_state(L, 1).get_precision())); }
+static int proof_state_get_goals(lua_State * L) { return push_goals(L, to_proof_state(L, 1).get_goals()); }
+static int proof_state_apply_proof_builder(lua_State * L) {
+    return push_expr(L, to_proof_state(L, 1).get_pb()(to_proof_map(L, 2), to_substitution(L, 3)));
 }
-
-static int proof_state_get_goals(lua_State * L) {
-    return push_goals(L, to_proof_state(L, 1).get_goals());
+static int proof_state_apply_cex_builder(lua_State * L) {
+    optional<counterexample> cex;
+    if (!lua_isnil(L, 3))
+        cex = to_environment(L, 3);
+    return push_environment(L, to_proof_state(L, 1).get_cb()(to_name_ext(L, 2), cex, to_substitution(L, 4)));
 }
-
-static int proof_state_get_menv(lua_State * L) {
-    // Remark: I use copy to make sure Lua code cannot change the metavar_env in the proof_state
-    return push_metavar_env(L, to_proof_state(L, 1).get_menv().copy());
-}
-
-static int proof_state_get_proof_builder(lua_State * L) {
-    return push_proof_builder(L, to_proof_state(L, 1).get_proof_builder());
-}
-
-static int proof_state_get_cex_builder(lua_State * L) {
-    return push_cex_builder(L, to_proof_state(L, 1).get_cex_builder());
-}
-
-static int proof_state_is_proof_final_state(lua_State * L) {
-    lua_pushboolean(L, to_proof_state(L, 1).is_proof_final_state());
-    return 1;
-}
-
-static int proof_state_is_cex_final_state(lua_State * L) {
-    lua_pushboolean(L, to_proof_state(L, 1).is_cex_final_state());
-    return 1;
-}
-
+static int proof_state_is_proof_final_state(lua_State * L) { return push_boolean(L, to_proof_state(L, 1).is_proof_final_state()); }
 static int proof_state_pp(lua_State * L) {
     int nargs = lua_gettop(L);
     proof_state & s = to_proof_state(L, 1);
-    if (nargs == 1) {
-        return push_format(L, s.pp(get_global_formatter(L), get_global_options(L)));
-    } else if (nargs == 2) {
-        if (is_formatter(L, 2))
-            return push_format(L, s.pp(to_formatter(L, 2), get_global_options(L)));
-        else
-            return push_format(L, s.pp(get_global_formatter(L), to_options(L, 2)));
-    } else {
-        return push_format(L, s.pp(to_formatter(L, 2), to_options(L, 3)));
-    }
+    if (nargs == 1)
+        return push_format(L, s.pp(get_global_environment(L), get_global_formatter(L), get_global_options(L)));
+    else if (nargs == 2)
+        return push_format(L, s.pp(to_environment(L, 2), get_global_formatter(L), get_global_options(L)));
+    else if (nargs == 3)
+        return push_format(L, s.pp(to_environment(L, 2), to_formatter(L, 3), get_global_options(L)));
+    else
+        return push_format(L, s.pp(to_environment(L, 2), to_formatter(L, 3), to_options(L, 4)));
 }
 
 static const struct luaL_Reg proof_state_m[] = {
@@ -303,16 +296,11 @@ static const struct luaL_Reg proof_state_m[] = {
     {"pp",                   safe_function<proof_state_pp>},
     {"get_precision",        safe_function<proof_state_get_precision>},
     {"get_goals",            safe_function<proof_state_get_goals>},
-    {"get_menv",             safe_function<proof_state_get_menv>},
-    {"get_proof_builder",    safe_function<proof_state_get_proof_builder>},
-    {"get_cex_builder",      safe_function<proof_state_get_cex_builder>},
+    {"pb",                   safe_function<proof_state_apply_proof_builder>},
+    {"cb",                   safe_function<proof_state_apply_cex_builder>},
     {"precision",            safe_function<proof_state_get_precision>},
     {"goals",                safe_function<proof_state_get_goals>},
-    {"menv",                 safe_function<proof_state_get_menv>},
-    {"proof_builder",        safe_function<proof_state_get_proof_builder>},
-    {"cex_builder",          safe_function<proof_state_get_cex_builder>},
     {"is_proof_final_state", safe_function<proof_state_is_proof_final_state>},
-    {"is_cex_final_state",   safe_function<proof_state_is_cex_final_state>},
     {0, 0}
 };
 

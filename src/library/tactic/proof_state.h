@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -8,22 +8,15 @@ Author: Leonardo de Moura
 #include <utility>
 #include <algorithm>
 #include "util/lua.h"
-#include "util/rc.h"
-#include "util/interrupt.h"
 #include "util/optional.h"
 #include "util/name_set.h"
-#include "kernel/io_state.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
 #include "library/tactic/cex_builder.h"
 
 namespace lean {
 typedef list<std::pair<name, goal>> goals;
-/**
-   \brief Return the name of the i-th goal.
-
-   \remark Return none if i == 0 or i > size(g)
-*/
+/** \brief Return the name of the i-th goal, return none if i == 0 or i > size(g) */
 optional<name> get_ith_goal_name(goals const & gs, unsigned i);
 
 enum class precision {
@@ -38,97 +31,52 @@ bool trust_proof(precision p);
 bool trust_cex(precision p);
 
 class proof_state {
-    struct cell {
-        MK_LEAN_RC();
-        precision                   m_precision;
-        goals                       m_goals;
-        ro_metavar_env              m_menv;
-        proof_builder               m_proof_builder;
-        cex_builder                 m_cex_builder;
-        void dealloc() { delete this; }
-        cell():m_rc(1) {}
-        cell(precision prec, goals const & gs, ro_metavar_env const & menv, proof_builder const & p, cex_builder const & c):
-            m_rc(1), m_precision(prec), m_goals(gs), m_menv(menv), m_proof_builder(p), m_cex_builder(c) {}
-        cell(goals const & gs, ro_metavar_env const & menv, proof_builder const & p, cex_builder const & c):
-            m_rc(1), m_precision(precision::Precise), m_goals(gs), m_menv(menv), m_proof_builder(p), m_cex_builder(c) {}
-    };
-    cell * m_ptr;
+    precision        m_precision;
+    goals            m_goals;
+    proof_builder_fn m_proof_builder;
+    cex_builder_fn   m_cex_builder;
+    name_generator   m_ngen;
+    list<expr>       m_init_locals;
 public:
-    proof_state():m_ptr(new cell()) {}
-    proof_state(proof_state const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    proof_state(proof_state && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
-    proof_state(goals const & gs, ro_metavar_env const & menv, proof_builder const & p, cex_builder const & c):
-        m_ptr(new cell(gs, menv, p, c)) {}
-    proof_state(precision prec, goals const & gs, ro_metavar_env const & menv, proof_builder const & p, cex_builder const & c):
-        m_ptr(new cell(prec, gs, menv, p, c)) {}
-    proof_state(proof_state const & s, goals const & gs, proof_builder const & p):
-        m_ptr(new cell(s.get_precision(), gs, s.m_ptr->m_menv, p, s.get_cex_builder())) {}
-    proof_state(proof_state const & s, goals const & gs):
-        m_ptr(new cell(s.get_precision(), gs, s.m_ptr->m_menv, s.get_proof_builder(), s.get_cex_builder())) {}
-    proof_state(proof_state const & s, goals const & gs, proof_builder const & p, cex_builder const & c):
-        m_ptr(new cell(s.get_precision(), gs, s.m_ptr->m_menv, p, c)) {}
-    ~proof_state() { if (m_ptr) m_ptr->dec_ref(); }
-    friend void swap(proof_state & a, proof_state & b) { std::swap(a.m_ptr, b.m_ptr); }
-    proof_state & operator=(proof_state const & s) { LEAN_COPY_REF(s); }
-    proof_state & operator=(proof_state && s) { LEAN_MOVE_REF(s); }
-    precision get_precision() const { lean_assert(m_ptr); return m_ptr->m_precision; }
-    goals const & get_goals() const { lean_assert(m_ptr); return m_ptr->m_goals; }
-    ro_metavar_env const & get_menv() const { lean_assert(m_ptr); return m_ptr->m_menv; }
-    proof_builder const & get_proof_builder() const { lean_assert(m_ptr); return m_ptr->m_proof_builder; }
-    cex_builder const & get_cex_builder() const { lean_assert(m_ptr); return m_ptr->m_cex_builder; }
-    /**
-        \brief Return true iff this state does not have any goals left, and
-        the precision is \c Precise or \c Over
-    */
+    proof_state(precision prec, goals const & gs, proof_builder_fn const & pb, cex_builder_fn const & cb,
+                name_generator const & ngen, list<expr> const & ls = list<expr>()):
+        m_precision(prec), m_goals(gs), m_proof_builder(pb), m_cex_builder(cb), m_ngen(ngen), m_init_locals(ls) {}
+    proof_state(goals const & gs, proof_builder_fn const & pb, cex_builder_fn const & cb,
+                name_generator const & ngen, list<expr> const & ls = list<expr>()):
+        proof_state(precision::Precise, gs, pb, cb, ngen, ls) {}
+    proof_state(proof_state const & s, goals const & gs, proof_builder_fn const & pb, name_generator const & ngen):
+        proof_state(s.m_precision, gs, pb, s.m_cex_builder, ngen, s.m_init_locals) {}
+    proof_state(proof_state const & s, goals const & gs, proof_builder_fn const & pb):proof_state(s, gs, pb, s.m_ngen) {}
+    proof_state(proof_state const & s, goals const & gs):proof_state(s, gs, s.m_proof_builder) {}
+    precision get_precision() const { return m_precision; }
+    goals const & get_goals() const { return m_goals; }
+    proof_builder_fn const & get_pb() const { return m_proof_builder; }
+    cex_builder_fn const & get_cb() const { return m_cex_builder; }
+    name_generator const & ngen() const { return m_ngen; }
+    list<expr> const & get_init_locals() const { return m_init_locals; }
+    /** \brief Return true iff this state does not have any goals left, and the precision is \c Precise or \c Over */
     bool is_proof_final_state() const;
-    /**
-       \brief Return true iff this state has only one goal of the form <tt> |- false</tt>,
-       and the precision is \c Precise or \c Under
-    */
-    bool is_cex_final_state() const;
-    /**
-       \brief Store in \c r the goal names
-    */
+    /** \brief Store in \c r the goal names */
     void get_goal_names(name_set & r) const;
-
     optional<name> get_ith_goal_name(unsigned i) const { return ::lean::get_ith_goal_name(get_goals(), i); }
-
-    format pp(formatter const & fmt, options const & opts) const;
+    format pp(environment const & env, formatter const & fmt, options const & opts) const;
 };
 
-proof_state to_proof_state(ro_environment const & env, context ctx, expr t);
-
-inline optional<proof_state> some_proof_state(proof_state const & s, goals const & gs, proof_builder const & p) {
-    return some(proof_state(s, gs, p));
-}
+inline optional<proof_state> some_proof_state(proof_state const & s) { return some(s); }
 inline optional<proof_state> none_proof_state() { return optional<proof_state> (); }
 
-template<typename F>
-goals map_goals(proof_state const & s, F && f) {
-    return map_filter(s.get_goals(), [=](std::pair<name, goal> const & in, std::pair<name, goal> & out) -> bool {
-            check_interrupted();
-            optional<goal> new_goal = f(in.first, in.second);
-            if (new_goal) {
-                out.first  = in.first;
-                out.second = *new_goal;
-                return true;
-            } else {
-                return false;
-            }
-        });
-}
-
-io_state_stream const & operator<<(io_state_stream const & out, proof_state & s);
-
+/** \brief Create a proof state for a metavariable \c mvar */
+proof_state to_proof_state(expr const & mvar, name_generator const & ngen);
+proof_state to_proof_state(expr const & mvar);
 /**
-    \brief Return a name based on \c n that is suitable to be used as a hypothesis name
-    It basically renames \c n to 'H' if \c d is a proposition and \c n is the default arrow binder name.
+    \brief Similar to the previous \c to_proof_state functions, but when \c opts contains tactic.minimize_context, and
+    Type.{0} in \c env is impredicative, then only hypothesis that are not prositions are marked as "contextual".
 */
-name arg_to_hypothesis_name(name const & n, expr const & d, ro_environment const & env, context const & ctx,
-                            optional<metavar_env> const & menv = none_menv());
-inline name arg_to_hypothesis_name(name const & n, expr const & d, ro_environment const & env, context const & ctx, metavar_env const & menv) {
-    return arg_to_hypothesis_name(n, d, env, ctx, some_menv(menv));
-}
+proof_state to_proof_state(environment const & env, expr const & mvar, name_generator const & ngen, options const & opts = options());
+proof_state to_proof_state(environment const & env, expr const & mvar, options const & opts = options());
+
+goals map_goals(proof_state const & s, std::function<optional<goal>(name const & gn, goal const & g)> const & f);
+io_state_stream const & operator<<(io_state_stream const & out, proof_state & s);
 
 UDATA_DEFS_CORE(goals)
 UDATA_DEFS(proof_state)

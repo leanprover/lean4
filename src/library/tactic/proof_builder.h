@@ -28,5 +28,6 @@ proof_builder_fn add_proofs(proof_builder_fn const & pb, list<std::pair<name, ex
 
 /** \brief Convert a Lua function on position \c idx (on the Lua stack) into a proof_builder_fn */
 proof_builder_fn to_proof_builder(lua_State * L, int idx);
+UDATA_DEFS_CORE(proof_map)
 void open_proof_builder(lua_State * L);
 }

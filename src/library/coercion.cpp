@@ -344,6 +344,12 @@ bool is_coercion(environment const & env, expr const & f) {
     return is_constant(f) && is_coercion(env, const_name(f));
 }
 
+bool has_coercions_to(environment const & env, name const & D) {
+    coercion_state const & ext = coercion_ext::get_state(env);
+    auto it = ext.m_to.find(coercion_class::mk_user(D));
+    return it && !is_nil(*it);
+}
+
 bool has_coercions_from(environment const & env, name const & C) {
     coercion_state const & ext = coercion_ext::get_state(env);
     return ext.m_coercion_info.contains(C);

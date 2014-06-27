@@ -1,53 +1,18 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
 #include <utility>
-#include <vector>
-#include <algorithm>
-#include "util/name_set.h"
 #include "util/buffer.h"
-#include "kernel/for_each_fn.h"
-#include "kernel/replace_fn.h"
-#include "kernel/abstract.h"
-#include "kernel/type_checker.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/goal.h"
 
 namespace lean {
-
-name mk_unique_hypothesis_name(hypotheses const & hs, name const & suggestion) {
-    name n = suggestion;
-    unsigned i = 0;
-    // TODO(Leo): investigate if this method is a performance bottleneck
-    while (true) {
-        bool ok = true;
-        for (auto const & p : hs) {
-            if (is_prefix_of(n, p.first)) {
-                ok = false;
-                break;
-            }
-        }
-        if (ok) {
-            return n;
-        } else {
-            i++;
-            n = name(suggestion, i);
-        }
-    }
-}
-
-name update_hypotheses_fn::operator()(name const & suggestion, expr const & t) {
-    name n = mk_unique_hypothesis_name(m_hypotheses, suggestion);
-    m_hypotheses.emplace_front(n, t);
-    return n;
-}
-
 goal::goal(hypotheses const & hs, expr const & c):m_hypotheses(hs), m_conclusion(c) {}
 
-format goal::pp(formatter const & fmt, options const & opts) const {
+format goal::pp(environment const & env, formatter const & fmt, options const & opts) const {
     unsigned indent  = get_pp_indent(opts);
     bool unicode     = get_pp_unicode(opts);
     format turnstile = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
@@ -61,116 +26,12 @@ format goal::pp(formatter const & fmt, options const & opts) const {
         } else {
             r += compose(comma(), line());
         }
-        r += format{format(p.first), space(), colon(), nest(indent, compose(line(), fmt(p.second, opts)))};
+        r += format{format(p.first), space(), colon(), nest(indent, compose(line(), fmt(env, p.second, opts)))};
     }
 
     r = group(r);
-    r += format{line(), turnstile, space(), nest(indent, fmt(m_conclusion, opts))};
+    r += format{line(), turnstile, space(), nest(indent, fmt(env, m_conclusion, opts))};
     return group(r);
-}
-
-name goal::mk_unique_hypothesis_name(name const & suggestion) const {
-    return ::lean::mk_unique_hypothesis_name(m_hypotheses, suggestion);
-}
-
-goal_proof_fn::goal_proof_fn(std::vector<expr> && consts):
-    m_constants(consts) {
-}
-
-expr goal_proof_fn::operator()(expr const & pr) const {
-    return abstract(pr, m_constants.size(), m_constants.data());
-}
-
-static name_set collect_used_names(context const & ctx, expr const & t) {
-    name_set r;
-    auto f = [&r](expr const & e, unsigned) { if (is_constant(e)) r.insert(const_name(e)); return true; };
-    for_each_fn<decltype(f)> visitor(f);
-    for (auto const & e : ctx) {
-        if (optional<expr> const & d = e.get_domain())
-            visitor(*d);
-        if (optional<expr> const & b = e.get_body())
-            visitor(*b);
-    }
-    visitor(t);
-    return r;
-}
-
-static name mk_unique_name(name_set & s, name const & suggestion) {
-    unsigned i = 1;
-    name n = suggestion;
-    while (true) {
-        if (s.find(n) == s.end()) {
-            s.insert(n);
-            return n;
-        } else {
-            n = name(suggestion, i);
-            i++;
-        }
-    }
-}
-
-static name g_unused       = name::mk_internal_unique_name();
-static expr g_unused_const = mk_constant(g_unused);
-
-std::pair<goal, goal_proof_fn> to_goal(ro_environment const & env, context const & ctx, expr const & t) {
-    type_inferer inferer(env);
-    if (!inferer.is_proposition(t, ctx))
-        throw type_is_not_proposition_exception();
-    name_set used_names = collect_used_names(ctx, t);
-    buffer<context_entry> entries;
-    for (auto const & e : ctx)
-        entries.push_back(e);
-    std::reverse(entries.begin(), entries.end());
-    buffer<hypothesis> hypotheses;   // normalized names and types of the entries processed so far
-    buffer<optional<expr>> bodies;   // normalized bodies of the entries processed so far
-    std::vector<expr> consts;        // cached consts[i] == mk_constant(names[i], hypotheses[i])
-    auto replace_vars = [&](expr const & e, unsigned offset) -> expr {
-        if (is_var(e)) {
-            unsigned vidx = var_idx(e);
-            if (vidx >= offset) {
-                unsigned nvidx = vidx - offset;
-                unsigned nfv   = consts.size();
-                if (nvidx >= nfv)
-                    throw exception("failed to create goal, unknown free variable");
-                unsigned lvl   = nfv - nvidx - 1;
-                if (bodies[lvl])
-                    return *(bodies[lvl]);
-                else
-                    return consts[lvl];
-            }
-        }
-        return e;
-    };
-    replace_fn<decltype(replace_vars)> replacer(replace_vars);
-    auto it  = entries.begin();
-    auto end = entries.end();
-    for (; it != end; ++it) {
-        auto const & e = *it;
-        name n = mk_unique_name(used_names, e.get_name());
-        optional<expr> d = e.get_domain();
-        optional<expr> b = e.get_body();
-        if (d) d = some_expr(replacer(*d));
-        if (b) b = some_expr(replacer(*b));
-        if (b && !d) {
-            d = some_expr(inferer(*b));
-        }
-        replacer.clear();
-        if (b && !inferer.is_proposition(*d)) {
-            bodies.push_back(b);
-            // Insert a dummy just to make sure consts has the right size.
-            // The dummy must be a closed term, and should not be used anywhere else.
-            consts.push_back(g_unused_const);
-        } else {
-            lean_assert(d);
-            hypotheses.emplace_back(n, *d);
-            bodies.push_back(none_expr());
-            expr c = mk_constant(n, *d);
-            consts.push_back(c);
-        }
-    }
-    expr conclusion = replacer(t);
-    return mk_pair(goal(to_list(hypotheses.begin(), hypotheses.end()), conclusion),
-                   goal_proof_fn(std::move(consts)));
 }
 
 DECL_UDATA(hypotheses)
@@ -250,28 +111,16 @@ static const struct luaL_Reg hypotheses_m[] = {
 
 DECL_UDATA(goal)
 
-static int mk_goal(lua_State * L) {
-    return push_goal(L, goal(to_hypotheses(L, 1), to_expr(L, 2)));
-}
-
-static int goal_hypotheses(lua_State * L) {
-    return push_hypotheses(L, to_goal(L, 1).get_hypotheses());
-}
-
-static int goal_conclusion(lua_State * L) {
-    return push_expr(L, to_goal(L, 1).get_conclusion());
-}
-
-static int goal_unique_name(lua_State * L) {
-    return push_name(L, to_goal(L, 1).mk_unique_hypothesis_name(to_name_ext(L, 2)));
-}
-
+static int mk_goal(lua_State * L) { return push_goal(L, goal(to_hypotheses(L, 1), to_expr(L, 2))); }
+static int goal_hypotheses(lua_State * L) { return push_hypotheses(L, to_goal(L, 1).get_hypotheses()); }
+static int goal_conclusion(lua_State * L) { return push_expr(L, to_goal(L, 1).get_conclusion()); }
 static int goal_tostring(lua_State * L) {
     std::ostringstream out;
     goal & g = to_goal(L, 1);
-    formatter fmt = get_global_formatter(L);
-    options opts  = get_global_options(L);
-    out << mk_pair(g.pp(fmt, opts), opts);
+    environment env = get_global_environment(L);
+    formatter fmt   = get_global_formatter(L);
+    options opts    = get_global_options(L);
+    out << mk_pair(g.pp(env, fmt, opts), opts);
     lua_pushstring(L, out.str().c_str());
     return 1;
 }
@@ -280,14 +129,13 @@ static int goal_pp(lua_State * L) {
     int nargs = lua_gettop(L);
     goal & g = to_goal(L, 1);
     if (nargs == 1) {
-        return push_format(L, g.pp(get_global_formatter(L), get_global_options(L)));
+        return push_format(L, g.pp(get_global_environment(L), get_global_formatter(L), get_global_options(L)));
     } else if (nargs == 2) {
-        if (is_formatter(L, 2))
-            return push_format(L, g.pp(to_formatter(L, 2), get_global_options(L)));
-        else
-            return push_format(L, g.pp(get_global_formatter(L), to_options(L, 2)));
+        return push_format(L, g.pp(to_environment(L, 2), get_global_formatter(L), get_global_options(L)));
+    } else if (nargs == 3) {
+        return push_format(L, g.pp(to_environment(L, 2), to_formatter(L, 3), get_global_options(L)));
     } else {
-        return push_format(L, g.pp(to_formatter(L, 2), to_options(L, 3)));
+        return push_format(L, g.pp(to_environment(L, 2), to_formatter(L, 3), to_options(L, 4)));
     }
 }
 
@@ -297,7 +145,6 @@ static const struct luaL_Reg goal_m[] = {
     {"hypotheses",      safe_function<goal_hypotheses>},
     {"hyps",            safe_function<goal_hypotheses>},
     {"conclusion",      safe_function<goal_conclusion>},
-    {"unique_name",     safe_function<goal_unique_name>},
     {"pp",              safe_function<goal_pp>},
     {0, 0}
 };

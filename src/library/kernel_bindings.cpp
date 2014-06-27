@@ -43,7 +43,7 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static environment get_global_environment(lua_State * L);
+environment get_global_environment(lua_State * L);
 io_state * get_io_state_ptr(lua_State * L);
 io_state get_tmp_io_state(lua_State * L);
 io_state get_io_state(lua_State * L) {
@@ -1217,7 +1217,7 @@ static void set_global_environment_ptr(lua_State * L, environment * env) {
     lua_pushlightuserdata(L, static_cast<void *>(env));
     lua_settable(L, LUA_REGISTRYINDEX);
 }
-static environment get_global_environment(lua_State * L) {
+environment get_global_environment(lua_State * L) {
     environment * env = get_global_environment_ptr(L);
     if (env == nullptr)
         throw exception("Lua state does not have an environment object");

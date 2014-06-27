@@ -48,6 +48,7 @@ void set_global_formatter(lua_State * L, formatter const & fmt);
 
 /** \brief Set the Lua registry of a Lua state with an environment object. */
 void set_global_environment(lua_State * L, environment const & env);
+environment get_global_environment(lua_State * L);
 /**
    \brief Auxiliary class for temporarily setting the Lua registry of a Lua state
    with an environment object.

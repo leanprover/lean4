@@ -200,21 +200,21 @@ void type_checker::check_level(level const & l, expr const & s) {
 app_delayed_justification::app_delayed_justification(environment const & env, expr const & e, expr const & f_type, expr const & a_type):
     m_env(env), m_e(e), m_fn_type(f_type), m_arg_type(a_type) {}
 
+justification mk_app_justification(environment const & env, expr const & e, expr const & d_type, expr const & a_type) {
+    auto pp_fn = [=](formatter const & fmt, options const & o, substitution const & subst) {
+        return pp_app_type_mismatch(fmt, env, o,
+                                    subst.instantiate_metavars_wo_jst(e),
+                                    subst.instantiate_metavars_wo_jst(d_type),
+                                    subst.instantiate_metavars_wo_jst(a_type));
+    };
+    return mk_justification(e, pp_fn);
+}
+
 justification app_delayed_justification::get() {
     if (!m_jst) {
         // We should not have a reference to this object inside the closure.
         // So, we create the following locals that will be captured by the closure instead of 'this'.
-        environment env = m_env;
-        expr e          = m_e;
-        expr fn_type    = m_fn_type;
-        expr arg_type   = m_arg_type;
-        m_jst = mk_justification(e,
-                                 [=](formatter const & fmt, options const & o, substitution const & subst) {
-                                     return pp_app_type_mismatch(fmt, env, o,
-                                                                 subst.instantiate_metavars_wo_jst(e),
-                                                                 subst.instantiate_metavars_wo_jst(binding_domain(fn_type)),
-                                                                 subst.instantiate_metavars_wo_jst(arg_type));
-                                 });
+        m_jst = mk_app_justification(m_env, m_e, binding_domain(m_fn_type), m_arg_type);
     }
     return *m_jst;
 }

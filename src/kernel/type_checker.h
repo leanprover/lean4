@@ -152,6 +152,12 @@ certified_declaration check(environment const & env, declaration const & d,
 certified_declaration check(environment const & env, declaration const & d, name_set const & extra_opaque = name_set(), bool memoize = true);
 
 /**
+    \brief Create a justification for an application \c e where the expected type must be \c d_type and
+    the argument type is \c a_type.
+*/
+justification mk_app_justification(environment const & env, expr const & e, expr const & d_type, expr const & a_type);
+
+/**
    \brief Create a justification for a application type mismatch,
    \c e is the application, \c fn_type and \c arg_type are the function and argument type.
 */

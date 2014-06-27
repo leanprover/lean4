@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
-#include "util/script_state.h"
 #include "util/exception.h"
 #include "util/sstream.h"
 #include "util/luaref.h"
@@ -20,13 +19,13 @@ expr find(proof_map const & m, name const & n) {
     throw exception(sstream() << "proof for goal '" << n << "' not found");
 }
 
-proof_builder add_proofs(proof_builder const & pb, list<std::pair<name, expr>> const & prs) {
-    return mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
+proof_builder_fn add_proofs(proof_builder_fn const & pb, list<std::pair<name, expr>> const & prs) {
+    return proof_builder_fn([=](proof_map const & m, substitution const & s) -> expr {
             proof_map new_m(m);
             for (auto const & np : prs) {
                 new_m.insert(np.first, np.second);
             }
-            return pb(new_m, a);
+            return pb(new_m, s);
         });
 }
 
@@ -38,11 +37,6 @@ static int mk_proof_map(lua_State * L) {
         return push_proof_map(L, proof_map());
     else
         return push_proof_map(L, to_proof_map(L, 1));
-}
-
-static int proof_map_len(lua_State * L) {
-    lua_pushinteger(L, to_proof_map(L, 1).size());
-    return 1;
 }
 
 static int proof_map_find(lua_State * L) {
@@ -61,73 +55,26 @@ static int proof_map_erase(lua_State * L) {
 
 static const struct luaL_Reg proof_map_m[] = {
     {"__gc",            proof_map_gc}, // never throws
-    {"__len",           safe_function<proof_map_len>},
-    {"size",            safe_function<proof_map_len>},
     {"find",            safe_function<proof_map_find>},
     {"insert",          safe_function<proof_map_insert>},
     {"erase",           safe_function<proof_map_erase>},
     {0, 0}
 };
 
-DECL_UDATA(assignment);
-
-static int mk_assignment(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 0)
-        return push_assignment(L, assignment(metavar_env()));
-    else
-        return push_assignment(L, assignment(to_metavar_env(L, 1)));
-}
-
-static int assignment_call(lua_State * L) {
-    return push_optional_expr(L, to_assignment(L, 1)(to_name_ext(L, 2)));
-}
-
-static const struct luaL_Reg assignment_m[] = {
-    {"__gc",            assignment_gc}, // never throws
-    {"__call",          safe_function<assignment_call>},
-    {0, 0}
-};
-
-DECL_UDATA(proof_builder);
-
-static int mk_proof_builder(lua_State * L) {
-    script_state::weak_ref S = to_script_state(L).to_weak_ref();
-    luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun
-    luaref ref(L, 1);
-    return push_proof_builder(L,
-                              mk_proof_builder([=](proof_map const & m, assignment const & a) -> expr {
-                                      expr r;
-                                      script_state S_copy(S);
-                                      S_copy.exec_protected([&]() {
-                                              ref.push(); // push user-fun on the stack
-                                              push_proof_map(L, m);
-                                              push_assignment(L, a);
-                                              pcall(L, 2, 1, 0);
-                                              r = to_expr(L, -1);
-                                              lua_pop(L, 1);
-                                          });
-                                      return r;
-                                  }));
-}
-
-static int proof_builder_call(lua_State * L) {
-    proof_builder pb = to_proof_builder(L, 1);
-    proof_map m      = to_proof_map(L, 2);
-    assignment a     = to_assignment(L, 3);
-    expr r;
-    script_state S   = to_script_state(L);
-    S.exec_unprotected([&]() {
-            r = pb(m, a);
+proof_builder_fn to_proof_builder(lua_State * L, int idx) {
+    luaL_checktype(L, idx, LUA_TFUNCTION); // user-fun
+    luaref f(L, idx);
+    return proof_builder_fn([=](proof_map const & m, substitution const & s) {
+            lua_State * L = f.get_state();
+            f.push();
+            push_proof_map(L, m);
+            push_substitution(L, s);
+            pcall(L, 2, 1, 0);
+            expr r = to_expr(L, -1);
+            lua_pop(L, 1);
+            return r;
         });
-    return push_expr(L, r);
 }
-
-static const struct luaL_Reg proof_builder_m[] = {
-    {"__gc",            proof_builder_gc}, // never throws
-    {"__call",          safe_function<proof_builder_call>},
-    {0, 0}
-};
 
 void open_proof_builder(lua_State * L) {
     luaL_newmetatable(L, proof_map_mt);
@@ -137,21 +84,5 @@ void open_proof_builder(lua_State * L) {
 
     SET_GLOBAL_FUN(proof_map_pred, "is_proof_map");
     SET_GLOBAL_FUN(mk_proof_map, "proof_map");
-
-    luaL_newmetatable(L, assignment_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, assignment_m, 0);
-
-    SET_GLOBAL_FUN(assignment_pred, "is_assignment");
-    SET_GLOBAL_FUN(mk_assignment, "assignment");
-
-    luaL_newmetatable(L, proof_builder_mt);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    setfuncs(L, proof_builder_m, 0);
-
-    SET_GLOBAL_FUN(proof_builder_pred, "is_proof_builder");
-    SET_GLOBAL_FUN(mk_proof_builder, "proof_builder");
 }
 }

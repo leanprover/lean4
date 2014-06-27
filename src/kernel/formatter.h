@@ -11,6 +11,8 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
+/** \brief Return true iff \c t contains a constant named \c n or a local constant with named (pp or not) \c n */
+bool is_used_name(expr const & t, name const & n);
 /**
     \brief Return the body of the binding \c b, where variable #0 is replaced by a local constant with a "fresh" name.
     The name is considered fresh if it is not used by a constant or local constant occuring in the body of \c b.

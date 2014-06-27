@@ -73,6 +73,26 @@ public:
     lazy_list & operator=(lazy_list const & s) { LEAN_COPY_REF(s); }
     lazy_list & operator=(lazy_list && s) { LEAN_MOVE_REF(s); }
 
+    /**
+        \brief Return true if the lazy_list is definitely empty. This is an approximated test (i.e., it is not an "iff").
+        Here are examples where this method will return true.
+
+        1) lazy_list empty;
+           lean_assert(is_nil(empty));
+
+        2) lazy_list singleton(v);
+           maybe_pair p = singleton.pull();
+           lean_assert(p);
+           lean_assert(is_nil(p->second));
+
+        3) assume is_nil(l), then
+           lazy_list singleton(v, l);
+           maybe_pair p = singleton.pull();
+           lean_assert(p);
+           lean_assert(is_nil(p->second));
+    */
+    bool is_nil() const { return m_ptr == nullptr; }
+
     maybe_pair pull() const {
         if (m_ptr)
             return m_ptr->pull();

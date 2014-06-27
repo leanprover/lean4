@@ -799,9 +799,14 @@ struct unifier_fn {
         auto r               = rlist.pull();
         justification j      = mk_composite1(c.get_justification(), m_type_jst.second);
         if (r) {
-            justification a = mk_assumption_justification(m_next_assumption_idx);
-            add_case_split(std::unique_ptr<case_split>(new choice_case_split(*this, m, m_type_jst.second, r->second)));
-            return process_choice_result(m, r->first, mk_composite1(j, a));
+            if (r->second.is_nil()) {
+                // there is only one alternative
+                return process_choice_result(m, r->first, j);
+            } else {
+                justification a = mk_assumption_justification(m_next_assumption_idx);
+                add_case_split(std::unique_ptr<case_split>(new choice_case_split(*this, m, m_type_jst.second, r->second)));
+                return process_choice_result(m, r->first, mk_composite1(j, a));
+            }
         } else {
             set_conflict(j);
             return false;

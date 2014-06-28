@@ -378,16 +378,19 @@ public:
     }
 
     expr visit_app(expr const & e) {
+        bool expl   = is_explicit(get_app_fn(e));
         expr f      = visit(app_fn(e));
         auto f_t    = ensure_fun(f);
         f           = f_t.first;
         expr f_type = f_t.second;
         lean_assert(is_pi(f_type));
-        while (is_pi(f_type) && binding_info(f_type).is_strict_implicit()) {
-            tag g        = f.get_tag();
-            expr imp_arg = mk_meta(some_expr(binding_domain(f_type)), g);
-            f            = mk_app(f, imp_arg, g);
-            f_type       = whnf(instantiate(binding_body(f_type), imp_arg));
+        if (!expl) {
+            while (is_pi(f_type) && binding_info(f_type).is_strict_implicit()) {
+                tag g        = f.get_tag();
+                expr imp_arg = mk_meta(some_expr(binding_domain(f_type)), g);
+                f            = mk_app(f, imp_arg, g);
+                f_type       = whnf(instantiate(binding_body(f_type), imp_arg));
+            }
         }
         expr d_type = binding_domain(f_type);
         expr a      = visit_expecting_type_of(app_arg(e), d_type);
@@ -547,6 +550,8 @@ public:
         expr r;
         if (is_explicit(e)) {
             r    = visit_core(get_explicit_arg(e));
+        } else if (is_explicit(get_app_fn(e))) {
+            r    = visit_core(e);
         } else {
             r    = visit_core(e);
             if (!is_lambda(r)) {

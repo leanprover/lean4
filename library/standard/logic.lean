@@ -59,7 +59,7 @@ inductive eq {A : Type} (a : A) : A → Bool :=
 infix `=` 50 := eq
 
 theorem refl {A : Type} (a : A) : a = a
-:= @(@eq_intro A) a -- TODO: fix '@', we should not need to use two '@'
+:= @eq_intro A a
 
 theorem subst {A : Type} {a b : A} {P : A → Bool} (H1 : a = b) (H2 : P a) : P b
 := eq_rec H2 H1

@@ -69,9 +69,8 @@ static script_state get_state() {
             if (p.first)
                 r.dostring(p.second.c_str());
             else
-                r.import(p.second.c_str());
+                r.import_explicit(p.second.c_str());
         }
-        g_states.push_back(r);
         {
             // save new state in vector of all states
             lock_guard<mutex> lk(g_state_mutex);

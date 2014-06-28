@@ -601,7 +601,6 @@ public:
                                        return pp_def_type_mismatch(fmt, env, o, n, r_t, r_v_type);
                                    });
         }
-
         auto p  = solve().pull();
         lean_assert(p);
         substitution s = p->first;

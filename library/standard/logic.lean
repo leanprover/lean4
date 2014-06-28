@@ -70,8 +70,8 @@ theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 theorem symm {A : Type} {a b : A} (H : a = b) : b = a
 := subst H (refl a)
 
--- theorem congr1 {A B : Type} {f g : A → B} (H : f = g) (a : A) : f a = g a
--- := subst H (refl (f a)) -- TODO: check unifier does not work in this case
+theorem congr1 {A B : Type} {f g : A → B} (H : f = g) (a : A) : f a = g a
+:= subst H (refl (f a))
 
 theorem congr2 {A B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b
 := subst H (refl (f a))

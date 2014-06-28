@@ -230,7 +230,7 @@ struct import_modules_fn {
         r->m_name         = mname;
         r->m_fname        = fname;
         r->m_counter      = imports.size();
-        r->m_module_idx   = m_import_counter;
+        r->m_module_idx   = m_import_counter+1; // importate modules have idx > 0, we reserve idx 0 for new module
         m_import_counter++;
         std::swap(r->m_obj_code, code);
         m_module_info.insert(mk_pair(mname, r));

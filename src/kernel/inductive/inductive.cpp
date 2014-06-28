@@ -622,15 +622,10 @@ struct add_inductive_fn {
         expr C_app   = mk_app(info.m_C, info.m_indices);
         if (m_dep_elim)
             C_app = mk_app(C_app, info.m_major_premise);
-
         expr elim_ty = Pi(info.m_major_premise, C_app);
-        unsigned i = info.m_indices.size();
-        while (i > 0) {
-            --i;
-            elim_ty = Pi(info.m_indices[i], elim_ty, mk_implicit_binder_info());
-        }
+        elim_ty   = Pi(info.m_indices, elim_ty);
         // abstract all introduction rules
-        i = get_num_its();
+        unsigned i = get_num_its();
         while (i > 0) {
             --i;
             unsigned j = m_elim_info[i].m_minor_premises.size();
@@ -643,13 +638,10 @@ struct add_inductive_fn {
         i = get_num_its();
         while (i > 0) {
             --i;
-            elim_ty = Pi(m_elim_info[i].m_C, elim_ty, mk_implicit_binder_info());
+            elim_ty = Pi(m_elim_info[i].m_C, elim_ty);
         }
-        i = m_param_consts.size();
-        while (i > 0) {
-            --i;
-            elim_ty = Pi(m_param_consts[i], elim_ty, mk_implicit_binder_info());
-        }
+        elim_ty   = Pi(m_param_consts, elim_ty);
+        elim_ty   = infer_implicit(elim_ty, true /* strict */);
         m_env = m_env.add(check(m_env, mk_var_decl(get_elim_name(d), get_elim_level_param_names(), elim_ty)));
     }
 

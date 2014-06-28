@@ -489,6 +489,13 @@ expr update_binding(expr const & e, expr const & new_domain, expr const & new_bo
         return e;
 }
 
+expr update_binding(expr const & e, expr const & new_domain, expr const & new_body, binder_info const & bi) {
+    if (!is_eqp(binding_domain(e), new_domain) || !is_eqp(binding_body(e), new_body) || bi != binding_info(e))
+        return copy_tag(e, mk_binding(e.kind(), binding_name(e), new_domain, new_body, bi));
+    else
+        return e;
+}
+
 expr update_mlocal(expr const & e, expr const & new_type) {
     if (is_eqp(mlocal_type(e), new_type))
         return e;
@@ -583,4 +590,35 @@ static macro_definition g_let_macro_definition(new let_macro_definition_cell());
 expr mk_let_macro(expr const & e) { return mk_macro(g_let_macro_definition, 1, &e); }
 bool is_let_macro(expr const & e) { return is_macro(e) && macro_def(e) == g_let_macro_definition; }
 expr let_macro_arg(expr const & e) { lean_assert(is_let_macro(e)); return macro_arg(e, 0); }
+
+static bool has_free_var_in_domain(expr const & b, unsigned vidx) {
+    if (is_pi(b)) {
+        return has_free_var(binding_domain(b), vidx) || has_free_var_in_domain(binding_body(b), vidx+1);
+    } else {
+        return false;
+    }
+}
+
+expr infer_implicit(expr const & t, unsigned num_params, bool strict) {
+    if (num_params == 0) {
+        return t;
+    } else if (is_pi(t)) {
+        expr new_body = infer_implicit(binding_body(t), num_params-1, strict);
+        if (binding_info(t).is_implicit() || binding_info(t).is_strict_implicit()) {
+            // argument is already marked as implicit
+            return update_binding(t, binding_domain(t), new_body);
+        } else if ((strict  && has_free_var_in_domain(new_body, 0)) ||
+                   (!strict && has_free_var(new_body, 0))) {
+            return update_binding(t, binding_domain(t), new_body, mk_implicit_binder_info());
+        } else {
+            return update_binding(t, binding_domain(t), new_body);
+        }
+    } else {
+        return t;
+    }
+}
+
+expr infer_implicit(expr const & t, bool strict) {
+    return infer_implicit(t, std::numeric_limits<unsigned>::max(), strict);
+}
 }

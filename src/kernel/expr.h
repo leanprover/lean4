@@ -641,6 +641,7 @@ expr update_app(expr const & e, expr const & new_fn, expr const & new_arg);
 expr update_rev_app(expr const & e, unsigned num, expr const * new_args);
 template<typename C> expr update_rev_app(expr const & e, C const & c) { return update_rev_app(e, c.size(), c.data()); }
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body);
+expr update_binding(expr const & e, expr const & new_domain, expr const & new_body, binder_info const & bi);
 expr update_mlocal(expr const & e, expr const & new_type);
 expr update_sort(expr const & e, level const & new_level);
 expr update_constant(expr const & e, levels const & new_levels);
@@ -653,6 +654,18 @@ expr mk_let_macro(expr const & e);
 bool is_let_macro(expr const & e);
 expr let_macro_arg(expr const & e);
 std::string const & get_let_macro_opcode();
+// =======================================
+
+// =======================================
+// Implicit argument inference
+/**
+   \brief Given \c t of the form <tt>Pi (x_1 : A_1) ... (x_k : A_k), B</tt>,
+   mark the first \c num_params as implicit if they are not already marked, and
+   they occur in the remaining arguments. If \c strict is false, then we
+   also mark it implicit if it occurs in \c B.
+*/
+expr infer_implicit(expr const & t, unsigned num_params, bool strict);
+expr infer_implicit(expr const & t, bool strict);
 // =======================================
 
 std::ostream & operator<<(std::ostream & out, expr const & e);

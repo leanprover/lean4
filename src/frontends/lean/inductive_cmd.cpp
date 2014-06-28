@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
+#include "kernel/free_vars.h"
 #include "library/scoped_ext.h"
 #include "library/locals.h"
 #include "library/placeholder.h"
@@ -24,6 +25,8 @@ static name g_assign(":=");
 static name g_with("with");
 static name g_colon(":");
 static name g_bar("|");
+static name g_lcurly("{");
+static name g_rcurly("}");
 
 using inductive::intro_rule;
 using inductive::inductive_decl;
@@ -32,12 +35,6 @@ using inductive::inductive_decl_type;
 using inductive::inductive_decl_intros;
 using inductive::intro_rule_name;
 using inductive::intro_rule_type;
-
-// Mark all parameters as implicit
-static void make_implicit(buffer<parameter> & ps) {
-    for (parameter & p : ps)
-        p.m_bi = mk_implicit_binder_info();
-}
 
 // Make sure that every inductive datatype (in decls) occurring in \c type has
 // the universe levels \c lvl_params and section parameters \c section_params
@@ -181,6 +178,8 @@ environment inductive_cmd(parser & p) {
     bool                   first = true;
     buffer<name>           ls_buffer;
     name_map<name>         id_to_short_id;
+    // store intro rule name that are markes for relaxed implicit argument inference.
+    name_set               relaxed_implicit_inference;
     unsigned               num_params = 0;
     bool                   explicit_levels = false;
     buffer<inductive_decl> decls;
@@ -250,7 +249,6 @@ environment inductive_cmd(parser & p) {
                                    params_pos);
             }
         }
-        make_implicit(ps); // parameters are implicit for introduction rules
         // parse introduction rules
         p.check_token_next(g_assign, "invalid inductive declaration, ':=' expected");
         buffer<intro_rule> intros;
@@ -260,9 +258,17 @@ environment inductive_cmd(parser & p) {
             check_atomic(intro_id);
             name full_intro_id = ns + intro_id;
             id_to_short_id.insert(full_intro_id, intro_id);
+            bool strict = true;
+            if (p.curr_is_token(g_lcurly)) {
+                p.next();
+                p.check_token_next(g_rcurly, "invalid introduction rule, '}' expected");
+                strict = false;
+                relaxed_implicit_inference.insert(full_intro_id);
+            }
             p.check_token_next(g_colon, "invalid introduction rule, ':' expected");
             expr intro_type = p.parse_scoped_expr(ps, lenv);
             intro_type = p.pi_abstract(ps, intro_type);
+            intro_type = infer_implicit(intro_type, ps.size(), strict);
             intros.push_back(intro_rule(full_intro_id, intro_type));
         }
         decls.push_back(inductive_decl(full_id, type, to_list(intros.begin(), intros.end())));
@@ -294,7 +300,6 @@ environment inductive_cmd(parser & p) {
                            p.pi_abstract(section_params, inductive_decl_type(d)),
                            inductive_decl_intros(d));
     }
-    make_implicit(section_params);
     // Add section_params to introduction rules type, and also "fix"
     // occurrences of inductive types.
     for (inductive_decl & d : decls) {
@@ -303,6 +308,8 @@ environment inductive_cmd(parser & p) {
             expr type = intro_rule_type(ir);
             type = fix_inductive_occs(type, decls, ls_buffer, section_params);
             type = p.pi_abstract(section_params, type);
+            bool strict = relaxed_implicit_inference.contains(intro_rule_name(ir));
+            type = infer_implicit(type, section_params.size(), strict);
             new_irs.push_back(intro_rule(intro_rule_name(ir), type));
         }
         d = inductive_decl(inductive_decl_name(d),

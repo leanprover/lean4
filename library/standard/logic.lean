@@ -4,7 +4,7 @@ inductive false : Bool :=
 -- No constructors
 
 theorem false_elim (c : Bool) (H : false)
-:= @false_rec c H
+:= false_rec c H
 
 inductive true : Bool :=
 | trivial : true
@@ -54,12 +54,9 @@ theorem or_elim (a b c : Bool) (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
 := or_rec H2 H3 H1
 
 inductive eq {A : Type} (a : A) : A → Bool :=
-| eq_intro : eq A a a  -- TODO: use elaborator in inductive_cmd module, we should not need to type A here
+| refl : eq A a a  -- TODO: use elaborator in inductive_cmd module, we should not need to type A here
 
 infix `=` 50 := eq
-
-theorem refl {A : Type} (a : A) : a = a
-:= @eq_intro A a
 
 theorem subst {A : Type} {a b : A} {P : A → Bool} (H1 : a = b) (H2 : P a) : P b
 := eq_rec H2 H1

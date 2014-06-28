@@ -1005,6 +1005,19 @@ static optional<std::string> find_file(name const & f, char const * ext) {
     }
 }
 
+static std::string g_lua_module_key("lua_module");
+static void lua_module_reader(deserializer & d, module_idx, shared_environment &,
+                              std::function<void(asynch_update_fn const &)> &,
+                              std::function<void(delayed_update_fn const &)> & add_delayed_update) {
+    std::string fname;
+    d >> fname;
+    add_delayed_update([=](environment const & env, io_state const &) -> environment {
+            system_import(fname.c_str());
+            return env;
+        });
+}
+register_module_object_reader_fn g_lua_module_reader(g_lua_module_key, lua_module_reader);
+
 void parser::parse_imports() {
     buffer<std::string> olean_files;
     buffer<std::string> lua_files;
@@ -1024,8 +1037,12 @@ void parser::parse_imports() {
         }
     }
     m_env = import_modules(m_env, olean_files.size(), olean_files.data(), m_num_threads, true, m_ios);
-    for (auto const & f : lua_files)
+    for (auto const & f : lua_files) {
         system_import(f.c_str());
+        m_env = module::add(m_env, g_lua_module_key, [=](serializer & s) {
+                s << f;
+            });
+    }
 }
 
 bool parser::parse_commands() {

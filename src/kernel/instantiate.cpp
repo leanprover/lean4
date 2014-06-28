@@ -116,6 +116,8 @@ expr beta_reduce(expr t) {
     auto f = [=](expr const & m, unsigned) -> optional<expr> {
         if (is_head_beta(m))
             return some_expr(head_beta_reduce(m));
+        else if (is_local(m) || is_metavar(m))
+            return some_expr(m); // do not simplify local constants and metavariables types.
         else
             return none_expr();
     };

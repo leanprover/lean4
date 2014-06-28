@@ -138,10 +138,21 @@ proof_state to_proof_state(environment const & env, expr const & meta, options c
     return to_proof_state(env, meta, name_generator(g_tmp_prefix), opts);
 }
 
-io_state_stream const & operator<<(io_state_stream const & out, proof_state & s) {
+io_state_stream const & operator<<(io_state_stream const & out, proof_state const & s) {
     options const & opts = out.get_options();
     out.get_stream() << mk_pair(s.pp(out.get_environment(), out.get_formatter(), opts), opts);
     return out;
+}
+
+optional<expr> to_proof(proof_state const & s) {
+    if (s.is_proof_final_state()) {
+        try {
+            substitution a;
+            proof_map  m;
+            return some_expr(s.get_pb()(m, a));
+        } catch (...) {}
+    }
+    return none_expr();
 }
 
 DECL_UDATA(goals)
@@ -290,6 +301,8 @@ static int proof_state_pp(lua_State * L) {
         return push_format(L, s.pp(to_environment(L, 2), to_formatter(L, 3), to_options(L, 4)));
 }
 
+static int to_proof(lua_State * L) { return push_optional_expr(L, to_proof(to_proof_state(L, 1))); }
+
 static const struct luaL_Reg proof_state_m[] = {
     {"__gc",                 proof_state_gc}, // never throws
     {"__tostring",           safe_function<proof_state_tostring>},
@@ -301,6 +314,7 @@ static const struct luaL_Reg proof_state_m[] = {
     {"precision",            safe_function<proof_state_get_precision>},
     {"goals",                safe_function<proof_state_get_goals>},
     {"is_proof_final_state", safe_function<proof_state_is_proof_final_state>},
+    {"to_proof",             safe_function<to_proof>},
     {0, 0}
 };
 

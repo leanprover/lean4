@@ -8,138 +8,47 @@ Author: Leonardo de Moura
 #include <chrono>
 #include <string>
 #include "util/luaref.h"
-#include "util/script_state.h"
 #include "util/sstream.h"
 #include "util/interrupt.h"
 #include "util/lazy_list_fn.h"
-#include "library/io_state_stream.h"
-#include "kernel/replace_visitor.h"
 #include "kernel/instantiate.h"
-#include "kernel/update_expr.h"
-#include "kernel/kernel.h"
+#include "kernel/replace_visitor.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/tactic.h"
+#include "library/io_state_stream.h"
 
 namespace lean {
-solve_result::solve_result(expr const & pr):m_kind(solve_result_kind::Proof) { new (&m_proof) expr(pr); }
-solve_result::solve_result(counterexample const & cex):m_kind(solve_result_kind::Counterexample) { new (&m_cex) counterexample(cex); }
-solve_result::solve_result(list<proof_state> const & fs):m_kind(solve_result_kind::Failure) { new (&m_failures) list<proof_state>(fs); }
-void solve_result::init(solve_result const & r) {
-    m_kind = r.m_kind;
-    switch (m_kind) {
-    case solve_result_kind::None:           break;
-    case solve_result_kind::Proof:          new (&m_proof) expr(r.m_proof); break;
-    case solve_result_kind::Counterexample: new (&m_cex) counterexample(r.m_cex); break;
-    case solve_result_kind::Failure:        new (&m_failures) list<proof_state>(r.m_failures); break;
-    }
-}
-void solve_result::destroy() {
-    switch (m_kind) {
-    case solve_result_kind::None:           break;
-    case solve_result_kind::Proof:          m_proof.~expr(); break;
-    case solve_result_kind::Counterexample: m_cex.~counterexample(); break;
-    case solve_result_kind::Failure:        m_failures.~list<proof_state>(); break;
-    }
-}
-solve_result::solve_result(solve_result const & r) {
-    init(r);
-}
-solve_result::~solve_result() {
-    destroy();
-}
-solve_result & solve_result::operator=(solve_result & other) {
-    if (this == &other)
-        return *this;
-    destroy();
-    init(other);
-    return *this;
-}
-solve_result & solve_result::operator=(solve_result && other) {
-    lean_assert(this != &other);
-    destroy();
-    init(other);
-    return *this;
+tactic tactic01(std::function<optional<proof_state>(environment const &, io_state const & ios, proof_state const &)> const & f) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
+            return mk_proof_state_seq([=]() {
+                    auto r = f(env, ios, s);
+                    if (r)
+                        return some(mk_pair(*r, proof_state_seq()));
+                    else
+                        return proof_state_seq::maybe_pair();
+                });
+        });
 }
 
-tactic & tactic::operator=(tactic const & s) {
-    LEAN_COPY_REF(s);
-}
-
-tactic & tactic::operator=(tactic && s) {
-    LEAN_MOVE_REF(s);
-}
-
-/**
-   \brief Try to extract a proof from the given proof state
-*/
-optional<expr> to_proof(proof_state const & s) {
-    if (s.is_proof_final_state()) {
-        try {
-            assignment a(s.get_menv().copy());
-            proof_map  m;
-            return some_expr(s.get_proof_builder()(m, a));
-        } catch (...) {
-        }
-    }
-    return none_expr();
-}
-
-/**
-   \brief Try to extract a counterexample from the given proof state.
-*/
-optional<counterexample> to_counterexample(proof_state const & s) {
-    if (s.is_cex_final_state()) {
-        assignment a(s.get_menv().copy());
-        name goal_name(head(s.get_goals()).first);
-        try {
-            return some(s.get_cex_builder()(goal_name, optional<counterexample>(), a));
-        } catch (...) {
-        }
-    }
-    return optional<counterexample>();
-}
-
-solve_result tactic::solve(ro_environment const & env, io_state const & io, proof_state const & s1) {
-    proof_state_seq r   = operator()(env, io, s1);
-    list<proof_state> failures;
-    while (true) {
-        check_interrupted();
-        auto p = r.pull();
-        if (!p) {
-            return solve_result(failures);
-        } else {
-            proof_state s2 = p->first;
-            r              = p->second;
-            optional<expr> pr = to_proof(s2);
-            if (pr)
-                return solve_result(*pr);
-            optional<counterexample> cex = to_counterexample(s2);
-            if (cex)
-                return solve_result(*cex);
-            failures = cons(s2, failures);
-        }
-    }
-}
-
-solve_result tactic::solve(ro_environment const & env, io_state const & io, context const & ctx, expr const & t) {
-    proof_state s = to_proof_state(env, ctx, t);
-    return solve(env, io, s);
+tactic tactic1(std::function<proof_state(environment const &, io_state const & ios, proof_state const &)> const & f) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
+            return mk_proof_state_seq([=]() {
+                    auto r = f(env, ios, s);
+                    return some(mk_pair(r, proof_state_seq()));
+                });
+        });
 }
 
 tactic id_tactic() {
-    return mk_tactic1([](ro_environment const &, io_state const &, proof_state const & s) -> proof_state {
-            return s;
-        });
+    return tactic1([](environment const &, io_state const &, proof_state const & s) -> proof_state { return s; });
 }
 
 tactic fail_tactic() {
-    return mk_tactic([](ro_environment const &, io_state const &, proof_state const &) -> proof_state_seq {
-            return proof_state_seq();
-        });
+    return tactic([](environment const &, io_state const &, proof_state const &) -> proof_state_seq { return proof_state_seq(); });
 }
 
 tactic now_tactic() {
-    return mk_tactic01([](ro_environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+    return tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             if (!empty(s.get_goals()))
                 return none_proof_state();
             else
@@ -147,10 +56,22 @@ tactic now_tactic() {
         });
 }
 
+tactic cond(proof_state_pred const & p, tactic const & t1, tactic const & t2) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            return mk_proof_state_seq([=]() {
+                    if (p(env, ios, s)) {
+                        return t1(env, ios, s).pull();
+                    } else {
+                        return t2(env, ios, s).pull();
+                    }
+                });
+        });
+}
+
 tactic trace_tactic(std::string const & msg) {
-    return mk_tactic1([=](ro_environment const &, io_state const & io, proof_state const & s) -> proof_state {
-            io.get_diagnostic_channel() << msg << "\n";
-            io.get_diagnostic_channel().get_stream().flush();
+    return tactic1([=](environment const &, io_state const & ios, proof_state const & s) -> proof_state {
+            ios.get_diagnostic_channel() << msg << "\n";
+            ios.get_diagnostic_channel().get_stream().flush();
             return s;
         });
 }
@@ -164,34 +85,101 @@ tactic trace_tactic(char const * msg) {
 }
 
 tactic trace_state_tactic() {
-    return mk_tactic1([=](ro_environment const &, io_state const & io, proof_state const & s) -> proof_state {
-            options opts = io.get_options();
-            format fmt   = s.pp(io.get_formatter(), opts);
-            io.get_diagnostic_channel() << "Proof state:\n" << mk_pair(fmt, opts) << "\n";
-            io.get_diagnostic_channel().get_stream().flush();
+    return tactic1([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state {
+            diagnostic(env, ios) << s;
+            ios.get_diagnostic_channel().get_stream().flush();
             return s;
         });
 }
 
 tactic suppress_trace(tactic const & t) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            io_state new_io(io);
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            io_state new_ios(ios);
             std::shared_ptr<output_channel> out(std::make_shared<string_output_channel>());
-            new_io.set_diagnostic_channel(out);
-            return t(env, new_io, s);
+            new_ios.set_diagnostic_channel(out);
+            return t(env, new_ios, s);
+        });
+}
+
+tactic then(tactic const & t1, tactic const & t2) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s1) -> proof_state_seq {
+            return map_append(t1(env, ios, s1), [=](proof_state const & s2) {
+                    check_interrupted();
+                    return t2(env, ios, s2);
+                }, "THEN tactical");
+        });
+}
+
+tactic orelse(tactic const & t1, tactic const & t2) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            return orelse(t1(env, ios, s), t2(env, ios, s), "ORELSE tactical");
+        });
+}
+
+tactic using_params(tactic const & t, options const & opts) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            io_state new_ios(ios);
+            new_ios.set_options(join(opts, ios.get_options()));
+            return t(env, new_ios, s);
+        });
+}
+
+tactic try_for(tactic const & t, unsigned ms, unsigned check_ms) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            return timeout(t(env, ios, s), ms, check_ms);
+        });
+}
+
+tactic append(tactic const & t1, tactic const & t2) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            return append(t1(env, ios, s), t2(env, ios, s), "APPEND tactical");
+        });
+}
+
+tactic interleave(tactic const & t1, tactic const & t2) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            return interleave(t1(env, ios, s), t2(env, ios, s), "INTERLEAVE tactical");
+        });
+}
+
+tactic par(tactic const & t1, tactic const & t2, unsigned check_ms) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            return par(t1(env, ios, s), t2(env, ios, s), check_ms);
+        });
+}
+
+tactic repeat(tactic const & t) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s1) -> proof_state_seq {
+            return repeat(s1, [=](proof_state const & s2) {
+                    return t(env, ios, s2);
+                }, "REPEAT tactical");
+        });
+}
+
+tactic repeat_at_most(tactic const & t, unsigned k) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s1) -> proof_state_seq {
+            return repeat_at_most(s1, [=](proof_state const & s2) {
+                    return t(env, ios, s2);
+                }, k, "REPEAT_AT_MOST tactical");
+        });
+}
+
+tactic take(tactic const & t, unsigned k) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            return take(k, t(env, ios, s));
         });
 }
 
 tactic assumption_tactic() {
-    return mk_tactic01([](ro_environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+    return tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             list<std::pair<name, expr>> proofs;
             goals new_gs = map_goals(s, [&](name const & gname, goal const & g) -> optional<goal> {
                     expr const & c  = g.get_conclusion();
                     optional<expr> pr;
                     for (auto const & p : g.get_hypotheses()) {
                         check_interrupted();
-                        if (p.second == c) {
-                            pr = mk_constant(p.first, p.second);
+                        if (mlocal_type(p.first) == c) {
+                            pr = p.first;
                             break;
                         }
                     }
@@ -204,109 +192,37 @@ tactic assumption_tactic() {
                 });
             if (empty(proofs))
                 return none_proof_state();
-            proof_builder new_pb = add_proofs(s.get_proof_builder(), proofs);
-            return some(proof_state(s, new_gs, new_pb));
+            return some(proof_state(s, new_gs, add_proofs(s.get_pb(), proofs)));
         });
 }
 
-tactic trivial_tactic() {
-    return mk_tactic01([](ro_environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
-            list<std::pair<name, expr>> proofs;
-            goals new_gs = map_goals(s, [&](name const & gname, goal const & g) -> optional<goal> {
-                    expr const & c  = env->normalize(g.get_conclusion(), context(), true);
-                    if (c == True) {
-                        proofs.emplace_front(gname, mk_trivial());
-                        return optional<goal>();
-                    } else {
-                        return some(g);
-                    }
+tactic beta_tactic() {
+    return tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
+            bool reduced = false;
+            goals new_gs = map_goals(s, [&](name const &, goal const & g) -> optional<goal> {
+                    hypotheses new_hs = map(g.get_hypotheses(), [&](hypothesis const & h) {
+                            expr new_h = update_mlocal(h.first, beta_reduce(mlocal_type(h.first)));
+                            if (new_h != h.first)
+                                reduced = true;
+                            return hypothesis(new_h, h.second);
+                        });
+                    expr const & c = g.get_conclusion();
+                    expr new_c     = beta_reduce(c);
+                    if (new_c != c)
+                        reduced = true;
+                    return some(goal(new_hs, new_c));
                 });
-            if (empty(proofs))
-                return none_proof_state();
-            proof_builder new_pb = add_proofs(s.get_proof_builder(), proofs);
-            return some(proof_state(s, new_gs, new_pb));
+            return reduced ? some(proof_state(s, new_gs)) : none_proof_state();
         });
 }
 
-tactic then(tactic const & t1, tactic const & t2) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
-            return map_append(t1(env, io, s1), [=](proof_state const & s2) {
-                    check_interrupted();
-                    return t2(env, io, s2);
-                }, "THEN tactical");
-        });
-}
-
-tactic orelse(tactic const & t1, tactic const & t2) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return orelse(t1(env, io, s), t2(env, io, s), "ORELSE tactical");
-        });
-}
-
-tactic using_params(tactic const & t, options const & opts) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            io_state new_io(io);
-            new_io.set_options(join(opts, io.get_options()));
-            return t(env, new_io, s);
-        });
-}
-
-tactic try_for(tactic const & t, unsigned ms, unsigned check_ms) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return timeout(t(env, io, s), ms, check_ms);
-        });
-}
-
-tactic append(tactic const & t1, tactic const & t2) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return append(t1(env, io, s), t2(env, io, s), "APPEND tactical");
-        });
-}
-
-tactic interleave(tactic const & t1, tactic const & t2) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return interleave(t1(env, io, s), t2(env, io, s), "INTERLEAVE tactical");
-        });
-}
-
-tactic par(tactic const & t1, tactic const & t2, unsigned check_ms) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return par(t1(env, io, s), t2(env, io, s), check_ms);
-        });
-}
-
-tactic repeat(tactic const & t) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
-            return repeat(s1, [=](proof_state const & s2) {
-                    return t(env, io, s2);
-                }, "REPEAT tactical");
-        });
-}
-
-tactic repeat_at_most(tactic const & t, unsigned k) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s1) -> proof_state_seq {
-            return repeat_at_most(s1, [=](proof_state const & s2) {
-                    return t(env, io, s2);
-                }, k, "REPEAT_AT_MOST tactical");
-        });
-}
-
-tactic take(tactic const & t, unsigned k) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return take(k, t(env, io, s));
-        });
-}
-
-proof_state_seq focus_core(tactic const & t, name const & gname, ro_environment const & env, io_state const & io, proof_state const & s) {
+proof_state_seq focus_core(tactic const & t, name const & gname, environment const & env, io_state const & ios, proof_state const & s) {
     for (auto const & p : s.get_goals()) {
         if (p.first == gname) {
-            proof_builder pb = mk_proof_builder(
-                [=](proof_map const & m, assignment const &) -> expr {
-                    return find(m, gname);
-                });
-            cex_builder cb = mk_cex_builder_for(gname);
+            proof_builder_fn pb = proof_builder_fn([=](proof_map const & m, substitution const &) -> expr { return find(m, gname); });
+            cex_builder_fn cb = mk_cex_builder_for(gname);
             proof_state new_s(s, goals(p), pb, cb); // new state with singleton goal
-            return map(t(env, io, new_s), [=](proof_state const & s2) {
+            return map(t(env, ios, new_s), [=](proof_state const & s2) {
                     // we have to put back the goals that were not selected
                     list<std::pair<name, name>> renamed_goals;
                     goals new_gs = map_append(s.get_goals(), [&](std::pair<name, goal> const & p) {
@@ -324,10 +240,10 @@ proof_state_seq focus_core(tactic const & t, name const & gname, ro_environment 
                                 return goals(p);
                             }
                         });
-                    proof_builder pb1 = s.get_proof_builder();
-                    proof_builder pb2 = s2.get_proof_builder();
-                    proof_builder new_pb = mk_proof_builder(
-                        [=](proof_map const & m, assignment const & a) -> expr {
+                    proof_builder_fn pb1 = s.get_pb();
+                    proof_builder_fn pb2 = s2.get_pb();
+                    proof_builder_fn new_pb = proof_builder_fn(
+                        [=](proof_map const & m, substitution const & a) -> expr {
                             proof_map m1(m); // map for pb1
                             proof_map m2; // map for pb2
                             for (auto p : renamed_goals) {
@@ -337,10 +253,10 @@ proof_state_seq focus_core(tactic const & t, name const & gname, ro_environment 
                             m1.insert(gname, pb2(m2, a));
                             return pb1(m1, a);
                         });
-                    cex_builder cb1 = s.get_cex_builder();
-                    cex_builder cb2 = s2.get_cex_builder();
-                    cex_builder new_cb = mk_cex_builder(
-                        [=](name const & n, optional<counterexample> const & cex, assignment const & a) -> counterexample {
+                    cex_builder_fn cb1 = s.get_cb();
+                    cex_builder_fn cb2 = s2.get_cb();
+                    cex_builder_fn new_cb = cex_builder_fn(
+                        [=](name const & n, optional<counterexample> const & cex, substitution const & a) -> counterexample {
                             for (auto p : renamed_goals) {
                                 if (p.second == n)
                                     return cb2(p.first, cex, a);
@@ -355,15 +271,15 @@ proof_state_seq focus_core(tactic const & t, name const & gname, ro_environment 
 }
 
 tactic focus(tactic const & t, name const & gname) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return focus_core(t, gname, env, io, s);
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            return focus_core(t, gname, env, ios, s);
         });
 }
 
 tactic focus(tactic const & t, int i) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
             if (optional<name> n = s.get_ith_goal_name(i))
-                return focus_core(t, *n, env, io, s);
+                return focus_core(t, *n, env, ios, s);
             else
                 return proof_state_seq();
         });
@@ -373,18 +289,27 @@ class unfold_core_fn : public replace_visitor {
 protected:
     bool m_unfolded;
 
-    virtual expr visit_app(expr const & e, context const & ctx) {
-        expr const & f = arg(e, 0);
+    virtual expr visit_app(expr const & e) {
+        expr const & f = get_app_fn(e);
         if (is_constant(f)) {
+            expr new_f = visit(f);
+            bool modified = new_f != f;
             buffer<expr> new_args;
-            for (unsigned i = 0; i < num_args(e); i++)
-                new_args.push_back(visit(arg(e, i), ctx));
-            if (is_lambda(new_args[0]))
-                return apply_beta(new_args[0], new_args.size() - 1, new_args.data() + 1);
+            get_app_args(e, new_args);
+            for (unsigned i = 0; i < new_args.size(); i++) {
+                expr arg    = new_args[i];
+                new_args[i] = visit(arg);
+                if (!modified && new_args[i] != arg)
+                    modified = true;
+            }
+            if (is_lambda(f))
+                return apply_beta(f, new_args.size(), new_args.data());
+            else if (modified)
+                return mk_app(f, new_args);
             else
-                return update_app(e, new_args);
+                return e;
         } else {
-            return replace_visitor::visit_app(e, ctx);
+            return replace_visitor::visit_app(e);
         }
     }
 public:
@@ -392,13 +317,12 @@ public:
     bool unfolded() const { return m_unfolded; }
 };
 
-
 class unfold_fn : public unfold_core_fn {
 protected:
     name const & m_name;
     expr const & m_def;
 
-    virtual expr visit_constant(expr const & c, context const &) {
+    virtual expr visit_constant(expr const & c) {
         if (const_name(c) == m_name) {
             m_unfolded = true;
             return m_def;
@@ -413,25 +337,28 @@ public:
 
 class unfold_all_fn : public unfold_core_fn {
 protected:
-    ro_environment m_env;
+    environment m_env;
 
-    virtual expr visit_constant(expr const & c, context const &) {
-        optional<object> obj = m_env->find_object(const_name(c));
-        if (should_unfold(obj)) {
+    virtual expr visit_constant(expr const & c) {
+        optional<declaration> d = m_env.find(const_name(c));
+        if (d && d->is_definition() && (!d->is_opaque() || d->get_module_idx() == 0)) {
             m_unfolded = true;
-            return obj->get_value();
+            return d->get_value();
         } else {
             return c;
         }
     }
 
 public:
-    unfold_all_fn(ro_environment const & env):m_env(env) {}
+    unfold_all_fn(environment const & env):m_env(env) {}
 };
 
 optional<proof_state> unfold_tactic_core(unfold_core_fn & fn, proof_state const & s) {
     goals new_gs = map_goals(s, [&](name const &, goal const & g) -> optional<goal> {
-            hypotheses new_hs = map(g.get_hypotheses(), [&](hypothesis const & h) { return hypothesis(h.first, fn(h.second)); });
+            hypotheses new_hs = map(g.get_hypotheses(), [&](hypothesis const & h) {
+                    expr l = update_mlocal(h.first, fn(mlocal_type(h.first)));
+                    return hypothesis(l, h.second);
+                });
             expr       new_c  = fn(g.get_conclusion());
             return some(goal(new_hs, new_c));
         });
@@ -443,74 +370,23 @@ optional<proof_state> unfold_tactic_core(unfold_core_fn & fn, proof_state const 
 }
 
 tactic unfold_tactic(name const & n) {
-    return mk_tactic01([=](ro_environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
-            optional<object> obj = env->find_object(n);
-            if (!obj || !obj->is_definition())
+    return tactic01([=](environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
+            optional<declaration> d = env.find(n);
+            if (!d || !d->is_definition() || (d->is_opaque() && d->get_module_idx() != 0))
                 return none_proof_state(); // tactic failed
-            unfold_fn fn(n, obj->get_value());
+            unfold_fn fn(n, d->get_value());
             return unfold_tactic_core(fn, s);
         });
 }
 
 tactic unfold_tactic() {
-    return mk_tactic01([=](ro_environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
+    return tactic01([=](environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
             unfold_all_fn fn(env);
             return unfold_tactic_core(fn, s);
         });
 }
 
-class beta_fn : public replace_visitor {
-protected:
-    bool m_reduced;
-
-    virtual expr visit_app(expr const & e, context const & ctx) {
-        expr const & f = arg(e, 0);
-        if (is_lambda(f)) {
-            m_reduced = true;
-            buffer<expr> new_args;
-            for (unsigned i = 0; i < num_args(e); i++)
-                new_args.push_back(visit(arg(e, i), ctx));
-            lean_assert(is_lambda(new_args[0]));
-            return apply_beta(new_args[0], new_args.size() - 1, new_args.data() + 1);
-        } else {
-            return replace_visitor::visit_app(e, ctx);
-        }
-    }
-public:
-    beta_fn():m_reduced(false) {}
-    bool reduced() const { return m_reduced; }
-};
-
-tactic beta_tactic() {
-    return mk_tactic01([=](ro_environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
-            beta_fn fn;
-            goals new_gs = map_goals(s, [&](name const &, goal const & g) -> optional<goal> {
-                    hypotheses new_hs = map(g.get_hypotheses(), [&](hypothesis const & h) { return hypothesis(h.first, fn(h.second)); });
-                    expr       new_c  = fn(g.get_conclusion());
-                    return some(goal(new_hs, new_c));
-                });
-            return fn.reduced() ? some(proof_state(s, new_gs)) : none_proof_state();
-        });
-}
-
-tactic normalize_tactic(bool unfold_opaque, bool all) {
-    return mk_tactic01([=](ro_environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
-            bool applied = false;
-            goals new_gs = map_goals(s, [&](name const &, goal const & g) -> optional<goal> {
-                    if (!applied || all) {
-                        applied = true;
-                        expr new_c  = env->normalize(g.get_conclusion(), context(), unfold_opaque);
-                        return some(goal(g.get_hypotheses(), new_c));
-                    } else {
-                        return some(g);
-                    }
-                });
-            return applied ? some(proof_state(s, new_gs)) : none_proof_state();
-        });
-}
-
 DECL_UDATA(proof_state_seq)
-
 static const struct luaL_Reg proof_state_seq_m[] = {
     {"__gc",            proof_state_seq_gc}, // never throws
     {0, 0}
@@ -518,11 +394,7 @@ static const struct luaL_Reg proof_state_seq_m[] = {
 
 static int proof_state_seq_next(lua_State * L) {
     proof_state_seq seq = to_proof_state_seq(L, lua_upvalueindex(1));
-    script_state S      = to_script_state(L);
-    proof_state_seq::maybe_pair p;
-    S.exec_unprotected([&]() {
-            p = seq.pull();
-        });
+    auto p = seq.pull();
     if (p) {
         push_proof_state_seq(L, p->second);
         lua_replace(L, lua_upvalueindex(1));
@@ -545,31 +417,18 @@ DECL_UDATA(tactic)
     throw exception(sstream() << "arg #" << i << " must be a tactic or a function that returns a tactic");
 }
 
-static void check_ios(io_state * ios) {
-    if (!ios)
-        throw exception("failed to invoke tactic, io_state is not available");
-}
-
-static int tactic_call_core(lua_State * L, tactic t, ro_environment env, io_state ios, proof_state s) {
-    script_state S = to_script_state(L);
-    proof_state_seq seq;
-    S.exec_unprotected([&]() {
-            seq = t(env, ios, s);
-        });
-    return push_proof_state_seq_it(L, seq);
+static int tactic_call_core(lua_State * L, tactic t, environment env, io_state ios, proof_state s) {
+    return push_proof_state_seq_it(L, t(env, ios, s));
 }
 
 static int tactic_call(lua_State * L) {
     int nargs = lua_gettop(L);
     tactic t = to_tactic(L, 1);
-    ro_shared_environment env(L, 2);
-    if (nargs == 3) {
-        io_state * ios = get_io_state(L);
-        check_ios(ios);
-        return tactic_call_core(L, t, env, *ios, to_proof_state(L, 3));
-    } else {
+    environment env = to_environment(L, 2);
+    if (nargs == 3)
+        return tactic_call_core(L, t, env, get_io_state(L), to_proof_state(L, 3));
+    else
         return tactic_call_core(L, t, env, to_io_state(L, 3), to_proof_state(L, 4));
-    }
 }
 
 typedef tactic (*binary_tactic_fn)(tactic const &, tactic const &);
@@ -590,7 +449,6 @@ static int tactic_orelse(lua_State * L)         {  return push_tactic(L, orelse(
 static int tactic_append(lua_State * L)         {  return push_tactic(L, append(to_tactic(L, 1), to_tactic(L, 2))); }
 static int tactic_interleave(lua_State * L)     {  return push_tactic(L, interleave(to_tactic(L, 1), to_tactic(L, 2))); }
 static int tactic_par(lua_State * L)            {  return push_tactic(L, par(to_tactic(L, 1), to_tactic(L, 2))); }
-
 static int tactic_repeat(lua_State * L)         {  return push_tactic(L, repeat(to_tactic(L, 1))); }
 static int tactic_repeat1(lua_State * L)        {  return push_tactic(L, repeat1(to_tactic(L, 1))); }
 static int tactic_repeat_at_most(lua_State * L) {  return push_tactic(L, repeat_at_most(to_tactic(L, 1), luaL_checkinteger(L, 2))); }
@@ -600,7 +458,6 @@ static int tactic_suppress_trace(lua_State * L) {  return push_tactic(L, suppres
 static int tactic_try_for(lua_State * L)        {  return push_tactic(L, try_for(to_tactic(L, 1), luaL_checkinteger(L, 2))); }
 static int tactic_using_params(lua_State * L)   {  return push_tactic(L, using_params(to_tactic(L, 1), to_options(L, 2))); }
 static int tactic_try(lua_State * L)            {  return push_tactic(L, orelse(to_tactic(L, 1), id_tactic())); }
-
 static int tactic_focus(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 1)
@@ -610,147 +467,53 @@ static int tactic_focus(lua_State * L) {
     else
         return push_tactic(L, focus(to_tactic(L, 1), to_name_ext(L, 2)));
 }
-
-static int push_solve_result(lua_State * L, solve_result const & r) {
-    switch (r.kind()) {
-    case solve_result_kind::None:           lua_pushnil(L); break;
-    case solve_result_kind::Proof:          push_expr(L, r.get_proof()); break;
-    case solve_result_kind::Counterexample: push_environment(L, r.get_cex()); break;
-    case solve_result_kind::Failure:
-        lua_newtable(L);
-        int i = 1;
-        for (auto s : r.get_failures()) {
-            push_proof_state(L, s);
-            lua_rawseti(L, -2, i);
-            i++;
-        }
-    }
-    return 1;
-}
-
-static int tactic_solve_core(lua_State * L, tactic t, ro_environment env, io_state ios, proof_state s) {
-    script_state S = to_script_state(L);
-    solve_result result;
-    S.exec_unprotected([&]() {
-            result = t.solve(env, ios, s);;
-        });
-    return push_solve_result(L, result);
-}
-
-static int tactic_solve_core(lua_State * L, tactic t, ro_environment env, io_state ios, context ctx, expr e) {
-    script_state S = to_script_state(L);
-    solve_result result;
-    S.exec_unprotected([&]() {
-            result = t.solve(env, ios, ctx, e);
-        });
-    return push_solve_result(L, result);
-}
-
-static int tactic_solve(lua_State * L) {
-    int nargs = lua_gettop(L);
-    tactic t = to_tactic(L, 1);
-    ro_shared_environment env(L, 2);
-    if (nargs == 3) {
-        io_state * ios = get_io_state(L);
-        check_ios(ios);
-        return tactic_solve_core(L, t, env, *ios, to_proof_state(L, 3));
-    } else if (nargs == 4) {
-        if (is_io_state(L, 3)) {
-            return tactic_solve_core(L, t, env, to_io_state(L, 3), to_proof_state(L, 4));
-        } else {
-            io_state * ios = get_io_state(L);
-            check_ios(ios);
-            return tactic_solve_core(L, t, env, *ios, to_context(L, 3), to_expr(L, 4));
-        }
-    } else {
-        return tactic_solve_core(L, t, env, to_io_state(L, 3), to_context(L, 4), to_expr(L, 5));
-    }
-}
-
 static int mk_lua_tactic01(lua_State * L) {
     luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun
-    script_state::weak_ref S = to_script_state(L).to_weak_ref();
     luaref ref(L, 1);
-    return push_tactic(L,
-                       mk_tactic01([=](ro_environment const & env, io_state const & ios, proof_state const & s) -> optional<proof_state> {
-                               script_state S_copy(S);
-                               optional<proof_state> r;
-                               luaref coref; // Remark: we have to release the reference in a protected block.
-                               try {
-                                   bool done    = false;
-                                   lua_State * co;
-                                   S_copy.exec_protected([&]() {
-                                           co = lua_newthread(L); // create a coroutine for executing user-fun
-                                           coref = luaref(L, -1);    // make sure co-routine in not deleted
-                                           lua_pop(L, 1);
-                                           ref.push();               // push user-fun on the stack
-                                           push_environment(L, env); // push args...
-                                           push_io_state(L, ios);
-                                           push_proof_state(L, s);
-                                           lua_xmove(L, co, 4);      // move function and arguments to co
-                                           done = resume(co, 3);
-                                       });
-                                   while (!done) {
-                                       check_interrupted();
-                                       this_thread::yield(); // give another thread a chance to execute
-                                       S_copy.exec_protected([&]() {
-                                               done = resume(co, 0);
-                                           });
-                                   }
-                                   S_copy.exec_protected([&]() {
-                                           if (is_proof_state(co, -1)) {
-                                               r = to_proof_state(co, -1);
-                                           }
-                                           coref.release();
-                                       });
-                                   return r;
-                               } catch (...) {
-                                   S_copy.exec_protected([&]() { coref.release(); });
-                                   throw;
-                               }
-                           }));
+    tactic t = tactic01([=](environment const & env, io_state const & ios, proof_state const & s) -> optional<proof_state> {
+            ref.push();               // push user-fun on the stack
+            push_environment(L, env); // push args...
+            push_io_state(L, ios);
+            push_proof_state(L, s);
+            pcall(L, 3, 1, 0);
+            optional<proof_state> r;
+            if (is_proof_state(L, -1))
+                r = to_proof_state(L, -1);
+            lua_pop(L, 1);
+            return r;
+        });
+    return push_tactic(L, t);
 }
 
 static int mk_lua_cond_tactic(lua_State * L, tactic t1, tactic t2) {
     luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun
-    script_state::weak_ref S = to_script_state(L).to_weak_ref();
     luaref ref(L, 1);
-    return push_tactic(L,
-                       mk_tactic([=](ro_environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
-                               return mk_proof_state_seq([=]() {
-                                       script_state S_copy(S);
-                                       bool cond = false;
-                                       S_copy.exec_protected([&]() {
-                                               ref.push();               // push user-fun on the stack
-                                               push_environment(L, env); // push args...
-                                               push_io_state(L, ios);
-                                               push_proof_state(L, s);
-                                               pcall(L, 3, 1, 0);
-                                               cond = lua_toboolean(L, -1);
-                                           });
-                                       if (cond) {
-                                           return t1(env, ios, s).pull();
-                                       } else {
-                                           return t2(env, ios, s).pull();
-                                       }
-                                   });
-                           }));
+    tactic t = tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            return mk_proof_state_seq([=]() {
+                    ref.push();               // push user-fun on the stack
+                    push_environment(L, env); // push args...
+                    push_io_state(L, ios);
+                    push_proof_state(L, s);
+                    pcall(L, 3, 1, 0);
+                    bool cond = lua_toboolean(L, -1);
+                    lua_pop(L, 1);
+                    if (cond) {
+                        return t1(env, ios, s).pull();
+                    } else {
+                        return t2(env, ios, s).pull();
+                    }
+                });
+        });
+    return push_tactic(L, t);
 }
 
-static int mk_lua_cond_tactic(lua_State * L) {
-    return mk_lua_cond_tactic(L, to_tactic(L, 2), to_tactic(L, 3));
-}
-
-static int mk_lua_when_tactic(lua_State * L) {
-    return mk_lua_cond_tactic(L, to_tactic(L, 2), id_tactic());
-}
-
+static int mk_lua_cond_tactic(lua_State * L) { return mk_lua_cond_tactic(L, to_tactic(L, 2), to_tactic(L, 3)); }
+static int mk_lua_when_tactic(lua_State * L) { return mk_lua_cond_tactic(L, to_tactic(L, 2), id_tactic()); }
 static int mk_id_tactic(lua_State * L)          {  return push_tactic(L, id_tactic()); }
 static int mk_now_tactic(lua_State * L)         {  return push_tactic(L, now_tactic()); }
 static int mk_fail_tactic(lua_State * L)        {  return push_tactic(L, fail_tactic()); }
 static int mk_trace_tactic(lua_State * L)       {  return push_tactic(L, trace_tactic(luaL_checkstring(L, 1))); }
 static int mk_assumption_tactic(lua_State * L)  {  return push_tactic(L, assumption_tactic()); }
-static int mk_trivial_tactic(lua_State * L)     {  return push_tactic(L, trivial_tactic()); }
 static int mk_trace_state_tactic(lua_State * L) {  return push_tactic(L, trace_state_tactic()); }
 static int mk_unfold_tactic(lua_State * L)      {
     int nargs = lua_gettop(L);
@@ -760,16 +523,6 @@ static int mk_unfold_tactic(lua_State * L)      {
         return push_tactic(L, unfold_tactic(to_name_ext(L, 1)));
 }
 static int mk_beta_tactic(lua_State * L) {  return push_tactic(L, beta_tactic()); }
-static int mk_normalize_tactic(lua_State * L) {
-    int nargs = lua_gettop(L);
-    return push_tactic(L, normalize_tactic(nargs == 0 ? false : lua_toboolean(L, 1),
-                                           nargs <= 1 ? true  : lua_toboolean(L, 2)));
-}
-static int mk_eval_tactic(lua_State * L) {
-    int nargs = lua_gettop(L);
-    return push_tactic(L, normalize_tactic(true, nargs == 0 ? true : lua_toboolean(L, 1)));
-}
-
 static const struct luaL_Reg tactic_m[] = {
     {"__gc",            tactic_gc}, // never throws
     {"__call",          safe_function<tactic_call>},
@@ -780,7 +533,6 @@ static const struct luaL_Reg tactic_m[] = {
     {"orelse",          safe_function<tactic_orelse>},
     {"append",          safe_function<tactic_append>},
     {"interleave",      safe_function<tactic_interleave>},
-    {"solve",           safe_function<tactic_solve>},
     {"par",             safe_function<tactic_par>},
     {"determ",          safe_function<tactic_determ>},
     {"repeat",          safe_function<tactic_repeat>},
@@ -814,12 +566,9 @@ void open_tactic(lua_State * L) {
     SET_GLOBAL_FUN(mk_fail_tactic,        "fail_tac");
     SET_GLOBAL_FUN(mk_trace_state_tactic, "show_tac");
     SET_GLOBAL_FUN(mk_assumption_tactic,  "assumption_tac");
-    SET_GLOBAL_FUN(mk_trivial_tactic,     "trivial_tac");
     SET_GLOBAL_FUN(mk_unfold_tactic,      "unfold_tac");
     SET_GLOBAL_FUN(mk_beta_tactic,        "beta_tac");
-    SET_GLOBAL_FUN(mk_normalize_tactic,   "normalize_tac");
-    SET_GLOBAL_FUN(mk_eval_tactic,        "eval_tac");
-    SET_GLOBAL_FUN(mk_lua_tactic01,       "tactic");
+    SET_GLOBAL_FUN(mk_lua_tactic01,       "tactic01");
 
     // HOL-like tactic names
     SET_GLOBAL_FUN(nary_tactic<then>,       "Then");

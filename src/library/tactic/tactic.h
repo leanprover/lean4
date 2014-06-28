@@ -9,192 +9,48 @@ Author: Leonardo de Moura
 #include <utility>
 #include <memory>
 #include <string>
-#include "util/thread.h"
 #include "util/lazy_list.h"
-#include "kernel/io_state.h"
+#include "library/io_state.h"
 #include "library/tactic/proof_state.h"
 
 namespace lean {
 typedef lazy_list<proof_state> proof_state_seq;
 
-class tactic_cell {
-    void dealloc() { delete this; }
-    MK_LEAN_RC();
-public:
-    tactic_cell():m_rc(0) {}
-    virtual ~tactic_cell() {}
-    virtual proof_state_seq operator()(ro_environment const & env, io_state const & io, proof_state const & s) const = 0;
-};
-
-template<typename F>
-class tactic_cell_tpl : public tactic_cell {
-    F m_f;
-public:
-    tactic_cell_tpl(F && f):m_f(f) {}
-    virtual proof_state_seq operator()(ro_environment const & env, io_state const & io, proof_state const & s) const {
-        return m_f(env, io, s);
-    }
-};
-
-enum class solve_result_kind { None, Proof, Counterexample, Failure };
-/**
-   \brief Result for the solve method in the tactic class.
-   The result may be a proof, a counterexample, or a list of unsolved proof_states.
-*/
-class solve_result {
-    solve_result_kind m_kind;
-    union {
-        expr              m_proof;
-        counterexample    m_cex;
-        list<proof_state> m_failures;
-    };
-    void init(solve_result const & r);
-    void destroy();
-public:
-    solve_result():m_kind(solve_result_kind::None) {}
-    solve_result(expr const & pr);
-    solve_result(counterexample const & cex);
-    solve_result(list<proof_state> const & fs);
-    solve_result(solve_result const & r);
-    ~solve_result();
-    solve_result & operator=(solve_result & other);
-    solve_result & operator=(solve_result && other);
-    solve_result_kind kind() const { return m_kind; }
-    expr get_proof() const { lean_assert(kind() == solve_result_kind::Proof); return m_proof; }
-    counterexample get_cex() const { lean_assert(kind() == solve_result_kind::Counterexample); return m_cex; }
-    list<proof_state> get_failures() const { lean_assert(kind() == solve_result_kind::Failure); return m_failures; }
-};
-
-class tactic {
-protected:
-    tactic_cell * m_ptr;
-public:
-    explicit tactic(tactic_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    tactic(tactic const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
-    tactic(tactic && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
-    ~tactic() { if (m_ptr) m_ptr->dec_ref(); }
-    friend void swap(tactic & a, tactic & b) { std::swap(a.m_ptr, b.m_ptr); }
-    tactic & operator=(tactic const & s);
-    tactic & operator=(tactic && s);
-
-    proof_state_seq operator()(ro_environment const & env, io_state const & io, proof_state const & s) const {
-        lean_assert(m_ptr);
-        return m_ptr->operator()(env, io, s);
-    }
-
-    solve_result solve(ro_environment const & env, io_state const & io, proof_state const & s);
-    solve_result solve(ro_environment const & env, io_state const & io, context const & ctx, expr const & t);
-};
+typedef std::function<proof_state_seq(environment const &, io_state const & ios, proof_state const &)> tactic;
 
 inline optional<tactic> none_tactic() { return optional<tactic>(); }
-inline optional<tactic> some_tactic(tactic const & o) { return optional<tactic>(o); }
-inline optional<tactic> some_tactic(tactic && o) { return optional<tactic>(std::forward<tactic>(o)); }
+inline optional<tactic> some_tactic(tactic const & t) { return optional<tactic>(t); }
+inline optional<tactic> some_tactic(tactic && t) { return optional<tactic>(std::forward<tactic>(t)); }
 
-/**
-   \brief Create a tactic using the given functor.
-   The functor must contain the operator:
+template<typename F> inline proof_state_seq mk_proof_state_seq(F && f) { return mk_lazy_list<proof_state>(std::forward<F>(f)); }
 
-   <code>
-   proof_state_seq operator()(ro_environment const & env, io_state const & io, proof_state const & s)
-   </code>
-*/
-template<typename F>
-tactic mk_tactic(F && f) { return tactic(new tactic_cell_tpl<F>(std::forward<F>(f))); }
+tactic tactic01(std::function<optional<proof_state>(environment const &, io_state const & ios, proof_state const &)> const & f);
+tactic tactic1(std::function<proof_state(environment const &, io_state const & ios, proof_state const &)> const & f);
 
-template<typename F>
-inline proof_state_seq mk_proof_state_seq(F && f) {
-    return mk_lazy_list<proof_state>(std::forward<F>(f));
-}
-
-/**
-   \brief Create a tactic that produces exactly one output state.
-
-   The functor f must contain the method:
-   <code>
-   proof_state operator()(ro_environment const & env, io_state const & io, proof_state const & s)
-   </code>
-
-   \remark The functor is invoked on demand.
-*/
-template<typename F>
-tactic mk_tactic1(F && f) {
-    return
-        mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) {
-                return mk_proof_state_seq([=]() { return some(mk_pair(f(env, io, s), proof_state_seq())); });
-            });
-}
-
-/**
-   \brief Create a tactic that produces at most one output state.
-
-   The functor f must contain the method:
-   <code>
-   optional<proof_state> operator()(ro_environment const & env, io_state const & io, proof_state const & s)
-   </code>
-
-   \remark The functor is invoked on demand.
-*/
-template<typename F>
-tactic mk_tactic01(F && f) {
-    return
-        mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) {
-                return mk_proof_state_seq([=]() {
-                        auto r = f(env, io, s);
-                        if (r)
-                            return some(mk_pair(*r, proof_state_seq()));
-                        else
-                            return proof_state_seq::maybe_pair();
-                    });
-            });
-}
-
-/**
-   \brief Return a "do nothing" tactic (aka skip).
-*/
+/** \brief Return a "do nothing" tactic (aka skip). */
 tactic id_tactic();
-/**
-   \brief Return a tactic the always fails.
-*/
+/** \brief Return a tactic the always fails. */
 tactic fail_tactic();
-/**
-   \brief Return a tactic that fails if there are unsolved goals.
-*/
+/** \brief Return a tactic that fails if there are unsolved goals. */
 tactic now_tactic();
-/**
-   \brief Return a tactic that solves any goal of the form  <tt>..., H : A, ... |- A</tt>.
-*/
+/** \brief Return a tactic that solves any goal of the form  <tt>..., H : A, ... |- A</tt>. */
 tactic assumption_tactic();
-/**
-   \brief Return a tactic that just returns the input state, and display the given message in the diagnostic channel.
-*/
+/** \brief Return a tactic that just returns the input state, and display the given message in the diagnostic channel. */
 tactic trace_tactic(char const * msg);
 class sstream;
 tactic trace_tactic(sstream const & msg);
 tactic trace_tactic(std::string const & msg);
-/**
-   \brief Return a tactic that just displays the input state in the diagnostic channel.
-*/
+/** \brief Return a tactic that just displays the input state in the diagnostic channel. */
 tactic trace_state_tactic();
-/**
-   \brief Create a tactic that applies \c t, but suppressing diagnostic messages.
-*/
+/** \brief Create a tactic that applies \c t, but suppressing diagnostic messages. */
 tactic suppress_trace(tactic const & t);
-
-/**
-   \brief Return a tactic that performs \c t1 followed by \c t2.
-*/
+/** \brief Return a tactic that performs \c t1 followed by \c t2. */
 tactic then(tactic const & t1, tactic const & t2);
 inline tactic operator<<(tactic const & t1, tactic const & t2) { return then(t1, t2); }
-/**
-   \brief Return a tactic that applies \c t1, and if \c t1 returns the empty sequence of states,
-   then applies \c t2.
-*/
+/** \brief Return a tactic that applies \c t1, and if \c t1 returns the empty sequence of states, then applies \c t2. */
 tactic orelse(tactic const & t1, tactic const & t2);
 inline tactic operator||(tactic const & t1, tactic const & t2) { return orelse(t1, t2); }
-/**
-   \brief Return a tactic that appies \c t, but using the additional set of options
-   \c opts.
-*/
+/** \brief Return a tactic that appies \c t, but using the additional set of options \c opts. */
 tactic using_params(tactic const & t, options const & opts);
 /**
    \brief Return a tactic that tries the tactic \c t for at most \c ms milliseconds.
@@ -231,7 +87,6 @@ tactic interleave(tactic const & t1, tactic const & t2);
 */
 tactic par(tactic const & t1, tactic const & t2, unsigned check_ms);
 inline tactic par(tactic const & t1, tactic const & t2) { return par(t1, t2, 1); }
-
 /**
    \brief Return a tactic that keeps applying \c t until it fails.
 */
@@ -253,31 +108,16 @@ tactic repeat_at_most(tactic const & t, unsigned k);
    k elements from the sequence produced by \c t.
 */
 tactic take(tactic const & t, unsigned k);
-/**
-   \brief Syntax sugar for take(t, 1)
-*/
+/** \brief Syntax sugar for take(t, 1) */
 inline tactic determ(tactic const & t) { return take(t, 1); }
+typedef std::function<bool(environment const & env, io_state const & ios, proof_state const & s)> proof_state_pred;
 /**
-   \brief Return a tactic that applies the predicate \c p to the input state.
-   If \c p returns true, then applies \c t1. Otherwise, applies \c t2.
+    \brief Return a tactic that applies the predicate \c p to the input state.
+    If \c p returns true, then applies \c t1. Otherwise, applies \c t2.
 */
-template<typename P>
-tactic cond(P && p, tactic const & t1, tactic const & t2) {
-    return mk_tactic([=](ro_environment const & env, io_state const & io, proof_state const & s) -> proof_state_seq {
-            return mk_proof_state_seq([=]() {
-                    if (p(env, io, s)) {
-                        return t1(env, io, s).pull();
-                    } else {
-                        return t2(env, io, s).pull();
-                    }
-                });
-        });
-}
-/**
-   \brief Syntax-sugar for cond(p, t, id_tactic())
-*/
-template<typename P>
-tactic when(P && p, tactic const & t) { return cond(std::forward<P>(p), t, id_tactic()); }
+tactic cond(proof_state_pred const & p, tactic const & t1, tactic const & t2);
+/** \brief Syntax-sugar for cond(p, t, id_tactic()) */
+inline tactic when(proof_state_pred const & p, tactic const & t) { return cond(p, t, id_tactic()); }
 /**
    \brief Return a tactic that applies \c t only to the goal named \c gname.
    The tactic fails if the input state does not have a goal named \c gname.
@@ -289,28 +129,14 @@ tactic focus(tactic const & t, name const & gname);
 */
 tactic focus(tactic const & t, int i);
 inline tactic focus(tactic const & t) { return focus(t, 1); }
-/**
-   \brief Return a tactic that solves any goal which the hypothesis evaluates to true.
-*/
-tactic trivial_tactic();
-/**
-   \brief Return a tactic that unfolds the definition named \c n.
-*/
+/** \brief Return a tactic that unfolds the definition named \c n. */
 tactic unfold_tactic(name const & n);
-/**
-   \brief Return a tactic that unfolds all (non-opaque) definitions.
-*/
+/** \brief Return a tactic that unfolds all (non-opaque) definitions. */
 tactic unfold_tactic();
-/**
-   \brief Return a tactic that applies beta-reduction.
-*/
+/** \brief Return a tactic that applies beta-reduction. */
 tactic beta_tactic();
-/**
-   \brief Return a tactic that normalize the goal conclusion.
-*/
-tactic normalize_tactic(bool unfold_opaque = false, bool all = true);
 
 UDATA_DEFS_CORE(proof_state_seq)
-UDATA_DEFS(tactic);
+UDATA_DEFS_CORE(tactic);
 void open_tactic(lua_State * L);
 }

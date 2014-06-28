@@ -44,6 +44,8 @@ public:
     proof_state(goals const & gs, proof_builder_fn const & pb, cex_builder_fn const & cb,
                 name_generator const & ngen, list<expr> const & ls = list<expr>()):
         proof_state(precision::Precise, gs, pb, cb, ngen, ls) {}
+    proof_state(proof_state const & s, goals const & gs, proof_builder_fn const & pb, cex_builder_fn const & cb):
+        proof_state(s.m_precision, gs, pb, cb, s.m_ngen, s.m_init_locals) {}
     proof_state(proof_state const & s, goals const & gs, proof_builder_fn const & pb, name_generator const & ngen):
         proof_state(s.m_precision, gs, pb, s.m_cex_builder, ngen, s.m_init_locals) {}
     proof_state(proof_state const & s, goals const & gs, proof_builder_fn const & pb):proof_state(s, gs, pb, s.m_ngen) {}
@@ -75,8 +77,11 @@ proof_state to_proof_state(expr const & mvar);
 proof_state to_proof_state(environment const & env, expr const & mvar, name_generator const & ngen, options const & opts = options());
 proof_state to_proof_state(environment const & env, expr const & mvar, options const & opts = options());
 
+/** \brief Try to extract a proof from the given proof state */
+optional<expr> to_proof(proof_state const & s);
+
 goals map_goals(proof_state const & s, std::function<optional<goal>(name const & gn, goal const & g)> const & f);
-io_state_stream const & operator<<(io_state_stream const & out, proof_state & s);
+io_state_stream const & operator<<(io_state_stream const & out, proof_state const & s);
 
 UDATA_DEFS_CORE(goals)
 UDATA_DEFS(proof_state)

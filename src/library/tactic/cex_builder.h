@@ -15,10 +15,10 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief In Lean, a counter-example is encoded using an environment object. */
 typedef environment counterexample;
-typedef std::function<counterexample(name const &, optional<counterexample> const &, substitution const &)> cex_builder_fn;
+typedef std::function<counterexample(name const &, optional<counterexample> const &, substitution const &)> cex_builder;
 /** \brief Return a counterexample builder that expects a counterexample for the given goal. */
-cex_builder_fn mk_cex_builder_for(name const & gname);
+cex_builder mk_cex_builder_for(name const & gname);
 
 /** \brief Convert a Lua function on position \c idx (on the Lua stack) to a cex_builder_fn */
-cex_builder_fn to_cex_builder(lua_State * L, int idx);
+cex_builder to_cex_builder(lua_State * L, int idx);
 }

@@ -93,8 +93,8 @@ void proof_state::get_goal_names(name_set & r) const {
 }
 
 static name g_main("main");
-proof_builder_fn mk_init_proof_builder(list<expr> const & locals) {
-    return proof_builder_fn([=](proof_map const & m, substitution const &) -> expr {
+proof_builder mk_init_proof_builder(list<expr> const & locals) {
+    return proof_builder([=](proof_map const & m, substitution const &) -> expr {
             expr r = find(m, g_main);
             for (expr const & l : locals)
                 r = Fun(l, r);

@@ -19,8 +19,8 @@ expr find(proof_map const & m, name const & n) {
     throw exception(sstream() << "proof for goal '" << n << "' not found");
 }
 
-proof_builder_fn add_proofs(proof_builder_fn const & pb, list<std::pair<name, expr>> const & prs) {
-    return proof_builder_fn([=](proof_map const & m, substitution const & s) -> expr {
+proof_builder add_proofs(proof_builder const & pb, list<std::pair<name, expr>> const & prs) {
+    return proof_builder([=](proof_map const & m, substitution const & s) -> expr {
             proof_map new_m(m);
             for (auto const & np : prs) {
                 new_m.insert(np.first, np.second);
@@ -61,10 +61,10 @@ static const struct luaL_Reg proof_map_m[] = {
     {0, 0}
 };
 
-proof_builder_fn to_proof_builder(lua_State * L, int idx) {
+proof_builder to_proof_builder(lua_State * L, int idx) {
     luaL_checktype(L, idx, LUA_TFUNCTION); // user-fun
     luaref f(L, idx);
-    return proof_builder_fn([=](proof_map const & m, substitution const & s) {
+    return proof_builder([=](proof_map const & m, substitution const & s) {
             lua_State * L = f.get_state();
             f.push();
             push_proof_map(L, m);

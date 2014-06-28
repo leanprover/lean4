@@ -11,18 +11,18 @@ Author: Leonardo de Moura
 #include "library/tactic/cex_builder.h"
 
 namespace lean {
-cex_builder_fn mk_cex_builder_for(name const & gname) {
-    return cex_builder_fn([=](name const & n, optional<counterexample> const & cex, substitution const &) -> counterexample {
+cex_builder mk_cex_builder_for(name const & gname) {
+    return cex_builder([=](name const & n, optional<counterexample> const & cex, substitution const &) -> counterexample {
             if (n != gname || !cex)
                 throw exception(sstream() << "failed to build counterexample for '" << gname << "' goal");
             return *cex;
         });
 }
 
-cex_builder_fn to_cex_builder(lua_State * L, int idx) {
+cex_builder to_cex_builder(lua_State * L, int idx) {
     luaL_checktype(L, idx, LUA_TFUNCTION); // user-fun
     luaref f(L, idx);
-    return cex_builder_fn([=](name const & n, optional<counterexample> const & cex, substitution const & s) {
+    return cex_builder([=](name const & n, optional<counterexample> const & cex, substitution const & s) {
             lua_State * L = f.get_state();
             f.push();
             push_name(L, n);

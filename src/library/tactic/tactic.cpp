@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -219,8 +219,8 @@ tactic beta_tactic() {
 proof_state_seq focus_core(tactic const & t, name const & gname, environment const & env, io_state const & ios, proof_state const & s) {
     for (auto const & p : s.get_goals()) {
         if (p.first == gname) {
-            proof_builder_fn pb = proof_builder_fn([=](proof_map const & m, substitution const &) -> expr { return find(m, gname); });
-            cex_builder_fn cb = mk_cex_builder_for(gname);
+            proof_builder pb = proof_builder([=](proof_map const & m, substitution const &) -> expr { return find(m, gname); });
+            cex_builder cb = mk_cex_builder_for(gname);
             proof_state new_s(s, goals(p), pb, cb); // new state with singleton goal
             return map(t(env, ios, new_s), [=](proof_state const & s2) {
                     // we have to put back the goals that were not selected
@@ -240,9 +240,9 @@ proof_state_seq focus_core(tactic const & t, name const & gname, environment con
                                 return goals(p);
                             }
                         });
-                    proof_builder_fn pb1 = s.get_pb();
-                    proof_builder_fn pb2 = s2.get_pb();
-                    proof_builder_fn new_pb = proof_builder_fn(
+                    proof_builder pb1 = s.get_pb();
+                    proof_builder pb2 = s2.get_pb();
+                    proof_builder new_pb = proof_builder(
                         [=](proof_map const & m, substitution const & a) -> expr {
                             proof_map m1(m); // map for pb1
                             proof_map m2; // map for pb2
@@ -253,9 +253,9 @@ proof_state_seq focus_core(tactic const & t, name const & gname, environment con
                             m1.insert(gname, pb2(m2, a));
                             return pb1(m1, a);
                         });
-                    cex_builder_fn cb1 = s.get_cb();
-                    cex_builder_fn cb2 = s2.get_cb();
-                    cex_builder_fn new_cb = cex_builder_fn(
+                    cex_builder cb1 = s.get_cb();
+                    cex_builder cb2 = s2.get_cb();
+                    cex_builder new_cb = cex_builder(
                         [=](name const & n, optional<counterexample> const & cex, substitution const & a) -> counterexample {
                             for (auto p : renamed_goals) {
                                 if (p.second == n)

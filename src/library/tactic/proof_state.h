@@ -33,27 +33,27 @@ bool trust_cex(precision p);
 class proof_state {
     precision        m_precision;
     goals            m_goals;
-    proof_builder_fn m_proof_builder;
-    cex_builder_fn   m_cex_builder;
+    proof_builder    m_proof_builder;
+    cex_builder      m_cex_builder;
     name_generator   m_ngen;
     list<expr>       m_init_locals;
 public:
-    proof_state(precision prec, goals const & gs, proof_builder_fn const & pb, cex_builder_fn const & cb,
+    proof_state(precision prec, goals const & gs, proof_builder const & pb, cex_builder const & cb,
                 name_generator const & ngen, list<expr> const & ls = list<expr>()):
         m_precision(prec), m_goals(gs), m_proof_builder(pb), m_cex_builder(cb), m_ngen(ngen), m_init_locals(ls) {}
-    proof_state(goals const & gs, proof_builder_fn const & pb, cex_builder_fn const & cb,
+    proof_state(goals const & gs, proof_builder const & pb, cex_builder const & cb,
                 name_generator const & ngen, list<expr> const & ls = list<expr>()):
         proof_state(precision::Precise, gs, pb, cb, ngen, ls) {}
-    proof_state(proof_state const & s, goals const & gs, proof_builder_fn const & pb, cex_builder_fn const & cb):
+    proof_state(proof_state const & s, goals const & gs, proof_builder const & pb, cex_builder const & cb):
         proof_state(s.m_precision, gs, pb, cb, s.m_ngen, s.m_init_locals) {}
-    proof_state(proof_state const & s, goals const & gs, proof_builder_fn const & pb, name_generator const & ngen):
+    proof_state(proof_state const & s, goals const & gs, proof_builder const & pb, name_generator const & ngen):
         proof_state(s.m_precision, gs, pb, s.m_cex_builder, ngen, s.m_init_locals) {}
-    proof_state(proof_state const & s, goals const & gs, proof_builder_fn const & pb):proof_state(s, gs, pb, s.m_ngen) {}
+    proof_state(proof_state const & s, goals const & gs, proof_builder const & pb):proof_state(s, gs, pb, s.m_ngen) {}
     proof_state(proof_state const & s, goals const & gs):proof_state(s, gs, s.m_proof_builder) {}
     precision get_precision() const { return m_precision; }
     goals const & get_goals() const { return m_goals; }
-    proof_builder_fn const & get_pb() const { return m_proof_builder; }
-    cex_builder_fn const & get_cb() const { return m_cex_builder; }
+    proof_builder const & get_pb() const { return m_proof_builder; }
+    cex_builder const & get_cb() const { return m_cex_builder; }
     name_generator const & ngen() const { return m_ngen; }
     list<expr> const & get_init_locals() const { return m_init_locals; }
     /** \brief Return true iff this state does not have any goals left, and the precision is \c Precise or \c Over */

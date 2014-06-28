@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -110,7 +110,7 @@ tactic repeat_at_most(tactic const & t, unsigned k);
 tactic take(tactic const & t, unsigned k);
 /** \brief Syntax sugar for take(t, 1) */
 inline tactic determ(tactic const & t) { return take(t, 1); }
-typedef std::function<bool(environment const & env, io_state const & ios, proof_state const & s)> proof_state_pred;
+typedef std::function<bool(environment const & env, io_state const & ios, proof_state const & s)> proof_state_pred; // NOLINT
 /**
     \brief Return a tactic that applies the predicate \c p to the input state.
     If \c p returns true, then applies \c t1. Otherwise, applies \c t2.

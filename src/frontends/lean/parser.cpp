@@ -549,6 +549,10 @@ expr parser::elaborate(expr const & e) {
     return ::lean::elaborate(m_env, m_ios, e);
 }
 
+expr parser::elaborate(environment const & env, expr const & e) {
+    return ::lean::elaborate(env, m_ios, e);
+}
+
 std::pair<expr, expr> parser::elaborate(name const & n, expr const & t, expr const & v) {
     return ::lean::elaborate(m_env, m_ios, n, t, v);
 }

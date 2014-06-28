@@ -1,6 +1,6 @@
 inductive tree (A : Type) : Type :=
 | node : A → forest A → tree A
-with forest {A : Type} : Type :=
+with forest (A : Type) : Type :=
 | nil  : forest A
 | cons : tree A → forest A → forest A
 
@@ -17,5 +17,3 @@ inductive group : Type :=
 check group.{1}
 check group.{2}
 check group_rec.{1 1}
-
-

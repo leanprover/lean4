@@ -81,6 +81,8 @@ public:
     type_checker(environment const & env);
     ~type_checker();
 
+    environment const & env() const { return m_env; }
+
     /**
        \brief Return the type of \c t.
 

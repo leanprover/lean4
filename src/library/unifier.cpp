@@ -139,7 +139,7 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, expr 
 }
 
 // Return true if m occurs in e
-bool occurs(level const & m, level const & e) {
+bool occurs_meta(level const & m, level const & e) {
     lean_assert(is_meta(m));
     bool contains = false;
     for_each(e, [&](level const & l) {
@@ -156,7 +156,7 @@ bool occurs(level const & m, level const & e) {
 
 std::pair<unify_status, substitution> unify_simple_core(substitution const & s, level const & lhs, level const & rhs, justification const & j) {
     lean_assert(is_meta(lhs));
-    bool contains = occurs(lhs, rhs);
+    bool contains = occurs_meta(lhs, rhs);
     if (contains) {
         if (is_succ(rhs))
             return mk_pair(unify_status::Failed, s);
@@ -620,7 +620,7 @@ struct unifier_fn {
     status process_metavar_eq(level const & lhs, level const & rhs, justification const & j) {
         if (!is_meta(lhs))
             return Continue;
-        bool contains = occurs(lhs, rhs);
+        bool contains = occurs_meta(lhs, rhs);
         if (contains) {
             if (is_succ(rhs))
                 return Failed;

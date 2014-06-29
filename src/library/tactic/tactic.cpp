@@ -56,7 +56,7 @@ tactic now_tactic() {
         });
 }
 
-tactic cond(proof_state_pred const & p, tactic const & t1, tactic const & t2) {
+tactic cond(proof_state_pred p, tactic const & t1, tactic const & t2) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
             return mk_proof_state_seq([=]() {
                     if (p(env, ios, s)) {

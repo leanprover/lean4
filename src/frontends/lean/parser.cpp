@@ -961,17 +961,23 @@ tactic parser::parse_tactic(unsigned /* rbp */) {
         auto r = parse_tactic();
         check_token_next(g_rparen, "invalid tactic, ')' expected");
         return r;
-    } else if (curr_is_identifier()) {
-        auto p  = pos();
-        name id = get_name_val();
-        next();
+    } else {
+        name id;
+        auto p = pos();
+        if (curr_is_identifier()) {
+            id = get_name_val();
+            next();
+        } else if (curr_is_keyword()) {
+            id = get_token_info().value();
+            next();
+        } else {
+            throw parser_error("invalid tactic, '(' or tactic command expected", p);
+        }
         if (auto it = tactic_cmds().find(id)) {
             return it->get_fn()(*this);
         } else {
-            throw parser_error(sstream() << "unknown tactic '" << id << "'", p);
+            throw parser_error(sstream() << "unknown tactic command '" << id << "'", p);
         }
-    } else {
-        throw parser_error("invalid tactic, '(' or tactic name expected", pos());
     }
 }
 

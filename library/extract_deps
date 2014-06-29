@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+for LEANFILE in $@; do
+    OLEANFILE=${LEANFILE//.lean/.olean}
+    DEPS=`$LEAN --deps $LEANFILE | cut -d ' ' -f 2- | tr "\n" " "`
+    echo -n "$OLEANFILE:"
+    for DEP in $DEPS; do
+        echo -n " ${DEP}"
+    done
+    echo ""
+done

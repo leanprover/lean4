@@ -270,3 +270,10 @@ file(GLOB_RECURSE LEAN_SOURCES
          ${LEAN_SOURCE_DIR}/[A-Za-z]*.h)
 add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})
+
+add_custom_target(
+   standard_lib ALL
+   COMMAND make LEAN=${CMAKE_BINARY_DIR}/shell/lean
+   DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
+   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library/standard
+)

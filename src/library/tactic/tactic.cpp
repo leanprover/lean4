@@ -86,7 +86,7 @@ tactic trace_tactic(char const * msg) {
 
 tactic trace_state_tactic() {
     return tactic1([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state {
-            diagnostic(env, ios) << s;
+            diagnostic(env, ios) << s << endl;
             ios.get_diagnostic_channel().get_stream().flush();
             return s;
         });

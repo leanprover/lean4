@@ -17,6 +17,14 @@ tactic parse_id_tactic(parser &) { return id_tactic(); }
 tactic parse_now_tactic(parser &) { return now_tactic(); }
 tactic parse_show_tactic(parser &) { return trace_state_tactic(); }
 tactic parse_assumption_tactic(parser &) { return assumption_tactic(); }
+tactic parse_unfold_tactic(parser & p) {
+    auto pos = p.pos();
+    expr id  = p.parse_expr();
+    if (!is_constant(id))
+        throw parser_error("invalid 'unfold' tactic, constant expected", pos);
+    return unfold_tactic(const_name(id));
+}
+
 tactic parse_echo_tactic(parser & p) {
     if (!p.curr_is_string())
         throw parser_error("invalid 'echo' tactic, string expected", p.pos());
@@ -60,6 +68,7 @@ tactic_cmd_table get_builtin_tactic_cmds() {
     add_tactic(t, tactic_cmd_info("show", "show goals tactic", parse_show_tactic));
     add_tactic(t, tactic_cmd_info("now",  "succeeds only if all goals have been solved", parse_now_tactic));
     add_tactic(t, tactic_cmd_info("echo", "trace tactic: display message", parse_echo_tactic));
+    add_tactic(t, tactic_cmd_info("unfold", "unfold definition", parse_unfold_tactic));
     add_tactic(t, tactic_cmd_info("id", "do nothing tactic", parse_id_tactic));
     add_tactic(t, tactic_cmd_info("assumption", "solve goal if there is an assumption that is identical to the conclusion",
                                   parse_assumption_tactic));

@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
+#include "kernel/for_each_fn.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/error_msgs.h"
 #include "kernel/expr_maps.h"
@@ -21,6 +22,8 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/explicit.h"
 #include "library/unifier.h"
+#include "library/tactic/tactic.h"
+#include "library/error_handling/error_handling.h"
 #include "frontends/lean/parameter.h"
 #include "frontends/lean/hint_table.h"
 
@@ -29,16 +32,17 @@ class elaborator {
     typedef list<parameter> context;
     typedef std::vector<constraint> constraints;
 
-    environment    m_env;
-    io_state       m_ios;
-    unifier_plugin m_plugin;
-    name_generator m_ngen;
-    hint_table     m_hints;
-    type_checker   m_tc;
-    substitution   m_subst;
-    context        m_ctx;
-    justification  m_accumulated; // accumulate justification of eagerly used substitutions
-    constraints    m_constraints;
+    environment         m_env;
+    io_state            m_ios;
+    unifier_plugin      m_plugin;
+    name_generator      m_ngen;
+    hint_table          m_hints;
+    type_checker        m_tc;
+    substitution        m_subst;
+    context             m_ctx;
+    pos_info_provider * m_pos_provider;
+    justification       m_accumulated; // accumulate justification of eagerly used substitutions
+    constraints         m_constraints;
 
     /**
         \brief Auxiliary object for creating backtracking points.
@@ -112,11 +116,11 @@ class elaborator {
 
 public:
     elaborator(environment const & env, io_state const & ios, name_generator const & ngen,
-               hint_table const & htable, substitution const & s = substitution(), context const & ctx = context()):
+               hint_table const & htable, substitution const & s, context const & ctx, pos_info_provider * pp):
         m_env(env), m_ios(ios),
         m_plugin([](constraint const &, name_generator const &) { return lazy_list<list<constraint>>(); }),
         m_ngen(ngen), m_hints(htable), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, optional<module_idx>(0))),
-        m_subst(s), m_ctx(ctx) {
+        m_subst(s), m_ctx(ctx), m_pos_provider(pp) {
     }
 
     expr mk_local(name const & n, expr const & t) {
@@ -579,12 +583,64 @@ public:
                      true, get_unifier_max_steps(m_ios.get_options()));
     }
 
+    void collect_metavars(expr const & e, buffer<expr> & mvars) {
+        for_each(e, [&](expr const & e, unsigned) {
+                if (is_metavar(e)) { mvars.push_back(e); return false; /* do not visit its type */ }
+                return has_metavar(e);
+            });
+    }
+
+    optional<tactic> get_tactic_for(expr const & mvar) {
+        auto it = m_hints.find(mvar.get_tag());
+        if (it) {
+            return optional<tactic>(*it);
+        } else {
+            // TODO(Leo): m_env tactic hints
+            return optional<tactic>();
+        }
+    }
+
+    void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg) {
+        regular out(m_env, m_ios);
+        display_error_pos(out, m_pos_provider, mvar);
+        out << " unsolved placeholder, " << msg << "\n" << ps << "\n";
+    }
+
+    expr solve_unassigned_mvars(substitution & subst, expr const & e) {
+        buffer<expr> mvars;
+        collect_metavars(e, mvars);
+        for (auto mvar : mvars) {
+            mvar = update_mlocal(mvar, subst.instantiate_metavars_wo_jst(mlocal_type(mvar)));
+            proof_state ps = to_proof_state(m_env, mvar, m_ngen.mk_child(), m_ios.get_options());
+            if (optional<tactic> t = get_tactic_for(mvar)) {
+                proof_state_seq seq = (*t)(m_env, m_ios, ps);
+                if (auto r = seq.pull()) {
+                    if (auto pr = to_proof(r->first)) {
+                        subst = subst.assign(mlocal_name(mvar), *pr, justification());
+                    } else {
+                        display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+                    }
+                } else {
+                    // tactic failed to produce any result
+                    display_unsolved_proof_state(mvar, ps, "tactic failed");
+                }
+            }
+        }
+        return subst.instantiate_metavars_wo_jst(e);
+    }
+
+    /** \brief Apply substitution and solve remaining metavariables using tactics. */
+    expr apply(substitution & s, expr const & e) {
+        expr r = s.instantiate_metavars_wo_jst(e);
+        return solve_unassigned_mvars(s, r);
+    }
+
     expr operator()(expr const & e) {
         expr r  = visit(e);
         auto p  = solve().pull();
         lean_assert(p);
         substitution s = p->first;
-        return s.instantiate_metavars_wo_jst(r);
+        return apply(s, r);
     }
 
     std::pair<expr, expr> operator()(expr const & t, expr const & v, name const & n) {
@@ -606,24 +662,23 @@ public:
         auto p  = solve().pull();
         lean_assert(p);
         substitution s = p->first;
-        return mk_pair(s.instantiate_metavars_wo_jst(r_t),
-                       s.instantiate_metavars_wo_jst(r_v));
+        return mk_pair(apply(s, r_t), apply(s, r_v));
     }
 };
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
 expr elaborate(environment const & env, io_state const & ios, expr const & e, name_generator const & ngen,
-               hint_table const & htable, substitution const & s, list<parameter> const & ctx) {
-    return elaborator(env, ios, ngen, htable, s, ctx)(e);
+               hint_table const & htable, substitution const & s, list<parameter> const & ctx, pos_info_provider * pp) {
+    return elaborator(env, ios, ngen, htable, s, ctx, pp)(e);
 }
 
-expr elaborate(environment const & env, io_state const & ios, expr const & e, hint_table const & htable) {
-    return elaborate(env, ios, e, name_generator(g_tmp_prefix), htable, substitution(), list<parameter>());
+expr elaborate(environment const & env, io_state const & ios, expr const & e, hint_table const & htable, pos_info_provider * pp) {
+    return elaborate(env, ios, e, name_generator(g_tmp_prefix), htable, substitution(), list<parameter>(), pp);
 }
 
 std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v,
-                                hint_table const & htable) {
-    return elaborator(env, ios, name_generator(g_tmp_prefix), htable)(t, v, n);
+                                hint_table const & htable, pos_info_provider * pp) {
+    return elaborator(env, ios, name_generator(g_tmp_prefix), htable, substitution(), list<parameter>(), pp)(t, v, n);
 }
 }

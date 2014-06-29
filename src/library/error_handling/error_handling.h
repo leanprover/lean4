@@ -11,6 +11,11 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
+   \brief Display position information associated with \c e (IF avaiable).
+   If it is not available, it just displays "error:"
+*/
+void display_error_pos(io_state_stream const & ios, pos_info_provider const * p, expr const & e);
+/**
    \brief Display exception in the regular stream of \c ios, using the configuration options and formatter from \c ios.
    Exceptions that contain expressions use the given \c pos_info_provider (if available) to retrieve line number information.
 */

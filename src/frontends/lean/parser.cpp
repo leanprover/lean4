@@ -546,15 +546,18 @@ expr parser::mk_Type() {
 }
 
 expr parser::elaborate(expr const & e) {
-    return ::lean::elaborate(m_env, m_ios, e, m_hints);
+    parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
+    return ::lean::elaborate(m_env, m_ios, e, m_hints, &pp);
 }
 
 expr parser::elaborate(environment const & env, expr const & e) {
-    return ::lean::elaborate(env, m_ios, e, m_hints);
+    parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
+    return ::lean::elaborate(env, m_ios, e, m_hints, &pp);
 }
 
 std::pair<expr, expr> parser::elaborate(name const & n, expr const & t, expr const & v) {
-    return ::lean::elaborate(m_env, m_ios, n, t, v, m_hints);
+    parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
+    return ::lean::elaborate(m_env, m_ios, n, t, v, m_hints, &pp);
 }
 
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */

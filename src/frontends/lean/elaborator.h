@@ -14,8 +14,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr elaborate(environment const & env, io_state const & ios, expr const & e, name_generator const & ngen,
-               hint_table const & htable = hint_table(), substitution const & s = substitution(), list<parameter> const & ctx = list<parameter>());
-expr elaborate(environment const & env, io_state const & ios, expr const & e, hint_table const & htable = hint_table());
+               hint_table const & htable = hint_table(), substitution const & s = substitution(),
+               list<parameter> const & ctx = list<parameter>(), pos_info_provider * pp = nullptr);
+expr elaborate(environment const & env, io_state const & ios, expr const & e, hint_table const & htable = hint_table(),
+               pos_info_provider * pp = nullptr);
 std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v,
-                                hint_table const & htable = hint_table());
+                                hint_table const & htable = hint_table(), pos_info_provider * pp = nullptr);
 }

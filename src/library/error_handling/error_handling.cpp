@@ -151,4 +151,3 @@ void display_error(io_state_stream const & ios, pos_info_provider const * p, exc
     }
 }
 }
-

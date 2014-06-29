@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Script for testing if Lean can parse the output produced by its
 # pretty printer
 if [ $# -ne 2 ]; then

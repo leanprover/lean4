@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 if [ $# -ne 1 ]; then
     echo "Usage: test.sh [lean-executable-path]"
     exit 1

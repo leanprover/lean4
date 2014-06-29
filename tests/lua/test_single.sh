@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 if [ $# -ne 2 ]; then
-    echo "Usage: test.sh [lean-executable-path] [file]"
+    echo "Usage: test_single.sh [lean-executable-path] [file]"
     exit 1
 fi
 ulimit -s unlimited

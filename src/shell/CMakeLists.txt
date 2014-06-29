@@ -46,7 +46,7 @@ FOREACH(T ${LEANRUNTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanruntest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
-           COMMAND "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
 # LEAN INTERACTIVE TESTS

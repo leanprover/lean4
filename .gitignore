@@ -16,3 +16,4 @@ CMakeFiles/
 .projectile
 .coveralls.yml
 doc/html
+make.deps

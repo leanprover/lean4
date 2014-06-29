@@ -646,8 +646,8 @@ static int expr_instantiate(lua_State * L) {
     }
 }
 
-static int expr_instantiate_level_params(lua_State * L) {
-    return push_expr(L, instantiate_params(to_expr(L, 1), to_level_param_names(L, 2), to_list_level_ext(L, 3)));
+static int expr_instantiate_univ_params(lua_State * L) {
+    return push_expr(L, instantiate_univ_params(to_expr(L, 1), to_level_param_names(L, 2), to_list_level_ext(L, 3)));
 }
 
 static int expr_abstract(lua_State * L) {
@@ -732,7 +732,7 @@ static const struct luaL_Reg expr_m[] = {
     {"lift_free_vars",   safe_function<expr_lift_free_vars>},
     {"lower_free_vars",  safe_function<expr_lower_free_vars>},
     {"instantiate",      safe_function<expr_instantiate>},
-    {"instantiate_levels", safe_function<expr_instantiate_level_params>},
+    {"instantiate_univs", safe_function<expr_instantiate_univ_params>},
     {"abstract",         safe_function<expr_abstract>},
     {"occurs",           safe_function<expr_occurs>},
     {"is_eqp",           safe_function<expr_is_eqp>},

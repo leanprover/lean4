@@ -31,5 +31,5 @@ expr beta_reduce(expr t);
 
     \pre length(ps) == length(ls)
 */
-expr instantiate_params(expr const & e, level_param_names const & ps, levels const & ls);
+expr instantiate_univ_params(expr const & e, level_param_names const & ps, levels const & ls);
 }

@@ -260,7 +260,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
             for (level const & l : ls)
                 check_level(l, e);
         }
-        r = instantiate_params(d.get_type(), ps, ls);
+        r = instantiate_univ_params(d.get_type(), ps, ls);
         break;
     }
     case expr_kind::Macro: {

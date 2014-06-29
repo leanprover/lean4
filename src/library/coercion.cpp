@@ -177,12 +177,12 @@ struct add_coercion_fn {
         if (length(const_levels(D_cnst)) != length(g_level_params))
             return;
         // C >-> D >-> E
-        g  = instantiate_params(g, g_level_params, const_levels(D_cnst));
+        g  = instantiate_univ_params(g, g_level_params, const_levels(D_cnst));
         expr gf = apply_beta(g, gf_args.size(), gf_args.data());
         expr gf_type = g_type;
         while (is_pi(gf_type))
             gf_type = binding_body(gf_type);
-        gf_type = instantiate(instantiate_params(gf_type, g_level_params, const_levels(D_cnst)), gf_args.size(), gf_args.data());
+        gf_type = instantiate(instantiate_univ_params(gf_type, g_level_params, const_levels(D_cnst)), gf_args.size(), gf_args.data());
         unsigned i = f_arg_types.size();
         while (i > 0) {
             --i;
@@ -380,7 +380,7 @@ optional<expr> get_coercion(environment const & env, expr const & C, coercion_cl
         return none_expr();
     for (coercion_info const & info : *it) {
         if (info.m_to == D && info.m_num_args == args.size() && length(info.m_level_params) == length(const_levels(C_fn))) {
-            expr f = instantiate_params(info.m_fun, info.m_level_params, const_levels(C_fn));
+            expr f = instantiate_univ_params(info.m_fun, info.m_level_params, const_levels(C_fn));
             return some_expr(apply_beta(f, args.size(), args.data()));
         }
     }
@@ -413,9 +413,9 @@ bool get_user_coercions(environment const & env, expr const & C, buffer<std::tup
         if (info.m_to.kind() == coercion_class_kind::User &&
             info.m_num_args == args.size() &&
             length(info.m_level_params) == length(const_levels(C_fn))) {
-            expr f = instantiate_params(info.m_fun, info.m_level_params, const_levels(C_fn));
+            expr f = instantiate_univ_params(info.m_fun, info.m_level_params, const_levels(C_fn));
             expr c = apply_beta(f, args.size(), args.data());
-            expr t = instantiate_params(info.m_fun_type, info.m_level_params, const_levels(C_fn));
+            expr t = instantiate_univ_params(info.m_fun_type, info.m_level_params, const_levels(C_fn));
             for (unsigned i = 0; i < args.size(); i++) t = binding_body(t);
             t = instantiate(t, args.size(), args.data());
             result.emplace_back(info.m_to.get_name(), c, t);

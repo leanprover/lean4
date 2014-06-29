@@ -328,7 +328,7 @@ protected:
     virtual expr visit_constant(expr const & c) {
         if (const_name(c) == m_name) {
             m_unfolded = true;
-            return instantiate_params(m_def, m_ps, const_levels(c));
+            return instantiate_univ_params(m_def, m_ps, const_levels(c));
         } else {
             return c;
         }
@@ -346,7 +346,7 @@ protected:
         optional<declaration> d = m_env.find(const_name(c));
         if (d && d->is_definition() && (!d->is_opaque() || d->get_module_idx() == 0)) {
             m_unfolded = true;
-            return instantiate_params(d->get_value(), d->get_univ_params(), const_levels(c));
+            return instantiate_univ_params(d->get_value(), d->get_univ_params(), const_levels(c));
         } else {
             return c;
         }

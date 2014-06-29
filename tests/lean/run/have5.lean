@@ -4,8 +4,8 @@ axiom Ha : a
 axiom Hb : b
 axiom Hc : c
 print raw
-  have H1 : a, by skip,
-  then have H2 : b, by skip,
-  have H3 : c, by skip,
-  then have H4 : d, by skip,
+  have H1 : a, by id,
+  then have H2 : b, by id,
+  have H3 : c, by id,
+  then have H4 : d, by id,
   H4

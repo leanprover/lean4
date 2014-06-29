@@ -80,7 +80,7 @@ proof_state to_proof_state(environment const & env, expr const & mvar, options c
 /** \brief Try to extract a proof from the given proof state */
 optional<expr> to_proof(proof_state const & s);
 
-goals map_goals(proof_state const & s, std::function<optional<goal>(name const & gn, goal const & g)> const & f);
+goals map_goals(proof_state const & s, std::function<optional<goal>(name const & gn, goal const & g)> f);
 io_state_stream const & operator<<(io_state_stream const & out, proof_state const & s);
 
 UDATA_DEFS_CORE(goals)

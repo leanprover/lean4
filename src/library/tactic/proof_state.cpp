@@ -69,7 +69,7 @@ format proof_state::pp(environment const & env, formatter const & fmt, options c
     return r;
 }
 
-goals map_goals(proof_state const & s, std::function<optional<goal>(name const & gn, goal const & g)> const & f) {
+goals map_goals(proof_state const & s, std::function<optional<goal>(name const & gn, goal const & g)> f) {
     return map_filter(s.get_goals(), [=](std::pair<name, goal> const & in, std::pair<name, goal> & out) -> bool {
             check_interrupted();
             optional<goal> new_goal = f(in.first, in.second);

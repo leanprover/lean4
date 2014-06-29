@@ -24,8 +24,8 @@ inline optional<tactic> some_tactic(tactic && t) { return optional<tactic>(std::
 
 template<typename F> inline proof_state_seq mk_proof_state_seq(F && f) { return mk_lazy_list<proof_state>(std::forward<F>(f)); }
 
-tactic tactic01(std::function<optional<proof_state>(environment const &, io_state const & ios, proof_state const &)> const & f);
-tactic tactic1(std::function<proof_state(environment const &, io_state const & ios, proof_state const &)> const & f);
+tactic tactic01(std::function<optional<proof_state>(environment const &, io_state const & ios, proof_state const &)> f);
+tactic tactic1(std::function<proof_state(environment const &, io_state const & ios, proof_state const &)> f);
 
 /** \brief Return a "do nothing" tactic (aka skip). */
 tactic id_tactic();
@@ -115,9 +115,9 @@ typedef std::function<bool(environment const & env, io_state const & ios, proof_
     \brief Return a tactic that applies the predicate \c p to the input state.
     If \c p returns true, then applies \c t1. Otherwise, applies \c t2.
 */
-tactic cond(proof_state_pred const & p, tactic const & t1, tactic const & t2);
+tactic cond(proof_state_pred p, tactic const & t1, tactic const & t2);
 /** \brief Syntax-sugar for cond(p, t, id_tactic()) */
-inline tactic when(proof_state_pred const & p, tactic const & t) { return cond(p, t, id_tactic()); }
+inline tactic when(proof_state_pred p, tactic const & t) { return cond(p, t, id_tactic()); }
 /**
    \brief Return a tactic that applies \c t only to the goal named \c gname.
    The tactic fails if the input state does not have a goal named \c gname.

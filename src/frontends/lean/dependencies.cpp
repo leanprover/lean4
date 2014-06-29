@@ -22,11 +22,11 @@ bool consume_until_import(environment const & env, scanner & s) {
     while (true) {
         try {
             t = s.scan(env);
+            if (t == scanner::token_kind::Eof)
+                return false;
+            if (t == scanner::token_kind::CommandKeyword && s.get_token_info().value() == import)
+                return true;
         } catch (...) {}
-        if (t == scanner::token_kind::Eof)
-            return false;
-        if (t == scanner::token_kind::CommandKeyword && s.get_token_info().value() == import)
-            return true;
     }
 }
 

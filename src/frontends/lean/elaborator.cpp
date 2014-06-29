@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/unifier.h"
 #include "frontends/lean/parameter.h"
+#include "frontends/lean/hint_table.h"
 
 namespace lean {
 class elaborator {
@@ -32,6 +33,7 @@ class elaborator {
     io_state       m_ios;
     unifier_plugin m_plugin;
     name_generator m_ngen;
+    hint_table     m_hints;
     type_checker   m_tc;
     substitution   m_subst;
     context        m_ctx;
@@ -110,10 +112,10 @@ class elaborator {
 
 public:
     elaborator(environment const & env, io_state const & ios, name_generator const & ngen,
-               substitution const & s = substitution(), context const & ctx = context()):
+               hint_table const & htable, substitution const & s = substitution(), context const & ctx = context()):
         m_env(env), m_ios(ios),
         m_plugin([](constraint const &, name_generator const &) { return lazy_list<list<constraint>>(); }),
-        m_ngen(ngen), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, optional<module_idx>(0))),
+        m_ngen(ngen), m_hints(htable), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, optional<module_idx>(0))),
         m_subst(s), m_ctx(ctx) {
     }
 
@@ -612,15 +614,16 @@ public:
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
 expr elaborate(environment const & env, io_state const & ios, expr const & e, name_generator const & ngen,
-               substitution const & s, list<parameter> const & ctx) {
-    return elaborator(env, ios, ngen, s, ctx)(e);
+               hint_table const & htable, substitution const & s, list<parameter> const & ctx) {
+    return elaborator(env, ios, ngen, htable, s, ctx)(e);
 }
 
-expr elaborate(environment const & env, io_state const & ios, expr const & e) {
-    return elaborate(env, ios, e, name_generator(g_tmp_prefix), substitution(), list<parameter>());
+expr elaborate(environment const & env, io_state const & ios, expr const & e, hint_table const & htable) {
+    return elaborate(env, ios, e, name_generator(g_tmp_prefix), htable, substitution(), list<parameter>());
 }
 
-std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v) {
-    return elaborator(env, ios, name_generator(g_tmp_prefix))(t, v, n);
+std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v,
+                                hint_table const & htable) {
+    return elaborator(env, ios, name_generator(g_tmp_prefix), htable)(t, v, n);
 }
 }

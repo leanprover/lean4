@@ -10,10 +10,12 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/metavar.h"
 #include "library/io_state.h"
+#include "frontends/lean/hint_table.h"
 
 namespace lean {
 expr elaborate(environment const & env, io_state const & ios, expr const & e, name_generator const & ngen,
-               substitution const & s = substitution(), list<parameter> const & ctx = list<parameter>());
-expr elaborate(environment const & env, io_state const & ios, expr const & e);
-std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v);
+               hint_table const & htable = hint_table(), substitution const & s = substitution(), list<parameter> const & ctx = list<parameter>());
+expr elaborate(environment const & env, io_state const & ios, expr const & e, hint_table const & htable = hint_table());
+std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v,
+                                hint_table const & htable = hint_table());
 }

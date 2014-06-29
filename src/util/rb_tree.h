@@ -367,4 +367,11 @@ template<typename T, typename CMP>
 rb_tree<T, CMP> insert(rb_tree<T, CMP> const & t, T const & v) { rb_tree<T, CMP> r(t); r.insert(v); return r; }
 template<typename T, typename CMP>
 rb_tree<T, CMP> erase(rb_tree<T, CMP> const & t, T const & v) { rb_tree<T, CMP> r(t); r.erase(v); return r; }
+
+struct unsigned_cmp {
+    int operator()(unsigned i1, unsigned i2) const { return i1 < i2 ? -1 : (i1 == i2 ? 0 : 1); }
+};
+struct int_cmp {
+    int operator()(int i1, int i2) const { return i1 < i2 ? -1 : (i1 == i2 ? 0 : 1); }
+};
 }

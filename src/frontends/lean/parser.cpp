@@ -546,15 +546,15 @@ expr parser::mk_Type() {
 }
 
 expr parser::elaborate(expr const & e) {
-    return ::lean::elaborate(m_env, m_ios, e);
+    return ::lean::elaborate(m_env, m_ios, e, m_hints);
 }
 
 expr parser::elaborate(environment const & env, expr const & e) {
-    return ::lean::elaborate(env, m_ios, e);
+    return ::lean::elaborate(env, m_ios, e, m_hints);
 }
 
 std::pair<expr, expr> parser::elaborate(name const & n, expr const & t, expr const & v) {
-    return ::lean::elaborate(m_env, m_ios, n, t, v);
+    return ::lean::elaborate(m_env, m_ios, n, t, v, m_hints);
 }
 
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */
@@ -973,7 +973,7 @@ tactic parser::parse_tactic(unsigned /* rbp */) {
 }
 
 void parser::save_hint(expr const & e, tactic const & t) {
-    m_hints.insert(mk_pair(get_tag(e), t));
+    m_hints.insert(get_tag(e), t);
 }
 
 void parser::parse_command() {

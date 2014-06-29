@@ -200,9 +200,6 @@ struct unifier_fn {
     struct cnstr_cmp {
         int operator()(cnstr const & c1, cnstr const & c2) const { return c1.second < c2.second ? -1 : (c1.second == c2.second ? 0 : 1); }
     };
-    struct unsigned_cmp {
-        int operator()(unsigned i1, unsigned i2) const { return i1 < i2 ? -1 : (i1 == i2 ? 0 : 1); }
-    };
     typedef rb_tree<cnstr, cnstr_cmp> cnstr_set;
     typedef rb_tree<unsigned, unsigned_cmp> cnstr_idx_set;
     typedef rb_map<name, cnstr_idx_set, name_quick_cmp> name_to_cnstrs;

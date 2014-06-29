@@ -10,9 +10,6 @@ Author: Leonardo de Moura
 #include "util/rb_map.h"
 #include "util/name.h"
 using namespace lean;
-
-struct int_cmp { int operator()(int i1, int i2) const { return i1 < i2 ? -1 : (i1 > i2 ? 1 : 0); } };
-
 typedef rb_map<int, name, int_cmp> int2name;
 
 static void tst0() {

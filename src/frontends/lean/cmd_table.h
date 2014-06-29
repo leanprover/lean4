@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 #include <string>
 #include <functional>
 #include "kernel/environment.h"
+#include "library/tactic/tactic.h"
 
 namespace lean {
-class tactic {};  // TODO(Leo): remove after tactic framework is ported to Lean 0.2
 class parser;
 
 typedef std::function<environment(parser&)> command_fn;

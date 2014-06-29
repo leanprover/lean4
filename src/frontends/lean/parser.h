@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parameter.h"
+#include "frontends/lean/hint_table.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/parser_config.h"
@@ -39,7 +40,6 @@ struct interrupt_parser {};
 typedef local_decls<parameter> local_expr_decls;
 typedef local_decls<level>     local_level_decls;
 typedef environment            local_environment;
-typedef std::unordered_map<unsigned, tactic> hint_table;
 
 class parser {
     environment             m_env;

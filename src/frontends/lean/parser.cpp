@@ -1016,27 +1016,28 @@ static std::string g_lua_module_key("lua_module");
 static void lua_module_reader(deserializer & d, module_idx, shared_environment &,
                               std::function<void(asynch_update_fn const &)> &,
                               std::function<void(delayed_update_fn const &)> & add_delayed_update) {
-    std::string fname;
+    name fname;
     d >> fname;
     add_delayed_update([=](environment const & env, io_state const &) -> environment {
-            system_import(fname.c_str());
+            std::string rname = find_file(fname, {".lua"});
+            system_import(rname.c_str());
             return env;
         });
 }
 register_module_object_reader_fn g_lua_module_reader(g_lua_module_key, lua_module_reader);
 
 void parser::parse_imports() {
-    buffer<std::string> olean_files;
-    buffer<std::string> lua_files;
+    buffer<name> olean_files;
+    buffer<name> lua_files;
     while (curr_is_token(g_import)) {
         m_last_cmd_pos = pos();
         next();
         while (curr_is_identifier()) {
             name f            = get_name_val();
             if (auto it = find_file(f, ".lua")) {
-                lua_files.push_back(*it);
+                lua_files.push_back(f);
             } else if (auto it = find_file(f, ".olean")) {
-                olean_files.push_back(*it);
+                olean_files.push_back(f);
             } else {
                 throw parser_error(sstream() << "invalid import, unknow module '" << f << "'", pos());
             }
@@ -1045,7 +1046,8 @@ void parser::parse_imports() {
     }
     m_env = import_modules(m_env, olean_files.size(), olean_files.data(), m_num_threads, true, m_ios);
     for (auto const & f : lua_files) {
-        system_import(f.c_str());
+        std::string rname = find_file(f, {".lua"});
+        system_import(rname.c_str());
         m_env = module::add(m_env, g_lua_module_key, [=](serializer & s) {
                 s << f;
             });

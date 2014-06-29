@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/buffer.h"
 #include "util/interrupt.h"
+#include "util/name_map.h"
 #include "kernel/type_checker.h"
 #include "library/module.h"
 #include "library/kernel_serializer.h"
@@ -30,8 +31,8 @@ namespace lean {
 typedef std::pair<std::string, std::function<void(serializer &)>> writer;
 
 struct module_ext : public environment_extension {
-    list<std::string> m_direct_imports;
-    list<writer>      m_writers;
+    list<name>   m_direct_imports;
+    list<writer> m_writers;
 };
 
 struct module_ext_reg {
@@ -52,7 +53,7 @@ static char const * g_olean_header   = "oleanfile";
 
 void export_module(std::ostream & out, environment const & env) {
     module_ext const & ext = get_extension(env);
-    buffer<std::string> imports;
+    buffer<name> imports;
     buffer<writer const *> writers;
     to_buffer(ext.m_direct_imports, imports);
     std::reverse(imports.begin(), imports.end());
@@ -169,7 +170,7 @@ struct import_modules_fn {
     atomic<bool>                   m_all_modules_imported;
 
     struct module_info {
-        std::string                               m_name;
+        name                                      m_name;
         std::string                               m_fname;
         atomic<unsigned>                          m_counter; // number of dependencies to be processed
         unsigned                                  m_module_idx;
@@ -178,7 +179,7 @@ struct import_modules_fn {
         module_info():m_counter(0), m_module_idx(0) {}
     };
     typedef std::shared_ptr<module_info> module_info_ptr;
-    std::unordered_map<std::string, module_info_ptr> m_module_info;
+    name_map<module_info_ptr> m_module_info;
 
     import_modules_fn(environment const & env, unsigned num_threads, bool keep_proofs, io_state const & ios):
         m_senv(env), m_num_threads(num_threads), m_keep_proofs(keep_proofs), m_ios(ios),
@@ -195,10 +196,10 @@ struct import_modules_fn {
         }
     }
 
-    module_info_ptr load_module_file(std::string const & mname) {
+    module_info_ptr load_module_file(name const & mname) {
         auto it = m_module_info.find(mname);
-        if (it != m_module_info.end())
-            return it->second;
+        if (it)
+            return *it;
         std::string fname = find_file(mname, {".olean"});
         std::ifstream in(fname, std::ifstream::binary);
         if (!in.good())
@@ -213,9 +214,9 @@ struct import_modules_fn {
         // Enforce version?
 
         unsigned num_imports  = d1.read_unsigned();
-        buffer<std::string> imports;
+        buffer<name> imports;
         for (unsigned i = 0; i < num_imports; i++)
-            imports.push_back(d1.read_string());
+            imports.push_back(read_name(d1));
 
         unsigned code_size    = d1.read_unsigned();
         std::vector<char> code(code_size);
@@ -233,7 +234,7 @@ struct import_modules_fn {
         r->m_module_idx   = m_import_counter+1; // importate modules have idx > 0, we reserve idx 0 for new module
         m_import_counter++;
         std::swap(r->m_obj_code, code);
-        m_module_info.insert(mk_pair(mname, r));
+        m_module_info.insert(mname, r);
 
         for (auto i : imports) {
             auto d = load_module_file(i);
@@ -417,16 +418,16 @@ struct import_modules_fn {
         return env;
     }
 
-    void store_direct_imports(unsigned num_modules, std::string const * modules) {
+    void store_direct_imports(unsigned num_modules, name const * modules) {
         m_senv.update([&](environment const & env) -> environment {
                 module_ext ext = get_extension(env);
                 for (unsigned i = 0; i < num_modules; i++)
-                    ext.m_direct_imports = list<std::string>(modules[i], ext.m_direct_imports);
+                    ext.m_direct_imports = list<name>(modules[i], ext.m_direct_imports);
                 return update(env, ext);
             });
     }
 
-    environment operator()(unsigned num_modules, std::string const * modules) {
+    environment operator()(unsigned num_modules, name const * modules) {
         store_direct_imports(num_modules, modules);
         for (unsigned i = 0; i < num_modules; i++)
             load_module_file(modules[i]);
@@ -435,12 +436,12 @@ struct import_modules_fn {
     }
 };
 
-environment import_modules(environment const & env, unsigned num_modules, std::string const * modules,
+environment import_modules(environment const & env, unsigned num_modules, name const * modules,
                            unsigned num_threads, bool keep_proofs, io_state const & ios) {
     return import_modules_fn(env, num_threads, keep_proofs, ios)(num_modules, modules);
 }
 
-environment import_module(environment const & env, std::string const & module,
+environment import_module(environment const & env, name const & module,
                           unsigned num_threads, bool keep_proofs, io_state const & ios) {
     return import_modules(env, 1, &module, num_threads, keep_proofs, ios);
 }

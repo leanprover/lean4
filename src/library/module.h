@@ -21,9 +21,9 @@ namespace lean {
    If \c keep_proofs is false, then the proof of the imported theorems is discarded after being
    checked. The idea is to save memory.
 */
-environment import_modules(environment const & env, unsigned num_modules, std::string const * modules,
+environment import_modules(environment const & env, unsigned num_modules, name const * modules,
                            unsigned num_threads, bool keep_proofs, io_state const & ios);
-environment import_module(environment const & env, std::string const & module,
+environment import_module(environment const & env, name const & module,
                           unsigned num_threads, bool keep_proofs, io_state const & ios);
 
 /**

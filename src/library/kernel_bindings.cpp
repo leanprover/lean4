@@ -1126,16 +1126,16 @@ static int environment_for_each_universe(lua_State * L) {
     return 0;
 }
 
-static void to_string_buffer(lua_State * L, int i, buffer<std::string> & r) {
-    if (lua_isstring(L, i)) {
-        r.push_back(lua_tostring(L, i));
+static void to_name_buffer(lua_State * L, int i, buffer<name> & r) {
+    if (lua_isstring(L, i) || is_name(L, i)) {
+        r.push_back(to_name_ext(L, i));
     } else {
         luaL_checktype(L, i, LUA_TTABLE);
         lua_pushvalue(L, i);
         int sz = objlen(L, -1);
         for (int i = 1; i <= sz; i++) {
             lua_rawgeti(L, -1, i);
-            r.push_back(lua_tostring(L, -1));
+            r.push_back(to_name_ext(L, -1));
             lua_pop(L, 1);
         }
     }
@@ -1143,8 +1143,8 @@ static void to_string_buffer(lua_State * L, int i, buffer<std::string> & r) {
 
 static int import_modules(environment const & env, lua_State * L, int s) {
     int nargs = lua_gettop(L);
-    buffer<std::string> mnames;
-    to_string_buffer(L, s, mnames);
+    buffer<name> mnames;
+    to_name_buffer(L, s, mnames);
     unsigned num_threads = 1;
     bool     keep_proofs = false;
     if (nargs > s) {

@@ -271,9 +271,12 @@ file(GLOB_RECURSE LEAN_SOURCES
 add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})
 
-add_custom_target(
-   standard_lib ALL
-   COMMAND make LEAN=${CMAKE_BINARY_DIR}/shell/lean
-   DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
-   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library/standard
-)
+if((${CYGWIN} EQUAL "1") OR (NOT (${CMAKE_SYSTEM_NAME} MATCHES "Windows")))
+  # Only build libraries if we are NOT cross compiling
+  add_custom_target(
+    standard_lib ALL
+    COMMAND make LEAN=${CMAKE_BINARY_DIR}/shell/lean
+    DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library/standard
+    )
+endif()

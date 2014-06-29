@@ -302,12 +302,14 @@ protected:
                 if (!modified && new_args[i] != arg)
                     modified = true;
             }
-            if (is_lambda(f))
-                return apply_beta(f, new_args.size(), new_args.data());
-            else if (modified)
-                return mk_app(f, new_args);
-            else
+            if (is_lambda(new_f)) {
+                std::reverse(new_args.begin(), new_args.end());
+                return apply_beta(new_f, new_args.size(), new_args.data());
+            } else if (modified) {
+                return mk_app(new_f, new_args);
+            } else {
                 return e;
+            }
         } else {
             return replace_visitor::visit_app(e);
         }
@@ -319,20 +321,21 @@ public:
 
 class unfold_fn : public unfold_core_fn {
 protected:
-    name const & m_name;
-    expr const & m_def;
+    name const &              m_name;
+    level_param_names const & m_ps;
+    expr const &              m_def;
 
     virtual expr visit_constant(expr const & c) {
         if (const_name(c) == m_name) {
             m_unfolded = true;
-            return m_def;
+            return instantiate_params(m_def, m_ps, const_levels(c));
         } else {
             return c;
         }
     }
 
 public:
-    unfold_fn(name const & n, expr const & d):m_name(n), m_def(d) {}
+    unfold_fn(name const & n, level_param_names const & ps, expr const & d):m_name(n), m_ps(ps), m_def(d) {}
 };
 
 class unfold_all_fn : public unfold_core_fn {
@@ -343,7 +346,7 @@ protected:
         optional<declaration> d = m_env.find(const_name(c));
         if (d && d->is_definition() && (!d->is_opaque() || d->get_module_idx() == 0)) {
             m_unfolded = true;
-            return d->get_value();
+            return instantiate_params(d->get_value(), d->get_univ_params(), const_levels(c));
         } else {
             return c;
         }
@@ -374,7 +377,7 @@ tactic unfold_tactic(name const & n) {
             optional<declaration> d = env.find(n);
             if (!d || !d->is_definition() || (d->is_opaque() && d->get_module_idx() != 0))
                 return none_proof_state(); // tactic failed
-            unfold_fn fn(n, d->get_value());
+            unfold_fn fn(n, d->get_univ_params(), d->get_value());
             return unfold_tactic_core(fn, s);
         });
 }

@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/interactive.h"
+#include "frontends/lean/dependencies.h"
 #include "frontends/lua/register_modules.h"
 #include "version.h"
 #include "githash.h" // NOLINT
@@ -72,6 +73,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --interactive -i  read blocks of commands from the input stream\n";
     std::cout << "  --hott            use Homotopy Type Theory kernel and libraries\n";
     std::cout << "  --threads=num -r  number of threads used to process lean files\n";
+    std::cout << "  --deps            just print dependencies of a Lean input\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
@@ -105,6 +107,7 @@ static struct option g_long_options[] = {
     {"quiet",       no_argument,       0, 'q'},
     {"hott",        no_argument,       0, 'H'},
     {"threads",     required_argument, 0, 'r'},
+    {"deps",        no_argument,       0, 'D'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",      required_argument, 0, 's'},
 #endif
@@ -112,9 +115,9 @@ static struct option g_long_options[] = {
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "Hiqlupgvhr:012c:012s:012t:012o:";
+static char const * g_opt_str = "DHiqlupgvhr:012c:012s:012t:012o:";
 #else
-static char const * g_opt_str = "Hiqlupgvhr:012c:012t:012o:";
+static char const * g_opt_str = "DHiqlupgvhr:012c:012t:012o:";
 #endif
 
 enum class lean_mode { Standard, HoTT };
@@ -126,6 +129,7 @@ int main(int argc, char ** argv) {
     unsigned trust_lvl   = 0;
     bool quiet           = false;
     bool interactive     = false;
+    bool only_deps       = false;
     lean_mode mode       = lean_mode::Standard;
     unsigned num_threads = 1;
     std::string output;
@@ -179,6 +183,9 @@ int main(int argc, char ** argv) {
         case 'q':
             quiet = true;
             break;
+        case 'D':
+            only_deps = true;
+            break;
         default:
             std::cerr << "Unknown command line option\n";
             display_help(std::cerr);
@@ -207,8 +214,11 @@ int main(int argc, char ** argv) {
                 }
             }
             if (k == input_kind::Lean) {
-                if (!parse_commands(env, ios, argv[i], false, num_threads))
+                if (only_deps) {
+                    display_deps(env, std::cout, argv[i]);
+                } else if (!parse_commands(env, ios, argv[i], false, num_threads)) {
                     ok = false;
+                }
             } else if (k == input_kind::Lua) {
                 try {
                     lean::system_import(argv[i]);

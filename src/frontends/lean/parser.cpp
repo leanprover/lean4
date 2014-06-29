@@ -400,6 +400,8 @@ static name g_ldcurly("⦃");
 static name g_rdcurly("⦄");
 static name g_lbracket("[");
 static name g_rbracket("]");
+static name g_bar("|");
+static name g_comma(",");
 static name g_add("+");
 static name g_max("max");
 static name g_imax("imax");
@@ -956,11 +958,37 @@ expr parser::abstract(unsigned num_params, parameter const * ps, expr const & e,
 }
 
 tactic parser::parse_tactic(unsigned /* rbp */) {
-    if (curr_is_token(g_lparen)) {
+    if (curr_is_token(g_lparen) || curr_is_token(g_lbracket)) {
+        bool paren = curr_is_token(g_lparen);
         next();
-        auto r = parse_tactic();
-        check_token_next(g_rparen, "invalid tactic, ')' expected");
-        return r;
+        buffer<tactic> choices;
+        tactic r = parse_tactic();
+        while (true) {
+            if (curr_is_token(g_comma)) {
+                next();
+                r = then(r, parse_tactic());
+            } else if (curr_is_token(g_bar)) {
+                next();
+                choices.push_back(r);
+                r = parse_tactic();
+            } else {
+                break;
+            }
+        }
+        if (paren)
+            check_token_next(g_rparen, "invalid tactic sequence, ')' expected");
+        else
+            check_token_next(g_rbracket, "invalid tactic sequence, ']' expected");
+        if (choices.empty()) {
+            return r;
+        } else {
+            choices.push_back(r);
+            r = choices[0];
+            for (unsigned i = 1; i < choices.size(); i++) {
+                r = orelse(r, choices[i]);
+            }
+            return r;
+        }
     } else {
         name id;
         auto p = pos();

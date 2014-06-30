@@ -39,9 +39,7 @@ bool collect_simple_metas(expr const & e, buffer<expr> & result) {
 
 tactic apply_tactic(expr const & e) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
-            precision prec = s.get_precision();
-            if ((prec != precision::Precise && prec != precision::Over) || empty(s.get_goals())) {
-                // it is pointless to apply this tactic, since it will produce UnderOver
+            if (s.is_final_state()) {
                 return proof_state_seq();
             }
             goals const & gs    = s.get_goals();

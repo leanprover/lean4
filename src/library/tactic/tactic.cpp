@@ -221,8 +221,7 @@ proof_state_seq focus_core(tactic const & t, name const & gname, environment con
     for (auto const & p : s.get_goals()) {
         if (p.first == gname) {
             proof_builder pb = proof_builder([=](proof_map const & m, substitution const &) -> expr { return find(m, gname); });
-            cex_builder cb = mk_cex_builder_for(gname);
-            proof_state new_s(s, goals(p), pb, cb); // new state with singleton goal
+            proof_state new_s(s, goals(p), pb); // new state with singleton goal
             return map(t(env, ios, new_s), [=](proof_state const & s2) {
                     // we have to put back the goals that were not selected
                     list<std::pair<name, name>> renamed_goals;
@@ -254,17 +253,7 @@ proof_state_seq focus_core(tactic const & t, name const & gname, environment con
                             m1.insert(gname, pb2(m2, a));
                             return pb1(m1, a);
                         });
-                    cex_builder cb1 = s.get_cb();
-                    cex_builder cb2 = s2.get_cb();
-                    cex_builder new_cb = cex_builder(
-                        [=](name const & n, optional<counterexample> const & cex, substitution const & a) -> counterexample {
-                            for (auto p : renamed_goals) {
-                                if (p.second == n)
-                                    return cb2(p.first, cex, a);
-                            }
-                            return cb1(n, cex, a);
-                        });
-                    return proof_state(s2, new_gs, new_pb, new_cb);
+                    return proof_state(s2, new_gs, new_pb);
                 });
         }
     }

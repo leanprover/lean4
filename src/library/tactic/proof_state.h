@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 #include "library/tactic/goal.h"
 #include "library/tactic/proof_builder.h"
-#include "library/tactic/cex_builder.h"
 
 namespace lean {
 typedef std::pair<name, goal> named_goal;
@@ -20,47 +19,26 @@ typedef list<named_goal> goals;
 /** \brief Return the name of the i-th goal, return none if i == 0 or i > size(g) */
 optional<name> get_ith_goal_name(goals const & gs, unsigned i);
 
-enum class precision {
-    Precise,
-    Under,   // counter-examples can be trusted
-    Over,    // proofs can be trusted
-    UnderOver // proof_state is garbage: it was produced using under and over approximation steps.
-};
-
-precision mk_union(precision p1, precision p2);
-bool trust_proof(precision p);
-bool trust_cex(precision p);
-
 class proof_state {
-    precision        m_precision;
     goals            m_goals;
     proof_builder    m_proof_builder;
-    cex_builder      m_cex_builder;
     name_generator   m_ngen;
     list<expr>       m_init_locals;
 public:
-    proof_state(precision prec, goals const & gs, proof_builder const & pb, cex_builder const & cb,
-                name_generator const & ngen, list<expr> const & ls = list<expr>()):
-        m_precision(prec), m_goals(gs), m_proof_builder(pb), m_cex_builder(cb), m_ngen(ngen), m_init_locals(ls) {}
-    proof_state(goals const & gs, proof_builder const & pb, cex_builder const & cb,
-                name_generator const & ngen, list<expr> const & ls = list<expr>()):
-        proof_state(precision::Precise, gs, pb, cb, ngen, ls) {}
-    proof_state(proof_state const & s, goals const & gs, proof_builder const & pb, cex_builder const & cb):
-        proof_state(s.m_precision, gs, pb, cb, s.m_ngen, s.m_init_locals) {}
+    proof_state(goals const & gs, proof_builder const & pb, name_generator const & ngen, list<expr> const & ls = list<expr>()):
+        m_goals(gs), m_proof_builder(pb), m_ngen(ngen), m_init_locals(ls) {}
     proof_state(proof_state const & s, goals const & gs, proof_builder const & pb, name_generator const & ngen):
-        proof_state(s.m_precision, gs, pb, s.m_cex_builder, ngen, s.m_init_locals) {}
+        proof_state(gs, pb, ngen, s.m_init_locals) {}
     proof_state(proof_state const & s, goals const & gs, proof_builder const & pb):proof_state(s, gs, pb, s.m_ngen) {}
     proof_state(proof_state const & s, goals const & gs):proof_state(s, gs, s.m_proof_builder) {}
     proof_state(proof_state const & s, name_generator const & ngen):
-        proof_state(s.m_precision, s.m_goals, s.m_proof_builder, s.m_cex_builder, ngen, s.m_init_locals) {}
-    precision get_precision() const { return m_precision; }
+        proof_state(s.m_goals, s.m_proof_builder, ngen, s.m_init_locals) {}
     goals const & get_goals() const { return m_goals; }
     proof_builder const & get_pb() const { return m_proof_builder; }
-    cex_builder const & get_cb() const { return m_cex_builder; }
     name_generator const & ngen() const { return m_ngen; }
     list<expr> const & get_init_locals() const { return m_init_locals; }
-    /** \brief Return true iff this state does not have any goals left, and the precision is \c Precise or \c Over */
-    bool is_proof_final_state() const;
+    /** \brief Return true iff this state does not have any goals left */
+    bool is_final_state() const { return empty(m_goals); }
     /** \brief Store in \c r the goal names */
     void get_goal_names(name_set & r) const;
     optional<name> get_ith_goal_name(unsigned i) const { return ::lean::get_ith_goal_name(get_goals(), i); }

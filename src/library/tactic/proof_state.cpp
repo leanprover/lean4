@@ -42,16 +42,6 @@ optional<name> get_ith_goal_name(goals const & gs, unsigned i) {
     return optional<name>();
 }
 
-precision mk_union(precision p1, precision p2) {
-    if (p1 == p2) return p1;
-    else if (p1 == precision::Precise) return p2;
-    else if (p2 == precision::Precise) return p1;
-    else return precision::UnderOver;
-}
-
-bool trust_proof(precision p) { return p == precision::Precise || p == precision::Over; }
-bool trust_cex(precision p) { return p == precision::Precise || p == precision::Under; }
-
 format proof_state::pp(environment const & env, formatter const & fmt, options const & opts) const {
     bool show_goal_names = get_proof_state_goal_names(opts);
     unsigned indent      = get_pp_indent(opts);
@@ -81,10 +71,6 @@ goals map_goals(proof_state const & s, std::function<optional<goal>(name const &
                 return false;
             }
         });
-}
-
-bool proof_state::is_proof_final_state() const {
-    return empty(get_goals()) && trust_proof(get_precision());
 }
 
 void proof_state::get_goal_names(name_set & r) const {
@@ -121,7 +107,7 @@ static proof_state to_proof_state(environment const * env, expr const & mvar, na
         init_ls = list<expr>(l, init_ls);
     }
     goals gs(mk_pair(g_main, goal(hs, t)));
-    return proof_state(gs, mk_init_proof_builder(init_ls), mk_cex_builder_for(g_main), ngen, init_ls);
+    return proof_state(gs, mk_init_proof_builder(init_ls), ngen, init_ls);
 }
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
@@ -145,7 +131,7 @@ io_state_stream const & operator<<(io_state_stream const & out, proof_state cons
 }
 
 optional<expr> to_proof(proof_state const & s) {
-    if (s.is_proof_final_state()) {
+    if (s.is_final_state()) {
         substitution a;
         proof_map  m;
         return some_expr(s.get_pb()(m, a));
@@ -274,18 +260,11 @@ static int proof_state_tostring(lua_State * L) {
     return 1;
 }
 
-static int proof_state_get_precision(lua_State * L) { return push_integer(L, static_cast<int>(to_proof_state(L, 1).get_precision())); }
 static int proof_state_get_goals(lua_State * L) { return push_goals(L, to_proof_state(L, 1).get_goals()); }
 static int proof_state_apply_proof_builder(lua_State * L) {
     return push_expr(L, to_proof_state(L, 1).get_pb()(to_proof_map(L, 2), to_substitution(L, 3)));
 }
-static int proof_state_apply_cex_builder(lua_State * L) {
-    optional<counterexample> cex;
-    if (!lua_isnil(L, 3))
-        cex = to_environment(L, 3);
-    return push_environment(L, to_proof_state(L, 1).get_cb()(to_name_ext(L, 2), cex, to_substitution(L, 4)));
-}
-static int proof_state_is_proof_final_state(lua_State * L) { return push_boolean(L, to_proof_state(L, 1).is_proof_final_state()); }
+static int proof_state_is_final_state(lua_State * L) { return push_boolean(L, to_proof_state(L, 1).is_final_state()); }
 static int proof_state_pp(lua_State * L) {
     int nargs = lua_gettop(L);
     proof_state & s = to_proof_state(L, 1);
@@ -305,13 +284,10 @@ static const struct luaL_Reg proof_state_m[] = {
     {"__gc",                 proof_state_gc}, // never throws
     {"__tostring",           safe_function<proof_state_tostring>},
     {"pp",                   safe_function<proof_state_pp>},
-    {"get_precision",        safe_function<proof_state_get_precision>},
     {"get_goals",            safe_function<proof_state_get_goals>},
     {"pb",                   safe_function<proof_state_apply_proof_builder>},
-    {"cb",                   safe_function<proof_state_apply_cex_builder>},
-    {"precision",            safe_function<proof_state_get_precision>},
     {"goals",                safe_function<proof_state_get_goals>},
-    {"is_proof_final_state", safe_function<proof_state_is_proof_final_state>},
+    {"is_final_state",       safe_function<proof_state_is_final_state>},
     {"to_proof",             safe_function<to_proof>},
     {0, 0}
 };
@@ -333,12 +309,5 @@ void open_proof_state(lua_State * L) {
     SET_GLOBAL_FUN(proof_state_pred, "is_proof_state");
     SET_GLOBAL_FUN(mk_proof_state, "proof_state");
     SET_GLOBAL_FUN(to_proof_state, "to_proof_state");
-
-    lua_newtable(L);
-    SET_ENUM("Precise",   precision::Precise);
-    SET_ENUM("Over",      precision::Over);
-    SET_ENUM("Under",     precision::Under);
-    SET_ENUM("UnderOver", precision::UnderOver);
-    lua_setglobal(L, "precision");
 }
 }

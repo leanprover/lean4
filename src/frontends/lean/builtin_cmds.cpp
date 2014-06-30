@@ -73,7 +73,7 @@ environment end_scoped_cmd(parser & p) {
 
 environment check_cmd(parser & p) {
     expr e   = p.parse_expr();
-    buffer<parameter> section_ps;
+    buffer<expr> section_ps;
     name_set locals = collect_locals(e);
     mk_section_params(collect_locals(e), p, section_ps);
     e = p.lambda_abstract(section_ps, e);

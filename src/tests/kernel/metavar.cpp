@@ -125,13 +125,13 @@ static void tst3() {
     substitution s;
     expr f  = Const("f");
     expr g  = Const("g");
-    expr x  = Const("x");
-    expr y  = Const("y");
     expr a  = Const("a");
     expr b  = Const("b");
-    s = s.assign(m1, Fun({{x, Bool}, {y, Bool}}, f(y, x)));
+    expr x  = Local("x", Bool);
+    expr y  = Local("y", Bool);
+    s = s.assign(m1, Fun({x, y}, f(y, x)));
     lean_assert_eq(s.instantiate_metavars(m1(a, b, g(a))).first, f(b, a, g(a)));
-    lean_assert_eq(s.instantiate_metavars(m1(a)).first, Fun({y, Bool}, f(y, a)));
+    lean_assert_eq(s.instantiate_metavars(m1(a)).first, Fun(y, f(y, a)));
     lean_assert_eq(s.instantiate_metavars(m1(a, b)).first, f(b, a));
     std::cout << s.instantiate_metavars(m1(a, b, g(a))).first << "\n";
 }

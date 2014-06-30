@@ -276,20 +276,21 @@ static void tst14() {
 static void tst15() {
     expr f = Const("f");
     expr x = Var(0);
-    expr a = Const("a");
+    expr a = Local("a", Type);
     expr m = mk_metavar("m", Bool);
     check_serializer(m);
     lean_assert(has_metavar(m));
     lean_assert(has_metavar(f(m)));
     lean_assert(!has_metavar(f(a)));
     lean_assert(!has_metavar(f(x)));
-    lean_assert(!has_metavar(Pi({a, Type}, a)));
+    lean_assert(!has_metavar(Pi(a, a)));
     lean_assert(!has_metavar(Type));
-    lean_assert(!has_metavar(Fun({a, Type}, a)));
-    lean_assert(has_metavar(Pi({a, Type}, m)));
-    lean_assert(has_metavar(Pi({a, m}, a)));
-    lean_assert(has_metavar(Fun({a, Type}, m)));
-    lean_assert(has_metavar(Fun({a, m}, a)));
+    lean_assert(!has_metavar(Fun(a, a)));
+    lean_assert(has_metavar(Pi(a, m)));
+    expr a1 = Local("a", m);
+    lean_assert(has_metavar(Pi(a1, a1)));
+    lean_assert(has_metavar(Fun(a, m)));
+    lean_assert(has_metavar(Fun(a1, a)));
     lean_assert(has_metavar(f(a, a, m)));
     lean_assert(has_metavar(f(a, m, a, a)));
     lean_assert(!has_metavar(f(a, a, a, a)));
@@ -331,28 +332,31 @@ static void tst17() {
 static void tst18() {
     expr f = Const("f");
     expr x = Var(0);
-    expr a = Const("a");
     expr l = mk_local("m", Bool);
     expr m = mk_metavar("m", Bool);
+    expr a0 = Const("a");
+    expr a  = Local("a", Type);
+    expr a1 = Local("a", m);
+    expr a2 = Local("a", l);
     check_serializer(l);
     lean_assert(!has_local(m));
     lean_assert(has_local(l));
     lean_assert(!has_local(f(m)));
     lean_assert(has_local(f(l)));
-    lean_assert(!has_local(f(a)));
+    lean_assert(!has_local(f(a0)));
     lean_assert(!has_local(f(x)));
-    lean_assert(!has_local(Pi({a, Type}, a)));
-    lean_assert(!has_local(Pi({a, m}, a)));
+    lean_assert(!has_local(Pi(a, a)));
+    lean_assert(!has_local(Pi(a1, a1)));
     lean_assert(!has_local(Type));
-    lean_assert(!has_local(Pi({a, Type}, a)));
-    lean_assert(has_local(Pi({a, Type}, l)));
-    lean_assert(!has_metavar(Pi({a, Type}, l)));
-    lean_assert(has_local(Pi({a, l}, a)));
-    lean_assert(has_local(Fun({a, Type}, l)));
-    lean_assert(has_local(Fun({a, l}, a)));
+    lean_assert(!has_local(Pi(a, a)));
+    lean_assert(has_local(Pi(a, l)));
+    lean_assert(!has_metavar(Pi(a, l)));
+    lean_assert(has_local(Pi(a2, a2)));
+    lean_assert(has_local(Fun(a, l)));
+    lean_assert(has_local(Fun(a2, a2)));
     lean_assert(has_local(f(a, a, l)));
     lean_assert(has_local(f(a, l, a, a)));
-    lean_assert(!has_local(f(a, a, a, a)));
+    lean_assert(!has_local(f(a0, a0, a0, a0)));
 }
 
 int main() {

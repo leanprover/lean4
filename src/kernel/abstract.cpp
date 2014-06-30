@@ -47,32 +47,23 @@ expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
         });
 }
 
-#define MkBinder(FName)                                                 \
-expr FName(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b) { \
-    expr r = b;                                                         \
-    auto it = l.end();                                                  \
-    while (it != l.begin()) {                                           \
-        --it;                                                           \
-        auto const & p = *it;                                           \
-        r = FName(p.first, p.second, r);                                \
-    }                                                                   \
-    return r;                                                           \
+
+template<bool is_lambda>
+expr mk_binding(unsigned num, expr const * locals, expr const & b) {
+    expr r     = abstract_locals(b, num, locals);
+    unsigned i = num;
+    while (i > 0) {
+        --i;
+        expr const & l = locals[i];
+        expr t = abstract_locals(mlocal_type(l), i, locals);
+        if (is_lambda)
+            r = mk_lambda(local_pp_name(l), t, r, local_info(l));
+        else
+            r = mk_pi(local_pp_name(l), t, r, local_info(l));
+    }
+    return r;
 }
 
-MkBinder(Fun);
-MkBinder(Pi);
-
-#define MkBinder2(FName, Mk)                                            \
-expr FName(unsigned num, expr const * locals, expr const & b) {         \
-    expr r = b;                                                         \
-    unsigned i = num;                                                   \
-    while (i > 0) {                                                     \
-        --i;                                                            \
-        r = Mk(local_pp_name(locals[i]), mlocal_type(locals[i]), abstract(r, locals[i])); \
-    }                                                                   \
-    return r;                                                           \
-}
-
-MkBinder2(Fun, mk_lambda);
-MkBinder2(Pi, mk_pi);
+expr Pi(unsigned num, expr const * locals, expr const & b) { return mk_binding<false>(num, locals, b); }
+expr Fun(unsigned num, expr const * locals, expr const & b) { return mk_binding<true>(num, locals, b); }
 }

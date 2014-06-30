@@ -271,7 +271,7 @@ struct default_converter : public converter {
             expr var_s_type = instantiate_rev(binding_domain(s), subst.size(), subst.data());
             if (!is_def_eq(var_t_type, var_s_type, c, jst))
                 return false;
-            subst.push_back(mk_local(mk_fresh_name(c), binding_name(s), var_s_type));
+            subst.push_back(mk_local(mk_fresh_name(c), binding_name(s), var_s_type, binding_info(s)));
             t = binding_body(t);
             s = binding_body(s);
         } while (t.kind() == k && s.kind() == k);

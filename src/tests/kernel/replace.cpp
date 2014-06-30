@@ -68,8 +68,6 @@ static expr arg(expr n, unsigned i) {
 
 static void tst3() {
     expr f = Const("f");
-    expr x = Const("x");
-    expr y = Const("y");
     expr c = Const("c");
     expr d = Const("d");
     expr A = Const("A");
@@ -87,12 +85,15 @@ static void tst3() {
             return none_expr();
         }
     };
+    expr x = Local("x", A);
+    expr y = Local("y", A);
+
     replace_fn replacer(proc, tracer(trace));
-    expr t = Fun({{x, A}, {y, A}}, f(x, f(f(f(x, x), f(y, d)), f(d, d))));
+    expr t = Fun({x, y}, f(x, f(f(f(x, x), f(y, d)), f(d, d))));
     expr b = binding_body(t);
     expr r = replacer(b);
     std::cout << r << "\n";
-    lean_assert(r == Fun({y, A}, f(c, f(f(f(c, c), f(y, d)), f(d, d)))));
+    lean_assert(r == Fun(y, f(c, f(f(f(c, c), f(y, d)), f(d, d)))));
     for (auto p : trace) {
         std::cout << p.first << " --> " << p.second << "\n";
     }

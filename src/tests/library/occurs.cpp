@@ -14,12 +14,13 @@ static void tst1() {
     expr a = Const("a");
     expr b = Const("b");
     expr T = Type;
+    expr a1 = Local("a", T);
     lean_assert(occurs(f, f));
     lean_assert(!occurs(a, f));
     lean_assert(occurs(a, f(a)));
     lean_assert(occurs("a", f(a)));
     lean_assert(!occurs("b", f));
-    lean_assert(!occurs(a, Fun({a, T}, f(a))));
+    lean_assert(!occurs(a, Fun(a1, f(a1))));
 }
 
 int main() {

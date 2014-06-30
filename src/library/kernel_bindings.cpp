@@ -381,115 +381,24 @@ static int expr_mk_arrow(lua_State * L) {
     return push_expr(L, r);
 }
 
-static void throw_invalid_binder_table(int t) {
-    #define VALID_FORMS "local_name, {local_name, bool}, {expr, expr}, {expr, expr, bool}, or {expr, expr, binder_info}, each entry represents a binder, the first expression in each entry must be a (local) constant, the second expression is the type, the optional Boolean can be used to mark implicit arguments."
-    if (t > 0)
-        throw exception(sstream() << "arg #" << t << " must be a table {e_1, ..., e_k} where each entry e_i is of the form: " VALID_FORMS);
-    else
-        throw exception(sstream() << "invalid binder, it must of the form: " VALID_FORMS);
-}
-
-// t is a table of tuples {{a1, b1}, ..., {ak, bk}}
-// Each tuple represents a binder
-static std::tuple<expr, expr, binder_info> get_binder_from_table(lua_State * L, int t, int i) {
-    lua_pushvalue(L, t); // push table on the top
-    lua_pushinteger(L, i);
-    lua_gettable(L, -2); // now table tuple {ai, bi} is on the top
-    int tuple_sz = objlen(L, -1);
-    if (is_expr(L, -1)) {
-        expr const & e = to_expr(L, -1);
-        if (!is_local(e))
-            throw_invalid_binder_table(t);
-        return std::make_tuple(e, mlocal_type(e), binder_info());
-    }
-    if (!lua_istable(L, -1) || (tuple_sz != 2 && tuple_sz != 3))
-        throw_invalid_binder_table(t);
-    lua_rawgeti(L, -1, 1);
-    if (!is_expr(L, -1))
-        throw_invalid_binder_table(t);
-    expr ai = to_expr(L, -1);
-    if (!is_constant(ai) && !is_local(ai))
-        throw_invalid_binder_table(t);
-    lua_pop(L, 1);
-    binder_info ii;
-    lua_rawgeti(L, -1, 2);
-    if (is_expr(L, -1)) {
-        expr bi = to_expr(L, -1);
-        lua_pop(L, 1);
-        if (tuple_sz == 3) {
-            lua_rawgeti(L, -1, 3);
-            if (lua_isboolean(L, -1))
-                ii = binder_info(lua_toboolean(L, -1));
-            else if (is_binder_info(L, -1))
-                ii = to_binder_info(L, -1);
-            else
-                throw_invalid_binder_table(t);
-            lua_pop(L, 1);
-        }
-        return std::make_tuple(ai, bi, ii);
-    } else {
-        if (!is_local(ai))
-            throw_invalid_binder_table(t);
-        if (lua_isboolean(L, -1))
-            ii = binder_info(lua_toboolean(L, -1));
-        else if (is_binder_info(L, -1))
-            ii = to_binder_info(L, -1);
-        else
-            throw_invalid_binder_table(t);
-        lua_pop(L, 1);
-        return std::make_tuple(ai, mlocal_type(ai), ii);
-    }
-}
-
 typedef expr (*MkAbst1)(expr const & n, expr const & t, expr const & b);
 typedef expr (*MkAbst2)(name const & n, expr const & t, expr const & b);
 
 template<bool pi>
 static int expr_abst(lua_State * L) {
     int nargs = lua_gettop(L);
-    if (nargs < 2)
-        throw exception("function must have at least 2 arguments");
-    if (nargs == 2) {
-        if (is_expr(L, 1) && is_local(to_expr(L, 1))) {
-            if (pi)
-                return push_expr(L, Pi(to_expr(L, 1), to_expr(L, 2)));
-            else
-                return push_expr(L, Fun(to_expr(L, 1), to_expr(L, 2)));
-        } else if (lua_istable(L, 1)) {
-            int len = objlen(L, 1);
-            if (len == 0)
-                throw exception("function expects arg #1 to be a non-empty table");
-            expr r = to_expr(L, 2);
-            for (int i = len; i >= 1; i--) {
-                auto p = get_binder_from_table(L, 1, i);
-                if (pi)
-                    r = Pi(std::get<0>(p), std::get<1>(p), r, std::get<2>(p));
-                else
-                    r = Fun(std::get<0>(p), std::get<1>(p), r, std::get<2>(p));
-            }
-            return push_expr(L, r);
-        } else {
-            throw exception("function expects arg #1 to be a local constant or a table of the form '{{expr, expr}, ...}'");
-        }
-    } else {
-        if (nargs % 2 == 0)
-            throw exception("function must have an odd number of arguments");
-        expr r = to_expr(L, nargs);
-        for (int i = nargs - 1; i >= 1; i-=2) {
-            if (is_expr(L, i - 1)) {
-                if (pi)
-                    r = Pi(to_expr(L, i - 1), to_expr(L, i), r);
-                else
-                    r = Fun(to_expr(L, i - 1), to_expr(L, i), r);
-            } else {
-                if (pi)
-                    r = Pi(to_name_ext(L, i - 1), to_expr(L, i), r);
-                else
-                    r = Fun(to_name_ext(L, i - 1), to_expr(L, i), r);
-            }
-        }
-        return push_expr(L, r);
+    check_atleast_num_args(L, 2);
+    expr r = to_expr(L, nargs);
+    for (int i = nargs - 1; i >= 1; i -= 1) {
+        expr l = to_expr(L, i);
+        if (!is_local(l))
+            throw exception(sstream() << "arg #" << i << " must be a local constants");
+        if (pi)
+            r = Pi(l, r);
+        else
+            r = Fun(l, r);
     }
+    return push_expr(L, r);
 }
 
 static int expr_fun(lua_State * L) { return expr_abst<false>(L); }
@@ -501,8 +410,12 @@ static int expr_mk_local(lua_State * L) {
     name n    = to_name_ext(L, 1);
     if (nargs == 2)
         return push_expr(L, mk_local(n, to_expr(L, 2)));
+    else if (nargs == 3 && is_binder_info(L, 3))
+        return push_expr(L, mk_local(n, n, to_expr(L, 2), to_binder_info(L, 3)));
+    else if (nargs == 3)
+        return push_expr(L, mk_local(n, to_name_ext(L, 2), to_expr(L, 3), binder_info()));
     else
-        return push_expr(L, mk_local(n, to_name_ext(L, 2), to_expr(L, 3)));
+        return push_expr(L, mk_local(n, to_name_ext(L, 2), to_expr(L, 3), to_binder_info(L, 4)));
 }
 static int expr_get_kind(lua_State * L) { return push_integer(L, static_cast<int>(to_expr(L, 1).kind())); }
 

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <functional>
 #include "kernel/environment.h"
 #include "library/tactic/tactic.h"
+#include "frontends/lean/parser_pos_provider.h"
 
 namespace lean {
 class parser;

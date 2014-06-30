@@ -219,7 +219,7 @@ struct add_inductive_fn {
     name mk_fresh_name() { return m_ngen.next(); }
 
     /** \brief Create a local constant for the given binding. */
-    expr mk_local_for(expr const & b) { return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b)); }
+    expr mk_local_for(expr const & b) { return mk_local(mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b)); }
 
     /** \brief Return type of the i-th global parameter. */
     expr get_param_type(unsigned i) { return mlocal_type(m_param_consts[i]); }
@@ -523,7 +523,7 @@ struct add_inductive_fn {
                 }
                 i++;
             }
-            info.m_major_premise = mk_local(mk_fresh_name(), "n", mk_app(mk_app(m_it_consts[d_idx], m_param_consts), info.m_indices));
+            info.m_major_premise = mk_local(mk_fresh_name(), "n", mk_app(mk_app(m_it_consts[d_idx], m_param_consts), info.m_indices), binder_info());
             expr C_ty = mk_sort(m_elim_level);
             if (m_dep_elim)
                 C_ty = Pi(info.m_major_premise, C_ty);
@@ -531,7 +531,7 @@ struct add_inductive_fn {
             name C_name("C");
             if (get_num_its() > 1)
                 C_name = name(C_name).append_after(d_idx+1);
-            info.m_C = mk_local(mk_fresh_name(), C_name, C_ty);
+            info.m_C = mk_local(mk_fresh_name(), C_name, C_ty, binder_info());
             m_elim_info.push_back(info);
             d_idx++;
         }
@@ -583,11 +583,11 @@ struct add_inductive_fn {
                         C_app = mk_app(C_app, u_app);
                     }
                     expr v_i_ty = Pi(xs, C_app);
-                    expr v_i    = mk_local(mk_fresh_name(), name("v").append_after(i), v_i_ty);
+                    expr v_i    = mk_local(mk_fresh_name(), name("v").append_after(i), v_i_ty, binder_info());
                     v.push_back(v_i);
                 }
                 expr minor_ty = Pi(b, Pi(u, Pi(v, C_app)));
-                expr minor = mk_local(mk_fresh_name(), name("e").append_after(minor_idx), minor_ty);
+                expr minor = mk_local(mk_fresh_name(), name("e").append_after(minor_idx), minor_ty, binder_info());
                 m_elim_info[d_idx].m_minor_premises.push_back(minor);
                 minor_idx++;
             }

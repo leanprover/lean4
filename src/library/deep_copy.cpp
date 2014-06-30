@@ -20,7 +20,7 @@ expr copy(expr const & a) {
     case expr_kind::Lambda:   return mk_lambda(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
     case expr_kind::Pi:       return mk_pi(binding_name(a), binding_domain(a), binding_body(a), binding_info(a));
     case expr_kind::Meta:     return mk_metavar(mlocal_name(a), mlocal_type(a));
-    case expr_kind::Local:    return mk_local(mlocal_name(a), local_pp_name(a), mlocal_type(a));
+    case expr_kind::Local:    return mk_local(mlocal_name(a), local_pp_name(a), mlocal_type(a), local_info(a));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

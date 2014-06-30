@@ -39,7 +39,7 @@ using inductive::intro_rule_type;
 // Make sure that every inductive datatype (in decls) occurring in \c type has
 // the universe levels \c lvl_params and section parameters \c section_params
 static expr fix_inductive_occs(expr const & type, buffer<inductive_decl> const & decls,
-                               buffer<name> const & lvl_params, buffer<parameter> const & section_params) {
+                               buffer<name> const & lvl_params, buffer<expr> const & section_params) {
     return replace(type, [&](expr const & e, unsigned) {
             if (!is_constant(e))
                 return none_expr();
@@ -58,7 +58,7 @@ static expr fix_inductive_occs(expr const & type, buffer<inductive_decl> const &
             }
             expr r = update_constant(e, ls);
             for (unsigned i = 0; i < section_params.size(); i++)
-                r = mk_app(r, section_params[i].m_local);
+                r = mk_app(r, section_params[i]);
             return some_expr(r);
         });
 }
@@ -134,7 +134,7 @@ static void accumulate_levels(type_checker & tc, expr t, unsigned num_params, le
                 ls.push_back(l);
             }
         }
-        t = instantiate(binding_body(t), mk_local(ngen.next(), binding_name(t), binding_domain(t)));
+        t = instantiate(binding_body(t), mk_local(ngen.next(), binding_name(t), binding_domain(t), binding_info(t)));
         i++;
     }
 }
@@ -196,11 +196,11 @@ static void elaborate_inductive(buffer<inductive_decl> & decls, level_param_name
 }
 
 static environment create_alias(environment const & env, name const & full_id, name const & id, levels const & section_leves,
-                                buffer<parameter> const & section_params, parser & p) {
+                                buffer<expr> const & section_params, parser & p) {
     if (in_section(env)) {
         expr r = mk_explicit(mk_constant(full_id, section_leves));
         for (unsigned i = 0; i < section_params.size(); i++)
-            r = mk_app(r, section_params[i].m_local);
+            r = mk_app(r, section_params[i]);
         p.add_local_expr(id, r);
         return env;
     } else if (full_id != id) {
@@ -261,7 +261,7 @@ environment inductive_cmd(parser & p) {
             // initialize param_universe_scope, we are using implicit universe levels
             pu_scope.emplace(p);
         }
-        buffer<parameter> ps;
+        buffer<expr> ps;
         local_environment lenv = env;
         auto params_pos = p.pos();
         if (!p.curr_is_token(g_colon)) {
@@ -329,7 +329,7 @@ environment inductive_cmd(parser & p) {
         }
     }
     update_univ_parameters(ls_buffer, used_levels, p);
-    buffer<parameter> section_params;
+    buffer<expr> section_params;
     mk_section_params(section_locals, p, section_params);
     // First, add section_params to inductive types type.
     // We don't update the introduction rules in the first pass, because

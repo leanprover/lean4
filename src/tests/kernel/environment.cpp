@@ -55,11 +55,11 @@ static void tst1() {
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
     }
-    expr A = Const("A");
-    expr x = Const("x");
+    expr A = Local("A", Type);
+    expr x = Local("x", A);
     auto env3 = add_decl(env2, mk_definition("id", level_param_names(),
-                                             Pi(A, mk_Type(), A >> A),
-                                             Fun({{A, mk_Type()}, {x, A}}, x)));
+                                             Pi(A, A >> A),
+                                             Fun({A, x}, x)));
     expr c  = mk_local("c", Bool);
     expr id = Const("id");
     type_checker checker(env3, name_generator("tmp"));
@@ -75,17 +75,18 @@ static void tst2() {
     environment env;
     name base("base");
     env = add_decl(env, mk_var_decl(name(base, 0u), level_param_names(), Bool >> (Bool >> Bool)));
-    expr x = Const("x");
-    expr y = Const("y");
+    expr x = Local("x", Bool);
+    expr y = Local("y", Bool);
     for (unsigned i = 1; i <= 100; i++) {
         expr prev = Const(name(base, i-1));
         env = add_decl(env, mk_definition(env, name(base, i), level_param_names(), Bool >> (Bool >> Bool),
-                                          Fun({{x, Bool}, {y, Bool}}, prev(prev(x, y), prev(y, x)))));
+                                          Fun({x, y}, prev(prev(x, y), prev(y, x)))));
     }
-    expr A = Const("A");
+    expr A = Local("A", Type);
+    expr a = Local("a", A);
     env = add_decl(env, mk_definition("id", level_param_names(),
-                                      Pi(A, mk_Type(), A >> A),
-                                      Fun({{A, mk_Type()}, {x, A}}, x)));
+                                      Pi(A, A >> A),
+                                      Fun({A, a}, a)));
     type_checker checker(env, name_generator("tmp"));
     expr f96 = Const(name(base, 96));
     expr f97 = Const(name(base, 97));
@@ -127,12 +128,12 @@ public:
 
 static void tst3() {
     environment env(0, true, true, true, list<name>(), std::unique_ptr<normalizer_extension>(new normalizer_extension_tst()));
-    expr A = Const("A");
-    expr x = Const("x");
+    expr A = Local("A", Type);
+    expr x = Local("x", A);
     expr id = Const("id");
     env = add_decl(env, mk_definition("id", level_param_names(),
-                                      Pi(A, mk_Type(), A >> A),
-                                      Fun({{A, mk_Type()}, {x, A}}, x)));
+                                      Pi(A, A >> A),
+                                      Fun({A, x}, x)));
     expr mk = Const("mk");
     expr proj1 = Const("proj1");
     expr a = Const("a");

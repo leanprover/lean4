@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/buffer.h"
 #include "kernel/expr.h"
-#include "frontends/lean/parameter.h"
 #include "frontends/lean/cmd_table.h"
 namespace lean {
 class parser;
@@ -26,7 +25,7 @@ void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found_ls,
    \brief Copy the parameters associated with the local names in \c local_names to \c section_ps.
    Then sort \c section_ps (using the order in which they were declared).
 */
-void mk_section_params(name_set const & local_names, parser const & p, buffer<parameter> & section_ps);
+void mk_section_params(name_set const & local_names, parser const & p, buffer<expr> & section_ps);
 /**
    \brief Return the levels in \c ls that are defined in the section.
 */

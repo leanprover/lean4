@@ -49,7 +49,7 @@ optional<expr> type_checker::expand_macro(expr const & m) {
    It also returns the fresh local constant.
 */
 std::pair<expr, expr> type_checker::open_binding_body(expr const & e) {
-    expr local     = mk_local(m_gen.next(), binding_name(e), binding_domain(e));
+    expr local     = mk_local(m_gen.next(), binding_name(e), binding_domain(e), binding_info(e));
     return mk_pair(instantiate(binding_body(e), local), local);
 }
 

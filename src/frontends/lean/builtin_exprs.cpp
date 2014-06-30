@@ -96,7 +96,7 @@ static expr parse_let(parser & p, pos_info const & pos) {
             value = p.parse_expr();
         } else {
             parser::local_scope scope2(p);
-            buffer<parameter> ps;
+            buffer<expr> ps;
             auto lenv = p.parse_binders(ps);
             if (p.curr_is_token(g_colon)) {
                 if (!is_opaque)
@@ -118,7 +118,7 @@ static expr parse_let(parser & p, pos_info const & pos) {
             expr body = abstract(parse_let_body(p, pos), l);
             return mk_let(p, id, type, value, body, pos, mk_contextual_info(is_fact));
         } else  {
-            p.add_local_expr(id, value, mk_contextual_info(false));
+            p.add_local_expr(id, value);
             return parse_let_body(p, pos);
         }
     }
@@ -225,9 +225,9 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     }
     p.check_token_next(g_comma, "invalid 'have' declaration, ',' expected");
     parser::local_scope scope(p);
-    expr l = p.save_pos(mk_local(id, prop), pos);
     binder_info bi = mk_contextual_info(is_fact);
-    p.add_local(l, bi);
+    expr l = p.save_pos(mk_local(id, prop, bi), pos);
+    p.add_local(l);
     expr body;
     if (p.curr_is_token(g_then)) {
         auto then_pos = p.pos();

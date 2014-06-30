@@ -1,15 +1,8 @@
-local a = Const("a")
-local b = Const("b")
-local f = Const("f")
 local vec = Const("vec")
-print(Pi({{a, Type}, {b, vec(a), true}}, vec(b)))
-print(Pi({{a, Type, binder_info(true, true)}, {b, vec(a), true}}, vec(b)))
-assert(not pcall(function()
-                    print(Pi({{a, Type}, {f(b), vec(a), true}}, vec(b)))
-                 end
-))
-assert(not pcall(function()
-                    print(Pi({{a, Type, a}, {b, vec(a), true}}, vec(b)))
-                 end
-))
-
+local a = Local("a", Type)
+local b = Local("b", vec(a), binder_info(true))
+local f = Const("f")
+print(Pi(a, b, vec(b)))
+local a = Local("a", Type, binder_info(true, true))
+local b = Local("b", vec(a), binder_info(true))
+print(Pi(a, b, vec(b)))

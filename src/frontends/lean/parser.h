@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/kernel_bindings.h"
-#include "frontends/lean/parameter.h"
 #include "frontends/lean/hint_table.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/local_decls.h"
@@ -37,9 +36,9 @@ struct parser_error : public exception {
 };
 
 struct interrupt_parser {};
-typedef local_decls<parameter> local_expr_decls;
-typedef local_decls<level>     local_level_decls;
-typedef environment            local_environment;
+typedef local_decls<expr>   local_expr_decls;
+typedef local_decls<level>  local_level_decls;
+typedef environment         local_environment;
 
 class parser {
     environment             m_env;
@@ -118,9 +117,9 @@ class parser {
     expr parse_numeral_expr();
     expr parse_decimal_expr();
     expr parse_string_expr();
-    parameter parse_binder_core(binder_info const & bi);
-    void parse_binder_block(buffer<parameter> & r, binder_info const & bi);
-    void parse_binders_core(buffer<parameter> & r);
+    expr parse_binder_core(binder_info const & bi);
+    void parse_binder_block(buffer<expr> & r, binder_info const & bi);
+    void parse_binders_core(buffer<expr> & r);
     tactic parse_exact_apply();
 
     friend environment section_cmd(parser & p);
@@ -204,43 +203,42 @@ public:
 
     level parse_level(unsigned rbp = 0);
 
-    parameter parse_binder();
-    local_environment parse_binders(buffer<parameter> & r);
+    expr parse_binder();
+    local_environment parse_binders(buffer<expr> & r);
 
     /** \brief Convert an identifier into an expression (constant or local constant) based on the current scope */
     expr id_to_expr(name const & id, pos_info const & p);
 
     expr parse_expr(unsigned rbp = 0);
     expr parse_led(expr left);
-    expr parse_scoped_expr(unsigned num_params, parameter const * ps, local_environment const & lenv, unsigned rbp = 0);
-    expr parse_scoped_expr(buffer<parameter> & ps, local_environment const & lenv, unsigned rbp = 0) {
+    expr parse_scoped_expr(unsigned num_params, expr const * ps, local_environment const & lenv, unsigned rbp = 0);
+    expr parse_scoped_expr(buffer<expr> & ps, local_environment const & lenv, unsigned rbp = 0) {
         return parse_scoped_expr(ps.size(), ps.data(), lenv, rbp);
     }
-    expr parse_scoped_expr(unsigned num_params, parameter const * ps, unsigned rbp = 0) {
+    expr parse_scoped_expr(unsigned num_params, expr const * ps, unsigned rbp = 0) {
         return parse_scoped_expr(num_params, ps, local_environment(m_env), rbp);
     }
-    expr parse_scoped_expr(buffer<parameter> & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
-    expr abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda, pos_info const & p);
-    expr abstract(buffer<parameter> const & ps, expr const & e, bool lambda, pos_info const & p) { return abstract(ps.size(), ps.data(), e, lambda, p); }
-    expr lambda_abstract(buffer<parameter> const & ps, expr const & e, pos_info const & p) { return abstract(ps, e, true, p); }
-    expr pi_abstract(buffer<parameter> const & ps, expr const & e, pos_info const & p) { return abstract(ps, e, false, p); }
-    expr lambda_abstract(buffer<parameter> const & ps, expr const & e) { return lambda_abstract(ps, e, pos_of(e)); }
-    expr pi_abstract(buffer<parameter> const & ps, expr const & e) { return pi_abstract(ps, e, pos_of(e)); }
+    expr parse_scoped_expr(buffer<expr> & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
+    expr abstract(unsigned num_params, expr const * ps, expr const & e, bool lambda, pos_info const & p);
+    expr abstract(buffer<expr> const & ps, expr const & e, bool lambda, pos_info const & p) { return abstract(ps.size(), ps.data(), e, lambda, p); }
+    expr lambda_abstract(buffer<expr> const & ps, expr const & e, pos_info const & p) { return abstract(ps, e, true, p); }
+    expr pi_abstract(buffer<expr> const & ps, expr const & e, pos_info const & p) { return abstract(ps, e, false, p); }
+    expr lambda_abstract(buffer<expr> const & ps, expr const & e) { return lambda_abstract(ps, e, pos_of(e)); }
+    expr pi_abstract(buffer<expr> const & ps, expr const & e) { return pi_abstract(ps, e, pos_of(e)); }
 
     tactic parse_tactic(unsigned rbp = 0);
     tactic parse_apply();
 
     struct local_scope { parser & m_p; environment m_env; local_scope(parser & p); ~local_scope(); };
     void add_local_level(name const & n, level const & l);
-    void add_local_expr(name const & n, parameter const & p);
-    void add_local_expr(name const & n, expr const & e, binder_info const & bi = binder_info());
-    void add_local(expr const & e, binder_info const & bi = binder_info());
+    void add_local_expr(name const & n, expr const & p);
+    void add_local(expr const & p) { return add_local_expr(local_pp_name(p), p); }
     /** \brief Position of the local level declaration named \c n in the sequence of local level decls. */
     unsigned get_local_level_index(name const & n) const;
     /** \brief Position of the local declaration named \c n in the sequence of local decls. */
     unsigned get_local_index(name const & n) const;
     /** \brief Return the local parameter named \c n */
-    optional<parameter> get_local(name const & n) const;
+    expr const * get_local(name const & n) const { return m_local_decls.find(n); }
     /**
         \brief By default, \c mk_Type returns <tt>Type.{_}</tt> where '_' is a new placeholder.
         This scope object allows us to temporarily change this behavior.
@@ -265,7 +263,7 @@ public:
     struct no_undef_id_error_scope { parser & m_p; bool m_old; no_undef_id_error_scope(parser &); ~no_undef_id_error_scope(); };
 
     expr elaborate(expr const & e);
-    expr elaborate(expr const & e, name_generator const & ngen, list<parameter> const & ctx);
+    expr elaborate(expr const & e, name_generator const & ngen, list<expr> const & ctx);
     expr elaborate(environment const & env, expr const & e);
     std::pair<expr, expr> elaborate(name const & n, expr const & t, expr const & v);
 

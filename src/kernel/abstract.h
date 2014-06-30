@@ -32,17 +32,11 @@ inline expr abstract_local(expr const & e, expr const & s) { return abstract_loc
 inline expr Fun(name const & n, expr const & t, expr const & b, binder_info const & bi = binder_info()) {
     return mk_lambda(n, t, abstract(b, mk_constant(n)), bi);
 }
-inline expr Fun(expr const & n, expr const & t, expr const & b, binder_info const & bi = binder_info()) {
-    return mk_lambda(named_expr_name(n), t, abstract(b, n), bi);
-}
-inline expr Fun(std::pair<expr const &, expr const &> const & p, expr const & b) { return Fun(p.first, p.second, b); }
-expr Fun(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b);
 /** \brief Create a lambda-expression by abstracting the given local constants over b */
 expr Fun(unsigned num, expr const * locals, expr const & b);
+inline expr Fun(expr const & local, expr const & b) { return Fun(1, &local, b); }
+inline expr Fun(std::initializer_list<expr> const & locals, expr const & b) { return Fun(locals.size(), locals.begin(), b); }
 template<typename T> expr Fun(T const & locals, expr const & b) { return Fun(locals.size(), locals.data(), b); }
-inline expr Fun(expr const & local, expr const & b, binder_info const & bi = binder_info()) {
-    return Fun(local_pp_name(local), mlocal_type(local), abstract(b, local), bi);
-}
 
 /**
    \brief Create a Pi expression (pi (x : t) b), the term b is abstracted using abstract(b, constant(x)).
@@ -50,15 +44,9 @@ inline expr Fun(expr const & local, expr const & b, binder_info const & bi = bin
 inline expr Pi(name const & n, expr const & t, expr const & b, binder_info const & bi = binder_info()) {
     return mk_pi(n, t, abstract(b, mk_constant(n)), bi);
 }
-inline expr Pi(expr const & n, expr const & t, expr const & b, binder_info const & bi = binder_info()) {
-    return mk_pi(named_expr_name(n), t, abstract(b, n), bi);
-}
-inline expr Pi(std::pair<expr const &, expr const &> const & p, expr const & b) { return Pi(p.first, p.second, b); }
-expr Pi(std::initializer_list<std::pair<expr const &, expr const &>> const & l, expr const & b);
 /** \brief Create a Pi-expression by abstracting the given local constants over b */
 expr Pi(unsigned num, expr const * locals, expr const & b);
+inline expr Pi(expr const & local, expr const & b) { return Pi(1, &local, b); }
+inline expr Pi(std::initializer_list<expr> const & locals, expr const & b) { return Pi(locals.size(), locals.begin(), b); }
 template<typename T> expr Pi(T const & locals, expr const & b) { return Pi(locals.size(), locals.data(), b); }
-inline expr Pi(expr const & local, expr const & b, binder_info const & bi = binder_info()) {
-    return Pi(local_pp_name(local), mlocal_type(local), abstract(b, local), bi);
-}
 }

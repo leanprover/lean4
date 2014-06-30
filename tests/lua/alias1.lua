@@ -2,7 +2,6 @@ local env = environment()
 
 local env      = environment()
 local l        = mk_param_univ("l")
-local A        = Const("A")
 local U_l      = mk_sort(l)
 local U_l1     = mk_sort(max_univ(l, 1)) -- Make sure U_l1 is not Bool/Prop
 local nat      = Const({"nat", "nat"})
@@ -23,10 +22,12 @@ assert(get_alias_exprs(env, {"natural", "zero"}):head() == zero)
 assert(get_alias_exprs(env, {"natural", "nat"}):head() == nat)
 assert(is_aliased(env, nat) == name("natural", "nat"))
 
+local A        = Local("A", U_l)
+
 env = add_inductive(env,
-                    name("list", "list"), {l}, 1, Pi(A, U_l, U_l1),
-                    name("list", "nil"),  Pi({{A, U_l, true}}, list_l(A)),
-                    name("list", "cons"), Pi({{A, U_l, true}}, mk_arrow(A, list_l(A), list_l(A))))
+                    name("list", "list"), {l}, 1, Pi(A, U_l1),
+                    name("list", "nil"),  Pi(A, list_l(A)),
+                    name("list", "cons"), Pi(A, mk_arrow(A, list_l(A), list_l(A))))
 
 env = add_aliases(env, "list", "lst")
 print(not get_alias_exprs(env, {"lst", "list_rec"}):is_nil())

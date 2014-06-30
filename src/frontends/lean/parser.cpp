@@ -354,17 +354,8 @@ void parser::add_local_level(name const & n, level const & l) {
     m_local_level_decls.insert(n, l);
 }
 
-void parser::add_local_expr(name const & n, parameter const & p) {
+void parser::add_local_expr(name const & n, expr const & p) {
     m_local_decls.insert(n, p);
-}
-
-void parser::add_local_expr(name const & n, expr const & e, binder_info const & bi) {
-    add_local_expr(n, parameter(e, bi));
-}
-
-void parser::add_local(expr const & e, binder_info const & bi) {
-    lean_assert(is_local(e));
-    add_local_expr(local_pp_name(e), e, bi);
 }
 
 unsigned parser::get_local_level_index(name const & n) const {
@@ -373,13 +364,6 @@ unsigned parser::get_local_level_index(name const & n) const {
 
 unsigned parser::get_local_index(name const & n) const {
     return m_local_decls.find_idx(n);
-}
-
-optional<parameter> parser::get_local(name const & n) const {
-    if (auto it = m_local_decls.find(n))
-        return optional<parameter>(*it);
-    else
-        return optional<parameter>();
 }
 
 /** \brief Parse a sequence of identifiers <tt>ID*</tt>. Store the result in \c result. */
@@ -539,7 +523,7 @@ expr parser::elaborate(expr const & e) {
     return ::lean::elaborate(m_env, m_ios, e, m_hints, &pp);
 }
 
-expr parser::elaborate(expr const & e, name_generator const & ngen, list<parameter> const & ctx) {
+expr parser::elaborate(expr const & e, name_generator const & ngen, list<expr> const & ctx) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
     return ::lean::elaborate(m_env, m_ios, e, ngen, m_hints, substitution(), ctx, &pp);
 }
@@ -555,7 +539,7 @@ std::pair<expr, expr> parser::elaborate(name const & n, expr const & t, expr con
 }
 
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */
-parameter parser::parse_binder_core(binder_info const & bi) {
+expr parser::parse_binder_core(binder_info const & bi) {
     auto p  = pos();
     if (!curr_is_identifier())
         throw parser_error("invalid binder, identifier expected", p);
@@ -568,10 +552,10 @@ parameter parser::parse_binder_core(binder_info const & bi) {
     } else {
         type = save_pos(mk_expr_placeholder(), p);
     }
-    return parameter(save_pos(mk_local(id, type), p), bi);
+    return save_pos(mk_local(id, type, bi), p);
 }
 
-parameter parser::parse_binder() {
+expr parser::parse_binder() {
     if (curr_is_identifier()) {
         return parse_binder_core(binder_info());
     } else if (curr_is_token(g_lparen)) {
@@ -611,7 +595,7 @@ parameter parser::parse_binder() {
    \brief Parse <tt>ID ... ID ':' expr</tt>, where the expression
    represents the type of the identifiers.
 */
-void parser::parse_binder_block(buffer<parameter> & r, binder_info const & bi) {
+void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi) {
     buffer<std::pair<pos_info, name>> names;
     parse_names(names);
     if (names.empty())
@@ -623,13 +607,13 @@ void parser::parse_binder_block(buffer<parameter> & r, binder_info const & bi) {
     }
     for (auto p : names) {
         expr arg_type = type ? *type : save_pos(mk_expr_placeholder(), p.first);
-        expr local = save_pos(mk_local(p.second, arg_type), p.first);
-        add_local_expr(p.second, parameter(local, bi));
-        r.push_back(parameter(local, bi));
+        expr local = save_pos(mk_local(p.second, arg_type, bi), p.first);
+        add_local(local);
+        r.push_back(local);
     }
 }
 
-void parser::parse_binders_core(buffer<parameter> & r) {
+void parser::parse_binders_core(buffer<expr> & r) {
     if (curr_is_identifier()) {
         parse_binder_block(r, binder_info());
     } else if (curr_is_token(g_lparen)) {
@@ -662,7 +646,7 @@ void parser::parse_binders_core(buffer<parameter> & r) {
     parse_binders_core(r);
 }
 
-local_environment parser::parse_binders(buffer<parameter> & r) {
+local_environment parser::parse_binders(buffer<expr> & r) {
     flet<environment> save(m_env, m_env); // save environment
     local_expr_decls::mk_scope scope(m_local_decls);
     unsigned old_sz = r.size();
@@ -688,8 +672,8 @@ bool parser::parse_local_notation_decl() {
 expr parser::parse_notation(parse_table t, expr * left) {
     lean_assert(curr() == scanner::token_kind::Keyword);
     auto p = pos();
-    buffer<expr>      args;
-    buffer<parameter> ps;
+    buffer<expr>  args;
+    buffer<expr>  ps;
     local_environment lenv(m_env);
     pos_info binder_pos;
     if (left)
@@ -752,11 +736,12 @@ expr parser::parse_notation(parse_table t, expr * left) {
                 unsigned i = ps.size();
                 while (i > 0) {
                     --i;
-                    expr const & l = ps[i].m_local;
+                    expr const & l = ps[i];
                     if (a.use_lambda_abstraction())
-                        r = save_pos(Fun(l, r, ps[i].m_bi), binder_pos);
+                        r = Fun(l, r);
                     else
-                        r = save_pos(Pi(l, r, ps[i].m_bi), binder_pos);
+                        r = Pi(l, r);
+                    r = save_pos(r, binder_pos);
                     args.push_back(r);
                     r = instantiate_rev(a.get_rec(), args.size(), args.data());
                     args.pop_back();
@@ -831,7 +816,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
     }
     // locals
     if (auto it1 = m_local_decls.find(id))
-        return copy_with_new_pos(propagate_levels(it1->m_local, ls), p);
+        return copy_with_new_pos(propagate_levels(*it1, ls), p);
     optional<expr> r;
     // globals
     if (m_env.find(id))
@@ -921,32 +906,17 @@ expr parser::parse_expr(unsigned rbp) {
     return left;
 }
 
-expr parser::parse_scoped_expr(unsigned num_params, parameter const * ps, local_environment const & lenv, unsigned rbp) {
+expr parser::parse_scoped_expr(unsigned num_ps, expr const * ps, local_environment const & lenv, unsigned rbp) {
     local_scope scope(*this);
     m_env = lenv;
-    for (unsigned i = 0; i < num_params; i++)
-        add_local(ps[i].m_local, ps[i].m_bi);
+    for (unsigned i = 0; i < num_ps; i++)
+        add_local(ps[i]);
     return parse_expr(rbp);
 }
 
-expr parser::abstract(unsigned num_params, parameter const * ps, expr const & e, bool lambda, pos_info const & p) {
-    buffer<expr> locals;
-    for (unsigned i = 0; i < num_params; i++)
-        locals.push_back(ps[i].m_local);
-    expr r = ::lean::abstract(e, locals.size(), locals.data());
-    unsigned i = num_params;
-    while (i > 0) {
-        --i;
-        expr const & l = ps[i].m_local;
-        name const & n = local_pp_name(l);
-        expr type  = ::lean::abstract(mlocal_type(l), i, locals.data());
-        if (lambda)
-            r = mk_lambda(n, type, r, ps[i].m_bi);
-        else
-            r = mk_pi(n, type, r, ps[i].m_bi);
-        r = save_pos(r, p);
-    }
-    return r;
+expr parser::abstract(unsigned num_ps, expr const * ps, expr const & e, bool lambda, pos_info const & p) {
+    expr r = lambda ? Fun(num_ps, ps, e) : Pi(num_ps, ps, e);
+    return rec_save_pos(r, p);
 }
 
 /** \brief Throw an exception if \c e contains a local constant that is not marked as contextual in \c local_decls */
@@ -955,7 +925,7 @@ static void check_only_contextual_locals(expr const & e, local_expr_decls const 
             if (is_local(e)) {
                 auto it = local_decls.find(mlocal_name(e));
                 lean_assert(it);
-                if (!it->m_bi.is_contextual())
+                if (!local_info(*it).is_contextual())
                     throw parser_error(sstream() << "invalid 'apply' tactic, it references non-contextual local '"
                                        << local_pp_name(e) << "'", pos);
             }
@@ -965,10 +935,10 @@ static void check_only_contextual_locals(expr const & e, local_expr_decls const 
 
 
 /** \brief Return a list of all contextual parameters in local_decls */
-static list<parameter> collect_contextual_parameters(local_expr_decls const & local_decls) {
-    buffer<parameter> tmp;
-    for (parameter const & p : local_decls.get_values()) {
-        if (p.m_bi.is_contextual() && is_local(p.m_local))
+static list<expr> collect_contextual_parameters(local_expr_decls const & local_decls) {
+    buffer<expr> tmp;
+    for (expr const & p : local_decls.get_values()) {
+        if (is_local(p) && local_info(p).is_contextual())
             tmp.push_back(p);
     }
     return to_list(tmp.begin(), tmp.end());
@@ -978,7 +948,7 @@ tactic parser::parse_exact_apply() {
     auto p = pos();
     expr e = parse_expr();
     check_only_contextual_locals(e, m_local_decls, p);
-    list<parameter> ctx = collect_contextual_parameters(m_local_decls);
+    list<expr> ctx = collect_contextual_parameters(m_local_decls);
     return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
             if (empty(s.get_goals()))
                 return none_proof_state();
@@ -988,17 +958,14 @@ tactic parser::parse_exact_apply() {
             auto const &   s_locals = s.get_init_locals();
             // Remark: the proof state initial hypotheses (s_locals) are essentially ctx "after elaboration".
             // So, to process \c e, we must first replace its local constants with (s_locals).
-            // We should also create a new_ctx based on (s_locals), but using the binder info from ctx.
             name_generator ngen     = s.ngen();
             lean_assert(length(s_locals) == length(ctx));
-            buffer<parameter> new_ctx;
             buffer<expr> locals;
             auto it1 = ctx;
             auto it2 = s_locals;
             while (!is_nil(it1) && !is_nil(it2)) {
                 auto const & p = head(it1);
-                locals.push_back(p.m_local);
-                new_ctx.push_back(parameter(head(it2), p.m_bi));
+                locals.push_back(p);
                 it1 = tail(it1);
                 it2 = tail(it2);
             }
@@ -1008,7 +975,7 @@ tactic parser::parse_exact_apply() {
                 new_e = instantiate(new_e, l);
             parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
             new_e = ::lean::elaborate(env, ios, new_e, g.get_conclusion(), ngen.mk_child(),
-                                      m_hints, to_list(new_ctx.begin(), new_ctx.end()), &pp);
+                                      m_hints, s_locals, &pp);
             proof_builder new_pb = add_proof(s.get_pb(), gname, new_e);
             return some_proof_state(proof_state(s, new_gs, new_pb, ngen));
         });
@@ -1018,7 +985,7 @@ tactic parser::parse_apply() {
     auto p = pos();
     expr e = parse_expr();
     check_only_contextual_locals(e, m_local_decls, p);
-    list<parameter> ctx = collect_contextual_parameters(m_local_decls);
+    list<expr> ctx = collect_contextual_parameters(m_local_decls);
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             name_generator ngen     = s.ngen();
             auto const &   s_locals = s.get_init_locals();
@@ -1026,7 +993,7 @@ tactic parser::parse_apply() {
             proof_state    new_s(s, ngen);
             buffer<expr> tmp;
             for (auto const & p : ctx)
-                tmp.push_back(p.m_local);
+                tmp.push_back(p);
             std::reverse(tmp.begin(), tmp.end());
             new_e = abstract_locals(new_e, tmp.size(), tmp.data());
             for (auto const & l : s_locals)
@@ -1224,14 +1191,14 @@ static unsigned to_rbp(lua_State * L, int idx) {
     return idx < nargs ? 0 : lua_tointeger(L, idx);
 }
 
-typedef std::pair<local_environment, std::vector<parameter>> local_scope_cell;
+typedef std::pair<local_environment, std::vector<expr>> local_scope_cell;
 typedef std::shared_ptr<local_scope_cell> local_scope;
 DECL_UDATA(local_scope);
 static const struct luaL_Reg local_scope_m[] = {
     {"__gc",  local_scope_gc},
     {0, 0}
 };
-int push_local_scope_ext(lua_State * L, local_environment const & lenv, buffer<parameter> const & ps) {
+int push_local_scope_ext(lua_State * L, local_environment const & lenv, buffer<expr> const & ps) {
     local_scope r = std::make_shared<local_scope_cell>();
     r->first = lenv;
     for (auto const & p : ps)
@@ -1254,12 +1221,12 @@ static int parse_level(lua_State * L) {  return push_level(L, gparser.parse_leve
 static int parse_expr(lua_State * L) { return push_expr(L, gparser.parse_expr(to_rbp(L, 1))); }
 static int parse_led(lua_State * L) { return push_expr(L, gparser.parse_led(to_expr(L, 1))); }
 static int parse_binders(lua_State * L) {
-    buffer<parameter> ps;
+    buffer<expr> ps;
     auto lenv = gparser.parse_binders(ps);
     return push_local_scope_ext(L, lenv, ps);
 }
 static int parse_binder(lua_State * L) {
-    buffer<parameter> ps;
+    buffer<expr> ps;
     ps.push_back(gparser.parse_binder());
     return push_local_scope_ext(L, gparser.env(), ps);
 }

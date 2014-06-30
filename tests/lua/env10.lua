@@ -26,15 +26,15 @@ local b           = Local("b", B)
 local sigma_l1l2  = Const("sigma", {l1, l2})
 
 env = add_inductive(env,
-                    "sigma", {l1, l2}, 2, Pi({A, B}, U_l1l2),
-                    "pair", Pi({A, B, a, b}, sigma_l1l2(A, B)))
+                    "sigma", {l1, l2}, 2, Pi(A, B, U_l1l2),
+                    "pair", Pi(A, B, a, b, sigma_l1l2(A, B)))
 
 local coproduct_l1l2 = Const("coproduct", {l1, l2})
 
 env = add_inductive(env,
-                    "coproduct", {l1, l2}, 2, Pi({A, B}, U_l1l2),
-                    "inl", Pi({A, B, a}, coproduct_l1l2(A, B)),
-                    "inr", Pi({A, B, b}, coproduct_l1l2(A, B)))
+                    "coproduct", {l1, l2}, 2, Pi(A, B, U_l1l2),
+                    "inl", Pi(A, B, a, coproduct_l1l2(A, B)),
+                    "inr", Pi(A, B, b, coproduct_l1l2(A, B)))
 
 env:for_each_decl(function(d)
                      print(tostring(d:name()) .. " : " .. tostring(d:type()))

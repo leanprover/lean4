@@ -167,7 +167,7 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                     s << mlocal_name(a); write_core(mlocal_type(a));
                     break;
                 case expr_kind::Local:
-                    s << mlocal_name(a) << local_pp_name(a); write_core(mlocal_type(a));
+                    s << mlocal_name(a) << local_pp_name(a) << local_info(a); write_core(mlocal_type(a));
                     break;
                 }
             });
@@ -221,9 +221,10 @@ public:
                     return mk_metavar(n, read());
                 }
                 case expr_kind::Local: {
-                    name n    = read_name(d);
-                    name pp_n = read_name(d);
-                    return mk_local(n, pp_n, read());
+                    name n         = read_name(d);
+                    name pp_n      = read_name(d);
+                    binder_info bi = read_binder_info(d);
+                    return mk_local(n, pp_n, read(), bi);
                 }}
                 throw_corrupted_file(); // LCOV_EXCL_LINE
             });

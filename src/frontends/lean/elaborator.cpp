@@ -24,12 +24,11 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/tactic/tactic.h"
 #include "library/error_handling/error_handling.h"
-#include "frontends/lean/parameter.h"
 #include "frontends/lean/hint_table.h"
 
 namespace lean {
 class elaborator {
-    typedef list<parameter> context;
+    typedef list<expr> context;
     typedef std::vector<constraint> constraints;
 
     environment         m_env;
@@ -123,8 +122,8 @@ public:
         m_subst(s), m_ctx(ctx), m_pos_provider(pp) {
     }
 
-    expr mk_local(name const & n, expr const & t) {
-        return ::lean::mk_local(m_ngen.next(), n, t);
+    expr mk_local(name const & n, expr const & t, binder_info const & bi) {
+        return ::lean::mk_local(m_ngen.next(), n, t, bi);
     }
 
     expr infer_type(expr const & e) {
@@ -199,7 +198,7 @@ public:
     */
     expr pi_abstract_context(expr e, tag g) {
         for (auto const & p : m_ctx)
-            e = save_tag(Pi(p.m_local, e, p.m_bi), g);
+            e = save_tag(Pi(p, e), g);
         return e;
     }
 
@@ -215,7 +214,7 @@ public:
     expr apply_context(expr const & f, tag g) {
         buffer<expr> args;
         for (auto const & p : m_ctx)
-            args.push_back(p.m_local);
+            args.push_back(p);
         expr r = f;
         unsigned i = args.size();
         while (i > 0) {
@@ -505,10 +504,10 @@ public:
 
     expr visit_pi(expr const & e) {
         expr d   = ensure_type(visit_expecting_type(binding_domain(e)));
-        expr l   = mk_local(binding_name(e), d);
+        expr l   = mk_local(binding_name(e), d, binding_info(e));
         expr b   = instantiate(binding_body(e), l);
         if (binding_info(e).is_contextual()) {
-            flet<context> set(m_ctx, cons(parameter(l, binding_info(e)), m_ctx));
+            flet<context> set(m_ctx, cons(l, m_ctx));
             b = ensure_type(visit_expecting_type(b));
         } else {
             b = ensure_type(visit_expecting_type(b));
@@ -519,10 +518,10 @@ public:
 
     expr visit_lambda(expr const & e) {
         expr d   = ensure_type(visit_expecting_type(binding_domain(e)));
-        expr l   = mk_local(binding_name(e), d);
+        expr l   = mk_local(binding_name(e), d, binding_info(e));
         expr b   = instantiate(binding_body(e), l);
         if (binding_info(e).is_contextual()) {
-            flet<context> set(m_ctx, cons(parameter(l, binding_info(e)), m_ctx));
+            flet<context> set(m_ctx, cons(l, m_ctx));
             b = visit(b);
         } else {
             b = visit(b);
@@ -706,21 +705,21 @@ public:
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
 expr elaborate(environment const & env, io_state const & ios, expr const & e, name_generator const & ngen,
-               hint_table const & htable, substitution const & s, list<parameter> const & ctx, pos_info_provider * pp) {
+               hint_table const & htable, substitution const & s, list<expr> const & ctx, pos_info_provider * pp) {
     return elaborator(env, ios, ngen, htable, s, ctx, pp)(e);
 }
 
 expr elaborate(environment const & env, io_state const & ios, expr const & e, hint_table const & htable, pos_info_provider * pp) {
-    return elaborate(env, ios, e, name_generator(g_tmp_prefix), htable, substitution(), list<parameter>(), pp);
+    return elaborate(env, ios, e, name_generator(g_tmp_prefix), htable, substitution(), list<expr>(), pp);
 }
 
 std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v,
                                 hint_table const & htable, pos_info_provider * pp) {
-    return elaborator(env, ios, name_generator(g_tmp_prefix), htable, substitution(), list<parameter>(), pp)(t, v, n);
+    return elaborator(env, ios, name_generator(g_tmp_prefix), htable, substitution(), list<expr>(), pp)(t, v, n);
 }
 
 expr elaborate(environment const & env, io_state const & ios, expr const & e, expr const & expected_type, name_generator const & ngen,
-               hint_table const & htable, list<parameter> const & ctx, pos_info_provider * pp) {
+               hint_table const & htable, list<expr> const & ctx, pos_info_provider * pp) {
     return elaborator(env, ios, ngen, htable, substitution(), ctx, pp)(e, expected_type);
 }
 }

@@ -113,7 +113,7 @@ static environment declare_var(parser & p, environment env,
                                name const & n, level_param_names const & ls, expr const & type,
                                bool is_axiom, binder_info const & bi, pos_info const & pos) {
     if (in_section(p.env())) {
-        p.add_local_expr(n, p.save_pos(mk_local(n, type), pos), bi);
+        p.add_local(p.save_pos(mk_local(n, type, bi), pos));
         return env;
     } else {
         name const & ns = get_namespace(env);
@@ -143,7 +143,7 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
     parser::param_universe_scope scope2(p);
     expr type;
     if (!p.curr_is_token(g_colon)) {
-        buffer<parameter> ps;
+        buffer<expr> ps;
         auto lenv = p.parse_binders(ps);
         p.check_token_next(g_colon, "invalid declaration, ':' expected");
         type = p.parse_scoped_expr(ps, lenv);
@@ -171,17 +171,17 @@ environment axiom_cmd(parser & p)    {
 }
 
 // Sort local_names by order of occurrence in the section, and copy the associated parameters to section_ps
-void mk_section_params(name_set const & local_names, parser const & p, buffer<parameter> & section_ps) {
+void mk_section_params(name_set const & local_names, parser const & p, buffer<expr> & section_ps) {
     local_names.for_each([&](name const & n) {
             section_ps.push_back(*p.get_local(n));
         });
-    std::sort(section_ps.begin(), section_ps.end(), [&](parameter const & p1, parameter const & p2) {
-            return p.get_local_index(mlocal_name(p1.m_local)) < p.get_local_index(mlocal_name(p2.m_local));
+    std::sort(section_ps.begin(), section_ps.end(), [&](expr const & p1, expr const & p2) {
+            return p.get_local_index(mlocal_name(p1)) < p.get_local_index(mlocal_name(p2));
         });
 }
 
 // Collect local (section) constants occurring in type and value, sort them, and store in section_ps
-void collect_section_locals(expr const & type, expr const & value, parser const & p, buffer<parameter> & section_ps) {
+void collect_section_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & section_ps) {
     name_set ls = collect_locals(type, collect_locals(value));
     return mk_section_params(ls, p, section_ps);
 }
@@ -249,7 +249,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
             p.check_token_next(g_assign, "invalid declaration, ':=' expected");
             value = p.parse_expr();
         } else {
-            buffer<parameter> ps;
+            buffer<expr> ps;
             optional<local_environment> lenv;
             {
                 parser::param_universe_scope scope2(p);
@@ -270,15 +270,12 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
     if (in_section(env)) {
-        buffer<parameter> section_ps;
+        buffer<expr> section_ps;
         collect_section_locals(type, value, p, section_ps);
         type = p.pi_abstract(section_ps, type);
         value = p.lambda_abstract(section_ps, value);
         levels section_ls = collect_section_levels(ls, p);
-        buffer<expr> section_args;
-        for (auto const & p : section_ps)
-            section_args.push_back(p.m_local);
-        expr ref = mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_args);
+        expr ref = mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_ps);
         p.add_local_expr(n, ref);
     } else {
         if (real_n != n)

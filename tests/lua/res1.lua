@@ -6,17 +6,18 @@ local False = Const("false")
 function init_env(env)
    -- Populate environment when declarations used by resolve_macro.
    -- This is a 'fake' environment used only for testing.
-   local a   = Const("a")
-   local b   = Const("b")
-   local c   = Const("c")
-   local H   = Const("H")
+   local a   = Local("a", Bool)
+   local b   = Local("b", Bool)
+   local c   = Local("c", Bool)
+   local Ha  = Local("Ha", a)
+   local Hb  = Local("Hb", b)
    env = add_decl(env, mk_var_decl("or",  mk_arrow(Bool, Bool, Bool)))
    env = add_decl(env, mk_var_decl("not", mk_arrow(Bool, Bool)))
    env = add_decl(env, mk_var_decl("false", Bool))
-   env = add_decl(env, mk_axiom("or_elim", Pi({{a, Bool}, {b, Bool}, {c, Bool}}, mk_arrow(Or(a, b), mk_arrow(a, c), mk_arrow(b, c), c))))
-   env = add_decl(env, mk_axiom("or_intro_left", Pi({{a, Bool}, {H, a}, {b, Bool}}, Or(a, b))))
-   env = add_decl(env, mk_axiom("or_intro_right", Pi({{b, Bool}, {a, Bool}, {H, b}}, Or(a, b))))
-   env = add_decl(env, mk_axiom("absurd_elim", Pi({{a, Bool}, {b, Bool}}, mk_arrow(a, Not(a), b))))
+   env = add_decl(env, mk_axiom("or_elim", Pi(a, b, c, mk_arrow(Or(a, b), mk_arrow(a, c), mk_arrow(b, c), c))))
+   env = add_decl(env, mk_axiom("or_intro_left", Pi(a, Ha, b, Or(a, b))))
+   env = add_decl(env, mk_axiom("or_intro_right", Pi(b, a, Hb, Or(a, b))))
+   env = add_decl(env, mk_axiom("absurd_elim", Pi(a, b, mk_arrow(a, Not(a), b))))
    return env
 end
 

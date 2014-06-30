@@ -32,10 +32,10 @@ static void tst1() {
 
 static void tst2() {
     expr f = Const("f");
-    expr x = Const("x");
-    expr y = Const("y");
     expr B = Const("Bool");
-    expr t = Fun({x, B}, Fun({y, B}, x));
+    expr x = Local("x", B);
+    expr y = Local("y", B);
+    expr t = Fun({x, y}, x);
     lean_assert(closed(t));
     lean_assert(!closed(binding_body(t)));
 }
@@ -59,14 +59,14 @@ static void tst3() {
 
 static void tst4() {
     expr f = Const("f");
-    expr x = Const("x");
-    expr y = Const("y");
     expr B = Bool;
-    expr t = f(Fun({x, B}, Fun({y, B}, f(x, y)))(f(Var(1), Var(2))), x);
+    expr x = Local("x", B);
+    expr y = Local("y", B);
+    expr t = f(Fun({x, y}, f(x, y))(f(Var(1), Var(2))), x);
     lean_assert_eq(lift_free_vars(t, 1, 2),
-                   f(Fun({x, B}, Fun({y, B}, f(x, y)))(f(Var(3), Var(4))), x));
+                   f(Fun(x, Fun(y, f(x, y)))(f(Var(3), Var(4))), x));
     lean_assert_eq(lift_free_vars(t, 0, 3),
-                   f(Fun({x, B}, Fun({y, B}, f(x, y)))(f(Var(4), Var(5))), x));
+                   f(Fun(x, Fun(y, f(x, y)))(f(Var(4), Var(5))), x));
     lean_assert_eq(lift_free_vars(t, 3, 2), t);
 }
 

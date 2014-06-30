@@ -1,11 +1,11 @@
 local env = environment()
 
 local tricky = Const("tricky")
-local P      = Const("P")
+local P      = Local("P", Bool)
 
 env = add_inductive(env,
                     "tricky", Bool,
-                    "C",      mk_arrow(Pi(P, Bool, mk_arrow(P, P)), tricky))
+                    "C",      mk_arrow(Pi(P, mk_arrow(P, P)), tricky))
 
 function display_type(env, t)
    print(tostring(t) .. " : " .. tostring(type_checker(env):check(t)))

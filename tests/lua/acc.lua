@@ -13,8 +13,8 @@ local y   = Local("y", A)
 local Acc = Const("Acc", {l})
 
 env = add_inductive(env,
-                    "Acc", {l}, 2, Pi({A, R, x}, mk_sort(l+1)),
-                    "Acc_intro", Pi({A, R, x}, mk_arrow(Pi(y, mk_arrow(R(y, x), Acc(A, R, y))), Acc(A, R, x))))
+                    "Acc", {l}, 2, Pi(A, R, x, mk_sort(l+1)),
+                    "Acc_intro", Pi(A, R, x, mk_arrow(Pi(y, mk_arrow(R(y, x), Acc(A, R, y))), Acc(A, R, x))))
 
 env = env:add_universe("u")
 env = env:add_universe("v")
@@ -42,21 +42,21 @@ local y           = Local("y", A)
 local a           = Local("a", A)
 local P           = Local("P", mk_arrow(A, mk_sort(l2)))
 local Hr          = Local("Hr", Pi(y, mk_arrow(R(y, x), P(y))))
-local H           = Local("H", Pi({x, Hr}, P(x)))
+local H           = Local("H", Pi(x, Hr, P(x)))
 local HR          = Local("HR", R(y, x))
 local HRa         = Local("HRa", R(y, a))
-local arg         = Local("arg", Pi({y, HR}, Acc(A, R, y)))
-local H_arg       = Local("H_arg", Pi({y, HR}, P(y)))
+local arg         = Local("arg", Pi(y, HR, Acc(A, R, y)))
+local H_arg       = Local("H_arg", Pi(y, HR, P(y)))
 local d           = Local("d", Acc(A, R, x))
 local Hwf        = Local("R_is_wf", Pi(a, Acc(A, R, a)))
-local wfi_th_type = Pi({A, R, Hwf, P, H, a}, P(a))
+local wfi_th_type = Pi(A, R, Hwf, P, H, a, P(a))
 print(wfi_th_type)
 type_checker(env):check(wfi_th_type, {l1, l2})
-local wfi_th_val  = Fun({A, R, Hwf, P, H, a}, Acc_rec(A, R,
-                                                       Fun({x, d}, P(x)), -- C
-                                                       Fun({x, arg, H_arg}, H(x, H_arg)), -- e_1
-                                                       a,
-                                                       Acc_intro(A, R, a, Fun({y, HRa}, Hwf(y)))
+local wfi_th_val  = Fun(A, R, Hwf, P, H, a, Acc_rec(A, R,
+                                                    Fun(x, d, P(x)), -- C
+                                                    Fun(x, arg, H_arg, H(x, H_arg)), -- e_1
+                                                    a,
+                                                    Acc_intro(A, R, a, Fun(y, HRa, Hwf(y)))
 ))
 print(env:normalize(type_checker(env):check(wfi_th_val, {l1, l2})))
 env = add_decl(env, mk_definition("well_founded_induction_type", {l1, l2}, wfi_th_type, wfi_th_val))

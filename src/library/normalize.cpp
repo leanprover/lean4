@@ -18,7 +18,7 @@ class normalize_fn {
 
     expr normalize_binding(expr const & e) {
         expr d = normalize(binding_domain(e));
-        expr l = mk_local(m_ngen.next(), binding_name(e), d);
+        expr l = mk_local(m_ngen.next(), binding_name(e), d, binding_info(e));
         expr b = abstract(normalize(instantiate(binding_body(e), l)), l);
         return update_binding(e, d, b);
     }

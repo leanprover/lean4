@@ -17,7 +17,7 @@ local b           = Local("b", nat)
 local n           = Local("n", nat)
 local r           = Local("r", nat)
 local nat_rec_nat = Const("nat_rec", {1})(Fun(a, nat))
-local add         = Fun({a, b}, nat_rec_nat(b, Fun({n, r}, succ(r)), a))
+local add         = Fun(a, b, nat_rec_nat(b, Fun(n, r, succ(r)), a))
 local tc          = type_checker(env)
 assert(tc:is_def_eq(add(succ(succ(zero)), succ(zero)),
                     succ(succ(succ(zero)))))
@@ -38,11 +38,11 @@ local tail        = Local("tail", tree_list_l(A))
 env = add_inductive(env, {l}, 1,
                     {"tree", Pi(A, U_l1),
                      "leaf", Pi(A, tree_l(A)),
-                     "node", Pi({A, v, children}, tree_l(A))
+                     "node", Pi(A, v, children, tree_l(A))
                     },
                     {"tree_list", Pi(A, U_l1),
                      "nil",       Pi(A, tree_list_l(A)),
-                     "cons",      Pi({A, head, tail}, tree_list_l(A))})
+                     "cons",      Pi(A, head, tail, tree_list_l(A))})
 
 local tree_nat        = Const("tree", {1})(nat)
 local tree_list_nat   = Const("tree_list", {1})(nat)
@@ -52,9 +52,9 @@ local tree_rec_nat    = Const("tree_rec", {1, 1})(nat, Fun(t, nat), Fun(tl, nat)
 local r1              = Local("r1", nat)
 local r2              = Local("r2", nat)
 local length_tree_nat = Fun(t, tree_rec_nat(zero,
-                                            Fun({a, tl, r}, succ(r)),
+                                            Fun(a, tl, r, succ(r)),
                                             zero,
-                                            Fun({t, tl, r1, r2}, add(r1, r2)),
+                                            Fun(t, tl, r1, r2, add(r1, r2)),
                                             t))
 
 display_type(env, length_tree_nat)

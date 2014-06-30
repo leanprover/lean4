@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "util/optional.h"
 #include "util/serializer.h"
 #include "util/sexpr/format.h"
+#include "util/name_generator.h"
 #include "kernel/level.h"
 #include "kernel/extension_context.h"
 
@@ -126,7 +127,7 @@ public:
     friend expr mk_sort(level const & l);
     friend expr mk_constant(name const & n, levels const & ls);
     friend expr mk_metavar(name const & n, expr const & t);
-    friend expr mk_local(name const & n, name const & pp_n, expr const & t);
+    friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
     friend expr mk_app(expr const & f, expr const & a);
     friend expr mk_pair(expr const & f, expr const & s, expr const & t);
     friend expr mk_proj(bool fst, expr const & p);
@@ -200,42 +201,6 @@ public:
     expr const & get_type() const { return m_type; }
 };
 
-/** \brief expr_mlocal subclass for local constants. */
-class expr_local : public expr_mlocal {
-    // The name used in the binder that generate this local,
-    // it is only used for pretty printing. This field is ignored
-    // when comparing expressions.
-    name m_pp_name;
-    friend expr_cell;
-    void dealloc(buffer<expr_cell*> & todelete);
-public:
-    expr_local(name const & n, name const & pp_name, expr const & t);
-    name const & get_pp_name() const { return m_pp_name; }
-};
-
-/** \brief Composite expressions */
-class expr_composite : public expr_cell {
-protected:
-    unsigned m_depth;
-    unsigned m_free_var_range;
-    friend unsigned get_depth(expr const & e);
-    friend unsigned get_free_var_range(expr const & e);
-public:
-    expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ, unsigned d, unsigned fv_range);
-};
-
-/** \brief Applications */
-class expr_app : public expr_composite {
-    expr     m_fn;
-    expr     m_arg;
-    friend expr_cell;
-    void dealloc(buffer<expr_cell*> & todelete);
-public:
-    expr_app(expr const & fn, expr const & arg);
-    expr const & get_fn() const { return m_fn; }
-    expr const & get_arg() const { return m_arg; }
-};
-
 /**
    \brief Auxiliary annotation for binders (Lambda and Pi). This information
    is only used for elaboration.
@@ -261,6 +226,44 @@ inline binder_info mk_contextual_info(bool f) { return binder_info(false, false,
 
 bool operator==(binder_info const & i1, binder_info const & i2);
 inline bool operator!=(binder_info const & i1, binder_info const & i2) { return !(i1 == i2); }
+
+/** \brief expr_mlocal subclass for local constants. */
+class expr_local : public expr_mlocal {
+    // The name used in the binder that generate this local,
+    // it is only used for pretty printing. This field is ignored
+    // when comparing expressions.
+    name        m_pp_name;
+    binder_info m_bi;
+    friend expr_cell;
+    void dealloc(buffer<expr_cell*> & todelete);
+public:
+    expr_local(name const & n, name const & pp_name, expr const & t, binder_info const & bi);
+    name const & get_pp_name() const { return m_pp_name; }
+    binder_info const & get_info() const { return m_bi; }
+};
+
+/** \brief Composite expressions */
+class expr_composite : public expr_cell {
+protected:
+    unsigned m_depth;
+    unsigned m_free_var_range;
+    friend unsigned get_depth(expr const & e);
+    friend unsigned get_free_var_range(expr const & e);
+public:
+    expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ, unsigned d, unsigned fv_range);
+};
+
+/** \brief Applications */
+class expr_app : public expr_composite {
+    expr     m_fn;
+    expr     m_arg;
+    friend expr_cell;
+    void dealloc(buffer<expr_cell*> & todelete);
+public:
+    expr_app(expr const & fn, expr const & arg);
+    expr const & get_fn() const { return m_fn; }
+    expr const & get_arg() const { return m_arg; }
+};
 
 class binder {
     friend class expr_binding;
@@ -418,8 +421,10 @@ inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline expr Const(name const & n) { return mk_constant(n); }
 expr mk_macro(macro_definition const & m, unsigned num = 0, expr const * args = nullptr);
 expr mk_metavar(name const & n, expr const & t);
-expr mk_local(name const & n, name const & pp_n, expr const & t);
-inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t); }
+expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
+inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, binder_info()); }
+inline expr mk_local(name const & n, expr const & t, binder_info const & bi) { return mk_local(n, n, t, bi); }
+inline expr Local(name const & n, expr const & t, binder_info const & bi = binder_info()) { return mk_local(n, t, bi); }
 expr mk_app(expr const & f, expr const & a);
 expr mk_app(expr const & f, unsigned num_args, expr const * args);
 expr mk_app(unsigned num_args, expr const * args);
@@ -482,6 +487,8 @@ inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, 
 
 /** \brief Return application (...((f x_{n-1}) x_{n-2}) ... x_0) */
 expr mk_app_vars(expr const & f, unsigned n);
+
+expr mk_local_for(expr const & b, name_generator const & ngen);
 
 bool enable_expr_caching(bool f);
 /** \brief Helper class for temporarily enabling/disabling expression caching */
@@ -560,6 +567,7 @@ inline level const &  sort_level(expr const & e)            { return to_sort(e)-
 inline name const &   mlocal_name(expr const & e)           { return to_mlocal(e)->get_name(); }
 inline expr const &   mlocal_type(expr const & e)           { return to_mlocal(e)->get_type(); }
 inline name const &   local_pp_name(expr const & e)         { return to_local(e)->get_pp_name(); }
+inline binder_info const & local_info(expr const & e)       { return to_local(e)->get_info(); }
 
 inline bool is_constant(expr const & e, name const & n) { return is_constant(e) && const_name(e) == n; }
 inline bool has_metavar(expr const & e) { return e.has_metavar(); }
@@ -643,6 +651,7 @@ template<typename C> expr update_rev_app(expr const & e, C const & c) { return u
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body);
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body, binder_info const & bi);
 expr update_mlocal(expr const & e, expr const & new_type);
+expr update_local(expr const & e, expr const & new_type, binder_info const & bi);
 expr update_sort(expr const & e, level const & new_level);
 expr update_constant(expr const & e, levels const & new_levels);
 expr update_macro(expr const & e, unsigned num, expr const * args);

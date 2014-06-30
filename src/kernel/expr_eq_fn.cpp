@@ -32,10 +32,15 @@ bool expr_eq_fn::apply(expr const & a, expr const & b) {
         return
             const_name(a) == const_name(b) &&
             compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
-    case expr_kind::Local: case expr_kind::Meta:
+    case expr_kind::Meta:
         return
             mlocal_name(a) == mlocal_name(b) &&
             apply(mlocal_type(a), mlocal_type(b));
+    case expr_kind::Local:
+        return
+            mlocal_name(a) == mlocal_name(b) &&
+            apply(mlocal_type(a), mlocal_type(b)) &&
+            (!m_compare_binder_info || local_info(a) == local_info(b));
     case expr_kind::App:
         m_counter++;
         return

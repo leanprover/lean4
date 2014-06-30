@@ -930,7 +930,7 @@ struct unifier_fn {
         expr tmp_pi = mk_pi(binding_name(rhs), mk_app_vars(maux1, margs.size()), dontcare); // trick for "extending" the context
         expr mtype2 = replace_range(mtype, tmp_pi); // trick for "extending" the context
         expr maux2  = mk_aux_metavar_for(mtype2);
-        expr new_local = mk_local(m_ngen.next(), binding_name(rhs), binding_domain(rhs));
+        expr new_local = mk_local(m_ngen.next(), binding_name(rhs), binding_domain(rhs), binding_info(rhs));
         cs.push_back(mk_eq_cnstr(mk_app(mk_app(maux2, margs), new_local), instantiate(binding_body(rhs), new_local), j));
         expr v = update_binding(rhs, mk_app_vars(maux1, margs.size()), mk_app_vars(maux2, margs.size() + 1));
         v = mk_lambda_for(mtype, v);

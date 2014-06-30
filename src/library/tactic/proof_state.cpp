@@ -98,7 +98,7 @@ static proof_state to_proof_state(environment const * env, expr const & mvar, na
     list<expr> init_ls;
     hypotheses hs;
     while (is_pi(t)) {
-        expr l  = mk_local(ngen.next(), binding_name(t), binding_domain(t));
+        expr l  = mk_local(ngen.next(), binding_name(t), binding_domain(t), binding_info(t));
         bool c  = true;
         if (tc)
             c   = !tc->is_prop(binding_domain(t));

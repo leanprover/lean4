@@ -1,7 +1,7 @@
 local env      = environment()
 local l        = mk_param_univ("l")
-local A        = Const("A")
 local U_l      = mk_sort(l)
+local A        = Local("A", U_l)
 local U_l1     = mk_sort(max_univ(l, 1)) -- Make sure U_l1 is not Bool/Prop
 local list_l   = Const("list", {l}) -- list.{l}
 local Nat      = Const("nat")
@@ -10,7 +10,7 @@ local zero     = Const("zero")
 local succ     = Const("succ")
 local forest_l = Const("forest", {l})
 local tree_l   = Const("tree",   {l})
-local n        = Const("n")
+local n        = Local("n", Nat)
 
 env = env:add_universe("u")
 env = env:add_universe("v")
@@ -29,42 +29,44 @@ env = add_inductive(env,
 -- 1 is the number of parameters.
 -- The Boolean true in {A, U_l, true} is marking that this argument is implicit.
 env = add_inductive(env,
-                    "list", {l}, 1, Pi(A, U_l, U_l1),
-                    "nil", Pi({{A, U_l, true}}, list_l(A)),
-                    "cons", Pi({{A, U_l, true}}, mk_arrow(A, list_l(A), list_l(A))))
+                    "list", {l}, 1, Pi(A, U_l1),
+                    "nil", Pi(A, list_l(A)),
+                    "cons", Pi(A, mk_arrow(A, list_l(A), list_l(A))))
 env = add_inductive(env,
-                    "vec", {l}, 1, Pi({{A, U_l}, {n, Nat}}, U_l1),
-                    "vnil",  Pi({{A, U_l, true}}, vec_l(A, zero)),
-                    "vcons", Pi({{A, U_l, true}, {n, Nat, true}}, mk_arrow(A, vec_l(A, n), vec_l(A, succ(n)))))
+                    "vec", {l}, 1, Pi(A, n, U_l1),
+                    "vnil",  Pi(A, vec_l(A, zero)),
+                    "vcons", Pi(A, n, mk_arrow(A, vec_l(A, n), vec_l(A, succ(n)))))
 
 local And = Const("and")
 local Or  = Const("or")
-local B   = Const("B")
 -- Datatype without introduction rules (aka constructors). It is a uninhabited type.
 env = add_inductive(env, "false", Bool)
 -- Datatype with a single constructor.
 env = add_inductive(env, "true", Bool, "trivial", Const("true"))
+local A = Local("A", Bool)
+local B = Local("B", Bool)
 env = add_inductive(env,
-                    "and", 2, Pi({{A, Bool}, {B, Bool}}, Bool),
-                    "and_intro", Pi({{A, Bool, true}, {B, Bool, true}}, mk_arrow(A, B, And(A, B))))
+                    "and", 2, Pi(A, B, Bool),
+                    "and_intro", Pi(A, B, mk_arrow(A, B, And(A, B))))
 env = add_inductive(env,
-                    "or", 2, Pi({{A, Bool}, {B, Bool}}, Bool),
-                    "or_intro_left",  Pi({{A, Bool, true}, {B, Bool, true}}, mk_arrow(A, Or(A, B))),
-                    "or_intro_right", Pi({{A, Bool, true}, {B, Bool, true}}, mk_arrow(B, Or(A, B))))
-local P = Const("P")
-local a = Const("a")
+                    "or", 2, Pi(A, B, Bool),
+                    "or_intro_left",  Pi(A, B, mk_arrow(A, Or(A, B))),
+                    "or_intro_right", Pi(A, B, mk_arrow(B, Or(A, B))))
+local A = Local("A", U_l)
+local P = Local("P", mk_arrow(A, Bool))
+local a = Local("a", A)
 local exists_l = Const("exists", {l})
 env = add_inductive(env,
-                    "exists", {l}, 2, Pi({{A, U_l}, {P, mk_arrow(A, Bool)}}, Bool),
-                    "exists_intro", Pi({{A, U_l, true}, {P, mk_arrow(A, Bool), true}, {a, A}}, mk_arrow(P(a), exists_l(A, P))))
+                    "exists", {l}, 2, Pi(A, P, Bool),
+                    "exists_intro", Pi(A, P, a, mk_arrow(P(a), exists_l(A, P))))
 
 env = add_inductive(env, {l}, 1,
-                    {"tree", Pi(A, U_l, U_l1),
-                     "node", Pi({{A, U_l, true}}, mk_arrow(A, forest_l(A), tree_l(A)))
+                    {"tree", Pi(A, U_l1),
+                     "node", Pi(A, mk_arrow(A, forest_l(A), tree_l(A)))
                     },
-                    {"forest", Pi(A, U_l, U_l1),
-                     "emptyf", Pi({{A, U_l, true}}, forest_l(A)),
-                     "consf",  Pi({{A, U_l, true}}, mk_arrow(tree_l(A), forest_l(A), forest_l(A)))})
+                    {"forest", Pi(A, U_l1),
+                     "emptyf", Pi(A, forest_l(A)),
+                     "consf",  Pi(A, mk_arrow(tree_l(A), forest_l(A), forest_l(A)))})
 local tc = type_checker(env)
 
 display_type(env, Const("forest", {0}))
@@ -76,24 +78,28 @@ display_type(env, Const("or_rec"))
 
 local Even = Const("Even")
 local Odd  = Const("Odd")
-local b    = Const("b")
+local b    = Local("b", Nat)
 env = add_inductive(env, {},
                     {"Even", mk_arrow(Nat, Bool),
                      "zero_is_even", Even(zero),
-                     "succ_odd",     Pi(b, Nat, mk_arrow(Odd(b), Even(succ(b))))},
+                     "succ_odd",     Pi(b, mk_arrow(Odd(b), Even(succ(b))))},
                     {"Odd", mk_arrow(Nat, Bool),
-                     "succ_even", Pi(b, Nat, mk_arrow(Even(b), Odd(succ(b))))})
+                     "succ_even", Pi(b, mk_arrow(Even(b), Odd(succ(b))))})
 
 local flist_l = Const("flist", {l})
 env = add_inductive(env,
-                    "flist", {l}, 1, Pi(A, U_l, U_l1),
-                    "fnil", Pi({{A, U_l, true}}, flist_l(A)),
-                    "fcons", Pi({{A, U_l, true}}, mk_arrow(mk_arrow(Nat, A), mk_arrow(Nat, Bool, flist_l(A)), flist_l(A))))
+                    "flist", {l}, 1, Pi(A, U_l1),
+                    "fnil", Pi(A, flist_l(A)),
+                    "fcons", Pi(A, mk_arrow(mk_arrow(Nat, A), mk_arrow(Nat, Bool, flist_l(A)), flist_l(A))))
 
 local eq_l = Const("eq", {l})
+
+local A = Local("A", U_l)
+local a = Local("a", A)
+local b = Local("b", A)
 env = add_inductive(env,
-                    "eq", {l}, 2, Pi({{A, U_l}, {a, A}, {b, A}}, Bool),
-                    "refl", Pi({{A, U_l}, {a, A}}, eq_l(A, a, a)))
+                    "eq", {l}, 2, Pi(A, a, b, Bool),
+                    "refl", Pi(A, a, eq_l(A, a, a)))
 display_type(env, Const("eq_rec", {v, u}))
 display_type(env, Const("exists_rec", {u}))
 display_type(env, Const("list_rec", {v, u}))
@@ -103,10 +109,12 @@ display_type(env, Const("and_rec", {v}))
 display_type(env, Const("vec_rec", {v, u}))
 display_type(env, Const("flist_rec", {v, u}))
 
-local n        = Const("n")
-local c        = Const("c")
 local nat_rec1 = Const("nat_rec", {1})
-local add      = Fun({{a, Nat}, {b, Nat}}, nat_rec1(mk_lambda("_", Nat, Nat), b, Fun({{n, Nat}, {c, Nat}}, succ(c)), a))
+local a        = Local("a", Nat)
+local b        = Local("b", Nat)
+local n        = Local("n", Nat)
+local c        = Local("c", Nat)
+local add      = Fun(a, b, nat_rec1(mk_lambda("_", Nat, Nat), b, Fun(n, c, succ(c)), a))
 display_type(env, add)
 local tc = type_checker(env)
 assert(tc:is_def_eq(add(succ(succ(zero)), succ(zero)),
@@ -117,10 +125,11 @@ assert(tc:is_def_eq(add(succ(succ(succ(zero))), succ(succ(zero))),
 local list_nat      = Const("list", {1})(Nat)
 local list_nat_rec1 = Const("list_rec", {1, 1})(Nat)
 display_type(env, list_nat_rec1)
-local h        = Const("h")
-local t        = Const("t")
-local lst      = Const("lst")
-local length   = Fun(lst, list_nat, list_nat_rec1(mk_lambda("_", list_nat, Nat), zero, Fun({{h, Nat}, {t, list_nat}, {c, Nat}}, succ(c)), lst))
+local h        = Local("h", Nat)
+local t        = Local("t", list_nat)
+local c        = Local("c", Nat)
+local lst      = Local("lst", list_nat)
+local length   = Fun(lst, list_nat_rec1(mk_lambda("_", list_nat, Nat), zero, Fun(h, t, c, succ(c)), lst))
 local nil_nat  = Const("nil", {1})(Nat)
 local cons_nat = Const("cons", {1})(Nat)
 print(tc:whnf(length(nil_nat)))
@@ -138,9 +147,12 @@ assert(tc:is_def_eq(length(cons_nat(zero, cons_nat(zero, nil_nat))), succ(succ(z
 -- Martin-Lof style identity type
 local env  = hott_environment()
 local Id_l = Const("Id", {l})
+local A = Local("A", U_l)
+local a = Local("a", A)
+local b = Local("b", A)
 env = env:add_universe("u")
 env = env:add_universe("v")
 env = add_inductive(env,
-                    "Id", {l}, 1, Pi({{A, U_l}, {a, A}, {b, A}}, U_l),
-                    "Id_refl", Pi({{A, U_l, true}, {b, A}}, Id_l(A, b, b)))
+                    "Id", {l}, 1, Pi(A, a, b, U_l),
+                    "Id_refl", Pi(A, b, Id_l(A, b, b)))
 display_type(env, Const("Id_rec", {v, u}))

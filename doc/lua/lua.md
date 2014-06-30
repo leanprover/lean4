@@ -701,7 +701,7 @@ A local constant is essentially a pair name and expression, where the
 expression represents the type of the local constant.
 The API `Fun(c, b)` automatically replace the local constant `c` in `b` with
 the variable 0. It does all necessary adjustments when `b` contains nested
-lambda abstractions. The API also provides `Fun({c_1, ..., c_n}, b)` as
+lambda abstractions. The API also provides `Fun(c_1, ..., c_n, b)` as
 syntax-sugar for `Fun(c_1, ..., Fun(c_n, b)...)`.
 
 ```lua
@@ -711,14 +711,14 @@ local c_1 = Local("c_1", N)
 local c_2 = Local("c_2", N)
 local c_3 = Local("c_3", N)
 assert(Fun(c_1, f(c_1)) == mk_lambda("c_1", N, f(Var(0))))
-assert(Fun({c_1, c_2}, f(c_1, c_2)) ==
+assert(Fun(c_1, c_2, f(c_1, c_2)) ==
        mk_lambda("c_1", N, mk_lambda("c_2", N, f(Var(1), Var(0)))))
-assert(Fun({c_1, c_2}, f(c_1, Fun(c_3, f(c_2, c_3)))) ==
+assert(Fun(c_1, c_2, f(c_1, Fun(c_3, f(c_2, c_3)))) ==
        mk_lambda("c_1", N, mk_lambda("c_2", N,
            f(Var(1), mk_lambda("c_3", N, f(Var(1), Var(0)))))))
 ````
 
-Binders can be annotated with `hints` for the Lean _elaborator_.
+Local constants can be annotated with `hints` for the Lean _elaborator_.
 For example, we can say a binder is an _implicit argument_, and
 must be inferred automatically by the elaborator.
 These annotations are irrelevant from the kernel's point of view,
@@ -732,13 +732,13 @@ assert(is_binder_info(b))
 assert(b:is_implicit())
 local N   = Const("N")
 local f   = Const("f")
-local c1  = Local("c1", N)
+local c1  = Local("c1", N, b)
 local c2  = Local("c2", N)
 -- Create the expression
 --    fun {c1 : N} (c2 : N), (f c1 c2)
 -- In Lean, curly braces are used to denote
 -- implicit arguments
-local l   = Fun({{c1, b}, c2}, f(c1, c2))
+local l   = Fun(c1, c2, f(c1, c2))
 local x, T, B, bi = l:data()
 assert(x == name("c1"))
 assert(T == N)
@@ -748,14 +748,3 @@ local y, T, C, bi2 = B:data()
 assert(not bi2:is_implicit())
 ```
 
-We can also use the `Fun` API with regular constants and the desired type.
-
-```lua
-local N   = Const("N")
-local f   = Const("f")
-local c   = Const("c")
-assert(Fun(c, N, f(c)) == mk_lambda("c", N, f(Var(0))))
-local d   = Const("d")
-assert(Fun({{c, N}, {d, N}}, f(c, d)) ==
-    mk_lambda("c", N, mk_lambda("d", N, f(Var(1), Var(0)))))
-```

@@ -1,8 +1,10 @@
-local a   = Const("a")
-local A   = Const("A")
+local A   = Local("A", Type)
+local a   = Local("a", A)
 local vec = Const("vec")
+local A1  = Local("A", vec(A))
+local a1  = Local("a", a)
 local T   = Const("T")
-print(Pi({{A, Type}, {a, A}, {A, vec(A)}, {a, A}}, a))
+print(Pi(A, a, A1, a1, a1))
 local t = mk_pi("A", Type, mk_pi("a", Var(0), mk_pi("A", vec(Var(1)), mk_pi("a", Var(0), T(Var(0), Var(2))))))
 print(t)
 

@@ -14,12 +14,12 @@ static void tst1() {
     max_sharing_fn max_fn;
     expr a1 = Const("a");
     expr a2 = Const("a");
-    expr x = Const("x");
-    expr y = Const("y");
-    expr f = Const("f");
     expr N = Const("N");
+    expr x = Local("x", N);
+    expr y = Local("y", N);
+    expr f = Const("f");
     expr F1, F2;
-    F1 = f(Fun({x, N}, f(x, x)), Fun({y, N}, f(y, y)));
+    F1 = f(Fun(x, f(x, x)), Fun(y, f(y, y)));
     lean_assert(!is_eqp(app_arg(app_fn(F1)), app_arg(F1)));
     F2 = max_fn(F1);
     std::cout << F2 << "\n";

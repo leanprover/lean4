@@ -11,23 +11,23 @@ using namespace lean;
 
 static void tst1() {
     expr f = Const("f");
-    expr h = Const("h");
-    expr x = Const("x");
-    expr y = Const("y");
+    expr N = Const("N");
+    expr x = Local("x", N);
+    expr y = Local("y", N);
+    expr h = Local("h", N >> (N >> (N >> N)));
     expr a = Const("a");
     expr b = Const("b");
     expr c = Const("c");
     expr d = Const("d");
-    expr N = Const("N");
-    expr F1 = Fun({x, N}, x)(f, a);
+    expr F1 = Fun(x, x)(f, a);
     lean_assert(is_head_beta(F1));
     lean_assert_eq(head_beta_reduce(F1), f(a));
-    expr F2 = Fun({{h, N >> (N >> (N >> N))}, {y, N}}, h(y))(f, a, b, c);
+    expr F2 = Fun({h, y}, h(y))(f, a, b, c);
     lean_assert(is_head_beta(F2));
     lean_assert_eq(head_beta_reduce(F2), f(a, b, c));
-    expr F3 = Fun({x, N}, f(Fun({y, N}, y)(x), x))(a);
+    expr F3 = Fun(x, f(Fun(y, y)(x), x))(a);
     lean_assert(is_head_beta(F3));
-    lean_assert(head_beta_reduce(F3) == f(Fun({y, N}, y)(a), a));
+    lean_assert(head_beta_reduce(F3) == f(Fun(y, y)(a), a));
     lean_assert(beta_reduce(F3) == f(a, a));
 }
 

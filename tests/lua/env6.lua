@@ -1,8 +1,8 @@
 local env = bare_environment()
 env = add_decl(env, mk_var_decl("A", Bool))
 local A   = Const("A")
-local x   = Const("x")
-env = add_decl(env, mk_axiom("magic", Pi(x, Bool, x)))
+local x   = Local("x", Bool)
+env = add_decl(env, mk_axiom("magic", Pi(x, x)))
 local saved_env = env
 env = add_decl(env, mk_axiom("Ax", A))
 env = add_decl(env, mk_definition("T1", A, Const("Ax")))

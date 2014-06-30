@@ -115,9 +115,10 @@ void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
     delete(this);
 }
 
-expr_local::expr_local(name const & n, name const & pp_name, expr const & t):
+expr_local::expr_local(name const & n, name const & pp_name, expr const & t, binder_info const & bi):
     expr_mlocal(false, n, t),
-    m_pp_name(pp_name) {}
+    m_pp_name(pp_name),
+    m_bi(bi) {}
 void expr_local::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_type, todelete);
     delete(this);
@@ -275,7 +276,9 @@ expr mk_var(unsigned idx) { return cache(expr(new expr_var(idx))); }
 expr mk_constant(name const & n, levels const & ls) { return cache(expr(new expr_const(n, ls))); }
 expr mk_macro(macro_definition const & m, unsigned num, expr const * args) { return cache(expr(new expr_macro(m, num, args))); }
 expr mk_metavar(name const & n, expr const & t) { return cache(expr(new expr_mlocal(true, n, t))); }
-expr mk_local(name const & n, name const & pp_n, expr const & t) { return cache(expr(new expr_local(n, pp_n, t))); }
+expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi) {
+    return cache(expr(new expr_local(n, pp_n, t, bi)));
+}
 expr mk_app(expr const & f, expr const & a) { return cache(expr(new expr_app(f, a))); }
 expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i) {
     return cache(expr(new expr_binding(k, n, t, e, i)));
@@ -502,7 +505,14 @@ expr update_mlocal(expr const & e, expr const & new_type) {
     else if (is_metavar(e))
         return copy_tag(e, mk_metavar(mlocal_name(e), new_type));
     else
-        return copy_tag(e, mk_local(mlocal_name(e), local_pp_name(e), new_type));
+        return copy_tag(e, mk_local(mlocal_name(e), local_pp_name(e), new_type, local_info(e)));
+}
+
+expr update_local(expr const & e, expr const & new_type, binder_info const & bi) {
+    if (is_eqp(mlocal_type(e), new_type) && local_info(e) == bi)
+        return e;
+    else
+        return copy_tag(e, mk_local(mlocal_name(e), local_pp_name(e), new_type, bi));
 }
 
 expr update_sort(expr const & e, level const & new_level) {

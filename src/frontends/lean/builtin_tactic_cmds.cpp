@@ -12,6 +12,7 @@ static name g_bang("!");
 tactic parse_fail_tactic(parser &, pos_info const &) { return fail_tactic(); }
 tactic parse_id_tactic(parser &, pos_info const &) { return id_tactic(); }
 tactic parse_now_tactic(parser &, pos_info const &) { return now_tactic(); }
+tactic parse_beta_tactic(parser &, pos_info const &) { return beta_tactic(); }
 tactic parse_print_tactic(parser & p, pos_info const & pos) {
     return trace_state_tactic(p.get_stream_name(), pos);
 }
@@ -54,6 +55,7 @@ tactic_cmd_table get_builtin_tactic_cmds() {
     add_tactic(t, tactic_cmd_info("echo", "trace tactic: display message", parse_echo_tactic));
     add_tactic(t, tactic_cmd_info("unfold", "unfold definition", parse_unfold_tactic));
     add_tactic(t, tactic_cmd_info("repeat", "repeat tactic", parse_repeat_tactic));
+    add_tactic(t, tactic_cmd_info("beta", "beta-reduction tactic", parse_beta_tactic));
     add_tactic(t, tactic_cmd_info("apply", "apply tactic", parse_apply_tactic));
     add_tactic(t, tactic_cmd_info("!", "repeat tactic", parse_repeat_tactic));
     add_tactic(t, tactic_cmd_info("id", "do nothing tactic", parse_id_tactic));

@@ -13,6 +13,9 @@ definition not (a : Bool) := a → false
 precedence `¬`:40
 notation `¬` a := not a
 
+notation `assume` binders `,` r:(scoped f, f) := r
+notation `take`   binders `,` r:(scoped f, f) := r
+
 theorem not_intro {a : Bool} (H : a → false) : ¬ a
 := H
 
@@ -23,10 +26,10 @@ theorem absurd {a : Bool} (H1 : a) (H2 : ¬ a) : false
 := H2 H1
 
 theorem mt {a b : Bool} (H1 : a → b) (H2 : ¬ b) : ¬ a
-:= λ Ha : a, absurd (H1 Ha) H2
+:= assume Ha : a, absurd (H1 Ha) H2
 
 theorem contrapos {a b : Bool} (H : a → b) : ¬ b → ¬ a
-:= λ Hnb : ¬ b, mt H Hnb
+:= assume Hnb : ¬ b, mt H Hnb
 
 theorem absurd_elim {a : Bool} (b : Bool) (H1 : a) (H2 : ¬ a) : b
 := false_elim b (absurd H1 H2)
@@ -72,3 +75,25 @@ theorem congr1 {A B : Type} {f g : A → B} (H : f = g) (a : A) : f a = g a
 
 theorem congr2 {A B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b
 := subst H (refl (f a))
+
+inductive Exists {A : Type} (P : A → Bool) : Bool :=
+| exists_intro : ∀ (a : A), P a → Exists P
+
+notation `∃` binders `,` r:(scoped P, Exists P) := r
+
+theorem exists_elim {A : Type} {P : A → Bool} {B : Bool} (H1 : ∃ x : A, P x) (H2 : ∀ (a : A) (H : P a), B) : B
+:= Exists_rec H2 H1
+
+definition inhabited (A : Type) := ∃ x : A, true
+
+theorem inhabited_intro {A : Type} (a : A) : inhabited A
+:= exists_intro a trivial
+
+theorem inhabited_elim {A : Type} {B : Bool} (H1 : inhabited A) (H2 : A → B) : B
+:= exists_elim H1 (λ (a : A) (H : true), H2 a)
+
+theorem inhabited_Bool : inhabited Bool
+:= inhabited_intro true
+
+theorem inhabited_fun (A : Type) {B : Type} (H : inhabited B) : inhabited (A → B)
+:= inhabited_elim H (take (b : B), inhabited_intro (λ a : A, b))

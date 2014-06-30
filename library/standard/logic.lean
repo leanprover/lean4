@@ -76,6 +76,28 @@ theorem congr1 {A B : Type} {f g : A → B} (H : f = g) (a : A) : f a = g a
 theorem congr2 {A B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b
 := subst H (refl (f a))
 
+definition cast {A B : Type} (H : A = B) (a : A) : B
+:= eq_rec a H
+
+-- TODO(Leo): check why unifier needs 'help' in the following theorem
+theorem cast_refl.{l} {A : Type.{l}} (a : A) : @cast.{l} A A (refl A) a = a
+:= refl (@cast.{l} A A (refl A) a)
+
+definition iff (a b : Bool) := (a → b) ∧ (b → a)
+infix `↔` 50 := iff
+
+theorem iff_intro {a b : Bool} (H1 : a → b) (H2 : b → a) : a ↔ b
+:= and_intro H1 H2
+
+theorem iff_elim {a b c : Bool} (H1 : (a → b) → (b → a) → c) (H2 : a ↔ b) : c
+:= and_rec H1 H2
+
+theorem iff_elim_left {a b : Bool} (H : a ↔ b) : a → b
+:= iff_elim (assume H1 H2, H1) H
+
+theorem iff_elim_right {a b : Bool} (H : a ↔ b) : b → a
+:= iff_elim (assume H1 H2, H2) H
+
 inductive Exists {A : Type} (P : A → Bool) : Bool :=
 | exists_intro : ∀ (a : A), P a → Exists P
 

@@ -415,6 +415,10 @@ struct default_converter : public converter {
             is_def_eq(const_levels(t_n), const_levels(s_n), c, jst))
             return true;
 
+        if (is_local(t_n) && is_local(s_n) && mlocal_name(t_n) == mlocal_name(s_n) &&
+            is_def_eq(mlocal_type(t_n), mlocal_type(s_n), c, jst))
+            return true;
+
         // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
         if (is_app(t_n) && is_app(s_n)) {
             type_checker::scope scope(c);

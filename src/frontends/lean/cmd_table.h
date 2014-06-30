@@ -14,7 +14,7 @@ namespace lean {
 class parser;
 
 typedef std::function<environment(parser&)> command_fn;
-typedef std::function<tactic(parser&)> tactic_command_fn;
+typedef std::function<tactic(parser&, pos_info const &)> tactic_command_fn;
 
 template<typename F>
 struct cmd_info_tmpl {

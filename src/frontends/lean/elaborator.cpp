@@ -615,10 +615,17 @@ public:
             if (optional<tactic> t = get_tactic_for(mvar)) {
                 proof_state_seq seq = (*t)(m_env, m_ios, ps);
                 if (auto r = seq.pull()) {
-                    if (auto pr = to_proof(r->first)) {
-                        subst = subst.assign(mlocal_name(mvar), *pr, justification());
-                    } else {
-                        display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+                    try {
+                        if (auto pr = to_proof(r->first)) {
+                            subst = subst.assign(mlocal_name(mvar), *pr, justification());
+                        } else {
+                            display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+                        }
+                    } catch (exception & ex) {
+                        regular out(m_env, m_ios);
+                        display_error_pos(out, m_pos_provider, mvar);
+                        out << " proof generation failed\n    >> ";
+                        display_error(out, nullptr, ex);
                     }
                 } else {
                     // tactic failed to produce any result

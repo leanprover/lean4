@@ -46,6 +46,11 @@ optional<expr> is_simple_meta(expr const & e, buffer<expr> & args) {
     return some_expr(m);
 }
 
+bool is_simple_meta(expr const & e) {
+    buffer<expr> args;
+    return (bool)is_simple_meta(e, args); // NOLINT
+}
+
 // Return true if all local constants in \c e are in locals
 bool context_check(expr const & e, buffer<expr> const & locals) {
     bool failed = false;

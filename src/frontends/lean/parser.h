@@ -227,6 +227,7 @@ public:
     expr pi_abstract(buffer<parameter> const & ps, expr const & e) { return pi_abstract(ps, e, pos_of(e)); }
 
     tactic parse_tactic(unsigned rbp = 0);
+    tactic parse_apply();
 
     struct local_scope { parser & m_p; environment m_env; local_scope(parser & p); ~local_scope(); };
     void add_local_level(name const & n, level const & l);
@@ -263,6 +264,7 @@ public:
     struct no_undef_id_error_scope { parser & m_p; bool m_old; no_undef_id_error_scope(parser &); ~no_undef_id_error_scope(); };
 
     expr elaborate(expr const & e);
+    expr elaborate(expr const & e, name_generator const & ngen, list<parameter> const & ctx);
     expr elaborate(environment const & env, expr const & e);
     std::pair<expr, expr> elaborate(name const & n, expr const & t, expr const & v);
 

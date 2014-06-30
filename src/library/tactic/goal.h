@@ -40,6 +40,7 @@ public:
         and each hypothesis only contains local constants that occur in the previous hypotheses.
     */
     bool validate() const;
+    goal instantiate_metavars(substitution const & s) const;
     format pp(environment const & env, formatter const & fmt, options const & opts) const;
 };
 

@@ -146,11 +146,9 @@ io_state_stream const & operator<<(io_state_stream const & out, proof_state cons
 
 optional<expr> to_proof(proof_state const & s) {
     if (s.is_proof_final_state()) {
-        try {
-            substitution a;
-            proof_map  m;
-            return some_expr(s.get_pb()(m, a));
-        } catch (...) {}
+        substitution a;
+        proof_map  m;
+        return some_expr(s.get_pb()(m, a));
     }
     return none_expr();
 }

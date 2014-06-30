@@ -84,9 +84,10 @@ tactic trace_tactic(char const * msg) {
     return trace_tactic(std::string(msg));
 }
 
-tactic trace_state_tactic() {
+tactic trace_state_tactic(std::string const & fname, std::pair<unsigned, unsigned> const & pos) {
     return tactic1([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state {
-            diagnostic(env, ios) << s << endl;
+            diagnostic(env, ios) << fname << ":" << pos.first << ":" << pos.second << ": proof state\n"
+                                 << s << endl;
             ios.get_diagnostic_channel().get_stream().flush();
             return s;
         });
@@ -517,7 +518,6 @@ static int mk_now_tactic(lua_State * L)         {  return push_tactic(L, now_tac
 static int mk_fail_tactic(lua_State * L)        {  return push_tactic(L, fail_tactic()); }
 static int mk_trace_tactic(lua_State * L)       {  return push_tactic(L, trace_tactic(luaL_checkstring(L, 1))); }
 static int mk_assumption_tactic(lua_State * L)  {  return push_tactic(L, assumption_tactic()); }
-static int mk_trace_state_tactic(lua_State * L) {  return push_tactic(L, trace_state_tactic()); }
 static int mk_unfold_tactic(lua_State * L)      {
     int nargs = lua_gettop(L);
     if (nargs == 0)
@@ -567,7 +567,6 @@ void open_tactic(lua_State * L) {
     SET_GLOBAL_FUN(mk_id_tactic,          "id_tac");
     SET_GLOBAL_FUN(mk_now_tactic,         "now_tac");
     SET_GLOBAL_FUN(mk_fail_tactic,        "fail_tac");
-    SET_GLOBAL_FUN(mk_trace_state_tactic, "show_tac");
     SET_GLOBAL_FUN(mk_assumption_tactic,  "assumption_tac");
     SET_GLOBAL_FUN(mk_unfold_tactic,      "unfold_tac");
     SET_GLOBAL_FUN(mk_beta_tactic,        "beta_tac");

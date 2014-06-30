@@ -23,6 +23,8 @@ namespace lean {
 unsigned get_unifier_max_steps(options const & opts);
 bool get_unifier_use_exceptions(options const & opts);
 
+bool is_simple_meta(expr const & e);
+
 enum class unify_status { Solved, Failed, Unsupported };
 /**
     \brief Handle the easy-cases: first-order unification, higher-order patterns, identical terms, and terms without metavariables.

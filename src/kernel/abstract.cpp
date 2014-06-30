@@ -35,11 +35,11 @@ expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
     return replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
             if (!has_local(m))
                 return some_expr(m); // expression m does not contain local constants
-            if (closed(e)) {
+            if (is_local(m)) {
                 unsigned i = n;
                 while (i > 0) {
                     --i;
-                    if (subst[i] == m)
+                    if (mlocal_name(subst[i]) == mlocal_name(m))
                         return some_expr(copy_tag(m, mk_var(offset + n - i - 1)));
                 }
             }

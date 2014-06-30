@@ -123,6 +123,22 @@ lazy_list<T> map(lazy_list<T> const & l, F && f, char const * cname = "lazy list
 }
 
 /**
+   \brief Create a lazy list by applying \c f to the elements of \c l.
+*/
+template<typename To, typename From, typename F>
+lazy_list<To> map2(lazy_list<From> const & l, F && f, char const * cname = "lazy list") {
+    return mk_lazy_list<To>([=]() {
+            typename lazy_list<From>::maybe_pair p = l.pull();
+            if (!p) {
+                return typename lazy_list<To>::maybe_pair();
+            } else {
+                check_system(cname);
+                return some(mk_pair(f(p->first), map2<To>(p->second, f, cname)));
+            }
+        });
+}
+
+/**
    \brief Create a lazy list that contains only the elements of \c l that satisfies \c pred.
 
    \remark Lazy lists may be infinite, and none of them may satisfy \c pred.

@@ -15,7 +15,8 @@ Author: Leonardo de Moura
 #include "library/tactic/cex_builder.h"
 
 namespace lean {
-typedef list<std::pair<name, goal>> goals;
+typedef std::pair<name, goal> named_goal;
+typedef list<named_goal> goals;
 /** \brief Return the name of the i-th goal, return none if i == 0 or i > size(g) */
 optional<name> get_ith_goal_name(goals const & gs, unsigned i);
 
@@ -50,6 +51,8 @@ public:
         proof_state(s.m_precision, gs, pb, s.m_cex_builder, ngen, s.m_init_locals) {}
     proof_state(proof_state const & s, goals const & gs, proof_builder const & pb):proof_state(s, gs, pb, s.m_ngen) {}
     proof_state(proof_state const & s, goals const & gs):proof_state(s, gs, s.m_proof_builder) {}
+    proof_state(proof_state const & s, name_generator const & ngen):
+        proof_state(s.m_precision, s.m_goals, s.m_proof_builder, s.m_cex_builder, ngen, s.m_init_locals) {}
     precision get_precision() const { return m_precision; }
     goals const & get_goals() const { return m_goals; }
     proof_builder const & get_pb() const { return m_proof_builder; }

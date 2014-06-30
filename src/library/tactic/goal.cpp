@@ -82,7 +82,7 @@ expr goal::mk_meta(name const & n, expr const & type) const {
                 if (is_local(e)) {
                     bool found = false;
                     for (hypothesis const & h : m_hypotheses) {
-                        if (h.second && h.first == e) {
+                        if (mlocal_name(h.first) == mlocal_name(e)) {
                             found = true;
                             break;
                         }
@@ -110,6 +110,14 @@ expr goal::mk_meta(name const & n, expr const & type) const {
     }
     std::reverse(args.begin(), args.end());
     return mk_app(mk_metavar(n, t), args);
+}
+
+goal goal::instantiate_metavars(substitution const & s) const {
+    hypotheses hs = map(m_hypotheses, [&](hypothesis const & h) {
+            return mk_pair(s.instantiate_metavars_wo_jst(h.first), h.second);
+        });
+    expr c = s.instantiate_metavars_wo_jst(m_conclusion);
+    return goal(hs, c);
 }
 
 static bool validate(expr const & r, hypotheses const & hs) {

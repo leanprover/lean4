@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/scoped_ext.h"
 #include "library/error_handling/error_handling.h"
+#include "library/tactic/apply_tactic.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/elaborator.h"
@@ -407,6 +408,8 @@ static name g_max("max");
 static name g_imax("imax");
 static name g_cup("\u2294");
 static name g_import("import");
+static name g_show("show");
+static name g_have("have");
 static unsigned g_level_add_prec = 10;
 static unsigned g_level_cup_prec = 5;
 
@@ -550,6 +553,11 @@ expr parser::mk_Type() {
 expr parser::elaborate(expr const & e) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
     return ::lean::elaborate(m_env, m_ios, e, m_hints, &pp);
+}
+
+expr parser::elaborate(expr const & e, name_generator const & ngen, list<parameter> const & ctx) {
+    parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
+    return ::lean::elaborate(m_env, m_ios, e, ngen, m_hints, substitution(), ctx, &pp);
 }
 
 expr parser::elaborate(environment const & env, expr const & e) {
@@ -957,6 +965,41 @@ expr parser::abstract(unsigned num_params, parameter const * ps, expr const & e,
     return r;
 }
 
+tactic parser::parse_apply() {
+    auto p = pos();
+    expr e = parse_expr();
+    for_each(e, [&](expr const & e, unsigned) {
+            if (is_local(e)) {
+                auto it = get_local(mlocal_name(e));
+                lean_assert(it);
+                if (!it->m_bi.is_contextual())
+                    throw parser_error(sstream() << "invalid 'apply' tactic, it references non contextual local '"
+                                       << local_pp_name(e) << "'", p);
+            }
+            return has_local(e);
+        });
+    buffer<parameter> tmp;
+    for (parameter const & p : m_local_decls.get_values()) {
+        if (p.m_bi.is_contextual() && is_local(p.m_local))
+            tmp.push_back(p);
+    }
+    list<parameter> ctx = to_list(tmp.begin(), tmp.end());
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
+            name_generator ngen     = s.ngen();
+            auto const &   s_locals = s.get_init_locals();
+            expr           new_e    = elaborate(e, ngen.mk_child(), ctx);
+            proof_state    new_s(s, ngen);
+            buffer<expr> tmp;
+            for (auto const & p : ctx)
+                tmp.push_back(p.m_local);
+            std::reverse(tmp.begin(), tmp.end());
+            new_e = abstract_locals(new_e, tmp.size(), tmp.data());
+            for (auto const & l : s_locals)
+                new_e = instantiate(new_e, l);
+            return apply_tactic(new_e)(env, ios, new_s);
+        });
+}
+
 tactic parser::parse_tactic(unsigned /* rbp */) {
     if (curr_is_token(g_lparen) || curr_is_token(g_lbracket)) {
         bool paren = curr_is_token(g_lparen);
@@ -989,20 +1032,22 @@ tactic parser::parse_tactic(unsigned /* rbp */) {
             }
             return r;
         }
+    } else if (curr_is_token(g_have) || curr_is_token(g_show)) {
+        return parse_apply();
     } else {
         name id;
         auto p = pos();
         if (curr_is_identifier()) {
             id = get_name_val();
             next();
-        } else if (curr_is_keyword()) {
+        } else if (curr_is_keyword() || curr_is_command()) {
             id = get_token_info().value();
             next();
         } else {
             throw parser_error("invalid tactic, '(' or tactic command expected", p);
         }
         if (auto it = tactic_cmds().find(id)) {
-            return it->get_fn()(*this);
+            return it->get_fn()(*this, p);
         } else {
             throw parser_error(sstream() << "unknown tactic command '" << id << "'", p);
         }

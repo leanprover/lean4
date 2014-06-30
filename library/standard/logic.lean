@@ -70,6 +70,10 @@ theorem subst {A : Type} {a b : A} {P : A → Bool} (H1 : a = b) (H2 : P a) : P 
 theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 := subst H2 H1
 
+calc_subst subst
+calc_refl  refl
+calc_trans trans
+
 theorem symm {A : Type} {a b : A} (H : a = b) : b = a
 := subst H (refl a)
 
@@ -81,12 +85,6 @@ theorem congr2 {A B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b
 
 theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀ x, f x = g x
 := take x, congr1 H x
-
-definition cast {A B : Type} (H : A = B) (a : A) : B
-:= eq_rec a H
-
-theorem cast_refl {A : Type} (a : A) : cast (refl A) a = a
-:= refl (cast (refl A) a)
 
 definition iff (a b : Bool) := (a → b) ∧ (b → a)
 infix `↔` 50 := iff
@@ -130,3 +128,31 @@ theorem inhabited_Bool : inhabited Bool
 
 theorem inhabited_fun (A : Type) {B : Type} (H : inhabited B) : inhabited (A → B)
 := inhabited_elim H (take (b : B), inhabited_intro (λ a : A, b))
+
+definition cast {A B : Type} (H : A = B) (a : A) : B
+:= eq_rec a H
+
+theorem cast_refl {A : Type} (a : A) : cast (refl A) a = a
+:= refl (cast (refl A) a)
+
+theorem cast_eq {A : Type} (H : A = A) (a : A) : cast H a = a
+:= calc cast H a = cast (refl A) a : refl (cast H a) -- by proof irrelevance
+            ...  = a               : cast_refl a
+
+definition heq {A B : Type} (a : A) (b : B) := ∃ H, cast H a = b
+
+infixl `==` 50 := heq
+
+theorem heq_type_eq {A B : Type} {a : A} {b : B} (H : a == b) : A = B
+:= exists_elim H (λ H Hw, H)
+
+theorem eq_to_heq {A : Type} {a b : A} (H : a = b) : a == b
+:= exists_intro (refl A) (trans (cast_refl a) H)
+
+theorem heq_to_eq {A : Type} {a b : A} (H : a == b) : a = b
+:= exists_elim H (λ (H : A = A) (Hw : cast H a = b),
+    calc a = cast H a : symm (cast_eq H a)
+      ...  = b        : Hw)
+
+theorem heq_refl {A : Type} (a : A) : a == a
+:= eq_to_heq (refl a)

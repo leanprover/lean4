@@ -798,8 +798,8 @@ optional<expr> inductive_normalizer_extension::operator()(expr const & e, extens
     for (unsigned i = 0; i < it2->m_num_bu; i++)
         ACebu.push_back(intro_args[it1->m_num_params + i]);
     std::reverse(ACebu.begin(), ACebu.end());
-    expr r = instantiate(it2->m_comp_rhs_body, ACebu.size(), ACebu.data());
-    r = instantiate_univ_params(r, it1->m_level_names, const_levels(elim_fn));
+    expr r = instantiate_univ_params(it2->m_comp_rhs_body, it1->m_level_names, const_levels(elim_fn));
+    r = instantiate(r, ACebu.size(), ACebu.data());
     return some_expr(r);
 }
 

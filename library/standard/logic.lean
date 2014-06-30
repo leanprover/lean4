@@ -85,8 +85,7 @@ theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀ 
 definition cast {A B : Type} (H : A = B) (a : A) : B
 := eq_rec a H
 
--- TODO(Leo): check why unifier needs 'help' in the following theorem
-theorem cast_refl.{l} {A : Type.{l}} (a : A) : cast (refl A) a = a
+theorem cast_refl {A : Type} (a : A) : cast (refl A) a = a
 := refl (cast (refl A) a)
 
 definition iff (a b : Bool) := (a → b) ∧ (b → a)

@@ -121,6 +121,7 @@ class parser {
     parameter parse_binder_core(binder_info const & bi);
     void parse_binder_block(buffer<parameter> & r, binder_info const & bi);
     void parse_binders_core(buffer<parameter> & r);
+    tactic parse_exact_apply();
 
     friend environment section_cmd(parser & p);
     friend environment end_scoped_cmd(parser & p);

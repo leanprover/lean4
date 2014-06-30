@@ -949,25 +949,76 @@ expr parser::abstract(unsigned num_params, parameter const * ps, expr const & e,
     return r;
 }
 
-tactic parser::parse_apply() {
-    auto p = pos();
-    expr e = parse_expr();
+/** \brief Throw an exception if \c e contains a local constant that is not marked as contextual in \c local_decls */
+static void check_only_contextual_locals(expr const & e, local_expr_decls const & local_decls, pos_info const & pos) {
     for_each(e, [&](expr const & e, unsigned) {
             if (is_local(e)) {
-                auto it = get_local(mlocal_name(e));
+                auto it = local_decls.find(mlocal_name(e));
                 lean_assert(it);
                 if (!it->m_bi.is_contextual())
-                    throw parser_error(sstream() << "invalid 'apply' tactic, it references non contextual local '"
-                                       << local_pp_name(e) << "'", p);
+                    throw parser_error(sstream() << "invalid 'apply' tactic, it references non-contextual local '"
+                                       << local_pp_name(e) << "'", pos);
             }
             return has_local(e);
         });
+}
+
+
+/** \brief Return a list of all contextual parameters in local_decls */
+static list<parameter> collect_contextual_parameters(local_expr_decls const & local_decls) {
     buffer<parameter> tmp;
-    for (parameter const & p : m_local_decls.get_values()) {
+    for (parameter const & p : local_decls.get_values()) {
         if (p.m_bi.is_contextual() && is_local(p.m_local))
             tmp.push_back(p);
     }
-    list<parameter> ctx = to_list(tmp.begin(), tmp.end());
+    return to_list(tmp.begin(), tmp.end());
+}
+
+tactic parser::parse_exact_apply() {
+    auto p = pos();
+    expr e = parse_expr();
+    check_only_contextual_locals(e, m_local_decls, p);
+    list<parameter> ctx = collect_contextual_parameters(m_local_decls);
+    return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
+            if (empty(s.get_goals()))
+                return none_proof_state();
+            name gname      = head(s.get_goals()).first;
+            goal g          = head(s.get_goals()).second;
+            goals new_gs    = tail(s.get_goals());
+            auto const &   s_locals = s.get_init_locals();
+            // Remark: the proof state initial hypotheses (s_locals) are essentially ctx "after elaboration".
+            // So, to process \c e, we must first replace its local constants with (s_locals).
+            // We should also create a new_ctx based on (s_locals), but using the binder info from ctx.
+            name_generator ngen     = s.ngen();
+            lean_assert(length(s_locals) == length(ctx));
+            buffer<parameter> new_ctx;
+            buffer<expr> locals;
+            auto it1 = ctx;
+            auto it2 = s_locals;
+            while (!is_nil(it1) && !is_nil(it2)) {
+                auto const & p = head(it1);
+                locals.push_back(p.m_local);
+                new_ctx.push_back(parameter(head(it2), p.m_bi));
+                it1 = tail(it1);
+                it2 = tail(it2);
+            }
+            std::reverse(locals.begin(), locals.end());
+            expr new_e = abstract_locals(e, locals.size(), locals.data());
+            for (auto const & l : s_locals)
+                new_e = instantiate(new_e, l);
+            parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
+            new_e = ::lean::elaborate(env, ios, new_e, g.get_conclusion(), ngen.mk_child(),
+                                      m_hints, to_list(new_ctx.begin(), new_ctx.end()), &pp);
+            proof_builder new_pb = add_proof(s.get_pb(), gname, new_e);
+            return some_proof_state(proof_state(s, new_gs, new_pb, ngen));
+        });
+}
+
+tactic parser::parse_apply() {
+    auto p = pos();
+    expr e = parse_expr();
+    check_only_contextual_locals(e, m_local_decls, p);
+    list<parameter> ctx = collect_contextual_parameters(m_local_decls);
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             name_generator ngen     = s.ngen();
             auto const &   s_locals = s.get_init_locals();
@@ -1018,7 +1069,7 @@ tactic parser::parse_tactic(unsigned /* rbp */) {
         }
     } else if (curr_is_token(g_have) || curr_is_token(g_show) || curr_is_token(g_assume) ||
                curr_is_token(g_take) || curr_is_token(g_fun)) {
-        return parse_apply();
+        return parse_exact_apply();
     } else {
         name id;
         auto p = pos();

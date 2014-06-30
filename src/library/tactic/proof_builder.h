@@ -25,6 +25,7 @@ expr find(proof_map const & m, name const & n);
 */
 typedef std::function<expr(proof_map const &, substitution const &)> proof_builder;
 proof_builder add_proofs(proof_builder const & pb, list<std::pair<name, expr>> const & prs);
+proof_builder add_proof(proof_builder const & pb, name const & goal_name, expr const & pr);
 
 /** \brief Convert a Lua function on position \c idx (on the Lua stack) into a proof_builder_fn */
 proof_builder to_proof_builder(lua_State * L, int idx);

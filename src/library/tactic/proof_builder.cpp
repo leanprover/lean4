@@ -29,6 +29,10 @@ proof_builder add_proofs(proof_builder const & pb, list<std::pair<name, expr>> c
         });
 }
 
+proof_builder add_proof(proof_builder const & pb, name const & goal_name, expr const & pr) {
+    return add_proofs(pb, list<std::pair<name, expr>>(mk_pair(goal_name, pr)));
+}
+
 DECL_UDATA(proof_map)
 
 static int mk_proof_map(lua_State * L) {

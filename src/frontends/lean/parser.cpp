@@ -390,26 +390,10 @@ void parser::parse_names(buffer<std::pair<pos_info, name>> & result) {
     }
 }
 
-static name g_period(".");
-static name g_colon(":");
-static name g_lparen("(");
-static name g_rparen(")");
-static name g_llevel_curly(".{");
-static name g_lcurly("{");
-static name g_rcurly("}");
-static name g_ldcurly("⦃");
-static name g_rdcurly("⦄");
-static name g_lbracket("[");
-static name g_rbracket("]");
-static name g_bar("|");
-static name g_comma(",");
-static name g_add("+");
-static name g_max("max");
-static name g_imax("imax");
-static name g_cup("\u2294");
-static name g_import("import");
-static name g_show("show");
-static name g_have("have");
+static name g_period("."), g_colon(":"), g_lparen("("), g_rparen(")"), g_llevel_curly(".{");
+static name g_lcurly("{"), g_rcurly("}"), g_ldcurly("⦃"), g_rdcurly("⦄"), g_lbracket("["), g_rbracket("]");
+static name g_bar("|"), g_comma(","), g_add("+"), g_max("max"), g_imax("imax"), g_cup("\u2294");
+static name g_import("import"), g_show("show"), g_have("have"), g_assume("assume"), g_take("take"), g_fun("fun");
 static unsigned g_level_add_prec = 10;
 static unsigned g_level_cup_prec = 5;
 
@@ -1032,7 +1016,8 @@ tactic parser::parse_tactic(unsigned /* rbp */) {
             }
             return r;
         }
-    } else if (curr_is_token(g_have) || curr_is_token(g_show)) {
+    } else if (curr_is_token(g_have) || curr_is_token(g_show) || curr_is_token(g_assume) ||
+               curr_is_token(g_take) || curr_is_token(g_fun)) {
         return parse_apply();
     } else {
         name id;

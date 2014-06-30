@@ -538,6 +538,82 @@ std::pair<expr, expr> parser::elaborate(name const & n, expr const & t, expr con
     return ::lean::elaborate(m_env, m_ios, n, t, v, m_hints, &pp);
 }
 
+[[ noreturn ]] void throw_invalid_open_binder(pos_info const & pos) {
+    throw parser_error("invalid binder, '(', '{', '[', '{{', '⦃' or identifier expected", pos);
+}
+
+/**
+   \brief Return an optional binder_info object based on the current token
+      - '('           : default
+      - '{'          : implicit
+      - '{{' or '⦃'  : strict implicit
+      - '['          : cast
+*/
+optional<binder_info> parser::parse_optional_binder_info() {
+    if (curr_is_token(g_lparen)) {
+        next();
+        return some(binder_info());
+    } else if (curr_is_token(g_lcurly)) {
+        next();
+        if (curr_is_token(g_lcurly)) {
+            next();
+            return some(mk_strict_implicit_binder_info());
+        } else {
+            return some(mk_implicit_binder_info());
+        }
+    } else if (curr_is_token(g_lbracket)) {
+        next();
+        return some(mk_cast_binder_info());
+    } else if (curr_is_token(g_ldcurly)) {
+        next();
+        return some(mk_strict_implicit_binder_info());
+    } else {
+        return optional<binder_info>();
+    }
+}
+
+/**
+   \brief Return binder_info object based on the current token, it fails if the current token
+   is not '(', '{', '{{', '⦃', or '['
+
+   \see parse_optional_binder_info
+*/
+binder_info parser::parse_binder_info() {
+    auto p = pos();
+    if (auto bi = parse_optional_binder_info()) {
+        return *bi;
+    } else {
+        throw_invalid_open_binder(p);
+    }
+}
+
+/**
+   \brief Consume the next token based on the value of \c bi
+     - none            : do not consume anything
+     - default         : consume ')'
+     - implicit        : consume '}'
+     - strict implicit : consume '}}' or '⦄'
+     - cast            : consume ']'
+*/
+void parser::parse_close_binder_info(optional<binder_info> const & bi) {
+    if (!bi) {
+        return;
+    } else if (bi->is_implicit()) {
+        check_token_next(g_rcurly, "invalid declaration, '}' expected");
+    } else if (bi->is_cast()) {
+        check_token_next(g_rbracket, "invalid declaration, ']' expected");
+    } else if (bi->is_strict_implicit()) {
+        if (curr_is_token(g_rcurly)) {
+            next();
+            check_token_next(g_rcurly, "invalid declaration, '}' expected");
+        } else {
+            check_token_next(g_rdcurly, "invalid declaration, '⦄' expected");
+        }
+    } else {
+        check_token_next(g_rparen, "invalid declaration, ')' expected");
+    }
+}
+
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */
 expr parser::parse_binder_core(binder_info const & bi) {
     auto p  = pos();
@@ -558,36 +634,11 @@ expr parser::parse_binder_core(binder_info const & bi) {
 expr parser::parse_binder() {
     if (curr_is_identifier()) {
         return parse_binder_core(binder_info());
-    } else if (curr_is_token(g_lparen)) {
-        next();
-        auto p = parse_binder_core(binder_info());
-        check_token_next(g_rparen, "invalid binder, ')' expected");
-        return p;
-    } else if (curr_is_token(g_lcurly)) {
-        next();
-        if (curr_is_token(g_lcurly)) {
-            next();
-            auto p = parse_binder_core(mk_strict_implicit_binder_info());
-            check_token_next(g_rcurly, "invalid binder, '}' expected");
-            check_token_next(g_rcurly, "invalid binder, '}' expected");
-            return p;
-        } else {
-            auto p = parse_binder_core(mk_implicit_binder_info());
-            check_token_next(g_rcurly, "invalid binder, '}' expected");
-            return p;
-        }
-    } else if (curr_is_token(g_lbracket)) {
-        next();
-        auto p = parse_binder_core(mk_cast_binder_info());
-        check_token_next(g_rbracket, "invalid binder, ']' expected");
-        return p;
-    } else if (curr_is_token(g_ldcurly)) {
-        next();
-        auto p = parse_binder_core(mk_strict_implicit_binder_info());
-        check_token_next(g_rdcurly, "invalid binder, '⦄' expected");
-        return p;
     } else {
-        throw parser_error("invalid binder, '(', '{', '[', '{{', '⦃' or identifier expected", pos());
+        binder_info bi = parse_binder_info();
+        auto r = parse_binder_core(bi);
+        parse_close_binder_info(bi);
+        return r;
     }
 }
 
@@ -614,36 +665,20 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi) {
 }
 
 void parser::parse_binders_core(buffer<expr> & r) {
-    if (curr_is_identifier()) {
-        parse_binder_block(r, binder_info());
-    } else if (curr_is_token(g_lparen)) {
-        next();
-        if (!parse_local_notation_decl())
+    while (true) {
+        if (curr_is_identifier()) {
             parse_binder_block(r, binder_info());
-        check_token_next(g_rparen, "invalid binder, ')' expected");
-    } else if (curr_is_token(g_lcurly)) {
-        next();
-        if (curr_is_token(g_lcurly)) {
-            next();
-            parse_binder_block(r, mk_strict_implicit_binder_info());
-            check_token_next(g_rcurly, "invalid binder, '}' expected");
-            check_token_next(g_rcurly, "invalid binder, '}' expected");
         } else {
-            parse_binder_block(r, mk_implicit_binder_info());
-            check_token_next(g_rcurly, "invalid binder, '}' expected");
+            optional<binder_info> bi = parse_optional_binder_info();
+            if (bi) {
+                if (!parse_local_notation_decl())
+                    parse_binder_block(r, *bi);
+                parse_close_binder_info(bi);
+            } else {
+                return;
+            }
         }
-    } else if (curr_is_token(g_lbracket)) {
-        next();
-        parse_binder_block(r, mk_cast_binder_info());
-        check_token_next(g_rbracket, "invalid binder, ']' expected");
-    } else if (curr_is_token(g_ldcurly)) {
-        next();
-        parse_binder_block(r, mk_strict_implicit_binder_info());
-        check_token_next(g_rdcurly, "invalid binder, '⦄' expected");
-    } else {
-        return;
     }
-    parse_binders_core(r);
 }
 
 local_environment parser::parse_binders(buffer<expr> & r) {
@@ -652,7 +687,7 @@ local_environment parser::parse_binders(buffer<expr> & r) {
     unsigned old_sz = r.size();
     parse_binders_core(r);
     if (old_sz == r.size())
-        throw parser_error("invalid binder, '(', '{', '[', '{{', '⦃' or identifier expected", pos());
+        throw_invalid_open_binder(pos());
     return local_environment(m_env);
 }
 

@@ -18,12 +18,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_llevel_curly(".{");
-static name g_lcurly("{");
 static name g_rcurly("}");
-static name g_ldcurly("⦃");
-static name g_rdcurly("⦄");
-static name g_lbracket("[");
-static name g_rbracket("]");
 static name g_colon(":");
 static name g_assign(":=");
 static name g_private("[private]");
@@ -43,44 +38,6 @@ environment universe_cmd(parser & p) {
             env = add_alias(env, n, mk_global_univ(full_n));
     }
     return env;
-}
-
-binder_info parse_open_binder_info(parser & p) {
-    if (p.curr_is_token(g_lcurly)) {
-        check_in_section(p);
-        p.next();
-        if (p.curr_is_token(g_lcurly)) {
-            p.next();
-            return mk_strict_implicit_binder_info();
-        } else {
-            return mk_implicit_binder_info();
-        }
-    } else if (p.curr_is_token(g_lbracket)) {
-        check_in_section(p);
-        p.next();
-        return mk_cast_binder_info();
-    } else if (p.curr_is_token(g_ldcurly)) {
-        check_in_section(p);
-        p.next();
-        return mk_strict_implicit_binder_info();
-    } else {
-        return binder_info();
-    }
-}
-
-void parse_close_binder_info(parser & p, binder_info const & bi) {
-    if (bi.is_implicit()) {
-        p.check_token_next(g_rcurly, "invalid declaration, '}' expected");
-    } else if (bi.is_cast()) {
-        p.check_token_next(g_rbracket, "invalid declaration, ']' expected");
-    } else if (bi.is_strict_implicit()) {
-        if (p.curr_is_token(g_lcurly)) {
-            p.next();
-            p.check_token_next(g_rdcurly, "invalid declaration, '}' expected");
-        } else {
-            p.check_token_next(g_rdcurly, "invalid declaration, '⦄' expected");
-        }
-    }
 }
 
 bool parse_univ_params(parser & p, buffer<name> & ps) {
@@ -111,7 +68,9 @@ void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found, pa
 
 static environment declare_var(parser & p, environment env,
                                name const & n, level_param_names const & ls, expr const & type,
-                               bool is_axiom, binder_info const & bi, pos_info const & pos) {
+                               bool is_axiom, optional<binder_info> const & _bi, pos_info const & pos) {
+    binder_info bi;
+    if (_bi) bi = *_bi;
     if (in_section(p.env())) {
         p.add_local(p.save_pos(mk_local(n, type, bi), pos));
         return env;
@@ -128,9 +87,16 @@ static environment declare_var(parser & p, environment env,
     }
 }
 
+optional<binder_info> parse_binder_info(parser & p) {
+    optional<binder_info> bi = p.parse_optional_binder_info();
+    if (bi)
+        check_in_section(p);
+    return bi;
+}
+
 environment variable_cmd_core(parser & p, bool is_axiom) {
     auto pos = p.pos();
-    binder_info bi = parse_open_binder_info(p);
+    optional<binder_info> bi = parse_binder_info(p);
     name n = p.check_id_next("invalid declaration, identifier expected");
     check_atomic(n);
     buffer<name> ls_buffer;
@@ -152,7 +118,7 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
         p.next();
         type = p.parse_expr();
     }
-    parse_close_binder_info(p, bi);
+    p.parse_close_binder_info(bi);
     level_param_names ls;
     if (in_section(p.env())) {
         ls = to_level_param_names(collect_univ_params(type));
@@ -308,7 +274,7 @@ environment theorem_cmd(parser & p) {
 static environment variables_cmd(parser & p) {
     auto pos = p.pos();
     buffer<name> ids;
-    binder_info bi = parse_open_binder_info(p);
+    optional<binder_info> bi = parse_binder_info(p);
     while (!p.curr_is_token(g_colon)) {
         name id = p.check_id_next("invalid parameters declaration, identifier expected");
         check_atomic(id);
@@ -320,7 +286,7 @@ static environment variables_cmd(parser & p) {
         scope1.emplace(p);
     parser::param_universe_scope scope2(p);
     expr type = p.parse_expr();
-    parse_close_binder_info(p, bi);
+    p.parse_close_binder_info(bi);
     level_param_names ls = to_level_param_names(collect_univ_params(type));
     type = p.elaborate(type);
     environment env = p.env();

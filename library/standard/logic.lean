@@ -98,6 +98,12 @@ theorem iff_elim_left {a b : Bool} (H : a ↔ b) : a → b
 theorem iff_elim_right {a b : Bool} (H : a ↔ b) : b → a
 := iff_elim (assume H1 H2, H2) H
 
+theorem iff_mp_left {a b : Bool} (H1 : a ↔ b) (H2 : a) : b
+:= (iff_elim_left H1) H2
+
+theorem iff_mp_right {a b : Bool} (H1 : a ↔ b) (H2 : b) : a
+:= (iff_elim_right H1) H2
+
 inductive Exists {A : Type} (P : A → Bool) : Bool :=
 | exists_intro : ∀ (a : A), P a → Exists P
 

@@ -73,11 +73,14 @@ theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 theorem symm {A : Type} {a b : A} (H : a = b) : b = a
 := subst H (refl a)
 
-theorem congr1 {A B : Type} {f g : A → B} (H : f = g) (a : A) : f a = g a
+theorem congr1 {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a
 := subst H (refl (f a))
 
 theorem congr2 {A B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b
 := subst H (refl (f a))
+
+theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀ x, f x = g x
+:= take x, congr1 H x
 
 definition cast {A B : Type} (H : A = B) (a : A) : B
 := eq_rec a H

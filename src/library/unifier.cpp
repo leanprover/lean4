@@ -575,8 +575,12 @@ struct unifier_fn {
         // Update justification using the justification of the instantiated metavariables
         justification new_jst = mk_composite1(mk_composite1(c.get_justification(), lhs_jst.second), rhs_jst.second);
         if (!has_metavar(lhs) && !has_metavar(rhs)) {
-            set_conflict(new_jst);
-            return false; // trivial failure
+            if (!m_tc.is_def_eq(lhs, rhs, new_jst)) {
+                set_conflict(new_jst);
+                return false; // trivial failure
+            } else {
+                return true;
+            }
         }
 
         // Handle higher-order pattern matching.

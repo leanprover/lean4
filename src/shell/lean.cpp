@@ -235,7 +235,7 @@ int main(int argc, char ** argv) {
             lean::interactive in(env, ios, num_threads);
             in(std::cin, "[stdin]");
         }
-        if (export_objects) {
+        if (export_objects && ok) {
             std::ofstream out(output, std::ofstream::binary);
             export_module(out, env);
         }

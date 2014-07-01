@@ -178,6 +178,16 @@ notation `∃` binders `,` r:(scoped P, Exists P) := r
 theorem exists_elim {A : Type} {P : A → Bool} {B : Bool} (H1 : ∃ x : A, P x) (H2 : ∀ (a : A) (H : P a), B) : B
 := Exists_rec H2 H1
 
+definition exists_unique {A : Type} (p : A → Bool) := ∃ x, p x ∧ ∀ y, y ≠ x → ¬ p y
+
+notation `∃!` binders `,` r:(scoped P, exists_unique P) := r
+
+theorem exists_unique_intro {A : Type} {p : A → Bool} (w : A) (H1 : p w) (H2 : ∀ y, y ≠ w → ¬ p y) : ∃! x, p x
+:= exists_intro w (and_intro H1 H2)
+
+theorem exists_unique_elim {A : Type} {p : A → Bool} {b : Bool} (H2 : ∃! x, p x) (H1 : ∀ x, p x → (∀ y, y ≠ x → ¬ p y) → b) : b
+:= exists_elim H2 (λ w Hw, H1 w (and_elim_left Hw) (and_elim_right Hw))
+
 definition inhabited (A : Type) := ∃ x : A, true
 
 theorem inhabited_intro {A : Type} (a : A) : inhabited A

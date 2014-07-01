@@ -1,7 +1,7 @@
 definition Bool [inline] : Type.{1} := Type.{0}
 variable N : Type.{1}
 variable and : Bool → Bool → Bool
-infixr `∧` 35 := and
+infixr `∧`:35 := and
 variable le : N → N → Bool
 variable lt : N → N → Bool
 precedence `≤`:50

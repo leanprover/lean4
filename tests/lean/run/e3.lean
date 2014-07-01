@@ -11,7 +11,7 @@ definition eq {A : Type} (a b : A)
 
 check eq
 
-infix `=` 50 := eq
+infix `=`:50 := eq
 
 theorem refl {A : Type} (a : A) : a = a
 := λ P H, H

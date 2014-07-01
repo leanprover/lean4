@@ -40,8 +40,8 @@ theorem absurd_elim {a : Bool} (b : Bool) (H1 : a) (H2 : ¬ a) : b
 inductive and (a b : Bool) : Bool :=
 | and_intro : a → b → and a b
 
-infixr `/\` 35 := and
-infixr `∧`  35 := and
+infixr `/\`:35 := and
+infixr `∧`:35 := and
 
 theorem and_elim {a b c : Bool} (H1 : a → b → c) (H2 : a ∧ b) : c
 := and_rec H1 H2
@@ -56,8 +56,8 @@ inductive or (a b : Bool) : Bool :=
 | or_intro_left  : a → or a b
 | or_intro_right : b → or a b
 
-infixr `\/` 30 := or
-infixr `∨` 30 := or
+infixr `\/`:30 := or
+infixr `∨`:30 := or
 
 theorem or_elim {a b c : Bool} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
 := or_rec H2 H3 H1
@@ -74,7 +74,7 @@ theorem or_flip {a b : Bool} (H : a ∨ b) : b ∨ a
 inductive eq {A : Type} (a : A) : A → Bool :=
 | refl : eq a a
 
-infix `=` 50 := eq
+infix `=`:50 := eq
 
 theorem subst {A : Type} {a b : A} {P : A → Bool} (H1 : a = b) (H2 : P a) : P b
 := eq_rec H2 H1
@@ -104,8 +104,8 @@ theorem not_congr {a b : Bool} (H : a = b) : (¬ a) = (¬ b)
 theorem eqmp {a b : Bool} (H1 : a = b) (H2 : a) : b
 := subst H1 H2
 
-infixl `<|` 100 := eqmp
-infixl `◂`  100 := eqmp
+infixl `<|`:100 := eqmp
+infixl `◂`:100 := eqmp
 
 theorem eqmpr {a b : Bool} (H1 : a = b) (H2 : b) : a
 := (symm H1) ◂ H2
@@ -126,7 +126,7 @@ theorem eq_imp_trans {a b c : Bool} (H1 : a = b) (H2 : b → c) : a → c
 := assume Ha, H2 (H1 ◂ Ha)
 
 definition ne {A : Type} (a b : A) := ¬ (a = b)
-infix `≠` 50 := ne
+infix `≠`:50 := ne
 
 theorem ne_intro {A : Type} {a b : A} (H : a = b → false) : a ≠ b
 := H
@@ -150,7 +150,7 @@ calc_trans eq_ne_trans
 calc_trans ne_eq_trans
 
 definition iff (a b : Bool) := (a → b) ∧ (b → a)
-infix `↔` 50 := iff
+infix `↔`:50 := iff
 
 theorem iff_intro {a b : Bool} (H1 : a → b) (H2 : b → a) : a ↔ b
 := and_intro H1 H2
@@ -214,7 +214,7 @@ theorem cast_eq {A : Type} (H : A = A) (a : A) : cast H a = a
 
 definition heq {A B : Type} (a : A) (b : B) := ∃ H, cast H a = b
 
-infixl `==` 50 := heq
+infixl `==`:50 := heq
 
 theorem heq_type_eq {A B : Type} {a : A} {b : B} (H : a == b) : A = B
 := exists_elim H (λ H Hw, H)

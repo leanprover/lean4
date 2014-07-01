@@ -8,7 +8,7 @@ variable q : B
 variable x : N
 variable y : N
 variable z : N
-infixr `∧` 25 := and
+infixr `∧`:25 := and
 notation `if` c `then` t `else` e := ite c t e
 check if p ∧ q then f x else y
 check if p ∧ q then q else y

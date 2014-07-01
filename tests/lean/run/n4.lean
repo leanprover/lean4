@@ -3,7 +3,7 @@ section
   variable N : Type.{1}
   variables a b c : N
   variable and : Bool → Bool → Bool
-  infixr `∧` 35 := and
+  infixr `∧`:35 := and
   variable le : N → N → Bool
   variable lt : N → N → Bool
   precedence `≤`:50

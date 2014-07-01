@@ -1,7 +1,7 @@
 definition bool [inline] : Type.{1} := Type.{0}
 definition and (p q : bool) : bool
 := ∀ c : bool, (p → q → c) →  c
-infixl `∧` 25 := and
+infixl `∧`:25 := and
 theorem and_intro (p q : bool) (H1 : p) (H2 : q) : p ∧ q
 := λ (c : bool) (H : p → q → c), H H1 H2
 theorem and_elim_left (p q : bool) (H : p ∧ q) : p

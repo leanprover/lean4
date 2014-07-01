@@ -1,6 +1,6 @@
 abbreviation Bool : Type.{1} := Type.{0}
 variable and : Bool → Bool → Bool
-infixl `∧` 25 := and
+infixl `∧`:25 := and
 variable and_intro : forall (a b : Bool), a → b → a ∧ b
 variables a b c d : Bool
 axiom Ha : a

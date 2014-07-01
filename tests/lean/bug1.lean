@@ -1,6 +1,6 @@
 definition bool [inline] : Type.{1}           := Type.{0}
 definition and  [inline] (p q : bool) : bool  := ∀ c : bool, (p → q → c) → c
-infixl `∧` 25 := and
+infixl `∧`:25 := and
 
 variable a : bool
 

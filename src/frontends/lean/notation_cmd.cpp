@@ -81,7 +81,11 @@ using notation::action;
 
 static std::pair<notation_entry, optional<token_entry>> parse_mixfix_notation(parser & p, mixfix_kind k, bool overload) {
     std::string tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
-    optional<unsigned> prec = parse_optional_precedence(p);
+    optional<unsigned> prec;
+    if (p.curr_is_token(g_colon)) {
+        p.next();
+        prec = parse_precedence(p, "invalid notation declaration, numeral or 'max' expected");
+    }
     environment const & env = p.env();
     optional<token_entry> new_token;
     if (!prec) {

@@ -2,7 +2,7 @@ definition Bool [inline] : Type.{1} := Type.{0}
 variable eq : forall {A : Type}, A → A → Bool
 variable N : Type.{1}
 variables a b c : N
-infix `=` 50 := eq
+infix `=`:50 := eq
 check a = b
 
 variable f : Bool → N → N

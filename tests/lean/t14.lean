@@ -33,7 +33,7 @@ end
 
 namespace foo
   variable f : A → A → A
-  infix `*` 75 := f
+  infix `*`:75 := f
 end
 
 section

@@ -945,6 +945,9 @@ static list<expr> collect_contextual_parameters(local_expr_decls const & local_d
 }
 
 tactic parser::parse_exact_apply() {
+    parse_expr();
+    return id_tactic();
+#if 0
     auto p = pos();
     expr e = parse_expr();
     check_only_contextual_locals(e, m_local_decls, p);
@@ -979,9 +982,13 @@ tactic parser::parse_exact_apply() {
             proof_builder new_pb = add_proof(s.get_pb(), gname, new_e);
             return some_proof_state(proof_state(s, new_gs, new_pb, ngen));
         });
+#endif
 }
 
 tactic parser::parse_apply() {
+    parse_expr();
+    return id_tactic();
+#if 0
     auto p = pos();
     expr e = parse_expr();
     check_only_contextual_locals(e, m_local_decls, p);
@@ -1000,6 +1007,7 @@ tactic parser::parse_apply() {
                 new_e = instantiate(new_e, l);
             return apply_tactic(new_e)(env, ios, new_s);
         });
+#endif
 }
 
 tactic parser::parse_tactic(unsigned /* rbp */) {

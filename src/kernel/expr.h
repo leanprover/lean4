@@ -217,6 +217,7 @@ public:
     bool is_cast() const { return m_cast; }
     bool is_contextual() const { return m_contextual; }
     bool is_strict_implicit() const { return m_strict_implicit; }
+    binder_info update_contextual(bool f) const { return binder_info(m_implicit, m_cast, f, m_strict_implicit); }
 };
 
 inline binder_info mk_implicit_binder_info() { return binder_info(true); }

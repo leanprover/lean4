@@ -15,49 +15,69 @@ Author: Leonardo de Moura
 
 namespace lean {
 /**
-    \brief A hypothesis is a local variable + a flag indicating whether it is "contextual" or not.
-    Only contextual ones are used to build the context of new metavariables.
+   \brief A goal is just encoding the synthesis problem <tt>(?m l_1 .... l_n) : t</tt>
+   That is, we want to find a term \c ?m s.t. <tt>(?m l_1 ... l_n)</tt> has type \c t
+   The terms \c l_i are just local constants.
+
+   We can convert any metavariable
+       <tt>?m : Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
+   into a goal by simply creating the local constants
+      <tt>l_1 : A_1, ..., l_n : A_n[l_1, ..., l_{n-1}]</tt>
+   and then, create the goal
+      <tt>?m l_1 ... l_n : B[l_1, ..., l_n]</tt>
+   Now, suppose we find a term \c b with type <tt>B[l_1, ... l_n]</tt>, then we can simply
+   find \c ?m by abstracting <tt>l_1, ..., l_n</tt>
+
+   We can check whether a goal is well formed in an environment by type checking.
 */
-typedef std::pair<expr, bool> hypothesis;
-typedef list<hypothesis>      hypotheses;
 class goal {
-    hypotheses m_hypotheses;
-    expr       m_conclusion;
+    expr    m_meta;
+    expr    m_type;
 public:
     goal() {}
-    goal(hypotheses const & hs, expr const & c);
-    hypotheses const & get_hypotheses() const { return m_hypotheses; }
-    expr const & get_conclusion() const { return m_conclusion; }
+    goal(expr const & m, expr const & t):m_meta(m), m_type(t) {}
+
+    expr const & get_meta() const { return m_meta; }
+    expr const & get_type() const { return m_type; }
+
+    name get_name() const { return mlocal_name(get_app_fn(m_meta)); }
+
+    expr get_mvar() const { return get_app_fn(m_meta); }
+
     /**
-        \brief Create a metavarible application <tt>(m l_1 ... l_n)</tt> with type \c type,
-        where \c l_1 ... \c l_n are the contextual hypotheses of this goal, and
-        \c m is a metavariable with name \c n.
+        \brief Given a term \c v with type get_type(), build a lambda abstraction
+        that is the solution for the metavariable associated with this goal.
     */
-    expr mk_meta(name const & n, expr const & type) const;
+    expr abstract(expr const & v) const;
+
     /**
-        brief Return true iff this is a valid goal.
-        We say a goal is valid when the conclusion only contains local constants that are in hypotheses,
-        and each hypothesis only contains local constants that occur in the previous hypotheses.
+        \brief Create a metavariable application <tt>(?m l_1 ... l_n)</tt> with the given type,
+        and the locals from this goal. If <tt>only_contextual == true</tt>, then we only include
+        the local constants that are marked as contextual.
     */
-    bool validate() const;
+    expr mk_meta(name const & m, expr const & type, bool only_contextual = true) const;
+
+    /**
+        brief Return true iff get_type() only contains local constants that arguments
+        of get_meta(), and each argument of get_meta() only contains local constants
+        that are previous arguments.
+    */
+    bool validate_locals() const;
+
+    /**
+        \brief Return true iff \c validate_locals() return true and type of \c get_meta() in
+        \c env is get_type()
+    */
+    bool validate(environment const & env) const;
+
+    /** \brief Instatiate the metavariables in this goal using the given substitution */
     goal instantiate_metavars(substitution const & s) const;
+
     format pp(environment const & env, formatter const & fmt, options const & opts) const;
 };
 
-inline goal update(goal const & g, expr const & c) { return goal(g.get_hypotheses(), c); }
-inline goal update(goal const & g, hypotheses const & hs) { return goal(hs, g.get_conclusion()); }
-inline goal update(goal const & g, buffer<hypothesis> const & hs) { return goal(to_list(hs.begin(), hs.end()), g.get_conclusion()); }
-inline hypotheses add_hypothesis(expr const & l, hypotheses const & hs) {
-    lean_assert(is_local(l));
-    return cons(hypothesis(l, true), hs);
-}
-inline hypotheses add_hypothesis(hypothesis const & h, hypotheses const & hs) {
-    return cons(h, hs);
-}
-
 io_state_stream const & operator<<(io_state_stream const & out, goal const & g);
 
-UDATA_DEFS_CORE(hypotheses)
 UDATA_DEFS(goal)
 void open_goal(lua_State * L);
 }

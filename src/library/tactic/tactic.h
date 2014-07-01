@@ -119,15 +119,10 @@ tactic cond(proof_state_pred p, tactic const & t1, tactic const & t2);
 /** \brief Syntax-sugar for cond(p, t, id_tactic()) */
 inline tactic when(proof_state_pred p, tactic const & t) { return cond(p, t, id_tactic()); }
 /**
-   \brief Return a tactic that applies \c t only to the goal named \c gname.
-   The tactic fails if the input state does not have a goal named \c gname.
-*/
-tactic focus(tactic const & t, name const & gname);
-/**
    \brief Return a tactic that applies \c t only to the i-th goal.
    The tactic fails if the input state does have at least i goals.
 */
-tactic focus(tactic const & t, int i);
+tactic focus(tactic const & t, unsigned i);
 inline tactic focus(tactic const & t) { return focus(t, 1); }
 /** \brief Return a tactic that unfolds the definition named \c n. */
 tactic unfold_tactic(name const & n);

@@ -37,8 +37,10 @@ bool collect_simple_metas(expr const & e, buffer<expr> & result) {
     return !failed;
 }
 
-tactic apply_tactic(expr const & e) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
+tactic apply_tactic(expr const & /* e */) {
+    return tactic([=](environment const &, io_state const &, proof_state const & s) {
+            return s;
+#if 0
             if (s.is_final_state()) {
                 return proof_state_seq();
             }
@@ -111,6 +113,7 @@ tactic apply_tactic(expr const & e) {
                         });
                     return proof_state(s, new_gs, new_pb, new_ngen);
                 });
+#endif
         });
 }
 

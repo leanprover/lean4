@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/interrupt.h"
 #include "util/lazy_list_fn.h"
+#include "util/list_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_visitor.h"
 #include "library/kernel_bindings.h"
@@ -173,105 +174,65 @@ tactic take(tactic const & t, unsigned k) {
 
 tactic assumption_tactic() {
     return tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
-            list<std::pair<name, expr>> proofs;
-            goals new_gs = map_goals(s, [&](name const & gname, goal const & g) -> optional<goal> {
-                    expr const & c  = g.get_conclusion();
-                    optional<expr> pr;
-                    for (auto const & p : g.get_hypotheses()) {
-                        check_interrupted();
-                        if (mlocal_type(p.first) == c) {
-                            pr = p.first;
+            substitution subst = s.get_subst();
+            goals new_gs = map_goals(s, [&](goal const & g) -> optional<goal> {
+                    expr const & t  = g.get_type();
+                    optional<expr> h;
+                    buffer<expr> locals;
+                    get_app_args(g.get_meta(), locals);
+                    for (auto const & l : locals) {
+                        if (mlocal_type(l) == t) {
+                            h = l;
                             break;
                         }
                     }
-                    if (pr) {
-                        proofs.emplace_front(gname, *pr);
+                    if (h) {
+                        subst = subst.assign(g.get_mvar(), g.abstract(*h), justification());
                         return optional<goal>();
                     } else {
                         return some(g);
                     }
                 });
-            if (empty(proofs))
-                return none_proof_state();
-            return some(proof_state(s, new_gs, add_proofs(s.get_pb(), proofs)));
+            return some(proof_state(s, new_gs, subst));
         });
 }
 
 tactic beta_tactic() {
     return tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             bool reduced = false;
-            goals new_gs = map_goals(s, [&](name const &, goal const & g) -> optional<goal> {
-                    hypotheses new_hs = map(g.get_hypotheses(), [&](hypothesis const & h) {
-                            expr new_h = update_mlocal(h.first, beta_reduce(mlocal_type(h.first)));
-                            if (new_h != h.first)
-                                reduced = true;
-                            return hypothesis(new_h, h.second);
-                        });
-                    expr const & c = g.get_conclusion();
-                    expr new_c     = beta_reduce(c);
-                    if (new_c != c)
+            goals new_gs = map_goals(s, [&](goal const & g) -> optional<goal> {
+                    expr new_meta = beta_reduce(g.get_meta());
+                    expr new_type = beta_reduce(g.get_type());
+                    if (new_meta != g.get_meta() || new_type != g.get_type())
                         reduced = true;
-                    return some(goal(new_hs, new_c));
+                    return some(goal(new_meta, new_type));
                 });
             return reduced ? some(proof_state(s, new_gs)) : none_proof_state();
         });
 }
 
-proof_state_seq focus_core(tactic const & t, name const & gname, environment const & env, io_state const & ios, proof_state const & s) {
-    for (auto const & p : s.get_goals()) {
-        if (p.first == gname) {
-            proof_builder pb = proof_builder([=](proof_map const & m, substitution const &) -> expr { return find(m, gname); });
-            proof_state new_s(s, goals(p), pb); // new state with singleton goal
-            return map(t(env, ios, new_s), [=](proof_state const & s2) {
-                    // we have to put back the goals that were not selected
-                    list<std::pair<name, name>> renamed_goals;
-                    goals new_gs = map_append(s.get_goals(), [&](std::pair<name, goal> const & p) {
-                            if (p.first == gname) {
-                                name_set used_names;
-                                s.get_goal_names(used_names);
-                                used_names.erase(gname);
-                                return map(s2.get_goals(), [&](std::pair<name, goal> const & p2) -> std::pair<name, goal> {
-                                        name uname = mk_unique(used_names, p2.first);
-                                        used_names.insert(uname);
-                                        renamed_goals.emplace_front(p2.first, uname);
-                                        return mk_pair(uname, p2.second);
-                                    });
-                            } else {
-                                return goals(p);
-                            }
-                        });
-                    proof_builder pb1 = s.get_pb();
-                    proof_builder pb2 = s2.get_pb();
-                    proof_builder new_pb = proof_builder(
-                        [=](proof_map const & m, substitution const & a) -> expr {
-                            proof_map m1(m); // map for pb1
-                            proof_map m2; // map for pb2
-                            for (auto p : renamed_goals) {
-                                m2.insert(p.first, find(m, p.second));
-                                m1.erase(p.first);
-                            }
-                            m1.insert(gname, pb2(m2, a));
-                            return pb1(m1, a);
-                        });
-                    return proof_state(s2, new_gs, new_pb);
-                });
-        }
-    }
-    return proof_state_seq(); // tactic is not applicable
-}
-
-tactic focus(tactic const & t, name const & gname) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
-            return focus_core(t, gname, env, ios, s);
+proof_state_seq focus_core(tactic const & t, unsigned i, environment const & env, io_state const & ios, proof_state const & s) {
+    goals gs = s.get_goals();
+    if (i >= length(gs))
+        return proof_state_seq();
+    goal const & g    = get_ith(gs, i);
+    proof_state new_s(s, goals(g)); // singleton goal
+    return map(t(env, ios, new_s), [=](proof_state const & s2) {
+            // we have to put back the goals that were not selected
+            buffer<goal> tmp;
+            to_buffer(gs, tmp);
+            buffer<goal> new_gs;
+            new_gs.append(i, tmp.data());
+            for (auto g : s2.get_goals())
+                new_gs.push_back(g);
+            new_gs.append(tmp.size()-i-1, tmp.data()+i+1);
+            return proof_state(s2, to_list(new_gs.begin(), new_gs.end()));
         });
 }
 
-tactic focus(tactic const & t, int i) {
+tactic focus(tactic const & t, unsigned i) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
-            if (optional<name> n = s.get_ith_goal_name(i))
-                return focus_core(t, *n, env, ios, s);
-            else
-                return proof_state_seq();
+            return focus_core(t, i, env, ios, s);
         });
 }
 
@@ -347,15 +308,15 @@ public:
 };
 
 optional<proof_state> unfold_tactic_core(unfold_core_fn & fn, proof_state const & s) {
-    goals new_gs = map_goals(s, [&](name const &, goal const & g) -> optional<goal> {
-            hypotheses new_hs = map(g.get_hypotheses(), [&](hypothesis const & h) {
-                    expr l = update_mlocal(h.first, fn(mlocal_type(h.first)));
-                    return hypothesis(l, h.second);
-                });
-            expr       new_c  = fn(g.get_conclusion());
-            return some(goal(new_hs, new_c));
+    bool reduced = false;
+    goals new_gs = map_goals(s, [&](goal const & g) -> optional<goal> {
+            expr new_meta = fn(g.get_meta());
+            expr new_type = fn(g.get_type());
+            if (new_meta != g.get_meta() || new_type != g.get_type())
+                reduced = true;
+            return some(goal(new_meta, new_type));
         });
-    if (fn.unfolded()) {
+    if (reduced) {
         return some(proof_state(s, new_gs));
     } else {
         return none_proof_state();
@@ -455,10 +416,8 @@ static int tactic_focus(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 1)
         return push_tactic(L, focus(to_tactic(L, 1)));
-    else if (lua_isnumber(L, 2))
-        return push_tactic(L, focus(to_tactic(L, 1), lua_tointeger(L, 2)));
     else
-        return push_tactic(L, focus(to_tactic(L, 1), to_name_ext(L, 2)));
+        return push_tactic(L, focus(to_tactic(L, 1), lua_tointeger(L, 2)));
 }
 static int mk_lua_tactic01(lua_State * L) {
     luaL_checktype(L, 1, LUA_TFUNCTION); // user-fun

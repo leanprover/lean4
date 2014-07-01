@@ -610,21 +610,16 @@ public:
         collect_metavars(e, mvars);
         for (auto mvar : mvars) {
             mvar = update_mlocal(mvar, subst.instantiate_metavars_wo_jst(mlocal_type(mvar)));
-            proof_state ps = to_proof_state(m_env, mvar, m_ngen.mk_child(), m_ios.get_options());
+            proof_state ps = to_proof_state(mvar, m_ngen.mk_child());
             if (optional<tactic> t = get_tactic_for(mvar)) {
                 proof_state_seq seq = (*t)(m_env, m_ios, ps);
                 if (auto r = seq.pull()) {
-                    try {
-                        if (auto pr = to_proof(r->first)) {
-                            subst = subst.assign(mlocal_name(mvar), *pr, justification());
-                        } else {
-                            display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
-                        }
-                    } catch (exception & ex) {
-                        regular out(m_env, m_ios);
-                        display_error_pos(out, m_pos_provider, mvar);
-                        out << " proof generation failed\n    >> ";
-                        display_error(out, nullptr, ex);
+                    substitution s = r->first.get_subst();
+                    expr v = s.instantiate_metavars_wo_jst(mvar);
+                    if (has_metavar(v)) {
+                        display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+                    } else {
+                        subst = subst.assign(mlocal_name(mvar), v);
                     }
                 } else {
                     // tactic failed to produce any result

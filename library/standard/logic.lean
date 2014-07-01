@@ -43,6 +43,9 @@ inductive and (a b : Bool) : Bool :=
 infixr `/\` 35 := and
 infixr `∧`  35 := and
 
+theorem and_elim {a b c : Bool} (H1 : a → b → c) (H2 : a ∧ b) : c
+:= and_rec H1 H2
+
 theorem and_elim_left {a b : Bool} (H : a ∧ b) : a
 := and_rec (λ a b, a) H
 
@@ -56,8 +59,17 @@ inductive or (a b : Bool) : Bool :=
 infixr `\/` 30 := or
 infixr `∨` 30 := or
 
-theorem or_elim (a b c : Bool) (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
+theorem or_elim {a b c : Bool} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
 := or_rec H2 H3 H1
+
+theorem resolve_right {a b : Bool} (H1 : a ∨ b) (H2 : ¬ a) : b
+:= or_elim H1 (assume Ha, absurd_elim b Ha H2) (assume Hb, Hb)
+
+theorem resolve_left {a b : Bool} (H1 : a ∨ b) (H2 : ¬ b) : a
+:= or_elim H1 (assume Ha, Ha) (assume Hb, absurd_elim a Hb H2)
+
+theorem or_flip {a b : Bool} (H : a ∨ b) : b ∨ a
+:= or_elim H (assume Ha, or_intro_right b Ha) (assume Hb, or_intro_left a Hb)
 
 inductive eq {A : Type} (a : A) : A → Bool :=
 | refl : eq a a
@@ -85,6 +97,57 @@ theorem congr2 {A B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b
 
 theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀ x, f x = g x
 := take x, congr1 H x
+
+theorem not_congr {a b : Bool} (H : a = b) : (¬ a) = (¬ b)
+:= congr2 not H
+
+theorem eqmp {a b : Bool} (H1 : a = b) (H2 : a) : b
+:= subst H1 H2
+
+infixl `<|` 100 := eqmp
+infixl `◂`  100 := eqmp
+
+theorem eqmpr {a b : Bool} (H1 : a = b) (H2 : b) : a
+:= (symm H1) ◂ H2
+
+theorem eqt_elim {a : Bool} (H : a = true) : a
+:= (symm H) ◂ trivial
+
+theorem eqf_elim {a : Bool} (H : a = false) : ¬ a
+:= not_intro (assume Ha : a, H ◂ Ha)
+
+theorem imp_trans {a b c : Bool} (H1 : a → b) (H2 : b → c) : a → c
+:= assume Ha, H2 (H1 Ha)
+
+theorem imp_eq_trans {a b c : Bool} (H1 : a → b) (H2 : b = c) : a → c
+:= assume Ha, H2 ◂ (H1 Ha)
+
+theorem eq_imp_trans {a b c : Bool} (H1 : a = b) (H2 : b → c) : a → c
+:= assume Ha, H2 (H1 ◂ Ha)
+
+definition ne {A : Type} (a b : A) := ¬ (a = b)
+infix `≠` 50 := ne
+
+theorem ne_intro {A : Type} {a b : A} (H : a = b → false) : a ≠ b
+:= H
+
+theorem ne_elim {A : Type} {a b : A} (H1 : a ≠ b) (H2 : a = b) : false
+:= H1 H2
+
+theorem ne_irrefl {A : Type} {a : A} (H : a ≠ a) : false
+:= H (refl a)
+
+theorem ne_symm {A : Type} {a b : A} (H : a ≠ b) : b ≠ a
+:= assume H1 : b = a, H (symm H1)
+
+theorem eq_ne_trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b ≠ c) : a ≠ c
+:= subst (symm H1) H2
+
+theorem ne_eq_trans {A : Type} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a ≠ c
+:= subst H2 H1
+
+calc_trans eq_ne_trans
+calc_trans ne_eq_trans
 
 definition iff (a b : Bool) := (a → b) ∧ (b → a)
 infix `↔` 50 := iff
@@ -146,13 +209,16 @@ infixl `==` 50 := heq
 theorem heq_type_eq {A B : Type} {a : A} {b : B} (H : a == b) : A = B
 := exists_elim H (λ H Hw, H)
 
-theorem eq_to_heq {A : Type} {a b : A} (H : a = b) : a == b
+theorem to_heq {A : Type} {a b : A} (H : a = b) : a == b
 := exists_intro (refl A) (trans (cast_refl a) H)
 
-theorem heq_to_eq {A : Type} {a b : A} (H : a == b) : a = b
+theorem to_eq {A : Type} {a b : A} (H : a == b) : a = b
 := exists_elim H (λ (H : A = A) (Hw : cast H a = b),
     calc a = cast H a : symm (cast_eq H a)
       ...  = b        : Hw)
 
 theorem heq_refl {A : Type} (a : A) : a == a
-:= eq_to_heq (refl a)
+:= to_heq (refl a)
+
+theorem heqt_elim {a : Bool} (H : a == true) : a
+:= eqt_elim (to_eq H)

@@ -848,16 +848,19 @@ expr parser::parse_id() {
 
 expr parser::parse_numeral_expr() {
     // TODO(Leo)
+    next();  // to avoid loop
     return expr();
 }
 
 expr parser::parse_decimal_expr() {
     // TODO(Leo)
+    next();  // to avoid loop
     return expr();
 }
 
 expr parser::parse_string_expr() {
     // TODO(Leo)
+    next();  // to avoid loop
     return expr();
 }
 

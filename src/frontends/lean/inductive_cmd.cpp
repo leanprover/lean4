@@ -144,6 +144,18 @@ void throw_all_or_nothing() {
                     "if the universe level of one type is provided, then all of them should be");
 }
 
+inductive_decl update_inductive_decl(inductive_decl const & d, expr const & t) {
+    return inductive_decl(inductive_decl_name(d), t, inductive_decl_intros(d));
+}
+
+inductive_decl update_inductive_decl(inductive_decl const & d, buffer<intro_rule> const & irs) {
+    return inductive_decl(inductive_decl_name(d), inductive_decl_type(d), to_list(irs.begin(), irs.end()));
+}
+
+intro_rule update_intro_rule(intro_rule const & r, expr const & t) {
+    return intro_rule(intro_rule_name(r), t);
+}
+
 static void elaborate_inductive(buffer<inductive_decl> & decls, level_param_names const & lvls, unsigned num_params, parser & p) {
     // temporary environment used during elaboration
     environment env = p.env();
@@ -169,7 +181,7 @@ static void elaborate_inductive(buffer<inductive_decl> & decls, level_param_name
         }
         t = p.elaborate(env, t);
         env = env.add(check(env, mk_var_decl(inductive_decl_name(d), lvls, t)));
-        d = inductive_decl(inductive_decl_name(d), t, inductive_decl_intros(d));
+        d = update_inductive_decl(d, t);
         first = false;
     }
     tc.reset(new type_checker(env));
@@ -181,16 +193,16 @@ static void elaborate_inductive(buffer<inductive_decl> & decls, level_param_name
             expr t = p.elaborate(env, intro_rule_type(ir));
             if (infer_result_universe)
                 accumulate_levels(*tc, t, num_params, u, r_lvls);
-            intros.push_back(intro_rule(intro_rule_name(ir), t));
+            intros.push_back(update_intro_rule(ir, t));
         }
-        d = inductive_decl(inductive_decl_name(d), inductive_decl_type(d), to_list(intros.begin(), intros.end()));
+        d = update_inductive_decl(d, intros);
     }
     if (infer_result_universe) {
         level r_lvl = normalize(mk_result_level(env.impredicative(), r_lvls));
         for (inductive_decl & d : decls) {
             expr t = inductive_decl_type(d);
             t = update_result_sort(*tc, t, r_lvl);
-            d = inductive_decl(inductive_decl_name(d), t, inductive_decl_intros(d));
+            d = update_inductive_decl(d, t);
         }
     }
 }
@@ -335,9 +347,7 @@ environment inductive_cmd(parser & p) {
     // We don't update the introduction rules in the first pass, because
     // we will mark all section_params as implicit for them.
     for (inductive_decl & d : decls) {
-        d = inductive_decl(inductive_decl_name(d),
-                           p.pi_abstract(section_params, inductive_decl_type(d)),
-                           inductive_decl_intros(d));
+        d = update_inductive_decl(d, p.pi_abstract(section_params, inductive_decl_type(d)));
     }
     // Add section_params to introduction rules type, and also "fix"
     // occurrences of inductive types.
@@ -349,11 +359,9 @@ environment inductive_cmd(parser & p) {
             type = p.pi_abstract(section_params, type);
             bool strict = relaxed_implicit_inference.contains(intro_rule_name(ir));
             type = infer_implicit(type, section_params.size(), strict);
-            new_irs.push_back(intro_rule(intro_rule_name(ir), type));
+            new_irs.push_back(update_intro_rule(ir, type));
         }
-        d = inductive_decl(inductive_decl_name(d),
-                           inductive_decl_type(d),
-                           to_list(new_irs.begin(), new_irs.end()));
+        d = update_inductive_decl(d, new_irs);
     }
     num_params += section_params.size();
     level_param_names ls = to_list(ls_buffer.begin(), ls_buffer.end());

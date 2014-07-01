@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/parse_table.h"
-#include "frontends/lean/parser.h"
+#include "frontends/lean/parser_bindings.h"
 
 namespace lean {
 

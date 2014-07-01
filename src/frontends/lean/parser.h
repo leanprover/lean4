@@ -277,5 +277,4 @@ public:
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions, unsigned num_threads);
 bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads);
-void open_parser(lua_State * L);
 }

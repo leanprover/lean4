@@ -183,7 +183,7 @@ static void parse_notation_local(parser & p, buffer<expr> & locals) {
 static action parse_action(parser & p, name const & prev_token, buffer<expr> & locals, buffer<token_entry> & new_tokens) {
     if (p.curr_is_token(g_colon)) {
         p.next();
-        if (p.curr_is_numeral()) {
+        if (p.curr_is_numeral() || p.curr_is_token_or_id(g_max)) {
             unsigned prec = parse_precedence(p, "invalid notation declaration, small numeral expected");
             return mk_expr_action(prec);
         } else if (p.curr_is_string()) {

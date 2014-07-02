@@ -1,7 +1,8 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-import logic
+import logic string
+using string
 
 namespace tactic
 -- This is just a trick to embed the 'tactic language' as a
@@ -26,7 +27,7 @@ definition id         : tactic := tactic_value
 definition beta       : tactic := tactic_value
 definition apply      {B : Type} (b : B) : tactic := tactic_value
 definition unfold     {B : Type} (b : B) : tactic := tactic_value
-
+definition trace      (s : string) : tactic := tactic_value
 infixl `;`:200         := and_then
 infixl `|`:100         := or_else
 notation `!`:max t:max := repeat t

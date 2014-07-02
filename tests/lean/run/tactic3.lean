@@ -2,8 +2,8 @@ import standard
 using tactic
 
 theorem tst {A B : Bool} (H1 : A) (H2 : B) : A
-:= by state; now  |
-      state; fail |
-      exact
+:= by trace "first";  state; now  |
+      trace "second"; state; fail |
+      trace "third";  exact
 
 check tst

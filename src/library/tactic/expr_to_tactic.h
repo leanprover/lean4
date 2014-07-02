@@ -16,7 +16,7 @@ public:
     expr const & get_expr() const { return m_expr; }
 };
 
-typedef std::function<tactic(environment const & env, expr const & e, pos_info_provider const *)> expr_to_tactic_fn;
+typedef std::function<tactic(type_checker & tc, expr const & e, pos_info_provider const *)> expr_to_tactic_fn;
 void register_expr_to_tactic(name const & n, expr_to_tactic_fn const & fn);
 struct register_tac {
     register_tac(name const & n, expr_to_tactic_fn fn) { register_expr_to_tactic(n, fn); }

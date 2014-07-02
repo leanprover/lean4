@@ -59,7 +59,7 @@ token_table init_token_table() {
          {"from", 0}, {"(", g_max_prec}, {")", 0}, {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
          {"[", g_max_prec}, {"]", 0}, {"⦃", g_max_prec}, {"⦄", 0}, {".{", 0}, {"Type", g_max_prec}, {"|", 0}, {"!", 0}, {"with", 0},
          {"...", 0}, {",", 0}, {".", 0}, {":", 0}, {"calc", 0}, {":=", 0}, {"--", 0}, {"#", 0},
-         {"(*", 0}, {"(--", 0}, {"proof", 0}, {"qed", 0}, {"@", 0},
+         {"(*", 0}, {"(--", 0}, {"proof", 0}, {"qed", 0}, {"@", g_max_prec},
          {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {nullptr, 0}};
 
     char const * commands[] = {"theorem", "axiom", "variable", "definition", "coercion",

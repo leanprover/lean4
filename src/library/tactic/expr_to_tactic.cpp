@@ -49,21 +49,31 @@ tactic expr_to_tactic(environment const & env, expr const & e, pos_info_provider
 }
 
 register_simple_tac::register_simple_tac(name const & n, std::function<tactic()> f) {
-    register_expr_to_tactic(n, [=](environment const &, expr const &, pos_info_provider const *) {
+    register_expr_to_tactic(n, [=](environment const &, expr const & e, pos_info_provider const *) {
+            if (!is_constant(e))
+                throw exception("invalid constant tactic");
             return f();
         });
 }
 
 register_bin_tac::register_bin_tac(name const & n, std::function<tactic(tactic const &, tactic const &)> f) {
     register_expr_to_tactic(n, [=](environment const & env, expr const & e, pos_info_provider const * p) {
-            return f(expr_to_tactic(env, app_arg(app_fn(e)), p),
-                     expr_to_tactic(env, app_arg(e), p));
+            buffer<expr> args;
+            get_app_args(e, args);
+            if (args.size() != 2)
+                throw exception("invalid binary tactic, it must have two arguments");
+            return f(expr_to_tactic(env, args[0], p),
+                     expr_to_tactic(env, args[1], p));
         });
 }
 
 register_unary_tac::register_unary_tac(name const & n, std::function<tactic(tactic const &)> f) {
     register_expr_to_tactic(n, [=](environment const & env, expr const & e, pos_info_provider const * p) {
-            return f(expr_to_tactic(env, app_arg(e), p));
+            buffer<expr> args;
+            get_app_args(e, args);
+            if (args.size() != 1)
+                throw exception("invalid unary tactic, it must have one argument");
+            return f(expr_to_tactic(env, args[0], p));
         });
 }
 

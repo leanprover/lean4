@@ -628,7 +628,7 @@ public:
 
     optional<tactic> get_tactic_for(substitution const & substitution, expr const & mvar) {
         if (auto it = m_tactic_hints.find(mlocal_name(mvar))) {
-            expr pre_tac = substitution.instantiate_metavars_wo_jst(*it);
+            expr pre_tac = substitution.instantiate(*it);
             try {
                 return optional<tactic>(expr_to_tactic(m_env, pre_tac, m_pos_provider));
             } catch (expr_to_tactic_exception & ex) {
@@ -658,8 +658,8 @@ public:
                 buffer<expr> locals;
                 get_app_args(*meta, locals);
                 for (expr & l : locals)
-                    l = subst.instantiate_metavars_wo_jst(l);
-                mvar = update_mlocal(mvar, subst.instantiate_metavars_wo_jst(mlocal_type(mvar)));
+                    l = subst.instantiate(l);
+                mvar = update_mlocal(mvar, subst.instantiate(mlocal_type(mvar)));
                 meta = ::lean::mk_app(mvar, locals);
                 expr type = m_tc.infer(*meta);
                 proof_state ps(goals(goal(*meta, type)), subst, m_ngen.mk_child());
@@ -671,7 +671,7 @@ public:
                                 display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
                             } else {
                                 subst = r->first.get_subst();
-                                expr v = subst.instantiate_metavars_wo_jst(mvar);
+                                expr v = subst.instantiate(mvar);
                                 subst = subst.assign(mlocal_name(mvar), v);
                             }
                         } else {
@@ -686,12 +686,12 @@ public:
                 }
             }
         }
-        return subst.instantiate_metavars_wo_jst(e);
+        return subst.instantiate(e);
     }
 
     /** \brief Apply substitution and solve remaining metavariables using tactics. */
     expr apply(substitution & s, expr const & e) {
-        expr r = s.instantiate_metavars_wo_jst(e);
+        expr r = s.instantiate(e);
         return solve_unassigned_mvars(s, r);
     }
 
@@ -717,9 +717,7 @@ public:
         expr r_type = infer_type(r);
         environment env = m_env;
         justification j = mk_justification(e, [=](formatter const & fmt, options const & opts, substitution const & subst) {
-                return pp_type_mismatch(fmt, env, opts,
-                                        subst.instantiate_metavars_wo_jst(expected_type),
-                                        subst.instantiate_metavars_wo_jst(r_type));
+                return pp_type_mismatch(fmt, env, opts, subst.instantiate(expected_type), subst.instantiate(r_type));
             });
         if (!m_tc.is_def_eq(r_type, expected_type, j)) {
             throw_kernel_exception(env, e,
@@ -739,9 +737,7 @@ public:
         expr r_v_type = infer_type(r_v);
         environment env = m_env;
         justification j = mk_justification(v, [=](formatter const & fmt, options const & o, substitution const & subst) {
-                return pp_def_type_mismatch(fmt, env, o, n,
-                                            subst.instantiate_metavars_wo_jst(r_t),
-                                            subst.instantiate_metavars_wo_jst(r_v_type));
+                return pp_def_type_mismatch(fmt, env, o, n, subst.instantiate(r_t), subst.instantiate(r_v_type));
             });
         if (!m_tc.is_def_eq(r_v_type, r_t, j)) {
             throw_kernel_exception(env, v,

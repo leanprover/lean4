@@ -129,7 +129,7 @@ expr type_checker::ensure_sort_core(expr e, expr const & s) {
         expr r = mk_sort(mk_meta_univ(m_gen.next()));
         justification j = mk_justification(s,
                                            [=](formatter const & fmt, options const & o, substitution const & subst) {
-                                               return pp_type_expected(fmt, m_env, o, subst.instantiate_metavars_wo_jst(s));
+                                               return pp_type_expected(fmt, m_env, o, subst.instantiate(s));
                                            });
         add_cnstr(mk_eq_cnstr(e, r, j));
         return r;
@@ -170,7 +170,7 @@ expr type_checker::ensure_pi_core(expr e, expr const & s) {
         expr r      = mk_pi(g_x_name, A_args, B_args);
         justification j = mk_justification(s,
                                            [=](formatter const & fmt, options const & o, substitution const & subst) {
-                                               return pp_function_expected(fmt, m_env, o, subst.instantiate_metavars_wo_jst(s));
+                                               return pp_function_expected(fmt, m_env, o, subst.instantiate(s));
                                            });
         add_cnstr(mk_eq_cnstr(e, r, j));
         return r;
@@ -202,10 +202,7 @@ app_delayed_justification::app_delayed_justification(environment const & env, ex
 
 justification mk_app_justification(environment const & env, expr const & e, expr const & d_type, expr const & a_type) {
     auto pp_fn = [=](formatter const & fmt, options const & o, substitution const & subst) {
-        return pp_app_type_mismatch(fmt, env, o,
-                                    subst.instantiate_metavars_wo_jst(e),
-                                    subst.instantiate_metavars_wo_jst(d_type),
-                                    subst.instantiate_metavars_wo_jst(a_type));
+        return pp_app_type_mismatch(fmt, env, o, subst.instantiate(e), subst.instantiate(d_type), subst.instantiate(a_type));
     };
     return mk_justification(e, pp_fn);
 }

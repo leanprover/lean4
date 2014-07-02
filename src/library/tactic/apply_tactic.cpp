@@ -98,7 +98,7 @@ tactic apply_tactic(expr const & _e) {
             return map2<proof_state>(substs, [=](substitution const & subst) -> proof_state {
                     name_generator new_ngen(ngen);
                     type_checker tc(env, new_ngen.mk_child());
-                    expr new_e = subst.instantiate_metavars_wo_jst(e);
+                    expr new_e = subst.instantiate(e);
                     expr new_p = g.abstract(new_e);
                     check_has_no_local(new_p, _e);
                     substitution new_subst = subst.assign(g.get_name(), new_p);
@@ -108,7 +108,7 @@ tactic apply_tactic(expr const & _e) {
                     unsigned i = metas.size();
                     while (i > 0) {
                         --i;
-                        new_gs = cons(goal(metas[i], subst.instantiate_metavars_wo_jst(tc.infer(metas[i]))), new_gs);
+                        new_gs = cons(goal(metas[i], subst.instantiate(tc.infer(metas[i]))), new_gs);
                     }
                     return proof_state(new_gs, new_subst, new_ngen);
                 });

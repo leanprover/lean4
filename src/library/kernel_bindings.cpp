@@ -1389,7 +1389,7 @@ static int mk_justification(lua_State * L) {
         environment env = to_environment(L, 2);
         expr e          = to_expr(L, 3);
         justification j = mk_justification(some_expr(e), [=](formatter const & fmt, options const & opts, substitution const & subst) {
-                expr new_e = subst.instantiate_metavars_wo_jst(e);
+                expr new_e = subst.instantiate(e);
                 format r;
                 r += format(s.c_str());
                 r += pp_indent_expr(fmt, env, opts, new_e);

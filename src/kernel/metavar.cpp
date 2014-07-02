@@ -181,7 +181,7 @@ protected:
                     m_subst.d_assign(m_name, r);
                     return r;
                 } else {
-                    return m_subst.instantiate_metavars_wo_jst(p1->first);
+                    return m_subst.instantiate(p1->first);
                 }
             }
         } else {

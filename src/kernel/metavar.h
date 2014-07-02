@@ -100,6 +100,7 @@ public:
        but does not return a justification object for the new expression.
     */
     expr instantiate_metavars_wo_jst(expr const & e) const;
+    expr instantiate(expr const & e) const { return instantiate_metavars_wo_jst(e); }
 
     std::pair<expr, substitution> updt_instantiate_metavars_wo_jst(expr const & e) const;
 

@@ -91,11 +91,6 @@ expr goal::mk_meta(name const & n, expr const & type, bool only_contextual) cons
     return copy_tag(m_meta, mk_app(mvar, locals));
 }
 
-goal goal::instantiate_metavars(substitution const & s) const {
-    return goal(s.instantiate_metavars_wo_jst(m_meta),
-                s.instantiate_metavars_wo_jst(m_type));
-}
-
 static bool validate_locals(expr const & r, unsigned num_locals, expr const * locals) {
     bool failed = false;
     for_each(r, [&](expr const & e, unsigned) {
@@ -169,7 +164,6 @@ static int goal_pp(lua_State * L) {
 }
 static int goal_validate_locals(lua_State * L) { return push_boolean(L, to_goal(L, 1).validate_locals()); }
 static int goal_validate(lua_State * L) { return push_boolean(L, to_goal(L, 1).validate(to_environment(L, 2))); }
-static int goal_instantiate(lua_State * L) { return push_goal(L, to_goal(L, 1).instantiate_metavars(to_substitution(L, 2))); }
 static int goal_abstract(lua_State * L) { return push_expr(L, to_goal(L, 1).abstract(to_expr(L, 2))); }
 static int goal_name(lua_State * L) { return push_name(L, to_goal(L, 1).get_name()); }
 
@@ -181,7 +175,6 @@ static const struct luaL_Reg goal_m[] = {
     {"pp",              safe_function<goal_pp>},
     {"validate",        safe_function<goal_validate>},
     {"validate_locals", safe_function<goal_validate_locals>},
-    {"instantiate",     safe_function<goal_instantiate>},
     {"meta",            safe_function<goal_meta>},
     {"type",            safe_function<goal_type>},
     {"name",            safe_function<goal_name>},

@@ -70,9 +70,6 @@ public:
     */
     bool validate(environment const & env) const;
 
-    /** \brief Instatiate the metavariables in this goal using the given substitution */
-    goal instantiate_metavars(substitution const & s) const;
-
     format pp(environment const & env, formatter const & fmt, options const & opts) const;
 };
 

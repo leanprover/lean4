@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/deep_copy.h"
 #include "library/module.h"
 #include "library/scoped_ext.h"
+#include "library/num.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/parser_bindings.h"
@@ -846,9 +847,15 @@ expr parser::parse_id() {
 }
 
 expr parser::parse_numeral_expr() {
-    // TODO(Leo)
-    next();  // to avoid loop
-    return expr();
+    auto p = pos();
+    mpz n = get_num_val().get_numerator();
+    next();
+    if (!m_has_num)
+        m_has_num = has_num_decls(m_env);
+    if (!*m_has_num)
+        throw parser_error("numeral cannot be encoded as expression, environment does not contain the type 'num' "
+                           "(solution: use 'import num')", p);
+    return from_num(n);
 }
 
 expr parser::parse_decimal_expr() {

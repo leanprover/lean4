@@ -64,6 +64,7 @@ class parser {
     // When the following flag is true, it creates a constant.
     // This flag is when we are trying to parse mutually recursive declarations.
     bool                    m_no_undef_id_error;
+    optional<bool>          m_has_num;
 
     void display_error_pos(unsigned line, unsigned pos);
     void display_error_pos(pos_info p);

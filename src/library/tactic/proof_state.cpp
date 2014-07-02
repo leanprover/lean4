@@ -69,7 +69,7 @@ proof_state to_proof_state(expr const & mvar, name_generator ngen) {
     }
     expr meta = mk_app(mvar, ls);
     goals gs(goal(meta, t));
-    return proof_state(gs, substitution(), ngen, meta);
+    return proof_state(gs, substitution(), ngen);
 }
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
@@ -163,7 +163,7 @@ static int mk_proof_state(lua_State * L) {
     } else if (nargs == 3) {
         return push_proof_state(L, proof_state(to_proof_state(L, 1), to_goals(L, 2), to_substitution(L, 3)));
     } else if (nargs == 4) {
-        return push_proof_state(L, proof_state(to_proof_state(L, 1), to_goals(L, 2), to_substitution(L, 3), to_name_generator(L, 4)));
+        return push_proof_state(L, proof_state(to_goals(L, 1), to_substitution(L, 2), to_name_generator(L, 3)));
     } else {
         throw exception("proof_state invalid number of arguments");
     }
@@ -191,7 +191,6 @@ static int proof_state_tostring(lua_State * L) {
 static int proof_state_get_goals(lua_State * L) { return push_goals(L, to_proof_state(L, 1).get_goals()); }
 static int proof_state_get_ngen(lua_State * L) { return push_name_generator(L, to_proof_state(L, 1).get_ngen()); }
 static int proof_state_get_subst(lua_State * L) { return push_substitution(L, to_proof_state(L, 1).get_subst()); }
-static int proof_state_get_initial(lua_State * L) { return push_list_expr(L, to_proof_state(L, 1).get_initial()); }
 static int proof_state_is_final_state(lua_State * L) { return push_boolean(L, to_proof_state(L, 1).is_final_state()); }
 static int proof_state_pp(lua_State * L) {
     int nargs = lua_gettop(L);
@@ -212,7 +211,6 @@ static const struct luaL_Reg proof_state_m[] = {
     {"pp",                   safe_function<proof_state_pp>},
     {"goals",                safe_function<proof_state_get_goals>},
     {"subst",                safe_function<proof_state_get_subst>},
-    {"initial",              safe_function<proof_state_get_initial>},
     {"ngen",                 safe_function<proof_state_get_ngen>},
     {"is_final_state",       safe_function<proof_state_is_final_state>},
     {0, 0}

@@ -24,4 +24,4 @@ cs = { mk_level_eq_cnstr(m1, max_univ(m2, max_univ(m2, l1, 1))),
        mk_level_eq_cnstr(m3+1, m2+1)
      }
 
-display_solutions(m1, unify(env, cs, o))
+display_solutions(m1, unify(env, cs, name_generator(), o))

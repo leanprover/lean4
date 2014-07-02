@@ -31,4 +31,5 @@ definition trace      (s : string) : tactic := tactic_value
 infixl `;`:200         := and_then
 infixl `|`:100         := or_else
 notation `!`:max t:max := repeat t
+notation `⟦` t `⟧`     := apply t
 end

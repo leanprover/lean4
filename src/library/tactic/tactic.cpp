@@ -175,6 +175,7 @@ tactic take(tactic const & t, unsigned k) {
 tactic assumption_tactic() {
     return tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             substitution subst = s.get_subst();
+            bool solved = false;
             goals new_gs = map_goals(s, [&](goal const & g) -> optional<goal> {
                     expr const & t  = g.get_type();
                     optional<expr> h;
@@ -187,13 +188,17 @@ tactic assumption_tactic() {
                         }
                     }
                     if (h) {
-                        subst = subst.assign(g.get_mvar(), g.abstract(*h), justification());
+                        subst  = subst.assign(g.get_mvar(), g.abstract(*h), justification());
+                        solved = true;
                         return optional<goal>();
                     } else {
                         return some(g);
                     }
                 });
-            return some(proof_state(s, new_gs, subst));
+            if (solved)
+                return some(proof_state(s, new_gs, subst));
+            else
+                return none_proof_state();
         });
 }
 

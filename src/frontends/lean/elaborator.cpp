@@ -663,12 +663,12 @@ public:
                 mvar = update_mlocal(mvar, subst.instantiate_metavars_wo_jst(mlocal_type(mvar)));
                 meta = ::lean::mk_app(mvar, locals);
                 expr type = m_tc.infer(*meta);
-                proof_state ps = to_proof_state(*meta, type, m_ngen.mk_child());
+                proof_state ps(goals(goal(*meta, type)), subst, m_ngen.mk_child());
                 if (optional<tactic> t = get_tactic_for(subst, mvar)) {
                     proof_state_seq seq = (*t)(m_env, m_ios, ps);
                     if (auto r = seq.pull()) {
-                        substitution s = r->first.get_subst();
-                        expr v = s.instantiate_metavars_wo_jst(mvar);
+                        subst = r->first.get_subst();
+                        expr v = subst.instantiate_metavars_wo_jst(mvar);
                         if (has_metavar(v)) {
                             display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
                         } else {

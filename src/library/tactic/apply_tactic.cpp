@@ -37,84 +37,66 @@ bool collect_simple_metas(expr const & e, buffer<expr> & result) {
     return !failed;
 }
 
-tactic apply_tactic(expr const & e) {
-    return tactic([=](environment const &, io_state const &, proof_state const & s) {
-            std::cout << e << "\n";
-            return s;
-#if 0
-            if (s.is_final_state()) {
-                return proof_state_seq();
+unsigned get_expect_num_args(type_checker & tc, expr e) {
+    unsigned r = 0;
+    while (true) {
+        e = tc.whnf(e);
+        if (!is_pi(e))
+            return r;
+        e = binding_body(e);
+        r++;
+    }
+}
+
+void collect_simple_meta(expr const & e, buffer<expr> & metas) {
+    for_each(e, [&](expr const & e, unsigned) {
+            if (is_meta(e)) {
+                if (is_simple_meta(e))
+                    metas.push_back(e);
+                return false; /* do not visit its type */
             }
-            goals const & gs    = s.get_goals();
-            name gname          = head(gs).first;
-            goal  g             = head(gs).second;
-            goals rest_gs       = tail(gs);
-            expr const & C      = g.get_conclusion();
-            name_generator ngen = s.ngen();
+            return has_metavar(e);
+        });
+}
+
+tactic apply_tactic(expr const & _e) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
+            goals const & gs = s.get_goals();
+            if (empty(gs))
+                return proof_state_seq();
+            name_generator ngen = s.get_ngen();
             type_checker tc(env, ngen.mk_child());
-            expr new_e          = e;
-            expr new_e_type     = tc.infer(new_e);
-            buffer<expr> meta_buffer;
-            if (!collect_simple_metas(new_e, meta_buffer))
-                return proof_state_seq();
-            // add more metavariables while new_e_type is a Pi
-            while (is_pi(new_e_type)) {
-                expr meta  = g.mk_meta(ngen.next(), binding_domain(new_e_type));
-                meta_buffer.push_back(meta);
-                new_e      = mk_app(new_e, meta);
-                new_e_type = instantiate(binding_body(new_e_type), meta);
+            goal  g          = head(gs);
+            goals tail_gs    = tail(gs);
+            expr  t          = g.get_type();
+            expr  e          = _e;
+            expr  e_t        = tc.infer(e);
+            unsigned num_t   = get_expect_num_args(tc, t);
+            unsigned num_e_t = get_expect_num_args(tc, e_t);
+            if (num_t > num_e_t)
+                return proof_state_seq(); // no hope to unify then
+            for (unsigned i = 0; i < num_e_t - num_t; i++) {
+                e_t        = tc.whnf(e_t);
+                expr meta  = g.mk_meta(ngen.next(), binding_domain(e_t));
+                e          = mk_app(e, meta);
+                e_t        = instantiate(binding_body(e_t), meta);
             }
-            list<expr> metas = to_list(meta_buffer.begin(), meta_buffer.end());
-            // TODO(Leo): we should use unifier plugin
-            lazy_list<substitution> substs = unify(env, C, new_e_type, ngen.mk_child(), ios.get_options());
+            lazy_list<substitution> substs = unify(env, t, e_t, ngen.mk_child(), s.get_subst(), ios.get_options());
             return map2<proof_state>(substs, [=](substitution const & subst) -> proof_state {
-                    // apply substitution to remaining goals
                     name_generator new_ngen(ngen);
                     type_checker tc(env, new_ngen.mk_child());
-                    goals new_gs = map(rest_gs, [&](named_goal const & ng) {
-                            return named_goal(ng.first, ng.second.instantiate_metavars(subst));
-                        });
-                    expr P            = subst.instantiate_metavars_wo_jst(new_e);
-                    goal tmp_g        = g.instantiate_metavars(subst);
-                    unsigned subgoal_idx = 1;
-                    buffer<std::pair<name, expr>> trace_buffer;
-                    // add unassigned metavariables as new goals
-                    buffer<named_goal> subgoals;
-                    for (expr const & meta : metas) {
-                        if (!subst.is_assigned(get_app_fn(meta))) {
-                            name new_gname(gname, subgoal_idx);
-                            expr new_C = subst.instantiate_metavars_wo_jst(tc.infer(meta));
-                            goal new_g(tmp_g.get_hypotheses(), new_C);
-                            subgoals.emplace_back(new_gname, new_g);
-                            trace_buffer.emplace_back(new_gname, meta);
-                            subgoal_idx++;
-                        }
+                    expr new_e = subst.instantiate_metavars_wo_jst(e);
+                    substitution new_subst = subst.assign(g.get_name(), g.abstract(new_e));
+                    buffer<expr> metas;
+                    collect_simple_meta(new_e, metas);
+                    goals new_gs = tail_gs;
+                    unsigned i = metas.size();
+                    while (i > 0) {
+                        --i;
+                        new_gs = cons(goal(metas[i], subst.instantiate_metavars_wo_jst(tc.infer(metas[i]))), new_gs);
                     }
-                    new_gs = to_list(subgoals.begin(), subgoals.end(), new_gs);
-                    list<std::pair<name, expr>> trace = to_list(trace_buffer.begin(), trace_buffer.end());
-                    proof_builder pb = s.get_pb();
-                    proof_builder new_pb([=](proof_map const & m, substitution const & pb_subst) {
-                            proof_map new_m(m);
-                            substitution new_subst;
-                            for (auto const & p : trace) {
-                                expr pr   = find(new_m, p.first);
-                                expr meta = p.second;
-                                buffer<expr> meta_args;
-                                expr mvar = get_app_args(meta, meta_args);
-                                unsigned i = meta_args.size();
-                                while (i > 0) {
-                                    --i;
-                                    pr = Fun(meta_args[i], pr);
-                                }
-                                new_subst = new_subst.assign(mlocal_name(mvar), pr, justification());
-                                new_m.erase(p.first);
-                            }
-                            new_m.insert(gname, new_subst.instantiate_metavars_wo_jst(P));
-                            return pb(new_m, pb_subst);
-                        });
-                    return proof_state(s, new_gs, new_pb, new_ngen);
+                    return proof_state(new_gs, new_subst, new_ngen);
                 });
-#endif
         });
 }
 

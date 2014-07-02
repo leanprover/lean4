@@ -52,13 +52,13 @@ lazy_list<substitution> unify(environment const & env, unsigned num_cs, constrai
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
                               options const & o);
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, unifier_plugin const & p,
-                              unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
+                              substitution const & s = substitution(), unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
-                              unsigned max_sharing = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
+                              substitution const & s = substitution(), unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, unifier_plugin const & p,
-                              options const & o);
+                              substitution const & s, options const & o);
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
-                              options const & o);
+                              substitution const & s, options const & o);
 
 class unifier_exception : public exception {
     justification m_jst;

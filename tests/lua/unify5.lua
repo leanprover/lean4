@@ -34,4 +34,4 @@ cs = { mk_eq_cnstr(m1, f(m2, f(m3, m4))),
        mk_choice_cnstr(m4, function(e, s, ngen) return {a, b} end)
      }
 
-display_solutions(m1, unify(env, cs, o))
+display_solutions(m1, unify(env, cs, name_generator(), o))

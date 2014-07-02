@@ -57,30 +57,14 @@ goals map_goals(proof_state const & s, std::function<optional<goal>(goal const &
         });
 }
 
-proof_state to_proof_state(expr const & mvar, name_generator ngen) {
-    if (!is_metavar(mvar))
-        throw exception("invalid 'to_proof_state', argument is not a metavariable");
-    expr t = mlocal_type(mvar);
-    buffer<expr> ls;
-    while (is_pi(t)) {
-        expr l  = mk_local(ngen.next(), binding_name(t), binding_domain(t), binding_info(t));
-        ls.push_back(l);
-        t       = instantiate(binding_body(t), l);
-    }
-    expr meta = mk_app(mvar, ls);
-    goals gs(goal(meta, t));
-    return proof_state(gs, substitution(), ngen);
-}
-
-static name g_tmp_prefix = name::mk_internal_unique_name();
-proof_state to_proof_state(expr const & mvar) {
-    return to_proof_state(mvar, name_generator(g_tmp_prefix));
-}
-
 io_state_stream const & operator<<(io_state_stream const & out, proof_state const & s) {
     options const & opts = out.get_options();
     out.get_stream() << mk_pair(s.pp(out.get_environment(), out.get_formatter(), opts), opts);
     return out;
+}
+
+proof_state to_proof_state(expr const & meta, expr const & type, name_generator ngen) {
+    return proof_state(goals(goal(meta, type)), substitution(), ngen);
 }
 
 DECL_UDATA(goals)
@@ -169,12 +153,13 @@ static int mk_proof_state(lua_State * L) {
     }
 }
 
+static name g_tmp_prefix = name::mk_internal_unique_name();
 static int to_proof_state(lua_State * L) {
     int nargs = lua_gettop(L);
-    if (nargs == 1)
-        return push_proof_state(L, to_proof_state(to_expr(L, 1)));
+    if (nargs == 2)
+        return push_proof_state(L, to_proof_state(to_expr(L, 1), to_expr(L, 2), name_generator(g_tmp_prefix)));
     else
-        return push_proof_state(L, to_proof_state(to_expr(L, 1), to_name_generator(L, 2)));
+        return push_proof_state(L, to_proof_state(to_expr(L, 1), to_expr(L, 2), to_name_generator(L, 3)));
 }
 
 static int proof_state_tostring(lua_State * L) {
@@ -231,7 +216,7 @@ void open_proof_state(lua_State * L) {
     setfuncs(L, proof_state_m, 0);
 
     SET_GLOBAL_FUN(proof_state_pred, "is_proof_state");
-    SET_GLOBAL_FUN(mk_proof_state, "proof_state");
-    SET_GLOBAL_FUN(to_proof_state, "to_proof_state");
+    SET_GLOBAL_FUN(mk_proof_state,   "proof_state");
+    SET_GLOBAL_FUN(to_proof_state,   "to_proof_state");
 }
 }

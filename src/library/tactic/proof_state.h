@@ -37,9 +37,7 @@ public:
 inline optional<proof_state> some_proof_state(proof_state const & s) { return some(s); }
 inline optional<proof_state> none_proof_state() { return optional<proof_state> (); }
 
-/** \brief Create a proof state for a metavariable \c mvar */
-proof_state to_proof_state(expr const & mvar, name_generator ngen);
-proof_state to_proof_state(expr const & mvar);
+proof_state to_proof_state(expr const & meta, expr const & type, name_generator ngen);
 
 goals map_goals(proof_state const & s, std::function<optional<goal>(goal const & g)> f);
 io_state_stream const & operator<<(io_state_stream const & out, proof_state const & s);

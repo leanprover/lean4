@@ -26,7 +26,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/scoped_ext.h"
 #include "library/error_handling/error_handling.h"
-#include "library/tactic/apply_tactic.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/parser_bindings.h"
 #include "frontends/lean/notation_cmd.h"
@@ -485,22 +484,22 @@ expr parser::mk_Type() {
 
 expr parser::elaborate(expr const & e) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    return ::lean::elaborate(m_env, m_ios, e, m_hints, &pp);
+    return ::lean::elaborate(m_env, m_ios, e, &pp);
 }
 
 expr parser::elaborate(expr const & e, name_generator const & ngen, list<expr> const & ctx) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    return ::lean::elaborate(m_env, m_ios, e, ngen, m_hints, substitution(), ctx, &pp);
+    return ::lean::elaborate(m_env, m_ios, e, ngen, substitution(), ctx, &pp);
 }
 
 expr parser::elaborate(environment const & env, expr const & e) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    return ::lean::elaborate(env, m_ios, e, m_hints, &pp);
+    return ::lean::elaborate(env, m_ios, e, &pp);
 }
 
 std::pair<expr, expr> parser::elaborate(name const & n, expr const & t, expr const & v) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    return ::lean::elaborate(m_env, m_ios, n, t, v, m_hints, &pp);
+    return ::lean::elaborate(m_env, m_ios, n, t, v, &pp);
 }
 
 [[ noreturn ]] void throw_invalid_open_binder(pos_info const & pos) {
@@ -920,156 +919,6 @@ expr parser::parse_scoped_expr(unsigned num_ps, expr const * ps, local_environme
 expr parser::abstract(unsigned num_ps, expr const * ps, expr const & e, bool lambda, pos_info const & p) {
     expr r = lambda ? Fun(num_ps, ps, e) : Pi(num_ps, ps, e);
     return rec_save_pos(r, p);
-}
-
-/** \brief Throw an exception if \c e contains a local constant that is not marked as contextual in \c local_decls */
-static void check_only_contextual_locals(expr const & e, local_expr_decls const & local_decls, pos_info const & pos) {
-    for_each(e, [&](expr const & e, unsigned) {
-            if (is_local(e)) {
-                auto it = local_decls.find(mlocal_name(e));
-                lean_assert(it);
-                if (!local_info(*it).is_contextual())
-                    throw parser_error(sstream() << "invalid 'apply' tactic, it references non-contextual local '"
-                                       << local_pp_name(e) << "'", pos);
-            }
-            return has_local(e);
-        });
-}
-
-
-/** \brief Return a list of all contextual parameters in local_decls */
-static list<expr> collect_contextual_parameters(local_expr_decls const & local_decls) {
-    buffer<expr> tmp;
-    for (expr const & p : local_decls.get_values()) {
-        if (is_local(p) && local_info(p).is_contextual())
-            tmp.push_back(p);
-    }
-    return to_list(tmp.begin(), tmp.end());
-}
-
-tactic parser::parse_exact_apply() {
-    parse_expr();
-    return id_tactic();
-#if 0
-    auto p = pos();
-    expr e = parse_expr();
-    check_only_contextual_locals(e, m_local_decls, p);
-    list<expr> ctx = collect_contextual_parameters(m_local_decls);
-    return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
-            if (empty(s.get_goals()))
-                return none_proof_state();
-            name gname      = head(s.get_goals()).first;
-            goal g          = head(s.get_goals()).second;
-            goals new_gs    = tail(s.get_goals());
-            auto const &   s_locals = s.get_init_locals();
-            // Remark: the proof state initial hypotheses (s_locals) are essentially ctx "after elaboration".
-            // So, to process \c e, we must first replace its local constants with (s_locals).
-            name_generator ngen     = s.ngen();
-            lean_assert(length(s_locals) == length(ctx));
-            buffer<expr> locals;
-            auto it1 = ctx;
-            auto it2 = s_locals;
-            while (!is_nil(it1) && !is_nil(it2)) {
-                auto const & p = head(it1);
-                locals.push_back(p);
-                it1 = tail(it1);
-                it2 = tail(it2);
-            }
-            std::reverse(locals.begin(), locals.end());
-            expr new_e = abstract_locals(e, locals.size(), locals.data());
-            for (auto const & l : s_locals)
-                new_e = instantiate(new_e, l);
-            parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
-            new_e = ::lean::elaborate(env, ios, new_e, g.get_conclusion(), ngen.mk_child(),
-                                      m_hints, s_locals, &pp);
-            proof_builder new_pb = add_proof(s.get_pb(), gname, new_e);
-            return some_proof_state(proof_state(s, new_gs, new_pb, ngen));
-        });
-#endif
-}
-
-tactic parser::parse_apply() {
-    parse_expr();
-    return id_tactic();
-#if 0
-    auto p = pos();
-    expr e = parse_expr();
-    check_only_contextual_locals(e, m_local_decls, p);
-    list<expr> ctx = collect_contextual_parameters(m_local_decls);
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
-            name_generator ngen     = s.ngen();
-            auto const &   s_locals = s.get_init_locals();
-            expr           new_e    = elaborate(e, ngen.mk_child(), ctx);
-            proof_state    new_s(s, ngen);
-            buffer<expr> tmp;
-            for (auto const & p : ctx)
-                tmp.push_back(p);
-            std::reverse(tmp.begin(), tmp.end());
-            new_e = abstract_locals(new_e, tmp.size(), tmp.data());
-            for (auto const & l : s_locals)
-                new_e = instantiate(new_e, l);
-            return apply_tactic(new_e)(env, ios, new_s);
-        });
-#endif
-}
-
-tactic parser::parse_tactic(unsigned /* rbp */) {
-    if (curr_is_token(g_lparen) || curr_is_token(g_lbracket)) {
-        bool paren = curr_is_token(g_lparen);
-        next();
-        buffer<tactic> choices;
-        tactic r = parse_tactic();
-        while (true) {
-            if (curr_is_token(g_comma)) {
-                next();
-                r = then(r, parse_tactic());
-            } else if (curr_is_token(g_bar)) {
-                next();
-                choices.push_back(r);
-                r = parse_tactic();
-            } else {
-                break;
-            }
-        }
-        if (paren)
-            check_token_next(g_rparen, "invalid tactic sequence, ')' expected");
-        else
-            check_token_next(g_rbracket, "invalid tactic sequence, ']' expected");
-        if (choices.empty()) {
-            return r;
-        } else {
-            choices.push_back(r);
-            r = choices[0];
-            for (unsigned i = 1; i < choices.size(); i++) {
-                r = orelse(r, choices[i]);
-            }
-            return r;
-        }
-    } else if (curr_is_token(g_have) || curr_is_token(g_show) || curr_is_token(g_assume) ||
-               curr_is_token(g_take) || curr_is_token(g_fun)) {
-        return parse_exact_apply();
-    } else {
-        name id;
-        auto p = pos();
-        if (curr_is_identifier()) {
-            id = get_name_val();
-            next();
-        } else if (curr_is_keyword() || curr_is_command()) {
-            id = get_token_info().value();
-            next();
-        } else {
-            throw parser_error("invalid tactic, '(' or tactic command expected", p);
-        }
-        if (auto it = tactic_cmds().find(id)) {
-            return it->get_fn()(*this, p);
-        } else {
-            throw parser_error(sstream() << "unknown tactic command '" << id << "'", p);
-        }
-    }
-}
-
-void parser::save_hint(expr const & e, tactic const & t) {
-    m_hints.insert(get_tag(e), t);
 }
 
 void parser::parse_command() {

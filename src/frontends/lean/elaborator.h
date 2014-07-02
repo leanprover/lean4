@@ -10,16 +10,13 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/metavar.h"
 #include "library/io_state.h"
-#include "frontends/lean/hint_table.h"
 
 namespace lean {
 expr elaborate(environment const & env, io_state const & ios, expr const & e, name_generator const & ngen,
-               hint_table const & htable = hint_table(), substitution const & s = substitution(),
-               list<expr> const & ctx = list<expr>(), pos_info_provider * pp = nullptr);
+               substitution const & s = substitution(), list<expr> const & ctx = list<expr>(), pos_info_provider * pp = nullptr);
 expr elaborate(environment const & env, io_state const & ios, expr const & e, expr const & expected_type, name_generator const & ngen,
-               hint_table const & htable = hint_table(), list<expr> const & ctx = list<expr>(), pos_info_provider * pp = nullptr);
-expr elaborate(environment const & env, io_state const & ios, expr const & e, hint_table const & htable = hint_table(),
-               pos_info_provider * pp = nullptr);
+               list<expr> const & ctx = list<expr>(), pos_info_provider * pp = nullptr);
+expr elaborate(environment const & env, io_state const & ios, expr const & e, pos_info_provider * pp = nullptr);
 std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v,
-                                hint_table const & htable = hint_table(), pos_info_provider * pp = nullptr);
+                                pos_info_provider * pp = nullptr);
 }

@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/builtin_cmds.h"
-#include "frontends/lean/builtin_tactic_cmds.h"
 
 namespace lean {
 using notation::transition;
@@ -217,11 +216,9 @@ parse_table const & get_led_table(environment const & env) {
 }
 
 struct cmd_ext : public environment_extension {
-    cmd_table        m_cmds;
-    tactic_cmd_table m_tactic_cmds;
+    cmd_table m_cmds;
     cmd_ext() {
         m_cmds        = get_builtin_cmds();
-        m_tactic_cmds = get_builtin_tactic_cmds();
     }
 };
 
@@ -235,8 +232,5 @@ static cmd_ext const & get_extension(environment const & env) {
 }
 cmd_table const & get_cmd_table(environment const & env) {
     return get_extension(env).m_cmds;
-}
-tactic_cmd_table const & get_tactic_cmd_table(environment const & env) {
-    return get_extension(env).m_tactic_cmds;
 }
 }

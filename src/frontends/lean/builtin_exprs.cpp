@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
+#include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/calc.h"
@@ -133,10 +134,8 @@ static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const
 }
 
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
-    tactic t = p.parse_tactic();
-    expr r = p.save_pos(mk_expr_placeholder(), pos);
-    p.save_hint(r, t);
-    return r;
+    expr t = p.parse_expr();
+    return p.save_pos(mk_by(t), pos);
 }
 
 static expr parse_proof(parser & p, expr const & prop) {
@@ -148,10 +147,8 @@ static expr parse_proof(parser & p, expr const & prop) {
         // parse: 'by' tactic
         auto pos = p.pos();
         p.next();
-        tactic t = p.parse_tactic();
-        expr r = p.save_pos(mk_expr_placeholder(some_expr(prop)), pos);
-        p.save_hint(r, t);
-        return r;
+        expr t = p.parse_expr();
+        return p.save_pos(mk_by(t), pos);
     } else if (p.curr_is_token(g_using)) {
         // parse: 'using' locals* ',' proof
         auto using_pos = p.pos();

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/list_fn.h"
 #include "util/lazy_list_fn.h"
 #include "util/sstream.h"
+#include "util/name_map.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
@@ -23,25 +24,28 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/unifier.h"
 #include "library/tactic/tactic.h"
+#include "library/tactic/expr_to_tactic.h"
 #include "library/error_handling/error_handling.h"
-#include "frontends/lean/hint_table.h"
 
 namespace lean {
 class elaborator {
     typedef list<expr> context;
     typedef std::vector<constraint> constraints;
+    typedef name_map<expr> tactic_hints;
+    typedef name_map<expr> mvar2meta;
 
     environment         m_env;
     io_state            m_ios;
     unifier_plugin      m_plugin;
     name_generator      m_ngen;
-    hint_table          m_hints;
     type_checker        m_tc;
     substitution        m_subst;
     context             m_ctx;
     pos_info_provider * m_pos_provider;
     justification       m_accumulated; // accumulate justification of eagerly used substitutions
     constraints         m_constraints;
+    tactic_hints        m_tactic_hints;
+    mvar2meta           m_mvar2meta;
 
     /**
         \brief Auxiliary object for creating backtracking points.
@@ -115,10 +119,10 @@ class elaborator {
 
 public:
     elaborator(environment const & env, io_state const & ios, name_generator const & ngen,
-               hint_table const & htable, substitution const & s, context const & ctx, pos_info_provider * pp):
+               substitution const & s, context const & ctx, pos_info_provider * pp):
         m_env(env), m_ios(ios),
         m_plugin([](constraint const &, name_generator const &) { return lazy_list<list<constraint>>(); }),
-        m_ngen(ngen), m_hints(htable), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, optional<module_idx>(0))),
+        m_ngen(ngen), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, optional<module_idx>(0))),
         m_subst(s), m_ctx(ctx), m_pos_provider(pp) {
     }
 
@@ -278,7 +282,22 @@ public:
        \see mk_metavar
     */
     expr mk_meta(optional<expr> const & type, tag g) {
-        return apply_context(mk_metavar(type, g), g);
+        expr mvar = mk_metavar(type, g);
+        expr meta = apply_context(mvar, g);
+        m_mvar2meta.insert(mlocal_name(mvar), meta);
+        return meta;
+    }
+
+    /**
+        \brief Convert the metavariable to the metavariable application that captures
+        the context where it was defined.
+
+    */
+    optional<expr> mvar_to_meta(expr mvar) {
+        if (auto it = m_mvar2meta.find(mlocal_name(mvar)))
+            return some_expr(*it);
+        else
+            return none_expr();
     }
 
     expr visit_expecting_type(expr const & e) {
@@ -293,6 +312,8 @@ public:
             return mk_meta(some_expr(t), e.get_tag());
         else if (is_choice(e))
             return visit_choice(e, some_expr(t));
+        else if (is_by(e))
+            return visit_by(e, some_expr(t));
         else
             return visit(e);
     }
@@ -307,6 +328,14 @@ public:
         };
         justification j = mk_justification("none of the overloads is applicable", some_expr(e));
         add_cnstr(mk_choice_cnstr(m, choice_fn, false, j));
+        return m;
+    }
+
+    expr visit_by(expr const & e, optional<expr> const & t) {
+        lean_assert(is_by(e));
+        expr m   = mk_meta(t, e.get_tag());
+        expr tac = visit(get_by_arg(e));
+        m_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
         return m;
     }
 
@@ -535,6 +564,8 @@ public:
             return visit_placeholder(e);
         } else if (is_choice(e)) {
             return visit_choice(e, none_expr());
+        } else if (is_by(e)) {
+            return visit_by(e, none_expr());
         } else {
             switch (e.kind()) {
             case expr_kind::Local:      return e;
@@ -584,15 +615,18 @@ public:
 
     void collect_metavars(expr const & e, buffer<expr> & mvars) {
         for_each(e, [&](expr const & e, unsigned) {
-                if (is_metavar(e)) { mvars.push_back(e); return false; /* do not visit its type */ }
+                if (is_metavar(e)) {
+                    mvars.push_back(e);
+                    return false; /* do not visit its type */
+                }
                 return has_metavar(e);
             });
     }
 
-    optional<tactic> get_tactic_for(expr const & mvar) {
-        auto it = m_hints.find(mvar.get_tag());
-        if (it) {
-            return optional<tactic>(*it);
+    optional<tactic> get_tactic_for(substitution const & substitution, expr const & mvar) {
+        if (auto it = m_tactic_hints.find(mlocal_name(mvar))) {
+            expr pre_tac = substitution.instantiate_metavars_wo_jst(*it);
+            return optional<tactic>(expr_to_tactic(m_env, pre_tac, m_pos_provider));
         } else {
             // TODO(Leo): m_env tactic hints
             return optional<tactic>();
@@ -609,21 +643,29 @@ public:
         buffer<expr> mvars;
         collect_metavars(e, mvars);
         for (auto mvar : mvars) {
-            mvar = update_mlocal(mvar, subst.instantiate_metavars_wo_jst(mlocal_type(mvar)));
-            proof_state ps = to_proof_state(mvar, m_ngen.mk_child());
-            if (optional<tactic> t = get_tactic_for(mvar)) {
-                proof_state_seq seq = (*t)(m_env, m_ios, ps);
-                if (auto r = seq.pull()) {
-                    substitution s = r->first.get_subst();
-                    expr v = s.instantiate_metavars_wo_jst(mvar);
-                    if (has_metavar(v)) {
-                        display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+            if (auto meta = mvar_to_meta(mvar)) {
+                buffer<expr> locals;
+                get_app_args(*meta, locals);
+                for (expr & l : locals)
+                    l = subst.instantiate_metavars_wo_jst(l);
+                mvar = update_mlocal(mvar, subst.instantiate_metavars_wo_jst(mlocal_type(mvar)));
+                meta = ::lean::mk_app(mvar, locals);
+                expr type = m_tc.infer(*meta);
+                proof_state ps = to_proof_state(*meta, type, m_ngen.mk_child());
+                if (optional<tactic> t = get_tactic_for(subst, mvar)) {
+                    proof_state_seq seq = (*t)(m_env, m_ios, ps);
+                    if (auto r = seq.pull()) {
+                        substitution s = r->first.get_subst();
+                        expr v = s.instantiate_metavars_wo_jst(mvar);
+                        if (has_metavar(v)) {
+                            display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+                        } else {
+                            subst = subst.assign(mlocal_name(mvar), v);
+                        }
                     } else {
-                        subst = subst.assign(mlocal_name(mvar), v);
+                        // tactic failed to produce any result
+                        display_unsolved_proof_state(mvar, ps, "tactic failed");
                     }
-                } else {
-                    // tactic failed to produce any result
-                    display_unsolved_proof_state(mvar, ps, "tactic failed");
                 }
             }
         }
@@ -700,21 +742,21 @@ public:
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
 expr elaborate(environment const & env, io_state const & ios, expr const & e, name_generator const & ngen,
-               hint_table const & htable, substitution const & s, list<expr> const & ctx, pos_info_provider * pp) {
-    return elaborator(env, ios, ngen, htable, s, ctx, pp)(e);
+               substitution const & s, list<expr> const & ctx, pos_info_provider * pp) {
+    return elaborator(env, ios, ngen, s, ctx, pp)(e);
 }
 
-expr elaborate(environment const & env, io_state const & ios, expr const & e, hint_table const & htable, pos_info_provider * pp) {
-    return elaborate(env, ios, e, name_generator(g_tmp_prefix), htable, substitution(), list<expr>(), pp);
+expr elaborate(environment const & env, io_state const & ios, expr const & e, pos_info_provider * pp) {
+    return elaborate(env, ios, e, name_generator(g_tmp_prefix), substitution(), list<expr>(), pp);
 }
 
 std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v,
-                                hint_table const & htable, pos_info_provider * pp) {
-    return elaborator(env, ios, name_generator(g_tmp_prefix), htable, substitution(), list<expr>(), pp)(t, v, n);
+                                pos_info_provider * pp) {
+    return elaborator(env, ios, name_generator(g_tmp_prefix), substitution(), list<expr>(), pp)(t, v, n);
 }
 
 expr elaborate(environment const & env, io_state const & ios, expr const & e, expr const & expected_type, name_generator const & ngen,
-               hint_table const & htable, list<expr> const & ctx, pos_info_provider * pp) {
-    return elaborator(env, ios, ngen, htable, substitution(), ctx, pp)(e, expected_type);
+               list<expr> const & ctx, pos_info_provider * pp) {
+    return elaborator(env, ios, ngen, substitution(), ctx, pp)(e, expected_type);
 }
 }

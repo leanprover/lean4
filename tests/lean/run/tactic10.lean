@@ -1,5 +1,6 @@
 import logic
 
+exit -- TODO
 theorem tst (a b : Bool) (H : a ↔ b) : b ↔ a
 := by (apply iff_intro,
        assume Hb, iff_mp_right H Hb,

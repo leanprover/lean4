@@ -1,4 +1,7 @@
 import logic
+import tactic
 
 theorem tst {A B : Bool} (H1 : A) (H2 : B) : A
-:= by [echo "executing simple tactic", assumption]
+:= by state_tac; exact_tac
+
+check tst

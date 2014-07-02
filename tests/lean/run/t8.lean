@@ -1,1 +1,2 @@
-print raw (by id)
+import standard
+print raw (by exact_tac)

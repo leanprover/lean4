@@ -37,8 +37,9 @@ bool collect_simple_metas(expr const & e, buffer<expr> & result) {
     return !failed;
 }
 
-tactic apply_tactic(expr const & /* e */) {
+tactic apply_tactic(expr const & e) {
     return tactic([=](environment const &, io_state const &, proof_state const & s) {
+            std::cout << e << "\n";
             return s;
 #if 0
             if (s.is_final_state()) {

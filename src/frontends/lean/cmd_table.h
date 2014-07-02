@@ -13,9 +13,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class parser;
-
 typedef std::function<environment(parser&)> command_fn;
-typedef std::function<tactic(parser&, pos_info const &)> tactic_command_fn;
 
 template<typename F>
 struct cmd_info_tmpl {
@@ -31,11 +29,7 @@ public:
     F const & get_fn() const { return m_fn; }
 };
 
-typedef cmd_info_tmpl<command_fn>        cmd_info;
-typedef cmd_info_tmpl<tactic_command_fn> tactic_cmd_info;
-
-typedef rb_map<name, cmd_info,        name_quick_cmp> cmd_table;
-typedef rb_map<name, tactic_cmd_info, name_quick_cmp> tactic_cmd_table;
-
+typedef cmd_info_tmpl<command_fn>              cmd_info;
+typedef rb_map<name, cmd_info, name_quick_cmp> cmd_table;
 inline void add_cmd(cmd_table & t, cmd_info const & cmd) { t.insert(cmd.get_name(), cmd); }
 }

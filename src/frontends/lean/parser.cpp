@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/scoped_ext.h"
 #include "library/num.h"
+#include "library/string.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/parser_bindings.h"
@@ -865,9 +866,15 @@ expr parser::parse_decimal_expr() {
 }
 
 expr parser::parse_string_expr() {
-    // TODO(Leo)
-    next();  // to avoid loop
-    return expr();
+    auto p = pos();
+    std::string v = get_str_val();
+    next();
+    if (!m_has_string)
+        m_has_string = has_string_decls(m_env);
+    if (!*m_has_string)
+        throw parser_error("string cannot be encoded as expression, environment does not contain the type 'string' "
+                           "(solution: use 'import string')", p);
+    return from_string(v);
 }
 
 expr parser::parse_nud() {

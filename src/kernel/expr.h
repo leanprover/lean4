@@ -360,6 +360,7 @@ public:
     bool is_atomic_pp(bool unicode, bool coercion) const { return m_ptr->is_atomic_pp(unicode, coercion); }
     unsigned hash() const { return m_ptr->hash(); }
     void write(serializer & s) const { return m_ptr->write(s); }
+    macro_definition_cell const * raw() const { return m_ptr; }
 };
 
 /** \brief Macro attachments */

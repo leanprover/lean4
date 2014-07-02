@@ -118,12 +118,11 @@ class elaborator {
     }
 
 public:
-    elaborator(environment const & env, io_state const & ios, name_generator const & ngen,
-               substitution const & s, context const & ctx, pos_info_provider * pp):
+    elaborator(environment const & env, io_state const & ios, name_generator const & ngen, pos_info_provider * pp):
         m_env(env), m_ios(ios),
         m_plugin([](constraint const &, name_generator const &) { return lazy_list<list<constraint>>(); }),
         m_ngen(ngen), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, optional<module_idx>(0))),
-        m_subst(s), m_ctx(ctx), m_pos_provider(pp) {
+        m_pos_provider(pp) {
     }
 
     expr mk_local(name const & n, expr const & t, binder_info const & bi) {
@@ -668,11 +667,11 @@ public:
                     try {
                         proof_state_seq seq = (*t)(m_env, m_ios, ps);
                         if (auto r = seq.pull()) {
-                            subst = r->first.get_subst();
-                            expr v = subst.instantiate_metavars_wo_jst(mvar);
-                            if (has_metavar(v)) {
+                            if (!empty(r->first.get_goals())) {
                                 display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
                             } else {
+                                subst = r->first.get_subst();
+                                expr v = subst.instantiate_metavars_wo_jst(mvar);
                                 subst = subst.assign(mlocal_name(mvar), v);
                             }
                         } else {
@@ -759,22 +758,12 @@ public:
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
-expr elaborate(environment const & env, io_state const & ios, expr const & e, name_generator const & ngen,
-               substitution const & s, list<expr> const & ctx, pos_info_provider * pp) {
-    return elaborator(env, ios, ngen, s, ctx, pp)(e);
-}
-
 expr elaborate(environment const & env, io_state const & ios, expr const & e, pos_info_provider * pp) {
-    return elaborate(env, ios, e, name_generator(g_tmp_prefix), substitution(), list<expr>(), pp);
+    return elaborator(env, ios, name_generator(g_tmp_prefix), pp)(e);
 }
 
 std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v,
                                 pos_info_provider * pp) {
-    return elaborator(env, ios, name_generator(g_tmp_prefix), substitution(), list<expr>(), pp)(t, v, n);
-}
-
-expr elaborate(environment const & env, io_state const & ios, expr const & e, expr const & expected_type, name_generator const & ngen,
-               list<expr> const & ctx, pos_info_provider * pp) {
-    return elaborator(env, ios, ngen, substitution(), ctx, pp)(e, expected_type);
+    return elaborator(env, ios, name_generator(g_tmp_prefix), pp)(t, v, n);
 }
 }

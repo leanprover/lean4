@@ -489,11 +489,6 @@ expr parser::elaborate(expr const & e) {
     return ::lean::elaborate(m_env, m_ios, e, &pp);
 }
 
-expr parser::elaborate(expr const & e, name_generator const & ngen, list<expr> const & ctx) {
-    parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    return ::lean::elaborate(m_env, m_ios, e, ngen, substitution(), ctx, &pp);
-}
-
 expr parser::elaborate(environment const & env, expr const & e) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
     return ::lean::elaborate(env, m_ios, e, &pp);

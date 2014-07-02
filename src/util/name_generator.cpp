@@ -26,7 +26,13 @@ void swap(name_generator & a, name_generator & b) {
 }
 
 DECL_UDATA(name_generator)
-static int mk_name_generator(lua_State * L) { return push_name_generator(L, name_generator(to_name_ext(L, 1))); }
+static name g_tmp_prefix = name::mk_internal_unique_name();
+static int mk_name_generator(lua_State * L) {
+    if (lua_gettop(L) == 0)
+        return push_name_generator(L, name_generator(g_tmp_prefix));
+    else
+        return push_name_generator(L, name_generator(to_name_ext(L, 1)));
+}
 static int name_generator_next(lua_State * L) { return push_name(L, to_name_generator(L, 1).next()); }
 static int name_generator_prefix(lua_State * L) { return push_name(L, to_name_generator(L, 1).prefix()); }
 static int name_generator_mk_child(lua_State * L) { return push_name_generator(L, to_name_generator(L, 1).mk_child()); }

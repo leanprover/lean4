@@ -78,7 +78,7 @@ environment check_cmd(parser & p) {
     mk_section_params(collect_locals(e), p, section_ps);
     e = p.lambda_abstract(section_ps, e);
     level_param_names ls = to_level_param_names(collect_univ_params(e));
-    e = p.elaborate(e);
+    e = p.elaborate(e, false);
     expr type = type_checker(p.env()).check(e, ls);
     p.regular_stream() << e << " : " << type << endl;
     return p.env();

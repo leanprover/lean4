@@ -484,9 +484,9 @@ expr parser::mk_Type() {
     }
 }
 
-expr parser::elaborate(expr const & e) {
+expr parser::elaborate(expr const & e, bool check_unassigned) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    return ::lean::elaborate(m_env, m_ios, e, &pp);
+    return ::lean::elaborate(m_env, m_ios, e, &pp, check_unassigned);
 }
 
 expr parser::elaborate(environment const & env, expr const & e) {

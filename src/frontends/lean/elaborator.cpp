@@ -46,6 +46,8 @@ class elaborator {
     constraints         m_constraints;
     tactic_hints        m_tactic_hints;
     mvar2meta           m_mvar2meta;
+    name_set            m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
+    bool                m_check_unassigned;
 
     /**
         \brief Auxiliary object for creating backtracking points.
@@ -118,11 +120,13 @@ class elaborator {
     }
 
 public:
-    elaborator(environment const & env, io_state const & ios, name_generator const & ngen, pos_info_provider * pp):
+    elaborator(environment const & env, io_state const & ios, name_generator const & ngen, pos_info_provider * pp,
+               bool check_unassigned):
         m_env(env), m_ios(ios),
         m_plugin([](constraint const &, name_generator const &) { return lazy_list<list<constraint>>(); }),
         m_ngen(ngen), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, optional<module_idx>(0))),
         m_pos_provider(pp) {
+        m_check_unassigned = check_unassigned;
     }
 
     expr mk_local(name const & n, expr const & t, binder_info const & bi) {
@@ -645,9 +649,13 @@ public:
     }
 
     void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg) {
-        regular out(m_env, m_ios);
-        display_error_pos(out, m_pos_provider, mvar);
-        out << " unsolved placeholder, " << msg << "\n" << ps << "\n";
+        lean_assert(is_metavar(mvar));
+        if (!m_displayed_errors.contains(mlocal_name(mvar))) {
+            m_displayed_errors.insert(mlocal_name(mvar));
+            regular out(m_env, m_ios);
+            display_error_pos(out, m_pos_provider, mvar);
+            out << " unsolved placeholder, " << msg << "\n" << ps << "\n";
+        }
     }
 
     expr solve_unassigned_mvars(substitution & subst, expr const & e) {
@@ -689,10 +697,30 @@ public:
         return subst.instantiate(e);
     }
 
+    void display_unassigned_mvars(expr const & e) {
+        if (has_metavar(e)) {
+            for_each(e, [&](expr const & e, unsigned) {
+                    if (!is_metavar(e))
+                        return has_metavar(e);
+                    if (auto it = m_mvar2meta.find(mlocal_name(e))) {
+                        expr meta      = *it;
+                        expr meta_type = type_checker(m_env).infer(meta);
+                        goal g(meta, meta_type);
+                        display_unsolved_proof_state(e, proof_state(goals(g), substitution(), m_ngen),
+                                                     "don't know how to synthesize it");
+                    }
+                    return false;
+                });
+        }
+    }
+
     /** \brief Apply substitution and solve remaining metavariables using tactics. */
     expr apply(substitution & s, expr const & e) {
         expr r = s.instantiate(e);
-        return solve_unassigned_mvars(s, r);
+        r = solve_unassigned_mvars(s, r);
+        if (m_check_unassigned)
+            display_unassigned_mvars(r);
+        return r;
     }
 
     expr operator()(expr const & e) {
@@ -754,12 +782,12 @@ public:
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
-expr elaborate(environment const & env, io_state const & ios, expr const & e, pos_info_provider * pp) {
-    return elaborator(env, ios, name_generator(g_tmp_prefix), pp)(e);
+expr elaborate(environment const & env, io_state const & ios, expr const & e, pos_info_provider * pp, bool check_unassigned) {
+    return elaborator(env, ios, name_generator(g_tmp_prefix), pp, check_unassigned)(e);
 }
 
 std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v,
                                 pos_info_provider * pp) {
-    return elaborator(env, ios, name_generator(g_tmp_prefix), pp)(t, v, n);
+    return elaborator(env, ios, name_generator(g_tmp_prefix), pp, true)(t, v, n);
 }
 }

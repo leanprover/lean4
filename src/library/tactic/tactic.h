@@ -14,6 +14,14 @@ Author: Leonardo de Moura
 #include "library/tactic/proof_state.h"
 
 namespace lean {
+class tactic_exception : public exception {
+    expr m_expr;
+public:
+    tactic_exception(expr const & e, char const * msg);
+    tactic_exception(expr const & e, sstream const & strm);
+    expr const & get_expr() const { return m_expr; }
+};
+
 typedef lazy_list<proof_state> proof_state_seq;
 
 typedef std::function<proof_state_seq(environment const &, io_state const & ios, proof_state const &)> tactic;

@@ -19,6 +19,9 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 
 namespace lean {
+tactic_exception::tactic_exception(expr const & e, char const * msg):exception(msg), m_expr(e) {}
+tactic_exception::tactic_exception(expr const & e, sstream const & strm):exception(strm), m_expr(e) {}
+
 tactic tactic01(std::function<optional<proof_state>(environment const &, io_state const & ios, proof_state const &)> f) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             return mk_proof_state_seq([=]() {

@@ -9,11 +9,8 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 
 namespace lean {
-class expr_to_tactic_exception : public exception {
-    expr m_expr;
-public:
-    expr_to_tactic_exception(expr const & e, char const * msg):exception(msg), m_expr(e) {}
-    expr const & get_expr() const { return m_expr; }
+class expr_to_tactic_exception : public tactic_exception {
+public: expr_to_tactic_exception(expr const & e, char const * msg):tactic_exception(e, msg) {}
 };
 
 typedef std::function<tactic(type_checker & tc, expr const & e, pos_info_provider const *)> expr_to_tactic_fn;

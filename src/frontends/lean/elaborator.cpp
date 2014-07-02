@@ -665,18 +665,24 @@ public:
                 expr type = m_tc.infer(*meta);
                 proof_state ps(goals(goal(*meta, type)), subst, m_ngen.mk_child());
                 if (optional<tactic> t = get_tactic_for(subst, mvar)) {
-                    proof_state_seq seq = (*t)(m_env, m_ios, ps);
-                    if (auto r = seq.pull()) {
-                        subst = r->first.get_subst();
-                        expr v = subst.instantiate_metavars_wo_jst(mvar);
-                        if (has_metavar(v)) {
-                            display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+                    try {
+                        proof_state_seq seq = (*t)(m_env, m_ios, ps);
+                        if (auto r = seq.pull()) {
+                            subst = r->first.get_subst();
+                            expr v = subst.instantiate_metavars_wo_jst(mvar);
+                            if (has_metavar(v)) {
+                                display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+                            } else {
+                                subst = subst.assign(mlocal_name(mvar), v);
+                            }
                         } else {
-                            subst = subst.assign(mlocal_name(mvar), v);
+                            // tactic failed to produce any result
+                            display_unsolved_proof_state(mvar, ps, "tactic failed");
                         }
-                    } else {
-                        // tactic failed to produce any result
-                        display_unsolved_proof_state(mvar, ps, "tactic failed");
+                    } catch (tactic_exception & ex) {
+                        regular out(m_env, m_ios);
+                        display_error_pos(out, m_pos_provider, ex.get_expr());
+                        out << " tactic failed: " << ex.what() << "\n";
                     }
                 }
             }

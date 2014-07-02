@@ -38,20 +38,20 @@ tactic expr_to_tactic(environment const & env, expr const & e, pos_info_provider
                 return expr_to_tactic(env, v, p);
             }
         }
-        throw exception("failed to convert expression into tactic");
+        throw expr_to_tactic_exception(e, "failed to convert expression into tactic");
     } else if (is_lambda(f)) {
         buffer<expr> locals;
         get_app_rev_args(e, locals);
         return expr_to_tactic(env, apply_beta(f, locals.size(), locals.data()), p);
     } else {
-        throw exception("failed to convert expression into tactic");
+        throw expr_to_tactic_exception(e, "failed to convert expression into tactic");
     }
 }
 
 register_simple_tac::register_simple_tac(name const & n, std::function<tactic()> f) {
     register_expr_to_tactic(n, [=](environment const &, expr const & e, pos_info_provider const *) {
             if (!is_constant(e))
-                throw exception("invalid constant tactic");
+                throw expr_to_tactic_exception(e, "invalid constant tactic");
             return f();
         });
 }
@@ -61,7 +61,7 @@ register_bin_tac::register_bin_tac(name const & n, std::function<tactic(tactic c
             buffer<expr> args;
             get_app_args(e, args);
             if (args.size() != 2)
-                throw exception("invalid binary tactic, it must have two arguments");
+                throw expr_to_tactic_exception(e, "invalid binary tactic, it must have two arguments");
             return f(expr_to_tactic(env, args[0], p),
                      expr_to_tactic(env, args[1], p));
         });
@@ -72,29 +72,30 @@ register_unary_tac::register_unary_tac(name const & n, std::function<tactic(tact
             buffer<expr> args;
             get_app_args(e, args);
             if (args.size() != 1)
-                throw exception("invalid unary tactic, it must have one argument");
+                throw expr_to_tactic_exception(e, "invalid unary tactic, it must have one argument");
             return f(expr_to_tactic(env, args[0], p));
         });
 }
 
-static register_simple_tac reg_id(name("id_tac"), []() { return id_tactic(); });
-static register_simple_tac reg_now(name("now_tac"), []() { return now_tactic(); });
-static register_simple_tac reg_exact(name("exact_tac"), []() { return assumption_tactic(); });
-static register_simple_tac reg_fail(name("fail_tac"), []() { return fail_tactic(); });
-static register_simple_tac reg_beta(name("beta_tac"), []() { return beta_tactic(); });
-static register_bin_tac reg_then(name("then_tac"), [](tactic const & t1, tactic const & t2) { return then(t1, t2); });
-static register_bin_tac reg_orelse(name("orelse_tac"), [](tactic const & t1, tactic const & t2) { return orelse(t1, t2); });
-static register_unary_tac reg_repeat(name("repeat_tac"), [](tactic const & t1) { return repeat(t1); });
-static register_tac reg_state(name("state_tac"), [](environment const &, expr const & e, pos_info_provider const * p) {
+static name g_tac("tactic");
+static register_simple_tac reg_id(name(g_tac, "id"), []() { return id_tactic(); });
+static register_simple_tac reg_now(name(g_tac, "now"), []() { return now_tactic(); });
+static register_simple_tac reg_exact(name(g_tac, "exact"), []() { return assumption_tactic(); });
+static register_simple_tac reg_fail(name(g_tac, "fail"), []() { return fail_tactic(); });
+static register_simple_tac reg_beta(name(g_tac, "beta"), []() { return beta_tactic(); });
+static register_bin_tac reg_then(name(g_tac, "and_then"), [](tactic const & t1, tactic const & t2) { return then(t1, t2); });
+static register_bin_tac reg_orelse(name(g_tac, "or_else"), [](tactic const & t1, tactic const & t2) { return orelse(t1, t2); });
+static register_unary_tac reg_repeat(name(g_tac, "repeat"), [](tactic const & t1) { return repeat(t1); });
+static register_tac reg_state(name(g_tac, "state"), [](environment const &, expr const & e, pos_info_provider const * p) {
         if (p)
             return trace_state_tactic(std::string(p->get_file_name()), p->get_pos_info(e));
         else
             return trace_state_tactic("unknown", mk_pair(0, 0));
     });
-static register_tac reg_apply(name("apply"), [](environment const &, expr const & e, pos_info_provider const *) {
+static register_tac reg_apply(name(g_tac, "apply"), [](environment const &, expr const & e, pos_info_provider const *) {
         return apply_tactic(app_arg(e));
     });
-static register_tac reg_unfold(name("unfold_tac"), [](environment const &, expr const & e, pos_info_provider const *) {
+static register_tac reg_unfold(name(g_tac, "unfold"), [](environment const &, expr const & e, pos_info_provider const *) {
         expr id = get_app_fn(app_arg(e));
         if (!is_constant(id))
             return fail_tactic();

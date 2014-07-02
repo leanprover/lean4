@@ -1,7 +1,7 @@
-import logic
-import tactic
+import standard
+using tactic
 
 theorem tst {A B : Bool} (H1 : A) (H2 : B) : A
-:= by state_tac; exact_tac
+:= by state; exact
 
 check tst

@@ -623,10 +623,22 @@ public:
             });
     }
 
+    format pp_indent_expr(expr const & e) {
+        return ::lean::pp_indent_expr(m_ios.get_formatter(), m_env, m_ios.get_options(), e);
+    }
+
     optional<tactic> get_tactic_for(substitution const & substitution, expr const & mvar) {
         if (auto it = m_tactic_hints.find(mlocal_name(mvar))) {
             expr pre_tac = substitution.instantiate_metavars_wo_jst(*it);
-            return optional<tactic>(expr_to_tactic(m_env, pre_tac, m_pos_provider));
+            try {
+                return optional<tactic>(expr_to_tactic(m_env, pre_tac, m_pos_provider));
+            } catch (expr_to_tactic_exception & ex) {
+                regular out(m_env, m_ios);
+                display_error_pos(out, m_pos_provider, mvar);
+                out << " " << ex.what();
+                out << pp_indent_expr(pre_tac) << endl << "failed at:" << pp_indent_expr(ex.get_expr()) << endl;
+                return optional<tactic>();
+            }
         } else {
             // TODO(Leo): m_env tactic hints
             return optional<tactic>();
@@ -689,9 +701,9 @@ public:
     static format pp_type_mismatch(formatter const & fmt, environment const & env, options const & opts,
                             expr const & expected_type, expr const & given_type) {
         format r("type mismatch, expected type");
-        r += pp_indent_expr(fmt, env, opts, expected_type);
+        r += ::lean::pp_indent_expr(fmt, env, opts, expected_type);
         r += compose(line(), format("given type:"));
-        r += pp_indent_expr(fmt, env, opts, given_type);
+        r += ::lean::pp_indent_expr(fmt, env, opts, given_type);
         return r;
     }
 

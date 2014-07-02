@@ -1,2 +1,3 @@
 import standard
-print raw (by exact_tac)
+using tactic
+print raw (by exact)

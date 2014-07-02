@@ -1,8 +1,9 @@
 import standard
+using tactic (renaming id->id_tac)
 
 definition id {A : Type} (a : A) := a
 
 theorem tst {A B : Bool} (H1 : A) (H2 : B) : id A
-:= by !(unfold_tac @id; state_tac); exact_tac
+:= by !(unfold @id; state); exact
 
 check tst

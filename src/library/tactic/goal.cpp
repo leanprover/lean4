@@ -81,14 +81,14 @@ expr goal::abstract(expr const & v) const {
 
 expr goal::mk_meta(name const & n, expr const & type, bool only_contextual) const {
     buffer<expr> locals;
-    get_app_args(m_meta, locals);
+    expr this_mvar = get_app_args(m_meta, locals);
     if (only_contextual) {
         auto new_end = std::remove_if(locals.begin(), locals.end(),
                                       [](expr const & l) { return !local_info(l).is_contextual(); });
         locals.shrink(locals.size() - (locals.end() - new_end));
     }
-    expr mvar = mk_metavar(n, Pi(locals, type));
-    return mk_app(mvar, locals);
+    expr mvar = copy_tag(this_mvar, mk_metavar(n, Pi(locals, type)));
+    return copy_tag(m_meta, mk_app(mvar, locals));
 }
 
 goal goal::instantiate_metavars(substitution const & s) const {

@@ -1,2 +1,2 @@
-import logic tactic num
+import logic tactic num string
 

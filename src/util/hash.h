@@ -23,7 +23,8 @@ inline unsigned hash(unsigned h1, unsigned h2) {
 template<typename H>
 unsigned hash(unsigned n, H h, unsigned init_value = 31) {
     unsigned a, b, c;
-    lean_assert(n > 0);
+    if (n == 0)
+        return init_value;
 
     a = b = 0x9e3779b9;
     c = 11;

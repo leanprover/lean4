@@ -92,10 +92,10 @@ theorem symm {A : Type} {a b : A} (H : a = b) : b = a
 theorem congr1 {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a
 := subst H (refl (f a))
 
-theorem congr2 {A B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b
+theorem congr2 {A : Type} {B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b
 := subst H (refl (f a))
 
-theorem congr {A B : Type} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) : f a = g b
+theorem congr {A : Type} {B : Type} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) : f a = g b
 := subst H1 (subst H2 (refl (f a)))
 
 theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀ x, f x = g x

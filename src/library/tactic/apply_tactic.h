@@ -9,5 +9,6 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 namespace lean {
 tactic apply_tactic(expr const & e);
+tactic eassumption_tactic();
 void open_apply_tactic(lua_State * L);
 }

@@ -993,14 +993,16 @@ struct unifier_fn {
        We say a unification problem (?m a_1 ... a_k) =?= rhs uses "simple projections" IF
        rhs is NOT an application.
 
+       If (rhs and a_i are *not* local constants) OR (rhs is a local constant and a_i is a metavariable application),
+       then we add the constraints
+                a_i =?= rhs
+                ?m  =?= fun x_1 ... x_k, x_i
+       to alts as a possible solution.
+
        If rhs is a local constant and a_i == rhs, then we add the constraint
                 ?m =?= fun x_1 ... x_k, x_i
-       to alts as a possible solution when a_i is the same local constant.
+       to alts as a possible solution when a_i is the same local constant or a metavariable application
 
-       If rhs is not a local constant, then for each a_i that is NOT a local constant, we add the constraints
-                ?m  =?= fun x_1 ... x_k, x_i
-                a_i =?= rhs
-       to alts as a possible solution when a_i is the same local constant.
     */
     void add_simple_projections(expr const & m, buffer<expr> const & margs, expr const & rhs, justification const & j,
                                 buffer<constraints> & alts) {
@@ -1013,7 +1015,7 @@ struct unifier_fn {
             unsigned vidx = margs.size() - i;
             --i;
             expr const & marg = margs[i];
-            if (!is_local(marg) && !is_local(rhs)) {
+            if ((!is_local(marg) && !is_local(rhs)) || (is_meta(marg) && is_local(rhs))) {
                 // if rhs is not local, then we only add projections for the nonlocal arguments of lhs
                 constraint c1 = mk_eq_cnstr(marg, rhs, j);
                 constraint c2 = mk_eq_cnstr(m, mk_lambda_for(mtype, mk_var(vidx)), j);

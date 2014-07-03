@@ -1,36 +1,48 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-import logic string
+import logic string num
 using string
+using num
 
 namespace tactic
 -- This is just a trick to embed the 'tactic language' as a
 -- Lean expression. We should view 'tactic' as automation
 -- that when execute produces a term.
--- tactic_value is just a "dummy" for creating the "fake"
--- definitions
+-- builtin_tactic is just a "dummy" for creating the
+-- definitions that are actually implemented in C++
 inductive tactic : Type :=
-| tactic_value : tactic
+| builtin_tactic : tactic
 -- Remark the following names are not arbitrary, the tactic module
 -- uses them when converting Lean expressions into actual tactic objects.
 -- The bultin 'by' construct triggers the process of converting a
 -- a term of type 'tactic' into a tactic that sythesizes a term
-definition and_then   (t1 t2 : tactic) : tactic := tactic_value
-definition or_else    (t1 t2 : tactic) : tactic := tactic_value
-definition repeat     (t : tactic) : tactic := tactic_value
-definition now        : tactic := tactic_value
-definition assumption : tactic := tactic_value
-definition state      : tactic := tactic_value
-definition fail       : tactic := tactic_value
-definition id         : tactic := tactic_value
-definition beta       : tactic := tactic_value
-definition apply      {B : Type} (b : B) : tactic := tactic_value
-definition unfold     {B : Type} (b : B) : tactic := tactic_value
-definition exact      {B : Type} (b : B) : tactic := tactic_value
-definition trace      (s : string) : tactic := tactic_value
+definition and_then   (t1 t2 : tactic) : tactic := builtin_tactic
+definition or_else    (t1 t2 : tactic) : tactic := builtin_tactic
+definition append     (t1 t2 : tactic) : tactic := builtin_tactic
+definition interleave (t1 t2 : tactic) : tactic := builtin_tactic
+definition par        (t1 t2 : tactic) : tactic := builtin_tactic
+definition repeat     (t : tactic) : tactic := builtin_tactic
+definition at_most    (t : tactic) (k : num)  : tactic := builtin_tactic
+definition focus_at   (t : tactic) (i : num)  : tactic := builtin_tactic
+definition try_for    (t : tactic) (ms : num) : tactic := builtin_tactic
+definition now        : tactic := builtin_tactic
+definition assumption : tactic := builtin_tactic
+definition state      : tactic := builtin_tactic
+definition fail       : tactic := builtin_tactic
+definition id         : tactic := builtin_tactic
+definition beta       : tactic := builtin_tactic
+definition apply      {B : Type} (b : B) : tactic := builtin_tactic
+definition unfold     {B : Type} (b : B) : tactic := builtin_tactic
+definition exact      {B : Type} (b : B) : tactic := builtin_tactic
+definition trace      (s : string) : tactic := builtin_tactic
 infixl `;`:200         := and_then
 infixl `|`:100         := or_else
-notation `!`:max t:max := repeat t
+notation `!` t:max     := repeat t
 notation `⟦` t `⟧`     := apply t
+definition try        (t : tactic) : tactic := t | id
+notation `?` t:max     := try t
+definition repeat1    (t : tactic) : tactic := t ; !t
+definition focus      (t : tactic) : tactic := focus_at t 0
+definition determ     (t : tactic) : tactic := at_most t 1
 end

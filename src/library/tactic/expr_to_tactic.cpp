@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 */
 #include <unordered_map>
 #include <string>
+#include "util/sstream.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
 #include "library/string.h"
+#include "library/num.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/apply_tactic.h"
 
@@ -23,26 +25,55 @@ void register_expr_to_tactic(name const & n, expr_to_tactic_fn const & fn) {
     get_expr_to_tactic_map().insert(mk_pair(n, fn));
 }
 
-tactic expr_to_tactic(type_checker & tc, expr const & e, pos_info_provider const * p) {
-    expr f = get_app_fn(tc.whnf(e));
-    if (is_constant(f)) {
+static name g_tac("tactic"), g_builtin_tac(g_tac, "builtin_tactic");
+static name g_tac_name(g_tac, "tactic"), g_exact_tac_name(g_tac, "exact"), g_and_then_tac_name(g_tac, "and_then");
+static name g_or_else_tac_name(g_tac, "or_else"), g_repeat_tac_name(g_tac, "repeat");
+static expr g_exact_tac_fn(Const(g_exact_tac_name)), g_and_then_tac_fn(Const(g_and_then_tac_name));
+static expr g_or_else_tac_fn(Const(g_or_else_tac_name)), g_repeat_tac_fn(Const(g_repeat_tac_name));
+static expr g_tac_type(Const(g_tac_name));
+expr const & get_exact_tac_fn() { return g_exact_tac_fn; }
+expr const & get_and_then_tac_fn() { return g_and_then_tac_fn; }
+expr const & get_or_else_tac_fn() { return g_or_else_tac_fn; }
+expr const & get_repeat_tac_fn() { return g_repeat_tac_fn; }
+expr const & get_tactic_type() { return g_tac_type; }
+
+static void throw_failed(expr const & e) {
+    throw expr_to_tactic_exception(e, "failed to convert expression into tactic");
+}
+
+/** \brief Return true if v is the constant tactic.builtin_tactic or the constant function that returns tactic.builtin_tactic */
+static bool is_builtin_tactic(expr const & v) {
+    if (is_lambda(v))
+        return is_builtin_tactic(binding_body(v));
+    else if (is_constant(v) && const_name(v) == g_builtin_tac)
+        return true;
+    else
+        return false;
+}
+
+tactic expr_to_tactic(type_checker & tc, expr e, pos_info_provider const * p) {
+    e = tc.whnf(e);
+    expr f = get_app_fn(e);
+    if (!is_constant(f))
+        throw_failed(e);
+    optional<declaration> it = tc.env().find(const_name(f));
+    if (!it || !it->is_definition())
+        throw_failed(e);
+    expr v = it->get_value();
+    if (is_builtin_tactic(v)) {
         auto const & map = get_expr_to_tactic_map();
-        auto it = map.find(const_name(f));
-        if (it != map.end()) {
-            return it->second(tc, e, p);
-        } else if (auto it = tc.env().find(const_name(f))) {
-            if (it->is_definition()) {
-                buffer<expr> locals;
-                get_app_rev_args(e, locals);
-                expr v = it->get_value();
-                v = instantiate_univ_params(v, it->get_univ_params(), const_levels(f));
-                v = apply_beta(v, locals.size(), locals.data());
-                return expr_to_tactic(tc, v, p);
-            }
-        }
-        throw expr_to_tactic_exception(e, "failed to convert expression into tactic");
+        auto it2 = map.find(const_name(f));
+        if (it2 != map.end())
+            return it2->second(tc, e, p);
+        else
+            throw expr_to_tactic_exception(e, sstream() << "implementation for builtin tactic '" << const_name(f) << "' was not found");
     } else {
-        throw expr_to_tactic_exception(e, "failed to convert expression into tactic");
+        // unfold definition
+        buffer<expr> locals;
+        get_app_rev_args(e, locals);
+        v = instantiate_univ_params(v, it->get_univ_params(), const_levels(f));
+        v = apply_beta(v, locals.size(), locals.data());
+        return expr_to_tactic(tc, v, p);
     }
 }
 
@@ -80,16 +111,23 @@ register_unary_tac::register_unary_tac(name const & n, std::function<tactic(tact
         });
 }
 
-static name g_tac("tactic"), g_tac_name(g_tac, "tactic"), g_exact_tac_name(g_tac, "exact"), g_and_then_tac_name(g_tac, "and_then");
-static name g_or_else_tac_name(g_tac, "or_else"), g_repeat_tac_name(g_tac, "repeat");
-static expr g_exact_tac_fn(Const(g_exact_tac_name)), g_and_then_tac_fn(Const(g_and_then_tac_name));
-static expr g_or_else_tac_fn(Const(g_or_else_tac_name)), g_repeat_tac_fn(Const(g_repeat_tac_name));
-static expr g_tac_type(Const(g_tac_name));
-expr const & get_exact_tac_fn() { return g_exact_tac_fn; }
-expr const & get_and_then_tac_fn() { return g_and_then_tac_fn; }
-expr const & get_or_else_tac_fn() { return g_or_else_tac_fn; }
-expr const & get_repeat_tac_fn() { return g_repeat_tac_fn; }
-expr const & get_tactic_type() { return g_tac_type; }
+register_unary_num_tac::register_unary_num_tac(name const & n, std::function<tactic(tactic const &, unsigned k)> f) {
+    register_expr_to_tactic(n, [=](type_checker & tc, expr const & e, pos_info_provider const * p) {
+            buffer<expr> args;
+            get_app_args(e, args);
+            if (args.size() != 2)
+                throw expr_to_tactic_exception(e, "invalid tactic, it must have two arguments");
+            tactic t = expr_to_tactic(tc, args[0], p);
+            optional<mpz> k = to_num(args[1]);
+            if (!k)
+                k = to_num(tc.whnf(args[1]));
+            if (!k)
+                throw expr_to_tactic_exception(e, "invalid tactic, second argument must be a numeral");
+            if (!k->is_unsigned_int())
+                throw expr_to_tactic_exception(e, "invalid tactic, second argument does not fit in a machine unsigned integer");
+            return f(t, k->get_unsigned_int());
+        });
+}
 
 static register_simple_tac reg_id(name(g_tac, "id"), []() { return id_tactic(); });
 static register_simple_tac reg_now(name(g_tac, "now"), []() { return now_tactic(); });
@@ -97,6 +135,9 @@ static register_simple_tac reg_assumption(name(g_tac, "assumption"), []() { retu
 static register_simple_tac reg_fail(name(g_tac, "fail"), []() { return fail_tactic(); });
 static register_simple_tac reg_beta(name(g_tac, "beta"), []() { return beta_tactic(); });
 static register_bin_tac reg_then(g_and_then_tac_name, [](tactic const & t1, tactic const & t2) { return then(t1, t2); });
+static register_bin_tac reg_append(name(g_tac, "append"), [](tactic const & t1, tactic const & t2) { return append(t1, t2); });
+static register_bin_tac reg_interleave(name(g_tac, "interleave"), [](tactic const & t1, tactic const & t2) { return interleave(t1, t2); });
+static register_bin_tac reg_par(name(g_tac, "par"), [](tactic const & t1, tactic const & t2) { return par(t1, t2); });
 static register_bin_tac reg_orelse(g_or_else_tac_name, [](tactic const & t1, tactic const & t2) { return orelse(t1, t2); });
 static register_unary_tac reg_repeat(g_repeat_tac_name, [](tactic const & t1) { return repeat(t1); });
 static register_tac reg_state(name(g_tac, "state"), [](type_checker &, expr const & e, pos_info_provider const * p) {
@@ -130,7 +171,9 @@ static register_tac reg_unfold(name(g_tac, "unfold"), [](type_checker &, expr co
         else
             return unfold_tactic(const_name(id));
     });
-
+static register_unary_num_tac reg_at_most(name(g_tac, "at_most"), [](tactic const & t, unsigned k) { return take(t, k); });
+static register_unary_num_tac reg_focus_at(name(g_tac, "focus_at"), [](tactic const & t, unsigned k) { return focus(t, k); });
+static register_unary_num_tac reg_try_for(name(g_tac, "try_for"), [](tactic const & t, unsigned k) { return try_for(t, k); });
 
 // We encode the 'by' expression that is used to trigger tactic execution.
 // This is a trick to avoid creating a new kind of expression.

@@ -10,7 +10,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 class expr_to_tactic_exception : public tactic_exception {
-public: expr_to_tactic_exception(expr const & e, char const * msg):tactic_exception(e, msg) {}
+public:
+    expr_to_tactic_exception(expr const & e, char const * msg):tactic_exception(e, msg) {}
+    expr_to_tactic_exception(expr const & e, sstream const & strm):tactic_exception(e, strm) {}
 };
 
 typedef std::function<tactic(type_checker & tc, expr const & e, pos_info_provider const *)> expr_to_tactic_fn;
@@ -26,6 +28,9 @@ struct register_bin_tac {
 };
 struct register_unary_tac {
     register_unary_tac(name const & n, std::function<tactic(tactic const &)> f);
+};
+struct register_unary_num_tac {
+    register_unary_num_tac(name const & n, std::function<tactic(tactic const &, unsigned)> f);
 };
 
 expr const & get_tactic_type();

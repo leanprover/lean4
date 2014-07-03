@@ -43,22 +43,15 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, const
 */
 typedef std::function<lazy_list<constraints>(constraint const &, name_generator const &)> unifier_plugin;
 
+unifier_plugin get_noop_unifier_plugin();
+
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              unifier_plugin const & p, bool use_exception = true, unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
-lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              bool use_exception = true, unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
-lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
+                              unifier_plugin const & p = get_noop_unifier_plugin(), bool use_exception = true, unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
+lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen, unifier_plugin const & p, options const & o);
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, substitution const & s = substitution(),
+                              unifier_plugin const & p = get_noop_unifier_plugin(), unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, substitution const & s,
                               unifier_plugin const & p, options const & o);
-lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              options const & o);
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, unifier_plugin const & p,
-                              substitution const & s = substitution(), unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
-                              substitution const & s = substitution(), unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, unifier_plugin const & p,
-                              substitution const & s, options const & o);
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
-                              substitution const & s, options const & o);
 
 class unifier_exception : public exception {
     justification m_jst;

@@ -82,7 +82,7 @@ tactic apply_tactic(expr const & _e) {
                 e          = mk_app(e, meta);
                 e_t        = instantiate(binding_body(e_t), meta);
             }
-            lazy_list<substitution> substs = unify(env, t, e_t, ngen.mk_child(), s.get_subst(), ios.get_options());
+            lazy_list<substitution> substs = unify(env, t, e_t, ngen.mk_child(), s.get_subst(), get_noop_unifier_plugin(), ios.get_options());
             return map2<proof_state>(substs, [=](substitution const & subst) -> proof_state {
                     name_generator new_ngen(ngen);
                     type_checker tc(env, new_ngen.mk_child());

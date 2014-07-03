@@ -57,18 +57,10 @@ void substitution::d_assign(name const & m, expr const & t, justification const 
         m_expr_jsts.insert(m, j);
 }
 
-void substitution::d_assign(name const & m, expr const & t) {
-    assign(m, t, justification());
-}
-
 void substitution::d_assign(name const & m, level const & l, justification const & j) {
     m_level_subst.insert(m, l);
     if (!j.is_none())
         m_level_jsts.insert(m, j);
-}
-
-void substitution::d_assign(name const & m, level const & l) {
-    assign(m, l, justification());
 }
 
 substitution substitution::assign(name const & m, expr const & t, justification const & j) const {

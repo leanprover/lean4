@@ -486,7 +486,7 @@ struct unifier_fn {
     */
     bool assign(expr const & m, expr const & v, justification const & j) {
         lean_assert(is_metavar(m));
-        m_subst = m_subst.assign(m, v, j);
+        m_subst.d_assign(m, v, j);
         expr m_type = mlocal_type(m);
         expr v_type = m_tc.infer(v);
         if (in_conflict())
@@ -514,7 +514,7 @@ struct unifier_fn {
     */
     bool assign(level const & m, level const & v, justification const & j) {
         lean_assert(is_meta(m));
-        m_subst = m_subst.assign(m, v, j);
+        m_subst.d_assign(m, v, j);
         auto it = m_mlvl_occs.find(meta_id(m));
         if (it) {
             cnstr_idx_set s = *it;

@@ -23,10 +23,6 @@ class substitution {
     jst_map   m_expr_jsts;
     jst_map   m_level_jsts;
 
-    void d_assign(name const & m, expr const & t, justification const & j);
-    void d_assign(name const & m, expr const & t);
-    void d_assign(name const & m, level const & t, justification const & j);
-    void d_assign(name const & m, level const & t);
     std::pair<expr, justification> d_instantiate_metavars(expr const & e, name_set * unassigned_lvls, name_set * unassigned_exprs);
     expr d_instantiate_metavars_wo_jst(expr const & e);
     std::pair<level, justification> d_instantiate_metavars(level const & l, bool use_jst, bool updt, name_set * unassigned);
@@ -54,6 +50,15 @@ public:
 
     substitution assign(name const & m, level const & t, justification const & j) const;
     substitution assign(name const & m, level const & t) const;
+
+    void d_assign(name const & m, expr const & t, justification const & j);
+    void d_assign(name const & m, expr const & t) { d_assign(m, t, justification()); }
+    void d_assign(expr const & m, expr const & t, justification const & j) { d_assign(mlocal_name(m), t, j); }
+    void d_assign(expr const & m, expr const & t) { d_assign(m, t, justification()); }
+    void d_assign(name const & m, level const & t, justification const & j);
+    void d_assign(name const & m, level const & t) { d_assign(m, t, justification ()); }
+    void d_assign(level const & m, level const & t, justification const & j) { d_assign(meta_id(m), t, j); }
+    void d_assign(level const & m, level const & t) { d_assign(m, t, justification ()); }
 
     template<typename F>
     void for_each_expr(F && fn) const {

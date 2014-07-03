@@ -60,18 +60,6 @@ void collect_simple_meta(expr const & e, buffer<expr> & metas) {
         });
 }
 
-/** \brief Throw an exception is \c v contains local constants, \c e is only used for position information. */
-void check_has_no_local(expr const & v, expr const & e) {
-    if (has_local(v)) {
-        for_each(v, [&](expr const & l, unsigned) {
-                if (is_local(l))
-                    throw tactic_exception(e, sstream() << "apply tactic contains reference to local '" << local_pp_name(l)
-                                           << "' which is not marked as [fact], so it is not visible to tactics");
-                return has_local(l);
-            });
-    }
-}
-
 tactic apply_tactic(expr const & _e) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
@@ -100,7 +88,7 @@ tactic apply_tactic(expr const & _e) {
                     type_checker tc(env, new_ngen.mk_child());
                     expr new_e = subst.instantiate(e);
                     expr new_p = g.abstract(new_e);
-                    check_has_no_local(new_p, _e);
+                    check_has_no_local(new_p, _e, "apply");
                     substitution new_subst = subst.assign(g.get_name(), new_p);
                     buffer<expr> metas;
                     collect_simple_meta(new_e, metas);

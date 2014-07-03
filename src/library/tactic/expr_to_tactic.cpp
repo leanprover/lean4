@@ -110,6 +110,9 @@ static register_tac reg_trace(name(g_tac, "trace"), [](type_checker & tc, expr c
 static register_tac reg_apply(name(g_tac, "apply"), [](type_checker &, expr const & e, pos_info_provider const *) {
         return apply_tactic(app_arg(e));
     });
+static register_tac reg_exact(name(g_tac, "exact"), [](type_checker &, expr const & e, pos_info_provider const *) {
+        return exact_tactic(app_arg(e));
+    });
 static register_tac reg_unfold(name(g_tac, "unfold"), [](type_checker &, expr const & e, pos_info_provider const *) {
         expr id = get_app_fn(app_arg(e));
         if (!is_constant(id))

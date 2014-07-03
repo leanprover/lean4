@@ -13,12 +13,27 @@ Author: Leonardo de Moura
 #include "util/lazy_list_fn.h"
 #include "util/list_fn.h"
 #include "kernel/instantiate.h"
+#include "kernel/type_checker.h"
+#include "kernel/for_each_fn.h"
 #include "kernel/replace_visitor.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/tactic.h"
 #include "library/io_state_stream.h"
 
 namespace lean {
+/** \brief Throw an exception is \c v contains local constants, \c e is only used for position information. */
+void check_has_no_local(expr const & v, expr const & e, char const * tac_name) {
+    if (has_local(v)) {
+        for_each(v, [&](expr const & l, unsigned) {
+                if (is_local(l))
+                    throw tactic_exception(e, sstream() << "tactic '" << tac_name << "' contains reference to local '" << local_pp_name(l)
+                                           << "' which is not visible by this tactic "
+                                           << "possible causes: it was not marked as [fact]; it was destructued");
+                return has_local(l);
+            });
+    }
+}
+
 tactic_exception::tactic_exception(expr const & e, char const * msg):exception(msg), m_expr(e) {}
 tactic_exception::tactic_exception(expr const & e, sstream const & strm):exception(strm), m_expr(e) {}
 
@@ -202,6 +217,26 @@ tactic assumption_tactic() {
                 return some(proof_state(s, new_gs, subst));
             else
                 return none_proof_state();
+        });
+}
+
+tactic exact_tactic(expr const & _e) {
+    return tactic01([=](environment const & env, io_state const &, proof_state const & s) {
+            type_checker tc(env);
+            substitution subst  = s.get_subst();
+            goals const & gs    = s.get_goals();
+            goal const & g      = head(gs);
+            expr e              = subst.instantiate(_e);
+            expr e_t            = subst.instantiate(tc.infer(e));
+            expr t              = subst.instantiate(g.get_type());
+            if (tc.is_def_eq(e_t, t) && !tc.next_cnstr()) {
+                expr new_p = g.abstract(e);
+                check_has_no_local(new_p, _e, "exact");
+                substitution new_subst = subst.assign(g.get_name(), new_p);
+                return some(proof_state(s, tail(gs), new_subst));
+            } else {
+                return none_proof_state();
+            }
         });
 }
 

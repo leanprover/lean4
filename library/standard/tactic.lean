@@ -27,6 +27,7 @@ definition id         : tactic := tactic_value
 definition beta       : tactic := tactic_value
 definition apply      {B : Type} (b : B) : tactic := tactic_value
 definition unfold     {B : Type} (b : B) : tactic := tactic_value
+definition exact      {B : Type} (b : B) : tactic := tactic_value
 definition trace      (s : string) : tactic := tactic_value
 infixl `;`:200         := and_then
 infixl `|`:100         := or_else

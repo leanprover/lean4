@@ -14,6 +14,9 @@ Author: Leonardo de Moura
 #include "library/tactic/proof_state.h"
 
 namespace lean {
+/** \brief Throw an exception is \c v contains local constants, \c e is only used for position information. */
+void check_has_no_local(expr const & v, expr const & e, char const * tac_name);
+
 class tactic_exception : public exception {
     expr m_expr;
 public:
@@ -132,6 +135,8 @@ inline tactic when(proof_state_pred p, tactic const & t) { return cond(p, t, id_
 */
 tactic focus(tactic const & t, unsigned i);
 inline tactic focus(tactic const & t) { return focus(t, 1); }
+/** \brief Solve first goal iff it is definitionally equal to \c e */
+tactic exact_tactic(expr const & e);
 /** \brief Return a tactic that unfolds the definition named \c n. */
 tactic unfold_tactic(name const & n);
 /** \brief Return a tactic that unfolds all (non-opaque) definitions. */

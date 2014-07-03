@@ -722,14 +722,14 @@ public:
         return solve_unassigned_mvars(subst, e, visited);
     }
 
-    void display_unassigned_mvars(expr const & e) {
+    void display_unassigned_mvars(expr const & e, substitution const & s) {
         if (m_check_unassigned && has_metavar(e)) {
             for_each(e, [&](expr const & e, unsigned) {
                     if (!is_metavar(e))
                         return has_metavar(e);
                     if (auto it = m_mvar2meta.find(mlocal_name(e))) {
-                        expr meta      = *it;
-                        expr meta_type = type_checker(m_env).infer(meta);
+                        expr meta      = s.instantiate(*it);
+                        expr meta_type = s.instantiate(type_checker(m_env).infer(meta));
                         goal g(meta, meta_type);
                         display_unsolved_proof_state(e, proof_state(goals(g), substitution(), m_ngen),
                                                      "don't know how to synthesize it");
@@ -743,7 +743,7 @@ public:
     expr apply(substitution & s, expr const & e) {
         expr r = s.instantiate(e);
         r = solve_unassigned_mvars(s, r);
-        display_unassigned_mvars(r);
+        display_unassigned_mvars(r, s);
         return r;
     }
 

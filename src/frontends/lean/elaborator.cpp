@@ -336,8 +336,8 @@ public:
 
     expr visit_by(expr const & e, optional<expr> const & t) {
         lean_assert(is_by(e));
-        expr m   = mk_meta(t, e.get_tag());
         expr tac = visit(get_by_arg(e));
+        expr m   = mk_meta(t, e.get_tag());
         m_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
         return m;
     }
@@ -630,24 +630,6 @@ public:
         return ::lean::pp_indent_expr(m_ios.get_formatter(), m_env, m_ios.get_options(), e);
     }
 
-    optional<tactic> get_tactic_for(substitution const & substitution, expr const & mvar) {
-        if (auto it = m_tactic_hints.find(mlocal_name(mvar))) {
-            expr pre_tac = substitution.instantiate(*it);
-            try {
-                return optional<tactic>(expr_to_tactic(m_env, pre_tac, m_pos_provider));
-            } catch (expr_to_tactic_exception & ex) {
-                regular out(m_env, m_ios);
-                display_error_pos(out, m_pos_provider, mvar);
-                out << " " << ex.what();
-                out << pp_indent_expr(pre_tac) << endl << "failed at:" << pp_indent_expr(ex.get_expr()) << endl;
-                return optional<tactic>();
-            }
-        } else {
-            // TODO(Leo): m_env tactic hints
-            return optional<tactic>();
-        }
-    }
-
     void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg) {
         lean_assert(is_metavar(mvar));
         if (!m_displayed_errors.contains(mlocal_name(mvar))) {
@@ -658,47 +640,90 @@ public:
         }
     }
 
-    expr solve_unassigned_mvars(substitution & subst, expr const & e) {
+    optional<expr> get_pre_tactic_for(substitution & subst, expr const & mvar, name_set & visited) {
+        if (auto it = m_tactic_hints.find(mlocal_name(mvar))) {
+            expr pre_tac = subst.instantiate(*it);
+            pre_tac = solve_unassigned_mvars(subst, pre_tac, visited);
+            return some_expr(pre_tac);
+        } else {
+            // TODO(Leo): m_env tactic hints
+            return none_expr();
+        }
+    }
+
+    optional<tactic> pre_tactic_to_tactic(expr const & pre_tac, expr const & mvar) {
+        try {
+            return optional<tactic>(expr_to_tactic(m_env, pre_tac, m_pos_provider));
+        } catch (expr_to_tactic_exception & ex) {
+            regular out(m_env, m_ios);
+            display_error_pos(out, m_pos_provider, mvar);
+            out << " " << ex.what();
+            out << pp_indent_expr(pre_tac) << endl << "failed at:" << pp_indent_expr(ex.get_expr()) << endl;
+            return optional<tactic>();
+        }
+    }
+
+    void solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited) {
+        if (visited.contains(mlocal_name(mvar)))
+            return;
+        visited.insert(mlocal_name(mvar));
+        auto meta = mvar_to_meta(mvar);
+        if (!meta)
+            return;
+        buffer<expr> locals;
+        get_app_args(*meta, locals);
+        for (expr & l : locals)
+            l = subst.instantiate(l);
+        mvar = update_mlocal(mvar, subst.instantiate(mlocal_type(mvar)));
+        meta = ::lean::mk_app(mvar, locals);
+        expr type = m_tc.infer(*meta);
+        // first solve unassigned metavariables in type
+        type = solve_unassigned_mvars(subst, type, visited);
+        proof_state ps(goals(goal(*meta, type)), subst, m_ngen.mk_child());
+        optional<expr> pre_tac = get_pre_tactic_for(subst, mvar, visited);
+        if (!pre_tac)
+            return;
+        optional<tactic> tac   = pre_tactic_to_tactic(*pre_tac, mvar);
+        if (!tac)
+            return;
+        try {
+            proof_state_seq seq = (*tac)(m_env, m_ios, ps);
+            auto r = seq.pull();
+            if (!r) {
+                // tactic failed to produce any result
+                display_unsolved_proof_state(mvar, ps, "tactic failed");
+            } else if (!empty(r->first.get_goals())) {
+                // tactic contains unsolved subgoals
+                display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+            } else {
+                subst = r->first.get_subst();
+                expr v = subst.instantiate(mvar);
+                subst = subst.assign(mlocal_name(mvar), v);
+            }
+        } catch (tactic_exception & ex) {
+            regular out(m_env, m_ios);
+            display_error_pos(out, m_pos_provider, ex.get_expr());
+            out << " tactic failed: " << ex.what() << "\n";
+        }
+    }
+
+    expr solve_unassigned_mvars(substitution & subst, expr const & e, name_set & visited) {
         buffer<expr> mvars;
         collect_metavars(e, mvars);
         for (auto mvar : mvars) {
-            if (auto meta = mvar_to_meta(mvar)) {
-                buffer<expr> locals;
-                get_app_args(*meta, locals);
-                for (expr & l : locals)
-                    l = subst.instantiate(l);
-                mvar = update_mlocal(mvar, subst.instantiate(mlocal_type(mvar)));
-                meta = ::lean::mk_app(mvar, locals);
-                expr type = m_tc.infer(*meta);
-                proof_state ps(goals(goal(*meta, type)), subst, m_ngen.mk_child());
-                if (optional<tactic> t = get_tactic_for(subst, mvar)) {
-                    try {
-                        proof_state_seq seq = (*t)(m_env, m_ios, ps);
-                        if (auto r = seq.pull()) {
-                            if (!empty(r->first.get_goals())) {
-                                display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
-                            } else {
-                                subst = r->first.get_subst();
-                                expr v = subst.instantiate(mvar);
-                                subst = subst.assign(mlocal_name(mvar), v);
-                            }
-                        } else {
-                            // tactic failed to produce any result
-                            display_unsolved_proof_state(mvar, ps, "tactic failed");
-                        }
-                    } catch (tactic_exception & ex) {
-                        regular out(m_env, m_ios);
-                        display_error_pos(out, m_pos_provider, ex.get_expr());
-                        out << " tactic failed: " << ex.what() << "\n";
-                    }
-                }
-            }
+            check_interrupted();
+            solve_unassigned_mvar(subst, mvar, visited);
         }
         return subst.instantiate(e);
     }
 
+    expr solve_unassigned_mvars(substitution & subst, expr const & e) {
+        name_set visited;
+        return solve_unassigned_mvars(subst, e, visited);
+    }
+
     void display_unassigned_mvars(expr const & e) {
-        if (has_metavar(e)) {
+        if (m_check_unassigned && has_metavar(e)) {
             for_each(e, [&](expr const & e, unsigned) {
                     if (!is_metavar(e))
                         return has_metavar(e);
@@ -718,8 +743,7 @@ public:
     expr apply(substitution & s, expr const & e) {
         expr r = s.instantiate(e);
         r = solve_unassigned_mvars(s, r);
-        if (m_check_unassigned)
-            display_unassigned_mvars(r);
+        display_unassigned_mvars(r);
         return r;
     }
 

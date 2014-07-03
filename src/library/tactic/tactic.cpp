@@ -190,6 +190,19 @@ tactic take(tactic const & t, unsigned k) {
         });
 }
 
+tactic discard(tactic const & t, unsigned k) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            auto r = t(env, ios, s);
+            for (unsigned i = 0; i < k; i++) {
+                auto m = r.pull();
+                if (!m)
+                    return proof_state_seq();
+                r = m->second;
+            }
+            return r;
+        });
+}
+
 tactic assumption_tactic() {
     return tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             substitution subst = s.get_subst();

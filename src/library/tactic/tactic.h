@@ -112,9 +112,15 @@ tactic repeat(tactic const & t);
 tactic repeat_at_most(tactic const & t, unsigned k);
 /**
    \brief Return a tactic that applies \c t, but takes at most \c
-   k elements from the sequence produced by \c t.
+   \c k elements from the sequence produced by \c t.
 */
 tactic take(tactic const & t, unsigned k);
+/**
+   \brief Return a tactic that applies \c t, but discards the first
+   \c k elements from the sequence produced by \c t.
+*/
+tactic discard(tactic const & t, unsigned k);
+
 typedef std::function<bool(environment const & env, io_state const & ios, proof_state const & s)> proof_state_pred; // NOLINT
 /**
     \brief Return a tactic that applies the predicate \c p to the input state.

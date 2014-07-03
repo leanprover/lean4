@@ -185,6 +185,7 @@ static register_tac reg_unfold(name(g_tac, "unfold"), [](type_checker &, expr co
             return unfold_tactic(const_name(id));
     });
 static register_unary_num_tac reg_at_most(name(g_tac, "at_most"), [](tactic const & t, unsigned k) { return take(t, k); });
+static register_unary_num_tac reg_discard(name(g_tac, "discard"), [](tactic const & t, unsigned k) { return discard(t, k); });
 static register_unary_num_tac reg_focus_at(name(g_tac, "focus_at"), [](tactic const & t, unsigned k) { return focus(t, k); });
 static register_unary_num_tac reg_try_for(name(g_tac, "try_for"), [](tactic const & t, unsigned k) { return try_for(t, k); });
 

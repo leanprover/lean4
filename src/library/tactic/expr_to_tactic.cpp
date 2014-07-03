@@ -83,7 +83,7 @@ register_unary_tac::register_unary_tac(name const & n, std::function<tactic(tact
 static name g_tac("tactic");
 static register_simple_tac reg_id(name(g_tac, "id"), []() { return id_tactic(); });
 static register_simple_tac reg_now(name(g_tac, "now"), []() { return now_tactic(); });
-static register_simple_tac reg_exact(name(g_tac, "exact"), []() { return assumption_tactic(); });
+static register_simple_tac reg_assumption(name(g_tac, "assumption"), []() { return assumption_tactic(); });
 static register_simple_tac reg_fail(name(g_tac, "fail"), []() { return fail_tactic(); });
 static register_simple_tac reg_beta(name(g_tac, "beta"), []() { return beta_tactic(); });
 static register_bin_tac reg_then(name(g_tac, "and_then"), [](tactic const & t1, tactic const & t2) { return then(t1, t2); });

@@ -1,3 +1,3 @@
 import standard
 using tactic
-print raw (by exact)
+print raw (by assumption)

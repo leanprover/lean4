@@ -1008,8 +1008,11 @@ struct unifier_fn {
         lean_assert(!is_meta(rhs));
         lean_assert(!is_app(rhs));
         expr const & mtype = mlocal_type(m);
-        unsigned vidx = margs.size() - 1;
-        for (expr const & marg : margs) {
+        unsigned i = margs.size();
+        while (i > 0) {
+            unsigned vidx = margs.size() - i;
+            --i;
+            expr const & marg = margs[i];
             if (!is_local(marg) && !is_local(rhs)) {
                 // if rhs is not local, then we only add projections for the nonlocal arguments of lhs
                 constraint c1 = mk_eq_cnstr(marg, rhs, j);
@@ -1020,7 +1023,6 @@ struct unifier_fn {
                 constraint c1 = mk_eq_cnstr(m, mk_lambda_for(mtype, mk_var(vidx)), j);
                 alts.push_back(constraints(c1));
             }
-            vidx--;
         }
     }
 
@@ -1055,11 +1057,13 @@ struct unifier_fn {
             expr const & f = get_app_fn(rhs);
             lean_assert(is_constant(f) || is_local(f));
             if (is_local(f)) {
-                unsigned vidx = margs.size() - 1;
-                for (expr const & marg : margs) {
+                unsigned i = margs.size();
+                while (i > 0) {
+                    unsigned vidx = margs.size() - i;
+                    --i;
+                    expr const & marg = margs[i];
                     if (is_local(marg) && mlocal_name(marg) == mlocal_name(f))
                         alts.push_back(mk_flex_rigid_app_cnstrs(m, margs, mk_var(vidx), rhs, j));
-                    vidx--;
                 }
             } else if (is_constant(f)) {
                 alts.push_back(mk_flex_rigid_app_cnstrs(m, margs, f, rhs, j));

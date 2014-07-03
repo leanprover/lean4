@@ -14,54 +14,47 @@ Author: Leonardo de Moura
 #include "kernel/level.h"
 
 namespace lean {
-substitution::substitution(expr_map const & em, level_map const & lm):
-    m_expr_subst(em), m_level_subst(lm) {}
-
 substitution::substitution() {}
 
 bool substitution::is_expr_assigned(name const & m) const {
     return m_expr_subst.contains(m);
 }
 
-optional<std::pair<expr, justification>> substitution::get_expr_assignment(name const & m) const {
+auto substitution::get_expr_assignment(name const & m) const -> opt_expr_jst {
     auto it = m_expr_subst.find(m);
     if (it)
-        return optional<std::pair<expr, justification>>(*it);
+        return opt_expr_jst(mk_pair(*it, get_expr_jst(m)));
     else
-        return optional<std::pair<expr, justification>>();
+        return opt_expr_jst();
 }
 
 bool substitution::is_level_assigned(name const & m) const {
     return m_level_subst.contains(m);
 }
 
-optional<std::pair<level, justification>> substitution::get_level_assignment(name const & m) const {
+auto substitution::get_level_assignment(name const & m) const -> opt_level_jst {
     auto it = m_level_subst.find(m);
     if (it)
-        return opt_level_jst(*it);
+        return opt_level_jst(mk_pair(*it, get_level_jst(m)));
     else
         return opt_level_jst();
 }
 
 optional<expr> substitution::get_expr(name const & m) const {
     auto it = m_expr_subst.find(m);
-    if (it)
-        return some_expr(it->first);
-    else
-        return none_expr();
+    return it ? some_expr(*it) : none_expr();
 }
 
 optional<level> substitution::get_level(name const & m) const {
     auto it = m_level_subst.find(m);
-    if (it)
-        return some_level(it->first);
-    else
-        return none_level();
+    return it ? some_level(*it) : none_level();
 }
 
 void substitution::d_assign(name const & m, expr const & t, justification const & j) {
     lean_assert(closed(t));
-    m_expr_subst.insert(m, mk_pair(t, j));
+    m_expr_subst.insert(m, t);
+    if (!j.is_none())
+        m_expr_jsts.insert(m, j);
 }
 
 void substitution::d_assign(name const & m, expr const & t) {
@@ -69,7 +62,9 @@ void substitution::d_assign(name const & m, expr const & t) {
 }
 
 void substitution::d_assign(name const & m, level const & l, justification const & j) {
-    m_level_subst.insert(m, mk_pair(l, j));
+    m_level_subst.insert(m, l);
+    if (!j.is_none())
+        m_level_jsts.insert(m, j);
 }
 
 void substitution::d_assign(name const & m, level const & l) {
@@ -77,8 +72,9 @@ void substitution::d_assign(name const & m, level const & l) {
 }
 
 substitution substitution::assign(name const & m, expr const & t, justification const & j) const {
-    lean_assert(closed(t));
-    return substitution(insert(m_expr_subst, m, mk_pair(t, j)), m_level_subst);
+    substitution s(*this);
+    s.d_assign(m, t, j);
+    return s;
 }
 
 substitution substitution::assign(name const & m, expr const & t) const {
@@ -86,7 +82,9 @@ substitution substitution::assign(name const & m, expr const & t) const {
 }
 
 substitution substitution::assign(name const & m, level const & l, justification const & j) const {
-    return substitution(m_expr_subst, insert(m_level_subst, m, mk_pair(l, j)));
+    substitution s(*this);
+    s.d_assign(m, l, j);
+    return s;
 }
 
 substitution substitution::assign(name const & m, level const & l) const {

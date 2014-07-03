@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_max("max");
+static name g_prev("prev");
 static name g_colon(":");
 static name g_comma(",");
 static name g_assign(":=");
@@ -184,12 +185,28 @@ static void parse_notation_local(parser & p, buffer<expr> & locals) {
     }
 }
 
+unsigned get_precedence(environment const & env, buffer<token_entry> const & new_tokens, name const & token) {
+    std::string token_str = token.to_string();
+    for (auto const & e : new_tokens) {
+        if (e.m_token == token_str)
+            return e.m_prec;
+    }
+    auto prec = get_precedence(get_token_table(env), token_str.c_str());
+    if (prec)
+        return *prec;
+    else
+        return 0;
+}
+
 static action parse_action(parser & p, name const & prev_token, buffer<expr> & locals, buffer<token_entry> & new_tokens) {
     if (p.curr_is_token(g_colon)) {
         p.next();
         if (p.curr_is_numeral() || p.curr_is_token_or_id(g_max)) {
             unsigned prec = parse_precedence(p, "invalid notation declaration, small numeral expected");
             return mk_expr_action(prec);
+        } else if (p.curr_is_token_or_id(g_prev)) {
+            p.next();
+            return mk_expr_action(get_precedence(p.env(), new_tokens, prev_token));
         } else if (p.curr_is_string()) {
             std::string fn = p.get_str_val();
             p.next();
@@ -242,11 +259,7 @@ static action parse_action(parser & p, name const & prev_token, buffer<expr> & l
             }
         }
     } else {
-        auto prec = get_precedence(get_token_table(p.env()), prev_token.to_string().c_str());
-        if (prec)
-            return mk_expr_action(*prec);
-        else
-            return mk_expr_action();
+        return mk_expr_action();
     }
 }
 

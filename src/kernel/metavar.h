@@ -60,6 +60,9 @@ public:
     void d_assign(level const & m, level const & t, justification const & j) { d_assign(meta_id(m), t, j); }
     void d_assign(level const & m, level const & t) { d_assign(m, t, justification ()); }
 
+    void d_forget_justifications() { m_expr_jsts  = jst_map(); m_level_jsts = jst_map(); }
+    substitution forget_justifications() const { substitution s(*this); s.d_forget_justifications(); return s; }
+
     template<typename F>
     void for_each_expr(F && fn) const {
         for_each(m_expr_subst, [=](name const & n, expr const & e) { fn(n, e, get_expr_jst(n)); });

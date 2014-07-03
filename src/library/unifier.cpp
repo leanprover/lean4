@@ -1156,7 +1156,7 @@ struct unifier_fn {
         }
         lean_assert(!in_conflict());
         lean_assert(m_cnstrs.empty());
-        return optional<substitution>(m_subst);
+        return optional<substitution>(m_subst.forget_justifications());
     }
 };
 

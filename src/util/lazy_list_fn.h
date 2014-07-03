@@ -30,7 +30,7 @@ void for_each(lazy_list<T> l, F && f) {
 */
 template<typename T>
 lazy_list<T> take(unsigned sz, lazy_list<T> const & l) {
-    if (sz == 0) {
+    if (sz == 0 || l.is_nil()) {
         return lazy_list<T>();
     } else {
         return mk_lazy_list<T>([=]() {
@@ -62,15 +62,20 @@ lazy_list<T> to_lazy(list<T> l) {
 */
 template<typename T>
 lazy_list<T> append(lazy_list<T> const & l1, lazy_list<T> const & l2, char const * cname = "lazy list") {
-    return mk_lazy_list<T>([=]() {
-            auto p = l1.pull();
-            if (!p) {
-                check_system(cname);
-                return l2.pull();
-            } else {
-                return some(mk_pair(p->first, append(p->second, l2, cname)));
-            }
-        });
+    if (l1.is_nil())
+        return l2;
+    else if (l2.is_nil())
+        return l1;
+    else
+        return mk_lazy_list<T>([=]() {
+                auto p = l1.pull();
+                if (!p) {
+                    check_system(cname);
+                    return l2.pull();
+                } else {
+                    return some(mk_pair(p->first, append(p->second, l2, cname)));
+                }
+            });
 }
 
 /**
@@ -78,15 +83,18 @@ lazy_list<T> append(lazy_list<T> const & l1, lazy_list<T> const & l2, char const
 */
 template<typename T>
 lazy_list<T> orelse(lazy_list<T> const & l1, lazy_list<T> const & l2, char const * cname = "lazy list") {
-    return mk_lazy_list<T>([=]() {
-            auto p = l1.pull();
-            if (!p) {
-                check_system(cname);
-                return l2.pull();
-            } else {
-                return p;
-            }
-        });
+    if (l1.is_nil())
+        return l2;
+    else
+        return mk_lazy_list<T>([=]() {
+                auto p = l1.pull();
+                if (!p) {
+                    check_system(cname);
+                    return l2.pull();
+                } else {
+                    return p;
+                }
+            });
 }
 
 /**
@@ -95,15 +103,20 @@ lazy_list<T> orelse(lazy_list<T> const & l1, lazy_list<T> const & l2, char const
 */
 template<typename T>
 lazy_list<T> interleave(lazy_list<T> const & l1, lazy_list<T> const & l2, char const * cname = "lazy list") {
-    return mk_lazy_list<T>([=]() {
-            auto p = l1.pull();
-            if (!p) {
-                check_system(cname);
-                return l2.pull();
-            } else {
-                return some(mk_pair(p->first, interleave(l2, p->second, cname)));
-            }
-        });
+    if (l1.is_nil())
+        return l2;
+    else if (l2.is_nil())
+        return l1;
+    else
+        return mk_lazy_list<T>([=]() {
+                auto p = l1.pull();
+                if (!p) {
+                    check_system(cname);
+                    return l2.pull();
+                } else {
+                    return some(mk_pair(p->first, interleave(l2, p->second, cname)));
+                }
+            });
 }
 
 /**
@@ -111,15 +124,18 @@ lazy_list<T> interleave(lazy_list<T> const & l1, lazy_list<T> const & l2, char c
 */
 template<typename T, typename F>
 lazy_list<T> map(lazy_list<T> const & l, F && f, char const * cname = "lazy list") {
-    return mk_lazy_list<T>([=]() {
-            auto p = l.pull();
-            if (!p) {
-                return p;
-            } else {
-                check_system(cname);
-                return some(mk_pair(f(p->first), map(p->second, f, cname)));
-            }
-        });
+    if (l.is_nil())
+        return l;
+    else
+        return mk_lazy_list<T>([=]() {
+                auto p = l.pull();
+                if (!p) {
+                    return p;
+                } else {
+                    check_system(cname);
+                    return some(mk_pair(f(p->first), map(p->second, f, cname)));
+                }
+            });
 }
 
 /**
@@ -127,15 +143,18 @@ lazy_list<T> map(lazy_list<T> const & l, F && f, char const * cname = "lazy list
 */
 template<typename To, typename From, typename F>
 lazy_list<To> map2(lazy_list<From> const & l, F && f, char const * cname = "lazy list") {
-    return mk_lazy_list<To>([=]() {
-            typename lazy_list<From>::maybe_pair p = l.pull();
-            if (!p) {
-                return typename lazy_list<To>::maybe_pair();
-            } else {
-                check_system(cname);
-                return some(mk_pair(f(p->first), map2<To>(p->second, f, cname)));
-            }
-        });
+    if (l.is_nil())
+        return lazy_list<To>();
+    else
+        return mk_lazy_list<To>([=]() {
+                typename lazy_list<From>::maybe_pair p = l.pull();
+                if (!p) {
+                    return typename lazy_list<To>::maybe_pair();
+                } else {
+                    check_system(cname);
+                    return some(mk_pair(f(p->first), map2<To>(p->second, f, cname)));
+                }
+            });
 }
 
 /**
@@ -147,17 +166,20 @@ lazy_list<To> map2(lazy_list<From> const & l, F && f, char const * cname = "lazy
 */
 template<typename T, typename P>
 lazy_list<T> filter(lazy_list<T> const & l, P && pred, char const * cname = "lazy list") {
-    return mk_lazy_list<T>([=]() {
-            auto p = l.pull();
-            if (!p) {
-                return p;
-            } else if (pred(p->first)) {
-                return p;
-            } else {
-                check_system(cname);
-                return filter(p->second, pred, cname).pull();
-            }
-        });
+    if (l.is_nil())
+        return l;
+    else
+        return mk_lazy_list<T>([=]() {
+                auto p = l.pull();
+                if (!p) {
+                    return p;
+                } else if (pred(p->first)) {
+                    return p;
+                } else {
+                    check_system(cname);
+                    return filter(p->second, pred, cname).pull();
+                }
+            });
 }
 
 /**

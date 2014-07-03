@@ -1193,7 +1193,9 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
                               unifier_plugin const & p, unsigned max_steps) {
     name_generator new_ngen(ngen);
     type_checker tc(env, new_ngen.mk_child());
-    if (!tc.is_def_eq(lhs, rhs))
+    expr _lhs = s.instantiate(lhs);
+    expr _rhs = s.instantiate(rhs);
+    if (!tc.is_def_eq(_lhs, _rhs))
         return lazy_list<substitution>();
     buffer<constraint> cs;
     while (auto c = tc.next_cnstr()) {

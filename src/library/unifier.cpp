@@ -1165,13 +1165,18 @@ unifier_plugin get_noop_unifier_plugin() {
 }
 
 lazy_list<substitution> unify(std::shared_ptr<unifier_fn> u) {
-    return mk_lazy_list<substitution>([=]() {
-            auto s = u->next();
-            if (s)
-                return some(mk_pair(*s, unify(u)));
-            else
-                return lazy_list<substitution>::maybe_pair();
-        });
+    if (u->in_conflict()) {
+        u->failure(); // make sure exception is thrown if u->m_use_exception is true
+        return lazy_list<substitution>();
+    } else {
+        return mk_lazy_list<substitution>([=]() {
+                auto s = u->next();
+                if (s)
+                    return some(mk_pair(*s, unify(u)));
+                else
+                    return lazy_list<substitution>::maybe_pair();
+            });
+    }
 }
 
 lazy_list<substitution> unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator const & ngen,

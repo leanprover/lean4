@@ -82,13 +82,19 @@ register_unary_tac::register_unary_tac(name const & n, std::function<tactic(tact
 
 static name g_tac("tactic");
 static name g_exact_tac_name(g_tac, "exact");
+static name g_and_then_tac_name(g_tac, "and_then");
 name const & get_exact_tac_name() { return g_exact_tac_name; }
+name const & get_and_then_tac_name() { return g_and_then_tac_name; }
+static expr g_exact_tac_fn(Const(g_exact_tac_name));
+static expr g_and_then_tac_fn(Const(g_and_then_tac_name));
+expr const & get_exact_tac_fn() { return g_exact_tac_fn; }
+expr const & get_and_then_tac_fn() { return g_and_then_tac_fn; }
 static register_simple_tac reg_id(name(g_tac, "id"), []() { return id_tactic(); });
 static register_simple_tac reg_now(name(g_tac, "now"), []() { return now_tactic(); });
 static register_simple_tac reg_assumption(name(g_tac, "assumption"), []() { return assumption_tactic(); });
 static register_simple_tac reg_fail(name(g_tac, "fail"), []() { return fail_tactic(); });
 static register_simple_tac reg_beta(name(g_tac, "beta"), []() { return beta_tactic(); });
-static register_bin_tac reg_then(name(g_tac, "and_then"), [](tactic const & t1, tactic const & t2) { return then(t1, t2); });
+static register_bin_tac reg_then(g_and_then_tac_name, [](tactic const & t1, tactic const & t2) { return then(t1, t2); });
 static register_bin_tac reg_orelse(name(g_tac, "or_else"), [](tactic const & t1, tactic const & t2) { return orelse(t1, t2); });
 static register_unary_tac reg_repeat(name(g_tac, "repeat"), [](tactic const & t1) { return repeat(t1); });
 static register_tac reg_state(name(g_tac, "state"), [](type_checker &, expr const & e, pos_info_provider const * p) {

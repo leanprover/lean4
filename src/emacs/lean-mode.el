@@ -24,7 +24,7 @@
 (define-generic-mode
     'lean-mode     ;; name of the mode to create
   '("--")          ;; comments start with
-  '("import" "abbreviation" "definition" "parameter" "parameters" "conjecture" "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem" "axiom" "inductive" "with" "universe" "alias" "help" "environment" "options" "precedence" "postfix" "calc_trans" "calc_subst" "calc_refl" "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end" "using" "namespace" "builtin" "section" "set_option" "add_rewrite") ;; some keywords
+  '("import" "abbreviation" "definition" "parameter" "parameters" "proof" "qed" "conjecture" "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem" "axiom" "inductive" "with" "universe" "alias" "help" "environment" "options" "precedence" "postfix" "calc_trans" "calc_subst" "calc_refl" "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end" "using" "namespace" "builtin" "section" "set_option" "add_rewrite") ;; some keywords
   '(("\\_<\\(Bool\\|Int\\|Nat\\|Real\\|Type\\|TypeU\\|ℕ\\|ℤ\\)\\_>" . 'font-lock-type-face)
     ("\\_<\\(calc\\|have\\|show\\|by\\|in\\|let\\|forall\\|fun\\|exists\\|if\\|then\\|else\\|assume\\|take\\|obtain\\|from\\)\\_>" . font-lock-keyword-face)
     ("\"[^\"]*\"" . 'font-lock-string-face)

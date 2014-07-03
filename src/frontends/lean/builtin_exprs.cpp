@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
+#include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/token_table.h"
@@ -15,19 +16,11 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace notation {
-static name g_llevel_curly(".{");
-static name g_rcurly("}");
-static name g_in("in");
-static name g_colon(":");
-static name g_assign(":=");
-static name g_comma(",");
-static name g_fact("[fact]");
-static name g_inline("[inline]");
-static name g_from("from");
-static name g_using("using");
-static name g_then("then");
-static name g_have("have");
-static name g_by("by");
+static name g_llevel_curly(".{"), g_rcurly("}"), g_in("in"), g_colon(":"), g_assign(":=");
+static name g_comma(","), g_fact("[fact]"), g_inline("[inline]"), g_from("from"), g_using("using");
+static name g_then("then"), g_have("have"), g_by("by"), g_qed("qed");
+static name g_take("take"), g_assume("assume"), g_show("show"), g_fun("fun");
+
 
 static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos) {
     if (p.curr_is_token(g_llevel_curly)) {
@@ -136,6 +129,36 @@ static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr t = p.parse_expr();
     return p.save_pos(mk_by(t), pos);
+}
+
+static optional<expr> get_proof_qed_pre_tac(environment const & /* env */) {
+    // TODO(Leo)
+    return none_expr();
+}
+
+static expr parse_proof_qed(parser & p, unsigned, expr const *, pos_info const &) {
+    optional<expr> pre_tac = get_proof_qed_pre_tac(p.env());
+    optional<expr> r;
+    while (true) {
+        bool use_exact = (p.curr_is_token(g_have) || p.curr_is_token(g_show) || p.curr_is_token(g_assume) ||
+                          p.curr_is_token(g_take) || p.curr_is_token(g_fun));
+        auto pos = p.pos();
+        expr tac = p.parse_expr();
+        if (use_exact)
+            tac = p.save_pos(mk_app(get_exact_tac_fn(), tac), pos);
+        if (pre_tac)
+            tac = p.save_pos(mk_app(get_and_then_tac_fn(), *pre_tac, tac), pos);
+        r = r ? p.save_pos(mk_app(get_and_then_tac_fn(), *r, tac), pos) : tac;
+        if (p.curr_is_token(g_qed)) {
+            auto pos = p.pos();
+            p.next();
+            return p.save_pos(mk_by(*r), pos);
+        } else if (p.curr_is_token(g_comma)) {
+            p.next();
+        } else {
+            throw parser_error("invalid proof-qed, ',' or 'qed' expected", p.pos());
+        }
+    }
 }
 
 static expr parse_proof(parser & p, expr const & prop) {
@@ -285,6 +308,7 @@ parse_table init_nud_table() {
     r = r.add({transition("calc", mk_ext_action(parse_calc_expr))}, x0);
     r = r.add({transition("#", mk_ext_action(parse_overwrite_notation))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
+    r = r.add({transition("proof", mk_ext_action(parse_proof_qed))}, x0);
     return r;
 }
 

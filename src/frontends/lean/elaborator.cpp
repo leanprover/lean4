@@ -640,10 +640,25 @@ public:
         }
     }
 
+    // For each occurrence of \c exact_tac in \c pre_tac, display its unassigned metavariables.
+    // This is a trick to improve the quality of the error messages.
+    void check_exact_tacs(expr const & pre_tac, substitution const & s) {
+        for_each(pre_tac, [&](expr const & e, unsigned) {
+                expr const & f = get_app_fn(e);
+                if (is_constant(f) && const_name(f) == get_exact_tac_name()) {
+                    display_unassigned_mvars(e, s);
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+    }
+
     optional<expr> get_pre_tactic_for(substitution & subst, expr const & mvar, name_set & visited) {
         if (auto it = m_tactic_hints.find(mlocal_name(mvar))) {
             expr pre_tac = subst.instantiate(*it);
             pre_tac = solve_unassigned_mvars(subst, pre_tac, visited);
+            check_exact_tacs(pre_tac, subst);
             return some_expr(pre_tac);
         } else {
             // TODO(Leo): m_env tactic hints

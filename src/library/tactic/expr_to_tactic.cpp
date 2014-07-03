@@ -81,6 +81,8 @@ register_unary_tac::register_unary_tac(name const & n, std::function<tactic(tact
 }
 
 static name g_tac("tactic");
+static name g_exact_tac_name(g_tac, "exact");
+name const & get_exact_tac_name() { return g_exact_tac_name; }
 static register_simple_tac reg_id(name(g_tac, "id"), []() { return id_tactic(); });
 static register_simple_tac reg_now(name(g_tac, "now"), []() { return now_tactic(); });
 static register_simple_tac reg_assumption(name(g_tac, "assumption"), []() { return assumption_tactic(); });
@@ -110,7 +112,7 @@ static register_tac reg_trace(name(g_tac, "trace"), [](type_checker & tc, expr c
 static register_tac reg_apply(name(g_tac, "apply"), [](type_checker &, expr const & e, pos_info_provider const *) {
         return apply_tactic(app_arg(e));
     });
-static register_tac reg_exact(name(g_tac, "exact"), [](type_checker &, expr const & e, pos_info_provider const *) {
+static register_tac reg_exact(g_exact_tac_name, [](type_checker &, expr const & e, pos_info_provider const *) {
         return exact_tactic(app_arg(e));
     });
 static register_tac reg_unfold(name(g_tac, "unfold"), [](type_checker &, expr const & e, pos_info_provider const *) {

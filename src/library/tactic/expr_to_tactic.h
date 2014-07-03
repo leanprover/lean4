@@ -28,6 +28,8 @@ struct register_unary_tac {
     register_unary_tac(name const & n, std::function<tactic(tactic const &)> f);
 };
 
+name const & get_exact_tac_name();
+
 tactic expr_to_tactic(environment const & env, expr const & e, pos_info_provider const *p);
 expr mk_by(expr const & e);
 bool is_by(expr const & e);

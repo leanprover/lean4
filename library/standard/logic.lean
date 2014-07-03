@@ -191,13 +191,11 @@ theorem exists_unique_intro {A : Type} {p : A → Bool} (w : A) (H1 : p w) (H2 :
 theorem exists_unique_elim {A : Type} {p : A → Bool} {b : Bool} (H2 : ∃! x, p x) (H1 : ∀ x, p x → (∀ y, y ≠ x → ¬ p y) → b) : b
 := exists_elim H2 (λ w Hw, H1 w (and_elim_left Hw) (and_elim_right Hw))
 
-definition inhabited (A : Type) := ∃ x : A, true
-
-theorem inhabited_intro {A : Type} (a : A) : inhabited A
-:= exists_intro a trivial
+inductive inhabited (A : Type) : Bool :=
+| inhabited_intro : A → inhabited A
 
 theorem inhabited_elim {A : Type} {B : Bool} (H1 : inhabited A) (H2 : A → B) : B
-:= exists_elim H1 (λ (a : A) (H : true), H2 a)
+:= inhabited_rec H2 H1
 
 theorem inhabited_Bool : inhabited Bool
 := inhabited_intro true

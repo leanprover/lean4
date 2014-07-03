@@ -66,6 +66,7 @@ class parser {
     bool                    m_no_undef_id_error;
     optional<bool>          m_has_num;
     optional<bool>          m_has_string;
+    optional<bool>          m_has_tactic_decls;
 
     void display_error_pos(unsigned line, unsigned pos);
     void display_error_pos(pos_info p);
@@ -138,6 +139,9 @@ public:
     io_state const & ios() const { return m_ios; }
     local_level_decls const & get_local_level_decls() const { return m_local_level_decls; }
     local_expr_decls const & get_local_expr_decls() const { return m_local_decls; }
+
+    bool has_tactic_decls();
+    expr mk_by(expr const & t, pos_info const & pos);
 
     void updt_options();
     template<typename T> void set_option(name const & n, T const & v) { m_ios.set_option(n, v); }

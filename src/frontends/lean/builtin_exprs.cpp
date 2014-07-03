@@ -129,10 +129,12 @@ static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const
 
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr t = p.parse_expr();
-    return p.save_pos(mk_by(t), pos);
+    return p.mk_by(t, pos);
 }
 
-static expr parse_proof_qed(parser & p, unsigned, expr const *, pos_info const &) {
+static expr parse_proof_qed(parser & p, unsigned, expr const *, pos_info const & pos) {
+    if (!p.has_tactic_decls())
+        throw parser_error("invalid 'proof' expression, tactic module has not been imported", pos);
     optional<expr> pre_tac = get_proof_qed_pre_tactic(p.env());
     optional<expr> r;
     while (true) {
@@ -148,7 +150,7 @@ static expr parse_proof_qed(parser & p, unsigned, expr const *, pos_info const &
         if (p.curr_is_token(g_qed)) {
             auto pos = p.pos();
             p.next();
-            return p.save_pos(mk_by(*r), pos);
+            return p.mk_by(*r, pos);
         } else if (p.curr_is_token(g_comma)) {
             p.next();
         } else {
@@ -167,7 +169,7 @@ static expr parse_proof(parser & p, expr const & prop) {
         auto pos = p.pos();
         p.next();
         expr t = p.parse_expr();
-        return p.save_pos(mk_by(t), pos);
+        return p.mk_by(t, pos);
     } else if (p.curr_is_token(g_using)) {
         // parse: 'using' locals* ',' proof
         auto using_pos = p.pos();

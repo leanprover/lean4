@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/string.h"
 #include "library/error_handling/error_handling.h"
+#include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/parser_bindings.h"
 #include "frontends/lean/notation_cmd.h"
@@ -98,6 +99,18 @@ parser::parser(environment const & env, io_state const & ios,
     m_curr = scanner::token_kind::Identifier;
     protected_call([&]() { scan(); },
                    [&]() { sync_command(); });
+}
+
+bool parser::has_tactic_decls() {
+    if (!m_has_tactic_decls)
+        m_has_tactic_decls = ::lean::has_tactic_decls(m_env);
+    return *m_has_tactic_decls;
+}
+
+expr parser::mk_by(expr const & t, pos_info const & pos) {
+    if (!has_tactic_decls())
+        throw parser_error("invalid 'by' expression, tactic module has not been imported", pos);
+    return save_pos(::lean::mk_by(t), pos);
 }
 
 void parser::updt_options() {

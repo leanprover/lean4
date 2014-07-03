@@ -25,17 +25,30 @@ void register_expr_to_tactic(name const & n, expr_to_tactic_fn const & fn) {
     get_expr_to_tactic_map().insert(mk_pair(n, fn));
 }
 
-static name g_tac("tactic"), g_builtin_tac(g_tac, "builtin_tactic");
-static name g_tac_name(g_tac, "tactic"), g_exact_tac_name(g_tac, "exact"), g_and_then_tac_name(g_tac, "and_then");
+static name g_tac("tactic"), g_tac_name(g_tac, "tactic"), g_builtin_tac_name(g_tac, "builtin_tactic");
+static name g_exact_tac_name(g_tac, "exact"), g_and_then_tac_name(g_tac, "and_then");
 static name g_or_else_tac_name(g_tac, "or_else"), g_repeat_tac_name(g_tac, "repeat");
 static expr g_exact_tac_fn(Const(g_exact_tac_name)), g_and_then_tac_fn(Const(g_and_then_tac_name));
 static expr g_or_else_tac_fn(Const(g_or_else_tac_name)), g_repeat_tac_fn(Const(g_repeat_tac_name));
-static expr g_tac_type(Const(g_tac_name));
+static expr g_tac_type(Const(g_tac_name)), g_builtin_tac(Const(g_builtin_tac_name));
 expr const & get_exact_tac_fn() { return g_exact_tac_fn; }
 expr const & get_and_then_tac_fn() { return g_and_then_tac_fn; }
 expr const & get_or_else_tac_fn() { return g_or_else_tac_fn; }
 expr const & get_repeat_tac_fn() { return g_repeat_tac_fn; }
 expr const & get_tactic_type() { return g_tac_type; }
+
+bool has_tactic_decls(environment const & env) {
+    try {
+        type_checker tc(env);
+        return
+            tc.infer(g_builtin_tac) == g_tac_type &&
+            tc.infer(g_and_then_tac_fn) == g_tac_type >> (g_tac_type >> g_tac_type) &&
+            tc.infer(g_or_else_tac_fn) == g_tac_type >> (g_tac_type >> g_tac_type) &&
+            tc.infer(g_repeat_tac_fn) == g_tac_type >> g_tac_type;
+    } catch (...) {
+        return false;
+    }
+}
 
 static void throw_failed(expr const & e) {
     throw expr_to_tactic_exception(e, "failed to convert expression into tactic");
@@ -45,7 +58,7 @@ static void throw_failed(expr const & e) {
 static bool is_builtin_tactic(expr const & v) {
     if (is_lambda(v))
         return is_builtin_tactic(binding_body(v));
-    else if (is_constant(v) && const_name(v) == g_builtin_tac)
+    else if (v == g_builtin_tac)
         return true;
     else
         return false;

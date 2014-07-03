@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/calc.h"
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/inductive_cmd.h"
+#include "frontends/lean/proof_qed_ext.h"
 #include "frontends/lean/decl_cmds.h"
 
 namespace lean {
@@ -246,6 +247,7 @@ cmd_table init_cmd_table() {
     register_inductive_cmd(r);
     register_notation_cmds(r);
     register_calc_cmds(r);
+    register_proof_qed_cmds(r);
     return r;
 }
 

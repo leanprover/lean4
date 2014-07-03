@@ -645,7 +645,7 @@ public:
     void check_exact_tacs(expr const & pre_tac, substitution const & s) {
         for_each(pre_tac, [&](expr const & e, unsigned) {
                 expr const & f = get_app_fn(e);
-                if (is_constant(f) && const_name(f) == get_exact_tac_name()) {
+                if (is_constant(f) && const_name(f) == const_name(get_exact_tac_fn())) {
                     display_unassigned_mvars(e, s);
                     return false;
                 } else {

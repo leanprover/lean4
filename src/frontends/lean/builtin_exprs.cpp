@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/calc.h"
+#include "frontends/lean/proof_qed_ext.h"
 #include "frontends/lean/parser.h"
 
 namespace lean {
@@ -131,13 +132,8 @@ static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.save_pos(mk_by(t), pos);
 }
 
-static optional<expr> get_proof_qed_pre_tac(environment const & /* env */) {
-    // TODO(Leo)
-    return none_expr();
-}
-
 static expr parse_proof_qed(parser & p, unsigned, expr const *, pos_info const &) {
-    optional<expr> pre_tac = get_proof_qed_pre_tac(p.env());
+    optional<expr> pre_tac = get_proof_qed_pre_tactic(p.env());
     optional<expr> r;
     while (true) {
         bool use_exact = (p.curr_is_token(g_have) || p.curr_is_token(g_show) || p.curr_is_token(g_assume) ||

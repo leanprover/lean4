@@ -430,7 +430,7 @@ static void check_no_local(environment const & env, expr const & e) {
         throw_kernel_exception(env, "failed to add declaration to environment, it contains local constants", e);
 }
 
-static void check_no_mlocal(environment const & env, name const & n, expr const & e, bool is_type) {
+void check_no_mlocal(environment const & env, name const & n, expr const & e, bool is_type) {
     check_no_metavar(env, n, e, is_type);
     check_no_local(env, e);
 }

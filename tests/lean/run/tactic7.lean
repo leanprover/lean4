@@ -6,7 +6,6 @@ theorem tst {A B : Bool} (H1 : A) (H2 : B) : A ∧ B ∧ A
 check tst
 
 theorem tst2 {A B : Bool} (H1 : A) (H2 : B) : A ∧ B ∧ A
-:= by !((apply @and_intro | assumption) ; trace "STEP"; state; trace "----------")
+:= by !([apply @and_intro | assumption] ; trace "STEP"; state; trace "----------")
 
 check tst2
-

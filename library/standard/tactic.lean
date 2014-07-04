@@ -39,11 +39,12 @@ definition apply       {B : Type} (b : B) : tactic := builtin_tactic
 definition unfold      {B : Type} (b : B) : tactic := builtin_tactic
 definition exact       {B : Type} (b : B) : tactic := builtin_tactic
 definition trace       (s : string) : tactic := builtin_tactic
-infixl `;`:200         := and_then
-infixl `|`:100         := or_else
+precedence `;`:200
+infixl ; := and_then
 notation `!` t:max     := repeat t
-notation `⟦` t `⟧`     := apply t
-definition try         (t : tactic) : tactic := t | id
+-- [ t_1 | ... | t_n ] notation
+notation `[` h:100 `|` r:(foldl 100 `|` (e r, or_else r e) h) `]` := r
+definition try         (t : tactic) : tactic := [ t | id ]
 notation `?` t:max     := try t
 definition repeat1     (t : tactic) : tactic := t ; !t
 definition focus       (t : tactic) : tactic := focus_at t 0

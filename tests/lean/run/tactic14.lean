@@ -2,7 +2,7 @@ import standard
 using tactic
 
 definition basic_tac : tactic
-:= repeat (apply @and_intro | apply @not_intro | assumption)
+:= repeat [apply @and_intro | apply @not_intro | assumption]
 
 reset_proof_qed basic_tac -- basic_tac is automatically applied to each element of a proof-qed block
 

@@ -14,7 +14,7 @@ inductive true : Bool :=
 
 definition not (a : Bool) := a → false
 precedence `¬`:40
-notation `¬` a := not a
+notation `¬` a:prev := not a
 
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r

@@ -22,6 +22,7 @@ definition or_else     (t1 t2 : tactic) : tactic := builtin_tactic
 definition append      (t1 t2 : tactic) : tactic := builtin_tactic
 definition interleave  (t1 t2 : tactic) : tactic := builtin_tactic
 definition par         (t1 t2 : tactic) : tactic := builtin_tactic
+definition fixpoint    (f : tactic → tactic) : tactic := builtin_tactic
 definition repeat      (t : tactic) : tactic := builtin_tactic
 definition at_most     (t : tactic) (k : num)  : tactic := builtin_tactic
 definition discard     (t : tactic) (k : num)  : tactic := builtin_tactic

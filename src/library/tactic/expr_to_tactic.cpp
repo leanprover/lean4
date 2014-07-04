@@ -27,10 +27,10 @@ void register_expr_to_tactic(name const & n, expr_to_tactic_fn const & fn) {
 
 static name g_tac("tactic"), g_tac_name(g_tac, "tactic"), g_builtin_tac_name(g_tac, "builtin_tactic");
 static name g_exact_tac_name(g_tac, "exact"), g_and_then_tac_name(g_tac, "and_then");
-static name g_or_else_tac_name(g_tac, "or_else"), g_repeat_tac_name(g_tac, "repeat");
+static name g_or_else_tac_name(g_tac, "or_else"), g_repeat_tac_name(g_tac, "repeat"), g_fixpoint_name(g_tac, "fixpoint");
 static expr g_exact_tac_fn(Const(g_exact_tac_name)), g_and_then_tac_fn(Const(g_and_then_tac_name));
 static expr g_or_else_tac_fn(Const(g_or_else_tac_name)), g_repeat_tac_fn(Const(g_repeat_tac_name));
-static expr g_tac_type(Const(g_tac_name)), g_builtin_tac(Const(g_builtin_tac_name));
+static expr g_tac_type(Const(g_tac_name)), g_builtin_tac(Const(g_builtin_tac_name)), g_fixpoint_tac(Const(g_fixpoint_name));
 expr const & get_exact_tac_fn() { return g_exact_tac_fn; }
 expr const & get_and_then_tac_fn() { return g_and_then_tac_fn; }
 expr const & get_or_else_tac_fn() { return g_or_else_tac_fn; }
@@ -93,6 +93,12 @@ tactic expr_to_tactic(type_checker & tc, expr e, pos_info_provider const * p) {
 tactic expr_to_tactic(environment const & env, expr const & e, pos_info_provider const * p) {
     type_checker tc(env);
     return expr_to_tactic(tc, e, p);
+}
+
+tactic fixpoint(expr const & b) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            return expr_to_tactic(env, b, nullptr)(env, ios, s);
+        });
 }
 
 register_simple_tac::register_simple_tac(name const & n, std::function<tactic()> f) {
@@ -189,6 +195,12 @@ static register_unary_num_tac reg_at_most(name(g_tac, "at_most"), [](tactic cons
 static register_unary_num_tac reg_discard(name(g_tac, "discard"), [](tactic const & t, unsigned k) { return discard(t, k); });
 static register_unary_num_tac reg_focus_at(name(g_tac, "focus_at"), [](tactic const & t, unsigned k) { return focus(t, k); });
 static register_unary_num_tac reg_try_for(name(g_tac, "try_for"), [](tactic const & t, unsigned k) { return try_for(t, k); });
+static register_tac reg_fixpoint(g_fixpoint_name, [](type_checker & tc, expr const & e, pos_info_provider const *) {
+        if (!is_constant(app_fn(e)))
+            throw expr_to_tactic_exception(e, "invalid fixpoint tactic, it must have one argument");
+        expr r = tc.whnf(mk_app(app_arg(e), e));
+        return fixpoint(r);
+    });
 
 // We encode the 'by' expression that is used to trigger tactic execution.
 // This is a trick to avoid creating a new kind of expression.

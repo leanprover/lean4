@@ -27,6 +27,7 @@ static name g_infix("infix");
 static name g_infixl("infixl");
 static name g_infixr("infixr");
 static name g_postfix("postfix");
+static name g_prefix("prefix");
 static name g_notation("notation");
 static name g_call("call");
 
@@ -68,7 +69,7 @@ environment precedence_cmd(parser & p) {
     return add_token(p.env(), tk.c_str(), prec);
 }
 
-enum class mixfix_kind { infixl, infixr, postfix };
+enum class mixfix_kind { infixl, infixr, postfix, prefix };
 
 using notation::mk_expr_action;
 using notation::mk_binder_action;
@@ -116,6 +117,10 @@ static std::pair<notation_entry, optional<token_entry>> parse_mixfix_notation(pa
         return mk_pair(notation_entry(false, list<transition>(transition(tks, mk_skip_action())),
                                       mk_app(f, Var(0)), overload),
                        new_token);
+    case mixfix_kind::prefix:
+        return mk_pair(notation_entry(true, list<transition>(transition(tks, mk_expr_action(*prec))),
+                                      mk_app(f, Var(0)), overload),
+                       new_token);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -139,6 +144,7 @@ static environment mixfix_cmd(parser & p, mixfix_kind k, bool overload) {
 environment infixl_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mixfix_kind::infixl, overload); }
 environment infixr_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mixfix_kind::infixr, overload); }
 environment postfix_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mixfix_kind::postfix, overload); }
+environment prefix_cmd_core(parser & p, bool overload) { return mixfix_cmd(p, mixfix_kind::prefix, overload); }
 
 static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens) {
     if (p.curr_is_quoted_symbol()) {
@@ -349,7 +355,7 @@ environment notation_cmd_core(parser & p, bool overload) {
 
 bool curr_is_notation_decl(parser & p) {
     return p.curr_is_token(g_infix) || p.curr_is_token(g_infixl) || p.curr_is_token(g_infixr) ||
-        p.curr_is_token(g_postfix) || p.curr_is_token(g_notation);
+        p.curr_is_token(g_postfix) || p.curr_is_token(g_prefix) || p.curr_is_token(g_notation);
 }
 
 notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & new_tokens) {
@@ -362,11 +368,14 @@ notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & n
     } else if (p.curr_is_token(g_postfix)) {
         p.next();
         return parse_mixfix_notation(p, mixfix_kind::postfix, overload, new_tokens);
+    } else if (p.curr_is_token(g_prefix)) {
+        p.next();
+        return parse_mixfix_notation(p, mixfix_kind::prefix, overload, new_tokens);
     } else if (p.curr_is_token(g_notation)) {
         p.next();
         return parse_notation_core(p, overload, new_tokens);
     } else {
-        throw parser_error("invalid notation, 'infix', 'infixl', 'infixr', 'postfix' or 'notation' expected", p.pos());
+        throw parser_error("invalid notation, 'infix', 'infixl', 'infixr', 'prefix', 'postfix' or 'notation' expected", p.pos());
     }
 }
 
@@ -374,6 +383,7 @@ environment notation_cmd(parser & p) { return notation_cmd_core(p, true); }
 environment infixl_cmd(parser & p) { return infixl_cmd_core(p, true); }
 environment infixr_cmd(parser & p) { return infixr_cmd_core(p, true); }
 environment postfix_cmd(parser & p) { return postfix_cmd_core(p, true); }
+environment prefix_cmd(parser & p) { return prefix_cmd_core(p, true); }
 
 void register_notation_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("precedence",   "set token left binding power", precedence_cmd));
@@ -381,6 +391,7 @@ void register_notation_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("infix",        "declare a new infix (left) notation", infixl_cmd));
     add_cmd(r, cmd_info("infixr",       "declare a new infix (right) notation", infixr_cmd));
     add_cmd(r, cmd_info("postfix",      "declare a new postfix notation", postfix_cmd));
+    add_cmd(r, cmd_info("prefix",       "declare a new prefix notation", prefix_cmd));
     add_cmd(r, cmd_info("notation",     "declare a new notation", notation_cmd));
 }
 }

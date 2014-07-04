@@ -17,6 +17,7 @@ namespace inductive {
 class inductive_normalizer_extension : public normalizer_extension {
 public:
     virtual optional<expr> operator()(expr const & e, extension_context & ctx) const;
+    virtual bool may_reduce_later(expr const & e, extension_context & ctx) const;
 };
 
 /** \brief Introduction rule */

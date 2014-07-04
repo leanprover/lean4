@@ -54,6 +54,11 @@ struct default_converter : public converter {
         return m_env.norm_ext()(e, get_extension(c));
     }
 
+    /** \brief Return true if \c e may be reduced later after metavariables are instantiated. */
+    bool may_reduce_later(expr const & e, type_checker & c) {
+        return m_env.norm_ext().may_reduce_later(e, get_extension(c));
+    }
+
     /** \brief Try to apply eta-reduction to \c e. */
     expr try_eta(expr const & e) {
         lean_assert(is_lambda(e));
@@ -460,6 +465,11 @@ struct default_converter : public converter {
                 scope.keep();
                 return true;
             }
+        }
+
+        if (may_reduce_later(t_n, c) || may_reduce_later(s_n, c)) {
+            add_cnstr(c, mk_eq_cnstr(t_n, s_n, jst.get()));
+            return true;
         }
 
         return false;

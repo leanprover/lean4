@@ -480,104 +480,8 @@ struct unifier_fn {
         add_cnstr(c, mlvl_occs, mvar_occs, g_first_very_delayed);
     }
 
-    /** \brief Return true iff \c e is of the form (elim ... (?m ...)) */
-    bool is_elim_meta_app(expr const & e) {
-        if (!is_app(e))
-            return false;
-        expr const & f = get_app_fn(e);
-        if (!is_constant(f))
-            return false;
-        auto it_name = inductive::is_elim_rule(m_env, const_name(f));
-        if (!it_name)
-            return false;
-        if (!is_meta(app_arg(e)))
-            return false;
-        if (is_pi(m_tc.whnf(m_tc.infer(e))))
-            return false;
-        return true;
-    }
-
-    /**
-       \brief Given (elim args) =?= t, where elim is the eliminator/recursor for the inductive declaration \c decl,
-       and the last argument of args is of the form (?m ...), we create a case split where we try to assign (?m ...)
-       to the different constructors of decl.
-    */
-    void mk_inductice_cnstrs(inductive::inductive_decl const & decl, expr const & elim, buffer<expr> & args, expr const & t,
-                             justification const & j) {
-        lean_assert(is_constant(elim));
-        levels elim_lvls       = const_levels(elim);
-        unsigned elim_num_lvls = length(elim_lvls);
-        unsigned num_args      = args.size();
-        expr meta              = args[num_args - 1]; // save last argument, we will update it
-        lean_assert(is_meta(meta));
-        buffer<expr> margs;
-        expr const & m     = get_app_args(meta, margs);
-        expr const & mtype = mlocal_type(m);
-        buffer<constraints> alts;
-        for (auto const & intro : inductive::inductive_decl_intros(decl)) {
-            name const & intro_name = inductive::intro_rule_name(intro);
-            declaration intro_decl  = m_env.get(intro_name);
-            levels intro_lvls;
-            if (length(intro_decl.get_univ_params()) == elim_num_lvls) {
-                intro_lvls = elim_lvls;
-            } else {
-                lean_assert(length(intro_decl.get_univ_params()) == elim_num_lvls - 1);
-                intro_lvls = tail(elim_lvls);
-            }
-            expr intro_fn   = mk_constant(inductive::intro_rule_name(intro), intro_lvls);
-            expr hint       = intro_fn;
-            expr intro_type = m_tc.whnf(inductive::intro_rule_type(intro));
-            while (is_pi(intro_type)) {
-                hint = mk_app(hint, mk_app(mk_aux_metavar_for(mtype), margs));
-                intro_type = m_tc.whnf(binding_body(intro_type));
-            }
-            constraint c1 = mk_eq_cnstr(meta, hint, j);
-            args[num_args - 1] = hint;
-            expr reduce_elim   = m_tc.whnf(mk_app(elim, args));
-            constraint c2 = mk_eq_cnstr(reduce_elim, t, j);
-            alts.push_back(constraints({c1, c2}));
-        }
-        if (alts.empty()) {
-            set_conflict(j);
-        } else if (alts.size() == 1) {
-            process_constraints(alts[0], justification());
-        } else {
-            justification a = mk_assumption_justification(m_next_assumption_idx);
-            add_case_split(std::unique_ptr<case_split>(new ho_case_split(*this, to_list(alts.begin() + 1, alts.end()))));
-            process_constraints(alts[0], a);
-        }
-    }
-
-    bool try_inductive_hint_core(expr const & t1, expr const & t2, justification const & j) {
-        if (!is_elim_meta_app(t1))
-            return false;
-        buffer<expr> args;
-        expr const & elim = get_app_args(t1, args);
-        auto it_name = *inductive::is_elim_rule(m_env, const_name(elim));
-        auto decls = *inductive::is_inductive_decl(m_env, it_name);
-        for (auto const & d : std::get<2>(decls)) {
-            if (inductive::inductive_decl_name(d) == it_name) {
-                mk_inductice_cnstrs(d, elim, args, t2, j);
-                return true;
-            }
-        }
-        lean_unreachable(); // LCOV_EXCL_LINE
-    }
-
-    /**
-       \brief Try to solve constraint of the form (elim ... (?m ...)) =?= t, by assigning (?m ...) to the introduction rules
-       associated with the eliminator \c elim.
-    */
-    bool try_inductive_hint(expr const & t1, expr const & t2, justification const & j) {
-        return
-            try_inductive_hint_core(t1, t2, j) ||
-            try_inductive_hint_core(t2, t1, j);
-    }
-
     bool is_def_eq(expr const & t1, expr const & t2, justification const & j) {
         if (m_tc.is_def_eq(t1, t2, j)) {
-            return true;
-        } else if (try_inductive_hint(t1, t2, j)) {
             return true;
         } else {
             set_conflict(j);
@@ -919,6 +823,107 @@ struct unifier_fn {
         }
     }
 
+    /** \brief Return true iff \c e is of the form (elim ... (?m ...)) */
+    bool is_elim_meta_app(expr const & e) {
+        if (!is_app(e))
+            return false;
+        expr const & f = get_app_fn(e);
+        if (!is_constant(f))
+            return false;
+        auto it_name = inductive::is_elim_rule(m_env, const_name(f));
+        if (!it_name)
+            return false;
+        if (!is_meta(app_arg(e)))
+            return false;
+        if (is_pi(m_tc.whnf(m_tc.infer(e))))
+            return false;
+        return true;
+    }
+
+    /** \brief Return true iff the lhs or rhs of the constraint c is of the form (elim ... (?m ...)) */
+    bool is_elim_meta_cnstr(constraint const & c) {
+        return is_eq_cnstr(c) && (is_elim_meta_app(cnstr_lhs_expr(c)) || is_elim_meta_app(cnstr_rhs_expr(c)));
+    }
+
+    /**
+       \brief Given (elim args) =?= t, where elim is the eliminator/recursor for the inductive declaration \c decl,
+       and the last argument of args is of the form (?m ...), we create a case split where we try to assign (?m ...)
+       to the different constructors of decl.
+    */
+    bool add_elim_meta_cnstrs(inductive::inductive_decl const & decl, expr const & elim, buffer<expr> & args, expr const & t,
+                              justification const & j) {
+        lean_assert(is_constant(elim));
+        levels elim_lvls       = const_levels(elim);
+        unsigned elim_num_lvls = length(elim_lvls);
+        unsigned num_args      = args.size();
+        expr meta              = args[num_args - 1]; // save last argument, we will update it
+        lean_assert(is_meta(meta));
+        buffer<expr> margs;
+        expr const & m     = get_app_args(meta, margs);
+        expr const & mtype = mlocal_type(m);
+        buffer<constraints> alts;
+        for (auto const & intro : inductive::inductive_decl_intros(decl)) {
+            name const & intro_name = inductive::intro_rule_name(intro);
+            declaration intro_decl  = m_env.get(intro_name);
+            levels intro_lvls;
+            if (length(intro_decl.get_univ_params()) == elim_num_lvls) {
+                intro_lvls = elim_lvls;
+            } else {
+                lean_assert(length(intro_decl.get_univ_params()) == elim_num_lvls - 1);
+                intro_lvls = tail(elim_lvls);
+            }
+            expr intro_fn   = mk_constant(inductive::intro_rule_name(intro), intro_lvls);
+            expr hint       = intro_fn;
+            expr intro_type = m_tc.whnf(inductive::intro_rule_type(intro));
+            while (is_pi(intro_type)) {
+                hint = mk_app(hint, mk_app(mk_aux_metavar_for(mtype), margs));
+                intro_type = m_tc.whnf(binding_body(intro_type));
+            }
+            constraint c1 = mk_eq_cnstr(meta, hint, j);
+            args[num_args - 1] = hint;
+            expr reduce_elim   = m_tc.whnf(mk_app(elim, args));
+            constraint c2 = mk_eq_cnstr(reduce_elim, t, j);
+            alts.push_back(constraints({c1, c2}));
+        }
+        if (alts.empty()) {
+            set_conflict(j);
+            return false;
+        } else if (alts.size() == 1) {
+            return process_constraints(alts[0], justification());
+        } else {
+            justification a = mk_assumption_justification(m_next_assumption_idx);
+            add_case_split(std::unique_ptr<case_split>(new ho_case_split(*this, to_list(alts.begin() + 1, alts.end()))));
+            return process_constraints(alts[0], a);
+        }
+    }
+
+    bool process_elim_meta_core(expr const & lhs, expr const & rhs, justification const & j) {
+        lean_assert(is_elim_meta_app(lhs));
+        buffer<expr> args;
+        expr const & elim = get_app_args(lhs, args);
+        auto it_name = *inductive::is_elim_rule(m_env, const_name(elim));
+        auto decls = *inductive::is_inductive_decl(m_env, it_name);
+        for (auto const & d : std::get<2>(decls)) {
+            if (inductive::inductive_decl_name(d) == it_name)
+                return add_elim_meta_cnstrs(d, elim, args, rhs, j);
+        }
+        lean_unreachable(); // LCOV_EXCL_LINE
+    }
+
+    /**
+       \brief Try to solve constraint of the form (elim ... (?m ...)) =?= t, by assigning (?m ...) to the introduction rules
+       associated with the eliminator \c elim.
+    */
+    bool process_elim_meta_cnstr(constraint const & c) {
+        expr const & lhs        = cnstr_lhs_expr(c);
+        expr const & rhs        = cnstr_rhs_expr(c);
+        justification const & j = c.get_justification();
+        if (is_elim_meta_app(lhs))
+            return process_elim_meta_core(lhs, rhs, j);
+        else
+            return process_elim_meta_core(rhs, lhs, j);
+    }
+
     bool next_plugin_case_split(plugin_case_split & cs) {
         auto r = cs.m_tail.pull();
         if (r) {
@@ -1226,6 +1231,8 @@ struct unifier_fn {
             return process_flex_rigid(c);
         else if (is_flex_flex(c))
             return process_flex_flex(c);
+        else if (is_elim_meta_cnstr(c))
+            return process_elim_meta_cnstr(c);
         else
             return process_plugin_constraint(c);
     }
@@ -1304,13 +1311,17 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
     type_checker tc(env, new_ngen.mk_child());
     expr _lhs = s.instantiate(lhs);
     expr _rhs = s.instantiate(rhs);
-    auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, s, p, false, max_steps);
-    if (!u->is_def_eq(_lhs, _rhs, justification()) && !u->more_solutions())
+    if (!tc.is_def_eq(_lhs, _rhs))
         return lazy_list<substitution>();
-    u->consume_tc_cnstrs();
-    if (!u->more_solutions())
-        return lazy_list<substitution>();
-    return unify(u);
+    buffer<constraint> cs;
+    while (auto c = tc.next_cnstr()) {
+        cs.push_back(*c);
+    }
+    if (cs.empty()) {
+        return lazy_list<substitution>(s);
+    } else {
+        return unify(std::make_shared<unifier_fn>(env, cs.size(), cs.data(), ngen, s, p, false, max_steps));
+    }
 }
 
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,

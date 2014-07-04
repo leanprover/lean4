@@ -38,6 +38,8 @@ class normalizer_extension {
 public:
     virtual ~normalizer_extension() {}
     virtual optional<expr> operator()(expr const & e, extension_context & ctx) const = 0;
+    /** \brief Return true if the extension may reduce \c e after metavariables are instantiated. */
+    virtual bool may_reduce_later(expr const & e, extension_context & ctx) const = 0;
 };
 
 /**

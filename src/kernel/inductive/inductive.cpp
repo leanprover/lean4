@@ -803,6 +803,23 @@ optional<expr> inductive_normalizer_extension::operator()(expr const & e, extens
     return some_expr(r);
 }
 
+// Return true if \c e is of the form (elim ... (?m ...))
+bool inductive_normalizer_extension::may_reduce_later(expr const & e, extension_context & ctx) const {
+    inductive_env_ext const & ext = get_extension(ctx.env());
+    expr const & elim_fn   = get_app_fn(e);
+    if (!is_constant(elim_fn))
+        return false;
+    auto it1 = ext.m_elim_info.find(const_name(elim_fn));
+    if (!it1)
+        return false;
+    buffer<expr> elim_args;
+    get_app_args(e, elim_args);
+    if (elim_args.size() != it1->m_num_ACe + it1->m_num_indices + 1)
+        return false;
+    expr intro_app = ctx.whnf(elim_args.back());
+    return is_meta(intro_app);
+}
+
 optional<inductive_decls> is_inductive_decl(environment const & env, name const & n) {
     inductive_env_ext const & ext = get_extension(env);
     if (auto it = ext.m_inductive_info.find(n))

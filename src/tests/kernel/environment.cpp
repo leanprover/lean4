@@ -124,6 +124,7 @@ public:
         // In a real implementation, we must check if proj1 and mk were defined in the environment.
         return some_expr(app_arg(app_fn(a_n)));
     }
+    virtual bool may_reduce_later(expr const &, extension_context &) const { return false; }
 };
 
 static void tst3() {

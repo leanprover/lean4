@@ -17,9 +17,8 @@ namespace lean {
 */
 class noop_normalizer_extension : public normalizer_extension {
 public:
-    virtual optional<expr> operator()(expr const &, extension_context &) const {
-        return none_expr();
-    }
+    virtual optional<expr> operator()(expr const &, extension_context &) const { return none_expr(); }
+    virtual bool may_reduce_later(expr const &, extension_context &) const { return false; }
 };
 
 environment_header::environment_header(unsigned trust_lvl, bool prop_proof_irrel, bool eta, bool impredicative,

@@ -198,7 +198,7 @@ unsigned get_precedence(environment const & env, buffer<token_entry> const & new
         return 0;
 }
 
-static action parse_action(parser & p, name const & prev_token, buffer<expr> & locals, buffer<token_entry> & new_tokens) {
+static action parse_action(parser & p, name const & prev_token, unsigned default_prec, buffer<expr> & locals, buffer<token_entry> & new_tokens) {
     if (p.curr_is_token(g_colon)) {
         p.next();
         if (p.curr_is_numeral() || p.curr_is_token_or_id(g_max)) {
@@ -259,8 +259,24 @@ static action parse_action(parser & p, name const & prev_token, buffer<expr> & l
             }
         }
     } else {
-        return mk_expr_action();
+        return mk_expr_action(default_prec);
     }
+}
+
+/**
+   \brief If the action for token \c tk in parse table \c pt is an Expr action,
+   then return its precedence. We use this value as the default precedence
+   when the user does not provide it. The idea is to minimize conflict with existing
+   notation.
+*/
+unsigned get_default_prec(optional<parse_table> const & pt, name const & tk) {
+    if (!pt)
+        return 0;
+    if (auto at = pt->find(tk)) {
+        if (at->first.kind() == notation::action_kind::Expr)
+            return at->first.rbp();
+    }
+    return 0;
 }
 
 notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry> & new_tokens) {
@@ -268,9 +284,13 @@ notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry
     buffer<transition> ts;
     parser::local_scope scope(p);
     bool is_nud = true;
+    optional<parse_table> pt;
     if (p.curr_is_identifier()) {
         parse_notation_local(p, locals);
         is_nud = false;
+        pt = get_led_table(p.env());
+    } else {
+        pt = get_nud_table(p.env());
     }
     while (!p.curr_is_token(g_assign)) {
         name tk = parse_quoted_symbol_or_token(p, new_tokens);
@@ -281,9 +301,10 @@ notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry
             p.next();
             ts.push_back(transition(tk, mk_binders_action()));
         } else if (p.curr_is_identifier()) {
+            unsigned default_prec = get_default_prec(pt, tk);
             name n   = p.get_name_val();
             p.next();
-            action a = parse_action(p, tk, locals, new_tokens);
+            action a = parse_action(p, tk, default_prec, locals, new_tokens);
             expr l = mk_local(n, g_local_type);
             p.add_local_expr(n, l);
             locals.push_back(l);
@@ -292,6 +313,21 @@ notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry
             ts.push_back(transition(tk, mk_skip_action()));
         } else {
             throw parser_error("invalid notation declaration, quoted-symbol, identifier, 'binder', 'binders' expected", p.pos());
+        }
+        if (pt) {
+            // new notation is still compatible with the existing one
+            transition const & new_trans = ts.back();
+            if (auto at = pt->find(new_trans.get_token())) {
+                if (new_trans.get_action().is_compatible(at->first)) {
+                    pt = at->second;
+                } else {
+                    // new notation is not compatible with existing one
+                    pt = optional<parse_table>();
+                }
+            } else {
+                // parse table does not handle this prefix
+                pt = optional<parse_table>();
+            }
         }
     }
     p.next();

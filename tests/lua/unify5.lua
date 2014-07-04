@@ -29,9 +29,9 @@ function display_solutions(m, ss)
 end
 
 cs = { mk_eq_cnstr(m1, f(m2, f(m3, m4))),
-       mk_choice_cnstr(m2, function(e, s, ngen) return {{a, justification(), {}}, {f(a, a), justification(), {}}} end),
-       mk_choice_cnstr(m3, function(e, s, ngen) return {{b, justification(), {}}, {f(b, b), justification(), {}}} end),
-       mk_choice_cnstr(m4, function(e, s, ngen) return {a, b} end)
+       mk_choice_cnstr(m2, function(m, e, s, ngen) return {{mk_eq_cnstr(m, a)}, {mk_eq_cnstr(m, f(a, a))}} end),
+       mk_choice_cnstr(m3, function(m, e, s, ngen) return {mk_eq_cnstr(m, b), mk_eq_cnstr(m, f(b, b))} end),
+       mk_choice_cnstr(m4, function(m, e, s, ngen) return {a, b} end)
      }
 
 display_solutions(m1, unify(env, cs, name_generator(), o))

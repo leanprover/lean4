@@ -30,7 +30,7 @@ Author: Leonardo de Moura
 namespace lean {
 class elaborator {
     typedef list<expr> context;
-    typedef std::vector<constraint> constraints;
+    typedef std::vector<constraint> constraint_vect;
     typedef name_map<expr> tactic_hints;
     typedef name_map<expr> mvar2meta;
 
@@ -43,7 +43,7 @@ class elaborator {
     context             m_ctx;
     pos_info_provider * m_pos_provider;
     justification       m_accumulated; // accumulate justification of eagerly used substitutions
-    constraints         m_constraints;
+    constraint_vect     m_constraints;
     tactic_hints        m_tactic_hints;
     mvar2meta           m_mvar2meta;
     name_set            m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
@@ -84,15 +84,16 @@ class elaborator {
 
     struct choice_elaborator {
         elaborator & m_elab;
+        expr         m_mvar;
         expr         m_choice;
         context      m_ctx;
         substitution m_subst;
         unsigned     m_idx;
-        choice_elaborator(elaborator & elab, expr const & c, context const & ctx, substitution const & s):
-            m_elab(elab), m_choice(c), m_ctx(ctx), m_subst(s), m_idx(0) {
+        choice_elaborator(elaborator & elab, expr const & mvar, expr const & c, context const & ctx, substitution const & s):
+            m_elab(elab), m_mvar(mvar), m_choice(c), m_ctx(ctx), m_subst(s), m_idx(0) {
         }
 
-        optional<a_choice> next() {
+        optional<constraints> next() {
             while (m_idx < get_num_choices(m_choice)) {
                 expr const & c = get_choice(m_choice, m_idx);
                 m_idx++;
@@ -102,20 +103,21 @@ class elaborator {
                     justification j = m_elab.m_accumulated;
                     m_elab.consume_tc_cnstrs();
                     list<constraint> cs = to_list(m_elab.m_constraints.begin(), m_elab.m_constraints.end());
-                    return optional<a_choice>(r, j, cs);
+                    cs = cons(mk_eq_cnstr(m_mvar, r, j), cs);
+                    return optional<constraints>(cs);
                 } catch (exception &) {}
             }
-            return optional<a_choice>();
+            return optional<constraints>();
         }
     };
 
-    lazy_list<a_choice> choose(std::shared_ptr<choice_elaborator> c) {
-        return mk_lazy_list<a_choice>([=]() {
+    lazy_list<constraints> choose(std::shared_ptr<choice_elaborator> c) {
+        return mk_lazy_list<constraints>([=]() {
                 auto s = c->next();
                 if (s)
                     return some(mk_pair(*s, choose(c)));
                 else
-                    return lazy_list<a_choice>::maybe_pair();
+                    return lazy_list<constraints>::maybe_pair();
             });
     }
 
@@ -326,11 +328,11 @@ public:
         // Possible optimization: try to lookahead and discard some of the alternatives.
         expr m      = mk_meta(t, e.get_tag());
         context ctx = m_ctx;
-        auto choice_fn = [=](expr const & /* t */, substitution const & s, name_generator const & /* ngen */) {
-            return choose(std::make_shared<choice_elaborator>(*this, e, ctx, s));
+        auto fn = [=](expr const & mvar, expr const & /* type */, substitution const & s, name_generator const & /* ngen */) {
+            return choose(std::make_shared<choice_elaborator>(*this, mvar, e, ctx, s));
         };
         justification j = mk_justification("none of the overloads is applicable", some_expr(e));
-        add_cnstr(mk_choice_cnstr(m, choice_fn, false, j));
+        add_cnstr(mk_choice_cnstr(m, fn, false, j));
         return m;
     }
 
@@ -404,10 +406,9 @@ public:
     expr mk_delayed_coercion(expr const & e, expr const & d_type, expr const & a_type) {
         expr a = app_arg(e);
         expr m = mk_meta(some_expr(d_type), a.get_tag());
-        auto choice_fn = [=](expr const & new_d_type, substitution const & /* s */, name_generator const & /* ngen */) {
+        auto choice_fn = [=](expr const & mvar, expr const & new_d_type, substitution const & /* s */, name_generator const & /* ngen */) {
             expr r = apply_coercion(a, a_type, new_d_type);
-            a_choice c(r, justification(), list<constraint>());
-            return lazy_list<a_choice>(c);
+            return lazy_list<constraints>(constraints(mk_eq_cnstr(mvar, r, justification())));
         };
         justification j = mk_app_justification(m_env, e, d_type, a_type);
         add_cnstr(mk_choice_cnstr(m, choice_fn, false, j));

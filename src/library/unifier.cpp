@@ -288,19 +288,10 @@ struct unifier_fn {
     };
     typedef std::vector<std::unique_ptr<case_split>> case_split_stack;
 
-    struct plugin_case_split : public case_split {
+    struct lazy_constraints_case_split : public case_split {
         lazy_list<constraints> m_tail;
-        plugin_case_split(unifier_fn & u, lazy_list<constraints> const & tail):case_split(u), m_tail(tail) {}
-        virtual bool next(unifier_fn & u) { return u.next_plugin_case_split(*this); }
-    };
-
-    struct choice_case_split : public case_split {
-        expr                 m_expr;
-        justification        m_jst;
-        lazy_list<a_choice>  m_tail;
-        choice_case_split(unifier_fn & u, expr const & expr, justification const & j, lazy_list<a_choice> const & tail):
-            case_split(u), m_expr(expr), m_jst(j), m_tail(tail) {}
-        virtual bool next(unifier_fn & u) { return u.next_choice_case_split(*this); }
+        lazy_constraints_case_split(unifier_fn & u, lazy_list<constraints> const & tail):case_split(u), m_tail(tail) {}
+        virtual bool next(unifier_fn & u) { return u.next_lazy_constraints_case_split(*this); }
     };
 
     struct ho_case_split : public case_split {
@@ -775,21 +766,13 @@ struct unifier_fn {
         return !in_conflict();
     }
 
-    bool process_choice_result(expr const & m, a_choice const & r, justification j) {
-        j = mk_composite1(j, std::get<1>(r));
-        return
-            process_constraint(mk_eq_cnstr(m, std::get<0>(r), j)) &&
-            process_constraints(std::get<2>(r), j);
-    }
-
-    bool next_choice_case_split(choice_case_split & cs) {
+    bool next_lazy_constraints_case_split(lazy_constraints_case_split & cs) {
         auto r = cs.m_tail.pull();
         if (r) {
             cs.restore_state(*this);
             lean_assert(!in_conflict());
             cs.m_tail = r->second;
-            justification a = mk_assumption_justification(cs.m_assumption_idx);
-            return process_choice_result(cs.m_expr, r->first, mk_composite1(cs.m_jst, a));
+            return process_constraints(r->first, mk_assumption_justification(cs.m_assumption_idx));
         } else {
             // update conflict
             update_conflict(mk_composite1(*m_conflict, cs.m_failed_justifications));
@@ -797,27 +780,36 @@ struct unifier_fn {
         }
     }
 
-    bool process_choice_constraint(constraint const & c) {
-        lean_assert(is_choice_cnstr(c));
-        expr const &   m     = cnstr_expr(c);
-        choice_fn const & fn = cnstr_choice_fn(c);
-        auto m_type_jst      = m_subst.instantiate_metavars(m_tc.infer(m), nullptr, nullptr);
-        auto rlist           = fn(m_type_jst.first, m_subst, m_ngen.mk_child());
-        auto r               = rlist.pull();
-        justification j      = mk_composite1(c.get_justification(), m_type_jst.second);
+    bool process_lazy_constraints(lazy_list<constraints> const & l, justification const & j) {
+        auto r = l.pull();
         if (r) {
             if (r->second.is_nil()) {
                 // there is only one alternative
-                return process_choice_result(m, r->first, j);
+                return process_constraints(r->first, j);
             } else {
                 justification a = mk_assumption_justification(m_next_assumption_idx);
-                add_case_split(std::unique_ptr<case_split>(new choice_case_split(*this, m, m_type_jst.second, r->second)));
-                return process_choice_result(m, r->first, mk_composite1(j, a));
+                add_case_split(std::unique_ptr<case_split>(new lazy_constraints_case_split(*this, r->second)));
+                return process_constraints(r->first, mk_composite1(j, a));
             }
         } else {
             set_conflict(j);
             return false;
         }
+    }
+
+    bool process_plugin_constraint(constraint const & c) {
+        lean_assert(!is_choice_cnstr(c));
+        lazy_list<constraints> alts = m_plugin(c, m_ngen.mk_child());
+        return process_lazy_constraints(alts, c.get_justification());
+    }
+
+    bool process_choice_constraint(constraint const & c) {
+        lean_assert(is_choice_cnstr(c));
+        expr const &   m            = cnstr_expr(c);
+        choice_fn const & fn        = cnstr_choice_fn(c);
+        auto m_type_jst             = m_subst.instantiate_metavars(m_tc.infer(m), nullptr, nullptr);
+        lazy_list<constraints> alts = fn(m, m_type_jst.first, m_subst, m_ngen.mk_child());
+        return process_lazy_constraints(alts, mk_composite1(c.get_justification(), m_type_jst.second));
     }
 
     /** \brief Return true iff \c e is of the form (elim ... (?m ...)) */
@@ -919,35 +911,6 @@ struct unifier_fn {
             return process_elim_meta_core(lhs, rhs, j);
         else
             return process_elim_meta_core(rhs, lhs, j);
-    }
-
-    bool next_plugin_case_split(plugin_case_split & cs) {
-        auto r = cs.m_tail.pull();
-        if (r) {
-            cs.restore_state(*this);
-            lean_assert(!in_conflict());
-            cs.m_tail = r->second;
-            return process_constraints(r->first, mk_assumption_justification(cs.m_assumption_idx));
-        } else {
-            // update conflict
-            update_conflict(mk_composite1(*m_conflict, cs.m_failed_justifications));
-            return false;
-        }
-    }
-
-    bool process_plugin_constraint(constraint const & c) {
-        lean_assert(!is_choice_cnstr(c));
-        lazy_list<constraints> alts = m_plugin(c, m_ngen.mk_child());
-        auto r = alts.pull();
-        if (!r) {
-            set_conflict(c.get_justification());
-            return false;
-        } else {
-            // create a backtracking point
-            justification a = mk_assumption_justification(m_next_assumption_idx);
-            add_case_split(std::unique_ptr<case_split>(new plugin_case_split(*this, r->second)));
-            return process_constraints(r->first, a);
-        }
     }
 
     bool next_ho_case_split(ho_case_split & cs) {

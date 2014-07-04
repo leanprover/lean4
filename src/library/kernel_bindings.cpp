@@ -1431,6 +1431,7 @@ static void open_justification(lua_State * L) {
 
 // Constraint
 DECL_UDATA(constraint)
+DEFINE_LUA_LIST(constraint, push_constraint, to_constraint)
 int push_optional_constraint(lua_State * L, optional<constraint> const & c) {  return c ? push_constraint(L, *c) : push_nil(L); }
 #define CNSTR_PRED(P) static int constraint_ ## P(lua_State * L) { check_num_args(L, 1); return push_boolean(L, P(to_constraint(L, 1))); }
 CNSTR_PRED(is_eq_cnstr)
@@ -1475,14 +1476,15 @@ static int mk_level_eq_cnstr(lua_State * L) {
 static choice_fn to_choice_fn(lua_State * L, int idx) {
     luaL_checktype(L, idx, LUA_TFUNCTION); // user-fun
     luaref f(L, idx);
-    return choice_fn([=](expr const & e, substitution const & s, name_generator const & ngen) {
+    return choice_fn([=](expr const & mvar, expr const & mvar_type, substitution const & s, name_generator const & ngen) {
             lua_State * L = f.get_state();
             f.push();
-            push_expr(L, e);
+            push_expr(L, mvar);
+            push_expr(L, mvar_type);
             push_substitution(L, s);
             push_name_generator(L, ngen);
-            pcall(L, 3, 1, 0);
-            buffer<a_choice> r;
+            pcall(L, 4, 1, 0);
+            buffer<constraints> r;
             if (lua_isnil(L, -1)) {
                 // do nothing
             } else if (lua_istable(L, -1)) {
@@ -1490,35 +1492,12 @@ static choice_fn to_choice_fn(lua_State * L, int idx) {
                 // each entry is an alternative
                 for (int i = 1; i <= num; i++) {
                     lua_rawgeti(L, -1, i);
-                    if (is_expr(L, -1)) {
-                        r.push_back(a_choice(to_expr(L, -1), justification(), constraints()));
-                    } else if (lua_istable(L, -1) && objlen(L, -1) == 3) {
-                        lua_rawgeti(L, -1, 1);
-                        expr c = to_expr(L, -1);
-                        lua_pop(L, 1);
-                        lua_rawgeti(L, -1, 2);
-                        justification j = to_justification(L, -1);
-                        lua_pop(L, 1);
-                        lua_rawgeti(L, -1, 3);
-                        buffer<constraint> cs;
-                        if (lua_isnil(L, -1)) {
-                            // do nothing
-                        } else if (lua_istable(L, -1)) {
-                            int num_cs = objlen(L, -1);
-                            for (int i = 1; i <= num_cs; i++) {
-                                lua_rawgeti(L, -1, i);
-                                cs.push_back(to_constraint(L, -1));
-                                lua_pop(L, 1);
-                            }
-                        } else {
-                            throw exception("invalid choice function, result must be an array of triples, "
-                                            "where the third element of each triple is an array of constraints");
-                        }
-                        lua_pop(L, 1);
-                        r.push_back(a_choice(c, j, to_list(cs.begin(), cs.end())));
-                    } else {
-                        throw exception("invalid choice function, result must be an array of triples");
-                    }
+                    if (is_constraint(L, -1))
+                        r.push_back(constraints(to_constraint(L, -1)));
+                    else if (is_expr(L, -1))
+                        r.push_back(constraints(mk_eq_cnstr(mvar, to_expr(L, -1), justification())));
+                    else
+                        r.push_back(to_list_constraint_ext(L, -1));
                     lua_pop(L, 1);
                 }
             } else {
@@ -1960,6 +1939,7 @@ void open_kernel_module(lua_State * L) {
     open_io_state(L);
     open_justification(L);
     open_constraint(L);
+    open_list_constraint(L);
     open_substitution(L);
     open_type_checker(L);
     open_inductive(L);

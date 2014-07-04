@@ -34,22 +34,18 @@ namespace lean {
 enum class constraint_kind { Eq, LevelEq, Choice };
 class constraint;
 typedef list<constraint> constraints;
-typedef std::tuple<expr, justification, constraints> a_choice; // a choice produced by the choice_fn
 /**
    \brief A choice_fn is used to enumerate the possible solutions for a metavariable.
    The input arguments are:
-        - an inferred type
+        - metavariable that should be inferred
+        - the metavariable type
         - substitution map (metavar -> value)
         - name generator
-
-   The result is a lazy_list of choices, i.e., tuples containing:
-        - an expression representing one of the possible solutions
-        - a justification for it (this is used to accumulate the justification for the substitutions used).
-        - a list of new constraints (that is, the solution is only valid if the additional constraints can be solved)
+   The result is a lazy_list of constraints
 
    One application of choice constraints is overloaded notation.
 */
-typedef std::function<lazy_list<a_choice>(expr const &, substitution const &, name_generator const &)> choice_fn;
+typedef std::function<lazy_list<constraints>(expr const &, expr const &, substitution const &, name_generator const &)> choice_fn;
 
 struct constraint_cell;
 class constraint {
@@ -75,6 +71,9 @@ public:
 
     constraint_cell * raw() const { return m_ptr; }
 };
+
+inline bool operator==(constraint const & c1, constraint const & c2) { return c1.raw() == c2.raw(); }
+inline bool operator!=(constraint const & c1, constraint const & c2) { return !(c1 == c2); }
 
 constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
 constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j);

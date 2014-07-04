@@ -479,6 +479,15 @@ struct unifier_fn {
         add_cnstr(c, mlvl_occs, mvar_occs, g_first_very_delayed);
     }
 
+    bool is_def_eq(expr const & t1, expr const & t2, justification const & j) {
+        if (m_tc.is_def_eq(t1, t2, j)) {
+            return true;
+        } else {
+            set_conflict(j);
+            return false;
+        }
+    }
+
     /**
        \brief Assign \c v to metavariable \c m with justification \c j.
        The type of v and m are inferred, and is_def_eq is invoked.
@@ -491,10 +500,8 @@ struct unifier_fn {
         expr v_type = m_tc.infer(v);
         if (in_conflict())
             return false;
-        if (!m_tc.is_def_eq(m_type, v_type, j)) {
-            set_conflict(j);
+        if (!is_def_eq(m_type, v_type, j))
             return false;
-        }
         auto it = m_mvar_occs.find(mlocal_name(m));
         if (it) {
             cnstr_idx_set s = *it;
@@ -575,12 +582,7 @@ struct unifier_fn {
         // Update justification using the justification of the instantiated metavariables
         justification new_jst = mk_composite1(mk_composite1(c.get_justification(), lhs_jst.second), rhs_jst.second);
         if (!has_metavar(lhs) && !has_metavar(rhs)) {
-            if (!m_tc.is_def_eq(lhs, rhs, new_jst)) {
-                set_conflict(new_jst);
-                return false; // trivial failure
-            } else {
-                return true;
-            }
+            return is_def_eq(lhs, rhs, new_jst);
         }
 
         // Handle higher-order pattern matching.
@@ -596,12 +598,7 @@ struct unifier_fn {
         // If lhs or rhs were updated, then invoke is_def_eq again.
         if (lhs != cnstr_lhs_expr(c) || rhs != cnstr_rhs_expr(c)) {
             // some metavariables were instantiated, try is_def_eq again
-            if (m_tc.is_def_eq(lhs, rhs, new_jst)) {
-                return true;
-            } else {
-                set_conflict(new_jst);
-                return false;
-            }
+            return is_def_eq(lhs, rhs, new_jst);
         }
 
         if (is_meta(lhs) && is_meta(rhs)) {

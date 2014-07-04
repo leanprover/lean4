@@ -596,19 +596,16 @@ struct unifier_fn {
         rhs = m_tc.whnf(rhs);
         lhs = m_tc.whnf(lhs);
 
-        // We delay constraints where lhs or rhs are of the form (elim ... (?m ...))
-        if (is_elim_meta_app(lhs) || is_elim_meta_app(rhs)) {
-            add_very_delayed_cnstr(c, &unassigned_lvls, &unassigned_exprs);
-            return true;
-        }
-
         // If lhs or rhs were updated, then invoke is_def_eq again.
         if (lhs != cnstr_lhs_expr(c) || rhs != cnstr_rhs_expr(c)) {
             // some metavariables were instantiated, try is_def_eq again
             return is_def_eq(lhs, rhs, new_jst);
         }
 
-        if (is_meta(lhs) && is_meta(rhs)) {
+        // We delay constraints where lhs or rhs are of the form (elim ... (?m ...))
+        if (is_elim_meta_app(lhs) || is_elim_meta_app(rhs)) {
+            add_very_delayed_cnstr(c, &unassigned_lvls, &unassigned_exprs);
+        } else if (is_meta(lhs) && is_meta(rhs)) {
             // flex-flex constraints are delayed the most.
             add_very_delayed_cnstr(c, &unassigned_lvls, &unassigned_exprs);
         } else if (is_meta(lhs) || is_meta(rhs)) {

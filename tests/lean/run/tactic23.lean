@@ -26,5 +26,11 @@ check 2 + 3
 -- Define an assump as an alias for the eassumption tactic
 definition assump : tactic := eassumption
 
-theorem T {p : nat → Bool} {a : nat } (H : p (a+1)) : ∃ x, p (succ x)
+theorem T1 {p : nat → Bool} {a : nat } (H : p (a+2)) : ∃ x, p (succ x)
 := by apply exists_intro; assump
+
+definition is_zero [inline] (n : nat)
+:= nat_rec true (λ n r, false) n
+
+theorem T2 : ∃ a, (is_zero a) = true
+:= by apply exists_intro; apply refl

@@ -193,13 +193,15 @@ theorem exists_unique_elim {A : Type} {p : A → Bool} {b : Bool} (H2 : ∃! x, 
 inductive inhabited (A : Type) : Bool :=
 | inhabited_intro : A → inhabited A
 
+class inhabited
+
 theorem inhabited_elim {A : Type} {B : Bool} (H1 : inhabited A) (H2 : A → B) : B
 := inhabited_rec H2 H1
 
-theorem inhabited_Bool : inhabited Bool
+theorem inhabited_Bool [instance] : inhabited Bool
 := inhabited_intro true
 
-theorem inhabited_fun (A : Type) {B : Type} (H : inhabited B) : inhabited (A → B)
+theorem inhabited_fun [instance] (A : Type) {B : Type} (H : inhabited B) : inhabited (A → B)
 := inhabited_elim H (take (b : B), inhabited_intro (λ a : A, b))
 
 definition cast {A B : Type} (H : A = B) (a : A) : B

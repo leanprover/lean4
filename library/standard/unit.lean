@@ -6,5 +6,5 @@ import logic
 inductive unit : Type :=
 | tt : unit
 
-theorem inhabited_unit : inhabited unit
+theorem inhabited_unit [instance] : inhabited unit
 := inhabited_intro tt

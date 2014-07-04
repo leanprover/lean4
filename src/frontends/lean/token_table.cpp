@@ -63,12 +63,12 @@ token_table init_token_table() {
          {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {nullptr, 0}};
 
     char const * commands[] = {"theorem", "axiom", "variable", "definition", "coercion",
-                               "variables", "[private]", "[inline]", "[fact]", "abbreviation",
+                               "variables", "[private]", "[inline]", "[fact]", "[instance]", "[class]", "abbreviation",
                                "evaluate", "check", "print", "end", "namespace", "section", "import",
                                "abbreviation", "inductive", "record", "structure", "module", "universe",
                                "precedence", "infixl", "infixr", "infix", "postfix", "prefix", "notation",
                                "exit", "set_option", "using", "calc_subst", "calc_refl", "calc_trans",
-                               "add_proof_qed", "reset_proof_qed", "#setline", nullptr};
+                               "add_proof_qed", "reset_proof_qed", "#setline", "class", "instance", nullptr};
 
     std::pair<char const *, char const *> aliases[] =
         {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},

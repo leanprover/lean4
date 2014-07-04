@@ -13,7 +13,7 @@ section
   definition fst [inline] (p : pair A B) := pair_rec (λ x y, x) p
   definition snd [inline] (p : pair A B) := pair_rec (λ x y, y) p
 
-  theorem pair_inhabited (H1 : inhabited A) (H2 : inhabited B) : inhabited (pair A B)
+  theorem pair_inhabited [instance] (H1 : inhabited A) (H2 : inhabited B) : inhabited (pair A B)
   := inhabited_elim H1 (λ a, inhabited_elim H2 (λ b, inhabited_intro (mk_pair a b)))
 
   theorem fst_mk_pair (a : A) (b : B) : fst (mk_pair a b) = a
@@ -28,4 +28,3 @@ end
 
 -- notation for n-ary tuples
 notation `(` h `,` t:(foldl `,` (e r, mk_pair r e) h) `)` := t
-

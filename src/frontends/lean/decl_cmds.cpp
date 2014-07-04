@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/class.h"
 
 namespace lean {
 static name g_llevel_curly(".{");
@@ -23,6 +24,8 @@ static name g_colon(":");
 static name g_assign(":=");
 static name g_private("[private]");
 static name g_inline("[inline]");
+static name g_instance("[instance]");
+static name g_class("[class]");
 
 environment universe_cmd(parser & p) {
     name n = p.check_id_next("invalid universe declaration, identifier expected");
@@ -152,19 +155,38 @@ void collect_section_locals(expr const & type, expr const & value, parser const 
     return mk_section_params(ls, p, section_ps);
 }
 
-static void parse_modifiers(parser & p, bool & is_private, bool & is_opaque) {
-    while (true) {
-        if (p.curr_is_token(g_private)) {
-            is_private = true;
-            p.next();
-        } else if (p.curr_is_token(g_inline)) {
-            is_opaque = false;
-            p.next();
-        } else {
-            break;
+struct decl_modifiers {
+    bool m_is_private;
+    bool m_is_opaque;
+    bool m_is_instance;
+    bool m_is_class;
+    decl_modifiers() {
+        m_is_private  = false;
+        m_is_opaque   = true;
+        m_is_instance = false;
+        m_is_class    = false;
+    }
+
+    void parse(parser & p) {
+        while (true) {
+            if (p.curr_is_token(g_private)) {
+                m_is_private = true;
+                p.next();
+            } else if (p.curr_is_token(g_inline)) {
+                m_is_opaque = false;
+                p.next();
+            } else if (p.curr_is_token(g_instance)) {
+                m_is_instance = true;
+                p.next();
+            } else if (p.curr_is_token(g_class)) {
+                m_is_class = true;
+                p.next();
+            } else {
+                break;
+            }
         }
     }
-}
+};
 
 // Return the levels in \c ls that are defined in the section
 levels collect_section_levels(level_param_names const & ls, parser & p) {
@@ -178,16 +200,17 @@ levels collect_section_levels(level_param_names const & ls, parser & p) {
     return to_list(section_ls_buffer.begin(), section_ls_buffer.end());
 }
 
-environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
+environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     name n = p.check_id_next("invalid declaration, identifier expected");
     check_atomic(n);
-    bool is_private = false;
-    parse_modifiers(p, is_private, is_opaque);
-    if (is_theorem && !is_opaque)
+    decl_modifiers modifiers;
+    modifiers.m_is_opaque = _is_opaque;
+    modifiers.parse(p);
+    if (is_theorem && !modifiers.m_is_opaque)
         throw exception("invalid theorem declaration, theorems cannot be transparent");
     environment env = p.env();
     name real_n; // real name for this declaration
-    if (is_private) {
+    if (modifiers.m_is_private) {
         auto env_n = add_private_name(env, n, optional<unsigned>(hash(p.pos().first, p.pos().second)));
         env    = env_n.first;
         real_n = env_n.second;
@@ -257,8 +280,12 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
         auto type_value = p.elaborate(n, type, value);
         type  = type_value.first;
         value = type_value.second;
-        env = module::add(env, check(env, mk_definition(env, real_n, ls, type, value, is_opaque)));
+        env = module::add(env, check(env, mk_definition(env, real_n, ls, type, value, modifiers.m_is_opaque)));
     }
+    if (modifiers.m_is_class)
+        env = add_class(env, real_n);
+    if (modifiers.m_is_instance)
+        env = add_instance(env, real_n);
     return env;
 }
 environment definition_cmd(parser & p) {

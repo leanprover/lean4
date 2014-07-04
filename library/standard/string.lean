@@ -11,4 +11,10 @@ inductive char : Type :=
 inductive string : Type :=
 | empty : string
 | str   : char → string → string
+
+theorem inhabited_char [instance] : inhabited char
+:= inhabited_intro (ascii b0 b0 b0 b0 b0 b0 b0 b0)
+
+theorem inhabited_string [instance] : inhabited string
+:= inhabited_intro empty
 end

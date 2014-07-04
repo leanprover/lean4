@@ -39,10 +39,11 @@ struct class_config {
     typedef class_state state;
     typedef class_entry entry;
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
-        if (e.m_kind == class_entry::kind::NewClass)
+        if (e.m_kind == class_entry::kind::NewClass) {
             s.add_class(e.m_class);
-        else
+        } else {
             s.add_instance(e.m_class, e.m_instance);
+        }
     }
     static name const & get_class_name() {
         static name g_class_name("class");

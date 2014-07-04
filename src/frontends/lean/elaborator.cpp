@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/error_handling/error_handling.h"
+#include "frontends/lean/class.h"
 
 namespace lean {
 class elaborator {
@@ -83,17 +84,21 @@ class elaborator {
     }
 
     struct choice_elaborator {
+        virtual optional<constraints> next() = 0;
+    };
+
+    struct choice_expr_elaborator : public choice_elaborator {
         elaborator & m_elab;
         expr         m_mvar;
         expr         m_choice;
         context      m_ctx;
         substitution m_subst;
         unsigned     m_idx;
-        choice_elaborator(elaborator & elab, expr const & mvar, expr const & c, context const & ctx, substitution const & s):
+        choice_expr_elaborator(elaborator & elab, expr const & mvar, expr const & c, context const & ctx, substitution const & s):
             m_elab(elab), m_mvar(mvar), m_choice(c), m_ctx(ctx), m_subst(s), m_idx(0) {
         }
 
-        optional<constraints> next() {
+        virtual optional<constraints> next() {
             while (m_idx < get_num_choices(m_choice)) {
                 expr const & c = get_choice(m_choice, m_idx);
                 m_idx++;
@@ -104,6 +109,47 @@ class elaborator {
                     m_elab.consume_tc_cnstrs();
                     list<constraint> cs = to_list(m_elab.m_constraints.begin(), m_elab.m_constraints.end());
                     cs = cons(mk_eq_cnstr(m_mvar, r, j), cs);
+                    return optional<constraints>(cs);
+                } catch (exception &) {}
+            }
+            return optional<constraints>();
+        }
+    };
+
+    struct class_elaborator : public choice_elaborator {
+        elaborator &  m_elab;
+        expr          m_mvar;
+        expr          m_mvar_type;
+        list<name>    m_instances;
+        context       m_ctx;
+        substitution  m_subst;
+        justification m_jst;
+
+        class_elaborator(elaborator & elab, expr const & mvar, expr const & mvar_type, list<name> const & instances,
+                         context const & ctx, substitution const & s, justification const & j):
+            m_elab(elab), m_mvar(mvar), m_mvar_type(mvar_type), m_instances(instances), m_ctx(ctx), m_subst(s), m_jst(j) {}
+
+        virtual optional<constraints> next() {
+            while (!empty(m_instances)) {
+                name inst   = head(m_instances);
+                m_instances = tail(m_instances);
+                auto decl   = m_elab.m_env.find(inst);
+                if (!decl)
+                    continue;
+                expr type   = decl->get_type();
+                // create the term pre (inst _ ... _)
+                expr pre    = copy_tag(m_mvar, mk_explicit(mk_constant(inst)));
+                while (is_pi(type)) {
+                    type = binding_body(type);
+                    pre  = copy_tag(m_mvar, ::lean::mk_app(pre, mk_expr_placeholder()));
+                }
+                try {
+                    scope s(m_elab, m_ctx, m_subst);
+                    expr r = m_elab.visit(pre); // use elaborator to create metavariables, levels, etc.
+                    justification j = m_elab.m_accumulated;
+                    m_elab.consume_tc_cnstrs();
+                    list<constraint> cs = to_list(m_elab.m_constraints.begin(), m_elab.m_constraints.end());
+                    cs = cons(mk_eq_cnstr(m_mvar, r, mk_composite1(m_jst, j)), cs);
                     return optional<constraints>(cs);
                 } catch (exception &) {}
             }
@@ -293,6 +339,47 @@ public:
         return meta;
     }
 
+    list<name> get_class_instances(expr const & type) {
+        if (is_constant(get_app_fn(type))) {
+            name const & c = const_name(get_app_fn(type));
+            return ::lean::get_class_instances(m_env, c);
+        } else {
+            return list<name>();
+        }
+    }
+
+    bool is_class(expr const & type) {
+        return !empty(get_class_instances(type));
+    }
+
+    bool may_be_class(expr const & type) {
+        if (is_meta(type))
+            return true;
+        else
+            return is_class(type);
+    }
+
+    /**
+       \brief Create a metavariable, but also add a class-constraint if type is a class
+       or a metavariable.
+    */
+    expr mk_placeholder_meta(optional<expr> const & type, tag g) {
+        expr m = mk_meta(type, g);
+        if (!type || may_be_class(*type)) {
+            context ctx = m_ctx;
+            justification j = mk_justification("failed to apply class instances", some_expr(m));
+            auto choice_fn = [=](expr const & mvar, expr const & mvar_type, substitution const & s, name_generator const & /* ngen */) {
+                auto insts = get_class_instances(mvar_type);
+                if (empty(insts))
+                    return lazy_list<constraints>(constraints());
+                else
+                    return choose(std::make_shared<class_elaborator>(*this, mvar, mvar_type, insts, ctx, s, j));
+            };
+            add_cnstr(mk_choice_cnstr(m, choice_fn, false, j));
+        }
+        return m;
+    }
+
     /**
         \brief Convert the metavariable to the metavariable application that captures
         the context where it was defined.
@@ -314,7 +401,7 @@ public:
 
     expr visit_expecting_type_of(expr const & e, expr const & t) {
         if (is_placeholder(e) && !placeholder_type(e))
-            return mk_meta(some_expr(t), e.get_tag());
+            return mk_placeholder_meta(some_expr(t), e.get_tag());
         else if (is_choice(e))
             return visit_choice(e, some_expr(t));
         else if (is_by(e))
@@ -329,7 +416,7 @@ public:
         expr m      = mk_meta(t, e.get_tag());
         context ctx = m_ctx;
         auto fn = [=](expr const & mvar, expr const & /* type */, substitution const & s, name_generator const & /* ngen */) {
-            return choose(std::make_shared<choice_elaborator>(*this, mvar, e, ctx, s));
+            return choose(std::make_shared<choice_expr_elaborator>(*this, mvar, e, ctx, s));
         };
         justification j = mk_justification("none of the overloads is applicable", some_expr(e));
         add_cnstr(mk_choice_cnstr(m, fn, false, j));
@@ -425,7 +512,7 @@ public:
         if (!expl) {
             while (is_pi(f_type) && binding_info(f_type).is_strict_implicit()) {
                 tag g        = f.get_tag();
-                expr imp_arg = mk_meta(some_expr(binding_domain(f_type)), g);
+                expr imp_arg = mk_placeholder_meta(some_expr(binding_domain(f_type)), g);
                 f            = mk_app(f, imp_arg, g);
                 f_type       = whnf(instantiate(binding_body(f_type), imp_arg));
             }
@@ -468,7 +555,7 @@ public:
     }
 
     expr visit_placeholder(expr const & e) {
-        return mk_meta(placeholder_type(e), e.get_tag());
+        return mk_placeholder_meta(placeholder_type(e), e.get_tag());
     }
 
     level replace_univ_placeholder(level const & l) {
@@ -599,7 +686,7 @@ public:
                 expr r_type = whnf(infer_type(r));
                 expr imp_arg;
                 while (is_pi(r_type) && binding_info(r_type).is_implicit()) {
-                    imp_arg = mk_meta(some_expr(binding_domain(r_type)), g);
+                    imp_arg = mk_placeholder_meta(some_expr(binding_domain(r_type)), g);
                     r       = mk_app(r, imp_arg, g);
                     r_type  = whnf(instantiate(binding_body(r_type), imp_arg));
                 }

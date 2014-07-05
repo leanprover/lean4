@@ -15,6 +15,8 @@ namespace lean {
 environment add_class(environment const & env, name const & n);
 /** \brief Add a new 'class instance' to the environment. */
 environment add_instance(environment const & env, name const & n);
+/** \brief Return true iff \c c was declared with \c add_class . */
+bool is_class(environment const & env, name const & c);
 /** \brief Return the instances of the given class. */
 list<name> get_class_instances(environment const & env, name const & c);
 

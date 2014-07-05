@@ -374,7 +374,8 @@ public:
     }
 
     bool is_class(expr const & type) {
-        return !empty(get_class_instances(type));
+        expr f = get_app_fn(type);
+        return is_constant(f) && ::lean::is_class(m_env, const_name(f));
     }
 
     bool may_be_class(expr const & type) {
@@ -394,7 +395,7 @@ public:
             context ctx = m_ctx;
             justification j = mk_justification("failed to apply class instances", some_expr(m));
             auto choice_fn = [=](expr const & mvar, expr const & mvar_type, substitution const & s, name_generator const & /* ngen */) {
-                if (!is_constant(get_app_fn(mvar_type)))
+                if (!is_class(mvar_type))
                     return lazy_list<constraints>(constraints());
                 list<expr> local_insts;
                 if (m_use_local_instances) {

@@ -95,6 +95,11 @@ environment add_instance(environment const & env, name const & n) {
     return class_ext::add_entry(env, get_dummy_ios(), class_entry(c, n));
 }
 
+bool is_class(environment const & env, name const & c) {
+    class_state const & s = class_ext::get_state(env);
+    return s.m_instances.contains(c);
+}
+
 list<name> get_class_instances(environment const & env, name const & c) {
     class_state const & s = class_ext::get_state(env);
     if (auto it = s.m_instances.find(c))

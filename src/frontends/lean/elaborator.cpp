@@ -140,22 +140,17 @@ class elaborator {
         substitution  m_subst;
         justification m_jst;
 
-        class_elaborator(elaborator & elab, expr const & mvar, expr const & mvar_type, list<name> const & instances,
+        class_elaborator(elaborator & elab, expr const & mvar, expr const & mvar_type,
+                         list<expr> const & local_insts, list<name> const & instances,
                          context const & ctx, substitution const & s, justification const & j):
-            m_elab(elab), m_mvar(mvar), m_mvar_type(mvar_type), m_instances(instances), m_ctx(ctx), m_subst(s), m_jst(j) {
-            if (elab.m_use_local_instances)
-                m_local_instances = ctx;
+            m_elab(elab), m_mvar(mvar), m_mvar_type(mvar_type), m_local_instances(local_insts), m_instances(instances),
+            m_ctx(ctx), m_subst(s), m_jst(j) {
         }
 
         virtual optional<constraints> next() {
             while (!empty(m_local_instances)) {
                 expr inst         = head(m_local_instances);
                 m_local_instances = tail(m_local_instances);
-                if (!is_local(inst))
-                    continue;
-                expr inst_type    = mlocal_type(inst);
-                if (!is_constant(get_app_fn(inst_type)) || const_name(get_app_fn(inst_type)) != const_name(get_app_fn(m_mvar_type)))
-                    continue;
                 constraints cs(mk_eq_cnstr(m_mvar, inst, m_jst));
                 return optional<constraints>(cs);
             }
@@ -399,13 +394,29 @@ public:
             context ctx = m_ctx;
             justification j = mk_justification("failed to apply class instances", some_expr(m));
             auto choice_fn = [=](expr const & mvar, expr const & mvar_type, substitution const & s, name_generator const & /* ngen */) {
+                if (!is_constant(get_app_fn(mvar_type)))
+                    return lazy_list<constraints>(constraints());
+                list<expr> local_insts;
+                if (m_use_local_instances) {
+                    buffer<expr> buffer;
+                    for (auto const & l : ctx) {
+                        if (!is_local(l))
+                            continue;
+                        expr inst_type    = mlocal_type(l);
+                        if (!is_constant(get_app_fn(inst_type)) ||
+                            const_name(get_app_fn(inst_type)) != const_name(get_app_fn(mvar_type)))
+                            continue;
+                        buffer.push_back(l);
+                    }
+                    local_insts = to_list(buffer.begin(), buffer.end());
+                }
                 auto insts = get_class_instances(mvar_type);
-                if (empty(insts))
+                if (empty(insts) && empty(local_insts))
                     return lazy_list<constraints>(constraints());
                 else
-                    return choose(std::make_shared<class_elaborator>(*this, mvar, mvar_type, insts, ctx, s, j));
+                    return choose(std::make_shared<class_elaborator>(*this, mvar, mvar_type, local_insts, insts, ctx, s, j));
             };
-            add_cnstr(mk_choice_cnstr(m, choice_fn, false, j));
+            add_cnstr(mk_choice_cnstr(m, choice_fn, true, j));
         }
         return m;
     }

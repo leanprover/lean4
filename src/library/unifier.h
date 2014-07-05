@@ -39,26 +39,16 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, expr 
 std::pair<unify_status, substitution> unify_simple(substitution const & s, level const & lhs, level const & rhs, justification const & j);
 std::pair<unify_status, substitution> unify_simple(substitution const & s, constraint const & c);
 
-/**
-   \brief A unifier_plugin provides a simple way to extend the \c unify procedures.
-   Whenever, the default implementation does not know how to solve a constraint, it invokes the plugin.
-   The plugin return a lazy_list (stream) of possible solutions. Each "solution" is represented as
-   a new list of constraints.
-*/
-typedef std::function<lazy_list<constraints>(constraint const &, name_generator const &)> unifier_plugin;
-
-unifier_plugin get_noop_unifier_plugin();
-
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              unifier_plugin const & p = get_noop_unifier_plugin(), bool use_exception = true,
-                              unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS, bool unfold_opaque = LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE);
+                              bool use_exception = true, unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS,
+                              bool unfold_opaque = LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE);
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              unifier_plugin const & p, bool use_exception, options const & o);
+                              bool use_exception, options const & o);
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
-                              substitution const & s = substitution(), unifier_plugin const & p = get_noop_unifier_plugin(),
-                              unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS, bool unfold_opaque = LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE);
+                              substitution const & s = substitution(), unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS,
+                              bool unfold_opaque = LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE);
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, substitution const & s,
-                              unifier_plugin const & p, options const & o);
+                              options const & o);
 
 class unifier_exception : public exception {
     justification m_jst;

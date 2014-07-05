@@ -50,7 +50,6 @@ class elaborator {
 
     environment         m_env;
     io_state            m_ios;
-    unifier_plugin      m_plugin;
     name_generator      m_ngen;
     type_checker        m_tc;
     substitution        m_subst;
@@ -195,7 +194,6 @@ public:
     elaborator(environment const & env, io_state const & ios, name_generator const & ngen, pos_info_provider * pp,
                bool check_unassigned):
         m_env(env), m_ios(ios),
-        m_plugin([](constraint const &, name_generator const &) { return lazy_list<list<constraint>>(); }),
         m_ngen(ngen), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, true /* unfold opaque from the main module */)),
         m_pos_provider(pp) {
         m_check_unassigned = check_unassigned;
@@ -742,8 +740,7 @@ public:
         buffer<constraint> cs;
         cs.append(m_constraints);
         m_constraints.clear();
-        return unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), m_plugin,
-                     true, m_ios.get_options());
+        return unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), true, m_ios.get_options());
     }
 
     void collect_metavars(expr const & e, buffer<expr> & mvars) {

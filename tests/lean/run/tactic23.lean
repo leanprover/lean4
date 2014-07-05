@@ -29,7 +29,7 @@ definition assump : tactic := eassumption
 theorem T1 {p : nat → Bool} {a : nat } (H : p (a+2)) : ∃ x, p (succ x)
 := by apply exists_intro; assump
 
-definition is_zero [inline] (n : nat)
+definition is_zero (n : nat)
 := nat_rec true (λ n r, false) n
 
 theorem T2 : ∃ a, (is_zero a) = true

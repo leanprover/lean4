@@ -226,8 +226,11 @@ definition cast {A B : Type} (H : A = B) (a : A) : B
 theorem cast_refl {A : Type} (a : A) : cast (refl A) a = a
 := refl (cast (refl A) a)
 
+theorem cast_proof_irrel {A B : Type} (H1 H2 : A = B) (a : A) : cast H1 a = cast H2 a
+:= refl (cast H1 a)
+
 theorem cast_eq {A : Type} (H : A = A) (a : A) : cast H a = a
-:= calc cast H a = cast (refl A) a : refl (cast H a) -- by proof irrelevance
+:= calc cast H a = cast (refl A) a : cast_proof_irrel H (refl A) a
             ...  = a               : cast_refl a
 
 definition heq {A B : Type} (a : A) (b : B) := ∃ H, cast H a = b

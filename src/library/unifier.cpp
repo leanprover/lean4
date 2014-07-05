@@ -335,7 +335,7 @@ struct unifier_fn {
                name_generator const & ngen, substitution const & s, unifier_plugin const & p,
                bool use_exception, unsigned max_steps):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(p),
-        m_tc(env, m_ngen.mk_child()),
+        m_tc(env, m_ngen.mk_child(), mk_default_converter(env, optional<module_idx>(0))),
         m_use_exception(use_exception), m_max_steps(max_steps), m_num_steps(0) {
         m_next_assumption_idx = 0;
         m_next_cidx = 0;

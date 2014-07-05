@@ -30,4 +30,6 @@ std::unique_ptr<converter> mk_default_converter(environment const & env,
                                                 name_set const & extra_opaque = name_set());
 std::unique_ptr<converter> mk_default_converter(environment const & env, bool unfold_opaque_main,
                                                 bool memoize = true, name_set const & extra_opaque = name_set());
+
+bool is_opaque(declaration const & d, name_set const & extra_opaque, optional<module_idx> const & mod_idx);
 }

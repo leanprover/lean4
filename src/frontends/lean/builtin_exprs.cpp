@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/sstream.h"
 #include "kernel/abstract.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
@@ -288,6 +289,32 @@ static expr parse_explicit_expr(parser & p, unsigned, expr const *, pos_info con
     return p.save_pos(mk_explicit(e), pos);
 }
 
+static expr parse_including_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+    buffer<expr> locals;
+    while (!p.curr_is_token(g_comma)) {
+        auto pos = p.pos();
+        name id  = p.check_id_next("invalid 'including', identifier expected");
+        if (auto it = p.get_local(id)) {
+            locals.push_back(*it);
+        } else {
+            throw parser_error(sstream() << "invalid 'including', '" << id << "' is not a local declaraton", pos);
+        }
+    }
+    p.next();
+    parser::local_scope scope(p);
+    buffer<expr> new_locals;
+    for (auto old_l : locals) {
+        binder_info bi = local_info(old_l);
+        bi = bi.update_contextual(true);
+        expr new_l     = p.save_pos(mk_local(local_pp_name(old_l), mlocal_type(old_l), bi), pos);
+        p.add_local(new_l);
+        new_locals.push_back(new_l);
+    }
+    expr r = p.rec_save_pos(Fun(new_locals, p.parse_expr()), pos);
+    r = p.rec_save_pos(mk_app(r, locals), pos);
+    return r;
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -307,6 +334,7 @@ parse_table init_nud_table() {
     r = r.add({transition("#", mk_ext_action(parse_overwrite_notation))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     r = r.add({transition("proof", mk_ext_action(parse_proof_qed))}, x0);
+    r = r.add({transition("including", mk_ext_action(parse_including_expr))}, x0);
     return r;
 }
 

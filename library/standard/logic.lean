@@ -36,6 +36,12 @@ theorem contrapos {a b : Bool} (H : a → b) : ¬ b → ¬ a
 theorem absurd_elim {a : Bool} (b : Bool) (H1 : a) (H2 : ¬ a) : b
 := false_elim b (absurd H1 H2)
 
+theorem absurd_not_true (H : ¬ true) : false
+:= absurd trivial H
+
+theorem not_false_trivial : ¬ false
+:= assume H : false, H
+
 inductive and (a b : Bool) : Bool :=
 | and_intro : a → b → and a b
 
@@ -84,6 +90,10 @@ theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 calc_subst subst
 calc_refl  refl
 calc_trans trans
+
+theorem true_ne_false : ¬ true = false
+:= assume H : true = false,
+    subst H trivial
 
 theorem symm {A : Type} {a b : A} (H : a = b) : b = a
 := subst H (refl a)
@@ -136,6 +146,9 @@ theorem ne_intro {A : Type} {a b : A} (H : a = b → false) : a ≠ b
 theorem ne_elim {A : Type} {a b : A} (H1 : a ≠ b) (H2 : a = b) : false
 := H1 H2
 
+theorem a_neq_a_elim {A : Type} {a : A} (H : a ≠ a) : false
+:= H (refl a)
+
 theorem ne_irrefl {A : Type} {a : A} (H : a ≠ a) : false
 := H (refl a)
 
@@ -171,6 +184,9 @@ theorem iff_mp_left {a b : Bool} (H1 : a ↔ b) (H2 : a) : b
 
 theorem iff_mp_right {a b : Bool} (H1 : a ↔ b) (H2 : b) : a
 := (iff_elim_right H1) H2
+
+theorem eq_to_iff {a b : Bool} (H : a = b) : a ↔ b
+:= iff_intro (λ Ha, subst H Ha) (λ Hb, subst (symm H) Hb)
 
 inductive Exists {A : Type} (P : A → Bool) : Bool :=
 | exists_intro : ∀ (a : A), P a → Exists P
@@ -221,16 +237,16 @@ infixl `==`:50 := heq
 theorem heq_type_eq {A B : Type} {a : A} {b : B} (H : a == b) : A = B
 := exists_elim H (λ H Hw, H)
 
-theorem to_heq {A : Type} {a b : A} (H : a = b) : a == b
+theorem eq_to_heq {A : Type} {a b : A} (H : a = b) : a == b
 := exists_intro (refl A) (trans (cast_refl a) H)
 
-theorem to_eq {A : Type} {a b : A} (H : a == b) : a = b
+theorem heq_to_eq {A : Type} {a b : A} (H : a == b) : a = b
 := exists_elim H (λ (H : A = A) (Hw : cast H a = b),
     calc a = cast H a : symm (cast_eq H a)
       ...  = b        : Hw)
 
 theorem heq_refl {A : Type} (a : A) : a == a
-:= to_heq (refl a)
+:= eq_to_heq (refl a)
 
 theorem heqt_elim {a : Bool} (H : a == true) : a
-:= eqt_elim (to_eq H)
+:= eqt_elim (heq_to_eq H)

@@ -11,4 +11,13 @@ notation `'1` := b1
 
 theorem inhabited_bit [instance] : inhabited bit
 := inhabited_intro b0
+
+definition cond {A : Type} (b : bit) (t e : A)
+:= bit_rec e t b
+
+theorem cond_b0 {A : Type} (t e : A) : cond b0 t e = e
+:= refl (cond b0 t e)
+
+theorem cond_b1 {A : Type} (t e : A) : cond b1 t e = t
+:= refl (cond b1 t e)
 end

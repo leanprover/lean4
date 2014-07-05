@@ -19,10 +19,6 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_UNIFIER_MAX_STEPS 10000
 #endif
 
-#ifndef LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE
-#define LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE false
-#endif
-
 namespace lean {
 unsigned get_unifier_max_steps(options const & opts);
 bool get_unifier_unfold_opaque(options const & opts);
@@ -41,13 +37,11 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, level
 std::pair<unify_status, substitution> unify_simple(substitution const & s, constraint const & c);
 
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              bool use_exception = true, unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS,
-                              bool unfold_opaque = LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE);
+                              bool use_exception = true, unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
                               bool use_exception, options const & o);
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
-                              substitution const & s = substitution(), unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS,
-                              bool unfold_opaque = LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE);
+                              substitution const & s = substitution(), unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, substitution const & s,
                               options const & o);
 

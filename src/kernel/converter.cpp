@@ -42,6 +42,29 @@ bool is_opaque(declaration const & d, name_set const & extra_opaque, optional<mo
     return true;                                                   // d is opaque
 }
 
+/** \brief Auxiliary method for \c is_delta */
+static optional<declaration> is_delta_core(environment const & env, expr const & e, name_set const & extra_opaque, optional<module_idx> const & mod_idx) {
+    if (is_constant(e)) {
+        if (auto d = env.find(const_name(e)))
+            if (d->is_definition() && !is_opaque(*d, extra_opaque, mod_idx))
+                return d;
+    }
+    return none_declaration();
+}
+
+/**
+   \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
+   to be expanded.
+*/
+optional<declaration> is_delta(environment const & env, expr const & e, name_set const & extra_opaque, optional<module_idx> const & mod_idx) {
+    return is_delta_core(env, get_app_fn(e), extra_opaque, mod_idx);
+}
+
+static optional<module_idx> g_opt_main_module_idx(g_main_module_idx);
+optional<declaration> is_delta(environment const & env, expr const & e, name_set const & extra_opaque) {
+    return is_delta(env, e, extra_opaque, g_opt_main_module_idx);
+}
+
 static no_delayed_justification g_no_delayed_jst;
 bool converter::is_def_eq(expr const & t, expr const & s, type_checker & c) {
     return is_def_eq(t, s, c, g_no_delayed_jst);
@@ -71,7 +94,8 @@ struct default_converter : public converter {
     expr_struct_map<expr> m_whnf_cache;
 
     default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize, name_set const & extra_opaque):
-        m_env(env), m_module_idx(mod_idx), m_memoize(memoize), m_extra_opaque(extra_opaque) {}
+        m_env(env), m_module_idx(mod_idx), m_memoize(memoize), m_extra_opaque(extra_opaque) {
+    }
 
     optional<expr> expand_macro(expr const & m, type_checker & c) {
         lean_assert(is_macro(m));
@@ -204,21 +228,13 @@ struct default_converter : public converter {
         }
     }
 
-    /** \brief Auxiliary method for \c is_delta */
-    optional<declaration> is_delta_core(expr const & e) {
-        if (is_constant(e)) {
-            if (auto d = m_env.find(const_name(e)))
-                if (d->is_definition() && !is_opaque(*d))
-                    return d;
-        }
-        return none_declaration();
-    }
-
     /**
         \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
         to be expanded.
     */
-    optional<declaration> is_delta(expr const & e) { return is_delta_core(get_app_fn(e)); }
+    optional<declaration> is_delta(expr const & e) {
+        return ::lean::is_delta(m_env, get_app_fn(e), m_extra_opaque, m_module_idx);
+    }
 
     /**
         \brief Weak head normal form core procedure that perform delta reduction for non-opaque constants with
@@ -386,20 +402,24 @@ struct default_converter : public converter {
                     s_n = whnf_core(unfold_names(s_n, d_t->get_weight() + 1), c);
                 } else {
                     lean_assert(d_t && d_s && d_t->get_weight() == d_s->get_weight());
-                    // If t_n and s_n are both applications of the same (non-opaque) definition,
-                    // then we try to check if their arguments are definitionally equal.
-                    // If they are, then t_n and s_n must be definitionally equal, and we can
-                    // skip the delta-reduction step.
-                    // We only apply the optimization if t_n and s_n do not contain metavariables.
-                    // In this way we don't have to backtrack constraints if the optimization fail.
-                    if (is_app(t_n) && is_app(s_n) &&
-                        is_eqp(*d_t, *d_s) &&          // same definition
-                        !has_metavar(t_n) &&
-                        !has_metavar(s_n) &&
-                        !is_opaque(*d_t) &&            // if d_t is opaque, we don't need to try this optimization
-                        d_t->use_conv_opt() &&         // the flag use_conv_opt() can be used to disable this optimization
-                        is_def_eq_args(t_n, s_n, c, jst)) {
-                        return true;
+                    if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
+                        // If t_n and s_n are both applications of the same (non-opaque) definition,
+                        if (has_expr_metavar(t_n) || has_expr_metavar(s_n)) {
+                            // We let the unifier deal with cases such as
+                            // (f ...) =?= (f ...)
+                            break;
+                        } else {
+                            // Optimization:
+                            // We try to check if their arguments are definitionally equal.
+                            // If they are, then t_n and s_n must be definitionally equal, and we can
+                            // skip the delta-reduction step.
+                            // If the flag use_conv_opt() is not true, then we skip this optimization
+                            if (!is_opaque(*d_t) && d_t->use_conv_opt()) {
+                                type_checker::scope scope(c);
+                                if (is_def_eq_args(t_n, s_n, c, jst))
+                                    return true;
+                            }
+                        }
                     }
                     t_n = whnf_core(unfold_names(t_n, d_t->get_weight() - 1), c);
                     s_n = whnf_core(unfold_names(s_n, d_s->get_weight() - 1), c);
@@ -428,8 +448,16 @@ struct default_converter : public converter {
             is_def_eq(mlocal_type(t_n), mlocal_type(s_n), c, jst))
             return true;
 
+        optional<declaration> d_t, d_s;
+        bool delay_check = false;
+        if (has_expr_metavar(t_n) || has_expr_metavar(s_n)) {
+            d_t = is_delta(t_n);
+            d_s = is_delta(s_n);
+            delay_check = d_t && d_s && is_eqp(*d_t, *d_s);
+        }
+
         // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
-        if (is_app(t_n) && is_app(s_n)) {
+        if (!delay_check && is_app(t_n) && is_app(s_n)) {
             type_checker::scope scope(c);
             buffer<expr> t_args;
             buffer<expr> s_args;
@@ -476,6 +504,11 @@ struct default_converter : public converter {
             return true;
         }
 
+        if (delay_check) {
+            add_cnstr(c, mk_eq_cnstr(t_n, s_n, jst.get()));
+            return true;
+        }
+
         return false;
     }
 
@@ -488,7 +521,8 @@ std::unique_ptr<converter> mk_default_converter(environment const & env, optiona
                                                 bool memoize, name_set const & extra_opaque) {
     return std::unique_ptr<converter>(new default_converter(env, mod_idx, memoize, extra_opaque));
 }
-std::unique_ptr<converter> mk_default_converter(environment const & env, bool unfold_opaque_main, bool memoize, name_set const & extra_opaque) {
+std::unique_ptr<converter> mk_default_converter(environment const & env, bool unfold_opaque_main, bool memoize,
+                                                name_set const & extra_opaque) {
     if (unfold_opaque_main)
         return mk_default_converter(env, optional<module_idx>(0), memoize, extra_opaque);
     else

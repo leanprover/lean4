@@ -24,10 +24,7 @@ Author: Leonardo de Moura
 namespace lean {
 static name g_unifier_max_steps      {"unifier", "max_steps"};
 RegisterUnsignedOption(g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS, "(unifier) maximum number of steps");
-static name g_unifier_unfold_opaque{"unifier", "unfold_opaque"};
-RegisterBoolOption(g_unifier_unfold_opaque, LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE, "(unifier) unfold opaque definitions from the current module");
 unsigned get_unifier_max_steps(options const & opts) { return opts.get_unsigned(g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS); }
-bool get_unifier_unfold_opaque(options const & opts) { return opts.get_bool(g_unifier_unfold_opaque, LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE); }
 
 // If \c e is a metavariable ?m or a term of the form (?m l_1 ... l_n) where
 // l_1 ... l_n are distinct local variables, then return ?m, and store l_1 ... l_n in args.
@@ -367,10 +364,10 @@ struct unifier_fn {
         virtual bool next(unifier_fn & u) { return u.next_lazy_constraints_case_split(*this); }
     };
 
-    struct ho_case_split : public case_split {
+    struct simple_case_split : public case_split {
         list<constraints> m_tail;
-        ho_case_split(unifier_fn & u, list<constraints> const & tail):case_split(u), m_tail(tail) {}
-        virtual bool next(unifier_fn & u) { return u.next_ho_case_split(*this); }
+        simple_case_split(unifier_fn & u, list<constraints> const & tail):case_split(u), m_tail(tail) {}
+        virtual bool next(unifier_fn & u) { return u.next_simple_case_split(*this); }
     };
 
     case_split_stack        m_case_splits;
@@ -378,9 +375,9 @@ struct unifier_fn {
 
     unifier_fn(environment const & env, unsigned num_cs, constraint const * cs,
                name_generator const & ngen, substitution const & s,
-               bool use_exception, unsigned max_steps, bool unfold_opaque):
+               bool use_exception, unsigned max_steps):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(get_unifier_plugin(env)),
-        m_tc(env, m_ngen.mk_child(), mk_default_converter(env, unfold_opaque)),
+        m_tc(env, m_ngen.mk_child(), mk_default_converter(env, true)),
         m_use_exception(use_exception), m_max_steps(max_steps), m_num_steps(0) {
         m_next_assumption_idx = 0;
         m_next_cidx = 0;
@@ -525,10 +522,10 @@ struct unifier_fn {
         }
     }
 
-    enum status { Assigned, Failed, Continue };
+    enum status { Solved, Failed, Continue };
     /**
        \brief Process constraints of the form <tt>lhs =?= rhs</tt> where lhs is of the form <tt>?m</tt> or <tt>(?m l_1 .... l_n)</tt>,
-       where all \c l_i are distinct local variables. In this case, the method returns Assigned, if the method assign succeeds.
+       where all \c l_i are distinct local variables. In this case, the method returns Solved, if the method assign succeeds.
        The method returns \c Failed if \c rhs contains <tt>?m</tt>, or it contains a local constant not in <tt>{l_1, ..., l_n}</tt>.
        Otherwise, it returns \c Continue.
     */
@@ -548,12 +545,26 @@ struct unifier_fn {
         case l_true:
             lean_assert(!m_subst.is_assigned(*m));
             if (assign(*m, lambda_abstract_locals(rhs, locals), j)) {
-                return Assigned;
+                return Solved;
             } else {
                 return Failed;
             }
         }
         lean_unreachable(); // LCOV_EXCL_LINE
+    }
+
+    optional<declaration> is_delta(expr const & e) { return ::lean::is_delta(m_env, e); }
+
+    /** \brief Return true if lhs and rhs are of the form (f ...) where f can be expanded */
+    bool is_eq_deltas(expr const & lhs, expr const & rhs) {
+        auto lhs_d = is_delta(lhs);
+        auto rhs_d = is_delta(rhs);
+        return lhs_d && rhs_d && is_eqp(*lhs_d, *rhs_d);
+    }
+
+    /** \brief Return true if the constraint is of the form (f ...) =?= (f ...), where f can be expanded. */
+    bool is_delta_cnstr(constraint const & c) {
+        return is_eq_cnstr(c) && is_eq_deltas(cnstr_lhs_expr(c), cnstr_rhs_expr(c));
     }
 
     /** \brief Process an equality constraints. */
@@ -577,13 +588,9 @@ struct unifier_fn {
 
         // Handle higher-order pattern matching.
         status st = process_metavar_eq(lhs, rhs, new_jst);
-        if (st != Continue) return st == Assigned;
+        if (st != Continue) return st == Solved;
         st = process_metavar_eq(rhs, lhs, new_jst);
-        if (st != Continue) return st == Assigned;
-
-        // Make sure lhs/rhs are in weak-head-normal-form
-        rhs = m_tc.whnf(rhs);
-        lhs = m_tc.whnf(lhs);
+        if (st != Continue) return st == Solved;
 
         // If lhs or rhs were updated, then invoke is_def_eq again.
         if (lhs != cnstr_lhs_expr(c) || rhs != cnstr_rhs_expr(c)) {
@@ -591,7 +598,10 @@ struct unifier_fn {
             return is_def_eq(lhs, rhs, new_jst);
         }
 
-        if (m_plugin->delay_constraint(m_tc, c)) {
+        if (is_eq_deltas(lhs, rhs)) {
+            // we need to create a backtracking point for this one
+            add_cnstr(c, &unassigned_lvls, &unassigned_exprs, cnstr_group::Basic);
+        } else if (m_plugin->delay_constraint(m_tc, c)) {
             add_cnstr(c, &unassigned_lvls, &unassigned_exprs, cnstr_group::PluginDelayed);
         } else if (is_meta(lhs) && is_meta(rhs)) {
             // flex-flex constraints are delayed the most.
@@ -624,7 +634,7 @@ struct unifier_fn {
         }
         lean_assert(!m_subst.is_assigned(lhs));
         if (assign(lhs, rhs, j)) {
-            return Assigned;
+            return Solved;
         } else {
             return Failed;
         }
@@ -659,9 +669,9 @@ struct unifier_fn {
         }
 
         status st = process_metavar_eq(lhs, rhs, new_jst);
-        if (st != Continue) return st == Assigned;
+        if (st != Continue) return st == Solved;
         st = process_metavar_eq(rhs, lhs, new_jst);
-        if (st != Continue) return st == Assigned;
+        if (st != Continue) return st == Solved;
 
         if (lhs != cnstr_lhs_level(c) || rhs != cnstr_rhs_level(c)) {
             constraint new_c = mk_level_eq_cnstr(lhs, rhs, new_jst);
@@ -809,7 +819,7 @@ struct unifier_fn {
         return process_lazy_constraints(alts, mk_composite1(c.get_justification(), m_type_jst.second));
     }
 
-    bool next_ho_case_split(ho_case_split & cs) {
+    bool next_simple_case_split(simple_case_split & cs) {
         if (!is_nil(cs.m_tail)) {
             cs.restore_state(*this);
             lean_assert(!in_conflict());
@@ -821,6 +831,53 @@ struct unifier_fn {
             update_conflict(mk_composite1(*m_conflict, cs.m_failed_justifications));
             return false;
         }
+    }
+
+    /**
+        \brief Solve constraints of the form (f a_1 ... a_n) =?= (f b_1 ... b_n) where f can be expanded.
+        We consider two possible solutions:
+        1)   a_1 =?= b_1, ..., a_n =?= b_n
+        2)   t =?= s, where t and s are the terms we get after expanding f
+    */
+    bool process_delta(constraint const & c) {
+        lean_assert(is_delta_cnstr(c));
+        expr const & lhs = cnstr_lhs_expr(c);
+        expr const & rhs = cnstr_rhs_expr(c);
+        buffer<expr> lhs_args, rhs_args;
+        justification j = c.get_justification();
+        expr lhs_fn     = get_app_rev_args(lhs, lhs_args);
+        expr rhs_fn     = get_app_rev_args(rhs, rhs_args);
+        declaration d   = *m_env.find(const_name(lhs_fn));
+        levels lhs_lvls = const_levels(lhs_fn);
+        levels rhs_lvls = const_levels(lhs_fn);
+        if (lhs_args.size() != rhs_args.size() ||
+            length(lhs_lvls) != length(rhs_lvls) ||
+            length(d.get_univ_params()) != length(lhs_lvls)) {
+            // the constraint is not well-formed, this can happen when users are abusing the API
+            return false;
+        }
+        buffer<constraint> cs_buffer;
+        while (!is_nil(lhs_lvls)) {
+            cs_buffer.push_back(mk_level_eq_cnstr(head(lhs_lvls), head(rhs_lvls), j));
+            lhs_lvls = tail(lhs_lvls);
+            rhs_lvls = tail(rhs_lvls);
+        }
+        unsigned i = lhs_args.size();
+        while (i > 0) {
+            --i;
+            cs_buffer.push_back(mk_eq_cnstr(lhs_args[i], rhs_args[i], j));
+        }
+        constraints cs1  = to_list(cs_buffer.begin(), cs_buffer.end());
+
+        expr lhs_fn_val = instantiate_univ_params(d.get_value(), d.get_univ_params(), const_levels(lhs_fn));
+        expr rhs_fn_val = instantiate_univ_params(d.get_value(), d.get_univ_params(), const_levels(rhs_fn));
+        expr t = apply_beta(lhs_fn_val, lhs_args.size(), lhs_args.data());
+        expr s = apply_beta(rhs_fn_val, rhs_args.size(), rhs_args.data());
+        constraints cs2(mk_eq_cnstr(t, s, j));
+
+        justification a = mk_assumption_justification(m_next_assumption_idx);
+        add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, list<constraints>(cs2))));
+        return process_constraints(cs1, a);
     }
 
     /** \brief Return true iff \c c is a flex-rigid constraint. */
@@ -1043,7 +1100,7 @@ struct unifier_fn {
             return process_constraints(alts[0], justification());
         } else {
             justification a = mk_assumption_justification(m_next_assumption_idx);
-            add_case_split(std::unique_ptr<case_split>(new ho_case_split(*this, to_list(alts.begin() + 1, alts.end()))));
+            add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, to_list(alts.begin() + 1, alts.end()))));
             return process_constraints(alts[0], a);
         }
     }
@@ -1082,6 +1139,8 @@ struct unifier_fn {
         m_cnstrs.erase_min();
         if (is_choice_cnstr(c))
             return process_choice_constraint(c);
+        else if (is_delta_cnstr(c))
+            return process_delta(c);
         else if (is_flex_rigid(c))
             return process_flex_rigid(c);
         else if (is_flex_flex(c))
@@ -1145,37 +1204,29 @@ lazy_list<substitution> unify(std::shared_ptr<unifier_fn> u) {
 }
 
 lazy_list<substitution> unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              bool use_exception, unsigned max_steps, bool unfold_opaque) {
-    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, ngen, substitution(), use_exception, max_steps, unfold_opaque));
+                              bool use_exception, unsigned max_steps) {
+    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, ngen, substitution(), use_exception, max_steps));
 }
 
 lazy_list<substitution> unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator const & ngen,
                               bool use_exception, options const & o) {
-    return unify(env, num_cs, cs, ngen, use_exception, get_unifier_max_steps(o), get_unifier_unfold_opaque(o));
+    return unify(env, num_cs, cs, ngen, use_exception, get_unifier_max_steps(o));
 }
 
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, substitution const & s,
-                              unsigned max_steps, bool unfold_opaque) {
-    name_generator new_ngen(ngen);
-    type_checker tc(env, new_ngen.mk_child());
+                              unsigned max_steps) {
+    auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, s, false, max_steps);
     expr _lhs = s.instantiate(lhs);
     expr _rhs = s.instantiate(rhs);
-    if (!tc.is_def_eq(_lhs, _rhs))
+    if (!u->m_tc.is_def_eq(_lhs, _rhs))
         return lazy_list<substitution>();
-    buffer<constraint> cs;
-    while (auto c = tc.next_cnstr()) {
-        cs.push_back(*c);
-    }
-    if (cs.empty()) {
-        return lazy_list<substitution>(s);
-    } else {
-        return unify(std::make_shared<unifier_fn>(env, cs.size(), cs.data(), ngen, s, false, max_steps, unfold_opaque));
-    }
+    else
+        return unify(u);
 }
 
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
                               substitution const & s, options const & o) {
-    return unify(env, lhs, rhs, ngen, s, get_unifier_max_steps(o), get_unifier_unfold_opaque(o));
+    return unify(env, lhs, rhs, ngen, s, get_unifier_max_steps(o));
 }
 
 static int unify_simple(lua_State * L) {

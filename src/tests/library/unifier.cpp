@@ -19,7 +19,7 @@ static void tst1() {
     expr t1 = f(m, m);
     expr t2 = f(a, b);
     auto r = unify(env, t1, t2, ngen);
-    lean_assert(r.is_nil());
+    lean_assert(!r.pull());
 }
 
 int main() {

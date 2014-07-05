@@ -594,7 +594,7 @@ struct unifier_fn {
         }
 
         // We delay constraints where lhs or rhs are of the form (elim ... (?m ...))
-        if (is_elim_meta_app(lhs) || is_elim_meta_app(rhs)) {
+        if (is_elim_meta_app(lhs) || is_elim_meta_app(rhs) || is_meta_intro_app(lhs) || is_meta_intro_app(rhs)) {
             add_very_delayed_cnstr(c, &unassigned_lvls, &unassigned_exprs);
         } else if (is_meta(lhs) && is_meta(rhs)) {
             // flex-flex constraints are delayed the most.
@@ -832,6 +832,16 @@ struct unifier_fn {
     /** \brief Return true iff the lhs or rhs of the constraint c is of the form (elim ... (?m ...)) */
     bool is_elim_meta_cnstr(constraint const & c) {
         return is_eq_cnstr(c) && (is_elim_meta_app(cnstr_lhs_expr(c)) || is_elim_meta_app(cnstr_rhs_expr(c)));
+    }
+
+    /** \brief Return true iff \c e is of the form (?m ... (intro ...)) */
+    bool is_meta_intro_app(expr const & e) {
+        if (!is_app(e) || !is_meta(e))
+            return false;
+        expr arg = get_app_fn(app_arg(e));
+        if (!is_constant(arg))
+            return false;
+        return (bool) inductive::is_intro_rule(m_env, const_name(arg)); // NOLINT
     }
 
     /**

@@ -13,35 +13,4 @@ local real_group = Const("real_group")
 local nat_group  = Const("nat_group")
 local m = mk_metavar("m", mk_metavar("m_ty", mk_sort(mk_meta_univ("u"))))
 local cs  = { mk_eq_cnstr(carrier(m), real) }
-local o   = options({"unifier", "use_exceptions"}, false)
-print(o)
-assert(not unify(env, cs, name_generator(), o)())
-
-function hint(c, ngen)
-   local lhs = c:lhs()
-   local rhs = c:rhs()
-   local j   = c:justification()
-   if lhs:is_app() and lhs:fn() == carrier and lhs:arg():is_meta() then
-      return
-         {{ mk_eq_cnstr(lhs:arg(), nat_group, j) }, -- first possible solution
-          { mk_eq_cnstr(lhs:arg(), real_group, j) }}
-   else
-      return nil
-   end
-end
-
-function display_solutions(ss)
-   local n = 0
-   for s in ss do
-      print("solution: ")
-      s:for_each_expr(function(n, v, j)
-                         print("  " .. tostring(n) .. " := " .. tostring(v))
-      end)
-      s:for_each_level(function(n, v, j)
-                          print("  " .. tostring(n) .. " := " .. tostring(v))
-      end)
-      n = n + 1
-   end
-end
-
-display_solutions(unify(env, cs, name_generator(), hint, o))
+assert(not unify(env, cs, name_generator())())

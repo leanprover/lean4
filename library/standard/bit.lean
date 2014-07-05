@@ -24,15 +24,20 @@ theorem cond_b1 {A : Type} (t e : A) : cond b1 t e = t
 definition bor (a b : bit)
 := bit_rec (bit_rec b0 b1 b) b1 a
 
-theorem bor_b1_left (a : bit) : bor b1 a = b1
-:= refl (bor b1 a)
+section
+  -- create section for setting temporary configuration option
+  set_option unifier.unfold_opaque true
 
-theorem bor_b1_right (a : bit) : bor a b1 = b1
-:= bit_rec (refl (bor b0 b1)) (refl (bor b1 b1)) a
+  theorem bor_b1_left (a : bit) : bor b1 a = b1
+  := refl (bor b1 a)
 
-theorem bor_b0_left (a : bit) : bor b0 a = a
-:= bit_rec (refl (bor b0 b0)) (refl (bor b0 b1)) a
+  theorem bor_b1_right (a : bit) : bor a b1 = b1
+  := bit_rec (refl (bor b0 b1)) (refl (bor b1 b1)) a
 
-theorem bor_b0_right (a : bit) : bor a b0 = a
-:= bit_rec (refl (bor b0 b0)) (refl (bor b1 b0)) a
+  theorem bor_b0_left (a : bit) : bor b0 a = a
+  := bit_rec (refl (bor b0 b0)) (refl (bor b0 b1)) a
+
+  theorem bor_b0_right (a : bit) : bor a b0 = a
+  := bit_rec (refl (bor b0 b0)) (refl (bor b1 b0)) a
+end
 end

@@ -196,7 +196,7 @@ public:
                bool check_unassigned):
         m_env(env), m_ios(ios),
         m_plugin([](constraint const &, name_generator const &) { return lazy_list<list<constraint>>(); }),
-        m_ngen(ngen), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, optional<module_idx>(0))),
+        m_ngen(ngen), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, true /* unfold opaque from the main module */)),
         m_pos_provider(pp) {
         m_check_unassigned = check_unassigned;
         m_use_local_instances = get_elaborator_local_instances(ios.get_options());
@@ -743,7 +743,7 @@ public:
         cs.append(m_constraints);
         m_constraints.clear();
         return unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), m_plugin,
-                     true, get_unifier_max_steps(m_ios.get_options()));
+                     true, m_ios.get_options());
     }
 
     void collect_metavars(expr const & e, buffer<expr> & mvars) {

@@ -12,8 +12,6 @@ local m2 = mk_metavar("m2", N)
 local m3 = mk_metavar("m3", N)
 local m4 = mk_metavar("m4", N)
 
-local o   = options({"unifier", "use_exceptions"}, false)
-
 function display_solutions(m, ss)
    local n = 0
    for s in ss do
@@ -34,4 +32,4 @@ cs = { mk_eq_cnstr(m1, f(m2, f(m3, m4))),
        mk_choice_cnstr(m4, function(m, e, s, ngen) return {a, b} end)
      }
 
-display_solutions(m1, unify(env, cs, name_generator(), o))
+display_solutions(m1, unify(env, cs, name_generator()))

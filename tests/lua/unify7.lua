@@ -10,8 +10,7 @@ print(env:infer_type(t))
 local m   = mk_metavar("m", mk_arrow(N, N, Type))
 local cs  = { mk_eq_cnstr(m(a, a), t) }
 
-local o   = options({"unifier", "use_exceptions"}, false)
-ss = unify(env, cs, name_generator(), o)
+ss = unify(env, cs, name_generator())
 local n = 0
 for s in ss do
    print("solution: " .. tostring(s:instantiate(m)))

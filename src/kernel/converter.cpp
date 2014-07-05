@@ -484,4 +484,10 @@ std::unique_ptr<converter> mk_default_converter(environment const & env, optiona
                                                 bool memoize, name_set const & extra_opaque) {
     return std::unique_ptr<converter>(new default_converter(env, mod_idx, memoize, extra_opaque));
 }
+std::unique_ptr<converter> mk_default_converter(environment const & env, bool unfold_opaque_main, bool memoize, name_set const & extra_opaque) {
+    if (unfold_opaque_main)
+        return mk_default_converter(env, optional<module_idx>(0), memoize, extra_opaque);
+    else
+        return mk_default_converter(env, optional<module_idx>(), memoize, extra_opaque);
+}
 }

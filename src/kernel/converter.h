@@ -28,4 +28,6 @@ std::unique_ptr<converter> mk_default_converter(environment const & env,
                                                 optional<module_idx> mod_idx = optional<module_idx>(),
                                                 bool memoize = true,
                                                 name_set const & extra_opaque = name_set());
+std::unique_ptr<converter> mk_default_converter(environment const & env, bool unfold_opaque_main,
+                                                bool memoize = true, name_set const & extra_opaque = name_set());
 }

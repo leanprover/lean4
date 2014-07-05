@@ -32,5 +32,9 @@ theorem T1 {p : nat → Bool} {a : nat } (H : p (a+2)) : ∃ x, p (succ x)
 definition is_zero (n : nat)
 := nat_rec true (λ n r, false) n
 
-theorem T2 : ∃ a, (is_zero a) = true
-:= by apply exists_intro; apply refl
+section
+  set_option unifier.unfold_opaque true
+
+  theorem T2 : ∃ a, (is_zero a) = true
+  := by apply exists_intro; apply refl
+end

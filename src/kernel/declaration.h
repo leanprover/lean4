@@ -22,10 +22,10 @@ namespace lean {
     to be transparent for any other opaque definition in module m1.
 */
 typedef unsigned module_idx;
+/** \brief The main module is the module being currently compiled. We always assigned it the index 0. */
+constexpr unsigned g_main_module_idx = 0;
 
-/**
-   \brief Environment definitions, theorems, axioms and variable declarations.
-*/
+/** \brief Environment definitions, theorems, axioms and variable declarations. */
 class declaration {
     struct cell;
     cell * m_ptr;

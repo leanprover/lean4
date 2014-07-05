@@ -19,9 +19,13 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_UNIFIER_MAX_STEPS 10000
 #endif
 
+#ifndef LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE
+#define LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE false
+#endif
+
 namespace lean {
 unsigned get_unifier_max_steps(options const & opts);
-bool get_unifier_use_exceptions(options const & opts);
+bool get_unifier_unfold_opaque(options const & opts);
 
 bool is_simple_meta(expr const & e);
 
@@ -46,10 +50,13 @@ typedef std::function<lazy_list<constraints>(constraint const &, name_generator 
 unifier_plugin get_noop_unifier_plugin();
 
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              unifier_plugin const & p = get_noop_unifier_plugin(), bool use_exception = true, unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
-lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen, unifier_plugin const & p, options const & o);
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, substitution const & s = substitution(),
-                              unifier_plugin const & p = get_noop_unifier_plugin(), unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
+                              unifier_plugin const & p = get_noop_unifier_plugin(), bool use_exception = true,
+                              unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS, bool unfold_opaque = LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE);
+lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
+                              unifier_plugin const & p, bool use_exception, options const & o);
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
+                              substitution const & s = substitution(), unifier_plugin const & p = get_noop_unifier_plugin(),
+                              unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS, bool unfold_opaque = LEAN_DEFAULT_UNIFIER_UNFOLD_OPAQUE);
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, substitution const & s,
                               unifier_plugin const & p, options const & o);
 

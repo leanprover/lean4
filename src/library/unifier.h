@@ -28,6 +28,7 @@ unsigned get_unifier_max_steps(options const & opts);
 bool get_unifier_unfold_opaque(options const & opts);
 
 bool is_simple_meta(expr const & e);
+expr mk_aux_metavar_for(name_generator & ngen, expr const & t);
 
 enum class unify_status { Solved, Failed, Unsupported };
 /**

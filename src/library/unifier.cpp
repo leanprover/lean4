@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
-#include "kernel/inductive/inductive.h"
 #include "library/occurs.h"
 #include "library/unifier.h"
 #include "library/unifier_plugin.h"
@@ -193,6 +192,55 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, const
         return mk_pair(unify_status::Unsupported, s);
 }
 
+
+/** \brief Given \c type of the form <tt>(Pi ctx, r)</tt>, return <tt>(Pi ctx, new_range)</tt> */
+static expr replace_range(expr const & type, expr const & new_range) {
+    if (is_pi(type))
+        return update_binding(type, binding_domain(type), replace_range(binding_body(type), new_range));
+    else
+        return new_range;
+}
+
+/** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
+static unsigned get_arity(expr type) {
+    unsigned r = 0;
+    while (is_pi(type)) {
+        type = binding_body(type);
+        r++;
+    }
+    return r;
+}
+
+/**
+   \brief Given a type \c t of the form
+   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
+   return a new metavariable \c m1 with type
+   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
+   where \c u is a new universe metavariable.
+*/
+expr mk_aux_type_metavar_for(name_generator & ngen, expr const & t) {
+    expr new_type = replace_range(t, mk_sort(mk_meta_univ(ngen.next())));
+    name n        = ngen.next();
+    return mk_metavar(n, new_type);
+}
+
+/**
+   \brief Given a type \c t of the form
+   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
+   return a new metavariable \c m1 with type
+   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), (m2 x_1 ... x_n)</tt>
+   where \c m2 is a new metavariable with type
+   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
+   where \c u is a new universe metavariable.
+*/
+expr mk_aux_metavar_for(name_generator & ngen, expr const & t) {
+    unsigned num  = get_arity(t);
+    expr r        = mk_app_vars(mk_aux_type_metavar_for(ngen, t), num);
+    expr new_type = replace_range(t, r);
+    name n        = ngen.next();
+    return mk_metavar(n, new_type);
+}
+
 static constraint g_dont_care_cnstr = mk_eq_cnstr(expr(), expr(), justification());
 
 /**
@@ -355,65 +403,6 @@ struct unifier_fn {
     void set_conflict(justification const & j) { m_conflict = j; }
     void update_conflict(justification const & j) { m_conflict = j; }
     void reset_conflict() { m_conflict = optional<justification>(); lean_assert(!in_conflict()); }
-
-    /** \brief Given \c type of the form <tt>(Pi ctx, r)</tt>, return <tt>(Pi ctx, new_range)</tt> */
-    static expr replace_range(expr const & type, expr const & new_range) {
-        if (is_pi(type))
-            return update_binding(type, binding_domain(type), replace_range(binding_body(type), new_range));
-        else
-            return new_range;
-    }
-
-    /** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
-    static unsigned get_arity(expr type) {
-        unsigned r = 0;
-        while (is_pi(type)) {
-            type = binding_body(type);
-            r++;
-        }
-        return r;
-    }
-
-    /** \brief Return the term (f #n-1 ... #0) */
-    static expr mk_app_vars(expr const & f, unsigned n) {
-        expr r     = f;
-        unsigned i = n;
-        while (i > 0) {
-            --i;
-            r = r(mk_var(i));
-        }
-        return r;
-    }
-
-    /**
-       \brief Given a type \c t of the form
-           <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
-       return a new metavariable \c m1 with type
-           <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
-       where \c u is a new universe metavariable.
-    */
-    expr mk_aux_type_metavar_for(expr const & t) {
-        expr new_type = replace_range(t, mk_sort(mk_meta_univ(m_ngen.next())));
-        name n        = m_ngen.next();
-        return mk_metavar(n, new_type);
-    }
-
-    /**
-       \brief Given a type \c t of the form
-           <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
-       return a new metavariable \c m1 with type
-           <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), (m2 x_1 ... x_n)</tt>
-       where \c m2 is a new metavariable with type
-           <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
-       where \c u is a new universe metavariable.
-    */
-    expr mk_aux_metavar_for(expr const & t) {
-        unsigned num  = get_arity(t);
-        expr r        = mk_app_vars(mk_aux_type_metavar_for(t), num);
-        expr new_type = replace_range(t, r);
-        name n        = m_ngen.next();
-        return mk_metavar(n, new_type);
-    }
 
     /**
        \brief Given t
@@ -603,7 +592,7 @@ struct unifier_fn {
         }
 
         // We delay constraints where lhs or rhs are of the form (elim ... (?m ...))
-        if (is_elim_meta_app(lhs) || is_elim_meta_app(rhs) || is_meta_intro_app(lhs) || is_meta_intro_app(rhs) || m_plugin->delay_constraint(m_tc, c)) {
+        if (m_plugin->delay_constraint(m_tc, c)) {
             add_cnstr(c, &unassigned_lvls, &unassigned_exprs, cnstr_group::Reduction);
         } else if (is_meta(lhs) && is_meta(rhs)) {
             // flex-flex constraints are delayed the most.
@@ -821,117 +810,6 @@ struct unifier_fn {
         return process_lazy_constraints(alts, mk_composite1(c.get_justification(), m_type_jst.second));
     }
 
-    /** \brief Return true iff \c e is of the form (elim ... (?m ...)) */
-    bool is_elim_meta_app(expr const & e) {
-        if (!is_app(e))
-            return false;
-        expr const & f = get_app_fn(e);
-        if (!is_constant(f))
-            return false;
-        auto it_name = inductive::is_elim_rule(m_env, const_name(f));
-        if (!it_name)
-            return false;
-        if (!is_meta(app_arg(e)))
-            return false;
-        if (is_pi(m_tc.whnf(m_tc.infer(e))))
-            return false;
-        return true;
-    }
-
-    /** \brief Return true iff the lhs or rhs of the constraint c is of the form (elim ... (?m ...)) */
-    bool is_elim_meta_cnstr(constraint const & c) {
-        return is_eq_cnstr(c) && (is_elim_meta_app(cnstr_lhs_expr(c)) || is_elim_meta_app(cnstr_rhs_expr(c)));
-    }
-
-    /** \brief Return true iff \c e is of the form (?m ... (intro ...)) */
-    bool is_meta_intro_app(expr const & e) {
-        if (!is_app(e) || !is_meta(e))
-            return false;
-        expr arg = get_app_fn(app_arg(e));
-        if (!is_constant(arg))
-            return false;
-        return (bool) inductive::is_intro_rule(m_env, const_name(arg)); // NOLINT
-    }
-
-    /**
-       \brief Given (elim args) =?= t, where elim is the eliminator/recursor for the inductive declaration \c decl,
-       and the last argument of args is of the form (?m ...), we create a case split where we try to assign (?m ...)
-       to the different constructors of decl.
-    */
-    bool add_elim_meta_cnstrs(inductive::inductive_decl const & decl, expr const & elim, buffer<expr> & args, expr const & t,
-                              justification const & j) {
-        lean_assert(is_constant(elim));
-        levels elim_lvls       = const_levels(elim);
-        unsigned elim_num_lvls = length(elim_lvls);
-        unsigned num_args      = args.size();
-        expr meta              = args[num_args - 1]; // save last argument, we will update it
-        lean_assert(is_meta(meta));
-        buffer<expr> margs;
-        expr const & m     = get_app_args(meta, margs);
-        expr const & mtype = mlocal_type(m);
-        buffer<constraints> alts;
-        for (auto const & intro : inductive::inductive_decl_intros(decl)) {
-            name const & intro_name = inductive::intro_rule_name(intro);
-            declaration intro_decl  = m_env.get(intro_name);
-            levels intro_lvls;
-            if (length(intro_decl.get_univ_params()) == elim_num_lvls) {
-                intro_lvls = elim_lvls;
-            } else {
-                lean_assert(length(intro_decl.get_univ_params()) == elim_num_lvls - 1);
-                intro_lvls = tail(elim_lvls);
-            }
-            expr intro_fn   = mk_constant(inductive::intro_rule_name(intro), intro_lvls);
-            expr hint       = intro_fn;
-            expr intro_type = m_tc.whnf(inductive::intro_rule_type(intro));
-            while (is_pi(intro_type)) {
-                hint = mk_app(hint, mk_app(mk_aux_metavar_for(mtype), margs));
-                intro_type = m_tc.whnf(binding_body(intro_type));
-            }
-            constraint c1 = mk_eq_cnstr(meta, hint, j);
-            args[num_args - 1] = hint;
-            expr reduce_elim   = m_tc.whnf(mk_app(elim, args));
-            constraint c2 = mk_eq_cnstr(reduce_elim, t, j);
-            alts.push_back(constraints({c1, c2}));
-        }
-        if (alts.empty()) {
-            set_conflict(j);
-            return false;
-        } else if (alts.size() == 1) {
-            return process_constraints(alts[0], justification());
-        } else {
-            justification a = mk_assumption_justification(m_next_assumption_idx);
-            add_case_split(std::unique_ptr<case_split>(new ho_case_split(*this, to_list(alts.begin() + 1, alts.end()))));
-            return process_constraints(alts[0], a);
-        }
-    }
-
-    bool process_elim_meta_core(expr const & lhs, expr const & rhs, justification const & j) {
-        lean_assert(is_elim_meta_app(lhs));
-        buffer<expr> args;
-        expr const & elim = get_app_args(lhs, args);
-        auto it_name = *inductive::is_elim_rule(m_env, const_name(elim));
-        auto decls = *inductive::is_inductive_decl(m_env, it_name);
-        for (auto const & d : std::get<2>(decls)) {
-            if (inductive::inductive_decl_name(d) == it_name)
-                return add_elim_meta_cnstrs(d, elim, args, rhs, j);
-        }
-        lean_unreachable(); // LCOV_EXCL_LINE
-    }
-
-    /**
-       \brief Try to solve constraint of the form (elim ... (?m ...)) =?= t, by assigning (?m ...) to the introduction rules
-       associated with the eliminator \c elim.
-    */
-    bool process_elim_meta_cnstr(constraint const & c) {
-        expr const & lhs        = cnstr_lhs_expr(c);
-        expr const & rhs        = cnstr_rhs_expr(c);
-        justification const & j = c.get_justification();
-        if (is_elim_meta_app(lhs))
-            return process_elim_meta_core(lhs, rhs, j);
-        else
-            return process_elim_meta_core(rhs, lhs, j);
-    }
-
     bool next_ho_case_split(ho_case_split & cs) {
         if (!is_nil(cs.m_tail)) {
             cs.restore_state(*this);
@@ -986,7 +864,7 @@ struct unifier_fn {
         get_app_args(rhs, rargs);
         buffer<expr> sargs;
         for (expr const & rarg : rargs) {
-            expr maux = mk_aux_metavar_for(mtype);
+            expr maux = mk_aux_metavar_for(m_ngen, mtype);
             cs.push_back(mk_eq_cnstr(mk_app(maux, margs), rarg, j));
             sargs.push_back(mk_app_vars(maux, margs.size()));
         }
@@ -1011,13 +889,13 @@ struct unifier_fn {
         lean_assert(is_metavar(m));
         lean_assert(is_binding(rhs));
         expr const & mtype = mlocal_type(m);
-        expr maux1  = mk_aux_metavar_for(mtype);
+        expr maux1  = mk_aux_metavar_for(m_ngen, mtype);
         buffer<constraint> cs;
         cs.push_back(mk_eq_cnstr(mk_app(maux1, margs), binding_domain(rhs), j));
         expr dontcare;
         expr tmp_pi = mk_pi(binding_name(rhs), mk_app_vars(maux1, margs.size()), dontcare); // trick for "extending" the context
         expr mtype2 = replace_range(mtype, tmp_pi); // trick for "extending" the context
-        expr maux2  = mk_aux_metavar_for(mtype2);
+        expr maux2  = mk_aux_metavar_for(m_ngen, mtype2);
         expr new_local = mk_local(m_ngen.next(), binding_name(rhs), binding_domain(rhs), binding_info(rhs));
         cs.push_back(mk_eq_cnstr(mk_app(mk_app(maux2, margs), new_local), instantiate(binding_body(rhs), new_local), j));
         expr v = update_binding(rhs, mk_app_vars(maux1, margs.size()), mk_app_vars(maux2, margs.size() + 1));
@@ -1060,7 +938,7 @@ struct unifier_fn {
         // create an auxiliary metavariable for each macro argument
         buffer<expr> sargs;
         for (unsigned i = 0; i < macro_num_args(rhs); i++) {
-            expr maux = mk_aux_metavar_for(mtype);
+            expr maux = mk_aux_metavar_for(m_ngen, mtype);
             cs.push_back(mk_eq_cnstr(mk_app(maux, margs), macro_arg(rhs, i), j));
             sargs.push_back(mk_app_vars(maux, margs.size()));
         }
@@ -1209,8 +1087,6 @@ struct unifier_fn {
             return process_flex_rigid(c);
         else if (is_flex_flex(c))
             return process_flex_flex(c);
-        else if (is_elim_meta_cnstr(c))
-            return process_elim_meta_cnstr(c);
         else
             return process_plugin_constraint(c);
     }

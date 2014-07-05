@@ -52,7 +52,8 @@ protected:
     // Remark: we use atomic_uchar because these flags are computed lazily (i.e., after the expression is created)
     atomic_uchar       m_flags;
     unsigned           m_kind:8;
-    unsigned           m_has_mv:1;         // term contains metavariables
+    unsigned           m_has_expr_mv:1;    // term contains expression metavariables
+    unsigned           m_has_univ_mv:1;    // term contains universe metavariables
     unsigned           m_has_local:1;      // term contains local constants
     unsigned           m_has_param_univ:1; // term constains parametric universe levels
     unsigned           m_hash;             // hash based on the structure of the expression (this is a good hash for structural equality)
@@ -67,11 +68,12 @@ protected:
 
      static void dec_ref(expr & c, buffer<expr_cell*> & todelete);
 public:
-    expr_cell(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ);
+    expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local, bool has_param_univ);
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
     unsigned  hash() const { return m_hash; }
     unsigned  hash_alloc() const { return m_hash_alloc; }
-    bool has_metavar() const { return m_has_mv; }
+    bool has_expr_metavar() const { return m_has_expr_mv; }
+    bool has_univ_metavar() const { return m_has_univ_mv; }
     bool has_local() const { return m_has_local; }
     bool has_param_univ() const { return m_has_param_univ; }
     void set_tag(tag t);
@@ -113,7 +115,9 @@ public:
     expr_kind kind() const { return m_ptr->kind(); }
     unsigned  hash() const { return m_ptr ? m_ptr->hash() : 23; }
     unsigned  hash_alloc() const { return m_ptr ? m_ptr->hash_alloc() : 23; }
-    bool has_metavar() const { return m_ptr->has_metavar(); }
+    bool has_expr_metavar() const { return m_ptr->has_expr_metavar(); }
+    bool has_univ_metavar() const { return m_ptr->has_univ_metavar(); }
+    bool has_metavar() const { return has_expr_metavar() || has_univ_metavar(); }
     bool has_local() const { return m_ptr->has_local(); }
     bool has_param_univ() const { return m_ptr->has_param_univ(); }
 
@@ -251,7 +255,8 @@ protected:
     friend unsigned get_depth(expr const & e);
     friend unsigned get_free_var_range(expr const & e);
 public:
-    expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ, unsigned d, unsigned fv_range);
+    expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local,
+                   bool has_param_univ, unsigned d, unsigned fv_range);
 };
 
 /** \brief Applications */
@@ -573,6 +578,8 @@ inline binder_info const & local_info(expr const & e)       { return to_local(e)
 
 inline bool is_constant(expr const & e, name const & n) { return is_constant(e) && const_name(e) == n; }
 inline bool has_metavar(expr const & e) { return e.has_metavar(); }
+inline bool has_expr_metavar(expr const & e) { return e.has_expr_metavar(); }
+inline bool has_univ_metavar(expr const & e) { return e.has_univ_metavar(); }
 inline bool has_local(expr const & e) { return e.has_local(); }
 inline bool has_param_univ(expr const & e) { return e.has_param_univ(); }
 unsigned get_depth(expr const & e);

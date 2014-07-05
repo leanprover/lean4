@@ -36,10 +36,11 @@ unsigned hash_levels(levels const & ls) {
 
 MK_THREAD_LOCAL_GET(unsigned, get_hash_alloc_counter, 0)
 
-expr_cell::expr_cell(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ):
+expr_cell::expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local, bool has_param_univ):
     m_flags(0),
     m_kind(static_cast<unsigned>(k)),
-    m_has_mv(has_mv),
+    m_has_expr_mv(has_expr_mv),
+    m_has_univ_mv(has_univ_mv),
     m_has_local(has_local),
     m_has_param_univ(has_param_univ),
     m_hash(h),
@@ -93,7 +94,7 @@ bool is_meta(expr const & e) {
 
 // Expr variables
 expr_var::expr_var(unsigned idx):
-    expr_cell(expr_kind::Var, idx, false, false, false),
+    expr_cell(expr_kind::Var, idx, false, false, false, false),
     m_vidx(idx) {
     if (idx == std::numeric_limits<unsigned>::max())
         throw exception("invalid free variable index, de Bruijn index is too big");
@@ -101,13 +102,14 @@ expr_var::expr_var(unsigned idx):
 
 // Expr constants
 expr_const::expr_const(name const & n, levels const & ls):
-    expr_cell(expr_kind::Constant, ::lean::hash(n.hash(), hash_levels(ls)), has_meta(ls), false, has_param(ls)),
+    expr_cell(expr_kind::Constant, ::lean::hash(n.hash(), hash_levels(ls)), false, has_meta(ls), false, has_param(ls)),
     m_name(n),
     m_levels(ls) {}
 
 // Expr metavariables and local variables
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, expr const & t):
-    expr_cell(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_metavar(), !is_meta || t.has_local(), t.has_param_univ()),
+    expr_cell(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
+              !is_meta || t.has_local(), t.has_param_univ()),
     m_name(n),
     m_type(t) {}
 void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
@@ -125,17 +127,19 @@ void expr_local::dealloc(buffer<expr_cell*> & todelete) {
 }
 
 // Composite expressions
-expr_composite::expr_composite(expr_kind k, unsigned h, bool has_mv, bool has_local, bool has_param_univ, unsigned d, unsigned fv_range):
-    expr_cell(k, h, has_mv, has_local, has_param_univ),
+expr_composite::expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv,
+                               bool has_local, bool has_param_univ, unsigned d, unsigned fv_range):
+    expr_cell(k, h, has_expr_mv, has_univ_mv, has_local, has_param_univ),
     m_depth(d),
     m_free_var_range(fv_range) {}
 
 // Expr applications
 expr_app::expr_app(expr const & fn, expr const & arg):
     expr_composite(expr_kind::App, ::lean::hash(fn.hash(), arg.hash()),
-                   fn.has_metavar()    || arg.has_metavar(),
-                   fn.has_local()      || arg.has_local(),
-                   fn.has_param_univ() || arg.has_param_univ(),
+                   fn.has_expr_metavar() || arg.has_expr_metavar(),
+                   fn.has_univ_metavar() || arg.has_univ_metavar(),
+                   fn.has_local()        || arg.has_local(),
+                   fn.has_param_univ()   || arg.has_param_univ(),
                    std::max(get_depth(fn), get_depth(arg)) + 1,
                    std::max(get_free_var_range(fn), get_free_var_range(arg))),
     m_fn(fn), m_arg(arg) {
@@ -160,9 +164,10 @@ bool operator==(binder_info const & i1, binder_info const & i2) {
 // Expr binders (Lambda, Pi)
 expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr const & b, binder_info const & i):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
-                   t.has_metavar()    || b.has_metavar(),
-                   t.has_local()      || b.has_local(),
-                   t.has_param_univ() || b.has_param_univ(),
+                   t.has_expr_metavar()   || b.has_expr_metavar(),
+                   t.has_univ_metavar()   || b.has_univ_metavar(),
+                   t.has_local()          || b.has_local(),
+                   t.has_param_univ()     || b.has_param_univ(),
                    std::max(get_depth(t), get_depth(b)) + 1,
                    std::max(get_free_var_range(t), dec(get_free_var_range(b)))),
     m_binder(n, t, i),
@@ -178,7 +183,7 @@ void expr_binding::dealloc(buffer<expr_cell*> & todelete) {
 
 // Expr Sort
 expr_sort::expr_sort(level const & l):
-    expr_cell(expr_kind::Sort, ::lean::hash(l), has_meta(l), false, has_param(l)),
+    expr_cell(expr_kind::Sort, ::lean::hash(l), false, has_meta(l), false, has_param(l)),
     m_level(l) {
 }
 expr_sort::~expr_sort() {}
@@ -229,7 +234,8 @@ static unsigned get_free_var_range(unsigned num, expr const * args) {
 expr_macro::expr_macro(macro_definition const & m, unsigned num, expr const * args):
     expr_composite(expr_kind::Macro,
                    lean::hash(num, [&](unsigned i) { return args[i].hash(); }, m.hash()),
-                   std::any_of(args, args+num, [](expr const & e) { return e.has_metavar(); }),
+                   std::any_of(args, args+num, [](expr const & e) { return e.has_expr_metavar(); }),
+                   std::any_of(args, args+num, [](expr const & e) { return e.has_univ_metavar(); }),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_local(); }),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_param_univ(); }),
                    max_depth(num, args) + 1,

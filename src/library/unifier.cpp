@@ -254,9 +254,9 @@ static constraint g_dont_care_cnstr = mk_eq_cnstr(expr(), expr(), justification(
 
     3) FlexRigid constraints (?M t_1 ... t_n) =?= t, where t_n is not an introduction application
 
-    4) Reduction: contraints such (elim ... (?m ...)) and (?m ... (intro ...)), where elim is an eliminator/recursor and
-       intro is an introduction/constructor. This constraints are delayed because after ?m is assigned we may be able
-       to reduce them.
+    4) PluginDelayed: contraints delayed by the unifier_plugin. Examples: (elim ... (?m ...)) and (?m ... (intro ...)),
+       where elim is an eliminator/recursor and intro is an introduction/constructor.
+       This constraints are delayed because after ?m is assigned we may be able to reduce them.
 
     5) FlexFlex:  (?m1 ...) =?= (?m2 ...) we don't try to solve this constraint, we delay them and hope the other
        ones instantiate ?m1 or ?m2. If this kind of constraint is the next to be processed in the queue, then
@@ -266,7 +266,7 @@ static constraint g_dont_care_cnstr = mk_eq_cnstr(expr(), expr(), justification(
        They are really term synthesizers. We use the unifier just to exploit the non-chronological backtracking
        infrastructure
 */
-enum class cnstr_group { Basic = 0, FlexRigid, Reduction, FlexFlex, DelayedChoice };
+enum class cnstr_group { Basic = 0, FlexRigid, PluginDelayed, FlexFlex, DelayedChoice };
 static unsigned g_group_size = 1u << 28;
 static unsigned g_cnstr_group_first_index[5] = { 0, g_group_size, 2*g_group_size, 3*g_group_size, 4*g_group_size};
 static unsigned get_group_first_index(cnstr_group g) {
@@ -591,9 +591,8 @@ struct unifier_fn {
             return is_def_eq(lhs, rhs, new_jst);
         }
 
-        // We delay constraints where lhs or rhs are of the form (elim ... (?m ...))
         if (m_plugin->delay_constraint(m_tc, c)) {
-            add_cnstr(c, &unassigned_lvls, &unassigned_exprs, cnstr_group::Reduction);
+            add_cnstr(c, &unassigned_lvls, &unassigned_exprs, cnstr_group::PluginDelayed);
         } else if (is_meta(lhs) && is_meta(rhs)) {
             // flex-flex constraints are delayed the most.
             add_cnstr(c, &unassigned_lvls, &unassigned_exprs, cnstr_group::FlexFlex);

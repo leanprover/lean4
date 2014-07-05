@@ -28,7 +28,20 @@ Author: Leonardo de Moura
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/class.h"
 
+#ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
+#define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
+#endif
+
 namespace lean {
+// ==========================================
+// elaborator configuration options
+static name g_elaborator_local_instances{"lean", "elaborator", "local_instances"};
+RegisterBoolOption(g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES, "(lean elaborator) use local declarates as class instances");
+bool get_elaborator_local_instances(options const & opts) {
+    return opts.get_bool(g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES);
+}
+// ==========================================
+
 class elaborator {
     typedef list<expr> context;
     typedef std::vector<constraint> constraint_vect;
@@ -49,6 +62,7 @@ class elaborator {
     mvar2meta           m_mvar2meta;
     name_set            m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
     bool                m_check_unassigned;
+    bool                m_use_local_instances;
 
     /**
         \brief Auxiliary object for creating backtracking points.
@@ -120,6 +134,7 @@ class elaborator {
         elaborator &  m_elab;
         expr          m_mvar;
         expr          m_mvar_type;
+        list<expr>    m_local_instances;
         list<name>    m_instances;
         context       m_ctx;
         substitution  m_subst;
@@ -127,9 +142,23 @@ class elaborator {
 
         class_elaborator(elaborator & elab, expr const & mvar, expr const & mvar_type, list<name> const & instances,
                          context const & ctx, substitution const & s, justification const & j):
-            m_elab(elab), m_mvar(mvar), m_mvar_type(mvar_type), m_instances(instances), m_ctx(ctx), m_subst(s), m_jst(j) {}
+            m_elab(elab), m_mvar(mvar), m_mvar_type(mvar_type), m_instances(instances), m_ctx(ctx), m_subst(s), m_jst(j) {
+            if (elab.m_use_local_instances)
+                m_local_instances = ctx;
+        }
 
         virtual optional<constraints> next() {
+            while (!empty(m_local_instances)) {
+                expr inst         = head(m_local_instances);
+                m_local_instances = tail(m_local_instances);
+                if (!is_local(inst))
+                    continue;
+                expr inst_type    = mlocal_type(inst);
+                if (!is_constant(get_app_fn(inst_type)) || const_name(get_app_fn(inst_type)) != const_name(get_app_fn(m_mvar_type)))
+                    continue;
+                constraints cs(mk_eq_cnstr(m_mvar, inst, m_jst));
+                return optional<constraints>(cs);
+            }
             while (!empty(m_instances)) {
                 name inst   = head(m_instances);
                 m_instances = tail(m_instances);
@@ -175,6 +204,7 @@ public:
         m_ngen(ngen), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, optional<module_idx>(0))),
         m_pos_provider(pp) {
         m_check_unassigned = check_unassigned;
+        m_use_local_instances = get_elaborator_local_instances(ios.get_options());
     }
 
     expr mk_local(name const & n, expr const & t, binder_info const & bi) {

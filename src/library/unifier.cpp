@@ -1055,8 +1055,7 @@ struct unifier_fn {
        Given,
                m      := a metavariable ?m
                margs  := [a_1 ... a_k]
-       We say a unification problem (?m a_1 ... a_k) =?= rhs uses "simple projections" IF
-       rhs is NOT an application.
+       We say a unification problem (?m a_1 ... a_k) =?= rhs uses "simple projections" when
 
        If (rhs and a_i are *not* local constants) OR (rhs is a local constant and a_i is a metavariable application),
        then we add the constraints
@@ -1073,7 +1072,6 @@ struct unifier_fn {
                                 buffer<constraints> & alts) {
         lean_assert(is_metavar(m));
         lean_assert(!is_meta(rhs));
-        lean_assert(!is_app(rhs));
         expr const & mtype = mlocal_type(m);
         unsigned i = margs.size();
         while (i > 0) {
@@ -1133,6 +1131,7 @@ struct unifier_fn {
                         alts.push_back(mk_flex_rigid_app_cnstrs(m, margs, mk_var(vidx), rhs, j));
                 }
             } else if (is_constant(f)) {
+                add_simple_projections(m, margs, rhs, j, alts);
                 alts.push_back(mk_flex_rigid_app_cnstrs(m, margs, f, rhs, j));
             } else {
                 lean_unreachable(); // LCOV_EXCL_LINE

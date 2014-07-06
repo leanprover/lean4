@@ -203,27 +203,31 @@ levels collect_section_levels(level_param_names const & ls, parser & p) {
 environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     name n = p.check_id_next("invalid declaration, identifier expected");
     check_atomic(n);
-    decl_modifiers modifiers;
-    modifiers.m_is_opaque = _is_opaque;
-    modifiers.parse(p);
-    if (is_theorem && !modifiers.m_is_opaque)
-        throw exception("invalid theorem declaration, theorems cannot be transparent");
     environment env = p.env();
+    decl_modifiers modifiers;
     name real_n; // real name for this declaration
-    if (modifiers.m_is_private) {
-        auto env_n = add_private_name(env, n, optional<unsigned>(hash(p.pos().first, p.pos().second)));
-        env    = env_n.first;
-        real_n = env_n.second;
-    } else {
-        name const & ns = get_namespace(env);
-        real_n     = ns + n;
-    }
+    modifiers.m_is_opaque = _is_opaque;
     buffer<name> ls_buffer;
     expr type, value;
     level_param_names ls;
     {
+        // Parse universe parameters
         parser::local_scope scope1(p);
         parse_univ_params(p, ls_buffer);
+
+        // Parse modifiers
+        modifiers.parse(p);
+        if (is_theorem && !modifiers.m_is_opaque)
+            throw exception("invalid theorem declaration, theorems cannot be transparent");
+        if (modifiers.m_is_private) {
+            auto env_n = add_private_name(env, n, optional<unsigned>(hash(p.pos().first, p.pos().second)));
+            env    = env_n.first;
+            real_n = env_n.second;
+        } else {
+            name const & ns = get_namespace(env);
+            real_n     = ns + n;
+        }
+
         if (p.curr_is_token(g_assign)) {
             auto pos = p.pos();
             p.next();

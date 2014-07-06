@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <algorithm>
 #include <string>
+#include <limits>
 #include "util/rc.h"
 #include "kernel/expr.h"
 
@@ -23,7 +24,8 @@ namespace lean {
 */
 typedef unsigned module_idx;
 /** \brief The main module is the module being currently compiled. We always assigned it the index 0. */
-constexpr unsigned g_main_module_idx = 0;
+constexpr module_idx g_main_module_idx = 0;
+constexpr module_idx g_null_module_idx = std::numeric_limits<unsigned>::max();
 
 /** \brief Environment definitions, theorems, axioms and variable declarations. */
 class declaration {

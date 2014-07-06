@@ -166,6 +166,7 @@ struct import_modules_fn {
     std::vector<asynch_update_fn>  m_asynch_tasks;
     mutex                          m_delayed_mutex;
     std::vector<delayed_update>    m_delayed_tasks;
+    atomic<unsigned>               m_next_module_idx;
     atomic<unsigned>               m_import_counter; // number of modules to be processed
     atomic<bool>                   m_all_modules_imported;
 
@@ -183,7 +184,7 @@ struct import_modules_fn {
 
     import_modules_fn(environment const & env, unsigned num_threads, bool keep_proofs, io_state const & ios):
         m_senv(env), m_num_threads(num_threads), m_keep_proofs(keep_proofs), m_ios(ios),
-        m_import_counter(0), m_all_modules_imported(false) {
+        m_next_module_idx(1), m_import_counter(0), m_all_modules_imported(false) {
         if (m_num_threads == 0)
             m_num_threads = 1;
 #if !defined(LEAN_MULTI_THREAD)
@@ -231,8 +232,7 @@ struct import_modules_fn {
         r->m_name         = mname;
         r->m_fname        = fname;
         r->m_counter      = imports.size();
-        r->m_module_idx   = m_import_counter+1; // importate modules have idx > 0, we reserve idx 0 for new module
-        lean_assert(r->m_module_idx != g_main_module_idx);
+        r->m_module_idx   = g_null_module_idx;
         m_import_counter++;
         std::swap(r->m_obj_code, code);
         m_module_info.insert(mname, r);
@@ -302,6 +302,7 @@ struct import_modules_fn {
     }
 
     void import_module(module_info_ptr const & r) {
+        r->m_module_idx = m_next_module_idx++;
         std::string s(r->m_obj_code.data(), r->m_obj_code.size());
         std::istringstream in(s, std::ios_base::binary);
         deserializer d(in);

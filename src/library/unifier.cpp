@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/occurs.h"
 #include "library/unifier.h"
+#include "library/opaque_hints.h"
 #include "library/unifier_plugin.h"
 #include "library/kernel_bindings.h"
 
@@ -279,12 +280,12 @@ struct unifier_fn {
     typedef rb_tree<cnstr, cnstr_cmp> cnstr_set;
     typedef rb_tree<unsigned, unsigned_cmp> cnstr_idx_set;
     typedef rb_map<name, cnstr_idx_set, name_quick_cmp> name_to_cnstrs;
-
+    typedef std::unique_ptr<type_checker> type_checker_ptr;
     environment      m_env;
     name_generator   m_ngen;
     substitution     m_subst;
     unifier_plugin   m_plugin;
-    type_checker     m_tc;
+    type_checker_ptr m_tc;
     bool             m_use_exception; //!< True if we should throw an exception when there are no more solutions.
     unsigned         m_max_steps;
     unsigned         m_num_steps;
@@ -335,14 +336,14 @@ struct unifier_fn {
             m_assumption_idx(u.m_next_assumption_idx), m_subst(u.m_subst), m_cnstrs(u.m_cnstrs),
             m_mvar_occs(u.m_mvar_occs), m_mlvl_occs(u.m_mlvl_occs) {
             u.m_next_assumption_idx++;
-            u.m_tc.push();
+            u.m_tc->push();
         }
 
         /** \brief Restore unifier's state with saved values, and update m_assumption_idx and m_failed_justifications. */
         void restore_state(unifier_fn & u) {
             lean_assert(u.in_conflict());
-            u.m_tc.pop();   // restore type checker state
-            u.m_tc.push();
+            u.m_tc->pop();   // restore type checker state
+            u.m_tc->push();
             u.m_subst     = m_subst;
             u.m_cnstrs    = m_cnstrs;
             u.m_mvar_occs = m_mvar_occs;
@@ -377,7 +378,7 @@ struct unifier_fn {
                name_generator const & ngen, substitution const & s,
                bool use_exception, unsigned max_steps):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(get_unifier_plugin(env)),
-        m_tc(env, m_ngen.mk_child(), mk_default_converter(env, true)),
+        m_tc(mk_type_checker_with_hints(env, m_ngen.mk_child())),
         m_use_exception(use_exception), m_max_steps(max_steps), m_num_steps(0) {
         m_next_assumption_idx = 0;
         m_next_cidx = 0;
@@ -467,7 +468,7 @@ struct unifier_fn {
     }
 
     bool is_def_eq(expr const & t1, expr const & t2, justification const & j) {
-        if (m_tc.is_def_eq(t1, t2, j)) {
+        if (m_tc->is_def_eq(t1, t2, j)) {
             return true;
         } else {
             set_conflict(j);
@@ -484,7 +485,7 @@ struct unifier_fn {
         lean_assert(is_metavar(m));
         m_subst.d_assign(m, v, j);
         expr m_type = mlocal_type(m);
-        expr v_type = m_tc.infer(v);
+        expr v_type = m_tc->infer(v);
         if (in_conflict())
             return false;
         if (!is_def_eq(m_type, v_type, j))
@@ -601,7 +602,7 @@ struct unifier_fn {
         if (is_eq_deltas(lhs, rhs)) {
             // we need to create a backtracking point for this one
             add_cnstr(c, &unassigned_lvls, &unassigned_exprs, cnstr_group::Basic);
-        } else if (m_plugin->delay_constraint(m_tc, c)) {
+        } else if (m_plugin->delay_constraint(*m_tc, c)) {
             add_cnstr(c, &unassigned_lvls, &unassigned_exprs, cnstr_group::PluginDelayed);
         } else if (is_meta(lhs) && is_meta(rhs)) {
             // flex-flex constraints are delayed the most.
@@ -752,7 +753,7 @@ struct unifier_fn {
                     return true;
                 }
             }
-            m_tc.pop();
+            m_tc->pop();
             m_case_splits.pop_back();
         }
         return false;
@@ -806,7 +807,7 @@ struct unifier_fn {
 
     bool process_plugin_constraint(constraint const & c) {
         lean_assert(!is_choice_cnstr(c));
-        lazy_list<constraints> alts = m_plugin->solve(m_tc, c, m_ngen.mk_child());
+        lazy_list<constraints> alts = m_plugin->solve(*m_tc, c, m_ngen.mk_child());
         return process_lazy_constraints(alts, c.get_justification());
     }
 
@@ -814,7 +815,7 @@ struct unifier_fn {
         lean_assert(is_choice_cnstr(c));
         expr const &   m            = cnstr_expr(c);
         choice_fn const & fn        = cnstr_choice_fn(c);
-        auto m_type_jst             = m_subst.instantiate_metavars(m_tc.infer(m), nullptr, nullptr);
+        auto m_type_jst             = m_subst.instantiate_metavars(m_tc->infer(m), nullptr, nullptr);
         lazy_list<constraints> alts = fn(m, m_type_jst.first, m_subst, m_ngen.mk_child());
         return process_lazy_constraints(alts, mk_composite1(c.get_justification(), m_type_jst.second));
     }
@@ -1051,7 +1052,7 @@ struct unifier_fn {
         buffer<expr> margs;
         expr m     = get_app_args(lhs, margs);
         for (expr & marg : margs)
-            marg = m_tc.whnf(marg);
+            marg = m_tc->whnf(marg);
         buffer<constraints> alts;
         switch (rhs.kind()) {
         case expr_kind::Var: case expr_kind::Meta:
@@ -1124,7 +1125,7 @@ struct unifier_fn {
         while (true) {
             if (in_conflict())
                 return;
-            if (auto c = m_tc.next_cnstr()) {
+            if (auto c = m_tc->next_cnstr()) {
                 process_constraint(*c);
             } else {
                 break;
@@ -1218,7 +1219,7 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
     auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, s, false, max_steps);
     expr _lhs = s.instantiate(lhs);
     expr _rhs = s.instantiate(rhs);
-    if (!u->m_tc.is_def_eq(_lhs, _rhs))
+    if (!u->m_tc->is_def_eq(_lhs, _rhs))
         return lazy_list<substitution>();
     else
         return unify(u);

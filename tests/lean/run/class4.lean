@@ -71,25 +71,18 @@ variable div : Π (x y : nat) {H : not_zero y}, nat
 
 variables a b : nat
 
+opaque_hint (hiding [module])
 check div a (succ b)
 check (λ H : not_zero b, div a b)
 check (succ zero)
 check a + (succ zero)
 check div a (a + (succ b))
 
-exit
+opaque_hint (exposing [module])
+check div a (a + (succ b))
 
-inductive not_zero : nat → Bool :=
-| not_zero_intro : Π (x : nat), not_zero (succ x)
+opaque_hint (hiding add)
+check div a (a + (succ b))
 
-class not_zero
-instance not_zero_intro
-
-
-theorem not_zero (x : nat) (H : not_zero x) :  →
-
-exit
-
-
-axiom add_not_zero : ∀ {x y : nat}, not_zero x → not_zero y → not_zero (x + y)
-
+opaque_hint (exposing add)
+check div a (a + (succ b))

@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/explicit.h"
 #include "library/unifier.h"
+#include "library/opaque_hints.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/error_handling/error_handling.h"
@@ -47,11 +48,12 @@ class elaborator {
     typedef std::vector<constraint> constraint_vect;
     typedef name_map<expr> tactic_hints;
     typedef name_map<expr> mvar2meta;
+    typedef std::unique_ptr<type_checker> type_checker_ptr;
 
     environment         m_env;
     io_state            m_ios;
     name_generator      m_ngen;
-    type_checker        m_tc;
+    type_checker_ptr    m_tc;
     substitution        m_subst;
     context             m_ctx;
     pos_info_provider * m_pos_provider;
@@ -77,12 +79,12 @@ class elaborator {
             lean_assert(m_main.m_accumulated.is_none());
             m_old_ctx    = m_main.m_ctx;
             m_main.m_ctx = ctx;
-            m_main.m_tc.push();
+            m_main.m_tc->push();
             m_main.m_subst = s;
         }
         ~scope() {
             m_main.m_ctx = m_old_ctx;
-            m_main.m_tc.pop();
+            m_main.m_tc->pop();
             m_main.m_constraints.clear();
             m_main.m_accumulated = justification();
             m_main.m_subst = substitution();
@@ -92,7 +94,7 @@ class elaborator {
     };
 
     void consume_tc_cnstrs() {
-        while (auto c = m_tc.next_cnstr())
+        while (auto c = m_tc->next_cnstr())
             m_constraints.push_back(*c);
     }
 
@@ -194,7 +196,7 @@ public:
     elaborator(environment const & env, io_state const & ios, name_generator const & ngen, pos_info_provider * pp,
                bool check_unassigned):
         m_env(env), m_ios(ios),
-        m_ngen(ngen), m_tc(env, m_ngen.mk_child(), mk_default_converter(m_env, true /* unfold opaque from the main module */)),
+        m_ngen(ngen), m_tc(mk_type_checker_with_hints(env, m_ngen.mk_child())),
         m_pos_provider(pp) {
         m_check_unassigned = check_unassigned;
         m_use_local_instances = get_elaborator_local_instances(ios.get_options());
@@ -206,10 +208,10 @@ public:
 
     expr infer_type(expr const & e) {
         lean_assert(closed(e));
-        return m_tc.infer(e); }
+        return m_tc->infer(e); }
 
     expr whnf(expr const & e) {
-        return m_tc.whnf(e);
+        return m_tc->whnf(e);
     }
 
     /** \brief Clear constraint buffer \c m_constraints, and associated datastructures
@@ -484,7 +486,7 @@ public:
             f_type = whnf(instantiate_metavars(f_type));
             if (!is_pi(f_type) && is_meta(f_type)) {
                 // let type checker add constraint
-                f_type = m_tc.ensure_pi(f_type, f);
+                f_type = m_tc->ensure_pi(f_type, f);
             }
         }
         if (!is_pi(f_type)) {
@@ -568,12 +570,12 @@ public:
             return mk_delayed_coercion(r, d_type, a_type);
         } else {
             app_delayed_justification j(m_env, r, f_type, a_type);
-            if (!m_tc.is_def_eq(a_type, d_type, j)) {
+            if (!m_tc->is_def_eq(a_type, d_type, j)) {
                 expr new_a = apply_coercion(a, a_type, d_type);
                 bool coercion_worked = false;
                 if (!is_eqp(a, new_a)) {
                     expr new_a_type = instantiate_metavars(infer_type(new_a));
-                    coercion_worked = m_tc.is_def_eq(new_a_type, d_type, j);
+                    coercion_worked = m_tc->is_def_eq(new_a_type, d_type, j);
                 }
                 if (coercion_worked) {
                     r = update_app(r, f, new_a);
@@ -650,7 +652,7 @@ public:
                 return e;
             if (is_meta(t)) {
                 // let type checker add constraint
-                m_tc.ensure_sort(t, e);
+                m_tc->ensure_sort(t, e);
                 return e;
             }
         }
@@ -818,7 +820,7 @@ public:
             l = subst.instantiate(l);
         mvar = update_mlocal(mvar, subst.instantiate(mlocal_type(mvar)));
         meta = ::lean::mk_app(mvar, locals);
-        expr type = m_tc.infer(*meta);
+        expr type = m_tc->infer(*meta);
         // first solve unassigned metavariables in type
         type = solve_unassigned_mvars(subst, type, visited);
         proof_state ps(goals(goal(*meta, type)), subst, m_ngen.mk_child());
@@ -913,7 +915,7 @@ public:
         justification j = mk_justification(e, [=](formatter const & fmt, options const & opts, substitution const & subst) {
                 return pp_type_mismatch(fmt, env, opts, subst.instantiate(expected_type), subst.instantiate(r_type));
             });
-        if (!m_tc.is_def_eq(r_type, expected_type, j)) {
+        if (!m_tc->is_def_eq(r_type, expected_type, j)) {
             throw_kernel_exception(env, e,
                                    [=](formatter const & fmt, options const & o) {
                                        return pp_type_mismatch(fmt, env, o, expected_type, r_type);
@@ -933,7 +935,7 @@ public:
         justification j = mk_justification(v, [=](formatter const & fmt, options const & o, substitution const & subst) {
                 return pp_def_type_mismatch(fmt, env, o, n, subst.instantiate(r_t), subst.instantiate(r_v_type));
             });
-        if (!m_tc.is_def_eq(r_v_type, r_t, j)) {
+        if (!m_tc->is_def_eq(r_v_type, r_t, j)) {
             throw_kernel_exception(env, v,
                                    [=](formatter const & fmt, options const & o) {
                                        return pp_def_type_mismatch(fmt, env, o, n, r_t, r_v_type);

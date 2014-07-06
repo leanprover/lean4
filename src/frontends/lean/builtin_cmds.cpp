@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/locals.h"
 #include "library/coercion.h"
+#include "library/opaque_hints.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -36,7 +37,9 @@ static name g_rbracket("]");
 static name g_declarations("declarations");
 static name g_decls("decls");
 static name g_hiding("hiding");
+static name g_exposing("exposing");
 static name g_renaming("renaming");
+static name g_module("[module]");
 static name g_colon(":");
 
 environment print_cmd(parser & p) {
@@ -233,6 +236,45 @@ environment coercion_cmd(parser & p) {
     }
 }
 
+environment opaque_hint_cmd(parser & p) {
+    environment env = p.env();
+    bool found = false;
+    while (p.curr_is_token(g_lparen)) {
+        p.next();
+        bool hiding;
+        auto pos = p.pos();
+        if (p.curr_is_token_or_id(g_hiding))
+            hiding = true;
+        else if (p.curr_is_token_or_id(g_exposing))
+            hiding = false;
+        else
+            throw parser_error("invalid 'opaque_hint', 'hiding' or 'exposing' expected", pos);
+        p.next();
+        while (!p.curr_is_token(g_rparen)) {
+            if (p.curr_is_token(g_module)) {
+                found = true;
+                p.next();
+                env = set_main_module_opaque_defs(env, hiding);
+            } else {
+                auto pos = p.pos();
+                name id  = p.check_id_next("invalid 'opaque_hint', identifier expected");
+                found    = true;
+                expr e   = p.id_to_expr(id, pos);
+                if (!is_constant(e))
+                    throw parser_error(sstream() << "'" << id << "' is not a constant", pos);
+                if (hiding)
+                    env = hide_definition(env, const_name(e));
+                else
+                    env = expose_definition(env, const_name(e));
+            }
+        }
+        p.next();
+    }
+    if (!found)
+        throw exception("invalid empty 'opaque_hint' command");
+    return env;
+}
+
 cmd_table init_cmd_table() {
     cmd_table r;
     add_cmd(r, cmd_info("using",        "create aliases for declarations, and use objects defined in other namespaces", using_cmd));
@@ -244,6 +286,7 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("end",          "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
     add_cmd(r, cmd_info("coercion",     "add a new coercion", coercion_cmd));
+    add_cmd(r, cmd_info("opaque_hint",  "add hints for the elaborator/unifier", opaque_hint_cmd));
     add_cmd(r, cmd_info("#setline",     "modify the current line number, it only affects error/report messages", set_line_cmd));
     register_decl_cmds(r);
     register_inductive_cmd(r);

@@ -90,6 +90,14 @@ static environment declare_var(parser & p, environment env,
     }
 }
 
+/** \brief If we are in a section, then add the new local levels to it. */
+static void update_section_local_levels(parser & p, level_param_names const & new_ls) {
+    if (in_section(p.env())) {
+        for (auto const & l : new_ls)
+            p.add_local_level(l, mk_param_univ(l));
+    }
+}
+
 optional<binder_info> parse_binder_info(parser & p) {
     optional<binder_info> bi = p.parse_optional_binder_info();
     if (bi)
@@ -109,7 +117,6 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
     if (!in_section(p.env()))
         scope1.emplace(p);
     parse_univ_params(p, ls_buffer);
-    parser::param_universe_scope scope2(p);
     expr type;
     if (!p.curr_is_token(g_colon)) {
         buffer<expr> ps;
@@ -129,8 +136,10 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
         update_univ_parameters(ls_buffer, collect_univ_params(type), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
-    type = p.elaborate(type);
-    return declare_var(p, p.env(), n, ls, type, is_axiom, bi, pos);
+    level_param_names new_ls;
+    std::tie(type, new_ls) = p.elaborate(type);
+    update_section_local_levels(p, new_ls);
+    return declare_var(p, p.env(), n, append(ls, new_ls), type, is_axiom, bi, pos);
 }
 environment variable_cmd(parser & p) {
     return variable_cmd_core(p, false);
@@ -235,24 +244,18 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
             value = p.parse_expr();
         } else if (p.curr_is_token(g_colon)) {
             p.next();
-            {
-                parser::param_universe_scope scope2(p);
-                type = p.parse_expr();
-            }
+            type = p.parse_expr();
             p.check_token_next(g_assign, "invalid declaration, ':=' expected");
             value = p.parse_expr();
         } else {
             buffer<expr> ps;
             optional<local_environment> lenv;
-            {
-                parser::param_universe_scope scope2(p);
-                lenv = p.parse_binders(ps);
-                if (p.curr_is_token(g_colon)) {
-                    p.next();
-                    type = p.parse_scoped_expr(ps, *lenv);
-                } else {
-                    type = p.save_pos(mk_expr_placeholder(), p.pos());
-                }
+            lenv = p.parse_binders(ps);
+            if (p.curr_is_token(g_colon)) {
+                p.next();
+                type = p.parse_scoped_expr(ps, *lenv);
+            } else {
+                type = p.save_pos(mk_expr_placeholder(), p.pos());
             }
             p.check_token_next(g_assign, "invalid declaration, ':=' expected");
             value = p.parse_scoped_expr(ps, *lenv);
@@ -274,17 +277,14 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         if (real_n != n)
             env = add_alias(env, n, mk_constant(real_n));
     }
+    level_param_names new_ls;
     if (is_theorem) {
         // TODO(Leo): delay theorems
-        auto type_value = p.elaborate(n, type, value);
-        type  = type_value.first;
-        value = type_value.second;
-        env = module::add(env, check(env, mk_theorem(real_n, ls, type, value)));
+        std::tie(type, value, new_ls) = p.elaborate(n, type, value);
+        env = module::add(env, check(env, mk_theorem(real_n, append(ls, new_ls), type, value)));
     } else {
-        auto type_value = p.elaborate(n, type, value);
-        type  = type_value.first;
-        value = type_value.second;
-        env = module::add(env, check(env, mk_definition(env, real_n, ls, type, value, modifiers.m_is_opaque)));
+        std::tie(type, value, new_ls) = p.elaborate(n, type, value);
+        env = module::add(env, check(env, mk_definition(env, real_n, append(ls, new_ls), type, value, modifiers.m_is_opaque)));
     }
     if (modifiers.m_is_class)
         env = add_class(env, real_n);
@@ -315,11 +315,13 @@ static environment variables_cmd(parser & p) {
     optional<parser::local_scope> scope1;
     if (!in_section(p.env()))
         scope1.emplace(p);
-    parser::param_universe_scope scope2(p);
     expr type = p.parse_expr();
     p.parse_close_binder_info(bi);
     level_param_names ls = to_level_param_names(collect_univ_params(type));
-    type = p.elaborate(type);
+    level_param_names new_ls;
+    std::tie(type, new_ls) = p.elaborate(type);
+    update_section_local_levels(p, new_ls);
+    ls = append(ls, new_ls);
     environment env = p.env();
     for (auto id : ids)
         env = declare_var(p, env, id, ls, type, true, bi, pos);

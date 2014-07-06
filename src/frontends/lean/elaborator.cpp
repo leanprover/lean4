@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/error_msgs.h"
 #include "kernel/expr_maps.h"
@@ -24,9 +25,11 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/unifier.h"
 #include "library/opaque_hints.h"
+#include "library/locals.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/error_handling/error_handling.h"
+#include "frontends/lean/local_decls.h"
 #include "frontends/lean/class.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
@@ -43,6 +46,79 @@ bool get_elaborator_local_instances(options const & opts) {
 }
 // ==========================================
 
+/** \brief Functional object for converting the universe metavariables in an expression in new universe parameters.
+    The substitution is updated with the mapping metavar -> new param.
+    The set of parameter names m_params and the buffer m_new_params are also updated.
+*/
+class univ_metavars_to_params_fn {
+    environment const &        m_env;
+    local_decls<level> const & m_lls;
+    substitution &             m_subst;
+    name_set &                 m_params;
+    buffer<name> &             m_new_params;
+    unsigned                   m_next_idx;
+
+    /** \brief Create a new universe parameter s.t. the new name does not occur in \c m_params, nor it is
+        a global universe in \e m_env or in the local_decls<level> m_lls.
+        The new name is added to \c m_params, and the new level parameter is returned.
+        The name is of the form "l_i" where \c i >= m_next_idx.
+    */
+    level mk_new_univ_param() {
+        name l("l");
+        name r = l.append_after(m_next_idx);
+        while (m_lls.contains(r) || m_params.contains(r) || m_env.is_universe(r)) {
+            m_next_idx++;
+            r = l.append_after(m_next_idx);
+        }
+        m_params.insert(r);
+        m_new_params.push_back(r);
+        return mk_param_univ(r);
+    }
+
+public:
+    univ_metavars_to_params_fn(environment const & env, local_decls<level> const & lls, substitution & s, name_set & ps, buffer<name> & new_ps):
+        m_env(env), m_lls(lls), m_subst(s), m_params(ps), m_new_params(new_ps), m_next_idx(1) {}
+
+    level apply(level const & l) {
+        return replace(l, [&](level const & l) {
+                if (!has_meta(l))
+                    return some_level(l);
+                if (is_meta(l)) {
+                    if (auto it = m_subst.get_level(meta_id(l))) {
+                        return some_level(*it);
+                    } else {
+                        level new_p = mk_new_univ_param();
+                        m_subst.d_assign(l, new_p);
+                        return some_level(new_p);
+                    }
+                }
+                return none_level();
+            });
+    }
+
+    expr apply(expr const & e) {
+        if (!has_univ_metavar(e)) {
+            return e;
+        } else {
+            return replace(e, [&](expr const & e, unsigned) {
+                    if (!has_univ_metavar(e)) {
+                        return some_expr(e);
+                    } else if (is_sort(e)) {
+                        return some_expr(update_sort(e, apply(sort_level(e))));
+                    } else if (is_constant(e)) {
+                        levels ls = map(const_levels(e), [&](level const & l) { return apply(l); });
+                        return some_expr(update_constant(e, ls));
+                    } else {
+                        return none_expr();
+                    }
+                });
+        }
+    }
+
+    expr operator()(expr const & e) { return apply(e); }
+};
+
+/** \brief Helper class for implementing the \c elaborate functions. */
 class elaborator {
     typedef list<expr> context;
     typedef std::vector<constraint> constraint_vect;
@@ -51,23 +127,24 @@ class elaborator {
     typedef std::unique_ptr<type_checker> type_checker_ptr;
 
     environment         m_env;
+    local_decls<level>  m_lls;
     io_state            m_ios;
     name_generator      m_ngen;
     type_checker_ptr    m_tc;
     substitution        m_subst;
-    context             m_ctx;
-    pos_info_provider * m_pos_provider;
+    context             m_ctx; // current local context: a list of local constants
+    pos_info_provider * m_pos_provider; // optional expression position information used when reporting errors.
     justification       m_accumulated; // accumulate justification of eagerly used substitutions
-    constraint_vect     m_constraints;
-    tactic_hints        m_tactic_hints;
-    mvar2meta           m_mvar2meta;
+    constraint_vect     m_constraints; // constraints that must be solved for the elaborated term to be type correct.
+    tactic_hints        m_tactic_hints; // mapping from metavariable name ?m to tactic expression that should be used to solve it.
+                                        // this mapping is populated by the 'by tactic-expr' expression.
+    mvar2meta           m_mvar2meta; // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
+                                     // representing the context where ?m was created.
     name_set            m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
-    bool                m_check_unassigned;
-    bool                m_use_local_instances;
+    bool                m_check_unassigned; // if true if display error messages if elaborated term still contains metavariables
+    bool                m_use_local_instances; // if true class-instance resolution will use the local context
 
-    /**
-        \brief Auxiliary object for creating backtracking points.
-
+    /** \brief Auxiliary object for creating backtracking points.
         \remark A scope can only be created when m_constraints and m_subst are empty,
         and m_accumulated is none.
     */
@@ -93,6 +170,7 @@ class elaborator {
         }
     };
 
+    /* \brief Move all constraints generated by the type checker to the buffer m_constraints. */
     void consume_tc_cnstrs() {
         while (auto c = m_tc->next_cnstr())
             m_constraints.push_back(*c);
@@ -102,6 +180,12 @@ class elaborator {
         virtual optional<constraints> next() = 0;
     };
 
+    /** \brief 'Choice' expressions <tt>(choice e_1 ... e_n)</tt> are mapped into a metavariable \c ?m
+        and a choice constraints <tt>(?m in fn)</tt> where \c fn is a choice function.
+        The choice function produces a stream of alternatives. In this case, it produces a stream of
+        size \c n, one alternative for each \c e_i.
+        This is a helper class for implementing this choice functions.
+    */
     struct choice_expr_elaborator : public choice_elaborator {
         elaborator & m_elab;
         expr         m_mvar;
@@ -131,13 +215,24 @@ class elaborator {
         }
     };
 
+    /** \brief Whenever the elaborator finds a placeholder '_' or introduces an implicit argument, it creates
+        a metavariable \c ?m. If the expected type of ?m is unknown (e.g., it is another metavariable),
+        or if it is a 'class', then we also create a delayed choice constraint (?m in fn).
+        The unifier only process delayed choice constraints when there are no other kind of constraint to be
+        processed. The function \c fn produces a stream of alternative solutions for ?m.
+        In this case, \c fn will do the following:
+          1) if the elaborated type of ?m is a 'class' C, then the stream will contain all 'instances' of class C.
+          2) if the elaborated type of ?m is not a 'class', then fn produces a single empty solution.
+
+        This is a helper class for implementing this choice function.
+    */
     struct class_elaborator : public choice_elaborator {
         elaborator &  m_elab;
         expr          m_mvar;
-        expr          m_mvar_type;
-        list<expr>    m_local_instances;
-        list<name>    m_instances;
-        context       m_ctx;
+        expr          m_mvar_type; // elaborated type of the metavariable
+        list<expr>    m_local_instances; // local instances that should also be included in the class-instance resolution.
+        list<name>    m_instances; // global declaration names that are class instances. This information is retrieved using #get_class_instances.
+        context       m_ctx; // local context for m_mvar
         substitution  m_subst;
         justification m_jst;
 
@@ -193,9 +288,9 @@ class elaborator {
     }
 
 public:
-    elaborator(environment const & env, io_state const & ios, name_generator const & ngen, pos_info_provider * pp,
-               bool check_unassigned):
-        m_env(env), m_ios(ios),
+    elaborator(environment const & env, local_decls<level> const & lls, io_state const & ios, name_generator const & ngen,
+               pos_info_provider * pp, bool check_unassigned):
+        m_env(env), m_lls(lls), m_ios(ios),
         m_ngen(ngen), m_tc(mk_type_checker_with_hints(env, m_ngen.mk_child())),
         m_pos_provider(pp) {
         m_check_unassigned = check_unassigned;
@@ -231,8 +326,7 @@ public:
         m_constraints.push_back(c);
     }
 
-    /**
-        \brief Add \c c to \c m_constraints, but also tries to update \c m_subst using \c c.
+    /** \brief Add \c c to \c m_constraints, but also tries to update \c m_subst using \c c.
         The idea is to "populate" \c m_subst using easy/simple constraints.
         This trick improves the number of places where coercions can be applied.
         In the future, we may also use this information to implement eager pruning of choice
@@ -254,9 +348,7 @@ public:
             throw unifier_exception(c.get_justification(), m_subst);
     }
 
-    /**
-        \brief Eagerly instantiate metavars using \c m_subst.
-
+    /** \brief Eagerly instantiate metavars using \c m_subst.
         \remark We update \c m_accumulated with any justifications used.
     */
     expr instantiate_metavars(expr const & e) {
@@ -270,11 +362,10 @@ public:
         return e;
     }
 
-    /**
-       \brief Given <tt>e[l_1, ..., l_n]</tt> and assuming \c m_ctx is
-            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-       then the result is
-            <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), e[x_1, ... x_n])</tt>.
+    /** \brief Given <tt>e[l_1, ..., l_n]</tt> and assuming \c m_ctx is
+               <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
+         then the result is
+               <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), e[x_1, ... x_n])</tt>.
     */
     expr pi_abstract_context(expr e, tag g) {
         for (auto const & p : m_ctx)
@@ -286,8 +377,7 @@ public:
         return save_tag(::lean::mk_app(f, a), g);
     }
 
-    /**
-       \brief Assuming \c m_ctx is
+    /** \brief Assuming \c m_ctx is
            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
         return <tt>(f l_1 ... l_n)</tt>.
     */
@@ -304,12 +394,11 @@ public:
         return r;
     }
 
-    /**
-       \brief Assuming \c m_ctx is
+    /** \brief Assuming \c m_ctx is
            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-       return a fresh metavariable \c ?m with type
+        return a fresh metavariable \c ?m with type
            <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
-       where \c ?u is a fresh universe metavariable.
+        where \c ?u is a fresh universe metavariable.
     */
     expr mk_type_metavar(tag g) {
         name n = m_ngen.next();
@@ -318,12 +407,11 @@ public:
         return save_tag(::lean::mk_metavar(n, t), g);
     }
 
-    /**
-       \brief Assuming \c m_ctx is
+    /** \brief Assuming \c m_ctx is
             <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-       return <tt>(?m l_1 ... l_n)</tt> where \c ?m is a fresh metavariable with type
+        return <tt>(?m l_1 ... l_n)</tt> where \c ?m is a fresh metavariable with type
             <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
-       and \c ?u is a fresh universe metavariable.
+        and \c ?u is a fresh universe metavariable.
 
        \remark The type of the resulting expression is <tt>Type.{?u}</tt>
     */
@@ -331,16 +419,15 @@ public:
         return apply_context(mk_type_metavar(g), g);
     }
 
-    /**
-       \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
+    /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
             <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-       then the result is a fresh metavariable \c ?m with type
+        then the result is a fresh metavariable \c ?m with type
             <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), type[x_1, ... x_n])</tt>.
-       If <tt>type</tt> is none, then the result is a fresh metavariable \c ?m1 with type
+        If <tt>type</tt> is none, then the result is a fresh metavariable \c ?m1 with type
             <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), ?m2 x1 .... xn)</tt>,
-       where ?m2 is another fresh metavariable with type
+        where ?m2 is another fresh metavariable with type
             <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
-       and \c ?u is a fresh universe metavariable.
+        and \c ?u is a fresh universe metavariable.
     */
     expr mk_metavar(optional<expr> const & type, tag g) {
         name n      = m_ngen.next();
@@ -349,13 +436,12 @@ public:
         return save_tag(::lean::mk_metavar(n, t), g);
     }
 
-    /**
-       \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
-            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-       return (?m l_1 ... l_n), where ?m is a fresh metavariable
-       created using \c mk_metavar.
+    /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
+           <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
+        return (?m l_1 ... l_n), where ?m is a fresh metavariable
+        created using \c mk_metavar.
 
-       \see mk_metavar
+        \see mk_metavar
     */
     expr mk_meta(optional<expr> const & type, tag g) {
         expr mvar = mk_metavar(type, g);
@@ -385,9 +471,8 @@ public:
             return is_class(type);
     }
 
-    /**
-       \brief Create a metavariable, but also add a class-constraint if type is a class
-       or a metavariable.
+    /** \brief Create a metavariable, but also add a class-constraint if type is a class
+        or a metavariable.
     */
     expr mk_placeholder_meta(optional<expr> const & type, tag g) {
         expr m = mk_meta(type, g);
@@ -422,10 +507,8 @@ public:
         return m;
     }
 
-    /**
-        \brief Convert the metavariable to the metavariable application that captures
+    /** \brief Convert the metavariable to the metavariable application that captures
         the context where it was defined.
-
     */
     optional<expr> mvar_to_meta(expr mvar) {
         if (auto it = m_mvar2meta.find(mlocal_name(mvar)))
@@ -473,8 +556,7 @@ public:
         return m;
     }
 
-    /**
-        \brief Make sure \c f is really a function, if it is not, try to apply coercions.
+    /** \brief Make sure \c f is really a function, if it is not, try to apply coercions.
         The result is a pair <tt>new_f, f_type</tt>, where new_f is the new value for \c f,
         and \c f_type is its type (and a Pi-expression)
     */
@@ -527,10 +609,9 @@ public:
         return a;
     }
 
-    /**
-       \brief Given an application \c e, where the expected type is d_type, and the argument type is a_type,
-       create a "delayed coercion". The idea is to create a choice constraint and postpone the coercion
-       search. We do that whenever d_type or a_type is a metavar application, and d_type or a_type is a coercion source/target.
+    /** \brief Given an application \c e, where the expected type is d_type, and the argument type is a_type,
+        create a "delayed coercion". The idea is to create a choice constraint and postpone the coercion
+        search. We do that whenever d_type or a_type is a metavar application, and d_type or a_type is a coercion source/target.
     */
     expr mk_delayed_coercion(expr const & e, expr const & d_type, expr const & a_type) {
         expr a = app_arg(e);
@@ -884,14 +965,23 @@ public:
     }
 
     /** \brief Apply substitution and solve remaining metavariables using tactics. */
-    expr apply(substitution & s, expr const & e) {
+    expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params) {
         expr r = s.instantiate(e);
+        if (has_univ_metavar(r))
+            r = univ_metavars_to_params_fn(m_env, m_lls, s, univ_params, new_params)(r);
         r = solve_unassigned_mvars(s, r);
         display_unassigned_mvars(r, s);
         return r;
     }
 
-    expr operator()(expr const & e) {
+    std::tuple<expr, level_param_names> apply(substitution & s, expr const & e) {
+        auto ps = collect_univ_params(e);
+        buffer<name> new_ps;
+        expr r = apply(s, e, ps, new_ps);
+        return std::make_tuple(r, to_list(new_ps.begin(), new_ps.end()));
+    }
+
+    std::tuple<expr, level_param_names> operator()(expr const & e) {
         expr r  = visit(e);
         auto p  = solve().pull();
         lean_assert(p);
@@ -908,7 +998,7 @@ public:
         return r;
     }
 
-    expr operator()(expr const & e, expr const & expected_type) {
+    std::tuple<expr, level_param_names> operator()(expr const & e, expr const & expected_type) {
         expr r      = visit(e);
         expr r_type = infer_type(r);
         environment env = m_env;
@@ -927,7 +1017,7 @@ public:
         return apply(s, r);
     }
 
-    std::pair<expr, expr> operator()(expr const & t, expr const & v, name const & n) {
+    std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n) {
         expr r_t      = visit(t);
         expr r_v      = visit(v);
         expr r_v_type = infer_type(r_v);
@@ -944,18 +1034,23 @@ public:
         auto p  = solve().pull();
         lean_assert(p);
         substitution s = p->first;
-        return mk_pair(apply(s, r_t), apply(s, r_v));
+        name_set univ_params = collect_univ_params(r_v, collect_univ_params(r_t));
+        buffer<name> new_params;
+        expr new_r_t = apply(s, r_t, univ_params, new_params);
+        expr new_r_v = apply(s, r_v, univ_params, new_params);
+        return std::make_tuple(new_r_t, new_r_v, to_list(new_params.begin(), new_params.end()));
     }
 };
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
-expr elaborate(environment const & env, io_state const & ios, expr const & e, pos_info_provider * pp, bool check_unassigned) {
-    return elaborator(env, ios, name_generator(g_tmp_prefix), pp, check_unassigned)(e);
+std::tuple<expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, io_state const & ios,
+                                              expr const & e, pos_info_provider * pp, bool check_unassigned) {
+    return elaborator(env, lls, ios, name_generator(g_tmp_prefix), pp, check_unassigned)(e);
 }
 
-std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v,
-                                pos_info_provider * pp) {
-    return elaborator(env, ios, name_generator(g_tmp_prefix), pp, true)(t, v, n);
+std::tuple<expr, expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, io_state const & ios,
+                                                    name const & n, expr const & t, expr const & v, pos_info_provider * pp) {
+    return elaborator(env, lls, ios, name_generator(g_tmp_prefix), pp, true)(t, v, n);
 }
 }

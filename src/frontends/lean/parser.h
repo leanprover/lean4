@@ -56,10 +56,6 @@ class parser {
     unsigned                m_next_tag_idx;
     bool                    m_found_errors;
     pos_info_table_ptr      m_pos_table;
-    // If m_type_use_placeholder is true, then the token Type is parsed as Type.{_}.
-    // if it is false, then it is parsed as Type.{l} where l is a fresh parameter,
-    // and is automatically inserted into m_local_level_decls.
-    bool                    m_type_use_placeholder;
     // By default, when the parser finds a unknown identifier, it signs an error.
     // When the following flag is true, it creates a constant.
     // This flag is when we are trying to parse mutually recursive declarations.
@@ -243,16 +239,6 @@ public:
     unsigned get_local_index(name const & n) const;
     /** \brief Return the local parameter named \c n */
     expr const * get_local(name const & n) const { return m_local_decls.find(n); }
-    /**
-        \brief By default, \c mk_Type returns <tt>Type.{_}</tt> where '_' is a new placeholder.
-        This scope object allows us to temporarily change this behavior.
-        In any scope containing this object, \c mk_Type returns <tt>Type.{l}</tt>, where
-        \c l is a fresh universe level parameter.
-        The new parameter is automatically added to \c m_local_level_decls.
-    */
-    struct param_universe_scope { parser & m_p; bool m_old; param_universe_scope(parser &); ~param_universe_scope(); };
-    /** \brief Switch back to <tt>Type.{_}</tt>, see \c param_universe_scope */
-    struct placeholder_universe_scope { parser & m_p; bool m_old; placeholder_universe_scope(parser &); ~placeholder_universe_scope(); };
     expr mk_Type();
 
     /**
@@ -263,9 +249,9 @@ public:
     */
     struct no_undef_id_error_scope { parser & m_p; bool m_old; no_undef_id_error_scope(parser &); ~no_undef_id_error_scope(); };
 
-    expr elaborate(expr const & e, bool check_unassigned = true);
-    expr elaborate(environment const & env, expr const & e);
-    std::pair<expr, expr> elaborate(name const & n, expr const & t, expr const & v);
+    std::tuple<expr, level_param_names> elaborate(expr const & e, bool check_unassigned = true);
+    std::tuple<expr, level_param_names> elaborate(environment const & env, expr const & e);
+    std::tuple<expr, expr, level_param_names> elaborate(name const & n, expr const & t, expr const & v);
 
     /** parse all commands in the input stream */
     bool operator()() { return parse_commands(); }

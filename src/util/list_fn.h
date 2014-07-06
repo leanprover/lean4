@@ -130,15 +130,10 @@ list<To> map2(list<From> const & l, F && f) {
     if (is_nil(l)) {
         return list<To>();
     } else {
-        buffer<typename list<From>::cell*> tmp;
-        to_buffer(l, tmp);
-        unsigned i = tmp.size();
-        list<To> r;
-        while (i > 0) {
-            --i;
-            r = cons(f(tmp[i]->head()), r);
-        }
-        return r;
+        buffer<To> new_vs;
+        for (auto const & v : l)
+            new_vs.push_back(f(v));
+        return to_list(new_vs.begin(), new_vs.end());
     }
 }
 

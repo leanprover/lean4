@@ -57,20 +57,6 @@ parser::local_scope::~local_scope() {
     m_p.m_env = m_env;
 }
 
-parser::param_universe_scope::param_universe_scope(parser & p):m_p(p), m_old(m_p.m_type_use_placeholder) {
-    m_p.m_type_use_placeholder = false;
-}
-parser::param_universe_scope::~param_universe_scope() {
-    m_p.m_type_use_placeholder = m_old;
-}
-
-parser::placeholder_universe_scope::placeholder_universe_scope(parser & p):m_p(p), m_old(m_p.m_type_use_placeholder) {
-    m_p.m_type_use_placeholder = true;
-}
-parser::placeholder_universe_scope::~placeholder_universe_scope() {
-    m_p.m_type_use_placeholder = m_old;
-}
-
 parser::no_undef_id_error_scope::no_undef_id_error_scope(parser & p):m_p(p), m_old(m_p.m_no_undef_id_error) {
     m_p.m_no_undef_id_error = true;
 }
@@ -91,7 +77,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_pos_table(std::make_shared<pos_info_table>()) {
     m_scanner.set_line(line);
     m_num_threads = num_threads;
-    m_type_use_placeholder = true;
     m_no_undef_id_error    = false;
     m_found_errors = false;
     updt_options();
@@ -314,14 +299,12 @@ expr parser::mk_app(std::initializer_list<expr> const & args, pos_info const & p
 }
 
 void parser::push_local_scope() {
-    if (m_type_use_placeholder)
-        m_local_level_decls.push();
+    m_local_level_decls.push();
     m_local_decls.push();
 }
 
 void parser::pop_local_scope() {
-    if (m_type_use_placeholder)
-        m_local_level_decls.pop();
+    m_local_level_decls.pop();
     m_local_decls.pop();
 }
 
@@ -481,35 +464,22 @@ level parser::parse_level(unsigned rbp) {
 }
 
 expr parser::mk_Type() {
-    if (m_type_use_placeholder) {
-        return mk_sort(mk_level_placeholder());
-    } else {
-        unsigned i = 1;
-        name l("l");
-        name r = l.append_after(i);
-        while (m_local_level_decls.contains(r) || m_env.is_universe(r)) {
-            i++;
-            r = l.append_after(i);
-        }
-        level lvl = mk_param_univ(r);
-        add_local_level(r, lvl);
-        return mk_sort(lvl);
-    }
+    return mk_sort(mk_level_placeholder());
 }
 
-expr parser::elaborate(expr const & e, bool check_unassigned) {
+std::tuple<expr, level_param_names> parser::elaborate(expr const & e, bool check_unassigned) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    return ::lean::elaborate(m_env, m_ios, e, &pp, check_unassigned);
+    return ::lean::elaborate(m_env, m_local_level_decls, m_ios, e, &pp, check_unassigned);
 }
 
-expr parser::elaborate(environment const & env, expr const & e) {
+std::tuple<expr, level_param_names> parser::elaborate(environment const & env, expr const & e) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    return ::lean::elaborate(env, m_ios, e, &pp);
+    return ::lean::elaborate(env, m_local_level_decls, m_ios, e, &pp);
 }
 
-std::pair<expr, expr> parser::elaborate(name const & n, expr const & t, expr const & v) {
+std::tuple<expr, expr, level_param_names> parser::elaborate(name const & n, expr const & t, expr const & v) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    return ::lean::elaborate(m_env, m_ios, n, t, v, &pp);
+    return ::lean::elaborate(m_env, m_local_level_decls, m_ios, n, t, v, &pp);
 }
 
 [[ noreturn ]] void throw_invalid_open_binder(pos_info const & pos) {

@@ -10,9 +10,11 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/metavar.h"
 #include "library/io_state.h"
+#include "frontends/lean/local_decls.h"
 
 namespace lean {
-expr elaborate(environment const & env, io_state const & ios, expr const & e, pos_info_provider * pp = nullptr, bool check_unassigned = true);
-std::pair<expr, expr> elaborate(environment const & env, io_state const & ios, name const & n, expr const & t, expr const & v,
-                                pos_info_provider * pp = nullptr);
+std::tuple<expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, io_state const & ios, expr const & e,
+                                              pos_info_provider * pp = nullptr, bool check_unassigned = true);
+std::tuple<expr, expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, io_state const & ios,
+                                                    name const & n, expr const & t, expr const & v, pos_info_provider * pp = nullptr);
 }

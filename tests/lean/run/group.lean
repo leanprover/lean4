@@ -24,9 +24,10 @@ inductive group : Type :=
 definition carrier (g : group) : Type
 := group_rec (λ c s, c) g
 
--- TODO: improve elaborator and avoid the .{l} in this declaration
-definition group_to_struct.{l} [instance] (g : group.{l}) : group_struct (carrier g)
+definition group_to_struct [instance] (g : group) : group_struct (carrier g)
 := group_rec (λ (A : Type) (s : group_struct A), s) g
+
+check group_struct
 
 definition mul {A : Type} {s : group_struct A} : A → A → A
 := group_struct_rec (λ mul one inv h1 h2 h3, mul) s

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include "util/sstream.h"
 #include "util/name_map.h"
 #include "kernel/replace_fn.h"
@@ -16,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/aliases.h"
 #include "library/explicit.h"
+#include "library/opaque_hints.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -36,72 +38,6 @@ using inductive::inductive_decl_intros;
 using inductive::intro_rule_name;
 using inductive::intro_rule_type;
 
-// Make sure that every inductive datatype (in decls) occurring in \c type has
-// the universe levels \c lvl_params and section parameters \c section_params
-static expr fix_inductive_occs(expr const & type, buffer<inductive_decl> const & decls,
-                               buffer<name> const & lvl_params, buffer<expr> const & section_params) {
-    return replace(type, [&](expr const & e, unsigned) {
-            if (!is_constant(e))
-                return none_expr();
-            if (!std::any_of(decls.begin(), decls.end(),
-                             [&](inductive_decl const & d) { return const_name(e) == inductive_decl_name(d); }))
-                return none_expr();
-            // found target
-            levels  ls = const_levels(e);
-            unsigned n = length(ls);
-            if (n < lvl_params.size()) {
-                unsigned i = lvl_params.size() - n;
-                while (i > 0) {
-                    --i;
-                    ls = cons(mk_param_univ(lvl_params[i]), ls);
-                }
-            }
-            expr r = update_constant(e, ls);
-            for (unsigned i = 0; i < section_params.size(); i++)
-                r = mk_app(r, section_params[i]);
-            return some_expr(r);
-        });
-}
-
-static level mk_result_level(bool impredicative, buffer<level> const & ls) {
-    if (ls.empty()) {
-        return impredicative ? mk_level_one() : mk_level_zero();
-    } else {
-        level r = ls[0];
-        for (unsigned i = 1; i < ls.size(); i++)
-            r = mk_max(r, ls[i]);
-        if (is_not_zero(r))
-            return r;
-        else
-            return impredicative ? mk_max(r, mk_level_one()) : r;
-    }
-}
-
-static expr update_result_sort(type_checker & tc, expr t, level const & l) {
-    t = tc.whnf(t);
-    if (is_pi(t)) {
-        return update_binding(t, binding_domain(t), update_result_sort(tc, binding_body(t), l));
-    } else if (is_sort(t)) {
-        return update_sort(t, l);
-    } else {
-        lean_unreachable();
-    }
-}
-
-/** \brief Return the universe level of the given inductive datatype declaration. */
-level get_datatype_result_level(type_checker & tc, inductive_decl const & d) {
-    expr d_t = tc.whnf(inductive_decl_type(d));
-    while (is_pi(d_t)) {
-        d_t = tc.whnf(binding_body(d_t));
-    }
-    if (!is_sort(d_t)) {
-        std::cout << "ERROR: " << inductive_decl_type(d) << "\n";
-        throw exception(sstream() << "invalid inductive datatype '" << inductive_decl_name(d) << "', "
-                        "resultant type is not a sort");
-    }
-    return sort_level(d_t);
-}
-
 /** \brief Return true if \c u occurs in \c l */
 bool occurs(level const & u, level const & l) {
     bool found = false;
@@ -111,37 +47,6 @@ bool occurs(level const & u, level const & l) {
             return true;
         });
     return found;
-}
-
-static name g_tmp_prefix = name::mk_internal_unique_name();
-/**
-   \brief Given a type \c t for an introduction rule, store the universe of the types of non-parameters in \c ls.
-
-   \remark aux_u is an temporary universe used for inductive decls. It should be ignored.
-*/
-static void accumulate_levels(type_checker & tc, expr t, unsigned num_params, level const & aux_u, buffer<level> & ls) {
-    name_generator ngen(g_tmp_prefix);
-    unsigned i = 0;
-    while (is_pi(t)) {
-        if (i >= num_params) {
-            expr s  = tc.ensure_type(binding_domain(t));
-            level l = sort_level(s);
-            if (l == aux_u) {
-                // ignore, this is the auxiliary level
-            } else if (occurs(aux_u, l)) {
-                throw exception("failed to infer inductive datatype resultant universe, provide the universe levels explicitly");
-            } else if (std::find(ls.begin(), ls.end(), l) == ls.end()) {
-                ls.push_back(l);
-            }
-        }
-        t = instantiate(binding_body(t), mk_local(ngen.next(), binding_name(t), binding_domain(t), binding_info(t)));
-        i++;
-    }
-}
-
-void throw_all_or_nothing() {
-    throw exception("invalid mutually recursive datatype declaration, "
-                    "if the universe level of one type is provided, then all of them should be");
 }
 
 inductive_decl update_inductive_decl(inductive_decl const & d, expr const & t) {
@@ -156,231 +61,522 @@ intro_rule update_intro_rule(intro_rule const & r, expr const & t) {
     return intro_rule(intro_rule_name(r), t);
 }
 
-static void elaborate_inductive(buffer<inductive_decl> & decls, level_param_names const & lvls, unsigned num_params, parser & p) {
-    // temporary environment used during elaboration
-    environment env = p.env();
-    // add fake universe level
-    name u_name(g_tmp_prefix, "u");
-    env = env.add_universe(u_name);
-    level u = mk_global_univ(u_name);
-    std::unique_ptr<type_checker> tc(new type_checker(env));
-    bool infer_result_universe = false;
-    unsigned first = true;
-    // elaborate inductive datatype types, and declare them in temporary environment.
-    for (inductive_decl & d : decls) {
-        level l = get_datatype_result_level(*tc, d);
-        expr  t = inductive_decl_type(d);
-        if (is_placeholder(l)) {
-            if (first)
-                infer_result_universe  = true;
-            else if (!infer_result_universe)
-                throw_all_or_nothing();
-            t = update_result_sort(*tc, t, u);
-        } else if (!first && infer_result_universe) {
-            throw_all_or_nothing();
-        }
-        t = p.elaborate(env, t);
-        env = env.add(check(env, mk_var_decl(inductive_decl_name(d), lvls, t)));
-        d = update_inductive_decl(d, t);
-        first = false;
-    }
-    tc.reset(new type_checker(env));
-    buffer<level> r_lvls; // used for inferring the universe level of resultant datatypes.
-    // elaborate introduction rules using temporary environment
-    for (inductive_decl & d : decls) {
-        buffer<intro_rule> intros;
-        for (intro_rule const & ir : inductive_decl_intros(d)) {
-            expr t = p.elaborate(env, intro_rule_type(ir));
-            if (infer_result_universe)
-                accumulate_levels(*tc, t, num_params, u, r_lvls);
-            intros.push_back(update_intro_rule(ir, t));
-        }
-        d = update_inductive_decl(d, intros);
-    }
-    if (infer_result_universe) {
-        level r_lvl = normalize(mk_result_level(env.impredicative(), r_lvls));
-        for (inductive_decl & d : decls) {
-            expr t = inductive_decl_type(d);
-            t = update_result_sort(*tc, t, r_lvl);
-            d = update_inductive_decl(d, t);
-        }
-    }
-}
+static name g_tmp_prefix = name::mk_internal_unique_name();
 
-static environment create_alias(environment const & env, name const & full_id, name const & id, levels const & section_leves,
-                                buffer<expr> const & section_params, parser & p) {
-    if (in_section(env)) {
-        expr r = mk_explicit(mk_constant(full_id, section_leves));
-        for (unsigned i = 0; i < section_params.size(); i++)
-            r = mk_app(r, section_params[i]);
-        p.add_local_expr(id, r);
-        return env;
-    } else if (full_id != id) {
-        return add_alias(env, id, mk_constant(full_id));
-    } else {
-        return env;
-    }
-}
+struct inductive_cmd_fn {
+    typedef std::unique_ptr<type_checker> type_checker_ptr;
+    parser &         m_p;
+    environment      m_env;
+    type_checker_ptr m_tc;
+    name             m_namespace; // current namespace
+    pos_info         m_pos; // current position for reporting errors
+    bool             m_first; // true if parsing the first inductive type in a mutually recursive inductive decl.
+    buffer<name>     m_explict_levels;
+    buffer<name>     m_levels;
+    bool             m_using_explicit_levels; // true if the user is providing explicit universe levels
+    unsigned         m_num_params; // number of parameters
+    level            m_u; // temporary auxiliary global universe used for inferring the result universe of an inductive datatype declaration.
+    bool             m_infer_result_universe;
+    name_set         m_relaxed_implicit_infer; // set of introduction rules where we do not use strict implicit parameter infererence
 
-environment inductive_cmd(parser & p) {
-    parser::no_undef_id_error_scope err_scope(p);
-    environment            env = p.env();
-    name const &           ns = get_namespace(env);
-    bool                   first = true;
-    buffer<name>           ls_buffer;
-    name_map<name>         id_to_short_id;
-    // store intro rule name that are markes for relaxed implicit argument inference.
-    name_set               relaxed_implicit_inference;
-    unsigned               num_params = 0;
-    bool                   explicit_levels = false;
-    buffer<inductive_decl> decls;
-    while (true) {
-        parser::local_scope l_scope(p);
-        auto id_pos  = p.pos();
-        name id      = p.check_id_next("invalid inductive declaration, identifier expected");
+    inductive_cmd_fn(parser & p):m_p(p) {
+        m_env   = p.env();
+        m_first = true;
+        m_using_explicit_levels = false;
+        m_num_params = 0;
+        name u_name(g_tmp_prefix, "u");
+        m_env = m_env.add_universe(u_name);
+        m_u = mk_global_univ(u_name);
+        m_infer_result_universe = false;
+        m_namespace = get_namespace(m_env);
+        m_tc = mk_type_checker_with_hints(m_env, m_p.mk_ngen());
+    }
+
+    [[ noreturn ]] void throw_error(char const * error_msg) { throw parser_error(error_msg, m_pos); }
+    [[ noreturn ]] void throw_error(sstream const & strm) { throw parser_error(strm, m_pos); }
+
+    /** \brief Parse the name of an inductive datatype or introduction rule,
+        prefix the current namespace to it and return it.
+    */
+    name parse_decl_name() {
+        m_pos   = m_p.pos();
+        name id = m_p.check_id_next("invalid declaration, identifier expected");
         check_atomic(id);
-        name full_id = ns + id;
-        id_to_short_id.insert(full_id, id);
+        return m_namespace + id;
+    }
+
+    /** \brief Parse inductive declaration universe parameters.
+        If this is the first declaration in a mutually recursive block, then this method
+        stores the levels in m_explict_levels, and set m_using_explicit_levels to true (iff they were provided).
+
+        If this is not the first declaration, then this function just checks if the parsed parameters
+        match the ones in the first declaration (stored in \c m_explict_levels)
+    */
+    void parse_inductive_univ_params() {
         buffer<name> curr_ls_buffer;
-        expr type;
-        optional<parser::param_universe_scope> pu_scope;
-        if (parse_univ_params(p, curr_ls_buffer)) {
-            if (first) {
-                explicit_levels = true;
-                ls_buffer.append(curr_ls_buffer);
-            } else if (!explicit_levels) {
-                throw parser_error("invalid mutually recursive declaration, "
-                                   "explicit universe levels were not provided for previous inductive types in this declaration",
-                                   id_pos);
-            } else if (curr_ls_buffer.size() != ls_buffer.size()) {
-                throw parser_error("invalid mutually recursive declaration, "
-                                   "all inductive types must have the same number of universe paramaters", id_pos);
+        if (parse_univ_params(m_p, curr_ls_buffer)) {
+            if (m_first) {
+                m_using_explicit_levels = true;
+                m_explict_levels.append(curr_ls_buffer);
+            } else if (!m_using_explicit_levels) {
+                throw_error("invalid mutually recursive declaration, "
+                            "explicit universe levels were not provided for previous inductive types in this declaration");
+            } else if (curr_ls_buffer.size() != m_explict_levels.size()) {
+                throw_error("invalid mutually recursive declaration, "
+                            "all inductive types must have the same number of universe paramaters");
             } else {
-                for (unsigned i = 0; i < ls_buffer.size(); i++) {
-                    if (curr_ls_buffer[i] != ls_buffer[i])
-                        throw parser_error("invalid mutually recursive inductive declaration, "
-                                           "all inductive types must have the same universe paramaters", id_pos);
+                for (unsigned i = 0; i < m_explict_levels.size(); i++) {
+                    if (curr_ls_buffer[i] != m_explict_levels[i])
+                        throw_error("invalid mutually recursive inductive declaration, "
+                                    "all inductive types must have the same universe paramaters");
                 }
             }
         } else {
-            if (first) {
-                explicit_levels = false;
-            } else if (explicit_levels)  {
-                throw parser_error("invalid mutually recursive declaration, "
-                                   "explicit universe levels were provided for previous inductive types in this declaration",
-                                   id_pos);
+            if (m_first) {
+                m_using_explicit_levels = false;
+            } else if (m_using_explicit_levels) {
+                throw_error("invalid mutually recursive declaration, "
+                            "explicit universe levels were provided for previous inductive types in this declaration");
             }
-            // initialize param_universe_scope, we are using implicit universe levels
-            pu_scope.emplace(p);
         }
+    }
+
+    /** \brief Parse the type of an inductive datatype */
+    expr parse_datatype_type() {
+        expr type;
         buffer<expr> ps;
-        local_environment lenv = env;
-        auto params_pos = p.pos();
-        if (!p.curr_is_token(g_colon)) {
-            lenv = p.parse_binders(ps);
-            p.check_token_next(g_colon, "invalid inductive declaration, ':' expected");
-            {
-                parser::placeholder_universe_scope place_scope(p);
-                type = p.parse_scoped_expr(ps, lenv);
-            }
-            type = p.pi_abstract(ps, type);
+        m_pos = m_p.pos();
+        if (!m_p.curr_is_token(g_colon)) {
+            m_p.parse_binders(ps);
+            m_p.check_token_next(g_colon, "invalid inductive declaration, ':' expected");
+            type = m_p.parse_scoped_expr(ps);
+            type = m_p.pi_abstract(ps, type);
         } else {
-            p.next();
-            parser::placeholder_universe_scope place_scope(p);
-            type = p.parse_scoped_expr(ps, lenv);
+            m_p.next();
+            type = m_p.parse_expr();
         }
         // check if number of parameters
-        if (first) {
-            num_params = ps.size();
-        } else {
+        if (m_first) {
+            m_num_params = ps.size();
+        } else if (m_num_params != ps.size()) {
             // mutually recursive declaration checks
-            if (num_params != ps.size()) {
-                throw parser_error("invalid mutually recursive inductive declaration, "
-                                   "all inductive types must have the same number of arguments",
-                                   params_pos);
-            }
+            throw_error("invalid mutually recursive inductive declaration, all inductive types must have the same number of arguments");
         }
-        // parse introduction rules
-        p.check_token_next(g_assign, "invalid inductive declaration, ':=' expected");
-        buffer<intro_rule> intros;
-        while (p.curr_is_token(g_bar)) {
-            p.next();
-            name intro_id = p.check_id_next("invalid introduction rule, identifier expected");
-            check_atomic(intro_id);
-            name full_intro_id = ns + intro_id;
-            id_to_short_id.insert(full_intro_id, intro_id);
-            bool strict = true;
-            if (p.curr_is_token(g_lcurly)) {
-                p.next();
-                p.check_token_next(g_rcurly, "invalid introduction rule, '}' expected");
-                strict = false;
-                relaxed_implicit_inference.insert(full_intro_id);
-            }
-            p.check_token_next(g_colon, "invalid introduction rule, ':' expected");
-            expr intro_type = p.parse_scoped_expr(ps, lenv);
-            intro_type = p.pi_abstract(ps, intro_type);
-            intro_type = infer_implicit(intro_type, ps.size(), strict);
-            intros.push_back(intro_rule(full_intro_id, intro_type));
-        }
-        decls.push_back(inductive_decl(full_id, type, to_list(intros.begin(), intros.end())));
-        if (!p.curr_is_token(g_with))
-            break;
-        p.next();
-        first = false;
+        return type;
     }
-    // Collect (section) locals occurring in inductive_decls, and abstract them
-    // using these additional parameters.
-    name_set used_levels;
-    name_set section_locals;
-    for (inductive_decl const & d : decls) {
-        used_levels    = collect_univ_params(inductive_decl_type(d), used_levels);
-        section_locals = collect_locals(inductive_decl_type(d), section_locals);
-        for (auto const & ir : inductive_decl_intros(d)) {
-            used_levels    = collect_univ_params(intro_rule_type(ir), used_levels);
-            section_locals = collect_locals(intro_rule_type(ir), section_locals);
-        }
-    }
-    update_univ_parameters(ls_buffer, used_levels, p);
-    buffer<expr> section_params;
-    mk_section_params(section_locals, p, section_params);
-    // First, add section_params to inductive types type.
-    // We don't update the introduction rules in the first pass, because
-    // we will mark all section_params as implicit for them.
-    for (inductive_decl & d : decls) {
-        d = update_inductive_decl(d, p.pi_abstract(section_params, inductive_decl_type(d)));
-    }
-    // Add section_params to introduction rules type, and also "fix"
-    // occurrences of inductive types.
-    for (inductive_decl & d : decls) {
-        buffer<intro_rule> new_irs;
-        for (auto const & ir : inductive_decl_intros(d)) {
-            expr type = intro_rule_type(ir);
-            type = fix_inductive_occs(type, decls, ls_buffer, section_params);
-            type = p.pi_abstract(section_params, type);
-            bool strict = relaxed_implicit_inference.contains(intro_rule_name(ir));
-            type = infer_implicit(type, section_params.size(), strict);
-            new_irs.push_back(update_intro_rule(ir, type));
-        }
-        d = update_inductive_decl(d, new_irs);
-    }
-    num_params += section_params.size();
-    level_param_names ls = to_list(ls_buffer.begin(), ls_buffer.end());
 
-    elaborate_inductive(decls, ls, num_params, p);
-    env = module::add_inductive(env, ls, num_params, to_list(decls.begin(), decls.end()));
-    // Create aliases/local refs
-    levels section_levels = collect_section_levels(ls, p);
-    for (inductive_decl const & d : decls) {
-        name const & n = inductive_decl_name(d);
-        env = create_alias(env, n, *id_to_short_id.find(n), section_levels, section_params, p);
-        env = create_alias(env, n.append_after("_rec"), id_to_short_id.find(n)->append_after("_rec"), section_levels, section_params, p);
-        for (intro_rule const & ir : inductive_decl_intros(d)) {
-            name const & n = intro_rule_name(ir);
-            env = create_alias(env, n, *id_to_short_id.find(n), section_levels, section_params, p);
+    /** \brief Return the universe level of the given type, if it is not a sort, then raise an exception. */
+    level get_datatype_result_level(expr d_type) {
+        d_type = m_tc->whnf(d_type);
+        while (is_pi(d_type)) {
+            d_type = m_tc->whnf(binding_body(d_type));
+        }
+        if (!is_sort(d_type))
+            throw_error(sstream() << "invalid inductive datatype, resultant type is not a sort");
+        return sort_level(d_type);
+    }
+
+    /** \brief Update the result sort of the given type */
+    expr update_result_sort(expr t, level const & l) {
+        t = m_tc->whnf(t);
+        if (is_pi(t)) {
+            return update_binding(t, binding_domain(t), update_result_sort(binding_body(t), l));
+        } else if (is_sort(t)) {
+            return update_sort(t, l);
+        } else {
+            lean_unreachable();
         }
     }
-    return env;
+
+    /** \brief Elaborate the type of an inductive declaration. */
+    std::tuple<expr, level_param_names> elaborate_inductive_type(expr d_type) {
+        level l = get_datatype_result_level(d_type);
+        if (is_placeholder(l)) {
+            if (m_using_explicit_levels)
+                throw_error("resultant universe must be provided, when using explicit universe levels");
+            d_type = update_result_sort(d_type, m_u);
+            m_infer_result_universe = true;
+        }
+        return m_p.elaborate(m_env, d_type);
+    }
+
+    /** \brief Create a local constant based on the given binding */
+    expr mk_local_for(expr const & b) {
+        return mk_local(m_p.mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b));
+    }
+
+    /** \brief Check if the parameters of \c d_type and \c first_d_type are equal. */
+    void check_params(expr d_type, expr first_d_type) {
+        for (unsigned i = 0; i < m_num_params; i++) {
+            if (!m_tc->is_def_eq(binding_domain(d_type), binding_domain(first_d_type)))
+                throw_error(sstream() << "invalid parameter #" << (i+1) << " in mutually recursive inductive declaration, "
+                            << "all inductive types must have equivalent parameters");
+            expr l = mk_local_for(d_type);
+            d_type       = instantiate(binding_body(d_type), l);
+            first_d_type = instantiate(binding_body(first_d_type), l);
+        }
+    }
+
+    /** \brief Check if the level names in d_lvls and \c first_d_lvls are equal. */
+    void check_levels(level_param_names d_lvls, level_param_names first_d_lvls) {
+        while (!is_nil(d_lvls) && !is_nil(first_d_lvls)) {
+            if (head(d_lvls) != head(first_d_lvls))
+                throw_error(sstream() << "invalid mutually recursive inductive declaration, "
+                            << "all declarations must use the same universe parameter names, mismatch: '"
+                            << head(d_lvls) << "' and '" << head(first_d_lvls) << "' "
+                            << "(if the universe parameters were inferred, then provide them explicitly to fix the problem)");
+            d_lvls       = tail(d_lvls);
+            first_d_lvls = tail(first_d_lvls);
+        }
+        if (!is_nil(d_lvls) || !is_nil(first_d_lvls))
+            throw_error("invalid mutually recursive inductive declaration, "
+                        "all declarations must have the same number of arguments "
+                        "(this is error is probably due to inferred implicit parameters, provide all parameters explicitly to fix the problem");
+    }
+
+    /** \brief Add the parameters of the inductive decl type to the local scoped.
+        This method is executed before parsing introduction rules.
+    */
+    void add_params_to_local_scope(expr d_type, buffer<expr> & params) {
+        for (unsigned i = 0; i < m_num_params; i++) {
+            expr l = mk_local_for(d_type);
+            m_p.add_local(l);
+            params.push_back(l);
+            d_type = instantiate(binding_body(d_type), l);
+        }
+    }
+
+    /** \brief Parse introduction rules in the scope of the given parameters.
+        Introduction rules with the annotation '{}' are marked for relaxed (aka non-strict) implicit parameter inference.
+    */
+    list<intro_rule> parse_intro_rules(buffer<expr> & params) {
+        buffer<intro_rule> intros;
+        while (m_p.curr_is_token(g_bar)) {
+            m_p.next();
+            name intro_name = parse_decl_name();
+            bool strict = true;
+            if (m_p.curr_is_token(g_lcurly)) {
+                m_p.next();
+                m_p.check_token_next(g_rcurly, "invalid introduction rule, '}' expected");
+                strict = false;
+                m_relaxed_implicit_infer.insert(intro_name);
+            }
+            m_p.check_token_next(g_colon, "invalid introduction rule, ':' expected");
+            expr intro_type = m_p.parse_scoped_expr(params, m_env);
+            intro_type = m_p.pi_abstract(params, intro_type);
+            intro_type = infer_implicit(intro_type, params.size(), strict);
+            intros.push_back(intro_rule(intro_name, intro_type));
+        }
+        return to_list(intros.begin(), intros.end());
+    }
+
+    void parse_inductive_decls(buffer<inductive_decl> & decls) {
+        optional<expr> first_d_type;
+        optional<level_param_names> first_d_lvls;
+        while (true) {
+            parser::local_scope l_scope(m_p);
+            name d_name = parse_decl_name();
+            parse_inductive_univ_params();
+            expr d_type = parse_datatype_type();
+            m_p.check_token_next(g_assign, "invalid inductive declaration, ':=' expected");
+            level_param_names d_lvls;
+            std::tie(d_type, d_lvls) = elaborate_inductive_type(d_type);
+            if (!m_first) {
+                check_params(d_type, *first_d_type);
+                check_levels(d_lvls, *first_d_lvls);
+            }
+            buffer<expr> params;
+            add_params_to_local_scope(d_type, params);
+            auto d_intro_rules = parse_intro_rules(params);
+            decls.push_back(inductive_decl(d_name, d_type, d_intro_rules));
+            if (!m_p.curr_is_token(g_with)) {
+                m_levels.append(m_explict_levels);
+                for (auto l : d_lvls) m_levels.push_back(l);
+                break;
+            }
+            m_p.next();
+            m_first = false;
+            first_d_type = d_type;
+            first_d_lvls = d_lvls;
+        }
+    }
+
+    /** \brief Include in m_levels any section level referenced by decls. */
+    void include_section_levels(buffer<inductive_decl> const & decls) {
+        if (!in_section(m_env))
+            return;
+        name_set all_lvl_params;
+        for (auto const & d : decls) {
+            all_lvl_params = collect_univ_params(inductive_decl_type(d), all_lvl_params);
+            for (auto const & ir : inductive_decl_intros(d)) {
+                all_lvl_params = collect_univ_params(intro_rule_type(ir), all_lvl_params);
+            }
+        }
+        buffer<name> section_lvls;
+        all_lvl_params.for_each([&](name const & l) {
+                if (std::find(m_levels.begin(), m_levels.end(), l) == m_levels.end())
+                    section_lvls.push_back(l);
+            });
+        std::sort(section_lvls.begin(), section_lvls.end(), [&](name const & n1, name const & n2) {
+                return m_p.get_local_level_index(n1) < m_p.get_local_level_index(n2);
+            });
+        buffer<name> new_levels;
+        new_levels.append(section_lvls);
+        new_levels.append(m_levels);
+        m_levels.clear();
+        m_levels.append(new_levels);
+    }
+
+    /** \brief Collect section local parameters used in the inductive decls */
+    name_set collect_section_locals(buffer<inductive_decl> const & decls) {
+        name_set section_locals;
+        for (auto const & d : decls) {
+            section_locals = collect_locals(inductive_decl_type(d), section_locals);
+            for (auto const & ir : inductive_decl_intros(d)) {
+                section_locals = collect_locals(intro_rule_type(ir), section_locals);
+            }
+        }
+        return section_locals;
+    }
+
+    /** \brief Make sure that every occurrence of an inductive datatype (in decls) in \c type has
+        section parameters \c section_params as arguments.
+    */
+    expr fix_inductive_occs(expr const & type, buffer<inductive_decl> const & decls, buffer<expr> const & section_params) {
+        return replace(type, [&](expr const & e, unsigned) {
+                if (!is_constant(e))
+                    return none_expr();
+                if (!std::any_of(decls.begin(), decls.end(),
+                                 [&](inductive_decl const & d) { return const_name(e) == inductive_decl_name(d); }))
+                    return none_expr();
+                // found target
+                expr r = mk_app(mk_explicit(e), section_params);
+                return some_expr(r);
+            });
+    }
+
+    /** \brief Include the used section parameters as additional arguments.
+        The section parameters are stored in section_params
+    */
+    void abstract_section_locals(buffer<inductive_decl> & decls, buffer<expr> & section_params) {
+        if (!in_section(m_env))
+            return;
+        name_set section_locals = collect_section_locals(decls);
+        if (section_locals.empty())
+            return;
+        mk_section_params(section_locals, m_p, section_params);
+        // First, add section_params to inductive types type.
+        for (inductive_decl & d : decls) {
+            d = update_inductive_decl(d, m_p.pi_abstract(section_params, inductive_decl_type(d)));
+        }
+        // Add section_params to introduction rules type, and also "fix"
+        // occurrences of inductive types.
+        for (inductive_decl & d : decls) {
+            buffer<intro_rule> new_irs;
+            for (auto const & ir : inductive_decl_intros(d)) {
+                expr type = intro_rule_type(ir);
+                type = fix_inductive_occs(type, decls, section_params);
+                type = m_p.pi_abstract(section_params, type);
+                bool strict = m_relaxed_implicit_infer.contains(intro_rule_name(ir));
+                type = infer_implicit(type, section_params.size(), strict);
+                new_irs.push_back(update_intro_rule(ir, type));
+            }
+            d = update_inductive_decl(d, new_irs);
+        }
+    }
+
+    /** \brief Declare inductive types in the scratch environment as var_decls.
+        We use this trick to be able to elaborate the introduction rules.
+    */
+    void declare_inductive_types(buffer<inductive_decl> & decls) {
+        level_param_names ls = to_list(m_levels.begin(), m_levels.end());
+        for (auto const & d : decls) {
+            name d_name; expr d_type;
+            std::tie(d_name, d_type, std::ignore) = d;
+            m_env = m_env.add(check(m_env, mk_var_decl(d_name, ls, d_type)));
+        }
+        m_tc = mk_type_checker_with_hints(m_env, m_p.mk_ngen());
+    }
+
+    /** \brief Traverse the introduction rule type and collect the universes where non-parameters reside in \c r_lvls.
+        This information is used to compute the resultant universe level for the inductive datatype declaration.
+     */
+    void accumulate_levels(expr intro_type, buffer<level> & r_lvls) {
+        unsigned i = 0;
+        while (is_pi(intro_type)) {
+            if (i >= m_num_params) {
+                expr s  = m_tc->ensure_type(binding_domain(intro_type));
+                level l = sort_level(s);
+                if (l == m_u) {
+                    // ignore, this is the auxiliary level
+                } else if (occurs(m_u, l)) {
+                    throw exception("failed to infer inductive datatype resultant universe, provide the universe levels explicitly");
+                } else if (std::find(r_lvls.begin(), r_lvls.end(), l) == r_lvls.end()) {
+                    r_lvls.push_back(l);
+                }
+            }
+            intro_type = instantiate(binding_body(intro_type), mk_local_for(intro_type));
+            i++;
+        }
+    }
+
+    /** \brief Elaborate introduction rules and destructively update \c decls with the elaborated versions.
+        \remark This method is invoked only after all inductive datatype types have been elaborated and
+        inserted into the scratch environment m_env.
+
+        This method also store in r_lvls inferred levels that must be in the resultant universe.
+    */
+    void elaborate_intro_rules(buffer<inductive_decl> & decls, buffer<level> & r_lvls) {
+        for (auto & d : decls) {
+            name d_name; expr d_type; list<intro_rule> d_intros;
+            std::tie(d_name, d_type, d_intros) = d;
+            buffer<intro_rule> new_irs;
+            for (auto const & ir : d_intros) {
+                name ir_name; expr ir_type;
+                std::tie(ir_name, ir_type) = ir;
+                level_param_names new_ls;
+                std::tie(ir_type, new_ls) = m_p.elaborate(m_env, ir_type);
+                for (auto l : new_ls) m_levels.push_back(l);
+                accumulate_levels(ir_type, r_lvls);
+                new_irs.push_back(intro_rule(ir_name, ir_type));
+            }
+            d = inductive_decl(d_name, d_type, to_list(new_irs.begin(), new_irs.end()));
+        }
+    }
+
+    /** \brief If old_num_univ_params < m_levels.size(), then new universe params were collected when elaborating
+        the introduction rules. This method include them in all occurrences of the inductive datatype decls.
+    */
+    void include_extra_univ_levels(buffer<inductive_decl> & decls, unsigned old_num_univ_params) {
+        if (m_levels.size() == old_num_univ_params)
+            return;
+        buffer<level> tmp;
+        for (auto l : m_levels) tmp.push_back(mk_param_univ(l));
+        levels new_ls = to_list(tmp.begin(), tmp.end());
+        for (auto & d : decls) {
+            buffer<intro_rule> new_irs;
+            for (auto & ir : inductive_decl_intros(d)) {
+                expr new_type = replace(intro_rule_type(ir), [&](expr const & e, unsigned) {
+                        if (!is_constant(e))
+                            return none_expr();
+                        if (!std::any_of(decls.begin(), decls.end(),
+                                         [&](inductive_decl const & d) { return const_name(e) == inductive_decl_name(d); }))
+                            return none_expr();
+                        // found target
+                        expr r = update_constant(e, new_ls);
+                        return some_expr(r);
+                    });
+                new_irs.push_back(update_intro_rule(ir, new_type));
+            }
+            d = update_inductive_decl(d, new_irs);
+        }
+    }
+
+    /** \brief Create the resultant universe level using the levels computed during introduction rule elaboration */
+    level mk_result_level(buffer<level> const & r_lvls) {
+        bool impredicative = m_env.impredicative();
+        if (r_lvls.empty()) {
+            return impredicative ? mk_level_one() : mk_level_zero();
+        } else {
+            level r = r_lvls[0];
+            for (unsigned i = 1; i < r_lvls.size(); i++)
+                r = mk_max(r, r_lvls[i]);
+            if (is_not_zero(r))
+                return normalize(r);
+            else
+                return impredicative ? normalize(mk_max(r, mk_level_one())) : normalize(r);
+        }
+    }
+
+    /** \brief Update the resultant universe level of the inductive datatypes using the inferred universe \c r_lvl */
+    void update_resultant_universe(buffer<inductive_decl> & decls, level const & r_lvl) {
+        for (inductive_decl & d : decls) {
+            expr t = inductive_decl_type(d);
+            t = update_result_sort(t, r_lvl);
+            d = update_inductive_decl(d, t);
+        }
+    }
+
+    /** \brief Create an alias for the fully qualified name \c full_id. */
+    environment create_alias(environment const & env, name const & full_id, levels const & section_leves, buffer<expr> const & section_params) {
+        name id(full_id.get_string());
+        if (in_section(env)) {
+            expr r = mk_explicit(mk_constant(full_id, section_leves));
+            r = mk_app(r, section_params);
+            m_p.add_local_expr(id, r);
+            return env;
+        } else if (full_id != id) {
+            return add_alias(env, id, mk_constant(full_id));
+        } else {
+            return env;
+        }
+    }
+
+    /** \brief Add aliases for the inductive datatype, introduction and elimination rules */
+    environment add_aliases(environment env, level_param_names const & ls, buffer<expr> const & section_params,
+                            buffer<inductive_decl> const & decls) {
+        // Create aliases/local refs
+        levels section_levels = collect_section_levels(ls, m_p);
+        for (auto & d : decls) {
+            name d_name = inductive_decl_name(d);
+            name d_short_name(d_name.get_string());
+            env = create_alias(env, d_name, section_levels, section_params);
+            env = create_alias(env, d_name.append_after("_rec"), section_levels, section_params);
+            for (intro_rule const & ir : inductive_decl_intros(d)) {
+                name ir_name = intro_rule_name(ir);
+                env = create_alias(env, ir_name, section_levels, section_params);
+            }
+        }
+        return env;
+    }
+
+    /** \brief Auxiliary method used for debugging */
+    void display(std::ostream & out, buffer<inductive_decl> const & decls) {
+        if (!m_levels.empty()) {
+            out << "inductive level params:";
+            for (auto l : m_levels) out << " " << l;
+            out << "\n";
+        }
+        for (auto const & d : decls) {
+            name d_name; expr d_type; list<intro_rule> d_irules;
+            std::tie(d_name, d_type, d_irules) = d;
+            out << "inductive " << d_name << " : " << d_type << "\n";
+            for (auto const & ir : d_irules) {
+                name ir_name; expr ir_type;
+                std::tie(ir_name, ir_type) = ir;
+                out << "  | " << ir_name << " : " << ir_type << "\n";
+            }
+        }
+        out << "\n";
+    }
+
+    environment operator()() {
+        parser::no_undef_id_error_scope err_scope(m_p);
+        buffer<inductive_decl> decls;
+        parse_inductive_decls(decls);
+        include_section_levels(decls);
+        buffer<expr> section_params;
+        abstract_section_locals(decls, section_params);
+        m_num_params += section_params.size();
+        declare_inductive_types(decls);
+        unsigned num_univ_params = m_levels.size();
+        buffer<level> r_lvls;
+        elaborate_intro_rules(decls, r_lvls);
+        include_extra_univ_levels(decls, num_univ_params);
+        if (m_infer_result_universe) {
+            level r_lvl = mk_result_level(r_lvls);
+            update_resultant_universe(decls, r_lvl);
+        }
+        level_param_names ls = to_list(m_levels.begin(), m_levels.end());
+        environment env = module::add_inductive(m_p.env(), ls, m_num_params, to_list(decls.begin(), decls.end()));
+        return add_aliases(env, ls, section_params, decls);
+    }
+};
+
+environment inductive_cmd(parser & p) {
+    return inductive_cmd_fn(p)();
 }
+
 void register_inductive_cmd(cmd_table & r) {
     add_cmd(r, cmd_info("inductive",   "declare an inductive datatype", inductive_cmd));
 }

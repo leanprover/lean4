@@ -147,6 +147,7 @@ public:
     template<typename T> void set_option(name const & n, T const & v) { m_ios.set_option(n, v); }
 
     name mk_fresh_name() { return m_ngen.next(); }
+    name_generator mk_ngen() { return m_ngen.mk_child(); }
 
     /** \brief Return the current position information */
     pos_info pos() const { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }

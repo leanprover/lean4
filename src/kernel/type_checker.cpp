@@ -459,7 +459,8 @@ certified_declaration check(environment const & env, declaration const & d, name
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
     type_checker checker1(env, g, mk_default_converter(env, optional<module_idx>(), memoize, extra_opaque));
-    checker1.check(d.get_type(), d.get_univ_params());
+    expr sort = checker1.check(d.get_type(), d.get_univ_params());
+    checker1.ensure_sort(sort, d.get_type());
     if (d.is_definition()) {
         optional<module_idx> midx;
         if (d.is_opaque())

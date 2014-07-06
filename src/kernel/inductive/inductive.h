@@ -62,5 +62,9 @@ optional<name> is_intro_rule(environment const & env, name const & n);
    s.t. \c n is an elimination rule of D. Otherwise, return none.
 */
 optional<name> is_elim_rule(environment const & env, name const & n);
+
+/** \brief Given the eliminator \c n, this function return the position of major premise */
+optional<unsigned> get_elim_major_idx(environment const & env, name const & n);
+bool is_elim_meta_app(type_checker & tc, expr const & e);
 }
 }

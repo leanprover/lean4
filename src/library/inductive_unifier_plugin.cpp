@@ -11,36 +11,26 @@ Author: Leonardo de Moura
 
 namespace lean {
 class inductive_unifier_plugin_cell : public unifier_plugin_cell {
-    /** \brief Return true iff \c e is of the form (elim ... (?m ...)) */
-    bool is_elim_meta_app(type_checker & tc, expr const & e) const {
-        if (!is_app(e))
-            return false;
-        expr const & f = get_app_fn(e);
-        if (!is_constant(f))
-            return false;
-        auto it_name = inductive::is_elim_rule(tc.env(), const_name(f));
-        if (!it_name)
-            return false;
-        if (!is_meta(app_arg(e)))
-            return false;
-        if (is_pi(tc.whnf(tc.infer(e))))
-            return false;
-        return true;
-    }
-
-    /** \brief Return true iff the lhs or rhs of the constraint c is of the form (elim ... (?m ...)) */
+    /** \brief Return true iff the lhs or rhs of the constraint c is of the form (elim ... (?m ...) ...) */
     bool is_elim_meta_cnstr(type_checker & tc, constraint const & c) const {
-        return is_eq_cnstr(c) && (is_elim_meta_app(tc, cnstr_lhs_expr(c)) || is_elim_meta_app(tc, cnstr_rhs_expr(c)));
+        return is_eq_cnstr(c) && (inductive::is_elim_meta_app(tc, cnstr_lhs_expr(c)) ||
+                                  inductive::is_elim_meta_app(tc, cnstr_rhs_expr(c)));
     }
 
-    /** \brief Return true iff \c e is of the form (?m ... (intro ...)) */
+    /** \brief Return true iff \c e is of the form (?m ... (intro ...) ...) */
     bool is_meta_intro_app(type_checker & tc, expr const & e) const {
         if (!is_app(e) || !is_meta(e))
             return false;
-        expr arg = get_app_fn(app_arg(e));
-        if (!is_constant(arg))
-            return false;
-        return (bool) inductive::is_intro_rule(tc.env(), const_name(arg)); // NOLINT
+        buffer<expr> args;
+        get_app_args(e, args);
+        for (expr const & a : args) {
+            expr arg = get_app_fn(a);
+            if (!is_constant(arg))
+                continue;
+            if (inductive::is_intro_rule(tc.env(), const_name(arg)))
+                return true;
+        }
+        return false;
     }
 
     /** \brief Return true iff the lhs or rhs of the constraint c is of the form (?m ... (intro ...)) */
@@ -50,21 +40,21 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
 
     /**
        \brief Given (elim args) =?= t, where elim is the eliminator/recursor for the inductive declaration \c decl,
-       and the last argument of args is of the form (?m ...), we create a case split where we try to assign (?m ...)
+       and the major premise is of the form (?m ...), we create a case split where we try to assign (?m ...)
        to the different constructors of decl.
     */
     lazy_list<constraints> add_elim_meta_cnstrs(type_checker & tc, name_generator ngen, inductive::inductive_decl const & decl,
                                                 expr const & elim, buffer<expr> & args, expr const & t, justification const & j) const {
         lean_assert(is_constant(elim));
+        environment const & env = tc.env();
         levels elim_lvls       = const_levels(elim);
         unsigned elim_num_lvls = length(elim_lvls);
-        unsigned num_args      = args.size();
-        expr meta              = args[num_args - 1]; // save last argument, we will update it
+        unsigned major_idx     = *inductive::get_elim_major_idx(env, const_name(elim));
+        expr meta              = args[major_idx]; // save this argument, we will update it
         lean_assert(is_meta(meta));
         buffer<expr> margs;
         expr const & m     = get_app_args(meta, margs);
         expr const & mtype = mlocal_type(m);
-        environment const & env = tc.env();
         buffer<constraints> alts;
         for (auto const & intro : inductive::inductive_decl_intros(decl)) {
             name const & intro_name = inductive::intro_rule_name(intro);
@@ -83,10 +73,10 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
                 hint = mk_app(hint, mk_app(mk_aux_metavar_for(ngen, mtype), margs));
                 intro_type = tc.whnf(binding_body(intro_type));
             }
-            constraint c1 = mk_eq_cnstr(meta, hint, j);
-            args[num_args - 1] = hint;
+            constraint c1      = mk_eq_cnstr(meta, hint, j);
+            args[major_idx]    = hint;
             expr reduce_elim   = tc.whnf(mk_app(elim, args));
-            constraint c2 = mk_eq_cnstr(reduce_elim, t, j);
+            constraint c2      = mk_eq_cnstr(reduce_elim, t, j);
             alts.push_back(constraints({c1, c2}));
         }
         return to_lazy(to_list(alts.begin(), alts.end()));
@@ -94,7 +84,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
 
     lazy_list<constraints> process_elim_meta_core(type_checker & tc, name_generator const & ngen,
                                                   expr const & lhs, expr const & rhs, justification const & j) const {
-        lean_assert(is_elim_meta_app(tc, lhs));
+        lean_assert(inductive::is_elim_meta_app(tc, lhs));
         buffer<expr> args;
         expr const & elim = get_app_args(lhs, args);
         environment const & env = tc.env();
@@ -116,9 +106,9 @@ public:
         expr const & lhs        = cnstr_lhs_expr(c);
         expr const & rhs        = cnstr_rhs_expr(c);
         justification const & j = c.get_justification();
-        if (is_elim_meta_app(tc, lhs))
+        if (inductive::is_elim_meta_app(tc, lhs))
             return process_elim_meta_core(tc, ngen, lhs, rhs, j);
-        else if (is_elim_meta_app(tc, rhs))
+        else if (inductive::is_elim_meta_app(tc, rhs))
             return process_elim_meta_core(tc, ngen, rhs, lhs, j);
         else
             return lazy_list<constraints>();

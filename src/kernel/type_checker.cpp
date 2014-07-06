@@ -24,6 +24,37 @@ Author: Leonardo de Moura
 namespace lean {
 static name g_x_name("x");
 
+expr replace_range(expr const & type, expr const & new_range) {
+    if (is_pi(type))
+        return update_binding(type, binding_domain(type), replace_range(binding_body(type), new_range));
+    else
+        return new_range;
+}
+
+/** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
+static unsigned get_arity(expr type) {
+    unsigned r = 0;
+    while (is_pi(type)) {
+        type = binding_body(type);
+        r++;
+    }
+    return r;
+}
+
+expr mk_aux_type_metavar_for(name_generator & ngen, expr const & t) {
+    expr new_type = replace_range(t, mk_sort(mk_meta_univ(ngen.next())));
+    name n        = ngen.next();
+    return mk_metavar(n, new_type);
+}
+
+expr mk_aux_metavar_for(name_generator & ngen, expr const & t) {
+    unsigned num  = get_arity(t);
+    expr r        = mk_app_vars(mk_aux_type_metavar_for(ngen, t), num);
+    expr new_type = replace_range(t, r);
+    name n        = ngen.next();
+    return mk_metavar(n, new_type);
+}
+
 type_checker::scope::scope(type_checker & tc):
     m_tc(tc), m_keep(false) {
     m_tc.push();
@@ -69,48 +100,6 @@ optional<constraint> type_checker::next_cnstr() {
 }
 
 /**
-   \brief Given a metavariable application ((?m t_1) ... t_k)
-   Create a telescope with the types of t_1 ... t_k.
-   If t_i is a local constant, then we abstract the occurrences of t_i in the types of t_{i+1} ... t_k.
-   Return false if the telescope still contains local constants after the abstraction step.
-*/
-bool type_checker::meta_to_telescope(expr const & e, buffer<expr> & telescope) {
-    lean_assert(is_meta(e));
-    lean_assert(closed(e));
-    buffer<optional<expr>> locals;
-    return meta_to_telescope_core(e, telescope, locals);
-}
-
-/** \brief Auxiliary method for meta_to_telescope */
-bool type_checker::meta_to_telescope_core(expr const & e, buffer<expr> & telescope, buffer<optional<expr>> & locals) {
-    lean_assert(is_meta(e));
-    if (is_app(e)) {
-        if (!meta_to_telescope_core(app_fn(e), telescope, locals))
-            return false;
-        // infer type and abstract local constants
-        unsigned n = locals.size();
-        expr t = replace(infer_type(app_arg(e)),
-                         [&](expr const & e, unsigned offset) -> optional<expr> {
-                             if (is_local(e)) {
-                                 for (unsigned i = 0; i < n; i++) {
-                                     if (locals[i] && is_eqp(*locals[i], e))
-                                         return some_expr(mk_var(offset + n - i - 1));
-                                 }
-                             }
-                             return none_expr();
-                         });
-        if (has_local(t))
-            return false;
-        telescope.push_back(t);
-        if (is_local(e))
-            locals.push_back(some_expr(e));
-        else
-            locals.push_back(none_expr());
-    }
-    return true;
-}
-
-/**
    \brief Make sure \c e "is" a sort, and return the corresponding sort.
    If \c e is not a sort, then the whnf procedure is invoked. Then, there are
    two options: the normalize \c e is a sort, or it is a meta. If it is a meta,
@@ -150,25 +139,19 @@ expr type_checker::ensure_pi_core(expr e, expr const & s) {
     if (is_pi(e)) {
         return e;
     } else if (is_meta(e)) {
-        buffer<expr> telescope;
-        if (!meta_to_telescope(e, telescope)) {
-            environment env = m_env;
-            throw_kernel_exception(env, s,
-                                   [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, env, o, s); });
-        }
-        expr ta    = mk_sort(mk_meta_univ(m_gen.next()));
-        expr A     = mk_metavar(m_gen.next(), mk_pi(telescope, ta));
-        expr A_xs  = mk_app_vars(A, telescope.size());
-        telescope.push_back(A_xs);
-        expr tb    = mk_sort(mk_meta_univ(m_gen.next()));
-        expr B     = mk_metavar(m_gen.next(), mk_pi(telescope, tb));
-        buffer<expr> args;
-        get_app_args(e, args);
-        expr A_args = mk_app(A, args.size(), args.data());
-        args.push_back(Var(0));
-        expr B_args = mk_app(B, args.size(), args.data());
-        expr r      = mk_pi(g_x_name, A_args, B_args);
-        justification j = mk_justification(s,
+        buffer<expr> margs;
+        expr const & m     = get_app_args(e, margs);
+        expr const & mtype = mlocal_type(m);
+        expr maux1         = mk_aux_type_metavar_for(m_gen, mtype);
+        expr dontcare;
+        expr tmp_pi        = mk_pi(g_x_name, mk_app_vars(maux1, margs.size()), dontcare); // trick for "extending" the context
+        expr mtype2        = replace_range(mtype, tmp_pi); // trick for "extending" the context
+        expr maux2         = mk_aux_type_metavar_for(m_gen, mtype2);
+        expr A             = mk_app(maux1, margs);
+        margs.push_back(Var(0));
+        expr B             = mk_app(maux2, margs);
+        expr r             = mk_pi(g_x_name, A, B);
+        justification j    = mk_justification(s,
                                            [=](formatter const & fmt, options const & o, substitution const & subst) {
                                                return pp_function_expected(fmt, m_env, o, subst.instantiate(s));
                                            });

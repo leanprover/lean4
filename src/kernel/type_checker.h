@@ -16,6 +16,30 @@ Author: Leonardo de Moura
 #include "kernel/converter.h"
 
 namespace lean {
+
+/** \brief Given \c type of the form <tt>(Pi ctx, r)</tt>, return <tt>(Pi ctx, new_range)</tt> */
+expr replace_range(expr const & type, expr const & new_range);
+
+/**
+   \brief Given a type \c t of the form
+   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
+   return a new metavariable \c m1 with type
+   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
+   where \c u is a new universe metavariable.
+*/
+expr mk_aux_type_metavar_for(name_generator & ngen, expr const & t);
+
+/**
+   \brief Given a type \c t of the form
+   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
+   return a new metavariable \c m1 with type
+   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), (m2 x_1 ... x_n)</tt>
+   where \c m2 is a new metavariable with type
+   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
+   where \c u is a new universe metavariable.
+*/
+expr mk_aux_metavar_for(name_generator & ngen, expr const & t);
+
 /**
    \brief Lean Type Checker. It can also be used to infer types, check whether a
    type \c A is convertible to a type \c B, etc.
@@ -59,8 +83,6 @@ class type_checker {
     optional<expr> expand_macro(expr const & m);
     std::pair<expr, expr> open_binding_body(expr const & e);
     void add_cnstr(constraint const & c);
-    bool meta_to_telescope(expr const & e, buffer<expr> & telescope);
-    bool meta_to_telescope_core(expr const & e, buffer<expr> & telescope, buffer<optional<expr>> & locals);
     expr ensure_sort_core(expr e, expr const & s);
     expr ensure_pi_core(expr e, expr const & s);
     justification mk_macro_jst(expr const & e);

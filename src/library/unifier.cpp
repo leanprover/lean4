@@ -190,55 +190,6 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, const
         return mk_pair(unify_status::Unsupported, s);
 }
 
-
-/** \brief Given \c type of the form <tt>(Pi ctx, r)</tt>, return <tt>(Pi ctx, new_range)</tt> */
-static expr replace_range(expr const & type, expr const & new_range) {
-    if (is_pi(type))
-        return update_binding(type, binding_domain(type), replace_range(binding_body(type), new_range));
-    else
-        return new_range;
-}
-
-/** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
-static unsigned get_arity(expr type) {
-    unsigned r = 0;
-    while (is_pi(type)) {
-        type = binding_body(type);
-        r++;
-    }
-    return r;
-}
-
-/**
-   \brief Given a type \c t of the form
-   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
-   return a new metavariable \c m1 with type
-   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
-   where \c u is a new universe metavariable.
-*/
-expr mk_aux_type_metavar_for(name_generator & ngen, expr const & t) {
-    expr new_type = replace_range(t, mk_sort(mk_meta_univ(ngen.next())));
-    name n        = ngen.next();
-    return mk_metavar(n, new_type);
-}
-
-/**
-   \brief Given a type \c t of the form
-   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
-   return a new metavariable \c m1 with type
-   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), (m2 x_1 ... x_n)</tt>
-   where \c m2 is a new metavariable with type
-   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
-   where \c u is a new universe metavariable.
-*/
-expr mk_aux_metavar_for(name_generator & ngen, expr const & t) {
-    unsigned num  = get_arity(t);
-    expr r        = mk_app_vars(mk_aux_type_metavar_for(ngen, t), num);
-    expr new_type = replace_range(t, r);
-    name n        = ngen.next();
-    return mk_metavar(n, new_type);
-}
-
 static constraint g_dont_care_cnstr = mk_eq_cnstr(expr(), expr(), justification());
 
 /**
@@ -740,11 +691,15 @@ struct unifier_fn {
         }
     }
 
+    void pop_case_split() {
+        m_tc->pop();
+        m_case_splits.pop_back();
+    }
+
     bool resolve_conflict() {
         lean_assert(in_conflict());
-        // Remark: we must save the value of m_conflict because d->next(*this) may change it.
-        justification conflict = *m_conflict;
         while (!m_case_splits.empty()) {
+            justification conflict = *m_conflict;
             std::unique_ptr<case_split> & d = m_case_splits.back();
             if (depends_on(conflict, d->m_assumption_idx)) {
                 d->m_failed_justifications = mk_composite1(d->m_failed_justifications, conflict);
@@ -752,9 +707,9 @@ struct unifier_fn {
                     reset_conflict();
                     return true;
                 }
+            } else {
+                pop_case_split();
             }
-            m_tc->pop();
-            m_case_splits.pop_back();
         }
         return false;
     }
@@ -784,6 +739,7 @@ struct unifier_fn {
         } else {
             // update conflict
             update_conflict(mk_composite1(*m_conflict, cs.m_failed_justifications));
+            pop_case_split();
             return false;
         }
     }
@@ -830,6 +786,7 @@ struct unifier_fn {
         } else {
             // update conflict
             update_conflict(mk_composite1(*m_conflict, cs.m_failed_justifications));
+            pop_case_split();
             return false;
         }
     }

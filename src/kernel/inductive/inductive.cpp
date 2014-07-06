@@ -765,9 +765,10 @@ optional<expr> inductive_normalizer_extension::operator()(expr const & e, extens
         return none_expr(); // it is not an eliminator
     buffer<expr> elim_args;
     get_app_args(e, elim_args);
-    if (elim_args.size() != it1->m_num_ACe + it1->m_num_indices + 1)
-        return none_expr(); // number of arguments does not match
-    expr intro_app = ctx.whnf(elim_args.back());
+    unsigned major_idx = it1->m_num_ACe + it1->m_num_indices;
+    if (elim_args.size() < major_idx + 1)
+        return none_expr(); // major premise is missing
+    expr intro_app = ctx.whnf(elim_args[major_idx]);
     expr const & intro_fn  = get_app_fn(intro_app);
     // Last argument must be a constant and an application of a constant.
     if (!is_constant(intro_fn))
@@ -800,11 +801,15 @@ optional<expr> inductive_normalizer_extension::operator()(expr const & e, extens
     std::reverse(ACebu.begin(), ACebu.end());
     expr r = instantiate_univ_params(it2->m_comp_rhs_body, it1->m_level_names, const_levels(elim_fn));
     r = instantiate(r, ACebu.size(), ACebu.data());
+    if (elim_args.size() > major_idx + 1) {
+        unsigned num_args = elim_args.size() - major_idx - 1;
+        r = mk_app(r, num_args, elim_args.data() + major_idx + 1);
+    }
     return some_expr(r);
 }
 
-// Return true if \c e is of the form (elim ... (?m ...))
-bool inductive_normalizer_extension::may_reduce_later(expr const & e, extension_context & ctx) const {
+template<typename Ctx>
+bool is_elim_meta_app_core(Ctx & ctx, expr const & e) {
     inductive_env_ext const & ext = get_extension(ctx.env());
     expr const & elim_fn   = get_app_fn(e);
     if (!is_constant(elim_fn))
@@ -814,10 +819,20 @@ bool inductive_normalizer_extension::may_reduce_later(expr const & e, extension_
         return false;
     buffer<expr> elim_args;
     get_app_args(e, elim_args);
-    if (elim_args.size() != it1->m_num_ACe + it1->m_num_indices + 1)
+    unsigned major_idx = it1->m_num_ACe + it1->m_num_indices;
+    if (elim_args.size() < major_idx + 1)
         return false;
-    expr intro_app = ctx.whnf(elim_args.back());
+    expr intro_app = ctx.whnf(elim_args[major_idx]);
     return is_meta(intro_app);
+}
+
+bool is_elim_meta_app(type_checker & tc, expr const & e) {
+    return is_elim_meta_app_core(tc, e);
+}
+
+// Return true if \c e is of the form (elim ... (?m ...))
+bool inductive_normalizer_extension::may_reduce_later(expr const & e, extension_context & ctx) const {
+    return is_elim_meta_app_core(ctx, e);
 }
 
 optional<inductive_decls> is_inductive_decl(environment const & env, name const & n) {
@@ -842,6 +857,14 @@ optional<name> is_elim_rule(environment const & env, name const & n) {
         return optional<name>(it->m_inductive_name);
     else
         return optional<name>();
+}
+
+optional<unsigned> get_elim_major_idx(environment const & env, name const & n) {
+    inductive_env_ext const & ext = get_extension(env);
+    if (auto it = ext.m_elim_info.find(n))
+        return optional<unsigned>(it->m_num_ACe + it->m_num_indices);
+    else
+        return optional<unsigned>();
 }
 }
 }

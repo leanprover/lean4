@@ -35,7 +35,7 @@ struct aliases_ext : public environment_extension {
     void add_alias(name const & a, expr const & e) {
         auto it = m_state.m_aliases.find(a);
         if (it)
-            m_state.m_aliases.insert(a, list<expr>(e, *it));
+            m_state.m_aliases.insert(a, list<expr>(e, filter(*it, [&](expr const & t) { return t != e; })));
         else
             m_state.m_aliases.insert(a, list<expr>(e));
         m_state.m_inv_aliases.insert(e, a);

@@ -1,4 +1,5 @@
 import standard
+using pair
 
 inductive t1 : Type :=
 | mk1 : t1

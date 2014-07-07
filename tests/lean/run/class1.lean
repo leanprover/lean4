@@ -1,5 +1,6 @@
 import standard
 using num
+using pair
 
 definition H : inhabited (Bool × num × (num → num)) := _
 

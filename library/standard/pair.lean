@@ -3,6 +3,7 @@
 -- Author: Leonardo de Moura
 import logic
 
+namespace pair
 inductive pair (A : Type) (B : Type) : Type :=
 | mk_pair : A → B → pair A B
 
@@ -25,10 +26,12 @@ section
   theorem pair_ext (p : pair A B) : mk_pair (fst p) (snd p) = p
   := pair_rec (λ x y, refl (mk_pair x y)) p
 end
-instance pair_inhabited
+
+instance pair.pair_inhabited
 
 precedence `×`:30
 infixr × := pair
 
 -- notation for n-ary tuples
 notation `(` h `,` t:(foldl `,` (e r, mk_pair r e) h) `)` := t
+end

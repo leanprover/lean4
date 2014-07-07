@@ -25,7 +25,6 @@ static name g_assign(":=");
 static name g_private("[private]");
 static name g_inline("[inline]");
 static name g_instance("[instance]");
-static name g_class("[class]");
 
 environment universe_cmd(parser & p) {
     name n = p.check_id_next("invalid universe declaration, identifier expected");
@@ -168,12 +167,10 @@ struct decl_modifiers {
     bool m_is_private;
     bool m_is_opaque;
     bool m_is_instance;
-    bool m_is_class;
     decl_modifiers() {
         m_is_private  = false;
         m_is_opaque   = true;
         m_is_instance = false;
-        m_is_class    = false;
     }
 
     void parse(parser & p) {
@@ -186,9 +183,6 @@ struct decl_modifiers {
                 p.next();
             } else if (p.curr_is_token(g_instance)) {
                 m_is_instance = true;
-                p.next();
-            } else if (p.curr_is_token(g_class)) {
-                m_is_class = true;
                 p.next();
             } else {
                 break;
@@ -285,8 +279,6 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value);
         env = module::add(env, check(env, mk_definition(env, real_n, append(ls, new_ls), type, value, modifiers.m_is_opaque)));
     }
-    if (modifiers.m_is_class)
-        env = add_class(env, real_n);
     if (modifiers.m_is_instance)
         env = add_instance(env, real_n);
     return env;

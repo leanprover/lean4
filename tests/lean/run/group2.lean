@@ -16,8 +16,6 @@ end
 inductive group_struct (A : Type) : Type :=
 | mk_group_struct : Π (mul : A → A → A) (one : A) (inv : A → A), is_assoc mul → is_id mul one → is_inv mul one inv → group_struct A
 
-class group_struct
-
 inductive group : Type :=
 | mk_group : Π (A : Type), group_struct A → group
 

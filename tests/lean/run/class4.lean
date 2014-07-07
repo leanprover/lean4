@@ -59,8 +59,6 @@ inductive not_zero (x : nat) : Bool :=
 theorem not_zero_not_is_zero {x : nat} (H : not_zero x) : ¬ is_zero x
 := not_zero_rec (λ H1, H1) H
 
-class not_zero
-
 theorem not_zero_add_right [instance] (x y : nat) (H : not_zero y) : not_zero (x + y)
 := not_zero_intro (not_zero_add x y (not_zero_not_is_zero H))
 

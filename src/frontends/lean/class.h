@@ -11,8 +11,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/cmd_table.h"
 
 namespace lean {
-/** \brief Add a new 'class' to the environment. */
-environment add_class(environment const & env, name const & n);
 /** \brief Add a new 'class instance' to the environment. */
 environment add_instance(environment const & env, name const & n);
 /** \brief Return true iff \c c was declared with \c add_class . */

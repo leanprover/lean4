@@ -209,8 +209,6 @@ theorem exists_unique_elim {A : Type} {p : A → Bool} {b : Bool} (H2 : ∃! x, 
 inductive inhabited (A : Type) : Bool :=
 | inhabited_intro : A → inhabited A
 
-class inhabited
-
 theorem inhabited_elim {A : Type} {B : Bool} (H1 : inhabited A) (H2 : A → B) : B
 := inhabited_rec H2 H1
 

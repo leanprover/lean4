@@ -4,8 +4,6 @@ namespace algebra
   inductive mul_struct (A : Type) : Type :=
   | mk_mul_struct : (A → A → A) → mul_struct A
 
-  class mul_struct
-
   definition mul [inline] {A : Type} {s : mul_struct A} (a b : A)
   := mul_struct_rec (λ f, f) s a b
 

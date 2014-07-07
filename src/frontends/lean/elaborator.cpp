@@ -502,7 +502,7 @@ public:
                 else
                     return choose(std::make_shared<class_elaborator>(*this, mvar, mvar_type, local_insts, insts, ctx, s, j));
             };
-            add_cnstr(mk_choice_cnstr(m, choice_fn, true, j));
+            add_cnstr(mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), j));
         }
         return m;
     }
@@ -544,7 +544,7 @@ public:
             return choose(std::make_shared<choice_expr_elaborator>(*this, mvar, e, ctx, s));
         };
         justification j = mk_justification("none of the overloads is applicable", some_expr(e));
-        add_cnstr(mk_choice_cnstr(m, fn, false, j));
+        add_cnstr(mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), j));
         return m;
     }
 
@@ -609,6 +609,21 @@ public:
         return a;
     }
 
+    constraint mk_delayed_coercion_cnstr(expr const & m, expr const & a, expr const & a_type, justification const & j, unsigned delay_factor) {
+        auto choice_fn = [=](expr const & mvar, expr const & new_d_type, substitution const & /* s */, name_generator const & /* ngen */) {
+            // Remark: we want the coercions solved before we start discarding FlexFlex constraints. So, we use PreFlexFlex as a max cap
+            // for delaying coercions.
+            if (is_meta(new_d_type) && delay_factor < to_delay_factor(cnstr_group::PreFlexFlex)) {
+                // The type is still unknown, delay the constraint even more.
+                return lazy_list<constraints>(constraints(mk_delayed_coercion_cnstr(m, a, a_type, justification(), delay_factor+1)));
+            } else {
+                expr r = apply_coercion(a, a_type, new_d_type);
+                return lazy_list<constraints>(constraints(mk_eq_cnstr(mvar, r, justification())));
+            }
+        };
+        return mk_choice_cnstr(m, choice_fn, delay_factor, j);
+    }
+
     /** \brief Given an application \c e, where the expected type is d_type, and the argument type is a_type,
         create a "delayed coercion". The idea is to create a choice constraint and postpone the coercion
         search. We do that whenever d_type or a_type is a metavar application, and d_type or a_type is a coercion source/target.
@@ -616,12 +631,8 @@ public:
     expr mk_delayed_coercion(expr const & e, expr const & d_type, expr const & a_type) {
         expr a = app_arg(e);
         expr m = mk_meta(some_expr(d_type), a.get_tag());
-        auto choice_fn = [=](expr const & mvar, expr const & new_d_type, substitution const & /* s */, name_generator const & /* ngen */) {
-            expr r = apply_coercion(a, a_type, new_d_type);
-            return lazy_list<constraints>(constraints(mk_eq_cnstr(mvar, r, justification())));
-        };
         justification j = mk_app_justification(m_env, e, d_type, a_type);
-        add_cnstr(mk_choice_cnstr(m, choice_fn, false, j));
+        add_cnstr(mk_delayed_coercion_cnstr(m, a, a_type, j, to_delay_factor(cnstr_group::Basic)));
         return update_app(e, app_fn(e), m);
     }
 

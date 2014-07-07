@@ -191,35 +191,21 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, const
 }
 
 static constraint g_dont_care_cnstr = mk_eq_cnstr(expr(), expr(), justification());
-
-/**
-    The unifier divides the constraints in 6 groups: Simple, Basic, FlexRigid, Reduction, FlexFlex, DelayedChoice
-
-    1) Simple: constraints that never create case-splits. Example: pattern matching constraints (?M l_1 ... l_n) =?= t.
-       The are not even inserted in the constraint priority queue.
-
-    2) Basic: contains user choice constraints used to model coercions and overloaded constraints, and constraints
-       that cannot be solved, and the unification plugin must be invoked.
-
-    3) FlexRigid constraints (?M t_1 ... t_n) =?= t, where t_n is not an introduction application
-
-    4) PluginDelayed: contraints delayed by the unifier_plugin. Examples: (elim ... (?m ...)) and (?m ... (intro ...)),
-       where elim is an eliminator/recursor and intro is an introduction/constructor.
-       This constraints are delayed because after ?m is assigned we may be able to reduce them.
-
-    5) FlexFlex:  (?m1 ...) =?= (?m2 ...) we don't try to solve this constraint, we delay them and hope the other
-       ones instantiate ?m1 or ?m2. If this kind of constraint is the next to be processed in the queue, then
-       we simply discard it.
-
-    6) DelayedChoice: delayed choice constraints, they are used to model features such as class-instance
-       They are really term synthesizers. We use the unifier just to exploit the non-chronological backtracking
-       infrastructure
-*/
-enum class cnstr_group { Basic = 0, FlexRigid, PluginDelayed, FlexFlex, DelayedChoice };
-static unsigned g_group_size = 1u << 28;
-static unsigned g_cnstr_group_first_index[5] = { 0, g_group_size, 2*g_group_size, 3*g_group_size, 4*g_group_size};
+static unsigned g_group_size = 1u << 29;
+static unsigned g_cnstr_group_first_index[6] = { 0, g_group_size, 2*g_group_size, 3*g_group_size, 4*g_group_size, 5*g_group_size};
 static unsigned get_group_first_index(cnstr_group g) {
     return g_cnstr_group_first_index[static_cast<unsigned>(g)];
+}
+
+/** \brief Convert choice constraint delay factor to cnstr_group */
+cnstr_group get_choice_cnstr_group(constraint const & c) {
+    lean_assert(is_choice_cnstr(c));
+    unsigned f = cnstr_delay_factor(c);
+    if (f > static_cast<unsigned>(cnstr_group::MaxDelayed)) {
+        return cnstr_group::MaxDelayed;
+    } else {
+        return static_cast<cnstr_group>(f);
+    }
 }
 
 /** \brief Auxiliary functional object for implementing simultaneous higher-order unification */
@@ -638,10 +624,7 @@ struct unifier_fn {
         switch (c.kind()) {
         case constraint_kind::Choice:
             // Choice constraints are never considered easy.
-            if (cnstr_delayed(c))
-                add_cnstr(c, nullptr, nullptr, cnstr_group::DelayedChoice);
-            else
-                add_cnstr(c, nullptr, nullptr, cnstr_group::Basic);
+            add_cnstr(c, nullptr, nullptr, get_choice_cnstr_group(c));
             return true;
         case constraint_kind::Eq:
             return process_eq_constraint(c);

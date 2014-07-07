@@ -31,10 +31,10 @@ struct level_constraint_cell : public constraint_cell {
 struct choice_constraint_cell : public constraint_cell {
     expr      m_expr;
     choice_fn m_fn;
-    bool      m_delayed;
-    choice_constraint_cell(expr const & e, choice_fn const & fn, bool delayed, justification const & j):
+    unsigned  m_delay_factor;
+    choice_constraint_cell(expr const & e, choice_fn const & fn, unsigned delay_factor, justification const & j):
         constraint_cell(constraint_kind::Choice, j),
-        m_expr(e), m_fn(fn), m_delayed(delayed) {}
+        m_expr(e), m_fn(fn), m_delay_factor(delay_factor) {}
 };
 
 void constraint_cell::dealloc() {
@@ -63,9 +63,9 @@ constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const &
 constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j) {
     return constraint(new level_constraint_cell(lhs, rhs, j));
 }
-constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, bool delayed, justification const & j) {
+constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, unsigned delay_factor, justification const & j) {
     lean_assert(is_meta(m));
-    return constraint(new choice_constraint_cell(m, fn, delayed, j));
+    return constraint(new choice_constraint_cell(m, fn, delay_factor, j));
 }
 
 expr const & cnstr_lhs_expr(constraint const & c) { lean_assert(is_eq_cnstr(c)); return static_cast<eq_constraint_cell*>(c.raw())->m_lhs; }
@@ -82,8 +82,8 @@ expr const & cnstr_expr(constraint const & c) { lean_assert(is_choice_cnstr(c));
 choice_fn const & cnstr_choice_fn(constraint const & c) {
     lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_fn;
 }
-bool cnstr_delayed(constraint const & c) {
-    lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_delayed;
+unsigned cnstr_delay_factor(constraint const & c) {
+    lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_delay_factor;
 }
 
 constraint update_justification(constraint const & c, justification const & j) {
@@ -93,7 +93,7 @@ constraint update_justification(constraint const & c, justification const & j) {
     case constraint_kind::LevelEq:
         return mk_level_eq_cnstr(cnstr_lhs_level(c), cnstr_rhs_level(c), j);
     case constraint_kind::Choice:
-        return mk_choice_cnstr(cnstr_expr(c), cnstr_choice_fn(c), cnstr_delayed(c), j);
+        return mk_choice_cnstr(cnstr_expr(c), cnstr_choice_fn(c), cnstr_delay_factor(c), j);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -108,7 +108,7 @@ std::ostream & operator<<(std::ostream & out, constraint const & c) {
         break;
     case constraint_kind::Choice:
         out << "choice ";
-        if (cnstr_delayed(c)) out << "[delayed] ";
+        if (cnstr_delay_factor(c) != 0) out << "[delayed:" << cnstr_delay_factor(c) << "] ";
         out << cnstr_expr(c);
         break;
     }

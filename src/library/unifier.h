@@ -45,6 +45,34 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, substitution const & s,
                               options const & o);
 
+/**
+    The unifier divides the constraints in 6 groups: Simple, Basic, FlexRigid, PluginDelayed, PreFlexFlex, FlexFlex, MaxDelayed
+
+    1) Simple: constraints that never create case-splits. Example: pattern matching constraints (?M l_1 ... l_n) =?= t.
+       The are not even inserted in the constraint priority queue.
+
+    2) Basic: contains user choice constraints used to model coercions and overloaded constraints, and constraints
+       that cannot be solved, and the unification plugin must be invoked.
+
+    3) FlexRigid constraints (?M t_1 ... t_n) =?= t, where t_n is not an introduction application
+
+    4) PluginDelayed: contraints delayed by the unifier_plugin. Examples: (elim ... (?m ...)) and (?m ... (intro ...)),
+       where elim is an eliminator/recursor and intro is an introduction/constructor.
+       This constraints are delayed because after ?m is assigned we may be able to reduce them.
+
+    5) PreFlexFlex: this group is for constraints we want solved before we start discarding FlexFlex constraints.
+
+    6) FlexFlex:  (?m1 ...) =?= (?m2 ...) we don't try to solve this constraint, we delay them and hope the other
+       ones instantiate ?m1 or ?m2. If this kind of constraint is the next to be processed in the queue, then
+       we simply discard it.
+
+    7) MaxDelayed: for delayed choice constraints, they are used to model features such as class-instance
+       They are really term synthesizers. We use the unifier just to exploit the non-chronological backtracking
+       infrastructure
+*/
+enum class cnstr_group { Basic = 0, FlexRigid, PluginDelayed, PreFlexFlex, FlexFlex, MaxDelayed };
+inline unsigned to_delay_factor(cnstr_group g) { return static_cast<unsigned>(g); }
+
 class unifier_exception : public exception {
     justification m_jst;
     substitution  m_subst;

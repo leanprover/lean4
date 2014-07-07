@@ -1513,13 +1513,13 @@ static int mk_choice_cnstr(lua_State * L) {
     expr m           = to_expr(L, 1);
     choice_fn fn     = to_choice_fn(L, 2);
     if (nargs == 2)
-        return push_constraint(L, mk_choice_cnstr(m, fn, false, justification()));
+        return push_constraint(L, mk_choice_cnstr(m, fn, 0, justification()));
     else if (nargs == 3 && is_justification(L, 3))
-        return push_constraint(L, mk_choice_cnstr(m, fn, false, to_justification(L, 3)));
+        return push_constraint(L, mk_choice_cnstr(m, fn, 0, to_justification(L, 3)));
     else if (nargs == 3)
-        return push_constraint(L, mk_choice_cnstr(m, fn, lua_toboolean(L, 3), justification()));
+        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), justification()));
     else
-        return push_constraint(L, mk_choice_cnstr(m, fn, lua_toboolean(L, 3), to_justification(L, 4)));
+        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), to_justification(L, 4)));
 }
 
 static int constraint_expr(lua_State * L) {
@@ -1530,10 +1530,10 @@ static int constraint_expr(lua_State * L) {
         throw exception("arg #1 must be a choice constraint");
 }
 
-static int constraint_delayed(lua_State * L) {
+static int constraint_delay_factor(lua_State * L) {
     constraint const & c = to_constraint(L, 1);
     if (is_choice_cnstr(c))
-        return push_boolean(L, cnstr_delayed(c));
+        return push_integer(L, cnstr_delay_factor(c));
     else
         throw exception("arg #1 must be a choice constraint");
 }
@@ -1550,7 +1550,7 @@ static const struct luaL_Reg constraint_m[] = {
     {"rhs",             safe_function<constraint_rhs>},
     {"justification",   safe_function<constraint_jst>},
     {"expr",            safe_function<constraint_expr>},
-    {"delayed",         safe_function<constraint_delayed>},
+    {"delay_factor",    safe_function<constraint_delay_factor>},
     {0, 0}
 };
 

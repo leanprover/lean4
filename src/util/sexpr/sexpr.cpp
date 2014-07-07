@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/escaped.h"
 #include "util/buffer.h"
+#include "util/sstream.h"
 #include "util/object_serializer.h"
 #include "util/numerics/mpz.h"
 #include "util/numerics/mpq.h"
@@ -384,8 +385,11 @@ static sexpr to_sexpr_elem(lua_State * L, int idx) {
         return sexpr(to_mpz(L, idx));
     } else if (is_mpq(L, idx)) {
         return sexpr(to_mpq(L, idx));
+    } else if (lua_isstring(L, idx)) {
+        std::string str = lua_tostring(L, idx);
+        return sexpr(str);
     } else {
-        return sexpr(lua_tostring(L, idx));
+        throw exception(sstream() << "arg #" << idx << " cannot be casted into an s-expression");
     }
 }
 

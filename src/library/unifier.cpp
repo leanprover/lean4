@@ -275,6 +275,7 @@ struct unifier_fn {
     */
     struct case_split {
         unsigned         m_assumption_idx; // idx of the current assumption
+        justification    m_jst;
         justification    m_failed_justifications; // justifications for failed branches
         // snapshot of unifier's state
         substitution     m_subst;
@@ -283,8 +284,8 @@ struct unifier_fn {
         name_to_cnstrs   m_mlvl_occs;
 
         /** \brief Save unifier's state */
-        case_split(unifier_fn & u):
-            m_assumption_idx(u.m_next_assumption_idx), m_subst(u.m_subst), m_cnstrs(u.m_cnstrs),
+        case_split(unifier_fn & u, justification const & j):
+            m_assumption_idx(u.m_next_assumption_idx), m_jst(j), m_subst(u.m_subst), m_cnstrs(u.m_cnstrs),
             m_mvar_occs(u.m_mvar_occs), m_mlvl_occs(u.m_mlvl_occs) {
             u.m_next_assumption_idx++;
             u.m_tc->push();
@@ -304,7 +305,7 @@ struct unifier_fn {
             u.m_next_assumption_idx++;
             u.m_conflict  = optional<justification>();
         }
-
+        justification get_jst() const { return m_jst; }
         virtual ~case_split() {}
         virtual bool next(unifier_fn & u) = 0;
     };
@@ -312,13 +313,13 @@ struct unifier_fn {
 
     struct lazy_constraints_case_split : public case_split {
         lazy_list<constraints> m_tail;
-        lazy_constraints_case_split(unifier_fn & u, lazy_list<constraints> const & tail):case_split(u), m_tail(tail) {}
+        lazy_constraints_case_split(unifier_fn & u, justification const & j, lazy_list<constraints> const & tail):case_split(u, j), m_tail(tail) {}
         virtual bool next(unifier_fn & u) { return u.next_lazy_constraints_case_split(*this); }
     };
 
     struct simple_case_split : public case_split {
         list<constraints> m_tail;
-        simple_case_split(unifier_fn & u, list<constraints> const & tail):case_split(u), m_tail(tail) {}
+        simple_case_split(unifier_fn & u, justification const & j, list<constraints> const & tail):case_split(u, j), m_tail(tail) {}
         virtual bool next(unifier_fn & u) { return u.next_simple_case_split(*this); }
     };
 
@@ -725,7 +726,7 @@ struct unifier_fn {
             cs.restore_state(*this);
             lean_assert(!in_conflict());
             cs.m_tail = r->second;
-            return process_constraints(r->first, mk_assumption_justification(cs.m_assumption_idx));
+            return process_constraints(r->first, mk_composite1(cs.get_jst(), mk_assumption_justification(cs.m_assumption_idx)));
         } else {
             // update conflict
             update_conflict(mk_composite1(*m_conflict, cs.m_failed_justifications));
@@ -742,7 +743,7 @@ struct unifier_fn {
                 return process_constraints(r->first, j);
             } else {
                 justification a = mk_assumption_justification(m_next_assumption_idx);
-                add_case_split(std::unique_ptr<case_split>(new lazy_constraints_case_split(*this, r->second)));
+                add_case_split(std::unique_ptr<case_split>(new lazy_constraints_case_split(*this, j, r->second)));
                 return process_constraints(r->first, mk_composite1(j, a));
             }
         } else {
@@ -772,7 +773,7 @@ struct unifier_fn {
             lean_assert(!in_conflict());
             constraints c = head(cs.m_tail);
             cs.m_tail     = tail(cs.m_tail);
-            return process_constraints(c, mk_assumption_justification(cs.m_assumption_idx));
+            return process_constraints(c, mk_composite1(cs.get_jst(), mk_assumption_justification(cs.m_assumption_idx)));
         } else {
             // update conflict
             update_conflict(mk_composite1(*m_conflict, cs.m_failed_justifications));
@@ -824,7 +825,7 @@ struct unifier_fn {
         constraints cs2(mk_eq_cnstr(t, s, j));
 
         justification a = mk_assumption_justification(m_next_assumption_idx);
-        add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, list<constraints>(cs2))));
+        add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, j, list<constraints>(cs2))));
         return process_constraints(cs1, a);
     }
 
@@ -1124,7 +1125,7 @@ struct unifier_fn {
             return process_constraints(alts[0], justification());
         } else {
             justification a = mk_assumption_justification(m_next_assumption_idx);
-            add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, to_list(alts.begin() + 1, alts.end()))));
+            add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, j, to_list(alts.begin() + 1, alts.end()))));
             return process_constraints(alts[0], a);
         }
     }

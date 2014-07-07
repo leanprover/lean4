@@ -64,13 +64,14 @@ environment using_namespace(environment const & env, io_state const & ios, name 
 environment push_scope(environment const & env, io_state const & ios, name const & n) {
     if (!n.is_anonymous() && in_section(env))
         throw exception("invalid namespace declaration, a namespace cannot be declared inside a section");
+    bool in_section = n.is_anonymous();
     name new_n = get_namespace(env) + n;
     scope_mng_ext ext = get_extension(env);
     ext.m_namespaces = list<name>(new_n, ext.m_namespaces);
     ext.m_in_section = list<bool>(n.is_anonymous(), ext.m_in_section);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
-        r = std::get<2>(t)(r);
+        r = std::get<2>(t)(r, in_section);
     }
     if (!n.is_anonymous())
         r = using_namespace(r, ios, n);
@@ -81,11 +82,12 @@ environment pop_scope(environment const & env) {
     scope_mng_ext ext = get_extension(env);
     if (is_nil(ext.m_namespaces))
         throw exception("invalid end of scope, there are no open namespaces/sections");
+    bool in_section  = head(ext.m_in_section);
     ext.m_namespaces = tail(ext.m_namespaces);
     ext.m_in_section = tail(ext.m_in_section);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
-        r = std::get<3>(t)(r);
+        r = std::get<3>(t)(r, in_section);
     }
     return r;
 }

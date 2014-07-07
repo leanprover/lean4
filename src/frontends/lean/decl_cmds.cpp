@@ -273,10 +273,9 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         levels section_ls = collect_section_levels(ls, p);
         expr ref = mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_ps);
         p.add_local_expr(n, ref);
-    } else {
-        if (real_n != n)
-            env = add_alias(env, n, mk_constant(real_n));
     }
+    if (real_n != n)
+        env = add_decl_alias(env, n, mk_constant(real_n));
     level_param_names new_ls;
     if (is_theorem) {
         // TODO(Leo): delay theorems

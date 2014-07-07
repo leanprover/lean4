@@ -24,21 +24,28 @@ static environment update(environment const & env, aliases_ext const & ext);
 
 struct aliases_ext : public environment_extension {
     struct state {
+        bool                                      m_in_section;
         rb_map<name, list<expr>, name_quick_cmp>  m_aliases;
         rb_map<expr, name,       expr_quick_cmp>  m_inv_aliases;
         rb_map<name, level,      name_quick_cmp>  m_level_aliases;
         rb_map<level, name,      level_quick_cmp> m_inv_level_aliases;
+        state():m_in_section(false) {}
+
+        void add_alias(name const & a, expr const & e) {
+            auto it = m_aliases.find(a);
+            if (it)
+                m_aliases.insert(a, list<expr>(e, filter(*it, [&](expr const & t) { return t != e; })));
+            else
+                m_aliases.insert(a, list<expr>(e));
+            m_inv_aliases.insert(e, a);
+        }
     };
+
     state       m_state;
     list<state> m_scopes;
 
     void add_alias(name const & a, expr const & e) {
-        auto it = m_state.m_aliases.find(a);
-        if (it)
-            m_state.m_aliases.insert(a, list<expr>(e, filter(*it, [&](expr const & t) { return t != e; })));
-        else
-            m_state.m_aliases.insert(a, list<expr>(e));
-        m_state.m_inv_aliases.insert(e, a);
+        m_state.add_alias(a, e);
     }
 
     void add_alias(name const & a, level const & l) {
@@ -49,8 +56,31 @@ struct aliases_ext : public environment_extension {
         m_state.m_inv_level_aliases.insert(l, a);
     }
 
-    void push() {
+    list<state> add_decl_alias_core(list<state> const & scopes, name const & a, expr const & e) {
+        if (empty(scopes)) {
+            return scopes;
+        } else {
+            state s = head(scopes);
+            s.add_alias(a, e);
+            if (s.m_in_section) {
+                return cons(s, add_decl_alias_core(tail(scopes), a, e));
+            } else {
+                return cons(s, tail(scopes));
+            }
+        }
+    }
+
+    void add_decl_alias(name const & a, expr const & e) {
+        if (m_state.m_in_section) {
+            m_scopes = add_decl_alias_core(m_scopes, a, e);
+        } else {
+            add_alias(a, e);
+        }
+    }
+
+    void push(bool in_section) {
         m_scopes = list<state>(m_state, m_scopes);
+        m_state.m_in_section = in_section;
     }
 
     void pop() {
@@ -63,16 +93,16 @@ struct aliases_ext : public environment_extension {
         return env;
     }
 
-    static environment push_scope(environment const & env) {
+    static environment push_scope(environment const & env, bool in_section) {
         aliases_ext ext = get_extension(env);
-        ext.push();
+        ext.push(in_section);
         environment new_env = update(env, ext);
-        if (!in_section(new_env))
+        if (!::lean::in_section(new_env))
             new_env = add_aliases(new_env, get_namespace(new_env), name());
         return new_env;
     }
 
-    static environment pop_scope(environment const & env) {
+    static environment pop_scope(environment const & env, bool) {
         aliases_ext ext = get_extension(env);
         ext.pop();
         return update(env, ext);
@@ -102,6 +132,12 @@ environment add_alias(environment const & env, name const & a, expr const & e) {
     return update(env, ext);
 }
 
+environment add_decl_alias(environment const & env, name const & a, expr const & e) {
+    aliases_ext ext = get_extension(env);
+    ext.add_decl_alias(a, e);
+    return update(env, ext);
+}
+
 optional<name> is_aliased(environment const & env, expr const & t) {
     auto it = get_extension(env).m_state.m_inv_aliases.find(t);
     return it ? optional<name>(*it) : optional<name>();
@@ -112,9 +148,13 @@ list<expr> get_alias_exprs(environment const & env, name const & n) {
     return it ? *it : list<expr>();
 }
 
-environment add_alias(environment const & env, name const & a, level const & l) {
+static void check_no_shadow(environment const & env, name const & a) {
     if (env.is_universe(a))
         throw exception(sstream() << "universe level alias '" << a << "' shadows existing global universe level");
+}
+
+environment add_alias(environment const & env, name const & a, level const & l) {
+    check_no_shadow(env, a);
     aliases_ext ext = get_extension(env);
     ext.add_alias(a, l);
     return update(env, ext);

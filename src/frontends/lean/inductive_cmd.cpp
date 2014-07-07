@@ -498,18 +498,16 @@ struct inductive_cmd_fn {
     }
 
     /** \brief Create an alias for the fully qualified name \c full_id. */
-    environment create_alias(environment const & env, name const & full_id, levels const & section_leves, buffer<expr> const & section_params) {
+    environment create_alias(environment env, name const & full_id, levels const & section_leves, buffer<expr> const & section_params) {
         name id(full_id.get_string());
         if (in_section(env)) {
             expr r = mk_explicit(mk_constant(full_id, section_leves));
             r = mk_app(r, section_params);
             m_p.add_local_expr(id, r);
-            return env;
-        } else if (full_id != id) {
-            return add_alias(env, id, mk_constant(full_id));
-        } else {
-            return env;
         }
+        if (full_id != id)
+            env = add_decl_alias(env, id, mk_constant(full_id));
+        return env;
     }
 
     /** \brief Add aliases for the inductive datatype, introduction and elimination rules */

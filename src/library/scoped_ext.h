@@ -16,8 +16,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 typedef environment (*using_namespace_fn)(environment const &, io_state const &, name const &);
-typedef environment (*push_scope_fn)(environment const &);
-typedef environment (*pop_scope_fn)(environment const &);
+typedef environment (*push_scope_fn)(environment const &, bool);
+typedef environment (*pop_scope_fn)(environment const &, bool);
 
 void register_scoped_ext(name const & n, using_namespace_fn use, push_scope_fn push, pop_scope_fn pop);
 /** \brief Use objects defined in the namespace \c n, if \c c is not the anonymous name, then only object from "class" \c c are considered. */
@@ -137,10 +137,10 @@ public:
     static environment using_namespace_fn(environment const & env, io_state const & ios, name const & n) {
         return update(env, get(env).using_namespace(env, ios, n));
     }
-    static environment push_fn(environment const & env) {
+    static environment push_fn(environment const & env, bool) {
         return update(env, get(env).push());
     }
-    static environment pop_fn(environment const & env) {
+    static environment pop_fn(environment const & env, bool) {
         return update(env, get(env).pop());
     }
     static environment register_entry(environment const & env, io_state const & ios, name const & n, entry const & e) {

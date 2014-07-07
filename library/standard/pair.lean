@@ -27,7 +27,7 @@ section
   := pair_rec (λ x y, refl (mk_pair x y)) p
 end
 
-instance pair.pair_inhabited
+instance pair_inhabited
 
 precedence `×`:30
 infixr × := pair

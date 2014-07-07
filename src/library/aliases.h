@@ -12,6 +12,12 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief Add the alias \c a for expression \c e. \c e must not have free variables. */
 environment add_alias(environment const & env, name const & a, expr const & e);
+/**
+   \brief Add alias \c a for expression \c e, and also add it to all parent scopes
+   until in a namespace scope.
+*/
+environment add_decl_alias(environment const & env, name const & a, expr const & e);
+
 
 /** \brief If \c t is aliased in \c env, then return its name. Otherwise, return none. */
 optional<name> is_aliased(environment const & env, expr const & t);

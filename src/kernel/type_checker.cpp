@@ -55,6 +55,22 @@ expr mk_aux_metavar_for(name_generator & ngen, expr const & t) {
     return mk_metavar(n, new_type);
 }
 
+expr mk_pi_for(name_generator & ngen, expr const & meta) {
+    lean_assert(is_meta(meta));
+    buffer<expr> margs;
+    expr const & m     = get_app_args(meta, margs);
+    expr const & mtype = mlocal_type(m);
+    expr maux1         = mk_aux_type_metavar_for(ngen, mtype);
+    expr dontcare;
+    expr tmp_pi        = mk_pi(ngen.next(), mk_app_vars(maux1, margs.size()), dontcare); // trick for "extending" the context
+    expr mtype2        = replace_range(mtype, tmp_pi); // trick for "extending" the context
+    expr maux2         = mk_aux_type_metavar_for(ngen, mtype2);
+    expr A             = mk_app(maux1, margs);
+    margs.push_back(Var(0));
+    expr B             = mk_app(maux2, margs);
+    return mk_pi(ngen.next(), A, B);
+}
+
 type_checker::scope::scope(type_checker & tc):
     m_tc(tc), m_keep(false) {
     m_tc.push();
@@ -139,18 +155,7 @@ expr type_checker::ensure_pi_core(expr e, expr const & s) {
     if (is_pi(e)) {
         return e;
     } else if (is_meta(e)) {
-        buffer<expr> margs;
-        expr const & m     = get_app_args(e, margs);
-        expr const & mtype = mlocal_type(m);
-        expr maux1         = mk_aux_type_metavar_for(m_gen, mtype);
-        expr dontcare;
-        expr tmp_pi        = mk_pi(g_x_name, mk_app_vars(maux1, margs.size()), dontcare); // trick for "extending" the context
-        expr mtype2        = replace_range(mtype, tmp_pi); // trick for "extending" the context
-        expr maux2         = mk_aux_type_metavar_for(m_gen, mtype2);
-        expr A             = mk_app(maux1, margs);
-        margs.push_back(Var(0));
-        expr B             = mk_app(maux2, margs);
-        expr r             = mk_pi(g_x_name, A, B);
+        expr r             = mk_pi_for(m_gen, e);
         justification j    = mk_justification(s,
                                            [=](formatter const & fmt, options const & o, substitution const & subst) {
                                                return pp_function_expected(fmt, m_env, o, subst.instantiate(s));

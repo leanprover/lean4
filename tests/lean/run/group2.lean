@@ -34,9 +34,27 @@ definition mul [inline] {A : Type} {s : group_struct A} (a b : A) : A
 
 infixl `*`:75 := mul
 
-variable  G1 : group.{1}
-variable  G2 : group.{1}
-variables a b c : (carrier G2)
-variables d e : (carrier G1)
-check a * b * b
-check d * e
+section
+  variable  G1 : group
+  variable  G2 : group
+  variables a b c : (carrier G2)
+  variables d e : (carrier G1)
+  check a * b * b
+  check d * e
+end
+
+variable pos_real : Type.{1}
+variable rmul  : pos_real → pos_real → pos_real
+variable rone  : pos_real
+variable rinv  : pos_real → pos_real
+axiom    H1    : is_assoc rmul
+axiom    H2    : is_id rmul rone
+axiom    H3    : is_inv rmul rone rinv
+
+definition real_group_struct [inline] [instance] : group_struct pos_real
+:= mk_group_struct rmul rone rinv H1 H2 H3
+
+variables x y : pos_real
+check x * y
+theorem T (a b : pos_real): (rmul a b) = a*b
+:= refl (rmul a b)

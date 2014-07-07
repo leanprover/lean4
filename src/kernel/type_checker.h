@@ -22,23 +22,32 @@ expr replace_range(expr const & type, expr const & new_range);
 
 /**
    \brief Given a type \c t of the form
-   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
+      <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
    return a new metavariable \c m1 with type
-   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
+      <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
    where \c u is a new universe metavariable.
 */
 expr mk_aux_type_metavar_for(name_generator & ngen, expr const & t);
 
 /**
    \brief Given a type \c t of the form
-   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
+      <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
    return a new metavariable \c m1 with type
-   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), (m2 x_1 ... x_n)</tt>
-   where \c m2 is a new metavariable with type
-   <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
+      <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), (?m2 x_1 ... x_n)</tt>
+   where \c ?m2 is a new metavariable with type
+      <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{u}</tt>
    where \c u is a new universe metavariable.
 */
 expr mk_aux_metavar_for(name_generator & ngen, expr const & t);
+
+/**
+   \brief Given a meta (?m t_1 ... t_n) where ?m has type
+      <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
+   return a Pi term
+      <tt>Pi (x : ?m1 t_1 ... t_n), (?m2 t_1 ... t_n x) </tt>
+   where ?m1 and ?m2 are fresh metavariables
+*/
+expr mk_pi_for(name_generator & ngen, expr const & meta);
 
 /**
    \brief Lean Type Checker. It can also be used to infer types, check whether a

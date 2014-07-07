@@ -353,18 +353,8 @@ struct unifier_fn {
     void update_conflict(justification const & j) { m_conflict = j; }
     void reset_conflict() { m_conflict = optional<justification>(); lean_assert(!in_conflict()); }
 
-    /**
-       \brief Given t
-           <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
-       return
-           <tt>fun (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), v</tt>
-    */
-    expr mk_lambda_for(expr const & t, expr const & v) {
-        if (is_pi(t)) {
-            return mk_lambda(binding_name(t), binding_domain(t), mk_lambda_for(binding_body(t), v), binding_info(t));
-        } else {
-            return v;
-        }
+    expr mk_local_for(expr const & b) {
+        return mk_local(m_ngen.next(), binding_name(b), binding_domain(b), binding_info(b));
     }
 
     /**
@@ -852,6 +842,62 @@ struct unifier_fn {
         return is_eq_cnstr(c) && is_meta(cnstr_lhs_expr(c)) && is_meta(cnstr_rhs_expr(c));
     }
 
+
+    /**
+       \brief Given t
+           <tt>Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), B[x_1, ..., x_n]</tt>
+       return
+           <tt>fun (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), v[x_1, ... x_n]</tt>
+
+       \remark v has free variables.
+    */
+    expr mk_lambda_for(expr const & t, expr const & v) {
+        if (is_pi(t)) {
+            return mk_lambda(binding_name(t), binding_domain(t), mk_lambda_for(binding_body(t), v), binding_info(t));
+        } else {
+            return v;
+        }
+    }
+
+    /** \see ensure_sufficient_args */
+    optional<expr> ensure_sufficient_args_core(expr mtype, unsigned i, buffer<expr> const & margs) {
+        if (i == margs.size())
+            return some_expr(mtype);
+        mtype = m_tc->ensure_pi(mtype);
+        if (!m_tc->is_def_eq(binding_domain(mtype), m_tc->infer(margs[i])))
+            return none_expr();
+        expr local = mk_local_for(mtype);
+        expr body  = instantiate(binding_body(mtype), local);
+        auto new_body = ensure_sufficient_args_core(body, i+1, margs);
+        if (!new_body)
+            return none_expr();
+        return some_expr(Pi(local, *new_body));
+    }
+
+    /**
+       \brief Make sure mtype is a Pi of size at least margs.size().
+       If it is not, we use ensure_pi and (potentially) add new constaints to enforce it.
+    */
+    optional<expr> ensure_sufficient_args(expr const & mtype, buffer<expr> const & margs, buffer<constraint> & cs, justification const & j) {
+        expr t = mtype;
+        unsigned num = 0;
+        while (is_pi(t)) {
+            num++;
+            t = binding_body(t);
+        }
+        if (num == margs.size())
+            return some_expr(mtype);;
+        lean_assert(!m_tc->next_cnstr()); // make sure there are no pending constraints
+        // We must create a scope to make sure no constraints "leak" into the current state.
+        type_checker::scope scope(*m_tc);
+        auto new_mtype = ensure_sufficient_args_core(mtype, 0, margs);
+        if (!new_mtype)
+            return none_expr();
+        while (auto c = m_tc->next_cnstr())
+            cs.push_back(update_justification(*c, mk_composite1(c->get_justification(), j)));
+        return new_mtype;
+    }
+
     /**
        \brief Given
                m      := a metavariable ?m
@@ -867,13 +913,16 @@ struct unifier_fn {
                   - g (if g is a constant), OR
                   - variable (if g is a local constant equal to a_i)
     */
-    constraints mk_flex_rigid_app_cnstrs(expr const & m, buffer<expr> const & margs,
-                                         expr const & f, expr const & rhs, justification const & j) {
+    void mk_flex_rigid_app_cnstrs(expr const & m, buffer<expr> const & margs, expr const & f, expr const & rhs, justification const & j,
+                                  buffer<constraints> & alts) {
         lean_assert(is_metavar(m));
         lean_assert(is_app(rhs));
         lean_assert(is_constant(f) || is_var(f));
         buffer<constraint> cs;
-        expr const & mtype = mlocal_type(m);
+        expr mtype = mlocal_type(m);
+        auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j);
+        if (!new_mtype) return;
+        mtype = *new_mtype;
         buffer<expr> rargs;
         get_app_args(rhs, rargs);
         buffer<expr> sargs;
@@ -885,7 +934,7 @@ struct unifier_fn {
         expr v = mk_app(f, sargs);
         v = mk_lambda_for(mtype, v);
         cs.push_back(mk_eq_cnstr(m, v, j));
-        return to_list(cs.begin(), cs.end());
+        alts.push_back(to_list(cs.begin(), cs.end()));
     }
 
     /**
@@ -899,23 +948,27 @@ struct unifier_fn {
               ?m   =?= fun (x_1 ... x_k), fun/Pi (y : ?m_1 x_1 ... x_k), ?m_2 x_1 ... x_k y
        where l is a fresh local constant.
     */
-    constraints mk_bindings_imitation(expr const & m, buffer<expr> const & margs, expr const & rhs, justification const & j) {
+    void mk_bindings_imitation(expr const & m, buffer<expr> const & margs, expr const & rhs, justification const & j,
+                               buffer<constraints> & alts) {
         lean_assert(is_metavar(m));
         lean_assert(is_binding(rhs));
-        expr const & mtype = mlocal_type(m);
-        expr maux1  = mk_aux_metavar_for(m_ngen, mtype);
         buffer<constraint> cs;
+        expr mtype = mlocal_type(m);
+        auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j);
+        if (!new_mtype) return;
+        mtype = *new_mtype;
+        expr maux1  = mk_aux_metavar_for(m_ngen, mtype);
         cs.push_back(mk_eq_cnstr(mk_app(maux1, margs), binding_domain(rhs), j));
         expr dontcare;
         expr tmp_pi = mk_pi(binding_name(rhs), mk_app_vars(maux1, margs.size()), dontcare); // trick for "extending" the context
         expr mtype2 = replace_range(mtype, tmp_pi); // trick for "extending" the context
         expr maux2  = mk_aux_metavar_for(m_ngen, mtype2);
-        expr new_local = mk_local(m_ngen.next(), binding_name(rhs), binding_domain(rhs), binding_info(rhs));
+        expr new_local = mk_local_for(rhs);
         cs.push_back(mk_eq_cnstr(mk_app(mk_app(maux2, margs), new_local), instantiate(binding_body(rhs), new_local), j));
         expr v = update_binding(rhs, mk_app_vars(maux1, margs.size()), mk_app_vars(maux2, margs.size() + 1));
         v = mk_lambda_for(mtype, v);
         cs.push_back(mk_eq_cnstr(m, v, j));
-        return to_list(cs.begin(), cs.end());
+        alts.push_back(to_list(cs.begin(), cs.end()));
     }
 
     /**
@@ -925,12 +978,13 @@ struct unifier_fn {
         Then solve (?m a_1 ... a_k) =?= rhs, by returning the constraint
                  ?m  =?= fun (x1 ... x_k), rhs
     */
-    constraints mk_simple_imitation(expr const & m, expr const & rhs, justification const & j) {
+    void mk_simple_imitation(expr const & m, expr const & rhs, justification const & j, buffer<constraints> & alts) {
         lean_assert(is_metavar(m));
         lean_assert(is_sort(rhs) || is_constant(rhs));
         expr const & mtype = mlocal_type(m);
-        expr v = mk_lambda_for(mtype, rhs);
-        return constraints(mk_eq_cnstr(m, v, j));
+        buffer<constraint> cs;
+        cs.push_back(mk_eq_cnstr(m, mk_lambda_for(mtype, rhs), j));
+        alts.push_back(to_list(cs.begin(), cs.end()));
     }
 
     /**
@@ -944,11 +998,15 @@ struct unifier_fn {
                (?m_n a_1 ... a_k) =?= b_n
                ?m  =?= fun (x_1 ... x_k), M((?m_1 x_1 ... x_k) ... (?m_n x_1 ... x_k))
     */
-    constraints mk_macro_imitation(expr const & m, buffer<expr> const & margs, expr const & rhs, justification const & j) {
+    void mk_macro_imitation(expr const & m, buffer<expr> const & margs, expr const & rhs, justification const & j,
+                            buffer<constraints> & alts) {
         lean_assert(is_metavar(m));
         lean_assert(is_macro(rhs));
-        expr const & mtype = mlocal_type(m);
         buffer<constraint> cs;
+        expr mtype = mlocal_type(m);
+        auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j);
+        if (!new_mtype) return;
+        mtype = *new_mtype;
         // create an auxiliary metavariable for each macro argument
         buffer<expr> sargs;
         for (unsigned i = 0; i < macro_num_args(rhs); i++) {
@@ -959,7 +1017,7 @@ struct unifier_fn {
         expr v = mk_macro(macro_def(rhs), sargs.size(), sargs.data());
         v = mk_lambda_for(mtype, v);
         cs.push_back(mk_eq_cnstr(m, v, j));
-        return to_list(cs.begin(), cs.end());
+        alts.push_back(to_list(cs.begin(), cs.end()));
     }
 
     /**
@@ -979,7 +1037,7 @@ struct unifier_fn {
        to alts as a possible solution when a_i is the same local constant or a metavariable application
 
     */
-    void add_simple_projections(expr const & m, buffer<expr> const & margs, expr const & rhs, justification const & j,
+    void mk_simple_projections(expr const & m, buffer<expr> const & margs, expr const & rhs, justification const & j,
                                 buffer<constraints> & alts) {
         lean_assert(is_metavar(m));
         lean_assert(!is_meta(rhs));
@@ -991,13 +1049,21 @@ struct unifier_fn {
             expr const & marg = margs[i];
             if ((!is_local(marg) && !is_local(rhs)) || (is_meta(marg) && is_local(rhs))) {
                 // if rhs is not local, then we only add projections for the nonlocal arguments of lhs
-                constraint c1 = mk_eq_cnstr(marg, rhs, j);
-                constraint c2 = mk_eq_cnstr(m, mk_lambda_for(mtype, mk_var(vidx)), j);
-                alts.push_back(constraints({c1, c2}));
+                buffer<constraint> cs;
+                if (auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j)) {
+                    cs.push_back(mk_eq_cnstr(marg, rhs, j));
+                    expr v = mk_lambda_for(*new_mtype, mk_var(vidx));
+                    cs.push_back(mk_eq_cnstr(m, v, j));
+                    alts.push_back(to_list(cs.begin(), cs.end()));
+                }
             } else if (is_local(marg) && is_local(rhs) && mlocal_name(marg) == mlocal_name(rhs)) {
                 // if the argument is local, and rhs is equal to it, then we also add a projection
-                constraint c1 = mk_eq_cnstr(m, mk_lambda_for(mtype, mk_var(vidx)), j);
-                alts.push_back(constraints(c1));
+                buffer<constraint> cs;
+                if (auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j)) {
+                    expr v = mk_lambda_for(*new_mtype, mk_var(vidx));
+                    cs.push_back(mk_eq_cnstr(m, v, j));
+                    alts.push_back(to_list(cs.begin(), cs.end()));
+                }
             }
         }
     }
@@ -1015,19 +1081,19 @@ struct unifier_fn {
         case expr_kind::Var: case expr_kind::Meta:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Local:
-            add_simple_projections(m, margs, rhs, j, alts);
+            mk_simple_projections(m, margs, rhs, j, alts);
             break;
         case expr_kind::Sort: case expr_kind::Constant:
-            add_simple_projections(m, margs, rhs, j, alts);
-            alts.push_back(mk_simple_imitation(m, rhs, j));
+            mk_simple_projections(m, margs, rhs, j, alts);
+            mk_simple_imitation(m, rhs, j, alts);
             break;
         case expr_kind::Pi: case expr_kind::Lambda:
-            add_simple_projections(m, margs, rhs, j, alts);
-            alts.push_back(mk_bindings_imitation(m, margs, rhs, j));
+            mk_simple_projections(m, margs, rhs, j, alts);
+            mk_bindings_imitation(m, margs, rhs, j, alts);
             break;
         case expr_kind::Macro:
-            add_simple_projections(m, margs, rhs, j, alts);
-            alts.push_back(mk_macro_imitation(m, margs, rhs, j));
+            mk_simple_projections(m, margs, rhs, j, alts);
+            mk_macro_imitation(m, margs, rhs, j, alts);
             break;
         case expr_kind::App: {
             expr const & f = get_app_fn(rhs);
@@ -1039,11 +1105,11 @@ struct unifier_fn {
                     --i;
                     expr const & marg = margs[i];
                     if (is_local(marg) && mlocal_name(marg) == mlocal_name(f))
-                        alts.push_back(mk_flex_rigid_app_cnstrs(m, margs, mk_var(vidx), rhs, j));
+                        mk_flex_rigid_app_cnstrs(m, margs, mk_var(vidx), rhs, j, alts);
                 }
             } else if (is_constant(f)) {
-                add_simple_projections(m, margs, rhs, j, alts);
-                alts.push_back(mk_flex_rigid_app_cnstrs(m, margs, f, rhs, j));
+                mk_simple_projections(m, margs, rhs, j, alts);
+                mk_flex_rigid_app_cnstrs(m, margs, f, rhs, j, alts);
             } else {
                 lean_unreachable(); // LCOV_EXCL_LINE
             }

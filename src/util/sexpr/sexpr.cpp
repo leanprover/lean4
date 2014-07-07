@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/sstream.h"
 #include "util/object_serializer.h"
+#include "util/luaref.h"
 #include "util/numerics/mpz.h"
 #include "util/numerics/mpq.h"
 #include "util/sexpr/sexpr.h"
@@ -88,6 +89,16 @@ struct sexpr_mpq : public sexpr_cell {
         m_value(v) {}
 };
 
+/** \brief S-expression cell: external atom */
+struct sexpr_ext : public sexpr_cell {
+    std::unique_ptr<sexpr_ext_atom> m_value;
+    sexpr_ext(std::unique_ptr<sexpr_ext_atom> && v):
+        sexpr_cell(sexpr_kind::Ext, v->hash()),
+        m_value(std::move(v)) {
+        lean_assert(m_value);
+    }
+};
+
 /** \brief S-expression cell: cons cell (aka pair) */
 struct sexpr_cons : public sexpr_cell {
     sexpr m_head;
@@ -137,6 +148,7 @@ void sexpr_cell::dealloc() {
     case sexpr_kind::Name:        delete static_cast<sexpr_name*>(this);   break;
     case sexpr_kind::MPZ:         delete static_cast<sexpr_mpz*>(this);    break;
     case sexpr_kind::MPQ:         delete static_cast<sexpr_mpq*>(this);    break;
+    case sexpr_kind::Ext:         delete static_cast<sexpr_ext*>(this);    break;
     case sexpr_kind::Cons:        static_cast<sexpr_cons*>(this)->dealloc_cons(); break;
     }
 }
@@ -149,6 +161,7 @@ sexpr::sexpr(double v):m_ptr(new sexpr_double(v)) {}
 sexpr::sexpr(name const & v):m_ptr(new sexpr_name(v)) {}
 sexpr::sexpr(mpz const & v):m_ptr(new sexpr_mpz(v)) {}
 sexpr::sexpr(mpq const & v):m_ptr(new sexpr_mpq(v)) {}
+sexpr::sexpr(std::unique_ptr<sexpr_ext_atom> && v):m_ptr(new sexpr_ext(std::move(v))) {}
 sexpr::sexpr(sexpr const & h, sexpr const & t):m_ptr(new sexpr_cons(h, t)) {}
 sexpr::sexpr(sexpr const & s):m_ptr(s.m_ptr) {
     if (m_ptr)
@@ -172,6 +185,7 @@ double sexpr::get_double() const { return static_cast<sexpr_double*>(m_ptr)->m_v
 name const & sexpr::get_name() const { return static_cast<sexpr_name*>(m_ptr)->m_value; }
 mpz const & sexpr::get_mpz() const { return static_cast<sexpr_mpz*>(m_ptr)->m_value; }
 mpq const & sexpr::get_mpq() const { return static_cast<sexpr_mpq*>(m_ptr)->m_value; }
+sexpr_ext_atom const & sexpr::get_ext() const { return *static_cast<sexpr_ext*>(m_ptr)->m_value; }
 
 unsigned sexpr::hash() const { return m_ptr == nullptr ? 23 : m_ptr->m_hash; }
 
@@ -224,6 +238,7 @@ bool operator==(sexpr const & a, sexpr const & b) {
     case sexpr_kind::Name:        return to_name(a) == to_name(b);
     case sexpr_kind::MPZ:         return to_mpz(a) == to_mpz(b);
     case sexpr_kind::MPQ:         return to_mpq(a) == to_mpq(b);
+    case sexpr_kind::Ext:         return to_ext(a).cmp(to_ext(b)) == 0;
     case sexpr_kind::Cons:        return head(a) == head(b) && tail(a) == tail(b);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -249,6 +264,7 @@ int cmp(sexpr const & a, sexpr const & b) {
     case sexpr_kind::Name:        return cmp(to_name(a), to_name(b));
     case sexpr_kind::MPZ:         return cmp(to_mpz(a), to_mpz(b));
     case sexpr_kind::MPQ:         return cmp(to_mpq(a), to_mpq(b));
+    case sexpr_kind::Ext:         return to_ext(a).cmp(to_ext(b));
     case sexpr_kind::Cons:        {
         int r = cmp(head(a), head(b));
         if (r != 0)
@@ -268,6 +284,7 @@ std::ostream & operator<<(std::ostream & out, sexpr const & s) {
     case sexpr_kind::Name:        out << to_name(s); break;
     case sexpr_kind::MPZ:         out << to_mpz(s); break;
     case sexpr_kind::MPQ:         out << to_mpq(s); break;
+    case sexpr_kind::Ext:         to_ext(s).display(out); break;
     case sexpr_kind::Cons: {
         out << "(";
         sexpr const * curr = &s;
@@ -311,6 +328,8 @@ public:
                 case sexpr_kind::MPZ:    s << to_mpz(a);               break;
                 case sexpr_kind::MPQ:    s << to_mpq(a);               break;
                 case sexpr_kind::Cons:   write(car(a)); write(cdr(a)); break;
+                case sexpr_kind::Ext:
+                    throw exception("s-expressions constaining external atoms cannot be serialized");
                 }
             });
     }
@@ -332,6 +351,7 @@ public:
                 case sexpr_kind::Name:   return sexpr(read_name(d));
                 case sexpr_kind::MPZ:    return sexpr(read_mpz(d));
                 case sexpr_kind::MPQ:    return sexpr(read_mpq(d));
+                case sexpr_kind::Ext:    lean_unreachable(); // LCOV_EXCL_LINE
                 case sexpr_kind::Cons:   {
                     sexpr h = read();
                     sexpr t = read();
@@ -363,6 +383,70 @@ sexpr read_sexpr(deserializer & d) {
 
 DECL_UDATA(sexpr)
 
+class lua_sexpr_atom : public sexpr_ext_atom {
+    luaref m_ref;
+public:
+    lua_sexpr_atom(luaref && r):m_ref(r) {}
+    virtual ~lua_sexpr_atom() {}
+    virtual int cmp(sexpr_ext_atom const & e) const {
+        if (dynamic_cast<lua_sexpr_atom const *>(&e) == nullptr) {
+            return strcmp(typeid(*this).name(), typeid(e).name());
+        } else {
+            luaref other  = static_cast<lua_sexpr_atom const &>(e).m_ref;
+            lua_State * L = m_ref.get_state();
+            if (other.get_state() != L)
+                throw exception("missing Lua objects from different Lua states");
+            m_ref.push();
+            other.push();
+            int r;
+            if (equal(L, -2, -1))
+                r = 0;
+            else if (lessthan(L, -2, -1))
+                r = -1;
+            else
+                r = 0;
+            lua_pop(L, 2);
+            return r;
+        }
+    }
+
+    virtual unsigned hash() const {
+        lua_State * L = m_ref.get_state();
+        m_ref.push();
+        lua_getfield(L, -1, "hash");
+        if (lua_isnil(L, -1)) {
+            lua_pop(L, 2);
+            return 0;
+        } else {
+            m_ref.push();
+            pcall(L, 1, 1, 0);
+            if (lua_isnumber(L, -1)) {
+                unsigned r = lua_tointeger(L, -1);
+                lua_pop(L, 1);
+                return r;
+            } else {
+                lua_pop(L, 1);
+                return 0;
+            }
+        }
+    }
+
+    virtual int push_lua(lua_State * L) const {
+        if (m_ref.get_state() != L)
+            throw exception("using Lua object in a different Lua state");
+        m_ref.push();
+        return 1;
+    }
+
+    virtual void display(std::ostream & out) const {
+        lua_State * L = m_ref.get_state();
+        m_ref.push();
+        out << luaL_tolstring(L, -1, nullptr);
+        lua_pop(L, 1);
+    }
+};
+
+
 static int sexpr_tostring(lua_State * L) {
     std::ostringstream out;
     out << to_sexpr(L, 1);
@@ -389,7 +473,7 @@ static sexpr to_sexpr_elem(lua_State * L, int idx) {
         std::string str = lua_tostring(L, idx);
         return sexpr(str);
     } else {
-        throw exception(sstream() << "arg #" << idx << " cannot be casted into an s-expression");
+        return sexpr(std::unique_ptr<sexpr_ext_atom>(new lua_sexpr_atom(luaref(L, idx))));
     }
 }
 
@@ -425,6 +509,7 @@ SEXPR_PRED(is_double)
 SEXPR_PRED(is_name)
 SEXPR_PRED(is_mpz)
 SEXPR_PRED(is_mpq)
+SEXPR_PRED(is_external)
 
 static int sexpr_length(lua_State * L) {
     sexpr const & e = to_sexpr(L, 1);
@@ -496,6 +581,13 @@ static int sexpr_to_mpq(lua_State * L) {
     return push_mpq(L, to_mpq(e));
 }
 
+static int sexpr_to_external(lua_State * L) {
+    sexpr const & e = to_sexpr(L, 1);
+    if (!is_external(e))
+        throw exception("s-expression is not an external atom");
+    return to_ext(e).push_lua(L);
+}
+
 static int sexpr_get_kind(lua_State * L) {
     return push_integer(L, static_cast<int>(to_sexpr(L, 1).kind()));
 }
@@ -511,6 +603,7 @@ static int sexpr_fields(lua_State * L) {
     case sexpr_kind::Name:        return sexpr_to_name(L);
     case sexpr_kind::MPZ:         return sexpr_to_mpz(L);
     case sexpr_kind::MPQ:         return sexpr_to_mpq(L);
+    case sexpr_kind::Ext:         return sexpr_to_external(L);
     case sexpr_kind::Cons:        sexpr_head(L); sexpr_tail(L); return 2;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -518,34 +611,36 @@ static int sexpr_fields(lua_State * L) {
 }
 
 static const struct luaL_Reg sexpr_m[] = {
-    {"__gc",       sexpr_gc}, // never throws
-    {"__tostring", safe_function<sexpr_tostring>},
-    {"__eq",       safe_function<sexpr_eq>},
-    {"__lt",       safe_function<sexpr_lt>},
-    {"kind",       safe_function<sexpr_get_kind>},
-    {"is_nil",     safe_function<sexpr_is_nil>},
-    {"is_cons",    safe_function<sexpr_is_cons>},
-    {"is_pair",    safe_function<sexpr_is_cons>},
-    {"is_list",    safe_function<sexpr_is_list>},
-    {"is_atom",    safe_function<sexpr_is_atom>},
-    {"is_string",  safe_function<sexpr_is_string>},
-    {"is_bool",    safe_function<sexpr_is_bool>},
-    {"is_int",     safe_function<sexpr_is_int>},
-    {"is_double",  safe_function<sexpr_is_double>},
-    {"is_name",    safe_function<sexpr_is_name>},
-    {"is_mpz",     safe_function<sexpr_is_mpz>},
-    {"is_mpq",     safe_function<sexpr_is_mpq>},
-    {"head",       safe_function<sexpr_head>},
-    {"tail",       safe_function<sexpr_tail>},
-    {"length",     safe_function<sexpr_length>},
-    {"to_bool",    safe_function<sexpr_to_bool>},
-    {"to_string",  safe_function<sexpr_to_string>},
-    {"to_int",     safe_function<sexpr_to_int>},
-    {"to_double",  safe_function<sexpr_to_double>},
-    {"to_name",    safe_function<sexpr_to_name>},
-    {"to_mpz",     safe_function<sexpr_to_mpz>},
-    {"to_mpq",     safe_function<sexpr_to_mpq>},
-    {"fields",     safe_function<sexpr_fields>},
+    {"__gc",        sexpr_gc}, // never throws
+    {"__tostring",  safe_function<sexpr_tostring>},
+    {"__eq",        safe_function<sexpr_eq>},
+    {"__lt",        safe_function<sexpr_lt>},
+    {"kind",        safe_function<sexpr_get_kind>},
+    {"is_nil",      safe_function<sexpr_is_nil>},
+    {"is_cons",     safe_function<sexpr_is_cons>},
+    {"is_pair",     safe_function<sexpr_is_cons>},
+    {"is_list",     safe_function<sexpr_is_list>},
+    {"is_atom",     safe_function<sexpr_is_atom>},
+    {"is_string",   safe_function<sexpr_is_string>},
+    {"is_bool",     safe_function<sexpr_is_bool>},
+    {"is_int",      safe_function<sexpr_is_int>},
+    {"is_double",   safe_function<sexpr_is_double>},
+    {"is_name",     safe_function<sexpr_is_name>},
+    {"is_mpz",      safe_function<sexpr_is_mpz>},
+    {"is_mpq",      safe_function<sexpr_is_mpq>},
+    {"is_external", safe_function<sexpr_is_external>},
+    {"head",        safe_function<sexpr_head>},
+    {"tail",        safe_function<sexpr_tail>},
+    {"length",      safe_function<sexpr_length>},
+    {"to_bool",     safe_function<sexpr_to_bool>},
+    {"to_string",   safe_function<sexpr_to_string>},
+    {"to_int",      safe_function<sexpr_to_int>},
+    {"to_double",   safe_function<sexpr_to_double>},
+    {"to_name",     safe_function<sexpr_to_name>},
+    {"to_mpz",      safe_function<sexpr_to_mpz>},
+    {"to_mpq",      safe_function<sexpr_to_mpq>},
+    {"to_external", safe_function<sexpr_to_external>},
+    {"fields",      safe_function<sexpr_fields>},
     {0, 0}
 };
 
@@ -568,6 +663,7 @@ void open_sexpr(lua_State * L) {
     SET_ENUM("MPZ",         sexpr_kind::MPZ);
     SET_ENUM("MPQ",         sexpr_kind::MPQ);
     SET_ENUM("Cons",        sexpr_kind::Cons);
+    SET_ENUM("Ext",         sexpr_kind::Ext);
     lua_setglobal(L, "sexpr_kind");
 }
 }

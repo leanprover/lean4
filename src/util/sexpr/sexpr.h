@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <algorithm>
 #include <functional>
+#include <memory>
 #include "util/lua.h"
 #include "util/serializer.h"
 
@@ -18,7 +19,9 @@ class mpq;
 class mpz;
 struct sexpr_cell;
 
-enum class sexpr_kind { Nil, String, Bool, Int, Double, Name, MPZ, MPQ, Cons };
+enum class sexpr_kind { Nil, String, Bool, Int, Double, Name, MPZ, MPQ, Cons, Ext };
+
+class sexpr_ext_atom;
 
 /**
    \brief Simple LISP-like S-expressions.
@@ -43,6 +46,7 @@ public:
     explicit sexpr(name const & v);
     explicit sexpr(mpz const & v);
     explicit sexpr(mpq const & v);
+    explicit sexpr(std::unique_ptr<sexpr_ext_atom> && v);
     sexpr(sexpr const & h, sexpr const & t);
     template<typename T>
     sexpr(T const & h, sexpr const & t):sexpr(sexpr(h), t) {}
@@ -75,6 +79,7 @@ public:
     name const & get_name() const;
     mpz const & get_mpz() const;
     mpq const & get_mpq() const;
+    sexpr_ext_atom const & get_ext() const;
 
     /** \brief Hash code for this S-expression*/
     unsigned hash() const;
@@ -95,6 +100,15 @@ public:
     friend std::ostream & operator<<(std::ostream & out, sexpr const & s);
 };
 
+class sexpr_ext_atom {
+public:
+    virtual ~sexpr_ext_atom() {}
+    virtual int cmp(sexpr_ext_atom const & e) const = 0;
+    virtual unsigned hash() const = 0;
+    virtual int push_lua(lua_State * L) const = 0;
+    virtual void display(std::ostream & out) const = 0;
+};
+
 /** \brief Return the nil S-expression */
 inline sexpr nil() { return sexpr(); }
 /** \brief Return a cons-cell (aka pair) composed of \c head and \c tail */
@@ -110,16 +124,17 @@ inline sexpr const & car(sexpr const & s) { return head(s); }
 */
 inline sexpr const & cdr(sexpr const & s) { return tail(s); }
 /** \brief Return true iff \c s is not an atom (i.e., it is not a cons cell). */
-inline bool is_atom(sexpr const & s)   { return s.kind() != sexpr_kind::Cons; }
+inline bool is_atom(sexpr const & s)     { return s.kind() != sexpr_kind::Cons; }
 /** \brief Return true iff \c s is not a cons cell. */
-inline bool is_cons(sexpr const & s)   { return s.kind() == sexpr_kind::Cons; }
-inline bool is_string(sexpr const & s) { return s.kind() == sexpr_kind::String; }
-inline bool is_bool(sexpr const & s)   { return s.kind() == sexpr_kind::Bool; }
-inline bool is_int(sexpr const & s)    { return s.kind() == sexpr_kind::Int; }
-inline bool is_double(sexpr const & s) { return s.kind() == sexpr_kind::Double; }
-inline bool is_name(sexpr const & s)   { return s.kind() == sexpr_kind::Name; }
-inline bool is_mpz(sexpr const & s)    { return s.kind() == sexpr_kind::MPZ; }
-inline bool is_mpq(sexpr const & s)    { return s.kind() == sexpr_kind::MPQ; }
+inline bool is_cons(sexpr const & s)     { return s.kind() == sexpr_kind::Cons; }
+inline bool is_string(sexpr const & s)   { return s.kind() == sexpr_kind::String; }
+inline bool is_bool(sexpr const & s)     { return s.kind() == sexpr_kind::Bool; }
+inline bool is_int(sexpr const & s)      { return s.kind() == sexpr_kind::Int; }
+inline bool is_double(sexpr const & s)   { return s.kind() == sexpr_kind::Double; }
+inline bool is_name(sexpr const & s)     { return s.kind() == sexpr_kind::Name; }
+inline bool is_mpz(sexpr const & s)      { return s.kind() == sexpr_kind::MPZ; }
+inline bool is_mpq(sexpr const & s)      { return s.kind() == sexpr_kind::MPQ; }
+inline bool is_external(sexpr const & s) { return s.kind() == sexpr_kind::Ext; }
 
 inline std::string const & to_string(sexpr const & s) { return s.get_string(); }
 inline bool to_bool(sexpr const & s) { return s.get_bool(); }
@@ -128,6 +143,7 @@ inline double to_double(sexpr const & s) { return s.get_double(); }
 inline name const & to_name(sexpr const & s) { return s.get_name(); }
 inline mpz const & to_mpz(sexpr const & s) { return s.get_mpz(); }
 inline mpq const & to_mpq(sexpr const & s) { return s.get_mpq(); }
+inline sexpr_ext_atom const & to_ext(sexpr const & s) { return s.get_ext(); }
 
 /** \brief Return true iff \c s is nil or \c s is a cons cell where \c is_list(tail(s)). */
 bool is_list(sexpr const & s);

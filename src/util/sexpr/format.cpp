@@ -369,6 +369,11 @@ struct sexpr_pp_fn {
         case sexpr_kind::Name:        return pp(to_name(s));
         case sexpr_kind::MPZ:         return format(to_mpz(s));
         case sexpr_kind::MPQ:         return format(to_mpq(s));
+        case sexpr_kind::Ext: {
+            std::ostringstream ss;
+            to_ext(s).display(ss);
+            return format(ss.str());
+        }
         case sexpr_kind::Cons: {
             sexpr const * curr = &s;
             format r;

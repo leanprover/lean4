@@ -441,7 +441,7 @@ public:
     virtual void display(std::ostream & out) const {
         lua_State * L = m_ref.get_state();
         m_ref.push();
-        out << luaL_tolstring(L, -1, nullptr);
+        out << lua_tostring(L, -1);
         lua_pop(L, 1);
     }
 };

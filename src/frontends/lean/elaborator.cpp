@@ -998,25 +998,6 @@ public:
         return r;
     }
 
-    std::tuple<expr, level_param_names> operator()(expr const & e, expr const & expected_type) {
-        expr r      = visit(e);
-        expr r_type = infer_type(r);
-        environment env = m_env;
-        justification j = mk_justification(e, [=](formatter const & fmt, options const & opts, substitution const & subst) {
-                return pp_type_mismatch(fmt, env, opts, subst.instantiate(expected_type), subst.instantiate(r_type));
-            });
-        if (!m_tc->is_def_eq(r_type, expected_type, j)) {
-            throw_kernel_exception(env, e,
-                                   [=](formatter const & fmt, options const & o) {
-                                       return pp_type_mismatch(fmt, env, o, expected_type, r_type);
-                                   });
-        }
-        auto p  = solve().pull();
-        lean_assert(p);
-        substitution s = p->first;
-        return apply(s, r);
-    }
-
     std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n) {
         expr r_t      = visit(t);
         expr r_v      = visit(v);

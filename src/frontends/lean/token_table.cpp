@@ -45,6 +45,16 @@ void for_each(token_table const & s, std::function<void(char const *, token_info
             fn(str.data(), info);
         });
 }
+void display(std::ostream & out, token_table const & s) {
+    for_each(s, [&](char const * token, token_info const & info) {
+            out << "`" << token << "`:" << info.precedence();
+            if (info.is_command())
+                out << " [command]";
+            if (info.value() != info.token())
+                out << " " << info.value();
+            out << "\n";
+        });
+}
 
 static char const * g_lambda_unicode = "\u03BB";
 static char const * g_pi_unicode     = "\u03A0";

@@ -131,6 +131,24 @@ bool action::is_compatible(action const & a) const {
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
+void action::display(std::ostream & out) const {
+    switch (kind()) {
+    case action_kind::Skip:    out << "skip"; break;
+    case action_kind::Binder:  out << "binder"; break;
+    case action_kind::Binders: out << "binders"; break;
+    case action_kind::Ext:     out << "ext"; break;
+    case action_kind::LuaExt:  out << "luaext"; break;
+    case action_kind::Expr:    out << rbp(); break;
+    case action_kind::Exprs:
+        out << "(fold" << (is_fold_right() ? "r" : "l") << " "
+            << rbp() << " " << get_rec() << " " << get_initial() << ")";
+        break;
+    case action_kind::ScopedExpr:
+        out << "(scoped " << rbp() << " " << get_rec() << ")";
+        break;
+    }
+}
+
 
 void action_cell::dealloc() {
     switch (m_kind) {
@@ -286,6 +304,25 @@ parse_table parse_table::merge(parse_table const & s, bool overload) const {
 }
 
 bool parse_table::is_nud() const { return m_ptr->m_nud; }
+
+void parse_table::display(std::ostream & out) const {
+    for_each([&](unsigned num, transition const * ts, list<expr> const & es) {
+            for (unsigned i = 0; i < num; i++) {
+                if (i > 0) out << " ";
+                out << "`" << ts[i].get_token() << "`:";
+                ts[i].get_action().display(out);
+            }
+            out << " :=";
+            if (length(es) == 1) {
+                out << " " << head(es) << "\n";
+            } else {
+                out << "\n";
+                for (auto e : es) {
+                    out << "  | " << e << "\n";
+                }
+            }
+        });
+}
 
 typedef action notation_action;
 DECL_UDATA(notation_action)

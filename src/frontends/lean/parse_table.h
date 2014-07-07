@@ -77,6 +77,7 @@ public:
     std::string const & get_lua_fn() const;
 
     bool is_compatible(action const & a) const;
+    void display(std::ostream & out) const;
 };
 
 action mk_skip_action();
@@ -125,6 +126,8 @@ public:
     optional<std::pair<action, parse_table>> find(name const & tk) const;
     list<expr> const & is_accepting() const;
     void for_each(std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const;
+
+    void display(std::ostream & out) const;
 };
 }
 typedef notation::parse_table parse_table;

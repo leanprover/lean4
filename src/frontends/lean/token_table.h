@@ -43,6 +43,7 @@ token_table add_command_token(token_table const & s, char const * token, char co
 token_table add_token(token_table const & s, char const * token, unsigned prec = 0);
 token_table add_token(token_table const & s, char const * token, char const * val, unsigned prec = 0);
 void for_each(token_table const & s, std::function<void(char const *, token_info const&)> const & fn);
+void display(std::ostream & out, token_table const & s);
 token_table const * find(token_table const & s, char c);
 optional<unsigned> get_precedence(token_table const & s, char const * token);
 token_info const * value_of(token_table const & s);

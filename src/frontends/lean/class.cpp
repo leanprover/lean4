@@ -30,8 +30,10 @@ struct class_state {
     }
     void add_instance(name const & c, name const & i) {
         auto it = m_instances.find(c);
-        if (!it) throw exception(sstream() << "invalid instance, unknown class '" << c << "'");
-        m_instances.insert(c, cons(i, filter(*it, [&](name const & i1) { return i1 != i; })));
+        if (!it)
+            m_instances.insert(c, list<name>(i));
+        else
+            m_instances.insert(c, cons(i, filter(*it, [&](name const & i1) { return i1 != i; })));
     }
 };
 

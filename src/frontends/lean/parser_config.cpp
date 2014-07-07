@@ -196,14 +196,23 @@ environment add_led_notation(environment const & env, std::initializer_list<nota
 }
 
 environment overwrite_notation(environment const & env, name const & n) {
-    auto it = notation_ext::get_entries(env, n);
-    if (!it)
-        throw exception(sstream() << "unknown namespace '" << n << "'");
     environment r = env;
-    for (notation_entry e : *it) {
-        e.m_overload = false;
-        r = add_notation(r, e);
+    bool found = false;
+    if (auto it = token_ext::get_entries(r, n)) {
+        found = true;
+        for (token_entry e : *it) {
+            r = add_token(r, e);
+        }
     }
+    if (auto it = notation_ext::get_entries(env, n)) {
+        found = true;
+        for (notation_entry e : *it) {
+            e.m_overload = false;
+            r = add_notation(r, e);
+        }
+    }
+    if (!found)
+        throw exception(sstream() << "unknown namespace '" << n << "'");
     return r;
 }
 

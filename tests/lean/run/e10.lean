@@ -40,3 +40,7 @@ section
   print raw i + n
   check n + m
 end
+
+
+variables a b : nat.nat
+check #nat a + b

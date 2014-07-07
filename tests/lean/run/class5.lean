@@ -25,8 +25,7 @@ namespace nat
 end
 
 section
-  using algebra
-  using nat
+  using algebra nat
   variables a b c : nat
   check a * b * c
 end

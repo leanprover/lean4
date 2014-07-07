@@ -170,52 +170,56 @@ static void check_identifier(parser & p, environment const & env, name const & n
 // using [class] id (id ...) (renaming id->id id->id) (hiding id ... id)
 environment using_cmd(parser & p) {
     environment env = p.env();
-    name cls = parse_class(p);
-    bool decls = cls.is_anonymous() || cls == g_decls || cls == g_declarations;
-    name ns    = p.check_id_next("invalid 'using' command, identifier expected");
-    env = using_namespace(env, p.ios(), ns, cls);
-    if (decls) {
-        // Remark: we currently to not allow renaming and hiding of universe levels
-        buffer<name> exceptions;
-        bool found_explicit = false;
-        while (p.curr_is_token(g_lparen)) {
-            p.next();
-            if (p.curr_is_token_or_id(g_renaming)) {
+    while (true) {
+        name cls = parse_class(p);
+        bool decls = cls.is_anonymous() || cls == g_decls || cls == g_declarations;
+        name ns    = p.check_id_next("invalid 'using' command, identifier expected");
+        env = using_namespace(env, p.ios(), ns, cls);
+        if (decls) {
+            // Remark: we currently to not allow renaming and hiding of universe levels
+            buffer<name> exceptions;
+            bool found_explicit = false;
+            while (p.curr_is_token(g_lparen)) {
                 p.next();
-                while (p.curr_is_identifier()) {
-                    name from_id = p.get_name_val();
+                if (p.curr_is_token_or_id(g_renaming)) {
                     p.next();
-                    p.check_token_next(g_arrow, "invalid 'using' command renaming, '->' expected");
-                    name to_id = p.check_id_next("invalid 'using' command renaming, identifier expected");
-                    check_identifier(p, env, ns, from_id);
-                    exceptions.push_back(from_id);
-                    env = add_alias(env, to_id, mk_constant(ns+from_id));
-                }
-            } else if (p.curr_is_token_or_id(g_hiding)) {
-                p.next();
-                while (p.curr_is_identifier()) {
-                    name id = p.get_name_val();
+                    while (p.curr_is_identifier()) {
+                        name from_id = p.get_name_val();
+                        p.next();
+                        p.check_token_next(g_arrow, "invalid 'using' command renaming, '->' expected");
+                        name to_id = p.check_id_next("invalid 'using' command renaming, identifier expected");
+                        check_identifier(p, env, ns, from_id);
+                        exceptions.push_back(from_id);
+                        env = add_alias(env, to_id, mk_constant(ns+from_id));
+                    }
+                } else if (p.curr_is_token_or_id(g_hiding)) {
                     p.next();
-                    check_identifier(p, env, ns, id);
-                    exceptions.push_back(id);
+                    while (p.curr_is_identifier()) {
+                        name id = p.get_name_val();
+                        p.next();
+                        check_identifier(p, env, ns, id);
+                        exceptions.push_back(id);
+                    }
+                } else if (p.curr_is_identifier()) {
+                    found_explicit = true;
+                    while (p.curr_is_identifier()) {
+                        name id = p.get_name_val();
+                        p.next();
+                        check_identifier(p, env, ns, id);
+                        env = add_alias(env, id, mk_constant(ns+id));
+                    }
+                } else {
+                    throw parser_error("invalid 'using' command option, identifier, 'hiding' or 'renaming' expected", p.pos());
                 }
-            } else if (p.curr_is_identifier()) {
-                found_explicit = true;
-                while (p.curr_is_identifier()) {
-                    name id = p.get_name_val();
-                    p.next();
-                    check_identifier(p, env, ns, id);
-                    env = add_alias(env, id, mk_constant(ns+id));
-                }
-            } else {
-                throw parser_error("invalid 'using' command option, identifier, 'hiding' or 'renaming' expected", p.pos());
+                if (found_explicit && !exceptions.empty())
+                    throw parser_error("invalid 'using' command option, mixing explicit and implicit 'using' options", p.pos());
+                p.check_token_next(g_rparen, "invalid 'using' command option, ')' expected");
             }
-            if (found_explicit && !exceptions.empty())
-                throw parser_error("invalid 'using' command option, mixing explicit and implicit 'using' options", p.pos());
-            p.check_token_next(g_rparen, "invalid 'using' command option, ')' expected");
+            if (!found_explicit)
+                env = add_aliases(env, ns, name(), exceptions.size(), exceptions.data());
         }
-        if (!found_explicit)
-            env = add_aliases(env, ns, name(), exceptions.size(), exceptions.data());
+        if (!p.curr_is_token(g_lbracket) && !p.curr_is_identifier())
+            break;
     }
     return env;
 }

@@ -1,6 +1,5 @@
 import standard
-using num
-using pair
+using num pair
 
 theorem H {A B : Type} (H1 : inhabited A) : inhabited (Bool × A × (B → num))
 := _

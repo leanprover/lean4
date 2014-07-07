@@ -1,6 +1,5 @@
 import standard
-using num
-using pair
+using num pair
 
 section
   parameter {A : Type}

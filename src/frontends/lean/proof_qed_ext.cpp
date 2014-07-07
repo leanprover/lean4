@@ -74,7 +74,7 @@ environment add_proof_qed_pre_tactic(environment const & env, expr const & pre_t
     return proof_qed_ext::add_entry(env, get_dummy_ios(), pq_entry(true, pre_tac));
 }
 
-environment reset_proof_qed_pre_tactic(environment const & env, expr const & pre_tac) {
+environment set_proof_qed_pre_tactic(environment const & env, expr const & pre_tac) {
     check_valid_tactic(env, pre_tac);
     return proof_qed_ext::add_entry(env, get_dummy_ios(), pq_entry(false, pre_tac));
 }
@@ -94,14 +94,14 @@ environment add_proof_qed_cmd(parser & p) {
     return add_proof_qed_pre_tactic(p.env(), parse_tactic_name(p));
 }
 
-environment reset_proof_qed_cmd(parser & p) {
-    return reset_proof_qed_pre_tactic(p.env(), parse_tactic_name(p));
+environment set_proof_qed_cmd(parser & p) {
+    return set_proof_qed_pre_tactic(p.env(), parse_tactic_name(p));
 }
 
 void register_proof_qed_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("add_proof_qed",   "add a new tactic to be automatically applied before every component in a 'proof-qed' block",
                         add_proof_qed_cmd));
-    add_cmd(r, cmd_info("reset_proof_qed", "reset the tactic that is automatically applied before every component in a 'proof-qed' block",
-                        reset_proof_qed_cmd));
+    add_cmd(r, cmd_info("set_proof_qed", "reset the tactic that is automatically applied before every component in a 'proof-qed' block",
+                        set_proof_qed_cmd));
 }
 }

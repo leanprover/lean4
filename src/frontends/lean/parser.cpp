@@ -467,17 +467,22 @@ expr parser::mk_Type() {
     return mk_sort(mk_level_placeholder());
 }
 
-std::tuple<expr, level_param_names> parser::elaborate(expr const & e, bool check_unassigned) {
+std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
-    return ::lean::elaborate(m_env, m_local_level_decls, m_ios, e, &pp, check_unassigned);
+    return ::lean::elaborate(m_env, m_local_level_decls, m_ios, e, &pp, false);
 }
 
-std::tuple<expr, level_param_names> parser::elaborate(environment const & env, expr const & e) {
+std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e) {
+    parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
+    return ::lean::elaborate(m_env, m_local_level_decls, m_ios, e, &pp, true, true);
+}
+
+std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env, expr const & e) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
     return ::lean::elaborate(env, m_local_level_decls, m_ios, e, &pp);
 }
 
-std::tuple<expr, expr, level_param_names> parser::elaborate(name const & n, expr const & t, expr const & v) {
+std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name const & n, expr const & t, expr const & v) {
     parser_pos_provider pp(m_pos_table, get_stream_name(), m_last_cmd_pos);
     return ::lean::elaborate(m_env, m_local_level_decls, m_ios, n, t, v, &pp);
 }

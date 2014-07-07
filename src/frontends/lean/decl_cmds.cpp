@@ -137,7 +137,7 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
     level_param_names new_ls;
-    std::tie(type, new_ls) = p.elaborate(type);
+    std::tie(type, new_ls) = p.elaborate_type(type);
     update_section_local_levels(p, new_ls);
     return declare_var(p, p.env(), n, append(ls, new_ls), type, is_axiom, bi, pos);
 }
@@ -280,10 +280,10 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     level_param_names new_ls;
     if (is_theorem) {
         // TODO(Leo): delay theorems
-        std::tie(type, value, new_ls) = p.elaborate(n, type, value);
+        std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value);
         env = module::add(env, check(env, mk_theorem(real_n, append(ls, new_ls), type, value)));
     } else {
-        std::tie(type, value, new_ls) = p.elaborate(n, type, value);
+        std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value);
         env = module::add(env, check(env, mk_definition(env, real_n, append(ls, new_ls), type, value, modifiers.m_is_opaque)));
     }
     if (modifiers.m_is_class)
@@ -319,7 +319,7 @@ static environment variables_cmd(parser & p) {
     p.parse_close_binder_info(bi);
     level_param_names ls = to_level_param_names(collect_univ_params(type));
     level_param_names new_ls;
-    std::tie(type, new_ls) = p.elaborate(type);
+    std::tie(type, new_ls) = p.elaborate_type(type);
     update_section_local_levels(p, new_ls);
     ls = append(ls, new_ls);
     environment env = p.env();

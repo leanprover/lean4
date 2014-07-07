@@ -24,6 +24,8 @@ inductive group : Type :=
 definition carrier (g : group) : Type
 := group_rec (λ c s, c) g
 
+coercion carrier
+
 definition group_to_struct [instance] (g : group) : group_struct (carrier g)
 := group_rec (λ (A : Type) (s : group_struct A), s) g
 
@@ -37,11 +39,16 @@ infixl `*`:75 := mul
 section
   variable  G1 : group
   variable  G2 : group
-  variables a b c : (carrier G2)
-  variables d e : (carrier G1)
+  variables a b c : G2
+  variables d e   : G1
   check a * b * b
   check d * e
 end
+
+variable G : group.{1}
+variables a b : G
+definition val : G := a*b
+check val
 
 variable pos_real : Type.{1}
 variable rmul  : pos_real → pos_real → pos_real

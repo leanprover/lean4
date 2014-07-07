@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 std::tuple<expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, io_state const & ios, expr const & e,
-                                              pos_info_provider * pp = nullptr, bool check_unassigned = true);
+                                              pos_info_provider * pp = nullptr, bool check_unassigned = true, bool ensure_type = false);
 std::tuple<expr, expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, io_state const & ios,
                                                     name const & n, expr const & t, expr const & v, pos_info_provider * pp = nullptr);
 }

@@ -84,7 +84,7 @@ environment check_cmd(parser & p) {
     e = p.lambda_abstract(section_ps, e);
     level_param_names ls = to_level_param_names(collect_univ_params(e));
     level_param_names new_ls;
-    std::tie(e, new_ls) = p.elaborate(e, false);
+    std::tie(e, new_ls) = p.elaborate_relaxed(e);
     auto tc = mk_type_checker_with_hints(p.env(), p.mk_ngen());
     expr type = tc->check(e, append(ls, new_ls));
     p.regular_stream() << e << " : " << type << endl;

@@ -197,7 +197,7 @@ struct inductive_cmd_fn {
             d_type = update_result_sort(d_type, m_u);
             m_infer_result_universe = true;
         }
-        return m_p.elaborate(m_env, d_type);
+        return m_p.elaborate_at(m_env, d_type);
     }
 
     /** \brief Create a local constant based on the given binding */
@@ -435,7 +435,7 @@ struct inductive_cmd_fn {
                 name ir_name; expr ir_type;
                 std::tie(ir_name, ir_type) = ir;
                 level_param_names new_ls;
-                std::tie(ir_type, new_ls) = m_p.elaborate(m_env, ir_type);
+                std::tie(ir_type, new_ls) = m_p.elaborate_at(m_env, ir_type);
                 for (auto l : new_ls) m_levels.push_back(l);
                 accumulate_levels(ir_type, r_lvls);
                 new_irs.push_back(intro_rule(ir_name, ir_type));

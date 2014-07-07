@@ -249,9 +249,14 @@ public:
     */
     struct no_undef_id_error_scope { parser & m_p; bool m_old; no_undef_id_error_scope(parser &); ~no_undef_id_error_scope(); };
 
-    std::tuple<expr, level_param_names> elaborate(expr const & e, bool check_unassigned = true);
-    std::tuple<expr, level_param_names> elaborate(environment const & env, expr const & e);
-    std::tuple<expr, expr, level_param_names> elaborate(name const & n, expr const & t, expr const & v);
+    /** \brief Elaborate \c e, and tolerate metavariables in the result. */
+    std::tuple<expr, level_param_names> elaborate_relaxed(expr const & e);
+    /** \brief Elaborate \c e, and ensure it is a type. */
+    std::tuple<expr, level_param_names> elaborate_type(expr const & e);
+    /** \brief Elaborate \c e in the given environment. */
+    std::tuple<expr, level_param_names> elaborate_at(environment const & env, expr const & e);
+    /** \brief Elaborate the definition n : t := v */
+    std::tuple<expr, expr, level_param_names> elaborate_definition(name const & n, expr const & t, expr const & v);
 
     /** parse all commands in the input stream */
     bool operator()() { return parse_commands(); }

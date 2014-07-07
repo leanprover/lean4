@@ -981,8 +981,10 @@ public:
         return std::make_tuple(r, to_list(new_ps.begin(), new_ps.end()));
     }
 
-    std::tuple<expr, level_param_names> operator()(expr const & e) {
+    std::tuple<expr, level_param_names> operator()(expr const & e, bool _ensure_type) {
         expr r  = visit(e);
+        if (_ensure_type)
+            r = ensure_type(r);
         auto p  = solve().pull();
         lean_assert(p);
         substitution s = p->first;
@@ -999,7 +1001,7 @@ public:
     }
 
     std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n) {
-        expr r_t      = visit(t);
+        expr r_t      = ensure_type(visit(t));
         expr r_v      = visit(v);
         expr r_v_type = infer_type(r_v);
         environment env = m_env;
@@ -1026,8 +1028,8 @@ public:
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
 std::tuple<expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, io_state const & ios,
-                                              expr const & e, pos_info_provider * pp, bool check_unassigned) {
-    return elaborator(env, lls, ios, name_generator(g_tmp_prefix), pp, check_unassigned)(e);
+                                              expr const & e, pos_info_provider * pp, bool check_unassigned, bool ensure_type) {
+    return elaborator(env, lls, ios, name_generator(g_tmp_prefix), pp, check_unassigned)(e, ensure_type);
 }
 
 std::tuple<expr, expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, io_state const & ios,

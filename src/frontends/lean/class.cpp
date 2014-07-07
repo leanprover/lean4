@@ -119,11 +119,20 @@ environment add_class_cmd(parser & p) {
 }
 
 environment add_instance_cmd(parser & p) {
-    auto pos = p.pos();
-    name c   = p.check_id_next("invalid 'class instance' declaration, identifier expected");
-    expr e   = p.id_to_expr(c, pos);
-    if (!is_constant(e)) throw parser_error(sstream() << "invalid 'class instance' declaration, '" << c << "' is not a constant", pos);
-    return add_instance(p.env(), const_name(e));
+    bool found = false;
+    environment env = p.env();
+    while (p.curr_is_identifier()) {
+        found    = true;
+        auto pos = p.pos();
+        name c   = p.get_name_val();
+        p.next();
+        expr e   = p.id_to_expr(c, pos);
+        if (!is_constant(e)) throw parser_error(sstream() << "invalid 'class instance' declaration, '" << c << "' is not a constant", pos);
+        env = add_instance(env, const_name(e));
+    }
+    if (!found)
+        throw parser_error("invalid 'class instance' declaration, at least one identifier expected", p.pos());
+    return env;
 }
 
 void register_class_cmds(cmd_table & r) {

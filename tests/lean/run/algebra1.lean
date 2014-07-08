@@ -86,7 +86,7 @@ namespace monoid
   definition assoc [inline] {A : Type} (s : monoid_struct A) : is_assoc (mul s)
   := monoid_struct_rec (fun mul id a i, a) s
 
-  using algebra.semigroup -- Fix: allow user to write just semigroup
+  using semigroup
   definition is_semigroup_struct [inline] [instance] (A : Type) (s : monoid_struct A) : semigroup_struct A
   := mk_semigroup_struct (mul s) (assoc s)
 

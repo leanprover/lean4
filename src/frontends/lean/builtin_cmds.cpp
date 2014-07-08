@@ -173,7 +173,12 @@ environment using_cmd(parser & p) {
     while (true) {
         name cls = parse_class(p);
         bool decls = cls.is_anonymous() || cls == g_decls || cls == g_declarations;
+        auto pos   = p.pos();
         name ns    = p.check_id_next("invalid 'using' command, identifier expected");
+        optional<name> real_ns = to_valid_namespace_name(env, ns);
+        if (!real_ns)
+            throw parser_error(sstream() << "invalid namespace name '" << ns << "'", pos);
+        ns = *real_ns;
         env = using_namespace(env, p.ios(), ns, cls);
         if (decls) {
             // Remark: we currently to not allow renaming and hiding of universe levels

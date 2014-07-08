@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <memory>
+#include <string>
 #include "library/scoped_ext.h"
 #include "library/kernel_bindings.h"
 
@@ -25,7 +26,8 @@ void register_scoped_ext(name const & c, using_namespace_fn use, push_scope_fn p
 }
 
 struct scope_mng_ext : public environment_extension {
-    list<name> m_namespaces;
+    name_set   m_namespace_set; // all namespaces registered in the system
+    list<name> m_namespaces; // stack of namespaces/sections
     list<bool> m_in_section;
 };
 
@@ -61,12 +63,30 @@ environment using_namespace(environment const & env, io_state const & ios, name 
     return r;
 }
 
+optional<name> to_valid_namespace_name(environment const & env, name const & n) {
+    scope_mng_ext const & ext = get_extension(env);
+    if (ext.m_namespace_set.contains(n))
+        return optional<name>(n);
+    for (auto const & ns : ext.m_namespaces) {
+        name r = ns + n;
+        if (ext.m_namespace_set.contains(r))
+            return optional<name>(r);
+    }
+    return optional<name>();
+}
+
+static std::string g_new_namespace_key("nspace");
 environment push_scope(environment const & env, io_state const & ios, name const & n) {
     if (!n.is_anonymous() && in_section(env))
         throw exception("invalid namespace declaration, a namespace cannot be declared inside a section");
     bool in_section = n.is_anonymous();
     name new_n = get_namespace(env) + n;
     scope_mng_ext ext = get_extension(env);
+    bool save_ns = false;
+    if (!ext.m_namespace_set.contains(new_n)) {
+        save_ns  = true;
+        ext.m_namespace_set.insert(new_n);
+    }
     ext.m_namespaces = list<name>(new_n, ext.m_namespaces);
     ext.m_in_section = list<bool>(n.is_anonymous(), ext.m_in_section);
     environment r = update(env, ext);
@@ -75,8 +95,23 @@ environment push_scope(environment const & env, io_state const & ios, name const
     }
     if (!n.is_anonymous())
         r = using_namespace(r, ios, n);
+    if (save_ns)
+        r = module::add(r, g_new_namespace_key, [=](serializer & s) { s << new_n; });
     return r;
 }
+
+static void namespace_reader(deserializer & d, module_idx, shared_environment &,
+                             std::function<void(asynch_update_fn const &)> &,
+                             std::function<void(delayed_update_fn const &)> & add_delayed_update) {
+    name n;
+    d >> n;
+    add_delayed_update([=](environment const & env, io_state const &) -> environment {
+            scope_mng_ext ext = get_extension(env);
+            ext.m_namespace_set.insert(n);
+            return update(env, ext);
+        });
+}
+register_module_object_reader_fn g_namespace_reader(g_new_namespace_key, namespace_reader);
 
 environment pop_scope(environment const & env) {
     scope_mng_ext ext = get_extension(env);

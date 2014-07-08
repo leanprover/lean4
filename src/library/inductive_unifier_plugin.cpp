@@ -103,6 +103,8 @@ public:
        associated with the eliminator \c elim.
     */
     virtual lazy_list<constraints> solve(type_checker & tc, constraint const & c, name_generator const & ngen) const {
+        if (!is_eq_cnstr(c))
+            return lazy_list<constraints>();
         expr const & lhs        = cnstr_lhs_expr(c);
         expr const & rhs        = cnstr_rhs_expr(c);
         justification const & j = c.get_justification();

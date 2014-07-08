@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/tactic_hint.h"
 
 namespace lean {
 // This (scoped) environment extension allows us to set a tactic to be applied before every element
@@ -84,12 +85,6 @@ optional<expr> get_proof_qed_pre_tactic(environment const & env) {
     return s.m_pre_tac;
 }
 
-static expr parse_tactic_name(parser & p) {
-    auto pos = p.pos();
-    name id  = p.check_id_next("invalid proof_qed configuration command, indentifier expected");
-    return p.id_to_expr(id, pos);
-}
-
 environment add_proof_qed_cmd(parser & p) {
     return add_proof_qed_pre_tactic(p.env(), parse_tactic_name(p));
 }
@@ -99,7 +94,7 @@ environment set_proof_qed_cmd(parser & p) {
 }
 
 void register_proof_qed_cmds(cmd_table & r) {
-    add_cmd(r, cmd_info("add_proof_qed",   "add a new tactic to be automatically applied before every component in a 'proof-qed' block",
+    add_cmd(r, cmd_info("add_proof_qed", "add a new tactic to be automatically applied before every component in a 'proof-qed' block",
                         add_proof_qed_cmd));
     add_cmd(r, cmd_info("set_proof_qed", "reset the tactic that is automatically applied before every component in a 'proof-qed' block",
                         set_proof_qed_cmd));

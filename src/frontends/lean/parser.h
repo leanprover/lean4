@@ -257,8 +257,12 @@ public:
     std::tuple<expr, level_param_names> elaborate_type(expr const & e);
     /** \brief Elaborate \c e in the given environment. */
     std::tuple<expr, level_param_names> elaborate_at(environment const & env, expr const & e);
+    /** \brief Elaborate \c e (making sure the result does not have metavariables). */
+    std::tuple<expr, level_param_names> elaborate(expr const & e) { return elaborate_at(m_env, e); }
     /** \brief Elaborate the definition n : t := v */
     std::tuple<expr, expr, level_param_names> elaborate_definition(name const & n, expr const & t, expr const & v);
+
+    parser_pos_provider get_pos_provider() const { return parser_pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos); }
 
     /** parse all commands in the input stream */
     bool operator()() { return parse_commands(); }

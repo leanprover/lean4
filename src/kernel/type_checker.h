@@ -113,6 +113,7 @@ public:
     ~type_checker();
 
     environment const & env() const { return m_env; }
+    name_generator mk_ngen() { return m_gen.mk_child(); }
 
     /**
        \brief Return the type of \c t.

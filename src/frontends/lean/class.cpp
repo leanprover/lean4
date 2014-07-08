@@ -57,17 +57,22 @@ struct class_config {
 template class scoped_ext<class_config>;
 typedef scoped_ext<class_config> class_ext;
 
+name get_class_name(environment const & env, expr const & e) {
+    if (!is_constant(e))
+        throw exception("class expected, expression is not a constant");
+    name const & c_name = const_name(e);
+    declaration c_d = env.get(c_name);
+    if (c_d.is_definition() && !c_d.is_opaque())
+        throw exception(sstream() << "invalid class, '" << c_name << "' is a transparent definition");
+    return c_name;
+}
+
 environment add_instance(environment const & env, name const & n) {
     declaration d = env.get(n);
     expr type = d.get_type();
     while (is_pi(type))
         type = binding_body(type);
-    if (!is_constant(get_app_fn(type)))
-        throw exception(sstream() << "invalid class instance declaration '" << n << "' resultant type must be a class");
-    name const & c = const_name(get_app_fn(type));
-    declaration c_d = env.get(c);
-    if (c_d.is_definition() && !c_d.is_opaque())
-        throw exception(sstream() << "invalid class instance declaration, '" << c << "' is not a valid class, it is a transparent definition");
+    name c = get_class_name(env, get_app_fn(type));
     return class_ext::add_entry(env, get_dummy_ios(), class_entry(c, n));
 }
 

@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/class.h"
+#include "frontends/lean/tactic_hint.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
@@ -122,7 +123,7 @@ public:
 class elaborator {
     typedef list<expr> context;
     typedef std::vector<constraint> constraint_vect;
-    typedef name_map<expr> tactic_hints;
+    typedef name_map<expr> local_tactic_hints;
     typedef name_map<expr> mvar2meta;
     typedef std::unique_ptr<type_checker> type_checker_ptr;
 
@@ -136,8 +137,8 @@ class elaborator {
     pos_info_provider * m_pos_provider; // optional expression position information used when reporting errors.
     justification       m_accumulated; // accumulate justification of eagerly used substitutions
     constraint_vect     m_constraints; // constraints that must be solved for the elaborated term to be type correct.
-    tactic_hints        m_tactic_hints; // mapping from metavariable name ?m to tactic expression that should be used to solve it.
-                                        // this mapping is populated by the 'by tactic-expr' expression.
+    local_tactic_hints  m_local_tactic_hints; // mapping from metavariable name ?m to tactic expression that should be used to solve it.
+                                              // this mapping is populated by the 'by tactic-expr' expression.
     mvar2meta           m_mvar2meta; // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
                                      // representing the context where ?m was created.
     name_set            m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
@@ -552,7 +553,7 @@ public:
         lean_assert(is_by(e));
         expr tac = visit(get_by_arg(e));
         expr m   = mk_meta(t, e.get_tag());
-        m_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
+        m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
         return m;
     }
 
@@ -876,7 +877,7 @@ public:
     }
 
     optional<expr> get_pre_tactic_for(substitution & subst, expr const & mvar, name_set & visited) {
-        if (auto it = m_tactic_hints.find(mlocal_name(mvar))) {
+        if (auto it = m_local_tactic_hints.find(mlocal_name(mvar))) {
             expr pre_tac = subst.instantiate(*it);
             pre_tac = solve_unassigned_mvars(subst, pre_tac, visited);
             check_exact_tacs(pre_tac, subst);
@@ -899,6 +900,58 @@ public:
         }
     }
 
+    optional<tactic> get_local_tactic_hint(substitution & subst, expr const & mvar, name_set & visited) {
+        if (auto pre_tac = get_pre_tactic_for(subst, mvar, visited)) {
+            return pre_tactic_to_tactic(*pre_tac, mvar);
+        } else {
+            return optional<tactic>();
+        }
+    }
+
+    /** \brief Try to instantiate meta-variable \c mvar (modulo its state ps) using the given tactic.
+        If it succeeds, then update subst with the solution.
+        If \c report_failure is true, then display error messages. to the user.
+        Return true iff the metavariable \c mvar has been assigned.
+    */
+    bool try_using(substitution & subst, expr const & mvar, proof_state const & ps, tactic const & tac, bool report_failure) {
+        lean_assert(length(ps.get_goals()) == 1);
+        lean_assert(get_app_fn(head(ps.get_goals()).get_meta()) == mvar); // make sure ps is a really a proof state for mvar.
+        try {
+            proof_state_seq seq = tac(m_env, m_ios, ps);
+            auto r = seq.pull();
+            if (!r) {
+                // tactic failed to produce any result
+                if (report_failure)
+                    display_unsolved_proof_state(mvar, ps, "tactic failed");
+                return false;
+            } else if (!empty(r->first.get_goals())) {
+                // tactic contains unsolved subgoals
+                if (report_failure)
+                    display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+                return false;
+            } else {
+                subst = r->first.get_subst();
+                expr v = subst.instantiate(mvar);
+                subst = subst.assign(mlocal_name(mvar), v);
+                return true;
+            }
+        } catch (tactic_exception & ex) {
+            if (report_failure) {
+                regular out(m_env, m_ios);
+                display_error_pos(out, m_pos_provider, ex.get_expr());
+                out << " tactic failed: " << ex.what() << "\n";
+            }
+            return false;
+        }
+    }
+
+    bool try_using(substitution & subst, expr const & mvar, proof_state const & ps, list<tactic_hint_entry> const & tacs) {
+        return std::any_of(tacs.begin(), tacs.end(),
+                           [&](tactic_hint_entry const & e) {
+                               return try_using(subst, mvar, ps, e.get_tactic(), false);
+                           });
+    }
+
     void solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited) {
         if (visited.contains(mlocal_name(mvar)))
             return;
@@ -916,30 +969,15 @@ public:
         // first solve unassigned metavariables in type
         type = solve_unassigned_mvars(subst, type, visited);
         proof_state ps(goals(goal(*meta, type)), subst, m_ngen.mk_child());
-        optional<expr> pre_tac = get_pre_tactic_for(subst, mvar, visited);
-        if (!pre_tac)
-            return;
-        optional<tactic> tac   = pre_tactic_to_tactic(*pre_tac, mvar);
-        if (!tac)
-            return;
-        try {
-            proof_state_seq seq = (*tac)(m_env, m_ios, ps);
-            auto r = seq.pull();
-            if (!r) {
-                // tactic failed to produce any result
-                display_unsolved_proof_state(mvar, ps, "tactic failed");
-            } else if (!empty(r->first.get_goals())) {
-                // tactic contains unsolved subgoals
-                display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
-            } else {
-                subst = r->first.get_subst();
-                expr v = subst.instantiate(mvar);
-                subst = subst.assign(mlocal_name(mvar), v);
+        if (auto local_hint = get_local_tactic_hint(subst, mvar, visited)) {
+            try_using(subst, mvar, ps, *local_hint, true);
+        } else {
+            if (is_constant(get_app_fn(type))) {
+                name cls = const_name(get_app_fn(type));
+                if (try_using(subst, mvar, ps, get_tactic_hints(m_env, cls)))
+                    return;
             }
-        } catch (tactic_exception & ex) {
-            regular out(m_env, m_ios);
-            display_error_pos(out, m_pos_provider, ex.get_expr());
-            out << " tactic failed: " << ex.what() << "\n";
+            try_using(subst, mvar, ps, get_tactic_hints(m_env));
         }
     }
 

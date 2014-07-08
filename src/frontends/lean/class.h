@@ -17,6 +17,6 @@ environment add_instance(environment const & env, name const & n);
 bool is_class(environment const & env, name const & c);
 /** \brief Return the instances of the given class. */
 list<name> get_class_instances(environment const & env, name const & c);
-
+name get_class_name(environment const & env, expr const & e);
 void register_class_cmds(cmd_table & r);
 }

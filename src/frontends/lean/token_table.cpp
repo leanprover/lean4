@@ -77,7 +77,7 @@ token_table init_token_table() {
                                "abbreviation", "opaque_hint", "evaluate", "check", "print", "end", "namespace", "section", "import",
                                "abbreviation", "inductive", "record", "structure", "module", "universe",
                                "precedence", "infixl", "infixr", "infix", "postfix", "prefix", "notation",
-                               "exit", "set_option", "using", "calc_subst", "calc_refl", "calc_trans",
+                               "exit", "set_option", "using", "calc_subst", "calc_refl", "calc_trans", "tactic_hint",
                                "add_proof_qed", "set_proof_qed", "#setline", "class", "instance", nullptr};
 
     std::pair<char const *, char const *> aliases[] =

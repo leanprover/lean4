@@ -84,14 +84,36 @@ tactic expr_to_tactic(type_checker & tc, expr e, pos_info_provider const * p) {
         // unfold definition
         buffer<expr> locals;
         get_app_rev_args(e, locals);
-        v = instantiate_univ_params(v, it->get_univ_params(), const_levels(f));
+        level_param_names const & ps = it->get_univ_params();
+        levels ls = const_levels(f);
+        unsigned num_ps = length(ps);
+        unsigned num_ls = length(ls);
+        if (num_ls > num_ps)
+            throw expr_to_tactic_exception(e, sstream() << "invalid number of universes");
+        if (num_ls < num_ps) {
+            buffer<level> extra_ls;
+            name_generator ngen = tc.mk_ngen();
+            for (unsigned i = num_ls; i < num_ps; i++)
+                extra_ls.push_back(mk_meta_univ(ngen.next()));
+            ls = append(ls, to_list(extra_ls.begin(), extra_ls.end()));
+        }
+        v = instantiate_univ_params(v, ps, ls);
         v = apply_beta(v, locals.size(), locals.data());
         return expr_to_tactic(tc, v, p);
     }
 }
 
+static name g_tmp_prefix = name::mk_internal_unique_name();
+MK_THREAD_LOCAL_GET(unsigned, get_expr_tac_id, 0)
+static name_generator next_name_generator() {
+    unsigned & c = get_expr_tac_id();
+    unsigned r = c;
+    c++;
+    return name_generator(name(g_tmp_prefix, r));
+}
+
 tactic expr_to_tactic(environment const & env, expr const & e, pos_info_provider const * p) {
-    type_checker tc(env);
+    type_checker tc(env, next_name_generator());
     return expr_to_tactic(tc, e, p);
 }
 

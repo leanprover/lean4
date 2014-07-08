@@ -44,6 +44,8 @@ infixl ; := and_then
 notation `!` t:max     := repeat t
 -- [ t_1 | ... | t_n ] notation
 notation `[` h:100 `|` r:(foldl 100 `|` (e r, or_else r e) h) `]` := r
+-- [ t_1 || ... || t_n ] notation
+notation `[` h:100 `||` r:(foldl 100 `||` (e r, par r e) h) `]` := r
 definition try         (t : tactic) : tactic := [ t | id ]
 notation `?` t:max     := try t
 definition repeat1     (t : tactic) : tactic := t ; !t

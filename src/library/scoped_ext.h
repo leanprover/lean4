@@ -28,6 +28,7 @@ environment push_scope(environment const & env, io_state const & ios, name const
 environment pop_scope(environment const & env);
 
 name const & get_namespace(environment const & env);
+list<name> const & get_namespaces(environment const & env);
 bool in_section(environment const & env);
 
 /** \brief Check if \c n may be a reference to a namespace, if it is return it.

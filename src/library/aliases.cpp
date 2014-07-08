@@ -126,13 +126,20 @@ static environment update(environment const & env, aliases_ext const & ext) {
     return env.update(g_ext.m_ext_id, std::make_shared<aliases_ext>(ext));
 }
 
+static void check_atomic(name const & a) {
+    if (!a.is_atomic())
+        throw exception(sstream() << "invalid alias '" << a << "', aliases must be atomic names");
+}
+
 environment add_alias(environment const & env, name const & a, expr const & e) {
+    check_atomic(a);
     aliases_ext ext = get_extension(env);
     ext.add_alias(a, e);
     return update(env, ext);
 }
 
 environment add_decl_alias(environment const & env, name const & a, expr const & e) {
+    check_atomic(a);
     aliases_ext ext = get_extension(env);
     ext.add_decl_alias(a, e);
     return update(env, ext);
@@ -154,6 +161,7 @@ static void check_no_shadow(environment const & env, name const & a) {
 }
 
 environment add_alias(environment const & env, name const & a, level const & l) {
+    check_atomic(a);
     check_no_shadow(env, a);
     aliases_ext ext = get_extension(env);
     ext.add_alias(a, l);

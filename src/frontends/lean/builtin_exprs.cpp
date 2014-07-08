@@ -73,7 +73,7 @@ static expr parse_let(parser & p, pos_info const & pos) {
         return parse_let_body(p, pos);
     } else {
         auto pos = p.pos();
-        name id  = p.check_id_next("invalid let declaration, identifier expected");
+        name id  = p.check_atomic_id_next("invalid let declaration, identifier expected");
         bool is_opaque = true;
         bool is_fact   = false;
         expr type, value;

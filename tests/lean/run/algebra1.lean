@@ -77,6 +77,8 @@ namespace semigroup
 end
 
 namespace monoid
+  check semigroup.mul
+
   inductive monoid_struct (A : Type) : Type :=
   | mk_monoid_struct : Π (mul : A → A → A) (id : A), is_assoc mul → is_id mul id → monoid_struct A
 

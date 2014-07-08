@@ -284,6 +284,14 @@ name parser::check_id_next(char const * msg) {
     return r;
 }
 
+name parser::check_atomic_id_next(char const * msg) {
+    auto p  = pos();
+    name id = check_id_next(msg);
+    if (!id.is_atomic())
+        throw parser_error(msg, p);
+    return id;
+}
+
 expr parser::mk_app(expr fn, expr arg, pos_info const & p) {
     return save_pos(::lean::mk_app(fn, arg), p);
 }
@@ -326,14 +334,6 @@ unsigned parser::get_local_level_index(name const & n) const {
 
 unsigned parser::get_local_index(name const & n) const {
     return m_local_decls.find_idx(n);
-}
-
-/** \brief Parse a sequence of identifiers <tt>ID*</tt>. Store the result in \c result. */
-void parser::parse_names(buffer<std::pair<pos_info, name>> & result) {
-    while (curr_is_identifier()) {
-        result.emplace_back(pos(), get_name_val());
-        next();
-    }
 }
 
 static name g_period("."), g_colon(":"), g_lparen("("), g_rparen(")"), g_llevel_curly(".{");
@@ -566,10 +566,7 @@ void parser::parse_close_binder_info(optional<binder_info> const & bi) {
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */
 expr parser::parse_binder_core(binder_info const & bi) {
     auto p  = pos();
-    if (!curr_is_identifier())
-        throw parser_error("invalid binder, identifier expected", p);
-    name id = get_name_val();
-    next();
+    name id = check_atomic_id_next("invalid binder, atomic identifier expected");
     expr type;
     if (curr_is_token(g_colon)) {
         next();
@@ -597,7 +594,10 @@ expr parser::parse_binder() {
 */
 void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi) {
     buffer<std::pair<pos_info, name>> names;
-    parse_names(names);
+    while (curr_is_identifier()) {
+        auto p = pos();
+        names.emplace_back(p, check_atomic_id_next("invalid binder, atomic identifier expected"));
+    }
     if (names.empty())
         throw parser_error("invalid binder, identifier expected", pos());
     optional<expr> type;
@@ -798,29 +798,42 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         next();
         ls = to_list(lvl_buffer.begin(), lvl_buffer.end());
     }
-    // locals
-    if (auto it1 = m_local_decls.find(id))
-        return copy_with_new_pos(propagate_levels(*it1, ls), p);
-    optional<expr> r;
-    // globals
-    if (m_env.find(id))
-        r = save_pos(mk_constant(id, ls), p);
-    // aliases
-    auto as = get_alias_exprs(m_env, id);
-    if (!is_nil(as)) {
-        buffer<expr> new_as;
-        if (r)
-            new_as.push_back(*r);
-        for (auto const & e : as) {
-            new_as.push_back(copy_with_new_pos(propagate_levels(e, ls), p));
+    if (id.is_atomic()) {
+        // locals
+        if (auto it1 = m_local_decls.find(id))
+            return copy_with_new_pos(propagate_levels(*it1, ls), p);
+        optional<expr> r;
+        // globals
+        if (m_env.find(id))
+            r = save_pos(mk_constant(id, ls), p);
+        // aliases
+        auto as = get_alias_exprs(m_env, id);
+        if (!is_nil(as)) {
+            buffer<expr> new_as;
+            if (r)
+                new_as.push_back(*r);
+            for (auto const & e : as) {
+                new_as.push_back(copy_with_new_pos(propagate_levels(e, ls), p));
+            }
+            r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
         }
-        r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
-    }
-    if (!r && m_no_undef_id_error)
-        r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
-    if (!r)
+        if (!r && m_no_undef_id_error)
+            r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
+        if (!r)
+            throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
+        return *r;
+    } else {
+        if (m_env.find(id)) {
+            return save_pos(mk_constant(id, ls), p);
+        } else {
+            for (name const & ns : get_namespaces(m_env)) {
+                auto new_id = ns + id;
+                if (m_env.find(new_id))
+                    return save_pos(mk_constant(new_id, ls), p);
+            }
+        }
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
-    return *r;
+    }
 }
 
 expr parser::parse_id() {

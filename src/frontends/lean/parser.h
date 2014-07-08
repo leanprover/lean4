@@ -183,6 +183,9 @@ public:
     void check_token_next(name const & tk, char const * msg);
     /** \brief Check if the current token is an identifier, if it is return it and move to next token, otherwise throw an exception. */
     name check_id_next(char const * msg);
+    /** \brief Check if the current token is an atomic identifier, if it is return it and move to next token,
+        otherwise throw an exception. */
+    name check_atomic_id_next(char const * msg);
 
     mpq const & get_num_val() const { return m_scanner.get_num_val(); }
     name const & get_name_val() const { return m_scanner.get_name_val(); }
@@ -193,7 +196,6 @@ public:
     regular regular_stream() const { return regular(env(), ios()); }
     diagnostic diagnostic_stream() const { return diagnostic(env(), ios()); }
 
-    void parse_names(buffer<std::pair<pos_info, name>> & result);
     unsigned get_small_nat();
     unsigned parse_small_nat();
     double parse_double();

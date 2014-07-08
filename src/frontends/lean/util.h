@@ -10,4 +10,6 @@ namespace lean {
 class parser;
 void check_atomic(name const & n);
 void check_in_section(parser const & p);
+bool is_root_namespace(name const & n);
+name remove_root_prefix(name const & n);
 }

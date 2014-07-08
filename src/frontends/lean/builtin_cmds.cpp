@@ -65,8 +65,10 @@ environment section_cmd(parser & p) {
 }
 
 environment namespace_cmd(parser & p) {
-    name n = p.check_id_next("invalid namespace declaration, identifier expected");
-    check_atomic(n);
+    auto pos = p.pos();
+    name n = p.check_atomic_id_next("invalid namespace declaration, atomic identifier expected");
+    if (is_root_namespace(n))
+        throw parser_error(sstream() << "invalid namespace name, '" << n << "' is reserved", pos);
     return push_scope(p.env(), p.ios(), n);
 }
 

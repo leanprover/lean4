@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/error_handling/error_handling.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/util.h"
 #include "frontends/lean/parser_bindings.h"
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/elaborator.h"
@@ -823,8 +824,9 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
             throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
         return *r;
     } else {
-        if (m_env.find(id)) {
-            return save_pos(mk_constant(id, ls), p);
+        name new_id = remove_root_prefix(id);
+        if (m_env.find(new_id)) {
+            return save_pos(mk_constant(new_id, ls), p);
         } else {
             for (name const & ns : get_namespaces(m_env)) {
                 auto new_id = ns + id;

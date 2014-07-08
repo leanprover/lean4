@@ -18,4 +18,11 @@ void check_in_section(parser const & p) {
     if (!in_section(p.env()))
         throw exception(sstream() << "invalid command, it must be used in a section");
 }
+static name g_root("_root_");
+bool is_root_namespace(name const & n) {
+    return n == g_root;
+}
+name remove_root_prefix(name const & n) {
+    return n.replace_prefix(g_root, name());
+}
 }

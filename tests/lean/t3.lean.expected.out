@@ -9,7 +9,7 @@ t3.lean:16:2: error: invalid namespace declaration, a namespace cannot be declar
 Type.{tst.v}
 Type.{u}
 Type.{tst.foo.U}
-t3.lean:26:0: error: invalid declaration name 'tst.foo', identifier must be atomic
+t3.lean:26:10: error: invalid namespace declaration, atomic identifier expected
 t3.lean:27:1: error: invalid declaration name 'full.name.U', identifier must be atomic
 Type.{tst.v}
 Type.{tst.foo.U}

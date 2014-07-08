@@ -7,7 +7,9 @@ Author: Leonardo de Moura
 #include <utility>
 #include "util/lazy_list_fn.h"
 #include "util/sstream.h"
+#include "util/name_map.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
@@ -143,9 +145,52 @@ proof_state_seq apply_tactic_core(environment const & env, io_state const & ios,
         });
 }
 
-tactic apply_tactic(expr const & e) {
+
+level refresh_univ_metavars(level const & l, name_generator & ngen, name_map<level> & level_map) {
+    return replace(l, [&](level const & l) {
+            if (!has_meta(l))
+                return some_level(l);
+            if (is_meta(l)) {
+                name id = meta_id(l);
+                if (auto it = level_map.find(id))
+                    return some_level(*it);
+                level r = mk_meta_univ(ngen.next());
+                level_map.insert(id, r);
+                return some_level(r);
+            }
+            return none_level();
+        });
+}
+
+expr refresh_univ_metavars(expr const & e, name_generator & ngen) {
+    if (has_univ_metavar(e)) {
+        name_map<level> level_map;
+        return replace(e, [&](expr const & e, unsigned) {
+                if (!has_univ_metavar(e))
+                    return some_expr(e);
+                if (is_sort(e))
+                    return some_expr(update_sort(e, refresh_univ_metavars(sort_level(e), ngen, level_map)));
+                if (is_constant(e))
+                    return some_expr(update_constant(e, map(const_levels(e), [&](level const & l) {
+                                    return refresh_univ_metavars(l, ngen, level_map);
+                                })));
+                return none_expr();
+            });
+    } else {
+        return e;
+    }
+}
+
+tactic apply_tactic(expr const & e, bool refresh_univ_mvars) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
-            return apply_tactic_core(env, ios, s, e, true, true);
+            if (refresh_univ_mvars) {
+                name_generator ngen = s.get_ngen();
+                expr new_e = refresh_univ_metavars(s.get_subst().instantiate(e), ngen);
+                proof_state new_s(s, ngen);
+                return apply_tactic_core(env, ios, new_s, new_e, true, true);
+            } else {
+                return apply_tactic_core(env, ios, s, e, true, true);
+            }
         });
 }
 

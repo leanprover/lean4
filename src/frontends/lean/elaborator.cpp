@@ -178,6 +178,8 @@ class elaborator {
     }
 
     struct choice_elaborator {
+        bool m_ignore_failure;
+        choice_elaborator(bool ignore_failure = false):m_ignore_failure(ignore_failure) {}
         virtual optional<constraints> next() = 0;
     };
 
@@ -238,8 +240,9 @@ class elaborator {
         justification m_jst;
 
         class_elaborator(elaborator & elab, expr const & mvar, expr const & mvar_type,
-                         list<expr> const & local_insts, list<name> const & instances,
+                         list<expr> const & local_insts, list<name> const & instances, bool has_tactic_hints,
                          context const & ctx, substitution const & s, justification const & j):
+            choice_elaborator(has_tactic_hints),
             m_elab(elab), m_mvar(mvar), m_mvar_type(mvar_type), m_local_instances(local_insts), m_instances(instances),
             m_ctx(ctx), m_subst(s), m_jst(j) {
         }
@@ -281,10 +284,14 @@ class elaborator {
     lazy_list<constraints> choose(std::shared_ptr<choice_elaborator> c) {
         return mk_lazy_list<constraints>([=]() {
                 auto s = c->next();
-                if (s)
+                if (s) {
                     return some(mk_pair(*s, choose(c)));
-                else
+                } else if (c->m_ignore_failure) {
+                    // return singleton empty list of constraints, and let tactic hints try to instantiate the metavariable.
+                    return lazy_list<constraints>::maybe_pair(constraints(), lazy_list<constraints>());
+                } else {
                     return lazy_list<constraints>::maybe_pair();
+                }
             });
     }
 
@@ -498,10 +505,13 @@ public:
                     local_insts = to_list(buffer.begin(), buffer.end());
                 }
                 auto insts = get_class_instances(mvar_type);
-                if (empty(insts) && empty(local_insts))
+                if (empty(insts) && empty(local_insts)) {
                     return lazy_list<constraints>(constraints());
-                else
-                    return choose(std::make_shared<class_elaborator>(*this, mvar, mvar_type, local_insts, insts, ctx, s, j));
+                } else {
+                    bool has_tactic_hints = !empty(get_tactic_hints(m_env, const_name(get_app_fn(mvar_type))));
+                    return choose(std::make_shared<class_elaborator>(*this, mvar, mvar_type, local_insts, insts, has_tactic_hints,
+                                                                     ctx, s, j));
+                }
             };
             add_cnstr(mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), j));
         }

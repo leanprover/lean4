@@ -18,3 +18,4 @@ definition my_tac3 := fixpoint (λ f, [apply @or_intro_left; f  |
 tactic_hint [or] my_tac3
 
 theorem T3 {a b c : Bool} (Hb : b) : a ∨ b ∨ c
+

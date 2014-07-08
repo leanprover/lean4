@@ -245,21 +245,33 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
             value = p.parse_expr();
         } else if (p.curr_is_token(g_colon)) {
             p.next();
+            auto pos = p.pos();
             type = p.parse_expr();
-            p.check_token_next(g_assign, "invalid declaration, ':=' expected");
-            value = p.parse_expr();
+            if (is_theorem && !p.curr_is_token(g_assign)) {
+                value = mk_expr_placeholder();
+            } else {
+                p.check_token_next(g_assign, "invalid declaration, ':=' expected");
+                value = p.save_pos(p.parse_expr(), pos);
+            }
         } else {
             buffer<expr> ps;
             optional<local_environment> lenv;
             lenv = p.parse_binders(ps);
             if (p.curr_is_token(g_colon)) {
                 p.next();
+                auto pos = p.pos();
                 type = p.parse_scoped_expr(ps, *lenv);
+                if (is_theorem && !p.curr_is_token(g_assign)) {
+                    value = p.save_pos(mk_expr_placeholder(), pos);
+                } else {
+                    p.check_token_next(g_assign, "invalid declaration, ':=' expected");
+                    value = p.parse_scoped_expr(ps, *lenv);
+                }
             } else {
                 type = p.save_pos(mk_expr_placeholder(), p.pos());
+                p.check_token_next(g_assign, "invalid declaration, ':=' expected");
+                value = p.parse_scoped_expr(ps, *lenv);
             }
-            p.check_token_next(g_assign, "invalid declaration, ':=' expected");
-            value = p.parse_scoped_expr(ps, *lenv);
             type = p.pi_abstract(ps, type);
             value = p.lambda_abstract(ps, value);
         }

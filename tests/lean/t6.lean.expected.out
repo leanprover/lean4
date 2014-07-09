@@ -1,3 +1,3 @@
-id.{2} ?M.1 : ?M.1 -> ?M.1
-refl.{1} ?M.1 : (?M.1 -> ?M.1 -> Bool) -> Bool
-symm.{1} ?M.1 : (?M.1 -> ?M.1 -> Bool) -> Bool
+id : ?M_1 → ?M_1
+refl : (?M_1 → ?M_1 → Bool) → Bool
+symm : (?M_1 → ?M_1 → Bool) → Bool

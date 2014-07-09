@@ -18,7 +18,6 @@ environment add_alias(environment const & env, name const & a, expr const & e);
 */
 environment add_decl_alias(environment const & env, name const & a, expr const & e);
 
-
 /** \brief If \c t is aliased in \c env, then return its name. Otherwise, return none. */
 optional<name> is_aliased(environment const & env, expr const & t);
 

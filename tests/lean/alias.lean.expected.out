@@ -1,5 +1,5 @@
-(choice N1.foo N2.foo) a b
-(choice N2.foo N1.foo) a b
-(choice N1.foo N2.foo) a b
-(choice N1.foo N2.foo) a b
-(choice N2.foo N1.foo) a b
+[choice foo foo] a b
+[choice foo foo] a b
+[choice foo foo] a b
+[choice foo foo] a b
+[choice foo foo] a b

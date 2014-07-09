@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/pp.h"
 #include "frontends/lean/interactive.h"
 #include "frontends/lean/dependencies.h"
 #include "frontends/lua/register_modules.h"
@@ -194,7 +195,7 @@ int main(int argc, char ** argv) {
     }
 
     environment env = mode == lean_mode::Standard ? mk_environment(trust_lvl) : mk_hott_environment(trust_lvl);
-    io_state ios(lean::mk_simple_formatter());
+    io_state ios(lean::mk_pretty_formatter());
     if (quiet)
         ios.set_option("verbose", false);
     script_state S = lean::get_thread_script_state();

@@ -90,7 +90,12 @@ environment check_cmd(parser & p) {
     std::tie(e, new_ls) = p.elaborate_relaxed(e);
     auto tc = mk_type_checker_with_hints(p.env(), p.mk_ngen());
     expr type = tc->check(e, append(ls, new_ls));
-    p.regular_stream() << e << " : " << type << endl;
+
+    formatter fmt = p.ios().get_formatter();
+    options opts  = p.ios().get_options();
+    unsigned indent = get_pp_indent(opts);
+    format r = group(format{fmt(p.env(), e, opts), space(), colon(), nest(indent, compose(line(), fmt(p.env(), type, opts)))});
+    p.regular_stream() << mk_pair(r, opts) << endl;
     return p.env();
 }
 

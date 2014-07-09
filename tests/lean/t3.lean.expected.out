@@ -1,17 +1,17 @@
-Type.{u}
-Type.{tst.v}
-Type.{tst.v}
-Type.{tst.v}
+Type
+Type
+Type
+Type
 t3.lean:9:16: error: unknown universe 'v'
-Type.{z}
+Type
 t3.lean:14:16: error: unknown universe 'z'
 t3.lean:16:2: error: invalid namespace declaration, a namespace cannot be declared inside a section
-Type.{tst.v}
-Type.{u}
-Type.{tst.foo.U}
+Type
+Type
+Type
 t3.lean:26:10: error: invalid namespace declaration, atomic identifier expected
 t3.lean:27:1: error: invalid declaration name 'full.name.U', identifier must be atomic
-Type.{tst.v}
-Type.{tst.foo.U}
+Type
+Type
 t3.lean:35:2: error: universe level alias 'u' shadows existing global universe level
 t3.lean:37:16: error: unknown universe 'bla.u'

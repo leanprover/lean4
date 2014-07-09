@@ -12,6 +12,5 @@ unsigned get_pp_max_steps(options const & opts);
 bool     get_pp_notation(options const & opts);
 bool     get_pp_implicit(options const & opts);
 bool     get_pp_coercion(options const & opts);
-bool     get_pp_extra_lets(options const & opts);
-unsigned get_pp_alias_min_weight(options const & opts);
+bool     get_pp_universes(options const & opts);
 }

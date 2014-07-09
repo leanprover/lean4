@@ -20,6 +20,7 @@ size_t objlen(lua_State * L, int idx);
 void dofile(lua_State * L, char const * fname);
 void dostring(lua_State * L, char const * str);
 void pcall(lua_State * L, int nargs, int nresults, int errorfun);
+char const * tostring (lua_State * L, int idx);
 /**
     \brief Return true iff coroutine is done, false if it has yielded,
     and throws an exception if error.

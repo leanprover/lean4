@@ -310,6 +310,7 @@ pretty_fn::pretty_fn(environment const & env, options const & o):
 }
 
 format pretty_fn::operator()(expr const & e) {
+    m_depth = 0; m_num_steps = 0;
     return pp_child(purify(e), 0).first;
 }
 

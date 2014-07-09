@@ -81,6 +81,29 @@ int equal(lua_State * L, int idx1, int idx2) {
     #endif
 }
 
+char const * tostring(lua_State * L, int idx) {
+    if (!luaL_callmeta(L, idx, "__tostring")) {  /* no metafield? */
+        switch (lua_type(L, idx)) {
+        case LUA_TNUMBER:
+        case LUA_TSTRING:
+            lua_pushvalue(L, idx);
+            break;
+        case LUA_TBOOLEAN:
+            lua_pushstring(L, (lua_toboolean(L, idx) ? "true" : "false"));
+            break;
+        case LUA_TNIL:
+            lua_pushliteral(L, "nil");
+            break;
+        default: {
+            std::ostringstream strm;
+            strm << lua_typename(L, idx) << ": " << lua_topointer(L, idx);
+            lua_pushstring(L, strm.str().c_str());
+            break;
+        }}
+    }
+    return lua_tostring(L, -1);
+}
+
 int get_nonnil_top(lua_State * L) {
     int top = lua_gettop(L);
     while (top > 0 && lua_isnil(L, top))
@@ -181,4 +204,3 @@ void check_atleast_num_args(lua_State * L, int low) {
     if (lua_gettop(L) < low) throw exception("too few arguments to function");
 }
 }
-

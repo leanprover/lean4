@@ -186,7 +186,7 @@ static register_tac reg_state(name(g_tac, "state"), [](type_checker &, expr cons
         if (p)
             return trace_state_tactic(std::string(p->get_file_name()), p->get_pos_info(e));
         else
-            return trace_state_tactic("unknown", mk_pair(0, 0));
+            return trace_state_tactic();
     });
 static register_tac reg_trace(name(g_tac, "trace"), [](type_checker & tc, expr const & e, pos_info_provider const *) {
         buffer<expr> args;

@@ -5,6 +5,7 @@ if [ $# -ne 2 -a $# -ne 1 ]; then
 fi
 ulimit -s 8192
 LEAN=$1
+export LEAN_PATH=../../library/standard:.
 if [ $# -ne 2 ]; then
     INTERACTIVE=no
 else

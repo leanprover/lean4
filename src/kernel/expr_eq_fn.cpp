@@ -40,6 +40,7 @@ bool expr_eq_fn::apply(expr const & a, expr const & b) {
         return
             mlocal_name(a) == mlocal_name(b) &&
             apply(mlocal_type(a), mlocal_type(b)) &&
+            (!m_compare_binder_info || local_pp_name(a) == local_pp_name(b));
             (!m_compare_binder_info || local_info(a) == local_info(b));
     case expr_kind::App:
         m_counter++;

@@ -31,7 +31,7 @@ public:
 
     /** \brief Return true iff this state does not have any goals left */
     bool is_final_state() const { return empty(m_goals); }
-    format pp(environment const & env, formatter const & fmt, options const & opts) const;
+    format pp(formatter const & fmt) const;
 };
 
 inline optional<proof_state> some_proof_state(proof_state const & s) { return some(s); }

@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/format.h"
 #include "util/name_generator.h"
 #include "kernel/level.h"
+#include "kernel/formatter.h"
 #include "kernel/extension_context.h"
 
 namespace lean {
@@ -309,8 +310,6 @@ public:
     level const & get_level() const { return m_level; }
 };
 
-class formatter;
-
 /** \brief Abstract class for macro_definitions */
 class macro_definition_cell {
 protected:
@@ -332,7 +331,7 @@ public:
     virtual unsigned trust_level() const;
     virtual bool operator==(macro_definition_cell const & other) const;
     virtual void display(std::ostream & out) const;
-    virtual format pp(formatter const & fmt, options const & opts) const;
+    virtual format pp(formatter const & fmt) const;
     virtual bool is_atomic_pp(bool unicode, bool coercion) const;
     virtual unsigned hash() const;
     virtual void write(serializer & s) const = 0;
@@ -361,7 +360,7 @@ public:
     bool operator!=(macro_definition const & other) const { return !operator==(other); }
     bool operator<(macro_definition const & other) const;
     void display(std::ostream & out) const { return m_ptr->display(out); }
-    format pp(formatter const & fmt, options const & opts) const { return m_ptr->pp(fmt, opts); }
+    format pp(formatter const & fmt) const { return m_ptr->pp(fmt); }
     bool is_atomic_pp(bool unicode, bool coercion) const { return m_ptr->is_atomic_pp(unicode, coercion); }
     unsigned hash() const { return m_ptr->hash(); }
     void write(serializer & s) const { return m_ptr->write(s); }

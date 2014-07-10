@@ -366,15 +366,11 @@ format pretty_fn::operator()(expr const & e) {
     return pp_child(purify(e), 0).first;
 }
 
-class pretty_formatter_cell : public formatter_cell {
-public:
-    /** \brief Format the given expression. */
-    virtual format operator()(environment const & env, expr const & e, options const & o) const {
-        return pretty_fn(env, o)(e);
-    }
-};
-
-formatter mk_pretty_formatter() {
-    return mk_formatter(pretty_formatter_cell());
+formatter_factory mk_pretty_formatter_factory() {
+    return [](environment const & env, options const & o) { // NOLINT
+        return formatter(o, [=](expr const & e) {
+                return pretty_fn(env, o)(e);
+            });
+    };
 }
 }

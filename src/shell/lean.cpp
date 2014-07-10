@@ -195,7 +195,7 @@ int main(int argc, char ** argv) {
     }
 
     environment env = mode == lean_mode::Standard ? mk_environment(trust_lvl) : mk_hott_environment(trust_lvl);
-    io_state ios(lean::mk_pretty_formatter());
+    io_state ios(lean::mk_pretty_formatter_factory());
     if (quiet)
         ios.set_option("verbose", false);
     script_state S = lean::get_thread_script_state();

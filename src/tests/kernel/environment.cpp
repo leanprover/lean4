@@ -19,6 +19,10 @@ static environment add_decl(environment const & env, declaration const & d) {
     return env.add(cd);
 }
 
+formatter mk_formatter(environment const & env) {
+    return mk_simple_formatter_factory()(env, options());
+}
+
 static void tst1() {
     environment env1;
     auto env2 = add_decl(env1, mk_definition("Bool", level_param_names(), mk_Type(), mk_Bool()));
@@ -29,31 +33,31 @@ static void tst1() {
         auto env3 = add_decl(env2, mk_definition("Bool", level_param_names(), mk_Type(), mk_Bool()));
         lean_unreachable();
     } catch (kernel_exception & ex) {
-        std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
+        std::cout << "expected error: " << ex.pp(mk_formatter(ex.get_environment())) << "\n";
     }
     try {
         auto env4 = add_decl(env2, mk_definition("BuggyBool", level_param_names(), mk_Bool(), mk_Bool()));
         lean_unreachable();
     } catch (kernel_exception & ex) {
-        std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
+        std::cout << "expected error: " << ex.pp(mk_formatter(ex.get_environment())) << "\n";
     }
     try {
         auto env5 = add_decl(env2, mk_definition("Type1", level_param_names(), mk_metavar("T", mk_sort(mk_meta_univ("l"))), mk_Type()));
         lean_unreachable();
     } catch (kernel_exception & ex) {
-        std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
+        std::cout << "expected error: " << ex.pp(mk_formatter(ex.get_environment())) << "\n";
     }
     try {
         auto env6 = add_decl(env2, mk_definition("Type1", level_param_names(), mk_Type(), mk_metavar("T", mk_sort(mk_meta_univ("l")))));
         lean_unreachable();
     } catch (kernel_exception & ex) {
-        std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
+        std::cout << "expected error: " << ex.pp(mk_formatter(ex.get_environment())) << "\n";
     }
     try {
         auto env7 = add_decl(env2, mk_definition("foo", level_param_names(), mk_Type() >> mk_Type(), mk_Bool()));
         lean_unreachable();
     } catch (kernel_exception & ex) {
-        std::cout << "expected error: " << ex.pp(mk_simple_formatter(), options()) << "\n";
+        std::cout << "expected error: " << ex.pp(mk_formatter(ex.get_environment())) << "\n";
     }
     expr A = Local("A", Type);
     expr x = Local("x", A);

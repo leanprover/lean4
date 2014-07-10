@@ -592,9 +592,7 @@ public:
                 f_type = infer_type(f);
                 lean_assert(is_pi(f_type));
             } else {
-                environment env = m_env;
-                throw_kernel_exception(env, f,
-                                       [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, env, o, f); });
+                throw_kernel_exception(m_env, f, [=](formatter const & fmt) { return pp_function_expected(fmt, f); });
             }
         }
         lean_assert(is_pi(f_type));
@@ -644,7 +642,7 @@ public:
     expr mk_delayed_coercion(expr const & e, expr const & d_type, expr const & a_type) {
         expr a = app_arg(e);
         expr m = mk_meta(some_expr(d_type), a.get_tag());
-        justification j = mk_app_justification(m_env, e, d_type, a_type);
+        justification j = mk_app_justification(e, d_type, a_type);
         add_cnstr(mk_delayed_coercion_cnstr(m, a, a_type, j, to_delay_factor(cnstr_group::Basic)));
         return update_app(e, app_fn(e), m);
     }
@@ -674,7 +672,7 @@ public:
         } else if (is_meta(a_type) && has_coercions_to(d_type)) {
             return mk_delayed_coercion(r, d_type, a_type);
         } else {
-            app_delayed_justification j(m_env, r, f_type, a_type);
+            app_delayed_justification j(r, f_type, a_type);
             if (!m_tc->is_def_eq(a_type, d_type, j)) {
                 expr new_a = apply_coercion(a, a_type, d_type);
                 bool coercion_worked = false;
@@ -689,11 +687,7 @@ public:
                         // rely on unification hints to solve this constraint
                         add_cnstr(mk_eq_cnstr(a_type, d_type, j.get()));
                     } else {
-                        environment env = m_env;
-                        throw_kernel_exception(m_env, a,
-                                               [=](formatter const & fmt, options const & o) {
-                                                   return pp_app_type_mismatch(fmt, env, o, e, d_type, a_type);
-                                               });
+                        throw_kernel_exception(m_env, a, [=](formatter const & fmt) { return pp_app_type_mismatch(fmt, e, d_type, a_type); });
                     }
                 }
             }
@@ -778,9 +772,7 @@ public:
         optional<expr> c = get_coercion_to_sort(m_env, t);
         if (c)
             return mk_app(*c, e, e.get_tag());
-        environment env = m_env;
-        throw_kernel_exception(env, e,
-                               [=](formatter const & fmt, options const & o) { return pp_type_expected(fmt, env, o, e); });
+        throw_kernel_exception(m_env, e, [=](formatter const & fmt) { return pp_type_expected(fmt, e); });
     }
 
     expr visit_pi(expr const & e) {
@@ -874,15 +866,11 @@ public:
             });
     }
 
-    format pp_indent_expr(expr const & e) {
-        return ::lean::pp_indent_expr(m_ios.get_formatter(), m_env, m_ios.get_options(), e);
-    }
-
     void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg) {
         lean_assert(is_metavar(mvar));
         if (!m_displayed_errors.contains(mlocal_name(mvar))) {
             m_displayed_errors.insert(mlocal_name(mvar));
-            regular out(m_env, m_ios);
+            auto out = regular(m_env, m_ios);
             display_error_pos(out, m_pos_provider, mvar);
             out << " unsolved placeholder, " << msg << "\n" << ps << "\n";
         }
@@ -918,10 +906,11 @@ public:
         try {
             return optional<tactic>(expr_to_tactic(m_env, pre_tac, m_pos_provider));
         } catch (expr_to_tactic_exception & ex) {
-            regular out(m_env, m_ios);
+            auto out = regular(m_env, m_ios);
             display_error_pos(out, m_pos_provider, mvar);
             out << " " << ex.what();
-            out << pp_indent_expr(pre_tac) << endl << "failed at:" << pp_indent_expr(ex.get_expr()) << endl;
+            out << pp_indent_expr(out.get_formatter(), pre_tac) << endl << "failed at:"
+                << pp_indent_expr(out.get_formatter(), ex.get_expr()) << endl;
             return optional<tactic>();
         }
     }
@@ -963,7 +952,7 @@ public:
             }
         } catch (tactic_exception & ex) {
             if (report_failure) {
-                regular out(m_env, m_ios);
+                auto out = regular(m_env, m_ios);
                 display_error_pos(out, m_pos_provider, ex.get_expr());
                 out << " tactic failed: " << ex.what() << "\n";
             }
@@ -1066,12 +1055,11 @@ public:
         return apply(s, r);
     }
 
-    static format pp_type_mismatch(formatter const & fmt, environment const & env, options const & opts,
-                            expr const & expected_type, expr const & given_type) {
+    static format pp_type_mismatch(formatter const & fmt, expr const & expected_type, expr const & given_type) {
         format r("type mismatch, expected type");
-        r += ::lean::pp_indent_expr(fmt, env, opts, expected_type);
+        r += ::lean::pp_indent_expr(fmt, expected_type);
         r += compose(line(), format("given type:"));
-        r += ::lean::pp_indent_expr(fmt, env, opts, given_type);
+        r += ::lean::pp_indent_expr(fmt, given_type);
         return r;
     }
 
@@ -1079,15 +1067,11 @@ public:
         expr r_t      = ensure_type(visit(t));
         expr r_v      = visit(v);
         expr r_v_type = infer_type(r_v);
-        environment env = m_env;
-        justification j = mk_justification(v, [=](formatter const & fmt, options const & o, substitution const & subst) {
-                return pp_def_type_mismatch(fmt, env, o, n, subst.instantiate(r_t), subst.instantiate(r_v_type));
+        justification j = mk_justification(v, [=](formatter const & fmt, substitution const & subst) {
+                return pp_def_type_mismatch(fmt, n, subst.instantiate(r_t), subst.instantiate(r_v_type));
             });
         if (!m_tc->is_def_eq(r_v_type, r_t, j)) {
-            throw_kernel_exception(env, v,
-                                   [=](formatter const & fmt, options const & o) {
-                                       return pp_def_type_mismatch(fmt, env, o, n, r_t, r_v_type);
-                                   });
+            throw_kernel_exception(m_env, v, [=](formatter const & fmt) { return pp_def_type_mismatch(fmt, n, r_t, r_v_type); });
         }
         auto p  = solve().pull();
         lean_assert(p);

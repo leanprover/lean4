@@ -243,17 +243,16 @@ std::ostream & operator<<(std::ostream & out, expr const & e) {
     return out;
 }
 
-class simple_formatter_cell : public formatter_cell {
-public:
-    virtual format operator()(environment const & env, expr const & e, options const &) const {
-        std::ostringstream s;
-        print_expr_fn pr(s, env.prop_proof_irrel());
-        pr(e);
-        return format(s.str());
-    }
-};
-formatter mk_simple_formatter() {
-    return mk_formatter(simple_formatter_cell());
+formatter_factory mk_simple_formatter_factory() {
+    return [](environment const & env, options const & o) { // NOLINT
+        return formatter(o, [=](expr const & e) {
+                std::ostringstream s;
+                print_expr_fn pr(s, env.prop_proof_irrel());
+                pr(e);
+                return format(s.str());
+            });
+    };
 }
+
 void print(lean::expr const & a) { std::cout << a << std::endl; }
 }

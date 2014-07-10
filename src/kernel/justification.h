@@ -23,7 +23,7 @@ struct justification_cell;
    The pp_jst_fn is a generic funciton that produces these messages. We can associate these functions
    to justification objects.
 */
-typedef std::function<format(formatter const &, options const &, pos_info_provider const *, substitution const &)> pp_jst_fn;
+typedef std::function<format(formatter const &, pos_info_provider const *, substitution const &)> pp_jst_fn;
 
 /**
     \brief Objects used to justify unification (and level) constraints and metavariable assignments.
@@ -61,7 +61,7 @@ public:
        \brief Convert this justification into a format object. This method is usually used to report
        "error" messages to users.
     */
-    format pp(formatter const & fmt, options const & opts, pos_info_provider const * p, substitution const & s) const;
+    format pp(formatter const & fmt, pos_info_provider const * p, substitution const & s) const;
     /**
        \brief Return an expression associated with the justification object.
     */
@@ -79,7 +79,7 @@ public:
 /**
    \brief Simpler version of pp_jst_fn
 */
-typedef std::function<format(formatter const &, options const &, substitution const &)> pp_jst_sfn;
+typedef std::function<format(formatter const &, substitution const &)> pp_jst_sfn;
 
 /** \brief Return a format object containing position information for the given expression (if available) */
 format to_pos(optional<expr> const & e, pos_info_provider const * p);

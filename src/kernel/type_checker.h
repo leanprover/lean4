@@ -189,20 +189,19 @@ certified_declaration check(environment const & env, declaration const & d, name
     \brief Create a justification for an application \c e where the expected type must be \c d_type and
     the argument type is \c a_type.
 */
-justification mk_app_justification(environment const & env, expr const & e, expr const & d_type, expr const & a_type);
+justification mk_app_justification(expr const & e, expr const & d_type, expr const & a_type);
 
 /**
    \brief Create a justification for a application type mismatch,
    \c e is the application, \c fn_type and \c arg_type are the function and argument type.
 */
 class app_delayed_justification : public delayed_justification {
-    environment const & m_env;
     expr const & m_e;
     expr const & m_fn_type;
     expr const & m_arg_type;
     optional<justification> m_jst;
 public:
-    app_delayed_justification(environment const & env, expr const & e, expr const & f_type, expr const & a_type);
+    app_delayed_justification(expr const & e, expr const & f_type, expr const & a_type);
     virtual justification get();
 };
 }

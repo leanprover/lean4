@@ -8,9 +8,11 @@ Author: Leonardo de Moura
 #include <memory>
 #include <utility>
 #include "util/sexpr/options.h"
-#include "kernel/expr.h"
 
 namespace lean {
+class expr;
+class environment;
+
 /** \brief Return true iff \c t contains a constant named \c n or a local constant with named (pp or not) \c n */
 bool is_used_name(expr const & t, name const & n);
 /**
@@ -25,35 +27,20 @@ std::pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type = fa
 /** \brief Return the body of the let-expression \c l, where variable #0 is replaced by a local constant with a "fresh" name. */
 std::pair<expr, expr> let_body_fresh(expr const & l, bool preserve_type = false);
 
-/**
-   \brief API for formatting expressions
-*/
-class formatter_cell {
-public:
-    virtual ~formatter_cell() {}
-    /** \brief Format the given expression. */
-    virtual format operator()(environment const & env, expr const & e, options const & opts) const = 0;
-};
-/**
-   \brief Smart-pointer for the actual formatter object (aka \c formatter_cell).
-*/
 class formatter {
-    std::shared_ptr<formatter_cell> m_cell;
-    formatter(formatter_cell * c):m_cell(c) {}
+    std::function<format(expr const &)> m_fn;
+    options                             m_options;
 public:
-    format operator()(environment const & env, expr const & e, options const & opts = options()) const { return (*m_cell)(env, e, opts); }
-    template<typename FCell> friend formatter mk_formatter(FCell && fcell);
+    formatter(options const & o, std::function<format(expr const &)> const & fn):m_fn(fn), m_options(o) {}
+    format operator()(expr const & e) const { return m_fn(e); }
+    options const & get_options() const { return m_options; }
 };
 
-template<typename FCell> formatter mk_formatter(FCell && fcell) {
-    return formatter(new FCell(std::forward<FCell>(fcell)));
-}
+typedef std::function<formatter(environment const &, options const &)> formatter_factory;
 
 std::ostream & operator<<(std::ostream & out, expr const & e);
-/**
-   \brief Create a simple formatter object based on operator<<
-*/
-formatter mk_simple_formatter();
+/** \brief Create a simple formatter object based on operator */
+formatter_factory mk_simple_formatter_factory();
 
-typedef std::function<format(formatter const &, options const &)> pp_fn;
+typedef std::function<format(formatter const &)> pp_fn;
 }

@@ -194,18 +194,18 @@ optional<expr> justification::get_main_expr() const {
         }
     }
 }
-format justification::pp(formatter const & fmt, options const & opts, pos_info_provider const * p, substitution const & s) const {
+format justification::pp(formatter const & fmt, pos_info_provider const * p, substitution const & s) const {
     justification_cell * it = m_ptr;
     while (true) {
         if (!it)
             return format();
         switch (it->m_kind) {
         case justification_kind::Asserted:
-            return to_asserted(it)->m_fn(fmt, opts, p, s);
+            return to_asserted(it)->m_fn(fmt, p, s);
         case justification_kind::ExtAssumption:
-            return to_ext_assumption(it)->m_fn(fmt, opts, p, s);
+            return to_ext_assumption(it)->m_fn(fmt, p, s);
         case justification_kind::ExtComposite:
-            return to_ext_composite(it)->m_fn(fmt, opts, p, s);
+            return to_ext_composite(it)->m_fn(fmt, p, s);
         case justification_kind::Assumption:
             return format(format("Assumption "), format(to_assumption(it)->m_idx));
         case justification_kind::Composite:
@@ -239,12 +239,12 @@ justification mk_justification(optional<expr> const & s, pp_jst_fn const & fn) {
     return justification(new asserted_cell(fn, s));
 }
 justification mk_justification(optional<expr> const & s, pp_jst_sfn const & fn) {
-    return mk_justification(s, [=](formatter const & fmt, options const & opts, pos_info_provider const * p, substitution const & subst) {
-            return compose(to_pos(s, p), fn(fmt, opts, subst)); });
+    return mk_justification(s, [=](formatter const & fmt, pos_info_provider const * p, substitution const & subst) {
+            return compose(to_pos(s, p), fn(fmt, subst)); });
 }
 justification mk_justification(char const * msg, optional<expr> const & s) {
     std::string _msg(msg);
-    return mk_justification(s, [=](formatter const &, options const &, pos_info_provider const *, substitution const &) {
+    return mk_justification(s, [=](formatter const &, pos_info_provider const *, substitution const &) {
             return format(_msg);
         });
 }

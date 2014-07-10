@@ -54,7 +54,7 @@ static void display_error(io_state_stream const & ios, pos_info_provider const *
     options opts  = ios.get_options();
     auto j = ex.get_justification();
     display_error_pos(ios, p, j.get_main_expr());
-    ios << " " << mk_pair(j.pp(fmt, opts, p, ex.get_substitution()), opts) << endl;
+    ios << " " << mk_pair(j.pp(fmt, p, ex.get_substitution()), opts) << endl;
 }
 
 // struct delta_pos_info_provider : public pos_info_provider {

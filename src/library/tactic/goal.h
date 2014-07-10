@@ -70,7 +70,7 @@ public:
     */
     bool validate(environment const & env) const;
 
-    format pp(environment const & env, formatter const & fmt, options const & opts) const;
+    format pp(formatter const & fmt) const;
 };
 
 io_state_stream const & operator<<(io_state_stream const & out, goal const & g);

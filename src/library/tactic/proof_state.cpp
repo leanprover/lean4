@@ -27,7 +27,8 @@ static name g_proof_state_goal_names          {"tactic", "goal_names"};
 RegisterBoolOption(g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES, "(tactic) display goal names when pretty printing proof state");
 bool get_proof_state_goal_names(options const & opts) { return opts.get_bool(g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES); }
 
-format proof_state::pp(environment const & env, formatter const & fmt, options const & opts) const {
+format proof_state::pp(formatter const & fmt) const {
+    options const & opts = fmt.get_options();
     bool show_goal_names = get_proof_state_goal_names(opts);
     unsigned indent      = get_pp_indent(opts);
     format r;
@@ -35,9 +36,9 @@ format proof_state::pp(environment const & env, formatter const & fmt, options c
     for (auto const & g : get_goals()) {
         if (first) first = false; else r += line();
         if (show_goal_names) {
-            r += group(format{format(g.get_name()), colon(), nest(indent, compose(line(), g.pp(env, fmt, opts)))});
+            r += group(format{format(g.get_name()), colon(), nest(indent, compose(line(), g.pp(fmt)))});
         } else {
-            r += g.pp(env, fmt, opts);
+            r += g.pp(fmt);
         }
     }
     if (first) r = format("no goals");
@@ -59,7 +60,7 @@ goals map_goals(proof_state const & s, std::function<optional<goal>(goal const &
 
 io_state_stream const & operator<<(io_state_stream const & out, proof_state const & s) {
     options const & opts = out.get_options();
-    out.get_stream() << mk_pair(s.pp(out.get_environment(), out.get_formatter(), opts), opts);
+    out.get_stream() << mk_pair(s.pp(out.get_formatter()), opts);
     return out;
 }
 
@@ -165,10 +166,9 @@ static int to_proof_state(lua_State * L) {
 static int proof_state_tostring(lua_State * L) {
     std::ostringstream out;
     proof_state & s = to_proof_state(L, 1);
-    environment env = get_global_environment(L);
-    formatter fmt   = get_global_formatter(L);
+    formatter fmt   = mk_formatter(L);
     options opts    = get_global_options(L);
-    out << mk_pair(s.pp(env, fmt, opts), opts);
+    out << mk_pair(s.pp(fmt), opts);
     lua_pushstring(L, out.str().c_str());
     return 1;
 }
@@ -181,13 +181,9 @@ static int proof_state_pp(lua_State * L) {
     int nargs = lua_gettop(L);
     proof_state & s = to_proof_state(L, 1);
     if (nargs == 1)
-        return push_format(L, s.pp(get_global_environment(L), get_global_formatter(L), get_global_options(L)));
-    else if (nargs == 2)
-        return push_format(L, s.pp(to_environment(L, 2), get_global_formatter(L), get_global_options(L)));
-    else if (nargs == 3)
-        return push_format(L, s.pp(to_environment(L, 2), to_formatter(L, 3), get_global_options(L)));
+        return push_format(L, s.pp(mk_formatter(L)));
     else
-        return push_format(L, s.pp(to_environment(L, 2), to_formatter(L, 3), to_options(L, 4)));
+        return push_format(L, s.pp(to_formatter(L, 2)));
 }
 
 static const struct luaL_Reg proof_state_m[] = {

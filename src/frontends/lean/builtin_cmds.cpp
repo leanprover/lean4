@@ -99,11 +99,12 @@ environment check_cmd(parser & p) {
         e    = instantiate(binding_body(e), local);
         type = instantiate(binding_body(type), local);
     }
-    formatter fmt = p.ios().get_formatter();
-    options opts  = p.ios().get_options();
-    unsigned indent = get_pp_indent(opts);
-    format r = group(format{fmt(p.env(), e, opts), space(), colon(), nest(indent, compose(line(), fmt(p.env(), type, opts)))});
-    p.regular_stream() << mk_pair(r, opts) << endl;
+    auto reg              = p.regular_stream();
+    formatter const & fmt = reg.get_formatter();
+    options opts          = p.ios().get_options();
+    unsigned indent       = get_pp_indent(opts);
+    format r = group(format{fmt(e), space(), colon(), nest(indent, compose(line(), fmt(type)))});
+    reg << mk_pair(r, opts) << endl;
     return p.env();
 }
 

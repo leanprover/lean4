@@ -74,5 +74,5 @@ public:
     format operator()(expr const & e);
 };
 
-formatter mk_pretty_formatter();
+formatter_factory mk_pretty_formatter_factory();
 }

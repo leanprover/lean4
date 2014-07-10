@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 
 namespace lean {
-format kernel_exception::pp(formatter const &, options const &) const { return format(what()); }
+format kernel_exception::pp(formatter const &) const { return format(what()); }
 
 class generic_kernel_exception : public kernel_exception {
 protected:
@@ -23,14 +23,14 @@ public:
         m_pp_fn(fn) {}
     virtual ~generic_kernel_exception() noexcept {}
     virtual optional<expr> get_main_expr() const { return m_main_expr; }
-    virtual format pp(formatter const & fmt, options const & opts) const { return m_pp_fn(fmt, opts); }
+    virtual format pp(formatter const & fmt) const { return m_pp_fn(fmt); }
     virtual exception * clone() const { return new generic_kernel_exception(m_env, m_msg.c_str(), m_main_expr, m_pp_fn); }
     virtual void rethrow() const { throw *this; }
 };
 
 [[ noreturn ]] void throw_kernel_exception(environment const & env, char const * msg, optional<expr> const & m) {
     std::string msg_str = msg;
-    throw generic_kernel_exception(env, msg, m, [=](formatter const &, options const &) { return format(msg_str); });
+    throw generic_kernel_exception(env, msg, m, [=](formatter const &) { return format(msg_str); });
 }
 
 [[ noreturn ]] void throw_kernel_exception(environment const & env, sstream const & strm, optional<expr> const & m) {

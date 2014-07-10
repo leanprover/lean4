@@ -331,10 +331,9 @@ expr & to_macro_app(lua_State * L, int idx) {
 
 static int expr_tostring(lua_State * L) {
     std::ostringstream out;
-    formatter fmt   = get_global_formatter(L);
-    options opts    = get_global_options(L);
-    environment env = get_global_environment(L);
-    out << mk_pair(fmt(env, to_expr(L, 1), opts), opts);
+    formatter fmt   = mk_formatter(L);
+    options   opts  = get_global_options(L);
+    out << mk_pair(fmt(to_expr(L, 1)), opts);
     return push_string(L, out.str().c_str());
 }
 
@@ -712,9 +711,9 @@ static int macro_eq(lua_State * L) { return push_boolean(L, to_macro_definition(
 static int macro_hash(lua_State * L) { return push_integer(L, to_macro_definition(L, 1).hash()); }
 static int macro_tostring(lua_State * L) {
     std::ostringstream out;
-    formatter fmt   = get_global_formatter(L);
+    formatter fmt   = mk_formatter(L);
     options opts    = get_global_options(L);
-    out << mk_pair(to_macro_definition(L, 1).pp(fmt, opts), opts);
+    out << mk_pair(to_macro_definition(L, 1).pp(fmt), opts);
     return push_string(L, out.str().c_str());
 }
 
@@ -845,22 +844,30 @@ static void open_declaration(lua_State * L) {
 }
 
 // Formatter
+DECL_UDATA(formatter_factory)
 DECL_UDATA(formatter)
 
 static int formatter_call(lua_State * L) {
-    int nargs = lua_gettop(L);
     formatter & fmt = to_formatter(L, 1);
-    if (nargs == 2) {
-        return push_format(L, fmt(get_global_environment(L), to_expr(L, 2), get_global_options(L)));
-    } else if (nargs == 3) {
-        if (is_expr(L, 2))
-            return push_format(L, fmt(get_global_environment(L), to_expr(L, 2), to_options(L, 3)));
-        else
-            return push_format(L, fmt(to_environment(L, 2), to_expr(L, 3), get_global_options(L)));
-    } else {
-        return push_format(L, fmt(to_environment(L, 2), to_expr(L, 3), to_options(L, 4)));
-    }
+    return push_format(L, fmt(to_expr(L, 2)));
 }
+
+static int formatter_factory_call(lua_State * L) {
+    int nargs = lua_gettop(L);
+    formatter_factory & fmtf = to_formatter_factory(L, 1);
+    if (nargs == 1)
+        return push_formatter(L, fmtf(get_global_environment(L), get_global_options(L)));
+    else if (nargs == 2)
+        return push_formatter(L, fmtf(to_environment(L, 2), get_global_options(L)));
+    else
+        return push_formatter(L, fmtf(to_environment(L, 2), to_options(L, 3)));
+}
+
+static const struct luaL_Reg formatter_factory_m[] = {
+    {"__gc",            formatter_factory_gc}, // never throws
+    {"__call",          safe_function<formatter_factory_call>},
+    {0, 0}
+};
 
 static const struct luaL_Reg formatter_m[] = {
     {"__gc",            formatter_gc}, // never throws
@@ -868,57 +875,61 @@ static const struct luaL_Reg formatter_m[] = {
     {0, 0}
 };
 
-static char g_formatter_key;
-static formatter g_simple_formatter = mk_simple_formatter();
+static char g_formatter_factory_key;
+static formatter_factory g_simple_formatter_factory = mk_simple_formatter_factory();
 
-optional<formatter> get_global_formatter_core(lua_State * L) {
+optional<formatter_factory> get_global_formatter_factory_core(lua_State * L) {
     io_state * io = get_io_state_ptr(L);
     if (io != nullptr) {
-        return optional<formatter>(io->get_formatter());
+        return optional<formatter_factory>(io->get_formatter_factory());
     } else {
-        lua_pushlightuserdata(L, static_cast<void *>(&g_formatter_key));
+        lua_pushlightuserdata(L, static_cast<void *>(&g_formatter_factory_key));
         lua_gettable(L, LUA_REGISTRYINDEX);
-        if (is_formatter(L, -1)) {
-            formatter r = to_formatter(L, -1);
+        if (is_formatter_factory(L, -1)) {
+            formatter_factory r = to_formatter_factory(L, -1);
             lua_pop(L, 1);
-            return optional<formatter>(r);
+            return optional<formatter_factory>(r);
         } else {
             lua_pop(L, 1);
-            return optional<formatter>();
+            return optional<formatter_factory>();
         }
     }
 }
 
-formatter get_global_formatter(lua_State * L) {
-    auto r = get_global_formatter_core(L);
+formatter_factory get_global_formatter_factory(lua_State * L) {
+    auto r = get_global_formatter_factory_core(L);
     if (r)
         return *r;
     else
-        return g_simple_formatter;
+        return g_simple_formatter_factory;
 }
 
-void set_global_formatter(lua_State * L, formatter const & fmt) {
+void set_global_formatter_factory(lua_State * L, formatter_factory const & fmtf) {
     io_state * io = get_io_state_ptr(L);
     if (io != nullptr) {
-        io->set_formatter(fmt);
+        io->set_formatter_factory(fmtf);
     } else {
-        lua_pushlightuserdata(L, static_cast<void *>(&g_formatter_key));
-        push_formatter(L, fmt);
+        lua_pushlightuserdata(L, static_cast<void *>(&g_formatter_factory_key));
+        push_formatter_factory(L, fmtf);
         lua_settable(L, LUA_REGISTRYINDEX);
     }
 }
 
-static int get_formatter(lua_State * L) {
+static int get_formatter_factory(lua_State * L) {
     io_state * io = get_io_state_ptr(L);
     if (io != nullptr) {
-        return push_formatter(L, io->get_formatter());
+        return push_formatter_factory(L, io->get_formatter_factory());
     } else {
-        return push_formatter(L, get_global_formatter(L));
+        return push_formatter_factory(L, get_global_formatter_factory(L));
     }
 }
 
-static int set_formatter(lua_State * L) {
-    set_global_formatter(L, to_formatter(L, 1));
+formatter mk_formatter(lua_State * L) {
+    return get_global_formatter_factory(L)(get_global_environment(L), get_global_options(L));
+}
+
+static int set_formatter_factory(lua_State * L) {
+    set_global_formatter_factory(L, to_formatter_factory(L, 1));
     return 0;
 }
 
@@ -928,9 +939,15 @@ static void open_formatter(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, formatter_m, 0);
 
+    luaL_newmetatable(L, formatter_factory_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, formatter_factory_m, 0);
+
     SET_GLOBAL_FUN(formatter_pred, "is_formatter");
-    SET_GLOBAL_FUN(get_formatter,  "get_formatter");
-    SET_GLOBAL_FUN(set_formatter,  "set_formatter");
+    SET_GLOBAL_FUN(formatter_factory_pred, "is_formatter_factory");
+    SET_GLOBAL_FUN(get_formatter_factory,  "get_formatter_factory");
+    SET_GLOBAL_FUN(set_formatter_factory,  "set_formatter_factory");
 }
 
 // Environment_id
@@ -1190,15 +1207,15 @@ io_state to_io_state_ext(lua_State * L, int idx) {
 int mk_io_state(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 0)
-        return push_io_state(L, io_state(mk_simple_formatter()));
+        return push_io_state(L, io_state(mk_simple_formatter_factory()));
     else if (nargs == 1)
         return push_io_state(L, io_state(to_io_state(L, 1)));
     else
-        return push_io_state(L, io_state(to_options(L, 1), to_formatter(L, 2)));
+        return push_io_state(L, io_state(to_options(L, 1), to_formatter_factory(L, 2)));
 }
 
 static int io_state_get_options(lua_State * L) { return push_options(L, to_io_state(L, 1).get_options()); }
-static int io_state_get_formatter(lua_State * L) { return push_formatter(L, to_io_state(L, 1).get_formatter()); }
+static int io_state_get_formatter_factory(lua_State * L) { return push_formatter_factory(L, to_io_state(L, 1).get_formatter_factory()); }
 static int io_state_set_options(lua_State * L) { to_io_state(L, 1).set_options(to_options(L, 2)); return 0; }
 
 static mutex g_print_mutex;
@@ -1250,14 +1267,14 @@ static int io_state_print_regular(lua_State * L) { return print(L, to_io_state(L
 static int io_state_print_diagnostic(lua_State * L) { return print(L, to_io_state(L, 1), 2, false); }
 
 static const struct luaL_Reg io_state_m[] = {
-    {"__gc",             io_state_gc}, // never throws
-    {"get_options",      safe_function<io_state_get_options>},
-    {"set_options",      safe_function<io_state_set_options>},
-    {"get_formatter",    safe_function<io_state_get_formatter>},
-    {"print_diagnostic", safe_function<io_state_print_diagnostic>},
-    {"print_regular",    safe_function<io_state_print_regular>},
-    {"print",            safe_function<io_state_print_regular>},
-    {"diagnostic",       safe_function<io_state_print_diagnostic>},
+    {"__gc",                  io_state_gc}, // never throws
+    {"get_options",           safe_function<io_state_get_options>},
+    {"set_options",           safe_function<io_state_set_options>},
+    {"get_formatter_factory", safe_function<io_state_get_formatter_factory>},
+    {"print_diagnostic",      safe_function<io_state_print_diagnostic>},
+    {"print_regular",         safe_function<io_state_print_regular>},
+    {"print",                 safe_function<io_state_print_regular>},
+    {"diagnostic",            safe_function<io_state_print_diagnostic>},
     {0, 0}
 };
 
@@ -1319,7 +1336,7 @@ io_state * get_io_state_ptr(lua_State * L) {
 }
 
 io_state get_tmp_io_state(lua_State * L) {
-    return io_state(get_global_options(L), get_global_formatter(L));
+    return io_state(get_global_options(L), get_global_formatter_factory(L));
 }
 
 // Justification
@@ -1345,17 +1362,13 @@ static int justification_pp(lua_State * L) {
     int nargs = lua_gettop(L);
     justification & j = to_justification(L, 1);
     if (nargs == 1)
-        return push_format(L, j.pp(get_global_formatter(L), get_global_options(L), nullptr, substitution()));
+        return push_format(L, j.pp(mk_formatter(L), nullptr, substitution()));
     else if (nargs == 2 && is_substitution(L, 2))
-        return push_format(L, j.pp(get_global_formatter(L), get_global_options(L), nullptr, to_substitution(L, 2)));
+        return push_format(L, j.pp(mk_formatter(L), nullptr, to_substitution(L, 2)));
     else if (nargs == 2)
-        return push_format(L, j.pp(to_formatter(L, 2), get_global_options(L), nullptr, substitution()));
-    else if (nargs == 3 && is_substitution(L, 3))
-        return push_format(L, j.pp(to_formatter(L, 2), get_global_options(L), nullptr, to_substitution(L, 3)));
-    else if (nargs == 3)
-        return push_format(L, j.pp(to_formatter(L, 2), to_options(L, 3), nullptr, substitution()));
+        return push_format(L, j.pp(to_formatter(L, 2), nullptr, substitution()));
     else
-        return push_format(L, j.pp(to_formatter(L, 2), to_options(L, 3), nullptr, to_substitution(L, 4)));
+        return push_format(L, j.pp(to_formatter(L, 2), nullptr, to_substitution(L, 3)));
 }
 static int justification_assumption_idx(lua_State * L) {
     if (!to_justification(L, 1).is_assumption())
@@ -1381,18 +1394,18 @@ static int mk_justification(lua_State * L) {
         return push_justification(L, justification());
     } else if (nargs == 1) {
         std::string s = lua_tostring(L, 1);
-        return push_justification(L, mk_justification(none_expr(), [=](formatter const &, options const &, substitution const &) {
+        return push_justification(L, mk_justification(none_expr(), [=](formatter const &, substitution const &) {
                     return format(s.c_str());
                 }));
     } else {
         std::string s   = lua_tostring(L, 1);
         environment env = to_environment(L, 2);
         expr e          = to_expr(L, 3);
-        justification j = mk_justification(some_expr(e), [=](formatter const & fmt, options const & opts, substitution const & subst) {
+        justification j = mk_justification(some_expr(e), [=](formatter const & fmt, substitution const & subst) {
                 expr new_e = subst.instantiate(e);
                 format r;
                 r += format(s.c_str());
-                r += pp_indent_expr(fmt, env, opts, new_e);
+                r += pp_indent_expr(fmt, new_e);
                 return r;
             });
         return push_justification(L, j);

@@ -13,36 +13,22 @@ namespace lean {
 */
 class io_state_stream {
 protected:
-    environment const & m_env;
-    io_state const &    m_io_state;
+    environment const &  m_env;
+    formatter            m_formatter;
+    output_channel &     m_stream;
 public:
-    io_state_stream(environment const & env, io_state const & s):m_env(env), m_io_state(s) {}
-    virtual std::ostream & get_stream() const = 0;
+    io_state_stream(environment const & env, io_state const & ios, bool regular = true):
+        m_env(env), m_formatter(ios.get_formatter_factory()(env, ios.get_options())),
+        m_stream(regular ? ios.get_regular_channel() : ios.get_diagnostic_channel()) {}
+    std::ostream & get_stream() const { return m_stream.get_stream(); }
     void flush() { get_stream().flush(); }
-    formatter get_formatter() const { return m_io_state.get_formatter(); }
-    options get_options() const { return m_io_state.get_options(); }
+    formatter const & get_formatter() const { return m_formatter; }
+    options get_options() const { return m_formatter.get_options(); }
     environment const & get_environment() const { return m_env; }
 };
 
-/**
-   \brief Wrapper for the io_state object that provides access to the
-   io_state's regular channel
-*/
-class regular : public io_state_stream {
-public:
-    regular(environment const & env, io_state const & s):io_state_stream(env, s) {}
-    std::ostream & get_stream() const { return m_io_state.get_regular_channel().get_stream(); }
-};
-
-/**
-   \brief Wrapper for the io_state object that provides access to the
-   io_state's diagnostic channel
-*/
-class diagnostic : public io_state_stream {
-public:
-    diagnostic(environment const & env, io_state const & s):io_state_stream(env, s) {}
-    std::ostream & get_stream() const { return m_io_state.get_diagnostic_channel().get_stream(); }
-};
+inline io_state_stream regular(environment const & env, io_state const & ios) { return io_state_stream(env, ios, true); }
+inline io_state_stream diagnostic(environment const & env, io_state const & ios) { return io_state_stream(env, ios, false); }
 
 // hack for using std::endl with channels
 struct endl_class { endl_class() {} };

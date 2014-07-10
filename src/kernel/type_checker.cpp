@@ -133,17 +133,13 @@ expr type_checker::ensure_sort_core(expr e, expr const & s) {
     } else if (is_meta(e)) {
         expr r = mk_sort(mk_meta_univ(m_gen.next()));
         justification j = mk_justification(s,
-                                           [=](formatter const & fmt, options const & o, substitution const & subst) {
-                                               return pp_type_expected(fmt, m_env, o, subst.instantiate(s));
+                                           [=](formatter const & fmt, substitution const & subst) {
+                                               return pp_type_expected(fmt, subst.instantiate(s));
                                            });
         add_cnstr(mk_eq_cnstr(e, r, j));
         return r;
     } else {
-        // We don't want m_env (i.e., this->m_env) inside the following closure,
-        // because the type checker may be gone, when the closure is executed.
-        environment env = m_env;
-        throw_kernel_exception(env, s,
-                               [=](formatter const & fmt, options const & o) { return pp_type_expected(fmt, env, o, s); });
+        throw_kernel_exception(m_env, s, [=](formatter const & fmt) { return pp_type_expected(fmt, s); });
     }
 }
 
@@ -156,26 +152,22 @@ expr type_checker::ensure_pi_core(expr e, expr const & s) {
         return e;
     } else if (is_meta(e)) {
         expr r             = mk_pi_for(m_gen, e);
-        justification j    = mk_justification(s,
-                                           [=](formatter const & fmt, options const & o, substitution const & subst) {
-                                               return pp_function_expected(fmt, m_env, o, subst.instantiate(s));
-                                           });
+        justification j    = mk_justification(s, [=](formatter const & fmt, substitution const & subst) {
+                return pp_function_expected(fmt, subst.instantiate(s));
+            });
         add_cnstr(mk_eq_cnstr(e, r, j));
         return r;
     } else {
-        environment env = m_env;
-        throw_kernel_exception(env, s,
-                               [=](formatter const & fmt, options const & o) { return pp_function_expected(fmt, env, o, s); });
+        throw_kernel_exception(m_env, s, [=](formatter const & fmt) { return pp_function_expected(fmt, s); });
     }
 }
 
 static constexpr char const * g_macro_error_msg = "failed to type check macro expansion";
 
 justification type_checker::mk_macro_jst(expr const & e) {
-    return mk_justification(e,
-                            [=](formatter const &, options const &, substitution const &) {
-                                return format(g_macro_error_msg);
-                            });
+    return mk_justification(e, [=](formatter const &, substitution const &) {
+            return format(g_macro_error_msg);
+        });
 }
 
 void type_checker::check_level(level const & l, expr const & s) {
@@ -185,12 +177,12 @@ void type_checker::check_level(level const & l, expr const & s) {
         throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '" << *n2 << "'", s);
 }
 
-app_delayed_justification::app_delayed_justification(environment const & env, expr const & e, expr const & f_type, expr const & a_type):
-    m_env(env), m_e(e), m_fn_type(f_type), m_arg_type(a_type) {}
+app_delayed_justification::app_delayed_justification(expr const & e, expr const & f_type, expr const & a_type):
+    m_e(e), m_fn_type(f_type), m_arg_type(a_type) {}
 
-justification mk_app_justification(environment const & env, expr const & e, expr const & d_type, expr const & a_type) {
-    auto pp_fn = [=](formatter const & fmt, options const & o, substitution const & subst) {
-        return pp_app_type_mismatch(fmt, env, o, subst.instantiate(e), subst.instantiate(d_type), subst.instantiate(a_type));
+justification mk_app_justification(expr const & e, expr const & d_type, expr const & a_type) {
+    auto pp_fn = [=](formatter const & fmt, substitution const & subst) {
+        return pp_app_type_mismatch(fmt, subst.instantiate(e), subst.instantiate(d_type), subst.instantiate(a_type));
     };
     return mk_justification(e, pp_fn);
 }
@@ -199,7 +191,7 @@ justification app_delayed_justification::get() {
     if (!m_jst) {
         // We should not have a reference to this object inside the closure.
         // So, we create the following locals that will be captured by the closure instead of 'this'.
-        m_jst = mk_app_justification(m_env, m_e, binding_domain(m_fn_type), m_arg_type);
+        m_jst = mk_app_justification(m_e, binding_domain(m_fn_type), m_arg_type);
     }
     return *m_jst;
 }
@@ -287,12 +279,11 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
         expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), app_fn(e));
         if (!infer_only) {
             expr a_type = infer_type_core(app_arg(e), infer_only);
-            app_delayed_justification jst(m_env, e, f_type, a_type);
+            app_delayed_justification jst(e, f_type, a_type);
             if (!is_def_eq(a_type, binding_domain(f_type), jst)) {
-                environment env = m_env;
                 throw_kernel_exception(m_env, app_arg(e),
-                                       [=](formatter const & fmt, options const & o) {
-                                           return pp_app_type_mismatch(fmt, env, o, e, binding_domain(f_type), a_type);
+                                       [=](formatter const & fmt) {
+                                           return pp_app_type_mismatch(fmt, e, binding_domain(f_type), a_type);
                                        });
             }
         }
@@ -407,10 +398,7 @@ type_checker::~type_checker() {}
 
 static void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type) {
     if (has_metavar(e))
-        throw_kernel_exception(env, e,
-                               [=](formatter const & fmt, options const & o) {
-                                   return pp_decl_has_metavars(fmt, env, o, n, e, is_type);
-                               });
+        throw_kernel_exception(env, e, [=](formatter const & fmt) { return pp_decl_has_metavars(fmt, n, e, is_type); });
 }
 
 static void check_no_local(environment const & env, expr const & e) {
@@ -456,10 +444,9 @@ certified_declaration check(environment const & env, declaration const & d, name
         type_checker checker2(env, g, mk_default_converter(env, midx, memoize, extra_opaque));
         expr val_type = checker2.check(d.get_value(), d.get_univ_params());
         if (!checker2.is_def_eq(val_type, d.get_type())) {
-            throw_kernel_exception(env, d.get_value(),
-                                   [=](formatter const & fmt, options const & o) {
-                                       return pp_def_type_mismatch(fmt, env, o, d.get_name(), d.get_type(), val_type);
-                                   });
+            throw_kernel_exception(env, d.get_value(), [=](formatter const & fmt) {
+                    return pp_def_type_mismatch(fmt, d.get_name(), d.get_type(), val_type);
+                });
         }
     }
     return certified_declaration(env.get_id(), d);

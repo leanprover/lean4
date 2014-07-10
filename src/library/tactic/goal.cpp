@@ -50,7 +50,8 @@ static void update_local(expr * begin, expr * end, expr & conclusion,
     update_local(conclusion, old_local, new_local);
 }
 
-format goal::pp(environment const & env, formatter const & fmt, options const & opts) const {
+format goal::pp(formatter const & fmt) const {
+    options const & opts = fmt.get_options();
     unsigned indent  = get_pp_indent(opts);
     bool unicode     = get_pp_unicode(opts);
     format turnstile = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
@@ -66,10 +67,10 @@ format goal::pp(environment const & env, formatter const & fmt, options const & 
         expr new_l = pick_unused_pp_name(tmp.begin(), it, l);
         if (!is_eqp(l, new_l))
             update_local(it+1, end, conclusion, l, new_l);
-        r += format{format(local_pp_name(new_l)), space(), colon(), nest(indent, compose(line(), fmt(env, mlocal_type(new_l), opts)))};
+        r += format{format(local_pp_name(new_l)), space(), colon(), nest(indent, compose(line(), fmt(mlocal_type(new_l))))};
     }
     r = group(r);
-    r += format{line(), turnstile, space(), nest(indent, fmt(env, conclusion, opts))};
+    r += format{line(), turnstile, space(), nest(indent, fmt(conclusion))};
     return group(r);
 }
 
@@ -137,10 +138,9 @@ static int goal_type(lua_State * L) { return push_expr(L, to_goal(L, 1).get_type
 static int goal_tostring(lua_State * L) {
     std::ostringstream out;
     goal & g = to_goal(L, 1);
-    environment env = get_global_environment(L);
-    formatter fmt   = get_global_formatter(L);
+    formatter fmt   = mk_formatter(L);
     options opts    = get_global_options(L);
-    out << mk_pair(g.pp(env, fmt, opts), opts);
+    out << mk_pair(g.pp(fmt), opts);
     lua_pushstring(L, out.str().c_str());
     return 1;
 }
@@ -153,13 +153,9 @@ static int goal_pp(lua_State * L) {
     int nargs = lua_gettop(L);
     goal & g = to_goal(L, 1);
     if (nargs == 1) {
-        return push_format(L, g.pp(get_global_environment(L), get_global_formatter(L), get_global_options(L)));
-    } else if (nargs == 2) {
-        return push_format(L, g.pp(to_environment(L, 2), get_global_formatter(L), get_global_options(L)));
-    } else if (nargs == 3) {
-        return push_format(L, g.pp(to_environment(L, 2), to_formatter(L, 3), get_global_options(L)));
+        return push_format(L, g.pp(mk_formatter(L)));
     } else {
-        return push_format(L, g.pp(to_environment(L, 2), to_formatter(L, 3), to_options(L, 4)));
+        return push_format(L, g.pp(to_formatter(L, 2)));
     }
 }
 static int goal_validate_locals(lua_State * L) { return push_boolean(L, to_goal(L, 1).validate_locals()); }

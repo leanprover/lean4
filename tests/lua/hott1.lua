@@ -38,7 +38,6 @@ print("H1 : " .. tostring(tc:check(Const("H1"))))
 print("H2 : " .. tostring(tc:check(Const("H2"))))
 print("H3 : " .. tostring(tc:check(Const("H3"))))
 print("H4 : " .. tostring(tc:check(Const("H4"))))
-print("N  : " .. tostring(get_formatter()(env, tc:check(Const("N")))))
+print("N  : " .. tostring(get_formatter_factory()(env)(tc:check(Const("N")))))
 -- N : Type.{0}
 assert(not tc:is_def_eq(Const("a"), Const("b")))
-

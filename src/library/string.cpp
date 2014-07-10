@@ -64,7 +64,7 @@ public:
         }
         out << "\"";
     }
-    virtual format pp(formatter const &, options const &) const {
+    virtual format pp(formatter const &) const {
         std::ostringstream out;
         display(out);
         return format(out.str());

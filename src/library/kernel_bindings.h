@@ -28,23 +28,26 @@ int push_optional_declaration(lua_State * L, optional<declaration> const & e);
 int push_optional_constraint(lua_State * L, optional<constraint> const & c);
 int push_list_expr(lua_State * L, list<expr> const & l);
 /**
-   \brief Return the formatter object associated with the given Lua State.
+   \brief Return the formatter factory object associated with the given Lua State.
    This procedure checks for options at:
    1- Lean state object associated with \c L
    2- Lua Registry associated with \c L
 */
-optional<formatter> get_global_formatter_core(lua_State * L);
+optional<formatter_factory> get_global_formatter_factory_core(lua_State * L);
 /**
-   \brief Similar to \c get_global_formatter_core, but returns
+   \brief Similar to \c get_global_formatter_factory_core, but returns
    the simple_formatter if a formatter can't be found.
 */
-formatter get_global_formatter(lua_State * L);
+formatter_factory get_global_formatter_factory(lua_State * L);
 /**
    \brief Update the formatter object associated with the given Lua State.
    If \c L is associated with a Lean state object \c S, then we update the formatter of \c S.
    Otherwise, we update the registry of \c L.
 */
-void set_global_formatter(lua_State * L, formatter const & fmt);
+void set_global_formatter_factory(lua_State * L, formatter_factory const & fmtf);
+
+/** \brief Make a fresh formatter object using the global formatter factory associated with L, and the global environment */
+formatter mk_formatter(lua_State * L);
 
 /** \brief Set the Lua registry of a Lua state with an environment object. */
 void set_global_environment(lua_State * L, environment const & env);

@@ -464,10 +464,6 @@ level parser::parse_level(unsigned rbp) {
     return left;
 }
 
-expr parser::mk_Type() {
-    return mk_sort(mk_level_placeholder());
-}
-
 std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e) {
     parser_pos_provider pp = get_pos_provider();
     return ::lean::elaborate(m_env, m_local_level_decls, m_ios, e, &pp, false);

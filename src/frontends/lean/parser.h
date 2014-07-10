@@ -241,7 +241,6 @@ public:
     unsigned get_local_index(name const & n) const;
     /** \brief Return the local parameter named \c n */
     expr const * get_local(name const & n) const { return m_local_decls.find(n); }
-    expr mk_Type();
 
     /**
         \brief By default, when the parser finds a unknown identifier, it signs an error.

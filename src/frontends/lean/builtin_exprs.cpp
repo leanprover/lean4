@@ -31,8 +31,12 @@ static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos)
         p.check_token_next(g_rcurly, "invalid Type expression, '}' expected");
         return p.save_pos(mk_sort(l), pos);
     } else {
-        return p.save_pos(p.mk_Type(), pos);
+        return p.save_pos(mk_sort(mk_level_placeholder()), pos);
     }
+}
+
+static expr parse_Type_prime(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return p.save_pos(mk_sort(mk_succ(mk_level_placeholder())), pos);
 }
 
 static expr parse_let(parser & p, pos_info const & pos);
@@ -329,6 +333,7 @@ parse_table init_nud_table() {
     r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
     r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);
+    r = r.add({transition("Type'", mk_ext_action(parse_Type_prime))}, x0);
     r = r.add({transition("let", mk_ext_action(parse_let_expr))}, x0);
     r = r.add({transition("calc", mk_ext_action(parse_calc_expr))}, x0);
     r = r.add({transition("#", mk_ext_action(parse_overwrite_notation))}, x0);

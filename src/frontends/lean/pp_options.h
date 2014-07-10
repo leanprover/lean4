@@ -13,4 +13,5 @@ bool     get_pp_notation(options const & opts);
 bool     get_pp_implicit(options const & opts);
 bool     get_pp_coercion(options const & opts);
 bool     get_pp_universes(options const & opts);
+bool     get_pp_full_names(options const & opts);
 }

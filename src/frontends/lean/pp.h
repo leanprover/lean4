@@ -37,6 +37,7 @@ private:
     bool               m_coercion;         //!< if true show coercions
     bool               m_notation;
     bool               m_universes;
+    bool               m_full_names;
 
     void set_options(options const & o);
 

@@ -30,6 +30,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_UNIVERSES false
 #endif
 
+#ifndef LEAN_DEFAULT_PP_FULL_NAMES
+#define LEAN_DEFAULT_PP_FULL_NAMES false
+#endif
+
 namespace lean {
 static name g_pp_max_depth        {"pp", "max_depth"};
 static name g_pp_max_steps        {"pp", "max_steps"};
@@ -37,6 +41,7 @@ static name g_pp_notation         {"pp", "notation"};
 static name g_pp_implicit         {"pp", "implicit"};
 static name g_pp_coercion         {"pp", "coercion"};
 static name g_pp_universes        {"pp", "universes"};
+static name g_pp_full_names       {"pp", "full_names"};
 
 RegisterUnsignedOption(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH,
                        "(pretty printer) maximum expression depth, after that it will use ellipsis");
@@ -50,6 +55,8 @@ RegisterBoolOption(g_pp_coercion,  LEAN_DEFAULT_PP_COERCION,
                    "(pretty printer) display coercions");
 RegisterBoolOption(g_pp_universes,  LEAN_DEFAULT_PP_UNIVERSES,
                    "(pretty printer) display universes");
+RegisterBoolOption(g_pp_full_names,  LEAN_DEFAULT_PP_FULL_NAMES,
+                   "(pretty printer) display fully qualified names");
 
 unsigned get_pp_max_depth(options const & opts)  { return opts.get_unsigned(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
 unsigned get_pp_max_steps(options const & opts)  { return opts.get_unsigned(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }
@@ -57,4 +64,5 @@ bool     get_pp_notation(options const & opts)   { return opts.get_bool(g_pp_not
 bool     get_pp_implicit(options const & opts)   { return opts.get_bool(g_pp_implicit, LEAN_DEFAULT_PP_IMPLICIT); }
 bool     get_pp_coercion(options const & opts)   { return opts.get_bool(g_pp_coercion, LEAN_DEFAULT_PP_COERCION); }
 bool     get_pp_universes(options const & opts)  { return opts.get_bool(g_pp_universes, LEAN_DEFAULT_PP_UNIVERSES); }
+bool     get_pp_full_names(options const & opts) { return opts.get_bool(g_pp_full_names, LEAN_DEFAULT_PP_FULL_NAMES); }
 }

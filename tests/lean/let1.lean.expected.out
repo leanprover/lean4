@@ -1,40 +1,33 @@
-[let
-    ((λ (and_intro : ∀ (p q : Bool), p → q → (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q),
-          [let
-              ((λ
-                (and_elim_left : ∀ (p q : Bool), (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q → p),
-                    [let
-                        ((λ
-                          (and_elim_right :
-                              ∀ (p q : Bool),
-                                  (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q → q),
-                              and_intro)
-                             (λ (p q : Bool) (H : (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q),
-                                  H q (λ (H1 : p) (H2 : q), H2)))])
-                   (λ (p q : Bool) (H : (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q),
-                        H p (λ (H1 : p) (H2 : q), H1)))])
-         (λ (p q : Bool) (H1 : p) (H2 : q) (c : Bool) (H : p → q → c), H H1 H2))] :
-    ∀ (p q : Bool),
-        p → q → (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q
+let and_intro : ∀ (p q : Bool),
+                  p → q → (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q :=
+      λ (p q : Bool) (H1 : p) (H2 : q) (c : Bool) (H : p → q → c),
+        H H1 H2,
+    and_elim_left : ∀ (p q : Bool),
+                      (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q → p :=
+      λ (p q : Bool) (H : (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q),
+        H p (λ (H1 : p) (H2 : q), H1),
+    and_elim_right : ∀ (p q : Bool),
+                       (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q → q :=
+      λ (p q : Bool) (H : (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q),
+        H q (λ (H1 : p) (H2 : q), H2)
+in and_intro :
+  ∀ (p q : Bool),
+    p → q → (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q
 let1.lean:17:20: error: type mismatch at application
-    (λ (and_intro : ∀ (p q : Bool), p → q → (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) q p),
-         [let
-             ((λ
-               (and_elim_left : ∀ (p q : Bool), (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q → p),
-                   [let
-                       ((λ
-                         (and_elim_right :
-                             ∀ (p q : Bool),
-                                 (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q → q),
-                             and_intro)
-                            (λ (p q : Bool) (H : (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q),
-                                 H q (λ (H1 : p) (H2 : q), H2)))])
-                  (λ (p q : Bool) (H : (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q),
-                       H p (λ (H1 : p) (H2 : q), H1)))])
-        (λ (p q : Bool) (H1 : p) (H2 : q) (c : Bool) (H : p → q → c), H H1 H2)
+  (λ (and_intro : ∀ (p q : Bool), p → q → (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) q p),
+     let and_elim_left : ∀ (p q : Bool),
+                           (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q → p :=
+           λ (p q : Bool) (H : (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q),
+             H p (λ (H1 : p) (H2 : q), H1),
+         and_elim_right : ∀ (p q : Bool),
+                            (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q → q :=
+           λ (p q : Bool) (H : (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) p q),
+             H q (λ (H1 : p) (H2 : q), H2)
+     in and_intro)
+    (λ (p q : Bool) (H1 : p) (H2 : q) (c : Bool) (H : p → q → c), H H1 H2)
 expected type:
-    ∀ (p q : Bool),
-        p → q → (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) q p
+  ∀ (p q : Bool),
+    p → q → (λ (p q : Bool), ∀ (c : Bool), (p → q → c) → c) q p
 given type:
-    ∀ (p q : Bool),
-        p → q → (∀ (c : Bool), (p → q → c) → c)
+  ∀ (p q : Bool),
+    p → q → (∀ (c : Bool), (p → q → c) → c)

@@ -3,4 +3,4 @@ trans : (?M_1 → ?M_1 → Bool) → Bool
 symm : (?M_1 → ?M_1 → Bool) → Bool
 equivalence : (?M_1 → ?M_1 → Bool) → Bool
 λ (A : Type) (R : A → A → Bool),
-    and (and (refl R) (symm R)) (trans R)
+  and (and (refl R) (symm R)) (trans R)

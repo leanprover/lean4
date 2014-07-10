@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/scoped_ext.h"
 #include "library/coercion.h"
+#include "library/expr_pair.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/pp_options.h"
 #include "frontends/lean/token_table.h"
@@ -25,6 +26,9 @@ static format g_pi_n_fmt      = highlight_keyword(format("Π"));
 static format g_pi_fmt        = highlight_keyword(format("Pi"));
 static format g_arrow_n_fmt   = highlight_keyword(format("\u2192"));
 static format g_arrow_fmt     = highlight_keyword(format("->"));
+static format g_let_fmt       = highlight_keyword(format("let"));
+static format g_in_fmt        = highlight_keyword(format("in"));
+static format g_assign_fmt    = highlight_keyword(format(":="));
 
 name pretty_fn::mk_metavar_name(name const & m) {
     if (auto it = m_purify_meta_table.find(m))
@@ -272,14 +276,51 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
     }
 }
 
+auto pretty_fn::pp_let(expr e) -> result {
+    buffer<expr_pair> decls;
+    while (true) {
+        if (!is_let_macro(e))
+            break;
+        e = let_macro_arg(e);
+        if (!is_app(e) || !is_lambda(app_fn(e)))
+            break;
+        expr v = app_arg(e);
+        auto p = binding_body_fresh(app_fn(e), true);
+        decls.emplace_back(p.second, v);
+        e = p.first;
+    }
+    if (decls.empty())
+        return pp(e);
+    format r    = g_let_fmt;
+    unsigned sz = decls.size();
+    for (unsigned i = 0; i < sz; i++) {
+        auto const & d = decls[i];
+        format beg     = i == 0 ? space() : line();
+        format sep     = i < sz - 1 ? comma() : format();
+        name const & n = local_pp_name(d.first);
+        format t       = pp_child(mlocal_type(d.first), 0).first;
+        format v       = pp_child(d.second, 0).first;
+        r += nest(3 + 1, compose(beg, group(format{format(n), space(),
+                            colon(), nest(n.size() + 1 + 1 + 1, compose(space(), t)), space(), g_assign_fmt,
+                            nest(m_indent, format{line(), v, sep})})));
+    }
+    format b = pp_child(e, 0).first;
+    r += format{line(), g_in_fmt, space(), nest(2 + 1, b)};
+    return mk_result(r, 0);
+}
+
 auto pretty_fn::pp_macro(expr const & e) -> result {
-    // TODO(Leo): handle let, have macro annotations
-    // fix macro<->pp interface
-    format r = compose(format("["), format(macro_def(e).get_name()));
-    for (unsigned i = 0; i < macro_num_args(e); i++)
-        r += nest(m_indent, compose(line(), pp_child(macro_arg(e, i), max_bp()).first));
-    r += format("]");
-    return mk_result(group(r));
+    if (is_let_macro(e)) {
+        return pp_let(e);
+    } else {
+        // TODO(Leo): have macro annotations
+        // fix macro<->pp interface
+        format r = compose(format("["), format(macro_def(e).get_name()));
+        for (unsigned i = 0; i < macro_num_args(e); i++)
+            r += nest(m_indent, compose(line(), pp_child(macro_arg(e, i), max_bp()).first));
+        r += format("]");
+        return mk_result(group(r));
+    }
 }
 
 auto pretty_fn::pp(expr const & e) -> result {

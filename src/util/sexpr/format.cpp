@@ -20,7 +20,7 @@
 #include "util/sexpr/options.h"
 
 #ifndef LEAN_DEFAULT_PP_INDENTATION
-#define LEAN_DEFAULT_PP_INDENTATION 4
+#define LEAN_DEFAULT_PP_INDENTATION 2
 #endif
 
 #ifndef LEAN_DEFAULT_PP_UNICODE

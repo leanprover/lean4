@@ -1,10 +1,10 @@
 ite (and p q) (f x) y : N
 t10.lean:14:22: error: type mismatch at application
-    ite (and p q) q
+  ite (and p q) q
 expected type:
-    N
+  N
 given type:
-    B
+  B
 cons x (cons y (cons z (cons x (cons y (cons y nil))))) : list
 cons x nil : list
 nil : list

@@ -3,7 +3,7 @@ precedence `++` : 100
 variable N : Type.{1}
 variable f : N → N → N
 variable a : N
-print raw
+check
    let g x y         := f x y,
        infix +       := g,
        b : N         := a+a,

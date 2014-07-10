@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class tactic_hint_entry {
-    friend class tactic_hint_config;
+    friend struct tactic_hint_config;
     name   m_class;
     expr   m_pre_tactic;
     tactic m_tactic;

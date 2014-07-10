@@ -1,7 +1,7 @@
 import standard
 using tactic
 
-inductive sum (A B : Type) : Type :=
+inductive sum (A : Type) (B : Type) : Type :=
 | inl  : A → sum A B
 | inr  : B → sum A B
 
@@ -19,4 +19,3 @@ definition my_tac := fixpoint (λ t, [ apply @inl_inhabited; t
 tactic_hint [inhabited] my_tac
 
 theorem T : inhabited (sum false num.num)
-

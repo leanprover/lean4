@@ -1,7 +1,7 @@
 import standard
 using tactic
 
-inductive sum (A B : Type) : Type :=
+inductive sum (A : Type) (B : Type) : Type :=
 | inl  : A → sum A B
 | inr  : B → sum A B
 

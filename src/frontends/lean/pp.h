@@ -26,7 +26,8 @@ private:
     name               m_meta_prefix;
     unsigned           m_next_meta_idx;
     name_map<name>     m_purify_meta_table;
-    name_set           m_purify_locals;
+    name_map<name>     m_purify_local_table;
+    name_set           m_purify_used_locals;
     // cached configuration
     unsigned           m_indent;
     unsigned           m_max_depth;
@@ -41,7 +42,7 @@ private:
 
     unsigned max_bp() const { return std::numeric_limits<unsigned>::max(); }
     name mk_metavar_name(name const & m);
-    name mk_local_name(name const & m);
+    name mk_local_name(name const & n, name const & suggested);
     level purify(level const & l);
     expr purify(expr const & e);
     result mk_result(format const & e, unsigned rbp) const { return mk_pair(e, rbp); }

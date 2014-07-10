@@ -39,14 +39,17 @@ name pretty_fn::mk_metavar_name(name const & m) {
     return new_m;
 }
 
-name pretty_fn::mk_local_name(name const & m) {
+name pretty_fn::mk_local_name(name const & n, name const & suggested) {
+    if (auto it = m_purify_local_table.find(n))
+        return *it;
     unsigned i = 1;
-    name r = m;
-    while (m_purify_locals.contains(r)) {
-        r = m.append_after(i);
+    name r = suggested;
+    while (m_purify_used_locals.contains(r)) {
+        r = suggested.append_after(i);
         i++;
     }
-    m_purify_locals.insert(r);
+    m_purify_used_locals.insert(r);
+    m_purify_local_table.insert(n, r);
     return r;
 }
 
@@ -77,7 +80,7 @@ expr pretty_fn::purify(expr const & e) {
             else if (is_metavar(e))
                 return some_expr(mk_metavar(mk_metavar_name(mlocal_name(e)), mlocal_type(e)));
             else if (is_local(e))
-                return some_expr(mk_local(mlocal_name(e), mk_local_name(local_pp_name(e)), mlocal_type(e), local_info(e)));
+                return some_expr(mk_local(mlocal_name(e), mk_local_name(mlocal_name(e), local_pp_name(e)), mlocal_type(e), local_info(e)));
             else if (is_constant(e))
                 return some_expr(update_constant(e, map(const_levels(e), [&](level const & l) { return purify(l); })));
             else if (is_sort(e))

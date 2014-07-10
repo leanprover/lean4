@@ -641,9 +641,28 @@ level normalize(level const & l) {
         std::sort(args.begin(), args.end(), is_norm_lt);
         buffer<level> & rargs = todo;
         rargs.clear();
-        rargs.push_back(args[0]);
-        auto p_prev = to_offset(args[0]);
-        for (unsigned i = 1; i < args.size(); i++) {
+        unsigned i = 0;
+        if (is_explicit(args[i])) {
+            // find max explicit univierse
+            while (i+1 < args.size() && is_explicit(args[i+1]))
+                i++;
+            lean_assert(is_explicit(args[i]));
+            unsigned k = to_offset(args[i]).second;
+            // an explicit universe k is subsumed by succ^k(l)
+            unsigned j = i+1;
+            for (; j < args.size(); j++) {
+                if (to_offset(args[j]).second >= k)
+                    break;
+            }
+            if (j < args.size()) {
+                // explicit universe was subsumed by succ^k'(l) where k' >= k
+                i++;
+            }
+        }
+        rargs.push_back(args[i]);
+        auto p_prev = to_offset(args[i]);
+        i++;
+        for (; i < args.size(); i++) {
             auto p_curr = to_offset(args[i]);
             if (p_prev.first == p_curr.first) {
                 if (p_prev.second < p_curr.second) {

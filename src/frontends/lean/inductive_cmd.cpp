@@ -481,6 +481,7 @@ struct inductive_cmd_fn {
             level r = r_lvls[0];
             for (unsigned i = 1; i < r_lvls.size(); i++)
                 r = mk_max(r, r_lvls[i]);
+            r = normalize(r);
             if (is_not_zero(r))
                 return normalize(r);
             else

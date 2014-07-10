@@ -31,25 +31,25 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static name g_pp_max_depth        {"lean", "pp", "max_depth"};
-static name g_pp_max_steps        {"lean", "pp", "max_steps"};
-static name g_pp_notation         {"lean", "pp", "notation"};
-static name g_pp_implicit         {"lean", "pp", "implicit"};
-static name g_pp_coercion         {"lean", "pp", "coercion"};
-static name g_pp_universes        {"lean", "pp", "universes"};
+static name g_pp_max_depth        {"pp", "max_depth"};
+static name g_pp_max_steps        {"pp", "max_steps"};
+static name g_pp_notation         {"pp", "notation"};
+static name g_pp_implicit         {"pp", "implicit"};
+static name g_pp_coercion         {"pp", "coercion"};
+static name g_pp_universes        {"pp", "universes"};
 
 RegisterUnsignedOption(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH,
-                       "(lean pretty printer) maximum expression depth, after that it will use ellipsis");
+                       "(pretty printer) maximum expression depth, after that it will use ellipsis");
 RegisterUnsignedOption(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS,
-                       "(lean pretty printer) maximum number of visited expressions, after that it will use ellipsis");
+                       "(pretty printer) maximum number of visited expressions, after that it will use ellipsis");
 RegisterBoolOption(g_pp_notation,  LEAN_DEFAULT_PP_NOTATION,
-                   "(lean pretty printer) disable/enable notation (infix, mixfix, postfix operators and unicode characters)");
+                   "(pretty printer) disable/enable notation (infix, mixfix, postfix operators and unicode characters)");
 RegisterBoolOption(g_pp_implicit,  LEAN_DEFAULT_PP_IMPLICIT,
-                   "(lean pretty printer) display implicit parameters");
+                   "(pretty printer) display implicit parameters");
 RegisterBoolOption(g_pp_coercion,  LEAN_DEFAULT_PP_COERCION,
-                   "(lean pretty printer) display coercions");
+                   "(pretty printer) display coercions");
 RegisterBoolOption(g_pp_universes,  LEAN_DEFAULT_PP_UNIVERSES,
-                   "(lean pretty printer) display universes");
+                   "(pretty printer) display universes");
 
 unsigned get_pp_max_depth(options const & opts)  { return opts.get_unsigned(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
 unsigned get_pp_max_steps(options const & opts)  { return opts.get_unsigned(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }

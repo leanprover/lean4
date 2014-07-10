@@ -15,41 +15,6 @@ Author: Leonardo de Moura
 #include "library/tactic/goal.h"
 
 namespace lean {
-static bool is_used_pp_name(expr const * begin, expr const * end, name const & n) {
-    return std::any_of(begin, end, [&](expr const & h) {
-            return local_pp_name(h) == n;
-        });
-}
-
-static expr pick_unused_pp_name(expr const * begin, expr const * end, expr const & l) {
-    expr r = l;
-    unsigned i = 1;
-    while (is_used_pp_name(begin, end, local_pp_name(r))) {
-        name new_pp_name = local_pp_name(l);
-        new_pp_name = new_pp_name.append_after(i);
-        r = mk_local(new_pp_name, mlocal_type(l));
-        i++;
-    }
-    return r;
-}
-
-static void update_local(expr & t, expr const & old_local, expr const & new_local) {
-    t = replace(t, [&](expr const & e, unsigned) {
-            if (!has_local(e))
-                return some_expr(e);
-            if (e == old_local)
-                return some_expr(new_local);
-            return none_expr();
-        });
-}
-
-static void update_local(expr * begin, expr * end, expr & conclusion,
-                         expr const & old_local, expr const & new_local) {
-    for (auto it = begin; it != end; ++it)
-        update_local(*it, old_local, new_local);
-    update_local(conclusion, old_local, new_local);
-}
-
 format goal::pp(formatter const & fmt) const {
     options const & opts = fmt.get_options();
     unsigned indent  = get_pp_indent(opts);
@@ -64,10 +29,7 @@ format goal::pp(formatter const & fmt) const {
     for (auto it = tmp.begin(); it != end; ++it) {
         if (first) first = false; else r += compose(comma(), line());
         expr l     = *it;
-        expr new_l = pick_unused_pp_name(tmp.begin(), it, l);
-        if (!is_eqp(l, new_l))
-            update_local(it+1, end, conclusion, l, new_l);
-        r += format{format(local_pp_name(new_l)), space(), colon(), nest(indent, compose(line(), fmt(mlocal_type(new_l))))};
+        r += format{fmt(l), space(), colon(), nest(indent, compose(line(), fmt(mlocal_type(l))))};
     }
     r = group(r);
     r += format{line(), turnstile, space(), nest(indent, fmt(conclusion))};

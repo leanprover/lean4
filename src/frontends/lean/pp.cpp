@@ -368,8 +368,9 @@ format pretty_fn::operator()(expr const & e) {
 
 formatter_factory mk_pretty_formatter_factory() {
     return [](environment const & env, options const & o) { // NOLINT
+        auto fn_ptr = std::make_shared<pretty_fn>(env, o);
         return formatter(o, [=](expr const & e) {
-                return pretty_fn(env, o)(e);
+                return (*fn_ptr)(e);
             });
     };
 }

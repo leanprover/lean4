@@ -5,9 +5,9 @@ F : Type → Type
 F : Type → Type
 f : N → N → N
 len : Π (A : Type) (n : N), vec A n → N
-λ (B : Bool), B → B : Bool → Bool
-λ (A : Type), A → A : Type → Type
-λ (C : Type), C : Type → Type
+B → B_1 : Bool
+A → A_1 : Type
+C : Type
 t4.lean:25:6: error: unknown identifier 'A'
 R : Type → Bool
 λ (x y : N), x : N → N → N

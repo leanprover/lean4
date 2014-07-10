@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
+#include "kernel/instantiate.h"
 #include "library/io_state_stream.h"
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
@@ -90,7 +91,14 @@ environment check_cmd(parser & p) {
     std::tie(e, new_ls) = p.elaborate_relaxed(e);
     auto tc = mk_type_checker_with_hints(p.env(), p.mk_ngen());
     expr type = tc->check(e, append(ls, new_ls));
-
+    // consume sections_ps introduced with mk_section_params
+    for (unsigned i = 0; i < section_ps.size(); i++) {
+        lean_assert(is_lambda(e));
+        lean_assert(is_pi(type));
+        expr local = mk_local(binding_name(e), binding_domain(e), binding_info(e));
+        e    = instantiate(binding_body(e), local);
+        type = instantiate(binding_body(type), local);
+    }
     formatter fmt = p.ios().get_formatter();
     options opts  = p.ios().get_options();
     unsigned indent = get_pp_indent(opts);

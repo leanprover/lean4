@@ -1,3 +1,3 @@
-λ (A : Type), A : Type → Type
-λ (A : Type), A : Type → Type
+A : Type
+A : Type
 done

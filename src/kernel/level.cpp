@@ -673,10 +673,10 @@ bool is_geq_core(level l1, level l2) {
         return true;
     if (is_max(l2))
         return is_geq(l1, max_lhs(l2)) && is_geq(l1, max_rhs(l2));
+    if (is_max(l1) && (is_geq(max_lhs(l1), l2) || is_geq(max_rhs(l1), l2)))
+        return true;
     if (is_imax(l2))
         return is_geq(l1, imax_lhs(l2)) && is_geq(l1, imax_rhs(l2));
-    if (is_max(l1))
-        return is_geq(max_lhs(l1), l2) || is_geq(max_rhs(l1), l2);
     if (is_imax(l1))
         return is_geq(imax_rhs(l1), l2);
     auto p1 = to_offset(l1);

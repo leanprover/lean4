@@ -164,13 +164,18 @@ auto pretty_fn::pp_const(expr const & e) -> result {
             }
         }
     }
-    if (m_universes) {
+    if (m_universes && !empty(const_levels(e))) {
         format r = compose(format(n), format(".{"));
+        bool first = true;
         for (auto const & l : const_levels(e)) {
             format l_fmt = pp_level(l);
             if (is_max(l) || is_imax(l))
                 l_fmt = paren(l_fmt);
-            r += nest(m_indent, compose(line(), l_fmt));
+            if (first)
+                r += nest(m_indent, l_fmt);
+            else
+                r += nest(m_indent, compose(line(), l_fmt));
+            first = false;
         }
         r += format("}");
         return mk_result(group(r));

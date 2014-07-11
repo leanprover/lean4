@@ -304,11 +304,12 @@ static expr parse_obtains(parser & p, unsigned, expr const *, pos_info const & p
     p.check_token_next(g_comma, "invalid 'obtains' expression, ',' expected");
     expr b  = p.parse_scoped_expr(ps, env);
     expr H  = ps[num_ps-1];
+    name H_name = local_pp_name(H);
     unsigned i = num_ps-1;
     while (i > 1) {
         --i;
         expr a      = ps[i];
-        expr H_aux  = mk_local(p.mk_fresh_name(), mk_expr_placeholder(), mk_contextual_info(is_fact));
+        expr H_aux  = mk_local(p.mk_fresh_name(), H_name.append_after(i), mk_expr_placeholder(), mk_contextual_info(false));
         expr  H2    = Fun({a, H}, b);
         b = mk_constant(g_exists_elim)(H_aux, H2);
         H = H_aux;

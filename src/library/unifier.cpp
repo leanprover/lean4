@@ -1122,9 +1122,27 @@ struct unifier_fn {
             return process_flex_rigid(cnstr_rhs_expr(c), cnstr_lhs_expr(c), c.get_justification());
     }
 
-    bool process_flex_flex(constraint const &) {
-        // We just ignore flex-flex constraints.
-        // This kind of constraint does not occur very often.
+    bool process_flex_flex(constraint const & c) {
+        expr const & lhs = cnstr_lhs_expr(c);
+        expr const & rhs = cnstr_rhs_expr(c);
+        // We ignore almost all flex-flex constraints.
+        // We just handle flex_flex "first-order" case
+        //   ?M_1 l_1 ... l_k =?= ?M_2 l_1 ... l_k
+        if (!is_simple_meta(lhs) || !is_simple_meta(rhs))
+            return true;
+        buffer<expr> lhs_args, rhs_args;
+        expr ml = get_app_args(lhs, lhs_args);
+        expr mr = get_app_args(rhs, rhs_args);
+        if (ml == mr || lhs_args.size() != rhs_args.size())
+            return true;
+        lean_assert(!m_subst.is_assigned(ml));
+        lean_assert(!m_subst.is_assigned(mr));
+        unsigned i = 0;
+        for (; i < lhs_args.size(); i++)
+            if (lhs_args[i] != rhs_args[i])
+                break;
+        if (i == lhs_args.size())
+            return assign(ml, mr, c.get_justification());
         return true;
     }
 

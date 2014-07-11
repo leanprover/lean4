@@ -204,7 +204,8 @@ theorem exists_unique_intro {A : Type} {p : A → Bool} (w : A) (H1 : p w) (H2 :
 := exists_intro w (and_intro H1 H2)
 
 theorem exists_unique_elim {A : Type} {p : A → Bool} {b : Bool} (H2 : ∃! x, p x) (H1 : ∀ x, p x → (∀ y, y ≠ x → ¬ p y) → b) : b
-:= exists_elim H2 (λ w Hw, H1 w (and_elim_left Hw) (and_elim_right Hw))
+:= obtains w Hw, from H2,
+     H1 w (and_elim_left Hw) (and_elim_right Hw)
 
 inductive inhabited (A : Type) : Bool :=
 | inhabited_intro : A → inhabited A
@@ -236,15 +237,15 @@ definition heq {A B : Type} (a : A) (b : B) := ∃ H, cast H a = b
 infixl `==`:50 := heq
 
 theorem heq_type_eq {A B : Type} {a : A} {b : B} (H : a == b) : A = B
-:= exists_elim H (λ H Hw, H)
+:= obtains w Hw, from H, w
 
 theorem eq_to_heq {A : Type} {a b : A} (H : a = b) : a == b
 := exists_intro (refl A) (trans (cast_refl a) H)
 
 theorem heq_to_eq {A : Type} {a b : A} (H : a == b) : a = b
-:= exists_elim H (λ (H : A = A) (Hw : cast H a = b),
-    calc a = cast H a : symm (cast_eq H a)
-      ...  = b        : Hw)
+:= obtains (w : A = A) (Hw : cast w a = b), from H,
+    calc a = cast w a : symm (cast_eq w a)
+      ...  = b        : Hw
 
 theorem heq_refl {A : Type} (a : A) : a == a
 := eq_to_heq (refl a)

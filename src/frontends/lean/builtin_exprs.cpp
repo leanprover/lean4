@@ -278,6 +278,47 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
     return mk_let(p, H_show, prop, proof, Var(0), pos, mk_contextual_info(false));
 }
 
+static name g_exists_elim("exists_elim");
+static expr parse_obtains(parser & p, unsigned, expr const *, pos_info const & pos) {
+    if (!p.env().find(g_exists_elim))
+        throw parser_error("invalid use of 'obtains' expression, environment does not contain 'exists_elim' theorem", pos);
+    // exists_elim {A : Type} {P : A → Bool} {B : Bool} (H1 : ∃ x : A, P x) (H2 : ∀ (a : A) (H : P a), B)
+    buffer<expr> ps;
+    auto b_pos = p.pos();
+    environment env = p.parse_binders(ps);
+    unsigned num_ps = ps.size();
+    if (num_ps < 2)
+        throw parser_error("invalid 'obtains' expression, at least 2 binders expected", b_pos);
+    bool is_fact = false;
+    if (p.curr_is_token(g_fact)) {
+        p.next();
+        is_fact = true;
+    }
+    if (!is_fact) {
+        expr H = ps[num_ps-1];
+        ps[num_ps-1] = update_local(H, mlocal_type(H), local_info(H).update_contextual(false));
+    }
+    p.check_token_next(g_comma, "invalid 'obtains' expression, ',' expected");
+    p.check_token_next(g_from, "invalid 'obtains' expression, 'from' expected");
+    expr H1 = p.parse_expr();
+    p.check_token_next(g_comma, "invalid 'obtains' expression, ',' expected");
+    expr b  = p.parse_scoped_expr(ps, env);
+    expr H  = ps[num_ps-1];
+    unsigned i = num_ps-1;
+    while (i > 1) {
+        --i;
+        expr a      = ps[i];
+        expr H_aux  = mk_local(p.mk_fresh_name(), mk_expr_placeholder(), mk_contextual_info(is_fact));
+        expr  H2    = Fun({a, H}, b);
+        b = mk_constant(g_exists_elim)(H_aux, H2);
+        H = H_aux;
+    }
+    expr a  = ps[0];
+    expr H2 = Fun({a, H}, b);
+    expr r  = mk_constant(g_exists_elim)(H1, H2);
+    return p.rec_save_pos(r, pos);
+}
+
 static expr parse_calc_expr(parser & p, unsigned, expr const *, pos_info const &) {
     return parse_calc(p);
 }
@@ -329,6 +370,7 @@ parse_table init_nud_table() {
     r = r.add({transition("by", mk_ext_action(parse_by))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
+    r = r.add({transition("obtains", mk_ext_action(parse_obtains))}, x0);
     r = r.add({transition("(", Expr), transition(")", Skip)}, x0);
     r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);

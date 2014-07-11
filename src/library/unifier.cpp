@@ -56,7 +56,7 @@ bool context_check(expr const & e, buffer<expr> const & locals) {
                 failed = true;
                 return false;
             }
-            return true;
+            return has_local(e);
         });
     return !failed;
 }
@@ -88,7 +88,7 @@ lbool occurs_context_check(expr const & e, expr const & m, buffer<expr> const & 
             } else {
                 // we only need to continue exploring e if it contains
                 // metavariables and/or local constants.
-                return has_metavar(e) || has_local(e);
+                return has_expr_metavar(e) || has_local(e);
             }
         });
     return r;

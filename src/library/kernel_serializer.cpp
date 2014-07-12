@@ -132,9 +132,22 @@ static binder_info read_binder_info(deserializer & d) {
     return binder_info(imp, cast, ctx, s_imp);
 }
 
+static name g_binder_name("a");
+
 class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
     typedef object_serializer<expr, expr_hash_alloc, expr_eqp> super;
     max_sharing_fn m_max_sharing_fn;
+    unsigned       m_next_id;
+
+    void write_binder_name(serializer & s, name const & a) {
+        // make sure binding names are atomic string
+        if (!a.is_atomic() || a.is_numeral()) {
+            s << g_binder_name.append_after(m_next_id);
+            m_next_id++;
+        } else {
+            s << a;
+        }
+    }
 
     void write_core(expr const & a) {
         auto k = a.kind();
@@ -161,7 +174,8 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                     write_core(app_fn(a)); write_core(app_arg(a));
                     break;
                 case expr_kind::Lambda: case expr_kind::Pi:
-                    s << binding_name(a) << binding_info(a); write_core(binding_domain(a)); write_core(binding_body(a));
+                    write_binder_name(s, binding_name(a));
+                    s << binding_info(a); write_core(binding_domain(a)); write_core(binding_body(a));
                     break;
                 case expr_kind::Meta:
                     s << mlocal_name(a); write_core(mlocal_type(a));
@@ -173,6 +187,7 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
             });
     }
 public:
+    expr_serializer() { m_next_id = 0; }
     void write(expr const & a) {
         write_core(m_max_sharing_fn(a));
     }

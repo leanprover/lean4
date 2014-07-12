@@ -255,6 +255,14 @@ struct default_converter : public converter {
 
     /** \brief Put expression \c t in weak head normal form */
     virtual expr whnf(expr const & e_prime, type_checker & c) {
+        // Do not cache easy cases
+        switch (e_prime.kind()) {
+        case expr_kind::Var: case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local: case expr_kind::Pi:
+            return e_prime;
+        case expr_kind::Lambda: case expr_kind::Macro: case expr_kind::App: case expr_kind::Constant:
+            break;
+        }
+
         expr e = e_prime;
         // check cache
         if (m_memoize) {

@@ -204,7 +204,7 @@ theorem exists_unique_intro {A : Type} {p : A → Bool} (w : A) (H1 : p w) (H2 :
 := exists_intro w (and_intro H1 H2)
 
 theorem exists_unique_elim {A : Type} {p : A → Bool} {b : Bool} (H2 : ∃! x, p x) (H1 : ∀ x, p x → (∀ y, y ≠ x → ¬ p y) → b) : b
-:= obtains w Hw, from H2,
+:= obtain w Hw, from H2,
      H1 w (and_elim_left Hw) (and_elim_right Hw)
 
 inductive inhabited (A : Type) : Bool :=
@@ -237,13 +237,13 @@ definition heq {A B : Type} (a : A) (b : B) := ∃ H, cast H a = b
 infixl `==`:50 := heq
 
 theorem heq_type_eq {A B : Type} {a : A} {b : B} (H : a == b) : A = B
-:= obtains w Hw, from H, w
+:= obtain w Hw, from H, w
 
 theorem eq_to_heq {A : Type} {a b : A} (H : a = b) : a == b
 := exists_intro (refl A) (trans (cast_refl a) H)
 
 theorem heq_to_eq {A : Type} {a b : A} (H : a == b) : a = b
-:= obtains (w : A = A) (Hw : cast w a = b), from H,
+:= obtain (w : A = A) (Hw : cast w a = b), from H,
     calc a = cast w a : symm (cast_eq w a)
       ...  = b        : Hw
 
@@ -258,7 +258,7 @@ opaque_hint (hiding cast)
 theorem hsubst {A B : Type} {a : A} {b : B} {P : ∀ (T : Type), T → Bool} (H1 : a == b) (H2 : P A a) : P B b
 := have Haux1 : ∀ H : A = A, P A (cast H a), from
      assume H : A = A, subst (symm (cast_eq H a)) H2,
-   obtains (Heq : A = B) (Hw : cast Heq a = b), from H1,
+   obtain (Heq : A = B) (Hw : cast Heq a = b), from H1,
    have Haux2 : P B (cast Heq a), from subst Heq Haux1 Heq,
      subst Hw Haux2
 

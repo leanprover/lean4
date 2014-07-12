@@ -136,6 +136,8 @@ class elaborator {
     expr_map<expr>      m_cache; // (pointer equality) cache for Type and Constants (this is a trick to make sure we get the
                                  // same universe metavariable for different occurrences of the same Type/Constant
     context             m_ctx; // current local context: a list of local constants
+    buffer<expr>        m_ctx_buffer; // m_ctx as a buffer
+    buffer<expr>        m_ctx_domain_buffer; // m_ctx_domain_buffer[i] == abstract_locals(m_ctx_buffer[i], i, m_ctx_buffer.begin())
     pos_info_provider * m_pos_provider; // optional expression position information used when reporting errors.
     justification       m_accumulated; // accumulate justification of eagerly used substitutions
     constraint_vect     m_constraints; // constraints that must be solved for the elaborated term to be type correct.
@@ -146,6 +148,35 @@ class elaborator {
     name_set            m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
     bool                m_check_unassigned; // if true if display error messages if elaborated term still contains metavariables
     bool                m_use_local_instances; // if true class-instance resolution will use the local context
+
+    // Set m_ctx to ctx, and make sure m_ctx_buffer and m_ctx_domain_buffer reflect the contents of the new ctx
+    void set_ctx(context const & ctx) {
+        m_ctx = ctx;
+        m_ctx_buffer.clear();
+        m_ctx_domain_buffer.clear();
+        to_buffer(ctx, m_ctx_buffer);
+        std::reverse(m_ctx_buffer.begin(), m_ctx_buffer.end());
+        for (unsigned i = 0; i < m_ctx_buffer.size(); i++) {
+            m_ctx_domain_buffer.push_back(abstract_locals(m_ctx_buffer[i], i, m_ctx_buffer.data()));
+        }
+    }
+
+    // "Scoped update": add an local constant l to the m_ctx (and m_ctx_buffer, m_ctx_domain_buffer).
+    // "Undoes" the changes in the end of the scope where this object was defined.
+    struct update_ctx {
+        elaborator & m_main;
+        update_ctx(elaborator & main, expr const & l):m_main(main) {
+            lean_assert(is_local(l));
+            m_main.m_ctx = cons(l, m_main.m_ctx);
+            m_main.m_ctx_domain_buffer.push_back(abstract_locals(l, m_main.m_ctx_buffer.size(), m_main.m_ctx_buffer.data()));
+            m_main.m_ctx_buffer.push_back(l);
+        }
+        ~update_ctx() {
+            m_main.m_ctx = tail(m_main.m_ctx);
+            m_main.m_ctx_domain_buffer.pop_back();
+            m_main.m_ctx_buffer.pop_back();
+        }
+    };
 
     /** \brief Auxiliary object for creating backtracking points.
         \remark A scope can only be created when m_constraints and m_subst are empty,
@@ -158,12 +189,12 @@ class elaborator {
             lean_assert(m_main.m_constraints.empty());
             lean_assert(m_main.m_accumulated.is_none());
             m_old_ctx    = m_main.m_ctx;
-            m_main.m_ctx = ctx;
+            m_main.set_ctx(ctx);
             m_main.m_tc->push();
             m_main.m_subst = s;
         }
         ~scope() {
-            m_main.m_ctx = m_old_ctx;
+            m_main.set_ctx(m_old_ctx);
             m_main.m_tc->pop();
             m_main.m_constraints.clear();
             m_main.m_accumulated = justification();
@@ -372,19 +403,24 @@ public:
         return e;
     }
 
+    expr mk_app(expr const & f, expr const & a, tag g) {
+        return save_tag(::lean::mk_app(f, a), g);
+    }
+
     /** \brief Given <tt>e[l_1, ..., l_n]</tt> and assuming \c m_ctx is
                <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
          then the result is
                <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), e[x_1, ... x_n])</tt>.
     */
     expr pi_abstract_context(expr e, tag g) {
-        for (auto const & p : m_ctx)
-            e = save_tag(Pi(p, e), g);
+        e = abstract_locals(e, m_ctx_buffer.size(), m_ctx_buffer.data());
+        unsigned i = m_ctx_domain_buffer.size();
+        while (i > 0) {
+            --i;
+            expr const & l = m_ctx_domain_buffer[i];
+            e = save_tag(mk_pi(local_pp_name(l), mlocal_type(l), e, local_info(l)), g);
+        }
         return e;
-    }
-
-    expr mk_app(expr const & f, expr const & a, tag g) {
-        return save_tag(::lean::mk_app(f, a), g);
     }
 
     /** \brief Assuming \c m_ctx is
@@ -392,15 +428,9 @@ public:
         return <tt>(f l_1 ... l_n)</tt>.
     */
     expr apply_context(expr const & f, tag g) {
-        buffer<expr> args;
-        for (auto const & p : m_ctx)
-            args.push_back(p);
         expr r = f;
-        unsigned i = args.size();
-        while (i > 0) {
-            --i;
-            r = mk_app(r, args[i], g);
-        }
+        for (unsigned i = 0; i < m_ctx_buffer.size(); i++)
+            r = mk_app(r, m_ctx_buffer[i], g);
         return r;
     }
 
@@ -780,7 +810,7 @@ public:
         expr l   = mk_local(binding_name(e), d, binding_info(e));
         expr b   = instantiate(binding_body(e), l);
         if (binding_info(e).is_contextual()) {
-            flet<context> set(m_ctx, cons(l, m_ctx));
+            update_ctx add(*this, l);
             b = ensure_type(visit_expecting_type(b));
         } else {
             b = ensure_type(visit_expecting_type(b));
@@ -794,7 +824,7 @@ public:
         expr l   = mk_local(binding_name(e), d, binding_info(e));
         expr b   = instantiate(binding_body(e), l);
         if (binding_info(e).is_contextual()) {
-            flet<context> set(m_ctx, cons(l, m_ctx));
+            update_ctx add(*this, l);
             b = visit(b);
         } else {
             b = visit(b);

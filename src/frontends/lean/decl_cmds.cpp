@@ -291,9 +291,23 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         env = add_decl_alias(env, n, mk_constant(real_n));
     level_param_names new_ls;
     if (is_theorem) {
-        // TODO(Leo): delay theorems
-        std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value);
-        env = module::add(env, check(env, mk_theorem(real_n, append(ls, new_ls), type, value)));
+        if (p.num_threads() > 1) {
+            // add as axiom, and create a task to prove the theorem
+            expr saved_type       = type;
+            expr saved_value      = value;
+            environment saved_env = env;
+            std::tie(type, new_ls) = p.elaborate_type(type);
+            env = module::add(env, check(env, mk_axiom(real_n, append(ls, new_ls), type)));
+            p.add_delayed_theorem([=, &p]() {
+                    level_param_names new_ls;
+                    expr type, value;
+                    std::tie(type, value, new_ls) = p.elaborate_definition_at(saved_env, n, saved_type, saved_value);
+                    return check(saved_env, mk_theorem(real_n, append(ls, new_ls), type, value));
+                });
+        } else {
+            std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value);
+            env = module::add(env, check(env, mk_theorem(real_n, append(ls, new_ls), type, value)));
+        }
     } else {
         std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value);
         env = module::add(env, check(env, mk_definition(env, real_n, append(ls, new_ls), type, value, modifiers.m_is_opaque)));

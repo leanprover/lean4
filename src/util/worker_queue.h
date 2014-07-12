@@ -115,5 +115,7 @@ public:
         for (auto & t : m_threads)
             t->request_interrupt();
     }
+
+    bool done() const { return m_done; }
 };
 }

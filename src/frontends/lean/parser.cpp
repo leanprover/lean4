@@ -75,7 +75,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_env(env), m_ios(ios), m_ngen(g_tmp_prefix),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name), m_local_level_decls(lds), m_local_decls(eds),
-    m_pos_table(std::make_shared<pos_info_table>()) {
+    m_pos_table(std::make_shared<pos_info_table>()), m_theorem_queue(num_threads > 1 ? num_threads - 1 : 0) {
     m_scanner.set_line(line);
     m_num_threads = num_threads;
     m_no_undef_id_error    = false;
@@ -85,6 +85,15 @@ parser::parser(environment const & env, io_state const & ios,
     m_curr = scanner::token_kind::Identifier;
     protected_call([&]() { scan(); },
                    [&]() { sync_command(); });
+}
+
+parser::~parser() {
+    try {
+        if (!m_theorem_queue.done()) {
+            m_theorem_queue.interrupt();
+            m_theorem_queue.join();
+        }
+    } catch (...) {}
 }
 
 bool parser::has_tactic_decls() {
@@ -482,6 +491,12 @@ std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env
 std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name const & n, expr const & t, expr const & v) {
     parser_pos_provider pp = get_pos_provider();
     return ::lean::elaborate(m_env, m_local_level_decls, m_ios, n, t, v, &pp);
+}
+
+std::tuple<expr, expr, level_param_names> parser::elaborate_definition_at(environment const & env, name const & n, expr const & t,
+                                                                          expr const & v) {
+    parser_pos_provider pp = get_pos_provider();
+    return ::lean::elaborate(env, m_local_level_decls, m_ios, n, t, v, &pp);
 }
 
 [[ noreturn ]] void throw_invalid_open_binder(pos_info const & pos) {
@@ -1035,6 +1050,9 @@ bool parser::parse_commands() {
                 [&]() { sync_command(); });
         }
     } catch (interrupt_parser) {}
+    for (certified_declaration const & thm : m_theorem_queue.join()) {
+        m_env.replace(thm);
+    }
     return !m_found_errors;
 }
 

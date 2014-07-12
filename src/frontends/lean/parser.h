@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "util/thread_script_state.h"
 #include "util/script_exception.h"
+#include "util/worker_queue.h"
 #include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
@@ -63,6 +64,8 @@ class parser {
     optional<bool>          m_has_num;
     optional<bool>          m_has_string;
     optional<bool>          m_has_tactic_decls;
+    // We process theorems in parallel
+    worker_queue<certified_declaration> m_theorem_queue;
 
     void display_error_pos(unsigned line, unsigned pos);
     void display_error_pos(pos_info p);
@@ -130,6 +133,7 @@ public:
            local_level_decls const & lds = local_level_decls(),
            local_expr_decls const & eds = local_expr_decls(),
            unsigned line = 1);
+    ~parser();
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
@@ -156,6 +160,9 @@ public:
 
     expr mk_app(expr fn, expr arg, pos_info const & p);
     expr mk_app(std::initializer_list<expr> const & args, pos_info const & p);
+
+    unsigned num_threads() const { return m_num_threads; }
+    void add_delayed_theorem(std::function<certified_declaration()> const & fn) { m_theorem_queue.add(fn); }
 
     /** \brief Read the next token. */
     void scan() { m_curr = m_scanner.scan(m_env); }
@@ -260,6 +267,8 @@ public:
     std::tuple<expr, level_param_names> elaborate(expr const & e) { return elaborate_at(m_env, e); }
     /** \brief Elaborate the definition n : t := v */
     std::tuple<expr, expr, level_param_names> elaborate_definition(name const & n, expr const & t, expr const & v);
+    /** \brief Elaborate the definition n : t := v in the given environment*/
+    std::tuple<expr, expr, level_param_names> elaborate_definition_at(environment const & env, name const & n, expr const & t, expr const & v);
 
     parser_pos_provider get_pos_provider() const { return parser_pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos); }
 

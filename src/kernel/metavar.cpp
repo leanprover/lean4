@@ -117,6 +117,7 @@ protected:
     justification  m_jst;
     bool           m_use_jst;
     bool           m_update;
+    bool           m_only_expr;
 
     void save_jst(justification const & j) { m_jst = mk_composite1(m_jst, j); }
 
@@ -132,10 +133,12 @@ protected:
     }
 
     virtual expr visit_sort(expr const & s) {
+        lean_assert(!m_only_expr);
         return update_sort(s, visit_level(sort_level(s)));
     }
 
     virtual expr visit_constant(expr const & c) {
+        lean_assert(!m_only_expr);
         return update_constant(c, visit_levels(const_levels(c)));
     }
 
@@ -191,7 +194,7 @@ protected:
     }
 
     virtual expr visit(expr const & e) {
-        if (!has_metavar(e)) {
+        if ((m_only_expr && !has_expr_metavar(e)) || (!m_only_expr && !has_metavar(e))) {
             return e;
         } else {
             return replace_visitor::visit(e);
@@ -199,8 +202,8 @@ protected:
     }
 
 public:
-    instantiate_metavars_fn(substitution & s, bool use_jst, bool updt):
-        m_subst(s), m_use_jst(use_jst), m_update(updt) {}
+    instantiate_metavars_fn(substitution & s, bool use_jst, bool updt, bool only_expr = false):
+        m_subst(s), m_use_jst(use_jst), m_update(updt), m_only_expr(only_expr) {}
     justification const & get_justification() const { return m_jst; }
 };
 
@@ -211,10 +214,14 @@ std::pair<expr, justification> substitution::instantiate_metavars(expr const & e
     return mk_pair(r, fn.get_justification());
 }
 
-std::pair<expr, justification> substitution::d_instantiate_metavars(expr const & e) {
-    instantiate_metavars_fn fn(*this, true, true);
-    expr r = fn(e);
-    return mk_pair(r, fn.get_justification());
+std::pair<expr, justification> substitution::d_instantiate_metavars(expr const & e, bool only_expr) {
+    if ((only_expr && !has_expr_metavar(e)) || (!only_expr && !has_metavar(e))) {
+        return mk_pair(e, justification());
+    } else {
+        instantiate_metavars_fn fn(*this, true, true, only_expr);
+        expr r = fn(e);
+        return mk_pair(r, fn.get_justification());
+    }
 }
 
 std::tuple<expr, justification, substitution> substitution::updt_instantiate_metavars(expr const & e) const {

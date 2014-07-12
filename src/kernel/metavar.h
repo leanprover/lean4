@@ -58,7 +58,7 @@ public:
     void d_assign(level const & m, level const & t, justification const & j) { d_assign(meta_id(m), t, j); }
     void d_assign(level const & m, level const & t) { d_assign(m, t, justification ()); }
 
-    std::pair<expr, justification> d_instantiate_metavars(expr const & e);
+    std::pair<expr, justification> d_instantiate_metavars(expr const & e, bool only_expr = false);
     expr d_instantiate_metavars_wo_jst(expr const & e);
     std::pair<level, justification> d_instantiate_metavars(level const & l) { return d_instantiate_metavars(l, true, true); }
 

@@ -80,7 +80,7 @@ theorem eq_id {A : Type} (a : A) : (a = a) = true
 := eqt_intro (refl a)
 
 theorem heq_id {A : Type} (a : A) : (a == a) = true
-:= eqt_intro (heq_refl a)
+:= eqt_intro (hrefl a)
 
 theorem not_or (a b : Bool) : (¬ (a ∨ b)) = (¬ a ∧ ¬ b)
 := boolext

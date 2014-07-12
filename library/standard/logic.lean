@@ -6,7 +6,7 @@ definition Bool [inline] := Type.{0}
 inductive false : Bool :=
 -- No constructors
 
-theorem false_elim (c : Bool) (H : false)
+theorem false_elim (c : Bool) (H : false) : c
 := false_rec c H
 
 inductive true : Bool :=

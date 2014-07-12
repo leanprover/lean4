@@ -20,6 +20,9 @@ definition heq {A B : Type} (a : A) (b : B) := ∃ H, cast H a = b
 
 infixl `==`:50 := heq
 
+theorem heq_elim {A B : Type} {C : Bool} {a : A} {b : B} (H1 : a == b) (H2 : ∀ (Hab : A = B), cast Hab a = b → C) : C
+:= obtain w Hw, from H1, H2 w Hw
+
 theorem heq_type_eq {A B : Type} {a : A} {b : B} (H : a == b) : A = B
 := obtain w Hw, from H, w
 
@@ -61,6 +64,9 @@ theorem htrans_right {A C : Type} {a b : A} {c : C} (H1 : a = b) (H2 : b == c) :
 calc_trans htrans
 calc_trans htrans_left
 calc_trans htrans_right
+
+theorem type_eq {A B : Type} {a : A} {b : B} (H : a == b) : A = B
+:= hsubst H (refl A)
 
 theorem cast_heq {A B : Type} (H : A = B) (a : A) : cast H a == a
 := have H1 : ∀ (H : A = A) (a : A), cast H a == a, from

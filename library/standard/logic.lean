@@ -218,3 +218,6 @@ theorem inhabited_Bool [instance] : inhabited Bool
 
 theorem inhabited_fun [instance] (A : Type) {B : Type} (H : inhabited B) : inhabited (A → B)
 := inhabited_elim H (take (b : B), inhabited_intro (λ a : A, b))
+
+theorem inhabited_exists {A : Type} {P : A → Bool} (H : ∃ x, P x) : inhabited A
+:= obtain w Hw, from H, inhabited_intro w

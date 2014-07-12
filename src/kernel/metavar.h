@@ -23,10 +23,8 @@ class substitution {
     jst_map   m_expr_jsts;
     jst_map   m_level_jsts;
 
-    std::pair<expr, justification> d_instantiate_metavars(expr const & e);
-    expr d_instantiate_metavars_wo_jst(expr const & e);
-    std::pair<level, justification> d_instantiate_metavars(level const & l, bool use_jst, bool updt);
     friend class instantiate_metavars_fn;
+    std::pair<level, justification> d_instantiate_metavars(level const & l, bool use_jst, bool updt);
 
     justification get_expr_jst(name const & m) const { if (auto it = m_expr_jsts.find(m)) return *it; else return justification(); }
     justification get_level_jst(name const & m) const { if (auto it = m_level_jsts.find(m)) return *it; else return justification(); }
@@ -60,6 +58,10 @@ public:
     void d_assign(level const & m, level const & t, justification const & j) { d_assign(meta_id(m), t, j); }
     void d_assign(level const & m, level const & t) { d_assign(m, t, justification ()); }
 
+    std::pair<expr, justification> d_instantiate_metavars(expr const & e);
+    expr d_instantiate_metavars_wo_jst(expr const & e);
+    std::pair<level, justification> d_instantiate_metavars(level const & l) { return d_instantiate_metavars(l, true, true); }
+
     void d_forget_justifications() { m_expr_jsts  = jst_map(); m_level_jsts = jst_map(); }
     substitution forget_justifications() const { substitution s(*this); s.d_forget_justifications(); return s; }
 
@@ -76,13 +78,15 @@ public:
     bool is_assigned(expr const & m) const { lean_assert(is_metavar(m)); return is_expr_assigned(mlocal_name(m)); }
     opt_expr_jst get_assignment(expr const & m) const { lean_assert(is_metavar(m)); return get_expr_assignment(mlocal_name(m)); }
     optional<expr> get_expr(expr const & m) const { lean_assert(is_metavar(m)); return get_expr(mlocal_name(m)); }
-    substitution assign(expr const & m, expr const & t, justification const & j) { lean_assert(is_metavar(m)); return assign(mlocal_name(m), t, j); }
+    substitution assign(expr const & m, expr const & t, justification const & j) {
+        lean_assert(is_metavar(m)); return assign(mlocal_name(m), t, j); }
     substitution assign(expr const & m, expr const & t) const { lean_assert(is_metavar(m)); return assign(mlocal_name(m), t); }
 
     bool is_assigned(level const & m) const { lean_assert(is_meta(m)); return is_level_assigned(meta_id(m)); }
     opt_level_jst get_assignment(level const & m) const { lean_assert(is_meta(m)); return get_level_assignment(meta_id(m)); }
     optional<level> get_level(level const & m) const { lean_assert(is_meta(m)); return get_level(meta_id(m)); }
-    substitution assign(level const & m, level const & l, justification const & j) const { lean_assert(is_meta(m)); return assign(meta_id(m), l, j); }
+    substitution assign(level const & m, level const & l, justification const & j) const {
+        lean_assert(is_meta(m)); return assign(meta_id(m), l, j); }
     substitution assign(level const & m, level const & l) { lean_assert(is_meta(m)); return assign(meta_id(m), l); }
 
     /**

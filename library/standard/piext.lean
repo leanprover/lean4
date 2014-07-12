@@ -27,8 +27,8 @@ theorem hcongr1 {A : Type} {B B' : A → Type} {f : Π x, B x} {f' : Π x, B' x}
 
 theorem hcongr {A A' : Type} {B : A → Type} {B' : A' → Type} {f : Π x, B x} {f' : Π x, B' x} {a : A} {a' : A'}
                (Hff' : f == f') (Haa' : a == a') : f a == f' a'
-:= have H : ∀ (B B' : A → Type) (f : Π x, B x) (f' : Π x, B' x), f == f' → f a == f' a, from
+:= have H1 : ∀ (B B' : A → Type) (f : Π x, B x) (f' : Π x, B' x), f == f' → f a == f' a, from
      take B B' f f' e, hcongr1 a e,
-   @hsubst _ _ _ _ (fun (X : Type) (x : X),
-       ∀ (B : A → Type) (B' : X → Type) (f : Π x, B x) (f' : Π x, B' x), f == f' → f a == f' x)
-       Haa' H B B' f f' Hff'
+   have H2 : ∀ (B : A → Type) (B' : A' → Type) (f : Π x, B x) (f' : Π x, B' x), f == f' → f a == f' a', from
+     hsubst Haa' H1,
+   H2 B B' f f' Hff'

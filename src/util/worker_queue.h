@@ -93,20 +93,20 @@ public:
     std::vector<T> const & join() {
         lean_assert(!m_done);
         m_done = true;
-#ifndef LEAN_MULTI_THREAD
-        for (auto const & fn : m_todo) {
-            m_result.push_back(fn());
+        if (m_threads.empty()) {
+            for (auto const & fn : m_todo) {
+                m_result.push_back(fn());
+            }
+            m_todo.clear();
+        } else {
+            m_todo_cv.notify_all();
+            for (thread_ptr & t : m_threads)
+                t->join();
+            if (m_failed_thread >= 0)
+                m_thread_exceptions[m_failed_thread]->rethrow();
+            if (m_interrupted)
+                throw interrupted();
         }
-        m_todo.clear();
-#else
-        m_todo_cv.notify_all();
-        for (thread_ptr & t : m_threads)
-            t->join();
-        if (m_failed_thread >= 0)
-            m_thread_exceptions[m_failed_thread]->rethrow();
-        if (m_interrupted)
-            throw interrupted();
-#endif
         return m_result;
     }
 

@@ -73,6 +73,9 @@ add_test(trie ${CMAKE_CURRENT_BINARY_DIR}/trie)
 add_executable(lru_cache lru_cache.cpp)
 target_link_libraries(lru_cache ${EXTRA_LIBS})
 add_test(lru_cache ${CMAKE_CURRENT_BINARY_DIR}/lru_cache)
+add_executable(worker_queue worker_queue.cpp)
+target_link_libraries(worker_queue ${EXTRA_LIBS})
+add_test(worker_queue ${CMAKE_CURRENT_BINARY_DIR}/worker_queue)
 # thread.cpp used import_test.lua
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/import_test.lua
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/import_test.lua ${CMAKE_CURRENT_BINARY_DIR}/import_test.lua

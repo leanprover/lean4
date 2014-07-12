@@ -81,3 +81,24 @@ theorem cast_trans {A B C : Type} (Hab : A = B) (Hbc : B = C) (a : A) : cast Hbc
 := heq_to_eq (calc cast Hbc (cast Hab a)   == cast Hab a             : cast_heq Hbc (cast Hab a)
                                       ...  == a                      : cast_heq Hab a
                                       ...  == cast (trans Hab Hbc) a : hsymm (cast_heq (trans Hab Hbc) a))
+
+theorem pi_eq {A : Type} {B B' : A → Type} (H : B = B') : (Π x, B x) = (Π x, B' x)
+:= subst H (refl (Π x, B x))
+
+theorem cast_app' {A : Type} {B B' : A → Type} (H : B = B') (f : Π x, B x) (a : A) : cast (pi_eq H) f a == f a
+:= have H1 : ∀ (H : (Π x, B x) = (Π x, B x)), cast H f a == f a, from
+     assume H, eq_to_heq (congr1 (cast_eq H f) a),
+   have H2 : ∀ (H : (Π x, B x) = (Π x, B' x)), cast H f a == f a, from
+     subst H H1,
+   H2 (pi_eq H)
+
+theorem cast_pull {A : Type} {B B' : A → Type} (H : B = B') (f : Π x, B x) (a : A) :
+                  cast (pi_eq H) f a = cast (congr1 H a) (f a)
+:= heq_to_eq (calc cast (pi_eq H) f a == f a                     : cast_app' H f a
+                                ...   == cast (congr1 H a) (f a) : hsymm (cast_heq (congr1 H a) (f a)))
+
+theorem hcongr1' {A : Type} {B B' : A → Type} {f : Π x, B x} {f' : Π x, B' x} (a : A) (H1 : f == f') (H2 : B = B') : f a == f' a
+:= heq_elim H1 (λ (Ht : (Π x, B x) = (Π x, B' x)) (Hw : cast Ht f = f'),
+     calc f a == cast (pi_eq H2) f a  : hsymm (cast_app' H2 f a)
+          ... =  cast Ht f a          : refl (cast Ht f a)
+          ... =  f' a                 : congr1 Hw a)

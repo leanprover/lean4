@@ -785,7 +785,7 @@ public:
         } else {
             b = ensure_type(visit_expecting_type(b));
         }
-        b = abstract(b, l);
+        b = abstract_local(b, l);
         return update_binding(e, d, b);
     }
 
@@ -799,7 +799,7 @@ public:
         } else {
             b = visit(b);
         }
-        b = abstract(b, l);
+        b = abstract_local(b, l);
         return update_binding(e, d, b);
     }
 

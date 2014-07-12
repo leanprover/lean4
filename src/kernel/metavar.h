@@ -23,9 +23,9 @@ class substitution {
     jst_map   m_expr_jsts;
     jst_map   m_level_jsts;
 
-    std::pair<expr, justification> d_instantiate_metavars(expr const & e, name_set * unassigned_lvls, name_set * unassigned_exprs);
+    std::pair<expr, justification> d_instantiate_metavars(expr const & e);
     expr d_instantiate_metavars_wo_jst(expr const & e);
-    std::pair<level, justification> d_instantiate_metavars(level const & l, bool use_jst, bool updt, name_set * unassigned);
+    std::pair<level, justification> d_instantiate_metavars(level const & l, bool use_jst, bool updt);
     friend class instantiate_metavars_fn;
 
     justification get_expr_jst(name const & m) const { if (auto it = m_expr_jsts.find(m)) return *it; else return justification(); }
@@ -87,12 +87,8 @@ public:
 
     /**
         \brief Instantiate metavariables in \c e assigned in this substitution.
-
-        \remark If \c unassigned_exprs and \c unassigned_lvls are not nullptr, then this method
-        stores unassigned metavariables in them.
     */
-    std::pair<expr, justification> instantiate_metavars(expr const & e, name_set * unassigned_lvls = nullptr,
-                                                        name_set * unassigned_exprs = nullptr) const;
+    std::pair<expr, justification> instantiate_metavars(expr const & e) const;
 
     /**
        \brief Similar to the previous function, but it compress the substitution.
@@ -100,15 +96,10 @@ public:
        if s[m] = t, and t has asssigned metavariables, then s[m] <- instantiate_metavars(t, s).
        The updated substitution is returned.
     */
-    std::tuple<expr, justification, substitution> updt_instantiate_metavars(expr const & e, name_set * unassigned_lvls = nullptr,
-                                                                            name_set * unassigned_exprs = nullptr) const;
+    std::tuple<expr, justification, substitution> updt_instantiate_metavars(expr const & e) const;
 
-    /**
-        \brief Instantiate level metavariables in \c l.
-
-        \remark If \c unassigned is not nullptr, then store unassigned meta universe parameters in it.
-    */
-    std::pair<level, justification> instantiate_metavars(level const & l, name_set * unassigned = nullptr) const;
+    /** \brief Instantiate level metavariables in \c l. */
+    std::pair<level, justification> instantiate_metavars(level const & l) const;
 
     /**
        \brief Instantiate metavariables in \c e assigned in the substitution \c s,

@@ -143,36 +143,18 @@ static void tst4() {
     level l1 = mk_meta_univ("l1");
     level u  = mk_global_univ("u");
     substitution s;
-    name_set exprs;
-    name_set lvls;
     expr f  = Const("f");
     expr g  = Const("g");
     expr a  = Const("a");
     expr T1 = mk_sort(l1);
     expr T2 = mk_sort(u);
     expr t  = f(T1, T2, m1, m2);
-    lean_assert(s.instantiate_metavars(t, &lvls, &exprs).first == t);
-    lean_assert(exprs.contains("m1"));
-    lean_assert(exprs.contains("m2"));
-    lean_assert(!exprs.contains("m3"));
-    lean_assert(lvls.contains("l1"));
+    lean_assert(s.instantiate_metavars(t).first == t);
     s = s.assign(m1, a, justification());
     s = s.assign(m2, m3, justification());
-    lvls  = name_set();
-    exprs = name_set();
-    lean_assert(s.instantiate_metavars(t, &lvls, &exprs).first == f(T1, T2, a, m3));
-    lean_assert(!exprs.contains("m1"));
-    lean_assert(!exprs.contains("m2"));
-    lean_assert(exprs.contains("m3"));
-    lean_assert(lvls.contains("l1"));
+    lean_assert(s.instantiate_metavars(t).first == f(T1, T2, a, m3));
     s = s.assign(l1, level(), justification());
-    lvls  = name_set();
-    exprs = name_set();
-    lean_assert(s.instantiate_metavars(t, &lvls, &exprs).first == f(Bool, T2, a, m3));
-    lean_assert(!exprs.contains("m1"));
-    lean_assert(!exprs.contains("m2"));
-    lean_assert(exprs.contains("m3"));
-    lean_assert(!lvls.contains("l1"));
+    lean_assert(s.instantiate_metavars(t).first == f(Bool, T2, a, m3));
 }
 
 int main() {

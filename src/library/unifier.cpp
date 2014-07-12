@@ -760,7 +760,7 @@ struct unifier_fn {
         lean_assert(is_choice_cnstr(c));
         expr const &   m            = cnstr_expr(c);
         choice_fn const & fn        = cnstr_choice_fn(c);
-        auto m_type_jst             = m_subst.instantiate_metavars(m_tc->infer(m), nullptr, nullptr);
+        auto m_type_jst             = m_subst.instantiate_metavars(m_tc->infer(m));
         lazy_list<constraints> alts = fn(m, m_type_jst.first, m_subst, m_ngen.mk_child());
         return process_lazy_constraints(alts, mk_composite1(c.get_justification(), m_type_jst.second));
     }

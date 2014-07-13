@@ -42,6 +42,12 @@ theorem absurd_not_true (H : ¬ true) : false
 theorem not_false_trivial : ¬ false
 := assume H : false, H
 
+theorem not_implies_left {a b : Bool} (H : ¬ (a → b)) : ¬ ¬ a
+:= assume Hna : ¬ a, absurd (assume Ha : a, absurd_elim b Ha Hna) H
+
+theorem not_implies_right {a b : Bool} (H : ¬ (a → b)) : ¬ b
+:= assume Hb : b, absurd (assume Ha : a, Hb) H
+
 inductive and (a b : Bool) : Bool :=
 | and_intro : a → b → and a b
 

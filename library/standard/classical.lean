@@ -154,3 +154,8 @@ theorem not_forall_exists {A : Type} {P : A → Bool} (H : ¬ ∀ x, P x) : ∃ 
      have H2 : ∀ x, ¬ ¬ P x, from not_exists_forall H1,
      have H3 : ∀ x, P x, from take x, not_not_elim (H2 x),
      absurd H3 H)
+
+theorem peirce (a b : Bool) : ((a → b) → a) → a
+:= assume H, by_contradiction (λ Hna : ¬ a,
+     have Hnna : ¬ ¬ a, from not_implies_left (mt H Hna),
+     absurd (not_not_elim Hnna) Hna)

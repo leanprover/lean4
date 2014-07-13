@@ -252,13 +252,18 @@ class elaborator {
     };
 
     /** \brief Whenever the elaborator finds a placeholder '_' or introduces an implicit argument, it creates
-        a metavariable \c ?m. If the expected type of ?m is unknown (e.g., it is another metavariable),
-        or if it is a 'class', then we also create a delayed choice constraint (?m in fn).
-        The unifier only process delayed choice constraints when there are no other kind of constraint to be
-        processed. The function \c fn produces a stream of alternative solutions for ?m.
+        a metavariable \c ?m. It also creates a delayed choice constraint (?m in fn).
+
+        The function \c fn produces a stream of alternative solutions for ?m.
         In this case, \c fn will do the following:
-          1) if the elaborated type of ?m is a 'class' C, then the stream will contain all 'instances' of class C.
-          2) if the elaborated type of ?m is not a 'class', then fn produces a single empty solution.
+          1) if the elaborated type of ?m is a 'class' C, then the stream will start with
+                  a) all local instances of class C (if elaborator.local_instances == true)
+                  b) solutions produced by tactic_hints for class C
+          2) if the elaborated type of ?m is not a class, then the stream will only contain
+             the solutions produced by tactic_hints.
+
+        The unifier only process delayed choice constraints when there are no other kind of constraint to be
+        processed.
 
         This is a helper class for implementing this choice function.
     */
@@ -280,6 +285,30 @@ class elaborator {
             m_ctx(ctx), m_subst(s), m_jst(j) {
         }
 
+        optional<constraints> try_instance(name const & inst) {
+            auto decl   = m_elab.m_env.find(inst);
+            if (!decl)
+                return optional<constraints>();
+            expr type   = decl->get_type();
+            // create the term pre (inst _ ... _)
+            expr pre    = copy_tag(m_mvar, mk_explicit(copy_tag(m_mvar, mk_constant(inst))));
+            while (is_pi(type)) {
+                type = binding_body(type);
+                pre  = copy_tag(m_mvar, ::lean::mk_app(pre, copy_tag(m_mvar, mk_expr_placeholder())));
+            }
+            try {
+                scope s(m_elab, m_ctx, m_subst);
+                expr r = m_elab.visit(pre); // use elaborator to create metavariables, levels, etc.
+                justification j = m_elab.m_accumulated;
+                m_elab.consume_tc_cnstrs();
+                list<constraint> cs = to_list(m_elab.m_constraints.begin(), m_elab.m_constraints.end());
+                cs = cons(mk_eq_cnstr(m_mvar, r, mk_composite1(m_jst, j)), cs);
+                return optional<constraints>(cs);
+            } catch (exception &) {
+                return optional<constraints>();
+            }
+        }
+
         virtual optional<constraints> next() {
             while (!empty(m_local_instances)) {
                 expr inst         = head(m_local_instances);
@@ -290,25 +319,8 @@ class elaborator {
             while (!empty(m_instances)) {
                 name inst   = head(m_instances);
                 m_instances = tail(m_instances);
-                auto decl   = m_elab.m_env.find(inst);
-                if (!decl)
-                    continue;
-                expr type   = decl->get_type();
-                // create the term pre (inst _ ... _)
-                expr pre    = copy_tag(m_mvar, mk_explicit(copy_tag(m_mvar, mk_constant(inst))));
-                while (is_pi(type)) {
-                    type = binding_body(type);
-                    pre  = copy_tag(m_mvar, ::lean::mk_app(pre, copy_tag(m_mvar, mk_expr_placeholder())));
-                }
-                try {
-                    scope s(m_elab, m_ctx, m_subst);
-                    expr r = m_elab.visit(pre); // use elaborator to create metavariables, levels, etc.
-                    justification j = m_elab.m_accumulated;
-                    m_elab.consume_tc_cnstrs();
-                    list<constraint> cs = to_list(m_elab.m_constraints.begin(), m_elab.m_constraints.end());
-                    cs = cons(mk_eq_cnstr(m_mvar, r, mk_composite1(m_jst, j)), cs);
-                    return optional<constraints>(cs);
-                } catch (exception &) {}
+                if (auto cs = try_instance(inst))
+                    return cs;
             }
             return optional<constraints>();
         }

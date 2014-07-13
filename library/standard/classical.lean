@@ -143,3 +143,14 @@ theorem a_eq_false (a : Bool) : (a = false) = (¬ a)
 := boolext
      (assume H, eqf_elim H)
      (assume H, eqf_intro H)
+
+theorem not_exists_forall {A : Type} {P : A → Bool} (H : ¬ ∃ x, P x) : ∀ x, ¬ P x
+:= take x, or_elim (em (P x))
+     (assume Hp : P x,   absurd_elim (¬ P x) (exists_intro x Hp) H)
+     (assume Hn : ¬ P x, Hn)
+
+theorem not_forall_exists {A : Type} {P : A → Bool} (H : ¬ ∀ x, P x) : ∃ x, ¬ P x
+:= by_contradiction (assume H1 : ¬ ∃ x, ¬ P x,
+     have H2 : ∀ x, ¬ ¬ P x, from not_exists_forall H1,
+     have H3 : ∀ x, P x, from take x, not_not_elim (H2 x),
+     absurd H3 H)

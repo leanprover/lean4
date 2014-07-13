@@ -196,6 +196,16 @@ notation `∃` binders `,` r:(scoped P, Exists P) := r
 theorem exists_elim {A : Type} {P : A → Bool} {B : Bool} (H1 : ∃ x : A, P x) (H2 : ∀ (a : A) (H : P a), B) : B
 := Exists_rec H2 H1
 
+theorem exists_not_forall {A : Type} {P : A → Bool} (H : ∃ x, P x) : ¬ ∀ x, ¬ P x
+:= assume H1 : ∀ x, ¬ P x,
+   obtain (w : A) (Hw : P w), from H,
+   absurd Hw (H1 w)
+
+theorem forall_not_exists {A : Type} {P : A → Bool} (H2 : ∀ x, P x) : ¬ ∃ x, ¬ P x
+:= assume H1 : ∃ x, ¬ P x,
+   obtain (w : A) (Hw : ¬ P w), from H1,
+   absurd (H2 w) Hw
+
 definition exists_unique {A : Type} (p : A → Bool) := ∃ x, p x ∧ ∀ y, y ≠ x → ¬ p y
 
 notation `∃!` binders `,` r:(scoped P, exists_unique P) := r

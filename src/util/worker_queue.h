@@ -54,7 +54,8 @@ class worker_queue {
     }
 
 public:
-    worker_queue(unsigned num_threads):m_todo_qhead(0), m_done(false), m_failed_thread(-1), m_interrupted(false) {
+    template<typename F>
+    worker_queue(unsigned num_threads, F const & f):m_todo_qhead(0), m_done(false), m_failed_thread(-1), m_interrupted(false) {
 #ifndef LEAN_MULTI_THREAD
         num_threads = 0;
 #endif
@@ -62,6 +63,7 @@ public:
             m_thread_exceptions.push_back(exception_ptr(nullptr));
         for (unsigned i = 0; i < num_threads; i++) {
             m_threads.push_back(std::unique_ptr<interruptible_thread>(new interruptible_thread([=]() {
+                            f();
                             try {
                                 while (auto t = next_task()) {
                                     add_result((*t)());
@@ -78,7 +80,7 @@ public:
                         })));
         }
     }
-
+    worker_queue(unsigned num_threads):worker_queue(num_threads, [](){ return; }) {}
     ~worker_queue() { if (!m_done) join(); }
 
     void add(std::function<T()> const & fn) {

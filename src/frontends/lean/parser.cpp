@@ -695,21 +695,22 @@ expr parser::parse_notation(parse_table t, expr * left) {
                 next();
                 r_args.push_back(parse_expr(a.rbp()));
             }
-            expr r = instantiate_rev(a.get_initial(), args.size(), args.data());
+            expr r   = instantiate_rev(copy_with_new_pos(a.get_initial(), p), args.size(), args.data());
+            expr rec = copy_with_new_pos(a.get_rec(), p);
             if (a.is_fold_right()) {
                 unsigned i = r_args.size();
                 while (i > 0) {
                     --i;
                     args.push_back(r_args[i]);
                     args.push_back(r);
-                    r = instantiate_rev(a.get_rec(), args.size(), args.data());
+                    r = instantiate_rev(rec, args.size(), args.data());
                     args.pop_back(); args.pop_back();
                 }
             } else {
                 for (unsigned i = 0; i < r_args.size(); i++) {
                     args.push_back(r_args[i]);
                     args.push_back(r);
-                    r = instantiate_rev(a.get_rec(), args.size(), args.data());
+                    r = instantiate_rev(rec, args.size(), args.data());
                     args.pop_back(); args.pop_back();
                 }
             }
@@ -725,10 +726,11 @@ expr parser::parse_notation(parse_table t, expr * left) {
             lenv = parse_binders(ps);
             break;
         case notation::action_kind::ScopedExpr: {
-            expr r = parse_scoped_expr(ps, lenv, a.rbp());
+            expr r   = parse_scoped_expr(ps, lenv, a.rbp());
             if (is_var(a.get_rec(), 0)) {
                 r = abstract(ps, r, a.use_lambda_abstraction(), binder_pos);
             } else {
+                expr rec = copy_with_new_pos(a.get_rec(), p);
                 unsigned i = ps.size();
                 while (i > 0) {
                     --i;
@@ -739,7 +741,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
                         r = Pi(l, r);
                     r = save_pos(r, binder_pos);
                     args.push_back(r);
-                    r = instantiate_rev(a.get_rec(), args.size(), args.data());
+                    r = instantiate_rev(rec, args.size(), args.data());
                     args.pop_back();
                 }
             }

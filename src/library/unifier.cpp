@@ -482,7 +482,8 @@ struct unifier_fn {
             expr lhs = lhs_jst.first;
             expr rhs = rhs_jst.first;
             if (lhs != cnstr_lhs_expr(c) || rhs != cnstr_rhs_expr(c)) {
-                return mk_pair(mk_eq_cnstr(lhs, rhs, mk_composite1(mk_composite1(c.get_justification(), lhs_jst.second), rhs_jst.second)),
+                return mk_pair(mk_eq_cnstr(lhs, rhs,
+                                           mk_composite1(mk_composite1(c.get_justification(), lhs_jst.second), rhs_jst.second)),
                                true);
             }
         } else if (is_level_eq_cnstr(c)) {
@@ -1096,7 +1097,6 @@ struct unifier_fn {
             break;
         case expr_kind::App: {
             expr const & f = get_app_fn(rhs);
-            lean_assert(is_constant(f) || is_local(f));
             if (is_local(f)) {
                 unsigned i = margs.size();
                 while (i > 0) {
@@ -1110,7 +1110,9 @@ struct unifier_fn {
                 mk_simple_projections(m, margs, rhs, j, alts);
                 mk_flex_rigid_app_cnstrs(m, margs, f, rhs, j, alts);
             } else {
-                lean_unreachable(); // LCOV_EXCL_LINE
+                expr new_rhs = m_tc->whnf(rhs);
+                lean_assert(new_rhs != rhs);
+                return is_def_eq(lhs, new_rhs, j);
             }
             break;
         }}
@@ -1131,10 +1133,12 @@ struct unifier_fn {
     /** \brief Process a flex rigid constraint */
     bool process_flex_rigid(constraint const & c) {
         lean_assert(is_flex_rigid(c));
-        if (is_meta(cnstr_lhs_expr(c)))
-            return process_flex_rigid(cnstr_lhs_expr(c), cnstr_rhs_expr(c), c.get_justification());
+        expr lhs = cnstr_lhs_expr(c);
+        expr rhs = cnstr_rhs_expr(c);
+        if (is_meta(lhs))
+            return process_flex_rigid(lhs, rhs, c.get_justification());
         else
-            return process_flex_rigid(cnstr_rhs_expr(c), cnstr_lhs_expr(c), c.get_justification());
+            return process_flex_rigid(rhs, lhs, c.get_justification());
     }
 
     bool process_flex_flex(constraint const & c) {

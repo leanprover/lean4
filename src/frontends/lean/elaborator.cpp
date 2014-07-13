@@ -295,10 +295,10 @@ class elaborator {
                     continue;
                 expr type   = decl->get_type();
                 // create the term pre (inst _ ... _)
-                expr pre    = copy_tag(m_mvar, mk_explicit(mk_constant(inst)));
+                expr pre    = copy_tag(m_mvar, mk_explicit(copy_tag(m_mvar, mk_constant(inst))));
                 while (is_pi(type)) {
                     type = binding_body(type);
-                    pre  = copy_tag(m_mvar, ::lean::mk_app(pre, mk_expr_placeholder()));
+                    pre  = copy_tag(m_mvar, ::lean::mk_app(pre, copy_tag(m_mvar, mk_expr_placeholder())));
                 }
                 try {
                     scope s(m_elab, m_ctx, m_subst);

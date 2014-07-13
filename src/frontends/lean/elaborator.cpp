@@ -267,7 +267,7 @@ class elaborator {
 
         This is a helper class for implementing this choice function.
     */
-    struct class_elaborator : public choice_elaborator {
+    struct placeholder_elaborator : public choice_elaborator {
         elaborator &  m_elab;
         expr          m_mvar;
         expr          m_mvar_type; // elaborated type of the metavariable
@@ -277,9 +277,9 @@ class elaborator {
         substitution  m_subst;
         justification m_jst;
 
-        class_elaborator(elaborator & elab, expr const & mvar, expr const & mvar_type,
-                         list<expr> const & local_insts, list<name> const & instances, bool has_tactic_hints,
-                         context const & ctx, substitution const & s, justification const & j):
+        placeholder_elaborator(elaborator & elab, expr const & mvar, expr const & mvar_type,
+                               list<expr> const & local_insts, list<name> const & instances, bool has_tactic_hints,
+                               context const & ctx, substitution const & s, justification const & j):
             choice_elaborator(has_tactic_hints),
             m_elab(elab), m_mvar(mvar), m_mvar_type(mvar_type), m_local_instances(local_insts), m_instances(instances),
             m_ctx(ctx), m_subst(s), m_jst(j) {
@@ -523,14 +523,30 @@ public:
             return is_class(type);
     }
 
+    /** \brief Return a 'failed to synthesize placholder' justification for the given
+        metavariable application \c m of the form (?m l_1 ... l_k) */
+    justification mk_failed_to_synthesize_jst(expr const & m) {
+        environment env = m_env;
+        return mk_justification(m, [=](formatter const & fmt, substitution const & subst) {
+                buffer<expr> locals;
+                expr mvar = get_app_args(m, locals);
+                mvar = update_mlocal(mvar, subst.instantiate(mlocal_type(mvar)));
+                for (auto & local : locals) local = subst.instantiate(local);
+                expr new_m    = ::lean::mk_app(mvar, locals);
+                expr new_type = type_checker(env).infer(new_m);
+                proof_state ps(goals(goal(new_m, new_type)), substitution(), name_generator("dontcare"));
+                return format({format("failed to synthesize placeholder"), line(), ps.pp(fmt)});
+            });
+    }
+
     /** \brief Create a metavariable, but also add a class-constraint if type is a class
         or a metavariable.
     */
     expr mk_placeholder_meta(optional<expr> const & type, tag g) {
         expr m = mk_meta(type, g);
         if (!type || may_be_class(*type)) {
-            context ctx = m_ctx;
-            justification j = mk_justification("failed to apply class instances", some_expr(m));
+            context ctx     = m_ctx;
+            justification j = mk_failed_to_synthesize_jst(m);
             auto choice_fn = [=](expr const & mvar, expr const & mvar_type, substitution const & s, name_generator const & /* ngen */) {
                 if (!is_class(mvar_type))
                     return lazy_list<constraints>(constraints());
@@ -553,8 +569,8 @@ public:
                     return lazy_list<constraints>(constraints());
                 } else {
                     bool has_tactic_hints = !empty(get_tactic_hints(m_env, const_name(get_app_fn(mvar_type))));
-                    return choose(std::make_shared<class_elaborator>(*this, mvar, mvar_type, local_insts, insts, has_tactic_hints,
-                                                                     ctx, s, j));
+                    return choose(std::make_shared<placeholder_elaborator>(*this, mvar, mvar_type, local_insts, insts, has_tactic_hints,
+                                                                           ctx, s, j));
                 }
             };
             add_cnstr(mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), j));

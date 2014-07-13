@@ -40,7 +40,7 @@ Author: Leonardo de Moura
 namespace lean {
 // ==========================================
 // elaborator configuration options
-static name g_elaborator_local_instances{"lean", "elaborator", "local_instances"};
+static name g_elaborator_local_instances{"elaborator", "local_instances"};
 RegisterBoolOption(g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES, "(lean elaborator) use local declarates as class instances");
 bool get_elaborator_local_instances(options const & opts) {
     return opts.get_bool(g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES);

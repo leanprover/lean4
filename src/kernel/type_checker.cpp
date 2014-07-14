@@ -253,14 +253,26 @@ expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
     return r;
 }
 
-expr type_checker::infer_pi(expr const & e, bool infer_only) {
-    expr t1 = ensure_sort_core(infer_type_core(binding_domain(e), infer_only), binding_domain(e));
-    auto b  = open_binding_body(e);
-    expr t2 = ensure_sort_core(infer_type_core(b.first, infer_only), binding_body(e));
-    if (m_env.impredicative())
-        return mk_sort(mk_imax(sort_level(t1), sort_level(t2)));
-    else
-        return mk_sort(mk_max(sort_level(t1), sort_level(t2)));
+expr type_checker::infer_pi(expr const & _e, bool infer_only) {
+    buffer<expr>  ls;
+    buffer<level> us;
+    expr e = _e;
+    while (is_pi(e)) {
+        expr d  = instantiate_rev(binding_domain(e), ls.size(), ls.data());
+        expr t1 = ensure_sort_core(infer_type_core(d, infer_only), d);
+        us.push_back(sort_level(t1));
+        expr l  = mk_local(m_gen.next(), binding_name(e), d, binding_info(e));
+        ls.push_back(l);
+        e = binding_body(e);
+    }
+    e = instantiate_rev(e, ls.size(), ls.data());
+    level r = sort_level(ensure_sort_core(infer_type_core(e, infer_only), e));
+    unsigned i = ls.size();
+    while (i > 0) {
+        --i;
+        r = m_env.impredicative() ? mk_imax(us[i], r) : mk_max(us[i], r);
+    }
+    return mk_sort(r);
 }
 
 expr type_checker::infer_app(expr const & e, bool infer_only) {

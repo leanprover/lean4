@@ -258,9 +258,9 @@ public:
     struct no_undef_id_error_scope { parser & m_p; bool m_old; no_undef_id_error_scope(parser &); ~no_undef_id_error_scope(); };
 
     /** \brief Elaborate \c e, and tolerate metavariables in the result. */
-    std::tuple<expr, level_param_names> elaborate_relaxed(expr const & e);
+    std::tuple<expr, level_param_names> elaborate_relaxed(expr const & e, list<expr> const & ctx = list<expr>());
     /** \brief Elaborate \c e, and ensure it is a type. */
-    std::tuple<expr, level_param_names> elaborate_type(expr const & e);
+    std::tuple<expr, level_param_names> elaborate_type(expr const & e, list<expr> const & ctx = list<expr>());
     /** \brief Elaborate \c e in the given environment. */
     std::tuple<expr, level_param_names> elaborate_at(environment const & env, expr const & e);
     /** \brief Elaborate \c e (making sure the result does not have metavariables). */

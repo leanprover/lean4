@@ -376,13 +376,14 @@ class elaborator {
     }
 
 public:
-    elaborator(environment const & env, local_decls<level> const & lls, io_state const & ios, name_generator const & ngen,
+    elaborator(environment const & env, local_decls<level> const & lls, list<expr> const & ctx, io_state const & ios, name_generator const & ngen,
                pos_info_provider * pp, bool check_unassigned):
         m_env(env), m_lls(lls), m_ios(ios),
         m_ngen(ngen), m_tc(mk_type_checker_with_hints(env, m_ngen.mk_child())),
         m_pos_provider(pp) {
         m_check_unassigned = check_unassigned;
         m_use_local_instances = get_elaborator_local_instances(ios.get_options());
+        set_ctx(ctx);
     }
 
     expr mk_local(name const & n, expr const & t, binder_info const & bi) {
@@ -1147,6 +1148,7 @@ public:
     }
 
     std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n) {
+        lean_assert(!has_local(t)); lean_assert(!has_local(v));
         expr r_t      = ensure_type(visit(t));
         expr r_v      = visit(v);
         expr r_v_type = infer_type(r_v);
@@ -1169,13 +1171,14 @@ public:
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
-std::tuple<expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, io_state const & ios,
-                                              expr const & e, pos_info_provider * pp, bool check_unassigned, bool ensure_type) {
-    return elaborator(env, lls, ios, name_generator(g_tmp_prefix), pp, check_unassigned)(e, ensure_type);
+std::tuple<expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, list<expr> const & ctx,
+                                              io_state const & ios, expr const & e, pos_info_provider * pp, bool check_unassigned,
+                                              bool ensure_type) {
+    return elaborator(env, lls, ctx, ios, name_generator(g_tmp_prefix), pp, check_unassigned)(e, ensure_type);
 }
 
 std::tuple<expr, expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, io_state const & ios,
                                                     name const & n, expr const & t, expr const & v, pos_info_provider * pp) {
-    return elaborator(env, lls, ios, name_generator(g_tmp_prefix), pp, true)(t, v, n);
+    return elaborator(env, lls, list<expr>(), ios, name_generator(g_tmp_prefix), pp, true)(t, v, n);
 }
 }

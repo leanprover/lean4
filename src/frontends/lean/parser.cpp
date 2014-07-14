@@ -474,19 +474,19 @@ level parser::parse_level(unsigned rbp) {
     return left;
 }
 
-std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e) {
+std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e, list<expr> const & ctx) {
     parser_pos_provider pp = get_pos_provider();
-    return ::lean::elaborate(m_env, m_local_level_decls, m_ios, e, &pp, false);
+    return ::lean::elaborate(m_env, m_local_level_decls, ctx, m_ios, e, &pp, false);
 }
 
-std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e) {
+std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<expr> const & ctx) {
     parser_pos_provider pp = get_pos_provider();
-    return ::lean::elaborate(m_env, m_local_level_decls, m_ios, e, &pp, true, true);
+    return ::lean::elaborate(m_env, m_local_level_decls, ctx, m_ios, e, &pp, true, true);
 }
 
 std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env, expr const & e) {
     parser_pos_provider pp = get_pos_provider();
-    return ::lean::elaborate(env, m_local_level_decls, m_ios, e, &pp);
+    return ::lean::elaborate(env, m_local_level_decls, list<expr>(), m_ios, e, &pp);
 }
 
 std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name const & n, expr const & t, expr const & v) {

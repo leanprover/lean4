@@ -138,7 +138,8 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
     level_param_names new_ls;
-    std::tie(type, new_ls) = p.elaborate_type(type);
+    list<expr> ctx = locals_to_context(type, p);
+    std::tie(type, new_ls) = p.elaborate_type(type, ctx);
     update_section_local_levels(p, new_ls);
     return declare_var(p, p.env(), n, append(ls, new_ls), type, is_axiom, bi, pos);
 }
@@ -317,7 +318,8 @@ static environment variables_cmd(parser & p) {
     p.parse_close_binder_info(bi);
     level_param_names ls = to_level_param_names(collect_univ_params(type));
     level_param_names new_ls;
-    std::tie(type, new_ls) = p.elaborate_type(type);
+    list<expr> ctx = locals_to_context(type, p);
+    std::tie(type, new_ls) = p.elaborate_type(type, ctx);
     update_section_local_levels(p, new_ls);
     ls = append(ls, new_ls);
     environment env = p.env();

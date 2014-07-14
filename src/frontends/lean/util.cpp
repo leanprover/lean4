@@ -59,18 +59,12 @@ void collect_section_locals(expr const & type, expr const & value, parser const 
     sort_section_params(ls, p, section_ps);
 }
 
-expr abstract_locals(expr const & e, parser const & p, buffer<expr> & locals) {
+list<expr> locals_to_context(expr const & e, parser const & p) {
     expr_struct_set ls;
     collect_locals(e, ls);
+    buffer<expr> locals;
     sort_section_params(ls, p, locals);
-    return Fun(locals, e);
-}
-
-expr instantiate_locals(expr const & b, buffer<expr> & locals) {
-    expr _b = b;
-    unsigned sz = locals.size();
-    for (unsigned i = 0; i < sz; i++)
-        _b = binding_body(_b);
-    return instantiate_rev(_b, locals.size(), locals.data());
+    std::reverse(locals.begin(), locals.end());
+    return to_list(locals.begin(), locals.end());
 }
 }

@@ -355,7 +355,7 @@ class elaborator {
                     m_tactic_result    = tac(m_elab.m_env, m_elab.m_ios, ps);
                     if (auto cs = get_next_tactic_result())
                         return cs;
-                } catch (...) {}
+                } catch (exception &) {}
             }
             return optional<constraints>();
         }

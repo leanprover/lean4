@@ -20,4 +20,8 @@ void collect_section_locals(expr const & type, expr const & value, parser const 
 /** \brief Copy the local parameters to \c section_ps, then sort \c section_ps (using the order in which they were declared). */
 void sort_section_params(expr_struct_set const & locals, parser const & p, buffer<expr> & section_ps);
 list<expr> locals_to_context(expr const & e, parser const & p);
+/** \brief Fun(locals, e), but also propagate \c e position to result */
+expr Fun(buffer<expr> const & locals, expr const & e, parser & p);
+/** \brief Pi(locals, e), but also propagate \c e position to result */
+expr Pi(buffer<expr> const & locals, expr const & e, parser & p);
 }

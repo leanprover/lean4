@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
+#include "kernel/abstract.h"
 #include "kernel/free_vars.h"
 #include "library/scoped_ext.h"
 #include "library/locals.h"
@@ -150,7 +151,7 @@ struct inductive_cmd_fn {
             m_p.parse_binders(ps);
             m_p.check_token_next(g_colon, "invalid inductive declaration, ':' expected");
             type = m_p.parse_scoped_expr(ps);
-            type = m_p.pi_abstract(ps, type);
+            type = Pi(ps, type, m_p);
         } else {
             m_p.next();
             type = m_p.parse_expr();
@@ -263,7 +264,7 @@ struct inductive_cmd_fn {
             }
             m_p.check_token_next(g_colon, "invalid introduction rule, ':' expected");
             expr intro_type = m_p.parse_scoped_expr(params, m_env);
-            intro_type = m_p.pi_abstract(params, intro_type);
+            intro_type = Pi(params, intro_type, m_p);
             intro_type = infer_implicit(intro_type, params.size(), strict);
             intros.push_back(intro_rule(intro_name, intro_type));
         }
@@ -365,7 +366,7 @@ struct inductive_cmd_fn {
         sort_section_params(section_locals, m_p, section_params);
         // First, add section_params to inductive types type.
         for (inductive_decl & d : decls) {
-            d = update_inductive_decl(d, m_p.pi_abstract(section_params, inductive_decl_type(d)));
+            d = update_inductive_decl(d, Pi(section_params, inductive_decl_type(d), m_p));
         }
         // Add section_params to introduction rules type, and also "fix"
         // occurrences of inductive types.
@@ -374,7 +375,7 @@ struct inductive_cmd_fn {
             for (auto const & ir : inductive_decl_intros(d)) {
                 expr type = intro_rule_type(ir);
                 type = fix_inductive_occs(type, decls, section_params);
-                type = m_p.pi_abstract(section_params, type);
+                type = Pi(section_params, type, m_p);
                 bool strict = m_relaxed_implicit_infer.contains(intro_rule_name(ir));
                 type = infer_implicit(type, section_params.size(), strict);
                 new_irs.push_back(update_intro_rule(ir, type));

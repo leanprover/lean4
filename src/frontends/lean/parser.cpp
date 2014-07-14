@@ -729,7 +729,11 @@ expr parser::parse_notation(parse_table t, expr * left) {
         case notation::action_kind::ScopedExpr: {
             expr r   = parse_scoped_expr(ps, lenv, a.rbp());
             if (is_var(a.get_rec(), 0)) {
-                r = abstract(ps, r, a.use_lambda_abstraction(), binder_pos);
+                if (a.use_lambda_abstraction())
+                    r = Fun(ps, r);
+                else
+                    r = Pi(ps, r);
+                r = rec_save_pos(r, binder_pos);
             } else {
                 expr rec = copy_with_new_pos(a.get_rec(), p);
                 unsigned i = ps.size();
@@ -940,11 +944,6 @@ expr parser::parse_scoped_expr(unsigned num_ps, expr const * ps, local_environme
     for (unsigned i = 0; i < num_ps; i++)
         add_local(ps[i]);
     return parse_expr(rbp);
-}
-
-expr parser::abstract(unsigned num_ps, expr const * ps, expr const & e, bool lambda, pos_info const & p) {
-    expr r = lambda ? Fun(num_ps, ps, e) : Pi(num_ps, ps, e);
-    return rec_save_pos(r, p);
 }
 
 void parser::parse_command() {

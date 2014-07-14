@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "util/sstream.h"
 #include "kernel/type_checker.h"
+#include "kernel/abstract.h"
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
 #include "library/private.h"
@@ -124,7 +125,7 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
         auto lenv = p.parse_binders(ps);
         p.check_token_next(g_colon, "invalid declaration, ':' expected");
         type = p.parse_scoped_expr(ps, lenv);
-        type = p.pi_abstract(ps, type);
+        type = Pi(ps, type, p);
     } else {
         p.next();
         type = p.parse_expr();
@@ -230,9 +231,9 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
             buffer<expr> ps;
             optional<local_environment> lenv;
             lenv = p.parse_binders(ps);
+            auto pos = p.pos();
             if (p.curr_is_token(g_colon)) {
                 p.next();
-                auto pos = p.pos();
                 type = p.parse_scoped_expr(ps, *lenv);
                 if (is_theorem && !p.curr_is_token(g_assign)) {
                     value = p.save_pos(mk_expr_placeholder(), pos);
@@ -245,8 +246,8 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
                 p.check_token_next(g_assign, "invalid declaration, ':=' expected");
                 value = p.parse_scoped_expr(ps, *lenv);
             }
-            type = p.pi_abstract(ps, type);
-            value = p.lambda_abstract(ps, value);
+            type  = Pi(ps, type, p);
+            value = Fun(ps, value, p);
         }
         update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
@@ -254,14 +255,12 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     if (in_section(env)) {
         buffer<expr> section_ps;
         collect_section_locals(type, value, p, section_ps);
-        type = p.pi_abstract(section_ps, type);
-        value = p.lambda_abstract(section_ps, value);
+        type = Pi(section_ps, type, p);
+        value = Fun(section_ps, value, p);
         levels section_ls = collect_section_levels(ls, p);
         expr ref = mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_ps);
         p.add_local_expr(n, ref);
     }
-    if (real_n != n)
-        env = add_decl_alias(env, n, mk_constant(real_n));
     level_param_names new_ls;
     if (is_theorem) {
         if (p.num_threads() > 1) {
@@ -285,6 +284,8 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value);
         env = module::add(env, check(env, mk_definition(env, real_n, append(ls, new_ls), type, value, modifiers.m_is_opaque)));
     }
+    if (real_n != n)
+        env = add_decl_alias(env, n, mk_constant(real_n));
     if (modifiers.m_is_instance)
         env = add_instance(env, real_n);
     if (modifiers.m_is_coercion)

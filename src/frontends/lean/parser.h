@@ -231,12 +231,6 @@ public:
         return parse_scoped_expr(num_params, ps, local_environment(m_env), rbp);
     }
     expr parse_scoped_expr(buffer<expr> & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
-    expr abstract(unsigned num_params, expr const * ps, expr const & e, bool lambda, pos_info const & p);
-    expr abstract(buffer<expr> const & ps, expr const & e, bool lambda, pos_info const & p) { return abstract(ps.size(), ps.data(), e, lambda, p); }
-    expr lambda_abstract(buffer<expr> const & ps, expr const & e, pos_info const & p) { return abstract(ps, e, true, p); }
-    expr pi_abstract(buffer<expr> const & ps, expr const & e, pos_info const & p) { return abstract(ps, e, false, p); }
-    expr lambda_abstract(buffer<expr> const & ps, expr const & e) { return lambda_abstract(ps, e, pos_of(e)); }
-    expr pi_abstract(buffer<expr> const & ps, expr const & e) { return pi_abstract(ps, e, pos_of(e)); }
 
     struct local_scope { parser & m_p; environment m_env; local_scope(parser & p); ~local_scope(); };
     void add_local_level(name const & n, level const & l);

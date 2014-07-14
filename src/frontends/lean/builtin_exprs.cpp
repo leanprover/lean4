@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/calc.h"
 #include "frontends/lean/proof_qed_ext.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/util.h"
 
 namespace lean {
 namespace notation {
@@ -109,8 +110,8 @@ static expr parse_let(parser & p, pos_info const & pos) {
             p.check_token_next(g_assign, "invalid let declaration, ':=' expected");
             value = p.parse_scoped_expr(ps, lenv);
             if (is_opaque)
-                type  = p.pi_abstract(ps, type);
-            value = p.lambda_abstract(ps, value);
+                type  = Pi(ps, type, p);
+            value = Fun(ps, value, p);
         }
         if (is_opaque) {
             expr l = p.save_pos(mk_local(id, type), pos);
@@ -356,7 +357,7 @@ static expr parse_including_expr(parser & p, unsigned, expr const *, pos_info co
         p.add_local(new_l);
         new_locals.push_back(new_l);
     }
-    expr r = p.rec_save_pos(Fun(new_locals, p.parse_expr()), pos);
+    expr r = Fun(new_locals, p.parse_expr(), p);
     r = p.rec_save_pos(mk_app(r, locals), pos);
     return r;
 }

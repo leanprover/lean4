@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <utility>
 #include <vector>
+#include "kernel/abstract.h"
 #include "frontends/lean/parser_bindings.h"
 
 namespace lean {
@@ -96,9 +97,9 @@ static int lambda_abstract(lua_State * L) {
     expr const & e = to_expr(L, 2);
     expr r;
     if (nargs == 2)
-        r = gparser.abstract(s->second.size(), s->second.data(), e, true, gparser.pos_of(e));
+        r = gparser.rec_save_pos(Fun(s->second.size(), s->second.data(), e), gparser.pos_of(e));
     else
-        r = gparser.abstract(s->second.size(), s->second.data(), e, true, pos_info(lua_tointeger(L, 3), lua_tointeger(L, 4)));
+        r = gparser.rec_save_pos(Fun(s->second.size(), s->second.data(), e), pos_info(lua_tointeger(L, 3), lua_tointeger(L, 4)));
     return push_expr(L, r);
 }
 static int next(lua_State * L) { gparser.next(); return 0; }

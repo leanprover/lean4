@@ -350,10 +350,9 @@ static environment variables_cmd(parser & p) {
     ls = append(ls, new_ls);
     environment env = p.env();
     for (auto id : ids)
-        env = declare_var(p, env, id, ls, type, true, bi, pos);
+        env = declare_var(p, env, id, ls, type, false, bi, pos);
     return env;
 }
-
 
 void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("universe",     "declare a global universe level", universe_cmd));

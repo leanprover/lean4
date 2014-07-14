@@ -19,4 +19,8 @@ levels collect_section_levels(level_param_names const & ls, parser & p);
 void collect_section_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & section_ps);
 /** \brief Copy the local parameters to \c section_ps, then sort \c section_ps (using the order in which they were declared). */
 void sort_section_params(expr_struct_set const & locals, parser const & p, buffer<expr> & section_ps);
+/** \brief collect all locals in \c e and store and locals, and return Fun(locals, e) */
+expr abstract_locals(expr const & e, parser const & p, buffer<expr> & locals);
+/** \brief 'inverse' of \c abstract_locals, given a binding \c b instantiate it using locals */
+expr instantiate_locals(expr const & b, buffer<expr> & locals);
 }

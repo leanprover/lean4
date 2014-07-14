@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "util/sstream.h"
+#include "kernel/abstract.h"
+#include "kernel/instantiate.h"
 #include "library/scoped_ext.h"
 #include "library/locals.h"
 #include "frontends/lean/parser.h"
@@ -55,5 +57,20 @@ void collect_section_locals(expr const & type, expr const & value, parser const 
     collect_locals(type, ls);
     collect_locals(value, ls);
     sort_section_params(ls, p, section_ps);
+}
+
+expr abstract_locals(expr const & e, parser const & p, buffer<expr> & locals) {
+    expr_struct_set ls;
+    collect_locals(e, ls);
+    sort_section_params(ls, p, locals);
+    return Fun(locals, e);
+}
+
+expr instantiate_locals(expr const & b, buffer<expr> & locals) {
+    expr _b = b;
+    unsigned sz = locals.size();
+    for (unsigned i = 0; i < sz; i++)
+        _b = binding_body(_b);
+    return instantiate_rev(_b, locals.size(), locals.data());
 }
 }

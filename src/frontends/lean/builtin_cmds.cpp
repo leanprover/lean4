@@ -82,24 +82,15 @@ environment end_scoped_cmd(parser & p) {
 
 environment check_cmd(parser & p) {
     expr e   = p.parse_expr();
-    buffer<expr> section_ps;
-    expr_struct_set locals;
-    collect_locals(e, locals);
-    sort_section_params(locals, p, section_ps);
-    e = p.lambda_abstract(section_ps, e);
+    buffer<expr> locals;
+    e = abstract_locals(e, p, locals);
     level_param_names ls = to_level_param_names(collect_univ_params(e));
     level_param_names new_ls;
     std::tie(e, new_ls) = p.elaborate_relaxed(e);
     auto tc = mk_type_checker_with_hints(p.env(), p.mk_ngen());
     expr type = tc->check(e, append(ls, new_ls));
-    // consume sections_ps introduced with mk_section_params
-    for (unsigned i = 0; i < section_ps.size(); i++) {
-        lean_assert(is_lambda(e));
-        lean_assert(is_pi(type));
-        expr local = section_ps[i];
-        e    = instantiate(binding_body(e), local);
-        type = instantiate(binding_body(type), local);
-    }
+    e    = instantiate_locals(e, locals);
+    type = instantiate_locals(type, locals);
     auto reg              = p.regular_stream();
     formatter const & fmt = reg.get_formatter();
     options opts          = p.ios().get_options();

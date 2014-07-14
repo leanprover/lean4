@@ -227,13 +227,30 @@ expr type_checker::infer_macro(expr const & e, bool infer_only) {
     return r;
 }
 
-expr type_checker::infer_lambda(expr const & e, bool infer_only) {
-    if (!infer_only) {
-        expr t = infer_type_core(binding_domain(e), infer_only);
-        ensure_sort_core(t, binding_domain(e));
+expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
+    buffer<expr> es, ds, ls;
+    expr e = _e;
+    while (is_lambda(e)) {
+        es.push_back(e);
+        expr d = instantiate_rev(binding_domain(e), ls.size(), ls.data());
+        ds.push_back(d);
+        expr l = mk_local(m_gen.next(), binding_name(e), d, binding_info(e));
+        ls.push_back(l);
+        if (!infer_only) {
+            expr t = infer_type_core(d, infer_only);
+            ensure_sort_core(t, d);
+        }
+        e = binding_body(e);
     }
-    auto b = open_binding_body(e);
-    return mk_pi(binding_name(e), binding_domain(e), abstract_local(infer_type_core(b.first, infer_only), b.second), binding_info(e));
+    expr r = infer_type_core(instantiate_rev(e, ls.size(), ls.data()), infer_only);
+    r = abstract_locals(r, ls.size(), ls.data());
+    unsigned i = es.size();
+    while (i > 0) {
+        --i;
+        expr d = abstract_locals(ds[i], i, ls.data());
+        r = mk_pi(binding_name(es[i]), d, r, binding_info(es[i]));
+    }
+    return r;
 }
 
 expr type_checker::infer_pi(expr const & e, bool infer_only) {

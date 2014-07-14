@@ -21,14 +21,5 @@ bool parse_univ_params(parser & p, buffer<name> & ps);
    Then sort \c ls_buffer (using the order in which the universe levels were declared).
 */
 void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found_ls, parser const & p);
-/**
-   \brief Copy the parameters associated with the local names in \c local_names to \c section_ps.
-   Then sort \c section_ps (using the order in which they were declared).
-*/
-void mk_section_params(name_set const & local_names, parser const & p, buffer<expr> & section_ps);
-/**
-   \brief Return the levels in \c ls that are defined in the section.
-*/
-levels collect_section_levels(level_param_names const & ls, parser & p);
 void register_decl_cmds(cmd_table & r);
 }

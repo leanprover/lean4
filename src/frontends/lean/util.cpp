@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/sstream.h"
 #include "library/scoped_ext.h"
+#include "library/locals.h"
 #include "frontends/lean/parser.h"
 
 namespace lean {
@@ -24,5 +25,33 @@ bool is_root_namespace(name const & n) {
 }
 name remove_root_prefix(name const & n) {
     return n.replace_prefix(g_root, name());
+}
+
+// Sort local_names by order of occurrence in the section, and copy the associated parameters to section_ps
+void mk_section_params(name_set const & local_names, parser const & p, buffer<expr> & section_ps) {
+    local_names.for_each([&](name const & n) {
+            section_ps.push_back(*p.get_local(n));
+        });
+    std::sort(section_ps.begin(), section_ps.end(), [&](expr const & p1, expr const & p2) {
+            return p.get_local_index(mlocal_name(p1)) < p.get_local_index(mlocal_name(p2));
+        });
+}
+
+// Return the levels in \c ls that are defined in the section
+levels collect_section_levels(level_param_names const & ls, parser & p) {
+    buffer<level> section_ls_buffer;
+    for (name const & l : ls) {
+        if (p.get_local_level_index(l))
+            section_ls_buffer.push_back(mk_param_univ(l));
+        else
+            break;
+    }
+    return to_list(section_ls_buffer.begin(), section_ls_buffer.end());
+}
+
+// Collect local (section) constants occurring in type and value, sort them, and store in section_ps
+void collect_section_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & section_ps) {
+    name_set ls = collect_locals(type, collect_locals(value));
+    return mk_section_params(ls, p, section_ps);
 }
 }

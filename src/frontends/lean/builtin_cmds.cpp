@@ -83,8 +83,9 @@ environment end_scoped_cmd(parser & p) {
 environment check_cmd(parser & p) {
     expr e   = p.parse_expr();
     buffer<expr> section_ps;
-    name_set locals = collect_locals(e);
-    mk_section_params(collect_locals(e), p, section_ps);
+    expr_struct_set locals;
+    collect_locals(e, locals);
+    sort_section_params(locals, p, section_ps);
     e = p.lambda_abstract(section_ps, e);
     level_param_names ls = to_level_param_names(collect_univ_params(e));
     level_param_names new_ls;
@@ -95,7 +96,7 @@ environment check_cmd(parser & p) {
     for (unsigned i = 0; i < section_ps.size(); i++) {
         lean_assert(is_lambda(e));
         lean_assert(is_pi(type));
-        expr local = mk_local(binding_name(e), binding_domain(e), binding_info(e));
+        expr local = section_ps[i];
         e    = instantiate(binding_body(e), local);
         type = instantiate(binding_body(type), local);
     }

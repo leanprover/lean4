@@ -47,19 +47,15 @@ level_param_names to_level_param_names(name_set const & ls) {
     return r;
 }
 
-name_set collect_locals(expr const & e, name_set const & ls) {
-    if (!has_local(e)) {
-        return ls;
-    } else {
-        name_set r = ls;
-        for_each(e, [&](expr const & e, unsigned) {
-                if (!has_local(e))
-                    return false;
-                if (is_local(e))
-                    r.insert(mlocal_name(e));
-                return true;
-            });
-        return r;
-    }
+void collect_locals(expr const & e, expr_struct_set & ls) {
+    if (!has_local(e))
+        return;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_local(e))
+                return false;
+            if (is_local(e))
+                ls.insert(e);
+            return true;
+        });
 }
 }

@@ -328,15 +328,12 @@ struct inductive_cmd_fn {
     }
 
     /** \brief Collect section local parameters used in the inductive decls */
-    name_set collect_section_locals(buffer<inductive_decl> const & decls) {
-        name_set section_locals;
+    void collect_section_locals(buffer<inductive_decl> const & decls, expr_struct_set & ls) {
         for (auto const & d : decls) {
-            section_locals = collect_locals(inductive_decl_type(d), section_locals);
-            for (auto const & ir : inductive_decl_intros(d)) {
-                section_locals = collect_locals(intro_rule_type(ir), section_locals);
-            }
+            collect_locals(inductive_decl_type(d), ls);
+            for (auto const & ir : inductive_decl_intros(d))
+                collect_locals(intro_rule_type(ir), ls);
         }
-        return section_locals;
     }
 
     /** \brief Make sure that every occurrence of an inductive datatype (in decls) in \c type has
@@ -361,10 +358,11 @@ struct inductive_cmd_fn {
     void abstract_section_locals(buffer<inductive_decl> & decls, buffer<expr> & section_params) {
         if (!in_section(m_env))
             return;
-        name_set section_locals = collect_section_locals(decls);
+        expr_struct_set section_locals;
+        collect_section_locals(decls, section_locals);
         if (section_locals.empty())
             return;
-        mk_section_params(section_locals, m_p, section_params);
+        sort_section_params(section_locals, m_p, section_params);
         // First, add section_params to inductive types type.
         for (inductive_decl & d : decls) {
             d = update_inductive_decl(d, m_p.pi_abstract(section_params, inductive_decl_type(d)));

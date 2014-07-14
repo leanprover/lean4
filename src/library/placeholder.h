@@ -15,13 +15,17 @@ namespace lean {
 level mk_level_placeholder();
 
 /** \brief Return a new expression placeholder expression. */
-expr mk_expr_placeholder(optional<expr> const & type = none_expr());
+expr mk_expr_placeholder(optional<expr> const & type = none_expr(), bool strict = false);
+inline expr mk_strict_expr_placeholder(optional<expr> const & type = none_expr()) { return mk_expr_placeholder(type, true); }
 
 /** \brief Return true if the given level is a placeholder. */
 bool is_placeholder(level const & e);
 
-/** \brief Return true iff the given expression is a placeholder. */
+/** \brief Return true iff the given expression is a placeholder (strict or not). */
 bool is_placeholder(expr const & e);
+
+/** \brief Return true iff the given expression is a strict placeholder (strict or not). */
+bool is_strict_placeholder(expr const & e);
 
 /** \brief Return the type of the placeholder (if available) */
 optional<expr> placeholder_type(expr const & e);

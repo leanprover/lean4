@@ -61,5 +61,7 @@ definition real_group_struct [inline] [instance] : group_struct pos_real
 
 variables x y : pos_real
 check x * y
+set_option pp.implicit true
+print "---------------"
 theorem T (a b : pos_real): (rmul a b) = a*b
 := refl (rmul a b)

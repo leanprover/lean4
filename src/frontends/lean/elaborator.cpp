@@ -268,21 +268,26 @@ class elaborator {
         This is a helper class for implementing this choice function.
     */
     struct placeholder_elaborator : public choice_elaborator {
-        elaborator &  m_elab;
-        expr          m_mvar;
-        expr          m_mvar_type; // elaborated type of the metavariable
-        list<expr>    m_local_instances; // local instances that should also be included in the class-instance resolution.
-        list<name>    m_instances; // global declaration names that are class instances. This information is retrieved using #get_class_instances.
-        context       m_ctx; // local context for m_mvar
-        substitution  m_subst;
-        justification m_jst;
+        elaborator &            m_elab;
+        expr                    m_meta;
+        expr                    m_meta_type; // elaborated type of the metavariable
+        list<expr>              m_local_instances; // local instances that should also be included in the class-instance resolution.
+        list<name>              m_instances; // global declaration names that are class instances.
+                                             // This information is retrieved using #get_class_instances.
+        list<tactic_hint_entry> m_tactics;
+        proof_state_seq         m_tactic_result; // result produce by last executed tactic.
+        buffer<expr>            m_mvars_in_meta_type; // metavariables that occur in m_meta_type, the tactics may instantiate some of them
+        context                 m_ctx; // local context for m_meta
+        substitution            m_subst;
+        justification           m_jst;
 
-        placeholder_elaborator(elaborator & elab, expr const & mvar, expr const & mvar_type,
-                               list<expr> const & local_insts, list<name> const & instances, bool has_tactic_hints,
-                               context const & ctx, substitution const & s, justification const & j):
-            choice_elaborator(has_tactic_hints),
-            m_elab(elab), m_mvar(mvar), m_mvar_type(mvar_type), m_local_instances(local_insts), m_instances(instances),
-            m_ctx(ctx), m_subst(s), m_jst(j) {
+        placeholder_elaborator(elaborator & elab, expr const & meta, expr const & meta_type,
+                               list<expr> const & local_insts, list<name> const & instances, list<tactic_hint_entry> const & tacs,
+                               context const & ctx, substitution const & s, justification const & j, bool ignore_failure):
+            choice_elaborator(ignore_failure),
+            m_elab(elab), m_meta(meta), m_meta_type(meta_type), m_local_instances(local_insts), m_instances(instances),
+            m_tactics(tacs), m_ctx(ctx), m_subst(s), m_jst(j) {
+            collect_metavars(meta_type, m_mvars_in_meta_type);
         }
 
         optional<constraints> try_instance(name const & inst) {
@@ -291,29 +296,47 @@ class elaborator {
                 return optional<constraints>();
             expr type   = decl->get_type();
             // create the term pre (inst _ ... _)
-            expr pre    = copy_tag(m_mvar, mk_explicit(copy_tag(m_mvar, mk_constant(inst))));
+            expr pre    = copy_tag(m_meta, mk_explicit(copy_tag(m_meta, mk_constant(inst))));
             while (is_pi(type)) {
                 type = binding_body(type);
-                pre  = copy_tag(m_mvar, ::lean::mk_app(pre, copy_tag(m_mvar, mk_expr_placeholder())));
+                pre  = copy_tag(m_meta, ::lean::mk_app(pre, copy_tag(m_meta, mk_strict_expr_placeholder())));
             }
             try {
                 scope s(m_elab, m_ctx, m_subst);
                 expr r = m_elab.visit(pre); // use elaborator to create metavariables, levels, etc.
                 justification j = m_elab.m_accumulated;
                 m_elab.consume_tc_cnstrs();
+                for (auto & c : m_elab.m_constraints)
+                    c = update_justification(c, mk_composite1(m_jst, c.get_justification()));
                 list<constraint> cs = to_list(m_elab.m_constraints.begin(), m_elab.m_constraints.end());
-                cs = cons(mk_eq_cnstr(m_mvar, r, mk_composite1(m_jst, j)), cs);
+                cs = cons(mk_eq_cnstr(m_meta, r, mk_composite1(m_jst, j)), cs);
                 return optional<constraints>(cs);
             } catch (exception &) {
                 return optional<constraints>();
             }
         }
 
+        optional<constraints> get_next_tactic_result() {
+            while (auto next = m_tactic_result.pull()) {
+                m_tactic_result = next->second;
+                if (!empty(next->first.get_goals()))
+                    continue; // has unsolved goals
+                substitution subst = next->first.get_subst();
+                buffer<constraint> cs;
+                expr const & mvar = get_app_fn(m_meta);
+                cs.push_back(mk_eq_cnstr(mvar, subst.instantiate(mvar), m_jst));
+                for (auto const & mvar : m_mvars_in_meta_type)
+                    cs.push_back(mk_eq_cnstr(mvar, subst.instantiate(mvar), m_jst));
+                return optional<constraints>(to_list(cs.begin(), cs.end()));
+            }
+            return optional<constraints>();
+        }
+
         virtual optional<constraints> next() {
             while (!empty(m_local_instances)) {
                 expr inst         = head(m_local_instances);
                 m_local_instances = tail(m_local_instances);
-                constraints cs(mk_eq_cnstr(m_mvar, inst, m_jst));
+                constraints cs(mk_eq_cnstr(m_meta, inst, m_jst));
                 return optional<constraints>(cs);
             }
             while (!empty(m_instances)) {
@@ -321,6 +344,18 @@ class elaborator {
                 m_instances = tail(m_instances);
                 if (auto cs = try_instance(inst))
                     return cs;
+            }
+            if (auto cs = get_next_tactic_result())
+                return cs;
+            while (!empty(m_tactics)) {
+                tactic const & tac = head(m_tactics).get_tactic();
+                m_tactics          = tail(m_tactics);
+                proof_state ps(goals(goal(m_meta, m_meta_type)), m_subst, m_elab.m_ngen.mk_child());
+                try {
+                    m_tactic_result    = tac(m_elab.m_env, m_elab.m_ios, ps);
+                    if (auto cs = get_next_tactic_result())
+                        return cs;
+                } catch (...) {}
             }
             return optional<constraints>();
         }
@@ -513,14 +548,18 @@ public:
 
     bool is_class(expr const & type) {
         expr f = get_app_fn(type);
-        return is_constant(f) && ::lean::is_class(m_env, const_name(f));
+        if (!is_constant(f))
+            return false;
+        name const & cls_name = const_name(f);
+        return ::lean::is_class(m_env, cls_name) || !empty(get_tactic_hints(m_env, cls_name));
     }
 
-    bool may_be_class(expr const & type) {
-        if (is_meta(type))
-            return true;
-        else
-            return is_class(type);
+    static expr instantiate_meta(expr const & meta, substitution const & subst) {
+        buffer<expr> locals;
+        expr mvar = get_app_args(meta, locals);
+        mvar = update_mlocal(mvar, subst.instantiate(mlocal_type(mvar)));
+        for (auto & local : locals) local = subst.instantiate(local);
+        return ::lean::mk_app(mvar, locals);
     }
 
     /** \brief Return a 'failed to synthesize placholder' justification for the given
@@ -528,53 +567,62 @@ public:
     justification mk_failed_to_synthesize_jst(expr const & m) {
         environment env = m_env;
         return mk_justification(m, [=](formatter const & fmt, substitution const & subst) {
-                buffer<expr> locals;
-                expr mvar = get_app_args(m, locals);
-                mvar = update_mlocal(mvar, subst.instantiate(mlocal_type(mvar)));
-                for (auto & local : locals) local = subst.instantiate(local);
-                expr new_m    = ::lean::mk_app(mvar, locals);
+                expr new_m    = instantiate_meta(m, subst);
                 expr new_type = type_checker(env).infer(new_m);
                 proof_state ps(goals(goal(new_m, new_type)), substitution(), name_generator("dontcare"));
                 return format({format("failed to synthesize placeholder"), line(), ps.pp(fmt)});
             });
     }
 
-    /** \brief Create a metavariable, but also add a class-constraint if type is a class
-        or a metavariable.
-    */
-    expr mk_placeholder_meta(optional<expr> const & type, tag g) {
-        expr m = mk_meta(type, g);
-        if (!type || may_be_class(*type)) {
-            context ctx     = m_ctx;
-            justification j = mk_failed_to_synthesize_jst(m);
-            auto choice_fn = [=](expr const & mvar, expr const & mvar_type, substitution const & s, name_generator const & /* ngen */) {
-                if (!is_class(mvar_type))
-                    return lazy_list<constraints>(constraints());
-                list<expr> local_insts;
-                if (m_use_local_instances) {
-                    buffer<expr> buffer;
-                    for (auto const & l : ctx) {
-                        if (!is_local(l))
-                            continue;
-                        expr inst_type    = mlocal_type(l);
-                        if (!is_constant(get_app_fn(inst_type)) ||
-                            const_name(get_app_fn(inst_type)) != const_name(get_app_fn(mvar_type)))
-                            continue;
-                        buffer.push_back(l);
-                    }
-                    local_insts = to_list(buffer.begin(), buffer.end());
-                }
-                auto insts = get_class_instances(mvar_type);
-                if (empty(insts) && empty(local_insts)) {
-                    return lazy_list<constraints>(constraints());
-                } else {
-                    bool has_tactic_hints = !empty(get_tactic_hints(m_env, const_name(get_app_fn(mvar_type))));
-                    return choose(std::make_shared<placeholder_elaborator>(*this, mvar, mvar_type, local_insts, insts, has_tactic_hints,
-                                                                           ctx, s, j));
-                }
-            };
-            add_cnstr(mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), j));
+    /** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
+    static list<expr> get_local_instances(context ctx, name const & cls_name) {
+        buffer<expr> buffer;
+        for (auto const & l : ctx) {
+            if (!is_local(l))
+                continue;
+            expr inst_type    = mlocal_type(l);
+            if (!is_constant(get_app_fn(inst_type)) || const_name(get_app_fn(inst_type)) != cls_name)
+                continue;
+            buffer.push_back(l);
         }
+        return to_list(buffer.begin(), buffer.end());
+    }
+
+    /** \brief Create a metavariable, and attach choice constraint for generating
+        solutions using class-instances and tactic-hints.
+    */
+    expr mk_placeholder_meta(optional<expr> const & type, tag g, bool is_strict = false) {
+        expr m = mk_meta(type, g);
+        context ctx     = m_ctx;
+        justification j = mk_failed_to_synthesize_jst(m);
+        auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s, name_generator const & /* ngen */) {
+            expr const & mvar = get_app_fn(meta);
+            if (is_class(meta_type)) {
+                name const & cls_name = const_name(get_app_fn(meta_type));
+                list<expr> local_insts;
+                if (m_use_local_instances)
+                    local_insts = get_local_instances(ctx, cls_name);
+                list<name>  insts = get_class_instances(meta_type);
+                list<tactic_hint_entry> tacs;
+                if (!s.is_assigned(mvar))
+                    tacs = get_tactic_hints(m_env, cls_name);
+                if (empty(local_insts) && empty(insts) && empty(tacs))
+                    return lazy_list<constraints>(); // nothing to be done
+                bool ignore_failure = false; // we are always strict with placeholders associated with classes
+                return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, local_insts, insts, tacs, ctx, s, j,
+                                                                       ignore_failure));
+            } else if (s.is_assigned(mvar)) {
+                // if the metavariable is assigned and it is not a class, then we just ignore it, and return
+                // the an empty set of constraints.
+                return lazy_list<constraints>(constraints());
+            } else {
+                list<tactic_hint_entry> tacs = get_tactic_hints(m_env);
+                bool ignore_failure = !is_strict;
+                return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, list<expr>(), list<name>(), tacs, ctx, s, j,
+                                                                       ignore_failure));
+            }
+        };
+        add_cnstr(mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), j));
         return m;
     }
 
@@ -597,7 +645,7 @@ public:
 
     expr visit_expecting_type_of(expr const & e, expr const & t) {
         if (is_placeholder(e) && !placeholder_type(e))
-            return mk_placeholder_meta(some_expr(t), e.get_tag());
+            return mk_placeholder_meta(some_expr(t), e.get_tag(), is_strict_placeholder(e));
         else if (is_choice(e))
             return visit_choice(e, some_expr(t));
         else if (is_by(e))
@@ -754,7 +802,7 @@ public:
     }
 
     expr visit_placeholder(expr const & e) {
-        return mk_placeholder_meta(placeholder_type(e), e.get_tag());
+        return mk_placeholder_meta(placeholder_type(e), e.get_tag(), is_strict_placeholder(e));
     }
 
     level replace_univ_placeholder(level const & l) {
@@ -914,7 +962,7 @@ public:
         return unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), true, m_ios.get_options());
     }
 
-    void collect_metavars(expr const & e, buffer<expr> & mvars) {
+    static void collect_metavars(expr const & e, buffer<expr> & mvars) {
         for_each(e, [&](expr const & e, unsigned) {
                 if (is_metavar(e)) {
                     mvars.push_back(e);
@@ -983,24 +1031,22 @@ public:
 
     /** \brief Try to instantiate meta-variable \c mvar (modulo its state ps) using the given tactic.
         If it succeeds, then update subst with the solution.
-        If \c report_failure is true, then display error messages. to the user.
         Return true iff the metavariable \c mvar has been assigned.
     */
-    bool try_using(substitution & subst, expr const & mvar, proof_state const & ps, tactic const & tac, bool report_failure) {
+    bool try_using(substitution & subst, expr const & mvar, proof_state const & ps, tactic const & tac) {
         lean_assert(length(ps.get_goals()) == 1);
-        lean_assert(get_app_fn(head(ps.get_goals()).get_meta()) == mvar); // make sure ps is a really a proof state for mvar.
+        // make sure ps is a really a proof state for mvar.
+        lean_assert(mlocal_name(get_app_fn(head(ps.get_goals()).get_meta())) == mlocal_name(mvar));
         try {
             proof_state_seq seq = tac(m_env, m_ios, ps);
             auto r = seq.pull();
             if (!r) {
                 // tactic failed to produce any result
-                if (report_failure)
-                    display_unsolved_proof_state(mvar, ps, "tactic failed");
+                display_unsolved_proof_state(mvar, ps, "tactic failed");
                 return false;
             } else if (!empty(r->first.get_goals())) {
                 // tactic contains unsolved subgoals
-                if (report_failure)
-                    display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+                display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
                 return false;
             } else {
                 subst = r->first.get_subst();
@@ -1009,48 +1055,27 @@ public:
                 return true;
             }
         } catch (tactic_exception & ex) {
-            if (report_failure) {
-                auto out = regular(m_env, m_ios);
-                display_error_pos(out, m_pos_provider, ex.get_expr());
-                out << " tactic failed: " << ex.what() << "\n";
-            }
+            auto out = regular(m_env, m_ios);
+            display_error_pos(out, m_pos_provider, ex.get_expr());
+            out << " tactic failed: " << ex.what() << "\n";
             return false;
         }
-    }
-
-    bool try_using(substitution & subst, expr const & mvar, proof_state const & ps, list<tactic_hint_entry> const & tacs) {
-        return std::any_of(tacs.begin(), tacs.end(),
-                           [&](tactic_hint_entry const & e) {
-                               return try_using(subst, mvar, ps, e.get_tactic(), false);
-                           });
     }
 
     void solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited) {
         if (visited.contains(mlocal_name(mvar)))
             return;
         visited.insert(mlocal_name(mvar));
-        auto meta = mvar_to_meta(mvar);
-        if (!meta)
-            return;
-        buffer<expr> locals;
-        get_app_args(*meta, locals);
-        for (expr & l : locals)
-            l = subst.instantiate(l);
-        mvar = update_mlocal(mvar, subst.instantiate(mlocal_type(mvar)));
-        meta = ::lean::mk_app(mvar, locals);
-        expr type = m_tc->infer(*meta);
-        // first solve unassigned metavariables in type
-        type = solve_unassigned_mvars(subst, type, visited);
-        proof_state ps(goals(goal(*meta, type)), subst, m_ngen.mk_child());
         if (auto local_hint = get_local_tactic_hint(subst, mvar, visited)) {
-            try_using(subst, mvar, ps, *local_hint, true);
-        } else {
-            if (is_constant(get_app_fn(type))) {
-                name cls = const_name(get_app_fn(type));
-                if (try_using(subst, mvar, ps, get_tactic_hints(m_env, cls)))
-                    return;
-            }
-            try_using(subst, mvar, ps, get_tactic_hints(m_env));
+            auto meta = mvar_to_meta(mvar);
+            if (!meta)
+                return;
+            meta = instantiate_meta(*meta, subst);
+            expr type = m_tc->infer(*meta);
+            // first solve unassigned metavariables in type
+            type = solve_unassigned_mvars(subst, type, visited);
+            proof_state ps(goals(goal(*meta, type)), subst, m_ngen.mk_child());
+            try_using(subst, mvar, ps, *local_hint);
         }
     }
 

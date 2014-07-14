@@ -161,23 +161,6 @@ class elaborator {
         }
     }
 
-    // "Scoped update": add an local constant l to the m_ctx (and m_ctx_buffer, m_ctx_domain_buffer).
-    // "Undoes" the changes in the end of the scope where this object was defined.
-    struct update_ctx {
-        elaborator & m_main;
-        update_ctx(elaborator & main, expr const & l):m_main(main) {
-            lean_assert(is_local(l));
-            m_main.m_ctx = cons(l, m_main.m_ctx);
-            m_main.m_ctx_domain_buffer.push_back(abstract_locals(l, m_main.m_ctx_buffer.size(), m_main.m_ctx_buffer.data()));
-            m_main.m_ctx_buffer.push_back(l);
-        }
-        ~update_ctx() {
-            m_main.m_ctx = tail(m_main.m_ctx);
-            m_main.m_ctx_domain_buffer.pop_back();
-            m_main.m_ctx_buffer.pop_back();
-        }
-    };
-
     /** \brief Auxiliary object for creating backtracking points.
         \remark A scope can only be created when m_constraints and m_subst are empty,
         and m_accumulated is none.
@@ -886,33 +869,52 @@ public:
         throw_kernel_exception(m_env, e, [=](formatter const & fmt) { return pp_type_expected(fmt, e); });
     }
 
-    expr visit_pi(expr const & e) {
-        expr d   = ensure_type(visit_expecting_type(binding_domain(e)));
-        expr l   = mk_local(binding_name(e), d, binding_info(e));
-        expr b   = instantiate(binding_body(e), l);
-        if (binding_info(e).is_contextual()) {
-            update_ctx add(*this, l);
-            b = ensure_type(visit_expecting_type(b));
-        } else {
-            b = ensure_type(visit_expecting_type(b));
+    struct scope_ctx {
+        elaborator & m_main;
+        context      m_old_ctx;
+        unsigned     m_old_sz;
+        scope_ctx(elaborator & main):m_main(main), m_old_ctx(main.m_ctx), m_old_sz(main.m_ctx_buffer.size()) {}
+        ~scope_ctx() {
+            m_main.m_ctx = m_old_ctx;
+            m_main.m_ctx_buffer.shrink(m_old_sz);
+            m_main.m_ctx_domain_buffer.shrink(m_old_sz);
         }
-        b = abstract_local(b, l);
-        return update_binding(e, d, b);
+    };
+
+    void add_local(expr const & l) {
+        m_ctx = cons(l, m_ctx);
+        m_ctx_domain_buffer.push_back(abstract_locals(l, m_ctx_buffer.size(), m_ctx_buffer.data()));
+        m_ctx_buffer.push_back(l);
     }
 
-    expr visit_lambda(expr const & e) {
-        expr d   = ensure_type(visit_expecting_type(binding_domain(e)));
-        expr l   = mk_local(binding_name(e), d, binding_info(e));
-        expr b   = instantiate(binding_body(e), l);
-        if (binding_info(e).is_contextual()) {
-            update_ctx add(*this, l);
-            b = visit(b);
-        } else {
-            b = visit(b);
+    expr visit_binding(expr e, expr_kind k) {
+        scope_ctx scope(*this);
+        buffer<expr> ds, ls, es;
+        while (e.kind() == k) {
+            es.push_back(e);
+            expr d   = binding_domain(e);
+            d = instantiate_rev(d, ls.size(), ls.data());
+            d = ensure_type(visit_expecting_type(d));
+            ds.push_back(d);
+            expr l   = mk_local(binding_name(e), d, binding_info(e));
+            if (binding_info(e).is_contextual())
+                add_local(l);
+            ls.push_back(l);
+            e = binding_body(e);
         }
-        b = abstract_local(b, l);
-        return update_binding(e, d, b);
+        lean_assert(ls.size() == es.size() && ls.size() == ds.size());
+        e = instantiate_rev(e, ls.size(), ls.data());
+        e = (k == expr_kind::Pi) ? ensure_type(visit_expecting_type(e)) : visit(e);
+        e = abstract_locals(e, ls.size(), ls.data());
+        unsigned i = ls.size();
+        while (i > 0) {
+            --i;
+            e = update_binding(es[i], abstract_locals(ds[i], i, ls.data()), e);
+        }
+        return e;
     }
+    expr visit_pi(expr const & e) { return visit_binding(e, expr_kind::Pi); }
+    expr visit_lambda(expr const & e) { return visit_binding(e, expr_kind::Lambda); }
 
     expr visit_core(expr const & e) {
         if (is_placeholder(e)) {

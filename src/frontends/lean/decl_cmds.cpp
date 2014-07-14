@@ -255,8 +255,8 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     if (in_section(env)) {
         buffer<expr> section_ps;
         collect_section_locals(type, value, p, section_ps);
-        type = Pi(section_ps, type, p);
-        value = Fun(section_ps, value, p);
+        type = Pi_as_is(section_ps, type, p);
+        value = Fun_as_is(section_ps, value, p);
         levels section_ls = collect_section_levels(ls, p);
         expr ref = mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_ps);
         p.add_local_expr(n, ref);

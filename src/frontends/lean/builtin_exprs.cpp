@@ -353,7 +353,7 @@ static expr parse_including_expr(parser & p, unsigned, expr const *, pos_info co
     for (auto old_l : locals) {
         binder_info bi = local_info(old_l);
         bi = bi.update_contextual(true);
-        expr new_l     = p.save_pos(mk_local(local_pp_name(old_l), mlocal_type(old_l), bi), pos);
+        expr new_l     = p.save_pos(mk_local(local_pp_name(old_l), mk_as_is(mlocal_type(old_l)), bi), pos);
         p.add_local(new_l);
         new_locals.push_back(new_l);
     }

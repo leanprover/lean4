@@ -24,4 +24,8 @@ list<expr> locals_to_context(expr const & e, parser const & p);
 expr Fun(buffer<expr> const & locals, expr const & e, parser & p);
 /** \brief Pi(locals, e), but also propagate \c e position to result */
 expr Pi(buffer<expr> const & locals, expr const & e, parser & p);
+/** \brief Similar to Fun(locals, e, p), but the types are marked as 'as-is' (i.e., they are not processed by the elaborator. */
+expr Fun_as_is(buffer<expr> const & locals, expr const & e, parser & p);
+/** \brief Similar to Pi(locals, e, p), but the types are marked as 'as-is' (i.e., they are not processed by the elaborator. */
+expr Pi_as_is(buffer<expr> const & locals, expr const & e, parser & p);
 }

@@ -375,7 +375,7 @@ struct inductive_cmd_fn {
             for (auto const & ir : inductive_decl_intros(d)) {
                 expr type = intro_rule_type(ir);
                 type = fix_inductive_occs(type, decls, section_params);
-                type = Pi(section_params, type, m_p);
+                type = Pi_as_is(section_params, type, m_p);
                 bool strict = m_relaxed_implicit_infer.contains(intro_rule_name(ir));
                 type = infer_implicit(type, section_params.size(), strict);
                 new_irs.push_back(update_intro_rule(ir, type));

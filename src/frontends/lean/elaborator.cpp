@@ -827,12 +827,16 @@ public:
     }
 
     expr visit_macro(expr const & e) {
-        // Remark: Macros are not meant to be used in the front end.
-        // Perhaps, we should throw error.
-        buffer<expr> args;
-        for (unsigned i = 0; i < macro_num_args(e); i++)
-            args.push_back(visit(macro_arg(e, i)));
-        return update_macro(e, args.size(), args.data());
+        if (is_as_is(e)) {
+            return get_as_is_arg(e);
+        } else {
+            // Remark: Macros are not meant to be used in the front end.
+            // Perhaps, we should throw error.
+            buffer<expr> args;
+            for (unsigned i = 0; i < macro_num_args(e); i++)
+                args.push_back(visit(macro_arg(e, i)));
+            return update_macro(e, args.size(), args.data());
+        }
     }
 
     expr visit_constant(expr const & e) {

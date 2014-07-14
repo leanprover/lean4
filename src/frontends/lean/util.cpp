@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/scoped_ext.h"
 #include "library/locals.h"
+#include "library/explicit.h"
 #include "frontends/lean/parser.h"
 
 namespace lean {
@@ -74,5 +75,29 @@ expr Fun(buffer<expr> const & locals, expr const & e, parser & p) {
 
 expr Pi(buffer<expr> const & locals, expr const & e, parser & p) {
     return p.rec_save_pos(Pi(locals, e), p.pos_of(e));
+}
+
+template<bool is_lambda>
+static expr mk_binding_as_is(unsigned num, expr const * locals, expr const & b) {
+    expr r     = abstract_locals(b, num, locals);
+    unsigned i = num;
+    while (i > 0) {
+        --i;
+        expr const & l = locals[i];
+        expr t = abstract_locals(mlocal_type(l), i, locals);
+        if (is_lambda)
+            r = mk_lambda(local_pp_name(l), mk_as_is(t), r, local_info(l));
+        else
+            r = mk_pi(local_pp_name(l), mk_as_is(t), r, local_info(l));
+    }
+    return r;
+}
+
+expr Fun_as_is(buffer<expr> const & locals, expr const & e, parser & p) {
+    return p.rec_save_pos(mk_binding_as_is<true>(locals.size(), locals.data(), e), p.pos_of(e));
+}
+
+expr Pi_as_is(buffer<expr> const & locals, expr const & e, parser & p) {
+    return p.rec_save_pos(mk_binding_as_is<false>(locals.size(), locals.data(), e), p.pos_of(e));
 }
 }

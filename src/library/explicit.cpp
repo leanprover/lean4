@@ -10,7 +10,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_explicit_name("@");
-[[ noreturn ]] static void throw_ex() { throw exception("unexpected occurrence of '@' expression"); }
+static name g_as_is_name("as_is");
+[[ noreturn ]] static void throw_ex(name const & n) { throw exception(sstream() << "unexpected occurrence of '" << n << "' expression"); }
 
 // We encode the 'explicit' expression mark '@' using a macro.
 // This is a trick to avoid creating a new kind of expression.
@@ -18,25 +19,27 @@ static name g_explicit_name("@");
 // and have no semantic significance.
 class explicit_macro_cell : public macro_definition_cell {
 public:
+    virtual bool operator==(macro_definition_cell const & other) const { return this == &other; }
     virtual name get_name() const { return g_explicit_name; }
-    virtual expr get_type(expr const &, expr const *, extension_context &) const { throw_ex(); }
-    virtual optional<expr> expand(expr const &, extension_context &) const { throw_ex(); }
-    virtual void write(serializer &) const { throw_ex(); }
+    virtual expr get_type(expr const &, expr const *, extension_context &) const { throw_ex(get_name()); }
+    virtual optional<expr> expand(expr const &, extension_context &) const { throw_ex(get_name()); }
+    virtual void write(serializer &) const { throw_ex(get_name()); }
+};
+
+class as_is_macro_cell : public explicit_macro_cell {
+public:
+    virtual name get_name() const { return g_as_is_name; }
 };
 
 static macro_definition g_explicit(new explicit_macro_cell());
-expr mk_explicit(expr const & e) {
-    return mk_macro(g_explicit, 1, &e);
-}
+static macro_definition g_as_is(new as_is_macro_cell());
 
-bool is_explicit(expr const & e) {
-    return is_macro(e) && macro_def(e) == g_explicit;
-}
-
-expr const & get_explicit_arg(expr const & e) {
-    lean_assert(is_explicit(e));
-    return macro_arg(e, 0);
-}
+expr mk_explicit(expr const & e) { return mk_macro(g_explicit, 1, &e); }
+bool is_explicit(expr const & e) { return is_macro(e) && macro_def(e) == g_explicit; }
+expr mk_as_is(expr const & e) { return mk_macro(g_as_is, 1, &e); }
+bool is_as_is(expr const & e) { return is_macro(e) && macro_def(e) == g_as_is; }
+expr const & get_explicit_arg(expr const & e) { lean_assert(is_explicit(e)); return macro_arg(e, 0); }
+expr const & get_as_is_arg(expr const & e) { lean_assert(is_as_is(e)); return macro_arg(e, 0); }
 
 static int mk_explicit(lua_State * L) { return push_expr(L, mk_explicit(to_expr(L, 1))); }
 static int is_explicit(lua_State * L) { return push_boolean(L, is_explicit(to_expr(L, 1))); }

@@ -96,6 +96,11 @@ class type_checker {
     expr ensure_pi_core(expr e, expr const & s);
     justification mk_macro_jst(expr const & e);
     void check_level(level const & l, expr const & s);
+    expr infer_constant(expr const & e, bool infer_only);
+    expr infer_macro(expr const & e, bool infer_only);
+    expr infer_lambda(expr const & e, bool infer_only);
+    expr infer_pi(expr const & e, bool infer_only);
+    expr infer_app(expr const & e, bool infer_only);
     expr infer_type_core(expr const & e, bool infer_only);
     expr infer_type(expr const & e);
     extension_context & get_extension() { return m_tc_ctx; }

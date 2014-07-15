@@ -26,9 +26,6 @@ class substitution {
     friend class instantiate_metavars_fn;
     std::pair<level, justification> d_instantiate_metavars(level const & l, bool use_jst, bool updt);
 
-    justification get_expr_jst(name const & m) const { if (auto it = m_expr_jsts.find(m)) return *it; else return justification(); }
-    justification get_level_jst(name const & m) const { if (auto it = m_level_jsts.find(m)) return *it; else return justification(); }
-
 public:
     substitution();
     typedef optional<std::pair<expr,  justification>> opt_expr_jst;
@@ -42,6 +39,8 @@ public:
 
     optional<expr> get_expr(name const & m) const;
     optional<level> get_level(name const & m) const;
+    justification get_expr_jst(name const & m) const { if (auto it = m_expr_jsts.find(m)) return *it; else return justification(); }
+    justification get_level_jst(name const & m) const { if (auto it = m_level_jsts.find(m)) return *it; else return justification(); }
 
     substitution assign(name const & m, expr const & t, justification const & j) const;
     substitution assign(name const & m, expr const & t) const;

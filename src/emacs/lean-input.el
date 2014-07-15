@@ -300,7 +300,8 @@ order for the change to take effect."
   ("clr" . ("⌟"))  ("clR" . ("⌋"))
 
   ;; Various operators/symbols.
-
+  ("trans"     . ("⬝"))
+  ("symm"      . ("⁻¹"))
   ("qed"       . ("∎"))
   ("x"         . ("×"))
   ("o"         . ("∘"))

@@ -68,22 +68,24 @@ bool context_check(expr const & e, buffer<expr> const & locals) {
 //     constants are in \c e are in \c locals.
 //   - l_false if \c e contains \c m or it contains a local constant \c l
 //     not in locals that is not in a metavariable application.
-lbool occurs_context_check(expr const & e, expr const & m, buffer<expr> const & locals) {
+lbool occurs_context_check(substitution const & s, expr const & e, expr const & m, buffer<expr> const & locals) {
+    if (s.occurs(m, e))
+        return l_false;
     expr root = e;
     lbool r = l_true;
     for_each(e, [&](expr const & e, unsigned) {
             if (r == l_false) {
                 return false;
-            } else if (is_local(e) && std::find(locals.begin(), locals.end(), e) == locals.end()) {
-                // right-hand-side contains variable that is not in the scope
-                // of metavariable.
-                r = l_false;
-                return false;
-            } else if (is_meta(e)) {
-                if (!context_check(e, locals) || occurs(m, e))
-                    r = l_undef;
-                if (get_app_fn(e) == m)
+            } else if (is_local(e)) {
+                if (std::find(locals.begin(), locals.end(), e) == locals.end()) {
+                    // right-hand-side contains variable that is not in the scope
+                    // of metavariable.
                     r = l_false;
+                }
+                return false; // do not visit type
+            } else if (is_meta(e)) {
+                if (!context_check(e, locals))
+                    r = l_undef;
                 return false; // do not visit children
             } else {
                 // we only need to continue exploring e if it contains
@@ -114,7 +116,7 @@ static std::pair<unify_status, substitution> unify_simple_core(substitution cons
     if (!m || is_meta(rhs)) {
         return mk_pair(unify_status::Unsupported, s);
     } else {
-        switch (occurs_context_check(rhs, *m, args)) {
+        switch (occurs_context_check(s, rhs, *m, args)) {
         case l_false: return mk_pair(unify_status::Failed, s);
         case l_undef: mk_pair(unify_status::Unsupported, s);
         case l_true: {
@@ -444,7 +446,7 @@ struct unifier_fn {
         auto m = is_simple_meta(lhs, locals);
         if (!m || is_meta(rhs))
             return Continue;
-        switch (occurs_context_check(rhs, *m, locals)) {
+        switch (occurs_context_check(m_subst, rhs, *m, locals)) {
         case l_false:
             set_conflict(j);
             return Failed;

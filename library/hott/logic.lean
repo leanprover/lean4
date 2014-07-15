@@ -10,7 +10,10 @@ infix `=`:50 := path
 definition transport {A : Type} {a b : A} {P : A → Type} (H1 : a = b) (H2 : P a) : P b
 := path_rec H2 H1
 
-notation p `*(`:75 u `)` := transport p u
+namespace logic
+  notation p `*(`:75 u `)` := transport p u
+end
+using logic
 
 definition symm {A : Type} {a b : A} (p : a = b) : b = a
 := p*(refl a)
@@ -18,11 +21,11 @@ definition symm {A : Type} {a b : A} (p : a = b) : b = a
 definition trans {A : Type} {a b c : A} (p1 : a = b) (p2 : b = c) : a = c
 := p2*(p1)
 
-namespace path_notation
+namespace logic
   postfix `⁻¹`:100 := symm
   infixr `⬝`:75 := trans
 end
-using path_notation
+using logic
 
 theorem trans_refl_right {A : Type} {x y : A} (p : x = y) : p = p ⬝ (refl y)
 := refl p
@@ -77,7 +80,10 @@ end
 definition homotopy {A : Type} {P : A → Type} (f g : Π x, P x)
 := Π x, f x = g x
 
-infix `∼`:50 := homotopy
+namespace logic
+  infix `∼`:50 := homotopy
+end
+using logic
 
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
@@ -137,35 +143,40 @@ theorem upun (x : unit) : x = ⋆
 inductive product (A : Type) (B : Type) : Type :=
 | pair : A → B → product A B
 
+infixr `×`:30 := product
 infixr `∧`:30 := product
 
 notation `(` h `,` t:(foldl `,` (e r, pair r e) h) `)` := t
 
-definition pr1 {A : Type} {B : Type} (p : A ∧ B) : A
+definition pr1 {A : Type} {B : Type} (p : A × B) : A
 := product_rec (λ a b, a) p
 
-definition pr2 {A : Type} {B : Type} (p : A ∧ B) : B
+definition pr2 {A : Type} {B : Type} (p : A × B) : B
 := product_rec (λ a b, b) p
 
-theorem uppt {A : Type} {B : Type} (p : A ∧ B) : (pr1 p, pr2 p) = p
+theorem uppt {A : Type} {B : Type} (p : A × B) : (pr1 p, pr2 p) = p
 := product_rec (λ x y, refl (x, y)) p
 
 inductive sum (A : Type) (B : Type) : Type :=
 | inl : A → sum A B
 | inr : B → sum A B
 
+namespace logic
+  infixr `+`:25 := sum
+end
+using logic
 infixr `∨`:25 := sum
 
-theorem sum_elim {a : Type} {b : Type} {c : Type} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
+theorem sum_elim {a : Type} {b : Type} {c : Type} (H1 : a + b) (H2 : a → c) (H3 : b → c) : c
 := sum_rec H2 H3 H1
 
-theorem resolve_right {a : Type} {b : Type} (H1 : a ∨ b) (H2 : ¬ a) : b
+theorem resolve_right {a : Type} {b : Type} (H1 : a + b) (H2 : ¬ a) : b
 := sum_elim H1 (assume Ha, absurd_elim b Ha H2) (assume Hb, Hb)
 
-theorem resolve_left {a : Type} {b : Type} (H1 : a ∨ b) (H2 : ¬ b) : a
+theorem resolve_left {a : Type} {b : Type} (H1 : a + b) (H2 : ¬ b) : a
 := sum_elim H1 (assume Ha, Ha) (assume Hb, absurd_elim a Hb H2)
 
-theorem or_flip {a : Type} {b : Type} (H : a ∨ b) : b ∨ a
+theorem sum_flip {a : Type} {b : Type} (H : a + b) : b + a
 := sum_elim H (assume Ha, inr b Ha) (assume Hb, inl a Hb)
 
 inductive bool : Type :=
@@ -176,6 +187,12 @@ theorem bool_cases (p : bool) : p = true ∨ p = false
 := bool_rec (inl _ (refl true)) (inr _ (refl false)) p
 
 inductive Sigma {A : Type} (B : A → Type) : Type :=
-| sigma : Π a, B a → Sigma B
+| sigma_intro : Π a, B a → Sigma B
 
 notation `Σ` binders `,` r:(scoped P, Sigma P) := r
+
+definition dpr1 {A : Type} {B : A → Type} (p : Σ x, B x) : A
+:= Sigma_rec (λ a b, a) p
+
+definition dpr2 {A : Type} {B : A → Type} (p : Σ x, B x) : B (dpr1 p)
+:= Sigma_rec (λ a b, b) p

@@ -275,4 +275,11 @@ if((${CYGWIN} EQUAL "1") OR (NOT (${CMAKE_SYSTEM_NAME} MATCHES "Windows")))
     DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library/standard
     )
+
+  add_custom_target(
+    hott_lib ALL
+    COMMAND make LEAN="${CMAKE_BINARY_DIR}/shell/lean" LEAN_OPTIONS="--hott"
+    DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library/hott
+    )
 endif()

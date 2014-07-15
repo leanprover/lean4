@@ -7,10 +7,10 @@ DEPS = make.deps
 all: $(OLEAN_FILES) $(DEPS)
 
 %.olean: %.lean
-	$(LEAN) $< -o $@
+	$(LEAN) $(LEAN_OPTIONS) $< -o $@
 
 %.olean: %.lua
-	$(LEAN) $< -o $@
+	$(LEAN) $(LEAN_OPTIONS) $< -o $@
 
 .PHONY: all clean
 

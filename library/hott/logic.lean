@@ -139,7 +139,7 @@ inductive product (A : Type) (B : Type) : Type :=
 
 infixr `∧`:30 := product
 
-notation `(` h `,` t:(foldr `,` (e r, pair e r) h) `)` := t
+notation `(` h `,` t:(foldl `,` (e r, pair r e) h) `)` := t
 
 definition pr1 {A : Type} {B : Type} (p : A ∧ B) : A
 := product_rec (λ a b, a) p

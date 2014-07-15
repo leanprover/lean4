@@ -22,11 +22,11 @@ struct expr_pair_hash_alloc {
 };
 /** \brief Functional object for comparing expression pairs. */
 struct expr_pair_eq {
-    unsigned operator()(expr_pair const & p1, expr_pair const & p2) const { return p1.first == p2.first && p1.second == p2.second; }
+    bool operator()(expr_pair const & p1, expr_pair const & p2) const { return p1.first == p2.first && p1.second == p2.second; }
 };
 /** \brief Functional object for comparing expression pairs using pointer equality. */
 struct expr_pair_eqp {
-    unsigned operator()(expr_pair const & p1, expr_pair const & p2) const { return is_eqp(p1.first, p2.first) && is_eqp(p1.second, p2.second); }
+    bool operator()(expr_pair const & p1, expr_pair const & p2) const { return is_eqp(p1.first, p2.first) && is_eqp(p1.second, p2.second); }
 };
 inline bool is_lt(expr_pair const & p1, expr_pair const & p2, bool use_hash) {
     return is_lt(p1.first, p2.first, use_hash) || (p1.first == p2.first && is_lt(p1.second, p2.second, use_hash));

@@ -256,18 +256,22 @@ level substitution::instantiate_metavars_wo_jst(level const & l) const {
 }
 
 bool substitution::occurs_expr(name const & m, expr const & e) const {
-    if (!has_metavar(e))
+    if (!has_expr_metavar(e))
         return false;
-    auto it = find(e, [&](expr const & e, unsigned) {
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (found || !has_expr_metavar(e)) return false;
             if (is_metavar(e)) {
                 if (mlocal_name(e) == m)
-                    return true;
+                    found = true;
                 auto s = get_expr(e);
-                return s && occurs_expr(m, *s);
-            } else {
-                return false;
+                if (s && occurs_expr(m, *s))
+                    found = true;
+                return false; // do not visit type
             }
+            if (is_local(e)) return false; // do not visit type
+            return true;
         });
-    return static_cast<bool>(it);
+    return found;
 }
 }

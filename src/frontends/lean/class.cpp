@@ -94,12 +94,8 @@ environment add_instance_cmd(parser & p) {
     environment env = p.env();
     while (p.curr_is_identifier()) {
         found    = true;
-        auto pos = p.pos();
-        name c   = p.get_name_val();
-        p.next();
-        expr e   = p.id_to_expr(c, pos);
-        if (!is_constant(e)) throw parser_error(sstream() << "invalid 'class instance' declaration, '" << c << "' is not a constant", pos);
-        env = add_instance(env, const_name(e));
+        name c   = p.check_constant_next("invalid 'class instance' declaration, constant expected");
+        env = add_instance(env, c);
     }
     if (!found)
         throw parser_error("invalid 'class instance' declaration, at least one identifier expected", p.pos());

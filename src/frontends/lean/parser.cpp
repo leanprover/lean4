@@ -856,6 +856,15 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
     }
 }
 
+name parser::check_constant_next(char const * msg) {
+    auto p  = pos();
+    name id = check_id_next(msg);
+    expr e  = id_to_expr(id, p);
+    if (!is_constant(e))
+        throw parser_error(msg, p);
+    return const_name(e);
+}
+
 expr parser::parse_id() {
     auto p  = pos();
     name id = get_name_val();

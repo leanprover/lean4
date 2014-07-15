@@ -272,16 +272,12 @@ environment opaque_hint_cmd(parser & p) {
                 p.next();
                 env = set_main_module_opaque_defs(env, hiding);
             } else {
-                auto pos = p.pos();
-                name id  = p.check_id_next("invalid 'opaque_hint', identifier expected");
-                found    = true;
-                expr e   = p.id_to_expr(id, pos);
-                if (!is_constant(e))
-                    throw parser_error(sstream() << "'" << id << "' is not a constant", pos);
+                name c  = p.check_constant_next("invalid 'opaque_hint', constant expected");
+                found   = true;
                 if (hiding)
-                    env = hide_definition(env, const_name(e));
+                    env = hide_definition(env, c);
                 else
-                    env = expose_definition(env, const_name(e));
+                    env = expose_definition(env, c);
             }
         }
         p.next();

@@ -154,17 +154,17 @@ static void calc_trans_reader(deserializer & d, module_idx, shared_environment &
 register_module_object_reader_fn g_calc_trans_reader(g_calc_trans_key, calc_trans_reader);
 
 environment calc_subst_cmd(parser & p) {
-    name id = p.check_id_next("invalid 'calc_subst' command, identifier expected");
+    name id = p.check_constant_next("invalid 'calc_subst' command, constant expected");
     return add_calc_subst(p.env(), id);
 }
 
 environment calc_refl_cmd(parser & p) {
-    name id = p.check_id_next("invalid 'calc_refl' command, identifier expected");
+    name id = p.check_constant_next("invalid 'calc_refl' command, constant expected");
     return add_calc_refl(p.env(), id);
 }
 
 environment calc_trans_cmd(parser & p) {
-    name id = p.check_id_next("invalid 'calc_trans' command, identifier expected");
+    name id = p.check_constant_next("invalid 'calc_trans' command, constant expected");
     return add_calc_trans(p.env(), id);
 }
 

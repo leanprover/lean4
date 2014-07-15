@@ -122,7 +122,7 @@ expr beta_reduce(expr t) {
             return none_expr();
     };
     while (true) {
-        expr new_t = replace_fn(f)(t);
+        expr new_t = replace(t, f);
         if (new_t == t)
             return new_t;
         else

@@ -56,63 +56,10 @@ public:
     }
 };
 
-static expr arg(expr n, unsigned i) {
-    buffer<expr> args;
-    while (is_app(n)) {
-        args.push_back(app_arg(n));
-        n = app_fn(n);
-    }
-    args.push_back(n);
-    return args[args.size() - i - 1];
-}
-
-static void tst3() {
-    expr f = Const("f");
-    expr c = Const("c");
-    expr d = Const("d");
-    expr A = Const("A");
-    expr_map<expr> trace;
-    auto proc = [&](expr const & x, unsigned offset) -> optional<expr> {
-        if (is_var(x)) {
-            unsigned vidx = var_idx(x);
-            if (vidx == offset)
-                return some_expr(c);
-            else if (vidx > offset)
-                return some_expr(mk_var(vidx-1));
-            else
-                return none_expr();
-        } else {
-            return none_expr();
-        }
-    };
-    expr x = Local("x", A);
-    expr y = Local("y", A);
-
-    replace_fn replacer(proc, tracer(trace));
-    expr t = Fun({x, y}, f(x, f(f(f(x, x), f(y, d)), f(d, d))));
-    expr b = binding_body(t);
-    expr r = replacer(b);
-    std::cout << r << "\n";
-    lean_assert(r == Fun(y, f(c, f(f(f(c, c), f(y, d)), f(d, d)))));
-    for (auto p : trace) {
-        std::cout << p.first << " --> " << p.second << "\n";
-    }
-    lean_assert(trace[c] == Var(1));
-    std::cout << arg(arg(binding_body(r), 2), 2) << "\n";
-    lean_assert(arg(arg(binding_body(r), 2), 2) == f(d, d));
-    lean_assert(trace.find(arg(arg(binding_body(r), 2), 2)) == trace.end());
-    lean_assert(trace.find(binding_body(r)) != trace.end());
-    lean_assert(trace.find(arg(binding_body(r), 2)) != trace.end());
-    lean_assert(trace.find(arg(arg(binding_body(r), 2), 1)) != trace.end());
-    lean_assert(trace.find(arg(arg(arg(binding_body(r), 2), 1), 1)) != trace.end());
-    lean_assert(trace.find(arg(arg(arg(binding_body(r), 2), 1), 2)) == trace.end());
-}
-
 int main() {
     save_stack_info();
     tst1();
     tst2();
-    tst3();
     std::cout << "done" << "\n";
     return has_violations() ? 1 : 0;
 }

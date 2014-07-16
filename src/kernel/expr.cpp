@@ -292,9 +292,12 @@ expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, bin
 expr mk_sort(level const & l) { return cache(expr(new expr_sort(l))); }
 // =======================================
 
+typedef buffer<expr_cell*> del_buffer;
+MK_THREAD_LOCAL_GET_DEF(del_buffer, get_dealloc_buffer)
+
 void expr_cell::dealloc() {
     try {
-        buffer<expr_cell*> todo;
+        del_buffer & todo = get_dealloc_buffer();
         todo.push_back(this);
         while (!todo.empty()) {
             expr_cell * it = todo.back();

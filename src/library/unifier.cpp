@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
+#include "kernel/kernel_exception.h"
 #include "library/occurs.h"
 #include "library/unifier.h"
 #include "library/opaque_hints.h"
@@ -404,7 +405,13 @@ struct unifier_fn {
         lean_assert(is_metavar(m));
         m_subst.d_assign(m, v, j);
         expr m_type = mlocal_type(m);
-        expr v_type = m_tc->infer(v);
+        expr v_type;
+        try {
+            v_type = m_tc->infer(v);
+        } catch (kernel_exception & e) {
+            set_conflict(j);
+            return false;
+        }
         if (in_conflict())
             return false;
         if (!is_def_eq(m_type, v_type, j))
@@ -801,7 +808,14 @@ struct unifier_fn {
         lean_assert(is_choice_cnstr(c));
         expr const &   m            = cnstr_expr(c);
         choice_fn const & fn        = cnstr_choice_fn(c);
-        auto m_type_jst             = m_subst.d_instantiate_metavars(m_tc->infer(m));
+        expr m_type;
+        try {
+            m_type                  = m_tc->infer(m);
+        } catch (kernel_exception &) {
+            set_conflict(c.get_justification());
+            return false;
+        }
+        auto m_type_jst             = m_subst.d_instantiate_metavars(m_type);
         lazy_list<constraints> alts = fn(m, m_type_jst.first, m_subst, m_ngen.mk_child());
         return process_lazy_constraints(alts, mk_composite1(c.get_justification(), m_type_jst.second));
     }
@@ -911,8 +925,12 @@ struct unifier_fn {
         if (i == margs.size())
             return some_expr(mtype);
         mtype = m_tc->ensure_pi(mtype);
-        if (!m_tc->is_def_eq(binding_domain(mtype), m_tc->infer(margs[i])))
+        try {
+            if (!m_tc->is_def_eq(binding_domain(mtype), m_tc->infer(margs[i])))
+                return none_expr();
+        } catch (kernel_exception &) {
             return none_expr();
+        }
         expr local = mk_local_for(mtype);
         expr body  = instantiate(binding_body(mtype), local);
         auto new_body = ensure_sufficient_args_core(body, i+1, margs);

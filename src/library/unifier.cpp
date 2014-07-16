@@ -387,11 +387,28 @@ struct unifier_fn {
         return cidx;
     }
 
+    /** \brief Check if \c t1 and \c t2 are definitionally equal, if they are not, set a conflict with justification \c j */
     bool is_def_eq(expr const & t1, expr const & t2, justification const & j) {
         if (m_tc->is_def_eq(t1, t2, j)) {
             return true;
         } else {
             set_conflict(j);
+            return false;
+        }
+    }
+
+    /** \brief Check if \c t1 and \c t2 are definitionally, and accumulate constraints in \c new_cs
+
+        \pre m_tc must not have pending constraints
+    */
+    bool is_def_eq(expr const & t1, expr const & t2, justification const & j, buffer<constraint> & new_cs) {
+        type_checker::scope s(*m_tc);
+        lean_assert(!m_tc->next_cnstr());
+        if (m_tc->is_def_eq(t1, t2, j)) {
+            while (auto c = m_tc->next_cnstr())
+                new_cs.push_back(*c);
+            return true;
+        } else {
             return false;
         }
     }
@@ -859,15 +876,18 @@ struct unifier_fn {
             return false;
         }
 
-        justification a = mk_assumption_justification(m_next_assumption_idx);
-
+        justification a;
         // add case_split for t =?= s
         expr lhs_fn_val = instantiate_univ_params(d.get_value(), d.get_univ_params(), const_levels(lhs_fn));
         expr rhs_fn_val = instantiate_univ_params(d.get_value(), d.get_univ_params(), const_levels(rhs_fn));
         expr t = apply_beta(lhs_fn_val, lhs_args.size(), lhs_args.data());
         expr s = apply_beta(rhs_fn_val, rhs_args.size(), rhs_args.data());
-        constraints cs2(mk_eq_cnstr(t, s, j));
-        add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, j, list<constraints>(cs2))));
+        buffer<constraint> cs2;
+        if (is_def_eq(t, s, j, cs2)) {
+            // create a case split
+            a = mk_assumption_justification(m_next_assumption_idx);
+            add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, j, to_list(cs2.begin(), cs2.end()))));
+        }
 
         // process first case
         justification new_j = mk_composite1(j, a);
@@ -1252,6 +1272,7 @@ struct unifier_fn {
         } else {
             auto r = instantiate_metavars(c);
             c = r.first;
+            lean_assert(!m_tc->next_cnstr());
             bool modified = r.second;
             if (is_level_eq_cnstr(c)) {
                 if (modified)

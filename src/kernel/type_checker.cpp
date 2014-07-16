@@ -232,8 +232,8 @@ expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
     expr e = _e;
     while (is_lambda(e)) {
         es.push_back(e);
+        ds.push_back(binding_domain(e));
         expr d = instantiate_rev(binding_domain(e), ls.size(), ls.data());
-        ds.push_back(d);
         expr l = mk_local(m_gen.next(), binding_name(e), d, binding_info(e));
         ls.push_back(l);
         if (!infer_only) {
@@ -247,8 +247,7 @@ expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
     unsigned i = es.size();
     while (i > 0) {
         --i;
-        expr d = abstract_locals(ds[i], i, ls.data());
-        r = mk_pi(binding_name(es[i]), d, r, binding_info(es[i]));
+        r = mk_pi(binding_name(es[i]), ds[i], r, binding_info(es[i]));
     }
     return r;
 }

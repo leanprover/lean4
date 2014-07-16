@@ -84,6 +84,7 @@ name converter::mk_fresh_name(type_checker & tc) { return tc.mk_fresh_name(); }
 expr converter::infer_type(type_checker & tc, expr const & e) { return tc.infer_type(e); }
 void converter::add_cnstr(type_checker & tc, constraint const & c) { return tc.add_cnstr(c); }
 extension_context & converter::get_extension(type_checker & tc) { return tc.get_extension(); }
+static expr g_dont_care(Const("dontcare"));
 
 struct default_converter : public converter {
     environment           m_env;
@@ -300,11 +301,21 @@ struct default_converter : public converter {
         expr_kind k = t.kind();
         buffer<expr> subst;
         do {
-            expr var_t_type = instantiate_rev(binding_domain(t), subst.size(), subst.data());
-            expr var_s_type = instantiate_rev(binding_domain(s), subst.size(), subst.data());
-            if (!is_def_eq(var_t_type, var_s_type, c, jst))
-                return false;
-            subst.push_back(mk_local(mk_fresh_name(c), binding_name(s), var_s_type, binding_info(s)));
+            optional<expr> var_s_type;
+            if (binding_domain(t) != binding_domain(s)) {
+                var_s_type = instantiate_rev(binding_domain(s), subst.size(), subst.data());
+                expr var_t_type = instantiate_rev(binding_domain(t), subst.size(), subst.data());
+                if (!is_def_eq(var_t_type, *var_s_type, c, jst))
+                    return false;
+            }
+            if (!closed(binding_body(t)) || !closed(binding_body(s))) {
+                // local is used inside t or s
+                if (!var_s_type)
+                    var_s_type = instantiate_rev(binding_domain(s), subst.size(), subst.data());
+                subst.push_back(mk_local(mk_fresh_name(c), binding_name(s), *var_s_type, binding_info(s)));
+            } else {
+                subst.push_back(g_dont_care); // don't care
+            }
             t = binding_body(t);
             s = binding_body(s);
         } while (t.kind() == k && s.kind() == k);

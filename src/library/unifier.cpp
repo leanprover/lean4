@@ -984,6 +984,39 @@ struct unifier_fn {
     }
 
     /**
+       \see mk_flex_rigid_app_cnstrs
+       When using "imitation" for solving a constraint
+                ?m l_1 ... l_k =?= f a_1 ... a_n
+       We say argument a_i is "easy" if
+                 1) it is a local constant
+                 2) there is only one l_j equal to a_i.
+                 3) none of the l_j's is of the form (?m ...)
+       In our experiments, the vast majority (> 2/3 of all cases) of the arguments are easy.
+
+       margs contains l_1 ... l_k
+       arg is the argument we are testing
+
+       Result: none if it is not an easy argument, and variable #k-i-1 if it is easy.
+       The variable is the "solution".
+    */
+    optional<expr> is_easy_flex_rigid_arg(buffer<expr> const & margs, expr const & arg) {
+        if (!is_local(arg))
+            return none_expr();
+        optional<expr> v;
+        unsigned num_margs = margs.size();
+        for (unsigned j = 0; j < num_margs; j++) {
+            if (is_meta(margs[j]))
+                return none_expr();
+            if (is_local(margs[j]) && mlocal_name(arg) == mlocal_name(margs[j])) {
+                if (v)
+                    return none_expr(); // failed, there is more than one possibility
+                v = mk_var(num_margs - j - 1);
+            }
+        }
+        return v;
+    }
+
+    /**
        \brief Given
                m      := a metavariable ?m
                margs  := [a_1 ... a_k]
@@ -993,6 +1026,9 @@ struct unifier_fn {
                ...
                (?m_n a_1 ... a_k) =?= b_n
                ?m  =?= fun (x_1 ... x_k), f (?m_1 x_1 ... x_k) ... (?m_n x_1 ... x_k)
+
+       Remark: we try to minimize the number of constraints (?m_i a_1 ... a_k) =?= b_i by detecting "easy" cases
+       that can be solved immediately. See \c is_easy_flex_rigid_arg
 
        Remark: The term f is:
                   - g (if g is a constant), OR
@@ -1012,9 +1048,13 @@ struct unifier_fn {
         get_app_args(rhs, rargs);
         buffer<expr> sargs;
         for (expr const & rarg : rargs) {
-            expr maux = mk_aux_metavar_for(m_ngen, mtype);
-            cs.push_back(mk_eq_cnstr(mk_app(maux, margs), rarg, j));
-            sargs.push_back(mk_app_vars(maux, margs.size()));
+            if (auto v = is_easy_flex_rigid_arg(margs, rarg)) {
+                sargs.push_back(*v);
+            } else {
+                expr maux = mk_aux_metavar_for(m_ngen, mtype);
+                cs.push_back(mk_eq_cnstr(mk_app(maux, margs), rarg, j));
+                sargs.push_back(mk_app_vars(maux, margs.size()));
+            }
         }
         expr v = mk_app(f, sargs);
         v = mk_lambda_for(mtype, v);

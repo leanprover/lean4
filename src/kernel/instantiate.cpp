@@ -11,9 +11,30 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 
 namespace lean {
+template<bool rev>
+struct instantiate_easy_fn {
+    unsigned n;
+    expr const * subst;
+    instantiate_easy_fn(unsigned _n, expr const * _subst):n(_n), subst(_subst) {}
+    optional<expr> operator()(expr const & a, bool app) const {
+        if (closed(a))
+            return some_expr(a);
+        if (is_var(a) && var_idx(a) < n)
+            return some_expr(subst[rev ? n - var_idx(a) - 1 : var_idx(a)]);
+        if (app && is_app(a))
+        if (auto new_a = operator()(app_arg(a), false))
+        if (auto new_f = operator()(app_fn(a), true))
+            return some_expr(copy_tag(a, mk_app(*new_f, *new_a)));
+        return none_expr();
+    }
+};
+
 expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
     if (s >= get_free_var_range(a) || n == 0)
         return a;
+    if (s == 0)
+        if (auto r = instantiate_easy_fn<false>(n, subst)(a, true))
+            return *r;
     return replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
             unsigned s1 = s + offset;
             if (s1 < s)
@@ -43,6 +64,8 @@ expr instantiate(expr const & e, expr const & s) { return instantiate(e, 0, s); 
 expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
     if (closed(a))
         return a;
+    if (auto r = instantiate_easy_fn<true>(n, subst)(a, true))
+        return *r;
     return replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
             if (offset >= get_free_var_range(m))
                 return some_expr(m); // expression m does not contain free variables with idx >= offset

@@ -302,30 +302,36 @@ environment theorem_cmd(parser & p) {
     return definition_cmd_core(p, true, true);
 }
 
+static name g_lparen("("), g_lcurly("{"), g_ldcurly("⦃"), g_lbracket("[");
+
 static environment variables_cmd(parser & p) {
     auto pos = p.pos();
-    buffer<name> ids;
-    optional<binder_info> bi = parse_binder_info(p);
-    while (!p.curr_is_token(g_colon)) {
-        name id = p.check_id_next("invalid parameters declaration, identifier expected");
-        check_atomic(id);
-        ids.push_back(id);
-    }
-    p.next();
-    optional<parser::local_scope> scope1;
-    if (!in_section(p.env()))
-        scope1.emplace(p);
-    expr type = p.parse_expr();
-    p.parse_close_binder_info(bi);
-    level_param_names ls = to_level_param_names(collect_univ_params(type));
-    level_param_names new_ls;
-    list<expr> ctx = locals_to_context(type, p);
-    std::tie(type, new_ls) = p.elaborate_type(type, ctx);
-    update_section_local_levels(p, new_ls);
-    ls = append(ls, new_ls);
     environment env = p.env();
-    for (auto id : ids)
-        env = declare_var(p, env, id, ls, type, false, bi, pos);
+    while (true) {
+        optional<binder_info> bi = parse_binder_info(p);
+        buffer<name> ids;
+        while (!p.curr_is_token(g_colon)) {
+            name id = p.check_id_next("invalid parameters declaration, identifier expected");
+            check_atomic(id);
+            ids.push_back(id);
+        }
+        p.next();
+        optional<parser::local_scope> scope1;
+        if (!in_section(p.env()))
+            scope1.emplace(p);
+        expr type = p.parse_expr();
+        p.parse_close_binder_info(bi);
+        level_param_names ls = to_level_param_names(collect_univ_params(type));
+        level_param_names new_ls;
+        list<expr> ctx = locals_to_context(type, p);
+        std::tie(type, new_ls) = p.elaborate_type(type, ctx);
+        update_section_local_levels(p, new_ls);
+        ls = append(ls, new_ls);
+        for (auto id : ids)
+            env = declare_var(p, env, id, ls, type, false, bi, pos);
+        if (!p.curr_is_token(g_lparen) && !p.curr_is_token(g_lcurly) && !p.curr_is_token(g_ldcurly) && !p.curr_is_token(g_lbracket))
+            break;
+    }
     return env;
 }
 

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
+#include <memory>
 #include "kernel/replace_fn.h"
 
 #ifndef LEAN_DEFAULT_REPLACE_CACHE_CAPACITY
@@ -50,10 +51,32 @@ struct replace_cache {
     }
 };
 
-MK_THREAD_LOCAL_GET(replace_cache, get_replace_cache, LEAN_DEFAULT_REPLACE_CACHE_CAPACITY)
+struct replace_cache_stack {
+    unsigned                                    m_top;
+    std::vector<std::unique_ptr<replace_cache>> m_cache_stack;
+    replace_cache_stack():m_top(0) {}
+};
 
-struct replace_cache_reset {
-    ~replace_cache_reset() { get_replace_cache().clear(); }
+MK_THREAD_LOCAL_GET_DEF(replace_cache_stack, get_replace_cache_stack);
+
+class replace_cache_ref {
+    replace_cache * m_cache;
+public:
+    replace_cache_ref() {
+        replace_cache_stack & s = get_replace_cache_stack();
+        lean_assert(s.m_top <= s.m_cache_stack.size());
+        if (s.m_top == s.m_cache_stack.size())
+            s.m_cache_stack.push_back(std::unique_ptr<replace_cache>(new replace_cache(LEAN_DEFAULT_REPLACE_CACHE_CAPACITY)));
+        m_cache = s.m_cache_stack[s.m_top].get();
+        s.m_top++;
+    }
+    ~replace_cache_ref() {
+        replace_cache_stack & s = get_replace_cache_stack();
+        lean_assert(s.m_top > 0);
+        s.m_top--;
+        m_cache->clear();
+    }
+    replace_cache * operator->() const { return m_cache; }
 };
 
 /**
@@ -81,11 +104,11 @@ class replace_fn {
     std::function<optional<expr>(expr const &, unsigned)> m_f;
     frame_stack                                           m_fs;
     result_stack                                          m_rs;
-    replace_cache &                                       m_cache;
+    replace_cache_ref                                     m_cache;
 
     void save_result(expr const & e, expr const & r, unsigned offset, bool shared) {
         if (shared)
-            m_cache.insert(e, offset, r);
+            m_cache->insert(e, offset, r);
         m_rs.push_back(r);
     }
 
@@ -97,7 +120,7 @@ class replace_fn {
     bool visit(expr const & e, unsigned offset) {
         bool shared = false;
         if (is_shared(e)) {
-            if (auto r = m_cache.find(e, offset)) {
+            if (auto r = m_cache->find(e, offset)) {
                 m_rs.push_back(*r);
                 return true;
             }
@@ -141,10 +164,9 @@ class replace_fn {
 
 public:
     template<typename F>
-    replace_fn(F const & f):m_f(f), m_cache(get_replace_cache()) {}
+    replace_fn(F const & f):m_f(f) {}
 
     expr operator()(expr const & e) {
-        replace_cache_reset reset;
         expr r;
         visit(e, 0);
         while (!m_fs.empty()) {

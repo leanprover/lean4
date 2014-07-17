@@ -2,6 +2,10 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 
+abbreviation id {A : Type} (a : A) := a
+abbreviation compose {A : Type} {B : Type} {C : Type} (g : B → C) (f : A → B) := λ x, g (f x)
+infixl `∘`:60 := compose
+
 inductive path {A : Type} (a : A) : A → Type :=
 | refl : path a a
 
@@ -20,6 +24,10 @@ definition symm {A : Type} {a b : A} (p : a = b) : b = a
 
 definition trans {A : Type} {a b c : A} (p1 : a = b) (p2 : b = c) : a = c
 := p2*(p1)
+
+calc_subst transport
+calc_refl  refl
+calc_trans trans
 
 namespace logic
   postfix `⁻¹`:100 := symm
@@ -63,8 +71,38 @@ theorem trans_assoc {A : Type} {x y z w : A} (p : x = y) (q : y = z) (r : z = w)
      e2*(refl (p ⬝ (q ⬝ (refl z)))),
    path_rec (e3 ⬝ e1⁻¹) r
 
-theorem ap {A : Type} {B : Type} (f : A → B) {a b : A} (p : a = b) : f a = f b
+definition ap {A : Type} {B : Type} (f : A → B) {a b : A} (p : a = b) : f a = f b
 := p*(refl (f a))
+
+theorem ap_refl {A : Type} {B : Type} (f : A → B) (a : A) : ap f (refl a) = refl (f a)
+:= refl (refl (f a))
+
+section
+  parameter {A : Type}
+  parameter {B : Type}
+  parameter {C : Type}
+  parameter f : A → B
+  parameter g : B → C
+  parameters x y z : A
+  parameter p : x = y
+  parameter q : y = z
+
+  theorem ap_trans_dist : ap f (p ⬝ q) = (ap f p) ⬝ (ap f q)
+  := have e1 : ap f (p ⬝ refl y) = (ap f p) ⬝ (ap f (refl y)), from refl _,
+     path_rec e1 q
+
+  theorem ap_inv_dist : ap f (p⁻¹) = (ap f p)⁻¹
+  := have e1 : ap f ((refl x)⁻¹) = (ap f (refl x))⁻¹, from refl _,
+     path_rec e1 p
+
+  theorem ap_compose : ap g (ap f p) = ap (g∘f) p
+  := have e1 : ap g (ap f (refl x)) = ap (g∘f) (refl x), from refl _,
+     path_rec e1 p
+
+  theorem ap_id : ap id p = p
+  := have e1 : ap id (refl x) = (refl x), from refl (refl x),
+     path_rec e1 p
+end
 
 section
   parameter {A : Type}
@@ -73,11 +111,13 @@ section
   definition D [private] (x y : A) (p : x = y) := p*(f x) = f y
   definition d [private] (x : A) : D x x (refl x)
   := refl (f x)
+
   theorem apd {a b : A} (p : a = b) : p*(f a) = f b
   := path_rec (d a) p
 end
 
-definition homotopy {A : Type} {P : A → Type} (f g : Π x, P x)
+
+abbreviation homotopy {A : Type} {P : A → Type} (f g : Π x, P x)
 := Π x, f x = g x
 
 namespace logic
@@ -91,13 +131,34 @@ notation `take`   binders `,` r:(scoped f, f) := r
 section
   parameter {A : Type}
   parameter {B : Type}
+
   theorem hom_refl (f : A → B) : f ∼ f
   := take x, refl (f x)
+
   theorem hom_symm {f g : A → B} : f ∼ g → g ∼ f
   := assume h, take x, (h x)⁻¹
+
   theorem hom_trans {f g h : A → B} : f ∼ g → g ∼ h → f ∼ h
   := assume h1 h2, take x, (h1 x) ⬝ (h2 x)
+
+  theorem hom_fun {f g : A → B} {x y : A} (H : f ∼ g) (p : x = y) : (H x) ⬝ (ap g p) = (ap f p) ⬝ (H y)
+  := have e1 : (H x) ⬝ (refl (g x)) = (refl (f x)) ⬝ (H x), from
+       calc  (H x) ⬝ (refl (g x)) = H x                 : (trans_refl_right (H x))⁻¹
+                     ...         = (refl (f x)) ⬝ (H x) : trans_refl_left (H x),
+     have e2 : (H x) ⬝ (ap g (refl x)) = (ap f (refl x)) ⬝ (H x), from
+       calc (H x) ⬝ (ap g (refl x)) = (H x) ⬝ (refl (g x))   : {ap_refl g x}
+                             ...   = (refl (f x)) ⬝ (H x)    : e1
+                             ...   = (ap f (refl x)) ⬝ (H x) : {symm (ap_refl f x)},
+     path_rec e2 p
+
+
 end
+
+definition loop_space (A : Type) (a : A) := a = a
+notation `Ω` `(` A `,` a `)` := loop_space A a
+
+definition loop2d_space (A : Type) (a : A) := (refl a) = (refl a)
+notation `Ω²` `(` A `,` a `)` := loop2d_space A a
 
 inductive empty : Type :=
 -- empty

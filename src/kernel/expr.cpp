@@ -108,8 +108,9 @@ expr_const::expr_const(name const & n, levels const & ls):
 
 // Expr metavariables and local variables
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, expr const & t):
-    expr_cell(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
-              !is_meta || t.has_local(), t.has_param_univ()),
+    expr_composite(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
+                   !is_meta || t.has_local(), t.has_param_univ(),
+                   1, get_free_var_range(t)),
     m_name(n),
     m_type(t) {}
 void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
@@ -445,22 +446,6 @@ unsigned get_depth(expr const & e) {
     case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Macro:
     case expr_kind::App:
         return static_cast<expr_composite*>(e.raw())->m_depth;
-    }
-    lean_unreachable(); // LCOV_EXCL_LINE
-}
-
-unsigned get_free_var_range(expr const & e) {
-    switch (e.kind()) {
-    case expr_kind::Var:
-        return var_idx(e) + 1;
-    case expr_kind::Constant: case expr_kind::Sort:
-        return 0;
-    case expr_kind::Meta: case expr_kind::Local:
-        return get_free_var_range(mlocal_type(e));
-    case expr_kind::Lambda: case expr_kind::Pi:
-    case expr_kind::App:
-    case expr_kind::Macro:
-        return static_cast<expr_composite*>(e.raw())->m_free_var_range;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

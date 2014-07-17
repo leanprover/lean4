@@ -193,8 +193,20 @@ public:
     levels const & get_levels() const { return m_levels; }
 };
 
+/** \brief Composite expressions */
+class expr_composite : public expr_cell {
+protected:
+    unsigned m_depth;
+    unsigned m_free_var_range;
+    friend unsigned get_depth(expr const & e);
+    friend unsigned get_free_var_range(expr const & e);
+public:
+    expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local,
+                   bool has_param_univ, unsigned d, unsigned fv_range);
+};
+
 /** \brief Metavariables and local constants */
-class expr_mlocal : public expr_cell {
+class expr_mlocal : public expr_composite {
 protected:
     name   m_name;
     expr   m_type;
@@ -246,18 +258,6 @@ public:
     expr_local(name const & n, name const & pp_name, expr const & t, binder_info const & bi);
     name const & get_pp_name() const { return m_pp_name; }
     binder_info const & get_info() const { return m_bi; }
-};
-
-/** \brief Composite expressions */
-class expr_composite : public expr_cell {
-protected:
-    unsigned m_depth;
-    unsigned m_free_var_range;
-    friend unsigned get_depth(expr const & e);
-    friend unsigned get_free_var_range(expr const & e);
-public:
-    expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local,
-                   bool has_param_univ, unsigned d, unsigned fv_range);
 };
 
 /** \brief Applications */
@@ -586,7 +586,13 @@ unsigned get_depth(expr const & e);
    \brief Return \c R s.t. the de Bruijn index of all free variables
    occurring in \c e is in the interval <tt>[0, R)</tt>.
 */
-unsigned get_free_var_range(expr const & e);
+inline unsigned get_free_var_range(expr const & e) {
+    switch (e.kind()) {
+    case expr_kind::Var:                            return var_idx(e) + 1;
+    case expr_kind::Constant: case expr_kind::Sort: return 0;
+    default:                                        return static_cast<expr_composite*>(e.raw())->m_free_var_range;
+    }
+}
 /** \brief Return true iff the given expression has free variables. */
 inline bool has_free_vars(expr const & e) { return get_free_var_range(e) > 0; }
 /** \brief Return true iff the given expression does not have free variables. */

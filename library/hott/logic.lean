@@ -78,14 +78,9 @@ theorem ap_refl {A : Type} {B : Type} (f : A → B) (a : A) : ap f (refl a) = re
 := refl (refl (f a))
 
 section
-  parameter {A : Type}
-  parameter {B : Type}
-  parameter {C : Type}
-  parameter f : A → B
-  parameter g : B → C
-  parameters x y z : A
-  parameter p : x = y
-  parameter q : y = z
+  parameters {A : Type} {B : Type} {C : Type}
+  parameters (f : A → B) (g : B → C)
+  parameters (x y z : A) (p : x = y) (q : y = z)
 
   theorem ap_trans_dist : ap f (p ⬝ q) = (ap f p) ⬝ (ap f q)
   := have e1 : ap f (p ⬝ refl y) = (ap f p) ⬝ (ap f (refl y)), from refl _,
@@ -105,9 +100,7 @@ section
 end
 
 section
-  parameter {A : Type}
-  parameter {B : A → Type}
-  parameter f : Π x, B x
+  parameters {A : Type} {B : A → Type} (f : Π x, B x)
   definition D [private] (x y : A) (p : x = y) := p*(f x) = f y
   definition d [private] (x : A) : D x x (refl x)
   := refl (f x)
@@ -129,8 +122,7 @@ notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
 
 section
-  parameter {A : Type}
-  parameter {B : Type}
+  parameters {A : Type} {B : Type}
 
   theorem hom_refl (f : A → B) : f ∼ f
   := take x, refl (f x)

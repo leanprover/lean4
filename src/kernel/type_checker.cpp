@@ -275,7 +275,7 @@ expr type_checker::infer_pi(expr const & _e, bool infer_only) {
 }
 
 expr type_checker::infer_app(expr const & e, bool infer_only) {
-    expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), app_fn(e));
+    expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), e);
     if (!infer_only) {
         expr a_type = infer_type_core(app_arg(e), infer_only);
         app_delayed_justification jst(e, f_type, a_type);

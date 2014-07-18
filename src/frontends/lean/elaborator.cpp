@@ -745,11 +745,13 @@ public:
         expr f_type = f_t.second;
         lean_assert(is_pi(f_type));
         if (!expl) {
-            while (is_pi(f_type) && binding_info(f_type).is_strict_implicit()) {
+            while (binding_info(f_type).is_strict_implicit()) {
                 tag g        = f.get_tag();
                 expr imp_arg = mk_placeholder_meta(some_expr(binding_domain(f_type)), g);
                 f            = mk_app(f, imp_arg, g);
-                f_type       = whnf(instantiate(binding_body(f_type), imp_arg));
+                auto f_t     = ensure_fun(f);
+                f            = f_t.first;
+                f_type       = f_t.second;
             }
         }
         expr d_type = binding_domain(f_type);

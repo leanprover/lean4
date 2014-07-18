@@ -110,12 +110,12 @@ if (("${BOOST}" MATCHES "ON") AND ("${MULTI_THREAD}" MATCHES "ON"))
 endif()
 
 # MPFR
-find_package(MPFR 3.1.0)
+find_package(MPFR 3.1.0 REQUIRED)
 include_directories(${MPFR_INCLUDES})
 set(EXTRA_LIBS ${EXTRA_LIBS} ${MPFR_LIBRARIES})
 
 # GMP
-find_package(GMP 5.0.5)
+find_package(GMP 5.0.5 REQUIRED)
 include_directories(${GMP_INCLUDE_DIR})
 set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
 

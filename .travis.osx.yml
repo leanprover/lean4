@@ -4,10 +4,10 @@ env:
   # DROPBOX_KEY=[secure]
   - secure: "W8vou0KRJOOboZXP9q+D/9Wl6LlBeVS2T85MHWPz7EwCMQbJq5xWnGzYLE6FmC0iILcZkXyP63vqoYMFo5MJaEQeALGx2RuIiW7XgrD+7Bn4Vfsp6BLT7K9/AJETGGTQnLs8oZJJCXHGtzbc8EPFIZd/ZPPrve4jhEE5ZNhXnRc="
   matrix:
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF MULTI_THREAD=OFF PUSH_TO_CDASH=TRUE LUA=51
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF MULTI_THREAD=OFF PUSH_TO_CDASH=TRUE LUA=51 UPLOAD=osx PACKAGE=TRUE
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF MULTI_THREAD=OFF PUSH_TO_CDASH=TRUE LUA=52
-  - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF MULTI_THREAD=OFF PUSH_TO_CDASH=TRUE LUA=JIT
+  - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF MULTI_THREAD=OFF PUSH_TO_CDASH=TRUE LUA=51
+  - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF MULTI_THREAD=OFF PUSH_TO_CDASH=TRUE LUA=51 UPLOAD=osx PACKAGE=TRUE
+  - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF MULTI_THREAD=OFF PUSH_TO_CDASH=TRUE LUA=52
+  - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF MULTI_THREAD=OFF PUSH_TO_CDASH=TRUE LUA=JIT
 
 # Turn off tcmalloc on OSX due to segmentation fault.
 # Soonho filed a bug report for this:
@@ -18,14 +18,38 @@ env:
 # Soonho has reported the issue to the clang developers.
 # It is a known bug.
 
+install:
+- brew update
+- if [[ $CMAKE_CXX_COMPILER == g++ ]]; then
+      brew install gcc;
+      brew link gcc;
+      COMPILER=g++-4.8.3;
+  fi
+- brew install gmp; brew link --overwrite gmp
+- brew install mpfr; brew link --overwrite mpfr
+- if [[ $LUA == 52 ]]; then
+      brew tap homebrew/versions; brew install lua52;
+  fi
+- if [[ $LUA == 51 ]]; then
+      brew install lua;
+  fi
+- if [[ $LUA == JIT ]]; then
+      brew install luajit;
+  fi
+- brew list | grep "cmake" || brew install cmake
+- brew list | grep "ninja" || brew install ninja
+- if [[ $MEMCHECK == TRUE ]]; then
+      brew install valgrind;
+  fi
+- if [[ $USE_TCMALLOC == TRUE ]]; then brew install google-perftools; fi
+- if [[ $UPLOAD ]]; then
+      brew install python; pip install dropbox;
+  fi
+
 before_script:
 - mkdir -p build
 - cd build
-- CPLUS_INCLUDE_PATH=/usr/local/include/c++/4.8.1/:/usr/local/include/c++/4.8.1/x86_64-apple-darwin12.5.0:/usr/local/include/c++/4.8.1/bits/
-- export CPLUS_INCLUDE_PATH
-- LIBRARY_PATH=/usr/local/lib:/usr/local/lib/gcc/x86_64-apple-darwin12.5.0/4.8.1/
-- export LIBRARY_PATH
-- cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTCMALLOC=${TCMALLOC} -DMULTI_THREAD=${MULTI_THREAD} -DCMAKE_CXX_COMPILER=/usr/local/bin/${CMAKE_CXX_COMPILER} ../src -G Ninja
+- cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTCMALLOC=${TCMALLOC} -DMULTI_THREAD=${MULTI_THREAD} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ../src -G Ninja
 - cd ..
 
 # Remark:
@@ -34,7 +58,7 @@ before_script:
 
 script:
 - cd build
-- SITE=OSX10.8.5@Travis
+- SITE=OSX10.9.2@Travis
 - if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
       BUILD_TYPE=Release;
   else
@@ -42,7 +66,7 @@ script:
       CTEST_FLAGS="-E leanslowtests";
   fi
 - LUA_VERSION=LUA_${LUA}
-- BUILD_NAME=${TRAVIS_BRANCH}_g++-4.8.1_${BUILD_TYPE}_${LUA_VERSION}
+- BUILD_NAME=${TRAVIS_BRANCH}_${COMPILER}_${BUILD_TYPE}_${LUA_VERSION}
 - if [[ $TCMALLOC == ON ]]; then
       BUILD_NAME=${BUILD_NAME}_TC;
   fi;
@@ -94,32 +118,6 @@ after_script:
     ctest -D ExperimentalSubmit;
   fi
 - cd ..
-
-install:
-- if [[ $CMAKE_CXX_COMPILER == g++ ]]; then
-      wget http://dreal.cs.cmu.edu/required_packages/gcc-4.8-bin.tar.gz;
-      sudo tar xfz gcc-4.8-bin.tar.gz -C /;
-      sudo chown -R `whoami` /usr/local;
-      brew install gmp; brew link --overwrite gmp;
-      brew install mpfr; brew link --overwrite mpfr;
-  fi
-- if [[ $LUA == 52 ]]; then
-      brew tap homebrew/versions; brew install lua52;
-  fi
-- if [[ $LUA == 51 ]]; then
-      brew install lua;
-  fi
-- if [[ $LUA == JIT ]]; then
-      brew install luajit;
-  fi
-- brew install cmake ninja
-- if [[ $MEMCHECK == TRUE ]]; then
-      brew install valgrind;
-  fi
-- if [[ $USE_TCMALLOC == TRUE ]]; then brew install google-perftools; fi
-- if [[ $UPLOAD ]]; then
-      brew install python; pip install dropbox;
-  fi
 
 notifications:
   email:

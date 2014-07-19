@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
+#include "kernel/error_msgs.h"
 #include "library/occurs.h"
 #include "library/unifier.h"
 #include "library/opaque_hints.h"
@@ -431,7 +432,10 @@ struct unifier_fn {
         }
         if (in_conflict())
             return false;
-        if (!is_def_eq(m_type, v_type, j))
+        justification j1 = mk_justification(m, [=](formatter const & fmt, substitution const & subst) {
+                return pp_type_mismatch(fmt, subst.instantiate(m_type), subst.instantiate(v_type));
+            });
+        if (!is_def_eq(m_type, v_type, mk_composite1(j1, j)))
             return false;
         auto it = m_mvar_occs.find(mlocal_name(m));
         if (it) {

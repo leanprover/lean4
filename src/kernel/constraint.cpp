@@ -115,3 +115,4 @@ std::ostream & operator<<(std::ostream & out, constraint const & c) {
     return out;
 }
 }
+void print(lean::constraint const & c) { std::cout << c << "\n"; }

@@ -25,6 +25,12 @@ section
 
   theorem pair_ext (p : pair A B) : mk_pair (fst p) (snd p) = p
   := pair_rec (λ x y, refl (mk_pair x y)) p
+
+  theorem pair_ext_eq {p1 p2 : pair A B} (H1 : fst p1 = fst p2) (H2 : snd p1 = snd p2) : p1 = p2
+  := calc p1  = mk_pair (fst p1) (snd p1) : symm (pair_ext p1)
+          ... = mk_pair (fst p2) (snd p1) : {H1}
+          ... = mk_pair (fst p2) (snd p2) : {H2}
+          ... = p2                        : pair_ext p2
 end
 
 instance pair_inhabited

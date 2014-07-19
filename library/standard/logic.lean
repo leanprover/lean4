@@ -27,6 +27,9 @@ theorem not_elim {a : Bool} (H1 : ¬a) (H2 : a) : false
 theorem absurd {a : Bool} (H1 : a) (H2 : ¬a) : false
 := H2 H1
 
+theorem not_not_intro {a : Bool} (Ha : a) : ¬¬a
+:= assume Hna : ¬a, absurd Ha Hna
+
 theorem mt {a b : Bool} (H1 : a → b) (H2 : ¬b) : ¬a
 := assume Ha : a, absurd (H1 Ha) H2
 
@@ -66,6 +69,12 @@ theorem and_elim_right {a b : Bool} (H : a ∧ b) : b
 theorem and_swap {a b : Bool} (H : a ∧ b) : b ∧ a
 := and_intro (and_elim_right H) (and_elim_left H)
 
+theorem and_not_left {a : Bool} (b : Bool) (Hna : ¬a) : ¬(a ∧ b)
+:= assume H : a ∧ b, absurd (and_elim_left H) Hna
+
+theorem and_not_right (a : Bool) {b : Bool} (Hnb : ¬b) : ¬(a ∧ b)
+:= assume H : a ∧ b, absurd (and_elim_right H) Hnb
+
 inductive or (a b : Bool) : Bool :=
 | or_intro_left  : a → or a b
 | or_intro_right : b → or a b
@@ -84,6 +93,11 @@ theorem resolve_left {a b : Bool} (H1 : a ∨ b) (H2 : ¬b) : a
 
 theorem or_swap {a b : Bool} (H : a ∨ b) : b ∨ a
 := or_elim H (assume Ha, or_intro_right b Ha) (assume Hb, or_intro_left a Hb)
+
+theorem or_not_intro {a b : Bool} (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b)
+:= assume H : a ∨ b, or_elim H
+    (assume Ha, absurd_elim _ Ha Hna)
+    (assume Hb, absurd_elim _ Hb Hnb)
 
 inductive eq {A : Type} (a : A) : A → Bool :=
 | refl : eq a a
@@ -161,8 +175,11 @@ theorem a_neq_a_elim {A : Type} {a : A} (H : a ≠ a) : false
 theorem ne_irrefl {A : Type} {a : A} (H : a ≠ a) : false
 := H (refl a)
 
-theorem ne_symm {A : Type} {a b : A} (H : a ≠ b) : b ≠ a
+theorem not_eq_symm {A : Type} {a b : A} (H : ¬ a = b) : ¬ b = a
 := assume H1 : b = a, H (symm H1)
+
+theorem ne_symm {A : Type} {a b : A} (H : a ≠ b) : b ≠ a
+:= not_eq_symm H
 
 theorem eq_ne_trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b ≠ c) : a ≠ c
 := subst (symm H1) H2
@@ -193,6 +210,11 @@ theorem iff_mp_left {a b : Bool} (H1 : a ↔ b) (H2 : a) : b
 
 theorem iff_mp_right {a b : Bool} (H1 : a ↔ b) (H2 : b) : a
 := (iff_elim_right H1) H2
+
+theorem iff_flip_sign {a b : Bool} (H1 : a ↔ b) : ¬a ↔ ¬b
+:= iff_intro
+    (assume Hna, mt (iff_elim_right H1) Hna)
+    (assume Hnb, mt (iff_elim_left H1) Hnb)
 
 theorem eq_to_iff {a b : Bool} (H : a = b) : a ↔ b
 := iff_intro (λ Ha, subst H Ha) (λ Hb, subst (symm H) Hb)

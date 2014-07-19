@@ -1,7 +1,8 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-import logic
+import logic decidable
+
 namespace bit
 inductive bit : Type :=
 | b0 : bit
@@ -110,32 +111,10 @@ theorem bnot_false : !'0 = '1
 theorem bnot_true  : !'1 = '0
 := refl _
 
-definition beq (a b : bit) : bit
-:= bit_rec (bit_rec '1 '0 b) (bit_rec '0 '1 b) a
-
-infix `==`:50 := beq
-
-theorem beq_refl (a : bit) : (a == a) = '1
-:= induction_on a (refl ('0 == '0)) (refl ('1 == '1))
-
-theorem beq_b1_left (a : bit) : ('1 == a) = a
-:= induction_on a (refl ('1 == '0)) (refl ('1 == '1))
-
-theorem beq_b1_right (a : bit) : (a == '1) = a
-:= induction_on a (refl ('0 == '1)) (refl ('1 == '1))
-
-theorem beq_symm (a b : bit) : (a == b) = (b == a)
-:= induction_on a
-    (induction_on b (refl ('0 == '0)) (refl ('0 == '1)))
-    (induction_on b (refl ('1 == '0)) (refl ('1 == '1)))
-
-theorem to_eq {a b : bit} : a == b = '1 → a = b
-:= induction_on a
-    (induction_on b (assume H, refl '0) (assume H, absurd_elim ('0 = '1) (trans (symm (beq_b1_right '0)) H) b0_ne_b1))
-    (induction_on b (assume H, absurd_elim ('1 = '0) (trans (symm (beq_b1_left '0)) H) b0_ne_b1) (assume H, refl '1))
-
-theorem beq_eq (a b : bit) : (a == b) = '1 ↔ a = b
-:= iff_intro
-    (assume H, to_eq H)
-    (assume H, subst H (beq_refl a))
+using decidable
+theorem decidable_eq [instance] (a b : bit) : decidable (a = b)
+:= bit_rec
+    (bit_rec (inl (refl '0)) (inr b0_ne_b1) b)
+    (bit_rec (inr (not_eq_symm b0_ne_b1)) (inl (refl '1)) b)
+    a
 end

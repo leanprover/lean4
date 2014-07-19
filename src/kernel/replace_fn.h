@@ -21,4 +21,7 @@ namespace lean {
    if f return none_expr.
 */
 expr replace(expr const & e, std::function<optional<expr>(expr const &, unsigned)> const & f);
+inline expr replace(expr const & e, std::function<optional<expr>(expr const &)> const & f) {
+    return replace(e, [&](expr const & e, unsigned) { return f(e); });
+}
 }

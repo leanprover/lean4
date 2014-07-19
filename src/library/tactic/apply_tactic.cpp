@@ -165,7 +165,7 @@ level refresh_univ_metavars(level const & l, name_generator & ngen, name_map<lev
 expr refresh_univ_metavars(expr const & e, name_generator & ngen) {
     if (has_univ_metavar(e)) {
         name_map<level> level_map;
-        return replace(e, [&](expr const & e, unsigned) {
+        return replace(e, [&](expr const & e) {
                 if (!has_univ_metavar(e))
                     return some_expr(e);
                 if (is_sort(e))

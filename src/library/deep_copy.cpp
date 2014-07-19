@@ -27,7 +27,7 @@ expr copy(expr const & a) {
 
 expr deep_copy(expr const & e) {
     scoped_expr_caching scope(false);
-    return replace(e, [](expr const & e, unsigned) {
+    return replace(e, [](expr const & e) {
             if (is_atomic(e))
                 return some_expr(copy(e));
             else

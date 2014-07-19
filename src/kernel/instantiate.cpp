@@ -156,7 +156,7 @@ expr beta_reduce(expr t) {
 expr instantiate_univ_params(expr const & e, level_param_names const & ps, levels const & ls) {
     if (!has_param_univ(e))
         return e;
-    return replace(e, [&](expr const & e, unsigned) -> optional<expr> {
+    return replace(e, [&](expr const & e) -> optional<expr> {
             if (!has_param_univ(e))
                 return some_expr(e);
             if (is_constant(e)) {

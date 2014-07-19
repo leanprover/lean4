@@ -341,7 +341,7 @@ struct inductive_cmd_fn {
         section parameters \c section_params as arguments.
     */
     expr fix_inductive_occs(expr const & type, buffer<inductive_decl> const & decls, buffer<expr> const & section_params) {
-        return replace(type, [&](expr const & e, unsigned) {
+        return replace(type, [&](expr const & e) {
                 if (!is_constant(e))
                     return none_expr();
                 if (!std::any_of(decls.begin(), decls.end(),
@@ -455,7 +455,7 @@ struct inductive_cmd_fn {
         for (auto & d : decls) {
             buffer<intro_rule> new_irs;
             for (auto & ir : inductive_decl_intros(d)) {
-                expr new_type = replace(intro_rule_type(ir), [&](expr const & e, unsigned) {
+                expr new_type = replace(intro_rule_type(ir), [&](expr const & e) {
                         if (!is_constant(e))
                             return none_expr();
                         if (!std::any_of(decls.begin(), decls.end(),

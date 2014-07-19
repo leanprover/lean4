@@ -101,7 +101,7 @@ public:
         if (!has_univ_metavar(e)) {
             return e;
         } else {
-            return replace(e, [&](expr const & e, unsigned) {
+            return replace(e, [&](expr const & e) {
                     if (!has_univ_metavar(e)) {
                         return some_expr(e);
                     } else if (is_sort(e)) {

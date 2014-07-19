@@ -243,7 +243,7 @@ expr parser::propagate_levels(expr const & e, levels const & ls) {
     if (is_nil(ls)) {
         return e;
     } else {
-        return replace(e, [&](expr const & e, unsigned) {
+        return replace(e, [&](expr const & e) {
                 if (is_constant(e)) {
                     auto it = m_env.find(const_name(e));
                     if (it) {

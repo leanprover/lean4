@@ -78,7 +78,7 @@ static levels rename_param_levels(levels const & ls, name_map<name> const & para
 
 // Rename universe parameters occurring in e using the given mapping
 static expr rename_param_levels(expr const & e, name_map<name> const & param_name_map) {
-    return replace(e, [&](expr const & e, unsigned) {
+    return replace(e, [&](expr const & e) {
             if (is_constant(e))
                 return some_expr(update_constant(e, rename_param_levels(const_levels(e), param_name_map)));
             else if (is_sort(e))

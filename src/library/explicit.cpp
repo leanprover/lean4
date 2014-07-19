@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_explicit_name("@");
+static name g_implicit_name("@^-1");
 static name g_as_is_name("as_is");
 [[ noreturn ]] static void throw_ex(name const & n) { throw exception(sstream() << "unexpected occurrence of '" << n << "' expression"); }
 
@@ -26,20 +27,22 @@ public:
     virtual void write(serializer &) const { throw_ex(get_name()); }
 };
 
-class as_is_macro_cell : public explicit_macro_cell {
-public:
-    virtual name get_name() const { return g_as_is_name; }
-};
+struct as_is_macro_cell : public explicit_macro_cell { virtual name get_name() const { return g_as_is_name; } };
+struct implicit_macro_cell : public explicit_macro_cell { virtual name get_name() const { return g_implicit_name; } };
 
 static macro_definition g_explicit(new explicit_macro_cell());
 static macro_definition g_as_is(new as_is_macro_cell());
+static macro_definition g_implicit(new implicit_macro_cell());
 
 expr mk_explicit(expr const & e) { return mk_macro(g_explicit, 1, &e); }
 bool is_explicit(expr const & e) { return is_macro(e) && macro_def(e) == g_explicit; }
 expr mk_as_is(expr const & e) { return mk_macro(g_as_is, 1, &e); }
 bool is_as_is(expr const & e) { return is_macro(e) && macro_def(e) == g_as_is; }
+expr mk_implicit(expr const & e) { return mk_macro(g_implicit, 1, &e); }
+bool is_implicit(expr const & e) { return is_macro(e) && macro_def(e) == g_implicit; }
 expr const & get_explicit_arg(expr const & e) { lean_assert(is_explicit(e)); return macro_arg(e, 0); }
 expr const & get_as_is_arg(expr const & e) { lean_assert(is_as_is(e)); return macro_arg(e, 0); }
+expr const & get_implicit_arg(expr const & e) { lean_assert(is_implicit(e)); return macro_arg(e, 0); }
 
 static int mk_explicit(lua_State * L) { return push_expr(L, mk_explicit(to_expr(L, 1))); }
 static int is_explicit(lua_State * L) { return push_boolean(L, is_explicit(to_expr(L, 1))); }

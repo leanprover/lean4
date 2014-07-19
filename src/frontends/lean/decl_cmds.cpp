@@ -258,7 +258,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         type = Pi_as_is(section_ps, type, p);
         value = Fun_as_is(section_ps, value, p);
         levels section_ls = collect_section_levels(ls, p);
-        expr ref = mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_ps);
+        expr ref = mk_implicit(mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_ps));
         p.add_local_expr(n, ref);
     }
     level_param_names new_ls;

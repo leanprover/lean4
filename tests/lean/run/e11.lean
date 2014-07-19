@@ -35,6 +35,7 @@ section
   definition add_in (a : int) (b : nat) := a + (of_nat b)
   infixl + := add_ni
   infixl + := add_in
+  check add_ni
 
   check i + n
   check n + i

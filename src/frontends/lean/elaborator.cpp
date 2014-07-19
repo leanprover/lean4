@@ -948,7 +948,13 @@ public:
         } else if (is_explicit(get_app_fn(e))) {
             r    = visit_core(e);
         } else {
-            r    = visit_core(e);
+            if (is_implicit(e)) {
+                r = get_implicit_arg(e);
+                if (is_explicit(r)) r = get_explicit_arg(r);
+                r = visit_core(r);
+            } else {
+                r = visit_core(e);
+            }
             if (!is_lambda(r)) {
                 tag  g      = e.get_tag();
                 expr r_type = whnf(infer_type(r));

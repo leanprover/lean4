@@ -189,6 +189,23 @@ action mk_scoped_expr_action(expr const & rec, unsigned rb, bool lambda) {
 action mk_ext_action(parse_fn const & fn) { return action(new ext_action_cell(fn)); }
 action mk_ext_lua_action(char const * fn) { return action(new ext_lua_action_cell(fn)); }
 
+action replace(action const & a, std::function<expr(expr const &)> const & f) {
+    switch (a.kind()) {
+    case action_kind::Skip: case action_kind::Binder: case action_kind::Binders:
+    case action_kind::Ext:  case action_kind::LuaExt: case action_kind::Expr:
+        return a;
+    case action_kind::Exprs:
+        return mk_exprs_action(a.get_sep(), f(a.get_rec()), f(a.get_initial()), a.is_fold_right(), a.rbp());
+    case action_kind::ScopedExpr:
+        return mk_scoped_expr_action(f(a.get_rec()), a.rbp(), a.use_lambda_abstraction());
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+transition replace(transition const & t, std::function<expr(expr const &)> const & f) {
+    return transition(t.get_token(), replace(t.get_action(), f));
+}
+
 struct parse_table::cell {
     bool                                                         m_nud;
     list<expr>                                                   m_accept;

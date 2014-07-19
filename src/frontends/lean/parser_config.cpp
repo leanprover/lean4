@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "util/sstream.h"
+#include "util/list_fn.h"
 #include "library/scoped_ext.h"
 #include "library/kernel_serializer.h"
 #include "frontends/lean/parser_config.h"
@@ -16,6 +17,13 @@ namespace lean {
 using notation::transition;
 using notation::action;
 using notation::action_kind;
+
+notation_entry replace(notation_entry const & e, std::function<expr(expr const &)> const & f) {
+    return notation_entry(e.m_is_nud,
+                          map(e.m_transitions, [&](transition const & t) { return notation::replace(t, f); }),
+                          f(e.m_expr),
+                          e.m_overload);
+}
 
 struct token_state {
     token_table m_table;

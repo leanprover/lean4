@@ -89,6 +89,9 @@ action mk_scoped_expr_action(expr const & rec, unsigned rbp = 0, bool lambda = t
 action mk_ext_action(parse_fn const & fn);
 action mk_ext_lua_action(char const * lua_fn);
 
+/** \brief Apply \c f to expressions embedded in the given action */
+action replace(action const & a, std::function<expr(expr const &)> const & f);
+
 class transition {
     name           m_token;
     action         m_action;
@@ -98,6 +101,9 @@ public:
     name const & get_token() const { return m_token; }
     action const & get_action() const { return m_action; }
 };
+
+/** \brief Apply \c f to expressions embedded in the given transition */
+transition replace(transition const & t, std::function<expr(expr const &)> const & f);
 
 /**
    \brief Parse table "transition rules" for implementing a Pratt's parser.

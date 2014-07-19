@@ -29,6 +29,9 @@ struct notation_entry {
         m_is_nud(is_nud), m_transitions(ts), m_expr(e), m_overload(overload) {}
 };
 
+/** \brief Apply \c f to expressions embedded in the notation entry */
+notation_entry replace(notation_entry const & e, std::function<expr(expr const &)> const & f);
+
 environment add_token(environment const & env, token_entry const & e);
 environment add_notation(environment const & env, notation_entry const & e);
 

@@ -10,7 +10,7 @@ theorem case (P : Bool → Bool) (H1 : P true) (H2 : P false) (a : Bool) : P a
      (assume Ht : a = true,  subst (symm Ht) H1)
      (assume Hf : a = false, subst (symm Hf) H2)
 
-theorem em (a : Bool) : a ∨ ¬ a
+theorem em (a : Bool) : a ∨ ¬a
 := or_elim (boolcomplete a)
      (assume Ht : a = true,  or_intro_left (¬ a) (eqt_elim Ht))
      (assume Hf : a = false, or_intro_right a (eqf_elim Hf))
@@ -21,37 +21,37 @@ theorem boolcomplete_swapped (a : Bool) : a = false ∨ a = true
         (or_intro_left  (false = true) (refl false))
         a
 
-theorem not_true : (¬ true) = false
-:= have aux : ¬ (¬ true) = true, from
-     not_intro (assume H : (¬ true) = true,
+theorem not_true : (¬true) = false
+:= have aux : ¬ (¬true) = true, from
+     not_intro (assume H : (¬true) = true,
        absurd_not_true (subst (symm H) trivial)),
-   resolve_right (boolcomplete (¬ true)) aux
+   resolve_right (boolcomplete (¬true)) aux
 
-theorem not_false : (¬ false) = true
-:= have aux : ¬ (¬ false) = false, from
-     not_intro (assume H : (¬ false) = false,
+theorem not_false : (¬false) = true
+:= have aux : ¬ (¬false) = false, from
+     not_intro (assume H : (¬false) = false,
         subst H not_false_trivial),
    resolve_right (boolcomplete_swapped (¬ false)) aux
 
-theorem not_not_eq (a : Bool) : (¬ ¬ a) = a
-:= case (λ x, (¬ ¬ x) = x)
-        (calc (¬ ¬ true)  = (¬ false) : { not_true }
-                    ...   = true      : not_false)
-        (calc (¬ ¬ false) = (¬ true)  : { not_false }
-                    ...   = false     : not_true)
+theorem not_not_eq (a : Bool) : (¬¬a) = a
+:= case (λ x, (¬¬x) = x)
+        (calc (¬¬true)  = (¬false) : { not_true }
+                  ...   = true     : not_false)
+        (calc (¬¬false) = (¬true)  : { not_false }
+                  ...   = false    : not_true)
         a
 
-theorem not_not_elim {a : Bool} (H : ¬ ¬ a) : a
+theorem not_not_elim {a : Bool} (H : ¬¬a) : a
 := (not_not_eq a) ◂ H
 
 theorem boolext {a b : Bool} (Hab : a → b) (Hba : b → a) : a = b
 := or_elim (boolcomplete a)
-       (λ Hat : a = true,  or_elim (boolcomplete b)
-           (λ Hbt : b = true,  trans Hat (symm Hbt))
-           (λ Hbf : b = false, false_elim (a = b) (subst Hbf (Hab (eqt_elim Hat)))))
-       (λ Haf : a = false, or_elim (boolcomplete b)
-           (λ Hbt : b = true,  false_elim (a = b) (subst Haf (Hba (eqt_elim Hbt))))
-           (λ Hbf : b = false, trans Haf (symm Hbf)))
+    (assume Hat,  or_elim (boolcomplete b)
+      (assume Hbt,  trans Hat (symm Hbt))
+      (assume Hbf, false_elim (a = b) (subst Hbf (Hab (eqt_elim Hat)))))
+    (assume Haf, or_elim (boolcomplete b)
+      (assume Hbt,  false_elim (a = b) (subst Haf (Hba (eqt_elim Hbt))))
+      (assume Hbf, trans Haf (symm Hbf)))
 
 theorem iff_to_eq {a b : Bool} (H : a ↔ b) : a = b
 := iff_elim (assume H1 H2, boolext H1 H2) H
@@ -65,12 +65,12 @@ theorem eqt_intro {a : Bool} (H : a) : a = true
 := boolext (assume H1 : a,    trivial)
            (assume H2 : true, H)
 
-theorem eqf_intro {a : Bool} (H : ¬ a) : a = false
+theorem eqf_intro {a : Bool} (H : ¬a) : a = false
 := boolext (assume H1 : a,     absurd H1 H)
            (assume H2 : false, false_elim a H2)
 
-theorem by_contradiction {a : Bool} (H : ¬ a → false) : a
-:= or_elim (em a) (λ H1 : a, H1) (λ H1 : ¬ a, false_elim a (H H1))
+theorem by_contradiction {a : Bool} (H : ¬a → false) : a
+:= or_elim (em a) (assume H1 : a, H1) (assume H1 : ¬a, false_elim a (H H1))
 
 theorem a_neq_a {A : Type} (a : A) : (a ≠ a) = false
 := boolext (assume H, a_neq_a_elim H)
@@ -108,20 +108,18 @@ theorem not_and (a b : Bool) : (¬ (a ∧ b)) = (¬ a ∨ ¬ b)
 
 theorem imp_or (a b : Bool) : (a → b) = (¬ a ∨ b)
 := boolext
-     (assume H : a → b,
-        (or_elim (em a)
-           (λ Ha  : a,   or_intro_right (¬ a) (H Ha))
-           (λ Hna : ¬ a, or_intro_left b Hna)))
-     (assume H : ¬ a ∨ b,
-        assume Ha : a,
-          resolve_right H ((symm (not_not_eq a)) ◂ Ha))
+     (assume H : a → b, (or_elim (em a)
+       (assume Ha  : a,   or_intro_right (¬ a) (H Ha))
+       (assume Hna : ¬ a, or_intro_left b Hna)))
+     (assume (H : ¬ a ∨ b) (Ha : a),
+       resolve_right H ((symm (not_not_eq a)) ◂ Ha))
 
-theorem not_implies (a b : Bool) : (¬ (a → b)) = (a ∧ ¬ b)
-:= calc (¬ (a → b)) = (¬ (¬ a ∨ b))  : {imp_or a b}
-                 ... = (¬ ¬ a ∧ ¬ b)  : not_or (¬ a) b
-                 ... = (a ∧ ¬ b)      : {not_not_eq a}
+theorem not_implies (a b : Bool) : (¬ (a → b)) = (a ∧ ¬b)
+:= calc (¬ (a → b)) = (¬(¬a ∨ b)) : {imp_or a b}
+                 ... = (¬¬a ∧ ¬b)  : not_or (¬ a) b
+                 ... = (a ∧ ¬b)    : {not_not_eq a}
 
-theorem a_eq_not_a (a : Bool) : (a = ¬ a) = false
+theorem a_eq_not_a (a : Bool) : (a = ¬a) = false
 := boolext
      (assume H, or_elim (em a)
        (assume Ha, absurd Ha (subst H Ha))
@@ -135,27 +133,23 @@ theorem false_eq_true : (false = true) = false
 := subst not_false (a_eq_not_a false)
 
 theorem a_eq_true (a : Bool) : (a = true) = a
-:= boolext
-     (assume H, eqt_elim H)
-     (assume H, eqt_intro H)
+:= boolext (assume H, eqt_elim H) (assume H, eqt_intro H)
 
-theorem a_eq_false (a : Bool) : (a = false) = (¬ a)
-:= boolext
-     (assume H, eqf_elim H)
-     (assume H, eqf_intro H)
+theorem a_eq_false (a : Bool) : (a = false) = ¬a
+:= boolext (assume H, eqf_elim H) (assume H, eqf_intro H)
 
-theorem not_exists_forall {A : Type} {P : A → Bool} (H : ¬ ∃ x, P x) : ∀ x, ¬ P x
+theorem not_exists_forall {A : Type} {P : A → Bool} (H : ¬∃x, P x) : ∀x, ¬P x
 := take x, or_elim (em (P x))
-     (assume Hp : P x,   absurd_elim (¬ P x) (exists_intro x Hp) H)
-     (assume Hn : ¬ P x, Hn)
+     (assume Hp : P x,   absurd_elim (¬P x) (exists_intro x Hp) H)
+     (assume Hn : ¬P x, Hn)
 
-theorem not_forall_exists {A : Type} {P : A → Bool} (H : ¬ ∀ x, P x) : ∃ x, ¬ P x
-:= by_contradiction (assume H1 : ¬ ∃ x, ¬ P x,
-     have H2 : ∀ x, ¬ ¬ P x, from not_exists_forall H1,
-     have H3 : ∀ x, P x, from take x, not_not_elim (H2 x),
+theorem not_forall_exists {A : Type} {P : A → Bool} (H : ¬∀x, P x) : ∃x, ¬P x
+:= by_contradiction (assume H1 : ¬∃ x, ¬P x,
+     have H2 : ∀x, ¬¬P x, from not_exists_forall H1,
+     have H3 : ∀x, P x, from take x, not_not_elim (H2 x),
      absurd H3 H)
 
 theorem peirce (a b : Bool) : ((a → b) → a) → a
-:= assume H, by_contradiction (λ Hna : ¬ a,
-     have Hnna : ¬ ¬ a, from not_implies_left (mt H Hna),
+:= assume H, by_contradiction (assume Hna : ¬a,
+     have Hnna : ¬¬a, from not_implies_left (mt H Hna),
      absurd (not_not_elim Hnna) Hna)

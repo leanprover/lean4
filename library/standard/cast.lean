@@ -16,7 +16,7 @@ theorem cast_eq {A : Type} (H : A = A) (a : A) : cast H a = a
 := calc cast H a = cast (refl A) a : cast_proof_irrel H (refl A) a
             ...  = a               : cast_refl a
 
-definition heq {A B : Type} (a : A) (b : B) := ∃ H, cast H a = b
+definition heq {A B : Type} (a : A) (b : B) := ∃H, cast H a = b
 
 infixl `==`:50 := heq
 

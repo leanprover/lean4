@@ -241,6 +241,7 @@ struct import_modules_fn {
             auto d = load_module_file(i);
             d->m_dependents.push_back(r);
         }
+        r->m_module_idx = m_next_module_idx++;
 
         if (imports.empty())
             add_import_module_task(r);
@@ -302,7 +303,6 @@ struct import_modules_fn {
     }
 
     void import_module(module_info_ptr const & r) {
-        r->m_module_idx = m_next_module_idx++;
         std::string s(r->m_obj_code.data(), r->m_obj_code.size());
         std::istringstream in(s, std::ios_base::binary);
         deserializer d(in);

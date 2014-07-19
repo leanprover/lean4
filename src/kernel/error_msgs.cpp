@@ -40,6 +40,14 @@ format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & 
     return r;
 }
 
+format pp_type_mismatch(formatter const & fmt, expr const & expected_type, expr const & given_type) {
+    format r("type mismatch, expected type");
+    r += ::lean::pp_indent_expr(fmt, expected_type);
+    r += compose(line(), format("given type:"));
+    r += ::lean::pp_indent_expr(fmt, given_type);
+    return r;
+}
+
 format pp_decl_has_metavars(formatter const & fmt, name const & n, expr const & e, bool is_type) {
     format r("failed to add declaration '");
     r += format(n);

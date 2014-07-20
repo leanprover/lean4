@@ -41,3 +41,20 @@ theorem decidable_not [instance] {a : Bool} (Ha : decidable a) : decidable (¬a)
 := rec Ha
     (assume Ha,  inr (not_not_intro Ha))
     (assume Hna, inl Hna)
+
+theorem decidable_iff [instance] {a b : Bool} (Ha : decidable a) (Hb : decidable b) : decidable (a ↔ b)
+:= rec Ha
+    (assume Ha, rec Hb
+      (assume Hb  : b,  inl (iff_intro (assume H, Hb) (assume H, Ha)))
+      (assume Hnb : ¬b, inr (not_intro (assume H : a ↔ b, absurd (iff_mp_left H Ha) Hnb))))
+    (assume Hna, rec Hb
+      (assume Hb  : b,  inr (not_intro (assume H : a ↔ b, absurd (iff_mp_right H Hb) Hna)))
+      (assume Hnb : ¬b, inl (iff_intro (assume Ha, absurd_elim b Ha Hna) (assume Hb, absurd_elim a Hb Hnb))))
+
+theorem decidable_implies [instance] {a b : Bool} (Ha : decidable a) (Hb : decidable b) : decidable (a → b)
+:= rec Ha
+    (assume Ha  : a, rec Hb
+      (assume Hb  : b,  inl (assume H, Hb))
+      (assume Hnb : ¬b, inr (not_intro (assume H : a → b,
+        absurd (H Ha) Hnb))))
+    (assume Hna : ¬a, inl (assume Ha, absurd_elim b Ha Hna))

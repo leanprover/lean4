@@ -8,12 +8,27 @@ Author: Leonardo de Moura
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "util/exception.h"
 #include "util/sstream.h"
 #include "util/name.h"
 #include "util/optional.h"
 
+#ifndef LEAN_DEFAULT_MODULE_FILE_NAME
+#define LEAN_DEFAULT_MODULE_FILE_NAME "default"
+#endif
+
 namespace lean {
+static std::string g_default_file_name(LEAN_DEFAULT_MODULE_FILE_NAME);
+
+bool is_directory(char const * pathname) {
+    struct stat info;
+    if (stat(pathname, &info) != 0 )
+        return false; // failed to access pathname
+    return info.st_mode & S_IFDIR;
+}
+
 #if defined(LEAN_WINDOWS)
 // Windows version
 #include <windows.h>
@@ -43,10 +58,8 @@ static std::string get_exe_location() {
 }
 #else
 // Linux version
-#include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <limits.h> // NOLINT
 #include <stdio.h>
 static char g_path_sep     = ':';
@@ -200,6 +213,8 @@ bool is_known_file_ext(std::string const & fname) {
 
 optional<std::string> check_file(std::string const & path, std::string const & fname, char const * ext = nullptr) {
     std::string file = path + g_sep + fname;
+    if (is_directory(file.c_str()))
+        file += g_sep + g_default_file_name;
     if (ext)
         file += ext;
     std::ifstream ifile(file);

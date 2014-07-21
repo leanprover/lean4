@@ -267,18 +267,46 @@ file(GLOB_RECURSE LEAN_SOURCES
 add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})
 
+# Set PROCESSOR_COUNT
+if(NOT DEFINED PROCESSOR_COUNT)
+  # Unknown:
+  set(PROCESSOR_COUNT 1)
+
+  # Linux:
+  set(cpuinfo_file "/proc/cpuinfo")
+  if(EXISTS "${cpuinfo_file}")
+    file(STRINGS "${cpuinfo_file}" procs REGEX "^processor.: [0-9]+$")
+    list(LENGTH procs PROCESSOR_COUNT)
+  endif()
+
+  # Mac:
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    find_program(cmd_sys_pro "system_profiler")
+    if(cmd_sys_pro)
+      execute_process(COMMAND ${cmd_sys_pro} OUTPUT_VARIABLE info)
+      string(REGEX REPLACE "^.*Total Number Of Cores: ([0-9]+).*$" "\\1"
+        PROCESSOR_COUNT "${info}")
+    endif()
+  endif()
+
+  # Windows:
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(PROCESSOR_COUNT "$ENV{NUMBER_OF_PROCESSORS}")
+  endif()
+endif()
+
 if((${CYGWIN} EQUAL "1") OR (NOT (${CMAKE_SYSTEM_NAME} MATCHES "Windows")))
   # Only build libraries if we are NOT cross compiling
   add_custom_target(
     standard_lib ALL
-    COMMAND make LEAN=${CMAKE_BINARY_DIR}/shell/lean
+    COMMAND make -j ${PROCESSOR_COUNT} LEAN=${CMAKE_BINARY_DIR}/shell/lean
     DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library/standard
     )
 
   add_custom_target(
     hott_lib ALL
-    COMMAND make LEAN="${CMAKE_BINARY_DIR}/shell/lean" LEAN_OPTIONS="--hott"
+    COMMAND make -j ${PROCESSOR_COUNT} LEAN="${CMAKE_BINARY_DIR}/shell/lean" LEAN_OPTIONS="--hott"
     DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library/hott
     )

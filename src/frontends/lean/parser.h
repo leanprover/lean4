@@ -263,7 +263,7 @@ public:
     /** \brief Elaborate the definition n : t := v */
     std::tuple<expr, expr, level_param_names> elaborate_definition(name const & n, expr const & t, expr const & v);
     /** \brief Elaborate the definition n : t := v in the given environment*/
-    std::tuple<expr, expr, level_param_names> elaborate_definition_at(environment const & env, name const & n, expr const & t, expr const & v);
+    std::tuple<expr, expr, level_param_names> elaborate_definition_at(environment const & env, local_level_decls const & lls, name const & n, expr const & t, expr const & v);
 
     parser_pos_provider get_pos_provider() const { return parser_pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos); }
 

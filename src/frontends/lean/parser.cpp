@@ -494,10 +494,10 @@ std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name cons
     return ::lean::elaborate(m_env, m_local_level_decls, m_ios, n, t, v, &pp);
 }
 
-std::tuple<expr, expr, level_param_names> parser::elaborate_definition_at(environment const & env, name const & n, expr const & t,
-                                                                          expr const & v) {
+std::tuple<expr, expr, level_param_names> parser::elaborate_definition_at(environment const & env, local_level_decls const & lls,
+                                                                          name const & n, expr const & t, expr const & v) {
     parser_pos_provider pp = get_pos_provider();
-    return ::lean::elaborate(env, m_local_level_decls, m_ios, n, t, v, &pp);
+    return ::lean::elaborate(env, lls, m_ios, n, t, v, &pp);
 }
 
 [[ noreturn ]] void throw_invalid_open_binder(pos_info const & pos) {

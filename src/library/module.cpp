@@ -181,6 +181,7 @@ struct import_modules_fn {
     };
     typedef std::shared_ptr<module_info> module_info_ptr;
     name_map<module_info_ptr> m_module_info;
+    name_set                  m_visited;
 
     import_modules_fn(environment const & env, unsigned num_threads, bool keep_proofs, io_state const & ios):
         m_senv(env), m_num_threads(num_threads), m_keep_proofs(keep_proofs), m_ios(ios),
@@ -202,6 +203,9 @@ struct import_modules_fn {
         if (it)
             return *it;
         std::string fname = find_file(mname, {".olean"});
+        if (m_visited.contains(fname))
+            throw exception(sstream() << "circular dependency detected at '" << fname << "'");
+        m_visited.insert(fname);
         std::ifstream in(fname, std::ifstream::binary);
         if (!in.good())
             throw exception(sstream() << "failed to open file '" << fname << "'");
@@ -235,12 +239,11 @@ struct import_modules_fn {
         r->m_module_idx   = g_null_module_idx;
         m_import_counter++;
         std::swap(r->m_obj_code, code);
-        m_module_info.insert(mname, r);
-
         for (auto i : imports) {
             auto d = load_module_file(i);
             d->m_dependents.push_back(r);
         }
+        m_module_info.insert(mname, r);
         r->m_module_idx = m_next_module_idx++;
 
         if (imports.empty())

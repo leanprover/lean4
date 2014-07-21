@@ -16,8 +16,16 @@ atomic<unsigned> m_rc;                                                  \
 public:                                                                 \
 unsigned get_rc() const { return atomic_load(&m_rc); }                  \
 void inc_ref() { atomic_fetch_add_explicit(&m_rc, 1u, memory_order_relaxed); } \
-bool dec_ref_core() { lean_assert(get_rc() > 0); return atomic_fetch_sub_explicit(&m_rc, 1u, memory_order_relaxed) == 1u; } \
-void dec_ref() { if (dec_ref_core()) dealloc(); }
+bool dec_ref_core() {                                                   \
+    lean_assert(get_rc() > 0);                                          \
+    if (atomic_fetch_sub_explicit(&m_rc, 1u, memory_order_release) == 1u) { \
+        atomic_thread_fence(memory_order_acquire);                      \
+        return true;                                                    \
+    } else {                                                            \
+        return false;                                                   \
+    }                                                                   \
+}                                                                       \
+void dec_ref() { if (dec_ref_core()) { dealloc(); } }
 
 #define LEAN_COPY_REF(Arg)                      \
     if (Arg.m_ptr)                              \

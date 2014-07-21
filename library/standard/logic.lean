@@ -216,6 +216,21 @@ theorem iff_flip_sign {a b : Bool} (H1 : a ↔ b) : ¬a ↔ ¬b
     (assume Hna, mt (iff_elim_right H1) Hna)
     (assume Hnb, mt (iff_elim_left H1) Hnb)
 
+theorem iff_refl (a : Bool) : a ↔ a
+:= iff_intro (assume H, H) (assume H, H)
+
+theorem iff_trans {a b c : Bool} (H1 : a ↔ b) (H2 : b ↔ c) : a ↔ c
+:= iff_intro
+    (assume Ha, iff_mp_left H2 (iff_mp_left H1 Ha))
+    (assume Hc, iff_mp_right H1 (iff_mp_right H2 Hc))
+
+theorem iff_symm {a b : Bool} (H : a ↔ b) : b ↔ a
+:= iff_intro
+    (assume Hb, iff_mp_right H Hb)
+    (assume Ha, iff_mp_left H Ha)
+
+calc_trans iff_trans
+
 theorem eq_to_iff {a b : Bool} (H : a = b) : a ↔ b
 := iff_intro (λ Ha, subst H Ha) (λ Hb, subst (symm H) Hb)
 

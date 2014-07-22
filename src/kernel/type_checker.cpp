@@ -275,8 +275,8 @@ expr type_checker::infer_pi(expr const & _e, bool infer_only) {
 }
 
 expr type_checker::infer_app(expr const & e, bool infer_only) {
-    expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), e);
     if (!infer_only) {
+        expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), e);
         expr a_type = infer_type_core(app_arg(e), infer_only);
         app_delayed_justification jst(e, f_type, a_type);
         if (!is_def_eq(a_type, binding_domain(f_type), jst)) {
@@ -285,8 +285,26 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
                                        return pp_app_type_mismatch(fmt, e, binding_domain(f_type), a_type);
                                    });
         }
+        return instantiate(binding_body(f_type), app_arg(e));
+    } else {
+        buffer<expr> args;
+        expr const & f = get_app_args(e, args);
+        expr f_type    = infer_type_core(f, true);
+        unsigned j     = 0;
+        unsigned nargs = args.size();
+        for (unsigned i = 0; i < nargs; i++) {
+            if (is_pi(f_type)) {
+                f_type = binding_body(f_type);
+            } else {
+                f_type = instantiate_rev(f_type, i-j, args.data()+j);
+                f_type = ensure_pi_core(f_type, e);
+                f_type = binding_body(f_type);
+                j = i;
+            }
+        }
+        expr r = instantiate_rev(f_type, nargs-j, args.data()+j);
+        return r;
     }
-    return instantiate(binding_body(f_type), app_arg(e));
 }
 
 /**

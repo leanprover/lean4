@@ -3,19 +3,19 @@
 -- Author: Leonardo de Moura
 import logic cast
 
-axiom propcomplete (a : Prop) : a = true ∨ a = false
+axiom prop_complete (a : Prop) : a = true ∨ a = false
 
 theorem case (P : Prop → Prop) (H1 : P true) (H2 : P false) (a : Prop) : P a
-:= or_elim (propcomplete a)
+:= or_elim (prop_complete a)
      (assume Ht : a = true,  subst (symm Ht) H1)
      (assume Hf : a = false, subst (symm Hf) H2)
 
 theorem em (a : Prop) : a ∨ ¬a
-:= or_elim (propcomplete a)
+:= or_elim (prop_complete a)
      (assume Ht : a = true,  or_intro_left (¬ a) (eqt_elim Ht))
      (assume Hf : a = false, or_intro_right a (eqf_elim Hf))
 
-theorem propcomplete_swapped (a : Prop) : a = false ∨ a = true
+theorem prop_complete_swapped (a : Prop) : a = false ∨ a = true
 := case (λ x, x = false ∨ x = true)
         (or_intro_right (true = false) (refl true))
         (or_intro_left  (false = true) (refl false))
@@ -25,13 +25,13 @@ theorem not_true : (¬true) = false
 := have aux : ¬ (¬true) = true, from
      not_intro (assume H : (¬true) = true,
        absurd_not_true (subst (symm H) trivial)),
-   resolve_right (propcomplete (¬true)) aux
+   resolve_right (prop_complete (¬true)) aux
 
 theorem not_false : (¬false) = true
 := have aux : ¬ (¬false) = false, from
      not_intro (assume H : (¬false) = false,
         subst H not_false_trivial),
-   resolve_right (propcomplete_swapped (¬ false)) aux
+   resolve_right (prop_complete_swapped (¬ false)) aux
 
 theorem not_not_eq (a : Prop) : (¬¬a) = a
 := case (λ x, (¬¬x) = x)
@@ -45,11 +45,11 @@ theorem not_not_elim {a : Prop} (H : ¬¬a) : a
 := (not_not_eq a) ◂ H
 
 theorem propext {a b : Prop} (Hab : a → b) (Hba : b → a) : a = b
-:= or_elim (propcomplete a)
-    (assume Hat,  or_elim (propcomplete b)
+:= or_elim (prop_complete a)
+    (assume Hat,  or_elim (prop_complete b)
       (assume Hbt,  trans Hat (symm Hbt))
       (assume Hbf, false_elim (a = b) (subst Hbf (Hab (eqt_elim Hat)))))
-    (assume Haf, or_elim (propcomplete b)
+    (assume Haf, or_elim (prop_complete b)
       (assume Hbt,  false_elim (a = b) (subst Haf (Hba (eqt_elim Hbt))))
       (assume Hbf, trans Haf (symm Hbf)))
 

@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 import decidable tactic
-using bit decidable tactic
+using decidable tactic
 
 definition ite (c : Prop) {H : decidable c} {A : Type} (t e : A) : A
 := rec H (assume Hc,  t) (assume Hnc, e)

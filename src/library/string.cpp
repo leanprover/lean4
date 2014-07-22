@@ -14,9 +14,9 @@ namespace lean {
 static name g_string_macro("string_macro");
 static std::string g_string_opcode("Str");
 
-static expr g_bit(Const(name("bit", "bit")));
-static expr g_b0(Const(name("bit", "b0")));
-static expr g_b1(Const(name("bit", "b1")));
+static expr g_bool(Const(name("bool", "bool")));
+static expr g_b0(Const(name("bool", "b0")));
+static expr g_b1(Const(name("bool", "b1")));
 static expr g_char(Const(name("string", "char")));
 static expr g_ascii(Const(name("string", "ascii")));
 static expr g_string(Const(name("string", "string")));
@@ -101,9 +101,9 @@ bool has_string_decls(environment const & env) {
     try {
         type_checker tc(env);
         return
-            tc.infer(g_b0)    == g_bit &&
-            tc.infer(g_b1)    == g_bit &&
-            tc.infer(g_ascii) == g_bit >> (g_bit >> (g_bit >> (g_bit >> (g_bit >> (g_bit >> (g_bit >> (g_bit >> g_char))))))) &&
+            tc.infer(g_b0)    == g_bool &&
+            tc.infer(g_b1)    == g_bool &&
+            tc.infer(g_ascii) == g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> g_char))))))) &&
             tc.infer(g_empty) == g_string &&
             tc.infer(g_str)   == g_char >> (g_string >> g_string);
     } catch (...) {

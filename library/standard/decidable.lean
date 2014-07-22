@@ -17,6 +17,18 @@ theorem em (p : Bool) (H : decidable p) : p ∨ ¬p
 definition rec [inline] {p : Bool} {C : Type} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C
 := decidable_rec H1 H2 H
 
+theorem irrelevant {p : Bool} (d1 d2 : decidable p) : d1 = d2
+:= decidable_rec
+    (assume Hp1 : p, decidable_rec
+      (assume Hp2  : p,  congr2 inl (refl Hp1)) -- using proof irrelevance for Bool
+      (assume Hnp2 : ¬p, absurd_elim (inl Hp1 = inr Hnp2) Hp1 Hnp2)
+      d2)
+    (assume Hnp1 : ¬p, decidable_rec
+      (assume Hp2  : p,  absurd_elim (inr Hnp1 = inl Hp2) Hp2 Hnp1)
+      (assume Hnp2 : ¬p, congr2 inr (refl Hnp1)) -- using proof irrelevance for Bool
+      d2)
+    d1
+
 theorem decidable_true [instance] : decidable true
 := inl trivial
 

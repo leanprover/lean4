@@ -104,7 +104,7 @@ expr_var::expr_var(unsigned idx):
 }
 void expr_var::dealloc() {
     this->~expr_var();
-    get_var_allocator().recyle(this);
+    get_var_allocator().recycle(this);
 }
 
 // Expr constants
@@ -117,7 +117,7 @@ expr_const::expr_const(name const & n, levels const & ls):
 }
 void expr_const::dealloc() {
     this->~expr_const();
-    get_const_allocator().recyle(this);
+    get_const_allocator().recycle(this);
 }
 
 // Expr metavariables and local variables
@@ -132,7 +132,7 @@ expr_mlocal::expr_mlocal(bool is_meta, name const & n, expr const & t):
 void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_type, todelete);
     this->~expr_mlocal();
-    get_mlocal_allocator().recyle(this);
+    get_mlocal_allocator().recycle(this);
 }
 
 typedef memory_pool<sizeof(expr_local)> local_allocator;
@@ -144,7 +144,7 @@ expr_local::expr_local(name const & n, name const & pp_name, expr const & t, bin
 void expr_local::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_type, todelete);
     this->~expr_local();
-    get_local_allocator().recyle(this);
+    get_local_allocator().recycle(this);
 }
 
 // Composite expressions
@@ -172,7 +172,7 @@ void expr_app::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_fn, todelete);
     dec_ref(m_arg, todelete);
     this->~expr_app();
-    get_app_allocator().recyle(this);
+    get_app_allocator().recycle(this);
 }
 
 static unsigned dec(unsigned k) { return k == 0 ? 0 : k - 1; }
@@ -205,7 +205,7 @@ void expr_binding::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body, todelete);
     dec_ref(m_binder.m_type, todelete);
     this->~expr_binding();
-    get_binding_allocator().recyle(this);
+    get_binding_allocator().recycle(this);
 }
 
 // Expr Sort
@@ -218,7 +218,7 @@ expr_sort::expr_sort(level const & l):
 expr_sort::~expr_sort() {}
 void expr_sort::dealloc() {
     this->~expr_sort();
-    get_sort_allocator().recyle(this);
+    get_sort_allocator().recycle(this);
 }
 
 // Macro definition

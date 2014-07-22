@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/rc.h"
 #include "util/buffer.h"
+#include "util/memory_pool.h"
 #include "util/hash.h"
 #include "util/trace.h"
 #include "util/ascii.h"
@@ -23,10 +24,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 constexpr char const * anonymous_str = "[anonymous]";
-
-/**
-   \brief Actual implementation of hierarchical names.
-*/
+/** \brief Actual implementation of hierarchical names. */
 struct name::imp {
     MK_LEAN_RC()
     bool     m_is_string;
@@ -37,20 +35,7 @@ struct name::imp {
         unsigned m_k;
     };
 
-    void dealloc() {
-        imp * curr = this;
-        while (true) {
-            lean_assert(curr->get_rc() == 0);
-            imp * p = curr->m_prefix;
-            if (curr->m_is_string)
-                delete[] reinterpret_cast<char*>(curr);
-            else
-                delete curr;
-            curr = p;
-            if (!curr || !curr->dec_ref_core())
-                break;
-        }
-    }
+    void dealloc();
 
     imp(bool s, imp * p):m_rc(1), m_is_string(s), m_hash(0), m_prefix(p) { if (p) p->inc_ref(); }
 
@@ -83,6 +68,24 @@ struct name::imp {
     }
 };
 
+typedef memory_pool<sizeof(name::imp)> numeric_name_allocator;
+MK_THREAD_LOCAL_GET_DEF(numeric_name_allocator, get_numeric_name_allocator);
+
+void name::imp::dealloc() {
+    imp * curr = this;
+    while (true) {
+        lean_assert(curr->get_rc() == 0);
+        imp * p = curr->m_prefix;
+        if (curr->m_is_string)
+            delete[] reinterpret_cast<char*>(curr);
+        else
+            get_numeric_name_allocator().recycle(curr);
+        curr = p;
+        if (!curr || !curr->dec_ref_core())
+            break;
+    }
+}
+
 name::name(imp * p) {
     m_ptr = p;
     if (m_ptr)
@@ -107,7 +110,7 @@ name::name(name const & prefix, char const * name) {
 }
 
 name::name(name const & prefix, unsigned k, bool) {
-    m_ptr      = new imp(false, prefix.m_ptr);
+    m_ptr      = new (get_numeric_name_allocator().allocate()) imp(false, prefix.m_ptr);
     m_ptr->m_k = k;
     if (m_ptr->m_prefix)
         m_ptr->m_hash = ::lean::hash(m_ptr->m_prefix->m_hash, k);

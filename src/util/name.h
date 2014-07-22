@@ -22,7 +22,9 @@ enum class name_kind { ANONYMOUS, STRING, NUMERAL };
    \brief Hierarchical names.
 */
 class name {
+public:
     struct imp;
+private:
     friend int cmp(imp * i1, imp * i2);
     imp * m_ptr;
     explicit name(imp * p);

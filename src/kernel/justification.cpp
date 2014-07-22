@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/buffer.h"
 #include "util/int64.h"
+#include "util/memory_pool.h"
 #include "kernel/justification.h"
 #include "kernel/metavar.h"
 
@@ -112,13 +113,39 @@ approx_set get_approx_assumption_set(justification const & j) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
+typedef memory_pool<sizeof(asserted_cell)>        asserted_allocator;
+typedef memory_pool<sizeof(composite_cell)>       composite_allocator;
+typedef memory_pool<sizeof(ext_composite_cell)>   ext_composite_allocator;
+typedef memory_pool<sizeof(assumption_cell)>      assumption_allocator;
+typedef memory_pool<sizeof(ext_assumption_cell)>  ext_assumption_allocator;
+MK_THREAD_LOCAL_GET_DEF(asserted_allocator,       get_asserted_allocator);
+MK_THREAD_LOCAL_GET_DEF(composite_allocator,      get_composite_allocator);
+MK_THREAD_LOCAL_GET_DEF(ext_composite_allocator,  get_ext_composite_allocator);
+MK_THREAD_LOCAL_GET_DEF(assumption_allocator,     get_assumption_allocator);
+MK_THREAD_LOCAL_GET_DEF(ext_assumption_allocator, get_ext_assumption_allocator);
+
 void justification_cell::dealloc() {
     switch (m_kind) {
-    case justification_kind::Asserted:         delete to_asserted(this); break;
-    case justification_kind::Assumption:       delete to_assumption(this); break;
-    case justification_kind::ExtAssumption:    delete to_ext_assumption(this); break;
-    case justification_kind::Composite:        delete to_composite(this); break;
-    case justification_kind::ExtComposite:     delete to_ext_composite(this); break;
+    case justification_kind::Asserted:
+        to_asserted(this)->~asserted_cell();
+        get_asserted_allocator().recycle(this);
+        break;
+    case justification_kind::Assumption:
+        to_assumption(this)->~assumption_cell();
+        get_assumption_allocator().recycle(this);
+        break;
+    case justification_kind::ExtAssumption:
+        to_ext_assumption(this)->~ext_assumption_cell();
+        get_ext_assumption_allocator().recycle(this);
+        break;
+    case justification_kind::Composite:
+        to_composite(this)->~composite_cell();
+        get_composite_allocator().recycle(this);
+        break;
+    case justification_kind::ExtComposite:
+        to_ext_composite(this)->~ext_composite_cell();
+        get_ext_composite_allocator().recycle(this);
+        break;
     }
 }
 
@@ -220,23 +247,23 @@ justification mk_composite(justification const & j1, justification const & j2, o
         return j2;
     if (j2.is_none())
         return j1;
-    return justification(new ext_composite_cell(j1, j2, fn, s));
+    return justification(new (get_ext_composite_allocator().allocate()) ext_composite_cell(j1, j2, fn, s));
 }
 justification mk_composite1(justification const & j1, justification const & j2) {
     if (j1.is_none())
         return j2;
     if (j2.is_none())
         return j1;
-    return justification(new composite_cell(j1, j2));
+    return justification(new (get_composite_allocator().allocate()) composite_cell(j1, j2));
 }
 justification mk_assumption_justification(unsigned idx, optional<expr> const & s, pp_jst_fn const & fn) {
-    return justification(new ext_assumption_cell(idx, fn, s));
+    return justification(new (get_ext_assumption_allocator().allocate()) ext_assumption_cell(idx, fn, s));
 }
 justification mk_assumption_justification(unsigned idx) {
-    return justification(new assumption_cell(idx));
+    return justification(new (get_assumption_allocator().allocate()) assumption_cell(idx));
 }
 justification mk_justification(optional<expr> const & s, pp_jst_fn const & fn) {
-    return justification(new asserted_cell(fn, s));
+    return justification(new (get_asserted_allocator().allocate()) asserted_cell(fn, s));
 }
 justification mk_justification(optional<expr> const & s, pp_jst_sfn const & fn) {
     return mk_justification(s, [=](formatter const & fmt, pos_info_provider const * p, substitution const & subst) {

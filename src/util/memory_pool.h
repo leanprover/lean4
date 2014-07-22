@@ -32,7 +32,7 @@ public:
         }
     }
 
-    void recyle(void * ptr) {
+    void recycle(void * ptr) {
         *(reinterpret_cast<void**>(ptr)) = m_free_list;
         m_free_list = ptr;
     }

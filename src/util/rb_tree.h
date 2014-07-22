@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/buffer.h"
 #include "util/optional.h"
+#include "util/memory_pool.h"
 
 namespace lean {
 /**
@@ -57,10 +58,18 @@ class rb_tree : public CMP {
         T    m_value;
         bool m_red;
         MK_LEAN_RC();
-        void dealloc() { delete this; }
+        void dealloc();
         node_cell(T const & v):m_value(v), m_red(true), m_rc(0) {}
         node_cell(node_cell const & s):m_left(s.m_left), m_right(s.m_right), m_value(s.m_value), m_red(s.m_red), m_rc(0) {}
     };
+
+    typedef memory_pool<sizeof(node_cell)> node_allocator;
+    static node_allocator & get_node_allocator() {
+        LEAN_THREAD_PTR(node_allocator) g_allocator;
+        if (!g_allocator.get())
+            g_allocator.reset(new node_allocator());
+        return *g_allocator;
+    }
 
     int cmp(T const & v1, T const & v2) const {
         return CMP::operator()(v1, v2);
@@ -68,7 +77,7 @@ class rb_tree : public CMP {
 
     static node ensure_unshared(node && n) {
         if (n.is_shared()) {
-            return node(new node_cell(*n.m_ptr));
+            return node(new (get_node_allocator().allocate()) node_cell(*n.m_ptr));
         } else {
             return n;
         }
@@ -127,7 +136,7 @@ class rb_tree : public CMP {
 
     node insert(node && n, T const & v) {
         if (!n)
-            return node(new node_cell(v));
+            return node(new (get_node_allocator().allocate()) node_cell(v));
         node h = ensure_unshared(n.steal());
 
         int c = cmp(v, h->m_value);
@@ -362,6 +371,12 @@ public:
         to_buffer(m_root.m_ptr, r);
     }
 };
+
+template<typename T, typename CMP>
+void rb_tree<T, CMP>::node_cell::dealloc() {
+    this->~node_cell();
+    get_node_allocator().recycle(this);
+}
 
 template<typename T, typename CMP>
 rb_tree<T, CMP> insert(rb_tree<T, CMP> const & t, T const & v) { rb_tree<T, CMP> r(t); r.insert(v); return r; }

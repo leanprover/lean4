@@ -6,13 +6,15 @@ using decidable
 
 namespace unit
 inductive unit : Type :=
-| tt : unit
+| star : unit
+
+notation `⋆`:max := star
 
 theorem unit_eq (a b : unit) : a = b
-:= unit_rec (unit_rec (refl tt) b) a
+:= unit_rec (unit_rec (refl ⋆) b) a
 
 theorem inhabited_unit [instance] : inhabited unit
-:= inhabited_intro tt
+:= inhabited_intro ⋆
 
 using decidable
 theorem decidable_eq [instance] (a b : unit) : decidable (a = b)

@@ -8,12 +8,13 @@ Author: Leonardo de Moura
 #include "util/memory.h"
 
 namespace lean {
+/** \brief Auxiliary object for "recycling" allocated memory of fixed size */
 template<unsigned Size>
-class fixed_size_allocator {
+class memory_pool {
     void * m_free_list;
 public:
-    fixed_size_allocator():m_free_list(nullptr) {}
-    ~fixed_size_allocator() {
+    memory_pool():m_free_list(nullptr) {}
+    ~memory_pool() {
         while (m_free_list != nullptr) {
             void * r = m_free_list;
             m_free_list = *(reinterpret_cast<void **>(r));

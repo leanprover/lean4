@@ -82,6 +82,15 @@ theorem cast_trans {A B C : Type} (Hab : A = B) (Hbc : B = C) (a : A) : cast Hbc
                                       ...  == a                      : cast_heq Hab a
                                       ...  == cast (trans Hab Hbc) a : hsymm (cast_heq (trans Hab Hbc) a))
 
+theorem dcongr2 {A : Type} {B : A → Type} (f : Πx, B x) {a b : A} (H : a = b) : f a == f b
+:= have e1 : ∀ (H : B a = B a), cast H (f a) = f a, from
+     assume H, cast_eq H (f a),
+   have e2 : ∀ (H : B a = B b), cast H (f a) = f b, from
+     subst H e1,
+   have e3 : cast (congr2 B H) (f a) = f b, from
+     e2 (congr2 B H),
+   cast_eq_to_heq e3
+
 theorem pi_eq {A : Type} {B B' : A → Type} (H : B = B') : (Π x, B x) = (Π x, B' x)
 := subst H (refl (Π x, B x))
 

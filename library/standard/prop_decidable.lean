@@ -14,5 +14,5 @@ theorem inhabited_decidable [instance] (a : Prop) : inhabited (decidable a)
 
 -- Note that inhabited_decidable is marked as an instance, and it is silently used
 -- for synthesizing the implicit argument in the following 'epsilon'
-theorem bool_decidable [instance] (a : Prop) : decidable a
+theorem prop_decidable [instance] (a : Prop) : decidable a
 := epsilon (λ d, true)

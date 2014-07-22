@@ -552,17 +552,20 @@ struct unifier_fn {
         return Continue;
     }
 
-    expr instantiate_meta(expr const & e, justification & j) {
-        expr const & f = get_app_fn(e);
-        if (!is_metavar(f))
-            return e;
-        auto r = m_subst.d_instantiate_metavars(f);
-        if (is_metavar(r.first))
-            return e;
-        buffer<expr> args;
-        get_app_rev_args(e, args);
-        j = mk_composite1(j, r.second);
-        return apply_beta(r.first, args.size(), args.data());
+    expr instantiate_meta(expr e, justification & j) {
+        while (true) {
+            expr const & f = get_app_fn(e);
+            if (!is_metavar(f))
+                return e;
+            name const & f_name = mlocal_name(f);
+            auto f_value = m_subst.get_expr(f_name);
+            if (!f_value)
+                return e;
+            j = mk_composite1(j, m_subst.get_expr_jst(f_name));
+            buffer<expr> args;
+            get_app_rev_args(e, args);
+            e = apply_beta(*f_value, args.size(), args.data());
+        }
     }
 
     expr instantiate_meta_args(expr const & e, justification & j) {

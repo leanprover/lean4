@@ -166,7 +166,7 @@ public:
       T * m_ptr;
   public:
       thread_specific_ptr():m_ptr(nullptr) {}
-      ~thread_specific_ptr() { if (m_ptr) delete m_ptr; }
+      ~thread_specific_ptr() { if (m_ptr) delete m_ptr; m_ptr = nullptr; }
       T * get() const { return m_ptr; }
       void reset(T * ptr) { if (m_ptr) delete m_ptr; m_ptr = ptr; }
       T * operator->() const { return m_ptr; }

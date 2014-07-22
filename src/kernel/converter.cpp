@@ -389,6 +389,20 @@ struct default_converter : public converter {
         return is_constant(t) && const_name(t) == f_name;
     }
 
+    /** \brief Try to solve (fun (x : A), B) =?= s by trying eta-expansion on s */
+    bool try_eta_expansion(expr const & t, expr const & s, type_checker & c, delayed_justification & jst) {
+        if (is_lambda(t) && !is_lambda(s)) {
+            type_checker::scope scope(c);
+            expr s_type = whnf(infer_type(c, s), c);
+            if (!is_pi(s_type))
+                return false;
+            expr new_s = mk_lambda(binding_name(s_type), binding_domain(s_type), mk_app(s, Var(0)), binding_info(s_type));
+            return is_def_eq(t, new_s, c, jst);
+        } else {
+            return false;
+        }
+    }
+
     /** Return true iff t is definitionally equal to s. */
     virtual bool is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst) {
         check_system("is_definitionally_equal");
@@ -494,6 +508,10 @@ struct default_converter : public converter {
                 }
             }
         }
+
+        if (try_eta_expansion(t_n, s_n, c, jst) ||
+            try_eta_expansion(s_n, t_n, c, jst))
+            return true;
 
         if (m_env.prop_proof_irrel()) {
             // Proof irrelevance support for Prop (aka Type.{0})

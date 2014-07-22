@@ -1,13 +1,13 @@
-definition Bool [inline] := Type.{0}
+definition Prop [inline] := Type.{0}
 
-definition false : Bool := ∀x : Bool, x
+definition false : Prop := ∀x : Prop, x
 check false
 
-theorem false_elim (C : Bool) (H : false) : C
+theorem false_elim (C : Prop) (H : false) : C
 := H C
 
 definition eq {A : Type} (a b : A)
-:= ∀ P : A → Bool, P a → P b
+:= ∀ P : A → Prop, P a → P b
 
 check eq
 
@@ -16,13 +16,13 @@ infix `=`:50 := eq
 theorem refl {A : Type} (a : A) : a = a
 := λ P H, H
 
-definition true : Bool
+definition true : Prop
 := false = false
 
 theorem trivial : true
 := refl false
 
-theorem subst {A : Type} {P : A -> Bool} {a b : A} (H1 : a = b) (H2 : P a) : P b
+theorem subst {A : Type} {P : A -> Prop} {a b : A} (H1 : a = b) (H2 : P a) : P b
 := H1 _ H2
 
 theorem symm {A : Type} {a b : A} (H : a = b) : b = a
@@ -36,10 +36,10 @@ inductive nat : Type :=
 | succ : nat → nat
 
 print "using strict implicit arguments"
-abbreviation symmetric {A : Type} (R : A → A → Bool) := ∀ ⦃a b⦄, R a b → R b a
+abbreviation symmetric {A : Type} (R : A → A → Prop) := ∀ ⦃a b⦄, R a b → R b a
 
 check symmetric
-variable p : nat → nat → Bool
+variable p : nat → nat → Prop
 check symmetric p
 axiom H1 : symmetric p
 axiom H2 : p zero (succ zero)
@@ -48,7 +48,7 @@ check H1 H2
 
 print "------------"
 print "using implicit arguments"
-abbreviation symmetric2 {A : Type} (R : A → A → Bool) := ∀ {a b}, R a b → R b a
+abbreviation symmetric2 {A : Type} (R : A → A → Prop) := ∀ {a b}, R a b → R b a
 check symmetric2
 check symmetric2 p
 axiom H3 : symmetric2 p
@@ -58,7 +58,7 @@ check H3 H4
 
 print "-----------------"
 print "using strict implicit arguments (ASCII notation)"
-abbreviation symmetric3 {A : Type} (R : A → A → Bool) := ∀ {{a b}}, R a b → R b a
+abbreviation symmetric3 {A : Type} (R : A → A → Prop) := ∀ {{a b}}, R a b → R b a
 
 check symmetric3
 check symmetric3 p

@@ -2,7 +2,7 @@ import standard
 
 namespace setoid
   inductive setoid : Type :=
-  | mk_setoid: Π (A : Type'), (A → A → Bool) → setoid
+  | mk_setoid: Π (A : Type'), (A → A → Prop) → setoid
 
   set_option pp.universes true
 
@@ -12,7 +12,7 @@ namespace setoid
   definition carrier (s : setoid)
   := setoid_rec (λ a eq, a) s
 
-  definition eqv {s : setoid} : carrier s → carrier s → Bool
+  definition eqv {s : setoid} : carrier s → carrier s → Prop
   := setoid_rec (λ a eqv, eqv) s
 
   infix `≈`:50 := eqv

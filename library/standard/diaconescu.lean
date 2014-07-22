@@ -5,11 +5,11 @@ import logic hilbert funext
 
 -- Diaconescu’s theorem
 -- Show that Excluded middle follows from
---   Hilbert's choice operator, function extensionality and Boolean extensionality
+--   Hilbert's choice operator, function extensionality and Prop extensionality
 section
-hypothesis boolext ⦃a b : Bool⦄ : (a → b) → (b → a) → a = b
+hypothesis propext ⦃a b : Prop⦄ : (a → b) → (b → a) → a = b
 
-parameter p : Bool
+parameter p : Prop
 
 definition u [private] := epsilon (λ x, x = true ∨ p)
 
@@ -33,13 +33,13 @@ lemma uv_implies_p [private] : ¬(u = v) ∨ p
 lemma p_implies_uv [private] : p → u = v
 := assume Hp : p,
    have Hpred : (λ x, x = true ∨ p) = (λ x, x = false ∨ p), from
-     funext (take x : Bool,
+     funext (take x : Prop,
        have Hl : (x = true ∨ p) → (x = false ∨ p), from
          assume A, or_intro_right (x = false) Hp,
        have Hr : (x = false ∨ p) → (x = true ∨ p), from
          assume A, or_intro_right (x = true) Hp,
        show (x = true ∨ p) = (x = false ∨ p), from
-         boolext Hl Hr),
+         propext Hl Hr),
    show u = v, from
      subst Hpred (refl (epsilon (λ x, x = true ∨ p)))
 

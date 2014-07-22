@@ -18,10 +18,10 @@ Author: Leonardo de Moura
 /*
    The implementation is based on the paper: "Inductive Families", Peter Dybjer, 1997
    The main differences are:
-      - Support for Bool/Prop (when environment is marked as impredicative)
+      - Support for Prop (when environment is marked as impredicative)
       - Universe levels
 
-   The support for Bool/Prop is based on the paper: "Inductive Definitions in the System Coq: Rules and Properties",
+   The support for Prop is based on the paper: "Inductive Definitions in the System Coq: Rules and Properties",
    Christine Paulin-Mohring.
 
    Given a sequence of universe levels parameters (m_level_names), each datatype decls have the form
@@ -44,7 +44,7 @@ Author: Leonardo de Moura
 
    The universe levels of arguments b and u must be smaller than or equal to l_k in I_k.
 
-   When the environment is marked as impredicative, then l_k must be 0 (Bool/Prop) or must be different from zero for
+   When the environment is marked as impredicative, then l_k must be 0 (Prop) or must be different from zero for
    any instantiation of the universe level parameters (and global level parameters).
 
    This module produces an eliminator/recursor for each inductive datatype I_k, it has the form.
@@ -232,7 +232,7 @@ struct add_inductive_fn {
     */
     void check_inductive_types() {
         bool first   = true;
-        bool to_prop = false; // set to true if the inductive datatypes live in Bool/Prop (Type 0)
+        bool to_prop = false; // set to true if the inductive datatypes live in Prop (Type 0)
         for (auto d : m_decls) {
             expr t = inductive_decl_type(d);
             tc().check(t, m_level_names);
@@ -259,7 +259,7 @@ struct add_inductive_fn {
                 throw kernel_exception(m_env, "number of parameters mismatch in inductive datatype declaration");
             t = tc().ensure_sort(t);
             if (m_env.impredicative()) {
-                // if the environment is impredicative, then the resultant universe is 0 (Bool/Prop),
+                // if the environment is impredicative, then the resultant universe is 0 (Prop),
                 // or is never zero (under any parameter assignment).
                 if (!is_zero(sort_level(t)) && !is_not_zero(sort_level(t)))
                     throw kernel_exception(m_env,
@@ -270,8 +270,8 @@ struct add_inductive_fn {
                 } else {
                     if (is_zero(sort_level(t)) != to_prop)
                         throw kernel_exception(m_env,
-                                               "for impredicative environments, if one datatype is in Bool/Prop, "
-                                               "then all of them must be in Bool/Prop");
+                                               "for impredicative environments, if one datatype is in Prop, "
+                                               "then all of them must be in Prop");
                 }
             }
             m_it_levels.push_back(sort_level(t));
@@ -469,7 +469,7 @@ struct add_inductive_fn {
     /** \brief Initialize m_elim_level. */
     void mk_elim_level() {
         if (elim_only_at_universe_zero()) {
-            // environment is impredicative, datatype maps to Bool/Prop, we have more than one introduction rule.
+            // environment is impredicative, datatype maps to Prop, we have more than one introduction rule.
             m_elim_level = mk_level_zero();
         } else {
             name l("l");

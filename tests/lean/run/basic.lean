@@ -30,8 +30,8 @@ end
 check double
 check double.{1 2}
 
-definition Bool [inline] := Type.{0}
-variable eq : Π {A : Type}, A → A → Bool
+definition Prop [inline] := Type.{0}
+variable eq : Π {A : Type}, A → A → Prop
 infix `=`:50 := eq
 
 check eq.{1}

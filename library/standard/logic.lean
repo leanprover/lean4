@@ -1,42 +1,42 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Leonardo de Moura, Jeremy Avigad
-definition Bool [inline] := Type.{0}
+definition Prop [inline] := Type.{0}
 
-inductive false : Bool :=
+inductive false : Prop :=
 -- No constructors
 
-theorem false_elim (c : Bool) (H : false) : c
+theorem false_elim (c : Prop) (H : false) : c
 := false_rec c H
 
-inductive true : Bool :=
+inductive true : Prop :=
 | trivial : true
 
-definition not (a : Bool) := a → false
+definition not (a : Prop) := a → false
 prefix `¬`:40 := not
 
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
 
-theorem not_intro {a : Bool} (H : a → false) : ¬a
+theorem not_intro {a : Prop} (H : a → false) : ¬a
 := H
 
-theorem not_elim {a : Bool} (H1 : ¬a) (H2 : a) : false
+theorem not_elim {a : Prop} (H1 : ¬a) (H2 : a) : false
 := H1 H2
 
-theorem absurd {a : Bool} (H1 : a) (H2 : ¬a) : false
+theorem absurd {a : Prop} (H1 : a) (H2 : ¬a) : false
 := H2 H1
 
-theorem not_not_intro {a : Bool} (Ha : a) : ¬¬a
+theorem not_not_intro {a : Prop} (Ha : a) : ¬¬a
 := assume Hna : ¬a, absurd Ha Hna
 
-theorem mt {a b : Bool} (H1 : a → b) (H2 : ¬b) : ¬a
+theorem mt {a b : Prop} (H1 : a → b) (H2 : ¬b) : ¬a
 := assume Ha : a, absurd (H1 Ha) H2
 
-theorem contrapos {a b : Bool} (H : a → b) : ¬ b → ¬ a
+theorem contrapos {a b : Prop} (H : a → b) : ¬ b → ¬ a
 := assume Hnb : ¬b, mt H Hnb
 
-theorem absurd_elim {a : Bool} (b : Bool) (H1 : a) (H2 : ¬a) : b
+theorem absurd_elim {a : Prop} (b : Prop) (H1 : a) (H2 : ¬a) : b
 := false_elim b (absurd H1 H2)
 
 theorem absurd_not_true (H : ¬true) : false
@@ -45,66 +45,66 @@ theorem absurd_not_true (H : ¬true) : false
 theorem not_false_trivial : ¬false
 := assume H : false, H
 
-theorem not_implies_left {a b : Bool} (H : ¬(a → b)) : ¬¬a
+theorem not_implies_left {a b : Prop} (H : ¬(a → b)) : ¬¬a
 := assume Hna : ¬a, absurd (assume Ha : a, absurd_elim b Ha Hna) H
 
-theorem not_implies_right {a b : Bool} (H : ¬(a → b)) : ¬b
+theorem not_implies_right {a b : Prop} (H : ¬(a → b)) : ¬b
 := assume Hb : b, absurd (assume Ha : a, Hb) H
 
-inductive and (a b : Bool) : Bool :=
+inductive and (a b : Prop) : Prop :=
 | and_intro : a → b → and a b
 
 infixr `/\`:35 := and
 infixr `∧`:35 := and
 
-theorem and_elim {a b c : Bool} (H1 : a → b → c) (H2 : a ∧ b) : c
+theorem and_elim {a b c : Prop} (H1 : a → b → c) (H2 : a ∧ b) : c
 := and_rec H1 H2
 
-theorem and_elim_left {a b : Bool} (H : a ∧ b) : a
+theorem and_elim_left {a b : Prop} (H : a ∧ b) : a
 := and_rec (λa b, a) H
 
-theorem and_elim_right {a b : Bool} (H : a ∧ b) : b
+theorem and_elim_right {a b : Prop} (H : a ∧ b) : b
 := and_rec (λa b, b) H
 
-theorem and_swap {a b : Bool} (H : a ∧ b) : b ∧ a
+theorem and_swap {a b : Prop} (H : a ∧ b) : b ∧ a
 := and_intro (and_elim_right H) (and_elim_left H)
 
-theorem and_not_left {a : Bool} (b : Bool) (Hna : ¬a) : ¬(a ∧ b)
+theorem and_not_left {a : Prop} (b : Prop) (Hna : ¬a) : ¬(a ∧ b)
 := assume H : a ∧ b, absurd (and_elim_left H) Hna
 
-theorem and_not_right (a : Bool) {b : Bool} (Hnb : ¬b) : ¬(a ∧ b)
+theorem and_not_right (a : Prop) {b : Prop} (Hnb : ¬b) : ¬(a ∧ b)
 := assume H : a ∧ b, absurd (and_elim_right H) Hnb
 
-inductive or (a b : Bool) : Bool :=
+inductive or (a b : Prop) : Prop :=
 | or_intro_left  : a → or a b
 | or_intro_right : b → or a b
 
 infixr `\/`:30 := or
 infixr `∨`:30 := or
 
-theorem or_elim {a b c : Bool} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
+theorem or_elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
 := or_rec H2 H3 H1
 
-theorem resolve_right {a b : Bool} (H1 : a ∨ b) (H2 : ¬a) : b
+theorem resolve_right {a b : Prop} (H1 : a ∨ b) (H2 : ¬a) : b
 := or_elim H1 (assume Ha, absurd_elim b Ha H2) (assume Hb, Hb)
 
-theorem resolve_left {a b : Bool} (H1 : a ∨ b) (H2 : ¬b) : a
+theorem resolve_left {a b : Prop} (H1 : a ∨ b) (H2 : ¬b) : a
 := or_elim H1 (assume Ha, Ha) (assume Hb, absurd_elim a Hb H2)
 
-theorem or_swap {a b : Bool} (H : a ∨ b) : b ∨ a
+theorem or_swap {a b : Prop} (H : a ∨ b) : b ∨ a
 := or_elim H (assume Ha, or_intro_right b Ha) (assume Hb, or_intro_left a Hb)
 
-theorem or_not_intro {a b : Bool} (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b)
+theorem or_not_intro {a b : Prop} (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b)
 := assume H : a ∨ b, or_elim H
     (assume Ha, absurd_elim _ Ha Hna)
     (assume Hb, absurd_elim _ Hb Hnb)
 
-inductive eq {A : Type} (a : A) : A → Bool :=
+inductive eq {A : Type} (a : A) : A → Prop :=
 | refl : eq a a
 
 infix `=`:50 := eq
 
-theorem subst {A : Type} {a b : A} {P : A → Bool} (H1 : a = b) (H2 : P a) : P b
+theorem subst {A : Type} {a b : A} {P : A → Prop} (H1 : a = b) (H2 : P a) : P b
 := eq_rec H2 H1
 
 theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
@@ -133,31 +133,31 @@ theorem congr {A : Type} {B : Type} {f g : A → B} {a b : A} (H1 : f = g) (H2 :
 theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀x, f x = g x
 := take x, congr1 H x
 
-theorem not_congr {a b : Bool} (H : a = b) : (¬a) = (¬b)
+theorem not_congr {a b : Prop} (H : a = b) : (¬a) = (¬b)
 := congr2 not H
 
-theorem eqmp {a b : Bool} (H1 : a = b) (H2 : a) : b
+theorem eqmp {a b : Prop} (H1 : a = b) (H2 : a) : b
 := subst H1 H2
 
 infixl `<|`:100 := eqmp
 infixl `◂`:100 := eqmp
 
-theorem eqmpr {a b : Bool} (H1 : a = b) (H2 : b) : a
+theorem eqmpr {a b : Prop} (H1 : a = b) (H2 : b) : a
 := (symm H1) ◂ H2
 
-theorem eqt_elim {a : Bool} (H : a = true) : a
+theorem eqt_elim {a : Prop} (H : a = true) : a
 := (symm H) ◂ trivial
 
-theorem eqf_elim {a : Bool} (H : a = false) : ¬a
+theorem eqf_elim {a : Prop} (H : a = false) : ¬a
 := not_intro (assume Ha : a, H ◂ Ha)
 
-theorem imp_trans {a b c : Bool} (H1 : a → b) (H2 : b → c) : a → c
+theorem imp_trans {a b c : Prop} (H1 : a → b) (H2 : b → c) : a → c
 := assume Ha, H2 (H1 Ha)
 
-theorem imp_eq_trans {a b c : Bool} (H1 : a → b) (H2 : b = c) : a → c
+theorem imp_eq_trans {a b c : Prop} (H1 : a → b) (H2 : b = c) : a → c
 := assume Ha, H2 ◂ (H1 Ha)
 
-theorem eq_imp_trans {a b c : Bool} (H1 : a = b) (H2 : b → c) : a → c
+theorem eq_imp_trans {a b c : Prop} (H1 : a = b) (H2 : b → c) : a → c
 := assume Ha, H2 (H1 ◂ Ha)
 
 definition ne {A : Type} (a b : A) := ¬(a = b)
@@ -190,54 +190,54 @@ theorem ne_eq_trans {A : Type} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a ≠ c
 calc_trans eq_ne_trans
 calc_trans ne_eq_trans
 
-definition iff (a b : Bool) := (a → b) ∧ (b → a)
+definition iff (a b : Prop) := (a → b) ∧ (b → a)
 infix `↔`:25 := iff
 
-theorem iff_intro {a b : Bool} (H1 : a → b) (H2 : b → a) : a ↔ b
+theorem iff_intro {a b : Prop} (H1 : a → b) (H2 : b → a) : a ↔ b
 := and_intro H1 H2
 
-theorem iff_elim {a b c : Bool} (H1 : (a → b) → (b → a) → c) (H2 : a ↔ b) : c
+theorem iff_elim {a b c : Prop} (H1 : (a → b) → (b → a) → c) (H2 : a ↔ b) : c
 := and_rec H1 H2
 
-theorem iff_elim_left {a b : Bool} (H : a ↔ b) : a → b
+theorem iff_elim_left {a b : Prop} (H : a ↔ b) : a → b
 := iff_elim (assume H1 H2, H1) H
 
-theorem iff_elim_right {a b : Bool} (H : a ↔ b) : b → a
+theorem iff_elim_right {a b : Prop} (H : a ↔ b) : b → a
 := iff_elim (assume H1 H2, H2) H
 
-theorem iff_mp_left {a b : Bool} (H1 : a ↔ b) (H2 : a) : b
+theorem iff_mp_left {a b : Prop} (H1 : a ↔ b) (H2 : a) : b
 := (iff_elim_left H1) H2
 
-theorem iff_mp_right {a b : Bool} (H1 : a ↔ b) (H2 : b) : a
+theorem iff_mp_right {a b : Prop} (H1 : a ↔ b) (H2 : b) : a
 := (iff_elim_right H1) H2
 
-theorem iff_flip_sign {a b : Bool} (H1 : a ↔ b) : ¬a ↔ ¬b
+theorem iff_flip_sign {a b : Prop} (H1 : a ↔ b) : ¬a ↔ ¬b
 := iff_intro
     (assume Hna, mt (iff_elim_right H1) Hna)
     (assume Hnb, mt (iff_elim_left H1) Hnb)
 
-theorem iff_refl (a : Bool) : a ↔ a
+theorem iff_refl (a : Prop) : a ↔ a
 := iff_intro (assume H, H) (assume H, H)
 
-theorem iff_trans {a b c : Bool} (H1 : a ↔ b) (H2 : b ↔ c) : a ↔ c
+theorem iff_trans {a b c : Prop} (H1 : a ↔ b) (H2 : b ↔ c) : a ↔ c
 := iff_intro
     (assume Ha, iff_mp_left H2 (iff_mp_left H1 Ha))
     (assume Hc, iff_mp_right H1 (iff_mp_right H2 Hc))
 
-theorem iff_symm {a b : Bool} (H : a ↔ b) : b ↔ a
+theorem iff_symm {a b : Prop} (H : a ↔ b) : b ↔ a
 := iff_intro
     (assume Hb, iff_mp_right H Hb)
     (assume Ha, iff_mp_left H Ha)
 
 calc_trans iff_trans
 
-theorem eq_to_iff {a b : Bool} (H : a = b) : a ↔ b
+theorem eq_to_iff {a b : Prop} (H : a = b) : a ↔ b
 := iff_intro (λ Ha, subst H Ha) (λ Hb, subst (symm H) Hb)
 
-theorem and_comm (a b : Bool) : a ∧ b ↔ b ∧ a
+theorem and_comm (a b : Prop) : a ∧ b ↔ b ∧ a
 := iff_intro (λH, and_swap H) (λH, and_swap H)
 
-theorem and_assoc (a b c : Bool) : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c)
+theorem and_assoc (a b c : Prop) : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c)
 := iff_intro
     (assume H, and_intro
         (and_elim_left (and_elim_left H))
@@ -246,10 +246,10 @@ theorem and_assoc (a b c : Bool) : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c)
         (and_intro (and_elim_left H) (and_elim_left (and_elim_right H)))
         (and_elim_right (and_elim_right H)))
 
-theorem or_comm (a b : Bool) : a ∨ b ↔ b ∨ a
+theorem or_comm (a b : Prop) : a ∨ b ↔ b ∨ a
 := iff_intro (λH, or_swap H) (λH, or_swap H)
 
-theorem or_assoc (a b c : Bool) : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c)
+theorem or_assoc (a b c : Prop) : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c)
 := iff_intro
     (assume H, or_elim H
       (assume H1, or_elim H1
@@ -262,46 +262,46 @@ theorem or_assoc (a b c : Bool) : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c)
         (assume Hb, or_intro_left c (or_intro_right a Hb))
         (assume Hc, or_intro_right _ Hc)))
 
-inductive Exists {A : Type} (P : A → Bool) : Bool :=
+inductive Exists {A : Type} (P : A → Prop) : Prop :=
 | exists_intro : ∀ (a : A), P a → Exists P
 
 notation `∃` binders `,` r:(scoped P, Exists P) := r
 
-theorem exists_elim {A : Type} {p : A → Bool} {B : Bool} (H1 : ∃x, p x) (H2 : ∀ (a : A) (H : p a), B) : B
+theorem exists_elim {A : Type} {p : A → Prop} {B : Prop} (H1 : ∃x, p x) (H2 : ∀ (a : A) (H : p a), B) : B
 := Exists_rec H2 H1
 
-theorem exists_not_forall {A : Type} {p : A → Bool} (H : ∃x, p x) : ¬∀x, ¬p x
+theorem exists_not_forall {A : Type} {p : A → Prop} (H : ∃x, p x) : ¬∀x, ¬p x
 := assume H1 : ∀x, ¬p x,
    obtain (w : A) (Hw : p w), from H,
    absurd Hw (H1 w)
 
-theorem forall_not_exists {A : Type} {p : A → Bool} (H2 : ∀x, p x) : ¬∃x, ¬p x
+theorem forall_not_exists {A : Type} {p : A → Prop} (H2 : ∀x, p x) : ¬∃x, ¬p x
 := assume H1 : ∃x, ¬p x,
    obtain (w : A) (Hw : ¬p w), from H1,
    absurd (H2 w) Hw
 
-definition exists_unique {A : Type} (p : A → Bool) := ∃x, p x ∧ ∀y, y ≠ x → ¬ p y
+definition exists_unique {A : Type} (p : A → Prop) := ∃x, p x ∧ ∀y, y ≠ x → ¬ p y
 
 notation `∃!` binders `,` r:(scoped P, exists_unique P) := r
 
-theorem exists_unique_intro {A : Type} {p : A → Bool} (w : A) (H1 : p w) (H2 : ∀y, y ≠ w → ¬ p y) : ∃!x, p x
+theorem exists_unique_intro {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, y ≠ w → ¬ p y) : ∃!x, p x
 := exists_intro w (and_intro H1 H2)
 
-theorem exists_unique_elim {A : Type} {p : A → Bool} {b : Bool} (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, y ≠ x → ¬ p y) → b) : b
+theorem exists_unique_elim {A : Type} {p : A → Prop} {b : Prop} (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, y ≠ x → ¬ p y) → b) : b
 := obtain w Hw, from H2,
    H1 w (and_elim_left Hw) (and_elim_right Hw)
 
-inductive inhabited (A : Type) : Bool :=
+inductive inhabited (A : Type) : Prop :=
 | inhabited_intro : A → inhabited A
 
-theorem inhabited_elim {A : Type} {B : Bool} (H1 : inhabited A) (H2 : A → B) : B
+theorem inhabited_elim {A : Type} {B : Prop} (H1 : inhabited A) (H2 : A → B) : B
 := inhabited_rec H2 H1
 
-theorem inhabited_Bool [instance] : inhabited Bool
+theorem inhabited_Prop [instance] : inhabited Prop
 := inhabited_intro true
 
 theorem inhabited_fun [instance] (A : Type) {B : Type} (H : inhabited B) : inhabited (A → B)
 := inhabited_elim H (take b, inhabited_intro (λa, b))
 
-theorem inhabited_exists {A : Type} {p : A → Bool} (H : ∃x, p x) : inhabited A
+theorem inhabited_exists {A : Type} {p : A → Prop} (H : ∃x, p x) : inhabited A
 := obtain w Hw, from H, inhabited_intro w

@@ -1,9 +1,9 @@
-definition Bool [inline] : Type.{1} := Type.{0}
+definition Prop [inline] : Type.{1} := Type.{0}
 variable N : Type.{1}
-variable and : Bool → Bool → Bool
+variable and : Prop → Prop → Prop
 infixr `∧`:35 := and
-variable le : N → N → Bool
-variable lt : N → N → Bool
+variable le : N → N → Prop
+variable lt : N → N → Prop
 variable f : N → N
 variable add : N → N → N
 infixl `+`:65 := add

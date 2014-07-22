@@ -1,5 +1,5 @@
-local a = Local("a", Bool)
-local b = Local("b", Bool)
+local a = Local("a", Prop)
+local b = Local("b", Prop)
 local c = mk_choice(a, b)
 print(c)
 local env = environment()

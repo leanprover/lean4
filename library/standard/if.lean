@@ -4,24 +4,24 @@
 import decidable tactic
 using bit decidable tactic
 
-definition ite (c : Bool) {H : decidable c} {A : Type} (t e : A) : A
+definition ite (c : Prop) {H : decidable c} {A : Type} (t e : A) : A
 := rec H (assume Hc,  t) (assume Hnc, e)
 
 notation `if` c `then` t `else` e:45 := ite c t e
 
-theorem if_pos {c : Bool} {H : decidable c} (Hc : c) {A : Type} (t e : A) : (if c then t else e) = t
+theorem if_pos {c : Prop} {H : decidable c} (Hc : c) {A : Type} (t e : A) : (if c then t else e) = t
 := decidable_rec
     (assume Hc : c,    refl (@ite c (inl Hc) A t e))
     (assume Hnc : ¬c,  absurd_elim (@ite c (inr Hnc) A t e = t) Hc Hnc)
     H
 
-theorem if_neg {c : Bool} {H : decidable c} (Hnc : ¬c) {A : Type} (t e : A) : (if c then t else e) = e
+theorem if_neg {c : Prop} {H : decidable c} (Hnc : ¬c) {A : Type} (t e : A) : (if c then t else e) = e
 := decidable_rec
     (assume Hc : c,    absurd_elim (@ite c (inl Hc) A t e = e) Hc Hnc)
     (assume Hnc : ¬c,  refl (@ite c (inr Hnc) A t e))
     H
 
-theorem if_t_t (c : Bool) {H : decidable c} {A : Type} (t : A) : (if c then t else t) = t
+theorem if_t_t (c : Prop) {H : decidable c} {A : Type} (t : A) : (if c then t else t) = t
 := decidable_rec
     (assume Hc  : c,  refl (@ite c (inl Hc)  A t t))
     (assume Hnc : ¬c, refl (@ite c (inr Hnc) A t t))

@@ -1,6 +1,6 @@
 local a = Const("a")
 local f = Const("f")
-local m = mk_metavar("m", Bool)
+local m = mk_metavar("m", Prop)
 local j = justification("type match")
 local c = mk_eq_cnstr(f(a), m, j)
 assert(c:is_eq())

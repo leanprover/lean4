@@ -1,18 +1,18 @@
 import standard
 using num tactic pair
 
-inductive inh (A : Type) : Bool :=
+inductive inh (A : Type) : Prop :=
 | inh_intro : A -> inh A
 
 instance inh_intro
 
-theorem inh_elim {A : Type} {B : Bool} (H1 : inh A) (H2 : A → B) : B
+theorem inh_elim {A : Type} {B : Prop} (H1 : inh A) (H2 : A → B) : B
 := inh_rec H2 H1
 
-theorem inh_exists [instance] {A : Type} {P : A → Bool} (H : ∃x, P x) : inh A
+theorem inh_exists [instance] {A : Type} {P : A → Prop} (H : ∃x, P x) : inh A
 := obtain w Hw, from H, inh_intro w
 
-theorem inh_bool [instance] : inh Bool
+theorem inh_bool [instance] : inh Prop
 := inh_intro true
 
 theorem inh_fun [instance] {A B : Type} (H : inh B) : inh (A → B)
@@ -26,7 +26,7 @@ tactic_hint assump
 
 theorem tst {A B : Type} (H : inh B) : inh (A → B → B)
 
-theorem T1 {A B C D : Type} {P : C → Bool} (a : A) (H1 : inh B) (H2 : ∃x, P x) : inh ((A → A) × B × (D → C) × Bool)
+theorem T1 {A B C D : Type} {P : C → Prop} (a : A) (H1 : inh B) (H2 : ∃x, P x) : inh ((A → A) × B × (D → C) × Prop)
 
 (*
 print(get_env():find("T1"):value())

@@ -1,10 +1,10 @@
 local env = environment()
 
 local tricky = Const("tricky")
-local P      = Local("P", Bool)
+local P      = Local("P", Prop)
 
 env = add_inductive(env,
-                    "tricky", Bool,
+                    "tricky", Prop,
                     "C",      mk_arrow(Pi(P, mk_arrow(P, P)), tricky))
 
 function display_type(env, t)

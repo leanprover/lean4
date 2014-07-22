@@ -10,7 +10,7 @@ tactic_hint my_tac2
 theorem T1 {A : Type.{2}} (a : A) : a = a
 := _
 
-theorem T2 {a b c : Bool} (Ha : a) (Hb : b) (Hc : c) : a ∧ b ∧ c
+theorem T2 {a b c : Prop} (Ha : a) (Hb : b) (Hc : c) : a ∧ b ∧ c
 := _
 
 definition my_tac3 := fixpoint (λ f, [apply @or_intro_left; f  |
@@ -19,5 +19,5 @@ definition my_tac3 := fixpoint (λ f, [apply @or_intro_left; f  |
 
 tactic_hint [or] my_tac3
 
-theorem T3 {a b c : Bool} (Hb : b) : a ∨ b ∨ c
+theorem T3 {a b c : Prop} (Hb : b) : a ∨ b ∨ c
 := _

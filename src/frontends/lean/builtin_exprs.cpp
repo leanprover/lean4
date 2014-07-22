@@ -283,7 +283,7 @@ static name g_exists_elim("exists_elim");
 static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & pos) {
     if (!p.env().find(g_exists_elim))
         throw parser_error("invalid use of 'obtain' expression, environment does not contain 'exists_elim' theorem", pos);
-    // exists_elim {A : Type} {P : A → Bool} {B : Bool} (H1 : ∃ x : A, P x) (H2 : ∀ (a : A) (H : P a), B)
+    // exists_elim {A : Type} {P : A → Prop} {B : Prop} (H1 : ∃ x : A, P x) (H2 : ∀ (a : A) (H : P a), B)
     buffer<expr> ps;
     auto b_pos = p.pos();
     environment env = p.parse_binders(ps);

@@ -15,13 +15,13 @@ function mk_module(midx, imports)
    end
    local env   = import_modules(imp_names, {num_threads=NumThreads})
    if #imports == 0 then
-      env = add_decl(env, mk_var_decl(const_name(midx), Bool))
-      env = add_decl(env, mk_var_decl("and", mk_arrow(Bool, Bool, Bool)))
+      env = add_decl(env, mk_var_decl(const_name(midx), Prop))
+      env = add_decl(env, mk_var_decl("and", mk_arrow(Prop, Prop, Prop)))
    elseif #imports == 1 then
-      env = add_decl(env, mk_definition(const_name(midx), Bool, Const(const_name(imports[1]))))
+      env = add_decl(env, mk_definition(const_name(midx), Prop, Const(const_name(imports[1]))))
    else
       local And = Const("and")
-      env = add_decl(env, mk_definition(const_name(midx), Bool, And(Const(const_name(imports[1])), Const(const_name(imports[2])))))
+      env = add_decl(env, mk_definition(const_name(midx), Prop, And(Const(const_name(imports[1])), Const(const_name(imports[2])))))
    end
    env:export(tostring(mod_name(midx)) .. ".olean")
 end

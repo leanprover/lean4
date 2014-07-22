@@ -20,7 +20,7 @@ struct level_cell;
 /**
    \brief Universe level kinds.
 
-   - Zero         : Bool/Prop level. In Lean, Bool == (Type zero)
+   - Zero         : It is also Prop level if env.impredicative() is true
    - Succ(l)      : successor level
    - Max(l1, l2)  : maximum of two levels
    - IMax(l1, l2) : IMax(x, zero)    = zero             for all x

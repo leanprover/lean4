@@ -5,7 +5,7 @@ inductive list (A : Type) : Type :=
 | nil {} : list A
 | cons   : A → list A → list A
 
-definition is_nil {A : Type} (l : list A) : Bool
+definition is_nil {A : Type} (l : list A) : Prop
 := list_rec true (fun h t r, false) l
 
 theorem is_nil_nil (A : Type) : is_nil (@nil A)
@@ -19,13 +19,13 @@ theorem cons_ne_nil {A : Type} (a : A) (l : list A) : ¬ cons a l = nil
               ... = false             : refl _)
        true_ne_false)
 
-theorem T : is_nil (@nil Bool)
+theorem T : is_nil (@nil Prop)
 := by apply is_nil_nil
 
 (*
-local list   = Const("list", {1})(Bool)
-local isNil = Const("is_nil", {1})(Bool)
-local Nil   = Const("nil", {1})(Bool)
+local list   = Const("list", {1})(Prop)
+local isNil = Const("is_nil", {1})(Prop)
+local Nil   = Const("nil", {1})(Prop)
 local m     = mk_metavar("m", list)
 print(isNil(Nil))
 print(isNil(m))

@@ -685,8 +685,8 @@ static void open_expr(lua_State * L) {
 
     SET_GLOBAL_FUN(enable_expr_caching, "enable_expr_caching");
 
-    push_expr(L, Bool);
-    lua_setglobal(L, "Bool");
+    push_expr(L, Prop);
+    lua_setglobal(L, "Prop");
 
     push_expr(L, Type);
     lua_setglobal(L, "Type");

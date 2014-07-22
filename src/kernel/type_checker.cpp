@@ -399,7 +399,7 @@ bool type_checker::is_def_eq(expr const & t, expr const & s, justification const
 /** \brief Return true iff \c e is a proposition */
 bool type_checker::is_prop(expr const & e) {
     scope mk_scope(*this);
-    bool r = whnf(infer_type(e)) == Bool;
+    bool r = whnf(infer_type(e)) == Prop;
     if (r) mk_scope.keep();
     return r;
 }

@@ -1,6 +1,6 @@
 function init(env)
-   env = add_decl(env, mk_var_decl("A", Bool))
-   env = add_decl(env, mk_var_decl("And", mk_arrow(Bool, mk_arrow(Bool, Bool))))
+   env = add_decl(env, mk_var_decl("A", Prop))
+   env = add_decl(env, mk_var_decl("And", mk_arrow(Prop, mk_arrow(Prop, Prop))))
    env = add_decl(env, mk_axiom("p", Const("A")))
    env = add_decl(env, mk_axiom("q", Const("A")))
    return env

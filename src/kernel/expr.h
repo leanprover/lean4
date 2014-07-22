@@ -460,10 +460,10 @@ expr mk_sort(level const & l);
 expr mk_pi(unsigned sz, expr const * domain, expr const & range);
 inline expr mk_pi(buffer<expr> const & domain, expr const & range) { return mk_pi(domain.size(), domain.data(), range); }
 
-expr mk_Bool();
+expr mk_Prop();
 expr mk_Type();
 extern expr Type;
-extern expr Bool;
+extern expr Prop;
 
 bool is_default_var_name(name const & n);
 expr mk_arrow(expr const & t, expr const & e);

@@ -1,15 +1,15 @@
-abbreviation Bool : Type.{1} := Type.{0}
+abbreviation Prop : Type.{1} := Type.{0}
 section
   parameter A : Type
 
-  definition eq (a b : A) : Bool
-  := ∀P : A → Bool, P a → P b
+  definition eq (a b : A) : Prop
+  := ∀P : A → Prop, P a → P b
 
-  theorem subst (P : A → Bool) (a b : A) (H1 : eq a b) (H2 : P a) : P b
+  theorem subst (P : A → Prop) (a b : A) (H1 : eq a b) (H2 : P a) : P b
   := H1 P H2
 
   theorem refl (a : A) : eq a a
-  := λ (P : A → Bool) (H : P a), H
+  := λ (P : A → Prop) (H : P a), H
 
   theorem symm (a b : A) (H : eq a b) : eq b a
   := subst (λ x : A, eq x a) a b H (refl a)

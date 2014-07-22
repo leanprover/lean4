@@ -146,8 +146,8 @@ auto pretty_fn::pp_var(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_sort(expr const & e) -> result {
-    if (m_env.impredicative() && e == Bool) {
-        return mk_result(format("Bool"));
+    if (m_env.impredicative() && e == Prop) {
+        return mk_result(format("Prop"));
     } else if (m_universes) {
         return mk_result(group(format({format("Type.{"), nest(6, pp_level(sort_level(e))), format("}")})));
     } else {

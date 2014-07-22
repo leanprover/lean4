@@ -32,7 +32,7 @@ static void tst1() {
 
 static void tst2() {
     expr f = Const("f");
-    expr B = Const("Bool");
+    expr B = Const("Prop");
     expr x = Local("x", B);
     expr y = Local("y", B);
     expr t = Fun({x, y}, x);
@@ -46,7 +46,7 @@ static void tst3() {
     expr f = Const("f");
     expr a = Const("a");
     expr r = f(a, Var(m));
-    expr b = Const("Bool");
+    expr b = Const("Prop");
     for (unsigned i = 0; i < n; i++)
         r = mk_lambda(name(), b, r);
     lean_assert(closed(r));
@@ -59,7 +59,7 @@ static void tst3() {
 
 static void tst4() {
     expr f = Const("f");
-    expr B = Bool;
+    expr B = Prop;
     expr x = Local("x", B);
     expr y = Local("y", B);
     expr t = f(Fun({x, y}, f(x, y))(f(Var(1), Var(2))), x);

@@ -1,8 +1,8 @@
-abbreviation Bool : Type.{1} := Type.{0}
-variable and : Bool → Bool → Bool
+abbreviation Prop : Type.{1} := Type.{0}
+variable and : Prop → Prop → Prop
 infixl `∧`:25 := and
-variable and_intro : forall (a b : Bool), a → b → a ∧ b
-variables a b c d : Bool
+variable and_intro : forall (a b : Prop), a → b → a ∧ b
+variables a b c d : Prop
 axiom Ha : a
 axiom Hb : b
 axiom Hc : c

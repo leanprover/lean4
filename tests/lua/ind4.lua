@@ -5,7 +5,7 @@ end
 local env      = environment()
 local l        = param_univ("l")
 local U_l      = mk_sort(l)
-local U_l1     = mk_sort(max_univ(l, 1)) -- Make sure U_l1 is not Bool/Prop
+local U_l1     = mk_sort(max_univ(l, 1)) -- Make sure U_l1 is not Prop
 local A        = Local("A", U_l)
 local list_l   = Const("list", {l})
 

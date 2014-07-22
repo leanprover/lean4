@@ -30,7 +30,7 @@ static expr g_var_0(mk_var(0));
 /**
    \brief Resolve macro encodes a simple propositional resolution step.
    It takes three arguments:
-            - t  : Bool
+            - t  : Prop
             - H1 : ( ... ∨ t ∨ ...)
             - H2 : ( ... ∨ (¬ t) ∨ ...)
 
@@ -39,17 +39,17 @@ static expr g_var_0(mk_var(0));
             (resolve l ((A ∨ l) ∨ B) ((C ∨ A) ∨ (¬ l))) : (A ∨ (B ∨ C))
 
    The macro assumes the environment contains the declarations
-            or (a b : Bool) : Bool
-            not (a : Bool) : Bool
-            false : Bool
+            or (a b : Prop) : Prop
+            not (a : Prop) : Prop
+            false : Prop
 
    It also assumes that the symbol 'or' is opaque. 'not' and 'false' do not need to be opaque.
 
    The macro can be expanded into a term built using
-            or_elim {a b c : Bool} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
-            or_intro_left {a : Bool} (H : a) (b : Bool) : a ∨ b
-            or_intro_right {b : Bool} (a : Bool) (H : b) : a ∨ b
-            absurd_elim {a : Bool} (b : Bool) (H1 : a) (H2 : ¬ a) : b
+            or_elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
+            or_intro_left {a : Prop} (H : a) (b : Prop) : a ∨ b
+            or_intro_right {b : Prop} (a : Prop) (H : b) : a ∨ b
+            absurd_elim {a : Prop} (b : Prop) (H1 : a) (H2 : ¬ a) : b
    Thus, the environment must also contain these declarations.
 
    Note that there is no classical reasoning being used. Thus, the macro can be used even
@@ -167,8 +167,8 @@ public:
         if (is_or_app(R)) {
             expr lhs = app_arg(app_fn(R));
             expr rhs = app_arg(R);
-            // or_intro_left {a : Bool} (H : a) (b : Bool) : a ∨ b
-            // or_intro_right {b : Bool} (a : Bool) (H : b) : a ∨ b
+            // or_intro_left {a : Prop} (H : a) (b : Prop) : a ∨ b
+            // or_intro_right {b : Prop} (a : Prop) (H : b) : a ∨ b
             if (is_def_eq(l, lhs, ctx)) {
                 return g_or_intro_left(l, H, rhs);
             } else if (is_def_eq(l, rhs, ctx)) {
@@ -224,7 +224,7 @@ public:
         expr C2_1    = lift(C2);
         expr H2_1    = lift(H2);
         expr R_1     = lift(R);
-        // or_elim {a b c : Bool} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
+        // or_elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
         return g_or_elim(lhs1, rhs1, R, H1,
                          mk_lambda("H2", lhs1, mk_or_elim_tree1(l_1, not_l_1, lhs1_1, g_var_0, C2_1, H2_1, R_1, ctx)),
                          mk_lambda("H3", rhs1, mk_or_elim_tree1(l_1, not_l_1, rhs1_1, g_var_0, C2_1, H2_1, R_1, ctx)));
@@ -247,7 +247,7 @@ public:
             if (is_or(C2, lhs, rhs)) {
                 return mk_or_elim_tree2(l, H, not_l, lhs, rhs, H2, R, ctx);
             } else if (is_def_eq(C2, not_l, ctx)) {
-                // absurd_elim {a : Bool} (b : Bool) (H1 : a) (H2 : ¬ a) : b
+                // absurd_elim {a : Prop} (b : Prop) (H1 : a) (H2 : ¬ a) : b
                 return g_absurd_elim(l, R, H, H2);
             } else {
                 return mk_or_intro(C2, H2, R, ctx);
@@ -270,7 +270,7 @@ public:
         expr lhs2_1  = lift(lhs2);
         expr rhs2_1  = lift(rhs2);
         expr R_1     = lift(R);
-        // or_elim {a b c : Bool} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
+        // or_elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
         return g_or_elim(lhs2, rhs2, R, H2,
                          mk_lambda("H2", lhs2, mk_or_elim_tree2(l_1, H_1, not_l_1, lhs2_1, g_var_0, R_1, ctx)),
                          mk_lambda("H3", rhs2, mk_or_elim_tree2(l_1, H_1, not_l_1, rhs2_1, g_var_0, R_1, ctx)));

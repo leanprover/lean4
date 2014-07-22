@@ -6,11 +6,11 @@ import logic classical
 -- Well-founded relation definition
 -- We are essentially saying that a relation R is well-founded
 --    if every non-empty "set" P, has a R-minimal element
-definition wf {A : Type} (R : A → A → Bool) : Bool
+definition wf {A : Type} (R : A → A → Prop) : Prop
 := ∀P, (∃w, P w) → ∃min, P min ∧ ∀b, R b min → ¬P b
 
 -- Well-founded induction theorem
-theorem wf_induction {A : Type} {R : A → A → Bool} {P : A → Bool} (Hwf : wf R) (iH : ∀x, (∀y, R y x → P y) → P x)
+theorem wf_induction {A : Type} {R : A → A → Prop} {P : A → Prop} (Hwf : wf R) (iH : ∀x, (∀y, R y x → P y) → P x)
                      : ∀x, P x
 := by_contradiction (assume N : ¬∀x, P x,
      obtain (w : A) (Hw : ¬P w), from not_forall_exists N,

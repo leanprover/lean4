@@ -1,6 +1,6 @@
 import standard
 using tactic
-variables a b c d : Bool
+variables a b c d : Prop
 axiom Ha : a
 axiom Hb : b
 axiom Hc : c

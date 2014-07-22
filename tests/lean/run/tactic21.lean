@@ -3,10 +3,10 @@ using tactic
 
 definition assump := eassumption
 
-theorem tst1 {A : Type} {a b c : A} {p : A → A → Bool} (H1 : p a b) (H2 : p b c) : ∃ x, p a x ∧ p x c
+theorem tst1 {A : Type} {a b c : A} {p : A → A → Prop} (H1 : p a b) (H2 : p b c) : ∃ x, p a x ∧ p x c
 := by apply exists_intro; apply and_intro; assump; assump
 
-theorem tst2 {A : Type} {a b c d : A} {p : A → A → Bool} (Ha : p a c) (H1 : p a b) (Hb : p b d) (H2 : p b c) : ∃ x, p a x ∧ p x c
+theorem tst2 {A : Type} {a b c d : A} {p : A → A → Prop} (Ha : p a c) (H1 : p a b) (Hb : p b d) (H2 : p b c) : ∃ x, p a x ∧ p x c
 := by apply exists_intro; apply and_intro; assump; assump
 
 (*

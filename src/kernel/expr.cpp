@@ -457,10 +457,10 @@ expr mk_pi(unsigned sz, expr const * domain, expr const & range) {
     return r;
 }
 
-expr mk_Bool() {
-    static optional<expr> Bool;
-    if (!Bool) Bool = mk_sort(mk_level_zero());
-    return *Bool;
+expr mk_Prop() {
+    static optional<expr> Prop;
+    if (!Prop) Prop = mk_sort(mk_level_zero());
+    return *Prop;
 }
 
 expr mk_Type() {
@@ -469,7 +469,7 @@ expr mk_Type() {
     return *Type;
 }
 
-expr Bool = mk_Bool();
+expr Prop = mk_Prop();
 expr Type = mk_Type();
 
 unsigned get_depth(expr const & e) {

@@ -1,7 +1,7 @@
 import standard
 using tactic
 
-theorem tst (a b : Bool) (H : ¬ a ∨ ¬ b) (Hb : b) : ¬ a ∧ b
+theorem tst (a b : Prop) (H : ¬ a ∨ ¬ b) (Hb : b) : ¬ a ∧ b
 := by apply and_intro;
       apply not_intro;
       exact

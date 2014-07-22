@@ -6,7 +6,7 @@ local A         = Local("A", U_l)
 local a         = Local("a", A)
 
 env = add_inductive(env,
-                    "inhabited", {l}, 1, mk_arrow(U_l, Bool),
+                    "inhabited", {l}, 1, mk_arrow(U_l, Prop),
                     "inhabited_intro", Pi(A, a, inhabited(A)))
 
 function display_type(env, t)

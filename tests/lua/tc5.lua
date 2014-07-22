@@ -1,9 +1,9 @@
 local env = bare_environment()
-env = add_decl(env, mk_var_decl("A", Bool))
+env = add_decl(env, mk_var_decl("A", Prop))
 env = add_decl(env, mk_var_decl("T", Type))
-env = add_decl(env, mk_definition("B2", Type, Bool, {opaque=false}))
+env = add_decl(env, mk_definition("B2", Type, Prop, {opaque=false}))
 env = add_decl(env, mk_var_decl("C", Const("B2")))
-env = add_decl(env, mk_definition("BB", Type, mk_arrow(Bool, Bool), {opaque=false}))
+env = add_decl(env, mk_definition("BB", Type, mk_arrow(Prop, Prop), {opaque=false}))
 local tc = type_checker(env)
 assert(tc:is_prop(Const("A")))
 assert(tc:is_prop(Const("C")))
@@ -22,7 +22,7 @@ assert(not pcall(function()
                  end
 ))
 assert(not pcall(function()
-                    env = add_decl(env, mk_var_decl("A", mk_local("l1", Bool)))
+                    env = add_decl(env, mk_var_decl("A", mk_local("l1", Prop)))
                  end
 ))
 assert(not pcall(function()
@@ -30,7 +30,7 @@ assert(not pcall(function()
                  end
 ))
 assert(not pcall(function()
-                    print(tc:check(mk_lambda("x", Bool, Var(0))(Type)))
+                    print(tc:check(mk_lambda("x", Prop, Var(0))(Type)))
                  end
 ))
 assert(not pcall(function()
@@ -38,8 +38,8 @@ assert(not pcall(function()
                  end
 ))
 
-assert(tc:check(mk_pi("x", Bool, Var(0))) == Bool)
+assert(tc:check(mk_pi("x", Prop, Var(0))) == Prop)
 
 local env = bare_environment({impredicative=false})
 local tc = type_checker(env)
-assert(tc:check(mk_pi("x", Bool, Var(0))) == Type)
+assert(tc:check(mk_pi("x", Prop, Var(0))) == Type)

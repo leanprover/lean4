@@ -10,7 +10,7 @@ inductive bit : Type :=
 notation `'0`:max := b0
 notation `'1`:max := b1
 
-theorem induction_on {p : bit → Bool} (b : bit) (H0 : p '0) (H1 : p '1) : p b
+theorem induction_on {p : bit → Prop} (b : bit) (H0 : p '0) (H1 : p '1) : p b
 := bit_rec H0 H1 b
 
 theorem inhabited_bit [instance] : inhabited bit

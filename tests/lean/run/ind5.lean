@@ -1,6 +1,6 @@
-definition Bool [inline] : Type.{1} := Type.{0}
+definition Prop [inline] : Type.{1} := Type.{0}
 
-inductive or (A B : Bool) : Bool :=
+inductive or (A B : Prop) : Prop :=
 | or_intro_left  : A → or A B
 | or_intro_right : B → or A B
 

@@ -1,15 +1,15 @@
 N : Type
 a : N
-Bool → Bool : Type
+Prop → Prop : Type
 F : Type → Type
 F : Type → Type
 f : N → N → N
 len : Π (A : Type) (n : N), vec A n → N
-B → B : Bool
+B → B : Prop
 A → A : Type
 C : Type
 t4.lean:25:6: error: unknown identifier 'A'
-R : Type → Bool
+R : Type → Prop
 λ (x y : N), x : N → N → N
 [choice N N]
 N
@@ -30,6 +30,6 @@ R
 len
 vec
 f
+Prop
 foo.M
-Bool
 -------------

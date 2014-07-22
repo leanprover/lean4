@@ -496,7 +496,7 @@ struct default_converter : public converter {
         }
 
         if (m_env.prop_proof_irrel()) {
-            // Proof irrelevance support for Prop/Bool (aka Type.{0})
+            // Proof irrelevance support for Prop (aka Type.{0})
             type_checker::scope scope(c);
             expr t_type = infer_type(c, t);
             if (is_prop(t_type, c) && is_def_eq(t_type, infer_type(c, s), c, jst)) {
@@ -532,7 +532,7 @@ struct default_converter : public converter {
     }
 
     bool is_prop(expr const & e, type_checker & c) {
-        return whnf(infer_type(c, e), c) == Bool;
+        return whnf(infer_type(c, e), c) == Prop;
     }
 };
 

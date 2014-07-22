@@ -9,7 +9,7 @@ end
 
 local l        = mk_param_univ("l")
 local U_l      = mk_sort(l)
-local U_l1     = mk_sort(max_univ(l, 1)) -- Make sure U_l1 is not Bool/Prop
+local U_l1     = mk_sort(max_univ(l, 1)) -- Make sure U_l1 is not Prop
 local list_l   = Const("list", {l}) -- list.{l}
 local Nat      = Const("nat")
 local vec_l    = Const("vec", {l})  -- vec.{l}
@@ -21,7 +21,7 @@ local n        = Const("n")
 
 bad_add_inductive(env,
                   "nat", Type,
-                  "zero", Bool, -- Incorrect result type
+                  "zero", Prop, -- Incorrect result type
                   "succ", mk_arrow(Nat, Nat))
 
 local A        = Local("A", U_l)
@@ -59,12 +59,12 @@ bad_add_inductive(env, {},
                   {"Even", mk_arrow(Nat, Type),
                    "zero_is_even", Even(zero),
                    "succ_odd",     Pi(b, mk_arrow(Odd(b), Even(succ(b))))},
-                  {"Odd", mk_arrow(Nat, Bool), -- if one datatype lives in Bool/Prop, then all must live in Bool/Prop
+                  {"Odd", mk_arrow(Nat, Prop), -- if one datatype lives in Prop, then all must live in Prop
                    "succ_even", Pi(b, mk_arrow(Even(b), Odd(succ(b))))})
 
 bad_add_inductive(env,
                   "list", {l}, 1, mk_arrow(U_l, U_l1),
-                  "nil", Pi(A, mk_arrow(mk_arrow(list_l(A), Bool), list_l(A))), -- nonpositive occurrence of inductive datatype
+                  "nil", Pi(A, mk_arrow(mk_arrow(list_l(A), Prop), list_l(A))), -- nonpositive occurrence of inductive datatype
                   "cons", Pi(A, mk_arrow(A, list_l(A), list_l(A))))
 
 bad_add_inductive(env,
@@ -95,7 +95,7 @@ bad_add_inductive(env,
                   "cons", Pi(A, mk_arrow(list_l(A), A, list_l(A))))
 
 local A = Local("A", Type)
-env = add_decl(env, mk_var_decl("eq", Pi(A, mk_arrow(A, A, Bool))))
+env = add_decl(env, mk_var_decl("eq", Pi(A, mk_arrow(A, A, Prop))))
 local eq   = Const("eq")
 local Nat2 = Const("nat2")
 local a    = Local("a", Nat2)

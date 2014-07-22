@@ -1,14 +1,14 @@
 import standard
 using num
 
-variable foo : Bool
+variable foo : Prop
 
 namespace N1
-  variable foo : Bool
+  variable foo : Prop
   check N1.foo
   check _root_.foo
   namespace N2
-    variable foo : Bool
+    variable foo : Prop
     check N1.foo
     check N1.N2.foo
     print raw foo

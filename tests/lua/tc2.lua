@@ -3,9 +3,9 @@ local l      = mk_param_univ("l")
 local A      = Local("A", mk_sort(l))
 local a      = Local("a", A)
 local b      = Local("b", A)
-local P      = Local("P", mk_arrow(A, Bool))
+local P      = Local("P", mk_arrow(A, Prop))
 env = add_decl(env, mk_definition("id", {l},
-                                  Pi(A, mk_arrow(A, mk_arrow(A, Bool))),
+                                  Pi(A, mk_arrow(A, mk_arrow(A, Prop))),
                                   Fun(A, a, b, Pi(P, mk_arrow(P(a), P(b))))))
 local id_l   = Const("id", {l})
 local H      = Local("H", P(a))

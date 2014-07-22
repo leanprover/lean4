@@ -3,7 +3,7 @@ local env = environment()
 local env      = environment()
 local l        = mk_param_univ("l")
 local U_l      = mk_sort(l)
-local U_l1     = mk_sort(max_univ(l, 1)) -- Make sure U_l1 is not Bool/Prop
+local U_l1     = mk_sort(max_univ(l, 1)) -- Make sure U_l1 is not Prop
 local nat      = Const({"nat", "nat"})
 local vec_l    = Const({"vec", "vec"}, {l})  -- vec.{l}
 local zero     = Const({"nat", "zero"})
@@ -41,7 +41,7 @@ print(get_alias_exprs(env, {"l", "list"}):head())
 print(get_alias_exprs(env, {"l", "cons"}):head())
 
 local A = Local("A", mk_sort(1))
-local R = Local("R", mk_arrow(A, A, Bool))
+local R = Local("R", mk_arrow(A, A, Prop))
 local a = Local("a", A)
 local b = Local("b", A)
 

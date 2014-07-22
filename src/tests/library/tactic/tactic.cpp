@@ -53,8 +53,8 @@ static void tst1() {
     environment env;
     io_state io(options(), mk_simple_formatter());
     init_test_frontend(env);
-    env->add_var("p", Bool);
-    env->add_var("q", Bool);
+    env->add_var("p", Prop);
+    env->add_var("q", Prop);
     expr p = Const("p");
     expr q = Const("q");
     context ctx;

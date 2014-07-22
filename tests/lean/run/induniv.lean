@@ -32,13 +32,13 @@ section
   | mk_pair : A → B → pair
 end
 
-definition Bool [inline] := Type.{0}
-inductive eq {A : Type} (a : A) : A → Bool :=
+definition Prop [inline] := Type.{0}
+inductive eq {A : Type} (a : A) : A → Prop :=
 | refl : eq a a
 
 section
   parameter {A : Type}
-  inductive eq2 (a : A) : A → Bool :=
+  inductive eq2 (a : A) : A → Prop :=
   | refl2 : eq2 a a
 end
 

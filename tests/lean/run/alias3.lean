@@ -4,7 +4,7 @@ namespace N1
   section
     section
       variable A : Type
-      definition foo (a : A) : Bool := true
+      definition foo (a : A) : Prop := true
       check foo
     end
     check foo

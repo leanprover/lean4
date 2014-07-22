@@ -1,5 +1,5 @@
 local f  = Const("f")
-local x  = Local("x", Bool)
+local x  = Local("x", Prop)
 local a  = Const("a")
 local t1 = f(x, a, Var(1))
 local t2 = Fun(x, t1)

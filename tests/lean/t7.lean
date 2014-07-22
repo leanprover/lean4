@@ -1,14 +1,14 @@
-definition Bool : Type.{1} := Type.{0}
-variable and : Bool → Bool → Bool
+definition Prop : Type.{1} := Type.{0}
+variable and : Prop → Prop → Prop
 section
   parameter {A : Type}  -- Mark A as implicit parameter
-  parameter   R : A → A → Bool
+  parameter   R : A → A → Prop
   parameter   B : Type
   definition  id (a : A) : A := a
-  definition  refl [private] : Bool := ∀ (a : A), R a a
-  definition  symm : Bool := ∀ (a b : A), R a b → R b a
-  definition  trans : Bool := ∀ (a b c : A), R a b → R b c → R a c
-  definition  equivalence : Bool := and (and refl symm) trans
+  definition  refl [private] : Prop := ∀ (a : A), R a a
+  definition  symm : Prop := ∀ (a b : A), R a b → R b a
+  definition  trans : Prop := ∀ (a b c : A), R a b → R b c → R a c
+  definition  equivalence : Prop := and (and refl symm) trans
 end
 check id.{2}
 check trans.{1}

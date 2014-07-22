@@ -20,7 +20,7 @@ definition heq {A B : Type} (a : A) (b : B) := ∃H, cast H a = b
 
 infixl `==`:50 := heq
 
-theorem heq_elim {A B : Type} {C : Bool} {a : A} {b : B} (H1 : a == b) (H2 : ∀ (Hab : A = B), cast Hab a = b → C) : C
+theorem heq_elim {A B : Type} {C : Prop} {a : A} {b : B} (H1 : a == b) (H2 : ∀ (Hab : A = B), cast Hab a = b → C) : C
 := obtain w Hw, from H1, H2 w Hw
 
 theorem heq_type_eq {A B : Type} {a : A} {b : B} (H : a == b) : A = B
@@ -37,12 +37,12 @@ theorem heq_to_eq {A : Type} {a b : A} (H : a == b) : a = b
 theorem hrefl {A : Type} (a : A) : a == a
 := eq_to_heq (refl a)
 
-theorem heqt_elim {a : Bool} (H : a == true) : a
+theorem heqt_elim {a : Prop} (H : a == true) : a
 := eqt_elim (heq_to_eq H)
 
 opaque_hint (hiding cast)
 
-theorem hsubst {A B : Type} {a : A} {b : B} {P : ∀ (T : Type), T → Bool} (H1 : a == b) (H2 : P A a) : P B b
+theorem hsubst {A B : Type} {a : A} {b : B} {P : ∀ (T : Type), T → Prop} (H1 : a == b) (H2 : P A a) : P B b
 := have Haux1 : ∀ H : A = A, P A (cast H a), from
      assume H : A = A, subst (symm (cast_eq H a)) H2,
    obtain (Heq : A = B) (Hw : cast Heq a = b), from H1,

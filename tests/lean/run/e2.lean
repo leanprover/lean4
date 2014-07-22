@@ -1,2 +1,2 @@
-definition Bool [inline] := Type.{0}
-check Bool
+definition Prop [inline] := Type.{0}
+check Prop

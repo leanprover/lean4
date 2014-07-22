@@ -6,7 +6,7 @@ inductive inh (A : Type) : Type :=
 
 instance inh_intro
 
-theorem inh_bool [instance] : inh Bool
+theorem inh_bool [instance] : inh Prop
 := inh_intro true
 
 theorem inh_fun [instance] {A B : Type} (H : inh B) : inh (A → B)
@@ -22,4 +22,4 @@ theorem tst {A B : Type} (H : inh B) : inh (A → B → B)
 
 theorem T1 {A : Type} (a : A) : inh A
 
-theorem T2 : inh Bool
+theorem T2 : inh Prop

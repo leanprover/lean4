@@ -45,7 +45,7 @@ static void parse_error(environment const & env, io_state const & ios, char cons
 
 static void tst1() {
     environment env; io_state ios = init_test_frontend(env);
-    parse(env, ios, "variable x : Bool variable y : Bool axiom H : x && y || x -> x");
+    parse(env, ios, "variable x : Prop variable y : Prop axiom H : x && y || x -> x");
     parse(env, ios, "eval true && true");
     parse(env, ios, "print true && false eval true && false");
     parse(env, ios, "infixl 35 & : and print true & false & false eval true & false");
@@ -66,9 +66,9 @@ static void check(environment const & env, io_state & ios, char const * str, exp
 
 static void tst2() {
     environment env; io_state ios = init_test_frontend(env);
-    env->add_var("x", Bool);
-    env->add_var("y", Bool);
-    env->add_var("z", Bool);
+    env->add_var("x", Prop);
+    env->add_var("y", Prop);
+    env->add_var("z", Prop);
     expr x = Const("x"); expr y = Const("y"); expr z = Const("z");
     check(env, ios, "x && y", And(x, y));
     check(env, ios, "x && y || z", Or(And(x, y), z));

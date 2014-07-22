@@ -65,12 +65,12 @@ static void tst4() {
     environment env; io_state ios = init_frontend(env);
     formatter fmt = mk_pp_formatter(env);
     context c;
-    c = extend(c, "x", Bool);
-    c = extend(c, "y", Bool);
-    c = extend(c, "x", Bool, Var(1));
-    c = extend(c, "x", Bool, Var(2));
-    c = extend(c, "z", Bool, Var(1));
-    c = extend(c, "x", Bool, Var(4));
+    c = extend(c, "x", Prop);
+    c = extend(c, "y", Prop);
+    c = extend(c, "x", Prop, Var(1));
+    c = extend(c, "x", Prop, Var(2));
+    c = extend(c, "z", Prop, Var(1));
+    c = extend(c, "x", Prop, Var(4));
     std::cout << fmt(c) << "\n";
 }
 
@@ -136,7 +136,7 @@ static void tst9() {
     lean_assert(env->get_uvar("l") == level("l"));
     try { env->get_uvar("l2"); lean_unreachable(); }
     catch (exception &) {}
-    env->add_definition("x", Bool, True);
+    env->add_definition("x", Prop, True);
     object const & obj = env->get_object("x");
     lean_assert(obj.get_name() == "x");
     lean_assert(is_bool(obj.get_type()));

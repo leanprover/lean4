@@ -2,7 +2,7 @@ local env      = environment()
 local l        = mk_param_univ("l")
 local U_l      = mk_sort(l)
 local A        = Local("A", U_l)
-local U_l1     = mk_sort(max_univ(l, 1)) -- Make sure U_l1 is not Bool/Prop
+local U_l1     = mk_sort(max_univ(l, 1)) -- Make sure U_l1 is not Prop
 local list_l   = Const("list", {l}) -- list.{l}
 local Nat      = Const("nat")
 local vec_l    = Const("vec", {l})  -- vec.{l}
@@ -27,7 +27,7 @@ env = add_inductive(env,
                     "succ", mk_arrow(Nat, Nat))
 -- In the following inductive datatype, {l} is the list of universe level parameters.
 -- 1 is the number of parameters.
--- The Boolean true in {A, U_l, true} is marking that this argument is implicit.
+-- The Propean true in {A, U_l, true} is marking that this argument is implicit.
 env = add_inductive(env,
                     "list", {l}, 1, Pi(A, U_l1),
                     "nil", Pi(A, list_l(A)),
@@ -40,24 +40,24 @@ env = add_inductive(env,
 local And = Const("and")
 local Or  = Const("or")
 -- Datatype without introduction rules (aka constructors). It is a uninhabited type.
-env = add_inductive(env, "false", Bool)
+env = add_inductive(env, "false", Prop)
 -- Datatype with a single constructor.
-env = add_inductive(env, "true", Bool, "trivial", Const("true"))
-local A = Local("A", Bool)
-local B = Local("B", Bool)
+env = add_inductive(env, "true", Prop, "trivial", Const("true"))
+local A = Local("A", Prop)
+local B = Local("B", Prop)
 env = add_inductive(env,
-                    "and", 2, Pi(A, B, Bool),
+                    "and", 2, Pi(A, B, Prop),
                     "and_intro", Pi(A, B, mk_arrow(A, B, And(A, B))))
 env = add_inductive(env,
-                    "or", 2, Pi(A, B, Bool),
+                    "or", 2, Pi(A, B, Prop),
                     "or_intro_left",  Pi(A, B, mk_arrow(A, Or(A, B))),
                     "or_intro_right", Pi(A, B, mk_arrow(B, Or(A, B))))
 local A = Local("A", U_l)
-local P = Local("P", mk_arrow(A, Bool))
+local P = Local("P", mk_arrow(A, Prop))
 local a = Local("a", A)
 local exists_l = Const("exists", {l})
 env = add_inductive(env,
-                    "exists", {l}, 2, Pi(A, P, Bool),
+                    "exists", {l}, 2, Pi(A, P, Prop),
                     "exists_intro", Pi(A, P, a, mk_arrow(P(a), exists_l(A, P))))
 
 env = add_inductive(env, {l}, 1,
@@ -80,17 +80,17 @@ local Even = Const("Even")
 local Odd  = Const("Odd")
 local b    = Local("b", Nat)
 env = add_inductive(env, {},
-                    {"Even", mk_arrow(Nat, Bool),
+                    {"Even", mk_arrow(Nat, Prop),
                      "zero_is_even", Even(zero),
                      "succ_odd",     Pi(b, mk_arrow(Odd(b), Even(succ(b))))},
-                    {"Odd", mk_arrow(Nat, Bool),
+                    {"Odd", mk_arrow(Nat, Prop),
                      "succ_even", Pi(b, mk_arrow(Even(b), Odd(succ(b))))})
 
 local flist_l = Const("flist", {l})
 env = add_inductive(env,
                     "flist", {l}, 1, Pi(A, U_l1),
                     "fnil", Pi(A, flist_l(A)),
-                    "fcons", Pi(A, mk_arrow(mk_arrow(Nat, A), mk_arrow(Nat, Bool, flist_l(A)), flist_l(A))))
+                    "fcons", Pi(A, mk_arrow(mk_arrow(Nat, A), mk_arrow(Nat, Prop, flist_l(A)), flist_l(A))))
 
 local eq_l = Const("eq", {l})
 
@@ -98,7 +98,7 @@ local A = Local("A", U_l)
 local a = Local("a", A)
 local b = Local("b", A)
 env = add_inductive(env,
-                    "eq", {l}, 2, Pi(A, a, b, Bool),
+                    "eq", {l}, 2, Pi(A, a, b, Prop),
                     "refl", Pi(A, a, eq_l(A, a, a)))
 display_type(env, Const("eq_rec", {v, u}))
 display_type(env, Const("exists_rec", {u}))

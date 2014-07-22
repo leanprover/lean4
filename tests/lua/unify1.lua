@@ -15,10 +15,10 @@ end
 
 local f  = Const("f")
 local a  = Const("a")
-local l1 = mk_local("l1", "x", Bool)
-local l2 = mk_local("l2", "y", Bool)
-local l3 = mk_local("l3", "z", Bool)
-local m  = mk_metavar("m", Bool)
+local l1 = mk_local("l1", "x", Prop)
+local l2 = mk_local("l2", "y", Prop)
+local l3 = mk_local("l3", "z", Prop)
+local m  = mk_metavar("m", Prop)
 
 test_unify_simple(m(l1, l2), f(f(a, l1), l1), unify_status.Solved)
 test_unify_simple(m(l1, l2), m(l1, l2), unify_status.Solved)

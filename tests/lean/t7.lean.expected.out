@@ -1,6 +1,6 @@
 id : ?M_1 → ?M_1
-trans : (?M_1 → ?M_1 → Bool) → Bool
-symm : (?M_1 → ?M_1 → Bool) → Bool
-equivalence : (?M_1 → ?M_1 → Bool) → Bool
-λ (A : Type) (R : A → A → Bool),
+trans : (?M_1 → ?M_1 → Prop) → Prop
+symm : (?M_1 → ?M_1 → Prop) → Prop
+equivalence : (?M_1 → ?M_1 → Prop) → Prop
+λ (A : Type) (R : A → A → Prop),
   and (and (refl R) (symm R)) (trans R)

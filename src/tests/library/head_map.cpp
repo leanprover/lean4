@@ -14,7 +14,7 @@ static void tst1() {
     expr a = Const("a");
     expr f = Const("f");
     expr b = Const("b");
-    expr x = Local("x", Bool);
+    expr x = Local("x", Prop);
     expr l1 = Fun(x, x);
     expr l2 = Fun(x, f(x));
     lean_assert(l1 != l2);

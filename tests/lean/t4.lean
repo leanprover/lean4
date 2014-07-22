@@ -1,9 +1,9 @@
-definition Bool [inline] : Type.{1} := Type.{0}
+definition Prop [inline] : Type.{1} := Type.{0}
 variable N : Type.{1}
 check N
 variable a : N
 check a
-check Bool → Bool
+check Prop → Prop
 variable F.{l} : Type.{l} → Type.{l}
 check F.{2}
 universe u
@@ -15,7 +15,7 @@ check f
 check len.{1}
 section
    variable A  : Type
-   variable B  : Bool
+   variable B  : Prop
    hypothesis H : B
    parameter {C : Type}
    check B -> B

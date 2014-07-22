@@ -53,7 +53,7 @@ theorem not_zero_add (x y : nat) (H : ¬ is_zero y) : ¬ is_zero (x + y)
           not_is_zero_succ (x+w),
         subst (symm H1) H2)
 
-inductive not_zero (x : nat) : Bool :=
+inductive not_zero (x : nat) : Prop :=
 | not_zero_intro : ¬ is_zero x → not_zero x
 
 theorem not_zero_not_is_zero {x : nat} (H : not_zero x) : ¬ is_zero x

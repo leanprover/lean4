@@ -277,7 +277,7 @@ static void tst15() {
     expr f = Const("f");
     expr x = Var(0);
     expr a = Local("a", Type);
-    expr m = mk_metavar("m", Bool);
+    expr m = mk_metavar("m", Prop);
     check_serializer(m);
     lean_assert(has_metavar(m));
     lean_assert(has_metavar(f(m)));
@@ -308,7 +308,7 @@ static void tst16() {
     expr f = Const("f");
     expr a = Const("a");
     check_copy(f(a));
-    check_copy(mk_metavar("M", Bool));
+    check_copy(mk_metavar("M", Prop));
     check_copy(mk_lambda("x", a, Var(0)));
     check_copy(mk_pi("x", a, Var(0)));
 }
@@ -332,8 +332,8 @@ static void tst17() {
 static void tst18() {
     expr f = Const("f");
     expr x = Var(0);
-    expr l = mk_local("m", Bool);
-    expr m = mk_metavar("m", Bool);
+    expr l = mk_local("m", Prop);
+    expr m = mk_metavar("m", Prop);
     expr a0 = Const("a");
     expr a  = Local("a", Type);
     expr a1 = Local("a", m);

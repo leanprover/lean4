@@ -6,14 +6,14 @@ local False = Const("false")
 function init_env(env)
    -- Populate environment when declarations used by resolve_macro.
    -- This is a 'fake' environment used only for testing.
-   local a   = Local("a", Bool)
-   local b   = Local("b", Bool)
-   local c   = Local("c", Bool)
+   local a   = Local("a", Prop)
+   local b   = Local("b", Prop)
+   local c   = Local("c", Prop)
    local Ha  = Local("Ha", a)
    local Hb  = Local("Hb", b)
-   env = add_decl(env, mk_var_decl("or",  mk_arrow(Bool, Bool, Bool)))
-   env = add_decl(env, mk_var_decl("not", mk_arrow(Bool, Bool)))
-   env = add_decl(env, mk_var_decl("false", Bool))
+   env = add_decl(env, mk_var_decl("or",  mk_arrow(Prop, Prop, Prop)))
+   env = add_decl(env, mk_var_decl("not", mk_arrow(Prop, Prop)))
+   env = add_decl(env, mk_var_decl("false", Prop))
    env = add_decl(env, mk_axiom("or_elim", Pi(a, b, c, mk_arrow(Or(a, b), mk_arrow(a, c), mk_arrow(b, c), c))))
    env = add_decl(env, mk_axiom("or_intro_left", Pi(a, Ha, b, Or(a, b))))
    env = add_decl(env, mk_axiom("or_intro_right", Pi(b, a, Hb, Or(a, b))))
@@ -23,7 +23,7 @@ end
 
 function decl_bools(env, ls)
    for i = 1, #ls do
-      env = add_decl(env, mk_var_decl(ls[i]:data(), Bool))
+      env = add_decl(env, mk_var_decl(ls[i]:data(), Prop))
    end
    return env
 end
@@ -67,7 +67,7 @@ function assert_some_axioms(env)
    -- Assert some clauses
    local l1, l2, l3, l4, l5, l6 = Consts("l1 l2 l3 l4 l5 l6")
    env = decl_bools(env, {l1, l2, l3, l4, l5})
-   env = add_decl(env, mk_definition("l6", Bool, l3, {opaque=false})) -- l6 is alias for l3
+   env = add_decl(env, mk_definition("l6", Prop, l3, {opaque=false})) -- l6 is alias for l3
    env = add_decl(env, mk_axiom("H1", OR(l1, l2, Not(l3))))
    env = add_decl(env, mk_axiom("H2", OR(l2, l3, l4)))
    env = add_decl(env, mk_axiom("H3", OR(Not(l1), l2, l4, l5)))

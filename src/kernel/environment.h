@@ -52,9 +52,9 @@ class environment_header {
        allow us to add declarations without type checking them (e.g., m_trust_lvl > LEAN_BELIEVER_TRUST_LEVEL)
     */
     unsigned m_trust_lvl;
-    bool m_prop_proof_irrel;  //!< true if the kernel assumes proof irrelevance for Bool/Type (aka Type.{0})
+    bool m_prop_proof_irrel;  //!< true if the kernel assumes proof irrelevance for Prop (aka Type.{0})
     bool m_eta;               //!< true if the kernel uses eta-reduction in convertability checks
-    bool m_impredicative;     //!< true if the kernel should treat (universe level 0) as a impredicative Prop/Bool.
+    bool m_impredicative;     //!< true if the kernel should treat (universe level 0) as a impredicative Prop.
     list<name> m_cls_proof_irrel; //!< list of proof irrelevant classes, if we want Id types to be proof irrelevant, we the name 'Id' in this list.
     std::unique_ptr<normalizer_extension const> m_norm_ext;
     void dealloc();
@@ -140,7 +140,7 @@ public:
     /** \brief Return the trust level of this environment. */
     unsigned trust_lvl() const { return m_header->trust_lvl(); }
 
-    /** \brief Return true iff the environment assumes proof irrelevance for Type.{0} (i.e., Bool) */
+    /** \brief Return true iff the environment assumes proof irrelevance for Type.{0} (i.e., Prop) */
     bool prop_proof_irrel() const { return m_header->prop_proof_irrel(); }
 
     /** \brief Return the list of classes marked as proof irrelevant */
@@ -149,7 +149,7 @@ public:
     /** \brief Return true iff the environment assumes Eta-reduction */
     bool eta() const { return m_header->eta(); }
 
-    /** \brief Return true iff the environment treats universe level 0 as an impredicative Prop/Bool */
+    /** \brief Return true iff the environment treats universe level 0 as an impredicative Prop */
     bool impredicative() const { return m_header->impredicative(); }
 
     /** \brief Return reference to the normalizer extension associatied with this environment. */

@@ -112,7 +112,7 @@ struct print_expr_fn {
     void print_sort(expr const & a) {
         if (is_zero(sort_level(a))) {
             if (m_type0_as_bool)
-                out() << "Bool";
+                out() << "Prop";
             else
                 out() << "Type";
         } else if (m_type0_as_bool && is_one(sort_level(a))) {

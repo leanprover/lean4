@@ -25,18 +25,18 @@ formatter mk_formatter(environment const & env) {
 
 static void tst1() {
     environment env1;
-    auto env2 = add_decl(env1, mk_definition("Bool", level_param_names(), mk_Type(), mk_Bool()));
-    lean_assert(!env1.find("Bool"));
-    lean_assert(env2.find("Bool"));
-    lean_assert(env2.find("Bool")->get_value() == mk_Bool());
+    auto env2 = add_decl(env1, mk_definition("Prop", level_param_names(), mk_Type(), mk_Prop()));
+    lean_assert(!env1.find("Prop"));
+    lean_assert(env2.find("Prop"));
+    lean_assert(env2.find("Prop")->get_value() == mk_Prop());
     try {
-        auto env3 = add_decl(env2, mk_definition("Bool", level_param_names(), mk_Type(), mk_Bool()));
+        auto env3 = add_decl(env2, mk_definition("Prop", level_param_names(), mk_Type(), mk_Prop()));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.pp(mk_formatter(ex.get_environment())) << "\n";
     }
     try {
-        auto env4 = add_decl(env2, mk_definition("BuggyBool", level_param_names(), mk_Bool(), mk_Bool()));
+        auto env4 = add_decl(env2, mk_definition("BuggyProp", level_param_names(), mk_Prop(), mk_Prop()));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.pp(mk_formatter(ex.get_environment())) << "\n";
@@ -54,7 +54,7 @@ static void tst1() {
         std::cout << "expected error: " << ex.pp(mk_formatter(ex.get_environment())) << "\n";
     }
     try {
-        auto env7 = add_decl(env2, mk_definition("foo", level_param_names(), mk_Type() >> mk_Type(), mk_Bool()));
+        auto env7 = add_decl(env2, mk_definition("foo", level_param_names(), mk_Type() >> mk_Type(), mk_Prop()));
         lean_unreachable();
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.pp(mk_formatter(ex.get_environment())) << "\n";
@@ -64,26 +64,26 @@ static void tst1() {
     auto env3 = add_decl(env2, mk_definition("id", level_param_names(),
                                              Pi(A, A >> A),
                                              Fun({A, x}, x)));
-    expr c  = mk_local("c", Bool);
+    expr c  = mk_local("c", Prop);
     expr id = Const("id");
     type_checker checker(env3, name_generator("tmp"));
-    lean_assert(checker.check(id(Bool)) == Bool >> Bool);
-    lean_assert(checker.whnf(id(Bool, c)) == c);
-    lean_assert(checker.whnf(id(Bool, id(Bool, id(Bool, c)))) == c);
+    lean_assert(checker.check(id(Prop)) == Prop >> Prop);
+    lean_assert(checker.whnf(id(Prop, c)) == c);
+    lean_assert(checker.whnf(id(Prop, id(Prop, id(Prop, c)))) == c);
 
     type_checker checker2(env2, name_generator("tmp"));
-    lean_assert(checker2.whnf(id(Bool, id(Bool, id(Bool, c)))) == id(Bool, id(Bool, id(Bool, c))));
+    lean_assert(checker2.whnf(id(Prop, id(Prop, id(Prop, c)))) == id(Prop, id(Prop, id(Prop, c))));
 }
 
 static void tst2() {
     environment env;
     name base("base");
-    env = add_decl(env, mk_var_decl(name(base, 0u), level_param_names(), Bool >> (Bool >> Bool)));
-    expr x = Local("x", Bool);
-    expr y = Local("y", Bool);
+    env = add_decl(env, mk_var_decl(name(base, 0u), level_param_names(), Prop >> (Prop >> Prop)));
+    expr x = Local("x", Prop);
+    expr y = Local("y", Prop);
     for (unsigned i = 1; i <= 100; i++) {
         expr prev = Const(name(base, i-1));
-        env = add_decl(env, mk_definition(env, name(base, i), level_param_names(), Bool >> (Bool >> Bool),
+        env = add_decl(env, mk_definition(env, name(base, i), level_param_names(), Prop >> (Prop >> Prop),
                                           Fun({x, y}, prev(prev(x, y), prev(y, x)))));
     }
     expr A = Local("A", Type);
@@ -96,13 +96,13 @@ static void tst2() {
     expr f97 = Const(name(base, 97));
     expr f98 = Const(name(base, 98));
     expr f3  = Const(name(base, 3));
-    expr c1  =  mk_local("c1", Bool);
-    expr c2  = mk_local("c2", Bool);
+    expr c1  =  mk_local("c1", Prop);
+    expr c2  = mk_local("c2", Prop);
     expr id = Const("id");
     std::cout << checker.whnf(f3(c1, c2)) << "\n";
     lean_assert_eq(env.find(name(base, 98))->get_weight(), 98);
     lean_assert(checker.is_def_eq(f98(c1, c2), f97(f97(c1, c2), f97(c2, c1))));
-    lean_assert(checker.is_def_eq(f98(c1, id(Bool, id(Bool, c2))), f97(f97(c1, id(Bool, c2)), f97(c2, c1))));
+    lean_assert(checker.is_def_eq(f98(c1, id(Prop, id(Prop, c2))), f97(f97(c1, id(Prop, c2)), f97(c2, c1))));
     name_set s;
     s.insert(name(base, 96));
     type_checker checker2(env, name_generator("tmp"), mk_default_converter(env, optional<module_idx>(), true, s));

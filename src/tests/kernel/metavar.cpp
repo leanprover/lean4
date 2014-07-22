@@ -68,9 +68,9 @@ static bool check_assumptions(justification const & j, std::initializer_list<uns
 
 static void tst1() {
     substitution subst;
-    expr m1 = mk_metavar("m1", Bool);
+    expr m1 = mk_metavar("m1", Prop);
     lean_assert(!subst.is_assigned(m1));
-    expr m2 = mk_metavar("m2", Bool);
+    expr m2 = mk_metavar("m2", Prop);
     lean_assert(!is_eqp(m1, m2));
     lean_assert(m1 != m2);
     expr f = Const("f");
@@ -85,9 +85,9 @@ static void tst1() {
 
 static void tst2() {
     substitution s;
-    expr m1 = mk_metavar("m1", Bool);
-    expr m2 = mk_metavar("m2", Bool);
-    expr m3 = mk_metavar("m3", Bool);
+    expr m1 = mk_metavar("m1", Prop);
+    expr m2 = mk_metavar("m2", Prop);
+    expr m3 = mk_metavar("m3", Prop);
     expr f = Const("f");
     expr g = Const("g");
     expr a = Const("a");
@@ -121,14 +121,14 @@ static void tst2() {
 }
 
 static void tst3() {
-    expr m1 = mk_metavar("m1", Bool >> (Bool >> Bool));
+    expr m1 = mk_metavar("m1", Prop >> (Prop >> Prop));
     substitution s;
     expr f  = Const("f");
     expr g  = Const("g");
     expr a  = Const("a");
     expr b  = Const("b");
-    expr x  = Local("x", Bool);
-    expr y  = Local("y", Bool);
+    expr x  = Local("x", Prop);
+    expr y  = Local("y", Prop);
     s = s.assign(m1, Fun({x, y}, f(y, x)));
     lean_assert_eq(s.instantiate_metavars(m1(a, b, g(a))).first, f(b, a, g(a)));
     lean_assert_eq(s.instantiate_metavars(m1(a)).first, Fun(y, f(y, a)));
@@ -137,9 +137,9 @@ static void tst3() {
 }
 
 static void tst4() {
-    expr m1  = mk_metavar("m1", Bool);
-    expr m2  = mk_metavar("m2", Bool);
-    expr m3  = mk_metavar("m3", Bool);
+    expr m1  = mk_metavar("m1", Prop);
+    expr m2  = mk_metavar("m2", Prop);
+    expr m3  = mk_metavar("m3", Prop);
     level l1 = mk_meta_univ("l1");
     level u  = mk_global_univ("u");
     substitution s;
@@ -154,7 +154,7 @@ static void tst4() {
     s = s.assign(m2, m3, justification());
     lean_assert(s.instantiate_metavars(t).first == f(T1, T2, a, m3));
     s = s.assign(l1, level(), justification());
-    lean_assert(s.instantiate_metavars(t).first == f(Bool, T2, a, m3));
+    lean_assert(s.instantiate_metavars(t).first == f(Prop, T2, a, m3));
 }
 
 int main() {

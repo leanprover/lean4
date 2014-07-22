@@ -328,11 +328,9 @@ expr mk_sort(level const & l) { return cache(expr(new (get_sort_allocator().allo
 // =======================================
 
 typedef buffer<expr_cell*> del_buffer;
-MK_THREAD_LOCAL_GET_DEF(del_buffer, get_dealloc_buffer)
-
 void expr_cell::dealloc() {
     try {
-        del_buffer & todo = get_dealloc_buffer();
+        del_buffer todo;
         todo.push_back(this);
         while (!todo.empty()) {
             expr_cell * it = todo.back();

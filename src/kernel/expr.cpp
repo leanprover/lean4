@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/object_serializer.h"
 #include "util/lru_cache.h"
+#include "util/fixed_size_allocator.h"
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"
 #include "kernel/free_vars.h"
@@ -93,20 +94,35 @@ bool is_meta(expr const & e) {
 }
 
 // Expr variables
+typedef fixed_size_allocator<sizeof(expr_var)> var_allocator;
+MK_THREAD_LOCAL_GET_DEF(var_allocator, get_var_allocator);
 expr_var::expr_var(unsigned idx):
     expr_cell(expr_kind::Var, idx, false, false, false, false),
     m_vidx(idx) {
     if (idx == std::numeric_limits<unsigned>::max())
         throw exception("invalid free variable index, de Bruijn index is too big");
 }
+void expr_var::dealloc() {
+    this->~expr_var();
+    get_var_allocator().recyle(this);
+}
 
 // Expr constants
+typedef fixed_size_allocator<sizeof(expr_const)> const_allocator;
+MK_THREAD_LOCAL_GET_DEF(const_allocator, get_const_allocator);
 expr_const::expr_const(name const & n, levels const & ls):
     expr_cell(expr_kind::Constant, ::lean::hash(n.hash(), hash_levels(ls)), false, has_meta(ls), false, has_param(ls)),
     m_name(n),
-    m_levels(ls) {}
+    m_levels(ls) {
+}
+void expr_const::dealloc() {
+    this->~expr_const();
+    get_const_allocator().recyle(this);
+}
 
 // Expr metavariables and local variables
+typedef fixed_size_allocator<sizeof(expr_mlocal)> mlocal_allocator;
+MK_THREAD_LOCAL_GET_DEF(mlocal_allocator, get_mlocal_allocator);
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, expr const & t):
     expr_composite(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
                    !is_meta || t.has_local(), t.has_param_univ(),
@@ -115,16 +131,20 @@ expr_mlocal::expr_mlocal(bool is_meta, name const & n, expr const & t):
     m_type(t) {}
 void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_type, todelete);
-    delete(this);
+    this->~expr_mlocal();
+    get_mlocal_allocator().recyle(this);
 }
 
+typedef fixed_size_allocator<sizeof(expr_local)> local_allocator;
+MK_THREAD_LOCAL_GET_DEF(local_allocator, get_local_allocator);
 expr_local::expr_local(name const & n, name const & pp_name, expr const & t, binder_info const & bi):
     expr_mlocal(false, n, t),
     m_pp_name(pp_name),
     m_bi(bi) {}
 void expr_local::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_type, todelete);
-    delete(this);
+    this->~expr_local();
+    get_local_allocator().recyle(this);
 }
 
 // Composite expressions
@@ -135,6 +155,8 @@ expr_composite::expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool h
     m_free_var_range(fv_range) {}
 
 // Expr applications
+typedef fixed_size_allocator<sizeof(expr_app)> app_allocator;
+MK_THREAD_LOCAL_GET_DEF(app_allocator, get_app_allocator);
 expr_app::expr_app(expr const & fn, expr const & arg):
     expr_composite(expr_kind::App, ::lean::hash(fn.hash(), arg.hash()),
                    fn.has_expr_metavar() || arg.has_expr_metavar(),
@@ -149,7 +171,8 @@ expr_app::expr_app(expr const & fn, expr const & arg):
 void expr_app::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_fn, todelete);
     dec_ref(m_arg, todelete);
-    delete(this);
+    this->~expr_app();
+    get_app_allocator().recyle(this);
 }
 
 static unsigned dec(unsigned k) { return k == 0 ? 0 : k - 1; }
@@ -163,6 +186,8 @@ bool operator==(binder_info const & i1, binder_info const & i2) {
 }
 
 // Expr binders (Lambda, Pi)
+typedef fixed_size_allocator<sizeof(expr_binding)> binding_allocator;
+MK_THREAD_LOCAL_GET_DEF(binding_allocator, get_binding_allocator);
 expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr const & b, binder_info const & i):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
                    t.has_expr_metavar()   || b.has_expr_metavar(),
@@ -179,15 +204,22 @@ expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr con
 void expr_binding::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_body, todelete);
     dec_ref(m_binder.m_type, todelete);
-    delete(this);
+    this->~expr_binding();
+    get_binding_allocator().recyle(this);
 }
 
 // Expr Sort
+typedef fixed_size_allocator<sizeof(expr_sort)> sort_allocator;
+MK_THREAD_LOCAL_GET_DEF(sort_allocator, get_sort_allocator);
 expr_sort::expr_sort(level const & l):
     expr_cell(expr_kind::Sort, ::lean::hash(l), false, has_meta(l), false, has_param(l)),
     m_level(l) {
 }
 expr_sort::~expr_sort() {}
+void expr_sort::dealloc() {
+    this->~expr_sort();
+    get_sort_allocator().recyle(this);
+}
 
 // Macro definition
 bool macro_definition_cell::lt(macro_definition_cell const &) const { return false; }
@@ -279,18 +311,20 @@ inline expr cache(expr && e) { return e; }
 bool enable_expr_caching(bool) { return true; } // NOLINT
 #endif
 
-expr mk_var(unsigned idx) { return cache(expr(new expr_var(idx))); }
-expr mk_constant(name const & n, levels const & ls) { return cache(expr(new expr_const(n, ls))); }
+expr mk_var(unsigned idx) { return cache(expr(new (get_var_allocator().allocate()) expr_var(idx))); }
+expr mk_constant(name const & n, levels const & ls) { return cache(expr(new (get_const_allocator().allocate()) expr_const(n, ls))); }
 expr mk_macro(macro_definition const & m, unsigned num, expr const * args) { return cache(expr(new expr_macro(m, num, args))); }
-expr mk_metavar(name const & n, expr const & t) { return cache(expr(new expr_mlocal(true, n, t))); }
+expr mk_metavar(name const & n, expr const & t) { return cache(expr(new (get_mlocal_allocator().allocate()) expr_mlocal(true, n, t))); }
 expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi) {
-    return cache(expr(new expr_local(n, pp_n, t, bi)));
+    return cache(expr(new (get_local_allocator().allocate()) expr_local(n, pp_n, t, bi)));
 }
-expr mk_app(expr const & f, expr const & a) { return cache(expr(new expr_app(f, a))); }
+expr mk_app(expr const & f, expr const & a) {
+    return cache(expr(new (get_app_allocator().allocate()) expr_app(f, a)));
+}
 expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i) {
-    return cache(expr(new expr_binding(k, n, t, e, i)));
+    return cache(expr(new (get_binding_allocator().allocate()) expr_binding(k, n, t, e, i)));
 }
-expr mk_sort(level const & l) { return cache(expr(new expr_sort(l))); }
+expr mk_sort(level const & l) { return cache(expr(new (get_sort_allocator().allocate()) expr_sort(l))); }
 // =======================================
 
 typedef buffer<expr_cell*> del_buffer;
@@ -305,12 +339,12 @@ void expr_cell::dealloc() {
             todo.pop_back();
             lean_assert(it->get_rc() == 0);
             switch (it->kind()) {
-            case expr_kind::Var:        delete static_cast<expr_var*>(it); break;
+            case expr_kind::Var:        static_cast<expr_var*>(it)->dealloc(); break;
             case expr_kind::Macro:      static_cast<expr_macro*>(it)->dealloc(todo); break;
             case expr_kind::Meta:       static_cast<expr_mlocal*>(it)->dealloc(todo); break;
             case expr_kind::Local:      static_cast<expr_local*>(it)->dealloc(todo); break;
-            case expr_kind::Constant:   delete static_cast<expr_const*>(it); break;
-            case expr_kind::Sort:       delete static_cast<expr_sort*>(it); break;
+            case expr_kind::Constant:   static_cast<expr_const*>(it)->dealloc(); break;
+            case expr_kind::Sort:       static_cast<expr_sort*>(it)->dealloc(); break;
             case expr_kind::App:        static_cast<expr_app*>(it)->dealloc(todo); break;
             case expr_kind::Lambda:
             case expr_kind::Pi:         static_cast<expr_binding*>(it)->dealloc(todo); break;

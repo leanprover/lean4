@@ -178,6 +178,8 @@ inline bool is_eqp(optional<expr> const & a, optional<expr> const & b) {
 /** \brief Bounded variables. They are encoded using de Bruijn's indices. */
 class expr_var : public expr_cell {
     unsigned m_vidx; // de Bruijn index
+    friend expr_cell;
+    void dealloc();
 public:
     expr_var(unsigned idx);
     unsigned get_vidx() const { return m_vidx; }
@@ -187,6 +189,8 @@ public:
 class expr_const : public expr_cell {
     name       m_name;
     levels     m_levels;
+    friend expr_cell;
+    void dealloc();
 public:
     expr_const(name const & n, levels const & ls);
     name const & get_name() const { return m_name; }
@@ -304,6 +308,8 @@ public:
 /** \brief Sort */
 class expr_sort : public expr_cell {
     level    m_level;
+    friend expr_cell;
+    void dealloc();
 public:
     expr_sort(level const & l);
     ~expr_sort();

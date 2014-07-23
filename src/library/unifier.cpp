@@ -84,8 +84,12 @@ lbool occurs_context_check(substitution & s, expr const & e, expr const & m, buf
                 }
                 return false; // do not visit type
             } else if (is_meta(e)) {
-                if (!context_check(e, locals) || s.occurs(m, e))
-                    r = l_undef;
+                if (r == l_true) {
+                    if (!context_check(e, locals))
+                        r = l_undef;
+                    if (s.occurs(m, e))
+                        r = l_undef;
+                }
                 if (get_app_fn(e) == m)
                     r = l_false;
                 return false; // do not visit children

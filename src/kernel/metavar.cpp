@@ -164,9 +164,9 @@ protected:
                 }
             } else {
                 if (m_update) {
-                    expr r = m_subst.d_instantiate_metavars_wo_jst(p1->first);
-                    m_subst.d_assign(m_name, r);
-                    return r;
+                    auto p2 = m_subst.d_instantiate_metavars(p1->first);
+                    m_subst.d_assign(m_name, p2.first, mk_composite1(p1->second, p2.second));
+                    return p2.first;
                 } else {
                     return m_subst.instantiate(p1->first);
                 }

@@ -89,7 +89,7 @@ public:
                         return some_level(*it);
                     } else {
                         level new_p = mk_new_univ_param();
-                        m_subst.d_assign(l, new_p);
+                        m_subst.assign(l, new_p);
                         return some_level(new_p);
                     }
                 }
@@ -307,9 +307,9 @@ class elaborator {
                 substitution subst = next->first.get_subst();
                 buffer<constraint> cs;
                 expr const & mvar = get_app_fn(m_meta);
-                cs.push_back(mk_eq_cnstr(mvar, subst.d_instantiate(mvar), m_jst));
+                cs.push_back(mk_eq_cnstr(mvar, subst.instantiate(mvar), m_jst));
                 for (auto const & mvar : m_mvars_in_meta_type)
-                    cs.push_back(mk_eq_cnstr(mvar, subst.d_instantiate(mvar), m_jst));
+                    cs.push_back(mk_eq_cnstr(mvar, subst.instantiate(mvar), m_jst));
                 return optional<constraints>(to_list(cs.begin(), cs.end()));
             }
             return optional<constraints>();
@@ -414,9 +414,7 @@ public:
         if (!m_accumulated.is_none())
             c = update_justification(c, mk_composite1(c.get_justification(), m_accumulated));
         add_cnstr_core(c);
-        auto ss = unify_simple(m_subst, c);
-        m_subst = ss.second;
-        if (ss.first == unify_status::Failed)
+        if (unify_simple(m_subst, c) == unify_status::Failed)
             throw unifier_exception(c.get_justification(), m_subst);
     }
 
@@ -424,7 +422,7 @@ public:
         \remark We update \c m_accumulated with any justifications used.
     */
     expr instantiate_metavars(expr const & e) {
-        auto e_j = m_subst.d_instantiate_metavars(e);
+        auto e_j = m_subst.instantiate_metavars(e);
         m_accumulated = mk_composite1(m_accumulated, e_j.second);
         return e_j.first;
     }
@@ -538,7 +536,7 @@ public:
         return ::lean::is_class(m_env, cls_name) || !empty(get_tactic_hints(m_env, cls_name));
     }
 
-    static expr instantiate_meta(expr const & meta, substitution const & subst) {
+    static expr instantiate_meta(expr const & meta, substitution & subst) {
         buffer<expr> locals;
         expr mvar = get_app_args(meta, locals);
         mvar = update_mlocal(mvar, subst.instantiate(mlocal_type(mvar)));
@@ -551,7 +549,8 @@ public:
     justification mk_failed_to_synthesize_jst(expr const & m) {
         environment env = m_env;
         return mk_justification(m, [=](formatter const & fmt, substitution const & subst) {
-                expr new_m    = instantiate_meta(m, subst);
+                substitution tmp(subst);
+                expr new_m    = instantiate_meta(m, tmp);
                 expr new_type = type_checker(env).infer(new_m);
                 proof_state ps(goals(goal(new_m, new_type)), substitution(), name_generator("dontcare"));
                 return format({format("failed to synthesize placeholder"), line(), ps.pp(fmt)});
@@ -1065,7 +1064,7 @@ public:
             } else {
                 subst = r->first.get_subst();
                 expr v = subst.instantiate(mvar);
-                subst = subst.assign(mlocal_name(mvar), v);
+                subst.assign(mlocal_name(mvar), v);
                 return true;
             }
         } catch (tactic_exception & ex) {
@@ -1110,12 +1109,13 @@ public:
 
     void display_unassigned_mvars(expr const & e, substitution const & s) {
         if (m_check_unassigned && has_metavar(e)) {
+            substitution tmp_s(s);
             for_each(e, [&](expr const & e, unsigned) {
                     if (!is_metavar(e))
                         return has_metavar(e);
                     if (auto it = m_mvar2meta.find(mlocal_name(e))) {
-                        expr meta      = s.instantiate(*it);
-                        expr meta_type = s.instantiate(type_checker(m_env).infer(meta));
+                        expr meta      = tmp_s.instantiate(*it);
+                        expr meta_type = tmp_s.instantiate(type_checker(m_env).infer(meta));
                         goal g(meta, meta_type);
                         display_unsolved_proof_state(e, proof_state(goals(g), substitution(), m_ngen),
                                                      "don't know how to synthesize it");
@@ -1127,7 +1127,7 @@ public:
 
     /** \brief Apply substitution and solve remaining metavariables using tactics. */
     expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params) {
-        expr r = s.d_instantiate(e);
+        expr r = s.instantiate(e);
         if (has_univ_metavar(r))
             r = univ_metavars_to_params_fn(m_env, m_lls, s, univ_params, new_params)(r);
         r = solve_unassigned_mvars(s, r);
@@ -1158,7 +1158,8 @@ public:
         expr r_v      = visit(v);
         expr r_v_type = infer_type(r_v);
         justification j = mk_justification(v, [=](formatter const & fmt, substitution const & subst) {
-                return pp_def_type_mismatch(fmt, n, subst.instantiate(r_t), subst.instantiate(r_v_type));
+                substitution s(subst);
+                return pp_def_type_mismatch(fmt, n, s.instantiate(r_t), s.instantiate(r_v_type));
             });
         if (!m_tc->is_def_eq(r_v_type, r_t, j)) {
             throw_kernel_exception(m_env, v, [=](formatter const & fmt) { return pp_def_type_mismatch(fmt, n, r_t, r_v_type); });

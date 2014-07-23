@@ -24,7 +24,8 @@ class substitution {
     jst_map   m_level_jsts;
 
     friend class instantiate_metavars_fn;
-    std::pair<level, justification> d_instantiate_metavars(level const & l, bool use_jst, bool updt);
+    std::pair<level, justification> instantiate_metavars(level const & l, bool use_jst);
+    expr instantiate_metavars_wo_jst(expr const & e);
 
 public:
     substitution();
@@ -42,27 +43,19 @@ public:
     justification get_expr_jst(name const & m) const { if (auto it = m_expr_jsts.find(m)) return *it; else return justification(); }
     justification get_level_jst(name const & m) const { if (auto it = m_level_jsts.find(m)) return *it; else return justification(); }
 
-    substitution assign(name const & m, expr const & t, justification const & j) const;
-    substitution assign(name const & m, expr const & t) const;
+    void assign(name const & m, expr const & t, justification const & j);
+    void assign(name const & m, expr const & t) { assign(m, t, justification()); }
+    void assign(expr const & m, expr const & t, justification const & j) { assign(mlocal_name(m), t, j); }
+    void assign(expr const & m, expr const & t) { assign(m, t, justification()); }
+    void assign(name const & m, level const & t, justification const & j);
+    void assign(name const & m, level const & t) { assign(m, t, justification ()); }
+    void assign(level const & m, level const & t, justification const & j) { assign(meta_id(m), t, j); }
+    void assign(level const & m, level const & t) { assign(m, t, justification ()); }
 
-    substitution assign(name const & m, level const & t, justification const & j) const;
-    substitution assign(name const & m, level const & t) const;
+    std::pair<expr, justification> instantiate_metavars(expr const & e);
+    std::pair<level, justification> instantiate_metavars(level const & l) { return instantiate_metavars(l, true); }
 
-    void d_assign(name const & m, expr const & t, justification const & j);
-    void d_assign(name const & m, expr const & t) { d_assign(m, t, justification()); }
-    void d_assign(expr const & m, expr const & t, justification const & j) { d_assign(mlocal_name(m), t, j); }
-    void d_assign(expr const & m, expr const & t) { d_assign(m, t, justification()); }
-    void d_assign(name const & m, level const & t, justification const & j);
-    void d_assign(name const & m, level const & t) { d_assign(m, t, justification ()); }
-    void d_assign(level const & m, level const & t, justification const & j) { d_assign(meta_id(m), t, j); }
-    void d_assign(level const & m, level const & t) { d_assign(m, t, justification ()); }
-
-    std::pair<expr, justification> d_instantiate_metavars(expr const & e, bool only_expr = false);
-    expr d_instantiate_metavars_wo_jst(expr const & e);
-    std::pair<level, justification> d_instantiate_metavars(level const & l) { return d_instantiate_metavars(l, true, true); }
-
-    void d_forget_justifications() { m_expr_jsts  = jst_map(); m_level_jsts = jst_map(); }
-    substitution forget_justifications() const { substitution s(*this); s.d_forget_justifications(); return s; }
+    void forget_justifications() { m_expr_jsts  = jst_map(); m_level_jsts = jst_map(); }
 
     template<typename F>
     void for_each_expr(F && fn) const {
@@ -77,45 +70,12 @@ public:
     bool is_assigned(expr const & m) const { lean_assert(is_metavar(m)); return is_expr_assigned(mlocal_name(m)); }
     opt_expr_jst get_assignment(expr const & m) const { lean_assert(is_metavar(m)); return get_expr_assignment(mlocal_name(m)); }
     optional<expr> get_expr(expr const & m) const { lean_assert(is_metavar(m)); return get_expr(mlocal_name(m)); }
-    substitution assign(expr const & m, expr const & t, justification const & j) {
-        lean_assert(is_metavar(m)); return assign(mlocal_name(m), t, j); }
-    substitution assign(expr const & m, expr const & t) const { lean_assert(is_metavar(m)); return assign(mlocal_name(m), t); }
 
     bool is_assigned(level const & m) const { lean_assert(is_meta(m)); return is_level_assigned(meta_id(m)); }
     opt_level_jst get_assignment(level const & m) const { lean_assert(is_meta(m)); return get_level_assignment(meta_id(m)); }
     optional<level> get_level(level const & m) const { lean_assert(is_meta(m)); return get_level(meta_id(m)); }
-    substitution assign(level const & m, level const & l, justification const & j) const {
-        lean_assert(is_meta(m)); return assign(meta_id(m), l, j); }
-    substitution assign(level const & m, level const & l) { lean_assert(is_meta(m)); return assign(meta_id(m), l); }
 
-    /**
-        \brief Instantiate metavariables in \c e assigned in this substitution.
-    */
-    std::pair<expr, justification> instantiate_metavars(expr const & e) const;
-
-    /**
-       \brief Similar to the previous function, but it compress the substitution.
-       By compress, we mean, for any metavariable \c m reachable from \c e,
-       if s[m] = t, and t has asssigned metavariables, then s[m] <- instantiate_metavars(t, s).
-       The updated substitution is returned.
-    */
-    std::tuple<expr, justification, substitution> updt_instantiate_metavars(expr const & e) const;
-
-    /** \brief Instantiate level metavariables in \c l. */
-    std::pair<level, justification> instantiate_metavars(level const & l) const;
-
-    /**
-       \brief Instantiate metavariables in \c e assigned in the substitution \c s,
-       but does not return a justification object for the new expression.
-    */
-    expr instantiate_metavars_wo_jst(expr const & e) const;
-    expr instantiate(expr const & e) const { return instantiate_metavars_wo_jst(e); }
-    expr d_instantiate(expr const & e) { return d_instantiate_metavars_wo_jst(e); }
-
-    std::pair<expr, substitution> updt_instantiate_metavars_wo_jst(expr const & e) const;
-
-    /** \brief Instantiate level metavariables in \c l, but does not return justification object. */
-    level instantiate_metavars_wo_jst(level const & l) const;
+    expr instantiate(expr const & e) { return instantiate_metavars_wo_jst(e); }
 
     /** \brief Return true iff the metavariable \c m occurrs (directly or indirectly) in \c e. */
     bool occurs_expr(name const & m, expr const & e) const;

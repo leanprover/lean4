@@ -75,7 +75,7 @@ static void tst1() {
     lean_assert(m1 != m2);
     expr f = Const("f");
     expr a = Const("a");
-    subst = subst.assign(m1, f(a));
+    subst.assign(m1, f(a));
     lean_assert(subst.is_assigned(m1));
     lean_assert(!subst.is_assigned(m2));
     lean_assert(*subst.get_expr(m1) == f(a));
@@ -91,8 +91,8 @@ static void tst2() {
     expr f = Const("f");
     expr g = Const("g");
     expr a = Const("a");
-    s = s.assign(m1, f(m2), mk_assumption_justification(1));
-    s = s.assign(m2, g(a),  mk_assumption_justification(2));
+    s.assign(m1, f(m2), mk_assumption_justification(1));
+    s.assign(m2, g(a),  mk_assumption_justification(2));
     lean_assert(check_assumptions(s.get_assignment(m1)->second, {1}));
     lean_assert(s.occurs(m1, f(m1)));
     lean_assert(s.occurs(m2, f(m1)));
@@ -102,22 +102,8 @@ static void tst2() {
     std::cout << s << "\n";
     auto p1 = s.instantiate_metavars(g(m1));
     check_assumptions(p1.second, {1, 2});
-    lean_assert(check_assumptions(s.get_assignment(m1)->second, {1}));
-    lean_assert(p1.first == g(f(g(a))));
-    auto ts = s.updt_instantiate_metavars(g(m1, m3));
-    s = std::get<2>(ts);
-    check_assumptions(std::get<1>(ts), {1, 2});
-    std::cout << std::get<0>(ts) << "\n";
-    std::cout << s << "\n";
     lean_assert(check_assumptions(s.get_assignment(m1)->second, {1, 2}));
-    lean_assert(std::get<0>(ts) == g(f(g(a)), m3));
-    s = s.assign(m3, f(m1, m2), mk_assumption_justification(3));
-    auto p3 = s.instantiate_metavars(g(m1, m3));
-    lean_assert(check_assumptions(p3.second, {1, 2, 3}));
-    std::cout << p3.first << "\n";
-    std::cout << p3.second << "\n";
-    std::cout << s << "\n";
-    lean_assert_eq(p3.first, g(f(g(a)), f(f(g(a)), g(a))));
+    lean_assert(p1.first == g(f(g(a))));
 }
 
 static void tst3() {
@@ -129,7 +115,7 @@ static void tst3() {
     expr b  = Const("b");
     expr x  = Local("x", Prop);
     expr y  = Local("y", Prop);
-    s = s.assign(m1, Fun({x, y}, f(y, x)));
+    s.assign(m1, Fun({x, y}, f(y, x)));
     lean_assert_eq(s.instantiate_metavars(m1(a, b, g(a))).first, f(b, a, g(a)));
     lean_assert_eq(s.instantiate_metavars(m1(a)).first, Fun(y, f(y, a)));
     lean_assert_eq(s.instantiate_metavars(m1(a, b)).first, f(b, a));
@@ -150,10 +136,10 @@ static void tst4() {
     expr T2 = mk_sort(u);
     expr t  = f(T1, T2, m1, m2);
     lean_assert(s.instantiate_metavars(t).first == t);
-    s = s.assign(m1, a, justification());
-    s = s.assign(m2, m3, justification());
+    s.assign(m1, a, justification());
+    s.assign(m2, m3, justification());
     lean_assert(s.instantiate_metavars(t).first == f(T1, T2, a, m3));
-    s = s.assign(l1, level(), justification());
+    s.assign(l1, level(), justification());
     lean_assert(s.instantiate_metavars(t).first == f(Prop, T2, a, m3));
 }
 

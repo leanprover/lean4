@@ -32,9 +32,9 @@ enum class unify_status { Solved, Failed, Unsupported };
 
     This function assumes that all assigned metavariables have been substituted.
 */
-std::pair<unify_status, substitution> unify_simple(substitution const & s, expr const & lhs, expr const & rhs, justification const & j);
-std::pair<unify_status, substitution> unify_simple(substitution const & s, level const & lhs, level const & rhs, justification const & j);
-std::pair<unify_status, substitution> unify_simple(substitution const & s, constraint const & c);
+unify_status unify_simple(substitution & s, expr const & lhs, expr const & rhs, justification const & j);
+unify_status unify_simple(substitution & s, level const & lhs, level const & rhs, justification const & j);
+unify_status unify_simple(substitution & s, constraint const & c);
 
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
                               bool use_exception = true, unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);

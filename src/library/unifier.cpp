@@ -110,36 +110,36 @@ expr lambda_abstract_locals(expr const & e, buffer<expr> const & locals) {
     return v;
 }
 
-static std::pair<unify_status, substitution> unify_simple_core(substitution const & s, expr const & lhs, expr const & rhs,
-                                                               justification const & j) {
+unify_status unify_simple_core(substitution & s, expr const & lhs, expr const & rhs, justification const & j) {
     lean_assert(is_meta(lhs));
     buffer<expr> args;
     auto m = is_simple_meta(lhs, args);
     if (!m || is_meta(rhs)) {
-        return mk_pair(unify_status::Unsupported, s);
+        return unify_status::Unsupported;
     } else {
         switch (occurs_context_check(s, rhs, *m, args)) {
-        case l_false: return mk_pair(unify_status::Failed, s);
-        case l_undef: mk_pair(unify_status::Unsupported, s);
+        case l_false: return unify_status::Failed;
+        case l_undef: return unify_status::Unsupported;
         case l_true: {
             expr v = lambda_abstract_locals(rhs, args);
-            return mk_pair(unify_status::Solved, s.assign(mlocal_name(*m), v, j));
+            s.assign(mlocal_name(*m), v, j);
+            return unify_status::Solved;
         }}
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-std::pair<unify_status, substitution> unify_simple(substitution const & s, expr const & lhs, expr const & rhs, justification const & j) {
+unify_status unify_simple(substitution & s, expr const & lhs, expr const & rhs, justification const & j) {
     if (lhs == rhs)
-        return mk_pair(unify_status::Solved, s);
+        return unify_status::Solved;
     else if (!has_metavar(lhs) && !has_metavar(rhs))
-        return mk_pair(unify_status::Failed, s);
+        return unify_status::Failed;
     else if (is_meta(lhs))
         return unify_simple_core(s, lhs, rhs, j);
     else if (is_meta(rhs))
         return unify_simple_core(s, rhs, lhs, j);
     else
-        return mk_pair(unify_status::Unsupported, s);
+        return unify_status::Unsupported;
 }
 
 // Return true if m occurs in e
@@ -158,23 +158,24 @@ bool occurs_meta(level const & m, level const & e) {
     return contains;
 }
 
-std::pair<unify_status, substitution> unify_simple_core(substitution const & s, level const & lhs, level const & rhs, justification const & j) {
+unify_status unify_simple_core(substitution & s, level const & lhs, level const & rhs, justification const & j) {
     lean_assert(is_meta(lhs));
     bool contains = occurs_meta(lhs, rhs);
     if (contains) {
         if (is_succ(rhs))
-            return mk_pair(unify_status::Failed, s);
+            return unify_status::Failed;
         else
-            return mk_pair(unify_status::Unsupported, s);
+            return unify_status::Unsupported;
     }
-    return mk_pair(unify_status::Solved, s.assign(meta_id(lhs), rhs, j));
+    s.assign(meta_id(lhs), rhs, j);
+    return unify_status::Solved;
 }
 
-std::pair<unify_status, substitution> unify_simple(substitution const & s, level const & lhs, level const & rhs, justification const & j) {
+unify_status unify_simple(substitution & s, level const & lhs, level const & rhs, justification const & j) {
     if (lhs == rhs)
-        return mk_pair(unify_status::Solved, s);
+        return unify_status::Solved;
     else if (!has_meta(lhs) && !has_meta(rhs))
-        return mk_pair(unify_status::Failed, s);
+        return unify_status::Failed;
     else if (is_meta(lhs))
         return unify_simple_core(s, lhs, rhs, j);
     else if (is_meta(rhs))
@@ -182,16 +183,16 @@ std::pair<unify_status, substitution> unify_simple(substitution const & s, level
     else if (is_succ(lhs) && is_succ(rhs))
         return unify_simple(s, succ_of(lhs), succ_of(rhs), j);
     else
-        return mk_pair(unify_status::Unsupported, s);
+        return unify_status::Unsupported;
 }
 
-std::pair<unify_status, substitution> unify_simple(substitution const & s, constraint const & c) {
+unify_status unify_simple(substitution & s, constraint const & c) {
     if (is_eq_cnstr(c))
         return unify_simple(s, cnstr_lhs_expr(c), cnstr_rhs_expr(c), c.get_justification());
     else if (is_level_eq_cnstr(c))
         return unify_simple(s, cnstr_lhs_level(c), cnstr_rhs_level(c), c.get_justification());
     else
-        return mk_pair(unify_status::Unsupported, s);
+        return unify_status::Unsupported;
 }
 
 static constraint g_dont_care_cnstr = mk_eq_cnstr(expr(), expr(), justification());
@@ -421,7 +422,7 @@ struct unifier_fn {
     */
     bool assign(expr const & m, expr const & v, justification const & j) {
         lean_assert(is_metavar(m));
-        m_subst.d_assign(m, v, j);
+        m_subst.assign(m, v, j);
         expr m_type = mlocal_type(m);
         expr v_type;
         try {
@@ -433,7 +434,8 @@ struct unifier_fn {
         if (in_conflict())
             return false;
         justification j1 = mk_justification(m, [=](formatter const & fmt, substitution const & subst) {
-                return pp_type_mismatch(fmt, subst.instantiate(m_type), subst.instantiate(v_type));
+                substitution s(subst);
+                return pp_type_mismatch(fmt, s.instantiate(m_type), s.instantiate(v_type));
             });
         if (!is_def_eq(m_type, v_type, mk_composite1(j1, j)))
             return false;
@@ -456,7 +458,7 @@ struct unifier_fn {
     */
     bool assign(level const & m, level const & v, justification const & j) {
         lean_assert(is_meta(m));
-        m_subst.d_assign(m, v, j);
+        m_subst.assign(m, v, j);
         return true;
     }
 
@@ -507,8 +509,8 @@ struct unifier_fn {
 
     std::pair<constraint, bool> instantiate_metavars(constraint const & c) {
         if (is_eq_cnstr(c)) {
-            auto lhs_jst = m_subst.d_instantiate_metavars(cnstr_lhs_expr(c));
-            auto rhs_jst = m_subst.d_instantiate_metavars(cnstr_rhs_expr(c));
+            auto lhs_jst = m_subst.instantiate_metavars(cnstr_lhs_expr(c));
+            auto rhs_jst = m_subst.instantiate_metavars(cnstr_rhs_expr(c));
             expr lhs = lhs_jst.first;
             expr rhs = rhs_jst.first;
             if (lhs != cnstr_lhs_expr(c) || rhs != cnstr_rhs_expr(c)) {
@@ -517,8 +519,8 @@ struct unifier_fn {
                                true);
             }
         } else if (is_level_eq_cnstr(c)) {
-            auto lhs_jst = m_subst.d_instantiate_metavars(cnstr_lhs_level(c));
-            auto rhs_jst = m_subst.d_instantiate_metavars(cnstr_rhs_level(c));
+            auto lhs_jst = m_subst.instantiate_metavars(cnstr_lhs_level(c));
+            auto rhs_jst = m_subst.instantiate_metavars(cnstr_rhs_level(c));
             level lhs = lhs_jst.first;
             level rhs = rhs_jst.first;
             if (lhs != cnstr_lhs_level(c) || rhs != cnstr_rhs_level(c)) {
@@ -839,7 +841,7 @@ struct unifier_fn {
             set_conflict(c.get_justification());
             return false;
         }
-        auto m_type_jst             = m_subst.d_instantiate_metavars(m_type);
+        auto m_type_jst             = m_subst.instantiate_metavars(m_type);
         lazy_list<constraints> alts = fn(m, m_type_jst.first, m_subst, m_ngen.mk_child());
         return process_lazy_constraints(alts, mk_composite1(c.get_justification(), m_type_jst.second));
     }
@@ -1377,7 +1379,9 @@ struct unifier_fn {
         }
         lean_assert(!in_conflict());
         lean_assert(m_cnstrs.empty());
-        return optional<substitution>(m_subst.forget_justifications());
+        substitution s = m_subst;
+        s.forget_justifications();
+        return optional<substitution>(s);
     }
 };
 
@@ -1409,8 +1413,8 @@ lazy_list<substitution> unify(environment const & env,  unsigned num_cs, constra
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, substitution const & s,
                               unsigned max_steps) {
     substitution new_s = s;
-    expr _lhs = new_s.d_instantiate(lhs);
-    expr _rhs = new_s.d_instantiate(rhs);
+    expr _lhs = new_s.instantiate(lhs);
+    expr _rhs = new_s.instantiate(rhs);
     auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, new_s, false, max_steps);
     if (!u->m_tc->is_def_eq(_lhs, _rhs))
         return lazy_list<substitution>();
@@ -1425,7 +1429,7 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
 
 static int unify_simple(lua_State * L) {
     int nargs = lua_gettop(L);
-    std::pair<unify_status, substitution> r;
+    unify_status r;
     if (nargs == 2)
         r = unify_simple(to_substitution(L, 1), to_constraint(L, 2));
     else if (nargs == 3 && is_expr(L, 2))
@@ -1436,9 +1440,7 @@ static int unify_simple(lua_State * L) {
         r = unify_simple(to_substitution(L, 1), to_expr(L, 2), to_expr(L, 3), to_justification(L, 4));
     else
         r = unify_simple(to_substitution(L, 1), to_level(L, 2), to_level(L, 3), to_justification(L, 4));
-    push_integer(L, static_cast<unsigned>(r.first));
-    push_substitution(L, r.second);
-    return 2;
+    return push_integer(L, static_cast<unsigned>(r));
 }
 
 typedef lazy_list<substitution> substitution_seq;

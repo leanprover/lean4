@@ -123,10 +123,11 @@ proof_state_seq apply_tactic_core(environment const & env, io_state const & ios,
     return map2<proof_state>(substs, [=](substitution const & subst) -> proof_state {
             name_generator new_ngen(ngen);
             type_checker tc(env, new_ngen.mk_child());
-            expr new_e = subst.instantiate(e);
+            substitution new_subst = subst;
+            expr new_e = new_subst.instantiate(e);
             expr new_p = g.abstract(new_e);
             check_has_no_local(new_p, _e, "apply");
-            substitution new_subst = subst.assign(g.get_name(), new_p);
+            new_subst.assign(g.get_name(), new_p);
             goals new_gs = tail_gs;
             if (add_subgoals) {
                 buffer<expr> metas;
@@ -138,7 +139,7 @@ proof_state_seq apply_tactic_core(environment const & env, io_state const & ios,
                 unsigned i = metas.size();
                 while (i > 0) {
                     --i;
-                    new_gs = cons(goal(metas[i], subst.instantiate(tc.infer(metas[i]))), new_gs);
+                    new_gs = cons(goal(metas[i], new_subst.instantiate(tc.infer(metas[i]))), new_gs);
                 }
             }
             return proof_state(new_gs, new_subst, new_ngen);
@@ -184,9 +185,10 @@ expr refresh_univ_metavars(expr const & e, name_generator & ngen) {
 tactic apply_tactic(expr const & e, bool refresh_univ_mvars) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             if (refresh_univ_mvars) {
-                name_generator ngen = s.get_ngen();
-                expr new_e = refresh_univ_metavars(s.get_subst().instantiate(e), ngen);
-                proof_state new_s(s, ngen);
+                name_generator ngen    = s.get_ngen();
+                substitution new_subst = s.get_subst();
+                expr new_e = refresh_univ_metavars(new_subst.instantiate(e), ngen);
+                proof_state new_s(s.get_goals(), new_subst, ngen);
                 return apply_tactic_core(env, ios, new_s, new_e, true, true);
             } else {
                 return apply_tactic_core(env, ios, s, e, true, true);

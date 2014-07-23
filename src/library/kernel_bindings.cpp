@@ -1402,7 +1402,7 @@ static int mk_justification(lua_State * L) {
         environment env = to_environment(L, 2);
         expr e          = to_expr(L, 3);
         justification j = mk_justification(some_expr(e), [=](formatter const & fmt, substitution const & subst) {
-                expr new_e = subst.instantiate(e);
+                expr new_e = substitution(subst).instantiate(e);
                 format r;
                 r += format(s.c_str());
                 r += pp_indent_expr(fmt, new_e);
@@ -1605,28 +1605,29 @@ static int subst_assign(lua_State * L) {
     if (nargs == 3) {
         if (is_expr(L, 3)) {
             if (is_expr(L, 2))
-                return push_substitution(L, to_substitution(L, 1).assign(to_expr(L, 2), to_expr(L, 3)));
+                to_substitution(L, 1).assign(to_expr(L, 2), to_expr(L, 3));
             else
-                return push_substitution(L, to_substitution(L, 1).assign(to_name_ext(L, 2), to_expr(L, 3)));
+                to_substitution(L, 1).assign(to_name_ext(L, 2), to_expr(L, 3));
         } else {
             if (is_level(L, 2))
-                return push_substitution(L, to_substitution(L, 1).assign(to_level(L, 2), to_level(L, 3)));
+                to_substitution(L, 1).assign(to_level(L, 2), to_level(L, 3));
             else
-                return push_substitution(L, to_substitution(L, 1).assign(to_name_ext(L, 2), to_level(L, 3)));
+                to_substitution(L, 1).assign(to_name_ext(L, 2), to_level(L, 3));
         }
     } else {
         if (is_expr(L, 3)) {
             if (is_expr(L, 2))
-                return push_substitution(L, to_substitution(L, 1).assign(to_expr(L, 2), to_expr(L, 3), to_justification(L, 4)));
+                to_substitution(L, 1).assign(to_expr(L, 2), to_expr(L, 3), to_justification(L, 4));
             else
-                return push_substitution(L, to_substitution(L, 1).assign(to_name_ext(L, 2), to_expr(L, 3), to_justification(L, 4)));
+                to_substitution(L, 1).assign(to_name_ext(L, 2), to_expr(L, 3), to_justification(L, 4));
         } else {
             if (is_level(L, 2))
-                return push_substitution(L, to_substitution(L, 1).assign(to_level(L, 2), to_level(L, 3), to_justification(L, 4)));
+                to_substitution(L, 1).assign(to_level(L, 2), to_level(L, 3), to_justification(L, 4));
             else
-                return push_substitution(L, to_substitution(L, 1).assign(to_name_ext(L, 2), to_level(L, 3), to_justification(L, 4)));
+                to_substitution(L, 1).assign(to_name_ext(L, 2), to_level(L, 3), to_justification(L, 4));
         }
     }
+    return 0;
 }
 static int subst_is_assigned(lua_State * L) {
     if (is_expr(L, 2))
@@ -1711,8 +1712,13 @@ static int subst_for_each_level(lua_State * L) {
     return 0;
 }
 
+static int subst_copy(lua_State * L) {
+    return push_substitution(L, substitution(to_substitution(L, 1)));
+}
+
 static const struct luaL_Reg substitution_m[] = {
     {"__gc",                   substitution_gc},
+    {"copy",                   safe_function<subst_copy>},
     {"get_expr",               safe_function<subst_get_expr>},
     {"get_level",              safe_function<subst_get_level>},
     {"assign",                 safe_function<subst_assign>},

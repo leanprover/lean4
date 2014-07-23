@@ -1,6 +1,7 @@
 function test_unify_simple(lhs, rhs, expected)
    print(tostring(lhs) .. " =?= " .. tostring(rhs) .. ", expected: " .. tostring(expected))
-   r, s = unify_simple(substitution(), lhs, rhs, justification())
+   s = substitution()
+   r = unify_simple(s, lhs, rhs, justification())
    if r == unify_status.Solved then
       s:for_each_expr(function(n, v, j)
                          print("  " .. tostring(n) .. " := " .. tostring(v))

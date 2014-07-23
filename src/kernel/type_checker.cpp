@@ -134,7 +134,7 @@ expr type_checker::ensure_sort_core(expr e, expr const & s) {
         expr r = mk_sort(mk_meta_univ(m_gen.next()));
         justification j = mk_justification(s,
                                            [=](formatter const & fmt, substitution const & subst) {
-                                               return pp_type_expected(fmt, subst.instantiate(s));
+                                               return pp_type_expected(fmt, substitution(subst).instantiate(s));
                                            });
         add_cnstr(mk_eq_cnstr(e, r, j));
         return r;
@@ -153,7 +153,7 @@ expr type_checker::ensure_pi_core(expr e, expr const & s) {
     } else if (is_meta(e)) {
         expr r             = mk_pi_for(m_gen, e);
         justification j    = mk_justification(s, [=](formatter const & fmt, substitution const & subst) {
-                return pp_function_expected(fmt, subst.instantiate(s));
+                return pp_function_expected(fmt, substitution(subst).instantiate(s));
             });
         add_cnstr(mk_eq_cnstr(e, r, j));
         return r;
@@ -182,7 +182,8 @@ app_delayed_justification::app_delayed_justification(expr const & e, expr const 
 
 justification mk_app_justification(expr const & e, expr const & d_type, expr const & a_type) {
     auto pp_fn = [=](formatter const & fmt, substitution const & subst) {
-        return pp_app_type_mismatch(fmt, subst.instantiate(e), subst.instantiate(d_type), subst.instantiate(a_type));
+        substitution s(subst);
+        return pp_app_type_mismatch(fmt, s.instantiate(e), s.instantiate(d_type), s.instantiate(a_type));
     };
     return mk_justification(e, pp_fn);
 }

@@ -227,7 +227,7 @@ tactic assumption_tactic() {
                         }
                     }
                     if (h) {
-                        subst  = subst.assign(g.get_mvar(), g.abstract(*h), justification());
+                        subst.assign(g.get_mvar(), g.abstract(*h), justification());
                         solved = true;
                         return optional<goal>();
                     } else {
@@ -253,8 +253,8 @@ tactic exact_tactic(expr const & _e) {
             if (tc.is_def_eq(e_t, t) && !tc.next_cnstr()) {
                 expr new_p = g.abstract(e);
                 check_has_no_local(new_p, _e, "exact");
-                substitution new_subst = subst.assign(g.get_name(), new_p);
-                return some(proof_state(s, tail(gs), new_subst));
+                subst.assign(g.get_name(), new_p);
+                return some(proof_state(s, tail(gs), subst));
             } else {
                 return none_proof_state();
             }

@@ -1018,7 +1018,6 @@ public:
             check_exact_tacs(pre_tac, subst);
             return some_expr(pre_tac);
         } else {
-            // TODO(Leo): m_env tactic hints
             return none_expr();
         }
     }

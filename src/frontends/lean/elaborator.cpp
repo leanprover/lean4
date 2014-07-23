@@ -307,9 +307,9 @@ class elaborator {
                 substitution subst = next->first.get_subst();
                 buffer<constraint> cs;
                 expr const & mvar = get_app_fn(m_meta);
-                cs.push_back(mk_eq_cnstr(mvar, subst.instantiate(mvar), m_jst));
+                cs.push_back(mk_eq_cnstr(mvar, subst.d_instantiate(mvar), m_jst));
                 for (auto const & mvar : m_mvars_in_meta_type)
-                    cs.push_back(mk_eq_cnstr(mvar, subst.instantiate(mvar), m_jst));
+                    cs.push_back(mk_eq_cnstr(mvar, subst.d_instantiate(mvar), m_jst));
                 return optional<constraints>(to_list(cs.begin(), cs.end()));
             }
             return optional<constraints>();
@@ -424,7 +424,7 @@ public:
         \remark We update \c m_accumulated with any justifications used.
     */
     expr instantiate_metavars(expr const & e) {
-        auto e_j = m_subst.instantiate_metavars(e);
+        auto e_j = m_subst.d_instantiate_metavars(e);
         m_accumulated = mk_composite1(m_accumulated, e_j.second);
         return e_j.first;
     }
@@ -1128,7 +1128,7 @@ public:
 
     /** \brief Apply substitution and solve remaining metavariables using tactics. */
     expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params) {
-        expr r = s.instantiate(e);
+        expr r = s.d_instantiate(e);
         if (has_univ_metavar(r))
             r = univ_metavars_to_params_fn(m_env, m_lls, s, univ_params, new_params)(r);
         r = solve_unassigned_mvars(s, r);

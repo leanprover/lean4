@@ -110,6 +110,7 @@ public:
     */
     expr instantiate_metavars_wo_jst(expr const & e) const;
     expr instantiate(expr const & e) const { return instantiate_metavars_wo_jst(e); }
+    expr d_instantiate(expr const & e) { return d_instantiate_metavars_wo_jst(e); }
 
     std::pair<expr, substitution> updt_instantiate_metavars_wo_jst(expr const & e) const;
 

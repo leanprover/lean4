@@ -12,6 +12,10 @@ Author: Leonardo de Moura
 #include "kernel/justification.h"
 #include "kernel/metavar.h"
 
+#ifndef LEAN_DEFAULT_DEPENDS_ON_CACHE_CAPACITY
+#define LEAN_DEFAULT_DEPENDS_ON_CACHE_CAPACITY 1024*8
+#endif
+
 namespace lean {
 format to_pos(optional<expr> const & e, pos_info_provider const * p) {
     if (!p || !e)
@@ -33,11 +37,17 @@ enum class justification_kind { Asserted, Composite, ExtComposite, Assumption, E
 
 approx_set get_approx_assumption_set(justification const & j);
 
+MK_THREAD_LOCAL_GET(unsigned, get_hash_alloc_jst_counter, 0)
+
 struct justification_cell {
     MK_LEAN_RC();
     justification_kind m_kind;
+    unsigned           m_hash_alloc;
     void dealloc();
-    justification_cell(justification_kind k):m_rc(0), m_kind(k) {}
+    justification_cell(justification_kind k):m_rc(0), m_kind(k) {
+        m_hash_alloc = get_hash_alloc_jst_counter();
+        get_hash_alloc_jst_counter()++;
+    }
     bool is_asserted() const { return m_kind == justification_kind::Asserted; }
     bool is_assumption() const { return m_kind == justification_kind::Assumption || m_kind == justification_kind::ExtAssumption; }
     bool is_composite() const { return m_kind == justification_kind::Composite || m_kind == justification_kind::ExtComposite; }
@@ -149,10 +159,51 @@ void justification_cell::dealloc() {
     }
 }
 
+struct depends_on_cache {
+    unsigned                                m_capacity;
+    std::vector<justification_cell const *> m_cache;
+    std::vector<unsigned>                   m_used;
+    depends_on_cache(unsigned c):m_capacity(c), m_cache(c, nullptr) {}
+
+    bool visited(justification_cell const * j) {
+        unsigned i = j->m_hash_alloc % m_capacity;
+        if (m_cache[i]) {
+            if (m_cache[i] == j) {
+                return true;
+            } else {
+                m_cache[i] = j;
+                return false;
+            }
+        } else {
+            m_cache[i] = j;
+            m_used.push_back(i);
+            return false;
+        }
+    }
+
+    void clear() {
+        for (unsigned i : m_used) {
+            lean_assert(m_cache[i]);
+            m_cache[i] = nullptr;
+        }
+        m_used.clear();
+    }
+};
+
+MK_THREAD_LOCAL_GET(depends_on_cache, get_depends_on_cache, LEAN_DEFAULT_DEPENDS_ON_CACHE_CAPACITY);
+
+struct depends_on_cache_ref {
+    depends_on_cache & m_cache;
+    depends_on_cache_ref():m_cache(get_depends_on_cache()) {}
+    ~depends_on_cache_ref() { m_cache.clear(); }
+    depends_on_cache * operator->() { return &m_cache; }
+};
+
 bool depends_on(justification const & j, unsigned i) {
     if (!may_contain(get_approx_assumption_set(j), i))
         return false;
-    buffer<justification_cell *>   todo;
+    depends_on_cache_ref cache;
+    buffer<justification_cell *> todo;
     todo.push_back(j.raw());
     while (!todo.empty()) {
         justification_cell * curr = todo.back();
@@ -167,7 +218,7 @@ bool depends_on(justification const & j, unsigned i) {
         case justification_kind::Composite: case justification_kind::ExtComposite:
             for (unsigned k = 0; k < 2; k++) {
                 justification c = to_composite(curr)->m_child[k];
-                if (may_contain(get_approx_assumption_set(c), i))
+                if (!cache->visited(c.raw()) && may_contain(get_approx_assumption_set(c), i))
                     todo.push_back(c.raw());
             }
         }

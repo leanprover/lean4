@@ -73,7 +73,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --quiet -q        do not print verbose messages\n";
     std::cout << "  --interactive -i  read blocks of commands from the input stream\n";
     std::cout << "  --hott            use Homotopy Type Theory kernel and libraries\n";
-    std::cout << "  --threads=num -r  number of threads used to process lean files\n";
+    std::cout << "  --threads=num -j  number of threads used to process lean files\n";
     std::cout << "  --deps            just print dependencies of a Lean input\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
@@ -107,7 +107,7 @@ static struct option g_long_options[] = {
     {"interactive", no_argument,       0, 'i'},
     {"quiet",       no_argument,       0, 'q'},
     {"hott",        no_argument,       0, 'H'},
-    {"threads",     required_argument, 0, 'r'},
+    {"threads",     required_argument, 0, 'j'},
     {"deps",        no_argument,       0, 'D'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",      required_argument, 0, 's'},
@@ -116,9 +116,9 @@ static struct option g_long_options[] = {
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "DHiqlupgvhr:012c:012s:012t:012o:";
+static char const * g_opt_str = "DHiqlupgvhj:012c:012s:012t:012o:";
 #else
-static char const * g_opt_str = "DHiqlupgvhr:012c:012t:012o:";
+static char const * g_opt_str = "DHiqlupgvhj:012c:012t:012o:";
 #endif
 
 enum class lean_mode { Standard, HoTT };
@@ -140,7 +140,7 @@ int main(int argc, char ** argv) {
         if (c == -1)
             break; // end of command line
         switch (c) {
-        case 'r':
+        case 'j':
             num_threads = atoi(optarg);
             break;
         case 'H':

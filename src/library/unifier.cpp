@@ -1408,9 +1408,10 @@ lazy_list<substitution> unify(environment const & env,  unsigned num_cs, constra
 
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, substitution const & s,
                               unsigned max_steps) {
-    auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, s, false, max_steps);
-    expr _lhs = s.instantiate(lhs);
-    expr _rhs = s.instantiate(rhs);
+    substitution new_s = s;
+    expr _lhs = new_s.d_instantiate(lhs);
+    expr _rhs = new_s.d_instantiate(rhs);
+    auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, new_s, false, max_steps);
     if (!u->m_tc->is_def_eq(_lhs, _rhs))
         return lazy_list<substitution>();
     else

@@ -95,6 +95,7 @@ protected:
     substitution & m_subst;
     justification  m_jst;
     bool           m_use_jst;
+    bool           m_inst_local_types;
 
     void save_jst(justification const & j) { m_jst = mk_composite1(m_jst, j); }
 
@@ -115,6 +116,13 @@ protected:
 
     virtual expr visit_constant(expr const & c) {
         return update_constant(c, visit_levels(const_levels(c)));
+    }
+
+    virtual expr visit_local(expr const & l) {
+        if (m_inst_local_types)
+            return replace_visitor::visit_local(l);
+        else
+            return l;
     }
 
     virtual expr visit_meta(expr const & m) {
@@ -167,23 +175,23 @@ protected:
     }
 
 public:
-    instantiate_metavars_fn(substitution & s, bool use_jst):
-        m_subst(s), m_use_jst(use_jst) {}
+    instantiate_metavars_fn(substitution & s, bool use_jst, bool inst_local_types):
+        m_subst(s), m_use_jst(use_jst), m_inst_local_types(inst_local_types) {}
     justification const & get_justification() const { return m_jst; }
 };
 
-std::pair<expr, justification> substitution::instantiate_metavars(expr const & e) {
+std::pair<expr, justification> substitution::instantiate_metavars_core(expr const & e, bool inst_local_types) {
     if (!has_metavar(e)) {
         return mk_pair(e, justification());
     } else {
-        instantiate_metavars_fn fn(*this, true);
+        instantiate_metavars_fn fn(*this, true, inst_local_types);
         expr r = fn(e);
         return mk_pair(r, fn.get_justification());
     }
 }
 
-expr substitution::instantiate_metavars_wo_jst(expr const & e) {
-    return instantiate_metavars_fn(*this, false)(e);
+expr substitution::instantiate_metavars_wo_jst(expr const & e, bool inst_local_types) {
+    return instantiate_metavars_fn(*this, false, inst_local_types)(e);
 }
 
 

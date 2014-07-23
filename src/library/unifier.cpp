@@ -48,13 +48,18 @@ bool is_simple_meta(expr const & e) {
     return (bool)is_simple_meta(e, args); // NOLINT
 }
 
+/** \brief Return true iff \c locals contains \c local */
+bool contains_local(expr const & local, buffer<expr> const & locals) {
+    return std::any_of(locals.begin(), locals.end(), [&](expr const & l) { return mlocal_name(local) == mlocal_name(l); });
+}
+
 // Return true if all local constants in \c e are in locals
 bool context_check(expr const & e, buffer<expr> const & locals) {
     bool failed = false;
     for_each(e, [&](expr const & e, unsigned) {
             if (failed)
                 return false;
-            if (is_local(e) && std::find(locals.begin(), locals.end(), e) == locals.end()) {
+            if (is_local(e) && !contains_local(e, locals)) {
                 failed = true;
                 return false;
             }
@@ -77,7 +82,7 @@ lbool occurs_context_check(substitution & s, expr const & e, expr const & m, buf
             if (r == l_false) {
                 return false;
             } else if (is_local(e)) {
-                if (std::find(locals.begin(), locals.end(), e) == locals.end()) {
+                if (!contains_local(e, locals)) {
                     // right-hand-side contains variable that is not in the scope
                     // of metavariable.
                     r = l_false;

@@ -1690,6 +1690,12 @@ static int subst_instantiate(lua_State * L) {
     return 2;
 }
 
+static int subst_instantiate_all(lua_State * L) {
+    auto r = to_substitution(L, 1).instantiate_metavars_all(to_expr(L, 2));
+    push_expr(L, r.first); push_justification(L, r.second);
+    return 2;
+}
+
 static int subst_for_each_expr(lua_State * L) {
     substitution const & s = to_substitution(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
@@ -1731,6 +1737,7 @@ static const struct luaL_Reg substitution_m[] = {
     {"get_level_assignment",   safe_function<subst_get_level_assignment>},
     {"get_assignment",         safe_function<subst_get_assignment>},
     {"instantiate",            safe_function<subst_instantiate>},
+    {"instantiate_all",        safe_function<subst_instantiate_all>},
     {"for_each_expr",          safe_function<subst_for_each_expr>},
     {"for_each_level",         safe_function<subst_for_each_level>},
     {0, 0}

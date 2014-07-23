@@ -539,8 +539,8 @@ public:
     static expr instantiate_meta(expr const & meta, substitution & subst) {
         buffer<expr> locals;
         expr mvar = get_app_args(meta, locals);
-        mvar = update_mlocal(mvar, subst.instantiate(mlocal_type(mvar)));
-        for (auto & local : locals) local = subst.instantiate(local);
+        mvar = update_mlocal(mvar, subst.instantiate_all(mlocal_type(mvar)));
+        for (auto & local : locals) local = subst.instantiate_all(local);
         return ::lean::mk_app(mvar, locals);
     }
 

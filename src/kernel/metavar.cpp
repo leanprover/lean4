@@ -186,17 +186,15 @@ expr substitution::instantiate_metavars_wo_jst(expr const & e) {
     return instantiate_metavars_fn(*this, false)(e);
 }
 
-bool substitution::occurs_expr(name const & m, expr const & e) const {
+bool substitution::occurs_expr(name const & m, expr const & e) {
     if (!has_expr_metavar(e))
         return false;
+    expr new_e = instantiate(e);
     bool found = false;
-    for_each(e, [&](expr const & e, unsigned) {
+    for_each(new_e, [&](expr const & e, unsigned) {
             if (found || !has_expr_metavar(e)) return false;
             if (is_metavar(e)) {
                 if (mlocal_name(e) == m)
-                    found = true;
-                auto s = get_expr(e);
-                if (s && occurs_expr(m, *s))
                     found = true;
                 return false; // do not visit type
             }

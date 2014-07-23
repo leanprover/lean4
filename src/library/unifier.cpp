@@ -70,7 +70,7 @@ bool context_check(expr const & e, buffer<expr> const & locals) {
 //     constants are in \c e are in \c locals.
 //   - l_false if \c e contains \c m or it contains a local constant \c l
 //     not in locals that is not in a metavariable application.
-lbool occurs_context_check(substitution const & s, expr const & e, expr const & m, buffer<expr> const & locals) {
+lbool occurs_context_check(substitution & s, expr const & e, expr const & m, buffer<expr> const & locals) {
     expr root = e;
     lbool r = l_true;
     for_each(e, [&](expr const & e, unsigned) {

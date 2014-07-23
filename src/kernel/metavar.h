@@ -26,6 +26,7 @@ class substitution {
     friend class instantiate_metavars_fn;
     std::pair<level, justification> instantiate_metavars(level const & l, bool use_jst);
     expr instantiate_metavars_wo_jst(expr const & e);
+    bool occurs_expr_core(name const & m, expr const & e, name_set & visited) const;
 
 public:
     substitution();
@@ -78,7 +79,7 @@ public:
     expr instantiate(expr const & e) { return instantiate_metavars_wo_jst(e); }
 
     /** \brief Return true iff the metavariable \c m occurrs (directly or indirectly) in \c e. */
-    bool occurs_expr(name const & m, expr const & e);
-    bool occurs(expr const & m, expr const & e) { lean_assert(is_metavar(m)); return occurs_expr(mlocal_name(m), e); }
+    bool occurs_expr(name const & m, expr const & e) const;
+    bool occurs(expr const & m, expr const & e) const { lean_assert(is_metavar(m)); return occurs_expr(mlocal_name(m), e); }
 };
 }

@@ -186,15 +186,20 @@ expr substitution::instantiate_metavars_wo_jst(expr const & e) {
     return instantiate_metavars_fn(*this, false)(e);
 }
 
-bool substitution::occurs_expr(name const & m, expr const & e) {
-    if (!has_expr_metavar(e))
-        return false;
-    expr new_e = instantiate(e);
+
+bool substitution::occurs_expr_core(name const & m, expr const & e, name_set & visited) const {
     bool found = false;
-    for_each(new_e, [&](expr const & e, unsigned) {
+    for_each(e, [&](expr const & e, unsigned) {
             if (found || !has_expr_metavar(e)) return false;
             if (is_metavar(e)) {
-                if (mlocal_name(e) == m)
+                name const & n = mlocal_name(e);
+                if (n == m)
+                    found = true;
+                auto s = get_expr(e);
+                if (!s || visited.contains(n))
+                    return false; // do not visit type
+                visited.insert(n);
+                if (s && occurs_expr_core(m, *s, visited))
                     found = true;
                 return false; // do not visit type
             }
@@ -202,5 +207,12 @@ bool substitution::occurs_expr(name const & m, expr const & e) {
             return true;
         });
     return found;
+}
+
+bool substitution::occurs_expr(name const & m, expr const & e) const {
+    if (!has_expr_metavar(e))
+        return false;
+    name_set visited;
+    return occurs_expr_core(m, e, visited);
 }
 }

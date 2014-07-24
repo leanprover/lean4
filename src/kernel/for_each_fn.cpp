@@ -4,12 +4,52 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <vector>
 #include <utility>
+#include "util/flet.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/cache_stack.h"
+
+#ifndef LEAN_DEFAULT_FOR_EACH_CACHE_CAPACITY
+#define LEAN_DEFAULT_FOR_EACH_CACHE_CAPACITY 1024*8
+#endif
 
 namespace lean {
+struct for_each_cache {
+    struct entry {
+        expr_cell const * m_cell;
+        unsigned          m_offset;
+        entry():m_cell(nullptr) {}
+    };
+    unsigned              m_capacity;
+    std::vector<entry>    m_cache;
+    std::vector<unsigned> m_used;
+    for_each_cache(unsigned c):m_capacity(c), m_cache(c) {}
+
+    bool visited(expr const & e, unsigned offset) {
+        unsigned i = hash(e.hash_alloc(), offset) % m_capacity;
+        if (m_cache[i].m_cell == e.raw() && m_cache[i].m_offset == offset) {
+            return true;
+        } else {
+            if (m_cache[i].m_cell == nullptr)
+                m_used.push_back(i);
+            m_cache[i].m_cell   = e.raw();
+            m_cache[i].m_offset = offset;
+            return false;
+        }
+    }
+
+    void clear() {
+        for (unsigned i : m_used)
+            m_cache[i].m_cell = nullptr;
+        m_used.clear();
+    }
+};
+
+MK_CACHE_STACK(for_each_cache, LEAN_DEFAULT_FOR_EACH_CACHE_CAPACITY)
+
 class for_each_fn {
-    std::unique_ptr<expr_cell_offset_set>       m_visited;
+    for_each_cache_ref                          m_cache;
     std::function<bool(expr const &, unsigned)> m_f; // NOLINT
 
     void apply(expr const & e, unsigned offset) {
@@ -33,14 +73,8 @@ class for_each_fn {
                 break;
             }
 
-            if (is_shared(e)) {
-                expr_cell_offset p(e.raw(), offset);
-                if (!m_visited)
-                    m_visited.reset(new expr_cell_offset_set());
-                if (m_visited->find(p) != m_visited->end())
-                    goto begin_loop;
-                m_visited->insert(p);
-            }
+            if (is_shared(e) && m_cache->visited(e, offset))
+                goto begin_loop;
 
             if (!m_f(e, offset))
                 goto begin_loop;

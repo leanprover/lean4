@@ -7,9 +7,10 @@ Author: Leonardo de Moura
 #include <vector>
 #include <memory>
 #include "kernel/replace_fn.h"
+#include "kernel/cache_stack.h"
 
 #ifndef LEAN_DEFAULT_REPLACE_CACHE_CAPACITY
-#define LEAN_DEFAULT_REPLACE_CACHE_CAPACITY 1024*32
+#define LEAN_DEFAULT_REPLACE_CACHE_CAPACITY 1024*8
 #endif
 
 namespace lean {
@@ -51,33 +52,7 @@ struct replace_cache {
     }
 };
 
-struct replace_cache_stack {
-    unsigned                                    m_top;
-    std::vector<std::unique_ptr<replace_cache>> m_cache_stack;
-    replace_cache_stack():m_top(0) {}
-};
-
-MK_THREAD_LOCAL_GET_DEF(replace_cache_stack, get_replace_cache_stack);
-
-class replace_cache_ref {
-    replace_cache * m_cache;
-public:
-    replace_cache_ref() {
-        replace_cache_stack & s = get_replace_cache_stack();
-        lean_assert(s.m_top <= s.m_cache_stack.size());
-        if (s.m_top == s.m_cache_stack.size())
-            s.m_cache_stack.push_back(std::unique_ptr<replace_cache>(new replace_cache(LEAN_DEFAULT_REPLACE_CACHE_CAPACITY)));
-        m_cache = s.m_cache_stack[s.m_top].get();
-        s.m_top++;
-    }
-    ~replace_cache_ref() {
-        replace_cache_stack & s = get_replace_cache_stack();
-        lean_assert(s.m_top > 0);
-        s.m_top--;
-        m_cache->clear();
-    }
-    replace_cache * operator->() const { return m_cache; }
-};
+MK_CACHE_STACK(replace_cache, LEAN_DEFAULT_REPLACE_CACHE_CAPACITY)
 
 /**
    \brief Functional for applying <tt>F</tt> to the subexpressions of a given expression.

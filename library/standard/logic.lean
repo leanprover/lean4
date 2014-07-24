@@ -99,6 +99,21 @@ theorem or_not_intro {a b : Prop} (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b)
     (assume Ha, absurd_elim _ Ha Hna)
     (assume Hb, absurd_elim _ Hb Hnb)
 
+theorem or_imp_or {a b c d : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → d) : c ∨ d
+:= or_elim H1
+    (assume Ha : a, or_intro_left _ (H2 Ha))
+    (assume Hb : b, or_intro_right _ (H3 Hb))
+
+theorem imp_or_left {a b c : Prop} (H1 : a ∨ c) (H : a → b) : b ∨ c
+:= or_elim H1
+    (assume H2 : a, or_intro_left _ (H H2))
+    (assume H2 : c, or_intro_right _ H2)
+
+theorem imp_or_right {a b c : Prop} (H1 : c ∨ a) (H : a → b) : c ∨ b
+:= or_elim H1
+    (assume H2 : c, or_intro_left _ H2)
+    (assume H2 : a, or_intro_right _ (H H2))
+
 inductive eq {A : Type} (a : A) : A → Prop :=
 | refl : eq a a
 

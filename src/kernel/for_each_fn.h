@@ -13,10 +13,9 @@ Author: Leonardo de Moura
 #include "kernel/expr_sets.h"
 
 namespace lean {
-/**
-    \brief Expression visitor.
+/** \brief Expression visitor.
 
-    The argument \c F must be a lambda (function object) containing the method
+    The argument \c f must be a lambda (function object) containing the method
 
     <code>
     bool operator()(expr const & e, unsigned offset)
@@ -24,17 +23,5 @@ namespace lean {
 
     The \c offset is the number of binders under which \c e occurs.
 */
-class for_each_fn {
-    std::unique_ptr<expr_cell_offset_set>       m_visited;
-    std::function<bool(expr const &, unsigned)> m_f; // NOLINT
-    void apply(expr const & e, unsigned offset);
-public:
-    template<typename F> for_each_fn(F && f):m_f(f) {}
-    template<typename F> for_each_fn(F const & f):m_f(f) {}
-    void operator()(expr const & e) { apply(e, 0); }
-};
-
-template<typename F> void for_each(expr const & e, F && f) {
-    return for_each_fn(f)(e);
-}
+void for_each(expr const & e, std::function<bool(expr const &, unsigned)> && f); // NOLINT
 }

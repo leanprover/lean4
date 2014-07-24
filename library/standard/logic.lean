@@ -160,7 +160,7 @@ theorem imp_eq_trans {a b c : Prop} (H1 : a → b) (H2 : b = c) : a → c
 theorem eq_imp_trans {a b c : Prop} (H1 : a = b) (H2 : b → c) : a → c
 := assume Ha, H2 (H1 ◂ Ha)
 
-definition ne {A : Type} (a b : A) := ¬(a = b)
+definition ne [inline] {A : Type} (a b : A) := ¬(a = b)
 infix `≠`:50 := ne
 
 theorem ne_intro {A : Type} {a b : A} (H : a = b → false) : a ≠ b

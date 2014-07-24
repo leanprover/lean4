@@ -151,19 +151,28 @@ protected:
 
     virtual expr visit_app(expr const & e) {
         buffer<expr> args;
-        expr const * it = &e;
-        while (is_app(*it)) {
-            args.push_back(visit(app_arg(*it)));
-            it = &app_fn(*it);
+        expr const & f = get_app_rev_args(e, args);
+        if (is_metavar(f)) {
+            if (auto p1 = m_subst.get_expr_assignment(mlocal_name(f))) {
+                if (m_use_jst)
+                    save_jst(p1->second);
+                expr new_app = apply_beta(p1->first, args.size(), args.data());
+                return visit(new_app);
+            }
         }
-        expr const & f = *it;
-        if (is_metavar(f) && m_subst.is_expr_assigned(mlocal_name(f))) {
-            expr new_f = visit_meta(f);
-            return apply_beta(new_f, args.size(), args.data());
-        } else {
-            args.push_back(visit(f));
-            return update_rev_app(e, args);
+        expr new_f = visit(f);
+        buffer<expr> new_args;
+        bool modified = !is_eqp(new_f, f);
+        for (expr const & arg : args) {
+            expr new_arg = visit(arg);
+            if (!is_eqp(arg, new_arg))
+                modified = true;
+            new_args.push_back(new_arg);
         }
+        if (!modified)
+            return e;
+        else
+            return mk_rev_app(new_f, new_args);
     }
 
     virtual expr visit(expr const & e) {

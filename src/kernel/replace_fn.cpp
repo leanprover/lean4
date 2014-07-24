@@ -27,7 +27,7 @@ struct replace_cache {
 
     expr * find(expr const & e, unsigned offset) {
         unsigned i = hash(e.hash_alloc(), offset) % m_capacity;
-        if (m_cache[i].m_cell == e.raw())
+        if (m_cache[i].m_cell == e.raw() && m_cache[i].m_offset == offset)
             return &m_cache[i].m_result;
         else
             return nullptr;

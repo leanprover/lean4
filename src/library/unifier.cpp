@@ -100,7 +100,7 @@ lbool occurs_context_check(substitution & s, expr const & e, expr const & m, buf
                     if (s.occurs(m, e))
                         r = l_undef;
                 }
-                if (get_app_fn(e) == m)
+                if (mlocal_name(get_app_fn(e)) == mlocal_name(m))
                     r = l_false;
                 return false; // do not visit children
             } else {

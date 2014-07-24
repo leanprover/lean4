@@ -29,6 +29,16 @@ static name g_unifier_max_steps      {"unifier", "max_steps"};
 RegisterUnsignedOption(g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS, "(unifier) maximum number of steps");
 unsigned get_unifier_max_steps(options const & opts) { return opts.get_unsigned(g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS); }
 
+/** \brief Return true iff \c [begin_locals, end_locals) contains \c local */
+template<typename It> bool contains_local(expr const & local, It const & begin_locals, It const & end_locals) {
+    return std::any_of(begin_locals, end_locals, [&](expr const & l) { return mlocal_name(local) == mlocal_name(l); });
+}
+
+/** \brief Return true iff \c locals contains \c local */
+bool contains_local(expr const & local, buffer<expr> const & locals) {
+    return contains_local(local, locals.begin(), locals.end());
+}
+
 // If \c e is a metavariable ?m or a term of the form (?m l_1 ... l_n) where
 // l_1 ... l_n are distinct local variables, then return ?m, and store l_1 ... l_n in args.
 // Otherwise return none.
@@ -37,7 +47,7 @@ optional<expr> is_simple_meta(expr const & e, buffer<expr> & args) {
     if (!is_metavar(m))
         return none_expr();
     for (auto it = args.begin(); it != args.end(); it++) {
-        if (!is_local(*it) || std::find(args.begin(), it, *it) != it)
+        if (!is_local(*it) || contains_local(*it, args.begin(), it))
             return none_expr();
     }
     return some_expr(m);
@@ -46,11 +56,6 @@ optional<expr> is_simple_meta(expr const & e, buffer<expr> & args) {
 bool is_simple_meta(expr const & e) {
     buffer<expr> args;
     return (bool)is_simple_meta(e, args); // NOLINT
-}
-
-/** \brief Return true iff \c locals contains \c local */
-bool contains_local(expr const & local, buffer<expr> const & locals) {
-    return std::any_of(locals.begin(), locals.end(), [&](expr const & l) { return mlocal_name(local) == mlocal_name(l); });
 }
 
 // Return true if all local constants in \c e are in locals
@@ -1194,10 +1199,13 @@ struct unifier_fn {
                 // if rhs is not local, then we only add projections for the nonlocal arguments of lhs
                 buffer<constraint> cs;
                 if (auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j)) {
-                    cs.push_back(mk_eq_cnstr(marg, rhs, j));
-                    expr v = mk_lambda_for(*new_mtype, mk_var(vidx));
-                    cs.push_back(mk_eq_cnstr(m, v, j));
-                    alts.push_back(to_list(cs.begin(), cs.end()));
+                    // Remark: we should not use mk_eq_cnstr(marg, rhs, j) since is_def_eq may be able to reduce them.
+                    // The unifier assumes the eq constraints are reduced.
+                    if (is_def_eq(marg, rhs, j, cs)) {
+                        expr v = mk_lambda_for(*new_mtype, mk_var(vidx));
+                        cs.push_back(mk_eq_cnstr(m, v, j));
+                        alts.push_back(to_list(cs.begin(), cs.end()));
+                    }
                 }
             } else if (is_local(marg) && is_local(rhs) && mlocal_name(marg) == mlocal_name(rhs)) {
                 // if the argument is local, and rhs is equal to it, then we also add a projection
@@ -1301,7 +1309,7 @@ struct unifier_fn {
         lean_assert(!m_subst.is_assigned(mr));
         unsigned i = 0;
         for (; i < lhs_args.size(); i++)
-            if (lhs_args[i] != rhs_args[i])
+            if (mlocal_name(lhs_args[i]) != mlocal_name(rhs_args[i]))
                 break;
         if (i == lhs_args.size())
             return assign(ml, mr, c.get_justification());
@@ -1339,16 +1347,17 @@ struct unifier_fn {
                     return process_plugin_constraint(c);
             } else {
                 lean_assert(is_eq_cnstr(c));
-                if (is_delta_cnstr(c))
+                if (is_delta_cnstr(c)) {
                     return process_delta(c);
-                else if (modified)
+                } else if (modified) {
                     return is_def_eq(cnstr_lhs_expr(c), cnstr_rhs_expr(c), c.get_justification());
-                else if (is_flex_rigid(c))
+                } else if (is_flex_rigid(c)) {
                     return process_flex_rigid(c);
-                else if (is_flex_flex(c))
+                } else if (is_flex_flex(c)) {
                     return process_flex_flex(c);
-                else
+                } else {
                     return process_plugin_constraint(c);
+                }
             }
         }
     }

@@ -5,7 +5,7 @@ import decidable tactic
 using decidable tactic
 
 definition ite (c : Prop) {H : decidable c} {A : Type} (t e : A) : A
-:= rec H (assume Hc,  t) (assume Hnc, e)
+:= rec_on H (assume Hc,  t) (assume Hnc, e)
 
 notation `if` c `then` t `else` e:45 := ite c t e
 

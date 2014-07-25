@@ -632,15 +632,15 @@ struct unifier_fn {
         if (is_eq_deltas(lhs, rhs)) {
             // we need to create a backtracking point for this one
             add_cnstr(c, cnstr_group::Basic);
-        } else if (m_plugin->delay_constraint(*m_tc, c)) {
-            unsigned cidx = add_cnstr(c, cnstr_group::PluginDelayed);
-            add_meta_occs(lhs, cidx);
-            add_meta_occs(rhs, cidx);
         } else if (is_meta(lhs) && is_meta(rhs)) {
             // flex-flex constraints are delayed the most.
             unsigned cidx = add_cnstr(c, cnstr_group::FlexFlex);
             add_meta_occ(lhs, cidx);
             add_meta_occ(rhs, cidx);
+        } else if (m_plugin->delay_constraint(*m_tc, c)) {
+            unsigned cidx = add_cnstr(c, cnstr_group::PluginDelayed);
+            add_meta_occs(lhs, cidx);
+            add_meta_occs(rhs, cidx);
         } else if (is_meta(lhs)) {
             // flex-rigid constraints are delayed.
             unsigned cidx = add_cnstr(c, cnstr_group::FlexRigid);
@@ -838,9 +838,40 @@ struct unifier_fn {
         }
     }
 
+    /** \brief Given a constraint of the form
+            f a_1 ... a_n =?= f b_1 ... b_n
+        Return singleton stream with the possible solution
+             a_i =?= b_i
+        If c is not of the expected form, then return the empty stream.
+    */
+    lazy_list<constraints> process_const_const_cnstr(constraint const & c) {
+        if (!is_eq_cnstr(c))
+            return lazy_list<constraints>();
+        expr const & lhs = cnstr_lhs_expr(c);
+        expr const & rhs = cnstr_rhs_expr(c);
+        expr const & f_lhs = get_app_fn(lhs);
+        expr const & f_rhs = get_app_fn(rhs);
+        if (!is_constant(f_lhs) || !is_constant(f_rhs) || const_name(f_lhs) != const_name(f_rhs))
+            return lazy_list<constraints>();
+        justification const & j = c.get_justification();
+        buffer<constraint> cs;
+        if (!is_def_eq(f_lhs, f_rhs, j, cs))
+            return lazy_list<constraints>();
+        buffer<expr> args_lhs, args_rhs;
+        get_app_args(lhs, args_lhs);
+        get_app_args(rhs, args_rhs);
+        if (args_lhs.size() != args_rhs.size())
+            return lazy_list<constraints>();
+        for (unsigned i = 0; i < args_lhs.size(); i++)
+            if (!is_def_eq(args_lhs[i], args_rhs[i], j, cs))
+                return lazy_list<constraints>();
+        return lazy_list<constraints>(to_list(cs.begin(), cs.end()));
+    }
+
     bool process_plugin_constraint(constraint const & c) {
         lean_assert(!is_choice_cnstr(c));
         lazy_list<constraints> alts = m_plugin->solve(*m_tc, c, m_ngen.mk_child());
+        alts = append(alts, process_const_const_cnstr(c));
         return process_lazy_constraints(alts, c.get_justification());
     }
 

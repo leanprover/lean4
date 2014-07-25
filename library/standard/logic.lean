@@ -32,7 +32,7 @@ theorem not_not_intro {a : Prop} (Ha : a) : ¬¬a
 theorem mt {a b : Prop} (H1 : a → b) (H2 : ¬b) : ¬a
 := assume Ha : a, absurd (H1 Ha) H2
 
-theorem contrapos {a b : Prop} (H : a → b) : ¬ b → ¬ a
+theorem contrapos {a b : Prop} (H : a → b) : ¬b → ¬a
 := assume Hnb : ¬b, mt H Hnb
 
 theorem absurd_elim {a : Prop} (b : Prop) (H1 : a) (H2 : ¬a) : b
@@ -196,11 +196,8 @@ theorem a_neq_a_elim {A : Type} {a : A} (H : a ≠ a) : false
 theorem ne_irrefl {A : Type} {a : A} (H : a ≠ a) : false
 := H (refl a)
 
-theorem not_eq_symm {A : Type} {a b : A} (H : ¬ a = b) : ¬ b = a
-:= assume H1 : b = a, H (H1⁻¹)
-
 theorem ne_symm {A : Type} {a b : A} (H : a ≠ b) : b ≠ a
-:= not_eq_symm H
+:= assume H1 : b = a, H (H1⁻¹)
 
 theorem eq_ne_trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b ≠ c) : a ≠ c
 := H1⁻¹ ▸ H2
@@ -301,14 +298,14 @@ theorem forall_not_exists {A : Type} {p : A → Prop} (H2 : ∀x, p x) : ¬∃x,
    obtain (w : A) (Hw : ¬p w), from H1,
    absurd (H2 w) Hw
 
-definition exists_unique {A : Type} (p : A → Prop) := ∃x, p x ∧ ∀y, y ≠ x → ¬ p y
+definition exists_unique {A : Type} (p : A → Prop) := ∃x, p x ∧ ∀y, y ≠ x → ¬p y
 
 notation `∃!` binders `,` r:(scoped P, exists_unique P) := r
 
-theorem exists_unique_intro {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, y ≠ w → ¬ p y) : ∃!x, p x
+theorem exists_unique_intro {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, y ≠ w → ¬p y) : ∃!x, p x
 := exists_intro w (and_intro H1 H2)
 
-theorem exists_unique_elim {A : Type} {p : A → Prop} {b : Prop} (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, y ≠ x → ¬ p y) → b) : b
+theorem exists_unique_elim {A : Type} {p : A → Prop} {b : Prop} (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, y ≠ x → ¬p y) → b) : b
 := obtain w Hw, from H2,
    H1 w (and_elim_left Hw) (and_elim_right Hw)
 

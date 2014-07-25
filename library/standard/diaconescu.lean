@@ -44,8 +44,8 @@ lemma p_implies_uv [private] : p → u = v
    show u = v, from
      Hpred ▸ (refl (epsilon (λ x, x = true ∨ p)))
 
-theorem em : p ∨ ¬ p
-:= have H : ¬(u = v) → ¬ p, from contrapos p_implies_uv,
+theorem em : p ∨ ¬p
+:= have H : ¬(u = v) → ¬p, from contrapos p_implies_uv,
    or_elim uv_implies_p
      (assume Hne : ¬(u = v), or_intro_right p (H Hne))
      (assume Hp : p, or_intro_left (¬p) Hp)

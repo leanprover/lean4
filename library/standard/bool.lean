@@ -116,6 +116,6 @@ using decidable
 theorem decidable_eq [instance] (a b : bool) : decidable (a = b)
 := bool_rec
     (bool_rec (inl (refl '0)) (inr b0_ne_b1) b)
-    (bool_rec (inr (not_eq_symm b0_ne_b1)) (inl (refl '1)) b)
+    (bool_rec (inr (ne_symm b0_ne_b1)) (inl (refl '1)) b)
     a
 end

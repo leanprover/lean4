@@ -13,7 +13,7 @@ theorem case (P : Prop → Prop) (H1 : P true) (H2 : P false) (a : Prop) : P a
 
 theorem em (a : Prop) : a ∨ ¬a
 := or_elim (prop_complete a)
-     (assume Ht : a = true,  or_intro_left (¬ a) (eqt_elim Ht))
+     (assume Ht : a = true,  or_intro_left (¬a) (eqt_elim Ht))
      (assume Hf : a = false, or_intro_right a (eqf_elim Hf))
 
 theorem prop_complete_swapped (a : Prop) : a = false ∨ a = true
@@ -23,16 +23,16 @@ theorem prop_complete_swapped (a : Prop) : a = false ∨ a = true
         a
 
 theorem not_true : (¬true) = false
-:= have aux : ¬ (¬true) = true, from
+:= have aux : (¬true) ≠ true, from
      assume H : (¬true) = true,
        absurd_not_true (H⁻¹ ▸ trivial),
    resolve_right (prop_complete (¬true)) aux
 
 theorem not_false : (¬false) = true
-:= have aux : ¬ (¬false) = false, from
+:= have aux : (¬false) ≠ false, from
      assume H : (¬false) = false,
         H ▸ not_false_trivial,
-   resolve_right (prop_complete_swapped (¬ false)) aux
+   resolve_right (prop_complete_swapped (¬false)) aux
 
 theorem not_not_eq (a : Prop) : (¬¬a) = a
 := case (λ x, (¬¬x) = x)
@@ -83,41 +83,41 @@ theorem eq_id {A : Type} (a : A) : (a = a) = true
 theorem heq_id {A : Type} (a : A) : (a == a) = true
 := eqt_intro (hrefl a)
 
-theorem not_or (a b : Prop) : (¬ (a ∨ b)) = (¬ a ∧ ¬ b)
+theorem not_or (a b : Prop) : (¬(a ∨ b)) = (¬a ∧ ¬b)
 := propext
      (assume H, or_elim (em a)
-       (assume Ha, absurd_elim (¬ a ∧ ¬ b) (or_intro_left b Ha) H)
+       (assume Ha, absurd_elim (¬a ∧ ¬b) (or_intro_left b Ha) H)
        (assume Hna, or_elim (em b)
-         (assume Hb, absurd_elim (¬ a ∧ ¬ b) (or_intro_right a Hb) H)
+         (assume Hb, absurd_elim (¬a ∧ ¬b) (or_intro_right a Hb) H)
          (assume Hnb, and_intro Hna Hnb)))
-     (assume (H : ¬ a ∧ ¬ b) (N : a ∨ b),
+     (assume (H : ¬a ∧ ¬b) (N : a ∨ b),
        or_elim N
          (assume Ha, absurd Ha (and_elim_left H))
          (assume Hb, absurd Hb (and_elim_right H)))
 
-theorem not_and (a b : Prop) : (¬ (a ∧ b)) = (¬ a ∨ ¬ b)
+theorem not_and (a b : Prop) : (¬(a ∧ b)) = (¬a ∨ ¬b)
 := propext
      (assume H, or_elim (em a)
        (assume Ha, or_elim (em b)
-       (assume Hb, absurd_elim (¬ a ∨ ¬ b) (and_intro Ha Hb) H)
-         (assume Hnb, or_intro_right (¬ a) Hnb))
-         (assume Hna, or_intro_left (¬ b) Hna))
-     (assume (H : ¬ a ∨ ¬ b) (N : a ∧ b),
+       (assume Hb, absurd_elim (¬a ∨ ¬b) (and_intro Ha Hb) H)
+         (assume Hnb, or_intro_right (¬a) Hnb))
+         (assume Hna, or_intro_left (¬b) Hna))
+     (assume (H : ¬a ∨ ¬b) (N : a ∧ b),
        or_elim H
          (assume Hna, absurd (and_elim_left N) Hna)
          (assume Hnb, absurd (and_elim_right N) Hnb))
 
-theorem imp_or (a b : Prop) : (a → b) = (¬ a ∨ b)
+theorem imp_or (a b : Prop) : (a → b) = (¬a ∨ b)
 := propext
      (assume H : a → b, (or_elim (em a)
-       (assume Ha  : a,   or_intro_right (¬ a) (H Ha))
-       (assume Hna : ¬ a, or_intro_left b Hna)))
-     (assume (H : ¬ a ∨ b) (Ha : a),
+       (assume Ha  : a,   or_intro_right (¬a) (H Ha))
+       (assume Hna : ¬a, or_intro_left b Hna)))
+     (assume (H : ¬a ∨ b) (Ha : a),
        resolve_right H ((not_not_eq a)⁻¹ ◂ Ha))
 
-theorem not_implies (a b : Prop) : (¬ (a → b)) = (a ∧ ¬b)
-:= calc (¬ (a → b)) = (¬(¬a ∨ b)) : {imp_or a b}
-                 ... = (¬¬a ∧ ¬b)  : not_or (¬ a) b
+theorem not_implies (a b : Prop) : (¬(a → b)) = (a ∧ ¬b)
+:= calc (¬(a → b)) = (¬(¬a ∨ b)) : {imp_or a b}
+                 ... = (¬¬a ∧ ¬b)  : not_or (¬a) b
                  ... = (a ∧ ¬b)    : {not_not_eq a}
 
 theorem a_eq_not_a (a : Prop) : (a = ¬a) = false
@@ -125,7 +125,7 @@ theorem a_eq_not_a (a : Prop) : (a = ¬a) = false
      (assume H, or_elim (em a)
        (assume Ha, absurd Ha (H ▸ Ha))
        (assume Hna, absurd (H⁻¹ ▸ Hna) Hna))
-     (assume H, false_elim (a = ¬ a) H)
+     (assume H, false_elim (a = ¬a) H)
 
 theorem true_eq_false : (true = false) = false
 := not_true ▸ (a_eq_not_a true)

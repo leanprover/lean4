@@ -1120,9 +1120,12 @@ public:
         }
     }
 
-    expr solve_unassigned_mvars(substitution & subst, expr const & e, name_set & visited) {
+    expr solve_unassigned_mvars(substitution & subst, expr e, name_set & visited) {
+        e = subst.instantiate(e);
         buffer<expr> mvars;
         collect_metavars(e, mvars);
+        if (mvars.empty())
+            return e;
         for (auto mvar : mvars) {
             check_interrupted();
             solve_unassigned_mvar(subst, mvar, visited);

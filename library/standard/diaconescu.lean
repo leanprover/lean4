@@ -8,7 +8,7 @@ using eq_proofs
 -- Show that Excluded middle follows from
 --   Hilbert's choice operator, function extensionality and Prop extensionality
 section
-hypothesis propext ⦃a b : Prop⦄ : (a → b) → (b → a) → a = b
+hypothesis propext {a b : Prop} : (a → b) → (b → a) → a = b
 
 parameter p : Prop
 

@@ -147,6 +147,10 @@ public:
     bool is_def_eq(expr const & t, expr const & s);
     bool is_def_eq(expr const & t, expr const & s, justification const & j);
     bool is_def_eq(expr const & t, expr const & s, delayed_justification & jst);
+    /** \brief Return true iff \c t and \c s (may b) definitionally equal (modulo constraints)
+        New constraints associated with test are store in \c new_cnstrs.
+    */
+    bool is_def_eq_types(expr const & t, expr const & s, justification const & j, buffer<constraint> & new_cnstrs);
     /** \brief Return true iff t is a proposition. */
     bool is_prop(expr const & t);
     /** \brief Return the weak head normal form of \c t. */

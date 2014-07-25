@@ -44,7 +44,8 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
        to the different constructors of decl.
     */
     lazy_list<constraints> add_elim_meta_cnstrs(type_checker & tc, name_generator ngen, inductive::inductive_decl const & decl,
-                                                expr const & elim, buffer<expr> & args, expr const & t, justification const & j) const {
+                                                expr const & elim, buffer<expr> & args, expr const & t, justification const & j,
+                                                buffer<constraint> & tc_cnstr_buffer) const {
         lean_assert(is_constant(elim));
         environment const & env = tc.env();
         levels elim_lvls       = const_levels(elim);
@@ -54,7 +55,6 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
         lean_assert(has_expr_metavar(meta));
         buffer<expr> margs;
         expr const & m     = get_app_args(meta, margs);
-        buffer<constraint> tc_cnstr_buffer;
         expr mtype = tc.infer(m, tc_cnstr_buffer);
         list<constraint> tc_cnstrs = to_list(tc_cnstr_buffer.begin(), tc_cnstr_buffer.end());
         buffer<constraints> alts;
@@ -87,14 +87,17 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
     lazy_list<constraints> process_elim_meta_core(type_checker & tc, name_generator const & ngen,
                                                   expr const & lhs, expr const & rhs, justification const & j) const {
         lean_assert(inductive::is_elim_meta_app(tc, lhs));
+        buffer<constraint> tc_cnstr_buffer;
+        if (!tc.is_def_eq_types(lhs, rhs, j, tc_cnstr_buffer))
+            return lazy_list<constraints>();
         buffer<expr> args;
         expr const & elim = get_app_args(lhs, args);
         environment const & env = tc.env();
         auto it_name = *inductive::is_elim_rule(env, const_name(elim));
-        auto decls = *inductive::is_inductive_decl(env, it_name);
+        auto decls   = *inductive::is_inductive_decl(env, it_name);
         for (auto const & d : std::get<2>(decls)) {
             if (inductive::inductive_decl_name(d) == it_name)
-                return add_elim_meta_cnstrs(tc, ngen, d, elim, args, rhs, j);
+                return add_elim_meta_cnstrs(tc, ngen, d, elim, args, rhs, j, tc_cnstr_buffer);
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }

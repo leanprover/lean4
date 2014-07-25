@@ -406,6 +406,20 @@ bool type_checker::is_def_eq(expr const & t, expr const & s, justification const
     return is_def_eq(t, s, djst);
 }
 
+bool type_checker::is_def_eq_types(expr const & t, expr const & s, justification const & j, buffer<constraint> & new_cnstrs) {
+    scope mk_scope(*this);
+    unsigned cs_qhead = m_cs_qhead;
+    expr r1 = infer_type_core(t, true);
+    expr r2 = infer_type_core(s, true);
+    if (is_def_eq(r1, r2, j)) {
+        for (unsigned i = cs_qhead; i < m_cs_qhead; i++)
+            new_cnstrs.push_back(m_cs[i]);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 /** \brief Return true iff \c e is a proposition */
 bool type_checker::is_prop(expr const & e) {
     scope mk_scope(*this);

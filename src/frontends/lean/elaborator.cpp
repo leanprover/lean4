@@ -806,7 +806,7 @@ public:
                         // rely on unification hints to solve this constraint
                         add_cnstr(mk_eq_cnstr(a_type, d_type, j.get()));
                     } else {
-                        throw_kernel_exception(m_env, a, [=](formatter const & fmt) { return pp_app_type_mismatch(fmt, e, d_type, a_type); });
+                        throw_kernel_exception(m_env, r, [=](formatter const & fmt) { return pp_app_type_mismatch(fmt, e, d_type, a_type); });
                     }
                 }
             }

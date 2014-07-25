@@ -1,5 +1,5 @@
 ite (and p q) (f x) y : N
-t10.lean:14:22: error: type mismatch at application
+t10.lean:14:6: error: type mismatch at application
   ite (and p q) q
 expected type:
   N

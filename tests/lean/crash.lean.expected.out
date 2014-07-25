@@ -1,4 +1,4 @@
-crash.lean:6:0: error: type mismatch at application
+crash.lean:8:12: error: type mismatch at application
   (λ (H' : not P), _) H
 expected type:
   not P

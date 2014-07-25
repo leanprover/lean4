@@ -13,7 +13,7 @@ let and_intro : ∀ (p q : Prop),
 in and_intro :
   ∀ (p q : Prop),
     p → q → (λ (p q : Prop), ∀ (c : Prop), (p → q → c) → c) p q
-let1.lean:17:20: error: type mismatch at application
+let1.lean:16:10: error: type mismatch at application
   (λ (and_intro : ∀ (p q : Prop), p → q → (λ (p q : Prop), ∀ (c : Prop), (p → q → c) → c) q p),
      let and_elim_left : ∀ (p q : Prop),
                            (λ (p q : Prop), ∀ (c : Prop), (p → q → c) → c) p q → p :=

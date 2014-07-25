@@ -38,6 +38,7 @@ private:
     bool               m_notation;
     bool               m_universes;
     bool               m_full_names;
+    bool               m_private_names;
 
     void set_options(options const & o);
 

@@ -95,15 +95,16 @@ expr pretty_fn::purify(expr const & e) {
 }
 
 void pretty_fn::set_options(options const & o) {
-    m_indent     = get_pp_indent(o);
-    m_max_depth  = get_pp_max_depth(o);
-    m_max_steps  = get_pp_max_steps(o);
-    m_implict    = get_pp_implicit(o);
-    m_unicode    = get_pp_unicode(o);
-    m_coercion   = get_pp_coercion(o);
-    m_notation   = get_pp_notation(o);
-    m_universes  = get_pp_universes(o);
-    m_full_names = get_pp_full_names(o);
+    m_indent        = get_pp_indent(o);
+    m_max_depth     = get_pp_max_depth(o);
+    m_max_steps     = get_pp_max_steps(o);
+    m_implict       = get_pp_implicit(o);
+    m_unicode       = get_pp_unicode(o);
+    m_coercion      = get_pp_coercion(o);
+    m_notation      = get_pp_notation(o);
+    m_universes     = get_pp_universes(o);
+    m_full_names    = get_pp_full_names(o);
+    m_private_names = get_pp_private_names(o);
 }
 
 format pretty_fn::pp_level(level const & l) {
@@ -176,8 +177,10 @@ auto pretty_fn::pp_const(expr const & e) -> result {
             }
         }
     }
-    if (auto n1 = hidden_to_user_name(m_env, n))
-        n = *n1;
+    if (!m_private_names) {
+        if (auto n1 = hidden_to_user_name(m_env, n))
+            n = *n1;
+    }
     if (m_universes && !empty(const_levels(e))) {
         format r = compose(format(n), format(".{"));
         bool first = true;

@@ -152,8 +152,7 @@ notation `Ω` `(` A `,` a `)` := loop_space A a
 definition loop2d_space (A : Type) (a : A) := (refl a) = (refl a)
 notation `Ω²` `(` A `,` a `)` := loop2d_space A a
 
-inductive empty : Type :=
--- empty
+inductive empty : Type
 
 theorem empty_elim (c : Type) (H : empty) : c
 := empty_rec (λ e, c) H

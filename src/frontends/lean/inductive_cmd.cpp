@@ -279,17 +279,25 @@ struct inductive_cmd_fn {
             name d_name = parse_decl_name();
             parse_inductive_univ_params();
             expr d_type = parse_datatype_type();
-            m_p.check_token_next(g_assign, "invalid inductive declaration, ':=' expected");
+            bool empty_type = true;
+            if (m_p.curr_is_token(g_assign)) {
+                empty_type = false;
+                m_p.next();
+            }
             level_param_names d_lvls;
             std::tie(d_type, d_lvls) = elaborate_inductive_type(d_type);
             if (!m_first) {
                 check_params(d_type, *first_d_type);
                 check_levels(d_lvls, *first_d_lvls);
             }
-            buffer<expr> params;
-            add_params_to_local_scope(d_type, params);
-            auto d_intro_rules = parse_intro_rules(params);
-            decls.push_back(inductive_decl(d_name, d_type, d_intro_rules));
+            if (empty_type) {
+                decls.push_back(inductive_decl(d_name, d_type, list<intro_rule>()));
+            } else {
+                buffer<expr> params;
+                add_params_to_local_scope(d_type, params);
+                auto d_intro_rules = parse_intro_rules(params);
+                decls.push_back(inductive_decl(d_name, d_type, d_intro_rules));
+            }
             if (!m_p.curr_is_token(g_with)) {
                 m_levels.append(m_explict_levels);
                 for (auto l : d_lvls) m_levels.push_back(l);

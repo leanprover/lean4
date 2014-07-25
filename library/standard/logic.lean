@@ -3,8 +3,7 @@
 -- Authors: Leonardo de Moura, Jeremy Avigad
 definition Prop [inline] := Type.{0}
 
-inductive false : Prop :=
--- No constructors
+inductive false : Prop
 
 theorem false_elim (c : Prop) (H : false) : c
 := false_rec c H

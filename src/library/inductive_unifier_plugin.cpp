@@ -51,10 +51,12 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
         unsigned elim_num_lvls = length(elim_lvls);
         unsigned major_idx     = *inductive::get_elim_major_idx(env, const_name(elim));
         expr meta              = args[major_idx]; // save this argument, we will update it
-        lean_assert(is_meta(meta));
+        lean_assert(has_expr_metavar(meta));
         buffer<expr> margs;
         expr const & m     = get_app_args(meta, margs);
-        expr const & mtype = mlocal_type(m);
+        buffer<constraint> tc_cnstr_buffer;
+        expr mtype = tc.infer(m, tc_cnstr_buffer);
+        list<constraint> tc_cnstrs = to_list(tc_cnstr_buffer.begin(), tc_cnstr_buffer.end());
         buffer<constraints> alts;
         for (auto const & intro : inductive::inductive_decl_intros(decl)) {
             name const & intro_name = inductive::intro_rule_name(intro);
@@ -77,7 +79,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
             args[major_idx]    = hint;
             expr reduce_elim   = tc.whnf(mk_app(elim, args));
             constraint c2      = mk_eq_cnstr(reduce_elim, t, j);
-            alts.push_back(constraints({c1, c2}));
+            alts.push_back(cons(c1, cons(c2, tc_cnstrs)));
         }
         return to_lazy(to_list(alts.begin(), alts.end()));
     }

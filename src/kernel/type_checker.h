@@ -132,6 +132,8 @@ public:
        constraint handler can be solved.
    */
     expr infer(expr const & t) { return infer_type(t); }
+    /** \brief Infer \c t type and copy constraints associated with type inference to \c new_cnstrs */
+    expr infer(expr const & t, buffer<constraint> & new_cnstrs);
 
     /**
        \brief Type check the given expression, and return the type of \c t.

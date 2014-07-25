@@ -823,7 +823,7 @@ bool is_elim_meta_app_core(Ctx & ctx, expr const & e) {
     if (elim_args.size() < major_idx + 1)
         return false;
     expr intro_app = ctx.whnf(elim_args[major_idx]);
-    return is_meta(intro_app);
+    return has_expr_metavar(intro_app);
 }
 
 bool is_elim_meta_app(type_checker & tc, expr const & e) {

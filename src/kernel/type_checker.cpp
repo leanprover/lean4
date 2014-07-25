@@ -355,6 +355,15 @@ expr type_checker::infer_type(expr const & e) {
     return r;
 }
 
+expr type_checker::infer(expr const & e, buffer<constraint> & new_cnstrs) {
+    scope mk_scope(*this);
+    unsigned cs_qhead = m_cs_qhead;
+    expr r = infer_type_core(e, true);
+    for (unsigned i = cs_qhead; i < m_cs_qhead; i++)
+        new_cnstrs.push_back(m_cs[i]);
+    return r;
+}
+
 expr type_checker::check(expr const & e, level_param_names const & ps) {
     scope mk_scope(*this);
     flet<level_param_names> updt(m_params, ps);

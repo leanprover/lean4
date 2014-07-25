@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/coercion.h"
 #include "library/expr_pair.h"
 #include "library/placeholder.h"
+#include "library/private.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/pp_options.h"
 #include "frontends/lean/token_table.h"
@@ -175,6 +176,8 @@ auto pretty_fn::pp_const(expr const & e) -> result {
             }
         }
     }
+    if (auto n1 = hidden_to_user_name(m_env, n))
+        n = *n1;
     if (m_universes && !empty(const_levels(e))) {
         format r = compose(format(n), format(".{"));
         bool first = true;

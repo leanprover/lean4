@@ -1172,6 +1172,38 @@ struct unifier_fn {
        Given,
                m      := a metavariable ?m
                margs  := [a_1 ... a_k]
+       We say a unification problem (?m a_1 ... a_k) =?= rhs uses "simple nonlocal i-th projection" when
+
+         1) rhs is not a local constant
+         2) is_def_eq(a_i, rhs) does not fail
+
+       In this case, we add
+                a_i =?= rhs
+                ?m  =?= fun x_1 ... x_k, x_i
+       to alts as a possible solution.
+    */
+    void mk_simple_nonlocal_projection(expr const & m, buffer<expr> const & margs, unsigned i, expr const & rhs, justification const & j,
+                              buffer<constraints> & alts) {
+        lean_assert(!is_local(rhs));
+        expr const & mtype = mlocal_type(m);
+        unsigned vidx = margs.size() - i - 1;
+        expr const & marg = margs[i];
+        buffer<constraint> cs;
+        if (auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j)) {
+            // Remark: we should not use mk_eq_cnstr(marg, rhs, j) since is_def_eq may be able to reduce them.
+            // The unifier assumes the eq constraints are reduced.
+            if (is_def_eq(marg, rhs, j, cs)) {
+                expr v = mk_lambda_for(*new_mtype, mk_var(vidx));
+                cs.push_back(mk_eq_cnstr(m, v, j));
+                alts.push_back(to_list(cs.begin(), cs.end()));
+            }
+        }
+    }
+
+    /**
+       Given,
+               m      := a metavariable ?m
+               margs  := [a_1 ... a_k]
        We say a unification problem (?m a_1 ... a_k) =?= rhs uses "simple projections" when
 
        If (rhs and a_i are *not* local constants) OR (rhs is a local constant and a_i is a metavariable application),
@@ -1197,16 +1229,7 @@ struct unifier_fn {
             expr const & marg = margs[i];
             if ((!is_local(marg) && !is_local(rhs)) || (is_meta(marg) && is_local(rhs))) {
                 // if rhs is not local, then we only add projections for the nonlocal arguments of lhs
-                buffer<constraint> cs;
-                if (auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j)) {
-                    // Remark: we should not use mk_eq_cnstr(marg, rhs, j) since is_def_eq may be able to reduce them.
-                    // The unifier assumes the eq constraints are reduced.
-                    if (is_def_eq(marg, rhs, j, cs)) {
-                        expr v = mk_lambda_for(*new_mtype, mk_var(vidx));
-                        cs.push_back(mk_eq_cnstr(m, v, j));
-                        alts.push_back(to_list(cs.begin(), cs.end()));
-                    }
-                }
+                mk_simple_nonlocal_projection(m, margs, i, rhs, j, alts);
             } else if (is_local(marg) && is_local(rhs) && mlocal_name(marg) == mlocal_name(rhs)) {
                 // if the argument is local, and rhs is equal to it, then we also add a projection
                 buffer<constraint> cs;
@@ -1256,6 +1279,8 @@ struct unifier_fn {
                     expr const & marg = margs[i];
                     if (is_local(marg) && mlocal_name(marg) == mlocal_name(f))
                         mk_flex_rigid_app_cnstrs(m, margs, mk_var(vidx), rhs, j, alts);
+                    else
+                        mk_simple_nonlocal_projection(m, margs, i, rhs, j, alts);
                 }
             } else if (is_constant(f)) {
                 mk_simple_projections(m, margs, rhs, j, alts);

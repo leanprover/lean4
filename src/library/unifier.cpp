@@ -1353,6 +1353,39 @@ struct unifier_fn {
         }
     }
 
+    /**
+       \brief Process the following constraints
+          1. (max l1 l2) =?= 0    OR
+                 solution:  l1 =?= 0, l2 =?= 0
+          2. (imax l1 l2) =?= 0
+                 solution:  l2 =?= 0
+    */
+    status try_level_eq_zero(level const & lhs, level const & rhs, justification const & j) {
+        if (!is_zero(rhs))
+            return Continue;
+        if (is_max(lhs)) {
+            if (process_constraint(mk_level_eq_cnstr(max_lhs(lhs), rhs, j)) &&
+                process_constraint(mk_level_eq_cnstr(max_rhs(lhs), rhs, j)))
+                return Solved;
+            else
+                return Failed;
+        } else if (is_imax(lhs)) {
+            return process_constraint(mk_level_eq_cnstr(imax_rhs(lhs), rhs, j)) ? Solved : Failed;
+        } else {
+            return Continue;
+        }
+    }
+
+    status try_level_eq_zero(constraint const & c) {
+        lean_assert(is_level_eq_cnstr(c));
+        level const & lhs = cnstr_lhs_level(c);
+        level const & rhs = cnstr_rhs_level(c);
+        justification const & j = c.get_justification();
+        status st = try_level_eq_zero(lhs, rhs, j);
+        if (st != Continue) return st;
+        return try_level_eq_zero(rhs, lhs, j);
+    }
+
     /** \brief Process the next constraint in the constraint queue m_cnstrs */
     bool process_next() {
         lean_assert(!m_cnstrs.empty());
@@ -1368,6 +1401,9 @@ struct unifier_fn {
             if (is_level_eq_cnstr(c)) {
                 if (modified)
                     return process_constraint(c);
+                status st = try_level_eq_zero(c);
+                if (st != Continue)
+                    return st == Solved;
                 else
                     return process_plugin_constraint(c);
             } else {

@@ -162,10 +162,12 @@ auto pretty_fn::pp_const(expr const & e) -> result {
             n = *it;
         } else {
             for (name const & ns : get_namespaces(m_env)) {
-                name new_n = n.replace_prefix(ns, name());
-                if (new_n != n) {
-                    n = new_n;
-                    break;
+                if (!ns.is_anonymous()) {
+                    name new_n = n.replace_prefix(ns, name());
+                    if (new_n != n) {
+                        n = new_n;
+                        break;
+                    }
                 }
             }
         }

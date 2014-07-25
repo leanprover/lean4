@@ -1,0 +1,6 @@
+crash.lean:6:0: error: type mismatch at application
+  (λ (H' : not P), _) H
+expected type:
+  not P
+given type:
+  P

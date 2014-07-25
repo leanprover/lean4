@@ -23,14 +23,14 @@ theorem prop_complete_swapped (a : Prop) : a = false ∨ a = true
 
 theorem not_true : (¬true) = false
 := have aux : ¬ (¬true) = true, from
-     not_intro (assume H : (¬true) = true,
-       absurd_not_true (subst (symm H) trivial)),
+     assume H : (¬true) = true,
+       absurd_not_true (subst (symm H) trivial),
    resolve_right (prop_complete (¬true)) aux
 
 theorem not_false : (¬false) = true
 := have aux : ¬ (¬false) = false, from
-     not_intro (assume H : (¬false) = false,
-        subst H not_false_trivial),
+     assume H : (¬false) = false,
+        subst H not_false_trivial,
    resolve_right (prop_complete_swapped (¬ false)) aux
 
 theorem not_not_eq (a : Prop) : (¬¬a) = a
@@ -89,10 +89,10 @@ theorem not_or (a b : Prop) : (¬ (a ∨ b)) = (¬ a ∧ ¬ b)
        (assume Hna, or_elim (em b)
          (assume Hb, absurd_elim (¬ a ∧ ¬ b) (or_intro_right a Hb) H)
          (assume Hnb, and_intro Hna Hnb)))
-     (assume (H : ¬ a ∧ ¬ b), not_intro (assume (N : a ∨ b),
+     (assume (H : ¬ a ∧ ¬ b) (N : a ∨ b),
        or_elim N
          (assume Ha, absurd Ha (and_elim_left H))
-         (assume Hb, absurd Hb (and_elim_right H))))
+         (assume Hb, absurd Hb (and_elim_right H)))
 
 theorem not_and (a b : Prop) : (¬ (a ∧ b)) = (¬ a ∨ ¬ b)
 := propext
@@ -101,10 +101,10 @@ theorem not_and (a b : Prop) : (¬ (a ∧ b)) = (¬ a ∨ ¬ b)
        (assume Hb, absurd_elim (¬ a ∨ ¬ b) (and_intro Ha Hb) H)
          (assume Hnb, or_intro_right (¬ a) Hnb))
          (assume Hna, or_intro_left (¬ b) Hna))
-     (assume (H : ¬ a ∨ ¬ b), not_intro (assume (N : a ∧ b),
+     (assume (H : ¬ a ∨ ¬ b) (N : a ∧ b),
        or_elim H
          (assume Hna, absurd (and_elim_left N) Hna)
-         (assume Hnb, absurd (and_elim_right N) Hnb)))
+         (assume Hnb, absurd (and_elim_right N) Hnb))
 
 theorem imp_or (a b : Prop) : (a → b) = (¬ a ∨ b)
 := propext

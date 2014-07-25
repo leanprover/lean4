@@ -26,8 +26,6 @@ namespace helper_tactics
 end
 using helper_tactics
 
-theorem tst : succ (succ (succ zero)) = 3
-
 theorem nat_rec_zero {P : ℕ → Type} (x : P 0) (f : ∀m, P m → P (succ m)) : nat_rec x f 0 = x
 
 theorem nat_rec_succ {P : ℕ → Type} (x : P 0) (f : ∀m, P m → P (succ m)) (n : ℕ) : nat_rec x f (succ n) = f n (nat_rec x f n)
@@ -41,14 +39,13 @@ definition rec_on {P : ℕ → Type} (n : ℕ) (H1 : P 0) (H2 : ∀m, P m → P 
 -------------------------------------------------- succ pred
 
 theorem succ_ne_zero (n : ℕ) : succ n ≠ 0
-:= not_intro
-    (take H : succ n = 0,
+:= assume H : succ n = 0,
      have H2 : true = false, from
      let f [inline] := (nat_rec false (fun a b, true)) in
        calc true = f (succ n) : _
              ... = f 0        : {H}
-	     ... = false      : _,
-     absurd H2 true_ne_false)
+             ... = false      : _,
+     absurd H2 true_ne_false
 
 definition pred (n : ℕ) := nat_rec 0 (fun m x, m) n
 
@@ -80,11 +77,11 @@ theorem succ_inj {n m : ℕ} (H : succ n = succ m) : n = m
   ... = m             : pred_succ m
 
 theorem succ_ne_self (n : ℕ) : succ n ≠ n
-:= not_intro (induction_on n
+:= induction_on n
     (take H : 1 = 0,
       have ne : 1 ≠ 0, from succ_ne_zero 0,
       absurd H ne)
-    (take k IH H, IH (succ_inj H)))
+    (take k IH H, IH (succ_inj H))
 
 theorem decidable_eq [instance] (n m : ℕ) : decidable (n = m)
 := have general : ∀n, decidable (n = m), from
@@ -102,7 +99,7 @@ theorem decidable_eq [instance] (n m : ℕ) : decidable (n = m)
                (assume Heq : n' = m', inl (congr2 succ Heq))
                (assume Hne : n' ≠ m',
                  have H1 : succ n' ≠ succ m', from
-                   not_intro (assume Heq, absurd (succ_inj Heq) Hne),
+                   assume Heq, absurd (succ_inj Heq) Hne,
                  inr H1))),
   general n
 
@@ -147,7 +144,7 @@ theorem add_zero_left (n : ℕ) : 0 + n = n
     (take m IH, show 0 + succ m = succ m, from
       calc
         0 + succ m = succ (0 + m) : add_succ_right _ _
-   	    ... = succ m : {IH})
+            ... = succ m : {IH})
 
 theorem add_succ_left (n m : ℕ) : (succ n) + m = succ (n + m)
 := induction_on m
@@ -416,10 +413,9 @@ theorem le_zero {n : ℕ} (H : n ≤ 0) : n = 0
   add_eq_zero_left Hk
 
 theorem not_succ_zero_le (n : ℕ) : ¬ succ n ≤ 0
-:= not_intro
-    (assume H : succ n ≤ 0,
-      have H2 : succ n = 0, from le_zero H,
-      absurd H2 (succ_ne_zero n))
+:= assume H : succ n ≤ 0,
+     have H2 : succ n = 0, from le_zero H,
+     absurd H2 (succ_ne_zero n)
 
 theorem le_zero_inv {n : ℕ} (H : n ≤ 0) : n = 0
 := obtain (k : ℕ) (Hk : n + k = 0), from le_elim H,
@@ -526,11 +522,10 @@ theorem succ_le_left_inv {n m : ℕ} (H : succ n ≤ m) : n ≤ m ∧ n ≠ m
         n + succ k = succ n + k : symm (add_move_succ n k)
           ... = m : H2,
       show n ≤ m, from le_intro H3)
-    (not_intro
-      (assume H3 : n = m,
+    (assume H3 : n = m,
         have H4 : succ n ≤ n, from subst (symm H3) H,
         have H5 : succ n = n, from le_antisym H4 (self_le_succ n),
-        show false, from absurd H5 (succ_ne_self n)))
+        show false, from absurd H5 (succ_ne_self n))
 
 theorem le_pred_self (n : ℕ) : pred n ≤ n
 := case n
@@ -609,11 +604,10 @@ theorem succ_le_imp_le_and_ne {n m : ℕ} (H : succ n ≤ m) : n ≤ m ∧ n ≠
 :=
   and_intro
     (le_trans (self_le_succ n) H)
-    (not_intro
-      (assume H2 : n = m,
+    (assume H2 : n = m,
         have H3 : succ n ≤ n, from subst (symm H2) H,
         have H4 : succ n = n, from le_antisym H3 (self_le_succ n),
-        show false, from absurd H4 (succ_ne_self n)))
+        show false, from absurd H4 (succ_ne_self n))
 
 theorem pred_le_self (n : ℕ) : pred n ≤ n
 :=
@@ -693,16 +687,15 @@ theorem lt_ne {n m : ℕ} (H : n < m) : n ≠ m
 := and_elim_right (succ_le_left_inv H)
 
 theorem lt_irrefl (n : ℕ) : ¬ n < n
-:= not_intro (assume H : n < n, absurd (refl n) (lt_ne H))
+:= assume H : n < n, absurd (refl n) (lt_ne H)
 
 theorem lt_zero (n : ℕ) : 0 < succ n
 := succ_le (zero_le n)
 
 theorem lt_zero_inv (n : ℕ) : ¬ n < 0
-:= not_intro
-    (assume H : n < 0,
+:= assume H : n < 0,
       have H2 : succ n = 0, from le_zero_inv H,
-      absurd H2 (succ_ne_zero n))
+      absurd H2 (succ_ne_zero n)
 
 theorem lt_positive {n m : ℕ} (H : n < m) : ∃k, m = succ k
 := discriminate
@@ -747,10 +740,10 @@ theorem lt_trans {n m k : ℕ} (H1 : n < m) (H2 : m < k) : n < k
 := lt_le_trans H1 (lt_imp_le H2)
 
 theorem le_imp_not_gt {n m : ℕ} (H : n ≤ m) : ¬ n > m
-:= not_intro (assume H2 : m < n, absurd (le_lt_trans H H2) (lt_irrefl n))
+:= assume H2 : m < n, absurd (le_lt_trans H H2) (lt_irrefl n)
 
 theorem lt_imp_not_ge {n m : ℕ} (H : n < m) : ¬ n ≥ m
-:= not_intro (assume H2 : m ≤ n, absurd (lt_le_trans H H2) (lt_irrefl n))
+:= assume H2 : m ≤ n, absurd (lt_le_trans H H2) (lt_irrefl n)
 
 theorem lt_antisym {n m : ℕ} (H : n < m) : ¬ m < n
 := le_imp_not_gt (lt_imp_le H)

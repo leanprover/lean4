@@ -12,7 +12,7 @@ theorem false_elim (c : Prop) (H : false) : c
 inductive true : Prop :=
 | trivial : true
 
-definition not (a : Prop) := a → false
+abbreviation not (a : Prop) := a → false
 prefix `¬`:40 := not
 
 notation `assume` binders `,` r:(scoped f, f) := r
@@ -164,7 +164,7 @@ theorem eqt_elim {a : Prop} (H : a = true) : a
 := (symm H) ◂ trivial
 
 theorem eqf_elim {a : Prop} (H : a = false) : ¬a
-:= not_intro (assume Ha : a, H ◂ Ha)
+:= assume Ha : a, H ◂ Ha
 
 theorem imp_trans {a b c : Prop} (H1 : a → b) (H2 : b → c) : a → c
 := assume Ha, H2 (H1 Ha)

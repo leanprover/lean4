@@ -29,11 +29,11 @@ theorem cond_b1 {A : Type} (t e : A) : cond '1 t e = t
 := refl (cond '1 t e)
 
 theorem b0_ne_b1 : ¬ '0 = '1
-:= not_intro (assume H : '0 = '1, absurd
+:= assume H : '0 = '1, absurd
     (calc true  = cond '1 true false : symm (cond_b1 _ _)
            ... = cond '0 true false : {symm H}
            ... = false              : cond_b0 _ _)
-    true_ne_false)
+    true_ne_false
 
 definition bor (a b : bool)
 := bool_rec (bool_rec '0 '1 b) '1 a

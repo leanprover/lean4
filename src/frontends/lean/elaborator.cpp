@@ -736,7 +736,35 @@ public:
         return update_app(e, app_fn(e), m);
     }
 
+    bool is_choice_app(expr const & e) {
+        expr const & f = get_app_fn(e);
+        return is_choice(f) || (is_explicit(f) && is_choice(get_explicit_arg(f)));
+    }
+
+    /** \brief Process ((choice f_1 ... f_n) a_1 ... a_k) as
+        (choice (f_1 a_1 ... a_k) ... (f_n a_1 ... a_k))
+    */
+    expr visit_choice_app(expr const & e) {
+        buffer<expr> args;
+        expr f = get_app_rev_args(e, args);
+        bool expl = is_explicit(f);
+        if (expl)
+            f = get_explicit_arg(f);
+        lean_assert(is_choice(f));
+        buffer<expr> new_choices;
+        unsigned num = get_num_choices(f);
+        for (unsigned i = 0; i < num; i++) {
+            expr f_i = get_choice(f, i);
+            if (expl)
+                f_i = mk_explicit(f_i);
+            new_choices.push_back(mk_rev_app(f_i, args));
+        }
+        return visit_choice(mk_choice(new_choices.size(), new_choices.data()), none_expr());
+    }
+
     expr visit_app(expr const & e) {
+        if (is_choice_app(e))
+            return visit_choice_app(e);
         bool expl   = is_explicit(get_app_fn(e));
         expr f      = visit(app_fn(e));
         auto f_t    = ensure_fun(f);

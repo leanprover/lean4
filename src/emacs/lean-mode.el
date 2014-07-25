@@ -24,14 +24,14 @@
 (define-generic-mode
     'lean-mode     ;; name of the mode to create
   '("--")          ;; comments start with
-  '("import" "abbreviation" "opaque_hint" "tactic_hint" "definition" "renaming" "inline" "hiding" "exposing" "parameter" "parameters" "proof" "qed" "conjecture" "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem" "axiom" "inductive" "with" "universe" "alias" "help" "environment" "options" "precedence" "postfix" "prefix" "calc_trans" "calc_subst" "calc_refl" "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end" "using" "namespace" "builtin" "including" "class" "instance" "section" "set_option" "add_rewrite") ;; some keywords
+  '("import" "abbreviation" "opaque_hint" "tactic_hint" "definition" "renaming" "inline" "hiding" "exposing" "parameter" "parameters" "proof" "qed" "conjecture" "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem" "axiom" "inductive" "with" "universe" "alias" "help" "environment" "options" "precedence" "postfix" "prefix" "calc_trans" "calc_subst" "calc_refl" "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end" "private" "using" "namespace" "builtin" "including" "class" "instance" "section" "set_option" "add_rewrite") ;; some keywords
   '(("\\_<\\(bool\\|int\\|nat\\|real\\|Prop\\|Type\\|ℕ\\|ℤ\\)\\_>" . 'font-lock-type-face)
     ("\\_<\\(calc\\|have\\|obtains\\|show\\|by\\|in\\|let\\|forall\\|fun\\|exists\\|if\\|then\\|else\\|assume\\|take\\|obtain\\|from\\)\\_>" . font-lock-keyword-face)
     ("\"[^\"]*\"" . 'font-lock-string-face)
     ("\\(->\\|↔\\|/\\\\\\|==\\|\\\\/\\|[*+/<=>¬∧∨≠≤≥-]\\)" . 'font-lock-constant-face)
     ("\\(λ\\|→\\|∃\\|∀\\|:\\|:=\\)" . font-lock-constant-face)
     ("\\_<\\(\\b.*_tac\\|Cond\\|or_else\\|t\\(?:hen\\|ry\\)\\|when\\|assumption\\|apply\\|b\\(?:ack\\|eta\\)\\|done\\|exact\\)\\_>" . 'font-lock-constant-face)
-    ("\\_<\\(universe\\|theorem\\|axiom\\|definition\\|variable\\|parameter\\)\\_>[ \t\{\[]*\\([^ \t\n]*\\)" (2 'font-lock-function-name-face))
+    ("\\_<\\(universe\\|theorem\\|axiom\\|lemma\\|hypothesis\\|abbreviation\\|definition\\|variable\\|parameter\\)\\_>[ \t\{\[]*\\([^ \t\n]*\\)" (2 'font-lock-function-name-face))
     ("\\_<\\(variables\\|parameters\\)\\_>[ \t\(\{\[]*\\([^:]*\\)" (2 'font-lock-function-name-face))
     ("\\(set_opaque\\|set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
     ("\\_<_\\_>" . 'font-lock-preprocessor-face)

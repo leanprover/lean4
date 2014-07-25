@@ -2,6 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 import logic
+using eq_proofs
 
 definition cast {A B : Type} (H : A = B) (a : A) : B
 := eq_rec a H
@@ -27,11 +28,11 @@ theorem heq_type_eq {A B : Type} {a : A} {b : B} (H : a == b) : A = B
 := obtain w Hw, from H, w
 
 theorem eq_to_heq {A : Type} {a b : A} (H : a = b) : a == b
-:= exists_intro (refl A) (trans (cast_refl a) H)
+:= exists_intro (refl A) (cast_refl a ⬝ H)
 
 theorem heq_to_eq {A : Type} {a b : A} (H : a == b) : a = b
 := obtain (w : A = A) (Hw : cast w a = b), from H,
-    calc a = cast w a : symm (cast_eq w a)
+    calc a = cast w a : (cast_eq w a)⁻¹
       ...  = b        : Hw
 
 theorem hrefl {A : Type} (a : A) : a == a
@@ -44,10 +45,10 @@ opaque_hint (hiding cast)
 
 theorem hsubst {A B : Type} {a : A} {b : B} {P : ∀ (T : Type), T → Prop} (H1 : a == b) (H2 : P A a) : P B b
 := have Haux1 : ∀ H : A = A, P A (cast H a), from
-     assume H : A = A, subst (symm (cast_eq H a)) H2,
+     assume H : A = A, (cast_eq H a)⁻¹ ▸ H2,
    obtain (Heq : A = B) (Hw : cast Heq a = b), from H1,
    have Haux2 : P B (cast Heq a), from subst Heq Haux1 Heq,
-     subst Hw Haux2
+     Hw ▸ Haux2
 
 theorem hsymm {A B : Type} {a : A} {b : B} (H : a == b) : b == a
 := hsubst H (hrefl a)
@@ -77,10 +78,10 @@ theorem cast_eq_to_heq {A B : Type} {a : A} {b : B} {H : A = B} (H1 : cast H a =
 := calc a  == cast H a : hsymm (cast_heq H a)
        ... =  b        : H1
 
-theorem cast_trans {A B C : Type} (Hab : A = B) (Hbc : B = C) (a : A) : cast Hbc (cast Hab a) = cast (trans Hab Hbc) a
+theorem cast_trans {A B C : Type} (Hab : A = B) (Hbc : B = C) (a : A) : cast Hbc (cast Hab a) = cast (Hab ⬝ Hbc) a
 := heq_to_eq (calc cast Hbc (cast Hab a)   == cast Hab a             : cast_heq Hbc (cast Hab a)
                                       ...  == a                      : cast_heq Hab a
-                                      ...  == cast (trans Hab Hbc) a : hsymm (cast_heq (trans Hab Hbc) a))
+                                      ...  == cast (Hab ⬝ Hbc) a : hsymm (cast_heq (Hab ⬝ Hbc) a))
 
 theorem dcongr2 {A : Type} {B : A → Type} (f : Πx, B x) {a b : A} (H : a = b) : f a == f b
 := have e1 : ∀ (H : B a = B a), cast H (f a) = f a, from

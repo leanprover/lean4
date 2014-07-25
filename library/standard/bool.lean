@@ -2,6 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 import logic decidable
+using eq_proofs
 
 namespace bool
 inductive bool : Type :=
@@ -30,8 +31,8 @@ theorem cond_b1 {A : Type} (t e : A) : cond '1 t e = t
 
 theorem b0_ne_b1 : ¬ '0 = '1
 := assume H : '0 = '1, absurd
-    (calc true  = cond '1 true false : symm (cond_b1 _ _)
-           ... = cond '0 true false : {symm H}
+    (calc true  = cond '1 true false : (cond_b1 _ _)⁻¹
+           ... = cond '0 true false : {H⁻¹}
            ... = false              : cond_b0 _ _)
     true_ne_false
 
@@ -89,8 +90,8 @@ theorem band_eq_b1_elim_left {a b : bool} (H : a && b = '1) : a = '1
 := or_elim (dichotomy a)
     (assume H0 : a = '0,
       absurd_elim (a = '1)
-        (calc '0 = '0 && b : symm (band_b0_left _)
-             ... = a && b  : {symm H0}
+        (calc '0 = '0 && b : (band_b0_left _)⁻¹
+             ... = a && b  : {H0⁻¹}
              ... = '1      : H)
          b0_ne_b1)
     (assume H1 : a = '1, H1)

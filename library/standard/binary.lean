@@ -2,6 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 import logic
+using eq_proofs
 
 namespace binary
 section
@@ -22,7 +23,7 @@ section
 
   theorem left_comm : ∀a b c, a*(b*c) = b*(a*c)
   := take a b c, calc
-       a*(b*c) = (a*b)*c  : symm (H_assoc _ _ _)
+       a*(b*c) = (a*b)*c  : (H_assoc _ _ _)⁻¹
          ...   = (b*a)*c  : {H_comm _ _}
          ...   = b*(a*c)  : H_assoc _ _ _
 
@@ -30,6 +31,6 @@ section
   := take a b c, calc
        (a*b)*c = a*(b*c) : H_assoc _ _ _
          ...   = a*(c*b) : {H_comm _ _}
-         ...   = (a*c)*b : symm (H_assoc _ _ _)
+         ...   = (a*c)*b : (H_assoc _ _ _)⁻¹
 end
 end

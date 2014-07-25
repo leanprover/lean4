@@ -136,14 +136,21 @@ theorem true_ne_false : ¬true = false
 theorem symm {A : Type} {a b : A} (H : a = b) : b = a
 := subst H (refl a)
 
+namespace eq_proofs
+  postfix `⁻¹`:100 := symm
+  infixr `⬝`:75     := trans
+  infixr `▸`:75    := subst
+end
+using eq_proofs
+
 theorem congr1 {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a
-:= subst H (refl (f a))
+:= H ▸ (refl (f a))
 
 theorem congr2 {A : Type} {B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b
-:= subst H (refl (f a))
+:= H ▸ (refl (f a))
 
 theorem congr {A : Type} {B : Type} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) : f a = g b
-:= subst H1 (subst H2 (refl (f a)))
+:= H1 ▸ H2 ▸ (refl (f a))
 
 theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀x, f x = g x
 := take x, congr1 H x
@@ -152,16 +159,16 @@ theorem not_congr {a b : Prop} (H : a = b) : (¬a) = (¬b)
 := congr2 not H
 
 theorem eqmp {a b : Prop} (H1 : a = b) (H2 : a) : b
-:= subst H1 H2
+:= H1 ▸ H2
 
 infixl `<|`:100 := eqmp
 infixl `◂`:100 := eqmp
 
 theorem eqmpr {a b : Prop} (H1 : a = b) (H2 : b) : a
-:= (symm H1) ◂ H2
+:= H1⁻¹ ◂ H2
 
 theorem eqt_elim {a : Prop} (H : a = true) : a
-:= (symm H) ◂ trivial
+:= H⁻¹ ◂ trivial
 
 theorem eqf_elim {a : Prop} (H : a = false) : ¬a
 := assume Ha : a, H ◂ Ha
@@ -191,16 +198,16 @@ theorem ne_irrefl {A : Type} {a : A} (H : a ≠ a) : false
 := H (refl a)
 
 theorem not_eq_symm {A : Type} {a b : A} (H : ¬ a = b) : ¬ b = a
-:= assume H1 : b = a, H (symm H1)
+:= assume H1 : b = a, H (H1⁻¹)
 
 theorem ne_symm {A : Type} {a b : A} (H : a ≠ b) : b ≠ a
 := not_eq_symm H
 
 theorem eq_ne_trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b ≠ c) : a ≠ c
-:= subst (symm H1) H2
+:= H1⁻¹ ▸ H2
 
 theorem ne_eq_trans {A : Type} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a ≠ c
-:= subst H2 H1
+:= H2 ▸ H1
 
 calc_trans eq_ne_trans
 calc_trans ne_eq_trans
@@ -247,7 +254,7 @@ theorem iff_symm {a b : Prop} (H : a ↔ b) : b ↔ a
 calc_trans iff_trans
 
 theorem eq_to_iff {a b : Prop} (H : a = b) : a ↔ b
-:= iff_intro (λ Ha, subst H Ha) (λ Hb, subst (symm H) Hb)
+:= iff_intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 
 theorem and_comm (a b : Prop) : a ∧ b ↔ b ∧ a
 := iff_intro (λH, and_swap H) (λH, and_swap H)

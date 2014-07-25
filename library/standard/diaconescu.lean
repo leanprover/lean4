@@ -2,6 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Leonardo de Moura, Jeremy Avigad
 import logic hilbert funext
+using eq_proofs
 
 -- Diaconescu’s theorem
 -- Show that Excluded middle follows from
@@ -25,7 +26,7 @@ lemma uv_implies_p [private] : ¬(u = v) ∨ p
 := or_elim u_def
     (assume Hut : u = true, or_elim v_def
       (assume Hvf : v = false,
-        have Hne : ¬(u = v), from subst (symm Hvf) (subst (symm Hut) true_ne_false),
+        have Hne : ¬(u = v), from Hvf⁻¹ ▸ Hut⁻¹ ▸ true_ne_false,
         or_intro_left p Hne)
       (assume Hp : p, or_intro_right (¬u = v) Hp))
     (assume Hp : p, or_intro_right (¬u = v) Hp)
@@ -41,7 +42,7 @@ lemma p_implies_uv [private] : p → u = v
        show (x = true ∨ p) = (x = false ∨ p), from
          propext Hl Hr),
    show u = v, from
-     subst Hpred (refl (epsilon (λ x, x = true ∨ p)))
+     Hpred ▸ (refl (epsilon (λ x, x = true ∨ p)))
 
 theorem em : p ∨ ¬ p
 := have H : ¬(u = v) → ¬ p, from contrapos p_implies_uv,

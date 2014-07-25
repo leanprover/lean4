@@ -2,13 +2,14 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 import logic cast
+using eq_proofs
 
 axiom prop_complete (a : Prop) : a = true ∨ a = false
 
 theorem case (P : Prop → Prop) (H1 : P true) (H2 : P false) (a : Prop) : P a
 := or_elim (prop_complete a)
-     (assume Ht : a = true,  subst (symm Ht) H1)
-     (assume Hf : a = false, subst (symm Hf) H2)
+     (assume Ht : a = true,  Ht⁻¹ ▸ H1)
+     (assume Hf : a = false, Hf⁻¹ ▸ H2)
 
 theorem em (a : Prop) : a ∨ ¬a
 := or_elim (prop_complete a)
@@ -24,20 +25,20 @@ theorem prop_complete_swapped (a : Prop) : a = false ∨ a = true
 theorem not_true : (¬true) = false
 := have aux : ¬ (¬true) = true, from
      assume H : (¬true) = true,
-       absurd_not_true (subst (symm H) trivial),
+       absurd_not_true (H⁻¹ ▸ trivial),
    resolve_right (prop_complete (¬true)) aux
 
 theorem not_false : (¬false) = true
 := have aux : ¬ (¬false) = false, from
      assume H : (¬false) = false,
-        subst H not_false_trivial,
+        H ▸ not_false_trivial,
    resolve_right (prop_complete_swapped (¬ false)) aux
 
 theorem not_not_eq (a : Prop) : (¬¬a) = a
 := case (λ x, (¬¬x) = x)
-        (calc (¬¬true)  = (¬false) : { not_true }
+        (calc (¬¬true)  = (¬false) : {not_true}
                   ...   = true     : not_false)
-        (calc (¬¬false) = (¬true)  : { not_false }
+        (calc (¬¬false) = (¬true)  : {not_false}
                   ...   = false    : not_true)
         a
 
@@ -47,11 +48,11 @@ theorem not_not_elim {a : Prop} (H : ¬¬a) : a
 theorem propext {a b : Prop} (Hab : a → b) (Hba : b → a) : a = b
 := or_elim (prop_complete a)
     (assume Hat,  or_elim (prop_complete b)
-      (assume Hbt,  trans Hat (symm Hbt))
-      (assume Hbf, false_elim (a = b) (subst Hbf (Hab (eqt_elim Hat)))))
+      (assume Hbt,  Hat ⬝ Hbt⁻¹)
+      (assume Hbf, false_elim (a = b) (Hbf ▸ (Hab (eqt_elim Hat)))))
     (assume Haf, or_elim (prop_complete b)
-      (assume Hbt,  false_elim (a = b) (subst Haf (Hba (eqt_elim Hbt))))
-      (assume Hbf, trans Haf (symm Hbf)))
+      (assume Hbt,  false_elim (a = b) (Haf ▸ (Hba (eqt_elim Hbt))))
+      (assume Hbf, Haf ⬝ Hbf⁻¹))
 
 theorem iff_to_eq {a b : Prop} (H : a ↔ b) : a = b
 := iff_elim (assume H1 H2, propext H1 H2) H
@@ -112,7 +113,7 @@ theorem imp_or (a b : Prop) : (a → b) = (¬ a ∨ b)
        (assume Ha  : a,   or_intro_right (¬ a) (H Ha))
        (assume Hna : ¬ a, or_intro_left b Hna)))
      (assume (H : ¬ a ∨ b) (Ha : a),
-       resolve_right H ((symm (not_not_eq a)) ◂ Ha))
+       resolve_right H ((not_not_eq a)⁻¹ ◂ Ha))
 
 theorem not_implies (a b : Prop) : (¬ (a → b)) = (a ∧ ¬b)
 := calc (¬ (a → b)) = (¬(¬a ∨ b)) : {imp_or a b}
@@ -122,15 +123,15 @@ theorem not_implies (a b : Prop) : (¬ (a → b)) = (a ∧ ¬b)
 theorem a_eq_not_a (a : Prop) : (a = ¬a) = false
 := propext
      (assume H, or_elim (em a)
-       (assume Ha, absurd Ha (subst H Ha))
-       (assume Hna, absurd (subst (symm H) Hna) Hna))
+       (assume Ha, absurd Ha (H ▸ Ha))
+       (assume Hna, absurd (H⁻¹ ▸ Hna) Hna))
      (assume H, false_elim (a = ¬ a) H)
 
 theorem true_eq_false : (true = false) = false
-:= subst not_true (a_eq_not_a true)
+:= not_true ▸ (a_eq_not_a true)
 
 theorem false_eq_true : (false = true) = false
-:= subst not_false (a_eq_not_a false)
+:= not_false ▸ (a_eq_not_a false)
 
 theorem a_eq_true (a : Prop) : (a = true) = a
 := propext (assume H, eqt_elim H) (assume H, eqt_intro H)

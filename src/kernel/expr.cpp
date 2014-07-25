@@ -594,39 +594,6 @@ bool is_arrow(expr const & t) {
     }
 }
 
-static name g_let("let");
-std::string const & get_let_macro_opcode() {
-    static std::string g_let_macro_opcode("let");
-    return g_let_macro_opcode;
-}
-
-/**
-   \brief We use a macro to mark expressions that denote "let"-expressions.
-   This marks have no real semantic meaning, but are used by Lean's pretty printer.
-*/
-class let_macro_definition_cell : public macro_definition_cell {
-    static void check_macro(expr const & m) {
-        if (!is_macro(m) || macro_num_args(m) != 1)
-            throw exception("invalid 'let' macro");
-    }
-public:
-    virtual name get_name() const { return g_let; }
-    virtual expr get_type(expr const & m, expr const * arg_types, extension_context &) const {
-        check_macro(m);
-        return arg_types[0];
-    }
-    virtual optional<expr> expand(expr const & m, extension_context &) const {
-        check_macro(m);
-        return some_expr(macro_arg(m, 0));
-    }
-    virtual void write(serializer & s) const { s.write_string(get_let_macro_opcode()); }
-};
-
-static macro_definition g_let_macro_definition(new let_macro_definition_cell());
-expr mk_let_macro(expr const & e) { return mk_macro(g_let_macro_definition, 1, &e); }
-bool is_let_macro(expr const & e) { return is_macro(e) && macro_def(e) == g_let_macro_definition; }
-expr let_macro_arg(expr const & e) { lean_assert(is_let_macro(e)); return macro_arg(e, 0); }
-
 static bool has_free_var_in_domain(expr const & b, unsigned vidx) {
     if (is_pi(b)) {
         return has_free_var(binding_domain(b), vidx) || has_free_var_in_domain(binding_body(b), vidx+1);

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/object_serializer.h"
 #include "kernel/expr.h"
 #include "kernel/declaration.h"
+#include "kernel/annotation.h"
 #include "library/max_sharing.h"
 #include "library/kernel_serializer.h"
 
@@ -353,12 +354,13 @@ inductive_decls read_inductive_decls(deserializer & d) {
     return inductive_decls(ps, num_params, to_list(decls.begin(), decls.end()));
 }
 
-
 static register_macro_deserializer_fn
-let_macro_des_fn(get_let_macro_opcode(),
-                 [](deserializer &, unsigned num, expr const * args) {
-                     if (num != 1)
-                         throw_corrupted_file();
-                     return mk_let_macro(args[0]);
-                 });
+annotation_des_fn(get_annotation_opcode(),
+                  [](deserializer & d, unsigned num, expr const * args) {
+                      if (num != 1)
+                          throw_corrupted_file();
+                      name k;
+                      d >> k;
+                      return mk_annotation(k, args[0]);
+                  });
 }

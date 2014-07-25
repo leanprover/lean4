@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/flet.h"
 #include "kernel/replace_fn.h"
 #include "kernel/free_vars.h"
+#include "kernel/annotation.h"
 #include "library/aliases.h"
 #include "library/scoped_ext.h"
 #include "library/coercion.h"
@@ -294,9 +295,9 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
 auto pretty_fn::pp_let(expr e) -> result {
     buffer<expr_pair> decls;
     while (true) {
-        if (!is_let_macro(e))
+        if (!is_let_annotation(e))
             break;
-        e = let_macro_arg(e);
+        e = get_annotation_arg(e);
         if (!is_app(e) || !is_lambda(app_fn(e)))
             break;
         expr v = app_arg(e);
@@ -325,7 +326,7 @@ auto pretty_fn::pp_let(expr e) -> result {
 }
 
 auto pretty_fn::pp_macro(expr const & e) -> result {
-    if (is_let_macro(e)) {
+    if (is_let_annotation(e)) {
         return pp_let(e);
     } else {
         // TODO(Leo): have macro annotations

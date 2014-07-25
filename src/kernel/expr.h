@@ -678,14 +678,6 @@ expr update_macro(expr const & e, unsigned num, expr const * args);
 // =======================================
 
 // =======================================
-// Auxiliary macro for "marking" let-expressions
-expr mk_let_macro(expr const & e);
-bool is_let_macro(expr const & e);
-expr let_macro_arg(expr const & e);
-std::string const & get_let_macro_opcode();
-// =======================================
-
-// =======================================
 // Implicit argument inference
 /**
    \brief Given \c t of the form <tt>Pi (x_1 : A_1) ... (x_k : A_k), B</tt>,

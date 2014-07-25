@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
+#include "kernel/annotation.h"
 
 namespace lean {
 bool is_used_name(expr const & t, name const & n) {
@@ -78,9 +79,9 @@ struct print_expr_fn {
     }
 
     bool print_let(expr const & a) {
-        if (!is_let_macro(a))
+        if (!is_let_annotation(a))
             return false;
-        expr l = let_macro_arg(a);
+        expr l = get_annotation_arg(a);
         if (!is_app(l) || !is_lambda(app_fn(l)))
             return false;
         name n = binding_name(app_fn(l));

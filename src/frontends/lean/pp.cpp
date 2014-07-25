@@ -11,24 +11,26 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/coercion.h"
 #include "library/expr_pair.h"
+#include "library/placeholder.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/pp_options.h"
 #include "frontends/lean/token_table.h"
 
 namespace lean {
-static format g_ellipsis_n_fmt= highlight(format("\u2026"));
-static format g_ellipsis_fmt  = highlight(format("..."));
-static format g_lambda_n_fmt  = highlight_keyword(format("\u03BB"));
-static format g_lambda_fmt    = highlight_keyword(format("fun"));
-static format g_forall_n_fmt  = highlight_keyword(format("\u2200"));
-static format g_forall_fmt    = highlight_keyword(format("forall"));
-static format g_pi_n_fmt      = highlight_keyword(format("Π"));
-static format g_pi_fmt        = highlight_keyword(format("Pi"));
-static format g_arrow_n_fmt   = highlight_keyword(format("\u2192"));
-static format g_arrow_fmt     = highlight_keyword(format("->"));
-static format g_let_fmt       = highlight_keyword(format("let"));
-static format g_in_fmt        = highlight_keyword(format("in"));
-static format g_assign_fmt    = highlight_keyword(format(":="));
+static format g_ellipsis_n_fmt  = highlight(format("\u2026"));
+static format g_ellipsis_fmt    = highlight(format("..."));
+static format g_placeholder_fmt = highlight(format("_"));
+static format g_lambda_n_fmt    = highlight_keyword(format("\u03BB"));
+static format g_lambda_fmt      = highlight_keyword(format("fun"));
+static format g_forall_n_fmt    = highlight_keyword(format("\u2200"));
+static format g_forall_fmt      = highlight_keyword(format("forall"));
+static format g_pi_n_fmt        = highlight_keyword(format("Π"));
+static format g_pi_fmt          = highlight_keyword(format("Pi"));
+static format g_arrow_n_fmt     = highlight_keyword(format("\u2192"));
+static format g_arrow_fmt       = highlight_keyword(format("->"));
+static format g_let_fmt         = highlight_keyword(format("let"));
+static format g_in_fmt          = highlight_keyword(format("in"));
+static format g_assign_fmt      = highlight_keyword(format(":="));
 
 name pretty_fn::mk_metavar_name(name const & m) {
     if (auto it = m_purify_meta_table.find(m))
@@ -341,6 +343,9 @@ auto pretty_fn::pp(expr const & e) -> result {
         return mk_result(m_unicode ? g_ellipsis_n_fmt : g_ellipsis_fmt);
     flet<unsigned> let_d(m_depth, m_depth+1);
     m_num_steps++;
+
+    if (is_placeholder(e))
+        return mk_result(g_placeholder_fmt);
 
     switch (e.kind()) {
     case expr_kind::Var:       return pp_var(e);

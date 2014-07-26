@@ -101,9 +101,20 @@ public:
             }
             m_todo.clear();
         } else {
-            m_todo_cv.notify_all();
-            for (thread_ptr & t : m_threads)
-                t->join();
+            try {
+                while (auto t = next_task()) {
+                    add_result((*t)());
+                }
+                m_todo_cv.notify_all();
+                for (thread_ptr & t : m_threads)
+                    t->join();
+            } catch (...) {
+                for (auto & th : m_threads)
+                    th->request_interrupt();
+                for (auto & th : m_threads)
+                    th->join();
+                throw;
+            }
             if (m_failed_thread >= 0)
                 m_thread_exceptions[m_failed_thread]->rethrow();
             if (m_interrupted)

@@ -1262,8 +1262,15 @@ struct unifier_fn {
         lean_assert(!is_meta(rhs));
         buffer<expr> margs;
         expr m     = get_app_args(lhs, margs);
-        for (expr & marg : margs)
-            marg = m_tc->whnf(marg);
+        for (expr & marg : margs) {
+            // Make sure that if marg is reducible to a local constant, then it is replaced with it.
+            // We need that because of the optimization based on is_easy_flex_rigid_arg
+            if (!is_local(marg)) {
+                expr new_marg = m_tc->whnf(marg);
+                if (is_local(new_marg))
+                    marg = new_marg;
+            }
+        }
         buffer<constraints> alts;
         switch (rhs.kind()) {
         case expr_kind::Var: case expr_kind::Meta:

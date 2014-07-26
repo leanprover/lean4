@@ -56,9 +56,11 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
         buffer<expr> margs;
         expr const & m     = get_app_args(meta, margs);
         expr mtype = tc.infer(m, tc_cnstr_buffer);
-        list<constraint> tc_cnstrs = to_list(tc_cnstr_buffer.begin(), tc_cnstr_buffer.end());
+        lean_assert(!tc.next_cnstr());
+        unsigned buff_sz = tc_cnstr_buffer.size();
         buffer<constraints> alts;
         for (auto const & intro : inductive::inductive_decl_intros(decl)) {
+            tc_cnstr_buffer.shrink(buff_sz);
             name const & intro_name = inductive::intro_rule_name(intro);
             declaration intro_decl  = env.get(intro_name);
             levels intro_lvls;
@@ -70,17 +72,22 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
             }
             expr intro_fn   = mk_constant(inductive::intro_rule_name(intro), intro_lvls);
             expr hint       = intro_fn;
-            expr intro_type = tc.whnf(inductive::intro_rule_type(intro));
+            expr intro_type = tc.whnf(inductive::intro_rule_type(intro), tc_cnstr_buffer);
             while (is_pi(intro_type)) {
                 hint = mk_app(hint, mk_app(mk_aux_metavar_for(ngen, mtype), margs));
-                intro_type = tc.whnf(binding_body(intro_type));
+                intro_type = tc.whnf(binding_body(intro_type), tc_cnstr_buffer);
+                lean_assert(!tc.next_cnstr());
             }
             constraint c1      = mk_eq_cnstr(meta, hint, j);
             args[major_idx]    = hint;
-            expr reduce_elim   = tc.whnf(mk_app(elim, args));
+            lean_assert(!tc.next_cnstr());
+            expr reduce_elim   = tc.whnf(mk_app(elim, args), tc_cnstr_buffer);
+            lean_assert(!tc.next_cnstr());
             constraint c2      = mk_eq_cnstr(reduce_elim, t, j);
+            list<constraint> tc_cnstrs = to_list(tc_cnstr_buffer.begin(), tc_cnstr_buffer.end());
             alts.push_back(cons(c1, cons(c2, tc_cnstrs)));
         }
+        lean_assert(!tc.next_cnstr());
         return to_lazy(to_list(alts.begin(), alts.end()));
     }
 
@@ -88,8 +95,10 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
                                                   expr const & lhs, expr const & rhs, justification const & j) const {
         lean_assert(inductive::is_elim_meta_app(tc, lhs));
         buffer<constraint> tc_cnstr_buffer;
+        lean_assert(!tc.next_cnstr());
         if (!tc.is_def_eq_types(lhs, rhs, j, tc_cnstr_buffer))
             return lazy_list<constraints>();
+        lean_assert(!tc.next_cnstr());
         buffer<expr> args;
         expr const & elim = get_app_args(lhs, args);
         environment const & env = tc.env();

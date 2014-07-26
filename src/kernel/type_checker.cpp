@@ -355,12 +355,16 @@ expr type_checker::infer_type(expr const & e) {
     return r;
 }
 
+void type_checker::copy_constraints(unsigned qhead, buffer<constraint> & new_cnstrs) {
+    for (unsigned i = qhead; i < m_cs.size(); i++)
+        new_cnstrs.push_back(m_cs[i]);
+}
+
 expr type_checker::infer(expr const & e, buffer<constraint> & new_cnstrs) {
     scope mk_scope(*this);
-    unsigned cs_qhead = m_cs_qhead;
+    unsigned cs_qhead = m_cs.size();
     expr r = infer_type_core(e, true);
-    for (unsigned i = cs_qhead; i < m_cs_qhead; i++)
-        new_cnstrs.push_back(m_cs[i]);
+    copy_constraints(cs_qhead, new_cnstrs);
     return r;
 }
 
@@ -406,14 +410,26 @@ bool type_checker::is_def_eq(expr const & t, expr const & s, justification const
     return is_def_eq(t, s, djst);
 }
 
+bool type_checker::is_def_eq(expr const & t, expr const & s, justification const & j, buffer<constraint> & new_cnstrs) {
+    unsigned cs_qhead = m_cs.size();
+    scope mk_scope(*this);
+    as_delayed_justification djst(j);
+    if (m_conv->is_def_eq(t, s, *this, djst)) {
+        copy_constraints(cs_qhead, new_cnstrs);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool type_checker::is_def_eq_types(expr const & t, expr const & s, justification const & j, buffer<constraint> & new_cnstrs) {
     scope mk_scope(*this);
-    unsigned cs_qhead = m_cs_qhead;
+    unsigned cs_qhead = m_cs.size();
     expr r1 = infer_type_core(t, true);
     expr r2 = infer_type_core(s, true);
-    if (is_def_eq(r1, r2, j)) {
-        for (unsigned i = cs_qhead; i < m_cs_qhead; i++)
-            new_cnstrs.push_back(m_cs[i]);
+    as_delayed_justification djst(j);
+    if (m_conv->is_def_eq(r1, r2, *this, djst)) {
+        copy_constraints(cs_qhead, new_cnstrs);
         return true;
     } else {
         return false;
@@ -430,6 +446,14 @@ bool type_checker::is_prop(expr const & e) {
 
 expr type_checker::whnf(expr const & t) {
     return m_conv->whnf(t, *this);
+}
+
+expr type_checker::whnf(expr const & t, buffer<constraint> & new_cnstrs) {
+    scope mk_scope(*this);
+    unsigned cs_qhead = m_cs.size();
+    expr r  = m_conv->whnf(t, *this);
+    copy_constraints(cs_qhead, new_cnstrs);
+    return r;
 }
 
 void type_checker::push() {

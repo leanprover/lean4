@@ -413,22 +413,6 @@ struct unifier_fn {
         }
     }
 
-    /** \brief Check if \c t1 and \c t2 are definitionally, and accumulate constraints in \c new_cs
-
-        \pre m_tc must not have pending constraints
-    */
-    bool is_def_eq(expr const & t1, expr const & t2, justification const & j, buffer<constraint> & new_cs) {
-        type_checker::scope s(*m_tc);
-        lean_assert(!m_tc->next_cnstr());
-        if (m_tc->is_def_eq(t1, t2, j)) {
-            while (auto c = m_tc->next_cnstr())
-                new_cs.push_back(*c);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     /**
        \brief Assign \c v to metavariable \c m with justification \c j.
        The type of v and m are inferred, and is_def_eq is invoked.
@@ -855,22 +839,26 @@ struct unifier_fn {
             return lazy_list<constraints>();
         justification const & j = c.get_justification();
         buffer<constraint> cs;
-        if (!is_def_eq(f_lhs, f_rhs, j, cs))
+        lean_assert(!m_tc->next_cnstr());
+        if (!m_tc->is_def_eq(f_lhs, f_rhs, j, cs))
             return lazy_list<constraints>();
         buffer<expr> args_lhs, args_rhs;
         get_app_args(lhs, args_lhs);
         get_app_args(rhs, args_rhs);
         if (args_lhs.size() != args_rhs.size())
             return lazy_list<constraints>();
+        lean_assert(!m_tc->next_cnstr());
         for (unsigned i = 0; i < args_lhs.size(); i++)
-            if (!is_def_eq(args_lhs[i], args_rhs[i], j, cs))
+            if (!m_tc->is_def_eq(args_lhs[i], args_rhs[i], j, cs))
                 return lazy_list<constraints>();
         return lazy_list<constraints>(to_list(cs.begin(), cs.end()));
     }
 
     bool process_plugin_constraint(constraint const & c) {
         lean_assert(!is_choice_cnstr(c));
+        lean_assert(!m_tc->next_cnstr());
         lazy_list<constraints> alts = m_plugin->solve(*m_tc, c, m_ngen.mk_child());
+        lean_assert(!m_tc->next_cnstr());
         alts = append(alts, process_const_const_cnstr(c));
         return process_lazy_constraints(alts, c.get_justification());
     }
@@ -937,7 +925,7 @@ struct unifier_fn {
         expr t = apply_beta(lhs_fn_val, lhs_args.size(), lhs_args.data());
         expr s = apply_beta(rhs_fn_val, rhs_args.size(), rhs_args.data());
         buffer<constraint> cs2;
-        if (is_def_eq(t, s, j, cs2)) {
+        if (m_tc->is_def_eq(t, s, j, cs2)) {
             // create a case split
             a = mk_assumption_justification(m_next_assumption_idx);
             add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, j, to_list(cs2.begin(), cs2.end()))));
@@ -1223,7 +1211,7 @@ struct unifier_fn {
         if (auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j)) {
             // Remark: we should not use mk_eq_cnstr(marg, rhs, j) since is_def_eq may be able to reduce them.
             // The unifier assumes the eq constraints are reduced.
-            if (is_def_eq(marg, rhs, j, cs)) {
+            if (m_tc->is_def_eq(marg, rhs, j, cs)) {
                 expr v = mk_lambda_for(*new_mtype, mk_var(vidx));
                 cs.push_back(mk_eq_cnstr(m, v, j));
                 alts.push_back(to_list(cs.begin(), cs.end()));

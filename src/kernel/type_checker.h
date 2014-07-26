@@ -103,6 +103,7 @@ class type_checker {
     expr infer_app(expr const & e, bool infer_only);
     expr infer_type_core(expr const & e, bool infer_only);
     expr infer_type(expr const & e);
+    void copy_constraints(unsigned qhead, buffer<constraint> & new_cnstrs);
     extension_context & get_extension() { return m_tc_ctx; }
 public:
     /**
@@ -147,7 +148,11 @@ public:
     bool is_def_eq(expr const & t, expr const & s);
     bool is_def_eq(expr const & t, expr const & s, justification const & j);
     bool is_def_eq(expr const & t, expr const & s, delayed_justification & jst);
-    /** \brief Return true iff \c t and \c s (may b) definitionally equal (modulo constraints)
+    /** \brief Return true iff \c t and \c s are (may be) definitionally equal (module constraints)
+        New constraints associated with test are store in \c new_cnstrs.
+    */
+    bool is_def_eq(expr const & t, expr const & s, justification const & j, buffer<constraint> & new_cnstrs);
+    /** \brief Return true iff types of \c t and \c s are (may be) definitionally equal (modulo constraints)
         New constraints associated with test are store in \c new_cnstrs.
     */
     bool is_def_eq_types(expr const & t, expr const & s, justification const & j, buffer<constraint> & new_cnstrs);
@@ -155,6 +160,8 @@ public:
     bool is_prop(expr const & t);
     /** \brief Return the weak head normal form of \c t. */
     expr whnf(expr const & t);
+    /** \brief Similar to the previous method, but it also returns the new constraints created in the process. */
+    expr whnf(expr const & t, buffer<constraint> & new_cnstrs);
     /** \brief Return a Pi if \c t is convertible to a Pi type. Throw an exception otherwise.
         The argument \c s is used when reporting errors */
     expr ensure_pi(expr const & t, expr const & s);

@@ -39,14 +39,21 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
 #endif
 
+#ifndef LEAN_DEFAULT_PARSER_PARALLEL_IMPORT
+#define LEAN_DEFAULT_PARSER_PARALLEL_IMPORT false
+#endif
+
 namespace lean {
 // ==========================================
 // Parser configuration options
-static name g_parser_show_errors {"lean", "parser", "show_errors"};
+static name g_parser_show_errors     {"parser", "show_errors"};
+static name g_parser_parallel_import {"parser", "parallel_import"};
 
 RegisterBoolOption(g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS, "(lean parser) display error messages in the regular output channel");
+RegisterBoolOption(g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT, "(lean parser) import modules in parallel");
 
 bool     get_parser_show_errors(options const & opts)  { return opts.get_bool(g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS); }
+bool     get_parser_parallel_import(options const & opts)  { return opts.get_bool(g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT); }
 // ==========================================
 
 parser::local_scope::local_scope(parser & p):
@@ -1020,7 +1027,10 @@ void parser::parse_imports() {
             next();
         }
     }
-    m_env = import_modules(m_env, olean_files.size(), olean_files.data(), m_num_threads, true, m_ios);
+    unsigned num_threads = 0;
+    if (get_parser_parallel_import(m_ios.get_options()))
+        num_threads = m_num_threads;
+    m_env = import_modules(m_env, olean_files.size(), olean_files.data(), num_threads, true, m_ios);
     for (auto const & f : lua_files) {
         std::string rname = find_file(f, {".lua"});
         system_import(rname.c_str());

@@ -1,0 +1,2 @@
+empty.lean:5:25: error: empty.lean:5:25: failed to synthesize placeholder
+ ⊢ inhabited Empty

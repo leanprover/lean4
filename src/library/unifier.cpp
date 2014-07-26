@@ -431,11 +431,7 @@ struct unifier_fn {
         }
         if (in_conflict())
             return false;
-        justification j1 = mk_justification(m, [=](formatter const & fmt, substitution const & subst) {
-                substitution s(subst);
-                return pp_type_mismatch(fmt, s.instantiate(m_type), s.instantiate(v_type));
-            });
-        if (!is_def_eq(m_type, v_type, mk_composite1(j1, j)))
+        if (!is_def_eq(m_type, v_type, j))
             return false;
         auto it = m_mvar_occs.find(mlocal_name(m));
         if (it) {

@@ -1199,7 +1199,6 @@ struct unifier_fn {
     */
     void mk_simple_nonlocal_projection(expr const & m, buffer<expr> const & margs, unsigned i, expr const & rhs, justification const & j,
                               buffer<constraints> & alts) {
-        lean_assert(!is_local(rhs));
         expr const & mtype = mlocal_type(m);
         unsigned vidx = margs.size() - i - 1;
         expr const & marg = margs[i];

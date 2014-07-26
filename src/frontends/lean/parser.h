@@ -162,7 +162,7 @@ public:
     expr mk_app(std::initializer_list<expr> const & args, pos_info const & p);
 
     unsigned num_threads() const { return m_num_threads; }
-    void add_delayed_theorem(std::function<certified_declaration()> const & fn) { m_theorem_queue.add(fn); }
+    void add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls, expr const & t, expr const & v);
 
     /** \brief Read the next token. */
     void scan() { m_curr = m_scanner.scan(m_env); }

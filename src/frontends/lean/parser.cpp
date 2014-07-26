@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
+#include "kernel/type_checker.h"
 #include "library/parser_nested_exception.h"
 #include "library/aliases.h"
 #include "library/private.h"
@@ -1075,6 +1076,16 @@ bool parser::parse_commands() {
         m_env.replace(thm);
     }
     return !m_found_errors;
+}
+
+void parser::add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls, expr const & t, expr const & v) {
+    local_level_decls saved_lls = get_local_level_decls();
+    m_theorem_queue.add([=]() {
+            level_param_names new_ls;
+            expr type, value;
+            std::tie(type, value, new_ls) = elaborate_definition_at(env, saved_lls, n, t, v);
+            return check(env, mk_theorem(n, append(ls, new_ls), type, value));
+        });
 }
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions,

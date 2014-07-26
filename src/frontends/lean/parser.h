@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/parser_pos_provider.h"
+#include "frontends/lean/theorem_queue.h"
 
 namespace lean {
 /** \brief Exception used to track parsing erros, it does not leak outside of this class. */
@@ -65,7 +66,7 @@ class parser {
     optional<bool>          m_has_string;
     optional<bool>          m_has_tactic_decls;
     // We process theorems in parallel
-    worker_queue<certified_declaration> m_theorem_queue;
+    theorem_queue           m_theorem_queue;
 
     void display_error_pos(unsigned line, unsigned pos);
     void display_error_pos(pos_info p);

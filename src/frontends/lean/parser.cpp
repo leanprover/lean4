@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
-#include "kernel/type_checker.h"
 #include "library/parser_nested_exception.h"
 #include "library/aliases.h"
 #include "library/private.h"
@@ -84,7 +83,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name), m_local_level_decls(lds), m_local_decls(eds),
     m_pos_table(std::make_shared<pos_info_table>()),
-    m_theorem_queue(num_threads > 1 ? num_threads - 1 : 0, []() { enable_expr_caching(false); }) {
+    m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0) {
     m_scanner.set_line(line);
     m_num_threads = num_threads;
     m_no_undef_id_error    = false;
@@ -1079,13 +1078,7 @@ bool parser::parse_commands() {
 }
 
 void parser::add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls, expr const & t, expr const & v) {
-    local_level_decls saved_lls = get_local_level_decls();
-    m_theorem_queue.add([=]() {
-            level_param_names new_ls;
-            expr type, value;
-            std::tie(type, value, new_ls) = elaborate_definition_at(env, saved_lls, n, t, v);
-            return check(env, mk_theorem(n, append(ls, new_ls), type, value));
-        });
+    m_theorem_queue.add(env, n, ls, get_local_level_decls(), t, v);
 }
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions,

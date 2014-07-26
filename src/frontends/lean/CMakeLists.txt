@@ -4,6 +4,6 @@ parser_pos_provider.cpp builtin_cmds.cpp builtin_exprs.cpp
 interactive.cpp notation_cmd.cpp calc.cpp
 decl_cmds.cpp util.cpp inductive_cmd.cpp elaborator.cpp
 dependencies.cpp parser_bindings.cpp proof_qed_ext.cpp
-class.cpp pp_options.cpp tactic_hint.cpp pp.cpp)
+class.cpp pp_options.cpp tactic_hint.cpp pp.cpp theorem_queue.cpp)
 
 target_link_libraries(lean_frontend ${LEAN_LIBS})

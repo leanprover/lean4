@@ -317,8 +317,11 @@ justification mk_justification(optional<expr> const & s, pp_jst_fn const & fn) {
     return justification(new (get_asserted_allocator().allocate()) asserted_cell(fn, s));
 }
 justification mk_justification(optional<expr> const & s, pp_jst_sfn const & fn) {
-    return mk_justification(s, [=](formatter const & fmt, pos_info_provider const * p, substitution const & subst) {
-            return compose(to_pos(s, p), fn(fmt, subst)); });
+    return mk_justification(s, [=](formatter const & fmt, pos_info_provider const *, substitution const & subst) {
+            // Remark: we are not using to_pos(s, p) anymore because we don't try to display complicated error messages anymore.
+            // return compose(to_pos(s, p), fn(fmt, subst));
+            return fn(fmt, subst);
+        });
 }
 justification mk_justification(char const * msg, optional<expr> const & s) {
     std::string _msg(msg);

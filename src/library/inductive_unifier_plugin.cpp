@@ -52,7 +52,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
         unsigned elim_num_lvls = length(elim_lvls);
         unsigned major_idx     = *inductive::get_elim_major_idx(env, const_name(elim));
         expr meta              = args[major_idx]; // save this argument, we will update it
-        lean_assert(has_expr_metavar(meta));
+        lean_assert(has_expr_metavar_strict(meta));
         buffer<expr> margs;
         expr const & m     = get_app_args(meta, margs);
         expr mtype = tc.infer(m, tc_cnstr_buffer);

@@ -1,0 +1,8 @@
+show eq a c, from trans H1 H2 : eq a c
+------------
+have e1 [fact] : eq a b, from H1,
+have e2 : eq a c, from trans e1 H2,
+have e3 : eq c a, from symm e2,
+have e4 [fact] : eq b a, from symm e1,
+show eq b c, from trans (symm e1) e2 :
+  eq b c

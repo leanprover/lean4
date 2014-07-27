@@ -9,4 +9,5 @@ Author: Leonardo de Moura
 namespace lean {
 parse_table get_builtin_nud_table();
 parse_table get_builtin_led_table();
+bool is_show_aux_name(name const & n);
 }

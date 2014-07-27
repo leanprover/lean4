@@ -25,7 +25,6 @@ static name g_comma(","), g_fact("[fact]"), g_inline("[inline]"), g_from("from")
 static name g_then("then"), g_have("have"), g_by("by"), g_qed("qed");
 static name g_take("take"), g_assume("assume"), g_show("show"), g_fun("fun");
 
-
 static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos) {
     if (p.curr_is_token(g_llevel_curly)) {
         p.next();
@@ -394,6 +393,7 @@ parse_table init_led_table() {
     return r;
 }
 }
+bool is_show_aux_name(name const & n) { return n == notation::H_show; }
 
 parse_table get_builtin_nud_table() {
     static optional<parse_table> r;

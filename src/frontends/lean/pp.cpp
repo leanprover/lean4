@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 #include "frontends/lean/pp_options.h"
 #include "frontends/lean/token_table.h"
+#include "frontends/lean/builtin_exprs.h"
 
 namespace lean {
 static format g_ellipsis_n_fmt  = highlight(format("\u2026"));
@@ -32,10 +33,11 @@ static format g_arrow_n_fmt     = highlight_keyword(format("\u2192"));
 static format g_arrow_fmt       = highlight_keyword(format("->"));
 static format g_let_fmt         = highlight_keyword(format("let"));
 static format g_in_fmt          = highlight_keyword(format("in"));
+static format g_assign_fmt      = highlight_keyword(format(":="));
 static format g_have_fmt        = highlight_keyword(format("have"));
 static format g_from_fmt        = highlight_keyword(format("from"));
 static format g_fact_fmt        = highlight_keyword(format("[fact]"));
-static format g_assign_fmt      = highlight_keyword(format(":="));
+static format g_show_fmt        = highlight_keyword(format("show"));
 
 name pretty_fn::mk_metavar_name(name const & m) {
     if (auto it = m_purify_meta_table.find(m))
@@ -303,6 +305,12 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
 
 static bool is_let(expr const & e) { return is_app(e) && is_let_annotation(app_fn(e)); }
 static bool is_have(expr const & e) { return is_app(e) && is_have_annotation(app_fn(e)); }
+static bool is_show(expr const & e) {
+    if (!is_let(e))
+        return false;
+    expr b = get_annotation_arg(app_fn(e));
+    return is_show_aux_name(binding_name(b)) && is_var(binding_body(b), 0);
+}
 
 auto pretty_fn::pp_let(expr e) -> result {
     buffer<expr_pair> decls;
@@ -355,6 +363,17 @@ auto pretty_fn::pp_have(expr const & e) -> result {
     return mk_result(r, 0);
 }
 
+auto pretty_fn::pp_show(expr const & e) -> result {
+    expr proof       = app_arg(e);
+    expr binding     = get_annotation_arg(app_fn(e));
+    format type_fmt  = pp_child(binding_domain(binding), 0).first;
+    format proof_fmt = pp_child(proof, 0).first;
+    format r = format{g_show_fmt, space(), nest(5, type_fmt), comma(), space(), g_from_fmt};
+    r = group(r);
+    r += nest(m_indent, compose(line(), proof_fmt));
+    return mk_result(group(r), 0);
+}
+
 auto pretty_fn::pp_macro(expr const & e) -> result {
     // TODO(Leo): have macro annotations
     // fix macro<->pp interface
@@ -372,7 +391,8 @@ auto pretty_fn::pp(expr const & e) -> result {
     m_num_steps++;
 
     if (is_placeholder(e)) return mk_result(g_placeholder_fmt);
-    if (is_let(e)) return pp_let(e);
+    if (is_show(e)) return pp_show(e);
+    if (is_let(e))  return pp_let(e);
     if (is_have(e)) return pp_have(e);
 
     switch (e.kind()) {

@@ -22,12 +22,11 @@ namespace lean {
 environment hide_definition(environment const & env, name const & n);
 /** \brief Undo the modification made with \c hide_definition. */
 environment expose_definition(environment const & env, name const & n);
-/**
-    \brief By default, the elaborator/unifier will treat the opaque
-    definitions of the current/main module as transparent. We can
-    change this behavior using this function.
+/** \brief By default, the elaborator/unifier will treat the opaque definitions of the current/main
+    module as transparent (when allowed). We can change this behavior using this function.
 */
-environment set_main_module_opaque_defs(environment const & env, bool f);
+environment set_hide_main_opaque(environment const & env, bool f);
+bool get_hide_main_opaque(environment const & env);
 /** \brief Create a type checker that takes the hints into account. */
-std::unique_ptr<type_checker> mk_type_checker_with_hints(environment const & env, name_generator const & ngen);
+std::unique_ptr<type_checker> mk_type_checker_with_hints(environment const & env, name_generator const & ngen, bool relax_main_opaque);
 }

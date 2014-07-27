@@ -105,6 +105,10 @@ void type_checker::add_cnstr(constraint const & c) {
     m_cs.push_back(c);
 }
 
+constraint type_checker::mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j) {
+    return ::lean::mk_eq_cnstr(lhs, rhs, j, static_cast<bool>(m_conv->get_module_idx()));
+}
+
 optional<constraint> type_checker::next_cnstr() {
     if (m_cs_qhead < m_cs.size()) {
         constraint c = m_cs[m_cs_qhead];

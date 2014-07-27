@@ -65,9 +65,10 @@ public:
     friend bool is_eqp(constraint const & c1, constraint const & c2) { return c1.m_ptr == c2.m_ptr; }
     friend void swap(constraint & l1, constraint & l2) { std::swap(l1, l2); }
 
-    friend constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
+    friend constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j, bool relax_main_opaque);
     friend constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j);
-    friend constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, unsigned delay_factor, justification const & j);
+    friend constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, unsigned delay_factor, justification const & j,
+                                      bool relax_main_opaque);
 
     constraint_cell * raw() const { return m_ptr; }
 };
@@ -75,9 +76,13 @@ public:
 inline bool operator==(constraint const & c1, constraint const & c2) { return c1.raw() == c2.raw(); }
 inline bool operator!=(constraint const & c1, constraint const & c2) { return !(c1 == c2); }
 
-constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
+/**
+   \brief Create a unification constraint lhs =?= rhs
+   If \c relax_main_opaque is true, then opaque definitions from the main module are treated as transparent.
+*/
+constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j, bool relax_main_opaque);
 constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j);
-constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, unsigned delay_factor, justification const & j);
+constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, unsigned delay_factor, justification const & j, bool relax_main_opaque);
 
 inline bool is_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::Eq; }
 inline bool is_level_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::LevelEq; }
@@ -89,6 +94,8 @@ constraint update_justification(constraint const & c, justification const & j);
 expr const & cnstr_lhs_expr(constraint const & c);
 /** \brief Return the rhs of an equality constraint. */
 expr const & cnstr_rhs_expr(constraint const & c);
+/** \brief Return true iff opaque definitions from the main module should be treated as transparent. */
+bool relax_main_opaque(constraint const & c);
 /** \brief Return the lhs of an level constraint. */
 level const & cnstr_lhs_level(constraint const & c);
 /** \brief Return the rhs of an level constraint. */

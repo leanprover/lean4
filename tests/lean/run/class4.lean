@@ -69,6 +69,7 @@ variable div : Π (x y : nat) {H : not_zero y}, nat
 
 variables a b : nat
 
+set_option pp.implicit true
 opaque_hint (hiding [module])
 check div a (succ b)
 check (λ H : not_zero b, div a b)

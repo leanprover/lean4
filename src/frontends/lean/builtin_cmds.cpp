@@ -86,7 +86,7 @@ environment check_cmd(parser & p) {
     level_param_names ls = to_level_param_names(collect_univ_params(e));
     level_param_names new_ls;
     std::tie(e, new_ls) = p.elaborate_relaxed(e, ctx);
-    auto tc = mk_type_checker_with_hints(p.env(), p.mk_ngen());
+    auto tc = mk_type_checker_with_hints(p.env(), p.mk_ngen(), true);
     expr type = tc->check(e, append(ls, new_ls));
     auto reg              = p.regular_stream();
     formatter const & fmt = reg.get_formatter();
@@ -270,7 +270,7 @@ environment opaque_hint_cmd(parser & p) {
             if (p.curr_is_token(g_module)) {
                 found = true;
                 p.next();
-                env = set_main_module_opaque_defs(env, hiding);
+                env = set_hide_main_opaque(env, hiding);
             } else {
                 name c  = p.check_constant_next("invalid 'opaque_hint', constant expected");
                 found   = true;

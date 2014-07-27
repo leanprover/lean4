@@ -20,6 +20,7 @@ public:
     virtual ~converter() {}
     virtual expr whnf(expr const & e, type_checker & c) = 0;
     virtual bool is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & j) = 0;
+    virtual optional<module_idx> get_module_idx() const = 0;
     bool is_def_eq(expr const & t, expr const & s, type_checker & c);
 };
 

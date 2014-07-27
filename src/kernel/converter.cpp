@@ -74,6 +74,7 @@ bool converter::is_def_eq(expr const & t, expr const & s, type_checker & c) {
 struct dummy_converter : public converter {
     virtual expr whnf(expr const & e, type_checker &) { return e; }
     virtual bool is_def_eq(expr const &, expr const &, type_checker &, delayed_justification &) { return true; }
+    virtual optional<module_idx> get_module_idx() const { return optional<module_idx>(); }
 };
 
 std::unique_ptr<converter> mk_dummy_converter() {
@@ -96,6 +97,10 @@ struct default_converter : public converter {
 
     default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize, name_set const & extra_opaque):
         m_env(env), m_module_idx(mod_idx), m_memoize(memoize), m_extra_opaque(extra_opaque) {
+    }
+
+    constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j) {
+        return ::lean::mk_eq_cnstr(lhs, rhs, j, static_cast<bool>(m_module_idx));
     }
 
     optional<expr> expand_macro(expr const & m, type_checker & c) {
@@ -551,6 +556,10 @@ struct default_converter : public converter {
 
     bool is_prop(expr const & e, type_checker & c) {
         return whnf(infer_type(c, e), c) == Prop;
+    }
+
+    virtual optional<module_idx> get_module_idx() const {
+        return m_module_idx;
     }
 };
 

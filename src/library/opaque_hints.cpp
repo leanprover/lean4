@@ -45,15 +45,17 @@ environment expose_definition(environment const & env, name const & n) {
     ext.m_extra_opaque.erase(n);
     return update(env, ext);
 }
-environment set_main_module_opaque_defs(environment const & env, bool f) {
+environment set_hide_main_opaque(environment const & env, bool f) {
     auto ext = get_extension(env);
     ext.m_hide_module = f;
     return update(env, ext);
 }
-std::unique_ptr<type_checker> mk_type_checker_with_hints(environment const & env, name_generator const & ngen) {
+bool get_hide_main_opaque(environment const & env) {
+    return get_extension(env).m_hide_module;
+}
+std::unique_ptr<type_checker> mk_type_checker_with_hints(environment const & env, name_generator const & ngen, bool relax_main_opaque) {
     auto const & ext = get_extension(env);
-    return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, !ext.m_hide_module,
+    return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, !ext.m_hide_module && relax_main_opaque,
                                                                                           true, ext.m_extra_opaque)));
 }
 }
-

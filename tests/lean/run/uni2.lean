@@ -30,7 +30,7 @@ print(env:whnf(t(m)))
 
 function test_unify(env, lhs, rhs, num_s)
    print(tostring(lhs) .. " =?= " .. tostring(rhs) .. ", expected: " .. tostring(num_s))
-   local ss = unify(env, lhs, rhs, name_generator(), substitution(), options())
+   local ss = unify(env, lhs, rhs, name_generator(), true, substitution(), options())
    local n  = 0
    for s in ss do
       print("solution: ")

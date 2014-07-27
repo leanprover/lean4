@@ -18,7 +18,7 @@ static void tst1() {
     expr m  = mk_metavar("m", A);
     expr t1 = f(m, m);
     expr t2 = f(a, b);
-    auto r = unify(env, t1, t2, ngen);
+    auto r = unify(env, t1, t2, ngen, false);
     lean_assert(!r.pull());
 }
 

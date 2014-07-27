@@ -40,10 +40,10 @@ lazy_list<substitution> unify(environment const & env, unsigned num_cs, constrai
                               bool use_exception = true, unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
                               bool use_exception, options const & o);
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, bool relax_main_opaque,
                               substitution const & s = substitution(), unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, substitution const & s,
-                              options const & o);
+lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
+                              bool relax_main_opaque, substitution const & s, options const & o);
 
 /**
     The unifier divides the constraints in 6 groups: Simple, Basic, FlexRigid, PluginDelayed, PreFlexFlex, FlexFlex, MaxDelayed

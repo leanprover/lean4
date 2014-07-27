@@ -105,6 +105,7 @@ class type_checker {
     expr infer_type(expr const & e);
     void copy_constraints(unsigned qhead, buffer<constraint> & new_cnstrs);
     extension_context & get_extension() { return m_tc_ctx; }
+    constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
 public:
     /**
        \brief Create a type checker for the given environment. The auxiliary names created by this

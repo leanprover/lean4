@@ -271,11 +271,11 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
             std::tie(type, new_ls) = p.elaborate_type(type);
             env = module::add(env, check(env, mk_axiom(real_n, append(ls, new_ls), type)));
         } else {
-            std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value);
+            std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value, modifiers.m_is_opaque);
             env = module::add(env, check(env, mk_theorem(real_n, append(ls, new_ls), type, value)));
         }
     } else {
-        std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value);
+        std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value, modifiers.m_is_opaque);
         env = module::add(env, check(env, mk_definition(env, real_n, append(ls, new_ls), type, value, modifiers.m_is_opaque)));
     }
     if (real_n != n)

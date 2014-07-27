@@ -92,7 +92,7 @@ static void remove_redundant_metas(buffer<expr> & metas) {
 }
 
 proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & _e,
-                                  bool add_meta, bool add_subgoals) {
+                                  bool add_meta, bool add_subgoals, bool relax_main_opaque) {
     goals const & gs = s.get_goals();
     if (empty(gs))
         return proof_state_seq();
@@ -119,7 +119,7 @@ proof_state_seq apply_tactic_core(environment const & env, io_state const & ios,
         }
     }
     list<expr> meta_lst = to_list(metas.begin(), metas.end());
-    lazy_list<substitution> substs = unify(env, t, e_t, ngen.mk_child(), s.get_subst(), ios.get_options());
+    lazy_list<substitution> substs = unify(env, t, e_t, ngen.mk_child(), relax_main_opaque, s.get_subst(), ios.get_options());
     return map2<proof_state>(substs, [=](substitution const & subst) -> proof_state {
             name_generator new_ngen(ngen);
             type_checker tc(env, new_ngen.mk_child());
@@ -182,21 +182,21 @@ expr refresh_univ_metavars(expr const & e, name_generator & ngen) {
     }
 }
 
-tactic apply_tactic(expr const & e, bool refresh_univ_mvars) {
+tactic apply_tactic(expr const & e, bool relax_main_opaque, bool refresh_univ_mvars) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             if (refresh_univ_mvars) {
                 name_generator ngen    = s.get_ngen();
                 substitution new_subst = s.get_subst();
                 expr new_e = refresh_univ_metavars(new_subst.instantiate_all(e), ngen);
                 proof_state new_s(s.get_goals(), new_subst, ngen);
-                return apply_tactic_core(env, ios, new_s, new_e, true, true);
+                return apply_tactic_core(env, ios, new_s, new_e, true, true, relax_main_opaque);
             } else {
-                return apply_tactic_core(env, ios, s, e, true, true);
+                return apply_tactic_core(env, ios, s, e, true, true, relax_main_opaque);
             }
         });
 }
 
-tactic eassumption_tactic() {
+tactic eassumption_tactic(bool relax_main_opaque) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
             if (empty(gs))
@@ -206,7 +206,7 @@ tactic eassumption_tactic() {
             buffer<expr> hs;
             get_app_args(g.get_meta(), hs);
             for (expr const & h : hs) {
-                r = append(r, apply_tactic_core(env, ios, s, h, false, false));
+                r = append(r, apply_tactic_core(env, ios, s, h, false, false, relax_main_opaque));
             }
             return r;
         });

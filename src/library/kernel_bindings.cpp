@@ -1478,7 +1478,9 @@ static int constraint_tostring(lua_State * L) {
 }
 static int mk_eq_cnstr(lua_State * L) {
     int nargs = lua_gettop(L);
-    return push_constraint(L, mk_eq_cnstr(to_expr(L, 1), to_expr(L, 2), nargs == 3 ? to_justification(L, 3) : justification()));
+    return push_constraint(L, mk_eq_cnstr(to_expr(L, 1), to_expr(L, 2),
+                                          nargs >= 3 ? to_justification(L, 3) : justification(),
+                                          nargs >= 4 && lua_toboolean(L, 4)));
 }
 static int mk_level_eq_cnstr(lua_State * L) {
     int nargs = lua_gettop(L);
@@ -1508,7 +1510,7 @@ static choice_fn to_choice_fn(lua_State * L, int idx) {
                     if (is_constraint(L, -1))
                         r.push_back(constraints(to_constraint(L, -1)));
                     else if (is_expr(L, -1))
-                        r.push_back(constraints(mk_eq_cnstr(mvar, to_expr(L, -1), justification())));
+                        r.push_back(constraints(mk_eq_cnstr(mvar, to_expr(L, -1), justification(), false)));
                     else
                         r.push_back(to_list_constraint_ext(L, -1));
                     lua_pop(L, 1);
@@ -1526,13 +1528,15 @@ static int mk_choice_cnstr(lua_State * L) {
     expr m           = to_expr(L, 1);
     choice_fn fn     = to_choice_fn(L, 2);
     if (nargs == 2)
-        return push_constraint(L, mk_choice_cnstr(m, fn, 0, justification()));
+        return push_constraint(L, mk_choice_cnstr(m, fn, 0, justification(), false));
     else if (nargs == 3 && is_justification(L, 3))
-        return push_constraint(L, mk_choice_cnstr(m, fn, 0, to_justification(L, 3)));
+        return push_constraint(L, mk_choice_cnstr(m, fn, 0, to_justification(L, 3), false));
     else if (nargs == 3)
-        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), justification()));
+        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), justification(), false));
+    else if (nargs == 4)
+        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), to_justification(L, 4), false));
     else
-        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), to_justification(L, 4)));
+        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), to_justification(L, 4), lua_toboolean(L, 5)));
 }
 
 static int constraint_expr(lua_State * L) {

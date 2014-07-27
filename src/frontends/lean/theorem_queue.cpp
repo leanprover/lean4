@@ -16,7 +16,8 @@ void theorem_queue::add(environment const & env, name const & n, level_param_nam
     m_queue.add([=]() {
             level_param_names new_ls;
             expr type, value;
-            std::tie(type, value, new_ls) = m_parser.elaborate_definition_at(env, lls, n, t, v);
+            bool is_opaque = true; // theorems are always opaque
+            std::tie(type, value, new_ls) = m_parser.elaborate_definition_at(env, lls, n, t, v, is_opaque);
             return check(env, mk_theorem(n, append(ls, new_ls), type, value));
         });
 }

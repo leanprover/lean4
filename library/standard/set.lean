@@ -32,9 +32,7 @@ theorem mem_inter (x : T) (A B : set T) : x ∈ A ∩ B ↔ (x ∈ A ∧ x ∈ B
      (assume H,
        have e1 : A x = '1, from and_elim_left H,
        have e2 : B x = '1, from and_elim_right H,
-       calc A x && B x = '1 && B x : {e1}
-                   ... = '1 && '1  : {e2}
-                   ... = '1        : band_b1_left '1)
+       show A x && B x = '1, from e1⁻¹ ▸ e2⁻¹ ▸ band_b1_left '1)
 
 theorem inter_comm (A B : set T) : A ∩ B = B ∩ A
 := funext (λx, band_comm (A x) (B x))

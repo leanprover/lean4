@@ -264,8 +264,8 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     }
     // remark: mk_contextual_info(false) informs the elaborator that prop should not occur inside metavariables.
     body = abstract(body, l);
-    expr r = p.save_pos(mk_lambda(id, prop, body, bi), pos);
-    return p.save_pos(mk_have_annotation(p.mk_app(r, proof, pos)), pos);
+    expr r = p.save_pos(mk_have_annotation(p.save_pos(mk_lambda(id, prop, body, bi), pos)), pos);
+    return p.mk_app(r, proof, pos);
 }
 
 static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos) {

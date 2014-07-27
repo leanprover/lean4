@@ -32,6 +32,9 @@ static format g_arrow_n_fmt     = highlight_keyword(format("\u2192"));
 static format g_arrow_fmt       = highlight_keyword(format("->"));
 static format g_let_fmt         = highlight_keyword(format("let"));
 static format g_in_fmt          = highlight_keyword(format("in"));
+static format g_have_fmt        = highlight_keyword(format("have"));
+static format g_from_fmt        = highlight_keyword(format("from"));
+static format g_fact_fmt        = highlight_keyword(format("[fact]"));
 static format g_assign_fmt      = highlight_keyword(format(":="));
 
 name pretty_fn::mk_metavar_name(name const & m) {
@@ -298,9 +301,8 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
     }
 }
 
-static bool is_let(expr const & e) {
-    return is_app(e) && is_let_annotation(app_fn(e));
-}
+static bool is_let(expr const & e) { return is_app(e) && is_let_annotation(app_fn(e)); }
+static bool is_have(expr const & e) { return is_app(e) && is_have_annotation(app_fn(e)); }
 
 auto pretty_fn::pp_let(expr e) -> result {
     buffer<expr_pair> decls;
@@ -332,6 +334,27 @@ auto pretty_fn::pp_let(expr e) -> result {
     return mk_result(r, 0);
 }
 
+auto pretty_fn::pp_have(expr const & e) -> result {
+    expr proof   = app_arg(e);
+    expr binding = get_annotation_arg(app_fn(e));
+    auto p       = binding_body_fresh(binding, true);
+    expr local   = p.second;
+    expr body    = p.first;
+    name const & n = local_pp_name(local);
+    format type_fmt  = pp_child(mlocal_type(local), 0).first;
+    format proof_fmt = pp_child(proof, 0).first;
+    format body_fmt  = pp_child(body, 0).first;
+    format r = format{g_have_fmt, space(), format(n), space()};
+    if (binding_info(binding).is_contextual())
+        r += compose(g_fact_fmt, space());
+    r += format{colon(), nest(m_indent, format{line(), type_fmt, comma(), space(), g_from_fmt})};
+    r = group(r);
+    r += nest(m_indent, compose(line(), compose(proof_fmt, comma())));
+    r = group(r);
+    r += compose(line(), body_fmt);
+    return mk_result(r, 0);
+}
+
 auto pretty_fn::pp_macro(expr const & e) -> result {
     // TODO(Leo): have macro annotations
     // fix macro<->pp interface
@@ -348,10 +371,9 @@ auto pretty_fn::pp(expr const & e) -> result {
     flet<unsigned> let_d(m_depth, m_depth+1);
     m_num_steps++;
 
-    if (is_placeholder(e))
-        return mk_result(g_placeholder_fmt);
-    if (is_let(e))
-        return pp_let(e);
+    if (is_placeholder(e)) return mk_result(g_placeholder_fmt);
+    if (is_let(e)) return pp_let(e);
+    if (is_have(e)) return pp_have(e);
 
     switch (e.kind()) {
     case expr_kind::Var:       return pp_var(e);

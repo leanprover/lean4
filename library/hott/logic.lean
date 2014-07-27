@@ -231,13 +231,6 @@ theorem resolve_left {a : Type} {b : Type} (H1 : a + b) (H2 : ¬ b) : a
 theorem sum_flip {a : Type} {b : Type} (H : a + b) : b + a
 := sum_elim H (assume Ha, inr b Ha) (assume Hb, inl a Hb)
 
-inductive bool : Type :=
-| true  : bool
-| false : bool
-
-theorem bool_cases (p : bool) : p = true ∨ p = false
-:= bool_rec (inl _ (refl true)) (inr _ (refl false)) p
-
 inductive Sigma {A : Type} (B : A → Type) : Type :=
 | sigma_intro : Π a, B a → Sigma B
 

@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"
 #include "kernel/free_vars.h"
+#include "kernel/for_each_fn.h"
 
 #ifndef LEAN_INITIAL_EXPR_CACHE_CAPACITY
 #define LEAN_INITIAL_EXPR_CACHE_CAPACITY 1024*16
@@ -592,6 +593,19 @@ bool is_arrow(expr const & t) {
         t.raw()->set_is_arrow(res);
         return res;
     }
+}
+
+bool has_expr_metavar_strict(expr const & e) {
+    if (!has_expr_metavar(e))
+        return false;
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (found || !has_expr_metavar(e)) return false;
+            if (is_metavar(e)) { found = true; return false; }
+            if (is_local(e)) return false; // do not visit type
+            return true;
+        });
+    return found;
 }
 
 static bool has_free_var_in_domain(expr const & b, unsigned vidx) {

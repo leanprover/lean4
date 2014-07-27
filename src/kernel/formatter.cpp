@@ -246,7 +246,7 @@ std::ostream & operator<<(std::ostream & out, expr const & e) {
 
 formatter_factory mk_simple_formatter_factory() {
     return [](environment const & env, options const & o) { // NOLINT
-        return formatter(o, [=](expr const & e) {
+        return formatter(o, [=](expr const & e, options const &) {
                 std::ostringstream s;
                 print_expr_fn pr(s, env.prop_proof_irrel());
                 pr(e);

@@ -350,6 +350,14 @@ std::ostream & operator<<(std::ostream & out, std::pair<format const &, options 
     return pretty(out, p.second, p.first);
 }
 
+bool format_pp_eq(format const & f1, format const & f2, options const & o) {
+    std::ostringstream out1;
+    std::ostringstream out2;
+    out1 << mk_pair(f1, o);
+    out2 << mk_pair(f2, o);
+    return out1.str() == out2.str();
+}
+
 format pp(name const & n) {
     return format(n.to_string());
 }

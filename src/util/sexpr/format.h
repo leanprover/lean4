@@ -318,6 +318,9 @@ format pp(name const & n);
 format pp(sexpr const & s, options const & o);
 format pp(sexpr const & s);
 
+/** \brief Return true iff \c f1 and \c f2 are equal when formatted with options \c o */
+bool format_pp_eq(format const & f1, format const & f2, options const & o);
+
 UDATA_DEFS(format)
 void open_format(lua_State * L);
 }

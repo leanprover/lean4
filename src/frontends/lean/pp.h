@@ -29,6 +29,7 @@ private:
     name_map<name>     m_purify_local_table;
     name_set           m_purify_used_locals;
     // cached configuration
+    options            m_options;
     unsigned           m_indent;
     unsigned           m_max_depth;
     unsigned           m_max_steps;
@@ -39,8 +40,6 @@ private:
     bool               m_universes;
     bool               m_full_names;
     bool               m_private_names;
-
-    void set_options(options const & o);
 
     unsigned max_bp() const { return std::numeric_limits<unsigned>::max(); }
     name mk_metavar_name(name const & m);
@@ -69,11 +68,13 @@ private:
     result pp_have(expr const & e);
     result pp_show(expr const & e);
     result pp_macro(expr const & e);
+    void set_options_core(options const & o);
 
 public:
     pretty_fn(environment const & env, options const & o);
     result pp(expr const & e);
-
+    void set_options(options const & o);
+    options const & get_options() const { return m_options; }
     format operator()(expr const & e);
 };
 

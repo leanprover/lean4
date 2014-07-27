@@ -99,7 +99,8 @@ expr pretty_fn::purify(expr const & e) {
         });
 }
 
-void pretty_fn::set_options(options const & o) {
+void pretty_fn::set_options_core(options const & o) {
+    m_options       = o;
     m_indent        = get_pp_indent(o);
     m_max_depth     = get_pp_max_depth(o);
     m_max_steps     = get_pp_max_steps(o);
@@ -110,6 +111,12 @@ void pretty_fn::set_options(options const & o) {
     m_universes     = get_pp_universes(o);
     m_full_names    = get_pp_full_names(o);
     m_private_names = get_pp_private_names(o);
+}
+
+void pretty_fn::set_options(options const & o) {
+    if (is_eqp(o, m_options))
+        return;
+    set_options_core(o);
 }
 
 format pretty_fn::pp_level(level const & l) {
@@ -411,7 +418,7 @@ auto pretty_fn::pp(expr const & e) -> result {
 
 pretty_fn::pretty_fn(environment const & env, options const & o):
     m_env(env), m_tc(env) {
-    set_options(o);
+    set_options_core(o);
     m_meta_prefix   = "M";
     m_next_meta_idx = 1;
 }
@@ -424,7 +431,8 @@ format pretty_fn::operator()(expr const & e) {
 formatter_factory mk_pretty_formatter_factory() {
     return [](environment const & env, options const & o) { // NOLINT
         auto fn_ptr = std::make_shared<pretty_fn>(env, o);
-        return formatter(o, [=](expr const & e) {
+        return formatter(o, [=](expr const & e, options const & new_o) {
+                fn_ptr->set_options(new_o);
                 return (*fn_ptr)(e);
             });
     };

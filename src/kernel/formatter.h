@@ -28,12 +28,13 @@ std::pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type = fa
 std::pair<expr, expr> let_body_fresh(expr const & l, bool preserve_type = false);
 
 class formatter {
-    std::function<format(expr const &)> m_fn;
+    std::function<format(expr const &, options const &)> m_fn;
     options                             m_options;
 public:
-    formatter(options const & o, std::function<format(expr const &)> const & fn):m_fn(fn), m_options(o) {}
-    format operator()(expr const & e) const { return m_fn(e); }
+    formatter(options const & o, std::function<format(expr const &, options const &)> const & fn):m_fn(fn), m_options(o) {}
+    format operator()(expr const & e) const { return m_fn(e, m_options); }
     options const & get_options() const { return m_options; }
+    formatter update_options(options const & o) const { return formatter(o, m_fn); }
 };
 
 typedef std::function<formatter(environment const &, options const &)> formatter_factory;

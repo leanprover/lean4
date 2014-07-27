@@ -15,4 +15,5 @@ bool     get_pp_coercion(options const & opts);
 bool     get_pp_universes(options const & opts);
 bool     get_pp_full_names(options const & opts);
 bool     get_pp_private_names(options const & opts);
+list<options> const & get_distinguishing_pp_options();
 }

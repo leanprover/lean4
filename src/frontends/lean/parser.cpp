@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
+#include "kernel/error_msgs.h"
 #include "library/parser_nested_exception.h"
 #include "library/aliases.h"
 #include "library/private.h"
@@ -34,6 +35,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_bindings.h"
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/elaborator.h"
+#include "frontends/lean/pp_options.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -1043,6 +1045,7 @@ void parser::parse_imports() {
 bool parser::parse_commands() {
     // We disable hash-consing while parsing to make sure the pos-info are correct.
     scoped_expr_caching disable(false);
+    scoped_set_distinguishing_pp_options set(get_distinguishing_pp_options());
     try {
         bool done = false;
         parse_imports();

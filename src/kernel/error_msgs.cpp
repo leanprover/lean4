@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include "kernel/error_msgs.h"
 
 namespace lean {
@@ -19,33 +20,86 @@ format pp_function_expected(formatter const & fmt, expr const & e) {
     return compose(format("function expected at"), pp_indent_expr(fmt, e));
 }
 
+MK_THREAD_LOCAL_GET_DEF(list<options>, get_distinguishing_pp_options)
+
+list<options> set_distinguishing_pp_options(list<options> const & opts) {
+    list<options> r = get_distinguishing_pp_options();
+    get_distinguishing_pp_options() = opts;
+    return r;
+}
+
+static std::tuple<format, format> pp_until_different(formatter const & fmt, expr const & e1, expr const & e2, list<options> extra) {
+    formatter fmt1 = fmt;
+    while (true) {
+        format r1 = pp_indent_expr(fmt1, e1);
+        format r2 = pp_indent_expr(fmt1, e2);
+        if (!format_pp_eq(r1, r2, fmt1.get_options()))
+            return mk_pair(r1, r2);
+        if (!extra)
+            return mk_pair(pp_indent_expr(fmt, e1), pp_indent_expr(fmt, e2));
+        options o = join(head(extra), fmt.get_options());
+        fmt1  = fmt.update_options(o);
+        extra = tail(extra);
+    }
+}
+
+std::tuple<format, format> pp_until_different(formatter const & fmt, expr const & e1, expr const & e2) {
+    return pp_until_different(fmt, e1, e2, get_distinguishing_pp_options());
+}
+
 format pp_app_type_mismatch(formatter const & fmt, expr const & app, expr const & expected_type, expr const & given_type) {
     format r;
+    format expected_fmt, given_fmt;
+    std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
     r += format("type mismatch at application");
     r += pp_indent_expr(fmt, app);
     r += compose(line(), format("expected type:"));
-    r += pp_indent_expr(fmt, expected_type);
+    r += expected_fmt;
     r += compose(line(), format("given type:"));
-    r += pp_indent_expr(fmt, given_type);
+    r += given_fmt;
     return r;
 }
 
 format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & expected_type, expr const & given_type) {
+    format expected_fmt, given_fmt;
+    std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
     format r("type mismatch at definition '");
     r += format(n);
     r += format("', expected type");
-    r += pp_indent_expr(fmt, expected_type);
+    r += expected_fmt;
     r += compose(line(), format("given type:"));
-    r += pp_indent_expr(fmt, given_type);
+    r += given_fmt;
     return r;
 }
 
 format pp_type_mismatch(formatter const & fmt, expr const & expected_type, expr const & given_type) {
+    format expected_fmt, given_fmt;
+    std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
     format r("type mismatch, expected type:");
-    r += ::lean::pp_indent_expr(fmt, expected_type);
+    r += expected_fmt;
     r += compose(line(), format("given type:"));
-    r += ::lean::pp_indent_expr(fmt, given_type);
+    r += given_fmt;
     return r;
+}
+
+static format pp_until_meta_visible(formatter const & fmt, expr const & e, list<options> extra) {
+    formatter fmt1 = fmt;
+    while (true) {
+        format r = pp_indent_expr(fmt1, e);
+        std::ostringstream out;
+        out << mk_pair(r, fmt1.get_options());
+        if (out.str().find("?M") != std::string::npos)
+            return r;
+        if (!extra)
+            return pp_indent_expr(fmt, e);
+        options o = join(head(extra), fmt.get_options());
+        fmt1  = fmt.update_options(o);
+        extra = tail(extra);
+    }
+}
+
+format pp_until_meta_visible(formatter const & fmt, expr const & e) {
+    return pp_until_meta_visible(fmt, e, get_distinguishing_pp_options());
 }
 
 format pp_decl_has_metavars(formatter const & fmt, name const & n, expr const & e, bool is_type) {
@@ -57,7 +111,7 @@ format pp_decl_has_metavars(formatter const & fmt, name const & n, expr const & 
     else
         r += format("value");
     r += format(" has metavariables");
-    r += pp_indent_expr(fmt, e);
+    r += pp_until_meta_visible(fmt, e);
     return r;
 }
 }

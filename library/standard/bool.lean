@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 import logic decidable
-using eq_proofs
+using eq_proofs decidable
 
 namespace bool
 inductive bool : Type :=
@@ -36,6 +36,12 @@ theorem b0_ne_b1 : ¬ '0 = '1
            ... = false              : cond_b0 _ _)
     true_ne_false
 
+theorem decidable_eq [instance] (a b : bool) : decidable (a = b)
+:= bool_rec
+    (bool_rec (inl (refl '0)) (inr b0_ne_b1) b)
+    (bool_rec (inr (ne_symm b0_ne_b1)) (inl (refl '1)) b)
+    a
+
 definition bor (a b : bool)
 := bool_rec (bool_rec '0 '1 b) '1 a
 
@@ -68,6 +74,14 @@ theorem bor_assoc (a b c : bool) : (a || b) || c = a || (b || c)
     (calc ('1 || b) || c = '1 || c        : {bor_b1_left b}
                    ...   = '1             : bor_b1_left c
                    ...   = '1 || (b || c) : bor_b1_left (b || c)⁻¹)
+
+theorem bor_to_or {a b : bool} : a || b = '1 → a = '1 ∨ b = '1
+:= bool_rec
+    (assume H : '0 || b = '1,
+     have Hb : b = '1, from (bor_b0_left b) ▸ H,
+     or_intro_right _ Hb)
+    (assume H, or_intro_left _ (refl '1))
+    a
 
 definition band (a b : bool)
 := bool_rec '0 (bool_rec '0 '1 b) a
@@ -127,11 +141,3 @@ theorem bnot_false : !'0 = '1
 
 theorem bnot_true  : !'1 = '0
 := refl _
-
-using decidable
-theorem decidable_eq [instance] (a b : bool) : decidable (a = b)
-:= bool_rec
-    (bool_rec (inl (refl '0)) (inr b0_ne_b1) b)
-    (bool_rec (inr (ne_symm b0_ne_b1)) (inl (refl '1)) b)
-    a
-end

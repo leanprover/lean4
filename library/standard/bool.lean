@@ -56,10 +56,18 @@ theorem bor_b0_right (a : bool) : a || '0 = a
 theorem bor_id (a : bool) : a || a = a
 := induction_on a (refl ('0 || '0)) (refl ('1 || '1))
 
-theorem bor_swap (a b : bool) : a || b = b || a
+theorem bor_comm (a b : bool) : a || b = b || a
 := induction_on a
     (induction_on b (refl ('0 || '0)) (refl ('0 || '1)))
     (induction_on b (refl ('1 || '0)) (refl ('1 || '1)))
+
+theorem bor_assoc (a b c : bool) : (a || b) || c = a || (b || c)
+:= induction_on a
+    (calc ('0 || b) || c = b || c         : {bor_b0_left b}
+                   ...   = '0 || (b || c) : bor_b0_left (b || c)⁻¹)
+    (calc ('1 || b) || c = '1 || c        : {bor_b1_left b}
+                   ...   = '1             : bor_b1_left c
+                   ...   = '1 || (b || c) : bor_b1_left (b || c)⁻¹)
 
 definition band (a b : bool)
 := bool_rec '0 (bool_rec '0 '1 b) a
@@ -81,10 +89,18 @@ theorem band_b1_right (a : bool) : a && '1 = a
 theorem band_id (a : bool) : a && a = a
 := induction_on a (refl ('0 && '0)) (refl ('1 && '1))
 
-theorem band_swap (a b : bool) : a && b = b && a
+theorem band_comm (a b : bool) : a && b = b && a
 := induction_on a
     (induction_on b (refl ('0 && '0)) (refl ('0 && '1)))
     (induction_on b (refl ('1 && '0)) (refl ('1 && '1)))
+
+theorem band_assoc (a b c : bool) : (a && b) && c = a && (b && c)
+:= induction_on a
+    (calc ('0 && b) && c = '0 && c        : {band_b0_left b}
+                    ...  = '0             : band_b0_left c
+                    ...  = '0 && (b && c) : band_b0_left (b && c)⁻¹)
+    (calc ('1 && b) && c = b && c         : {band_b1_left b}
+                    ...  = '1 && (b && c) : band_b1_left (b && c)⁻¹)
 
 theorem band_eq_b1_elim_left {a b : bool} (H : a && b = '1) : a = '1
 := or_elim (dichotomy a)
@@ -97,7 +113,7 @@ theorem band_eq_b1_elim_left {a b : bool} (H : a && b = '1) : a = '1
     (assume H1 : a = '1, H1)
 
 theorem band_eq_b1_elim_right {a b : bool} (H : a && b = '1) : b = '1
-:= band_eq_b1_elim_left (trans (band_swap b a) H)
+:= band_eq_b1_elim_left (trans (band_comm b a) H)
 
 definition bnot (a : bool) := bool_rec '1 '0 a
 

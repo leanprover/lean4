@@ -281,7 +281,7 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
         expr a_type = infer_type_core(app_arg(e), infer_only);
         app_delayed_justification jst(e, f_type, a_type);
         if (!is_def_eq(a_type, binding_domain(f_type), jst)) {
-            throw_kernel_exception(m_env, app_arg(e),
+            throw_kernel_exception(m_env, e,
                                    [=](formatter const & fmt) {
                                        return pp_app_type_mismatch(fmt, e, binding_domain(f_type), a_type);
                                    });

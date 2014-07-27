@@ -55,8 +55,8 @@ static expr parse_let_body(parser & p, pos_info const & pos) {
 }
 
 static expr mk_let(parser & p, name const & id, expr const & t, expr const & v, expr const & b, pos_info const & pos, binder_info const & bi) {
-    expr l = p.save_pos(mk_lambda(id, t, b, bi), pos);
-    return p.save_pos(mk_let_annotation(p.save_pos(mk_app(l, v), pos)), pos);
+    expr l = p.save_pos(mk_let_annotation(p.save_pos(mk_lambda(id, t, b, bi), pos)), pos);
+    return p.mk_app(l, v, pos);
 }
 
 static void parse_let_modifiers(parser & p, bool & is_fact, bool & is_opaque) {

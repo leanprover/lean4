@@ -298,16 +298,17 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
     }
 }
 
+static bool is_let(expr const & e) {
+    return is_app(e) && is_let_annotation(app_fn(e));
+}
+
 auto pretty_fn::pp_let(expr e) -> result {
     buffer<expr_pair> decls;
     while (true) {
-        if (!is_let_annotation(e))
-            break;
-        e = get_annotation_arg(e);
-        if (!is_app(e) || !is_lambda(app_fn(e)))
+        if (!is_let(e))
             break;
         expr v = app_arg(e);
-        auto p = binding_body_fresh(app_fn(e), true);
+        auto p = binding_body_fresh(get_annotation_arg(app_fn(e)), true);
         decls.emplace_back(p.second, v);
         e = p.first;
     }
@@ -332,17 +333,13 @@ auto pretty_fn::pp_let(expr e) -> result {
 }
 
 auto pretty_fn::pp_macro(expr const & e) -> result {
-    if (is_let_annotation(e)) {
-        return pp_let(e);
-    } else {
-        // TODO(Leo): have macro annotations
-        // fix macro<->pp interface
-        format r = compose(format("["), format(macro_def(e).get_name()));
-        for (unsigned i = 0; i < macro_num_args(e); i++)
-            r += nest(m_indent, compose(line(), pp_child(macro_arg(e, i), max_bp()).first));
-        r += format("]");
-        return mk_result(group(r));
-    }
+    // TODO(Leo): have macro annotations
+    // fix macro<->pp interface
+    format r = compose(format("["), format(macro_def(e).get_name()));
+    for (unsigned i = 0; i < macro_num_args(e); i++)
+        r += nest(m_indent, compose(line(), pp_child(macro_arg(e, i), max_bp()).first));
+    r += format("]");
+    return mk_result(group(r));
 }
 
 auto pretty_fn::pp(expr const & e) -> result {
@@ -353,6 +350,8 @@ auto pretty_fn::pp(expr const & e) -> result {
 
     if (is_placeholder(e))
         return mk_result(g_placeholder_fmt);
+    if (is_let(e))
+        return pp_let(e);
 
     switch (e.kind()) {
     case expr_kind::Var:       return pp_var(e);

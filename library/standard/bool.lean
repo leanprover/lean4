@@ -21,7 +21,7 @@ definition cond {A : Type} (b : bool) (t e : A)
 := bool_rec e t b
 
 theorem dichotomy (b : bool) : b = '0 ∨ b = '1
-:= induction_on b (or_intro_left _ (refl '0)) (or_intro_right _ (refl '1))
+:= induction_on b (or_inl (refl '0)) (or_inr (refl '1))
 
 theorem cond_b0 {A : Type} (t e : A) : cond '0 t e = e
 := refl (cond '0 t e)
@@ -79,8 +79,8 @@ theorem bor_to_or {a b : bool} : a || b = '1 → a = '1 ∨ b = '1
 := bool_rec
     (assume H : '0 || b = '1,
      have Hb : b = '1, from (bor_b0_left b) ▸ H,
-     or_intro_right _ Hb)
-    (assume H, or_intro_left _ (refl '1))
+     or_inr Hb)
+    (assume H, or_inl (refl '1))
     a
 
 definition band (a b : bool)

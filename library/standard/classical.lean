@@ -13,13 +13,13 @@ theorem case (P : Prop → Prop) (H1 : P true) (H2 : P false) (a : Prop) : P a
 
 theorem em (a : Prop) : a ∨ ¬a
 := or_elim (prop_complete a)
-     (assume Ht : a = true,  or_intro_left (¬a) (eqt_elim Ht))
-     (assume Hf : a = false, or_intro_right a (eqf_elim Hf))
+     (assume Ht : a = true,  or_inl (eqt_elim Ht))
+     (assume Hf : a = false, or_inr (eqf_elim Hf))
 
 theorem prop_complete_swapped (a : Prop) : a = false ∨ a = true
 := case (λ x, x = false ∨ x = true)
-        (or_intro_right (true = false) (refl true))
-        (or_intro_left  (false = true) (refl false))
+        (or_inr (refl true))
+        (or_inl (refl false))
         a
 
 theorem not_true : (¬true) = false
@@ -86,9 +86,9 @@ theorem heq_id {A : Type} (a : A) : (a == a) = true
 theorem not_or (a b : Prop) : (¬(a ∨ b)) = (¬a ∧ ¬b)
 := propext
      (assume H, or_elim (em a)
-       (assume Ha, absurd_elim (¬a ∧ ¬b) (or_intro_left b Ha) H)
+       (assume Ha, absurd_elim (¬a ∧ ¬b) (or_inl Ha) H)
        (assume Hna, or_elim (em b)
-         (assume Hb, absurd_elim (¬a ∧ ¬b) (or_intro_right a Hb) H)
+         (assume Hb, absurd_elim (¬a ∧ ¬b) (or_inr Hb) H)
          (assume Hnb, and_intro Hna Hnb)))
      (assume (H : ¬a ∧ ¬b) (N : a ∨ b),
        or_elim N
@@ -100,8 +100,8 @@ theorem not_and (a b : Prop) : (¬(a ∧ b)) = (¬a ∨ ¬b)
      (assume H, or_elim (em a)
        (assume Ha, or_elim (em b)
        (assume Hb, absurd_elim (¬a ∨ ¬b) (and_intro Ha Hb) H)
-         (assume Hnb, or_intro_right (¬a) Hnb))
-         (assume Hna, or_intro_left (¬b) Hna))
+         (assume Hnb, or_inr Hnb))
+         (assume Hna, or_inl Hna))
      (assume (H : ¬a ∨ ¬b) (N : a ∧ b),
        or_elim H
          (assume Hna, absurd (and_elim_left N) Hna)
@@ -110,8 +110,8 @@ theorem not_and (a b : Prop) : (¬(a ∧ b)) = (¬a ∨ ¬b)
 theorem imp_or (a b : Prop) : (a → b) = (¬a ∨ b)
 := propext
      (assume H : a → b, (or_elim (em a)
-       (assume Ha  : a,   or_intro_right (¬a) (H Ha))
-       (assume Hna : ¬a, or_intro_left b Hna)))
+       (assume Ha  : a,   or_inr (H Ha))
+       (assume Hna : ¬a, or_inl Hna)))
      (assume (H : ¬a ∨ b) (Ha : a),
        resolve_right H ((not_not_eq a)⁻¹ ◂ Ha))
 

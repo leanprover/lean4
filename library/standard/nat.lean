@@ -55,8 +55,8 @@ theorem pred_succ (n : ℕ) : pred (succ n) = n
 
 theorem zero_or_succ (n : ℕ) : n = 0 ∨ n = succ (pred n)
 := induction_on n
-    (or_intro_left _ (refl 0))
-    (take m IH, or_intro_right _
+    (or_inl (refl 0))
+    (take m IH, or_inr
       (show succ m = succ (pred (succ m)), from congr2 succ (pred_succ m⁻¹)))
 
 theorem zero_or_succ2 (n : ℕ) : n = 0 ∨ ∃k, n = succ k
@@ -366,11 +366,11 @@ theorem mul_one_left (n : ℕ) : 1 * n = n
 theorem mul_eq_zero {n m : ℕ} (H : n * m = 0) : n = 0 ∨ m = 0
 :=
   discriminate
-    (take Hn : n = 0, or_intro_left _ Hn)
+    (take Hn : n = 0, or_inl Hn)
     (take (k : ℕ),
       assume (Hk : n = succ k),
       discriminate
-        (take (Hm : m = 0), or_intro_right _ Hm)
+        (take (Hm : m = 0), or_inr Hm)
         (take (l : ℕ),
           assume (Hl : m = succ l),
           have Heq : succ (k * succ l + l) = n * m, from
@@ -495,7 +495,7 @@ theorem succ_le_left_or {n m : ℕ} (H : n ≤ m) : succ n ≤ m ∨ n = m
           n = n + 0 : (add_zero_right n)⁻¹
             ... = n + k : {H3⁻¹}
             ... = m : Hk,
-      or_intro_right _ Heq)
+      or_inr Heq)
     (take l:ℕ,
       assume H3 : k = succ l,
       have Hlt : succ n ≤ m, from
@@ -504,7 +504,7 @@ theorem succ_le_left_or {n m : ℕ} (H : n ≤ m) : succ n ≤ m ∨ n = m
             succ n + l = n + succ l : add_move_succ n l
               ... = n + k : {H3⁻¹}
               ... = m : Hk)),
-      or_intro_left _ Hlt)
+      or_inl Hlt)
 
 theorem succ_le_left {n m : ℕ} (H1 : n ≤ m) (H2 : n ≠ m) : succ n ≤ m
 := resolve_left (succ_le_left_or H1) H2
@@ -556,7 +556,7 @@ theorem pred_le {n m : ℕ} (H : n ≤ m) : pred n ≤ pred m
 theorem pred_le_left_inv {n m : ℕ} (H : pred n ≤ m) : n ≤ m ∨ n = succ m
 := discriminate
     (take Hn : n = 0,
-      or_intro_left _ (subst (symm Hn) (zero_le m)))
+      or_inl (subst (symm Hn) (zero_le m)))
     (take k : ℕ,
       assume Hn : n = succ k,
       have H2 : pred n = k,
@@ -582,7 +582,7 @@ theorem le_imp_succ_le_or_eq {n m : ℕ} (H : n ≤ m) : succ n ≤ m ∨ n = m
           n = n + 0 : symm (add_zero_right n)
             ... = n + k : {symm H3}
             ... = m : Hk,
-      or_intro_right _ Heq)
+      or_inr Heq)
     (take l : nat,
       assume H3 : k = succ l,
       have Hlt : succ n ≤ m, from
@@ -591,7 +591,7 @@ theorem le_imp_succ_le_or_eq {n m : ℕ} (H : n ≤ m) : succ n ≤ m ∨ n = m
             succ n + l = n + succ l : add_move_succ n l
               ... = n + k : {symm H3}
               ... = m : Hk)),
-      or_intro_left _ Hlt)
+      or_inl Hlt)
 
 theorem le_ne_imp_succ_le {n m : ℕ} (H1 : n ≤ m) (H2 : n ≠ m) : succ n ≤ m
 := resolve_left (le_imp_succ_le_or_eq H1) H2
@@ -619,7 +619,7 @@ theorem pred_le_imp_le_or_eq {n m : ℕ} (H : pred n ≤ m) : n ≤ m ∨ n = su
 :=
   discriminate
     (take Hn : n = 0,
-      or_intro_left _ (subst (symm Hn) (zero_le m)))
+      or_inl (subst (symm Hn) (zero_le m)))
     (take k : nat,
       assume Hn : n = succ k,
       have H2 : pred n = k,
@@ -789,7 +789,7 @@ theorem succ_lt_right {n m : ℕ} (H : n < m) : n < succ m
 
 theorem le_or_lt (n m : ℕ) : n ≤ m ∨ m < n
 := induction_on n
-    (or_intro_left _ (zero_le m))
+    (or_inl (zero_le m))
     (take (k : ℕ),
       assume IH : k ≤ m ∨ m < k,
       or_elim IH
@@ -803,7 +803,7 @@ theorem le_or_lt (n m : ℕ) : n ≤ m ∨ m < n
                     ... = k + 0 : {H2}
                     ... = k : add_zero_right k,
               have H4 : m < succ k, from subst  H3 (lt_self_succ m),
-              or_intro_right _ H4)
+              or_inr H4)
             (take l2 : ℕ,
               assume H2 : l = succ l2,
               have H3 : succ k + l2 = m,
@@ -811,8 +811,8 @@ theorem le_or_lt (n m : ℕ) : n ≤ m ∨ m < n
                   succ k + l2 = k + succ l2 : add_move_succ k l2
                     ... = k + l : {symm H2}
                     ... = m : Hl,
-              or_intro_left _ (le_intro H3)))
-        (assume H : m < k, or_intro_right _ (succ_lt_right H)))
+              or_inl (le_intro H3)))
+        (assume H : m < k, or_inr (succ_lt_right H)))
 
 theorem trichotomy_alt (n m : ℕ) : (n < m ∨ n = m) ∨ m < n
 := or_imp_or (le_or_lt n m) (assume H : n ≤ m, le_imp_lt_or_eq H) (assume H : m < n, H)

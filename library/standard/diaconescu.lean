@@ -17,28 +17,28 @@ definition u [private] := epsilon (λ x, x = true ∨ p)
 definition v [private] := epsilon (λ x, x = false ∨ p)
 
 lemma u_def [private] : u = true ∨ p
-:= epsilon_ax (exists_intro true (or_intro_left p (refl true)))
+:= epsilon_ax (exists_intro true (or_inl (refl true)))
 
 lemma v_def [private] : v = false ∨ p
-:= epsilon_ax (exists_intro false (or_intro_left p (refl false)))
+:= epsilon_ax (exists_intro false (or_inl (refl false)))
 
 lemma uv_implies_p [private] : ¬(u = v) ∨ p
 := or_elim u_def
     (assume Hut : u = true, or_elim v_def
       (assume Hvf : v = false,
         have Hne : ¬(u = v), from Hvf⁻¹ ▸ Hut⁻¹ ▸ true_ne_false,
-        or_intro_left p Hne)
-      (assume Hp : p, or_intro_right (¬u = v) Hp))
-    (assume Hp : p, or_intro_right (¬u = v) Hp)
+        or_inl Hne)
+      (assume Hp : p, or_inr Hp))
+    (assume Hp : p, or_inr Hp)
 
 lemma p_implies_uv [private] : p → u = v
 := assume Hp : p,
    have Hpred : (λ x, x = true ∨ p) = (λ x, x = false ∨ p), from
      funext (take x : Prop,
        have Hl : (x = true ∨ p) → (x = false ∨ p), from
-         assume A, or_intro_right (x = false) Hp,
+         assume A, or_inr Hp,
        have Hr : (x = false ∨ p) → (x = true ∨ p), from
-         assume A, or_intro_right (x = true) Hp,
+         assume A, or_inr Hp,
        show (x = true ∨ p) = (x = false ∨ p), from
          propext Hl Hr),
    show u = v, from
@@ -47,6 +47,6 @@ lemma p_implies_uv [private] : p → u = v
 theorem em : p ∨ ¬p
 := have H : ¬(u = v) → ¬p, from contrapos p_implies_uv,
    or_elim uv_implies_p
-     (assume Hne : ¬(u = v), or_intro_right p (H Hne))
-     (assume Hp : p, or_intro_left (¬p) Hp)
+     (assume Hne : ¬(u = v), or_inr (H Hne))
+     (assume Hp : p, or_inl Hp)
 end

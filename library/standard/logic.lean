@@ -81,6 +81,9 @@ inductive or (a b : Prop) : Prop :=
 infixr `\/`:30 := or
 infixr `∨`:30 := or
 
+theorem or_inl {a b : Prop} (Ha : a) : a ∨ b := or_intro_left b Ha
+theorem or_inr {a b : Prop} (Hb : b) : a ∨ b := or_intro_right a Hb
+
 theorem or_elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
 := or_rec H2 H3 H1
 
@@ -91,7 +94,7 @@ theorem resolve_left {a b : Prop} (H1 : a ∨ b) (H2 : ¬b) : a
 := or_elim H1 (assume Ha, Ha) (assume Hb, absurd_elim a Hb H2)
 
 theorem or_swap {a b : Prop} (H : a ∨ b) : b ∨ a
-:= or_elim H (assume Ha, or_intro_right b Ha) (assume Hb, or_intro_left a Hb)
+:= or_elim H (assume Ha, or_inr Ha) (assume Hb, or_inl Hb)
 
 theorem or_not_intro {a b : Prop} (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b)
 := assume H : a ∨ b, or_elim H
@@ -100,18 +103,18 @@ theorem or_not_intro {a b : Prop} (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b)
 
 theorem or_imp_or {a b c d : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → d) : c ∨ d
 := or_elim H1
-    (assume Ha : a, or_intro_left _ (H2 Ha))
-    (assume Hb : b, or_intro_right _ (H3 Hb))
+    (assume Ha : a, or_inl (H2 Ha))
+    (assume Hb : b, or_inr (H3 Hb))
 
 theorem imp_or_left {a b c : Prop} (H1 : a ∨ c) (H : a → b) : b ∨ c
 := or_elim H1
-    (assume H2 : a, or_intro_left _ (H H2))
-    (assume H2 : c, or_intro_right _ H2)
+    (assume H2 : a, or_inl (H H2))
+    (assume H2 : c, or_inr H2)
 
 theorem imp_or_right {a b c : Prop} (H1 : c ∨ a) (H : a → b) : c ∨ b
 := or_elim H1
-    (assume H2 : c, or_intro_left _ H2)
-    (assume H2 : a, or_intro_right _ (H H2))
+    (assume H2 : c, or_inl H2)
+    (assume H2 : a, or_inr (H H2))
 
 inductive eq {A : Type} (a : A) : A → Prop :=
 | refl : eq a a
@@ -271,14 +274,14 @@ theorem or_assoc (a b c : Prop) : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c)
 := iff_intro
     (assume H, or_elim H
       (assume H1, or_elim H1
-        (assume Ha, or_intro_left _ Ha)
-        (assume Hb, or_intro_right a (or_intro_left c Hb)))
-      (assume Hc, or_intro_right a (or_intro_right b Hc)))
+        (assume Ha, or_inl Ha)
+        (assume Hb, or_inr (or_inl Hb)))
+      (assume Hc, or_inr (or_inr Hc)))
     (assume H, or_elim H
-      (assume Ha, (or_intro_left c (or_intro_left b Ha)))
+      (assume Ha, (or_inl (or_inl Ha)))
       (assume H1, or_elim H1
-        (assume Hb, or_intro_left c (or_intro_right a Hb))
-        (assume Hc, or_intro_right _ Hc)))
+        (assume Hb, or_inl (or_inr Hb))
+        (assume Hc, or_inr Hc)))
 
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 | exists_intro : ∀ (a : A), P a → Exists P

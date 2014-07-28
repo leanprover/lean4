@@ -12,7 +12,7 @@ theorem induction_on {p : Prop} {C : Prop} (H : decidable p) (H1 : p → C) (H2 
 := decidable_rec H1 H2 H
 
 theorem em (p : Prop) (H : decidable p) : p ∨ ¬p
-:= induction_on H (λ Hp, or_intro_left _ Hp) (λ Hnp, or_intro_right _ Hnp)
+:= induction_on H (λ Hp, or_inl Hp) (λ Hnp, or_inr Hnp)
 
 definition rec_on [inline] {p : Prop} {C : Type} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C
 := decidable_rec H1 H2 H
@@ -44,9 +44,9 @@ theorem decidable_and [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable
 
 theorem decidable_or [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) : decidable (a ∨ b)
 := rec_on Ha
-    (assume Ha  : a, inl (or_intro_left b Ha))
+    (assume Ha  : a, inl (or_inl Ha))
     (assume Hna : ¬a, rec_on Hb
-      (assume Hb  : b,  inl (or_intro_right a Hb))
+      (assume Hb  : b,  inl (or_inr Hb))
       (assume Hnb : ¬b, inr (or_not_intro Hna Hnb)))
 
 theorem decidable_not [instance] {a : Prop} (Ha : decidable a) : decidable (¬a)

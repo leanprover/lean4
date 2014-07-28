@@ -1382,15 +1382,15 @@ struct unifier_fn {
     }
 
     void consume_tc_cnstrs() {
-        for (unsigned i = 0; i < 2; i++) {
-            while (true) {
-                if (in_conflict())
-                    return;
-                if (auto c = m_tc[i]->next_cnstr()) {
-                    process_constraint(*c);
-                } else {
-                    break;
-                }
+        while (true) {
+            if (in_conflict()) {
+                return;
+            } else if (auto c = m_tc[0]->next_cnstr()) {
+                process_constraint(*c);
+            } else if (auto c = m_tc[1]->next_cnstr()) {
+                process_constraint(*c);
+            } else {
+                break;
             }
         }
     }
@@ -1431,6 +1431,8 @@ struct unifier_fn {
     /** \brief Process the next constraint in the constraint queue m_cnstrs */
     bool process_next() {
         lean_assert(!m_cnstrs.empty());
+        lean_assert(!m_tc[0]->next_cnstr());
+        lean_assert(!m_tc[1]->next_cnstr());
         constraint c = m_cnstrs.min()->first;
         m_cnstrs.erase_min();
         if (is_choice_cnstr(c)) {

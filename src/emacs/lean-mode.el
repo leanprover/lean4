@@ -1,14 +1,20 @@
 (require 'generic-x)
 (require 'lean-input)
 (require 'compile)
+(require 'flymake)
 
 (defvar lean-exe "lean"
   "Path for the Lean executable")
 
+(defun flymake-create-temp-lean-in-system-tempdir (filename prefix)
+  (make-temp-file (or prefix "flymake") nil ".lean"))
+
 (defun lean-execute ()
   "Execute Lean in the current buffer"
   (interactive)
-  (compile (format "%s %s" lean-exe (buffer-file-name))))
+  (if (buffer-file-name)
+      (compile (format "%s %s" lean-exe (buffer-file-name)))
+    (compile (format "%s %s" lean-exe (flymake-init-create-temp-buffer-copy 'flymake-create-temp-lean-in-system-tempdir)))))
 
 (defun lean-set-keys ()
   (local-set-key "\C-c\C-x" 'lean-execute)

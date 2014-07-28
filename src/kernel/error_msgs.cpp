@@ -72,16 +72,6 @@ format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & 
     return r;
 }
 
-format pp_type_mismatch(formatter const & fmt, expr const & expected_type, expr const & given_type) {
-    format expected_fmt, given_fmt;
-    std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
-    format r("type mismatch, expected type:");
-    r += expected_fmt;
-    r += compose(line(), format("given type:"));
-    r += given_fmt;
-    return r;
-}
-
 static format pp_until_meta_visible(formatter const & fmt, expr const & e, list<options> extra) {
     formatter fmt1 = fmt;
     while (true) {

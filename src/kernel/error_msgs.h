@@ -13,7 +13,6 @@ format pp_type_expected(formatter const & fmt, expr const & e);
 format pp_function_expected(formatter const & fmt, expr const & e);
 format pp_app_type_mismatch(formatter const & fmt, expr const & app, expr const & expected_type, expr const & given_type);
 format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & expected_type, expr const & given_type);
-format pp_type_mismatch(formatter const & fmt, expr const & expected_type, expr const & given_type);
 format pp_decl_has_metavars(formatter const & fmt, name const & n, expr const & e, bool is_type);
 
 /** \brief Set a list extra configuration options that are used to try to distinguish error such as given/expected type mismatch

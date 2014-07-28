@@ -1,7 +1,9 @@
 crash.lean:8:12: error: type mismatch at application
   have H' : not P, from H,
   _
-expected type:
+term
+  H
+is expected of type
   not P
-given type:
+but is given type
   P

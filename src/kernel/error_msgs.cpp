@@ -47,15 +47,17 @@ std::tuple<format, format> pp_until_different(formatter const & fmt, expr const 
     return pp_until_different(fmt, e1, e2, get_distinguishing_pp_options());
 }
 
-format pp_app_type_mismatch(formatter const & fmt, expr const & app, expr const & expected_type, expr const & given_type) {
+format pp_app_type_mismatch(formatter const & fmt, expr const & app, expr const & arg, expr const & expected_type, expr const & given_type) {
     format r;
     format expected_fmt, given_fmt;
     std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
     r += format("type mismatch at application");
     r += pp_indent_expr(fmt, app);
-    r += compose(line(), format("expected type:"));
+    r += compose(line(), format("term"));
+    r += pp_indent_expr(fmt, arg);
+    r += compose(line(), format("is expected of type"));
     r += expected_fmt;
-    r += compose(line(), format("given type:"));
+    r += compose(line(), format("but is given type"));
     r += given_fmt;
     return r;
 }
@@ -65,9 +67,9 @@ format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & 
     std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
     format r("type mismatch at definition '");
     r += format(n);
-    r += format("', expected type");
+    r += format("', it is expected of type");
     r += expected_fmt;
-    r += compose(line(), format("given type:"));
+    r += compose(line(), format("but is given type"));
     r += given_fmt;
     return r;
 }

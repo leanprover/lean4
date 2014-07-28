@@ -743,7 +743,7 @@ public:
     expr mk_delayed_coercion(expr const & e, expr const & d_type, expr const & a_type) {
         expr a = app_arg(e);
         expr m = mk_meta(some_expr(d_type), a.get_tag());
-        justification j = mk_app_justification(e, d_type, a_type);
+        justification j = mk_app_justification(e, a, d_type, a_type);
         add_cnstr(mk_delayed_coercion_cnstr(m, a, a_type, j, to_delay_factor(cnstr_group::Basic)));
         return update_app(e, app_fn(e), m);
     }
@@ -803,7 +803,7 @@ public:
         } else if (is_meta(a_type) && has_coercions_to(d_type)) {
             return mk_delayed_coercion(r, d_type, a_type);
         } else {
-            app_delayed_justification j(r, f_type, a_type);
+            app_delayed_justification j(r, a, f_type, a_type);
             if (!m_tc[m_relax_main_opaque]->is_def_eq(a_type, d_type, j)) {
                 expr new_a = apply_coercion(a, a_type, d_type);
                 bool coercion_worked = false;
@@ -818,7 +818,7 @@ public:
                         // rely on unification hints to solve this constraint
                         add_cnstr(mk_eq_cnstr(a_type, d_type, j.get(), m_relax_main_opaque));
                     } else {
-                        throw_kernel_exception(m_env, r, [=](formatter const & fmt) { return pp_app_type_mismatch(fmt, e, d_type, a_type); });
+                        throw_kernel_exception(m_env, r, [=](formatter const & fmt) { return pp_app_type_mismatch(fmt, e, a, d_type, a_type); });
                     }
                 }
             }

@@ -1,9 +1,11 @@
 ite (and p q) (f x) y : N
 t10.lean:14:6: error: type mismatch at application
   ite (and p q) q
-expected type:
+term
+  q
+is expected of type
   N
-given type:
+but is given type
   B
 cons x (cons y (cons z (cons x (cons y (cons y nil))))) : list
 cons x nil : list

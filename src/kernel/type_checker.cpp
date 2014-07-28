@@ -181,13 +181,13 @@ void type_checker::check_level(level const & l, expr const & s) {
         throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '" << *n2 << "'", s);
 }
 
-app_delayed_justification::app_delayed_justification(expr const & e, expr const & f_type, expr const & a_type):
-    m_e(e), m_fn_type(f_type), m_arg_type(a_type) {}
+app_delayed_justification::app_delayed_justification(expr const & e, expr const & arg, expr const & f_type, expr const & a_type):
+    m_e(e), m_arg(arg), m_fn_type(f_type), m_arg_type(a_type) {}
 
-justification mk_app_justification(expr const & e, expr const & d_type, expr const & a_type) {
+justification mk_app_justification(expr const & e, expr const & arg, expr const & d_type, expr const & a_type) {
     auto pp_fn = [=](formatter const & fmt, substitution const & subst) {
         substitution s(subst);
-        return pp_app_type_mismatch(fmt, s.instantiate(e), s.instantiate(d_type), s.instantiate(a_type));
+        return pp_app_type_mismatch(fmt, s.instantiate(e), s.instantiate(arg), s.instantiate(d_type), s.instantiate(a_type));
     };
     return mk_justification(e, pp_fn);
 }
@@ -196,7 +196,7 @@ justification app_delayed_justification::get() {
     if (!m_jst) {
         // We should not have a reference to this object inside the closure.
         // So, we create the following locals that will be captured by the closure instead of 'this'.
-        m_jst = mk_app_justification(m_e, binding_domain(m_fn_type), m_arg_type);
+        m_jst = mk_app_justification(m_e, m_arg, binding_domain(m_fn_type), m_arg_type);
     }
     return *m_jst;
 }
@@ -283,11 +283,11 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
     if (!infer_only) {
         expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), e);
         expr a_type = infer_type_core(app_arg(e), infer_only);
-        app_delayed_justification jst(e, f_type, a_type);
+        app_delayed_justification jst(e, app_arg(e), f_type, a_type);
         if (!is_def_eq(a_type, binding_domain(f_type), jst)) {
             throw_kernel_exception(m_env, e,
                                    [=](formatter const & fmt) {
-                                       return pp_app_type_mismatch(fmt, e, binding_domain(f_type), a_type);
+                                       return pp_app_type_mismatch(fmt, e, app_arg(e), binding_domain(f_type), a_type);
                                    });
         }
         return instantiate(binding_body(f_type), app_arg(e));

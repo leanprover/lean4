@@ -267,7 +267,7 @@ explicitly.
 #+BEGIN_SRC lean
   import logic
 
-  definition id.{l} {A : Type.{l}} (a : A) : Type.{l}
+  definition id.{l} {A : Type.{l}} (a : A) : A
   := a
 
   check id true
@@ -607,7 +607,7 @@ The expression =(by simp [rule-set])= is similar to =_=, but it tells Lean to sy
 using the rewrite rule set named =[rule-set]=. In the following example, we create a simple rewrite rule set
 and use it to prove a theorem that would be quite tedious to prove by hand.
 
-#+BEGIN_SRC lean
+#+BEGIN_SRC
   -- import module that defines several tactics/strategies including "simp"
   import tactic
   -- create a rewrite rule set with name 'simple'
@@ -622,7 +622,7 @@ In Lean, we can combine manual and automated proofs in a natural way. We can man
 skeleton and use the =by= construct to invoke automated proof engines like the simplifier for filling the
 tedious steps. Here is a very simple example.
 
-#+BEGIN_SRC lean
+#+BEGIN_SRC
    theorem th2 (a b : Prop) : a ∧ b ↔ b ∧ a
    := iff_intro
         (fun H : a ∧ b, (by simp simple))

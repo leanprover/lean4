@@ -23,13 +23,14 @@ add_test(lean_unknown_option ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_
 add_test(lean_unknown_file1 ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
 add_test(lean_unknown_file2 ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lua")
 
-# # LEAN EXAMPLES
-# file(GLOB LEANEXAMPLES "${LEAN_SOURCE_DIR}/../examples/lean/*.lean")
-# FOREACH(T ${LEANEXAMPLES})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "leanex_${T_NAME}"
-#     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lean ${T})
-# ENDFOREACH(T)
+# LEAN EXAMPLES
+file(GLOB LEANEXAMPLES "${LEAN_SOURCE_DIR}/../examples/standard/*.lean")
+FOREACH(T ${LEANEXAMPLES})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanex_${T_NAME}"
+    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../examples/standard"
+    COMMAND ${LEAN_SOURCE_DIR}/shell/test_standard.sh ${CMAKE_CURRENT_BINARY_DIR}/lean ${T})
+ENDFOREACH(T)
 
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
@@ -96,14 +97,14 @@ FOREACH(T ${LEANLUASLOWTESTS})
   set_tests_properties("leanluaslowtest_${T_NAME}" PROPERTIES LABELS "expensive")
 ENDFOREACH(T)
 
-# # LEAN DOCS
-# file(GLOB LEANDOCS "${LEAN_SOURCE_DIR}/../doc/lean/*.md")
-# FOREACH(T ${LEANDOCS})
-#   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-#   add_test(NAME "leandoc_${T_NAME}"
-#            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/lean"
-#            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t" ${T})
-# ENDFOREACH(T)
+# LEAN DOCS
+file(GLOB LEANDOCS "${LEAN_SOURCE_DIR}/../doc/lean/*.org")
+FOREACH(T ${LEANDOCS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leandoc_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/lean"
+           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T})
+ENDFOREACH(T)
 
 # LEAN LUA DOCS
 file(GLOB LEANLUADOCS "${LEAN_SOURCE_DIR}/../doc/lua/*.md")

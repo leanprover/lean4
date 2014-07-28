@@ -201,7 +201,7 @@ environment using_cmd(parser & p) {
                         name to_id = p.check_id_next("invalid 'using' command renaming, identifier expected");
                         check_identifier(p, env, ns, from_id);
                         exceptions.push_back(from_id);
-                        env = add_alias(env, to_id, mk_constant(ns+from_id));
+                        env = add_expr_alias(env, to_id, ns+from_id);
                     }
                 } else if (p.curr_is_token_or_id(g_hiding)) {
                     p.next();
@@ -217,7 +217,7 @@ environment using_cmd(parser & p) {
                         name id = p.get_name_val();
                         p.next();
                         check_identifier(p, env, ns, id);
-                        env = add_alias(env, id, mk_constant(ns+id));
+                        env = add_expr_alias(env, id, ns+id);
                     }
                 } else {
                     throw parser_error("invalid 'using' command option, identifier, 'hiding' or 'renaming' expected", p.pos());

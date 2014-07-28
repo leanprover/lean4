@@ -25,18 +25,18 @@ static environment update(environment const & env, aliases_ext const & ext);
 struct aliases_ext : public environment_extension {
     struct state {
         bool                                      m_in_section;
-        rb_map<name, list<expr>, name_quick_cmp>  m_aliases;
-        rb_map<expr, name,       expr_quick_cmp>  m_inv_aliases;
-        rb_map<name, level,      name_quick_cmp>  m_level_aliases;
-        rb_map<level, name,      level_quick_cmp> m_inv_level_aliases;
+        rb_map<name, list<name>, name_quick_cmp>  m_aliases;
+        rb_map<name, name,       name_quick_cmp>  m_inv_aliases;
+        rb_map<name, name,       name_quick_cmp>  m_level_aliases;
+        rb_map<name, name,       name_quick_cmp>  m_inv_level_aliases;
         state():m_in_section(false) {}
 
-        void add_alias(name const & a, expr const & e) {
+        void add_expr_alias(name const & a, name const & e) {
             auto it = m_aliases.find(a);
             if (it)
-                m_aliases.insert(a, list<expr>(e, filter(*it, [&](expr const & t) { return t != e; })));
+                m_aliases.insert(a, list<name>(e, filter(*it, [&](name const & t) { return t != e; })));
             else
-                m_aliases.insert(a, list<expr>(e));
+                m_aliases.insert(a, list<name>(e));
             m_inv_aliases.insert(e, a);
         }
     };
@@ -44,11 +44,11 @@ struct aliases_ext : public environment_extension {
     state       m_state;
     list<state> m_scopes;
 
-    void add_alias(name const & a, expr const & e) {
-        m_state.add_alias(a, e);
+    void add_expr_alias(name const & a, name const & e) {
+        m_state.add_expr_alias(a, e);
     }
 
-    void add_alias(name const & a, level const & l) {
+    void add_level_alias(name const & a, name const & l) {
         auto it = m_state.m_level_aliases.find(a);
         if (it)
             throw exception(sstream() << "universe level alias '" << a << "' shadows existing alias");
@@ -56,25 +56,25 @@ struct aliases_ext : public environment_extension {
         m_state.m_inv_level_aliases.insert(l, a);
     }
 
-    list<state> add_decl_alias_core(list<state> const & scopes, name const & a, expr const & e) {
+    list<state> add_expr_alias_rec_core(list<state> const & scopes, name const & a, name const & e) {
         if (empty(scopes)) {
             return scopes;
         } else {
             state s = head(scopes);
-            s.add_alias(a, e);
+            s.add_expr_alias(a, e);
             if (s.m_in_section) {
-                return cons(s, add_decl_alias_core(tail(scopes), a, e));
+                return cons(s, add_expr_alias_rec_core(tail(scopes), a, e));
             } else {
                 return cons(s, tail(scopes));
             }
         }
     }
 
-    void add_decl_alias(name const & a, expr const & e) {
+    void add_expr_alias_rec(name const & a, name const & e) {
         if (m_state.m_in_section) {
-            m_scopes = add_decl_alias_core(m_scopes, a, e);
+            m_scopes = add_expr_alias_rec_core(m_scopes, a, e);
         } else {
-            add_alias(a, e);
+            add_expr_alias(a, e);
         }
     }
 
@@ -131,28 +131,28 @@ static void check_atomic(name const & a) {
         throw exception(sstream() << "invalid alias '" << a << "', aliases must be atomic names");
 }
 
-environment add_alias(environment const & env, name const & a, expr const & e) {
+environment add_expr_alias(environment const & env, name const & a, name const & e) {
     check_atomic(a);
     aliases_ext ext = get_extension(env);
-    ext.add_alias(a, e);
+    ext.add_expr_alias(a, e);
     return update(env, ext);
 }
 
-environment add_decl_alias(environment const & env, name const & a, expr const & e) {
+environment add_expr_alias_rec(environment const & env, name const & a, name const & e) {
     check_atomic(a);
     aliases_ext ext = get_extension(env);
-    ext.add_decl_alias(a, e);
+    ext.add_expr_alias_rec(a, e);
     return update(env, ext);
 }
 
-optional<name> is_aliased(environment const & env, expr const & t) {
+optional<name> is_expr_aliased(environment const & env, name const & t) {
     auto it = get_extension(env).m_state.m_inv_aliases.find(t);
     return it ? optional<name>(*it) : optional<name>();
 }
 
-list<expr> get_alias_exprs(environment const & env, name const & n) {
+list<name> get_expr_aliases(environment const & env, name const & n) {
     auto it = get_extension(env).m_state.m_aliases.find(n);
-    return it ? *it : list<expr>();
+    return it ? *it : list<name>();
 }
 
 static void check_no_shadow(environment const & env, name const & a) {
@@ -160,22 +160,22 @@ static void check_no_shadow(environment const & env, name const & a) {
         throw exception(sstream() << "universe level alias '" << a << "' shadows existing global universe level");
 }
 
-environment add_alias(environment const & env, name const & a, level const & l) {
+environment add_level_alias(environment const & env, name const & a, name const & l) {
     check_atomic(a);
     check_no_shadow(env, a);
     aliases_ext ext = get_extension(env);
-    ext.add_alias(a, l);
+    ext.add_level_alias(a, l);
     return update(env, ext);
 }
 
-optional<name> is_aliased(environment const & env, level const & l) {
+optional<name> is_level_aliased(environment const & env, name const & l) {
     auto it = get_extension(env).m_state.m_inv_level_aliases.find(l);
     return it ? optional<name>(*it) : optional<name>();
 }
 
-optional<level> get_alias_level(environment const & env, name const & n) {
+optional<name> get_level_alias(environment const & env, name const & n) {
     auto it = get_extension(env).m_state.m_level_aliases.find(n);
-    return it ? some_level(*it) : optional<level>();
+    return it ? optional<name>(*it) : optional<name>();
 }
 
 // Return true iff \c n is (prefix + ex) for some ex in exceptions
@@ -189,9 +189,7 @@ environment add_aliases(environment const & env, name const & prefix, name const
     env.for_each_declaration([&](declaration const & d) {
             if (is_prefix_of(prefix, d.get_name()) && !is_exception(d.get_name(), prefix, num_exceptions, exceptions)) {
                 name a        = d.get_name().replace_prefix(prefix, new_prefix);
-                levels ls     = map2<level>(d.get_univ_params(), [](name const &) { return mk_level_placeholder(); });
-                expr c        = mk_constant(d.get_name(), ls);
-                ext.add_alias(a, c);
+                ext.add_expr_alias(a, d.get_name());
             }
         });
     env.for_each_universe([&](name const & u) {
@@ -199,32 +197,31 @@ environment add_aliases(environment const & env, name const & prefix, name const
                 name a = u.replace_prefix(prefix, new_prefix);
                 if (env.is_universe(a))
                     throw exception(sstream() << "universe level alias '" << a << "' shadows existing global universe level");
-                ext.add_alias(a, mk_global_univ(u));
+                ext.add_level_alias(a, u);
             }
         });
     return update(env, ext);
 }
 
-static int add_alias(lua_State * L) {
-    if (is_expr(L, 3))
-        return push_environment(L, add_alias(to_environment(L, 1), to_name_ext(L, 2), to_expr(L, 3)));
-    else
-        return push_environment(L, add_alias(to_environment(L, 1), to_name_ext(L, 2), to_level(L, 3)));
+static int add_expr_alias(lua_State * L) {
+    return push_environment(L, add_expr_alias(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3)));
+}
+static int add_level_alias(lua_State * L) {
+    return push_environment(L, add_level_alias(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3)));
 }
 
-static int is_aliased(lua_State * L) {
-    if (is_expr(L, 2))
-        return push_optional_name(L, is_aliased(to_environment(L, 1), to_expr(L, 2)));
-    else
-        return push_optional_name(L, is_aliased(to_environment(L, 1), to_level(L, 2)));
+static int is_expr_aliased(lua_State * L) {
+    return push_optional_name(L, is_expr_aliased(to_environment(L, 1), to_name_ext(L, 2)));
+}
+static int is_level_aliased(lua_State * L) {
+    return push_optional_name(L, is_level_aliased(to_environment(L, 1), to_name_ext(L, 2)));
 }
 
-static int get_alias_exprs(lua_State * L) {
-    return push_list_expr(L, get_alias_exprs(to_environment(L, 1), to_name_ext(L, 2)));
+static int get_expr_aliases(lua_State * L) {
+    return push_list_name(L, get_expr_aliases(to_environment(L, 1), to_name_ext(L, 2)));
 }
-
-static int get_alias_level(lua_State * L) {
-    return push_optional_level(L, get_alias_level(to_environment(L, 1), to_name_ext(L, 2)));
+static int get_level_alias(lua_State * L) {
+    return push_optional_name(L, get_level_alias(to_environment(L, 1), to_name_ext(L, 2)));
 }
 
 static int add_aliases(lua_State * L) {
@@ -248,10 +245,12 @@ static int add_aliases(lua_State * L) {
 }
 
 void open_aliases(lua_State * L) {
-    SET_GLOBAL_FUN(add_alias,       "add_alias");
-    SET_GLOBAL_FUN(add_aliases,     "add_aliases");
-    SET_GLOBAL_FUN(is_aliased,      "is_aliased");
-    SET_GLOBAL_FUN(get_alias_exprs, "get_alias_exprs");
-    SET_GLOBAL_FUN(get_alias_level, "get_alias_level");
+    SET_GLOBAL_FUN(add_expr_alias,   "add_expr_alias");
+    SET_GLOBAL_FUN(add_level_alias,  "add_level_alias");
+    SET_GLOBAL_FUN(is_expr_aliased,  "is_expr_aliased");
+    SET_GLOBAL_FUN(is_level_aliased, "is_level_aliased");
+    SET_GLOBAL_FUN(get_expr_aliases, "get_expr_aliases");
+    SET_GLOBAL_FUN(get_level_alias,  "get_level_alias");
+    SET_GLOBAL_FUN(add_aliases,      "add_aliases");
 }
 }

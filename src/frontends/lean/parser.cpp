@@ -431,8 +431,8 @@ level parser::parse_level_id() {
         return *it;
     if (m_env.is_universe(id))
         return mk_global_univ(id);
-    if (auto it = get_alias_level(m_env, id))
-        return *it;
+    if (auto it = get_level_alias(m_env, id))
+        return mk_global_univ(*it);
     throw parser_error(sstream() << "unknown universe '" << id << "'", p);
 }
 
@@ -841,13 +841,13 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         if (m_env.find(id))
             r = save_pos(mk_constant(id, ls), p);
         // aliases
-        auto as = get_alias_exprs(m_env, id);
+        auto as = get_expr_aliases(m_env, id);
         if (!is_nil(as)) {
             buffer<expr> new_as;
             if (r)
                 new_as.push_back(*r);
             for (auto const & e : as) {
-                new_as.push_back(copy_with_new_pos(propagate_levels(e, ls), p));
+                new_as.push_back(copy_with_new_pos(mk_constant(e, ls), p));
             }
             r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
         }

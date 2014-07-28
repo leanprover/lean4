@@ -10,32 +10,32 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-/** \brief Add the alias \c a for expression \c e. \c e must not have free variables. */
-environment add_alias(environment const & env, name const & a, expr const & e);
+/** \brief Add the alias \c a for \c e. */
+environment add_expr_alias(environment const & env, name const & a, name const & e);
 /**
-   \brief Add alias \c a for expression \c e, and also add it to all parent scopes
+   \brief Add alias \c a for \c e, and also add it to all parent scopes
    until in a namespace scope.
 */
-environment add_decl_alias(environment const & env, name const & a, expr const & e);
+environment add_expr_alias_rec(environment const & env, name const & a, name const & e);
 
 /** \brief If \c t is aliased in \c env, then return its name. Otherwise, return none. */
-optional<name> is_aliased(environment const & env, expr const & t);
+optional<name> is_expr_aliased(environment const & env, name const & t);
 
 /** \brief Return expressions associated with the given alias. */
-list<expr> get_alias_exprs(environment const & env, name const & n);
+list<name> get_expr_aliases(environment const & env, name const & n);
 
 /**
-    \brief Add the alias \c a for the level expression \c l. An error is generated if the new alias shadows
+    \brief Add the alias \c a for level \c l. An error is generated if the new alias shadows
     existing aliases and/or declarations. We don't have "choice" construct for universe
     levels.
 */
-environment add_alias(environment const & env, name const & a, level const & l);
+environment add_level_alias(environment const & env, name const & a, name const & l);
 
 /** \brief If \c l is aliased in \c env, then return its name. Otherwise, return none. */
-optional<name> is_aliased(environment const & env, level const & l);
+optional<name> is_level_aliased(environment const & env, name const & l);
 
 /** \brief Return the level associated with the given alias. */
-optional<level> get_alias_level(environment const & env, name const & n);
+optional<name> get_level_alias(environment const & env, name const & n);
 
 /**
    \brief Create an alias for each declaration named <tt>prefix.rest</tt>.

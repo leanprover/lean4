@@ -12,15 +12,15 @@ section
   abbreviation id (a : A) : A
   := a
 
-  abbreviation const (a : A) : B → A
-  := λx, a
-
   abbreviation on_fun (f : B → B → C) (g : A → B) : A → A → C
   := λx y, f (g x) (g y)
 
   abbreviation combine (f : A → B → C) (op : C → D → E) (g : A → B → D) : A → B → E
   := λx y, op (f x y) (g x y)
 end
+
+abbreviation const {A : Type} (B : Type) (a : A) : B → A
+:= λx, a
 
 abbreviation dcompose {A : Type} {B : A → Type} {C : Π {x : A}, B x → Type} (f : Π {x : A} (y : B x), C y) (g : Πx, B x) : Πx, C (g x)
 := λx, f (g x)

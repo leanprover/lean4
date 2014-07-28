@@ -175,7 +175,7 @@ auto pretty_fn::pp_sort(expr const & e) -> result {
 auto pretty_fn::pp_const(expr const & e) -> result {
     name n = const_name(e);
     if (!m_full_names) {
-        if (auto it = is_aliased(m_env, mk_constant(n))) { // TODO(Leo): fix is_aliased should get a name as argument
+        if (auto it = is_expr_aliased(m_env, n)) {
             n = *it;
         } else {
             for (name const & ns : get_namespaces(m_env)) {

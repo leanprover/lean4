@@ -514,7 +514,7 @@ struct inductive_cmd_fn {
             m_p.add_local_expr(id, r);
         }
         if (full_id != id)
-            env = add_decl_alias(env, id, mk_constant(full_id));
+            env = add_expr_alias_rec(env, id, full_id);
         return env;
     }
 

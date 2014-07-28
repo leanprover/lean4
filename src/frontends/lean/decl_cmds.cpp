@@ -40,7 +40,7 @@ environment universe_cmd(parser & p) {
         name full_n  = ns + n;
         env = module::add_universe(env, full_n);
         if (!ns.is_anonymous())
-            env = add_alias(env, n, mk_global_univ(full_n));
+            env = add_level_alias(env, n, full_n);
     }
     return env;
 }
@@ -87,7 +87,7 @@ static environment declare_var(parser & p, environment env,
         else
             env = module::add(env, check(env, mk_var_decl(full_n, ls, type)));
         if (!ns.is_anonymous())
-            env = add_alias(env, n, mk_constant(full_n));
+            env = add_expr_alias(env, n, full_n);
         return env;
     }
 }
@@ -279,7 +279,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         env = module::add(env, check(env, mk_definition(env, real_n, append(ls, new_ls), type, value, modifiers.m_is_opaque)));
     }
     if (real_n != n)
-        env = add_decl_alias(env, n, mk_constant(real_n));
+        env = add_expr_alias_rec(env, n, real_n);
     if (modifiers.m_is_instance)
         env = add_instance(env, real_n);
     if (modifiers.m_is_coercion)

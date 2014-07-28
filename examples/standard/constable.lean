@@ -1,8 +1,9 @@
 -- Theorems/Exercises from "Logical Investigations, with the Nuprl Proof Assistant"
 -- by Robert L. Constable and Anne Trostle
 -- http://www.nuprl.org/MathLibrary/LogicalInvestigations/
-import standard
+import logic
 
+-- 2. The Minimal Implicational Calculus
 theorem thm1 {A B : Prop} : A → B → A
 := assume Ha Hb, Ha
 
@@ -14,6 +15,7 @@ theorem thm3 {A B C : Prop} : (A → B) → (B → C) → (A → C)
 := assume Hab Hbc Ha,
    Hbc (Hab Ha)
 
+-- 3. False Propositions and Negation
 theorem thm4 {P Q : Prop} : ¬P → P → Q
 := assume Hnp Hp,
    absurd_elim Q Hp Hnp
@@ -37,6 +39,7 @@ theorem thm8 {P Q : Prop} : ¬(P → Q) → (P → ¬Q)
    have H : P → Q, from assume H', Hq,
    absurd H Hn
 
+-- 4. Conjunction and Disjunction
 theorem thm9 {P : Prop} : (P ∨ ¬P) → (¬¬P → P)
 := assume (em : P ∨ ¬P) (Hnn : ¬¬P),
    or_elim em
@@ -93,9 +96,9 @@ theorem thm16 {P Q : Prop} : (P → Q) ∧ ((P ∨ ¬P) ∨ (Q ∨ ¬Q)) → ¬P
        (assume Hq : Q, or_inr Hq)
        (assume Hnq : ¬Q, or_inl (mt Hpq Hnq)))
 
+-- 5. First-Order Logic: All and Exists
 section
 parameters {T : Type} {C : Prop} {P : T → Prop}
-
 theorem thm17a : (C → ∀x, P x) → (∀x, C → P x)
 := assume H : C → ∀x, P x,
    take x : T, assume Hc : C,

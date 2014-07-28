@@ -212,6 +212,7 @@ calc_trans eq_ne_trans
 calc_trans ne_eq_trans
 
 definition iff (a b : Prop) := (a → b) ∧ (b → a)
+infix `<->`:25 := iff
 infix `↔`:25 := iff
 
 theorem iff_intro {a b : Prop} (H1 : a → b) (H2 : b → a) : a ↔ b
@@ -286,6 +287,7 @@ theorem or_assoc (a b c : Prop) : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c)
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 | exists_intro : ∀ (a : A), P a → Exists P
 
+notation `exists` binders `,` r:(scoped P, Exists P) := r
 notation `∃` binders `,` r:(scoped P, Exists P) := r
 
 theorem exists_elim {A : Type} {p : A → Prop} {B : Prop} (H1 : ∃x, p x) (H2 : ∀ (a : A) (H : p a), B) : B

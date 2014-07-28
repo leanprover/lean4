@@ -21,7 +21,7 @@ About
 - [Design](doc/design.md)
 - [To Do list](doc/todo.md)
 - [Authors](doc/authors.md)
-- [Tutorial](doc/lean/tutorial.md)
+- [Tutorial](doc/lean/tutorial.org)
 
 Requirements
 ------------

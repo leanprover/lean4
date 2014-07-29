@@ -164,8 +164,6 @@ void init_lean_path(char const * kernel_instance_name) {
         std::string exe_path = get_path(get_exe_location());
         g_lean_path += g_path_sep;
         g_lean_path += exe_path + g_sep + ".." + g_sep + "library" + g_sep + kernel_instance_name;
-        g_lean_path += g_path_sep;
-        g_lean_path += exe_path;
     } else {
         g_lean_path = r;
     }

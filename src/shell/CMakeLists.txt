@@ -1,6 +1,12 @@
 add_executable(lean lean.cpp)
 target_link_libraries(lean ${EXTRA_LIBS})
 
+ADD_CUSTOM_COMMAND(TARGET lean
+          POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E make_directory ${LEAN_SOURCE_DIR}/../bin
+          COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/lean ${LEAN_SOURCE_DIR}/../bin/
+)
+
 install(TARGETS lean DESTINATION bin)
 
 # add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")

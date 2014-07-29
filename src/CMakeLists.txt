@@ -312,14 +312,14 @@ if((${CYGWIN} EQUAL "1") OR (NOT (${CMAKE_SYSTEM_NAME} MATCHES "Windows")))
   # Only build libraries if we are NOT cross compiling
   add_custom_target(
     standard_lib ALL
-    COMMAND make -j ${PROCESSOR_COUNT} LEAN=${CMAKE_BINARY_DIR}/shell/lean
+    COMMAND make -j ${PROCESSOR_COUNT} LEAN_PATH=.:${LEAN_SOURCE_DIR}/../library/standard LEAN=${CMAKE_BINARY_DIR}/shell/lean
     DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library/standard
     )
 
   add_custom_target(
     hott_lib ALL
-    COMMAND make -j ${PROCESSOR_COUNT} LEAN="${CMAKE_BINARY_DIR}/shell/lean" LEAN_OPTIONS="--hott"
+    COMMAND make -j ${PROCESSOR_COUNT} LEAN_PATH=.:${LEAN_SOURCE_DIR}/../library/hott LEAN="${CMAKE_BINARY_DIR}/shell/lean" LEAN_OPTIONS="--hott"
     DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library/hott
     )

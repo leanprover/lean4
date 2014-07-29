@@ -12,15 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 
 namespace lean {
-/**
-   \brief "Do nothing" normalizer extension.
-*/
-class noop_normalizer_extension : public normalizer_extension {
-public:
-    virtual optional<expr> operator()(expr const &, extension_context &) const { return none_expr(); }
-    virtual bool may_reduce_later(expr const &, extension_context &) const { return false; }
-};
-
 environment_header::environment_header(unsigned trust_lvl, bool prop_proof_irrel, bool eta, bool impredicative,
                                        list<name> const & cls_proof_irrel, std::unique_ptr<normalizer_extension const> ext):
     m_trust_lvl(trust_lvl), m_prop_proof_irrel(prop_proof_irrel), m_eta(eta), m_impredicative(impredicative),
@@ -83,7 +74,7 @@ environment::environment(header const & h, environment_id const & ancestor, decl
     m_header(h), m_id(environment_id::mk_descendant(ancestor)), m_declarations(d), m_global_levels(g), m_extensions(exts) {}
 
 environment::environment(unsigned trust_lvl, bool prop_proof_irrel, bool eta, bool impredicative, list<name> const & cls_proof_irrel):
-    environment(trust_lvl, prop_proof_irrel, eta, impredicative, cls_proof_irrel, std::unique_ptr<normalizer_extension>(new noop_normalizer_extension()))
+    environment(trust_lvl, prop_proof_irrel, eta, impredicative, cls_proof_irrel, mk_id_normalizer_extension())
 {}
 
 environment::environment(unsigned trust_lvl, bool prop_proof_irrel, bool eta, bool impredicative, list<name> const & cls_proof_irrel,

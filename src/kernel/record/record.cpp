@@ -51,4 +51,16 @@ environment add_record(environment const & env, level_param_names const & level_
                        name const & intro_name, expr const & intro_type) {
     return add_record_fn(env, level_params, rec_name, rec_type, intro_name, intro_type)();
 }
+
+optional<expr> record_normalizer_extension::operator()(expr const &, extension_context &) const {
+    return optional<expr>();
+}
+
+bool record_normalizer_extension::may_reduce_later(expr const &, extension_context &) const {
+    return false;
+}
+
+bool record_normalizer_extension::supports(name const &) const {
+    return false;
+}
 }}

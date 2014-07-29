@@ -129,6 +129,7 @@ public:
         return some_expr(app_arg(app_fn(a_n)));
     }
     virtual bool may_reduce_later(expr const &, extension_context &) const { return false; }
+    virtual bool supports(name const &) const { return false; }
 };
 
 static void tst3() {

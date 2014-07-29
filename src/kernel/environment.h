@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/constraint.h"
 #include "kernel/declaration.h"
+#include "kernel/normalizer_extension.h"
 
 #ifndef LEAN_BELIEVER_TRUST_LEVEL
 // If an environment E is created with a trust level > LEAN_BELIEVER_TRUST_LEVEL, then
@@ -27,20 +28,6 @@ namespace lean {
 class type_checker;
 class environment;
 class certified_declaration;
-
-/**
-   \brief The Lean kernel can be instantiated with different normalization extensions.
-   Each extension is part of the trusted code base. The extensions allow us to support
-   different flavors of the core type theory. We will use these extensions to implement
-   inductive datatype (ala Coq), HIT, record types, etc.
-*/
-class normalizer_extension {
-public:
-    virtual ~normalizer_extension() {}
-    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const = 0;
-    /** \brief Return true if the extension may reduce \c e after metavariables are instantiated. */
-    virtual bool may_reduce_later(expr const & e, extension_context & ctx) const = 0;
-};
 
 /**
    \brief The header of an environment is created when we create the empty environment.

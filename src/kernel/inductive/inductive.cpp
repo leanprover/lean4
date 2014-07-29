@@ -94,6 +94,7 @@ Author: Leonardo de Moura
 namespace lean {
 namespace inductive {
 static name g_tmp_prefix = name::mk_internal_unique_name();
+static name g_inductive_extension("inductive_extension");
 
 /** \brief Environment extension used to store the computational rules associated with inductive datatype declarations. */
 struct inductive_env_ext : public environment_extension {
@@ -224,7 +225,7 @@ struct add_inductive_fn {
     /** \brief Return type of the i-th global parameter. */
     expr get_param_type(unsigned i) { return mlocal_type(m_param_consts[i]); }
 
-    /**
+     /**
        \brief Check if the type of datatypes is well typed, all inductive datatypes have the same parameters,
        and the number of parameters match the argument num_params.
 
@@ -732,7 +733,7 @@ struct add_inductive_fn {
     }
 
     environment operator()() {
-        if (!dynamic_cast<inductive_normalizer_extension const*>(&m_env.norm_ext()))
+        if (!m_env.norm_ext().supports(g_inductive_extension))
             throw kernel_exception(m_env, "environment does not support inductive datatypes");
         if (get_num_its() == 0)
             throw kernel_exception(m_env, "at least one inductive datatype declaration expected");
@@ -751,6 +752,10 @@ environment add_inductive(environment                  env,
                           unsigned                     num_params,
                           list<inductive_decl> const & decls) {
     return add_inductive_fn(env, level_params, num_params, decls)();
+}
+
+bool inductive_normalizer_extension::supports(name const & feature) const {
+    return feature == g_inductive_extension;
 }
 
 optional<expr> inductive_normalizer_extension::operator()(expr const & e, extension_context & ctx) const {

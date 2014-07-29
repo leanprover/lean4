@@ -68,14 +68,14 @@ token_table init_token_table() {
         {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"have", 0}, {"show", 0}, {"obtain", 0}, {"by", 0}, {"then", 0},
          {"from", 0}, {"(", g_max_prec}, {")", 0}, {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
          {"[", g_max_prec}, {"]", 0}, {"⦃", g_max_prec}, {"⦄", 0}, {".{", 0}, {"Type", g_max_prec}, {"Type'", g_max_prec},
-         {"|", 0}, {"!", 0}, {"with", 0}, {"...", 0}, {",", 0}, {".", 0}, {":", 0}, {"calc", 0}, {":=", 0}, {"--", 0}, {"#", 0},
+         {"|", 0}, {"!", 0}, {"with", 0}, {"...", 0}, {",", 0}, {".", 0}, {":", 0}, {"::", 0}, {"calc", 0}, {":=", 0}, {"--", 0}, {"#", 0},
          {"(*", 0}, {"(--", 0}, {"proof", 0}, {"qed", 0}, {"@", g_max_prec}, {"including", 0},
          {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {nullptr, 0}};
 
     char const * commands[] = {"theorem", "axiom", "variable", "definition", "coercion",
                                "variables", "[private]", "[inline]", "[fact]", "[instance]", "[class]", "[module]", "[coercion]",
                                "abbreviation", "opaque_hint", "evaluate", "check", "print", "end", "namespace", "section", "import",
-                               "abbreviation", "inductive", "record", "structure", "module", "universe",
+                               "abbreviation", "inductive", "record", "renaming", "extends", "structure", "module", "universe",
                                "precedence", "infixl", "infixr", "infix", "postfix", "prefix", "notation",
                                "exit", "set_option", "using", "calc_subst", "calc_refl", "calc_trans", "tactic_hint",
                                "add_proof_qed", "set_proof_qed", "#setline", "class", "instance", nullptr};

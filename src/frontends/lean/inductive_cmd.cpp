@@ -39,17 +39,6 @@ using inductive::inductive_decl_intros;
 using inductive::intro_rule_name;
 using inductive::intro_rule_type;
 
-/** \brief Return true if \c u occurs in \c l */
-bool occurs(level const & u, level const & l) {
-    bool found = false;
-    for_each(l, [&](level const & l) {
-            if (found) return false;
-            if (l == u) { found = true; return false; }
-            return true;
-        });
-    return found;
-}
-
 inductive_decl update_inductive_decl(inductive_decl const & d, expr const & t) {
     return inductive_decl(inductive_decl_name(d), t, inductive_decl_intros(d));
 }
@@ -479,23 +468,6 @@ struct inductive_cmd_fn {
         }
     }
 
-    /** \brief Create the resultant universe level using the levels computed during introduction rule elaboration */
-    level mk_result_level(buffer<level> const & r_lvls) {
-        bool impredicative = m_env.impredicative();
-        if (r_lvls.empty()) {
-            return impredicative ? mk_level_one() : mk_level_zero();
-        } else {
-            level r = r_lvls[0];
-            for (unsigned i = 1; i < r_lvls.size(); i++)
-                r = mk_max(r, r_lvls[i]);
-            r = normalize(r);
-            if (is_not_zero(r))
-                return normalize(r);
-            else
-                return impredicative ? normalize(mk_max(r, mk_level_one())) : normalize(r);
-        }
-    }
-
     /** \brief Update the resultant universe level of the inductive datatypes using the inferred universe \c r_lvl */
     void update_resultant_universe(buffer<inductive_decl> & decls, level const & r_lvl) {
         for (inductive_decl & d : decls) {
@@ -570,7 +542,7 @@ struct inductive_cmd_fn {
         elaborate_intro_rules(decls, r_lvls);
         include_extra_univ_levels(decls, num_univ_params);
         if (m_infer_result_universe) {
-            level r_lvl = mk_result_level(r_lvls);
+            level r_lvl = mk_result_level(m_env, r_lvls);
             update_resultant_universe(decls, r_lvl);
         }
         level_param_names ls = to_list(m_levels.begin(), m_levels.end());

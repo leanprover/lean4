@@ -641,14 +641,14 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi) {
     }
 }
 
-void parser::parse_binders_core(buffer<expr> & r) {
+void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries) {
     while (true) {
         if (curr_is_identifier()) {
             parse_binder_block(r, binder_info());
         } else {
             optional<binder_info> bi = parse_optional_binder_info();
             if (bi) {
-                if (!parse_local_notation_decl())
+                if (!parse_local_notation_decl(nentries))
                     parse_binder_block(r, *bi);
                 parse_close_binder_info(bi);
             } else {
@@ -658,22 +658,23 @@ void parser::parse_binders_core(buffer<expr> & r) {
     }
 }
 
-local_environment parser::parse_binders(buffer<expr> & r) {
+local_environment parser::parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries) {
     flet<environment> save(m_env, m_env); // save environment
     local_expr_decls::mk_scope scope(m_local_decls);
     unsigned old_sz = r.size();
-    parse_binders_core(r);
+    parse_binders_core(r, nentries);
     if (old_sz == r.size())
         throw_invalid_open_binder(pos());
     return local_environment(m_env);
 }
 
-bool parser::parse_local_notation_decl() {
+bool parser::parse_local_notation_decl(buffer<notation_entry> * nentries) {
     if (curr_is_notation_decl(*this)) {
         buffer<token_entry> new_tokens;
         auto ne = ::lean::parse_notation(*this, false, new_tokens);
         for (auto const & te : new_tokens)
             m_env = add_token(m_env, te);
+        if (nentries) nentries->push_back(ne);
         m_env = add_notation(m_env, ne);
         return true;
     } else {

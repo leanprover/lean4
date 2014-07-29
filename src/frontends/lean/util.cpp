@@ -100,4 +100,30 @@ expr Fun_as_is(buffer<expr> const & locals, expr const & e, parser & p) {
 expr Pi_as_is(buffer<expr> const & locals, expr const & e, parser & p) {
     return p.rec_save_pos(mk_binding_as_is<false>(locals.size(), locals.data(), e), p.pos_of(e));
 }
+
+level mk_result_level(environment const & env, buffer<level> const & r_lvls) {
+    bool impredicative = env.impredicative();
+    if (r_lvls.empty()) {
+        return impredicative ? mk_level_one() : mk_level_zero();
+    } else {
+        level r = r_lvls[0];
+        for (unsigned i = 1; i < r_lvls.size(); i++)
+            r = mk_max(r, r_lvls[i]);
+        r = normalize(r);
+        if (is_not_zero(r))
+            return normalize(r);
+        else
+            return impredicative ? normalize(mk_max(r, mk_level_one())) : normalize(r);
+    }
+}
+
+bool occurs(level const & u, level const & l) {
+    bool found = false;
+    for_each(l, [&](level const & l) {
+            if (found) return false;
+            if (l == u) { found = true; return false; }
+            return true;
+        });
+    return found;
+}
 }

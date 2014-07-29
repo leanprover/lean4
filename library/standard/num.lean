@@ -15,9 +15,9 @@ inductive num : Type :=
 | zero  : num
 | pos   : pos_num → num
 
-theorem inhabited_pos_num [instance] : inhabited pos_num
-:= inhabited_intro one
+theorem inhabited_pos_num [instance] : inhabited pos_num :=
+inhabited_intro one
 
-theorem inhabited_num [instance] : inhabited num
-:= inhabited_intro zero
+theorem inhabited_num [instance] : inhabited num :=
+inhabited_intro zero
 end

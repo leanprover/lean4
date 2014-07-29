@@ -1,4 +1,4 @@
 import standard
 using bool
 
-check '0
+check ff

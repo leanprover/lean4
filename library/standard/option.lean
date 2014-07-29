@@ -7,5 +7,5 @@ inductive option (A : Type) : Type :=
 | none {} : option A
 | some    : A → option A
 
-theorem inhabited_option [instance] (A : Type) : inhabited (option A)
-:= inhabited_intro none
+theorem inhabited_option [instance] (A : Type) : inhabited (option A) :=
+inhabited_intro none

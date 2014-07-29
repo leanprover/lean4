@@ -15,8 +15,8 @@ static name g_string_macro("string_macro");
 static std::string g_string_opcode("Str");
 
 static expr g_bool(Const(name("bool", "bool")));
-static expr g_b0(Const(name("bool", "b0")));
-static expr g_b1(Const(name("bool", "b1")));
+static expr g_ff(Const(name("bool", "ff")));
+static expr g_tt(Const(name("bool", "tt")));
 static expr g_char(Const(name("string", "char")));
 static expr g_ascii(Const(name("string", "ascii")));
 static expr g_string(Const(name("string", "string")));
@@ -101,8 +101,8 @@ bool has_string_decls(environment const & env) {
     try {
         type_checker tc(env);
         return
-            tc.infer(g_b0)    == g_bool &&
-            tc.infer(g_b1)    == g_bool &&
+            tc.infer(g_ff)    == g_bool &&
+            tc.infer(g_tt)    == g_bool &&
             tc.infer(g_ascii) == g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> g_char))))))) &&
             tc.infer(g_empty) == g_string &&
             tc.infer(g_str)   == g_char >> (g_string >> g_string);
@@ -115,13 +115,13 @@ expr from_char(unsigned char c) {
     buffer<expr> bits;
     while (c != 0) {
         if (c % 2 == 1)
-            bits.push_back(g_b1);
+            bits.push_back(g_tt);
         else
-            bits.push_back(g_b0);
+            bits.push_back(g_ff);
         c /= 2;
     }
     while (bits.size() < 8)
-        bits.push_back(g_b0);
+        bits.push_back(g_ff);
     return mk_rev_app(g_ascii, bits.size(), bits.data());
 }
 
@@ -142,9 +142,9 @@ bool to_char_core(expr const & e, buffer<char> & tmp) {
         unsigned v = 0;
         for (unsigned i = 0; i < args.size(); i++) {
             v *= 2;
-            if (args[i] == g_b1)
+            if (args[i] == g_tt)
                 v++;
-            else if (args[i] != g_b0)
+            else if (args[i] != g_ff)
                 return false;
         }
         tmp.push_back(v);

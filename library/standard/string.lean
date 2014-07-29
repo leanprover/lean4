@@ -12,9 +12,9 @@ inductive string : Type :=
 | empty : string
 | str   : char → string → string
 
-theorem inhabited_char [instance] : inhabited char
-:= inhabited_intro (ascii b0 b0 b0 b0 b0 b0 b0 b0)
+theorem inhabited_char [instance] : inhabited char :=
+inhabited_intro (ascii ff ff ff ff ff ff ff ff)
 
-theorem inhabited_string [instance] : inhabited string
-:= inhabited_intro empty
+theorem inhabited_string [instance] : inhabited string :=
+inhabited_intro empty
 end

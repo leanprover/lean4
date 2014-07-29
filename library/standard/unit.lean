@@ -10,13 +10,12 @@ inductive unit : Type :=
 
 notation `⋆`:max := star
 
-theorem unit_eq (a b : unit) : a = b
-:= unit_rec (unit_rec (refl ⋆) b) a
+theorem unit_eq (a b : unit) : a = b :=
+unit_rec (unit_rec (refl ⋆) b) a
 
-theorem inhabited_unit [instance] : inhabited unit
-:= inhabited_intro ⋆
+theorem inhabited_unit [instance] : inhabited unit :=
+inhabited_intro ⋆
 
-using decidable
-theorem decidable_eq [instance] (a b : unit) : decidable (a = b)
-:= inl (unit_eq a b)
+theorem decidable_eq [instance] (a b : unit) : decidable (a = b) :=
+inl (unit_eq a b)
 end

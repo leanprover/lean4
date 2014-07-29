@@ -21,16 +21,16 @@ section
   hypothesis H_comm : commutative f
   hypothesis H_assoc : associative f
 
-  theorem left_comm : ∀a b c, a*(b*c) = b*(a*c)
-  := take a b c, calc
-       a*(b*c) = (a*b)*c  : (H_assoc _ _ _)⁻¹
-         ...   = (b*a)*c  : {H_comm _ _}
-         ...   = b*(a*c)  : H_assoc _ _ _
+  theorem left_comm : ∀a b c, a*(b*c) = b*(a*c) :=
+  take a b c, calc
+    a*(b*c) = (a*b)*c  : (H_assoc _ _ _)⁻¹
+      ...   = (b*a)*c  : {H_comm _ _}
+      ...   = b*(a*c)  : H_assoc _ _ _
 
-  theorem right_comm : ∀a b c, (a*b)*c = (a*c)*b
-  := take a b c, calc
-       (a*b)*c = a*(b*c) : H_assoc _ _ _
-         ...   = a*(c*b) : {H_comm _ _}
-         ...   = (a*c)*b : (H_assoc _ _ _)⁻¹
+  theorem right_comm : ∀a b c, (a*b)*c = (a*c)*b :=
+  take a b c, calc
+    (a*b)*c = a*(b*c) : H_assoc _ _ _
+      ...   = a*(c*b) : {H_comm _ _}
+      ...   = (a*c)*b : (H_assoc _ _ _)⁻¹
 end
 end

@@ -148,8 +148,8 @@ example, =symm= is the symmetry theorem.
   import nat
   using nat
 
-  theorem nat_trans3 (a b c d : nat) (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d
-  := trans (trans H1 (symm H2)) H3
+  theorem nat_trans3 (a b c d : nat) (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
+  trans (trans H1 (symm H2)) H3
 
   -- Example using nat_trans3
   variables x y z w : nat
@@ -177,8 +177,8 @@ implicit arguments.
   import nat
   using nat
 
-  theorem nat_trans3i {a b c d : nat} (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d
-  := trans (trans H1 (symm H2)) H3
+  theorem nat_trans3i {a b c d : nat} (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
+  trans (trans H1 (symm H2)) H3
 
   -- Example using nat_trans3
   variables x y z w : nat
@@ -267,8 +267,7 @@ explicitly.
 #+BEGIN_SRC lean
   import logic
 
-  definition id.{l} {A : Type.{l}} (a : A) : A
-  := a
+  definition id.{l} {A : Type.{l}} (a : A) : A := a
 
   check id true
 #+END_SRC
@@ -423,8 +422,7 @@ are equal using just =refl=. Here is a simple example.
   import nat
   using nat
 
-  theorem def_eq_th (a : nat) : ((λ x : nat, x + 1) a) = a + 1
-  := refl (a+1)
+  theorem def_eq_th (a : nat) : ((λ x : nat, x + 1) a) = a + 1 := refl (a+1)
 #+END_SRC
 
 ** Provable equality
@@ -698,8 +696,8 @@ for =∃ a : nat, a = w= using
   import nat
   using nat
 
-  theorem nat_trans3i {a b c d : nat} (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d
-  := trans (trans H1 (symm H2)) H3
+  theorem nat_trans3i {a b c d : nat} (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
+  trans (trans H1 (symm H2)) H3
 
   variables x y z w : nat
   axiom Hxy : x = y
@@ -757,13 +755,13 @@ of two even numbers is an even number.
   using nat
 
   definition even (a : nat) := ∃ b, a = 2*b
-  theorem EvenPlusEven {a b : nat} (H1 : even a) (H2 : even b) : even (a + b)
-  := exists_elim H1 (fun (w1 : nat) (Hw1 : a = 2*w1),
-     exists_elim H2 (fun (w2 : nat) (Hw2 : b = 2*w2),
-          exists_intro (w1 + w2)
-             (calc a + b  =  2*w1 + b      : {Hw1}
-                     ...  =  2*w1 + 2*w2   : {Hw2}
-                     ...  =  2*(w1 + w2)   : symm (mul_add_distr_right 2 w1 w2))))
+  theorem EvenPlusEven {a b : nat} (H1 : even a) (H2 : even b) : even (a + b) :=
+  exists_elim H1 (fun (w1 : nat) (Hw1 : a = 2*w1),
+  exists_elim H2 (fun (w2 : nat) (Hw2 : b = 2*w2),
+    exists_intro (w1 + w2)
+      (calc a + b  =  2*w1 + b      : {Hw1}
+              ...  =  2*w1 + 2*w2   : {Hw2}
+              ...  =  2*(w1 + w2)   : symm (mul_add_distr_right 2 w1 w2))))
 
 #+END_SRC
 
@@ -777,12 +775,12 @@ With this macro we can write the example above in a more natural way
   import nat
   using nat
   definition even (a : nat) := ∃ b, a = 2*b
-  theorem EvenPlusEven {a b : nat} (H1 : even a) (H2 : even b) : even (a + b)
-   := obtain (w1 : nat) (Hw1 : a = 2*w1), from H1,
-      obtain (w2 : nat) (Hw2 : b = 2*w2), from H2,
-           exists_intro (w1 + w2)
-              (calc a + b  =  2*w1 + b      : {Hw1}
-                      ...  =  2*w1 + 2*w2   : {Hw2}
-                      ...  =  2*(w1 + w2)   : symm (mul_add_distr_right 2 w1 w2))
+  theorem EvenPlusEven {a b : nat} (H1 : even a) (H2 : even b) : even (a + b) :=
+  obtain (w1 : nat) (Hw1 : a = 2*w1), from H1,
+  obtain (w2 : nat) (Hw2 : b = 2*w2), from H2,
+    exists_intro (w1 + w2)
+      (calc a + b  =  2*w1 + b      : {Hw1}
+              ...  =  2*w1 + 2*w2   : {Hw2}
+              ...  =  2*(w1 + w2)   : symm (mul_add_distr_right 2 w1 w2))
 #+END_SRC
 

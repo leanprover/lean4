@@ -167,6 +167,7 @@ void init_lean_path(char const * kernel_instance_name) {
     } else {
         g_lean_path = r;
     }
+    g_lean_path_vector.clear();
     g_lean_path = normalize_path(g_lean_path);
     unsigned i  = 0;
     unsigned j  = 0;

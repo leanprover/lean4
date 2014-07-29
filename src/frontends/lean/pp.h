@@ -68,6 +68,7 @@ private:
     result pp_have(expr const & e);
     result pp_show(expr const & e);
     result pp_macro(expr const & e);
+    result pp_explicit(expr const & e);
     void set_options_core(options const & o);
 
 public:

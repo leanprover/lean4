@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/expr_pair.h"
 #include "library/placeholder.h"
 #include "library/private.h"
+#include "library/explicit.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/pp_options.h"
 #include "frontends/lean/token_table.h"
@@ -38,6 +39,7 @@ static format g_have_fmt        = highlight_keyword(format("have"));
 static format g_from_fmt        = highlight_keyword(format("from"));
 static format g_fact_fmt        = highlight_keyword(format("[fact]"));
 static format g_show_fmt        = highlight_keyword(format("show"));
+static format g_explicit_fmt    = highlight_keyword(format("@"));
 
 name pretty_fn::mk_metavar_name(name const & m) {
     if (auto it = m_purify_meta_table.find(m))
@@ -381,14 +383,23 @@ auto pretty_fn::pp_show(expr const & e) -> result {
     return mk_result(group(r), 0);
 }
 
+auto pretty_fn::pp_explicit(expr const & e) -> result {
+    result res_arg = pp_child(get_explicit_arg(e), max_bp());
+    return mk_result(compose(g_explicit_fmt, res_arg.first), max_bp());
+}
+
 auto pretty_fn::pp_macro(expr const & e) -> result {
-    // TODO(Leo): have macro annotations
-    // fix macro<->pp interface
-    format r = compose(format("["), format(macro_def(e).get_name()));
-    for (unsigned i = 0; i < macro_num_args(e); i++)
-        r += nest(m_indent, compose(line(), pp_child(macro_arg(e, i), max_bp()).first));
-    r += format("]");
-    return mk_result(group(r));
+    if (is_explicit(e)) {
+        return pp_explicit(e);
+    } else {
+        // TODO(Leo): have macro annotations
+        // fix macro<->pp interface
+        format r = compose(format("["), format(macro_def(e).get_name()));
+        for (unsigned i = 0; i < macro_num_args(e); i++)
+            r += nest(m_indent, compose(line(), pp_child(macro_arg(e, i), max_bp()).first));
+        r += format("]");
+        return mk_result(group(r));
+    }
 }
 
 auto pretty_fn::pp(expr const & e) -> result {

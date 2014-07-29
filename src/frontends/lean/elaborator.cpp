@@ -736,16 +736,41 @@ public:
         return mk_choice_cnstr(m, choice_fn, delay_factor, j, m_relax_main_opaque);
     }
 
-    /** \brief Given an application \c e, where the expected type is d_type, and the argument type is a_type,
-        create a "delayed coercion". The idea is to create a choice constraint and postpone the coercion
-        search. We do that whenever d_type or a_type is a metavar application, and d_type or a_type is a coercion source/target.
-    */
-    expr mk_delayed_coercion(expr const & e, expr const & d_type, expr const & a_type) {
-        expr a = app_arg(e);
-        expr m = mk_meta(some_expr(d_type), a.get_tag());
-        justification j = mk_app_justification(e, a, d_type, a_type);
+    /** \brief Given a term <tt>a : a_type</tt>, and an expected type generate a metavariable with a delayed coercion. */
+    expr mk_delayed_coercion(expr const & a, expr const & a_type, expr const & expected_type, justification const & j) {
+        expr m = mk_meta(some_expr(expected_type), a.get_tag());
         add_cnstr(mk_delayed_coercion_cnstr(m, a, a_type, j, to_delay_factor(cnstr_group::Basic)));
-        return update_app(e, app_fn(e), m);
+        return m;
+    }
+
+    /** \brief Given a term <tt>a : a_type</tt>, ensure it has type \c expected_type. Apply coercions if needed
+
+        \remark relax == true affects how opaque definitions in the main module are treated.
+    */
+    expr ensure_type(expr const & a, expr const & a_type, expr const & expected_type, justification const & j, bool relax) {
+        if (is_meta(expected_type) && has_coercions_from(a_type)) {
+            return mk_delayed_coercion(a, a_type, expected_type, j);
+        } else if (is_meta(a_type) && has_coercions_to(expected_type)) {
+            return mk_delayed_coercion(a, a_type, expected_type, j);
+        } else if (m_tc[relax]->is_def_eq(a_type, expected_type, j)) {
+            return a;
+        } else {
+            expr new_a = apply_coercion(a, a_type, expected_type);
+            bool coercion_worked = false;
+            if (!is_eqp(a, new_a)) {
+                expr new_a_type = instantiate_metavars(infer_type(new_a));
+                coercion_worked = m_tc[relax]->is_def_eq(new_a_type, expected_type, j);
+            }
+            if (coercion_worked) {
+                return new_a;
+            } else if (has_metavar(a_type) || has_metavar(expected_type)) {
+                // rely on unification hints to solve this constraint
+                add_cnstr(mk_eq_cnstr(a_type, expected_type, j, relax));
+                return a;
+            } else {
+                throw unifier_exception(j, m_subst);
+            }
+        }
     }
 
     bool is_choice_app(expr const & e) {
@@ -798,32 +823,9 @@ public:
         expr a_type = instantiate_metavars(infer_type(a));
         expr r      = mk_app(f, a, e.get_tag());
 
-        if (is_meta(d_type) && has_coercions_from(a_type)) {
-            return mk_delayed_coercion(r, d_type, a_type);
-        } else if (is_meta(a_type) && has_coercions_to(d_type)) {
-            return mk_delayed_coercion(r, d_type, a_type);
-        } else {
-            app_delayed_justification j(r, a, f_type, a_type);
-            if (!m_tc[m_relax_main_opaque]->is_def_eq(a_type, d_type, j)) {
-                expr new_a = apply_coercion(a, a_type, d_type);
-                bool coercion_worked = false;
-                if (!is_eqp(a, new_a)) {
-                    expr new_a_type = instantiate_metavars(infer_type(new_a));
-                    coercion_worked = m_tc[m_relax_main_opaque]->is_def_eq(new_a_type, d_type, j);
-                }
-                if (coercion_worked) {
-                    r = update_app(r, f, new_a);
-                } else {
-                    if (has_metavar(a_type) || has_metavar(d_type)) {
-                        // rely on unification hints to solve this constraint
-                        add_cnstr(mk_eq_cnstr(a_type, d_type, j.get(), m_relax_main_opaque));
-                    } else {
-                        throw_kernel_exception(m_env, r, [=](formatter const & fmt) { return pp_app_type_mismatch(fmt, e, a, d_type, a_type); });
-                    }
-                }
-            }
-            return r;
-        }
+        justification j = mk_app_justification(e, a, d_type, a_type);
+        expr new_a  = ensure_type(a, a_type, d_type, j, m_relax_main_opaque);
+        return update_app(r, app_fn(r), new_a);
     }
 
     expr visit_placeholder(expr const & e) {
@@ -1207,9 +1209,7 @@ public:
                 substitution s(subst);
                 return pp_def_type_mismatch(fmt, n, s.instantiate(r_t), s.instantiate(r_v_type));
             });
-        if (!m_tc[is_opaque]->is_def_eq(r_v_type, r_t, j)) {
-            throw_kernel_exception(m_env, v, [=](formatter const & fmt) { return pp_def_type_mismatch(fmt, n, r_t, r_v_type); });
-        }
+        r_v = ensure_type(r_v, r_v_type, r_t, j, is_opaque);
         auto p  = solve().pull();
         lean_assert(p);
         substitution s = p->first;

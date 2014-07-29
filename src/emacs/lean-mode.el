@@ -9,16 +9,25 @@
 (defun flymake-create-temp-lean-in-system-tempdir (filename prefix)
   (make-temp-file (or prefix "flymake") nil ".lean"))
 
-(defun lean-execute ()
+(defun lean-execute (&optional arg)
   "Execute Lean in the current buffer"
-  (interactive)
+  (interactive "sarg: ")
   (if (buffer-file-name)
-      (compile (format "%s %s" lean-exe (buffer-file-name)))
-    (compile (format "%s %s" lean-exe (flymake-init-create-temp-buffer-copy 'flymake-create-temp-lean-in-system-tempdir)))))
+      (compile (format "%s %s %s" lean-exe (if arg arg "") (buffer-file-name)))
+    (compile (format "%s $s %s" lean-exe (if arg arg "") (flymake-init-create-temp-buffer-copy) 'flymake-create-temp-lean-in-system-tempdir))))
+
+(defun lean-std-exe ()
+  (interactive)
+  (lean-execute))
+
+(defun lean-hott-exe ()
+  (interactive)
+  (lean-execute "--hott"))
 
 (defun lean-set-keys ()
-  (local-set-key "\C-c\C-x" 'lean-execute)
-  (local-set-key "\C-c\C-l" 'lean-execute))
+  (local-set-key "\C-c\C-x" 'lean-std-exe)
+  (local-set-key "\C-c\C-l" 'lean-std-exe)
+  (local-set-key "\C-c\C-k" 'lean-hott-exe))
 
 (define-abbrev-table 'lean-mode-abbrev-table '(
     ("var"    "variable")

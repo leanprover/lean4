@@ -1,6 +1,6 @@
 crash.lean:8:12: error: type mismatch at application
   have H' : not P, from H,
-  _
+  ?M_1 P H
 term
   H
 is expected of type

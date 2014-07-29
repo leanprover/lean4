@@ -823,7 +823,7 @@ public:
         expr a_type = instantiate_metavars(infer_type(a));
         expr r      = mk_app(f, a, e.get_tag());
 
-        justification j = mk_app_justification(e, a, d_type, a_type);
+        justification j = mk_app_justification(r, a, d_type, a_type);
         expr new_a  = ensure_type(a, a_type, d_type, j, m_relax_main_opaque);
         return update_app(r, app_fn(r), new_a);
     }
@@ -1205,7 +1205,7 @@ public:
         flet<bool> set_relax(m_relax_main_opaque, is_opaque && !get_hide_main_opaque(m_env));
         expr r_v      = visit(v);
         expr r_v_type = infer_type(r_v);
-        justification j = mk_justification(v, [=](formatter const & fmt, substitution const & subst) {
+        justification j = mk_justification(r_v, [=](formatter const & fmt, substitution const & subst) {
                 substitution s(subst);
                 return pp_def_type_mismatch(fmt, n, s.instantiate(r_t), s.instantiate(r_v_type));
             });

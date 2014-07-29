@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/deep_copy.h"
 #include "library/module.h"
 #include "library/scoped_ext.h"
+#include "library/explicit.h"
 #include "library/num.h"
 #include "library/string.h"
 #include "library/error_handling/error_handling.h"
@@ -876,9 +877,18 @@ name parser::check_constant_next(char const * msg) {
     auto p  = pos();
     name id = check_id_next(msg);
     expr e  = id_to_expr(id, p);
-    if (!is_constant(e))
+
+    if (in_section(m_env) && is_implicit(e)) {
+        e = get_app_fn(get_implicit_arg(e));
+        if (is_explicit(e))
+            e = get_explicit_arg(e);
+    }
+
+    if (is_constant(e)) {
+        return const_name(e);
+    } else {
         throw parser_error(msg, p);
-    return const_name(e);
+    }
 }
 
 expr parser::parse_id() {

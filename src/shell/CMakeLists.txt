@@ -1,5 +1,5 @@
 add_executable(lean lean.cpp)
-target_link_libraries(lean ${EXTRA_LIBS})
+target_link_libraries(lean ${ALL_LIBS})
 
 ADD_CUSTOM_COMMAND(TARGET lean
           POST_BUILD

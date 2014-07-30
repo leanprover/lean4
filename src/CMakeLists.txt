@@ -262,7 +262,7 @@ if(("${MULTI_THREAD}" MATCHES "ON") AND (NOT (("${CMAKE_SYSTEM_NAME}" MATCHES "D
    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 endif()
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
-set(EXTRA_LIBS ${LEAN_LIBS} ${EXTRA_LIBS})
+set(ALL_LIBS ${LEAN_LIBS} ${EXTRA_LIBS})
 add_subdirectory(shell)
 add_subdirectory(emacs)
 

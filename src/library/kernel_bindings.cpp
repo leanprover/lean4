@@ -1528,15 +1528,19 @@ static int mk_choice_cnstr(lua_State * L) {
     expr m           = to_expr(L, 1);
     choice_fn fn     = to_choice_fn(L, 2);
     if (nargs == 2)
-        return push_constraint(L, mk_choice_cnstr(m, fn, 0, justification(), false));
+        return push_constraint(L, mk_choice_cnstr(m, fn, 0, false, justification(), false));
     else if (nargs == 3 && is_justification(L, 3))
-        return push_constraint(L, mk_choice_cnstr(m, fn, 0, to_justification(L, 3), false));
+        return push_constraint(L, mk_choice_cnstr(m, fn, 0, false, to_justification(L, 3), false));
     else if (nargs == 3)
-        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), justification(), false));
+        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), false, justification(), false));
     else if (nargs == 4)
-        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), to_justification(L, 4), false));
+        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), lua_toboolean(L, 4), justification(), false));
+    else if (nargs == 5)
+        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), lua_toboolean(L, 4),
+                                                  to_justification(L, 5), false));
     else
-        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), to_justification(L, 4), lua_toboolean(L, 5)));
+        return push_constraint(L, mk_choice_cnstr(m, fn, lua_tonumber(L, 3), lua_toboolean(L, 4),
+                                                  to_justification(L, 5), lua_toboolean(L, 6)));
 }
 
 static int constraint_expr(lua_State * L) {

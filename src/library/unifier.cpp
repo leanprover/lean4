@@ -211,9 +211,15 @@ unify_status unify_simple(substitution & s, constraint const & c) {
 
 static constraint g_dont_care_cnstr = mk_eq_cnstr(expr(), expr(), justification(), false);
 static unsigned g_group_size = 1u << 29;
-static unsigned g_cnstr_group_first_index[6] = { 0, g_group_size, 2*g_group_size, 3*g_group_size, 4*g_group_size, 5*g_group_size};
+constexpr unsigned g_num_groups = 6;
+static unsigned g_cnstr_group_first_index[g_num_groups] = { 0, g_group_size, 2*g_group_size, 3*g_group_size, 4*g_group_size, 5*g_group_size};
 static unsigned get_group_first_index(cnstr_group g) {
     return g_cnstr_group_first_index[static_cast<unsigned>(g)];
+}
+static cnstr_group to_cnstr_group(unsigned d) {
+    if (d >= g_num_groups)
+        d = g_num_groups-1;
+    return static_cast<cnstr_group>(d);
 }
 
 /** \brief Convert choice constraint delay factor to cnstr_group */
@@ -236,10 +242,12 @@ struct unifier_fn {
     typedef rb_tree<cnstr, cnstr_cmp> cnstr_set;
     typedef rb_tree<unsigned, unsigned_cmp> cnstr_idx_set;
     typedef rb_map<name, cnstr_idx_set, name_quick_cmp> name_to_cnstrs;
+    typedef rb_map<name, unsigned, name_quick_cmp> owned_map;
     typedef std::unique_ptr<type_checker> type_checker_ptr;
     environment      m_env;
     name_generator   m_ngen;
     substitution     m_subst;
+    owned_map        m_owned_map; // mapping from metavariable name m to delay factor of the choice constraint that owns m
     unifier_plugin   m_plugin;
     type_checker_ptr m_tc[2];
     bool             m_use_exception; //!< True if we should throw an exception when there are no more solutions.
@@ -286,11 +294,12 @@ struct unifier_fn {
         substitution     m_subst;
         cnstr_set        m_cnstrs;
         name_to_cnstrs   m_mvar_occs;
+        owned_map        m_owned_map;
 
         /** \brief Save unifier's state */
         case_split(unifier_fn & u, justification const & j):
             m_assumption_idx(u.m_next_assumption_idx), m_jst(j), m_subst(u.m_subst), m_cnstrs(u.m_cnstrs),
-            m_mvar_occs(u.m_mvar_occs) {
+            m_mvar_occs(u.m_mvar_occs), m_owned_map(u.m_owned_map) {
             u.m_next_assumption_idx++;
             u.m_tc[0]->push();
             u.m_tc[1]->push();
@@ -306,6 +315,7 @@ struct unifier_fn {
             u.m_subst     = m_subst;
             u.m_cnstrs    = m_cnstrs;
             u.m_mvar_occs = m_mvar_occs;
+            u.m_owned_map = m_owned_map;
             m_assumption_idx = u.m_next_assumption_idx;
             m_failed_justifications = mk_composite1(m_failed_justifications, *u.m_conflict);
             u.m_next_assumption_idx++;
@@ -608,12 +618,41 @@ struct unifier_fn {
         return Continue;
     }
 
+    /** \brief Return a delay factor if e is of the form (?m ...) and ?m is a metavariable owned by
+        a choice constraint. The delay factor is the delay of the choice constraint.
+        Return none otherwise. */
+    optional<unsigned> is_owned(expr const & e) {
+        expr const & m = get_app_fn(e);
+        if (!is_metavar(m))
+            return optional<unsigned>();
+        if (auto it = m_owned_map.find(mlocal_name(m)))
+            return optional<unsigned>(*it);
+        else
+            return optional<unsigned>();
+    }
+
+    /** \brief Applies previous method to the left and right hand sides of the equality constraint */
+    optional<unsigned> is_owned(constraint const & c) {
+        if (auto d = is_owned(cnstr_lhs_expr(c)))
+            return d;
+        else
+            return is_owned(cnstr_rhs_expr(c));
+    }
+
     /** \brief Process an equality constraints. */
     bool process_eq_constraint(constraint const & c) {
         lean_assert(is_eq_cnstr(c));
         // instantiate assigned metavariables
         status st = instantiate_eq_cnstr(c);
         if (st != Continue) return st == Solved;
+
+        if (auto d = is_owned(c)) {
+            // Metavariable in the constraint is owned by choice constraint.
+            // So, we postpone this constraint.
+            add_cnstr(c, to_cnstr_group(*d+1));
+            return true;
+        }
+
         st = process_eq_constraint_core(c);
         if (st != Continue) return st == Solved;
 
@@ -707,6 +746,17 @@ struct unifier_fn {
         return true;
     }
 
+    bool preprocess_choice_constraint(constraint const & c) {
+        if (cnstr_is_owner(c)) {
+            expr m = get_app_fn(cnstr_expr(c));
+            lean_assert(is_metavar(m));
+            m_owned_map.insert(mlocal_name(m), cnstr_delay_factor(c));
+        }
+        // Choice constraints are never considered easy.
+        add_cnstr(c, get_choice_cnstr_group(c));
+        return true;
+    }
+
     /**
         \brief Process the given constraint \c c. "Easy" constraints are solved, and the remaining ones
         are added to the constraint queue m_cnstrs. By "easy", see the methods
@@ -718,9 +768,7 @@ struct unifier_fn {
         check_system();
         switch (c.kind()) {
         case constraint_kind::Choice:
-            // Choice constraints are never considered easy.
-            add_cnstr(c, get_choice_cnstr_group(c));
-            return true;
+            return preprocess_choice_constraint(c);
         case constraint_kind::Eq:
             return process_eq_constraint(c);
         case constraint_kind::LevelEq:
@@ -878,6 +926,11 @@ struct unifier_fn {
         lean_assert(is_choice_cnstr(c));
         expr const &   m            = cnstr_expr(c);
         choice_fn const & fn        = cnstr_choice_fn(c);
+        if (cnstr_is_owner(c)) {
+            // choice will have a chance to assign m, so
+            // we remove the "barrier" that was preventing m from being assigned.
+            m_owned_map.erase(mlocal_name(get_app_fn(m)));
+        }
         expr m_type;
         bool relax = relax_main_opaque(c);
         try {

@@ -615,7 +615,7 @@ public:
                                                                        ignore_failure, m_relax_main_opaque));
             }
         };
-        add_cnstr(mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), j, m_relax_main_opaque));
+        add_cnstr(mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), false, j, m_relax_main_opaque));
         return m;
     }
 
@@ -657,7 +657,7 @@ public:
             return choose(std::make_shared<choice_expr_elaborator>(*this, mvar, e, ctx, s, relax));
         };
         justification j = mk_justification("none of the overloads is applicable", some_expr(e));
-        add_cnstr(mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), j, m_relax_main_opaque));
+        add_cnstr(mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), true, j, m_relax_main_opaque));
         return m;
     }
 
@@ -733,7 +733,7 @@ public:
                 return lazy_list<constraints>(constraints(mk_eq_cnstr(mvar, r, justification(), relax)));
             }
         };
-        return mk_choice_cnstr(m, choice_fn, delay_factor, j, m_relax_main_opaque);
+        return mk_choice_cnstr(m, choice_fn, delay_factor, true, j, m_relax_main_opaque);
     }
 
     /** \brief Given a term <tt>a : a_type</tt>, and an expected type generate a metavariable with a delayed coercion. */

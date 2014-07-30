@@ -67,8 +67,8 @@ public:
 
     friend constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j, bool relax_main_opaque);
     friend constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j);
-    friend constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, unsigned delay_factor, justification const & j,
-                                      bool relax_main_opaque);
+    friend constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, unsigned delay_factor, bool owner,
+                                      justification const & j, bool relax_main_opaque);
 
     constraint_cell * raw() const { return m_ptr; }
 };
@@ -76,13 +76,21 @@ public:
 inline bool operator==(constraint const & c1, constraint const & c2) { return c1.raw() == c2.raw(); }
 inline bool operator!=(constraint const & c1, constraint const & c2) { return !(c1 == c2); }
 
-/**
-   \brief Create a unification constraint lhs =?= rhs
-   If \c relax_main_opaque is true, then opaque definitions from the main module are treated as transparent.
+/** \brief Create a unification constraint lhs =?= rhs
+    If \c relax_main_opaque is true, then opaque definitions from the main module are treated as transparent.
 */
 constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j, bool relax_main_opaque);
 constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j);
-constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, unsigned delay_factor, justification const & j, bool relax_main_opaque);
+/** \brief Create a "choice" constraint m in fn(...), where fn produces a stream of possible solutions.
+    \c delay_factor allows to control when the constraint is processed by the elaborator, bigger == later.
+    If \c owner is true, then the elaborator should not assign the metavariable get_app_fn(m).
+    The variable will be assigned by the choice constraint, and the elaborator should just check whether a solution
+    produced by fn satisfies the other constraints or not.
+    \c j is a justification for the constraint.
+    If \c relax_main_opaque is true, then it signs that constraint was created in a context where
+    opaque constants of the main module can be treated as transparent.
+*/
+constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, unsigned delay_factor, bool owner, justification const & j, bool relax_main_opaque);
 
 inline bool is_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::Eq; }
 inline bool is_level_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::LevelEq; }
@@ -106,6 +114,8 @@ expr const & cnstr_expr(constraint const & c);
 choice_fn const & cnstr_choice_fn(constraint const & c);
 /** \brief Return the choice constraint delay factor */
 unsigned cnstr_delay_factor(constraint const & c);
+/** \brief Return true iff the given choice constraints owns the right to assign the metavariable in \c c. */
+bool cnstr_is_owner(constraint const & c);
 
 /** \brief Printer for debugging purposes */
 std::ostream & operator<<(std::ostream & out, constraint const & c);

@@ -240,8 +240,11 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
                     locals.pop_back();
                 }
                 expr ini  = parse_notation_expr(p, locals);
+                optional<name> terminator;
+                if (!p.curr_is_token(g_rparen))
+                    terminator = parse_quoted_symbol_or_token(p, new_tokens);
                 p.check_token_next(g_rparen, "invalid fold notation argument, ')' expected");
-                return mk_exprs_action(sep, rec, ini, is_fold_right, prec ? *prec : 0);
+                return mk_exprs_action(sep, rec, ini, terminator, is_fold_right, prec ? *prec : 0);
             } else if (p.curr_is_token_or_id(g_scoped)) {
                 p.next();
                 auto prec = parse_optional_precedence(p);

@@ -79,6 +79,11 @@ serializer & operator<<(serializer & s, action const & a) {
         break;
     case action_kind::Exprs:
         s << a.get_sep() << a.get_rec() << a.get_initial() << a.is_fold_right() << a.rbp();
+        if (auto t = a.get_terminator()) {
+            s << true << *t;
+        } else {
+            s << false;
+        }
         break;
     case action_kind::ScopedExpr:
         s << a.get_rec() << a.rbp() << a.use_lambda_abstraction();
@@ -108,7 +113,10 @@ action read_action(deserializer & d) {
     case action_kind::Exprs: {
         name sep; expr rec, ini; bool is_fold_right;
         d >> sep >> rec >> ini >> is_fold_right >> rbp;
-        return notation::mk_exprs_action(sep, rec, ini, is_fold_right, rbp);
+        optional<name> terminator;
+        if (d.read_bool())
+            terminator = read_name(d);
+        return notation::mk_exprs_action(sep, rec, ini, terminator, is_fold_right, rbp);
     }
     case action_kind::ScopedExpr: {
         expr rec; bool use_lambda_abstraction;

@@ -708,10 +708,20 @@ expr parser::parse_notation(parse_table t, expr * left) {
             break;
         case notation::action_kind::Exprs: {
             buffer<expr> r_args;
-            r_args.push_back(parse_expr(a.rbp()));
-            while (curr_is_token(a.get_sep())) {
-                next();
+            auto terminator = a.get_terminator();
+            if (!terminator || !curr_is_token(*terminator)) {
                 r_args.push_back(parse_expr(a.rbp()));
+                while (curr_is_token(a.get_sep())) {
+                    next();
+                    r_args.push_back(parse_expr(a.rbp()));
+                }
+            }
+            if (terminator) {
+                if (curr_is_token(*terminator)) {
+                    next();
+                } else {
+                    throw parser_error(sstream() << "invalid composite expression, '" << *terminator << "' expected", pos());
+                }
             }
             expr r   = instantiate_rev(copy_with_new_pos(a.get_initial(), p), args.size(), args.data());
             expr rec = copy_with_new_pos(a.get_rec(), p);
@@ -955,11 +965,10 @@ unsigned parser::curr_lbp() const {
     case scanner::token_kind::Keyword:
         return get_token_info().precedence();
     case scanner::token_kind::CommandKeyword: case scanner::token_kind::Eof:
-    case scanner::token_kind::ScriptBlock:
+    case scanner::token_kind::ScriptBlock:    case scanner::token_kind::QuotedSymbol:
         return 0;
     case scanner::token_kind::Identifier:     case scanner::token_kind::Numeral:
     case scanner::token_kind::Decimal:        case scanner::token_kind::String:
-    case scanner::token_kind::QuotedSymbol:
         return std::numeric_limits<unsigned>::max();
     }
     lean_unreachable(); // LCOV_EXCL_LINE

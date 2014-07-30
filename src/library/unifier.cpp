@@ -1554,6 +1554,8 @@ struct unifier_fn {
             if (in_conflict() && !resolve_conflict())
                 return failure();
         }
+        lean_assert(!m_tc[0]->next_cnstr());
+        lean_assert(!m_tc[1]->next_cnstr());
         lean_assert(!in_conflict());
         lean_assert(m_cnstrs.empty());
         substitution s = m_subst;

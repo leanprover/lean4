@@ -402,7 +402,9 @@ struct default_converter : public converter {
             if (!is_pi(s_type))
                 return false;
             expr new_s = mk_lambda(binding_name(s_type), binding_domain(s_type), mk_app(s, Var(0)), binding_info(s_type));
-            return is_def_eq(t, new_s, c, jst);
+            bool r = is_def_eq(t, new_s, c, jst);
+            if (r) scope.keep();
+            return r;
         } else {
             return false;
         }

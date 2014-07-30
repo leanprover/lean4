@@ -324,3 +324,8 @@ if((${CYGWIN} EQUAL "1") OR (NOT (${CMAKE_SYSTEM_NAME} MATCHES "Windows")))
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library/hott
     )
 endif()
+
+add_custom_target(clean-olean
+   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
+   COMMAND find . -name '*.olean' -exec rm -f '{}' '\;'
+)

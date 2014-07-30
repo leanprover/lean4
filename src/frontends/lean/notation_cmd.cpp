@@ -324,7 +324,7 @@ notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry
             // new notation is still compatible with the existing one
             transition const & new_trans = ts.back();
             if (auto at = pt->find(new_trans.get_token())) {
-                if (new_trans.get_action().is_compatible(at->first)) {
+                if (new_trans.get_action().is_equal(at->first)) {
                     pt = at->second;
                 } else {
                     // new notation is not compatible with existing one

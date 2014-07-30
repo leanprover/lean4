@@ -76,7 +76,7 @@ public:
     parse_fn const & get_parse_fn() const;
     std::string const & get_lua_fn() const;
 
-    bool is_compatible(action const & a) const;
+    bool is_equal(action const & a) const;
     void display(std::ostream & out) const;
 };
 

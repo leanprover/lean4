@@ -106,7 +106,7 @@ expr const & action::get_initial() const { return to_exprs_action(m_ptr)->m_ini;
 bool action::is_fold_right() const { return to_exprs_action(m_ptr)->m_fold_right; }
 parse_fn const & action::get_parse_fn() const { return to_ext_action(m_ptr)->m_parse_fn; }
 std::string const & action::get_lua_fn() const { return to_ext_lua_action(m_ptr)->m_lua_fn; }
-bool action::is_compatible(action const & a) const {
+bool action::is_equal(action const & a) const {
     if (kind() != a.kind())
         return false;
     switch (kind()) {
@@ -276,7 +276,7 @@ parse_table parse_table::add_core(unsigned num, transition const * ts, expr cons
         if (it) {
             action const & act        = it->first;
             parse_table const & child = it->second;
-            if (act.is_compatible(ts->get_action())) {
+            if (act.is_equal(ts->get_action())) {
                 new_child = child.add_core(num-1, ts+1, a, overload);
             } else {
                 new_child = parse_table().add_core(num-1, ts+1, a, overload);
@@ -374,8 +374,8 @@ static int mk_ext_lua_action(lua_State * L) {
     lua_pop(L, 1);
     return push_notation_action(L, mk_ext_lua_action(fn));
 }
-static int is_compatible(lua_State * L) {
-    return push_boolean(L, to_notation_action(L, 1).is_compatible(to_notation_action(L, 2)));
+static int is_equal(lua_State * L) {
+    return push_boolean(L, to_notation_action(L, 1).is_equal(to_notation_action(L, 2)));
 }
 static void check_action(lua_State * L, int idx, std::initializer_list<action_kind> const & ks) {
     action_kind k = to_notation_action(L, idx).kind();
@@ -414,7 +414,7 @@ static int fn(lua_State * L) {
 
 static const struct luaL_Reg notation_action_m[] = {
     {"__gc",                   notation_action_gc},
-    {"is_compatible",          safe_function<is_compatible>},
+    {"is_equal",               safe_function<is_equal>},
     {"kind",                   safe_function<kind>},
     {"rbp",                    safe_function<rbp>},
     {"sep",                    safe_function<sep>},

@@ -1327,22 +1327,17 @@ struct unifier_fn {
         }
     }
 
-    /** \brief Process a flex rigid constraint */
-    bool process_flex_rigid(expr const & lhs, expr const & rhs, justification const & j, bool relax) {
-        lean_assert(is_meta(lhs));
-        lean_assert(!is_meta(rhs));
+    /** \brief Append the auxiliary constraints \c aux to each alternative in \c alts */
+    void append_auxiliary_constraints(buffer<constraints> & alts, list<constraint> const & aux) {
+        if (is_nil(aux))
+            return;
+        for (constraints & cs : alts)
+            cs = append(aux, cs);
+    }
+
+    void process_flex_rigid_core(expr const & lhs, expr const & rhs, justification const & j, bool relax, buffer<constraints> & alts) {
         buffer<expr> margs;
         expr m     = get_app_args(lhs, margs);
-        for (expr & marg : margs) {
-            // Make sure that if marg is reducible to a local constant, then it is replaced with it.
-            // We need that because of the optimization based on is_easy_flex_rigid_arg
-            if (!is_local(marg)) {
-                expr new_marg = m_tc[relax]->whnf(marg);
-                if (is_local(new_marg))
-                    marg = new_marg;
-            }
-        }
-        buffer<constraints> alts;
         switch (rhs.kind()) {
         case expr_kind::Var: case expr_kind::Meta:
             lean_unreachable(); // LCOV_EXCL_LINE
@@ -1374,16 +1369,59 @@ struct unifier_fn {
                     else
                         mk_simple_nonlocal_projection(m, margs, i, rhs, j, alts, relax);
                 }
-            } else if (is_constant(f)) {
+            } else {
+                lean_assert(is_constant(f));
                 mk_simple_projections(m, margs, rhs, j, alts, relax);
                 mk_flex_rigid_app_cnstrs(m, margs, f, rhs, j, alts, relax);
-            } else {
+            }
+            break;
+        }}
+    }
+
+    /** \brief When lhs is an application (f ...), make sure that if any argument that is reducible to a
+        local constant is replaced with a local constant.
+
+        \remark We store auxiliary constraints created in the reductions in \c aux. We return the new
+        "reduce" application.
+
+        \remark We need this step because of the optimization based on is_easy_flex_rigid_arg
+    */
+    expr expose_local_args(expr const & lhs, bool relax, buffer<constraint> & aux) {
+        buffer<expr> margs;
+        expr m        = get_app_args(lhs, margs);
+        bool modified = false;
+        for (expr & marg : margs) {
+            // Make sure that if marg is reducible to a local constant, then it is replaced with it.
+            // We need that because of the optimization based on is_easy_flex_rigid_arg
+            if (!is_local(marg)) {
+                expr new_marg = m_tc[relax]->whnf(marg, aux);
+                if (is_local(new_marg)) {
+                    marg     = new_marg;
+                    modified = true;
+                }
+            }
+        }
+        return modified ? mk_app(m, margs) : lhs;
+    }
+
+    /** \brief Process a flex rigid constraint */
+    bool process_flex_rigid(expr lhs, expr const & rhs, justification const & j, bool relax) {
+        lean_assert(is_meta(lhs));
+        lean_assert(!is_meta(rhs));
+        if (is_app(rhs)) {
+            expr const & f = get_app_fn(rhs);
+            if (!is_local(f) && !is_constant(f)) {
                 expr new_rhs = m_tc[relax]->whnf(rhs);
                 lean_assert(new_rhs != rhs);
                 return is_def_eq(lhs, new_rhs, j, relax);
             }
-            break;
-        }}
+        }
+
+        buffer<constraint> aux;
+        lhs = expose_local_args(lhs, relax, aux);
+        buffer<constraints> alts;
+        process_flex_rigid_core(lhs, rhs, j, relax, alts);
+        append_auxiliary_constraints(alts, to_list(aux.begin(), aux.end()));
 
         if (alts.empty()) {
             set_conflict(j);

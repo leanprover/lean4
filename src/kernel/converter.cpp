@@ -456,8 +456,10 @@ struct default_converter : public converter {
                             // If the flag use_conv_opt() is not true, then we skip this optimization
                             if (!is_opaque(*d_t) && d_t->use_conv_opt()) {
                                 type_checker::scope scope(c);
-                                if (is_def_eq_args(t_n, s_n, c, jst))
+                                if (is_def_eq_args(t_n, s_n, c, jst)) {
+                                    scope.keep();
                                     return true;
+                                }
                             }
                         }
                     }

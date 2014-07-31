@@ -131,6 +131,8 @@ static void display_error(io_state_stream const & ios, pos_info_provider const *
 // }
 
 void display_error(io_state_stream const & ios, pos_info_provider const * p, exception const & ex) {
+    bool use_flycheck = ios.get_options().get_bool("use_flycheck", false);
+    if (use_flycheck) ios << "FLYCHECK_BEGIN ERROR" << endl;
     if (auto k_ex = dynamic_cast<kernel_exception const *>(&ex)) {
         display_error(ios, p, *k_ex);
     } else if (auto e_ex = dynamic_cast<unifier_exception const *>(&ex)) {
@@ -149,5 +151,6 @@ void display_error(io_state_stream const & ios, pos_info_provider const * p, exc
     } else {
         ios << "error: " << ex.what() << endl;
     }
+    if (use_flycheck) ios << "FLYCHECK_END" << endl;
 }
 }

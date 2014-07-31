@@ -75,6 +75,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --hott            use Homotopy Type Theory kernel and libraries\n";
     std::cout << "  --threads=num -j  number of threads used to process lean files\n";
     std::cout << "  --deps            just print dependencies of a Lean input\n";
+    std::cout << "  --flycheck        print structured error message for flycheck\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
@@ -109,6 +110,7 @@ static struct option g_long_options[] = {
     {"hott",        no_argument,       0, 'H'},
     {"threads",     required_argument, 0, 'j'},
     {"deps",        no_argument,       0, 'D'},
+    {"flycheck",    no_argument,       0, 'F'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",      required_argument, 0, 's'},
 #endif
@@ -116,9 +118,9 @@ static struct option g_long_options[] = {
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "DHiqlupgvhj:012c:012s:012t:012o:";
+static char const * g_opt_str = "FDHiqlupgvhj:012c:012s:012t:012o:";
 #else
-static char const * g_opt_str = "DHiqlupgvhj:012c:012t:012o:";
+static char const * g_opt_str = "FDHiqlupgvhj:012c:012t:012o:";
 #endif
 
 enum class lean_mode { Standard, HoTT };
@@ -131,6 +133,7 @@ int main(int argc, char ** argv) {
     bool quiet           = false;
     bool interactive     = false;
     bool only_deps       = false;
+    bool use_flycheck    = false;
     lean_mode mode       = lean_mode::Standard;
     unsigned num_threads = 1;
     std::string output;
@@ -187,6 +190,9 @@ int main(int argc, char ** argv) {
         case 'D':
             only_deps = true;
             break;
+        case 'F':
+            use_flycheck = true;
+            break;
         default:
             std::cerr << "Unknown command line option\n";
             display_help(std::cerr);
@@ -198,6 +204,8 @@ int main(int argc, char ** argv) {
     io_state ios(lean::mk_pretty_formatter_factory());
     if (quiet)
         ios.set_option("verbose", false);
+    if (use_flycheck)
+        ios.set_option("use_flycheck", true);
     script_state S = lean::get_thread_script_state();
     set_environment set1(S, env);
     set_io_state    set2(S, ios);

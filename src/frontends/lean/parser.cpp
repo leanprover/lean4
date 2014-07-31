@@ -133,8 +133,11 @@ void parser::display_error_pos(unsigned line, unsigned pos) {
 void parser::display_error_pos(pos_info p) { display_error_pos(p.first, p.second); }
 
 void parser::display_error(char const * msg, unsigned line, unsigned pos) {
+    bool use_flycheck = regular_stream().get_options().get_bool("use_flycheck", false);
+    if (use_flycheck) regular_stream() << "FLYCHECK_BEGIN ERROR" << endl;
     display_error_pos(line, pos);
     regular_stream() << " " << msg << endl;
+    if (use_flycheck) regular_stream() << "FLYCHECK_END" << endl;
 }
 
 void parser::display_error(char const * msg, pos_info p) {

@@ -11,7 +11,7 @@
 
 import nat
 using nat eq_proofs
-
+set_option unifier.expensive true
 inductive list (T : Type) : Type :=
 | nil {} : list T
 | cons : T → list T → list T

@@ -28,6 +28,9 @@ namespace lean {
 static name g_unifier_max_steps      {"unifier", "max_steps"};
 RegisterUnsignedOption(g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS, "(unifier) maximum number of steps");
 unsigned get_unifier_max_steps(options const & opts) { return opts.get_unsigned(g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS); }
+static name g_unifier_expensive      {"unifier", "expensive"};
+RegisterBoolOption(g_unifier_expensive, LEAN_DEFAULT_UNIFIER_EXPENSIVE, "(unifier) enable/disable expensive (and more complete) procedure");
+bool get_unifier_expensive(options const & opts) { return opts.get_bool(g_unifier_expensive, LEAN_DEFAULT_UNIFIER_EXPENSIVE); }
 
 /** \brief Return true iff \c [begin_locals, end_locals) contains \c local */
 template<typename It> bool contains_local(expr const & local, It const & begin_locals, It const & end_locals) {
@@ -253,6 +256,7 @@ struct unifier_fn {
     bool             m_use_exception; //!< True if we should throw an exception when there are no more solutions.
     unsigned         m_max_steps;
     unsigned         m_num_steps;
+    bool             m_expensive;
     bool             m_first; //!< True if we still have to generate the first solution.
     unsigned         m_next_assumption_idx; //!< Next assumption index.
     unsigned         m_next_cidx; //!< Next constraint index.
@@ -344,9 +348,9 @@ struct unifier_fn {
 
     unifier_fn(environment const & env, unsigned num_cs, constraint const * cs,
                name_generator const & ngen, substitution const & s,
-               bool use_exception, unsigned max_steps):
+               bool use_exception, unsigned max_steps, bool expensive):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(get_unifier_plugin(env)),
-        m_use_exception(use_exception), m_max_steps(max_steps), m_num_steps(0) {
+        m_use_exception(use_exception), m_max_steps(max_steps), m_num_steps(0), m_expensive(expensive) {
         m_tc[0] = mk_type_checker_with_hints(env, m_ngen.mk_child(), false);
         m_tc[1] = mk_type_checker_with_hints(env, m_ngen.mk_child(), true);
         m_next_assumption_idx = 0;
@@ -1471,12 +1475,14 @@ struct unifier_fn {
         buffer<constraints> alts;
         process_flex_rigid_core(lhs, rhs, j, relax, alts);
         append_auxiliary_constraints(alts, to_list(aux.begin(), aux.end()));
-        expr rhs_whnf = whnf(rhs, j, relax, aux);
-        if (rhs_whnf != rhs) {
-            buffer<constraints> alts2;
-            process_flex_rigid_core(lhs, rhs_whnf, j, relax, alts2);
-            append_auxiliary_constraints(alts2, to_list(aux.begin(), aux.end()));
-            alts.append(alts2);
+        if (m_expensive) {
+            expr rhs_whnf = whnf(rhs, j, relax, aux);
+            if (rhs_whnf != rhs) {
+                buffer<constraints> alts2;
+                process_flex_rigid_core(lhs, rhs_whnf, j, relax, alts2);
+                append_auxiliary_constraints(alts2, to_list(aux.begin(), aux.end()));
+                alts.append(alts2);
+            }
         }
 
         if (alts.empty()) {
@@ -1674,21 +1680,21 @@ lazy_list<substitution> unify(std::shared_ptr<unifier_fn> u) {
 }
 
 lazy_list<substitution> unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              bool use_exception, unsigned max_steps) {
-    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, ngen, substitution(), use_exception, max_steps));
+                              bool use_exception, unsigned max_steps, bool expensive) {
+    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, ngen, substitution(), use_exception, max_steps, expensive));
 }
 
 lazy_list<substitution> unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator const & ngen,
                               bool use_exception, options const & o) {
-    return unify(env, num_cs, cs, ngen, use_exception, get_unifier_max_steps(o));
+    return unify(env, num_cs, cs, ngen, use_exception, get_unifier_max_steps(o), get_unifier_expensive(o));
 }
 
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
-                              bool relax, substitution const & s, unsigned max_steps) {
+                              bool relax, substitution const & s, unsigned max_steps, bool expensive) {
     substitution new_s = s;
     expr _lhs = new_s.instantiate(lhs);
     expr _rhs = new_s.instantiate(rhs);
-    auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, new_s, false, max_steps);
+    auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, new_s, false, max_steps, expensive);
     if (!u->m_tc[relax]->is_def_eq(_lhs, _rhs))
         return lazy_list<substitution>();
     else
@@ -1697,7 +1703,7 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
 
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
                               bool relax, substitution const & s, options const & o) {
-    return unify(env, lhs, rhs, ngen, relax, s, get_unifier_max_steps(o));
+    return unify(env, lhs, rhs, ngen, relax, s, get_unifier_max_steps(o), get_unifier_expensive(o));
 }
 
 static int unify_simple(lua_State * L) {

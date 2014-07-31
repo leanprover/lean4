@@ -4,7 +4,7 @@ target_link_libraries(lean ${ALL_LIBS})
 ADD_CUSTOM_COMMAND(TARGET lean
           POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E make_directory ${LEAN_SOURCE_DIR}/../bin
-          COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/lean ${LEAN_SOURCE_DIR}/../bin/
+          COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX} ${LEAN_SOURCE_DIR}/../bin/
 )
 
 install(TARGETS lean DESTINATION bin)

@@ -113,6 +113,7 @@ void pretty_fn::set_options_core(options const & o) {
     m_universes     = get_pp_universes(o);
     m_full_names    = get_pp_full_names(o);
     m_private_names = get_pp_private_names(o);
+    m_metavar_args  = get_pp_metavar_args(o);
 }
 
 void pretty_fn::set_options(options const & o) {
@@ -412,6 +413,7 @@ auto pretty_fn::pp(expr const & e) -> result {
     if (is_show(e)) return pp_show(e);
     if (is_let(e))  return pp_let(e);
     if (is_have(e)) return pp_have(e);
+    if (!m_metavar_args && is_meta(e)) return pp_meta(get_app_fn(e));
 
     switch (e.kind()) {
     case expr_kind::Var:       return pp_var(e);

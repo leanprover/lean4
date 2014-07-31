@@ -40,6 +40,7 @@ private:
     bool               m_universes;
     bool               m_full_names;
     bool               m_private_names;
+    bool               m_metavar_args;
 
     unsigned max_bp() const { return std::numeric_limits<unsigned>::max(); }
     name mk_metavar_name(name const & m);

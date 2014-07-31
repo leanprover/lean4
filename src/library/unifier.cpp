@@ -430,6 +430,45 @@ struct unifier_fn {
         }
     }
 
+    /** \brief Put \c e in weak head normal form.
+
+        \remark If relax is true then opaque definitions from the main module are treated as transparent.
+        \remark Constraints generated in the process are stored in \c cs. The justification \c j is composed with them.
+    */
+    expr whnf(expr const & e, justification const & j, bool relax, buffer<constraint> & cs) {
+        unsigned cs_sz = cs.size();
+        expr r = m_tc[relax]->whnf(e, cs);
+        for (unsigned i = cs_sz; i < cs.size(); i++)
+            cs[i] = update_justification(cs[i], mk_composite1(j, cs[i].get_justification()));
+        return r;
+    }
+
+    /** \brief Process the given constraints. Return true iff no conflict was detected. */
+    bool process_constraints(buffer<constraint> & cs) {
+        for (auto const & c : cs)
+            if (!process_constraint(c))
+                return false;
+        return true;
+    }
+
+    /** \brief Infer \c e type.
+
+        \remark Return none if an exception was throw when inferring the type.
+        \remark If relax is true then opaque definitions from the main module are treated as transparent.
+        \remark Constraints generated in the process are stored in \c cs. The justification \c j is composed with them.
+    */
+    optional<expr> infer(expr const & e, justification const & j, bool relax, buffer<constraint> & cs) {
+        try {
+            unsigned cs_sz = cs.size();
+            expr r = m_tc[relax]->infer(e, cs);
+            for (unsigned i = cs_sz; i < cs.size(); i++)
+                cs[i] = update_justification(cs[i], mk_composite1(j, cs[i].get_justification()));
+            return some_expr(r);
+        } catch (exception &) {
+            return none_expr();
+        }
+    }
+
     /**
        \brief Assign \c v to metavariable \c m with justification \c j.
        The type of v and m are inferred, and is_def_eq is invoked.
@@ -439,17 +478,20 @@ struct unifier_fn {
     */
     bool assign(expr const & m, expr const & v, justification const & j, bool relax) {
         lean_assert(is_metavar(m));
+        lean_assert(!in_conflict());
         m_subst.assign(m, v, j);
         expr m_type = mlocal_type(m);
         expr v_type;
-        try {
-            v_type = m_tc[relax]->infer(v);
-        } catch (kernel_exception & e) {
+        buffer<constraint> cs;
+        if (auto type = infer(v, j, relax, cs)) {
+            v_type = *type;
+            if (!process_constraints(cs))
+                return false;
+        } else {
             set_conflict(j);
             return false;
         }
-        if (in_conflict())
-            return false;
+        lean_assert(!in_conflict());
         if (!is_def_eq(m_type, v_type, j, relax))
             return false;
         auto it = m_mvar_occs.find(mlocal_name(m));
@@ -933,9 +975,13 @@ struct unifier_fn {
         }
         expr m_type;
         bool relax = relax_main_opaque(c);
-        try {
-            m_type                  = m_tc[relax]->infer(m);
-        } catch (kernel_exception &) {
+
+        buffer<constraint> cs;
+        if (auto type = infer(m, c.get_justification(), relax, cs)) {
+            m_type = *type;
+            if (!process_constraints(cs))
+                return false;
+        } else {
             set_conflict(c.get_justification());
             return false;
         }
@@ -1071,8 +1117,8 @@ struct unifier_fn {
        \brief Make sure mtype is a Pi of size at least margs.size().
        If it is not, we use ensure_pi and (potentially) add new constaints to enforce it.
     */
-    optional<expr> ensure_sufficient_args(expr const & mtype, buffer<expr> const & margs, buffer<constraint> & cs, justification const & j,
-                                          bool relax) {
+    optional<expr> ensure_sufficient_args(expr const & mtype, buffer<expr> const & margs, buffer<constraint> & cs,
+                                          justification const & j, bool relax) {
         expr t = mtype;
         unsigned num = 0;
         while (is_pi(t)) {
@@ -1386,7 +1432,7 @@ struct unifier_fn {
 
         \remark We need this step because of the optimization based on is_easy_flex_rigid_arg
     */
-    expr expose_local_args(expr const & lhs, bool relax, buffer<constraint> & aux) {
+    expr expose_local_args(expr const & lhs, justification const & j, bool relax, buffer<constraint> & aux) {
         buffer<expr> margs;
         expr m        = get_app_args(lhs, margs);
         bool modified = false;
@@ -1394,7 +1440,7 @@ struct unifier_fn {
             // Make sure that if marg is reducible to a local constant, then it is replaced with it.
             // We need that because of the optimization based on is_easy_flex_rigid_arg
             if (!is_local(marg)) {
-                expr new_marg = m_tc[relax]->whnf(marg, aux);
+                expr new_marg = whnf(marg, j, relax, aux);
                 if (is_local(new_marg)) {
                     marg     = new_marg;
                     modified = true;
@@ -1411,17 +1457,27 @@ struct unifier_fn {
         if (is_app(rhs)) {
             expr const & f = get_app_fn(rhs);
             if (!is_local(f) && !is_constant(f)) {
-                expr new_rhs = m_tc[relax]->whnf(rhs);
+                buffer<constraint> cs;
+                expr new_rhs = whnf(rhs, j, relax, cs);
                 lean_assert(new_rhs != rhs);
+                if (!process_constraints(cs))
+                    return false;
                 return is_def_eq(lhs, new_rhs, j, relax);
             }
         }
 
         buffer<constraint> aux;
-        lhs = expose_local_args(lhs, relax, aux);
+        lhs = expose_local_args(lhs, j, relax, aux);
         buffer<constraints> alts;
         process_flex_rigid_core(lhs, rhs, j, relax, alts);
         append_auxiliary_constraints(alts, to_list(aux.begin(), aux.end()));
+        expr rhs_whnf = whnf(rhs, j, relax, aux);
+        if (rhs_whnf != rhs) {
+            buffer<constraints> alts2;
+            process_flex_rigid_core(lhs, rhs_whnf, j, relax, alts2);
+            append_auxiliary_constraints(alts2, to_list(aux.begin(), aux.end()));
+            alts.append(alts2);
+        }
 
         if (alts.empty()) {
             set_conflict(j);

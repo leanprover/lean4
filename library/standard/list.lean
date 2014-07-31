@@ -11,11 +11,24 @@
 
 import tactic
 import nat
+import congr
+import if -- for find
 
 using nat
+using congr
 using eq_proofs
 
 namespace list
+
+
+-- TODO: move this
+theorem or_right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
+calc
+  (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) : or_assoc _ _ _
+    ... ↔ a ∨ (c ∨ b) : congr.infer iff iff _ (or_comm b c)
+    ... ↔ (a ∨ c) ∨ b : iff_symm (or_assoc _ _ _)
+
+-- TODO: add or_left_comm, and_right_comm, and_left_comm
 
 
 -- Type
@@ -40,9 +53,6 @@ theorem list_cases_on {P : list T → Prop} (l : list T) (Hnil : P nil)
 list_induction_on l Hnil (take x l IH, Hcons x l)
 
 notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
-notation `[` `]` := nil
--- TODO: should this be needed?
-notation `[` x `]` := cons x nil
 
 
 -- Concat
@@ -62,16 +72,6 @@ list_induction_on t (refl _)
   (take (x : T) (l : list T) (H : concat l nil = l),
     show concat (cons x l) nil = cons x l, from H ▸ refl _)
 
--- TODO: these work:
---      calc
---        concat (cons x l) nil = cons x (concat l nil) : refl (concat (cons x l) nil)
---          ... = cons x l : {H})
-
---      H ▸ (refl (cons x (concat l nil))))
-
--- doesn't work:
---      H ▸ (refl (concat (cons x l) nil)))
-
 theorem concat_assoc (s t u : list T) : s ++ t ++ u = s ++ (t ++ u) :=
 list_induction_on s (refl _)
   (take x l,
@@ -81,29 +81,13 @@ list_induction_on s (refl _)
         ... = cons x (concat l (concat t u)) : { H }
         ... = concat (cons x l) (concat t u) : refl _)
 
--- TODO: deleting refl doesn't work, nor does
--- H ▸ refl _)
-
---      concat (concat (cons x l) t) u = cons x (concat (concat l t) u) : refl _
---        ... = concat (cons x l) (concat t u) : { H })
-
---      concat (concat (cons x l) t) u = cons x (concat l (concat t u)) : { H }
---        ... = concat (cons x l) (concat t u) : refl _)
-
---      concat (concat (cons x l) t) u = cons x (concat (concat l t) u) : refl _
---        ... = cons x (concat l (concat t u)) : { H }
---        ... = concat (cons x l) (concat t u) : refl _)
-
--- add_rewrite nil_concat cons_concat concat_nil concat_assoc
-
 
 -- Length
 -- ------
 
 definition length : list T → ℕ := list_rec 0 (fun x l m, succ m)
 
--- TODO: cannot replace zero by 0
-theorem length_nil : length (@nil T) = zero := refl _
+theorem length_nil : length (@nil T) = 0 := refl _
 
 theorem length_cons (x : T) (t : list T) : length (x :: t) = succ (length t) := refl _
 
@@ -121,7 +105,21 @@ list_induction_on s
 	... = succ (length s) + length t  : {symm (add_succ_left _ _)}
 	... = length (cons x s) + length t : refl _)
 
--- -- add_rewrite length_nil length_cons
+-- add_rewrite length_nil length_cons
+
+
+-- Append
+-- ------
+
+definition append (x : T) : list T → list T := list_rec [x] (fun y l l', y :: l')
+
+theorem append_nil (x : T) : append x nil = [x] := refl _
+
+theorem append_cons (x : T) (y : T) (l : list T) : append x (y :: l)  = y :: (append x l) := refl _
+
+theorem append_eq_concat  (x : T) (l : list T) : append x l = l ++ [x] := refl _
+
+-- add_rewrite append_nil append_cons
 
 
 -- Reverse
@@ -131,104 +129,39 @@ definition reverse : list T → list T := list_rec nil (fun x l r, r ++ [x])
 
 theorem reverse_nil : reverse (@nil T) = nil := refl _
 
-theorem reverse_cons (x : T) (l : list T) : reverse (x :: l) = (reverse l) ++ (cons x nil) := refl _
+theorem reverse_cons (x : T) (l : list T) : reverse (x :: l) = append x (reverse l) := refl _
 
--- opaque_hint (hiding reverse)
+theorem reverse_singleton (x : T) : reverse [x] = [x] := refl _
 
 theorem reverse_concat (s t : list T) : reverse (s ++ t) = (reverse t) ++ (reverse s) :=
-list_induction_on s
-  (calc
-    reverse (concat nil t) = reverse t : { nil_concat _ }
-      ... = concat (reverse t) nil : symm (concat_nil _)
-      ... = concat (reverse t) (reverse nil) : {symm (reverse_nil)})
-  (take x l,
-    assume H : reverse (concat l t) = concat (reverse t) (reverse l),
+list_induction_on s (symm (concat_nil _))
+  (take x s,
+    assume IH : reverse (s ++ t) = concat (reverse t) (reverse s),
     calc
-      reverse (concat (cons x l) t) = concat (reverse (concat l t)) (cons x nil) : refl _
-	... = concat (concat (reverse t) (reverse l)) (cons x nil) : { H }
-	... = concat (reverse t) (concat (reverse l) (cons x nil)) : concat_assoc _ _ _
-	... = concat (reverse t) (reverse (cons x l)) : refl _)
+      reverse ((x :: s) ++ t) = reverse (s ++ t) ++ [x] : refl _
+        ... = reverse t ++ reverse s ++ [x] : {IH}
+        ... = reverse t ++ (reverse s ++ [x]) : concat_assoc _ _ _
+        ... = reverse t ++ (reverse (x :: s)) : refl _)
 
 theorem reverse_reverse (l : list T) : reverse (reverse l) = l :=
 list_induction_on l (refl _)
   (take x l',
     assume H: reverse (reverse l') = l',
-    show reverse (reverse (cons x l')) = cons x l', from
+    show reverse (reverse (x :: l')) = x :: l', from
       calc
-      	reverse (reverse (cons x l')) =
-            concat (reverse (cons x nil)) (reverse (reverse l')) : {reverse_concat _ _}
-      	  ... = cons x l' : {H})
-
-      -- longer versions:
-
-      -- reverse (reverse (cons x l)) =
-      --     concat (reverse (cons x nil)) (reverse (reverse l)) : {reverse_concat _ _}
-      --   ... = concat (reverse (cons x nil)) l : {H}
-      --   ... = cons x l : refl _)
-
-      -- calc
-      -- 	reverse (reverse (cons x l)) = reverse (concat (reverse l) (cons x nil))
-      -- 	    : refl _
-      -- 	  ... = concat (reverse (cons x nil)) (reverse (reverse l)) : {reverse_concat _ _}
-      -- 	  ... = concat (reverse (cons x nil)) l : {H}
-      -- 	  ... = cons x l : refl _)
-
-      -- before:
-      -- calc
-      -- 	reverse (reverse (cons x l)) = reverse (concat (reverse l) (cons x nil))
-      -- 	    : {reverse_cons x l}
-      -- 	  ... = concat (reverse (cons x nil)) (reverse (reverse l)) : {reverse_concat _ _}
-      -- 	  ... = concat (reverse (cons x nil)) l : {H}
-      -- 	  ... = concat (concat (reverse nil) (cons x nil)) l : {reverse_cons _ _}
-      -- 	  ... = concat (concat nil (cons x nil)) l : {reverse_nil}
-      -- 	  ... = concat (cons x nil) l : {nil_concat _}
-      -- 	  ... = cons x (concat nil l) : cons_concat _ _ _
-      -- 	  ... = cons x l : {nil_concat _})
-
-
--- Append
--- ------
-
--- TODO: define reverse from append
-
-definition append (x : T) : list T → list T := list_rec (x :: nil) (fun y l l', y :: l')
-
-theorem append_nil (x : T) : append x nil = [x] := refl _
-
-theorem append_cons (x : T) (y : T) (l : list T) : append x (y :: l)  = y :: (append x l) := refl _
-
-theorem append_eq_concat  (x : T) (l : list T) : append x l = l ++ [x] :=
-list_induction_on l (refl _)
-  (take y l,
-    assume P : append x l = concat l [x],
-    P ▸ refl _)
-
-     -- calc
-     --   append x (cons y l) = concat (cons y l) (cons x nil) : { P })
-
-     -- calc
-     --   append x (cons y l) = cons y (concat l (cons x nil)) : { P }
-     --     ... = concat (cons y l) (cons x nil) : refl _)
-
-       -- here it works!
-       -- append x (cons y l) = cons y (append x l) : refl _
-       -- 	 ... = cons y (concat l (cons x nil)) : { P }
-       -- 	 ... = concat (cons y l) (cons x nil) : refl _)
+      	reverse (reverse (x :: l')) = reverse (reverse l' ++ [x]) : refl _
+          ... = reverse [x] ++ reverse (reverse l') : reverse_concat _ _
+          ... = [x] ++ l' : { H }
+          ... = x :: l' : refl _)
 
 theorem append_eq_reverse_cons  (x : T) (l : list T) : append x l = reverse (x :: reverse l) :=
-list_induction_on l
-  (calc
-    append x nil = [x] : (refl _)
-      ... = concat nil [x] : {symm (nil_concat _)}
-      ... = concat (reverse nil) [x] : {symm (reverse_nil)}
-      ... = reverse [x] : {symm (reverse_cons _ _)}
-      ... = reverse (x :: (reverse nil)) : {symm (reverse_nil)})
+list_induction_on l (refl _)
   (take y l',
     assume H : append x l' = reverse (x :: reverse l'),
     calc
       append x (y :: l') = (y :: l') ++ [ x ] : append_eq_concat _ _
         ... = concat (reverse (reverse (y :: l'))) [ x ] : {symm (reverse_reverse _)}
-	... = reverse (x :: (reverse (y :: l'))) : refl _)
+        ... = reverse (x :: (reverse (y :: l'))) : refl _)
 
 
 -- Head and tail
@@ -265,89 +198,64 @@ list_cases_on l
 -- List membership
 -- ---------------
 
-definition mem (f : T) : list T → Prop := list_rec false (fun x l H, (H ∨ (x = f)))
+definition mem (x : T) : list T → Prop := list_rec false (fun y l H, x = y ∨ H)
 
 infix `∈` : 50 := mem
 
-theorem mem_nil (f : T) : mem f nil ↔ false := iff_refl _
+-- TODO: constructively, equality is stronger. Use that?
+theorem mem_nil (x : T) : x ∈ nil ↔ false := iff_refl _
 
-theorem mem_cons (x : T) (f : T) (l : list T) : mem f (cons x l) ↔ (mem f l ∨ x = f) := iff_refl _
+theorem mem_cons (x : T) (y : T) (l : list T) : mem x (cons y l) ↔ (x = y ∨ mem x l) := iff_refl _
 
--- TODO: fix this!
--- theorem or_right_comm : ∀a b c, (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
--- take a b c, calc
---   (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) : or_assoc _ _ _
---     ... ↔ a ∨ (c ∨ b) : {or_comm _ _}
---     ... ↔ (a ∨ c) ∨ b : (or_assoc _ _ _)⁻¹
+theorem mem_concat_imp_or (x : T) (s t : list T) : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
+list_induction_on s (or_intro_right _)
+  (take y s,
+    assume IH : x ∈ s ++ t → x ∈ s ∨ x ∈ t,
+    assume H1 : x ∈ (y :: s) ++ t,
+    have H2 : x = y ∨ x ∈ s ++ t, from H1,
+    have H3 : x = y ∨ x ∈ s ∨ x ∈ t, from imp_or_right H2 IH,
+    iff_elim_right (or_assoc _ _ _) H3)
 
--- theorem mem_concat_imp_or (f : T) (s t : list T) : mem f (concat s t) → mem f s ∨ mem f t :=
--- list_induction_on s
---   (assume H : mem f (concat nil t),
---     have H1 : mem f t, from subst H (nil_concat t),
---     show mem f nil ∨ mem f t, from or_intro_right _ H1)
---   (take x l,
---     assume IH : mem f (concat l t) → mem f l ∨ mem f t,
---     assume H : mem f (concat (cons x l) t),
---     have H1 : mem f (cons x (concat l t)), from subst H (cons_concat _ _ _),
---     have H2 : mem f (concat l t) ∨ x = f, from (mem_cons _ _ _) ◂ H1,
---     have H3 : (mem f l ∨ mem f t) ∨ x = f, from imp_or_left H2 IH,
---     have H4 : (mem f l ∨ x = f) ∨ mem f t, from or_right_comm _ _ _ ◂ H3,
---     show mem f (cons x l) ∨ mem f t, from subst H4 (symm (mem_cons _ _ _)))
+theorem mem_or_imp_concat (x : T) (s t : list T) : x ∈ s ∨ x ∈ t → x ∈ s ++ t :=
+list_induction_on s
+  (take H, or_elim H (false_elim _) (assume H, H))
+  (take y s,
+    assume IH : x ∈ s ∨ x ∈ t → x ∈ s ++ t,
+    assume H : x ∈ y :: s ∨ x ∈ t,
+      or_elim H
+        (assume H1,
+          or_elim H1
+            (take H2 : x = y, or_intro_left _ H2)
+            (take H2 : x ∈ s, or_intro_right _ (IH (or_intro_left _ H2))))
+        (assume H1 : x ∈ t, or_intro_right _ (IH (or_intro_right _ H1))))
 
--- theorem mem_or_imp_concat (f : T) (s t : list T) :
---   mem f s ∨ mem f t → mem f (concat s t)
--- :=
---   list_induction_on s
---     (assume H : mem f nil ∨ mem f t,
---       have H1 : false ∨ mem f t, from subst H (mem_nil f),
---       have H2 : mem f t, from subst H1 (or_false_right _),
---       show mem f (concat nil t), from subst H2 (symm (nil_concat _)))
---     (take x l,
---       assume IH : mem f l ∨ mem f t → mem f (concat l t),
---       assume H : (mem f (cons x l)) ∨ (mem f t),
---       have H1 : ((mem f l) ∨ (x = f)) ∨ (mem f t), from subst H (mem_cons _ _ _),
---       have H2 : (mem f t) ∨ ((mem f l) ∨ (x = f)), from subst H1 (or_comm _ _),
---       have H3 : ((mem f t) ∨ (mem f l)) ∨ (x = f), from subst H2 (symm (or_assoc _ _ _)),
---       have H4 : ((mem f l) ∨ (mem f t)) ∨ (x = f), from subst H3 (or_comm _ _),
---       have H5 : (mem f (concat l t)) ∨ (x = f), from  (or_imp_or_left H4 IH),
---       have H6 : (mem f (cons x (concat l t))), from subst H5 (symm (mem_cons _ _ _)),
---       show  (mem f (concat (cons x l) t)), from subst H6 (symm (cons_concat _ _ _)))
+theorem mem_concat (x : T) (s t : list T) : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t
+:= iff_intro (mem_concat_imp_or _ _ _) (mem_or_imp_concat _ _ _)
 
--- theorem mem_concat (f : T) (s t : list T) : mem f (concat s t) ↔ mem f s ∨ mem f t
--- := iff_intro (mem_concat_imp_or _ _ _) (mem_or_imp_concat _ _ _)
+axiom sorry {P : Prop} : P
 
--- theorem mem_split (f : T) (s : list T) :
---     mem f s → ∃ a b : list T, s = concat a (cons f b)
--- :=
---   list_induction_on s
---     (assume H : mem f nil,
---       have H1  : mem f nil ↔ false, from (mem_nil f),
---       show ∃ a b : list T, nil = concat a (cons f b), from absurd_elim _ H (eqf_elim H1))
---     (take x l,
---       assume P1 : mem f l → ∃ a b : list T, l = concat a (cons f b),
---       assume P2 : mem f (cons x l),
---       have P3 : mem f l ∨ x = f, from subst P2 (mem_cons _ _ _),
---       show ∃ a b : list T, cons x l = concat a (cons f b), from
---         or_elim P3
---           (assume Q1 : mem f l,
---             obtain (a : list T) (PQ : ∃ b, l = concat a (cons f b)), from P1 Q1,
---             obtain (b : list T) (RS : l = concat a (cons f b)), from PQ,
---             exists_intro (cons x a)
---               (exists_intro b
---                 (calc
---                   cons x l = cons x (concat a (cons f b)) : { RS }
---                     ... = concat (cons x a) (cons f b) : (symm (cons_concat _ _ _)))))
---           (assume Q2 : x = f,
---             exists_intro nil
---               (exists_intro l
---                 (calc
---                   cons x l = concat nil (cons x l) : (symm (nil_concat _))
---                     ... = concat nil (cons f l) : {Q2}))))
+theorem mem_split (x : T) (l : list T) : x ∈ l → ∃s t : list T, l = s ++ (x :: t) :=
+list_induction_on l
+  (take H : x ∈ nil, false_elim _ (iff_elim_left (mem_nil x) H))
+  (take y l,
+    assume IH : x ∈ l → ∃s t : list T, l = s ++ (x :: t),
+    assume H : x ∈ y :: l,
+    or_elim H
+      (assume H1 : x = y,
+        exists_intro nil
+          (exists_intro l (subst H1 (refl _))))
+      (assume H1 : x ∈ l,
+        obtain s (H2 : ∃t : list T, l = s ++ (x :: t)), from IH H1,
+        obtain t (H3 : l = s ++ (x :: t)), from H2,
+        have H4 : y :: l = (y :: s) ++ (x :: t),
+          from trans (subst H3 (refl (y :: l))) (cons_concat _ _ _),
+        exists_intro _ (exists_intro _ H4)))
 
--- -- Find
--- -- ----
+-- Find
+-- ----
 
--- definition find (x : T) : list T → ℕ
+-- to do this: need decidability of = for nat
+-- definition find (x : T) : list T → nat
 -- := list_rec 0 (fun y l b, if x = y then 0 else succ b)
 
 -- theorem find_nil (f : T) : find f nil = 0
@@ -378,17 +286,17 @@ theorem mem_cons (x : T) (f : T) (l : list T) : mem f (cons x l) ↔ (mem f l �
 --             ... = succ (length l) : {IH (and_elim_left P3)}
 --             ... = length (cons y l) : symm (length_cons _ _))
 
--- -- nth element
--- -- -----------
+-- nth element
+-- -----------
 
--- definition nth (x0 : T) (l : list T) (n : ℕ) : T
--- := nat.rec (λl, head x0 l) (λm f l, f (tail l)) n l
+definition nth (x0 : T) (l : list T) (n : ℕ) : T :=
+nat_rec (λl, head x0 l) (λm f l, f (tail l)) n l
 
--- theorem nth (x0 : T) (l : list T) : nth_element x0 l 0 = head x0 l
--- := hcongr1 (nat::rec_zero _ _) l
+theorem nth_zero (x0 : T) (l : list T) : nth x0 l 0 = head x0 l := refl _
 
--- theorem nth_element_succ (x0 : T) (l : list T) (n : ℕ) :
---     nth_element x0 l (succ n) = nth_element x0 (tail l) n
--- := hcongr1 (nat::rec_succ _ _ _) l
+theorem nth_succ (x0 : T) (l : list T) (n : ℕ) : nth x0 l (succ n) = nth x0 (tail l) n := refl _
 
--- end
+end
+
+-- declare global notation outside the section
+infixl `++` : 65 := concat

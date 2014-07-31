@@ -133,11 +133,9 @@ void parser::display_error_pos(unsigned line, unsigned pos) {
 void parser::display_error_pos(pos_info p) { display_error_pos(p.first, p.second); }
 
 void parser::display_error(char const * msg, unsigned line, unsigned pos) {
-    bool use_flycheck = regular_stream().get_options().get_bool("use_flycheck", false);
-    if (use_flycheck) regular_stream() << "FLYCHECK_BEGIN ERROR" << endl;
+    flycheck_scope fcheck(regular_stream());
     display_error_pos(line, pos);
     regular_stream() << " " << msg << endl;
-    if (use_flycheck) regular_stream() << "FLYCHECK_END" << endl;
 }
 
 void parser::display_error(char const * msg, pos_info p) {
@@ -171,7 +169,7 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
     //     CATCH(display_error(ex),
     //           throw parser_exception(ex.what(), m_strm_name.c_str(), ex.m_pos.first, ex.m_pos.second));
     } catch (parser_exception & ex) {
-        CATCH(regular_stream() << ex.what() << endl,
+        CATCH(flycheck_scope fcheck(regular_stream()); regular_stream() << ex.what() << endl,
               throw);
     } catch (parser_error & ex) {
         CATCH(display_error(ex.what(), ex.m_pos),

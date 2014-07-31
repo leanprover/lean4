@@ -10,6 +10,15 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 
 namespace lean {
+/** \brief Auxiliary object for "inserting" delimiters for flycheck */
+class flycheck_scope {
+    io_state_stream const & m_ios;
+    bool m_use_flycheck;
+public:
+    flycheck_scope(io_state_stream const & ios);
+    ~flycheck_scope();
+};
+
 /**
    \brief Display position information associated with \c e (IF avaiable).
    If it is not available, it just displays "error:"

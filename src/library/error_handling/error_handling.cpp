@@ -13,8 +13,18 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/unifier.h"
 #include "library/parser_nested_exception.h"
+#include "library/error_handling/error_handling.h"
 
 namespace lean {
+flycheck_scope::flycheck_scope(io_state_stream const & ios):
+    m_ios(ios),
+    m_use_flycheck(m_ios.get_options().get_bool("use_flycheck", false)) {
+    if (m_use_flycheck) m_ios << "FLYCHECK_BEGIN ERROR" << endl;
+}
+flycheck_scope::~flycheck_scope() {
+    if (m_use_flycheck) m_ios << "FLYCHECK_END" << endl;
+}
+
 void display_error_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
     ios << strm_name << ":" << line << ":";
     if (pos != static_cast<unsigned>(-1))
@@ -131,8 +141,7 @@ static void display_error(io_state_stream const & ios, pos_info_provider const *
 // }
 
 void display_error(io_state_stream const & ios, pos_info_provider const * p, exception const & ex) {
-    bool use_flycheck = ios.get_options().get_bool("use_flycheck", false);
-    if (use_flycheck) ios << "FLYCHECK_BEGIN ERROR" << endl;
+    flycheck_scope fcheck(ios);
     if (auto k_ex = dynamic_cast<kernel_exception const *>(&ex)) {
         display_error(ios, p, *k_ex);
     } else if (auto e_ex = dynamic_cast<unifier_exception const *>(&ex)) {
@@ -151,6 +160,5 @@ void display_error(io_state_stream const & ios, pos_info_provider const * p, exc
     } else {
         ios << "error: " << ex.what() << endl;
     }
-    if (use_flycheck) ios << "FLYCHECK_END" << endl;
 }
 }

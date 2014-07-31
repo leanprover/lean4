@@ -1033,8 +1033,9 @@ public:
         if (!m_displayed_errors.contains(mlocal_name(mvar))) {
             m_displayed_errors.insert(mlocal_name(mvar));
             auto out = regular(m_env, m_ios);
+            flycheck_scope fcheck(out);
             display_error_pos(out, m_pos_provider, mvar);
-            out << " unsolved placeholder, " << msg << "\n" << ps << "\n";
+            out << " unsolved placeholder, " << msg << "\n" << ps << endl;
         }
     }
 

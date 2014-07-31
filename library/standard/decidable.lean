@@ -58,9 +58,9 @@ theorem decidable_iff [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable
 rec_on Ha
   (assume Ha, rec_on Hb
     (assume Hb  : b,  inl (iff_intro (assume H, Hb) (assume H, Ha)))
-    (assume Hnb : ¬b, inr (assume H : a ↔ b, absurd (iff_mp_left H Ha) Hnb)))
+    (assume Hnb : ¬b, inr (assume H : a ↔ b, absurd (iff_elim_left H Ha) Hnb)))
   (assume Hna, rec_on Hb
-    (assume Hb  : b,  inr (assume H : a ↔ b, absurd (iff_mp_right H Hb) Hna))
+    (assume Hb  : b,  inr (assume H : a ↔ b, absurd (iff_elim_right H Hb) Hna))
     (assume Hnb : ¬b, inl (iff_intro (assume Ha, absurd_elim b Ha Hna) (assume Hb, absurd_elim a Hb Hnb))))
 
 theorem decidable_implies [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) : decidable (a → b) :=

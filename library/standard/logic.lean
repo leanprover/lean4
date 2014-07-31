@@ -1,7 +1,14 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Leonardo de Moura, Jeremy Avigad
+
 definition Prop [inline] := Type.{0}
+
+abbreviation imp (a b : Prop) : Prop := a → b
+
+
+-- true and false
+-- --------------
 
 inductive false : Prop
 
@@ -16,6 +23,10 @@ prefix `¬`:40 := not
 
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
+
+
+-- not
+-- ---
 
 theorem not_intro {a : Prop} (H : a → false) : ¬a := H
 
@@ -47,14 +58,18 @@ assume Hna : ¬a, absurd (assume Ha : a, absurd_elim b Ha Hna) H
 theorem not_implies_right {a b : Prop} (H : ¬(a → b)) : ¬b :=
 assume Hb : b, absurd (assume Ha : a, Hb) H
 
+
+-- and
+-- ---
+
 inductive and (a b : Prop) : Prop :=
 | and_intro : a → b → and a b
 
 infixr `/\`:35 := and
 infixr `∧`:35 := and
 
-theorem and_elim {a b c : Prop} (H1 : a → b → c) (H2 : a ∧ b) : c :=
-and_rec H1 H2
+theorem and_elim {a b c : Prop} (H1 : a ∧ b) (H2 : a → b → c) : c :=
+and_rec H2 H1
 
 theorem and_elim_left {a b : Prop} (H : a ∧ b) : a  :=
 and_rec (λa b, a) H
@@ -70,6 +85,19 @@ assume H : a ∧ b, absurd (and_elim_left H) Hna
 
 theorem and_not_right (a : Prop) {b : Prop} (Hnb : ¬b) : ¬(a ∧ b) :=
 assume H : a ∧ b, absurd (and_elim_right H) Hnb
+
+theorem and_imp_and {a b c d : Prop} (H1 : a ∧ b) (H2 : a → c) (H3 : b → d) : c ∧ d :=
+and_elim H1 (assume Ha : a, assume Hb : b, and_intro (H2 Ha) (H3 Hb))
+
+theorem imp_and_left {a b c : Prop} (H1 : a ∧ c) (H : a → b) : b ∧ c :=
+and_elim H1 (assume Ha : a, assume Hc : c, and_intro (H Ha) Hc)
+
+theorem imp_and_right {a b c : Prop} (H1 : c ∧ a) (H : a → b) : c ∧ b :=
+and_elim H1 (assume Hc : c, assume Ha : a, and_intro Hc (H Ha))
+
+
+-- or
+-- --
 
 inductive or (a b : Prop) : Prop :=
 | or_intro_left  : a → or a b
@@ -112,6 +140,10 @@ theorem imp_or_right {a b c : Prop} (H1 : c ∨ a) (H : a → b) : c ∨ b :=
 or_elim H1
   (assume H2 : c, or_inl H2)
   (assume H2 : a, or_inr (H H2))
+
+
+-- eq
+-- --
 
 inductive eq {A : Type} (a : A) : A → Prop :=
 | refl : eq a a
@@ -181,6 +213,10 @@ assume Ha, H2 ◂ (H1 Ha)
 theorem eq_imp_trans {a b c : Prop} (H1 : a = b) (H2 : b → c) : a → c :=
 assume Ha, H2 (H1 ◂ Ha)
 
+
+-- ne
+-- --
+
 definition ne [inline] {A : Type} (a b : A) := ¬(a = b)
 infix `≠`:50 := ne
 
@@ -202,6 +238,10 @@ theorem ne_eq_trans {A : Type} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a ≠ c
 calc_trans eq_ne_trans
 calc_trans ne_eq_trans
 
+
+-- iff
+-- ---
+
 definition iff (a b : Prop) := (a → b) ∧ (b → a)
 infix `<->`:25 := iff
 infix `↔`:25 := iff
@@ -216,12 +256,6 @@ iff_elim (assume H1 H2, H1) H
 theorem iff_elim_right {a b : Prop} (H : a ↔ b) : b → a :=
 iff_elim (assume H1 H2, H2) H
 
-theorem iff_mp_left {a b : Prop} (H1 : a ↔ b) (H2 : a) : b :=
-(iff_elim_left H1) H2
-
-theorem iff_mp_right {a b : Prop} (H1 : a ↔ b) (H2 : b) : a :=
-(iff_elim_right H1) H2
-
 theorem iff_flip_sign {a b : Prop} (H1 : a ↔ b) : ¬a ↔ ¬b :=
 iff_intro
   (assume Hna, mt (iff_elim_right H1) Hna)
@@ -232,18 +266,22 @@ iff_intro (assume H, H) (assume H, H)
 
 theorem iff_trans {a b c : Prop} (H1 : a ↔ b) (H2 : b ↔ c) : a ↔ c :=
 iff_intro
-  (assume Ha, iff_mp_left H2 (iff_mp_left H1 Ha))
-  (assume Hc, iff_mp_right H1 (iff_mp_right H2 Hc))
+  (assume Ha, iff_elim_left H2 (iff_elim_left H1 Ha))
+  (assume Hc, iff_elim_right H1 (iff_elim_right H2 Hc))
 
 theorem iff_symm {a b : Prop} (H : a ↔ b) : b ↔ a :=
 iff_intro
-  (assume Hb, iff_mp_right H Hb)
-  (assume Ha, iff_mp_left H Ha)
+  (assume Hb, iff_elim_right H Hb)
+  (assume Ha, iff_elim_left H Ha)
 
 calc_trans iff_trans
 
 theorem eq_to_iff {a b : Prop} (H : a = b) : a ↔ b :=
 iff_intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
+
+
+-- comm and assoc for and / or
+-- ---------------------------
 
 theorem and_comm (a b : Prop) : a ∧ b ↔ b ∧ a :=
 iff_intro (λH, and_swap H) (λH, and_swap H)
@@ -272,6 +310,10 @@ iff_intro
     (assume H1, or_elim H1
       (assume Hb, or_inl (or_inr Hb))
       (assume Hc, or_inr Hc)))
+
+
+-- exists
+-- ------
 
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 | exists_intro : ∀ (a : A), P a → Exists P
@@ -304,6 +346,10 @@ theorem exists_unique_elim {A : Type} {p : A → Prop} {b : Prop}
                            (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, y ≠ x → ¬p y) → b) : b :=
 obtain w Hw, from H2,
 H1 w (and_elim_left Hw) (and_elim_right Hw)
+
+
+-- inhabited
+-- ---------
 
 inductive inhabited (A : Type) : Prop :=
 | inhabited_intro : A → inhabited A

@@ -20,10 +20,12 @@ void display_deps(environment const & env, std::ostream & out, char const * fnam
     scanner s(in, fname);
     bool import_args = false;
     while (true) {
-        scanner::token_kind t;
+        scanner::token_kind t = scanner::token_kind::Identifier;
         try {
             t = s.scan(env);
-        } catch (exception &) {}
+        } catch (exception &) {
+            continue;
+        }
         if (t == scanner::token_kind::Eof) {
             return;
         } else if (t == scanner::token_kind::CommandKeyword && s.get_token_info().value() == import) {

@@ -1,3 +1,3 @@
-import string
+import data.string
 check "aaa"
 check "B"

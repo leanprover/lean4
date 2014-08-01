@@ -4,8 +4,7 @@
 --- Author: Jeremy Avigad
 ----------------------------------------------------------------------------------------------------
 
-import logic
-import function
+import standard
 
 using function
 
@@ -61,7 +60,7 @@ theorem congr_not [instance] (T : Type) (R : T → T → Prop) (f : T → Prop)
 theorem subst_iff {T : Type} {R : T → T → Prop} {P : T → Prop} {C : congruence R iff P}
     {a b : T} (H : R a b) (H1 : P a) : P b :=
 -- iff_mp_left (congruence_rec id C a b H) H1
-iff_mp_left (@congr_app _ _ R iff P C a b H) H1
+iff_elim_left (@congr_app _ _ R iff P C a b H) H1
 
 theorem test2 (a b c d e : Prop) (H1 : a ↔ b) (H2 : a ∨ c → ¬(d → a)) : b ∨ c → ¬(d → b) :=
 subst_iff H1 H2

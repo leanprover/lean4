@@ -1,4 +1,4 @@
-import standard unit decidable if
+import standard data.unit
 using bool unit decidable
 
 variables a b c : bool

@@ -1,4 +1,4 @@
-import function logic num bool
+import standard
 using function num bool
 
 

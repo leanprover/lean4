@@ -25,7 +25,7 @@ in =<expr>_{i-1}=.
 Here is an example
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
   variables a b c d e : nat.
   axiom Ax1 : a = b.
@@ -52,7 +52,7 @@ gaps in our calculational proofs. In the previous examples, we can use =_= as ar
 Here is the same example using placeholders.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
   variables a b c d e : nat.
   axiom Ax1 : a = b.
@@ -73,7 +73,7 @@ The =calc= command can be configured for any relation that supports
 some form of transitivity. It can even combine different relations.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
 
   theorem T2 (a b c : nat) (H1 : a = b) (H2 : b = c + 1) : a ≠ 0

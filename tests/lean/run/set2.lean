@@ -1,4 +1,4 @@
-import standard bool
+import standard
 using bool
 
 namespace set

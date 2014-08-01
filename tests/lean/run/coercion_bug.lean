@@ -1,4 +1,4 @@
-import nat
+import data.nat
 using nat
 
 definition tst1  : Prop := zero = 0

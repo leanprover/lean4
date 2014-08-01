@@ -1,4 +1,4 @@
-import logic decidable
+import logic
 using decidable
 
 inductive nat : Type :=

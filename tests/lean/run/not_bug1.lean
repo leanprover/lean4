@@ -1,4 +1,4 @@
-import bool
+import standard
 using bool
 
 variable list : Type.{1}

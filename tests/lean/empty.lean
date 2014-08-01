@@ -1,4 +1,4 @@
-import logic hilbert
+import logic logic.axioms.hilbert
 
 definition v1 : Prop := epsilon (λ x, true)
 inductive Empty : Type

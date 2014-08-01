@@ -9,8 +9,7 @@
 --
 -- Basic properties of lists.
 
-import tactic
-import nat
+import logic data.nat
 -- import congr
 
 set_option unifier.expensive true

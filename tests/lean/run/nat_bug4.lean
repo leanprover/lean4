@@ -1,4 +1,4 @@
-import logic num
+import standard
 using num eq_proofs
 
 inductive nat : Type :=

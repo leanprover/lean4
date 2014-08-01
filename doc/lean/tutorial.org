@@ -29,7 +29,7 @@ As a more complex example, the next example defines a function that doubles
 the input value.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
   -- defines the double function
   definition double (x : nat) := x + x
@@ -56,7 +56,7 @@ proposition, =Prop= is the type of propositions.
 The command =import= loads existing libraries and extensions.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   check nat.ge
 #+END_SRC
 
@@ -69,7 +69,7 @@ the following command creates aliases for all objects starting with
 =nat=, and imports all notations defined in this namespace.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
   check ge -- display the type of nat.ge
 #+END_SRC
@@ -78,7 +78,7 @@ The command =variable= assigns a type to an identifier. The following command po
 that =n=, =m= and =o= have type =nat=.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
   variable n : nat
   variable m : nat
@@ -95,7 +95,7 @@ expressions is also available for manipulating proofs. For example, =refl n= is 
 for =n = n=. In Lean, =refl= is the reflexivity theorem.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
   variable n : nat
   check refl n
@@ -107,7 +107,7 @@ The following commands postulate two axioms =Ax1= and =Ax2= that state that =n =
 =n = o=, where =trans= is the transitivity theorem.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
   variables m n o : nat
   axiom Ax1 : n = m
@@ -131,7 +131,7 @@ extensions are loaded, the _excluded middle_ is a theorem,
 and =em p= is a proof for =p ∨ ¬ p=.
 
 #+BEGIN_SRC lean
-  import classical
+  import logic.axioms.classical
   variable p : Prop
   check em p
 #+END_SRC
@@ -145,7 +145,7 @@ called =nat_trans3=, and then use it to prove something else. In this
 example, =symm= is the symmetry theorem.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
 
   theorem nat_trans3 (a b c d : nat) (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
@@ -174,7 +174,7 @@ In the following example, we define the theorem =nat_trans3i= using
 implicit arguments.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
 
   theorem nat_trans3i {a b c d : nat} (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
@@ -209,7 +209,7 @@ We can also instruct Lean to display all implicit arguments when it prints expre
 This is useful when debugging non-trivial problems.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
 
   variables a b c : nat
@@ -360,7 +360,7 @@ may or may not contain =x=, one can construct the so-called _lambda abstraction_
 examples.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
 
   check fun x : nat, x + 1
@@ -374,7 +374,7 @@ In many cases, Lean can automatically infer the type of the variable. Actually,
 In all examples above, the type can be inferred automatically.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
 
   check fun x, x + 1
@@ -391,7 +391,7 @@ The following example shows how to use lambda abstractions in
 function applications
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
   check (fun x y, x + 2 * y) 1
   check (fun x y, x + 2 * y) 1 2
@@ -419,7 +419,7 @@ checking types/proofs. So, we can prove that two definitionally equal terms
 are equal using just =refl=. Here is a simple example.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
 
   theorem def_eq_th (a : nat) : ((λ x : nat, x + 1) a) = a + 1 := refl (a+1)
@@ -652,7 +652,7 @@ forall =x=.
 Then we instantiate the axiom using function application.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
 
   variable f : nat → nat
@@ -668,7 +668,7 @@ abstraction. In the following example, we create a proof term showing that for a
 =x= and =y=, =f x = f y=.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
 
   variable f : nat → nat
@@ -693,7 +693,7 @@ We say =w= is the witness for the existential introduction. In previous examples
 for =∃ a : nat, a = w= using
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
 
   theorem nat_trans3i {a b c d : nat} (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
@@ -720,7 +720,7 @@ the implicit arguments using the option =pp.implicit=. We see that each instance
 has different values for the implicit argument =P=.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
 
   check @exists_intro
@@ -751,7 +751,7 @@ In the following example, we define =even a= as =∃ b, a = 2*b=, and then we sh
 of two even numbers is an even number.
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
 
   definition even (a : nat) := ∃ b, a = 2*b
@@ -772,7 +772,7 @@ In Lean, we can use =obtain _, from _, _= as syntax sugar for =exists_elim=.
 With this macro we can write the example above in a more natural way
 
 #+BEGIN_SRC lean
-  import nat
+  import data.nat
   using nat
   definition even (a : nat) := ∃ b, a = 2*b
   theorem EvenPlusEven {a b : nat} (H1 : even a) (H2 : even b) : even (a + b) :=

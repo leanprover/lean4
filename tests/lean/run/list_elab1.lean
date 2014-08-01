@@ -9,7 +9,7 @@
 --
 -- Basic properties of lists.
 
-import nat
+import data.nat
 using nat eq_proofs
 set_option unifier.expensive true
 inductive list (T : Type) : Type :=

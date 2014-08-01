@@ -1,4 +1,4 @@
-import logic bool tactic
+import standard
 using bool eq_proofs tactic
 
 variables a b c : bool

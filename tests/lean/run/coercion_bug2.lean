@@ -1,4 +1,4 @@
-import nat
+import data.nat
 using nat
 
 inductive list (T : Type) : Type :=

@@ -222,8 +222,6 @@ list_induction_on s
 theorem mem_concat (x : T) (s t : list T) : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t
 := iff_intro (mem_concat_imp_or _ _ _) (mem_or_imp_concat _ _ _)
 
-axiom sorry {P : Prop} : P
-
 theorem mem_split (x : T) (l : list T) : x ∈ l → ∃s t : list T, l = s ++ (x :: t) :=
 list_induction_on l
   (take H : x ∈ nil, false_elim _ (iff_elim_left (mem_nil x) H))

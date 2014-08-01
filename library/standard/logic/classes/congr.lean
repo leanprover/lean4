@@ -4,11 +4,8 @@
 --- Author: Jeremy Avigad
 ----------------------------------------------------------------------------------------------------
 
-import logic
-import function
-
+import logic.connectives.basic logic.connectives.function
 using function
-
 namespace congr
 
 -- TODO: move this somewhere else

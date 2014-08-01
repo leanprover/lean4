@@ -1,7 +1,9 @@
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+------------------------------------------------------------------------------------------------------ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-import logic decidable
+----------------------------------------------------------------------------------------------------
+
+import logic.connectives.basic logic.classes.decidable logic.classes.inhabited
 using eq_proofs decidable
 
 namespace bool
@@ -137,4 +139,5 @@ induction_on a (refl (!!ff)) (refl (!!tt))
 theorem bnot_false : !ff = tt := refl _
 
 theorem bnot_true  : !tt = ff := refl _
+
 end

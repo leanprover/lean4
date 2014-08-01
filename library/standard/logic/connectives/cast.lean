@@ -1,7 +1,11 @@
+----------------------------------------------------------------------------------------------------
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-import logic
+----------------------------------------------------------------------------------------------------
+
+import logic.connectives.eq logic.connectives.quantifiers
+
 using eq_proofs
 
 definition cast {A B : Type} (H : A = B) (a : A) : B :=
@@ -22,7 +26,8 @@ definition heq {A B : Type} (a : A) (b : B) :=
 
 infixl `==`:50 := heq
 
-theorem heq_elim {A B : Type} {C : Prop} {a : A} {b : B} (H1 : a == b) (H2 : ∀ (Hab : A = B), cast Hab a = b → C) : C :=
+theorem heq_elim {A B : Type} {C : Prop} {a : A} {b : B} (H1 : a == b)
+  (H2 : ∀ (Hab : A = B), cast Hab a = b → C) : C :=
 obtain w Hw, from H1, H2 w Hw
 
 theorem heq_type_eq {A B : Type} {a : A} {b : B} (H : a == b) : A = B :=
@@ -44,7 +49,8 @@ eqt_elim (heq_to_eq H)
 
 opaque_hint (hiding cast)
 
-theorem hsubst {A B : Type} {a : A} {b : B} {P : ∀ (T : Type), T → Prop} (H1 : a == b) (H2 : P A a) : P B b :=
+theorem hsubst {A B : Type} {a : A} {b : B} {P : ∀ (T : Type), T → Prop} (H1 : a == b)
+  (H2 : P A a) : P B b :=
 have Haux1 : ∀ H : A = A, P A (cast H a), from
   assume H : A = A, (cast_eq H a)⁻¹ ▸ H2,
 obtain (Heq : A = B) (Hw : cast Heq a = b), from H1,
@@ -79,7 +85,8 @@ theorem cast_eq_to_heq {A B : Type} {a : A} {b : B} {H : A = B} (H1 : cast H a =
 calc a  == cast H a : hsymm (cast_heq H a)
     ... =  b        : H1
 
-theorem cast_trans {A B C : Type} (Hab : A = B) (Hbc : B = C) (a : A) : cast Hbc (cast Hab a) = cast (Hab ⬝ Hbc) a :=
+theorem cast_trans {A B C : Type} (Hab : A = B) (Hbc : B = C) (a : A) :
+  cast Hbc (cast Hab a) = cast (Hab ⬝ Hbc) a :=
 heq_to_eq (calc cast Hbc (cast Hab a)   == cast Hab a        : cast_heq Hbc (cast Hab a)
                                    ...  == a                 : cast_heq Hab a
                                    ...  == cast (Hab ⬝ Hbc) a : hsymm (cast_heq (Hab ⬝ Hbc) a))
@@ -96,7 +103,8 @@ cast_eq_to_heq e3
 theorem pi_eq {A : Type} {B B' : A → Type} (H : B = B') : (Π x, B x) = (Π x, B' x) :=
 subst H (refl (Π x, B x))
 
-theorem cast_app' {A : Type} {B B' : A → Type} (H : B = B') (f : Π x, B x) (a : A) : cast (pi_eq H) f a == f a :=
+theorem cast_app' {A : Type} {B B' : A → Type} (H : B = B') (f : Π x, B x) (a : A) :
+  cast (pi_eq H) f a == f a :=
 have H1 : ∀ (H : (Π x, B x) = (Π x, B x)), cast H f a == f a, from
   assume H, eq_to_heq (congr1 (cast_eq H f) a),
 have H2 : ∀ (H : (Π x, B x) = (Π x, B' x)), cast H f a == f a, from
@@ -108,8 +116,9 @@ theorem cast_pull {A : Type} {B B' : A → Type} (H : B = B') (f : Π x, B x) (a
 heq_to_eq (calc cast (pi_eq H) f a == f a                     : cast_app' H f a
                              ...   == cast (congr1 H a) (f a) : hsymm (cast_heq (congr1 H a) (f a)))
 
-theorem hcongr1' {A : Type} {B B' : A → Type} {f : Π x, B x} {f' : Π x, B' x} (a : A) (H1 : f == f') (H2 : B = B')
-                 : f a == f' a :=
+theorem hcongr1' {A : Type} {B B' : A → Type} {f : Π x, B x} {f' : Π x, B' x} (a : A)
+    (H1 : f == f') (H2 : B = B')
+  : f a == f' a :=
 heq_elim H1 (λ (Ht : (Π x, B x) = (Π x, B' x)) (Hw : cast Ht f = f'),
   calc f a == cast (pi_eq H2) f a  : hsymm (cast_app' H2 f a)
        ... =  cast Ht f a          : refl (cast Ht f a)

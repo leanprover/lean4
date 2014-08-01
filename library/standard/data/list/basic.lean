@@ -9,26 +9,16 @@
 --
 -- Basic properties of lists.
 
-import tactic
-import nat
-import congr
-import if -- for find
+import tools.tactic
+import data.nat
+import logic
+-- import if -- for find
 
 using nat
 using congr
 using eq_proofs
 
 namespace list
-
-
--- TODO: move this
-theorem or_right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
-calc
-  (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) : or_assoc _ _ _
-    ... ↔ a ∨ (c ∨ b) : congr.infer iff iff _ (or_comm b c)
-    ... ↔ (a ∨ c) ∨ b : iff_symm (or_assoc _ _ _)
-
--- TODO: add or_left_comm, and_right_comm, and_left_comm
 
 
 -- Type

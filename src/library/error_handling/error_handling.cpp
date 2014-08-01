@@ -16,10 +16,10 @@ Author: Leonardo de Moura
 #include "library/error_handling/error_handling.h"
 
 namespace lean {
-flycheck_scope::flycheck_scope(io_state_stream const & ios):
+flycheck_scope::flycheck_scope(io_state_stream const & ios, char const * kind):
     m_ios(ios),
     m_use_flycheck(m_ios.get_options().get_bool("use_flycheck", false)) {
-    if (m_use_flycheck) m_ios << "FLYCHECK_BEGIN ERROR" << endl;
+    if (m_use_flycheck) m_ios << "FLYCHECK_BEGIN " << kind << endl;
 }
 flycheck_scope::~flycheck_scope() {
     if (m_use_flycheck) m_ios << "FLYCHECK_END" << endl;
@@ -141,7 +141,7 @@ static void display_error(io_state_stream const & ios, pos_info_provider const *
 // }
 
 void display_error(io_state_stream const & ios, pos_info_provider const * p, exception const & ex) {
-    flycheck_scope fcheck(ios);
+    flycheck_error err(ios);
     if (auto k_ex = dynamic_cast<kernel_exception const *>(&ex)) {
         display_error(ios, p, *k_ex);
     } else if (auto e_ex = dynamic_cast<unifier_exception const *>(&ex)) {

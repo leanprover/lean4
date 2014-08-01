@@ -1,10 +1,10 @@
 TOP := $(dir $(lastword $(MAKEFILE_LIST)))
-EXTRACT_DEPS = $(TOP)/extract_deps
-LEAN_FILES = $(wildcard *.lean)
+LEAN_FILES = $(shell find . -type f -name '*.lean')
 OLEAN_FILES = $(LEAN_FILES:.lean=.olean)
-DEPS = make.deps
+DEP_FILES = $(LEAN_FILES:.lean=.d)
+SED = sed
 
-all: $(OLEAN_FILES) $(DEPS)
+all: $(OLEAN_FILES) $(DEP_FILES)
 
 %.olean: %.lean
 	$(LEAN) $(LEAN_OPTIONS) $< -o $@
@@ -12,14 +12,18 @@ all: $(OLEAN_FILES) $(DEPS)
 %.olean: %.lua
 	$(LEAN) $(LEAN_OPTIONS) $< -o $@
 
+%.d: %.lean
+	@echo Making dependency file \'$@\' ...
+	@echo -n "$(basename $@).olean : $< $@ " > $@.tmp.1
+	@$(LEAN) --deps $< | $(SED) -e ':a;N;$$!ba;s/\n/ /g' > $@.tmp.2
+	@cat $@.tmp.1 $@.tmp.2 > $@
+	@rm -f $@.tmp.1
+	@rm -f $@.tmp.2
+
+include $(LEAN_FILES:.lean=.d)
+
 .PHONY: all clean
 
 clean:
-	-rm -f *.olean $(DEPS)
+	rm -f *.olean *.d *.d.tmp.1 $.d.tmp.2
 
-$(DEPS): $(LEAN_FILES)
-	LEAN=$(LEAN) $(EXTRACT_DEPS) $(LEAN_FILES) > make.deps
-
-ifneq ($(MAKECMDGOALS),clean)
--include $(DEPS)
-endif

@@ -4,6 +4,7 @@
 *.md.lua
 *.md.lean
 *.olean
+*.d
 a.out
 build
 GPATH

@@ -20,7 +20,7 @@ all: $(OLEAN_FILES) $(DEP_FILES)
 	@rm -f $@.tmp.1
 	@rm -f $@.tmp.2
 
-include $(LEAN_FILES:.lean=.d)
+-include $(LEAN_FILES:.lean=.d)
 
 .PHONY: all clean
 

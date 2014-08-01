@@ -1,7 +1,10 @@
+----------------------------------------------------------------------------------------------------
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-import logic classical
+----------------------------------------------------------------------------------------------------
+
+import logic.axioms.classical
 
 -- Well-founded relation definition
 -- We are essentially saying that a relation R is well-founded
@@ -28,4 +31,3 @@ by_contradiction (assume N : ¬∀x, P x,
   have s2 : P r,   from iH r s1,
   have s3 : ¬P r,  from and_elim_left Hr,
   absurd s2 s3)
-

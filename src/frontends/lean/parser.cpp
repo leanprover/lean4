@@ -37,6 +37,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/pp_options.h"
+#include "frontends/lean/sorry.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -91,6 +92,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_num_threads = num_threads;
     m_no_undef_id_error    = false;
     m_found_errors = false;
+    m_used_sorry = false;
     updt_options();
     m_next_tag_idx = 0;
     m_curr = scanner::token_kind::Identifier;
@@ -105,6 +107,20 @@ parser::~parser() {
             m_theorem_queue.join();
         }
     } catch (...) {}
+}
+
+expr parser::mk_sorry(pos_info const & p) {
+    m_used_sorry = true;
+    {
+        flycheck_warning wrn(regular_stream());
+        regular_stream() << get_stream_name() << ":" << p.first << ":" << p.second << ": warning using 'sorry'" << endl;
+    }
+    return get_sorry_constant();
+}
+
+void parser::declare_sorry() {
+    m_used_sorry = true;
+    m_env = ::lean::declare_sorry(m_env);
 }
 
 bool parser::has_tactic_decls() {

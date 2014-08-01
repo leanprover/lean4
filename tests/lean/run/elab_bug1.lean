@@ -11,9 +11,6 @@ using function
 
 namespace congruence
 
--- TODO: delete this
-axiom sorry {P : Prop} : P
-
 -- TODO: move this somewhere else
 abbreviation reflexive {T : Type} (R : T → T → Type) : Prop := ∀x, R x x
 

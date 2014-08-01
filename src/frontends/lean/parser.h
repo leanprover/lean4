@@ -57,6 +57,7 @@ class parser {
     pos_info                m_last_script_pos;
     unsigned                m_next_tag_idx;
     bool                    m_found_errors;
+    bool                    m_used_sorry;
     pos_info_table_ptr      m_pos_table;
     // By default, when the parser finds a unknown identifier, it signs an error.
     // When the following flag is true, it creates a constant.
@@ -269,6 +270,10 @@ public:
     /** \brief Elaborate the definition n : t := v in the given environment*/
     std::tuple<expr, expr, level_param_names> elaborate_definition_at(environment const & env, local_level_decls const & lls,
                                                                       name const & n, expr const & t, expr const & v, bool is_opaque);
+
+    expr mk_sorry(pos_info const & p);
+    bool used_sorry() const { return m_used_sorry; }
+    void declare_sorry();
 
     parser_pos_provider get_pos_provider() const { return parser_pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos); }
 

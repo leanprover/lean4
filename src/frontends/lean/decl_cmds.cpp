@@ -187,7 +187,6 @@ struct decl_modifiers {
 environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     name n = p.check_id_next("invalid declaration, identifier expected");
     check_atomic(n);
-    environment env = p.env();
     decl_modifiers modifiers;
     name real_n; // real name for this declaration
     modifiers.m_is_opaque = _is_opaque;
@@ -203,14 +202,6 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         modifiers.parse(p);
         if (is_theorem && !modifiers.m_is_opaque)
             throw exception("invalid theorem declaration, theorems cannot be transparent");
-        if (modifiers.m_is_private) {
-            auto env_n = add_private_name(env, n, optional<unsigned>(hash(p.pos().first, p.pos().second)));
-            env    = env_n.first;
-            real_n = env_n.second;
-        } else {
-            name const & ns = get_namespace(env);
-            real_n     = ns + n;
-        }
 
         if (p.curr_is_token(g_assign)) {
             auto pos = p.pos();
@@ -249,9 +240,24 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
             type  = Pi(ps, type, p);
             value = Fun(ps, value, p);
         }
+
         update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
+
+    if (p.used_sorry())
+        p.declare_sorry();
+    environment env = p.env();
+
+    if (modifiers.m_is_private) {
+        auto env_n = add_private_name(env, n, optional<unsigned>(hash(p.pos().first, p.pos().second)));
+        env    = env_n.first;
+        real_n = env_n.second;
+    } else {
+        name const & ns = get_namespace(env);
+        real_n     = ns + n;
+    }
+
     if (in_section(env)) {
         buffer<expr> section_ps;
         collect_section_locals(type, value, p, section_ps);

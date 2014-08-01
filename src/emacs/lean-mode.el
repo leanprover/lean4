@@ -50,6 +50,7 @@
     ("\\_<\\(variables\\|parameters\\)\\_>[ \t\(\{\[]*\\([^:]*\\)" (2 'font-lock-function-name-face))
     ("\\(set_opaque\\|set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
     ("\\_<_\\_>" . 'font-lock-preprocessor-face)
+    ("\\_<sorry\\_>" . 'font-lock-warning-face)
     ;;
     )
   '("\\.lean$")                    ;; files for which to activate this mode

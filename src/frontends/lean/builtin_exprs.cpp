@@ -362,6 +362,10 @@ static expr parse_including_expr(parser & p, unsigned, expr const *, pos_info co
     return r;
 }
 
+static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return p.mk_sorry(pos);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -383,6 +387,7 @@ parse_table init_nud_table() {
     r = r.add({transition("#", mk_ext_action(parse_overwrite_notation))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     r = r.add({transition("proof", mk_ext_action(parse_proof_qed))}, x0);
+    r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("including", mk_ext_action(parse_including_expr))}, x0);
     return r;
 }

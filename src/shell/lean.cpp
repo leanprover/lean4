@@ -76,6 +76,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --threads=num -j  number of threads used to process lean files\n";
     std::cout << "  --deps            just print dependencies of a Lean input\n";
     std::cout << "  --flycheck        print structured error message for flycheck\n";
+    std::cout << "  --flyinfo         print structured typing information for editor\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
@@ -111,6 +112,7 @@ static struct option g_long_options[] = {
     {"threads",     required_argument, 0, 'j'},
     {"deps",        no_argument,       0, 'D'},
     {"flycheck",    no_argument,       0, 'F'},
+    {"flyinfo",     no_argument,       0, 'I'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",      required_argument, 0, 's'},
 #endif
@@ -118,9 +120,9 @@ static struct option g_long_options[] = {
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "FDHiqlupgvhj:012c:012s:012t:012o:";
+static char const * g_opt_str = "IFDHiqlupgvhj:012c:012s:012t:012o:";
 #else
-static char const * g_opt_str = "FDHiqlupgvhj:012c:012t:012o:";
+static char const * g_opt_str = "IFDHiqlupgvhj:012c:012t:012o:";
 #endif
 
 enum class lean_mode { Standard, HoTT };
@@ -133,7 +135,8 @@ int main(int argc, char ** argv) {
     bool quiet           = false;
     bool interactive     = false;
     bool only_deps       = false;
-    bool use_flycheck    = false;
+    bool flycheck        = false;
+    bool flyinfo         = false;
     lean_mode mode       = lean_mode::Standard;
     unsigned num_threads = 1;
     std::string output;
@@ -191,7 +194,10 @@ int main(int argc, char ** argv) {
             only_deps = true;
             break;
         case 'F':
-            use_flycheck = true;
+            flycheck = true;
+            break;
+        case 'I':
+            flyinfo = true;
             break;
         default:
             std::cerr << "Unknown command line option\n";
@@ -204,8 +210,10 @@ int main(int argc, char ** argv) {
     io_state ios(lean::mk_pretty_formatter_factory());
     if (quiet)
         ios.set_option("verbose", false);
-    if (use_flycheck)
-        ios.set_option("use_flycheck", true);
+    if (flycheck)
+        ios.set_option("flycheck", true);
+    if (flyinfo)
+        ios.set_option("flyinfo", true);
     script_state S = lean::get_thread_script_state();
     set_environment set1(S, env);
     set_io_state    set2(S, ios);

@@ -18,11 +18,20 @@ Author: Leonardo de Moura
 namespace lean {
 flycheck_scope::flycheck_scope(io_state_stream const & ios, char const * kind):
     m_ios(ios),
-    m_use_flycheck(m_ios.get_options().get_bool("use_flycheck", false)) {
-    if (m_use_flycheck) m_ios << "FLYCHECK_BEGIN " << kind << endl;
+    m_flycheck(m_ios.get_options().get_bool("flycheck", false)) {
+    if (m_flycheck) m_ios << "FLYCHECK_BEGIN " << kind << endl;
 }
 flycheck_scope::~flycheck_scope() {
-    if (m_use_flycheck) m_ios << "FLYCHECK_END" << endl;
+    if (m_flycheck) m_ios << "FLYCHECK_END" << endl;
+}
+
+flyinfo_scope::flyinfo_scope(io_state_stream const & ios):
+    m_ios(ios),
+    m_flyinfo(m_ios.get_options().get_bool("flyinfo", false)) {
+    if (m_flyinfo) m_ios << "FLYCHECK_BEGIN INFO" << endl;
+}
+flyinfo_scope::~flyinfo_scope() {
+    if (m_flyinfo) m_ios << "FLYCHECK_END" << endl;
 }
 
 void display_error_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {

@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/opaque_hints.h"
 #include "library/locals.h"
+#include "library/deep_copy.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/error_handling/error_handling.h"
@@ -149,6 +150,9 @@ class elaborator {
     bool                m_check_unassigned; // if true if display error messages if elaborated term still contains metavariables
     bool                m_use_local_instances; // if true class-instance resolution will use the local context
     bool                m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent
+    bool                m_flyinfo;
+    typedef std::pair<pos_info, expr> flyinfo_data;
+    std::vector<flyinfo_data> m_flyinfo_data;
 
     // Set m_ctx to ctx, and make sure m_ctx_buffer and m_ctx_domain_buffer reflect the contents of the new ctx
     void set_ctx(context const & ctx) {
@@ -375,6 +379,7 @@ public:
         m_tc[1] = mk_type_checker_with_hints(env, m_ngen.mk_child(), true);
         m_check_unassigned = check_unassigned;
         m_use_local_instances = get_elaborator_local_instances(ios.get_options());
+        m_flyinfo = ios.get_options().get_bool("flyinfo", false);
         set_ctx(ctx);
     }
 
@@ -865,6 +870,16 @@ public:
         }
     }
 
+    /** \brief Store the pair (pos(e), type(r)) in the flyinfo_data if m_flyinfo is true. */
+    void save_flyinfo_data(expr const & e, expr const & r) {
+        if (m_flyinfo && m_pos_provider) {
+            auto p = m_pos_provider->get_pos_info(e);
+            type_checker::scope scope(*m_tc[m_relax_main_opaque]);
+            expr t = m_tc[m_relax_main_opaque]->infer(r);
+            m_flyinfo_data.push_back(mk_pair(p, t));
+        }
+    }
+
     expr visit_constant(expr const & e) {
         auto it = m_cache.find(e);
         if (it != m_cache.end()) {
@@ -930,13 +945,39 @@ public:
         m_ctx_buffer.push_back(l);
     }
 
+    /** \brief Similar to instantiate_rev, but assumes that subst contains only local constants.
+        When replacing a variable with a local, we copy the local constant and inherit the tag
+        associated with the variable. This is a trick for getter better error messages */
+    expr instantiate_rev_locals(expr const & a, unsigned n, expr const * subst) {
+        if (closed(a))
+            return a;
+        return replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
+                if (offset >= get_free_var_range(m))
+                    return some_expr(m); // expression m does not contain free variables with idx >= offset
+                if (is_var(m)) {
+                    unsigned vidx = var_idx(m);
+                    if (vidx >= offset) {
+                        unsigned h = offset + n;
+                        if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
+                            expr local = subst[n - (vidx - offset) - 1];
+                            lean_assert(is_local(local));
+                            return some_expr(copy_tag(m, copy(local)));
+                        } else {
+                            return some_expr(copy_tag(m, mk_var(vidx - n)));
+                        }
+                    }
+                }
+                return none_expr();
+            });
+    }
+
     expr visit_binding(expr e, expr_kind k) {
         scope_ctx scope(*this);
         buffer<expr> ds, ls, es;
         while (e.kind() == k) {
             es.push_back(e);
             expr d   = binding_domain(e);
-            d = instantiate_rev(d, ls.size(), ls.data());
+            d = instantiate_rev_locals(d, ls.size(), ls.data());
             d = ensure_type(visit_expecting_type(d));
             ds.push_back(d);
             expr l   = mk_local(binding_name(e), d, binding_info(e));
@@ -946,7 +987,7 @@ public:
             e = binding_body(e);
         }
         lean_assert(ls.size() == es.size() && ls.size() == ds.size());
-        e = instantiate_rev(e, ls.size(), ls.data());
+        e = instantiate_rev_locals(e, ls.size(), ls.data());
         e = (k == expr_kind::Pi) ? ensure_type(visit_expecting_type(e)) : visit(e);
         e = abstract_locals(e, ls.size(), ls.data());
         unsigned i = ls.size();
@@ -1007,6 +1048,8 @@ public:
                 }
             }
         }
+        if (is_constant(e) || is_local(e))
+            save_flyinfo_data(e, r);
         return r;
     }
 
@@ -1188,6 +1231,16 @@ public:
         return std::make_tuple(r, to_list(new_ps.begin(), new_ps.end()));
     }
 
+    void display_flyinfo(substitution const & _s) {
+        substitution s = _s;
+        for (auto p : m_flyinfo_data) {
+            auto out = regular(m_env, m_ios);
+            flyinfo_scope info(out);
+            out << m_pos_provider->get_file_name() << ":" << p.first.first << ":" << p.first.second << ": type\n";
+            out << s.instantiate(p.second) << endl;
+        }
+    }
+
     std::tuple<expr, level_param_names> operator()(expr const & e, bool _ensure_type, bool relax_main_opaque) {
         flet<bool> set_relax(m_relax_main_opaque, relax_main_opaque && !get_hide_main_opaque(m_env));
         expr r  = visit(e);
@@ -1196,7 +1249,9 @@ public:
         auto p  = solve().pull();
         lean_assert(p);
         substitution s = p->first;
-        return apply(s, r);
+        auto result = apply(s, r);
+        display_flyinfo(s);
+        return result;
     }
 
     std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n, bool is_opaque) {
@@ -1218,6 +1273,7 @@ public:
         buffer<name> new_params;
         expr new_r_t = apply(s, r_t, univ_params, new_params);
         expr new_r_v = apply(s, r_v, univ_params, new_params);
+        display_flyinfo(s);
         return std::make_tuple(new_r_t, new_r_v, to_list(new_params.begin(), new_params.end()));
     }
 };

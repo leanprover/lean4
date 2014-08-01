@@ -814,13 +814,15 @@ public:
         expr f_type = f_t.second;
         lean_assert(is_pi(f_type));
         if (!expl) {
-            while (binding_info(f_type).is_strict_implicit()) {
+            bool first = true;
+            while (binding_info(f_type).is_strict_implicit() || (!first && binding_info(f_type).is_implicit())) {
                 tag g        = f.get_tag();
                 expr imp_arg = mk_placeholder_meta(some_expr(binding_domain(f_type)), g);
                 f            = mk_app(f, imp_arg, g);
                 auto f_t     = ensure_fun(f);
                 f            = f_t.first;
                 f_type       = f_t.second;
+                first        = false;
             }
         }
         expr d_type = binding_domain(f_type);

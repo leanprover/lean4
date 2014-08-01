@@ -120,6 +120,17 @@ public:
     expr operator()(expr const & e) { return apply(e); }
 };
 
+typedef std::pair<pos_info, expr> flyinfo_data;
+
+struct flyinfo_data_lt {
+    bool operator()(flyinfo_data const & d1, flyinfo_data const & d2) const {
+        if (d1.first.first != d2.first.first)
+            return d1.first.first < d2.first.first;
+        else
+            return d1.first.second < d2.first.second;
+    }
+};
+
 /** \brief Helper class for implementing the \c elaborate functions. */
 class elaborator {
     typedef list<expr> context;
@@ -151,7 +162,6 @@ class elaborator {
     bool                m_use_local_instances; // if true class-instance resolution will use the local context
     bool                m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent
     bool                m_flyinfo;
-    typedef std::pair<pos_info, expr> flyinfo_data;
     std::vector<flyinfo_data> m_flyinfo_data;
 
     // Set m_ctx to ctx, and make sure m_ctx_buffer and m_ctx_domain_buffer reflect the contents of the new ctx
@@ -1233,13 +1243,24 @@ public:
         return std::make_tuple(r, to_list(new_ps.begin(), new_ps.end()));
     }
 
-    void display_flyinfo(substitution const & _s) {
-        substitution s = _s;
-        for (auto p : m_flyinfo_data) {
-            auto out = regular(m_env, m_ios);
-            flyinfo_scope info(out);
-            out << m_pos_provider->get_file_name() << ":" << p.first.first << ":" << p.first.second << ": type\n";
-            out << s.instantiate(p.second) << endl;
+    void instantiate_flyinfo(substitution s) {
+        for (auto & p : m_flyinfo_data) {
+            p.second = s.instantiate(p.second);
+        }
+        std::stable_sort(m_flyinfo_data.begin(), m_flyinfo_data.end(), flyinfo_data_lt());
+    }
+
+    void display_flyinfo(substitution const & s) {
+        instantiate_flyinfo(s);
+        optional<flyinfo_data> prev;
+        for (auto const & p : m_flyinfo_data) {
+            if (!prev || p.first != prev->first) {
+                auto out = regular(m_env, m_ios);
+                flyinfo_scope info(out);
+                out << m_pos_provider->get_file_name() << ":" << p.first.first << ":" << p.first.second
+                    << ": type\n" << p.second << endl;
+                prev = p;
+            }
         }
     }
 

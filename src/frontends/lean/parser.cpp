@@ -1067,7 +1067,14 @@ void parser::parse_imports() {
             } else if (auto it = find_file(f, ".olean")) {
                 olean_files.push_back(f);
             } else {
-                throw parser_error(sstream() << "invalid import, unknown module '" << f << "'", pos());
+                m_found_errors = true;
+                if (!m_use_exceptions && m_show_errors) {
+                    flycheck_error err(regular_stream());
+                    display_error_pos(pos());
+                    regular_stream() << " invalid import, unknown module '" << f << "'" << endl;
+                }
+                if (m_use_exceptions)
+                    throw parser_error(sstream() << "invalid import, unknown module '" << f << "'", pos());
             }
             next();
         }

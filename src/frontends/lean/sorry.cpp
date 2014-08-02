@@ -16,7 +16,7 @@ static expr  g_sorry_type(mk_pi("A", mk_sort(mk_param_univ(g_l)), mk_var(0), bin
 
 bool has_sorry(environment const & env) {
     auto decl = env.find(g_sorry_name);
-    return decl && decl->get_type() != g_sorry_type;
+    return decl && decl->get_type() == g_sorry_type;
 }
 
 environment declare_sorry(environment const & env) {

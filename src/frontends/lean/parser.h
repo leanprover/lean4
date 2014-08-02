@@ -69,6 +69,8 @@ class parser {
     // We process theorems in parallel
     theorem_queue           m_theorem_queue;
 
+    void display_warning_pos(unsigned line, unsigned pos);
+    void display_warning_pos(pos_info p);
     void display_error_pos(unsigned line, unsigned pos);
     void display_error_pos(pos_info p);
     void display_error(char const * msg, unsigned line, unsigned pos);

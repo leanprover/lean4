@@ -113,7 +113,8 @@ expr parser::mk_sorry(pos_info const & p) {
     m_used_sorry = true;
     {
         flycheck_warning wrn(regular_stream());
-        regular_stream() << get_stream_name() << ":" << p.first << ":" << p.second << ": warning using 'sorry'" << endl;
+        display_warning_pos(p.first, p.second);
+        regular_stream() << " using 'sorry'" << endl;
     }
     return get_sorry_constant();
 }
@@ -140,11 +141,13 @@ void parser::updt_options() {
     m_show_errors = get_parser_show_errors(m_ios.get_options());
 }
 
+void parser::display_warning_pos(unsigned line, unsigned pos) {
+    ::lean::display_warning_pos(regular_stream(), get_stream_name().c_str(), line, pos);
+}
+void parser::display_warning_pos(pos_info p) { display_warning_pos(p.first, p.second); }
+
 void parser::display_error_pos(unsigned line, unsigned pos) {
-    regular_stream() << get_stream_name() << ":" << line << ":";
-    if (pos != static_cast<unsigned>(-1))
-        regular_stream() << pos << ":";
-    regular_stream() << " error:";
+    ::lean::display_error_pos(regular_stream(), get_stream_name().c_str(), line, pos);
 }
 void parser::display_error_pos(pos_info p) { display_error_pos(p.first, p.second); }
 
@@ -154,9 +157,7 @@ void parser::display_error(char const * msg, unsigned line, unsigned pos) {
     regular_stream() << " " << msg << endl;
 }
 
-void parser::display_error(char const * msg, pos_info p) {
-    display_error(msg, p.first, p.second);
-}
+void parser::display_error(char const * msg, pos_info p) { display_error(msg, p.first, p.second); }
 
 void parser::display_error(exception const & ex) {
     parser_pos_provider pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos);
@@ -1099,6 +1100,11 @@ bool parser::parse_commands() {
     try {
         bool done = false;
         parse_imports();
+        if (has_sorry(m_env)) {
+            flycheck_warning wrn(regular_stream());
+            display_warning_pos(pos());
+            regular_stream() << " imported file uses 'sorry'" << endl;
+        }
         while (!done) {
             protected_call([&]() {
                     check_interrupted();

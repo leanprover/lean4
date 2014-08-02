@@ -67,11 +67,11 @@ struct coercion_info {
 };
 
 struct coercion_state {
-    rb_map<name, list<coercion_info>, name_quick_cmp>         m_coercion_info;
+    rb_map<name, list<coercion_info>, name_quick_cmp>                    m_coercion_info;
     // m_from and m_to contain "direct" coercions
-    rb_map<name, list<coercion_class>, name_quick_cmp>        m_from;
-    rb_map<coercion_class, list<name>, coercion_class_cmp_fn> m_to;
-    rb_tree<name, name_quick_cmp>                             m_coercions;
+    rb_map<name, list<std::pair<coercion_class, expr>>, name_quick_cmp>  m_from; // map user-class -> list of (class, coercion-fun)
+    rb_map<coercion_class, list<name>, coercion_class_cmp_fn>            m_to;
+    rb_tree<name, name_quick_cmp>                                        m_coercions;
     coercion_info get_info(name const & from, coercion_class const & to) {
         auto it = m_coercion_info.find(from);
         lean_assert(it);
@@ -81,15 +81,21 @@ struct coercion_state {
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }
-    void update_from_to(name const & C, coercion_class const & D, io_state const & ios) {
+    void update_from_to(name const & C, coercion_class const & D, expr const & f, io_state const & ios) {
         auto it1 = m_from.find(C);
-        if (!it1)
-            m_from.insert(C, list<coercion_class>(D));
-        else if (std::find(it1->begin(), it1->end(), D) == it1->end())
-            m_from.insert(C, list<coercion_class>(D, *it1));
-        else
-            ios.get_diagnostic_channel() << "replacing the coercion from '" << C << "' to '" << D << "'\n";
-
+        if (!it1) {
+            m_from.insert(C, list<std::pair<coercion_class, expr>>(mk_pair(D, f)));
+        } else {
+            auto it  = it1->begin();
+            auto end = it1->end();
+            for (; it != end; ++it)
+                if (it->first == D)
+                    break;
+            if (it == end)
+                m_from.insert(C, cons(mk_pair(D, f), *it1));
+            else if (it->second != f)
+                ios.get_diagnostic_channel() << "replacing the coercion from '" << C << "' to '" << D << "'\n";
+        }
         auto it2 = m_to.find(D);
         if (!it2)
             m_to.insert(D, list<name>(C));
@@ -216,7 +222,8 @@ struct add_coercion_fn {
         auto it = m_state.m_from.find(D);
         if (!it)
             return;
-        for (coercion_class E : *it) {
+        for (auto const & p : *it) {
+            coercion_class E   = p.first;
             coercion_info info = m_state.get_info(D, E);
             // C >-> D >-> E
             add_coercion_trans(C, ls, f, f_type, num_args,
@@ -258,7 +265,7 @@ struct add_coercion_fn {
     coercion_state operator()(name const & C, expr const & f, expr const & f_type,
                               level_param_names const & ls, unsigned num_args, coercion_class const & cls) {
         add_coercion(C, f, f_type, ls, num_args, cls);
-        m_state.update_from_to(C, cls, m_ios);
+        m_state.update_from_to(C, cls, f, m_ios);
         return m_state;
     }
 };

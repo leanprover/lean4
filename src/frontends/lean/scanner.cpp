@@ -22,9 +22,9 @@ unsigned scanner::get_utf8_size(unsigned char c) {
         return 3;
     else if ((c & 0xF8) == 0xF0)
         return 4;
-    else if ((c && 0xFC) == 0xF8)
+    else if ((c & 0xFC) == 0xF8)
         return 5;
-    else if ((c && 0xFE) == 0xFC)
+    else if ((c & 0xFE) == 0xFC)
         return 6;
     else if (c == 0xFF)
         return 1;

@@ -32,6 +32,52 @@ unsigned scanner::get_utf8_size(unsigned char c) {
         throw_exception("invalid utf-8 head character");
 }
 
+unsigned char to_uchar(char c) { return static_cast<unsigned char>(c); }
+
+unsigned utf8_to_unicode(char const * begin, char const * end) {
+    unsigned result = 0;
+    if (begin == end)
+        return result;
+    auto it = begin;
+    unsigned c = to_uchar(*it);
+    ++it;
+    if (c < 128)
+        return c;
+    unsigned mask     = (1u << 6) -1;
+    unsigned hmask    = mask;
+    unsigned shift    = 0;
+    unsigned num_bits = 0;
+    while ((c & 0xC0) == 0xC0) {
+        c <<= 1;
+        c &= 0xff;
+        num_bits += 6;
+        hmask >>= 1;
+        shift++;
+        result <<= 6;
+        if (it == end)
+            return 0;
+        result |= *it & mask;
+        ++it;
+    }
+    result |= ((c >> shift) & hmask) << num_bits;
+    return result;
+}
+
+bool is_greek_unicode(unsigned u) { return 0x391 <= u && u <= 0x3DD; }
+bool is_letter_like_unicode(unsigned u) {
+    return
+        (0x3b1  <= u && u <= 0x3c9 && u != 0x3bb) || // Lower greek, but lambda
+        (0x3ca  <= u && u <= 0x3fb) ||               // Coptic letters
+        (0x1f00 <= u && u <= 0x1ffe) ||              // Polytonic Greek Extended Character Set
+        (0x2100 <= u && u <= 0x214f);                // Letter like block
+}
+bool is_super_sub_script_alnum_unicode(unsigned u) {
+    return
+        (0x2070 <= u && u <= 0x2079) ||
+        (0x207f <= u && u <= 0x2089) ||
+        (0x2090 <= u && u <= 0x209c);
+}
+
 void scanner::set_line(unsigned p) {
     m_line  = p;
     m_sline = p;
@@ -279,11 +325,17 @@ void scanner::next_utf(buffer<char> & cs) {
 }
 
 static bool is_id_first(buffer<char> const & cs, unsigned i) {
-    return std::isalpha(cs[i]) || cs[i] == '_';
+    if (std::isalpha(cs[i]) || cs[i] == '_')
+        return true;
+    unsigned u = utf8_to_unicode(cs.begin() + i, cs.end());
+    return is_letter_like_unicode(u);
 }
 
 static bool is_id_rest(buffer<char> const & cs, unsigned i)  {
-    return std::isalnum(cs[i]) || cs[i] == '_' || cs[i] == '\'';
+    if (std::isalnum(cs[i]) || cs[i] == '_' || cs[i] == '\'')
+        return true;
+    unsigned u = utf8_to_unicode(cs.begin() + i, cs.end());
+    return is_letter_like_unicode(u) || is_super_sub_script_alnum_unicode(u);
 }
 
 auto scanner::read_key_cmd_id() -> token_kind {

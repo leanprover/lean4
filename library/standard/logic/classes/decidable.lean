@@ -15,7 +15,7 @@ inductive decidable (p : Prop) : Type :=
 theorem induction_on {p : Prop} {C : Prop} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=
 decidable_rec H1 H2 H
 
-theorem em (p : Prop) (H : decidable p) : p ∨ ¬p :=
+theorem em {p : Prop} (H : decidable p) : p ∨ ¬p :=
 induction_on H (λ Hp, or_inl Hp) (λ Hnp, or_inr Hnp)
 
 definition rec_on [inline] {p : Prop} {C : Type} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=

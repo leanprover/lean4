@@ -16,6 +16,7 @@ definition l4 : N := @f a b c
 variable g : forall ⦃a b : N⦄, N → N
 
 check g
+check g a
 check @g
 check @g a
 check @g a b

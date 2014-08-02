@@ -834,6 +834,10 @@ public:
                 f_type       = f_t.second;
                 first        = false;
             }
+            if (!first) {
+                // we save the flyinfo data again for application of functions with strict implicit arguments
+                save_flyinfo_data(get_app_fn(e), f);
+            }
         }
         expr d_type = binding_domain(f_type);
         expr a      = visit_expecting_type_of(app_arg(e), d_type);
@@ -884,7 +888,7 @@ public:
 
     /** \brief Store the pair (pos(e), type(r)) in the flyinfo_data if m_flyinfo is true. */
     void save_flyinfo_data(expr const & e, expr const & r) {
-        if (m_flyinfo && m_pos_provider) {
+        if (m_flyinfo && m_pos_provider && (is_constant(e) || is_local(e) || is_placeholder(e))) {
             if (auto p = m_pos_provider->get_pos_info(e)) {
                 type_checker::scope scope(*m_tc[m_relax_main_opaque]);
                 expr t = m_tc[m_relax_main_opaque]->infer(r);
@@ -904,8 +908,9 @@ public:
                 ls.push_back(replace_univ_placeholder(l));
             unsigned num_univ_params = length(d.get_univ_params());
             if (num_univ_params < ls.size())
-                throw_kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '" << const_name(e) << "', #"
-                                       << num_univ_params << " expected, #" << ls.size() << " provided");
+                throw_kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '"
+                                       << const_name(e) << "', #" << num_univ_params
+                                       << " expected, #" << ls.size() << " provided");
             // "fill" with meta universe parameters
             for (unsigned i = ls.size(); i < num_univ_params; i++)
                 ls.push_back(mk_meta_univ(m_ngen.next()));
@@ -1038,7 +1043,9 @@ public:
 
     expr visit(expr const & e) {
         expr r;
+        expr b = e;
         if (is_explicit(e)) {
+            b    = get_explicit_arg(e);
             r    = visit_core(get_explicit_arg(e));
         } else if (is_explicit(get_app_fn(e))) {
             r    = visit_core(e);
@@ -1046,6 +1053,7 @@ public:
             if (is_implicit(e)) {
                 r = get_implicit_arg(e);
                 if (is_explicit(r)) r = get_explicit_arg(r);
+                b = r;
                 r = visit_core(r);
             } else {
                 r = visit_core(e);
@@ -1061,8 +1069,7 @@ public:
                 }
             }
         }
-        if (is_constant(e) || is_local(e) || is_placeholder(e))
-            save_flyinfo_data(e, r);
+        save_flyinfo_data(b, r);
         return r;
     }
 
@@ -1251,18 +1258,23 @@ public:
         std::stable_sort(m_flyinfo_data.begin(), m_flyinfo_data.end(), flyinfo_data_lt());
     }
 
+    void display_flyinfo_data(flyinfo_data const & p) {
+        auto out = regular(m_env, m_ios);
+        flyinfo_scope info(out);
+        out << m_pos_provider->get_file_name() << ":" << p.first.first << ":" << p.first.second+1
+            << ": type\n" << p.second << endl;
+    }
+
     void display_flyinfo(substitution const & s) {
         instantiate_flyinfo(s);
         optional<flyinfo_data> prev;
         for (auto const & p : m_flyinfo_data) {
-            if (!prev || p.first != prev->first) {
-                auto out = regular(m_env, m_ios);
-                flyinfo_scope info(out);
-                out << m_pos_provider->get_file_name() << ":" << p.first.first << ":" << p.first.second+1
-                    << ": type\n" << p.second << endl;
-                prev = p;
-            }
+            if (prev && p.first != prev->first)
+                display_flyinfo_data(*prev);
+            prev = p;
         }
+        if (prev)
+            display_flyinfo_data(*prev);
     }
 
     std::tuple<expr, level_param_names> operator()(expr const & e, bool _ensure_type, bool relax_main_opaque) {

@@ -11,6 +11,27 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_config.h"
 
 namespace lean {
+bool is_utf8_next(unsigned char c) { return (c & 0xC0) == 0x80; }
+
+unsigned scanner::get_utf8_size(unsigned char c) {
+    if ((c & 0x80) == 0)
+        return 1;
+    else if ((c & 0xE0) == 0xC0)
+        return 2;
+    else if ((c & 0xF0) == 0xE0)
+        return 3;
+    else if ((c & 0xF8) == 0xF0)
+        return 4;
+    else if ((c && 0xFC) == 0xF8)
+        return 5;
+    else if ((c && 0xFE) == 0xFC)
+        return 6;
+    else if (c == 0xFF)
+        return 1;
+    else
+        throw_exception("invalid utf-8 head character");
+}
+
 void scanner::set_line(unsigned p) {
     m_line  = p;
     m_sline = p;
@@ -20,6 +41,16 @@ void scanner::next() {
     lean_assert(m_curr != EOF);
     m_curr = m_stream.get();
     m_spos++;
+    if (m_uskip > 0) {
+        if (!is_utf8_next(m_curr)) {
+            throw_exception("invalid utf-8 sequence character");
+        }
+        m_uskip--;
+    } else {
+        m_upos++;
+        m_uskip = get_utf8_size(m_curr);
+        m_uskip--;
+    }
 }
 
 void scanner::check_not_eof(char const * error_msg) {
@@ -28,7 +59,7 @@ void scanner::check_not_eof(char const * error_msg) {
 
 [[ noreturn ]] void scanner::throw_exception(char const * msg) {
     unsigned line = m_sline;
-    unsigned pos  = m_spos;
+    unsigned pos  = m_upos;
     while (curr() != EOF && !std::isspace(curr()))
         next();
     throw parser_exception(msg, m_stream_name.c_str(), line, pos);
@@ -214,94 +245,132 @@ auto scanner::read_script_block() -> token_kind {
     return token_kind::ScriptBlock;
 }
 
-static bool is_id_first(char c) { return std::isalpha(c) || c == '_'; }
-static bool is_id_rest(char c)  { return std::isalnum(c) || c == '_' || c == '\''; }
-
-void scanner::move_back(std::streamoff offset) {
+void scanner::move_back(unsigned offset, unsigned u_offset) {
+    lean_assert(m_uskip == 0);
     if (offset != 0) {
         if (curr() == EOF) {
             m_curr = 0;
             m_stream.clear();
             m_spos--;
+            m_upos--;
+            offset--;
+            u_offset--;
         }
-        m_stream.seekg(offset, std::ios_base::cur);
-        m_spos += offset;
+        if (offset != 0) {
+            m_stream.seekg(-static_cast<std::streamoff>(offset), std::ios_base::cur);
+            m_spos -= offset;
+            m_upos -= u_offset;
+        }
         next();
     }
 }
 
-bool scanner::is_next_id_rest() {
-    lean_assert(curr() != EOF);
-    char c = m_stream.get();
-    bool r = is_id_rest(c);
-    m_stream.unget();
-    return r;
+void scanner::next_utf_core(char c, buffer<char> & cs) {
+    cs.push_back(c);
+    while (m_uskip > 0) {
+        next();
+        cs.push_back(curr());
+    }
+}
+
+void scanner::next_utf(buffer<char> & cs) {
+    next();
+    next_utf_core(curr(), cs);
+}
+
+static bool is_id_first(buffer<char> const & cs, unsigned i) {
+    return std::isalpha(cs[i]) || cs[i] == '_';
+}
+
+static bool is_id_rest(buffer<char> const & cs, unsigned i)  {
+    return std::isalnum(cs[i]) || cs[i] == '_' || cs[i] == '\'';
 }
 
 auto scanner::read_key_cmd_id() -> token_kind {
     static char const * error_msg = "unexpected token";
-    char c = curr();
-    unsigned num_cs = 1; // number of characters read
-    token_table const * it    = find(*m_tokens, c);
-    token_info const * info = nullptr;
-    unsigned key_size       = 0;
-    if (it) {
-        info = value_of(*it);
-        if (info)
-            key_size = 1;
-    }
-    std::string & id_part = m_buffer;
-    bool is_id = is_id_first(c);
-    unsigned id_size = 0;
-    if (is_id) {
-        m_name_val = name();
-        id_part.clear();
-        id_part.push_back(c);
-        id_size = 1;
-    }
-
-    while (it || is_id) {
-        next();
-        c = curr();
-        if (c != EOF)
-            num_cs++;
-
-        if (is_id) {
-            if (is_id_rest(c)) {
-                id_part.push_back(c);
-                id_size++;
-            } else if (c == '.' && is_next_id_rest()) {
-                m_name_val = name(m_name_val, id_part.c_str());
-                id_size++;
-                id_part.clear();
+    buffer<char> cs;
+    next_utf_core(curr(), cs);
+    unsigned num_utfs  = 1;
+    unsigned id_sz     = 0;
+    unsigned id_utf_sz = 0;
+    if (is_id_first(cs, 0)) {
+        id_sz = cs.size();
+        while (true) {
+            id_sz     = cs.size();
+            id_utf_sz = num_utfs;
+            unsigned i = id_sz;
+            next_utf(cs);
+            num_utfs++;
+            if (is_id_rest(cs, i)) {
+            } else if (cs[i] == '.') {
+                next_utf(cs);
+                num_utfs++;
+                if (!is_id_rest(cs, i+1))
+                    break;
             } else {
-                is_id = false;
-                m_name_val = name(m_name_val, id_part.c_str());
-                if (!it)
-                    return token_kind::Identifier;
+                break;
             }
         }
+    }
 
-        if (it) {
-            it = find(*it, c);
+    unsigned i = 0;
+    token_table const * it  = find(*m_tokens, cs[i]);
+    token_info const * info = nullptr;
+    unsigned key_sz       = 0;
+    unsigned key_utf_sz   = 0;
+    unsigned aux_num_utfs = id_utf_sz;
+    if (it) {
+        if (aux_num_utfs == 0)
+            aux_num_utfs = 1;
+        info = value_of(*it);
+        if (info) {
+            lean_assert(m_uskip == 0);
+            key_sz     = 1;
+            key_utf_sz = aux_num_utfs;
+        }
+        while (it) {
+            i++;
+            if (i == cs.size()) {
+                next_utf(cs);
+                num_utfs++;
+                aux_num_utfs = num_utfs;
+            }
+            it = find(*it, cs[i]);
             if (it) {
                 if (auto new_info = value_of(*it)) {
-                    info     = new_info;
-                    key_size = num_cs;
+                    lean_assert(m_uskip == 0);
+                    info       = new_info;
+                    key_sz     = i+1;
+                    key_utf_sz = aux_num_utfs;
                 }
-            } else if (!is_id) {
-                if (id_size > key_size) {
-                    move_back(static_cast<std::streamoff>(id_size) - static_cast<std::streamoff>(num_cs));
-                    return token_kind::Identifier;
-                } else if (info) {
-                    move_back(static_cast<std::streamoff>(key_size) - static_cast<std::streamoff>(num_cs));
-                    m_token_info = info;
-                    return info->is_command() ? token_kind::CommandKeyword : token_kind::Keyword;
-                }
+            } else {
+                break;
             }
         }
     }
-    throw_exception(error_msg);
+
+    if (id_sz == 0 && key_sz == 0)
+        throw_exception(error_msg);
+    if (id_sz > key_sz) {
+        move_back(cs.size() - id_sz, num_utfs - id_utf_sz);
+        m_name_val = name();
+        std::string & id_part = m_buffer;
+        id_part.clear();
+        for (unsigned i = 0; i < id_sz; i++) {
+            if (cs[i] == '.') {
+                m_name_val = name(m_name_val, id_part.c_str());
+                id_part.clear();
+            } else {
+                id_part.push_back(cs[i]);
+            }
+        }
+        m_name_val = name(m_name_val, id_part.c_str());
+        return token_kind::Identifier;
+    } else {
+        move_back(cs.size() - key_sz, num_utfs - key_utf_sz);
+        m_token_info = info;
+        return info->is_command() ? token_kind::CommandKeyword : token_kind::Keyword;
+    }
 }
 
 static name g_begin_script_tk("(*");
@@ -312,7 +381,7 @@ auto scanner::scan(environment const & env) -> token_kind {
     m_tokens = &get_token_table(env);
     while (true) {
         char c = curr();
-        m_pos  = m_spos;
+        m_pos  = m_upos;
         m_line = m_sline;
         switch (c) {
         case ' ': case '\r': case '\t':
@@ -352,7 +421,7 @@ auto scanner::scan(environment const & env) -> token_kind {
 }
 
 scanner::scanner(std::istream & strm, char const * strm_name):
-    m_tokens(nullptr), m_stream(strm), m_spos(0), m_sline(1), m_curr(0), m_pos(0), m_line(1),
+    m_tokens(nullptr), m_stream(strm), m_spos(0), m_upos(0), m_uskip(0), m_sline(1), m_curr(0), m_pos(0), m_line(1),
     m_token_info(nullptr) {
     m_stream_name = strm_name ? strm_name : "[unknown]";
     next();

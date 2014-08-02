@@ -29,6 +29,8 @@ protected:
     std::string         m_stream_name;
 
     int                 m_spos;  // current position
+    int                 m_upos;  // current position taking into account utf-8 encoding
+    int                 m_uskip; // hack for decoding utf-8, it marks how many units to skip
     int                 m_sline; // current line
     char                m_curr;  // current char;
 
@@ -45,16 +47,19 @@ protected:
     void next();
     char curr() const { return m_curr; }
     char curr_next() { char c = curr(); next(); return c; }
-    void new_line() { m_sline++; m_spos = 0; }
+    void new_line() { m_sline++; m_spos = 0; m_upos = 0; }
     void update_line() { if (curr() == '\n') new_line(); }
     void check_not_eof(char const * error_msg);
     bool is_next_digit();
     bool is_next_id_rest();
-    void move_back(std::streamoff offset);
+    void move_back(unsigned offset, unsigned u_offset);
     bool consume(char const * str, char const * error_msg);
     void read_single_line_comment();
     void read_comment_block();
     void read_until(char const * end_str, char const * error_msg);
+    unsigned get_utf8_size(unsigned char c);
+    void next_utf_core(char c, buffer<char> & cs);
+    void next_utf(buffer<char> & cs);
 
     token_kind read_string();
     token_kind read_number();

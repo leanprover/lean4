@@ -1581,12 +1581,51 @@ struct unifier_fn {
         return try_level_eq_zero(rhs, lhs, j);
     }
 
+    /** \brief Try to solve constraints of the form
+              (?m1 =?= max ?m2 ?m3)
+              (?m1 =?= max ?m2 ?m3)
+        by assigning ?m1 =?= ?m2 and ?m1 =?= ?m3
+
+        \remark we may miss solutions.
+    */
+    status try_merge_max_core(level const & lhs, level const & rhs, justification const & j) {
+        level m1 = lhs;
+        level m2, m3;
+        if (is_max(rhs)) {
+            m2 = max_lhs(rhs);
+            m3 = max_rhs(rhs);
+        } else if (is_imax(rhs)) {
+            m2 = imax_lhs(rhs);
+            m3 = imax_rhs(rhs);
+        } else {
+            return Continue;
+        }
+        if (process_constraint(mk_level_eq_cnstr(m1, m2, j)) &&
+            process_constraint(mk_level_eq_cnstr(m1, m3, j)))
+            return Solved;
+        else
+            return Failed;
+    }
+
+    /** \see try_merge_max_core */
+    status try_merge_max(constraint const & c) {
+        lean_assert(is_level_eq_cnstr(c));
+        level const & lhs = cnstr_lhs_level(c);
+        level const & rhs = cnstr_rhs_level(c);
+        justification const & j = c.get_justification();
+        status st = try_merge_max_core(lhs, rhs, j);
+        if (st != Continue) return st;
+        return try_merge_max_core(rhs, lhs, j);
+    }
+
     /** \brief Process the next constraint in the constraint queue m_cnstrs */
     bool process_next() {
         lean_assert(!m_cnstrs.empty());
         lean_assert(!m_tc[0]->next_cnstr());
         lean_assert(!m_tc[1]->next_cnstr());
-        constraint c = m_cnstrs.min()->first;
+        auto const * p = m_cnstrs.min();
+        unsigned cidx  = p->second;
+        constraint c   = p->first;
         m_cnstrs.erase_min();
         if (is_choice_cnstr(c)) {
             return process_choice_constraint(c);
@@ -1600,10 +1639,14 @@ struct unifier_fn {
                 if (modified)
                     return process_constraint(c);
                 status st = try_level_eq_zero(c);
-                if (st != Continue)
-                    return st == Solved;
-                else
-                    return process_plugin_constraint(c);
+                if (st != Continue) return st == Solved;
+                if (cidx < get_group_first_index(cnstr_group::FlexFlex)) {
+                    add_cnstr(c, cnstr_group::FlexFlex);
+                    return true;
+                }
+                st = try_merge_max(c);
+                if (st != Continue) return st == Solved;
+                return process_plugin_constraint(c);
             } else {
                 lean_assert(is_eq_cnstr(c));
                 if (is_delta_cnstr(c)) {

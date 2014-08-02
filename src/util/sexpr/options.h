@@ -66,7 +66,7 @@ public:
        \brief Return a new set of options based on \c opts by adding the prefix \c prefix.
 
        The procedure throws an exception if \c opts contains an options (o, v), s.t. prefix + o is
-       an unknow option in Lean.
+       an unknown option in Lean.
     */
     friend options add_prefix(name const & prefix, options const & opts);
 

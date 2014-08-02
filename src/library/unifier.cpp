@@ -257,6 +257,7 @@ struct unifier_fn {
     unsigned         m_max_steps;
     unsigned         m_num_steps;
     bool             m_expensive;
+    bool             m_pattern; //!< If true, then only higher-order (pattern) matching is used
     bool             m_first; //!< True if we still have to generate the first solution.
     unsigned         m_next_assumption_idx; //!< Next assumption index.
     unsigned         m_next_cidx; //!< Next constraint index.
@@ -299,11 +300,12 @@ struct unifier_fn {
         cnstr_set        m_cnstrs;
         name_to_cnstrs   m_mvar_occs;
         owned_map        m_owned_map;
+        bool             m_pattern;
 
         /** \brief Save unifier's state */
         case_split(unifier_fn & u, justification const & j):
             m_assumption_idx(u.m_next_assumption_idx), m_jst(j), m_subst(u.m_subst), m_cnstrs(u.m_cnstrs),
-            m_mvar_occs(u.m_mvar_occs), m_owned_map(u.m_owned_map) {
+            m_mvar_occs(u.m_mvar_occs), m_owned_map(u.m_owned_map), m_pattern(u.m_pattern) {
             u.m_next_assumption_idx++;
             u.m_tc[0]->push();
             u.m_tc[1]->push();
@@ -320,6 +322,7 @@ struct unifier_fn {
             u.m_cnstrs    = m_cnstrs;
             u.m_mvar_occs = m_mvar_occs;
             u.m_owned_map = m_owned_map;
+            u.m_pattern   = m_pattern;
             m_assumption_idx = u.m_next_assumption_idx;
             m_failed_justifications = mk_composite1(m_failed_justifications, *u.m_conflict);
             u.m_next_assumption_idx++;
@@ -350,7 +353,7 @@ struct unifier_fn {
                name_generator const & ngen, substitution const & s,
                bool use_exception, unsigned max_steps, bool expensive):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(get_unifier_plugin(env)),
-        m_use_exception(use_exception), m_max_steps(max_steps), m_num_steps(0), m_expensive(expensive) {
+        m_use_exception(use_exception), m_max_steps(max_steps), m_num_steps(0), m_expensive(expensive), m_pattern(false) {
         m_tc[0] = mk_type_checker_with_hints(env, m_ngen.mk_child(), false);
         m_tc[1] = mk_type_checker_with_hints(env, m_ngen.mk_child(), true);
         m_next_assumption_idx = 0;
@@ -1395,15 +1398,18 @@ struct unifier_fn {
             mk_simple_projections(m, margs, rhs, j, alts, relax);
             break;
         case expr_kind::Sort: case expr_kind::Constant:
-            mk_simple_projections(m, margs, rhs, j, alts, relax);
+            if (!m_pattern)
+                mk_simple_projections(m, margs, rhs, j, alts, relax);
             mk_simple_imitation(m, rhs, j, alts, relax);
             break;
         case expr_kind::Pi: case expr_kind::Lambda:
-            mk_simple_projections(m, margs, rhs, j, alts, relax);
+            if (!m_pattern)
+                mk_simple_projections(m, margs, rhs, j, alts, relax);
             mk_bindings_imitation(m, margs, rhs, j, alts, relax);
             break;
         case expr_kind::Macro:
-            mk_simple_projections(m, margs, rhs, j, alts, relax);
+            if (!m_pattern)
+                mk_simple_projections(m, margs, rhs, j, alts, relax);
             mk_macro_imitation(m, margs, rhs, j, alts, relax);
             break;
         case expr_kind::App: {
@@ -1416,12 +1422,13 @@ struct unifier_fn {
                     expr const & marg = margs[i];
                     if (is_local(marg) && mlocal_name(marg) == mlocal_name(f))
                         mk_flex_rigid_app_cnstrs(m, margs, mk_var(vidx), rhs, j, alts, relax);
-                    else
+                    else if (!m_pattern)
                         mk_simple_nonlocal_projection(m, margs, i, rhs, j, alts, relax);
                 }
             } else {
                 lean_assert(is_constant(f));
-                mk_simple_projections(m, margs, rhs, j, alts, relax);
+                if (!m_pattern)
+                    mk_simple_projections(m, margs, rhs, j, alts, relax);
                 mk_flex_rigid_app_cnstrs(m, margs, f, rhs, j, alts, relax);
             }
             break;
@@ -1625,6 +1632,8 @@ struct unifier_fn {
         lean_assert(!m_tc[1]->next_cnstr());
         auto const * p = m_cnstrs.min();
         unsigned cidx  = p->second;
+        if (!m_expensive && cidx > get_group_first_index(cnstr_group::MaxDelayed))
+            m_pattern = true; // use only higher-order (pattern) matching after we start processing MaxDelayed (aka class-instance constraints)
         constraint c   = p->first;
         m_cnstrs.erase_min();
         if (is_choice_cnstr(c)) {

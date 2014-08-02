@@ -1061,7 +1061,7 @@ public:
                 }
             }
         }
-        if (is_constant(e) || is_local(e))
+        if (is_constant(e) || is_local(e) || is_placeholder(e))
             save_flyinfo_data(e, r);
         return r;
     }

@@ -836,7 +836,7 @@ public:
             }
             if (!first) {
                 // we save the flyinfo data again for application of functions with strict implicit arguments
-                save_flyinfo_data(get_app_fn(e), f);
+                replace_flyinfo_data(get_app_fn(e), f);
             }
         }
         expr d_type = binding_domain(f_type);
@@ -887,14 +887,26 @@ public:
     }
 
     /** \brief Store the pair (pos(e), type(r)) in the flyinfo_data if m_flyinfo is true. */
-    void save_flyinfo_data(expr const & e, expr const & r) {
+    void save_flyinfo_data_core(expr const & e, expr const & r, bool replace) {
         if (m_flyinfo && m_pos_provider && (is_constant(e) || is_local(e) || is_placeholder(e))) {
             if (auto p = m_pos_provider->get_pos_info(e)) {
                 type_checker::scope scope(*m_tc[m_relax_main_opaque]);
                 expr t = m_tc[m_relax_main_opaque]->infer(r);
+                if (replace) {
+                    while (!m_flyinfo_data.empty() && m_flyinfo_data.back().first == *p)
+                        m_flyinfo_data.pop_back();
+                }
                 m_flyinfo_data.push_back(mk_pair(*p, t));
             }
         }
+    }
+
+    void save_flyinfo_data(expr const & e, expr const & r) {
+        save_flyinfo_data_core(e, r, false);
+    }
+
+    void replace_flyinfo_data(expr const & e, expr const & r) {
+        save_flyinfo_data_core(e, r, true);
     }
 
     expr visit_constant(expr const & e) {
@@ -1269,12 +1281,11 @@ public:
         instantiate_flyinfo(s);
         optional<flyinfo_data> prev;
         for (auto const & p : m_flyinfo_data) {
-            if (prev && p.first != prev->first)
-                display_flyinfo_data(*prev);
-            prev = p;
+            if (!prev || p.first != prev->first) {
+                display_flyinfo_data(p);
+                prev = p;
+            }
         }
-        if (prev)
-            display_flyinfo_data(*prev);
     }
 
     std::tuple<expr, level_param_names> operator()(expr const & e, bool _ensure_type, bool relax_main_opaque) {

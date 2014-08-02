@@ -15,19 +15,19 @@ parser_pos_provider::parser_pos_provider(pos_info_table_ptr const & pos_table,
 
 parser_pos_provider::~parser_pos_provider() {}
 
-std::pair<unsigned, unsigned> parser_pos_provider::get_pos_info(expr const & e) const {
+optional<pos_info> parser_pos_provider::get_pos_info(expr const & e) const {
     if (!m_pos_table)
-        return get_some_pos();
+        return optional<pos_info>();
     tag t = e.get_tag();
     if (t == nulltag)
-        return get_some_pos();
+        return optional<pos_info>();
     auto it = m_pos_table->find(t);
     if (it == m_pos_table->end())
-        return get_some_pos();
-    return it->second;
+        return optional<pos_info>();
+    return optional<pos_info>(it->second);
 }
 
-std::pair<unsigned, unsigned> parser_pos_provider::get_some_pos() const {
+pos_info parser_pos_provider::get_some_pos() const {
     return m_pos;
 }
 

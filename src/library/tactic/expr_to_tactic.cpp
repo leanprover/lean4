@@ -184,9 +184,9 @@ static register_bin_tac reg_orelse(g_or_else_tac_name, [](tactic const & t1, tac
 static register_unary_tac reg_repeat(g_repeat_tac_name, [](tactic const & t1) { return repeat(t1); });
 static register_tac reg_state(name(g_tac, "state"), [](type_checker &, expr const & e, pos_info_provider const * p) {
         if (p)
-            return trace_state_tactic(std::string(p->get_file_name()), p->get_pos_info(e));
-        else
-            return trace_state_tactic();
+            if (auto it = p->get_pos_info(e))
+                return trace_state_tactic(std::string(p->get_file_name()), *it);
+        return trace_state_tactic();
     });
 static register_tac reg_trace(name(g_tac, "trace"), [](type_checker & tc, expr const & e, pos_info_provider const *) {
         buffer<expr> args;

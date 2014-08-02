@@ -43,7 +43,7 @@ void display_error_pos(io_state_stream const & ios, char const * strm_name, unsi
 
 void display_error_pos(io_state_stream const & ios, pos_info_provider const * p, expr const & e) {
     if (p) {
-        auto pos = p->get_pos_info(e);
+        auto pos = p->get_pos_info_or_some(e);
         display_error_pos(ios, p->get_file_name(), pos.first, pos.second);
     } else {
         ios << "error:";

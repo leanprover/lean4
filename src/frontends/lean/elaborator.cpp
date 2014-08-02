@@ -885,10 +885,11 @@ public:
     /** \brief Store the pair (pos(e), type(r)) in the flyinfo_data if m_flyinfo is true. */
     void save_flyinfo_data(expr const & e, expr const & r) {
         if (m_flyinfo && m_pos_provider) {
-            auto p = m_pos_provider->get_pos_info(e);
-            type_checker::scope scope(*m_tc[m_relax_main_opaque]);
-            expr t = m_tc[m_relax_main_opaque]->infer(r);
-            m_flyinfo_data.push_back(mk_pair(p, t));
+            if (auto p = m_pos_provider->get_pos_info(e)) {
+                type_checker::scope scope(*m_tc[m_relax_main_opaque]);
+                expr t = m_tc[m_relax_main_opaque]->infer(r);
+                m_flyinfo_data.push_back(mk_pair(*p, t));
+            }
         }
     }
 

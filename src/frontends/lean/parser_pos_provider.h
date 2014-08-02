@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/pos_info_provider.h"
 
 namespace lean {
-typedef std::pair<unsigned, unsigned> pos_info;
 typedef std::unordered_map<unsigned, pos_info> pos_info_table;
 typedef std::shared_ptr<pos_info_table> pos_info_table_ptr;
 
@@ -23,8 +22,8 @@ class parser_pos_provider : public pos_info_provider {
 public:
     parser_pos_provider(pos_info_table_ptr const & pos_table, std::string const & strm_name, pos_info const & some_pos);
     virtual ~parser_pos_provider();
-    virtual std::pair<unsigned, unsigned> get_pos_info(expr const & e) const;
-    virtual std::pair<unsigned, unsigned> get_some_pos() const;
+    virtual optional<pos_info> get_pos_info(expr const & e) const;
+    virtual pos_info get_some_pos() const;
     virtual char const * get_file_name() const;
 };
 }

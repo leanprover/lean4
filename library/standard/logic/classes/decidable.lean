@@ -73,3 +73,5 @@ rec_on Ha
     (assume Hb  : b,  inl (assume H, Hb))
     (assume Hnb : ¬b, inr (assume H : a → b, absurd (H Ha) Hnb)))
   (assume Hna : ¬a, inl (assume Ha, absurd_elim b Ha Hna))
+
+end

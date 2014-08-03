@@ -294,21 +294,26 @@ void display_path(std::ostream & out, std::string const & fname) {
 std::string dirname(char const * fname) {
     if (fname == nullptr)
         return ".";
-    unsigned i = 0;
-    optional<unsigned> last_sep;
-    char const * it = fname;
+    unsigned i        = 0;
+    unsigned last_sep = 0;
+    bool found_sep    = false;
+    char const * it   = fname;
     while (*it) {
-        if (*it == g_sep)
-            last_sep = i;
+        if (*it == g_sep) {
+            found_sep = true;
+            last_sep  = i;
+        }
         ++i;
         ++it;
     }
-    if (!last_sep)
+    if (!found_sep) {
         return ".";
-    std::string r;
-    for (unsigned i = 0; i < *last_sep; i++)
-        r.push_back(fname[i]);
-    return r;
+    } else {
+        std::string r;
+        for (unsigned i = 0; i < last_sep; i++)
+            r.push_back(fname[i]);
+        return r;
+    }
 }
 
 std::string path_append(char const * p1, char const * p2) {

@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/error_msgs.h"
 #include "library/occurs.h"
+#include "library/locals.h"
 #include "library/unifier.h"
 #include "library/opaque_hints.h"
 #include "library/unifier_plugin.h"
@@ -31,16 +32,6 @@ unsigned get_unifier_max_steps(options const & opts) { return opts.get_unsigned(
 static name g_unifier_expensive      {"unifier", "expensive"};
 RegisterBoolOption(g_unifier_expensive, LEAN_DEFAULT_UNIFIER_EXPENSIVE, "(unifier) enable/disable expensive (and more complete) procedure");
 bool get_unifier_expensive(options const & opts) { return opts.get_bool(g_unifier_expensive, LEAN_DEFAULT_UNIFIER_EXPENSIVE); }
-
-/** \brief Return true iff \c [begin_locals, end_locals) contains \c local */
-template<typename It> bool contains_local(expr const & local, It const & begin_locals, It const & end_locals) {
-    return std::any_of(begin_locals, end_locals, [&](expr const & l) { return mlocal_name(local) == mlocal_name(l); });
-}
-
-/** \brief Return true iff \c locals contains \c local */
-bool contains_local(expr const & local, buffer<expr> const & locals) {
-    return contains_local(local, locals.begin(), locals.end());
-}
 
 // If \c e is a metavariable ?m or a term of the form (?m l_1 ... l_n) where
 // l_1 ... l_n are distinct local variables, then return ?m, and store l_1 ... l_n in args.

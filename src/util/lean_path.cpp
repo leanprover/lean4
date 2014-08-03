@@ -245,19 +245,26 @@ std::string find_file(std::string fname, std::initializer_list<char const *> con
     throw exception(sstream() << "file '" << fname << "' not found in the LEAN_PATH");
 }
 
-std::string find_file(std::string const & base, optional<unsigned> const & rel, name const & fname, char const * ext) {
+std::string find_file(std::string const & base, optional<unsigned> const & rel, name const & fname,
+                      std::initializer_list<char const *> const & extensions) {
     if (!rel) {
-        return find_file(fname.to_string(g_sep_str.c_str()), {ext});
+        return find_file(fname.to_string(g_sep_str.c_str()), extensions);
     } else {
         auto path = base;
         for (unsigned i = 0; i < *rel; i++) {
             path += g_sep;
             path += "..";
         }
-        if (auto r = check_file(path, fname.to_string(g_sep_str.c_str()), ext))
-            return *r;
+        for (auto ext : extensions) {
+            if (auto r = check_file(path, fname.to_string(g_sep_str.c_str()), ext))
+                return *r;
+        }
         throw exception(sstream() << "file '" << fname << "' not found at '" << path << "'");
     }
+}
+
+std::string find_file(std::string const & base, optional<unsigned> const & k, name const & fname, char const * ext) {
+    return find_file(base, k, fname, {ext});
 }
 
 std::string find_file(std::string fname) {

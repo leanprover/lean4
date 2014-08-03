@@ -476,6 +476,29 @@ struct unifier_fn {
         }
     }
 
+    justification mk_assign_justification(expr const & m, expr const & m_type, expr const & v_type, justification const & j) {
+        auto r = j.get_main_expr();
+        if (!r) r = m;
+        justification new_j = mk_justification(r, [=](formatter const & fmt, substitution const & subst) {
+                substitution s(subst);
+                format r = format("type error in placeholder when trying to solve");
+                r += nest(2*get_pp_indent(fmt.get_options()), compose(line(), j.pp(fmt, nullptr, subst)));
+                expr _m = s.instantiate(m);
+                if (!is_meta(_m)) {
+                    r += compose(line(), format("placeholder was assigned to"));
+                    r += pp_indent_expr(fmt, _m);
+                }
+                format expected_fmt, given_fmt;
+                std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, m_type, v_type);
+                r += compose(line(), format("placeholder is expected of type"));
+                r += expected_fmt;
+                r += compose(line(), format("but is given type"));
+                r += given_fmt;
+                return r;
+            });
+        return mk_composite1(new_j, j);
+    }
+
     /**
        \brief Assign \c v to metavariable \c m with justification \c j.
        The type of v and m are inferred, and is_def_eq is invoked.
@@ -499,7 +522,8 @@ struct unifier_fn {
             return false;
         }
         lean_assert(!in_conflict());
-        if (!is_def_eq(m_type, v_type, j, relax))
+        justification new_j = mk_assign_justification(m, m_type, v_type, j);
+        if (!is_def_eq(m_type, v_type, new_j, relax))
             return false;
         auto it = m_mvar_occs.find(mlocal_name(m));
         if (it) {

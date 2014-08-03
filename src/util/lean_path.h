@@ -38,4 +38,7 @@ std::string name_to_file(name const & fname);
     In some platforms it will fix the notation used to display the path.
 */
 void display_path(std::ostream & out, std::string const & fname);
+
+std::string dirname(char const * fname);
+std::string path_append(char const * path1, char const * path2);
 }

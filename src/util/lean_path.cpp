@@ -267,4 +267,31 @@ void display_path(std::ostream & out, std::string const & fname) {
     out << fname;
 #endif
 }
+
+std::string dirname(char const * fname) {
+    if (fname == nullptr)
+        return ".";
+    unsigned i = 0;
+    optional<unsigned> last_sep;
+    char const * it = fname;
+    while (*it) {
+        if (*it == g_sep)
+            last_sep = i;
+        ++i;
+        ++it;
+    }
+    if (!last_sep)
+        return ".";
+    std::string r;
+    for (unsigned i = 0; i < *last_sep; i++)
+        r.push_back(fname[i]);
+    return r;
+}
+
+std::string path_append(char const * p1, char const * p2) {
+    std::string r(p1);
+    r += g_sep;
+    r += p2;
+    return r;
+}
 }

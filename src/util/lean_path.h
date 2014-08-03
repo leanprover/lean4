@@ -23,6 +23,9 @@ std::string find_file(std::string fname, std::initializer_list<char const *> con
 std::string find_file(name const & fname);
 std::string find_file(name const & fname, std::initializer_list<char const *> const & exts);
 
+/** \brief \brief Similar to previous find_file, but if k is not none then search at the k-th parent of base. */
+std::string find_file(std::string const & base, optional<unsigned> const & k, name const & fname, char const * ext);
+
 /** \brief Return true iff fname ends with ".lean" */
 bool is_lean_file(std::string const & fname);
 /** \brief Return true iff fname ends with ".olean" */

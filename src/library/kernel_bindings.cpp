@@ -1056,16 +1056,16 @@ static int environment_for_each_universe(lua_State * L) {
     return 0;
 }
 
-static void to_name_buffer(lua_State * L, int i, buffer<name> & r) {
+static void to_module_name_buffer(lua_State * L, int i, buffer<module_name> & r) {
     if (lua_isstring(L, i) || is_name(L, i)) {
-        r.push_back(to_name_ext(L, i));
+        r.push_back(module_name(to_name_ext(L, i)));
     } else {
         luaL_checktype(L, i, LUA_TTABLE);
         lua_pushvalue(L, i);
         int sz = objlen(L, -1);
         for (int i = 1; i <= sz; i++) {
             lua_rawgeti(L, -1, i);
-            r.push_back(to_name_ext(L, -1));
+            r.push_back(module_name(to_name_ext(L, -1)));
             lua_pop(L, 1);
         }
     }
@@ -1073,18 +1073,19 @@ static void to_name_buffer(lua_State * L, int i, buffer<name> & r) {
 
 static int import_modules(environment const & env, lua_State * L, int s) {
     int nargs = lua_gettop(L);
-    buffer<name> mnames;
-    to_name_buffer(L, s, mnames);
+    buffer<module_name> mnames;
+    to_module_name_buffer(L, s, mnames);
     unsigned num_threads = 1;
     bool     keep_proofs = false;
     if (nargs > s) {
         num_threads = get_uint_named_param(L, s+1, "num_threads", num_threads);
         keep_proofs = get_bool_named_param(L, s+1, "keep_proofs", keep_proofs);
     }
+    std::string base;
     if (nargs > s+1 && is_io_state(L, s+2))
-        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, keep_proofs, to_io_state(L, s+2)));
+        return push_environment(L, import_modules(env, base, mnames.size(), mnames.data(), num_threads, keep_proofs, to_io_state(L, s+2)));
     else
-        return push_environment(L, import_modules(env, mnames.size(), mnames.data(), num_threads, keep_proofs, get_io_state(L)));
+        return push_environment(L, import_modules(env, base, mnames.size(), mnames.data(), num_threads, keep_proofs, get_io_state(L)));
 }
 
 static int import_modules(lua_State * L) {

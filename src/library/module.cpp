@@ -31,8 +31,8 @@ namespace lean {
 typedef std::pair<std::string, std::function<void(serializer &)>> writer;
 
 struct module_ext : public environment_extension {
-    list<name>   m_direct_imports;
-    list<writer> m_writers;
+    list<module_name> m_direct_imports;
+    list<writer>      m_writers;
 };
 
 struct module_ext_reg {
@@ -51,9 +51,29 @@ static environment update(environment const & env, module_ext const & ext) {
 static char const * g_olean_end_file = "EndFile";
 static char const * g_olean_header   = "oleanfile";
 
+serializer & operator<<(serializer & s, module_name const & n) {
+    if (n.is_relative())
+        s << true << *n.get_k() << n.get_name();
+    else
+        s << false << n.get_name();
+    return s;
+}
+
+module_name read_module_name(deserializer & d) {
+    if (d.read_bool()) {
+        unsigned k; name n;
+        d >> k >> n;
+        return module_name(k, n);
+    } else {
+        name n;
+        d >> n;
+        return module_name(n);
+    }
+}
+
 void export_module(std::ostream & out, environment const & env) {
     module_ext const & ext = get_extension(env);
-    buffer<name> imports;
+    buffer<module_name> imports;
     buffer<writer const *> writers;
     to_buffer(ext.m_direct_imports, imports);
     std::reverse(imports.begin(), imports.end());
@@ -171,7 +191,6 @@ struct import_modules_fn {
     atomic<bool>                   m_all_modules_imported;
 
     struct module_info {
-        name                                      m_name;
         std::string                               m_fname;
         atomic<unsigned>                          m_counter; // number of dependencies to be processed
         unsigned                                  m_module_idx;
@@ -198,11 +217,12 @@ struct import_modules_fn {
         }
     }
 
-    module_info_ptr load_module_file(name const & mname) {
-        auto it = m_module_info.find(mname);
+    module_info_ptr load_module_file(std::string const & base, module_name const & mname) {
+        // TODO(Leo): support module_name
+        std::string fname = find_file(base, mname.get_k(), mname.get_name(), {".olean"});
+        auto it    = m_module_info.find(fname);
         if (it)
             return *it;
-        std::string fname = find_file(mname, {".olean"});
         if (m_visited.contains(fname))
             throw exception(sstream() << "circular dependency detected at '" << fname << "'");
         m_visited.insert(fname);
@@ -219,9 +239,9 @@ struct import_modules_fn {
         // Enforce version?
 
         unsigned num_imports  = d1.read_unsigned();
-        buffer<name> imports;
+        buffer<module_name> imports;
         for (unsigned i = 0; i < num_imports; i++)
-            imports.push_back(read_name(d1));
+            imports.push_back(read_module_name(d1));
 
         unsigned code_size    = d1.read_unsigned();
         std::vector<char> code(code_size);
@@ -233,17 +253,17 @@ struct import_modules_fn {
             throw exception(sstream() << "file '" << fname << "' has been corrupted, checksum mismatch");
 
         module_info_ptr r = std::make_shared<module_info>();
-        r->m_name         = mname;
         r->m_fname        = fname;
         r->m_counter      = imports.size();
         r->m_module_idx   = g_null_module_idx;
         m_import_counter++;
+        std::string new_base = dirname(fname.c_str());
         std::swap(r->m_obj_code, code);
         for (auto i : imports) {
-            auto d = load_module_file(i);
+            auto d = load_module_file(new_base, i);
             d->m_dependents.push_back(r);
         }
-        m_module_info.insert(mname, r);
+        m_module_info.insert(fname, r);
         r->m_module_idx = m_next_module_idx++;
 
         if (imports.empty())
@@ -425,31 +445,31 @@ struct import_modules_fn {
         return env;
     }
 
-    void store_direct_imports(unsigned num_modules, name const * modules) {
+    void store_direct_imports(unsigned num_modules, module_name const * modules) {
         m_senv.update([&](environment const & env) -> environment {
                 module_ext ext = get_extension(env);
                 for (unsigned i = 0; i < num_modules; i++)
-                    ext.m_direct_imports = list<name>(modules[i], ext.m_direct_imports);
+                    ext.m_direct_imports = cons(modules[i], ext.m_direct_imports);
                 return update(env, ext);
             });
     }
 
-    environment operator()(unsigned num_modules, name const * modules) {
+    environment operator()(std::string const & base, unsigned num_modules, module_name const * modules) {
         store_direct_imports(num_modules, modules);
         for (unsigned i = 0; i < num_modules; i++)
-            load_module_file(modules[i]);
+            load_module_file(base, modules[i]);
         process_asynch_tasks();
         return process_delayed_tasks();
     }
 };
 
-environment import_modules(environment const & env, unsigned num_modules, name const * modules,
+environment import_modules(environment const & env, std::string const & base, unsigned num_modules, module_name const * modules,
                            unsigned num_threads, bool keep_proofs, io_state const & ios) {
-    return import_modules_fn(env, num_threads, keep_proofs, ios)(num_modules, modules);
+    return import_modules_fn(env, num_threads, keep_proofs, ios)(base, num_modules, modules);
 }
 
-environment import_module(environment const & env, name const & module,
+environment import_module(environment const & env, std::string const & base, module_name const & module,
                           unsigned num_threads, bool keep_proofs, io_state const & ios) {
-    return import_modules(env, 1, &module, num_threads, keep_proofs, ios);
+    return import_modules(env, base, 1, &module, num_threads, keep_proofs, ios);
 }
 }

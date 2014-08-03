@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/name.h"
 #include "util/optional.h"
+#include "util/realpath.h"
 
 #ifndef LEAN_DEFAULT_MODULE_FILE_NAME
 #define LEAN_DEFAULT_MODULE_FILE_NAME "default"
@@ -218,7 +219,7 @@ optional<std::string> check_file(std::string const & path, std::string const & f
         file += ext;
     std::ifstream ifile(file);
     if (ifile)
-        return optional<std::string>(file);
+        return optional<std::string>(realpath(file.c_str()));
     else
         return optional<std::string>();
 }
@@ -242,6 +243,21 @@ std::string find_file(std::string fname, std::initializer_list<char const *> con
         }
     }
     throw exception(sstream() << "file '" << fname << "' not found in the LEAN_PATH");
+}
+
+std::string find_file(std::string const & base, optional<unsigned> const & rel, name const & fname, char const * ext) {
+    if (!rel) {
+        return find_file(fname.to_string(g_sep_str.c_str()), {ext});
+    } else {
+        auto path = base;
+        for (unsigned i = 0; i < *rel; i++) {
+            path += g_sep;
+            path += "..";
+        }
+        if (auto r = check_file(path, fname.to_string(g_sep_str.c_str()), ext))
+            return *r;
+        throw exception(sstream() << "file '" << fname << "' not found at '" << path << "'");
+    }
 }
 
 std::string find_file(std::string fname) {

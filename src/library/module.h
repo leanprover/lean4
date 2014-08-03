@@ -8,11 +8,24 @@ Author: Leonardo de Moura
 #include <string>
 #include <iostream>
 #include "util/serializer.h"
+#include "util/optional.h"
 #include "kernel/inductive/inductive.h"
 #include "library/shared_environment.h"
 #include "library/io_state.h"
 
 namespace lean {
+class module_name {
+    optional<unsigned> m_relative;
+    name               m_name;
+public:
+    module_name(name const & n):m_name(n) {}
+    module_name(unsigned k, name const & n):m_relative(k), m_name(n) {}
+    module_name(optional<unsigned> const & k, name const & n):m_relative(k), m_name(n) {}
+    name const & get_name() const { return m_name; }
+    bool is_relative() const { return static_cast<bool>(m_relative); }
+    optional<unsigned> const & get_k() const { return m_relative; }
+};
+
 /**
    \brief Return an environment based on \c env, where all modules in \c modules are imported.
    Modules included directly or indirectly by them are also imported.
@@ -21,9 +34,9 @@ namespace lean {
    If \c keep_proofs is false, then the proof of the imported theorems is discarded after being
    checked. The idea is to save memory.
 */
-environment import_modules(environment const & env, unsigned num_modules, name const * modules,
+environment import_modules(environment const & env, std::string const & base, unsigned num_modules, module_name const * modules,
                            unsigned num_threads, bool keep_proofs, io_state const & ios);
-environment import_module(environment const & env, name const & module,
+environment import_module(environment const & env, std::string const & base, module_name const & module,
                           unsigned num_threads, bool keep_proofs, io_state const & ios);
 
 /**

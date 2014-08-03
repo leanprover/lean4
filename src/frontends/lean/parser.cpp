@@ -1033,9 +1033,17 @@ void parser::parse_script(bool as_expr) {
         });
 }
 
-static optional<std::string> find_file(name const & f, char const * ext) {
+static optional<std::string> try_file(name const & f, char const * ext) {
     try {
         return optional<std::string>(find_file(f, {ext}));
+    } catch (...) {
+        return optional<std::string>();
+    }
+}
+
+static optional<std::string> try_file(std::string const & base, optional<unsigned> const & k, name const & f, char const * ext) {
+    try {
+        return optional<std::string>(find_file(base, k, f, ext));
     } catch (...) {
         return optional<std::string>();
     }
@@ -1056,17 +1064,31 @@ static void lua_module_reader(deserializer & d, module_idx, shared_environment &
 register_module_object_reader_fn g_lua_module_reader(g_lua_module_key, lua_module_reader);
 
 void parser::parse_imports() {
-    buffer<name> olean_files;
-    buffer<name> lua_files;
+    buffer<module_name> olean_files;
+    buffer<name>        lua_files;
+    std::string base = dirname(get_stream_name().c_str());
     while (curr_is_token(g_import)) {
         m_last_cmd_pos = pos();
         next();
-        while (curr_is_identifier()) {
+        while (true) {
+            optional<unsigned> k;
+            while (curr_is_token(g_period)) {
+                next();
+                if (!k)
+                    k = 0;
+                else
+                    k = *k + 1;
+            }
+            if (!curr_is_identifier())
+                break;
             name f            = get_name_val();
-            if (auto it = find_file(f, ".lua")) {
+            if (auto it = try_file(f, ".lua")) {
+                if (k)
+                    throw parser_error(sstream() << "invalid import, failed to import '" << f
+                                       << "', relative paths are not supported for .lua files", pos());
                 lua_files.push_back(f);
-            } else if (auto it = find_file(f, ".olean")) {
-                olean_files.push_back(f);
+            } else if (auto it = try_file(base, k, f, ".olean")) {
+                olean_files.push_back(module_name(k, f));
             } else {
                 m_found_errors = true;
                 if (!m_use_exceptions && m_show_errors) {
@@ -1083,7 +1105,7 @@ void parser::parse_imports() {
     unsigned num_threads = 0;
     if (get_parser_parallel_import(m_ios.get_options()))
         num_threads = m_num_threads;
-    m_env = import_modules(m_env, olean_files.size(), olean_files.data(), num_threads, true, m_ios);
+    m_env = import_modules(m_env, base, olean_files.size(), olean_files.data(), num_threads, true, m_ios);
     for (auto const & f : lua_files) {
         std::string rname = find_file(f, {".lua"});
         system_import(rname.c_str());

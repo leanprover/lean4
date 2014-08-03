@@ -1,5 +1,6 @@
 TOP := $(dir $(lastword $(MAKEFILE_LIST)))
-LEAN_FILES = $(shell find . -type f -name '*.lean')
+DIR = $(shell pwd)
+LEAN_FILES = $(shell find $(DIR) -type f -name '*.lean')
 OLEAN_FILES = $(LEAN_FILES:.lean=.olean)
 DEP_FILES = $(LEAN_FILES:.lean=.d)
 

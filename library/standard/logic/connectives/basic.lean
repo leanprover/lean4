@@ -4,7 +4,7 @@
 -- Authors: Leonardo de Moura, Jeremy Avigad
 ----------------------------------------------------------------------------------------------------
 
-import logic.connectives.prop
+import .prop
 
 -- implication
 -- -----------

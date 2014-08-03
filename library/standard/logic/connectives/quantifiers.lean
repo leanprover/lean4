@@ -4,7 +4,7 @@
 -- Authors: Leonardo de Moura, Jeremy Avigad
 ----------------------------------------------------------------------------------------------------
 
-import logic.connectives.basic logic.connectives.eq
+import .basic .eq
 
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 | exists_intro : ∀ (a : A), P a → Exists P

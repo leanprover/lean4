@@ -4,8 +4,7 @@
 -- Authors: Leonardo de Moura, Jeremy Avigad
 ----------------------------------------------------------------------------------------------------
 
-import logic.connectives.basic
-
+import .basic
 
 -- eq
 -- --

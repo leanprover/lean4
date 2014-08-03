@@ -4,7 +4,7 @@
 --- Author: Floris van Doorn
 ----------------------------------------------------------------------------------------------------
 
-import data.nat.basic
+import .basic
 using nat eq_proofs tactic
 
 -- until we have the simplifier...
@@ -75,9 +75,9 @@ have L1 : k + l = 0, from
   add_cancel_left
     (calc
       n + (k + l) = n + k + l : symm (add_assoc n k l)
-	... = m + l : {Hk}
-	... = n : Hl
-	... = n + 0 : symm (add_zero_right n)),
+        ... = m + l : {Hk}
+        ... = n : Hl
+        ... = n + 0 : symm (add_zero_right n)),
 have L2 : k = 0, from add_eq_zero_left L1,
 calc
   n = n + 0 : symm (add_zero_right n)
@@ -97,7 +97,7 @@ obtain (l : ℕ) (Hl : n + l = m), from (le_elim H),
 le_intro
   (calc
       k + n + l  = k + (n + l) : add_assoc k n l
-	... = k + m : {Hl})
+        ... = k + m : {Hl})
 
 theorem add_le_right {n m : ℕ} (H : n ≤ m) (k : ℕ) : n + k ≤ m + k :=
 add_comm k m ▸ add_comm k n ▸ add_le_left H k
@@ -111,7 +111,7 @@ obtain (l : ℕ) (Hl : k + n + l = k + m), from (le_elim H),
 le_intro (add_cancel_left
   (calc
       k + (n + l)  = k + n + l : symm (add_assoc k n l)
-	... = k + m : Hl))
+        ... = k + m : Hl))
 
 theorem add_le_cancel_right {n m k : ℕ} (H : n + k ≤ m + k) : n ≤ m :=
 add_le_cancel_left (add_comm m k ▸ add_comm n k ▸ H)
@@ -144,18 +144,18 @@ discriminate
   (assume H3 : k = 0,
     have Heq : n = m,
       from calc
-	n = n + 0 : symm (add_zero_right n)
-	  ... = n + k : {symm H3}
-	  ... = m : Hk,
+        n = n + 0 : symm (add_zero_right n)
+          ... = n + k : {symm H3}
+          ... = m : Hk,
     or_intro_right _ Heq)
   (take l : nat,
     assume H3 : k = succ l,
     have Hlt : succ n ≤ m, from
       (le_intro
-	(calc
-	  succ n + l = n + succ l : add_move_succ n l
-	    ... = n + k : {symm H3}
-	    ... = m : Hk)),
+        (calc
+          succ n + l = n + succ l : add_move_succ n l
+            ... = n + k : {symm H3}
+            ... = m : Hk)),
     or_intro_left _ Hlt)
 
 theorem le_ne_imp_succ_le {n m : ℕ} (H1 : n ≤ m) (H2 : n ≠ m) : succ n ≤ m :=
@@ -171,7 +171,7 @@ obtain (k : ℕ) (H2 : succ n + k = m), from (le_elim H),
   (have H3 : n + succ k = m,
     from calc
       n + succ k = succ n + k : symm (add_move_succ n k)
-	... = m : H2,
+        ... = m : H2,
     show n ≤ m, from le_intro H3)
   (assume H3 : n = m,
       have H4 : succ n ≤ n, from subst (symm H3) H,
@@ -188,20 +188,20 @@ discriminate
   (take Hn : n = 0,
     have H2 : pred n = 0,
       from calc
-	pred n = pred 0 : {Hn}
-	   ... = 0 : pred_zero,
+        pred n = pred 0 : {Hn}
+           ... = 0 : pred_zero,
     subst (symm H2) (zero_le (pred m)))
   (take k : ℕ,
     assume Hn : n = succ k,
     obtain (l : ℕ) (Hl : n + l = m), from le_elim H,
     have H2 : pred n + l = pred m,
       from calc
-	pred n + l = pred (succ k) + l : {Hn}
-	  ... = k + l : {pred_succ k}
-	  ... = pred (succ (k + l)) : symm (pred_succ (k + l))
-	  ... = pred (succ k + l) : {symm (add_succ_left k l)}
-	  ... = pred (n + l) : {symm Hn}
-	  ... = pred m : {Hl},
+        pred n + l = pred (succ k) + l : {Hn}
+          ... = k + l : {pred_succ k}
+          ... = pred (succ (k + l)) : symm (pred_succ (k + l))
+          ... = pred (succ k + l) : {symm (add_succ_left k l)}
+          ... = pred (n + l) : {symm Hn}
+          ... = pred m : {Hl},
     le_intro H2)
 
 theorem pred_le_imp_le_or_eq {n m : ℕ} (H : pred n ≤ m) : n ≤ m ∨ n = succ m :=
@@ -212,14 +212,14 @@ discriminate
     assume Hn : n = succ k,
     have H2 : pred n = k,
       from calc
-	pred n = pred (succ k) : {Hn}
-	   ... = k : pred_succ k,
+        pred n = pred (succ k) : {Hn}
+           ... = k : pred_succ k,
     have H3 : k ≤ m, from subst H2 H,
     have H4 : succ k ≤ m ∨ k = m, from le_imp_succ_le_or_eq H3,
     show n ≤ m ∨ n = succ m, from
       or_imp_or H4
-	(take H5 : succ k ≤ m, show n ≤ m, from subst (symm Hn) H5)
-	(take H5 : k = m, show n = succ m, from subst H5 Hn))
+        (take H5 : succ k ≤ m, show n ≤ m, from subst (symm Hn) H5)
+        (take H5 : k = m, show n = succ m, from subst H5 Hn))
 
 
 -- ### interaction with multiplication
@@ -383,24 +383,24 @@ induction_on n
     assume IH : k ≤ m ∨ m < k,
     or_elim IH
       (assume H : k ≤ m,
-	obtain (l : ℕ) (Hl : k + l = m), from le_elim H,
-	discriminate
-	  (assume H2 : l = 0,
-	    have H3 : m = k,
-	      from calc
-		m = k + l : symm Hl
-		  ... = k + 0 : {H2}
-		  ... = k : add_zero_right k,
-	    have H4 : m < succ k, from subst  H3 (self_lt_succ m),
-	    or_inr H4)
-	  (take l2 : ℕ,
-	    assume H2 : l = succ l2,
-	    have H3 : succ k + l2 = m,
-	      from calc
-		succ k + l2 = k + succ l2 : add_move_succ k l2
-		  ... = k + l : {symm H2}
-		  ... = m : Hl,
-	    or_inl (le_intro H3)))
+        obtain (l : ℕ) (Hl : k + l = m), from le_elim H,
+        discriminate
+          (assume H2 : l = 0,
+            have H3 : m = k,
+              from calc
+                m = k + l : symm Hl
+                  ... = k + 0 : {H2}
+                  ... = k : add_zero_right k,
+            have H4 : m < succ k, from subst  H3 (self_lt_succ m),
+            or_inr H4)
+          (take l2 : ℕ,
+            assume H2 : l = succ l2,
+            have H3 : succ k + l2 = m,
+              from calc
+                succ k + l2 = k + succ l2 : add_move_succ k l2
+                  ... = k + l : {symm H2}
+                  ... = m : Hl,
+            or_inl (le_intro H3)))
       (assume H : m < k, or_inr (lt_imp_lt_succ H)))
 
 theorem trichotomy_alt (n m : ℕ) : (n < m ∨ n = m) ∨ n > m :=
@@ -431,11 +431,11 @@ have H1 : ∀n, ∀m, m < n → P m, from
       assume IH : ∀m, m < n' → P m,
       have H2: P n', from H n' IH,
       show ∀m, m < succ n' → P m, from
-	take m,
-	assume H3 : m < succ n',
-	or_elim (le_imp_lt_or_eq (lt_succ_imp_le H3))
-	  (assume H4: m < n', IH _ H4)
-	  (assume H4: m = n', H4⁻¹ ▸ H2)),
+        take m,
+        assume H3 : m < succ n',
+        or_elim (le_imp_lt_or_eq (lt_succ_imp_le H3))
+          (assume H4: m < n', IH _ H4)
+          (assume H4: m = n', H4⁻¹ ▸ H2)),
 H1 _ _ (self_lt_succ n)
 
 theorem case_strong_induction_on {P : nat → Prop} (a : nat) (H0 : P 0)
@@ -446,9 +446,9 @@ strong_induction_on a (
     case n
        (assume H : (∀m, m < 0 → P m), show P 0, from H0)
        (take n,
-	 assume H : (∀m, m < succ n → P m),
-	 show P (succ n), from
-	   Hind n (take m, assume H1 : m ≤ n, H _ (le_imp_lt_succ H1))))
+         assume H : (∀m, m < succ n → P m),
+         show P (succ n), from
+           Hind n (take m, assume H1 : m ≤ n, H _ (le_imp_lt_succ H1))))
 
 -- Positivity
 -- ---------
@@ -496,8 +496,8 @@ discriminate
   (assume H2 : n = 0,
     have H3 : n * m = 0,
       from calc
-	n * m = 0 * m : {H2}
-	  ... = 0 : mul_zero_left m,
+        n * m = 0 * m : {H2}
+          ... = 0 : mul_zero_left m,
     have H4 : 0 > 0, from H3 ▸ H,
     absurd_elim _ H4 (lt_irrefl 0))
   (take l : nat,

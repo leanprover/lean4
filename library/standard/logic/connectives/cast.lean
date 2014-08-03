@@ -4,7 +4,7 @@
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
 
-import logic.connectives.eq logic.connectives.quantifiers
+import .eq .quantifiers
 
 using eq_proofs
 

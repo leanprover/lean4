@@ -49,7 +49,7 @@ public:
                 if (d.read_bool()) {
                     int h       = d.read_int();
                     list<int> t = read();
-                    return list<int>(h, t);
+                    return cons(h, t);
                 } else {
                     return list<int>();
                 }

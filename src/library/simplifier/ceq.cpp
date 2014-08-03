@@ -29,7 +29,7 @@ class to_ceqs_fn {
     unsigned                         m_idx;
 
     static list<expr_pair> mk_singleton(expr const & e, expr const & H) {
-        return list<expr_pair>(mk_pair(e, H));
+        return to_list(mk_pair(e, H));
     }
 
     expr lift_free_vars(expr const & e, unsigned d) {

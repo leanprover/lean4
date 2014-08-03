@@ -84,7 +84,7 @@ struct coercion_state {
     void update_from_to(name const & C, coercion_class const & D, expr const & f, io_state const & ios) {
         auto it1 = m_from.find(C);
         if (!it1) {
-            m_from.insert(C, list<std::pair<coercion_class, expr>>(mk_pair(D, f)));
+            m_from.insert(C, to_list(mk_pair(D, f)));
         } else {
             auto it  = it1->begin();
             auto end = it1->end();
@@ -98,9 +98,9 @@ struct coercion_state {
         }
         auto it2 = m_to.find(D);
         if (!it2)
-            m_to.insert(D, list<name>(C));
+            m_to.insert(D, to_list(C));
         else if (std::find(it2->begin(), it2->end(), C) == it2->end())
-            m_to.insert(D, list<name>(C, *it2));
+            m_to.insert(D, cons(C, *it2));
     }
 };
 
@@ -240,7 +240,7 @@ struct add_coercion_fn {
         } else {
             list<coercion_info> infos = *it;
             infos = filter(infos, [&](coercion_info const & info) { return info.m_to != cls; });
-            infos = list<coercion_info>(coercion_info(f, f_type, ls, num_args, cls), infos);
+            infos = cons(coercion_info(f, f_type, ls, num_args, cls), infos);
             m_state.m_coercion_info.insert(C, infos);
         }
         if (is_constant(f))

@@ -80,10 +80,7 @@ typedef scoped_ext<tactic_hint_config> tactic_hint_ext;
 
 list<tactic_hint_entry> get_tactic_hints(environment const & env, name const & c) {
     tactic_hint_state const & s = tactic_hint_ext::get_state(env);
-    if (auto it = s.m_class_tactics.find(c))
-        return *it;
-    else
-        return list<tactic_hint_entry>();
+    return ptr_to_list(s.m_class_tactics.find(c));
 }
 
 list<tactic_hint_entry> get_tactic_hints(environment const & env) {

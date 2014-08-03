@@ -91,8 +91,8 @@ environment push_scope(environment const & env, io_state const & ios, name const
         save_ns  = true;
         ext.m_namespace_set.insert(new_n);
     }
-    ext.m_namespaces = list<name>(new_n, ext.m_namespaces);
-    ext.m_in_section = list<bool>(n.is_anonymous(), ext.m_in_section);
+    ext.m_namespaces = cons(new_n, ext.m_namespaces);
+    ext.m_in_section = cons(n.is_anonymous(), ext.m_in_section);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
         r = std::get<2>(t)(r, in_section);

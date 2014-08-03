@@ -28,7 +28,7 @@ class local_decls {
 public:
     local_decls():m_counter(1) {}
     local_decls(local_decls const & d):m_map(d.m_map), m_counter(d.m_counter), m_scopes(d.m_scopes) {}
-    void insert(name const & k, V const & v) { m_map.insert(k, mk_pair(v, m_counter)); m_counter++; m_values = list<V>(v, m_values); }
+    void insert(name const & k, V const & v) { m_map.insert(k, mk_pair(v, m_counter)); m_counter++; m_values = cons(v, m_values); }
     V const * find(name const & k) const { auto it = m_map.find(k); return it ? &(it->first) : nullptr; }
     unsigned find_idx(name const & k) const { auto it = m_map.find(k); return it ? it->second : 0; }
     bool contains(name const & k) const { return m_map.contains(k); }

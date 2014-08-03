@@ -34,9 +34,9 @@ struct aliases_ext : public environment_extension {
         void add_expr_alias(name const & a, name const & e) {
             auto it = m_aliases.find(a);
             if (it)
-                m_aliases.insert(a, list<name>(e, filter(*it, [&](name const & t) { return t != e; })));
+                m_aliases.insert(a, cons(e, filter(*it, [&](name const & t) { return t != e; })));
             else
-                m_aliases.insert(a, list<name>(e));
+                m_aliases.insert(a, to_list(e));
             m_inv_aliases.insert(e, a);
         }
     };
@@ -79,7 +79,7 @@ struct aliases_ext : public environment_extension {
     }
 
     void push(bool in_section) {
-        m_scopes = list<state>(m_state, m_scopes);
+        m_scopes = cons(m_state, m_scopes);
         m_state.m_in_section = in_section;
     }
 
@@ -151,8 +151,7 @@ optional<name> is_expr_aliased(environment const & env, name const & t) {
 }
 
 list<name> get_expr_aliases(environment const & env, name const & n) {
-    auto it = get_extension(env).m_state.m_aliases.find(n);
-    return it ? *it : list<name>();
+    return ptr_to_list(get_extension(env).m_state.m_aliases.find(n));
 }
 
 static void check_no_shadow(environment const & env, name const & a) {

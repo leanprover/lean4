@@ -126,7 +126,7 @@ static std::string g_decl_key("decl");
 namespace module {
 environment add(environment const & env, std::string const & k, std::function<void(serializer &)> const & wr) {
     module_ext ext = get_extension(env);
-    ext.m_writers  = list<writer>(writer(k, wr), ext.m_writers);
+    ext.m_writers  = cons(writer(k, wr), ext.m_writers);
     return update(env, ext);
 }
 
@@ -169,7 +169,7 @@ static void inductive_reader(deserializer & d, module_idx, shared_environment & 
 
 environment add_inductive(environment const & env, name const & ind_name, level_param_names const & level_params,
                           unsigned num_params, expr const & type, list<inductive::intro_rule> const & intro_rules) {
-    return add_inductive(env, level_params, num_params, list<inductive::inductive_decl>(inductive::inductive_decl(ind_name, type, intro_rules)));
+    return add_inductive(env, level_params, num_params, to_list(inductive::inductive_decl(ind_name, type, intro_rules)));
 }
 
 static register_module_object_reader_fn g_reg_ind_reader(g_inductive, inductive_reader);

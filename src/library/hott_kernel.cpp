@@ -18,7 +18,7 @@ environment mk_hott_environment(unsigned trust_lvl) {
                                   false /* Type.{0} is proof relevant */,
                                   true  /* Eta */,
                                   false /* Type.{0} is predicative */,
-                                  list<name>(name("Id")) /* Exact equality types are proof irrelevant */,
+                                  to_list(name("Id")) /* Exact equality types are proof irrelevant */,
                                   /* builtin support for inductive and record datatypes */
                                   compose(std::unique_ptr<normalizer_extension>(new inductive_normalizer_extension()),
                                           std::unique_ptr<normalizer_extension>(new record_normalizer_extension())));

@@ -51,7 +51,7 @@ public:
         if (auto it = m_map.find(h))
             m_map.insert(h, cons(v, filter(*it, [&](V const & v2) { return v != v2; })));
         else
-            m_map.insert(h, list<V>(v));
+            m_map.insert(h, to_list(v));
     }
     template<typename F> void for_each(F && f) const { m_map.for_each(f); }
     template<typename F> void for_each_entry(F && f) const {

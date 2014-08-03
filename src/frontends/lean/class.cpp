@@ -24,7 +24,7 @@ struct class_state {
     void add_instance(name const & c, name const & i) {
         auto it = m_instances.find(c);
         if (!it)
-            m_instances.insert(c, list<name>(i));
+            m_instances.insert(c, to_list(i));
         else
             m_instances.insert(c, cons(i, filter(*it, [&](name const & i1) { return i1 != i; })));
     }
@@ -83,10 +83,7 @@ bool is_class(environment const & env, name const & c) {
 
 list<name> get_class_instances(environment const & env, name const & c) {
     class_state const & s = class_ext::get_state(env);
-    if (auto it = s.m_instances.find(c))
-        return *it;
-    else
-        return list<name>();
+    return ptr_to_list(s.m_instances.find(c));
 }
 
 environment add_instance_cmd(parser & p) {

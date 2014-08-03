@@ -78,9 +78,9 @@ class scoped_ext : public environment_extension {
 
     void register_entry_core(name n, entry const & e) {
         if (auto it = m_entries.find(n))
-            m_entries.insert(n, list<entry>(e, *it));
+            m_entries.insert(n, cons(e, *it));
         else
-            m_entries.insert(n, list<entry>(e));
+            m_entries.insert(n, to_list(e));
     }
 
     void add_entry_core(environment const & env, io_state const & ios, entry const & e) {
@@ -118,7 +118,7 @@ public:
 
     scoped_ext push() const {
         scoped_ext r(*this);
-        r.m_scopes     = list<state>(m_state, r.m_scopes);
+        r.m_scopes     = cons(m_state, r.m_scopes);
         return r;
     }
 

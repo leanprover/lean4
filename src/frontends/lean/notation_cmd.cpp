@@ -106,21 +106,13 @@ static std::pair<notation_entry, optional<token_entry>> parse_mixfix_notation(pa
     char const * tks = tk.c_str();
     switch (k) {
     case mixfix_kind::infixl:
-        return mk_pair(notation_entry(false, list<transition>(transition(tks, mk_expr_action(*prec))),
-                                      mk_app(f, Var(1), Var(0)), overload),
-                       new_token);
+        return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))), mk_app(f, Var(1), Var(0)), overload), new_token);
     case mixfix_kind::infixr:
-        return mk_pair(notation_entry(false, list<transition>(transition(tks, mk_expr_action(*prec-1))),
-                                      mk_app(f, Var(1), Var(0)), overload),
-                       new_token);
+        return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec-1))), mk_app(f, Var(1), Var(0)), overload), new_token);
     case mixfix_kind::postfix:
-        return mk_pair(notation_entry(false, list<transition>(transition(tks, mk_skip_action())),
-                                      mk_app(f, Var(0)), overload),
-                       new_token);
+        return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action())), mk_app(f, Var(0)), overload), new_token);
     case mixfix_kind::prefix:
-        return mk_pair(notation_entry(true, list<transition>(transition(tks, mk_expr_action(*prec))),
-                                      mk_app(f, Var(0)), overload),
-                       new_token);
+        return mk_pair(notation_entry(true, to_list(transition(tks, mk_expr_action(*prec))), mk_app(f, Var(0)), overload), new_token);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

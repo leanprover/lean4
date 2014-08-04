@@ -30,7 +30,7 @@ bool is_directory(char const * pathname) {
     return info.st_mode & S_IFDIR;
 }
 
-#if defined(LEAN_WINDOWS)
+#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 // Windows version
 #include <windows.h>
 static char g_path_sep     = ';';
@@ -80,67 +80,11 @@ static std::string get_exe_location() {
 }
 #endif
 
-#if defined(LEAN_CYGWIN)
-/**
-   \brief Cleanup path when using cygwin.
-   This procedure performs two fixes, if the string contains '/'.
-
-   1- It replaces '/' with '\\' and ':' with ';'
-
-   2- Then, it replaces "\cygdrive\c\" with "c:"
-*/
-static std::string fix_cygwin_path(std::string f) {
-    if (f.find('/') != std::string::npos) {
-        // Step 1.
-        for (auto & c : f) {
-            if (c == g_bad_sep)
-                c = g_sep;
-            else if (c == ':')
-                c = g_path_sep;
-        }
-        // Step 2.
-        size_t pos = 0;
-        size_t matchpos;
-        std::string cygdrive("\\cygdrive\\");
-        while ((matchpos = f.find(cygdrive, pos)) != std::string::npos) {
-            // erase "\cygdrive\"
-            f = f.replace(matchpos, cygdrive.size(), "");
-            // replace the next "\" with ":\"
-            if ((matchpos = f.find("\\", matchpos)) != std::string::npos) {
-                f.replace(matchpos, 1, ":\\");
-            }
-            pos = matchpos;
-        }
-    }
-    return f;
-}
-
-/** \brief Convert back to a cygwin_path */
-static std::string to_cygwin_path(std::string f) {
-    if (f.find('\\') != std::string::npos) {
-        if (f.size() > 2 && f[1] == ':') {
-            f = std::string("/cygdrive/") + f[0] + f.substr(2);
-        }
-        for (auto & c : f) {
-            if (c == g_sep)
-                c = g_bad_sep;
-            else if (c == ';')
-                c = ':';
-        }
-    }
-    return f;
-}
-#endif
-
 std::string normalize_path(std::string f) {
-#if defined(LEAN_CYGWIN)
-    f = fix_cygwin_path(f);
-#else
     for (auto & c : f) {
         if (c == g_bad_sep)
             c = g_sep;
     }
-#endif
     return f;
 }
 
@@ -284,11 +228,7 @@ char const * get_lean_path() {
 }
 
 void display_path(std::ostream & out, std::string const & fname) {
-#if defined(LEAN_CYGWIN)
-    out << to_cygwin_path(fname);
-#else
     out << fname;
-#endif
 }
 
 std::string dirname(char const * fname) {

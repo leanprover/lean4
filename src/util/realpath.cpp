@@ -8,13 +8,13 @@ Author: Leonardo de Moura
 #include <cstdlib>
 #include "util/realpath.h"
 
-#ifdef LEAN_WINDOWS
+#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 #include <windows.h>
 #endif
 
 namespace lean {
 std::string lrealpath(char const * fname) {
-#ifdef LEAN_WINDOWS
+#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
     constexpr unsigned BufferSize = 8192;
     char buffer[BufferSize];
     DWORD retval = GetFullPathName(fname, BufferSize, buffer, nullptr);

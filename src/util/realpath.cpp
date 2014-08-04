@@ -7,12 +7,13 @@ Author: Leonardo de Moura
 #include <string>
 #include <cstdlib>
 #include "util/realpath.h"
+
 #ifdef LEAN_WINDOWS
 #include <windows.h>
 #endif
 
 namespace lean {
-std::string realpath(char const * fname) {
+std::string lrealpath(char const * fname) {
 #ifdef LEAN_WINDOWS
     constexpr unsigned BufferSize = 8192;
     char buffer[BufferSize];
@@ -23,7 +24,7 @@ std::string realpath(char const * fname) {
         return std::string(buffer);
     }
 #else
-    char * tmp = ::realpath(fname, nullptr);
+    char * tmp = realpath(fname, nullptr);
     std::string r(tmp);
     free(tmp);
     return r;

@@ -64,6 +64,9 @@ set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 set(CMAKE_CXX_FLAGS_GPROF          "-O2 -g -pg")
 
+include(CheckIncludeFileCXX)
+check_include_file_cxx("unistd.h" HAVE_UNISTD)
+
 # SPLIT_STACK
 if ("${SPLIT_STACK}" MATCHES "ON")
   if ((${CMAKE_SYSTEM_NAME} MATCHES "Linux") AND ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"))

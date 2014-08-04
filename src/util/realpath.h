@@ -7,5 +7,5 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 namespace lean {
-std::string realpath(char const * fname);
+std::string lrealpath(char const * fname);
 }

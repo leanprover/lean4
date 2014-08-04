@@ -219,7 +219,7 @@ optional<std::string> check_file(std::string const & path, std::string const & f
         file += ext;
     std::ifstream ifile(file);
     if (ifile)
-        return optional<std::string>(realpath(file.c_str()));
+        return optional<std::string>(lrealpath(file.c_str()));
     else
         return optional<std::string>();
 }

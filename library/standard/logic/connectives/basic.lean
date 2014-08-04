@@ -45,9 +45,6 @@ assume Hna : ¬a, absurd Ha Hna
 theorem mt {a b : Prop} (H1 : a → b) (H2 : ¬b) : ¬a :=
 assume Ha : a, absurd (H1 Ha) H2
 
-theorem contrapos {a b : Prop} (H : a → b) : ¬b → ¬a :=
-assume Hnb : ¬b, mt H Hnb
-
 theorem absurd_elim {a : Prop} (b : Prop) (H1 : a) (H2 : ¬a) : b :=
 false_elim b (absurd H1 H2)
 

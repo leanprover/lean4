@@ -47,7 +47,7 @@ assume Hp : p,
     Hpred ▸ (refl (epsilon (λ x, x = true ∨ p)))
 
 theorem em : p ∨ ¬p :=
-have H : ¬(u = v) → ¬p, from contrapos p_implies_uv,
+have H : ¬(u = v) → ¬p, from mt p_implies_uv,
   or_elim uv_implies_p
     (assume Hne : ¬(u = v), or_inr (H Hne))
     (assume Hp : p, or_inl Hp)

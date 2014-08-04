@@ -12,11 +12,14 @@ inductive decidable (p : Prop) : Type :=
 | inl : p  → decidable p
 | inr : ¬p → decidable p
 
+theorem decidable_true [instance] : decidable true :=
+inl trivial
+
+theorem decidable_false [instance] : decidable false :=
+inr not_false_trivial
+
 theorem induction_on {p : Prop} {C : Prop} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=
 decidable_rec H1 H2 H
-
-theorem em {p : Prop} (H : decidable p) : p ∨ ¬p :=
-induction_on H (λ Hp, or_inl Hp) (λ Hnp, or_inr Hnp)
 
 definition rec_on [inline] {p : Prop} {C : Type} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=
 decidable_rec H1 H2 H
@@ -33,11 +36,13 @@ decidable_rec
     d2)
   d1
 
-theorem decidable_true [instance] : decidable true :=
-inl trivial
+theorem em (p : Prop) {H : decidable p} : p ∨ ¬p :=
+induction_on H (λ Hp, or_inl Hp) (λ Hnp, or_inr Hnp)
 
-theorem decidable_false [instance] : decidable false :=
-inr not_false_trivial
+theorem by_contradiction {p : Prop} {Hp : decidable p} (H : ¬p → false) : p :=
+or_elim (em p)
+  (assume H1 : p, H1)
+  (assume H1 : ¬p, false_elim p (H H1))
 
 theorem decidable_and [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) : decidable (a ∧ b) :=
 rec_on Ha

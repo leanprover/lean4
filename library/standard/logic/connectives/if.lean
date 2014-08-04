@@ -51,3 +51,23 @@ theorem if_congr {c₁ c₂ : Prop} {H₁ : decidable c₁} {A : Type} {t₁ t�
                  (if c₁ then t₁ else e₁) = (@ite c₂ (decidable_eq_equiv H₁ Hc) A t₂ e₂) :=
 have H2 [fact] : decidable c₂, from (decidable_eq_equiv H₁ Hc),
 if_congr_aux Hc Ht He
+
+exit
+theorem app_if_distribute {A B : Type} (c : Prop) {H : decidable c} (f : A → B) (a b : A) : f (if c then a else b) = if c then f a else f b :=
+or_elim (decidable.em H)
+  (assume Hc  :  c, calc
+    f (if c then a else b) = f (if true then a else b)    : { eqt_intro Hc }
+  (assume Hnc : ¬c, sorry)
+
+exit
+:= or_elim (em c)
+     (λ Hc : c , calc
+          f (if c then a else b) = f (if true then a else b)    : { eqt_intro Hc }
+                            ...  = f a                          : { if_true a b }
+                            ...  = if true then f a else f b    : symm (if_true (f a) (f b))
+                            ...  = if c then f a else f b       : { symm (eqt_intro Hc) })
+     (λ Hnc : ¬ c, calc
+          f (if c then a else b) = f (if false then a else b)   : { eqf_intro Hnc }
+                            ...  = f b                          : { if_false a b }
+                            ...  = if false then f a else f b   : symm (if_false (f a) (f b))
+                            ...  = if c then f a else f b       : { symm (eqf_intro Hnc) })

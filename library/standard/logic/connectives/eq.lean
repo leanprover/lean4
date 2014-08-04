@@ -98,9 +98,17 @@ theorem ne_irrefl {A : Type} {a : A} (H : a ≠ a) : false := H (refl a)
 theorem ne_symm {A : Type} {a b : A} (H : a ≠ b) : b ≠ a :=
 assume H1 : b = a, H (H1⁻¹)
 
-theorem eq_ne_trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b ≠ c) : a ≠ c := H1⁻¹ ▸ H2
+theorem eq_ne_trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b ≠ c) : a ≠ c :=
+H1⁻¹ ▸ H2
 
-theorem ne_eq_trans {A : Type} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a ≠ c := H2 ▸ H1
+theorem ne_eq_trans {A : Type} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a ≠ c :=
+H2 ▸ H1
 
 calc_trans eq_ne_trans
 calc_trans ne_eq_trans
+
+theorem p_ne_false {p : Prop} (Hp : p) : p ≠ false :=
+assume Heq : p = false, Heq ▸ Hp
+
+theorem p_ne_true {p : Prop} (Hnp : ¬p) : p ≠ true :=
+assume Heq : p = true, absurd_not_true (Heq ▸ Hnp)

@@ -200,13 +200,13 @@ public:
 /** \brief Composite expressions */
 class expr_composite : public expr_cell {
 protected:
-    unsigned m_depth;
+    unsigned m_weight;
     unsigned m_free_var_range;
-    friend unsigned get_depth(expr const & e);
+    friend unsigned get_weight(expr const & e);
     friend unsigned get_free_var_range(expr const & e);
 public:
     expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local,
-                   bool has_param_univ, unsigned d, unsigned fv_range);
+                   bool has_param_univ, unsigned w, unsigned fv_range);
 };
 
 /** \brief Metavariables and local constants */
@@ -589,7 +589,7 @@ inline bool has_univ_metavar(expr const & e) { return e.has_univ_metavar(); }
 bool has_expr_metavar_strict(expr const & e);
 inline bool has_local(expr const & e) { return e.has_local(); }
 inline bool has_param_univ(expr const & e) { return e.has_param_univ(); }
-unsigned get_depth(expr const & e);
+unsigned get_weight(expr const & e);
 /**
    \brief Return \c R s.t. the de Bruijn index of all free variables
    occurring in \c e is in the interval <tt>[0, R)</tt>.

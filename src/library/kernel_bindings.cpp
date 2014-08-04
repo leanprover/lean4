@@ -581,8 +581,8 @@ static int binding_info(lua_State * L) { return push_binder_info(L, binding_info
 
 static int expr_occurs(lua_State * L) { return push_boolean(L, occurs(to_expr(L, 1), to_expr(L, 2))); }
 static int expr_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_expr(L, 1), to_expr(L, 2))); }
-static int expr_hash(lua_State * L) { return push_integer(L, to_expr(L, 1).hash()); }
-static int expr_depth(lua_State * L) { return push_integer(L, get_depth(to_expr(L, 1))); }
+static int expr_hash(lua_State * L)   { return push_integer(L, to_expr(L, 1).hash()); }
+static int expr_weight(lua_State * L) { return push_integer(L, get_weight(to_expr(L, 1))); }
 static int expr_is_lt(lua_State * L) {
     int nargs = lua_gettop(L);
     return push_boolean(L, is_lt(to_expr(L, 1), to_expr(L, 2), nargs == 3 && lua_toboolean(L, 3)));
@@ -630,7 +630,7 @@ static const struct luaL_Reg expr_m[] = {
     {"fn",               safe_function<expr_fn>},
     {"fields",           safe_function<expr_fields>},
     {"data",             safe_function<expr_fields>},
-    {"depth",            safe_function<expr_depth>},
+    {"weight",           safe_function<expr_weight>},
     {"binding_name",     safe_function<binding_name>},
     {"binding_domain",   safe_function<binding_domain>},
     {"binding_body",     safe_function<binding_body>},

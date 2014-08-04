@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <utility>
 #include <vector>
+#include <limits>
 #include "util/test.h"
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
@@ -68,11 +69,11 @@ static expr mk_dag(unsigned depth, bool _closed = false) {
 }
 
 static void tst2() {
-    expr r1 = mk_dag(20);
-    expr r2 = mk_dag(20);
+    expr r1 = mk_dag(40);
+    expr r2 = mk_dag(40);
     lean_assert(r1 == r2);
-    std::cout << get_depth(r1) << "\n";
-    lean_assert_eq(get_depth(r1), 41);
+    std::cout << get_weight(r1) << "\n";
+    lean_assert(get_weight(r1) == std::numeric_limits<unsigned>::max());
 }
 
 static expr mk_big(expr f, unsigned depth, unsigned val) {

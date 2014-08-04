@@ -1,0 +1,8 @@
+local mul = Const("mul")
+local div = Const("div")
+local z   = Const("z")
+local x   = Const("x")
+local y   = Const("y")
+local t1  = mul(z, mul(div(x, y), y))
+local t2  = mul(div(x, y), mul(z, y))
+assert(t1 < t2)

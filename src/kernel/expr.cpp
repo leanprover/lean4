@@ -26,6 +26,20 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+unsigned add_weight(unsigned w1, unsigned w2) {
+    unsigned r = w1 + w2;
+    if (r < w1)
+        r = std::numeric_limits<unsigned>::max(); // overflow
+    return r;
+}
+
+unsigned inc_weight(unsigned w) {
+    if (w < std::numeric_limits<unsigned>::max())
+        return w+1;
+    else
+        return w;
+}
+
 static expr g_dummy(mk_var(0));
 expr::expr():expr(g_dummy) {}
 
@@ -150,9 +164,9 @@ void expr_local::dealloc(buffer<expr_cell*> & todelete) {
 
 // Composite expressions
 expr_composite::expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv,
-                               bool has_local, bool has_param_univ, unsigned d, unsigned fv_range):
+                               bool has_local, bool has_param_univ, unsigned w, unsigned fv_range):
     expr_cell(k, h, has_expr_mv, has_univ_mv, has_local, has_param_univ),
-    m_depth(d),
+    m_weight(w),
     m_free_var_range(fv_range) {}
 
 // Expr applications
@@ -164,10 +178,10 @@ expr_app::expr_app(expr const & fn, expr const & arg):
                    fn.has_univ_metavar() || arg.has_univ_metavar(),
                    fn.has_local()        || arg.has_local(),
                    fn.has_param_univ()   || arg.has_param_univ(),
-                   std::max(get_depth(fn), get_depth(arg)) + 1,
+                   inc_weight(add_weight(get_weight(fn), get_weight(arg))),
                    std::max(get_free_var_range(fn), get_free_var_range(arg))),
     m_fn(fn), m_arg(arg) {
-    m_hash = ::lean::hash(m_hash, m_depth);
+    m_hash = ::lean::hash(m_hash, m_weight);
 }
 void expr_app::dealloc(buffer<expr_cell*> & todelete) {
     dec_ref(m_fn, todelete);
@@ -195,11 +209,11 @@ expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr con
                    t.has_univ_metavar()   || b.has_univ_metavar(),
                    t.has_local()          || b.has_local(),
                    t.has_param_univ()     || b.has_param_univ(),
-                   std::max(get_depth(t), get_depth(b)) + 1,
+                   inc_weight(add_weight(get_weight(t), get_weight(b))),
                    std::max(get_free_var_range(t), dec(get_free_var_range(b)))),
     m_binder(n, t, i),
     m_body(b) {
-    m_hash = ::lean::hash(m_hash, m_depth);
+    m_hash = ::lean::hash(m_hash, m_weight);
     lean_assert(k == expr_kind::Lambda || k == expr_kind::Pi);
 }
 void expr_binding::dealloc(buffer<expr_cell*> & todelete) {
@@ -245,13 +259,10 @@ bool macro_definition::operator<(macro_definition const & other) const {
         return get_name() < other.get_name();
 }
 
-static unsigned max_depth(unsigned num, expr const * args) {
+static unsigned add_weight(unsigned num, expr const * args) {
     unsigned r = 0;
-    for (unsigned i = 0; i < num; i++) {
-        unsigned d = get_depth(args[i]);
-        if (d > r)
-            r = d;
-    }
+    for (unsigned i = 0; i < num; i++)
+        r = add_weight(r, get_weight(args[i]));
     return r;
 }
 
@@ -272,7 +283,7 @@ expr_macro::expr_macro(macro_definition const & m, unsigned num, expr const * ar
                    std::any_of(args, args+num, [](expr const & e) { return e.has_univ_metavar(); }),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_local(); }),
                    std::any_of(args, args+num, [](expr const & e) { return e.has_param_univ(); }),
-                   max_depth(num, args) + 1,
+                   inc_weight(add_weight(num, args)),
                    get_free_var_range(num, args)),
     m_definition(m),
     m_num_args(num) {
@@ -471,14 +482,14 @@ expr mk_Type() {
 expr Prop = mk_Prop();
 expr Type = mk_Type();
 
-unsigned get_depth(expr const & e) {
+unsigned get_weight(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
     case expr_kind::Meta: case expr_kind::Local:
         return 1;
     case expr_kind::Lambda: case expr_kind::Pi:  case expr_kind::Macro:
     case expr_kind::App:
-        return static_cast<expr_composite*>(e.raw())->m_depth;
+        return static_cast<expr_composite*>(e.raw())->m_weight;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

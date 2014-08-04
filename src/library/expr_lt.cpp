@@ -10,10 +10,10 @@ Author: Leonardo de Moura
 namespace lean {
 bool is_lt(expr const & a, expr const & b, bool use_hash) {
     if (is_eqp(a, b))                    return false;
-    unsigned da = get_depth(a);
-    unsigned db = get_depth(b);
-    if (da < db)                         return true;
-    if (da > db)                         return false;
+    unsigned wa = get_weight(a);
+    unsigned wb = get_weight(b);
+    if (wa < wb)                         return true;
+    if (wa > wb)                         return false;
     if (a.kind() != b.kind())            return a.kind() < b.kind();
     if (use_hash) {
         if (a.hash() < b.hash())         return true;

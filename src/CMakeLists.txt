@@ -327,10 +327,5 @@ endif()
 
 add_custom_target(clean-olean
    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
-   COMMAND find . -name '*.olean' -exec rm -f '{}' '\;'
+   COMMAND find . -type f -name '*.olean' -delete && find . -type f -name '*.d' -delete
    )
-
-add_custom_target(clean-d
-  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
-  COMMAND find . -name '*.d' -exec rm -f '{}' '\;'
-  )

@@ -7,15 +7,17 @@ DEP_FILES = $(LEAN_FILES:.lean=.d)
 all: $(OLEAN_FILES) $(DEP_FILES)
 
 %.olean: %.lean
-	$(LEAN) $(LEAN_OPTIONS) $< -o $@
-
-%.olean: %.lua
+	@rm -f $@
 	$(LEAN) $(LEAN_OPTIONS) $< -o $@
 
 %.d: %.lean
 	@echo Making dependency file \'$@\' ...
+	@rm -f $@
+	@rm -f $@.tmp
+	@$(LEAN) --deps $< > $@.tmp
 	@printf "$(basename $@).olean : $< $@ " > $@
-	@$(LEAN) --deps $< | tr "\n" " " >> $@
+	@tr "\n" " " < $@.tmp >> $@
+	@rm -f $@.tmp
 
 -include $(LEAN_FILES:.lean=.d)
 

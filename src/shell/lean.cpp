@@ -258,7 +258,7 @@ int main(int argc, char ** argv) {
         }
         return ok ? 0 : 1;
     } catch (lean::exception & ex) {
-        ::lean::display_error(regular(env, ios), nullptr, ex);
+        ::lean::display_error(diagnostic(env, ios), nullptr, ex);
     }
     return 1;
 }

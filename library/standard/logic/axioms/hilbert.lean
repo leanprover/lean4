@@ -4,7 +4,7 @@
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
 
-import logic.classes.inhabited
+import logic.classes.inhabited logic.connectives.eq logic.connectives.quantifiers
 
 variable epsilon {A : Type} {H : inhabited A} (P : A → Prop) : A
 axiom epsilon_ax {A : Type} {P : A → Prop} (Hex : ∃ a, P a) : P (@epsilon A (inhabited_exists Hex) P)

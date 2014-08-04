@@ -4,6 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#if defined(LEAN_CYGWIN)
+#if defined(__STRICT_ANSI__)
+// hack for using realpath on cygwin
+#undef __STRICT_ANSI__
+#endif
+#endif
+
 #include <string>
 #include <cstdlib>
 #include "util/realpath.h"

@@ -205,8 +205,8 @@ unify_status unify_simple(substitution & s, constraint const & c) {
 
 static constraint g_dont_care_cnstr = mk_eq_cnstr(expr(), expr(), justification(), false);
 static unsigned g_group_size = 1u << 29;
-constexpr unsigned g_num_groups = 6;
-static unsigned g_cnstr_group_first_index[g_num_groups] = { 0, g_group_size, 2*g_group_size, 3*g_group_size, 4*g_group_size, 5*g_group_size};
+constexpr unsigned g_num_groups = 7;
+static unsigned g_cnstr_group_first_index[g_num_groups] = { 0, g_group_size, 2*g_group_size, 3*g_group_size, 4*g_group_size, 5*g_group_size, 6*g_group_size};
 static unsigned get_group_first_index(cnstr_group g) {
     return g_cnstr_group_first_index[static_cast<unsigned>(g)];
 }
@@ -1647,7 +1647,7 @@ struct unifier_fn {
         lean_assert(!m_tc[1]->next_cnstr());
         auto const * p = m_cnstrs.min();
         unsigned cidx  = p->second;
-        if (!m_expensive && cidx > get_group_first_index(cnstr_group::MaxDelayed))
+        if (!m_expensive && cidx >= get_group_first_index(cnstr_group::DelayedChoice2))
             m_pattern = true; // use only higher-order (pattern) matching after we start processing MaxDelayed (aka class-instance constraints)
         constraint c   = p->first;
         m_cnstrs.erase_min();

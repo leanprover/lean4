@@ -49,11 +49,7 @@ rec_on H₁
 theorem if_congr_aux {c₁ c₂ : Prop} {H₁ : decidable c₁} {H₂ : decidable c₂} {A : Type} {t₁ t₂ e₁ e₂ : A}
                      (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂) (He : e₁ = e₂) :
                  (if c₁ then t₁ else e₁) = (if c₂ then t₂ else e₂) :=
--- TODO(Leo): We can't write (Ht ▸ He ▸ if_cond_congr Hc t₁ e₁) because the class instance
--- mechanism is not applicable to the auxiliary metavariables created by the unifier.
--- We should fix that in the future.
-have e : (@ite c₁ H₁ A t₁ e₁) = (@ite c₂ H₂ A t₁ e₁), from if_cond_congr Hc t₁ e₁,
-Ht ▸ He ▸ e
+Ht ▸ He ▸ (if_cond_congr Hc t₁ e₁)
 
 theorem if_congr {c₁ c₂ : Prop} {H₁ : decidable c₁} {A : Type} {t₁ t₂ e₁ e₂ : A} (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂) (He : e₁ = e₂) :
                  (if c₁ then t₁ else e₁) = (@ite c₂ (decidable_iff_equiv H₁ Hc) A t₂ e₂) :=

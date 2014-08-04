@@ -74,4 +74,12 @@ rec_on Ha
     (assume Hnb : ¬b, inr (assume H : a → b, absurd (H Ha) Hnb)))
   (assume Hna : ¬a, inl (assume Ha, absurd_elim b Ha Hna))
 
+theorem decidable_iff_equiv {a b : Prop} (Ha : decidable a) (H : a ↔ b) : decidable b :=
+rec_on Ha
+  (assume Ha : a,   inl (iff_elim_left H Ha))
+  (assume Hna : ¬a, inr (iff_elim_left (iff_flip_sign H) Hna))
+
+theorem decidable_eq_equiv {a b : Prop} (Ha : decidable a) (H : a = b) : decidable b :=
+decidable_iff_equiv Ha (eq_to_iff H)
+
 end

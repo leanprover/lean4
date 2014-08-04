@@ -22,4 +22,5 @@ all: $(OLEAN_FILES) $(DEP_FILES)
 .PHONY: all clean
 
 clean:
-	rm -f *.olean *.d
+	find . -type f -name "*.olean" -delete
+	find . -type f -name "*.d" -delete

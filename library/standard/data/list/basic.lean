@@ -15,7 +15,6 @@ import logic
 -- import if -- for find
 
 using nat
-using congr
 using eq_proofs
 
 namespace list

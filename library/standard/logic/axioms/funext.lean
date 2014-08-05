@@ -4,7 +4,7 @@
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
 
-import logic.connectives.eq logic.connectives.function
+import logic.connectives.eq struc.function
 using function
 
 -- Function extensionality

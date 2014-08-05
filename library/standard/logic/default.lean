@@ -5,5 +5,5 @@
 ----------------------------------------------------------------------------------------------------
 
 import logic.connectives.basic logic.connectives.eq logic.connectives.quantifiers
-import logic.classes.decidable logic.classes.inhabited logic.classes.congr
+import logic.classes.decidable logic.classes.inhabited logic.connectives.instances
 import logic.connectives.if

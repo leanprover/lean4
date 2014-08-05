@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/script_state.h"
 #include "kernel/environment.h"
+#include "kernel/type_checker.h"
 
 namespace lean {
 void open_kernel_module(lua_State * L);
@@ -21,6 +22,8 @@ UDATA_DEFS(justification)
 UDATA_DEFS(constraint)
 UDATA_DEFS(substitution)
 UDATA_DEFS(io_state)
+UDATA_DEFS_CORE(type_checker_ref)
+
 int push_optional_level(lua_State * L, optional<level> const & e);
 int push_optional_expr(lua_State * L, optional<expr> const & e);
 int push_optional_justification(lua_State * L, optional<justification> const & j);

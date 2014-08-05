@@ -48,6 +48,9 @@ public:
 */
 typedef std::function<bool(expr const &, expr const &, match_context &)> match_plugin; // NOLINT
 
+/** \brief Create a match_plugin that puts terms in weak-head-normal-form before failing */
+match_plugin mk_whnf_match_plugin(std::shared_ptr<type_checker> const & tc);
+
 /**
    \brief Matching for higher-order patterns. Return true iff \c t matches the higher-order pattern \c p.
    The substitution is stored in \c subst. Note that, this procedure treats free-variables as placholders

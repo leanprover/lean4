@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/type_checker.h"
 #include "library/kernel_bindings.h"
 #include "library/locals.h"
 #include "library/match.h"
@@ -190,7 +191,10 @@ class match_fn : public match_context {
         case expr_kind::Var:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Constant:
-            return const_name(p) == const_name(t) && match_levels(const_levels(p), const_levels(t));
+            if (const_name(p) == const_name(t))
+                return match_levels(const_levels(p), const_levels(t));
+            else
+                return try_plugin(p, t);
         case expr_kind::Sort:
             return match_level(sort_level(p), sort_level(t));
         case expr_kind::Lambda: case expr_kind::Pi:
@@ -255,6 +259,19 @@ bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buff
         return match_fn(esubst, lsubst, name_generator(g_tmp_prefix), name_subst, plugin).match(p, t);
 }
 
+match_plugin mk_whnf_match_plugin(std::shared_ptr<type_checker> const & tc) {
+    return [=](expr const & p, expr const & t, match_context & ctx) { // NOLINT
+        try {
+            buffer<constraint> cs;
+            expr p1 = tc->whnf(p, cs);
+            expr t1 = tc->whnf(t, cs);
+            return cs.empty() && (p1 != p || t1 != t) && ctx.match(p1, t1);
+        } catch (exception&) {
+            return false;
+        }
+    };
+}
+
 static unsigned updt_idx_meta_univ_range(level const & l, unsigned r) {
     for_each(l, [&](level const & l) {
             if (!has_meta(l)) return false;
@@ -284,9 +301,24 @@ static unsigned get_idx_meta_univ_range(expr const & e) {
     return r;
 }
 
+DECL_UDATA(match_plugin)
+
+static const struct luaL_Reg match_plugin_m[] = {
+    {"__gc", match_plugin_gc},
+    {0, 0}
+};
+
+static int mk_whnf_match_plugin(lua_State * L) {
+    return push_match_plugin(L, mk_whnf_match_plugin(to_type_checker_ref(L, 1)));
+}
+
 static int match(lua_State * L) {
+    int nargs  = lua_gettop(L);
     expr p     = to_expr(L, 1);
     expr t     = to_expr(L, 2);
+    match_plugin * plugin = nullptr;
+    if (nargs >= 3)
+        plugin = &to_match_plugin(L, 3);
     if (!closed(t))
         throw exception("higher-order pattern matching failure, input term must not contain free variables");
     unsigned r1 = get_free_var_range(p);
@@ -294,7 +326,7 @@ static int match(lua_State * L) {
     buffer<optional<expr>>  esubst;
     buffer<optional<level>> lsubst;
     esubst.resize(r1); lsubst.resize(r2);
-    if (match(p, t, esubst, lsubst, nullptr, nullptr, nullptr)) {
+    if (match(p, t, esubst, lsubst, nullptr, nullptr, plugin)) {
         lua_newtable(L);
         int i = 1;
         for (auto s : esubst) {
@@ -327,7 +359,14 @@ static int mk_idx_meta_univ(lua_State * L) {
 }
 
 void open_match(lua_State * L) {
-    SET_GLOBAL_FUN(mk_idx_meta_univ, "mk_idx_meta_univ");
-    SET_GLOBAL_FUN(match,            "match");
+    luaL_newmetatable(L, match_plugin_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, match_plugin_m, 0);
+
+    SET_GLOBAL_FUN(mk_whnf_match_plugin, "whnf_match_plugin");
+    SET_GLOBAL_FUN(match_plugin_pred,    "is_match_plugin");
+    SET_GLOBAL_FUN(mk_idx_meta_univ,     "mk_idx_meta_univ");
+    SET_GLOBAL_FUN(match,                "match");
 }
 }

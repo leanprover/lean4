@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/normalize.h"
 #include "library/module.h"
+#include "library/opaque_hints.h"
 
 // Lua Bindings for the Kernel classes. We do not include the Lua
 // bindings in the kernel because we do not want to inflate the Kernel.
@@ -1763,7 +1764,6 @@ static void open_substitution(lua_State * L) {
 }
 
 // type_checker
-typedef std::shared_ptr<type_checker> type_checker_ref;
 DECL_UDATA(type_checker_ref)
 
 static void get_type_checker_args(lua_State * L, int idx, optional<module_idx> & mod_idx, bool & memoize, name_set & extra_opaque) {
@@ -1826,6 +1826,22 @@ static int type_checker_keep(lua_State * L) {
 static int type_checker_num_scopes(lua_State * L) { return push_integer(L, to_type_checker_ref(L, 1)->num_scopes()); }
 static int type_checker_next_cnstr(lua_State * L) { return push_optional_constraint(L, to_type_checker_ref(L, 1)->next_cnstr()); }
 
+static name g_tmp_prefix = name::mk_internal_unique_name();
+
+static int mk_type_checker_with_hints(lua_State * L) {
+    environment const & env = to_environment(L, 1);
+    int nargs = lua_gettop(L);
+    if (nargs == 1) {
+        return push_type_checker_ref(L, mk_type_checker_with_hints(env, name_generator(g_tmp_prefix), false));
+    } else if (nargs == 2 && lua_isboolean(L, 2)) {
+        return push_type_checker_ref(L, mk_type_checker_with_hints(env, name_generator(g_tmp_prefix), lua_toboolean(L, 2)));
+    } else if (nargs == 2) {
+        return push_type_checker_ref(L, mk_type_checker_with_hints(env, to_name_generator(L, 2), false));
+    } else {
+        return push_type_checker_ref(L, mk_type_checker_with_hints(env, to_name_generator(L, 2), lua_toboolean(L, 3)));
+    }
+}
+
 static const struct luaL_Reg type_checker_ref_m[] = {
     {"__gc",        type_checker_ref_gc},
     {"whnf",        safe_function<type_checker_whnf>},
@@ -1878,6 +1894,7 @@ static void open_type_checker(lua_State * L) {
     setfuncs(L, type_checker_ref_m, 0);
 
     SET_GLOBAL_FUN(mk_type_checker, "type_checker");
+    SET_GLOBAL_FUN(mk_type_checker_with_hints, "type_checker_with_hints");
     SET_GLOBAL_FUN(type_checker_ref_pred, "is_type_checker");
     SET_GLOBAL_FUN(type_check, "type_check");
     SET_GLOBAL_FUN(type_check, "check");

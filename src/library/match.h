@@ -38,6 +38,7 @@ public:
         \pre \c x is not assigned, \c x was created using #mk_idx_meta_univ.
     */
     virtual void assign(level const & x, level const & l) = 0;
+    virtual bool match(expr const & p, expr const & t) = 0;
 };
 
 /** \brief Callback for extending the higher-order pattern matching procedure.

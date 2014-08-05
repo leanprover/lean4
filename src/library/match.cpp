@@ -105,7 +105,7 @@ class match_fn : public match_context {
                 (*m_name_subst)[binding_name(p)] = binding_name(t);
             expr p_d  = instantiate_rev(binding_domain(p), ls.size(), ls.data());
             expr t_d  = instantiate_rev(binding_domain(t), ls.size(), ls.data());
-            if (!match(p_d, t_d))
+            if (!_match(p_d, t_d))
                 return false;
             expr l  = mk_local(m_ngen.next(), binding_name(t), t_d, binding_info(t));
             ls.push_back(l);
@@ -116,13 +116,13 @@ class match_fn : public match_context {
             return false;
         p = instantiate_rev(p, ls.size(), ls.data());
         t = instantiate_rev(t, ls.size(), ls.data());
-        return match(p, t);
+        return _match(p, t);
     }
 
     bool match_macro(expr const & p, expr const & t) {
         if (macro_def(p) == macro_def(t) && macro_num_args(p) == macro_num_args(t)) {
             for (unsigned i = 0; i < macro_num_args(p); i++) {
-                if (!match(macro_arg(p, i), macro_arg(t, i)))
+                if (!_match(macro_arg(p, i), macro_arg(t, i)))
                     return false;
             }
             return true;
@@ -131,7 +131,7 @@ class match_fn : public match_context {
     }
 
     bool match_app(expr const & p, expr const & t) {
-        return match_core(app_fn(p), app_fn(t)) && match(app_arg(p), app_arg(t));
+        return match_core(app_fn(p), app_fn(t)) && _match(app_arg(p), app_arg(t));
     }
 
     bool match_level_core(level const & p, level const & l) {
@@ -203,12 +203,7 @@ class match_fn : public match_context {
         lean_unreachable(); // LCOV_EXCL_LINE
     }
 
-public:
-    match_fn(buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst, name_generator const & ngen,
-             name_map<name> * name_subst, match_plugin const * plugin):
-        m_esubst(esubst), m_lsubst(lsubst), m_ngen(ngen), m_name_subst(name_subst), m_plugin(plugin) {}
-
-    bool match(expr const & p, expr const & t) {
+    bool _match(expr const & p, expr const & t) {
         if (is_var(p)) {
             auto s = _get_subst(p);
             if (s) {
@@ -242,6 +237,13 @@ public:
 
         return match_core(p, t);
     }
+
+public:
+    match_fn(buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst, name_generator const & ngen,
+             name_map<name> * name_subst, match_plugin const * plugin):
+        m_esubst(esubst), m_lsubst(lsubst), m_ngen(ngen), m_name_subst(name_subst), m_plugin(plugin) {}
+
+    virtual bool match(expr const & p, expr const & t) { return _match(p, t); }
 };
 
 bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst,

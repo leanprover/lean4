@@ -306,6 +306,7 @@ class elaborator {
     mvar2meta           m_mvar2meta; // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
                                      // representing the context where ?m was created.
     context             m_context; // current local context: a list of local constants
+    context             m_full_context; // superset of m_context, it also contains non-contextual locals.
 
     pos_info_provider * m_pos_provider; // optional expression position information used when reporting errors.
     justification       m_accumulated; // accumulate justification of eagerly used substitutions
@@ -320,19 +321,22 @@ class elaborator {
     std::vector<flyinfo_data> m_flyinfo_data;
 
     struct scope_ctx {
-        context::scope m_scope;
-        scope_ctx(elaborator & e):m_scope(e.m_context) {}
+        context::scope m_scope1;
+        context::scope m_scope2;
+        scope_ctx(elaborator & e):m_scope1(e.m_context), m_scope2(e.m_full_context) {}
     };
 
-    /** \brief Auxiliary object for creating backtracking points.
+    /** \brief Auxiliary object for creating backtracking points, and replacing the local scopes.
+
         \remark A new scope can only be created when m_constraints and m_subst are empty,
         and m_accumulated is none.
     */
     struct new_scope {
         elaborator &           m_main;
-        context::scope_replace m_ctx_scope;
-        new_scope(elaborator & e, list<expr> const & ctx, substitution const & s):
-            m_main(e), m_ctx_scope(e.m_context, ctx) {
+        context::scope_replace m_context_scope;
+        context::scope_replace m_full_context_scope;
+        new_scope(elaborator & e, list<expr> const & ctx, list<expr> const & full_ctx, substitution const & s):
+            m_main(e), m_context_scope(e.m_context, ctx), m_full_context_scope(e.m_full_context, full_ctx) {
             lean_assert(m_main.m_constraints.empty());
             lean_assert(m_main.m_accumulated.is_none());
             m_main.m_tc[0]->push();
@@ -374,12 +378,15 @@ class elaborator {
         expr         m_mvar;
         expr         m_choice;
         list<expr>   m_ctx;
+        list<expr>   m_full_ctx;
         substitution m_subst;
         unsigned     m_idx;
         bool         m_relax_main_opaque;
-        choice_expr_elaborator(elaborator & elab, expr const & mvar, expr const & c, list<expr> const & ctx,
+        choice_expr_elaborator(elaborator & elab, expr const & mvar, expr const & c,
+                               list<expr> const & ctx, list<expr> const & full_ctx,
                                substitution const & s, bool relax):
-            m_elab(elab), m_mvar(mvar), m_choice(c), m_ctx(ctx), m_subst(s), m_idx(0), m_relax_main_opaque(relax) {
+            m_elab(elab), m_mvar(mvar), m_choice(c), m_ctx(ctx), m_full_ctx(full_ctx),
+            m_subst(s), m_idx(0), m_relax_main_opaque(relax) {
         }
 
         virtual optional<constraints> next() {
@@ -387,7 +394,7 @@ class elaborator {
                 expr const & c = get_choice(m_choice, m_idx);
                 m_idx++;
                 try {
-                    new_scope s(m_elab, m_ctx, m_subst);
+                    new_scope s(m_elab, m_ctx, m_full_ctx, m_subst);
                     expr r = m_elab.visit(c);
                     justification j = m_elab.m_accumulated;
                     m_elab.consume_tc_cnstrs();
@@ -427,16 +434,18 @@ class elaborator {
         proof_state_seq         m_tactic_result; // result produce by last executed tactic.
         buffer<expr>            m_mvars_in_meta_type; // metavariables that occur in m_meta_type, the tactics may instantiate some of them
         list<expr>              m_ctx; // local context for m_meta
+        list<expr>              m_full_ctx;
         substitution            m_subst;
         justification           m_jst;
         bool                    m_relax_main_opaque;
 
         placeholder_elaborator(elaborator & elab, expr const & meta, expr const & meta_type,
                                list<expr> const & local_insts, list<name> const & instances, list<tactic_hint_entry> const & tacs,
-                               list<expr> const & ctx, substitution const & s, justification const & j, bool ignore_failure, bool relax):
+                               list<expr> const & ctx, list<expr> const & full_ctx,
+                               substitution const & s, justification const & j, bool ignore_failure, bool relax):
             choice_elaborator(ignore_failure),
             m_elab(elab), m_meta(meta), m_meta_type(meta_type), m_local_instances(local_insts), m_instances(instances),
-            m_tactics(tacs), m_ctx(ctx), m_subst(s), m_jst(j), m_relax_main_opaque(relax) {
+            m_tactics(tacs), m_ctx(ctx), m_full_ctx(full_ctx), m_subst(s), m_jst(j), m_relax_main_opaque(relax) {
             collect_metavars(meta_type, m_mvars_in_meta_type);
         }
 
@@ -452,7 +461,7 @@ class elaborator {
                 pre  = copy_tag(m_meta, ::lean::mk_app(pre, copy_tag(m_meta, mk_strict_expr_placeholder())));
             }
             try {
-                new_scope s(m_elab, m_ctx, m_subst);
+                new_scope s(m_elab, m_ctx, m_full_ctx, m_subst);
                 expr r = m_elab.visit(pre); // use elaborator to create metavariables, levels, etc.
                 justification j = m_elab.m_accumulated;
                 m_elab.consume_tc_cnstrs();
@@ -531,6 +540,7 @@ public:
         m_env(env), m_lls(lls), m_ios(ios),
         m_ngen(ngen),
         m_context(m_ngen, m_mvar2meta, ctx),
+        m_full_context(m_ngen, m_mvar2meta, ctx),
         m_pos_provider(pp) {
         m_relax_main_opaque = false;
         m_tc[0] = mk_type_checker_with_hints(env, m_ngen.mk_child(), false);
@@ -650,9 +660,10 @@ public:
         solutions using class-instances and tactic-hints.
     */
     expr mk_placeholder_meta(optional<expr> const & type, tag g, bool is_strict = false) {
-        expr m = m_context.mk_meta(type, g);
-        list<expr> ctx  = m_context.get_data();
-        justification j = mk_failed_to_synthesize_jst(m);
+        expr m              = m_context.mk_meta(type, g);
+        list<expr> ctx      = m_context.get_data();
+        list<expr> full_ctx = m_full_context.get_data();
+        justification j     = mk_failed_to_synthesize_jst(m);
         auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s, name_generator const & /* ngen */) {
             expr const & mvar = get_app_fn(meta);
             if (is_class(meta_type)) {
@@ -667,8 +678,8 @@ public:
                 if (empty(local_insts) && empty(insts) && empty(tacs))
                     return lazy_list<constraints>(); // nothing to be done
                 bool ignore_failure = false; // we are always strict with placeholders associated with classes
-                return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, local_insts, insts, tacs, ctx, s, j,
-                                                                       ignore_failure, m_relax_main_opaque));
+                return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, local_insts, insts, tacs, ctx, full_ctx,
+                                                                       s, j, ignore_failure, m_relax_main_opaque));
             } else if (s.is_assigned(mvar)) {
                 // if the metavariable is assigned and it is not a class, then we just ignore it, and return
                 // the an empty set of constraints.
@@ -676,8 +687,8 @@ public:
             } else {
                 list<tactic_hint_entry> tacs = get_tactic_hints(m_env);
                 bool ignore_failure = !is_strict;
-                return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, list<expr>(), list<name>(), tacs, ctx, s, j,
-                                                                       ignore_failure, m_relax_main_opaque));
+                return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, list<expr>(), list<name>(), tacs, ctx, full_ctx,
+                                                                       s, j, ignore_failure, m_relax_main_opaque));
             }
         };
         add_cnstr(mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::DelayedChoice2), false, j, m_relax_main_opaque));
@@ -715,11 +726,12 @@ public:
     expr visit_choice(expr const & e, optional<expr> const & t) {
         lean_assert(is_choice(e));
         // Possible optimization: try to lookahead and discard some of the alternatives.
-        expr m         = m_context.mk_meta(t, e.get_tag());
-        list<expr> ctx = m_context.get_data();
-        bool relax     = m_relax_main_opaque;
+        expr m              = m_full_context.mk_meta(t, e.get_tag());
+        list<expr> ctx      = m_context.get_data();
+        list<expr> full_ctx = m_full_context.get_data();
+        bool relax          = m_relax_main_opaque;
         auto fn = [=](expr const & mvar, expr const & /* type */, substitution const & s, name_generator const & /* ngen */) {
-            return choose(std::make_shared<choice_expr_elaborator>(*this, mvar, e, ctx, s, relax));
+            return choose(std::make_shared<choice_expr_elaborator>(*this, mvar, e, ctx, full_ctx, s, relax));
         };
         justification j = mk_justification("none of the overloads is applicable", some_expr(e));
         add_cnstr(mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), true, j, m_relax_main_opaque));
@@ -785,7 +797,8 @@ public:
         return a;
     }
 
-    constraint mk_delayed_coercion_cnstr(expr const & m, expr const & a, expr const & a_type, justification const & j, unsigned delay_factor) {
+    constraint mk_delayed_coercion_cnstr(expr const & m, expr const & a, expr const & a_type,
+                                         justification const & j, unsigned delay_factor) {
         bool relax = m_relax_main_opaque;
         auto choice_fn = [=](expr const & mvar, expr const & new_d_type, substitution const & /* s */, name_generator const & /* ngen */) {
             // Remark: we want the coercions solved before we start discarding FlexFlex constraints. So, we use PreFlexFlex as a max cap
@@ -803,7 +816,7 @@ public:
 
     /** \brief Given a term <tt>a : a_type</tt>, and an expected type generate a metavariable with a delayed coercion. */
     expr mk_delayed_coercion(expr const & a, expr const & a_type, expr const & expected_type, justification const & j) {
-        expr m = m_context.mk_meta(some_expr(expected_type), a.get_tag());
+        expr m = m_full_context.mk_meta(some_expr(expected_type), a.get_tag());
         add_cnstr(mk_delayed_coercion_cnstr(m, a, a_type, j, to_delay_factor(cnstr_group::Basic)));
         return m;
     }
@@ -1045,6 +1058,7 @@ public:
             expr l   = mk_local(binding_name(e), d, binding_info(e));
             if (binding_info(e).is_contextual())
                 m_context.add_local(l);
+            m_full_context.add_local(l);
             ls.push_back(l);
             e = binding_body(e);
         }

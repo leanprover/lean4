@@ -862,31 +862,13 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         next();
         ls = to_list(lvl_buffer.begin(), lvl_buffer.end());
     }
+
     if (id.is_atomic()) {
         // locals
         if (auto it1 = m_local_decls.find(id))
             return copy_with_new_pos(propagate_levels(*it1, ls), p);
-        optional<expr> r;
-        // globals
-        if (m_env.find(id))
-            r = save_pos(mk_constant(id, ls), p);
-        // aliases
-        auto as = get_expr_aliases(m_env, id);
-        if (!is_nil(as)) {
-            buffer<expr> new_as;
-            if (r)
-                new_as.push_back(*r);
-            for (auto const & e : as) {
-                new_as.push_back(copy_with_new_pos(mk_constant(e, ls), p));
-            }
-            r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
-        }
-        if (!r && m_no_undef_id_error)
-            r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
-        if (!r)
-            throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
-        return *r;
     } else {
+        lean_assert(!id.is_atomic());
         name new_id = remove_root_prefix(id);
         if (m_env.find(new_id)) {
             return save_pos(mk_constant(new_id, ls), p);
@@ -897,8 +879,28 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
                     return save_pos(mk_constant(new_id, ls), p);
             }
         }
-        throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
     }
+
+    optional<expr> r;
+    // globals
+    if (m_env.find(id))
+        r = save_pos(mk_constant(id, ls), p);
+    // aliases
+    auto as = get_expr_aliases(m_env, id);
+    if (!is_nil(as)) {
+        buffer<expr> new_as;
+        if (r)
+            new_as.push_back(*r);
+        for (auto const & e : as) {
+            new_as.push_back(copy_with_new_pos(mk_constant(e, ls), p));
+        }
+        r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
+    }
+    if (!r && m_no_undef_id_error)
+        r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
+    if (!r)
+        throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
+    return *r;
 }
 
 name parser::check_constant_next(char const * msg) {

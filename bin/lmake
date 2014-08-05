@@ -91,10 +91,7 @@ def find_lean_exe():
 def find_lean_opt():
     """ Return a list of lean options from env_var LEAN_OPTION"""
     lean_opt = os.environ.get('LEAN_OPTION')
-    if lean_opt:
-        return string.split(lean_opt)
-    else:
-        return []
+    return string.split(lean_opt) if lean_opt is not None else []
 
 def call_lean(leanfile, options):
     """ Call lean with options """
@@ -103,25 +100,53 @@ def call_lean(leanfile, options):
     lean_opt = list(OrderedDict.fromkeys(find_lean_opt() + options))
     subprocess.call([lean_exe] + lean_opt + [leanfile], stderr=subprocess.STDOUT)
 
+def get_lean(s):
+    """ Given a string s, return corresponding .lean file if exists """
+    # xyz.olean => realpath(xyz.lean)
+    if len(s) > 6 and s[-6:] == ".olean":
+        leanfile = os.path.realpath(s[:-6] + ".lean")
+        return leanfile if os.path.isfile(leanfile) else None
+    # xyz.lean  => realpath(xyz.lean)
+    if os.path.isfile(s) and len(s) > 5 and s[-5:] == ".lean":
+        return os.path.realpath(s)
+    # xyz       => realpath(xyz.lean)
+    if os.path.isfile(s + ".lean"):
+        return os.path.realpath(s + ".lean")
+    return None
+
+def get_olean(s):
+    """ Given a string s, return corresponding .olean file if exists """
+    # xyz.olean => realpath(xyz.olean)
+    if len(s) > 6 and s[-6:] == ".olean":
+        leanfile = s[:-6] + ".lean"
+        return os.path.realpath(s) if os.path.isfile(leanfile) else None
+    # xyz.lean  => realpath(xyz.olean)
+    if os.path.isfile(s) and len(s) > 5 and s[-5:] == ".lean":
+        leanfile = os.path.realpath(s)
+        return leanfile[:-5] + ".olean"
+    # xyz       => realpath(xyz.olean)
+    if os.path.isfile(s + ".lean"):
+        return os.path.realpath(s + ".olean")
+    return None
+
 def get_target(s):
     """ Extract a target from an argument
     if we have "xyz.lean", return "xyz.olean"
     Otherwise, return s as it is. (it might be phony target such as 'clean')
     """
-    if os.path.isfile(s) and s[-5:] == ".lean":
-        leanfile = os.path.realpath(s)
-        return leanfile[:-5] + ".olean"
-    if os.path.isfile(s + ".lean"):
-        leanfile = os.path.realpath(s + ".lean")
-        return leanfile[:-5] + ".olean"
-    return s
+    oleanfile = get_olean(s)
+    return oleanfile if oleanfile is not None else s
 
-def call_makefile(makefile, arg):
+def call_makefile(directory, makefile, args):
     """ Call makefile with a target generated from a given arg """
     env_copy = os.environ.copy()
     env_copy['LEAN'] = find_lean_exe()
-    cmd = ["make", "-j", "-C", os.path.dirname(makefile)]
-    if arg:
+    cmd = ["make", "-j"]
+    if makefile:
+        cmd = cmd + ["--makefile", makefile]
+    if directory:
+        cmd = cmd + ["-C", directory]
+    for arg in args:
         target = get_target(arg)
         cmd.append(target)
     subprocess.call(cmd, stderr=subprocess.STDOUT, env=env_copy)
@@ -129,28 +154,34 @@ def call_makefile(makefile, arg):
 def parse_arg(argv):
     """ Parse arguments """
     parser = argparse.ArgumentParser(description='Process arguments.')
-    parser.add_argument('--flycheck', '-F', action='store_true', default=False, help="flycheck")
-    parser.add_argument('--flyinfo',  '-I', action='store_true', default=False, help="flyinfo")
-    parser.add_argument('target', nargs='?')
+    parser.add_argument('--flycheck', '-F', action='store_true', default=False, help="Use --flycheck option for Lean")
+    parser.add_argument('--flyinfo',  '-I', action='store_true', default=False, help="Use --flyinfo option for Lean")
+    parser.add_argument('--directory', '-C', action='store', help="Change to directory dir before reading the makefiles or doing anything else.")
+    parser.add_argument('--makefile', '-f', '--file', action='store', help="Use file as a makefile.")
+    parser.add_argument('targets', nargs='*')
     args = parser.parse_args(argv)
-    options = []
+    lean_options = []
     if args.flycheck:
-        options.append("--flycheck")
+        lean_options.append("--flycheck")
     if args.flyinfo:
-        options.append("--flyinfo")
-    return (options, args.target)
+        lean_options.append("--flyinfo")
+    return (args.directory, args.makefile, lean_options, args.targets)
 
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
-    (options, arg) = parse_arg(argv)
+    (directory, makefile, lean_options, args) = parse_arg(argv)
     working_dir = os.getcwd()
-    makefile_names = ["Makefile", "makefile"]
-    makefile = find_makefile_upward(working_dir, makefile_names)
-    if makefile:
-        call_makefile(makefile, arg)
-    if arg and os.path.isfile(arg):
-        call_lean(arg, options)
+    if makefile is None and directory is None:
+        makefile_names = ["GNUmakefile", "makefile", "Makefile"]
+        makefile = find_makefile_upward(working_dir, makefile_names)
+        directory = os.path.dirname(makefile)
+    if directory or makefile:
+        call_makefile(directory, makefile, args)
+    for arg in args:
+        leanfile = get_lean(arg)
+        if leanfile is not None and os.path.isfile(leanfile):
+            call_lean(leanfile, lean_options)
 
 if __name__ == "__main__":
     sys.exit(main())

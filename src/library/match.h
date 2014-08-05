@@ -14,12 +14,38 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
+/** \brief Create a universe level metavariable that can be used as a placeholder in #hop_match.
+
+    \remark The index \c i is encoded in the hierarchical name, and can be quickly accessed.
+    In hop_match the substitution is also efficiently represented as an array (aka buffer).
+*/
+level mk_idx_meta_univ(unsigned i);
+
+/** \brief Context for match_plugins. */
+class match_context {
+public:
+    /** \brief Create a fresh name. */
+    virtual name mk_name() = 0;
+    /** \brief Given a variable \c x, return its assignment (if available) */
+    virtual optional<expr> get_subst(expr const & x) const = 0;
+    /** \brief Given a universe level meta-variable \c x (created using #mk_idx_meta_univ), return its assignment (if available) */
+    virtual optional<level> get_subst(level const & x) const = 0;
+    /** \brief Assign the variable \c x to \c e
+        \pre \c x is not assigned
+    */
+    virtual void assign(expr const & x, expr const & e) = 0;
+    /** \brief Assign the variable \c x to \c l
+        \pre \c x is not assigned, \c x was created using #mk_idx_meta_univ.
+    */
+    virtual void assign(level const & x, level const & l) = 0;
+};
+
 /** \brief Callback for extending the higher-order pattern matching procedure.
     It is invoked before the matcher fails.
 
     plugin(p, t, s) must return true iff for updated substitution s', s'(p) is definitionally equal to t.
 */
-typedef std::function<bool(expr const &, expr const &, buffer<optional<expr>> &, name_generator const &)> matcher_plugin; // NOLINT
+typedef std::function<bool(expr const &, expr const &, match_context &)> match_plugin; // NOLINT
 
 /**
    \brief Matching for higher-order patterns. Return true iff \c t matches the higher-order pattern \c p.
@@ -45,7 +71,7 @@ typedef std::function<bool(expr const &, expr const &, buffer<optional<expr>> &,
 
    If the plugin is provided, then it is invoked before a failure.
 */
-bool match(expr const & p, expr const & t, buffer<optional<expr>> & subst, name const * prefix = nullptr,
-               name_map<name> * name_subst = nullptr, matcher_plugin const * plugin = nullptr);
+bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst,
+           name const * prefix = nullptr, name_map<name> * name_subst = nullptr, match_plugin const * plugin = nullptr);
 void open_match(lua_State * L);
 }

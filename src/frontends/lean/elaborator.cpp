@@ -131,12 +131,168 @@ struct flyinfo_data_lt {
     }
 };
 
+/** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
+list<expr> get_local_instances(list<expr> const & ctx, name const & cls_name) {
+    buffer<expr> buffer;
+    for (auto const & l : ctx) {
+        if (!is_local(l))
+            continue;
+        expr inst_type    = mlocal_type(l);
+        if (!is_constant(get_app_fn(inst_type)) || const_name(get_app_fn(inst_type)) != cls_name)
+            continue;
+        buffer.push_back(l);
+    }
+    return to_list(buffer.begin(), buffer.end());
+}
+
 /** \brief Helper class for implementing the \c elaborate functions. */
 class elaborator {
-    typedef list<expr> context;
+    typedef name_map<expr> mvar2meta;
+
+    /** \brief Auxiliary data-structure for storing the local context, and creating metavariables in the scope of the local context efficiently */
+    class context {
+        name_generator & m_ngen;
+        mvar2meta &      m_mvar2meta;
+        list<expr>       m_ctx; // current local context: a list of local constants
+        buffer<expr>     m_ctx_buffer; // m_ctx as a buffer
+        buffer<expr>     m_ctx_domain_buffer; // m_ctx_domain_buffer[i] == abstract_locals(m_ctx_buffer[i], i, m_ctx_buffer.beg
+    public:
+        context(name_generator & ngen, mvar2meta & m, list<expr> const & ctx):m_ngen(ngen), m_mvar2meta(m) { set_ctx(ctx); }
+
+        void set_ctx(list<expr> const & ctx) {
+            m_ctx = ctx;
+            m_ctx_buffer.clear();
+            m_ctx_domain_buffer.clear();
+            to_buffer(ctx, m_ctx_buffer);
+            std::reverse(m_ctx_buffer.begin(), m_ctx_buffer.end());
+            for (unsigned i = 0; i < m_ctx_buffer.size(); i++) {
+                m_ctx_domain_buffer.push_back(abstract_locals(m_ctx_buffer[i], i, m_ctx_buffer.data()));
+            }
+        }
+
+        /** \brief Given <tt>e[l_1, ..., l_n]</tt> and assuming \c m_ctx is
+               <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
+            then the result is
+               <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), e[x_1, ... x_n])</tt>.
+        */
+        expr pi_abstract_context(expr e, tag g) {
+            e = abstract_locals(e, m_ctx_buffer.size(), m_ctx_buffer.data());
+            unsigned i = m_ctx_domain_buffer.size();
+            while (i > 0) {
+                --i;
+                expr const & l = m_ctx_domain_buffer[i];
+                e = save_tag(mk_pi(local_pp_name(l), mlocal_type(l), e, local_info(l)), g);
+            }
+            return e;
+        }
+
+        /** \brief Assuming \c m_ctx is
+               <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
+            return <tt>(f l_1 ... l_n)</tt>.
+        */
+        expr apply_context(expr const & f, tag g) {
+            expr r = f;
+            for (unsigned i = 0; i < m_ctx_buffer.size(); i++)
+                r = save_tag(::lean::mk_app(r, m_ctx_buffer[i]), g);
+            return r;
+        }
+
+        /** \brief Assuming \c m_ctx is
+                <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
+            return a fresh metavariable \c ?m with type
+                <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
+            where \c ?u is a fresh universe metavariable.
+        */
+        expr mk_type_metavar(tag g) {
+            name n = m_ngen.next();
+            expr s = save_tag(mk_sort(mk_meta_univ(m_ngen.next())), g);
+            expr t = pi_abstract_context(s, g);
+            return save_tag(::lean::mk_metavar(n, t), g);
+        }
+
+        /** \brief Assuming \c m_ctx is
+               <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
+            return <tt>(?m l_1 ... l_n)</tt> where \c ?m is a fresh metavariable with type
+               <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
+            and \c ?u is a fresh universe metavariable.
+
+            \remark The type of the resulting expression is <tt>Type.{?u}</tt>
+        */
+        expr mk_type_meta(tag g) {
+            return apply_context(mk_type_metavar(g), g);
+        }
+
+        /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
+               <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
+            then the result is a fresh metavariable \c ?m with type
+               <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), type[x_1, ... x_n])</tt>.
+            If <tt>type</tt> is none, then the result is a fresh metavariable \c ?m1 with type
+               <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), ?m2 x1 .... xn)</tt>,
+            where ?m2 is another fresh metavariable with type
+               <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
+            and \c ?u is a fresh universe metavariable.
+        */
+        expr mk_metavar(optional<expr> const & type, tag g) {
+            name n      = m_ngen.next();
+            expr r_type = type ? *type : mk_type_meta(g);
+            expr t      = pi_abstract_context(r_type, g);
+            return save_tag(::lean::mk_metavar(n, t), g);
+        }
+
+        /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
+               <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
+            return (?m l_1 ... l_n), where ?m is a fresh metavariable
+            created using \c mk_metavar.
+
+            \see mk_metavar
+        */
+        expr mk_meta(optional<expr> const & type, tag g) {
+            expr mvar = mk_metavar(type, g);
+            expr meta = apply_context(mvar, g);
+            m_mvar2meta.insert(mlocal_name(mvar), meta);
+            return meta;
+        }
+
+        void add_local(expr const & l) {
+            m_ctx = cons(l, m_ctx);
+            m_ctx_domain_buffer.push_back(abstract_locals(l, m_ctx_buffer.size(), m_ctx_buffer.data()));
+            m_ctx_buffer.push_back(l);
+        }
+
+        list<expr> const & get_data() const {
+            return m_ctx;
+        }
+
+        /** \brief Scope object for restoring the content of the context */
+        class scope {
+            context &   m_main;
+            list<expr>  m_old_ctx;
+            unsigned    m_old_sz;
+        public:
+            scope(context & main):m_main(main), m_old_ctx(main.m_ctx), m_old_sz(main.m_ctx_buffer.size()) {}
+            ~scope() {
+                m_main.m_ctx = m_old_ctx;
+                m_main.m_ctx_buffer.shrink(m_old_sz);
+                m_main.m_ctx_domain_buffer.shrink(m_old_sz);
+            }
+        };
+
+        /** \brief Scope object for temporarily replacing the content of the context */
+        class scope_replace {
+            context &   m_main;
+            list<expr>  m_saved;
+        public:
+            scope_replace(context & main, list<expr> const & new_ctx):m_main(main), m_saved(m_main.m_ctx) {
+                m_main.set_ctx(new_ctx);
+            }
+            ~scope_replace() {
+                m_main.set_ctx(m_saved);
+            }
+        };
+    };
+
     typedef std::vector<constraint> constraint_vect;
     typedef name_map<expr> local_tactic_hints;
-    typedef name_map<expr> mvar2meta;
     typedef std::unique_ptr<type_checker> type_checker_ptr;
 
     environment         m_env;
@@ -147,16 +303,15 @@ class elaborator {
     substitution        m_subst;
     expr_map<expr>      m_cache; // (pointer equality) cache for Type and Constants (this is a trick to make sure we get the
                                  // same universe metavariable for different occurrences of the same Type/Constant
-    context             m_ctx; // current local context: a list of local constants
-    buffer<expr>        m_ctx_buffer; // m_ctx as a buffer
-    buffer<expr>        m_ctx_domain_buffer; // m_ctx_domain_buffer[i] == abstract_locals(m_ctx_buffer[i], i, m_ctx_buffer.begin())
+    mvar2meta           m_mvar2meta; // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
+                                     // representing the context where ?m was created.
+    context             m_context; // current local context: a list of local constants
+
     pos_info_provider * m_pos_provider; // optional expression position information used when reporting errors.
     justification       m_accumulated; // accumulate justification of eagerly used substitutions
     constraint_vect     m_constraints; // constraints that must be solved for the elaborated term to be type correct.
     local_tactic_hints  m_local_tactic_hints; // mapping from metavariable name ?m to tactic expression that should be used to solve it.
                                               // this mapping is populated by the 'by tactic-expr' expression.
-    mvar2meta           m_mvar2meta; // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
-                                     // representing the context where ?m was created.
     name_set            m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
     bool                m_check_unassigned; // if true if display error messages if elaborated term still contains metavariables
     bool                m_use_local_instances; // if true class-instance resolution will use the local context
@@ -164,36 +319,27 @@ class elaborator {
     bool                m_flyinfo;
     std::vector<flyinfo_data> m_flyinfo_data;
 
-    // Set m_ctx to ctx, and make sure m_ctx_buffer and m_ctx_domain_buffer reflect the contents of the new ctx
-    void set_ctx(context const & ctx) {
-        m_ctx = ctx;
-        m_ctx_buffer.clear();
-        m_ctx_domain_buffer.clear();
-        to_buffer(ctx, m_ctx_buffer);
-        std::reverse(m_ctx_buffer.begin(), m_ctx_buffer.end());
-        for (unsigned i = 0; i < m_ctx_buffer.size(); i++) {
-            m_ctx_domain_buffer.push_back(abstract_locals(m_ctx_buffer[i], i, m_ctx_buffer.data()));
-        }
-    }
+    struct scope_ctx {
+        context::scope m_scope;
+        scope_ctx(elaborator & e):m_scope(e.m_context) {}
+    };
 
     /** \brief Auxiliary object for creating backtracking points.
-        \remark A scope can only be created when m_constraints and m_subst are empty,
+        \remark A new scope can only be created when m_constraints and m_subst are empty,
         and m_accumulated is none.
     */
-    struct scope {
-        elaborator & m_main;
-        context      m_old_ctx;
-        scope(elaborator & e, context const & ctx, substitution const & s):m_main(e) {
+    struct new_scope {
+        elaborator &           m_main;
+        context::scope_replace m_ctx_scope;
+        new_scope(elaborator & e, list<expr> const & ctx, substitution const & s):
+            m_main(e), m_ctx_scope(e.m_context, ctx) {
             lean_assert(m_main.m_constraints.empty());
             lean_assert(m_main.m_accumulated.is_none());
-            m_old_ctx    = m_main.m_ctx;
-            m_main.set_ctx(ctx);
             m_main.m_tc[0]->push();
             m_main.m_tc[1]->push();
             m_main.m_subst = s;
         }
-        ~scope() {
-            m_main.set_ctx(m_old_ctx);
+        ~new_scope() {
             m_main.m_tc[0]->pop();
             m_main.m_tc[1]->pop();
             m_main.m_constraints.clear();
@@ -227,11 +373,12 @@ class elaborator {
         elaborator & m_elab;
         expr         m_mvar;
         expr         m_choice;
-        context      m_ctx;
+        list<expr>   m_ctx;
         substitution m_subst;
         unsigned     m_idx;
         bool         m_relax_main_opaque;
-        choice_expr_elaborator(elaborator & elab, expr const & mvar, expr const & c, context const & ctx, substitution const & s, bool relax):
+        choice_expr_elaborator(elaborator & elab, expr const & mvar, expr const & c, list<expr> const & ctx,
+                               substitution const & s, bool relax):
             m_elab(elab), m_mvar(mvar), m_choice(c), m_ctx(ctx), m_subst(s), m_idx(0), m_relax_main_opaque(relax) {
         }
 
@@ -240,7 +387,7 @@ class elaborator {
                 expr const & c = get_choice(m_choice, m_idx);
                 m_idx++;
                 try {
-                    scope s(m_elab, m_ctx, m_subst);
+                    new_scope s(m_elab, m_ctx, m_subst);
                     expr r = m_elab.visit(c);
                     justification j = m_elab.m_accumulated;
                     m_elab.consume_tc_cnstrs();
@@ -279,14 +426,14 @@ class elaborator {
         list<tactic_hint_entry> m_tactics;
         proof_state_seq         m_tactic_result; // result produce by last executed tactic.
         buffer<expr>            m_mvars_in_meta_type; // metavariables that occur in m_meta_type, the tactics may instantiate some of them
-        context                 m_ctx; // local context for m_meta
+        list<expr>              m_ctx; // local context for m_meta
         substitution            m_subst;
         justification           m_jst;
         bool                    m_relax_main_opaque;
 
         placeholder_elaborator(elaborator & elab, expr const & meta, expr const & meta_type,
                                list<expr> const & local_insts, list<name> const & instances, list<tactic_hint_entry> const & tacs,
-                               context const & ctx, substitution const & s, justification const & j, bool ignore_failure, bool relax):
+                               list<expr> const & ctx, substitution const & s, justification const & j, bool ignore_failure, bool relax):
             choice_elaborator(ignore_failure),
             m_elab(elab), m_meta(meta), m_meta_type(meta_type), m_local_instances(local_insts), m_instances(instances),
             m_tactics(tacs), m_ctx(ctx), m_subst(s), m_jst(j), m_relax_main_opaque(relax) {
@@ -305,7 +452,7 @@ class elaborator {
                 pre  = copy_tag(m_meta, ::lean::mk_app(pre, copy_tag(m_meta, mk_strict_expr_placeholder())));
             }
             try {
-                scope s(m_elab, m_ctx, m_subst);
+                new_scope s(m_elab, m_ctx, m_subst);
                 expr r = m_elab.visit(pre); // use elaborator to create metavariables, levels, etc.
                 justification j = m_elab.m_accumulated;
                 m_elab.consume_tc_cnstrs();
@@ -383,6 +530,7 @@ public:
                pos_info_provider * pp, bool check_unassigned):
         m_env(env), m_lls(lls), m_ios(ios),
         m_ngen(ngen),
+        m_context(m_ngen, m_mvar2meta, ctx),
         m_pos_provider(pp) {
         m_relax_main_opaque = false;
         m_tc[0] = mk_type_checker_with_hints(env, m_ngen.mk_child(), false);
@@ -390,7 +538,6 @@ public:
         m_check_unassigned = check_unassigned;
         m_use_local_instances = get_elaborator_local_instances(ios.get_options());
         m_flyinfo = ios.get_options().get_bool("flyinfo", false);
-        set_ctx(ctx);
     }
 
     expr mk_local(name const & n, expr const & t, binder_info const & bi) {
@@ -461,89 +608,6 @@ public:
         return save_tag(::lean::mk_app(f, a), g);
     }
 
-    /** \brief Given <tt>e[l_1, ..., l_n]</tt> and assuming \c m_ctx is
-               <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-         then the result is
-               <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), e[x_1, ... x_n])</tt>.
-    */
-    expr pi_abstract_context(expr e, tag g) {
-        e = abstract_locals(e, m_ctx_buffer.size(), m_ctx_buffer.data());
-        unsigned i = m_ctx_domain_buffer.size();
-        while (i > 0) {
-            --i;
-            expr const & l = m_ctx_domain_buffer[i];
-            e = save_tag(mk_pi(local_pp_name(l), mlocal_type(l), e, local_info(l)), g);
-        }
-        return e;
-    }
-
-    /** \brief Assuming \c m_ctx is
-           <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-        return <tt>(f l_1 ... l_n)</tt>.
-    */
-    expr apply_context(expr const & f, tag g) {
-        expr r = f;
-        for (unsigned i = 0; i < m_ctx_buffer.size(); i++)
-            r = mk_app(r, m_ctx_buffer[i], g);
-        return r;
-    }
-
-    /** \brief Assuming \c m_ctx is
-           <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-        return a fresh metavariable \c ?m with type
-           <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
-        where \c ?u is a fresh universe metavariable.
-    */
-    expr mk_type_metavar(tag g) {
-        name n = m_ngen.next();
-        expr s = save_tag(mk_sort(mk_meta_univ(m_ngen.next())), g);
-        expr t = pi_abstract_context(s, g);
-        return save_tag(::lean::mk_metavar(n, t), g);
-    }
-
-    /** \brief Assuming \c m_ctx is
-            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-        return <tt>(?m l_1 ... l_n)</tt> where \c ?m is a fresh metavariable with type
-            <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
-        and \c ?u is a fresh universe metavariable.
-
-       \remark The type of the resulting expression is <tt>Type.{?u}</tt>
-    */
-    expr mk_type_meta(tag g) {
-        return apply_context(mk_type_metavar(g), g);
-    }
-
-    /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
-            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-        then the result is a fresh metavariable \c ?m with type
-            <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), type[x_1, ... x_n])</tt>.
-        If <tt>type</tt> is none, then the result is a fresh metavariable \c ?m1 with type
-            <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), ?m2 x1 .... xn)</tt>,
-        where ?m2 is another fresh metavariable with type
-            <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
-        and \c ?u is a fresh universe metavariable.
-    */
-    expr mk_metavar(optional<expr> const & type, tag g) {
-        name n      = m_ngen.next();
-        expr r_type = type ? *type : mk_type_meta(g);
-        expr t      = pi_abstract_context(r_type, g);
-        return save_tag(::lean::mk_metavar(n, t), g);
-    }
-
-    /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
-           <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-        return (?m l_1 ... l_n), where ?m is a fresh metavariable
-        created using \c mk_metavar.
-
-        \see mk_metavar
-    */
-    expr mk_meta(optional<expr> const & type, tag g) {
-        expr mvar = mk_metavar(type, g);
-        expr meta = apply_context(mvar, g);
-        m_mvar2meta.insert(mlocal_name(mvar), meta);
-        return meta;
-    }
-
     list<name> get_class_instances(expr const & type) {
         if (is_constant(get_app_fn(type))) {
             name const & c = const_name(get_app_fn(type));
@@ -582,26 +646,12 @@ public:
             });
     }
 
-    /** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
-    static list<expr> get_local_instances(context ctx, name const & cls_name) {
-        buffer<expr> buffer;
-        for (auto const & l : ctx) {
-            if (!is_local(l))
-                continue;
-            expr inst_type    = mlocal_type(l);
-            if (!is_constant(get_app_fn(inst_type)) || const_name(get_app_fn(inst_type)) != cls_name)
-                continue;
-            buffer.push_back(l);
-        }
-        return to_list(buffer.begin(), buffer.end());
-    }
-
     /** \brief Create a metavariable, and attach choice constraint for generating
         solutions using class-instances and tactic-hints.
     */
     expr mk_placeholder_meta(optional<expr> const & type, tag g, bool is_strict = false) {
-        expr m = mk_meta(type, g);
-        context ctx     = m_ctx;
+        expr m = m_context.mk_meta(type, g);
+        list<expr> ctx  = m_context.get_data();
         justification j = mk_failed_to_synthesize_jst(m);
         auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s, name_generator const & /* ngen */) {
             expr const & mvar = get_app_fn(meta);
@@ -646,7 +696,7 @@ public:
 
     expr visit_expecting_type(expr const & e) {
         if (is_placeholder(e) && !placeholder_type(e))
-            return mk_type_meta(e.get_tag());
+            return m_context.mk_type_meta(e.get_tag());
         else
             return visit(e);
     }
@@ -665,9 +715,9 @@ public:
     expr visit_choice(expr const & e, optional<expr> const & t) {
         lean_assert(is_choice(e));
         // Possible optimization: try to lookahead and discard some of the alternatives.
-        expr m      = mk_meta(t, e.get_tag());
-        context ctx = m_ctx;
-        bool relax = m_relax_main_opaque;
+        expr m         = m_context.mk_meta(t, e.get_tag());
+        list<expr> ctx = m_context.get_data();
+        bool relax     = m_relax_main_opaque;
         auto fn = [=](expr const & mvar, expr const & /* type */, substitution const & s, name_generator const & /* ngen */) {
             return choose(std::make_shared<choice_expr_elaborator>(*this, mvar, e, ctx, s, relax));
         };
@@ -679,7 +729,7 @@ public:
     expr visit_by(expr const & e, optional<expr> const & t) {
         lean_assert(is_by(e));
         expr tac = visit(get_by_arg(e));
-        expr m   = mk_meta(t, e.get_tag());
+        expr m   = m_context.mk_meta(t, e.get_tag());
         m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
         return m;
     }
@@ -753,7 +803,7 @@ public:
 
     /** \brief Given a term <tt>a : a_type</tt>, and an expected type generate a metavariable with a delayed coercion. */
     expr mk_delayed_coercion(expr const & a, expr const & a_type, expr const & expected_type, justification const & j) {
-        expr m = mk_meta(some_expr(expected_type), a.get_tag());
+        expr m = m_context.mk_meta(some_expr(expected_type), a.get_tag());
         add_cnstr(mk_delayed_coercion_cnstr(m, a, a_type, j, to_delay_factor(cnstr_group::Basic)));
         return m;
     }
@@ -957,24 +1007,6 @@ public:
         throw_kernel_exception(m_env, e, [=](formatter const & fmt) { return pp_type_expected(fmt, e); });
     }
 
-    struct scope_ctx {
-        elaborator & m_main;
-        context      m_old_ctx;
-        unsigned     m_old_sz;
-        scope_ctx(elaborator & main):m_main(main), m_old_ctx(main.m_ctx), m_old_sz(main.m_ctx_buffer.size()) {}
-        ~scope_ctx() {
-            m_main.m_ctx = m_old_ctx;
-            m_main.m_ctx_buffer.shrink(m_old_sz);
-            m_main.m_ctx_domain_buffer.shrink(m_old_sz);
-        }
-    };
-
-    void add_local(expr const & l) {
-        m_ctx = cons(l, m_ctx);
-        m_ctx_domain_buffer.push_back(abstract_locals(l, m_ctx_buffer.size(), m_ctx_buffer.data()));
-        m_ctx_buffer.push_back(l);
-    }
-
     /** \brief Similar to instantiate_rev, but assumes that subst contains only local constants.
         When replacing a variable with a local, we copy the local constant and inherit the tag
         associated with the variable. This is a trick for getter better error messages */
@@ -1012,7 +1044,7 @@ public:
             ds.push_back(d);
             expr l   = mk_local(binding_name(e), d, binding_info(e));
             if (binding_info(e).is_contextual())
-                add_local(l);
+                m_context.add_local(l);
             ls.push_back(l);
             e = binding_body(e);
         }

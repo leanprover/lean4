@@ -19,7 +19,7 @@ namespace lean {
 
     plugin(p, t, s) must return true iff for updated substitution s', s'(p) is definitionally equal to t.
 */
-typedef std::function<bool(expr const &, expr const &, buffer<optional<expr>> &, name_generator const &)> hop_matcher_plugin; // NOLINT
+typedef std::function<bool(expr const &, expr const &, buffer<optional<expr>> &, name_generator const &)> matcher_plugin; // NOLINT
 
 /**
    \brief Matching for higher-order patterns. Return true iff \c t matches the higher-order pattern \c p.
@@ -45,7 +45,7 @@ typedef std::function<bool(expr const &, expr const &, buffer<optional<expr>> &,
 
    If the plugin is provided, then it is invoked before a failure.
 */
-bool hop_match(expr const & p, expr const & t, buffer<optional<expr>> & subst, name const * prefix = nullptr,
-               name_map<name> * name_subst = nullptr, hop_matcher_plugin const * plugin = nullptr);
-void open_hop_match(lua_State * L);
+bool match(expr const & p, expr const & t, buffer<optional<expr>> & subst, name const * prefix = nullptr,
+               name_map<name> * name_subst = nullptr, matcher_plugin const * plugin = nullptr);
+void open_match(lua_State * L);
 }

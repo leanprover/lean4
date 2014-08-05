@@ -8,14 +8,14 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/kernel_bindings.h"
 #include "library/locals.h"
-#include "library/hop_match.h"
+#include "library/match.h"
 
 namespace lean {
-class hop_match_fn {
+class match_fn {
     buffer<optional<expr>> &   m_subst;
     name_generator             m_ngen;
     name_map<name> *           m_name_subst;
-    hop_matcher_plugin const * m_plugin;
+    matcher_plugin const * m_plugin;
 
     void assign(expr const & p, expr const & t) {
         lean_assert(var_idx(p) < m_subst.size());
@@ -117,7 +117,7 @@ class hop_match_fn {
     }
 
 public:
-    hop_match_fn(buffer<optional<expr>> & subst, name_generator const & ngen, name_map<name> * name_subst, hop_matcher_plugin const * plugin):
+    match_fn(buffer<optional<expr>> & subst, name_generator const & ngen, name_map<name> * name_subst, matcher_plugin const * plugin):
         m_subst(subst), m_ngen(ngen), m_name_subst(name_subst), m_plugin(plugin) {}
 
     bool match(expr const & p, expr const & t) {
@@ -157,16 +157,16 @@ public:
 };
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
-bool hop_match(expr const & p, expr const & t, buffer<optional<expr>> & subst, name const * prefix,
-               name_map<name> * name_subst, hop_matcher_plugin const * plugin) {
+bool match(expr const & p, expr const & t, buffer<optional<expr>> & subst, name const * prefix,
+               name_map<name> * name_subst, matcher_plugin const * plugin) {
     lean_assert(closed(t));
     if (prefix)
-        return hop_match_fn(subst, name_generator(*prefix), name_subst, plugin).match(p, t);
+        return match_fn(subst, name_generator(*prefix), name_subst, plugin).match(p, t);
     else
-        return hop_match_fn(subst, name_generator(g_tmp_prefix), name_subst, plugin).match(p, t);
+        return match_fn(subst, name_generator(g_tmp_prefix), name_subst, plugin).match(p, t);
 }
 
-static int hop_match(lua_State * L) {
+static int match(lua_State * L) {
     expr p     = to_expr(L, 1);
     expr t     = to_expr(L, 2);
     if (!closed(t))
@@ -174,7 +174,7 @@ static int hop_match(lua_State * L) {
     unsigned k = get_free_var_range(p);
     buffer<optional<expr>> subst;
     subst.resize(k);
-    if (hop_match(p, t, subst, nullptr, nullptr, nullptr)) {
+    if (match(p, t, subst, nullptr, nullptr, nullptr)) {
         lua_newtable(L);
         int i = 1;
         for (auto s : subst) {
@@ -191,7 +191,7 @@ static int hop_match(lua_State * L) {
     return 1;
 }
 
-void open_hop_match(lua_State * L) {
-    SET_GLOBAL_FUN(hop_match, "match");
+void open_match(lua_State * L) {
+    SET_GLOBAL_FUN(match, "match");
 }
 }

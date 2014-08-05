@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/unifier.h"
 #include "library/scoped_ext.h"
-#include "library/hop_match.h"
+#include "library/match.h"
 
 namespace lean {
 inline void open_core_module(lua_State * L) {
@@ -30,7 +30,7 @@ inline void open_core_module(lua_State * L) {
     open_scoped_ext(L);
     open_unifier(L);
     open_explicit(L);
-    open_hop_match(L);
+    open_match(L);
 }
 inline void register_core_module() {
     script_state::register_module(open_core_module);

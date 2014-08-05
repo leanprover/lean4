@@ -120,7 +120,7 @@ def call_makefile(makefile, arg):
     """ Call makefile with a target generated from a given arg """
     env_copy = os.environ.copy()
     env_copy['LEAN'] = find_lean_exe()
-    cmd = ["make", "-C", os.path.dirname(makefile)]
+    cmd = ["make", "-j", "-C", os.path.dirname(makefile)]
     if arg:
         target = get_target(arg)
         cmd.append(target)

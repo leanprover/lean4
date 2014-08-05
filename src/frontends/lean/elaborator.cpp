@@ -808,10 +808,10 @@ public:
         for (unsigned i = 0; i < num; i++) {
             expr f_i = get_choice(f, i);
             if (expl)
-                f_i = mk_explicit(f_i);
+                f_i = copy_tag(f_i, mk_explicit(f_i));
             new_choices.push_back(mk_rev_app(f_i, args));
         }
-        return visit_choice(mk_choice(new_choices.size(), new_choices.data()), none_expr());
+        return visit_choice(copy_tag(e, mk_choice(new_choices.size(), new_choices.data())), none_expr());
     }
 
     expr visit_app(expr const & e) {

@@ -67,6 +67,8 @@ bool context_check(expr const & e, buffer<expr> const & locals) {
     return !failed;
 }
 
+enum class occurs_check_status { Ok, Maybe, FailCircular, FailLocal };
+
 // Return
 //   - l_undef if \c e contains a metavariable application that contains
 //     a local constant not in locals
@@ -74,28 +76,29 @@ bool context_check(expr const & e, buffer<expr> const & locals) {
 //     constants are in \c e are in \c locals.
 //   - l_false if \c e contains \c m or it contains a local constant \c l
 //     not in locals that is not in a metavariable application.
-lbool occurs_context_check(substitution & s, expr const & e, expr const & m, buffer<expr> const & locals) {
+occurs_check_status occurs_context_check(substitution & s, expr const & e, expr const & m, buffer<expr> const & locals, expr & bad_local) {
     expr root = e;
-    lbool r = l_true;
+    occurs_check_status r = occurs_check_status::Ok;
     for_each(e, [&](expr const & e, unsigned) {
-            if (r == l_false) {
+            if (r == occurs_check_status::FailLocal || r == occurs_check_status::FailCircular) {
                 return false;
             } else if (is_local(e)) {
                 if (!contains_local(e, locals)) {
                     // right-hand-side contains variable that is not in the scope
                     // of metavariable.
-                    r = l_false;
+                    bad_local = e;
+                    r = occurs_check_status::FailLocal;
                 }
                 return false; // do not visit type
             } else if (is_meta(e)) {
-                if (r == l_true) {
+                if (r == occurs_check_status::Ok) {
                     if (!context_check(e, locals))
-                        r = l_undef;
+                        r = occurs_check_status::Maybe;
                     if (s.occurs(m, e))
-                        r = l_undef;
+                        r = occurs_check_status::Maybe;
                 }
                 if (mlocal_name(get_app_fn(e)) == mlocal_name(m))
-                    r = l_false;
+                    r = occurs_check_status::FailCircular;
                 return false; // do not visit children
             } else {
                 // we only need to continue exploring e if it contains
@@ -105,6 +108,12 @@ lbool occurs_context_check(substitution & s, expr const & e, expr const & m, buf
         });
     return r;
 }
+
+occurs_check_status occurs_context_check(substitution & s, expr const & e, expr const & m, buffer<expr> const & locals) {
+    expr bad_local;
+    return occurs_context_check(s, e, m, locals, bad_local);
+}
+
 
 // Create a lambda abstraction by abstracting the local constants \c locals in \c e
 expr lambda_abstract_locals(expr const & e, buffer<expr> const & locals) {
@@ -126,9 +135,12 @@ unify_status unify_simple_core(substitution & s, expr const & lhs, expr const & 
         return unify_status::Unsupported;
     } else {
         switch (occurs_context_check(s, rhs, *m, args)) {
-        case l_false: return unify_status::Failed;
-        case l_undef: return unify_status::Unsupported;
-        case l_true: {
+        case occurs_check_status::FailLocal:
+        case occurs_check_status::FailCircular:
+            return unify_status::Failed;
+        case occurs_check_status::Maybe:
+            return unify_status::Unsupported;
+        case occurs_check_status::Ok: {
             expr v = lambda_abstract_locals(rhs, args);
             s.assign(mlocal_name(*m), v, j);
             return unify_status::Solved;
@@ -472,11 +484,12 @@ struct unifier_fn {
         if (!r) r = m;
         justification new_j = mk_justification(r, [=](formatter const & fmt, substitution const & subst) {
                 substitution s(subst);
-                format r = format("type error in placeholder when trying to solve");
-                r += nest(2*get_pp_indent(fmt.get_options()), compose(line(), j.pp(fmt, nullptr, subst)));
+                format r;
                 expr _m = s.instantiate(m);
-                if (!is_meta(_m)) {
-                    r += compose(line(), format("placeholder was assigned to"));
+                if (is_meta(_m)) {
+                    r = format("type error in placeholder assignment");
+                } else {
+                    r  = format("type error in placeholder assigned to");
                     r += pp_indent_expr(fmt, _m);
                 }
                 format expected_fmt, given_fmt;
@@ -485,6 +498,8 @@ struct unifier_fn {
                 r += expected_fmt;
                 r += compose(line(), format("but is given type"));
                 r += given_fmt;
+                r += compose(line(), format("the assignment was attempted when trying to solve"));
+                r += nest(2*get_pp_indent(fmt.get_options()), compose(line(), j.pp(fmt, nullptr, subst)));
                 return r;
             });
         return mk_composite1(new_j, j);
@@ -539,6 +554,32 @@ struct unifier_fn {
         return true;
     }
 
+    justification mk_invalid_local_ctx_justification(expr const & lhs, expr const & rhs, justification const & j, expr const & bad_local) {
+        justification new_j = mk_justification(get_app_fn(lhs), [=](formatter const & fmt, substitution const & subst) {
+                format r = format("invalid local context when tried to assign");
+                r += pp_indent_expr(fmt, rhs);
+                buffer<expr> locals;
+                auto m = get_app_args(lhs, locals);
+                r += format({line(), format("containing '"), fmt(bad_local), format("', to placeholder '"), fmt(m), format("'")});
+                if (locals.empty()) {
+                    r += format(", in the empty local context");
+                } else {
+                    r += format(", in the local context");
+                    format aux;
+                    bool first = true;
+                    for (expr const l : locals) {
+                        if (first) first = false; else aux += space();
+                        aux += fmt(l);
+                    }
+                    r += nest(get_pp_indent(fmt.get_options()), compose(line(), aux));
+                }
+                r += compose(line(), format("the assignment was attempted when trying to solve"));
+                r += nest(2*get_pp_indent(fmt.get_options()), compose(line(), j.pp(fmt, nullptr, subst)));
+                return r;
+            });
+        return mk_composite1(new_j, j);
+    }
+
     enum status { Solved, Failed, Continue };
     /**
        \brief Process constraints of the form <tt>lhs =?= rhs</tt> where lhs is of the form <tt>?m</tt> or <tt>(?m l_1 .... l_n)</tt>,
@@ -553,13 +594,17 @@ struct unifier_fn {
         auto m = is_simple_meta(lhs, locals);
         if (!m || is_meta(rhs))
             return Continue;
-        switch (occurs_context_check(m_subst, rhs, *m, locals)) {
-        case l_false:
+        expr bad_local;
+        switch (occurs_context_check(m_subst, rhs, *m, locals, bad_local)) {
+        case occurs_check_status::FailLocal:
+            set_conflict(mk_invalid_local_ctx_justification(lhs, rhs, j, bad_local));
+            return Failed;
+        case occurs_check_status::FailCircular:
             set_conflict(j);
             return Failed;
-        case l_undef:
+        case occurs_check_status::Maybe:
             return Continue;
-        case l_true:
+        case occurs_check_status::Ok:
             lean_assert(!m_subst.is_assigned(*m));
             if (assign(*m, lambda_abstract_locals(rhs, locals), j, relax)) {
                 return Solved;

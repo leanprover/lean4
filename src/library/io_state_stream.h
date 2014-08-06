@@ -16,6 +16,7 @@ protected:
     environment const &  m_env;
     formatter            m_formatter;
     output_channel &     m_stream;
+    io_state_stream(environment const & env, formatter const & fmt, output_channel & s):m_env(env), m_formatter(fmt), m_stream(s) {}
 public:
     io_state_stream(environment const & env, io_state const & ios, bool regular = true):
         m_env(env), m_formatter(ios.get_formatter_factory()(env, ios.get_options())),
@@ -25,6 +26,7 @@ public:
     formatter const & get_formatter() const { return m_formatter; }
     options get_options() const { return m_formatter.get_options(); }
     environment const & get_environment() const { return m_env; }
+    io_state_stream update_options(options const & o) const { return io_state_stream(m_env, m_formatter.update_options(o), m_stream); }
 };
 
 inline io_state_stream regular(environment const & env, io_state const & ios) { return io_state_stream(env, ios, true); }

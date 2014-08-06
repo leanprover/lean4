@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/sexpr/options.h"
 namespace lean {
+name const & get_pp_coercion_option_name();
 unsigned get_pp_max_depth(options const & opts);
 unsigned get_pp_max_steps(options const & opts);
 bool     get_pp_notation(options const & opts);

@@ -175,7 +175,8 @@ def main(argv=None):
     if makefile is None and directory is None:
         makefile_names = ["GNUmakefile", "makefile", "Makefile"]
         makefile = find_makefile_upward(working_dir, makefile_names)
-        directory = os.path.dirname(makefile)
+        if makefile:
+            directory = os.path.dirname(makefile)
     if directory or makefile:
         call_makefile(directory, makefile, args)
     for arg in args:

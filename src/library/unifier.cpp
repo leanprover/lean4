@@ -1392,7 +1392,8 @@ struct unifier_fn {
         if (auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j, relax)) {
             // Remark: we should not use mk_eq_cnstr(marg, rhs, j) since is_def_eq may be able to reduce them.
             // The unifier assumes the eq constraints are reduced.
-            if (m_tc[relax]->is_def_eq(marg, rhs, j, cs)) {
+            if (m_tc[relax]->is_def_eq_types(marg, rhs, j, cs) &&
+                m_tc[relax]->is_def_eq(marg, rhs, j, cs)) {
                 expr v = mk_lambda_for(*new_mtype, mk_var(vidx));
                 cs.push_back(mk_eq_cnstr(m, v, j, relax));
                 alts.push_back(to_list(cs.begin(), cs.end()));

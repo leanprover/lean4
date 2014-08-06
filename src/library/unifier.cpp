@@ -62,6 +62,8 @@ bool context_check(expr const & e, buffer<expr> const & locals) {
                 failed = true;
                 return false;
             }
+            if (is_metavar(e))
+                return false; // do not visit type
             return has_local(e);
         });
     return !failed;

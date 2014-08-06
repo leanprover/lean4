@@ -1,7 +1,0 @@
-section
-   parameter A : Type
-   check A
-#ACK
-   check A
-end
-print "done"

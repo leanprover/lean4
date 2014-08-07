@@ -1,20 +1,54 @@
+;; Copyright (c) 2013, 2014 Microsoft Corporation. All rights reserved.
+;; Released under Apache 2.0 license as described in the file LICENSE.
+;;
+;; Author: Leonardo de Moura
+;;         Soonho Kong
+;;
 (require 'generic-x)
-(require 'lean-input)
 (require 'compile)
 (require 'flymake)
+(require 'flycheck)
+(require 'lean-util)
+(require 'lean-settings)
+(require 'lean-flycheck)
+(require 'lean-input)
 
-(defvar lean-exe "lean"
-  "Path for the Lean executable")
+(defun lean-get-rootdir ()
+  (lean-get-this-if-true-or-that
+   lean-rootdir
+   (error "'lean-rootdir' is not defined. Please have\
+(customize-set-variable 'lean-rootdir \"~/work/lean\")\
+in your emacs configuration.\
+Also make sure that your (custom-set-variable ...) comes before\
+(require 'lean-mode).")))
 
-(defun flymake-create-temp-lean-in-system-tempdir (filename prefix)
+(defun lean-get-executable (exe-name)
+  "Return fullpath of lean executable"
+  (let ((lean-binary-dir-name "bin"))
+    (when lean-rootdir
+      (concat (file-name-as-directory (lean-get-rootdir))
+              (file-name-as-directory "bin")
+              exe-name))))
+
+(defun lean-compile-string (exe-name args file-name)
+  "Concatenate exe-name, args, and file-name"
+  (format "%s %s %s" exe-name args file-name))
+
+(defun lean-create-temp-in-system-tempdir (filename prefix)
+  "Create a temp lean file and return its name"
   (make-temp-file (or prefix "flymake") nil ".lean"))
 
 (defun lean-execute (&optional arg)
   "Execute Lean in the current buffer"
   (interactive "sarg: ")
-  (if (buffer-file-name)
-      (compile (format "%s %s %s" lean-exe (if arg arg "") (buffer-file-name)))
-    (compile (format "%s $s %s" lean-exe (if arg arg "") (flymake-init-create-temp-buffer-copy) 'flymake-create-temp-lean-in-system-tempdir))))
+  (let ((target-file-name
+         (lean-get-this-if-true-or-that
+          (buffer-file-name)
+          (flymake-init-create-temp-buffer-copy 'lean-create-temp-in-system-tempdir))))
+    (compile (lean-compile-string
+              (lean-get-executable lean-executable-name)
+              (lean-get-this-if-true-or-that arg "")
+              target-file-name))))
 
 (defun lean-std-exe ()
   (interactive)

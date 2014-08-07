@@ -47,5 +47,6 @@ Put the following elisp code on your emacs setup:
 ;; lean customization
 (customize-set-variable 'lean-show-rule-column-method 'vline)
 (customize-set-variable 'lean-rule-column 100)
+(customize-set-variable 'lean-rule-color "#ff0000")
 (customize-set-variable 'lean-delete-trailing-whitespace t)
 ```

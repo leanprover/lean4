@@ -44,6 +44,12 @@ written."
                  (const :tag "Unlimited" nil))
   :type 'int)
 
+(defcustom lean-rule-color "#cccccc"
+  "Color used to draw the fill-column rule"
+  :group 'fill-column-indicator
+  :tag "Fill-column rule color"
+  :type 'color)
+
 (defcustom lean-show-rule-column-method nil
   "If enabled, it highlights column"
   :group 'lean

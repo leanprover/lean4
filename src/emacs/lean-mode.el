@@ -83,6 +83,7 @@
         (cl-case lean-show-rule-column-method
           ('vline (require 'fill-column-indicator)
                   (setq fci-rule-column lean-rule-column)
+                  (setq fci-rule-color lean-rule-color)
                   (add-hook 'lean-mode-hook 'fci-mode))))
       (if lean-delete-trailing-whitespace
           (progn (require 'whitespace-cleanup-mode)

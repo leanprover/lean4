@@ -85,11 +85,10 @@ parser::parser(environment const & env, io_state const & ios,
                unsigned line, snapshot_vector * sv, info_manager * im):
     m_env(env), m_ios(ios), m_ngen(g_tmp_prefix),
     m_verbose(true), m_use_exceptions(use_exceptions),
-    m_scanner(strm, strm_name), m_local_level_decls(lds), m_local_decls(eds),
+    m_scanner(strm, strm_name, line), m_local_level_decls(lds), m_local_decls(eds),
     m_pos_table(std::make_shared<pos_info_table>()),
     m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
     m_snapshot_vector(sv), m_info_manager(im) {
-    m_scanner.set_line(line);
     m_num_threads = num_threads;
     m_no_undef_id_error    = false;
     m_found_errors = false;
@@ -838,7 +837,9 @@ expr parser::parse_notation(parse_table t, expr * left) {
         expr r = instantiate_rev(copy_with_new_pos(a, p), args.size(), args.data());
         cs.push_back(r);
     }
-    return save_pos(mk_choice(cs.size(), cs.data()), p);
+    expr r = save_pos(mk_choice(cs.size(), cs.data()), p);
+    save_overload(r);
+    return r;
 }
 
 expr parser::parse_nud_notation() {
@@ -896,6 +897,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
             new_as.push_back(copy_with_new_pos(mk_constant(e, ls), p));
         }
         r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
+        save_overload(*r);
     }
     if (!r && m_no_undef_id_error)
         r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
@@ -1171,6 +1173,13 @@ void parser::save_snapshot() {
         return;
     if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
         m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls, m_ios.get_options(), m_scanner.get_line()));
+}
+
+void parser::save_overload(expr const & e) {
+    if (!m_info_manager)
+        return;
+    auto p = pos_of(e);
+    m_info_manager->add(std::unique_ptr<info_data>(new overload_info_data(p.first, p.second, e)));
 }
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions,

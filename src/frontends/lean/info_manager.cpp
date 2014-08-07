@@ -30,12 +30,15 @@ void type_info_data::display(io_state_stream const & ios) const {
 
 void overload_info_data::display(io_state_stream const & ios) const {
     ios << "-- OVERLOAD|" << get_line() << "|" << get_column() << "\n";
+    options os = ios.get_options();
+    os = os.update(get_pp_full_names_option_name(), true);
+    auto new_ios = ios.update_options(os);
     for (unsigned i = 0; i < get_num_choices(m_choices); i++) {
         if (i > 0)
             ios << "--\n";
-        ios << get_choice(m_choices, i) << endl;
+        new_ios << get_choice(m_choices, i) << endl;
     }
-    ios << "-- ACK" << endl;
+    new_ios << "-- ACK" << endl;
 }
 
 void coercion_info_data::display(io_state_stream const & ios) const {
@@ -85,7 +88,8 @@ unsigned info_manager::find(unsigned line, unsigned column) {
 void info_manager::invalidate(unsigned sline) {
     lock_guard<mutex> lc(m_mutex);
     sort_core();
-    m_data.resize(find(sline, 0));
+    unsigned i = find(sline, 0);
+    m_data.resize(i);
     m_sorted_upto = m_data.size();
 }
 

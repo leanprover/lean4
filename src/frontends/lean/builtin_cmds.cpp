@@ -98,15 +98,6 @@ environment check_cmd(parser & p) {
     return p.env();
 }
 
-environment set_line_cmd(parser & p) {
-    if (!p.curr_is_numeral())
-        throw parser_error("invalid #setline command, numeral expected", p.pos());
-    unsigned r = p.get_small_nat();
-    p.set_line(r);
-    p.next();
-    return p.env();
-}
-
 environment exit_cmd(parser &) {
     throw interrupt_parser();
 }
@@ -300,7 +291,7 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
     add_cmd(r, cmd_info("coercion",     "add a new coercion", coercion_cmd));
     add_cmd(r, cmd_info("opaque_hint",  "add hints for the elaborator/unifier", opaque_hint_cmd));
-    add_cmd(r, cmd_info("#setline",     "modify the current line number, it only affects error/report messages", set_line_cmd));
+
     register_decl_cmds(r);
     register_inductive_cmd(r);
     register_structure_cmd(r);

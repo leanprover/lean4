@@ -53,9 +53,8 @@ static name g_pp_full_names       {"pp", "full_names"};
 static name g_pp_private_names    {"pp", "private_names"};
 static name g_pp_metavar_args     {"pp", "metavar_args"};
 
-name const & get_pp_coercion_option_name() {
-    return g_pp_coercion;
-}
+name const & get_pp_coercion_option_name() { return g_pp_coercion; }
+name const & get_pp_full_names_option_name() { return g_pp_full_names; }
 
 list<options> const & get_distinguishing_pp_options() {
     static options g_universes_true(g_pp_universes, true);

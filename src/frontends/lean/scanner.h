@@ -68,7 +68,7 @@ protected:
     token_kind read_quoted_symbol();
 
 public:
-    scanner(std::istream & strm, char const * strm_name = nullptr);
+    scanner(std::istream & strm, char const * strm_name = nullptr, unsigned line = 1);
 
     int get_line() const { return m_line; }
     int get_pos() const { return m_pos; }

@@ -151,7 +151,9 @@ class parser {
 
     void push_local_scope();
     void pop_local_scope();
+
     void save_snapshot();
+    void save_overload(expr const & e);
 
 public:
     parser(environment const & env, io_state const & ios,

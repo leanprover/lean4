@@ -62,12 +62,12 @@ unsigned server::find(unsigned linenum) {
 }
 
 void server::process_from(unsigned linenum) {
-    m_info.invalidate(linenum);
     unsigned i = find(linenum);
     m_snapshots.resize(i);
     snapshot & s = i == 0 ? m_empty_snapshot : m_snapshots[i-1];
     std::string block;
     lean_assert(s.m_line > 0);
+    m_info.invalidate(s.m_line-1);
     for (unsigned j = s.m_line-1; j < m_lines.size(); j++) {
         block += m_lines[j];
         block += '\n';

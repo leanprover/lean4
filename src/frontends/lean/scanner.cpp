@@ -78,11 +78,6 @@ bool is_super_sub_script_alnum_unicode(unsigned u) {
         (0x2090 <= u && u <= 0x209c);
 }
 
-void scanner::set_line(unsigned p) {
-    m_line  = p;
-    m_sline = p;
-}
-
 void scanner::next() {
     lean_assert(m_curr != EOF);
     m_curr = m_stream.get();
@@ -472,11 +467,13 @@ auto scanner::scan(environment const & env) -> token_kind {
     }
 }
 
-scanner::scanner(std::istream & strm, char const * strm_name):
-    m_tokens(nullptr), m_stream(strm), m_spos(0), m_upos(0), m_uskip(0), m_sline(1), m_curr(0), m_pos(0), m_line(1),
+scanner::scanner(std::istream & strm, char const * strm_name, unsigned line):
+    m_tokens(nullptr), m_stream(strm), m_spos(0), m_upos(0), m_uskip(0), m_sline(line), m_curr(0), m_pos(0), m_line(line),
     m_token_info(nullptr) {
     m_stream_name = strm_name ? strm_name : "[unknown]";
     next();
+    m_spos = 0;
+    m_upos = 0;
 }
 
 std::ostream & operator<<(std::ostream & out, scanner::token_kind k) {

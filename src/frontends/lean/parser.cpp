@@ -82,12 +82,13 @@ parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name,
                bool use_exceptions, unsigned num_threads,
                local_level_decls const & lds, local_expr_decls const & eds,
-               unsigned line):
+               unsigned line, snapshot_vector * sv, info_manager * im):
     m_env(env), m_ios(ios), m_ngen(g_tmp_prefix),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name), m_local_level_decls(lds), m_local_decls(eds),
     m_pos_table(std::make_shared<pos_info_table>()),
-    m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0) {
+    m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
+    m_snapshot_vector(sv), m_info_manager(im) {
     m_scanner.set_line(line);
     m_num_threads = num_threads;
     m_no_undef_id_error    = false;

@@ -27,7 +27,7 @@ Author: Leonardo de Moura
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
-#include "frontends/lean/interactive.h"
+#include "frontends/lean/server.h"
 #include "frontends/lean/dependencies.h"
 #include "frontends/lua/register_modules.h"
 #include "version.h"
@@ -71,7 +71,7 @@ static void display_help(std::ostream & out) {
     std::cout << "                    0 means 'do not check'.\n";
     std::cout << "  --trust=num -t    trust level (default: 0) \n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
-    std::cout << "  --interactive -i  read blocks of commands from the input stream\n";
+    std::cout << "  --server          start Lean in 'server' mode\n";
     std::cout << "  --hott            use Homotopy Type Theory kernel and libraries\n";
     std::cout << "  --threads=num -j  number of threads used to process lean files\n";
     std::cout << "  --deps            just print dependencies of a Lean input\n";
@@ -106,7 +106,7 @@ static struct option g_long_options[] = {
     {"githash",     no_argument,       0, 'g'},
     {"output",      required_argument, 0, 'o'},
     {"trust",       required_argument, 0, 't'},
-    {"interactive", no_argument,       0, 'i'},
+    {"server",      no_argument,       0, 'S'},
     {"quiet",       no_argument,       0, 'q'},
     {"hott",        no_argument,       0, 'H'},
     {"threads",     required_argument, 0, 'j'},
@@ -120,9 +120,9 @@ static struct option g_long_options[] = {
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "IFDHiqlupgvhj:012c:012s:012t:012o:";
+static char const * g_opt_str = "IFDHSqlupgvhj:012c:012s:012t:012o:";
 #else
-static char const * g_opt_str = "IFDHiqlupgvhj:012c:012t:012o:";
+static char const * g_opt_str = "IFDHSqlupgvhj:012c:012t:012o:";
 #endif
 
 enum class lean_mode { Standard, HoTT };
@@ -133,7 +133,7 @@ int main(int argc, char ** argv) {
     bool export_objects  = false;
     unsigned trust_lvl   = 0;
     bool quiet           = false;
-    bool interactive     = false;
+    bool server          = false;
     bool only_deps       = false;
     bool flycheck        = false;
     bool flyinfo         = false;
@@ -153,8 +153,8 @@ int main(int argc, char ** argv) {
             mode = lean_mode::HoTT;
             lean::init_lean_path("hott");
             break;
-        case 'i':
-            interactive = true;
+        case 'S':
+            server = true;
             break;
         case 'v':
             display_header(std::cout);
@@ -247,10 +247,11 @@ int main(int argc, char ** argv) {
                 lean_unreachable(); // LCOV_EXCL_LINE
             }
         }
-        if (ok && interactive && default_k == input_kind::Lean) {
+        if (ok && server && default_k == input_kind::Lean) {
             signal(SIGINT, on_ctrl_c);
-            lean::interactive in(env, ios, num_threads);
-            in(std::cin, "[stdin]");
+            lean::server Sv(env, ios, num_threads);
+            if (!Sv(std::cin))
+                ok = false;
         }
         if (export_objects && ok) {
             std::ofstream out(output, std::ofstream::binary);

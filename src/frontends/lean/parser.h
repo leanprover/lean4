@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/parser_pos_provider.h"
 #include "frontends/lean/theorem_queue.h"
+#include "frontends/lean/info_manager.h"
 
 namespace lean {
 /** \brief Exception used to track parsing erros, it does not leak outside of this class. */
@@ -40,6 +41,21 @@ struct interrupt_parser {};
 typedef local_decls<expr>   local_expr_decls;
 typedef local_decls<level>  local_level_decls;
 typedef environment         local_environment;
+
+/** \brief Snapshot of the state of the Lean parser */
+struct snapshot {
+    environment       m_env;
+    local_level_decls m_lds;
+    local_expr_decls  m_eds;
+    options           m_options;
+    unsigned          m_line;
+    snapshot():m_line(0) {}
+    snapshot(environment const & env, options const & o):m_env(env), m_options(o), m_line(1) {}
+    snapshot(environment const & env, local_level_decls const & lds, local_expr_decls const & eds, options const & opts, unsigned line):
+        m_env(env), m_lds(lds), m_eds(eds), m_options(opts), m_line(line) {}
+};
+
+typedef std::vector<snapshot> snapshot_vector;
 
 class parser {
     environment             m_env;
@@ -68,6 +84,10 @@ class parser {
     optional<bool>          m_has_tactic_decls;
     // We process theorems in parallel
     theorem_queue           m_theorem_queue;
+
+    // info support
+    snapshot_vector *       m_snapshot_vector;
+    info_manager *          m_info_manager;
 
     void display_warning_pos(unsigned line, unsigned pos);
     void display_warning_pos(pos_info p);
@@ -137,8 +157,8 @@ public:
            std::istream & strm, char const * str_name,
            bool use_exceptions = false, unsigned num_threads = 1,
            local_level_decls const & lds = local_level_decls(),
-           local_expr_decls const & eds = local_expr_decls(),
-           unsigned line = 1);
+           local_expr_decls const & eds = local_expr_decls(), unsigned line = 1,
+           snapshot_vector * sv = nullptr, info_manager * im = nullptr);
     ~parser();
 
     environment const & env() const { return m_env; }

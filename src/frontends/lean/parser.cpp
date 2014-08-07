@@ -1136,6 +1136,7 @@ bool parser::parse_commands() {
                     switch (curr()) {
                     case scanner::token_kind::CommandKeyword:
                         parse_command();
+                        save_snapshot();
                         break;
                     case scanner::token_kind::ScriptBlock:
                         parse_script();
@@ -1163,6 +1164,13 @@ bool parser::parse_commands() {
 
 void parser::add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls, expr const & t, expr const & v) {
     m_theorem_queue.add(env, n, ls, get_local_level_decls(), t, v);
+}
+
+void parser::save_snapshot() {
+    if (!m_snapshot_vector)
+        return;
+    if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
+        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls, m_ios.get_options(), m_scanner.get_line()));
 }
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions,

@@ -1164,30 +1164,21 @@ struct unifier_fn {
     }
 
     /** \see ensure_sufficient_args */
-    optional<expr> ensure_sufficient_args_core(expr mtype, unsigned i, buffer<expr> const & margs, bool relax) {
+    expr ensure_sufficient_args_core(expr mtype, unsigned i, buffer<expr> const & margs, bool relax) {
         if (i == margs.size())
-            return some_expr(mtype);
+            return mtype;
         mtype = m_tc[relax]->ensure_pi(mtype);
-        try {
-            if (!m_tc[relax]->is_def_eq(binding_domain(mtype), m_tc[relax]->infer(margs[i])))
-                return none_expr();
-        } catch (kernel_exception &) {
-            return none_expr();
-        }
         expr local = mk_local_for(mtype);
         expr body  = instantiate(binding_body(mtype), local);
-        auto new_body = ensure_sufficient_args_core(body, i+1, margs, relax);
-        if (!new_body)
-            return none_expr();
-        return some_expr(Pi(local, *new_body));
+        return Pi(local, ensure_sufficient_args_core(body, i+1, margs, relax));
     }
 
     /**
        \brief Make sure mtype is a Pi of size at least margs.size().
        If it is not, we use ensure_pi and (potentially) add new constaints to enforce it.
     */
-    optional<expr> ensure_sufficient_args(expr const & mtype, buffer<expr> const & margs, buffer<constraint> & cs,
-                                          justification const & j, bool relax) {
+    expr ensure_sufficient_args(expr const & mtype, buffer<expr> const & margs, buffer<constraint> & cs,
+                                justification const & j, bool relax) {
         expr t = mtype;
         unsigned num = 0;
         while (is_pi(t)) {
@@ -1195,13 +1186,11 @@ struct unifier_fn {
             t = binding_body(t);
         }
         if (num == margs.size())
-            return some_expr(mtype);;
+            return mtype;
         lean_assert(!m_tc[relax]->next_cnstr()); // make sure there are no pending constraints
         // We must create a scope to make sure no constraints "leak" into the current state.
         type_checker::scope scope(*m_tc[relax]);
         auto new_mtype = ensure_sufficient_args_core(mtype, 0, margs, relax);
-        if (!new_mtype)
-            return none_expr();
         while (auto c = m_tc[relax]->next_cnstr())
             cs.push_back(update_justification(*c, mk_composite1(c->get_justification(), j)));
         return new_mtype;
@@ -1240,6 +1229,22 @@ struct unifier_fn {
         return v;
     }
 
+    /** \brief Check if term \c e (produced by an imitation step) is
+        type correct, and store generated constraints in \c cs.
+        Include \c j in all generated constraints */
+    bool check_imitation(expr const & e, justification const & j, bool relax, buffer<constraint> & cs) {
+        try {
+            buffer<constraint> aux;
+            m_tc[relax]->check(e, aux);
+            for (auto c : aux) {
+                cs.push_back(update_justification(c, mk_composite1(j, c.get_justification())));
+            }
+            return true;
+        } catch (exception&) {
+            return false;
+        }
+    }
+
     /**
        \brief Given
                m      := a metavariable ?m
@@ -1265,9 +1270,7 @@ struct unifier_fn {
         lean_assert(is_constant(f) || is_var(f));
         buffer<constraint> cs;
         expr mtype = mlocal_type(m);
-        auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j, relax);
-        if (!new_mtype) return;
-        mtype = *new_mtype;
+        mtype = ensure_sufficient_args(mtype, margs, cs, j, relax);
         buffer<expr> rargs;
         get_app_args(rhs, rargs);
         buffer<expr> sargs;
@@ -1282,8 +1285,10 @@ struct unifier_fn {
         }
         expr v = mk_app(f, sargs);
         v = mk_lambda_for(mtype, v);
-        cs.push_back(mk_eq_cnstr(m, v, j, relax));
-        alts.push_back(to_list(cs.begin(), cs.end()));
+        if (check_imitation(v, j, relax, cs)) {
+            cs.push_back(mk_eq_cnstr(m, v, j, relax));
+            alts.push_back(to_list(cs.begin(), cs.end()));
+        }
     }
 
     /**
@@ -1303,9 +1308,7 @@ struct unifier_fn {
         lean_assert(is_binding(rhs));
         buffer<constraint> cs;
         expr mtype = mlocal_type(m);
-        auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j, relax);
-        if (!new_mtype) return;
-        mtype = *new_mtype;
+        mtype = ensure_sufficient_args(mtype, margs, cs, j, relax);
         expr maux1  = mk_aux_metavar_for(m_ngen, mtype);
         cs.push_back(mk_eq_cnstr(mk_app(maux1, margs), binding_domain(rhs), j, relax));
         expr dontcare;
@@ -1316,8 +1319,10 @@ struct unifier_fn {
         cs.push_back(mk_eq_cnstr(mk_app(mk_app(maux2, margs), new_local), instantiate(binding_body(rhs), new_local), j, relax));
         expr v = update_binding(rhs, mk_app_vars(maux1, margs.size()), mk_app_vars(maux2, margs.size() + 1));
         v = mk_lambda_for(mtype, v);
-        cs.push_back(mk_eq_cnstr(m, v, j, relax));
-        alts.push_back(to_list(cs.begin(), cs.end()));
+        if (check_imitation(v, j, relax, cs)) {
+            cs.push_back(mk_eq_cnstr(m, v, j, relax));
+            alts.push_back(to_list(cs.begin(), cs.end()));
+        }
     }
 
     /**
@@ -1353,9 +1358,7 @@ struct unifier_fn {
         lean_assert(is_macro(rhs));
         buffer<constraint> cs;
         expr mtype = mlocal_type(m);
-        auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j, relax);
-        if (!new_mtype) return;
-        mtype = *new_mtype;
+        mtype = ensure_sufficient_args(mtype, margs, cs, j, relax);
         // create an auxiliary metavariable for each macro argument
         buffer<expr> sargs;
         for (unsigned i = 0; i < macro_num_args(rhs); i++) {
@@ -1365,8 +1368,10 @@ struct unifier_fn {
         }
         expr v = mk_macro(macro_def(rhs), sargs.size(), sargs.data());
         v = mk_lambda_for(mtype, v);
-        cs.push_back(mk_eq_cnstr(m, v, j, relax));
-        alts.push_back(to_list(cs.begin(), cs.end()));
+        if (check_imitation(v, j, relax, cs)) {
+            cs.push_back(mk_eq_cnstr(m, v, j, relax));
+            alts.push_back(to_list(cs.begin(), cs.end()));
+        }
     }
 
     /**
@@ -1389,15 +1394,14 @@ struct unifier_fn {
         unsigned vidx = margs.size() - i - 1;
         expr const & marg = margs[i];
         buffer<constraint> cs;
-        if (auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j, relax)) {
-            // Remark: we should not use mk_eq_cnstr(marg, rhs, j) since is_def_eq may be able to reduce them.
-            // The unifier assumes the eq constraints are reduced.
-            if (m_tc[relax]->is_def_eq_types(marg, rhs, j, cs) &&
-                m_tc[relax]->is_def_eq(marg, rhs, j, cs)) {
-                expr v = mk_lambda_for(*new_mtype, mk_var(vidx));
-                cs.push_back(mk_eq_cnstr(m, v, j, relax));
-                alts.push_back(to_list(cs.begin(), cs.end()));
-            }
+        auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j, relax);
+        // Remark: we should not use mk_eq_cnstr(marg, rhs, j) since is_def_eq may be able to reduce them.
+        // The unifier assumes the eq constraints are reduced.
+        if (m_tc[relax]->is_def_eq_types(marg, rhs, j, cs) &&
+            m_tc[relax]->is_def_eq(marg, rhs, j, cs)) {
+            expr v = mk_lambda_for(new_mtype, mk_var(vidx));
+            cs.push_back(mk_eq_cnstr(m, v, j, relax));
+            alts.push_back(to_list(cs.begin(), cs.end()));
         }
     }
 
@@ -1434,11 +1438,10 @@ struct unifier_fn {
             } else if (is_local(marg) && is_local(rhs) && mlocal_name(marg) == mlocal_name(rhs)) {
                 // if the argument is local, and rhs is equal to it, then we also add a projection
                 buffer<constraint> cs;
-                if (auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j, relax)) {
-                    expr v = mk_lambda_for(*new_mtype, mk_var(vidx));
-                    cs.push_back(mk_eq_cnstr(m, v, j, relax));
-                    alts.push_back(to_list(cs.begin(), cs.end()));
-                }
+                auto new_mtype = ensure_sufficient_args(mtype, margs, cs, j, relax);
+                expr v = mk_lambda_for(new_mtype, mk_var(vidx));
+                cs.push_back(mk_eq_cnstr(m, v, j, relax));
+                alts.push_back(to_list(cs.begin(), cs.end()));
             }
         }
     }

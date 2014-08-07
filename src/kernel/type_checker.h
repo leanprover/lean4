@@ -82,7 +82,7 @@ class type_checker {
     type_checker_context       m_tc_ctx;
     bool                       m_memoize;
     // temp flag
-    level_param_names          m_params;
+    level_param_names const *  m_params;
     buffer<constraint>         m_cs;        // temporary cache of constraints
     unsigned                   m_cs_qhead;
     buffer<std::pair<unsigned, unsigned>> m_trail;
@@ -145,6 +145,7 @@ public:
        constraint handler can be solved.
     */
     expr check(expr const & t, level_param_names const & ps = level_param_names());
+    expr check(expr const & t, buffer<constraint> & new_cnstrs);
     /** \brief Return true iff t is definitionally equal to s. */
     bool is_def_eq(expr const & t, expr const & s);
     bool is_def_eq(expr const & t, expr const & s, justification const & j);

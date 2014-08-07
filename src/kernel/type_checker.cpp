@@ -177,8 +177,10 @@ justification type_checker::mk_macro_jst(expr const & e) {
 void type_checker::check_level(level const & l, expr const & s) {
     if (auto n1 = get_undef_global(l, m_env))
         throw_kernel_exception(m_env, sstream() << "invalid reference to undefined global universe level '" << *n1 << "'", s);
-    if (auto n2 = get_undef_param(l, m_params))
-        throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '" << *n2 << "'", s);
+    if (m_params) {
+        if (auto n2 = get_undef_param(l, *m_params))
+            throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '" << *n2 << "'", s);
+    }
 }
 
 app_delayed_justification::app_delayed_justification(expr const & e, expr const & arg, expr const & f_type, expr const & a_type):
@@ -374,9 +376,17 @@ expr type_checker::infer(expr const & e, buffer<constraint> & new_cnstrs) {
 
 expr type_checker::check(expr const & e, level_param_names const & ps) {
     scope mk_scope(*this);
-    flet<level_param_names> updt(m_params, ps);
+    flet<level_param_names const *> updt(m_params, &ps);
     expr r = infer_type_core(e, false);
     mk_scope.keep();
+    return r;
+}
+
+expr type_checker::check(expr const & e, buffer<constraint> & new_cnstrs) {
+    scope mk_scope(*this);
+    unsigned cs_qhead = m_cs.size();
+    expr r = infer_type_core(e, false);
+    copy_constraints(cs_qhead, new_cnstrs);
     return r;
 }
 
@@ -487,7 +497,7 @@ unsigned type_checker::num_scopes() const {
 
 type_checker::type_checker(environment const & env, name_generator const & g, std::unique_ptr<converter> && conv, bool memoize):
     m_env(env), m_gen(g), m_conv(std::move(conv)), m_tc_ctx(*this),
-    m_memoize(memoize) {
+    m_memoize(memoize), m_params(nullptr) {
     m_cs_qhead = 0;
 }
 

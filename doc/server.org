@@ -1,0 +1,89 @@
+Lean can process input incrementally, and extract type information.
+This feature is useful for implementing "intelligent" support for Lean
+in editors such as Emacs. It provides a convenient way to access
+descriptions of functions, overloaded symbols, and typing information.
+We must use the option =--server= to enable this feature.
+
+* Commands
+
+Lean implements a simple set of commands for loading files, extracting
+typing information, and "replacing" lines. The commands should be sent
+to the standard input.
+
+** Load file
+
+#+BEGIN_SRC
+FILE [file-name]
+#+END_SRC
+
+This command loads the Lean file named =[file-name]=.
+Lean will create a "snapshot" (aka backtracking point) after each
+command. Lean uses the "snapshots" to process incremental updates efficiently.
+
+** Replace line
+
+#+BEGIN_SRC
+REPLACE [line-number]
+[new-line]
+#+END_SRC
+
+This command replaces the line =[line-number]= with =[new-line]=.
+Lean uses the snapshots to process the request efficiently.
+If =[line-number]= is greater than the total number of lines in the lean
+buffer, then empty lines are introduced.
+
+** Extracting typing information
+
+#+BEGIN_SRC
+INFO [line-number]
+#+END_SRC
+
+This command extracts typing information associated with line =[line-number]=.
+Lean produces a possible empty sequence of entries terminated with
+
+#+BEGIN_SRC
+-- ENDINFO
+#+END_SRC
+
+A type information entry is of the form
+
+#+BEGIN_SRC
+-- TYPE|[line-number]|[column-number]
+[type]
+-- ACK
+#+END_SRC
+
+Information for overloaded operators and symbols is of the form
+
+#+BEGIN_SRC
+-- OVERLOAD|[line-number]|[column-number]
+[overload-1]
+--
+...
+--
+[overload-n]
+-- ACK
+#+END_SRC
+
+Here is an example of output produced by Lean
+
+#+BEGIN_SRC
+-- TYPE|15|38
+num
+-- ACK
+-- TYPE|15|40
+num → num → Prop
+-- ACK
+-- OVERLOAD|15|42
+f
+--
+foo.f
+-- ACK
+-- TYPE|15|42
+num → num
+-- ACK
+-- TYPE|15|44
+num
+-- ACK
+-- ENDINFO
+#+END_SRC

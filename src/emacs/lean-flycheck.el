@@ -4,6 +4,8 @@
 ;; Author: Soonho Kong
 ;;
 
+(require 'flycheck)
+
 (setq-local lean-lmake-name "lmake")
 (setq-local lean-lmake-options "--flycheck")
 (eval

@@ -8,9 +8,6 @@
 (require 'generic-x)
 (require 'compile)
 (require 'flymake)
-(require 'flycheck)
-(require 'fill-column-indicator)
-(require 'whitespace-cleanup-mode)
 (require 'lean-util)
 (require 'lean-settings)
 (require 'lean-flycheck)
@@ -84,10 +81,12 @@
       (when (and lean-rule-column
                  lean-show-rule-column-method)
         (cl-case lean-show-rule-column-method
-          ('vline (setq fci-rule-column lean-rule-column)
+          ('vline (require 'fill-column-indicator)
+                  (setq fci-rule-column lean-rule-column)
                   (add-hook 'lean-mode-hook 'fci-mode))))
       (if lean-delete-trailing-whitespace
-          (add-hook 'lean-mode-hook 'whitespace-cleanup-mode)
+          (progn (require 'whitespace-cleanup-mode)
+                 (add-hook 'lean-mode-hook 'whitespace-cleanup-mode))
         (remove-hook 'lean-mode-hook 'whitespace-cleanup-mode))
       ))
   "A mode for Lean files"          ;; doc string for this mode

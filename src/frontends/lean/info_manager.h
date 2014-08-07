@@ -16,10 +16,12 @@ class info_data {
     unsigned m_line;
     unsigned m_column;
 public:
+    info_data():m_line(0), m_column(0) {}
     info_data(unsigned l, unsigned c):m_line(l), m_column(c) {}
     virtual ~info_data() {}
     unsigned get_line() const { return m_line; }
     unsigned get_column() const { return m_column; }
+    bool eq_pos(unsigned line, unsigned col) const { return m_line == line && m_column == col; }
     virtual void display(io_state_stream const & ios) const = 0;
 };
 bool operator<(info_data const & i1, info_data const & i2);
@@ -27,7 +29,9 @@ bool operator<(info_data const & i1, info_data const & i2);
 class type_info_data : public info_data {
     expr m_expr;
 public:
+    type_info_data() {}
     type_info_data(unsigned l, unsigned c, expr const & e):info_data(l, c), m_expr(e) {}
+    expr const & get_type() const { return m_expr; }
     virtual void display(io_state_stream const & ios) const;
 };
 

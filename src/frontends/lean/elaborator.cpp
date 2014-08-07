@@ -121,8 +121,6 @@ public:
     expr operator()(expr const & e) { return apply(e); }
 };
 
-typedef std::pair<pos_info, expr> pre_info_data;
-
 /** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
 list<expr> get_local_instances(list<expr> const & ctx, name const & cls_name) {
     buffer<expr> buffer;
@@ -310,7 +308,7 @@ class elaborator {
     bool                m_use_local_instances; // if true class-instance resolution will use the local context
     bool                m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent
     info_manager *      m_info_manager;
-    std::vector<pre_info_data> m_info_data;
+    std::vector<type_info_data> m_pre_info_data;
 
     struct scope_ctx {
         context::scope m_scope1;
@@ -948,10 +946,10 @@ public:
                 type_checker::scope scope(*m_tc[m_relax_main_opaque]);
                 expr t = m_tc[m_relax_main_opaque]->infer(r);
                 if (replace) {
-                    while (!m_info_data.empty() && m_info_data.back().first == *p)
-                        m_info_data.pop_back();
+                    while (!m_pre_info_data.empty() && m_pre_info_data.back().eq_pos(p->first, p->second))
+                        m_pre_info_data.pop_back();
                 }
-                m_info_data.push_back(mk_pair(*p, t));
+                m_pre_info_data.push_back(type_info_data(p->first, p->second, t));
             }
         }
     }
@@ -1304,9 +1302,18 @@ public:
     void copy_info_to_manager(substitution s) {
         if (!m_info_manager)
             return;
-        for (auto & p : m_info_data) {
-            p.second = s.instantiate(p.second);
-            m_info_manager->add(std::unique_ptr<info_data>(new type_info_data(p.first.first, p.first.second, p.second)));
+        for (auto & p : m_pre_info_data) {
+            p = type_info_data(p.get_line(), p.get_column(), s.instantiate(p.get_type()));
+        }
+        std::stable_sort(m_pre_info_data.begin(), m_pre_info_data.end());
+        type_info_data prev;
+        bool first = true;
+        for (auto const & p : m_pre_info_data) {
+            if (first || !p.eq_pos(prev.get_line(), prev.get_column())) {
+                m_info_manager->add(std::unique_ptr<info_data>(new type_info_data(p)));
+                prev  = p;
+                first = false;
+            }
         }
     }
 

@@ -1179,7 +1179,7 @@ void parser::save_snapshot() {
 }
 
 void parser::save_overload(expr const & e) {
-    if (!m_info_manager)
+    if (!m_info_manager || !is_choice(e))
         return;
     auto p = pos_of(e);
     m_info_manager->add(std::unique_ptr<info_data>(new overload_info_data(p.first, p.second, e)));

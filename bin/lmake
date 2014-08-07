@@ -137,10 +137,15 @@ def get_target(s):
     oleanfile = get_olean(s)
     return oleanfile if oleanfile is not None else s
 
-def call_makefile(directory, makefile, args):
+def call_makefile(directory, makefile, args, lean_options):
     """ Call makefile with a target generated from a given arg """
     env_copy = os.environ.copy()
     env_copy['LEAN'] = find_lean_exe()
+    lean_options_str = ' '.join(lean_options)
+    if env_copy.get("LEAN_OPTIONS"):
+        env_copy['LEAN_OPTIONS'] = env_copy['LEAN_OPTIONS'] + lean_options_str
+    else:
+        env_copy['LEAN_OPTIONS'] = lean_options_str
     cmd = ["make", "-j"]
     if makefile:
         cmd = cmd + ["--makefile", makefile]
@@ -178,11 +183,12 @@ def main(argv=None):
         if makefile:
             directory = os.path.dirname(makefile)
     if directory or makefile:
-        call_makefile(directory, makefile, args)
-    for arg in args:
-        leanfile = get_lean(arg)
-        if leanfile is not None and os.path.isfile(leanfile):
-            call_lean(leanfile, lean_options)
+        call_makefile(directory, makefile, args, lean_options)
+    else:
+        for arg in args:
+            leanfile = get_lean(arg)
+            if leanfile and os.path.isfile(leanfile):
+                call_lean(leanfile, lean_options)
 
 if __name__ == "__main__":
     sys.exit(main())

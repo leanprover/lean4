@@ -136,10 +136,16 @@ struct inductive_cmd_fn {
         expr type;
         buffer<expr> ps;
         m_pos = m_p.pos();
-        if (!m_p.curr_is_token(g_colon)) {
+        if (m_p.curr_is_token(g_assign)) {
+            type = mk_sort(mk_level_placeholder());
+        } else if (!m_p.curr_is_token(g_colon)) {
             m_p.parse_binders(ps);
-            m_p.check_token_next(g_colon, "invalid inductive declaration, ':' expected");
-            type = m_p.parse_scoped_expr(ps);
+            if (m_p.curr_is_token(g_colon)) {
+                m_p.next();
+                type = m_p.parse_scoped_expr(ps);
+            } else {
+                type = mk_sort(mk_level_placeholder());
+            }
             type = Pi(ps, type, m_p);
         } else {
             m_p.next();

@@ -89,8 +89,8 @@ def find_lean_exe():
     return False
 
 def find_lean_opt():
-    """ Return a list of lean options from env_var LEAN_OPTION"""
-    lean_opt = os.environ.get('LEAN_OPTION')
+    """ Return a list of lean options from env_var LEAN_OPTIONS """
+    lean_opt = os.environ.get('LEAN_OPTIONS')
     return string.split(lean_opt) if lean_opt is not None else []
 
 def call_lean(leanfile, options):

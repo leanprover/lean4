@@ -3,10 +3,10 @@ t10.lean:14:6: error: type mismatch at application
   ite (and p q) q
 term
   q
-is expected of type
-  N
-but is given type
+has type
   B
+but is expected to have type
+  N
 cons x (cons y (cons z (cons x (cons y (cons y nil))))) : list
 cons x nil : list
 nil : list

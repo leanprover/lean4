@@ -496,10 +496,10 @@ struct unifier_fn {
                 }
                 format expected_fmt, given_fmt;
                 std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, m_type, v_type);
-                r += compose(line(), format("placeholder is expected of type"));
-                r += expected_fmt;
-                r += compose(line(), format("but is given type"));
+                r += compose(line(), format("placeholder has type"));
                 r += given_fmt;
+                r += compose(line(), format("but is expected to have type"));
+                r += expected_fmt;
                 r += compose(line(), format("the assignment was attempted when trying to solve"));
                 r += nest(2*get_pp_indent(fmt.get_options()), compose(line(), j.pp(fmt, nullptr, subst)));
                 return r;

@@ -3,7 +3,7 @@ crash.lean:8:12: error: type mismatch at application
   ?M_1
 term
   H
-is expected of type
-  not P
-but is given type
+has type
   P
+but is expected to have type
+  not P

@@ -55,10 +55,10 @@ format pp_app_type_mismatch(formatter const & fmt, expr const & app, expr const 
     r += pp_indent_expr(fmt, app);
     r += compose(line(), format("term"));
     r += pp_indent_expr(fmt, arg);
-    r += compose(line(), format("is expected of type"));
-    r += expected_fmt;
-    r += compose(line(), format("but is given type"));
+    r += compose(line(), format("has type"));
     r += given_fmt;
+    r += compose(line(), format("but is expected to have type"));
+    r += expected_fmt;
     return r;
 }
 
@@ -67,10 +67,10 @@ format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & 
     std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
     format r("type mismatch at definition '");
     r += format(n);
-    r += format("', it is expected of type");
-    r += expected_fmt;
-    r += compose(line(), format("but is given type"));
+    r += format("', has type");
     r += given_fmt;
+    r += compose(line(), format("but is expected to have type"));
+    r += expected_fmt;
     return r;
 }
 

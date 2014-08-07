@@ -1,9 +1,9 @@
 empty.lean:5:25: error: type error in placeholder assigned to
   inhabited_Prop
-placeholder is expected of type
-  inhabited ?M_1
-but is given type
+placeholder has type
   inhabited Prop
+but is expected to have type
+  inhabited ?M_1
 the assignment was attempted when trying to solve
     failed to synthesize placeholder
      ⊢ inhabited Empty

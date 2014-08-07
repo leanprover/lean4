@@ -38,14 +38,6 @@ written."
   :group 'lean
   :type 'boolean)
 
-(and lean-delete-trailing-whitespace
-     (cond
-      ; If white-space-cleanup-mode exists, use it
-      (((fboundp whitespace-cleanup-mode)
-        (add-hook 'lean-mode-hook 'whitespace-cleanup-mode))
-       ; Otherwise
-       (t (add-hook 'write-file-functions 'whitespace-cleanup)))))
-
 (defcustom lean-rule-column 100
   "Specify rule-column."
   :group 'lean

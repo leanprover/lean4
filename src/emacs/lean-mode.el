@@ -4,6 +4,7 @@
 ;; Author: Leonardo de Moura
 ;;         Soonho Kong
 ;;
+(require 'cl-lib)
 (require 'generic-x)
 (require 'compile)
 (require 'flymake)
@@ -82,7 +83,7 @@
       (abbrev-mode 1)
       (when (and lean-rule-column
                  lean-show-rule-column-method)
-        (case lean-show-rule-column-method
+        (cl-case lean-show-rule-column-method
           ('vline (setq fci-rule-column lean-rule-column)
                   (add-hook 'lean-mode-hook 'fci-mode))))
       (if lean-delete-trailing-whitespace

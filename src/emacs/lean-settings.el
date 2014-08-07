@@ -4,10 +4,12 @@
 ;; Author: Soonho Kong
 ;;
 
+(require 'cl-lib)
+
 (defgroup lean nil "Lean mode" :prefix 'lean :group 'languages)
 
 (defvar lean-default-executable-name
-  (case system-type
+  (cl-case system-type
     ('gnu          "lean")
     ('gnu/linux    "lean")
     ('gnu/kfreebsd "lean")
@@ -16,20 +18,17 @@
     ('windows-nt   "lean.exe")
     ('cygwin       "lean.exe") ;; TODO(soonhok): check this
     )
-  "Default executable name of Lean"
-  )
+  "Default executable name of Lean")
 
 (defcustom lean-rootdir nil
   "Full pathname of lean root directory. It should be defined by user."
   :group 'lean
-  :type 'string
-  )
+  :type 'string)
 
 (defcustom lean-executable-name lean-default-executable-name
   "Name of lean executable"
   :group 'lean
-  :type 'string
-  )
+  :type 'string)
 
 (defcustom lean-delete-trailing-whitespace nil
   "Set this variable to true to automatically delete trailing

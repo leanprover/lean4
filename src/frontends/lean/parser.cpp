@@ -507,8 +507,10 @@ std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e, li
     bool relax            = true;
     bool check_unassigned = false;
     bool ensure_type      = false;
-    return ::lean::elaborate(m_env, m_local_level_decls, ctx, m_ios, e, relax, &pp, check_unassigned, ensure_type,
-                             m_info_manager);
+    auto r = ::lean::elaborate(m_env, m_local_level_decls, ctx, m_ios, e, relax, &pp, check_unassigned, ensure_type,
+                               m_info_manager);
+    m_pre_info_data.clear();
+    return r;
 }
 
 std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<expr> const & ctx) {
@@ -516,25 +518,33 @@ std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<
     bool relax            = false;
     bool check_unassigned = true;
     bool ensure_type      = true;
-    return ::lean::elaborate(m_env, m_local_level_decls, ctx, m_ios, e, relax, &pp, check_unassigned, ensure_type,
-                             m_info_manager);
+    auto r = ::lean::elaborate(m_env, m_local_level_decls, ctx, m_ios, e, relax, &pp, check_unassigned, ensure_type,
+                               m_info_manager);
+    m_pre_info_data.clear();
+    return r;
 }
 
 std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env, expr const & e) {
     parser_pos_provider pp = get_pos_provider();
     bool relax            = false;
-    return ::lean::elaborate(env, m_local_level_decls, list<expr>(), m_ios, e, relax, &pp, m_info_manager);
+    auto r = ::lean::elaborate(env, m_local_level_decls, list<expr>(), m_ios, e, relax, &pp, m_info_manager);
+    m_pre_info_data.clear();
+    return r;
 }
 
 std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name const & n, expr const & t, expr const & v, bool is_opaque) {
     parser_pos_provider pp = get_pos_provider();
-    return ::lean::elaborate(m_env, m_local_level_decls, m_ios, n, t, v, is_opaque, &pp, m_info_manager);
+    auto r = ::lean::elaborate(m_env, m_local_level_decls, m_ios, n, t, v, is_opaque, &pp, m_info_manager);
+    m_pre_info_data.clear();
+    return r;
 }
 
 std::tuple<expr, expr, level_param_names> parser::elaborate_definition_at(environment const & env, local_level_decls const & lls,
                                                                           name const & n, expr const & t, expr const & v, bool is_opaque) {
     parser_pos_provider pp = get_pos_provider();
-    return ::lean::elaborate(env, lls, m_ios, n, t, v, is_opaque, &pp, m_info_manager);
+    auto r = ::lean::elaborate(env, lls, m_ios, n, t, v, is_opaque, &pp, m_info_manager);
+    m_pre_info_data.clear();
+    return r;
 }
 
 [[ noreturn ]] void throw_invalid_open_binder(pos_info const & pos) {
@@ -842,6 +852,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
     }
     expr r = save_pos(mk_choice(cs.size(), cs.data()), p);
     save_overload(r);
+    save_type_info(r);
     return r;
 }
 
@@ -870,18 +881,26 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
 
     if (id.is_atomic()) {
         // locals
-        if (auto it1 = m_local_decls.find(id))
-            return copy_with_new_pos(propagate_levels(*it1, ls), p);
+        if (auto it1 = m_local_decls.find(id)) {
+            auto r = copy_with_new_pos(propagate_levels(*it1, ls), p);
+            save_type_info(r);
+            return r;
+        }
     } else {
         lean_assert(!id.is_atomic());
         name new_id = remove_root_prefix(id);
         if (m_env.find(new_id)) {
-            return save_pos(mk_constant(new_id, ls), p);
+            auto r = save_pos(mk_constant(new_id, ls), p);
+            save_type_info(r);
+            return r;
         } else {
             for (name const & ns : get_namespaces(m_env)) {
                 auto new_id = ns + id;
-                if (m_env.find(new_id))
-                    return save_pos(mk_constant(new_id, ls), p);
+                if (m_env.find(new_id)) {
+                    auto r = save_pos(mk_constant(new_id, ls), p);
+                    save_type_info(r);
+                    return r;
+                }
             }
         }
     }
@@ -906,6 +925,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
     if (!r)
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
+    save_type_info(*r);
     return *r;
 }
 
@@ -1176,6 +1196,11 @@ void parser::save_snapshot() {
         return;
     if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
         m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls, m_ios.get_options(), m_scanner.get_line()));
+    // if elaborator failed, then m_pre_info_data contains type information before elaboration.
+    if (m_info_manager) {
+        m_info_manager->append(m_pre_info_data, false);
+        m_pre_info_data.clear();
+    }
 }
 
 void parser::save_overload(expr const & e) {
@@ -1183,6 +1208,33 @@ void parser::save_overload(expr const & e) {
         return;
     auto p = pos_of(e);
     m_info_manager->add(std::unique_ptr<info_data>(new overload_info_data(p.first, p.second, e)));
+}
+
+void parser::save_type_info(expr const & e) {
+    if (!m_info_manager)
+        return;
+    if (is_explicit(e)) {
+        save_type_info(get_explicit_arg(e));
+    } else if (is_implicit(e)) {
+        save_type_info(get_implicit_arg(e));
+    } else if (is_choice(e)) {
+        for (unsigned i = 0; i < get_num_choices(e); i++)
+            save_type_info(get_choice(e, i));
+    } else if (is_app(e)) {
+        save_type_info(get_app_fn(e));
+    } else if (is_constant(e)) {
+        auto d = m_env.find(const_name(e));
+        if (!d)
+            return;
+        auto p = pos_of(e);
+        m_pre_info_data.push_back(type_info_data(p.first, p.second, d->get_type()));
+    } else if (is_local(e)) {
+        auto p = pos_of(e);
+        expr t = mlocal_type(e);
+        if (is_meta(t))
+            return;
+        m_pre_info_data.push_back(type_info_data(p.first, p.second, t));
+    }
 }
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions,

@@ -88,6 +88,7 @@ class parser {
     // info support
     snapshot_vector *       m_snapshot_vector;
     info_manager *          m_info_manager;
+    std::vector<type_info_data> m_pre_info_data; // type information before elaboration
 
     void display_warning_pos(unsigned line, unsigned pos);
     void display_warning_pos(pos_info p);
@@ -154,6 +155,7 @@ class parser {
 
     void save_snapshot();
     void save_overload(expr const & e);
+    void save_type_info(expr const & e);
 
 public:
     parser(environment const & env, io_state const & ios,

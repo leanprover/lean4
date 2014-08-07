@@ -115,6 +115,20 @@ void info_manager::append(std::vector<std::unique_ptr<info_data>> && v) {
         add_core(std::move(d));
 }
 
+void info_manager::append(std::vector<type_info_data> & v, bool remove_duplicates) {
+    lock_guard<mutex> lc(m_mutex);
+    std::stable_sort(v.begin(), v.end());
+    type_info_data prev;
+    bool first = true;
+    for (auto const & p : v) {
+        if (!remove_duplicates || first || !p.eq_pos(prev.get_line(), prev.get_column())) {
+            add_core(std::unique_ptr<info_data>(new type_info_data(p)));
+            prev  = p;
+            first = false;
+        }
+    }
+}
+
 void info_manager::sort() {
     lock_guard<mutex> lc(m_mutex);
     sort_core();

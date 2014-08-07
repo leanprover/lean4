@@ -62,6 +62,7 @@ public:
     void invalidate(unsigned sline);
     void add(std::unique_ptr<info_data> && d);
     void append(std::vector<std::unique_ptr<info_data>> && v);
+    void append(std::vector<type_info_data> & v, bool remove_duplicates = true);
     void sort();
     void display(io_state_stream const & ios, unsigned line);
 };

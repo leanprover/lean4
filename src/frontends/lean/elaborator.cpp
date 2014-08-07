@@ -1302,19 +1302,9 @@ public:
     void copy_info_to_manager(substitution s) {
         if (!m_info_manager)
             return;
-        for (auto & p : m_pre_info_data) {
+        for (auto & p : m_pre_info_data)
             p = type_info_data(p.get_line(), p.get_column(), s.instantiate(p.get_type()));
-        }
-        std::stable_sort(m_pre_info_data.begin(), m_pre_info_data.end());
-        type_info_data prev;
-        bool first = true;
-        for (auto const & p : m_pre_info_data) {
-            if (first || !p.eq_pos(prev.get_line(), prev.get_column())) {
-                m_info_manager->add(std::unique_ptr<info_data>(new type_info_data(p)));
-                prev  = p;
-                first = false;
-            }
-        }
+        m_info_manager->append(m_pre_info_data);
     }
 
     std::tuple<expr, level_param_names> operator()(expr const & e, bool _ensure_type, bool relax_main_opaque) {

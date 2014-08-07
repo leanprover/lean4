@@ -30,7 +30,7 @@
   :group 'lean
   :type 'string)
 
-(defcustom lean-use-flycheck t
+(defcustom lean-flycheck-use t
   "Use flycheck for lean."
   :group 'lean
   :type 'boolean)

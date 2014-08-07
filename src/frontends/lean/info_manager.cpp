@@ -98,7 +98,7 @@ void info_manager::add_core(std::unique_ptr<info_data> && d) {
         m_sorted_upto = 1;
     } else if (m_sorted_upto == m_data.size() && *m_data.back() < *d) {
         m_sorted_upto++;
-    } else if (m_sorted_upto > 0 && *d < *m_data[m_sorted_upto]) {
+    } else if (m_sorted_upto > 0 && *d < *m_data[m_sorted_upto-1]) {
         m_sorted_upto = find(d->get_line(), d->get_column());
     }
     m_data.push_back(std::move(d));

@@ -11,12 +11,14 @@ Author: Leonardo de Moura
 #include "kernel/metavar.h"
 #include "library/io_state.h"
 #include "frontends/lean/local_decls.h"
+#include "frontends/lean/info_manager.h"
 
 namespace lean {
 std::tuple<expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, list<expr> const & ctx,
                                               io_state const & ios, expr const & e, bool relax_main_opaque,
-                                              pos_info_provider * pp = nullptr, bool check_unassigned = true, bool ensure_type = false);
+                                              pos_info_provider * pp = nullptr, bool check_unassigned = true,
+                                              bool ensure_type = false, info_manager * info = nullptr);
 std::tuple<expr, expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls,
                                                     io_state const & ios, name const & n, expr const & t, expr const & v,
-                                                    bool is_opaque, pos_info_provider * pp = nullptr);
+                                                    bool is_opaque, pos_info_provider * pp = nullptr, info_manager * info = nullptr);
 }

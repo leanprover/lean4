@@ -17,6 +17,7 @@ class info_data {
     unsigned m_column;
 public:
     info_data(unsigned l, unsigned c):m_line(l), m_column(c) {}
+    virtual ~info_data() {}
     unsigned get_line() const { return m_line; }
     unsigned get_column() const { return m_column; }
     virtual void display(io_state_stream const & ios) const = 0;

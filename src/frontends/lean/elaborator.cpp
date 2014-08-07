@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/class.h"
 #include "frontends/lean/tactic_hint.h"
+#include "frontends/lean/info_manager.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
@@ -120,16 +121,7 @@ public:
     expr operator()(expr const & e) { return apply(e); }
 };
 
-typedef std::pair<pos_info, expr> flyinfo_data;
-
-struct flyinfo_data_lt {
-    bool operator()(flyinfo_data const & d1, flyinfo_data const & d2) const {
-        if (d1.first.first != d2.first.first)
-            return d1.first.first < d2.first.first;
-        else
-            return d1.first.second < d2.first.second;
-    }
-};
+typedef std::pair<pos_info, expr> pre_info_data;
 
 /** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
 list<expr> get_local_instances(list<expr> const & ctx, name const & cls_name) {
@@ -317,8 +309,8 @@ class elaborator {
     bool                m_check_unassigned; // if true if display error messages if elaborated term still contains metavariables
     bool                m_use_local_instances; // if true class-instance resolution will use the local context
     bool                m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent
-    bool                m_flyinfo;
-    std::vector<flyinfo_data> m_flyinfo_data;
+    info_manager *      m_info_manager;
+    std::vector<pre_info_data> m_info_data;
 
     struct scope_ctx {
         context::scope m_scope1;
@@ -536,18 +528,18 @@ class elaborator {
 
 public:
     elaborator(environment const & env, local_decls<level> const & lls, list<expr> const & ctx, io_state const & ios, name_generator const & ngen,
-               pos_info_provider * pp, bool check_unassigned):
+               pos_info_provider * pp, bool check_unassigned, info_manager * info):
         m_env(env), m_lls(lls), m_ios(ios),
         m_ngen(ngen),
         m_context(m_ngen, m_mvar2meta, ctx),
         m_full_context(m_ngen, m_mvar2meta, ctx),
-        m_pos_provider(pp) {
+        m_pos_provider(pp),
+        m_info_manager(info) {
         m_relax_main_opaque = false;
         m_tc[0] = mk_type_checker_with_hints(env, m_ngen.mk_child(), false);
         m_tc[1] = mk_type_checker_with_hints(env, m_ngen.mk_child(), true);
         m_check_unassigned = check_unassigned;
         m_use_local_instances = get_elaborator_local_instances(ios.get_options());
-        m_flyinfo = ios.get_options().get_bool("flyinfo", false);
     }
 
     expr mk_local(name const & n, expr const & t, binder_info const & bi) {
@@ -898,8 +890,8 @@ public:
                 first        = false;
             }
             if (!first) {
-                // we save the flyinfo data again for application of functions with strict implicit arguments
-                replace_flyinfo_data(get_app_fn(e), f);
+                // we save the info data again for application of functions with strict implicit arguments
+                replace_info_data(get_app_fn(e), f);
             }
         }
         expr d_type = binding_domain(f_type);
@@ -949,27 +941,27 @@ public:
         }
     }
 
-    /** \brief Store the pair (pos(e), type(r)) in the flyinfo_data if m_flyinfo is true. */
-    void save_flyinfo_data_core(expr const & e, expr const & r, bool replace) {
-        if (m_flyinfo && m_pos_provider && (is_constant(e) || is_local(e) || is_placeholder(e))) {
+    /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
+    void save_info_data_core(expr const & e, expr const & r, bool replace) {
+        if (m_info_manager && m_pos_provider && (is_constant(e) || is_local(e) || is_placeholder(e))) {
             if (auto p = m_pos_provider->get_pos_info(e)) {
                 type_checker::scope scope(*m_tc[m_relax_main_opaque]);
                 expr t = m_tc[m_relax_main_opaque]->infer(r);
                 if (replace) {
-                    while (!m_flyinfo_data.empty() && m_flyinfo_data.back().first == *p)
-                        m_flyinfo_data.pop_back();
+                    while (!m_info_data.empty() && m_info_data.back().first == *p)
+                        m_info_data.pop_back();
                 }
-                m_flyinfo_data.push_back(mk_pair(*p, t));
+                m_info_data.push_back(mk_pair(*p, t));
             }
         }
     }
 
-    void save_flyinfo_data(expr const & e, expr const & r) {
-        save_flyinfo_data_core(e, r, false);
+    void save_info_data(expr const & e, expr const & r) {
+        save_info_data_core(e, r, false);
     }
 
-    void replace_flyinfo_data(expr const & e, expr const & r) {
-        save_flyinfo_data_core(e, r, true);
+    void replace_info_data(expr const & e, expr const & r) {
+        save_info_data_core(e, r, true);
     }
 
     expr visit_constant(expr const & e) {
@@ -1127,7 +1119,7 @@ public:
                 }
             }
         }
-        save_flyinfo_data(b, r);
+        save_info_data(b, r);
         return r;
     }
 
@@ -1309,30 +1301,12 @@ public:
         return std::make_tuple(r, to_list(new_ps.begin(), new_ps.end()));
     }
 
-    void instantiate_flyinfo(substitution s) {
-        for (auto & p : m_flyinfo_data) {
+    void copy_info_to_manager(substitution s) {
+        if (!m_info_manager)
+            return;
+        for (auto & p : m_info_data) {
             p.second = s.instantiate(p.second);
-        }
-        std::stable_sort(m_flyinfo_data.begin(), m_flyinfo_data.end(), flyinfo_data_lt());
-    }
-
-    void display_flyinfo_data(flyinfo_data const & p) {
-        auto out = regular(m_env, m_ios);
-        flyinfo_scope info(out);
-        out << m_pos_provider->get_file_name() << ":" << p.first.first << ":" << p.first.second+1
-            << ": type\n" << p.second << endl;
-    }
-
-    void display_flyinfo(substitution const & s) {
-        instantiate_flyinfo(s);
-        flyinfo_data prev;
-        bool first = true;
-        for (auto const & p : m_flyinfo_data) {
-            if (first || p.first != prev.first) {
-                display_flyinfo_data(p);
-                prev = p;
-            }
-            first = false;
+            m_info_manager->add(std::unique_ptr<info_data>(new type_info_data(p.first.first, p.first.second, p.second)));
         }
     }
 
@@ -1345,7 +1319,7 @@ public:
         lean_assert(p);
         substitution s = p->first;
         auto result = apply(s, r);
-        display_flyinfo(s);
+        copy_info_to_manager(s);
         return result;
     }
 
@@ -1368,7 +1342,7 @@ public:
         buffer<name> new_params;
         expr new_r_t = apply(s, r_t, univ_params, new_params);
         expr new_r_v = apply(s, r_v, univ_params, new_params);
-        display_flyinfo(s);
+        copy_info_to_manager(s);
         return std::make_tuple(new_r_t, new_r_v, to_list(new_params.begin(), new_params.end()));
     }
 };
@@ -1377,12 +1351,14 @@ static name g_tmp_prefix = name::mk_internal_unique_name();
 
 std::tuple<expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, list<expr> const & ctx,
                                               io_state const & ios, expr const & e, bool relax_main_opaque,
-                                              pos_info_provider * pp, bool check_unassigned, bool ensure_type) {
-    return elaborator(env, lls, ctx, ios, name_generator(g_tmp_prefix), pp, check_unassigned)(e, ensure_type, relax_main_opaque);
+                                              pos_info_provider * pp, bool check_unassigned, bool ensure_type,
+                                              info_manager * info) {
+    return elaborator(env, lls, ctx, ios, name_generator(g_tmp_prefix), pp, check_unassigned, info)(e, ensure_type, relax_main_opaque);
 }
 
 std::tuple<expr, expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, io_state const & ios,
-                                                    name const & n, expr const & t, expr const & v, bool is_opaque, pos_info_provider * pp) {
-    return elaborator(env, lls, list<expr>(), ios, name_generator(g_tmp_prefix), pp, true)(t, v, n, is_opaque);
+                                                    name const & n, expr const & t, expr const & v, bool is_opaque, pos_info_provider * pp,
+                                                    info_manager * info) {
+    return elaborator(env, lls, list<expr>(), ios, name_generator(g_tmp_prefix), pp, true, info)(t, v, n, is_opaque);
 }
 }

@@ -156,6 +156,7 @@ class parser {
     void save_snapshot();
     void save_overload(expr const & e);
     void save_type_info(expr const & e);
+    void save_pre_info_data();
 
 public:
     parser(environment const & env, io_state const & ios,

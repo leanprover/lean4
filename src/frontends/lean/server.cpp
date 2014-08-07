@@ -84,6 +84,7 @@ void server::read_file(std::string const & fname) {
     if (in.bad() || in.fail()) {
         std::cout << "Error: failed to open file '" << fname << "'";
     } else {
+        m_fname = fname;
         m_lines.clear();
         for (std::string line; std::getline(in, line);) {
             m_lines.push_back(line);

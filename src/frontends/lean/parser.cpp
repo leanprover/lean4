@@ -174,6 +174,7 @@ void parser::throw_nested_exception(exception & ex, pos_info p) {
 }
 
 #define CATCH(ShowError, ThrowError)                    \
+save_pre_info_data();                                   \
 m_found_errors = true;                                  \
 if (!m_use_exceptions && m_show_errors) { ShowError ; } \
 sync();                                                 \
@@ -192,6 +193,7 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
         CATCH(display_error(ex.what(), ex.m_pos),
               throw_parser_exception(ex.what(), ex.m_pos));
     } catch (interrupted & ex) {
+        save_pre_info_data();
         reset_interrupt();
         if (m_verbose)
             regular_stream() << "!!!Interrupted!!!" << endl;
@@ -1165,6 +1167,7 @@ bool parser::parse_commands() {
                         break;
                     case scanner::token_kind::ScriptBlock:
                         parse_script();
+                        save_snapshot();
                         break;
                     case scanner::token_kind::Eof:
                         done = true;
@@ -1192,10 +1195,14 @@ void parser::add_delayed_theorem(environment const & env, name const & n, level_
 }
 
 void parser::save_snapshot() {
+    m_pre_info_data.clear();
     if (!m_snapshot_vector)
         return;
     if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
         m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls, m_ios.get_options(), m_scanner.get_line()));
+}
+
+void parser::save_pre_info_data() {
     // if elaborator failed, then m_pre_info_data contains type information before elaboration.
     if (m_info_manager) {
         m_info_manager->append(m_pre_info_data, false);

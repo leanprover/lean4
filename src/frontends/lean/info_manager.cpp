@@ -54,7 +54,8 @@ info_manager::info_manager():m_sorted_upto(0) {}
 void info_manager::sort_core() {
     if (m_sorted_upto == m_data.size())
         return;
-    std::stable_sort(m_data.begin() + m_sorted_upto, m_data.end());
+    std::stable_sort(m_data.begin() + m_sorted_upto, m_data.end(),
+                     [](std::unique_ptr<info_data> const & i1, std::unique_ptr<info_data> const & i2) { return *i1 < *i2; });
     m_sorted_upto = m_data.size();
 }
 
@@ -90,7 +91,8 @@ void info_manager::invalidate(unsigned sline) {
     sort_core();
     unsigned i = find(sline, 0);
     m_data.resize(i);
-    m_sorted_upto = m_data.size();
+    if (m_data.size() < m_sorted_upto)
+        m_sorted_upto = m_data.size();
 }
 
 void info_manager::add_core(std::unique_ptr<info_data> && d) {

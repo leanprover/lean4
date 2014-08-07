@@ -440,7 +440,7 @@ public:
                 switch (k) {
                 case LL_ANON:          return name();
                 case LL_STRING:        return name(d.read_string().c_str());
-                case LL_INT:           return name(name(), d.read_unsigned());
+                case LL_INT:           return name(name(), d.read_unsigned(), true);
                 case LL_STRING_PREFIX: {
                     name prefix = read();
                     return name(prefix, d.read_string().c_str());

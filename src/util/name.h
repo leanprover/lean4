@@ -26,6 +26,7 @@ public:
     struct imp;
 private:
     friend int cmp(imp * i1, imp * i2);
+    friend class name_deserializer;
     imp * m_ptr;
     explicit name(imp * p);
     explicit name(unsigned k);

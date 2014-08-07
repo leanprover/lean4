@@ -184,7 +184,7 @@ auto pretty_fn::pp_const(expr const & e) -> result {
             for (name const & ns : get_namespaces(m_env)) {
                 if (!ns.is_anonymous()) {
                     name new_n = n.replace_prefix(ns, name());
-                    if (new_n != n) {
+                    if (new_n != n && !new_n.is_anonymous()) {
                         n = new_n;
                         break;
                     }

@@ -188,7 +188,8 @@ environment add_aliases(environment const & env, name const & prefix, name const
     env.for_each_declaration([&](declaration const & d) {
             if (is_prefix_of(prefix, d.get_name()) && !is_exception(d.get_name(), prefix, num_exceptions, exceptions)) {
                 name a        = d.get_name().replace_prefix(prefix, new_prefix);
-                ext.add_expr_alias(a, d.get_name());
+                if (!a.is_anonymous())
+                    ext.add_expr_alias(a, d.get_name());
             }
         });
     env.for_each_universe([&](name const & u) {
@@ -196,7 +197,8 @@ environment add_aliases(environment const & env, name const & prefix, name const
                 name a = u.replace_prefix(prefix, new_prefix);
                 if (env.is_universe(a))
                     throw exception(sstream() << "universe level alias '" << a << "' shadows existing global universe level");
-                ext.add_level_alias(a, u);
+                if (!a.is_anonymous())
+                    ext.add_level_alias(a, u);
             }
         });
     return update(env, ext);

@@ -15,4 +15,4 @@ infixr `+`:25 := sum
 
 theorem induction_on {A : Type} {B : Type} {C : Prop} (s : A + B) (H1 : A → C) (H2 : B → C) : C :=
 sum_rec H1 H2 s
-end
+end sum

@@ -4,7 +4,7 @@ namespace foo
   variable a : A
   variable x : A
   variable c : A
-end
+end foo
 
 section
   using foo (renaming a->b x->y) (hiding c)
@@ -34,7 +34,7 @@ end
 namespace foo
   variable f : A → A → A
   infix `*`:75 := f
-end
+end foo
 
 section
   using foo

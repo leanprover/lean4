@@ -35,7 +35,7 @@ namespace eq_proofs
   postfix `⁻¹`:100 := symm
   infixr `⬝`:75     := trans
   infixr `▸`:75    := subst
-end
+end eq_proofs
 using eq_proofs
 
 theorem congr1 {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a :=

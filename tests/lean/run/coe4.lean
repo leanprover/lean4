@@ -31,4 +31,4 @@ namespace setoid
 
   check morphism2
   check mk_morphism2
-end
+end setoid

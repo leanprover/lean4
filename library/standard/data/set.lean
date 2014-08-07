@@ -61,4 +61,4 @@ theorem union_assoc (A B C : set T) : (A ∪ B) ∪ C = A ∪ (B ∪ C) :=
 funext (λx, bor_assoc (A x) (B x) (C x))
 
 end
-end
+end set

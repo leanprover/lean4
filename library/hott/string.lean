@@ -10,4 +10,4 @@ inductive char : Type :=
 inductive string : Type :=
 | empty : string
 | str   : char → string → string
-end
+end string

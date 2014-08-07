@@ -44,4 +44,4 @@ theorem congr_and_comp [instance] {T : Type} {R : T → T → Prop} {f1 f2 : T �
      (C1 : struc R iff f1) (C2 : struc R iff f2) :
    congr.struc R iff (λx, f1 x ∧ f2 x) := congr.compose21 congr_and C1 C2
 
-end
+end congr

@@ -24,3 +24,5 @@ simplifies_to_rec (λx, x) C
 theorem simp_app [instance] (S T : Type) (f1 f2 : S → T) (s1 s2 : S)
    (C1 : simplifies_to f1 f2) (C2 : simplifies_to s1 s2) : simplifies_to (f1 s1) (f2 s2) :=
 mk (congr (get_eq C1) (get_eq C2))
+
+end simp

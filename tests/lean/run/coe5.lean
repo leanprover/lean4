@@ -37,4 +37,4 @@ namespace setoid
 
   check my_struct
   definition tst2 : Type.{4} := my_struct.{1 2}
-end
+end setoid

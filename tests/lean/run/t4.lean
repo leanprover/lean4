@@ -1,7 +1,7 @@
 namespace foo
   definition f.{l} (A : Type.{l}) : Type.{l} := A
   check f.{1}
-end
+end foo
 
 variable N : Type.{1}
 section

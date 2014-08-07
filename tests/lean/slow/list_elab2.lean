@@ -188,46 +188,6 @@ list_induction_on l
       append x (y :: l') = (y :: l') ++ [ x ] : append_eq_concat _ _
         ... = concat (reverse (reverse (y :: l'))) [ x ] : {symm (reverse_reverse _)}
 	... = reverse (x :: (reverse (y :: l'))) : refl _)
+end
+end list
 
-exit
--- Head and tail
--- -------------
-
-definition head (x0 : T) : list T → T := list_rec x0 (fun x l h, x)
-
-theorem head_nil (x0 : T) : head x0 (@nil T) = x0 := refl _
-
-theorem head_cons (x : T) (x0 : T) (t : list T) : head x0 (x :: t) = x := refl _
-
-theorem head_concat (s t : list T) (x0 : T) : s ≠ nil → (head x0 (s ++ t) = head x0 s) :=
-list_cases_on s
-  (take H : nil ≠ nil, absurd_elim (head x0 (concat nil t) = head x0 nil) (refl nil) H)
-  (take x s,
-    take H : cons x s ≠ nil,
-    calc
-      head x0 (concat (cons x s) t) = head x0 (cons x (concat s t)) : {cons_concat _ _ _}
-        ... = x : {head_cons _ _ _}
-        ... = head x0 (cons x s) : {symm ( head_cons x x0 s)})
-
-definition tail : list T → list T := list_rec nil (fun x l b, l)
-
-theorem tail_nil : tail (@nil T) = nil := refl _
-
-theorem tail_cons (x : T) (l : list T) : tail (cons x l) = l := refl _
-
-theorem cons_head_tail (x0 : T) (l : list T) : l ≠ nil → (head x0 l) :: (tail l) = l :=
-list_cases_on l
-  (assume H : nil ≠ nil, absurd_elim _ (refl _) H)
-  (take x l, assume H : cons x l ≠ nil, refl _)
-
-
--- List membership
--- ---------------
-
-definition mem (x : T) : list T → Prop := list_rec false (fun y l H, x = y ∨ H)
-
-infix `∈` : 50 := mem
-
-theorem mem_nil (x : T) : mem x nil ↔ false := iff_refl _
-
-theorem mem_cons (x : T) (y : T) (l : list T) : mem x (cons y l) ↔ (x = y ∨ mem x l) := iff_refl _

@@ -13,8 +13,8 @@ namespace N1
     check N1.N2.foo
     print raw foo
     print raw _root_.foo
-  end
-end
+  end N2
+end N1
 
 
 

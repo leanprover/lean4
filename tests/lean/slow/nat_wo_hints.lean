@@ -23,7 +23,7 @@ definition to_nat [coercion] [inline] (n : num) : ℕ
 namespace helper_tactics
   definition apply_refl := apply @refl
   tactic_hint apply_refl
-end
+end helper_tactics
 using helper_tactics
 
 theorem nat_rec_zero {P : ℕ → Type} (x : P 0) (f : ∀m, P m → P (succ m)) : nat_rec x f 0 = x
@@ -1418,4 +1418,7 @@ theorem dist_eq_intro {n m k l : ℕ} (H : n + m = k + l) : dist n k = dist l m
     dist n k = dist (n + m) (k + m) : symm (dist_add_right n m k)
       ... = dist (k + l) (k + m) : {H}
       ... = dist l m : dist_add_left k l m
-end --namespace nat
+
+
+
+end nat

@@ -87,4 +87,4 @@ rec_on Ha
 theorem decidable_eq_equiv {a b : Prop} (Ha : decidable a) (H : a = b) : decidable b :=
 decidable_iff_equiv Ha (eq_to_iff H)
 
-end
+end decidable

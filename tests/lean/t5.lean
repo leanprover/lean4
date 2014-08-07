@@ -8,6 +8,6 @@ namespace foo
   check h
   definition q [private] : N := f a
   check q
-end
+end foo
 check foo.h
 check q -- Error q is now hidden

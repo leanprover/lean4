@@ -51,4 +51,4 @@ notation `?` t:max     := try t
 definition repeat1     (t : tactic) : tactic := t ; !t
 definition focus       (t : tactic) : tactic := focus_at t 0
 definition determ      (t : tactic) : tactic := at_most t 1
-end
+end tactic

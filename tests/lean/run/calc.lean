@@ -6,7 +6,7 @@ namespace foo
   axiom le_trans {a b c : num} : le a b → le b c → le a c
   calc_trans le_trans
   infix `≤`:50 := le
-end
+end foo
 
 namespace foo
   theorem T {a b c d : num} : a ≤ b → b ≤ c → c ≤ d → a ≤ d
@@ -14,4 +14,4 @@ namespace foo
      calc a  ≤ b : H1
          ... ≤ c : H2
          ... ≤ d : H3
-end
+end foo

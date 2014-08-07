@@ -17,4 +17,4 @@ namespace setoid
   inductive morphism (s1 s2 : setoid) : Type :=
   | mk_morphism : Π (f : s1 → s2), (∀ x y, x ≈ y → f x ≈ f y) → morphism s1 s2
 
-end
+end setoid

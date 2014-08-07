@@ -12,7 +12,7 @@ using decidable (hiding induction_on rec_on)
 namespace helper_tactics
   definition apply_refl := apply @refl
   tactic_hint apply_refl
-end
+end helper_tactics
 using helper_tactics
 
 

@@ -4,8 +4,8 @@ namespace foo
   namespace tst
     variable N : Type.{3}
     print raw N
-  end
-end
+  end tst
+end foo
 print raw N
 namespace foo
   print raw N
@@ -15,5 +15,5 @@ namespace foo
       variable N : Type.{4} -- Shadow previous ones.
       print raw N
     end
-  end
-end
+  end tst
+end  foo

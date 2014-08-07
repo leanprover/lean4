@@ -36,4 +36,4 @@ section
       ...   = a*(c*b) : {H_comm _ _}
       ...   = (a*c)*b : (H_assoc _ _ _)⁻¹
 end
-end
+end binary

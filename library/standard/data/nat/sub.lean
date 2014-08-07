@@ -508,6 +508,4 @@ or_elim (le_total k l)
   (assume H : k ≤ l, dist_comm l k ▸ dist_comm _ _ ▸ aux l k H)
   (assume H : l ≤ k, aux k l H)
 
-opaque_hint (hiding dist)
-
-end -- namespace nat
+end nat

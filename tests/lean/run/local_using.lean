@@ -5,13 +5,13 @@ namespace foo
   variable a : N
   variable f : N → N → N
   infix + := f
-end
+end foo
 
 namespace bla
   variable b : N
   variable f : N → N → N
   infix + := f
-end
+end bla
 
 variable g : N → N → N
 

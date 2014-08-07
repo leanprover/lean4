@@ -3,8 +3,8 @@ import standard
 namespace foo
 namespace boo
 theorem tst : true := trivial
-end
-end
+end boo
+end foo
 
 using foo
 check boo.tst

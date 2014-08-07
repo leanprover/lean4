@@ -4,7 +4,7 @@ namespace nat
   variable nat : Type.{1}
   variable add : nat → nat → nat
   infixl + := add
-end
+end nat
 
 namespace int
   using nat (nat)
@@ -12,11 +12,11 @@ namespace int
   variable add : int → int → int
   infixl + := add
   variable of_nat : nat → int
-end
+end int
 
 namespace int_coercions
   coercion int.of_nat
-end
+end int_coercions
 
 -- Using "only" the notation and declarations from the namespaces nat and int
 using nat

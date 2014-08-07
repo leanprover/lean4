@@ -27,4 +27,5 @@ equivalence_rec (λ r s t, s) H
 
 theorem equivalence_transitive [instance] {A : Type} {p : A → A → Prop} (H : equivalence p) : transitive p :=
 equivalence_rec (λ r s t, t) H
-end
+
+end equivalence

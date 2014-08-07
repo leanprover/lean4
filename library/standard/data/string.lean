@@ -21,4 +21,4 @@ inhabited_intro (ascii ff ff ff ff ff ff ff ff)
 theorem inhabited_string [instance] : inhabited string :=
 inhabited_intro empty
 
-end
+end string

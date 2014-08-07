@@ -45,4 +45,4 @@ rec_on o₁
     (take a₂ : A, decidable.rec_on (H a₁ a₂)
       (assume Heq : a₁ = a₂, inl (Heq ▸ refl _))
       (assume Hne : a₁ ≠ a₂, inr (assume Hn : some a₁ = some a₂, absurd (some_inj Hn) Hne))))
-end
+end option

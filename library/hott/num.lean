@@ -14,4 +14,4 @@ inductive pos_num : Type :=
 inductive num : Type :=
 | zero  : num
 | pos   : pos_num → num
-end
+end num

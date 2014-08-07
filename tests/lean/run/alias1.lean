@@ -3,12 +3,12 @@ import logic
 namespace N1
   variable num : Type.{1}
   variable foo : num → num → num
-end
+end N1
 
 namespace N2
   variable val : Type.{1}
   variable foo : val → val → val
-end
+end N2
 
 using N1
 using N2

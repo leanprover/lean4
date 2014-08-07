@@ -24,4 +24,5 @@ section
 
   theorem compose_const_right (f : B → C) (b : B) : f ∘ (const A b) = const A (f b) :=
   funext (take x, refl _)
-end end
+end
+end function

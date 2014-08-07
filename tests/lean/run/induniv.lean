@@ -17,7 +17,7 @@ inductive tree (A : Type) : Type :=
 with forest (A : Type) : Type :=
 | nil  : forest A
 | cons : tree A → forest A → forest A
-end
+end Tree
 
 inductive group_struct (A : Type) : Type :=
 | mk_group_struct : (A → A → A) → A → group_struct A

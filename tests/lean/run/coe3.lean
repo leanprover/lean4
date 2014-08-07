@@ -27,4 +27,4 @@ namespace setoid
   | mk_morphism2 : Π (f : s1 → s2), (∀ x y, x ≈ y → f x ≈ f y) → morphism2 s1 s2
 
   check mk_morphism2
-end
+end setoid

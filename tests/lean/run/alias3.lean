@@ -10,7 +10,7 @@ namespace N1
     check foo
   end
   check foo
-end
+end N1
 check N1.foo
 
 namespace N2
@@ -22,5 +22,5 @@ namespace N2
     check list
   end
   check list
-end
+end N2
 check N2.list

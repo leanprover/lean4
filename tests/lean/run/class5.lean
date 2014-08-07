@@ -8,7 +8,7 @@ namespace algebra
   := mul_struct_rec (λ f, f) s a b
 
   infixl `*`:75 := mul
-end
+end algebra
 
 namespace nat
   inductive nat : Type :=
@@ -20,7 +20,7 @@ namespace nat
 
   definition mul_struct [instance] : algebra.mul_struct nat
   := algebra.mk_mul_struct mul
-end
+end nat
 
 section
   using algebra nat

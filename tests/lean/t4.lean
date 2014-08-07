@@ -34,17 +34,17 @@ namespace tst
   variable M : Type.{2}
   print raw N -- Two possible interpretations N and tst.N
   print raw tst.N -- Only one interpretation
-end
+end tst
 print raw N -- Only one interpretation
 namespace foo
   variable M : Type.{3}
   print raw M -- Only one interpretation
-end
+end foo
 check tst.M
 check foo.M
 namespace foo
   check M
-end
+end foo
 check M -- Error
 
 print "ok"

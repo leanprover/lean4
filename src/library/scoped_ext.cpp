@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <memory>
 #include <string>
+#include "util/sstream.h"
 #include "library/scoped_ext.h"
 #include "library/kernel_bindings.h"
 
@@ -26,9 +27,10 @@ void register_scoped_ext(name const & c, using_namespace_fn use, push_scope_fn p
 }
 
 struct scope_mng_ext : public environment_extension {
-    name_set   m_namespace_set; // all namespaces registered in the system
-    list<name> m_namespaces; // stack of namespaces/sections
-    list<bool> m_in_section;
+    name_set     m_namespace_set; // all namespaces registered in the system
+    list<name>   m_namespaces;    // stack of namespaces/sections
+    list<name>   m_headers;       // namespace/section header
+    list<bool>   m_in_section;
 };
 
 struct scope_mng_ext_reg {
@@ -80,10 +82,9 @@ optional<name> to_valid_namespace_name(environment const & env, name const & n) 
 }
 
 static std::string g_new_namespace_key("nspace");
-environment push_scope(environment const & env, io_state const & ios, name const & n) {
-    if (!n.is_anonymous() && in_section(env))
+environment push_scope(environment const & env, io_state const & ios, bool add_sec, name const & n) {
+    if (!add_sec && in_section(env))
         throw exception("invalid namespace declaration, a namespace cannot be declared inside a section");
-    bool in_section = n.is_anonymous();
     name new_n = get_namespace(env) + n;
     scope_mng_ext ext = get_extension(env);
     bool save_ns = false;
@@ -92,12 +93,13 @@ environment push_scope(environment const & env, io_state const & ios, name const
         ext.m_namespace_set.insert(new_n);
     }
     ext.m_namespaces = cons(new_n, ext.m_namespaces);
-    ext.m_in_section = cons(n.is_anonymous(), ext.m_in_section);
+    ext.m_headers    = cons(n, ext.m_headers);
+    ext.m_in_section = cons(add_sec, ext.m_in_section);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
-        r = std::get<2>(t)(r, in_section);
+        r = std::get<2>(t)(r, add_sec);
     }
-    if (!n.is_anonymous())
+    if (!add_sec)
         r = using_namespace(r, ios, n);
     if (save_ns)
         r = module::add(r, g_new_namespace_key, [=](serializer & s) { s << new_n; });
@@ -117,12 +119,15 @@ static void namespace_reader(deserializer & d, module_idx, shared_environment &,
 }
 register_module_object_reader_fn g_namespace_reader(g_new_namespace_key, namespace_reader);
 
-environment pop_scope(environment const & env) {
+environment pop_scope(environment const & env, name const & n) {
     scope_mng_ext ext = get_extension(env);
     if (is_nil(ext.m_namespaces))
         throw exception("invalid end of scope, there are no open namespaces/sections");
+    if (n != head(ext.m_headers))
+        throw exception(sstream() << "invalid end of scope, begin/end mistmatch, scope starts with '" << head(ext.m_headers) << "', and ends with '" << n << "'");
     bool in_section  = head(ext.m_in_section);
     ext.m_namespaces = tail(ext.m_namespaces);
+    ext.m_headers    = tail(ext.m_headers);
     ext.m_in_section = tail(ext.m_in_section);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
@@ -146,15 +151,21 @@ static int using_namespace_objects(lua_State * L) {
 static int push_scope(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 1)
-        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L)));
+        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), true));
     else if (nargs == 2)
-        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), to_name_ext(L, 2)));
+        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), false, to_name_ext(L, 2)));
+    else if (nargs == 3)
+        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), lua_toboolean(L, 3), to_name_ext(L, 2)));
     else
-        return push_environment(L, push_scope(to_environment(L, 1), to_io_state(L, 3), to_name_ext(L, 2)));
+        return push_environment(L, push_scope(to_environment(L, 1), to_io_state(L, 4), lua_toboolean(L, 3), to_name_ext(L, 2)));
 }
 
 static int pop_scope(lua_State * L) {
-    return push_environment(L, pop_scope(to_environment(L, 1)));
+    int nargs = lua_gettop(L);
+    if (nargs == 1)
+        return push_environment(L, pop_scope(to_environment(L, 1)));
+    else
+        return push_environment(L, pop_scope(to_environment(L, 1), to_name_ext(L, 2)));
 }
 
 void open_scoped_ext(lua_State * L) {

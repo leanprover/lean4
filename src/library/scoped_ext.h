@@ -23,9 +23,9 @@ void register_scoped_ext(name const & n, using_namespace_fn use, push_scope_fn p
 /** \brief Use objects defined in the namespace \c n, if \c c is not the anonymous name, then only object from "class" \c c are considered. */
 environment using_namespace(environment const & env, io_state const & ios, name const & n, name const & c = name());
 /** \brief Create a new scope, all scoped extensions are notified. */
-environment push_scope(environment const & env, io_state const & ios, name const & n = name());
+environment push_scope(environment const & env, io_state const & ios, bool section, name const & n = name());
 /** \brief Delete the most recent scope, all scoped extensions are notified. */
-environment pop_scope(environment const & env);
+environment pop_scope(environment const & env, name const & n = name());
 
 name const & get_namespace(environment const & env);
 list<name> const & get_namespaces(environment const & env);

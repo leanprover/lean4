@@ -26,4 +26,4 @@ inhabited_intro one
 theorem inhabited_num [instance] : inhabited num :=
 inhabited_intro zero
 
-end
+end num

@@ -11,10 +11,10 @@ namespace foo
   infixl + := add
   infixl * := mul
   check a+b*a
-end
+end foo
 -- Notation is not avaiable outside the namespace
 check a+b*a
 namespace foo
   -- Notation is restored
   check a+b*a
-end
+end foo

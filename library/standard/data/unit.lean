@@ -21,4 +21,4 @@ inhabited_intro ⋆
 
 theorem decidable_eq [instance] (a b : unit) : decidable (a = b) :=
 inl (unit_eq a b)
-end
+end unit

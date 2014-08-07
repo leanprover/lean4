@@ -583,7 +583,4 @@ mul_eq_one_left ((mul_comm n m) ▸ H)
 
 --- theorem mul_eq_one {n m : ℕ} (H : n * m = 1) : n = 1 ∧ m = 1
 --- := and_intro (mul_eq_one_left H) (mul_eq_one_right H)
-
-opaque_hint (hiding lt)
-
-end -- namespace nat
+end nat

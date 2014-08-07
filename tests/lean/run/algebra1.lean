@@ -31,7 +31,7 @@ namespace algebra
   := add_struct_rec (fun f, f) s a b
 
   infixl `+`:65 := add
-end
+end algebra
 
 namespace nat
   inductive nat : Type :=
@@ -50,7 +50,7 @@ namespace nat
   definition to_nat (n : num) : nat
   := #algebra
     num_rec zero (λ n, pos_num_rec (succ zero) (λ n r, r + r) (λ n r, r + r + succ zero) n) n
-end
+end nat
 
 namespace algebra
 namespace semigroup
@@ -74,7 +74,7 @@ namespace semigroup
 
   definition is_semigroup [inline] [instance] (g : semigroup) : semigroup_struct (carrier g)
   := semigroup_rec (fun c s, s) g
-end
+end semigroup
 
 namespace monoid
   check semigroup.mul
@@ -100,8 +100,8 @@ namespace monoid
 
   definition is_monoid [inline] [instance] (m : monoid) : monoid_struct (carrier m)
   := monoid_rec (fun c s, s) m
-end
-end
+end monoid
+end algebra
 
 section
   using algebra algebra.semigroup algebra.monoid

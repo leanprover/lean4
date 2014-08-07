@@ -60,7 +60,7 @@ section
 end
 check @foo.is_proj2.{1}
 check @foo.is_proj3.{1 2}
-end
+end foo
 
 namespace bla
 section
@@ -73,4 +73,4 @@ section
 end
 check @bla.is_proj2.{1 2}
 check @bla.is_proj3.{1 2 3}
-end
+end bla

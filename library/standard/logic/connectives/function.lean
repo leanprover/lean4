@@ -52,4 +52,4 @@ notation f `-[` op `]-` g  := combine f op g
 -- Trick for using any binary function as infix operator
 notation a `⟨` f `⟩` b     :=  f a b
 
-end
+end function

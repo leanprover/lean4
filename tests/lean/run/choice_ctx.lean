@@ -6,7 +6,7 @@ set_option pp.coercion true
 namespace foo
 theorem trans {a b c : nat} (H1 : a = b) (H2 : b = c) : a = c :=
 trans H1 H2
-end
+end foo
 
 using foo
 

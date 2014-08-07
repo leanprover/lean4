@@ -141,4 +141,4 @@ theorem bnot_false : !ff = tt := refl _
 
 theorem bnot_true  : !tt = ff := refl _
 
-end
+end bool

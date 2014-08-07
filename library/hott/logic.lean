@@ -16,7 +16,7 @@ definition transport {A : Type} {a b : A} {P : A → Type} (H1 : a = b) (H2 : P 
 
 namespace logic
   notation p `*(`:75 u `)` := transport p u
-end
+end logic
 using logic
 
 definition symm {A : Type} {a b : A} (p : a = b) : b = a
@@ -32,7 +32,7 @@ calc_trans trans
 namespace logic
   postfix `⁻¹`:100 := symm
   infixr `⬝`:75 := trans
-end
+end logic
 using logic
 
 theorem trans_refl_right {A : Type} {x y : A} (p : x = y) : p = p ⬝ (refl y)
@@ -115,7 +115,7 @@ abbreviation homotopy {A : Type} {P : A → Type} (f g : Π x, P x)
 
 namespace logic
   infix `∼`:50 := homotopy
-end
+end logic
 using logic
 
 notation `assume` binders `,` r:(scoped f, f) := r
@@ -215,7 +215,7 @@ inductive sum (A : Type) (B : Type) : Type :=
 
 namespace logic
   infixr `+`:25 := sum
-end
+end logic
 using logic
 infixr `∨`:25 := sum
 

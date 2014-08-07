@@ -10,7 +10,7 @@ namespace pair
 inductive pair (A : Type) (B : Type) : Type :=
 | mk_pair : A → B → pair A B
 
-section
+section thms
   parameter {A : Type}
   parameter {B : Type}
 
@@ -34,7 +34,7 @@ section
        ... = mk_pair (fst p2) (snd p1) : {H1}
        ... = mk_pair (fst p2) (snd p2) : {H2}
        ... = p2                        : pair_ext p2
-end
+end thms
 
 instance pair_inhabited
 
@@ -43,4 +43,4 @@ infixr × := pair
 
 -- notation for n-ary tuples
 notation `(` h `,` t:(foldl `,` (e r, mk_pair r e) h) `)` := t
-end
+end pair

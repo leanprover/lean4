@@ -63,8 +63,11 @@ environment print_cmd(parser & p) {
 }
 
 environment section_cmd(parser & p) {
+    name n;
+    if (p.curr_is_identifier())
+        n = p.check_atomic_id_next("invalid section, atomic identifier expected");
     p.push_local_scope();
-    return push_scope(p.env(), p.ios());
+    return push_scope(p.env(), p.ios(), true, n);
 }
 
 environment namespace_cmd(parser & p) {
@@ -72,13 +75,18 @@ environment namespace_cmd(parser & p) {
     name n = p.check_atomic_id_next("invalid namespace declaration, atomic identifier expected");
     if (is_root_namespace(n))
         throw parser_error(sstream() << "invalid namespace name, '" << n << "' is reserved", pos);
-    return push_scope(p.env(), p.ios(), n);
+    return push_scope(p.env(), p.ios(), false, n);
 }
 
 environment end_scoped_cmd(parser & p) {
     if (in_section(p.env()))
         p.pop_local_scope();
-    return pop_scope(p.env());
+    if (p.curr_is_identifier()) {
+        name n = p.check_atomic_id_next("invalid end of scope, atomic identifier expected");
+        return pop_scope(p.env(), n);
+    } else {
+        return pop_scope(p.env());
+    }
 }
 
 environment check_cmd(parser & p) {

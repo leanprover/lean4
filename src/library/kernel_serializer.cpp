@@ -159,6 +159,7 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                     s << var_idx(a);
                     break;
                 case expr_kind::Constant:
+                    lean_assert(!const_name(a).is_anonymous());
                     s << const_name(a) << const_levels(a);
                     break;
                 case expr_kind::Sort:
@@ -175,13 +176,17 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
                     write_core(app_fn(a)); write_core(app_arg(a));
                     break;
                 case expr_kind::Lambda: case expr_kind::Pi:
+                    lean_assert(!binding_name(a).is_anonymous());
                     write_binder_name(s, binding_name(a));
                     s << binding_info(a); write_core(binding_domain(a)); write_core(binding_body(a));
                     break;
                 case expr_kind::Meta:
+                    lean_assert(!mlocal_name(a).is_anonymous());
                     s << mlocal_name(a); write_core(mlocal_type(a));
                     break;
                 case expr_kind::Local:
+                    lean_assert(!mlocal_name(a).is_anonymous());
+                    lean_assert(!local_pp_name(a).is_anonymous());
                     s << mlocal_name(a) << local_pp_name(a) << local_info(a); write_core(mlocal_type(a));
                     break;
                 }

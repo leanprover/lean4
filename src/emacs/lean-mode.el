@@ -8,27 +8,12 @@
 (require 'compile)
 (require 'flymake)
 (require 'flycheck)
+(require 'fill-column-indicator)
+(require 'whitespace-cleanup-mode)
 (require 'lean-util)
 (require 'lean-settings)
 (require 'lean-flycheck)
 (require 'lean-input)
-
-(defun lean-get-rootdir ()
-  (lean-get-this-if-true-or-that
-   lean-rootdir
-   (error "'lean-rootdir' is not defined. Please have\
-(customize-set-variable 'lean-rootdir \"~/work/lean\")\
-in your emacs configuration.\
-Also make sure that your (custom-set-variable ...) comes before\
-(require 'lean-mode).")))
-
-(defun lean-get-executable (exe-name)
-  "Return fullpath of lean executable"
-  (let ((lean-binary-dir-name "bin"))
-    (when lean-rootdir
-      (concat (file-name-as-directory (lean-get-rootdir))
-              (file-name-as-directory "bin")
-              exe-name))))
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"
@@ -95,12 +80,18 @@ Also make sure that your (custom-set-variable ...) comes before\
       (lean-set-keys)
       (setq local-abbrev-table lean-mode-abbrev-table)
       (abbrev-mode 1)
+      (when (and lean-rule-column
+                 lean-show-rule-column-method)
+        (case lean-show-rule-column-method
+          ('vline (setq fci-rule-column lean-rule-column)
+                  (add-hook 'lean-mode-hook 'fci-mode))))
+      (if lean-delete-trailing-whitespace
+          (add-hook 'lean-mode-hook 'whitespace-cleanup-mode)
+        (remove-hook 'lean-mode-hook 'whitespace-cleanup-mode))
       ))
   "A mode for Lean files"          ;; doc string for this mode
   )
-
 (provide 'lean-mode)
-
 ; (regexp-opt '("Int" "Bool" "Nat" "Type" "Real") t)
 ; (regexp-opt '("let" "in" "have" "calc" "forall" "exists") t)
 ; (regexp-opt '("=" "->" "≠" "∨" "∧" "¬" "/\\" "\\/" "+" "-" "*" "/" "<" ">" "≤" "≥" "==" "∀" "∃" "→" "λ" ":") t)

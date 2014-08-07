@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include <vector>
 #include "util/thread.h"
 #include "kernel/expr.h"
 #include "library/io_state_stream.h"

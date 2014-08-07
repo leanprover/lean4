@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include <functional>
 #include "frontends/lean/server.h"
 #include "frontends/lean/parser.h"
 

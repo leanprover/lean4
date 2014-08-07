@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <vector>
 #include "library/choice.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/pp_options.h"

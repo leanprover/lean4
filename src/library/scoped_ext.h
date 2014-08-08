@@ -26,6 +26,7 @@ environment using_namespace(environment const & env, io_state const & ios, name 
 environment push_scope(environment const & env, io_state const & ios, bool section, name const & n = name());
 /** \brief Delete the most recent scope, all scoped extensions are notified. */
 environment pop_scope(environment const & env, name const & n = name());
+bool has_open_scopes(environment const & env);
 
 name const & get_namespace(environment const & env);
 list<name> const & get_namespaces(environment const & env);

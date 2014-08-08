@@ -136,6 +136,11 @@ environment pop_scope(environment const & env, name const & n) {
     return r;
 }
 
+bool has_open_scopes(environment const & env) {
+    scope_mng_ext ext = get_extension(env);
+    return !is_nil(ext.m_namespaces);
+}
+
 static int using_namespace_objects(lua_State * L) {
     int nargs = lua_gettop(L);
     environment const & env = to_environment(L, 1);

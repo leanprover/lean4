@@ -27,3 +27,5 @@ theorem test1 (S : Type) (T : Type) (f1 f2 : S → T) (s1 s2 : S) (Hf : f1 = f2)
 have Rs [fact] : simplifies_to f1 f2, from mk Hf,
 have Cs [fact] : simplifies_to s1 s2, from mk Hs,
 infer_eq _ _
+
+end simp

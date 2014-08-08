@@ -1183,6 +1183,13 @@ bool parser::parse_commands() {
                 },
                 [&]() { sync_command(); });
         }
+        if (has_open_scopes(m_env)) {
+            m_found_errors = true;
+            if (!m_use_exceptions && m_show_errors)
+                display_error("invalid end of module, expecting 'end'", pos());
+            else if (m_use_exceptions)
+                throw_parser_exception("invalid end of module, expecting 'end'", pos());
+        }
     } catch (interrupt_parser) {}
     for (certified_declaration const & thm : m_theorem_queue.join()) {
         m_env.replace(thm);

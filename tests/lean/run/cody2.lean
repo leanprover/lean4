@@ -21,3 +21,5 @@ theorem delta_aux : ¬ (δ (i delta))
             H (subst (symm retract) H).
 
 check delta_aux.
+
+end

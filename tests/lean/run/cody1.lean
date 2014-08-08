@@ -22,3 +22,4 @@ theorem false_aux : ¬ (δ (i delta))
             have H' : r (i delta) (i delta),
               from eq_rec H (symm retract),
             H H'.
+end

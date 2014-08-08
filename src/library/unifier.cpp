@@ -514,10 +514,12 @@ struct unifier_fn {
 
        \remark If relax is true then opaque definitions from the main module are treated as transparent.
     */
-    bool assign(expr const & m, expr const & v, justification const & j, bool relax) {
+    bool assign(expr const & m, expr const & v, justification const & j, bool relax,
+                expr const & lhs, expr const & rhs) {
         lean_assert(is_metavar(m));
         lean_assert(!in_conflict());
         m_subst.assign(m, v, j);
+        #if 0
         expr m_type = mlocal_type(m);
         expr v_type;
         buffer<constraint> cs;
@@ -533,6 +535,21 @@ struct unifier_fn {
         justification new_j = mk_assign_justification(m, m_type, v_type, j);
         if (!is_def_eq(m_type, v_type, new_j, relax))
             return false;
+        #else
+        buffer<constraint> cs;
+        auto lhs_type = infer(lhs, j, relax, cs);
+        auto rhs_type = infer(rhs, j, relax, cs);
+        if (lhs_type && rhs_type) {
+            if (!process_constraints(cs))
+                return false;
+            justification new_j = mk_assign_justification(m, *lhs_type, *rhs_type, j);
+            if (!is_def_eq(*lhs_type, *rhs_type, new_j, relax))
+                return false;
+        } else {
+            set_conflict(j);
+            return false;
+        }
+        #endif
         auto it = m_mvar_occs.find(mlocal_name(m));
         if (it) {
             cnstr_idx_set s = *it;
@@ -608,7 +625,7 @@ struct unifier_fn {
             return Continue;
         case occurs_check_status::Ok:
             lean_assert(!m_subst.is_assigned(*m));
-            if (assign(*m, lambda_abstract_locals(rhs, locals), j, relax)) {
+            if (assign(*m, lambda_abstract_locals(rhs, locals), j, relax, lhs, rhs)) {
                 return Solved;
             } else {
                 return Failed;
@@ -1611,7 +1628,7 @@ struct unifier_fn {
             if (mlocal_name(lhs_args[i]) != mlocal_name(rhs_args[i]))
                 break;
         if (i == lhs_args.size())
-            return assign(ml, mr, c.get_justification(), relax_main_opaque(c));
+            return assign(ml, mr, c.get_justification(), relax_main_opaque(c), lhs, rhs);
         return true;
     }
 

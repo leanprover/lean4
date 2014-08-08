@@ -415,3 +415,4 @@ discriminate
 -- add_rewrite mul_succ_left mul_succ_right
 -- add_rewrite mul_comm mul_assoc mul_left_comm
 -- add_rewrite mul_distr_right mul_distr_left
+end nat

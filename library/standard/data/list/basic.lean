@@ -288,3 +288,5 @@ end
 
 -- declare global notation outside the section
 infixl `++` : 65 := concat
+
+end list

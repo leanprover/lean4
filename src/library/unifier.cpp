@@ -1232,7 +1232,15 @@ struct unifier_fn {
     /** \brief Check if term \c e (produced by an imitation step) is
         type correct, and store generated constraints in \c cs.
         Include \c j in all generated constraints */
-    bool check_imitation(expr const & e, justification const & j, bool relax, buffer<constraint> & cs) {
+    bool check_imitation(expr e, justification const & j, bool relax, buffer<constraint> & cs) {
+        buffer<expr> ls;
+        while (is_lambda(e)) {
+            expr d = instantiate_rev(binding_domain(e), ls.size(), ls.data());
+            expr l = mk_local(m_ngen.next(), binding_name(e), d, binding_info(e));
+            ls.push_back(l);
+            e = binding_body(e);
+        }
+        e = instantiate_rev(e, ls.size(), ls.data());;
         try {
             buffer<constraint> aux;
             m_tc[relax]->check(e, aux);

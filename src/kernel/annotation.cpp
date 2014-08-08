@@ -76,7 +76,7 @@ bool is_annotation(expr const & e, name const & kind) {
     return is_annotation(e) && static_cast<annotation_macro_definition_cell const*>(macro_def(e).raw())->get_annotation_kind() == kind;
 }
 
-expr get_annotation_arg(expr const & e) {
+expr const & get_annotation_arg(expr const & e) {
     lean_assert(is_annotation(e));
     return macro_arg(e, 0);
 }

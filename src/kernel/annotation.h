@@ -33,7 +33,7 @@ bool is_annotation(expr const & e, name const & kind);
 
     \post get_annotation_arg(mk_annotation(k, e)) == e
 */
-expr get_annotation_arg(expr const & e);
+expr const & get_annotation_arg(expr const & e);
 
 /** \brief Tag \c e as a 'let'-expression. 'let' is a pre-registered annotation. */
 expr mk_let_annotation(expr const & e);

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <utility>
+#include <vector>
 #include "kernel/abstract.h"
 #include "kernel/free_vars.h"
 #include "kernel/replace_fn.h"
@@ -47,15 +48,46 @@ expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
         });
 }
 
+/**
+   \brief Auxiliary datastructure for caching the types of locals constants after abstraction.
+   It is very common to invoke mk_bindings(num, locals, b) with the same set of locals but
+   different b's.
+*/
+class mk_binding_cache {
+    std::vector<optional<expr>> m_locals;
+    std::vector<optional<expr>> m_abstract_types;
+public:
+    mk_binding_cache() {}
+    void abstract(unsigned num, expr const * locals) {
+        m_locals.resize(num, none_expr());
+        m_abstract_types.resize(num, none_expr());
+        bool matching = true;
+        for (unsigned i = 0; i < num; i++) {
+            if (!(matching && m_locals[i] && *m_locals[i] == locals[i])) {
+                m_locals[i]         = locals[i];
+                m_abstract_types[i] = abstract_locals(mlocal_type(locals[i]), i, locals);
+                matching            = false;
+            }
+        }
+    }
+
+    expr get_abstract_type(unsigned i) const {
+        return *m_abstract_types[i];
+    }
+};
+
+MK_THREAD_LOCAL_GET_DEF(mk_binding_cache, get_mk_binding_cache);
 
 template<bool is_lambda>
 expr mk_binding(unsigned num, expr const * locals, expr const & b) {
-    expr r     = abstract_locals(b, num, locals);
+    expr r       = abstract_locals(b, num, locals);
+    auto & cache = get_mk_binding_cache();
+    cache.abstract(num, locals);
     unsigned i = num;
     while (i > 0) {
         --i;
         expr const & l = locals[i];
-        expr t = abstract_locals(mlocal_type(l), i, locals);
+        expr t = cache.get_abstract_type(i);
         if (is_lambda)
             r = mk_lambda(local_pp_name(l), t, r, local_info(l));
         else

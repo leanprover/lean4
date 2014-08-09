@@ -117,19 +117,6 @@ occurs_check_status occurs_context_check(substitution & s, expr const & e, expr 
     return occurs_context_check(s, e, m, locals, bad_local);
 }
 
-
-// Create a lambda abstraction by abstracting the local constants \c locals in \c e
-expr lambda_abstract_locals(expr const & e, buffer<expr> const & locals) {
-    expr v = abstract_locals(e, locals.size(), locals.data());
-    unsigned i = locals.size();
-    while (i > 0) {
-        --i;
-        expr t = abstract_locals(mlocal_type(locals[i]), i, locals.data());
-        v = mk_lambda(local_pp_name(locals[i]), t, v);
-    }
-    return v;
-}
-
 unify_status unify_simple_core(substitution & s, expr const & lhs, expr const & rhs, justification const & j) {
     lean_assert(is_meta(lhs));
     buffer<expr> args;
@@ -144,7 +131,7 @@ unify_status unify_simple_core(substitution & s, expr const & lhs, expr const & 
         case occurs_check_status::Maybe:
             return unify_status::Unsupported;
         case occurs_check_status::Ok: {
-            expr v = lambda_abstract_locals(rhs, args);
+            expr v = Fun(args, rhs);
             s.assign(mlocal_name(*m), v, j);
             return unify_status::Solved;
         }}
@@ -627,7 +614,7 @@ struct unifier_fn {
             return Continue;
         case occurs_check_status::Ok:
             lean_assert(!m_subst.is_assigned(*m));
-            if (assign(*m, lambda_abstract_locals(rhs, locals), j, relax, lhs, rhs)) {
+            if (assign(*m, Fun(locals, rhs), j, relax, lhs, rhs)) {
                 return Solved;
             } else {
                 return Failed;

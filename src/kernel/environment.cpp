@@ -169,9 +169,8 @@ public:
     }
 };
 
-static std::unique_ptr<extension_manager> g_extension_manager;
-
 static extension_manager & get_extension_manager() {
+    static std::unique_ptr<extension_manager> g_extension_manager;
     if (!g_extension_manager)
         g_extension_manager.reset(new extension_manager());
     return *g_extension_manager;

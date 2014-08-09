@@ -495,7 +495,10 @@ struct default_converter : public converter {
         if (has_expr_metavar(t_n) || has_expr_metavar(s_n)) {
             d_t = is_delta(t_n);
             d_s = is_delta(s_n);
-            delay_check = d_t && d_s && is_eqp(*d_t, *d_s);
+            if (d_t && d_s && is_eqp(*d_t, *d_s))
+                delay_check = true;
+            else if (may_reduce_later(t_n, c) && may_reduce_later(s_n, c))
+                delay_check = true;
         }
 
         // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)

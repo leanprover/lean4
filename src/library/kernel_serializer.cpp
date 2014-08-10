@@ -272,8 +272,8 @@ expr read_expr(deserializer & d) {
 }
 
 // Declaration serialization
-static serializer & operator<<(serializer & s, level_param_names const & ps) { return write_list<name>(s, ps); }
-static level_param_names read_level_params(deserializer & d) { return read_list<name>(d); }
+serializer & operator<<(serializer & s, level_param_names const & ps) { return write_list<name>(s, ps); }
+level_param_names read_level_params(deserializer & d) { return read_list<name>(d); }
 serializer & operator<<(serializer & s, declaration const & d) {
     char k = 0;
     if (d.is_definition()) {

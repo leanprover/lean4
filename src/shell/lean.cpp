@@ -66,7 +66,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --githash         display the git commit hash number used to build this binary\n";
     std::cout << "  --path            display the path used for finding Lean libraries and extensions\n";
     std::cout << "  --output=file -o  save the final environment in binary format in the given file\n";
-    std::cout << "  --luahook=num -c  how often the Lua interpreter checks the interrupted flag,\n";
+    std::cout << "  --luahook=num -k  how often the Lua interpreter checks the interrupted flag,\n";
     std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
     std::cout << "                    0 means 'do not check'.\n";
     std::cout << "  --trust=num -t    trust level (default: 0) \n";
@@ -101,7 +101,7 @@ static struct option g_long_options[] = {
     {"lean",        no_argument,       0, 'l'},
     {"lua",         no_argument,       0, 'u'},
     {"path",        no_argument,       0, 'p'},
-    {"luahook",     required_argument, 0, 'c'},
+    {"luahook",     required_argument, 0, 'k'},
     {"githash",     no_argument,       0, 'g'},
     {"output",      required_argument, 0, 'o'},
     {"trust",       required_argument, 0, 't'},
@@ -118,9 +118,9 @@ static struct option g_long_options[] = {
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "FDHSqlupgvhj:012c:012s:012t:012o:";
+static char const * g_opt_str = "FDHSqlupgvhj:012k:012s:012t:012o:";
 #else
-static char const * g_opt_str = "FDHSqlupgvhj:012c:012t:012o:";
+static char const * g_opt_str = "FDHSqlupgvhj:012k:012t:012o:";
 #endif
 
 enum class lean_mode { Standard, HoTT };
@@ -168,7 +168,7 @@ int main(int argc, char ** argv) {
         case 'u':
             default_k = input_kind::Lua;
             break;
-        case 'c':
+        case 'k':
             script_state::set_check_interrupt_freq(atoi(optarg));
             break;
         case 'p':

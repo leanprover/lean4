@@ -4,6 +4,7 @@
 *.md.lua
 *.md.lean
 *.olean
+*.clean
 *.d
 a.out
 build

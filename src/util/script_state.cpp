@@ -81,6 +81,8 @@ struct script_state::imp {
         if (g_check_interrupt_freq > 0) {
             lua_sethook(m_state, check_interrupted_hook, LUA_MASKCOUNT, g_check_interrupt_freq);
         }
+        if (!lua_checkstack(m_state, 1024))
+            throw exception("lua_checkstack failed");
         luaL_openlibs(m_state);
         open_exception(m_state);
         open_name(m_state);

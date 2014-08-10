@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
+#include "kernel/annotation.h"
 #include "library/string.h"
 #include "library/num.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -224,31 +225,10 @@ static register_tac reg_fixpoint(g_fixpoint_name, [](type_checker & tc, expr con
         return fixpoint(r);
     });
 
-// We encode the 'by' expression that is used to trigger tactic execution.
-// This is a trick to avoid creating a new kind of expression.
-// 'by' macros are temporary objects used by the elaborator,
-// and have no semantic significance.
-[[ noreturn ]] static void throw_ex() { throw exception("unexpected occurrence of 'by' expression"); }
 static name g_by_name("by");
-class by_macro_cell : public macro_definition_cell {
-public:
-    virtual name get_name() const { return g_by_name; }
-    virtual expr get_type(expr const &, expr const *, extension_context &) const { throw_ex(); }
-    virtual optional<expr> expand(expr const &, extension_context &) const { throw_ex(); }
-    virtual void write(serializer &) const { throw_ex(); }
-};
+register_annotation_fn g_by_annotation(g_by_name);
 
-static macro_definition g_by(new by_macro_cell());
-expr mk_by(expr const & e) {
-    return mk_macro(g_by, 1, &e);
-}
-
-bool is_by(expr const & e) {
-    return is_macro(e) && macro_def(e) == g_by;
-}
-
-expr const & get_by_arg(expr const & e) {
-    lean_assert(is_by(e));
-    return macro_arg(e, 0);
-}
+expr mk_by(expr const & e) { return mk_annotation(g_by_name, e); }
+bool is_by(expr const & e) { return is_annotation(e, g_by_name); }
+expr const & get_by_arg(expr const & e) { lean_assert(is_by(e)); return get_annotation_arg(e); }
 }

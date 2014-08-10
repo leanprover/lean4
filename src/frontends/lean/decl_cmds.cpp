@@ -269,21 +269,45 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         expr ref = mk_implicit(mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_ps));
         p.add_local_expr(n, ref);
     }
+    expr pre_type  = type;
+    expr pre_value = value;
     level_param_names new_ls;
-    if (is_theorem) {
-        if (p.num_threads() > 1) {
-            // add as axiom, and create a task to prove the theorem
-            p.add_delayed_theorem(env, real_n, ls, type, value);
-            std::tie(type, new_ls) = p.elaborate_type(type);
-            env = module::add(env, check(env, mk_axiom(real_n, append(ls, new_ls), type)));
+    bool found_cached = false;
+    if (auto it = p.find_cached_definition(real_n, pre_type, pre_value)) {
+        optional<certified_declaration> cd;
+        try {
+            level_param_names c_ls; expr c_type, c_value;
+            std::tie(c_ls, c_type, c_value) = *it;
+            if (is_theorem)
+                cd = check(env, mk_theorem(real_n, c_ls, c_type, c_value));
+            else
+                cd = check(env, mk_definition(env, real_n, c_ls, c_type, c_value, modifiers.m_is_opaque));
+            env = module::add(env, *cd);
+            found_cached = true;
+        } catch (exception&) {}
+    }
+
+    if (!found_cached) {
+        if (is_theorem) {
+            if (p.num_threads() > 1) {
+                // add as axiom, and create a task to prove the theorem
+                p.add_delayed_theorem(env, real_n, ls, type, value);
+                std::tie(type, new_ls) = p.elaborate_type(type);
+                env = module::add(env, check(env, mk_axiom(real_n, append(ls, new_ls), type)));
+            } else {
+                std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value, modifiers.m_is_opaque);
+                new_ls = append(ls, new_ls);
+                env = module::add(env, check(env, mk_theorem(real_n, new_ls, type, value)));
+                p.cache_definition(real_n, pre_type, pre_value, new_ls, type, value);
+            }
         } else {
             std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value, modifiers.m_is_opaque);
-            env = module::add(env, check(env, mk_theorem(real_n, append(ls, new_ls), type, value)));
+            new_ls = append(ls, new_ls);
+            env = module::add(env, check(env, mk_definition(env, real_n, new_ls, type, value, modifiers.m_is_opaque)));
+            p.cache_definition(real_n, pre_type, pre_value, new_ls, type, value);
         }
-    } else {
-        std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value, modifiers.m_is_opaque);
-        env = module::add(env, check(env, mk_definition(env, real_n, append(ls, new_ls), type, value, modifiers.m_is_opaque)));
     }
+
     if (real_n != n)
         env = add_expr_alias_rec(env, n, real_n);
     if (modifiers.m_is_instance)

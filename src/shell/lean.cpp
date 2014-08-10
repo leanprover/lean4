@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/hott_kernel.h"
 #include "library/module.h"
 #include "library/io_state_stream.h"
+#include "library/definitions_cache.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
@@ -43,6 +44,7 @@ using lean::mk_environment;
 using lean::mk_hott_environment;
 using lean::set_environment;
 using lean::set_io_state;
+using lean::definitions_cache;
 
 enum class input_kind { Unspecified, Lean, Lua };
 
@@ -76,6 +78,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --threads=num -j  number of threads used to process lean files\n";
     std::cout << "  --deps            just print dependencies of a Lean input\n";
     std::cout << "  --flycheck        print structured error message for flycheck\n";
+    std::cout << "  --cache=file -c   load/save cached definitions from/to the given file\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
@@ -109,6 +112,7 @@ static struct option g_long_options[] = {
     {"quiet",       no_argument,       0, 'q'},
     {"hott",        no_argument,       0, 'H'},
     {"threads",     required_argument, 0, 'j'},
+    {"cache",       required_argument, 0, 'c'},
     {"deps",        no_argument,       0, 'D'},
     {"flycheck",    no_argument,       0, 'F'},
 #if defined(LEAN_USE_BOOST)
@@ -118,9 +122,9 @@ static struct option g_long_options[] = {
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "FDHSqlupgvhj:012k:012s:012t:012o:";
+static char const * g_opt_str = "FDHSqlupgvhj:012k:012s:012t:012o:c:";
 #else
-static char const * g_opt_str = "FDHSqlupgvhj:012k:012t:012o:";
+static char const * g_opt_str = "FDHSqlupgvhj:012k:012t:012o:c:";
 #endif
 
 enum class lean_mode { Standard, HoTT };
@@ -136,7 +140,9 @@ int main(int argc, char ** argv) {
     bool flycheck        = false;
     lean_mode mode       = lean_mode::Standard;
     unsigned num_threads = 1;
+    bool use_cache       = false;
     std::string output;
+    std::string cache_name;
     input_kind default_k = input_kind::Lean; // default
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
@@ -178,8 +184,12 @@ int main(int argc, char ** argv) {
             lean::set_thread_stack_size(atoi(optarg)*1024);
             break;
         case 'o':
-            output = optarg;
+            output         = optarg;
             export_objects = true;
+            break;
+        case 'c':
+            cache_name = optarg;
+            use_cache  = true;
             break;
         case 't':
             trust_lvl = atoi(optarg);
@@ -209,6 +219,14 @@ int main(int argc, char ** argv) {
     script_state S = lean::get_thread_script_state();
     set_environment set1(S, env);
     set_io_state    set2(S, ios);
+    definitions_cache   cache;
+    definitions_cache * cache_ptr = nullptr;
+    if (use_cache) {
+        cache_ptr = &cache;
+        std::ifstream in(cache_name);
+        if (!in.bad() && !in.fail())
+            cache.load(in);
+    }
 
     try {
         bool ok = true;
@@ -225,7 +243,7 @@ int main(int argc, char ** argv) {
             if (k == input_kind::Lean) {
                 if (only_deps) {
                     display_deps(env, std::cout, argv[i]);
-                } else if (!parse_commands(env, ios, argv[i], false, num_threads)) {
+                } else if (!parse_commands(env, ios, argv[i], false, num_threads, cache_ptr)) {
                     ok = false;
                 }
             } else if (k == input_kind::Lua) {
@@ -244,6 +262,10 @@ int main(int argc, char ** argv) {
             lean::server Sv(env, ios, num_threads);
             if (!Sv(std::cin))
                 ok = false;
+        }
+        if (use_cache) {
+            std::ofstream out(cache_name, std::ofstream::binary);
+            cache.save(out);
         }
         if (export_objects && ok) {
             std::ofstream out(output, std::ofstream::binary);

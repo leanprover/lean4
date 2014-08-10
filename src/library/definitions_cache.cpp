@@ -120,7 +120,8 @@ public:
 
 definitions_cache::definitions_cache() {}
 
-definitions_cache::definitions_cache(std::istream & in) {
+void definitions_cache::load(std::istream & in) {
+    lock_guard<mutex> lc(m_mutex);
     deserializer d(in);
     unsigned num;
     d >> num;
@@ -129,17 +130,28 @@ definitions_cache::definitions_cache(std::istream & in) {
         level_param_names ls;
         expr pre_type, pre_value, type, value;
         d >> n >> pre_type >> pre_value >> ls >> type >> value;
-        add(n, pre_type, pre_value, ls, type, value);
+        add_core(n, pre_type, pre_value, ls, type, value);
     }
+}
+
+void definitions_cache::add_core(name const & n, expr const & pre_type, expr const & pre_value,
+                                 level_param_names const & ls, expr const & type, expr const & value) {
+    m_definitions.insert(n, entry(pre_type, pre_value, ls, type, value));
 }
 
 void definitions_cache::add(name const & n, expr const & pre_type, expr const & pre_value,
                             level_param_names const & ls, expr const & type, expr const & value) {
-    m_definitions.insert(n, entry(pre_type, pre_value, ls, type, value));
+    lock_guard<mutex> lc(m_mutex);
+    add_core(n, pre_type, pre_value, ls, type, value);
 }
 
 optional<std::tuple<level_param_names, expr, expr>> definitions_cache::find(name const & n, expr const & pre_type, expr const & pre_value) {
-    if (auto it = m_definitions.find(n)) {
+    entry const * it;
+    {
+        lock_guard<mutex> lc(m_mutex);
+        it = m_definitions.find(n);
+    }
+    if (it) {
         level_param_names ls;
         expr c_pre_type, c_pre_value, type, value;
         std::tie(c_pre_type, c_pre_value, ls, type, value) = *it;
@@ -151,6 +163,7 @@ optional<std::tuple<level_param_names, expr, expr>> definitions_cache::find(name
 }
 
 void definitions_cache::save(std::ostream & out) {
+    lock_guard<mutex> lc(m_mutex);
     serializer s(out);
     s << m_definitions.size();
     m_definitions.for_each([&](name const & n, entry const & e) {

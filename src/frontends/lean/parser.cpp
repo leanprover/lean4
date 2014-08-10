@@ -88,7 +88,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_scanner(strm, strm_name, line), m_local_level_decls(lds), m_local_decls(eds),
     m_pos_table(std::make_shared<pos_info_table>()),
     m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
-    m_snapshot_vector(sv), m_info_manager(im) {
+    m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr) {
     m_num_threads = num_threads;
     m_no_undef_id_error    = false;
     m_found_errors = false;
@@ -107,6 +107,19 @@ parser::~parser() {
             m_theorem_queue.join();
         }
     } catch (...) {}
+}
+
+void parser::cache_definition(name const & n, expr const & pre_type, expr const & pre_value,
+                              level_param_names const & ls, expr const & type, expr const & value) {
+    if (m_cache)
+        m_cache->add(n, pre_type, pre_value, ls, type, value);
+}
+
+optional<std::tuple<level_param_names, expr, expr>> parser::find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value) {
+    if (m_cache)
+        return m_cache->find(n, pre_type, pre_value);
+    else
+        return optional<std::tuple<level_param_names, expr, expr>>();
 }
 
 expr parser::mk_sorry(pos_info const & p) {
@@ -1252,18 +1265,20 @@ void parser::save_type_info(expr const & e) {
 }
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions,
-                    unsigned num_threads) {
+                    unsigned num_threads, definitions_cache * cache) {
     parser p(env, ios, in, strm_name, use_exceptions, num_threads);
+    p.set_cache(cache);
     bool r = p();
     ios = p.ios();
     env = p.env();
     return r;
 }
 
-bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads) {
+bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads,
+                    definitions_cache * cache) {
     std::ifstream in(fname);
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");
-    return parse_commands(env, ios, in, fname, use_exceptions, num_threads);
+    return parse_commands(env, ios, in, fname, use_exceptions, num_threads, cache);
 }
 }

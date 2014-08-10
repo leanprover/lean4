@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/kernel_bindings.h"
+#include "library/definitions_cache.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/parser_config.h"
@@ -89,6 +90,9 @@ class parser {
     snapshot_vector *       m_snapshot_vector;
     info_manager *          m_info_manager;
     std::vector<type_info_data> m_pre_info_data; // type information before elaboration
+
+    // cache support
+    definitions_cache *     m_cache;
 
     void display_warning_pos(unsigned line, unsigned pos);
     void display_warning_pos(pos_info p);
@@ -166,6 +170,12 @@ public:
            local_expr_decls const & eds = local_expr_decls(), unsigned line = 1,
            snapshot_vector * sv = nullptr, info_manager * im = nullptr);
     ~parser();
+
+    void set_cache(definitions_cache * c) { m_cache = c; }
+    void cache_definition(name const & n, expr const & pre_type, expr const & pre_value,
+                          level_param_names const & ls, expr const & type, expr const & value);
+    /** \brief Try to find an elaborated definition for (n, pre_type, pre_value) in the cache */
+    optional<std::tuple<level_param_names, expr, expr>> find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value);
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
@@ -309,6 +319,8 @@ public:
     bool operator()() { return parse_commands(); }
 };
 
-bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions, unsigned num_threads);
-bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads);
+bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions, unsigned num_threads,
+                    definitions_cache * cache = nullptr);
+bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads,
+                    definitions_cache * cache = nullptr);
 }

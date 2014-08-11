@@ -1204,6 +1204,7 @@ bool parser::parse_commands() {
                 throw_parser_exception("invalid end of module, expecting 'end'", pos());
         }
     } catch (interrupt_parser) {}
+    save_snapshot();
     for (certified_declaration const & thm : m_theorem_queue.join()) {
         m_env.replace(thm);
     }

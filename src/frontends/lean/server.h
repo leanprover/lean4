@@ -25,12 +25,18 @@ class server {
     unsigned                  m_num_threads;
     snapshot                  m_empty_snapshot;
     std::string               m_fname;
+    unsigned                  m_from;
 
     void read_file(std::string const & fname);
     void replace_line(unsigned linenum, std::string const & new_line);
+    void insert_line(unsigned linenum, std::string const & new_line);
+    void remove_line(unsigned linenum);
     void show_info(unsigned linenum);
     void process_from(unsigned linenum);
     unsigned find(unsigned linenum);
+    void update();
+    void read_line(std::istream & in, std::string & line);
+    unsigned get_linenum(std::string const & line, std::string const & cmd);
 
 public:
     server(environment const & env, io_state const & ios, unsigned num_threads = 1);

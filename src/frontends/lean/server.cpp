@@ -6,17 +6,20 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <functional>
+#include "util/sstream.h"
 #include "frontends/lean/server.h"
 #include "frontends/lean/parser.h"
 
 namespace lean {
 server::server(environment const & env, io_state const & ios, unsigned num_threads):
     m_env(env), m_options(ios.get_options()), m_ios(ios), m_num_threads(num_threads),
-    m_empty_snapshot(m_env, m_options) {
+    m_empty_snapshot(m_env, m_options), m_from(0) {
 }
 
 static std::string g_file("FILE");
 static std::string g_replace("REPLACE");
+static std::string g_insert("INSERT");
+static std::string g_remove("REMOVE");
 static std::string g_info("INFO");
 
 static bool is_command(std::string const & cmd, std::string const & line) {
@@ -79,6 +82,13 @@ void server::process_from(unsigned linenum) {
     p();
 }
 
+void server::update() {
+    if (m_from == m_lines.size())
+        return;
+    process_from(m_from);
+    m_from = m_lines.size();
+}
+
 void server::read_file(std::string const & fname) {
     std::ifstream in(fname);
     if (in.bad() || in.fail()) {
@@ -89,7 +99,7 @@ void server::read_file(std::string const & fname) {
         for (std::string line; std::getline(in, line);) {
             m_lines.push_back(line);
         }
-        process_from(0);
+        m_from = 0;
     }
 }
 
@@ -97,10 +107,38 @@ void server::replace_line(unsigned linenum, std::string const & new_line) {
     while (linenum >= m_lines.size())
         m_lines.push_back("");
     m_lines[linenum] = new_line;
-    process_from(linenum);
+    if (linenum < m_from)
+        m_from = linenum;
+}
+
+void server::insert_line(unsigned linenum, std::string const & new_line) {
+    while (linenum >= m_lines.size())
+        m_lines.push_back("");
+    m_lines.push_back("");
+    lean_assert(m_lines.size() >= linenum+1);
+    unsigned i = m_lines.size();
+    while (i > linenum) {
+        --i;
+        m_lines[i] = m_lines[i-1];
+    }
+    m_lines[linenum] = new_line;
+    if (linenum < m_from)
+        m_from = linenum;
+}
+
+void server::remove_line(unsigned linenum) {
+    if (linenum >= m_lines.size())
+        return;
+    lean_assert(!m_lines.empty());
+    for (unsigned i = linenum; i < m_lines.size()-1; i++)
+        m_lines[i] = m_lines[i+1];
+    m_lines.pop_back();
+    if (linenum < m_from)
+        m_from = linenum;
 }
 
 void server::show_info(unsigned linenum) {
+    update();
     unsigned i = find(linenum);
     environment const & env = i == 0 ? m_env     : m_snapshots[i-1].m_env;
     options const & o       = i == 0 ? m_options : m_snapshots[i-1].m_options;
@@ -110,29 +148,47 @@ void server::show_info(unsigned linenum) {
     out << "-- ENDINFO" << endl;
 }
 
+void server::read_line(std::istream & in, std::string & line) {
+    if (!std::getline(in, line))
+        throw exception("unexpected end of input");
+}
+
+// Given a line of the form "cmd linenum", return the linenum
+unsigned server::get_linenum(std::string const & line, std::string const & cmd) {
+    std::string data = line.substr(cmd.size());
+    trim(data);
+    unsigned r = atoi(data.c_str());
+    if (r == 0)
+        throw exception("line numbers are indexed from 1");
+    return r;
+}
+
 bool server::operator()(std::istream & in) {
     for (std::string line; std::getline(in, line);) {
-        if (is_command(g_file, line)) {
-            std::string fname = line.substr(g_file.size());
-            trim(fname);
-            read_file(fname);
-        } else if (is_command(g_replace, line)) {
-            std::string data = line.substr(g_replace.size());
-            trim(data);
-            unsigned linenum = atoi(data.c_str());
-            if (std::getline(in, line)) {
-                replace_line(linenum, line);
+        try {
+            if (is_command(g_file, line)) {
+                std::string fname = line.substr(g_file.size());
+                trim(fname);
+                read_file(fname);
+            } else if (is_command(g_replace, line)) {
+                unsigned linenum = get_linenum(line, g_replace);
+                read_line(in, line);
+                replace_line(linenum-1, line);
+            } else if (is_command(g_insert, line)) {
+                unsigned linenum = get_linenum(line, g_replace);
+                read_line(in, line);
+                insert_line(linenum-1, line);
+            } else if (is_command(g_remove, line)) {
+                unsigned linenum = get_linenum(line, g_replace);
+                remove_line(linenum-1);
+            } else if (is_command(g_info, line)) {
+                unsigned linenum = get_linenum(line, g_info);
+                show_info(linenum);
             } else {
-                std::cout << "Error: unexpected end of input\n";
-                return false;
+                throw exception(sstream() << "unexpected command line: " << line);
             }
-        } else if (is_command(g_info, line)) {
-            std::string data = line.substr(g_info.size());
-            trim(data);
-            unsigned linenum = atoi(data.c_str());
-            show_info(linenum);
-        } else {
-            std::cout << "Error: unexpected command line: " << line << "\n";
+        } catch (exception & ex) {
+            std::cout << "Error: " << ex.what() << "\n";
         }
     }
     return true;

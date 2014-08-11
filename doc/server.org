@@ -30,7 +30,28 @@ REPLACE [line-number]
 This command replaces the line =[line-number]= with =[new-line]=.
 Lean uses the snapshots to process the request efficiently.
 If =[line-number]= is greater than the total number of lines in the lean
-buffer, then empty lines are introduced.
+buffer, then empty lines are introduced. The lines are indexed from 1.
+
+** Insert line
+
+#+BEGIN_SRC
+INSERT [line-number]
+[new-line]
+#+END_SRC
+
+This command inserts =[new-line]= before line =[line-number]=.
+If =[line-number]= is greater than the total number of lines in the lean
+buffer, then empty lines are introduced. The lines are indexed from 1.
+
+** Remove line
+
+#+BEGIN_SRC
+REMOVE [line-number]
+#+END_SRC
+
+Remove line =[line-number]=. The lines are indexed from 1.
+If =[line-number]= is greater than the total number of lines in the lean
+buffer, then the command is ignored.
 
 ** Extracting typing information
 

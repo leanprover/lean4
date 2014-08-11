@@ -1453,7 +1453,6 @@ struct unifier_fn {
                 } else {
                     expr maux_type   = mk_metavar(u.m_ngen.next(), Pi(locals, mk_sort(mk_meta_univ(u.m_ngen.next()))));
                     expr maux        = mk_metavar(u.m_ngen.next(), Pi(locals, mk_app(maux_type, locals)));
-                    cs.push_back(mk_eq_cnstr(mk_app(maux_type, locals), type, j, relax));
                     cs.push_back(mk_eq_cnstr(mk_app(maux, margs), arg, j, relax));
                     return mk_app(maux, locals);
                 }

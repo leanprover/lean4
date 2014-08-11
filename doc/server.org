@@ -13,12 +13,26 @@ to the standard input.
 ** Load file
 
 #+BEGIN_SRC
-FILE [file-name]
+LOAD [file-name]
 #+END_SRC
 
 This command loads the Lean file named =[file-name]=.
 Lean will create a "snapshot" (aka backtracking point) after each
 command. Lean uses the "snapshots" to process incremental updates efficiently.
+
+** Visit file
+
+#+BEGIN_SRC
+VISIT [file-name]
+#+END_SRC
+
+Lean can keep information about multiple files. This command
+sets =[file-name]= as the "current" file. The remaining  commands
+are all with respect to the current file. If =[file-name]= has not been
+loaded yet, then this command will load it. Some of the remaining commands
+apply "changes" to the current file. The =LOAD= command can be used to
+discard all these changes, and enforce the content of the file stored
+in file system.
 
 ** Replace line
 
@@ -27,7 +41,7 @@ REPLACE [line-number]
 [new-line]
 #+END_SRC
 
-This command replaces the line =[line-number]= with =[new-line]=.
+This command replaces the line =[line-number]= (in the current file) with =[new-line]=.
 Lean uses the snapshots to process the request efficiently.
 If =[line-number]= is greater than the total number of lines in the lean
 buffer, then empty lines are introduced. The lines are indexed from 1.
@@ -39,7 +53,7 @@ INSERT [line-number]
 [new-line]
 #+END_SRC
 
-This command inserts =[new-line]= before line =[line-number]=.
+This command inserts =[new-line]= (in the current file) before line =[line-number]=.
 If =[line-number]= is greater than the total number of lines in the lean
 buffer, then empty lines are introduced. The lines are indexed from 1.
 
@@ -49,7 +63,7 @@ buffer, then empty lines are introduced. The lines are indexed from 1.
 REMOVE [line-number]
 #+END_SRC
 
-Remove line =[line-number]=. The lines are indexed from 1.
+Remove line =[line-number]= (in the current file). The lines are indexed from 1.
 If =[line-number]= is greater than the total number of lines in the lean
 buffer, then the command is ignored.
 
@@ -59,7 +73,8 @@ buffer, then the command is ignored.
 INFO [line-number]
 #+END_SRC
 
-This command extracts typing information associated with line =[line-number]=.
+This command extracts typing information associated with line
+=[line-number]= (in the current file).
 Lean produces a possible empty sequence of entries terminated with
 
 #+BEGIN_SRC
@@ -107,4 +122,23 @@ num → num
 num
 -- ACK
 -- ENDINFO
+#+END_SRC
+
+** Check line
+
+As described above, several commands can be used to apply
+modifications to opened/visited files. These modification reflect
+modifications performed by the text editor. The command =CHECK= can be
+used to double check whether the text editor and Lean have the "same
+view" of the current file + modifications.
+
+The following commands returns =-- OK= if the line =[line-number]= in
+the current file is =[line]=. It returns =-- MISMATCH line out of
+range=, if =[line-number]= is too big, and =-- MISMATCH expected
+[lean-line]= when there is a mismatch, and Lean expects
+=[line-number]= to be =[lean-line]=.
+
+#+BEGIN_SRC
+-- CHECK [line-number]
+[line]
 #+END_SRC

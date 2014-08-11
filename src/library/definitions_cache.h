@@ -34,5 +34,7 @@ public:
     void save(std::ostream & out);
     /** \brief Load the cache content from the given stream */
     void load(std::istream & in);
+    /** \brief Remove the entry named \c n from the cache. */
+    void erase(name const & n) { m_definitions.erase(n); }
 };
 }

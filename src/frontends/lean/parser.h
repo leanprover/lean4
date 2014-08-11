@@ -176,6 +176,7 @@ public:
                           level_param_names const & ls, expr const & type, expr const & value);
     /** \brief Try to find an elaborated definition for (n, pre_type, pre_value) in the cache */
     optional<std::tuple<level_param_names, expr, expr>> find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value);
+    void erase_cached_definition(name const & n) { if (m_cache) m_cache->erase(n); }
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }

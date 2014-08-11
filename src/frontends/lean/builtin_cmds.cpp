@@ -287,6 +287,12 @@ environment opaque_hint_cmd(parser & p) {
     return env;
 }
 
+environment erase_cache_cmd(parser & p) {
+    name n = p.check_id_next("invalid #erase_cache command, identifier expected");
+    p.erase_cached_definition(n);
+    return p.env();
+}
+
 cmd_table init_cmd_table() {
     cmd_table r;
     add_cmd(r, cmd_info("using",        "create aliases for declarations, and use objects defined in other namespaces", using_cmd));
@@ -299,6 +305,7 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
     add_cmd(r, cmd_info("coercion",     "add a new coercion", coercion_cmd));
     add_cmd(r, cmd_info("opaque_hint",  "add hints for the elaborator/unifier", opaque_hint_cmd));
+    add_cmd(r, cmd_info("#erase_cache", "erase cached definition (for debugging purposes)", erase_cache_cmd));
 
     register_decl_cmds(r);
     register_inductive_cmd(r);

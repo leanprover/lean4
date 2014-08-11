@@ -79,6 +79,7 @@ void server::process_from(unsigned linenum) {
     m_ios.set_options(s.m_options);
     parser p(s.m_env, m_ios, strm, m_fname.c_str(), false, 1, s.m_lds, s.m_eds, s.m_line,
              &m_snapshots, &m_info);
+    p.set_cache(&m_cache);
     p();
 }
 

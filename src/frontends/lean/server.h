@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <vector>
 #include <string>
+#include "library/definitions_cache.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/info_manager.h"
 
@@ -26,6 +27,7 @@ class server {
     snapshot                  m_empty_snapshot;
     std::string               m_fname;
     unsigned                  m_from;
+    definitions_cache         m_cache;
 
     void read_file(std::string const & fname);
     void replace_line(unsigned linenum, std::string const & new_line);

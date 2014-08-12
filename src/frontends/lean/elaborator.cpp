@@ -297,7 +297,6 @@ class elaborator {
     context             m_full_context; // superset of m_context, it also contains non-contextual locals.
 
     pos_info_provider * m_pos_provider; // optional expression position information used when reporting errors.
-    justification       m_accumulated; // accumulate justification of eagerly used substitutions
     constraint_vect     m_constraints; // constraints that must be solved for the elaborated term to be type correct.
     local_tactic_hints  m_local_tactic_hints; // mapping from metavariable name ?m to tactic expression that should be used to solve it.
                                               // this mapping is populated by the 'by tactic-expr' expression.
@@ -316,8 +315,7 @@ class elaborator {
 
     /** \brief Auxiliary object for creating backtracking points, and replacing the local scopes.
 
-        \remark A new scope can only be created when m_constraints and m_subst are empty,
-        and m_accumulated is none.
+        \remark A new scope can only be created when m_constraints and m_subst are empty.
     */
     struct new_scope {
         elaborator &           m_main;
@@ -326,7 +324,6 @@ class elaborator {
         new_scope(elaborator & e, list<expr> const & ctx, list<expr> const & full_ctx, substitution const & s):
             m_main(e), m_context_scope(e.m_context, ctx), m_full_context_scope(e.m_full_context, full_ctx) {
             lean_assert(m_main.m_constraints.empty());
-            lean_assert(m_main.m_accumulated.is_none());
             m_main.m_tc[0]->push();
             m_main.m_tc[1]->push();
             m_main.m_subst = s;
@@ -335,10 +332,8 @@ class elaborator {
             m_main.m_tc[0]->pop();
             m_main.m_tc[1]->pop();
             m_main.m_constraints.clear();
-            m_main.m_accumulated = justification();
             m_main.m_subst = substitution();
             lean_assert(m_main.m_constraints.empty());
-            lean_assert(m_main.m_accumulated.is_none());
         }
     };
 
@@ -384,10 +379,9 @@ class elaborator {
                 try {
                     new_scope s(m_elab, m_ctx, m_full_ctx, m_subst);
                     expr r = m_elab.visit(c);
-                    justification j = m_elab.m_accumulated;
                     m_elab.consume_tc_cnstrs();
                     list<constraint> cs = to_list(m_elab.m_constraints.begin(), m_elab.m_constraints.end());
-                    cs = cons(mk_eq_cnstr(m_mvar, r, j, m_relax_main_opaque), cs);
+                    cs = cons(mk_eq_cnstr(m_mvar, r, justification(), m_relax_main_opaque), cs);
                     return optional<constraints>(cs);
                 } catch (exception &) {}
             }
@@ -451,12 +445,11 @@ class elaborator {
             try {
                 new_scope s(m_elab, m_ctx, m_full_ctx, m_subst);
                 expr r = m_elab.visit(pre); // use elaborator to create metavariables, levels, etc.
-                justification j = m_elab.m_accumulated;
                 m_elab.consume_tc_cnstrs();
                 for (auto & c : m_elab.m_constraints)
                     c = update_justification(c, mk_composite1(m_jst, c.get_justification()));
                 list<constraint> cs = to_list(m_elab.m_constraints.begin(), m_elab.m_constraints.end());
-                cs = cons(mk_eq_cnstr(m_meta, r, mk_composite1(m_jst, j), m_relax_main_opaque), cs);
+                cs = cons(mk_eq_cnstr(m_meta, r, m_jst, m_relax_main_opaque), cs);
                 return optional<constraints>(cs);
             } catch (exception &) {
                 return optional<constraints>();
@@ -551,50 +544,14 @@ public:
         return m_tc[m_relax_main_opaque]->whnf(e);
     }
 
-    /** \brief Clear constraint buffer \c m_constraints, and associated datastructures
-        \c m_subst and \c m_accumulated.
-
-        \remark \c m_subst contains solutions obtained by eagerly solving the "easy" constraints
-        in \c m_subst, and \c m_accumulated store the justifications of all substitutions eagerly
-        applied.
-    */
+    /** \brief Clear constraint buffer \c m_constraints, and \c m_subst */
     void clear_constraints() {
         m_constraints.clear();
         m_subst = substitution();
-        m_accumulated = justification();
     }
 
-    void add_cnstr_core(constraint const & c) {
+    void add_cnstr(constraint const & c) {
         m_constraints.push_back(c);
-    }
-
-    /** \brief Add \c c to \c m_constraints, but also tries to update \c m_subst using \c c.
-        The idea is to "populate" \c m_subst using easy/simple constraints.
-        This trick improves the number of places where coercions can be applied.
-        In the future, we may also use this information to implement eager pruning of choice
-        constraints.
-
-        \remark The justification \c m_accumulated is "appended" to \c c.
-        This justification justifies all substitutions used.
-
-        \remark By appeding \c m_accumulated we know we are not missing any dependency,
-        but this is a coarse approximation of that actual dependencies.
-    */
-    void add_cnstr(constraint c) {
-        if (!m_accumulated.is_none())
-            c = update_justification(c, mk_composite1(c.get_justification(), m_accumulated));
-        add_cnstr_core(c);
-        if (unify_simple(m_subst, c) == unify_status::Failed)
-            throw unifier_exception(c.get_justification(), m_subst);
-    }
-
-    /** \brief Eagerly instantiate metavars using \c m_subst.
-        \remark We update \c m_accumulated with any justifications used.
-    */
-    expr instantiate_metavars(expr const & e) {
-        auto e_j = m_subst.instantiate_metavars(e);
-        m_accumulated = mk_composite1(m_accumulated, e_j.second);
-        return e_j.first;
     }
 
     static expr save_tag(expr && e, tag g) {
@@ -743,7 +700,7 @@ public:
         if (!is_pi(f_type))
             f_type = whnf(f_type);
         if (!is_pi(f_type) && has_metavar(f_type)) {
-            f_type = whnf(instantiate_metavars(f_type));
+            f_type = whnf(f_type);
             if (!is_pi(f_type) && is_meta(f_type)) {
                 // let type checker add constraint
                 f_type = m_tc[m_relax_main_opaque]->ensure_pi(f_type, f);
@@ -824,7 +781,7 @@ public:
             expr new_a = apply_coercion(a, a_type, expected_type);
             bool coercion_worked = false;
             if (!is_eqp(a, new_a)) {
-                expr new_a_type = instantiate_metavars(infer_type(new_a));
+                expr new_a_type = infer_type(new_a);
                 coercion_worked = m_tc[relax]->is_def_eq(new_a_type, expected_type, j);
             }
             if (coercion_worked) {
@@ -892,7 +849,7 @@ public:
         }
         expr d_type = binding_domain(f_type);
         expr a      = visit_expecting_type_of(app_arg(e), d_type);
-        expr a_type = instantiate_metavars(infer_type(a));
+        expr a_type = infer_type(a);
         expr r      = mk_app(f, a, e.get_tag());
 
         justification j = mk_app_justification(r, a, d_type, a_type);
@@ -979,7 +936,7 @@ public:
         if (is_sort(t))
             return e;
         if (has_metavar(t)) {
-            t = whnf(instantiate_metavars(t));
+            t = whnf(t);
             if (is_sort(t))
                 return e;
             if (is_meta(t)) {

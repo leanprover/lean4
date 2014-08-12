@@ -206,7 +206,7 @@ struct default_converter : public converter {
         if (is_constant(e)) {
             if (auto d = m_env.find(const_name(e))) {
                 if (d->is_definition() && !is_opaque(*d) && d->get_weight() >= w)
-                    return unfold_name_core(instantiate_univ_params(d->get_value(), d->get_univ_params(), const_levels(e)), w);
+                    return unfold_name_core(instantiate_value_univ_params(*d, const_levels(e)), w);
             }
         }
         return e;

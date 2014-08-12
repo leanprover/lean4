@@ -214,7 +214,7 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
         for (level const & l : ls)
             check_level(l, e);
     }
-    return instantiate_univ_params(d.get_type(), ps, ls);
+    return instantiate_type_univ_params(d, ls);
 }
 
 expr type_checker::infer_macro(expr const & e, bool infer_only) {

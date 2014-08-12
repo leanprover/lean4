@@ -26,10 +26,18 @@ bool is_head_beta(expr const & t);
 expr head_beta_reduce(expr const & t);
 expr beta_reduce(expr t);
 
-/**
-    \brief Instantiate the universe level parameters \c ps occurring in \c e with the levels \c ls.
-
+/** \brief Instantiate the universe level parameters \c ps occurring in \c e with the levels \c ls.
     \pre length(ps) == length(ls)
 */
 expr instantiate_univ_params(expr const & e, level_param_names const & ps, levels const & ls);
+
+class declaration;
+/** \brief Instantiate the universe level parameters of the type of the given declaration.
+    \pre length(d.get_univ_params()) == length(ls)
+*/
+expr instantiate_type_univ_params(declaration const & d, levels const & ls);
+/** \brief Instantiate the universe level parameters of the value of the given declaration.
+    \pre length(d.get_univ_params()) == length(ls)
+*/
+expr instantiate_value_univ_params(declaration const & d, levels const & ls);
 }

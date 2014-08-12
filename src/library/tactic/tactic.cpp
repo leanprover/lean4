@@ -361,7 +361,7 @@ protected:
         optional<declaration> d = m_env.find(const_name(c));
         if (d && d->is_definition() && (!d->is_opaque() || d->get_module_idx() == 0)) {
             m_unfolded = true;
-            return instantiate_univ_params(d->get_value(), d->get_univ_params(), const_levels(c));
+            return instantiate_value_univ_params(*d, const_levels(c));
         } else {
             return c;
         }

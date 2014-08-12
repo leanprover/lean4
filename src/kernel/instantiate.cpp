@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include "kernel/free_vars.h"
 #include "kernel/replace_fn.h"
+#include "kernel/declaration.h"
 #include "kernel/instantiate.h"
 
 namespace lean {
@@ -169,5 +170,15 @@ expr instantiate_univ_params(expr const & e, level_param_names const & ps, level
                 return none_expr();
             }
         });
+}
+
+expr instantiate_type_univ_params(declaration const & d, levels const & ls) {
+    lean_assert(length(d.get_univ_params()) == length(ls));
+    return instantiate_univ_params(d.get_type(), d.get_univ_params(), ls);
+}
+
+expr instantiate_value_univ_params(declaration const & d, levels const & ls) {
+    lean_assert(length(d.get_univ_params()) == length(ls));
+    return instantiate_univ_params(d.get_value(), d.get_univ_params(), ls);
 }
 }

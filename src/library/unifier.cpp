@@ -1107,8 +1107,8 @@ struct unifier_fn {
 
         justification a;
         // add case_split for t =?= s
-        expr lhs_fn_val = instantiate_univ_params(d.get_value(), d.get_univ_params(), const_levels(lhs_fn));
-        expr rhs_fn_val = instantiate_univ_params(d.get_value(), d.get_univ_params(), const_levels(rhs_fn));
+        expr lhs_fn_val = instantiate_value_univ_params(d, const_levels(lhs_fn));
+        expr rhs_fn_val = instantiate_value_univ_params(d, const_levels(rhs_fn));
         expr t = apply_beta(lhs_fn_val, lhs_args.size(), lhs_args.data());
         expr s = apply_beta(rhs_fn_val, rhs_args.size(), rhs_args.data());
         bool relax = relax_main_opaque(c);

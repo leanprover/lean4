@@ -26,7 +26,7 @@ abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : class R) : reflexive
 abbreviation infer ⦃T : Type⦄ {R : T → T → Type} {C : class R} : reflexive R
 := class_rec (λu, u) C
 
-end -- is_reflexive
+end is_reflexive
 
 namespace is_symmetric
 
@@ -39,7 +39,7 @@ abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : class R) ⦃x y : T�
 abbreviation infer ⦃T : Type⦄ {R : T → T → Type} {C : class R} ⦃x y : T⦄ (H : R x y) : R y x
 := class_rec (λu, u) C x y H
 
-end -- is_symmetric
+end is_symmetric
 
 namespace is_transitive
 
@@ -54,7 +54,7 @@ abbreviation infer ⦃T : Type⦄ {R : T → T → Type} {C : class R} ⦃x y z 
   (H2 : R y z) : R x z
 := class_rec (λu, u) C x y z H1 H2
 
-end -- is_transitive
+end is_transitive
 
 
 -- Congruence for unary and binary functions
@@ -113,9 +113,9 @@ theorem const {T2 : Type} (R2 : T2 → T2 → Prop) (H : relation.reflexive R2)
   class R1 R2 (λu : T1, c) :=
 mk (λx y H1, H c)
 
-end -- namespace congr
+end congr
 
-end -- namespace relation
+end relation
 
 
 -- TODO: notice these can't be in the congr namespace, if we want it visible without
@@ -147,7 +147,7 @@ definition app {R : Type → Type → Prop} {a : Type} {b : Type} {H : R a b}
 definition infer ⦃R : Type → Type → Prop⦄ {a : Type} {b : Type} (H : R a b)
   {C : class H} : a → b := class_rec (λx, x) C
 
-end -- namespace mp_like
+end mp_like
 
 
 -- Notation for operations on general symbols
@@ -160,13 +160,13 @@ definition symm := is_symmetric.infer
 definition trans := is_transitive.infer
 definition mp := mp_like.infer
 
-end -- namespace operations
+end operations
 
 namespace symbols
 
 postfix `⁻¹`:100 := operations.symm
 infixr `⬝`:75     := operations.trans
 
-end -- namespace symbols
+end symbols
 
-end -- namespace relation
+end relation

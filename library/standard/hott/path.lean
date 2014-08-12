@@ -3,9 +3,9 @@
 -- Author: Jeremy Avigad
 -- Ported from Coq HoTT
 
-import .logic .tactic
+import general_notation struc.function tools.tactic
 
-using tactic
+using tactic function
 
 -- Path
 -- ----

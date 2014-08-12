@@ -4,7 +4,7 @@
 -- Authors: Leonardo de Moura, Jeremy Avigad
 ----------------------------------------------------------------------------------------------------
 
-import .prop
+import general_notation .prop
 
 -- implication
 -- -----------
@@ -25,9 +25,6 @@ inductive true : Prop :=
 
 abbreviation not (a : Prop) := a → false
 prefix `¬`:40 := not
-
-notation `assume` binders `,` r:(scoped f, f) := r
-notation `take`   binders `,` r:(scoped f, f) := r
 
 
 -- not

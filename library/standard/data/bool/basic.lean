@@ -1,16 +1,11 @@
-----------------------------------------------------------------------------------------------------
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-----------------------------------------------------------------------------------------------------
 
-import logic.connectives.basic logic.classes.decidable logic.classes.inhabited
+import .type logic.connectives.basic logic.classes.decidable logic.classes.inhabited
 using eq_proofs decidable
 
 namespace bool
-inductive bool : Type :=
-| ff : bool
-| tt : bool
 
 theorem induction_on {p : bool → Prop} (b : bool) (H0 : p ff) (H1 : p tt) : p b :=
 bool_rec H0 H1 b

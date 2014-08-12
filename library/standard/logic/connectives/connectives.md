@@ -10,3 +10,4 @@ Logical operations and connectives.
 * [quantifiers](quantifiers.lean) : existential and universal quantifiers
 * [if](if.lean) : if-then-else
 * [instances](instances.lean) : type class instances
+* [examples](examples/examples.md)

@@ -45,6 +45,7 @@ expr const & get_exact_tac_fn();
 expr const & get_and_then_tac_fn();
 expr const & get_or_else_tac_fn();
 expr const & get_repeat_tac_fn();
+expr const & get_determ_tac_fn();
 
 /** \brief Exception used to report a problem when an expression is being converted into a tactic. */
 class expr_to_tactic_exception : public tactic_exception {

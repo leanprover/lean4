@@ -29,12 +29,15 @@ void register_expr_to_tactic(name const & n, expr_to_tactic_fn const & fn) {
 static name g_tac("tactic"), g_tac_name(g_tac, "tactic"), g_builtin_tac_name(g_tac, "builtin_tactic");
 static name g_exact_tac_name(g_tac, "exact"), g_and_then_tac_name(g_tac, "and_then");
 static name g_or_else_tac_name(g_tac, "or_else"), g_repeat_tac_name(g_tac, "repeat"), g_fixpoint_name(g_tac, "fixpoint");
+static name g_determ_tac_name(g_tac, "determ");
 static expr g_exact_tac_fn(Const(g_exact_tac_name)), g_and_then_tac_fn(Const(g_and_then_tac_name));
 static expr g_or_else_tac_fn(Const(g_or_else_tac_name)), g_repeat_tac_fn(Const(g_repeat_tac_name));
+static expr g_determ_tac_fn(Const(g_determ_tac_name));
 static expr g_tac_type(Const(g_tac_name)), g_builtin_tac(Const(g_builtin_tac_name)), g_fixpoint_tac(Const(g_fixpoint_name));
 expr const & get_exact_tac_fn() { return g_exact_tac_fn; }
 expr const & get_and_then_tac_fn() { return g_and_then_tac_fn; }
 expr const & get_or_else_tac_fn() { return g_or_else_tac_fn; }
+expr const & get_determ_tac_fn() { return g_determ_tac_fn; }
 expr const & get_repeat_tac_fn() { return g_repeat_tac_fn; }
 expr const & get_tactic_type() { return g_tac_type; }
 

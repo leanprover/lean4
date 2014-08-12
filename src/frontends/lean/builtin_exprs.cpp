@@ -149,10 +149,11 @@ static expr parse_proof_qed(parser & p, unsigned, expr const *, pos_info const &
         auto pos = p.pos();
         expr tac = p.parse_expr();
         if (use_exact)
-            tac = p.save_pos(mk_app(get_exact_tac_fn(), tac), pos);
+            tac = p.mk_app(get_exact_tac_fn(), tac, pos);
         if (pre_tac)
-            tac = p.save_pos(mk_app(get_and_then_tac_fn(), *pre_tac, tac), pos);
-        r = r ? p.save_pos(mk_app(get_and_then_tac_fn(), *r, tac), pos) : tac;
+            tac = p.mk_app({get_and_then_tac_fn(), *pre_tac, tac}, pos);
+        tac = p.mk_app(get_determ_tac_fn(), tac, pos);
+        r = r ? p.mk_app({get_and_then_tac_fn(), *r, tac}, pos) : tac;
         if (p.curr_is_token(g_qed)) {
             auto pos = p.pos();
             p.next();

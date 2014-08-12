@@ -346,14 +346,19 @@ static environment variables_cmd(parser & p) {
         expr type = p.parse_expr();
         p.parse_close_binder_info(bi);
         level_param_names ls = to_level_param_names(collect_univ_params(type));
-        level_param_names new_ls;
         list<expr> ctx = locals_to_context(type, p);
-        std::tie(type, new_ls) = p.elaborate_type(type, ctx);
-        update_section_local_levels(p, new_ls);
-        ls = append(ls, new_ls);
-        for (auto id : ids)
-            env = declare_var(p, env, id, ls, type, false, bi, pos);
-        if (!p.curr_is_token(g_lparen) && !p.curr_is_token(g_lcurly) && !p.curr_is_token(g_ldcurly) && !p.curr_is_token(g_lbracket))
+        for (auto id : ids) {
+            // Hack: to make sure we get different universe parameters for each parameter.
+            // Alternative: elaborate once and copy types replacing universes in new_ls.
+            level_param_names new_ls;
+            expr new_type;
+            std::tie(new_type, new_ls) = p.elaborate_type(type, ctx);
+            update_section_local_levels(p, new_ls);
+            new_ls = append(ls, new_ls);
+            env = declare_var(p, env, id, new_ls, new_type, false, bi, pos);
+        }
+        if (!p.curr_is_token(g_lparen) && !p.curr_is_token(g_lcurly) &&
+            !p.curr_is_token(g_ldcurly) && !p.curr_is_token(g_lbracket))
             break;
     }
     return env;

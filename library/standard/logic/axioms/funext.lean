@@ -12,7 +12,7 @@ axiom funext : ∀ {A : Type} {B : A → Type} {f g : Π x, B x} (H : ∀ x, f x
 
 namespace function
 section
-  parameters {A : Type} {B : Type} {C : Type} {D : Type}
+  parameters {A B C D: Type}
   theorem compose_assoc (f : C → D) (g : B → C) (h : A → B) : (f ∘ g) ∘ h = f ∘ (g ∘ h) :=
   funext (take x, refl _)
 

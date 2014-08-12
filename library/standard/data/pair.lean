@@ -7,12 +7,11 @@
 import logic.classes.inhabited logic.connectives.eq
 
 namespace pair
-inductive pair (A : Type) (B : Type) : Type :=
+inductive pair (A B : Type) : Type :=
 | mk_pair : A → B → pair A B
 
 section thms
-  parameter {A : Type}
-  parameter {B : Type}
+  parameters {A B : Type}
 
   definition fst [inline] (p : pair A B) := pair_rec (λ x y, x) p
   definition snd [inline] (p : pair A B) := pair_rec (λ x y, y) p

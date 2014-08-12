@@ -36,5 +36,5 @@ namespace setoid
   | mk_foo : Π (s1 s2 : setoid) (s3 s4 : setoid), morphism2 s1 s2 → morphism2 s3 s4 → my_struct
 
   check my_struct
-  definition tst2 : Type.{4} := my_struct.{1 2}
+  definition tst2 : Type.{4} := my_struct.{1 2 1 2}
 end setoid

@@ -291,8 +291,6 @@ class elaborator {
     name_generator      m_ngen;
     type_checker_ptr    m_tc[2];
     substitution        m_subst;
-    expr_map<expr>      m_cache; // (pointer equality) cache for Type and Constants (this is a trick to make sure we get the
-                                 // same universe metavariable for different occurrences of the same Type/Constant
     mvar2meta           m_mvar2meta; // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
                                      // representing the context where ?m was created.
     context             m_context; // current local context: a list of local constants
@@ -916,14 +914,7 @@ public:
     }
 
     expr visit_sort(expr const & e) {
-        auto it = m_cache.find(e);
-        if (it != m_cache.end()) {
-            return it->second;
-        } else {
-            expr r = update_sort(e, replace_univ_placeholder(sort_level(e)));
-            m_cache.insert(mk_pair(e, r));
-            return r;
-        }
+        return update_sort(e, replace_univ_placeholder(sort_level(e)));
     }
 
     expr visit_macro(expr const & e) {
@@ -963,27 +954,20 @@ public:
     }
 
     expr visit_constant(expr const & e) {
-        auto it = m_cache.find(e);
-        if (it != m_cache.end()) {
-            return it->second;
-        } else {
-            declaration d = m_env.get(const_name(e));
-            buffer<level> ls;
-            for (level const & l : const_levels(e))
-                ls.push_back(replace_univ_placeholder(l));
-            unsigned num_univ_params = length(d.get_univ_params());
-            if (num_univ_params < ls.size())
-                throw_kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '"
-                                       << const_name(e) << "', #" << num_univ_params
-                                       << " expected, #" << ls.size() << " provided");
-            // "fill" with meta universe parameters
-            for (unsigned i = ls.size(); i < num_univ_params; i++)
-                ls.push_back(mk_meta_univ(m_ngen.next()));
-            lean_assert(num_univ_params == ls.size());
-            expr r = update_constant(e, to_list(ls.begin(), ls.end()));
-            m_cache.insert(mk_pair(e, r));
-            return r;
-        }
+        declaration d = m_env.get(const_name(e));
+        buffer<level> ls;
+        for (level const & l : const_levels(e))
+            ls.push_back(replace_univ_placeholder(l));
+        unsigned num_univ_params = length(d.get_univ_params());
+        if (num_univ_params < ls.size())
+            throw_kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '"
+                                   << const_name(e) << "', #" << num_univ_params
+                                   << " expected, #" << ls.size() << " provided");
+        // "fill" with meta universe parameters
+        for (unsigned i = ls.size(); i < num_univ_params; i++)
+            ls.push_back(mk_meta_univ(m_ngen.next()));
+        lean_assert(num_univ_params == ls.size());
+        return update_constant(e, to_list(ls.begin(), ls.end()));
     }
 
     /** \brief Make sure \c e is a type. If it is not, then try to apply coercions. */

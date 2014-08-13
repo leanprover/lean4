@@ -25,12 +25,11 @@
   "Execute Lean in the current buffer"
   (interactive "sarg: ")
   (let ((target-file-name
-         (lean-get-this-if-true-or-that
-          (buffer-file-name)
-          (flymake-init-create-temp-buffer-copy 'lean-create-temp-in-system-tempdir))))
+         (or (buffer-file-name)
+             (flymake-init-create-temp-buffer-copy 'lean-create-temp-in-system-tempdir))))
     (compile (lean-compile-string
               (lean-get-executable lean-executable-name)
-              (lean-get-this-if-true-or-that arg "")
+              (or arg "")
               target-file-name))))
 
 (defun lean-std-exe ()

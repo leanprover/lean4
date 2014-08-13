@@ -4,13 +4,8 @@
 ;; Author: Soonho Kong
 ;;
 
-(defmacro lean-get-this-if-true-or-that (this that)
-  `(cond (,this ,this)
-         (t ,that)))
-
 (defun lean-get-rootdir ()
-  (lean-get-this-if-true-or-that
-   lean-rootdir
+  (or lean-rootdir
    (error "'lean-rootdir' is not defined. Please have\
 (customize-set-variable 'lean-rootdir \"~/work/lean\")\
 in your emacs configuration.\

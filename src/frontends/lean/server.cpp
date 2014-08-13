@@ -156,6 +156,7 @@ void server::show_info(unsigned linenum) {
     options const & o       = i == 0 ? m_options : m_file->m_snapshots[i-1].m_options;
     m_ios.set_options(o);
     io_state_stream out(env, m_ios);
+    out << "-- BEGININFO" << endl;
     m_file->m_info.display(out, linenum);
     out << "-- ENDINFO" << endl;
 }

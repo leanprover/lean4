@@ -35,6 +35,15 @@
   :group 'lean
   :type 'boolean)
 
+(defcustom lean-flycheck-checker-name "lmake"
+  "lean-flychecker checker name"
+  :group 'lean
+  :type 'string)
+
+(defcustom lean-flycheck-checker-options '("--jobs" "--keep-going" "--flycheck")
+  "lean-flychecker checker option"
+  :group 'lean)
+
 (defcustom lean-delete-trailing-whitespace nil
   "Set this variable to true to automatically delete trailing
 whitespace when a buffer is loaded from a file or when it is

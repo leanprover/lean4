@@ -4,12 +4,15 @@
 ;; Author: Soonho Kong
 ;;
 
-(defvar-local lean-flycheck-initialized nil
+(defvar lean-flycheck-initialized nil
   "Return true if lean-flycheck has been initialized")
-(defvar-local lean-flycheck-lmake-name "lmake"
-  "lmake name")
-(defvar-local lean-flycheck-lmake-options "--flycheck"
-  "flycheck option for lean")
+
+(defun lean-flycheck-command ()
+  (cl-concatenate 'list
+                  `(,(lean-get-executable lean-flycheck-checker-name))
+                  lean-flycheck-checker-options
+                  '("--")
+                  '(source-inplace)))
 
 (defun lean-flycheck-init ()
   "Initialize lean-flychek checker"
@@ -18,9 +21,7 @@
     (eval
      `(flycheck-define-checker lean-checker-file
         "A Lean syntax checker (file)."
-        :command (,(lean-get-executable lean-flycheck-lmake-name)
-                  ,lean-flycheck-lmake-options
-                  source-inplace)
+        :command ,(lean-flycheck-command)
         :error-patterns
         ((error line-start "FLYCHECK_BEGIN ERROR\n"
                 (file-name) ":" line ":" column  ": error: "

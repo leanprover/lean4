@@ -86,7 +86,6 @@ parser::parser(environment const & env, io_state const & ios,
     m_env(env), m_ios(ios), m_ngen(g_tmp_prefix),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name, line), m_local_level_decls(lds), m_local_decls(eds),
-    m_pos_table(std::make_shared<pos_info_table>()),
     m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
     m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr) {
     m_num_threads = num_threads;
@@ -239,7 +238,9 @@ tag parser::get_tag(expr e) {
 }
 
 expr parser::save_pos(expr e, pos_info p) {
-    m_pos_table->insert(mk_pair(get_tag(e), p));
+    auto t = get_tag(e);
+    if (!m_pos_table.contains(t))
+        m_pos_table.insert(t, p);
     return e;
 }
 
@@ -302,11 +303,10 @@ expr parser::propagate_levels(expr const & e, levels const & ls) {
 }
 
 pos_info parser::pos_of(expr const & e, pos_info default_pos) {
-    auto it = m_pos_table->find(get_tag(e));
-    if (it == m_pos_table->end())
-        return default_pos;
+    if (auto it = m_pos_table.find(get_tag(e)))
+        return *it;
     else
-        return it->second;
+        return default_pos;
 }
 
 bool parser::curr_is_token(name const & tk) const {
@@ -517,39 +517,54 @@ level parser::parse_level(unsigned rbp) {
     return left;
 }
 
+elaborator_env parser::mk_elaborator_env(pos_info_provider const &  pp, bool check_unassigned) {
+    return elaborator_env(m_env, m_ios, m_local_level_decls, &pp, m_info_manager, check_unassigned);
+}
+
+elaborator_env parser::mk_elaborator_env(environment const & env, pos_info_provider const & pp) {
+    return elaborator_env(env, m_ios, m_local_level_decls, &pp, m_info_manager, true);
+}
+
+elaborator_env parser::mk_elaborator_env(environment const & env, local_level_decls const & lls, pos_info_provider const & pp) {
+    return elaborator_env(env, m_ios, lls, &pp, m_info_manager, true);
+}
+
 std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e, list<expr> const & ctx) {
-    parser_pos_provider pp = get_pos_provider();
     bool relax            = true;
     bool check_unassigned = false;
     bool ensure_type      = false;
-    auto r = ::lean::elaborate(m_env, m_local_level_decls, ctx, m_ios, e, relax, &pp, check_unassigned, ensure_type,
-                               m_info_manager);
+    parser_pos_provider pp = get_pos_provider();
+    elaborator_env env = mk_elaborator_env(pp, check_unassigned);
+    auto r = ::lean::elaborate(env, ctx, e, relax, ensure_type);
     m_pre_info_data.clear();
     return r;
 }
 
 std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<expr> const & ctx) {
-    parser_pos_provider pp = get_pos_provider();
     bool relax            = false;
     bool check_unassigned = true;
     bool ensure_type      = true;
-    auto r = ::lean::elaborate(m_env, m_local_level_decls, ctx, m_ios, e, relax, &pp, check_unassigned, ensure_type,
-                               m_info_manager);
+    parser_pos_provider pp = get_pos_provider();
+    elaborator_env env = mk_elaborator_env(pp, check_unassigned);
+    auto r = ::lean::elaborate(env, ctx, e, relax, ensure_type);
     m_pre_info_data.clear();
     return r;
 }
 
 std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env, expr const & e) {
-    parser_pos_provider pp = get_pos_provider();
     bool relax            = false;
-    auto r = ::lean::elaborate(env, m_local_level_decls, list<expr>(), m_ios, e, relax, &pp, m_info_manager);
+    parser_pos_provider pp = get_pos_provider();
+    elaborator_env eenv = mk_elaborator_env(env, pp);
+    auto r = ::lean::elaborate(eenv, list<expr>(), e, relax);
     m_pre_info_data.clear();
     return r;
 }
 
-std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name const & n, expr const & t, expr const & v, bool is_opaque) {
+std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name const & n, expr const & t, expr const & v,
+                                                                       bool is_opaque) {
     parser_pos_provider pp = get_pos_provider();
-    auto r = ::lean::elaborate(m_env, m_local_level_decls, m_ios, n, t, v, is_opaque, &pp, m_info_manager);
+    elaborator_env eenv = mk_elaborator_env(pp);
+    auto r = ::lean::elaborate(eenv, n, t, v, is_opaque);
     m_pre_info_data.clear();
     return r;
 }
@@ -557,7 +572,8 @@ std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name cons
 std::tuple<expr, expr, level_param_names> parser::elaborate_definition_at(environment const & env, local_level_decls const & lls,
                                                                           name const & n, expr const & t, expr const & v, bool is_opaque) {
     parser_pos_provider pp = get_pos_provider();
-    auto r = ::lean::elaborate(env, lls, m_ios, n, t, v, is_opaque, &pp, m_info_manager);
+    elaborator_env eenv = mk_elaborator_env(env, lls, pp);
+    auto r = ::lean::elaborate(eenv, n, t, v, is_opaque);
     m_pre_info_data.clear();
     return r;
 }

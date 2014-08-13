@@ -9,22 +9,20 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_pos_provider.h"
 
 namespace lean {
-parser_pos_provider::parser_pos_provider(pos_info_table_ptr const & pos_table,
-                                                   std::string const & strm_name, pos_info const & some_pos):
+parser_pos_provider::parser_pos_provider(pos_info_table const & pos_table,
+                                         std::string const & strm_name, pos_info const & some_pos):
     m_pos_table(pos_table), m_strm_name(strm_name), m_pos(some_pos) {}
 
 parser_pos_provider::~parser_pos_provider() {}
 
 optional<pos_info> parser_pos_provider::get_pos_info(expr const & e) const {
-    if (!m_pos_table)
-        return optional<pos_info>();
     tag t = e.get_tag();
     if (t == nulltag)
         return optional<pos_info>();
-    auto it = m_pos_table->find(t);
-    if (it == m_pos_table->end())
+    if (auto it = m_pos_table.find(t))
+        return optional<pos_info>(*it);
+    else
         return optional<pos_info>();
-    return optional<pos_info>(it->second);
 }
 
 pos_info parser_pos_provider::get_some_pos() const {

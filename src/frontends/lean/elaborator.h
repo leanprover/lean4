@@ -14,11 +14,26 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 
 namespace lean {
-std::tuple<expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, list<expr> const & ctx,
-                                              io_state const & ios, expr const & e, bool relax_main_opaque,
-                                              pos_info_provider * pp = nullptr, bool check_unassigned = true,
-                                              bool ensure_type = false, info_manager * info = nullptr);
-std::tuple<expr, expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls,
-                                                    io_state const & ios, name const & n, expr const & t, expr const & v,
-                                                    bool is_opaque, pos_info_provider * pp = nullptr, info_manager * info = nullptr);
+/** \brief Environment for elaboration, it contains all the information that is "scope-indenpendent" */
+class elaborator_env {
+    environment               m_env;
+    io_state                  m_ios;
+    local_decls<level>        m_lls; // local universe levels
+    pos_info_provider const * m_pos_provider;
+    info_manager *            m_info_manager;
+
+    // configuration
+    bool                      m_check_unassigned;
+    bool                      m_use_local_instances;
+    friend class elaborator;
+public:
+    elaborator_env(environment const & env, io_state const & ios, local_decls<level> const & lls,
+                   pos_info_provider const * pp = nullptr, info_manager * info = nullptr, bool check_unassigned = true);
+};
+
+std::tuple<expr, level_param_names> elaborate(elaborator_env & env, list<expr> const & ctx, expr const & e,
+                                              bool relax_main_opaque, bool ensure_type = false);
+
+std::tuple<expr, expr, level_param_names> elaborate(elaborator_env & env, name const & n, expr const & t, expr const & v,
+                                                    bool is_opaque);
 }

@@ -34,6 +34,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/class.h"
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/info_manager.h"
+#include "frontends/lean/elaborator.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
@@ -120,6 +121,12 @@ public:
 
     expr operator()(expr const & e) { return apply(e); }
 };
+
+elaborator_env::elaborator_env(environment const & env, io_state const & ios, local_decls<level> const & lls,
+                               pos_info_provider const * pp, info_manager * info, bool check_unassigned):
+    m_env(env), m_ios(ios), m_lls(lls), m_pos_provider(pp), m_info_manager(info), m_check_unassigned(check_unassigned) {
+    m_use_local_instances = get_elaborator_local_instances(ios.get_options());
+}
 
 /** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
 list<expr> get_local_instances(list<expr> const & ctx, name const & cls_name) {
@@ -285,9 +292,7 @@ class elaborator {
     typedef name_map<expr> local_tactic_hints;
     typedef std::unique_ptr<type_checker> type_checker_ptr;
 
-    environment         m_env;
-    local_decls<level>  m_lls;
-    io_state            m_ios;
+    elaborator_env &    m_env;
     name_generator      m_ngen;
     type_checker_ptr    m_tc[2];
     mvar2meta           m_mvar2meta; // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
@@ -295,15 +300,11 @@ class elaborator {
     context             m_context; // current local context: a list of local constants
     context             m_full_context; // superset of m_context, it also contains non-contextual locals.
 
-    pos_info_provider * m_pos_provider; // optional expression position information used when reporting errors.
     constraint_vect     m_constraints; // constraints that must be solved for the elaborated term to be type correct.
     local_tactic_hints  m_local_tactic_hints; // mapping from metavariable name ?m to tactic expression that should be used to solve it.
                                               // this mapping is populated by the 'by tactic-expr' expression.
     name_set            m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
-    bool                m_check_unassigned; // if true if display error messages if elaborated term still contains metavariables
-    bool                m_use_local_instances; // if true class-instance resolution will use the local context
     bool                m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent
-    info_manager *      m_info_manager;
     std::vector<type_info_data> m_pre_info_data;
 
     struct scope_ctx {
@@ -427,7 +428,7 @@ class elaborator {
         }
 
         optional<constraints> try_instance(name const & inst) {
-            auto decl   = m_elab.m_env.find(inst);
+            auto decl   = m_elab.env().find(inst);
             if (!decl)
                 return optional<constraints>();
             expr type   = decl->get_type();
@@ -487,7 +488,7 @@ class elaborator {
                 m_tactics          = tail(m_tactics);
                 proof_state ps(goals(goal(m_meta, m_meta_type)), substitution(), m_elab.m_ngen.mk_child());
                 try {
-                    m_tactic_result    = tac(m_elab.m_env, m_elab.m_ios, ps);
+                    m_tactic_result    = tac(m_elab.env(), m_elab.ios(), ps);
                     if (auto cs = get_next_tactic_result())
                         return cs;
                 } catch (exception &) {}
@@ -511,20 +512,23 @@ class elaborator {
     }
 
 public:
-    elaborator(environment const & env, local_decls<level> const & lls, list<expr> const & ctx, io_state const & ios, name_generator const & ngen,
-               pos_info_provider * pp, bool check_unassigned, info_manager * info):
-        m_env(env), m_lls(lls), m_ios(ios),
+    elaborator(elaborator_env & env, list<expr> const & ctx, name_generator const & ngen):
+        m_env(env),
         m_ngen(ngen),
         m_context(m_ngen, m_mvar2meta, ctx),
-        m_full_context(m_ngen, m_mvar2meta, ctx),
-        m_pos_provider(pp),
-        m_info_manager(info) {
+        m_full_context(m_ngen, m_mvar2meta, ctx) {
         m_relax_main_opaque = false;
-        m_tc[0] = mk_type_checker_with_hints(env, m_ngen.mk_child(), false);
-        m_tc[1] = mk_type_checker_with_hints(env, m_ngen.mk_child(), true);
-        m_check_unassigned = check_unassigned;
-        m_use_local_instances = get_elaborator_local_instances(ios.get_options());
+        m_tc[0] = mk_type_checker_with_hints(env.m_env, m_ngen.mk_child(), false);
+        m_tc[1] = mk_type_checker_with_hints(env.m_env, m_ngen.mk_child(), true);
     }
+
+    environment const & env() const { return m_env.m_env; }
+    io_state const & ios() const { return m_env.m_ios; }
+    local_decls<level> const & lls() const { return m_env.m_lls; }
+    bool use_local_instances() const { return m_env.m_use_local_instances; }
+    info_manager * infom() const { return m_env.m_info_manager; }
+    pos_info_provider const * pip() const { return m_env.m_pos_provider; }
+    bool check_unassigned() const { return m_env.m_check_unassigned; }
 
     expr mk_local(name const & n, expr const & t, binder_info const & bi) {
         return ::lean::mk_local(m_ngen.next(), n, t, bi);
@@ -560,7 +564,7 @@ public:
     list<name> get_class_instances(expr const & type) {
         if (is_constant(get_app_fn(type))) {
             name const & c = const_name(get_app_fn(type));
-            return ::lean::get_class_instances(m_env, c);
+            return ::lean::get_class_instances(env(), c);
         } else {
             return list<name>();
         }
@@ -571,7 +575,7 @@ public:
         if (!is_constant(f))
             return false;
         name const & cls_name = const_name(f);
-        return ::lean::is_class(m_env, cls_name) || !empty(get_tactic_hints(m_env, cls_name));
+        return ::lean::is_class(env(), cls_name) || !empty(get_tactic_hints(env(), cls_name));
     }
 
     static expr instantiate_meta(expr const & meta, substitution & subst) {
@@ -585,11 +589,11 @@ public:
     /** \brief Return a 'failed to synthesize placholder' justification for the given
         metavariable application \c m of the form (?m l_1 ... l_k) */
     justification mk_failed_to_synthesize_jst(expr const & m) {
-        environment env = m_env;
+        environment _env = env();
         return mk_justification(m, [=](formatter const & fmt, substitution const & subst) {
                 substitution tmp(subst);
                 expr new_m    = instantiate_meta(m, tmp);
-                expr new_type = type_checker(env).infer(new_m);
+                expr new_type = type_checker(_env).infer(new_m);
                 proof_state ps(goals(goal(new_m, new_type)), substitution(), name_generator("dontcare"));
                 return format({format("failed to synthesize placeholder"), line(), ps.pp(fmt)});
             });
@@ -608,12 +612,12 @@ public:
             if (is_class(meta_type)) {
                 name const & cls_name = const_name(get_app_fn(meta_type));
                 list<expr> local_insts;
-                if (m_use_local_instances)
+                if (use_local_instances())
                     local_insts = get_local_instances(ctx, cls_name);
                 list<name>  insts = get_class_instances(meta_type);
                 list<tactic_hint_entry> tacs;
                 if (!s.is_assigned(mvar))
-                    tacs = get_tactic_hints(m_env, cls_name);
+                    tacs = get_tactic_hints(env(), cls_name);
                 if (empty(local_insts) && empty(insts) && empty(tacs))
                     return lazy_list<constraints>(); // nothing to be done
                 bool ignore_failure = false; // we are always strict with placeholders associated with classes
@@ -624,7 +628,7 @@ public:
                 // the an empty set of constraints.
                 return lazy_list<constraints>(constraints());
             } else {
-                list<tactic_hint_entry> tacs = get_tactic_hints(m_env);
+                list<tactic_hint_entry> tacs = get_tactic_hints(env());
                 bool ignore_failure = !is_strict;
                 return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, list<expr>(), list<name>(), tacs, ctx, full_ctx,
                                                                        j, ignore_failure, m_relax_main_opaque));
@@ -702,13 +706,13 @@ public:
         }
         if (!is_pi(f_type)) {
             // try coercion to function-class
-            optional<expr> c = get_coercion_to_fun(m_env, f_type);
+            optional<expr> c = get_coercion_to_fun(env(), f_type);
             if (c) {
                 f = mk_app(*c, f, f.get_tag());
                 f_type = infer_type(f);
                 lean_assert(is_pi(f_type));
             } else {
-                throw_kernel_exception(m_env, f, [=](formatter const & fmt) { return pp_function_expected(fmt, f); });
+                throw_kernel_exception(env(), f, [=](formatter const & fmt) { return pp_function_expected(fmt, f); });
             }
         }
         lean_assert(is_pi(f_type));
@@ -717,12 +721,12 @@ public:
 
     bool has_coercions_from(expr const & a_type) {
         expr const & a_cls = get_app_fn(whnf(a_type));
-        return is_constant(a_cls) && ::lean::has_coercions_from(m_env, const_name(a_cls));
+        return is_constant(a_cls) && ::lean::has_coercions_from(env(), const_name(a_cls));
     }
 
     bool has_coercions_to(expr const & d_type) {
         expr const & d_cls = get_app_fn(whnf(d_type));
-        return is_constant(d_cls) && ::lean::has_coercions_to(m_env, const_name(d_cls));
+        return is_constant(d_cls) && ::lean::has_coercions_to(env(), const_name(d_cls));
     }
 
     expr apply_coercion(expr const & a, expr a_type, expr d_type) {
@@ -730,7 +734,7 @@ public:
         d_type = whnf(d_type);
         expr const & d_cls = get_app_fn(d_type);
         if (is_constant(d_cls)) {
-            if (auto c = get_coercion(m_env, a_type, const_name(d_cls)))
+            if (auto c = get_coercion(env(), a_type, const_name(d_cls)))
                 return mk_app(*c, a, a.get_tag());
         }
         return a;
@@ -883,8 +887,8 @@ public:
 
     /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
     void save_info_data_core(expr const & e, expr const & r, bool replace) {
-        if (m_info_manager && m_pos_provider && (is_constant(e) || is_local(e) || is_placeholder(e))) {
-            if (auto p = m_pos_provider->get_pos_info(e)) {
+        if (infom() && pip() && (is_constant(e) || is_local(e) || is_placeholder(e))) {
+            if (auto p = pip()->get_pos_info(e)) {
                 type_checker::scope scope(*m_tc[m_relax_main_opaque]);
                 expr t = m_tc[m_relax_main_opaque]->infer(r);
                 if (replace) {
@@ -905,13 +909,13 @@ public:
     }
 
     expr visit_constant(expr const & e) {
-        declaration d = m_env.get(const_name(e));
+        declaration d = env().get(const_name(e));
         buffer<level> ls;
         for (level const & l : const_levels(e))
             ls.push_back(replace_univ_placeholder(l));
         unsigned num_univ_params = length(d.get_univ_params());
         if (num_univ_params < ls.size())
-            throw_kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '"
+            throw_kernel_exception(env(), sstream() << "incorrect number of universe levels parameters for '"
                                    << const_name(e) << "', #" << num_univ_params
                                    << " expected, #" << ls.size() << " provided");
         // "fill" with meta universe parameters
@@ -939,10 +943,10 @@ public:
                 return e;
             }
         }
-        optional<expr> c = get_coercion_to_sort(m_env, t);
+        optional<expr> c = get_coercion_to_sort(env(), t);
         if (c)
             return mk_app(*c, e, e.get_tag());
-        throw_kernel_exception(m_env, e, [=](formatter const & fmt) { return pp_type_expected(fmt, e); });
+        throw_kernel_exception(env(), e, [=](formatter const & fmt) { return pp_type_expected(fmt, e); });
     }
 
     /** \brief Similar to instantiate_rev, but assumes that subst contains only local constants.
@@ -1061,7 +1065,7 @@ public:
         buffer<constraint> cs;
         cs.append(m_constraints);
         m_constraints.clear();
-        return unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), true, m_ios.get_options());
+        return unify(env(), cs.size(), cs.data(), m_ngen.mk_child(), true, ios().get_options());
     }
 
     static void collect_metavars(expr const & e, buffer<expr> & mvars) {
@@ -1078,9 +1082,9 @@ public:
         lean_assert(is_metavar(mvar));
         if (!m_displayed_errors.contains(mlocal_name(mvar))) {
             m_displayed_errors.insert(mlocal_name(mvar));
-            auto out = regular(m_env, m_ios);
+            auto out = regular(env(), ios());
             flycheck_error err(out);
-            display_error_pos(out, m_pos_provider, mvar);
+            display_error_pos(out, pip(), mvar);
             out << " unsolved placeholder, " << msg << "\n" << ps << endl;
         }
     }
@@ -1112,10 +1116,10 @@ public:
 
     optional<tactic> pre_tactic_to_tactic(expr const & pre_tac, expr const & mvar) {
         try {
-            return optional<tactic>(expr_to_tactic(m_env, pre_tac, m_pos_provider));
+            return optional<tactic>(expr_to_tactic(env(), pre_tac, pip()));
         } catch (expr_to_tactic_exception & ex) {
-            auto out = regular(m_env, m_ios);
-            display_error_pos(out, m_pos_provider, mvar);
+            auto out = regular(env(), ios());
+            display_error_pos(out, pip(), mvar);
             out << " " << ex.what();
             out << pp_indent_expr(out.get_formatter(), pre_tac) << endl << "failed at:"
                 << pp_indent_expr(out.get_formatter(), ex.get_expr()) << endl;
@@ -1140,7 +1144,7 @@ public:
         // make sure ps is a really a proof state for mvar.
         lean_assert(mlocal_name(get_app_fn(head(ps.get_goals()).get_meta())) == mlocal_name(mvar));
         try {
-            proof_state_seq seq = tac(m_env, m_ios, ps);
+            proof_state_seq seq = tac(env(), ios(), ps);
             auto r = seq.pull();
             if (!r) {
                 // tactic failed to produce any result
@@ -1157,8 +1161,8 @@ public:
                 return true;
             }
         } catch (tactic_exception & ex) {
-            auto out = regular(m_env, m_ios);
-            display_error_pos(out, m_pos_provider, ex.get_expr());
+            auto out = regular(env(), ios());
+            display_error_pos(out, pip(), ex.get_expr());
             out << " tactic failed: " << ex.what() << "\n";
             return false;
         }
@@ -1200,14 +1204,14 @@ public:
     }
 
     void display_unassigned_mvars(expr const & e, substitution const & s) {
-        if (m_check_unassigned && has_metavar(e)) {
+        if (check_unassigned() && has_metavar(e)) {
             substitution tmp_s(s);
             for_each(e, [&](expr const & e, unsigned) {
                     if (!is_metavar(e))
                         return has_metavar(e);
                     if (auto it = m_mvar2meta.find(mlocal_name(e))) {
                         expr meta      = tmp_s.instantiate(*it);
-                        expr meta_type = tmp_s.instantiate(type_checker(m_env).infer(meta));
+                        expr meta_type = tmp_s.instantiate(type_checker(env()).infer(meta));
                         goal g(meta, meta_type);
                         display_unsolved_proof_state(e, proof_state(goals(g), substitution(), m_ngen),
                                                      "don't know how to synthesize it");
@@ -1221,7 +1225,7 @@ public:
     expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params) {
         expr r = s.instantiate(e);
         if (has_univ_metavar(r))
-            r = univ_metavars_to_params_fn(m_env, m_lls, s, univ_params, new_params)(r);
+            r = univ_metavars_to_params_fn(env(), lls(), s, univ_params, new_params)(r);
         r = solve_unassigned_mvars(s, r);
         display_unassigned_mvars(r, s);
         return r;
@@ -1235,15 +1239,15 @@ public:
     }
 
     void copy_info_to_manager(substitution s) {
-        if (!m_info_manager)
+        if (!infom())
             return;
         for (auto & p : m_pre_info_data)
             p = type_info_data(p.get_line(), p.get_column(), s.instantiate(p.get_type()));
-        m_info_manager->append(m_pre_info_data);
+        infom()->append(m_pre_info_data);
     }
 
     std::tuple<expr, level_param_names> operator()(expr const & e, bool _ensure_type, bool relax_main_opaque) {
-        flet<bool> set_relax(m_relax_main_opaque, relax_main_opaque && !get_hide_main_opaque(m_env));
+        flet<bool> set_relax(m_relax_main_opaque, relax_main_opaque && !get_hide_main_opaque(env()));
         expr r  = visit(e);
         if (_ensure_type)
             r = ensure_type(r);
@@ -1259,7 +1263,7 @@ public:
         lean_assert(!has_local(t)); lean_assert(!has_local(v));
         expr r_t      = ensure_type(visit(t));
         // Opaque definitions in the main module may treat other opaque definitions (in the main module) as transparent.
-        flet<bool> set_relax(m_relax_main_opaque, is_opaque && !get_hide_main_opaque(m_env));
+        flet<bool> set_relax(m_relax_main_opaque, is_opaque && !get_hide_main_opaque(env()));
         expr r_v      = visit(v);
         expr r_v_type = infer_type(r_v);
         justification j = mk_justification(r_v, [=](formatter const & fmt, substitution const & subst) {
@@ -1281,16 +1285,13 @@ public:
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
-std::tuple<expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, list<expr> const & ctx,
-                                              io_state const & ios, expr const & e, bool relax_main_opaque,
-                                              pos_info_provider * pp, bool check_unassigned, bool ensure_type,
-                                              info_manager * info) {
-    return elaborator(env, lls, ctx, ios, name_generator(g_tmp_prefix), pp, check_unassigned, info)(e, ensure_type, relax_main_opaque);
+std::tuple<expr, level_param_names> elaborate(elaborator_env & env, list<expr> const & ctx, expr const & e,
+                                              bool relax_main_opaque, bool ensure_type) {
+    return elaborator(env, ctx, name_generator(g_tmp_prefix))(e, ensure_type, relax_main_opaque);
 }
 
-std::tuple<expr, expr, level_param_names> elaborate(environment const & env, local_decls<level> const & lls, io_state const & ios,
-                                                    name const & n, expr const & t, expr const & v, bool is_opaque, pos_info_provider * pp,
-                                                    info_manager * info) {
-    return elaborator(env, lls, list<expr>(), ios, name_generator(g_tmp_prefix), pp, true, info)(t, v, n, is_opaque);
+std::tuple<expr, expr, level_param_names> elaborate(elaborator_env & env, name const & n, expr const & t, expr const & v,
+                                                    bool is_opaque) {
+    return elaborator(env, list<expr>(), name_generator(g_tmp_prefix))(t, v, n, is_opaque);
 }
 }

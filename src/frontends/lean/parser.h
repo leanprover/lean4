@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/definitions_cache.h"
 #include "frontends/lean/scanner.h"
+#include "frontends/lean/elaborator.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/parser_pos_provider.h"
@@ -75,7 +76,7 @@ class parser {
     unsigned                m_next_tag_idx;
     bool                    m_found_errors;
     bool                    m_used_sorry;
-    pos_info_table_ptr      m_pos_table;
+    pos_info_table          m_pos_table;
     // By default, when the parser finds a unknown identifier, it signs an error.
     // When the following flag is true, it creates a constant.
     // This flag is when we are trying to parse mutually recursive declarations.
@@ -161,6 +162,10 @@ class parser {
     void save_overload(expr const & e);
     void save_type_info(expr const & e);
     void save_pre_info_data();
+
+    elaborator_env mk_elaborator_env(pos_info_provider const & pp, bool check_unassigned = true);
+    elaborator_env mk_elaborator_env(environment const & env, pos_info_provider const & pp);
+    elaborator_env mk_elaborator_env(environment const & env, local_level_decls const & lls, pos_info_provider const & pp);
 
 public:
     parser(environment const & env, io_state const & ios,

@@ -122,8 +122,8 @@ public:
     expr operator()(expr const & e) { return apply(e); }
 };
 
-elaborator_env::elaborator_env(environment const & env, io_state const & ios, local_decls<level> const & lls,
-                               pos_info_provider const * pp, info_manager * info, bool check_unassigned):
+elaborator_context::elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,
+                                       pos_info_provider const * pp, info_manager * info, bool check_unassigned):
     m_env(env), m_ios(ios), m_lls(lls), m_pos_provider(pp), m_info_manager(info), m_check_unassigned(check_unassigned) {
     m_use_local_instances = get_elaborator_local_instances(ios.get_options());
 }
@@ -292,19 +292,19 @@ class elaborator {
     typedef name_map<expr> local_tactic_hints;
     typedef std::unique_ptr<type_checker> type_checker_ptr;
 
-    elaborator_env &    m_env;
-    name_generator      m_ngen;
-    type_checker_ptr    m_tc[2];
-    mvar2meta           m_mvar2meta; // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
+    elaborator_context & m_env;
+    name_generator       m_ngen;
+    type_checker_ptr     m_tc[2];
+    mvar2meta            m_mvar2meta; // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
                                      // representing the context where ?m was created.
-    context             m_context; // current local context: a list of local constants
-    context             m_full_context; // superset of m_context, it also contains non-contextual locals.
+    context              m_context; // current local context: a list of local constants
+    context              m_full_context; // superset of m_context, it also contains non-contextual locals.
 
-    constraint_vect     m_constraints; // constraints that must be solved for the elaborated term to be type correct.
-    local_tactic_hints  m_local_tactic_hints; // mapping from metavariable name ?m to tactic expression that should be used to solve it.
+    constraint_vect      m_constraints; // constraints that must be solved for the elaborated term to be type correct.
+    local_tactic_hints   m_local_tactic_hints; // mapping from metavariable name ?m to tactic expression that should be used to solve it.
                                               // this mapping is populated by the 'by tactic-expr' expression.
-    name_set            m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
-    bool                m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent
+    name_set             m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
+    bool                 m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent
     std::vector<type_info_data> m_pre_info_data;
 
     struct scope_ctx {
@@ -512,7 +512,7 @@ class elaborator {
     }
 
 public:
-    elaborator(elaborator_env & env, list<expr> const & ctx, name_generator const & ngen):
+    elaborator(elaborator_context & env, list<expr> const & ctx, name_generator const & ngen):
         m_env(env),
         m_ngen(ngen),
         m_context(m_ngen, m_mvar2meta, ctx),
@@ -1285,12 +1285,12 @@ public:
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
-std::tuple<expr, level_param_names> elaborate(elaborator_env & env, list<expr> const & ctx, expr const & e,
+std::tuple<expr, level_param_names> elaborate(elaborator_context & env, list<expr> const & ctx, expr const & e,
                                               bool relax_main_opaque, bool ensure_type) {
     return elaborator(env, ctx, name_generator(g_tmp_prefix))(e, ensure_type, relax_main_opaque);
 }
 
-std::tuple<expr, expr, level_param_names> elaborate(elaborator_env & env, name const & n, expr const & t, expr const & v,
+std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t, expr const & v,
                                                     bool is_opaque) {
     return elaborator(env, list<expr>(), name_generator(g_tmp_prefix))(t, v, n, is_opaque);
 }

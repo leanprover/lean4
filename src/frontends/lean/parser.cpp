@@ -517,16 +517,16 @@ level parser::parse_level(unsigned rbp) {
     return left;
 }
 
-elaborator_env parser::mk_elaborator_env(pos_info_provider const &  pp, bool check_unassigned) {
-    return elaborator_env(m_env, m_ios, m_local_level_decls, &pp, m_info_manager, check_unassigned);
+elaborator_context parser::mk_elaborator_context(pos_info_provider const &  pp, bool check_unassigned) {
+    return elaborator_context(m_env, m_ios, m_local_level_decls, &pp, m_info_manager, check_unassigned);
 }
 
-elaborator_env parser::mk_elaborator_env(environment const & env, pos_info_provider const & pp) {
-    return elaborator_env(env, m_ios, m_local_level_decls, &pp, m_info_manager, true);
+elaborator_context parser::mk_elaborator_context(environment const & env, pos_info_provider const & pp) {
+    return elaborator_context(env, m_ios, m_local_level_decls, &pp, m_info_manager, true);
 }
 
-elaborator_env parser::mk_elaborator_env(environment const & env, local_level_decls const & lls, pos_info_provider const & pp) {
-    return elaborator_env(env, m_ios, lls, &pp, m_info_manager, true);
+elaborator_context parser::mk_elaborator_context(environment const & env, local_level_decls const & lls, pos_info_provider const & pp) {
+    return elaborator_context(env, m_ios, lls, &pp, m_info_manager, true);
 }
 
 std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e, list<expr> const & ctx) {
@@ -534,7 +534,7 @@ std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e, li
     bool check_unassigned = false;
     bool ensure_type      = false;
     parser_pos_provider pp = get_pos_provider();
-    elaborator_env env = mk_elaborator_env(pp, check_unassigned);
+    elaborator_context env = mk_elaborator_context(pp, check_unassigned);
     auto r = ::lean::elaborate(env, ctx, e, relax, ensure_type);
     m_pre_info_data.clear();
     return r;
@@ -545,7 +545,7 @@ std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<
     bool check_unassigned = true;
     bool ensure_type      = true;
     parser_pos_provider pp = get_pos_provider();
-    elaborator_env env = mk_elaborator_env(pp, check_unassigned);
+    elaborator_context env = mk_elaborator_context(pp, check_unassigned);
     auto r = ::lean::elaborate(env, ctx, e, relax, ensure_type);
     m_pre_info_data.clear();
     return r;
@@ -554,7 +554,7 @@ std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<
 std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env, expr const & e) {
     bool relax            = false;
     parser_pos_provider pp = get_pos_provider();
-    elaborator_env eenv = mk_elaborator_env(env, pp);
+    elaborator_context eenv = mk_elaborator_context(env, pp);
     auto r = ::lean::elaborate(eenv, list<expr>(), e, relax);
     m_pre_info_data.clear();
     return r;
@@ -563,7 +563,7 @@ std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env
 std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name const & n, expr const & t, expr const & v,
                                                                        bool is_opaque) {
     parser_pos_provider pp = get_pos_provider();
-    elaborator_env eenv = mk_elaborator_env(pp);
+    elaborator_context eenv = mk_elaborator_context(pp);
     auto r = ::lean::elaborate(eenv, n, t, v, is_opaque);
     m_pre_info_data.clear();
     return r;
@@ -572,7 +572,7 @@ std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name cons
 std::tuple<expr, expr, level_param_names> parser::elaborate_definition_at(environment const & env, local_level_decls const & lls,
                                                                           name const & n, expr const & t, expr const & v, bool is_opaque) {
     parser_pos_provider pp = get_pos_provider();
-    elaborator_env eenv = mk_elaborator_env(env, lls, pp);
+    elaborator_context eenv = mk_elaborator_context(env, lls, pp);
     auto r = ::lean::elaborate(eenv, n, t, v, is_opaque);
     m_pre_info_data.clear();
     return r;

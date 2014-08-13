@@ -163,9 +163,9 @@ class parser {
     void save_type_info(expr const & e);
     void save_pre_info_data();
 
-    elaborator_env mk_elaborator_env(pos_info_provider const & pp, bool check_unassigned = true);
-    elaborator_env mk_elaborator_env(environment const & env, pos_info_provider const & pp);
-    elaborator_env mk_elaborator_env(environment const & env, local_level_decls const & lls, pos_info_provider const & pp);
+    elaborator_context mk_elaborator_context(pos_info_provider const & pp, bool check_unassigned = true);
+    elaborator_context mk_elaborator_context(environment const & env, pos_info_provider const & pp);
+    elaborator_context mk_elaborator_context(environment const & env, local_level_decls const & lls, pos_info_provider const & pp);
 
 public:
     parser(environment const & env, io_state const & ios,

@@ -197,8 +197,8 @@ auto scanner::read_number() -> token_kind {
 void scanner::read_single_line_comment() {
     while (true) {
         if (curr() == '\n') {
-            new_line();
             next();
+            new_line();
             return;
         } else if (curr() == EOF) {
             return;

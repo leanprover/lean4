@@ -137,7 +137,7 @@ def get_target(s):
     oleanfile = get_olean(s)
     return oleanfile if oleanfile is not None else s
 
-def call_makefile(directory, makefile, args, lean_options):
+def call_makefile(directory, makefile, makefile_options, args, lean_options):
     """ Call makefile with a target generated from a given arg """
     env_copy = os.environ.copy()
     env_copy['LEAN'] = find_lean_exe()
@@ -146,36 +146,66 @@ def call_makefile(directory, makefile, args, lean_options):
         env_copy['LEAN_OPTIONS'] = env_copy['LEAN_OPTIONS'] + lean_options_str
     else:
         env_copy['LEAN_OPTIONS'] = lean_options_str
-    cmd = ["make", "-j"]
+    cmd = ["make"]
     if makefile:
-        cmd = cmd + ["--makefile", makefile]
+        cmd += ["--makefile", makefile]
     if directory:
-        cmd = cmd + ["-C", directory]
+        cmd += ["-C", directory]
+    cmd += makefile_options
+    print "LEAN_OPTIONS =", env_copy['LEAN_OPTIONS']
+    print "CMD =", cmd
     for arg in args:
         target = get_target(arg)
         cmd.append(target)
     subprocess.call(cmd, stderr=subprocess.STDOUT, env=env_copy)
 
+def check_positive(value):
+    ivalue = int(value)
+    if ivalue <= 0:
+         raise argparse.ArgumentTypeError("%s is an invalid positive int value" % value)
+    return ivalue
+
 def parse_arg(argv):
     """ Parse arguments """
     parser = argparse.ArgumentParser(description='Process arguments.')
-    parser.add_argument('--flycheck', '-F', action='store_true', default=False, help="Use --flycheck option for Lean")
-    parser.add_argument('--flyinfo',  '-I', action='store_true', default=False, help="Use --flyinfo option for Lean")
-    parser.add_argument('--directory', '-C', action='store', help="Change to directory dir before reading the makefiles or doing anything else.")
-    parser.add_argument('--makefile', '-f', '--file', action='store', help="Use file as a makefile.")
+    parser.add_argument('--flycheck',   '-F', action='store_true', default=False, help="Use --flycheck option for Lean.")
+    parser.add_argument('--flyinfo',    '-I', action='store_true', default=False, help="Use --flyinfo option for Lean.")
+    parser.add_argument('--keep-going', '-k', action='store_true', default=False, help="Continue as much as possible after an error.")
+    parser.add_argument('--directory',  '-C', action='store', help="Change to directory dir before reading the makefiles or doing anything else.")
+    parser.add_argument('--makefile',   '-f', '--file', action='store', help="Use file as a makefile.")
+    parser.add_argument('--jobs',       '-j', nargs='?', default=-1, const=-2, type=check_positive, help="Specifies the number of jobs (commands) to run simultaneously.")
     parser.add_argument('targets', nargs='*')
     args = parser.parse_args(argv)
+    lean_options = extract_lean_options(args)
+    makefile_options = extract_makefile_options(args)
+    return (args.directory, args.makefile, makefile_options, lean_options, args.targets)
+
+def extract_lean_options(args):
     lean_options = []
     if args.flycheck:
         lean_options.append("--flycheck")
     if args.flyinfo:
         lean_options.append("--flyinfo")
-    return (args.directory, args.makefile, lean_options, args.targets)
+    return lean_options
+
+def extract_makefile_options(args):
+    makefile_options = []
+    if args.keep_going:
+        makefile_options.append("--keep-going")
+    # Default Value
+    if args.jobs == -1:
+        pass
+    elif args.jobs == -2:
+        makefile_options.append("-j")
+    elif args.jobs:
+        makefile_options += ["-j", args.jobs]
+    print makefile_options
+    return makefile_options
 
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
-    (directory, makefile, lean_options, args) = parse_arg(argv)
+    (directory, makefile, makefile_options, lean_options, args) = parse_arg(argv)
     working_dir = os.getcwd()
     if makefile is None and directory is None:
         makefile_names = ["GNUmakefile", "makefile", "Makefile"]
@@ -183,7 +213,7 @@ def main(argv=None):
         if makefile:
             directory = os.path.dirname(makefile)
     if directory or makefile:
-        call_makefile(directory, makefile, args, lean_options)
+        call_makefile(directory, makefile, makefile_options, args, lean_options)
     else:
         for arg in args:
             leanfile = get_lean(arg)

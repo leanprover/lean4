@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/thread.h"
 #include "kernel/expr.h"
+#include "kernel/metavar.h"
 #include "library/io_state_stream.h"
 
 namespace lean {
@@ -23,15 +24,24 @@ public:
     unsigned get_column() const { return m_column; }
     bool eq_pos(unsigned line, unsigned col) const { return m_line == line && m_column == col; }
     virtual void display(io_state_stream const & ios) const = 0;
+    virtual void instantiate(substitution &) {}
 };
 bool operator<(info_data const & i1, info_data const & i2);
 
 class type_info_data : public info_data {
+protected:
     expr m_expr;
 public:
     type_info_data() {}
     type_info_data(unsigned l, unsigned c, expr const & e):info_data(l, c), m_expr(e) {}
     expr const & get_type() const { return m_expr; }
+    virtual void display(io_state_stream const & ios) const;
+    virtual void instantiate(substitution & s) { m_expr = s.instantiate(m_expr); }
+};
+
+class synth_info_data : public type_info_data {
+public:
+    synth_info_data(unsigned l, unsigned c, expr const & e):type_info_data(l, c, e) {}
     virtual void display(io_state_stream const & ios) const;
 };
 
@@ -61,8 +71,8 @@ public:
     info_manager();
     void invalidate(unsigned sline);
     void add(std::unique_ptr<info_data> && d);
-    void append(std::vector<std::unique_ptr<info_data>> && v);
-    void append(std::vector<type_info_data> & v, bool remove_duplicates = true);
+    void append(std::vector<std::unique_ptr<info_data>> && v, bool remove_duplicates = true);
+    void append(std::vector<type_info_data> & v, bool remove_duplicates);
     void sort();
     void display(io_state_stream const & ios, unsigned line);
 };

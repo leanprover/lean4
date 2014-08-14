@@ -101,6 +101,14 @@ Information for overloaded operators and symbols is of the form
 -- ACK
 #+END_SRC
 
+Information for synthesized placeholders is of the form
+
+#+BEGIN_SRC
+-- SYNTH|[line-number]|[column-number]
+[synthesized-term]
+-- ACK
+#+END_SRC
+
 Here is an example of output produced by Lean
 
 #+BEGIN_SRC

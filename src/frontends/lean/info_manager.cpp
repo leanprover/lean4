@@ -28,6 +28,12 @@ void type_info_data::display(io_state_stream const & ios) const {
     ios << "-- ACK" << endl;
 }
 
+void synth_info_data::display(io_state_stream const & ios) const {
+    ios << "-- SYNTH|" << get_line() << "|" << get_column() << "\n";
+    ios << m_expr << endl;
+    ios << "-- ACK" << endl;
+}
+
 void overload_info_data::display(io_state_stream const & ios) const {
     ios << "-- OVERLOAD|" << get_line() << "|" << get_column() << "\n";
     options os = ios.get_options();
@@ -111,24 +117,22 @@ void info_manager::add(std::unique_ptr<info_data> && d) {
     add_core(std::move(d));
 }
 
-void info_manager::append(std::vector<std::unique_ptr<info_data>> && v) {
+void info_manager::append(std::vector<std::unique_ptr<info_data>> && vs, bool remove_duplicates) {
     lock_guard<mutex> lc(m_mutex);
-    for (auto & d : v)
-        add_core(std::move(d));
-}
-
-void info_manager::append(std::vector<type_info_data> & v, bool remove_duplicates) {
-    lock_guard<mutex> lc(m_mutex);
-    std::stable_sort(v.begin(), v.end());
-    type_info_data prev;
+    std::stable_sort(vs.begin(), vs.end(), [](std::unique_ptr<info_data> const & v1, std::unique_ptr<info_data> const & v2) {
+            return *v1 < *v2; });
+    info_data * prev = nullptr;
     bool first = true;
-    for (auto const & p : v) {
-        if (!remove_duplicates || first || !p.eq_pos(prev.get_line(), prev.get_column())) {
-            add_core(std::unique_ptr<info_data>(new type_info_data(p)));
-            prev  = p;
+    for (auto & v : vs) {
+        if (!remove_duplicates || first || !v->eq_pos(prev->get_line(), prev->get_column())) {
+            prev = v.get();
+            add_core(std::move(v));
             first = false;
         }
     }
+}
+
+void info_manager::append(std::vector<type_info_data> & v, bool remove_duplicates) {
 }
 
 void info_manager::sort() {

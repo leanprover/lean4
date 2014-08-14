@@ -303,9 +303,9 @@ class elaborator {
     constraint_vect      m_constraints; // constraints that must be solved for the elaborated term to be type correct.
     local_tactic_hints   m_local_tactic_hints; // mapping from metavariable name ?m to tactic expression that should be used to solve it.
                                               // this mapping is populated by the 'by tactic-expr' expression.
-    name_set             m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
-    bool                 m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent
-    std::vector<type_info_data> m_pre_info_data;
+    name_set               m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
+    bool                   m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent
+    std::vector<std::unique_ptr<info_data>> m_pre_info_data;
 
     struct scope_ctx {
         context::scope m_scope1;
@@ -652,6 +652,7 @@ public:
         if (is_placeholder(e) && !placeholder_type(e)) {
             expr r = m_context.mk_type_meta(e.get_tag());
             save_info_data(e, r);
+            save_synth_data(e, r);
             return r;
         } else {
             return visit(e);
@@ -662,6 +663,7 @@ public:
         if (is_placeholder(e) && !placeholder_type(e)) {
             expr r = mk_placeholder_meta(some_expr(t), e.get_tag(), is_strict_placeholder(e));
             save_info_data(e, r);
+            save_synth_data(e, r);
             return r;
         } else if (is_choice(e)) {
             return visit_choice(e, some_expr(t));
@@ -864,6 +866,7 @@ public:
     expr visit_placeholder(expr const & e) {
         expr r = mk_placeholder_meta(placeholder_type(e), e.get_tag(), is_strict_placeholder(e));
         save_info_data(e, r);
+        save_synth_data(e, r);
         return r;
     }
 
@@ -900,10 +903,10 @@ public:
                 type_checker::scope scope(*m_tc[m_relax_main_opaque]);
                 expr t = m_tc[m_relax_main_opaque]->infer(r);
                 if (replace) {
-                    while (!m_pre_info_data.empty() && m_pre_info_data.back().eq_pos(p->first, p->second))
+                    while (!m_pre_info_data.empty() && m_pre_info_data.back()->eq_pos(p->first, p->second))
                         m_pre_info_data.pop_back();
                 }
-                m_pre_info_data.push_back(type_info_data(p->first, p->second, t));
+                m_pre_info_data.push_back(std::unique_ptr<info_data>(new type_info_data(p->first, p->second, t)));
             }
         }
     }
@@ -914,6 +917,14 @@ public:
 
     void replace_info_data(expr const & e, expr const & r) {
         save_info_data_core(e, r, true);
+    }
+
+    void save_synth_data(expr const & e, expr const & r) {
+        if (infom() && pip() && is_placeholder(e)) {
+            if (auto p = pip()->get_pos_info(e)) {
+                m_pre_info_data.push_back(std::unique_ptr<info_data>(new synth_info_data(p->first, p->second, r)));
+            }
+        }
     }
 
     expr visit_constant(expr const & e) {
@@ -1250,8 +1261,10 @@ public:
         if (!infom())
             return;
         for (auto & p : m_pre_info_data)
-            p = type_info_data(p.get_line(), p.get_column(), s.instantiate(p.get_type()));
-        infom()->append(m_pre_info_data);
+            p->instantiate(s);
+        // TODO(Leo): implement smarter append
+        infom()->append(std::move(m_pre_info_data), false);
+        m_pre_info_data.clear();
     }
 
     std::tuple<expr, level_param_names> operator()(expr const & e, bool _ensure_type, bool relax_main_opaque) {

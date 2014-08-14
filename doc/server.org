@@ -183,3 +183,28 @@ implicit arguments.
 pp.implicit true
 #+END_SRC
 
+** Eval
+
+The following command evaluates a Lean command. It has the effect of
+evaluating a command in the end of the current file
+
+#+BEGIN_SRC
+-- EVAL
+[command]
+#+END_SRC
+
+This command produces the output
+
+#+BEGIN_SRC
+-- BEGINEVAL
+[error]/[output]
+-- ENDEVAL
+#+END_SRC
+
+Here is an example that executes the =check= command to obtain the
+type of =Prop=.
+
+#+BEGIN_SRC
+-- EVAL
+check Prop
+#+END_SRC

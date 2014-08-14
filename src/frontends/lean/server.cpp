@@ -84,6 +84,7 @@ static std::string g_remove("REMOVE");
 static std::string g_check("CHECK");
 static std::string g_info("INFO");
 static std::string g_set("SET");
+static std::string g_eval("EVAL");
 
 static bool is_command(std::string const & cmd, std::string const & line) {
     return line.compare(0, cmd.size(), cmd) == 0;
@@ -237,6 +238,22 @@ void server::set_option(std::string const & line) {
     m_out << "-- ENDSET" << std::endl;
 }
 
+void server::eval(std::string const & line) {
+    if (m_file)
+        update();
+    snapshot & s = !m_file || m_file->m_snapshots.empty() ? m_empty_snapshot : m_file->m_snapshots.back();
+    std::istringstream strm(line);
+    scoped_updt_options updt(m_ios, s.m_options);
+    m_out << "-- BEGINEVAL" << std::endl;
+    try {
+        parser p(s.m_env, m_ios, strm, "EVAL_command", true, 1, s.m_lds, s.m_eds, 1);
+        p();
+    } catch (exception & ex) {
+        m_out << ex.what() << std::endl;
+    }
+    m_out << "-- ENDEVAL" << std::endl;
+}
+
 bool server::operator()(std::istream & in) {
     for (std::string line; std::getline(in, line);) {
         try {
@@ -269,6 +286,9 @@ bool server::operator()(std::istream & in) {
             } else if (is_command(g_set, line)) {
                 read_line(in, line);
                 set_option(line);
+            } else if (is_command(g_eval, line)) {
+                read_line(in, line);
+                eval(line);
             } else {
                 throw exception(sstream() << "unexpected command line: " << line);
             }

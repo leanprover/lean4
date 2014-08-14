@@ -52,6 +52,7 @@ class server {
     void show_info(unsigned linenum);
     void process_from(unsigned linenum);
     void set_option(std::string const & line);
+    void eval(std::string const & line);
     unsigned find(unsigned linenum);
     void update();
     void read_line(std::istream & in, std::string & line);

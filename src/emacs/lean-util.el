@@ -16,6 +16,10 @@
   (or (string-prefix-p line str)
       (search (concat "\n" line) str)))
 
+(defun lean-string-join (strings &optional separator)
+  "Join all STRINGS using SEPARATOR."
+  (mapconcat 'identity strings separator))
+
 (defun lean-grab-line (n)
   "Return the contents of line n"
   (let* ((cur-line-number (line-number-at-pos))

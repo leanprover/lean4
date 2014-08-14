@@ -5,10 +5,9 @@
 ;;
 
 (require 'cl-lib)
-(require 'subr-x)
 (require 'lean-variable)
-(require 'lean-cmd)
 (require 'lean-util)
+(require 'lean-cmd)
 (require 'lean-server)
 (require 'lean-debug)
 
@@ -79,7 +78,7 @@ The return valus has the form of '([symbol-string] [start-pos])"
             (when overload-names
               (format "\n%s with %s"
                       (propertize "overloaded" 'face 'font-lock-keyword-face)
-                      (string-join (cdr overload-names) ", "))))
+                      (lean-string-join (cdr overload-names) ", "))))
            (output-str (concat type-output-str overload-output-str)))
       (message output-str))))
 

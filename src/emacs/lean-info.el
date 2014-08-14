@@ -5,7 +5,6 @@
 ;;
 
 (require 'cl-lib)
-(require 'subr-x)
 (require 'lean-util)
 (require 'lean-debug)
 
@@ -32,7 +31,7 @@
 (defun lean-typeinfo-body (typeinfo)
   (cl-third typeinfo))
 (defun lean-typeinfo-body-str (typeinfo)
-  (string-join (lean-typeinfo-body typeinfo) "\n"))
+  (lean-string-join (lean-typeinfo-body typeinfo) "\n"))
 
 ;; -- Test
 (cl-assert (lean-typeinfo-str-p "-- TYPE|121|2"))
@@ -60,7 +59,7 @@
   (cl-second overload))
 (defun lean-overload-names (overload)
   (cl-loop for seq in (cl-third overload)
-           collect (string-join seq "\n")))
+           collect (lean-string-join seq "\n")))
 (defun lean-overload-str-p (str)
   (string-prefix-p "-- OVERLOAD|" str))
 (defun lean-overload-str-seq-p (seq)

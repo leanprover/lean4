@@ -47,7 +47,7 @@
   (local-set-key "\C-c\C-x" 'lean-std-exe)
   (local-set-key "\C-c\C-l" 'lean-std-exe)
   (local-set-key "\C-c\C-k" 'lean-hott-exe)
-  (local-set-key "\C-c\C-t" 'lean-show-type))
+  (local-set-key "\C-c\C-t" 'lean-eldoc-documentation-function))
 
 (define-abbrev-table 'lean-mode-abbrev-table '(
     ("var"    "variable")
@@ -100,9 +100,7 @@
         (remove-hook 'lean-mode-hook 'whitespace-cleanup-mode))
       ;; eldoc
       (set (make-local-variable 'eldoc-documentation-function)
-           'lean-show-type)
-      ;; (set (make-local-variable 'eldoc-argument-case)
-      ;;      'lean-eldoc-argument-list)
+           'lean-eldoc-documentation-function)
       (eldoc-mode +1)
       ))
   "A mode for Lean files"          ;; doc string for this mode

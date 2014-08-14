@@ -49,23 +49,53 @@ The return valus has the form of '([symbol-string] [start-pos])"
   "Upcase and fontify STRING for use with `eldoc-mode'."
   (propertize string 'face 'font-lock-variable-name-face))
 
-(defun lean-show-type ()
-  "Show the type of lean expression at point if any"
+(defun lean-extract-info-at-pos (file-name line-number column start-pos)
+
+  (let*  ((info-list (lean-get-info-list file-name line-number column))
+          (info-list-at-pos (lean-filter-info-list
+                             info-list
+                             '(lambda (info) (= start-column (lean-info-column info)))))
+          (typeinfo
+           (cl-first (lean-filter-info-list info-list-at-pos
+                                            'lean-typeinfo-p)))
+          (overload
+           (cl-first (lean-filter-info-list info-list-at-pos
+                                            'lean-overload-p))))
+    (list typeinfo overload)))
+
+(defun lean-print-info (typeinfo overload sym-name)
+  "Given typeinfo, overload, and sym-name, print out information."
+  (when typeinfo
+    (let* ((overload-names  (lean-overload-names overload))
+           (overload-name   (cl-first overload-names))
+           (name            (or overload-name sym-name))
+           (type-str        (lean-typeinfo-body-str typeinfo))
+           (type-output-str
+            (format "%s : %s"
+                    (propertize name 'face 'font-lock-variable-name-face)
+                    type-str))
+           (overload-output-str
+            (when overload-names
+              (format "\n%s with %s"
+                      (propertize "overloaded" 'face 'font-lock-keyword-face)
+                      (string-join (cdr overload-names) ", "))))
+           (output-str (concat type-output-str overload-output-str)))
+      (message output-str))))
+
+(defun lean-eldoc-documentation-function ()
+  "Show information of lean expression at point if any"
   (interactive)
   (let* ((file-name (buffer-file-name))
          (line-number (line-number-at-pos))
          (column (current-column))
-         (info-list (lean-get-info-list file-name line-number column))
          (sym-info (lean-get-current-sym-info))
          (sym-name (cl-first sym-info))
          (start-pos (cl-second sym-info))
          (start-column (- column (- (point) start-pos)))
-         (filtered-info-list (lean-filter-info-list
-                              info-list
-                              '(lambda (info) (= start-column (cl-second (lean-info-pos info)))))))
-    (when (and filtered-info-list (= (length filtered-info-list) 1))
-      (message "%s: %s" (lean-eldoc-argument-list sym-name)
-              (lean-typeinfo-body-text (cl-first filtered-info-list))))))
+         typeinfo overload)
+    (cl-multiple-value-setq (typeinfo overload)
+      (lean-extract-info-at-pos file-name line-number column start-pos))
+    (lean-print-info typeinfo overload sym-name)))
 
 (defun lean-before-change-function (beg end)
   "Function attached to before-change-functions hook.

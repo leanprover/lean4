@@ -10,12 +10,16 @@
 
 ;; Type Information
 ;; ----------------
-(defun lean-typeinfo-str-p (str)
-  (string-prefix-p "-- TYPE|" str))
+(defun lean-typeinfo-type (typeinfo)
+  (cl-first typeinfo))
 (defun lean-typeinfo-p (typeinfo)
-  (lean-typeinfo-str-p (cl-first typeinfo)))
+  (equal (lean-typeinfo-type typeinfo) 'TYPE))
 (defun lean-typeinfo-pos (typeinfo)
   (cl-second typeinfo))
+(defun lean-typeinfo-str-p (str)
+  (string-prefix-p "-- TYPE|" str))
+(defun lean-typeinfo-str-seq-p (seq)
+  (lean-typeinfo-str-p (cl-first seq)))
 (defun lean-typeinfo-parse-header (str)
   (let ((items (split-string str "|")))
     (list (string-to-number (cl-second items))
@@ -26,16 +30,14 @@
     `(TYPE ,header ,body)))
 (defun lean-typeinfo-body (typeinfo)
   (cl-third typeinfo))
-(defun lean-typeinfo-body-text (typeinfo)
-  (cl-reduce
-   (lambda (l1 l2) (concat l1 "\n" l2))
-   (lean-typeinfo-body typeinfo)))
+(defun lean-typeinfo-body-str (typeinfo)
+  (string-join (lean-typeinfo-body typeinfo) "\n"))
 
 ;; -- Test
 (cl-assert (lean-typeinfo-str-p "-- TYPE|121|2"))
 (cl-assert (equal (lean-typeinfo-parse-header "-- TYPE|121|2")
                   '(121 2)))
-(cl-assert (lean-typeinfo-p '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+(cl-assert (lean-typeinfo-str-seq-p '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
 (cl-assert (equal (lean-typeinfo-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))"))
                   '(TYPE
                     (121 2)
@@ -48,12 +50,20 @@
 
 ;; Overload Information
 ;; --------------------
-(defun lean-overload-str-p (str)
-  (string-prefix-p "-- OVERLOAD|" str))
+
+(defun lean-overload-type (overload)
+  (cl-first overload))
 (defun lean-overload-p (overload)
-  (lean-overload-str-p (cl-first overload)))
+  (equal (lean-overload-type overload) 'OVERLOAD))
 (defun lean-overload-pos (overload)
   (cl-second overload))
+(defun lean-overload-names (overload)
+  (cl-loop for seq in (cl-third overload)
+           collect (string-join seq "\n")))
+(defun lean-overload-str-p (str)
+  (string-prefix-p "-- OVERLOAD|" str))
+(defun lean-overload-str-seq-p (seq)
+  (lean-overload-str-p (cl-first seq)))
 (defun lean-overload-parse-header (str)
   (let ((items (split-string str "|")))
     (list (string-to-number (cl-second items))
@@ -67,7 +77,7 @@
 (cl-assert (lean-overload-str-p "-- OVERLOAD|121|2"))
 (cl-assert (equal (lean-overload-parse-header "-- OVERLOAD|121|2")
                   '(121 2)))
-(cl-assert (lean-overload-p '("-- OVERLOAD|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+(cl-assert (lean-overload-str-seq-p '("-- OVERLOAD|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
 (cl-assert
  (equal
   (lean-overload-parse
@@ -98,6 +108,20 @@
                 "→ decidable (eq zero (succ m'))")))
             '(121 2)))
 
+(cl-assert (equal (lean-overload-names (lean-overload-parse
+                                        '("-- OVERLOAD|121|2"
+                                          "not (eq zero (succ m'))"
+                                          "→ decidable (eq zero (succ m'))"
+                                          "--"
+                                          "not (eq one (succ m'))"
+                                          "→ decidable (eq zero (succ m'))"
+                                          "--"
+                                          "not (eq two (succ m'))"
+                                          "→ decidable (eq zero (succ m'))")))
+                  '("not (eq zero (succ m'))\n→ decidable (eq zero (succ m'))"
+                    "not (eq one (succ m'))\n→ decidable (eq zero (succ m'))"
+                    "not (eq two (succ m'))\n→ decidable (eq zero (succ m'))")))
+
 ;; Basic
 ;; -----
 (defun lean-info-type (info)
@@ -110,6 +134,10 @@
   (cl-case (lean-info-type info)
     (TYPE     (lean-typeinfo-pos info))
     (OVERLOAD (lean-overload-pos info))))
+(defun lean-info-line-number (info)
+  (cl-first (lean-info-pos info)))
+(defun lean-info-column (info)
+  (cl-second (lean-info-pos info)))
 
 ;; -- test
 (cl-assert (equal
@@ -153,8 +181,8 @@ Use \"-- ACK\" as a delim and stop processing when it encounters \"-- ENDINFO\""
     (cl-loop for string-seq in string-seq-seq
              when string-seq
              collect (cond
-                      ((lean-typeinfo-p string-seq) (lean-typeinfo-parse string-seq))
-                      ((lean-overload-p string-seq) (lean-overload-parse string-seq))))))
+                      ((lean-typeinfo-str-seq-p string-seq) (lean-typeinfo-parse string-seq))
+                      ((lean-overload-str-seq-p string-seq) (lean-overload-parse string-seq))))))
 
 ;; -- test
 (cl-assert

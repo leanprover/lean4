@@ -5,6 +5,7 @@
 ;;
 
 (require 'cl-lib)
+(require 'subr-x)
 (require 'lean-variable)
 (require 'lean-cmd)
 (require 'lean-util)

@@ -5,6 +5,7 @@
 ;;
 
 (require 'cl-lib)
+(require 'subr-x)
 (require 'lean-util)
 (require 'lean-debug)
 

@@ -152,8 +152,6 @@ def call_makefile(directory, makefile, makefile_options, args, lean_options):
     if directory:
         cmd += ["-C", directory]
     cmd += makefile_options
-    print "LEAN_OPTIONS =", env_copy['LEAN_OPTIONS']
-    print "CMD =", cmd
     for arg in args:
         target = get_target(arg)
         cmd.append(target)
@@ -199,7 +197,6 @@ def extract_makefile_options(args):
         makefile_options.append("-j")
     elif args.jobs:
         makefile_options += ["-j", args.jobs]
-    print makefile_options
     return makefile_options
 
 def main(argv=None):

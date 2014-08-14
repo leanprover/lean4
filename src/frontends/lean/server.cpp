@@ -150,6 +150,7 @@ void server::visit_file(std::string const & fname) {
 }
 
 void server::show_info(unsigned linenum) {
+    check_file();
     update();
     unsigned i = m_file->find(linenum);
     environment const & env = i == 0 ? m_env     : m_file->m_snapshots[i-1].m_env;

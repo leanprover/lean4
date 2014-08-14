@@ -51,31 +51,25 @@ expr from_num(mpz const & n) {
     return r;
 }
 
-mpz to_pos_num_core(expr const & e) {
-    if (e == g_one)
-        return mpz(1);
-    else if (app_fn(e) == g_bit0)
-        return 2 * to_pos_num_core(app_arg(e));
-    else if (app_fn(e) == g_bit1)
-        return 2 * to_pos_num_core(app_arg(e)) + 1;
-    else
-        throw exception("expression does not represent a numeral");
-}
-
-mpz to_num_core(expr const & e) {
-    if (e == g_zero)
-        return mpz(0);
-    else if (app_fn(e) == g_pos)
-        return to_pos_num_core(app_arg(e));
-    else
-        throw exception("expression does not represent a numeral");
+optional<mpz> to_pos_num(expr const & e) {
+    if (e == g_one) {
+        return some(mpz(1));
+    } else if (app_fn(e) == g_bit0) {
+        if (auto r = to_pos_num(app_arg(e)))
+            return some(2*(*r));
+    } else if (app_fn(e) == g_bit1) {
+        if (auto r = to_pos_num(app_arg(e)))
+            return some(2*(*r) + 1);
+    }
+    return optional<mpz>();
 }
 
 optional<mpz> to_num(expr const & e) {
-    try {
-        return optional<mpz>(to_num_core(e));
-    } catch (...) {
+    if (e == g_zero)
+        return some(mpz(0));
+    else if (is_app(e) && app_fn(e) == g_pos)
+        return to_pos_num(app_arg(e));
+    else
         return optional<mpz>();
-    }
 }
 }

@@ -122,6 +122,47 @@
                     "not (eq one (succ m'))\n→ decidable (eq zero (succ m'))"
                     "not (eq two (succ m'))\n→ decidable (eq zero (succ m'))")))
 
+;; Synth Information
+;; ----------------
+(defun lean-synth-type (synth)
+  (cl-first synth))
+(defun lean-synth-p (synth)
+  (equal (lean-synth-type synth) 'SYNTH))
+(defun lean-synth-pos (synth)
+  (cl-second synth))
+(defun lean-synth-str-p (str)
+  (string-prefix-p "-- SYNTH|" str))
+(defun lean-synth-str-seq-p (seq)
+  (lean-synth-str-p (cl-first seq)))
+(defun lean-synth-parse-header (str)
+  (let ((items (split-string str "|")))
+    (list (string-to-number (cl-second items))
+          (string-to-number (cl-third items)))))
+(defun lean-synth-parse (seq)
+  (let ((header (lean-synth-parse-header (car seq)))
+        (body (cdr seq)))
+    `(SYNTH ,header ,body)))
+(defun lean-synth-body (synth)
+  (cl-third synth))
+(defun lean-synth-body-str (synth)
+  (lean-string-join (lean-synth-body synth) "\n"))
+
+;; -- Test
+(cl-assert (lean-synth-str-p "-- SYNTH|121|2"))
+(cl-assert (equal (lean-synth-parse-header "-- SYNTH|121|2")
+                  '(121 2)))
+(cl-assert (lean-synth-str-seq-p '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+(cl-assert (equal (lean-synth-parse '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))"))
+                  '(SYNTH
+                    (121 2)
+                    ("not (eq zero (succ m'))"
+                     "→ decidable (eq zero (succ m'))"))))
+(cl-assert (equal
+            (lean-synth-pos
+             (lean-synth-parse '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+            '(121 2)))
+
+
 ;; Basic
 ;; -----
 (defun lean-info-type (info)
@@ -133,7 +174,8 @@
 (defun lean-info-pos (info)
   (cl-case (lean-info-type info)
     (TYPE     (lean-typeinfo-pos info))
-    (OVERLOAD (lean-overload-pos info))))
+    (OVERLOAD (lean-overload-pos info))
+    (SYNTH    (lean-synth-pos    info))))
 (defun lean-info-line-number (info)
   (cl-first (lean-info-pos info)))
 (defun lean-info-column (info)
@@ -182,7 +224,8 @@ Use \"-- ACK\" as a delim and stop processing when it encounters \"-- ENDINFO\""
              when string-seq
              collect (cond
                       ((lean-typeinfo-str-seq-p string-seq) (lean-typeinfo-parse string-seq))
-                      ((lean-overload-str-seq-p string-seq) (lean-overload-parse string-seq))))))
+                      ((lean-overload-str-seq-p string-seq) (lean-overload-parse string-seq))
+                      ((lean-synth-str-seq-p    string-seq) (lean-synth-parse string-seq))))))
 
 ;; -- test
 (cl-assert

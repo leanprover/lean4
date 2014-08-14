@@ -60,15 +60,19 @@ The return valus has the form of '([symbol-string] [start-pos])"
                                             'lean-typeinfo-p)))
           (overload
            (cl-first (lean-filter-info-list info-list-at-pos
-                                            'lean-overload-p))))
-    (list typeinfo overload)))
+                                            'lean-overload-p)))
+          (synth
+           (cl-first (lean-filter-info-list info-list-at-pos
+                                            'lean-synth-p))))
+    (list typeinfo overload synth)))
 
-(defun lean-print-info (typeinfo overload sym-name)
+(defun lean-print-info (typeinfo overload synth sym-name)
   "Given typeinfo, overload, and sym-name, print out information."
   (when typeinfo
     (let* ((overload-names  (lean-overload-names overload))
            (overload-name   (cl-first overload-names))
-           (name            (or overload-name sym-name))
+           (synth-value     (when synth (lean-synth-body-str synth)))
+           (name            (or synth-value overload-name sym-name))
            (type-str        (lean-typeinfo-body-str typeinfo))
            (type-output-str
             (format "%s : %s"
@@ -80,7 +84,7 @@ The return valus has the form of '([symbol-string] [start-pos])"
                       (propertize "overloaded" 'face 'font-lock-keyword-face)
                       (lean-string-join (cdr overload-names) ", "))))
            (output-str (concat type-output-str overload-output-str)))
-      (message output-str))))
+      (message "%s" output-str))))
 
 (defun lean-eldoc-documentation-function ()
   "Show information of lean expression at point if any"
@@ -93,9 +97,9 @@ The return valus has the form of '([symbol-string] [start-pos])"
          (start-pos (cl-second sym-info))
          (start-column (- column (- (point) start-pos)))
          typeinfo overload)
-    (cl-multiple-value-setq (typeinfo overload)
+    (cl-multiple-value-setq (typeinfo overload synth)
       (lean-extract-info-at-pos file-name line-number column start-pos))
-    (lean-print-info typeinfo overload sym-name)))
+    (lean-print-info typeinfo overload synth sym-name)))
 
 (defun lean-before-change-function (beg end)
   "Function attached to before-change-functions hook.

@@ -40,7 +40,7 @@
   :group 'lean
   :type 'string)
 
-(defcustom lean-flycheck-checker-options '("--jobs" "--keep-going" "--flycheck")
+(defcustom lean-flycheck-checker-options '("--jobs" "--keep-going" "--permissive" "--flycheck")
   "lean-flychecker checker option"
   :group 'lean)
 

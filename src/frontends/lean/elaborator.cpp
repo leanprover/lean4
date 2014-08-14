@@ -649,21 +649,27 @@ public:
     }
 
     expr visit_expecting_type(expr const & e) {
-        if (is_placeholder(e) && !placeholder_type(e))
-            return m_context.mk_type_meta(e.get_tag());
-        else
+        if (is_placeholder(e) && !placeholder_type(e)) {
+            expr r = m_context.mk_type_meta(e.get_tag());
+            save_info_data(e, r);
+            return r;
+        } else {
             return visit(e);
+        }
     }
 
     expr visit_expecting_type_of(expr const & e, expr const & t) {
-        if (is_placeholder(e) && !placeholder_type(e))
-            return mk_placeholder_meta(some_expr(t), e.get_tag(), is_strict_placeholder(e));
-        else if (is_choice(e))
+        if (is_placeholder(e) && !placeholder_type(e)) {
+            expr r = mk_placeholder_meta(some_expr(t), e.get_tag(), is_strict_placeholder(e));
+            save_info_data(e, r);
+            return r;
+        } else if (is_choice(e)) {
             return visit_choice(e, some_expr(t));
-        else if (is_by(e))
+        } else if (is_by(e)) {
             return visit_by(e, some_expr(t));
-        else
+        } else {
             return visit(e);
+        }
     }
 
     expr visit_choice(expr const & e, optional<expr> const & t) {
@@ -856,7 +862,9 @@ public:
     }
 
     expr visit_placeholder(expr const & e) {
-        return mk_placeholder_meta(placeholder_type(e), e.get_tag(), is_strict_placeholder(e));
+        expr r = mk_placeholder_meta(placeholder_type(e), e.get_tag(), is_strict_placeholder(e));
+        save_info_data(e, r);
+        return r;
     }
 
     level replace_univ_placeholder(level const & l) {

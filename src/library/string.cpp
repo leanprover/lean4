@@ -92,7 +92,7 @@ static register_macro_deserializer_fn
 string_macro_des_fn(g_string_opcode,
                     [](deserializer & d, unsigned num, expr const *) {
                          if (num != 0)
-                             throw_corrupted_file();
+                             throw corrupted_stream_exception();
                          std::string v = d.read_string();
                          return mk_string_macro(v);
                     });

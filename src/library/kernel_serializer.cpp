@@ -63,7 +63,7 @@ public:
                 case level_kind::Succ:
                     return mk_succ(read());
                 }
-                throw_corrupted_file();
+                throw corrupted_stream_exception();
             });
     }
 };
@@ -247,7 +247,7 @@ public:
                     binder_info bi = read_binder_info(d);
                     return mk_local(n, pp_n, read(), bi);
                 }}
-                throw_corrupted_file(); // LCOV_EXCL_LINE
+                throw corrupted_stream_exception(); // LCOV_EXCL_LINE
             });
     }
 };
@@ -363,7 +363,7 @@ static register_macro_deserializer_fn
 annotation_des_fn(get_annotation_opcode(),
                   [](deserializer & d, unsigned num, expr const * args) {
                       if (num != 1)
-                          throw_corrupted_file();
+                          throw corrupted_stream_exception();
                       name k;
                       d >> k;
                       return mk_annotation(k, args[0]);

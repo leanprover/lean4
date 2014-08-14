@@ -14,6 +14,11 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 
 namespace lean {
+class corrupted_file_exception : public exception {
+public:
+    corrupted_file_exception(std::string const & fname);
+};
+
 class module_name {
     optional<unsigned> m_relative;
     name               m_name;

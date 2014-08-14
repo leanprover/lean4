@@ -27,9 +27,8 @@ void serializer_core::write_int(int i) {
 
 #define BIG_BUFFER 1024
 
-void throw_corrupted_file() {
-    throw exception("corrupted binary file");
-}
+corrupted_stream_exception::corrupted_stream_exception():
+    exception("corrupted binary file") {}
 
 void serializer_core::write_double(double d) {
     std::ostringstream out;
@@ -49,7 +48,7 @@ std::string deserializer_core::read_string() {
         if (c == 0)
             break;
         if (c == EOF)
-            throw_corrupted_file();
+            throw corrupted_stream_exception();
         r += c;
     }
     return r;

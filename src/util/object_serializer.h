@@ -61,7 +61,7 @@ public:
         } else {
             unsigned i = d.read_unsigned();
             if (i >= m_table.size())
-                throw_corrupted_file();
+                throw corrupted_stream_exception();
             return m_table[i];
         }
     }

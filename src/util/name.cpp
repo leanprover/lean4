@@ -449,7 +449,7 @@ public:
                     name prefix = read();
                     return name(prefix, d.read_unsigned());
                 }}
-                throw_corrupted_file();
+                throw corrupted_stream_exception();
             });
     }
 };

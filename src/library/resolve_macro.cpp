@@ -293,7 +293,7 @@ static register_macro_deserializer_fn
 resolve_macro_des_fn(g_resolve_opcode,
                      [](deserializer &, unsigned num, expr const * args) {
                          if (num != 3)
-                             throw_corrupted_file();
+                             throw corrupted_stream_exception();
                          return mk_resolve_macro(args[0], args[1], args[2]);
                      });
 

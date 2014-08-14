@@ -357,7 +357,7 @@ public:
                     sexpr t = read();
                     return sexpr(h, t);
                 }}
-                throw_corrupted_file();
+                throw corrupted_stream_exception();
             });
     }
 };

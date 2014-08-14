@@ -28,6 +28,10 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+corrupted_file_exception::corrupted_file_exception(std::string const & fname):
+    exception(sstream() << "failed to import '" << fname << "', file is corrupted") {
+}
+
 typedef std::pair<std::string, std::function<void(serializer &)>> writer;
 
 struct module_ext : public environment_extension {
@@ -229,47 +233,50 @@ struct import_modules_fn {
         std::ifstream in(fname, std::ifstream::binary);
         if (!in.good())
             throw exception(sstream() << "failed to open file '" << fname << "'");
-        deserializer d1(in);
-        std::string header;
-        d1 >> header;
-        if (header != g_olean_header)
-            throw exception(sstream() << "file '" << fname << "' does not seem to be a valid object Lean file, invalid header");
-        unsigned major, minor, claimed_hash;
-        d1 >> major >> minor >> claimed_hash;
-        // Enforce version?
+        try {
+            deserializer d1(in);
+            std::string header;
+            d1 >> header;
+            if (header != g_olean_header)
+                throw exception(sstream() << "file '" << fname << "' does not seem to be a valid object Lean file, invalid header");
+            unsigned major, minor, claimed_hash;
+            d1 >> major >> minor >> claimed_hash;
+            // Enforce version?
 
-        unsigned num_imports  = d1.read_unsigned();
-        buffer<module_name> imports;
-        for (unsigned i = 0; i < num_imports; i++)
-            imports.push_back(read_module_name(d1));
+            unsigned num_imports  = d1.read_unsigned();
+            buffer<module_name> imports;
+            for (unsigned i = 0; i < num_imports; i++)
+                imports.push_back(read_module_name(d1));
 
-        unsigned code_size    = d1.read_unsigned();
-        std::vector<char> code(code_size);
-        for (unsigned i = 0; i < code_size; i++)
-            code[i] = d1.read_char();
+            unsigned code_size    = d1.read_unsigned();
+            std::vector<char> code(code_size);
+            for (unsigned i = 0; i < code_size; i++)
+                code[i] = d1.read_char();
 
-        unsigned computed_hash = hash(code_size, [&](unsigned i) { return code[i]; });
-        if (claimed_hash != computed_hash)
-            throw exception(sstream() << "file '" << fname << "' has been corrupted, checksum mismatch");
+            unsigned computed_hash = hash(code_size, [&](unsigned i) { return code[i]; });
+            if (claimed_hash != computed_hash)
+                throw exception(sstream() << "file '" << fname << "' has been corrupted, checksum mismatch");
 
-        module_info_ptr r = std::make_shared<module_info>();
-        r->m_fname        = fname;
-        r->m_counter      = imports.size();
-        r->m_module_idx   = g_null_module_idx;
-        m_import_counter++;
-        std::string new_base = dirname(fname.c_str());
-        std::swap(r->m_obj_code, code);
-        for (auto i : imports) {
-            auto d = load_module_file(new_base, i);
-            d->m_dependents.push_back(r);
+            module_info_ptr r = std::make_shared<module_info>();
+            r->m_fname        = fname;
+            r->m_counter      = imports.size();
+            r->m_module_idx   = g_null_module_idx;
+            m_import_counter++;
+            std::string new_base = dirname(fname.c_str());
+            std::swap(r->m_obj_code, code);
+            for (auto i : imports) {
+                auto d = load_module_file(new_base, i);
+                d->m_dependents.push_back(r);
+            }
+            m_module_info.insert(fname, r);
+            r->m_module_idx = m_next_module_idx++;
+
+            if (imports.empty())
+                add_import_module_task(r);
+            return r;
+        } catch (corrupted_stream_exception&) {
+            throw corrupted_file_exception(fname);
         }
-        m_module_info.insert(fname, r);
-        r->m_module_idx = m_next_module_idx++;
-
-        if (imports.empty())
-            add_import_module_task(r);
-
-        return r;
     }
 
     void add_asynch_task(asynch_update_fn const & f) {

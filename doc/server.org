@@ -150,3 +150,36 @@ range=, if =[line-number]= is too big, and =-- MISMATCH expected
 -- CHECK [line-number]
 [line]
 #+END_SRC
+
+** Set configuration option
+
+The command
+
+#+BEGIN_SRC
+-- SET
+[option-name] [value]
+#+END_SRC
+
+sets a Lean options, =[option-name]= must be a valid Lean option.
+Any option that can be set using the command =set_option= in a '.lean'
+file is supported.
+
+This command produces the output
+
+#+BEGIN_SRC
+-- BEGINSET
+[error]?
+-- ENDSET
+#+END_SRC
+
+where the line =[error]?= is printed if there are errors parsing the
+=SET= command (e.g., invalid option name).
+
+Here is an example that forces the Lean pretty printer to display
+implicit arguments.
+
+#+BEGIN_SRC
+-- SET
+pp.implicit true
+#+END_SRC
+

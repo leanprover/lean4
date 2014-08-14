@@ -72,8 +72,8 @@ unsigned server::file::find(unsigned linenum) {
 }
 
 server::server(environment const & env, io_state const & ios, unsigned num_threads):
-    m_env(env), m_options(ios.get_options()), m_ios(ios), m_out(ios.get_regular_channel().get_stream()),
-    m_num_threads(num_threads), m_empty_snapshot(m_env, m_options) {
+    m_env(env), m_ios(ios), m_out(ios.get_regular_channel().get_stream()),
+    m_num_threads(num_threads), m_empty_snapshot(m_env, m_ios.get_options()) {
 }
 
 static std::string g_load("LOAD");
@@ -83,6 +83,7 @@ static std::string g_insert("INSERT");
 static std::string g_remove("REMOVE");
 static std::string g_check("CHECK");
 static std::string g_info("INFO");
+static std::string g_set("SET");
 
 static bool is_command(std::string const & cmd, std::string const & line) {
     return line.compare(0, cmd.size(), cmd) == 0;
@@ -102,6 +103,19 @@ static std::string & trim(std::string & s) {
     return ltrim(rtrim(s));
 }
 
+struct scoped_updt_options {
+    io_state & m_ios;
+    options    m_old_options;
+public:
+    scoped_updt_options(io_state & ios, options const & opts):
+        m_ios(ios), m_old_options(m_ios.get_options()) {
+        m_ios.set_options(join(opts, m_old_options));
+    }
+    ~scoped_updt_options() {
+        m_ios.set_options(m_old_options);
+    }
+};
+
 void server::process_from(unsigned linenum) {
     unsigned i = m_file->find(linenum);
     m_file->m_snapshots.resize(i);
@@ -114,7 +128,7 @@ void server::process_from(unsigned linenum) {
         block += '\n';
     }
     std::istringstream strm(block);
-    m_ios.set_options(s.m_options);
+    scoped_updt_options updt(m_ios, s.m_options);
     parser p(s.m_env, m_ios, strm, m_file->m_fname.c_str(), false, 1, s.m_lds, s.m_eds, s.m_line,
              &m_file->m_snapshots, &m_file->m_info);
     // p.set_cache(&m_cache);
@@ -153,9 +167,9 @@ void server::show_info(unsigned linenum) {
     check_file();
     update();
     unsigned i = m_file->find(linenum);
-    environment const & env = i == 0 ? m_env     : m_file->m_snapshots[i-1].m_env;
-    options const & o       = i == 0 ? m_options : m_file->m_snapshots[i-1].m_options;
-    m_ios.set_options(o);
+    environment const & env = i == 0 ? m_env               : m_file->m_snapshots[i-1].m_env;
+    options const & o       = i == 0 ? m_ios.get_options() : m_file->m_snapshots[i-1].m_options;
+    scoped_updt_options updt(m_ios, o);
     io_state_stream out(env, m_ios);
     out << "-- BEGININFO" << endl;
     m_file->m_info.display(out, linenum);
@@ -208,6 +222,21 @@ void server::check_line(unsigned linenum, std::string const & line) {
     }
 }
 
+void server::set_option(std::string const & line) {
+    std::string cmd = "set_option ";
+    cmd += line;
+    std::istringstream strm(cmd);
+    m_out << "-- BEGINSET" << std::endl;
+    try {
+        parser p(m_env, m_ios, strm, "SET_command", true);
+        p();
+        m_ios.set_options(p.ios().get_options());
+    } catch (exception & ex) {
+        m_out << ex.what() << std::endl;
+    }
+    m_out << "-- ENDSET" << std::endl;
+}
+
 bool server::operator()(std::istream & in) {
     for (std::string line; std::getline(in, line);) {
         try {
@@ -237,6 +266,9 @@ bool server::operator()(std::istream & in) {
             } else if (is_command(g_info, line)) {
                 unsigned linenum = get_linenum(line, g_info);
                 show_info(linenum);
+            } else if (is_command(g_set, line)) {
+                read_line(in, line);
+                set_option(line);
             } else {
                 throw exception(sstream() << "unexpected command line: " << line);
             }

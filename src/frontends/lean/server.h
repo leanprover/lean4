@@ -36,7 +36,6 @@ class server {
     file_map                  m_file_map;
     file_ptr                  m_file;
     environment               m_env;
-    options                   m_options;
     io_state                  m_ios;
     std::ostream &            m_out;
     unsigned                  m_num_threads;
@@ -52,6 +51,7 @@ class server {
     void check_line(unsigned linenum, std::string const & line);
     void show_info(unsigned linenum);
     void process_from(unsigned linenum);
+    void set_option(std::string const & line);
     unsigned find(unsigned linenum);
     void update();
     void read_line(std::istream & in, std::string & line);

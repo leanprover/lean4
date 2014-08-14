@@ -3,14 +3,15 @@ DIR = $(shell pwd)
 LEAN_FILES = $(shell find $(DIR) -type f -name '*.lean')
 OLEAN_FILES = $(LEAN_FILES:.lean=.olean)
 DEP_FILES = $(LEAN_FILES:.lean=.d)
+LEAN_VERSION_FILE = $(shell dirname $(LEAN))/version
 
 all: $(OLEAN_FILES) $(DEP_FILES)
 
-%.olean: %.lean
+%.olean: %.lean $(LEAN_VERSION_FILE)
 	@rm -f $@
 	$(LEAN) $(LEAN_OPTIONS) $< -o $@ -c $(@:.olean=.clean)
 
-%.d: %.lean
+%.d: %.lean $(LEAN_VERSION_FILE)
 	@echo Making dependency file \'$@\' ...
 	@rm -f $@
 	@rm -f $@.tmp

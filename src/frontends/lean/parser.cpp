@@ -1180,7 +1180,10 @@ bool parser::parse_commands() {
     scoped_set_distinguishing_pp_options set(get_distinguishing_pp_options());
     try {
         bool done = false;
-        parse_imports();
+        protected_call([&]() {
+                parse_imports();
+            },
+            [&]() { sync_command(); });
         if (has_sorry(m_env)) {
             flycheck_warning wrn(regular_stream());
             display_warning_pos(pos());

@@ -15,12 +15,17 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/optional.h"
 #include "util/realpath.h"
+#include "util/lean_path.h"
 
 #ifndef LEAN_DEFAULT_MODULE_FILE_NAME
 #define LEAN_DEFAULT_MODULE_FILE_NAME "default"
 #endif
 
 namespace lean {
+file_not_found_exception::file_not_found_exception(std::string const & fname):
+    exception(sstream() << "file '" << fname << "' not found in the LEAN_PATH"),
+    m_fname(fname) {}
+
 static std::string g_default_file_name(LEAN_DEFAULT_MODULE_FILE_NAME);
 
 bool is_directory(char const * pathname) {
@@ -186,7 +191,7 @@ std::string find_file(std::string fname, std::initializer_list<char const *> con
             }
         }
     }
-    throw exception(sstream() << "file '" << fname << "' not found in the LEAN_PATH");
+    throw file_not_found_exception(fname);
 }
 
 std::string find_file(std::string const & base, optional<unsigned> const & rel, name const & fname,
@@ -203,7 +208,7 @@ std::string find_file(std::string const & base, optional<unsigned> const & rel, 
             if (auto r = check_file(path, fname.to_string(g_sep_str.c_str()), ext))
                 return *r;
         }
-        throw exception(sstream() << "file '" << fname << "' not found at '" << path << "'");
+        throw file_not_found_exception(fname.to_string());
     }
 }
 

@@ -7,7 +7,15 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "util/name.h"
+#include "util/exception.h"
+
 namespace lean {
+class file_not_found_exception : public exception {
+    std::string m_fname;
+public:
+    file_not_found_exception(std::string const & fname);
+};
+
 /** \brief Initialize the lean_path for the given kernel instance */
 void init_lean_path(char const * kernel_instance_name);
 /** \brief Return the LEAN_PATH string */

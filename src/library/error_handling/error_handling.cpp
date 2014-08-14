@@ -35,7 +35,9 @@ flyinfo_scope::~flyinfo_scope() {
 }
 
 void display_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
-    ios << strm_name << ":" << line << ":";
+    ios << strm_name << ":";
+    if (line != static_cast<unsigned>(-1))
+        ios << line << ":";
     if (pos != static_cast<unsigned>(-1))
         ios << pos << ":";
 }

@@ -45,6 +45,10 @@ using lean::mk_hott_environment;
 using lean::set_environment;
 using lean::set_io_state;
 using lean::definitions_cache;
+using lean::pos_info;
+using lean::pos_info_provider;
+using lean::optional;
+using lean::expr;
 
 enum class input_kind { Unspecified, Lean, Lua };
 
@@ -130,6 +134,15 @@ static char const * g_opt_str = "PFDHSqlupgvhj:012k:012t:012o:c:";
 #endif
 
 enum class lean_mode { Standard, HoTT };
+
+class simple_pos_info_provider : public pos_info_provider {
+    char const * m_fname;
+public:
+    simple_pos_info_provider(char const * fname):m_fname(fname) {}
+    virtual optional<pos_info> get_pos_info(expr const &) const { return optional<pos_info>(); }
+    virtual char const * get_file_name() const { return m_fname; }
+    virtual pos_info get_some_pos() const { return pos_info(-1, -1); }
+};
 
 int main(int argc, char ** argv) {
     lean::save_stack_info();
@@ -237,30 +250,31 @@ int main(int argc, char ** argv) {
     try {
         bool ok = true;
         for (int i = optind; i < argc; i++) {
-            char const * ext = get_file_extension(argv[i]);
-            input_kind k     = default_k;
-            if (ext) {
-                if (strcmp(ext, "lean") == 0) {
-                    k = input_kind::Lean;
-                } else if (strcmp(ext, "lua") == 0) {
-                    k = input_kind::Lua;
+            try {
+                char const * ext = get_file_extension(argv[i]);
+                input_kind k     = default_k;
+                if (ext) {
+                    if (strcmp(ext, "lean") == 0) {
+                        k = input_kind::Lean;
+                    } else if (strcmp(ext, "lua") == 0) {
+                        k = input_kind::Lua;
+                    }
                 }
-            }
-            if (k == input_kind::Lean) {
-                if (only_deps) {
-                    display_deps(env, std::cout, argv[i]);
-                } else if (!parse_commands(env, ios, argv[i], false, num_threads, cache_ptr)) {
-                    ok = false;
-                }
-            } else if (k == input_kind::Lua) {
-                try {
+                if (k == input_kind::Lean) {
+                    if (only_deps) {
+                        display_deps(env, std::cout, argv[i]);
+                    } else if (!parse_commands(env, ios, argv[i], false, num_threads, cache_ptr)) {
+                        ok = false;
+                    }
+                } else if (k == input_kind::Lua) {
                     lean::system_import(argv[i]);
-                } catch (lean::exception & ex) {
-                    ::lean::display_error(regular(env, ios), nullptr, ex);
-                    ok = false;
+                } else {
+                    lean_unreachable(); // LCOV_EXCL_LINE
                 }
-            } else {
-                lean_unreachable(); // LCOV_EXCL_LINE
+            } catch (lean::exception & ex) {
+                simple_pos_info_provider pp(argv[i]);
+                ok = false;
+                lean::display_error(diagnostic(env, ios), &pp, ex);
             }
         }
         if (ok && server && default_k == input_kind::Lean) {
@@ -279,7 +293,7 @@ int main(int argc, char ** argv) {
         }
         return ok ? 0 : 1;
     } catch (lean::exception & ex) {
-        ::lean::display_error(diagnostic(env, ios), nullptr, ex);
+        lean::display_error(diagnostic(env, ios), nullptr, ex);
     }
     return 1;
 }

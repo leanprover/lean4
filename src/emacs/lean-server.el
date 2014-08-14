@@ -79,7 +79,7 @@
 ;; How to create an async process
 ;; ==============================
 (defun lean-server-create-process ()
-  "Create lean-server-process"
+  "Create lean-server process."
   (let ((process-connection-type nil)
         (lean-server-process
          (start-process lean-server-process-name
@@ -96,17 +96,32 @@
       (insert lean-global-server-current-file-name))
     lean-server-process))
 
-(defun lean-server-get-process ()
-  "Get the lean-server process.
+(defun lean-server-kill-process ()
+  "Kill lean-server process."
+  (interactive)
+  (let ((proc (get-process lean-server-process-name)))
+    (when proc
+      (with-current-buffer (process-buffer proc)
+        (goto-char (point-max))
+        (insert "Server Killed.\n")
+        (setq lean-global-server-current-file-name nil))
+      (kill-process proc))))
 
-If needed, create a one."
+(defun lean-server-restart-process ()
+  "Restart lean-server process."
+  (interactive)
+  (lean-server-kill-process)
+  (lean-server-create-process))
+
+(defun lean-server-get-process ()
+  "Get lean-server process. If needed, create a one."
   (let ((proc (get-process lean-server-process-name)))
     (cond ((not proc) (lean-server-create-process))
           ((not (process-live-p proc)) (error "TODO(soonhok): need to kill and recreate one"))
           (t proc))))
 
 (defun lean-server-get-buffer ()
-  "Get the lean-server buffer"
+  "Get lean-server buffer."
   (process-buffer (lean-server-get-process)))
 
 ;; How to send data to an async process
@@ -129,7 +144,7 @@ If it's not the same with (buffer-file-name), send VISIT cmd."
       (lean-server-send-cmd (lean-cmd-visit current-file-name)))))
 
 (defun lean-server-before-send-cmd (cmd)
-  "Operations to perform before sending a command"
+  "Operations to perform before sending a command."
   (cl-case (lean-cmd-type cmd)
     ('LOAD    ())
     ('VISIT   ())
@@ -143,7 +158,7 @@ If it's not the same with (buffer-file-name), send VISIT cmd."
     ('CHECK   (lean-server-check-current-file))))
 
 (defun lean-server-after-send-cmd (cmd)
-  "Operations to perform after sending a commandn"
+  "Operations to perform after sending a command."
   (cl-case (lean-cmd-type cmd)
     ('LOAD    (setq lean-global-server-current-file-name
                     (lean-cmd-load-get-file-name cmd)))
@@ -156,7 +171,7 @@ If it's not the same with (buffer-file-name), send VISIT cmd."
     ('CHECK   ())))
 
 (defun lean-server-send-cmd (cmd)
-  "Send string to lean-server"
+  "Send string to lean-server."
   (let ((proc (lean-server-get-process))
         (string-to-send (concat (lean-cmd-to-string cmd) "\n")))
     (lean-server-before-send-cmd cmd)
@@ -168,7 +183,5 @@ If it's not the same with (buffer-file-name), send VISIT cmd."
       (insert "==========\n"))
     (process-send-string proc string-to-send))
   (lean-server-after-send-cmd cmd))
-
-;; TODO(soonhok): How to kill an async process
 
 (provide 'lean-server)

@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/private.h"
 #include "library/explicit.h"
+#include "library/num.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/pp_options.h"
 #include "frontends/lean/token_table.h"
@@ -403,6 +404,10 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
     }
 }
 
+auto pretty_fn::pp_num(mpz const & n) -> result {
+    return mk_result(format(n));
+}
+
 auto pretty_fn::pp(expr const & e) -> result {
     if (m_depth > m_max_depth || m_num_steps > m_max_steps)
         return mk_result(m_unicode ? g_ellipsis_n_fmt : g_ellipsis_fmt);
@@ -413,6 +418,7 @@ auto pretty_fn::pp(expr const & e) -> result {
     if (is_show(e)) return pp_show(e);
     if (is_let(e))  return pp_let(e);
     if (is_have(e)) return pp_have(e);
+    if (auto n = to_num(e)) return pp_num(*n);
     if (!m_metavar_args && is_meta(e)) return pp_meta(get_app_fn(e));
 
     switch (e.kind()) {

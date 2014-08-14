@@ -5,11 +5,13 @@
 #
 # Author: Soonho Kong
 
-import os.path
-import sys
-import subprocess
-import string
 import argparse
+import fnmatch
+import os
+import os.path
+import string
+import subprocess
+import sys
 
 def lean_exe_name():
     """ Return a lean executable name """
@@ -137,8 +139,37 @@ def get_target(s):
     oleanfile = get_olean(s)
     return oleanfile if oleanfile is not None else s
 
+def touch(fname, times=None):
+    "touch a file"
+    with open(fname, 'a'):
+        os.utime(fname, times)
+
+def touch_all_lean_files(directory):
+    "Touch all lean file under directory"
+    for root, dirnames, filenames in os.walk(directory):
+        for filename in fnmatch.filter(filenames, '*.lean'):
+            touch(os.path.join(root, filename))
+
+def check_lean_options_file(directory, lean_options):
+    "Check lean_options file and return true if all lean files should be touched."
+    lean_new_options = " ".join(lean_options)
+    lean_options_file_name = os.path.join(directory, ".lean_options")
+    need_to_write = True
+    if os.path.isfile(lean_options_file_name):
+        with open(lean_options_file_name, 'r') as f:
+            lean_old_options = f.readline()
+            need_to_write = not (lean_old_options == lean_new_options)
+    if need_to_write:
+        with open(lean_options_file_name, 'w') as f:
+            f.write(lean_new_options)
+        return True
+    return False
+
 def call_makefile(directory, makefile, makefile_options, args, lean_options):
     """ Call makefile with a target generated from a given arg """
+    need_to_update = check_lean_options_file(directory, lean_options)
+    if need_to_update:
+        touch_all_lean_files(directory)
     env_copy = os.environ.copy()
     env_copy['LEAN'] = find_lean_exe()
     lean_options_str = ' '.join(lean_options)
@@ -167,7 +198,7 @@ def parse_arg(argv):
     """ Parse arguments """
     parser = argparse.ArgumentParser(description='Process arguments.')
     parser.add_argument('--flycheck',   '-F', action='store_true', default=False, help="Use --flycheck option for Lean.")
-    parser.add_argument('--flyinfo',    '-I', action='store_true', default=False, help="Use --flyinfo option for Lean.")
+    parser.add_argument('--permissive', '-P', action='store_true', default=False, help="Use --permissive option for Lean.")
     parser.add_argument('--keep-going', '-k', action='store_true', default=False, help="Continue as much as possible after an error.")
     parser.add_argument('--directory',  '-C', action='store', help="Change to directory dir before reading the makefiles or doing anything else.")
     parser.add_argument('--makefile',   '-f', '--file', action='store', help="Use file as a makefile.")
@@ -182,8 +213,8 @@ def extract_lean_options(args):
     lean_options = []
     if args.flycheck:
         lean_options.append("--flycheck")
-    if args.flyinfo:
-        lean_options.append("--flyinfo")
+    if args.permissive:
+        lean_options.append("--permissive")
     return lean_options
 
 def extract_makefile_options(args):

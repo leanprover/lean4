@@ -79,6 +79,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --deps            just print dependencies of a Lean input\n";
     std::cout << "  --flycheck        print structured error message for flycheck\n";
     std::cout << "  --cache=file -c   load/save cached definitions from/to the given file\n";
+    std::cout << "  --permissive -P   save .olean files even when errors were found\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
@@ -115,6 +116,7 @@ static struct option g_long_options[] = {
     {"cache",       required_argument, 0, 'c'},
     {"deps",        no_argument,       0, 'D'},
     {"flycheck",    no_argument,       0, 'F'},
+    {"permissive",  no_argument,       0, 'P'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",      required_argument, 0, 's'},
 #endif
@@ -122,9 +124,9 @@ static struct option g_long_options[] = {
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "FDHSqlupgvhj:012k:012s:012t:012o:c:";
+static char const * g_opt_str = "PFDHSqlupgvhj:012k:012s:012t:012o:c:";
 #else
-static char const * g_opt_str = "FDHSqlupgvhj:012k:012t:012o:c:";
+static char const * g_opt_str = "PFDHSqlupgvhj:012k:012t:012o:c:";
 #endif
 
 enum class lean_mode { Standard, HoTT };
@@ -138,6 +140,7 @@ int main(int argc, char ** argv) {
     bool server          = false;
     bool only_deps       = false;
     bool flycheck        = false;
+    bool permissive      = false;
     lean_mode mode       = lean_mode::Standard;
     unsigned num_threads = 1;
     bool use_cache       = false;
@@ -158,6 +161,9 @@ int main(int argc, char ** argv) {
             break;
         case 'S':
             server = true;
+            break;
+        case 'P':
+            permissive = true;
             break;
         case 'v':
             display_header(std::cout);
@@ -267,7 +273,7 @@ int main(int argc, char ** argv) {
             std::ofstream out(cache_name, std::ofstream::binary);
             cache.save(out);
         }
-        if (export_objects && ok) {
+        if (export_objects && (permissive || ok)) {
             std::ofstream out(output, std::ofstream::binary);
             export_module(out, env);
         }

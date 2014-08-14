@@ -8,7 +8,7 @@
 
 (defgroup lean nil "Lean mode" :prefix 'lean :group 'languages)
 
-(defvar lean-default-executable-name
+(defvar-local lean-default-executable-name
   (cl-case system-type
     ('gnu          "lean")
     ('gnu/linux    "lean")

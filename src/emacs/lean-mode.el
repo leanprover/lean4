@@ -8,16 +8,18 @@
 (require 'generic-x)
 (require 'compile)
 (require 'flymake)
+(require 'lean-variable)
 (require 'lean-util)
 (require 'lean-settings)
 (require 'lean-flycheck)
 (require 'lean-input)
+(require 'lean-type)
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"
   (format "%s %s %s" exe-name args file-name))
 
-(defun lean-create-temp-in-system-tempdir (filename prefix)
+(defun lean-create-temp-in-system-tempdir (file-name prefix)
   "Create a temp lean file and return its name"
   (make-temp-file (or prefix "flymake") nil ".lean"))
 
@@ -25,8 +27,9 @@
   "Execute Lean in the current buffer"
   (interactive "sarg: ")
   (let ((target-file-name
-         (or (buffer-file-name)
-             (flymake-init-create-temp-buffer-copy 'lean-create-temp-in-system-tempdir))))
+         (or
+          (buffer-file-name)
+          (flymake-init-create-temp-buffer-copy 'lean-create-temp-in-system-tempdir))))
     (compile (lean-compile-string
               (lean-get-executable lean-executable-name)
               (or arg "")
@@ -43,7 +46,8 @@
 (defun lean-set-keys ()
   (local-set-key "\C-c\C-x" 'lean-std-exe)
   (local-set-key "\C-c\C-l" 'lean-std-exe)
-  (local-set-key "\C-c\C-k" 'lean-hott-exe))
+  (local-set-key "\C-c\C-k" 'lean-hott-exe)
+  (local-set-key "\C-c\C-t" 'lean-show-type))
 
 (define-abbrev-table 'lean-mode-abbrev-table '(
     ("var"    "variable")
@@ -77,17 +81,29 @@
       (lean-set-keys)
       (setq local-abbrev-table lean-mode-abbrev-table)
       (abbrev-mode 1)
+      (add-hook 'before-change-functions '
+                lean-before-change-function nil t)
+      (add-hook 'after-change-functions '
+                lean-after-change-function nil t)
+      ;; Draw a vertical line for rule-column
       (when (and lean-rule-column
                  lean-show-rule-column-method)
         (cl-case lean-show-rule-column-method
           ('vline (require 'fill-column-indicator)
                   (setq fci-rule-column lean-rule-column)
                   (setq fci-rule-color lean-rule-color)
-                  (add-hook 'lean-mode-hook 'fci-mode))))
+                  (add-hook 'lean-mode-hook 'fci-mode nil t))))
+      ;; Delete Trailing Whitespace
       (if lean-delete-trailing-whitespace
           (progn (require 'whitespace-cleanup-mode)
-                 (add-hook 'lean-mode-hook 'whitespace-cleanup-mode))
+                 (add-hook 'lean-mode-hook 'whitespace-cleanup-mode nil t))
         (remove-hook 'lean-mode-hook 'whitespace-cleanup-mode))
+      ;; eldoc
+      (set (make-local-variable 'eldoc-documentation-function)
+           'lean-show-type)
+      ;; (set (make-local-variable 'eldoc-argument-case)
+      ;;      'lean-eldoc-argument-list)
+      (eldoc-mode +1)
       ))
   "A mode for Lean files"          ;; doc string for this mode
   )

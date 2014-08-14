@@ -4,6 +4,8 @@
 ;; Author: Soonho Kong
 ;;
 
+(require 'lean-settings)
+
 (defvar lean-flycheck-initialized nil
   "Return true if lean-flycheck has been initialized")
 

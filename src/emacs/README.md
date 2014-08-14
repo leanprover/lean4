@@ -9,7 +9,7 @@ Requirement
 -----------
 
 ``lean-mode`` requires [Emacs 24][emacs24] and following (optional)
-packages which can be installed via ``M-x package-install``.
+packages which can be installed via <kbd>M-x package-install</kbd>.
 
  - [flycheck][flycheck]
  - [fill-column-indicator][fci]

@@ -7,11 +7,11 @@ LEAN_VERSION_FILE = $(shell dirname $(LEAN))/version
 
 all: $(OLEAN_FILES) $(DEP_FILES)
 
-%.olean: %.lean $(LEAN_VERSION_FILE)
+%.olean: %.lean
 	@rm -f $@
 	$(LEAN) $(LEAN_OPTIONS) $< -o $@ -c $(@:.olean=.clean)
 
-%.d: %.lean $(LEAN_VERSION_FILE)
+%.d: %.lean
 	@echo Making dependency file \'$@\' ...
 	@rm -f $@
 	@rm -f $@.tmp

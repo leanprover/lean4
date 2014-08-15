@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "library/placeholder.h"
 #include "library/kernel_serializer.h"
-#include "library/definitions_cache.h"
+#include "library/definition_cache.h"
 
 namespace lean {
 /** \brief Similar to expr_eq_fn, but allows different placeholders
@@ -118,9 +118,9 @@ public:
     bool operator()(expr const & a, expr const & b) { return compare(a, b); }
 };
 
-definitions_cache::definitions_cache() {}
+definition_cache::definition_cache() {}
 
-void definitions_cache::load(std::istream & in) {
+void definition_cache::load(std::istream & in) {
     lock_guard<mutex> lc(m_mutex);
     deserializer d(in);
     unsigned num;
@@ -134,18 +134,18 @@ void definitions_cache::load(std::istream & in) {
     }
 }
 
-void definitions_cache::add_core(name const & n, expr const & pre_type, expr const & pre_value,
+void definition_cache::add_core(name const & n, expr const & pre_type, expr const & pre_value,
                                  level_param_names const & ls, expr const & type, expr const & value) {
     m_definitions.insert(n, entry(pre_type, pre_value, ls, type, value));
 }
 
-void definitions_cache::add(name const & n, expr const & pre_type, expr const & pre_value,
+void definition_cache::add(name const & n, expr const & pre_type, expr const & pre_value,
                             level_param_names const & ls, expr const & type, expr const & value) {
     lock_guard<mutex> lc(m_mutex);
     add_core(n, pre_type, pre_value, ls, type, value);
 }
 
-optional<std::tuple<level_param_names, expr, expr>> definitions_cache::find(name const & n, expr const & pre_type, expr const & pre_value) {
+optional<std::tuple<level_param_names, expr, expr>> definition_cache::find(name const & n, expr const & pre_type, expr const & pre_value) {
     entry const * it;
     {
         lock_guard<mutex> lc(m_mutex);
@@ -162,7 +162,7 @@ optional<std::tuple<level_param_names, expr, expr>> definitions_cache::find(name
     return optional<std::tuple<level_param_names, expr, expr>>();
 }
 
-void definitions_cache::save(std::ostream & out) {
+void definition_cache::save(std::ostream & out) {
     lock_guard<mutex> lc(m_mutex);
     serializer s(out);
     s << m_definitions.size();

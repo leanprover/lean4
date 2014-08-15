@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/io_state_stream.h"
 #include "library/kernel_bindings.h"
-#include "library/definitions_cache.h"
+#include "library/definition_cache.h"
 #include "library/declaration_index.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/elaborator.h"
@@ -94,7 +94,7 @@ class parser {
     std::vector<type_info_data> m_pre_info_data; // type information before elaboration
 
     // cache support
-    definitions_cache *     m_cache;
+    definition_cache *     m_cache;
     // index support
     declaration_index *     m_index;
 
@@ -179,7 +179,7 @@ public:
            snapshot_vector * sv = nullptr, info_manager * im = nullptr);
     ~parser();
 
-    void set_cache(definitions_cache * c) { m_cache = c; }
+    void set_cache(definition_cache * c) { m_cache = c; }
     void cache_definition(name const & n, expr const & pre_type, expr const & pre_value,
                           level_param_names const & ls, expr const & type, expr const & value);
     /** \brief Try to find an elaborated definition for (n, pre_type, pre_value) in the cache */
@@ -333,8 +333,8 @@ public:
 };
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,
-                    bool use_exceptions, unsigned num_threads, definitions_cache * cache = nullptr,
+                    bool use_exceptions, unsigned num_threads, definition_cache * cache = nullptr,
                     declaration_index * index = nullptr);
 bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads,
-                    definitions_cache * cache = nullptr, declaration_index * index = nullptr);
+                    definition_cache * cache = nullptr, declaration_index * index = nullptr);
 }

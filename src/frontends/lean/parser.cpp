@@ -1299,7 +1299,7 @@ void parser::save_type_info(expr const & e) {
 }
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions,
-                    unsigned num_threads, definitions_cache * cache, declaration_index * index) {
+                    unsigned num_threads, definition_cache * cache, declaration_index * index) {
     parser p(env, ios, in, strm_name, use_exceptions, num_threads);
     p.set_cache(cache);
     p.set_index(index);
@@ -1310,7 +1310,7 @@ bool parse_commands(environment & env, io_state & ios, std::istream & in, char c
 }
 
 bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads,
-                    definitions_cache * cache, declaration_index * index) {
+                    definition_cache * cache, declaration_index * index) {
     std::ifstream in(fname);
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");

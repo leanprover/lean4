@@ -14,14 +14,14 @@ namespace lean {
 /** \brief Cache for mapping definitions (type, value) before elaboration to (level_names, type, value)
     after elaboration.
 */
-class definitions_cache {
+class definition_cache {
     typedef std::tuple<expr, expr, level_param_names, expr, expr> entry;
     mutex           m_mutex;
     name_map<entry> m_definitions;
     void add_core(name const & n, expr const & pre_type, expr const & pre_value, level_param_names const & ls,
                   expr const & type, expr const & value);
 public:
-    definitions_cache();
+    definition_cache();
     /** \brief Add the cache entry (n, pre_type, pre_value) -> (ls, type, value) */
     void add(name const & n, expr const & pre_type, expr const & pre_value, level_param_names const & ls, expr const & type, expr const & value);
     /** \brief Return (if available) elaborated (level_names, type, value) for (n, pre_type, pre_value).

@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 #include "library/hott_kernel.h"
 #include "library/module.h"
 #include "library/io_state_stream.h"
-#include "library/definitions_cache.h"
+#include "library/definition_cache.h"
 #include "library/declaration_index.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
@@ -45,7 +45,7 @@ using lean::mk_environment;
 using lean::mk_hott_environment;
 using lean::set_environment;
 using lean::set_io_state;
-using lean::definitions_cache;
+using lean::definition_cache;
 using lean::pos_info;
 using lean::pos_info_provider;
 using lean::optional;
@@ -247,8 +247,8 @@ int main(int argc, char ** argv) {
     script_state S = lean::get_thread_script_state();
     set_environment set1(S, env);
     set_io_state    set2(S, ios);
-    definitions_cache   cache;
-    definitions_cache * cache_ptr = nullptr;
+    definition_cache   cache;
+    definition_cache * cache_ptr = nullptr;
     if (use_cache) {
         cache_ptr = &cache;
         std::ifstream in(cache_name);

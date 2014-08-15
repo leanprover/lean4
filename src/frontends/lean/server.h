@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include "library/definitions_cache.h"
+#include "library/definition_cache.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/info_manager.h"
 
@@ -40,7 +40,7 @@ class server {
     std::ostream &            m_out;
     unsigned                  m_num_threads;
     snapshot                  m_empty_snapshot;
-    definitions_cache         m_cache;
+    definition_cache          m_cache;
 
     void load_file(std::string const & fname);
     void visit_file(std::string const & fname);

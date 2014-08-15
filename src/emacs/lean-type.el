@@ -102,8 +102,12 @@ The return valus has the form of '([symbol-string] [start-pos])"
         (cl-multiple-value-setq (typeinfo overload synth)
           (lean-extract-info-at-pos file-name line-number column start-pos))
         (when synth
-          (delete-forward-char 1)
-          (insert (concat "(" (lean-synth-body-str synth) ")")))))))
+          (let ((synth-str
+                 (replace-regexp-in-string "?M_[0-9]+" "_" (lean-synth-body-str synth))))
+            (when (search " " synth-str)
+              (setq synth-str (concat "(" synth-str ")")))
+            (delete-forward-char 1)
+            (insert synth-str)))))))
 
 (defun lean-eldoc-documentation-function ()
   "Show information of lean expression at point if any"

@@ -9,7 +9,7 @@ all: $(OLEAN_FILES) $(DEP_FILES)
 
 %.olean: %.lean
 	@rm -f $@
-	$(LEAN) $(LEAN_OPTIONS) $< -o $@ -c $(@:.olean=.clean)
+	$(LEAN) $(LEAN_OPTIONS) $< -o $@ -c $(@:.olean=.clean) -i $(@:.olean=.ilean)
 
 %.d: %.lean
 	@echo Making dependency file \'$@\' ...
@@ -27,4 +27,5 @@ all: $(OLEAN_FILES) $(DEP_FILES)
 clean:
 	find . -type f -name "*.olean" -delete
 	find . -type f -name "*.clean" -delete
+	find . -type f -name "*.ilean" -delete
 	find . -type f -name "*.d" -delete

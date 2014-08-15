@@ -47,7 +47,8 @@
   (local-set-key "\C-c\C-x" 'lean-std-exe)
   (local-set-key "\C-c\C-l" 'lean-std-exe)
   (local-set-key "\C-c\C-k" 'lean-hott-exe)
-  (local-set-key "\C-c\C-t" 'lean-eldoc-documentation-function))
+  (local-set-key "\C-c\C-t" 'lean-eldoc-documentation-function)
+  (local-set-key "\C-c\C-f" 'lean-fill-placeholder))
 
 (define-abbrev-table 'lean-mode-abbrev-table '(
     ("var"    "variable")

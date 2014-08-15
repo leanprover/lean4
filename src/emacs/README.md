@@ -50,3 +50,14 @@ Put the following elisp code on your emacs setup:
 (customize-set-variable 'lean-rule-color "#ff0000")
 (customize-set-variable 'lean-delete-trailing-whitespace t)
 ```
+
+Key Bindings
+------------
+
+|Key                | Function                          |
+|-------------------|-----------------------------------|
+|<kbd>C-c C-x</kbd> | lean-std-exe                      |
+|<kbd>C-c C-l</kbd> | lean-std-exe                      |
+|<kbd>C-c C-k</kbd> | lean-hott-exe                     |
+|<kbd>C-c C-t</kbd> | lean-eldoc-documentation-function |
+|<kbd>C-c C-f</kbd> | lean-fill-placeholder             |

@@ -86,6 +86,25 @@ The return valus has the form of '([symbol-string] [start-pos])"
            (output-str (concat type-output-str overload-output-str)))
       (message "%s" output-str))))
 
+(defun lean-fill-placeholder ()
+  "Fill the placeholder with a synthesized expression by Lean."
+  (interactive)
+  (let ((cur_char (buffer-substring-no-properties (point) (1+ (point)))))
+    (when (string= cur_char "_")
+      (let* ((file-name (buffer-file-name))
+             (line-number (line-number-at-pos))
+             (column (current-column))
+             (sym-info (lean-get-current-sym-info))
+             (sym-name (cl-first sym-info))
+             (start-pos (cl-second sym-info))
+             (start-column (- column (- (point) start-pos)))
+             typeinfo overload)
+        (cl-multiple-value-setq (typeinfo overload synth)
+          (lean-extract-info-at-pos file-name line-number column start-pos))
+        (when synth
+          (delete-forward-char 1)
+          (insert (concat "(" (lean-synth-body-str synth) ")")))))))
+
 (defun lean-eldoc-documentation-function ()
   "Show information of lean expression at point if any"
   (interactive)

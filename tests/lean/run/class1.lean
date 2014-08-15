@@ -1,5 +1,5 @@
 import standard
-using num pair
+using num prod
 
 definition H : inhabited (Prop × num × (num → num)) := _
 

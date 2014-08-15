@@ -1,5 +1,5 @@
 import standard
-using pair
+using prod
 
 -- Test tuple notation
 check (3, false, 1, true)

@@ -4,7 +4,7 @@
 --- Author: Jeremy Avigad
 ----------------------------------------------------------------------------------------------------
 
-import standard
+import standard struc.function
 
 using function
 

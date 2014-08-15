@@ -1,5 +1,5 @@
 import standard
-using num pair
+using num prod
 
 section
   parameter {A : Type}

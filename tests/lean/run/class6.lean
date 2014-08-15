@@ -1,5 +1,5 @@
 import standard
-using pair
+using prod
 
 inductive t1 : Type :=
 | mk1 : t1

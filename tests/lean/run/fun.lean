@@ -1,4 +1,4 @@
-import standard
+import standard struc.function
 using function num bool
 
 

@@ -3,7 +3,7 @@
 --- Released under Apache 2.0 license as described in the file LICENSE.
 --- Author: Jeremy Avigad
 ----------------------------------------------------------------------------------------------------
-import logic.connectives.basic logic.connectives.function
+import logic.connectives.basic struc.function
 using function
 
 namespace congr

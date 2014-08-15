@@ -1,5 +1,5 @@
 import standard
-using num pair
+using num prod
 
 theorem H {A B : Type} (H1 : inhabited A) : inhabited (Prop × A × (B → num))
 := _

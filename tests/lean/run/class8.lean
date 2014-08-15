@@ -1,5 +1,5 @@
 import standard
-using num tactic pair
+using num tactic prod
 
 inductive inh (A : Type) : Prop :=
 | inh_intro : A -> inh A
@@ -18,8 +18,8 @@ theorem inh_bool [instance] : inh Prop
 theorem inh_fun [instance] {A B : Type} (H : inh B) : inh (A → B)
 := inh_rec (λb, inh_intro (λa : A, b)) H
 
-theorem pair_inh [instance] {A : Type} {B : Type} (H1 : inh A) (H2 : inh B) : inh (pair A B)
-:= inh_elim H1 (λa, inh_elim H2 (λb, inh_intro (mk_pair a b)))
+theorem pair_inh [instance] {A : Type} {B : Type} (H1 : inh A) (H2 : inh B) : inh (prod A B)
+:= inh_elim H1 (λa, inh_elim H2 (λb, inh_intro (pair a b)))
 
 definition assump := eassumption
 tactic_hint assump

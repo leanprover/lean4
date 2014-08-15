@@ -2,4 +2,4 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 
-import logic tools.tactic data.num data.string data.pair logic.connectives.cast
+import logic tools.tactic data.num data.string data.prod logic.connectives.cast

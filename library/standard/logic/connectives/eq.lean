@@ -14,6 +14,8 @@ inductive eq {A : Type} (a : A) : A → Prop :=
 
 infix `=`:50 := eq
 
+theorem eq_irrel {A : Type} {a : A} (H1 : a = a) : H1 = (refl a) := refl _
+
 theorem subst {A : Type} {a b : A} {P : A → Prop} (H1 : a = b) (H2 : P a) : P b :=
 eq_rec H2 H1
 
@@ -24,12 +26,22 @@ calc_subst subst
 calc_refl  refl
 calc_trans trans
 
+theorem symm {A : Type} {a b : A} (H : a = b) : b = a :=
+subst H (refl a)
+
 theorem true_ne_false : ¬true = false :=
 assume H : true = false,
   subst H trivial
 
-theorem symm {A : Type} {a b : A} (H : a = b) : b = a :=
-subst H (refl a)
+-- eq_rec with arguments swapped, for transporting an element of a dependent type
+definition eq_rec_on {A : Type} {a1 a2 : A} {B : A → Type} (H1 : a1 = a2) (H2 : B a1) : B a2 :=
+eq_rec H2 H1
+
+theorem eq_rec_on_irrel {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq_rec_on H b = b :=
+@trans _ _ (eq_rec_on (refl a) b) _ (refl _) (refl _)
+
+theorem eq_rec_irrel {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq_rec b H = b :=
+eq_rec_on_irrel H b
 
 namespace eq_proofs
   postfix `⁻¹`:100 := symm

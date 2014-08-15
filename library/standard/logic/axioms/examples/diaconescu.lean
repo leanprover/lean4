@@ -1,8 +1,6 @@
-----------------------------------------------------------------------------------------------------
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-----------------------------------------------------------------------------------------------------
 
 import logic.axioms.hilbert logic.axioms.funext
 using eq_proofs
@@ -15,15 +13,20 @@ hypothesis propext {a b : Prop} : (a → b) → (b → a) → a = b
 
 parameter p : Prop
 
-definition u [private] := epsilon (λ x, x = true ∨ p)
+definition u [private] := epsilon (λx, x = true ∨ p)
 
-definition v [private] := epsilon (λ x, x = false ∨ p)
+definition v [private] := epsilon (λx, x = false ∨ p)
 
 lemma u_def [private] : u = true ∨ p :=
-epsilon_ax (exists_intro true (or_inl (refl true)))
+sorry
+-- previous proof:
+-- epsilon_spec (exists_intro true (or_inl (refl true))
+-- fully elaborated: 
+-- @epsilon_spec Prop (λx : Prop, x = true ∨ p) (exists_intro true (or_inl (refl true)))
 
 lemma v_def [private] : v = false ∨ p :=
-epsilon_ax (exists_intro false (or_inl (refl false)))
+sorry
+-- epsilon_spec (exists_intro false (or_inl (refl false))
 
 lemma uv_implies_p [private] : ¬(u = v) ∨ p :=
 or_elim u_def

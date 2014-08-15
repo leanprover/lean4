@@ -38,9 +38,6 @@ theorem exists_unique_elim {A : Type} {p : A → Prop} {b : Prop}
 obtain w Hw, from H2,
 H1 w (and_elim_left Hw) (and_elim_right Hw)
 
-theorem inhabited_exists {A : Type} {p : A → Prop} (H : ∃x, p x) : inhabited A :=
-obtain w Hw, from H, inhabited_intro w
-
 theorem forall_congr {A : Type} {φ ψ : A → Prop} (H : ∀x, φ x ↔ ψ x) : (∀x, φ x) ↔ (∀x, ψ x) :=
 iff_intro
   (assume Hl, take x, iff_elim_left (H x) (Hl x))
@@ -81,7 +78,9 @@ iff_intro
     (assume H2, obtain (w : A) (Hw : ψ w), from H2,
       exists_intro w (or_inr Hw)))
 
-theorem forall_not_inhabited {A : Type} {B : A → Prop} (H : ¬ inhabited A) : ∀x, B x :=
-take x,
-  have Hi : inhabited A, from inhabited_intro x,
-  absurd_elim (B x) Hi H
+abbreviation nonempty (A : Type) := ∃x : A, true
+
+theorem nonempty_intro {A : Type} (x : A) : nonempty A := exists_intro x trivial
+
+theorem inhabited_imp_nonempty {A : Type} (H : inhabited A) : nonempty A :=
+exists_intro (default A) trivial

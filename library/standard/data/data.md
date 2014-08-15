@@ -1,7 +1,7 @@
 data
 ====
 
-Various datatypes.
+Various data types.
 
 Basic types:
 
@@ -15,7 +15,10 @@ Basic types:
 
 Constructors:
 
+* [prod](prod.lean) : cartesian product
+* [sum](sum.lean)
+* [sigma](sigma.lean) : the dependent product
 * [option](option.lean)
-* [pair](pair.lean)
+* [subtype](subtype.lean)
 * [list](list/list.md)
 * [set](set.lean)

@@ -520,8 +520,9 @@ public:
         m_context(m_ngen, m_mvar2meta, ctx),
         m_full_context(m_ngen, m_mvar2meta, ctx) {
         m_relax_main_opaque = false;
-        m_tc[0] = mk_type_checker_with_hints(env.m_env, m_ngen.mk_child(), false);
-        m_tc[1] = mk_type_checker_with_hints(env.m_env, m_ngen.mk_child(), true);
+        m_noinfo = false;
+        m_tc[0]  = mk_type_checker_with_hints(env.m_env, m_ngen.mk_child(), false);
+        m_tc[1]  = mk_type_checker_with_hints(env.m_env, m_ngen.mk_child(), true);
     }
 
     environment const & env() const { return m_env.m_env; }

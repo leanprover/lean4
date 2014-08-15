@@ -18,15 +18,10 @@ definition u [private] := epsilon (λx, x = true ∨ p)
 definition v [private] := epsilon (λx, x = false ∨ p)
 
 lemma u_def [private] : u = true ∨ p :=
-sorry
--- previous proof:
--- epsilon_spec (exists_intro true (or_inl (refl true))
--- fully elaborated: 
--- @epsilon_spec Prop (λx : Prop, x = true ∨ p) (exists_intro true (or_inl (refl true)))
+epsilon_spec (exists_intro true (or_inl (refl true)))
 
 lemma v_def [private] : v = false ∨ p :=
-sorry
--- epsilon_spec (exists_intro false (or_inl (refl false))
+epsilon_spec (exists_intro false (or_inl (refl false)))
 
 lemma uv_implies_p [private] : ¬(u = v) ∨ p :=
 or_elim u_def

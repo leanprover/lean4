@@ -1,10 +1,8 @@
-----------------------------------------------------------------------------------------------------
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Leonardo de Moura, Jeremy Avigad
-----------------------------------------------------------------------------------------------------
 
-import .basic .eq ..classes.inhabited
+import .basic .eq ..classes.nonempty
 
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 | exists_intro : ∀ (a : A), P a → Exists P
@@ -78,9 +76,5 @@ iff_intro
     (assume H2, obtain (w : A) (Hw : ψ w), from H2,
       exists_intro w (or_inr Hw)))
 
-abbreviation nonempty (A : Type) := ∃x : A, true
-
-theorem nonempty_intro {A : Type} (x : A) : nonempty A := exists_intro x trivial
-
-theorem inhabited_imp_nonempty {A : Type} (H : inhabited A) : nonempty A :=
-exists_intro (default A) trivial
+theorem exists_imp_nonempty {A : Type} {P : A → Prop} (H : ∃x, P x) : nonempty A :=
+obtain w Hw, from H, nonempty_intro w

@@ -319,16 +319,9 @@ if((${CYGWIN} EQUAL "1") OR (NOT (${CMAKE_SYSTEM_NAME} MATCHES "Windows")))
     DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library/standard
     )
-
-  add_custom_target(
-    hott_lib ALL
-    COMMAND make -j ${PROCESSOR_COUNT} LEAN_PATH=.:${LEAN_SOURCE_DIR}/../library/hott LEAN="${CMAKE_BINARY_DIR}/shell/lean" LEAN_OPTIONS="--hott"
-    DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
-    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library/hott
-    )
 endif()
 
 add_custom_target(clean-olean
    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
-   COMMAND find . -type f -name '*.olean' -delete && find . -type f -name '*.d' -delete && find . -type f -name '*.clean' -delete
+   COMMAND find . -type f -name '*.olean' -delete && find . -type f -name '*.d' -delete && find . -type f -name '*.clean' -delete && find . -type f -name '*.ilean' -delete
    )

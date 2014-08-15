@@ -203,6 +203,7 @@ def parse_arg(argv):
     parser.add_argument('--directory',  '-C', action='store', help="Change to directory dir before reading the makefiles or doing anything else.")
     parser.add_argument('--makefile',   '-f', '--file', action='store', help="Use file as a makefile.")
     parser.add_argument('--jobs',       '-j', nargs='?', default=-1, const=-2, type=check_positive, help="Specifies the number of jobs (commands) to run simultaneously.")
+    parser.add_argument('--just-print', '--dry-run', '--recon', '-n', action='store_true', default=False, help="Don't actually run any commands; just print them.")
     parser.add_argument('targets', nargs='*')
     args = parser.parse_args(argv)
     lean_options = extract_lean_options(args)
@@ -221,13 +222,16 @@ def extract_makefile_options(args):
     makefile_options = []
     if args.keep_going:
         makefile_options.append("--keep-going")
-    # Default Value
     if args.jobs == -1:
+        # -j is not used
         pass
     elif args.jobs == -2:
+        # -j is used but without providing number of processes
         makefile_options.append("-j")
     elif args.jobs:
         makefile_options += ["-j", args.jobs]
+    if args.just_print:
+        makefile_options.append("--just-print")
     return makefile_options
 
 def main(argv=None):

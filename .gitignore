@@ -5,6 +5,7 @@
 *.md.lean
 *.olean
 *.clean
+*.ilean
 *.d
 a.out
 build

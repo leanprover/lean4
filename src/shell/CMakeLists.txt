@@ -75,15 +75,6 @@ FOREACH(T ${LEANSLOWTESTS})
   set_tests_properties("leanslowtest_${T_NAME}" PROPERTIES LABELS "expensive")
 ENDFOREACH(T)
 
-# LEAN HoTT TESTS
-file(GLOB LEANHOTTTESTS "${LEAN_SOURCE_DIR}/../tests/lean/hott/*.lean")
-FOREACH(T ${LEANHOTTTESTS})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanhotttest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/hott"
-           COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-ENDFOREACH(T)
-
 # LEAN LUA TESTS
 file(GLOB LEANLUATESTS "${LEAN_SOURCE_DIR}/../tests/lua/*.lua")
 FOREACH(T ${LEANLUATESTS})

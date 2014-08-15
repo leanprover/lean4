@@ -88,7 +88,7 @@ otherwise."
            :message (unless (string-empty-p message) message)
            :level level)))))
 
-(eval-after-load "flycheck.el"
+(eval-after-load "flycheck"
   '(defadvice flycheck-try-parse-error-with-pattern
      (after lean-flycheck-try-parse-error-with-pattern activate)
      "Add 1 to error-column."

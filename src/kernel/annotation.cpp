@@ -11,7 +11,10 @@ Author: Leonardo de Moura
 #include "kernel/annotation.h"
 
 namespace lean {
-static name g_annotation("annotation");
+name const & get_annotation_name() {
+    static name g_annotation("annotation");
+    return g_annotation;
+}
 
 std::string const & get_annotation_opcode() {
     static std::string g_annotation_opcode("Annot");
@@ -29,8 +32,10 @@ class annotation_macro_definition_cell : public macro_definition_cell {
     }
 public:
     annotation_macro_definition_cell(name const & n):m_name(n) {}
-    name get_annotation_kind() const { return m_name; }
-    virtual name get_name() const { return g_annotation; }
+    name const & get_annotation_kind() const { return m_name; }
+    virtual name get_name() const { return get_annotation_name(); }
+    virtual format pp(formatter const &) const { return format(m_name); }
+    virtual void display(std::ostream & out) const { out << m_name; }
     virtual expr get_type(expr const & m, expr const * arg_types, extension_context &) const {
         check_macro(m);
         return arg_types[0];
@@ -46,14 +51,14 @@ public:
 };
 
 typedef std::unordered_map<name, macro_definition, name_hash, name_eq> annotation_macros;
-static std::unique_ptr<annotation_macros> g_annotation_macros;
 annotation_macros & get_annotation_macros() {
+    static std::unique_ptr<annotation_macros> g_annotation_macros;
     if (!g_annotation_macros) g_annotation_macros.reset(new annotation_macros());
     return *(g_annotation_macros.get());
 }
 
 void register_annotation(name const & n) {
-    annotation_macros & ms = get_annotation_macros();
+     annotation_macros & ms = get_annotation_macros();
     lean_assert(ms.find(n) == ms.end());
     ms.insert(mk_pair(n, macro_definition(new annotation_macro_definition_cell(n))));
 }
@@ -69,11 +74,16 @@ expr mk_annotation(name const & kind, expr const & e) {
 }
 
 bool is_annotation(expr const & e) {
-    return is_macro(e) && macro_def(e).get_name() == g_annotation;
+    return is_macro(e) && macro_def(e).get_name() == get_annotation_name();
+}
+
+name const & get_annotation_kind(expr const & e) {
+    lean_assert(is_annotation(e));
+    return static_cast<annotation_macro_definition_cell const*>(macro_def(e).raw())->get_annotation_kind();
 }
 
 bool is_annotation(expr const & e, name const & kind) {
-    return is_annotation(e) && static_cast<annotation_macro_definition_cell const*>(macro_def(e).raw())->get_annotation_kind() == kind;
+    return is_annotation(e) && get_annotation_kind(e) == kind;
 }
 
 expr const & get_annotation_arg(expr const & e) {
@@ -81,12 +91,22 @@ expr const & get_annotation_arg(expr const & e) {
     return macro_arg(e, 0);
 }
 
-static name g_let("let");
-static name g_have("have");
-register_annotation_fn g_let_annotation(g_let);
-register_annotation_fn g_have_annotation(g_have);
-expr mk_let_annotation(expr const & e) { return mk_annotation(g_let, e); }
-expr mk_have_annotation(expr const & e) { return mk_annotation(g_have, e); }
-bool is_let_annotation(expr const & e) { return is_annotation(e, g_let); }
-bool is_have_annotation(expr const & e) { return is_annotation(e, g_have); }
+name const & get_let_name() {
+    static name g_let("let");
+    static register_annotation_fn g_let_annotation(g_let);
+    return g_let;
+}
+
+name const & get_have_name() {
+    static name g_have("have");
+    static register_annotation_fn g_have_annotation(g_have);
+    return g_have;
+}
+static name g_let_name  = get_let_name();  // force 'let' annotation to be registered
+static name g_have_name = get_have_name(); // force 'have' annotation to be registered
+
+expr mk_let_annotation(expr const & e) { return mk_annotation(get_let_name(), e); }
+expr mk_have_annotation(expr const & e) { return mk_annotation(get_have_name(), e); }
+bool is_let_annotation(expr const & e) { return is_annotation(e, get_let_name()); }
+bool is_have_annotation(expr const & e) { return is_annotation(e, get_have_name()); }
 }

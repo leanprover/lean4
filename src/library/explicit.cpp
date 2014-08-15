@@ -10,20 +10,33 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 
 namespace lean {
-static name g_explicit_name("@");
-static name g_implicit_name("@^-1");
-static name g_as_is_name("as_is");
+name const & get_explicit_name() {
+    static name g_explicit_name("@");
+    static register_annotation_fn g_explicit_annotation(g_explicit_name);
+    return g_explicit_name;
+}
 
-register_annotation_fn g_explicit_annotation(g_explicit_name);
-register_annotation_fn g_implicit_annotation(g_implicit_name);
-register_annotation_fn g_as_is_annotation(g_as_is_name);
+name const & get_implicit_name() {
+    static name g_implicit_name("@^-1");
+    static register_annotation_fn g_implicit_annotation(g_implicit_name);
+    return g_implicit_name;
+}
 
-expr mk_explicit(expr const & e) { return mk_annotation(g_explicit_name, e); }
-bool is_explicit(expr const & e) { return is_annotation(e, g_explicit_name); }
-expr mk_as_is(expr const & e) { return mk_annotation(g_as_is_name, e); }
-bool is_as_is(expr const & e) { return is_annotation(e, g_as_is_name); }
-expr mk_implicit(expr const & e) { return mk_annotation(g_implicit_name, e); }
-bool is_implicit(expr const & e) { return is_annotation(e, g_implicit_name); }
+name const & get_as_is_name() {
+    static name g_as_is_name("as_is");
+    static register_annotation_fn g_as_is_annotation(g_as_is_name);
+    return g_as_is_name;
+}
+static name g_explicit_name = get_explicit_name(); // force '@' annotation to be registered
+static name g_implicit_name = get_implicit_name(); // force '@^-1' annotation to be registered
+static name g_as_is_name    = get_as_is_name();    // force 'as_is' annotation to be registered
+
+expr mk_explicit(expr const & e) { return mk_annotation(get_explicit_name(), e); }
+bool is_explicit(expr const & e) { return is_annotation(e, get_explicit_name()); }
+expr mk_as_is(expr const & e) { return mk_annotation(get_as_is_name(), e); }
+bool is_as_is(expr const & e) { return is_annotation(e, get_as_is_name()); }
+expr mk_implicit(expr const & e) { return mk_annotation(get_implicit_name(), e); }
+bool is_implicit(expr const & e) { return is_annotation(e, get_implicit_name()); }
 expr const & get_explicit_arg(expr const & e) { lean_assert(is_explicit(e)); return get_annotation_arg(e); }
 expr const & get_as_is_arg(expr const & e) { lean_assert(is_as_is(e)); return get_annotation_arg(e); }
 expr const & get_implicit_arg(expr const & e) { lean_assert(is_implicit(e)); return get_annotation_arg(e); }

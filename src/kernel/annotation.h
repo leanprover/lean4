@@ -34,6 +34,11 @@ bool is_annotation(expr const & e, name const & kind);
     \post get_annotation_arg(mk_annotation(k, e)) == e
 */
 expr const & get_annotation_arg(expr const & e);
+/** \brief Return the king of the annotated expression, \c e must have been created using #mk_annotation.
+
+    \post get_annotation_arg(mk_annotation(k, e)) == k
+*/
+name const & get_annotation_kind(expr const & e);
 
 /** \brief Tag \c e as a 'let'-expression. 'let' is a pre-registered annotation. */
 expr mk_let_annotation(expr const & e);

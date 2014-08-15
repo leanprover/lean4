@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/elaborator.h"
+#include "frontends/lean/noinfo.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
@@ -303,8 +304,9 @@ class elaborator {
     constraint_vect      m_constraints; // constraints that must be solved for the elaborated term to be type correct.
     local_tactic_hints   m_local_tactic_hints; // mapping from metavariable name ?m to tactic expression that should be used to solve it.
                                               // this mapping is populated by the 'by tactic-expr' expression.
-    name_set               m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
-    bool                   m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent
+    name_set             m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
+    bool                 m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent.
+    bool                 m_noinfo;  // when true, we do not collect information when true, we set is to true whenever we find noinfo annotation.
     std::vector<std::unique_ptr<info_data>> m_pre_info_data;
 
     struct scope_ctx {
@@ -902,7 +904,7 @@ public:
 
     /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
     void save_info_data_core(expr const & e, expr const & r, bool replace) {
-        if (infom() && pip() && (is_constant(e) || is_local(e) || is_placeholder(e))) {
+        if (!m_noinfo && infom() && pip() && (is_constant(e) || is_local(e) || is_placeholder(e))) {
             if (auto p = pip()->get_pos_info(e)) {
                 type_checker::scope scope(*m_tc[m_relax_main_opaque]);
                 expr t = m_tc[m_relax_main_opaque]->infer(r);
@@ -924,7 +926,7 @@ public:
     }
 
     void save_synth_data(expr const & e, expr const & r) {
-        if (infom() && pip() && is_placeholder(e)) {
+        if (!m_noinfo && infom() && pip() && is_placeholder(e)) {
             if (auto p = pip()->get_pos_info(e)) {
                 m_pre_info_data.push_back(std::unique_ptr<info_data>(new synth_info_data(p->first, p->second, r)));
             }
@@ -1035,6 +1037,9 @@ public:
             return visit_choice(e, none_expr());
         } else if (is_by(e)) {
             return visit_by(e, none_expr());
+        } else if (is_noinfo(e)) {
+            flet<bool> let(m_noinfo, true);
+            return visit(get_annotation_arg(e));
         } else {
             switch (e.kind()) {
             case expr_kind::Local:      return e;

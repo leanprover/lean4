@@ -11,9 +11,55 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parse_table.h"
+#include "frontends/lean/noinfo.h"
 
 namespace lean {
 namespace notation {
+/** \brief Annotate subterms of "macro" \c e with noinfo annotation.
+
+    1- Variables are not annotated.
+    2- A constant f in a macro (f ...) is not annotated if (root == true).
+    3- Every other subterm is annotated with noinfo.
+*/
+static expr annotate_macro_subterms(expr const & e, bool root = true) {
+    if (is_var(e) || is_noinfo(e))
+        return e;
+    if (is_binding(e))
+        return update_binding(e,
+                              annotate_macro_subterms(binding_domain(e), root),
+                              annotate_macro_subterms(binding_body(e), root));
+    buffer<expr> args;
+    bool modified  = false;
+    expr const & f = get_app_args(e, args);
+    expr new_f;
+    if ((is_constant(f) && root) || is_noinfo(f)) {
+        new_f = f;
+    } else if (is_annotation(f)) {
+        name const & k   = get_annotation_kind(f);
+        expr const & arg = get_annotation_arg(f);
+        expr new_arg     = annotate_macro_subterms(arg, true);
+        if (is_eqp(new_arg, arg)) {
+            new_f    = f;
+        } else {
+            new_f    = mk_annotation(k, new_arg);
+            modified = true;
+        }
+    } else {
+        new_f    = mk_noinfo(f);
+        modified = true;
+    }
+    for (expr & arg : args) {
+        expr new_arg = annotate_macro_subterms(arg, false);
+        if (!is_eqp(new_arg, arg)) {
+            arg      = new_arg;
+            modified = true;
+        }
+    }
+    if (!modified)
+        return e;
+    return mk_app(new_f, args);
+}
+
 struct action_cell {
     action_kind m_kind;
     MK_LEAN_RC(); // Declare m_rc counter
@@ -183,14 +229,18 @@ action mk_binders_action() {
     return *r;
 }
 action mk_expr_action(unsigned rbp) { return action(new expr_action_cell(rbp)); }
-action mk_exprs_action(name const & sep, expr const & rec, expr const & ini, optional<name> const & terminator, bool right, unsigned rbp) {
+action mk_exprs_action(name const & sep, expr const & rec, expr const & ini,
+                       optional<name> const & terminator, bool right, unsigned rbp) {
     if (get_free_var_range(rec) > 2)
         throw exception("invalid notation, the expression used to combine a sequence of expressions "
                         "must not contain free variables with de Bruijn indices greater than 1");
-    return action(new exprs_action_cell(sep, rec, ini, terminator, right, rbp));
+    expr new_rec = annotate_macro_subterms(rec);
+    expr new_ini = annotate_macro_subterms(ini);
+    return action(new exprs_action_cell(sep, new_rec, new_ini, terminator, right, rbp));
 }
 action mk_scoped_expr_action(expr const & rec, unsigned rb, bool lambda) {
-    return action(new scoped_expr_action_cell(rec, rb, lambda));
+    expr new_rec = annotate_macro_subterms(rec);
+    return action(new scoped_expr_action_cell(new_rec, rb, lambda));
 }
 action mk_ext_action(parse_fn const & fn) { return action(new ext_action_cell(fn)); }
 action mk_ext_lua_action(char const * fn) { return action(new ext_lua_action_cell(fn)); }
@@ -297,8 +347,9 @@ parse_table parse_table::add_core(unsigned num, transition const * ts, expr cons
 }
 
 parse_table parse_table::add(unsigned num, transition const * ts, expr const & a, bool overload) const {
-    validate_transitions(is_nud(), num, ts, a);
-    return add_core(num, ts, a, overload);
+    expr new_a = annotate_macro_subterms(a);
+    validate_transitions(is_nud(), num, ts, new_a);
+    return add_core(num, ts, new_a, overload);
 }
 
 void parse_table::for_each(buffer<transition> & ts, std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const {

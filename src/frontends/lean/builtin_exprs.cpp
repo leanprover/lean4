@@ -130,7 +130,7 @@ static expr parse_let_expr(parser & p, unsigned, expr const *, pos_info const & 
 }
 
 static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return p.save_pos(mk_expr_placeholder(), pos);
+    return p.save_pos(mk_explicit_expr_placeholder(), pos);
 }
 
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {

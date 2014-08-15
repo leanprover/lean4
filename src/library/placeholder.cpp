@@ -10,8 +10,10 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 
 namespace lean {
-static name g_placeholder_name        = name(name::mk_internal_unique_name(), "_");
-static name g_strict_placeholder_name = name(name::mk_internal_unique_name(), "_");
+static name g_implicit_placeholder_name = name(name::mk_internal_unique_name(), "_");
+static name const & g_placeholder_name  = g_implicit_placeholder_name;
+static name g_strict_placeholder_name   = name(name::mk_internal_unique_name(), "_");
+static name g_explicit_placeholder_name = name(name::mk_internal_unique_name(), "_");
 MK_THREAD_LOCAL_GET(unsigned, get_placeholder_id, 0)
 static unsigned next_placeholder_id() {
     unsigned & c = get_placeholder_id();
@@ -20,19 +22,32 @@ static unsigned next_placeholder_id() {
     return r;
 }
 level mk_level_placeholder() { return mk_global_univ(name(g_placeholder_name, next_placeholder_id())); }
-expr mk_expr_placeholder(optional<expr> const & type, bool strict) {
-    name const & prefix = strict ? g_strict_placeholder_name : g_placeholder_name;
-    name n(prefix, next_placeholder_id());
+static name const & to_prefix(expr_placeholder_kind k) {
+    switch (k) {
+    case expr_placeholder_kind::Implicit:       return g_implicit_placeholder_name;
+    case expr_placeholder_kind::StrictImplicit: return g_strict_placeholder_name;
+    case expr_placeholder_kind::Explicit:       return g_explicit_placeholder_name;
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+expr mk_expr_placeholder(optional<expr> const & type, expr_placeholder_kind k) {
+    name n(to_prefix(k), next_placeholder_id());
     if (type)
         return mk_local(n, *type);
     else
         return mk_constant(n);
 }
 static bool is_placeholder(name const & n) {
-    return !n.is_atomic() && (n.get_prefix() == g_placeholder_name || n.get_prefix() == g_strict_placeholder_name);
+    if (n.is_atomic())
+        return false;
+    name const & p = n.get_prefix();
+    return p == g_implicit_placeholder_name || p == g_strict_placeholder_name || p == g_explicit_placeholder_name;
 }
 static bool is_strict_placeholder(name const & n) {
     return !n.is_atomic() && n.get_prefix() == g_strict_placeholder_name;
+}
+static bool is_explicit_placeholder(name const & n) {
+    return !n.is_atomic() && n.get_prefix() == g_explicit_placeholder_name;
 }
 bool is_placeholder(level const & e) { return is_global(e) && is_placeholder(global_id(e)); }
 bool is_placeholder(expr const & e) {
@@ -41,7 +56,9 @@ bool is_placeholder(expr const & e) {
 bool is_strict_placeholder(expr const & e) {
     return (is_constant(e) && is_strict_placeholder(const_name(e))) || (is_local(e) && is_strict_placeholder(mlocal_name(e)));
 }
-
+bool is_explicit_placeholder(expr const & e) {
+    return (is_constant(e) && is_explicit_placeholder(const_name(e))) || (is_local(e) && is_explicit_placeholder(mlocal_name(e)));
+}
 optional<expr> placeholder_type(expr const & e) {
     if (is_local(e) && is_placeholder(e))
         return some_expr(mlocal_type(e));

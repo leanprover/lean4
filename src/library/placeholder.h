@@ -14,18 +14,27 @@ namespace lean {
 /** \brief Return a new universe level placeholder. */
 level mk_level_placeholder();
 
+enum class expr_placeholder_kind { Implicit, StrictImplicit, Explicit };
 /** \brief Return a new expression placeholder expression. */
-expr mk_expr_placeholder(optional<expr> const & type = none_expr(), bool strict = false);
-inline expr mk_strict_expr_placeholder(optional<expr> const & type = none_expr()) { return mk_expr_placeholder(type, true); }
+expr mk_expr_placeholder(optional<expr> const & type = none_expr(), expr_placeholder_kind k = expr_placeholder_kind::Implicit);
+inline expr mk_explicit_expr_placeholder(optional<expr> const & type = none_expr()) {
+    return mk_expr_placeholder(type, expr_placeholder_kind::Explicit);
+}
+inline expr mk_strict_expr_placeholder(optional<expr> const & type = none_expr()) {
+    return mk_expr_placeholder(type, expr_placeholder_kind::StrictImplicit);
+}
 
 /** \brief Return true if the given level is a placeholder. */
 bool is_placeholder(level const & e);
 
-/** \brief Return true iff the given expression is a placeholder (strict or not). */
+/** \brief Return true iff the given expression is a placeholder (strict, explicit or implicit). */
 bool is_placeholder(expr const & e);
 
-/** \brief Return true iff the given expression is a strict placeholder (strict or not). */
+/** \brief Return true iff the given expression is a strict placeholder. */
 bool is_strict_placeholder(expr const & e);
+
+/** \brief Return true iff the given expression is an explicit placeholder. */
+bool is_explicit_placeholder(expr const & e);
 
 /** \brief Return the type of the placeholder (if available) */
 optional<expr> placeholder_type(expr const & e);

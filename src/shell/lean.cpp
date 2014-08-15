@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/io_state_stream.h"
 #include "library/definitions_cache.h"
+#include "library/declaration_index.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
@@ -49,6 +50,7 @@ using lean::pos_info;
 using lean::pos_info_provider;
 using lean::optional;
 using lean::expr;
+using lean::declaration_index;
 
 enum class input_kind { Unspecified, Lean, Lua };
 
@@ -83,6 +85,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --deps            just print dependencies of a Lean input\n";
     std::cout << "  --flycheck        print structured error message for flycheck\n";
     std::cout << "  --cache=file -c   load/save cached definitions from/to the given file\n";
+    std::cout << "  --index=file -i   store index for declared symbols in the given file\n";
     std::cout << "  --permissive -P   save .olean files even when errors were found\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
@@ -121,6 +124,7 @@ static struct option g_long_options[] = {
     {"deps",        no_argument,       0, 'D'},
     {"flycheck",    no_argument,       0, 'F'},
     {"permissive",  no_argument,       0, 'P'},
+    {"index",       no_argument,       0, 'i'},
 #if defined(LEAN_USE_BOOST)
     {"tstack",      required_argument, 0, 's'},
 #endif
@@ -128,9 +132,9 @@ static struct option g_long_options[] = {
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "PFDHSqlupgvhj:012k:012s:012t:012o:c:";
+static char const * g_opt_str = "PFDHSqlupgvhj:012k:012s:012t:012o:c:i:";
 #else
-static char const * g_opt_str = "PFDHSqlupgvhj:012k:012t:012o:c:";
+static char const * g_opt_str = "PFDHSqlupgvhj:012k:012t:012o:c:i:";
 #endif
 
 enum class lean_mode { Standard, HoTT };
@@ -157,8 +161,10 @@ int main(int argc, char ** argv) {
     lean_mode mode       = lean_mode::Standard;
     unsigned num_threads = 1;
     bool use_cache       = false;
+    bool gen_index       = false;
     std::string output;
     std::string cache_name;
+    std::string index_name;
     input_kind default_k = input_kind::Lean; // default
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
@@ -210,6 +216,9 @@ int main(int argc, char ** argv) {
             cache_name = optarg;
             use_cache  = true;
             break;
+        case 'i':
+            index_name = optarg;
+            gen_index  = true;
         case 't':
             trust_lvl = atoi(optarg);
             break;
@@ -246,6 +255,10 @@ int main(int argc, char ** argv) {
         if (!in.bad() && !in.fail())
             cache.load(in);
     }
+    declaration_index index;
+    declaration_index * index_ptr = nullptr;
+    if (gen_index)
+        index_ptr = &index;
 
     try {
         bool ok = true;
@@ -263,7 +276,7 @@ int main(int argc, char ** argv) {
                 if (k == input_kind::Lean) {
                     if (only_deps) {
                         display_deps(env, std::cout, argv[i]);
-                    } else if (!parse_commands(env, ios, argv[i], false, num_threads, cache_ptr)) {
+                    } else if (!parse_commands(env, ios, argv[i], false, num_threads, cache_ptr, index_ptr)) {
                         ok = false;
                     }
                 } else if (k == input_kind::Lua) {
@@ -286,6 +299,10 @@ int main(int argc, char ** argv) {
         if (use_cache) {
             std::ofstream out(cache_name, std::ofstream::binary);
             cache.save(out);
+        }
+        if (gen_index) {
+            std::ofstream out(index_name);
+            index.save(out);
         }
         if (export_objects && (permissive || ok)) {
             std::ofstream out(output, std::ofstream::binary);

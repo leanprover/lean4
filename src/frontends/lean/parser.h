@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/kernel_bindings.h"
 #include "library/definitions_cache.h"
+#include "library/declaration_index.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/local_decls.h"
@@ -94,6 +95,8 @@ class parser {
 
     // cache support
     definitions_cache *     m_cache;
+    // index support
+    declaration_index *     m_index;
 
     void display_warning_pos(unsigned line, unsigned pos);
     void display_warning_pos(pos_info p);
@@ -182,6 +185,10 @@ public:
     /** \brief Try to find an elaborated definition for (n, pre_type, pre_value) in the cache */
     optional<std::tuple<level_param_names, expr, expr>> find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value);
     void erase_cached_definition(name const & n) { if (m_cache) m_cache->erase(n); }
+
+    void set_index(declaration_index * i) { m_index = i; }
+    void add_decl_index(name const & n, pos_info const & pos);
+    void add_ref_index(name const & n, pos_info const & pos);
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }
@@ -325,8 +332,9 @@ public:
     bool operator()() { return parse_commands(); }
 };
 
-bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions, unsigned num_threads,
-                    definitions_cache * cache = nullptr);
+bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,
+                    bool use_exceptions, unsigned num_threads, definitions_cache * cache = nullptr,
+                    declaration_index * index = nullptr);
 bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads,
-                    definitions_cache * cache = nullptr);
+                    definitions_cache * cache = nullptr, declaration_index * index = nullptr);
 }

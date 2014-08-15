@@ -121,6 +121,16 @@ optional<std::tuple<level_param_names, expr, expr>> parser::find_cached_definiti
         return optional<std::tuple<level_param_names, expr, expr>>();
 }
 
+void parser::add_decl_index(name const & n, pos_info const & pos) {
+    if (m_index)
+        m_index->add_decl(get_stream_name(), pos, n);
+}
+
+void parser::add_ref_index(name const & n, pos_info const & pos) {
+    if (m_index)
+        m_index->add_ref(get_stream_name(), pos, n);
+}
+
 expr parser::mk_sorry(pos_info const & p) {
     m_used_sorry = true;
     {
@@ -923,6 +933,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         if (m_env.find(new_id)) {
             auto r = save_pos(mk_constant(new_id, ls), p);
             save_type_info(r);
+            add_ref_index(new_id, p);
             return r;
         } else {
             for (name const & ns : get_namespaces(m_env)) {
@@ -930,6 +941,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
                 if (m_env.find(new_id)) {
                     auto r = save_pos(mk_constant(new_id, ls), p);
                     save_type_info(r);
+                    add_ref_index(new_id, p);
                     return r;
                 }
             }
@@ -950,6 +962,8 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
             new_as.push_back(copy_with_new_pos(mk_constant(e, ls), p));
         }
         r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
+        if (is_constant(*r))
+            add_ref_index(const_name(*r), p);
         save_overload(*r);
     }
     if (!r && m_no_undef_id_error)
@@ -1285,9 +1299,10 @@ void parser::save_type_info(expr const & e) {
 }
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions,
-                    unsigned num_threads, definitions_cache * cache) {
+                    unsigned num_threads, definitions_cache * cache, declaration_index * index) {
     parser p(env, ios, in, strm_name, use_exceptions, num_threads);
     p.set_cache(cache);
+    p.set_index(index);
     bool r = p();
     ios = p.ios();
     env = p.env();
@@ -1295,10 +1310,10 @@ bool parse_commands(environment & env, io_state & ios, std::istream & in, char c
 }
 
 bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads,
-                    definitions_cache * cache) {
+                    definitions_cache * cache, declaration_index * index) {
     std::ifstream in(fname);
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");
-    return parse_commands(env, ios, in, fname, use_exceptions, num_threads, cache);
+    return parse_commands(env, ios, in, fname, use_exceptions, num_threads, cache, index);
 }
 }

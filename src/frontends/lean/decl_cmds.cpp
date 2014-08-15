@@ -82,6 +82,7 @@ static environment declare_var(parser & p, environment env,
     } else {
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
+        p.add_decl_index(full_n, pos);
         if (is_axiom)
             env = module::add(env, check(env, mk_axiom(full_n, ls, type)));
         else
@@ -185,7 +186,8 @@ struct decl_modifiers {
 };
 
 environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
-    name n = p.check_id_next("invalid declaration, identifier expected");
+    auto n_pos = p.pos();
+    name n     = p.check_id_next("invalid declaration, identifier expected");
     check_atomic(n);
     decl_modifiers modifiers;
     name real_n; // real name for this declaration
@@ -257,6 +259,8 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         name const & ns = get_namespace(env);
         real_n     = ns + n;
     }
+
+    p.add_decl_index(real_n, n_pos);
 
     if (in_section(env)) {
         buffer<expr> section_ps;

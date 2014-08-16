@@ -15,11 +15,18 @@ struct tmp_info_data : public info_data {
     virtual void display(io_state_stream const &) const { lean_unreachable(); } // LCOV_EXCL_LINE
 };
 
+int info_data::compare(info_data const & d) const {
+    if (m_line != d.m_line)
+        return m_line < d.m_line ? -1 : 1;
+    if (m_column != d.m_column)
+        return m_column < d.m_column ? -1 : 1;
+    if (typeid(*this) != typeid(d))
+        return typeid(*this).before(typeid(d)) ? -1 : 1;
+    return 0;
+}
+
 bool operator<(info_data const & i1, info_data const & i2) {
-    if (i1.get_line() != i2.get_line())
-        return i1.get_line() < i2.get_line();
-    else
-        return i1.get_column() < i2.get_column();
+    return i1.compare(i2) < 0;
 }
 
 void type_info_data::display(io_state_stream const & ios) const {

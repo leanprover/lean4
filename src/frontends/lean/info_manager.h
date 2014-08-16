@@ -23,6 +23,7 @@ public:
     unsigned get_line() const { return m_line; }
     unsigned get_column() const { return m_column; }
     bool eq_pos(unsigned line, unsigned col) const { return m_line == line && m_column == col; }
+    virtual int compare(info_data const & d) const;
     virtual void display(io_state_stream const & ios) const = 0;
     virtual void instantiate(substitution &) {}
 };

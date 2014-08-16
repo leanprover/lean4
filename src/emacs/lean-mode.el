@@ -50,7 +50,8 @@
   (local-set-key "\C-c\C-k" 'lean-hott-exe)
   (local-set-key "\C-c\C-t" 'lean-eldoc-documentation-function)
   (local-set-key "\C-c\C-f" 'lean-fill-placeholder)
-  (local-set-key "\M-."     'lean-find-tag))
+  (local-set-key "\M-."     'lean-find-tag)
+  (local-set-key [tab]      'lean-complete-tag))
 
 (define-abbrev-table 'lean-mode-abbrev-table '(
     ("var"    "variable")

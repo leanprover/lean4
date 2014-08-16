@@ -62,3 +62,4 @@ Key Bindings
 |<kbd>C-c C-t</kbd> | lean-eldoc-documentation-function |
 |<kbd>C-c C-f</kbd> | lean-fill-placeholder             |
 |<kbd>M-.</kbd>     | lean-find-tag                     |
+|<kbd>TAB</kbd>     | lean-complete-tag                 |

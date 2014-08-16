@@ -85,15 +85,26 @@ struct inductive_cmd_fn {
     [[ noreturn ]] void throw_error(char const * error_msg) { throw parser_error(error_msg, m_pos); }
     [[ noreturn ]] void throw_error(sstream const & strm) { throw parser_error(strm, m_pos); }
 
+    name mk_rec_name(name const & n) {
+        return n.append_after("_rec");
+    }
+
     /** \brief Parse the name of an inductive datatype or introduction rule,
         prefix the current namespace to it and return it.
     */
-    name parse_decl_name() {
+    name parse_decl_name(bool is_intro) {
         m_pos   = m_p.pos();
         name id = m_p.check_id_next("invalid declaration, identifier expected");
         check_atomic(id);
-        return m_namespace + id;
+        name full_id = m_namespace + id;
+        m_p.add_decl_index(full_id, m_pos);
+        if (!is_intro)
+            m_p.add_decl_index(mk_rec_name(full_id), m_pos);
+        return full_id;
     }
+
+    name parse_inductive_decl_name() { return parse_decl_name(false); }
+    name parse_intro_decl_name() { return parse_decl_name(true); }
 
     /** \brief Parse inductive declaration universe parameters.
         If this is the first declaration in a mutually recursive block, then this method
@@ -249,7 +260,7 @@ struct inductive_cmd_fn {
         buffer<intro_rule> intros;
         while (m_p.curr_is_token(g_bar)) {
             m_p.next();
-            name intro_name = parse_decl_name();
+            name intro_name = parse_intro_decl_name();
             bool strict = true;
             if (m_p.curr_is_token(g_lcurly)) {
                 m_p.next();
@@ -271,7 +282,7 @@ struct inductive_cmd_fn {
         optional<level_param_names> first_d_lvls;
         while (true) {
             parser::local_scope l_scope(m_p);
-            name d_name = parse_decl_name();
+            name d_name = parse_inductive_decl_name();
             parse_inductive_univ_params();
             expr d_type = parse_datatype_type();
             bool empty_type = true;
@@ -505,7 +516,7 @@ struct inductive_cmd_fn {
             name d_name = inductive_decl_name(d);
             name d_short_name(d_name.get_string());
             env = create_alias(env, d_name, section_levels, section_params);
-            env = create_alias(env, d_name.append_after("_rec"), section_levels, section_params);
+            env = create_alias(env, mk_rec_name(d_name), section_levels, section_params);
             for (intro_rule const & ir : inductive_decl_intros(d)) {
                 name ir_name = intro_rule_name(ir);
                 env = create_alias(env, ir_name, section_levels, section_params);

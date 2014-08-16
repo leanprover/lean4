@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include "util/interrupt.h"
 #include "library/definition_cache.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/info_manager.h"
@@ -23,7 +24,6 @@ class server {
         std::vector<std::string>  m_lines;
         snapshot_vector           m_snapshots;
         info_manager              m_info;
-        unsigned                  m_from; // mark the first modified line that was not processed yet.
 
         file(std::string const & fname);
         unsigned find(unsigned linenum);
@@ -41,6 +41,8 @@ class server {
     unsigned                  m_num_threads;
     snapshot                  m_empty_snapshot;
     definition_cache          m_cache;
+    atomic<bool>              m_thread_busy;
+    std::unique_ptr<interruptible_thread> m_thread_ptr;
 
     void load_file(std::string const & fname);
     void visit_file(std::string const & fname);
@@ -54,12 +56,14 @@ class server {
     void set_option(std::string const & line);
     void eval(std::string const & line);
     unsigned find(unsigned linenum);
-    void update();
     void read_line(std::istream & in, std::string & line);
+    void reset_thread();
+    void interrupt_thread();
     unsigned get_linenum(std::string const & line, std::string const & cmd);
 
 public:
     server(environment const & env, io_state const & ios, unsigned num_threads = 1);
+    ~server();
     bool operator()(std::istream & in);
 };
 }

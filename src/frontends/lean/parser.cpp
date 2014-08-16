@@ -220,7 +220,7 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
         if (m_verbose)
             regular_stream() << "!!!Interrupted!!!" << endl;
         sync();
-        if (m_use_exceptions)
+        if (m_use_exceptions || m_info_manager)
             throw;
     } catch (script_exception & ex) {
         reset_interrupt();

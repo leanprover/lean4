@@ -11,14 +11,12 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 
 namespace lean {
-server::file::file(std::string const & fname):m_fname(fname), m_from(0) {}
+server::file::file(std::string const & fname):m_fname(fname) {}
 
 void server::file::replace_line(unsigned linenum, std::string const & new_line) {
     while (linenum >= m_lines.size())
         m_lines.push_back("");
     m_lines[linenum] = new_line;
-    if (linenum < m_from)
-        m_from = linenum;
 }
 
 void server::file::insert_line(unsigned linenum, std::string const & new_line) {
@@ -32,8 +30,6 @@ void server::file::insert_line(unsigned linenum, std::string const & new_line) {
         m_lines[i] = m_lines[i-1];
     }
     m_lines[linenum] = new_line;
-    if (linenum < m_from)
-        m_from = linenum;
 }
 
 void server::file::remove_line(unsigned linenum) {
@@ -43,8 +39,6 @@ void server::file::remove_line(unsigned linenum) {
     for (unsigned i = linenum; i < m_lines.size()-1; i++)
         m_lines[i] = m_lines[i+1];
     m_lines.pop_back();
-    if (linenum < m_from)
-        m_from = linenum;
 }
 
 /**
@@ -74,6 +68,25 @@ unsigned server::file::find(unsigned linenum) {
 server::server(environment const & env, io_state const & ios, unsigned num_threads):
     m_env(env), m_ios(ios), m_out(ios.get_regular_channel().get_stream()),
     m_num_threads(num_threads), m_empty_snapshot(m_env, m_ios.get_options()) {
+    m_thread_busy = false;
+}
+
+server::~server() {
+    reset_thread();
+}
+
+void server::interrupt_thread() {
+    if (m_thread_ptr)
+        m_thread_ptr->request_interrupt();
+}
+
+void server::reset_thread() {
+    if (m_thread_ptr) {
+        m_thread_ptr->request_interrupt();
+        m_thread_ptr->join();
+        m_thread_ptr.reset(nullptr);
+    }
+    m_thread_busy = false;
 }
 
 static std::string g_load("LOAD");
@@ -118,6 +131,7 @@ public:
 };
 
 void server::process_from(unsigned linenum) {
+    reset_thread();
     unsigned i = m_file->find(linenum);
     m_file->m_snapshots.resize(i);
     snapshot & s = i == 0 ? m_empty_snapshot : m_file->m_snapshots[i-1];
@@ -128,53 +142,48 @@ void server::process_from(unsigned linenum) {
         block += m_file->m_lines[j];
         block += '\n';
     }
-    std::istringstream strm(block);
-    scoped_updt_options updt(m_ios, s.m_options);
-    parser p(s.m_env, m_ios, strm, m_file->m_fname.c_str(), false, 1, s.m_lds, s.m_eds, s.m_line,
-             &m_file->m_snapshots, &m_file->m_info);
     // p.set_cache(&m_cache);
-    p();
-}
-
-void server::update() {
-    if (m_file->m_from == m_file->m_lines.size())
-        return;
-    process_from(m_file->m_from);
-    m_file->m_from = m_file->m_lines.size();
+    m_thread_busy = true;
+    m_thread_ptr.reset(new interruptible_thread([=]() {
+                try {
+                    snapshot & s = i == 0 ? m_empty_snapshot : m_file->m_snapshots[i-1];
+                    std::istringstream strm(block);
+                    scoped_updt_options updt(m_ios, s.m_options);
+                    parser p(s.m_env, m_ios, strm, m_file->m_fname.c_str(), false, 1, s.m_lds, s.m_eds, s.m_line,
+                             &m_file->m_snapshots, &m_file->m_info);
+                    p();
+                    m_thread_busy  = false;
+                    std::cout << "DONE\n";
+                } catch (exception& ex) {}
+            }));
 }
 
 void server::load_file(std::string const & fname) {
+    interrupt_thread();
     std::ifstream in(fname);
     if (in.bad() || in.fail()) {
         m_out << "-- ERROR failed to open file '" << fname << "'" << std::endl;
     } else {
+        reset_thread();
         m_file.reset(new file(fname));
         m_file_map.insert(mk_pair(fname, m_file));
         for (std::string line; std::getline(in, line);) {
             m_file->m_lines.push_back(line);
         }
+        process_from(0);
     }
 }
 
 void server::visit_file(std::string const & fname) {
+    interrupt_thread();
     auto it = m_file_map.find(fname);
-    if (it == m_file_map.end())
+    if (it == m_file_map.end()) {
         load_file(fname);
-    else
+    } else {
+        reset_thread();
         m_file = it->second;
-}
-
-void server::show_info(unsigned linenum) {
-    check_file();
-    update();
-    unsigned i = m_file->find(linenum);
-    environment const & env = i == 0 ? m_env               : m_file->m_snapshots[i-1].m_env;
-    options const & o       = i == 0 ? m_ios.get_options() : m_file->m_snapshots[i-1].m_options;
-    scoped_updt_options updt(m_ios, o);
-    io_state_stream out(env, m_ios);
-    out << "-- BEGININFO" << endl;
-    m_file->m_info.display(out, linenum);
-    out << "-- ENDINFO" << endl;
+        process_from(0);
+    }
 }
 
 void server::read_line(std::istream & in, std::string & line) {
@@ -198,18 +207,24 @@ void server::check_file() {
 }
 
 void server::replace_line(unsigned linenum, std::string const & new_line) {
+    interrupt_thread();
     check_file();
     m_file->replace_line(linenum, new_line);
+    process_from(linenum);
 }
 
 void server::insert_line(unsigned linenum, std::string const & new_line) {
+    interrupt_thread();
     check_file();
     m_file->insert_line(linenum, new_line);
+    process_from(linenum);
 }
 
 void server::remove_line(unsigned linenum) {
+    interrupt_thread();
     check_file();
     m_file->remove_line(linenum);
+    process_from(linenum);
 }
 
 void server::check_line(unsigned linenum, std::string const & line) {
@@ -238,9 +253,27 @@ void server::set_option(std::string const & line) {
     m_out << "-- ENDSET" << std::endl;
 }
 
+void server::show_info(unsigned linenum) {
+    if (m_thread_busy) {
+        m_out << "-- BEGININFO\n-- NAY\n-- ENDINFO" << std::endl;
+        return;
+    }
+    check_file();
+    unsigned i = m_file->find(linenum);
+    environment const & env = i == 0 ? m_env               : m_file->m_snapshots[i-1].m_env;
+    options const & o       = i == 0 ? m_ios.get_options() : m_file->m_snapshots[i-1].m_options;
+    scoped_updt_options updt(m_ios, o);
+    io_state_stream out(env, m_ios);
+    out << "-- BEGININFO" << endl;
+    m_file->m_info.display(out, linenum);
+    out << "-- ENDINFO" << endl;
+}
+
 void server::eval(std::string const & line) {
-    if (m_file)
-        update();
+    if (m_thread_busy) {
+        m_out << "-- BEGINEVAL\n-- NAY\n-- ENDEVAL" << std::endl;
+        return;
+    }
     snapshot & s = !m_file || m_file->m_snapshots.empty() ? m_empty_snapshot : m_file->m_snapshots.back();
     std::istringstream strm(line);
     scoped_updt_options updt(m_ios, s.m_options);

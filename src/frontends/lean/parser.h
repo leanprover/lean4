@@ -96,7 +96,7 @@ class parser {
     // cache support
     definition_cache *     m_cache;
     // index support
-    declaration_index *     m_index;
+    declaration_index *    m_index;
 
     void display_warning_pos(unsigned line, unsigned pos);
     void display_warning_pos(pos_info p);

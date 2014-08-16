@@ -50,7 +50,7 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
                               bool relax_main_opaque, substitution const & s, options const & o);
 
 /**
-    The unifier divides the constraints in 6 groups: Simple, Basic, FlexRigid, PluginDelayed, DelayedChoice1, DelayedChoice2, FlexFlex, MaxDelayed
+    The unifier divides the constraints in 8 groups: Simple, Basic, FlexRigid, PluginDelayed, DelayedChoice, ClassInstance, FlexFlex, MaxDelayed
 
     1) Simple: constraints that never create case-splits. Example: pattern matching constraints (?M l_1 ... l_n) =?= t.
        The are not even inserted in the constraint priority queue.
@@ -64,9 +64,9 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
        where elim is an eliminator/recursor and intro is an introduction/constructor.
        This constraints are delayed because after ?m is assigned we may be able to reduce them.
 
-    5) DelayedChoice1: for delayed choice constraints (we use this group for the maximally delayed coercions constraints).
+    5) DelayedChoice: for delayed choice constraints (we use this group for the maximally delayed coercions constraints).
 
-    6) DelayedChoice2: for delayed choice constraints (we use this group for class-instance).
+    6) ClassInstance: for delayed choice constraints (we use this group for class-instance).
 
     7) FlexFlex:  (?m1 ...) =?= (?m2 ...) we don't try to solve this constraint, we delay them and hope the other
        ones instantiate ?m1 or ?m2. If this kind of constraint is the next to be processed in the queue, then
@@ -74,7 +74,7 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
 
     8) MaxDelayed: maximally delayed constraint group
 */
-enum class cnstr_group { Basic = 0, FlexRigid, PluginDelayed, DelayedChoice1, DelayedChoice2, FlexFlex, MaxDelayed };
+enum class cnstr_group { Basic = 0, FlexRigid, PluginDelayed, DelayedChoice, ClassInstance, FlexFlex, MaxDelayed };
 inline unsigned to_delay_factor(cnstr_group g) { return static_cast<unsigned>(g); }
 
 class unifier_exception : public exception {

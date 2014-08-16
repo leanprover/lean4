@@ -637,7 +637,7 @@ public:
                                                                        j, ignore_failure, m_relax_main_opaque));
             }
         };
-        add_cnstr(mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::DelayedChoice2), false, j, m_relax_main_opaque));
+        add_cnstr(mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::ClassInstance), false, j, m_relax_main_opaque));
         return m;
     }
 
@@ -762,7 +762,7 @@ public:
         auto choice_fn = [=](expr const & mvar, expr const & new_d_type, substitution const & /* s */, name_generator const & /* ngen */) {
             // Remark: we want the coercions solved before we start discarding FlexFlex constraints. So, we use PreFlexFlex as a max cap
             // for delaying coercions.
-            if (is_meta(new_d_type) && delay_factor < to_delay_factor(cnstr_group::DelayedChoice1)) {
+            if (is_meta(new_d_type) && delay_factor < to_delay_factor(cnstr_group::DelayedChoice)) {
                 // The type is still unknown, delay the constraint even more.
                 return lazy_list<constraints>(constraints(mk_delayed_coercion_cnstr(m, a, a_type, justification(), delay_factor+1)));
             } else {

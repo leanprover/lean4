@@ -14,6 +14,7 @@
 (require 'lean-flycheck)
 (require 'lean-input)
 (require 'lean-type)
+(require 'lean-tags)
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"
@@ -48,14 +49,14 @@
   (local-set-key "\C-c\C-l" 'lean-std-exe)
   (local-set-key "\C-c\C-k" 'lean-hott-exe)
   (local-set-key "\C-c\C-t" 'lean-eldoc-documentation-function)
-  (local-set-key "\C-c\C-f" 'lean-fill-placeholder))
+  (local-set-key "\C-c\C-f" 'lean-fill-placeholder)
+  (local-set-key "\M-."     'lean-find-tag))
 
 (define-abbrev-table 'lean-mode-abbrev-table '(
     ("var"    "variable")
     ("vars"   "variables")
     ("def"    "definition")
-    ("th"     "theorem")
-    ))
+    ("th"     "theorem")))
 
 (define-generic-mode
     'lean-mode     ;; name of the mode to create

@@ -75,11 +75,25 @@ INFO [line-number]
 
 This command extracts typing information associated with line
 =[line-number]= (in the current file).
-Lean produces a possible empty sequence of entries terminated with
+Lean produces a possible empty sequence of entries delimited by the lines
+=-- BEGININFO= and =-- ENDINFO=.
 
 #+BEGIN_SRC
+-- BEGININFO
+[entries]*
 -- ENDINFO
 #+END_SRC
+
+If the server is still busy processing a previously requested update, then it
+produces the output
+
+#+BEGIN_SRC
+-- BEGININFO
+-- NAY
+-- ENDINFO
+#+END_SRC
+
+where =NAY= stands for "not available yet".
 
 A type information entry is of the form
 
@@ -112,6 +126,7 @@ Information for synthesized placeholders is of the form
 Here is an example of output produced by Lean
 
 #+BEGIN_SRC
+-- BEGININFO
 -- TYPE|15|38
 num
 -- ACK
@@ -207,4 +222,13 @@ type of =Prop=.
 #+BEGIN_SRC
 -- EVAL
 check Prop
+#+END_SRC
+
+If the server is still busy processing a previously requested update, then it
+produces the output
+
+#+BEGIN_SRC
+-- BEGINEVAL
+-- NAY
+-- ENDEVAL
 #+END_SRC

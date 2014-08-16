@@ -139,20 +139,10 @@ def get_target(s):
     oleanfile = get_olean(s)
     return oleanfile if oleanfile is not None else s
 
-def touch(fname, times=None):
-    "touch a file"
-    with open(fname, 'a'):
-        os.utime(fname, times)
-
-def touch_all_lean_files(directory):
-    "Touch all lean file under directory"
-    for root, dirnames, filenames in os.walk(directory):
-        for filename in fnmatch.filter(filenames, '*.lean'):
-            touch(os.path.join(root, filename))
-
-def check_lean_options_file(directory, lean_options):
-    "Check lean_options file and return true if all lean files should be touched."
+def need_to_make_always(directory, lean_options):
+    """Return true if "-P" option was used previously, but not this time."""
     lean_new_options = " ".join(lean_options)
+    lean_old_options = ""
     lean_options_file_name = os.path.join(directory, ".lean_options")
     need_to_write = True
     if os.path.isfile(lean_options_file_name):
@@ -162,14 +152,17 @@ def check_lean_options_file(directory, lean_options):
     if need_to_write:
         with open(lean_options_file_name, 'w') as f:
             f.write(lean_new_options)
+    if ("--permissive" in lean_options) or ("-P" in lean_options):
+        return False
+    if ("--permissive" in lean_old_options) or ("-P" in lean_old_options):
         return True
     return False
 
 def call_makefile(directory, makefile, makefile_options, args, lean_options):
     """ Call makefile with a target generated from a given arg """
-    need_to_update = check_lean_options_file(directory, lean_options)
+    need_to_update = need_to_make_always(directory, lean_options)
     if need_to_update:
-        touch_all_lean_files(directory)
+        makefile_options.append("--always-make")
     env_copy = os.environ.copy()
     env_copy['LEAN'] = find_lean_exe()
     lean_options_str = ' '.join(lean_options)

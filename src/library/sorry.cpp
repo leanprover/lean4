@@ -29,7 +29,6 @@ environment declare_sorry(environment const & env) {
     }
 }
 
-expr const & get_sorry_constant() {
-    return g_sorry;
-}
+expr const & get_sorry_constant() { return g_sorry; }
+name const & get_sorry_name() { return g_sorry_name; }
 }

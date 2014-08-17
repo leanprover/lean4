@@ -29,6 +29,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/num.h"
 #include "library/string.h"
+#include "library/sorry.h"
 #include "library/error_handling/error_handling.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
@@ -37,7 +38,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/pp_options.h"
-#include "frontends/lean/sorry.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true

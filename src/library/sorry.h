@@ -17,4 +17,5 @@ environment declare_sorry(environment const & env);
 
 /** \brief Return the constant \c sorry */
 expr const & get_sorry_constant();
+name const & get_sorry_name();
 }

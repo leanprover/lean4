@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "util/name_map.h"
 #include "kernel/type_checker.h"
 #include "library/module.h"
+#include "library/sorry.h"
 #include "library/kernel_serializer.h"
 #include "version.h"
 
@@ -300,6 +301,8 @@ struct import_modules_fn {
         declaration decl = read_declaration(d, midx);
         lean_assert(!decl.is_definition() || decl.get_module_idx() == midx);
         environment env  = m_senv.env();
+        if (decl.get_name() == get_sorry_name() && has_sorry(env))
+            return;
         if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL) {
             if (!m_keep_proofs && decl.is_theorem())
                 m_senv.add(theorem2axiom(decl));

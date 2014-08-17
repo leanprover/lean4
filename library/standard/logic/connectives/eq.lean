@@ -14,7 +14,12 @@ inductive eq {A : Type} (a : A) : A → Prop :=
 
 infix `=`:50 := eq
 
-theorem eq_irrel {A : Type} {a : A} (H1 : a = a) : H1 = (refl a) := refl _
+-- TODO: try this out -- shorthand for "refl _"
+notation `rfl`:max := refl _
+
+theorem eq_id_refl {A : Type} {a : A} (H1 : a = a) : H1 = (refl a) := rfl
+
+theorem eq_irrel {A : Type} {a b : A} (H1 H2 : a = b) : H1 = H2 := rfl
 
 theorem subst {A : Type} {a b : A} {P : A → Prop} (H1 : a = b) (H2 : P a) : P b :=
 eq_rec H2 H1
@@ -37,11 +42,17 @@ assume H : true = false,
 definition eq_rec_on {A : Type} {a1 a2 : A} {B : A → Type} (H1 : a1 = a2) (H2 : B a1) : B a2 :=
 eq_rec H2 H1
 
-theorem eq_rec_on_irrel {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq_rec_on H b = b :=
+theorem eq_rec_on_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq_rec_on H b = b :=
 @trans _ _ (eq_rec_on (refl a) b) _ (refl _) (refl _)
 
-theorem eq_rec_irrel {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq_rec b H = b :=
-eq_rec_on_irrel H b
+theorem eq_rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq_rec b H = b :=
+eq_rec_on_id H b
+
+theorem eq_rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H1 : a = b) (H2 : b = c) (u : P a) :
+  eq_rec_on H2 (eq_rec_on H1 u) = eq_rec_on (trans H1 H2) u :=
+(show ∀(H2 : b = c), eq_rec_on H2 (eq_rec_on H1 u) = eq_rec_on (trans H1 H2) u,
+  from eq_rec_on H2 (take (H2 : b = b), eq_rec_on_id H2 _))
+H2
 
 namespace eq_proofs
   postfix `⁻¹`:100 := symm

@@ -1,8 +1,6 @@
-----------------------------------------------------------------------------------------------------
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jeremy Avigad
-----------------------------------------------------------------------------------------------------
 
 import logic.connectives.prop
 
@@ -17,44 +15,80 @@ abbreviation transitive {T : Type} (R : T → T → Type) : Type := ∀x y z, R 
 
 namespace is_reflexive
 
-inductive class {T : Type} (R : T → T → Type)  : Prop :=
-| mk : reflexive R → class R
+  inductive class {T : Type} (R : T → T → Type) : Prop :=
+  | mk : reflexive R → class R
 
-abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : class R) : reflexive R
-:= class_rec (λu, u) C
+  abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : class R) : reflexive R :=
+  class_rec (λu, u) C
 
-abbreviation infer ⦃T : Type⦄ {R : T → T → Type} {C : class R} : reflexive R
-:= class_rec (λu, u) C
+  abbreviation infer ⦃T : Type⦄ {R : T → T → Type} {C : class R} : reflexive R :=
+  class_rec (λu, u) C
 
 end is_reflexive
 
 namespace is_symmetric
 
-inductive class {T : Type} (R : T → T → Type)  : Prop :=
-| mk : symmetric R → class R
+  inductive class {T : Type} (R : T → T → Type) : Prop :=
+  | mk : symmetric R → class R
 
-abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : class R) ⦃x y : T⦄ (H : R x y) : R y x
-:= class_rec (λu, u) C x y H
+  abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : class R) ⦃x y : T⦄ (H : R x y) : R y x :=
+  class_rec (λu, u) C x y H
 
-abbreviation infer ⦃T : Type⦄ {R : T → T → Type} {C : class R} ⦃x y : T⦄ (H : R x y) : R y x
-:= class_rec (λu, u) C x y H
+  abbreviation infer ⦃T : Type⦄ {R : T → T → Type} {C : class R} ⦃x y : T⦄ (H : R x y) : R y x :=
+  class_rec (λu, u) C x y H
 
 end is_symmetric
 
 namespace is_transitive
 
-inductive class {T : Type} (R : T → T → Type)  : Prop :=
-| mk : transitive R → class R
+  inductive class {T : Type} (R : T → T → Type) : Prop :=
+  | mk : transitive R → class R
 
-abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : class R) ⦃x y z : T⦄ (H1 : R x y)
-  (H2 : R y z) : R x z
-:= class_rec (λu, u) C x y z H1 H2
+  abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : class R) ⦃x y z : T⦄ (H1 : R x y)
+    (H2 : R y z) : R x z :=
+  class_rec (λu, u) C x y z H1 H2
 
-abbreviation infer ⦃T : Type⦄ {R : T → T → Type} {C : class R} ⦃x y z : T⦄ (H1 : R x y)
-  (H2 : R y z) : R x z
-:= class_rec (λu, u) C x y z H1 H2
+  abbreviation infer ⦃T : Type⦄ {R : T → T → Type} {C : class R} ⦃x y z : T⦄ (H1 : R x y)
+    (H2 : R y z) : R x z :=
+  class_rec (λu, u) C x y z H1 H2
 
 end is_transitive
+
+namespace is_equivalence
+
+  inductive class {T : Type} (R : T → T → Type) : Prop :=
+  | mk : is_reflexive.class R → is_symmetric.class R → is_transitive.class R → class R
+
+  theorem is_reflexive {T : Type} {R : T → T → Type} {C : class R} : is_reflexive.class R :=
+  class_rec (λx y z, x) C
+
+  theorem is_symmetric {T : Type} {R : T → T → Type} {C : class R} : is_symmetric.class R :=
+  class_rec (λx y z, y) C
+
+  theorem is_transitive {T : Type} {R : T → T → Type} {C : class R} : is_transitive.class R :=
+  class_rec (λx y z, z) C
+
+end is_equivalence
+
+instance is_equivalence.is_reflexive
+instance is_equivalence.is_symmetric
+instance is_equivalence.is_transitive
+
+namespace is_PER
+
+  inductive class {T : Type} (R : T → T → Type) : Prop :=
+  | mk : is_symmetric.class R → is_transitive.class R → class R
+
+  theorem is_symmetric {T : Type} {R : T → T → Type} {C : class R} : is_symmetric.class R :=
+  class_rec (λx y, x) C
+
+  theorem is_transitive {T : Type} {R : T → T → Type} {C : class R} : is_transitive.class R :=
+  class_rec (λx y, y) C
+
+end is_PER
+
+-- instance is_PER.is_symmetric
+instance is_PER.is_transitive
 
 
 -- Congruence for unary and binary functions

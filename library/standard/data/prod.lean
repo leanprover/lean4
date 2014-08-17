@@ -1,6 +1,6 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura
+-- Author: Leonardo de Moura, Jeremy Avigad
 
 import logic.classes.inhabited logic.connectives.eq
 
@@ -32,11 +32,11 @@ section
   theorem prod_ext (p : prod A B) : pair (pr1 p) (pr2 p) = p :=
   pair_destruct p (λx y, refl (x, y))
 
-  theorem pair_eq {p1 p2 : prod A B} (H1 : pr1 p1 = pr1 p2) (H2 : pr2 p1 = pr2 p2) : p1 = p2 :=
-  calc p1  = pair (pr1 p1) (pr2 p1) : symm (prod_ext p1)
-       ... = pair (pr1 p2) (pr2 p1) : {H1}
-       ... = pair (pr1 p2) (pr2 p2) : {H2}
-       ... = p2                        : prod_ext p2
+  theorem pair_eq {a1 a2 : A} {b1 b2 : B} (H1 : a1 = a2) (H2 : b1 = b2) : (a1, b1) = (a2, b2) :=
+  subst H1 (subst H2 (refl _))
+
+  theorem prod_eq {p1 p2 : prod A B} : ∀ (H1 : pr1 p1 = pr1 p2) (H2 : pr2 p1 = pr2 p2), p1 = p2 :=
+  pair_destruct p1 (take a1 b1, pair_destruct p2 (take a2 b2 H1 H2, pair_eq H1 H2))
 
   theorem prod_inhabited (H1 : inhabited A) (H2 : inhabited B) : inhabited (prod A B) :=
   inhabited_elim H1 (λa, inhabited_elim H2 (λb, inhabited_intro (pair a b)))

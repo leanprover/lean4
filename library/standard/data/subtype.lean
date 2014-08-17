@@ -27,7 +27,7 @@ section
 
   theorem tag_irrelevant {a : A} (H1 H2 : P a) : tag a H1 = tag a H2 := refl (tag a H1)
 
-  theorem tag_ext (a : subtype P) : Π(H : P (elt_of a)), tag (elt_of a) H = a :=
+  theorem tag_elt_of (a : subtype P) : Π(H : P (elt_of a)), tag (elt_of a) H = a :=
     subtype_destruct a (take (x : A) (H1 : P x) (H2 : P x), refl _)
 
   theorem tag_eq {a1 a2 : A} {H1 : P a1} {H2 : P a2} (H3 : a1 = a2) : tag a1 H1 = tag a2 H2 :=

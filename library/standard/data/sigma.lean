@@ -38,7 +38,7 @@ section
 	assume (H2' : eq_rec_on H1' b1 = b2'),
 	show dpair a1 b1 = dpair a1 b2', from
 	  calc
-	    dpair a1 b1 = dpair a1 (eq_rec_on H1' b1) : {symm (eq_rec_on_irrel H1' b1)}
+	    dpair a1 b1 = dpair a1 (eq_rec_on H1' b1) : {symm (eq_rec_on_id H1' b1)}
 	      ... = dpair a1 b2' : {H2'}) H1)
   b2 H1 H2
 

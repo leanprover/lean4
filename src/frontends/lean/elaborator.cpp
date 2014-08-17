@@ -307,7 +307,7 @@ class elaborator {
     name_set             m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
     bool                 m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent.
     bool                 m_noinfo;  // when true, we do not collect information when true, we set is to true whenever we find noinfo annotation.
-    std::vector<info_data> m_pre_info_data;
+    info_manager         m_pre_info_data;
 
     struct scope_ctx {
         context::scope m_scope1;
@@ -858,7 +858,7 @@ public:
             }
             if (!first) {
                 // we save the info data again for application of functions with strict implicit arguments
-                replace_info_data(get_app_fn(e), f);
+                save_info_data(get_app_fn(e), f);
             }
         }
         expr d_type = binding_domain(f_type);
@@ -904,33 +904,20 @@ public:
     }
 
     /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
-    void save_info_data_core(expr const & e, expr const & r, bool replace) {
+    void save_info_data(expr const & e, expr const & r) {
         if (!m_noinfo && infom() && pip() && (is_constant(e) || is_local(e) || is_placeholder(e))) {
             if (auto p = pip()->get_pos_info(e)) {
                 type_checker::scope scope(*m_tc[m_relax_main_opaque]);
                 expr t = m_tc[m_relax_main_opaque]->infer(r);
-                info_data d = mk_type_info(p->first, p->second, t);
-                if (replace) {
-                    while (!m_pre_info_data.empty() && m_pre_info_data.back() == d)
-                        m_pre_info_data.pop_back();
-                }
-                m_pre_info_data.push_back(d);
+                m_pre_info_data.add_type_info(p->first, p->second, t);
             }
         }
-    }
-
-    void save_info_data(expr const & e, expr const & r) {
-        save_info_data_core(e, r, false);
-    }
-
-    void replace_info_data(expr const & e, expr const & r) {
-        save_info_data_core(e, r, true);
     }
 
     void save_synth_data(expr const & e, expr const & r) {
         if (!m_noinfo && infom() && pip() && is_placeholder(e)) {
             if (auto p = pip()->get_pos_info(e)) {
-                m_pre_info_data.push_back(mk_synth_info(p->first, p->second, r));
+                m_pre_info_data.add_synth_info(p->first, p->second, r);
             }
         }
     }
@@ -1271,10 +1258,8 @@ public:
     void copy_info_to_manager(substitution s) {
         if (!infom())
             return;
-        for (auto & p : m_pre_info_data)
-            p = p.instantiate(s);
-        // TODO(Leo): implement smarter append
-        infom()->append(m_pre_info_data, false);
+        m_pre_info_data.instantiate(s);
+        infom()->merge(m_pre_info_data);
         m_pre_info_data.clear();
     }
 

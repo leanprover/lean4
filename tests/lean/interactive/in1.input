@@ -1,0 +1,21 @@
+VISIT simple.lean
+WAIT
+INFO 4
+REPLACE 4
+definition foo {A B : Type} (a : A) (b : B) := b
+WAIT
+INFO 4
+INSERT 4
+
+WAIT
+INFO 5
+REMOVE 4
+WAIT
+INFO 4
+REPLACE 4
+defition foo {A B : Type} (a : A) (b : B) := b
+WAIT
+REPLACE 4
+definition foo {A B : Type} (a : A) (b : B) := b
+WAIT
+INFO 4

@@ -41,7 +41,6 @@ class server {
     unsigned                  m_num_threads;
     snapshot                  m_empty_snapshot;
     definition_cache          m_cache;
-    atomic<bool>              m_thread_busy;
     std::unique_ptr<interruptible_thread> m_thread_ptr;
 
     void load_file(std::string const & fname);

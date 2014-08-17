@@ -187,6 +187,7 @@ struct decl_modifiers {
 
 environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     auto n_pos = p.pos();
+    unsigned start_line = n_pos.first;
     name n     = p.check_id_next("invalid declaration, identifier expected");
     check_atomic(n);
     decl_modifiers modifiers;
@@ -246,6 +247,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
+    unsigned end_line = p.pos().first;
 
     if (p.used_sorry())
         p.declare_sorry();
@@ -277,23 +279,26 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     expr pre_value = value;
     level_param_names new_ls;
     bool found_cached = false;
-    if (auto it = p.find_cached_definition(real_n, pre_type, pre_value)) {
-        optional<certified_declaration> cd;
-        try {
-            level_param_names c_ls; expr c_type, c_value;
-            std::tie(c_ls, c_type, c_value) = *it;
-            if (is_theorem)
-                cd = check(env, mk_theorem(real_n, c_ls, c_type, c_value));
-            else
-                cd = check(env, mk_definition(env, real_n, c_ls, c_type, c_value, modifiers.m_is_opaque));
-            env = module::add(env, *cd);
-            found_cached = true;
-        } catch (exception&) {}
+    if (p.are_info_lines_valid(start_line, end_line)) {
+        // we only use the cache if the information associated with the line is valid
+        if (auto it = p.find_cached_definition(real_n, pre_type, pre_value)) {
+            optional<certified_declaration> cd;
+            try {
+                level_param_names c_ls; expr c_type, c_value;
+                std::tie(c_ls, c_type, c_value) = *it;
+                if (is_theorem)
+                    cd = check(env, mk_theorem(real_n, c_ls, c_type, c_value));
+                else
+                    cd = check(env, mk_definition(env, real_n, c_ls, c_type, c_value, modifiers.m_is_opaque));
+                env = module::add(env, *cd);
+                found_cached = true;
+            } catch (exception&) {}
+        }
     }
 
     if (!found_cached) {
         if (is_theorem) {
-            if (p.num_threads() > 1) {
+            if (!p.collecting_info() && p.num_threads() > 1) {
                 // add as axiom, and create a task to prove the theorem
                 p.add_delayed_theorem(env, real_n, ls, type, value);
                 std::tie(type, new_ls) = p.elaborate_type(type);

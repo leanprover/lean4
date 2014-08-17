@@ -145,6 +145,11 @@ void definition_cache::add(name const & n, expr const & pre_type, expr const & p
     add_core(n, pre_type, pre_value, ls, type, value);
 }
 
+void definition_cache::erase(name const & n) {
+    lock_guard<mutex> lc(m_mutex);
+    m_definitions.erase(n);
+}
+
 optional<std::tuple<level_param_names, expr, expr>> definition_cache::find(name const & n, expr const & pre_type, expr const & pre_value) {
     entry const * it;
     {

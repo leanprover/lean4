@@ -68,7 +68,6 @@ unsigned server::file::find(unsigned linenum) {
 server::server(environment const & env, io_state const & ios, unsigned num_threads):
     m_env(env), m_ios(ios), m_out(ios.get_regular_channel().get_stream()),
     m_num_threads(num_threads), m_empty_snapshot(m_env, m_ios.get_options()) {
-    m_thread_busy = false;
 }
 
 server::~server() {
@@ -86,7 +85,6 @@ void server::reset_thread() {
         m_thread_ptr->join();
         m_thread_ptr.reset(nullptr);
     }
-    m_thread_busy = false;
 }
 
 static std::string g_load("LOAD");
@@ -98,6 +96,7 @@ static std::string g_check("CHECK");
 static std::string g_info("INFO");
 static std::string g_set("SET");
 static std::string g_eval("EVAL");
+static std::string g_wait("WAIT");
 
 static bool is_command(std::string const & cmd, std::string const & line) {
     return line.compare(0, cmd.size(), cmd) == 0;
@@ -137,13 +136,10 @@ void server::process_from(unsigned linenum) {
     snapshot & s = i == 0 ? m_empty_snapshot : m_file->m_snapshots[i-1];
     std::string block;
     lean_assert(s.m_line > 0);
-    m_file->m_info.invalidate(s.m_line-1);
     for (unsigned j = s.m_line-1; j < m_file->m_lines.size(); j++) {
         block += m_file->m_lines[j];
         block += '\n';
     }
-    // p.set_cache(&m_cache);
-    m_thread_busy = true;
     m_thread_ptr.reset(new interruptible_thread([=]() {
                 try {
                     snapshot & s = i == 0 ? m_empty_snapshot : m_file->m_snapshots[i-1];
@@ -151,8 +147,8 @@ void server::process_from(unsigned linenum) {
                     scoped_updt_options updt(m_ios, s.m_options);
                     parser p(s.m_env, m_ios, strm, m_file->m_fname.c_str(), false, 1, s.m_lds, s.m_eds, s.m_line,
                              &m_file->m_snapshots, &m_file->m_info);
+                    p.set_cache(&m_cache);
                     p();
-                    m_thread_busy  = false;
                     std::cout << "DONE\n";
                 } catch (exception& ex) {}
             }));
@@ -210,6 +206,8 @@ void server::replace_line(unsigned linenum, std::string const & new_line) {
     interrupt_thread();
     check_file();
     m_file->replace_line(linenum, new_line);
+    reset_thread();
+    m_file->m_info.invalidate_line(linenum+1);
     process_from(linenum);
 }
 
@@ -217,6 +215,8 @@ void server::insert_line(unsigned linenum, std::string const & new_line) {
     interrupt_thread();
     check_file();
     m_file->insert_line(linenum, new_line);
+    reset_thread();
+    m_file->m_info.insert_line(linenum+1);
     process_from(linenum);
 }
 
@@ -224,6 +224,8 @@ void server::remove_line(unsigned linenum) {
     interrupt_thread();
     check_file();
     m_file->remove_line(linenum);
+    reset_thread();
+    m_file->m_info.remove_line(linenum+1);
     process_from(linenum);
 }
 
@@ -254,7 +256,7 @@ void server::set_option(std::string const & line) {
 }
 
 void server::show_info(unsigned linenum) {
-    if (m_thread_busy) {
+    if (!m_file->m_info.is_available(linenum)) {
         m_out << "-- BEGININFO\n-- NAY\n-- ENDINFO" << std::endl;
         return;
     }
@@ -270,7 +272,7 @@ void server::show_info(unsigned linenum) {
 }
 
 void server::eval(std::string const & line) {
-    if (m_thread_busy) {
+    if (!m_file->m_info.is_available(m_file->m_lines.size())) {
         m_out << "-- BEGINEVAL\n-- NAY\n-- ENDEVAL" << std::endl;
         return;
     }
@@ -322,6 +324,11 @@ bool server::operator()(std::istream & in) {
             } else if (is_command(g_eval, line)) {
                 read_line(in, line);
                 eval(line);
+            } else if (is_command(g_wait, line)) {
+                if (m_thread_ptr) {
+                    m_thread_ptr->join();
+                    m_thread_ptr.reset(nullptr);
+                }
             } else {
                 throw exception(sstream() << "unexpected command line: " << line);
             }

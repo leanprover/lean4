@@ -12,7 +12,7 @@ else
 fi
 f=$2
 echo "-- testing $f"
-$LEAN -i < $f > $f.produced.out
+$LEAN --server < $f > $f.produced.out
 if test -f $f.expected.out; then
     if diff $f.produced.out $f.expected.out; then
         echo "-- checked"

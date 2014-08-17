@@ -91,7 +91,7 @@ class parser {
     // info support
     snapshot_vector *       m_snapshot_vector;
     info_manager *          m_info_manager;
-    std::vector<info_data>  m_pre_info_data; // type information before elaboration
+    info_manager            m_pre_info_manager; // type information before elaboration
 
     // cache support
     definition_cache *     m_cache;
@@ -185,6 +185,9 @@ public:
     /** \brief Try to find an elaborated definition for (n, pre_type, pre_value) in the cache */
     optional<std::tuple<level_param_names, expr, expr>> find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value);
     void erase_cached_definition(name const & n) { if (m_cache) m_cache->erase(n); }
+
+    bool are_info_lines_valid(unsigned start_line, unsigned end_line) const;
+    bool collecting_info() const { return m_info_manager; }
 
     void set_index(declaration_index * i) { m_index = i; }
     void add_decl_index(name const & n, pos_info const & pos);

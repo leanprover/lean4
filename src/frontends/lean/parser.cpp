@@ -131,6 +131,15 @@ void parser::add_ref_index(name const & n, pos_info const & pos) {
         m_index->add_ref(get_stream_name(), pos, n);
 }
 
+bool parser::are_info_lines_valid(unsigned start_line, unsigned end_line) const {
+    if (!m_info_manager)
+        return true; // we are not tracking info
+    for (unsigned i = start_line; i <= end_line; i++)
+        if (m_info_manager->is_invalidated(i))
+            return false;
+    return true;
+}
+
 expr parser::mk_sorry(pos_info const & p) {
     m_used_sorry = true;
     {
@@ -235,6 +244,8 @@ void parser::sync_command() {
     // Keep consuming tokens until we find a Command or End-of-file
     while (curr() != scanner::token_kind::CommandKeyword && curr() != scanner::token_kind::Eof)
         next();
+    if (m_info_manager)
+        m_info_manager->commit_upto(m_scanner.get_line()+1, false);
 }
 
 tag parser::get_tag(expr e) {
@@ -546,7 +557,7 @@ std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e, li
     parser_pos_provider pp = get_pos_provider();
     elaborator_context env = mk_elaborator_context(pp, check_unassigned);
     auto r = ::lean::elaborate(env, ctx, e, relax, ensure_type);
-    m_pre_info_data.clear();
+    m_pre_info_manager.clear();
     return r;
 }
 
@@ -557,7 +568,7 @@ std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<
     parser_pos_provider pp = get_pos_provider();
     elaborator_context env = mk_elaborator_context(pp, check_unassigned);
     auto r = ::lean::elaborate(env, ctx, e, relax, ensure_type);
-    m_pre_info_data.clear();
+    m_pre_info_manager.clear();
     return r;
 }
 
@@ -566,7 +577,7 @@ std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env
     parser_pos_provider pp = get_pos_provider();
     elaborator_context eenv = mk_elaborator_context(env, pp);
     auto r = ::lean::elaborate(eenv, list<expr>(), e, relax);
-    m_pre_info_data.clear();
+    m_pre_info_manager.clear();
     return r;
 }
 
@@ -575,7 +586,7 @@ std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name cons
     parser_pos_provider pp = get_pos_provider();
     elaborator_context eenv = mk_elaborator_context(pp);
     auto r = ::lean::elaborate(eenv, n, t, v, is_opaque);
-    m_pre_info_data.clear();
+    m_pre_info_manager.clear();
     return r;
 }
 
@@ -584,7 +595,7 @@ std::tuple<expr, expr, level_param_names> parser::elaborate_definition_at(enviro
     parser_pos_provider pp = get_pos_provider();
     elaborator_context eenv = mk_elaborator_context(env, lls, pp);
     auto r = ::lean::elaborate(eenv, n, t, v, is_opaque);
-    m_pre_info_data.clear();
+    m_pre_info_manager.clear();
     return r;
 }
 
@@ -1210,6 +1221,8 @@ bool parser::parse_commands() {
                     case scanner::token_kind::CommandKeyword:
                         parse_command();
                         save_snapshot();
+                        if (m_info_manager)
+                            m_info_manager->commit_upto(m_scanner.get_line(), true);
                         break;
                     case scanner::token_kind::ScriptBlock:
                         parse_script();
@@ -1238,6 +1251,8 @@ bool parser::parse_commands() {
         }
     } catch (interrupt_parser) {}
     save_snapshot();
+    if (m_info_manager)
+        m_info_manager->commit_upto(m_scanner.get_line()+1, true);
     for (certified_declaration const & thm : m_theorem_queue.join()) {
         m_env.replace(thm);
     }
@@ -1249,7 +1264,7 @@ void parser::add_delayed_theorem(environment const & env, name const & n, level_
 }
 
 void parser::save_snapshot() {
-    m_pre_info_data.clear();
+    m_pre_info_manager.clear();
     if (!m_snapshot_vector)
         return;
     if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
@@ -1259,8 +1274,8 @@ void parser::save_snapshot() {
 void parser::save_pre_info_data() {
     // if elaborator failed, then m_pre_info_data contains type information before elaboration.
     if (m_info_manager) {
-        m_info_manager->append(m_pre_info_data, false);
-        m_pre_info_data.clear();
+        m_info_manager->merge(m_pre_info_manager);
+        m_pre_info_manager.clear();
     }
 }
 
@@ -1268,7 +1283,7 @@ void parser::save_overload(expr const & e) {
     if (!m_info_manager || !is_choice(e))
         return;
     auto p = pos_of(e);
-    m_info_manager->add(mk_overload_info(p.first, p.second, e));
+    m_info_manager->add_overload_info(p.first, p.second, e);
 }
 
 void parser::save_type_info(expr const & e) {
@@ -1288,13 +1303,13 @@ void parser::save_type_info(expr const & e) {
         if (!d)
             return;
         auto p = pos_of(e);
-        m_pre_info_data.push_back(mk_type_info(p.first, p.second, d->get_type()));
+        m_pre_info_manager.add_type_info(p.first, p.second, d->get_type());
     } else if (is_local(e)) {
         auto p = pos_of(e);
         expr t = mlocal_type(e);
         if (is_meta(t))
             return;
-        m_pre_info_data.push_back(mk_type_info(p.first, p.second, t));
+        m_pre_info_manager.add_type_info(p.first, p.second, t);
     }
 }
 

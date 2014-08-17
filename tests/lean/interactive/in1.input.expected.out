@@ -1,0 +1,63 @@
+DONE
+-- BEGININFO
+-- TYPE|4|33
+Type
+-- ACK
+-- TYPE|4|41
+Type
+-- ACK
+-- TYPE|4|47
+A
+-- ACK
+-- ENDINFO
+DONE
+-- BEGININFO
+-- TYPE|4|33
+Type
+-- ACK
+-- TYPE|4|41
+Type
+-- ACK
+-- TYPE|4|47
+B
+-- ACK
+-- ENDINFO
+DONE
+-- BEGININFO
+-- TYPE|5|33
+Type
+-- ACK
+-- TYPE|5|41
+Type
+-- ACK
+-- TYPE|5|47
+B
+-- ACK
+-- ENDINFO
+DONE
+-- BEGININFO
+-- TYPE|4|33
+Type
+-- ACK
+-- TYPE|4|41
+Type
+-- ACK
+-- TYPE|4|47
+B
+-- ACK
+-- ENDINFO
+simple.lean:4:0: error: command expected
+simple.lean:5:37: error: unknown identifier 'foo'
+DONE
+DONE
+-- BEGININFO
+-- TYPE|4|33
+Type
+-- ACK
+-- TYPE|4|41
+Type
+-- ACK
+-- TYPE|4|47
+B
+-- ACK
+-- ENDINFO

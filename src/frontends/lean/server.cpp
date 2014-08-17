@@ -149,7 +149,6 @@ void server::process_from(unsigned linenum) {
                              &m_file->m_snapshots, &m_file->m_info);
                     p.set_cache(&m_cache);
                     p();
-                    std::cout << "DONE\n";
                 } catch (exception& ex) {}
             }));
 }

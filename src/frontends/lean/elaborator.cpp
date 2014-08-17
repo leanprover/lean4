@@ -374,6 +374,8 @@ class elaborator {
         virtual optional<constraints> next() {
             while (m_idx < get_num_choices(m_choice)) {
                 expr const & c = get_choice(m_choice, m_idx);
+                expr const & f = get_app_fn(c);
+                m_elab.save_identifier_info(f);
                 m_idx++;
                 try {
                     new_scope s(m_elab, m_ctx, m_full_ctx);
@@ -911,6 +913,13 @@ public:
                 expr t = m_tc[m_relax_main_opaque]->infer(r);
                 m_pre_info_data.add_type_info(p->first, p->second, t);
             }
+        }
+    }
+
+    void save_identifier_info(expr const & f) {
+        if (!m_noinfo && infom() && pip() && is_constant(f)) {
+            if (auto p = pip()->get_pos_info(f))
+                m_pre_info_data.add_identifier_info(p->first, p->second, const_name(f));
         }
     }
 

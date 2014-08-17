@@ -159,7 +159,6 @@ num → num
 num
 -- ACK
 -- IDENTIFIER|15|42
-f
 foo.f
 -- ACK
 -- ENDINFO

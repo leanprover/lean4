@@ -1,49 +1,97 @@
 DONE
 -- BEGININFO
+-- SYMBOL|4|22
+Type
+-- ACK
 -- TYPE|4|33
 Type
 -- ACK
+-- IDENTIFIER|4|33
+A
+-- ACK
 -- TYPE|4|41
 Type
+-- ACK
+-- IDENTIFIER|4|41
+B
 -- ACK
 -- TYPE|4|47
 A
 -- ACK
+-- IDENTIFIER|4|47
+a
+-- ACK
 -- ENDINFO
 DONE
 -- BEGININFO
+-- SYMBOL|4|22
+Type
+-- ACK
 -- TYPE|4|33
 Type
+-- ACK
+-- IDENTIFIER|4|33
+A
 -- ACK
 -- TYPE|4|41
 Type
 -- ACK
+-- IDENTIFIER|4|41
+B
+-- ACK
 -- TYPE|4|47
 B
+-- ACK
+-- IDENTIFIER|4|47
+b
 -- ACK
 -- ENDINFO
 DONE
 -- BEGININFO
+-- SYMBOL|5|22
+Type
+-- ACK
 -- TYPE|5|33
 Type
+-- ACK
+-- IDENTIFIER|5|33
+A
 -- ACK
 -- TYPE|5|41
 Type
 -- ACK
+-- IDENTIFIER|5|41
+B
+-- ACK
 -- TYPE|5|47
 B
+-- ACK
+-- IDENTIFIER|5|47
+b
 -- ACK
 -- ENDINFO
 DONE
 -- BEGININFO
+-- SYMBOL|4|22
+Type
+-- ACK
 -- TYPE|4|33
 Type
+-- ACK
+-- IDENTIFIER|4|33
+A
 -- ACK
 -- TYPE|4|41
 Type
 -- ACK
+-- IDENTIFIER|4|41
+B
+-- ACK
 -- TYPE|4|47
 B
+-- ACK
+-- IDENTIFIER|4|47
+b
 -- ACK
 -- ENDINFO
 simple.lean:4:0: error: command expected
@@ -51,13 +99,25 @@ simple.lean:5:37: error: unknown identifier 'foo'
 DONE
 DONE
 -- BEGININFO
+-- SYMBOL|4|22
+Type
+-- ACK
 -- TYPE|4|33
 Type
+-- ACK
+-- IDENTIFIER|4|33
+A
 -- ACK
 -- TYPE|4|41
 Type
 -- ACK
+-- IDENTIFIER|4|41
+B
+-- ACK
 -- TYPE|4|47
 B
+-- ACK
+-- IDENTIFIER|4|47
+b
 -- ACK
 -- ENDINFO

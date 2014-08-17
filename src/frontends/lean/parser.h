@@ -91,7 +91,7 @@ class parser {
     // info support
     snapshot_vector *       m_snapshot_vector;
     info_manager *          m_info_manager;
-    std::vector<type_info_data> m_pre_info_data; // type information before elaboration
+    std::vector<info_data>  m_pre_info_data; // type information before elaboration
 
     // cache support
     definition_cache *     m_cache;

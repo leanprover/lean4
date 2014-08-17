@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <memory>
 #include <vector>
 #include "util/thread.h"
 #include "kernel/expr.h"
@@ -13,67 +12,65 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 
 namespace lean {
-class info_data {
+class info_data;
+class info_data_cell {
     unsigned m_line;
     unsigned m_column;
+    MK_LEAN_RC();
+    void dealloc();
+protected:
+    friend info_data;
+    virtual info_data_cell * instantiate(substitution &) const;
 public:
-    info_data():m_line(0), m_column(0) {}
-    info_data(unsigned l, unsigned c):m_line(l), m_column(c) {}
-    virtual ~info_data() {}
+    info_data_cell():m_line(0), m_column(0), m_rc(0) {}
+    info_data_cell(unsigned l, unsigned c):m_line(l), m_column(c) {}
+    virtual ~info_data_cell() {}
     unsigned get_line() const { return m_line; }
     unsigned get_column() const { return m_column; }
-    bool eq_pos(unsigned line, unsigned col) const { return m_line == line && m_column == col; }
-    virtual int compare(info_data const & d) const;
+    virtual int compare(info_data_cell const & d) const;
     virtual void display(io_state_stream const & ios) const = 0;
-    virtual void instantiate(substitution &) {}
-};
-bool operator<(info_data const & i1, info_data const & i2);
-
-class type_info_data : public info_data {
-protected:
-    expr m_expr;
-public:
-    type_info_data() {}
-    type_info_data(unsigned l, unsigned c, expr const & e):info_data(l, c), m_expr(e) {}
-    expr const & get_type() const { return m_expr; }
-    virtual void display(io_state_stream const & ios) const;
-    virtual void instantiate(substitution & s) { m_expr = s.instantiate(m_expr); }
 };
 
-class synth_info_data : public type_info_data {
+class info_data {
+private:
+    info_data_cell * m_ptr;
 public:
-    synth_info_data(unsigned l, unsigned c, expr const & e):type_info_data(l, c, e) {}
-    virtual void display(io_state_stream const & ios) const;
+    info_data();
+    info_data(info_data_cell * c):m_ptr(c) { lean_assert(c); m_ptr->inc_ref(); }
+    info_data(info_data const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
+    info_data(info_data && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+    ~info_data() { if (m_ptr) m_ptr->dec_ref(); }
+    friend void swap(info_data & a, info_data & b) { std::swap(a.m_ptr, b.m_ptr); }
+    info_data & operator=(info_data const & s) { LEAN_COPY_REF(s); }
+    info_data & operator=(info_data && s) { LEAN_MOVE_REF(s); }
+    void display(io_state_stream const & ios) const { m_ptr->display(ios); }
+    int compare(info_data const & d) const { return m_ptr->compare(*d.m_ptr); }
+    int compare(info_data_cell const & d) const { return m_ptr->compare(d); }
+    info_data instantiate(substitution & s) const;
+    unsigned get_line() const { return m_ptr->get_line(); }
+    unsigned get_column() const { return m_ptr->get_column(); }
 };
+bool operator==(info_data const & i1, info_data const & i2);
 
-class overload_info_data : public info_data {
-    expr m_choices;
-public:
-    overload_info_data(unsigned l, unsigned c, expr const & e):info_data(l, c), m_choices(e) {}
-    virtual void display(io_state_stream const & ios) const;
-};
-
-class coercion_info_data : public info_data {
-    expr m_coercion;
-public:
-    coercion_info_data(unsigned l, unsigned c, expr const & e):info_data(l, c), m_coercion(e) {}
-    virtual void display(io_state_stream const & ios) const;
-};
+info_data mk_type_info(unsigned l, unsigned c, expr const & e);
+info_data mk_synth_info(unsigned l, unsigned c, expr const & e);
+info_data mk_overload_info(unsigned l, unsigned c, expr const & e);
+info_data mk_coercion_info(unsigned l, unsigned c, expr const & e);
 
 class info_manager {
-    typedef std::vector<std::unique_ptr<info_data>> data_vector;
+    typedef std::vector<info_data> data_vector;
     mutex       m_mutex;
+
     unsigned    m_sorted_upto;
     data_vector m_data;
-    void add_core(std::unique_ptr<info_data> && d);
+    void add_core(info_data const & d);
     unsigned find(unsigned line, unsigned column);
     void sort_core();
 public:
     info_manager();
     void invalidate(unsigned sline);
-    void add(std::unique_ptr<info_data> && d);
-    void append(std::vector<std::unique_ptr<info_data>> && v, bool remove_duplicates = true);
-    void append(std::vector<type_info_data> & v, bool remove_duplicates);
+    void add(info_data const & d);
+    void append(std::vector<info_data> & v, bool remove_duplicates = true);
     void sort();
     void display(io_state_stream const & ios, unsigned line);
 };

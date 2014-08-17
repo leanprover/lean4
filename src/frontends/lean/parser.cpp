@@ -1268,7 +1268,7 @@ void parser::save_overload(expr const & e) {
     if (!m_info_manager || !is_choice(e))
         return;
     auto p = pos_of(e);
-    m_info_manager->add(std::unique_ptr<info_data>(new overload_info_data(p.first, p.second, e)));
+    m_info_manager->add(mk_overload_info(p.first, p.second, e));
 }
 
 void parser::save_type_info(expr const & e) {
@@ -1288,13 +1288,13 @@ void parser::save_type_info(expr const & e) {
         if (!d)
             return;
         auto p = pos_of(e);
-        m_pre_info_data.push_back(type_info_data(p.first, p.second, d->get_type()));
+        m_pre_info_data.push_back(mk_type_info(p.first, p.second, d->get_type()));
     } else if (is_local(e)) {
         auto p = pos_of(e);
         expr t = mlocal_type(e);
         if (is_meta(t))
             return;
-        m_pre_info_data.push_back(type_info_data(p.first, p.second, t));
+        m_pre_info_data.push_back(mk_type_info(p.first, p.second, t));
     }
 }
 

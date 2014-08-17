@@ -194,6 +194,7 @@ def parse_arg(argv):
     parser.add_argument('--permissive', '-P', action='store_true', default=False, help="Use --permissive option for Lean.")
     parser.add_argument('--keep-going', '-k', action='store_true', default=False, help="Continue as much as possible after an error.")
     parser.add_argument('--directory',  '-C', action='store', help="Change to directory dir before reading the makefiles or doing anything else.")
+    parser.add_argument('--always-make','-B', action='store_true', default=False, help="Unconditionally make all targets.")
     parser.add_argument('--makefile',   '-f', '--file', action='store', help="Use file as a makefile.")
     parser.add_argument('--jobs',       '-j', nargs='?', default=-1, const=-2, type=check_positive, help="Specifies the number of jobs (commands) to run simultaneously.")
     parser.add_argument('--just-print', '--dry-run', '--recon', '-n', action='store_true', default=False, help="Don't actually run any commands; just print them.")
@@ -225,6 +226,8 @@ def extract_makefile_options(args):
         makefile_options += ["-j", args.jobs]
     if args.just_print:
         makefile_options.append("--just-print")
+    if args.always_make:
+        makefile_options.append("--always-make")
     return makefile_options
 
 def main(argv=None):

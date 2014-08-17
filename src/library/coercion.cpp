@@ -109,6 +109,16 @@ static void check_pi(name const & f, expr const & t) {
         throw exception(sstream() << "invalid coercion, '" << f << "' is not function");
 }
 
+// similar to check_pi, but produces a more informative message
+static void check_valid_coercion(name const & f, expr const & t) {
+    if (!is_pi(t)) {
+        throw exception(sstream() << "invalid coercion, type of '" << f << "' does not match any of the allowed expected types for coercions\n"
+                        << "  Pi (x_1 : A_1) ... (x_n : A_n) (y: C x_1 ... x_n), D t_1 ... t_m\n"
+                        << "  Pi (x_1 : A_1) ... (x_n : A_n) (y: C x_1 ... x_n), Type\n"
+                        << "  Pi (x_1 : A_1) ... (x_n : A_n) (y: C x_1 ... x_n), A -> B\n");
+    }
+}
+
 /** \brief Return true iff args contains Var(0), Var(1), ..., Var(args.size() - 1) */
 static bool check_var_args(buffer<expr> const & args) {
     for (unsigned i = 0; i < args.size(); i++) {
@@ -294,7 +304,7 @@ coercion_state add_coercion(environment const & env, io_state const & ios, coerc
         }
         t = binding_body(t);
         num++;
-        check_pi(f, t);
+        check_valid_coercion(f, t);
     }
 }
 

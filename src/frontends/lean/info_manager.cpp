@@ -138,10 +138,34 @@ public:
     }
 };
 
+class symbol_info_data : public info_data_cell {
+    name m_symbol;
+public:
+    symbol_info_data(unsigned c, name const & s):info_data_cell(c), m_symbol(s) {}
+    virtual void display(io_state_stream const & ios, unsigned line) const {
+        ios << "-- SYMBOL|" << line << "|" << get_column() << "\n";
+        ios << m_symbol << "\n";
+        ios << "-- ACK" << endl;
+    }
+};
+
+class identifier_info_data : public info_data_cell {
+    name m_full_id;
+public:
+    identifier_info_data(unsigned c, name const & full_id):info_data_cell(c), m_full_id(full_id) {}
+    virtual void display(io_state_stream const & ios, unsigned line) const {
+        ios << "-- IDENTIFIER|" << line << "|" << get_column() << "\n";
+        ios << m_full_id << "\n";
+        ios << "-- ACK" << endl;
+    }
+};
+
 info_data mk_type_info(unsigned c, expr const & e) { return info_data(new type_info_data(c, e)); }
 info_data mk_synth_info(unsigned c, expr const & e) { return info_data(new synth_info_data(c, e)); }
 info_data mk_overload_info(unsigned c, expr const & e) { return info_data(new overload_info_data(c, e)); }
 info_data mk_coercion_info(unsigned c, expr const & e) { return info_data(new coercion_info_data(c, e)); }
+info_data mk_symbol_info(unsigned c, name const & s) { return info_data(new symbol_info_data(c, s)); }
+info_data mk_identifier_info(unsigned c, name const & full_id) { return info_data(new identifier_info_data(c, full_id)); }
 
 struct info_data_cmp {
     int operator()(info_data const & i1, info_data const & i2) const { return i1.compare(i2); }
@@ -186,6 +210,18 @@ struct info_manager::imp {
         lock_guard<mutex> lc(m_mutex);
         synch_line(l);
         m_line_data[l].insert(mk_coercion_info(c, e));
+    }
+
+    void add_symbol_info(unsigned l, unsigned c, name const & s) {
+        lock_guard<mutex> lc(m_mutex);
+        synch_line(l);
+        m_line_data[l].insert(mk_symbol_info(c, s));
+    }
+
+    void add_identifier_info(unsigned l, unsigned c, name const & full_id) {
+        lock_guard<mutex> lc(m_mutex);
+        synch_line(l);
+        m_line_data[l].insert(mk_identifier_info(c, full_id));
     }
 
     static info_data_set instantiate(info_data_set const & s, substitution & subst) {
@@ -298,6 +334,10 @@ void info_manager::add_type_info(unsigned l, unsigned c, expr const & e) { m_ptr
 void info_manager::add_synth_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_synth_info(l, c, e); }
 void info_manager::add_overload_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_overload_info(l, c, e); }
 void info_manager::add_coercion_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_coercion_info(l, c, e); }
+void info_manager::add_symbol_info(unsigned l, unsigned c, name const & s) { m_ptr->add_symbol_info(l, c, s); }
+void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full_id) {
+    m_ptr->add_identifier_info(l, c, full_id);
+}
 void info_manager::instantiate(substitution const & s) { m_ptr->instantiate(s); }
 void info_manager::merge(info_manager const & m) { m_ptr->merge(*m.m_ptr); }
 void info_manager::insert_line(unsigned l) { m_ptr->insert_line(l); }

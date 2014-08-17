@@ -165,6 +165,7 @@ class parser {
     void save_overload(expr const & e);
     void save_type_info(expr const & e);
     void save_pre_info_data();
+    void save_identifier_info(pos_info const & p, name const & full_id);
 
     elaborator_context mk_elaborator_context(pos_info_provider const & pp, bool check_unassigned = true);
     elaborator_context mk_elaborator_context(environment const & env, pos_info_provider const & pp);

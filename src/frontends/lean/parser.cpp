@@ -769,6 +769,8 @@ bool parser::parse_local_notation_decl(buffer<notation_entry> * nentries) {
 expr parser::parse_notation(parse_table t, expr * left) {
     lean_assert(curr() == scanner::token_kind::Keyword);
     auto p = pos();
+    if (m_info_manager)
+        m_info_manager->add_symbol_info(p.first, p.second, get_token_info().token());
     buffer<expr>  args;
     buffer<expr>  ps;
     local_environment lenv(m_env);
@@ -936,6 +938,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         if (auto it1 = m_local_decls.find(id)) {
             auto r = copy_with_new_pos(propagate_levels(*it1, ls), p);
             save_type_info(r);
+            save_identifier_info(p, id);
             return r;
         }
     } else {
@@ -945,6 +948,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
             auto r = save_pos(mk_constant(new_id, ls), p);
             save_type_info(r);
             add_ref_index(new_id, p);
+            save_identifier_info(p, new_id);
             return r;
         } else {
             for (name const & ns : get_namespaces(m_env)) {
@@ -953,6 +957,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
                     auto r = save_pos(mk_constant(new_id, ls), p);
                     save_type_info(r);
                     add_ref_index(new_id, p);
+                    save_identifier_info(p, new_id);
                     return r;
                 }
             }
@@ -973,8 +978,10 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
             new_as.push_back(copy_with_new_pos(mk_constant(e, ls), p));
         }
         r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
-        if (is_constant(*r))
+        if (is_constant(*r)) {
             add_ref_index(const_name(*r), p);
+            save_identifier_info(p, const_name(*r));
+        }
         save_overload(*r);
     }
     if (!r && m_no_undef_id_error)
@@ -1284,6 +1291,12 @@ void parser::save_overload(expr const & e) {
         return;
     auto p = pos_of(e);
     m_info_manager->add_overload_info(p.first, p.second, e);
+}
+
+void parser::save_identifier_info(pos_info const & p, name const & full_id) {
+    if (!m_info_manager)
+        return;
+    m_info_manager->add_identifier_info(p.first, p.second, full_id);
 }
 
 void parser::save_type_info(expr const & e) {

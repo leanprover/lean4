@@ -67,7 +67,7 @@ Remove line =[line-number]= (in the current file). The lines are indexed from 1.
 If =[line-number]= is greater than the total number of lines in the lean
 buffer, then the command is ignored.
 
-** Extracting typing information
+** Extracting information
 
 #+BEGIN_SRC
 INFO [line-number]
@@ -123,6 +123,20 @@ Information for synthesized placeholders is of the form
 -- ACK
 #+END_SRC
 
+The following two information entries provide information for Lean keywords/symbols and identifiers.
+
+#+BEGIN_SRC
+-- SYMBOL|[line-number]|[column-number]
+[symbol]
+-- ACK
+#+END_SRC
+
+#+BEGIN_SRC
+-- IDENTIFIER|[line-number]|[column-number]
+[fully-qualified-name]
+-- ACK
+#+END_SRC
+
 Here is an example of output produced by Lean
 
 #+BEGIN_SRC
@@ -143,6 +157,10 @@ num → num
 -- ACK
 -- TYPE|15|44
 num
+-- ACK
+-- IDENTIFIER|15|42
+f
+foo.f
 -- ACK
 -- ENDINFO
 #+END_SRC
@@ -231,4 +249,13 @@ produces the output
 -- BEGINEVAL
 -- NAY
 -- ENDEVAL
+#+END_SRC
+
+** Wait
+
+The following command is for debugging purposes. It blocks the server
+until all pending information has been computed.
+
+#+BEGIN_SRC
+WAIT
 #+END_SRC

@@ -22,6 +22,8 @@ public:
     void add_synth_info(unsigned l, unsigned c, expr const & e);
     void add_overload_info(unsigned l, unsigned c, expr const & e);
     void add_coercion_info(unsigned l, unsigned c, expr const & e);
+    void add_symbol_info(unsigned l, unsigned c, name const & n);
+    void add_identifier_info(unsigned l, unsigned c, name const & full_id);
     void instantiate(substitution const & s);
     void merge(info_manager const & m);
     void insert_line(unsigned l);

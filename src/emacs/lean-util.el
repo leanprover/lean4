@@ -48,7 +48,7 @@
 (defun lean-take-first-n (seq n)
   "Take first n elements from seq"
   (cond ((< (length seq) n) seq)
-        (t                  (subseq seq 0 n))))
+        (t                  (cl-subseq seq 0 n))))
 
 ;; -- Test
 (cl-assert (equal (lean-take-first-n '(1 2 3 4 5 6 7 8 9 10) 3)
@@ -68,7 +68,7 @@
   "Take first n elements from seq"
   (let ((l (length seq)))
     (cond ((< l n) seq)
-          (t       (subseq seq (- l n) l)))))
+          (t       (cl-subseq seq (- l n) l)))))
 ;; -- Test
 (cl-assert (equal (lean-take-last-n '(1 2 3 4 5 6 7 8 9 10) 3)
                   '(8 9 10)))

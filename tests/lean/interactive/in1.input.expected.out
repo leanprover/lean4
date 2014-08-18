@@ -1,4 +1,3 @@
-DONE
 -- BEGININFO
 -- SYMBOL|4|22
 Type
@@ -22,7 +21,6 @@ A
 a
 -- ACK
 -- ENDINFO
-DONE
 -- BEGININFO
 -- SYMBOL|4|22
 Type
@@ -46,7 +44,6 @@ B
 b
 -- ACK
 -- ENDINFO
-DONE
 -- BEGININFO
 -- SYMBOL|5|22
 Type
@@ -70,7 +67,6 @@ B
 b
 -- ACK
 -- ENDINFO
-DONE
 -- BEGININFO
 -- SYMBOL|4|22
 Type
@@ -96,8 +92,6 @@ b
 -- ENDINFO
 simple.lean:4:0: error: command expected
 simple.lean:5:37: error: unknown identifier 'foo'
-DONE
-DONE
 -- BEGININFO
 -- SYMBOL|4|22
 Type

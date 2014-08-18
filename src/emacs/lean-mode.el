@@ -52,7 +52,7 @@
   (local-set-key "\C-c\C-t" 'lean-eldoc-documentation-function)
   (local-set-key "\C-c\C-f" 'lean-fill-placeholder)
   (local-set-key "\M-."     'lean-find-tag)
-  (local-set-key [tab]      'lean-complete-tag))
+  (local-set-key [tab]      'completion-at-point))
 
 (define-abbrev-table 'lean-abbrev-table
   '(("var"    "variable")
@@ -92,13 +92,18 @@
     (remove-hook 'lean-mode-hook 'whitespace-cleanup-mode))
   ;; eldoc
   (set (make-local-variable 'eldoc-documentation-function)
-       'lean-eldoc-documentation-function))
+       'lean-eldoc-documentation-function)
+  ;; company-mode
+  (when lean-company-use
+    (require 'company)
+    (company-mode t)
+    (set (make-local-variable 'company-backends) '(company-etags))))
 
 ;; Automatically use lean-mode for .lean files.
 ;;;###autoload
 (push '("\\.lean$" . lean-mode) auto-mode-alist)
 ;; Use utf-8 encoding
-;;;###autoload
+;;;### autoload
 (modify-coding-system-alist 'file "\\.lean\\'" 'utf-8)
 
 (provide 'lean-mode)

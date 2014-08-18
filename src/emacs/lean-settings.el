@@ -35,6 +35,11 @@
   :group 'lean
   :type 'boolean)
 
+(defcustom lean-company-use t
+  "Use company mode for lean."
+  :group 'lean
+  :type 'boolean)
+
 (defcustom lean-flycheck-checker-name "lmake"
   "lean-flychecker checker name"
   :group 'lean

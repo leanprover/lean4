@@ -26,7 +26,7 @@ TODO(soonhok): for now, it ignores file-name and column."
            when (funcall when-pred info)
            collect info))
 
-(defun lean-get-current-sym-info ()
+(defun lean-bounds-of-thing-at-point ()
   "Return the information of current symbol at point.
 
 The return valus has the form of '([symbol-string] [start-pos])"
@@ -54,7 +54,9 @@ The return valus has the form of '([symbol-string] [start-pos])"
   (let*  ((info-list (lean-get-info-list file-name line-number column))
           (info-list-at-pos (lean-filter-info-list
                              info-list
-                             '(lambda (info) (= start-column (lean-info-column info)))))
+                             '(lambda (info) (and
+                                         (lean-info-column info)
+                                         (= start-column (lean-info-column info))))))
           (typeinfo
            (cl-first (lean-filter-info-list info-list-at-pos
                                             'lean-typeinfo-p)))
@@ -94,7 +96,7 @@ The return valus has the form of '([symbol-string] [start-pos])"
       (let* ((file-name (buffer-file-name))
              (line-number (line-number-at-pos))
              (column (current-column))
-             (sym-info (lean-get-current-sym-info))
+             (sym-info (lean-bounds-of-thing-at-point))
              (sym-name (cl-first sym-info))
              (start-pos (cl-second sym-info))
              (start-column (- column (- (point) start-pos)))
@@ -115,7 +117,7 @@ The return valus has the form of '([symbol-string] [start-pos])"
   (let* ((file-name (buffer-file-name))
          (line-number (line-number-at-pos))
          (column (current-column))
-         (sym-info (lean-get-current-sym-info))
+         (sym-info (lean-bounds-of-thing-at-point))
          (sym-name (cl-first sym-info))
          (start-pos (cl-second sym-info))
          (start-column (- column (- (point) start-pos)))
@@ -136,27 +138,11 @@ It saves the following information to the global variable:
  - lean-global-before-change-text            : text between beg and end
 
 These information will be used by lean-after-changed-function."
-  ;; (message "lean-before-change %d %d" beg end)
   (setq lean-global-before-change-beg beg)
   (setq lean-global-before-change-end end)
   (setq lean-global-before-change-beg-line-number (line-number-at-pos beg))
   (setq lean-global-before-change-end-line-number (line-number-at-pos end))
   (setq lean-global-before-change-text (buffer-substring-no-properties beg end)))
-
-(defun lean-after-change-log (beg end after-beg-line-number after-end-line-number)
-  (message "before-change: beg=%d (%d) end=%d (%d)"
-           beg lean-global-before-change-beg-line-number
-           end lean-global-before-change-end-line-number)
-  (message "before-text:||%s||" lean-global-before-change-text)
-  (message "before-text # of lines = %d" (count-lines beg end))
-  (message "after-change: beg=%d (%d) end=%d (%d) leng-before=%d"
-           beg after-beg-line-number end after-end-line-number leng-before)
-  (message "after-text:||%s||" (buffer-substring-no-properties beg end))
-  (message "after-text # of lines = %d" (count-lines beg end))
-  (message "changed  lines = %s" (prin1-to-string changed-lines))
-  (message "inserted lines = %s" (prin1-to-string inserted-lines))
-  (message "removed lines  = %s" (prin1-to-string removed-lines))
-  (message "===================================="))
 
 (defun lean-after-change-diff-lines (before-beg-line-number
                                      before-end-line-number
@@ -171,11 +157,8 @@ pairs, compute changed-lines, inserted-lines, and removed-lines."
          (old-lines-len (length old-lines))
          (new-lines-len (length new-lines))
          changed-lines removed-lines inserted-lines)
-    ;; (lean-debug-print "old-lines" old-lines)
-    ;; (lean-debug-print "new-lines" new-lines)
     (cond ((= old-lines-len new-lines-len)
            (setq changed-lines old-lines)
-           ;; (lean-debug-print "changed" changed-lines)
            `(CHANGE-ONLY ,changed-lines))
           ;; Case "REMOVE"
           ((> old-lines-len new-lines-len)
@@ -190,16 +173,10 @@ pairs, compute changed-lines, inserted-lines, and removed-lines."
            ;; Make sure that we return it in sorted order
            (setq inserted-lines (cl-sort inserted-lines '<))
            (setq changed-lines old-lines)
-           ;; (lean-debug-print "inserted-lines" inserted-lines)
-           ;; (lean-debug-print "changed-lines" changed-lines)
            `(INSERT ,inserted-lines ,changed-lines)))))
 
-(defun lean-after-changed-p (before-beg
-                             before-end
-                             after-beg
-                             after-end
-                             before-text
-                             after-text)
+(defun lean-after-changed-p (before-beg before-end after-beg after-end
+                                        before-text after-text)
   "Return true if there is a really change"
   (or (/= before-beg after-beg)
       (/= before-end after-end)
@@ -207,12 +184,9 @@ pairs, compute changed-lines, inserted-lines, and removed-lines."
 
 (defun lean-after-change-handle-changes-only (changed-lines)
   (cl-loop for n in changed-lines
-           do (add-to-list 'lean-changed-lines n))
-  ;; (lean-debug-print "changes-only" lean-changed-lines)
-  )
+           do (add-to-list 'lean-changed-lines n)))
 
 (defun lean-after-change-handle-inserted (inserted-lines changed-lines)
-  ;; (lean-debug-print "inserted lines" (cons inserted-lines changed-lines))
   (lean-flush-changed-lines)
   (cl-loop for n in inserted-lines
            do (lean-server-send-cmd (lean-cmd-insert n (lean-grab-line n))))
@@ -220,7 +194,6 @@ pairs, compute changed-lines, inserted-lines, and removed-lines."
   (lean-flush-changed-lines))
 
 (defun lean-after-change-handle-removed (removed-lines changed-lines)
-  ;; (lean-debug-print "removed lines" (cons removed-lines changed-lines))
   (lean-flush-changed-lines)
   (cl-loop for n in removed-lines
            do (lean-server-send-cmd (lean-cmd-remove n)))
@@ -229,7 +202,6 @@ pairs, compute changed-lines, inserted-lines, and removed-lines."
 
 (defun lean-after-change-function (beg end leng-before)
   "Function attached to after-change-functions hook"
-  ;; (message "lean-after-change-function: %d %d %d" beg end leng-before)
   (let* ((before-beg lean-global-before-change-beg)
          (before-end lean-global-before-change-end)
          (before-beg-line-number lean-global-before-change-beg-line-number)

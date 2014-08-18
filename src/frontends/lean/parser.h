@@ -239,8 +239,10 @@ public:
     bool curr_is_command() const { return curr() == scanner::token_kind::CommandKeyword; }
     /** \brief Return true iff the current token is a keyword */
     bool curr_is_quoted_symbol() const { return curr() == scanner::token_kind::QuotedSymbol; }
-    /** \brief Return true if the current token is a keyword named \c tk or an identifier named \c tk */
+    /** \brief Return true iff the current token is a keyword named \c tk or an identifier named \c tk */
     bool curr_is_token_or_id(name const & tk) const;
+    /** \brief Return true iff the current token is a command, EOF, period or script block */
+    bool curr_is_command_like() const;
     /** \brief Read the next token if the current one is not End-of-file. */
     void next() { if (m_curr != scanner::token_kind::Eof) scan(); }
     /** \brief Return true iff the current token is a keyword (or command keyword) named \c tk */

@@ -185,6 +185,11 @@ struct decl_modifiers {
     }
 };
 
+static void check_end_of_theorem(parser const & p) {
+    if (!p.curr_is_command_like())
+        throw parser_error("':=', '.', command, script, or end-of-file expected", p.pos());
+}
+
 environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     auto n_pos = p.pos();
     unsigned start_line = n_pos.first;
@@ -216,6 +221,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
             auto pos = p.pos();
             type = p.parse_expr();
             if (is_theorem && !p.curr_is_token(g_assign)) {
+                check_end_of_theorem(p);
                 value = mk_expr_placeholder();
             } else {
                 p.check_token_next(g_assign, "invalid declaration, ':=' expected");
@@ -230,6 +236,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
                 p.next();
                 type = p.parse_scoped_expr(ps, *lenv);
                 if (is_theorem && !p.curr_is_token(g_assign)) {
+                    check_end_of_theorem(p);
                     value = p.save_pos(mk_expr_placeholder(), pos);
                 } else {
                     p.check_token_next(g_assign, "invalid declaration, ':=' expected");

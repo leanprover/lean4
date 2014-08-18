@@ -1266,6 +1266,21 @@ bool parser::parse_commands() {
     return !m_found_errors;
 }
 
+bool parser::curr_is_command_like() const {
+    switch (curr()) {
+    case scanner::token_kind::CommandKeyword:
+        return true;
+    case scanner::token_kind::ScriptBlock:
+        return true;
+    case scanner::token_kind::Eof:
+        return true;
+    case scanner::token_kind::Keyword:
+        return curr_is_token(g_period);
+    default:
+        return false;
+    }
+}
+
 void parser::add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls, expr const & t, expr const & v) {
     m_theorem_queue.add(env, n, ls, get_local_level_decls(), t, v);
 }

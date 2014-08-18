@@ -98,9 +98,11 @@ def find_lean_opt():
 def call_lean(leanfile, options):
     """ Call lean with options """
     from collections import OrderedDict
+    oleanfile = leanfile[:-5] + ".olean"
     lean_exe = find_lean_exe()
     lean_opt = list(OrderedDict.fromkeys(find_lean_opt() + options))
-    subprocess.call([lean_exe] + lean_opt + [leanfile], stderr=subprocess.STDOUT)
+    cmd = [lean_exe] + lean_opt + [leanfile] + ["-o", oleanfile]
+    subprocess.call(cmd, stderr=subprocess.STDOUT)
 
 def get_lean(s):
     """ Given a string s, return corresponding .lean file if exists """

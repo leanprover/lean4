@@ -162,6 +162,103 @@
              (lean-synth-parse '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
             '(121 2)))
 
+;; Synth Information
+;; ----------------
+(defun lean-identifier-type (identifier)
+  (cl-first identifier))
+(defun lean-identifier-p (identifier)
+  (equal (lean-identifier-type identifier) 'IDENTIFIER))
+(defun lean-identifier-pos (identifier)
+  (cl-second identifier))
+(defun lean-identifier-str-p (str)
+  (string-prefix-p "-- IDENTIFIER|" str))
+(defun lean-identifier-str-seq-p (seq)
+  (lean-identifier-str-p (cl-first seq)))
+(defun lean-identifier-parse-header (str)
+  (let ((items (split-string str "|")))
+    (list (string-to-number (cl-second items))
+          (string-to-number (cl-third items)))))
+(defun lean-identifier-parse (seq)
+  (let ((header (lean-identifier-parse-header (car seq)))
+        (body (cdr seq)))
+    `(IDENTIFIER ,header ,body)))
+(defun lean-identifier-body (identifier)
+  (cl-third identifier))
+(defun lean-identifier-body-str (identifier)
+  (lean-string-join (lean-identifier-body identifier) "\n"))
+
+;; -- Test
+(cl-assert (lean-identifier-str-p "-- IDENTIFIER|121|2"))
+(cl-assert (equal (lean-identifier-parse-header "-- IDENTIFIER|121|2")
+                  '(121 2)))
+(cl-assert (lean-identifier-str-seq-p '("-- IDENTIFIER|121|2" "foo.f")))
+(cl-assert (equal (lean-identifier-parse '("-- IDENTIFIER|121|2" "foo.f"))
+                  '(IDENTIFIER
+                    (121 2)
+                    ("foo.f"))))
+(cl-assert (equal
+            (lean-identifier-pos
+             (lean-identifier-parse '("-- IDENTIFIER|121|2" "foo.f")))
+            '(121 2)))
+
+;; Symbol Information
+;; ----------------
+(defun lean-symbol-type (symbol)
+  (cl-first symbol))
+(defun lean-symbol-p (symbol)
+  (equal (lean-symbol-type symbol) 'SYMBOL))
+(defun lean-symbol-pos (symbol)
+  (cl-second symbol))
+(defun lean-symbol-str-p (str)
+  (string-prefix-p "-- SYMBOL|" str))
+(defun lean-symbol-str-seq-p (seq)
+  (lean-symbol-str-p (cl-first seq)))
+(defun lean-symbol-parse-header (str)
+  (let ((items (split-string str "|")))
+    (list (string-to-number (cl-second items))
+          (string-to-number (cl-third items)))))
+(defun lean-symbol-parse (seq)
+  (let ((header (lean-symbol-parse-header (car seq)))
+        (body (cdr seq)))
+    `(SYMBOL ,header ,body)))
+(defun lean-symbol-body (symbol)
+  (cl-third symbol))
+(defun lean-symbol-body-str (symbol)
+  (lean-string-join (lean-symbol-body symbol) "\n"))
+
+;; -- Test
+(cl-assert (lean-symbol-str-p "-- SYMBOL|121|2"))
+(cl-assert (equal (lean-symbol-parse-header "-- SYMBOL|121|2")
+                  '(121 2)))
+(cl-assert (lean-symbol-str-seq-p '("-- SYMBOL|121|2" "→")))
+(cl-assert (equal (lean-symbol-parse '("-- SYMBOL|121|2" "→"))
+                  '(SYMBOL
+                    (121 2)
+                    ("→"))))
+(cl-assert (equal
+            (lean-symbol-pos
+             (lean-symbol-parse '("-- SYMBOL|121|2" "→")))
+            '(121 2)))
+
+
+;; NAY Information
+;; ----------------
+(defun lean-nay-type (nay)
+  (cl-first nay))
+(defun lean-nay-p (nay)
+  (equal (lean-nay-type nay) 'NAY))
+(defun lean-nay-str-p (str)
+  (string= "-- NAY" str))
+(defun lean-nay-str-seq-p (seq)
+  (lean-nay-str-p (cl-first seq)))
+(defun lean-nay-parse (seq)
+  '(NAY))
+
+;; -- Test
+(cl-assert (lean-nay-str-p "-- NAY"))
+(cl-assert (lean-nay-str-seq-p '("-- NAY")))
+(cl-assert (equal (lean-nay-parse '("-- NAY"))
+                  '(NAY)))
 
 ;; Basic
 ;; -----
@@ -173,9 +270,12 @@
   (string= "-- ENDINFO" str))
 (defun lean-info-pos (info)
   (cl-case (lean-info-type info)
-    (TYPE     (lean-typeinfo-pos info))
-    (OVERLOAD (lean-overload-pos info))
-    (SYNTH    (lean-synth-pos    info))))
+    (TYPE       (lean-typeinfo-pos   info))
+    (OVERLOAD   (lean-overload-pos   info))
+    (SYNTH      (lean-synth-pos      info))
+    (IDENTIFIER (lean-identifier-pos info))
+    (SYMBOL     (lean-symbol-pos      info))
+    (NAY        (error "no position information for NAY"))))
 (defun lean-info-line-number (info)
   (cl-first (lean-info-pos info)))
 (defun lean-info-column (info)
@@ -218,14 +318,22 @@ Use \"-- ACK\" as a delim and stop processing when it encounters \"-- ENDINFO\""
            collect line))
 
 (defun lean-infolist-parse (lines)
-  "TODO(soonhok): fill this"
+  "Parse lines into info-list"
   (let ((string-seq-seq (lean-infolist-filter-seq (lean-infolist-split-lines lines))))
     (cl-loop for string-seq in string-seq-seq
              when string-seq
-             collect (cond
-                      ((lean-typeinfo-str-seq-p string-seq) (lean-typeinfo-parse string-seq))
-                      ((lean-overload-str-seq-p string-seq) (lean-overload-parse string-seq))
-                      ((lean-synth-str-seq-p    string-seq) (lean-synth-parse string-seq))))))
+             collect (cond ((lean-typeinfo-str-seq-p string-seq)
+                            (lean-typeinfo-parse string-seq))
+                           ((lean-overload-str-seq-p string-seq)
+                            (lean-overload-parse string-seq))
+                           ((lean-synth-str-seq-p string-seq)
+                            (lean-synth-parse string-seq))
+                           ((lean-identifier-str-seq-p string-seq)
+                            (lean-identifier-parse string-seq))
+                           ((lean-symbol-str-seq-p string-seq)
+                            (lean-symbol-parse string-seq))
+                           ((lean-nay-str-seq-p string-seq)
+                            (lean-nay-parse string-seq))))))
 
 ;; -- test
 (cl-assert

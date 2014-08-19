@@ -1892,6 +1892,12 @@ struct unifier_fn {
                     return process_delta(c);
                 } else if (modified) {
                     return is_def_eq(cnstr_lhs_expr(c), cnstr_rhs_expr(c), c.get_justification(), relax_main_opaque(c));
+                } else if (auto d = is_owned(c)) {
+                    // Metavariable in the constraint is owned by choice constraint.
+                    // choice constraint was postponed... since c was not modifed
+                    // So, we should postpone this one too.
+                    add_cnstr(c, to_cnstr_group(*d+1));
+                    return true;
                 } else if (is_flex_rigid(c)) {
                     return process_flex_rigid(c);
                 } else if (is_flex_flex(c)) {

@@ -761,15 +761,57 @@ public:
     constraint mk_delayed_coercion_cnstr(expr const & m, expr const & a, expr const & a_type,
                                          justification const & j, unsigned delay_factor) {
         bool relax = m_relax_main_opaque;
-        auto choice_fn = [=](expr const & mvar, expr const & new_d_type, substitution const & /* s */, name_generator const & /* ngen */) {
-            // Remark: we want the coercions solved before we start discarding FlexFlex constraints. So, we use PreFlexFlex as a max cap
-            // for delaying coercions.
-            if (is_meta(new_d_type) && delay_factor < to_delay_factor(cnstr_group::DelayedChoice)) {
-                // The type is still unknown, delay the constraint even more.
-                return lazy_list<constraints>(constraints(mk_delayed_coercion_cnstr(m, a, a_type, justification(), delay_factor+1)));
+        auto choice_fn = [=](expr const & mvar, expr const & d_type, substitution const & s, name_generator const & /* ngen */) {
+            type_checker & tc = *m_tc[relax];
+            expr          new_a_type;
+            justification new_a_type_jst;
+            if (is_meta(a_type)) {
+                auto p = substitution(s).instantiate_metavars(a_type);
+                new_a_type     = p.first;
+                new_a_type_jst = p.second;
             } else {
-                expr r = apply_coercion(a, a_type, new_d_type);
-                return lazy_list<constraints>(constraints(mk_eq_cnstr(mvar, r, justification(), relax)));
+                new_a_type     = a_type;
+            }
+            if (is_meta(new_a_type)) {
+                if (delay_factor < to_delay_factor(cnstr_group::DelayedChoice)) {
+                    // postpone...
+                    return lazy_list<constraints>(constraints(mk_delayed_coercion_cnstr(m, a, a_type, justification(), delay_factor+1)));
+                } else {
+                    // giveup...
+                    return lazy_list<constraints>(constraints(mk_eq_cnstr(mvar, a, justification(), relax)));
+                }
+            }
+            buffer<constraint> cs;
+            new_a_type = tc.whnf(new_a_type, cs);
+            if (is_meta(d_type)) {
+                // case-split
+                buffer<std::tuple<name, expr, expr>> alts;
+                get_user_coercions(env(), new_a_type, alts);
+                buffer<constraints> r;
+                // first alternative: no coercion
+                cs.push_back(mk_eq_cnstr(mvar, a, justification(), relax));
+                r.push_back(to_list(cs.begin(), cs.end()));
+                cs.pop_back();
+                unsigned i = alts.size();
+                while (i > 0) {
+                    --i;
+                    auto const & t = alts[i];
+                    expr new_a = mk_app(std::get<1>(t), a, a.get_tag());
+                    cs.push_back(mk_eq_cnstr(mvar, new_a, new_a_type_jst, relax));
+                    r.push_back(to_list(cs.begin(), cs.end()));
+                    cs.pop_back();
+                }
+                return to_lazy(to_list(r.begin(), r.end()));
+            } else {
+                expr new_a         = a;
+                expr new_d_type    = tc.whnf(d_type, cs);
+                expr const & d_cls = get_app_fn(new_d_type);
+                if (is_constant(d_cls)) {
+                    if (auto c = get_coercion(env(), new_a_type, const_name(d_cls)))
+                        new_a = mk_app(*c, a, a.get_tag());
+                }
+                cs.push_back(mk_eq_cnstr(mvar, new_a, new_a_type_jst, relax));
+                return lazy_list<constraints>(to_list(cs.begin(), cs.end()));
             }
         };
         return mk_choice_cnstr(m, choice_fn, delay_factor, true, j, m_relax_main_opaque);

@@ -30,15 +30,16 @@ check foo a b
 theorem T1 : foo a b = N1.foo a b
 := refl _
 
-definition aux1 := foo a b  -- System elaborated it to N2.foo (f a) (f b)
-theorem T2 : aux1 = N2.foo (f a) (f b)
+definition aux1 := foo a b  -- System elaborated it to N1.foo a b
+#erase_cache T2
+theorem T2 : aux1 = N1.foo a b
 := refl _
 
 using N1
-definition aux2 := foo a b  -- Now N1 is in the beginning of the queue again, and this is elaborated to N1.foo a b
+definition aux2 := foo a b  -- Now N1 is in the end of the queue, this is elaborated to N2.foo (f a) (f b)
 check aux2
 
-theorem T3 : aux2 = N1.foo a b
+theorem T3 : aux2 = N2.foo (f a) (f b)
 := refl aux2
 
 

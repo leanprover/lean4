@@ -368,15 +368,15 @@ class elaborator {
                                list<expr> const & ctx, list<expr> const & full_ctx,
                                bool relax):
             m_elab(elab), m_mvar(mvar), m_choice(c), m_ctx(ctx), m_full_ctx(full_ctx),
-            m_idx(0), m_relax_main_opaque(relax) {
+            m_idx(get_num_choices(m_choice)), m_relax_main_opaque(relax) {
         }
 
         virtual optional<constraints> next() {
-            while (m_idx < get_num_choices(m_choice)) {
+            while (m_idx > 0) {
+                --m_idx;
                 expr const & c = get_choice(m_choice, m_idx);
                 expr const & f = get_app_fn(c);
                 m_elab.save_identifier_info(f);
-                m_idx++;
                 try {
                     new_scope s(m_elab, m_ctx, m_full_ctx);
                     expr r = m_elab.visit(c);

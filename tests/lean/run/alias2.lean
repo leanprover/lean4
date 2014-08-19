@@ -10,8 +10,8 @@ namespace N2
   variable foo : val → val → val
 end N2
 
-using N2
 using N1
+using N2
 variables a b : num
 variable f : num → val
 coercion f

@@ -148,7 +148,7 @@ static void tst11(int sz, int num) {
 }
 
 static void tst12() {
-    list<std::pair<int, char const *>> l;
+    list<pair<int, char const *>> l;
     lean_assert(is_nil(l));
     l.emplace_front(20, "world");
     l.emplace_front(10, "hello");

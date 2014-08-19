@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/rc.h"
 #include "util/optional.h"
+#include "util/pair.h"
 
 namespace lean {
 /**
@@ -17,7 +18,7 @@ namespace lean {
 template<typename T>
 class lazy_list {
 public:
-    typedef optional<std::pair<T, lazy_list>> maybe_pair; // head and tail pair
+    typedef optional<pair<T, lazy_list>> maybe_pair; // head and tail pair
 private:
     class cell_base {
         MK_LEAN_RC();

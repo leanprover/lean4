@@ -47,7 +47,7 @@ static unsigned to_rbp(lua_State * L, int idx) {
     return idx < nargs ? 0 : lua_tointeger(L, idx);
 }
 
-typedef std::pair<local_environment, std::vector<expr>> local_scope_cell;
+typedef pair<local_environment, std::vector<expr>> local_scope_cell;
 typedef std::shared_ptr<local_scope_cell> local_scope;
 DECL_UDATA(local_scope);
 static const struct luaL_Reg local_scope_m[] = {

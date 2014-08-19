@@ -85,12 +85,12 @@ class type_checker {
     level_param_names const *  m_params;
     buffer<constraint>         m_cs;        // temporary cache of constraints
     unsigned                   m_cs_qhead;
-    buffer<std::pair<unsigned, unsigned>> m_trail;
+    buffer<pair<unsigned, unsigned>> m_trail;
 
     friend class converter; // allow converter to access the following methods
     name mk_fresh_name() { return m_gen.next(); }
     optional<expr> expand_macro(expr const & m);
-    std::pair<expr, expr> open_binding_body(expr const & e);
+    pair<expr, expr> open_binding_body(expr const & e);
     void add_cnstr(constraint const & c);
     expr ensure_sort_core(expr e, expr const & s);
     expr ensure_pi_core(expr e, expr const & s);

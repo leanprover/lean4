@@ -69,7 +69,7 @@ struct coercion_info {
 struct coercion_state {
     rb_map<name, list<coercion_info>, name_quick_cmp>                    m_coercion_info;
     // m_from and m_to contain "direct" coercions
-    rb_map<name, list<std::pair<coercion_class, expr>>, name_quick_cmp>  m_from; // map user-class -> list of (class, coercion-fun)
+    rb_map<name, list<pair<coercion_class, expr>>, name_quick_cmp>  m_from; // map user-class -> list of (class, coercion-fun)
     rb_map<coercion_class, list<name>, coercion_class_cmp_fn>            m_to;
     rb_tree<name, name_quick_cmp>                                        m_coercions;
     coercion_info get_info(name const & from, coercion_class const & to) {
@@ -155,7 +155,7 @@ optional<coercion_class> type_to_coercion_class(expr const & t) {
     }
 }
 
-typedef list<std::pair<name, coercion_class>> arrows;
+typedef list<pair<name, coercion_class>> arrows;
 static bool contains(arrows const & a, name const & C, coercion_class const & D) {
     return std::find(a.begin(), a.end(), mk_pair(C, D)) != a.end();
 }
@@ -308,7 +308,7 @@ coercion_state add_coercion(environment const & env, io_state const & ios, coerc
     }
 }
 
-typedef std::pair<name, name> coercion_entry;
+typedef pair<name, name> coercion_entry;
 struct coercion_config {
     typedef coercion_state  state;
     typedef coercion_entry  entry;

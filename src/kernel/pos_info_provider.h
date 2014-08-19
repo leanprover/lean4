@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-typedef std::pair<unsigned, unsigned> pos_info; //!< Line and column information
+typedef pair<unsigned, unsigned> pos_info; //!< Line and column information
 /**
    \brief Abstract class for providing expression position information (line number and column).
 */

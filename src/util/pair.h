@@ -8,9 +8,12 @@ Author: Leonardo de Moura
 #include <utility>
 
 namespace lean {
+template<typename T1, typename T2>
+using pair = typename std::pair<T1, T2>;
+
 /** \brief Alias for make_pair */
 template<typename T1, typename T2>
-inline std::pair<T1, T2> mk_pair(T1 const & v1, T2 const & v2) {
+inline pair<T1, T2> mk_pair(T1 const & v1, T2 const & v2) {
     return std::make_pair(v1, v2);
 }
 }

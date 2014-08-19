@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static mutex g_code_mutex;
-static std::vector<std::pair<bool, std::string>> g_code;
+static std::vector<pair<bool, std::string>> g_code;
 static mutex g_state_mutex;
 static std::vector<script_state> g_states;
 static std::vector<script_state> g_available_states;

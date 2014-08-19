@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <functional>
 #include "util/debug.h"
+#include "util/pair.h"
 
 #ifndef LEAN_SCOPED_SET_INITIAL_BUCKET_SIZE
 #define LEAN_SCOPED_SET_INITIAL_BUCKET_SIZE 8
@@ -24,9 +25,9 @@ class scoped_set {
     typedef std::unordered_set<Key, Hash, KeyEqual> set;
     typedef typename set::size_type                 size_type;
     enum class action_kind { Insert, Erase };
-    set                                      m_set;
-    std::vector<std::pair<action_kind, Key>> m_actions;
-    std::vector<unsigned>                    m_scopes;
+    set                                 m_set;
+    std::vector<pair<action_kind, Key>> m_actions;
+    std::vector<unsigned>               m_scopes;
 public:
     explicit scoped_set(size_type bucket_count = LEAN_SCOPED_SET_INITIAL_BUCKET_SIZE,
                         const Hash& hash = Hash(),

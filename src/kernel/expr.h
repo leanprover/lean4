@@ -634,8 +634,8 @@ inline name const & named_expr_name(expr const & e) { return is_constant(e) ? co
 
 // =======================================
 // Expression+Offset
-typedef std::pair<expr, unsigned>       expr_offset;
-typedef std::pair<expr_cell*, unsigned> expr_cell_offset;
+typedef pair<expr, unsigned>       expr_offset;
+typedef pair<expr_cell*, unsigned> expr_cell_offset;
 // =======================================
 
 // =======================================

@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean { namespace record {
-typedef std::pair<name, expr> field;
+typedef pair<name, expr> field;
 inline name const & field_name(field const & f) { return f.first; }
 inline expr const & field_type(field const & f) { return f.second; }
 

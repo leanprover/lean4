@@ -130,7 +130,7 @@ public:
         return add(ts.size(), ts.begin(), a, true);
     }
     parse_table merge(parse_table const & s, bool overload) const;
-    optional<std::pair<action, parse_table>> find(name const & tk) const;
+    optional<pair<action, parse_table>> find(name const & tk) const;
     list<expr> const & is_accepting() const;
     void for_each(std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const;
 

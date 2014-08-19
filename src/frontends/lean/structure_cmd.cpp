@@ -35,7 +35,7 @@ static name g_tmp_prefix = name::mk_internal_unique_name();
 
 struct structure_cmd_fn {
     typedef std::unique_ptr<type_checker> type_checker_ptr;
-    typedef std::vector<std::pair<name, name>> rename_vector;
+    typedef std::vector<pair<name, name>> rename_vector;
     parser &                   m_p;
     environment                m_env;
     name_generator             m_ngen;

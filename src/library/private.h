@@ -21,7 +21,7 @@ namespace lean {
 
    The mapping between \c n and the "hidden" name is saved  in the .olean files.
 */
-std::pair<environment, name> add_private_name(environment const & env, name const & n, optional<unsigned> const & base_hash);
+pair<environment, name> add_private_name(environment const & env, name const & n, optional<unsigned> const & base_hash);
 
 /**
     \brief Return the user name associated with the hidden name \c n.

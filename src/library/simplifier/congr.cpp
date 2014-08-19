@@ -49,7 +49,7 @@ static buffer<app_arg_info>::iterator find_arg_info(buffer<app_arg_info> & arg_i
         });
 }
 
-static std::pair<unsigned, bool> find_hypothesis(buffer<app_arg_info> & arg_infos, unsigned vidx, unsigned num) {
+static pair<unsigned, bool> find_hypothesis(buffer<app_arg_info> & arg_infos, unsigned vidx, unsigned num) {
     for (auto const & info : arg_infos) {
         if (vidx == info.get_pos_at_proof()) {
             return mk_pair(info.get_arg_pos(), false);
@@ -162,7 +162,7 @@ congr_theorem_info check_congr_theorem(ro_environment const & env, expr const & 
                                     << " does not match conclusion of the theorem");
                 if (!it->m_proof_proof_pos) {
                     bool     ctx_pos;
-                    std::pair<unsigned, bool> p;
+                    pair<unsigned, bool> p;
                     if (is_var(abst_domain(d))) {
                         ctx_pos = true;
                         p = find_hypothesis(arg_infos, num - var_idx(abst_domain(d)) - 1, num);

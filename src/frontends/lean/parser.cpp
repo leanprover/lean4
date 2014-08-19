@@ -705,7 +705,7 @@ expr parser::parse_binder() {
    represents the type of the identifiers.
 */
 void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi) {
-    buffer<std::pair<pos_info, name>> names;
+    buffer<pair<pos_info, name>> names;
     while (curr_is_identifier()) {
         auto p = pos();
         names.emplace_back(p, check_atomic_id_next("invalid binder, atomic identifier expected"));

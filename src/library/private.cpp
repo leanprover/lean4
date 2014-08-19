@@ -40,7 +40,7 @@ static environment preserve_private_data(environment const & env, name const & r
     return module::add(env, g_prv_key, [=](serializer & s) { s << n << r; });
 }
 
-std::pair<environment, name> add_private_name(environment const & env, name const & n, optional<unsigned> const & extra_hash) {
+pair<environment, name> add_private_name(environment const & env, name const & n, optional<unsigned> const & extra_hash) {
     private_ext ext = get_extension(env);
     unsigned h      = hash(n.hash(), ext.m_counter);
     if (extra_hash)

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <functional>
 #include "util/debug.h"
+#include "util/pair.h"
 
 #ifndef LEAN_SCOPED_MAP_INITIAL_BUCKET_SIZE
 #define LEAN_SCOPED_MAP_INITIAL_BUCKET_SIZE 8
@@ -26,9 +27,9 @@ class scoped_map {
     typedef typename map::size_type                    size_type;
     typedef typename map::value_type                   value_type;
     enum class action_kind { Insert, Replace, Erase };
-    map                                             m_map;
-    std::vector<std::pair<action_kind, value_type>> m_actions;
-    std::vector<unsigned>                           m_scopes;
+    map                                        m_map;
+    std::vector<pair<action_kind, value_type>> m_actions;
+    std::vector<unsigned>                      m_scopes;
 public:
     explicit scoped_map(size_type bucket_count = LEAN_SCOPED_MAP_INITIAL_BUCKET_SIZE,
                         const Hash& hash = Hash(),

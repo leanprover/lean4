@@ -33,7 +33,7 @@ corrupted_file_exception::corrupted_file_exception(std::string const & fname):
     exception(sstream() << "failed to import '" << fname << "', file is corrupted") {
 }
 
-typedef std::pair<std::string, std::function<void(serializer &)>> writer;
+typedef pair<std::string, std::function<void(serializer &)>> writer;
 
 struct module_ext : public environment_extension {
     list<module_name> m_direct_imports;

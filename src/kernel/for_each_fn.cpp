@@ -53,7 +53,7 @@ class for_each_fn {
     std::function<bool(expr const &, unsigned)> m_f; // NOLINT
 
     void apply(expr const & e, unsigned offset) {
-        buffer<std::pair<expr const &, unsigned>> todo;
+        buffer<pair<expr const &, unsigned>> todo;
         todo.emplace_back(e, offset);
         while (true) {
           begin_loop:

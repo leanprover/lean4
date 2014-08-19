@@ -38,7 +38,7 @@ bool is_internal_name(name n) {
 }
 
 static name g_x("x");
-std::pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
+pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
     lean_assert(is_binding(b));
     name n = binding_name(b);
     if (is_internal_name(n))

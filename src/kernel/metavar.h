@@ -24,15 +24,15 @@ class substitution {
     jst_map   m_level_jsts;
 
     friend class instantiate_metavars_fn;
-    std::pair<level, justification> instantiate_metavars(level const & l, bool use_jst);
+    pair<level, justification> instantiate_metavars(level const & l, bool use_jst);
     expr instantiate_metavars_wo_jst(expr const & e, bool inst_local_types);
-    std::pair<expr, justification> instantiate_metavars_core(expr const & e, bool inst_local_types);
+    pair<expr, justification> instantiate_metavars_core(expr const & e, bool inst_local_types);
     bool occurs_expr_core(name const & m, expr const & e, name_set & visited) const;
 
 public:
     substitution();
-    typedef optional<std::pair<expr,  justification>> opt_expr_jst;
-    typedef optional<std::pair<level, justification>> opt_level_jst;
+    typedef optional<pair<expr,  justification>> opt_expr_jst;
+    typedef optional<pair<level, justification>> opt_level_jst;
 
     bool is_expr_assigned(name const & m) const;
     opt_expr_jst get_expr_assignment(name const & m) const;
@@ -54,14 +54,14 @@ public:
     void assign(level const & m, level const & t, justification const & j) { assign(meta_id(m), t, j); }
     void assign(level const & m, level const & t) { assign(m, t, justification ()); }
 
-    std::pair<level, justification> instantiate_metavars(level const & l) { return instantiate_metavars(l, true); }
+    pair<level, justification> instantiate_metavars(level const & l) { return instantiate_metavars(l, true); }
 
     /** \brief Instantiate metavariables occurring in \c e, by default this method does not visit the types of local constants.
         For substituting the metavariables occurring in local constants, use instantiate_metavars_all.
     */
-    std::pair<expr, justification> instantiate_metavars(expr const & e) { return instantiate_metavars_core(e, false); }
+    pair<expr, justification> instantiate_metavars(expr const & e) { return instantiate_metavars_core(e, false); }
     /** \brief \c see instantiate_metavars */
-    std::pair<expr, justification> instantiate_metavars_all(expr const & e) { return instantiate_metavars_core(e, true); }
+    pair<expr, justification> instantiate_metavars_all(expr const & e) { return instantiate_metavars_core(e, true); }
     /** \brief Similar to \c instantiate_metavars, but does not compute a justification for the substitutions. */
     expr instantiate(expr const & e) { return instantiate_metavars_wo_jst(e, false); }
     /** \brief Similar to instantiate, but also substitute metavariables occurring in the types of local constansts */

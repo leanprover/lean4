@@ -10,10 +10,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-class power : public std::pair<unsigned, unsigned> {
+class power : public pair<unsigned, unsigned> {
 public:
     typedef unsigned var;
-    power(var v, unsigned d):std::pair<var, unsigned>(v, d) {}
+    power(var v, unsigned d):pair<var, unsigned>(v, d) {}
     var get_var() const { return first; }
     void set_var(var x) { first = x; }
     unsigned degree() const { return second; }

@@ -264,9 +264,9 @@ transition replace(transition const & t, std::function<expr(expr const &)> const
 }
 
 struct parse_table::cell {
-    bool                                                         m_nud;
-    list<expr>                                                   m_accept;
-    rb_map<name, std::pair<action, parse_table>, name_quick_cmp> m_children;
+    bool                                                    m_nud;
+    list<expr>                                              m_accept;
+    rb_map<name, pair<action, parse_table>, name_quick_cmp> m_children;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc() { delete this; }
     cell(bool nud = true):m_nud(nud), m_rc(1) {}
@@ -280,12 +280,12 @@ parse_table::parse_table(parse_table && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
 parse_table::~parse_table() { if (m_ptr) m_ptr->dec_ref(); }
 parse_table & parse_table::operator=(parse_table const & s) { LEAN_COPY_REF(s); }
 parse_table & parse_table::operator=(parse_table && s) { LEAN_MOVE_REF(s); }
-optional<std::pair<action, parse_table>> parse_table::find(name const & tk) const {
+optional<pair<action, parse_table>> parse_table::find(name const & tk) const {
     auto * it = m_ptr->m_children.find(tk);
     if (it)
-        return optional<std::pair<action, parse_table>>(*it);
+        return optional<pair<action, parse_table>>(*it);
     else
-        return optional<std::pair<action, parse_table>>();
+        return optional<pair<action, parse_table>>();
 }
 
 list<expr> const & parse_table::is_accepting() const {
@@ -355,7 +355,7 @@ parse_table parse_table::add(unsigned num, transition const * ts, expr const & a
 void parse_table::for_each(buffer<transition> & ts, std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const {
     if (!is_nil(m_ptr->m_accept))
         fn(ts.size(), ts.data(), m_ptr->m_accept);
-    m_ptr->m_children.for_each([&](name const & k, std::pair<action, parse_table> const & p) {
+    m_ptr->m_children.for_each([&](name const & k, pair<action, parse_table> const & p) {
             ts.push_back(transition(k, p.first));
             p.second.for_each(ts, fn);
             ts.pop_back();

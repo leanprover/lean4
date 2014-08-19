@@ -103,7 +103,7 @@ tactic trace_tactic(char const * msg) {
     return trace_tactic(std::string(msg));
 }
 
-tactic trace_state_tactic(std::string const & fname, std::pair<unsigned, unsigned> const & pos) {
+tactic trace_state_tactic(std::string const & fname, pair<unsigned, unsigned> const & pos) {
     return tactic1([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state {
             diagnostic(env, ios) << fname << ":" << pos.first << ":" << pos.second << ": proof state\n"
                                  << s << endl;

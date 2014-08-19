@@ -24,7 +24,6 @@ using std::endl;
 using std::initializer_list;
 using std::make_pair;
 using std::ostream;
-using std::pair;
 
 namespace lean {
 

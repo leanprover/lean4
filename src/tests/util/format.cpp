@@ -41,7 +41,7 @@ static void tst1() {
                               format("c"),
                               format("d")});
 
-    std::vector<std::pair<std::string, format> > v =
+    std::vector<pair<std::string, format>> v =
         {{"f1",  f1},
          {"f2",  f2},
          {"f3",  f3},
@@ -57,7 +57,7 @@ static void tst1() {
         };
 
     std::for_each(v.begin(), v.end(),
-                  [](std::pair<std::string, format> const & p) {
+                  [](pair<std::string, format> const & p) {
                       cout << "---- " << p.first << " ----------" << endl
                            << p.second << endl
                            << "--------------------" << endl << endl;

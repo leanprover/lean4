@@ -241,7 +241,7 @@ cnstr_group get_choice_cnstr_group(constraint const & c) {
 
 /** \brief Auxiliary functional object for implementing simultaneous higher-order unification */
 struct unifier_fn {
-    typedef std::pair<constraint, unsigned> cnstr; // constraint + idx
+    typedef pair<constraint, unsigned> cnstr; // constraint + idx
     struct cnstr_cmp {
         int operator()(cnstr const & c1, cnstr const & c2) const { return c1.second < c2.second ? -1 : (c1.second == c2.second ? 0 : 1); }
     };
@@ -653,7 +653,7 @@ struct unifier_fn {
         return is_eq_cnstr(c) && is_eq_deltas(cnstr_lhs_expr(c), cnstr_rhs_expr(c));
     }
 
-    std::pair<constraint, bool> instantiate_metavars(constraint const & c) {
+    pair<constraint, bool> instantiate_metavars(constraint const & c) {
         if (is_eq_cnstr(c)) {
             auto lhs_jst = m_subst.instantiate_metavars(cnstr_lhs_expr(c));
             auto rhs_jst = m_subst.instantiate_metavars(cnstr_rhs_expr(c));

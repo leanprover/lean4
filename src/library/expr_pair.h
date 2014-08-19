@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 
 namespace lean {
-typedef std::pair<expr, expr> expr_pair;
+typedef pair<expr, expr> expr_pair;
 /** \brief Functional object for hashing expression pairs. */
 struct expr_pair_hash {
     unsigned operator()(expr_pair const & p) const { return hash(p.first.hash(), p.second.hash()); }

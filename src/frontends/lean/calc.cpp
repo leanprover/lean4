@@ -23,7 +23,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct calc_ext : public environment_extension {
-    typedef rb_map<name, std::pair<name, unsigned>, name_quick_cmp> refl_table;
+    typedef rb_map<name, pair<name, unsigned>, name_quick_cmp> refl_table;
     typedef rb_map<name_pair, std::tuple<name, name, unsigned>, name_pair_quick_cmp> trans_table;
     optional<name> m_subst;
     unsigned       m_subst_num_args;
@@ -175,7 +175,7 @@ void register_calc_cmds(cmd_table & r) {
 }
 
 typedef std::tuple<name, expr, expr>  calc_pred;
-typedef std::pair<calc_pred, expr>    calc_step;
+typedef pair<calc_pred, expr>         calc_step;
 inline name const & pred_op(calc_pred const & p) { return std::get<0>(p); }
 inline expr const & pred_lhs(calc_pred const & p) { return std::get<1>(p); }
 inline expr const & pred_rhs(calc_pred const & p) { return std::get<2>(p); }

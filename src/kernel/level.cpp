@@ -196,7 +196,7 @@ level mk_succ(level const & l) {
 }
 
 /** \brief Convert (succ^k l) into (l, k). If l is not a succ, then return (l, 0) */
-std::pair<level, unsigned> to_offset(level l) {
+pair<level, unsigned> to_offset(level l) {
     unsigned k = 0;
     while (is_succ(l)) {
         l = succ_of(l);

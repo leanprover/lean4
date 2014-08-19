@@ -711,7 +711,7 @@ public:
         The result is a pair <tt>new_f, f_type</tt>, where new_f is the new value for \c f,
         and \c f_type is its type (and a Pi-expression)
     */
-    std::pair<expr, expr> ensure_fun(expr f) {
+    pair<expr, expr> ensure_fun(expr f) {
         expr f_type = infer_type(f);
         if (!is_pi(f_type))
             f_type = whnf(f_type);

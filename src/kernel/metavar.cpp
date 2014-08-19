@@ -63,7 +63,7 @@ void substitution::assign(name const & m, level const & l, justification const &
         m_level_jsts.insert(m, j);
 }
 
-std::pair<level, justification> substitution::instantiate_metavars(level const & l, bool use_jst) {
+pair<level, justification> substitution::instantiate_metavars(level const & l, bool use_jst) {
     if (!has_meta(l))
         return mk_pair(l, justification());
     justification j;
@@ -189,7 +189,7 @@ public:
     justification const & get_justification() const { return m_jst; }
 };
 
-std::pair<expr, justification> substitution::instantiate_metavars_core(expr const & e, bool inst_local_types) {
+pair<expr, justification> substitution::instantiate_metavars_core(expr const & e, bool inst_local_types) {
     if (!has_metavar(e)) {
         return mk_pair(e, justification());
     } else {

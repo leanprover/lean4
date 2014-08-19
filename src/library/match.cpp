@@ -38,7 +38,7 @@ class match_fn : public match_context {
     name_generator                    m_ngen;
     name_map<name> *                  m_name_subst;
     match_plugin const *              m_plugin;
-    buffer<std::pair<bool, unsigned>> m_stack;
+    buffer<pair<bool, unsigned>>      m_stack;
     buffer<unsigned>                  m_scopes;
 
     void push() {

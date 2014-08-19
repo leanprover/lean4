@@ -125,7 +125,7 @@ private:
     }
 
     // Functions used inside of pretty printing
-    static bool space_upto_line_break_list_exceeded(sexpr const & s, int available, std::vector<std::pair<sexpr, unsigned>> const & todo);
+    static bool space_upto_line_break_list_exceeded(sexpr const & s, int available, std::vector<pair<sexpr, unsigned>> const & todo);
     static int space_upto_line_break(sexpr const & s, int available, bool & found);
 
     static bool is_fnil(format const & f)   {
@@ -217,7 +217,7 @@ public:
     friend std::ostream & pretty(std::ostream & out, options const & o, format const & f);
 
     friend std::ostream & operator<<(std::ostream & out, format const & f);
-    friend std::ostream & operator<<(std::ostream & out, std::pair<format const &, options const &> const & p);
+    friend std::ostream & operator<<(std::ostream & out, pair<format const &, options const &> const & p);
 
     /** \brief Return true iff f is just a name */
     friend bool is_name(format const & f) { return format::is_text(f) && ::lean::is_name(cdr(f.m_value)); }

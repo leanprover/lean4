@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <utility>
 #include <limits>
+#include "util/pair.h"
 #include "util/name_map.h"
 #include "util/name_set.h"
 #include "util/sexpr/options.h"
@@ -17,7 +18,7 @@ Author: Leonardo de Moura
 namespace lean {
 class pretty_fn {
 public:
-    typedef std::pair<format, unsigned> result;
+    typedef pair<format, unsigned> result;
 private:
     environment        m_env;
     type_checker       m_tc;

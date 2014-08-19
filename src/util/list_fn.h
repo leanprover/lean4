@@ -66,7 +66,7 @@ list<T> reverse(list<T> const & l) {
    <tt>append(l1, l2) == l</tt>
 */
 template<typename T>
-std::pair<list<T>, list<T>> split(list<T> const & l) {
+pair<list<T>, list<T>> split(list<T> const & l) {
     if (is_nil(l)) {
         return mk_pair(l, l);
     } else if (is_nil(cdr(l))) {
@@ -87,7 +87,7 @@ std::pair<list<T>, list<T>> split(list<T> const & l) {
    <tt>append(l1, reverse(l2)) == l</tt>
 */
 template<typename T>
-std::pair<list<T>, list<T>> split_reverse_second(list<T> const & l) {
+pair<list<T>, list<T>> split_reverse_second(list<T> const & l) {
     if (is_nil(l)) {
         return mk_pair(l, l);
     } else if (is_nil(cdr(l))) {

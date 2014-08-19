@@ -18,6 +18,6 @@ declaration sanitize_level_params(declaration const & d);
    \brief Return new level parameters and inductive decls equivalent to \c decls,
    but where level parameter names do not conflict with global parameter names also used in \c decls.
 */
-std::pair<level_param_names, list<inductive::inductive_decl>> sanitize_level_params(level_param_names const & ls,
-                                                                                    list<inductive::inductive_decl> const & decls);
+pair<level_param_names, list<inductive::inductive_decl>> sanitize_level_params(level_param_names const & ls,
+                                                                               list<inductive::inductive_decl> const & decls);
 }

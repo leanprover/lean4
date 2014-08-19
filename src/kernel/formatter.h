@@ -22,10 +22,10 @@ bool is_used_name(expr const & t, name const & n);
 
     \remark If preserve_type is false, then the local constant will not use binding_domain.
 */
-std::pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type = false);
+pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type = false);
 
 /** \brief Return the body of the let-expression \c l, where variable #0 is replaced by a local constant with a "fresh" name. */
-std::pair<expr, expr> let_body_fresh(expr const & l, bool preserve_type = false);
+pair<expr, expr> let_body_fresh(expr const & l, bool preserve_type = false);
 
 class formatter {
     std::function<format(expr const &, options const &)> m_fn;

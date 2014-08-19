@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <functional>
 #include <algorithm>
 #include <utility>
+#include "util/pair.h"
 #include "util/lua.h"
 #include "util/serializer.h"
 #include "util/optional.h"
@@ -171,7 +172,7 @@ inline bool independent(name const & a, name const & b) {
     return !is_prefix_of(a, b) && !is_prefix_of(b, a);
 }
 
-typedef std::pair<name, name> name_pair;
+typedef pair<name, name> name_pair;
 struct name_pair_quick_cmp {
     int operator()(name_pair const & p1, name_pair const & p2) const {
         int r = cmp(p1.first, p2.first);

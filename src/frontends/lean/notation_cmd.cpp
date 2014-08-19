@@ -81,7 +81,7 @@ using notation::mk_ext_lua_action;
 using notation::transition;
 using notation::action;
 
-static std::pair<notation_entry, optional<token_entry>> parse_mixfix_notation(parser & p, mixfix_kind k, bool overload) {
+static pair<notation_entry, optional<token_entry>> parse_mixfix_notation(parser & p, mixfix_kind k, bool overload) {
     std::string tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
     optional<unsigned> prec;
     if (p.curr_is_token(g_colon)) {

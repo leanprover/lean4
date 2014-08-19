@@ -194,7 +194,7 @@ struct space_exceeded {};
 /**
    \brief Return true iff the space upto line break fits in the available space.
 */
-bool format::space_upto_line_break_list_exceeded(sexpr const & s, int available, std::vector<std::pair<sexpr, unsigned>> const & todo) {
+bool format::space_upto_line_break_list_exceeded(sexpr const & s, int available, std::vector<pair<sexpr, unsigned>> const & todo) {
     try {
         bool found_newline = false;
         available -= space_upto_line_break(s, available, found_newline);
@@ -271,7 +271,7 @@ format operator^(format const & f1, format const & f2) {
 
 std::ostream & format::pretty(std::ostream & out, unsigned w, bool colors, format const & f) {
     unsigned pos        = 0;
-    std::vector<std::pair<sexpr, unsigned>> todo;
+    std::vector<pair<sexpr, unsigned>> todo;
     todo.push_back(std::make_pair(f.m_value, 0));
     while (!todo.empty()) {
         auto pair       = todo.back();
@@ -346,7 +346,7 @@ std::ostream & operator<<(std::ostream & out, format const & f) {
     return pretty(out, LEAN_DEFAULT_PP_WIDTH, LEAN_DEFAULT_PP_COLORS, f);
 }
 
-std::ostream & operator<<(std::ostream & out, std::pair<format const &, options const &> const & p) {
+std::ostream & operator<<(std::ostream & out, pair<format const &, options const &> const & p) {
     return pretty(out, p.second, p.first);
 }
 

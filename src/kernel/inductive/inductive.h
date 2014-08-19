@@ -22,7 +22,7 @@ public:
 };
 
 /** \brief Introduction rule */
-typedef std::pair<name, expr> intro_rule;
+typedef pair<name, expr> intro_rule;
 
 inline name const & intro_rule_name(intro_rule const & r) { return r.first; }
 inline expr const & intro_rule_type(intro_rule const & r) { return r.second; }

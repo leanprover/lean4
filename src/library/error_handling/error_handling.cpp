@@ -87,23 +87,6 @@ static void display_error(io_state_stream const & ios, pos_info_provider const *
     ios << " " << mk_pair(j.pp(fmt, p, ex.get_substitution()), opts) << endl;
 }
 
-// struct delta_pos_info_provider : public pos_info_provider {
-//     unsigned m_delta;
-//     std::string m_file_name;
-//     pos_info_provider const & m_provider;
-//     delta_pos_info_provider(unsigned d, char const * fname, pos_info_provider const & p):m_delta(d), m_file_name(fname), m_provider(p) {}
-//     virtual std::pair<unsigned, unsigned> get_pos_info(expr const & e) const {
-//         auto r = m_provider.get_pos_info(e);
-//         return mk_pair(r.first + m_delta, r.second);
-//     }
-//     virtual char const * get_file_name() const { return m_file_name.c_str(); }
-//     virtual std::pair<unsigned, unsigned> get_some_pos() const {
-//         auto r = m_provider.get_some_pos();
-//         return mk_pair(r.first + m_delta, r.second);
-//     }
-// };
-
-
 static void display_error(io_state_stream const & ios, pos_info_provider const * p, script_exception const & ex) {
     if (p) {
         char const * msg = ex.get_msg();

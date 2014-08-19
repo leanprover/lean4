@@ -116,7 +116,7 @@ using inductive::intro_rule;
 using inductive::intro_rule_name;
 using inductive::intro_rule_type;
 
-std::pair<level_param_names, list<inductive_decl>> sanitize_level_params(level_param_names const & ls, list<inductive_decl> const & decls) {
+pair<level_param_names, list<inductive_decl>> sanitize_level_params(level_param_names const & ls, list<inductive_decl> const & decls) {
     name_set globals;
     for (auto const & d : decls) {
         collect_global_levels(inductive_decl_type(d), globals);

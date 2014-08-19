@@ -941,26 +941,28 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
             save_identifier_info(p, id);
             return r;
         }
-    } else {
-        lean_assert(!id.is_atomic());
-        name new_id = remove_root_prefix(id);
+    }
+
+    for (name const & ns : get_namespaces(m_env)) {
+        auto new_id = ns + id;
+        if (!ns.is_anonymous() && m_env.find(new_id)) {
+            auto r = save_pos(mk_constant(new_id, ls), p);
+            save_type_info(r);
+            add_ref_index(new_id, p);
+            save_identifier_info(p, new_id);
+            return r;
+        }
+    }
+
+    if (!id.is_atomic()) {
+        name new_id = id;
+        new_id = remove_root_prefix(new_id);
         if (m_env.find(new_id)) {
             auto r = save_pos(mk_constant(new_id, ls), p);
             save_type_info(r);
             add_ref_index(new_id, p);
             save_identifier_info(p, new_id);
             return r;
-        } else {
-            for (name const & ns : get_namespaces(m_env)) {
-                auto new_id = ns + id;
-                if (m_env.find(new_id)) {
-                    auto r = save_pos(mk_constant(new_id, ls), p);
-                    save_type_info(r);
-                    add_ref_index(new_id, p);
-                    save_identifier_info(p, new_id);
-                    return r;
-                }
-            }
         }
     }
 

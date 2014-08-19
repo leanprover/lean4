@@ -11,7 +11,7 @@ C : Type
 t4.lean:25:6: error: unknown identifier 'A'
 R : Type → Prop
 λ (x y : N), x : N → N → N
-[choice N N]
+N
 N
 N
 M

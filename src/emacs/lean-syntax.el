@@ -19,17 +19,16 @@
   "lean keywords")
 
 (defconst lean-syntax-table
-  (let ((st (make-syntax-table (standard-syntax-table))))
+  (let ((st (make-syntax-table)))
     ;; Matching parens
-    (modify-syntax-entry ?\( "()" st)
-    (modify-syntax-entry ?\) ")(" st)
     (modify-syntax-entry ?\[ "(]" st)
     (modify-syntax-entry ?\] ")[" st)
+    (modify-syntax-entry ?\{ "(}" st)
+    (modify-syntax-entry ?\} "){" st)
+    (modify-syntax-entry ?\( "() 1nb" st)
+    (modify-syntax-entry ?\) ")( 4nb" st)
 
-    ;; Matching {}, but with nested comments
-    (modify-syntax-entry ?\{ "(} 1bn" st)
-    (modify-syntax-entry ?\} "){ 4bn" st)
-    (modify-syntax-entry ?\- "_ 123" st)
+    (modify-syntax-entry ?- "_ 123" st)
     (modify-syntax-entry ?\n ">" st)
 
     ;; ' and _ can be names
@@ -44,17 +43,13 @@
     (modify-syntax-entry ?\  " " st)
     (modify-syntax-entry ?\t " " st)
 
-    ;; ;; Strings
+    ;; Strings
     (modify-syntax-entry ?\" "\"" st)
     (modify-syntax-entry ?\\ "/" st)
     st))
 
 (defconst lean-font-lock-defaults
-  `((;; Comments
-     (,(rx (group "--") (group (0+ ".")))
-      (1 font-lock-comment-delimiter-face)
-      (2 font-lock-comment-face))
-     ;; Types
+  `((;; Types
      (,(rx symbol-start (or "bool" "int" "nat" "real" "Prop" "Type" "ℕ" "ℤ") symbol-end) . 'font-lock-type-face)
      ;; Keywords
      (,(rx symbol-start (or "calc" "have" "obtains" "show" "by" "in" "let" "forall" "fun"
@@ -71,12 +66,12 @@
       . 'font-lock-constant-face)
      ;; universe/inductive/theorem... "names"
      (,(rx symbol-start
-            (group (or "universe" "inductive" "theorem" "axiom" "lemma" "hypothesis"
-                       "abbreviation" "definition" "variable" "parameter"))
-            symbol-end
-            (zero-or-more (or whitespace "{" "["))
-            (group (zero-or-more (not whitespace))))
-        (2 'font-lock-function-name-face))
+           (group (or "universe" "inductive" "theorem" "axiom" "lemma" "hypothesis"
+                      "abbreviation" "definition" "variable" "parameter"))
+           symbol-end
+           (zero-or-more (or whitespace "{" "["))
+           (group (zero-or-more (not whitespace))))
+      (2 'font-lock-function-name-face))
      ("\\(set_opaque\\|set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)

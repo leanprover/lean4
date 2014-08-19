@@ -68,6 +68,9 @@
   :abbrev-table lean-abbrev-table
   :group 'lean
   (set (make-local-variable 'comment-start) "--")
+  (set (make-local-variable 'comment-end) "")
+  (set (make-local-variable 'comment-padding) 1)
+  (set (make-local-variable 'comment-use-syntax) t)
   (set (make-local-variable 'font-lock-defaults) lean-font-lock-defaults)
   (set (make-local-variable 'indent-tabs-mode) nil)
   (set-input-method "Lean")

@@ -1635,6 +1635,13 @@ struct unifier_fn {
         return modified ? mk_app(m, margs) : lhs;
     }
 
+    /** \brief Return true if all arguments of lhs are local constants */
+    bool all_local(expr const & lhs) {
+        buffer<expr> margs;
+        get_app_args(lhs, margs);
+        return std::all_of(margs.begin(), margs.end(), [&](expr const & e) { return is_local(e); });
+    }
+
     /** \brief Process a flex rigid constraint */
     bool process_flex_rigid(expr lhs, expr const & rhs, justification const & j, bool relax) {
         lean_assert(is_meta(lhs));
@@ -1656,7 +1663,7 @@ struct unifier_fn {
         buffer<constraints> alts;
         process_flex_rigid_core(lhs, rhs, j, relax, alts);
         append_auxiliary_constraints(alts, to_list(aux.begin(), aux.end()));
-        if (m_expensive) {
+        if (!all_local(lhs)) {
             expr rhs_whnf = whnf(rhs, j, relax, aux);
             if (rhs_whnf != rhs) {
                 buffer<constraints> alts2;

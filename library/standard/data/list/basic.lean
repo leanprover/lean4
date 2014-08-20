@@ -221,9 +221,6 @@ list_induction_on s
 theorem mem_concat (x : T) (s t : list T) : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t
 := iff_intro (mem_concat_imp_or _ _ _) (mem_or_imp_concat _ _ _)
 
-section
-set_option unifier.expensive true -- TODO(Leo): remove after we add delta-split step
-#erase_cache mem_split
 theorem mem_split (x : T) (l : list T) : x ∈ l → ∃s t : list T, l = s ++ (x :: t) :=
 list_induction_on l
   (take H : x ∈ nil, false_elim _ (iff_elim_left (mem_nil x) H))
@@ -240,7 +237,6 @@ list_induction_on l
         have H4 : y :: l = (y :: s) ++ (x :: t),
           from subst H3 (refl (y :: l)),
         exists_intro _ (exists_intro _ H4)))
-end
 
 -- Find
 -- ----

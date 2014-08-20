@@ -71,21 +71,6 @@ expr mk_pi_for(name_generator & ngen, expr const & meta) {
     return mk_pi(ngen.next(), A, B);
 }
 
-type_checker::scope::scope(type_checker & tc):
-    m_tc(tc), m_keep(false) {
-    m_tc.push();
-}
-type_checker::scope::~scope() {
-    if (m_keep)
-        m_tc.keep();
-    else
-        m_tc.pop();
-}
-
-void type_checker::scope::keep() {
-    m_keep = true;
-}
-
 optional<expr> type_checker::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
     return macro_def(m).expand(m, m_tc_ctx);
@@ -100,23 +85,8 @@ pair<expr, expr> type_checker::open_binding_body(expr const & e) {
     return mk_pair(instantiate(binding_body(e), local), local);
 }
 
-/** \brief Add given constraint using m_add_cnstr_fn. */
-void type_checker::add_cnstr(constraint const & c) {
-    m_cs.push_back(c);
-}
-
 constraint type_checker::mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j) {
     return ::lean::mk_eq_cnstr(lhs, rhs, j, static_cast<bool>(m_conv->get_module_idx()));
-}
-
-optional<constraint> type_checker::next_cnstr() {
-    if (m_cs_qhead < m_cs.size()) {
-        constraint c = m_cs[m_cs_qhead];
-        m_cs_qhead++;
-        return optional<constraint>(c);
-    } else {
-        return optional<constraint>();
-    }
 }
 
 /**
@@ -128,39 +98,37 @@ optional<constraint> type_checker::next_cnstr() {
    \remark \c s is used to extract position (line number information) when an
    error message is produced
 */
-expr type_checker::ensure_sort_core(expr e, expr const & s) {
+pair<expr, constraint_seq> type_checker::ensure_sort_core(expr e, expr const & s) {
     if (is_sort(e))
-        return e;
-    e = whnf(e);
-    if (is_sort(e)) {
-        return e;
-    } else if (is_meta(e)) {
+        return to_ecs(e);
+    auto ecs = whnf(e);
+    if (is_sort(ecs.first)) {
+        return ecs;
+    } else if (is_meta(ecs.first)) {
         expr r = mk_sort(mk_meta_univ(m_gen.next()));
         justification j = mk_justification(s,
                                            [=](formatter const & fmt, substitution const & subst) {
                                                return pp_type_expected(fmt, substitution(subst).instantiate(s));
                                            });
-        add_cnstr(mk_eq_cnstr(e, r, j));
-        return r;
+        return to_ecs(r, mk_eq_cnstr(ecs.first, r, j), ecs.second);
     } else {
         throw_kernel_exception(m_env, s, [=](formatter const & fmt) { return pp_type_expected(fmt, s); });
     }
 }
 
 /** \brief Similar to \c ensure_sort, but makes sure \c e "is" a Pi. */
-expr type_checker::ensure_pi_core(expr e, expr const & s) {
+pair<expr, constraint_seq> type_checker::ensure_pi_core(expr e, expr const & s) {
     if (is_pi(e))
-        return e;
-    e = whnf(e);
-    if (is_pi(e)) {
-        return e;
-    } else if (is_meta(e)) {
-        expr r             = mk_pi_for(m_gen, e);
+        return to_ecs(e);
+    auto ecs = whnf(e);
+    if (is_pi(ecs.first)) {
+        return ecs;
+    } else if (is_meta(ecs.first)) {
+        expr r             = mk_pi_for(m_gen, ecs.first);
         justification j    = mk_justification(s, [=](formatter const & fmt, substitution const & subst) {
                 return pp_function_expected(fmt, substitution(subst).instantiate(s));
             });
-        add_cnstr(mk_eq_cnstr(e, r, j));
-        return r;
+        return to_ecs(r, mk_eq_cnstr(ecs.first, r, j), ecs.second);
     } else {
         throw_kernel_exception(m_env, s, [=](formatter const & fmt) { return pp_function_expected(fmt, s); });
     }
@@ -217,26 +185,34 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
     return instantiate_type_univ_params(d, ls);
 }
 
-expr type_checker::infer_macro(expr const & e, bool infer_only) {
+pair<expr, constraint_seq> type_checker::infer_macro(expr const & e, bool infer_only) {
     buffer<expr> arg_types;
-    for (unsigned i = 0; i < macro_num_args(e); i++)
-        arg_types.push_back(infer_type_core(macro_arg(e, i), infer_only));
-    expr r = macro_def(e).get_type(e, arg_types.data(), m_tc_ctx);
-    if (!infer_only && macro_def(e).trust_level() >= m_env.trust_lvl()) {
+    constraint_seq cs;
+    for (unsigned i = 0; i < macro_num_args(e); i++) {
+        arg_types.push_back(infer_type_core(macro_arg(e, i), infer_only, cs));
+    }
+    auto def = macro_def(e);
+    expr t   = def.get_type(e, arg_types.data(), m_tc_ctx);
+    if (!infer_only && def.trust_level() >= m_env.trust_lvl()) {
         optional<expr> m = expand_macro(e);
         if (!m)
             throw_kernel_exception(m_env, "failed to expand macro", e);
-        expr t = infer_type_core(*m, infer_only);
+        pair<expr, constraint_seq> tmcs = infer_type_core(*m, infer_only);
+        cs = cs + tmcs.second;
         simple_delayed_justification jst([=]() { return mk_macro_jst(e); });
-        if (!is_def_eq(r, t, jst))
+        pair<bool, constraint_seq> bcs  = is_def_eq(t, tmcs.first, jst);
+        if (!bcs.first)
             throw_kernel_exception(m_env, g_macro_error_msg, e);
+        return mk_pair(t, bcs.second + cs);
+    } else {
+        return mk_pair(t, cs);
     }
-    return r;
 }
 
-expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
+pair<expr, constraint_seq> type_checker::infer_lambda(expr const & _e, bool infer_only) {
     buffer<expr> es, ds, ls;
     expr e = _e;
+    constraint_seq cs;
     while (is_lambda(e)) {
         es.push_back(e);
         ds.push_back(binding_domain(e));
@@ -244,74 +220,99 @@ expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
         expr l = mk_local(m_gen.next(), binding_name(e), d, binding_info(e));
         ls.push_back(l);
         if (!infer_only) {
-            expr t = infer_type_core(d, infer_only);
-            ensure_sort_core(t, d);
+            pair<expr, constraint_seq> dtcs = infer_type_core(d, infer_only);
+            pair<expr, constraint_seq> scs  = ensure_sort_core(dtcs.first, d);
+            cs = cs + scs.second + dtcs.second;
         }
         e = binding_body(e);
     }
-    expr r = infer_type_core(instantiate_rev(e, ls.size(), ls.data()), infer_only);
-    r = abstract_locals(r, ls.size(), ls.data());
+    pair<expr, constraint_seq> rcs = infer_type_core(instantiate_rev(e, ls.size(), ls.data()), infer_only);
+    cs = cs + rcs.second;
+    expr r = abstract_locals(rcs.first, ls.size(), ls.data());
     unsigned i = es.size();
     while (i > 0) {
         --i;
         r = mk_pi(binding_name(es[i]), ds[i], r, binding_info(es[i]));
     }
-    return r;
+    return mk_pair(r, cs);
 }
 
-expr type_checker::infer_pi(expr const & _e, bool infer_only) {
+pair<expr, constraint_seq> type_checker::infer_pi(expr const & _e, bool infer_only) {
     buffer<expr>  ls;
     buffer<level> us;
     expr e = _e;
+    constraint_seq cs;
     while (is_pi(e)) {
-        expr d  = instantiate_rev(binding_domain(e), ls.size(), ls.data());
-        expr t1 = ensure_sort_core(infer_type_core(d, infer_only), d);
+        expr d                          = instantiate_rev(binding_domain(e), ls.size(), ls.data());
+        pair<expr, constraint_seq> dtcs = infer_type_core(d, infer_only);
+        pair<expr, constraint_seq> scs  = ensure_sort_core(dtcs.first, d);
+        cs = cs + scs.second + dtcs.second;
+        expr t1 = scs.first;
         us.push_back(sort_level(t1));
         expr l  = mk_local(m_gen.next(), binding_name(e), d, binding_info(e));
         ls.push_back(l);
         e = binding_body(e);
     }
     e = instantiate_rev(e, ls.size(), ls.data());
-    level r = sort_level(ensure_sort_core(infer_type_core(e, infer_only), e));
+    pair<expr, constraint_seq> etcs = infer_type_core(e, infer_only);
+    pair<expr, constraint_seq> scs  = ensure_sort_core(etcs.first, e);
+    cs = cs + scs.second + etcs.second;
+    level r = sort_level(scs.first);
     unsigned i = ls.size();
     while (i > 0) {
         --i;
         r = m_env.impredicative() ? mk_imax(us[i], r) : mk_max(us[i], r);
     }
-    return mk_sort(r);
+    return mk_pair(mk_sort(r), cs);
 }
 
-expr type_checker::infer_app(expr const & e, bool infer_only) {
+pair<expr, constraint_seq> type_checker::infer_app(expr const & e, bool infer_only) {
     if (!infer_only) {
-        expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), e);
-        expr a_type = infer_type_core(app_arg(e), infer_only);
+        pair<expr, constraint_seq> ftcs = infer_type_core(app_fn(e), infer_only);
+        pair<expr, constraint_seq> pics = ensure_pi_core(ftcs.first, e);
+        expr f_type = pics.first;
+        pair<expr, constraint_seq> acs  = infer_type_core(app_arg(e), infer_only);
+        expr a_type = acs.first;
         app_delayed_justification jst(e, app_arg(e), f_type, a_type);
-        if (!is_def_eq(a_type, binding_domain(f_type), jst)) {
+        expr d_type = binding_domain(pics.first);
+        pair<bool, constraint_seq> dcs  = is_def_eq(a_type, d_type, jst);
+        if (!dcs.first) {
             throw_kernel_exception(m_env, e,
                                    [=](formatter const & fmt) {
-                                       return pp_app_type_mismatch(fmt, e, app_arg(e), binding_domain(f_type), a_type);
+                                       return pp_app_type_mismatch(fmt, e, app_arg(e), d_type, a_type);
                                    });
         }
-        return instantiate(binding_body(f_type), app_arg(e));
+        return mk_pair(instantiate(binding_body(pics.first), app_arg(e)),
+                       pics.second + ftcs.second + dcs.second + acs.second);
     } else {
         buffer<expr> args;
         expr const & f = get_app_args(e, args);
-        expr f_type    = infer_type_core(f, true);
-        unsigned j     = 0;
-        unsigned nargs = args.size();
+        pair<expr, constraint_seq> ftcs = infer_type_core(f, true);
+        expr f_type       = ftcs.first;
+        constraint_seq cs = ftcs.second;
+        unsigned j        = 0;
+        unsigned nargs    = args.size();
         for (unsigned i = 0; i < nargs; i++) {
             if (is_pi(f_type)) {
                 f_type = binding_body(f_type);
             } else {
                 f_type = instantiate_rev(f_type, i-j, args.data()+j);
-                f_type = ensure_pi_core(f_type, e);
+                pair<expr, constraint_seq> pics = ensure_pi_core(f_type, e);
+                f_type = pics.first;
+                cs     = pics.second + cs;
                 f_type = binding_body(f_type);
                 j = i;
             }
         }
         expr r = instantiate_rev(f_type, nargs-j, args.data()+j);
-        return r;
+        return mk_pair(r, cs);
     }
+}
+
+expr type_checker::infer_type_core(expr const & e, bool infer_only, constraint_seq & cs) {
+    auto r = infer_type_core(e, infer_only);
+    cs = cs + r.second;
+    return r.first;
 }
 
 /**
@@ -319,7 +320,7 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
 
    \pre closed(e)
 */
-expr type_checker::infer_type_core(expr const & e, bool infer_only) {
+pair<expr, constraint_seq> type_checker::infer_type_core(expr const & e, bool infer_only) {
     if (is_var(e))
         throw_kernel_exception(m_env, "type checker does not support free variables, replace them with local constants before invoking it", e);
 
@@ -332,20 +333,20 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
             return it->second;
     }
 
-    expr r;
+    pair<expr, constraint_seq> r;
     switch (e.kind()) {
-    case expr_kind::Local: case expr_kind::Meta:  r = mlocal_type(e);  break;
+    case expr_kind::Local: case expr_kind::Meta:  r.first = mlocal_type(e);  break;
     case expr_kind::Var:
         lean_unreachable();  // LCOV_EXCL_LINE
     case expr_kind::Sort:
         if (!infer_only) check_level(sort_level(e), e);
-        r = mk_sort(mk_succ(sort_level(e)));
+        r.first = mk_sort(mk_succ(sort_level(e)));
         break;
-    case expr_kind::Constant:  r = infer_constant(e, infer_only); break;
-    case expr_kind::Macro:     r = infer_macro(e, infer_only);    break;
-    case expr_kind::Lambda:    r = infer_lambda(e, infer_only);   break;
-    case expr_kind::Pi:        r = infer_pi(e, infer_only);       break;
-    case expr_kind::App:       r = infer_app(e, infer_only);      break;
+    case expr_kind::Constant:  r.first = infer_constant(e, infer_only); break;
+    case expr_kind::Macro:     r = infer_macro(e, infer_only);          break;
+    case expr_kind::Lambda:    r = infer_lambda(e, infer_only);         break;
+    case expr_kind::Pi:        r = infer_pi(e, infer_only);             break;
+    case expr_kind::App:       r = infer_app(e, infer_only);            break;
     }
 
     if (m_memoize)
@@ -354,151 +355,63 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
     return r;
 }
 
-expr type_checker::infer_type(expr const & e) {
-    scope mk_scope(*this);
-    expr r = infer_type_core(e, true);
-    mk_scope.keep();
-    return r;
+pair<expr, constraint_seq> type_checker::infer_type(expr const & e) {
+    return infer_type_core(e, true);
 }
 
-void type_checker::copy_constraints(unsigned qhead, buffer<constraint> & new_cnstrs) {
-    for (unsigned i = qhead; i < m_cs.size(); i++)
-        new_cnstrs.push_back(m_cs[i]);
-}
-
-expr type_checker::infer(expr const & e, buffer<constraint> & new_cnstrs) {
-    scope mk_scope(*this);
-    unsigned cs_qhead = m_cs.size();
-    expr r = infer_type_core(e, true);
-    copy_constraints(cs_qhead, new_cnstrs);
-    return r;
-}
-
-expr type_checker::check(expr const & e, level_param_names const & ps) {
-    scope mk_scope(*this);
+pair<expr, constraint_seq> type_checker::check(expr const & e, level_param_names const & ps) {
     flet<level_param_names const *> updt(m_params, &ps);
-    expr r = infer_type_core(e, false);
-    mk_scope.keep();
-    return r;
+    return infer_type_core(e, false);
 }
 
-expr type_checker::check(expr const & e, buffer<constraint> & new_cnstrs) {
-    scope mk_scope(*this);
-    unsigned cs_qhead = m_cs.size();
-    expr r = infer_type_core(e, false);
-    copy_constraints(cs_qhead, new_cnstrs);
-    return r;
+pair<expr, constraint_seq> type_checker::ensure_sort(expr const & e, expr const & s) {
+    return ensure_sort_core(e, s);
 }
 
-expr type_checker::ensure_sort(expr const & e, expr const & s) {
-    scope mk_scope(*this);
-    expr r = ensure_sort_core(e, s);
-    mk_scope.keep();
-    return r;
-}
-
-expr type_checker::ensure_pi(expr const & e, expr const & s) {
-    scope mk_scope(*this);
-    expr r = ensure_pi_core(e, s);
-    mk_scope.keep();
-    return r;
+pair<expr, constraint_seq> type_checker::ensure_pi(expr const & e, expr const & s) {
+    return ensure_pi_core(e, s);
 }
 
 /** \brief Return true iff \c t and \c s are definitionally equal */
-bool type_checker::is_def_eq(expr const & t, expr const & s, delayed_justification & jst) {
-    scope mk_scope(*this);
-    bool r = m_conv->is_def_eq(t, s, *this, jst);
-    if (r) mk_scope.keep();
-    return r;
+pair<bool, constraint_seq> type_checker::is_def_eq(expr const & t, expr const & s, delayed_justification & jst) {
+    return m_conv->is_def_eq(t, s, *this, jst);
 }
 
-bool type_checker::is_def_eq(expr const & t, expr const & s) {
-    scope mk_scope(*this);
-    bool r = m_conv->is_def_eq(t, s, *this);
-    if (r) mk_scope.keep();
-    return r;
+pair<bool, constraint_seq> type_checker::is_def_eq(expr const & t, expr const & s) {
+    return m_conv->is_def_eq(t, s, *this);
 }
 
-bool type_checker::is_def_eq(expr const & t, expr const & s, justification const & j) {
+pair<bool, constraint_seq> type_checker::is_def_eq(expr const & t, expr const & s, justification const & j) {
     as_delayed_justification djst(j);
     return is_def_eq(t, s, djst);
 }
 
-bool type_checker::is_def_eq(expr const & t, expr const & s, justification const & j, buffer<constraint> & new_cnstrs) {
-    unsigned cs_qhead = m_cs.size();
-    scope mk_scope(*this);
+pair<bool, constraint_seq> type_checker::is_def_eq_types(expr const & t, expr const & s, justification const & j) {
+    auto tcs1 = infer_type_core(t, true);
+    auto tcs2 = infer_type_core(s, true);
     as_delayed_justification djst(j);
-    if (m_conv->is_def_eq(t, s, *this, djst)) {
-        copy_constraints(cs_qhead, new_cnstrs);
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool type_checker::is_def_eq_types(expr const & t, expr const & s, justification const & j, buffer<constraint> & new_cnstrs) {
-    scope mk_scope(*this);
-    unsigned cs_qhead = m_cs.size();
-    expr r1 = infer_type_core(t, true);
-    expr r2 = infer_type_core(s, true);
-    as_delayed_justification djst(j);
-    if (m_conv->is_def_eq(r1, r2, *this, djst)) {
-        copy_constraints(cs_qhead, new_cnstrs);
-        return true;
-    } else {
-        return false;
-    }
+    auto bcs  = m_conv->is_def_eq(tcs1.first, tcs2.first, *this, djst);
+    return mk_pair(bcs.first, bcs.first ? bcs.second + tcs1.second + tcs2.second : constraint_seq());
 }
 
 /** \brief Return true iff \c e is a proposition */
-bool type_checker::is_prop(expr const & e) {
-    scope mk_scope(*this);
-    bool r = whnf(infer_type(e)) == Prop;
-    if (r) mk_scope.keep();
-    return r;
+pair<bool, constraint_seq> type_checker::is_prop(expr const & e) {
+    auto tcs  = infer_type(e);
+    auto wtcs = whnf(tcs.first);
+    bool r    = wtcs.first == Prop;
+    if (r)
+        return mk_pair(true, tcs.second + wtcs.second);
+    else
+        return mk_pair(false, constraint_seq());
 }
 
-expr type_checker::whnf(expr const & t) {
+pair<expr, constraint_seq> type_checker::whnf(expr const & t) {
     return m_conv->whnf(t, *this);
-}
-
-expr type_checker::whnf(expr const & t, buffer<constraint> & new_cnstrs) {
-    scope mk_scope(*this);
-    unsigned cs_qhead = m_cs.size();
-    expr r  = m_conv->whnf(t, *this);
-    copy_constraints(cs_qhead, new_cnstrs);
-    return r;
-}
-
-void type_checker::push() {
-    m_infer_type_cache[0].push();
-    m_infer_type_cache[1].push();
-    m_trail.emplace_back(m_cs.size(), m_cs_qhead);
-}
-
-void type_checker::pop() {
-    m_infer_type_cache[0].pop();
-    m_infer_type_cache[1].pop();
-    m_cs.shrink(m_trail.back().first);
-    m_cs_qhead = m_trail.back().second;
-    m_trail.pop_back();
-}
-
-void type_checker::keep() {
-    m_infer_type_cache[0].keep();
-    m_infer_type_cache[1].keep();
-    m_trail.pop_back();
-}
-
-unsigned type_checker::num_scopes() const {
-    lean_assert(m_infer_type_cache[0].num_scopes() == m_infer_type_cache[1].num_scopes());
-    return m_infer_type_cache[0].num_scopes();
 }
 
 type_checker::type_checker(environment const & env, name_generator const & g, std::unique_ptr<converter> && conv, bool memoize):
     m_env(env), m_gen(g), m_conv(std::move(conv)), m_tc_ctx(*this),
     m_memoize(memoize), m_params(nullptr) {
-    m_cs_qhead = 0;
 }
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
@@ -547,15 +460,15 @@ certified_declaration check(environment const & env, declaration const & d, name
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
     type_checker checker1(env, g, mk_default_converter(env, optional<module_idx>(), memoize, extra_opaque));
-    expr sort = checker1.check(d.get_type(), d.get_univ_params());
+    expr sort = checker1.check(d.get_type(), d.get_univ_params()).first;
     checker1.ensure_sort(sort, d.get_type());
     if (d.is_definition()) {
         optional<module_idx> midx;
         if (d.is_opaque())
             midx = optional<module_idx>(d.get_module_idx());
         type_checker checker2(env, g, mk_default_converter(env, midx, memoize, extra_opaque));
-        expr val_type = checker2.check(d.get_value(), d.get_univ_params());
-        if (!checker2.is_def_eq(val_type, d.get_type())) {
+        expr val_type = checker2.check(d.get_value(), d.get_univ_params()).first;
+        if (!checker2.is_def_eq(val_type, d.get_type()).first) {
             throw_kernel_exception(env, d.get_value(), [=](formatter const & fmt) {
                     return pp_def_type_mismatch(fmt, d.get_name(), d.get_type(), val_type);
                 });

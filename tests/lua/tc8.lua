@@ -8,17 +8,16 @@ local a = Const("a")
 local m1   = mk_metavar("m1", mk_metavar("m2", mk_sort(mk_meta_univ("l"))))
 local ngen = name_generator("tst")
 local tc   = type_checker(env, ngen)
-assert(tc:num_scopes() == 0)
-tc:push()
-assert(tc:num_scopes() == 1)
-print(tc:check(f(m1)))
-assert(tc:next_cnstr())
-assert(not tc:next_cnstr())
-print(tc:check(f(f(m1))))
-assert(not tc:next_cnstr()) -- New constraint is not generated
-tc:pop() -- forget that we checked f(m1)
-print(tc:check(f(m1)))
--- constraint is generated again
-assert(tc:next_cnstr())
-assert(not tc:next_cnstr())
-check_error(function() tc:pop() end)
+
+function test_check(e)
+   t, cs = tc:check(e)
+   print(tostring(e) .. " : " .. tostring(t))
+   cs = cs:linearize()
+   for i = 1, #cs do
+      print(" >> " .. tostring(cs[i]))
+   end
+end
+
+test_check(f(m1))
+test_check(f(f(m1)))
+test_check(f(m1))

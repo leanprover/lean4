@@ -20,11 +20,11 @@ bool has_num_decls(environment const & env) {
     try {
         type_checker tc(env);
         return
-            tc.infer(g_zero) == g_num &&
-            tc.infer(g_pos)  == mk_arrow(g_pos_num, g_num) &&
-            tc.infer(g_one)  == g_pos_num &&
-            tc.infer(g_bit0) == mk_arrow(g_pos_num, g_pos_num) &&
-            tc.infer(g_bit1) == mk_arrow(g_pos_num, g_pos_num);
+            tc.infer(g_zero).first == g_num &&
+            tc.infer(g_pos).first  == mk_arrow(g_pos_num, g_num) &&
+            tc.infer(g_one).first  == g_pos_num &&
+            tc.infer(g_bit0).first == mk_arrow(g_pos_num, g_pos_num) &&
+            tc.infer(g_bit1).first == mk_arrow(g_pos_num, g_pos_num);
     } catch (...) {
         return false;
     }

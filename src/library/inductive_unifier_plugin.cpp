@@ -45,7 +45,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
     */
     lazy_list<constraints> add_elim_meta_cnstrs(type_checker & tc, name_generator ngen, inductive::inductive_decl const & decl,
                                                 expr const & elim, buffer<expr> & args, expr const & t, justification const & j,
-                                                buffer<constraint> & tc_cnstr_buffer, bool relax) const {
+                                                constraint_seq cs, bool relax) const {
         lean_assert(is_constant(elim));
         environment const & env = tc.env();
         levels elim_lvls       = const_levels(elim);
@@ -55,12 +55,10 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
         lean_assert(has_expr_metavar_strict(meta));
         buffer<expr> margs;
         expr const & m     = get_app_args(meta, margs);
-        expr mtype = tc.infer(m, tc_cnstr_buffer);
-        lean_assert(!tc.next_cnstr());
-        unsigned buff_sz = tc_cnstr_buffer.size();
+        expr mtype = tc.infer(m, cs);
         buffer<constraints> alts;
         for (auto const & intro : inductive::inductive_decl_intros(decl)) {
-            tc_cnstr_buffer.shrink(buff_sz);
+            constraint_seq cs_intro = cs;
             name const & intro_name = inductive::intro_rule_name(intro);
             declaration intro_decl  = env.get(intro_name);
             levels intro_lvls;
@@ -72,33 +70,30 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
             }
             expr intro_fn   = mk_constant(inductive::intro_rule_name(intro), intro_lvls);
             expr hint       = intro_fn;
-            expr intro_type = tc.whnf(inductive::intro_rule_type(intro), tc_cnstr_buffer);
+            expr intro_type = tc.whnf(inductive::intro_rule_type(intro), cs_intro);
             while (is_pi(intro_type)) {
                 hint = mk_app(hint, mk_app(mk_aux_metavar_for(ngen, mtype), margs));
-                intro_type = tc.whnf(binding_body(intro_type), tc_cnstr_buffer);
-                lean_assert(!tc.next_cnstr());
+                intro_type = tc.whnf(binding_body(intro_type), cs_intro);
             }
             constraint c1      = mk_eq_cnstr(meta, hint, j, relax);
             args[major_idx]    = hint;
-            lean_assert(!tc.next_cnstr());
-            expr reduce_elim   = tc.whnf(mk_app(elim, args), tc_cnstr_buffer);
-            lean_assert(!tc.next_cnstr());
+            expr reduce_elim   = tc.whnf(mk_app(elim, args), cs_intro);
             constraint c2      = mk_eq_cnstr(reduce_elim, t, j, relax);
-            list<constraint> tc_cnstrs = to_list(tc_cnstr_buffer.begin(), tc_cnstr_buffer.end());
-            alts.push_back(cons(c1, cons(c2, tc_cnstrs)));
+            cs_intro = constraint_seq(c1) + constraint_seq(c2) + cs_intro;
+            buffer<constraint> cs_buffer;
+            cs_intro.linearize(cs_buffer);
+            alts.push_back(to_list(cs_buffer.begin(), cs_buffer.end()));
         }
-        lean_assert(!tc.next_cnstr());
         return to_lazy(to_list(alts.begin(), alts.end()));
     }
 
     lazy_list<constraints> process_elim_meta_core(type_checker & tc, name_generator const & ngen,
                                                   expr const & lhs, expr const & rhs, justification const & j, bool relax) const {
         lean_assert(inductive::is_elim_meta_app(tc, lhs));
-        buffer<constraint> tc_cnstr_buffer;
-        lean_assert(!tc.next_cnstr());
-        if (!tc.is_def_eq_types(lhs, rhs, j, tc_cnstr_buffer))
+        auto dcs = tc.is_def_eq_types(lhs, rhs, j);
+        if (!dcs.first)
             return lazy_list<constraints>();
-        lean_assert(!tc.next_cnstr());
+        constraint_seq cs = dcs.second;
         buffer<expr> args;
         expr const & elim = get_app_args(lhs, args);
         environment const & env = tc.env();
@@ -106,7 +101,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
         auto decls   = *inductive::is_inductive_decl(env, it_name);
         for (auto const & d : std::get<2>(decls)) {
             if (inductive::inductive_decl_name(d) == it_name)
-                return add_elim_meta_cnstrs(tc, ngen, d, elim, args, rhs, j, tc_cnstr_buffer, relax);
+                return add_elim_meta_cnstrs(tc, ngen, d, elim, args, rhs, j, cs, relax);
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }

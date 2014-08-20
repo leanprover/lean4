@@ -347,10 +347,10 @@ bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buff
 match_plugin mk_whnf_match_plugin(std::shared_ptr<type_checker> const & tc) {
     return [=](expr const & p, expr const & t, match_context & ctx) { // NOLINT
         try {
-            buffer<constraint> cs;
+            constraint_seq cs;
             expr p1 = tc->whnf(p, cs);
             expr t1 = tc->whnf(t, cs);
-            return cs.empty() && (p1 != p || t1 != t) && ctx.match(p1, t1);
+            return !cs && (p1 != p || t1 != t) && ctx.match(p1, t1);
         } catch (exception&) {
             return false;
         }

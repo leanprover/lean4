@@ -248,9 +248,11 @@ tactic exact_tactic(expr const & _e) {
             goals const & gs    = s.get_goals();
             goal const & g      = head(gs);
             expr e              = subst.instantiate(_e);
-            expr e_t            = subst.instantiate(tc.infer(e));
+            auto e_t_cs         = tc.infer(e);
+            expr e_t            = subst.instantiate(e_t_cs.first);
             expr t              = subst.instantiate(g.get_type());
-            if (tc.is_def_eq(e_t, t) && !tc.next_cnstr()) {
+            auto dcs            = tc.is_def_eq(e_t, t);
+            if (dcs.first && !dcs.second && !e_t_cs.second) {
                 expr new_p = g.abstract(e);
                 check_has_no_local(new_p, _e, "exact");
                 subst.assign(g.get_name(), new_p);

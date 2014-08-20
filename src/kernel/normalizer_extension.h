@@ -17,13 +17,18 @@ namespace lean {
 class normalizer_extension {
 public:
     virtual ~normalizer_extension() {}
-    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const = 0;
+    virtual optional<pair<expr, constraint_seq>> operator()(expr const & e, extension_context & ctx) const = 0;
     /** \brief Return true if the extension may reduce \c e after metavariables are instantiated. */
     virtual bool may_reduce_later(expr const & e, extension_context & ctx) const = 0;
     /** \brief Return true iff the extension supports a feature with the given name,
         this method is only used for sanity checking. */
     virtual bool supports(name const & feature) const = 0;
 };
+
+inline optional<pair<expr, constraint_seq>> none_ecs() { return optional<pair<expr, constraint_seq>>(); }
+inline optional<pair<expr, constraint_seq>> some_ecs(expr const & e, constraint_seq const & cs) {
+    return optional<pair<expr, constraint_seq>>(e, cs);
+}
 
 /** \brief Create the do-nothing normalizer extension */
 std::unique_ptr<normalizer_extension> mk_id_normalizer_extension();

@@ -239,7 +239,7 @@ struct structure_cmd_fn {
         unsigned i = 0;
         while (is_pi(intro_type)) {
             if (i >= num_params) {
-                expr s  = tc->ensure_type(binding_domain(intro_type));
+                expr s  = tc->ensure_type(binding_domain(intro_type)).first;
                 level l = sort_level(s);
                 if (l == m_u) {
                     // ignore, this is the auxiliary level

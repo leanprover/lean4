@@ -32,6 +32,7 @@ or_elim u_def
     (assume Hp : p, or_inr Hp))
   (assume Hp : p, or_inr Hp)
 
+set_option unifier.expensive true
 lemma p_implies_uv [private] : p → u = v :=
 assume Hp : p,
   have Hpred : (λ x, x = true ∨ p) = (λ x, x = false ∨ p), from

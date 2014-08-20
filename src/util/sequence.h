@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/optional.h"
 #include "util/memory_pool.h"
+#include "util/list.h"
 
 namespace lean {
 /** \brief Sequence datastructure with O(1) concatenation operation */
@@ -76,9 +77,13 @@ public:
     friend bool is_eqp(sequence const & s1, sequence const & s2) { return s1.m_node.raw() == s2.m_node.raw(); }
 
     friend sequence operator+(sequence const & s1, sequence const & s2) { return sequence(s1, s2); }
+    friend sequence operator+(sequence const & s, T const & v) { return s + sequence(v); }
+    friend sequence operator+(T const & v, sequence const & s) { return sequence(v) + s; }
+    sequence & operator+=(T const & v) { *this = *this + v; return *this; }
+    sequence & operator+=(sequence const & s) { *this = *this + s; return *this; }
 
-    /** \brief Store sequence elements in \c r */
-    void linearize(buffer<T> & r) const {
+    template<typename F>
+    bool all_of(F && f) const {
         buffer<cell const *> todo;
         if (m_node) todo.push_back(m_node.raw());
         while (!todo.empty()) {
@@ -88,9 +93,23 @@ public:
                 todo.push_back(static_cast<join_cell const *>(c)->m_second.raw());
                 todo.push_back(static_cast<join_cell const *>(c)->m_first.raw());
             } else {
-                r.push_back(static_cast<elem_cell const *>(c)->m_value);
+                if (!f(static_cast<elem_cell const *>(c)->m_value))
+                    return false;
             }
         }
+        return true;
+    }
+
+    template<typename F>
+    void for_each(F && f) const { all_of([&](T const & v) { f(v); return true; }); }
+
+    /** \brief Store sequence elements in \c r */
+    void linearize(buffer<T> & r) const { for_each([&](T const & v) { r.push_back(v); }); }
+
+    list<T> to_list() const {
+        buffer<T> tmp;
+        linearize(tmp);
+        return ::lean::to_list(tmp.begin(), tmp.end());
     }
 };
 

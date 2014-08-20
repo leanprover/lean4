@@ -951,6 +951,19 @@ static void open_formatter(lua_State * L) {
     SET_GLOBAL_FUN(set_formatter_factory,  "set_formatter_factory");
 }
 
+// Helper function for push pair expr, constraint_seq
+int push_ecs(lua_State * L, pair<expr, constraint_seq> const & p) {
+    push_expr(L, p.first);
+    push_constraint_seq(L, p.second);
+    return 2;
+}
+
+int push_bcs(lua_State * L, pair<bool, constraint_seq> const & p) {
+    push_boolean(L, p.first);
+    push_constraint_seq(L, p.second);
+    return 2;
+}
+
 // Environment_id
 DECL_UDATA(environment_id)
 static int environment_id_descendant(lua_State * L) { return push_boolean(L, to_environment_id(L, 1).is_descendant(to_environment_id(L, 2))); }
@@ -1032,10 +1045,10 @@ static int mk_environment(lua_State * L)      { return push_environment(L, mk_en
 static int mk_hott_environment(lua_State * L) { return push_environment(L, mk_hott_environment(get_trust_lvl(L, 1))); }
 
 static int environment_forget(lua_State * L) { return push_environment(L, to_environment(L, 1).forget()); }
-static int environment_whnf(lua_State * L) { return push_expr(L, type_checker(to_environment(L, 1)).whnf(to_expr(L, 2))); }
+static int environment_whnf(lua_State * L) { return push_ecs(L, type_checker(to_environment(L, 1)).whnf(to_expr(L, 2))); }
 static int environment_normalize(lua_State * L) { return push_expr(L, normalize(to_environment(L, 1), to_expr(L, 2))); }
-static int environment_infer_type(lua_State * L) { return push_expr(L, type_checker(to_environment(L, 1)).infer(to_expr(L, 2))); }
-static int environment_type_check(lua_State * L) { return push_expr(L, type_checker(to_environment(L, 1)).check(to_expr(L, 2))); }
+static int environment_infer_type(lua_State * L) { return push_ecs(L, type_checker(to_environment(L, 1)).infer(to_expr(L, 2))); }
+static int environment_type_check(lua_State * L) { return push_ecs(L, type_checker(to_environment(L, 1)).check(to_expr(L, 2))); }
 static int environment_for_each_decl(lua_State * L) {
     environment const & env = to_environment(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
@@ -1577,11 +1590,56 @@ static const struct luaL_Reg constraint_m[] = {
     {0, 0}
 };
 
+// Constraint sequences
+DECL_UDATA(constraint_seq)
+
+static int constraint_seq_mk(lua_State * L) {
+    unsigned nargs = lua_gettop(L);
+    constraint_seq cs;
+    for (unsigned i = 0; i < nargs; i++) {
+        cs += to_constraint(L, i);
+    }
+    return push_constraint_seq(L, cs);
+}
+
+static int constraint_seq_concat(lua_State * L) {
+    if (is_constraint_seq(L, 1) && is_constraint(L, 2))
+        return push_constraint_seq(L, to_constraint_seq(L, 1) + to_constraint(L, 2));
+    else
+        return push_constraint_seq(L, to_constraint_seq(L, 1) + to_constraint_seq(L, 2));
+}
+
+static int constraint_seq_linearize(lua_State * L) {
+    buffer<constraint> tmp;
+    to_constraint_seq(L, 1).linearize(tmp);
+    lua_newtable(L);
+    int i = 1;
+    for (constraint const & c : tmp) {
+        push_constraint(L, c);
+        lua_rawseti(L, -2, i);
+        i++;
+    }
+    return 1;
+}
+
+static const struct luaL_Reg constraint_seq_m[] = {
+    {"__gc",            constraint_seq_gc},
+    {"__concat",        constraint_seq_concat},
+    {"concat",          constraint_seq_concat},
+    {"linearize",       constraint_seq_linearize},
+    {0, 0}
+};
+
 static void open_constraint(lua_State * L) {
     luaL_newmetatable(L, constraint_mt);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     setfuncs(L, constraint_m, 0);
+
+    luaL_newmetatable(L, constraint_seq_mt);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    setfuncs(L, constraint_seq_m, 0);
 
     SET_GLOBAL_FUN(constraint_pred,   "is_constraint");
     SET_GLOBAL_FUN(mk_eq_cnstr,       "mk_eq_cnstr");
@@ -1593,6 +1651,9 @@ static void open_constraint(lua_State * L) {
     SET_ENUM("LevelEq",     constraint_kind::LevelEq);
     SET_ENUM("Choice",      constraint_kind::Choice);
     lua_setglobal(L, "constraint_kind");
+
+    SET_GLOBAL_FUN(constraint_seq_pred, "is_constraint_seq");
+    SET_GLOBAL_FUN(constraint_seq_mk,   "constraint_seq");
 }
 
 // Substitution
@@ -1787,44 +1848,30 @@ static int mk_type_checker(lua_State * L) {
         return push_type_checker_ref(L, t);
     }
 }
-static int type_checker_whnf(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->whnf(to_expr(L, 2))); }
+static int type_checker_whnf(lua_State * L) { return push_ecs(L, to_type_checker_ref(L, 1)->whnf(to_expr(L, 2))); }
 static int type_checker_ensure_pi(lua_State * L) {
     if (lua_gettop(L) == 2)
-        return push_expr(L, to_type_checker_ref(L, 1)->ensure_pi(to_expr(L, 2)));
+        return push_ecs(L, to_type_checker_ref(L, 1)->ensure_pi(to_expr(L, 2)));
     else
-        return push_expr(L, to_type_checker_ref(L, 1)->ensure_pi(to_expr(L, 2), to_expr(L, 3)));
+        return push_ecs(L, to_type_checker_ref(L, 1)->ensure_pi(to_expr(L, 2), to_expr(L, 3)));
 }
 static int type_checker_ensure_sort(lua_State * L) {
     if (lua_gettop(L) == 2)
-        return push_expr(L, to_type_checker_ref(L, 1)->ensure_sort(to_expr(L, 2)));
+        return push_ecs(L, to_type_checker_ref(L, 1)->ensure_sort(to_expr(L, 2)));
     else
-        return push_expr(L, to_type_checker_ref(L, 1)->ensure_sort(to_expr(L, 2), to_expr(L, 3)));
+        return push_ecs(L, to_type_checker_ref(L, 1)->ensure_sort(to_expr(L, 2), to_expr(L, 3)));
 }
 static int type_checker_check(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs <= 2)
-        return push_expr(L, to_type_checker_ref(L, 1)->check(to_expr(L, 2), level_param_names()));
+        return push_ecs(L, to_type_checker_ref(L, 1)->check(to_expr(L, 2), level_param_names()));
     else
-        return push_expr(L, to_type_checker_ref(L, 1)->check(to_expr(L, 2), to_level_param_names(L, 3)));
+        return push_ecs(L, to_type_checker_ref(L, 1)->check(to_expr(L, 2), to_level_param_names(L, 3)));
 }
-static int type_checker_infer(lua_State * L) { return push_expr(L, to_type_checker_ref(L, 1)->infer(to_expr(L, 2))); }
-static int type_checker_is_def_eq(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_def_eq(to_expr(L, 2), to_expr(L, 3))); }
-static int type_checker_is_prop(lua_State * L) { return push_boolean(L, to_type_checker_ref(L, 1)->is_prop(to_expr(L, 2))); }
-static int type_checker_push(lua_State * L) { to_type_checker_ref(L, 1)->push(); return 0; }
-static int type_checker_pop(lua_State * L) {
-    if (to_type_checker_ref(L, 1)->num_scopes() == 0)
-        throw exception("invalid pop method, type_checker does not have backtracking points");
-    to_type_checker_ref(L, 1)->pop();
-    return 0;
-}
-static int type_checker_keep(lua_State * L) {
-    if (to_type_checker_ref(L, 1)->num_scopes() == 0)
-        throw exception("invalid pop method, type_checker does not have backtracking points");
-    to_type_checker_ref(L, 1)->keep();
-    return 0;
-}
-static int type_checker_num_scopes(lua_State * L) { return push_integer(L, to_type_checker_ref(L, 1)->num_scopes()); }
-static int type_checker_next_cnstr(lua_State * L) { return push_optional_constraint(L, to_type_checker_ref(L, 1)->next_cnstr()); }
+static int type_checker_infer(lua_State * L) { return push_ecs(L, to_type_checker_ref(L, 1)->infer(to_expr(L, 2))); }
+
+static int type_checker_is_def_eq(lua_State * L) { return push_bcs(L, to_type_checker_ref(L, 1)->is_def_eq(to_expr(L, 2), to_expr(L, 3))); }
+static int type_checker_is_prop(lua_State * L) { return push_bcs(L, to_type_checker_ref(L, 1)->is_prop(to_expr(L, 2))); }
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
@@ -1851,11 +1898,6 @@ static const struct luaL_Reg type_checker_ref_m[] = {
     {"infer",       safe_function<type_checker_infer>},
     {"is_def_eq",   safe_function<type_checker_is_def_eq>},
     {"is_prop",     safe_function<type_checker_is_prop>},
-    {"push",        safe_function<type_checker_push>},
-    {"pop",         safe_function<type_checker_pop>},
-    {"keep",        safe_function<type_checker_keep>},
-    {"next_cnstr",  safe_function<type_checker_next_cnstr>},
-    {"num_scopes",  safe_function<type_checker_num_scopes>},
     {0, 0}
 };
 

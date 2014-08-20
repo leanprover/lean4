@@ -215,6 +215,9 @@ struct add_inductive_fn {
     }
 
     type_checker & tc() { return *(m_tc.get()); }
+    bool is_def_eq(expr const & t, expr const & s) { return tc().is_def_eq(t, s).first; }
+    expr whnf(expr const & e) { return tc().whnf(e).first; }
+    expr ensure_type(expr const & e) { return tc().ensure_type(e).first; }
 
     /** \brief Return a fresh name. */
     name mk_fresh_name() { return m_ngen.next(); }
@@ -246,7 +249,7 @@ struct add_inductive_fn {
                         m_param_consts.push_back(l);
                         t = instantiate(binding_body(t), l);
                     } else {
-                        if (!tc().is_def_eq(binding_domain(t), get_param_type(i)))
+                        if (!is_def_eq(binding_domain(t), get_param_type(i)))
                             throw kernel_exception(m_env, "parameters of all inductive datatypes must match");
                         t = instantiate(binding_body(t), m_param_consts[i]);
                     }
@@ -258,7 +261,7 @@ struct add_inductive_fn {
             }
             if (i != m_num_params)
                 throw kernel_exception(m_env, "number of parameters mismatch in inductive datatype declaration");
-            t = tc().ensure_sort(t);
+            t = tc().ensure_sort(t).first;
             if (m_env.impredicative()) {
                 // if the environment is impredicative, then the resultant universe is 0 (Prop),
                 // or is never zero (under any parameter assignment).
@@ -301,7 +304,7 @@ struct add_inductive_fn {
     bool is_valid_it_app(expr const & t, unsigned d_idx) {
         buffer<expr> args;
         expr I = get_app_args(t, args);
-        if (!tc().is_def_eq(I, m_it_consts[d_idx]) || args.size() != m_it_num_args[d_idx])
+        if (!is_def_eq(I, m_it_consts[d_idx]) || args.size() != m_it_num_args[d_idx])
             return false;
         for (unsigned i = 0; i < m_num_params; i++) {
             if (m_param_consts[i] != args[i])
@@ -336,15 +339,15 @@ struct add_inductive_fn {
         Return none otherwise.
     */
     optional<unsigned> is_rec_argument(expr t) {
-        t = tc().whnf(t);
+        t = whnf(t);
         while (is_pi(t))
-            t = tc().whnf(instantiate(binding_body(t), mk_local_for(t)));
+            t = whnf(instantiate(binding_body(t), mk_local_for(t)));
         return is_valid_it_app(t);
     }
 
     /** \brief Check if \c t contains only positive occurrences of the inductive datatypes being declared. */
     void check_positivity(expr t, name const & intro_name, int arg_idx) {
-        t = tc().whnf(t);
+        t = whnf(t);
         if (!has_it_occ(t)) {
             // nonrecursive argument
         } else if (is_pi(t)) {
@@ -373,12 +376,12 @@ struct add_inductive_fn {
         bool found_rec = false;
         while (is_pi(t)) {
             if (i < m_num_params) {
-                if (!tc().is_def_eq(binding_domain(t), get_param_type(i)))
+                if (!is_def_eq(binding_domain(t), get_param_type(i)))
                     throw kernel_exception(m_env, sstream() << "arg #" << (i + 1) << " of '" << n << "' "
                                            << "does not match inductive datatypes parameters'");
                 t = instantiate(binding_body(t), m_param_consts[i]);
             } else {
-                expr s = tc().ensure_type(binding_domain(t));
+                expr s = ensure_type(binding_domain(t));
                 // the sort is ok IF
                 //   1- its level is <= inductive datatype level, OR
                 //   2- m_env is impredicative and inductive datatype is at level 0
@@ -457,7 +460,7 @@ struct add_inductive_fn {
         unsigned i = 0;
         while (is_pi(t)) {
             if (i >= m_num_params) {
-                expr s = tc().ensure_type(binding_domain(t));
+                expr s = ensure_type(binding_domain(t));
                 if (!is_zero(sort_level(s)))
                     return true;
             }
@@ -569,12 +572,12 @@ struct add_inductive_fn {
                 // populate v using u
                 for (unsigned i = 0; i < u.size(); i++) {
                     expr u_i    = u[i];
-                    expr u_i_ty = tc().whnf(mlocal_type(u_i));
+                    expr u_i_ty = whnf(mlocal_type(u_i));
                     buffer<expr> xs;
                     while (is_pi(u_i_ty)) {
                         expr x = mk_local_for(u_i_ty);
                         xs.push_back(x);
-                        u_i_ty = tc().whnf(instantiate(binding_body(u_i_ty), x));
+                        u_i_ty = whnf(instantiate(binding_body(u_i_ty), x));
                     }
                     buffer<expr> it_indices;
                     unsigned it_idx = get_I_indices(u_i_ty, it_indices);
@@ -707,12 +710,12 @@ struct add_inductive_fn {
                 if (m_dep_elim) {
                     for (unsigned i = 0; i < u.size(); i++) {
                         expr u_i    = u[i];
-                        expr u_i_ty = tc().whnf(mlocal_type(u_i));
+                        expr u_i_ty = whnf(mlocal_type(u_i));
                         buffer<expr> xs;
                         while (is_pi(u_i_ty)) {
                             expr x = mk_local_for(u_i_ty);
                             xs.push_back(x);
-                            u_i_ty = tc().whnf(instantiate(binding_body(u_i_ty), x));
+                            u_i_ty = whnf(instantiate(binding_body(u_i_ty), x));
                         }
                         buffer<expr> it_indices;
                         unsigned it_idx = get_I_indices(u_i_ty, it_indices);
@@ -758,46 +761,50 @@ bool inductive_normalizer_extension::supports(name const & feature) const {
     return feature == g_inductive_extension;
 }
 
-optional<expr> inductive_normalizer_extension::operator()(expr const & e, extension_context & ctx) const {
+optional<pair<expr, constraint_seq>> inductive_normalizer_extension::operator()(expr const & e, extension_context & ctx) const {
     // Reduce terms \c e of the form
     //    elim_k A C e p[A,b] (intro_k_i A b u)
     inductive_env_ext const & ext = get_extension(ctx.env());
     expr const & elim_fn   = get_app_fn(e);
     if (!is_constant(elim_fn))
-        return none_expr();
+        return none_ecs();
     auto it1 = ext.m_elim_info.find(const_name(elim_fn));
     if (!it1)
-        return none_expr(); // it is not an eliminator
+        return none_ecs(); // it is not an eliminator
     buffer<expr> elim_args;
     get_app_args(e, elim_args);
     unsigned major_idx = it1->m_num_ACe + it1->m_num_indices;
     if (elim_args.size() < major_idx + 1)
-        return none_expr(); // major premise is missing
-    expr intro_app = ctx.whnf(elim_args[major_idx]);
+        return none_ecs(); // major premise is missing
+    auto intro_app_cs = ctx.whnf(elim_args[major_idx]);
+    expr intro_app    = intro_app_cs.first;
+    constraint_seq cs = intro_app_cs.second;
     expr const & intro_fn  = get_app_fn(intro_app);
     // Last argument must be a constant and an application of a constant.
     if (!is_constant(intro_fn))
-        return none_expr();
+        return none_ecs();
     // Check if intro_fn is an introduction rule matching elim_fn
     auto it2 = ext.m_comp_rules.find(const_name(intro_fn));
     if (!it2 || it2->m_elim_name != const_name(elim_fn))
-        return none_expr();
+        return none_ecs();
     buffer<expr> intro_args;
     get_app_args(intro_app, intro_args);
     // Check intro num_args
     if (intro_args.size() != it1->m_num_params + it2->m_num_bu)
-        return none_expr();
+        return none_ecs();
     if (it1->m_num_params > 0) {
         // Global parameters of elim and intro be definitionally equal
         simple_delayed_justification jst([=]() { return mk_justification("elim/intro global parameters must match", some_expr(e)); });
         for (unsigned i = 0; i < it1->m_num_params; i++) {
-            if (!ctx.is_def_eq(elim_args[i], intro_args[i], jst))
-                return none_expr();
+            auto dcs = ctx.is_def_eq(elim_args[i], intro_args[i], jst);
+            if (!dcs.first)
+                return none_ecs();
+            cs = cs + dcs.second;
         }
     }
     // Number of universe levels must match.
     if (length(const_levels(elim_fn)) != length(it1->m_level_names))
-        return none_expr();
+        return none_ecs();
     buffer<expr> ACebu;
     for (unsigned i = 0; i < it1->m_num_ACe; i++)
         ACebu.push_back(elim_args[i]);
@@ -810,7 +817,7 @@ optional<expr> inductive_normalizer_extension::operator()(expr const & e, extens
         unsigned num_args = elim_args.size() - major_idx - 1;
         r = mk_app(r, num_args, elim_args.data() + major_idx + 1);
     }
-    return some_expr(r);
+    return some_ecs(r, cs);
 }
 
 template<typename Ctx>
@@ -827,7 +834,7 @@ bool is_elim_meta_app_core(Ctx & ctx, expr const & e) {
     unsigned major_idx = it1->m_num_ACe + it1->m_num_indices;
     if (elim_args.size() < major_idx + 1)
         return false;
-    expr intro_app = ctx.whnf(elim_args[major_idx]);
+    expr intro_app = ctx.whnf(elim_args[major_idx]).first;
     return has_expr_metavar_strict(intro_app);
 }
 

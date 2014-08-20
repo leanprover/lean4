@@ -96,7 +96,7 @@ environment check_cmd(parser & p) {
     level_param_names new_ls;
     std::tie(e, new_ls) = p.elaborate_relaxed(e, ctx);
     auto tc = mk_type_checker_with_hints(p.env(), p.mk_ngen(), true);
-    expr type = tc->check(e, append(ls, new_ls));
+    expr type = tc->check(e, append(ls, new_ls)).first;
     auto reg              = p.regular_stream();
     formatter const & fmt = reg.get_formatter();
     options opts          = p.ios().get_options();

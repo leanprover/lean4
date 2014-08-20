@@ -9,11 +9,13 @@ Author: Leonardo de Moura
 #include "util/lazy_list.h"
 #include "util/list.h"
 #include "util/name_generator.h"
-#include "kernel/expr.h"
-#include "kernel/justification.h"
-#include "kernel/metavar.h"
+#include "util/sequence.h"
+#include "kernel/level.h"
 
 namespace lean {
+class expr;
+class justification;
+class substitution;
 /**
    \brief The lean kernel type checker produces two kinds of constraints:
 
@@ -116,6 +118,11 @@ choice_fn const & cnstr_choice_fn(constraint const & c);
 unsigned cnstr_delay_factor(constraint const & c);
 /** \brief Return true iff the given choice constraints owns the right to assign the metavariable in \c c. */
 bool cnstr_is_owner(constraint const & c);
+
+typedef sequence<constraint> constraint_seq;
+inline constraint_seq empty_cs() { return constraint_seq(); }
+/** \brief Copy constraints in cs to r, and append justification j to them. */
+void to_buffer(constraint_seq const & cs, justification const & j, buffer<constraint> & r);
 
 /** \brief Printer for debugging purposes */
 std::ostream & operator<<(std::ostream & out, constraint const & c);

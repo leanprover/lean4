@@ -13,15 +13,14 @@ class type_checker;
 class converter {
 protected:
     name mk_fresh_name(type_checker & tc);
-    expr infer_type(type_checker & tc, expr const & e);
-    void add_cnstr(type_checker & tc, constraint const & c);
+    pair<expr, constraint_seq> infer_type(type_checker & tc, expr const & e);
     extension_context & get_extension(type_checker & tc);
 public:
     virtual ~converter() {}
-    virtual expr whnf(expr const & e, type_checker & c) = 0;
-    virtual bool is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & j) = 0;
+    virtual pair<expr, constraint_seq> whnf(expr const & e, type_checker & c) = 0;
+    virtual pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & j) = 0;
     virtual optional<module_idx> get_module_idx() const = 0;
-    bool is_def_eq(expr const & t, expr const & s, type_checker & c);
+    pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c);
 };
 
 std::unique_ptr<converter> mk_dummy_converter();

@@ -101,11 +101,11 @@ bool has_string_decls(environment const & env) {
     try {
         type_checker tc(env);
         return
-            tc.infer(g_ff)    == g_bool &&
-            tc.infer(g_tt)    == g_bool &&
-            tc.infer(g_ascii) == g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> g_char))))))) &&
-            tc.infer(g_empty) == g_string &&
-            tc.infer(g_str)   == g_char >> (g_string >> g_string);
+            tc.infer(g_ff).first    == g_bool &&
+            tc.infer(g_tt).first    == g_bool &&
+            tc.infer(g_ascii).first == g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> g_char))))))) &&
+            tc.infer(g_empty).first == g_string &&
+            tc.infer(g_str).first   == g_char >> (g_string >> g_string);
     } catch (...) {
         return false;
     }

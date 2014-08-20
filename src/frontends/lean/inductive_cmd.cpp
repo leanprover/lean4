@@ -174,9 +174,9 @@ struct inductive_cmd_fn {
 
     /** \brief Return the universe level of the given type, if it is not a sort, then raise an exception. */
     level get_datatype_result_level(expr d_type) {
-        d_type = m_tc->whnf(d_type);
+        d_type = m_tc->whnf(d_type).first;
         while (is_pi(d_type)) {
-            d_type = m_tc->whnf(binding_body(d_type));
+            d_type = m_tc->whnf(binding_body(d_type)).first;
         }
         if (!is_sort(d_type))
             throw_error(sstream() << "invalid inductive datatype, resultant type is not a sort");
@@ -185,7 +185,7 @@ struct inductive_cmd_fn {
 
     /** \brief Update the result sort of the given type */
     expr update_result_sort(expr t, level const & l) {
-        t = m_tc->whnf(t);
+        t = m_tc->whnf(t).first;
         if (is_pi(t)) {
             return update_binding(t, binding_domain(t), update_result_sort(binding_body(t), l));
         } else if (is_sort(t)) {
@@ -215,7 +215,7 @@ struct inductive_cmd_fn {
     /** \brief Check if the parameters of \c d_type and \c first_d_type are equal. */
     void check_params(expr d_type, expr first_d_type) {
         for (unsigned i = 0; i < m_num_params; i++) {
-            if (!m_tc->is_def_eq(binding_domain(d_type), binding_domain(first_d_type)))
+            if (!m_tc->is_def_eq(binding_domain(d_type), binding_domain(first_d_type)).first)
                 throw_error(sstream() << "invalid parameter #" << (i+1) << " in mutually recursive inductive declaration, "
                             << "all inductive types must have equivalent parameters");
             expr l = mk_local_for(d_type);
@@ -418,7 +418,7 @@ struct inductive_cmd_fn {
         unsigned i = 0;
         while (is_pi(intro_type)) {
             if (i >= m_num_params) {
-                expr s  = m_tc->ensure_type(binding_domain(intro_type));
+                expr s  = m_tc->ensure_type(binding_domain(intro_type)).first;
                 level l = sort_level(s);
                 if (l == m_u) {
                     // ignore, this is the auxiliary level

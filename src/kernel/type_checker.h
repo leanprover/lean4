@@ -10,12 +10,20 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "util/name_generator.h"
 #include "util/name_set.h"
-#include "util/scoped_map.h"
 #include "kernel/environment.h"
 #include "kernel/constraint.h"
+#include "kernel/justification.h"
 #include "kernel/converter.h"
+#include "kernel/expr_maps.h"
 
 namespace lean {
+
+inline pair<expr, constraint_seq> to_ecs(expr const & e) { return mk_pair(e, empty_cs()); }
+inline pair<expr, constraint_seq> to_ecs(expr const & e, constraint const & c, constraint_seq const & cs) {
+    return mk_pair(e, constraint_seq(constraint_seq(c), cs));
+}
+inline pair<expr, constraint_seq> to_ecs(expr const & e, constraint const & c) { return mk_pair(e, constraint_seq(c)); }
+inline pair<expr, constraint_seq> to_ecs(expr const & e, constraint_seq const & cs) { return mk_pair(e, cs); }
 
 /** \brief Given \c type of the form <tt>(Pi ctx, r)</tt>, return <tt>(Pi ctx, new_range)</tt> */
 expr replace_range(expr const & type, expr const & new_range);
@@ -56,7 +64,7 @@ expr mk_pi_for(name_generator & ngen, expr const & meta);
    The type checker produces constraints, and they are sent to the constraint handler.
 */
 class type_checker {
-    typedef scoped_map<expr, expr, expr_hash, is_bi_equal_proc> cache;
+    typedef expr_bi_struct_map<pair<expr, constraint_seq>> cache;
 
     /** \brief Interface type_checker <-> macro & normalizer_extension */
     class type_checker_context : public extension_context {
@@ -64,11 +72,12 @@ class type_checker {
     public:
         type_checker_context(type_checker & tc):m_tc(tc) {}
         virtual environment const & env() const { return m_tc.m_env; }
-        virtual expr whnf(expr const & e) { return m_tc.whnf(e); }
-        virtual bool is_def_eq(expr const & e1, expr const & e2, delayed_justification & j) { return m_tc.is_def_eq(e1, e2, j); }
-        virtual expr infer_type(expr const & e) { return m_tc.infer_type(e); }
+        virtual pair<expr, constraint_seq> whnf(expr const & e) { return m_tc.whnf(e); }
+        virtual pair<bool, constraint_seq> is_def_eq(expr const & e1, expr const & e2, delayed_justification & j) {
+            return m_tc.is_def_eq(e1, e2, j);
+        }
+        virtual pair<expr, constraint_seq> infer_type(expr const & e) { return m_tc.infer_type(e); }
         virtual name mk_fresh_name() { return m_tc.m_gen.next(); }
-        virtual void add_cnstr(constraint const & c) { m_tc.add_cnstr(c); }
     };
 
     environment                m_env;
@@ -83,27 +92,24 @@ class type_checker {
     bool                       m_memoize;
     // temp flag
     level_param_names const *  m_params;
-    buffer<constraint>         m_cs;        // temporary cache of constraints
-    unsigned                   m_cs_qhead;
-    buffer<pair<unsigned, unsigned>> m_trail;
 
     friend class converter; // allow converter to access the following methods
     name mk_fresh_name() { return m_gen.next(); }
     optional<expr> expand_macro(expr const & m);
     pair<expr, expr> open_binding_body(expr const & e);
-    void add_cnstr(constraint const & c);
-    expr ensure_sort_core(expr e, expr const & s);
-    expr ensure_pi_core(expr e, expr const & s);
+    pair<expr, constraint_seq> ensure_sort_core(expr e, expr const & s);
+    pair<expr, constraint_seq> ensure_pi_core(expr e, expr const & s);
     justification mk_macro_jst(expr const & e);
     void check_level(level const & l, expr const & s);
     expr infer_constant(expr const & e, bool infer_only);
-    expr infer_macro(expr const & e, bool infer_only);
-    expr infer_lambda(expr const & e, bool infer_only);
-    expr infer_pi(expr const & e, bool infer_only);
-    expr infer_app(expr const & e, bool infer_only);
-    expr infer_type_core(expr const & e, bool infer_only);
-    expr infer_type(expr const & e);
-    void copy_constraints(unsigned qhead, buffer<constraint> & new_cnstrs);
+    pair<expr, constraint_seq> infer_macro(expr const & e, bool infer_only);
+    pair<expr, constraint_seq> infer_lambda(expr const & e, bool infer_only);
+    pair<expr, constraint_seq> infer_pi(expr const & e, bool infer_only);
+    pair<expr, constraint_seq> infer_app(expr const & e, bool infer_only);
+    pair<expr, constraint_seq> infer_type_core(expr const & e, bool infer_only);
+    pair<expr, constraint_seq> infer_type(expr const & e);
+    expr infer_type_core(expr const & e, bool infer_only, constraint_seq & cs);
+
     extension_context & get_extension() { return m_tc_ctx; }
     constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
 public:
@@ -130,71 +136,69 @@ public:
        type is correct.
        Throw an exception if a type error is found.
 
-       The result is meaningful only if the constraints sent to the
-       constraint handler can be solved.
+       The result is meaningful only if the generated constraints can be solved.
    */
-    expr infer(expr const & t) { return infer_type(t); }
-    /** \brief Infer \c t type and copy constraints associated with type inference to \c new_cnstrs */
-    expr infer(expr const & t, buffer<constraint> & new_cnstrs);
+    pair<expr, constraint_seq> infer(expr const & t) { return infer_type(t); }
 
     /**
        \brief Type check the given expression, and return the type of \c t.
        Throw an exception if a type error is found.
 
-       The result is meaningful only if the constraints sent to the
-       constraint handler can be solved.
+       The result is meaningful only if the generated constraints can be solved.
     */
-    expr check(expr const & t, level_param_names const & ps = level_param_names());
-    expr check(expr const & t, buffer<constraint> & new_cnstrs);
+    pair<expr, constraint_seq> check(expr const & t, level_param_names const & ps = level_param_names());
+
     /** \brief Return true iff t is definitionally equal to s. */
-    bool is_def_eq(expr const & t, expr const & s);
-    bool is_def_eq(expr const & t, expr const & s, justification const & j);
-    bool is_def_eq(expr const & t, expr const & s, delayed_justification & jst);
-    /** \brief Return true iff \c t and \c s are (may be) definitionally equal (module constraints)
-        New constraints associated with test are store in \c new_cnstrs.
-    */
-    bool is_def_eq(expr const & t, expr const & s, justification const & j, buffer<constraint> & new_cnstrs);
-    /** \brief Return true iff types of \c t and \c s are (may be) definitionally equal (modulo constraints)
-        New constraints associated with test are store in \c new_cnstrs.
-    */
-    bool is_def_eq_types(expr const & t, expr const & s, justification const & j, buffer<constraint> & new_cnstrs);
+    pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s);
+    pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, justification const & j);
+    pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, delayed_justification & jst);
+    /** \brief Return true iff types of \c t and \c s are (may be) definitionally equal (modulo constraints) */
+    pair<bool, constraint_seq> is_def_eq_types(expr const & t, expr const & s, justification const & j);
     /** \brief Return true iff t is a proposition. */
-    bool is_prop(expr const & t);
+    pair<bool, constraint_seq> is_prop(expr const & t);
     /** \brief Return the weak head normal form of \c t. */
-    expr whnf(expr const & t);
-    /** \brief Similar to the previous method, but it also returns the new constraints created in the process. */
-    expr whnf(expr const & t, buffer<constraint> & new_cnstrs);
+    pair<expr, constraint_seq> whnf(expr const & t);
     /** \brief Return a Pi if \c t is convertible to a Pi type. Throw an exception otherwise.
         The argument \c s is used when reporting errors */
-    expr ensure_pi(expr const & t, expr const & s);
-    expr ensure_pi(expr const & t) { return ensure_pi(t, t); }
+    pair<expr, constraint_seq> ensure_pi(expr const & t, expr const & s);
+    pair<expr, constraint_seq> ensure_pi(expr const & t) { return ensure_pi(t, t); }
     /** \brief Mare sure type of \c e is a Pi, and return it. Throw an exception otherwise. */
-    expr ensure_fun(expr const & e) { return ensure_pi(infer(e), e); }
+    pair<expr, constraint_seq> ensure_fun(expr const & e) {
+        auto tcs  = infer(e);
+        auto pics = ensure_pi(tcs.first, e);
+        return mk_pair(pics.first, pics.second + tcs.second);
+    }
     /** \brief Return a Sort if \c t is convertible to Sort. Throw an exception otherwise.
         The argument \c s is used when reporting errors. */
-    expr ensure_sort(expr const & t, expr const & s);
+    pair<expr, constraint_seq> ensure_sort(expr const & t, expr const & s);
     /** \brief Return a Sort if \c t is convertible to Sort. Throw an exception otherwise. */
-    expr ensure_sort(expr const & t) { return ensure_sort(t, t); }
+    pair<expr, constraint_seq> ensure_sort(expr const & t) { return ensure_sort(t, t); }
     /** \brief Mare sure type of \c e is a sort, and return it. Throw an exception otherwise. */
-    expr ensure_type(expr const & e) { return ensure_sort(infer(e), e); }
+    pair<expr, constraint_seq> ensure_type(expr const & e) {
+        auto tcs = infer(e);
+        auto scs = ensure_sort(tcs.first, e);
+        return mk_pair(scs.first, scs.second + tcs.second);
+    }
 
-    /** \brief Return the number of backtracking points. */
-    unsigned num_scopes() const;
-    /** \brief Consume next constraint in the produced constraint queue */
-    optional<constraint> next_cnstr();
+    expr whnf(expr const & e, constraint_seq & cs) { auto r = whnf(e); cs += r.second; return r.first; }
+    expr infer(expr const & e, constraint_seq & cs) { auto r = infer(e); cs += r.second; return r.first; }
+    expr ensure_pi(expr const & e, constraint_seq & cs) { auto r = ensure_pi(e); cs += r.second; return r.first; }
+    expr ensure_pi(expr const & e, expr const & s, constraint_seq & cs) { auto r = ensure_pi(e, s); cs += r.second; return r.first; }
+    expr ensure_sort(expr const & t, expr const & s, constraint_seq & cs) { auto r = ensure_sort(t, s); cs += r.second; return r.first; }
 
-    void push();
-    void pop();
-    void keep();
+    bool is_def_eq(expr const & t, expr const & s, justification const & j, constraint_seq & cs) {
+        auto r = is_def_eq(t, s, j);
+        if (r.first)
+            cs = r.second + cs;
+        return r.first;
+    }
 
-    class scope {
-        type_checker &   m_tc;
-        bool             m_keep;
-    public:
-        scope(type_checker & tc);
-        ~scope();
-        void keep();
-    };
+    bool is_def_eq_types(expr const & t, expr const & s, justification const & j, constraint_seq & cs) {
+        auto r = is_def_eq_types(t, s, j);
+        if (r.first)
+            cs = r.second + cs;
+        return r.first;
+    }
 };
 
 typedef std::shared_ptr<type_checker> type_checker_ref;

@@ -131,7 +131,7 @@ bool pretty_fn::is_implicit(expr const & f) {
     if (m_implict)
         return false; // showing implicit arguments
     try {
-        binder_info bi = binding_info(m_tc.ensure_pi(m_tc.infer(f)));
+        binder_info bi = binding_info(m_tc.ensure_pi(m_tc.infer(f).first).first);
         return bi.is_implicit() || bi.is_strict_implicit();
     } catch (...) {
         return false;
@@ -140,7 +140,7 @@ bool pretty_fn::is_implicit(expr const & f) {
 
 bool pretty_fn::is_prop(expr const & e) {
     try {
-        return m_env.impredicative() && m_tc.is_prop(e);
+        return m_env.impredicative() && m_tc.is_prop(e).first;
     } catch (...) {
         return false;
     }

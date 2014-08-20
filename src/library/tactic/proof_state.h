@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/lua.h"
 #include "util/optional.h"
 #include "util/name_set.h"
+#include "kernel/metavar.h"
 #include "library/tactic/goal.h"
 
 namespace lean {

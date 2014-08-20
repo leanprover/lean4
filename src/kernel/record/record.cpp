@@ -52,8 +52,8 @@ environment add_record(environment const & env, level_param_names const & level_
     return add_record_fn(env, level_params, rec_name, rec_type, intro_name, intro_type)();
 }
 
-optional<expr> record_normalizer_extension::operator()(expr const &, extension_context &) const {
-    return optional<expr>();
+optional<pair<expr, constraint_seq>> record_normalizer_extension::operator()(expr const &, extension_context &) const {
+    return none_ecs();
 }
 
 bool record_normalizer_extension::may_reduce_later(expr const &, extension_context &) const {

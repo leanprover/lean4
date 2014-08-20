@@ -27,7 +27,7 @@ environment add_record(environment const &          env,
 /** \brief Normalizer extension for applying record computational rules. */
 class record_normalizer_extension : public normalizer_extension {
 public:
-    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const;
+    virtual optional<pair<expr, constraint_seq>> operator()(expr const & e, extension_context & ctx) const;
     virtual bool may_reduce_later(expr const & e, extension_context & ctx) const;
     virtual bool supports(name const & feature) const;
 };

@@ -32,7 +32,7 @@ class normalize_fn {
     }
 
     expr normalize(expr e) {
-        e = m_tc.whnf(e);
+        e = m_tc.whnf(e).first;
         switch (e.kind()) {
         case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
         case expr_kind::Meta: case expr_kind::Local: case expr_kind::Macro:

@@ -45,10 +45,10 @@ bool has_tactic_decls(environment const & env) {
     try {
         type_checker tc(env);
         return
-            tc.infer(g_builtin_tac) == g_tac_type &&
-            tc.infer(g_and_then_tac_fn) == g_tac_type >> (g_tac_type >> g_tac_type) &&
-            tc.infer(g_or_else_tac_fn) == g_tac_type >> (g_tac_type >> g_tac_type) &&
-            tc.infer(g_repeat_tac_fn) == g_tac_type >> g_tac_type;
+            tc.infer(g_builtin_tac).first     == g_tac_type &&
+            tc.infer(g_and_then_tac_fn).first == g_tac_type >> (g_tac_type >> g_tac_type) &&
+            tc.infer(g_or_else_tac_fn).first  == g_tac_type >> (g_tac_type >> g_tac_type) &&
+            tc.infer(g_repeat_tac_fn).first   == g_tac_type >> g_tac_type;
     } catch (...) {
         return false;
     }
@@ -69,7 +69,7 @@ static bool is_builtin_tactic(expr const & v) {
 }
 
 tactic expr_to_tactic(type_checker & tc, expr e, pos_info_provider const * p) {
-    e = tc.whnf(e);
+    e = tc.whnf(e).first;
     expr f = get_app_fn(e);
     if (!is_constant(f))
         throw_failed(e);
@@ -165,7 +165,7 @@ register_unary_num_tac::register_unary_num_tac(name const & n, std::function<tac
             tactic t = expr_to_tactic(tc, args[0], p);
             optional<mpz> k = to_num(args[1]);
             if (!k)
-                k = to_num(tc.whnf(args[1]));
+                k = to_num(tc.whnf(args[1]).first);
             if (!k)
                 throw expr_to_tactic_exception(e, "invalid tactic, second argument must be a numeral");
             if (!k->is_unsigned_int())
@@ -199,7 +199,7 @@ static register_tac reg_trace(name(g_tac, "trace"), [](type_checker & tc, expr c
             throw expr_to_tactic_exception(e, "invalid trace tactic, argument expected");
         if (auto str = to_string(args[0]))
             return trace_tactic(*str);
-        else if (auto str = to_string(tc.whnf(args[0])))
+        else if (auto str = to_string(tc.whnf(args[0]).first))
             return trace_tactic(*str);
         else
             throw expr_to_tactic_exception(e, "invalid trace tactic, string value expected");
@@ -224,7 +224,7 @@ static register_unary_num_tac reg_try_for(name(g_tac, "try_for"), [](tactic cons
 static register_tac reg_fixpoint(g_fixpoint_name, [](type_checker & tc, expr const & e, pos_info_provider const *) {
         if (!is_constant(app_fn(e)))
             throw expr_to_tactic_exception(e, "invalid fixpoint tactic, it must have one argument");
-        expr r = tc.whnf(mk_app(app_arg(e), e));
+        expr r = tc.whnf(mk_app(app_arg(e), e)).first;
         return fixpoint(r);
     });
 

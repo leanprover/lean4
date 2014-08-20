@@ -66,7 +66,7 @@ typedef scoped_ext<pq_config> proof_qed_ext;
 
 static void check_valid_tactic(environment const & env, expr const & pre_tac) {
     type_checker tc(env);
-    if (!tc.is_def_eq(tc.infer(pre_tac), get_tactic_type()))
+    if (!tc.is_def_eq(tc.infer(pre_tac).first, get_tactic_type()).first)
         throw exception("invalid proof-qed pre-tactic update, argument is not a tactic");
 }
 

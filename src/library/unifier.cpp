@@ -310,17 +310,11 @@ struct unifier_fn {
             m_assumption_idx(u.m_next_assumption_idx), m_jst(j), m_subst(u.m_subst), m_cnstrs(u.m_cnstrs),
             m_mvar_occs(u.m_mvar_occs), m_owned_map(u.m_owned_map), m_pattern(u.m_pattern) {
             u.m_next_assumption_idx++;
-            u.m_tc[0]->push();
-            u.m_tc[1]->push();
         }
 
         /** \brief Restore unifier's state with saved values, and update m_assumption_idx and m_failed_justifications. */
         void restore_state(unifier_fn & u) {
             lean_assert(u.in_conflict());
-            u.m_tc[0]->pop();   // restore type checker state
-            u.m_tc[1]->pop();   // restore type checker state
-            u.m_tc[0]->push();
-            u.m_tc[1]->push();
             u.m_subst     = m_subst;
             u.m_cnstrs    = m_cnstrs;
             u.m_mvar_occs = m_mvar_occs;
@@ -438,52 +432,74 @@ struct unifier_fn {
         \remark If relax is true then opaque definitions from the main module are treated as transparent.
     */
     bool is_def_eq(expr const & t1, expr const & t2, justification const & j, bool relax) {
-        if (m_tc[relax]->is_def_eq(t1, t2, j)) {
-            return true;
-        } else {
+        auto dcs = m_tc[relax]->is_def_eq(t1, t2, j);
+        if (!dcs.first) {
             // std::cout << "conflict: " << t1 << " =?= " << t2 << "\n";
             set_conflict(j);
             return false;
+        } else {
+            return process_constraints(dcs.second);
         }
+    }
+
+    /** \brief Process the given constraints. Return true iff no conflict was detected. */
+    bool process_constraints(constraint_seq const & cs) {
+        return cs.all_of([&](constraint const & c) { return process_constraint(c); });
+    }
+
+    bool process_constraints(buffer<constraint> const & cs) {
+        for (auto const & c : cs) {
+            if (!process_constraint(c))
+                return false;
+        }
+        return true;
+    }
+
+
+    /** \brief Process constraints in \c cs, and append justification \c j to them. */
+    bool process_constraints(constraint_seq const & cs, justification const & j) {
+        return cs.all_of([&](constraint const & c) {
+                return process_constraint(update_justification(c, mk_composite1(c.get_justification(), j)));
+            });
+    }
+
+    template<typename Constraints>
+    bool process_constraints(Constraints const & cs, justification const & j) {
+        for (auto const & c : cs) {
+            if (!process_constraint(update_justification(c, mk_composite1(c.get_justification(), j))))
+                return false;
+        }
+        return true;
     }
 
     /** \brief Put \c e in weak head normal form.
 
         \remark If relax is true then opaque definitions from the main module are treated as transparent.
-        \remark Constraints generated in the process are stored in \c cs. The justification \c j is composed with them.
+        \remark Constraints generated in the process are stored in \c cs.
     */
-    expr whnf(expr const & e, justification const & j, bool relax, buffer<constraint> & cs) {
-        unsigned cs_sz = cs.size();
-        expr r = m_tc[relax]->whnf(e, cs);
-        for (unsigned i = cs_sz; i < cs.size(); i++)
-            cs[i] = update_justification(cs[i], mk_composite1(j, cs[i].get_justification()));
-        return r;
-    }
-
-    /** \brief Process the given constraints. Return true iff no conflict was detected. */
-    bool process_constraints(buffer<constraint> & cs) {
-        for (auto const & c : cs)
-            if (!process_constraint(c))
-                return false;
-        return true;
+    expr whnf(expr const & e, bool relax, constraint_seq & cs) {
+        return m_tc[relax]->whnf(e, cs);
     }
 
     /** \brief Infer \c e type.
 
         \remark Return none if an exception was throw when inferring the type.
         \remark If relax is true then opaque definitions from the main module are treated as transparent.
-        \remark Constraints generated in the process are stored in \c cs. The justification \c j is composed with them.
+        \remark Constraints generated in the process are stored in \c cs.
     */
-    optional<expr> infer(expr const & e, justification const & j, bool relax, buffer<constraint> & cs) {
+    optional<expr> infer(expr const & e, bool relax, constraint_seq & cs) {
         try {
-            unsigned cs_sz = cs.size();
-            expr r = m_tc[relax]->infer(e, cs);
-            for (unsigned i = cs_sz; i < cs.size(); i++)
-                cs[i] = update_justification(cs[i], mk_composite1(j, cs[i].get_justification()));
-            return some_expr(r);
+            return some_expr(m_tc[relax]->infer(e, cs));
         } catch (exception &) {
             return none_expr();
         }
+    }
+
+    expr whnf(expr const & e, justification const & j, bool relax, buffer<constraint> & cs) {
+        constraint_seq _cs;
+        expr r = whnf(e, relax, _cs);
+        to_buffer(_cs, j, cs);
+        return r;
     }
 
     justification mk_assign_justification(expr const & m, expr const & m_type, expr const & v_type, justification const & j) {
@@ -524,28 +540,11 @@ struct unifier_fn {
         lean_assert(is_metavar(m));
         lean_assert(!in_conflict());
         m_subst.assign(m, v, j);
-        #if 0
-        expr m_type = mlocal_type(m);
-        expr v_type;
-        buffer<constraint> cs;
-        if (auto type = infer(v, j, relax, cs)) {
-            v_type = *type;
-            if (!process_constraints(cs))
-                return false;
-        } else {
-            set_conflict(j);
-            return false;
-        }
-        lean_assert(!in_conflict());
-        justification new_j = mk_assign_justification(m, m_type, v_type, j);
-        if (!is_def_eq(m_type, v_type, new_j, relax))
-            return false;
-        #else
-        buffer<constraint> cs;
-        auto lhs_type = infer(lhs, j, relax, cs);
-        auto rhs_type = infer(rhs, j, relax, cs);
+        constraint_seq cs;
+        auto lhs_type = infer(lhs, relax, cs);
+        auto rhs_type = infer(rhs, relax, cs);
         if (lhs_type && rhs_type) {
-            if (!process_constraints(cs))
+            if (!process_constraints(cs, j))
                 return false;
             justification new_j = mk_assign_justification(m, *lhs_type, *rhs_type, j);
             if (!is_def_eq(*lhs_type, *rhs_type, new_j, relax))
@@ -554,7 +553,6 @@ struct unifier_fn {
             set_conflict(j);
             return false;
         }
-        #endif
         auto it = m_mvar_occs.find(mlocal_name(m));
         if (it) {
             cnstr_idx_set s = *it;
@@ -943,8 +941,6 @@ struct unifier_fn {
     }
 
     void pop_case_split() {
-        m_tc[0]->pop();
-        m_tc[1]->pop();
         m_case_splits.pop_back();
     }
 
@@ -972,13 +968,6 @@ struct unifier_fn {
             throw unifier_exception(*m_conflict, m_subst);
         else
             return optional<substitution>();
-    }
-
-    /** \brief Process constraints in \c cs, and append justification \c j to them. */
-    bool process_constraints(constraints const & cs, justification const & j) {
-        for (constraint const & c : cs)
-            process_constraint(update_justification(c, mk_composite1(c.get_justification(), j)));
-        return !in_conflict();
     }
 
     bool next_lazy_constraints_case_split(lazy_constraints_case_split & cs) {
@@ -1029,29 +1018,30 @@ struct unifier_fn {
         if (!is_constant(f_lhs) || !is_constant(f_rhs) || const_name(f_lhs) != const_name(f_rhs))
             return lazy_list<constraints>();
         justification const & j = c.get_justification();
-        buffer<constraint> cs;
+        constraint_seq cs;
         bool relax = relax_main_opaque(c);
-        lean_assert(!m_tc[relax]->next_cnstr());
-        if (!m_tc[relax]->is_def_eq(f_lhs, f_rhs, j, cs))
+        auto fcs = m_tc[relax]->is_def_eq(f_lhs, f_rhs, j);
+        if (!fcs.first)
             return lazy_list<constraints>();
+        cs = fcs.second;
         buffer<expr> args_lhs, args_rhs;
         get_app_args(lhs, args_lhs);
         get_app_args(rhs, args_rhs);
         if (args_lhs.size() != args_rhs.size())
             return lazy_list<constraints>();
-        lean_assert(!m_tc[relax]->next_cnstr());
-        for (unsigned i = 0; i < args_lhs.size(); i++)
-            if (!m_tc[relax]->is_def_eq(args_lhs[i], args_rhs[i], j, cs))
+        for (unsigned i = 0; i < args_lhs.size(); i++) {
+            auto acs = m_tc[relax]->is_def_eq(args_lhs[i], args_rhs[i], j);
+            if (!acs.first)
                 return lazy_list<constraints>();
-        return lazy_list<constraints>(to_list(cs.begin(), cs.end()));
+            cs = acs.second + cs;
+        }
+        return lazy_list<constraints>(cs.to_list());
     }
 
     bool process_plugin_constraint(constraint const & c) {
         bool relax = relax_main_opaque(c);
         lean_assert(!is_choice_cnstr(c));
-        lean_assert(!m_tc[relax]->next_cnstr());
         lazy_list<constraints> alts = m_plugin->solve(*m_tc[relax], c, m_ngen.mk_child());
-        lean_assert(!m_tc[relax]->next_cnstr());
         alts = append(alts, process_const_const_cnstr(c));
         return process_lazy_constraints(alts, c.get_justification());
     }
@@ -1068,8 +1058,8 @@ struct unifier_fn {
         expr m_type;
         bool relax = relax_main_opaque(c);
 
-        buffer<constraint> cs;
-        if (auto type = infer(m, c.get_justification(), relax, cs)) {
+        constraint_seq cs;
+        if (auto type = infer(m, relax, cs)) {
             m_type = *type;
             if (!process_constraints(cs))
                 return false;
@@ -1128,11 +1118,11 @@ struct unifier_fn {
         expr t = apply_beta(lhs_fn_val, lhs_args.size(), lhs_args.data());
         expr s = apply_beta(rhs_fn_val, rhs_args.size(), rhs_args.data());
         bool relax = relax_main_opaque(c);
-        buffer<constraint> cs2;
-        if (m_tc[relax]->is_def_eq(t, s, j, cs2)) {
+        auto dcs = m_tc[relax]->is_def_eq(t, s, j);
+        if (dcs.first) {
             // create a case split
             a = mk_assumption_justification(m_next_assumption_idx);
-            add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, j, to_list(cs2.begin(), cs2.end()))));
+            add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, j, dcs.second.to_list())));
         }
 
         // process first case
@@ -1231,26 +1221,20 @@ struct unifier_fn {
             return true;
         }
 
-        /** \brief Copy pending constraints in u.m_tc[relax] to cs and append justification j to them */
-        void copy_pending_constraints(buffer<constraint> & cs) {
-            while (auto c = u.m_tc[relax]->next_cnstr())
-                cs.push_back(update_justification(*c, mk_composite1(c->get_justification(), j)));
-        }
-
         /** \see ensure_sufficient_args */
-        expr ensure_sufficient_args_core(expr mtype, unsigned i) {
+        expr ensure_sufficient_args_core(expr mtype, unsigned i, constraint_seq & cs) {
             if (i == margs.size())
                 return mtype;
-            mtype = u.m_tc[relax]->ensure_pi(mtype);
+            mtype = u.m_tc[relax]->ensure_pi(mtype, cs);
             expr local = u.mk_local_for(mtype);
             expr body  = instantiate(binding_body(mtype), local);
-            return Pi(local, ensure_sufficient_args_core(body, i+1));
+            return Pi(local, ensure_sufficient_args_core(body, i+1, cs));
         }
 
         /** \brief Make sure mtype is a Pi of size at least margs.size().
             If it is not, we use ensure_pi and (potentially) add new constaints to enforce it.
         */
-        expr ensure_sufficient_args(expr const & mtype, buffer<constraint> & cs) {
+        expr ensure_sufficient_args(expr const & mtype, constraint_seq & cs) {
             expr t = mtype;
             unsigned num = 0;
             while (is_pi(t)) {
@@ -1259,12 +1243,7 @@ struct unifier_fn {
             }
             if (num == margs.size())
                 return mtype;
-            lean_assert(!u.m_tc[relax]->next_cnstr()); // make sure there are no pending constraints
-            // We must create a scope to make sure no constraints "leak" into the current state.
-            type_checker::scope scope(*u.m_tc[relax]);
-            auto new_mtype = ensure_sufficient_args_core(mtype, 0);
-            copy_pending_constraints(cs);
-            return new_mtype;
+            return ensure_sufficient_args_core(mtype, 0, cs);
         }
 
         /**
@@ -1278,10 +1257,10 @@ struct unifier_fn {
             lean_assert(is_metavar(m));
             lean_assert(is_sort(rhs) || is_constant(rhs));
             expr const & mtype = mlocal_type(m);
-            buffer<constraint> cs;
-            auto new_mtype = ensure_sufficient_args(mtype, cs);
-            cs.push_back(mk_eq_cnstr(m, mk_lambda_for(new_mtype, rhs), j, relax));
-            alts.push_back(to_list(cs.begin(), cs.end()));
+            constraint_seq cs;
+            expr new_mtype = ensure_sufficient_args(mtype, cs);
+            cs = cs + mk_eq_cnstr(m, mk_lambda_for(new_mtype, rhs), j, relax);
+            alts.push_back(cs.to_list());
         }
 
         /**
@@ -1302,15 +1281,15 @@ struct unifier_fn {
             expr const & mtype = mlocal_type(m);
             unsigned vidx = margs.size() - i - 1;
             expr const & marg = margs[i];
-            buffer<constraint> cs;
+            constraint_seq cs;
             auto new_mtype = ensure_sufficient_args(mtype, cs);
             // Remark: we should not use mk_eq_cnstr(marg, rhs, j) since is_def_eq may be able to reduce them.
             // The unifier assumes the eq constraints are reduced.
             if (u.m_tc[relax]->is_def_eq_types(marg, rhs, j, cs) &&
                 u.m_tc[relax]->is_def_eq(marg, rhs, j, cs)) {
                 expr v = mk_lambda_for(new_mtype, mk_var(vidx));
-                cs.push_back(mk_eq_cnstr(m, v, j, relax));
-                alts.push_back(to_list(cs.begin(), cs.end()));
+                cs = cs + mk_eq_cnstr(m, v, j, relax);
+                alts.push_back(cs.to_list());
             }
         }
 
@@ -1344,11 +1323,11 @@ struct unifier_fn {
                     mk_simple_nonlocal_projection(i);
                 } else if (is_local(marg) && is_local(rhs) && mlocal_name(marg) == mlocal_name(rhs)) {
                     // if the argument is local, and rhs is equal to it, then we also add a projection
-                    buffer<constraint> cs;
+                    constraint_seq cs;
                     auto new_mtype = ensure_sufficient_args(mtype, cs);
                     expr v = mk_lambda_for(new_mtype, mk_var(vidx));
-                    cs.push_back(mk_eq_cnstr(m, v, j, relax));
-                    alts.push_back(to_list(cs.begin(), cs.end()));
+                    cs = cs + mk_eq_cnstr(m, v, j, relax);
+                    alts.push_back(cs.to_list());
                 }
             }
         }
@@ -1386,30 +1365,6 @@ struct unifier_fn {
             return v;
         }
 
-        /** \brief Check if term \c e (produced by an imitation step) is
-            type correct, and store generated constraints in \c cs.
-            Include \c j in all generated constraints */
-        bool check_imitation(expr e, buffer<constraint> & cs) {
-            buffer<expr> ls;
-            while (is_lambda(e)) {
-                expr d = instantiate_rev(binding_domain(e), ls.size(), ls.data());
-                expr l = mk_local(u.m_ngen.next(), binding_name(e), d, binding_info(e));
-                ls.push_back(l);
-                e = binding_body(e);
-            }
-            e = instantiate_rev(e, ls.size(), ls.data());;
-            try {
-                buffer<constraint> aux;
-                u.m_tc[relax]->check(e, aux);
-                for (auto c : aux) {
-                    cs.push_back(update_justification(c, mk_composite1(j, c.get_justification())));
-                }
-                return true;
-            } catch (exception&) {
-                return false;
-            }
-        }
-
         void mk_app_projections() {
             lean_assert(is_metavar(m));
             lean_assert(is_app(rhs));
@@ -1433,7 +1388,7 @@ struct unifier_fn {
 
         /** \brief Create the local context \c locals for the imitiation step.
          */
-        void mk_local_context(buffer<expr> & locals, buffer<constraint> & cs) {
+        void mk_local_context(buffer<expr> & locals, constraint_seq & cs) {
             expr mtype     = mlocal_type(m);
             unsigned nargs = margs.size();
             mtype = ensure_sufficient_args(mtype, cs);
@@ -1456,7 +1411,7 @@ struct unifier_fn {
         }
 
         expr mk_imitiation_arg(expr const & arg, expr const & type, buffer<expr> const & locals,
-                               buffer<constraint> & cs) {
+                               constraint_seq & cs) {
             if (!has_meta_args() && is_local(arg) && contains_local(arg, locals)) {
                 return arg;
             } else {
@@ -1464,39 +1419,36 @@ struct unifier_fn {
                 if (context_check(type, locals)) {
                     expr maux    = mk_metavar(u.m_ngen.next(), Pi(locals, type));
                     // std::cout << "  >> " << maux << " : " << mlocal_type(maux) << "\n";
-                    cs.push_back(mk_eq_cnstr(mk_app(maux, margs), arg, j, relax));
+                    cs = mk_eq_cnstr(mk_app(maux, margs), arg, j, relax) + cs;
                     return mk_app(maux, locals);
                 } else {
                     expr maux_type   = mk_metavar(u.m_ngen.next(), Pi(locals, mk_sort(mk_meta_univ(u.m_ngen.next()))));
                     expr maux        = mk_metavar(u.m_ngen.next(), Pi(locals, mk_app(maux_type, locals)));
-                    cs.push_back(mk_eq_cnstr(mk_app(maux, margs), arg, j, relax));
+                    cs = mk_eq_cnstr(mk_app(maux, margs), arg, j, relax) + cs;
                     return mk_app(maux, locals);
                 }
             }
         }
 
-        void mk_app_imitation_core(expr const & f, buffer<expr> const & locals, buffer<constraint> & cs) {
+        void mk_app_imitation_core(expr const & f, buffer<expr> const & locals, constraint_seq & cs) {
             buffer<expr> rargs;
             get_app_args(rhs, rargs);
             buffer<expr> sargs;
             try {
-                // create a scope to make sure no constraints "leak" into the current state
-                type_checker::scope scope(*u.m_tc[relax]);
-                expr f_type = u.m_tc[relax]->infer(f);
+                expr f_type = u.m_tc[relax]->infer(f, cs);
                 for (expr const & rarg : rargs) {
-                    f_type      = u.m_tc[relax]->ensure_pi(f_type);
+                    f_type      = u.m_tc[relax]->ensure_pi(f_type, cs);
                     expr d_type = binding_domain(f_type);
                     expr sarg   = mk_imitiation_arg(rarg, d_type, locals, cs);
                     sargs.push_back(sarg);
                     f_type      = instantiate(binding_body(f_type), sarg);
                 }
-                copy_pending_constraints(cs);
             } catch (exception&) {}
             expr v = Fun(locals, mk_app(f, sargs));
             // std::cout << " >> app imitation, v: " << v << "\n";
             lean_assert(!has_local(v));
-            cs.push_back(mk_eq_cnstr(m, v, j, relax));
-            alts.push_back(to_list(cs.begin(), cs.end()));
+            cs = cs + mk_eq_cnstr(m, v, j, relax);
+            alts.push_back(cs.to_list());
         }
 
         /**
@@ -1519,22 +1471,20 @@ struct unifier_fn {
         void mk_app_imitation() {
             lean_assert(is_metavar(m));
             lean_assert(is_app(rhs));
-            lean_assert(!u.m_tc[relax]->next_cnstr()); // make sure there are no pending constraints
             buffer<expr> locals;
-            buffer<constraint> cs;
+            constraint_seq cs;
             flet<justification> let(j, j); // save j value
             mk_local_context(locals, cs);
             lean_assert(margs.size() == locals.size());
             expr const & f = get_app_fn(rhs);
             lean_assert(is_constant(f) || is_local(f));
             if (is_local(f)) {
-                unsigned cs_sz = cs.size();
                 unsigned i = margs.size();
                 while (i > 0) {
                     --i;
                     if (is_local(margs[i]) && mlocal_name(margs[i]) == mlocal_name(f)) {
-                        cs.shrink(cs_sz);
-                        mk_app_imitation_core(locals[i], locals, cs);
+                        constraint_seq new_cs = cs;
+                        mk_app_imitation_core(locals[i], locals, new_cs);
                     }
                 }
             } else {
@@ -1556,30 +1506,27 @@ struct unifier_fn {
         void mk_bindings_imitation() {
             lean_assert(is_metavar(m));
             lean_assert(is_binding(rhs));
-            lean_assert(!u.m_tc[relax]->next_cnstr()); // make sure there are no pending constraints
-            buffer<constraint> cs;
+            constraint_seq cs;
             buffer<expr> locals;
             flet<justification> let(j, j); // save j value
             mk_local_context(locals, cs);
             lean_assert(margs.size() == locals.size());
             try {
                 // create a scope to make sure no constraints "leak" into the current state
-                type_checker::scope scope(*u.m_tc[relax]);
                 expr rhs_A     = binding_domain(rhs);
-                expr A_type    = u.m_tc[relax]->infer(rhs_A);
+                expr A_type    = u.m_tc[relax]->infer(rhs_A, cs);
                 expr A         = mk_imitiation_arg(rhs_A, A_type, locals, cs);
                 expr local     = mk_local(u.m_ngen.next(), binding_name(rhs), A, binding_info(rhs));
                 locals.push_back(local);
                 margs.push_back(local);
                 expr rhs_B     = instantiate(binding_body(rhs), local);
-                expr B_type    = u.m_tc[relax]->infer(rhs_B);
+                expr B_type    = u.m_tc[relax]->infer(rhs_B, cs);
                 expr B         = mk_imitiation_arg(rhs_B, B_type, locals, cs);
                 expr binding   = is_pi(rhs) ? Pi(local, B) : Fun(local, B);
                 locals.pop_back();
                 expr v         = Fun(locals, binding);
-                copy_pending_constraints(cs);
-                cs.push_back(mk_eq_cnstr(m, v, j, relax));
-                alts.push_back(to_list(cs.begin(), cs.end()));
+                cs = cs + mk_eq_cnstr(m, v, j, relax);
+                alts.push_back(cs.to_list());
             } catch (exception&) {}
             margs.pop_back();
         }
@@ -1596,24 +1543,27 @@ struct unifier_fn {
                ?m  =?= fun (x_1 ... x_k), M((?m_1 x_1 ... x_k) ... (?m_n x_1 ... x_k))
         */
         void mk_macro_imitation() {
+            // TODO(Leo): use same approach used in mk_app_imitation
             lean_assert(is_metavar(m));
             lean_assert(is_macro(rhs));
-            buffer<constraint> cs;
+            constraint_seq cs;
             expr mtype = mlocal_type(m);
             mtype = ensure_sufficient_args(mtype, cs);
             // create an auxiliary metavariable for each macro argument
             buffer<expr> sargs;
             for (unsigned i = 0; i < macro_num_args(rhs); i++) {
                 expr maux = mk_aux_metavar_for(u.m_ngen, mtype);
-                cs.push_back(mk_eq_cnstr(mk_app(maux, margs), macro_arg(rhs, i), j, relax));
+                cs = mk_eq_cnstr(mk_app(maux, margs), macro_arg(rhs, i), j, relax) + cs;
                 sargs.push_back(mk_app_vars(maux, margs.size()));
             }
             expr v = mk_macro(macro_def(rhs), sargs.size(), sargs.data());
             v = mk_lambda_for(mtype, v);
-            if (check_imitation(v, cs)) {
-                cs.push_back(mk_eq_cnstr(m, v, j, relax));
-                alts.push_back(to_list(cs.begin(), cs.end()));
-            }
+            // if (check_imitation(v, cs)) {
+            //     cs.push_back(mk_eq_cnstr(m, v, j, relax));
+            //     alts.push_back(to_list(cs.begin(), cs.end()));
+            // }
+            cs = cs + mk_eq_cnstr(m, v, j, relax);
+            alts.push_back(cs.to_list());
         }
 
     public:
@@ -1689,10 +1639,10 @@ struct unifier_fn {
         if (is_app(rhs)) {
             expr const & f = get_app_fn(rhs);
             if (!is_local(f) && !is_constant(f)) {
-                buffer<constraint> cs;
-                expr new_rhs = whnf(rhs, j, relax, cs);
+                constraint_seq cs;
+                expr new_rhs = whnf(rhs, relax, cs);
                 lean_assert(new_rhs != rhs);
-                if (!process_constraints(cs))
+                if (!process_constraints(cs, j))
                     return false;
                 return is_def_eq(lhs, new_rhs, j, relax);
             }
@@ -1770,20 +1720,6 @@ struct unifier_fn {
         return true;
     }
 
-    void consume_tc_cnstrs() {
-        while (true) {
-            if (in_conflict()) {
-                return;
-            } else if (auto c = m_tc[0]->next_cnstr()) {
-                process_constraint(*c);
-            } else if (auto c = m_tc[1]->next_cnstr()) {
-                process_constraint(*c);
-            } else {
-                break;
-            }
-        }
-    }
-
     /**
        \brief Process the following constraints
           1. (max l1 l2) =?= 0    OR
@@ -1857,8 +1793,6 @@ struct unifier_fn {
     /** \brief Process the next constraint in the constraint queue m_cnstrs */
     bool process_next() {
         lean_assert(!m_cnstrs.empty());
-        lean_assert(!m_tc[0]->next_cnstr());
-        lean_assert(!m_tc[1]->next_cnstr());
         auto const * p = m_cnstrs.min();
         unsigned cidx  = p->second;
         if (!m_expensive && cidx >= get_group_first_index(cnstr_group::ClassInstance))
@@ -1871,8 +1805,6 @@ struct unifier_fn {
         } else {
             auto r = instantiate_metavars(c);
             c = r.first;
-            lean_assert(!m_tc[0]->next_cnstr());
-            lean_assert(!m_tc[1]->next_cnstr());
             bool modified = r.second;
             if (is_level_eq_cnstr(c)) {
                 if (modified)
@@ -1933,7 +1865,6 @@ struct unifier_fn {
             return optional<substitution>();
         }
         while (true) {
-            consume_tc_cnstrs();
             if (!in_conflict()) {
                 if (m_cnstrs.empty())
                     break;
@@ -1942,8 +1873,6 @@ struct unifier_fn {
             if (in_conflict() && !resolve_conflict())
                 return failure();
         }
-        lean_assert(!m_tc[0]->next_cnstr());
-        lean_assert(!m_tc[1]->next_cnstr());
         lean_assert(!in_conflict());
         lean_assert(m_cnstrs.empty());
         substitution s = m_subst;
@@ -1983,10 +1912,12 @@ lazy_list<substitution> unify(environment const & env, expr const & lhs, expr co
     expr _lhs = new_s.instantiate(lhs);
     expr _rhs = new_s.instantiate(rhs);
     auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, new_s, false, max_steps, expensive);
-    if (!u->m_tc[relax]->is_def_eq(_lhs, _rhs))
+    constraint_seq cs;
+    if (!u->m_tc[relax]->is_def_eq(_lhs, _rhs, justification(), cs) || !u->process_constraints(cs)) {
         return lazy_list<substitution>();
-    else
+    } else {
         return unify(u);
+    }
 }
 
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,

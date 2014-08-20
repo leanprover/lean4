@@ -84,7 +84,24 @@ public:
     // Begin of resolve_macro get_type implementation
     // This section of code is trusted when the environment has trust_level == 1
 
-    bool is_def_eq(expr const & l1, expr const & l2, extension_context & ctx) const { return ctx.is_def_eq(l1, l2, jst()); }
+    bool is_def_eq(expr const & l1, expr const & l2, extension_context & ctx) const {
+        auto r = ctx.is_def_eq(l1, l2, jst());
+        return r.first && !r.second;
+    }
+
+    expr whnf(expr const & e, extension_context & ctx) const {
+        auto r = ctx.whnf(e);
+        if (r.second)
+            throw_kernel_exception(ctx.env(), "invalid resolve macro, constraints were generated while computing whnf", e);
+        return r.first;
+    }
+
+    expr infer_type(expr const & e, extension_context & ctx) const {
+        auto r = ctx.infer_type(e);
+        if (r.second)
+            throw_kernel_exception(ctx.env(), "invalid resolve macro, constraints were generated while inferring type", e);
+        return r.first;
+    }
 
     /** \brief Return true if \c ls already contains a literal that is definitionally equal to \c l */
     bool already_contains(expr const & l, buffer<expr> const & ls, extension_context & ctx) const {
@@ -109,7 +126,7 @@ public:
         if (is_or(cls, lhs, rhs)) {
             return collect(lhs, rhs, l, R, ctx);
         } else {
-            cls = ctx.whnf(cls);
+            cls = whnf(cls, ctx);
             if (is_or(cls, lhs, rhs)) {
                 return collect(lhs, rhs, l, R, ctx);
             } else if (is_def_eq(cls, l, ctx)) {
@@ -125,8 +142,8 @@ public:
     virtual expr get_type(expr const & m, expr const * arg_types, extension_context & ctx) const {
         environment const & env = ctx.env();
         check_num_args(env, m);
-        expr l     = ctx.whnf(macro_arg(m, 0));
-        expr not_l = ctx.whnf(g_not(l));
+        expr l     = whnf(macro_arg(m, 0), ctx);
+        expr not_l = whnf(g_not(l), ctx);
         expr C1    = arg_types[1];
         expr C2    = arg_types[2];
         buffer<expr> R; // resolvent
@@ -148,12 +165,12 @@ public:
     virtual optional<expr> expand(expr const & m, extension_context & ctx) const {
         environment const & env = ctx.env();
         check_num_args(env, m);
-        expr l     = ctx.whnf(macro_arg(m, 0));
-        expr not_l = ctx.whnf(g_not(l));
+        expr l     = whnf(macro_arg(m, 0), ctx);
+        expr not_l = whnf(g_not(l), ctx);
         expr H1    = macro_arg(m, 1);
         expr H2    = macro_arg(m, 2);
-        expr C1    = ctx.infer_type(H1);
-        expr C2    = ctx.infer_type(H2);
+        expr C1    = infer_type(H1, ctx);
+        expr C2    = infer_type(H2, ctx);
         expr arg_types[3] = { expr() /* get_type() does not use first argument */, C1, C2 };
         expr R     = get_type(m, arg_types, ctx);
         return some_expr(mk_or_elim_tree1(l, not_l, C1, H1, C2, H2, R, ctx));
@@ -198,7 +215,7 @@ public:
         if (is_or(C1, lhs, rhs)) {
             return mk_or_elim_tree1(l, not_l, lhs, rhs, H1, C2, H2, R, ctx);
         } else {
-            C1 = ctx.whnf(C1);
+            C1 = whnf(C1, ctx);
             if (is_or(C1, lhs, rhs)) {
                 return mk_or_elim_tree1(l, not_l, lhs, rhs, H1, C2, H2, R, ctx);
             } else if (is_def_eq(C1, l, ctx)) {
@@ -243,7 +260,7 @@ public:
         if (is_or(C2, lhs, rhs)) {
             return mk_or_elim_tree2(l, H, not_l, lhs, rhs, H2, R, ctx);
         } else {
-            C2 = ctx.whnf(C2);
+            C2 = whnf(C2, ctx);
             if (is_or(C2, lhs, rhs)) {
                 return mk_or_elim_tree2(l, H, not_l, lhs, rhs, H2, R, ctx);
             } else if (is_def_eq(C2, not_l, ctx)) {

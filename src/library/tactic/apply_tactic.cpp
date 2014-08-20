@@ -44,7 +44,7 @@ bool collect_simple_metas(expr const & e, buffer<expr> & result) {
 unsigned get_expect_num_args(type_checker & tc, expr e) {
     unsigned r = 0;
     while (true) {
-        e = tc.whnf(e);
+        e = tc.whnf(e).first;
         if (!is_pi(e))
             return r;
         e = binding_body(e);
@@ -93,6 +93,7 @@ static void remove_redundant_metas(buffer<expr> & metas) {
 
 proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & _e,
                                   bool add_meta, bool add_subgoals, bool relax_main_opaque) {
+    // TODO(Leo): we are ignoring constraints produces by type checker
     goals const & gs = s.get_goals();
     if (empty(gs))
         return proof_state_seq();
@@ -102,7 +103,7 @@ proof_state_seq apply_tactic_core(environment const & env, io_state const & ios,
     goals tail_gs    = tail(gs);
     expr  t          = g.get_type();
     expr  e          = _e;
-    expr  e_t        = tc.infer(e);
+    expr  e_t        = tc.infer(e).first;
     buffer<expr> metas;
     collect_simple_meta(e, metas);
     if (add_meta) {
@@ -111,7 +112,7 @@ proof_state_seq apply_tactic_core(environment const & env, io_state const & ios,
         if (num_t > num_e_t)
             return proof_state_seq(); // no hope to unify then
         for (unsigned i = 0; i < num_e_t - num_t; i++) {
-            e_t        = tc.whnf(e_t);
+            e_t        = tc.whnf(e_t).first;
             expr meta  = g.mk_meta(ngen.next(), binding_domain(e_t));
             e          = mk_app(e, meta);
             e_t        = instantiate(binding_body(e_t), meta);
@@ -139,7 +140,7 @@ proof_state_seq apply_tactic_core(environment const & env, io_state const & ios,
                 unsigned i = metas.size();
                 while (i > 0) {
                     --i;
-                    new_gs = cons(goal(metas[i], new_subst.instantiate_all(tc.infer(metas[i]))), new_gs);
+                    new_gs = cons(goal(metas[i], new_subst.instantiate_all(tc.infer(metas[i]).first)), new_gs);
                 }
             }
             return proof_state(new_gs, new_subst, new_ngen);

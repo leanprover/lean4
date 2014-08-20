@@ -5,7 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/rc.h"
+#include "kernel/expr.h"
+#include "kernel/justification.h"
+#include "kernel/metavar.h"
 #include "kernel/constraint.h"
+
 namespace lean {
 struct constraint_cell {
     void dealloc();
@@ -102,6 +106,12 @@ constraint update_justification(constraint const & c, justification const & j) {
         return mk_choice_cnstr(cnstr_expr(c), cnstr_choice_fn(c), cnstr_delay_factor(c), cnstr_is_owner(c), j, relax_main_opaque(c));
     }
     lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+void to_buffer(constraint_seq const & cs, justification const & j, buffer<constraint> & r) {
+    return cs.for_each([&](constraint const & c) {
+            r.push_back(update_justification(c, mk_composite1(c.get_justification(), j)));
+        });
 }
 
 std::ostream & operator<<(std::ostream & out, constraint const & c) {

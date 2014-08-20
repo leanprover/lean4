@@ -67,12 +67,12 @@ static void tst1() {
     expr c  = mk_local("c", Prop);
     expr id = Const("id");
     type_checker checker(env3, name_generator("tmp"));
-    lean_assert(checker.check(id(Prop)) == Prop >> Prop);
-    lean_assert(checker.whnf(id(Prop, c)) == c);
-    lean_assert(checker.whnf(id(Prop, id(Prop, id(Prop, c)))) == c);
+    lean_assert(checker.check(id(Prop)).first == Prop >> Prop);
+    lean_assert(checker.whnf(id(Prop, c)).first == c);
+    lean_assert(checker.whnf(id(Prop, id(Prop, id(Prop, c)))).first == c);
 
     type_checker checker2(env2, name_generator("tmp"));
-    lean_assert(checker2.whnf(id(Prop, id(Prop, id(Prop, c)))) == id(Prop, id(Prop, id(Prop, c))));
+    lean_assert(checker2.whnf(id(Prop, id(Prop, id(Prop, c)))).first == id(Prop, id(Prop, id(Prop, c))));
 }
 
 static void tst2() {
@@ -99,34 +99,34 @@ static void tst2() {
     expr c1  =  mk_local("c1", Prop);
     expr c2  = mk_local("c2", Prop);
     expr id = Const("id");
-    std::cout << checker.whnf(f3(c1, c2)) << "\n";
+    std::cout << checker.whnf(f3(c1, c2)).first << "\n";
     lean_assert_eq(env.find(name(base, 98))->get_weight(), 98);
-    lean_assert(checker.is_def_eq(f98(c1, c2), f97(f97(c1, c2), f97(c2, c1))));
-    lean_assert(checker.is_def_eq(f98(c1, id(Prop, id(Prop, c2))), f97(f97(c1, id(Prop, c2)), f97(c2, c1))));
+    lean_assert(checker.is_def_eq(f98(c1, c2), f97(f97(c1, c2), f97(c2, c1))).first);
+    lean_assert(checker.is_def_eq(f98(c1, id(Prop, id(Prop, c2))), f97(f97(c1, id(Prop, c2)), f97(c2, c1))).first);
     name_set s;
     s.insert(name(base, 96));
     type_checker checker2(env, name_generator("tmp"), mk_default_converter(env, optional<module_idx>(), true, s));
-    lean_assert_eq(checker2.whnf(f98(c1, c2)),
+    lean_assert_eq(checker2.whnf(f98(c1, c2)).first,
                    f96(f96(f97(c1, c2), f97(c2, c1)), f96(f97(c2, c1), f97(c1, c2))));
 }
 
 class normalizer_extension_tst : public normalizer_extension {
 public:
-    virtual optional<expr> operator()(expr const & e, extension_context & ctx) const {
+    virtual optional<pair<expr, constraint_seq>> operator()(expr const & e, extension_context & ctx) const {
         if (!is_app(e))
-            return none_expr();
+            return optional<pair<expr, constraint_seq>>();
         expr const & f = app_fn(e);
         expr const & a = app_arg(e);
         if (!is_constant(f) || const_name(f) != name("proj1"))
-            return none_expr();
-        expr a_n = ctx.whnf(a);
+            return optional<pair<expr, constraint_seq>>();
+        expr a_n = ctx.whnf(a).first;
         if (!is_app(a_n) || !is_app(app_fn(a_n)) || !is_constant(app_fn(app_fn(a_n))))
-            return none_expr();
+            return optional<pair<expr, constraint_seq>>();
         expr const & mk = app_fn(app_fn(a_n));
         if (const_name(mk) != name("mk"))
-            return none_expr();
+            return optional<pair<expr, constraint_seq>>();
         // In a real implementation, we must check if proj1 and mk were defined in the environment.
-        return some_expr(app_arg(app_fn(a_n)));
+        return optional<pair<expr, constraint_seq>>(app_arg(app_fn(a_n)), constraint_seq());
     }
     virtual bool may_reduce_later(expr const &, extension_context &) const { return false; }
     virtual bool supports(name const &) const { return false; }
@@ -145,7 +145,7 @@ static void tst3() {
     expr a = Const("a");
     expr b = Const("b");
     type_checker checker(env, name_generator("tmp"));
-    lean_assert_eq(checker.whnf(proj1(proj1(mk(id(A, mk(a, b)), b)))), a);
+    lean_assert_eq(checker.whnf(proj1(proj1(mk(id(A, mk(a, b)), b)))).first, a);
 }
 
 class dummy_ext : public environment_extension {};

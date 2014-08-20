@@ -90,9 +90,9 @@ list_induction_on s
     assume H : length (concat s t) = length s + length t,
     calc
       length (concat (cons x s) t ) = succ (length (concat s t))  : refl _
-	... = succ (length s + length t)  : { H }
-	... = succ (length s) + length t  : {symm (add_succ_left _ _)}
-	... = length (cons x s) + length t : refl _)
+        ... = succ (length s + length t)  : { H }
+        ... = succ (length s) + length t  : {symm (add_succ_left _ _)}
+        ... = length (cons x s) + length t : refl _)
 
 -- add_rewrite length_nil length_cons
 
@@ -138,7 +138,7 @@ list_induction_on l (refl _)
     assume H: reverse (reverse l') = l',
     show reverse (reverse (x :: l')) = x :: l', from
       calc
-      	reverse (reverse (x :: l')) = reverse (reverse l' ++ [x]) : refl _
+        reverse (reverse (x :: l')) = reverse (reverse l' ++ [x]) : refl _
           ... = reverse [x] ++ reverse (reverse l') : reverse_concat _ _
           ... = [x] ++ l' : { H }
           ... = x :: l' : refl _)
@@ -221,6 +221,9 @@ list_induction_on s
 theorem mem_concat (x : T) (s t : list T) : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t
 := iff_intro (mem_concat_imp_or _ _ _) (mem_or_imp_concat _ _ _)
 
+section
+set_option unifier.expensive true -- TODO(Leo): remove after we add delta-split step
+#erase_cache mem_split
 theorem mem_split (x : T) (l : list T) : x ∈ l → ∃s t : list T, l = s ++ (x :: t) :=
 list_induction_on l
   (take H : x ∈ nil, false_elim _ (iff_elim_left (mem_nil x) H))
@@ -235,8 +238,9 @@ list_induction_on l
         obtain s (H2 : ∃t : list T, l = s ++ (x :: t)), from IH H1,
         obtain t (H3 : l = s ++ (x :: t)), from H2,
         have H4 : y :: l = (y :: s) ++ (x :: t),
-          from trans (subst H3 (refl (y :: l))) (cons_concat _ _ _),
+          from subst H3 (refl (y :: l)),
         exists_intro _ (exists_intro _ H4)))
+end
 
 -- Find
 -- ----

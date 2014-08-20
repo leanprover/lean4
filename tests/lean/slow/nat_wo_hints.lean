@@ -4,7 +4,7 @@
 -- Author: Floris van Doorn
 ----------------------------------------------------------------------------------------------------
 import standard struc.binary
-using tactic num binary eq_proofs
+using tactic num binary eq_ops
 using decidable
 
 namespace nat
@@ -57,7 +57,7 @@ theorem zero_or_succ (n : ℕ) : n = 0 ∨ n = succ (pred n)
 := induction_on n
     (or_intro_left _ (refl 0))
     (take m IH, or_intro_right _
-      (show succ m = succ (pred (succ m)), from congr2 succ (pred_succ m⁻¹)))
+      (show succ m = succ (pred (succ m)), from congr_arg succ (pred_succ m⁻¹)))
 
 theorem zero_or_succ2 (n : ℕ) : n = 0 ∨ ∃k, n = succ k
 := or_imp_or (zero_or_succ n) (assume H, H) (assume H : n = succ (pred n), exists_intro (pred n) H)
@@ -96,7 +96,7 @@ theorem decidable_eq [instance] (n m : ℕ) : decidable (n = m)
            (λ (n' : ℕ) (iH2 : decidable (n' = succ m')),
              have d1 : decidable (n' = m'), from iH1 n',
              decidable.rec_on d1
-               (assume Heq : n' = m', inl (congr2 succ Heq))
+               (assume Heq : n' = m', inl (congr_arg succ Heq))
                (assume Hne : n' ≠ m',
                  have H1 : succ n' ≠ succ m', from
                    assume Heq, absurd (succ_inj Heq) Hne,

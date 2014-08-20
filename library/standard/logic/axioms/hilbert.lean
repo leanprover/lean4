@@ -27,7 +27,7 @@ theorem nonempty_imp_inhabited {A : Type} (H : nonempty A) : inhabited A :=
 let u : {x : A | (∃x : A, true) → true} := strong_indefinite_description (λa, true) H in
 inhabited_mk (elt_of u)
 
-theorem inhabited_exists {A : Type} {P : A → Prop} (H : ∃x, P x) : inhabited A :=
+theorem exists_imp_inhabited {A : Type} {P : A → Prop} (H : ∃x, P x) : inhabited A :=
 nonempty_imp_inhabited (obtain w Hw, from H, nonempty_intro w)
 
 

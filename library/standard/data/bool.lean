@@ -3,6 +3,7 @@
 -- Author: Leonardo de Moura
 
 import logic.connectives.basic logic.classes.decidable logic.classes.inhabited
+
 using eq_ops decidable
 
 inductive bool : Type :=
@@ -14,7 +15,7 @@ namespace bool
 theorem induction_on {p : bool → Prop} (b : bool) (H0 : p ff) (H1 : p tt) : p b :=
 bool_rec H0 H1 b
 
-theorem inhabited_bool [instance] : inhabited bool :=
+theorem bool_inhabited [instance] : inhabited bool :=
 inhabited_mk ff
 
 definition cond {A : Type} (b : bool) (t e : A) :=

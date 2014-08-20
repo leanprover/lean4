@@ -1,4 +1,5 @@
 import logic logic.axioms.hilbert
+using inhabited nonempty
 
 definition v1 : Prop := epsilon (λ x, true)
 inductive Empty : Type

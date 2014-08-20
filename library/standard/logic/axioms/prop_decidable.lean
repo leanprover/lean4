@@ -10,13 +10,13 @@ using decidable inhabited nonempty
 -- Excluded middle + Hilbert implies every proposition is decidable
 
 -- First, we show that (decidable a) is inhabited for any 'a' using the excluded middle
-theorem inhabited_decidable [instance] (a : Prop) : inhabited (decidable a) :=
+theorem decidable_inhabited [instance] (a : Prop) : inhabited (decidable a) :=
 nonempty_imp_inhabited
   (or_elim (em a)
     (assume Ha, nonempty_intro (inl Ha))
     (assume Hna, nonempty_intro (inr Hna)))
 
--- Note that inhabited_decidable is marked as an instance, and it is silently used
+-- Note that decidable_inhabited is marked as an instance, and it is silently used
 -- for synthesizing the implicit argument in the following 'epsilon'
 theorem prop_decidable [instance] (a : Prop) : decidable a :=
 epsilon (λd, true)

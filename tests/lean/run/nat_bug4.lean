@@ -1,5 +1,5 @@
 import standard
-using num eq_proofs
+using num eq_ops
 
 inductive nat : Type :=
 | zero : nat

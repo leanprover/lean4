@@ -187,21 +187,10 @@ end mp_like
 -- Notation for operations on general symbols
 -- ------------------------------------------
 
-namespace general_operations
-
 -- e.g. if R is an instance of the class, then "refl R" is reflexivity for the class
-definition refl := is_reflexive.infer
-definition symm := is_symmetric.infer
-definition trans := is_transitive.infer
-definition mp := mp_like.infer
-
-end general_operations
-
--- namespace
---
--- postfix `⁻¹`:100 := operations.symm
--- infixr `⬝`:75     := operations.trans
-
--- end symbols
+definition rel_refl := is_reflexive.infer
+definition rel_symm := is_symmetric.infer
+definition rel_trans := is_transitive.infer
+definition rel_mp := mp_like.infer
 
 end relation

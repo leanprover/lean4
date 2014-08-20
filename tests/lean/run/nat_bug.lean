@@ -16,10 +16,10 @@ theorem zero_or_succ (n : nat) : n = zero ∨ n = succ (pred n)
 := induction_on n
     (or_intro_left _ (refl zero))
     (take m IH, or_intro_right _
-      (show succ m = succ (pred (succ m)), from congr2 succ (symm (pred_succ m))))
+      (show succ m = succ (pred (succ m)), from congr_arg succ (symm (pred_succ m))))
 
 theorem zero_or_succ2 (n : nat) : n = zero ∨ n = succ (pred n)
 := @induction_on _ n
     (or_intro_left _ (refl zero))
     (take m IH, or_intro_right _
-      (show succ m = succ (pred (succ m)), from congr2 succ (symm (pred_succ m))))
+      (show succ m = succ (pred (succ m)), from congr_arg succ (symm (pred_succ m))))

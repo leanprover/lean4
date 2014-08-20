@@ -1,5 +1,5 @@
 import standard
-using bool eq_proofs tactic
+using bool eq_ops tactic
 
 variables a b c : bool
 axiom H1 : a = b

@@ -12,10 +12,10 @@ namespace inhabited
 definition inhabited_destruct {A : Type} {B : Type} (H1 : inhabited A) (H2 : A → B) : B :=
 inhabited_rec H2 H1
 
-definition inhabited_Prop [instance] : inhabited Prop :=
+definition Prop_inhabited [instance] : inhabited Prop :=
 inhabited_mk true
 
-definition inhabited_fun [instance] (A : Type) {B : Type} (H : inhabited B) : inhabited (A → B) :=
+definition fun_inhabited [instance] (A : Type) {B : Type} (H : inhabited B) : inhabited (A → B) :=
 inhabited_destruct H (take b, inhabited_mk (λa, b))
 
 definition default (A : Type) {H : inhabited A} : A := inhabited_destruct H (take a, a)

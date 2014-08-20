@@ -15,10 +15,10 @@ inductive string : Type :=
 | empty : string
 | str   : char → string → string
 
-theorem inhabited_char [instance] : inhabited char :=
+theorem char_inhabited [instance] : inhabited char :=
 inhabited_mk (ascii ff ff ff ff ff ff ff ff)
 
-theorem inhabited_string [instance] : inhabited string :=
+theorem string_inhabited [instance] : inhabited string :=
 inhabited_mk empty
 
 end string

@@ -1,5 +1,5 @@
 import standard
-using num prod
+using num prod inhabited
 
 section
   parameter {A : Type}

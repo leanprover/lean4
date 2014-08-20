@@ -44,6 +44,6 @@ theorem test7 (T : Type) (a b c d : T) (H1 : a = b) (H2 : c = b) (H3 : c = d) : 
 trans H1 (trans (symm H2) H3)
 
 theorem test8 (a b c d : Prop) (H1 : a ↔ b) (H2 : c ↔ b) (H3 : c ↔ d) : a ↔ d :=
-trans iff H1 (trans iff (symm iff H2) H3)
+trans H1 (trans (symm H2) H3)
 
 end

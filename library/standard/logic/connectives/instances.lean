@@ -107,28 +107,32 @@ relation.is_transitive_mk (@iff_trans)
 theorem mp_like_iff [instance] (a b : Prop) (H : a ↔ b) : relation.mp_like H :=
 relation.mp_like_mk (iff_elim_left H)
 
+
 -- Substition for iff
 -- ------------------
 
-theorem subst_iff {P : Prop → Prop} {C : congr iff iff P} {a b : Prop} (H : a ↔ b) (H1 : P a) :
+theorem subst_iff ⦃P : Prop → Prop⦄ {C : congr iff iff P} {a b : Prop} (H : a ↔ b) (H1 : P a) :
   P b :=
 @general_operations.subst Prop iff P C a b H H1
 
--- Support for calc
+
+-- Support for calculations with iff
 -- ----------------
 
 calc_refl iff_refl
-calc_subst subst_iff
 calc_trans iff_trans
+calc_subst subst_iff
 
 namespace iff_ops
   postfix `⁻¹`:100 := iff_symm
   infixr `⬝`:75     := iff_trans
   infixr `▸`:75    := subst_iff
+  abbreviation refl := iff_refl
+  abbreviation symm := iff_symm
+  abbreviation trans := iff_trans
+  abbreviation subst := subst_iff
+  abbreviation mp := iff_mp
 end iff_ops
-
-
-
 
 
 -- Boolean calculations
@@ -143,5 +147,8 @@ calc
      ... ↔ (a ∨ c) ∨ b : iff_symm (or_assoc _ _ _)
 
 -- TODO: add or_left_comm, and_right_comm, and_left_comm
+
+-- TODO: this is only temporary, until the calc bug is fixed
+calc_subst subst
 
 end relation

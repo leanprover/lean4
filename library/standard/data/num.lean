@@ -23,7 +23,7 @@ inductive num : Type :=
 theorem inhabited_pos_num [instance] : inhabited pos_num :=
 inhabited_mk one
 
-theorem inhabited_num [instance] : inhabited num :=
+theorem num_inhabited [instance] : inhabited num :=
 inhabited_mk zero
 
 end num

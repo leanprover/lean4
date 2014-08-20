@@ -14,7 +14,7 @@ import logic data.nat
 
 using nat
 -- using congr
-using eq_proofs
+using eq_ops
 
 namespace list
 

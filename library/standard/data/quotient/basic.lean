@@ -7,13 +7,14 @@ import logic.connectives.instances
 import .aux
 
 using relation prod inhabited nonempty tactic eq_ops
+using subtype relation.iff_ops
+
 
 -- Theory data.quotient
 -- ====================
 
 namespace quotient
 
-using subtype
 
 -- definition and basics
 -- ---------------------
@@ -29,34 +30,6 @@ theorem intro {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A
   (H3 : ∀r s, R r s ↔ (R r r ∧ R s s ∧ abs r = abs s)) : is_quotient R abs rep := 
 and_intro H1 (and_intro H2 H3)
 
--- theorem intro_refl {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
---   (H1 : reflexive R) (H2 : ∀b, abs (rep b) = b)
---   (H3 : ∀r s, R r s ↔ abs r = abs s) : is_quotient R abs rep :=
--- intro
---   H2
---   (take b, H1 (rep b))
---   (take r s,
---     have H4 : R r s ↔ R s s ∧ abs r = abs s,
---       from 
---         gensubst.subst (relation.operations.symm (and_absorb_left _ (H1 s))) (H3 r s),
---     gensubst.subst (relation.operations.symm (and_absorb_left _ (H1 r))) H4)
-
--- these work now, but the above still does not
--- theorem test (a b c : Prop) (P : Prop → Prop) (H1 : a ↔ b) (H2 : c ∧ a) : c ∧ b :=
--- gensubst.subst H1 H2
-
--- theorem test2 {A : Type} {R : A → A → Prop} (Q : Prop) (r s : A) 
---   (H3 : R r s ↔ Q) (H1 : R s s) : Q ↔ (R s s ∧ Q) :=
--- relation.operations.symm (and_absorb_left Q H1)
-
--- theorem test3 {A : Type} {R : A → A → Prop} (Q : Prop) (r s : A) 
---   (H3 : R r s ↔ Q) (H1 : R s s) : R r s ↔ (R s s ∧ Q) :=
--- gensubst.subst (test2 Q r s H3 H1) H3
-
--- theorem test4 {A : Type} {R : A → A → Prop} (Q : Prop) (r s : A) 
---   (H3 : R r s ↔ Q) (H1 : R s s) : R r s ↔ (R s s ∧ Q) :=
--- gensubst.subst (relation.operations.symm (and_absorb_left Q H1)) H3
-
 theorem and_absorb_left {a : Prop} (b : Prop) (Ha : a) : a ∧ b ↔ b :=
 iff_intro (assume Hab, and_elim_right Hab) (assume Hb, and_intro Ha Hb)
 
@@ -69,20 +42,8 @@ intro
   (take r s,
     have H4 : R r s ↔ R s s ∧ abs r = abs s,
       from 
-        subst_iff (iff_symm (and_absorb_left _ (H1 s))) (H3 r s),
-    subst_iff (iff_symm (and_absorb_left _ (H1 r))) H4)
-
--- theorem intro_refl {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
---   (H1 : reflexive R) (H2 : ∀b, abs (rep b) = b)
---   (H3 : ∀r s, R r s ↔ abs r = abs s) : is_quotient R abs rep :=
--- intro
---   H2
---   (take b, H1 (rep b))
---   (take r s,
---     have H4 : R r s ↔ R s s ∧ abs r = abs s,
---       from 
---         substi (iff_symm (and_absorb_left _ (H1 s))) (H3 r s),
---     substi (iff_symm (and_absorb_left _ (H1 r))) H4)
+        subst (symm (and_absorb_left _ (H1 s))) (H3 r s),
+    subst (symm (and_absorb_left _ (H1 r))) H4)
 
 theorem abs_rep {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) (b : B) :  abs (rep b) = b := 
@@ -146,6 +107,7 @@ have Ha : R a a, from refl_left Q Hab,
 have Hc : R c c, from refl_right Q Hbc,
 have Hac : abs a = abs c, from trans (eq_abs Q Hab) (eq_abs Q Hbc),
 R_intro Q Ha Hc Hac
+
 
 -- recursion
 -- ---------
@@ -299,28 +261,28 @@ calc
 -- ------------------------------------------
 
 theorem representative_map_idempotent {A : Type} {R : A → A → Prop} {f : A → A}
-  (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b ↔ R a a ∧ R b b ∧ f a = f b) (a : A)
-  : f (f a) = f a :=
+    (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b ↔ R a a ∧ R b b ∧ f a = f b) (a : A) :
+  f (f a) = f a :=
 symm (and_elim_right (and_elim_right (iff_elim_left (H2 a (f a)) (H1 a))))
 
 theorem representative_map_idempotent_equiv {A : Type} {R : A → A → Prop} {f : A → A}
-  (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b → f a = f b) (a : A)
-  : f (f a) = f a :=
+    (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b → f a = f b) (a : A) :
+  f (f a) = f a :=
 symm (H2 a (f a) (H1 a))
 
 theorem representative_map_refl_rep {A : Type} {R : A → A → Prop} {f : A → A}
-  (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b ↔ R a a ∧ R b b ∧ f a = f b) (a : A)
-  : R (f a) (f a) :=
+    (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b ↔ R a a ∧ R b b ∧ f a = f b) (a : A) :
+  R (f a) (f a) :=
 subst (representative_map_idempotent H1 H2 a) (H1 (f a)) 
 
 theorem representative_map_image_fix {A : Type} {R : A → A → Prop} {f : A → A}
-  (H1 : ∀a, R a (f a)) (H2 : ∀a a', R a a' ↔ R a a ∧ R a' a' ∧ f a = f a') (b : image f)
-  : f (elt_of b) = elt_of b :=
+    (H1 : ∀a, R a (f a)) (H2 : ∀a a', R a a' ↔ R a a ∧ R a' a' ∧ f a = f a') (b : image f) :
+  f (elt_of b) = elt_of b :=
 idempotent_image_fix (representative_map_idempotent H1 H2) b
 
 theorem representative_map_to_quotient {A : Type} {R : A → A → Prop} {f : A → A}
-  (H1 : ∀a, R a (f a)) (H2 : ∀a a', R a a' ↔ R a a ∧ R a' a' ∧ f a = f a')
-  : is_quotient _ (fun_image f) elt_of :=
+    (H1 : ∀a, R a (f a)) (H2 : ∀a a', R a a' ↔ R a a ∧ R a' a' ∧ f a = f a') :
+  is_quotient _ (fun_image f) elt_of :=
 let abs [inline] := fun_image f in
 intro
   (take u : image f,
@@ -337,30 +299,31 @@ intro
       obtain (a : A) (Ha : f a = elt_of u), from image_elt_of u,
         subst Ha (@representative_map_refl_rep A R f H1 H2 a))
   (take a a', 
-    subst_iff (fun_image_eq f a a') (H2 a a'))
+    subst (fun_image_eq f a a') (H2 a a'))
 
 theorem representative_map_equiv_inj {A : Type} {R : A → A → Prop}
-  (equiv : is_equivalence R) {f : A → A} (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b → f a = f b)
-  {a b : A} (H3 : f a = f b) : R a b :=
-have symmR : symmetric R, from is_symmetric.infer R,
-have transR : transitive R, from is_transitive.infer R,
+    (equiv : is_equivalence R) {f : A → A} 
+    (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b → f a = f b) {a b : A} (H3 : f a = f b) : 
+  R a b :=
+have symmR : symmetric R, from rel_symm R,
+have transR : transitive R, from rel_trans R,
 show R a b, from
   have H2 : R a (f b), from subst H3 (H1 a),
   have H3 : R (f b) b, from symmR (H1 b),
   transR H2 H3
 
 theorem representative_map_to_quotient_equiv {A : Type} {R : A → A → Prop}
-  (equiv : is_equivalence R) {f : A → A} (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b → f a = f b)
-  : @is_quotient A (image f) R (fun_image f) elt_of :=
+    (equiv : is_equivalence R) {f : A → A} (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b → f a = f b) :
+  @is_quotient A (image f) R (fun_image f) elt_of :=
 representative_map_to_quotient
   H1
   (take a b,
-    have reflR : reflexive R, from is_reflexive.infer R,
+    have reflR : reflexive R, from rel_refl R,
     have H3 : f a = f b → R a b, from representative_map_equiv_inj equiv H1 H2,
     have H4 : R a b ↔ f a = f b, from iff_intro (H2 a b) H3,
     have H5 : R a b ↔ R b b ∧ f a = f b,
-      from subst_iff (iff_symm (and_absorb_left _ (reflR b))) H4,
-    subst_iff (iff_symm (and_absorb_left _ (reflR a))) H5)
+      from subst (symm (and_absorb_left _ (reflR b))) H4,
+    subst (symm (and_absorb_left _ (reflR a))) H5)
 
 -- previously:
 -- opaque_hint (hiding fun_image rec is_quotient prelim_map)

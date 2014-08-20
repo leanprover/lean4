@@ -829,15 +829,18 @@ struct unifier_fn {
             return Continue;
         bool contains = occurs_meta(lhs, rhs);
         if (contains) {
-            if (is_succ(rhs))
+            if (is_succ(rhs)) {
+                set_conflict(j);
                 return Failed;
-            else
+            } else {
                 return Continue;
+            }
         }
         lean_assert(!m_subst.is_assigned(lhs));
         if (assign(lhs, rhs, j)) {
             return Solved;
         } else {
+            set_conflict(j);
             return Failed;
         }
     }

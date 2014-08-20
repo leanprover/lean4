@@ -4,6 +4,8 @@
 
 import logic.classes.inhabited logic.connectives.eq
 
+using inhabited
+
 inductive prod (A B : Type) : Type :=
 | pair : A → B → prod A B
 
@@ -39,7 +41,7 @@ section
   pair_destruct p1 (take a1 b1, pair_destruct p2 (take a2 b2 H1 H2, pair_eq H1 H2))
 
   theorem prod_inhabited (H1 : inhabited A) (H2 : inhabited B) : inhabited (prod A B) :=
-  inhabited_elim H1 (λa, inhabited_elim H2 (λb, inhabited_intro (pair a b)))
+  inhabited_destruct H1 (λa, inhabited_destruct H2 (λb, inhabited_mk (pair a b)))
 
 end
 

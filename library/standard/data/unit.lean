@@ -17,7 +17,7 @@ theorem unit_eq (a b : unit) : a = b :=
 unit_rec (unit_rec (refl ⋆) b) a
 
 theorem inhabited_unit [instance] : inhabited unit :=
-inhabited_intro ⋆
+inhabited_mk ⋆
 
 theorem decidable_eq [instance] (a b : unit) : decidable (a = b) :=
 inl (unit_eq a b)

@@ -54,27 +54,27 @@ theorem eq_rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H1 : a = b) (
   from eq_rec_on H2 (take (H2 : b = b), eq_rec_on_id H2 _))
 H2
 
-namespace eq_proofs
+namespace eq_ops
   postfix `⁻¹`:100 := symm
   infixr `⬝`:75     := trans
   infixr `▸`:75    := subst
-end eq_proofs
-using eq_proofs
+end eq_ops
+using eq_ops
 
-theorem congr1 {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a :=
+theorem congr_fun {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a :=
 H ▸ refl (f a)
 
-theorem congr2 {A : Type} {B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b :=
+theorem congr_arg {A : Type} {B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b :=
 H ▸ refl (f a)
 
 theorem congr {A : Type} {B : Type} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) : f a = g b :=
 H1 ▸ H2 ▸ refl (f a)
 
 theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀x, f x = g x :=
-take x, congr1 H x
+take x, congr_fun H x
 
 theorem not_congr {a b : Prop} (H : a = b) : (¬a) = (¬b) :=
-congr2 not H
+congr_arg not H
 
 theorem eqmp {a b : Prop} (H1 : a = b) (H2 : a) : b :=
 H1 ▸ H2

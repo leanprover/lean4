@@ -6,27 +6,29 @@
 
 import logic.classes.inhabited logic.connectives.cast
 
+using inhabited
+
 -- Pi extensionality
 axiom piext {A : Type} {B B' : A → Type} {H : inhabited (Π x, B x)} :
   (Π x, B x) = (Π x, B' x) → B = B'
 
 theorem cast_app {A : Type} {B B' : A → Type} (H : (Π x, B x) = (Π x, B' x)) (f : Π x, B x)
   (a : A) : cast H f a == f a :=
-have Hi [fact] : inhabited (Π x, B x), from inhabited_intro f,
+have Hi [fact] : inhabited (Π x, B x), from inhabited_mk f,
 have Hb : B = B', from piext H,
 cast_app' Hb f a
 
-theorem hcongr1 {A : Type} {B B' : A → Type} {f : Π x, B x} {f' : Π x, B' x} (a : A)
+theorem hcongr_fun {A : Type} {B B' : A → Type} {f : Π x, B x} {f' : Π x, B' x} (a : A)
   (H : f == f') : f a == f' a :=
-have Hi [fact] : inhabited (Π x, B x), from inhabited_intro f,
+have Hi [fact] : inhabited (Π x, B x), from inhabited_mk f,
 have Hb : B = B', from piext (type_eq H),
-hcongr1' a H Hb
+hcongr_fun' a H Hb
 
 theorem hcongr {A A' : Type} {B : A → Type} {B' : A' → Type}
     {f : Π x, B x} {f' : Π x, B' x} {a : A} {a' : A'}
     (Hff' : f == f') (Haa' : a == a') : f a == f' a' :=
 have H1 : ∀ (B B' : A → Type) (f : Π x, B x) (f' : Π x, B' x), f == f' → f a == f' a, from
-  take B B' f f' e, hcongr1 a e,
+  take B B' f f' e, hcongr_fun a e,
 have H2 : ∀ (B : A → Type) (B' : A' → Type) (f : Π x, B x) (f' : Π x, B' x),
     f == f' → f a == f' a', from hsubst Haa' H1,
 H2 B B' f f' Hff'

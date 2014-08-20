@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------
 
 import logic.axioms.funext data.bool
-using eq_proofs bool
+using eq_ops bool
 
 namespace set
 definition set (T : Type) := T → bool

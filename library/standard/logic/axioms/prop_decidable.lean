@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------
 
 import logic.axioms.classical logic.axioms.hilbert logic.classes.decidable
-using decidable
+using decidable inhabited nonempty
 
 -- Excluded middle + Hilbert implies every proposition is decidable
 

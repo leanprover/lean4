@@ -4,44 +4,46 @@
 
 import logic.connectives.basic logic.connectives.eq struc.relation
 
+namespace relation
+
 using relation
 
 -- Congruences for logic
 -- ---------------------
 
-theorem congr_not : congr.class iff iff not :=
-congr.mk
+theorem congr_not : congr iff iff not :=
+congr_mk
   (take a b,
     assume H : a ↔ b, iff_intro
       (assume H1 : ¬a, assume H2 : b, H1 (iff_elim_right H H2))
       (assume H1 : ¬b, assume H2 : a, H1 (iff_elim_left H H2)))
 
-theorem congr_and : congr.class2 iff iff iff and :=
-congr.mk2
+theorem congr_and : congr2 iff iff iff and :=
+congr2_mk
   (take a1 b1 a2 b2,
     assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
     iff_intro
       (assume H3 : a1 ∧ a2, and_imp_and H3 (iff_elim_left H1) (iff_elim_left H2))
       (assume H3 : b1 ∧ b2, and_imp_and H3 (iff_elim_right H1) (iff_elim_right H2)))
 
-theorem congr_or : congr.class2 iff iff iff or :=
-congr.mk2
+theorem congr_or : congr2 iff iff iff or :=
+congr2_mk
   (take a1 b1 a2 b2,
     assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
     iff_intro
       (assume H3 : a1 ∨ a2, or_imp_or H3 (iff_elim_left H1) (iff_elim_left H2))
       (assume H3 : b1 ∨ b2, or_imp_or H3 (iff_elim_right H1) (iff_elim_right H2)))
 
-theorem congr_imp : congr.class2 iff iff iff imp :=
-congr.mk2
+theorem congr_imp : congr2 iff iff iff imp :=
+congr2_mk
   (take a1 b1 a2 b2,
     assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
     iff_intro
       (assume H3 : a1 → a2, assume Hb1 : b1, iff_elim_left H2 (H3 ((iff_elim_right H1) Hb1)))
       (assume H3 : b1 → b2, assume Ha1 : a1, iff_elim_right H2 (H3 ((iff_elim_left H1) Ha1))))
 
-theorem congr_iff : congr.class2 iff iff iff iff :=
-congr.mk2
+theorem congr_iff : congr2 iff iff iff iff :=
+congr2_mk
   (take a1 b1 a2 b2,
     assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
     iff_intro
@@ -59,62 +61,87 @@ theorem congr_iff_compose [instance] := congr.compose21 congr_iff
 -- Generalized substitution
 -- ------------------------
 
-namespace gensubst
-
 -- TODO: note that the target has to be "iff". Otherwise, there is not enough
 -- information to infer an mp-like relation.
 
-theorem subst {T : Type} {R : T → T → Prop} {P : T → Prop} {C : congr.class R iff P}
+namespace general_operations
+
+theorem subst {T : Type} (R : T → T → Prop) ⦃P : T → Prop⦄ {C : congr R iff P}
   {a b : T} (H : R a b) (H1 : P a) : P b := iff_elim_left (congr.app C H) H1
 
-infixr `▸`:75    := subst
-
-end gensubst
-
+end general_operations
 
 -- = is an equivalence relation
 -- ----------------------------
 
-theorem is_reflexive_eq [instance] (T : Type) : relation.is_reflexive.class (@eq T) :=
-relation.is_reflexive.mk (@refl T)
+theorem is_reflexive_eq [instance] (T : Type) : relation.is_reflexive (@eq T) :=
+relation.is_reflexive_mk (@refl T)
 
-theorem is_symmetric_eq [instance] (T : Type) : relation.is_symmetric.class (@eq T) :=
-relation.is_symmetric.mk (@symm T)
+theorem is_symmetric_eq [instance] (T : Type) : relation.is_symmetric (@eq T) :=
+relation.is_symmetric_mk (@symm T)
 
-theorem is_transitive_eq [instance] (T : Type) : relation.is_transitive.class (@eq T) :=
-relation.is_transitive.mk (@trans T)
+theorem is_transitive_eq [instance] (T : Type) : relation.is_transitive (@eq T) :=
+relation.is_transitive_mk (@trans T)
+
+-- TODO: this is only temporary, needed to inform Lean that is_equivalence is a class
+theorem is_equivalence_eq [instance] (T : Type) : relation.is_equivalence (@eq T) :=
+relation.is_equivalence_mk _ _ _
 
 
 -- iff is an equivalence relation
 -- ------------------------------
 
-theorem is_reflexive_iff [instance] : relation.is_reflexive.class iff :=
-relation.is_reflexive.mk (@iff_refl)
+theorem is_reflexive_iff [instance] : relation.is_reflexive iff :=
+relation.is_reflexive_mk (@iff_refl)
 
-theorem is_symmetric_iff [instance] : relation.is_symmetric.class iff :=
-relation.is_symmetric.mk (@iff_symm)
+theorem is_symmetric_iff [instance] : relation.is_symmetric iff :=
+relation.is_symmetric_mk (@iff_symm)
 
-theorem is_transitive_iff [instance] : relation.is_transitive.class iff :=
-relation.is_transitive.mk (@iff_trans)
+theorem is_transitive_iff [instance] : relation.is_transitive iff :=
+relation.is_transitive_mk (@iff_trans)
 
 
 -- Mp-like for iff
 -- ---------------
 
-theorem mp_like_iff [instance] (a b : Prop) (H : a ↔ b) : relation.mp_like.class H :=
-relation.mp_like.mk (iff_elim_left H)
+theorem mp_like_iff [instance] (a b : Prop) (H : a ↔ b) : relation.mp_like H :=
+relation.mp_like_mk (iff_elim_left H)
+
+-- Substition for iff
+-- ------------------
+
+theorem subst_iff {P : Prop → Prop} {C : congr iff iff P} {a b : Prop} (H : a ↔ b) (H1 : P a) :
+  P b :=
+@general_operations.subst Prop iff P C a b H H1
+
+-- Support for calc
+-- ----------------
+
+calc_refl iff_refl
+calc_subst subst_iff
+calc_trans iff_trans
+
+namespace iff_ops
+  postfix `⁻¹`:100 := iff_symm
+  infixr `⬝`:75     := iff_trans
+  infixr `▸`:75    := subst_iff
+end iff_ops
+
+
+
 
 
 -- Boolean calculations
 -- --------------------
 
--- TODO: move these to new file
--- TODO: declare trans
+-- TODO: move these somewhere
 
 theorem or_right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
 calc
   (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) : or_assoc _ _ _
-    ... ↔ a ∨ (c ∨ b) : congr.infer iff iff _ (or_comm b c)
-    ... ↔ (a ∨ c) ∨ b : iff_symm (or_assoc _ _ _)
+    ... ↔ a ∨ (c ∨ b) : {or_comm b c}
+     ... ↔ (a ∨ c) ∨ b : iff_symm (or_assoc _ _ _)
 
 -- TODO: add or_left_comm, and_right_comm, and_left_comm
+
+end relation

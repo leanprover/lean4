@@ -7,7 +7,7 @@ Basic types:
 
 * [empty](empty.lean) : the empty type
 * [unit](unit.lean) : the singleton type
-* [bool](bool/bool.md) : the boolean values
+* [bool](bool.lean) : the boolean values
 * [num](num.lean) : generic numerals
 * [string](string.lean) : ascii strings
 * [nat](nat/nat.md) : the natural numbers
@@ -20,5 +20,6 @@ Constructors:
 * [sigma](sigma.lean) : the dependent product
 * [option](option.lean)
 * [subtype](subtype.lean)
+* [quotient](quotient/quotient.md)
 * [list](list/list.md)
 * [set](set.lean)

@@ -1,12 +1,11 @@
-----------------------------------------------------------------------------------------------------
 --- Copyright (c) 2014 Floris van Doorn. All rights reserved.
 --- Released under Apache 2.0 license as described in the file LICENSE.
 --- Author: Floris van Doorn
-----------------------------------------------------------------------------------------------------
 
 import logic data.num tools.tactic struc.binary
-using num tactic binary eq_proofs
+using num tactic binary eq_ops
 using decidable (hiding induction_on rec_on)
+using relation -- for subst_iff
 
 -- TODO: this should go in tools, I think
 namespace helper_tactics
@@ -29,7 +28,19 @@ inductive nat : Type :=
 | zero : nat
 | succ : nat → nat
 
-notation `ℕ` : max := nat
+notation `ℕ`:max := nat
+
+theorem nat_rec_zero {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) : nat_rec x f zero = x
+
+theorem nat_rec_succ {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) (n : ℕ) :
+  nat_rec x f (succ n) = f n (nat_rec x f n)
+
+theorem induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P zero) (H2 : ∀ (n : ℕ) (IH : P n), P (succ n)) :
+  P a :=
+nat_rec H1 H2 a
+
+definition rec_on {P : ℕ → Type} (n : ℕ) (H1 : P zero) (H2 : ∀m, P m → P (succ m)) : P n :=
+nat_rec H1 H2 n
 
 
 -- Coercion from num
@@ -42,30 +53,20 @@ definition to_nat [coercion] [inline] (n : num) : ℕ :=
 num_rec zero
     (λ n, pos_num_rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
 
-theorem nat_rec_zero {P : ℕ → Type} (x : P 0) (f : ∀m, P m → P (succ m)) : nat_rec x f 0 = x
-
-theorem nat_rec_succ {P : ℕ → Type} (x : P 0) (f : ∀m, P m → P (succ m)) (n : ℕ) :
-  nat_rec x f (succ n) = f n (nat_rec x f n)
-
-theorem induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P 0) (H2 : ∀ (n : ℕ) (IH : P n), P (succ n)) :
-  P a :=
-nat_rec H1 H2 a
-
-definition rec_on {P : ℕ → Type} (n : ℕ) (H1 : P 0) (H2 : ∀m, P m → P (succ m)) : P n :=
-nat_rec H1 H2 n
-
 
 -- Successor and predecessor
 -- -------------------------
 
+-- TODO: this looks like a calc bug -- calc is using subst for iff, instead of =
+calc_subst subst
 theorem succ_ne_zero (n : ℕ) : succ n ≠ 0 :=
 assume H : succ n = 0,
 have H2 : true = false, from
   let f [inline] := (nat_rec false (fun a b, true)) in
     calc
-      true = f (succ n) : _
+      true = f (succ n) : rfl
        ... = f 0        : {H}
-       ... = false      : _,
+       ... = false      : rfl,
 absurd H2 true_ne_false
 
 -- add_rewrite succ_ne_zero
@@ -82,7 +83,7 @@ theorem zero_or_succ_pred (n : ℕ) : n = 0 ∨ n = succ (pred n) :=
 induction_on n
   (or_inl (refl 0))
   (take m IH, or_inr
-    (show succ m = succ (pred (succ m)), from congr2 succ (pred_succ m⁻¹)))
+    (show succ m = succ (pred (succ m)), from congr_arg succ (pred_succ m⁻¹)))
 
 theorem zero_or_exists_succ (n : ℕ) : n = 0 ∨ ∃k, n = succ k :=
 or_imp_or (zero_or_succ_pred n) (assume H, H)
@@ -122,7 +123,7 @@ have general : ∀n, decidable (n = m), from
 	(λ (n' : ℕ) (iH2 : decidable (n' = succ m')),
 	  have d1 : decidable (n' = m'), from iH1 n',
 	  decidable.rec_on d1
-	    (assume Heq : n' = m', inl (congr2 succ Heq))
+	    (assume Heq : n' = m', inl (congr_arg succ Heq))
 	    (assume Hne : n' ≠ m',
 	      have H1 : succ n' ≠ succ m', from
 		assume Heq, absurd (succ_inj Heq) Hne,

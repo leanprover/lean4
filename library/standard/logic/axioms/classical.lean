@@ -4,9 +4,9 @@
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
 
-import logic.connectives.basic logic.connectives.quantifiers logic.connectives.cast
+import logic.connectives.basic logic.connectives.quantifiers logic.connectives.cast struc.relation
 
-using eq_proofs
+using eq_ops
 
 axiom prop_complete (a : Prop) : a = true ∨ a = false
 
@@ -14,6 +14,9 @@ theorem case (P : Prop → Prop) (H1 : P true) (H2 : P false) (a : Prop) : P a :
 or_elim (prop_complete a)
   (assume Ht : a = true,  Ht⁻¹ ▸ H1)
   (assume Hf : a = false, Hf⁻¹ ▸ H2)
+
+theorem case_on (a : Prop) {P : Prop → Prop} (H1 : P true) (H2 : P false) : P a :=
+case P H1 H2 a
 
 theorem em (a : Prop) : a ∨ ¬a :=
 or_elim (prop_complete a)
@@ -163,3 +166,12 @@ theorem peirce (a b : Prop) : ((a → b) → a) → a :=
 assume H, by_contradiction (assume Hna : ¬a,
   have Hnna : ¬¬a, from not_implies_left (mt H Hna),
   absurd (not_not_elim Hnna) Hna)
+
+-- with classical logic, every predicate respects iff
+
+using relation
+theorem iff_congr [instance] (P : Prop → Prop) : congr iff iff P :=
+congr_mk
+  (take (a b : Prop),
+    assume H : a ↔ b,
+    show P a ↔ P b, from eq_to_iff (subst (iff_to_eq H) (refl (P a))))

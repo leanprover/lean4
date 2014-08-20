@@ -6,7 +6,7 @@
 
 import .eq .quantifiers
 
-using eq_proofs
+using eq_ops
 
 definition cast {A B : Type} (H : A = B) (a : A) : B :=
 eq_rec a H
@@ -91,13 +91,13 @@ heq_to_eq (calc cast Hbc (cast Hab a)   == cast Hab a        : cast_heq Hbc (cas
                                    ...  == a                 : cast_heq Hab a
                                    ...  == cast (Hab ⬝ Hbc) a : hsymm (cast_heq (Hab ⬝ Hbc) a))
 
-theorem dcongr2 {A : Type} {B : A → Type} (f : Πx, B x) {a b : A} (H : a = b) : f a == f b :=
+theorem dcongr_arg {A : Type} {B : A → Type} (f : Πx, B x) {a b : A} (H : a = b) : f a == f b :=
 have e1 : ∀ (H : B a = B a), cast H (f a) = f a, from
   assume H, cast_eq H (f a),
 have e2 : ∀ (H : B a = B b), cast H (f a) = f b, from
   subst H e1,
-have e3 : cast (congr2 B H) (f a) = f b, from
-  e2 (congr2 B H),
+have e3 : cast (congr_arg B H) (f a) = f b, from
+  e2 (congr_arg B H),
 cast_eq_to_heq e3
 
 theorem pi_eq {A : Type} {B B' : A → Type} (H : B = B') : (Π x, B x) = (Π x, B' x) :=
@@ -106,20 +106,20 @@ subst H (refl (Π x, B x))
 theorem cast_app' {A : Type} {B B' : A → Type} (H : B = B') (f : Π x, B x) (a : A) :
   cast (pi_eq H) f a == f a :=
 have H1 : ∀ (H : (Π x, B x) = (Π x, B x)), cast H f a == f a, from
-  assume H, eq_to_heq (congr1 (cast_eq H f) a),
+  assume H, eq_to_heq (congr_fun (cast_eq H f) a),
 have H2 : ∀ (H : (Π x, B x) = (Π x, B' x)), cast H f a == f a, from
   subst H H1,
 H2 (pi_eq H)
 
 theorem cast_pull {A : Type} {B B' : A → Type} (H : B = B') (f : Π x, B x) (a : A) :
-                  cast (pi_eq H) f a = cast (congr1 H a) (f a) :=
+                  cast (pi_eq H) f a = cast (congr_fun H a) (f a) :=
 heq_to_eq (calc cast (pi_eq H) f a == f a                     : cast_app' H f a
-                             ...   == cast (congr1 H a) (f a) : hsymm (cast_heq (congr1 H a) (f a)))
+                             ...   == cast (congr_fun H a) (f a) : hsymm (cast_heq (congr_fun H a) (f a)))
 
-theorem hcongr1' {A : Type} {B B' : A → Type} {f : Π x, B x} {f' : Π x, B' x} (a : A)
+theorem hcongr_fun' {A : Type} {B B' : A → Type} {f : Π x, B x} {f' : Π x, B' x} (a : A)
     (H1 : f == f') (H2 : B = B')
   : f a == f' a :=
 heq_elim H1 (λ (Ht : (Π x, B x) = (Π x, B' x)) (Hw : cast Ht f = f'),
   calc f a == cast (pi_eq H2) f a  : hsymm (cast_app' H2 f a)
        ... =  cast Ht f a          : refl (cast Ht f a)
-       ... =  f' a                 : congr1 Hw a)
+       ... =  f' a                 : congr_fun Hw a)

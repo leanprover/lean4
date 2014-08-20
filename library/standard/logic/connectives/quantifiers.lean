@@ -4,6 +4,8 @@
 
 import .basic .eq ..classes.nonempty
 
+using inhabited nonempty
+
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 | exists_intro : ∀ (a : A), P a → Exists P
 
@@ -52,12 +54,12 @@ theorem forall_true_iff_true (A : Type) : (∀x : A, true) ↔ true :=
 iff_intro (assume H, trivial) (assume H, take x, trivial)
 
 theorem forall_p_iff_p (A : Type) {H : inhabited A} (p : Prop) : (∀x : A, p) ↔ p :=
-iff_intro (assume Hl, inhabited_elim H (take x, Hl x)) (assume Hr, take x, Hr)
+iff_intro (assume Hl, inhabited_destruct H (take x, Hl x)) (assume Hr, take x, Hr)
 
 theorem exists_p_iff_p (A : Type) {H : inhabited A} (p : Prop) : (∃x : A, p) ↔ p :=
 iff_intro
   (assume Hl, obtain a Hp, from Hl, Hp)
-  (assume Hr, inhabited_elim H (take a, exists_intro a Hr))
+  (assume Hr, inhabited_destruct H (take a, exists_intro a Hr))
 
 theorem forall_and_distribute {A : Type} (φ ψ : A → Prop) : (∀x, φ x ∧ ψ x) ↔ (∀x, φ x) ∧ (∀x, ψ x) :=
 iff_intro

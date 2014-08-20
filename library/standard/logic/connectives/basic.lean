@@ -1,8 +1,6 @@
-----------------------------------------------------------------------------------------------------
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Leonardo de Moura, Jeremy Avigad
-----------------------------------------------------------------------------------------------------
 
 import general_notation .prop
 
@@ -56,6 +54,9 @@ assume Hna : ¬a, absurd (assume Ha : a, absurd_elim b Ha Hna) H
 
 theorem not_implies_right {a b : Prop} (H : ¬(a → b)) : ¬b :=
 assume Hb : b, absurd (assume Ha : a, Hb) H
+
+theorem contrapos {a b : Prop} (Hab : a → b) : (¬b → ¬a) :=
+assume Hnb Ha, Hnb (Hab Ha)
 
 
 -- and

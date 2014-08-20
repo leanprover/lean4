@@ -2,8 +2,12 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 
-import .type logic.connectives.basic logic.classes.decidable logic.classes.inhabited
-using eq_proofs decidable
+import logic.connectives.basic logic.classes.decidable logic.classes.inhabited
+using eq_ops decidable
+
+inductive bool : Type :=
+| ff : bool
+| tt : bool
 
 namespace bool
 
@@ -11,7 +15,7 @@ theorem induction_on {p : bool → Prop} (b : bool) (H0 : p ff) (H1 : p tt) : p 
 bool_rec H0 H1 b
 
 theorem inhabited_bool [instance] : inhabited bool :=
-inhabited_intro ff
+inhabited_mk ff
 
 definition cond {A : Type} (b : bool) (t e : A) :=
 bool_rec e t b

@@ -4,6 +4,10 @@
 
 import logic.connectives.basic .inhabited
 
+using inhabited
+
+namespace nonempty
+
 inductive nonempty (A : Type) : Prop :=
 | nonempty_intro : A → nonempty A
 
@@ -12,3 +16,5 @@ nonempty_rec H2 H1
 
 theorem inhabited_imp_nonempty [instance] {A : Type} (H : inhabited A) : nonempty A :=
 nonempty_intro (default A)
+
+end nonempty

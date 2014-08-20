@@ -4,7 +4,7 @@
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
 import logic.connectives.basic logic.connectives.eq logic.classes.inhabited logic.classes.decidable
-using eq_proofs decidable
+using eq_ops decidable
 
 namespace option
 inductive option (A : Type) : Type :=
@@ -32,10 +32,10 @@ assume H : none = some a, absurd
   (not_is_none_some a)
 
 theorem some_inj {A : Type} {a₁ a₂ : A} (H : some a₁ = some a₂) : a₁ = a₂ :=
-congr2 (option_rec a₁ (λ a, a)) H
+congr_arg (option_rec a₁ (λ a, a)) H
 
 theorem inhabited_option [instance] (A : Type) : inhabited (option A) :=
-inhabited_intro none
+inhabited_mk none
 
 theorem decidable_eq [instance] {A : Type} {H : ∀a₁ a₂ : A, decidable (a₁ = a₂)} (o₁ o₂ : option A) : decidable (o₁ = o₂) :=
 rec_on o₁

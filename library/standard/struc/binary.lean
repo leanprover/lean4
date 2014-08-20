@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------
 
 import logic.connectives.eq
-using eq_proofs
+using eq_ops
 
 namespace binary
 section

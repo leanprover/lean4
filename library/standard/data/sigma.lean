@@ -4,6 +4,8 @@
 
 import logic.classes.inhabited logic.connectives.eq
 
+using inhabited
+
 inductive sigma {A : Type} (B : A → Type) : Type :=
 | dpair : Πx : A, B x → sigma B
 
@@ -48,7 +50,7 @@ section
 
   theorem sigma_inhabited (H1 : inhabited A) (H2 : inhabited (B (default A))) :
     inhabited (sigma B) :=
-   inhabited_elim H1 (λa, inhabited_elim H2 (λb, inhabited_intro (dpair (default A) b)))
+   inhabited_destruct H1 (λa, inhabited_destruct H2 (λb, inhabited_mk (dpair (default A) b)))
 
 end
 

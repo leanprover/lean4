@@ -1,14 +1,12 @@
-----------------------------------------------------------------------------------------------------
 --- Copyright (c) 2014 Floris van Doorn. All rights reserved.
 --- Released under Apache 2.0 license as described in the file LICENSE.
 --- Author: Floris van Doorn
-----------------------------------------------------------------------------------------------------
 
 import .basic
-using nat eq_proofs tactic
+import tools.fake_simplifier
 
--- until we have the simplifier...
-definition simp : tactic := apply @sorry
+using nat eq_ops tactic
+using fake_simplifier
 
 -- TODO: move these to logic.connectives
 theorem or_imp_or_left {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) : c ∨ b :=
@@ -30,7 +28,6 @@ namespace nat
 definition le (n m : ℕ) : Prop := exists k : nat, n + k = m
 
 infix  `<=`:50 := le
-
 infix  `≤`:50  := le
 
 theorem le_intro {n m k : ℕ} (H : n + k = m) : n ≤ m :=

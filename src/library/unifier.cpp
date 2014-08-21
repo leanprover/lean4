@@ -1482,7 +1482,6 @@ struct unifier_fn {
             } catch (exception&) {}
             expr v = Fun(locals, mk_app(f, sargs));
             // std::cout << " >> app imitation, v: " << v << "\n";
-            lean_assert(!has_local(v));
             cs = cs + mk_eq_cnstr(m, v, j, relax);
             alts.push_back(cs.to_list());
         }

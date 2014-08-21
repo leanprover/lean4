@@ -80,8 +80,8 @@
 ;; ==============================
 (defun lean-server-create-process ()
   "Create lean-server process."
-  (when (buffer-modified-p)
-    (error "Please save the buffer before start lean-server."))
+  ;; (when (buffer-modified-p)
+  ;;   (error "Please save the buffer before start lean-server."))
   (let ((process-connection-type nil)
         (lean-server-process
          (start-process lean-server-process-name

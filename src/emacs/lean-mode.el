@@ -109,8 +109,9 @@
       (eldoc-mode +1)
       (when lean-company-use
         (require 'company)
-        (set (make-local-variable 'company-backends) '(company-etags))
-        (company-mode t))))
+        (company-mode t)
+        (add-to-list 'company-etags-modes 'lean-mode)
+        (set (make-local-variable 'company-backends) '(company-etags)))))
   "A mode for Lean files"          ;; doc string for this mode
   )
 

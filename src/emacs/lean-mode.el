@@ -107,6 +107,10 @@
       (set (make-local-variable 'eldoc-documentation-function)
            'lean-eldoc-documentation-function)
       (eldoc-mode +1)
+      ;; flycheck
+      (when lean-flycheck-use
+        (lean-flycheck-init))
+      ;; company-mode
       (when lean-company-use
         (require 'company)
         (company-mode t)

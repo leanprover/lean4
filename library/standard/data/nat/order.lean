@@ -2,11 +2,12 @@
 --- Released under Apache 2.0 license as described in the file LICENSE.
 --- Author: Floris van Doorn
 
-import .basic
+import .basic logic.classes.decidable
 import tools.fake_simplifier
 
 using nat eq_ops tactic
 using fake_simplifier
+using decidable (decidable inl inr)
 
 -- TODO: move these to logic.connectives
 theorem or_imp_or_left {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) : c ∨ b :=
@@ -237,6 +238,26 @@ le_trans (mul_le_right H1 m) (mul_le_left H2 k)
 
 -- mul_le_[left|right]_inv below
 
+theorem le_decidable [instance] (n m : ℕ) : decidable (n ≤ m) :=
+have general : ∀n, decidable (n ≤ m), from
+  rec_on m
+    (take n,
+      rec_on n
+        (inl (le_refl 0))
+        (take m iH, inr (not_succ_zero_le m)))
+    (take (m' : ℕ) (iH1 : ∀n, decidable (n ≤ m')) (n : ℕ),
+      rec_on n
+        (inl (zero_le (succ m')))
+        (take (n' : ℕ) (iH2 : decidable (n' ≤ succ m')),
+          have d1 : decidable (n' ≤ m'), from iH1 n',
+          decidable.rec_on d1
+            (assume Hp : n' ≤ m', inl (succ_le Hp))
+            (assume Hn : ¬ n' ≤ m',
+              have H : ¬ succ n' ≤ succ m', from
+                assume Hle : succ n' ≤ succ m',
+                  absurd (succ_le_cancel Hle) Hn,
+              inr H))),
+general n
 
 -- Less than, Greater than, Greater than or equal
 -- ----------------------------------------------
@@ -414,6 +435,15 @@ resolve_left (le_or_gt m n) H
 
 theorem not_le_imp_gt {n m : ℕ} (H : ¬ n ≤ m) : n > m :=
 resolve_right (le_or_gt n m) H
+
+theorem lt_decidable [instance] (n m : ℕ) : decidable (n < m) :=
+le_decidable _ _
+
+theorem gt_decidable [instance] (n m : ℕ) : decidable (n > m) :=
+le_decidable _ _
+
+theorem ge_decidable [instance] (n m : ℕ) : decidable (n ≥ m) :=
+le_decidable _ _
 
 -- Note: interaction with multiplication under "positivity"
 

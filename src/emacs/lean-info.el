@@ -275,7 +275,7 @@
     (SYNTH      (lean-synth-pos      info))
     (IDENTIFIER (lean-identifier-pos info))
     (SYMBOL     (lean-symbol-pos      info))
-    (NAY        (error "no position information for NAY"))))
+    (NAY        ())))
 (defun lean-info-line-number (info)
   (cl-first (lean-info-pos info)))
 (defun lean-info-column (info)

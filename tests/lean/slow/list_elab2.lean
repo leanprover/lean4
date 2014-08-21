@@ -12,13 +12,11 @@
 import logic data.nat
 -- import congr
 
-set_option unifier.expensive true
 using nat
 -- using congr
 using eq_proofs
 
 namespace list
-
 
 -- Type
 -- ----
@@ -116,9 +114,9 @@ list_induction_on s
     assume H : length (concat s t) = length s + length t,
     calc
       length (concat (cons x s) t ) = succ (length (concat s t))  : refl _
-	... = succ (length s + length t)  : { H }
-	... = succ (length s) + length t  : {symm (add_succ_left _ _)}
-	... = length (cons x s) + length t : refl _)
+        ... = succ (length s + length t)  : { H }
+        ... = succ (length s) + length t  : {symm (add_succ_left _ _)}
+        ... = length (cons x s) + length t : refl _)
 
 -- Reverse
 -- -------
@@ -141,9 +139,9 @@ list_induction_on s
     assume H : reverse (concat l t) = concat (reverse t) (reverse l),
     calc
       reverse (concat (cons x l) t) = concat (reverse (concat l t)) (cons x nil) : refl _
-	... = concat (concat (reverse t) (reverse l)) (cons x nil) : { H }
-	... = concat (reverse t) (concat (reverse l) (cons x nil)) : concat_assoc _ _ _
-	... = concat (reverse t) (reverse (cons x l)) : refl _)
+        ... = concat (concat (reverse t) (reverse l)) (cons x nil) : { H }
+        ... = concat (reverse t) (concat (reverse l) (cons x nil)) : concat_assoc _ _ _
+        ... = concat (reverse t) (reverse (cons x l)) : refl _)
 
 
 -- -- add_rewrite length_nil length_cons
@@ -153,9 +151,9 @@ list_induction_on l (refl _)
     assume H: reverse (reverse l') = l',
     show reverse (reverse (cons x l')) = cons x l', from
       calc
-      	reverse (reverse (cons x l')) =
+        reverse (reverse (cons x l')) =
             concat (reverse (cons x nil)) (reverse (reverse l')) : {reverse_concat _ _}
-      	  ... = cons x l' : {H})
+          ... = cons x l' : {H})
 -- Append
 -- ------
 
@@ -173,7 +171,6 @@ list_induction_on l (refl _)
     assume P : append x l = concat l [x],
     P ▸ refl _)
 
-set_option unifier.expensive false
 theorem append_eq_reverse_cons  (x : T) (l : list T) : append x l = reverse (x :: reverse l) :=
 list_induction_on l
   (calc
@@ -187,7 +184,6 @@ list_induction_on l
     calc
       append x (y :: l') = (y :: l') ++ [ x ] : append_eq_concat _ _
         ... = concat (reverse (reverse (y :: l'))) [ x ] : {symm (reverse_reverse _)}
-	... = reverse (x :: (reverse (y :: l'))) : refl _)
+        ... = reverse (x :: (reverse (y :: l'))) : refl _)
 end
 end list
-

@@ -27,13 +27,48 @@ Author: Leonardo de Moura
 #include "library/unifier_plugin.h"
 #include "library/kernel_bindings.h"
 
+#ifndef LEAN_DEFAULT_UNIFIER_MAX_STEPS
+#define LEAN_DEFAULT_UNIFIER_MAX_STEPS 20000
+#endif
+
+#ifndef LEAN_DEFAULT_UNIFIER_COMPUTATION
+#define LEAN_DEFAULT_UNIFIER_COMPUTATION true
+#endif
+
+#ifndef LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES
+#define LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES false
+#endif
+
 namespace lean {
 static name g_unifier_max_steps      {"unifier", "max_steps"};
 RegisterUnsignedOption(g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS, "(unifier) maximum number of steps");
 unsigned get_unifier_max_steps(options const & opts) { return opts.get_unsigned(g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS); }
-static name g_unifier_expensive      {"unifier", "expensive"};
-RegisterBoolOption(g_unifier_expensive, LEAN_DEFAULT_UNIFIER_EXPENSIVE, "(unifier) enable/disable expensive (and more complete) procedure");
-bool get_unifier_expensive(options const & opts) { return opts.get_bool(g_unifier_expensive, LEAN_DEFAULT_UNIFIER_EXPENSIVE); }
+
+static name g_unifier_computation    {"unifier", "computation"};
+RegisterBoolOption(g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION,
+                   "(unifier) case-split on reduction/computational steps when solving flex-rigid constraints");
+bool get_unifier_computation(options const & opts) { return opts.get_bool(g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION); }
+
+static name g_unifier_expensive_classes {"unifier", "expensive_classes"};
+RegisterBoolOption(g_unifier_expensive_classes, LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES,
+                   "(unifier) use \"full\" higher-order unification when solving class instances");
+bool get_unifier_expensive_classes(options const & opts) {
+    return opts.get_bool(g_unifier_expensive_classes, LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES);
+}
+
+unifier_config::unifier_config(bool use_exceptions):
+    m_use_exceptions(use_exceptions),
+    m_max_steps(LEAN_DEFAULT_UNIFIER_MAX_STEPS),
+    m_computation(LEAN_DEFAULT_UNIFIER_COMPUTATION),
+    m_expensive_classes(LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES) {
+}
+
+unifier_config::unifier_config(options const & o, bool use_exceptions):
+    m_use_exceptions(use_exceptions),
+    m_max_steps(get_unifier_max_steps(o)),
+    m_computation(get_unifier_computation(o)),
+    m_expensive_classes(get_unifier_expensive_classes(o)) {
+}
 
 // If \c e is a metavariable ?m or a term of the form (?m l_1 ... l_n) where
 // l_1 ... l_n are distinct local variables, then return ?m, and store l_1 ... l_n in args.
@@ -256,10 +291,8 @@ struct unifier_fn {
     owned_map        m_owned_map; // mapping from metavariable name m to delay factor of the choice constraint that owns m
     unifier_plugin   m_plugin;
     type_checker_ptr m_tc[2];
-    bool             m_use_exception; //!< True if we should throw an exception when there are no more solutions.
-    unsigned         m_max_steps;
+    unifier_config   m_config;
     unsigned         m_num_steps;
-    bool             m_expensive;
     bool             m_pattern; //!< If true, then only higher-order (pattern) matching is used
     bool             m_first; //!< True if we still have to generate the first solution.
     unsigned         m_next_assumption_idx; //!< Next assumption index.
@@ -348,9 +381,9 @@ struct unifier_fn {
 
     unifier_fn(environment const & env, unsigned num_cs, constraint const * cs,
                name_generator const & ngen, substitution const & s,
-               bool use_exception, unsigned max_steps, bool expensive):
+               unifier_config const & cfg):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(get_unifier_plugin(env)),
-        m_use_exception(use_exception), m_max_steps(max_steps), m_num_steps(0), m_expensive(expensive), m_pattern(false) {
+        m_config(cfg), m_num_steps(0), m_pattern(false) {
         m_tc[0] = mk_type_checker_with_hints(env, m_ngen.mk_child(), false);
         m_tc[1] = mk_type_checker_with_hints(env, m_ngen.mk_child(), true);
         m_next_assumption_idx = 0;
@@ -363,8 +396,8 @@ struct unifier_fn {
 
     void check_system() {
         check_interrupted();
-        if (m_num_steps > m_max_steps)
-            throw exception(sstream() << "unifier maximum number of steps (" << m_max_steps << ") exceeded, " <<
+        if (m_num_steps > m_config.m_max_steps)
+            throw exception(sstream() << "unifier maximum number of steps (" << m_config.m_max_steps << ") exceeded, " <<
                             "the maximum number of steps can be increased by setting the option unifier.max_steps " <<
                             "(remark: the unifier uses higher order unification and unification-hints, which may trigger non-termination");
         m_num_steps++;
@@ -967,7 +1000,7 @@ struct unifier_fn {
 
     optional<substitution> failure() {
         lean_assert(in_conflict());
-        if (m_use_exception)
+        if (m_config.m_use_exceptions)
             throw unifier_exception(*m_conflict, m_subst);
         else
             return optional<substitution>();
@@ -1805,7 +1838,7 @@ struct unifier_fn {
         lean_assert(!m_cnstrs.empty());
         auto const * p = m_cnstrs.min();
         unsigned cidx  = p->second;
-        if (!m_expensive && cidx >= get_group_first_index(cnstr_group::ClassInstance))
+        if (!m_config.m_expensive_classes && cidx >= get_group_first_index(cnstr_group::ClassInstance))
             m_pattern = true; // use only higher-order (pattern) matching after we start processing class-instance constraints
         constraint c   = p->first;
         // std::cout << "process_next: " << c << "\n";
@@ -1907,32 +1940,22 @@ lazy_list<substitution> unify(std::shared_ptr<unifier_fn> u) {
 }
 
 lazy_list<substitution> unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              bool use_exception, unsigned max_steps, bool expensive) {
-    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, ngen, substitution(), use_exception, max_steps, expensive));
-}
-
-lazy_list<substitution> unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              bool use_exception, options const & o) {
-    return unify(env, num_cs, cs, ngen, use_exception, get_unifier_max_steps(o), get_unifier_expensive(o));
+                              unifier_config const & cfg) {
+    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, ngen, substitution(), cfg));
 }
 
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
-                              bool relax, substitution const & s, unsigned max_steps, bool expensive) {
+                              bool relax, substitution const & s, unifier_config const & cfg) {
     substitution new_s = s;
     expr _lhs = new_s.instantiate(lhs);
     expr _rhs = new_s.instantiate(rhs);
-    auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, new_s, false, max_steps, expensive);
+    auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, new_s, cfg);
     constraint_seq cs;
     if (!u->m_tc[relax]->is_def_eq(_lhs, _rhs, justification(), cs) || !u->process_constraints(cs)) {
         return lazy_list<substitution>();
     } else {
         return unify(u);
     }
-}
-
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
-                              bool relax, substitution const & s, options const & o) {
-    return unify(env, lhs, rhs, ngen, relax, s, get_unifier_max_steps(o), get_unifier_expensive(o));
 }
 
 static int unify_simple(lua_State * L) {
@@ -2055,18 +2078,19 @@ static int unify(lua_State * L) {
     environment const & env = to_environment(L, 1);
     if (is_expr(L, 2)) {
         if (nargs == 7)
-            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), lua_toboolean(L, 5), to_substitution(L, 6), to_options(L, 7));
+            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), lua_toboolean(L, 5), to_substitution(L, 6),
+                      unifier_config(to_options(L, 7)));
         else if (nargs == 6)
-            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), lua_toboolean(L, 5), to_substitution(L, 6), options());
+            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), lua_toboolean(L, 5), to_substitution(L, 6));
         else
             r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), lua_toboolean(L, 5));
     } else {
         buffer<constraint> cs;
         to_constraint_buffer(L, 2, cs);
         if (nargs == 4)
-            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3), false, to_options(L, 4));
+            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3), unifier_config(to_options(L, 4)));
         else
-            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3), false, options());
+            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3));
     }
     return push_substitution_seq_it(L, r);
 }

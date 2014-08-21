@@ -120,7 +120,8 @@ proof_state_seq apply_tactic_core(environment const & env, io_state const & ios,
         }
     }
     list<expr> meta_lst = to_list(metas.begin(), metas.end());
-    lazy_list<substitution> substs = unify(env, t, e_t, ngen.mk_child(), relax_main_opaque, s.get_subst(), ios.get_options());
+    lazy_list<substitution> substs = unify(env, t, e_t, ngen.mk_child(), relax_main_opaque, s.get_subst(),
+                                           unifier_config(ios.get_options()));
     return map2<proof_state>(substs, [=](substitution const & subst) -> proof_state {
             name_generator new_ngen(ngen);
             type_checker tc(env, new_ngen.mk_child());

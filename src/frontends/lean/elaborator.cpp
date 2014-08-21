@@ -1114,7 +1114,7 @@ public:
     lazy_list<substitution> solve(constraint_seq const & cs) {
         buffer<constraint> tmp;
         cs.linearize(tmp);
-        return unify(env(), tmp.size(), tmp.data(), m_ngen.mk_child(), true, ios().get_options());
+        return unify(env(), tmp.size(), tmp.data(), m_ngen.mk_child(), unifier_config(ios().get_options(), true));
     }
 
     static void collect_metavars(expr const & e, buffer<expr> & mvars) {

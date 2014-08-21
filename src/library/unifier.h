@@ -15,17 +15,9 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/metavar.h"
 
-#ifndef LEAN_DEFAULT_UNIFIER_MAX_STEPS
-#define LEAN_DEFAULT_UNIFIER_MAX_STEPS 20000
-#endif
-
-#ifndef LEAN_DEFAULT_UNIFIER_EXPENSIVE
-#define LEAN_DEFAULT_UNIFIER_EXPENSIVE false
-#endif
-
 namespace lean {
 unsigned get_unifier_max_steps(options const & opts);
-bool get_unifier_unfold_opaque(options const & opts);
+bool get_unifier_computation(options const & opts);
 
 bool is_simple_meta(expr const & e);
 expr mk_aux_metavar_for(name_generator & ngen, expr const & t);
@@ -40,16 +32,19 @@ unify_status unify_simple(substitution & s, expr const & lhs, expr const & rhs, 
 unify_status unify_simple(substitution & s, level const & lhs, level const & rhs, justification const & j);
 unify_status unify_simple(substitution & s, constraint const & c);
 
+struct unifier_config {
+    bool     m_use_exceptions;
+    unsigned m_max_steps;
+    bool     m_computation;
+    bool     m_expensive_classes;
+    unifier_config(bool use_exceptions = false);
+    explicit unifier_config(options const & o, bool use_exceptions = false);
+};
+
 lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              bool use_exception = true, unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS,
-                              bool expensive = LEAN_DEFAULT_UNIFIER_EXPENSIVE);
-lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              bool use_exception, options const & o);
+                              unifier_config const & c = unifier_config());
 lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, bool relax_main_opaque,
-                              substitution const & s = substitution(), unsigned max_steps = LEAN_DEFAULT_UNIFIER_MAX_STEPS,
-                              bool expensive = LEAN_DEFAULT_UNIFIER_MAX_STEPS);
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
-                              bool relax_main_opaque, substitution const & s, options const & o);
+                              substitution const & s = substitution(), unifier_config const & c = unifier_config());
 
 /**
     The unifier divides the constraints in 8 groups: Simple, Basic, FlexRigid, PluginDelayed, DelayedChoice, ClassInstance, FlexFlex, MaxDelayed

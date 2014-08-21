@@ -255,11 +255,11 @@ void server::set_option(std::string const & line) {
 }
 
 void server::show_info(unsigned linenum) {
+    check_file();
     if (!m_file->m_info.is_available(linenum)) {
         m_out << "-- BEGININFO\n-- NAY\n-- ENDINFO" << std::endl;
         return;
     }
-    check_file();
     unsigned i = m_file->find(linenum);
     environment const & env = i == 0 ? m_env               : m_file->m_snapshots[i-1].m_env;
     options const & o       = i == 0 ? m_ios.get_options() : m_file->m_snapshots[i-1].m_options;

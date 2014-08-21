@@ -8,7 +8,9 @@ Author: Leonardo de Moura
 #include "util/test.h"
 using namespace lean;
 
+namespace lean {
 template class sequence<int>;
+}
 
 static void tst1() {
     sequence<int> l1;

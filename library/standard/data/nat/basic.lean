@@ -297,7 +297,7 @@ nat_rec H1 (take n IH, (add_one n) ▸ (H2 n IH)) a
 
 definition mul (n m : ℕ) := nat_rec 0 (fun m x, x + n) m
 
-infixl `*`:75 := mul
+infixl `*`:70 := mul
 
 theorem mul_zero_right (n:ℕ) : n * 0 = 0
 
@@ -340,7 +340,7 @@ induction_on m
 	... = k * n + n : {IH}
 	... = (succ k) * n : symm (mul_succ_left _ _))
 
-theorem mul_add_distr_left (n m k : ℕ) : (n + m) * k = n * k + m * k :=
+theorem mul_distr_right (n m k : ℕ) : (n + m) * k = n * k + m * k :=
 induction_on k
   (calc
     (n + m) * 0 = 0 : mul_zero_right _
@@ -356,10 +356,10 @@ induction_on k
 	... = n * succ l + (m * l + m) : {symm (mul_succ_right _ _)}
 	... = n * succ l + m * succ l : {symm (mul_succ_right _ _)})
 
-theorem mul_add_distr_right (n m k : ℕ) : n * (m + k) = n * m + n * k :=
+theorem mul_distr_left (n m k : ℕ) : n * (m + k) = n * m + n * k :=
 calc
   n * (m + k) = (m + k) * n : mul_comm _ _
-    ... = m * n + k * n : mul_add_distr_left _ _ _
+    ... = m * n + k * n : mul_distr_right _ _ _
     ... = n * m + k * n : {mul_comm _ _}
     ... = n * m + n * k : {mul_comm _ _}
 
@@ -373,13 +373,13 @@ induction_on k
     calc
       (n * m) * succ l = (n * m) * l + n * m : mul_succ_right _ _
 	... = n * (m * l) + n * m : {IH}
-	... = n * (m * l + m) : symm (mul_add_distr_right _ _ _)
+	... = n * (m * l + m) : symm (mul_distr_left _ _ _)
 	... = n * (m * succ l) : {symm (mul_succ_right _ _)})
 
-theorem mul_comm_left (n m k : ℕ) : n * (m * k) = m * (n * k) :=
+theorem mul_left_comm (n m k : ℕ) : n * (m * k) = m * (n * k) :=
 left_comm mul_comm mul_assoc n m k
 
-theorem mul_comm_right (n m k : ℕ) : n * m * k = n * k * m :=
+theorem mul_right_comm (n m k : ℕ) : n * m * k = n * k * m :=
 right_comm mul_comm mul_assoc n m k
 
 theorem mul_one_right (n : ℕ) : n * 1 = n :=

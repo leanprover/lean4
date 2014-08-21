@@ -389,8 +389,20 @@ struct unifier_fn {
         m_next_assumption_idx = 0;
         m_next_cidx = 0;
         m_first     = true;
+        process_input_constraints(num_cs, cs);
+    }
+
+    void process_input_constraints(unsigned num_cs, constraint const * cs) {
+        // Input choice constraints may have ownership over a metavariable.
+        // So, we must first process them, to make sure the ownership table is initialized before
+        // we solve the remaining constraints
         for (unsigned i = 0; i < num_cs; i++) {
-            process_constraint(cs[i]);
+            if (cs[i].kind() == constraint_kind::Choice)
+                preprocess_choice_constraint(cs[i]);
+        }
+        for (unsigned i = 0; i < num_cs; i++) {
+            if (cs[i].kind() != constraint_kind::Choice)
+                process_constraint(cs[i]);
         }
     }
 

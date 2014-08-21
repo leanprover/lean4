@@ -436,14 +436,10 @@ resolve_left (le_or_gt m n) H
 theorem not_le_imp_gt {n m : ℕ} (H : ¬ n ≤ m) : n > m :=
 resolve_right (le_or_gt n m) H
 
-theorem lt_decidable [instance] (n m : ℕ) : decidable (n < m) :=
-le_decidable _ _
-
-theorem gt_decidable [instance] (n m : ℕ) : decidable (n > m) :=
-le_decidable _ _
-
-theorem ge_decidable [instance] (n m : ℕ) : decidable (n ≥ m) :=
-le_decidable _ _
+-- The following three theorems are automatically proved using the instance le_decidable
+theorem lt_decidable [instance] (n m : ℕ) : decidable (n < m)
+theorem gt_decidable [instance] (n m : ℕ) : decidable (n > m)
+theorem ge_decidable [instance] (n m : ℕ) : decidable (n ≥ m)
 
 -- Note: interaction with multiplication under "positivity"
 

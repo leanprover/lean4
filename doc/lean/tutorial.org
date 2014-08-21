@@ -761,7 +761,7 @@ of two even numbers is an even number.
     exists_intro (w1 + w2)
       (calc a + b  =  2*w1 + b      : {Hw1}
               ...  =  2*w1 + 2*w2   : {Hw2}
-              ...  =  2*(w1 + w2)   : symm (mul_add_distr_right 2 w1 w2))))
+              ...  =  2*(w1 + w2)   : symm (mul_distr_left 2 w1 w2))))
 
 #+END_SRC
 
@@ -781,6 +781,5 @@ With this macro we can write the example above in a more natural way
     exists_intro (w1 + w2)
       (calc a + b  =  2*w1 + b      : {Hw1}
               ...  =  2*w1 + 2*w2   : {Hw2}
-              ...  =  2*(w1 + w2)   : symm (mul_add_distr_right 2 w1 w2))
+              ...  =  2*(w1 + w2)   : symm (mul_distr_left 2 w1 w2))
 #+END_SRC
-

@@ -1,5 +1,5 @@
-empty.lean:5:25: error: type error in placeholder assigned to
-  inhabited_Prop
+empty.lean:6:25: error: type error in placeholder assigned to
+  Prop_inhabited
 placeholder has type
   inhabited Prop
 but is expected to have type

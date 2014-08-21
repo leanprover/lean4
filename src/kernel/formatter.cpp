@@ -44,7 +44,7 @@ pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type) {
     if (is_internal_name(n))
         n = g_x;
     n = pick_unused_name(binding_body(b), n);
-    expr c = mk_local(n, preserve_type ? binding_domain(b) : expr());
+    expr c = mk_local(n, preserve_type ? binding_domain(b) : expr(), binding_info(b));
     return mk_pair(instantiate(binding_body(b), c), c);
 }
 

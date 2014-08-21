@@ -33,7 +33,7 @@ abbreviation rel (a b : ℕ × ℕ) : Prop :=  pr1 a + pr2 b = pr2 a + pr1 b
 
 theorem rel_comp (n m k l : ℕ) : (rel (pair n m) (pair k l)) ↔ (n + l = m + k) :=
 have H : (pr1 (pair n m) + pr2 (pair k l) = pr2 (pair n m) + pr1 (pair k l)) ↔ (n + l = m + k),
-  by simp, 
+  by simp,
 H
 
 -- add_rewrite rel_comp --local
@@ -58,7 +58,7 @@ have H3 : pr1 a + pr2 c + pr2 b = pr2 a + pr1 c + pr2 b, from
 show pr1 a + pr2 c = pr2 a + pr1 c, from add_cancel_right H3
 
 theorem rel_equiv : is_equivalence rel :=
-is_equivalence_mk (is_reflexive_mk rel_refl) (is_symmetric_mk @rel_symm) 
+is_equivalence_mk (is_reflexive_mk rel_refl) (is_symmetric_mk @rel_symm)
 (is_transitive_mk @rel_trans)
 
 theorem rel_flip {a b : ℕ × ℕ} (H : rel a b) : rel (flip a) (flip b) :=
@@ -85,9 +85,9 @@ or_elim (le_or_gt (pr2 a) (pr1 a))
     have H3 : pr1 a = pr2 a, from le_antisym H H2,
     calc
       proj a = pair (pr1 a - pr2 a) 0 : proj_ge H2
-	... = pair (pr1 a - pr2 a) (pr1 a - pr1 a) : {symm (sub_self (pr1 a))}
-	... = pair (pr2 a - pr2 a) (pr2 a - pr1 a) : {H3}
-	... = pair 0 (pr2 a - pr1 a) : {sub_self (pr2 a)})
+        ... = pair (pr1 a - pr2 a) (pr1 a - pr1 a) : {symm (sub_self (pr1 a))}
+        ... = pair (pr2 a - pr2 a) (pr2 a - pr1 a) : {H3}
+        ... = pair 0 (pr2 a - pr1 a) : {sub_self (pr2 a)})
   (assume H2 : pr1 a < pr2 a, proj_lt H2)
 
 theorem proj_ge_pr1 {a : ℕ × ℕ} (H : pr1 a ≥ pr2 a) : pr1 (proj a) = pr1 a - pr2 a :=
@@ -118,15 +118,15 @@ have special : ∀a, pr2 a ≤ pr1 a → proj (flip a) = flip (proj a), from
   have H3 : pr1 (proj (flip a)) = pr1 (flip (proj a)), from
     calc
       pr1 (proj (flip a)) = 0 : proj_le_pr1 H2
-	... = pr2 (proj a) : symm (proj_ge_pr2 H)
-	... = pr1 (flip (proj a)) : symm (flip_pr1 (proj a)),
+        ... = pr2 (proj a) : symm (proj_ge_pr2 H)
+        ... = pr1 (flip (proj a)) : symm (flip_pr1 (proj a)),
   have H4 : pr2 (proj (flip a)) = pr2 (flip (proj a)), from
     calc
       pr2 (proj (flip a)) = pr2 (flip a) - pr1 (flip a) : proj_le_pr2 H2
-	... = pr1 a - pr1 (flip a) : {flip_pr2 a}
-	... = pr1 a - pr2 a : {flip_pr1 a}
-	... = pr1 (proj a) : symm (proj_ge_pr1 H)
-	... = pr2 (flip (proj a)) : symm (flip_pr2 (proj a)),
+        ... = pr1 a - pr1 (flip a) : {flip_pr2 a}
+        ... = pr1 a - pr2 a : {flip_pr1 a}
+        ... = pr1 (proj a) : symm (proj_ge_pr1 H)
+        ... = pr2 (flip (proj a)) : symm (flip_pr2 (proj a)),
   prod_eq H3 H4,
 or_elim (le_total (pr2 a) (pr1 a))
   (assume H : pr2 a ≤ pr1 a, special a H)
@@ -134,23 +134,23 @@ or_elim (le_total (pr2 a) (pr1 a))
     have H2 : pr2 (flip a) ≤ pr1 (flip a), from P_flip H,
     calc
       proj (flip a) = flip (flip (proj (flip a))) : symm (flip_flip (proj (flip a)))
-	... = flip (proj (flip (flip a))) : {symm (special (flip a) H2)}
-	... = flip (proj a) : {flip_flip a})
+        ... = flip (proj (flip (flip a))) : {symm (special (flip a) H2)}
+        ... = flip (proj a) : {flip_flip a})
 
 theorem proj_rel (a : ℕ × ℕ) : rel a (proj a) :=
 or_elim (le_total (pr2 a) (pr1 a))
   (assume H : pr2 a ≤ pr1 a,
     calc
       pr1 a + pr2 (proj a) = pr1 a + 0 : {proj_ge_pr2 H}
-	... = pr1 a : add_zero_right (pr1 a)
-	... = pr2 a + (pr1 a - pr2 a) : symm (add_sub_le H)
-	... = pr2 a + pr1 (proj a) : {symm (proj_ge_pr1 H)})
+        ... = pr1 a : add_zero_right (pr1 a)
+        ... = pr2 a + (pr1 a - pr2 a) : symm (add_sub_le H)
+        ... = pr2 a + pr1 (proj a) : {symm (proj_ge_pr1 H)})
   (assume H : pr1 a ≤ pr2 a,
     calc
       pr1 a + pr2 (proj a) = pr1 a + (pr2 a - pr1 a) : {proj_le_pr2 H}
-	... = pr2 a : add_sub_le H
-	... = pr2 a + 0 : symm (add_zero_right (pr2 a))
-	... = pr2 a + pr1 (proj a) : {symm (proj_le_pr1 H)})
+        ... = pr2 a : add_sub_le H
+        ... = pr2 a + 0 : symm (add_zero_right (pr2 a))
+        ... = pr2 a + pr1 (proj a) : {symm (proj_le_pr1 H)})
 
 theorem proj_congr {a b : ℕ × ℕ} (H : rel a b) : proj a = proj b :=
 have special : ∀a b, pr2 a ≤ pr1 a → rel a b → proj a = proj b, from
@@ -162,15 +162,15 @@ have special : ∀a b, pr2 a ≤ pr1 a → rel a b → proj a = proj b, from
   have H5 : pr1 (proj a) = pr1 (proj b), from
     calc
       pr1 (proj a) = pr1 a - pr2 a : proj_ge_pr1 H2
-	... = pr1 a + pr2 b - pr2 b - pr2 a : {symm (sub_add_left (pr1 a) (pr2 b))}
-	... = pr2 a + pr1 b - pr2 b - pr2 a : {H}
-	... = pr2 a + pr1 b - pr2 a - pr2 b : {sub_comm _ _ _}
-	... = pr1 b - pr2 b : {sub_add_left2 (pr2 a) (pr1 b)}
-	... = pr1 (proj b) : symm (proj_ge_pr1 H4),
+        ... = pr1 a + pr2 b - pr2 b - pr2 a : {symm (sub_add_left (pr1 a) (pr2 b))}
+        ... = pr2 a + pr1 b - pr2 b - pr2 a : {H}
+        ... = pr2 a + pr1 b - pr2 a - pr2 b : {sub_comm _ _ _}
+        ... = pr1 b - pr2 b : {sub_add_left2 (pr2 a) (pr1 b)}
+        ... = pr1 (proj b) : symm (proj_ge_pr1 H4),
   have H6 : pr2 (proj a) = pr2 (proj b), from
     calc
       pr2 (proj a) = 0 : proj_ge_pr2 H2
-	... = pr2 (proj b) : {symm (proj_ge_pr2 H4)},
+        ... = pr2 (proj b) : {symm (proj_ge_pr2 H4)},
   prod_eq H5 H6,
 or_elim (le_total (pr2 a) (pr1 a))
   (assume H2 : pr2 a ≤ pr1 a, special a b H2 H)
@@ -222,7 +222,7 @@ theorem eq_zero_intro (n : ℕ) : psub (pair n n) = 0 :=
 have H : rel (pair n n) (pair 0 0), by simp,
 eq_abs quotient H
 
--- TODO: this is not a good name -- we want to use abs for the function from int to int. 
+-- TODO: this is not a good name -- we want to use abs for the function from int to int.
 -- Rename to int.to_nat?
 
 -- ## absolute value
@@ -337,19 +337,19 @@ or_imp_or (or_swap (proj_zero_or (rep a)))
     have H2 : pr2 (rep a) = 0, from subst Hrep H,
     exists_intro (pr1 (rep a))
       (calc
-	a = psub (rep a) : symm (psub_rep a)
-	  ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {symm (prod_ext (rep a))}
-	  ... = psub (pair (pr1 (rep a)) 0) : {H2}
-	  ... = of_nat (pr1 (rep a)) : refl _))
+        a = psub (rep a) : symm (psub_rep a)
+          ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {symm (prod_ext (rep a))}
+          ... = psub (pair (pr1 (rep a)) 0) : {H2}
+          ... = of_nat (pr1 (rep a)) : refl _))
   (assume H : pr1 (proj (rep a)) = 0,
     have H2 : pr1 (rep a) = 0, from subst Hrep H,
     exists_intro (pr2 (rep a))
       (calc
-	a = psub (rep a) : symm (psub_rep a)
-	  ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {symm (prod_ext (rep a))}
-	  ... = psub (pair 0 (pr2 (rep a))) : {H2}
-	  ... = -psub (pair (pr2 (rep a)) 0) : by simp
-	  ... = -of_nat (pr2 (rep a)) : refl _))
+        a = psub (rep a) : symm (psub_rep a)
+          ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {symm (prod_ext (rep a))}
+          ... = psub (pair 0 (pr2 (rep a))) : {H2}
+          ... = -psub (pair (pr2 (rep a)) 0) : by simp
+          ... = -of_nat (pr2 (rep a)) : refl _))
 
 opaque_hint (hiding int)
 
@@ -367,16 +367,16 @@ or_elim (cases a)
     obtain (n : ℕ) (H2 : a = -of_nat n), from H,
     discriminate
       (assume H3 : n = 0,
-	have H4 : a = of_nat 0, from
-	  calc
-	    a = - of_nat n : H2
-	  ... = - of_nat 0 : {H3}
-	  ... = of_nat 0 : neg_zero,
-	or_intro_left _ (exists_intro 0 H4))
+        have H4 : a = of_nat 0, from
+          calc
+            a = - of_nat n : H2
+          ... = - of_nat 0 : {H3}
+          ... = of_nat 0 : neg_zero,
+        or_intro_left _ (exists_intro 0 H4))
       (take k : ℕ,
-	assume H3 : n = succ k,
-	have H4 : a = - of_nat (succ k), from subst H3 H2,
-	or_intro_right _ (exists_intro k H4)))
+        assume H3 : n = succ k,
+        have H4 : a = - of_nat (succ k), from subst H3 H2,
+        or_intro_right _ (exists_intro k H4)))
 
 theorem int_by_cases_succ {P : ℤ → Prop} (a : ℤ) (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-of_nat (succ n))) : P a :=
 or_elim (cases_succ a)
@@ -495,12 +495,8 @@ add_comm (-a) b
 
 -- opaque_hint (hiding int.sub)
 
--- TODO: why doesn't the shorter proof work?
 theorem sub_neg_right (a b : ℤ) : a - (-b) = a + b :=
-calc
-   a - (-b) = a + (- (- b)) : rfl
-     ... = a + b : {neg_neg b}
--- subst (neg_neg b) (refl (a - (-b))) 
+subst (neg_neg b) (refl (a - (-b)))
 
 theorem sub_neg_neg (a b : ℤ) : -a - (-b) = b - a :=
 subst (neg_neg b) (add_comm (-a) (-(-b)))
@@ -509,7 +505,7 @@ theorem sub_self (a : ℤ) : a - a = 0 :=
 add_inverse_right a
 
 theorem sub_zero_right (a : ℤ) : a - 0 = a :=
-subst (symm neg_zero) (add_zero_right a) 
+subst (symm neg_zero) (add_zero_right a)
 
 theorem sub_zero_left (a : ℤ) : 0 - a = -a :=
 add_zero_left (-a)
@@ -544,10 +540,10 @@ calc
     ... = a : add_zero_right a
 
 theorem add_sub_inverse2 (a b : ℤ) : a + b - a = b :=
-subst (add_comm b a) (add_sub_inverse b a) 
+subst (add_comm b a) (add_sub_inverse b a)
 
 theorem sub_add_inverse (a b : ℤ) : a - b + b = a :=
-subst (add_right_comm a b (-b)) (add_sub_inverse a b) 
+subst (add_right_comm a b (-b)) (add_sub_inverse a b)
 
 -- add_rewrite add_zero_left add_zero_right
 -- add_rewrite add_comm add_assoc add_left_comm
@@ -598,11 +594,7 @@ theorem add_imp_sub_left {a b c : ℤ} (H : a + b = c) : c - a = b :=
 add_imp_sub_right (subst (add_comm a b) H)
 
 theorem sub_imp_add {a b c : ℤ} (H : a - b = c) : c + b = a :=
-let H' := add_imp_sub_right H in
-subst (neg_neg b) H'
--- TODO: again, this doesn't work
--- subst (neg_neg b) (add_imp_sub_right H)
--- In fact, add [inline] to the definition above and it breaks!
+subst (neg_neg b) (add_imp_sub_right H)
 
 theorem sub_imp_sub {a b c : ℤ} (H : a - b = c) : a - c = b :=
 have H2 : c + b = a, from sub_imp_add H, add_imp_sub_left H2
@@ -628,7 +620,7 @@ calc
 
 -- ## mul
 -- TODO: remove this when order changes
-theorem rel_mul_prep {xa ya xb yb xn yn xm ym : ℕ} 
+theorem rel_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
   (H1 : xa + yb = ya + xb) (H2 : xn + ym = yn + xm)
 : xa * xn + ya * yn + (xb * ym + yb * xm) = xa * yn + ya * xn + (xb * xm + yb * ym) :=
 have H3 : xa * xn + ya * yn + (xb * ym + yb * xm) + (yb * xn + xb * yn + (xb * xn + yb * yn))
@@ -645,7 +637,7 @@ nat.add_cancel_right H3
 
 theorem rel_mul {u u' v v' : ℕ × ℕ} (H1 : rel u u') (H2 : rel v v')
   : rel (pair (pr1 u * pr1 v + pr2 u * pr2 v) (pr1 u * pr2 v + pr2 u * pr1 v))
-	(pair (pr1 u' * pr1 v' + pr2 u' * pr2 v') (pr1 u' * pr2 v' + pr2 u' * pr1 v')) := 
+        (pair (pr1 u' * pr1 v' + pr2 u' * pr2 v') (pr1 u' * pr2 v' + pr2 u' * pr1 v')) :=
 calc
     pr1 (pair (pr1 u * pr1 v + pr2 u * pr2 v) (pr1 u * pr2 v + pr2 u * pr1 v))
   + pr2 (pair (pr1 u' * pr1 v' + pr2 u' * pr2 v') (pr1 u' * pr2 v' + pr2 u' * pr1 v'))
@@ -694,7 +686,7 @@ have H0 : 0 = psub (pair 0 0), from refl 0,
 by simp
 
 theorem mul_zero_left (a : ℤ) : 0 * a = 0 :=
-subst (mul_comm a 0) (mul_zero_right a) 
+subst (mul_comm a 0) (mul_zero_right a)
 
 theorem mul_one_right (a : ℤ) : a * 1 = a :=
 obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
@@ -702,7 +694,7 @@ have H1 : 1 = psub (pair 1 0), from refl 1,
 by simp
 
 theorem mul_one_left (a : ℤ) : 1 * a = a :=
-subst (mul_comm a 1) (mul_one_right a) 
+subst (mul_comm a 1) (mul_one_right a)
 
 theorem mul_neg_right (a b : ℤ) : a * -b = -(a * b) :=
 obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
@@ -924,17 +916,17 @@ discriminate
   (assume H2 : n = 0,
     have H3 : a = b, from
       calc
-	a = a + 0 : symm (add_zero_right a)
-	  ... = a + n : {symm H2}
-	  ... = b : Hn,
+        a = a + 0 : symm (add_zero_right a)
+          ... = a + n : {symm H2}
+          ... = b : Hn,
     or_intro_right _ H3)
   (take k : ℕ,
     assume H2 : n = succ k,
     have H3 : a + 1 + k = b, from
       calc
-	a + 1 + k = a + succ k : by simp
-	  ... = a + n : by simp
-	  ... = b : Hn,
+        a + 1 + k = a + succ k : by simp
+          ... = a + n : by simp
+          ... = b : Hn,
     or_intro_left _ (le_intro H3))
 
 -- ### interaction with neg and sub
@@ -1022,8 +1014,8 @@ not_intro
     obtain (n : ℕ) (Hn : a + succ n = a), from lt_elim H,
     have H2 : a + succ n = a + 0, from
       calc
-	a + succ n = a : Hn
-	  ... = a + 0 : by simp,
+        a + succ n = a : Hn
+          ... = a + 0 : by simp,
     have H3 : succ n = 0, from add_cancel_left H2,
     have H4 : succ n = 0, from of_nat_inj H3,
     absurd H4 (succ_ne_zero n))
@@ -1090,11 +1082,8 @@ le_imp_not_gt (lt_imp_le H)
 
 -- ### interaction with addition
 
--- TODO: can we get rid of "int."?
 theorem add_lt_left {a b : ℤ} (H : a < b) (c : ℤ) : c + a < c + b :=
-subst (symm (add_assoc c a 1)) (int.add_le_left H c)
--- old proof
--- substp (fun x, x ≤ c + b) (add_le_left H c) (symm (add_assoc c a 1))
+subst (symm (add_assoc c a 1)) (add_le_left H c)
 
 theorem add_lt_right {a b : ℤ} (H : a < b) (c : ℤ) : a + c < b + c :=
 subst (add_comm c b) (subst (add_comm c a) (add_lt_left H c))
@@ -1168,24 +1157,24 @@ int_by_cases a
   (take n : ℕ,
     int_by_cases_succ b
       (take m : ℕ,
-	show of_nat n ≤ m ∨ of_nat n > m, by simp) -- from (by simp) ◂ (le_or_gt n m))
+        show of_nat n ≤ m ∨ of_nat n > m, by simp) -- from (by simp) ◂ (le_or_gt n m))
       (take m : ℕ,
-	show n ≤ -succ m ∨ n > -succ m, from
-	  have H0 : -succ m < -m, from lt_neg (subst (symm (of_nat_succ m)) (self_lt_succ m)),
-	  have H : -succ m < n, from lt_le_trans H0 (neg_le_pos m n),
-	  or_intro_right _ H))
+        show n ≤ -succ m ∨ n > -succ m, from
+          have H0 : -succ m < -m, from lt_neg (subst (symm (of_nat_succ m)) (self_lt_succ m)),
+          have H : -succ m < n, from lt_le_trans H0 (neg_le_pos m n),
+          or_intro_right _ H))
   (take n : ℕ,
     int_by_cases_succ b
       (take m : ℕ,
-	show -n ≤ m ∨ -n > m, from
-	  or_intro_left _ (neg_le_pos n m))
+        show -n ≤ m ∨ -n > m, from
+          or_intro_left _ (neg_le_pos n m))
       (take m : ℕ,
-	show -n ≤ -succ m ∨ -n > -succ m, from
-	  or_imp_or (le_or_gt (succ m) n)
-	    (assume H : succ m ≤ n,
-	      le_neg (iff_elim_left (iff_symm (le_of_nat (succ m) n)) H))
-	    (assume H : succ m > n,
-	      lt_neg (iff_elim_left (iff_symm (lt_of_nat n (succ m))) H))))
+        show -n ≤ -succ m ∨ -n > -succ m, from
+          or_imp_or (le_or_gt (succ m) n)
+            (assume H : succ m ≤ n,
+              le_neg (iff_elim_left (iff_symm (le_of_nat (succ m) n)) H))
+            (assume H : succ m > n,
+              lt_neg (iff_elim_left (iff_symm (lt_of_nat n (succ m))) H))))
 
 theorem trichotomy_alt (a b : ℤ) : (a < b ∨ a = b) ∨ a > b :=
 or_imp_or_left (le_or_gt a b) (assume H : a ≤ b, le_imp_lt_or_eq H)
@@ -1394,16 +1383,16 @@ or_elim (em (a = 0))
     or_elim (em (b = 0))
       (assume Hb : b = 0, by simp)
       (assume Hb : b ≠ 0,
-	have H : sign (a * b) * (to_nat (a * b)) = sign a * sign b  * (to_nat (a * b)), from
-	  calc
-	    sign (a * b) * (to_nat (a * b)) = a * b : mul_sign_to_nat (a * b)
-	      ... = sign a * (to_nat a) * b : {symm (mul_sign_to_nat a)}
-	      ... = sign a * (to_nat a) * (sign b * (to_nat b)) : {symm (mul_sign_to_nat b)}
-	      ... = sign a * sign b  * (to_nat (a * b)) : by simp,
-	have H2 : (to_nat (a * b)) ≠ 0, from
+        have H : sign (a * b) * (to_nat (a * b)) = sign a * sign b  * (to_nat (a * b)), from
+          calc
+            sign (a * b) * (to_nat (a * b)) = a * b : mul_sign_to_nat (a * b)
+              ... = sign a * (to_nat a) * b : {symm (mul_sign_to_nat a)}
+              ... = sign a * (to_nat a) * (sign b * (to_nat b)) : {symm (mul_sign_to_nat b)}
+              ... = sign a * sign b  * (to_nat (a * b)) : by simp,
+        have H2 : (to_nat (a * b)) ≠ 0, from
           take H2', mul_ne_zero Ha Hb (abs_eq_zero H2'),
-	have H3 : (to_nat (a * b)) ≠ of_nat 0, from contrapos of_nat_inj H2,
-	mul_cancel_right H3 H))
+        have H3 : (to_nat (a * b)) ≠ of_nat 0, from contrapos of_nat_inj H2,
+        mul_cancel_right H3 H))
 
 --set_option pp::coercion true
 
@@ -1416,7 +1405,7 @@ or_elim3 (trichotomy a 0) sorry sorry sorry
 --  (by simp)
 
 theorem sign_succ (n : ℕ) : sign (succ n) = 1 :=
-sign_pos (iff_elim_left (iff_symm (lt_of_nat 0 (succ n))) (succ_pos n)) 
+sign_pos (iff_elim_left (iff_symm (lt_of_nat 0 (succ n))) (succ_pos n))
   --this should be done with simp
 
 theorem sign_neg (a : ℤ) : sign (-a) = - sign a :=

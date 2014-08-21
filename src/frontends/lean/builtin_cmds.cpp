@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/inductive_cmd.h"
 #include "frontends/lean/structure_cmd.h"
-#include "frontends/lean/proof_qed_ext.h"
+#include "frontends/lean/begin_end_ext.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/class.h"
 #include "frontends/lean/tactic_hint.h"
@@ -312,7 +312,7 @@ cmd_table init_cmd_table() {
     register_structure_cmd(r);
     register_notation_cmds(r);
     register_calc_cmds(r);
-    register_proof_qed_cmds(r);
+    register_begin_end_cmds(r);
     register_class_cmds(r);
     register_tactic_hint_cmd(r);
     return r;

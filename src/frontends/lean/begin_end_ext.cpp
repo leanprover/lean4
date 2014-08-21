@@ -14,22 +14,22 @@ Author: Leonardo de Moura
 
 namespace lean {
 // This (scoped) environment extension allows us to set a tactic to be applied before every element
-// in a <tt>proof ... qed</tt> block
-struct pq_entry {
+// in a <tt>begin ... end</tt> block
+struct be_entry {
     bool m_accumulate; // if true, then accumulate the new tactic, if false replace
     expr m_tac;
-    pq_entry():m_accumulate(false) {}
-    pq_entry(bool a, expr const & t):m_accumulate(a), m_tac(t) {}
+    be_entry():m_accumulate(false) {}
+    be_entry(bool a, expr const & t):m_accumulate(a), m_tac(t) {}
 };
 
-struct pq_state {
+struct be_state {
     optional<expr> m_pre_tac;
     optional<expr> m_pre_tac_body;
 };
 
-struct pq_config {
-    typedef pq_state state;
-    typedef pq_entry entry;
+struct be_config {
+    typedef be_state state;
+    typedef be_entry entry;
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
         if (e.m_accumulate) {
             if (s.m_pre_tac_body)
@@ -44,11 +44,11 @@ struct pq_config {
         }
     }
     static name const & get_class_name() {
-        static name g_class_name("proof_qed");
+        static name g_class_name("begin_end");
         return g_class_name;
     }
     static std::string const & get_serialization_key() {
-        static std::string g_key("pq_pre_tac");
+        static std::string g_key("be_pre_tac");
         return g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
@@ -61,42 +61,42 @@ struct pq_config {
     }
 };
 
-template class scoped_ext<pq_config>;
-typedef scoped_ext<pq_config> proof_qed_ext;
+template class scoped_ext<be_config>;
+typedef scoped_ext<be_config> begin_end_ext;
 
 static void check_valid_tactic(environment const & env, expr const & pre_tac) {
     type_checker tc(env);
     if (!tc.is_def_eq(tc.infer(pre_tac).first, get_tactic_type()).first)
-        throw exception("invalid proof-qed pre-tactic update, argument is not a tactic");
+        throw exception("invalid begin-end pre-tactic update, argument is not a tactic");
 }
 
-environment add_proof_qed_pre_tactic(environment const & env, expr const & pre_tac) {
+environment add_begin_end_pre_tactic(environment const & env, expr const & pre_tac) {
     check_valid_tactic(env, pre_tac);
-    return proof_qed_ext::add_entry(env, get_dummy_ios(), pq_entry(true, pre_tac));
+    return begin_end_ext::add_entry(env, get_dummy_ios(), be_entry(true, pre_tac));
 }
 
-environment set_proof_qed_pre_tactic(environment const & env, expr const & pre_tac) {
+environment set_begin_end_pre_tactic(environment const & env, expr const & pre_tac) {
     check_valid_tactic(env, pre_tac);
-    return proof_qed_ext::add_entry(env, get_dummy_ios(), pq_entry(false, pre_tac));
+    return begin_end_ext::add_entry(env, get_dummy_ios(), be_entry(false, pre_tac));
 }
 
-optional<expr> get_proof_qed_pre_tactic(environment const & env) {
-    pq_state const & s = proof_qed_ext::get_state(env);
+optional<expr> get_begin_end_pre_tactic(environment const & env) {
+    be_state const & s = begin_end_ext::get_state(env);
     return s.m_pre_tac;
 }
 
-environment add_proof_qed_cmd(parser & p) {
-    return add_proof_qed_pre_tactic(p.env(), parse_tactic_name(p));
+environment add_begin_end_cmd(parser & p) {
+    return add_begin_end_pre_tactic(p.env(), parse_tactic_name(p));
 }
 
-environment set_proof_qed_cmd(parser & p) {
-    return set_proof_qed_pre_tactic(p.env(), parse_tactic_name(p));
+environment set_begin_end_cmd(parser & p) {
+    return set_begin_end_pre_tactic(p.env(), parse_tactic_name(p));
 }
 
-void register_proof_qed_cmds(cmd_table & r) {
-    add_cmd(r, cmd_info("add_proof_qed", "add a new tactic to be automatically applied before every component in a 'proof-qed' block",
-                        add_proof_qed_cmd));
-    add_cmd(r, cmd_info("set_proof_qed", "reset the tactic that is automatically applied before every component in a 'proof-qed' block",
-                        set_proof_qed_cmd));
+void register_begin_end_cmds(cmd_table & r) {
+    add_cmd(r, cmd_info("add_begin_end_tactic", "add a new tactic to be automatically applied before every component in a 'begin-end' block",
+                        add_begin_end_cmd));
+    add_cmd(r, cmd_info("set_begin_end_tactic", "reset the tactic that is automatically applied before every component in a 'begin-end' block",
+                        set_begin_end_cmd));
 }
 }

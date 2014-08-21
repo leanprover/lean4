@@ -980,10 +980,6 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
             new_as.push_back(copy_with_new_pos(mk_constant(e, ls), p));
         }
         r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
-        if (is_constant(*r)) {
-            add_ref_index(const_name(*r), p);
-            save_identifier_info(p, const_name(*r));
-        }
         save_overload(*r);
     }
     if (!r && m_no_undef_id_error)
@@ -991,6 +987,10 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
     if (!r)
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
     save_type_info(*r);
+    if (is_constant(*r)) {
+        add_ref_index(const_name(*r), p);
+        save_identifier_info(p, const_name(*r));
+    }
     return *r;
 }
 

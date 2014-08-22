@@ -12,7 +12,7 @@ inductive bool : Type :=
 
 namespace bool
 
-theorem induction_on {p : bool → Prop} (b : bool) (H0 : p ff) (H1 : p tt) : p b :=
+theorem cases_on {p : bool → Prop} (b : bool) (H0 : p ff) (H1 : p tt) : p b :=
 bool_rec H0 H1 b
 
 theorem bool_inhabited [instance] : inhabited bool :=
@@ -22,7 +22,7 @@ definition cond {A : Type} (b : bool) (t e : A) :=
 bool_rec e t b
 
 theorem dichotomy (b : bool) : b = ff ∨ b = tt :=
-induction_on b (or_inl (refl ff)) (or_inr (refl tt))
+cases_on b (or_inl (refl ff)) (or_inr (refl tt))
 
 theorem cond_ff {A : Type} (t e : A) : cond ff t e = e :=
 refl (cond ff t e)
@@ -52,24 +52,24 @@ refl (bor tt a)
 infixl `||`:65 := bor
 
 theorem bor_tt_right (a : bool) : a || tt = tt :=
-induction_on a (refl (ff || tt)) (refl (tt || tt))
+cases_on a (refl (ff || tt)) (refl (tt || tt))
 
 theorem bor_ff_left (a : bool) : ff || a = a :=
-induction_on a (refl (ff || ff)) (refl (ff || tt))
+cases_on a (refl (ff || ff)) (refl (ff || tt))
 
 theorem bor_ff_right (a : bool) : a || ff = a :=
-induction_on a (refl (ff || ff)) (refl (tt || ff))
+cases_on a (refl (ff || ff)) (refl (tt || ff))
 
 theorem bor_id (a : bool) : a || a = a :=
-induction_on a (refl (ff || ff)) (refl (tt || tt))
+cases_on a (refl (ff || ff)) (refl (tt || tt))
 
 theorem bor_comm (a b : bool) : a || b = b || a :=
-induction_on a
-  (induction_on b (refl (ff || ff)) (refl (ff || tt)))
-  (induction_on b (refl (tt || ff)) (refl (tt || tt)))
+cases_on a
+  (cases_on b (refl (ff || ff)) (refl (ff || tt)))
+  (cases_on b (refl (tt || ff)) (refl (tt || tt)))
 
 theorem bor_assoc (a b c : bool) : (a || b) || c = a || (b || c) :=
-induction_on a
+cases_on a
   (calc (ff || b) || c = b || c         : {bor_ff_left b}
                  ...   = ff || (b || c) : bor_ff_left (b || c)⁻¹)
   (calc (tt || b) || c = tt || c        : {bor_tt_left b}
@@ -93,24 +93,24 @@ theorem band_ff_left (a : bool) : ff && a = ff :=
 refl (ff && a)
 
 theorem band_tt_left (a : bool) : tt && a = a :=
-induction_on a (refl (tt && ff)) (refl (tt && tt))
+cases_on a (refl (tt && ff)) (refl (tt && tt))
 
 theorem band_ff_right (a : bool) : a && ff = ff :=
-induction_on a (refl (ff && ff)) (refl (tt && ff))
+cases_on a (refl (ff && ff)) (refl (tt && ff))
 
 theorem band_tt_right (a : bool) : a && tt = a :=
-induction_on a (refl (ff && tt)) (refl (tt && tt))
+cases_on a (refl (ff && tt)) (refl (tt && tt))
 
 theorem band_id (a : bool) : a && a = a :=
-induction_on a (refl (ff && ff)) (refl (tt && tt))
+cases_on a (refl (ff && ff)) (refl (tt && tt))
 
 theorem band_comm (a b : bool) : a && b = b && a :=
-induction_on a
-  (induction_on b (refl (ff && ff)) (refl (ff && tt)))
-  (induction_on b (refl (tt && ff)) (refl (tt && tt)))
+cases_on a
+  (cases_on b (refl (ff && ff)) (refl (ff && tt)))
+  (cases_on b (refl (tt && ff)) (refl (tt && tt)))
 
 theorem band_assoc (a b c : bool) : (a && b) && c = a && (b && c) :=
-induction_on a
+cases_on a
   (calc (ff && b) && c = ff && c        : {band_ff_left b}
                   ...  = ff             : band_ff_left c
                   ...  = ff && (b && c) : band_ff_left (b && c)⁻¹)
@@ -135,7 +135,7 @@ definition bnot (a : bool) := bool_rec tt ff a
 prefix `!`:85 := bnot
 
 theorem bnot_bnot (a : bool) : !!a = a :=
-induction_on a (refl (!!ff)) (refl (!!tt))
+cases_on a (refl (!!ff)) (refl (!!tt))
 
 theorem bnot_false : !ff = tt := refl _
 

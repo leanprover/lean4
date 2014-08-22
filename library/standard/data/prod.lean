@@ -2,9 +2,9 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura, Jeremy Avigad
 
-import logic.classes.inhabited logic.connectives.eq
+import logic.classes.inhabited logic.connectives.eq logic.classes.decidable
 
-using inhabited
+using inhabited decidable
 
 inductive prod (A B : Type) : Type :=
 | pair : A → B → prod A B
@@ -43,8 +43,17 @@ section
   theorem prod_inhabited (H1 : inhabited A) (H2 : inhabited B) : inhabited (prod A B) :=
   inhabited_destruct H1 (λa, inhabited_destruct H2 (λb, inhabited_mk (pair a b)))
 
+  theorem prod_eq_decidable (u v : A × B) (H1 : decidable (pr1 u = pr1 v))
+      (H2 : decidable (pr2 u = pr2 v)) : decidable (u = v) :=
+    have H3 : u = v ↔ (pr1 u = pr1 v) ∧ (pr2 u = pr2 v), from
+      iff_intro
+	(assume H, subst H (and_intro (refl _) (refl _)))
+	(assume H, and_elim H (assume H4 H5, prod_eq H4 H5)),
+    decidable_iff_equiv _ (iff_symm H3)
+
 end
 
 instance prod_inhabited
+instance prod_eq_decidable
 
 end prod

@@ -2,7 +2,9 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura, Jeremy Avigad
 
-import logic.classes.inhabited logic.connectives.eq
+import logic.classes.inhabited logic.connectives.eq logic.classes.decidable
+
+using decidable
 
 inductive subtype {A : Type} (P : A → Prop) : Type :=
 | tag : Πx : A, P x → subtype P
@@ -36,10 +38,18 @@ section
   theorem subtype_eq {a1 a2 : {x | P x}} : ∀(H : elt_of a1 = elt_of a2), a1 = a2 :=
   subtype_destruct a1 (take x1 H1, subtype_destruct a2 (take x2 H2 H, tag_eq H))
 
-  -- TODO: need inhabited
+  theorem subtype_inhabited {a : A} (H : P a) : inhabited {x | P x} :=
+  inhabited_mk (tag a H)
+
+  theorem subtype_eq_decidable (a1 a2 : {x | P x})
+    (H : decidable (elt_of a1 = elt_of a2)) : decidable (a1 = a2) :=
+  have H1 : (a1 = a2) ↔ (elt_of a1 = elt_of a2), from
+    iff_intro (assume H, subst H rfl) (assume H, subtype_eq H),
+  decidable_iff_equiv _ (iff_symm H1)
 
 end
 
-end subtype
+instance subtype_inhabited
+instance subtype_eq_decidable
 
--- instance subtype_inhabited
+end subtype

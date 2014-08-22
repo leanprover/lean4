@@ -48,7 +48,7 @@ section
     ∀(H1 : dpr1 p1 = dpr1 p2) (H2 : eq_rec_on H1 (dpr2 p1) = (dpr2 p2)), p1 = p2 :=
   sigma_destruct p1 (take a1 b1, sigma_destruct p2 (take a2 b2 H1 H2, dpair_eq H1 H2))
 
-  theorem sigma_inhabited (H1 : inhabited A) (H2 : inhabited (B (default A))) :
+  theorem sigma_inhabited [instance] (H1 : inhabited A) (H2 : inhabited (B (default A))) :
     inhabited (sigma B) :=
    inhabited_destruct H1 (λa, inhabited_destruct H2 (λb, inhabited_mk (dpair (default A) b)))
 

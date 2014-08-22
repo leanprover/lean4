@@ -126,8 +126,8 @@ have H2 [fact] : R a (rep (abs a)), from R_rep_abs Q Ha,
 calc
   rec Q f (abs a) =  eq_rec_on _ (f (rep (abs a))) : rfl
     ... = eq_rec_on _ (eq_rec_on _ (f a)) : {symm (H _ _ H2)}
-    ... = eq_rec_on _ (f a) : eq_rec_on_compose _ _ _
-    ... = f a : eq_rec_on_id _ _
+    ... = eq_rec_on _ (f a) : eq_rec_on_compose (eq_abs Q H2) _ _
+    ... = f a : eq_rec_on_id (trans (eq_abs Q H2) (abs_rep Q (abs a))) _
 
 definition rec_constant {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {C : Type} (f : A → C) (b : B) : C :=

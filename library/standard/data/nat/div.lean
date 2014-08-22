@@ -24,16 +24,6 @@ using fake_simplifier decidable
 
 namespace nat
 
-
--- TODO: settle on a name, and move this
-theorem by_cases (a : Prop) {b : Prop} {C : decidable a} (Hab : a → b) (Hnab : ¬a → b) : b :=
-or_elim (em a) (assume Ha, Hab Ha) (assume Hna, Hnab Hna)
-
--- move to nat
-theorem pos_imp_ne_zero {n : ℕ} (H : n > 0) : n ≠ 0 :=
-ne_symm (lt_imp_ne H)
-
-
 -- A general recursion principle
 -- =============================
 --
@@ -102,7 +92,7 @@ case_strong_induction_on m
     funext
       (take x : dom,
         show f' (succ m) x = restrict default measure f (succ m) x, from
-          by_cases (measure x < succ m)
+          by_cases -- (measure x < succ m)
             (assume H1 : measure x < succ m,
               have H2 [fact] : f' (succ m) x = rec_val x f, from
                 calc
@@ -165,14 +155,14 @@ theorem div_aux_decreasing (y : ℕ) (g : ℕ → ℕ) (m : ℕ) (x : ℕ) (H : 
 let lhs := div_aux_rec y x g in
 let rhs := div_aux_rec y x (restrict 0 (fun x, x) g m) in
 show lhs = rhs, from
-  by_cases (y = 0 ∨ x < y)
+  by_cases -- (y = 0 ∨ x < y)
     (assume H1 : y = 0 ∨ x < y,
       calc
         lhs = 0 : if_pos H1 _ _
           ... = rhs : symm (if_pos H1 _ _))
     (assume H1 : ¬ (y = 0 ∨ x < y),
       have H2 : y ≠ 0 ∧ ¬ x < y, from not_or _ _ ◂ H1,
-      have ypos : y > 0, from ne_zero_pos (and_elim_left H2),
+      have ypos : y > 0, from ne_zero_imp_pos (and_elim_left H2),
       have xgey : x ≥ y, from not_lt_imp_ge (and_elim_right H2),
       have H4 : x - y < x, from sub_lt (lt_le_trans ypos xgey) ypos,
       have H5 : x - y < m, from lt_le_trans H4 H,
@@ -241,14 +231,14 @@ theorem mod_aux_decreasing (y : ℕ) (g : ℕ → ℕ) (m : ℕ) (x : ℕ) (H : 
 let lhs := mod_aux_rec y x g in
 let rhs := mod_aux_rec y x (restrict 0 (fun x, x) g m) in
 show lhs = rhs, from
-  by_cases (y = 0 ∨ x < y)
+  by_cases -- (y = 0 ∨ x < y)
     (assume H1 : y = 0 ∨ x < y,
       calc
         lhs = x : if_pos H1 _ _
           ... = rhs : symm (if_pos H1 _ _))
     (assume H1 : ¬ (y = 0 ∨ x < y),
       have H2 : y ≠ 0 ∧ ¬ x < y, from not_or _ _ ◂ H1,
-      have ypos : y > 0, from ne_zero_pos (and_elim_left H2),
+      have ypos : y > 0, from ne_zero_imp_pos (and_elim_left H2),
       have xgey : x ≥ y, from not_lt_imp_ge (and_elim_right H2),
       have H4 : x - y < x, from sub_lt (lt_le_trans ypos xgey) ypos,
       have H5 : x - y < m, from lt_le_trans H4 H,
@@ -325,7 +315,7 @@ case_strong_induction_on x
   (take x,
     assume IH : ∀x', x' ≤ x → x' mod y < y,
     show succ x mod y < y, from
-      by_cases (succ x < y)
+      by_cases -- (succ x < y)
         (assume H1 : succ x < y,
           have H2 : succ x mod y = succ x, from mod_lt_eq H1,
           show succ x mod y < y, from subst (symm H2) H1)
@@ -351,7 +341,7 @@ case_zero_pos y
         (take x,
           assume IH : ∀x', x' ≤ x → x' = x' div y * y + x' mod y,
           show succ x = succ x div y * y + succ x mod y, from
-            by_cases (succ x < y)
+            by_cases -- (succ x < y)
               (assume H1 : succ x < y,
                 have H2 : succ x div y = 0, from div_less H1,
                 have H3 : succ x mod y = succ x, from mod_lt_eq H1,
@@ -393,10 +383,10 @@ have H6 : y > 0, from le_lt_trans (zero_le _) H1,
 show q1 = q2, from mul_cancel_right H6 H5
 
 theorem div_mul_mul {z : ℕ} (x y : ℕ) (zpos : z > 0) : (z * x) div (z * y) = x div y :=
-by_cases (y = 0)
+by_cases -- (y = 0)
   (assume H : y = 0, by simp)
   (assume H : y ≠ 0,
-    have ypos : y > 0, from ne_zero_pos H,
+    have ypos : y > 0, from ne_zero_imp_pos H,
     have zypos : z * y > 0, from mul_pos zpos ypos,
     have H1 : (z * x) mod (z * y) < z * y, from mod_lt _ zypos,
     have H2 : z * (x mod y) < z * y, from mul_lt_left zpos (mod_lt _ ypos),
@@ -410,10 +400,10 @@ by_cases (y = 0)
 ---            ... = (x div y) * (z * y) + z * (x mod y) : by simp))
 
 theorem mod_mul_mul {z : ℕ} (x y : ℕ) (zpos : z > 0) : (z * x) mod (z * y) = z * (x mod y) :=
-by_cases (y = 0)
+by_cases -- (y = 0)
   (assume H : y = 0, by simp)
   (assume H : y ≠ 0,
-    have ypos : y > 0, from ne_zero_pos H,
+    have ypos : y > 0, from ne_zero_imp_pos H,
     have zypos : z * y > 0, from mul_pos zpos ypos,
     have H1 : (z * x) mod (z * y) < z * y, from mod_lt _ zypos,
     have H2 : z * (x mod y) < z * y, from mul_lt_left zpos (mod_lt _ ypos),
@@ -477,7 +467,7 @@ have H2 : (z - x div y) * y = x mod y, from
        ... = x mod y + x div y * y - x div y * y : {H1}
        ... = x mod y : sub_add_left _ _,
 show x mod y = 0, from
-  by_cases (y = 0)
+  by_cases -- (y = 0)
     (assume yz : y = 0,
       have xz : x = 0, from
         calc
@@ -489,7 +479,7 @@ show x mod y = 0, from
           ... = x : mod_zero _
           ... = 0 : xz)
     (assume ynz : y ≠ 0,
-      have ypos : y > 0, from ne_zero_pos ynz,
+      have ypos : y > 0, from ne_zero_imp_pos ynz,
       have H3 : (z - x div y) * y < y, from subst (symm H2) (mod_lt x ypos),
       have H4 : (z - x div y) * y < 1 * y, from subst (symm (mul_one_left y)) H3,
       have H5 : z - x div y < 1, from mul_lt_cancel_right H4,
@@ -578,7 +568,7 @@ theorem dvd_add_cancel_right {m n1 n2 : ℕ} (H : m | (n1 + n2)) : m | n2 → m 
 dvd_add_cancel_left (subst (add_comm _ _) H)
 
 theorem dvd_sub {m n1 n2 : ℕ} (H1 : m | n1) (H2 : m | n2) : m | (n1 - n2) :=
-by_cases _
+by_cases
   (assume H3 : n1 ≥ n2,
     have H4 : n1 = n1 - n2 + n2, from symm (add_sub_ge_left H3),
     show m | n1 - n2, from dvd_add_cancel_right (subst H4 H1) H2)
@@ -608,13 +598,13 @@ let p' := pair y (x mod y) in
 let lhs := gcd_aux_rec p g in
 let rhs := gcd_aux_rec p (restrict 0 gcd_aux_measure g m) in
 show lhs = rhs, from
-  by_cases (y = 0)
+  by_cases -- (y = 0)
     (assume H1 : y = 0,
       calc
         lhs = x : if_pos H1 _ _
           ... = rhs : symm (if_pos H1 _ _))
     (assume H1 : y ≠ 0,
-      have ypos : y > 0, from ne_zero_pos H1,
+      have ypos : y > 0, from ne_zero_imp_pos H1,
       have H2 : gcd_aux_measure p' = x mod y, from pr2_pair _ _,
       have H3 : gcd_aux_measure p' < gcd_aux_measure p, from subst (symm H2) (mod_lt _ ypos),
       have H4: gcd_aux_measure p' < m, from lt_le_trans H3 H,

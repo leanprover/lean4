@@ -276,12 +276,6 @@ infix `>` : 50 := gt
 
 theorem lt_def (n m : ℕ) : (n < m) = (succ n ≤ m) := refl (n < m)
 
--- theorem gt_def (n m : ℕ) : n > m ↔ m < n
--- := refl (n > m)
-
--- theorem ge_def (n m : ℕ) : n ≥ m ↔ m ≤ n
--- := refl (n ≥ m)
-
 -- add_rewrite gt_def ge_def --it might be possible to remove this in Lean 0.2
 
 theorem lt_intro {n m k : ℕ} (H : succ n + k = m) : n < m :=
@@ -491,8 +485,11 @@ or_imp_or_left (or_swap (le_imp_lt_or_eq (zero_le n))) (take H : 0 = n, symm H)
 theorem succ_imp_pos {n m : ℕ} (H : n = succ m) : n > 0 :=
 H⁻¹ ▸ (succ_pos m)
 
-theorem ne_zero_pos {n : ℕ} (H : n ≠ 0) : n > 0 :=
+theorem ne_zero_imp_pos {n : ℕ} (H : n ≠ 0) : n > 0 :=
 or_elim (zero_or_pos n) (take H2 : n = 0, absurd_elim _ H2 H) (take H2 : n > 0, H2)
+
+theorem pos_imp_ne_zero {n : ℕ} (H : n > 0) : n ≠ 0 :=
+ne_symm (lt_imp_ne H)
 
 theorem pos_imp_eq_succ {n : ℕ} (H : n > 0) : exists l, n = succ l :=
 lt_imp_eq_succ H
@@ -606,4 +603,5 @@ mul_eq_one_left ((mul_comm n m) ▸ H)
 
 --- theorem mul_eq_one {n m : ℕ} (H : n * m = 1) : n = 1 ∧ m = 1
 --- := and_intro (mul_eq_one_left H) (mul_eq_one_right H)
+
 end nat

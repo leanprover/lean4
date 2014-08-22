@@ -662,7 +662,18 @@ struct unifier_fn {
         if (!m || is_meta(rhs))
             return Continue;
         expr bad_local;
-        switch (occurs_context_check(m_subst, rhs, *m, locals, bad_local)) {
+        auto status = occurs_context_check(m_subst, rhs, *m, locals, bad_local);
+        if (status == occurs_check_status::FailLocal || status == occurs_check_status::FailCircular) {
+            // Try to normalize rhs
+            // TODO(Leo): use a custom normalizer that uses reduction to solve just the failure.
+            // TODO(Leo): this code is using only whnf, we may fail to eliminate the failure.
+            // Example:  ?M := f (pr1 (pair 0 ?M))
+            constraint_seq cs;
+            expr rhs_whnf = whnf(rhs, relax, cs);
+            if (rhs != rhs_whnf && process_constraints(cs))
+                return process_metavar_eq(lhs, rhs_whnf, j, relax);
+        }
+        switch (status) {
         case occurs_check_status::FailLocal:
             set_conflict(mk_invalid_local_ctx_justification(lhs, rhs, j, bad_local));
             return Failed;

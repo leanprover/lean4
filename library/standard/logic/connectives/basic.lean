@@ -153,12 +153,12 @@ theorem iff_intro {a b : Prop} (H1 : a → b) (H2 : b → a) : a ↔ b := and_in
 
 theorem iff_elim {a b c : Prop} (H1 : (a → b) → (b → a) → c) (H2 : a ↔ b) : c := and_rec H1 H2
 
-theorem iff_elim_left ⦃a b : Prop⦄ (H : a ↔ b) : a → b :=
+theorem iff_elim_left {a b : Prop} (H : a ↔ b) : a → b :=
 iff_elim (assume H1 H2, H1) H
 
-abbreviation iff_mp := iff_elim_left
+abbreviation iff_mp := @iff_elim_left
 
-theorem iff_elim_right ⦃a b : Prop⦄ (H : a ↔ b) : b → a :=
+theorem iff_elim_right {a b : Prop} (H : a ↔ b) : b → a :=
 iff_elim (assume H1 H2, H2) H
 
 theorem iff_flip_sign {a b : Prop} (H1 : a ↔ b) : ¬a ↔ ¬b :=
@@ -169,12 +169,12 @@ iff_intro
 theorem iff_refl (a : Prop) : a ↔ a :=
 iff_intro (assume H, H) (assume H, H)
 
-theorem iff_trans ⦃a b c : Prop⦄ (H1 : a ↔ b) (H2 : b ↔ c) : a ↔ c :=
+theorem iff_trans {a b c : Prop} (H1 : a ↔ b) (H2 : b ↔ c) : a ↔ c :=
 iff_intro
   (assume Ha, iff_elim_left H2 (iff_elim_left H1 Ha))
   (assume Hc, iff_elim_right H1 (iff_elim_right H2 Hc))
 
-theorem iff_symm ⦃a b : Prop⦄ (H : a ↔ b) : b ↔ a :=
+theorem iff_symm {a b : Prop} (H : a ↔ b) : b ↔ a :=
 iff_intro
   (assume Hb, iff_elim_right H Hb)
   (assume Ha, iff_elim_left H Ha)

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "util/flet.h"
 #include "kernel/replace_fn.h"
 #include "kernel/free_vars.h"
-#include "kernel/annotation.h"
+#include "library/annotation.h"
 #include "library/aliases.h"
 #include "library/scoped_ext.h"
 #include "library/coercion.h"

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <string>
 #include "util/sstream.h"
-#include "kernel/annotation.h"
+#include "library/annotation.h"
 
 namespace lean {
 name const & get_annotation_name() {

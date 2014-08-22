@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
-#include "kernel/annotation.h"
+#include "library/annotation.h"
 #include "library/string.h"
 #include "library/num.h"
 #include "library/tactic/expr_to_tactic.h"

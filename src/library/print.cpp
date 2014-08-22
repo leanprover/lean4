@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
-#include "kernel/annotation.h"
+#include "library/annotation.h"
 #include "library/print.h"
 
 namespace lean {

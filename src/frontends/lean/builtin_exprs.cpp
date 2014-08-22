@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/sstream.h"
 #include "kernel/abstract.h"
-#include "kernel/annotation.h"
+#include "library/annotation.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
 #include "library/tactic/tactic.h"

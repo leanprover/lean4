@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/object_serializer.h"
 #include "kernel/expr.h"
 #include "kernel/declaration.h"
-#include "kernel/annotation.h"
+#include "library/annotation.h"
 #include "library/max_sharing.h"
 #include "library/kernel_serializer.h"
 

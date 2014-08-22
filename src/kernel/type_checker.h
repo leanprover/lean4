@@ -95,7 +95,6 @@ class type_checker {
 
     friend class converter; // allow converter to access the following methods
     name mk_fresh_name() { return m_gen.next(); }
-    optional<expr> expand_macro(expr const & m);
     pair<expr, expr> open_binding_body(expr const & e);
     pair<expr, constraint_seq> ensure_sort_core(expr e, expr const & s);
     pair<expr, constraint_seq> ensure_pi_core(expr e, expr const & s);
@@ -199,6 +198,8 @@ public:
             cs = r.second + cs;
         return r.first;
     }
+
+    optional<expr> expand_macro(expr const & m);
 };
 
 typedef std::shared_ptr<type_checker> type_checker_ref;

@@ -1697,6 +1697,19 @@ struct unifier_fn {
         return std::all_of(margs.begin(), margs.end(), [&](expr const & e) { return is_local(e); });
     }
 
+    optional<expr> expand_rhs(expr const & rhs, bool relax) {
+        buffer<expr> args;
+        expr const & f = get_app_rev_args(rhs, args);
+        lean_assert(!is_local(f) && !is_constant(f) && !is_var(f) && !is_metavar(f));
+        if (is_lambda(f)) {
+            return some_expr(apply_beta(f, args.size(), args.data()));
+        } else if (is_macro(f)) {
+            return m_tc[relax]->expand_macro(rhs);
+        } else {
+            return none_expr();
+        }
+    }
+
     /** \brief Process a flex rigid constraint */
     bool process_flex_rigid(expr lhs, expr const & rhs, justification const & j, bool relax) {
         lean_assert(is_meta(lhs));
@@ -1704,12 +1717,12 @@ struct unifier_fn {
         if (is_app(rhs)) {
             expr const & f = get_app_fn(rhs);
             if (!is_local(f) && !is_constant(f)) {
-                constraint_seq cs;
-                expr new_rhs = whnf(rhs, relax, cs);
-                lean_assert(new_rhs != rhs);
-                if (!process_constraints(cs, j))
+                if (auto new_rhs = expand_rhs(rhs, relax)) {
+                    lean_assert(*new_rhs != rhs);
+                    return is_def_eq(lhs, *new_rhs, j, relax);
+                } else {
                     return false;
-                return is_def_eq(lhs, new_rhs, j, relax);
+                }
             }
         }
 

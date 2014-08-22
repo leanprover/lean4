@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/kernel_exception.h"
+#include "library/simple_formatter.h"
 #include "library/io_state.h"
 
 namespace lean {

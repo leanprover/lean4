@@ -6,8 +6,9 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include "util/test.h"
-#include "library/max_sharing.h"
 #include "kernel/abstract.h"
+#include "library/max_sharing.h"
+#include "library/simple_formatter.h"
 using namespace lean;
 
 static void tst1() {
@@ -59,6 +60,7 @@ static void tst3() {
 
 int main() {
     save_stack_info();
+    init_default_print_fn();
     scoped_expr_caching set(false);
     tst1();
     tst2();

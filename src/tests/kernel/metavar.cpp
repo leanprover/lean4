@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/metavar.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "library/simple_formatter.h"
 using namespace lean;
 
 void collect_assumptions(justification const & j, buffer<unsigned> & r) {
@@ -145,6 +146,7 @@ static void tst4() {
 
 int main() {
     save_stack_info();
+    init_default_print_fn();
     tst1();
     tst2();
     tst3();

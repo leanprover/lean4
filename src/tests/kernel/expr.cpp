@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/max_sharing.h"
+#include "library/simple_formatter.h"
 #include "library/deep_copy.h"
 #include "library/kernel_serializer.h"
 using namespace lean;
@@ -362,6 +363,7 @@ static void tst18() {
 
 int main() {
     save_stack_info();
+    init_default_print_fn();
     lean_assert(sizeof(expr) == sizeof(optional<expr>));
     tst1();
     tst2();

@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/module.h"
 #include "library/opaque_hints.h"
+#include "library/simple_formatter.h"
 
 // Lua Bindings for the Kernel classes. We do not include the Lua
 // bindings in the kernel because we do not want to inflate the Kernel.

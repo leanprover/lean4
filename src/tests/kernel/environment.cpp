@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/kernel_exception.h"
+#include "library/simple_formatter.cpp"
 using namespace lean;
 
 static environment add_decl(environment const & env, declaration const & d) {
@@ -243,6 +244,7 @@ public:
 
 int main() {
     save_stack_info();
+    init_default_print_fn();
     tst1();
     tst2();
     tst3();

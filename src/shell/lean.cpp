@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
+#include "library/simple_formatter.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
@@ -150,6 +151,7 @@ public:
 
 int main(int argc, char ** argv) {
     lean::save_stack_info();
+    lean::init_default_print_fn();
     lean::register_modules();
     bool export_objects  = false;
     unsigned trust_lvl   = 0;

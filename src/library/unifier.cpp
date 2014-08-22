@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/opaque_hints.h"
 #include "library/unifier_plugin.h"
 #include "library/kernel_bindings.h"
+#include "library/simple_formatter.h"
 
 #ifndef LEAN_DEFAULT_UNIFIER_MAX_STEPS
 #define LEAN_DEFAULT_UNIFIER_MAX_STEPS 20000

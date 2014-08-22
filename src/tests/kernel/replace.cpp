@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/expr_maps.h"
 #include "kernel/replace_fn.h"
+#include "library/simple_formatter.h"
 using namespace lean;
 
 expr mk_big(expr f, unsigned depth, unsigned val) {
@@ -58,6 +59,7 @@ public:
 
 int main() {
     save_stack_info();
+    init_default_print_fn();
     tst1();
     tst2();
     std::cout << "done" << "\n";

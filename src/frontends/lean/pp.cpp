@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/private.h"
 #include "library/explicit.h"
 #include "library/num.h"
+#include "library/simple_formatter.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/pp_options.h"
 #include "frontends/lean/token_table.h"

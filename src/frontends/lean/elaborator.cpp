@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/opaque_hints.h"
 #include "library/locals.h"
 #include "library/deep_copy.h"
+#include "library/typed_expr.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/error_handling/error_handling.h"
@@ -1045,6 +1046,30 @@ public:
     expr visit_pi(expr const & e, constraint_seq & cs) { return visit_binding(e, expr_kind::Pi, cs); }
     expr visit_lambda(expr const & e, constraint_seq & cs) { return visit_binding(e, expr_kind::Lambda, cs); }
 
+    expr visit_typed_expr(expr const & e, constraint_seq & cs) {
+        constraint_seq t_cs;
+        expr t      = visit(get_typed_expr_type(e), t_cs);
+        constraint_seq v_cs;
+        expr v      = visit(get_typed_expr_expr(e), v_cs);
+        expr v_type = infer_type(v, v_cs);
+        justification j = mk_justification(e, [=](formatter const & fmt, substitution const & subst) {
+                substitution s(subst);
+                format expected_fmt, given_fmt;
+                std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, s.instantiate(t), s.instantiate(v_type));
+                format r("type mismatch at term");
+                r += pp_indent_expr(fmt, s.instantiate(v));
+                r += format("has type");
+                r += given_fmt;
+                r += compose(line(), format("but is expected to have type"));
+                r += expected_fmt;
+                return r;
+            });
+        auto new_vcs    = ensure_has_type(v, v_type, t, j, m_relax_main_opaque);
+        v = new_vcs.first;
+        cs += t_cs + new_vcs.second + v_cs;
+        return v;
+    }
+
     expr visit_core(expr const & e, constraint_seq & cs) {
         if (is_placeholder(e)) {
             return visit_placeholder(e, cs);
@@ -1055,6 +1080,8 @@ public:
         } else if (is_noinfo(e)) {
             flet<bool> let(m_noinfo, true);
             return visit(get_annotation_arg(e), cs);
+        } else if (is_typed_expr(e)) {
+            return visit_typed_expr(e, cs);
         } else {
             switch (e.kind()) {
             case expr_kind::Local:      return e;

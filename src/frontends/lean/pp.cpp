@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/private.h"
 #include "library/explicit.h"
+#include "library/typed_expr.h"
 #include "library/num.h"
 #include "library/print.h"
 #include "frontends/lean/pp.h"
@@ -415,12 +416,14 @@ auto pretty_fn::pp(expr const & e) -> result {
     flet<unsigned> let_d(m_depth, m_depth+1);
     m_num_steps++;
 
-    if (is_placeholder(e)) return mk_result(g_placeholder_fmt);
-    if (is_show(e)) return pp_show(e);
-    if (is_let(e))  return pp_let(e);
-    if (is_have(e)) return pp_have(e);
+    if (is_placeholder(e))  return mk_result(g_placeholder_fmt);
+    if (is_show(e))         return pp_show(e);
+    if (is_let(e))          return pp_let(e);
+    if (is_have(e))         return pp_have(e);
+    if (is_typed_expr(e))   return pp(get_typed_expr_expr(e));
     if (auto n = to_num(e)) return pp_num(*n);
-    if (!m_metavar_args && is_meta(e)) return pp_meta(get_app_fn(e));
+    if (!m_metavar_args && is_meta(e))
+        return pp_meta(get_app_fn(e));
 
     switch (e.kind()) {
     case expr_kind::Var:       return pp_var(e);

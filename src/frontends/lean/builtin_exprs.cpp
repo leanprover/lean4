@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
+#include "library/typed_expr.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/calc.h"
@@ -108,7 +109,7 @@ static expr parse_let(parser & p, pos_info const & pos) {
         // expr body = abstract(parse_let_body(p, pos), l);
         //     return mk_let(p, id, type, value, body, pos, mk_contextual_info(is_fact));
         // } else  {
-        p.add_local_expr(id, value);
+        p.add_local_expr(id, p.save_pos(mk_typed_expr(type, value), p.pos_of(value)));
         return parse_let_body(p, pos);
         // }
     }

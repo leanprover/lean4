@@ -24,7 +24,7 @@ abbreviation cases_on {A B : Type} {P : (A + B) → Prop} (s : A + B)
 sum_rec H1 H2 s
 
 -- Here is the trick for the theorems that follow:
--- Fixing a1, "f s" is a recursive description of "inl B1 a1 = s".
+-- Fixing a1, "f s" is a recursive description of "inl B a1 = s".
 -- When s is (inl B a1), it reduces to a1 = a1.
 -- When s is (inl B a2), it reduces to a1 = a2.
 -- When s is (inr A b), it reduces to false.

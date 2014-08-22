@@ -119,8 +119,6 @@ theorem subst_iff {P : Prop → Prop} {C : congr iff iff P} {a b : Prop} (H : a 
 -- Support for calculations with iff
 -- ----------------
 
-calc_refl iff_refl
-calc_trans iff_trans
 calc_subst subst_iff
 
 namespace iff_ops

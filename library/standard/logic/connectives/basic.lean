@@ -179,6 +179,7 @@ iff_intro
   (assume Hb, iff_elim_right H Hb)
   (assume Ha, iff_elim_left H Ha)
 
+calc_refl iff_refl
 calc_trans iff_trans
 
 

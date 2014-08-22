@@ -78,9 +78,7 @@ public:
     type_info_data() {}
     type_info_data(unsigned c, expr const & e):info_data_cell(c), m_expr(e) {}
 
-    expr const & get_type() const {
-        return m_expr;
-    }
+    expr const & get_type() const { return m_expr; }
 
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- TYPE|" << line << "|" << get_column() << "\n";
@@ -90,10 +88,7 @@ public:
 
     virtual info_data_cell * instantiate(substitution & s) const {
         expr e = s.instantiate(m_expr);
-        if (is_eqp(e, m_expr))
-            return nullptr;
-        else
-            return new type_info_data(get_column(), e);
+        return is_eqp(e, m_expr) ? nullptr : new type_info_data(get_column(), e);
     }
 };
 
@@ -104,6 +99,11 @@ public:
         ios << "-- SYNTH|" << line << "|" << get_column() << "\n";
         ios << m_expr << endl;
         ios << "-- ACK" << endl;
+    }
+
+    virtual info_data_cell * instantiate(substitution & s) const {
+        expr e = s.instantiate(m_expr);
+        return is_eqp(e, m_expr) ? nullptr : new synth_info_data(get_column(), e);
     }
 };
 

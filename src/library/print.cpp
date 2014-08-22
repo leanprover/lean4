@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
 #include "kernel/annotation.h"
-#include "library/simple_formatter.h"
+#include "library/print.h"
 
 namespace lean {
 bool is_used_name(expr const & t, name const & n) {
@@ -249,7 +249,7 @@ struct print_expr_fn {
     }
 };
 
-formatter_factory mk_simple_formatter_factory() {
+formatter_factory mk_print_formatter_factory() {
     return [](environment const & env, options const & o) { // NOLINT
         return formatter(o, [=](expr const & e, options const &) {
                 std::ostringstream s;

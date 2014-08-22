@@ -31,7 +31,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/module.h"
 #include "library/opaque_hints.h"
-#include "library/simple_formatter.h"
+#include "library/print.h"
 
 // Lua Bindings for the Kernel classes. We do not include the Lua
 // bindings in the kernel because we do not want to inflate the Kernel.
@@ -878,7 +878,7 @@ static const struct luaL_Reg formatter_m[] = {
 };
 
 static char g_formatter_factory_key;
-static formatter_factory g_simple_formatter_factory = mk_simple_formatter_factory();
+static formatter_factory g_print_formatter_factory = mk_print_formatter_factory();
 
 optional<formatter_factory> get_global_formatter_factory_core(lua_State * L) {
     io_state * io = get_io_state_ptr(L);
@@ -903,7 +903,7 @@ formatter_factory get_global_formatter_factory(lua_State * L) {
     if (r)
         return *r;
     else
-        return g_simple_formatter_factory;
+        return g_print_formatter_factory;
 }
 
 void set_global_formatter_factory(lua_State * L, formatter_factory const & fmtf) {
@@ -1223,7 +1223,7 @@ io_state to_io_state_ext(lua_State * L, int idx) {
 int mk_io_state(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 0)
-        return push_io_state(L, io_state(mk_simple_formatter_factory()));
+        return push_io_state(L, io_state(mk_print_formatter_factory()));
     else if (nargs == 1)
         return push_io_state(L, io_state(to_io_state(L, 1)));
     else

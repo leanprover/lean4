@@ -5,11 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/kernel_exception.h"
-#include "library/simple_formatter.h"
+#include "library/print.h"
 #include "library/io_state.h"
 
 namespace lean {
-static io_state g_dummy_ios(mk_simple_formatter_factory());
+static io_state g_dummy_ios(mk_print_formatter_factory());
 io_state const & get_dummy_ios() {
     return g_dummy_ios;
 }

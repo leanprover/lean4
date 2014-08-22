@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/max_sharing.h"
-#include "library/simple_formatter.h"
+#include "library/print.h"
 #include "library/deep_copy.h"
 #include "library/kernel_serializer.h"
 using namespace lean;

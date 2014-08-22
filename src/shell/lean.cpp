@@ -26,7 +26,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
-#include "library/simple_formatter.h"
+#include "library/print.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"

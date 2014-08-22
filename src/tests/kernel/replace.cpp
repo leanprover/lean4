@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/expr_maps.h"
 #include "kernel/replace_fn.h"
-#include "library/simple_formatter.h"
+#include "library/print.h"
 using namespace lean;
 
 expr mk_big(expr f, unsigned depth, unsigned val) {

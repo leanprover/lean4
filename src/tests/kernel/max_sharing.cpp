@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "kernel/abstract.h"
 #include "library/max_sharing.h"
-#include "library/simple_formatter.h"
+#include "library/print.h"
 using namespace lean;
 
 static void tst1() {

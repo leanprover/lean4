@@ -22,8 +22,11 @@ pair<expr, expr> binding_body_fresh(expr const & b, bool preserve_type = false);
 /** \brief Return the body of the let-expression \c l, where variable #0 is replaced by a local constant with a "fresh" name. */
 pair<expr, expr> let_body_fresh(expr const & l, bool preserve_type = false);
 
-/** \brief Create a simple formatter object based on operator */
-formatter_factory mk_simple_formatter_factory();
+/** \brief Create a simple formatter object based on operator for "print" procedure.
+
+    \remark The print procedure is only used for debugging purposes.
+*/
+formatter_factory mk_print_formatter_factory();
 
 /** \brief Use simple formatter as the default print function */
 void init_default_print_fn();

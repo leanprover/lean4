@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/kernel_exception.h"
-#include "library/simple_formatter.cpp"
+#include "library/print.h"
 using namespace lean;
 
 static environment add_decl(environment const & env, declaration const & d) {
@@ -21,7 +21,7 @@ static environment add_decl(environment const & env, declaration const & d) {
 }
 
 formatter mk_formatter(environment const & env) {
-    return mk_simple_formatter_factory()(env, options());
+    return mk_print_formatter_factory()(env, options());
 }
 
 static void tst1() {

@@ -2,7 +2,7 @@ import standard
 
 namespace algebra
   inductive mul_struct (A : Type) : Type :=
-  | mk_mul_struct : (A → A → A) → mul_struct A
+  mk_mul_struct : (A → A → A) → mul_struct A
 
   definition mul [inline] {A : Type} {s : mul_struct A} (a b : A)
   := mul_struct_rec (λ f, f) s a b
@@ -12,8 +12,8 @@ end algebra
 
 namespace nat
   inductive nat : Type :=
-  | zero : nat
-  | succ : nat → nat
+  zero : nat,
+  succ : nat → nat
 
   variable mul : nat → nat → nat
   variable add : nat → nat → nat

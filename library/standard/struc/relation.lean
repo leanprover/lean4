@@ -16,7 +16,7 @@ abbreviation transitive {T : Type} (R : T → T → Type) : Type := ∀⦃x y z�
 
 
 inductive is_reflexive {T : Type} (R : T → T → Type) : Prop :=
-| is_reflexive_mk : reflexive R → is_reflexive R
+is_reflexive_mk : reflexive R → is_reflexive R
 
 namespace is_reflexive
 
@@ -30,7 +30,7 @@ end is_reflexive
 
 
 inductive is_symmetric {T : Type} (R : T → T → Type) : Prop :=
-| is_symmetric_mk : symmetric R → is_symmetric R
+is_symmetric_mk : symmetric R → is_symmetric R
 
 namespace is_symmetric
 
@@ -44,7 +44,7 @@ end is_symmetric
 
 
 inductive is_transitive {T : Type} (R : T → T → Type) : Prop :=
-| is_transitive_mk : transitive R → is_transitive R
+is_transitive_mk : transitive R → is_transitive R
 
 namespace is_transitive
 
@@ -58,7 +58,7 @@ end is_transitive
 
 
 inductive is_equivalence {T : Type} (R : T → T → Type) : Prop :=
-| is_equivalence_mk : is_reflexive R → is_symmetric R → is_transitive R → is_equivalence R
+is_equivalence_mk : is_reflexive R → is_symmetric R → is_transitive R → is_equivalence R
 
 namespace is_equivalence
 
@@ -80,7 +80,7 @@ instance is_equivalence.is_transitive
 
 -- partial equivalence relation
 inductive is_PER {T : Type} (R : T → T → Type) : Prop :=
-| is_PER_mk : is_symmetric R → is_transitive R → is_PER R
+is_PER_mk : is_symmetric R → is_transitive R → is_PER R
 
 namespace is_PER
 
@@ -101,12 +101,12 @@ instance is_PER.is_transitive
 
 inductive congr {T1 : Type} (R1 : T1 → T1 → Prop) {T2 : Type} (R2 : T2 → T2 → Prop)
     (f : T1 → T2) : Prop :=
-| congr_mk : (∀x y, R1 x y → R2 (f x) (f y)) → congr R1 R2 f
+congr_mk : (∀x y, R1 x y → R2 (f x) (f y)) → congr R1 R2 f
 
 -- for binary functions
 inductive congr2 {T1 : Type}  (R1 : T1 → T1 → Prop) {T2 : Type} (R2 : T2 → T2 → Prop)
     {T3 : Type} (R3 : T3 → T3 → Prop) (f : T1 → T2 → T3) : Prop :=
-| congr2_mk : (∀(x1 y1 : T1) (x2 y2 : T2), R1 x1 y1 → R2 x2 y2 → R3 (f x1 x2) (f y1 y2)) →
+congr2_mk : (∀(x1 y1 : T1) (x2 y2 : T2), R1 x1 y1 → R2 x2 y2 → R3 (f x1 x2) (f y1 y2)) →
     congr2 R1 R2 R3 f
 
 namespace congr
@@ -171,7 +171,7 @@ congr_mk (λx y H, H)
 -- ---------------------------------------------------------
 
 inductive mp_like {R : Type → Type → Prop} {a b : Type} (H : R a b) : Prop :=
-| mp_like_mk {} : (a → b) → @mp_like R a b H
+mp_like_mk {} : (a → b) → @mp_like R a b H
 
 namespace mp_like
 

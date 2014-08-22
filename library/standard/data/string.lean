@@ -9,11 +9,11 @@ using bool inhabited
 namespace string
 
 inductive char : Type :=
-| ascii : bool → bool → bool → bool → bool → bool → bool → bool → char
+ascii : bool → bool → bool → bool → bool → bool → bool → bool → char
 
 inductive string : Type :=
-| empty : string
-| str   : char → string → string
+empty : string,
+str   : char → string → string
 
 theorem char_inhabited [instance] : inhabited char :=
 inhabited_mk (ascii ff ff ff ff ff ff ff ff)

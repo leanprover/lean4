@@ -2,8 +2,8 @@ import standard
 using num eq_ops
 
 inductive nat : Type :=
-| zero : nat
-| succ : nat → nat
+zero : nat,
+succ : nat → nat
 
 abbreviation plus (x y : nat) : nat
 := nat_rec x (λn r, succ r) y

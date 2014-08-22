@@ -10,7 +10,7 @@ import .path
 -- -----------------
 
 inductive Contr (A : Type) : Type :=
-| Contr_mk : Π
+Contr_mk : Π
   (center : A)
   (contr : Πy : A, center ≈ y),
 Contr A
@@ -21,8 +21,8 @@ definition contr {A : Type} (C : Contr A) : Πy : A, center C ≈ y :=
 Contr_rec (λcenter contr, contr) C
 
 inductive trunc_index : Type :=
-| minus_two : trunc_index
-| trunc_S : trunc_index → trunc_index
+minus_two : trunc_index,
+trunc_S : trunc_index → trunc_index
 
 -- TODO: add coercions to / from nat
 

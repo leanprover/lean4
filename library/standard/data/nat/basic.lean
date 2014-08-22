@@ -25,8 +25,8 @@ using helper_tactics
 
 namespace nat
 inductive nat : Type :=
-| zero : nat
-| succ : nat → nat
+  zero : nat,
+  succ : nat → nat
 
 notation `ℕ`:max := nat
 

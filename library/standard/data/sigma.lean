@@ -7,7 +7,7 @@ import logic.classes.inhabited logic.connectives.eq
 using inhabited
 
 inductive sigma {A : Type} (B : A → Type) : Type :=
-| dpair : Πx : A, B x → sigma B
+dpair : Πx : A, B x → sigma B
 
 notation `Σ` binders `,` r:(scoped P, sigma P) := r
 
@@ -36,12 +36,12 @@ section
   (show ∀(b2 : B a2) (H1 : a1 = a2) (H2 : eq_rec_on H1 b1 = b2), dpair a1 b1 = dpair a2 b2, from
     eq_rec
       (take (b2' : B a1),
-	assume (H1' : a1 = a1),
-	assume (H2' : eq_rec_on H1' b1 = b2'),
-	show dpair a1 b1 = dpair a1 b2', from
-	  calc
-	    dpair a1 b1 = dpair a1 (eq_rec_on H1' b1) : {symm (eq_rec_on_id H1' b1)}
-	      ... = dpair a1 b2' : {H2'}) H1)
+        assume (H1' : a1 = a1),
+        assume (H2' : eq_rec_on H1' b1 = b2'),
+        show dpair a1 b1 = dpair a1 b2', from
+          calc
+            dpair a1 b1 = dpair a1 (eq_rec_on H1' b1) : {symm (eq_rec_on_id H1' b1)}
+              ... = dpair a1 b2' : {H2'}) H1)
   b2 H1 H2
 
   theorem sigma_eq {p1 p2 : Σx : A, B x} :

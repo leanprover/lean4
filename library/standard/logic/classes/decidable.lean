@@ -7,8 +7,8 @@ import logic.connectives.basic logic.connectives.eq
 namespace decidable
 
 inductive decidable (p : Prop) : Type :=
-| inl : p  → decidable p
-| inr : ¬p → decidable p
+inl : p  → decidable p,
+inr : ¬p → decidable p
 
 theorem true_decidable [instance] : decidable true :=
 inl trivial
@@ -76,7 +76,7 @@ rec_on Ha
   (assume Hna, rec_on Hb
     (assume Hb  : b,  inr (assume H : a ↔ b, absurd (iff_elim_right H Hb) Hna))
     (assume Hnb : ¬b, inl
-	(iff_intro (assume Ha, absurd_elim b Ha Hna) (assume Hb, absurd_elim a Hb Hnb))))
+        (iff_intro (assume Ha, absurd_elim b Ha Hna) (assume Hb, absurd_elim a Hb Hnb))))
 
 theorem implies_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
   decidable (a → b) :=

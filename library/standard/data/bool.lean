@@ -7,8 +7,8 @@ import logic.connectives.basic logic.classes.decidable logic.classes.inhabited
 using eq_ops decidable
 
 inductive bool : Type :=
-| ff : bool
-| tt : bool
+ff : bool,
+tt : bool
 
 namespace bool
 

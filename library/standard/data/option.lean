@@ -8,14 +8,14 @@ using eq_ops decidable
 namespace option
 
 inductive option (A : Type) : Type :=
-| none {} : option A
-| some    : A → option A
+none {} : option A,
+some    : A → option A
 
-theorem induction_on {A : Type} {p : option A → Prop} (o : option A) 
+theorem induction_on {A : Type} {p : option A → Prop} (o : option A)
   (H1 : p none) (H2 : ∀a, p (some a)) : p o :=
 option_rec H1 H2 o
 
-definition rec_on {A : Type} {C : option A → Type} (o : option A) 
+definition rec_on {A : Type} {C : option A → Type} (o : option A)
   (H1 : C none) (H2 : ∀a, C (some a)) : C o :=
 option_rec H1 H2 o
 
@@ -39,7 +39,7 @@ congr_arg (option_rec a₁ (λ a, a)) H
 theorem option_inhabited [instance] (A : Type) : inhabited (option A) :=
 inhabited_mk none
 
-theorem decidable_eq [instance] {A : Type} {H : ∀a₁ a₂ : A, decidable (a₁ = a₂)} 
+theorem decidable_eq [instance] {A : Type} {H : ∀a₁ a₂ : A, decidable (a₁ = a₂)}
     (o₁ o₂ : option A) : decidable (o₁ = o₂) :=
 rec_on o₁
   (rec_on o₂ (inl (refl _)) (take a₂, (inr (none_ne_some a₂))))

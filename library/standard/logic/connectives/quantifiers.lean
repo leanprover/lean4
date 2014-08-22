@@ -7,7 +7,7 @@ import .basic .eq ..classes.nonempty
 using inhabited nonempty
 
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
-| exists_intro : ∀ (a : A), P a → Exists P
+exists_intro : ∀ (a : A), P a → Exists P
 
 notation `exists` binders `,` r:(scoped P, Exists P) := r
 notation `∃` binders `,` r:(scoped P, Exists P) := r

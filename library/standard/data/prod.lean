@@ -7,7 +7,7 @@ import logic.classes.inhabited logic.connectives.eq logic.classes.decidable
 using inhabited decidable
 
 inductive prod (A B : Type) : Type :=
-| pair : A → B → prod A B
+pair : A → B → prod A B
 
 precedence `×`:30
 infixr × := prod
@@ -47,8 +47,8 @@ section
       (H2 : decidable (pr2 u = pr2 v)) : decidable (u = v) :=
     have H3 : u = v ↔ (pr1 u = pr1 v) ∧ (pr2 u = pr2 v), from
       iff_intro
-	(assume H, subst H (and_intro (refl _) (refl _)))
-	(assume H, and_elim H (assume H4 H5, prod_eq H4 H5)),
+        (assume H, subst H (and_intro (refl _) (refl _)))
+        (assume H, and_elim H (assume H4 H5, prod_eq H4 H5)),
     decidable_iff_equiv _ (iff_symm H3)
 
 end

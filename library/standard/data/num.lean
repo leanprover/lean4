@@ -12,13 +12,13 @@ namespace num
 -- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).
 -- This representation can be coerced in whatever we want (e.g., naturals, integers, reals, etc).
 inductive pos_num : Type :=
-| one  : pos_num
-| bit1 : pos_num → pos_num
-| bit0 : pos_num → pos_num
+one  : pos_num,
+bit1 : pos_num → pos_num,
+bit0 : pos_num → pos_num
 
 inductive num : Type :=
-| zero  : num
-| pos   : pos_num → num
+zero  : num,
+pos   : pos_num → num
 
 theorem inhabited_pos_num [instance] : inhabited pos_num :=
 inhabited_mk one

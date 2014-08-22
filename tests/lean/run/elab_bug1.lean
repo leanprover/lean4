@@ -18,7 +18,7 @@ abbreviation reflexive {T : Type} (R : T → T → Type) : Prop := ∀x, R x x
 
 inductive congruence {T1 : Type} {T2 : Type} (R1 : T1 → T1 → Prop) (R2 : T2 → T2 → Prop)
     (f : T1 → T2) : Prop :=
-| mk : (∀x y : T1, R1 x y → R2 (f x) (f y)) → congruence R1 R2 f
+mk : (∀x y : T1, R1 x y → R2 (f x) (f y)) → congruence R1 R2 f
 
 -- to trigger class inference
 theorem congr_app {T1 : Type} {T2 : Type} (R1 : T1 → T1 → Prop) (R2 : T2 → T2 → Prop)

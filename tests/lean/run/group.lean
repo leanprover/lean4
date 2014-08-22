@@ -14,10 +14,10 @@ section
 end
 
 inductive group_struct (A : Type) : Type :=
-| mk_group_struct : Π (mul : A → A → A) (one : A) (inv : A → A), is_assoc mul → is_id mul one → is_inv mul one inv → group_struct A
+mk_group_struct : Π (mul : A → A → A) (one : A) (inv : A → A), is_assoc mul → is_id mul one → is_inv mul one inv → group_struct A
 
 inductive group : Type :=
-| mk_group : Π (A : Type), group_struct A → group
+mk_group : Π (A : Type), group_struct A → group
 
 definition carrier (g : group) : Type
 := group_rec (λ c s, c) g

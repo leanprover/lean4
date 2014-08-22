@@ -14,7 +14,7 @@ infixl `∘`:60 := compose
 -- ----
 
 inductive path {A : Type} (a : A) : A → Type :=
-| idpath : path a a
+idpath : path a a
 
 infix `≈`:50 := path
 -- TODO: is this right?

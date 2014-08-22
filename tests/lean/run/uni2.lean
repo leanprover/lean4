@@ -1,8 +1,8 @@
 import logic
 
 inductive nat : Type :=
-| zero : nat
-| succ : nat → nat
+zero : nat,
+succ : nat → nat
 
 variable f : nat → nat
 

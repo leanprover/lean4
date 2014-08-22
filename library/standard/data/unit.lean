@@ -9,7 +9,7 @@ using decidable
 namespace unit
 
 inductive unit : Type :=
-| star : unit
+star : unit
 
 notation `⋆`:max := star
 

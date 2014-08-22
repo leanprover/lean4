@@ -7,7 +7,7 @@ variable int_add  : int → int → int
 variable real_add : real → real → real
 
 inductive add_struct (A : Type) :=
-| mk : (A → A → A) → add_struct A
+mk : (A → A → A) → add_struct A
 
 definition add {A : Type} {S : add_struct A} (a b : A) : A :=
 add_struct_rec (λ m, m) S a b
@@ -51,4 +51,3 @@ infixl `=`:50 := eq
 abbreviation id (A : Type) (a : A) := a
 notation A `=` B `:` C := @eq C A B
 check nat_to_int n + nat_to_int m = (n + m) : int
-

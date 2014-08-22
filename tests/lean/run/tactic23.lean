@@ -3,8 +3,8 @@ using num (num pos_num num_rec pos_num_rec)
 using tactic
 
 inductive nat : Type :=
-| zero : nat
-| succ : nat → nat
+zero : nat,
+succ : nat → nat
 
 definition add [inline] (a b : nat) : nat
 := nat_rec a (λ n r, succ r) b

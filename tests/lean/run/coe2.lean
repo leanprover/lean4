@@ -2,7 +2,7 @@ import standard
 
 namespace setoid
   inductive setoid : Type :=
-  | mk_setoid: Π (A : Type), (A → A → Prop) → setoid
+  mk_setoid: Π (A : Type), (A → A → Prop) → setoid
 
   definition carrier (s : setoid)
   := setoid_rec (λ a eq, a) s
@@ -15,6 +15,6 @@ namespace setoid
   coercion carrier
 
   inductive morphism (s1 s2 : setoid) : Type :=
-  | mk_morphism : Π (f : s1 → s2), (∀ x y, x ≈ y → f x ≈ f y) → morphism s1 s2
+  mk_morphism : Π (f : s1 → s2), (∀ x y, x ≈ y → f x ≈ f y) → morphism s1 s2
 
 end setoid

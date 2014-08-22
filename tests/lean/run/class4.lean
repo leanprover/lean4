@@ -1,8 +1,8 @@
 import standard
 
 inductive nat : Type :=
-| zero : nat
-| succ : nat → nat
+zero : nat,
+succ : nat → nat
 
 definition add (x y : nat)
 := nat_rec x (λ n r, succ r) y
@@ -54,7 +54,7 @@ theorem not_zero_add (x y : nat) (H : ¬ is_zero y) : ¬ is_zero (x + y)
         subst (symm H1) H2)
 
 inductive not_zero (x : nat) : Prop :=
-| not_zero_intro : ¬ is_zero x → not_zero x
+not_zero_intro : ¬ is_zero x → not_zero x
 
 theorem not_zero_not_is_zero {x : nat} (H : not_zero x) : ¬ is_zero x
 := not_zero_rec (λ H1, H1) H

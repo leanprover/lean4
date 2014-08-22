@@ -12,8 +12,8 @@
 import data.nat
 using nat eq_ops
 inductive list (T : Type) : Type :=
-| nil {} : list T
-| cons : T → list T → list T
+nil {} : list T,
+cons : T → list T → list T
 
 theorem list_induction_on {T : Type} {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hind : forall x : T, forall l : list T, forall H : P l, P (cons x l)) : P l :=

@@ -22,8 +22,8 @@ namespace list
 -- ----
 
 inductive list (T : Type) : Type :=
-| nil {} : list T
-| cons : T → list T → list T
+nil {} : list T,
+cons : T → list T → list T
 
 infix `::` : 65 := cons
 

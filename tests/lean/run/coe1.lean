@@ -18,7 +18,7 @@ set_option pp.universes true
 check eq a1 b1
 
 inductive pair (A : Type) (B: Type) : Type :=
-| mk_pair : A → B → pair A B
+mk_pair : A → B → pair A B
 
 check mk_pair a1 b2
 check B

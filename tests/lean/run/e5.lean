@@ -32,8 +32,8 @@ theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 := subst H2 H1
 
 inductive nat : Type :=
-| zero : nat
-| succ : nat → nat
+zero : nat,
+succ : nat → nat
 
 print "using strict implicit arguments"
 abbreviation symmetric {A : Type} (R : A → A → Prop) := ∀ ⦃a b⦄, R a b → R b a
@@ -66,4 +66,3 @@ axiom H5 : symmetric3 p
 axiom H6 : p zero (succ zero)
 check H5
 check H5 H6
-

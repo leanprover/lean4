@@ -4,17 +4,17 @@ notation `take`   binders `,` r:(scoped f, f) := r
 
 inductive empty : Type
 inductive unit : Type :=
-| tt : unit
+tt : unit
 inductive nat : Type :=
-| O : nat
-| S : nat → nat
+O : nat,
+S : nat → nat
 
 inductive paths {A : Type} (a : A) : A → Type :=
-| idpath : paths a a
+idpath : paths a a
 
 inductive sum (A : Type) (B : Type) : Type :=
-| inl : A -> sum A B
-| inr : B -> sum A B
+inl : A -> sum A B,
+inr : B -> sum A B
 
 definition coprod := sum
 definition ii1fun {A : Type} (B : Type) (a : A) := inl B a
@@ -23,7 +23,7 @@ definition ii1 {A : Type} {B : Type} (a : A) := inl B a
 definition ii2 {A : Type} {B : Type} (b : B) := inl A b
 
 inductive total2 {T: Type} (P: T → Type) : Type :=
-| tpair : Π (t : T) (tp : P t), total2 P
+tpair : Π (t : T) (tp : P t), total2 P
 
 definition pr1 {T : Type} {P : T → Type} (tp : total2 P) : T
 := total2_rec (λ a b, a) tp
@@ -31,7 +31,7 @@ definition pr2 {T : Type} {P : T → Type} (tp : total2 P) : P (pr1 tp)
 := total2_rec (λ a b, b) tp
 
 inductive Phant (T : Type) : Type :=
-| phant : Phant T
+phant : Phant T
 
 definition fromempty {X : Type} : empty → X
 := λe, empty_rec (λe, X) e

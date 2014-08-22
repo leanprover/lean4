@@ -1,14 +1,14 @@
 inductive nat : Type :=
-| zero : nat
-| succ : nat → nat
+zero : nat,
+succ : nat → nat
 
 inductive list (A : Type) : Type :=
-| nil {} : list A
-| cons   : A → list A → list A
+nil {} : list A,
+cons   : A → list A → list A
 
 inductive int : Type :=
-| of_nat : nat → int
-| neg : nat → int
+of_nat : nat → int,
+neg : nat → int
 
 coercion of_nat
 

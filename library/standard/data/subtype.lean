@@ -7,7 +7,7 @@ import logic.classes.inhabited logic.connectives.eq logic.classes.decidable
 using decidable
 
 inductive subtype {A : Type} (P : A → Prop) : Type :=
-| tag : Πx : A, P x → subtype P
+tag : Πx : A, P x → subtype P
 
 notation `{` binders `|` r:(scoped P, subtype P) `}` := r
 

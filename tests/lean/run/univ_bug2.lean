@@ -10,7 +10,7 @@ using nat
 namespace simp
 -- first define a class of homogeneous equality
 inductive simplifies_to {T : Type} (t1 t2 : T) : Prop :=
-| mk : t1 = t2 → simplifies_to t1 t2
+mk : t1 = t2 → simplifies_to t1 t2
 
 theorem get_eq {T : Type} {t1 t2 : T} (C : simplifies_to t1 t2) : t1 = t2 :=
 simplifies_to_rec (λx, x) C

@@ -10,7 +10,7 @@ import .basic
 -- --
 
 inductive eq {A : Type} (a : A) : A → Prop :=
-| refl : eq a a
+refl : eq a a
 
 infix `=`:50 := eq
 

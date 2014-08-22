@@ -16,7 +16,7 @@ abbreviation Sect {A B : Type} (s : A → B) (r : B → A) := Πx : A, r (s x) �
 -- Structure IsEquiv
 
 inductive IsEquiv {A B : Type} (f : A → B) :=
-| IsEquiv_mk : Π
+IsEquiv_mk : Π
   (equiv_inv : B → A)
   (eisretr : Sect equiv_inv f)
   (eissect : Sect f equiv_inv)
@@ -40,7 +40,7 @@ IsEquiv_rec (λequiv_inv eisretr eissect eisadj, eisadj) H
 -- Structure Equiv
 
 inductive Equiv (A B : Type) : Type :=
-| Equiv_mk : Π
+Equiv_mk : Π
   (equiv_fun : A → B)
   (equiv_isequiv : IsEquiv equiv_fun),
 Equiv A B

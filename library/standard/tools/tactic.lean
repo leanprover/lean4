@@ -15,7 +15,7 @@ namespace tactic
 -- builtin_tactic is just a "dummy" for creating the
 -- definitions that are actually implemented in C++
 inductive tactic : Type :=
-| builtin_tactic : tactic
+builtin_tactic : tactic
 -- Remark the following names are not arbitrary, the tactic module
 -- uses them when converting Lean expressions into actual tactic objects.
 -- The bultin 'by' construct triggers the process of converting a

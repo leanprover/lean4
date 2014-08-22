@@ -19,7 +19,7 @@ theorem false_elim (c : Prop) (H : false) : c :=
 false_rec c H
 
 inductive true : Prop :=
-| trivial : true
+trivial : true
 
 abbreviation not (a : Prop) := a → false
 prefix `¬`:40 := not
@@ -63,7 +63,7 @@ assume Hnb Ha, Hnb (Hab Ha)
 -- ---
 
 inductive and (a b : Prop) : Prop :=
-| and_intro : a → b → and a b
+and_intro : a → b → and a b
 
 infixr `/\`:35 := and
 infixr `∧`:35 := and
@@ -100,8 +100,8 @@ and_elim H1 (assume Hc : c, assume Ha : a, and_intro Hc (H Ha))
 -- --
 
 inductive or (a b : Prop) : Prop :=
-| or_intro_left  : a → or a b
-| or_intro_right : b → or a b
+or_intro_left  : a → or a b,
+or_intro_right : b → or a b
 
 infixr `\/`:30 := or
 infixr `∨`:30 := or

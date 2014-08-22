@@ -2,8 +2,8 @@ import standard
 using tactic
 
 inductive list (A : Type) : Type :=
-| nil {} : list A
-| cons   : A → list A → list A
+nil {} : list A,
+cons   : A → list A → list A
 
 definition is_nil {A : Type} (l : list A) : Prop
 := list_rec true (fun h t r, false) l

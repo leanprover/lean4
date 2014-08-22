@@ -27,7 +27,7 @@ namespace lean {
 static name g_assign(":=");
 static name g_with("with");
 static name g_colon(":");
-static name g_bar("|");
+static name g_comma(",");
 static name g_lcurly("{");
 static name g_rcurly("}");
 
@@ -258,8 +258,7 @@ struct inductive_cmd_fn {
     */
     list<intro_rule> parse_intro_rules(buffer<expr> & params) {
         buffer<intro_rule> intros;
-        while (m_p.curr_is_token(g_bar)) {
-            m_p.next();
+        while (true) {
             name intro_name = parse_intro_decl_name();
             bool strict = true;
             if (m_p.curr_is_token(g_lcurly)) {
@@ -273,6 +272,9 @@ struct inductive_cmd_fn {
             intro_type = Pi(params, intro_type, m_p);
             intro_type = infer_implicit(intro_type, params.size(), strict);
             intros.push_back(intro_rule(intro_name, intro_type));
+            if (!m_p.curr_is_token(g_comma))
+                break;
+            m_p.next();
         }
         return to_list(intros.begin(), intros.end());
     }

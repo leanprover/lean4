@@ -4,7 +4,7 @@ using relation
 namespace is_equivalence
 
   inductive class {T : Type} (R : T → T → Type) : Prop :=
-  | mk : is_reflexive R → is_symmetric R → is_transitive R → class R
+  mk : is_reflexive R → is_symmetric R → is_transitive R → class R
 
   theorem is_reflexive {T : Type} {R : T → T → Type} {C : class R} : is_reflexive R :=
   class_rec (λx y z, x) C

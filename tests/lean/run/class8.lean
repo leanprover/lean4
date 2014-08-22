@@ -2,7 +2,7 @@ import standard
 using num tactic prod
 
 inductive inh (A : Type) : Prop :=
-| inh_intro : A -> inh A
+inh_intro : A -> inh A
 
 instance inh_intro
 

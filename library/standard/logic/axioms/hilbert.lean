@@ -2,29 +2,33 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Leonardo de Moura, Jeremy Avigad
 
-import logic.connectives.eq logic.connectives.quantifiers
-import logic.classes.inhabited logic.classes.nonempty
-import data.subtype data.sum
-
-using subtype inhabited nonempty
-
 -- logic.axioms.hilbert
 -- ====================
 
 -- Follows Coq.Logic.ClassicalEpsilon (but our definition of "inhabited" is the
 -- constructive one).
 
+import logic.connectives.eq logic.connectives.quantifiers
+import logic.classes.inhabited logic.classes.nonempty
+import data.subtype data.sum
+
+using subtype inhabited nonempty
+
+
+-- the axiom
+-- ---------
+
 axiom strong_indefinite_description {A : Type} (P : A → Prop) (H : nonempty A) :
-  {x : A | (∃x : A, P x) → P x}
+  {x : A, (∃x : A, P x) → P x}
 
 -- In the presence of classical logic, we could prove this from the weaker
--- axiom indefinite_description {A : Type} {P : A->Prop} (H : ∃x, P x) : { x : A | P x }
+-- axiom indefinite_description {A : Type} {P : A->Prop} (H : ∃x, P x) : {x : A, P x}
 
 theorem nonempty_imp_exists_true {A : Type} (H : nonempty A) : ∃x : A, true :=
 nonempty_elim H (take x, exists_intro x trivial)
 
 theorem nonempty_imp_inhabited {A : Type} (H : nonempty A) : inhabited A :=
-let u : {x : A | (∃x : A, true) → true} := strong_indefinite_description (λa, true) H in
+let u : {x : A, (∃x : A, true) → true} := strong_indefinite_description (λa, true) H in
 inhabited_mk (elt_of u)
 
 theorem exists_imp_inhabited {A : Type} {P : A → Prop} (H : ∃x, P x) : inhabited A :=
@@ -35,13 +39,13 @@ nonempty_imp_inhabited (obtain w Hw, from H, nonempty_intro w)
 -- ----------------------------
 
 definition epsilon {A : Type} {H : nonempty A} (P : A → Prop) : A :=
-let u : {x : A | (∃y, P y) → P x} :=
+let u : {x : A, (∃y, P y) → P x} :=
   strong_indefinite_description P H in
 elt_of u
 
 theorem epsilon_spec_aux {A : Type} (H : nonempty A) (P : A → Prop) (Hex : ∃y, P y) :
     P (@epsilon A H P) :=
-let u : {x : A | (∃y, P y) → P x} :=
+let u : {x : A, (∃y, P y) → P x} :=
   strong_indefinite_description P H in
 has_property u Hex
 

@@ -2,6 +2,11 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura, Jeremy Avigad
 
+-- data.prod
+-- =========
+
+-- The cartesian product.
+
 import logic.classes.inhabited logic.connectives.eq logic.classes.decidable
 
 using inhabited decidable
@@ -9,8 +14,7 @@ using inhabited decidable
 inductive prod (A B : Type) : Type :=
 pair : A → B → prod A B
 
-precedence `×`:30
-infixr × := prod
+infixr `×` := prod
 
 -- notation for n-ary tuples
 notation `(` h `,` t:(foldl `,` (e r, pair r e) h) `)` := t

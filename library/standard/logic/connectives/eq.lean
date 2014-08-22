@@ -1,10 +1,14 @@
-----------------------------------------------------------------------------------------------------
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Leonardo de Moura, Jeremy Avigad
-----------------------------------------------------------------------------------------------------
+
+-- logic.connectives.eq
+-- ====================
+
+-- Equality.
 
 import .basic
+
 
 -- eq
 -- --
@@ -12,10 +16,8 @@ import .basic
 inductive eq {A : Type} (a : A) : A → Prop :=
 refl : eq a a
 
-infix `=`:50 := eq
-
--- TODO: try this out -- shorthand for "refl _"
-notation `rfl`:max := refl _
+infix `=` := eq
+notation `rfl` := refl _
 
 theorem eq_id_refl {A : Type} {a : A} (H1 : a = a) : H1 = (refl a) := rfl
 
@@ -48,16 +50,17 @@ theorem eq_rec_on_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) :
 theorem eq_rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq_rec b H = b :=
 eq_rec_on_id H b
 
-theorem eq_rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H1 : a = b) (H2 : b = c) (u : P a) :
+theorem eq_rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H1 : a = b) (H2 : b = c)
+    (u : P a) :
   eq_rec_on H2 (eq_rec_on H1 u) = eq_rec_on (trans H1 H2) u :=
 (show ∀(H2 : b = c), eq_rec_on H2 (eq_rec_on H1 u) = eq_rec_on (trans H1 H2) u,
   from eq_rec_on H2 (take (H2 : b = b), eq_rec_on_id H2 _))
 H2
 
 namespace eq_ops
-  postfix `⁻¹`:100 := symm
-  infixr `⬝`:75     := trans
-  infixr `▸`:75    := subst
+  postfix `⁻¹` := symm
+  infixr `⬝`   := trans
+  infixr `▸`   := subst
 end eq_ops
 using eq_ops
 
@@ -67,7 +70,8 @@ H ▸ refl (f a)
 theorem congr_arg {A : Type} {B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b :=
 H ▸ refl (f a)
 
-theorem congr {A : Type} {B : Type} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) : f a = g b :=
+theorem congr {A : Type} {B : Type} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) :
+  f a = g b :=
 H1 ▸ H2 ▸ refl (f a)
 
 theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀x, f x = g x :=
@@ -79,26 +83,23 @@ congr_arg not H
 theorem eqmp {a b : Prop} (H1 : a = b) (H2 : a) : b :=
 H1 ▸ H2
 
-infixl `<|`:100 := eqmp
-infixl `◂`:100 := eqmp
-
 theorem eqmpr {a b : Prop} (H1 : a = b) (H2 : b) : a :=
-H1⁻¹ ◂ H2
+H1⁻¹ ▸ H2
 
 theorem eqt_elim {a : Prop} (H : a = true) : a :=
-H⁻¹ ◂ trivial
+H⁻¹ ▸ trivial
 
 theorem eqf_elim {a : Prop} (H : a = false) : ¬a :=
-assume Ha : a, H ◂ Ha
+assume Ha : a, H ▸ Ha
 
 theorem imp_trans {a b c : Prop} (H1 : a → b) (H2 : b → c) : a → c :=
 assume Ha, H2 (H1 Ha)
 
 theorem imp_eq_trans {a b c : Prop} (H1 : a → b) (H2 : b = c) : a → c :=
-assume Ha, H2 ◂ (H1 Ha)
+assume Ha, H2 ▸ (H1 Ha)
 
 theorem eq_imp_trans {a b c : Prop} (H1 : a = b) (H2 : b → c) : a → c :=
-assume Ha, H2 (H1 ◂ Ha)
+assume Ha, H2 (H1 ▸ Ha)
 
 theorem eq_to_iff {a b : Prop} (H : a = b) : a ↔ b :=
 iff_intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
@@ -108,7 +109,7 @@ iff_intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 -- --
 
 definition ne [inline] {A : Type} (a b : A) := ¬(a = b)
-infix `≠`:50 := ne
+infix `≠` := ne
 
 theorem ne_intro {A : Type} {a b : A} (H : a = b → false) : a ≠ b := H
 

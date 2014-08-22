@@ -10,13 +10,13 @@ using eq_ops bool
 namespace set
 definition set (T : Type) := T → bool
 definition mem {T : Type} (x : T) (s : set T) := (s x) = tt
-infix `∈`:50 := mem
+infix `∈` := mem
 
 section
 parameter {T : Type}
 
 definition empty : set T := λx, ff
-notation `∅`:max := empty
+notation `∅` := empty
 
 theorem mem_empty (x : T) : ¬ (x ∈ ∅) :=
 assume H : x ∈ ∅, absurd H ff_ne_tt
@@ -26,7 +26,7 @@ definition univ : set T := λx, tt
 theorem mem_univ (x : T) : x ∈ univ := refl _
 
 definition inter (A B : set T) : set T := λx, A x && B x
-infixl `∩`:70 := inter
+infixl `∩` := inter
 
 theorem mem_inter (x : T) (A B : set T) : x ∈ A ∩ B ↔ (x ∈ A ∧ x ∈ B) :=
 iff_intro
@@ -43,7 +43,7 @@ theorem inter_assoc (A B C : set T) : (A ∩ B) ∩ C = A ∩ (B ∩ C) :=
 funext (λx, band_assoc (A x) (B x) (C x))
 
 definition union (A B : set T) : set T := λx, A x || B x
-infixl `∪`:65 := union
+infixl `∪` := union
 
 theorem mem_union (x : T) (A B : set T) : x ∈ A ∪ B ↔ (x ∈ A ∨ x ∈ B) :=
 iff_intro
@@ -61,4 +61,5 @@ theorem union_assoc (A B C : set T) : (A ∪ B) ∪ C = A ∪ (B ∪ C) :=
 funext (λx, bor_assoc (A x) (B x) (C x))
 
 end
+
 end set

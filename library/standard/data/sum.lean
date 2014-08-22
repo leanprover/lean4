@@ -2,6 +2,11 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura, Jeremy Avigad
 
+-- data.sum
+-- ========
+
+-- The sum type, aka disjoint union.
+
 import logic.connectives.prop logic.classes.inhabited logic.classes.decidable
 
 using inhabited decidable
@@ -13,13 +18,17 @@ inductive sum (A B : Type) : Type :=
 inl : A → sum A B,
 inr : B → sum A B
 
-infixr `+`:25 := sum
+infixr `⊎` := sum
 
-abbreviation rec_on {A B : Type} {C : (A + B) → Type} (s : A + B)
+namespace sum_plus_notation
+infixr `+`:25 := sum    -- conflicts with notation for addition
+end sum_plus_notation
+
+abbreviation rec_on {A B : Type} {C : (A ⊎ B) → Type} (s : A ⊎ B)
   (H1 : ∀a : A, C (inl B a)) (H2 : ∀b : B, C (inr A b)) : C s :=
 sum_rec H1 H2 s
 
-abbreviation cases_on {A B : Type} {P : (A + B) → Prop} (s : A + B)
+abbreviation cases_on {A B : Type} {P : (A ⊎ B) → Prop} (s : A ⊎ B)
   (H1 : ∀a : A, P (inl B a)) (H2 : ∀b : B, P (inr A b)) : P s :=
 sum_rec H1 H2 s
 
@@ -47,13 +56,13 @@ have H1 : f (inr A b1), from rfl,
 have H2 : f (inr A b2), from subst H H1,
 H2
 
-theorem sum_inhabited_left [instance] {A B : Type} (H : inhabited A) : inhabited (A + B) :=
+theorem sum_inhabited_left [instance] {A B : Type} (H : inhabited A) : inhabited (A ⊎ B) :=
 inhabited_mk (inl B (default A))
 
-theorem sum_inhabited_right [instance] {A B : Type} (H : inhabited B) : inhabited (A + B) :=
+theorem sum_inhabited_right [instance] {A B : Type} (H : inhabited B) : inhabited (A ⊎ B) :=
 inhabited_mk (inr A (default B))
 
-theorem sum_eq_decidable [instance] {A B : Type} (s1 s2 : A + B)
+theorem sum_eq_decidable [instance] {A B : Type} (s1 s2 : A ⊎ B)
   (H1 : ∀a1 a2, decidable (inl B a1 = inl B a2))
   (H2 : ∀b1 b2, decidable (inr A b1 = inr A b2)) : decidable (s1 = s2) :=
 rec_on s1

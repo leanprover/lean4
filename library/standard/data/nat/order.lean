@@ -2,6 +2,11 @@
 --- Released under Apache 2.0 license as described in the file LICENSE.
 --- Author: Floris van Doorn
 
+-- data.nat.order
+-- ==============
+--
+-- The ordering on the natural numbers
+
 import .basic logic.classes.decidable
 import tools.fake_simplifier
 
@@ -9,27 +14,16 @@ using nat eq_ops tactic
 using fake_simplifier
 using decidable (decidable inl inr)
 
--- TODO: move these to logic.connectives
-theorem or_imp_or_left {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) : c ∨ b :=
-or_imp_or H1 H2 (λx, x)
-
-theorem or_imp_or_right {a b c : Prop} (H1 : a ∨ b) (H2 : b → c) : a ∨ c :=
-or_imp_or H1 (λx, x) H2
-
 namespace nat
 
--- data.nat.order
--- ==============
---
--- The ordering on the natural numbers
 
 -- Less than or equal
 -- ------------------
 
 definition le (n m : ℕ) : Prop := exists k : nat, n + k = m
 
-infix  `<=`:50 := le
-infix  `≤`:50  := le
+infix  `<=` := le
+infix  `≤`  := le
 
 theorem le_intro {n m k : ℕ} (H : n + k = m) : n ≤ m :=
 exists_intro k H
@@ -265,14 +259,14 @@ general n
 -- ge and gt will be transparent, so we don't need to reprove theorems for le and lt for them
 
 definition lt (n m : ℕ) := succ n ≤ m
-infix `<` : 50  := lt
+infix `<` := lt
 
 abbreviation ge (n m : ℕ) := m ≤ n
-infix `>=` : 50 := ge
-infix `≥` : 50 := ge
+infix `>=` := ge
+infix `≥` := ge
 
 abbreviation gt (n m : ℕ) := m < n
-infix `>` : 50 := gt
+infix `>` := gt
 
 theorem lt_def (n m : ℕ) : (n < m) = (succ n ≤ m) := refl (n < m)
 
@@ -467,14 +461,13 @@ strong_induction_on a (
          show P (succ n), from
            Hind n (take m, assume H1 : m ≤ n, H _ (le_imp_lt_succ H1))))
 
+
 -- Positivity
 -- ---------
 --
 -- Writing "t > 0" is the preferred way to assert that a natural number is positive.
 
 -- ### basic
-
--- See also succ_pos.
 
 theorem case_zero_pos {P : ℕ → Prop} (y : ℕ) (H0 : P 0) (H1 : ∀y, y > 0 → P y) : P y :=
 case y H0 (take y', H1 _ (succ_pos _))
@@ -526,8 +519,6 @@ discriminate
 
 theorem mul_pos_imp_pos_right {m n : ℕ} (H : n * m > 0) : m > 0 :=
 mul_pos_imp_pos_left ((mul_comm n m) ▸ H)
-
--- See also mul_eq_one below.
 
 -- ### interaction of mul with le and lt
 
@@ -600,8 +591,5 @@ or_elim (le_or_gt n 1)
 
 theorem mul_eq_one_right {n m : ℕ} (H : n * m = 1) : m = 1 :=
 mul_eq_one_left ((mul_comm n m) ▸ H)
-
---- theorem mul_eq_one {n m : ℕ} (H : n * m = 1) : n = 1 ∧ m = 1
---- := and_intro (mul_eq_one_left H) (mul_eq_one_right H)
 
 end nat

@@ -15,7 +15,7 @@ namespace fibrant
 axiom unit_fibrant : fibrant unit
 axiom nat_fibrant : fibrant nat
 axiom bool_fibrant : fibrant bool
-axiom sum_fibrant {A B : Type} (C1 : fibrant A) (C2 : fibrant B) : fibrant (A + B)
+axiom sum_fibrant {A B : Type} (C1 : fibrant A) (C2 : fibrant B) : fibrant (A ⊎ B)
 axiom prod_fibrant {A B : Type} (C1 : fibrant A) (C2 : fibrant B) : fibrant (A × B)
 axiom sigma_fibrant {A : Type} {B : A → Type} (C1 : fibrant A) (C2 : Πx : A, fibrant (B x)) :
   fibrant (Σx : A, B x)
@@ -30,6 +30,6 @@ instance prod_fibrant
 instance sigma_fibrant
 instance pi_fibrant
 
-theorem test_fibrant : fibrant (nat × (nat + nat)) := _
+theorem test_fibrant : fibrant (nat × (nat ⊎ nat)) := _
 
 end fibrant

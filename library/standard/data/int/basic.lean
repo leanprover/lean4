@@ -189,7 +189,7 @@ representative_map_idempotent_equiv proj_rel @proj_congr a
 -- ## Definition of ℤ and basic theorems and definitions
 
 definition int := image proj
-notation `ℤ`:max := int
+notation `ℤ` := int
 
 definition psub : ℕ × ℕ → ℤ := fun_image proj
 definition rep : ℤ → ℕ × ℕ := subtype.elt_of
@@ -221,15 +221,12 @@ eq_abs quotient H
 
 definition to_nat : ℤ → ℕ := rec_constant quotient (fun v, dist (pr1 v) (pr2 v))
 
--- TODO: set binding strength: is this right?
-notation `|`:40 x:40 `|` := to_nat x
-
 theorem to_nat_comp (n m : ℕ) : (to_nat (psub (pair n m))) = dist n m :=
 have H : ∀v w : ℕ × ℕ, rel v w → dist (pr1 v) (pr2 v) = dist (pr1 w) (pr2 w),
   from take v w H, dist_eq_intro H,
 have H2 : ∀v : ℕ × ℕ, (to_nat (psub v)) = dist (pr1 v) (pr2 v),
   from take v, (comp_constant quotient H (rel_refl v)),
-(by simp) ◂ H2 (pair n m)
+iff_mp (by simp) H2 (pair n m)
 
 -- add_rewrite to_nat_comp --local
 
@@ -263,20 +260,20 @@ calc
 
 definition neg : ℤ → ℤ := quotient_map quotient flip
 
--- TODO: is this good?
-prefix `-`:80 := neg
+-- TODO: is this good? Note: replacing 100 by max makes it bind stronger than application.
+notation `-` x:100 := neg x
 
-theorem neg_comp (n m : ℕ) : -psub (pair n m) = psub (pair m n) :=
-have H : ∀a, -psub a = psub (flip a),
+theorem neg_comp (n m : ℕ) : -(psub (pair n m)) = psub (pair m n) :=
+have H : ∀a, -(psub a) = psub (flip a),
   from take a, comp_quotient_map quotient @rel_flip (rel_refl _),
 calc
-  -psub (pair n m) = psub (flip (pair n m)) : H (pair n m)
+  -(psub (pair n m)) = psub (flip (pair n m)) : H (pair n m)
     ... = psub (pair m n) : by simp
 
 -- add_rewrite neg_comp --local
 
 theorem neg_zero : -0 = 0 :=
-calc -psub (pair 0 0) = psub (pair 0 0) : neg_comp 0 0
+calc -(psub (pair 0 0)) = psub (pair 0 0) : neg_comp 0 0
 
 theorem neg_neg (a : ℤ) : -(-a) = a :=
 obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
@@ -285,7 +282,7 @@ by simp
 -- add_rewrite neg_neg neg_zero
 
 theorem neg_inj {a b : ℤ} (H : -a = -b) : a = b :=
-(by simp) ◂ congr_arg neg H
+iff_mp (by simp) (congr_arg neg H)
 
 theorem neg_move {a b : ℤ} (H : -a = b) : -b = a :=
 subst H (neg_neg a)
@@ -296,7 +293,7 @@ by simp
 
 theorem pos_eq_neg {n m : ℕ} (H : n = -m) : n = 0 ∧ m = 0 :=
 have H2 : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, refl (n),
-have H3 : psub (pair n 0) = psub (pair 0 m), from (by simp) ◂ H,
+have H3 : psub (pair n 0) = psub (pair 0 m), from iff_mp (by simp) H,
 have H4 : rel (pair n 0) (pair 0 m), from R_intro_refl quotient rel_refl H3,
 have H5 : n + m = 0, from
   calc
@@ -329,8 +326,8 @@ or_imp_or (or_swap (proj_zero_or (rep a)))
         a = psub (rep a) : symm (psub_rep a)
           ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {symm (prod_ext (rep a))}
           ... = psub (pair 0 (pr2 (rep a))) : {H2}
-          ... = -psub (pair (pr2 (rep a)) 0) : by simp
-          ... = -of_nat (pr2 (rep a)) : refl _))
+          ... = -(psub (pair (pr2 (rep a)) 0)) : by simp
+          ... = -(of_nat (pr2 (rep a))) : refl _))
 
 opaque_hint (hiding int)
 
@@ -342,35 +339,35 @@ or_elim (cases a)
   (assume H, obtain (n : ℕ) (H3 : a = -n), from H, subst (symm H3) (H2 n))
 
 ---reverse equalities, rename
-theorem cases_succ (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - of_nat (succ n)) :=
+theorem cases_succ (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - (of_nat (succ n))) :=
 or_elim (cases a)
   (assume H : (∃n : ℕ, a = of_nat n), or_intro_left _ H)
   (assume H,
-    obtain (n : ℕ) (H2 : a = -of_nat n), from H,
+    obtain (n : ℕ) (H2 : a = -(of_nat n)), from H,
     discriminate
       (assume H3 : n = 0,
         have H4 : a = of_nat 0, from
           calc
-            a = - of_nat n : H2
-          ... = - of_nat 0 : {H3}
+            a = -(of_nat n) : H2
+          ... = -(of_nat 0) : {H3}
           ... = of_nat 0 : neg_zero,
         or_intro_left _ (exists_intro 0 H4))
       (take k : ℕ,
         assume H3 : n = succ k,
-        have H4 : a = - of_nat (succ k), from subst H3 H2,
+        have H4 : a = -(of_nat (succ k)), from subst H3 H2,
         or_intro_right _ (exists_intro k H4)))
 
 theorem int_by_cases_succ {P : ℤ → Prop} (a : ℤ)
-  (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-of_nat (succ n))) : P a :=
+  (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-(of_nat (succ n)))) : P a :=
 or_elim (cases_succ a)
   (assume H, obtain (n : ℕ) (H3 : a = of_nat n), from H, subst (symm H3) (H1 n))
-  (assume H, obtain (n : ℕ) (H3 : a = -of_nat (succ n)), from H, subst (symm H3) (H2 n))
+  (assume H, obtain (n : ℕ) (H3 : a = -(of_nat (succ n))), from H, subst (symm H3) (H2 n))
 
 theorem of_nat_eq_neg_of_nat {n m : ℕ} (H : n = - m) : n = 0 ∧ m = 0 :=
 have H2 : n = psub (pair 0 m), from
   calc
     n = -m : H
-      ... = -psub (pair m 0) : refl (-m)
+      ... = -(psub (pair m 0)) : refl (-m)
       ... = psub (pair 0 m) : by simp,
 have H3 : rel (pair n 0) (pair 0 m), from R_intro_refl quotient rel_refl H2,
 have H4 : n + m = 0, from
@@ -451,9 +448,6 @@ have H : dist (xa + xb) (ya + yb) ≤ dist xa ya + dist xb yb,
   from dist_add_le_add_dist xa xb ya yb,
 by simp
 
--- TODO: add this to eq
--- notation A `=` B `:` C := @eq C A B
-
 -- TODO: note, we have to add #nat to get the right interpretation
 theorem add_of_nat (n m : nat) : of_nat n + of_nat m = #nat n + m := -- this is of_nat (n + m)
 have H : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, refl n,
@@ -466,7 +460,7 @@ by simp
 
 -- ## sub
 definition sub (a b : ℤ) : ℤ := a + -b
-infixl `-`:65 := int.sub
+infixl `-` := int.sub
 
 theorem sub_def (a b : ℤ) : a - b = a + -b :=
 refl (a - b)
@@ -938,14 +932,14 @@ iff_intro
 -- ----------------------------------------------
 
 definition lt (a b : ℤ) := a + 1 ≤ b
-infix `<` := int.lt
+infix `<`  := int.lt
 
 definition ge (a b : ℤ) := b ≤ a
 infix `>=` := int.ge
 infix `≥`  := int.ge
 
 definition gt (a b : ℤ) := b < a
-infix `>` := int.gt
+infix `>`  := int.gt
 
 theorem lt_def (a b : ℤ) : a < b ↔ a + 1 ≤ b :=
 iff_refl (a < b)

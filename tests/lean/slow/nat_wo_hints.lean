@@ -592,7 +592,7 @@ theorem le_ne_imp_succ_le {n m : ℕ} (H1 : n ≤ m) (H2 : n ≠ m) : succ n ≤
 := resolve_left (le_imp_succ_le_or_eq H1) H2
 
 theorem le_succ_imp_le_or_eq {n m : ℕ} (H : n ≤ succ m) : n ≤ m ∨ n = succ m
-:= imp_or_left (le_imp_succ_le_or_eq H)
+:= or_imp_or_left (le_imp_succ_le_or_eq H)
     (take H2 : succ n ≤ succ m, show n ≤ m, from succ_le_cancel H2)
 
 theorem succ_le_imp_le_and_ne {n m : ℕ} (H : succ n ≤ m) : n ≤ m ∧ n ≠ m
@@ -912,7 +912,7 @@ theorem case_zero_pos {P : ℕ → Prop} (y : ℕ) (H0 : P 0) (H1 : ∀y, y > 0 
 := case y H0 (take y', H1 _ (succ_pos _))
 
 theorem zero_or_pos (n : ℕ) : n = 0 ∨ n > 0
-:= imp_or_left (or_swap (le_imp_lt_or_eq (zero_le n))) (take H : 0 = n, symm H)
+:= or_imp_or_left (or_swap (le_imp_lt_or_eq (zero_le n))) (take H : 0 = n, symm H)
 
 theorem succ_imp_pos {n m : ℕ} (H : n = succ m) : n > 0
 := subst (symm H) (succ_pos m)

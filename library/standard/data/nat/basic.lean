@@ -2,23 +2,19 @@
 --- Released under Apache 2.0 license as described in the file LICENSE.
 --- Author: Floris van Doorn
 
-import logic data.num tools.tactic struc.binary
-using num tactic binary eq_ops
-using decidable (hiding induction_on rec_on)
-using relation -- for subst_iff
-
--- TODO: this should go in tools, I think
-namespace helper_tactics
-  definition apply_refl := apply @refl
-  tactic_hint apply_refl
-end helper_tactics
-using helper_tactics
-
-
 -- data.nat.basic
 -- ==============
 --
 -- Basic operations on the natural numbers.
+
+import logic data.num tools.tactic struc.binary tools.helper_tactics
+
+using num tactic binary eq_ops
+using decidable (hiding induction_on rec_on)
+using relation -- for subst_iff
+
+using helper_tactics
+
 
 -- Definition of the type
 -- ----------------------
@@ -28,7 +24,7 @@ inductive nat : Type :=
   zero : nat,
   succ : nat → nat
 
-notation `ℕ`:max := nat
+notation `ℕ` := nat
 
 theorem nat_rec_zero {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) : nat_rec x f zero = x
 
@@ -160,7 +156,7 @@ general m
 
 definition add (x y : ℕ) : ℕ := plus x y
 
-infixl `+` : 65 := add
+infixl `+` := add
 
 theorem add_zero_right (n : ℕ) : n + 0 = n
 
@@ -295,7 +291,7 @@ nat_rec H1 (take n IH, (add_one n) ▸ (H2 n IH)) a
 
 definition mul (n m : ℕ) := nat_rec 0 (fun m x, x + n) m
 
-infixl `*`:70 := mul
+infixl `*` := mul
 
 theorem mul_zero_right (n:ℕ) : n * 0 = 0
 
@@ -414,4 +410,5 @@ discriminate
 -- add_rewrite mul_succ_left mul_succ_right
 -- add_rewrite mul_comm mul_assoc mul_left_comm
 -- add_rewrite mul_distr_right mul_distr_left
+
 end nat

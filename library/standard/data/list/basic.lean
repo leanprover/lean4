@@ -27,7 +27,7 @@ inductive list (T : Type) : Type :=
 nil {} : list T,
 cons   : T → list T → list T
 
-infix `::` : 65 := cons
+infix `::` := cons
 
 section
 
@@ -189,7 +189,7 @@ list_cases_on l
 
 definition mem (x : T) : list T → Prop := list_rec false (fun y l H, x = y ∨ H)
 
-infix `∈` : 50 := mem
+infix `∈` := mem
 
 -- TODO: constructively, equality is stronger. Use that?
 theorem mem_nil (x : T) : x ∈ nil ↔ false := iff_refl _
@@ -202,7 +202,7 @@ list_induction_on s (or_intro_right _)
     assume IH : x ∈ s ++ t → x ∈ s ∨ x ∈ t,
     assume H1 : x ∈ (y :: s) ++ t,
     have H2 : x = y ∨ x ∈ s ++ t, from H1,
-    have H3 : x = y ∨ x ∈ s ∨ x ∈ t, from imp_or_right H2 IH,
+    have H3 : x = y ∨ x ∈ s ∨ x ∈ t, from or_imp_or_right H2 IH,
     iff_elim_right (or_assoc _ _ _) H3)
 
 theorem mem_or_imp_concat (x : T) (s t : list T) : x ∈ s ∨ x ∈ t → x ∈ s ++ t :=
@@ -286,6 +286,6 @@ theorem nth_succ (x0 : T) (l : list T) (n : ℕ) : nth x0 l (succ n) = nth x0 (t
 end
 
 -- declare global notation outside the section
-infixl `++` : 65 := concat
+infixl `++` := concat
 
 end list

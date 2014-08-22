@@ -2,26 +2,26 @@
 --- Released under Apache 2.0 license as described in the file LICENSE.
 --- Author: Floris van Doorn
 
+-- data.nat.sub
+-- ============
+--
+-- Subtraction on the natural numbers, as well as min, max, and distance.
+
 import data.nat.order
 import tools.fake_simplifier
 
 using nat eq_ops tactic
 using helper_tactics
-
 using fake_simplifier
 
 namespace nat
 
--- data.nat.basic2
--- ===============
---
--- More basic operations on the natural numbers.
 
 -- subtraction
 -- -----------
 
 definition sub (n m : ℕ) : nat := nat_rec n (fun m x, pred x) m
-infixl `-` : 65 := sub
+infixl `-` := sub
 
 theorem sub_zero_right (n : ℕ) : n - 0 = n
 
@@ -491,7 +491,7 @@ by simp
 
 -- add_rewrite dist_mul_right dist_mul_left dist_comm
 
---needed to prove |a| * |b| = |a * b| in int
+--needed to prove of_nat a * of_nat b = of_nat (a * b) in int
 theorem dist_mul_dist (n m k l : ℕ) : dist n m * dist k l = dist (n * k + m * l) (n * l + m * k) :=
 have aux : ∀k l, k ≥ l → dist n m * dist k l = dist (n * k + m * l) (n * l + m * k), from
   take k l : ℕ,

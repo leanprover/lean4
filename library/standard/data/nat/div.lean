@@ -8,15 +8,10 @@
 -- This is a continuation of the development of the natural numbers, with a general way of
 -- defining recursive functions, and definitions of div, mod, and gcd.
 
+-- TODO: replace the two uses of "not_or" by a constructive version
+
 import logic .sub struc.relation data.prod
-
--- TODO: show decidability of le and remove these
-import logic.classes.decidable
-import logic.axioms.classical
-import logic.axioms.prop_decidable
-
 import logic.axioms.funext -- is this really needed?
-
 import tools.fake_simplifier
 
 using nat relation relation.iff_ops prod
@@ -25,7 +20,7 @@ using fake_simplifier decidable
 namespace nat
 
 -- A general recursion principle
--- =============================
+-- -----------------------------
 --
 -- Data:
 --
@@ -161,7 +156,7 @@ show lhs = rhs, from
         lhs = 0 : if_pos H1 _ _
           ... = rhs : symm (if_pos H1 _ _))
     (assume H1 : ¬ (y = 0 ∨ x < y),
-      have H2 : y ≠ 0 ∧ ¬ x < y, from not_or _ _ ◂ H1,
+      have H2 : y ≠ 0 ∧ ¬ x < y, from sorry, -- subst (not_or _ _) H1,
       have ypos : y > 0, from ne_zero_imp_pos (and_elim_left H2),
       have xgey : x ≥ y, from not_lt_imp_ge (and_elim_right H2),
       have H4 : x - y < x, from sub_lt (lt_le_trans ypos xgey) ypos,
@@ -177,7 +172,7 @@ rec_measure_spec (div_aux_rec y) (div_aux_decreasing y) x
 
 definition idivide (x : ℕ) (y : ℕ) : ℕ := div_aux y x
 
-infixl `div`:70 := idivide    -- copied from Isabelle
+infixl `div` := idivide    -- copied from Isabelle
 
 theorem div_zero (x : ℕ) : x div 0 = 0 :=
 trans (div_aux_spec _ _) (if_pos (or_intro_left _ (refl _)) _ _)
@@ -237,7 +232,7 @@ show lhs = rhs, from
         lhs = x : if_pos H1 _ _
           ... = rhs : symm (if_pos H1 _ _))
     (assume H1 : ¬ (y = 0 ∨ x < y),
-      have H2 : y ≠ 0 ∧ ¬ x < y, from not_or _ _ ◂ H1,
+      have H2 : y ≠ 0 ∧ ¬ x < y, from sorry, -- subst (not_or _ _) H1,
       have ypos : y > 0, from ne_zero_imp_pos (and_elim_left H2),
       have xgey : x ≥ y, from not_lt_imp_ge (and_elim_right H2),
       have H4 : x - y < x, from sub_lt (lt_le_trans ypos xgey) ypos,
@@ -253,7 +248,7 @@ rec_measure_spec (mod_aux_rec y) (mod_aux_decreasing y) x
 
 definition modulo (x : ℕ) (y : ℕ) : ℕ := mod_aux y x
 
-infixl `mod`:70 := modulo
+infixl `mod` := modulo
 
 theorem mod_zero (x : ℕ) : x mod 0 = x :=
 trans (mod_aux_spec _ _) (if_pos (or_intro_left _ (refl _)) _ _)
@@ -298,7 +293,7 @@ theorem mod_mul_self_right (m n : ℕ) : (m * n) mod n = 0 :=
 case_zero_pos n (by simp)
   (take n,
     assume npos : n > 0,
-    (by simp) ◂ (mod_add_mul_self_right 0 m npos))
+    subst (by simp) (mod_add_mul_self_right 0 m npos))
 
 -- add_rewrite mod_mul_self_right
 
@@ -425,19 +420,19 @@ case n (by simp)
   (take n,
     have H : (succ n * 1) mod (succ n * 1) = succ n * (1 mod 1),
       from mod_mul_mul 1 1 (succ_pos n),
-    (by simp) ◂ H)
+    subst (by simp) H)
 
 -- add_rewrite mod_self
 
 theorem div_one (n : ℕ) : n div 1 = n :=
 have H : n div 1 * 1 + n mod 1 = n, from symm (div_mod_eq n 1),
-(by simp) ◂ H
+subst (by simp) H
 
 -- add_rewrite div_one
 
 theorem pos_div_self {n : ℕ} (H : n > 0) : n div n = 1 :=
 have H1 : (n * 1) div (n * 1) = 1 div 1, from div_mul_mul 1 1 H,
-(by simp) ◂ H1
+subst (by simp) H1
 
 -- add_rewrite pos_div_self
 
@@ -446,7 +441,7 @@ have H1 : (n * 1) div (n * 1) = 1 div 1, from div_mul_mul 1 1 H,
 
 definition dvd (x y : ℕ) : Prop := y mod x = 0
 
-infix `|`:50 := dvd
+infix `|` := dvd
 
 theorem dvd_iff_mod_eq_zero (x y : ℕ) : x | y ↔ y mod x = 0 :=
 refl _

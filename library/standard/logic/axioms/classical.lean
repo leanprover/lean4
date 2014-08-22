@@ -50,7 +50,7 @@ case (λ x, (¬¬x) = x)
   a
 
 theorem not_not_elim {a : Prop} (H : ¬¬a) : a :=
-(not_not_eq a) ◂ H
+(not_not_eq a) ▸ H
 
 theorem propext {a b : Prop} (Hab : a → b) (Hba : b → a) : a = b :=
 or_elim (prop_complete a)
@@ -125,7 +125,7 @@ propext
     (assume Ha  : a,   or_inr (H Ha))
     (assume Hna : ¬a, or_inl Hna)))
   (assume (H : ¬a ∨ b) (Ha : a),
-    resolve_right H ((not_not_eq a)⁻¹ ◂ Ha))
+    resolve_right H ((not_not_eq a)⁻¹ ▸ Ha))
 
 theorem not_implies (a b : Prop) : (¬(a → b)) = (a ∧ ¬b) :=
 calc (¬(a → b)) = (¬(¬a ∨ b)) : {imp_or a b}

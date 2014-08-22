@@ -22,7 +22,7 @@ inductive true : Prop :=
 trivial : true
 
 abbreviation not (a : Prop) := a → false
-prefix `¬`:40 := not
+prefix `¬` := not
 
 
 -- not
@@ -65,8 +65,8 @@ assume Hnb Ha, Hnb (Hab Ha)
 inductive and (a b : Prop) : Prop :=
 and_intro : a → b → and a b
 
-infixr `/\`:35 := and
-infixr `∧`:35 := and
+infixr `/\` := and
+infixr `∧` := and
 
 theorem and_elim {a b c : Prop} (H1 : a ∧ b) (H2 : a → b → c) : c :=
 and_rec H2 H1
@@ -103,8 +103,8 @@ inductive or (a b : Prop) : Prop :=
 or_intro_left  : a → or a b,
 or_intro_right : b → or a b
 
-infixr `\/`:30 := or
-infixr `∨`:30 := or
+infixr `\/` := or
+infixr `∨` := or
 
 theorem or_inl {a b : Prop} (Ha : a) : a ∨ b := or_intro_left b Ha
 theorem or_inr {a b : Prop} (Hb : b) : a ∨ b := or_intro_right a Hb
@@ -131,12 +131,12 @@ or_elim H1
   (assume Ha : a, or_inl (H2 Ha))
   (assume Hb : b, or_inr (H3 Hb))
 
-theorem imp_or_left {a b c : Prop} (H1 : a ∨ c) (H : a → b) : b ∨ c :=
+theorem or_imp_or_left {a b c : Prop} (H1 : a ∨ c) (H : a → b) : b ∨ c :=
 or_elim H1
   (assume H2 : a, or_inl (H H2))
   (assume H2 : c, or_inr H2)
 
-theorem imp_or_right {a b c : Prop} (H1 : c ∨ a) (H : a → b) : c ∨ b :=
+theorem or_imp_or_right {a b c : Prop} (H1 : c ∨ a) (H : a → b) : c ∨ b :=
 or_elim H1
   (assume H2 : c, or_inl H2)
   (assume H2 : a, or_inr (H H2))
@@ -146,8 +146,8 @@ or_elim H1
 -- ---
 
 definition iff (a b : Prop) := (a → b) ∧ (b → a)
-infix `<->`:25 := iff
-infix `↔`:25 := iff
+infix `<->` := iff
+infix `↔` := iff
 
 theorem iff_intro {a b : Prop} (H1 : a → b) (H2 : b → a) : a ↔ b := and_intro H1 H2
 

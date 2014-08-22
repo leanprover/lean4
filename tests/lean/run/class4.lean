@@ -65,23 +65,23 @@ theorem not_zero_add_right [instance] (x y : nat) (H : not_zero y) : not_zero (x
 theorem not_zero_succ [instance] (x : nat) : not_zero (succ x)
 := not_zero_intro (not_is_zero_succ x)
 
-variable div : Π (x y : nat) {H : not_zero y}, nat
+variable dvd : Π (x y : nat) {H : not_zero y}, nat
 
 variables a b : nat
 
 set_option pp.implicit true
 opaque_hint (hiding [module])
-check div a (succ b)
-check (λ H : not_zero b, div a b)
+check dvd a (succ b)
+check (λ H : not_zero b, dvd a b)
 check (succ zero)
 check a + (succ zero)
-check div a (a + (succ b))
+check dvd a (a + (succ b))
 
 opaque_hint (exposing [module])
-check div a (a + (succ b))
+check dvd a (a + (succ b))
 
 opaque_hint (hiding add)
-check div a (a + (succ b))
+check dvd a (a + (succ b))
 
 opaque_hint (exposing add)
-check div a (a + (succ b))
+check dvd a (a + (succ b))

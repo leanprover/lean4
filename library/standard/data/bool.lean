@@ -49,7 +49,7 @@ bool_rec (bool_rec ff tt b) tt a
 theorem bor_tt_left (a : bool) : bor tt a = tt :=
 refl (bor tt a)
 
-infixl `||`:65 := bor
+infixl `||` := bor
 
 theorem bor_tt_right (a : bool) : a || tt = tt :=
 cases_on a (refl (ff || tt)) (refl (tt || tt))
@@ -87,7 +87,7 @@ bool_rec
 definition band (a b : bool) :=
 bool_rec ff (bool_rec ff tt b) a
 
-infixl `&&`:75 := band
+infixl `&&` := band
 
 theorem band_ff_left (a : bool) : ff && a = ff :=
 refl (ff && a)
@@ -132,7 +132,7 @@ band_eq_tt_elim_left (trans (band_comm b a) H)
 
 definition bnot (a : bool) := bool_rec tt ff a
 
-prefix `!`:85 := bnot
+notation `!` x:max := bnot x
 
 theorem bnot_bnot (a : bool) : !!a = a :=
 cases_on a (refl (!!ff)) (refl (!!tt))

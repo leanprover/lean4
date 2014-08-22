@@ -87,8 +87,8 @@ theorem rec_measure_aux_spec {dom codom : Type} (default : codom) (measure : dom
   let f := rec_measure default measure rec_val in
   f' m = restrict default measure f m :=
 -- TODO: note the use of (need for) inline here
-let f' [inline] := rec_measure_aux default measure rec_val in
-let f [inline] := rec_measure default measure rec_val in
+let f' := rec_measure_aux default measure rec_val in
+let f  := rec_measure default measure rec_val in
 case_strong_induction_on m
   (have H1 : f' 0 = (λx, default), from rfl,
     have H2 : restrict default measure f 0 = (λx, default), from
@@ -111,7 +111,7 @@ case_strong_induction_on m
                     ... = rec_val x (restrict default measure f m) : {IH m (le_refl m)}
                     ... = rec_val x f : symm (rec_decreasing _ _ _ (lt_succ_imp_le H1)),
               have H3 : restrict default measure f (succ m) x = rec_val x f, from
-                let m' [inline] := measure x in
+                let m' := measure x in
                 calc
                   restrict default measure f (succ m) x = f x : if_pos H1 _ _
                     ... = f' (succ m') x : refl _
@@ -138,9 +138,9 @@ theorem rec_measure_spec {dom codom : Type} {default : codom} {measure : dom →
     (x : dom):
   let f := rec_measure default measure rec_val in
   f x = rec_val x f :=
-let f' [inline] := rec_measure_aux default measure rec_val in
-let f [inline] := rec_measure default measure rec_val in
-let m [inline] := measure x in
+let f' := rec_measure_aux default measure rec_val in
+let f  := rec_measure default measure rec_val in
+let m  := measure x in
 calc
   f x = f' (succ m) x : refl _
     ... = if measure x < succ m then rec_val x (f' m) else default : rfl
@@ -162,8 +162,8 @@ definition div_aux (y : ℕ) : ℕ → ℕ := rec_measure 0 (fun x, x) (div_aux_
 
 theorem div_aux_decreasing (y : ℕ) (g : ℕ → ℕ) (m : ℕ) (x : ℕ) (H : m ≥ x) :
   div_aux_rec y x g = div_aux_rec y x (restrict 0 (fun x, x) g m) :=
-let lhs [inline] := div_aux_rec y x g in
-let rhs [inline] := div_aux_rec y x (restrict 0 (fun x, x) g m) in
+let lhs := div_aux_rec y x g in
+let rhs := div_aux_rec y x (restrict 0 (fun x, x) g m) in
 show lhs = rhs, from
   by_cases (y = 0 ∨ x < y)
     (assume H1 : y = 0 ∨ x < y,
@@ -238,8 +238,8 @@ definition mod_aux (y : ℕ) : ℕ → ℕ := rec_measure 0 (fun x, x) (mod_aux_
 
 theorem mod_aux_decreasing (y : ℕ) (g : ℕ → ℕ) (m : ℕ) (x : ℕ) (H : m ≥ x) :
   mod_aux_rec y x g = mod_aux_rec y x (restrict 0 (fun x, x) g m) :=
-let lhs [inline] := mod_aux_rec y x g in
-let rhs [inline] := mod_aux_rec y x (restrict 0 (fun x, x) g m) in
+let lhs := mod_aux_rec y x g in
+let rhs := mod_aux_rec y x (restrict 0 (fun x, x) g m) in
 show lhs = rhs, from
   by_cases (y = 0 ∨ x < y)
     (assume H1 : y = 0 ∨ x < y,
@@ -596,17 +596,17 @@ definition gcd_aux_measure (p : ℕ × ℕ) : ℕ :=
 pr2 p
 
 definition gcd_aux_rec (p : ℕ × ℕ) (gcd_aux' : ℕ × ℕ → ℕ) : ℕ :=
-let x [inline] := pr1 p, y [inline] := pr2 p in
+let x := pr1 p, y := pr2 p in
 if y = 0 then x else gcd_aux' (pair y (x mod y))
 
 definition gcd_aux : ℕ × ℕ → ℕ := rec_measure 0 gcd_aux_measure gcd_aux_rec
 
 theorem gcd_aux_decreasing (g : ℕ × ℕ → ℕ) (m : ℕ) (p : ℕ × ℕ) (H : m ≥ gcd_aux_measure p) :
   gcd_aux_rec p g = gcd_aux_rec p (restrict 0 gcd_aux_measure g m) :=
-let x [inline] := pr1 p, y [inline] := pr2 p in
-let p' [inline] := pair y (x mod y) in
-let lhs [inline] := gcd_aux_rec p g in
-let rhs [inline] := gcd_aux_rec p (restrict 0 gcd_aux_measure g m) in
+let x := pr1 p, y := pr2 p in
+let p' := pair y (x mod y) in
+let lhs := gcd_aux_rec p g in
+let rhs := gcd_aux_rec p (restrict 0 gcd_aux_measure g m) in
 show lhs = rhs, from
   by_cases (y = 0)
     (assume H1 : y = 0,
@@ -624,14 +624,14 @@ show lhs = rhs, from
           ... = lhs : symm (if_neg H1 _ _)))
 
 theorem gcd_aux_spec (p : ℕ × ℕ) : gcd_aux p =
-let x [inline] := pr1 p, y [inline] := pr2 p in
+let x := pr1 p, y := pr2 p in
 if y = 0 then x else gcd_aux (pair y (x mod y)) :=
 rec_measure_spec gcd_aux_rec gcd_aux_decreasing p
 
 definition gcd (x y : ℕ) : ℕ := gcd_aux (pair x y)
 
 theorem gcd_def (x y : ℕ) : gcd x y = if y = 0 then x else gcd y (x mod y) :=
-let x' [inline] := pr1 (pair x y), y' [inline] := pr2 (pair x y) in
+let x' := pr1 (pair x y), y' := pr2 (pair x y) in
 calc
   gcd x y = if y' = 0 then x' else gcd_aux (pair y' (x' mod y'))
       : gcd_aux_spec (pair x y)

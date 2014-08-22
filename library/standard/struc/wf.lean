@@ -19,7 +19,7 @@ by_contradiction (assume N : ¬∀x, P x,
   obtain (w : A) (Hw : ¬P w), from not_forall_exists N,
   -- The main "trick" is to define Q x as ¬P x.
   -- Since R is well-founded, there must be a R-minimal element r s.t. Q r (which is ¬P r)
-  let Q [inline] x := ¬P x in
+  let Q x := ¬P x in
   have Qw  : ∃w, Q w, from exists_intro w Hw,
   have Qwf : ∃min, Q min ∧ ∀b, R b min → ¬Q b, from Hwf Q Qw,
   obtain (r : A) (Hr : Q r ∧ ∀b, R b r → ¬Q b), from Qwf,

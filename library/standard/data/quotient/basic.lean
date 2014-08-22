@@ -27,7 +27,7 @@ abbreviation is_quotient {A B : Type} (R : A → A → Prop) (abs : A → B) (re
 
 theorem intro {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (H1 : ∀b, abs (rep b) = b) (H2 : ∀b, R (rep b) (rep b))
-  (H3 : ∀r s, R r s ↔ (R r r ∧ R s s ∧ abs r = abs s)) : is_quotient R abs rep := 
+  (H3 : ∀r s, R r s ↔ (R r r ∧ R s s ∧ abs r = abs s)) : is_quotient R abs rep :=
 and_intro H1 (and_intro H2 H3)
 
 theorem and_absorb_left {a : Prop} (b : Prop) (Ha : a) : a ∧ b ↔ b :=
@@ -41,16 +41,16 @@ intro
   (take b, H1 (rep b))
   (take r s,
     have H4 : R r s ↔ R s s ∧ abs r = abs s,
-      from 
+      from
         subst (symm (and_absorb_left _ (H1 s))) (H3 r s),
     subst (symm (and_absorb_left _ (H1 r))) H4)
 
 theorem abs_rep {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
-  (Q : is_quotient R abs rep) (b : B) :  abs (rep b) = b := 
+  (Q : is_quotient R abs rep) (b : B) :  abs (rep b) = b :=
 and_elim_left Q b
 
 theorem refl_rep {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
-  (Q : is_quotient R abs rep) (b : B) : R (rep b) (rep b) := 
+  (Q : is_quotient R abs rep) (b : B) : R (rep b) (rep b) :=
 and_elim_left (and_elim_right Q) b
 
 theorem R_iff {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
@@ -124,7 +124,7 @@ theorem comp {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   {a : A} (Ha : R a a) : rec Q f (abs a) = f a :=
 have H2 [fact] : R a (rep (abs a)), from R_rep_abs Q Ha,
 calc
-  rec Q f (abs a) =  eq_rec_on _ (f (rep (abs a))) : rfl 
+  rec Q f (abs a) =  eq_rec_on _ (f (rep (abs a))) : rfl
     ... = eq_rec_on _ (eq_rec_on _ (f a)) : {symm (H _ _ H2)}
     ... = eq_rec_on _ (f a) : eq_rec_on_compose _ _ _
     ... = f a : eq_rec_on_id _ _
@@ -213,7 +213,7 @@ image_inhabited f (inhabited_mk a)
 definition fun_image {A B : Type} (f : A → B) (a : A) : image f :=
 tag (f a) (exists_intro a rfl)
 
-theorem fun_image_def {A B : Type} (f : A → B) (a : A) : 
+theorem fun_image_def {A B : Type} (f : A → B) (a : A) :
   fun_image f a = tag (f a) (exists_intro a rfl) := rfl
 
 theorem elt_of_fun_image {A B : Type} (f : A → B) (a : A) : elt_of (fun_image f a) = f a :=
@@ -223,7 +223,7 @@ theorem image_elt_of {A B : Type} {f : A → B} (u : image f) : ∃a, f a = elt_
 has_property u
 
 theorem fun_image_surj {A B : Type} {f : A → B} (u : image f) : ∃a, fun_image f a = u :=
-subtype_destruct u 
+subtype_destruct u
   (take (b : B) (H : ∃a, f a = b),
     obtain a (H': f a = b), from H,
     (exists_intro a (tag_eq H')))
@@ -273,7 +273,7 @@ symm (H2 a (f a) (H1 a))
 theorem representative_map_refl_rep {A : Type} {R : A → A → Prop} {f : A → A}
     (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b ↔ R a a ∧ R b b ∧ f a = f b) (a : A) :
   R (f a) (f a) :=
-subst (representative_map_idempotent H1 H2 a) (H1 (f a)) 
+subst (representative_map_idempotent H1 H2 a) (H1 (f a))
 
 theorem representative_map_image_fix {A : Type} {R : A → A → Prop} {f : A → A}
     (H1 : ∀a, R a (f a)) (H2 : ∀a a', R a a' ↔ R a a ∧ R a' a' ∧ f a = f a') (b : image f) :
@@ -283,7 +283,7 @@ idempotent_image_fix (representative_map_idempotent H1 H2) b
 theorem representative_map_to_quotient {A : Type} {R : A → A → Prop} {f : A → A}
     (H1 : ∀a, R a (f a)) (H2 : ∀a a', R a a' ↔ R a a ∧ R a' a' ∧ f a = f a') :
   is_quotient _ (fun_image f) elt_of :=
-let abs [inline] := fun_image f in
+let abs := fun_image f in
 intro
   (take u : image f,
     obtain (a : A) (Ha : f a = elt_of u), from image_elt_of u,
@@ -298,12 +298,12 @@ intro
     show R (elt_of u) (elt_of u), from
       obtain (a : A) (Ha : f a = elt_of u), from image_elt_of u,
         subst Ha (@representative_map_refl_rep A R f H1 H2 a))
-  (take a a', 
+  (take a a',
     subst (fun_image_eq f a a') (H2 a a'))
 
 theorem representative_map_equiv_inj {A : Type} {R : A → A → Prop}
-    (equiv : is_equivalence R) {f : A → A} 
-    (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b → f a = f b) {a b : A} (H3 : f a = f b) : 
+    (equiv : is_equivalence R) {f : A → A}
+    (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b → f a = f b) {a b : A} (H3 : f a = f b) :
   R a b :=
 have symmR : symmetric R, from rel_symm R,
 have transR : transitive R, from rel_trans R,

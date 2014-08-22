@@ -41,7 +41,7 @@ definition rec_on {P : ℕ → Type} (n : ℕ) (H1 : P 0) (H2 : ∀m, P m → P 
 theorem succ_ne_zero (n : ℕ) : succ n ≠ 0
 := assume H : succ n = 0,
      have H2 : true = false, from
-     let f [inline] := (nat_rec false (fun a b, true)) in
+     let f := (nat_rec false (fun a b, true)) in
        calc true = f (succ n) : _
              ... = f 0        : {H}
              ... = false      : _,

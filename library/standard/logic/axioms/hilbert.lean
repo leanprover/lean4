@@ -58,8 +58,8 @@ epsilon_spec (exists_intro a (refl a))
 
 theorem axiom_of_choice {A : Type} {B : A → Type} {R : Πx, B x → Prop} (H : ∀x, ∃y, R x y) :
   ∃f, ∀x, R x (f x) :=
-let f [inline] := λx, @epsilon _ (exists_imp_nonempty (H x)) (λy, R x y),
-    H [inline] := take x, epsilon_spec (H x)
+let f := λx, @epsilon _ (exists_imp_nonempty (H x)) (λy, R x y),
+    H := take x, epsilon_spec (H x)
 in exists_intro f H
 
 theorem skolem {A : Type} {B : A → Type} {P : Πx, B x → Prop} :

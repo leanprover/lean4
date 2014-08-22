@@ -663,9 +663,7 @@ have aux : ∀m, P m n, from
 aux m
 
 theorem gcd_succ (m n : ℕ) : gcd m (succ n) = gcd (succ n) (m mod succ n) :=
--- TODO: note, fails if "succ n" is not given explicitly
--- remember that if_neg needs to infer "decidable" for n ~= 0
-trans (gcd_def _ (succ n)) (if_neg (succ_ne_zero n) _ _)
+trans (gcd_def _ _) (if_neg (succ_ne_zero n) _ _)
 
 theorem gcd_one (n : ℕ) : gcd n 1 = 1 := sorry
 -- (by simp) (gcd_succ n 0)

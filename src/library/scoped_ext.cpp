@@ -27,10 +27,10 @@ void register_scoped_ext(name const & c, using_namespace_fn use, push_scope_fn p
 }
 
 struct scope_mng_ext : public environment_extension {
-    name_set     m_namespace_set; // all namespaces registered in the system
-    list<name>   m_namespaces;    // stack of namespaces/sections
-    list<name>   m_headers;       // namespace/section header
-    list<bool>   m_in_section;
+    name_set         m_namespace_set; // all namespaces registered in the system
+    list<name>       m_namespaces;    // stack of namespaces/sections
+    list<name>       m_headers;       // namespace/section header
+    list<scope_kind> m_scope_kinds;
 };
 
 struct scope_mng_ext_reg {
@@ -55,9 +55,14 @@ list<name> const & get_namespaces(environment const & env) {
     return get_extension(env).m_namespaces;
 }
 
-bool in_section(environment const & env) {
+bool in_section_or_context(environment const & env) {
     scope_mng_ext const & ext = get_extension(env);
-    return !is_nil(ext.m_in_section) && head(ext.m_in_section);
+    return !is_nil(ext.m_scope_kinds) && head(ext.m_scope_kinds) != scope_kind::Namespace;
+}
+
+bool in_context(environment const & env) {
+    scope_mng_ext const & ext = get_extension(env);
+    return !is_nil(ext.m_scope_kinds) && head(ext.m_scope_kinds) == scope_kind::Context;
 }
 
 environment using_namespace(environment const & env, io_state const & ios, name const & n, name const & c) {
@@ -82,9 +87,9 @@ optional<name> to_valid_namespace_name(environment const & env, name const & n) 
 }
 
 static std::string g_new_namespace_key("nspace");
-environment push_scope(environment const & env, io_state const & ios, bool add_sec, name const & n) {
-    if (!add_sec && in_section(env))
-        throw exception("invalid namespace declaration, a namespace cannot be declared inside a section");
+environment push_scope(environment const & env, io_state const & ios, scope_kind k, name const & n) {
+    if (k == scope_kind::Namespace && in_section_or_context(env))
+        throw exception("invalid namespace declaration, a namespace cannot be declared inside a section or context");
     name new_n = get_namespace(env) + n;
     scope_mng_ext ext = get_extension(env);
     bool save_ns = false;
@@ -92,14 +97,14 @@ environment push_scope(environment const & env, io_state const & ios, bool add_s
         save_ns  = true;
         ext.m_namespace_set.insert(new_n);
     }
-    ext.m_namespaces = cons(new_n, ext.m_namespaces);
-    ext.m_headers    = cons(n, ext.m_headers);
-    ext.m_in_section = cons(add_sec, ext.m_in_section);
+    ext.m_namespaces  = cons(new_n, ext.m_namespaces);
+    ext.m_headers     = cons(n, ext.m_headers);
+    ext.m_scope_kinds = cons(k, ext.m_scope_kinds);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
-        r = std::get<2>(t)(r, add_sec);
+        r = std::get<2>(t)(r, k);
     }
-    if (!add_sec)
+    if (k == scope_kind::Namespace)
         r = using_namespace(r, ios, n);
     if (save_ns)
         r = module::add(r, g_new_namespace_key, [=](serializer & s) { s << new_n; });
@@ -122,16 +127,16 @@ register_module_object_reader_fn g_namespace_reader(g_new_namespace_key, namespa
 environment pop_scope(environment const & env, name const & n) {
     scope_mng_ext ext = get_extension(env);
     if (is_nil(ext.m_namespaces))
-        throw exception("invalid end of scope, there are no open namespaces/sections");
+        throw exception("invalid end of scope, there are no open namespaces/sections/contexts");
     if (n != head(ext.m_headers))
         throw exception(sstream() << "invalid end of scope, begin/end mistmatch, scope starts with '" << head(ext.m_headers) << "', and ends with '" << n << "'");
-    bool in_section  = head(ext.m_in_section);
-    ext.m_namespaces = tail(ext.m_namespaces);
-    ext.m_headers    = tail(ext.m_headers);
-    ext.m_in_section = tail(ext.m_in_section);
+    scope_kind k      = head(ext.m_scope_kinds);
+    ext.m_namespaces  = tail(ext.m_namespaces);
+    ext.m_headers     = tail(ext.m_headers);
+    ext.m_scope_kinds = tail(ext.m_scope_kinds);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
-        r = std::get<3>(t)(r, in_section);
+        r = std::get<3>(t)(r, k);
     }
     return r;
 }
@@ -156,13 +161,14 @@ static int using_namespace_objects(lua_State * L) {
 static int push_scope(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 1)
-        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), true));
+        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), scope_kind::Context));
     else if (nargs == 2)
-        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), false, to_name_ext(L, 2)));
-    else if (nargs == 3)
-        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), lua_toboolean(L, 3), to_name_ext(L, 2)));
+        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), scope_kind::Namespace, to_name_ext(L, 2)));
+    scope_kind k = static_cast<scope_kind>(lua_tonumber(L, 3));
+    if (nargs == 3)
+        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), k, to_name_ext(L, 2)));
     else
-        return push_environment(L, push_scope(to_environment(L, 1), to_io_state(L, 4), lua_toboolean(L, 3), to_name_ext(L, 2)));
+        return push_environment(L, push_scope(to_environment(L, 1), to_io_state(L, 4), k, to_name_ext(L, 2)));
 }
 
 static int pop_scope(lua_State * L) {
@@ -177,5 +183,11 @@ void open_scoped_ext(lua_State * L) {
     SET_GLOBAL_FUN(using_namespace_objects, "using_namespace_objects");
     SET_GLOBAL_FUN(push_scope, "push_scope");
     SET_GLOBAL_FUN(pop_scope, "pop_scope");
+
+    lua_newtable(L);
+    SET_ENUM("Namespace",   scope_kind::Namespace);
+    SET_ENUM("Section",     scope_kind::Section);
+    SET_ENUM("Context",     scope_kind::Context);
+    lua_setglobal(L, "scope_kind");
 }
 }

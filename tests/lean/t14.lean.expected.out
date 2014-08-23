@@ -1,15 +1,15 @@
 b : A
 y : A
-t14.lean:13:8: error: unknown identifier 'c'
+t14.lean:12:8: error: unknown identifier 'c'
 a : foo.A
 x : foo.A
-t14.lean:20:8: error: unknown identifier 'c'
-t14.lean:24:27: error: invalid 'using' command option, mixing explicit and implicit 'using' options
+t14.lean:19:8: error: unknown identifier 'c'
+t14.lean:23:27: error: invalid 'using' command option, mixing explicit and implicit 'using' options
 a : A
 c : A
 A : Type
 f a c : A
 foo.f foo.a foo.c : foo.A
-t14.lean:47:8: error: unknown identifier 'a'
+t14.lean:46:8: error: unknown identifier 'a'
 f a c : A
-t14.lean:53:9: error: unexpected token
+t14.lean:52:9: error: unexpected token

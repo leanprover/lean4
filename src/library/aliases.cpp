@@ -24,12 +24,12 @@ static environment update(environment const & env, aliases_ext const & ext);
 
 struct aliases_ext : public environment_extension {
     struct state {
-        bool                                      m_in_section;
+        bool                                      m_in_section_or_context;
         rb_map<name, list<name>, name_quick_cmp>  m_aliases;
         rb_map<name, name,       name_quick_cmp>  m_inv_aliases;
         rb_map<name, name,       name_quick_cmp>  m_level_aliases;
         rb_map<name, name,       name_quick_cmp>  m_inv_level_aliases;
-        state():m_in_section(false) {}
+        state():m_in_section_or_context(false) {}
 
         void add_expr_alias(name const & a, name const & e) {
             auto it = m_aliases.find(a);
@@ -62,7 +62,7 @@ struct aliases_ext : public environment_extension {
         } else {
             state s = head(scopes);
             s.add_expr_alias(a, e);
-            if (s.m_in_section) {
+            if (s.m_in_section_or_context) {
                 return cons(s, add_expr_alias_rec_core(tail(scopes), a, e));
             } else {
                 return cons(s, tail(scopes));
@@ -71,16 +71,16 @@ struct aliases_ext : public environment_extension {
     }
 
     void add_expr_alias_rec(name const & a, name const & e) {
-        if (m_state.m_in_section) {
+        if (m_state.m_in_section_or_context) {
             m_scopes = add_expr_alias_rec_core(m_scopes, a, e);
         } else {
             add_expr_alias(a, e);
         }
     }
 
-    void push(bool in_section) {
+    void push(bool in_section_or_context) {
         m_scopes = cons(m_state, m_scopes);
-        m_state.m_in_section = in_section;
+        m_state.m_in_section_or_context = in_section_or_context;
     }
 
     void pop() {
@@ -93,16 +93,16 @@ struct aliases_ext : public environment_extension {
         return env;
     }
 
-    static environment push_scope(environment const & env, bool in_section) {
+    static environment push_scope(environment const & env, scope_kind k) {
         aliases_ext ext = get_extension(env);
-        ext.push(in_section);
+        ext.push(k != scope_kind::Namespace);
         environment new_env = update(env, ext);
-        if (!::lean::in_section(new_env))
+        if (!::lean::in_section_or_context(new_env))
             new_env = add_aliases(new_env, get_namespace(new_env), name());
         return new_env;
     }
 
-    static environment pop_scope(environment const & env, bool) {
+    static environment pop_scope(environment const & env, scope_kind) {
         aliases_ext ext = get_extension(env);
         ext.pop();
         return update(env, ext);

@@ -999,7 +999,7 @@ name parser::check_constant_next(char const * msg) {
     name id = check_id_next(msg);
     expr e  = id_to_expr(id, p);
 
-    if (in_section(m_env) && is_implicit(e)) {
+    if (in_section_or_context(m_env) && is_implicit(e)) {
         e = get_app_fn(get_implicit_arg(e));
         if (is_explicit(e))
             e = get_explicit_arg(e);

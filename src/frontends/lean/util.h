@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 namespace lean {
 class parser;
 void check_atomic(name const & n);
-void check_in_section(parser const & p);
+void check_in_section_or_context(parser const & p);
 bool is_root_namespace(name const & n);
 name remove_root_prefix(name const & n);
 /** \brief Return the levels in \c ls that are defined in the section. */

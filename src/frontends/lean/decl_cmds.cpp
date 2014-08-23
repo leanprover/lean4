@@ -33,7 +33,7 @@ environment universe_cmd(parser & p) {
     name n = p.check_id_next("invalid universe declaration, identifier expected");
     check_atomic(n);
     environment env = p.env();
-    if (in_section(env)) {
+    if (in_section_or_context(env)) {
         p.add_local_level(n, mk_param_univ(n));
     } else {
         name const & ns = get_namespace(env);
@@ -79,7 +79,7 @@ static environment declare_var(parser & p, environment env,
                                bool is_axiom, optional<binder_info> const & _bi, pos_info const & pos) {
     binder_info bi;
     if (_bi) bi = *_bi;
-    if (in_section(p.env())) {
+    if (in_section_or_context(p.env())) {
         p.add_local(p.save_pos(mk_local(n, type, bi), pos));
         return env;
     } else {
@@ -100,7 +100,7 @@ static environment declare_var(parser & p, environment env,
 
 /** \brief If we are in a section, then add the new local levels to it. */
 static void update_section_local_levels(parser & p, level_param_names const & new_ls) {
-    if (in_section(p.env())) {
+    if (in_section_or_context(p.env())) {
         for (auto const & l : new_ls)
             p.add_local_level(l, mk_param_univ(l));
     }
@@ -109,7 +109,7 @@ static void update_section_local_levels(parser & p, level_param_names const & ne
 optional<binder_info> parse_binder_info(parser & p) {
     optional<binder_info> bi = p.parse_optional_binder_info();
     if (bi)
-        check_in_section(p);
+        check_in_section_or_context(p);
     return bi;
 }
 
@@ -119,10 +119,10 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
     name n = p.check_id_next("invalid declaration, identifier expected");
     check_atomic(n);
     buffer<name> ls_buffer;
-    if (p.curr_is_token(g_llevel_curly) && in_section(p.env()))
+    if (p.curr_is_token(g_llevel_curly) && in_section_or_context(p.env()))
         throw parser_error("invalid declaration, axioms/parameters occurring in sections cannot be universe polymorphic", p.pos());
     optional<parser::local_scope> scope1;
-    if (!in_section(p.env()))
+    if (!in_section_or_context(p.env()))
         scope1.emplace(p);
     parse_univ_params(p, ls_buffer);
     expr type;
@@ -138,7 +138,7 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
     }
     p.parse_close_binder_info(bi);
     level_param_names ls;
-    if (in_section(p.env())) {
+    if (in_section_or_context(p.env())) {
         ls = to_level_param_names(collect_univ_params(type));
     } else {
         update_univ_parameters(ls_buffer, collect_univ_params(type), p);
@@ -274,7 +274,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         real_n     = ns + n;
     }
 
-    if (in_section(env)) {
+    if (in_section_or_context(env)) {
         buffer<expr> section_ps;
         collect_section_locals(type, value, p, section_ps);
         type = Pi_as_is(section_ps, type, p);
@@ -364,7 +364,7 @@ static environment variables_cmd(parser & p) {
         }
         p.next();
         optional<parser::local_scope> scope1;
-        if (!in_section(p.env()))
+        if (!in_section_or_context(p.env()))
             scope1.emplace(p);
         expr type = p.parse_expr();
         p.parse_close_binder_info(bi);

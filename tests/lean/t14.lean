@@ -1,4 +1,3 @@
-
 namespace foo
   variable A : Type.{1}
   variable a : A
@@ -6,25 +5,25 @@ namespace foo
   variable c : A
 end foo
 
-section
+context
   using foo (renaming a->b x->y) (hiding c)
   check b
   check y
   check c -- Error
 end
 
-section
+context
   using foo (a x)
   check a
   check x
   check c -- Error
 end
 
-section
+context
   using foo (a x) (hiding c) -- Error
 end
 
-section
+context
   using foo
   check a
   check c
@@ -36,18 +35,18 @@ namespace foo
   infix `*`:75 := f
 end foo
 
-section
+context
   using foo
   check a * c
 end
 
-section
+context
   using [notation] foo -- use only the notation
   check foo.a * foo.c
   check a * c -- Error
 end
 
-section
+context
   using [decls] foo -- use only the declarations
   check f a c
   check a*c -- Error

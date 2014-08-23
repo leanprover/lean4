@@ -67,7 +67,15 @@ environment section_cmd(parser & p) {
     if (p.curr_is_identifier())
         n = p.check_atomic_id_next("invalid section, atomic identifier expected");
     p.push_local_scope();
-    return push_scope(p.env(), p.ios(), true, n);
+    return push_scope(p.env(), p.ios(), scope_kind::Section, n);
+}
+
+environment context_cmd(parser & p) {
+    name n;
+    if (p.curr_is_identifier())
+        n = p.check_atomic_id_next("invalid context, atomic identifier expected");
+    p.push_local_scope();
+    return push_scope(p.env(), p.ios(), scope_kind::Context, n);
 }
 
 environment namespace_cmd(parser & p) {
@@ -75,11 +83,11 @@ environment namespace_cmd(parser & p) {
     name n = p.check_atomic_id_next("invalid namespace declaration, atomic identifier expected");
     if (is_root_namespace(n))
         throw parser_error(sstream() << "invalid namespace name, '" << n << "' is reserved", pos);
-    return push_scope(p.env(), p.ios(), false, n);
+    return push_scope(p.env(), p.ios(), scope_kind::Namespace, n);
 }
 
 environment end_scoped_cmd(parser & p) {
-    if (in_section(p.env()))
+    if (in_section_or_context(p.env()))
         p.pop_local_scope();
     if (p.curr_is_identifier()) {
         name n = p.check_atomic_id_next("invalid end of scope, atomic identifier expected");
@@ -300,6 +308,7 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("exit",         "exit", exit_cmd));
     add_cmd(r, cmd_info("print",        "print a string", print_cmd));
     add_cmd(r, cmd_info("section",      "open a new section", section_cmd));
+    add_cmd(r, cmd_info("context",      "open a new context", context_cmd));
     add_cmd(r, cmd_info("namespace",    "open a new namespace", namespace_cmd));
     add_cmd(r, cmd_info("end",          "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));

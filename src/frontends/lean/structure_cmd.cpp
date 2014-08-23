@@ -118,7 +118,7 @@ struct structure_cmd_fn {
 
     /** \brief Include in m_level_names any section level referenced m_type and m_fields */
     void include_section_levels() {
-        if (!in_section(m_env))
+        if (!in_section_or_context(m_env))
             return;
         name_set all_lvl_params;
         all_lvl_params = collect_univ_params(m_type);
@@ -150,7 +150,7 @@ struct structure_cmd_fn {
         The section parameters are stored in section_params
     */
     void abstract_section_locals(buffer<expr> & section_params) {
-        if (!in_section(m_env))
+        if (!in_section_or_context(m_env))
             return;
         expr_struct_set section_locals;
         collect_section_locals(section_locals);

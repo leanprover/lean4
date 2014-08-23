@@ -329,7 +329,7 @@ struct inductive_cmd_fn {
 
     /** \brief Include in m_levels any section level referenced by decls. */
     void include_section_levels(buffer<inductive_decl> const & decls) {
-        if (!in_section(m_env))
+        if (!in_section_or_context(m_env))
             return;
         name_set all_lvl_params;
         for (auto const & d : decls) {
@@ -382,7 +382,7 @@ struct inductive_cmd_fn {
         The section parameters are stored in section_params
     */
     void abstract_section_locals(buffer<inductive_decl> & decls, buffer<expr> & section_params) {
-        if (!in_section(m_env))
+        if (!in_section_or_context(m_env))
             return;
         expr_struct_set section_locals;
         collect_section_locals(decls, section_locals);
@@ -508,7 +508,7 @@ struct inductive_cmd_fn {
     /** \brief Create an alias for the fully qualified name \c full_id. */
     environment create_alias(environment env, name const & full_id, levels const & section_leves, buffer<expr> const & section_params) {
         name id(full_id.get_string());
-        if (in_section(env)) {
+        if (in_section_or_context(env)) {
             expr r = mk_explicit(mk_constant(full_id, section_leves));
             r = mk_app(r, section_params);
             m_p.add_local_expr(id, r);

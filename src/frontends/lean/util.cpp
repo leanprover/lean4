@@ -19,8 +19,8 @@ void check_atomic(name const & n) {
         throw exception(sstream() << "invalid declaration name '" << n << "', identifier must be atomic");
 }
 
-void check_in_section(parser const & p) {
-    if (!in_section(p.env()))
+void check_in_section_or_context(parser const & p) {
+    if (!in_section_or_context(p.env()))
         throw exception(sstream() << "invalid command, it must be used in a section");
 }
 static name g_root("_root_");

@@ -15,22 +15,24 @@ Author: Leonardo de Moura
 #include "library/module.h"
 
 namespace lean {
+enum class scope_kind { Namespace, Section, Context };
 typedef environment (*using_namespace_fn)(environment const &, io_state const &, name const &);
-typedef environment (*push_scope_fn)(environment const &, bool);
-typedef environment (*pop_scope_fn)(environment const &, bool);
+typedef environment (*push_scope_fn)(environment const &, scope_kind);
+typedef environment (*pop_scope_fn)(environment const &, scope_kind);
 
 void register_scoped_ext(name const & n, using_namespace_fn use, push_scope_fn push, pop_scope_fn pop);
 /** \brief Use objects defined in the namespace \c n, if \c c is not the anonymous name, then only object from "class" \c c are considered. */
 environment using_namespace(environment const & env, io_state const & ios, name const & n, name const & c = name());
 /** \brief Create a new scope, all scoped extensions are notified. */
-environment push_scope(environment const & env, io_state const & ios, bool section, name const & n = name());
+environment push_scope(environment const & env, io_state const & ios, scope_kind k, name const & n = name());
 /** \brief Delete the most recent scope, all scoped extensions are notified. */
 environment pop_scope(environment const & env, name const & n = name());
 bool has_open_scopes(environment const & env);
 
 name const & get_namespace(environment const & env);
 list<name> const & get_namespaces(environment const & env);
-bool in_section(environment const & env);
+bool in_section_or_context(environment const & env);
+bool in_context(environment const & env);
 
 /** \brief Check if \c n may be a reference to a namespace, if it is return it.
     The procedure checks if \c n is a registered namespace, if it is not, it tries
@@ -49,7 +51,7 @@ void open_scoped_ext(lua_State * L);
    \brief Auxilary template used to simplify the creation of environment extensions that support
    the scope
 */
-template<typename Config>
+template<typename Config, bool TransientSection = false>
 class scoped_ext : public environment_extension {
     typedef typename Config::state            state;
     typedef typename Config::entry            entry;
@@ -150,17 +152,23 @@ public:
     static environment using_namespace_fn(environment const & env, io_state const & ios, name const & n) {
         return update(env, get(env).using_namespace(env, ios, n));
     }
-    static environment push_fn(environment const & env, bool) {
-        return update(env, get(env).push());
+    static environment push_fn(environment const & env, scope_kind k) {
+        if (k != scope_kind::Section || TransientSection)
+            return update(env, get(env).push());
+        else
+            return env;
     }
-    static environment pop_fn(environment const & env, bool) {
-        return update(env, get(env).pop());
+    static environment pop_fn(environment const & env, scope_kind k) {
+        if (k != scope_kind::Section || TransientSection)
+            return update(env, get(env).pop());
+        else
+            return env;
     }
     static environment register_entry(environment const & env, io_state const & ios, name const & n, entry const & e) {
         return update(env, get(env)._register_entry(env, ios, n, e));
     }
     static environment add_entry(environment env, io_state const & ios, entry const & e) {
-        if (in_section(env)) {
+        if ((!TransientSection && in_context(env)) || (TransientSection && in_section_or_context(env))) {
             return update(env, get(env)._add_tmp_entry(env, ios, e));
         } else {
             name n = get_namespace(env);
@@ -189,6 +197,6 @@ public:
     }
 };
 
-template<typename Config>
-typename scoped_ext<Config>::reg scoped_ext<Config>::g_ext;
+template<typename Config, bool TransientSection>
+typename scoped_ext<Config, TransientSection>::reg scoped_ext<Config, TransientSection>::g_ext;
 }

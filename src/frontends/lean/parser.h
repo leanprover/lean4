@@ -159,6 +159,7 @@ class parser {
     bool parse_local_notation_decl(buffer<notation_entry> * entries);
 
     friend environment section_cmd(parser & p);
+    friend environment context_cmd(parser & p);
     friend environment end_scoped_cmd(parser & p);
 
     void push_local_scope();

@@ -41,7 +41,6 @@ public:
 private:
     sexpr m_value;
     static sexpr flatten(sexpr const & s);
-    static format flatten(format const & f);
 
     // Functions for the internal sexpr representation
     static inline format_kind sexpr_kind(sexpr const & s) {
@@ -196,6 +195,7 @@ public:
     friend format above(format const & f1, format const & f2);
     friend format bracket(std::string const & l, format const & x, std::string const & r);
     friend format wrap(format const & f1, format const & f2);
+    friend format flatten(format const & f);
 
     // x + y = x <> y
     friend format operator+(format const & f1, format const & f2);

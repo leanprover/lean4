@@ -120,6 +120,13 @@ static void tst5() {
     std::cout << "{" << format() << "}" << "\n";
 }
 
+static void tst6() {
+    format r = (format("test") ^ format("hello")) + line() + format("world");
+    std::cout << "test6\n";
+    std::cout << r << "\n";
+    std::cout << flatten(r) << "\n";
+}
+
 int main() {
     save_stack_info();
     tst1();
@@ -127,5 +134,6 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

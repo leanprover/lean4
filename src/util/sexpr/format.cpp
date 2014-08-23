@@ -152,12 +152,12 @@ sexpr format::flatten(sexpr const & s) {
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
-format format::flatten(format const & f){
-    return format(flatten(f.m_value));
+format flatten(format const & f){
+    return format(format::flatten(f.m_value));
 }
 format group(format const & f) {
     get_g_diff_flatten() = false;
-    format flat_f = format::flatten(f);
+    format flat_f = flatten(f);
     if (get_g_diff_flatten()) {
         return choice(flat_f, f);
     } else {

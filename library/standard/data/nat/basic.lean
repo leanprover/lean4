@@ -57,8 +57,6 @@ num_rec zero
 -- Successor and predecessor
 -- -------------------------
 
--- TODO: this looks like a calc bug -- calc is using subst for iff, instead of =
-calc_subst subst
 theorem succ_ne_zero (n : ℕ) : succ n ≠ 0 :=
 assume H : succ n = 0,
 have H2 : true = false, from

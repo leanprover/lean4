@@ -147,8 +147,4 @@ calc
      ... ↔ (a ∨ c) ∨ b : iff_symm (or_assoc _ _ _)
 
 -- TODO: add or_left_comm, and_right_comm, and_left_comm
-
--- TODO: this is only temporary, until the calc bug is fixed
-calc_subst subst
-
 end relation

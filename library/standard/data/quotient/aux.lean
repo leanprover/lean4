@@ -8,10 +8,6 @@ import tools.fake_simplifier
 using prod eq_ops
 using fake_simplifier
 
--- TODO: calc bug -- remove
-calc_subst subst
-
-
 namespace quotient
 
 -- auxliary facts about products

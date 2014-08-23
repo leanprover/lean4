@@ -1,0 +1,27 @@
+epsilon (λ (x : nat), true) : nat
+-- BEGININFO
+-- TYPE|6|6
+(nat → Prop) → nat
+-- ACK
+-- IDENTIFIER|6|6
+epsilon
+-- ACK
+-- SYMBOL|6|14
+(
+-- ACK
+-- SYMBOL|6|15
+λ
+-- ACK
+-- TYPE|6|21
+Type
+-- ACK
+-- IDENTIFIER|6|21
+nat.nat
+-- ACK
+-- TYPE|6|26
+Prop
+-- ACK
+-- IDENTIFIER|6|26
+true
+-- ACK
+-- ENDINFO

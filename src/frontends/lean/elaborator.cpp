@@ -318,12 +318,17 @@ class elaborator {
     /** \brief Auxiliary object for creating backtracking points, and replacing the local scopes. */
     struct new_scope {
         elaborator &           m_main;
+        bool                   m_old_noinfo;
         context::scope_replace m_context_scope;
         context::scope_replace m_full_context_scope;
-        new_scope(elaborator & e, list<expr> const & ctx, list<expr> const & full_ctx):
+        new_scope(elaborator & e, list<expr> const & ctx, list<expr> const & full_ctx, bool noinfo = false):
             m_main(e), m_context_scope(e.m_context, ctx), m_full_context_scope(e.m_full_context, full_ctx) {
+            m_old_noinfo    = m_main.m_noinfo;
+            m_main.m_noinfo = noinfo;
         }
-        ~new_scope() {}
+        ~new_scope() {
+            m_main.m_noinfo = m_old_noinfo;
+        }
     };
 
     struct choice_elaborator {
@@ -424,7 +429,8 @@ class elaborator {
                 pre  = copy_tag(m_meta, ::lean::mk_app(pre, copy_tag(m_meta, mk_strict_expr_placeholder())));
             }
             try {
-                new_scope s(m_elab, m_ctx, m_full_ctx);
+                bool noinfo = true;
+                new_scope s(m_elab, m_ctx, m_full_ctx, noinfo);
                 pair<expr, constraint_seq> rcs = m_elab.visit(pre); // use elaborator to create metavariables, levels, etc.
                 expr r = rcs.first;
                 buffer<constraint> cs;

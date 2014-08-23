@@ -98,6 +98,9 @@ class parser {
     // index support
     declaration_index *    m_index;
 
+    // curr command token
+    name                   m_cmd_token;
+
     void display_warning_pos(unsigned line, unsigned pos);
     void display_warning_pos(pos_info p);
     void display_error_pos(unsigned line, unsigned pos);
@@ -191,7 +194,7 @@ public:
     bool collecting_info() const { return m_info_manager; }
 
     void set_index(declaration_index * i) { m_index = i; }
-    void add_decl_index(name const & n, pos_info const & pos);
+    void add_decl_index(name const & n, pos_info const & pos, name const & k, expr const & t);
     void add_ref_index(name const & n, pos_info const & pos);
 
     environment const & env() const { return m_env; }
@@ -215,6 +218,7 @@ public:
     pos_info pos_of(expr const & e, pos_info default_pos);
     pos_info pos_of(expr const & e) { return pos_of(e, pos()); }
     pos_info cmd_pos() const { return m_last_cmd_pos; }
+    name const & get_cmd_token() const { return m_cmd_token; }
     void set_line(unsigned p) { return m_scanner.set_line(p); }
 
     expr mk_app(expr fn, expr arg, pos_info const & p);

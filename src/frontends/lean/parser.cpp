@@ -121,9 +121,9 @@ optional<std::tuple<level_param_names, expr, expr>> parser::find_cached_definiti
         return optional<std::tuple<level_param_names, expr, expr>>();
 }
 
-void parser::add_decl_index(name const & n, pos_info const & pos) {
+void parser::add_decl_index(name const & n, pos_info const & pos, name const & k, expr const & t) {
     if (m_index)
-        m_index->add_decl(get_stream_name(), pos, n);
+        m_index->add_decl(get_stream_name(), pos, n, k, t);
 }
 
 void parser::add_ref_index(name const & n, pos_info const & pos) {
@@ -1105,6 +1105,7 @@ void parser::parse_command() {
     lean_assert(curr() == scanner::token_kind::CommandKeyword);
     m_last_cmd_pos = pos();
     name const & cmd_name = get_token_info().value();
+    m_cmd_token = get_token_info().token();
     if (auto it = cmds().find(cmd_name)) {
         next();
         m_env = it->get_fn()(*this);

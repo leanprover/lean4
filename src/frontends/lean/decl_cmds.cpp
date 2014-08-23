@@ -71,6 +71,9 @@ void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found, pa
         });
 }
 
+static name g_axiom("axiom");
+static name g_variable("variable");
+
 static environment declare_var(parser & p, environment env,
                                name const & n, level_param_names const & ls, expr const & type,
                                bool is_axiom, optional<binder_info> const & _bi, pos_info const & pos) {
@@ -82,11 +85,13 @@ static environment declare_var(parser & p, environment env,
     } else {
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
-        p.add_decl_index(full_n, pos);
-        if (is_axiom)
+        if (is_axiom) {
             env = module::add(env, check(env, mk_axiom(full_n, ls, type)));
-        else
+            p.add_decl_index(full_n, pos, g_axiom, type);
+        } else {
             env = module::add(env, check(env, mk_var_decl(full_n, ls, type)));
+            p.add_decl_index(full_n, pos, g_variable, type);
+        }
         if (!ns.is_anonymous())
             env = add_expr_alias(env, n, full_n);
         return env;
@@ -269,8 +274,6 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         real_n     = ns + n;
     }
 
-    p.add_decl_index(real_n, n_pos);
-
     if (in_section(env)) {
         buffer<expr> section_ps;
         collect_section_locals(type, value, p, section_ps);
@@ -297,6 +300,8 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
                     cd = check(env, mk_theorem(real_n, c_ls, c_type, c_value));
                 else
                     cd = check(env, mk_definition(env, real_n, c_ls, c_type, c_value, modifiers.m_is_opaque));
+                if (!modifiers.m_is_private)
+                    p.add_decl_index(real_n, n_pos, p.get_cmd_token(), c_type);
                 env = module::add(env, *cd);
                 found_cached = true;
             } catch (exception&) {}
@@ -322,6 +327,8 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
             env = module::add(env, check(env, mk_definition(env, real_n, new_ls, type, value, modifiers.m_is_opaque)));
             p.cache_definition(real_n, pre_type, pre_value, new_ls, type, value);
         }
+        if (!modifiers.m_is_private)
+            p.add_decl_index(real_n, n_pos, p.get_cmd_token(), type);
     }
 
     if (real_n != n)

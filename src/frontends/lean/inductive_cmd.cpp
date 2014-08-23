@@ -53,6 +53,10 @@ intro_rule update_intro_rule(intro_rule const & r, expr const & t) {
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
 
+static name g_inductive("inductive");
+static name g_intro("intro");
+static name g_recursor("recursor");
+
 struct inductive_cmd_fn {
     typedef std::unique_ptr<type_checker> type_checker_ptr;
     parser &         m_p;
@@ -68,6 +72,8 @@ struct inductive_cmd_fn {
     level            m_u; // temporary auxiliary global universe used for inferring the result universe of an inductive datatype declaration.
     bool             m_infer_result_universe;
     name_set         m_relaxed_implicit_infer; // set of introduction rules where we do not use strict implicit parameter infererence
+    typedef std::tuple<name, name, pos_info> decl_info;
+    buffer<decl_info> m_decl_info; // auxiliary buffer used to populate declaration_index
 
     inductive_cmd_fn(parser & p):m_p(p) {
         m_env   = p.env();
@@ -97,9 +103,12 @@ struct inductive_cmd_fn {
         name id = m_p.check_id_next("invalid declaration, identifier expected");
         check_atomic(id);
         name full_id = m_namespace + id;
-        m_p.add_decl_index(full_id, m_pos);
-        if (!is_intro)
-            m_p.add_decl_index(mk_rec_name(full_id), m_pos);
+        if (is_intro) {
+            m_decl_info.emplace_back(full_id, g_intro, m_pos);
+        } else {
+            m_decl_info.emplace_back(full_id, g_inductive, m_pos);
+            m_decl_info.emplace_back(mk_rec_name(full_id), g_recursor, m_pos);
+        }
         return full_id;
     }
 
@@ -547,6 +556,15 @@ struct inductive_cmd_fn {
         out << "\n";
     }
 
+    void update_declaration_index(environment const & env) {
+        name n, k; pos_info p;
+        for (auto const & info : m_decl_info) {
+            std::tie(n, k, p) = info;
+            expr type = env.get(n).get_type();
+            m_p.add_decl_index(n, p, k, type);
+        }
+    }
+
     environment operator()() {
         parser::no_undef_id_error_scope err_scope(m_p);
         buffer<inductive_decl> decls;
@@ -566,6 +584,7 @@ struct inductive_cmd_fn {
         }
         level_param_names ls = to_list(m_levels.begin(), m_levels.end());
         environment env = module::add_inductive(m_p.env(), ls, m_num_params, to_list(decls.begin(), decls.end()));
+        update_declaration_index(env);
         return add_aliases(env, ls, section_params, decls);
     }
 };

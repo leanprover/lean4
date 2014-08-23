@@ -303,8 +303,9 @@ int main(int argc, char ** argv) {
             cache.save(out);
         }
         if (gen_index) {
-            std::ofstream out(index_name);
-            index.save(out);
+            std::shared_ptr<lean::file_output_channel> out(new lean::file_output_channel(index_name.c_str()));
+            ios.set_regular_channel(out);
+            index.save(regular(env, ios));
         }
         if (export_objects && (permissive || ok)) {
             std::ofstream out(output, std::ofstream::binary);

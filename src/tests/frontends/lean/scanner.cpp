@@ -143,8 +143,8 @@ static void tst2() {
     env = add_token(env, "+", 0);
     check("x+y", {tk::Identifier, tk::Keyword, tk::Identifier}, env);
     check("-- testing", {});
-    check("(-- testing --)", {});
-    check("(-- (-- testing\n --) --)", {});
+    check("/- testing -/", {});
+    check("/- /- testing\n -/ -/", {});
     check(" 2.31  ", {tk::Decimal});
     check("2.31", {tk::Decimal});
     check(" 333 22", {tk::Numeral, tk::Numeral});

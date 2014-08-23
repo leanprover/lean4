@@ -466,14 +466,14 @@ induction_on p idp
 -- Transporting in particular fibrations
 -- -------------------------------------
 
-(-- From the Coq HoTT library:
+/-
+From the Coq HoTT library:
 
 One frequently needs lemmas showing that transport in a certain dependent type is equal to some
 more explicitly defined operation, defined according to the structure of that dependent type.
 For most dependent types, we prove these lemmas in the appropriate file in the types/
 subdirectory.  Here we consider only the most basic cases.
-
---)
+-/
 
 -- Transporting in a constant fibration.
 definition transport_const {A B : Type} {x1 x2 : A} (p : x1 ≈ x2) (y : B) :
@@ -640,7 +640,7 @@ definition apD02_pp {A} (B : A → Type) (f : Π x:A, B x) {x y : A}
 induction_on r1 (take r2, induction_on r2 (induction_on p1 idp)) r2
 
 
-(-- From the Coq version:
+/- From the Coq version:
 
 -- ** Tactics, hints, and aliases
 
@@ -691,4 +691,4 @@ Hint Rewrite
 Ltac hott_simpl :=
   autorewrite with paths in * |- * ; auto with path_hints.
 
---)
+-/

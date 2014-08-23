@@ -228,8 +228,8 @@ bool scanner::consume(char const * str, char const * error_msg) {
     }
 }
 
-static char const * g_begin_comment_block = "(--";
-static char const * g_end_comment_block = "--)";
+static char const * g_begin_comment_block = "/-";
+static char const * g_end_comment_block = "-/";
 
 void scanner::read_comment_block() {
     static char const * end_error_msg = "unexpected end of comment block";
@@ -422,7 +422,7 @@ auto scanner::read_key_cmd_id() -> token_kind {
 
 static name g_begin_script_tk("(*");
 static name g_begin_comment_tk("--");
-static name g_begin_comment_block_tk("(--");
+static name g_begin_comment_block_tk("/-");
 
 auto scanner::scan(environment const & env) -> token_kind {
     m_tokens = &get_token_table(env);

@@ -2,16 +2,15 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn
 
+-- Theory data.quotient
+-- ====================
+
 import logic tools.tactic ..subtype logic.connectives.cast struc.relation data.prod
 import logic.connectives.instances
 import .aux
 
 using relation prod inhabited nonempty tactic eq_ops
 using subtype relation.iff_ops
-
-
--- Theory data.quotient
--- ====================
 
 namespace quotient
 

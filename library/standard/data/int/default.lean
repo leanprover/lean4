@@ -2,4 +2,4 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jeremy Avigad
 
-import data.int.basic
+import .basic .order

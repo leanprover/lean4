@@ -131,18 +131,4 @@ namespace iff_ops
   abbreviation subst := @subst_iff
   abbreviation mp    := @iff_mp
 end iff_ops
-
-
--- Boolean calculations
--- --------------------
-
--- TODO: move these somewhere
-
-theorem or_right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
-calc
-  (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) : or_assoc _ _ _
-    ... ↔ a ∨ (c ∨ b) : {or_comm b c}
-     ... ↔ (a ∨ c) ∨ b : iff_symm (or_assoc _ _ _)
-
--- TODO: add or_left_comm, and_right_comm, and_left_comm
 end relation

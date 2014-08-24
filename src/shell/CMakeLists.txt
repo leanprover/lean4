@@ -29,15 +29,6 @@ add_test(lean_unknown_option ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_
 add_test(lean_unknown_file1 ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lean")
 add_test(lean_unknown_file2 ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lua")
 
-# LEAN EXAMPLES
-file(GLOB LEANEXAMPLES "${LEAN_SOURCE_DIR}/../examples/standard/*.lean")
-FOREACH(T ${LEANEXAMPLES})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanex_${T_NAME}"
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../examples/standard"
-    COMMAND ${LEAN_SOURCE_DIR}/shell/test_standard.sh ${CMAKE_CURRENT_BINARY_DIR}/lean ${T})
-ENDFOREACH(T)
-
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
 FOREACH(T ${LEANTESTS})

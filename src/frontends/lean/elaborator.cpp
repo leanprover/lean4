@@ -607,7 +607,7 @@ public:
                 expr new_m    = instantiate_meta(m, tmp);
                 expr new_type = type_checker(_env).infer(new_m).first;
                 proof_state ps(goals(goal(new_m, new_type)), substitution(), name_generator("dontcare"));
-                return format({format("failed to synthesize placeholder"), line(), ps.pp(fmt)});
+                return format("failed to synthesize placeholder") + line() + ps.pp(fmt);
             });
     }
 

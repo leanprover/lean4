@@ -174,11 +174,11 @@ format pp(options const & o) {
             name const & n = to_name(head(p));
             unsigned sz = n.size();
             unsigned indent = unicode ? sz+3 : sz+4;
-            r += group(nest(indent, format{pp(head(p)), space(), format(arrow), space(), pp(tail(p))}));
+            r += group(nest(indent, pp(head(p)) + space() + format(arrow) + space() + pp(tail(p))));
         });
     format open  = unicode ? format(g_left_angle_bracket) : lp();
     format close = unicode ? format(g_right_angle_bracket) : rp();
-    return group(nest(1, format{open, r, close}));
+    return group(nest(1, open + r + close));
 }
 
 std::ostream & operator<<(std::ostream & out, options const & o) {

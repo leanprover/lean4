@@ -109,7 +109,7 @@ environment check_cmd(parser & p) {
     formatter const & fmt = reg.get_formatter();
     options opts          = p.ios().get_options();
     unsigned indent       = get_pp_indent(opts);
-    format r = group(format{fmt(e), space(), colon(), nest(indent, compose(line(), fmt(type)))});
+    format r = group(fmt(e) + space() + colon() + nest(indent, line() + fmt(type)));
     reg << mk_pair(r, opts) << endl;
     return p.env();
 }

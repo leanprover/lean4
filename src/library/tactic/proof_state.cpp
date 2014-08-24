@@ -36,7 +36,7 @@ format proof_state::pp(formatter const & fmt) const {
     for (auto const & g : get_goals()) {
         if (first) first = false; else r += line();
         if (show_goal_names) {
-            r += group(format{format(g.get_name()), colon(), nest(indent, compose(line(), g.pp(fmt)))});
+            r += group(format(g.get_name()) + colon() + nest(indent, line() + g.pp(fmt)));
         } else {
             r += g.pp(fmt);
         }

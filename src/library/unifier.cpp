@@ -628,7 +628,7 @@ struct unifier_fn {
                 r += pp_indent_expr(fmt, rhs);
                 buffer<expr> locals;
                 auto m = get_app_args(lhs, locals);
-                r += format({line(), format("containing '"), fmt(bad_local), format("', to placeholder '"), fmt(m), format("'")});
+                r += line() + format("containing '") + fmt(bad_local) + format("', to placeholder '") + fmt(m) + format("'");
                 if (locals.empty()) {
                     r += format(", in the empty local context");
                 } else {

@@ -30,16 +30,13 @@ static void tst1() {
     format f4 = nest(3, f3);
     format f5 = line();
     format f6(f4, f5);
-    format f7 = nest(10, format{f6, f4, f6, f4});
+    format f7 = nest(10, f6 + f4 + f6 + f4);
     format f8(f_atom1, nest(3, format(line(), f_atom1)));
     format f9 = f7 + f8;
     format f10;
     f10 += f6 + f5 + f3;
     format f11 = above(f1, above(above(f2, f3), f4));
-    format f12 = paren(format{format("a"),
-                              format("b"),
-                              format("c"),
-                              format("d")});
+    format f12 = paren(format("a") + format("b") + format("c") + format("d"));
 
     std::vector<pair<std::string, format>> v =
         {{"f1",  f1},

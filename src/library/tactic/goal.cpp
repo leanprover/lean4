@@ -29,10 +29,10 @@ format goal::pp(formatter const & fmt) const {
     for (auto it = tmp.begin(); it != end; ++it) {
         if (first) first = false; else r += compose(comma(), line());
         expr l     = *it;
-        r += format{fmt(l), space(), colon(), nest(indent, compose(line(), fmt(mlocal_type(l))))};
+        r += fmt(l) + space() + colon() + nest(indent, line() + fmt(mlocal_type(l)));
     }
     r = group(r);
-    r += format{line(), turnstile, space(), nest(indent, fmt(conclusion))};
+    r += line() + turnstile + space() + nest(indent, fmt(conclusion));
     return group(r);
 }
 

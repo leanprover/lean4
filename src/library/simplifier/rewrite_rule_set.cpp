@@ -116,7 +116,7 @@ format rewrite_rule_set::pp(formatter const & fmt, options const & opts) const {
                 r += format(" [disabled]");
             if (rule.must_check_types())
                 r += format(" [check]");
-            r += format{space(), colon(), space()};
+            r += space() + colon() + space();
             r += nest(indent, fmt(rule.get_ceq(), opts));
         });
     return r;

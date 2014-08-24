@@ -13,7 +13,7 @@ char const * pos_info_provider::get_file_name() const {
 format pos_info_provider::pp(expr const & e) const {
     try {
         auto p = get_pos_info_or_some(e);
-        return format{format(get_file_name()), colon(), format(p.first), colon(), format(p.second), colon()};
+        return format(get_file_name()) + colon() + format(p.first) + colon() + format(p.second) + colon();
     } catch (exception &) {
         return format();
     }

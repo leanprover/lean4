@@ -167,21 +167,19 @@ format group(format const & f) {
     }
 }
 format above(format const & f1, format const & f2) {
-    return format{f1, line(), f2};
+    return f1 + line() + f2;
 }
 format bracket(std::string const & l, format const & x, std::string const & r) {
-    return group(nest(l.size(), format{format(l), x, format(r)}));
+    return group(nest(l.size(), format(l) + x + format(r)));
 }
 format paren(format const & x) {
-    return group(nest(1, format{lp(), x, rp()}));
+    return group(nest(1, lp() + x + rp()));
 }
 
 // wrap = <+/>
 // wrap x y = x <> (text " " :<|> line) <> y
 format wrap(format const & f1, format const & f2) {
-    return format{f1,
-                  choice(format(" "), line()),
-                  f2};
+    return f1 + choice(format(" "), line()) + f2;
 }
 
 /**
@@ -391,7 +389,7 @@ struct sexpr_pp_fn {
                 if (is_nil(*curr)) {
                     return paren(r);
                 } else if (!is_cons(*curr)) {
-                    return group(nest(1, format{lp(), r, space(), dot(), line(), apply(*curr), rp()}));
+                    return group(nest(1, lp() + r + space() + dot() + line() + apply(*curr) + rp()));
                 } else {
                     r += line();
                 }

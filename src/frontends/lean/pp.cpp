@@ -172,7 +172,7 @@ auto pretty_fn::pp_sort(expr const & e) -> result {
     if (m_env.impredicative() && e == Prop) {
         return mk_result(format("Prop"));
     } else if (m_universes) {
-        return mk_result(group(format({format("Type.{"), nest(6, pp_level(sort_level(e))), format("}")})));
+        return mk_result(group(format("Type.{") + nest(6, pp_level(sort_level(e))) + format("}")));
     } else {
         return mk_result(format("Type"));
     }
@@ -295,7 +295,7 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
     if (is_arrow(e)) {
         result lhs = pp_child(binding_domain(e), get_arrow_prec());
         result rhs = pp_child(lift_free_vars(binding_body(e), 1), get_arrow_prec()-1);
-        format r   = group(format{lhs.first, space(), m_unicode ? g_arrow_n_fmt : g_arrow_fmt, line(), rhs.first});
+        format r   = group(lhs.first + space() + (m_unicode ? g_arrow_n_fmt : g_arrow_fmt) + line() + rhs.first);
         return mk_result(r, get_arrow_prec()-1);
     } else {
         expr b = e;
@@ -346,12 +346,12 @@ auto pretty_fn::pp_let(expr e) -> result {
         name const & n = local_pp_name(d.first);
         format t       = pp_child(mlocal_type(d.first), 0).first;
         format v       = pp_child(d.second, 0).first;
-        r += nest(3 + 1, compose(beg, group(format{format(n), space(),
-                            colon(), nest(n.size() + 1 + 1 + 1, compose(space(), t)), space(), g_assign_fmt,
-                            nest(m_indent, format{line(), v, sep})})));
+        r += nest(3 + 1, compose(beg, group(format(n) + space() + colon()
+                                            + nest(n.size() + 1 + 1 + 1, space() + t) + space() + g_assign_fmt
+                                            + nest(m_indent, line() + v + sep))));
     }
     format b = pp_child(e, 0).first;
-    r += format{line(), g_in_fmt, space(), nest(2 + 1, b)};
+    r += line() + g_in_fmt + space() + nest(2 + 1, b);
     return mk_result(r, 0);
 }
 
@@ -365,14 +365,14 @@ auto pretty_fn::pp_have(expr const & e) -> result {
     format type_fmt  = pp_child(mlocal_type(local), 0).first;
     format proof_fmt = pp_child(proof, 0).first;
     format body_fmt  = pp_child(body, 0).first;
-    format r = format{g_have_fmt, space(), format(n), space()};
+    format r = g_have_fmt + space() + format(n) + space();
     if (binding_info(binding).is_contextual())
         r += compose(g_fact_fmt, space());
-    r += format{colon(), nest(m_indent, format{line(), type_fmt, comma(), space(), g_from_fmt})};
+    r += colon() + nest(m_indent, line() + type_fmt + comma() + space() + g_from_fmt);
     r = group(r);
-    r += nest(m_indent, compose(line(), compose(proof_fmt, comma())));
+    r += nest(m_indent, line() + proof_fmt + comma());
     r = group(r);
-    r += compose(line(), body_fmt);
+    r += line() + body_fmt;
     return mk_result(r, 0);
 }
 
@@ -381,7 +381,7 @@ auto pretty_fn::pp_show(expr const & e) -> result {
     expr binding     = get_annotation_arg(app_fn(e));
     format type_fmt  = pp_child(binding_domain(binding), 0).first;
     format proof_fmt = pp_child(proof, 0).first;
-    format r = format{g_show_fmt, space(), nest(5, type_fmt), comma(), space(), g_from_fmt};
+    format r = g_show_fmt + space() + nest(5, type_fmt) + comma() + space() + g_from_fmt;
     r = group(r);
     r += nest(m_indent, compose(line(), proof_fmt));
     return mk_result(group(r), 0);

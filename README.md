@@ -23,7 +23,7 @@ About
 - [To Do list](doc/todo.md)
 - [Authors](doc/authors.md)
 - [Tutorial](doc/lean/tutorial.org)
-- Library: [standard](library/standard/standard.md)
+- Library: [standard](library/standard.md)
 
 Requirements
 ------------
@@ -44,7 +44,7 @@ Installing required packages at
 - [Ubuntu 12.04](doc/make/ubuntu-12.04.md)
 - [Ubuntu 12.04 (detailed)](doc/make/ubuntu-12.04-detailed.md)
 - [Fedora 19](doc/make/fedora-19.md)
-- [OS X 10.8](doc/make/osx-10.8.md)
+- [OS X 10.9](doc/make/osx-10.9.md)
 - [Cygwin](doc/make/cygwin.md)
 
 Build Instructions

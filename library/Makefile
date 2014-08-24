@@ -1,6 +1,6 @@
 TOP := $(dir $(lastword $(MAKEFILE_LIST)))
 DIR := $(shell pwd)
-LEAN_FILES := $(shell find $(DIR) -type f -name '*.lean')
+LEAN_FILES := $(shell cd $(DIR); find . -type f -name '*.lean')
 OLEAN_FILES := $(LEAN_FILES:.lean=.olean)
 ILEAN_FILES := $(LEAN_FILES:.lean=.ilean)
 DEP_FILES := $(LEAN_FILES:.lean=.d)
@@ -16,12 +16,10 @@ all: $(OLEAN_FILES) $(DEP_FILES)
 
 %.d: %.lean $(LEAN_VERSION_FILE)
 	@echo Making dependency file \'$@\' ...
-	@rm -f $@
-	@rm -f $@.tmp
-	@$(LEAN) --deps $< > $@.tmp
-	@printf "$(basename $@).olean : $< $@ " > $@
-	@tr "\n" " " < $@.tmp >> $@
-	@rm -f $@.tmp
+	$(eval DEPS := $(shell $(LEAN) --deps $<))
+	$(eval DEPS := $(subst $(DIR)/,, $(DEPS)))
+	$(eval DEPS := $(subst "\n", " ", $(DEPS)))
+	@printf "$(basename $@).olean : $< $@ $(DEPS)\n" > $@
 
 %.ilean: %.lean %.olean $(LEAN_VERSION_FILE)
 	$(LEAN) $(LEAN_OPTIONS) $< -i $@

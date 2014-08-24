@@ -16,8 +16,8 @@ public:
     file_not_found_exception(std::string const & fname);
 };
 
-/** \brief Initialize the lean_path for the given kernel instance */
-void init_lean_path(char const * kernel_instance_name);
+/** \brief Initialize the lean_path */
+void init_lean_path();
 /** \brief Return the LEAN_PATH string */
 char const * get_lean_path();
 /**

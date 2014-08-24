@@ -6,7 +6,7 @@ if [ $# -ne 2 ]; then
 fi
 ulimit -s unlimited
 LEAN=$1
-export LEAN_PATH=.:../../library/standard
+export LEAN_PATH=.:../../library
 f=$2
 i=0
 in_code_block=0

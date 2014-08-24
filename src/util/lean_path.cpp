@@ -107,13 +107,13 @@ std::string get_path(std::string f) {
 
 static std::string              g_lean_path;
 static std::vector<std::string> g_lean_path_vector;
-void init_lean_path(char const * kernel_instance_name) {
+void init_lean_path() {
     char * r = getenv("LEAN_PATH");
     if (r == nullptr) {
         g_lean_path  = ".";
         std::string exe_path = get_path(get_exe_location());
         g_lean_path += g_path_sep;
-        g_lean_path += exe_path + g_sep + ".." + g_sep + "library" + g_sep + kernel_instance_name;
+        g_lean_path += exe_path + g_sep + ".." + g_sep + "library";
     } else {
         g_lean_path = r;
     }
@@ -134,7 +134,7 @@ void init_lean_path(char const * kernel_instance_name) {
 }
 
 struct init_lean_path_fn {
-    init_lean_path_fn() { init_lean_path("standard"); }
+    init_lean_path_fn() { init_lean_path(); }
 };
 static init_lean_path_fn g_init_lean_path_fn;
 static std::string       g_sep_str(1, g_sep);

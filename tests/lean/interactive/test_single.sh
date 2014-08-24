@@ -5,7 +5,7 @@ if [ $# -ne 3 -a $# -ne 2 ]; then
 fi
 ulimit -s unlimited
 LEAN=$1
-export LEAN_PATH=../../../library/standard:.
+export LEAN_PATH=../../../library:.
 if [ $# -ne 3 ]; then
     INTERACTIVE=no
 else

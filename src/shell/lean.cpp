@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/formatter.h"
 #include "library/standard_kernel.h"
-#include "library/hott_kernel.h"
 #include "library/module.h"
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
@@ -43,7 +42,6 @@ using lean::io_state;
 using lean::io_state_stream;
 using lean::regular;
 using lean::mk_environment;
-using lean::mk_hott_environment;
 using lean::set_environment;
 using lean::set_io_state;
 using lean::definition_cache;
@@ -81,7 +79,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --trust=num -t    trust level (default: 0) \n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
     std::cout << "  --server          start Lean in 'server' mode\n";
-    std::cout << "  --hott            use Homotopy Type Theory kernel and libraries\n";
     std::cout << "  --threads=num -j  number of threads used to process lean files\n";
     std::cout << "  --deps            just print dependencies of a Lean input\n";
     std::cout << "  --flycheck        print structured error message for flycheck\n";
@@ -119,7 +116,6 @@ static struct option g_long_options[] = {
     {"trust",       required_argument, 0, 't'},
     {"server",      no_argument,       0, 'S'},
     {"quiet",       no_argument,       0, 'q'},
-    {"hott",        no_argument,       0, 'H'},
     {"threads",     required_argument, 0, 'j'},
     {"cache",       required_argument, 0, 'c'},
     {"deps",        no_argument,       0, 'D'},
@@ -133,12 +129,10 @@ static struct option g_long_options[] = {
 };
 
 #if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "PFDHSqlupgvhj:012k:012s:012t:012o:c:i:";
+static char const * g_opt_str = "PFDSqlupgvhj:012k:012s:012t:012o:c:i:";
 #else
-static char const * g_opt_str = "PFDHSqlupgvhj:012k:012t:012o:c:i:";
+static char const * g_opt_str = "PFDSqlupgvhj:012k:012t:012o:c:i:";
 #endif
-
-enum class lean_mode { Standard, HoTT };
 
 class simple_pos_info_provider : public pos_info_provider {
     char const * m_fname;
@@ -160,7 +154,6 @@ int main(int argc, char ** argv) {
     bool only_deps       = false;
     bool flycheck        = false;
     bool permissive      = false;
-    lean_mode mode       = lean_mode::Standard;
     unsigned num_threads = 1;
     bool use_cache       = false;
     bool gen_index       = false;
@@ -175,10 +168,6 @@ int main(int argc, char ** argv) {
         switch (c) {
         case 'j':
             num_threads = atoi(optarg);
-            break;
-        case 'H':
-            mode = lean_mode::HoTT;
-            lean::init_lean_path("hott");
             break;
         case 'S':
             server = true;
@@ -240,7 +229,7 @@ int main(int argc, char ** argv) {
         }
     }
 
-    environment env = mode == lean_mode::Standard ? mk_environment(trust_lvl) : mk_hott_environment(trust_lvl);
+    environment env = mk_environment(trust_lvl);
     io_state ios(lean::mk_pretty_formatter_factory());
     if (quiet)
         ios.set_option("verbose", false);

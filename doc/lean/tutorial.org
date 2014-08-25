@@ -441,7 +441,7 @@ Lean. The theorems can be broken into three different categories:
 introduction, elimination, and rewriting. First, we cover the introduction
 and elimination theorems for the basic Boolean connectives.
 
-*** And (conjuction)
+*** And (conjunction)
 
 The expression =and_intro H1 H2= creates a proof for =a ∧ b= using proofs
 =H1 : a= and =H2 : b=. We say =and_intro= is the _and-introduction_ operation.
@@ -477,7 +477,7 @@ Now, we prove =p ∧ q → q ∧ p= with the following simple proof term.
 Note that the proof term is very similar to a function that just swaps the
 elements of a pair.
 
-*** (disjuction)
+*** (disjunction)
 
 The expression =or_intro_left b H1= creates a proof for =a ∨ b= using a proof =H1 : a=.
 Similarly, =or_intro_right a H2= creates a proof for =a ∨ b= using a proof =H2 : b=.

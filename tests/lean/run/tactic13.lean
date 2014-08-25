@@ -1,4 +1,4 @@
-import standard
+import logic
 using tactic
 
 theorem tst (a b : Prop) (H : ¬ a ∨ ¬ b) (Hb : b) : ¬ a ∧ b :=

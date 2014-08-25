@@ -1,4 +1,4 @@
-import standard
+import logic
 using tactic
 
 theorem tst (a b : Prop) (H : ¬ a ∨ ¬ b) (Hb : b) : ¬ a ∧ b
@@ -9,8 +9,3 @@ theorem tst (a b : Prop) (H : ¬ a ∨ ¬ b) (Hb : b) : ¬ a ∧ b
           (assume Hna, absurd Ha Hna)
           (assume Hnb, absurd Hb Hnb));
       assumption
-
-
-
-
-

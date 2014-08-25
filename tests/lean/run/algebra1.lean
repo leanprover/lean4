@@ -1,4 +1,4 @@
-import standard
+import logic
 using num
 
 abbreviation Type1 := Type.{1}

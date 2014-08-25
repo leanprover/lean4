@@ -1,4 +1,4 @@
-import standard
+import logic
 using tactic
 
 inductive list (A : Type) : Type :=

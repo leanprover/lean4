@@ -1,4 +1,4 @@
-import standard
+import logic
 definition id {A : Type} (a : A) := a
 check id id
 set_option pp.universes true

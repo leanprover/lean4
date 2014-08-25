@@ -1,4 +1,4 @@
-import standard
+import logic
 using tactic
 variables a b c d : Prop
 axiom Ha : a

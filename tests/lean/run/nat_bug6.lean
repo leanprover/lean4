@@ -1,4 +1,4 @@
-import standard
+import logic
 using eq_ops
 
 inductive nat : Type :=

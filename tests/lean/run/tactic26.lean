@@ -1,4 +1,4 @@
-import standard
+import logic
 using tactic inhabited
 
 inductive sum (A : Type) (B : Type) : Type :=

@@ -1,4 +1,4 @@
-import standard
+import logic
 using num (num pos_num num_rec pos_num_rec)
 using tactic
 

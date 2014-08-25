@@ -1,4 +1,4 @@
-import standard
+import logic
 
 namespace foo
 namespace boo

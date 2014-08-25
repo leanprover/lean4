@@ -1,4 +1,4 @@
-import standard
+import logic data.prod
 using prod
 
 inductive t1 : Type :=

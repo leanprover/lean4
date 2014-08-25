@@ -1,4 +1,4 @@
-import standard
+import logic
 
 check
   let f x y := x ∧ y,

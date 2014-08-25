@@ -1,4 +1,4 @@
-import standard
+import logic
 
 namespace setoid
   inductive setoid : Type :=

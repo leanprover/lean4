@@ -1,4 +1,4 @@
-import standard
+import logic
 section
   parameter {A : Type}
   theorem T {a b : A} (H : a = b) : b = a

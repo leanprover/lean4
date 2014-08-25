@@ -1,4 +1,4 @@
-import standard
+import logic
 using tactic
 
 definition my_tac1 := apply @refl

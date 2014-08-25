@@ -1,4 +1,4 @@
-import standard
+import logic
 using num
 
 variable foo : Prop
@@ -15,6 +15,3 @@ namespace N1
     print raw _root_.foo
   end N2
 end N1
-
-
-

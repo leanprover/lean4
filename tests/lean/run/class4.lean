@@ -1,4 +1,4 @@
-import standard
+import logic
 
 inductive nat : Type :=
 zero : nat,

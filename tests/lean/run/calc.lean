@@ -1,4 +1,4 @@
-import standard
+import data.num
 using num
 
 namespace foo

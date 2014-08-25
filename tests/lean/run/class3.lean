@@ -1,4 +1,4 @@
-import standard
+import logic data.prod
 using num prod inhabited
 
 section

@@ -1,4 +1,4 @@
-import standard
+import logic
 
 namespace tst
 definition foo {A B : Type} (a : A) (b : B) := a

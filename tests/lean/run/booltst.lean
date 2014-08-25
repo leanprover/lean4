@@ -1,4 +1,4 @@
-import standard
+import data.bool
 using bool
 
 check ff

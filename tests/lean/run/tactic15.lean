@@ -1,4 +1,4 @@
-import standard
+import logic
 using tactic
 
 variable A : Type.{1}

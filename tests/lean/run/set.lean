@@ -1,4 +1,4 @@
-import standard
+import logic
 using bool
 
 definition set {{T : Type}} := T → bool

@@ -1,4 +1,4 @@
-import standard data.unit
+import logic data.unit
 using bool unit decidable
 
 variables a b c : bool

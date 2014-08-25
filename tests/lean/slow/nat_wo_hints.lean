@@ -3,7 +3,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn
 ----------------------------------------------------------------------------------------------------
-import standard struc.binary
+import logic struc.binary
 using tactic num binary eq_ops
 using decidable
 

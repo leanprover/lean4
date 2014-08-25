@@ -1,4 +1,4 @@
-import standard
+import logic
 namespace foo
   variable x : num.num
   check x

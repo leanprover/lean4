@@ -1,4 +1,4 @@
-import standard
+import logic
 
 variable N : Type
 variable α : N

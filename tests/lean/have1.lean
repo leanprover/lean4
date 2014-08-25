@@ -1,4 +1,4 @@
-import standard
+import logic
 using bool eq_ops tactic
 
 variables a b c : bool

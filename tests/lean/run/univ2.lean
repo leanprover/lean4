@@ -1,4 +1,4 @@
-import standard
+import logic
 
 hypothesis I : Type
 definition F (X : Type) : Type := (X → Prop) → Prop

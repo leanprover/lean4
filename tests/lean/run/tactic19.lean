@@ -1,4 +1,4 @@
-import standard
+import logic
 using tactic
 
 theorem tst {A : Type} {f : A → A → A} {a b c : A} (H1 : a = b) (H2 : b = c) : f a b = f b c
@@ -6,4 +6,3 @@ theorem tst {A : Type} {f : A → A → A} {a b c : A} (H1 : a = b) (H2 : b = c)
       apply (subst H2);
       apply refl;
       assumption
-

@@ -1,4 +1,4 @@
-import standard
+import logic
 
 namespace algebra
   inductive mul_struct (A : Type) : Type :=

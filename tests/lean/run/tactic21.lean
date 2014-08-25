@@ -1,4 +1,4 @@
-import standard
+import logic
 using tactic
 
 definition assump := eassumption
@@ -12,6 +12,3 @@ theorem tst2 {A : Type} {a b c d : A} {p : A → A → Prop} (Ha : p a c) (H1 : 
 (*
 print(get_env():find("tst2"):value())
 *)
-
-
-

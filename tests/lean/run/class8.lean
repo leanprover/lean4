@@ -1,4 +1,4 @@
-import standard
+import logic data.prod
 using num tactic prod
 
 inductive inh (A : Type) : Prop :=

@@ -1,4 +1,4 @@
-import standard
+import logic
 using bool
 
 variable list : Type.{1}
@@ -19,4 +19,3 @@ check a :: b :: nil
 check [a, b]
 check [a, b, c]
 check []
-

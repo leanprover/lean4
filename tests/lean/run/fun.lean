@@ -1,4 +1,4 @@
-import standard struc.function
+import logic struc.function
 using function num bool
 
 

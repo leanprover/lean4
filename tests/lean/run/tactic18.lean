@@ -1,4 +1,4 @@
-import standard
+import logic
 using tactic
 
 variable A : Type.{1}
@@ -9,4 +9,3 @@ theorem tst {a b c : A} (H1 : a = b) (H2 : b = c) : f a b = f b c
       apply (subst H2);
       apply refl;
       assumption
-

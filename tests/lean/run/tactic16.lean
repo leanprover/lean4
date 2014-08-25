@@ -1,4 +1,4 @@
-import standard data.string
+import logic data.string
 using tactic
 
 variable A : Type.{1}

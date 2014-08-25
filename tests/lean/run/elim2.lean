@@ -1,4 +1,4 @@
-import standard
+import logic
 using num tactic
 variable p : num → num → num → Prop
 axiom H1 : ∃ x y z, p x y z

@@ -1,4 +1,4 @@
-import standard
+import logic
 using num
 
 definition proj1 (x : num) (y : num) := x

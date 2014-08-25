@@ -1,4 +1,4 @@
-import standard
+import logic
 
 namespace S1
 hypothesis I : Type

@@ -1,4 +1,4 @@
-import standard
+import logic
 using num tactic
 
 inductive inh (A : Type) : Type :=

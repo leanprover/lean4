@@ -99,6 +99,9 @@
   "Kill lean-server process. Return t if killed, nil if nothing to kill"
   (interactive)
   (cond
+   ((and lean-global-server-process (process-exit-status lean-global-server-process))
+    (setq lean-global-server-process nil)
+    t)
    (lean-global-server-process
     (when (interactive-p)
       (message "lean-server-kill-process: %S killed" lean-global-server-process))
@@ -123,7 +126,7 @@
          (when (interactive-p)
            (message "lean-server-get-process: %S is not live, kill it"
                     lean-global-server-process))
-         (lean-server-kill-process))
+         (lean-server-restart-process))
         (t lean-global-server-process)))
 
 (defun lean-server-get-buffer ()

@@ -18,10 +18,10 @@ where TYPE := INFO | SET | EVAL | ERROR,
 (defvar lean-global-server-process nil
   "lean server process")
 
-(defvar lean-global-server-buffer ""
+(defvar lean-global-server-buffer nil
   "Global buffer used to store messages sent by lean server")
 
-(defvar lean-global-server-current-file-name ""
+(defvar lean-global-server-current-file-name nil
   "Current filename that lean server is processing")
 
 (defvar-local lean-changed-lines nil

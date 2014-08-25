@@ -1,18 +1,19 @@
 standard.hott
 =============
 
-A library for Homotopy Type Theory, which avoid the use of prop. Many
-standard types are imported from `data`, but then theorems
-are proved about them using predicativee versions of the logical
-operations. For example, we use the path type, products, sums, sigmas,
-and the empty type, rather than equality, and, or, exists, and
-false. These operations take values in Type rather than Prop.
+A library for homotopy type theory. HoTT is consistent with the
+existence of an imprediative, proof irrelevant `Prop`, but favors
+"proof relevant," predicative versions of the usual logical
+constructions. For example, we use the path type, products, sums,
+sigmas, and the empty type, rather than equality, and, or, exists, and
+false. These operations take values in `Type` rather than `Prop`.
 
-We view Homotopy Theory Theory as compatible with the axiomatic
-framework of Lean, simply ignoring the impredicative, proof irrelevant
-Prop. This is o.k. as long as we do not import additional axioms like
-propositional extensionality or Hilbert choice, which are incompatible
-with HoTT.
+Note that the univalence axiom is inconsistent with classical axioms
+such as propositional extensionality or Hilbert choice, and we have to
+ensure that the library does not import these.
+
+The modules imported by the command `import hott` are found in the
+file [default](default.lean).
 
 * [path](path.lean) : the path type and operations on paths
 * [equiv](equiv.lean) : equivalence of types

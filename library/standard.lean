@@ -1,8 +1,10 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura
+-- Authors: Leonardo de Moura, Jeremy Avigad
 
--- changing to this breaks some tests:
--- import logic data tools.tactic
+-- standard
+-- ========
 
-import logic tools.tactic data.num data.string data.prod logic.connectives.cast
+-- The constructive core of Lean's library.
+
+import logic data tools.tactic

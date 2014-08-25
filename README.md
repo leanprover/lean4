@@ -21,7 +21,7 @@ About
 - [To Do list](doc/todo.md)
 - [Authors](doc/authors.md)
 - [Tutorial](doc/lean/tutorial.org)
-- [Standard Library](library/standard.md)
+- [Library](library/library.md)
 
 Requirements
 ------------

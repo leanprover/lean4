@@ -165,7 +165,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('INFO    (lean-flush-changed-lines))
     ('CHECK   )
     ('SET     ())
-    ('EVAL    ())))
+    ('EVAL    (lean-server-check-current-file))))
 
 (defun lean-server-after-send-cmd (cmd)
   "Operations to perform after sending a command."

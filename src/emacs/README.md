@@ -11,6 +11,8 @@ Requirement
 ``lean-mode`` requires [Emacs 24][emacs24] and following (optional)
 packages which can be installed via <kbd>M-x package-install</kbd>.
 
+ - [dash][dash]
+ - [dash-functional][dash]
  - [flycheck][flycheck]
  - [fill-column-indicator][fci]
  - [whitespace-cleanup-mode][wcm]
@@ -24,11 +26,12 @@ code:
              '("marmalade" . "http://marmalade-repo.org/packages/") t)
 ```
 
-[emacs24]: http://www.gnu.org/software/emacs/
-[flycheck]: http://flycheck.readthedocs.org/en/latest/
+[emacs24]: http://www.gnu.org/software/emacs
+[flycheck]: http://flycheck.readthedocs.org/en/latest
 [fci]: https://github.com/alpaker/Fill-Column-Indicator
 [wcm]: https://github.com/purcell/whitespace-cleanup-mode
-[MELPA]: http://melpa.milkbox.net/
+[MELPA]: http://melpa.milkbox.net
+[dash]: https://github.com/magnars/dash.el
 
 Setup
 -----
@@ -58,8 +61,9 @@ Key Bindings
 |-------------------|-----------------------------------|
 |<kbd>C-c C-x</kbd> | lean-std-exe                      |
 |<kbd>C-c C-l</kbd> | lean-std-exe                      |
-|<kbd>C-c C-k</kbd> | lean-hott-exe                     |
 |<kbd>C-c C-t</kbd> | lean-eldoc-documentation-function |
 |<kbd>C-c C-f</kbd> | lean-fill-placeholder             |
 |<kbd>M-.</kbd>     | lean-find-tag                     |
 |<kbd>TAB</kbd>     | lean-complete-tag                 |
+|<kbd>C-c C-o</kbd> | lean-set-option                   |
+|<kbd>C-c C-e</kbd> | lean-eval-cmd                     |

@@ -8,6 +8,7 @@
 (require 'lean-cmd)
 (require 'lean-info)
 (require 'lean-util)
+(require 'flycheck)
 
 ;; Parameters
 ;; ==========
@@ -15,62 +16,60 @@
 (defvar-local lean-server-buffer-name  "*lean-server*")
 (defvar-local lean-server-option       "--server")
 
+;; Log Function
+;; ============
+(defun lean-server-log (format-string &rest args)
+  "Display a message at the bottom of the *lean-server* buffer."
+  (with-current-buffer (lean-server-get-buffer)
+    (goto-char (point-max))
+    (insert (apply 'format (concat format-string "\n")  args))))
+
 ;; How to read data from an async process
 ;; ======================================
-(defun lean-server-has-error-p (buf-str)
-  "Return true if a buffer-string has --ERROR"
-  (lean-string-contains-line-p buf-str "-- ERROR"))
+(defconst lean-server-syntax-pattern
+  `((INFO ,(rx line-start "-- BEGININFO" line-end)
+          ,(rx line-start (group "-- ENDINFO") line-end))
+    (SET  ,(rx line-start "-- BEGINSET"  line-end)
+          ,(rx line-start (group "-- ENDSET")  line-end))
+    (EVAL ,(rx line-start "-- BEGINEVAL"  line-end)
+          ,(rx line-start (group "-- ENDEVAL")  line-end))
+    (ERROR ,(rx line-start "-- " (0+ not-newline) line-end)
+           ,(rx line-start (group "-- ERROR")  line-end)))
+  "Regular expression pattern for lean-server message syntax")
 
-(defun lean-server-ready-to-process-p (buf-str)
-  "Return true if a buffer-string is ready to process"
-  (lean-string-contains-line-p buf-str "-- ENDINFO"))
+(defun lean-server-split-buffer (buf-str beg-regex end-regex)
+  ""
+  (let ((beg (string-match beg-regex buf-str))
+        (end (string-match end-regex buf-str))
+        pre body post)
+    (when (and beg end)
+      (setq end (match-end 1))
+      (setq pre  (substring-no-properties buf-str 0 beg))
+      (setq body (substring-no-properties buf-str beg end))
+      (setq post (substring-no-properties buf-str end))
+      `(,pre ,body ,post))))
 
-(defun lean-server-cut-prefix (buf-str prefix)
-  "Cut prefix from the string"
-  (cond ((string-prefix-p prefix buf-str)
-         (substring-no-properties buf-str (length prefix)))
-        (t
-         (let* ((new-prefix (concat "\n" prefix))
-                (beg-pos    (search new-prefix buf-str))
-                (len        (length new-prefix)))
-           (when (not beg-pos)
-             error (concat prefix " is not found in buf-str " buf-str))
-           (substring-no-properties buf-str (+ beg-pos len))))))
-
-;; -- Test
-(cl-assert (string= (lean-server-cut-prefix "-- BEGININFO\nblablabla" "-- BEGININFO\n")
-                    "blablabla"))
-(cl-assert (string= (lean-server-cut-prefix "line1\nline2\n-- BEGININFO\nblablabla" "-- BEGININFO\n")
-                    "blablabla"))
-
+(defun lean-server-check-buffer-and-partition (buf-str)
+  "Return the status of buffer."
+  (let (result)
+    (cl-loop for (type beg-regex end-regex) in lean-server-syntax-pattern
+             do (setq partition-result (lean-server-split-buffer buf-str beg-regex end-regex))
+             if partition-result
+             return  `(,type ,partition-result))))
 
 (defun lean-server-process-received-message (buf str)
   "Process received message from lean-server"
-  (setq lean-global-info-buffer (concat lean-global-info-buffer str))
-  (with-current-buffer buf
-    (goto-char (point-max))
-    (insert "Received String:\n")
-    (insert str)
-    (insert "\n------------------\n")
-    (goto-char (point-max)))
-  (cond ((lean-server-ready-to-process-p lean-global-info-buffer)
-         (setq lean-global-info-buffer (lean-server-cut-prefix lean-global-info-buffer "-- BEGININFO\n"))
-         (setq lean-global-info-list (lean-infolist-parse lean-global-info-buffer))
-         (setq lean-global-info-processed t)
-         ;; clear lean-global-info-buffer after processing
-         (setq lean-global-info-buffer "")
-         (with-current-buffer buf
-           (goto-char (point-max))
-           (prin1 lean-global-info-list buf)
-           (insert "\n=============================\n")))
-        ((lean-server-has-error-p lean-global-info-buffer)
-         (setq lean-global-info-processed t)
-         ;; clear lean-global-info-buffer after processing
-         (setq lean-global-info-buffer "")
-         (with-current-buffer buf
-           (goto-char (point-max))
-           (insert "Error Detected\n")
-           (insert "=============================\n")))))
+  (lean-server-log "Received String: %s" str)
+  ;; Append to buffer
+  (setq lean-global-server-buffer (concat lean-global-server-buffer str))
+  (let ((partition-result (lean-server-check-buffer-and-partition lean-global-server-buffer)))
+    (pcase partition-result
+      (`(,type (,pre ,body ,post))
+       (lean-server-log "PRE: %s" pre)
+       (lean-server-log "BODY: %s" body)
+       (lean-server-log "POST: %s" post)
+       (setq lean-global-server-message-to-process `(,type ,pre ,body))
+       (setq lean-global-server-buffer post)))))
 
 (defun lean-server-output-filter (process string)
   "Filter function attached to lean-server process"
@@ -90,37 +89,41 @@
                         lean-server-option)))
     (set-process-coding-system lean-server-process 'utf-8 'utf-8)
     (set-process-filter lean-server-process 'lean-server-output-filter)
-    (setq lean-global-info-buffer "")
+    (setq lean-global-server-buffer "")
     (setq lean-global-server-current-file-name "")
-    (with-current-buffer (process-buffer lean-server-process)
-      (goto-char (point-max))
-      (insert "Server Created.\n")
-      (insert lean-global-server-current-file-name))
+    (setq lean-global-server-message-to-process nil)
+    (setq lean-global-server-process lean-server-process)
+    (message "lean-server process %S created." lean-server-process)
     lean-server-process))
 
 (defun lean-server-kill-process ()
-  "Kill lean-server process."
+  "Kill lean-server process. Return t if killed, nil if nothing to kill"
   (interactive)
-  (let ((proc (get-process lean-server-process-name)))
-    (when proc
-      (with-current-buffer (process-buffer proc)
-        (goto-char (point-max))
-        (insert "Server Killed.\n")
-        (setq lean-global-server-current-file-name nil))
-      (kill-process proc))))
+  (cond
+     (lean-global-server-process
+      (message "lean-server-kill-process: %S killed" lean-global-server-process)
+      (kill-process lean-global-server-process)
+      (setq lean-global-server-process nil)
+      t)
+     (t (message "lean-server-kill-process: no process to kill")
+        nil)))
 
 (defun lean-server-restart-process ()
   "Restart lean-server process."
   (interactive)
-  (lean-server-kill-process)
-  (lean-server-create-process))
+  (and (lean-server-kill-process)
+       (lean-server-create-process)))
 
 (defun lean-server-get-process ()
   "Get lean-server process. If needed, create a one."
-  (let ((proc (get-process lean-server-process-name)))
-    (cond ((not proc) (lean-server-create-process))
-          ((not (process-live-p proc)) (error "TODO(soonhok): need to kill and recreate one"))
-          (t proc))))
+  (cond ((not lean-global-server-process)
+           (message "lean-server-get-process: no process")
+           (lean-server-create-process))
+        ((not (process-live-p lean-global-server-process))
+         (message "lean-server-get-process: %S is not live, kill it"
+                  lean-global-server-process)
+         (lean-server-kill-process))
+        (t lean-global-server-process)))
 
 (defun lean-server-get-buffer ()
   "Get lean-server buffer."
@@ -148,29 +151,30 @@ If it's not the same with (buffer-file-name), send VISIT cmd."
 (defun lean-server-before-send-cmd (cmd)
   "Operations to perform before sending a command."
   (cl-case (lean-cmd-type cmd)
-    ('LOAD    ())
-    ('VISIT   ())
-    ('REPLACE (lean-server-check-current-file))
-    ('INSERT  (lean-server-check-current-file))
-    ('REMOVE  (lean-server-check-current-file))
-    ('INFO    (lean-server-check-current-file)
-              (lean-flush-changed-lines)
-              (setq lean-global-info-processed nil)
-              (setq lean-global-info-buffer ""))
-    ('CHECK   (lean-server-check-current-file))))
-
-(defun lean-server-after-send-cmd (cmd)
-  "Operations to perform after sending a command."
-  (cl-case (lean-cmd-type cmd)
     ('LOAD    (setq lean-global-server-current-file-name
                     (lean-cmd-load-get-file-name cmd)))
     ('VISIT   (setq lean-global-server-current-file-name
                     (lean-cmd-visit-get-file-name cmd)))
+    ('REPLACE (lean-server-check-current-file))
+    ('INSERT  (lean-server-check-current-file))
+    ('REMOVE  (lean-server-check-current-file))
+    ('INFO    (lean-flush-changed-lines))
+    ('CHECK   )
+    ('SET     ())
+    ('EVAL    ())))
+
+(defun lean-server-after-send-cmd (cmd)
+  "Operations to perform after sending a command."
+  (cl-case (lean-cmd-type cmd)
+    ('LOAD    ())
+    ('VISIT   ())
     ('REPLACE ())
     ('INSERT  ())
     ('REMOVE  ())
     ('INFO    ())
-    ('CHECK   ())))
+    ('CHECK   ())
+    ('SET     ())
+    ('EVAL    ())))
 
 (defun lean-server-send-cmd (cmd)
   "Send string to lean-server."
@@ -178,11 +182,12 @@ If it's not the same with (buffer-file-name), send VISIT cmd."
         (string-to-send (concat (lean-cmd-to-string cmd) "\n")))
     (lean-server-before-send-cmd cmd)
     ;; Logging
-    (with-current-buffer (lean-server-get-buffer)
-      (goto-char (point-max))
-      (insert "Send\n===========\n")
-      (insert string-to-send)
-      (insert "==========\n"))
+    (lean-server-log
+     (concat "Send" "\n"
+             "================" "\n"
+             "%s\n"
+             "================" "\n")
+     string-to-send)
     (process-send-string proc string-to-send))
   (lean-server-after-send-cmd cmd))
 

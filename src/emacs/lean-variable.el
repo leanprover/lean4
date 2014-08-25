@@ -4,14 +4,22 @@
 ;; Author: Soonho Kong
 ;;
 
-(defvar lean-global-info-list nil
-  "A placeholder we save the info-list that we get from lean server")
+(defvar lean-global-info-record nil
+  "A placeholder we save the info-record that we get from lean server")
 
-(defvar lean-global-info-processed nil
-  "A shared variable to indicate the finished processing of lean-info")
+(defvar lean-global-server-message-to-process nil
+  "A shared variable contains a received message to process.
 
-(defvar lean-global-info-buffer ""
-  "local buffer used to store messages sent by lean server")
+A message is in the form of (TYPE PRE BODY)
+where TYPE := INFO | SET | EVAL | ERROR,
+      PRE is a server message comes before the message
+      BODY is a body of the received message.")
+
+(defvar lean-global-server-process nil
+  "lean server process")
+
+(defvar lean-global-server-buffer ""
+  "Global buffer used to store messages sent by lean server")
 
 (defvar lean-global-server-current-file-name ""
   "Current filename that lean server is processing")

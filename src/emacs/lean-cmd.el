@@ -185,6 +185,13 @@ It has the effect of evaluating a command in the end of the current file"
   "Convert Check command to string"
   (format "CHECK %d\n%s" (lean-cmd-check-get-line-number cmd)
           (lean-cmd-check-get-line cmd)))
+(defun lean-cmd-set-to-string (cmd)
+  "Convert Set command to string"
+  (format "SET\n%s %s" (lean-cmd-set-get-option-name cmd)
+          (lean-cmd-set-get-option-value cmd)))
+(defun lean-cmd-eval-to-string (cmd)
+  "Convert Eval command to string"
+  (format "EVAL\n%s" (lean-cmd-eval-get-lean-cmd cmd)))
 
 (defun lean-cmd-to-string (cmd)
   "Convert command to string"
@@ -195,7 +202,9 @@ It has the effect of evaluating a command in the end of the current file"
     ('INSERT  (lean-cmd-insert-to-string  cmd))
     ('REMOVE  (lean-cmd-remove-to-string  cmd))
     ('INFO    (lean-cmd-info-to-string    cmd))
-    ('CHECK   (lean-cmd-check-to-string   cmd))))
+    ('CHECK   (lean-cmd-check-to-string   cmd))
+    ('SET     (lean-cmd-set-to-string     cmd))
+    ('EVAL    (lean-cmd-eval-to-string    cmd))))
 
 ;; -- Test
 (cl-assert (string= (lean-cmd-to-string (lean-cmd-load "~/work/lean/basic.lean"))

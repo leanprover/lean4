@@ -571,13 +571,26 @@ struct default_converter : public converter {
         if (m_env.prop_proof_irrel()) {
             // Proof irrelevance support for Prop (aka Type.{0})
             auto tcs    = infer_type(c, t);
+            auto scs    = infer_type(c, s);
             expr t_type = tcs.first;
+            expr s_type = scs.first;
+            // remark: is_prop returns true only if t_type reducible to Prop.
+            // If t_type contains metavariables, then reduction can get stuck, and is_prop will return false.
             auto pcs    = is_prop(t_type, c);
             if (pcs.first) {
-                auto scs = infer_type(c, s);
-                auto dcs = is_def_eq(t_type, scs.first, c, jst);
+                auto dcs = is_def_eq(t_type, s_type, c, jst);
                 if (dcs.first)
                     return to_bcs(true, dcs.second + scs.second + pcs.second + tcs.second);
+            } else {
+                // If we can't stablish whether t_type is Prop, we try s_type.
+                pcs = is_prop(s_type, c);
+                if (pcs.first) {
+                    auto dcs = is_def_eq(t_type, s_type, c, jst);
+                    if (dcs.first)
+                        return to_bcs(true, dcs.second + scs.second + pcs.second + tcs.second);
+                }
+                // This procedure will miss the case where s_type and t_type cannot be reduced to Prop
+                // because they contain metavariables.
             }
         }
 

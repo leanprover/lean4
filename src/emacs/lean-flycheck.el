@@ -6,10 +6,8 @@
 
 (require 'lean-settings)
 
-(defvar lean-flycheck-initialized nil
-  "Return true if lean-flycheck has been initialized")
-
 (defun lean-flycheck-command ()
+  "Concat lean-flychecker-checker-name with options"
   (cl-concatenate 'list
                   `(,(lean-get-executable lean-flycheck-checker-name))
                   lean-flycheck-checker-options
@@ -18,29 +16,23 @@
 
 (defun lean-flycheck-init ()
   "Initialize lean-flychek checker"
-  (unless lean-flycheck-initialized
-    (require 'flycheck)
-    (eval
-     `(flycheck-define-checker lean-checker-file
-        "A Lean syntax checker (file)."
-        :command ,(lean-flycheck-command)
-        :error-patterns
-        ((error line-start "FLYCHECK_BEGIN ERROR\n"
-                (file-name) ":" line ":" column  ": error: "
+  (eval
+   `(flycheck-define-checker lean-checker
+      "A Lean syntax checker."
+      :command ,(lean-flycheck-command)
+      :error-patterns
+      ((error line-start "FLYCHECK_BEGIN ERROR\n"
+              (file-name) ":" line ":" column  ": error: "
+              (minimal-match
+               (message (one-or-more (one-or-more not-newline) "\n") ))
+              "FLYCHECK_END" line-end)
+       (warning line-start "FLYCHECK_BEGIN WARNING\n"
+                (file-name) ":" line ":" column  ": warning "
                 (minimal-match
                  (message (one-or-more (one-or-more not-newline) "\n") ))
-                "FLYCHECK_END" line-end)
-         (warning line-start "FLYCHECK_BEGIN WARNING\n"
-                  (file-name) ":" line ":" column  ": warning "
-                  (minimal-match
-                   (message (one-or-more (one-or-more not-newline) "\n") ))
-                  "FLYCHECK_END" line-end))
-        :modes (lean-mode)
-        :predicate
-        (lambda () (and buffer-file-name
-                   (string= "lean" (file-name-extension buffer-file-name))))))
-    (add-to-list 'flycheck-checkers 'lean-checker-file)
-    (setq lean-flycheck-initialized t)))
+                "FLYCHECK_END" line-end))
+      :modes (lean-mode)))
+  (add-to-list 'flycheck-checkers 'lean-checker))
 
 (defun lean-flycheck-turn-on ()
   (interactive)
@@ -48,7 +40,6 @@
     (when (interactive-p)
       (message "use flycheck in lean-mode"))
     (setq lean-flycheck-use t))
-  (lean-flycheck-init)
   (flycheck-mode t))
 
 (defun lean-flycheck-turn-off ()
@@ -64,9 +55,6 @@
   (if lean-flycheck-use
       (lean-flycheck-turn-off)
     (lean-flycheck-turn-on)))
-
-(add-hook 'lean-mode-hook '(lambda ()
-             (when lean-flycheck-use (lean-flycheck-turn-on))))
 
 (defun lean-flycheck-try-parse-error-with-pattern (err pattern)
     "Try to parse a single ERR with a PATTERN.

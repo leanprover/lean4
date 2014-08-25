@@ -40,6 +40,14 @@
   :group 'lean
   :type 'boolean)
 
+(defcustom lean-eldoc-use t
+  "Use eldoc mode for lean."
+  :group 'lean
+  :type 'boolean)
+
+(defcustom lean-eldoc-nay-retry-time 0.1
+  "When eldoc-function had nay, try again after this amount of time.")
+
 (defcustom lean-flycheck-checker-name "lmake"
   "lean-flychecker checker name"
   :group 'lean

@@ -2,8 +2,8 @@ standard.hott
 =============
 
 A library for Homotopy Type Theory, which avoid the use of prop. Many
-standard types are imported from `standard.data`, but then theorems
-are proved about them using predicate versions of the logical
+standard types are imported from `data`, but then theorems
+are proved about them using predicativee versions of the logical
 operations. For example, we use the path type, products, sums, sigmas,
 and the empty type, rather than equality, and, or, exists, and
 false. These operations take values in Type rather than Prop.
@@ -18,4 +18,4 @@ with HoTT.
 * [equiv](equiv.lean) : equivalence of types
 * [trunc](trunc.lean) : truncatedness of types
 * [funext](funext.lean) : the functional extensionality axiom
-* [inhabited](inhabited.lean) : a predicative version of the inhabited class
+* [fibrant](fibrant.lean) : a class for fibrant types

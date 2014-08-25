@@ -63,6 +63,19 @@ Lean produces a possible empty sequence of entries terminated with '--ENDINFO'"
   "Check whether the text editor and Lean have the 'same view' of the current file + modifications"
   `(CHECK ,line-number ,line))
 
+(defun lean-cmd-set (option-name option-value)
+  "Set a Lean option [option-name] with [option-value].
+
+[option-name] must be a valid Lean option. Any option that can be
+set using the command set_option in a ‘.lean’ file is supported."
+  `(SET ,option-name ,option-value))
+
+(defun lean-cmd-eval (lean-cmd)
+  "Evaluates a Lean command [lean-cmd].
+
+It has the effect of evaluating a command in the end of the current file"
+  `(EVAL ,lean-cmd))
+
 ;; Type
 ;; ====
 (defun lean-cmd-type (cmd)
@@ -90,6 +103,12 @@ Lean produces a possible empty sequence of entries terminated with '--ENDINFO'"
   (cl-second check-cmd))
 (defun lean-cmd-check-get-line (check-cmd)
   (cl-third check-cmd))
+(defun lean-cmd-set-get-option-name (set-cmd)
+  (cl-second set-cmd))
+(defun lean-cmd-set-get-option-value (set-cmd)
+  (cl-third set-cmd))
+(defun lean-cmd-eval-get-lean-cmd (eval-cmd)
+  (cl-second eval-cmd))
 
 ;; -- Test
 (cl-assert (string= (lean-cmd-load-get-file-name (lean-cmd-load "nat.lean"))
@@ -130,6 +149,15 @@ Lean produces a possible empty sequence of entries terminated with '--ENDINFO'"
 (cl-assert (string= (lean-cmd-check-get-line
                      (lean-cmd-replace 34 "∀ (n : nat), ne (succ n) zero"))
                     "∀ (n : nat), ne (succ n) zero"))
+(cl-assert (string= (lean-cmd-set-get-option-name
+                     (lean-cmd-set "pp.implicit" "true"))
+                    "pp.implicit"))
+(cl-assert (string= (lean-cmd-set-get-option-value
+                     (lean-cmd-set "pp.implicit" "true"))
+                    "true"))
+(cl-assert (string= (lean-cmd-eval-get-lean-cmd
+                     (lean-cmd-eval "print 3"))
+                    "print 3"))
 
 ;; to-string functions
 ;; ===================

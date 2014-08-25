@@ -25,9 +25,9 @@
     (modify-syntax-entry ?\] ")[" st)
     (modify-syntax-entry ?\{ "(}" st)
     (modify-syntax-entry ?\} "){" st)
-    (modify-syntax-entry ?\( "() 1nb" st)
-    (modify-syntax-entry ?\) ")( 4nb" st)
 
+    ;; comment
+    (modify-syntax-entry ?/ "_ 14nb" st)
     (modify-syntax-entry ?- "_ 123" st)
     (modify-syntax-entry ?\n ">" st)
 
@@ -37,7 +37,7 @@
 
     ;; Lean operator chars
     (mapc #'(lambda (ch) (modify-syntax-entry ch "_" st))
-          "!#$%&*+./<=>@^|~:")
+          "!#$%&*+.<=>@^|~:")
 
     ;; Whitespace is whitespace
     (modify-syntax-entry ?\  " " st)

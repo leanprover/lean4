@@ -25,7 +25,6 @@
              (replace-regexp-in-string "?M_[0-9]+" "_" (lean-info-synth-body-str synth))))
         (when (search " " synth-str)
           (setq synth-str (concat "(" synth-str ")")))
-        (message "synth-str: %s" synth-str)
         (delete-forward-char 1)
         (insert synth-str)))))
 
@@ -37,35 +36,79 @@
     (cond
      ((and info-record (lean-info-record-nay info-record))
       (lean-server-log "NAY Detected")
-      (run-with-idle-timer lean-eldoc-nay-retry-time nil 'lean-eldoc-documentation-function))
+      (run-with-idle-timer lean-eldoc-nay-retry-time
+                           nil
+                           'lean-eldoc-documentation-function)
+      nil)
      (info-record
       (setq info-string (lean-info-record-to-string info-record))
       (when info-string
         (message "%s" info-string))))))
 
 ;; =======================================================
-;; SET/EVAL
+;; set option
 ;; =======================================================
 
+(defun lean-set-parse-string (str)
+  "Parse the output of eval command."
+  (let ((str-list (split-string str "\n")))
+    ;; Drop the first line "-- BEGINSET" and
+    ;; the last line "-- ENDSET"
+    (setq str-list
+          (-take (- (length str-list) 2)
+                 (-drop 1 str-list)))
+    (string-join str-list "\n")))
+
 (defun lean-set-option (option-name option-value)
-  "Get info list from lean server using file-name and line-number"
-  (lean-server-send-cmd (lean-cmd-visit file-name))
-  (lean-server-send-cmd (lean-cmd-set line-number))
+  "Set Lean option."
+  (interactive "sOption Name: \nsOption Value: ")
+  (lean-server-send-cmd (lean-cmd-set option-name option-value))
   (while (not lean-global-server-message-to-process)
     (accept-process-output (lean-server-get-process) 0 50 t))
   (pcase lean-global-server-message-to-process
-    (`(INFO ,pre ,body)
+    (`(SET ,pre ,body)
      (lean-server-log "The following pre-message will be thrown away:")
      (lean-server-log "%s" pre)
      (setq lean-global-server-message-to-process nil)
-     (lean-info-record-parse body file-name column-number))
+     (lean-server-log "We have the following response from lean-server")
+     (message "%s" (lean-set-parse-string body)))
     (`(,type ,pre , body)
      (lean-server-log "The following pre-message will be thrown away:")
      (lean-server-log "%s" pre)
-     (lean-server-log "Something other than INFO detected: %S" type)
-     ;; (lean-server-log "Body: %S" body)
-     (setq lean-global-server-message-to-process nil)))
-  )
+     (lean-server-log "Something other than SET detected: %S" type)
+     (setq lean-global-server-message-to-process nil))))
+
+;; =======================================================
+;; eval
+;; =======================================================
+
+(defun lean-eval-parse-string (str)
+  "Parse the output of eval command."
+  (let ((str-list (split-string str "\n")))
+    ;; Drop the first line "-- BEGINEVAL" and
+    ;; the last line "-- ENDEVAL"
+    (setq str-list
+          (-take (- (length str-list) 2)
+                 (-drop 1 str-list)))
+    (string-join str-list "\n")))
+
+(defun lean-eval-cmd (lean-cmd)
+  "Evaluate lean command."
+  (interactive "sLean CMD: ")
+  (lean-server-send-cmd (lean-cmd-eval lean-cmd))
+  (while (not lean-global-server-message-to-process)
+    (accept-process-output (lean-server-get-process) 0 50 t))
+  (pcase lean-global-server-message-to-process
+    (`(EVAL ,pre ,body)
+     (lean-server-log "The following pre-message will be thrown away:")
+     (lean-server-log "%s" pre)
+     (setq lean-global-server-message-to-process nil)
+     (message "%s" (lean-eval-parse-string body)))
+    (`(,type ,pre , body)
+     (lean-server-log "The following pre-message will be thrown away:")
+     (lean-server-log "%s" pre)
+     (lean-server-log "Something other than EVAL detected: %S" type)
+     (setq lean-global-server-message-to-process nil))))
 
 ;; =======================================================
 ;; Change Handling

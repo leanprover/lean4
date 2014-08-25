@@ -5,82 +5,87 @@
 ;;
 
 (require 'cl-lib)
+(require 'dash)
+(require 'dash-functional)
+(require 'flycheck)
 (require 'lean-util)
 (require 'lean-debug)
 
 ;; Type Information
 ;; ----------------
-(defun lean-typeinfo-type (typeinfo)
+(defun lean-info-type-kind (typeinfo)
   (cl-first typeinfo))
-(defun lean-typeinfo-p (typeinfo)
-  (equal (lean-typeinfo-type typeinfo) 'TYPE))
-(defun lean-typeinfo-pos (typeinfo)
+(defun lean-info-type-p (typeinfo)
+  (pcase typeinfo
+    (`TYPE t)
+    ((pred stringp) (string-prefix-p "-- TYPE" typeinfo))
+    ((pred listp) (and (lean-info-type-p (cl-first typeinfo))))))
+(defun lean-info-type-pos (typeinfo)
   (cl-second typeinfo))
-(defun lean-typeinfo-str-p (str)
-  (string-prefix-p "-- TYPE|" str))
-(defun lean-typeinfo-str-seq-p (seq)
-  (lean-typeinfo-str-p (cl-first seq)))
-(defun lean-typeinfo-parse-header (str)
+(defun lean-info-type-parse-header (str)
   (let ((items (split-string str "|")))
     (list (string-to-number (cl-second items))
           (string-to-number (cl-third items)))))
-(defun lean-typeinfo-parse (seq)
-  (let ((header (lean-typeinfo-parse-header (car seq)))
+(defun lean-info-type-parse (seq)
+  (when (lean-info-type-p seq)
+    (let ((header (lean-info-type-parse-header (car seq)))
         (body (cdr seq)))
-    `(TYPE ,header ,body)))
-(defun lean-typeinfo-body (typeinfo)
+    `(TYPE ,header ,body))))
+(defun lean-info-type-body (typeinfo)
   (cl-third typeinfo))
-(defun lean-typeinfo-body-str (typeinfo)
-  (lean-string-join (lean-typeinfo-body typeinfo) "\n"))
+(defun lean-info-type-body-str (typeinfo)
+  (string-join (lean-info-type-body typeinfo) "\n"))
 
 ;; -- Test
-(cl-assert (lean-typeinfo-str-p "-- TYPE|121|2"))
-(cl-assert (equal (lean-typeinfo-parse-header "-- TYPE|121|2")
+(cl-assert (lean-info-type-p 'TYPE))
+(cl-assert (lean-info-type-p "-- TYPE|121|2"))
+(cl-assert (lean-info-type-p '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+(cl-assert (equal (lean-info-type-parse-header "-- TYPE|121|2")
                   '(121 2)))
-(cl-assert (lean-typeinfo-str-seq-p '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
-(cl-assert (equal (lean-typeinfo-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))"))
+(cl-assert (equal (lean-info-type-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))"))
                   '(TYPE
                     (121 2)
                     ("not (eq zero (succ m'))"
                      "→ decidable (eq zero (succ m'))"))))
 (cl-assert (equal
-            (lean-typeinfo-pos
-             (lean-typeinfo-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+            (lean-info-type-pos
+             (lean-info-type-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
             '(121 2)))
 
 ;; Overload Information
 ;; --------------------
 
-(defun lean-overload-type (overload)
+(defun lean-info-overload-type (overload)
   (cl-first overload))
-(defun lean-overload-p (overload)
-  (equal (lean-overload-type overload) 'OVERLOAD))
-(defun lean-overload-pos (overload)
+(defun lean-info-overload-p (overload)
+  (pcase overload
+    (`OVERLOAD t)
+    ((pred stringp) (string-prefix-p "-- OVERLOAD" overload))
+    ((pred listp) (and (lean-info-overload-p (cl-first overload))))))
+(defun lean-info-overload-pos (overload)
   (cl-second overload))
-(defun lean-overload-names (overload)
+(defun lean-info-overload-names (overload)
   (cl-loop for seq in (cl-third overload)
-           collect (lean-string-join seq "\n")))
-(defun lean-overload-str-p (str)
-  (string-prefix-p "-- OVERLOAD|" str))
-(defun lean-overload-str-seq-p (seq)
-  (lean-overload-str-p (cl-first seq)))
-(defun lean-overload-parse-header (str)
+           collect (string-join seq "\n")))
+(defun lean-info-overload-parse-header (str)
   (let ((items (split-string str "|")))
     (list (string-to-number (cl-second items))
           (string-to-number (cl-third items)))))
-(defun lean-overload-parse (seq)
-  (let ((header (lean-overload-parse-header (car seq)))
-        (body (lean-split-seq (cdr seq) "--")))
-    `(OVERLOAD ,header ,body)))
+(defun lean-info-overload-parse (seq)
+  (when (lean-info-overload-p seq)
+    (let ((header (lean-info-overload-parse-header (car seq)))
+        (body (-split-on "--" (cdr seq))))
+    `(OVERLOAD ,header ,body))))
 
 ;; -- Test
-(cl-assert (lean-overload-str-p "-- OVERLOAD|121|2"))
-(cl-assert (equal (lean-overload-parse-header "-- OVERLOAD|121|2")
+(cl-assert (lean-info-overload-p 'OVERLOAD))
+(cl-assert (lean-info-overload-p "-- OVERLOAD|121|2"))
+(cl-assert (lean-info-overload-p '("-- OVERLOAD|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+(cl-assert (equal (lean-info-overload-parse-header "-- OVERLOAD|121|2")
                   '(121 2)))
-(cl-assert (lean-overload-str-seq-p '("-- OVERLOAD|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
 (cl-assert
  (equal
-  (lean-overload-parse
+  (lean-info-overload-parse
    '("-- OVERLOAD|121|2"
      "not (eq zero (succ m'))"
      "→ decidable (eq zero (succ m'))"
@@ -95,8 +100,8 @@
               ("not (eq one (succ m'))" "→ decidable (eq zero (succ m'))")
               ("not (eq two (succ m'))" "→ decidable (eq zero (succ m'))")))))
 (cl-assert (equal
-            (lean-overload-pos
-             (lean-overload-parse
+            (lean-info-overload-pos
+             (lean-info-overload-parse
               '("-- OVERLOAD|121|2"
                 "not (eq zero (succ m'))"
                 "→ decidable (eq zero (succ m'))"
@@ -107,8 +112,7 @@
                 "not (eq two (succ m'))"
                 "→ decidable (eq zero (succ m'))")))
             '(121 2)))
-
-(cl-assert (equal (lean-overload-names (lean-overload-parse
+(cl-assert (equal (lean-info-overload-names (lean-info-overload-parse
                                         '("-- OVERLOAD|121|2"
                                           "not (eq zero (succ m'))"
                                           "→ decidable (eq zero (succ m'))"
@@ -124,157 +128,167 @@
 
 ;; Synth Information
 ;; ----------------
-(defun lean-synth-type (synth)
+(defun lean-info-synth-type (synth)
   (cl-first synth))
-(defun lean-synth-p (synth)
-  (equal (lean-synth-type synth) 'SYNTH))
-(defun lean-synth-pos (synth)
+(defun lean-info-synth-p (synth)
+  (pcase synth
+    (`SYNTH t)
+    ((pred stringp) (string-prefix-p "-- SYNTH" synth))
+    ((pred listp) (and (lean-info-synth-p (cl-first synth))))))
+(defun lean-info-synth-pos (synth)
   (cl-second synth))
-(defun lean-synth-str-p (str)
-  (string-prefix-p "-- SYNTH|" str))
-(defun lean-synth-str-seq-p (seq)
-  (lean-synth-str-p (cl-first seq)))
-(defun lean-synth-parse-header (str)
+(defun lean-info-synth-parse-header (str)
   (let ((items (split-string str "|")))
     (list (string-to-number (cl-second items))
           (string-to-number (cl-third items)))))
-(defun lean-synth-parse (seq)
-  (let ((header (lean-synth-parse-header (car seq)))
-        (body (cdr seq)))
-    `(SYNTH ,header ,body)))
-(defun lean-synth-body (synth)
+(defun lean-info-synth-parse (seq)
+  (when (lean-info-synth-p seq)
+    (let ((header (lean-info-synth-parse-header (car seq)))
+          (body (cdr seq)))
+      `(SYNTH ,header ,body))))
+(defun lean-info-synth-body (synth)
   (cl-third synth))
-(defun lean-synth-body-str (synth)
-  (lean-string-join (lean-synth-body synth) "\n"))
+(defun lean-info-synth-body-str (synth)
+  (string-join (lean-info-synth-body synth) "\n"))
 
 ;; -- Test
-(cl-assert (lean-synth-str-p "-- SYNTH|121|2"))
-(cl-assert (equal (lean-synth-parse-header "-- SYNTH|121|2")
+(cl-assert (lean-info-synth-p 'SYNTH))
+(cl-assert (lean-info-synth-p "-- SYNTH|121|2"))
+(cl-assert (lean-info-synth-p '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+(cl-assert (equal (lean-info-synth-parse-header "-- SYNTH|121|2")
                   '(121 2)))
-(cl-assert (lean-synth-str-seq-p '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
-(cl-assert (equal (lean-synth-parse '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))"))
+(cl-assert (equal (lean-info-synth-parse '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))"))
                   '(SYNTH
                     (121 2)
                     ("not (eq zero (succ m'))"
                      "→ decidable (eq zero (succ m'))"))))
 (cl-assert (equal
-            (lean-synth-pos
-             (lean-synth-parse '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+            (lean-info-synth-pos
+             (lean-info-synth-parse '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
             '(121 2)))
 
 ;; Synth Information
 ;; ----------------
-(defun lean-identifier-type (identifier)
+(defun lean-info-identifier-type (identifier)
   (cl-first identifier))
-(defun lean-identifier-p (identifier)
-  (equal (lean-identifier-type identifier) 'IDENTIFIER))
-(defun lean-identifier-pos (identifier)
+(defun lean-info-identifier-p (identifier)
+  (pcase identifier
+    (`IDENTIFIER t)
+    ((pred stringp) (string-prefix-p "-- IDENTIFIER" identifier))
+    ((pred listp) (and (lean-info-identifier-p (cl-first identifier))))))
+(defun lean-info-identifier-pos (identifier)
   (cl-second identifier))
-(defun lean-identifier-str-p (str)
-  (string-prefix-p "-- IDENTIFIER|" str))
-(defun lean-identifier-str-seq-p (seq)
-  (lean-identifier-str-p (cl-first seq)))
-(defun lean-identifier-parse-header (str)
+(defun lean-info-identifier-parse-header (str)
   (let ((items (split-string str "|")))
     (list (string-to-number (cl-second items))
           (string-to-number (cl-third items)))))
-(defun lean-identifier-parse (seq)
-  (let ((header (lean-identifier-parse-header (car seq)))
-        (body (cdr seq)))
-    `(IDENTIFIER ,header ,body)))
-(defun lean-identifier-body (identifier)
+(defun lean-info-identifier-parse (seq)
+  (when (lean-info-identifier-p seq)
+    (let ((header (lean-info-identifier-parse-header (car seq)))
+          (body (cdr seq)))
+      `(IDENTIFIER ,header ,body))))
+(defun lean-info-identifier-body (identifier)
   (cl-third identifier))
-(defun lean-identifier-body-str (identifier)
-  (lean-string-join (lean-identifier-body identifier) "\n"))
+(defun lean-info-identifier-body-str (identifier)
+  (string-join (lean-info-identifier-body identifier) "\n"))
 
 ;; -- Test
-(cl-assert (lean-identifier-str-p "-- IDENTIFIER|121|2"))
-(cl-assert (equal (lean-identifier-parse-header "-- IDENTIFIER|121|2")
+(cl-assert (lean-info-identifier-p 'IDENTIFIER))
+(cl-assert (lean-info-identifier-p "-- IDENTIFIER|121|2"))
+(cl-assert (lean-info-identifier-p '("-- IDENTIFIER|121|2" "foo.f")))
+(cl-assert (equal (lean-info-identifier-parse-header "-- IDENTIFIER|121|2")
                   '(121 2)))
-(cl-assert (lean-identifier-str-seq-p '("-- IDENTIFIER|121|2" "foo.f")))
-(cl-assert (equal (lean-identifier-parse '("-- IDENTIFIER|121|2" "foo.f"))
+(cl-assert (equal (lean-info-identifier-parse '("-- IDENTIFIER|121|2" "foo.f"))
                   '(IDENTIFIER
                     (121 2)
                     ("foo.f"))))
 (cl-assert (equal
-            (lean-identifier-pos
-             (lean-identifier-parse '("-- IDENTIFIER|121|2" "foo.f")))
+            (lean-info-identifier-pos
+             (lean-info-identifier-parse '("-- IDENTIFIER|121|2" "foo.f")))
             '(121 2)))
 
 ;; Symbol Information
 ;; ----------------
-(defun lean-symbol-type (symbol)
+(defun lean-info-symbol-type (symbol)
   (cl-first symbol))
-(defun lean-symbol-p (symbol)
-  (equal (lean-symbol-type symbol) 'SYMBOL))
-(defun lean-symbol-pos (symbol)
+(defun lean-info-symbol-p (symbol)
+  (pcase symbol
+    (`SYMBOL t)
+    ((pred stringp) (string-prefix-p "-- SYMBOL" symbol))
+    ((pred listp) (and (lean-info-symbol-p (cl-first symbol))))))
+(defun lean-info-symbol-pos (symbol)
   (cl-second symbol))
-(defun lean-symbol-str-p (str)
-  (string-prefix-p "-- SYMBOL|" str))
-(defun lean-symbol-str-seq-p (seq)
-  (lean-symbol-str-p (cl-first seq)))
-(defun lean-symbol-parse-header (str)
+(defun lean-info-symbol-parse-header (str)
   (let ((items (split-string str "|")))
     (list (string-to-number (cl-second items))
           (string-to-number (cl-third items)))))
-(defun lean-symbol-parse (seq)
-  (let ((header (lean-symbol-parse-header (car seq)))
-        (body (cdr seq)))
-    `(SYMBOL ,header ,body)))
-(defun lean-symbol-body (symbol)
+(defun lean-info-symbol-parse (seq)
+  (when (lean-info-symbol-p seq)
+    (let ((header (lean-info-symbol-parse-header (car seq)))
+          (body (cdr seq)))
+      `(SYMBOL ,header ,body))))
+(defun lean-info-symbol-body (symbol)
   (cl-third symbol))
-(defun lean-symbol-body-str (symbol)
-  (lean-string-join (lean-symbol-body symbol) "\n"))
+(defun lean-info-symbol-body-str (symbol)
+  (string-join (lean-info-symbol-body symbol) "\n"))
 
 ;; -- Test
-(cl-assert (lean-symbol-str-p "-- SYMBOL|121|2"))
-(cl-assert (equal (lean-symbol-parse-header "-- SYMBOL|121|2")
+(cl-assert (lean-info-symbol-p 'SYMBOL))
+(cl-assert (lean-info-symbol-p "-- SYMBOL|121|2"))
+(cl-assert (lean-info-symbol-p (lean-info-symbol-parse '("-- SYMBOL|121|2" "→"))))
+(cl-assert (equal (lean-info-symbol-parse-header "-- SYMBOL|121|2")
                   '(121 2)))
-(cl-assert (lean-symbol-str-seq-p '("-- SYMBOL|121|2" "→")))
-(cl-assert (equal (lean-symbol-parse '("-- SYMBOL|121|2" "→"))
+(cl-assert (lean-info-symbol-p '("-- SYMBOL|121|2" "→")))
+(cl-assert (equal (lean-info-symbol-parse '("-- SYMBOL|121|2" "→"))
                   '(SYMBOL
                     (121 2)
                     ("→"))))
 (cl-assert (equal
-            (lean-symbol-pos
-             (lean-symbol-parse '("-- SYMBOL|121|2" "→")))
+            (lean-info-symbol-pos
+             (lean-info-symbol-parse '("-- SYMBOL|121|2" "→")))
             '(121 2)))
 
+(defun lean-info-id-symbol-body-str (info)
+  (case (lean-info-kind info)
+    ('IDENTIFIER (string-join (lean-info-symbol-body info) "\n"))
+    ('SYMBOL     (string-join (lean-info-identifier-body info) "\n"))))
 
 ;; NAY Information
 ;; ----------------
-(defun lean-nay-type (nay)
+(defun lean-info-nay-type (nay)
   (cl-first nay))
-(defun lean-nay-p (nay)
-  (equal (lean-nay-type nay) 'NAY))
-(defun lean-nay-str-p (str)
-  (string= "-- NAY" str))
-(defun lean-nay-str-seq-p (seq)
-  (lean-nay-str-p (cl-first seq)))
-(defun lean-nay-parse (seq)
-  '(NAY))
+(defun lean-info-nay-p (nay)
+  (pcase nay
+    (`NAY t)
+    ((pred stringp) (string= "-- NAY" nay))
+    ((pred listp) (and (lean-info-nay-p (cl-first nay))))))
+(defun lean-info-nay-parse (seq)
+  (when (lean-info-nay-p seq)
+    '(NAY)))
 
 ;; -- Test
-(cl-assert (lean-nay-str-p "-- NAY"))
-(cl-assert (lean-nay-str-seq-p '("-- NAY")))
-(cl-assert (equal (lean-nay-parse '("-- NAY"))
+(cl-assert (lean-info-nay-p "-- NAY"))
+(cl-assert (lean-info-nay-p '("-- NAY")))
+(cl-assert (equal (lean-info-nay-parse '("-- NAY"))
                   '(NAY)))
 
 ;; Basic
 ;; -----
-(defun lean-info-type (info)
+(defun lean-info-kind (info)
   (cl-first info))
 (defun lean-info-ack-str-p (str)
   (string= "-- ACK" str))
+(defun lean-info-begininfo-str-p (str)
+  (string= "-- BEGININFO" str))
 (defun lean-info-endinfo-str-p (str)
   (string= "-- ENDINFO" str))
 (defun lean-info-pos (info)
-  (cl-case (lean-info-type info)
-    (TYPE       (lean-typeinfo-pos   info))
-    (OVERLOAD   (lean-overload-pos   info))
-    (SYNTH      (lean-synth-pos      info))
-    (IDENTIFIER (lean-identifier-pos info))
-    (SYMBOL     (lean-symbol-pos      info))
+  (cl-case (lean-info-kind info)
+    (TYPE       (lean-info-type-pos   info))
+    (OVERLOAD   (lean-info-overload-pos   info))
+    (SYNTH      (lean-info-synth-pos      info))
+    (IDENTIFIER (lean-info-identifier-pos info))
+    (SYMBOL     (lean-info-symbol-pos      info))
     (NAY        ())))
 (defun lean-info-line-number (info)
   (cl-first (lean-info-pos info)))
@@ -284,11 +298,11 @@
 ;; -- test
 (cl-assert (equal
             (lean-info-pos
-             (lean-typeinfo-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+             (lean-info-type-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
             '(121 2)))
 (cl-assert (equal
             (lean-info-pos
-             (lean-overload-parse
+             (lean-info-overload-parse
               '("-- OVERLOAD|121|2"
                 "not (eq zero (succ m'))"
                 "→ decidable (eq zero (succ m'))"
@@ -300,97 +314,205 @@
                 "→ decidable (eq zero (succ m'))")))
             '(121 2)))
 
-;; Infolist Parsing
+;; Info Parsing
 ;; ================
-(defun lean-infolist-split-lines (lines)
-  "Split lines into list of list of strings
+(defun lean-info-list-split (str)
+  "Parse string into list of list of strings.
 
-Use \"-- ACK\" as a delim and stop processing when it encounters \"-- ENDINFO\""
-  (lean-split-seq-if
-   (split-string lines "\n")
-   'lean-info-ack-str-p
-   '(lambda (x) (not (lean-info-endinfo-str-p x)))))
-(defun lean-infolist-filter-seq (seq)
-  "Filter warning and error messages"
-  (cl-loop for line in seq
-           when (and (not (search "warning:" line))
-                     (not (search "error:" line)))
-           collect line))
+Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
+  (-split-on "-- ACK"
+             (--filter (not (or (string= "-- BEGININFO" it)
+                                (string= "-- ENDINFO" it)))
+                       (split-string str "\n"))))
 
-(defun lean-infolist-parse (lines)
-  "Parse lines into info-list"
-  (let ((string-seq-seq (lean-infolist-filter-seq (lean-infolist-split-lines lines))))
+(defun lean-info-list-parse-string (str)
+  "Parse string into info-list"
+  (let ((string-seq-seq (lean-info-list-split str))
+        result)
     (cl-loop for string-seq in string-seq-seq
              when string-seq
-             collect (cond ((lean-typeinfo-str-seq-p string-seq)
-                            (lean-typeinfo-parse string-seq))
-                           ((lean-overload-str-seq-p string-seq)
-                            (lean-overload-parse string-seq))
-                           ((lean-synth-str-seq-p string-seq)
-                            (lean-synth-parse string-seq))
-                           ((lean-identifier-str-seq-p string-seq)
-                            (lean-identifier-parse string-seq))
-                           ((lean-symbol-str-seq-p string-seq)
-                            (lean-symbol-parse string-seq))
-                           ((lean-nay-str-seq-p string-seq)
-                            (lean-nay-parse string-seq))))))
+             do (setq result
+                      (or (lean-info-type-parse string-seq)
+                          (lean-info-overload-parse string-seq)
+                          (lean-info-synth-parse string-seq)
+                          (lean-info-identifier-parse string-seq)
+                          (lean-info-symbol-parse string-seq)
+                          (lean-info-nay-parse string-seq)))
+             when result
+             collect result)))
 
-;; -- test
-(cl-assert
- (equal (lean-infolist-parse
-         (concat "-- TYPE|15|38" "\n"
-                 "num" "\n"
-                 "-- ACK" "\n"
-                 "-- TYPE|15|40" "\n"
-                 "num → num → Prop" "\n"
-                 "-- ACK" "\n"
-                 "-- OVERLOAD|15|42" "\n"
-                 "f" "\n"
-                 "--" "\n"
-                 "foo.f" "\n"
-                 "-- ACK" "\n"
-                 "-- TYPE|15|42" "\n"
-                 "num → num" "\n"
-                 "-- ACK" "\n"
-                 "-- TYPE|15|44" "\n"
-                 "num" "\n"
-                 "-- ACK" "\n"
-                 "-- ENDINFO" "\n"))
-        '((TYPE (15 38) ("num"))
-          (TYPE (15 40) ("num → num → Prop"))
-          (OVERLOAD (15 42) (("f")
-                             ("foo.f")))
-          (TYPE (15 42) ("num → num"))
-          (TYPE (15 44) ("num")))))
-(cl-assert
- (equal
-  (lean-infolist-parse
-   (concat
-    "-- TYPE|121|2\nnot (eq zero (succ m')) → decidable (eq zero (succ m'))" "\n"
-    "-- ACK" "\n"
-    "-- TYPE|121|7\nne (succ m') zero → ne zero (succ m')" "\n"
-    "-- ACK" "\n"
-    "-- TYPE|121|16" "\n"
-    "∀ (n : nat), ne (succ n) zero" "\n"
-    "-- ACK" "\n"
-    "-- TYPE|121|29" "\n"
-    "nat" "\n"
-    "-- ACK" "\n"
-    "-- OVERLOAD|121|2" "\n"
-    "not (eq zero (succ m'))" "\n"
-    "→ decidable (eq zero (succ m'))" "\n"
-    "--" "\n"
-    "not (eq one (succ m'))" "\n"
-    "→ decidable (eq one (succ m'))" "\n"
-    "--" "\n"
-    "not (eq two (succ m'))" "\n"
-    "→ decidable (eq two (succ m'))" "\n"
-    "-- ENDINFO" "\n"))
-  '((TYPE (121 2) ("not (eq zero (succ m')) → decidable (eq zero (succ m'))"))
-    (TYPE (121 7) ("ne (succ m') zero → ne zero (succ m')"))
-    (TYPE (121 16) ("∀ (n : nat), ne (succ n) zero"))
-    (TYPE (121 29) ("nat"))
-    (OVERLOAD (121 2) (("not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")
-                       ("not (eq one (succ m'))" "→ decidable (eq one (succ m'))")
-                       ("not (eq two (succ m'))" "→ decidable (eq two (succ m'))"))))))
+(defun lean-info-list-filter (info-list start-column)
+  (--filter (let ((col (lean-info-column it)))
+              (and col (= start-column col)))
+            info-list))
+
+(defun lean-get-partial-names (full-name)
+  "Given a full-name \"a.b.c.d\", return a set of partial names (\"a.b.c.d\" \"b.c.d\" \"c.d\" \"d\")"
+  (cl-labels ((helper(l1 l2 names)
+                  (cond (l1 (helper
+                             (-butlast l1)
+                             (cons nil (-butlast l2))
+                             (-zip-with (lambda (x y) (if y (concat x "." y) x))
+                                        names
+                                        (cons nil (-butlast l2)))))
+                        (t (reverse names)))))
+    (let ((items (reverse (split-string full-name "\\."))))
+      (helper items items items))))
+
+(defun lean-match-name-at-pos (file-name line-number column-number name)
+  "Return t if there is name at pos in a file."
+  ;; Try to use a existing buffer if there is one
+  (let ((buffer (flymake-find-buffer-for-file file-name))
+        str pos)
+    (unless buffer
+      ;; In case a user haven't opened the file before, we read the
+      ;; file to the temp buffer (*lean-server-temp*) and proceed.
+      (setq buffer (get-buffer-create "*lean-server-temp*"))
+      (with-current-buffer buffer
+        (erase-buffer)
+        (insert-file-contents file-name)))
+    (with-current-buffer buffer
+      (save-excursion
+        (goto-char (point-min))
+        (forward-line (1- line-number))
+        (forward-char column-number)
+        (setq pos (point))
+        (setq str (buffer-substring-no-properties pos (+ pos (length name))))
+        (string= name str)))))
+
+(defun lean-match-full-name-at-pos (file-name line-number column-number full-name)
+  "Return the matched name for the given full-name if any."
+  (let ((partial-names (lean-get-partial-names full-name)))
+    (--first (lean-match-name-at-pos file-name line-number column-number it) partial-names)))
+
+(defun lean-info-list-find-start-column (info-list file-name column-number)
+  "Find the start-column of the id/symbol in info-list at a file-name/column-number"
+
+  ;; Extract symbol, ids
+  (let* ((sorted-id-symbol-list
+          (-sort (-on '< 'lean-info-column)
+                 (--filter (or (lean-info-identifier-p it)
+                               (lean-info-symbol-p it))
+                           info-list)))
+         (candidate
+          (--last (<= (lean-info-column it) column-number)
+                  sorted-id-symbol-list))
+         matched-name
+         start-column
+         full-name)
+    (when candidate
+      (setq start-column (lean-info-column candidate))
+      (setq full-name    (lean-info-id-symbol-body-str candidate))
+      (setq matched-name (lean-match-full-name-at-pos
+                          file-name
+                          (lean-info-line-number candidate)
+                          start-column
+                          full-name))
+      (when (< column-number
+               (+ start-column (length matched-name)))
+        start-column))))
+
+(defun lean-info-list-parse (str &optional file-name column-number)
+  (let ((info-list (lean-info-list-parse-string str))
+        start-column)
+    (cond
+     ;; When file-name/column-number is specified, try to start-column of id/symbol
+     ((and file-name column-number)
+      (setq start-column (lean-info-list-find-start-column info-list file-name column-number))
+      (if start-column
+          (lean-info-list-filter info-list start-column)
+        ;; If there is no symbol at column-number, return nil
+        nil))
+     ;; When not specified, just return info-list.
+     (t info-list))))
+
+(cl-defstruct lean-info-record type overload synth identifier symbol nay)
+
+(defun lean-info-record-parse (string &optional file-name column-number)
+  "Parse string into info-record"
+  (let* ((info-list   (lean-info-list-parse string file-name column-number))
+         (types       (-filter 'lean-info-type-p       info-list))
+         (overloads   (-filter 'lean-info-overload-p   info-list))
+         (synths      (-filter 'lean-info-synth-p      info-list))
+         (identifiers (-filter 'lean-info-identifier-p info-list))
+         (symbols     (-filter 'lean-info-symbol-p     info-list))
+         (nay         (-filter 'lean-info-nay-p        info-list)))
+    (make-lean-info-record :type       types
+                           :overload   overloads
+                           :synth      synths
+                           :identifier identifiers
+                           :symbol     symbols
+                           :nay        nay)))
+
+(defun lean-info-record-to-string (info-record)
+  "Given typeinfo, overload, and sym-name, compose string information."
+  (let* ((type     (cl-first (lean-info-record-type       info-record)))
+         (overload (cl-first (lean-info-record-overload   info-record)))
+         (synth    (cl-first (lean-info-record-synth      info-record)))
+         (id-sym   (cl-first
+                    (append
+                     (lean-info-record-identifier info-record)
+                     (lean-info-record-symbol     info-record))))
+         name-str  type-str  overload-str str)
+    (when id-sym
+      (setq name-str (lean-info-id-symbol-body-str id-sym)))
+    (when synth
+      (setq name-str (lean-info-synth-body-str synth)))
+    (when type
+      (setq type-str (lean-info-type-body-str type)))
+    (when (and name-str overload)
+      (setq overload-str
+            (string-join
+             (--remove (string= it name-str)
+                       (lean-info-overload-names overload))
+             ", ")))
+    (when (and name-str type-str)
+      (setq str (format "%s : %s"
+                        (propertize name-str 'face 'font-lock-variable-name-face)
+                        type-str)))
+    (when overload-str
+      (setq str (concat str
+                        (format "\n%s with %s"
+                                (propertize "overloaded" 'face 'font-lock-keyword-face)
+                                overload-str))))
+    str))
+
+(defun lean-get-info-record (file-name line-number column-number)
+  "Get info list from lean server using file-name and line-number"
+  (lean-server-send-cmd (lean-cmd-visit file-name))
+  (lean-server-send-cmd (lean-cmd-info line-number))
+  (while (not lean-global-server-message-to-process)
+    (accept-process-output (lean-server-get-process) 0 50 t))
+  (pcase lean-global-server-message-to-process
+    (`(INFO ,pre ,body)
+     (lean-server-log "The following pre-message will be thrown away:")
+     (lean-server-log "%s" pre)
+     (setq lean-global-server-message-to-process nil)
+     (lean-info-record-parse body file-name column-number))
+    (`(,type ,pre , body)
+     (lean-server-log "The following pre-message will be thrown away:")
+     (lean-server-log "%s" pre)
+     (lean-server-log "Something other than INFO detected: %S" type)
+     ;; (lean-server-log "Body: %S" body)
+     (setq lean-global-server-message-to-process nil))))
+
+(defun lean-get-info-record-at-point ()
+  "Get info-record at the current point"
+  (interactive)
+  (let* ((file-name (buffer-file-name))
+         (line-number (line-number-at-pos))
+         (column (current-column))
+         (cur-char (char-after (point))))
+    (when (and cur-char
+               (or (char-equal cur-char ?\s)
+                   (char-equal cur-char ?\t)
+                   (char-equal cur-char ?\t)
+                   (char-equal cur-char ?\,)
+                   (char-equal cur-char ?\))
+                   (char-equal cur-char ?\})
+                   (char-equal cur-char ?\]))
+               (> column 1))
+      (setq column (1- column)))
+    (lean-get-info-record file-name line-number column)))
+
 (provide 'lean-info)

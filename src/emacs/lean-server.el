@@ -93,20 +93,21 @@
     (setq lean-global-server-current-file-name nil)
     (setq lean-global-server-message-to-process nil)
     (setq lean-global-server-process lean-server-process)
-    (message "lean-server process %S created." lean-server-process)
     lean-server-process))
 
 (defun lean-server-kill-process ()
   "Kill lean-server process. Return t if killed, nil if nothing to kill"
   (interactive)
   (cond
-     (lean-global-server-process
-      (message "lean-server-kill-process: %S killed" lean-global-server-process)
-      (kill-process lean-global-server-process)
-      (setq lean-global-server-process nil)
-      t)
-     (t (message "lean-server-kill-process: no process to kill")
-        nil)))
+   (lean-global-server-process
+    (when (interactive-p)
+      (message "lean-server-kill-process: %S killed" lean-global-server-process))
+    (kill-process lean-global-server-process)
+    (setq lean-global-server-process nil)
+    t)
+   (t (when (interactive-p)
+        (message "lean-server-kill-process: no process to kill"))
+      nil)))
 
 (defun lean-server-restart-process ()
   "Restart lean-server process."
@@ -117,11 +118,11 @@
 (defun lean-server-get-process ()
   "Get lean-server process. If needed, create a one."
   (cond ((not lean-global-server-process)
-           (message "lean-server-get-process: no process")
-           (lean-server-create-process))
+         (lean-server-create-process))
         ((not (process-live-p lean-global-server-process))
-         (message "lean-server-get-process: %S is not live, kill it"
-                  lean-global-server-process)
+         (when (interactive-p)
+           (message "lean-server-get-process: %S is not live, kill it"
+                    lean-global-server-process))
          (lean-server-kill-process))
         (t lean-global-server-process)))
 
@@ -139,11 +140,11 @@ Send REPLACE commands to lean-server, reset lean-changed-lines to nil."
            do (lean-server-send-cmd (lean-cmd-replace n (lean-grab-line n)))
            finally (setq lean-changed-lines nil)))
 
-(defun lean-server-check-current-file ()
+(defun lean-server-check-current-file (&optional file-name)
   "Check lean-global-server-current-file-name.
 
-If it's not the same with (buffer-file-name), send VISIT cmd."
-  (let ((current-file-name (buffer-file-name)))
+If it's not the same with file-name (default: buffer-file-name), send VISIT cmd."
+  (let ((current-file-name (or file-name (buffer-file-name))))
     (unless (string= lean-global-server-current-file-name
                      current-file-name)
       (lean-server-send-cmd (lean-cmd-visit current-file-name)))))

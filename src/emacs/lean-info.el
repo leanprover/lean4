@@ -255,6 +255,8 @@
 
 ;; NAY Information
 ;; ----------------
+(defun lean-info-nay () '(NAY))
+
 (defun lean-info-nay-type (nay)
   (cl-first nay))
 (defun lean-info-nay-p (nay)
@@ -264,7 +266,7 @@
     ((pred listp) (and (lean-info-nay-p (cl-first nay))))))
 (defun lean-info-nay-parse (seq)
   (when (lean-info-nay-p seq)
-    '(NAY)))
+    (lean-info-nay)))
 
 ;; -- Test
 (cl-assert (lean-info-nay-p "-- NAY"))
@@ -342,6 +344,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
              collect result)))
 
 (defun lean-info-list-filter (info-list start-column)
+  "Given a info-list, only return an info-item is NAY or whose start-column is matched with the argument."
   (--filter (let ((col (lean-info-column it)))
               (and col (= start-column col)))
             info-list))
@@ -413,9 +416,13 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
         start-column))))
 
 (defun lean-info-list-parse (str &optional file-name column-number)
+  "Parse input string and return info-list."
   (let ((info-list (lean-info-list-parse-string str))
         start-column)
     (cond
+     ;; If there is NAY, return it.
+     ((-any? 'lean-info-nay-p info-list)
+      `(,(lean-info-nay)))
      ;; When file-name/column-number is specified, try to start-column of id/symbol
      ((and file-name column-number)
       (setq start-column (lean-info-list-find-start-column info-list file-name column-number))
@@ -479,7 +486,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
 
 (defun lean-get-info-record (file-name line-number column-number)
   "Get info list from lean server using file-name and line-number"
-  (lean-server-send-cmd (lean-cmd-visit file-name))
+  (lean-server-check-current-file file-name)
   (lean-server-send-cmd (lean-cmd-info line-number))
   (while (not lean-global-server-message-to-process)
     (accept-process-output (lean-server-get-process) 0 50 t))

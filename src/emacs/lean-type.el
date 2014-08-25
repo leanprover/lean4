@@ -43,6 +43,29 @@
       (when info-string
         (message "%s" info-string))))))
 
+;; =======================================================
+;; SET/EVAL
+;; =======================================================
+
+(defun lean-set-option (option-name option-value)
+  "Get info list from lean server using file-name and line-number"
+  (lean-server-send-cmd (lean-cmd-visit file-name))
+  (lean-server-send-cmd (lean-cmd-set line-number))
+  (while (not lean-global-server-message-to-process)
+    (accept-process-output (lean-server-get-process) 0 50 t))
+  (pcase lean-global-server-message-to-process
+    (`(INFO ,pre ,body)
+     (lean-server-log "The following pre-message will be thrown away:")
+     (lean-server-log "%s" pre)
+     (setq lean-global-server-message-to-process nil)
+     (lean-info-record-parse body file-name column-number))
+    (`(,type ,pre , body)
+     (lean-server-log "The following pre-message will be thrown away:")
+     (lean-server-log "%s" pre)
+     (lean-server-log "Something other than INFO detected: %S" type)
+     ;; (lean-server-log "Body: %S" body)
+     (setq lean-global-server-message-to-process nil)))
+  )
 
 ;; =======================================================
 ;; Change Handling

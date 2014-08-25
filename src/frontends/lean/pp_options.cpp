@@ -64,7 +64,7 @@ list<options> const & get_distinguishing_pp_options() {
     static options g_implicit_coercion = join(g_coercion_true, g_implicit_true);
     static options g_implicit_notation = join(g_notation_false, g_implicit_true);
     static options g_all = join(join(g_universes_true, g_implicit_true), join(g_coercion_true, g_notation_false));
-    static list<options> g_distinguishing_pp_options({g_universes_true, g_implicit_true, g_coercion_true, g_implicit_coercion, g_implicit_notation, g_all});
+    static list<options> g_distinguishing_pp_options({g_implicit_true, g_coercion_true, g_implicit_coercion, g_implicit_notation, g_universes_true, g_all});
     return g_distinguishing_pp_options;
 }
 

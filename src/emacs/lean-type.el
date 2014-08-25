@@ -5,126 +5,48 @@
 ;;
 
 (require 'cl-lib)
+(require 'dash)
+(require 'dash-functional)
 (require 'lean-variable)
 (require 'lean-util)
 (require 'lean-cmd)
 (require 'lean-server)
 (require 'lean-debug)
+(require 'flymake)
 
-(defun lean-get-info-list (file-name line-number column)
-  "Get info list from lean server using file-name, line-number, and column.
-
-TODO(soonhok): for now, it ignores file-name and column."
-  (lean-server-send-cmd (lean-cmd-info line-number))
-  (while (not lean-global-info-processed)
-    (accept-process-output (lean-server-get-process) 0 50 t))
-  lean-global-info-list)
-
-(defun lean-filter-info-list (info-list when-pred)
-  "Filter info-list by given when-pred"
-  (cl-loop for info in info-list
-           when (funcall when-pred info)
-           collect info))
-
-(defun lean-bounds-of-thing-at-point ()
-  "Return the information of current symbol at point.
-
-The return valus has the form of '([symbol-string] [start-pos])"
-  (interactive)
-  (let ((bound (bounds-of-thing-at-point 'symbol))
-        start-pos end-pos sym)
-    (cond (bound
-           (setq start-pos (car bound))
-           (setq end-pos   (cdr bound))
-           (setq sym       (buffer-substring-no-properties start-pos end-pos)))
-          ((= (point) (point-max))
-           (setq start-pos (point))
-           (setq sym       ""))
-          (t
-           (setq start-pos (point))
-           (setq sym       (buffer-substring-no-properties start-pos (1+ start-pos)))))
-    (list sym start-pos)))
-
-(defun lean-eldoc-argument-list (string)
-  "Upcase and fontify STRING for use with `eldoc-mode'."
-  (propertize string 'face 'font-lock-variable-name-face))
-
-(defun lean-extract-info-at-pos (file-name line-number column start-pos)
-
-  (let*  ((info-list (lean-get-info-list file-name line-number column))
-          (info-list-at-pos (lean-filter-info-list
-                             info-list
-                             '(lambda (info) (and
-                                         (lean-info-column info)
-                                         (= start-column (lean-info-column info))))))
-          (typeinfo
-           (cl-first (lean-filter-info-list info-list-at-pos
-                                            'lean-typeinfo-p)))
-          (overload
-           (cl-first (lean-filter-info-list info-list-at-pos
-                                            'lean-overload-p)))
-          (synth
-           (cl-first (lean-filter-info-list info-list-at-pos
-                                            'lean-synth-p))))
-    (list typeinfo overload synth)))
-
-(defun lean-print-info (typeinfo overload synth sym-name)
-  "Given typeinfo, overload, and sym-name, print out information."
-  (when typeinfo
-    (let* ((overload-names  (lean-overload-names overload))
-           (overload-name   (cl-first overload-names))
-           (synth-value     (when synth (lean-synth-body-str synth)))
-           (name            (or synth-value overload-name sym-name))
-           (type-str        (lean-typeinfo-body-str typeinfo))
-           (type-output-str
-            (format "%s : %s"
-                    (propertize name 'face 'font-lock-variable-name-face)
-                    type-str))
-           (overload-output-str
-            (when overload-names
-              (format "\n%s with %s"
-                      (propertize "overloaded" 'face 'font-lock-keyword-face)
-                      (lean-string-join (cdr overload-names) ", "))))
-           (output-str (concat type-output-str overload-output-str)))
-      (message "%s" output-str))))
 
 (defun lean-fill-placeholder ()
   "Fill the placeholder with a synthesized expression by Lean."
   (interactive)
-  (let ((cur_char (buffer-substring-no-properties (point) (1+ (point)))))
-    (when (string= cur_char "_")
-      (let* ((file-name (buffer-file-name))
-             (line-number (line-number-at-pos))
-             (column (current-column))
-             (sym-info (lean-bounds-of-thing-at-point))
-             (sym-name (cl-first sym-info))
-             (start-pos (cl-second sym-info))
-             (start-column (- column (- (point) start-pos)))
-             typeinfo overload)
-        (cl-multiple-value-setq (typeinfo overload synth)
-          (lean-extract-info-at-pos file-name line-number column start-pos))
-        (when synth
-          (let ((synth-str
-                 (replace-regexp-in-string "?M_[0-9]+" "_" (lean-synth-body-str synth))))
-            (when (search " " synth-str)
-              (setq synth-str (concat "(" synth-str ")")))
-            (delete-forward-char 1)
-            (insert synth-str)))))))
+  (let* ((info-record (lean-get-info-record-at-point))
+         (synth (and info-record (cl-first (lean-info-record-synth info-record)))))
+    (when synth
+      (let ((synth-str
+             (replace-regexp-in-string "?M_[0-9]+" "_" (lean-info-synth-body-str synth))))
+        (when (search " " synth-str)
+          (setq synth-str (concat "(" synth-str ")")))
+        (message "synth-str: %s" synth-str)
+        (delete-forward-char 1)
+        (insert synth-str)))))
 
 (defun lean-eldoc-documentation-function ()
   "Show information of lean expression at point if any"
   (interactive)
-  (let* ((file-name (buffer-file-name))
-         (line-number (line-number-at-pos))
-         (column (current-column))
-         (sym-info (lean-bounds-of-thing-at-point))
-         (sym-name (cl-first sym-info))
-         (start-pos (cl-second sym-info))
-         (start-column (- column (- (point) start-pos)))
-         typeinfo overload)
-    (cl-multiple-value-setq (typeinfo overload synth)
-      (lean-extract-info-at-pos file-name line-number column start-pos))
-    (lean-print-info typeinfo overload synth sym-name)))
+  (let ((info-record (lean-get-info-record-at-point))
+        info-string)
+    (cond
+     ((and info-record (lean-info-record-nay info-record))
+      (lean-server-log "NAY Detected")
+      (run-with-idle-timer lean-eldoc-nay-retry-time nil 'lean-eldoc-documentation-function))
+     (info-record
+      (setq info-string (lean-info-record-to-string info-record))
+      (when info-string
+        (message "%s" info-string))))))
+
+
+;; =======================================================
+;; Change Handling
+;; =======================================================
 
 (defun lean-before-change-function (beg end)
   "Function attached to before-change-functions hook.
@@ -138,6 +60,7 @@ It saves the following information to the global variable:
  - lean-global-before-change-text            : text between beg and end
 
 These information will be used by lean-after-changed-function."
+  (lean-server-get-process)
   (setq lean-global-before-change-beg beg)
   (setq lean-global-before-change-end end)
   (setq lean-global-before-change-beg-line-number (line-number-at-pos beg))
@@ -162,14 +85,14 @@ pairs, compute changed-lines, inserted-lines, and removed-lines."
            `(CHANGE-ONLY ,changed-lines))
           ;; Case "REMOVE"
           ((> old-lines-len new-lines-len)
-           (setq removed-lines (lean-take-first-n old-lines (- old-lines-len new-lines-len)))
+           (setq removed-lines (-take (- old-lines-len new-lines-len) old-lines))
            ;; Make sure that we return it in reverse order
            (setq removed-lines (cl-sort removed-lines '>))
            (setq changed-lines new-lines)
            `(REMOVE ,removed-lines ,changed-lines))
           ;; Case "INSERT"
           ((< old-lines-len new-lines-len)
-           (setq inserted-lines (lean-take-last-n new-lines (- new-lines-len old-lines-len)))
+           (setq inserted-lines (-drop old-lines-len new-lines))
            ;; Make sure that we return it in sorted order
            (setq inserted-lines (cl-sort inserted-lines '<))
            (setq changed-lines old-lines)

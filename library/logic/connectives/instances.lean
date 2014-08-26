@@ -51,12 +51,11 @@ congr2_mk
       (assume H3 : b1 ↔ b2, iff_trans H1 (iff_trans H3 (iff_symm H2))))
 
 -- theorem congr_const_iff [instance] := congr.const iff iff_refl
-theorem congr_not_compose [instance] := congr.compose congr_not
-theorem congr_and_compose [instance] := congr.compose21 congr_and
-theorem congr_or_compose [instance] := congr.compose21 congr_or
-theorem congr_implies_compose [instance] := congr.compose21 congr_imp
-theorem congr_iff_compose [instance] := congr.compose21 congr_iff
-
+definition congr_not_compose [instance] := congr.compose congr_not
+definition congr_and_compose [instance] := congr.compose21 congr_and
+definition congr_or_compose [instance] := congr.compose21 congr_or
+definition congr_implies_compose [instance] := congr.compose21 congr_imp
+definition congr_iff_compose [instance] := congr.compose21 congr_iff
 
 -- Generalized substitution
 -- ------------------------
@@ -104,7 +103,7 @@ relation.is_transitive_mk (@iff_trans)
 -- Mp-like for iff
 -- ---------------
 
-theorem mp_like_iff [instance] (a b : Prop) (H : a ↔ b) : relation.mp_like H :=
+theorem mp_like_iff [instance] (a b : Prop) (H : a ↔ b) : @relation.mp_like iff a b H :=
 relation.mp_like_mk (iff_elim_left H)
 
 

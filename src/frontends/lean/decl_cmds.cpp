@@ -310,13 +310,16 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
 
     if (!found_cached) {
         if (is_theorem) {
+            auto type_pos = p.pos_of(type);
+            std::tie(type, new_ls) = p.elaborate_type(type);
+            ls = append(ls, new_ls);
+            expr type_as_is = p.save_pos(mk_as_is(type), type_pos);
             if (!p.collecting_info() && p.num_threads() > 1) {
                 // add as axiom, and create a task to prove the theorem
-                p.add_delayed_theorem(env, real_n, ls, type, value);
-                std::tie(type, new_ls) = p.elaborate_type(type);
-                env = module::add(env, check(env, mk_axiom(real_n, append(ls, new_ls), type)));
+                p.add_delayed_theorem(env, real_n, ls, type_as_is, value);
+                env = module::add(env, check(env, mk_axiom(real_n, ls, type)));
             } else {
-                std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value, modifiers.m_is_opaque);
+                std::tie(type, value, new_ls) = p.elaborate_definition(n, type_as_is, value, modifiers.m_is_opaque);
                 new_ls = append(ls, new_ls);
                 env = module::add(env, check(env, mk_theorem(real_n, new_ls, type, value)));
                 p.cache_definition(real_n, pre_type, pre_value, new_ls, type, value);

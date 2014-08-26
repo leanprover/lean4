@@ -4,25 +4,24 @@
 ;; Author: Soonho Kong
 ;;
 
-(defun lean-run-lmake-tag ()
+(require 'dash)
+
+(defun lean-generate-tags ()
+  "Run lmake TAGS."
+  (interactive)
   (let ((ltags-file-name (lean-get-executable "lmake")))
     (call-process ltags-file-name nil nil nil "TAGS" "--jobs" "--keep-going" "--permissive")))
 
 (defun lean-find-tag ()
   "lean-find-tag"
   (interactive)
-  (let ((bounds (bounds-of-thing-at-point 'symbol))
-        symbol-name)
-    (when bounds
-      (setq symbol-name (buffer-substring-no-properties (car bounds) (cdr bounds)))
-      (lean-run-lmake-tag)
-      (find-tag symbol-name))))
+  (let ((full-name (lean-get-full-name-at-point)))
+    (when full-name
+      (find-tag full-name))))
 
 (defun lean-complete-tag ()
   "complete with tag"
   (interactive)
-  (lean-run-lmake-tag)
+  (lean-generate-tags)
   (complete-tag))
-(setq tags-revert-without-query t)
-
 (provide 'lean-tags)

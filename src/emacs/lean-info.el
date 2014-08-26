@@ -522,4 +522,11 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
       (setq column (1- column)))
     (lean-get-info-record file-name line-number column)))
 
+(defun lean-get-full-name-at-point ()
+  "Return the full-name at point (if any)"
+  (let* ((info-record (lean-get-info-record-at-point))
+         (id (cl-first (lean-info-record-identifier info-record))))
+    (when id
+      (lean-info-identifier-body-str id))))
+
 (provide 'lean-info)

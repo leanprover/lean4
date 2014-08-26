@@ -281,7 +281,7 @@ idempotent_image_fix (representative_map_idempotent H1 H2) b
 
 theorem representative_map_to_quotient {A : Type} {R : A → A → Prop} {f : A → A}
     (H1 : ∀a, R a (f a)) (H2 : ∀a a', R a a' ↔ R a a ∧ R a' a' ∧ f a = f a') :
-  is_quotient _ (fun_image f) elt_of :=
+  is_quotient R (fun_image f) elt_of :=
 let abs := fun_image f in
 intro
   (take u : image f,

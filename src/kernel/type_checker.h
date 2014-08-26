@@ -204,6 +204,8 @@ public:
 
 typedef std::shared_ptr<type_checker> type_checker_ref;
 
+void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type);
+
 /**
    \brief Type check the given declaration, and return a certified declaration if it is type correct.
    Throw an exception if the declaration is type incorrect.

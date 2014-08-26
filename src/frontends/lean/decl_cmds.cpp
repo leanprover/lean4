@@ -312,6 +312,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         if (is_theorem) {
             auto type_pos = p.pos_of(type);
             std::tie(type, new_ls) = p.elaborate_type(type);
+            check_no_metavar(env, real_n, type, true);
             ls = append(ls, new_ls);
             expr type_as_is = p.save_pos(mk_as_is(type), type_pos);
             if (!p.collecting_info() && p.num_threads() > 1) {

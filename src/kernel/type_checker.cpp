@@ -421,7 +421,7 @@ type_checker::type_checker(environment const & env):
 
 type_checker::~type_checker() {}
 
-static void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type) {
+void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type) {
     if (has_metavar(e))
         throw_kernel_exception(env, e, [=](formatter const & fmt) { return pp_decl_has_metavars(fmt, n, e, is_type); });
 }

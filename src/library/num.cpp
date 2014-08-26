@@ -54,12 +54,14 @@ expr from_num(mpz const & n) {
 optional<mpz> to_pos_num(expr const & e) {
     if (e == g_one) {
         return some(mpz(1));
-    } else if (app_fn(e) == g_bit0) {
-        if (auto r = to_pos_num(app_arg(e)))
-            return some(2*(*r));
-    } else if (app_fn(e) == g_bit1) {
-        if (auto r = to_pos_num(app_arg(e)))
-            return some(2*(*r) + 1);
+    } else if (is_app(e)) {
+        if (app_fn(e) == g_bit0) {
+            if (auto r = to_pos_num(app_arg(e)))
+                return some(2*(*r));
+        } else if (app_fn(e) == g_bit1) {
+            if (auto r = to_pos_num(app_arg(e)))
+                return some(2*(*r) + 1);
+        }
     }
     return optional<mpz>();
 }

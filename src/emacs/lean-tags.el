@@ -12,6 +12,28 @@
   (let ((ltags-file-name (lean-get-executable "lmake")))
     (call-process ltags-file-name nil nil nil "TAGS" "--jobs" "--keep-going" "--permissive")))
 
+(defmacro lean-tags-make-advice-to-call-ltags (f)
+  (let* ((f-name (symbol-name f))
+         (advice-name (concat "lean-tags-advice-"
+                             (symbol-name f))))
+    `(defadvice ,f
+       (before ,(intern advice-name)  first activate)
+       ,(concat "Before call " f-name ", run 'lmake TAGS'")
+       (when (derived-mode-p 'lean-mode)
+         (message ,(concat advice-name " is running"))
+         (lean-generate-tags)))))
+
+(defvar-local functions-to-call-ltags-before-it
+  '(find-tag-noselect
+    tags-search
+    tags-query-replace
+    list-tags
+    tags-apropos
+    select-tags-table))
+
+(-each functions-to-call-ltags-before-it
+  (lambda (f) (eval `(lean-tags-make-advice-to-call-ltags ,f))))
+
 (defun lean-find-tag ()
   "lean-find-tag"
   (interactive)

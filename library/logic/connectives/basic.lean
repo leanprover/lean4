@@ -169,6 +169,9 @@ iff_intro
 theorem iff_refl (a : Prop) : a ↔ a :=
 iff_intro (assume H, H) (assume H, H)
 
+theorem iff_rfl {a : Prop} : a ↔ a :=
+iff_refl a
+
 theorem iff_trans {a b c : Prop} (H1 : a ↔ b) (H2 : b ↔ c) : a ↔ c :=
 iff_intro
   (assume Ha, iff_elim_left H2 (iff_elim_left H1 Ha))

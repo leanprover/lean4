@@ -42,11 +42,11 @@ inhabited_mk none
 theorem decidable_eq [instance] {A : Type} {H : ∀a₁ a₂ : A, decidable (a₁ = a₂)}
     (o₁ o₂ : option A) : decidable (o₁ = o₂) :=
 rec_on o₁
-  (rec_on o₂ (inl (refl _)) (take a₂, (inr (none_ne_some a₂))))
+  (rec_on o₂ (inl rfl) (take a₂, (inr (none_ne_some a₂))))
   (take a₁ : A, rec_on o₂
     (inr (ne_symm (none_ne_some a₁)))
     (take a₂ : A, decidable.rec_on (H a₁ a₂)
-      (assume Heq : a₁ = a₂, inl (Heq ▸ refl _))
+      (assume Heq : a₁ = a₂, inl (Heq ▸ rfl))
       (assume Hne : a₁ ≠ a₂, inr (assume Hn : some a₁ = some a₂, absurd (some_inj Hn) Hne))))
 
 end option

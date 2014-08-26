@@ -25,10 +25,10 @@ theorem dichotomy (b : bool) : b = ff ∨ b = tt :=
 cases_on b (or_inl (refl ff)) (or_inr (refl tt))
 
 theorem cond_ff {A : Type} (t e : A) : cond ff t e = e :=
-refl (cond ff t e)
+rfl
 
 theorem cond_tt {A : Type} (t e : A) : cond tt t e = t :=
-refl (cond tt t e)
+rfl
 
 theorem ff_ne_tt : ¬ ff = tt :=
 assume H : ff = tt, absurd
@@ -47,7 +47,7 @@ definition bor (a b : bool) :=
 bool_rec (bool_rec ff tt b) tt a
 
 theorem bor_tt_left (a : bool) : bor tt a = tt :=
-refl (bor tt a)
+rfl
 
 infixl `||` := bor
 
@@ -90,7 +90,7 @@ bool_rec ff (bool_rec ff tt b) a
 infixl `&&` := band
 
 theorem band_ff_left (a : bool) : ff && a = ff :=
-refl (ff && a)
+rfl
 
 theorem band_tt_left (a : bool) : tt && a = a :=
 cases_on a (refl (tt && ff)) (refl (tt && tt))
@@ -137,8 +137,10 @@ notation `!` x:max := bnot x
 theorem bnot_bnot (a : bool) : !!a = a :=
 cases_on a (refl (!!ff)) (refl (!!tt))
 
-theorem bnot_false : !ff = tt := refl _
+theorem bnot_false : !ff = tt :=
+rfl
 
-theorem bnot_true  : !tt = ff := refl _
+theorem bnot_true  : !tt = ff :=
+rfl
 
 end bool

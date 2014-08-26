@@ -34,7 +34,7 @@
     (EVAL ,(rx line-start "-- BEGINEVAL"  line-end)
           ,(rx line-start (group "-- ENDEVAL")  line-end))
     (ERROR ,(rx line-start "-- " (0+ not-newline) line-end)
-           ,(rx line-start (group "-- ERROR")  line-end)))
+           ,(rx line-start (group "-- ERROR" (0+ not-newline)) line-end)))
   "Regular expression pattern for lean-server message syntax")
 
 (defun lean-server-split-buffer (buf-str beg-regex end-regex)
@@ -55,7 +55,7 @@
     (cl-loop for (type beg-regex end-regex) in lean-server-syntax-pattern
              do (setq partition-result (lean-server-split-buffer buf-str beg-regex end-regex))
              if partition-result
-             return  `(,type ,partition-result))))
+             return `(,type ,partition-result))))
 
 (defun lean-server-process-received-message (buf str)
   "Process received message from lean-server"

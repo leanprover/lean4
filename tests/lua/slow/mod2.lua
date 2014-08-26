@@ -30,7 +30,7 @@ function export_env(i, sz)
 end
 
 local NumMods=40
-local NumThs=200
+local NumThs=150
 for i = 1, NumMods do
    export_env(i, NumThs)
 end

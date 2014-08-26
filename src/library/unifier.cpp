@@ -1735,10 +1735,15 @@ struct unifier_fn {
         if (!all_local(lhs)) {
             expr rhs_whnf = whnf(rhs, j, relax, aux);
             if (rhs_whnf != rhs) {
-                buffer<constraints> alts2;
-                process_flex_rigid_core(lhs, rhs_whnf, j, relax, alts2);
-                append_auxiliary_constraints(alts2, to_list(aux.begin(), aux.end()));
-                alts.append(alts2);
+                if (is_meta(rhs_whnf)) {
+                    // it become a flex-flex constraint
+                    alts.push_back(constraints(mk_eq_cnstr(lhs, rhs_whnf, j, relax)));
+                } else {
+                    buffer<constraints> alts2;
+                    process_flex_rigid_core(lhs, rhs_whnf, j, relax, alts2);
+                    append_auxiliary_constraints(alts2, to_list(aux.begin(), aux.end()));
+                    alts.append(alts2);
+                }
             }
         }
 

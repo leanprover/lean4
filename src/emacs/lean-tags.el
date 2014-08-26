@@ -7,20 +7,24 @@
 (require 'dash)
 
 (defun lean-generate-tags ()
-  "Run lmake TAGS."
+  "Run lmake TAGS and let emacs use the generated TAGS file."
   (interactive)
-  (let ((ltags-file-name (lean-get-executable "lmake")))
-    (call-process ltags-file-name nil nil nil "TAGS" "--jobs" "--keep-going" "--permissive")))
+  (let ((ltags-file-name (lean-get-executable "lmake"))
+        tags-file-name)
+    (call-process ltags-file-name nil nil nil "TAGS" "--jobs" "--keep-going" "--permissive"))
+  (unless tags-table-list
+    (setq tags-file-name (lean-find-file-upward "TAGS"))
+    (when tags-file-name
+      (visit-tags-table tags-file-name))))
 
 (defmacro lean-tags-make-advice-to-call-ltags (f)
   (let* ((f-name (symbol-name f))
          (advice-name (concat "lean-tags-advice-"
-                             (symbol-name f))))
+                              (symbol-name f))))
     `(defadvice ,f
        (before ,(intern advice-name)  first activate)
        ,(concat "Before call " f-name ", run 'lmake TAGS'")
        (when (derived-mode-p 'lean-mode)
-         (message ,(concat advice-name " is running"))
          (lean-generate-tags)))))
 
 (defvar-local functions-to-call-ltags-before-it

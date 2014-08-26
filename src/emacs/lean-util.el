@@ -11,6 +11,15 @@
   (cl-reduce (lambda (p1 p2) (concat (file-name-as-directory p1) p2))
              seq))
 
+(defun lean-find-file-upward (file-name &optional dir-name)
+  "Try to find a file in a (current) directory or its parent directories."
+  (let* ((dir-name (or dir-name (file-name-directory (buffer-file-name))))
+         (parent-dir-name (file-name-directory (directory-file-name dir-name)))
+         (full-name (lean-concat-paths dir-name file-name)))
+    (cond ((file-exists-p full-name) full-name)
+          ((string= dir-name parent-dir-name) nil)
+          (t (lean-find-file-upward file-name parent-dir-name)))))
+
 (defun lean-grab-line (n)
   "Return the contents of n-th line at the current buffer"
   (let* ((cur-line-number (line-number-at-pos))

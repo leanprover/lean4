@@ -3,7 +3,7 @@ import logic
 section
 hypothesis P : Prop.
 
-theorem crash
+definition crash
          := assume H : P,
             have H' : ¬ P,
             from H,

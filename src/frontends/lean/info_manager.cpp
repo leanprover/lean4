@@ -14,6 +14,9 @@ Author: Leonardo de Moura
 namespace lean {
 class info_data;
 
+enum class info_kind { Type = 0, Synth, Overload, Coercion, Symbol, Identifier };
+bool operator<(info_kind k1, info_kind k2) { return static_cast<unsigned>(k1) < static_cast<unsigned>(k2); }
+
 class info_data_cell {
     unsigned m_column;
     MK_LEAN_RC();
@@ -25,13 +28,14 @@ public:
     info_data_cell():m_column(0), m_rc(0) {}
     info_data_cell(unsigned c):m_column(c), m_rc(0) {}
     virtual ~info_data_cell() {}
+    virtual info_kind kind() const = 0;
     unsigned get_column() const { return m_column; }
     virtual void display(io_state_stream const & ios, unsigned line) const = 0;
     virtual int compare(info_data_cell const & d) const {
         if (m_column != d.m_column)
             return m_column < d.m_column ? -1 : 1;
-        if (typeid(*this) != typeid(d))
-            return typeid(*this).before(typeid(d)) ? -1 : 1;
+        if (kind() != d.kind())
+            return kind() < d.kind() ? -1 : 1;
         return 0;
     }
 };
@@ -57,6 +61,7 @@ public:
 
 struct tmp_info_data : public info_data_cell {
     tmp_info_data(unsigned c):info_data_cell(c) {}
+    virtual info_kind kind() const { lean_unreachable(); }
     virtual void display(io_state_stream const &, unsigned) const { lean_unreachable(); } // LCOV_EXCL_LINE
 };
 
@@ -80,6 +85,8 @@ public:
 
     expr const & get_type() const { return m_expr; }
 
+    virtual info_kind kind() const { return info_kind::Type; }
+
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- TYPE|" << line << "|" << get_column() << "\n";
         ios << m_expr << endl;
@@ -95,6 +102,9 @@ public:
 class synth_info_data : public type_info_data {
 public:
     synth_info_data(unsigned c, expr const & e):type_info_data(c, e) {}
+
+    virtual info_kind kind() const { return info_kind::Synth; }
+
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- SYNTH|" << line << "|" << get_column() << "\n";
         ios << m_expr << endl;
@@ -111,6 +121,9 @@ class overload_info_data : public info_data_cell {
     expr m_choices;
 public:
     overload_info_data(unsigned c, expr const & e):info_data_cell(c), m_choices(e) {}
+
+    virtual info_kind kind() const { return info_kind::Overload; }
+
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- OVERLOAD|" << line << "|" << get_column() << "\n";
         options os = ios.get_options();
@@ -129,6 +142,9 @@ class coercion_info_data : public info_data_cell {
     expr m_coercion;
 public:
     coercion_info_data(unsigned c, expr const & e):info_data_cell(c), m_coercion(e) {}
+
+    virtual info_kind kind() const { return info_kind::Coercion; }
+
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- COERCION|" << line << "|" << get_column() << "\n";
         options os = ios.get_options();
@@ -142,6 +158,9 @@ class symbol_info_data : public info_data_cell {
     name m_symbol;
 public:
     symbol_info_data(unsigned c, name const & s):info_data_cell(c), m_symbol(s) {}
+
+    virtual info_kind kind() const { return info_kind::Symbol; }
+
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- SYMBOL|" << line << "|" << get_column() << "\n";
         ios << m_symbol << "\n";
@@ -153,6 +172,9 @@ class identifier_info_data : public info_data_cell {
     name m_full_id;
 public:
     identifier_info_data(unsigned c, name const & full_id):info_data_cell(c), m_full_id(full_id) {}
+
+    virtual info_kind kind() const { return info_kind::Identifier; }
+
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- IDENTIFIER|" << line << "|" << get_column() << "\n";
         ios << m_full_id << "\n";

@@ -20,6 +20,7 @@ following packages:
 Lean's default logical framework is a version of the Calculus of Constructions with:
 
 * an impredicative, proof-irrelevant type `Prop` of propositions
+* univerve polymorphism
 * a non-cumulative hierarchy of universes, `Type 1`, `Type 2`, ... above `Prop`
 * inductively defined types
 

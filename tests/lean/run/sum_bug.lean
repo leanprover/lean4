@@ -49,8 +49,8 @@ theorem sum_inhabited_right [instance] {A B : Type} (H : inhabited B) : inhabite
 inhabited_mk (inr A (default B))
 
 theorem sum_eq_decidable [instance] {A B : Type} (s1 s2 : A + B)
-  (H1 : ∀a1 a2, decidable (inl B a1 = inl B a2))
-  (H2 : ∀b1 b2, decidable (inr A b1 = inr A b2)) : decidable (s1 = s2) :=
+  (H1 : ∀a1 a2 : A, decidable (inl B a1 = inl B a2))
+  (H2 : ∀b1 b2 : B, decidable (inr A b1 = inr A b2)) : decidable (s1 = s2) :=
 rec_on s1
   (take a1, show decidable (inl B a1 = s2), from
     rec_on s2

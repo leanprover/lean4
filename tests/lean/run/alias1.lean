@@ -44,5 +44,5 @@ theorem T3 : aux2 = N2.foo (f a) (f b)
 
 
 check foo a b
-theorem T4 : foo a b = N1.foo a b
+theorem T4 : foo a b = N2.foo a b
 := refl _

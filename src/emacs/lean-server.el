@@ -75,8 +75,21 @@
   "Filter function attached to lean-server process"
   (lean-server-process-received-message (process-buffer process) string))
 
+(defun lean-server-handle-signal (process event)
+  "Handle signals for lean-server-process"
+  (cond
+   ((string-prefix-p "hangup" event)
+    (lean-server-initialize-global-vars))))
+
 ;; How to create an async process
 ;; ==============================
+
+(defun lean-server-initialize-global-vars ()
+  "Initialize lean-server related global variables"
+  (setq lean-global-server-buffer nil)
+  (setq lean-global-server-current-file-name nil)
+  (setq lean-global-server-message-to-process nil))
+
 (defun lean-server-create-process ()
   "Create lean-server process."
   ;; (when (buffer-modified-p)
@@ -89,9 +102,8 @@
                         lean-server-option)))
     (set-process-coding-system lean-server-process 'utf-8 'utf-8)
     (set-process-filter lean-server-process 'lean-server-output-filter)
-    (setq lean-global-server-buffer nil)
-    (setq lean-global-server-current-file-name nil)
-    (setq lean-global-server-message-to-process nil)
+    (set-process-sentinel lean-server-process 'lean-server-handle-signal)
+    (lean-server-initialize-global-vars)
     (setq lean-global-server-process lean-server-process)
     lean-server-process))
 
@@ -99,7 +111,8 @@
   "Kill lean-server process. Return t if killed, nil if nothing to kill"
   (interactive)
   (cond
-   ((and lean-global-server-process (process-exit-status lean-global-server-process))
+   ((and lean-global-server-process
+         (not (= 0 (process-exit-status lean-global-server-process))))
     (setq lean-global-server-process nil)
     t)
    (lean-global-server-process
@@ -108,9 +121,10 @@
     (kill-process lean-global-server-process)
     (setq lean-global-server-process nil)
     t)
-   (t (when (interactive-p)
-        (message "lean-server-kill-process: no process to kill"))
-      nil)))
+   (t
+    (when (interactive-p)
+      (message "lean-server-kill-process: no process to kill"))
+    nil)))
 
 (defun lean-server-restart-process ()
   "Restart lean-server process."

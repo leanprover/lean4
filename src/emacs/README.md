@@ -11,10 +11,11 @@ Requirement
 ``lean-mode`` requires [Emacs 24][emacs24] and following (optional)
 packages which can be installed via <kbd>M-x package-install</kbd>.
 
+ - [company][company]
  - [dash][dash]
  - [dash-functional][dash]
- - [flycheck][flycheck]
  - [fill-column-indicator][fci]
+ - [flycheck][flycheck]
  - [whitespace-cleanup-mode][wcm]
 
 To install them, you need to have [MELPA][MELPA] in your
@@ -32,13 +33,26 @@ code:
 [wcm]: https://github.com/purcell/whitespace-cleanup-mode
 [MELPA]: http://melpa.milkbox.net
 [dash]: https://github.com/magnars/dash.el
-
-Setup
+[company]: http://company-mode.github.io/
 -----
 
 Put the following elisp code on your emacs setup:
 
 ```elisp
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(package-initialize)
+(when (not package-archive-contents) (package-refresh-contents))
+
+;; Install required packages for lean-mode
+(defvar lean-mode-required-packages
+  '(company dash dash-functional flycheck whitespace-cleanup-mode fill-column-indicator))
+(dolist (p lean-mode-required-packages)
+  (when (not (package-installed-p p))
+    (package-install p)))
+
+;; Set up lean-root path
 (setq lean-rootdir "~/projects/lean")
 (setq-local lean-emacs-path
             (concat (file-name-as-directory lean-rootdir)
@@ -47,11 +61,10 @@ Put the following elisp code on your emacs setup:
 (add-to-list 'load-path (expand-file-name lean-emacs-path))
 (require 'lean-mode)
 
-;; lean customization
-(customize-set-variable 'lean-show-rule-column-method 'vline)
-(customize-set-variable 'lean-rule-column 100)
-(customize-set-variable 'lean-rule-color "#ff0000")
+;; Customization for lean-mode
 (customize-set-variable 'lean-delete-trailing-whitespace t)
+(customize-set-variable 'lean-flycheck-use t)
+(customize-set-variable 'lean-eldoc-use t)
 ```
 
 Key Bindings

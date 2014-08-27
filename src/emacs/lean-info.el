@@ -399,23 +399,30 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                  (--filter (or (lean-info-identifier-p it)
                                (lean-info-symbol-p it))
                            info-list)))
-         (candidate
-          (--last (<= (lean-info-column it) column-number)
-                  sorted-id-symbol-list))
+         ;; candidate = list of info
+         (candidate-list
+          (-last-item
+           (-partition-by 'lean-info-column
+                          (--filter (<= (lean-info-column it) column-number)
+                                    sorted-id-symbol-list))))
          matched-name
          start-column
-         full-name)
+         full-name
+         candidate)
+    (setq candidate
+          (-first (lambda (info)
+                    (let* ((start-column (lean-info-column info))
+                           (full-name (lean-info-id-symbol-body-str info))
+                           (matched-name (lean-match-full-name-at-pos
+                                          file-name
+                                          (lean-info-line-number info)
+                                          start-column
+                                          full-name)))
+                      (< column-number
+                         (+ start-column (length matched-name)))))
+                  candidate-list))
     (when candidate
-      (setq start-column (lean-info-column candidate))
-      (setq full-name    (lean-info-id-symbol-body-str candidate))
-      (setq matched-name (lean-match-full-name-at-pos
-                          file-name
-                          (lean-info-line-number candidate)
-                          start-column
-                          full-name))
-      (when (< column-number
-               (+ start-column (length matched-name)))
-        start-column))))
+      (lean-info-column candidate))))
 
 (defun lean-info-list-parse (str &optional file-name column-number)
   "Parse input string and return info-list."
@@ -458,22 +465,28 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
   (let* ((type     (cl-first (lean-info-record-type       info-record)))
          (overload (cl-first (lean-info-record-overload   info-record)))
          (synth    (cl-first (lean-info-record-synth      info-record)))
-         (id-sym   (cl-first
-                    (append
-                     (lean-info-record-identifier info-record)
-                     (lean-info-record-symbol     info-record))))
+         (id       (cl-first (lean-info-record-identifier info-record)))
+         (sym      (cl-first (lean-info-record-symbol     info-record)))
          name-str  type-str  overload-str str)
-    (when id-sym
-      (setq name-str (lean-info-id-symbol-body-str id-sym)))
-    (when synth
-      (setq name-str (lean-info-synth-body-str synth)))
+    (setq name-str
+          (cond
+           (synth (lean-info-synth-body-str synth))
+           ((and id sym)
+            (format "[%s] %s"
+                    (lean-info-id-symbol-body-str sym)
+                    (lean-info-id-symbol-body-str id)))
+           (id   (lean-info-id-symbol-body-str id))
+           (sym  (lean-info-id-symbol-body-str sym))))
     (when type
       (setq type-str (lean-info-type-body-str type)))
     (when (and name-str overload)
       (setq overload-str
             (string-join
-             (--remove (string= it name-str)
-                       (lean-info-overload-names overload))
+             (--remove
+              (or
+               (and id  (string-prefix-p (lean-info-id-symbol-body-str id) it))
+               (and sym (string-prefix-p (lean-info-id-symbol-body-str sym) it)))
+              (lean-info-overload-names overload))
              ", ")))
     (when (and name-str type-str)
       (setq str (format "%s : %s"

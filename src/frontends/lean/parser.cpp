@@ -1209,6 +1209,14 @@ void parser::parse_imports() {
     }
 }
 
+void parser::commit_info(unsigned line) {
+    save_snapshot();
+    if (m_info_manager) {
+        m_info_manager->save_environment_options(line, m_env, m_ios.get_options());
+        m_info_manager->commit_upto(line, true);
+    }
+}
+
 bool parser::parse_commands() {
     // We disable hash-consing while parsing to make sure the pos-info are correct.
     scoped_expr_caching disable(false);
@@ -1230,9 +1238,7 @@ bool parser::parse_commands() {
                     switch (curr()) {
                     case scanner::token_kind::CommandKeyword:
                         parse_command();
-                        save_snapshot();
-                        if (m_info_manager)
-                            m_info_manager->commit_upto(m_scanner.get_line(), true);
+                        commit_info(m_scanner.get_line());
                         break;
                     case scanner::token_kind::ScriptBlock:
                         parse_script();
@@ -1260,9 +1266,7 @@ bool parser::parse_commands() {
                 throw_parser_exception("invalid end of module, expecting 'end'", pos());
         }
     } catch (interrupt_parser) {}
-    save_snapshot();
-    if (m_info_manager)
-        m_info_manager->commit_upto(m_scanner.get_line()+1, true);
+    commit_info(m_scanner.get_line()+1);
     for (certified_declaration const & thm : m_theorem_queue.join()) {
         m_env.replace(thm);
     }
@@ -1299,7 +1303,8 @@ void parser::save_snapshot() {
 void parser::save_pre_info_data() {
     // if elaborator failed, then m_pre_info_data contains type information before elaboration.
     if (m_info_manager) {
-        m_info_manager->merge(m_pre_info_manager);
+        bool overwrite = false;
+        m_info_manager->merge(m_pre_info_manager, overwrite);
         m_pre_info_manager.clear();
     }
 }

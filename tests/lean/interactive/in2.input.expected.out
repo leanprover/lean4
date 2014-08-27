@@ -1,0 +1,11 @@
+-- BEGINEVAL
+Type : Type
+-- ENDEVAL
+-- BEGINSET
+-- ENDSET
+-- BEGINEVAL
+Type.{1} : Type.{2}
+-- ENDEVAL
+-- BEGINEVAL
+tst.foo.{l_1 l_2} : ?M_1 → ?M_2 → ?M_1
+-- ENDEVAL

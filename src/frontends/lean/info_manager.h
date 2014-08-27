@@ -25,14 +25,15 @@ public:
     void add_symbol_info(unsigned l, unsigned c, name const & n);
     void add_identifier_info(unsigned l, unsigned c, name const & full_id);
     void instantiate(substitution const & s);
-    void merge(info_manager const & m);
+    void merge(info_manager const & m, bool overwrite);
     void insert_line(unsigned l);
     void remove_line(unsigned l);
     void invalidate_line(unsigned l);
     void commit_upto(unsigned l, bool valid);
-    bool is_available(unsigned l) const;
     bool is_invalidated(unsigned l) const;
+    void save_environment_options(unsigned l, environment const & env, options const & o);
+    optional<pair<environment, options>> get_final_env_opts() const;
     void clear();
-    void display(io_state_stream const & ios, unsigned line);
+    void display(environment const & env, io_state const & ios, unsigned line);
 };
 }

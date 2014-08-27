@@ -256,36 +256,32 @@ void server::set_option(std::string const & line) {
 
 void server::show_info(unsigned linenum) {
     check_file();
-    if (!m_file->m_info.is_available(linenum)) {
-        m_out << "-- BEGININFO\n-- NAY\n-- ENDINFO" << std::endl;
-        return;
-    }
-    unsigned i = m_file->find(linenum);
-    environment const & env = i == 0 ? m_env               : m_file->m_snapshots[i-1].m_env;
-    options const & o       = i == 0 ? m_ios.get_options() : m_file->m_snapshots[i-1].m_options;
-    scoped_updt_options updt(m_ios, o);
-    io_state_stream out(env, m_ios);
-    out << "-- BEGININFO" << endl;
-    m_file->m_info.display(out, linenum);
-    out << "-- ENDINFO" << endl;
+    m_out << "-- BEGININFO" << std::endl;
+    m_file->m_info.display(m_env, m_ios, linenum);
+    m_out << "-- ENDINFO" << std::endl;
 }
 
-void server::eval(std::string const & line) {
-    if (!m_file->m_info.is_available(m_file->m_lines.size())) {
-        m_out << "-- BEGINEVAL\n-- NAY\n-- ENDEVAL" << std::endl;
-        return;
-    }
-    snapshot & s = !m_file || m_file->m_snapshots.empty() ? m_empty_snapshot : m_file->m_snapshots.back();
+void server::eval_core(environment const & env, options const & o, std::string const & line) {
     std::istringstream strm(line);
-    scoped_updt_options updt(m_ios, s.m_options);
+    scoped_updt_options updt(m_ios, o);
     m_out << "-- BEGINEVAL" << std::endl;
     try {
-        parser p(s.m_env, m_ios, strm, "EVAL_command", true, 1, s.m_lds, s.m_eds, 1);
+        parser p(env, m_ios, strm, "EVAL_command", true);
         p();
     } catch (exception & ex) {
         m_out << ex.what() << std::endl;
     }
     m_out << "-- ENDEVAL" << std::endl;
+}
+
+void server::eval(std::string const & line) {
+    if (!m_file) {
+        eval_core(m_env, m_ios.get_options(), line);
+    } else if (auto p = m_file->m_info.get_final_env_opts()) {
+        eval_core(p->first, p->second, line);
+    } else {
+        eval_core(m_env, m_ios.get_options(), line);
+    }
 }
 
 bool server::operator()(std::istream & in) {

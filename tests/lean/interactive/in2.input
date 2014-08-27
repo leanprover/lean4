@@ -1,0 +1,10 @@
+EVAL
+check Type.{1}
+SET
+pp.universes true
+EVAL
+check Type.{1}
+VISIT simple.lean
+WAIT
+EVAL
+check tst.foo

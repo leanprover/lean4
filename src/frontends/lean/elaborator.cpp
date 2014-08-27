@@ -569,7 +569,8 @@ public:
         if (!infom())
             return;
         m_pre_info_data.instantiate(s);
-        infom()->merge(m_pre_info_data);
+        bool overwrite = true;
+        infom()->merge(m_pre_info_data, overwrite);
         m_pre_info_data.clear();
     }
 

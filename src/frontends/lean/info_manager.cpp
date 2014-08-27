@@ -6,7 +6,9 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <vector>
+#include <set>
 #include "util/thread.h"
+#include "kernel/environment.h"
 #include "library/choice.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/pp_options.h"
@@ -195,14 +197,36 @@ struct info_data_cmp {
 
 struct info_manager::imp {
     typedef rb_tree<info_data, info_data_cmp> info_data_set;
+    /** \brief Saved environment + options for a given line and iteration
+        Whenever "lean server" starts processing a file again, we bump the iteration.
+    */
+    struct env_info {
+        unsigned    m_line;
+        unsigned    m_iteration;
+        environment m_env;
+        options     m_options;
+        env_info():m_line(0), m_iteration(0) {}
+        env_info(unsigned l, unsigned i, environment const & env, options const & o):
+            m_line(l), m_iteration(i), m_env(env), m_options(o) {}
+        friend bool operator<(env_info const & i1, env_info const & i2) { return i1.m_line < i2.m_line; }
+    };
     mutex                      m_mutex;
+    bool                       m_block_updates;
     std::vector<info_data_set> m_line_data;
     std::vector<bool>          m_line_valid;
-    unsigned                   m_available_upto;
+    std::set<env_info>         m_env_info;
+    unsigned                   m_iteration; // current interation
+    unsigned                   m_processed_upto;
 
-    imp():m_available_upto(0) {}
+    imp():m_block_updates(false), m_iteration(0), m_processed_upto(0) {}
+
+    void block_updates(bool f) {
+        lock_guard<mutex> lc(m_mutex);
+        m_block_updates = f;
+    }
 
     void synch_line(unsigned l) {
+        lean_assert(!m_block_updates);
         lean_assert(l > 0);
         if (l >= m_line_data.size()) {
             m_line_data.resize(l+1);
@@ -210,38 +234,68 @@ struct info_manager::imp {
         }
     }
 
+    void save_environment_options(unsigned l, environment const & env, options const & o) {
+        lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
+        // erase all entries in m_env_info such that e.m_line <= l and e.m_iteration < m_iteration
+        auto it  = m_env_info.begin();
+        auto end = m_env_info.end();
+        while (it != end) {
+            if (it->m_line > l)
+                break;
+            else if (it->m_line <= l && it->m_iteration < m_iteration)
+                it = m_env_info.erase(it);
+            else
+                ++it;
+        }
+        m_env_info.insert(env_info(l, m_iteration, env, o));
+    }
+
     void add_type_info(unsigned l, unsigned c, expr const & e) {
         lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
         synch_line(l);
         m_line_data[l].insert(mk_type_info(c, e));
     }
 
     void add_synth_info(unsigned l, unsigned c, expr const & e) {
         lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
         synch_line(l);
         m_line_data[l].insert(mk_synth_info(c, e));
     }
 
     void add_overload_info(unsigned l, unsigned c, expr const & e) {
         lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
         synch_line(l);
         m_line_data[l].insert(mk_overload_info(c, e));
     }
 
     void add_coercion_info(unsigned l, unsigned c, expr const & e) {
         lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
         synch_line(l);
         m_line_data[l].insert(mk_coercion_info(c, e));
     }
 
     void add_symbol_info(unsigned l, unsigned c, name const & s) {
         lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
         synch_line(l);
         m_line_data[l].insert(mk_symbol_info(c, s));
     }
 
     void add_identifier_info(unsigned l, unsigned c, name const & full_id) {
         lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
         synch_line(l);
         m_line_data[l].insert(mk_identifier_info(c, full_id));
     }
@@ -256,6 +310,8 @@ struct info_manager::imp {
 
     void instantiate(substitution const & s) {
         lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
         substitution tmp_s = s;
         unsigned sz     = m_line_data.size();
         for (unsigned i = 0; i < sz; i++) {
@@ -263,25 +319,30 @@ struct info_manager::imp {
         }
     }
 
-    void merge(info_manager::imp const & m) {
+    void merge(info_manager::imp const & m, bool overwrite) {
         if (m.m_line_data.empty())
             return;
         lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
         unsigned sz = m.m_line_data.size();
         for (unsigned i = 1; i < sz; i++) {
             info_data_set const & s = m.m_line_data[i];
             s.for_each([&](info_data const & d) {
                     synch_line(i);
-                    m_line_data[i].insert(d);
+                    if (overwrite || !m_line_data[i].contains(d))
+                        m_line_data[i].insert(d);
                 });
         }
     }
 
     void insert_line(unsigned l) {
         lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
         synch_line(l);
-        if (m_available_upto > l - 1)
-            m_available_upto = l - 1;
+        if (m_processed_upto > l - 1)
+            m_processed_upto = l - 1;
         m_line_data.push_back(info_data_set());
         unsigned i = m_line_data.size();
         while (i > l) {
@@ -294,6 +355,8 @@ struct info_manager::imp {
 
     void remove_line(unsigned l) {
         lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
         lean_assert(l > 0);
         if (l >= m_line_data.size())
             return;
@@ -303,29 +366,28 @@ struct info_manager::imp {
             m_line_valid[i] = m_line_valid[i+1];
         }
         m_line_data.pop_back();
-        if (m_available_upto > l - 1)
-            m_available_upto = l - 1;
+        if (m_processed_upto > l - 1)
+            m_processed_upto = l - 1;
     }
 
     void invalidate_line(unsigned l) {
         lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
         synch_line(l);
-        if (m_available_upto > l - 1)
-            m_available_upto = l - 1;
+        if (m_processed_upto > l - 1)
+            m_processed_upto = l - 1;
         m_line_data[l]  = info_data_set();
         m_line_valid[l] = false;
     }
 
     void commit_upto(unsigned l, bool valid) {
         lock_guard<mutex> lc(m_mutex);
-        for (unsigned i = m_available_upto; i < l && i < m_line_valid.size(); i++)
+        if (m_block_updates)
+            return;
+        for (unsigned i = m_processed_upto; i < l && i < m_line_valid.size(); i++)
             m_line_valid[i] = valid;
-        m_available_upto = l;
-    }
-
-    bool is_available(unsigned l) {
-        lock_guard<mutex> lc(m_mutex);
-        return l < m_available_upto;
+        m_processed_upto = l;
     }
 
     bool is_invalidated(unsigned l) {
@@ -335,18 +397,60 @@ struct info_manager::imp {
         return !m_line_valid[l];
     }
 
-    void display(io_state_stream const & ios, unsigned l) {
-        lock_guard<mutex> lc(m_mutex);
-        if (l >= m_line_data.size())
-            return;
-        m_line_data[l].for_each([&](info_data const & d) {
-                d.display(ios, l);
+    void display_core(environment const & env, options const & o, io_state const & ios, unsigned line) {
+        io_state_stream out = regular(env, ios).update_options(o);
+        m_line_data[line].for_each([&](info_data const & d) {
+                d.display(out, line);
             });
+    }
+
+    void display(environment const & env, io_state const & ios, unsigned line) {
+        lock_guard<mutex> lc(m_mutex);
+        if (line >= m_line_data.size() || m_line_data[line].empty()) {
+            regular(env, ios) << "-- NAY\n";
+            return;
+        }
+        if (m_env_info.empty()) {
+            display_core(env, ios.get_options(), ios, line);
+            return;
+        }
+        auto it  = m_env_info.begin();
+        auto end = m_env_info.end();
+        lean_assert(it != end);
+        if (it->m_line > line) {
+            display_core(env, ios.get_options(), ios, line);
+            return;
+        }
+        while (true) {
+            lean_assert(it->m_line <= line);
+            lean_assert(it != end);
+            auto next = it;
+            ++next;
+            if (next == end || next->m_line > line) {
+                display_core(it->m_env, it->m_options, ios, line);
+                return;
+            }
+            it = next;
+        }
+    }
+
+    optional<pair<environment, options>> get_final_env_opts() {
+        lock_guard<mutex> lc(m_mutex);
+        if (m_env_info.empty()) {
+            return optional<pair<environment, options>>();
+        } else {
+            auto it = m_env_info.end();
+            --it;
+            return optional<pair<environment, options>>(mk_pair(it->m_env, it->m_options));
+        }
     }
 
     void clear() {
         lock_guard<mutex> lc(m_mutex);
+        if (m_block_updates)
+            return;
         m_line_data.clear();
+        m_line_valid.clear();
     }
 };
 
@@ -361,13 +465,20 @@ void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full
     m_ptr->add_identifier_info(l, c, full_id);
 }
 void info_manager::instantiate(substitution const & s) { m_ptr->instantiate(s); }
-void info_manager::merge(info_manager const & m) { m_ptr->merge(*m.m_ptr); }
+void info_manager::merge(info_manager const & m, bool overwrite) { m_ptr->merge(*m.m_ptr, overwrite); }
 void info_manager::insert_line(unsigned l) { m_ptr->insert_line(l); }
 void info_manager::remove_line(unsigned l) { m_ptr->remove_line(l); }
 void info_manager::invalidate_line(unsigned l) { m_ptr->invalidate_line(l); }
 void info_manager::commit_upto(unsigned l, bool valid) { m_ptr->commit_upto(l, valid); }
-bool info_manager::is_available(unsigned l) const { return m_ptr->is_available(l); }
 bool info_manager::is_invalidated(unsigned l) const { return m_ptr->is_invalidated(l); }
+void info_manager::save_environment_options(unsigned l, environment const & env, options const & o) {
+    m_ptr->save_environment_options(l, env, o);
+}
 void info_manager::clear() { m_ptr->clear(); }
-void info_manager::display(io_state_stream const & ios, unsigned line) { m_ptr->display(ios, line); }
+optional<pair<environment, options>> info_manager::get_final_env_opts() const {
+    return m_ptr->get_final_env_opts();
+}
+void info_manager::display(environment const & env, io_state const & ios, unsigned line) {
+    m_ptr->display(env, ios, line);
+}
 }

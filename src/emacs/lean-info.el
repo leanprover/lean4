@@ -380,7 +380,9 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
         (forward-line (1- line-number))
         (forward-char column-number)
         (setq pos (point))
-        (setq str (buffer-substring-no-properties pos (+ pos (length name))))
+        (setq str (buffer-substring-no-properties pos
+                                                  (min (+ pos (length name))
+                                                       (point-max))))
         (string= name str)))))
 
 (defun lean-match-full-name-at-pos (file-name line-number column-number full-name)

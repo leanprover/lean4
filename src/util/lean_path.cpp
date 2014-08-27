@@ -160,10 +160,7 @@ bool is_known_file_ext(std::string const & fname) {
     return is_lean_file(fname) || is_olean_file(fname) || is_lua_file(fname);
 }
 
-optional<std::string> check_file(std::string const & path, std::string const & fname, char const * ext = nullptr) {
-    std::string file = path + g_sep + fname;
-    if (is_directory(file.c_str()))
-        file += g_sep + g_default_file_name;
+optional<std::string> check_file_core(std::string file, char const * ext) {
     if (ext)
         file += ext;
     std::ifstream ifile(file);
@@ -171,6 +168,16 @@ optional<std::string> check_file(std::string const & path, std::string const & f
         return optional<std::string>(lrealpath(file.c_str()));
     else
         return optional<std::string>();
+}
+
+optional<std::string> check_file(std::string const & path, std::string const & fname, char const * ext = nullptr) {
+    std::string file = path + g_sep + fname;
+    if (is_directory(file.c_str())) {
+        std::string default_file = file + g_sep + g_default_file_name;
+        if (auto r = check_file_core(default_file, ext))
+            return r;
+    }
+    return check_file_core(file, ext);
 }
 
 std::string name_to_file(name const & fname) {

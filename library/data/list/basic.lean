@@ -76,23 +76,23 @@ list_induction_on s (refl _)
 
 definition length : list T → ℕ := list_rec 0 (fun x l m, succ m)
 
-theorem length_nil : length (@nil T) = 0 := refl _
+theorem length_nil : length (@nil T) = 0 := rfl
 
-theorem length_cons (x : T) (t : list T) : length (x :: t) = succ (length t) := refl _
+theorem length_cons (x : T) (t : list T) : length (x :: t) = succ (length t) := rfl
 
 theorem length_concat (s t : list T) : length (s ++ t) = length s + length t :=
 list_induction_on s
   (calc
-    length (concat nil t) = length t : refl _
-      ... = zero + length t : {symm (add_zero_left (length t))}
-      ... = length (@nil T) + length t : refl _)
+    length (concat nil t) = length t   : rfl
+      ... = zero + length t            : {add_zero_left⁻¹}
+      ... = length (@nil T) + length t : rfl)
   (take x s,
     assume H : length (concat s t) = length s + length t,
     calc
-      length (concat (cons x s) t ) = succ (length (concat s t))  : refl _
-        ... = succ (length s + length t)  : { H }
-        ... = succ (length s) + length t  : {symm (add_succ_left _ _)}
-        ... = length (cons x s) + length t : refl _)
+      length (concat (cons x s) t ) = succ (length (concat s t))  : rfl
+        ... = succ (length s + length t)   : { H }
+        ... = succ (length s) + length t   : {add_succ_left⁻¹}
+        ... = length (cons x s) + length t : rfl)
 
 -- add_rewrite length_nil length_cons
 

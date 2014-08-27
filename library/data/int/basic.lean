@@ -19,7 +19,7 @@ using relation
 using decidable
 using binary
 using fake_simplifier
-
+using eq_ops
 namespace int
 
 
@@ -34,34 +34,36 @@ H
 
 -- add_rewrite rel_comp --local
 
-theorem rel_refl (a : ℕ × ℕ) : rel a a :=
-add_comm (pr1 a) (pr2 a)
+theorem rel_refl {a : ℕ × ℕ} : rel a a :=
+add_comm
 
 theorem rel_symm {a b : ℕ × ℕ} (H : rel a b) : rel b a :=
 calc
-  pr1 b + pr2 a = pr2 a + pr1 b : add_comm _ _
-    ... = pr1 a + pr2 b : symm H
-    ... = pr2 b + pr1 a : add_comm _ _
+  pr1 b + pr2 a = pr2 a + pr1 b : add_comm
+    ... = pr1 a + pr2 b         : H⁻¹
+    ... = pr2 b + pr1 a         : add_comm
 
 theorem rel_trans {a b c : ℕ × ℕ} (H1 : rel a b) (H2 : rel b c) : rel a c :=
 have H3 : pr1 a + pr2 c + pr2 b = pr2 a + pr1 c + pr2 b, from
   calc
    pr1 a + pr2 c + pr2 b = pr1 a + pr2 b + pr2 c : by simp
-    ... = pr2 a + pr1 b + pr2 c : {H1}
-    ... = pr2 a + (pr1 b + pr2 c) : by simp
-    ... = pr2 a + (pr2 b + pr1 c) : {H2}
-    ... = pr2 a + pr1 c + pr2 b : by simp,
+    ... = pr2 a + pr1 b + pr2 c                  : {H1}
+    ... = pr2 a + (pr1 b + pr2 c)                : by simp
+    ... = pr2 a + (pr2 b + pr1 c)                : {H2}
+    ... = pr2 a + pr1 c + pr2 b                  : by simp,
 show pr1 a + pr2 c = pr2 a + pr1 c, from add_cancel_right H3
 
 theorem rel_equiv : is_equivalence rel :=
-is_equivalence_mk (is_reflexive_mk rel_refl) (is_symmetric_mk @rel_symm)
-(is_transitive_mk @rel_trans)
+is_equivalence_mk
+  (is_reflexive_mk @rel_refl)
+  (is_symmetric_mk @rel_symm)
+  (is_transitive_mk @rel_trans)
 
 theorem rel_flip {a b : ℕ × ℕ} (H : rel a b) : rel (flip a) (flip b) :=
 calc
   pr1 (flip a) + pr2 (flip b) = pr2 a + pr1 b : by simp
-    ... = pr1 a + pr2 b : symm H
-    ... = pr2 (flip a) + pr1 (flip b) : by simp
+    ... = pr1 a + pr2 b                       : H⁻¹
+    ... = pr2 (flip a) + pr1 (flip b)         : by simp
 
 -- ## The canonical representative of each equivalence class
 
@@ -76,14 +78,14 @@ have H2 : ¬ pr1 a ≥ pr2 a, from lt_imp_not_ge H,
 if_neg H2 _ _
 
 theorem proj_le {a : ℕ × ℕ} (H : pr1 a ≤ pr2 a) : proj a = pair 0 (pr2 a - pr1 a) :=
-or_elim (le_or_gt (pr2 a) (pr1 a))
+or_elim le_or_gt
   (assume H2 : pr2 a ≤ pr1 a,
     have H3 : pr1 a = pr2 a, from le_antisym H H2,
     calc
       proj a = pair (pr1 a - pr2 a) 0 : proj_ge H2
-        ... = pair (pr1 a - pr2 a) (pr1 a - pr1 a) : {symm (sub_self (pr1 a))}
+        ... = pair (pr1 a - pr2 a) (pr1 a - pr1 a) : {sub_self⁻¹}
         ... = pair (pr2 a - pr2 a) (pr2 a - pr1 a) : {H3}
-        ... = pair 0 (pr2 a - pr1 a) : {sub_self (pr2 a)})
+        ... = pair 0 (pr2 a - pr1 a)               : {sub_self})
   (assume H2 : pr1 a < pr2 a, proj_lt H2)
 
 theorem proj_ge_pr1 {a : ℕ × ℕ} (H : pr1 a ≥ pr2 a) : pr1 (proj a) = pr1 a - pr2 a :=
@@ -119,70 +121,70 @@ have special : ∀a, pr2 a ≤ pr1 a → proj (flip a) = flip (proj a), from
   have H4 : pr2 (proj (flip a)) = pr2 (flip (proj a)), from
     calc
       pr2 (proj (flip a)) = pr2 (flip a) - pr1 (flip a) : proj_le_pr2 H2
-        ... = pr1 a - pr1 (flip a) : {flip_pr2 a}
-        ... = pr1 a - pr2 a : {flip_pr1 a}
-        ... = pr1 (proj a) : symm (proj_ge_pr1 H)
-        ... = pr2 (flip (proj a)) : symm (flip_pr2 (proj a)),
+        ... = pr1 a - pr1 (flip a)                      : {flip_pr2 a}
+        ... = pr1 a - pr2 a                             : {flip_pr1 a}
+        ... = pr1 (proj a)                              : (proj_ge_pr1 H)⁻¹
+        ... = pr2 (flip (proj a))                       : (flip_pr2 (proj a))⁻¹,
   prod_eq H3 H4,
-or_elim (le_total (pr2 a) (pr1 a))
+or_elim le_total
   (assume H : pr2 a ≤ pr1 a, special a H)
   (assume H : pr1 a ≤ pr2 a,
     have H2 : pr2 (flip a) ≤ pr1 (flip a), from P_flip H,
     calc
       proj (flip a) = flip (flip (proj (flip a))) : symm (flip_flip (proj (flip a)))
-        ... = flip (proj (flip (flip a))) : {symm (special (flip a) H2)}
-        ... = flip (proj a) : {flip_flip a})
+        ... = flip (proj (flip (flip a)))         : {symm (special (flip a) H2)}
+        ... = flip (proj a)                       : {flip_flip a})
 
 theorem proj_rel (a : ℕ × ℕ) : rel a (proj a) :=
-or_elim (le_total (pr2 a) (pr1 a))
+or_elim le_total
   (assume H : pr2 a ≤ pr1 a,
     calc
       pr1 a + pr2 (proj a) = pr1 a + 0 : {proj_ge_pr2 H}
-        ... = pr1 a : add_zero_right (pr1 a)
-        ... = pr2 a + (pr1 a - pr2 a) : symm (add_sub_le H)
-        ... = pr2 a + pr1 (proj a) : {symm (proj_ge_pr1 H)})
+        ... = pr1 a                    : add_zero_right
+        ... = pr2 a + (pr1 a - pr2 a)  : (add_sub_le H)⁻¹
+        ... = pr2 a + pr1 (proj a)     : {(proj_ge_pr1 H)⁻¹})
   (assume H : pr1 a ≤ pr2 a,
     calc
       pr1 a + pr2 (proj a) = pr1 a + (pr2 a - pr1 a) : {proj_le_pr2 H}
-        ... = pr2 a : add_sub_le H
-        ... = pr2 a + 0 : symm (add_zero_right (pr2 a))
-        ... = pr2 a + pr1 (proj a) : {symm (proj_le_pr1 H)})
+        ... = pr2 a                                  : add_sub_le H
+        ... = pr2 a + 0                              : add_zero_right⁻¹
+        ... = pr2 a + pr1 (proj a)                   : {(proj_le_pr1 H)⁻¹})
 
 theorem proj_congr {a b : ℕ × ℕ} (H : rel a b) : proj a = proj b :=
 have special : ∀a b, pr2 a ≤ pr1 a → rel a b → proj a = proj b, from
   take a b,
   assume H2 : pr2 a ≤ pr1 a,
   assume H : rel a b,
-  have H3 : pr1 a + pr2 b ≤ pr2 a + pr1 b, from subst H (le_refl (pr1 a + pr2 b)),
+  have H3 : pr1 a + pr2 b ≤ pr2 a + pr1 b, from H ▸ le_refl,
   have H4 : pr2 b ≤ pr1 b, from add_le_inv H3 H2,
   have H5 : pr1 (proj a) = pr1 (proj b), from
     calc
-      pr1 (proj a) = pr1 a - pr2 a : proj_ge_pr1 H2
-        ... = pr1 a + pr2 b - pr2 b - pr2 a : {symm (sub_add_left (pr1 a) (pr2 b))}
+      pr1 (proj a) = pr1 a - pr2 a          : proj_ge_pr1 H2
+        ... = pr1 a + pr2 b - pr2 b - pr2 a : {sub_add_left⁻¹}
         ... = pr2 a + pr1 b - pr2 b - pr2 a : {H}
-        ... = pr2 a + pr1 b - pr2 a - pr2 b : {sub_comm _ _ _}
-        ... = pr1 b - pr2 b : {sub_add_left2 (pr2 a) (pr1 b)}
-        ... = pr1 (proj b) : symm (proj_ge_pr1 H4),
+        ... = pr2 a + pr1 b - pr2 a - pr2 b : {sub_comm}
+        ... = pr1 b - pr2 b                 : {sub_add_left2}
+        ... = pr1 (proj b)                  : (proj_ge_pr1 H4)⁻¹,
   have H6 : pr2 (proj a) = pr2 (proj b), from
     calc
       pr2 (proj a) = 0 : proj_ge_pr2 H2
         ... = pr2 (proj b) : {symm (proj_ge_pr2 H4)},
   prod_eq H5 H6,
-or_elim (le_total (pr2 a) (pr1 a))
+or_elim le_total
   (assume H2 : pr2 a ≤ pr1 a, special a b H2 H)
   (assume H2 : pr1 a ≤ pr2 a,
     have H3 : pr2 (flip a) ≤ pr1 (flip a), from P_flip H2,
     have H4 : proj (flip a) = proj (flip b), from special (flip a) (flip b) H3 (rel_flip H),
-    have H5 : flip (proj a) = flip (proj b), from subst (proj_flip a) (subst (proj_flip b) H4),
+    have H5 : flip (proj a) = flip (proj b), from proj_flip a ▸ proj_flip b ▸ H4,
     show proj a = proj b, from flip_inj H5)
 
 theorem proj_inj {a b : ℕ × ℕ} (H : proj a = proj b) : rel a b :=
 representative_map_equiv_inj rel_equiv proj_rel @proj_congr H
 
 theorem proj_zero_or (a : ℕ × ℕ) : pr1 (proj a) = 0 ∨ pr2 (proj a) = 0 :=
-or_elim (le_total (pr2 a) (pr1 a))
-  (assume H : pr2 a ≤ pr1 a, or_intro_right _ (proj_ge_pr2 H))
-  (assume H : pr1 a ≤ pr2 a, or_intro_left _ (proj_le_pr1 H))
+or_elim le_total
+  (assume H : pr2 a ≤ pr1 a, or_inr (proj_ge_pr2 H))
+  (assume H : pr1 a ≤ pr2 a, or_inl (proj_le_pr1 H))
 
 theorem proj_idempotent (a : ℕ × ℕ) : proj (proj a) = proj a :=
 representative_map_idempotent_equiv proj_rel @proj_congr a
@@ -226,7 +228,7 @@ theorem to_nat_comp (n m : ℕ) : (to_nat (psub (pair n m))) = dist n m :=
 have H : ∀v w : ℕ × ℕ, rel v w → dist (pr1 v) (pr2 v) = dist (pr1 w) (pr2 w),
   from take v w H, dist_eq_intro H,
 have H2 : ∀v : ℕ × ℕ, (to_nat (psub v)) = dist (pr1 v) (pr2 v),
-  from take v, (comp_constant quotient H (rel_refl v)),
+  from take v, (comp_constant quotient H rel_refl),
 iff_mp (by simp) H2 (pair n m)
 
 -- add_rewrite to_nat_comp --local
@@ -266,7 +268,7 @@ notation `-` x:100 := neg x
 
 theorem neg_comp (n m : ℕ) : -(psub (pair n m)) = psub (pair m n) :=
 have H : ∀a, -(psub a) = psub (flip a),
-  from take a, comp_quotient_map quotient @rel_flip (rel_refl _),
+  from take a, comp_quotient_map quotient @rel_flip rel_refl,
 calc
   -(psub (pair n m)) = psub (flip (pair n m)) : H (pair n m)
     ... = psub (pair m n) : by simp
@@ -295,12 +297,12 @@ by simp
 theorem pos_eq_neg {n m : ℕ} (H : n = -m) : n = 0 ∧ m = 0 :=
 have H2 : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, refl (n),
 have H3 : psub (pair n 0) = psub (pair 0 m), from iff_mp (by simp) H,
-have H4 : rel (pair n 0) (pair 0 m), from R_intro_refl quotient rel_refl H3,
+have H4 : rel (pair n 0) (pair 0 m), from R_intro_refl quotient @rel_refl H3,
 have H5 : n + m = 0, from
   calc
     n + m = pr1 (pair n 0) + pr2 (pair 0 m) : by simp
       ... = pr2 (pair n 0) + pr1 (pair 0 m) : H4
-      ... = 0 : by simp,
+      ... = 0                               : by simp,
  add_eq_zero H5
 
 -- add_rewrite to_nat_neg
@@ -356,7 +358,7 @@ or_elim (cases a)
       (take k : ℕ,
         assume H3 : n = succ k,
         have H4 : a = -(of_nat (succ k)), from subst H3 H2,
-        or_intro_right _ (exists_intro k H4)))
+        or_inr (exists_intro k H4)))
 
 theorem int_by_cases_succ {P : ℤ → Prop} (a : ℤ)
   (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-(of_nat (succ n)))) : P a :=
@@ -370,7 +372,7 @@ have H2 : n = psub (pair 0 m), from
     n = -m : H
       ... = -(psub (pair m 0)) : refl (-m)
       ... = psub (pair 0 m) : by simp,
-have H3 : rel (pair n 0) (pair 0 m), from R_intro_refl quotient rel_refl H2,
+have H3 : rel (pair n 0) (pair 0 m), from R_intro_refl quotient @rel_refl H2,
 have H4 : n + m = 0, from
   calc
     n + m = pr1 (pair n 0) + pr2 (pair 0 m) : by simp
@@ -396,8 +398,8 @@ infixl `+` := int.add
 
 theorem add_comp (n m k l : ℕ) : psub (pair n m) + psub (pair k l) = psub (pair (n + k) (m + l)) :=
 have H : ∀a b, psub a + psub b = psub (map_pair2 nat.add a b),
-  from comp_quotient_map_binary_refl rel_refl quotient @rel_add,
-trans (H (pair n m) (pair k l)) (by simp)
+  from comp_quotient_map_binary_refl @rel_refl quotient @rel_add,
+H (pair n m) (pair k l) ⬝ by simp
 
 -- add_rewrite add_comp --local
 
@@ -446,7 +448,7 @@ theorem to_nat_add_le (a b : ℤ) : to_nat (a + b) ≤ to_nat a + to_nat b :=
 obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
 obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
 have H : dist (xa + xb) (ya + yb) ≤ dist xa ya + dist xb yb,
-  from dist_add_le_add_dist xa xb ya yb,
+  from dist_add_le_add_dist,
 by simp
 
 -- TODO: note, we have to add #nat to get the right interpretation
@@ -635,7 +637,7 @@ theorem mul_comp (n m k l : ℕ) :
   psub (pair n m) * psub (pair k l) = psub (pair (n * k + m * l) (n * l + m * k)) :=
 have H : ∀u v,
     psub u * psub v = psub (pair (pr1 u * pr1 v + pr2 u * pr2 v) (pr1 u * pr2 v + pr2 u * pr1 v)),
-  from comp_quotient_map_binary_refl rel_refl quotient @rel_mul,
+  from comp_quotient_map_binary_refl @rel_refl quotient @rel_mul,
 trans (H (pair n m) (pair k l)) (by simp)
 
 -- add_rewrite mul_comp
@@ -719,7 +721,7 @@ theorem mul_to_nat (a b : ℤ) : (to_nat (a * b)) = #nat (to_nat a) * (to_nat b)
 obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
 obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
 have H : dist xa ya * dist xb yb = dist (xa * xb + ya * yb) (xa * yb + ya * xb),
-  from dist_mul_dist xa ya xb yb,
+  from dist_mul_dist,
 by simp
 
 -- add_rewrite mul_zero_left mul_zero_right mul_one_right mul_one_left

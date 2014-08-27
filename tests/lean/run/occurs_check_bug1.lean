@@ -14,4 +14,4 @@ theorem gcd_def (x y : ℕ) : gcd x y = @ite (y = 0) (decidable_eq (pr2 (pair x 
 sorry
 
 theorem gcd_succ (m n : ℕ) : gcd m (succ n) = gcd (succ n) (m mod succ n) :=
-trans (gcd_def _ _) (if_neg (succ_ne_zero n) _ _)
+trans (gcd_def _ _) (if_neg succ_ne_zero _ _)

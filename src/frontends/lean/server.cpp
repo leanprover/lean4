@@ -117,19 +117,6 @@ static std::string & trim(std::string & s) {
     return ltrim(rtrim(s));
 }
 
-struct scoped_updt_options {
-    io_state & m_ios;
-    options    m_old_options;
-public:
-    scoped_updt_options(io_state & ios, options const & opts):
-        m_ios(ios), m_old_options(m_ios.get_options()) {
-        m_ios.set_options(join(opts, m_old_options));
-    }
-    ~scoped_updt_options() {
-        m_ios.set_options(m_old_options);
-    }
-};
-
 void server::process_from(unsigned linenum) {
     reset_thread();
     unsigned i = m_file->find(linenum);
@@ -145,8 +132,11 @@ void server::process_from(unsigned linenum) {
                 try {
                     snapshot & s = i == 0 ? m_empty_snapshot : m_file->m_snapshots[i-1];
                     std::istringstream strm(block);
-                    scoped_updt_options updt(m_ios, s.m_options);
-                    parser p(s.m_env, m_ios, strm, m_file->m_fname.c_str(), false, 1, s.m_lds, s.m_eds, s.m_line,
+                    std::shared_ptr<output_channel> out1(new string_output_channel());
+                    std::shared_ptr<output_channel> out2(new string_output_channel());
+                    io_state ios(m_ios, out1, out2);
+                    ios.set_options(s.m_options);
+                    parser p(s.m_env, ios, strm, m_file->m_fname.c_str(), false, 1, s.m_lds, s.m_eds, s.m_line,
                              &m_file->m_snapshots, &m_file->m_info);
                     p.set_cache(&m_cache);
                     p();
@@ -264,10 +254,10 @@ void server::show_info(unsigned linenum) {
 
 void server::eval_core(environment const & env, options const & o, std::string const & line) {
     std::istringstream strm(line);
-    scoped_updt_options updt(m_ios, o);
+    io_state ios(m_ios, o);
     m_out << "-- BEGINEVAL" << std::endl;
     try {
-        parser p(env, m_ios, strm, "EVAL_command", true);
+        parser p(env, ios, strm, "EVAL_command", true);
         p();
     } catch (exception & ex) {
         m_out << ex.what() << std::endl;
@@ -279,7 +269,7 @@ void server::eval(std::string const & line) {
     if (!m_file) {
         eval_core(m_env, m_ios.get_options(), line);
     } else if (auto p = m_file->m_info.get_final_env_opts()) {
-        eval_core(p->first, p->second, line);
+        eval_core(p->first, join(p->second, m_ios.get_options()), line);
     } else {
         eval_core(m_env, m_ios.get_options(), line);
     }

@@ -90,8 +90,6 @@ B
 b
 -- ACK
 -- ENDINFO
-simple.lean:4:0: error: command expected
-simple.lean:5:37: error: unknown identifier 'foo'
 -- BEGININFO
 -- SYMBOL|4|22
 Type

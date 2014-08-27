@@ -32,6 +32,12 @@ io_state::io_state(io_state const & ios, std::shared_ptr<output_channel> const &
     m_regular_channel(r),
     m_diagnostic_channel(d) {
 }
+io_state::io_state(io_state const & ios, options const & o):
+    m_options(o),
+    m_formatter_factory(ios.m_formatter_factory),
+    m_regular_channel(ios.m_regular_channel),
+    m_diagnostic_channel(ios.m_diagnostic_channel) {
+}
 
 io_state::~io_state() {}
 

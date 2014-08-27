@@ -9,7 +9,6 @@
 
 import .basic
 
-
 -- eq
 -- --
 
@@ -36,6 +35,13 @@ calc_trans trans
 theorem symm {A : Type} {a b : A} (H : a = b) : b = a :=
 subst H (refl a)
 
+namespace eq_ops
+  postfix `⁻¹` := symm
+  infixr `⬝`   := trans
+  infixr `▸`   := subst
+end eq_ops
+using eq_ops
+
 theorem true_ne_false : ¬true = false :=
 assume H : true = false,
   subst H trivial
@@ -45,7 +51,7 @@ definition eq_rec_on {A : Type} {a1 a2 : A} {B : A → Type} (H1 : a1 = a2) (H2 
 eq_rec H2 H1
 
 theorem eq_rec_on_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq_rec_on H b = b :=
-@trans _ _ (eq_rec_on (refl a) b) _ (refl _) (refl _)
+refl (eq_rec_on rfl b)
 
 theorem eq_rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq_rec b H = b :=
 eq_rec_on_id H b
@@ -56,13 +62,6 @@ theorem eq_rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H1 : a = b) (
 (show ∀(H2 : b = c), eq_rec_on H2 (eq_rec_on H1 u) = eq_rec_on (trans H1 H2) u,
   from eq_rec_on H2 (take (H2 : b = b), eq_rec_on_id H2 _))
 H2
-
-namespace eq_ops
-  postfix `⁻¹` := symm
-  infixr `⬝`   := trans
-  infixr `▸`   := subst
-end eq_ops
-using eq_ops
 
 theorem congr_fun {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a :=
 H ▸ refl (f a)

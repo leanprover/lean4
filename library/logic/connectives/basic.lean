@@ -141,6 +141,11 @@ or_elim H1
   (assume H2 : c, or_inl H2)
   (assume H2 : a, or_inr (H H2))
 
+theorem not_not_em {p : Prop} : ¬¬(p ∨ ¬p) :=
+assume not_em : ¬(p ∨ ¬p),
+  have Hnp : ¬p, from
+    assume Hp : p, absurd (or_inl Hp) not_em,
+  absurd (or_inr Hnp) not_em
 
 -- iff
 -- ---

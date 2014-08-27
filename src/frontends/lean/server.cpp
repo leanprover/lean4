@@ -97,6 +97,7 @@ static std::string g_info("INFO");
 static std::string g_set("SET");
 static std::string g_eval("EVAL");
 static std::string g_wait("WAIT");
+static std::string g_clear_cache("CLEAR_CACHE");
 
 static bool is_command(std::string const & cmd, std::string const & line) {
     return line.compare(0, cmd.size(), cmd) == 0;
@@ -319,6 +320,8 @@ bool server::operator()(std::istream & in) {
             } else if (is_command(g_eval, line)) {
                 read_line(in, line);
                 eval(line);
+            } else if (is_command(g_clear_cache, line)) {
+                m_cache.clear();
             } else if (is_command(g_wait, line)) {
                 if (m_thread_ptr) {
                     m_thread_ptr->join();

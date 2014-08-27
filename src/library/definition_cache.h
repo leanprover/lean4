@@ -36,5 +36,7 @@ public:
     void load(std::istream & in);
     /** \brief Remove the entry named \c n from the cache. */
     void erase(name const & n);
+    /** \brief Clear the whole cache */
+    void clear();
 };
 }

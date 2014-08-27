@@ -15,12 +15,12 @@ notation `if` c `then` t `else` e:45 := ite c t e
 theorem if_pos {c : Prop} {H : decidable c} (Hc : c) {A : Type} (t e : A) : (if c then t else e) = t :=
 decidable_rec
   (assume Hc : c,    refl (@ite c (inl Hc) A t e))
-  (assume Hnc : ¬c,  absurd_elim (@ite c (inr Hnc) A t e = t) Hc Hnc)
+  (assume Hnc : ¬c,  absurd_elim Hc Hnc)
   H
 
 theorem if_neg {c : Prop} {H : decidable c} (Hnc : ¬c) {A : Type} (t e : A) : (if c then t else e) = e :=
 decidable_rec
-  (assume Hc : c,    absurd_elim (@ite c (inl Hc) A t e = e) Hc Hnc)
+  (assume Hc : c,    absurd_elim Hc Hnc)
   (assume Hnc : ¬c,  refl (@ite c (inr Hnc) A t e))
   H
 
@@ -41,9 +41,9 @@ theorem if_cond_congr {c₁ c₂ : Prop} {H₁ : decidable c₁} {H₂ : decidab
 rec_on H₁
  (assume Hc₁  : c₁,  rec_on H₂
    (assume Hc₂  : c₂,  (if_pos Hc₁ t e) ⬝ (if_pos Hc₂ t e)⁻¹)
-   (assume Hnc₂ : ¬c₂, absurd_elim _ (iff_elim_left Heq Hc₁) Hnc₂))
+   (assume Hnc₂ : ¬c₂, absurd_elim (iff_elim_left Heq Hc₁) Hnc₂))
  (assume Hnc₁ : ¬c₁, rec_on H₂
-   (assume Hc₂  : c₂,  absurd_elim _ (iff_elim_right Heq Hc₂) Hnc₁)
+   (assume Hc₂  : c₂,  absurd_elim (iff_elim_right Heq Hc₂) Hnc₁)
    (assume Hnc₂ : ¬c₂, (if_neg Hnc₁ t e) ⬝ (if_neg Hnc₂ t e)⁻¹))
 
 theorem if_congr_aux {c₁ c₂ : Prop} {H₁ : decidable c₁} {H₂ : decidable c₂} {A : Type} {t₁ t₂ e₁ e₂ : A}

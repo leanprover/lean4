@@ -297,7 +297,7 @@ not_succ_zero_le n
 
 theorem lt_imp_eq_succ {n m : ℕ} (H : n < m) : exists k, m = succ k :=
 discriminate
-  (take (Hm : m = 0), absurd_elim _ (subst Hm H) (not_lt_zero n))
+  (take (Hm : m = 0), absurd_elim (subst Hm H) (not_lt_zero n))
   (take (l : ℕ) (Hm : m = succ l), exists_intro l Hm)
 
 -- ### interaction with le
@@ -437,7 +437,7 @@ theorem strong_induction_on {P : nat → Prop} (n : ℕ) (H : ∀n, (∀m, m < n
 have H1 : ∀n, ∀m, m < n → P m, from
   take n,
   induction_on n
-    (show ∀m, m < 0 → P m, from take m H, absurd_elim _ H (not_lt_zero _))
+    (show ∀m, m < 0 → P m, from take m H, absurd_elim H (not_lt_zero _))
     (take n',
       assume IH : ∀m, m < n' → P m,
       have H2: P n', from H n' IH,
@@ -479,7 +479,7 @@ theorem succ_imp_pos {n m : ℕ} (H : n = succ m) : n > 0 :=
 H⁻¹ ▸ (succ_pos m)
 
 theorem ne_zero_imp_pos {n : ℕ} (H : n ≠ 0) : n > 0 :=
-or_elim (zero_or_pos n) (take H2 : n = 0, absurd_elim _ H2 H) (take H2 : n > 0, H2)
+or_elim (zero_or_pos n) (take H2 : n = 0, absurd_elim H2 H) (take H2 : n > 0, H2)
 
 theorem pos_imp_ne_zero {n : ℕ} (H : n > 0) : n ≠ 0 :=
 ne_symm (lt_imp_ne H)
@@ -512,7 +512,7 @@ discriminate
         n * m = 0 * m : {H2}
           ... = 0 : mul_zero_left m,
     have H4 : 0 > 0, from H3 ▸ H,
-    absurd_elim _ H4 (lt_irrefl 0))
+    absurd_elim H4 (lt_irrefl 0))
   (take l : nat,
     assume Hl : n = succ l,
     Hl⁻¹ ▸ (succ_pos l))
@@ -545,7 +545,7 @@ theorem mul_lt_cancel_left {n m k : ℕ} (H : k * n < k * m) : n < m :=
 or_elim (le_or_gt m n)
   (assume H2 : m ≤ n,
     have H3 : k * m ≤ k * n, from mul_le_left H2 k,
-    absurd_elim _ H3 (lt_imp_not_ge H))
+    absurd_elim H3 (lt_imp_not_ge H))
   (assume H2 : n < m, H2)
 
 theorem mul_lt_cancel_right {n m k : ℕ} (H : n * k < m * k) : n < m :=
@@ -587,7 +587,7 @@ or_elim (le_or_gt n 1)
   (assume H5 : n > 1,
     have H6 : n * m ≥ 2 * 1, from mul_le H5 H4,
     have H7 : 1 ≥ 2, from mul_one_right 2 ▸ H ▸ H6,
-    absurd_elim _ (self_lt_succ 1) (le_imp_not_gt H7))
+    absurd_elim (self_lt_succ 1) (le_imp_not_gt H7))
 
 theorem mul_eq_one_right {n m : ℕ} (H : n * m = 1) : m = 1 :=
 mul_eq_one_left ((mul_comm n m) ▸ H)

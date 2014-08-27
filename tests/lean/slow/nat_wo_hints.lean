@@ -228,7 +228,7 @@ theorem add_eq_zero_left {n m : ℕ} : n + m = 0 → n = 0
     (take (H : 0 + m = 0), refl 0)
     (take k IH,
       assume (H : succ k + m = 0),
-      absurd_elim (succ k = 0)
+      absurd_elim
         (show succ (k + m) = 0, from
           calc
             succ (k + m) = succ k + m : symm (add_succ_left k m)
@@ -376,7 +376,7 @@ theorem mul_eq_zero {n m : ℕ} (H : n * m = 0) : n = 0 ∨ m = 0
                 ... = succ k * succ l : { Hk }
                 ... = k * succ l + succ l : mul_succ_left _ _
                 ... = succ (k * succ l + l) : add_succ_right _ _),
-          absurd_elim _  (trans Heq H) (succ_ne_zero _)))
+          absurd_elim (trans Heq H) (succ_ne_zero _)))
 
 -- see more under "positivity" below
 -------------------------------------------------- le
@@ -694,7 +694,7 @@ theorem lt_zero_inv (n : ℕ) : ¬ n < 0
 
 theorem lt_positive {n m : ℕ} (H : n < m) : ∃k, m = succ k
 := discriminate
-    (take (Hm : m = 0), absurd_elim _ (subst Hm H) (lt_zero_inv n))
+    (take (Hm : m = 0), absurd_elim (subst Hm H) (lt_zero_inv n))
     (take (l : ℕ) (Hm : m = succ l), exists_intro l Hm)
 
 ---------- interaction with le
@@ -830,7 +830,7 @@ theorem strong_induction_on {P : ℕ → Prop} (n : ℕ) (IH : ∀n, (∀m, m < 
           (take m : ℕ,
             assume H4 : m < k,
             have H5 : m < 0, from subst H2 H4,
-            absurd_elim _ H5 (lt_zero_inv m)),
+            absurd_elim H5 (lt_zero_inv m)),
         show P k, from IH k H3)
       (take l : ℕ,
         assume IHl : ∀k, k ≤ l → P k,
@@ -866,7 +866,7 @@ theorem add_eq_self {n m : ℕ} (H : n + m = n) : m = 0
             ... = n : H,
       have H3 : n < n, from lt_intro H2,
       have H4 : n ≠ n, from lt_ne H3,
-      absurd_elim _ (refl n) H4)
+      absurd_elim (refl n) H4)
 
 -------------------------------------------------- positivity
 
@@ -881,11 +881,11 @@ theorem succ_positive {n m : ℕ} (H : n = succ m) : n > 0
 := subst (symm H) (lt_zero m)
 
 theorem ne_zero_positive {n : ℕ} (H : n ≠ 0) : n > 0
-:= or_elim (zero_or_positive n) (take H2 : n = 0, absurd_elim _ H2 H) (take H2 : n > 0, H2)
+:= or_elim (zero_or_positive n) (take H2 : n = 0, absurd_elim H2 H) (take H2 : n > 0, H2)
 
 theorem pos_imp_eq_succ {n : ℕ} (H : n > 0) : ∃l, n = succ l
 := discriminate
-    (take H2, absurd_elim _ (subst H2 H) (lt_irrefl 0))
+    (take H2, absurd_elim (subst H2 H) (lt_irrefl 0))
     (take l Hl, exists_intro l Hl)
 
 theorem add_positive_right (n : ℕ) {k : ℕ} (H : k > 0) : n + k > n
@@ -918,7 +918,7 @@ theorem succ_imp_pos {n m : ℕ} (H : n = succ m) : n > 0
 := subst (symm H) (succ_pos m)
 
 theorem ne_zero_pos {n : ℕ} (H : n ≠ 0) : n > 0
-:= or_elim (zero_or_pos n) (take H2 : n = 0, absurd_elim _ H2 H) (take H2 : n > 0, H2)
+:= or_elim (zero_or_pos n) (take H2 : n = 0, absurd_elim H2 H) (take H2 : n > 0, H2)
 
 theorem add_pos_right (n : ℕ) {k : ℕ} (H : k > 0) : n + k > n
 := subst (add_zero_right n) (add_lt_left H n)
@@ -945,7 +945,7 @@ theorem mul_positive_inv_left {n m : ℕ} (H : n * m > 0) : n > 0
           n * m = 0 * m : {H2}
             ... = 0 : mul_zero_left m,
       have H4 : 0 > 0, from subst H3 H,
-      absurd_elim _ H4 (lt_irrefl 0))
+      absurd_elim H4 (lt_irrefl 0))
     (take l : ℕ,
       assume Hl : n = succ l,
       subst (symm Hl) (lt_zero l))
@@ -1061,7 +1061,7 @@ theorem mul_eq_one_left {n m : ℕ} (H : n * m = 1) : n = 1
     (assume H5 : n > 1,
       have H6 : n * m ≥ 2 * 1, from mul_le H5 H4,
       have H7 : 1 ≥ 2, from subst (mul_one_right 2) (subst H H6),
-      absurd_elim _ (self_lt_succ 1) (le_imp_not_gt H7))
+      absurd_elim (self_lt_succ 1) (le_imp_not_gt H7))
 
 theorem mul_eq_one_right {n m : ℕ} (H : n * m = 1) : m = 1
 := mul_eq_one_left (subst (mul_comm n m) H)
@@ -1222,7 +1222,7 @@ theorem succ_sub {m n : ℕ} : m ≥ n → succ m - n  = succ (m - n)
           ... = succ (k - 0) : {symm (sub_zero_right k)})
     (take k,
       assume H : succ k ≤ 0,
-      absurd_elim _ H (not_succ_zero_le k))
+      absurd_elim H (not_succ_zero_le k))
     (take k l,
       assume IH : k ≤ l → succ l - k = succ (l - k),
       take H : succ k ≤ succ l,
@@ -1241,7 +1241,7 @@ theorem add_sub_le {n m : ℕ} : n ≤ m → n + (m - n) = m
       calc
         0 + (k - 0) = k - 0 : add_zero_left (k - 0)
           ... = k : sub_zero_right k)
-    (take k, assume H : succ k ≤ 0, absurd_elim _ H (not_succ_zero_le k))
+    (take k, assume H : succ k ≤ 0, absurd_elim H (not_succ_zero_le k))
     (take k l,
       assume IH : k ≤ l → k + (l - k) = l,
       take H : succ k ≤ succ l,
@@ -1299,7 +1299,7 @@ theorem add_sub_assoc {m k : ℕ} (H : k ≤ m) (n : ℕ) : n + m - k = n + (m -
         calc
           n + m - 0 = n + m : sub_zero_right (n + m)
             ... = n + (m - 0) : {symm (sub_zero_right m)})
-      (take k : ℕ, assume H : succ k ≤ 0, absurd_elim _ H (not_succ_zero_le k))
+      (take k : ℕ, assume H : succ k ≤ 0, absurd_elim H (not_succ_zero_le k))
       (take k m,
         assume IH : k ≤ m → n + m - k = n + (m - k),
         take H : succ k ≤ succ m,

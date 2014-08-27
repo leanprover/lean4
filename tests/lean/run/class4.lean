@@ -35,12 +35,12 @@ theorem is_zero_to_eq (x : nat) (H : is_zero x) : x = zero
      (assume Hz : x = zero, Hz)
      (assume Hs : (∃ n, x = succ n),
        exists_elim Hs (λ (w : nat) (Hw : x = succ w),
-         absurd_elim _ H (subst (symm Hw) (not_is_zero_succ w))))
+         absurd_elim H (subst (symm Hw) (not_is_zero_succ w))))
 
 theorem is_not_zero_to_eq {x : nat} (H : ¬ is_zero x) : ∃ n, x = succ n
 := or_elim (dichotomy x)
      (assume Hz : x = zero,
-       absurd_elim _ (subst (symm Hz) is_zero_zero) H)
+       absurd_elim (subst (symm Hz) is_zero_zero) H)
      (assume Hs, Hs)
 
 theorem not_zero_add (x y : nat) (H : ¬ is_zero y) : ¬ is_zero (x + y)

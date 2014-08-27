@@ -528,10 +528,12 @@ the Lean standard library.
 
 =not_intro H= produces a proof for =¬ a= from =H : a → false=. That is,
 we obtain =¬ a= if we can derive =false= from =a=. The expression
-=absurd_elim b Ha Hna= produces a proof for =b= from =Ha : a= and =Hna : ¬ a=.
+=absurd_elim Ha Hna= produces a proof for some =b= from =Ha : a= and =Hna : ¬ a=.
 That is, we can deduce anything if we have =a= and =¬ a=.
 We now use =not_intro= and =absurd_elim= to produce a proof term for
-=(a → b) → ¬b → ¬a=. =absurd Ha Hna= is just =absurd_elim false Ha Hna=.
+=(a → b) → ¬b → ¬a=. =absurd Ha Hna= is just a special case of
+=absurd_elim= where =b=
+is false.
 
 #+BEGIN_SRC lean
   import logic
@@ -560,7 +562,7 @@ Now, here is the proof term for =¬a → b → (b → a) → c=
   import logic
   variables a b c : Prop
   check fun (Hna : ¬ a) (Hb : b) (Hba : b → a),
-            absurd_elim c (Hba Hb) Hna
+            absurd_elim (Hba Hb) Hna
 #+END_SRC
 
 *** Iff (if-and-only-if)

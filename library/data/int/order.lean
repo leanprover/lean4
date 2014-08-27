@@ -522,7 +522,7 @@ theorem mul_lt_cancel_left_nonneg {a b c : ℤ} (Hc : c ≥ 0) (H : c * a < c * 
 or_elim (le_or_gt b a)
   (assume H2 : b ≤ a,
     have H3 : c * b ≤ c * a, from mul_le_left_nonneg Hc H2,
-    absurd_elim _ H3 (lt_imp_not_ge H))
+    absurd_elim H3 (lt_imp_not_ge H))
   (assume H2 : a < b, H2)
 
 theorem mul_lt_cancel_right_nonneg {a b c : ℤ} (Hc : c ≥ 0) (H : a * c < b * c) : a < b :=
@@ -543,7 +543,7 @@ or_elim (le_or_gt a b)
   (assume H2 : a ≤ b, H2)
   (assume H2 : a > b,
     have H3 : c * a > c * b, from mul_lt_left_pos Hc H2,
-    absurd_elim _ H3 (le_imp_not_gt H))
+    absurd_elim H3 (le_imp_not_gt H))
 
 theorem mul_le_cancel_right_pos {a b c : ℤ} (Hc : c > 0) (H : a * c ≤ b * c) : a ≤ b :=
 mul_le_cancel_left_pos Hc (subst (mul_comm b c) (subst (mul_comm a c) H))
@@ -647,7 +647,7 @@ or_elim3 (trichotomy a 0) sorry sorry sorry
 theorem to_nat_sign_ne_zero {a : ℤ} (H : a ≠ 0) : (to_nat (sign a)) = 1 :=
 or_elim3 (trichotomy a 0) sorry
 --  (by simp)
-  (assume H2 : a = 0, absurd_elim _ H2 H)
+  (assume H2 : a = 0, absurd_elim H2 H)
   sorry
 --  (by simp)
 

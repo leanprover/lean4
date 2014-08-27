@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/typed_expr.h"
+#include "library/choice.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/calc.h"
@@ -324,7 +325,14 @@ static expr parse_overwrite_notation(parser & p, unsigned, expr const *, pos_inf
 
 static expr parse_explicit_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr e = p.parse_expr(get_max_prec());
-    return p.save_pos(mk_explicit(e), pos);
+    if (is_choice(e)) {
+        buffer<expr> new_choices;
+        for (unsigned i = 0; i < get_num_choices(e); i++)
+            new_choices.push_back(p.save_pos(mk_explicit(get_choice(e, i)), pos));
+        return p.save_pos(mk_choice(new_choices.size(), new_choices.data()), pos);
+    } else {
+        return p.save_pos(mk_explicit(e), pos);
+    }
 }
 
 static expr parse_including_expr(parser & p, unsigned, expr const *, pos_info const & pos) {

@@ -1,0 +1,3 @@
+pr : Π {A : Type}, A → A → A
+pr a b : N
+pr a b : N

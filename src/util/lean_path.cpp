@@ -174,8 +174,11 @@ optional<std::string> check_file(std::string const & path, std::string const & f
     std::string file = path + g_sep + fname;
     if (is_directory(file.c_str())) {
         std::string default_file = file + g_sep + g_default_file_name;
-        if (auto r = check_file_core(default_file, ext))
-            return r;
+        if (auto r1 = check_file_core(default_file, ext)) {
+            if (auto r2 = check_file_core(file, ext))
+                throw exception(sstream() << "ambiguous import, it can be '" << *r1 << "' or '" << *r2 << "'");
+            return r1;
+        }
     }
     return check_file_core(file, ext);
 }

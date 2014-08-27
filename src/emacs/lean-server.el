@@ -88,7 +88,10 @@
   "Initialize lean-server related global variables"
   (setq lean-global-server-buffer nil)
   (setq lean-global-server-current-file-name nil)
-  (setq lean-global-server-message-to-process nil))
+  (setq lean-global-server-message-to-process nil)
+  (when (timerp lean-global-nay-retry-timer)
+    (cancel-timer lean-global-nay-retry-timer))
+  (setq lean-global-nay-retry-timer nil))
 
 (defun lean-server-create-process ()
   "Create lean-server process."

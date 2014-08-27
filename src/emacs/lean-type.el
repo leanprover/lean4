@@ -31,16 +31,20 @@
 (defun lean-eldoc-documentation-function ()
   "Show information of lean expression at point if any"
   (interactive)
+  (when (timerp lean-global-nay-retry-timer)
+    (cancel-timer lean-global-nay-retry-timer)
+    (setq lean-global-nay-retry-timer nil))
   (let ((info-record (lean-get-info-record-at-point))
         info-string)
     (cond
      ((and info-record (lean-info-record-nay info-record))
-      (run-with-idle-timer
-       (if (current-idle-time)
-           (time-add (seconds-to-time lean-eldoc-nay-retry-time) (current-idle-time))
-         lean-eldoc-nay-retry-time)
-       nil
-       'lean-eldoc-documentation-function)
+      (setq lean-global-nay-retry-timer
+            (run-with-idle-timer
+             (if (current-idle-time)
+                 (time-add (seconds-to-time lean-eldoc-nay-retry-time) (current-idle-time))
+               lean-eldoc-nay-retry-time)
+             nil
+             'lean-eldoc-documentation-function))
       nil)
      (info-record
       (setq info-string (lean-info-record-to-string info-record))

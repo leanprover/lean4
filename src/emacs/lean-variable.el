@@ -24,6 +24,9 @@ where TYPE := INFO | SET | EVAL | ERROR,
 (defvar lean-global-server-current-file-name nil
   "Current filename that lean server is processing")
 
+(defvar lean-global-nay-retry-timer nil
+  "Timer used to re-try eldoc-documentation-function for NAY.")
+
 (defvar-local lean-changed-lines nil
   "Changed lines")
 (defvar-local lean-removed-lines nil

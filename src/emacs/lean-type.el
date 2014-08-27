@@ -35,10 +35,12 @@
         info-string)
     (cond
      ((and info-record (lean-info-record-nay info-record))
-      (lean-server-log "NAY Detected")
-      (run-with-idle-timer lean-eldoc-nay-retry-time
-                           nil
-                           'lean-eldoc-documentation-function)
+      (run-with-idle-timer
+       (if (current-idle-time)
+           (time-add (seconds-to-time lean-eldoc-nay-retry-time) (current-idle-time))
+         lean-eldoc-nay-retry-time)
+       nil
+       'lean-eldoc-documentation-function)
       nil)
      (info-record
       (setq info-string (lean-info-record-to-string info-record))

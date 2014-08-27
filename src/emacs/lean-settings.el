@@ -45,7 +45,7 @@
   :group 'lean
   :type 'boolean)
 
-(defcustom lean-eldoc-nay-retry-time 0.1
+(defcustom lean-eldoc-nay-retry-time 0.3
   "When eldoc-function had nay, try again after this amount of time.")
 
 (defcustom lean-flycheck-checker-name "lmake"

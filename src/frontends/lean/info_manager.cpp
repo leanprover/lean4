@@ -211,22 +211,21 @@ struct info_manager::imp {
         friend bool operator<(env_info const & i1, env_info const & i2) { return i1.m_line < i2.m_line; }
     };
     mutex                      m_mutex;
-    bool                       m_block_updates;
+    bool                       m_block_new_info;
     std::vector<info_data_set> m_line_data;
     std::vector<bool>          m_line_valid;
     std::set<env_info>         m_env_info;
     unsigned                   m_iteration; // current interation
     unsigned                   m_processed_upto;
 
-    imp():m_block_updates(false), m_iteration(0), m_processed_upto(0) {}
+    imp():m_block_new_info(false), m_iteration(0), m_processed_upto(0) {}
 
-    void block_updates(bool f) {
+    void block_new_info(bool f) {
         lock_guard<mutex> lc(m_mutex);
-        m_block_updates = f;
+        m_block_new_info = f;
     }
 
     void synch_line(unsigned l) {
-        lean_assert(!m_block_updates);
         lean_assert(l > 0);
         if (l >= m_line_data.size()) {
             m_line_data.resize(l+1);
@@ -236,7 +235,7 @@ struct info_manager::imp {
 
     void save_environment_options(unsigned l, environment const & env, options const & o) {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
+        if (m_block_new_info)
             return;
         // erase all entries in m_env_info such that e.m_line <= l and e.m_iteration < m_iteration
         auto it  = m_env_info.begin();
@@ -254,7 +253,7 @@ struct info_manager::imp {
 
     void add_type_info(unsigned l, unsigned c, expr const & e) {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
+        if (m_block_new_info)
             return;
         synch_line(l);
         m_line_data[l].insert(mk_type_info(c, e));
@@ -262,7 +261,7 @@ struct info_manager::imp {
 
     void add_synth_info(unsigned l, unsigned c, expr const & e) {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
+        if (m_block_new_info)
             return;
         synch_line(l);
         m_line_data[l].insert(mk_synth_info(c, e));
@@ -270,7 +269,7 @@ struct info_manager::imp {
 
     void add_overload_info(unsigned l, unsigned c, expr const & e) {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
+        if (m_block_new_info)
             return;
         synch_line(l);
         m_line_data[l].insert(mk_overload_info(c, e));
@@ -278,7 +277,7 @@ struct info_manager::imp {
 
     void add_coercion_info(unsigned l, unsigned c, expr const & e) {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
+        if (m_block_new_info)
             return;
         synch_line(l);
         m_line_data[l].insert(mk_coercion_info(c, e));
@@ -286,7 +285,7 @@ struct info_manager::imp {
 
     void add_symbol_info(unsigned l, unsigned c, name const & s) {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
+        if (m_block_new_info)
             return;
         synch_line(l);
         m_line_data[l].insert(mk_symbol_info(c, s));
@@ -294,7 +293,7 @@ struct info_manager::imp {
 
     void add_identifier_info(unsigned l, unsigned c, name const & full_id) {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
+        if (m_block_new_info)
             return;
         synch_line(l);
         m_line_data[l].insert(mk_identifier_info(c, full_id));
@@ -310,7 +309,7 @@ struct info_manager::imp {
 
     void instantiate(substitution const & s) {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
+        if (m_block_new_info)
             return;
         substitution tmp_s = s;
         unsigned sz     = m_line_data.size();
@@ -323,7 +322,7 @@ struct info_manager::imp {
         if (m.m_line_data.empty())
             return;
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
+        if (m_block_new_info)
             return;
         unsigned sz = m.m_line_data.size();
         for (unsigned i = 1; i < sz; i++) {
@@ -338,8 +337,6 @@ struct info_manager::imp {
 
     void insert_line(unsigned l) {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
-            return;
         synch_line(l);
         if (m_processed_upto > l - 1)
             m_processed_upto = l - 1;
@@ -355,8 +352,6 @@ struct info_manager::imp {
 
     void remove_line(unsigned l) {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
-            return;
         lean_assert(l > 0);
         if (l >= m_line_data.size())
             return;
@@ -372,8 +367,6 @@ struct info_manager::imp {
 
     void invalidate_line(unsigned l) {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
-            return;
         synch_line(l);
         if (m_processed_upto > l - 1)
             m_processed_upto = l - 1;
@@ -383,7 +376,7 @@ struct info_manager::imp {
 
     void commit_upto(unsigned l, bool valid) {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
+        if (m_block_new_info)
             return;
         for (unsigned i = m_processed_upto; i < l && i < m_line_valid.size(); i++)
             m_line_valid[i] = valid;
@@ -447,7 +440,7 @@ struct info_manager::imp {
 
     void clear() {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_updates)
+        if (m_block_new_info)
             return;
         m_line_data.clear();
         m_line_valid.clear();
@@ -478,7 +471,10 @@ void info_manager::clear() { m_ptr->clear(); }
 optional<pair<environment, options>> info_manager::get_final_env_opts() const {
     return m_ptr->get_final_env_opts();
 }
-void info_manager::display(environment const & env, io_state const & ios, unsigned line) {
+void info_manager::display(environment const & env, io_state const & ios, unsigned line) const {
     m_ptr->display(env, ios, line);
+}
+void info_manager::block_new_info(bool f) {
+    m_ptr->block_new_info(f);
 }
 }

@@ -11,15 +11,25 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 
 namespace lean {
-server::file::file(std::string const & fname):m_fname(fname) {}
+server::file::file(std::istream & in, std::string const & fname):m_fname(fname) {
+    for (std::string line; std::getline(in, line);) {
+        m_lines.push_back(line);
+    }
+}
 
 void server::file::replace_line(unsigned linenum, std::string const & new_line) {
+    lock_guard<mutex> lk(m_lines_mutex);
+    m_info.block_new_info(true);
+    m_info.invalidate_line(linenum+1);
     while (linenum >= m_lines.size())
         m_lines.push_back("");
     m_lines[linenum] = new_line;
 }
 
 void server::file::insert_line(unsigned linenum, std::string const & new_line) {
+    lock_guard<mutex> lk(m_lines_mutex);
+    m_info.block_new_info(true);
+    m_info.insert_line(linenum+1);
     while (linenum >= m_lines.size())
         m_lines.push_back("");
     m_lines.push_back("");
@@ -33,6 +43,9 @@ void server::file::insert_line(unsigned linenum, std::string const & new_line) {
 }
 
 void server::file::remove_line(unsigned linenum) {
+    lock_guard<mutex> lk(m_lines_mutex);
+    m_info.block_new_info(true);
+    m_info.remove_line(linenum+1);
     if (linenum >= m_lines.size())
         return;
     lean_assert(!m_lines.empty());
@@ -65,26 +78,125 @@ unsigned server::file::find(unsigned linenum) {
     }
 }
 
+/** \brief Copy lines [starting_from, m_lines.size()) to block and return the total number of lines */
+unsigned server::file::copy_to(std::string & block, unsigned starting_from) {
+    unsigned num_lines = m_lines.size();
+    for (unsigned j = starting_from; j < num_lines; j++) {
+        block += m_lines[j];
+        block += '\n';
+    }
+    return num_lines;
+}
+
+server::worker::worker(environment const & env, io_state const & ios, definition_cache & cache):
+    m_empty_snapshot(env, ios.get_options()),
+    m_cache(cache),
+    m_todo_linenum(0),
+    m_todo_options(ios.get_options()),
+    m_terminate(false),
+    m_thread([=]() {
+            io_state _ios(ios);
+            while (!m_terminate) {
+                file_ptr todo_file;
+                unsigned todo_linenum;
+                options  todo_options;
+                // wait for next task
+                while (!m_terminate) {
+                    unique_lock<mutex> lk(m_todo_mutex);
+                    if (m_todo_file) {
+                        todo_file    = m_todo_file;
+                        todo_linenum = m_todo_linenum;
+                        todo_options = m_todo_options;
+                        break;
+                    } else {
+                        m_todo_cv.wait(lk);
+                    }
+                }
+                // extract block of code and snapshot from todo_file
+                reset_interrupt();
+                if (m_terminate)
+                    break;
+                std::string block;
+                unsigned    num_lines;
+                snapshot    s;
+                {
+                    lean_assert(todo_file);
+                    lock_guard<mutex> lk(todo_file->m_lines_mutex);
+                    todo_file->m_info.block_new_info(false);
+                    unsigned i = todo_file->find(todo_linenum);
+                    todo_file->m_snapshots.resize(i);
+                    s = i == 0 ? m_empty_snapshot : todo_file->m_snapshots[i-1];
+                    lean_assert(s.m_line > 0);
+                    num_lines = todo_file->copy_to(block, s.m_line - 1);
+                }
+                if (m_terminate)
+                    break;
+                // parse block of code with respect to snapshot
+                try {
+                    std::istringstream strm(block);
+                    std::shared_ptr<output_channel> out1(new string_output_channel());
+                    std::shared_ptr<output_channel> out2(new string_output_channel());
+                    io_state tmp_ios(_ios, out1, out2);
+                    tmp_ios.set_options(join(s.m_options, _ios.get_options()));
+                    bool use_exceptions  = false;
+                    unsigned num_threads = 1;
+                    parser p(s.m_env, tmp_ios, strm, todo_file->m_fname.c_str(), use_exceptions, num_threads,
+                             s.m_lds, s.m_eds, s.m_line, &todo_file->m_snapshots, &todo_file->m_info);
+                    p.set_cache(&m_cache);
+                    p();
+                } catch (exception&) {}
+                if (!m_terminate) {
+                    unique_lock<mutex> lk(m_todo_mutex);
+                    if (m_todo_file == todo_file && m_last_file == todo_file && m_todo_linenum == todo_linenum) {
+                        m_todo_linenum = num_lines + 1;
+                        m_todo_file    = nullptr;
+                        m_todo_cv.notify_all();
+                    }
+                }
+            }
+        }) {}
+
+server::worker::~worker() {
+    m_terminate = true;
+    request_interrupt();
+    m_thread.join();
+}
+
+void server::worker::request_interrupt() {
+    m_todo_cv.notify_all();
+    m_thread.request_interrupt();
+}
+
+void server::worker::wait() {
+    while (true) {
+        unique_lock<mutex> lk(m_todo_mutex);
+        if (!m_todo_file)
+            break;
+        m_todo_cv.wait(lk);
+    }
+}
+
+void server::worker::set_todo(file_ptr const & f, unsigned linenum, options const & o) {
+    lock_guard<mutex> lk(m_todo_mutex);
+    if (m_last_file != f || linenum < m_todo_linenum)
+        m_todo_linenum = linenum;
+    m_todo_file    = f;
+    m_last_file    = f;
+    m_todo_options = o;
+    m_todo_cv.notify_all();
+}
+
 server::server(environment const & env, io_state const & ios, unsigned num_threads):
     m_env(env), m_ios(ios), m_out(ios.get_regular_channel().get_stream()),
-    m_num_threads(num_threads), m_empty_snapshot(m_env, m_ios.get_options()) {
+    m_num_threads(num_threads), m_empty_snapshot(m_env, m_ios.get_options()),
+    m_worker(env, ios, m_cache) {
 }
 
 server::~server() {
-    reset_thread();
 }
 
-void server::interrupt_thread() {
-    if (m_thread_ptr)
-        m_thread_ptr->request_interrupt();
-}
-
-void server::reset_thread() {
-    if (m_thread_ptr) {
-        m_thread_ptr->request_interrupt();
-        m_thread_ptr->join();
-        m_thread_ptr.reset(nullptr);
-    }
+void server::interrupt_worker() {
+    m_worker.request_interrupt();
 }
 
 static std::string g_load("LOAD");
@@ -92,7 +204,6 @@ static std::string g_visit("VISIT");
 static std::string g_replace("REPLACE");
 static std::string g_insert("INSERT");
 static std::string g_remove("REMOVE");
-static std::string g_check("CHECK");
 static std::string g_info("INFO");
 static std::string g_set("SET");
 static std::string g_eval("EVAL");
@@ -118,55 +229,27 @@ static std::string & trim(std::string & s) {
 }
 
 void server::process_from(unsigned linenum) {
-    reset_thread();
-    unsigned i = m_file->find(linenum);
-    m_file->m_snapshots.resize(i);
-    snapshot & s = i == 0 ? m_empty_snapshot : m_file->m_snapshots[i-1];
-    std::string block;
-    lean_assert(s.m_line > 0);
-    for (unsigned j = s.m_line-1; j < m_file->m_lines.size(); j++) {
-        block += m_file->m_lines[j];
-        block += '\n';
-    }
-    m_thread_ptr.reset(new interruptible_thread([=]() {
-                try {
-                    snapshot & s = i == 0 ? m_empty_snapshot : m_file->m_snapshots[i-1];
-                    std::istringstream strm(block);
-                    std::shared_ptr<output_channel> out1(new string_output_channel());
-                    std::shared_ptr<output_channel> out2(new string_output_channel());
-                    io_state ios(m_ios, out1, out2);
-                    ios.set_options(s.m_options);
-                    parser p(s.m_env, ios, strm, m_file->m_fname.c_str(), false, 1, s.m_lds, s.m_eds, s.m_line,
-                             &m_file->m_snapshots, &m_file->m_info);
-                    p.set_cache(&m_cache);
-                    p();
-                } catch (exception& ex) {}
-            }));
+    m_worker.set_todo(m_file, linenum, m_ios.get_options());
 }
 
 void server::load_file(std::string const & fname) {
-    interrupt_thread();
+    interrupt_worker();
     std::ifstream in(fname);
     if (in.bad() || in.fail()) {
         m_out << "-- ERROR failed to open file '" << fname << "'" << std::endl;
     } else {
-        reset_thread();
-        m_file.reset(new file(fname));
+        m_file.reset(new file(in, fname));
         m_file_map.insert(mk_pair(fname, m_file));
-        for (std::string line; std::getline(in, line);) {
-            m_file->m_lines.push_back(line);
-        }
         process_from(0);
     }
 }
 
 void server::visit_file(std::string const & fname) {
-    interrupt_thread();
+    interrupt_worker();
     auto it = m_file_map.find(fname);
     if (it == m_file_map.end()) {
         load_file(fname);
     } else {
-        reset_thread();
         m_file = it->second;
         process_from(0);
     }
@@ -193,41 +276,24 @@ void server::check_file() {
 }
 
 void server::replace_line(unsigned linenum, std::string const & new_line) {
-    interrupt_thread();
+    interrupt_worker();
     check_file();
     m_file->replace_line(linenum, new_line);
-    reset_thread();
-    m_file->m_info.invalidate_line(linenum+1);
     process_from(linenum);
 }
 
 void server::insert_line(unsigned linenum, std::string const & new_line) {
-    interrupt_thread();
+    interrupt_worker();
     check_file();
     m_file->insert_line(linenum, new_line);
-    reset_thread();
-    m_file->m_info.insert_line(linenum+1);
     process_from(linenum);
 }
 
 void server::remove_line(unsigned linenum) {
-    interrupt_thread();
+    interrupt_worker();
     check_file();
     m_file->remove_line(linenum);
-    reset_thread();
-    m_file->m_info.remove_line(linenum+1);
     process_from(linenum);
-}
-
-void server::check_line(unsigned linenum, std::string const & line) {
-    check_file();
-    if (linenum >= m_file->m_lines.size()) {
-        m_out << "-- MISMATCH line out of range" << std::endl;
-    } else if (m_file->m_lines[linenum] != line) {
-        m_out << "-- MISMATCH expected " << m_file->m_lines[linenum] << std::endl;
-    } else {
-        m_out << "-- OK" << std::endl;
-    }
 }
 
 void server::set_option(std::string const & line) {
@@ -248,7 +314,7 @@ void server::set_option(std::string const & line) {
 void server::show_info(unsigned linenum) {
     check_file();
     m_out << "-- BEGININFO" << std::endl;
-    m_file->m_info.display(m_env, m_ios, linenum);
+    m_file->infom().display(m_env, m_ios, linenum);
     m_out << "-- ENDINFO" << std::endl;
 }
 
@@ -268,7 +334,7 @@ void server::eval_core(environment const & env, options const & o, std::string c
 void server::eval(std::string const & line) {
     if (!m_file) {
         eval_core(m_env, m_ios.get_options(), line);
-    } else if (auto p = m_file->m_info.get_final_env_opts()) {
+    } else if (auto p = m_file->infom().get_final_env_opts()) {
         eval_core(p->first, join(p->second, m_ios.get_options()), line);
     } else {
         eval_core(m_env, m_ios.get_options(), line);
@@ -286,10 +352,6 @@ bool server::operator()(std::istream & in) {
                 std::string fname = line.substr(g_visit.size());
                 trim(fname);
                 visit_file(fname);
-            } else if (is_command(g_check, line)) {
-                unsigned linenum = get_linenum(line, g_check);
-                read_line(in, line);
-                check_line(linenum-1, line);
             } else if (is_command(g_replace, line)) {
                 unsigned linenum = get_linenum(line, g_replace);
                 read_line(in, line);
@@ -313,10 +375,7 @@ bool server::operator()(std::istream & in) {
             } else if (is_command(g_clear_cache, line)) {
                 m_cache.clear();
             } else if (is_command(g_wait, line)) {
-                if (m_thread_ptr) {
-                    m_thread_ptr->join();
-                    m_thread_ptr.reset(nullptr);
-                }
+                m_worker.wait();
             } else {
                 throw exception(sstream() << "unexpected command line: " << line);
             }

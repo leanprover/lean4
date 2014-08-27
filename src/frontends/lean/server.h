@@ -19,20 +19,46 @@ namespace lean {
    external processes.
 */
 class server {
-    struct file {
+    class worker;
+    class file {
+        friend class server::worker;
         std::string               m_fname;
+        mutable mutex             m_lines_mutex;
         std::vector<std::string>  m_lines;
         snapshot_vector           m_snapshots;
         info_manager              m_info;
 
-        file(std::string const & fname);
         unsigned find(unsigned linenum);
+        unsigned copy_to(std::string & block, unsigned starting_from);
+    public:
+        file(std::istream & in, std::string const & fname);
         void replace_line(unsigned linenum, std::string const & new_line);
         void insert_line(unsigned linenum, std::string const & new_line);
         void remove_line(unsigned linenum);
+        info_manager const & infom() const { return m_info; }
     };
     typedef std::shared_ptr<file>                     file_ptr;
     typedef std::unordered_map<std::string, file_ptr> file_map;
+    class worker {
+        snapshot             m_empty_snapshot;
+        definition_cache &   m_cache;
+        atomic_bool          m_busy;
+        file_ptr             m_todo_file;
+        unsigned             m_todo_linenum;
+        options              m_todo_options;
+        mutex                m_todo_mutex;
+        condition_variable   m_todo_cv;
+        file_ptr             m_last_file;
+        atomic_bool          m_terminate;
+        interruptible_thread m_thread;
+    public:
+        worker(environment const & env, io_state const & ios, definition_cache & cache);
+        ~worker();
+        void set_todo(file_ptr const & f, unsigned linenum, options const & o);
+        void request_interrupt();
+        void wait();
+    };
+
     file_map                  m_file_map;
     file_ptr                  m_file;
     environment               m_env;
@@ -41,7 +67,7 @@ class server {
     unsigned                  m_num_threads;
     snapshot                  m_empty_snapshot;
     definition_cache          m_cache;
-    std::unique_ptr<interruptible_thread> m_thread_ptr;
+    worker                    m_worker;
 
     void load_file(std::string const & fname);
     void visit_file(std::string const & fname);
@@ -49,7 +75,6 @@ class server {
     void replace_line(unsigned linenum, std::string const & new_line);
     void insert_line(unsigned linenum, std::string const & new_line);
     void remove_line(unsigned linenum);
-    void check_line(unsigned linenum, std::string const & line);
     void show_info(unsigned linenum);
     void process_from(unsigned linenum);
     void set_option(std::string const & line);
@@ -57,8 +82,7 @@ class server {
     void eval(std::string const & line);
     unsigned find(unsigned linenum);
     void read_line(std::istream & in, std::string & line);
-    void reset_thread();
-    void interrupt_thread();
+    void interrupt_worker();
     unsigned get_linenum(std::string const & line, std::string const & cmd);
 
 public:

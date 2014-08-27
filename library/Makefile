@@ -1,6 +1,6 @@
 TOP := $(dir $(lastword $(MAKEFILE_LIST)))
 DIR := $(shell pwd)
-LEAN_FILES := $(shell cd $(DIR); find . -type f -name '*.lean')
+LEAN_FILES := $(shell cd $(DIR); find . -type f -name '*.lean' -not -name 'flycheck*')
 OLEAN_FILES := $(LEAN_FILES:.lean=.olean)
 ILEAN_FILES := $(LEAN_FILES:.lean=.ilean)
 DEP_FILES := $(LEAN_FILES:.lean=.d)

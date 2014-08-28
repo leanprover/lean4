@@ -58,7 +58,7 @@
      ;; String
      ("\"[^\"]*\"" . 'font-lock-string-face)
      ;; Constants
-     (,(rx (or "->" "↔" "/" "==" "\/" "[*+/<=>¬∧∨≠≤≥-]")) . 'font-lock-constant-face)
+     (,(rx (or "#" "@" "->" "∼" "↔" "/" "==" "=" ":=" "<->" "/\\" "\\/" "∧" "∨" "≠" "<" ">" "≤" "≥" "¬" "<=" ">=" "⁻¹" "⬝" "▸" "+" "*" "-" "/")) . 'font-lock-constant-face)
      (,(rx (or "λ" "→" "∃" "∀" ":" ":=")) . 'font-lock-constant-face )
      (,(rx symbol-start
            (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "apply" "back" "beta" "done" "exact")

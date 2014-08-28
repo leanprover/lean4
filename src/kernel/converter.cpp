@@ -200,7 +200,7 @@ struct default_converter : public converter {
                 lean_assert(m <= num_args);
                 r = whnf_core(mk_rev_app(instantiate(binding_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()), c);
             } else {
-                r = is_eqp(f, f0) ? e : mk_rev_app(f, args.size(), args.data());
+                r = f == f0 ? e : whnf_core(mk_rev_app(f, args.size(), args.data()), c);
             }
             break;
         }}
@@ -466,6 +466,7 @@ struct default_converter : public converter {
         // apply whnf (without using delta-reduction or normalizer extensions)
         expr t_n = whnf_core(t, c);
         expr s_n = whnf_core(s, c);
+
         if (!is_eqp(t_n, t) || !is_eqp(s_n, s)) {
             r = quick_is_def_eq(t_n, s_n, c, jst, cs);
             if (r != l_undef) return to_bcs(r == l_true, cs);

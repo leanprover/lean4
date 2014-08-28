@@ -89,35 +89,10 @@ struct print_expr_fn {
         }
     }
 
-    bool print_let(expr const & a) {
-        if (!is_let_annotation(a))
-            return false;
-        expr l = get_annotation_arg(a);
-        if (!is_app(l) || !is_lambda(app_fn(l)))
-            return false;
-        name n = binding_name(app_fn(l));
-        expr t = binding_domain(app_fn(l));
-        expr b = binding_body(app_fn(l));
-        expr v = app_arg(l);
-        n      = pick_unused_name(b, n);
-        expr c = mk_local(n, expr());
-        b      = instantiate(b, c);
-        out() << "let " << c;
-        out() << " : ";
-        print(t);
-        out() << " := ";
-        print(v);
-        out() << " in ";
-        print_child(b);
-        return true;
-    }
-
     void print_macro(expr const & a) {
-        if (!print_let(a)) {
-            macro_def(a).display(out());
-            for (unsigned i = 0; i < macro_num_args(a); i++) {
-                out() << " "; print_child(macro_arg(a, i));
-            }
+        macro_def(a).display(out());
+        for (unsigned i = 0; i < macro_num_args(a); i++) {
+            out() << " "; print_child(macro_arg(a, i));
         }
     }
 

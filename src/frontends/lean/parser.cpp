@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/scoped_ext.h"
 #include "library/explicit.h"
+#include "library/annotation.h"
 #include "library/num.h"
 #include "library/string.h"
 #include "library/sorry.h"
@@ -281,6 +282,8 @@ expr parser::rec_save_pos(expr const & e, pos_info p) {
 
 /** \brief Create a copy of \c e, and the position of new expression with p */
 expr parser::copy_with_new_pos(expr const & e, pos_info p) {
+    if (is_let_value_annotation(e))
+        return e;
     switch (e.kind()) {
     case expr_kind::Sort: case expr_kind::Constant: case expr_kind::Meta:
     case expr_kind::Local: case expr_kind::Var:

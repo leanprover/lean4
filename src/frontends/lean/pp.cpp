@@ -316,43 +316,10 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
     }
 }
 
-static bool is_let(expr const & e) { return is_app(e) && is_let_annotation(app_fn(e)); }
 static bool is_have(expr const & e) { return is_app(e) && is_have_annotation(app_fn(e)); }
 static bool is_show(expr const & e) {
-    if (!is_let(e))
-        return false;
-    expr b = get_annotation_arg(app_fn(e));
-    return is_show_aux_name(binding_name(b)) && is_var(binding_body(b), 0);
-}
-
-auto pretty_fn::pp_let(expr e) -> result {
-    buffer<expr_pair> decls;
-    while (true) {
-        if (!is_let(e))
-            break;
-        expr v = app_arg(e);
-        auto p = binding_body_fresh(get_annotation_arg(app_fn(e)), true);
-        decls.emplace_back(p.second, v);
-        e = p.first;
-    }
-    if (decls.empty())
-        return pp(e);
-    format r    = g_let_fmt;
-    unsigned sz = decls.size();
-    for (unsigned i = 0; i < sz; i++) {
-        auto const & d = decls[i];
-        format beg     = i == 0 ? space() : line();
-        format sep     = i < sz - 1 ? comma() : format();
-        name const & n = local_pp_name(d.first);
-        format t       = pp_child(mlocal_type(d.first), 0).first;
-        format v       = pp_child(d.second, 0).first;
-        r += nest(3 + 1, compose(beg, group(format(n) + space() + colon()
-                                            + nest(n.size() + 1 + 1 + 1, space() + t) + space() + g_assign_fmt
-                                            + nest(m_indent, line() + v + sep))));
-    }
-    format b = pp_child(e, 0).first;
-    r += line() + g_in_fmt + space() + nest(2 + 1, b);
-    return mk_result(r, 0);
+    return is_show_annotation(e) && is_app(get_annotation_arg(e)) &&
+        is_lambda(app_fn(get_annotation_arg(e)));
 }
 
 auto pretty_fn::pp_have(expr const & e) -> result {
@@ -377,9 +344,11 @@ auto pretty_fn::pp_have(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_show(expr const & e) -> result {
-    expr proof       = app_arg(e);
-    expr binding     = get_annotation_arg(app_fn(e));
-    format type_fmt  = pp_child(binding_domain(binding), 0).first;
+    lean_assert(is_show(e));
+    expr s           = get_annotation_arg(e);
+    expr proof       = app_arg(s);
+    expr type        = binding_domain(app_fn(s));
+    format type_fmt  = pp_child(type, 0).first;
     format proof_fmt = pp_child(proof, 0).first;
     format r = g_show_fmt + space() + nest(5, type_fmt) + comma() + space() + g_from_fmt;
     r = group(r);
@@ -418,7 +387,6 @@ auto pretty_fn::pp(expr const & e) -> result {
 
     if (is_placeholder(e))  return mk_result(g_placeholder_fmt);
     if (is_show(e))         return pp_show(e);
-    if (is_let(e))          return pp_let(e);
     if (is_have(e))         return pp_have(e);
     if (is_typed_expr(e))   return pp(get_typed_expr_expr(e));
     if (auto n = to_num(e)) return pp_num(*n);

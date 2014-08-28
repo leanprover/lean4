@@ -91,8 +91,8 @@ expr const & get_annotation_arg(expr const & e) {
     return macro_arg(e, 0);
 }
 
-name const & get_let_name() {
-    static name g_let("let");
+name const & get_let_value_name() {
+    static name g_let("letv");
     static register_annotation_fn g_let_annotation(g_let);
     return g_let;
 }
@@ -102,11 +102,21 @@ name const & get_have_name() {
     static register_annotation_fn g_have_annotation(g_have);
     return g_have;
 }
-static name g_let_name  = get_let_name();  // force 'let' annotation to be registered
-static name g_have_name = get_have_name(); // force 'have' annotation to be registered
 
-expr mk_let_annotation(expr const & e) { return mk_annotation(get_let_name(), e); }
+name const & get_show_name() {
+    static name g_show("show");
+    static register_annotation_fn g_show_annotation(g_show);
+    return g_show;
+}
+
+static name g_let_name  = get_let_value_name();  // force 'let value' annotation to be registered
+static name g_have_name = get_have_name(); // force 'have' annotation to be registered
+static name g_show_name = get_show_name(); // force 'show' annotation to be registered
+
+expr mk_let_value_annotation(expr const & e) { return mk_annotation(get_let_value_name(), e); }
 expr mk_have_annotation(expr const & e) { return mk_annotation(get_have_name(), e); }
-bool is_let_annotation(expr const & e) { return is_annotation(e, get_let_name()); }
+expr mk_show_annotation(expr const & e) { return mk_annotation(get_show_name(), e); }
+bool is_let_value_annotation(expr const & e) { return is_annotation(e, get_let_value_name()); }
 bool is_have_annotation(expr const & e) { return is_annotation(e, get_have_name()); }
+bool is_show_annotation(expr const & e) { return is_annotation(e, get_show_name()); }
 }

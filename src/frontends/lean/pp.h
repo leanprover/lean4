@@ -66,7 +66,6 @@ private:
     result pp_app(expr const & e);
     result pp_lambda(expr const & e);
     result pp_pi(expr const & e);
-    result pp_let(expr e);
     result pp_have(expr const & e);
     result pp_show(expr const & e);
     result pp_macro(expr const & e);

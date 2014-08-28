@@ -55,11 +55,6 @@ static expr parse_let_body(parser & p, pos_info const & pos) {
     }
 }
 
-static expr mk_let(parser & p, name const & id, expr const & t, expr const & v, expr const & b, pos_info const & pos, binder_info const & bi) {
-    expr l = p.save_pos(mk_let_annotation(p.save_pos(mk_lambda(id, t, b, bi), pos)), pos);
-    return p.mk_app(l, v, pos);
-}
-
 static void parse_let_modifiers(parser & p, bool & is_fact) {
     while (true) {
         if (p.curr_is_token(g_fact)) {
@@ -79,11 +74,11 @@ static expr parse_let(parser & p, pos_info const & pos) {
         auto pos = p.pos();
         name id  = p.check_atomic_id_next("invalid let declaration, identifier expected");
         bool is_fact   = false;
-        expr type, value;
+        optional<expr> type;
+        expr value;
         parse_let_modifiers(p, is_fact);
         if (p.curr_is_token(g_assign)) {
             p.next();
-            type  = p.save_pos(mk_expr_placeholder(), pos);
             value = p.parse_expr();
         } else if (p.curr_is_token(g_colon)) {
             p.next();
@@ -97,22 +92,20 @@ static expr parse_let(parser & p, pos_info const & pos) {
             if (p.curr_is_token(g_colon)) {
                 p.next();
                 type  = p.parse_scoped_expr(ps, lenv);
-            } else {
-                type  = p.save_pos(mk_expr_placeholder(), pos);
+                type  = Pi(ps, *type, p);
             }
             p.check_token_next(g_assign, "invalid let declaration, ':=' expected");
             value = p.parse_scoped_expr(ps, lenv);
-            type  = Pi(ps, type, p);
             value = Fun(ps, value, p);
         }
-        // expr l = p.save_pos(mk_local(id, type), pos);
-        // p.add_local(l);
-        // expr body = abstract(parse_let_body(p, pos), l);
-        //     return mk_let(p, id, type, value, body, pos, mk_contextual_info(is_fact));
-        // } else  {
-        p.add_local_expr(id, p.save_pos(mk_typed_expr(type, value), p.pos_of(value)));
+        expr v;
+        if (type)
+            v = p.save_pos(mk_typed_expr(*type, value), p.pos_of(value));
+        else
+            v = value;
+        v = p.save_pos(mk_let_value_annotation(v), pos);
+        p.add_local_expr(id, v);
         return parse_let_body(p, pos);
-        // }
     }
 }
 
@@ -268,7 +261,9 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
     expr prop  = p.parse_expr();
     p.check_token_next(g_comma, "invalid 'show' declaration, ',' expected");
     expr proof = parse_proof(p, prop);
-    return mk_let(p, H_show, prop, proof, Var(0), pos, mk_contextual_info(false));
+    expr b = p.save_pos(mk_lambda(H_show, prop, Var(0)), pos);
+    expr r = p.mk_app(b, proof, pos);
+    return p.save_pos(mk_show_annotation(r), pos);
 }
 
 static name g_exists_elim("exists_elim");

@@ -293,6 +293,7 @@ class elaborator {
     typedef std::vector<constraint> constraint_vect;
     typedef name_map<expr> local_tactic_hints;
     typedef std::unique_ptr<type_checker> type_checker_ptr;
+    typedef rb_map<expr, pair<expr, constraint_seq>, expr_quick_cmp> cache;
 
     elaborator_context & m_env;
     name_generator       m_ngen;
@@ -301,6 +302,7 @@ class elaborator {
                                      // representing the context where ?m was created.
     context              m_context; // current local context: a list of local constants
     context              m_full_context; // superset of m_context, it also contains non-contextual locals.
+    cache                m_cache;
 
     local_tactic_hints   m_local_tactic_hints; // mapping from metavariable name ?m to tactic expression that should be used to solve it.
                                               // this mapping is populated by the 'by tactic-expr' expression.
@@ -309,10 +311,22 @@ class elaborator {
     bool                 m_noinfo;  // when true, we do not collect information when true, we set is to true whenever we find noinfo annotation.
     info_manager         m_pre_info_data;
 
+    // Auxiliary object to "saving" elaborator state
+    struct saved_state {
+        list<expr> m_ctx;
+        list<expr> m_full_ctx;
+        cache      m_cache;
+        saved_state(elaborator & e):
+            m_ctx(e.m_context.get_data()), m_full_ctx(e.m_full_context.get_data()), m_cache(e.m_cache) {}
+    };
+
     struct scope_ctx {
+        elaborator &   m_main;
         context::scope m_scope1;
         context::scope m_scope2;
-        scope_ctx(elaborator & e):m_scope1(e.m_context), m_scope2(e.m_full_context) {}
+        cache          m_old_cache;
+        scope_ctx(elaborator & e):m_main(e), m_scope1(e.m_context), m_scope2(e.m_full_context), m_old_cache(e.m_cache) {}
+        ~scope_ctx() { m_main.m_cache = m_old_cache; }
     };
 
     /** \brief Auxiliary object for creating backtracking points, and replacing the local scopes. */
@@ -321,13 +335,19 @@ class elaborator {
         bool                   m_old_noinfo;
         context::scope_replace m_context_scope;
         context::scope_replace m_full_context_scope;
-        new_scope(elaborator & e, list<expr> const & ctx, list<expr> const & full_ctx, bool noinfo = false):
-            m_main(e), m_context_scope(e.m_context, ctx), m_full_context_scope(e.m_full_context, full_ctx) {
+        cache                  m_old_cache;
+        new_scope(elaborator & e, saved_state const & s, bool noinfo = false):
+            m_main(e),
+            m_context_scope(e.m_context, s.m_ctx),
+            m_full_context_scope(e.m_full_context, s.m_full_ctx){
             m_old_noinfo    = m_main.m_noinfo;
             m_main.m_noinfo = noinfo;
+            m_old_cache     = m_main.m_cache;
+            m_main.m_cache  = s.m_cache;
         }
         ~new_scope() {
             m_main.m_noinfo = m_old_noinfo;
+            m_main.m_cache  = m_old_cache;
         }
     };
 
@@ -347,14 +367,12 @@ class elaborator {
         elaborator & m_elab;
         expr         m_mvar;
         expr         m_choice;
-        list<expr>   m_ctx;
-        list<expr>   m_full_ctx;
+        saved_state  m_state;
         unsigned     m_idx;
         bool         m_relax_main_opaque;
         choice_expr_elaborator(elaborator & elab, expr const & mvar, expr const & c,
-                               list<expr> const & ctx, list<expr> const & full_ctx,
-                               bool relax):
-            m_elab(elab), m_mvar(mvar), m_choice(c), m_ctx(ctx), m_full_ctx(full_ctx),
+                               saved_state const & s, bool relax):
+            m_elab(elab), m_mvar(mvar), m_choice(c), m_state(s),
             m_idx(get_num_choices(m_choice)), m_relax_main_opaque(relax) {
         }
 
@@ -365,7 +383,7 @@ class elaborator {
                 expr const & f = get_app_fn(c);
                 m_elab.save_identifier_info(f);
                 try {
-                    new_scope s(m_elab, m_ctx, m_full_ctx);
+                    new_scope s(m_elab, m_state);
                     pair<expr, constraint_seq> rcs = m_elab.visit(c);
                     expr r = rcs.first;
                     constraint_seq cs = mk_eq_cnstr(m_mvar, r, justification(), m_relax_main_opaque) + rcs.second;
@@ -402,18 +420,16 @@ class elaborator {
         list<tactic_hint_entry> m_tactics;
         proof_state_seq         m_tactic_result; // result produce by last executed tactic.
         buffer<expr>            m_mvars_in_meta_type; // metavariables that occur in m_meta_type, the tactics may instantiate some of them
-        list<expr>              m_ctx; // local context for m_meta
-        list<expr>              m_full_ctx;
+        saved_state             m_state;
         justification           m_jst;
         bool                    m_relax_main_opaque;
 
         placeholder_elaborator(elaborator & elab, expr const & meta, expr const & meta_type,
                                list<expr> const & local_insts, list<name> const & instances, list<tactic_hint_entry> const & tacs,
-                               list<expr> const & ctx, list<expr> const & full_ctx,
-                               justification const & j, bool ignore_failure, bool relax):
+                               saved_state const & s, justification const & j, bool ignore_failure, bool relax):
             choice_elaborator(ignore_failure),
             m_elab(elab), m_meta(meta), m_meta_type(meta_type), m_local_instances(local_insts), m_instances(instances),
-            m_tactics(tacs), m_ctx(ctx), m_full_ctx(full_ctx), m_jst(j), m_relax_main_opaque(relax) {
+            m_tactics(tacs), m_state(s), m_jst(j), m_relax_main_opaque(relax) {
             collect_metavars(meta_type, m_mvars_in_meta_type);
         }
 
@@ -430,7 +446,7 @@ class elaborator {
             }
             try {
                 bool noinfo = true;
-                new_scope s(m_elab, m_ctx, m_full_ctx, noinfo);
+                new_scope s(m_elab, m_state, noinfo);
                 pair<expr, constraint_seq> rcs = m_elab.visit(pre); // use elaborator to create metavariables, levels, etc.
                 expr r = rcs.first;
                 buffer<constraint> cs;
@@ -617,8 +633,7 @@ public:
     */
     expr mk_placeholder_meta(optional<expr> const & type, tag g, bool is_strict, constraint_seq & cs) {
         expr m              = m_context.mk_meta(type, g);
-        list<expr> ctx      = m_context.get_data();
-        list<expr> full_ctx = m_full_context.get_data();
+        saved_state st(*this);
         justification j     = mk_failed_to_synthesize_jst(m);
         auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s, name_generator const & /* ngen */) {
             expr const & mvar = get_app_fn(meta);
@@ -626,7 +641,7 @@ public:
                 name const & cls_name = const_name(get_app_fn(meta_type));
                 list<expr> local_insts;
                 if (use_local_instances())
-                    local_insts = get_local_instances(ctx, cls_name);
+                    local_insts = get_local_instances(st.m_ctx, cls_name);
                 list<name>  insts = get_class_instances(meta_type);
                 list<tactic_hint_entry> tacs;
                 if (!s.is_assigned(mvar))
@@ -634,7 +649,7 @@ public:
                 if (empty(local_insts) && empty(insts) && empty(tacs))
                     return lazy_list<constraints>(); // nothing to be done
                 bool ignore_failure = false; // we are always strict with placeholders associated with classes
-                return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, local_insts, insts, tacs, ctx, full_ctx,
+                return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, local_insts, insts, tacs, st,
                                                                        j, ignore_failure, m_relax_main_opaque));
             } else if (s.is_assigned(mvar)) {
                 // if the metavariable is assigned and it is not a class, then we just ignore it, and return
@@ -643,8 +658,8 @@ public:
             } else {
                 list<tactic_hint_entry> tacs = get_tactic_hints(env());
                 bool ignore_failure = !is_strict;
-                return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, list<expr>(), list<name>(), tacs, ctx, full_ctx,
-                                                                       j, ignore_failure, m_relax_main_opaque));
+                return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, list<expr>(), list<name>(),
+                                                                       tacs, st, j, ignore_failure, m_relax_main_opaque));
             }
         };
         cs += mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::ClassInstance), false, j, m_relax_main_opaque);
@@ -689,11 +704,10 @@ public:
         lean_assert(is_choice(e));
         // Possible optimization: try to lookahead and discard some of the alternatives.
         expr m              = m_full_context.mk_meta(t, e.get_tag());
-        list<expr> ctx      = m_context.get_data();
-        list<expr> full_ctx = m_full_context.get_data();
+        saved_state s(*this);
         bool relax          = m_relax_main_opaque;
         auto fn = [=](expr const & mvar, expr const & /* type */, substitution const & /* s */, name_generator const & /* ngen */) {
-            return choose(std::make_shared<choice_expr_elaborator>(*this, mvar, e, ctx, full_ctx, relax));
+            return choose(std::make_shared<choice_expr_elaborator>(*this, mvar, e, s, relax));
         };
         justification j = mk_justification("none of the overloads is applicable", some_expr(e));
         cs += mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), true, j, m_relax_main_opaque);
@@ -1077,11 +1091,25 @@ public:
         return v;
     }
 
+    expr visit_let_value(expr const & e, constraint_seq & cs) {
+        if (auto p = m_cache.find(e)) {
+            cs += p->second;
+            return p->first;
+        } else {
+            auto ecs = visit(get_annotation_arg(e));
+            m_cache.insert(e, mk_pair(ecs.first, ecs.second));
+            cs += ecs.second;
+            return ecs.first;
+        }
+    }
+
     expr visit_core(expr const & e, constraint_seq & cs) {
         if (is_placeholder(e)) {
             return visit_placeholder(e, cs);
         } else if (is_choice(e)) {
             return visit_choice(e, none_expr(), cs);
+        } else if (is_let_value_annotation(e)) {
+            return visit_let_value(e, cs);
         } else if (is_by(e)) {
             return visit_by(e, none_expr(), cs);
         } else if (is_noinfo(e)) {

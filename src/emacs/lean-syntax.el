@@ -9,7 +9,7 @@
 
 (defconst lean-keywords
   '("import" "abbreviation" "opaque_hint" "tactic_hint" "definition" "renaming"
-    "inline" "hiding" "exposing" "parameter" "parameters" "proof" "qed" "conjecture"
+    "inline" "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture"
     "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem"
     "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"
     "options" "precedence" "postfix" "prefix" "calc_trans" "calc_subst" "calc_refl"

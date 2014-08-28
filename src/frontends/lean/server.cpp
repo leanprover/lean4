@@ -98,7 +98,7 @@ server::worker::worker(environment const & env, io_state const & ios, definition
             io_state _ios(ios);
             while (!m_terminate) {
                 file_ptr todo_file;
-                unsigned todo_linenum;
+                unsigned todo_linenum = 0;
                 options  todo_options;
                 // wait for next task
                 while (!m_terminate) {

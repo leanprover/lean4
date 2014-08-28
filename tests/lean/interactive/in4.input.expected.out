@@ -1,0 +1,18 @@
+-- BEGININFO
+-- TYPE|9|0
+∀ (a : A), eq a a
+-- ACK
+-- SYMBOL|9|0
+rfl
+-- ACK
+-- ENDINFO
+-- AFTER REMOVE 8&9
+-- BEGININFO
+-- NAY
+-- ENDINFO
+-- BEGININFO
+-- NAY
+-- ENDINFO
+-- BEGININFO
+-- NAY
+-- ENDINFO

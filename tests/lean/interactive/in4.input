@@ -1,0 +1,14 @@
+VISIT simple3.lean
+WAIT
+INFO 9
+REMOVE 9
+REMOVE 8
+ECHO AFTER REMOVE 8&9
+INFO 9
+INFO 8
+INSERT 8
+theorem tst {A : Type} (a b : A) : tst.foo a b = a :=
+INSERT 9
+rfl
+WAIT
+INFO 9

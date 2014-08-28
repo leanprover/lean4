@@ -2,16 +2,13 @@
 --- Released under Apache 2.0 license as described in the file LICENSE.
 --- Author: Jeremy Avigad
 
--- Theory nat2
--- ===========
+-- div.lean
+-- ========
 --
 -- This is a continuation of the development of the natural numbers, with a general way of
 -- defining recursive functions, and definitions of div, mod, and gcd.
 
--- TODO: replace the two uses of "not_or" by a constructive version
-
 import logic .sub struc.relation data.prod
-import logic.axioms.funext -- is this really needed?
 import tools.fake_simplifier
 
 using nat relation relation.iff_ops prod
@@ -63,76 +60,86 @@ definition rec_measure {dom codom : Type} (default : codom) (measure : dom → �
     (rec_val : dom → (dom → codom) → codom) (x : dom) : codom :=
 rec_measure_aux default measure rec_val (succ (measure x)) x
 
--- TODO: is funext really needed here?
 theorem rec_measure_aux_spec {dom codom : Type} (default : codom) (measure : dom → ℕ)
     (rec_val : dom → (dom → codom) → codom)
-    (rec_decreasing : ∀g m x, m ≥ measure x →
-      rec_val x g = rec_val x (restrict default measure g m))
+    (rec_decreasing : ∀g1 g2 x, (∀z, measure z < measure x → g1 z = g2 z) →
+        rec_val x g1 = rec_val x g2)
     (m : ℕ) :
   let f' := rec_measure_aux default measure rec_val in
   let f := rec_measure default measure rec_val in
-  f' m = restrict default measure f m :=
--- TODO: note the use of (need for) inline here
+  ∀x, f' m x = restrict default measure f m x :=
 let f' := rec_measure_aux default measure rec_val in
 let f  := rec_measure default measure rec_val in
 case_strong_induction_on m
-  (have H1 : f' 0 = (λx, default), from rfl,
-    have H2 : restrict default measure f 0 = (λx, default), from
-      funext
-        (take x,
-          have H3 [fact]: ¬ measure x < 0, from not_lt_zero,
-          show restrict default measure f 0 x = default, from if_neg H3),
-    show f' 0 = restrict default measure f 0, from trans H1 (symm H2))
+  (take x,
+    have H1 : f' 0 x = default, from rfl,
+    have H2 [fact]: ¬ measure x < 0, from not_lt_zero _,
+    have H3 : restrict default measure f 0 x = default, from if_neg H2 _ _,
+    show f' 0 x = restrict default measure f 0 x, from trans H1 (symm H3))
   (take m,
-    assume IH: ∀n, n ≤ m → f' n = restrict default measure f n,
-    funext
-      (take x : dom,
-        show f' (succ m) x = restrict default measure f (succ m) x, from
-          by_cases -- (measure x < succ m)
-            (assume H1 : measure x < succ m,
-              have H2 [fact] : f' (succ m) x = rec_val x f, from
-                calc
-                  f' (succ m) x = if measure x < succ m then rec_val x (f' m) else default : rfl
-                    ... = rec_val x (f' m) : if_pos H1
-                    ... = rec_val x (restrict default measure f m) : {IH m le_refl}
-                    ... = rec_val x f : symm (rec_decreasing _ _ _ (lt_succ_imp_le H1)),
-              have H3 : restrict default measure f (succ m) x = rec_val x f, from
-                let m' := measure x in
-                calc
-                  restrict default measure f (succ m) x = f x : if_pos H1
-                    ... = f' (succ m') x : refl _
-                    ... = if measure x < succ m' then rec_val x (f' m') else default : rfl
-                    ... = rec_val x (f' m') : if_pos self_lt_succ
-                    ... = rec_val x (restrict default measure f m') : {IH m' (lt_succ_imp_le H1)}
-                    ... = rec_val x f : (rec_decreasing _ _ _ le_refl)⁻¹,
-              show f' (succ m) x = restrict default measure f (succ m) x,
-                from trans H2 (symm H3))
-            (assume H1 : ¬ measure x < succ m,
-              have H2 : f' (succ m) x = default, from
-                calc
-                  f' (succ m) x = if measure x < succ m then rec_val x (f' m) else default : rfl
-                    ... = default : if_neg H1,
-              have H3 : restrict default measure f (succ m) x = default,
-                from if_neg H1,
-              show f' (succ m) x = restrict default measure f (succ m) x,
-                from trans H2 (symm H3))))
+    assume IH: ∀n, n ≤ m → ∀x, f' n x = restrict default measure f n x,
+    take x : dom,
+    show f' (succ m) x = restrict default measure f (succ m) x, from
+      by_cases -- (measure x < succ m)
+        (assume H1 : measure x < succ m,
+          have H2a : ∀z, measure z < measure x → f' m z = f z, from
+            take z,
+              assume Hzx : measure z < measure x,
+              calc
+                f' m z = restrict default measure f m z : IH m (le_refl m) z
+                  ... = f z : restrict_lt_eq _ _ _ _ _ (lt_le_trans Hzx (lt_succ_imp_le H1)),
+          have H2 [fact] : f' (succ m) x = rec_val x f, from
+            calc
+              f' (succ m) x = if measure x < succ m then rec_val x (f' m) else default : rfl
+                ... = rec_val x (f' m) : if_pos H1 _ _
+                ... = rec_val x f : rec_decreasing (f' m) f x H2a,
+          let m' := measure x in
+          have H3a : ∀z, measure z < m' → f' m' z = f z, from
+            take z,
+              assume Hzx : measure z < measure x,
+              calc
+                f' m' z = restrict default measure f m' z : IH _ (lt_succ_imp_le H1) _
+                  ... = f z : restrict_lt_eq _ _ _ _ _ Hzx,
+          have H3 : restrict default measure f (succ m) x = rec_val x f, from
+            calc
+              restrict default measure f (succ m) x = f x : if_pos H1 _ _
+                ... = f' (succ m') x : refl _
+                ... = if measure x < succ m' then rec_val x (f' m') else default : rfl
+                ... = rec_val x (f' m') : if_pos (self_lt_succ _) _ _
+                ... = rec_val x f : rec_decreasing _ _ _ H3a,
+          show f' (succ m) x = restrict default measure f (succ m) x,
+            from trans H2 (symm H3))
+        (assume H1 : ¬ measure x < succ m,
+          have H2 : f' (succ m) x = default, from
+            calc
+              f' (succ m) x = if measure x < succ m then rec_val x (f' m) else default : rfl
+                ... = default : if_neg H1 _ _,
+          have H3 : restrict default measure f (succ m) x = default,
+            from if_neg H1 _ _,
+          show f' (succ m) x = restrict default measure f (succ m) x,
+            from trans H2 (symm H3)))
 
 theorem rec_measure_spec {dom codom : Type} {default : codom} {measure : dom → ℕ}
     (rec_val : dom → (dom → codom) → codom)
-    (rec_decreasing : ∀g m x, m ≥ measure x →
-      rec_val x g = rec_val x (restrict default measure g m))
+    (rec_decreasing : ∀g1 g2 x, (∀z, measure z < measure x → g1 z = g2 z) →
+        rec_val x g1 = rec_val x g2)
     (x : dom):
   let f := rec_measure default measure rec_val in
   f x = rec_val x f :=
 let f' := rec_measure_aux default measure rec_val in
 let f  := rec_measure default measure rec_val in
 let m  := measure x in
+have H : ∀z, measure z < measure x → f' m z = f z, from
+  take z,
+    assume H1 : measure z < measure x,
+    calc
+      f' m z = restrict default measure f m z : rec_measure_aux_spec _ _ _ rec_decreasing m z
+        ... = f z : restrict_lt_eq _ _ _ _ _ H1,
 calc
   f x = f' (succ m) x : rfl
     ... = if measure x < succ m then rec_val x (f' m) else default : rfl
-    ... = rec_val x (f' m) : if_pos self_lt_succ
-    ... = rec_val x (restrict default measure f m) : {rec_measure_aux_spec _ _ _ rec_decreasing _}
-    ... = rec_val x f : (rec_decreasing _ _ _ le_refl)⁻¹
+    ... = rec_val x (f' m) : if_pos (self_lt_succ)
+    ... = rec_val x f : rec_decreasing _ _ _ H
 
 
 -- Div and mod
@@ -146,10 +153,10 @@ if (y = 0 ∨ x < y) then 0 else succ (div_aux' (x - y))
 
 definition div_aux (y : ℕ) : ℕ → ℕ := rec_measure 0 (fun x, x) (div_aux_rec y)
 
-theorem div_aux_decreasing (y : ℕ) (g : ℕ → ℕ) (m : ℕ) (x : ℕ) (H : m ≥ x) :
-  div_aux_rec y x g = div_aux_rec y x (restrict 0 (fun x, x) g m) :=
-let lhs := div_aux_rec y x g in
-let rhs := div_aux_rec y x (restrict 0 (fun x, x) g m) in
+theorem div_aux_decreasing (y : ℕ) (g1 g2 : ℕ → ℕ) (x : ℕ) (H : ∀z, z < x → g1 z = g2 z) :
+  div_aux_rec y x g1 = div_aux_rec y x g2 :=
+let lhs := div_aux_rec y x g1 in
+let rhs := div_aux_rec y x g2 in
 show lhs = rhs, from
   by_cases -- (y = 0 ∨ x < y)
     (assume H1 : y = 0 ∨ x < y,
@@ -157,15 +164,15 @@ show lhs = rhs, from
         lhs = 0     : if_pos H1
           ... = rhs : (if_pos H1)⁻¹)
     (assume H1 : ¬ (y = 0 ∨ x < y),
-      have H2 : y ≠ 0 ∧ ¬ x < y, from sorry, -- subst (not_or _ _) H1,
-      have ypos : y > 0, from ne_zero_imp_pos (and_elim_left H2),
-      have xgey : x ≥ y, from not_lt_imp_ge (and_elim_right H2),
+      have H2a : y ≠ 0, from assume H, H1 (or_intro_left _ H),
+     have H2b : ¬ x < y, from assume H, H1 (or_intro_right _ H),
+      have ypos : y > 0, from ne_zero_imp_pos H2a,
+      have xgey : x ≥ y, from not_lt_imp_ge H2b,
       have H4 : x - y < x, from sub_lt (lt_le_trans ypos xgey) ypos,
-      have H5 : x - y < m, from lt_le_trans H4 H,
-      symm (calc
-        rhs = succ (restrict 0 (fun x, x) g m (x - y)) : if_neg H1
-          ... = succ (g (x - y)) : {restrict_lt_eq _ _ _ _ _ H5}
-          ... = lhs : (if_neg H1)⁻¹))
+      calc
+        lhs = succ (g1 (x - y)) : if_neg H1
+          ... = succ (g2 (x - y)) : {H _ H4}
+          ... = rhs : symm (if_neg H1))
 
 theorem div_aux_spec (y : ℕ) (x : ℕ) :
   div_aux y x = if (y = 0 ∨ x < y) then 0 else succ (div_aux y (x - y)) :=
@@ -173,7 +180,7 @@ rec_measure_spec (div_aux_rec y) (div_aux_decreasing y) x
 
 definition idivide (x : ℕ) (y : ℕ) : ℕ := div_aux y x
 
-infixl `div` := idivide    -- copied from Isabelle
+infixl `div` := idivide
 
 theorem div_zero {x : ℕ} : x div 0 = 0 :=
 trans (div_aux_spec _ _) (if_pos (or_inl rfl))
@@ -222,10 +229,10 @@ if (y = 0 ∨ x < y) then x else mod_aux' (x - y)
 
 definition mod_aux (y : ℕ) : ℕ → ℕ := rec_measure 0 (fun x, x) (mod_aux_rec y)
 
-theorem mod_aux_decreasing (y : ℕ) (g : ℕ → ℕ) (m : ℕ) (x : ℕ) (H : m ≥ x) :
-  mod_aux_rec y x g = mod_aux_rec y x (restrict 0 (fun x, x) g m) :=
-let lhs := mod_aux_rec y x g in
-let rhs := mod_aux_rec y x (restrict 0 (fun x, x) g m) in
+theorem mod_aux_decreasing (y : ℕ) (g1 g2 : ℕ → ℕ) (x : ℕ) (H : ∀z, z < x → g1 z = g2 z) :
+  mod_aux_rec y x g1 = mod_aux_rec y x g2 :=
+let lhs := mod_aux_rec y x g1 in
+let rhs := mod_aux_rec y x g2 in
 show lhs = rhs, from
   by_cases -- (y = 0 ∨ x < y)
     (assume H1 : y = 0 ∨ x < y,
@@ -233,15 +240,15 @@ show lhs = rhs, from
         lhs = x : if_pos H1
           ... = rhs : (if_pos H1)⁻¹)
     (assume H1 : ¬ (y = 0 ∨ x < y),
-      have H2 : y ≠ 0 ∧ ¬ x < y, from sorry, -- subst (not_or _ _) H1,
-      have ypos : y > 0, from ne_zero_imp_pos (and_elim_left H2),
-      have xgey : x ≥ y, from not_lt_imp_ge (and_elim_right H2),
+      have H2a : y ≠ 0, from assume H, H1 (or_intro_left _ H),
+      have H2b : ¬ x < y, from assume H, H1 (or_intro_right _ H),
+      have ypos : y > 0, from ne_zero_imp_pos H2a,
+      have xgey : x ≥ y, from not_lt_imp_ge H2b,
       have H4 : x - y < x, from sub_lt (lt_le_trans ypos xgey) ypos,
-      have H5 : x - y < m, from lt_le_trans H4 H,
-      symm (calc
-        rhs = restrict 0 (fun x, x) g m (x - y) : if_neg H1
-          ... = g (x - y) : restrict_lt_eq _ _ _ _ _ H5
-          ... = lhs : (if_neg H1)⁻¹))
+      calc
+        lhs = g1 (x - y) : if_neg H1
+          ... = g2 (x - y) : H _ H4
+          ... = rhs : symm (if_neg H1))
 
 theorem mod_aux_spec (y : ℕ) (x : ℕ) :
   mod_aux y x = if (y = 0 ∨ x < y) then x else mod_aux y (x - y) :=
@@ -588,12 +595,13 @@ if y = 0 then x else gcd_aux' (pair y (x mod y))
 
 definition gcd_aux : ℕ × ℕ → ℕ := rec_measure 0 gcd_aux_measure gcd_aux_rec
 
-theorem gcd_aux_decreasing (g : ℕ × ℕ → ℕ) (m : ℕ) (p : ℕ × ℕ) (H : m ≥ gcd_aux_measure p) :
-  gcd_aux_rec p g = gcd_aux_rec p (restrict 0 gcd_aux_measure g m) :=
+theorem gcd_aux_decreasing (g1 g2 : ℕ × ℕ → ℕ) (p : ℕ × ℕ)
+    (H : ∀p', gcd_aux_measure p' < gcd_aux_measure p → g1 p' = g2 p') :
+  gcd_aux_rec p g1 = gcd_aux_rec p g2 :=
 let x := pr1 p, y := pr2 p in
 let p' := pair y (x mod y) in
-let lhs := gcd_aux_rec p g in
-let rhs := gcd_aux_rec p (restrict 0 gcd_aux_measure g m) in
+let lhs := gcd_aux_rec p g1 in
+let rhs := gcd_aux_rec p g2 in
 show lhs = rhs, from
   by_cases -- (y = 0)
     (assume H1 : y = 0,
@@ -603,12 +611,11 @@ show lhs = rhs, from
     (assume H1 : y ≠ 0,
       have ypos : y > 0, from ne_zero_imp_pos H1,
       have H2 : gcd_aux_measure p' = x mod y, from pr2_pair _ _,
-      have H3 : gcd_aux_measure p' < gcd_aux_measure p, from H2⁻¹ ▸ (mod_lt ypos),
-      have H4: gcd_aux_measure p' < m, from lt_le_trans H3 H,
-      symm (calc
-        rhs = restrict 0 gcd_aux_measure g m p' : if_neg H1
-          ... = g p' : restrict_lt_eq _ _ _ _ _ H4
-          ... = lhs : (if_neg H1)⁻¹))
+      have H3 : gcd_aux_measure p' < gcd_aux_measure p, from subst (symm H2) (mod_lt ypos),
+      calc
+        lhs = g1 p' : if_neg H1
+          ... = g2 p' : H _ H3
+          ... = rhs : symm (if_neg H1))
 
 theorem gcd_aux_spec (p : ℕ × ℕ) : gcd_aux p =
 let x := pr1 p, y := pr2 p in

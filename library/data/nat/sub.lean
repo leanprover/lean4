@@ -43,7 +43,7 @@ induction_on m
   (calc
     succ n - 1 = pred (succ n - 0) : sub_succ_right
            ... = pred (succ n)     : {sub_zero_right}
-           ... = n                 : pred_succ _
+           ... = n                 : pred_succ
            ... = n - 0             : sub_zero_right⁻¹)
   (take k : nat,
     assume IH : succ n - succ k = n - k,
@@ -139,7 +139,7 @@ induction_on n
   (take k : nat,
     assume IH : pred k * m = k * m - m,
     calc
-      pred (succ k) * m = k * m          : {pred_succ _}
+      pred (succ k) * m = k * m          : {pred_succ}
                     ... = k * m + m - m  : sub_add_left⁻¹
                     ... = succ k * m - m : {mul_succ_left⁻¹})
 

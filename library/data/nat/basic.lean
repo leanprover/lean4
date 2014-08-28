@@ -67,7 +67,7 @@ definition pred (n : ℕ) := nat_rec 0 (fun m x, m) n
 
 theorem pred_zero : pred 0 = 0
 
-theorem pred_succ (n : ℕ) : pred (succ n) = n
+theorem pred_succ {n : ℕ} : pred (succ n) = n
 
 opaque_hint (hiding pred)
 
@@ -75,7 +75,7 @@ theorem zero_or_succ_pred (n : ℕ) : n = 0 ∨ n = succ (pred n) :=
 induction_on n
   (or_inl (refl 0))
   (take m IH, or_inr
-    (show succ m = succ (pred (succ m)), from congr_arg succ (pred_succ m⁻¹)))
+    (show succ m = succ (pred (succ m)), from congr_arg succ pred_succ⁻¹))
 
 theorem zero_or_exists_succ (n : ℕ) : n = 0 ∨ ∃k, n = succ k :=
 or_imp_or (zero_or_succ_pred n) (assume H, H)
@@ -91,9 +91,9 @@ or_elim (zero_or_succ_pred n)
 
 theorem succ_inj {n m : ℕ} (H : succ n = succ m) : n = m :=
 calc
-    n = pred (succ n) : pred_succ n⁻¹
+    n = pred (succ n) : pred_succ⁻¹
   ... = pred (succ m) : {H}
-  ... = m             : pred_succ m
+  ... = m             : pred_succ
 
 theorem succ_ne_self {n : ℕ} : succ n ≠ n :=
 induction_on n

@@ -813,7 +813,7 @@ theorem trichotomy_alt (n m : ℕ) : (n < m ∨ n = m) ∨ m < n
 := or_imp_or (le_or_lt n m) (assume H : n ≤ m, le_imp_lt_or_eq H) (assume H : m < n, H)
 
 theorem trichotomy (n m : ℕ) : n < m ∨ n = m ∨ m < n
-:= iff_elim_left (or_assoc _ _ _) (trichotomy_alt n m)
+:= iff_elim_left or_assoc (trichotomy_alt n m)
 
 theorem le_total (n m : ℕ) : n ≤ m ∨ m ≤ n
 := or_imp_or (le_or_lt n m) (assume H : n ≤ m, H) (assume H : m < n, lt_imp_le H)

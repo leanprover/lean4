@@ -12,7 +12,7 @@ import .basic
 using nat (hiding case)
 using decidable
 using fake_simplifier
-using int
+using int eq_ops
 
 namespace int
 
@@ -121,7 +121,7 @@ discriminate
         a = a + 0 : symm (add_zero_right a)
           ... = a + n : {symm H2}
           ... = b : Hn,
-    or_intro_right _ H3)
+    or_inr H3)
   (take k : ℕ,
     assume H2 : n = succ k,
     have H3 : a + 1 + k = b, from
@@ -129,7 +129,7 @@ discriminate
         a + 1 + k = a + succ k : by simp
           ... = a + n : by simp
           ... = b : Hn,
-    or_intro_left _ (le_intro H3))
+    or_inl (le_intro H3))
 
 -- ### interaction with neg and sub
 
@@ -376,7 +376,7 @@ int_by_cases a
     int_by_cases_succ b
       (take m : ℕ,
         show -n ≤ m ∨ -n > m, from
-          or_intro_left _ (neg_le_pos n m))
+          or_inl (neg_le_pos n m))
       (take m : ℕ,
         show -n ≤ -succ m ∨ -n > -succ m, from
           or_imp_or le_or_gt
@@ -389,7 +389,7 @@ theorem trichotomy_alt (a b : ℤ) : (a < b ∨ a = b) ∨ a > b :=
 or_imp_or_left (le_or_gt a b) (assume H : a ≤ b, le_imp_lt_or_eq H)
 
 theorem trichotomy (a b : ℤ) : a < b ∨ a = b ∨ a > b :=
-iff_elim_left (or_assoc _ _ _) (trichotomy_alt a b)
+iff_elim_left or_assoc (trichotomy_alt a b)
 
 theorem le_total (a b : ℤ) : a ≤ b ∨ b ≤ a :=
 or_imp_or_right (le_or_gt a b) (assume H : b < a, lt_imp_le H)
@@ -583,13 +583,13 @@ theorem or_elim3 {a b c d : Prop} (H : a ∨ b ∨ c) (Ha : a → d) (Hb : b →
 or_elim H Ha (assume H2,or_elim H2 Hb Hc)
 
 theorem sign_pos {a : ℤ} (H : a > 0) : sign a = 1 :=
-if_pos H _ _
+if_pos H
 
 theorem sign_negative {a : ℤ} (H : a < 0) : sign a = - 1 :=
-trans (if_neg (lt_antisym H) _ _) (if_pos H  _ _)
+if_neg (lt_antisym H) ⬝ if_pos H
 
 theorem sign_zero : sign 0 = 0 :=
-trans (if_neg (lt_irrefl 0) _ _) (if_neg (lt_irrefl 0)  _ _)
+if_neg (lt_irrefl 0) ⬝ if_neg (lt_irrefl 0)
 
 -- add_rewrite sign_negative sign_pos to_nat_negative to_nat_nonneg_eq sign_zero mul_to_nat
 

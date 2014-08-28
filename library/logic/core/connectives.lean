@@ -4,7 +4,6 @@
 
 import general_notation .eq
 
-
 -- and
 -- ---
 
@@ -145,10 +144,10 @@ iff_intro (λ Ha, subst H Ha) (λ Hb, subst (symm H) Hb)
 -- comm and assoc for and / or
 -- ---------------------------
 
-theorem and_comm (a b : Prop) : a ∧ b ↔ b ∧ a :=
+theorem and_comm {a b : Prop} : a ∧ b ↔ b ∧ a :=
 iff_intro (λH, and_swap H) (λH, and_swap H)
 
-theorem and_assoc (a b c : Prop) : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
+theorem and_assoc {a b c : Prop} : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
 iff_intro
   (assume H, and_intro
     (and_elim_left (and_elim_left H))
@@ -157,10 +156,10 @@ iff_intro
     (and_intro (and_elim_left H) (and_elim_left (and_elim_right H)))
     (and_elim_right (and_elim_right H)))
 
-theorem or_comm (a b : Prop) : a ∨ b ↔ b ∨ a :=
+theorem or_comm {a b : Prop} : a ∨ b ↔ b ∨ a :=
 iff_intro (λH, or_swap H) (λH, or_swap H)
 
-theorem or_assoc (a b c : Prop) : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
+theorem or_assoc {a b c : Prop} : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
 iff_intro
   (assume H, or_elim H
     (assume H1, or_elim H1

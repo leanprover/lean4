@@ -14,24 +14,24 @@ using relation
 
 theorem or_right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
 calc
-  (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) : or_assoc _ _ _
-    ... ↔ a ∨ (c ∨ b) : {or_comm b c}
-     ... ↔ (a ∨ c) ∨ b : iff_symm (or_assoc _ _ _)
+  (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) : or_assoc
+    ... ↔ a ∨ (c ∨ b)       : {or_comm}
+     ... ↔ (a ∨ c) ∨ b      : iff_symm or_assoc
 
 theorem or_left_comm (a b c : Prop) : a ∨ (b ∨ c)↔ b ∨ (a ∨ c) :=
 calc
-  a ∨ (b ∨ c) ↔ (a ∨ b) ∨ c : iff_symm (or_assoc _ _ _)
-    ... ↔ (b ∨ a) ∨ c : {or_comm a b}
-     ... ↔ b ∨ (a ∨ c) : or_assoc _ _ _
+  a ∨ (b ∨ c) ↔ (a ∨ b) ∨ c : iff_symm or_assoc
+    ... ↔ (b ∨ a) ∨ c       : {or_comm}
+     ... ↔ b ∨ (a ∨ c)      : or_assoc
 
 theorem and_right_comm (a b c : Prop) : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b :=
 calc
-  (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) : and_assoc _ _ _
-    ... ↔ a ∧ (c ∧ b) : {and_comm b c}
-     ... ↔ (a ∧ c) ∧ b : iff_symm (and_assoc _ _ _)
+  (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) : and_assoc
+    ... ↔ a ∧ (c ∧ b)       : {and_comm}
+     ... ↔ (a ∧ c) ∧ b      : iff_symm and_assoc
 
 theorem and_left_comm (a b c : Prop) : a ∧ (b ∧ c)↔ b ∧ (a ∧ c) :=
 calc
-  a ∧ (b ∧ c) ↔ (a ∧ b) ∧ c : iff_symm (and_assoc _ _ _)
-    ... ↔ (b ∧ a) ∧ c : {and_comm a b}
-     ... ↔ b ∧ (a ∧ c) : and_assoc _ _ _
+  a ∧ (b ∧ c) ↔ (a ∧ b) ∧ c : iff_symm and_assoc
+    ... ↔ (b ∧ a) ∧ c       : {and_comm}
+     ... ↔ b ∧ (a ∧ c)      : and_assoc

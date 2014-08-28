@@ -71,11 +71,11 @@ definition proj (a : ℕ × ℕ) : ℕ × ℕ :=
 if pr1 a ≥ pr2 a then pair (pr1 a - pr2 a) 0 else pair 0 (pr2 a - pr1 a)
 
 theorem proj_ge {a : ℕ × ℕ} (H : pr1 a ≥ pr2 a) : proj a = pair (pr1 a - pr2 a) 0 :=
-if_pos H _ _
+if_pos H
 
 theorem proj_lt {a : ℕ × ℕ} (H : pr1 a < pr2 a) : proj a = pair 0 (pr2 a - pr1 a) :=
 have H2 : ¬ pr1 a ≥ pr2 a, from lt_imp_not_ge H,
-if_neg H2 _ _
+if_neg H2
 
 theorem proj_le {a : ℕ × ℕ} (H : pr1 a ≤ pr2 a) : proj a = pair 0 (pr2 a - pr1 a) :=
 or_elim le_or_gt
@@ -344,7 +344,7 @@ or_elim (cases a)
 ---reverse equalities, rename
 theorem cases_succ (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - (of_nat (succ n))) :=
 or_elim (cases a)
-  (assume H : (∃n : ℕ, a = of_nat n), or_intro_left _ H)
+  (assume H : (∃n : ℕ, a = of_nat n), or_inl H)
   (assume H,
     obtain (n : ℕ) (H2 : a = -(of_nat n)), from H,
     discriminate
@@ -354,7 +354,7 @@ or_elim (cases a)
             a = -(of_nat n) : H2
           ... = -(of_nat 0) : {H3}
           ... = of_nat 0 : neg_zero,
-        or_intro_left _ (exists_intro 0 H4))
+        or_inl (exists_intro 0 H4))
       (take k : ℕ,
         assume H3 : n = succ k,
         have H4 : a = -(of_nat (succ k)), from subst H3 H2,

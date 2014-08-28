@@ -197,13 +197,13 @@ theorem mem_nil (x : T) : x ∈ nil ↔ false := iff_refl _
 theorem mem_cons (x : T) (y : T) (l : list T) : mem x (cons y l) ↔ (x = y ∨ mem x l) := iff_refl _
 
 theorem mem_concat_imp_or (x : T) (s t : list T) : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
-list_induction_on s (or_intro_right _)
+list_induction_on s or_inr
   (take y s,
     assume IH : x ∈ s ++ t → x ∈ s ∨ x ∈ t,
     assume H1 : x ∈ (y :: s) ++ t,
     have H2 : x = y ∨ x ∈ s ++ t, from H1,
     have H3 : x = y ∨ x ∈ s ∨ x ∈ t, from or_imp_or_right H2 IH,
-    iff_elim_right (or_assoc _ _ _) H3)
+    iff_elim_right or_assoc H3)
 
 theorem mem_or_imp_concat (x : T) (s t : list T) : x ∈ s ∨ x ∈ t → x ∈ s ++ t :=
 list_induction_on s
@@ -214,9 +214,9 @@ list_induction_on s
       or_elim H
         (assume H1,
           or_elim H1
-            (take H2 : x = y, or_intro_left _ H2)
-            (take H2 : x ∈ s, or_intro_right _ (IH (or_intro_left _ H2))))
-        (assume H1 : x ∈ t, or_intro_right _ (IH (or_intro_right _ H1))))
+            (take H2 : x = y, or_inl H2)
+            (take H2 : x ∈ s, or_inr (IH (or_inl H2))))
+        (assume H1 : x ∈ t, or_inr (IH (or_inr H1))))
 
 theorem mem_concat (x : T) (s t : list T) : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t
 := iff_intro (mem_concat_imp_or _ _ _) (mem_or_imp_concat _ _ _)

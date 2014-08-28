@@ -173,7 +173,7 @@ obtain (k : ℕ) (H2 : succ n + k = m), from (le_elim H),
 theorem le_pred_self {n : ℕ} : pred n ≤ n :=
 case n
   (pred_zero⁻¹ ▸ le_refl)
-  (take k : ℕ, (pred_succ k)⁻¹ ▸ self_le_succ)
+  (take k : ℕ, pred_succ⁻¹ ▸ self_le_succ)
 
 theorem pred_le {n m : ℕ} (H : n ≤ m) : pred n ≤ pred m :=
 discriminate
@@ -189,8 +189,8 @@ discriminate
     have H2 : pred n + l = pred m,
       from calc
         pred n + l = pred (succ k) + l   : {Hn}
-               ... = k + l               : {pred_succ k}
-               ... = pred (succ (k + l)) : (pred_succ (k + l))⁻¹
+               ... = k + l               : {pred_succ}
+               ... = pred (succ (k + l)) : pred_succ⁻¹
                ... = pred (succ k + l)   : {add_succ_left⁻¹}
                ... = pred (n + l)        : {Hn⁻¹}
                ... = pred m              : {Hl},
@@ -205,7 +205,7 @@ discriminate
     have H2 : pred n = k,
       from calc
         pred n = pred (succ k) : {Hn}
-           ... = k : pred_succ k,
+           ... = k             : pred_succ,
     have H3 : k ≤ m, from subst H2 H,
     have H4 : succ k ≤ m ∨ k = m, from le_imp_succ_le_or_eq H3,
     show n ≤ m ∨ n = succ m, from
@@ -412,7 +412,7 @@ theorem trichotomy_alt {n m : ℕ} : (n < m ∨ n = m) ∨ n > m :=
 or_imp_or_left le_or_gt (assume H : n ≤ m, le_imp_lt_or_eq H)
 
 theorem trichotomy {n m : ℕ} : n < m ∨ n = m ∨ n > m :=
-iff_elim_left (or_assoc _ _ _) trichotomy_alt
+iff_elim_left or_assoc trichotomy_alt
 
 theorem le_total {n m : ℕ} : n ≤ m ∨ m ≤ n :=
 or_imp_or_right le_or_gt (assume H : m < n, lt_imp_le H)

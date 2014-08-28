@@ -16,7 +16,6 @@ using fake_simplifier
 
 namespace nat
 
-
 -- subtraction
 -- -----------
 

@@ -146,8 +146,8 @@ discriminate
       (le_intro
         (calc
           succ n + l = n + succ l : add_move_succ
-            ... = n + k           : {H3⁻¹}
-            ... = m               : Hk)),
+                 ... = n + k      : {H3⁻¹}
+                 ... = m          : Hk)),
     or_inl Hlt)
 
 theorem le_ne_imp_succ_le {n m : ℕ} (H1 : n ≤ m) (H2 : n ≠ m) : succ n ≤ m :=
@@ -460,7 +460,6 @@ strong_induction_on a (
          show P (succ n), from
            Hind n (take m, assume H1 : m ≤ n, H _ (le_imp_lt_succ H1))))
 
-
 -- Positivity
 -- ---------
 --
@@ -469,10 +468,12 @@ strong_induction_on a (
 -- ### basic
 
 theorem case_zero_pos {P : ℕ → Prop} (y : ℕ) (H0 : P 0) (H1 : ∀ {y : nat}, y > 0 → P y) : P y :=
-case y H0 (take y', H1 succ_pos)
+case y H0 (take y, H1 succ_pos)
 
 theorem zero_or_pos {n : ℕ} : n = 0 ∨ n > 0 :=
-or_imp_or_left (or_swap (le_imp_lt_or_eq zero_le)) (take H : 0 = n, H⁻¹)
+or_imp_or_left
+  (or_swap (le_imp_lt_or_eq zero_le))
+  (take H : 0 = n, H⁻¹)
 
 theorem succ_imp_pos {n m : ℕ} (H : n = succ m) : n > 0 :=
 H⁻¹ ▸ succ_pos
@@ -571,10 +572,10 @@ or_imp_or_right zero_or_pos
   (assume Hn : n > 0, mul_cancel_left Hn H)
 
 theorem mul_cancel_right {n m k : ℕ} (Hm : m > 0) (H : n * m = k * m) : n = k :=
-mul_cancel_left Hm ((H ▸ mul_comm) ▸ mul_comm)
+mul_cancel_left Hm (mul_comm ▸ mul_comm ▸ H)
 
 theorem mul_cancel_right_or  {n m k : ℕ} (H : n * m = k * m) : m = 0 ∨ n = k :=
-mul_cancel_left_or ((H ▸ mul_comm) ▸ mul_comm)
+mul_cancel_left_or (mul_comm ▸ mul_comm ▸ H)
 
 theorem mul_eq_one_left {n m : ℕ} (H : n * m = 1) : n = 1 :=
 have H2 : n * m > 0, from H⁻¹ ▸ succ_pos,

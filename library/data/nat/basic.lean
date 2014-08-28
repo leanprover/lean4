@@ -164,7 +164,7 @@ induction_on n
     (take m IH, show 0 + succ m = succ m, from
       calc
         0 + succ m = succ (0 + m) : add_succ_right
-            ... = succ m : {IH})
+               ... = succ m       : {IH})
 
 theorem add_succ_left {n m : ℕ} : (succ n) + m = succ (n + m) :=
 induction_on m

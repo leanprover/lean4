@@ -1700,10 +1700,10 @@ struct unifier_fn {
         if (is_lambda(f)) {
             return some_expr(apply_beta(f, args.size(), args.data()));
         } else if (is_macro(f)) {
-            return m_tc[relax]->expand_macro(rhs);
-        } else {
-            return none_expr();
+            if (optional<expr> new_f = m_tc[relax]->expand_macro(f))
+                return some_expr(mk_rev_app(*new_f, args.size(), args.data()));
         }
+        return none_expr();
     }
 
     /** \brief Process a flex rigid constraint */

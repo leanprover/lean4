@@ -213,6 +213,7 @@ static std::string g_set("SET");
 static std::string g_eval("EVAL");
 static std::string g_wait("WAIT");
 static std::string g_clear_cache("CLEAR_CACHE");
+static std::string g_echo("ECHO");
 
 static bool is_command(std::string const & cmd, std::string const & line) {
     return line.compare(0, cmd.size(), cmd) == 0;
@@ -356,6 +357,9 @@ bool server::operator()(std::istream & in) {
                 std::string fname = line.substr(g_visit.size());
                 trim(fname);
                 visit_file(fname);
+            } else if (is_command(g_echo, line)) {
+                std::string str = line.substr(g_echo.size());
+                m_out << "--" << str << "\n";
             } else if (is_command(g_replace, line)) {
                 unsigned linenum = get_linenum(line, g_replace);
                 read_line(in, line);

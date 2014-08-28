@@ -1505,8 +1505,7 @@ struct unifier_fn {
                 }
             } catch (exception&) {}
             expr v = Fun(locals, mk_app(f, sargs));
-            // std::cout << " >> app imitation, v: " << v << "\n";
-            cs = cs + mk_eq_cnstr(m, v, j, relax);
+            cs += mk_eq_cnstr(m, v, j, relax);
             alts.push_back(cs.to_list());
         }
 
@@ -1584,7 +1583,7 @@ struct unifier_fn {
                 expr binding   = is_pi(rhs) ? Pi(local, B) : Fun(local, B);
                 locals.pop_back();
                 expr v         = Fun(locals, binding);
-                cs = cs + mk_eq_cnstr(m, v, j, relax);
+                cs += mk_eq_cnstr(m, v, j, relax);
                 alts.push_back(cs.to_list());
             } catch (exception&) {}
             margs.pop_back();
@@ -1602,26 +1601,22 @@ struct unifier_fn {
                ?m  =?= fun (x_1 ... x_k), M((?m_1 x_1 ... x_k) ... (?m_n x_1 ... x_k))
         */
         void mk_macro_imitation() {
-            // TODO(Leo): use same approach used in mk_app_imitation
             lean_assert(is_metavar(m));
             lean_assert(is_macro(rhs));
             constraint_seq cs;
-            expr mtype = mlocal_type(m);
-            mtype = ensure_sufficient_args(mtype, cs);
-            // create an auxiliary metavariable for each macro argument
+            buffer<expr> locals;
+            flet<justification> let(j, j); // save j value
+            mk_local_context(locals, cs);
+            lean_assert(margs.size() == locals.size());
             buffer<expr> sargs;
             for (unsigned i = 0; i < macro_num_args(rhs); i++) {
-                expr maux = mk_aux_metavar_for(u.m_ngen, mtype);
-                cs = mk_eq_cnstr(mk_app(maux, margs), macro_arg(rhs, i), j, relax) + cs;
-                sargs.push_back(mk_app_vars(maux, margs.size()));
+                expr rarg      = macro_arg(rhs, i);
+                expr rarg_type = u.m_tc[relax]->infer(rarg, cs);
+                expr sarg      = mk_imitiation_arg(rhs, rarg_type, locals, cs);
+                sargs.push_back(sarg);
             }
-            expr v = mk_macro(macro_def(rhs), sargs.size(), sargs.data());
-            v = mk_lambda_for(mtype, v);
-            // if (check_imitation(v, cs)) {
-            //     cs.push_back(mk_eq_cnstr(m, v, j, relax));
-            //     alts.push_back(to_list(cs.begin(), cs.end()));
-            // }
-            cs = cs + mk_eq_cnstr(m, v, j, relax);
+            expr v = Fun(locals, mk_macro(macro_def(rhs), sargs.size(), sargs.data()));
+            cs += mk_eq_cnstr(m, v, j, relax);
             alts.push_back(cs.to_list());
         }
 

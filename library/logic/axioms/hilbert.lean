@@ -8,7 +8,7 @@
 -- Follows Coq.Logic.ClassicalEpsilon (but our definition of "inhabited" is the
 -- constructive one).
 
-import logic.connectives.eq logic.connectives.quantifiers
+import logic.core.quantifiers
 import logic.classes.inhabited logic.classes.nonempty
 import data.subtype data.sum
 

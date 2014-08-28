@@ -4,7 +4,7 @@
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
 
-import logic.classes.inhabited logic.connectives.cast
+import logic.classes.inhabited logic.core.cast
 
 using inhabited
 

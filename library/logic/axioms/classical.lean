@@ -1,10 +1,8 @@
-----------------------------------------------------------------------------------------------------
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-----------------------------------------------------------------------------------------------------
 
-import logic.connectives.basic logic.connectives.quantifiers logic.connectives.cast struc.relation
+import logic.core.quantifiers logic.core.cast struc.relation
 
 using eq_ops
 

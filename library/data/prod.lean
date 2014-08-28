@@ -7,7 +7,7 @@
 
 -- The cartesian product.
 
-import logic.classes.inhabited logic.connectives.eq logic.classes.decidable
+import logic.classes.inhabited logic.core.eq logic.classes.decidable
 
 using inhabited decidable
 

@@ -4,8 +4,8 @@ logic.connectives
 Logical operations and connectives.
 
 * [prop](prop.lean) : the type Prop
-* [basic](basic.lean) : propositional connectives
 * [eq](eq.lean) : equality and disequality
+* [connectives](connectives.lean) : propositional connectives
 * [cast](cast.lean) : casts and heterogeneous equality
 * [quantifiers](quantifiers.lean) : existential and universal quantifiers
 * [if](if.lean) : if-then-else

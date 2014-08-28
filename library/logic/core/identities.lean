@@ -8,12 +8,9 @@
 -- Useful logical identities. In the absence of propositional extensionality, some of the
 -- calculations use the type class support provided by logic.connectives.instances
 
-import logic.connectives.instances
+import logic.core.instances
 
 using relation
-
--- TODO: delete when calc bug is fixed
-calc_subst subst_iff
 
 theorem or_right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
 calc
@@ -38,6 +35,3 @@ calc
   a ∧ (b ∧ c) ↔ (a ∧ b) ∧ c : iff_symm (and_assoc _ _ _)
     ... ↔ (b ∧ a) ∧ c : {and_comm a b}
      ... ↔ b ∧ (a ∧ c) : and_assoc _ _ _
-
--- TODO: delete when calc bug is fixed
-calc_subst subst

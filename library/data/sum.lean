@@ -7,7 +7,7 @@
 
 -- The sum type, aka disjoint union.
 
-import logic.connectives.prop logic.classes.inhabited logic.classes.decidable
+import logic.core.prop logic.classes.inhabited logic.classes.decidable
 
 using inhabited decidable
 

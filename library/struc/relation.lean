@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jeremy Avigad
 
-import logic.connectives.prop
+import logic.core.prop
 
 
 -- General properties of relations

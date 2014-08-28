@@ -5,8 +5,8 @@
 -- Theory data.quotient
 -- ====================
 
-import logic tools.tactic ..subtype logic.connectives.cast struc.relation data.prod
-import logic.connectives.instances
+import logic tools.tactic ..subtype logic.core.cast struc.relation data.prod
+import logic.core.instances
 import .aux
 
 using relation prod inhabited nonempty tactic eq_ops

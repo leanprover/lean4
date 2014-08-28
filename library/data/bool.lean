@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 
-import logic.connectives.basic logic.classes.decidable logic.classes.inhabited
+import logic.core.connectives logic.classes.decidable logic.classes.inhabited
 
 using eq_ops decidable
 

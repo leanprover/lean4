@@ -18,7 +18,7 @@ assume Hab Hbc Ha,
 -- 3. False Propositions and Negation
 theorem thm4 {P Q : Prop} : ¬P → P → Q :=
 assume Hnp Hp,
-  absurd_elim Hp Hnp
+  absurd Hp Hnp
 
 theorem thm5 {P : Prop} : P → ¬¬P :=
 assume (Hp : P) (HnP : ¬P),
@@ -31,7 +31,7 @@ assume (Hpq : P → Q) (Hnq : ¬Q) (Hp : P),
 
 theorem thm7 {P Q : Prop} : (P → ¬P) → (P → Q) :=
 assume Hpnp Hp,
-  absurd_elim Hp (Hpnp Hp)
+  absurd Hp (Hpnp Hp)
 
 theorem thm8 {P Q : Prop} : ¬(P → Q) → (P → ¬Q) :=
 assume (Hn : ¬(P → Q)) (Hp : P) (Hq : Q),
@@ -44,7 +44,7 @@ theorem thm9 {P : Prop} : (P ∨ ¬P) → (¬¬P → P) :=
 assume (em : P ∨ ¬P) (Hnn : ¬¬P),
   or_elim em
     (assume Hp, Hp)
-    (assume Hn, absurd_elim Hn Hnn)
+    (assume Hn, absurd Hn Hnn)
 
 theorem thm10 {P : Prop} : ¬¬(P ∨ ¬P) :=
 assume Hnem : ¬(P ∨ ¬P),
@@ -76,7 +76,7 @@ assume (H : ¬P ∧ ¬Q) (Hn : P ∨ Q),
 theorem thm14 {P Q : Prop} : ¬P ∨ Q → P → Q :=
 assume (Hor : ¬P ∨ Q) (Hp : P),
   or_elim Hor
-    (assume Hnp : ¬P, absurd_elim Hp Hnp)
+    (assume Hnp : ¬P, absurd Hp Hnp)
     (assume Hq : Q, Hq)
 
 theorem thm15 {P Q : Prop} : (P → Q) → ¬¬(¬P ∨ Q) :=
@@ -129,7 +129,7 @@ assume (Hem : C ∨ ¬C) (Hin : ∃x : T, true) (H1 : C → ∃x, P x),
       exists_intro w Hr)
     (assume Hnc : ¬C,
       obtain (w : T) (Hw : true), from Hin,
-      have Hr : C → P w, from assume Hc, absurd_elim Hc Hnc,
+      have Hr : C → P w, from assume Hc, absurd Hc Hnc,
       exists_intro w Hr)
 
 theorem thm19b : (∃x, C → P x) → C → (∃x, P x) :=
@@ -147,7 +147,7 @@ assume Hem Hin Hnf H,
       have H1 : ¬(∀x, P x), from mt H Hnc,
       have H2 : ∃x, ¬P x, from Hnf H1,
       obtain (w : T) (Hw : ¬P w), from H2,
-      exists_intro w (assume H : P w, absurd_elim H Hw))
+      exists_intro w (assume H : P w, absurd H Hw))
 
 theorem thm20b : (∃x, P x → C) → (∀ x, P x) → C :=
 assume Hex Hall,

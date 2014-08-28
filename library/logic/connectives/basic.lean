@@ -59,18 +59,18 @@ theorem or_elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c 
 or_rec H2 H3 H1
 
 theorem resolve_right {a b : Prop} (H1 : a ∨ b) (H2 : ¬a) : b :=
-or_elim H1 (assume Ha, absurd_elim Ha H2) (assume Hb, Hb)
+or_elim H1 (assume Ha, absurd Ha H2) (assume Hb, Hb)
 
 theorem resolve_left {a b : Prop} (H1 : a ∨ b) (H2 : ¬b) : a :=
-or_elim H1 (assume Ha, Ha) (assume Hb, absurd_elim Hb H2)
+or_elim H1 (assume Ha, Ha) (assume Hb, absurd Hb H2)
 
 theorem or_swap {a b : Prop} (H : a ∨ b) : b ∨ a :=
 or_elim H (assume Ha, or_inr Ha) (assume Hb, or_inl Hb)
 
 theorem or_not_intro {a b : Prop} (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b) :=
 assume H : a ∨ b, or_elim H
-  (assume Ha, absurd_elim Ha Hna)
-  (assume Hb, absurd_elim Hb Hnb)
+  (assume Ha, absurd Ha Hna)
+  (assume Hb, absurd Hb Hnb)
 
 theorem or_imp_or {a b c d : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → d) : c ∨ d :=
 or_elim H1

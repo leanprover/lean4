@@ -131,4 +131,4 @@ theorem p_ne_false {p : Prop} (Hp : p) : p ≠ false :=
 assume Heq : p = false, Heq ▸ Hp
 
 theorem p_ne_true {p : Prop} (Hnp : ¬p) : p ≠ true :=
-assume Heq : p = true, absurd_not_true (Heq ▸ Hnp)
+assume Heq : p = true, absurd trivial (Heq ▸ Hnp)

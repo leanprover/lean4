@@ -255,7 +255,7 @@ induction_on n
   (take (H : 0 + m = 0), refl 0)
   (take k IH,
     assume (H : succ k + m = 0),
-    absurd_elim
+    absurd
       (show succ (k + m) = 0, from
         calc
           succ (k + m) = succ k + m : symm (add_succ_left k m)
@@ -402,7 +402,7 @@ discriminate
               ... = succ k * succ l : {Hk}
               ... = k * succ l + succ l : mul_succ_left _ _
               ... = succ (k * succ l + l) : add_succ_right _ _),
-        absurd_elim (trans Heq H) (succ_ne_zero _)))
+        absurd (trans Heq H) (succ_ne_zero _)))
 
 ---other inversion theorems appear below
 

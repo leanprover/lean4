@@ -32,7 +32,7 @@ case (λ x, x = false ∨ x = true)
 theorem not_true : (¬true) = false :=
 have aux : (¬true) ≠ true, from
   assume H : (¬true) = true,
-    absurd_not_true (H⁻¹ ▸ trivial),
+    absurd trivial (H⁻¹ ▸ trivial),
 resolve_right (prop_complete (¬true)) aux
 
 theorem not_false : (¬false) = true :=
@@ -98,9 +98,9 @@ eqt_intro (hrefl a)
 theorem not_or (a b : Prop) : (¬(a ∨ b)) = (¬a ∧ ¬b) :=
 propext
   (assume H, or_elim (em a)
-    (assume Ha, absurd_elim (or_inl Ha) H)
+    (assume Ha, absurd (or_inl Ha) H)
     (assume Hna, or_elim (em b)
-      (assume Hb, absurd_elim (or_inr Hb) H)
+      (assume Hb, absurd (or_inr Hb) H)
       (assume Hnb, and_intro Hna Hnb)))
   (assume (H : ¬a ∧ ¬b) (N : a ∨ b),
     or_elim N
@@ -111,7 +111,7 @@ theorem not_and (a b : Prop) : (¬(a ∧ b)) = (¬a ∨ ¬b) :=
 propext
   (assume H, or_elim (em a)
     (assume Ha, or_elim (em b)
-      (assume Hb, absurd_elim (and_intro Ha Hb) H)
+      (assume Hb, absurd (and_intro Ha Hb) H)
       (assume Hnb, or_inr Hnb))
     (assume Hna, or_inl Hna))
   (assume (H : ¬a ∨ ¬b) (N : a ∧ b),
@@ -153,7 +153,7 @@ propext (assume H, eqf_elim H) (assume H, eqf_intro H)
 
 theorem not_exists_forall {A : Type} {P : A → Prop} (H : ¬∃x, P x) : ∀x, ¬P x :=
 take x, or_elim (em (P x))
-  (assume Hp : P x,   absurd_elim (exists_intro x Hp) H)
+  (assume Hp : P x,   absurd (exists_intro x Hp) H)
   (assume Hn : ¬P x, Hn)
 
 theorem not_forall_exists {A : Type} {P : A → Prop} (H : ¬∀x, P x) : ∃x, ¬P x :=

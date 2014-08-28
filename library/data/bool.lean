@@ -120,7 +120,7 @@ cases_on a
 theorem band_eq_tt_elim_left {a b : bool} (H : a && b = tt) : a = tt :=
 or_elim (dichotomy a)
   (assume H0 : a = ff,
-    absurd_elim
+    absurd
       (calc ff = ff && b : (band_ff_left _)⁻¹
            ... = a && b  : {H0⁻¹}
            ... = tt      : H)

@@ -196,7 +196,7 @@ sub_induction n m
 	... = succ (k - 0) : {symm (sub_zero_right k)})
   (take k,
     assume H : succ k ≤ 0,
-    absurd_elim H (not_succ_zero_le k))
+    absurd H (not_succ_zero_le k))
   (take k l,
     assume IH : k ≤ l → succ l - k = succ (l - k),
     take H : succ k ≤ succ l,
@@ -215,7 +215,7 @@ sub_induction n m
     calc
       0 + (k - 0) = k - 0 : add_zero_left (k - 0)
 	... = k : sub_zero_right k)
-  (take k, assume H : succ k ≤ 0, absurd_elim H (not_succ_zero_le k))
+  (take k, assume H : succ k ≤ 0, absurd H (not_succ_zero_le k))
   (take k l,
     assume IH : k ≤ l → k + (l - k) = l,
     take H : succ k ≤ succ l,
@@ -271,7 +271,7 @@ have l1 : k ≤ m → n + m - k = n + (m - k), from
       calc
 	n + m - 0 = n + m : sub_zero_right (n + m)
 	  ... = n + (m - 0) : {symm (sub_zero_right m)})
-    (take k : ℕ, assume H : succ k ≤ 0, absurd_elim H (not_succ_zero_le k))
+    (take k : ℕ, assume H : succ k ≤ 0, absurd H (not_succ_zero_le k))
     (take k m,
       assume IH : k ≤ m → n + m - k = n + (m - k),
       take H : succ k ≤ succ m,

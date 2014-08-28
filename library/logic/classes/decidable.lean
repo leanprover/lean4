@@ -27,10 +27,10 @@ theorem irrelevant {p : Prop} (d1 d2 : decidable p) : d1 = d2 :=
 decidable_rec
   (assume Hp1 : p, decidable_rec
     (assume Hp2  : p,  congr_arg inl (refl Hp1)) -- using proof irrelevance for Prop
-    (assume Hnp2 : ¬p, absurd_elim Hp1 Hnp2)
+    (assume Hnp2 : ¬p, absurd Hp1 Hnp2)
     d2)
   (assume Hnp1 : ¬p, decidable_rec
-    (assume Hp2  : p,  absurd_elim Hp2 Hnp1)
+    (assume Hp2  : p,  absurd Hp2 Hnp1)
     (assume Hnp2 : ¬p, congr_arg inr (refl Hnp1)) -- using proof irrelevance for Prop
     d2)
   d1
@@ -76,7 +76,7 @@ rec_on Ha
   (assume Hna, rec_on Hb
     (assume Hb  : b,  inr (assume H : a ↔ b, absurd (iff_elim_right H Hb) Hna))
     (assume Hnb : ¬b, inl
-        (iff_intro (assume Ha, absurd_elim Ha Hna) (assume Hb, absurd_elim Hb Hnb))))
+        (iff_intro (assume Ha, absurd Ha Hna) (assume Hb, absurd Hb Hnb))))
 
 theorem implies_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
   decidable (a → b) :=
@@ -84,7 +84,7 @@ rec_on Ha
   (assume Ha  : a, rec_on Hb
     (assume Hb  : b,  inl (assume H, Hb))
     (assume Hnb : ¬b, inr (assume H : a → b, absurd (H Ha) Hnb)))
-  (assume Hna : ¬a, inl (assume Ha, absurd_elim Ha Hna))
+  (assume Hna : ¬a, inl (assume Ha, absurd Ha Hna))
 
 theorem decidable_iff_equiv {a b : Prop} (Ha : decidable a) (H : a ↔ b) : decidable b :=
 rec_on Ha

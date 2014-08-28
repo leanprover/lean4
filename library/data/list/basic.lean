@@ -164,7 +164,7 @@ theorem head_cons (x : T) (x0 : T) (t : list T) : head x0 (x :: t) = x := refl _
 
 theorem head_concat (s t : list T) (x0 : T) : s ≠ nil → (head x0 (s ++ t) = head x0 s) :=
 list_cases_on s
-  (take H : nil ≠ nil, absurd_elim (refl nil) H)
+  (take H : nil ≠ nil, absurd (refl nil) H)
   (take x s,
     take H : cons x s ≠ nil,
     calc
@@ -180,7 +180,7 @@ theorem tail_cons (x : T) (l : list T) : tail (cons x l) = l := refl _
 
 theorem cons_head_tail (x0 : T) (l : list T) : l ≠ nil → (head x0 l) :: (tail l) = l :=
 list_cases_on l
-  (assume H : nil ≠ nil, absurd_elim (refl _) H)
+  (assume H : nil ≠ nil, absurd (refl _) H)
   (take x l, assume H : cons x l ≠ nil, refl _)
 
 

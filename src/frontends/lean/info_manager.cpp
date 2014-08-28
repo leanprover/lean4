@@ -365,13 +365,30 @@ struct info_manager::imp {
             m_processed_upto = l - 1;
     }
 
-    void invalidate_line(unsigned l) {
+    void invalidate_line_col_core(unsigned l, optional<unsigned> const & c) {
         lock_guard<mutex> lc(m_mutex);
         synch_line(l);
         if (m_processed_upto > l - 1)
             m_processed_upto = l - 1;
-        m_line_data[l]  = info_data_set();
+        if (!c) {
+            m_line_data[l]  = info_data_set();
+        } else {
+            info_data_set new_set;
+            m_line_data[l].for_each([&](info_data const & d) {
+                    if (d.get_column() < *c)
+                        new_set.insert(d);
+                });
+            m_line_data[l] = new_set;
+        }
         m_line_valid[l] = false;
+    }
+
+    void invalidate_line(unsigned l) {
+        invalidate_line_col_core(l, optional<unsigned>());
+    }
+
+    void invalidate_line_col(unsigned l, unsigned c) {
+        invalidate_line_col_core(l, optional<unsigned>(c));
     }
 
     void commit_upto(unsigned l, bool valid) {
@@ -462,6 +479,7 @@ void info_manager::merge(info_manager const & m, bool overwrite) { m_ptr->merge(
 void info_manager::insert_line(unsigned l) { m_ptr->insert_line(l); }
 void info_manager::remove_line(unsigned l) { m_ptr->remove_line(l); }
 void info_manager::invalidate_line(unsigned l) { m_ptr->invalidate_line(l); }
+void info_manager::invalidate_line_col(unsigned l, unsigned c) { m_ptr->invalidate_line_col(l, c); }
 void info_manager::commit_upto(unsigned l, bool valid) { m_ptr->commit_upto(l, valid); }
 bool info_manager::is_invalidated(unsigned l) const { return m_ptr->is_invalidated(l); }
 void info_manager::save_environment_options(unsigned l, environment const & env, options const & o) {

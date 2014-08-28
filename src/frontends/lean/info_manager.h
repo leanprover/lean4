@@ -29,6 +29,7 @@ public:
     void insert_line(unsigned l);
     void remove_line(unsigned l);
     void invalidate_line(unsigned l);
+    void invalidate_line_col(unsigned l, unsigned c);
     void commit_upto(unsigned l, bool valid);
     bool is_invalidated(unsigned l) const;
     void save_environment_options(unsigned l, environment const & env, options const & o);

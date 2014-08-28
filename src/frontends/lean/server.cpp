@@ -19,10 +19,14 @@ server::file::file(std::istream & in, std::string const & fname):m_fname(fname) 
 
 void server::file::replace_line(unsigned linenum, std::string const & new_line) {
     lock_guard<mutex> lk(m_lines_mutex);
-    m_info.block_new_info(true);
-    m_info.invalidate_line(linenum+1);
     while (linenum >= m_lines.size())
         m_lines.push_back("");
+    std::string const & old_line = m_lines[linenum];
+    unsigned i = 0;
+    while (i < old_line.size() && i < new_line.size() && old_line[i] == new_line[i])
+        i++;
+    m_info.block_new_info(true);
+    m_info.invalidate_line_col(linenum+1, i);
     m_lines[linenum] = new_line;
 }
 

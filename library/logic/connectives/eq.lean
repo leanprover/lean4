@@ -7,7 +7,7 @@
 
 -- Equality.
 
-import .basic
+import .prop
 
 -- eq
 -- --
@@ -99,9 +99,6 @@ assume Ha, H2 ▸ (H1 Ha)
 
 theorem eq_imp_trans {a b c : Prop} (H1 : a = b) (H2 : b → c) : a → c :=
 assume Ha, H2 (H1 ▸ Ha)
-
-theorem eq_to_iff {a b : Prop} (H : a = b) : a ↔ b :=
-iff_intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 
 
 -- ne

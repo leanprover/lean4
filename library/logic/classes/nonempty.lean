@@ -11,7 +11,7 @@ namespace nonempty
 inductive nonempty (A : Type) : Prop :=
 nonempty_intro : A → nonempty A
 
-definition nonempty_elim {A : Type} {B : Type} (H1 : nonempty A) (H2 : A → B) : B :=
+definition nonempty_elim {A : Type} {B : Prop} (H1 : nonempty A) (H2 : A → B) : B :=
 nonempty_rec H2 H1
 
 theorem inhabited_imp_nonempty [instance] {A : Type} (H : inhabited A) : nonempty A :=

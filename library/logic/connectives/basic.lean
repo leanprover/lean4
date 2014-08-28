@@ -2,61 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Leonardo de Moura, Jeremy Avigad
 
-import general_notation .prop
-
--- implication
--- -----------
-
-abbreviation imp (a b : Prop) : Prop := a → b
-
-
--- true and false
--- --------------
-
-inductive false : Prop
-
-theorem false_elim (c : Prop) (H : false) : c :=
-false_rec c H
-
-inductive true : Prop :=
-trivial : true
-
-abbreviation not (a : Prop) := a → false
-prefix `¬` := not
-
-
--- not
--- ---
-
-theorem not_intro {a : Prop} (H : a → false) : ¬a := H
-
-theorem not_elim {a : Prop} (H1 : ¬a) (H2 : a) : false := H1 H2
-
-theorem absurd {a : Prop} (H1 : a) (H2 : ¬a) : false := H2 H1
-
-theorem not_not_intro {a : Prop} (Ha : a) : ¬¬a :=
-assume Hna : ¬a, absurd Ha Hna
-
-theorem mt {a b : Prop} (H1 : a → b) (H2 : ¬b) : ¬a :=
-assume Ha : a, absurd (H1 Ha) H2
-
-theorem absurd_elim {a : Prop} {b : Prop} (H1 : a) (H2 : ¬a) : b :=
-false_elim b (absurd H1 H2)
-
-theorem absurd_not_true (H : ¬true) : false :=
-absurd trivial H
-
-theorem not_false_trivial : ¬false :=
-assume H : false, H
-
-theorem not_implies_left {a b : Prop} (H : ¬(a → b)) : ¬¬a :=
-assume Hna : ¬a, absurd (assume Ha : a, absurd_elim Ha Hna) H
-
-theorem not_implies_right {a b : Prop} (H : ¬(a → b)) : ¬b :=
-assume Hb : b, absurd (assume Ha : a, Hb) H
-
-theorem contrapos {a b : Prop} (Hab : a → b) : (¬b → ¬a) :=
-assume Hnb Ha, Hnb (Hab Ha)
+import general_notation .eq
 
 
 -- and
@@ -154,6 +100,8 @@ definition iff (a b : Prop) := (a → b) ∧ (b → a)
 infix `<->` := iff
 infix `↔` := iff
 
+theorem iff_def {a b : Prop} : (a ↔ b) = ((a → b) ∧ (b → a)) := rfl
+
 theorem iff_intro {a b : Prop} (H1 : a → b) (H2 : b → a) : a ↔ b := and_intro H1 H2
 
 theorem iff_elim {a b c : Prop} (H1 : (a → b) → (b → a) → c) (H2 : a ↔ b) : c := and_rec H1 H2
@@ -189,6 +137,9 @@ iff_intro
 
 calc_refl iff_refl
 calc_trans iff_trans
+
+theorem eq_to_iff {a b : Prop} (H : a = b) : a ↔ b :=
+iff_intro (λ Ha, subst H Ha) (λ Hb, subst (symm H) Hb)
 
 
 -- comm and assoc for and / or

@@ -18,7 +18,7 @@ using function
 inductive path {A : Type} (a : A) : A → Type :=
 idpath : path a a
 
-infix `≈`:50 := path
+infix `≈` := path
 notation x `≈` y:50 `:>`:0 A:0 := @path A x y    -- TODO: is this right?
 notation `idp`:max := idpath _    -- TODO: can we / should we use `1`?
 
@@ -206,7 +206,7 @@ abbreviation ap01 := ap
 abbreviation pointwise_paths {A : Type} {P : A → Type} (f g : Πx, P x) : Type :=
 Πx : A, f x ≈ g x
 
-infix `∼`:50 := pointwise_paths
+infix `∼` := pointwise_paths
 
 definition apD10 {A} {B : A → Type} {f g : Πx, B x} (H : f ≈ g) : f ∼ g :=
 λx, path.induction_on H idp

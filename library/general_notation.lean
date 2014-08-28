@@ -32,6 +32,9 @@ precedence `=`:50
 precedence `≠`:50
 precedence `rfl`:max   -- shorthand for reflexivity
 
+precedence `≈`:50      -- used for path in hott
+precedence `∼`:50
+
 precedence `⁻¹`:100
 precedence `⬝`:75      -- infixr
 precedence `▸`:75      -- infixr
@@ -73,8 +76,6 @@ precedence `∩`:70
 precedence `∪`:65
 
 -- ### other symbols
-
--- uncomment when inductive type syntax has changed
 
 precedence `|`:55     -- used for absolute value, subtypes, divisibility
 precedence `++`:65    -- list append

@@ -48,12 +48,12 @@
 (defcustom lean-eldoc-nay-retry-time 0.3
   "When eldoc-function had nay, try again after this amount of time.")
 
-(defcustom lean-flycheck-checker-name "lmake"
+(defcustom lean-flycheck-checker-name "linja"
   "lean-flychecker checker name"
   :group 'lean
   :type 'string)
 
-(defcustom lean-flycheck-checker-options '("--jobs" "--keep-going" "--permissive" "--flycheck")
+(defcustom lean-flycheck-checker-options '("--flycheck")
   "lean-flychecker checker option"
   :group 'lean)
 

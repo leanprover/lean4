@@ -202,6 +202,11 @@ def handle_failure_for_flycheck(out, target):
         print "%s:1:0: error: failed to compile %s" % (target, failed_file)
         print "FLYCHECK_END"
 
+    if failed:
+        proc = subprocess.Popen([g_lean_path, "--flycheck", target],
+                                stdout=subprocess.PIPE, stderr=None)
+        print proc.communicate()[0]
+
 def call_ninja(directory, args):
     targets = []
     for item in args.targets:

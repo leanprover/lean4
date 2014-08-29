@@ -1589,37 +1589,6 @@ struct unifier_fn {
             margs.pop_back();
         }
 
-        /**
-           \brief Given
-               m      := a metavariable ?m
-               margs  := [a_1 ... a_k]
-               rhs    := M(b_1 ... b_n) where M is a macro with arguments b_1 ... b_n
-           Then create the constraints
-               (?m_1 a_1 ... a_k) =?= b_1
-               ...
-               (?m_n a_1 ... a_k) =?= b_n
-               ?m  =?= fun (x_1 ... x_k), M((?m_1 x_1 ... x_k) ... (?m_n x_1 ... x_k))
-        */
-        void mk_macro_imitation() {
-            lean_assert(is_metavar(m));
-            lean_assert(is_macro(rhs));
-            constraint_seq cs;
-            buffer<expr> locals;
-            flet<justification> let(j, j); // save j value
-            mk_local_context(locals, cs);
-            lean_assert(margs.size() == locals.size());
-            buffer<expr> sargs;
-            for (unsigned i = 0; i < macro_num_args(rhs); i++) {
-                expr rarg      = macro_arg(rhs, i);
-                expr rarg_type = u.m_tc[relax]->infer(rarg, cs);
-                expr sarg      = mk_imitiation_arg(rhs, rarg_type, locals, cs);
-                sargs.push_back(sarg);
-            }
-            expr v = Fun(locals, mk_macro(macro_def(rhs), sargs.size(), sargs.data()));
-            cs += mk_eq_cnstr(m, v, j, relax);
-            alts.push_back(cs.to_list());
-        }
-
     public:
         flex_rigid_core_fn(unifier_fn & _u, expr const & _lhs, expr const & _rhs,
                            justification const & _j, bool _relax, buffer<constraints> & _alts):
@@ -1643,10 +1612,7 @@ struct unifier_fn {
                 mk_bindings_imitation();
                 break;
             case expr_kind::Macro:
-                if (!u.m_pattern)
-                    mk_simple_projections();
-                mk_macro_imitation();
-                break;
+                lean_unreachable(); // LCOV_EXCL_LINE
             case expr_kind::App:
                 mk_app_projections();
                 mk_app_imitation();
@@ -1719,6 +1685,13 @@ struct unifier_fn {
                 } else {
                     return false;
                 }
+            }
+        } else if (is_macro(rhs)) {
+            if (auto new_rhs = expand_rhs(rhs, relax)) {
+                lean_assert(*new_rhs != rhs);
+                return is_def_eq(lhs, *new_rhs, j, relax);
+            } else {
+                return false;
             }
         }
 

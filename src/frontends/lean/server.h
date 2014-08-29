@@ -83,6 +83,7 @@ class server {
     unsigned find(unsigned linenum);
     void read_line(std::istream & in, std::string & line);
     void interrupt_worker();
+    void show_options();
     unsigned get_linenum(std::string const & line, std::string const & cmd);
 
 public:

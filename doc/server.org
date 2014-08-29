@@ -258,3 +258,30 @@ until all pending information has been computed.
 #+BEGIN_SRC
 WAIT
 #+END_SRC
+
+** Options
+
+The command =OPTIONS= display all configuration options available
+in Lean. It has the form
+
+#+BEGIN_SRC
+OPTIONS
+#+END_SRC
+
+The output is a sequence of entries
+
+#+BEGIN_SRC
+-- BEGINOPTIONS
+[entry]*
+-- ENDOPTIONS
+#+END_SRC
+
+where each entry is of the form
+
+#+BEGIN_SRC
+-- [name]|[kind]|[default-value]|[description]
+#+END_SRC
+
+The available =kinds= are: =Bool=, =Int=, =Unsigned Int=, =Double=,
+=String=, and =S-Expressions=.
+

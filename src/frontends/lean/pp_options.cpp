@@ -7,11 +7,11 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp_options.h"
 
 #ifndef LEAN_DEFAULT_PP_MAX_DEPTH
-#define LEAN_DEFAULT_PP_MAX_DEPTH std::numeric_limits<unsigned>::max()
+#define LEAN_DEFAULT_PP_MAX_DEPTH 1000000
 #endif
 
 #ifndef LEAN_DEFAULT_PP_MAX_STEPS
-#define LEAN_DEFAULT_PP_MAX_STEPS std::numeric_limits<unsigned>::max()
+#define LEAN_DEFAULT_PP_MAX_STEPS 10000000
 #endif
 
 #ifndef LEAN_DEFAULT_PP_NOTATION

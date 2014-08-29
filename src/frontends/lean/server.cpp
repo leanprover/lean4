@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <functional>
 #include "util/sstream.h"
+#include "util/sexpr/option_declarations.h"
 #include "frontends/lean/server.h"
 #include "frontends/lean/parser.h"
 
@@ -214,6 +215,7 @@ static std::string g_eval("EVAL");
 static std::string g_wait("WAIT");
 static std::string g_clear_cache("CLEAR_CACHE");
 static std::string g_echo("ECHO");
+static std::string g_options("OPTIONS");
 
 static bool is_command(std::string const & cmd, std::string const & line) {
     return line.compare(0, cmd.size(), cmd) == 0;
@@ -346,6 +348,16 @@ void server::eval(std::string const & line) {
     }
 }
 
+void server::show_options() {
+    m_out << "-- BEGINOPTIONS" << std::endl;
+    option_declarations const & decls = get_option_declarations();
+    for (auto it = decls.begin(); it != decls.end(); it++) {
+        option_declaration const & d = it->second;
+        m_out << "-- " << d.get_name() << "|" << d.kind() << "|" << d.get_default_value() << "|" << d.get_description() << "\n";
+    }
+    m_out << "-- ENDOPTIONS" << std::endl;
+}
+
 bool server::operator()(std::istream & in) {
     for (std::string line; std::getline(in, line);) {
         try {
@@ -382,6 +394,8 @@ bool server::operator()(std::istream & in) {
                 eval(line);
             } else if (is_command(g_clear_cache, line)) {
                 m_cache.clear();
+            } else if (is_command(g_options, line)) {
+                show_options();
             } else if (is_command(g_wait, line)) {
                 m_worker.wait();
             } else {

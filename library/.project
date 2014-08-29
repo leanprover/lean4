@@ -1,0 +1,3 @@
++ *.lean
+- flycheck*.lean
+- .#*.lean

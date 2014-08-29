@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name g_sorry_name("sorry");
-static expr g_sorry(mk_constant(g_sorry_name));
 static name  g_l("l");
 static expr  g_sorry_type(mk_pi("A", mk_sort(mk_param_univ(g_l)), mk_var(0), binder_info(true)));
 
@@ -29,6 +28,6 @@ environment declare_sorry(environment const & env) {
     }
 }
 
-expr const & get_sorry_constant() { return g_sorry; }
+expr mk_sorry() { return mk_constant(g_sorry_name); }
 name const & get_sorry_name() { return g_sorry_name; }
 }

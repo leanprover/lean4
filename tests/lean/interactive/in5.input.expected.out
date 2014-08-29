@@ -1,0 +1,20 @@
+-- BEGININFO
+-- TYPE|4|0
+A → B → and A B
+-- ACK
+-- IDENTIFIER|4|0
+and_intro
+-- ACK
+-- TYPE|4|10
+A
+-- ACK
+-- SYMBOL|4|10
+sorry
+-- ACK
+-- TYPE|4|16
+B
+-- ACK
+-- SYMBOL|4|16
+sorry
+-- ACK
+-- ENDINFO

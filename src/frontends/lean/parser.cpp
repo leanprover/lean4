@@ -148,7 +148,7 @@ expr parser::mk_sorry(pos_info const & p) {
         display_warning_pos(p.first, p.second);
         regular_stream() << " using 'sorry'" << endl;
     }
-    return get_sorry_constant();
+    return save_pos(::lean::mk_sorry(), p);
 }
 
 void parser::declare_sorry() {

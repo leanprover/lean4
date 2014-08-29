@@ -16,6 +16,6 @@ bool has_sorry(environment const & env);
 environment declare_sorry(environment const & env);
 
 /** \brief Return the constant \c sorry */
-expr const & get_sorry_constant();
+expr mk_sorry();
 name const & get_sorry_name();
 }

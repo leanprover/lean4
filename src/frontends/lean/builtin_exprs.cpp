@@ -104,7 +104,7 @@ static expr parse_let(parser & p, pos_info const & pos) {
             v = p.save_pos(mk_typed_expr(*type, value), p.pos_of(value));
         else
             v = value;
-        v = p.save_pos(mk_let_value_annotation(v), id_pos);
+        v = p.save_pos(mk_let_value(v), id_pos);
         p.add_local_expr(id, v);
         expr b = parse_let_body(p, pos);
         return p.save_pos(mk_let(id, v, b), pos);

@@ -324,7 +324,6 @@ static bool is_show(expr const & e) {
     return is_show_annotation(e) && is_app(get_annotation_arg(e)) &&
         is_lambda(app_fn(get_annotation_arg(e)));
 }
-static bool is_let_value(expr const & e) { return is_let_value_annotation(e); }
 
 auto pretty_fn::pp_have(expr const & e) -> result {
     expr proof   = app_arg(e);
@@ -431,7 +430,7 @@ auto pretty_fn::pp(expr const & e) -> result {
     if (is_have(e))         return pp_have(e);
     if (is_let(e))          return pp_let(e);
     if (is_typed_expr(e))   return pp(get_typed_expr_expr(e));
-    if (is_let_value(e))    return pp(get_annotation_arg(e));
+    if (is_let_value(e))    return pp(get_let_value_expr(e));
     if (auto n = to_num(e)) return pp_num(*n);
     if (!m_metavar_args && is_meta(e))
         return pp_meta(get_app_fn(e));

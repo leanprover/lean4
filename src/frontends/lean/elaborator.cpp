@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/opaque_hints.h"
 #include "library/locals.h"
+#include "library/let.h"
 #include "library/deep_copy.h"
 #include "library/typed_expr.h"
 #include "library/tactic/tactic.h"
@@ -1096,8 +1097,8 @@ public:
             cs += p->second;
             return p->first;
         } else {
-            auto ecs = visit(get_annotation_arg(e));
-            expr r = copy_tag(ecs.first, mk_let_value_annotation(ecs.first));
+            auto ecs = visit(get_let_value_expr(e));
+            expr r = copy_tag(ecs.first, mk_let_value(ecs.first));
             m_cache.insert(e, mk_pair(r, ecs.second));
             cs += ecs.second;
             return r;
@@ -1109,7 +1110,7 @@ public:
             return visit_placeholder(e, cs);
         } else if (is_choice(e)) {
             return visit_choice(e, none_expr(), cs);
-        } else if (is_let_value_annotation(e)) {
+        } else if (is_let_value(e)) {
             return visit_let_value(e, cs);
         } else if (is_by(e)) {
             return visit_by(e, none_expr(), cs);

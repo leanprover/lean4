@@ -33,6 +33,7 @@ using std::atomic_fetch_sub_explicit;
 using std::memory_order_relaxed;
 using std::memory_order_release;
 using std::memory_order_acquire;
+using std::memory_order_seq_cst;
 using std::atomic_thread_fence;
 namespace chrono      = std::chrono;
 namespace this_thread = std::this_thread;
@@ -51,6 +52,7 @@ using boost::atomic;
 using boost::memory_order_relaxed;
 using boost::memory_order_acquire;
 using boost::memory_order_release;
+using boost::memory_order_seq_cst;
 using boost::condition_variable;
 using boost::unique_lock;
 using boost::lock_guard;
@@ -79,6 +81,7 @@ typedef unsigned milliseconds;
 constexpr int memory_order_relaxed = 0;
 constexpr int memory_order_release = 0;
 constexpr int memory_order_acquire = 0;
+constexpr int memory_order_seq_cst = 0;
 inline void atomic_thread_fence(int ) {}
 template<typename T>
 class atomic {

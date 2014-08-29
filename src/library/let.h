@@ -8,6 +8,10 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
+expr mk_let_value(expr const & e);
+bool is_let_value(expr const & e);
+expr get_let_value_expr(expr const e);
+
 expr mk_let(name const & n, expr const & v, expr const & b);
 bool is_let(expr const & e);
 name const & get_let_var_name(expr const & e);

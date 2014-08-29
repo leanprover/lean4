@@ -1,0 +1,340 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+import fnmatch
+import os
+import platform
+import stat
+import subprocess
+import sys
+import threading
+import urllib
+import glob
+import argparse
+
+g_lean_path    = "USE DEFAULT"
+g_ninja_path   = "USE DEFAULT"
+g_working_dir  = os.getcwd()
+g_lean_files   = []
+g_linja_path   = os.path.realpath(__file__)
+g_lean_bin_dir = os.path.dirname(g_linja_path)
+g_lean_options = []
+
+def which(program):
+    """ Lookup program in a path """
+    import os
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+    return None
+
+def log(msg):
+    print >> sys.stderr, msg
+
+def log_nonewline(msg):
+    print >> sys.stderr, ("\r%s" % msg),
+    sys.stderr.flush()
+
+def error(msg):
+    log("Error: %s" % msg)
+    exit(1)
+
+def give_exec_permission(filename):
+    "chmod +x filename"
+    st = os.stat(filename)
+    os.chmod(filename, st.st_mode | stat.S_IEXEC)
+
+def show_download_progress(*data):
+    file_size = int(data[2]/1000)
+    total_packets = data[2]/data[1]
+    downloaded_packets = data[0]
+    log_nonewline("Download: size\t= %i kb, packet: %i/%i" % (file_size, downloaded_packets, total_packets+1))
+
+def download_ninja_and_save_at(ninja_path):
+    if platform.system() == "Linux" and "x86_64" in platform.platform():
+        url = "http://www.cs.cmu.edu/~soonhok/ninja/ninja-1.5.1-linux-x86_64"
+    elif platform.system() == "Windows":
+        url = "http://www.cs.cmu.edu/~soonhok/ninja/ninja-win"
+    elif platform.system() == "Darwin" and "x86_64" in platform.platform():
+        url = "http://www.cs.cmu.edu/~soonhok/ninja/ninja-1.5.1-osx"
+    else:
+        error("we do not have ninja executable for this platform: %s" % platform.platform())
+    log("Downloading ninja: %s ===> %s\n" % (url, ninja_path))
+    urllib.urlretrieve(url, ninja_path, show_download_progress)
+    log("\n")
+    if not os.path.isfile(ninja_path):
+        error("failed to download ninja executable from %s" % url)
+    give_exec_permission(ninja_path)
+    return ninja_path
+
+def check_required_packages():
+    global g_lean_path, g_ninja_path
+    lean_exec_name  = "lean.exe"  if platform.system() == "Windows" else "lean"
+    ninja_exec_name = "ninja.exe" if platform.system() == "Windows" else "ninja"
+
+    if g_lean_path == "USE DEFAULT":
+        g_lean_path = which(lean_exec_name) or os.path.join(g_lean_bin_dir, lean_exec_name)
+    if g_ninja_path == "USE DEFAULT":
+        g_ninja_path = which(ninja_exec_name) or os.path.join(g_lean_bin_dir, ninja_exec_name)
+
+    if not os.path.isfile(g_lean_path):
+        error("cannot find lean executable at " + g_lean_path)
+
+    if not os.path.isfile(g_ninja_path):
+        g_ninja_path = download_ninja_and_save_at(g_ninja_path)
+
+def make_deps(lean_file, dlean_file, olean_file):
+    with open(dlean_file, "w") as f:
+        deps = []
+        output = subprocess.check_output([g_lean_path, "--deps", lean_file])
+        print >> f, olean_file + ": \\"
+        for olean_file in output.strip().split("\n"):
+            deps.append(olean_file)
+        deps_str = " " + (" \\\n ".join(deps))
+        print >> f, deps_str
+
+def get_lean_names(lean_file):
+    basename, ext = os.path.splitext(lean_file)
+    item = {}
+    item['base']  = basename;            item['lean']  = basename + ".lean";
+    item['d']     = basename + ".d";     item['olean'] = basename + ".olean";
+    item['clean'] = basename + ".clean"; item['ilean'] = basename + ".ilean"
+    return item
+
+def make_deps_all_files(directory, targets):
+    lean_files = find_lean_files(directory, targets)
+    threads = []
+    i, num_of_files = 1, len(lean_files)
+    for item in lean_files:
+        lean_file  = item['lean']
+        dlean_file = item['d']
+        olean_file = item['olean']
+        if not os.path.isfile(dlean_file) or os.path.getmtime(dlean_file) < os.path.getmtime(lean_file):
+            thread = threading.Thread(target=make_deps, args = [lean_file, dlean_file, olean_file])
+            sys.stderr.write("[%i/%i] generating dep... % -80s\r" % (i, num_of_files, dlean_file))
+            sys.stderr.flush()
+            thread.start()
+            threads.append(thread)
+        i += 1
+    for thread in threads:
+        thread.join()
+    if threads != []:
+        sys.stderr.write("\n")
+
+def rule_clean():
+    return """rule CLEAN
+  command = "%s" -t clean
+  description = Cleaning all built files...""" % g_ninja_path
+
+def rule_lean():
+    return """rule LEAN
+  depfile = ${LEAN_BASE}.d
+  command = "%s" %s "$in" -o "${LEAN_BASE}.olean" -c "${LEAN_BASE}.clean" -i "${LEAN_BASE}.ilean" """ \
+      % (g_lean_path, " ".join(g_lean_options))
+
+def build_all(lean_files):
+    str = "build all: phony"
+    for item in lean_files:
+        str = str + " " + item['olean']
+    return str
+
+def build_clean():
+    return """build clean: CLEAN"""
+
+def build_olean(lean, olean, clean, dlean, ilean, base):
+    str = """build %s %s %s: LEAN %s | %s\n""" % (olean, ilean, clean, lean, dlean)
+    str += "  LEAN_BASE=%s" % base
+    return str
+
+def ninja_default():
+    return """default all"""
+
+def make_build_ninja(directory, targets):
+    with open(os.path.join(directory, "build.ninja"), "w") as f:
+        lean_files = find_lean_files(directory, targets)
+        print >> f, rule_clean()
+        print >> f, rule_lean()
+        print >> f, build_all(lean_files)
+        print >> f, build_clean()
+        for item in lean_files:
+            print >> f, build_olean(item['lean'], item['olean'], item['clean'], item['d'], item['ilean'], item['base'])
+        print >> f, ninja_default()
+
+def do_deps(lean_executable, lean_files):
+    for lean in lean_files:
+        item = get_lean_names(lean)
+        make_deps(lean_executable, item['lean'], item['d'], item['olean'])
+
+def find_project_upward(path):
+    project_file = os.path.join(path, ".project")
+    if os.path.isfile(project_file):
+        return path
+    up = os.path.dirname(path)
+    if up != path:
+        return find_project_upward(up)
+    return None
+
+def handle_failure_for_flycheck(out, target):
+    failed = set()
+    for line in out.split("\n"):
+        if line.startswith("FAILED:"):
+            for lean_file in g_lean_files:
+                lean = lean_file['lean']
+                if lean in line:
+                    print "WOW: This one failed", lean
+                    failed.add(lean)
+    for failed_file in failed:
+        if target != failed_file:
+            print "FLYCHECK_BEGIN ERROR"
+            print "%s:1:0: error: failed to compile %s" % (target, failed_file)
+            print "FLYCHECK_END"
+
+def call_ninja(directory, args):
+    targets = []
+    for item in args.targets:
+        if item.endswith(".lean"):
+            targets.append(item[:-4] + "olean")
+        else:
+            targets.append(item)
+    proc_out = proc_err = None
+    if args.flycheck:
+        proc_out = subprocess.PIPE
+        proc_err = subprocess.PIPE
+
+    proc = subprocess.Popen([g_ninja_path] + targets + ["-C", directory, "-k 29"], stdout=proc_out, stderr=proc_err)
+    # proc = subprocess.Popen([g_ninja_path] + targets + ["-C", directory])
+    proc.wait()
+
+    if args.flycheck:
+        (out, err) = proc.communicate()
+        print out
+        if len(args.targets) == 1 and args.targets[0].endswith(".lean"):
+            handle_failure_for_flycheck(out, args.targets[0])
+
+def find_files(directory, pattern):
+    if "/" in pattern:
+        return glob.glob(os.path.join(directory, pattern))
+    matches = []
+    for root, dirnames, filenames in os.walk(directory):
+        for filename in fnmatch.filter(filenames, pattern):
+            matches.append(os.path.join(root, filename))
+    return matches
+
+def find_lean_files(project_dir, targets):
+    if g_lean_files != []:
+        return g_lean_files
+    files = set()
+    include_patterns, exclude_patterns = [], []
+    with open(os.path.join(project_dir, ".project"), 'r') as f:
+        for line in f:
+            c = line[0]
+            if c == '+':
+                include_patterns.append(line[1:].strip())
+            elif c == '-':
+                exclude_patterns.append(line[1:].strip())
+            elif c == '#':
+                pass # Comment
+            elif c == 'T':
+                pass # TAG
+            elif c == 'O':
+                pass # Lean Option
+    for pattern in include_patterns:
+        files |= set(find_files(project_dir, pattern))
+    for pattern in exclude_patterns:
+        files -= set(find_files(project_dir, pattern))
+    for file in targets:
+        file = os.path.abspath(file)
+        if file.endswith(".lean"):
+            files.add(file)
+        elif file.endswith(".olean"):
+            file.add(file[:-5] + "lean")
+    for f in files:
+        g_lean_files.append(get_lean_names(f))
+    return g_lean_files
+
+def expand_target_to_fullname(target):
+    ret = ""
+    if target in ["all", "clean"]:
+        ret = target
+    elif os.path.isfile(target):
+        ret = os.path.abspath(target)
+    else:
+        ret = target
+    return ret
+
+def parse_arg(argv):
+    parser = argparse.ArgumentParser(description='linja: ninja build wrapper for Lean theorem prover.')
+    parser.add_argument('--flycheck',   '-F', action='store_true', default=False, help="Use --flycheck option for Lean.")
+    parser.add_argument('targets', nargs='*')
+    args = parser.parse_args(argv)
+    args.targets = map(expand_target_to_fullname, args.targets)
+    return args
+
+def get_lean_options(args):
+    options = []
+    if args.flycheck:
+        options.append("--flycheck")
+    return options
+
+def main(argv=None):
+    global g_lean_options
+    if argv is None:
+        argv = sys.argv[1:]
+    check_required_packages()
+    project_dir = find_project_upward(g_working_dir)
+    if not project_dir:
+        error("cannot find project directory. Make sure that you have .project file at the project root.")
+    args = parse_arg(argv)
+    os.chdir(project_dir)
+    g_lean_options += get_lean_options(args)
+    if not "clean" in args.targets:
+        make_deps_all_files(project_dir, args.targets)
+    make_build_ninja(project_dir, args.targets)
+    call_ninja(project_dir, args)
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+
+"""If the pattern does not contain a slash /, git treats it as a shell
+glob pattern and checks for a match against the pathname relative to
+the location of the .gitignore file (relative to the toplevel of the
+work tree if not from a .gitignore file)."""
+
+"""Otherwise, git treats the pattern as a shell glob suitable for
+consumption by fnmatch(3) with the FNM_PATHNAME flag: wildcards in the
+pattern will not match a / in the pathname. For example,
+Documentation/*.html matches Documentation/git.html but not
+Documentation/ppc/ppc.html or tools/perf/Documentation/perf.html."""
+
+
+""" Lean option
+  --luahook=num -k  how often the Lua interpreter checks the interrupted flag,
+                    it is useful for interrupting non-terminating user scripts,
+                    0 means 'do not check'.
+  --trust=num -t    trust level (default: 0)
+  --threads=num -j  number of threads used to process lean files
+  --flycheck        print structured error message for flycheck
+"""
+
+""" Ninja option
+       -C DIR change to DIR before doing anything else
+
+       -j N   run N jobs in parallel [default=8, derived from CPUs available]
+
+       -l N   do not start new jobs if the load average is greater than N
+
+       -k N   keep going until N jobs fail [default=1]
+
+       -n     dry run (don't run commands but act like they succeeded)
+
+       -v     show all command lines while building
+"""

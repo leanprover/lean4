@@ -379,7 +379,7 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_let(expr e) -> result {
-    buffer<std::tuple<name, optional<expr>, expr>> decls;
+    buffer<pair<name, expr>> decls;
     while (true) {
         if (!is_let(e))
             break;
@@ -392,10 +392,7 @@ auto pretty_fn::pp_let(expr e) -> result {
             e = b1;
         } else {
             n = pick_unused_name(b1, n);
-            if (is_typed_expr(v))
-                decls.emplace_back(n, some_expr(get_typed_expr_type(v)), get_typed_expr_expr(v));
-            else
-                decls.emplace_back(n, none_expr(), v);
+            decls.emplace_back(n, v);
             e = instantiate(b1, mk_constant(n));
         }
     }
@@ -404,16 +401,12 @@ auto pretty_fn::pp_let(expr e) -> result {
     format r    = g_let_fmt;
     unsigned sz = decls.size();
     for (unsigned i = 0; i < sz; i++) {
-        name n; optional<expr> t; expr v;
-        std::tie(n, t, v) = decls[i];
-        format beg        = i == 0 ? space() : line();
-        format sep        = i < sz - 1 ? comma() : format();
-        format entry      = format(n);
-        if (t) {
-            format t_fmt = pp_child(*t, 0).first;
-            entry += space() + colon() + nest(n.size() + 1 + 1 + 1, space() + t_fmt);
-        }
-        format v_fmt = pp_child(v, 0).first;
+        name const & n = decls[i].first;
+        expr const & v = decls[i].second;
+        format beg     = i == 0 ? space() : line();
+        format sep     = i < sz - 1 ? comma() : format();
+        format entry   = format(n);
+        format v_fmt   = pp_child(v, 0).first;
         entry += space() + g_assign_fmt + nest(m_indent, line() + v_fmt + sep);
         r += nest(3 + 1, beg + group(entry));
     }

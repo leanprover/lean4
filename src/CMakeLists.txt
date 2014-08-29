@@ -312,7 +312,7 @@ if((${CYGWIN} EQUAL "1") OR (NOT (${CMAKE_SYSTEM_NAME} MATCHES "Windows")))
   # Only build libraries if we are NOT cross compiling
   add_custom_target(
     standard_lib ALL
-    COMMAND make -j ${PROCESSOR_COUNT} LEAN_PATH=.:${LEAN_SOURCE_DIR}/../library LEAN="${CMAKE_SOURCE_DIR}/../bin/lean"
+    COMMAND ${LEAN_SOURCE_DIR}/../bin/linja
     DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
     )

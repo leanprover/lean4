@@ -1097,9 +1097,10 @@ public:
             return p->first;
         } else {
             auto ecs = visit(get_annotation_arg(e));
-            m_cache.insert(e, mk_pair(ecs.first, ecs.second));
+            expr r = copy_tag(ecs.first, mk_let_value_annotation(ecs.first));
+            m_cache.insert(e, mk_pair(r, ecs.second));
             cs += ecs.second;
-            return ecs.first;
+            return r;
         }
     }
 

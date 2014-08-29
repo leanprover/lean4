@@ -1,0 +1,1 @@
+let a := 10 in f a 10 : num → num

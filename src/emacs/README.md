@@ -18,14 +18,6 @@ packages which can be installed via <kbd>M-x package-install</kbd>.
  - [flycheck][flycheck]
  - [whitespace-cleanup-mode][wcm]
 
-To install them, you need to have [MELPA][MELPA] in your
-``package-archives``. You can add it by evaluating the following elisp
-code:
-
-```elisp
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/") t)
-```
 
 [emacs24]: http://www.gnu.org/software/emacs
 [flycheck]: http://flycheck.readthedocs.org/en/latest
@@ -34,16 +26,18 @@ code:
 [MELPA]: http://melpa.milkbox.net
 [dash]: https://github.com/magnars/dash.el
 [company]: http://company-mode.github.io/
------
 
-Put the following elisp code on your emacs setup:
+Install
+-------
+
+Put the following elisp code on your emacs setup (e.g. ``.emacs.d/init.el``):
 
 ```elisp
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
-(when (not package-archive-contents) (package-refresh-contents))
+(package-refresh-contents)
 
 ;; Install required packages for lean-mode
 (defvar lean-mode-required-packages

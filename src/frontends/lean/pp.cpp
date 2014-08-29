@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include "util/flet.h"
 #include "kernel/replace_fn.h"
 #include "kernel/free_vars.h"
+#include "kernel/abstract.h"
+#include "kernel/instantiate.h"
 #include "library/annotation.h"
 #include "library/aliases.h"
 #include "library/scoped_ext.h"
@@ -17,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/typed_expr.h"
 #include "library/num.h"
+#include "library/let.h"
 #include "library/print.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/pp_options.h"
@@ -375,6 +378,50 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
     }
 }
 
+auto pretty_fn::pp_let(expr e) -> result {
+    buffer<std::tuple<name, optional<expr>, expr>> decls;
+    while (true) {
+        if (!is_let(e))
+            break;
+        name n   = get_let_var_name(e);
+        expr v   = get_let_value(e);
+        expr b   = get_let_body(e);
+        lean_assert(closed(b));
+        expr b1  = abstract(b, v);
+        if (closed(b1)) {
+            e = b1;
+        } else {
+            n = pick_unused_name(b1, n);
+            if (is_typed_expr(v))
+                decls.emplace_back(n, some_expr(get_typed_expr_type(v)), get_typed_expr_expr(v));
+            else
+                decls.emplace_back(n, none_expr(), v);
+            e = instantiate(b1, mk_constant(n));
+        }
+    }
+    if (decls.empty())
+        return pp(e);
+    format r    = g_let_fmt;
+    unsigned sz = decls.size();
+    for (unsigned i = 0; i < sz; i++) {
+        name n; optional<expr> t; expr v;
+        std::tie(n, t, v) = decls[i];
+        format beg        = i == 0 ? space() : line();
+        format sep        = i < sz - 1 ? comma() : format();
+        format entry      = format(n);
+        if (t) {
+            format t_fmt = pp_child(*t, 0).first;
+            entry += space() + colon() + nest(n.size() + 1 + 1 + 1, space() + t_fmt);
+        }
+        format v_fmt = pp_child(v, 0).first;
+        entry += space() + g_assign_fmt + nest(m_indent, line() + v_fmt + sep);
+        r += nest(3 + 1, beg + group(entry));
+    }
+    format b = pp_child(e, 0).first;
+    r += line() + g_in_fmt + space() + nest(2 + 1, b);
+    return mk_result(r, 0);
+}
+
 auto pretty_fn::pp_num(mpz const & n) -> result {
     return mk_result(format(n));
 }
@@ -388,6 +435,7 @@ auto pretty_fn::pp(expr const & e) -> result {
     if (is_placeholder(e))  return mk_result(g_placeholder_fmt);
     if (is_show(e))         return pp_show(e);
     if (is_have(e))         return pp_have(e);
+    if (is_let(e))          return pp_let(e);
     if (is_typed_expr(e))   return pp(get_typed_expr_expr(e));
     if (auto n = to_num(e)) return pp_num(*n);
     if (!m_metavar_args && is_meta(e))

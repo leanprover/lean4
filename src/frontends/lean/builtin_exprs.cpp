@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/tactic/expr_to_tactic.h"
 #include "library/typed_expr.h"
 #include "library/choice.h"
+#include "library/let.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/calc.h"
@@ -71,7 +72,7 @@ static expr parse_let(parser & p, pos_info const & pos) {
     if (p.parse_local_notation_decl()) {
         return parse_let_body(p, pos);
     } else {
-        auto pos = p.pos();
+        auto id_pos = p.pos();
         name id  = p.check_atomic_id_next("invalid let declaration, identifier expected");
         bool is_fact   = false;
         optional<expr> type;
@@ -103,9 +104,10 @@ static expr parse_let(parser & p, pos_info const & pos) {
             v = p.save_pos(mk_typed_expr(*type, value), p.pos_of(value));
         else
             v = value;
-        v = p.save_pos(mk_let_value_annotation(v), pos);
+        v = p.save_pos(mk_let_value_annotation(v), id_pos);
         p.add_local_expr(id, v);
-        return parse_let_body(p, pos);
+        expr b = parse_let_body(p, pos);
+        return p.save_pos(mk_let(id, v, b), pos);
     }
 }
 

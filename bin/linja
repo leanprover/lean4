@@ -203,7 +203,7 @@ def handle_failure_for_flycheck(out, target):
         print "FLYCHECK_END"
 
     if failed:
-        proc = subprocess.Popen([g_lean_path, "--flycheck", target],
+        proc = subprocess.Popen([g_lean_path] + g_lean_options + [target],
                                 stdout=subprocess.PIPE, stderr=None)
         print proc.communicate()[0]
 
@@ -299,15 +299,23 @@ def main(argv=None):
         argv = sys.argv[1:]
     check_required_packages()
     project_dir = find_project_upward(g_working_dir)
-    if not project_dir:
-        error("cannot find project directory. Make sure that you have .project file at the project root.")
     args = parse_arg(argv)
-    os.chdir(project_dir)
     g_lean_options += get_lean_options(args)
-    if not "clean" in args.targets:
-        make_deps_all_files(project_dir, args.targets)
-    make_build_ninja(project_dir, args.targets)
-    call_ninja(project_dir, args)
+    if not project_dir and args.targets in [[], ["all"], ["clean"]]:
+        error("cannot find project directory. Make sure that you have .project file at the project root.")
+    if project_dir:
+        os.chdir(project_dir)
+        if not "clean" in args.targets:
+            make_deps_all_files(project_dir, args.targets)
+        make_build_ninja(project_dir, args.targets)
+        call_ninja(project_dir, args)
+    else:
+        for file in args.targets:
+            if os.path.isfile(file) and file.endswith(".lean"):
+                print "call lean", file
+                proc = subprocess.Popen([g_lean_path] + g_lean_options + [file],
+                                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                print proc.communicate()[0]
 
 if __name__ == "__main__":
     sys.exit(main())

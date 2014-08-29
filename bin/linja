@@ -100,7 +100,8 @@ def check_required_packages():
 def make_deps(lean_file, dlean_file, olean_file):
     with open(dlean_file, "w") as f:
         deps = []
-        output = subprocess.check_output([g_lean_path, "--deps", lean_file])
+        proc = subprocess.Popen([g_lean_path, "--deps", lean_file], stdout=subprocess.PIPE, stderr=None)
+        output = proc.communicate()[0]
         print >> f, olean_file + ": \\"
         for olean_file in output.strip().split("\n"):
             deps.append(olean_file)
@@ -194,14 +195,12 @@ def handle_failure_for_flycheck(out, target):
         if line.startswith("FAILED:"):
             for lean_file in g_lean_files:
                 lean = lean_file['lean']
-                if lean in line:
-                    print "WOW: This one failed", lean
+                if lean in line and lean != target:
                     failed.add(lean)
     for failed_file in failed:
-        if target != failed_file:
-            print "FLYCHECK_BEGIN ERROR"
-            print "%s:1:0: error: failed to compile %s" % (target, failed_file)
-            print "FLYCHECK_END"
+        print "FLYCHECK_BEGIN ERROR"
+        print "%s:1:0: error: failed to compile %s" % (target, failed_file)
+        print "FLYCHECK_END"
 
 def call_ninja(directory, args):
     targets = []
@@ -215,8 +214,7 @@ def call_ninja(directory, args):
         proc_out = subprocess.PIPE
         proc_err = subprocess.PIPE
 
-    proc = subprocess.Popen([g_ninja_path] + targets + ["-C", directory, "-k 29"], stdout=proc_out, stderr=proc_err)
-    # proc = subprocess.Popen([g_ninja_path] + targets + ["-C", directory])
+    proc = subprocess.Popen([g_ninja_path] + targets + ["-C", directory], stdout=proc_out, stderr=proc_err)
     proc.wait()
 
     if args.flycheck:

@@ -266,7 +266,8 @@ int main(int argc, char ** argv) {
                 }
                 if (k == input_kind::Lean) {
                     if (only_deps) {
-                        display_deps(env, std::cout, argv[i]);
+                        if (!display_deps(env, std::cout, std::cerr, argv[i]))
+                            ok = false;
                     } else if (!parse_commands(env, ios, argv[i], false, num_threads, cache_ptr, index_ptr)) {
                         ok = false;
                     }

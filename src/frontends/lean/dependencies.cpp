@@ -12,18 +12,20 @@ Author: Leonardo de Moura
 #include "frontends/lean/scanner.h"
 
 namespace lean {
-void display_deps(environment const & env, std::ostream & out, char const * fname) {
+bool display_deps(environment const & env, std::ostream & out, std::ostream & err, char const * fname) {
     name import("import");
     name period(".");
     std::ifstream in(fname);
-    if (in.bad() || in.fail())
-        throw exception(sstream() << "failed to open file '" << fname << "'");
+    if (in.bad() || in.fail()) {
+        err << "failed to open file '" << fname << "'" << std::endl;
+        return false;
+    }
     scanner s(in, fname);
     optional<unsigned> k;
-    std::unique_ptr<exception> ex;
     std::string base = dirname(fname);
     bool import_prefix = false;
     bool import_args   = false;
+    bool ok            = true;
     while (true) {
         scanner::token_kind t = scanner::token_kind::Identifier;
         try {
@@ -32,9 +34,7 @@ void display_deps(environment const & env, std::ostream & out, char const * fnam
             continue;
         }
         if (t == scanner::token_kind::Eof) {
-            if (ex)
-                ex->rethrow();
-            return;
+            return ok;
         } else if (t == scanner::token_kind::CommandKeyword && s.get_token_info().value() == import) {
             k = optional<unsigned>();
             import_prefix = true;
@@ -57,8 +57,8 @@ void display_deps(environment const & env, std::ostream & out, char const * fnam
                 import_prefix = true;
                 out << "\n";
             } catch (exception & new_ex) {
-                if (!ex)
-                    ex.reset(new_ex.clone());
+                err << "error: file '" << name_to_file(s.get_name_val()) << "' not found in the LEAN_PATH" << std::endl;
+                ok  = false;
             }
         } else {
             import_args   = false;

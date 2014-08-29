@@ -9,5 +9,5 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \brief Display in \c out all files the .lean file \c fname depends on */
-void display_deps(environment const & env, std::ostream & out, char const * fname);
+bool display_deps(environment const & env, std::ostream & out, std::ostream & err, char const * fname);
 }

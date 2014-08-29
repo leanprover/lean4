@@ -1079,7 +1079,7 @@ public:
                 std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, s.instantiate(t), s.instantiate(v_type));
                 format r("type mismatch at term");
                 r += pp_indent_expr(fmt, s.instantiate(v));
-                r += format("has type");
+                r += compose(line(), format("has type"));
                 r += given_fmt;
                 r += compose(line(), format("but is expected to have type"));
                 r += expected_fmt;

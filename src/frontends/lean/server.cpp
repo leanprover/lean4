@@ -7,9 +7,18 @@ Author: Leonardo de Moura
 #include <string>
 #include <functional>
 #include "util/sstream.h"
+#include "util/exception.h"
 #include "util/sexpr/option_declarations.h"
 #include "frontends/lean/server.h"
 #include "frontends/lean/parser.h"
+
+// #define LEAN_SERVER_DIAGNOSTIC
+
+#if defined(LEAN_SERVER_DIAGNOSTIC)
+#define DIAG(CODE) CODE
+#else
+#define DIAG(CODE)
+#endif
 
 namespace lean {
 server::file::file(std::istream & in, std::string const & fname):m_fname(fname) {
@@ -57,6 +66,12 @@ void server::file::remove_line(unsigned linenum) {
     for (unsigned i = linenum; i < m_lines.size()-1; i++)
         m_lines[i] = m_lines[i+1];
     m_lines.pop_back();
+}
+
+void server::file::show(std::ostream & out) {
+    lock_guard<mutex> lk(m_lines_mutex);
+    for (unsigned i = 0; i < m_lines.size(); i++)
+        out << m_lines[i] << "\n";
 }
 
 /**
@@ -119,8 +134,10 @@ server::worker::worker(environment const & env, io_state const & ios, definition
                 }
                 // extract block of code and snapshot from todo_file
                 reset_interrupt();
+                bool worker_interrupted = false;
                 if (m_terminate)
                     break;
+                DIAG(std::cerr << "processing '" << todo_file->get_fname() << "'\n";)
                 std::string block;
                 unsigned    num_lines;
                 snapshot    s;
@@ -139,8 +156,13 @@ server::worker::worker(environment const & env, io_state const & ios, definition
                 // parse block of code with respect to snapshot
                 try {
                     std::istringstream strm(block);
+                    #if defined(LEAN_SERVER_DIAGNOSTIC)
+                    std::shared_ptr<output_channel> out1(new stderr_channel());
+                    std::shared_ptr<output_channel> out2(new stderr_channel());
+                    #else
                     std::shared_ptr<output_channel> out1(new string_output_channel());
                     std::shared_ptr<output_channel> out2(new string_output_channel());
+                    #endif
                     io_state tmp_ios(_ios, out1, out2);
                     tmp_ios.set_options(join(s.m_options, _ios.get_options()));
                     bool use_exceptions  = false;
@@ -149,8 +171,13 @@ server::worker::worker(environment const & env, io_state const & ios, definition
                              s.m_lds, s.m_eds, s.m_line, &todo_file->m_snapshots, &todo_file->m_info);
                     p.set_cache(&m_cache);
                     p();
-                } catch (exception&) {}
-                if (!m_terminate) {
+                } catch (interrupted &) {
+                    worker_interrupted = true;
+                } catch (exception & ex) {
+                    DIAG(std::cerr << "worker exception: " << ex.what() << "\n";)
+                }
+                if (!m_terminate && !worker_interrupted) {
+                    DIAG(std::cerr << "finished '" << todo_file->get_fname() << "'\n";)
                     unique_lock<mutex> lk(m_todo_mutex);
                     if (m_todo_file == todo_file && m_last_file == todo_file && m_todo_linenum == todo_linenum) {
                         m_todo_linenum = num_lines + 1;
@@ -216,6 +243,8 @@ static std::string g_wait("WAIT");
 static std::string g_clear_cache("CLEAR_CACHE");
 static std::string g_echo("ECHO");
 static std::string g_options("OPTIONS");
+static std::string g_show("SHOW");
+static std::string g_sleep("SLEEP");
 
 static bool is_command(std::string const & cmd, std::string const & line) {
     return line.compare(0, cmd.size(), cmd) == 0;
@@ -358,6 +387,13 @@ void server::show_options() {
     m_out << "-- ENDOPTIONS" << std::endl;
 }
 
+void server::show() {
+    check_file();
+    m_out << "-- BEGINSHOW" << std::endl;
+    m_file->show(m_out);
+    m_out << "-- ENDSHOW" << std::endl;
+}
+
 bool server::operator()(std::istream & in) {
     for (std::string line; std::getline(in, line);) {
         try {
@@ -398,6 +434,12 @@ bool server::operator()(std::istream & in) {
                 show_options();
             } else if (is_command(g_wait, line)) {
                 m_worker.wait();
+            } else if (is_command(g_show, line)) {
+                show();
+            } else if (is_command(g_sleep, line)) {
+                unsigned ms = get_linenum(line, g_sleep);
+                chrono::milliseconds d(ms);
+                this_thread::sleep_for(d);
             } else {
                 throw exception(sstream() << "unexpected command line: " << line);
             }

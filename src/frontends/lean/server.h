@@ -35,6 +35,8 @@ class server {
         void replace_line(unsigned linenum, std::string const & new_line);
         void insert_line(unsigned linenum, std::string const & new_line);
         void remove_line(unsigned linenum);
+        void show(std::ostream & out);
+        std::string const & get_fname() const { return m_fname; }
         info_manager const & infom() const { return m_info; }
     };
     typedef std::shared_ptr<file>                     file_ptr;
@@ -84,6 +86,7 @@ class server {
     void read_line(std::istream & in, std::string & line);
     void interrupt_worker();
     void show_options();
+    void show();
     unsigned get_linenum(std::string const & line, std::string const & cmd);
 
 public:

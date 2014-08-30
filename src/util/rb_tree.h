@@ -207,6 +207,15 @@ class rb_tree : public CMP {
         return &it->m_value;
     }
 
+    static T const * max(node const & n) {
+        node_cell const * it = n.m_ptr;
+        if (!it)
+            return nullptr;
+        while (it->m_right)
+            it = it->m_right.m_ptr;
+        return &it->m_value;
+    }
+
     node erase(node && n, T const & v) {
         lean_assert(n);
         node h = ensure_unshared(n.steal());
@@ -349,6 +358,7 @@ public:
     }
 
     T const * min() const { return min(m_root); }
+    T const * max() const { return max(m_root); }
     bool contains(T const & v) const { return find(v) != nullptr; }
 
     template<typename F>

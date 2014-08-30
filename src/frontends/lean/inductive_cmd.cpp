@@ -304,6 +304,8 @@ struct inductive_cmd_fn {
             level_param_names d_lvls;
             std::tie(d_type, d_lvls) = elaborate_inductive_type(d_type);
             if (!m_first) {
+                lean_assert(first_d_type);
+                lean_assert(first_d_lvls);
                 check_params(d_type, *first_d_type);
                 check_levels(d_lvls, *first_d_lvls);
             }

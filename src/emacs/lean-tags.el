@@ -7,11 +7,11 @@
 (require 'dash)
 
 (defun lean-generate-tags ()
-  "Run lmake TAGS and let emacs use the generated TAGS file."
+  "Run linja TAGS and let emacs use the generated TAGS file."
   (interactive)
-  (let ((ltags-file-name (lean-get-executable "lmake"))
+  (let ((ltags-file-name (lean-get-executable "linja"))
         tags-file-name)
-    (call-process ltags-file-name nil nil nil "TAGS" "--jobs" "--keep-going" "--permissive"))
+    (call-process ltags-file-name nil nil nil "TAGS"))
   (unless tags-table-list
     (setq tags-file-name (lean-find-file-upward "TAGS"))
     (when tags-file-name
@@ -23,7 +23,7 @@
                               (symbol-name f))))
     `(defadvice ,f
        (before ,(intern advice-name)  first activate)
-       ,(concat "Before call " f-name ", run 'lmake TAGS'")
+       ,(concat "Before call " f-name ", run 'linja TAGS'")
        (when (derived-mode-p 'lean-mode)
          (lean-generate-tags)))))
 

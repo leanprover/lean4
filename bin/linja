@@ -219,11 +219,11 @@ def call_ninja(directory, args):
         proc_out = subprocess.PIPE
         proc_err = subprocess.PIPE
 
-    proc = subprocess.Popen([g_ninja_path] + targets + ["-C", directory], stdout=proc_out, stderr=proc_err)
+    proc = subprocess.Popen([g_ninja_path] + targets, stdout=proc_out, stderr=proc_err)
     proc.wait()
 
     if args.flycheck:
-        (out, err) = proc.communicate()
+        out = proc.communicate()[0]
         print out
         if len(args.targets) == 1 and args.targets[0].endswith(".lean"):
             handle_failure_for_flycheck(out, args.targets[0])
@@ -280,11 +280,16 @@ def expand_target_to_fullname(target):
     return ret
 
 def parse_arg(argv):
+    global g_working_dir
     parser = argparse.ArgumentParser(description='linja: ninja build wrapper for Lean theorem prover.')
-    parser.add_argument('--flycheck',   '-F', action='store_true', default=False, help="Use --flycheck option for Lean.")
+    parser.add_argument('--flycheck', '-F', action='store_true', default=False, help="Use --flycheck option for Lean.")
+    parser.add_argument('--directory', '-C', action='store', help="change to DIR before doing anything else.")
     parser.add_argument('targets', nargs='*')
     args = parser.parse_args(argv)
     args.targets = map(expand_target_to_fullname, args.targets)
+    if args.directory:
+        os.chdir(args.directory)
+        g_working_dir = args.directory
     return args
 
 def get_lean_options(args):
@@ -298,8 +303,8 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
     check_required_packages()
-    project_dir = find_project_upward(g_working_dir)
     args = parse_arg(argv)
+    project_dir = find_project_upward(g_working_dir)
     g_lean_options += get_lean_options(args)
     if not project_dir and args.targets in [[], ["all"], ["clean"]]:
         error("cannot find project directory. Make sure that you have .project file at the project root.")
@@ -319,39 +324,3 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main())
-
-
-"""If the pattern does not contain a slash /, git treats it as a shell
-glob pattern and checks for a match against the pathname relative to
-the location of the .gitignore file (relative to the toplevel of the
-work tree if not from a .gitignore file)."""
-
-"""Otherwise, git treats the pattern as a shell glob suitable for
-consumption by fnmatch(3) with the FNM_PATHNAME flag: wildcards in the
-pattern will not match a / in the pathname. For example,
-Documentation/*.html matches Documentation/git.html but not
-Documentation/ppc/ppc.html or tools/perf/Documentation/perf.html."""
-
-
-""" Lean option
-  --luahook=num -k  how often the Lua interpreter checks the interrupted flag,
-                    it is useful for interrupting non-terminating user scripts,
-                    0 means 'do not check'.
-  --trust=num -t    trust level (default: 0)
-  --threads=num -j  number of threads used to process lean files
-  --flycheck        print structured error message for flycheck
-"""
-
-""" Ninja option
-       -C DIR change to DIR before doing anything else
-
-       -j N   run N jobs in parallel [default=8, derived from CPUs available]
-
-       -l N   do not start new jobs if the load average is greater than N
-
-       -k N   keep going until N jobs fail [default=1]
-
-       -n     dry run (don't run commands but act like they succeeded)
-
-       -v     show all command lines while building
-"""

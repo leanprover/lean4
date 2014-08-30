@@ -32,6 +32,10 @@
   (with-current-buffer
       (get-buffer-create lean-server-trace-buffer-name)
     (goto-char (point-max))
+    (when lean-global-server-last-time-sent
+      (let ((time-diff (- (float-time) lean-global-server-last-time-sent)))
+        (insert (format "SLEEP %i\n" (* 1000 time-diff)))))
+    (setq lean-global-server-last-time-sent (float-time))
     (insert (apply 'format format-string args))))
 
 ;; How to read data from an async process
@@ -99,6 +103,7 @@
   (setq lean-global-server-buffer nil)
   (setq lean-global-server-current-file-name nil)
   (setq lean-global-server-message-to-process nil)
+  (setq lean-global-server-last-time-sent nil)
   (when (timerp lean-global-nay-retry-timer)
     (cancel-timer lean-global-nay-retry-timer))
   (setq lean-global-nay-retry-timer nil))

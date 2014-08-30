@@ -85,10 +85,10 @@ H1 ▸ H2
 theorem eqmpr {a b : Prop} (H1 : a = b) (H2 : b) : a :=
 H1⁻¹ ▸ H2
 
-theorem eqt_elim {a : Prop} (H : a = true) : a :=
+theorem eq_true_elim {a : Prop} (H : a = true) : a :=
 H⁻¹ ▸ trivial
 
-theorem eqf_elim {a : Prop} (H : a = false) : ¬a :=
+theorem eq_false_elim {a : Prop} (H : a = false) : ¬a :=
 assume Ha : a, H ▸ Ha
 
 theorem imp_trans {a b c : Prop} (H1 : a → b) (H2 : b → c) : a → c :=

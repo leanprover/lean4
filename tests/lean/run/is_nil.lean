@@ -9,7 +9,7 @@ definition is_nil {A : Type} (l : list A) : Prop
 := list_rec true (fun h t r, false) l
 
 theorem is_nil_nil (A : Type) : is_nil (@nil A)
-:= eqt_elim (refl true)
+:= eq_true_elim (refl true)
 
 theorem cons_ne_nil {A : Type} (a : A) (l : list A) : ¬ cons a l = nil
 := not_intro (assume H : cons a l = nil,

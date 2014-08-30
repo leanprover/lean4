@@ -137,6 +137,12 @@ iff_intro
 calc_refl iff_refl
 calc_trans iff_trans
 
+theorem iff_true_elim {a : Prop} (H : a ↔ true) : a :=
+iff_mp (iff_symm H) trivial
+
+theorem iff_false_elim {a : Prop} (H : a ↔ false) : ¬a :=
+assume Ha : a, iff_mp H Ha
+
 theorem eq_to_iff {a b : Prop} (H : a = b) : a ↔ b :=
 iff_intro (λ Ha, subst H Ha) (λ Hb, subst (symm H) Hb)
 

@@ -19,10 +19,10 @@ definition is_zero (x : nat)
 := nat_rec true (λ n r, false) x
 
 theorem is_zero_zero : is_zero zero
-:= eqt_elim (refl _)
+:= eq_true_elim (refl _)
 
 theorem not_is_zero_succ (x : nat) : ¬ is_zero (succ x)
-:= eqf_elim (refl _)
+:= eq_false_elim (refl _)
 
 theorem dichotomy (m : nat) : m = zero ∨ (∃ n, m = succ n)
 := nat_rec

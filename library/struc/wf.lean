@@ -1,10 +1,11 @@
-----------------------------------------------------------------------------------------------------
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-----------------------------------------------------------------------------------------------------
 
-import logic.axioms.classical
+import logic.axioms.classical logic.axioms.prop_decidable logic.classes.decidable
+import logic.core.identities
+
+using decidable
 
 -- Well-founded relation definition
 -- We are essentially saying that a relation R is well-founded
@@ -16,7 +17,9 @@ definition wf {A : Type} (R : A → A → Prop) : Prop :=
 theorem wf_induction {A : Type} {R : A → A → Prop} {P : A → Prop} (Hwf : wf R) (iH : ∀x, (∀y, R y x → P y) → P x)
                      : ∀x, P x :=
 by_contradiction (assume N : ¬∀x, P x,
-  obtain (w : A) (Hw : ¬P w), from not_forall_exists N,
+  -- TODO: when type classes can handle quantifiers, we will not need to give the implicit
+  -- arguments to not_forall_exists
+  obtain (w : A) (Hw : ¬P w), from @not_forall_exists _ _ (take x, _) _ N,
   -- The main "trick" is to define Q x as ¬P x.
   -- Since R is well-founded, there must be a R-minimal element r s.t. Q r (which is ¬P r)
   let Q x := ¬P x in

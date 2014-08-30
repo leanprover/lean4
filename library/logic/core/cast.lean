@@ -45,7 +45,7 @@ theorem hrefl {A : Type} (a : A) : a == a :=
 eq_to_heq (refl a)
 
 theorem heqt_elim {a : Prop} (H : a == true) : a :=
-eqt_elim (heq_to_eq H)
+eq_true_elim (heq_to_eq H)
 
 opaque_hint (hiding cast)
 

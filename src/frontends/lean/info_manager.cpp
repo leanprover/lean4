@@ -229,7 +229,7 @@ struct info_manager::imp {
         lean_assert(l > 0);
         if (l >= m_line_data.size()) {
             m_line_data.resize(l+1);
-            m_line_valid.resize(l+1, true);
+            m_line_valid.resize(l+1, false);
         }
     }
 
@@ -337,10 +337,12 @@ struct info_manager::imp {
 
     void insert_line(unsigned l) {
         lock_guard<mutex> lc(m_mutex);
+        lean_assert(m_line_data.size() == m_line_valid.size());
         synch_line(l);
         if (m_processed_upto > l - 1)
             m_processed_upto = l - 1;
         m_line_data.push_back(info_data_set());
+        m_line_valid.push_back(false);
         unsigned i = m_line_data.size();
         while (i > l) {
             --i;
@@ -352,6 +354,7 @@ struct info_manager::imp {
 
     void remove_line(unsigned l) {
         lock_guard<mutex> lc(m_mutex);
+        lean_assert(m_line_data.size() == m_line_valid.size());
         lean_assert(l > 0);
         if (l >= m_line_data.size())
             return;
@@ -361,12 +364,14 @@ struct info_manager::imp {
             m_line_valid[i] = m_line_valid[i+1];
         }
         m_line_data.pop_back();
+        m_line_valid.pop_back();
         if (m_processed_upto > l - 1)
             m_processed_upto = l - 1;
     }
 
     void invalidate_line_col_core(unsigned l, optional<unsigned> const & c) {
         lock_guard<mutex> lc(m_mutex);
+        lean_assert(m_line_data.size() == m_line_valid.size());
         synch_line(l);
         if (m_processed_upto > l - 1)
             m_processed_upto = l - 1;
@@ -391,6 +396,11 @@ struct info_manager::imp {
         invalidate_line_col_core(l, optional<unsigned>(c));
     }
 
+    void set_processed_upto(unsigned l) {
+        lock_guard<mutex> lc(m_mutex);
+        m_processed_upto = l;
+    }
+
     void commit_upto(unsigned l, bool valid) {
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
@@ -402,8 +412,9 @@ struct info_manager::imp {
 
     bool is_invalidated(unsigned l) {
         lock_guard<mutex> lc(m_mutex);
+        lean_assert(m_line_data.size() == m_line_valid.size());
         if (l >= m_line_valid.size())
-            return false;
+            return true;
         return !m_line_valid[l];
     }
 
@@ -481,6 +492,7 @@ void info_manager::remove_line(unsigned l) { m_ptr->remove_line(l); }
 void info_manager::invalidate_line(unsigned l) { m_ptr->invalidate_line(l); }
 void info_manager::invalidate_line_col(unsigned l, unsigned c) { m_ptr->invalidate_line_col(l, c); }
 void info_manager::commit_upto(unsigned l, bool valid) { m_ptr->commit_upto(l, valid); }
+void info_manager::set_processed_upto(unsigned l) { m_ptr->set_processed_upto(l); }
 bool info_manager::is_invalidated(unsigned l) const { return m_ptr->is_invalidated(l); }
 void info_manager::save_environment_options(unsigned l, environment const & env, options const & o) {
     m_ptr->save_environment_options(l, env, o);

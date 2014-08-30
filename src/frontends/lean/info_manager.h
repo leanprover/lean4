@@ -31,6 +31,7 @@ public:
     void invalidate_line(unsigned l);
     void invalidate_line_col(unsigned l, unsigned c);
     void commit_upto(unsigned l, bool valid);
+    void set_processed_upto(unsigned l);
     bool is_invalidated(unsigned l) const;
     void save_environment_options(unsigned l, environment const & env, options const & o);
     optional<pair<environment, options>> get_final_env_opts() const;

@@ -68,10 +68,18 @@ void server::file::remove_line(unsigned linenum) {
     m_lines.pop_back();
 }
 
-void server::file::show(std::ostream & out) {
+void server::file::show(std::ostream & out, bool valid) {
     lock_guard<mutex> lk(m_lines_mutex);
-    for (unsigned i = 0; i < m_lines.size(); i++)
+    for (unsigned i = 0; i < m_lines.size(); i++) {
+        if (valid) {
+            if (m_info.is_invalidated(i+1))
+                out << "*";
+            else
+                out << " ";
+            out << " ";
+        }
         out << m_lines[i] << "\n";
+    }
 }
 
 /**
@@ -144,11 +152,12 @@ server::worker::worker(environment const & env, io_state const & ios, definition
                 {
                     lean_assert(todo_file);
                     lock_guard<mutex> lk(todo_file->m_lines_mutex);
-                    todo_file->m_info.block_new_info(false);
                     unsigned i = todo_file->find(todo_linenum);
                     todo_file->m_snapshots.resize(i);
                     s = i == 0 ? m_empty_snapshot : todo_file->m_snapshots[i-1];
                     lean_assert(s.m_line > 0);
+                    todo_file->m_info.block_new_info(false);
+                    todo_file->m_info.set_processed_upto(s.m_line);
                     num_lines = todo_file->copy_to(block, s.m_line - 1);
                 }
                 if (m_terminate)
@@ -244,6 +253,7 @@ static std::string g_clear_cache("CLEAR_CACHE");
 static std::string g_echo("ECHO");
 static std::string g_options("OPTIONS");
 static std::string g_show("SHOW");
+static std::string g_valid("VALID");
 static std::string g_sleep("SLEEP");
 
 static bool is_command(std::string const & cmd, std::string const & line) {
@@ -387,10 +397,10 @@ void server::show_options() {
     m_out << "-- ENDOPTIONS" << std::endl;
 }
 
-void server::show() {
+void server::show(bool valid) {
     check_file();
     m_out << "-- BEGINSHOW" << std::endl;
-    m_file->show(m_out);
+    m_file->show(m_out, valid);
     m_out << "-- ENDSHOW" << std::endl;
 }
 
@@ -435,7 +445,9 @@ bool server::operator()(std::istream & in) {
             } else if (is_command(g_wait, line)) {
                 m_worker.wait();
             } else if (is_command(g_show, line)) {
-                show();
+                show(false);
+            } else if (is_command(g_valid, line)) {
+                show(true);
             } else if (is_command(g_sleep, line)) {
                 unsigned ms = get_linenum(line, g_sleep);
                 chrono::milliseconds d(ms);

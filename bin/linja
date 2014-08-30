@@ -18,6 +18,7 @@ import glob
 import argparse
 
 g_lean_path    = "USE DEFAULT"
+g_ltags_path   = "USE DEFAULT"
 g_ninja_path   = "USE DEFAULT"
 g_working_dir  = os.getcwd()
 g_lean_files   = []
@@ -82,18 +83,22 @@ def download_ninja_and_save_at(ninja_path):
     return ninja_path
 
 def check_required_packages():
-    global g_lean_path, g_ninja_path
+    global g_lean_path, g_ltags_path, g_ninja_path
     lean_exec_name  = "lean.exe"  if platform.system() == "Windows" else "lean"
+    ltags_exec_name = "ltags.exe" if platform.system() == "Windows" else "ltags"
     ninja_exec_name = "ninja.exe" if platform.system() == "Windows" else "ninja"
 
     if g_lean_path == "USE DEFAULT":
         g_lean_path = which(lean_exec_name) or os.path.join(g_lean_bin_dir, lean_exec_name)
+    if g_ltags_path == "USE DEFAULT":
+        g_ltags_path = which(ltags_exec_name) or os.path.join(g_lean_bin_dir, ltags_exec_name)
     if g_ninja_path == "USE DEFAULT":
         g_ninja_path = which(ninja_exec_name) or os.path.join(g_lean_bin_dir, ninja_exec_name)
 
     if not os.path.isfile(g_lean_path):
         error("cannot find lean executable at " + g_lean_path)
-
+    if not os.path.isfile(g_ltags_path):
+        error("cannot find ltags executable at " + g_ltags_path)
     if not os.path.isfile(g_ninja_path):
         g_ninja_path = download_ninja_and_save_at(g_ninja_path)
 
@@ -147,10 +152,22 @@ def rule_lean():
   command = "%s" %s "$in" -o "${LEAN_BASE}.olean" -c "${LEAN_BASE}.clean" -i "${LEAN_BASE}.ilean" """ \
       % (g_lean_path, " ".join(g_lean_options))
 
+def rule_tags():
+    return """rule LTAGS
+  command = "%s" $in """ % (g_ltags_path)
+
 def build_all(lean_files):
     str = "build all: phony"
     for item in lean_files:
         str = str + " " + item['olean']
+    return str
+
+def build_tags(lean_files):
+    tags_file = os.path.join(g_working_dir, "TAGS")
+    str = "build tags: phony " + tags_file + "\n"
+    str += "build " + tags_file + ": LTAGS"
+    for item in lean_files:
+        str = str + " " + item['ilean']
     return str
 
 def build_clean():
@@ -169,7 +186,9 @@ def make_build_ninja(directory, targets):
         lean_files = find_lean_files(directory, targets)
         print >> f, rule_clean()
         print >> f, rule_lean()
+        print >> f, rule_tags()
         print >> f, build_all(lean_files)
+        print >> f, build_tags(lean_files)
         print >> f, build_clean()
         for item in lean_files:
             print >> f, build_olean(item['lean'], item['olean'], item['clean'], item['d'], item['ilean'], item['base'])
@@ -270,14 +289,12 @@ def find_lean_files(project_dir, targets):
     return g_lean_files
 
 def expand_target_to_fullname(target):
-    ret = ""
-    if target in ["all", "clean"]:
-        ret = target
+    if target in ["all", "clean", "tags"]:
+        return target
     elif os.path.isfile(target):
-        ret = os.path.abspath(target)
+        return os.path.abspath(target)
     else:
-        ret = target
-    return ret
+        return os.path.join(g_working_dir, target)
 
 def parse_arg(argv):
     global g_working_dir
@@ -306,7 +323,7 @@ def main(argv=None):
     args = parse_arg(argv)
     project_dir = find_project_upward(g_working_dir)
     g_lean_options += get_lean_options(args)
-    if not project_dir and args.targets in [[], ["all"], ["clean"]]:
+    if not project_dir and args.targets in [[], ["all"], ["clean"], ["tags"]]:
         error("cannot find project directory. Make sure that you have .project file at the project root.")
     if project_dir:
         os.chdir(project_dir)
@@ -317,7 +334,6 @@ def main(argv=None):
     else:
         for file in args.targets:
             if os.path.isfile(file) and file.endswith(".lean"):
-                print "call lean", file
                 proc = subprocess.Popen([g_lean_path] + g_lean_options + [file],
                                         stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 print proc.communicate()[0]

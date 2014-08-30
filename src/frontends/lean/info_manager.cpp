@@ -326,10 +326,15 @@ struct info_manager::imp {
             return;
         unsigned sz = m.m_line_data.size();
         for (unsigned i = 1; i < sz; i++) {
-            info_data_set const & s = m.m_line_data[i];
+            info_data_set s = m.m_line_data[i];
+            if (s.empty())
+                continue;
+            synch_line(i);
+            if (!overwrite && m_line_valid[i])
+                continue;
+            unsigned range = m_line_data[i].empty() ? 0 : m_line_data[i].max()->get_column() + 1;
             s.for_each([&](info_data const & d) {
-                    synch_line(i);
-                    if (overwrite || !m_line_data[i].contains(d))
+                    if (overwrite || d.get_column() >= range)
                         m_line_data[i].insert(d);
                 });
         }
@@ -398,6 +403,7 @@ struct info_manager::imp {
 
     void set_processed_upto(unsigned l) {
         lock_guard<mutex> lc(m_mutex);
+        synch_line(l);
         m_processed_upto = l;
     }
 
@@ -405,6 +411,7 @@ struct info_manager::imp {
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
             return;
+        synch_line(l);
         for (unsigned i = m_processed_upto; i < l && i < m_line_valid.size(); i++)
             m_line_valid[i] = valid;
         m_processed_upto = l;
@@ -427,31 +434,31 @@ struct info_manager::imp {
 
     void display(environment const & env, io_state const & ios, unsigned line) {
         lock_guard<mutex> lc(m_mutex);
-        if (line >= m_line_data.size() || m_line_data[line].empty()) {
+        if (line >= m_processed_upto && line < m_line_valid.size() && !m_line_valid[line]) {
             regular(env, ios) << "-- NAY\n";
-            return;
-        }
-        if (m_env_info.empty()) {
+        } else if (line >= m_line_data.size() || m_line_data[line].empty()) {
+            // do nothing
+        } else if (m_env_info.empty()) {
             display_core(env, ios.get_options(), ios, line);
-            return;
-        }
-        auto it  = m_env_info.begin();
-        auto end = m_env_info.end();
-        lean_assert(it != end);
-        if (it->m_line > line) {
-            display_core(env, ios.get_options(), ios, line);
-            return;
-        }
-        while (true) {
-            lean_assert(it->m_line <= line);
+        } else {
+            auto it  = m_env_info.begin();
+            auto end = m_env_info.end();
             lean_assert(it != end);
-            auto next = it;
-            ++next;
-            if (next == end || next->m_line > line) {
-                display_core(it->m_env, it->m_options, ios, line);
+            if (it->m_line > line) {
+                display_core(env, ios.get_options(), ios, line);
                 return;
             }
-            it = next;
+            while (true) {
+                lean_assert(it->m_line <= line);
+                lean_assert(it != end);
+                auto next = it;
+                ++next;
+                if (next == end || next->m_line > line) {
+                    display_core(it->m_env, it->m_options, ios, line);
+                    return;
+                }
+                it = next;
+            }
         }
     }
 

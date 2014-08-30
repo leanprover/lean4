@@ -29,7 +29,7 @@ end
 
 
 theorem test4 (a b c d e : Prop) (H1 : a ↔ b) : (a ∨ c → ¬(d → a)) ↔ (b ∨ c → ¬(d → b)) :=
-congr.infer iff iff (λa, (a ∨ c → ¬(d → a))) H1
+congruence.infer iff iff (λa, (a ∨ c → ¬(d → a))) H1
 
 
 section

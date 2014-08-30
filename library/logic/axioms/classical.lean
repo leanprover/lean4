@@ -49,8 +49,8 @@ propext
   (assume H, eq_to_iff H)
 
 using relation
-theorem iff_congr [instance] (P : Prop → Prop) : congr iff iff P :=
-congr_mk
+theorem iff_congruence [instance] (P : Prop → Prop) : congruence iff iff P :=
+congruence_mk
   (take (a b : Prop),
     assume H : a ↔ b,
     show P a ↔ P b, from eq_to_iff (subst (iff_to_eq H) (refl (P a))))

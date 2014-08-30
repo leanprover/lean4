@@ -14,5 +14,10 @@ rfl
 -- NAY
 -- ENDINFO
 -- BEGININFO
--- NAY
+-- TYPE|9|0
+∀ (a : A), eq a a
+-- ACK
+-- SYMBOL|9|0
+rfl
+-- ACK
 -- ENDINFO

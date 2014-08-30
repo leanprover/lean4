@@ -5,6 +5,7 @@
 ;;         Soonho Kong
 ;;
 (require 'cl-lib)
+(require 'eri)
 (require 'generic-x)
 (require 'compile)
 (require 'flymake)
@@ -43,6 +44,29 @@
   (interactive)
   (lean-execute))
 
+
+(defun lean-check-expansion ()
+  (save-excursion
+    (if (looking-at "\\_>") t
+      (backward-char 1)
+      (if (looking-at "\\.") t
+        (backward-char 1)
+        (if (looking-at "->") t nil)))))
+
+(defun lean-tab-indent-or-complete ()
+  (interactive)
+  (if (minibufferp)
+      (minibuffer-complete)
+    (if (lean-check-expansion)
+        (cond (lean-company-use (company-complete-common))
+              (t (completion-at-point-functions)))
+      (eri-indent))))
+
+(defun lean-tab ()
+  (interactive)
+  (or (company-complete)
+      (eri-indent)))
+
 (defun lean-set-keys ()
   (local-set-key "\C-c\C-x" 'lean-std-exe)
   (local-set-key "\C-c\C-l" 'lean-std-exe)
@@ -51,7 +75,7 @@
   (local-set-key "\C-c\C-t" 'lean-eldoc-documentation-function)
   (local-set-key "\C-c\C-f" 'lean-fill-placeholder)
   (local-set-key "\M-."     'lean-find-tag)
-  (local-set-key [tab]      'completion-at-point))
+  (local-set-key [tab]      'lean-tab-indent-or-complete))
 
 (define-abbrev-table 'lean-abbrev-table
   '(("var"    "variable")

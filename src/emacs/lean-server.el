@@ -12,9 +12,10 @@
 
 ;; Parameters
 ;; ==========
-(defvar-local lean-server-process-name "lean-server")
-(defvar-local lean-server-buffer-name  "*lean-server*")
-(defvar-local lean-server-option       "--server")
+(defvar-local lean-server-process-name      "lean-server")
+(defvar-local lean-server-buffer-name       "*lean-server*")
+(defvar-local lean-server-trace-buffer-name "*lean-server-trace*")
+(defvar-local lean-server-option            "--server")
 
 ;; Log Function
 ;; ============
@@ -22,7 +23,16 @@
   "Display a message at the bottom of the *lean-server* buffer."
   (with-current-buffer (lean-server-get-buffer)
     (goto-char (point-max))
-    (insert (apply 'format (concat format-string "\n")  args))))
+    (insert (apply 'format (concat format-string "\n") args))))
+
+;; Trace Function
+;; ============
+(defun lean-server-trace (format-string &rest args)
+  "Display a message at the bottom of the *lean-server* buffer."
+  (with-current-buffer
+      (get-buffer-create lean-server-trace-buffer-name)
+    (goto-char (point-max))
+    (insert (apply 'format format-string args))))
 
 ;; How to read data from an async process
 ;; ======================================
@@ -209,7 +219,10 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
              "%s\n"
              "================" "\n")
      string-to-send)
-    (process-send-string proc string-to-send))
-  (lean-server-after-send-cmd cmd))
+    ;; Trace
+    (lean-server-trace
+     (format "%s" string-to-send))
+    (process-send-string proc string-to-send)
+    (lean-server-after-send-cmd cmd)))
 
 (provide 'lean-server)

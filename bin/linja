@@ -67,11 +67,11 @@ def show_download_progress(*data):
 
 def download_ninja_and_save_at(ninja_path):
     if platform.system() == "Linux" and "x86_64" in platform.platform():
-        url = "http://www.cs.cmu.edu/~soonhok/ninja/ninja-1.5.1-linux-x86_64"
+        url = "https://leanprover.github.io/bin/ninja-1.5.1-linux-x86_64"
     elif platform.system() == "Windows":
-        url = "http://www.cs.cmu.edu/~soonhok/ninja/ninja-win"
+        url = "https://leanprover.github.io/bin/ninja-1.5.1-win.exe"
     elif platform.system() == "Darwin" and "x86_64" in platform.platform():
-        url = "http://www.cs.cmu.edu/~soonhok/ninja/ninja-1.5.1-osx"
+        url = "https://leanprover.github.io/bin/ninja-1.5.1-osx"
     else:
         error("we do not have ninja executable for this platform: %s" % platform.platform())
     log("Downloading ninja: %s ===> %s\n" % (url, ninja_path))

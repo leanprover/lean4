@@ -52,7 +52,6 @@
   (interactive)
   (lean-execute))
 
-
 (defun lean-check-expansion ()
   (interactive)
   (save-excursion
@@ -87,6 +86,26 @@
     ("vars"   "variables")
     ("def"    "definition")
     ("th"     "theorem")))
+
+(defvar lean-mode-map (make-sparse-keymap)
+  "Keymap used in Lean mode")
+
+(easy-menu-define lean-mode-menu lean-mode-map
+  "Menu for the Lean major mode"
+  `("Lean"
+    ["Execute lean"         lean-execute                      t]
+    "-----------------"
+    ["Show type info"       lean-eldoc-documentation-function lean-eldoc-use]
+    ["Fill a placeholder"   lean-fill-placeholder             (looking-at  (rx symbol-start "_"))]
+    ["Find tag at point"    lean-find-tag                     t]
+    "-----------------"
+    ["Run flycheck"         flycheck-compile                  lean-flycheck-use]
+    ["List of errors"       flycheck-list-errors              lean-flycheck-use]
+    "-----------------"
+    ["Kill lean process"    lean-server-kill-process          t]
+    ["Restart lean process" lean-server-restart-process       t]
+    "-----------------"
+    ["Customize lean-mode" (customize-group 'lean)            t]))
 
 (defconst lean-hooks-alist
   '(
@@ -149,7 +168,10 @@ enabled and disabled respectively.")
 ;; Automode List
 ;;;###autoload
 (define-derived-mode lean-mode prog-mode "Lean"
-  "Major mode for Lean"
+  "Major mode for Lean
+     \\{lean-mode-map}
+Invokes `lean-mode-hook'.
+"
   :syntax-table lean-syntax-table
   :abbrev-table lean-abbrev-table
   :group 'lean

@@ -16,8 +16,7 @@
     ('darwin       "lean")
     ('ms-dos       "lean")
     ('windows-nt   "lean.exe")
-    ('cygwin       "lean.exe") ;; TODO(soonhok): check this
-    )
+    ('cygwin       "lean.exe"))
   "Default executable name of Lean")
 
 (defcustom lean-rootdir nil

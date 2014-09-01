@@ -14,7 +14,6 @@
 (require 'lean-debug)
 (require 'flymake)
 
-
 (defun lean-fill-placeholder ()
   "Fill the placeholder with a synthesized expression by Lean."
   (interactive)
@@ -50,39 +49,6 @@
       (setq info-string (lean-info-record-to-string info-record))
       (when info-string
         (message "%s" info-string))))))
-
-;; =======================================================
-;; set option
-;; =======================================================
-
-(defun lean-set-parse-string (str)
-  "Parse the output of eval command."
-  (let ((str-list (split-string str "\n")))
-    ;; Drop the first line "-- BEGINSET" and
-    ;; the last line "-- ENDSET"
-    (setq str-list
-          (-take (- (length str-list) 2)
-                 (-drop 1 str-list)))
-    (string-join str-list "\n")))
-
-(defun lean-set-option (option-name option-value)
-  "Set Lean option."
-  (interactive "sOption Name: \nsOption Value: ")
-  (lean-server-send-cmd (lean-cmd-set option-name option-value))
-  (while (not lean-global-server-message-to-process)
-    (accept-process-output (lean-server-get-process) 0 50 t))
-  (pcase lean-global-server-message-to-process
-    (`(SET ,pre ,body)
-     (lean-server-log "The following pre-message will be thrown away:")
-     (lean-server-log "%s" pre)
-     (setq lean-global-server-message-to-process nil)
-     (lean-server-log "We have the following response from lean-server")
-     (message "%s" (lean-set-parse-string body)))
-    (`(,type ,pre , body)
-     (lean-server-log "The following pre-message will be thrown away:")
-     (lean-server-log "%s" pre)
-     (lean-server-log "Something other than SET detected: %S" type)
-     (setq lean-global-server-message-to-process nil))))
 
 ;; =======================================================
 ;; eval

@@ -46,7 +46,9 @@
     (SET  ,(rx line-start "-- BEGINSET"  line-end)
           ,(rx line-start (group "-- ENDSET")  line-end))
     (EVAL ,(rx line-start "-- BEGINEVAL"  line-end)
-          ,(rx line-start (group "-- ENDEVAL")  line-end))
+          ,(rx line-start (group "-- ENDEVAL") line-end))
+    (OPTIONS ,(rx line-start "-- BEGINOPTIONS" line-end)
+          ,(rx line-start (group "-- ENDOPTIONS") line-end))
     (ERROR ,(rx line-start "-- " (0+ not-newline) line-end)
            ,(rx line-start (group "-- ERROR" (0+ not-newline)) line-end)))
   "Regular expression pattern for lean-server message syntax")
@@ -93,6 +95,8 @@
   "Handle signals for lean-server-process"
   (cond
    ((string-prefix-p "hangup" event)
+    (lean-server-initialize-global-vars))
+   ((string-prefix-p "killed" event)
     (lean-server-initialize-global-vars))))
 
 ;; How to create an async process
@@ -104,6 +108,7 @@
   (setq lean-global-server-current-file-name nil)
   (setq lean-global-server-message-to-process nil)
   (setq lean-global-server-last-time-sent nil)
+  (setq lean-global-option-record-alist nil)
   (when (timerp lean-global-nay-retry-timer)
     (cancel-timer lean-global-nay-retry-timer))
   (setq lean-global-nay-retry-timer nil))
@@ -195,9 +200,10 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('INSERT  (lean-server-check-current-file))
     ('REMOVE  (lean-server-check-current-file))
     ('INFO    (lean-flush-changed-lines))
-    ('CHECK   )
+    ('CHECK   ())
     ('SET     ())
-    ('EVAL    (lean-server-check-current-file))))
+    ('EVAL    (lean-server-check-current-file))
+    ('OPTIONS ())))
 
 (defun lean-server-after-send-cmd (cmd)
   "Operations to perform after sending a command."
@@ -210,7 +216,8 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('INFO    ())
     ('CHECK   ())
     ('SET     ())
-    ('EVAL    ())))
+    ('EVAL    ())
+    ('OPTIONS ())))
 
 (defun lean-server-send-cmd (cmd)
   "Send string to lean-server."

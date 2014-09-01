@@ -76,6 +76,10 @@ set using the command set_option in a ‘.lean’ file is supported."
 It has the effect of evaluating a command in the end of the current file"
   `(EVAL ,lean-cmd))
 
+(defun lean-cmd-options ()
+  "Display all configuration options available in Lean."
+  `(OPTIONS))
+
 ;; Type
 ;; ====
 (defun lean-cmd-type (cmd)
@@ -192,6 +196,9 @@ It has the effect of evaluating a command in the end of the current file"
 (defun lean-cmd-eval-to-string (cmd)
   "Convert Eval command to string"
   (format "EVAL\n%s" (lean-cmd-eval-get-lean-cmd cmd)))
+(defun lean-cmd-options-to-string (cmd)
+  "Convert Options command to string"
+  (format "OPTIONS"))
 
 (defun lean-cmd-to-string (cmd)
   "Convert command to string"
@@ -204,7 +211,8 @@ It has the effect of evaluating a command in the end of the current file"
     ('INFO    (lean-cmd-info-to-string    cmd))
     ('CHECK   (lean-cmd-check-to-string   cmd))
     ('SET     (lean-cmd-set-to-string     cmd))
-    ('EVAL    (lean-cmd-eval-to-string    cmd))))
+    ('EVAL    (lean-cmd-eval-to-string    cmd))
+    ('OPTIONS (lean-cmd-options-to-string cmd))))
 
 ;; -- Test
 (cl-assert (string= (lean-cmd-to-string (lean-cmd-load "~/work/lean/basic.lean"))

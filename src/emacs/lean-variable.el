@@ -11,9 +11,12 @@
   "A shared variable contains a received message to process.
 
 A message is in the form of (TYPE PRE BODY)
-where TYPE := INFO | SET | EVAL | ERROR,
+where TYPE := INFO | SET | EVAL | OPTIONS | ERROR,
       PRE is a server message comes before the message
       BODY is a body of the received message.")
+
+(defvar lean-global-option-record-alist nil
+  "lean option-record alist")
 
 (defvar lean-global-server-process nil
   "lean server process")

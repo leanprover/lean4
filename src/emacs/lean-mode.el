@@ -23,6 +23,7 @@
 (require 'lean-input)
 (require 'lean-type)
 (require 'lean-tags)
+(require 'lean-option)
 (require 'lean-syntax)
 
 (defun lean-compile-string (exe-name args file-name)

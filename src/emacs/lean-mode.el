@@ -4,6 +4,11 @@
 ;; Author: Leonardo de Moura
 ;;         Soonho Kong
 ;;
+;; URL: https://github.com/leanprover/lean/blob/master/src/emacs
+;; Keywords: languages
+;; Package-Requires: ((emacs "24") (dash "2.8.0") (dash-functional "1.1.0"))
+;; Version: 0.1
+
 (require 'cl-lib)
 (require 'eri)
 (require 'generic-x)

@@ -50,5 +50,7 @@ optional<name> get_level_alias(environment const & env, name const & n);
 environment add_aliases(environment const & env, name const & prefix, name const & new_prefix,
                         unsigned num_exceptions = 0, name const * exceptions = nullptr);
 
+void for_each_expr_alias(environment const & env, std::function<void(name const &, list<name> const &)> const & fn);
+
 void open_aliases(lua_State * L);
 }

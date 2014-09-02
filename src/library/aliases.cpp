@@ -88,6 +88,10 @@ struct aliases_ext : public environment_extension {
         m_scopes = tail(m_scopes);
     }
 
+    void for_each_expr_alias(std::function<void(name const &, list<name> const &)> const & fn) {
+        m_state.m_aliases.for_each(fn);
+    }
+
     static environment using_namespace(environment const & env, io_state const &, name const &) {
         // do nothing, aliases are treated in a special way in the frontend.
         return env;
@@ -202,6 +206,11 @@ environment add_aliases(environment const & env, name const & prefix, name const
             }
         });
     return update(env, ext);
+}
+
+void for_each_expr_alias(environment const & env, std::function<void(name const &, list<name> const &)> const & fn) {
+    aliases_ext ext = get_extension(env);
+    ext.for_each_expr_alias(fn);
 }
 
 static int add_expr_alias(lua_State * L) {

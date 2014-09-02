@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/exception.h"
 #include "util/sexpr/option_declarations.h"
+#include "library/aliases.h"
 #include "frontends/lean/server.h"
 #include "frontends/lean/parser.h"
 
@@ -255,6 +256,7 @@ static std::string g_options("OPTIONS");
 static std::string g_show("SHOW");
 static std::string g_valid("VALID");
 static std::string g_sleep("SLEEP");
+static std::string g_findp("FINDP");
 
 static bool is_command(std::string const & cmd, std::string const & line) {
     return line.compare(0, cmd.size(), cmd) == 0;
@@ -404,6 +406,94 @@ void server::show(bool valid) {
     m_out << "-- ENDSHOW" << std::endl;
 }
 
+static name string_to_name(std::string const & str) {
+    name result;
+    std::string id_part;
+    for (unsigned i = 0; i < str.size(); i++) {
+        if (str[i] == '.') {
+            result = name(result, id_part.c_str());
+            id_part.clear();
+        } else {
+            id_part.push_back(str[i]);
+        }
+    }
+    return name(result, id_part.c_str());
+}
+
+// Return true iff the last part of p is a prefix of the last part of n
+static bool is_last_prefix_of(name const & p, name const & n) {
+    if (p.is_string() && n.is_string()) {
+        char const * it1 = p.get_string();
+        char const * it2 = n.get_string();
+        if (!it1 || !it2)
+            return false;
+        while (*it1 && *it2 && *it1 == *it2) {
+            ++it1;
+            ++it2;
+        }
+        return *it1 == 0;
+    } else {
+        return false;
+    }
+}
+
+// Auxiliary function for find_prefix
+// 1) If p is atomic, then we just check if p is a prefix of the last component of n.
+// 2) Otherwise, we check if p.get_prefix() == n.get_prefix(), and
+//    p.get_string() is a prefix of n.get_string()
+static bool is_findp_prefix_of(name const & p, name const & n) {
+    if (p.is_atomic())
+        return is_last_prefix_of(p, n);
+    else
+        return p.get_prefix() == n.get_prefix() && is_last_prefix_of(p, n);
+}
+
+void server::display_decl(name const & short_name, name const & long_name, environment const & env, options const & o) {
+    declaration const & d = env.get(long_name);
+    io_state_stream out   = regular(env, m_ios).update_options(o);
+    out << short_name << "|" << mk_pair(flatten(out.get_formatter()(d.get_type())), o) << "\n";
+}
+
+void server::find_prefix(unsigned linenum, std::string const & prefix) {
+    check_file();
+    m_out << "-- BEGINFINDP";
+    unsigned upto = m_file->infom().get_processed_upto();
+    optional<pair<environment, options>> env_opts = m_file->infom().get_closest_env_opts(linenum);
+    if (!env_opts) {
+        m_out << " NAY" << std::endl;
+        m_out << "-- ENDFINDP" << std::endl;
+        return;
+    }
+    if (upto < linenum)
+        m_out << " STALE";
+    environment const & env = env_opts->first;
+    options opts            = env_opts->second;
+    opts = join(opts, m_ios.get_options());
+    m_out << std::endl;
+    name p = string_to_name(prefix);
+    name_set already_added;
+    for_each_expr_alias(env, [&](name const & n, list<name> const & ds) {
+            if (is_findp_prefix_of(p, n)) {
+                unsigned num = length(ds);
+                if (num == 1) {
+                    display_decl(n, head(ds), env, opts);
+                    already_added.insert(car(ds));
+                } else if (num > 1) {
+                    m_out << n << "\n";
+                    for (name const & d : ds) {
+                        display_decl(d, d, env, opts);
+                        already_added.insert(d);
+                    }
+                }
+            }
+        });
+    env.for_each_declaration([&](declaration const & d) {
+            if (!already_added.contains(d.get_name()) && is_findp_prefix_of(p, d.get_name()))
+                display_decl(d.get_name(), d.get_name(), env, opts);
+        });
+    m_out << "-- ENDFINDP" << std::endl;
+}
+
 bool server::operator()(std::istream & in) {
     for (std::string line; std::getline(in, line);) {
         try {
@@ -452,6 +542,10 @@ bool server::operator()(std::istream & in) {
                 unsigned ms = get_linenum(line, g_sleep);
                 chrono::milliseconds d(ms);
                 this_thread::sleep_for(d);
+            } else if (is_command(g_findp, line)) {
+                unsigned linenum = get_linenum(line, g_findp);
+                read_line(in, line);
+                find_prefix(linenum, line);
             } else {
                 throw exception(sstream() << "unexpected command line: " << line);
             }

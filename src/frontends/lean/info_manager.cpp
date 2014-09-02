@@ -473,6 +473,28 @@ struct info_manager::imp {
         }
     }
 
+    optional<pair<environment, options>> get_closest_env_opts(unsigned linenum) {
+        lock_guard<mutex> lc(m_mutex);
+        auto it = m_env_info.begin();
+        if (it == m_env_info.end())
+            return optional<pair<environment, options>>();
+        if (it->m_line > linenum)
+            return optional<pair<environment, options>>(it->m_env, it->m_options);
+        while (true) {
+            lean_assert(it != m_env_info.end() && it->m_line <= linenum);
+            auto next = it;
+            next++;
+            if (next == m_env_info.end() || next->m_line > linenum)
+                return optional<pair<environment, options>>(mk_pair(it->m_env, it->m_options));
+            it = next;
+        }
+    }
+
+    unsigned get_processed_upto() {
+        lock_guard<mutex> lc(m_mutex);
+        return m_processed_upto;
+    }
+
     void clear() {
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
@@ -508,8 +530,14 @@ void info_manager::clear() { m_ptr->clear(); }
 optional<pair<environment, options>> info_manager::get_final_env_opts() const {
     return m_ptr->get_final_env_opts();
 }
+optional<pair<environment, options>> info_manager::get_closest_env_opts(unsigned linenum) const {
+    return m_ptr->get_closest_env_opts(linenum);
+}
 void info_manager::display(environment const & env, io_state const & ios, unsigned line) const {
     m_ptr->display(env, ios, line);
+}
+unsigned info_manager::get_processed_upto() const {
+    return m_ptr->m_processed_upto;
 }
 void info_manager::block_new_info(bool f) {
     m_ptr->block_new_info(f);

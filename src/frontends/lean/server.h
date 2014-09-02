@@ -82,6 +82,8 @@ class server {
     void set_option(std::string const & line);
     void eval_core(environment const & env, options const & o, std::string const & line);
     void eval(std::string const & line);
+    void display_decl(name const & short_name, name const & long_name, environment const & env, options const & o);
+    void find_prefix(unsigned linenum, std::string const & prefix);
     unsigned find(unsigned linenum);
     void read_line(std::istream & in, std::string & line);
     void interrupt_worker();

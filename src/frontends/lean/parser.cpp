@@ -1235,6 +1235,7 @@ bool parser::parse_commands() {
             display_warning_pos(pos());
             regular_stream() << " imported file uses 'sorry'" << endl;
         }
+        commit_info(1);
         while (!done) {
             protected_call([&]() {
                     check_interrupted();

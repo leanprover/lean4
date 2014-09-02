@@ -220,11 +220,8 @@ def handle_failure_for_flycheck(out, target):
         print "FLYCHECK_BEGIN ERROR"
         print "%s:1:0: error: failed to compile %s" % (target, failed_file)
         print "FLYCHECK_END"
-
     if failed:
-        proc = subprocess.Popen([g_lean_path] + g_lean_options + [target],
-                                stdout=subprocess.PIPE, stderr=None)
-        print proc.communicate()[0]
+        call_lean(target)
 
 def call_ninja(directory, args):
     targets = []
@@ -246,6 +243,13 @@ def call_ninja(directory, args):
         print out
         if len(args.targets) == 1 and args.targets[0].endswith(".lean"):
             handle_failure_for_flycheck(out, args.targets[0])
+    return proc.returncode
+
+def call_lean(filename):
+    proc = subprocess.Popen([g_lean_path] + g_lean_options + [filename],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    print proc.communicate()[0]
+    return proc.returncode
 
 def find_files(directory, pattern):
     if "/" in pattern:
@@ -338,13 +342,13 @@ def main(argv=None):
         if not "clean" in args.targets:
             make_deps_all_files(project_dir, args.targets)
         make_build_ninja(project_dir, args.targets)
-        call_ninja(project_dir, args)
+        return call_ninja(project_dir, args)
     else:
-        for file in args.targets:
-            if os.path.isfile(file) and file.endswith(".lean"):
-                proc = subprocess.Popen([g_lean_path] + g_lean_options + [file],
-                                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                print proc.communicate()[0]
+        returncode = 0
+        for filename in args.targets:
+            if os.path.isfile(filename) and filename.endswith(".lean"):
+                returncode |= call_lean(filename)
+        return returncode
 
 if __name__ == "__main__":
     sys.exit(main())

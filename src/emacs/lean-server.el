@@ -41,7 +41,7 @@
 ;; How to read data from an async process
 ;; ======================================
 (defconst lean-server-syntax-pattern
-  `((INFO ,(rx line-start "-- BEGININFO" line-end)
+  `((INFO ,(rx line-start "-- BEGININFO" (* not-newline) line-end)
           ,(rx line-start (group "-- ENDINFO") line-end))
     (SET  ,(rx line-start "-- BEGINSET"  line-end)
           ,(rx line-start (group "-- ENDSET")  line-end))

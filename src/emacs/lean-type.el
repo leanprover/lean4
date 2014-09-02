@@ -82,6 +82,13 @@
      (lean-server-log "Something other than EVAL detected: %S" type)
      (setq lean-global-server-message-to-process nil))))
 
+;; Clear Cache
+(defun lean-clear-cache ()
+  "Send CLEAR_CACHE command to lean-server"
+  (interactive)
+  (call-process (lean-get-executable "linja") nil 0 nil "clear-cache")
+  (lean-server-send-cmd (lean-cmd-clear-cache)))
+
 ;; =======================================================
 ;; Change Handling
 ;; =======================================================

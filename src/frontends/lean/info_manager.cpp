@@ -454,7 +454,7 @@ struct info_manager::imp {
                 auto next = it;
                 ++next;
                 if (next == end || next->m_line > line) {
-                    display_core(it->m_env, it->m_options, ios, line);
+                    display_core(it->m_env, join(it->m_options, ios.get_options()), ios, line);
                     return;
                 }
                 it = next;

@@ -294,8 +294,15 @@ auto pretty_fn::pp_lambda(expr const & e) -> result {
     return mk_result(r, 0);
 }
 
+/** \brief Similar to #is_arrow, but only returns true if binder_info is the default one.
+    That is, we don't want to lose binder info when pretty printing.
+*/
+static bool is_default_arrow(expr const & e) {
+    return is_arrow(e) && binding_info(e) == binder_info();
+}
+
 auto pretty_fn::pp_pi(expr const & e) -> result {
-    if (is_arrow(e)) {
+    if (is_default_arrow(e)) {
         result lhs = pp_child(binding_domain(e), get_arrow_prec());
         result rhs = pp_child(lift_free_vars(binding_body(e), 1), get_arrow_prec()-1);
         format r   = group(lhs.first + space() + (m_unicode ? g_arrow_n_fmt : g_arrow_fmt) + line() + rhs.first);
@@ -303,7 +310,7 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
     } else {
         expr b = e;
         buffer<expr> locals;
-        while (is_pi(b) && !is_arrow(b)) {
+        while (is_pi(b) && !is_default_arrow(b)) {
             auto p = binding_body_fresh(b, true);
             locals.push_back(p.second);
             b = p.first;

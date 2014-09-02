@@ -25,6 +25,7 @@
 (require 'lean-tags)
 (require 'lean-option)
 (require 'lean-syntax)
+(require 'lean-mmm-lua)
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"

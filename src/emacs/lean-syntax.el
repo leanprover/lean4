@@ -69,7 +69,7 @@
            (group (or "universe" "inductive" "theorem" "axiom" "lemma" "hypothesis"
                       "abbreviation" "definition" "variable" "parameter"))
            symbol-end
-           (zero-or-more (or whitespace "{" "["))
+           (zero-or-more (or whitespace "(" "{" "["))
            (group (zero-or-more (not whitespace))))
       (2 'font-lock-function-name-face))
      ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))

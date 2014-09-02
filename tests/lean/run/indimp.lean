@@ -15,5 +15,5 @@ cons2   : A → list2 A → list2 A
 inductive and (A B : Prop) : Prop :=
 and_intro : A → B → and A B
 
-inductive class {T1 : Type} (R1 : T1 → T1 → Prop) {T2 : Type} (R2 : T2 → T2 → Prop) (f : T1 → T2) :=
-mk : (∀x y : T1, R1 x y → R2 (f x) (f y)) → class R1 R2 f
+inductive cls {T1 : Type} (R1 : T1 → T1 → Prop) {T2 : Type} (R2 : T2 → T2 → Prop) (f : T1 → T2) :=
+mk : (∀x y : T1, R1 x y → R2 (f x) (f y)) → cls R1 R2 f

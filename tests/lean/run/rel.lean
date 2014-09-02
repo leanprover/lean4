@@ -3,17 +3,17 @@ using relation
 
 namespace is_equivalence
 
-  inductive class {T : Type} (R : T → T → Type) : Prop :=
-  mk : is_reflexive R → is_symmetric R → is_transitive R → class R
+  inductive cls {T : Type} (R : T → T → Type) : Prop :=
+  mk : is_reflexive R → is_symmetric R → is_transitive R → cls R
 
-  theorem is_reflexive {T : Type} {R : T → T → Type} {C : class R} : is_reflexive R :=
-  class_rec (λx y z, x) C
+  theorem is_reflexive {T : Type} {R : T → T → Type} {C : cls R} : is_reflexive R :=
+  cls_rec (λx y z, x) C
 
-  theorem is_symmetric {T : Type} {R : T → T → Type} {C : class R} : is_symmetric R :=
-  class_rec (λx y z, y) C
+  theorem is_symmetric {T : Type} {R : T → T → Type} {C : cls R} : is_symmetric R :=
+  cls_rec (λx y z, y) C
 
-  theorem is_transitive {T : Type} {R : T → T → Type} {C : class R} : is_transitive R :=
-  class_rec (λx y z, z) C
+  theorem is_transitive {T : Type} {R : T → T → Type} {C : cls R} : is_transitive R :=
+  cls_rec (λx y z, z) C
 
 end is_equivalence
 

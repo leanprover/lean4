@@ -14,7 +14,7 @@
     "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"
     "options" "precedence" "postfix" "prefix" "calc_trans" "calc_subst" "calc_refl"
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
-    "private" "using" "namespace" "builtin" "including" "instance" "section"
+    "private" "using" "namespace" "builtin" "including" "instance" "class" "section"
     "set_option" "add_rewrite" "extends")
   "lean keywords")
 

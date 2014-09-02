@@ -12,15 +12,22 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct class_entry {
+    bool  m_class_cmd;
     name  m_class;
-    name  m_instance;
-    class_entry() {}
-    class_entry(name const & c, name const & i):m_class(c), m_instance(i) {}
+    name  m_instance; // only relevant if m_class_cmd == false
+    class_entry():m_class_cmd(false) {}
+    explicit class_entry(name const & c):m_class_cmd(true), m_class(c) {}
+    class_entry(name const & c, name const & i):m_class_cmd(false), m_class(c), m_instance(i) {}
 };
 
 struct class_state {
     typedef rb_map<name, list<name>, name_quick_cmp> class_instances;
     class_instances m_instances;
+    void add_class(name const & c) {
+        auto it = m_instances.find(c);
+        if (!it)
+            m_instances.insert(c, list<name>());
+    }
     void add_instance(name const & c, name const & i) {
         auto it = m_instances.find(c);
         if (!it)
@@ -34,7 +41,10 @@ struct class_config {
     typedef class_state state;
     typedef class_entry entry;
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
-        s.add_instance(e.m_class, e.m_instance);
+        if (e.m_class_cmd)
+            s.add_class(e.m_class);
+        else
+            s.add_instance(e.m_class, e.m_instance);
     }
     static name const & get_class_name() {
         static name g_class_name("class");
@@ -45,11 +55,18 @@ struct class_config {
         return g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
-        s << e.m_class << e.m_instance;
+        if (e.m_class_cmd)
+            s << true << e.m_class;
+        else
+            s << false << e.m_class << e.m_instance;
     }
     static entry read_entry(deserializer & d) {
         entry e;
-        d >> e.m_class >> e.m_instance;
+        d >> e.m_class_cmd;
+        if (e.m_class_cmd)
+            d >> e.m_class;
+        else
+            d >> e.m_class >> e.m_instance;
         return e;
     }
 };
@@ -57,14 +74,23 @@ struct class_config {
 template class scoped_ext<class_config>;
 typedef scoped_ext<class_config> class_ext;
 
+static void check_class(environment const & env, name const & c_name) {
+    declaration c_d = env.get(c_name);
+    if (c_d.is_definition() && !c_d.is_opaque())
+        throw exception(sstream() << "invalid class, '" << c_name << "' is a transparent definition");
+}
+
 name get_class_name(environment const & env, expr const & e) {
     if (!is_constant(e))
         throw exception("class expected, expression is not a constant");
     name const & c_name = const_name(e);
-    declaration c_d = env.get(c_name);
-    if (c_d.is_definition() && !c_d.is_opaque())
-        throw exception(sstream() << "invalid class, '" << c_name << "' is a transparent definition");
+    check_class(env, c_name);
     return c_name;
+}
+
+environment add_class(environment const & env, name const & n) {
+    check_class(env, n);
+    return class_ext::add_entry(env, get_dummy_ios(), class_entry(n));
 }
 
 environment add_instance(environment const & env, name const & n) {
@@ -99,7 +125,21 @@ environment add_instance_cmd(parser & p) {
     return env;
 }
 
+environment add_class_cmd(parser & p) {
+    bool found = false;
+    environment env = p.env();
+    while (p.curr_is_identifier()) {
+        found    = true;
+        name c   = p.check_constant_next("invalid 'class' declaration, constant expected");
+        env = add_class(env, c);
+    }
+    if (!found)
+        throw parser_error("invalid 'class' declaration, at least one identifier expected", p.pos());
+    return env;
+}
+
 void register_class_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("instance", "add a new instance", add_instance_cmd));
+    add_cmd(r, cmd_info("class",    "add a new class", add_class_cmd));
 }
 }

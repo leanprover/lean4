@@ -35,9 +35,9 @@ theorem propext {a b : Prop} (Hab : a → b) (Hba : b → a) : a = b :=
 or_elim (prop_complete a)
   (assume Hat,  or_elim (prop_complete b)
     (assume Hbt,  Hat ⬝ Hbt⁻¹)
-    (assume Hbf, false_elim (a = b) (Hbf ▸ (Hab (eq_true_elim Hat)))))
+    (assume Hbf, false_elim (Hbf ▸ (Hab (eq_true_elim Hat)))))
   (assume Haf, or_elim (prop_complete b)
-    (assume Hbt,  false_elim (a = b) (Haf ▸ (Hba (eq_true_elim Hbt))))
+    (assume Hbt,  false_elim (Haf ▸ (Hba (eq_true_elim Hbt))))
     (assume Hbf, Haf ⬝ Hbf⁻¹))
 
 theorem iff_to_eq {a b : Prop} (H : a ↔ b) : a = b :=

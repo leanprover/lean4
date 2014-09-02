@@ -57,13 +57,13 @@ rec_on s1
       (take a2, show decidable (inl B a1 = inl B a2), from H1 a1 a2)
       (take b2,
         have H3 : (inl B a1 = inr A b2) ↔ false,
-          from iff_intro inl_neq_inr (assume H4, false_elim _ H4),
+          from iff_intro inl_neq_inr (assume H4, false_elim H4),
         show decidable (inl B a1 = inr A b2), from decidable_iff_equiv _ (iff_symm H3)))
   (take b1, show decidable (inr A b1 = s2), from
     rec_on s2
       (take a2,
         have H3 : (inr A b1 = inl B a2) ↔ false,
-          from iff_intro (assume H4, inl_neq_inr (symm H4)) (assume H4, false_elim _ H4),
+          from iff_intro (assume H4, inl_neq_inr (symm H4)) (assume H4, false_elim H4),
         show decidable (inr A b1 = inl B a2), from decidable_iff_equiv _ (iff_symm H3))
       (take b2, show decidable (inr A b1 = inr A b2), from H2 b1 b2))
 

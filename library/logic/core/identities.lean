@@ -47,7 +47,7 @@ theorem not_not_elim {a : Prop} {D : decidable a} (H : ¬¬a) : a :=
 iff_mp not_not_iff H
 
 theorem not_true : (¬true) ↔ false :=
-iff_intro (assume H, H trivial) (false_elim _)
+iff_intro (assume H, H trivial) false_elim
 
 theorem not_false : (¬false) ↔ true :=
 iff_intro (assume H, trivial) (assume H H', H')
@@ -117,12 +117,12 @@ iff_intro
 theorem iff_false_intro {a : Prop} (H : ¬a) : a ↔ false :=
 iff_intro
   (assume H1 : a,     absurd H1 H)
-  (assume H2 : false, false_elim a H2)
+  (assume H2 : false, false_elim H2)
 
 theorem a_neq_a {A : Type} (a : A) : (a ≠ a) ↔ false :=
 iff_intro
   (assume H, a_neq_a_elim H)
-  (assume H, false_elim (a ≠ a) H)
+  (assume H, false_elim H)
 
 theorem eq_id {A : Type} (a : A) : (a = a) ↔ true :=
 iff_true_intro (refl a)
@@ -135,7 +135,7 @@ iff_intro
   (assume H,
     have H' : ¬a, from assume Ha, (H ▸ Ha) Ha,
     H' (H⁻¹ ▸ H'))
-  (assume H, false_elim (a ↔ ¬a) H)
+  (assume H, false_elim H)
 
 theorem true_eq_false : (true ↔ false) ↔ false :=
 not_true ▸ (a_iff_not_a true)

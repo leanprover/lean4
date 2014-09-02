@@ -28,7 +28,7 @@ section
   sigma_rec H p
 
   theorem dpair_ext (p : sigma B) : dpair (dpr1 p) (dpr2 p) = p :=
-  sigma_destruct p (take a b, refl _)
+  sigma_destruct p (take a b, rfl)
 
   -- Note that we give the general statment explicitly, to help the unifier
   theorem dpair_eq {a1 a2 : A} {b1 : B a1} {b2 : B a2} (H1 : a1 = a2) (H2 : eq_rec_on H1 b1 = b2) :

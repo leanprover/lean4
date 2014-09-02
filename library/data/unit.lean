@@ -16,6 +16,9 @@ notation `⋆`:max := star
 theorem unit_eq (a b : unit) : a = b :=
 unit_rec (unit_rec (refl ⋆) b) a
 
+theorem unit_eq_star (a : unit) : a = star :=
+unit_eq a star
+
 theorem unit_inhabited [instance] : inhabited unit :=
 inhabited_mk ⋆
 

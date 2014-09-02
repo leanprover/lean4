@@ -44,7 +44,7 @@ or_elim (em a) (assume Ha, Hab Ha) (assume Hna, Hnab Hna)
 theorem by_contradiction {p : Prop} {Hp : decidable p} (H : ¬p → false) : p :=
 or_elim (em p)
   (assume H1 : p, H1)
-  (assume H1 : ¬p, false_elim p (H H1))
+  (assume H1 : ¬p, false_elim (H H1))
 
 theorem and_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
   decidable (a ∧ b) :=

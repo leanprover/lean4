@@ -75,14 +75,14 @@
       (eri-indent)))
 
 (defun lean-set-keys ()
-  (local-set-key "\C-c\C-x" 'lean-std-exe)
-  (local-set-key "\C-c\C-l" 'lean-std-exe)
-  (local-set-key "\C-c\C-o" 'lean-set-option)
-  (local-set-key "\C-c\C-e" 'lean-eval-cmd)
-  (local-set-key "\C-c\C-t" 'lean-eldoc-documentation-function)
-  (local-set-key "\C-c\C-f" 'lean-fill-placeholder)
-  (local-set-key "\M-."     'lean-find-tag)
-  (local-set-key [tab]      'lean-tab-indent-or-complete))
+  (local-set-key "\C-c\C-x"  'lean-std-exe)
+  (local-set-key "\C-c\C-l"  'lean-std-exe)
+  (local-set-key "\C-c\C-o"  'lean-set-option)
+  (local-set-key "\C-c\C-e"  'lean-eval-cmd)
+  (local-set-key "\C-c\C-t"  'lean-eldoc-documentation-function)
+  (local-set-key "\C-c\C-f"  'lean-fill-placeholder)
+  (local-set-key "\M-."      'lean-find-tag)
+  (local-set-key (kbd "TAB") 'lean-tab-indent-or-complete))
 
 (define-abbrev-table 'lean-abbrev-table
   '(("var"    "variable")

@@ -289,7 +289,7 @@ def find_lean_files(project_dir, targets):
     return g_lean_files
 
 def expand_target_to_fullname(target):
-    if target in ["all", "clean", "tags"]:
+    if target in ["all", "clean", "tags", "clear-cache"]:
         return target
     elif os.path.isfile(target):
         return os.path.abspath(target)
@@ -315,6 +315,11 @@ def get_lean_options(args):
         options.append("--flycheck")
     return options
 
+def clear_cache(project_dir):
+    for item in find_lean_files(project_dir, []):
+        if os.path.isfile(item['clean']):
+            os.remove(item['clean'])
+
 def main(argv=None):
     global g_lean_options
     if argv is None:
@@ -323,10 +328,13 @@ def main(argv=None):
     args = parse_arg(argv)
     project_dir = find_project_upward(g_working_dir)
     g_lean_options += get_lean_options(args)
-    if not project_dir and args.targets in [[], ["all"], ["clean"], ["tags"]]:
+    if not project_dir and args.targets in [[], ["all"], ["clean"], ["tags"], ["clear-cache"]]:
         error("cannot find project directory. Make sure that you have .project file at the project root.")
     if project_dir:
         os.chdir(project_dir)
+        if args.targets == ["clear-cache"]:
+            clear_cache(project_dir)
+            return 0
         if not "clean" in args.targets:
             make_deps_all_files(project_dir, args.targets)
         make_build_ninja(project_dir, args.targets)

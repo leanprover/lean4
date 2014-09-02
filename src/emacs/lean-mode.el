@@ -69,11 +69,6 @@
               (t (completion-at-point-functions)))
       (eri-indent))))
 
-(defun lean-tab ()
-  (interactive)
-  (or (company-complete)
-      (eri-indent)))
-
 (defun lean-set-keys ()
   (local-set-key "\C-c\C-x"  'lean-std-exe)
   (local-set-key "\C-c\C-l"  'lean-std-exe)

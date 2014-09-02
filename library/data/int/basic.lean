@@ -591,7 +591,7 @@ subst (add_comm b c) (subst (add_comm a c) (sub_add_add_right a b c))
 
 -- TODO: fix this
 theorem dist_def (n m : ℕ) : dist n m = (to_nat (of_nat n - m)) :=
-have H [fact] : of_nat n - m = psub (pair n m), from
+have H : of_nat n - m = psub (pair n m), from
   calc
     psub (pair n 0) + -psub (pair m 0) = psub (pair (n + 0) (0 + m)) : by simp
       ... = psub (pair n m) : by simp,

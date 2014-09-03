@@ -184,26 +184,37 @@
           (string-to-number (cl-third items)))))
 (defun lean-info-coercion-parse (seq)
   (when (lean-info-coercion-p seq)
-    (let ((header (lean-info-coercion-parse-header (car seq)))
-          (body (cdr seq)))
-      `(COERCION ,header ,body))))
-(defun lean-info-coercion-body (coercion)
+    (let* ((header (lean-info-coercion-parse-header (car seq)))
+           (body (-split-on  "--" (cdr seq)))
+           (coerced-expr (cl-first body))
+           (coerced-type (cl-second body)))
+           `(COERCION ,header ,coerced-expr ,coerced-type))))
+(defun lean-info-coercion-expr (coercion)
   (cl-third coercion))
-(defun lean-info-coercion-body-str (coercion)
-  (string-join (lean-info-coercion-body coercion) "\n"))
+(defun lean-info-coercion-expr-str (coercion)
+  (string-join (lean-info-coercion-expr coercion) "\n"))
+(defun lean-info-coercion-type (coercion)
+  (cl-fourth coercion))
+(defun lean-info-coercion-type-str (coercion)
+  (string-join (lean-info-coercion-type coercion) "\n"))
 
 ;; -- Test
 (cl-assert (lean-info-coercion-p 'COERCION))
 (cl-assert (lean-info-coercion-p "-- COERCION|121|2"))
 (cl-assert (lean-info-coercion-p '("-- COERCION|417|15"
-                                   "of_nat")))
+                                   "of_nat m"
+                                   "--"
+                                   "int")))
 (cl-assert (equal (lean-info-coercion-parse-header "-- COERCION|121|2")
                   '(121 2)))
 (cl-assert (equal (lean-info-coercion-parse '("-- COERCION|417|15"
-                                              "of_nat"))
+                                              "of_nat"
+                                              "--"
+                                              "int"))
                   '(COERCION
                     (417 15)
-                    ("of_nat" ))))
+                    ("of_nat")
+                    ("int"))))
 (cl-assert (equal
             (lean-info-coercion-pos
              (lean-info-coercion-parse '("-- COERCION|417|15"
@@ -502,7 +513,10 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
            (id   (lean-info-id-symbol-body-str id))
            (sym  (lean-info-id-symbol-body-str sym))))
     (when coercion
-      (setq coercion-str (lean-info-coercion-body-str coercion)))
+      (setq coercion-str
+            (format "%s : %s"
+                    (propertize (lean-info-coercion-expr-str coercion) 'face 'font-lock-variable-name-face)
+                    (lean-info-coercion-type-str coercion))))
     (when type
       (setq type-str (lean-info-type-body-str type)))
     (when (and name-str overload)
@@ -519,9 +533,10 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                         (propertize name-str 'face 'font-lock-variable-name-face)
                         type-str)))
     (when (and str coercion-str)
-      (setq str (format "%s (%s)"
-                        (propertize coercion-str 'face 'font-lock-keyword-face)
-                        str)))
+      (setq str (format "%s\n%s %s"
+                        str
+                        (propertize "coercion applied" 'face 'font-lock-keyword-face)
+                        coercion-str)))
     (when overload-str
       (setq str (concat str
                         (format "\n%s with %s"

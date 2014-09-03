@@ -167,8 +167,51 @@
              (lean-info-synth-parse '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
             '(121 2)))
 
-;; Synth Information
+;; Coercion Information
 ;; ----------------
+(defun lean-info-coercion-type (coercion)
+  (cl-first coercion))
+(defun lean-info-coercion-p (coercion)
+  (pcase coercion
+    (`COERCION t)
+    ((pred stringp) (string-prefix-p "-- COERCION" coercion))
+    ((pred listp) (and (lean-info-coercion-p (cl-first coercion))))))
+(defun lean-info-coercion-pos (coercion)
+  (cl-second coercion))
+(defun lean-info-coercion-parse-header (str)
+  (let ((items (split-string str "|")))
+    (list (string-to-number (cl-second items))
+          (string-to-number (cl-third items)))))
+(defun lean-info-coercion-parse (seq)
+  (when (lean-info-coercion-p seq)
+    (let ((header (lean-info-coercion-parse-header (car seq)))
+          (body (cdr seq)))
+      `(COERCION ,header ,body))))
+(defun lean-info-coercion-body (coercion)
+  (cl-third coercion))
+(defun lean-info-coercion-body-str (coercion)
+  (string-join (lean-info-coercion-body coercion) "\n"))
+
+;; -- Test
+(cl-assert (lean-info-coercion-p 'COERCION))
+(cl-assert (lean-info-coercion-p "-- COERCION|121|2"))
+(cl-assert (lean-info-coercion-p '("-- COERCION|417|15"
+                                   "of_nat")))
+(cl-assert (equal (lean-info-coercion-parse-header "-- COERCION|121|2")
+                  '(121 2)))
+(cl-assert (equal (lean-info-coercion-parse '("-- COERCION|417|15"
+                                              "of_nat"))
+                  '(COERCION
+                    (417 15)
+                    ("of_nat" ))))
+(cl-assert (equal
+            (lean-info-coercion-pos
+             (lean-info-coercion-parse '("-- COERCION|417|15"
+                                              "of_nat")))
+            '(417 15)))
+
+;; Identifier Information
+;; ----------------------
 (defun lean-info-identifier-type (identifier)
   (cl-first identifier))
 (defun lean-info-identifier-p (identifier)
@@ -253,45 +296,25 @@
     ('IDENTIFIER (string-join (lean-info-symbol-body info) "\n"))
     ('SYMBOL     (string-join (lean-info-identifier-body info) "\n"))))
 
-;; NAY Information
-;; ----------------
-(defun lean-info-nay () '(NAY))
-
-(defun lean-info-nay-type (nay)
-  (cl-first nay))
-(defun lean-info-nay-p (nay)
-  (pcase nay
-    (`NAY t)
-    ((pred stringp) (string= "-- NAY" nay))
-    ((pred listp) (and (lean-info-nay-p (cl-first nay))))))
-(defun lean-info-nay-parse (seq)
-  (when (lean-info-nay-p seq)
-    (lean-info-nay)))
-
-;; -- Test
-(cl-assert (lean-info-nay-p "-- NAY"))
-(cl-assert (lean-info-nay-p '("-- NAY")))
-(cl-assert (equal (lean-info-nay-parse '("-- NAY"))
-                  '(NAY)))
-
 ;; Basic
 ;; -----
 (defun lean-info-kind (info)
   (cl-first info))
-(defun lean-info-ack-str-p (str)
-  (string= "-- ACK" str))
-(defun lean-info-begininfo-str-p (str)
-  (string= "-- BEGININFO" str))
-(defun lean-info-endinfo-str-p (str)
-  (string= "-- ENDINFO" str))
+(defun lean-info-nay-p (str)
+  (when (string-match (rx "-- BEGININFO " (* not-newline) "NAY") str)
+    t))
+(defun lean-info-stale-p (str)
+  (when (string-match (rx "-- BEGININFO " (* not-newline) "STALE") str)
+    t))
 (defun lean-info-pos (info)
   (cl-case (lean-info-kind info)
-    (TYPE       (lean-info-type-pos   info))
+    (TYPE       (lean-info-type-pos       info))
     (OVERLOAD   (lean-info-overload-pos   info))
     (SYNTH      (lean-info-synth-pos      info))
+    (COERCION   (lean-info-coercion-pos   info))
     (IDENTIFIER (lean-info-identifier-pos info))
-    (SYMBOL     (lean-info-symbol-pos      info))
-    (NAY        ())))
+    (SYMBOL     (lean-info-symbol-pos     info))
+    ))
 (defun lean-info-line-number (info)
   (cl-first (lean-info-pos info)))
 (defun lean-info-column (info)
@@ -323,7 +346,7 @@
 
 Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
   (-split-on "-- ACK"
-             (--filter (not (or (string= "-- BEGININFO" it)
+             (--filter (not (or (string-prefix-p "-- BEGININFO" it)
                                 (string= "-- ENDINFO" it)))
                        (split-string str "\n"))))
 
@@ -337,9 +360,9 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                       (or (lean-info-type-parse string-seq)
                           (lean-info-overload-parse string-seq)
                           (lean-info-synth-parse string-seq)
+                          (lean-info-coercion-parse string-seq)
                           (lean-info-identifier-parse string-seq)
-                          (lean-info-symbol-parse string-seq)
-                          (lean-info-nay-parse string-seq)))
+                          (lean-info-symbol-parse string-seq)))
              when result
              collect result)))
 
@@ -429,9 +452,6 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
   (let ((info-list (lean-info-list-parse-string str))
         start-column)
     (cond
-     ;; If there is NAY, return it.
-     ((-any? 'lean-info-nay-p info-list)
-      `(,(lean-info-nay)))
      ;; When file-name/column-number is specified, try to start-column of id/symbol
      ((and file-name column-number)
       (setq start-column (lean-info-list-find-start-column info-list file-name column-number))
@@ -442,7 +462,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
      ;; When not specified, just return info-list.
      (t info-list))))
 
-(cl-defstruct lean-info-record type overload synth identifier symbol nay)
+(cl-defstruct lean-info-record type overload synth coercion identifier symbol nay stale)
 
 (defun lean-info-record-parse (string &optional file-name column-number)
   "Parse string into info-record"
@@ -450,24 +470,28 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
          (types       (-filter 'lean-info-type-p       info-list))
          (overloads   (-filter 'lean-info-overload-p   info-list))
          (synths      (-filter 'lean-info-synth-p      info-list))
+         (coercions   (-filter 'lean-info-coercion-p   info-list))
          (identifiers (-filter 'lean-info-identifier-p info-list))
-         (symbols     (-filter 'lean-info-symbol-p     info-list))
-         (nay         (-filter 'lean-info-nay-p        info-list)))
+         (symbols     (-filter 'lean-info-symbol-p     info-list)))
     (make-lean-info-record :type       types
                            :overload   overloads
                            :synth      synths
+                           :coercion   coercions
                            :identifier identifiers
                            :symbol     symbols
-                           :nay        nay)))
+                           :nay        (lean-info-nay-p   string)
+                           :stale      (lean-info-stale-p string))))
 
 (defun lean-info-record-to-string (info-record)
   "Given typeinfo, overload, and sym-name, compose string information."
   (let* ((type     (cl-first (lean-info-record-type       info-record)))
          (overload (cl-first (lean-info-record-overload   info-record)))
          (synth    (cl-first (lean-info-record-synth      info-record)))
+         (coercion (cl-first (lean-info-record-coercion   info-record)))
          (id       (cl-first (lean-info-record-identifier info-record)))
          (sym      (cl-first (lean-info-record-symbol     info-record)))
-         name-str  type-str  overload-str str)
+         (stale    (lean-info-record-stale                info-record))
+         name-str type-str coercion-str overload-str str)
     (setq name-str
           (cond
            (synth (lean-info-synth-body-str synth))
@@ -477,6 +501,8 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                     (lean-info-id-symbol-body-str id)))
            (id   (lean-info-id-symbol-body-str id))
            (sym  (lean-info-id-symbol-body-str sym))))
+    (when coercion
+      (setq coercion-str (lean-info-coercion-body-str coercion)))
     (when type
       (setq type-str (lean-info-type-body-str type)))
     (when (and name-str overload)
@@ -492,57 +518,40 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
       (setq str (format "%s : %s"
                         (propertize name-str 'face 'font-lock-variable-name-face)
                         type-str)))
+    (when (and str coercion-str)
+      (setq str (format "%s (%s)"
+                        (propertize coercion-str 'face 'font-lock-keyword-face)
+                        str)))
     (when overload-str
       (setq str (concat str
                         (format "\n%s with %s"
                                 (propertize "overloaded" 'face 'font-lock-keyword-face)
                                 overload-str))))
+    (when stale
+      (setq str (format "[%s] %s"
+                        (propertize "stale" 'face '(foreground-color . "red"))
+                        str)))
     str))
 
-(defun lean-get-info-record (file-name line-number column-number)
-  "Get info list from lean server using file-name and line-number"
-  (when (and file-name line-number column-number)
-    (lean-server-check-current-file file-name)
-    (lean-server-send-cmd (lean-cmd-info line-number))
-    (while (not lean-global-server-message-to-process)
-      (accept-process-output (lean-server-get-process) 0 50 t))
-    (pcase lean-global-server-message-to-process
-      (`(INFO ,pre ,body)
-       (lean-server-log "The following pre-message will be thrown away:")
-       (lean-server-log "%s" pre)
-       (setq lean-global-server-message-to-process nil)
-       (lean-info-record-parse body file-name column-number))
-      (`(,type ,pre , body)
-       (lean-server-log "The following pre-message will be thrown away:")
-       (lean-server-log "%s" pre)
-       (lean-server-log "Something other than INFO detected: %S" type)
-       ;; (lean-server-log "Body: %S" body)
-       (setq lean-global-server-message-to-process nil)))))
-
-(defun lean-get-info-record-at-point ()
+(defun lean-get-info-record-at-point (cont)
   "Get info-record at the current point"
-  (interactive)
-  (let* ((file-name (buffer-file-name))
-         (line-number (line-number-at-pos))
-         (column (current-column))
-         (cur-char (char-after (point))))
-    (when (and cur-char
-               (or (char-equal cur-char ?\s)
-                   (char-equal cur-char ?\t)
-                   (char-equal cur-char ?\t)
-                   (char-equal cur-char ?\,)
-                   (char-equal cur-char ?\))
-                   (char-equal cur-char ?\})
-                   (char-equal cur-char ?\]))
-               (> column 1))
-      (setq column (1- column)))
-    (lean-get-info-record file-name line-number column)))
+  (let ((file-name (buffer-file-name))
+        (line-number (line-number-at-pos)))
+    (lean-server-check-current-file file-name)
+    (lean-server-send-cmd (lean-cmd-info line-number)
+                          cont)))
 
-(defun lean-get-full-name-at-point ()
-  "Return the full-name at point (if any)"
-  (let* ((info-record (lean-get-info-record-at-point))
-         (id (cl-first (lean-info-record-identifier info-record))))
+(defun lean-get-full-name-at-point-cont (info-record)
+  "Continuation of lean-get-full-name-at-point"
+  (let ((id (cl-first (lean-info-record-identifier info-record))))
     (when id
       (lean-info-identifier-body-str id))))
+
+(defun lean-get-full-name-at-point (cont)
+  "Return the full-name at point (if any)"
+  (lean-get-info-record-at-point
+   (lambda (info-record)
+     (funcall cont
+              (lean-get-full-name-at-point-cont info-record)))))
 
 (provide 'lean-info)

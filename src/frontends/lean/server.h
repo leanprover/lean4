@@ -28,13 +28,13 @@ class server {
         snapshot_vector           m_snapshots;
         info_manager              m_info;
 
-        unsigned find(unsigned linenum);
+        unsigned find(unsigned line_num);
         unsigned copy_to(std::string & block, unsigned starting_from);
     public:
         file(std::istream & in, std::string const & fname);
-        void replace_line(unsigned linenum, std::string const & new_line);
-        void insert_line(unsigned linenum, std::string const & new_line);
-        void remove_line(unsigned linenum);
+        void replace_line(unsigned line_num, std::string const & new_line);
+        void insert_line(unsigned line_num, std::string const & new_line);
+        void remove_line(unsigned line_num);
         void show(std::ostream & out, bool valid);
         std::string const & get_fname() const { return m_fname; }
         info_manager const & infom() const { return m_info; }
@@ -46,7 +46,7 @@ class server {
         definition_cache &   m_cache;
         atomic_bool          m_busy;
         file_ptr             m_todo_file;
-        unsigned             m_todo_linenum;
+        unsigned             m_todo_line_num;
         options              m_todo_options;
         mutex                m_todo_mutex;
         condition_variable   m_todo_cv;
@@ -56,7 +56,7 @@ class server {
     public:
         worker(environment const & env, io_state const & ios, definition_cache & cache);
         ~worker();
-        void set_todo(file_ptr const & f, unsigned linenum, options const & o);
+        void set_todo(file_ptr const & f, unsigned line_num, options const & o);
         void request_interrupt();
         void wait();
     };
@@ -74,22 +74,24 @@ class server {
     void load_file(std::string const & fname);
     void visit_file(std::string const & fname);
     void check_file();
-    void replace_line(unsigned linenum, std::string const & new_line);
-    void insert_line(unsigned linenum, std::string const & new_line);
-    void remove_line(unsigned linenum);
-    void show_info(unsigned linenum);
-    void process_from(unsigned linenum);
+    void replace_line(unsigned line_num, std::string const & new_line);
+    void insert_line(unsigned line_num, std::string const & new_line);
+    void remove_line(unsigned line_num);
+    void show_info(unsigned line_num);
+    void process_from(unsigned line_num);
     void set_option(std::string const & line);
     void eval_core(environment const & env, options const & o, std::string const & line);
     void eval(std::string const & line);
     void display_decl(name const & short_name, name const & long_name, environment const & env, options const & o);
-    void find_prefix(unsigned linenum, std::string const & prefix);
-    unsigned find(unsigned linenum);
+    void find_prefix(unsigned line_num, std::string const & prefix);
+    unsigned find(unsigned line_num);
     void read_line(std::istream & in, std::string & line);
     void interrupt_worker();
     void show_options();
     void show(bool valid);
-    unsigned get_linenum(std::string const & line, std::string const & cmd);
+    unsigned get_line_num(std::string const & line, std::string const & cmd);
+    pair<unsigned, unsigned> get_line_col_num(std::string const & line, std::string const & cmd);
+    void find_goal_matches(unsigned line_num, unsigned col_num, std::string const & filters);
 
 public:
     server(environment const & env, io_state const & ios, unsigned num_threads = 1);

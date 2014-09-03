@@ -59,6 +59,7 @@ public:
     info_data instantiate(substitution & s) const;
     unsigned get_column() const { return m_ptr->get_column(); }
     void display(io_state_stream const & ios, unsigned line) const { m_ptr->display(ios, line); }
+    info_data_cell const * raw() const { return m_ptr; }
 };
 
 struct tmp_info_data : public info_data_cell {
@@ -117,6 +118,8 @@ public:
         expr e = s.instantiate(m_expr);
         return is_eqp(e, m_expr) ? nullptr : new synth_info_data(get_column(), e);
     }
+
+    expr const & get_expr() const { return m_expr; }
 };
 
 class overload_info_data : public info_data_cell {
@@ -496,6 +499,26 @@ struct info_manager::imp {
         }
     }
 
+    optional<expr> get_type_at(unsigned line, unsigned col) {
+        lock_guard<mutex> lc(m_mutex);
+        if (line >= m_line_data.size())
+            return none_expr();
+        if (auto it = m_line_data[line].find(mk_type_info(col, expr())))
+            return some_expr(static_cast<type_info_data const *>(it->raw())->get_type());
+        else
+            return none_expr();
+    }
+
+    optional<expr> get_meta_at(unsigned line, unsigned col) {
+        lock_guard<mutex> lc(m_mutex);
+        if (line >= m_line_data.size())
+            return none_expr();
+        if (auto it = m_line_data[line].find(mk_synth_info(col, expr())))
+            return some_expr(static_cast<synth_info_data const *>(it->raw())->get_expr());
+        else
+            return none_expr();
+    }
+
     unsigned get_processed_upto() {
         lock_guard<mutex> lc(m_mutex);
         return m_processed_upto;
@@ -534,18 +557,12 @@ void info_manager::save_environment_options(unsigned l, environment const & env,
     m_ptr->save_environment_options(l, env, o);
 }
 void info_manager::clear() { m_ptr->clear(); }
-optional<pair<environment, options>> info_manager::get_final_env_opts() const {
-    return m_ptr->get_final_env_opts();
-}
-optional<pair<environment, options>> info_manager::get_closest_env_opts(unsigned linenum) const {
-    return m_ptr->get_closest_env_opts(linenum);
-}
-void info_manager::display(environment const & env, io_state const & ios, unsigned line) const {
-    m_ptr->display(env, ios, line);
-}
-unsigned info_manager::get_processed_upto() const {
-    return m_ptr->m_processed_upto;
-}
+optional<pair<environment, options>> info_manager::get_final_env_opts() const { return m_ptr->get_final_env_opts(); }
+optional<pair<environment, options>> info_manager::get_closest_env_opts(unsigned linenum) const { return m_ptr->get_closest_env_opts(linenum); }
+void info_manager::display(environment const & env, io_state const & ios, unsigned line) const { m_ptr->display(env, ios, line); }
+unsigned info_manager::get_processed_upto() const { return m_ptr->m_processed_upto; }
+optional<expr> info_manager::get_type_at(unsigned line, unsigned col) const { return m_ptr->get_type_at(line, col); }
+optional<expr> info_manager::get_meta_at(unsigned line, unsigned col) const { return m_ptr->get_meta_at(line, col); }
 void info_manager::block_new_info(bool f) {
     m_ptr->block_new_info(f);
 }

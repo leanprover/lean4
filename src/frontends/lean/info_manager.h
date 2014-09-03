@@ -37,6 +37,8 @@ public:
     void save_environment_options(unsigned l, environment const & env, options const & o);
     optional<pair<environment, options>> get_final_env_opts() const;
     optional<pair<environment, options>> get_closest_env_opts(unsigned linenum) const;
+    optional<expr> get_type_at(unsigned line, unsigned col) const;
+    optional<expr> get_meta_at(unsigned line, unsigned col) const;
     void clear();
     void display(environment const & env, io_state const & ios, unsigned line) const;
     void block_new_info(bool f);

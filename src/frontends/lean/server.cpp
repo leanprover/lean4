@@ -6,10 +6,16 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <functional>
+#include <limits>
 #include "util/sstream.h"
 #include "util/exception.h"
 #include "util/sexpr/option_declarations.h"
+#include "kernel/instantiate.h"
 #include "library/aliases.h"
+#include "library/type_util.h"
+#include "library/unifier.h"
+#include "library/opaque_hints.h"
+#include "library/tactic/goal.h"
 #include "frontends/lean/server.h"
 #include "frontends/lean/parser.h"
 
@@ -28,43 +34,43 @@ server::file::file(std::istream & in, std::string const & fname):m_fname(fname) 
     }
 }
 
-void server::file::replace_line(unsigned linenum, std::string const & new_line) {
+void server::file::replace_line(unsigned line_num, std::string const & new_line) {
     lock_guard<mutex> lk(m_lines_mutex);
-    while (linenum >= m_lines.size())
+    while (line_num >= m_lines.size())
         m_lines.push_back("");
-    std::string const & old_line = m_lines[linenum];
+    std::string const & old_line = m_lines[line_num];
     unsigned i = 0;
     while (i < old_line.size() && i < new_line.size() && old_line[i] == new_line[i])
         i++;
     m_info.block_new_info(true);
-    m_info.invalidate_line_col(linenum+1, i);
-    m_lines[linenum] = new_line;
+    m_info.invalidate_line_col(line_num+1, i);
+    m_lines[line_num] = new_line;
 }
 
-void server::file::insert_line(unsigned linenum, std::string const & new_line) {
+void server::file::insert_line(unsigned line_num, std::string const & new_line) {
     lock_guard<mutex> lk(m_lines_mutex);
     m_info.block_new_info(true);
-    m_info.insert_line(linenum+1);
-    while (linenum >= m_lines.size())
+    m_info.insert_line(line_num+1);
+    while (line_num >= m_lines.size())
         m_lines.push_back("");
     m_lines.push_back("");
-    lean_assert(m_lines.size() >= linenum+1);
+    lean_assert(m_lines.size() >= line_num+1);
     unsigned i = m_lines.size();
-    while (i > linenum) {
+    while (i > line_num) {
         --i;
         m_lines[i] = m_lines[i-1];
     }
-    m_lines[linenum] = new_line;
+    m_lines[line_num] = new_line;
 }
 
-void server::file::remove_line(unsigned linenum) {
+void server::file::remove_line(unsigned line_num) {
     lock_guard<mutex> lk(m_lines_mutex);
     m_info.block_new_info(true);
-    m_info.remove_line(linenum+1);
-    if (linenum >= m_lines.size())
+    m_info.remove_line(line_num+1);
+    if (line_num >= m_lines.size())
         return;
     lean_assert(!m_lines.empty());
-    for (unsigned i = linenum; i < m_lines.size()-1; i++)
+    for (unsigned i = line_num; i < m_lines.size()-1; i++)
         m_lines[i] = m_lines[i+1];
     m_lines.pop_back();
 }
@@ -88,7 +94,7 @@ void server::file::show(std::ostream & out, bool valid) {
       * forall j < i, m_snapshots[j].m_line < line
       * forall i <= j < m_snapshots.size(),  m_snapshots[j].m_line >= line
 */
-unsigned server::file::find(unsigned linenum) {
+unsigned server::file::find(unsigned line_num) {
     unsigned low  = 0;
     unsigned high = m_snapshots.size();
     while (true) {
@@ -99,7 +105,7 @@ unsigned server::file::find(unsigned linenum) {
         lean_assert(low <= mid && mid < high);
         lean_assert(mid < m_snapshots.size());
         snapshot const & s = m_snapshots[mid];
-        if (s.m_line < linenum) {
+        if (s.m_line < line_num) {
             low  = mid+1;
         } else {
             high = mid;
@@ -120,21 +126,21 @@ unsigned server::file::copy_to(std::string & block, unsigned starting_from) {
 server::worker::worker(environment const & env, io_state const & ios, definition_cache & cache):
     m_empty_snapshot(env, ios.get_options()),
     m_cache(cache),
-    m_todo_linenum(0),
+    m_todo_line_num(0),
     m_todo_options(ios.get_options()),
     m_terminate(false),
     m_thread([=]() {
             io_state _ios(ios);
             while (!m_terminate) {
                 file_ptr todo_file;
-                unsigned todo_linenum = 0;
+                unsigned todo_line_num = 0;
                 options  todo_options;
                 // wait for next task
                 while (!m_terminate) {
                     unique_lock<mutex> lk(m_todo_mutex);
                     if (m_todo_file) {
                         todo_file    = m_todo_file;
-                        todo_linenum = m_todo_linenum;
+                        todo_line_num = m_todo_line_num;
                         todo_options = m_todo_options;
                         break;
                     } else {
@@ -153,7 +159,7 @@ server::worker::worker(environment const & env, io_state const & ios, definition
                 {
                     lean_assert(todo_file);
                     lock_guard<mutex> lk(todo_file->m_lines_mutex);
-                    unsigned i = todo_file->find(todo_linenum);
+                    unsigned i = todo_file->find(todo_line_num);
                     todo_file->m_snapshots.resize(i);
                     s = i == 0 ? m_empty_snapshot : todo_file->m_snapshots[i-1];
                     lean_assert(s.m_line > 0);
@@ -189,8 +195,8 @@ server::worker::worker(environment const & env, io_state const & ios, definition
                 if (!m_terminate && !worker_interrupted) {
                     DIAG(std::cerr << "finished '" << todo_file->get_fname() << "'\n";)
                     unique_lock<mutex> lk(m_todo_mutex);
-                    if (m_todo_file == todo_file && m_last_file == todo_file && m_todo_linenum == todo_linenum) {
-                        m_todo_linenum = num_lines + 1;
+                    if (m_todo_file == todo_file && m_last_file == todo_file && m_todo_line_num == todo_line_num) {
+                        m_todo_line_num = num_lines + 1;
                         m_todo_file    = nullptr;
                         m_todo_cv.notify_all();
                     }
@@ -218,10 +224,10 @@ void server::worker::wait() {
     }
 }
 
-void server::worker::set_todo(file_ptr const & f, unsigned linenum, options const & o) {
+void server::worker::set_todo(file_ptr const & f, unsigned line_num, options const & o) {
     lock_guard<mutex> lk(m_todo_mutex);
-    if (m_last_file != f || linenum < m_todo_linenum)
-        m_todo_linenum = linenum;
+    if (m_last_file != f || line_num < m_todo_line_num)
+        m_todo_line_num = line_num;
     m_todo_file    = f;
     m_last_file    = f;
     m_todo_options = o;
@@ -257,6 +263,7 @@ static std::string g_show("SHOW");
 static std::string g_valid("VALID");
 static std::string g_sleep("SLEEP");
 static std::string g_findp("FINDP");
+static std::string g_findg("FINDG");
 
 static bool is_command(std::string const & cmd, std::string const & line) {
     return line.compare(0, cmd.size(), cmd) == 0;
@@ -276,8 +283,8 @@ static std::string & trim(std::string & s) {
     return ltrim(rtrim(s));
 }
 
-void server::process_from(unsigned linenum) {
-    m_worker.set_todo(m_file, linenum, m_ios.get_options());
+void server::process_from(unsigned line_num) {
+    m_worker.set_todo(m_file, line_num, m_ios.get_options());
 }
 
 void server::load_file(std::string const & fname) {
@@ -308,14 +315,50 @@ void server::read_line(std::istream & in, std::string & line) {
         throw exception("unexpected end of input");
 }
 
-// Given a line of the form "cmd linenum", return the linenum
-unsigned server::get_linenum(std::string const & line, std::string const & cmd) {
-    std::string data = line.substr(cmd.size());
-    trim(data);
-    unsigned r = atoi(data.c_str());
-    if (r == 0)
-        throw exception("line numbers are indexed from 1");
+void consume_spaces(std::string const & data, unsigned & i) {
+    while (i < data.size() && std::isspace(data[i])) {
+        i++;
+    }
+}
+
+unsigned consume_num(std::string const & data, unsigned & i) {
+    unsigned sz = data.size();
+    if (i >= sz || !std::isdigit(data[i]))
+        throw exception("numeral expected");
+    unsigned long long r = 0;
+    while (i < sz && std::isdigit(data[i])) {
+        r = r*10 + (data[i] - '0');
+        if (r > std::numeric_limits<unsigned>::max())
+            throw exception("numeral is too big to fit in a 32-bit machine unsigned integer");
+        i++;
+    }
     return r;
+}
+
+void check_line_num(unsigned line_num) {
+    if (line_num == 0)
+        throw exception("line numbers are indexed from 1");
+}
+
+// Given a line of the form "cmd line_num", return the line_num
+unsigned server::get_line_num(std::string const & line, std::string const & cmd) {
+    std::string data = line.substr(cmd.size());
+    unsigned i = 0;
+    consume_spaces(data, i);
+    unsigned r = consume_num(data, i);
+    check_line_num(r);
+    return r;
+}
+
+pair<unsigned, unsigned> server::get_line_col_num(std::string const & line, std::string const & cmd) {
+    std::string data = line.substr(cmd.size());
+    unsigned i  = 0;
+    consume_spaces(data, i);
+    unsigned line_num = consume_num(data, i);
+    check_line_num(line_num);
+    consume_spaces(data, i);
+    unsigned colnum = consume_num(data, i);
+    return mk_pair(line_num, colnum);
 }
 
 void server::check_file() {
@@ -323,25 +366,25 @@ void server::check_file() {
         throw exception("no file has been loaded/visited");
 }
 
-void server::replace_line(unsigned linenum, std::string const & new_line) {
+void server::replace_line(unsigned line_num, std::string const & new_line) {
     interrupt_worker();
     check_file();
-    m_file->replace_line(linenum, new_line);
-    process_from(linenum);
+    m_file->replace_line(line_num, new_line);
+    process_from(line_num);
 }
 
-void server::insert_line(unsigned linenum, std::string const & new_line) {
+void server::insert_line(unsigned line_num, std::string const & new_line) {
     interrupt_worker();
     check_file();
-    m_file->insert_line(linenum, new_line);
-    process_from(linenum);
+    m_file->insert_line(line_num, new_line);
+    process_from(line_num);
 }
 
-void server::remove_line(unsigned linenum) {
+void server::remove_line(unsigned line_num) {
     interrupt_worker();
     check_file();
-    m_file->remove_line(linenum);
-    process_from(linenum);
+    m_file->remove_line(line_num);
+    process_from(line_num);
 }
 
 void server::set_option(std::string const & line) {
@@ -359,15 +402,15 @@ void server::set_option(std::string const & line) {
     m_out << "-- ENDSET" << std::endl;
 }
 
-void server::show_info(unsigned linenum) {
+void server::show_info(unsigned line_num) {
     check_file();
     m_out << "-- BEGININFO";
-    if (m_file->infom().is_invalidated(linenum))
+    if (m_file->infom().is_invalidated(line_num))
         m_out << " STALE";
-    if (linenum >= m_file->infom().get_processed_upto())
+    if (line_num >= m_file->infom().get_processed_upto())
         m_out << " NAY";
     m_out << std::endl;
-    m_file->infom().display(m_env, m_ios, linenum);
+    m_file->infom().display(m_env, m_ios, line_num);
     m_out << "-- ENDINFO" << std::endl;
 }
 
@@ -462,17 +505,17 @@ void server::display_decl(name const & short_name, name const & long_name, envir
     out << short_name << "|" << mk_pair(flatten(out.get_formatter()(d.get_type())), o) << "\n";
 }
 
-void server::find_prefix(unsigned linenum, std::string const & prefix) {
+void server::find_prefix(unsigned line_num, std::string const & prefix) {
     check_file();
     m_out << "-- BEGINFINDP";
     unsigned upto = m_file->infom().get_processed_upto();
-    optional<pair<environment, options>> env_opts = m_file->infom().get_closest_env_opts(linenum);
+    optional<pair<environment, options>> env_opts = m_file->infom().get_closest_env_opts(line_num);
     if (!env_opts) {
         m_out << " NAY" << std::endl;
         m_out << "-- ENDFINDP" << std::endl;
         return;
     }
-    if (upto < linenum)
+    if (upto < line_num)
         m_out << " STALE";
     environment const & env = env_opts->first;
     options opts            = env_opts->second;
@@ -502,6 +545,111 @@ void server::find_prefix(unsigned linenum, std::string const & prefix) {
     m_out << "-- ENDFINDP" << std::endl;
 }
 
+void consume_pos_neg_strs(std::string const & filters, buffer<std::string> & pos_names, buffer<std::string> & neg_names) {
+    unsigned i  = 0;
+    unsigned sz = filters.size();
+    std::string val;
+    while (true) {
+        consume_spaces(filters, i);
+        if (i == sz)
+            return;
+        if (filters[i] == '+' || filters[i] == '-') {
+            bool pos = filters[i] == '+';
+            i++;
+            val.clear();
+            while (i < sz && !std::isspace(filters[i])) {
+                val += filters[i];
+                i++;
+            }
+            if (val.empty())
+                throw exception("invalid empty filter");
+            name n = string_to_name(val);
+            if (!n.is_atomic())
+                throw exception("invalid filter, atomic name expected");
+            if (pos)
+                pos_names.push_back(n.to_string());
+            else
+                neg_names.push_back(n.to_string());
+        } else {
+            throw exception("invalid filter, '+' or '-' expected");
+        }
+    }
+}
+
+bool is_part_of(std::string const & p, name n) {
+    while (true) {
+        if (n.is_string()) {
+            std::string s(n.get_string());
+            if (s.find(p) != std::string::npos)
+                return true;
+        }
+        if (n.is_atomic() || n.is_anonymous())
+            return false;
+        n = n.get_prefix();
+    }
+}
+
+bool match_type(type_checker & tc, expr const & meta, expr const & expected_type, declaration const & d) {
+    name_generator ngen = tc.mk_ngen();
+    goal g(meta, expected_type);
+    buffer<level> ls;
+    unsigned num_ls = length(d.get_univ_params());
+    for (unsigned i = 0; i < num_ls; i++)
+        ls.push_back(mk_meta_univ(ngen.next()));
+    expr dt        = instantiate_type_univ_params(d, to_list(ls.begin(), ls.end()));
+    unsigned num_e = get_expect_num_args(tc, expected_type);
+    unsigned num_d = get_expect_num_args(tc, dt);
+    if (num_e > num_d)
+        return false;
+    for (unsigned i = 0; i < num_d - num_e; i++) {
+        dt        = tc.whnf(dt).first;
+        expr meta = g.mk_meta(ngen.next(), binding_domain(dt));
+        dt        = instantiate(binding_body(dt), meta);
+    }
+    // Remark: we ignore declarations where the resultant type is of the form
+    // (?M ...) because they unify with almost everything. They produce a lot of noise in the output.
+    // Perhaps we should have an option to enable/disable this kind of declaration. For now, we
+    // just ingore them.
+    if (is_meta(dt))
+        return false; // matches anything
+    auto r = unify(tc.env(), dt, expected_type, tc.mk_ngen(), true);
+    return static_cast<bool>(r.pull());
+}
+
+static name g_tmp_prefix = name::mk_internal_unique_name();
+void server::find_goal_matches(unsigned line_num, unsigned col_num, std::string const & filters) {
+    buffer<std::string> pos_names, neg_names;
+    consume_pos_neg_strs(filters, pos_names, neg_names);
+    m_out << "-- BEGINFINDG";
+    optional<pair<environment, options>> env_opts = m_file->infom().get_closest_env_opts(line_num);
+    if (!env_opts) {
+        m_out << " NAY" << std::endl;
+        m_out << "-- ENDFINDG" << std::endl;
+        return;
+    }
+    if (line_num >= m_file->infom().get_processed_upto())
+        m_out << " NAY";
+    m_out << std::endl;
+    environment const & env = env_opts->first;
+    options const & opts    = env_opts->second;
+    name_generator ngen(g_tmp_prefix);
+    std::unique_ptr<type_checker> tc = mk_type_checker_with_hints(env, ngen, true);
+    if (auto meta = m_file->infom().get_meta_at(line_num, col_num)) {
+    if (is_meta(*meta)) {
+    if (auto type = m_file->infom().get_type_at(line_num, col_num)) {
+        env.for_each_declaration([&](declaration const & d) {
+                if (std::all_of(pos_names.begin(), pos_names.end(),
+                                [&](std::string const & pos) { return is_part_of(pos, d.get_name()); }) &&
+                    std::all_of(neg_names.begin(), neg_names.end(),
+                                [&](std::string const & neg) { return !is_part_of(neg, d.get_name()); }) &&
+                    match_type(*tc.get(), *meta, *type, d)) {
+                    display_decl(d.get_name(), d.get_name(), env, opts);
+                }
+            });
+    }}}
+    m_out << "-- ENDFINDG" << std::endl;
+}
+
 bool server::operator()(std::istream & in) {
     for (std::string line; std::getline(in, line);) {
         try {
@@ -517,19 +665,19 @@ bool server::operator()(std::istream & in) {
                 std::string str = line.substr(g_echo.size());
                 m_out << "--" << str << "\n";
             } else if (is_command(g_replace, line)) {
-                unsigned linenum = get_linenum(line, g_replace);
+                unsigned line_num = get_line_num(line, g_replace);
                 read_line(in, line);
-                replace_line(linenum-1, line);
+                replace_line(line_num-1, line);
             } else if (is_command(g_insert, line)) {
-                unsigned linenum = get_linenum(line, g_insert);
+                unsigned line_num = get_line_num(line, g_insert);
                 read_line(in, line);
-                insert_line(linenum-1, line);
+                insert_line(line_num-1, line);
             } else if (is_command(g_remove, line)) {
-                unsigned linenum = get_linenum(line, g_remove);
-                remove_line(linenum-1);
+                unsigned line_num = get_line_num(line, g_remove);
+                remove_line(line_num-1);
             } else if (is_command(g_info, line)) {
-                unsigned linenum = get_linenum(line, g_info);
-                show_info(linenum);
+                unsigned line_num = get_line_num(line, g_info);
+                show_info(line_num);
             } else if (is_command(g_set, line)) {
                 read_line(in, line);
                 set_option(line);
@@ -547,13 +695,17 @@ bool server::operator()(std::istream & in) {
             } else if (is_command(g_valid, line)) {
                 show(true);
             } else if (is_command(g_sleep, line)) {
-                unsigned ms = get_linenum(line, g_sleep);
+                unsigned ms = get_line_num(line, g_sleep);
                 chrono::milliseconds d(ms);
                 this_thread::sleep_for(d);
             } else if (is_command(g_findp, line)) {
-                unsigned linenum = get_linenum(line, g_findp);
+                unsigned line_num = get_line_num(line, g_findp);
                 read_line(in, line);
-                find_prefix(linenum, line);
+                find_prefix(line_num, line);
+            } else if (is_command(g_findg, line)) {
+                pair<unsigned, unsigned> line_col_num = get_line_col_num(line, g_findg);
+                read_line(in, line);
+                find_goal_matches(line_col_num.first, line_col_num.second, line);
             } else {
                 throw exception(sstream() << "unexpected command line: " << line);
             }

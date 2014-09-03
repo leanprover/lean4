@@ -59,7 +59,7 @@
      ("\"[^\"]*\"" . 'font-lock-string-face)
      ;; Constants
      (,(rx (or "#" "@" "->" "∼" "↔" "/" "==" "=" ":=" "<->" "/\\" "\\/" "∧" "∨" "≠" "<" ">" "≤" "≥" "¬" "<=" ">=" "⁻¹" "⬝" "▸" "+" "*" "-" "/")) . 'font-lock-constant-face)
-     (,(rx (or "λ" "→" "∃" "∀" ":" ":=")) . 'font-lock-constant-face )
+     (,(rx (or "λ" "→" "∃" "∀" ":=")) . 'font-lock-constant-face )
      (,(rx symbol-start
            (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "apply" "back" "beta" "done" "exact")
            symbol-end)
@@ -75,6 +75,8 @@
      ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
+     ;; modifiers
+     (,(rx (or "\[protected\]" "\[private\]" "\[instance\]" "\[coercion\]" "\[inline\]")) . 'font-lock-doc-face)
      ;; sorry
      (,(rx symbol-start "sorry" symbol-end) . 'font-lock-warning-face)
      ;; ? query

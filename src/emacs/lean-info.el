@@ -542,7 +542,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                         (format "\n%s with %s"
                                 (propertize "overloaded" 'face 'font-lock-keyword-face)
                                 overload-str))))
-    (when stale
+    (when (and stale str)
       (setq str (format "[%s] %s"
                         (propertize "stale" 'face '(foreground-color . "red"))
                         str)))

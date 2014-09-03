@@ -8,6 +8,6 @@ add_library(library deep_copy.cpp expr_lt.cpp io_state.cpp occurs.cpp
   unifier.cpp unifier_plugin.cpp inductive_unifier_plugin.cpp
   explicit.cpp num.cpp string.cpp opaque_hints.cpp head_map.cpp
   match.cpp definition_cache.cpp declaration_index.cpp
-  print.cpp annotation.cpp typed_expr.cpp let.cpp)
+  print.cpp annotation.cpp typed_expr.cpp let.cpp type_util.cpp)
 
 target_link_libraries(library ${LEAN_LIBS})

@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/unifier.h"
 #include "library/occurs.h"
+#include "library/type_util.h"
 #include "library/tactic/apply_tactic.h"
 
 namespace lean {
@@ -39,17 +40,6 @@ bool collect_simple_metas(expr const & e, buffer<expr> & result) {
             return !failed && has_metavar(e);
         });
     return !failed;
-}
-
-unsigned get_expect_num_args(type_checker & tc, expr e) {
-    unsigned r = 0;
-    while (true) {
-        e = tc.whnf(e).first;
-        if (!is_pi(e))
-            return r;
-        e = binding_body(e);
-        r++;
-    }
 }
 
 void collect_simple_meta(expr const & e, buffer<expr> & metas) {

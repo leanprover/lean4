@@ -137,6 +137,16 @@ The following two information entries provide information for Lean keywords/symb
 -- ACK
 #+END_SRC
 
+Information about introduced coercions is of the form
+
+#+BEGIN_SRC
+-- COERCION|[line-number]|[column-number]
+[coercion-application]
+--
+[result-type]
+-- ACK
+#+END_SRC
+
 Here is an example of output produced by Lean
 
 #+BEGIN_SRC
@@ -284,4 +294,3 @@ where each entry is of the form
 
 The available =kinds= are: =Bool=, =Int=, =Unsigned Int=, =Double=,
 =String=, and =S-Expressions=.
-

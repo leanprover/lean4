@@ -84,6 +84,14 @@ It has the effect of evaluating a command in the end of the current file"
   "Clear Cache"
   `(CLEAR-CACHE))
 
+(defun lean-cmd-show ()
+  "Display the \"lines\" associated with the current buffer, or at least"
+  `(SHOW))
+
+(defun lean-cmd-valid ()
+  "Display valid/invalid lines. Invalid lines are the one we need to refresh type information"
+  `(VALID))
+
 ;; Type
 ;; ====
 (defun lean-cmd-type (cmd)
@@ -204,23 +212,31 @@ It has the effect of evaluating a command in the end of the current file"
   "Convert Options command to string"
   (format "OPTIONS"))
 (defun lean-cmd-clear-cache-to-string (cmd)
-  "Convert Options command to string"
+  "Convert clear-cache command to string"
   (format "CLEAR_CACHE"))
+(defun lean-cmd-show-to-string (cmd)
+  "Convert show command to string"
+  (format "SHOW"))
+(defun lean-cmd-valid-to-string (cmd)
+  "Convert valid command to string"
+  (format "VALID"))
 
 (defun lean-cmd-to-string (cmd)
   "Convert command to string"
   (cl-case (lean-cmd-type cmd)
-    ('LOAD        (lean-cmd-load-to-string    cmd))
-    ('VISIT       (lean-cmd-visit-to-string   cmd))
-    ('REPLACE     (lean-cmd-replace-to-string cmd))
-    ('INSERT      (lean-cmd-insert-to-string  cmd))
-    ('REMOVE      (lean-cmd-remove-to-string  cmd))
-    ('INFO        (lean-cmd-info-to-string    cmd))
-    ('CHECK       (lean-cmd-check-to-string   cmd))
-    ('SET         (lean-cmd-set-to-string     cmd))
-    ('EVAL        (lean-cmd-eval-to-string    cmd))
-    ('OPTIONS     (lean-cmd-options-to-string cmd))
-    ('CLEAR-CACHE (lean-cmd-clear-cache-to-string cmd))))
+    ('LOAD        (lean-cmd-load-to-string        cmd))
+    ('VISIT       (lean-cmd-visit-to-string       cmd))
+    ('REPLACE     (lean-cmd-replace-to-string     cmd))
+    ('INSERT      (lean-cmd-insert-to-string      cmd))
+    ('REMOVE      (lean-cmd-remove-to-string      cmd))
+    ('INFO        (lean-cmd-info-to-string        cmd))
+    ('CHECK       (lean-cmd-check-to-string       cmd))
+    ('SET         (lean-cmd-set-to-string         cmd))
+    ('EVAL        (lean-cmd-eval-to-string        cmd))
+    ('OPTIONS     (lean-cmd-options-to-string     cmd))
+    ('CLEAR-CACHE (lean-cmd-clear-cache-to-string cmd))
+    ('SHOW        (lean-cmd-show-to-string        cmd))
+    ('VALID       (lean-cmd-valid-to-string       cmd))))
 
 ;; -- Test
 (cl-assert (string= (lean-cmd-to-string (lean-cmd-load "~/work/lean/basic.lean"))

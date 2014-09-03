@@ -49,6 +49,8 @@
           ,(rx line-start (group "-- ENDEVAL") line-end))
     (OPTIONS ,(rx line-start "-- BEGINOPTIONS" line-end)
           ,(rx line-start (group "-- ENDOPTIONS") line-end))
+    (SHOW ,(rx line-start "-- BEGINSHOW" line-end)
+          ,(rx line-start (group "-- ENDSHOW") line-end))
     (ERROR ,(rx line-start "-- " (0+ not-newline) line-end)
            ,(rx line-start (group "-- ERROR" (0+ not-newline)) line-end)))
   "Regular expression pattern for lean-server message syntax")
@@ -195,7 +197,9 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('CHECK   ())
     ('SET     ())
     ('EVAL    (lean-server-check-current-file))
-    ('OPTIONS ())))
+    ('OPTIONS ())
+    ('SHOW    ())
+    ('VALID   ())))
 
 (defun lean-server-after-send-cmd (cmd)
   "Operations to perform after sending a command."
@@ -209,7 +213,9 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('CHECK   ())
     ('SET     ())
     ('EVAL    ())
-    ('OPTIONS ())))
+    ('OPTIONS ())
+    ('SHOW    ())
+    ('VALID   ())))
 
 (defun lean-server-send-cmd (cmd &optional cont)
   "Send string to lean-server."
@@ -230,6 +236,24 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     (lean-server-after-send-cmd cmd)
     (when cont
       (lean-server-event-handler cont))))
+
+(defun lean-show-parse-string (str)
+  "Parse the output of eval command."
+  (let ((str-list (split-string str "\n")))
+    ;; Drop the first line "-- BEGINSHOW" and
+    ;; the last line "-- ENDSHOW"
+    (setq str-list
+          (-take (- (length str-list) 2)
+                 (-drop 1 str-list)))
+    (string-join str-list "\n")))
+
+(defun lean-server-show ()
+  (interactive)
+  (lean-server-send-cmd (lean-cmd-show) 'message))
+
+(defun lean-server-valid ()
+  (interactive)
+  (lean-server-send-cmd (lean-cmd-valid) 'message))
 
 (defun lean-server-set-timer-for-event-handler (cont)
   (setq lean-global-retry-timer
@@ -285,4 +309,5 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
       (`()
        (lean-server-set-timer-for-event-handler cont)
        nil))))
+
 (provide 'lean-server)

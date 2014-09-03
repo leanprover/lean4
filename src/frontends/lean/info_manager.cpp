@@ -283,6 +283,14 @@ struct info_manager::imp {
         m_line_data[l].insert(mk_coercion_info(c, e));
     }
 
+    void erase_coercion_info(unsigned l, unsigned c) {
+        lock_guard<mutex> lc(m_mutex);
+        if (m_block_new_info)
+            return;
+        synch_line(l);
+        m_line_data[l].erase(mk_coercion_info(c, expr()));
+    }
+
     void add_symbol_info(unsigned l, unsigned c, name const & s) {
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
@@ -510,6 +518,7 @@ void info_manager::add_type_info(unsigned l, unsigned c, expr const & e) { m_ptr
 void info_manager::add_synth_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_synth_info(l, c, e); }
 void info_manager::add_overload_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_overload_info(l, c, e); }
 void info_manager::add_coercion_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_coercion_info(l, c, e); }
+void info_manager::erase_coercion_info(unsigned l, unsigned c) { m_ptr->erase_coercion_info(l, c); }
 void info_manager::add_symbol_info(unsigned l, unsigned c, name const & s) { m_ptr->add_symbol_info(l, c, s); }
 void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full_id) {
     m_ptr->add_identifier_info(l, c, full_id);

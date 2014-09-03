@@ -68,24 +68,16 @@
 (defun lean-server-check-buffer-and-partition (buf-str)
   "Return the status of buffer."
   (let (result)
-    (cl-loop for (type beg-regex end-regex) in lean-server-syntax-pattern
-             do (setq partition-result (lean-server-split-buffer buf-str beg-regex end-regex))
-             if partition-result
-             return `(,type ,partition-result))))
+    (when buf-str
+      (cl-loop for (type beg-regex end-regex) in lean-server-syntax-pattern
+               do (setq partition-result (lean-server-split-buffer buf-str beg-regex end-regex))
+               if partition-result
+               return `(,type ,partition-result)))))
 
 (defun lean-server-process-received-message (buf str)
   "Process received message from lean-server"
   (lean-server-log "Received String: %s" str)
-  ;; Append to buffer
-  (setq lean-global-server-buffer (concat lean-global-server-buffer str))
-  (let ((partition-result (lean-server-check-buffer-and-partition lean-global-server-buffer)))
-    (pcase partition-result
-      (`(,type (,pre ,body ,post))
-       (lean-server-log "PRE: %s" pre)
-       (lean-server-log "BODY: %s" body)
-       (lean-server-log "POST: %s" post)
-       (setq lean-global-server-message-to-process `(,type ,pre ,body))
-       (setq lean-global-server-buffer post)))))
+  (setq lean-global-server-buffer (concat lean-global-server-buffer str)))
 
 (defun lean-server-output-filter (process string)
   "Filter function attached to lean-server process"
@@ -109,9 +101,9 @@
   (setq lean-global-server-message-to-process nil)
   (setq lean-global-server-last-time-sent nil)
   (setq lean-global-option-record-alist nil)
-  (when (timerp lean-global-nay-retry-timer)
-    (cancel-timer lean-global-nay-retry-timer))
-  (setq lean-global-nay-retry-timer nil))
+  (when (timerp lean-global-retry-timer)
+    (cancel-timer lean-global-retry-timer))
+  (setq lean-global-retry-timer nil))
 
 (defun lean-server-create-process ()
   "Create lean-server process."
@@ -219,22 +211,78 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('EVAL    ())
     ('OPTIONS ())))
 
-(defun lean-server-send-cmd (cmd)
+(defun lean-server-send-cmd (cmd &optional cont)
   "Send string to lean-server."
   (let ((proc (lean-server-get-process))
         (string-to-send (concat (lean-cmd-to-string cmd) "\n")))
     (lean-server-before-send-cmd cmd)
     ;; Logging
     (lean-server-log
-     (concat "Send" "\n"
-             "================" "\n"
-             "%s\n"
-             "================" "\n")
-     string-to-send)
+     (string-join
+      '("Send"
+        "================"
+        "%s"
+        "================") "\n") string-to-send)
     ;; Trace
     (lean-server-trace
      (format "%s" string-to-send))
     (process-send-string proc string-to-send)
-    (lean-server-after-send-cmd cmd)))
+    (lean-server-after-send-cmd cmd)
+    (when cont
+      (lean-server-event-handler cont))))
 
+(defun lean-server-set-timer-for-event-handler (cont)
+  (setq lean-global-retry-timer
+        (run-with-idle-timer
+         (if (current-idle-time)
+             (time-add (seconds-to-time lean-server-retry-time) (current-idle-time))
+           lean-server-retry-time)
+         nil
+         'lean-server-event-handler cont)))
+
+(defun lean-server-get-info-record-at-pos (body)
+  (let* ((file-name (buffer-file-name))
+         (column (current-column))
+         (cur-char (char-after (point))))
+    (when (and cur-char
+               (or (char-equal cur-char ?\s)
+                   (char-equal cur-char ?\t)
+                   (char-equal cur-char ?\t)
+                   (char-equal cur-char ?\,)
+                   (char-equal cur-char ?\))
+                   (char-equal cur-char ?\})
+                   (char-equal cur-char ?\]))
+               (> column 1))
+      (setq column (1- column)))
+    (lean-info-record-parse body file-name column)))
+
+(defun lean-server-event-handler (cont)
+  (let ((partition-result (lean-server-check-buffer-and-partition lean-global-server-buffer)))
+    (pcase partition-result
+      (`(,type (,pre ,body ,post))
+       (lean-server-log "The following pre-message will be thrown away:")
+       (lean-server-log "%s" pre)
+       (setq lean-global-server-buffer post)
+       (cl-case type
+         (INFO
+          (let ((info-record (lean-server-get-info-record-at-pos body)))
+            (cond
+             ((lean-info-record-nay info-record)
+              (lean-server-send-cmd (lean-cmd-info (line-number-at-pos))
+                                    cont))
+             (t
+              (funcall cont info-record)))))
+         (SET
+          (funcall cont (lean-set-parse-string body)))
+         (EVAL
+          (funcall cont (lean-eval-parse-string body)))
+         (OPTIONS
+          (funcall cont (lean-options-parse-string body)))
+         (SHOW
+          (funcall cont (lean-show-parse-string body)))
+         (ERROR
+          (lean-server-log "Error detected:\n%s" body))))
+      (`()
+       (lean-server-set-timer-for-event-handler cont)
+       nil))))
 (provide 'lean-server)

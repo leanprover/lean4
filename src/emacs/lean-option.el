@@ -22,21 +22,7 @@
                            nil t "" nil (car key-list)))
          (option (cdr (assoc option-name lean-global-option-record-alist)))
          (option-value (lean-option-read option)))
-    (lean-server-send-cmd (lean-cmd-set option-name option-value))
-    (while (not lean-global-server-message-to-process)
-      (accept-process-output (lean-server-get-process) 0 50 t))
-    (pcase lean-global-server-message-to-process
-      (`(SET ,pre ,body)
-       (lean-server-log "The following pre-message will be thrown away:")
-       (lean-server-log "%s" pre)
-       (setq lean-global-server-message-to-process nil)
-       (lean-server-log "We have the following response from lean-server")
-       (message "%s" (lean-set-parse-string body)))
-      (`(,type ,pre , body)
-       (lean-server-log "The following pre-message will be thrown away:")
-       (lean-server-log "%s" pre)
-       (lean-server-log "Something other than SET detected: %S" type)
-       (setq lean-global-server-message-to-process nil)))))
+    (lean-server-send-cmd (lean-cmd-set option-name option-value) 'message)))
 
 (defun lean-option-read-bool (prompt)
   (interactive)
@@ -154,22 +140,9 @@
   "Get Lean option."
   (interactive)
   (unless lean-global-option-record-alist
-    (lean-server-send-cmd (lean-cmd-options))
-    (while (not lean-global-server-message-to-process)
-      (accept-process-output (lean-server-get-process) 0 50 t))
-    (pcase lean-global-server-message-to-process
-      (`(OPTIONS ,pre ,body)
-       (lean-server-log "The following pre-message will be thrown away:")
-       (lean-server-log "%s" pre)
-       (setq lean-global-server-message-to-process nil)
-       (lean-server-log "We have the following response from lean-server")
-       (setq lean-global-option-record-alist
-             (lean-options-parse-string body)))
-      (`(,type ,pre , body)
-       (lean-server-log "The following pre-message will be thrown away:")
-       (lean-server-log "%s" pre)
-       (lean-server-log "Something other than SET detected: %S" type)
-       (setq lean-global-server-message-to-process nil))))
-  lean-global-option-record-alist)
+    (lean-server-send-cmd (lean-cmd-options)
+                          '(lambda (option-record-alist)
+                             (setq lean-global-option-record-alist
+                                   option-record-alist)))))
 
 (provide 'lean-option)

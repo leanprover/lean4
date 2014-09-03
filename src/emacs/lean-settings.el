@@ -48,6 +48,9 @@
 (defcustom lean-eldoc-nay-retry-time 0.3
   "When eldoc-function had nay, try again after this amount of time.")
 
+(defcustom lean-server-retry-time 0.1
+  "Retry interval for event-handler")
+
 (defcustom lean-flycheck-checker-name "linja"
   "lean-flychecker checker name"
   :group 'lean

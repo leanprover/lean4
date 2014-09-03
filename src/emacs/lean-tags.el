@@ -41,9 +41,9 @@
 (defun lean-find-tag ()
   "lean-find-tag"
   (interactive)
-  (let ((full-name (lean-get-full-name-at-point)))
-    (when full-name
-      (find-tag full-name))))
+  (lean-get-full-name-at-point
+   (lambda (full-name)
+     (when full-name (find-tag full-name)))))
 
 (defun lean-complete-tag ()
   "complete with tag"

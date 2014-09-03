@@ -14,41 +14,35 @@
 (require 'lean-debug)
 (require 'flymake)
 
-(defun lean-fill-placeholder ()
-  "Fill the placeholder with a synthesized expression by Lean."
-  (interactive)
-  (let* ((info-record (lean-get-info-record-at-point))
-         (synth (and info-record (cl-first (lean-info-record-synth info-record)))))
+(setq-local lexical-binding t)
+
+(defun lean-fill-placeholder-cont (info-record)
+  "Continuation for lean-fill-placeholder"
+  (let ((synth (and info-record (cl-first (lean-info-record-synth info-record)))))
     (when synth
       (let ((synth-str
              (replace-regexp-in-string "?M_[0-9]+" "_" (lean-info-synth-body-str synth))))
         (when (search " " synth-str)
           (setq synth-str (concat "(" synth-str ")")))
-        (delete-forward-char 1)
-        (insert synth-str)))))
+        (when (char-equal (char-after (point)) ?_)
+          (delete-forward-char 1)
+          (insert synth-str))))))
+
+(defun lean-fill-placeholder ()
+  "Fill the placeholder with a synthesized expression by Lean."
+  (interactive)
+  (lean-get-info-record-at-point 'lean-fill-placeholder-cont))
+
+(defun lean-eldoc-documentation-function-cont (info-record)
+  "Continuation for lean-eldoc-documentation-function"
+  (let ((info-string (lean-info-record-to-string info-record)))
+    (when info-string
+      (message "%s" info-string))))
 
 (defun lean-eldoc-documentation-function ()
   "Show information of lean expression at point if any"
   (interactive)
-  (when (timerp lean-global-nay-retry-timer)
-    (cancel-timer lean-global-nay-retry-timer)
-    (setq lean-global-nay-retry-timer nil))
-  (let ((info-record (lean-get-info-record-at-point))
-        info-string)
-    (cond
-     ((and info-record (lean-info-record-nay info-record))
-      (setq lean-global-nay-retry-timer
-            (run-with-idle-timer
-             (if (current-idle-time)
-                 (time-add (seconds-to-time lean-eldoc-nay-retry-time) (current-idle-time))
-               lean-eldoc-nay-retry-time)
-             nil
-             'lean-eldoc-documentation-function))
-      nil)
-     (info-record
-      (setq info-string (lean-info-record-to-string info-record))
-      (when info-string
-        (message "%s" info-string))))))
+  (lean-get-info-record-at-point 'lean-eldoc-documentation-function-cont))
 
 ;; =======================================================
 ;; eval
@@ -67,20 +61,8 @@
 (defun lean-eval-cmd (lean-cmd)
   "Evaluate lean command."
   (interactive "sLean CMD: ")
-  (lean-server-send-cmd (lean-cmd-eval lean-cmd))
-  (while (not lean-global-server-message-to-process)
-    (accept-process-output (lean-server-get-process) 0 50 t))
-  (pcase lean-global-server-message-to-process
-    (`(EVAL ,pre ,body)
-     (lean-server-log "The following pre-message will be thrown away:")
-     (lean-server-log "%s" pre)
-     (setq lean-global-server-message-to-process nil)
-     (message "%s" (lean-eval-parse-string body)))
-    (`(,type ,pre , body)
-     (lean-server-log "The following pre-message will be thrown away:")
-     (lean-server-log "%s" pre)
-     (lean-server-log "Something other than EVAL detected: %S" type)
-     (setq lean-global-server-message-to-process nil))))
+  (lean-server-send-cmd (lean-cmd-eval lean-cmd)
+                        'message))
 
 ;; Clear Cache
 (defun lean-clear-cache ()

@@ -643,7 +643,10 @@ void server::find_goal_matches(unsigned line_num, unsigned col_num, std::string 
                     std::all_of(neg_names.begin(), neg_names.end(),
                                 [&](std::string const & neg) { return !is_part_of(neg, d.get_name()); }) &&
                     match_type(*tc.get(), *meta, *type, d)) {
-                    display_decl(d.get_name(), d.get_name(), env, opts);
+                    if (optional<name> alias = is_expr_aliased(env, d.get_name()))
+                        display_decl(*alias, d.get_name(), env, opts);
+                    else
+                        display_decl(d.get_name(), d.get_name(), env, opts);
                 }
             });
     }}}

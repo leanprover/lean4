@@ -230,10 +230,28 @@ auto pretty_fn::pp_local(expr const & e) -> result {
     return mk_result(format(local_pp_name(e)));
 }
 
+static name g_tmp_prefix = name::mk_internal_unique_name();
+bool pretty_fn::has_implicit_args(expr const & f) {
+    name_generator ngen(g_tmp_prefix);
+    expr type = m_tc.whnf(m_tc.infer(f).first).first;
+    while (is_pi(type)) {
+        binder_info bi = binding_info(type);
+        if (bi.is_implicit() || bi.is_strict_implicit())
+            return true;
+        expr local = mk_local(ngen.next(), binding_name(type), binding_domain(type), binding_info(type));
+        type = m_tc.whnf(instantiate(binding_body(type), local)).first;
+    }
+    return false;
+}
+
 auto pretty_fn::pp_app(expr const & e) -> result {
-    result res_fn = pp_child(app_fn(e), max_bp()-1);
+    expr const & fn = app_fn(e);
+    result res_fn = pp_child(fn, max_bp()-1);
+    format fn_fmt = res_fn.first;
+    if (m_implict && !is_app(fn) && has_implicit_args(fn))
+        fn_fmt = compose(g_explicit_fmt, fn_fmt);
     result res_arg = pp_child(app_arg(e), max_bp());
-    return mk_result(group(compose(res_fn.first, nest(m_indent, compose(line(), res_arg.first)))), max_bp()-1);
+    return mk_result(group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.first)))), max_bp()-1);
 }
 
 format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type, binder_info const & bi) {

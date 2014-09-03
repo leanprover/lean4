@@ -52,6 +52,7 @@ private:
     result mk_result(format const & e) const { return mk_result(e, max_bp()); }
     bool is_implicit(expr const & f);
     bool is_prop(expr const & e);
+    bool has_implicit_args(expr const & f);
 
     format pp_binder_block(buffer<name> const & names, expr const & type, binder_info const & bi);
     format pp_binders(buffer<expr> const & locals);

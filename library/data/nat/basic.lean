@@ -24,9 +24,9 @@ inductive nat : Type :=
 
 notation `ℕ` := nat
 
-theorem nat_rec_zero {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) : nat_rec x f zero = x
+theorem rec_zero {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) : nat_rec x f zero = x
 
-theorem nat_rec_succ {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) (n : ℕ) :
+theorem rec_succ {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) (n : ℕ) :
   nat_rec x f (succ n) = f n (nat_rec x f n)
 
 theorem induction_on [protected] {P : ℕ → Prop} (a : ℕ) (H1 : P zero) (H2 : ∀ (n : ℕ) (IH : P n), P (succ n)) :

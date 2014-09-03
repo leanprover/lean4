@@ -391,10 +391,53 @@ void server::eval(std::string const & line) {
 
 void server::show_options() {
     m_out << "-- BEGINOPTIONS" << std::endl;
+    options const & o = m_ios.get_options();
     option_declarations const & decls = get_option_declarations();
     for (auto it = decls.begin(); it != decls.end(); it++) {
         option_declaration const & d = it->second;
-        m_out << "-- " << d.get_name() << "|" << d.kind() << "|" << d.get_default_value() << "|" << d.get_description() << "\n";
+        m_out << "-- " << d.get_name() << "|" << d.kind() << "|";
+        bool contains = false;
+        if (o.contains(d.get_name())) {
+            sexpr s = o.get_sexpr(d.get_name());
+            switch (d.kind()) {
+            case BoolOption:
+                if (!is_nil(s) && is_bool(s)) {
+                    m_out << (to_bool(s) ? "true" : "false");
+                    contains = true;
+                }
+                break;
+            case IntOption:
+                if (!is_nil(s) && is_int(s)) {
+                    m_out << to_int(s);
+                    contains = true;
+                }
+                break;
+            case UnsignedOption:
+                if (!is_nil(s) && is_int(s)) {
+                    m_out << static_cast<unsigned>(to_int(s));
+                    contains = true;
+                }
+                break;
+            case DoubleOption:
+                if (!is_nil(s) && is_double(s)) {
+                    m_out << to_double(s);
+                    contains = true;
+                }
+                break;
+            case StringOption:
+                if (!is_nil(s) && is_string(s)) {
+                    m_out << to_string(s);
+                    contains = true;
+                }
+                break;
+            case SExprOption:
+                m_out << mk_pair(flatten(pp(s)), o);
+                contains = true;
+            }
+        }
+        if (!contains)
+            m_out << d.get_default_value();
+        m_out << "|" << d.get_description() << "\n";
     }
     m_out << "-- ENDOPTIONS" << std::endl;
 }

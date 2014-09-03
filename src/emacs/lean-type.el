@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 ;; Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 ;; Released under Apache 2.0 license as described in the file LICENSE.
 ;;
@@ -13,8 +14,6 @@
 (require 'lean-server)
 (require 'lean-debug)
 (require 'flymake)
-
-(setq-local lexical-binding t)
 
 (defun lean-fill-placeholder-cont (info-record)
   "Continuation for lean-fill-placeholder"

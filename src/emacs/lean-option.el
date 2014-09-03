@@ -1,5 +1,14 @@
+;; -*- lexical-binding: t; -*-
+;; Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+;; Released under Apache 2.0 license as described in the file LICENSE.
+;;
+;; Author: Soonho Kong
+;;
+
 (require 'dash)
 (require 'dash-functional)
+
+(cl-defstruct lean-option-record name type value desc)
 
 (defun lean-set-parse-string (str)
   "Parse the output of eval command."
@@ -11,18 +20,20 @@
                  (-drop 1 str-list)))
     (string-join str-list "\n")))
 
-(defun lean-set-option ()
-  "Set Lean option."
-  (interactive)
-  (lean-get-options)
-  (let* ((key-list (-map 'car lean-global-option-record-alist))
+(defun lean-set-option-cont (option-record-alist)
+  (let* ((key-list (-map 'car option-record-alist))
          (option-name
           (completing-read "Option name: "
                            key-list
                            nil t "" nil (car key-list)))
-         (option (cdr (assoc option-name lean-global-option-record-alist)))
+         (option (cdr (assoc option-name option-record-alist)))
          (option-value (lean-option-read option)))
     (lean-server-send-cmd (lean-cmd-set option-name option-value) 'message)))
+
+(defun lean-set-option ()
+  "Set Lean option."
+  (interactive)
+  (lean-get-options 'lean-set-option-cont))
 
 (defun lean-option-read-bool (prompt)
   (interactive)
@@ -92,12 +103,14 @@
 
 (defun lean-option-read (option)
   (let* ((option-type-str (lean-option-record-type option))
-         (option-name (lean-option-record-name option))
-         (option-desc (lean-option-record-desc option))
-         (prompt (format "%s [%s] : %s = "
+         (option-name     (lean-option-record-name option))
+         (option-desc     (lean-option-record-desc option))
+         (option-value    (lean-option-record-value option))
+         (prompt (format "%s [%s] : %s (%s) = "
                          option-name
                          option-desc
-                         option-type-str)))
+                         option-type-str
+                         option-value)))
     (pcase (lean-option-type option)
       (`Bool   (lean-option-read-bool prompt))
       (`Int    (lean-option-read-int prompt))
@@ -106,17 +119,16 @@
       (`String (lean-option-read-string prompt))
       (`SEXP   (lean-option-read-sexp prompt)))))
 
-(cl-defstruct lean-option-record name type default-value desc)
 (defun lean-option-parse-string (line)
   "Parse a line to lean-option-record"
   (let* ((str-list             (split-string line "|"))
          (option-name          (substring-no-properties (cl-first str-list) 3))
          (option-type          (cl-second str-list))
-         (option-default-value (cl-third str-list))
+         (option-value         (cl-third str-list))
          (option-desc          (cl-fourth str-list)))
     (make-lean-option-record :name option-name
                              :type option-type
-                             :default-value option-default-value
+                             :value option-value
                              :desc option-desc)))
 
 (defun lean-options-parse-string (str)
@@ -136,13 +148,11 @@
               `(,(lean-option-record-name option-record) . ,option-record)))
           str-list)))
 
-(defun lean-get-options ()
+(defun lean-get-options (cont)
   "Get Lean option."
   (interactive)
-  (unless lean-global-option-record-alist
-    (lean-server-send-cmd (lean-cmd-options)
-                          '(lambda (option-record-alist)
-                             (setq lean-global-option-record-alist
-                                   option-record-alist)))))
-
+  (lean-server-send-cmd (lean-cmd-options)
+                        (lambda (option-record-alist)
+                          (when cont
+                            (funcall cont option-record-alist)))))
 (provide 'lean-option)

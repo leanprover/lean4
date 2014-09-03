@@ -15,9 +15,6 @@ where TYPE := INFO | SET | EVAL | OPTIONS | SHOW | ERROR,
       PRE is a server message comes before the message
       BODY is a body of the received message.")
 
-(defvar lean-global-option-record-alist nil
-  "lean option-record alist")
-
 (defvar lean-global-server-process nil
   "lean server process")
 

@@ -103,7 +103,6 @@
   (setq lean-global-server-current-file-name nil)
   (setq lean-global-server-message-to-process nil)
   (setq lean-global-server-last-time-sent nil)
-  (setq lean-global-option-record-alist nil)
   (when (timerp lean-global-retry-timer)
     (cancel-timer lean-global-retry-timer))
   (setq lean-global-retry-timer nil))
@@ -288,6 +287,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
        (lean-server-log "The following pre-message will be thrown away:")
        (lean-server-log "%s" pre)
        (setq lean-global-server-buffer post)
+       (message "lean-server-event-handler: %S" type)
        (cl-case type
          (INFO
           (let ((info-record (lean-server-get-info-record-at-pos body)))
@@ -302,6 +302,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
          (EVAL
           (funcall cont (lean-eval-parse-string body)))
          (OPTIONS
+          (message "handle options")
           (funcall cont (lean-options-parse-string body)))
          (SHOW
           (funcall cont (lean-show-parse-string body)))

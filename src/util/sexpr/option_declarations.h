@@ -26,6 +26,9 @@ public:
     name const & get_name() const { return m_name; }
     std::string const & get_default_value() const { return m_default; }
     std::string const & get_description() const { return m_description; }
+    /** \brief Display value of this option declaration in \c o.
+        \remark if \c o does not set this option, then the default value is displayed. */
+    void display_value(std::ostream & out, options const & o) const;
 };
 
 typedef std::map<name, option_declaration> option_declarations;

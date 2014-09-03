@@ -396,47 +396,7 @@ void server::show_options() {
     for (auto it = decls.begin(); it != decls.end(); it++) {
         option_declaration const & d = it->second;
         m_out << "-- " << d.get_name() << "|" << d.kind() << "|";
-        bool contains = false;
-        if (o.contains(d.get_name())) {
-            sexpr s = o.get_sexpr(d.get_name());
-            switch (d.kind()) {
-            case BoolOption:
-                if (!is_nil(s) && is_bool(s)) {
-                    m_out << (to_bool(s) ? "true" : "false");
-                    contains = true;
-                }
-                break;
-            case IntOption:
-                if (!is_nil(s) && is_int(s)) {
-                    m_out << to_int(s);
-                    contains = true;
-                }
-                break;
-            case UnsignedOption:
-                if (!is_nil(s) && is_int(s)) {
-                    m_out << static_cast<unsigned>(to_int(s));
-                    contains = true;
-                }
-                break;
-            case DoubleOption:
-                if (!is_nil(s) && is_double(s)) {
-                    m_out << to_double(s);
-                    contains = true;
-                }
-                break;
-            case StringOption:
-                if (!is_nil(s) && is_string(s)) {
-                    m_out << to_string(s);
-                    contains = true;
-                }
-                break;
-            case SExprOption:
-                m_out << mk_pair(flatten(pp(s)), o);
-                contains = true;
-            }
-        }
-        if (!contains)
-            m_out << d.get_default_value();
+        d.display_value(m_out, o);
         m_out << "|" << d.get_description() << "\n";
     }
     m_out << "-- ENDOPTIONS" << std::endl;

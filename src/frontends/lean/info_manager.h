@@ -21,7 +21,7 @@ public:
     void add_type_info(unsigned l, unsigned c, expr const & e);
     void add_synth_info(unsigned l, unsigned c, expr const & e);
     void add_overload_info(unsigned l, unsigned c, expr const & e);
-    void add_coercion_info(unsigned l, unsigned c, expr const & e);
+    void add_coercion_info(unsigned l, unsigned c, expr const & e, expr const & t);
     void erase_coercion_info(unsigned l, unsigned c);
     void add_symbol_info(unsigned l, unsigned c, name const & n);
     void add_identifier_info(unsigned l, unsigned c, name const & full_id);

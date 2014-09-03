@@ -144,9 +144,11 @@ public:
 };
 
 class coercion_info_data : public info_data_cell {
-    expr m_coercion;
+    expr m_expr;
+    expr m_type;
 public:
-    coercion_info_data(unsigned c, expr const & e):info_data_cell(c), m_coercion(e) {}
+    coercion_info_data(unsigned c, expr const & e, expr const & t):
+        info_data_cell(c), m_expr(e), m_type(t) {}
 
     virtual info_kind kind() const { return info_kind::Coercion; }
 
@@ -154,7 +156,7 @@ public:
         ios << "-- COERCION|" << line << "|" << get_column() << "\n";
         options os = ios.get_options();
         os = os.update(get_pp_coercion_option_name(), true);
-        ios.update_options(os) << m_coercion << endl;
+        ios.update_options(os) << m_expr << endl << "--" << endl << m_type << endl;
         ios << "-- ACK" << endl;
     }
 };
@@ -190,7 +192,7 @@ public:
 info_data mk_type_info(unsigned c, expr const & e) { return info_data(new type_info_data(c, e)); }
 info_data mk_synth_info(unsigned c, expr const & e) { return info_data(new synth_info_data(c, e)); }
 info_data mk_overload_info(unsigned c, expr const & e) { return info_data(new overload_info_data(c, e)); }
-info_data mk_coercion_info(unsigned c, expr const & e) { return info_data(new coercion_info_data(c, e)); }
+info_data mk_coercion_info(unsigned c, expr const & e, expr const & t) { return info_data(new coercion_info_data(c, e, t)); }
 info_data mk_symbol_info(unsigned c, name const & s) { return info_data(new symbol_info_data(c, s)); }
 info_data mk_identifier_info(unsigned c, name const & full_id) { return info_data(new identifier_info_data(c, full_id)); }
 
@@ -278,12 +280,12 @@ struct info_manager::imp {
         m_line_data[l].insert(mk_overload_info(c, e));
     }
 
-    void add_coercion_info(unsigned l, unsigned c, expr const & e) {
+    void add_coercion_info(unsigned l, unsigned c, expr const & e, expr const & t) {
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
             return;
         synch_line(l);
-        m_line_data[l].insert(mk_coercion_info(c, e));
+        m_line_data[l].insert(mk_coercion_info(c, e, t));
     }
 
     void erase_coercion_info(unsigned l, unsigned c) {
@@ -291,7 +293,7 @@ struct info_manager::imp {
         if (m_block_new_info)
             return;
         synch_line(l);
-        m_line_data[l].erase(mk_coercion_info(c, expr()));
+        m_line_data[l].erase(mk_coercion_info(c, expr(), expr()));
     }
 
     void add_symbol_info(unsigned l, unsigned c, name const & s) {
@@ -538,7 +540,7 @@ info_manager::~info_manager() {}
 void info_manager::add_type_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_type_info(l, c, e); }
 void info_manager::add_synth_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_synth_info(l, c, e); }
 void info_manager::add_overload_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_overload_info(l, c, e); }
-void info_manager::add_coercion_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_coercion_info(l, c, e); }
+void info_manager::add_coercion_info(unsigned l, unsigned c, expr const & e, expr const & t) { m_ptr->add_coercion_info(l, c, e, t); }
 void info_manager::erase_coercion_info(unsigned l, unsigned c) { m_ptr->erase_coercion_info(l, c); }
 void info_manager::add_symbol_info(unsigned l, unsigned c, name const & s) { m_ptr->add_symbol_info(l, c, s); }
 void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full_id) {

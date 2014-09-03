@@ -587,8 +587,10 @@ public:
     */
     void save_coercion_info(expr const & e, expr const & c) {
         if (!m_noinfo && infom() && pip()) {
-            if (auto p = pip()->get_pos_info(e))
-                m_pre_info_data.add_coercion_info(p->first, p->second, c);
+            if (auto p = pip()->get_pos_info(e)) {
+                expr t = m_tc[m_relax_main_opaque]->infer(c).first;
+                m_pre_info_data.add_coercion_info(p->first, p->second, c, t);
+            }
         }
     }
 
@@ -762,9 +764,10 @@ public:
             // try coercion to function-class
             optional<expr> c = get_coercion_to_fun(env(), f_type);
             if (c) {
-                save_coercion_info(f, *c);
+                expr old_f = f;
                 f = mk_app(*c, f, f.get_tag());
                 f_type = infer_type(f, cs);
+                save_coercion_info(old_f, f);
                 lean_assert(is_pi(f_type));
             } else {
                 throw_kernel_exception(env(), f, [=](formatter const & fmt) { return pp_function_expected(fmt, f); });
@@ -792,8 +795,9 @@ public:
         expr const & d_cls = get_app_fn(d_type);
         if (is_constant(d_cls)) {
             if (auto c = get_coercion(env(), a_type, const_name(d_cls))) {
-                save_coercion_info(a, *c);
-                return mk_app(*c, a, a.get_tag());
+                expr r = mk_app(*c, a, a.get_tag());
+                save_coercion_info(a, r);
+                return r;
             } else {
                 erase_coercion_info(a);
             }
@@ -822,7 +826,7 @@ public:
             } else if (m_coercions) {
                 expr c      = head(m_coercions);
                 m_coercions = tail(m_coercions);
-                m_elab.save_coercion_info(m_arg, c);
+                m_elab.save_coercion_info(m_arg, ::lean::mk_app(c, m_arg));
             }
             auto r = head(m_choices);
             m_choices = tail(m_choices);
@@ -894,8 +898,8 @@ public:
                 expr const & d_cls = get_app_fn(new_d_type);
                 if (is_constant(d_cls)) {
                     if (auto c = get_coercion(env(), new_a_type, const_name(d_cls))) {
-                        save_coercion_info(a, *c);
                         new_a = mk_app(*c, a, a.get_tag());
+                        save_coercion_info(a, new_a);
                     } else {
                         erase_coercion_info(a);
                     }
@@ -1083,8 +1087,9 @@ public:
         }
         optional<expr> c = get_coercion_to_sort(env(), t);
         if (c) {
-            save_coercion_info(e, *c);
-            return mk_app(*c, e, e.get_tag());
+            expr r = mk_app(*c, e, e.get_tag());
+            save_coercion_info(e, r);
+            return r;
         }
         throw_kernel_exception(env(), e, [=](formatter const & fmt) { return pp_type_expected(fmt, e); });
     }

@@ -442,9 +442,7 @@ struct info_manager::imp {
 
     void display(environment const & env, io_state const & ios, unsigned line) {
         lock_guard<mutex> lc(m_mutex);
-        if (line >= m_processed_upto && line < m_line_valid.size() && !m_line_valid[line]) {
-            regular(env, ios) << "-- NAY\n";
-        } else if (line >= m_line_data.size() || m_line_data[line].empty()) {
+        if (line >= m_line_data.size() || m_line_data[line].empty()) {
             // do nothing
         } else if (m_env_info.empty()) {
             display_core(env, ios.get_options(), ios, line);

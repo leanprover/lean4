@@ -361,7 +361,12 @@ void server::set_option(std::string const & line) {
 
 void server::show_info(unsigned linenum) {
     check_file();
-    m_out << "-- BEGININFO" << std::endl;
+    m_out << "-- BEGININFO";
+    if (m_file->infom().is_invalidated(linenum))
+        m_out << " STALE";
+    if (linenum >= m_file->infom().get_processed_upto())
+        m_out << " NAY";
+    m_out << std::endl;
     m_file->infom().display(m_env, m_ios, linenum);
     m_out << "-- ENDINFO" << std::endl;
 }

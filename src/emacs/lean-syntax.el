@@ -77,6 +77,8 @@
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; sorry
      (,(rx symbol-start "sorry" symbol-end) . 'font-lock-warning-face)
+     ;; ? query
+     (,(rx "?") . 'font-lock-warning-face)
      ;; lean-keywords
      (, (concat "\\(" (regexp-opt lean-keywords 'words) "\\)")
         (1 'font-lock-keyword-face)))))

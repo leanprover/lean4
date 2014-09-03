@@ -38,6 +38,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/noinfo.h"
+#include "frontends/lean/qinfo.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
@@ -550,11 +551,21 @@ public:
     expr mk_app(expr const & f, expr const & a, tag g) { return save_tag(::lean::mk_app(f, a), g); }
 
     /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
-    void save_info_data(expr const & e, expr const & r) {
+    void save_type_data(expr const & e, expr const & r) {
         if (!m_noinfo && infom() && pip() && (is_constant(e) || is_local(e) || is_placeholder(e))) {
             if (auto p = pip()->get_pos_info(e)) {
                 expr t = m_tc[m_relax_main_opaque]->infer(r).first;
                 m_pre_info_data.add_type_info(p->first, p->second, t);
+            }
+        }
+    }
+
+    /** \brief Store type information at pos(e) for r if \c e is marked as "extra" in the info_manager */
+    void save_extra_type_data(expr const & e, expr const & r) {
+        if (!m_noinfo && infom() && pip()) {
+            if (auto p = pip()->get_pos_info(e)) {
+                expr t = m_tc[m_relax_main_opaque]->infer(r).first;
+                m_pre_info_data.add_extra_type_info(p->first, p->second, r, t);
             }
         }
     }
@@ -577,7 +588,7 @@ public:
 
     void save_placeholder_info(expr const & e, expr const & r) {
         if (is_explicit_placeholder(e)) {
-            save_info_data(e, r);
+            save_type_data(e, r);
             save_synth_data(e, r);
         }
     }
@@ -1001,7 +1012,7 @@ public:
             }
             if (!first) {
                 // we save the info data again for application of functions with strict implicit arguments
-                save_info_data(get_app_fn(e), f);
+                save_type_data(get_app_fn(e), f);
             }
         }
         constraint_seq a_cs;
@@ -1187,6 +1198,13 @@ public:
         }
     }
 
+    expr visit_qinfo(expr const & e, constraint_seq & cs) {
+        auto ecs = visit(get_annotation_arg(e));
+        cs += ecs.second;
+        save_extra_type_data(e, ecs.first);
+        return ecs.first;
+    }
+
     expr visit_core(expr const & e, constraint_seq & cs) {
         if (is_placeholder(e)) {
             return visit_placeholder(e, cs);
@@ -1201,6 +1219,8 @@ public:
             return visit(get_annotation_arg(e), cs);
         } else if (is_typed_expr(e)) {
             return visit_typed_expr(e, cs);
+        } else if (is_qinfo(e)) {
+            return visit_qinfo(e, cs);
         } else {
             switch (e.kind()) {
             case expr_kind::Local:      return e;
@@ -1247,7 +1267,7 @@ public:
                 }
             }
         }
-        save_info_data(b, r);
+        save_type_data(b, r);
         return mk_pair(r, cs);
     }
 

@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 namespace lean {
 class info_data;
 
-enum class info_kind { Type = 0, Synth, Overload, Coercion, Symbol, Identifier };
+enum class info_kind { Type = 0, ExtraType, Synth, Overload, Coercion, Symbol, Identifier };
 bool operator<(info_kind k1, info_kind k2) { return static_cast<unsigned>(k1) < static_cast<unsigned>(k2); }
 
 class info_data_cell {
@@ -99,6 +99,31 @@ public:
     virtual info_data_cell * instantiate(substitution & s) const {
         expr e = s.instantiate(m_expr);
         return is_eqp(e, m_expr) ? nullptr : new type_info_data(get_column(), e);
+    }
+};
+
+class extra_type_info_data : public info_data_cell {
+protected:
+    expr m_expr;
+    expr m_type;
+public:
+    extra_type_info_data() {}
+    extra_type_info_data(unsigned c, expr const & e, expr const & t):info_data_cell(c), m_expr(e), m_type(t) {}
+
+    virtual info_kind kind() const { return info_kind::ExtraType; }
+
+    virtual void display(io_state_stream const & ios, unsigned line) const {
+        ios << "-- EXTRA_TYPE|" << line << "|" << get_column() << "\n";
+        ios << m_expr << endl;
+        ios << "--" << endl;
+        ios << m_type << endl;
+        ios << "-- ACK" << endl;
+    }
+
+    virtual info_data_cell * instantiate(substitution & s) const {
+        expr e = s.instantiate(m_expr);
+        expr t = s.instantiate(m_type);
+        return is_eqp(e, m_expr) && is_eqp(t, m_type) ? nullptr : new extra_type_info_data(get_column(), e, t);
     }
 };
 
@@ -190,6 +215,7 @@ public:
 };
 
 info_data mk_type_info(unsigned c, expr const & e) { return info_data(new type_info_data(c, e)); }
+info_data mk_extra_type_info(unsigned c, expr const & e, expr const & t) { return info_data(new extra_type_info_data(c, e, t)); }
 info_data mk_synth_info(unsigned c, expr const & e) { return info_data(new synth_info_data(c, e)); }
 info_data mk_overload_info(unsigned c, expr const & e) { return info_data(new overload_info_data(c, e)); }
 info_data mk_coercion_info(unsigned c, expr const & e, expr const & t) { return info_data(new coercion_info_data(c, e, t)); }
@@ -262,6 +288,14 @@ struct info_manager::imp {
             return;
         synch_line(l);
         m_line_data[l].insert(mk_type_info(c, e));
+    }
+
+    void add_extra_type_info(unsigned l, unsigned c, expr const & e, expr const & t) {
+        lock_guard<mutex> lc(m_mutex);
+        if (m_block_new_info)
+            return;
+        synch_line(l);
+        m_line_data[l].insert(mk_extra_type_info(c, e, t));
     }
 
     void add_synth_info(unsigned l, unsigned c, expr const & e) {
@@ -538,6 +572,7 @@ struct info_manager::imp {
 info_manager::info_manager():m_ptr(new imp()) {}
 info_manager::~info_manager() {}
 void info_manager::add_type_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_type_info(l, c, e); }
+void info_manager::add_extra_type_info(unsigned l, unsigned c, expr const & e, expr const & t) { m_ptr->add_extra_type_info(l, c, e, t); }
 void info_manager::add_synth_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_synth_info(l, c, e); }
 void info_manager::add_overload_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_overload_info(l, c, e); }
 void info_manager::add_coercion_info(unsigned l, unsigned c, expr const & e, expr const & t) { m_ptr->add_coercion_info(l, c, e, t); }

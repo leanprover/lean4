@@ -33,13 +33,13 @@ section
 
 variable {T : Type}
 
-theorem list_induction_on {P : list T → Prop} (l : list T) (Hnil : P nil)
+theorem induction_on [protected] {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hind : forall x : T, forall l : list T, forall H : P l, P (cons x l)) : P l :=
 list_rec Hnil Hind l
 
-theorem list_cases_on {P : list T → Prop} (l : list T) (Hnil : P nil)
+theorem cases_on [protected] {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hcons : forall x : T, forall l : list T, P (cons x l)) : P l :=
-list_induction_on l Hnil (take x l IH, Hcons x l)
+induction_on l Hnil (take x l IH, Hcons x l)
 
 notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 
@@ -57,12 +57,12 @@ theorem nil_concat {t : list T} : nil ++ t = t
 theorem cons_concat {x : T} {s t : list T} : (x :: s) ++ t = x :: (s ++ t)
 
 theorem concat_nil {t : list T} : t ++ nil = t :=
-list_induction_on t rfl
+induction_on t rfl
   (take (x : T) (l : list T) (H : concat l nil = l),
     show concat (cons x l) nil = cons x l, from H ▸ rfl)
 
 theorem concat_assoc {s t u : list T} : s ++ t ++ u = s ++ (t ++ u) :=
-list_induction_on s rfl
+induction_on s rfl
   (take x l,
     assume H : concat (concat l t) u = concat l (concat t u),
     calc
@@ -80,7 +80,7 @@ theorem length_nil : length (@nil T) = 0 := rfl
 theorem length_cons {x : T} {t : list T} : length (x :: t) = succ (length t)
 
 theorem length_concat {s t : list T} : length (s ++ t) = length s + length t :=
-list_induction_on s
+induction_on s
   (calc
     length (concat nil t) = length t   : rfl
       ... = zero + length t            : {add_zero_left⁻¹}
@@ -120,7 +120,7 @@ theorem reverse_cons {x : T} {l : list T} : reverse (x :: l) = append x (reverse
 theorem reverse_singleton {x : T} : reverse [x] = [x]
 
 theorem reverse_concat {s t : list T} : reverse (s ++ t) = (reverse t) ++ (reverse s) :=
-list_induction_on s (concat_nil⁻¹)
+induction_on s (concat_nil⁻¹)
   (take x s,
     assume IH : reverse (s ++ t) = concat (reverse t) (reverse s),
     calc
@@ -130,7 +130,7 @@ list_induction_on s (concat_nil⁻¹)
         ... = reverse t ++ (reverse (x :: s))           : rfl)
 
 theorem reverse_reverse {l : list T} : reverse (reverse l) = l :=
-list_induction_on l rfl
+induction_on l rfl
   (take x l',
     assume H: reverse (reverse l') = l',
     show reverse (reverse (x :: l')) = x :: l', from
@@ -141,7 +141,7 @@ list_induction_on l rfl
           ... = x :: l'                                           : rfl)
 
 theorem append_eq_reverse_cons  {x : T} {l : list T} : append x l = reverse (x :: reverse l) :=
-list_induction_on l rfl
+induction_on l rfl
   (take y l',
     assume H : append x l' = reverse (x :: reverse l'),
     calc
@@ -160,7 +160,7 @@ theorem head_nil {x : T} : head x (@nil T) = x
 theorem head_cons {x x' : T} {t : list T} : head x' (x :: t) = x
 
 theorem head_concat {s t : list T} {x : T} : s ≠ nil → (head x (s ++ t) = head x s) :=
-list_cases_on s
+cases_on s
   (take H : nil ≠ nil, absurd rfl H)
   (take x s, take H : cons x s ≠ nil,
     calc
@@ -175,7 +175,7 @@ theorem tail_nil : tail (@nil T) = nil
 theorem tail_cons {x : T} {l : list T} : tail (cons x l) = l
 
 theorem cons_head_tail {x : T} {l : list T} : l ≠ nil → (head x l) :: (tail l) = l :=
-list_cases_on l
+cases_on l
   (assume H : nil ≠ nil, absurd rfl H)
   (take x l, assume H : cons x l ≠ nil, rfl)
 
@@ -192,7 +192,7 @@ theorem mem_nil {x : T} : x ∈ nil ↔ false := iff_rfl
 theorem mem_cons {x y : T} {l : list T} : mem x (cons y l) ↔ (x = y ∨ mem x l) := iff_rfl
 
 theorem mem_concat_imp_or {x : T} {s t : list T} : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
-list_induction_on s or_inr
+induction_on s or_inr
   (take y s,
     assume IH : x ∈ s ++ t → x ∈ s ∨ x ∈ t,
     assume H1 : x ∈ (y :: s) ++ t,
@@ -201,7 +201,7 @@ list_induction_on s or_inr
     iff_elim_right or_assoc H3)
 
 theorem mem_or_imp_concat {x : T} {s t : list T} : x ∈ s ∨ x ∈ t → x ∈ s ++ t :=
-list_induction_on s
+induction_on s
   (take H, or_elim H false_elim (assume H, H))
   (take y s,
     assume IH : x ∈ s ∨ x ∈ t → x ∈ s ++ t,
@@ -217,7 +217,7 @@ theorem mem_concat {x : T} {s t : list T} : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t
 := iff_intro mem_concat_imp_or mem_or_imp_concat
 
 theorem mem_split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x :: t) :=
-list_induction_on l
+induction_on l
   (take H : x ∈ nil, false_elim (iff_elim_left mem_nil H))
   (take y l,
     assume IH : x ∈ l → ∃s t : list T, l = s ++ (x :: t),
@@ -249,8 +249,8 @@ list_induction_on l
 
 -- theorem not_mem_find (l : list T) (x : T) : ¬ mem x l → find x l = length l
 -- :=
---   @list_induction_on T (λl, ¬ mem x l → find x l = length l) l
--- --  list_induction_on l
+--   @induction_on T (λl, ¬ mem x l → find x l = length l) l
+-- --  induction_on l
 --     (assume P1 : ¬ mem x nil,
 --       show find x nil = length nil, from
 --         calc

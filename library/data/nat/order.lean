@@ -432,7 +432,7 @@ theorem ge_decidable [instance] (n m : ℕ) : decidable (n ≥ m)
 
 -- ### misc
 
-theorem strong_induction_on {P : nat → Prop} (n : ℕ) (H : ∀n, (∀m, m < n → P m) → P n) : P n :=
+theorem strong_induction_on [protected] {P : nat → Prop} (n : ℕ) (H : ∀n, (∀m, m < n → P m) → P n) : P n :=
 have H1 : ∀ {n m : nat}, m < n → P m, from
   take n,
   induction_on n
@@ -448,7 +448,7 @@ have H1 : ∀ {n m : nat}, m < n → P m, from
           (assume H4: m = n', H4⁻¹ ▸ H2)),
 H1 self_lt_succ
 
-theorem case_strong_induction_on {P : nat → Prop} (a : nat) (H0 : P 0)
+theorem case_strong_induction_on [protected] {P : nat → Prop} (a : nat) (H0 : P 0)
   (Hind : ∀(n : nat), (∀m, m ≤ n → P m) → P (succ n)) : P a :=
 strong_induction_on a (
   take n,

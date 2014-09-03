@@ -8,7 +8,7 @@ import logic.classes.decidable tools.tactic
 using decidable tactic eq_ops
 
 definition ite (c : Prop) {H : decidable c} {A : Type} (t e : A) : A :=
-rec_on H (assume Hc,  t) (assume Hnc, e)
+decidable.rec_on H (assume Hc,  t) (assume Hnc, e)
 
 notation `if` c `then` t `else` e:45 := ite c t e
 
@@ -38,11 +38,11 @@ if_neg not_false_trivial
 
 theorem if_cond_congr {c₁ c₂ : Prop} {H₁ : decidable c₁} {H₂ : decidable c₂} (Heq : c₁ ↔ c₂) {A : Type} (t e : A)
                       : (if c₁ then t else e) = (if c₂ then t else e) :=
-rec_on H₁
- (assume Hc₁  : c₁,  rec_on H₂
+decidable.rec_on H₁
+ (assume Hc₁  : c₁,  decidable.rec_on H₂
    (assume Hc₂  : c₂,  if_pos Hc₁ ⬝ (if_pos Hc₂)⁻¹)
    (assume Hnc₂ : ¬c₂, absurd (iff_elim_left Heq Hc₁) Hnc₂))
- (assume Hnc₁ : ¬c₁, rec_on H₂
+ (assume Hnc₁ : ¬c₁, decidable.rec_on H₂
    (assume Hc₂  : c₂,  absurd (iff_elim_right Heq Hc₂) Hnc₁)
    (assume Hnc₂ : ¬c₂, if_neg Hnc₁ ⬝ (if_neg Hnc₂)⁻¹))
 

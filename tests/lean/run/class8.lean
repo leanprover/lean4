@@ -1,5 +1,5 @@
 import logic data.prod
-using num tactic prod
+open num tactic prod
 
 inductive inh (A : Type) : Prop :=
 inh_intro : A -> inh A

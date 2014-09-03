@@ -4,11 +4,10 @@
 
 import ..instances
 
-using relation
-
-using relation.general_operations
-using relation.iff_ops
-using eq_ops
+open relation
+open relation.general_operations
+open relation.iff_ops
+open eq_ops
 
 section
 

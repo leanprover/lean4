@@ -1,5 +1,5 @@
 import logic data.prod
-using num prod nonempty inhabited
+open num prod nonempty inhabited
 
 theorem H {A B : Type} (H1 : inhabited A) : inhabited (Prop × A × (B → num))
 := _

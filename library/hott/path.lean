@@ -10,7 +10,7 @@
 
 import general_notation struc.function
 
-using function
+open function
 
 -- Path
 -- ----
@@ -30,7 +30,7 @@ end path
 
 
 -- TODO: should all this be in namespace path?
-using path (induction_on)
+open path (induction_on)
 
 -- Concatenation and inverse
 -- -------------------------

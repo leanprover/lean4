@@ -6,7 +6,7 @@
 
 import logic struc.function
 
-using function
+open function
 
 namespace congruence
 

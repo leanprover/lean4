@@ -10,16 +10,15 @@ namespace N2
   variable foo : val → val → val
 end N2
 
-using N2
-using N1
+open N2
+open N1
 variables a b : num
 print raw foo a b
-using N2
+open N2
 print raw foo a b
-using N1
+open N1
 print raw foo a b
-using N1
+open N1
 print raw foo a b
-using N2
+open N2
 print raw foo a b
-

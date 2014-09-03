@@ -1,5 +1,5 @@
 import data.nat data.prod
-using nat prod
+open nat prod
 
 variable R : nat → nat → Prop
 variable f (a b : nat) (H : R a b) : nat

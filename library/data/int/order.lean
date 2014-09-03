@@ -9,10 +9,10 @@
 
 import .basic
 
-using nat (hiding case)
-using decidable
-using fake_simplifier
-using int eq_ops
+open nat (hiding case)
+open decidable
+open fake_simplifier
+open int eq_ops
 
 namespace int
 

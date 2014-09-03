@@ -1,5 +1,5 @@
 import data.nat
-using nat
+open nat
 
 definition two1 : nat := 2
 definition two2 : nat := succ (succ (zero))

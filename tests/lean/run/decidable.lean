@@ -1,5 +1,5 @@
 import logic data.unit
-using bool unit decidable
+open bool unit decidable
 
 variables a b c : bool
 variables u v : unit

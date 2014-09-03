@@ -1,6 +1,6 @@
 import logic
-using num (num pos_num num_rec pos_num_rec)
-using tactic
+open num (num pos_num num_rec pos_num_rec)
+open tactic
 
 inductive nat : Type :=
 zero : nat,

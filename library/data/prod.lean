@@ -9,7 +9,7 @@
 
 import logic.classes.inhabited logic.core.eq logic.classes.decidable
 
-using inhabited decidable
+open inhabited decidable
 
 inductive prod (A B : Type) : Type :=
 pair : A → B → prod A B

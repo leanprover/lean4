@@ -1,4 +1,4 @@
 import data.bool
-using bool
+open bool
 
 check ff

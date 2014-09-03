@@ -30,7 +30,7 @@ the input value.
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
   -- defines the double function
   definition double (x : nat) := x + x
 #+END_SRC
@@ -62,7 +62,7 @@ The command =import= loads existing libraries and extensions.
 
 We say =nat.ge= is a hierarchical name comprised of two parts: =nat= and =ge=.
 
-The command =using= creates aliases based on a given prefix. The
+The command =open= creates aliases based on a given prefix. The
 command also imports notation, hints, and other features. We will
 discuss its other applications later. Regarding aliases,
 the following command creates aliases for all objects starting with
@@ -70,7 +70,7 @@ the following command creates aliases for all objects starting with
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
   check ge -- display the type of nat.ge
 #+END_SRC
 
@@ -79,11 +79,11 @@ that =n=, =m= and =o= have type =nat=.
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
   variable n : nat
   variable m : nat
   variable o : nat
-  -- The command 'using nat' also imported the notation defined at the namespace 'nat'
+  -- The command 'open nat' also imported the notation defined at the namespace 'nat'
   check n + m
   check n ≤ m
 #+END_SRC
@@ -96,7 +96,7 @@ for =n = n=. In Lean, =refl= is the reflexivity theorem.
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
   variable n : nat
   check refl n
 #+END_SRC
@@ -108,7 +108,7 @@ The following commands postulate two axioms =Ax1= and =Ax2= that state that =n =
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
   variables m n o : nat
   axiom Ax1 : n = m
   axiom Ax2 : m = o
@@ -146,7 +146,7 @@ example, =symm= is the symmetry theorem.
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
 
   theorem nat_trans3 (a b c d : nat) (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
   trans (trans H1 (symm H2)) H3
@@ -175,7 +175,7 @@ implicit arguments.
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
 
   theorem nat_trans3i {a b c d : nat} (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
   trans (trans H1 (symm H2)) H3
@@ -210,7 +210,7 @@ This is useful when debugging non-trivial problems.
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
 
   variables a b c : nat
   axiom H1 : a = b
@@ -361,7 +361,7 @@ examples.
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
 
   check fun x : nat, x + 1
   check fun x y : nat, x + 2 * y
@@ -375,7 +375,7 @@ In all examples above, the type can be inferred automatically.
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
 
   check fun x, x + 1
   check fun x y, x + 2 * y
@@ -392,7 +392,7 @@ function applications
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
   check (fun x y, x + 2 * y) 1
   check (fun x y, x + 2 * y) 1 2
   check (fun x y, not (x ∧ y)) true false
@@ -420,7 +420,7 @@ are equal using just =refl=. Here is a simple example.
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
 
   theorem def_eq_th (a : nat) : ((λ x : nat, x + 1) a) = a + 1 := refl (a+1)
 #+END_SRC
@@ -652,7 +652,7 @@ Then we instantiate the axiom using function application.
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
 
   variable f : nat → nat
   axiom fzero : ∀ x, f x = 0
@@ -668,7 +668,7 @@ abstraction. In the following example, we create a proof term showing that for a
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
 
   variable f : nat → nat
   axiom fzero : ∀ x, f x = 0
@@ -693,7 +693,7 @@ for =∃ a : nat, a = w= using
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
 
   theorem nat_trans3i {a b c d : nat} (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
   trans (trans H1 (symm H2)) H3
@@ -720,7 +720,7 @@ has different values for the implicit argument =P=.
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
 
   check @exists_intro
   variable g : nat → nat → nat
@@ -751,7 +751,7 @@ of two even numbers is an even number.
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
 
   definition even (a : nat) := ∃ b, a = 2*b
   theorem EvenPlusEven {a b : nat} (H1 : even a) (H2 : even b) : even (a + b) :=
@@ -772,7 +772,7 @@ With this macro we can write the example above in a more natural way
 
 #+BEGIN_SRC lean
   import data.nat
-  using nat
+  open nat
   definition even (a : nat) := ∃ b, a = 2*b
   theorem EvenPlusEven {a b : nat} (H1 : even a) (H2 : even b) : even (a + b) :=
   obtain (w1 : nat) (Hw1 : a = 2*w1), from H1,

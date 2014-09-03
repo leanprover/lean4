@@ -1,7 +1,7 @@
 import logic data.nat data.prod
 
-using nat prod
-using decidable
+open nat prod
+open decidable
 
 variable modulo (x : ℕ) (y : ℕ) : ℕ
 infixl `mod`:70 := modulo

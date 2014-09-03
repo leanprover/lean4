@@ -1,5 +1,5 @@
 import logic struc.relation
-using relation
+open relation
 
 namespace is_equivalence
 

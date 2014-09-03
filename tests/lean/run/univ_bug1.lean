@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------
 
 import logic data.nat
-using nat
+open nat
 
 namespace simp
 -- set_option pp.universes true

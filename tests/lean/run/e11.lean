@@ -7,7 +7,7 @@ namespace nat
 end nat
 
 namespace int
-  using nat (nat)
+  open nat (nat)
   variable int : Type.{1}
   variable add : int → int → int
   infixl + := add
@@ -16,18 +16,18 @@ namespace int
 end int
 
 section
-  -- Using "only" the notation and declarations from the namespaces nat and int
-  using [notation] nat
-  using [notation] int
-  using [decls] nat
-  using [decls] int
+  -- Open "only" the notation and declarations from the namespaces nat and int
+  open [notation] nat
+  open [notation] int
+  open [decls] nat
+  open [decls] int
 
   variables n m : nat
   variables i j : int
   check n + m
   check i + j
 
-  -- The following check does not work, since we are not using the coercions
+  -- The following check does not work, since we are not open the coercions
   -- check n + i
 
   -- Here is a possible trick for this kind of configuration

@@ -4,7 +4,7 @@
 --- Author: Jeremy Avigad
 ----------------------------------------------------------------------------------------------------
 import logic.core.connectives struc.function
-using function
+open function
 
 namespace congr
 

@@ -1,5 +1,5 @@
 import logic tools.tactic
-using tactic
+open tactic
 
 definition simple := apply trivial
 

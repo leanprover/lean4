@@ -6,7 +6,7 @@ namespace N2
   definition pr {A : Type} (a b : A) := b
 end N2
 
-using N1 N2
+open N1 N2
 variable N : Type.{1}
 variables a b : N
 check @pr

@@ -1,5 +1,5 @@
 import logic
-using num
+open num
 
 definition proj1 (x : num) (y : num) := x
 definition One := 1

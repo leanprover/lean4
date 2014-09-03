@@ -40,7 +40,7 @@ namespace eq_ops
   infixr `⬝`   := trans
   infixr `▸`   := subst
 end eq_ops
-using eq_ops
+open eq_ops
 
 theorem true_ne_false : ¬true = false :=
 assume H : true = false,

@@ -1,5 +1,5 @@
 import logic struc.function
-using function num bool
+open function num bool
 
 
 variable f : num → bool

@@ -1,5 +1,5 @@
 import logic data.prod
-using prod
+open prod
 
 -- Test tuple notation
 check (3, false, 1, true)

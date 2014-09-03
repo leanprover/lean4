@@ -4,7 +4,7 @@
 
 import logic.classes.inhabited logic.core.eq logic.classes.decidable
 
-using decidable
+open decidable
 
 inductive subtype {A : Type} (P : A → Prop) : Type :=
 tag : Πx : A, P x → subtype P

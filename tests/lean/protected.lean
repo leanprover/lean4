@@ -5,6 +5,6 @@ namespace foo
   definition D := true
 end foo
 
-using foo
+open foo
 check C
 check D

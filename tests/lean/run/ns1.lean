@@ -6,5 +6,5 @@ theorem tst : true := trivial
 end boo
 end foo
 
-using foo
+open foo
 check boo.tst

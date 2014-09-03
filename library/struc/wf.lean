@@ -5,7 +5,7 @@
 import logic.axioms.classical logic.axioms.prop_decidable logic.classes.decidable
 import logic.core.identities
 
-using decidable
+open decidable
 
 -- Well-founded relation definition
 -- We are essentially saying that a relation R is well-founded

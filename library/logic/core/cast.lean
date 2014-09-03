@@ -6,7 +6,7 @@
 
 import .eq .quantifiers
 
-using eq_ops
+open eq_ops
 
 definition cast {A B : Type} (H : A = B) (a : A) : B :=
 eq_rec a H

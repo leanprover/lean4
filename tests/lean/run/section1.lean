@@ -1,5 +1,5 @@
 import logic
-using tactic
+open tactic
 
 section
   set_option pp.universes true

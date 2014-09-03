@@ -1,5 +1,5 @@
 import logic
-using num
+open num
 
 variable foo : Prop
 

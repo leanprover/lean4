@@ -15,10 +15,8 @@ end bla
 
 variable g : N → N → N
 
-using foo
-using bla
+open foo
+open bla
 print raw a + b -- + is overloaded, it creates a choice
 print raw #foo a + b   -- + is not overloaded, we are parsing inside #foo
 print raw g (#foo a + b) (#bla a + b) -- mixing both
-
-

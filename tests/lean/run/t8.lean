@@ -1,3 +1,3 @@
 import logic
-using tactic
+open tactic
 print raw (by assumption)

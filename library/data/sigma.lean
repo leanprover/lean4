@@ -4,7 +4,7 @@
 
 import logic.classes.inhabited logic.core.eq
 
-using inhabited
+open inhabited
 
 inductive sigma {A : Type} (B : A → Type) : Type :=
 dpair : Πx : A, B x → sigma B

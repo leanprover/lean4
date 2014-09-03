@@ -4,7 +4,7 @@
 
 import .inhabited
 
-using inhabited
+open inhabited
 
 namespace nonempty
 

@@ -6,7 +6,7 @@
 
 import logic.classes.inhabited logic.core.cast
 
-using inhabited
+open inhabited
 
 -- Pi extensionality
 axiom piext {A : Type} {B B' : A → Type} {H : inhabited (Π x, B x)} :

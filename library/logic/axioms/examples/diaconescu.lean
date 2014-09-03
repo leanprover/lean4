@@ -3,7 +3,7 @@
 -- Author: Leonardo de Moura
 
 import logic.axioms.hilbert logic.axioms.funext
-using eq_ops nonempty inhabited
+open eq_ops nonempty inhabited
 
 -- Diaconescu’s theorem
 -- Show that Excluded middle follows from

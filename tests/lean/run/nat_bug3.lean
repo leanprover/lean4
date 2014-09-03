@@ -1,5 +1,5 @@
 import logic
-using num eq_ops
+open num eq_ops
 
 inductive nat : Type :=
 zero : nat,

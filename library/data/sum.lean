@@ -9,7 +9,7 @@
 
 import logic.core.prop logic.classes.inhabited logic.classes.decidable
 
-using inhabited decidable
+open inhabited decidable
 
 namespace sum
 

@@ -1,5 +1,5 @@
 import logic
-using tactic
+open tactic
 
 theorem tst (a b : Prop) (H : a ↔ b) : b ↔ a
 := by apply iff_intro;

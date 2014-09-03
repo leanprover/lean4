@@ -5,8 +5,8 @@
 ----------------------------------------------------------------------------------------------------
 
 import data.string data.num
-using string
-using num
+open string
+open num
 
 namespace tactic
 -- This is just a trick to embed the 'tactic language' as a

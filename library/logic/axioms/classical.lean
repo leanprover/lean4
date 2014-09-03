@@ -7,7 +7,7 @@
 
 import logic.core.quantifiers logic.core.cast struc.relation
 
-using eq_ops
+open eq_ops
 
 axiom prop_complete (a : Prop) : a = true ∨ a = false
 
@@ -48,7 +48,7 @@ propext
   (assume H, iff_to_eq H)
   (assume H, eq_to_iff H)
 
-using relation
+open relation
 theorem iff_congruence [instance] (P : Prop → Prop) : congruence iff iff P :=
 congruence_mk
   (take (a b : Prop),

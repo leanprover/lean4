@@ -166,9 +166,9 @@ static name parse_class(parser & p) {
         else if (p.curr_is_keyword() || p.curr_is_command())
             n = p.get_token_info().value();
         else
-            throw parser_error("invalid 'using' command, identifier or symbol expected", p.pos());
+            throw parser_error("invalid 'open' command, identifier or symbol expected", p.pos());
         p.next();
-        p.check_token_next(g_rbracket, "invalid 'using' command, ']' expected");
+        p.check_token_next(g_rbracket, "invalid 'open' command, ']' expected");
         return n;
     } else {
         return name();
@@ -178,17 +178,17 @@ static name parse_class(parser & p) {
 static void check_identifier(parser & p, environment const & env, name const & ns, name const & id) {
     name full_id = ns + id;
     if (!env.find(full_id))
-        throw parser_error(sstream() << "invalid 'using' command, unknown declaration '" << full_id << "'", p.pos());
+        throw parser_error(sstream() << "invalid 'open' command, unknown declaration '" << full_id << "'", p.pos());
 }
 
-// using [class] id (id ...) (renaming id->id id->id) (hiding id ... id)
-environment using_cmd(parser & p) {
+// open [class] id (id ...) (renaming id->id id->id) (hiding id ... id)
+environment open_cmd(parser & p) {
     environment env = p.env();
     while (true) {
         name cls = parse_class(p);
         bool decls = cls.is_anonymous() || cls == g_decls || cls == g_declarations;
         auto pos   = p.pos();
-        name ns    = p.check_id_next("invalid 'using' command, identifier expected");
+        name ns    = p.check_id_next("invalid 'open' command, identifier expected");
         optional<name> real_ns = to_valid_namespace_name(env, ns);
         if (!real_ns)
             throw parser_error(sstream() << "invalid namespace name '" << ns << "'", pos);
@@ -205,8 +205,8 @@ environment using_cmd(parser & p) {
                     while (p.curr_is_identifier()) {
                         name from_id = p.get_name_val();
                         p.next();
-                        p.check_token_next(g_arrow, "invalid 'using' command renaming, '->' expected");
-                        name to_id = p.check_id_next("invalid 'using' command renaming, identifier expected");
+                        p.check_token_next(g_arrow, "invalid 'open' command renaming, '->' expected");
+                        name to_id = p.check_id_next("invalid 'open' command renaming, identifier expected");
                         check_identifier(p, env, ns, from_id);
                         exceptions.push_back(from_id);
                         env = add_expr_alias(env, to_id, ns+from_id);
@@ -228,11 +228,11 @@ environment using_cmd(parser & p) {
                         env = add_expr_alias(env, id, ns+id);
                     }
                 } else {
-                    throw parser_error("invalid 'using' command option, identifier, 'hiding' or 'renaming' expected", p.pos());
+                    throw parser_error("invalid 'open' command option, identifier, 'hiding' or 'renaming' expected", p.pos());
                 }
                 if (found_explicit && !exceptions.empty())
-                    throw parser_error("invalid 'using' command option, mixing explicit and implicit 'using' options", p.pos());
-                p.check_token_next(g_rparen, "invalid 'using' command option, ')' expected");
+                    throw parser_error("invalid 'open' command option, mixing explicit and implicit 'open' options", p.pos());
+                p.check_token_next(g_rparen, "invalid 'open' command option, ')' expected");
             }
             if (!found_explicit)
                 env = add_aliases(env, ns, name(), exceptions.size(), exceptions.data());
@@ -303,7 +303,7 @@ environment erase_cache_cmd(parser & p) {
 
 cmd_table init_cmd_table() {
     cmd_table r;
-    add_cmd(r, cmd_info("using",        "create aliases for declarations, and use objects defined in other namespaces", using_cmd));
+    add_cmd(r, cmd_info("open",         "create aliases for declarations, and use objects defined in other namespaces", open_cmd));
     add_cmd(r, cmd_info("set_option",   "set configuration option", set_option_cmd));
     add_cmd(r, cmd_info("exit",         "exit", exit_cmd));
     add_cmd(r, cmd_info("print",        "print a string", print_cmd));

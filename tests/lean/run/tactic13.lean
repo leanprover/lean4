@@ -1,5 +1,5 @@
 import logic
-using tactic
+open tactic
 
 theorem tst (a b : Prop) (H : ¬ a ∨ ¬ b) (Hb : b) : ¬ a ∧ b :=
 begin

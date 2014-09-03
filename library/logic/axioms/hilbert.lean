@@ -12,7 +12,7 @@ import logic.core.quantifiers
 import logic.classes.inhabited logic.classes.nonempty
 import data.subtype data.sum
 
-using subtype inhabited nonempty
+open subtype inhabited nonempty
 
 
 -- the axiom

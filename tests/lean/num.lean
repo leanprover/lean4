@@ -1,5 +1,5 @@
 import data.num
-using num
+open num
 
 check 10
 check 20

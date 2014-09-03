@@ -7,7 +7,7 @@ namespace nat
 end nat
 
 namespace int
-  using nat (nat)
+  open nat (nat)
   variable int : Type.{1}
   variable add : int → int → int
   infixl + := add
@@ -17,10 +17,9 @@ namespace int
   end coercions
 end int
 
-using nat
-using int
+open nat
+open int
 variables n m : nat
 check n+m -- coercion nat -> int is not available
-using int.coercions
+open int.coercions
 check n+m -- coercion nat -> int is available
-

@@ -3,7 +3,7 @@
 -- Author: Leonardo de Moura
 
 import logic.core.eq logic.classes.inhabited logic.classes.decidable
-using eq_ops decidable
+open eq_ops decidable
 
 namespace option
 

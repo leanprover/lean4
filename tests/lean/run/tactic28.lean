@@ -1,5 +1,5 @@
 import logic
-using tactic inhabited
+open tactic inhabited
 
 inductive sum (A : Type) (B : Type) : Type :=
 inl  : A → sum A B,

@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------
 
 import logic.core.eq struc.function
-using function
+open function
 
 -- Function extensionality
 axiom funext : ∀ {A : Type} {B : A → Type} {f g : Π x, B x} (H : ∀ x, f x = g x), f = g

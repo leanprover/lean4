@@ -5,7 +5,7 @@
 import data.unit data.bool data.nat
 import data.prod data.sum data.sigma
 
-using unit bool nat prod sum sigma
+open unit bool nat prod sum sigma
 
 inductive fibrant (T : Type) : Type :=
 fibrant_mk : fibrant T

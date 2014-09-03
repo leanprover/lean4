@@ -1,5 +1,5 @@
 import logic
-using bool
+open bool
 
 definition set {{T : Type}} := T → bool
 infix `∈`:50 := λx A, A x = tt

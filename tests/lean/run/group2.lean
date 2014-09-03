@@ -1,5 +1,5 @@
 import logic
-using num
+open num
 
 section
   parameter {A  : Type}

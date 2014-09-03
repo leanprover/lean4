@@ -1,5 +1,5 @@
 import logic
-using tactic
+open tactic
 variables a b c d : Prop
 axiom Ha : a
 axiom Hb : b

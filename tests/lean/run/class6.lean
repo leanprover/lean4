@@ -1,5 +1,5 @@
 import logic data.prod
-using prod
+open prod
 
 inductive t1 : Type :=
 mk1 : t1

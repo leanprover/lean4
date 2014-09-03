@@ -27,7 +27,7 @@ namespace path
   path_rec H p
 end path
 
-using path
+open path
 
 -- Concatenation and inverse
 -- -------------------------

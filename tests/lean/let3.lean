@@ -1,5 +1,5 @@
 import data.num
-using num
+open num
 
 variable f : num → num → num → num
 

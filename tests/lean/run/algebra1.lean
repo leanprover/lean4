@@ -1,5 +1,5 @@
 import logic
-using num
+open num
 
 abbreviation Type1 := Type.{1}
 
@@ -88,7 +88,7 @@ namespace monoid
   definition assoc [inline] {A : Type} (s : monoid_struct A) : is_assoc (mul s)
   := monoid_struct_rec (fun mul id a i, a) s
 
-  using semigroup
+  open semigroup
   definition is_semigroup_struct [inline] [instance] (A : Type) (s : monoid_struct A) : semigroup_struct A
   := mk_semigroup_struct (mul s) (assoc s)
 
@@ -104,7 +104,7 @@ end monoid
 end algebra
 
 section
-  using algebra algebra.semigroup algebra.monoid
+  open algebra algebra.semigroup algebra.monoid
   variable M : monoid
   variables a b c : M
   check a*b*c*a*b*c*a*b*a*b*c*a

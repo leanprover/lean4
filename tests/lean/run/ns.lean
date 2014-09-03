@@ -1,5 +1,3 @@
-
-
 variable nat : Type.{1}
 variable f : nat → nat
 
@@ -12,7 +10,7 @@ namespace foo
   check f i
 end foo
 
-using foo
+open foo
 variables a : nat
 variables i : int
 check f a

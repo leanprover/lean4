@@ -1,5 +1,5 @@
 import data.num
-using num
+open num
 
 variables int nat real : Type.{1}
 variable nat_add  : nat → nat → nat

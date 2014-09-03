@@ -1,5 +1,5 @@
 import logic
-using tactic
+open tactic
 
 inductive list (A : Type) : Type :=
 nil {} : list A,

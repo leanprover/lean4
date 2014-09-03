@@ -10,9 +10,9 @@
 import .basic logic.classes.decidable
 import tools.fake_simplifier
 
-using nat eq_ops tactic
-using fake_simplifier
-using decidable (decidable inl inr)
+open nat eq_ops tactic
+open fake_simplifier
+open decidable (decidable inl inr)
 
 namespace nat
 

@@ -1,5 +1,5 @@
 import logic
-using tactic
+open tactic
 
 theorem tst {A : Type} {f : A → A → A} {a b c : A} (H1 : a = b) (H2 : b = c) : f a b = f b c
 := by apply congr;

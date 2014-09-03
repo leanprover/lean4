@@ -4,7 +4,7 @@
 
 import .connectives ..classes.nonempty
 
-using inhabited nonempty
+open inhabited nonempty
 
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 exists_intro : ∀ (a : A), P a → Exists P

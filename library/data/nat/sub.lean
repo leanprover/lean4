@@ -10,9 +10,9 @@
 import data.nat.order
 import tools.fake_simplifier
 
-using nat eq_ops tactic
-using helper_tactics
-using fake_simplifier
+open nat eq_ops tactic
+open helper_tactics
+open fake_simplifier
 
 namespace nat
 

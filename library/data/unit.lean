@@ -4,7 +4,7 @@
 
 import logic.classes.decidable logic.classes.inhabited
 
-using decidable
+open decidable
 
 namespace unit
 

@@ -11,7 +11,7 @@
   '("import" "abbreviation" "opaque_hint" "tactic_hint" "definition" "renaming"
     "inline" "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture"
     "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem"
-    "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"
+    "context" "open" "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"
     "options" "precedence" "postfix" "prefix" "calc_trans" "calc_subst" "calc_refl"
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
     "private" "using" "namespace" "builtin" "including" "instance" "class" "section"
@@ -60,10 +60,6 @@
      ;; Constants
      (,(rx (or "#" "@" "->" "∼" "↔" "/" "==" "=" ":=" "<->" "/\\" "\\/" "∧" "∨" "≠" "<" ">" "≤" "≥" "¬" "<=" ">=" "⁻¹" "⬝" "▸" "+" "*" "-" "/")) . 'font-lock-constant-face)
      (,(rx (or "λ" "→" "∃" "∀" ":=")) . 'font-lock-constant-face )
-     (,(rx symbol-start
-           (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "apply" "back" "beta" "done" "exact")
-           symbol-end)
-      . 'font-lock-constant-face)
      ;; universe/inductive/theorem... "names"
      (,(rx symbol-start
            (group (or "universe" "inductive" "theorem" "axiom" "lemma" "hypothesis"
@@ -76,7 +72,12 @@
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; modifiers
-     (,(rx (or "\[protected\]" "\[private\]" "\[instance\]" "\[coercion\]" "\[inline\]")) . 'font-lock-doc-face)
+     (,(rx (or "\[notation\]" "\[protected\]" "\[private\]" "\[instance\]" "\[coercion\]" "\[inline\]")) . 'font-lock-doc-face)
+     ;; tactics
+     (,(rx symbol-start
+           (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "apply" "back" "beta" "done" "exact" "repeat")
+           symbol-end)
+      . 'font-lock-constant-face)
      ;; sorry
      (,(rx symbol-start "sorry" symbol-end) . 'font-lock-warning-face)
      ;; ? query

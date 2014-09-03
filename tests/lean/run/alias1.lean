@@ -10,8 +10,8 @@ namespace N2
   variable foo : val → val → val
 end N2
 
-using N1
-using N2
+open N1
+open N2
 variables a b : num
 variables x y : val
 
@@ -35,7 +35,7 @@ definition aux1 := foo a b  -- System elaborated it to N1.foo a b
 theorem T2 : aux1 = N1.foo a b
 := refl _
 
-using N1
+open N1
 definition aux2 := foo a b  -- Now N1 is in the end of the queue, this is elaborated to N2.foo (f a) (f b)
 check aux2
 

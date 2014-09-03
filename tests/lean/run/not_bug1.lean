@@ -1,5 +1,5 @@
 import logic
-using bool
+open bool
 
 variable list : Type.{1}
 variable nil  : list

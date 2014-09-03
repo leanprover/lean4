@@ -12,9 +12,9 @@
 import logic data.nat
 -- import congr
 
-using nat
--- using congr
-using eq_ops
+open nat
+-- open congr
+open eq_ops
 
 namespace list
 

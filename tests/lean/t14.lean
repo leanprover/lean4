@@ -6,25 +6,25 @@ namespace foo
 end foo
 
 context
-  using foo (renaming a->b x->y) (hiding c)
+  open foo (renaming a->b x->y) (hiding c)
   check b
   check y
   check c -- Error
 end
 
 context
-  using foo (a x)
+  open foo (a x)
   check a
   check x
   check c -- Error
 end
 
 context
-  using foo (a x) (hiding c) -- Error
+  open foo (a x) (hiding c) -- Error
 end
 
 context
-  using foo
+  open foo
   check a
   check c
   check A
@@ -36,18 +36,18 @@ namespace foo
 end foo
 
 context
-  using foo
+  open foo
   check a * c
 end
 
 context
-  using [notation] foo -- use only the notation
+  open [notation] foo -- use only the notation
   check foo.a * foo.c
   check a * c -- Error
 end
 
 context
-  using [decls] foo -- use only the declarations
+  open [decls] foo -- use only the declarations
   check f a c
   check a*c -- Error
 end

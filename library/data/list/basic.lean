@@ -14,9 +14,9 @@ import data.nat
 import logic tools.helper_tactics
 -- import if -- for find
 
-using nat
-using eq_ops
-using helper_tactics
+open nat
+open eq_ops
+open helper_tactics
 
 namespace list
 

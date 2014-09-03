@@ -1,5 +1,5 @@
 import logic
-using tactic
+open tactic
 
 definition assump := eassumption
 

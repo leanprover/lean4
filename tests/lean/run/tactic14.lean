@@ -1,5 +1,5 @@
 import logic
-using tactic
+open tactic
 
 definition basic_tac : tactic
 := repeat [apply @and_intro | assumption]

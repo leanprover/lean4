@@ -1,5 +1,5 @@
 import logic
-using tactic (renaming id->id_tac)
+open tactic (renaming id->id_tac)
 
 definition id {A : Type} (a : A) := a
 

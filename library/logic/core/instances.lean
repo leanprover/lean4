@@ -9,7 +9,7 @@ import logic.core.connectives struc.relation
 
 namespace relation
 
-using relation
+open relation
 
 -- Congruences for logic
 -- ---------------------

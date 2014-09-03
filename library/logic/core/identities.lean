@@ -10,7 +10,7 @@
 
 import logic.core.instances logic.classes.decidable logic.core.quantifiers logic.core.cast
 
-using relation decidable relation.iff_ops
+open relation decidable relation.iff_ops
 
 theorem or_right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
 calc

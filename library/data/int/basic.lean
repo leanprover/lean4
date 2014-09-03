@@ -11,20 +11,13 @@ import ..nat.basic ..nat.order ..nat.sub ..prod ..quotient ..quotient tools.tact
 import struc.binary
 import tools.fake_simplifier
 
-using nat (hiding case)
-using quotient
-using subtype
-using prod
-using relation
-using decidable
-using binary
-using fake_simplifier
-using eq_ops
+open nat (hiding case)
+open quotient subtype prod relation
+open decidable binary fake_simplifier
+open eq_ops
+
 namespace int
-
-
 -- ## The defining equivalence relation on ℕ × ℕ
-
 abbreviation rel (a b : ℕ × ℕ) : Prop :=  pr1 a + pr2 b = pr2 a + pr1 b
 
 theorem rel_comp (n m k l : ℕ) : (rel (pair n m) (pair k l)) ↔ (n + l = m + k) :=

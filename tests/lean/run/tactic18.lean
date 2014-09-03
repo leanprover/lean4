@@ -1,5 +1,5 @@
 import logic
-using tactic
+open tactic
 
 variable A : Type.{1}
 variable f : A → A → A

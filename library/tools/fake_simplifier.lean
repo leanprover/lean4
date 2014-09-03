@@ -1,5 +1,5 @@
 import .tactic
-using tactic
+open tactic
 
 namespace fake_simplifier
 

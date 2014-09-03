@@ -1,4 +1,3 @@
-
 precedence `+`:65
 
 namespace nat
@@ -8,7 +7,7 @@ namespace nat
 end nat
 
 namespace int
-  using nat (nat)
+  open nat (nat)
   variable int : Type.{1}
   variable add : int → int → int
   infixl + := add
@@ -17,8 +16,8 @@ namespace int
 end int
 
 section
-  using nat
-  using int
+  open nat
+  open int
 
   variables n m : nat
   variables i j : int
@@ -36,7 +35,7 @@ section
 
   -- Moving 'nat' to the 'front'
   print ">>> Moving nat notation to the 'front'"
-  using nat
+  open nat
   print raw i + n
   check n + m
 end

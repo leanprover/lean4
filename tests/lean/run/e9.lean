@@ -7,7 +7,7 @@ namespace nat
 end nat
 
 namespace int
-  using nat (nat)
+  open nat (nat)
   variable int : Type.{1}
   variable add : int → int → int
   infixl + := add
@@ -18,9 +18,9 @@ namespace int_coercions
   coercion int.of_nat
 end int_coercions
 
--- Using "only" the notation and declarations from the namespaces nat and int
-using nat
-using int
+-- Open "only" the notation and declarations from the namespaces nat and int
+open nat
+open int
 
 variables n m : nat
 variables i j : int
@@ -29,10 +29,9 @@ check i + j
 
 section
   -- Temporarily use the int_coercions
-  using int_coercions
+  open int_coercions
   check n + i
 end
 
 -- The following one is an error
 -- check n + i
-

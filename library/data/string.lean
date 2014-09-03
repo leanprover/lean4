@@ -4,7 +4,7 @@
 
 import data.bool
 
-using bool inhabited
+open bool inhabited
 
 namespace string
 

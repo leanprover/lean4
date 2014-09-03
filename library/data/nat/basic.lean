@@ -9,10 +9,10 @@
 
 import logic data.num tools.tactic struc.binary tools.helper_tactics
 
-using num tactic binary eq_ops
-using decidable (hiding induction_on rec_on)
-using relation -- for subst_iff
-using helper_tactics
+open num tactic binary eq_ops
+open decidable (hiding induction_on rec_on)
+open relation -- for subst_iff
+open helper_tactics
 
 -- Definition of the type
 -- ----------------------

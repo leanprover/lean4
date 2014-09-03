@@ -9,7 +9,7 @@
 
 import .tactic
 
-using tactic
+open tactic
 
 namespace helper_tactics
   definition apply_refl := apply @refl

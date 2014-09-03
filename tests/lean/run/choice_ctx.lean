@@ -1,5 +1,5 @@
 import data.nat.basic
-using nat
+open nat
 
 set_option pp.coercion true
 
@@ -8,7 +8,7 @@ theorem trans {a b c : nat} (H1 : a = b) (H2 : b = c) : a = c :=
 trans H1 H2
 end foo
 
-using foo
+open foo
 
 theorem tst (a b : nat) (H0 : b = a) (H : b = 0) : a = 0
 := have H1 : a = b, from symm H0,
@@ -17,4 +17,3 @@ theorem tst (a b : nat) (H0 : b = a) (H : b = 0) : a = 0
 definition f (a b : nat) :=
 let x := 3 in
 a + x
-

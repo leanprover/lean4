@@ -11,9 +11,9 @@
 import logic .sub struc.relation data.prod
 import tools.fake_simplifier
 
-using nat relation relation.iff_ops prod
-using fake_simplifier decidable
-using eq_ops
+open nat relation relation.iff_ops prod
+open fake_simplifier decidable
+open eq_ops
 
 namespace nat
 

@@ -1,5 +1,5 @@
 import data.num
-using num
+open num
 
 variable f : num → num → num → num
 
@@ -15,5 +15,3 @@ check
       d := 10,
       e := f (f 10 10 d) (f d 10 10) a
   in f a b (f e d 10)
-
-

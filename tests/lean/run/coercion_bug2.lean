@@ -1,5 +1,5 @@
 import data.nat
-using nat
+open nat
 
 inductive list (T : Type) : Type :=
 nil {} : list T,

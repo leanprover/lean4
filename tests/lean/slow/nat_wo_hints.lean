@@ -4,8 +4,8 @@
 -- Author: Floris van Doorn
 ----------------------------------------------------------------------------------------------------
 import logic struc.binary
-using tactic num binary eq_ops
-using decidable
+open tactic num binary eq_ops
+open decidable
 
 namespace nat
 inductive nat : Type :=
@@ -24,7 +24,7 @@ namespace helper_tactics
   definition apply_refl := apply @refl
   tactic_hint apply_refl
 end helper_tactics
-using helper_tactics
+open helper_tactics
 
 theorem nat_rec_zero {P : ℕ → Type} (x : P 0) (f : ∀m, P m → P (succ m)) : nat_rec x f 0 = x
 

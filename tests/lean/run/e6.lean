@@ -1,4 +1,3 @@
-
 precedence `+`:65
 
 namespace nat
@@ -8,7 +7,7 @@ namespace nat
 end nat
 
 namespace int
-  using nat (nat)
+  open nat (nat)
   variable int : Type.{1}
   variable add : int → int → int
   infixl + := add
@@ -16,8 +15,8 @@ namespace int
   coercion of_nat
 end int
 
-using int
-using nat
+open int
+open nat
 
 variables n m : nat
 variables i j : int
@@ -29,5 +28,3 @@ check i + n + n + n + n + n + n + n + n + n + n + n +
       n + n + n + n + n + n + n + n + n + n + n + n +
       n + n + n + n + n + n + n + n + n + n + n + n +
       n + n + n + n + n + n + n + n + n + n + n + n
-
-

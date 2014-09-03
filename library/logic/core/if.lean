@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------
 
 import logic.classes.decidable tools.tactic
-using decidable tactic eq_ops
+open decidable tactic eq_ops
 
 definition ite (c : Prop) {H : decidable c} {A : Type} (t e : A) : A :=
 decidable.rec_on H (assume Hc,  t) (assume Hnc, e)

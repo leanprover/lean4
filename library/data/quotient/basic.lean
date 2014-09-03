@@ -9,8 +9,8 @@ import logic tools.tactic ..subtype logic.core.cast struc.relation data.prod
 import logic.core.instances
 import .aux
 
-using relation prod inhabited nonempty tactic eq_ops
-using subtype relation.iff_ops
+open relation prod inhabited nonempty tactic eq_ops
+open subtype relation.iff_ops
 
 namespace quotient
 

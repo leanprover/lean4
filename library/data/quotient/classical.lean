@@ -8,7 +8,7 @@ import logic.axioms.classical logic.axioms.hilbert logic.axioms.funext
 
 namespace quotient
 
-using relation nonempty subtype
+open relation nonempty subtype
 
 -- abstract quotient
 -- -----------------

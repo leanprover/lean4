@@ -7,7 +7,7 @@ namespace nat
 end nat
 
 namespace int
-  using nat (nat)
+  open nat (nat)
   variable int : Type.{1}
   variable add : int → int → int
   infixl + := add
@@ -19,17 +19,17 @@ variables n m : nat.nat
 variables i j : int.int
 
 section
-  using [notation] nat
-  using [notation] int
-  using [decls] nat
-  using [decls] int
+  open [notation] nat
+  open [notation] int
+  open [decls] nat
+  open [decls] int
   check n+m
   check i+j
   --  check i+n -- Error
 end
 
 namespace int
-  using [decls] nat (nat)
+  open [decls] nat (nat)
   -- Here is a possible trick for this kind of configuration
   definition add_ni (a : nat) (b : int) := (of_nat a) + b
   definition add_in (a : int) (b : nat) := a + (of_nat b)
@@ -38,18 +38,18 @@ namespace int
 end int
 
 section
-  using [notation] nat
-  using [notation] int
-  using [declarations] nat
-  using [declarations] int
+  open [notation] nat
+  open [notation] int
+  open [declarations] nat
+  open [declarations] int
   check n+m
   check i+n
   check n+i
 end
 
 section
-  using nat
-  using int
+  open nat
+  open int
   check n+m
   check i+n
 end

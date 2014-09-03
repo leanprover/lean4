@@ -1,5 +1,5 @@
 import logic
-using num tactic
+open num tactic
 
 inductive inh (A : Type) : Type :=
 inh_intro : A -> inh A

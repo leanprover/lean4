@@ -5,8 +5,8 @@
 import logic ..prod struc.relation
 import tools.fake_simplifier
 
-using prod eq_ops
-using fake_simplifier
+open prod eq_ops
+open fake_simplifier
 
 namespace quotient
 

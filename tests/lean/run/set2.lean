@@ -1,5 +1,5 @@
 import logic
-using bool
+open bool
 
 namespace set
 

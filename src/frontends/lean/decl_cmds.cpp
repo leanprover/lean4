@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
 #include "library/private.h"
+#include "library/protected.h"
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/explicit.h"
@@ -25,6 +26,7 @@ static name g_rcurly("}");
 static name g_colon(":");
 static name g_assign(":=");
 static name g_private("[private]");
+static name g_protected("[protected]");
 static name g_inline("[inline]");
 static name g_instance("[instance]");
 static name g_coercion("[coercion]");
@@ -159,20 +161,25 @@ environment axiom_cmd(parser & p)    {
 
 struct decl_modifiers {
     bool m_is_private;
+    bool m_is_protected;
     bool m_is_opaque;
     bool m_is_instance;
     bool m_is_coercion;
     decl_modifiers() {
-        m_is_private  = false;
-        m_is_opaque   = true;
-        m_is_instance = false;
-        m_is_coercion = false;
+        m_is_private   = false;
+        m_is_protected = false;
+        m_is_opaque    = true;
+        m_is_instance  = false;
+        m_is_coercion  = false;
     }
 
     void parse(parser & p) {
         while (true) {
             if (p.curr_is_token(g_private)) {
                 m_is_private = true;
+                p.next();
+            } else if (p.curr_is_token(g_protected)) {
+                m_is_protected = true;
                 p.next();
             } else if (p.curr_is_token(g_inline)) {
                 m_is_opaque = false;
@@ -341,6 +348,8 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         env = add_instance(env, real_n);
     if (modifiers.m_is_coercion)
         env = add_coercion(env, real_n, p.ios());
+    if (modifiers.m_is_protected)
+        env = add_protected(env, real_n);
     return env;
 }
 environment definition_cmd(parser & p) {

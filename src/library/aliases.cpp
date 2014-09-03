@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/placeholder.h"
 #include "library/scoped_ext.h"
+#include "library/protected.h"
 
 namespace lean {
 struct aliases_ext;
@@ -190,14 +191,16 @@ environment add_aliases(environment const & env, name const & prefix, name const
                         unsigned num_exceptions, name const * exceptions) {
     aliases_ext ext = get_extension(env);
     env.for_each_declaration([&](declaration const & d) {
-            if (is_prefix_of(prefix, d.get_name()) && !is_exception(d.get_name(), prefix, num_exceptions, exceptions)) {
+            if (!is_protected(env, d.get_name()) &&
+                is_prefix_of(prefix, d.get_name()) && !is_exception(d.get_name(), prefix, num_exceptions, exceptions)) {
                 name a        = d.get_name().replace_prefix(prefix, new_prefix);
                 if (!a.is_anonymous())
                     ext.add_expr_alias(a, d.get_name());
             }
         });
     env.for_each_universe([&](name const & u) {
-            if (is_prefix_of(prefix, u) && !is_exception(u, prefix, num_exceptions, exceptions)) {
+            if (!is_protected(env, u) &&
+                is_prefix_of(prefix, u) && !is_exception(u, prefix, num_exceptions, exceptions)) {
                 name a = u.replace_prefix(prefix, new_prefix);
                 if (env.is_universe(a))
                     throw exception(sstream() << "universe level alias '" << a << "' shadows existing global universe level");

@@ -29,8 +29,8 @@
 (defun lean-info-type-parse (seq)
   (when (lean-info-type-p seq)
     (let ((header (lean-info-type-parse-header (car seq)))
-        (body (cdr seq)))
-    `(TYPE ,header ,body))))
+          (body (cdr seq)))
+      `(TYPE ,header ,body))))
 (defun lean-info-type-body (typeinfo)
   (cl-third typeinfo))
 (defun lean-info-type-body-str (typeinfo)
@@ -74,8 +74,8 @@
 (defun lean-info-overload-parse (seq)
   (when (lean-info-overload-p seq)
     (let ((header (lean-info-overload-parse-header (car seq)))
-        (body (-split-on "--" (cdr seq))))
-    `(OVERLOAD ,header ,body))))
+          (body (-split-on "--" (cdr seq))))
+      `(OVERLOAD ,header ,body))))
 
 ;; -- Test
 (cl-assert (lean-info-overload-p 'OVERLOAD))
@@ -113,15 +113,15 @@
                 "→ decidable (eq zero (succ m'))")))
             '(121 2)))
 (cl-assert (equal (lean-info-overload-names (lean-info-overload-parse
-                                        '("-- OVERLOAD|121|2"
-                                          "not (eq zero (succ m'))"
-                                          "→ decidable (eq zero (succ m'))"
-                                          "--"
-                                          "not (eq one (succ m'))"
-                                          "→ decidable (eq zero (succ m'))"
-                                          "--"
-                                          "not (eq two (succ m'))"
-                                          "→ decidable (eq zero (succ m'))")))
+                                             '("-- OVERLOAD|121|2"
+                                               "not (eq zero (succ m'))"
+                                               "→ decidable (eq zero (succ m'))"
+                                               "--"
+                                               "not (eq one (succ m'))"
+                                               "→ decidable (eq zero (succ m'))"
+                                               "--"
+                                               "not (eq two (succ m'))"
+                                               "→ decidable (eq zero (succ m'))")))
                   '("not (eq zero (succ m'))\n→ decidable (eq zero (succ m'))"
                     "not (eq one (succ m'))\n→ decidable (eq zero (succ m'))"
                     "not (eq two (succ m'))\n→ decidable (eq zero (succ m'))")))
@@ -188,7 +188,7 @@
            (body (-split-on  "--" (cdr seq)))
            (coerced-expr (cl-first body))
            (coerced-type (cl-second body)))
-           `(COERCION ,header ,coerced-expr ,coerced-type))))
+      `(COERCION ,header ,coerced-expr ,coerced-type))))
 (defun lean-info-coercion-expr (coercion)
   (cl-third coercion))
 (defun lean-info-coercion-expr-str (coercion)
@@ -218,7 +218,7 @@
 (cl-assert (equal
             (lean-info-coercion-pos
              (lean-info-coercion-parse '("-- COERCION|417|15"
-                                              "of_nat")))
+                                         "of_nat")))
             '(417 15)))
 
 ;; Identifier Information
@@ -386,13 +386,13 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
 (defun lean-get-partial-names (full-name)
   "Given a full-name \"a.b.c.d\", return a set of partial names (\"a.b.c.d\" \"b.c.d\" \"c.d\" \"d\")"
   (cl-labels ((helper(l1 l2 names)
-                  (cond (l1 (helper
-                             (-butlast l1)
-                             (cons nil (-butlast l2))
-                             (-zip-with (lambda (x y) (if y (concat x "." y) x))
-                                        names
-                                        (cons nil (-butlast l2)))))
-                        (t (reverse names)))))
+                     (cond (l1 (helper
+                                (-butlast l1)
+                                (cons nil (-butlast l2))
+                                (-zip-with (lambda (x y) (if y (concat x "." y) x))
+                                           names
+                                           (cons nil (-butlast l2)))))
+                           (t (reverse names)))))
     (let ((items (reverse (split-string full-name "\\."))))
       (helper items items items))))
 

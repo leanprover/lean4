@@ -16,9 +16,9 @@ inductive eq {A : Type} (a : A) : A → Prop :=
 refl : eq a a
 
 infix `=` := eq
-notation `rfl` := refl _
+notation `rfl` := eq.refl _
 
-theorem eq_id_refl {A : Type} {a : A} (H1 : a = a) : H1 = (refl a) := rfl
+theorem eq_id_refl {A : Type} {a : A} (H1 : a = a) : H1 = (eq.refl a) := rfl
 
 theorem eq_irrel {A : Type} {a b : A} (H1 H2 : a = b) : H1 = H2 := rfl
 
@@ -29,11 +29,11 @@ theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c :=
 subst H2 H1
 
 calc_subst subst
-calc_refl  refl
+calc_refl  eq.refl
 calc_trans trans
 
 theorem symm {A : Type} {a b : A} (H : a = b) : b = a :=
-subst H (refl a)
+subst H (eq.refl a)
 
 namespace eq_ops
   postfix `⁻¹` := symm
@@ -46,32 +46,34 @@ theorem true_ne_false : ¬true = false :=
 assume H : true = false,
   subst H trivial
 
+namespace eq
 -- eq_rec with arguments swapped, for transporting an element of a dependent type
-definition eq_rec_on {A : Type} {a1 a2 : A} {B : A → Type} (H1 : a1 = a2) (H2 : B a1) : B a2 :=
+definition rec_on {A : Type} {a1 a2 : A} {B : A → Type} (H1 : a1 = a2) (H2 : B a1) : B a2 :=
 eq.rec H2 H1
 
-theorem eq_rec_on_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq_rec_on H b = b :=
-refl (eq_rec_on rfl b)
+theorem rec_on_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : rec_on H b = b :=
+refl (rec_on rfl b)
 
-theorem eq_rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq.rec b H = b :=
-eq_rec_on_id H b
+theorem rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : rec b H = b :=
+rec_on_id H b
 
-theorem eq_rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H1 : a = b) (H2 : b = c)
+theorem rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H1 : a = b) (H2 : b = c)
     (u : P a) :
-  eq_rec_on H2 (eq_rec_on H1 u) = eq_rec_on (trans H1 H2) u :=
-(show ∀(H2 : b = c), eq_rec_on H2 (eq_rec_on H1 u) = eq_rec_on (trans H1 H2) u,
-  from eq_rec_on H2 (take (H2 : b = b), eq_rec_on_id H2 _))
+  rec_on H2 (rec_on H1 u) = rec_on (trans H1 H2) u :=
+(show ∀(H2 : b = c), rec_on H2 (rec_on H1 u) = rec_on (trans H1 H2) u,
+  from rec_on H2 (take (H2 : b = b), rec_on_id H2 _))
 H2
+end eq
 
 theorem congr_fun {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a :=
-H ▸ refl (f a)
+H ▸ eq.refl (f a)
 
 theorem congr_arg {A : Type} {B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b :=
-H ▸ refl (f a)
+H ▸ eq.refl (f a)
 
 theorem congr {A : Type} {B : Type} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) :
   f a = g b :=
-H1 ▸ H2 ▸ refl (f a)
+H1 ▸ H2 ▸ eq.refl (f a)
 
 theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀x, f x = g x :=
 take x, congr_fun H x
@@ -111,9 +113,9 @@ theorem ne_intro {A : Type} {a b : A} (H : a = b → false) : a ≠ b := H
 
 theorem ne_elim {A : Type} {a b : A} (H1 : a ≠ b) (H2 : a = b) : false := H1 H2
 
-theorem a_neq_a_elim {A : Type} {a : A} (H : a ≠ a) : false := H (refl a)
+theorem a_neq_a_elim {A : Type} {a : A} (H : a ≠ a) : false := H rfl
 
-theorem ne_irrefl {A : Type} {a : A} (H : a ≠ a) : false := H (refl a)
+theorem ne_irrefl {A : Type} {a : A} (H : a ≠ a) : false := H rfl
 
 theorem ne_symm {A : Type} {a b : A} (H : a ≠ b) : b ≠ a :=
 assume H1 : b = a, H (H1⁻¹)

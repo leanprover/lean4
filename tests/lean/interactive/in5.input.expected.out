@@ -3,7 +3,7 @@
 A → B → and A B
 -- ACK
 -- IDENTIFIER|4|0
-and_intro
+and.intro
 -- ACK
 -- TYPE|4|10
 A

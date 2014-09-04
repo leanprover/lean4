@@ -2,7 +2,7 @@ import logic
 
 namespace algebra
   inductive mul_struct (A : Type) : Type :=
-  mk_mul_struct : (A → A → A) → mul_struct A
+  mk : (A → A → A) → mul_struct A
 
   definition mul [inline] {A : Type} {s : mul_struct A} (a b : A)
   := mul_struct.rec (λ f, f) s a b
@@ -19,7 +19,7 @@ namespace nat
   variable add : nat → nat → nat
 
   definition mul_struct [instance] : algebra.mul_struct nat
-  := algebra.mk_mul_struct mul
+  := algebra.mul_struct.mk mul
 end nat
 
 section
@@ -50,7 +50,7 @@ section
   open nat
   set_option pp.implicit true
   definition add_struct [instance] : algebra.mul_struct nat
-  := algebra.mk_mul_struct add
+  := algebra.mul_struct.mk add
 
   variables a b c : nat
   check #algebra a*b*c  -- << is open add instead of mul

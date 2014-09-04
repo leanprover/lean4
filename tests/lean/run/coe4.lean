@@ -20,15 +20,15 @@ namespace setoid
   coercion carrier
 
   inductive morphism (s1 s2 : setoid) : Type :=
-  mk_morphism : Π (f : s1 → s2), (∀ x y, x ≈ y → f x ≈ f y) → morphism s1 s2
+  mk : Π (f : s1 → s2), (∀ x y, x ≈ y → f x ≈ f y) → morphism s1 s2
 
-  check mk_morphism
+  check morphism.mk
   check λ (s1 s2 : setoid), s1
   check λ (s1 s2 : Type), s1
 
   inductive morphism2 (s1 : setoid) (s2 : setoid) : Type :=
-  mk_morphism2 : Π (f : s1 → s2), (∀ x y, x ≈ y → f x ≈ f y) → morphism2 s1 s2
+  mk : Π (f : s1 → s2), (∀ x y, x ≈ y → f x ≈ f y) → morphism2 s1 s2
 
   check morphism2
-  check mk_morphism2
+  check morphism2.mk
 end setoid

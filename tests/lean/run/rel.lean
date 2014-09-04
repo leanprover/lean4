@@ -22,7 +22,7 @@ instance is_equivalence.is_symmetric
 instance is_equivalence.is_transitive
 
 theorem and_inhabited_left {a : Prop} (b : Prop) (Ha : a) : a ∧ b ↔ b :=
-iff_intro (take Hab, and_elim_right Hab) (take Hb, and_intro Ha Hb)
+iff_intro (take Hab, and_elim_right Hab) (take Hb, and.intro Ha Hb)
 
 theorem test (a b c : Prop) (P : Prop → Prop) (H1 : a ↔ b) (H2 : c ∧ a) : c ∧ b :=
 subst_iff H1 H2

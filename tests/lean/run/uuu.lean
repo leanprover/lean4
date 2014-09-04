@@ -5,25 +5,28 @@ notation `take`   binders `,` r:(scoped f, f) := r
 inductive empty : Type
 inductive unit : Type :=
 tt : unit
+abbreviation tt := @unit.tt
 inductive nat : Type :=
 O : nat,
 S : nat → nat
 
 inductive paths {A : Type} (a : A) : A → Type :=
 idpath : paths a a
+abbreviation idpath := @paths.idpath
 
 inductive sum (A : Type) (B : Type) : Type :=
 inl : A -> sum A B,
 inr : B -> sum A B
 
 definition coprod := sum
-definition ii1fun {A : Type} (B : Type) (a : A) := inl B a
-definition ii2fun (A : Type) {B : Type} (b : B) := inr A b
-definition ii1 {A : Type} {B : Type} (a : A) := inl B a
-definition ii2 {A : Type} {B : Type} (b : B) := inl A b
+definition ii1fun {A : Type} (B : Type) (a : A) := sum.inl B a
+definition ii2fun (A : Type) {B : Type} (b : B) := sum.inr A b
+definition ii1 {A : Type} {B : Type} (a : A) := sum.inl B a
+definition ii2 {A : Type} {B : Type} (b : B) := sum.inl A b
 
 inductive total2 {T: Type} (P: T → Type) : Type :=
 tpair : Π (t : T) (tp : P t), total2 P
+abbreviation tpair := @total2.tpair
 
 definition pr1 {T : Type} {P : T → Type} (tp : total2 P) : T
 := total2.rec (λ a b, a) tp

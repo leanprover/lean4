@@ -1,16 +1,16 @@
 import logic
-open num tactic
+open tactic
 
 inductive inh (A : Type) : Type :=
-inh_intro : A -> inh A
+intro : A -> inh A
 
-instance inh_intro
+instance inh.intro
 
 theorem inh_bool [instance] : inh Prop
-:= inh_intro true
+:= inh.intro true
 
 theorem inh_fun [instance] {A B : Type} (H : inh B) : inh (A → B)
-:= inh.rec (λ b, inh_intro (λ a : A, b)) H
+:= inh.rec (λ b, inh.intro (λ a : A, b)) H
 
 definition assump := eassumption; now
 

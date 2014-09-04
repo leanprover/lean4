@@ -18,13 +18,13 @@ set_option pp.universes true
 check eq a1 b1
 
 inductive pair (A : Type) (B: Type) : Type :=
-mk_pair : A → B → pair A B
+mk : A → B → pair A B
 
-check mk_pair a1 b2
+check pair.mk a1 b2
 check B
-check mk_pair
+check pair.mk
 set_option pp.unicode false
-check mk_pair
+check pair.mk
 set_option pp.implicit false
-check mk_pair
+check pair.mk
 check pair

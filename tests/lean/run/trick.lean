@@ -1,11 +1,10 @@
 import logic
-open num
 
 definition proj1 (x : num) (y : num) := x
 definition One := 1
 
 (*
-local num   = Const({"num", "num"})
+local num   = Const("num")
 local m     = mk_metavar("m", num)
 local proj1 = Const("proj1")
 local zero  = Const({"num", "zero"})

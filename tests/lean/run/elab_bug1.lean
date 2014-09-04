@@ -30,11 +30,11 @@ theorem congr_app {T1 : Type} {T2 : Type} (R1 : T1 → T1 → Prop) (R2 : T2 →
 -- --------------------------------
 
 theorem congr_trivial [instance] {T : Type} (R : T → T → Prop) : congruence R R id :=
-mk (take x y H, H)
+congruence.mk (take x y H, H)
 
 theorem congr_const {T2 : Type} (R2 : T2 → T2 → Prop) (H : reflexive R2) :
   ∀(T1 : Type) (R1 : T1 → T1 → Prop) (c : T2), congruence R1 R2 (const T1 c) :=
-take T1 R1 c, mk (take x y H1, H c)
+take T1 R1 c, congruence.mk (take x y H1, H c)
 
 -- congruences for logic
 

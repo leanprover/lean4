@@ -17,7 +17,7 @@ namespace quotient
 
 definition flip {A B : Type} (a : A × B) : B × A := pair (pr2 a) (pr1 a)
 
-theorem flip_def {A B : Type} (a : A × B) : flip a = pair (pr2 a) (pr1 a) := refl (flip a)
+theorem flip_def {A B : Type} (a : A × B) : flip a = pair (pr2 a) (pr1 a) := eq.refl (flip a)
 
 theorem flip_pair {A B : Type} (a : A) (b : B) : flip (pair a b) = pair b a := rfl
 

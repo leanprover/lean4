@@ -65,7 +65,7 @@ theorem thm12 {P Q : Prop} : ¬(P ∨ Q) → ¬P ∧ ¬Q :=
 assume H : ¬(P ∨ Q),
   have Hnp : ¬P, from assume Hp : P, absurd (or_inl Hp) H,
   have Hnq : ¬Q, from assume Hq : Q, absurd (or_inr Hq) H,
-  and_intro Hnp Hnq
+  and.intro Hnp Hnq
 
 theorem thm13 {P Q : Prop} : ¬P ∧ ¬Q → ¬(P ∨ Q) :=
 assume (H : ¬P ∧ ¬Q) (Hn : P ∨ Q),
@@ -193,23 +193,23 @@ assume H,
   have Hex : ∃x, P x, from and_elim_left H,
   have Hc : C, from and_elim_right H,
   obtain (w : T) (Hw : P w), from Hex,
-  exists_intro w (and_intro Hw Hc)
+  exists_intro w (and.intro Hw Hc)
 
 theorem thm23b : (∃x, P x ∧ C) → (∃x, P x) ∧ C :=
 assume H,
   obtain (w : T) (Hw : P w ∧ C), from H,
   have Hex : ∃x, P x, from exists_intro w (and_elim_left Hw),
-  and_intro Hex (and_elim_right Hw)
+  and.intro Hex (and_elim_right Hw)
 
 theorem thm24a : (∀x, P x) ∧ C → (∀x, P x ∧ C) :=
 assume H, take x,
-  and_intro (and_elim_left H x) (and_elim_right H)
+  and.intro (and_elim_left H x) (and_elim_right H)
 
 theorem thm24b : (∃x : T, true) → (∀x, P x ∧ C) → (∀x, P x) ∧ C :=
 assume Hin H,
   obtain (w : T) (Hw : true), from Hin,
   have Hc : C, from and_elim_right (H w),
   have Hx : ∀x, P x, from take x, and_elim_left (H x),
-  and_intro Hx Hc
+  and.intro Hx Hc
 
 end -- of section

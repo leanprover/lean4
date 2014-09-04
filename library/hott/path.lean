@@ -20,6 +20,7 @@ idpath : path a a
 
 infix `≈` := path
 notation x `≈` y:50 `:>`:0 A:0 := @path A x y    -- TODO: is this right?
+abbreviation idpath := @path.idpath
 notation `idp`:max := idpath _    -- TODO: can we / should we use `1`?
 
 namespace path

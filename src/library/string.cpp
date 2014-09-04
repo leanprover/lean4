@@ -15,11 +15,11 @@ static name g_string_macro("string_macro");
 static std::string g_string_opcode("Str");
 
 static expr g_bool(Const(name("bool")));
-static expr g_ff(Const(name("ff")));
-static expr g_tt(Const(name("tt")));
-static expr g_char(Const(name("string", "char")));
-static expr g_ascii(Const(name("string", "ascii")));
-static expr g_string(Const(name("string", "string")));
+static expr g_ff(Const(name("bool", "ff")));
+static expr g_tt(Const(name("bool", "tt")));
+static expr g_char(Const(name("char")));
+static expr g_ascii(Const(name("char", "mk")));
+static expr g_string(Const(name("string")));
 static expr g_empty(Const(name("string", "empty")));
 static expr g_str(Const(name("string", "str")));
 

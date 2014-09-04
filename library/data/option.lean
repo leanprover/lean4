@@ -5,22 +5,22 @@
 import logic.core.eq logic.classes.inhabited logic.classes.decidable
 open eq_ops decidable
 
-namespace option
-
 inductive option (A : Type) : Type :=
 none {} : option A,
 some    : A → option A
 
+namespace option
+
 theorem induction_on [protected] {A : Type} {p : option A → Prop} (o : option A)
   (H1 : p none) (H2 : ∀a, p (some a)) : p o :=
-option.rec H1 H2 o
+rec H1 H2 o
 
 definition rec_on [protected] {A : Type} {C : option A → Type} (o : option A)
   (H1 : C none) (H2 : ∀a, C (some a)) : C o :=
-option.rec H1 H2 o
+rec H1 H2 o
 
 definition is_none {A : Type} (o : option A) : Prop :=
-option.rec true (λ a, false) o
+rec true (λ a, false) o
 
 theorem is_none_none {A : Type} : is_none (@none A) :=
 trivial
@@ -37,7 +37,7 @@ theorem some_inj {A : Type} {a₁ a₂ : A} (H : some a₁ = some a₂) : a₁ =
 congr_arg (option.rec a₁ (λ a, a)) H
 
 theorem option_inhabited [instance] (A : Type) : inhabited (option A) :=
-inhabited_mk none
+inhabited.mk none
 
 theorem decidable_eq [instance] {A : Type} {H : ∀a₁ a₂ : A, decidable (a₁ = a₂)}
     (o₁ o₂ : option A) : decidable (o₁ = o₂) :=

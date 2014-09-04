@@ -1,7 +1,7 @@
 empty.lean:6:25: error: type error in placeholder assigned to
-  Prop_inhabited
+  char_inhabited
 placeholder has type
-  inhabited Prop
+  inhabited char
 but is expected to have type
   inhabited ?M_1
 the assignment was attempted when trying to solve

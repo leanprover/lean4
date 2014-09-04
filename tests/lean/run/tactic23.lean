@@ -1,11 +1,11 @@
 import logic
-open num (num pos_num num.rec pos_num.rec)
 open tactic
 
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
 
+namespace nat
 definition add [inline] (a b : nat) : nat
 := nat.rec a (λ n r, succ r) b
 infixl `+`:65 := add
@@ -33,4 +33,6 @@ definition is_zero (n : nat)
 := nat.rec true (λ n r, false) n
 
 theorem T2 : ∃ a, (is_zero a) = true
-:= by apply exists_intro; apply refl
+:= by apply exists_intro; apply eq.refl
+
+end nat

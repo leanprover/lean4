@@ -4,6 +4,8 @@ open tactic
 inductive list (A : Type) : Type :=
 nil {} : list A,
 cons   : A → list A → list A
+namespace list end list open list
+open eq
 
 definition is_nil {A : Type} (l : list A) : Prop
 := list.rec true (fun h t r, false) l
@@ -25,7 +27,7 @@ theorem T : is_nil (@nil Prop)
 (*
 local list   = Const("list", {1})(Prop)
 local isNil = Const("is_nil", {1})(Prop)
-local Nil   = Const("nil", {1})(Prop)
+local Nil   = Const({"list", "nil"}, {1})(Prop)
 local m     = mk_metavar("m", list)
 print(isNil(Nil))
 print(isNil(m))

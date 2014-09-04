@@ -1,10 +1,11 @@
 import logic
-open num eq_ops
+open eq_ops
 
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
 
+namespace nat
 definition add (x y : nat) : nat := nat.rec x (λn r, succ r) y
 infixl `+`:65 := add
 definition mul (n m : nat) := nat.rec zero (fun m x, x + n) m
@@ -21,8 +22,8 @@ set_option unifier.max_steps 50000
 theorem mul_add_distr_left (n m k : nat) : (n + m) * k = n * k + m * k
 := induction_on k
     (calc
-      (n + m) * zero = zero : refl _
-        ...          = n * zero + m * zero : refl _)
+      (n + m) * zero = zero : eq.refl _
+        ...          = n * zero + m * zero : eq.refl _)
     (take l IH,
         calc
         (n + m) * succ l = (n + m) * l + (n + m) : mul_succ_right _ _
@@ -32,3 +33,4 @@ theorem mul_add_distr_left (n m k : nat) : (n + m) * k = n * k + m * k
           ... = n * l + n + (m * l + m) : add_assoc _ _ _
           ... = n * succ l + (m * l + m) : {symm (mul_succ_right _ _)}
           ... = n * succ l + m * succ l : {symm (mul_succ_right _ _)})
+end nat

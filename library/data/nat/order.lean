@@ -158,7 +158,7 @@ or_imp_or_left (le_imp_succ_le_or_eq H)
 
 theorem succ_le_imp_le_and_ne {n m : ℕ} (H : succ n ≤ m) : n ≤ m ∧ n ≠ m :=
 obtain (k : ℕ) (H2 : succ n + k = m), from (le_elim H),
- and_intro
+ and.intro
   (have H3 : n + succ k = m,
     from calc
       n + succ k = succ n + k : add_move_succ⁻¹
@@ -235,20 +235,20 @@ have general : ∀n, decidable (n ≤ m), from
   rec_on m
     (take n,
       rec_on n
-        (inl le_refl)
-        (take m iH, inr not_succ_zero_le))
+        (decidable.inl le_refl)
+        (take m iH, decidable.inr not_succ_zero_le))
     (take (m' : ℕ) (iH1 : ∀n, decidable (n ≤ m')) (n : ℕ),
       rec_on n
-        (inl zero_le)
+        (decidable.inl zero_le)
         (take (n' : ℕ) (iH2 : decidable (n' ≤ succ m')),
           have d1 : decidable (n' ≤ m'), from iH1 n',
           decidable.rec_on d1
-            (assume Hp : n' ≤ m', inl (succ_le Hp))
+            (assume Hp : n' ≤ m', decidable.inl (succ_le Hp))
             (assume Hn : ¬ n' ≤ m',
               have H : ¬ succ n' ≤ succ m', from
                 assume Hle : succ n' ≤ succ m',
                   absurd (succ_le_cancel Hle) Hn,
-              inr H))),
+              decidable.inr H))),
 general n
 
 -- Less than, Greater than, Greater than or equal
@@ -266,7 +266,7 @@ infix `≥` := ge
 abbreviation gt (n m : ℕ) := m < n
 infix `>` := gt
 
-theorem lt_def (n m : ℕ) : (n < m) = (succ n ≤ m) := refl (n < m)
+theorem lt_def (n m : ℕ) : (n < m) = (succ n ≤ m) := rfl
 
 -- add_rewrite gt_def ge_def --it might be possible to remove this in Lean 0.2
 

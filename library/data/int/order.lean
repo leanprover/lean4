@@ -76,7 +76,7 @@ show a = b, from
 -- ### interaction with add
 
 theorem le_add_of_nat_right (a : ℤ) (n : ℕ) : a ≤ a + n :=
-le_intro (refl (a + n))
+le_intro (eq.refl (a + n))
 
 theorem le_add_of_nat_left (a : ℤ) (n : ℕ) : a ≤ n + a :=
 le_intro (add_comm a n)
@@ -371,7 +371,7 @@ int_by_cases a
         show n ≤ -succ m ∨ n > -succ m, from
           have H0 : -succ m < -m, from lt_neg (subst (symm (of_nat_succ m)) (self_lt_succ m)),
           have H : -succ m < n, from lt_le_trans H0 (neg_le_pos m n),
-          or_intro_right _ H))
+          or_inr H))
   (take n : ℕ,
     int_by_cases_succ b
       (take m : ℕ,

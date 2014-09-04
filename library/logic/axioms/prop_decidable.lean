@@ -14,8 +14,8 @@ open decidable inhabited nonempty
 theorem decidable_inhabited [instance] (a : Prop) : inhabited (decidable a) :=
 nonempty_imp_inhabited
   (or_elim (em a)
-    (assume Ha, nonempty_intro (inl Ha))
-    (assume Hna, nonempty_intro (inr Hna)))
+    (assume Ha, nonempty.intro (inl Ha))
+    (assume Hna, nonempty.intro (inr Hna)))
 
 -- Note that decidable_inhabited is marked as an instance, and it is silently used
 -- for synthesizing the implicit argument in the following 'epsilon'

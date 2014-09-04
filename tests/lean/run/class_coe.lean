@@ -1,5 +1,5 @@
 import data.num
-open num
+
 
 variables int nat real : Type.{1}
 variable nat_add  : nat → nat → nat
@@ -14,9 +14,9 @@ add_struct.rec (λ m, m) S a b
 
 infixl `+`:65 := add
 
-definition add_nat_struct  [instance] : add_struct nat := mk nat_add
-definition add_int_struct  [instance] : add_struct int := mk int_add
-definition add_real_struct [instance] : add_struct real := mk real_add
+definition add_nat_struct  [instance] : add_struct nat := add_struct.mk nat_add
+definition add_int_struct  [instance] : add_struct int := add_struct.mk int_add
+definition add_real_struct [instance] : add_struct real := add_struct.mk real_add
 
 variables n m : nat
 variables i j : int

@@ -15,14 +15,14 @@ open relation
 -- ---------------------
 
 theorem congruence_not : congruence iff iff not :=
-congruence_mk
+congruence.mk
   (take a b,
     assume H : a ↔ b, iff_intro
       (assume H1 : ¬a, assume H2 : b, H1 (iff_elim_right H H2))
       (assume H1 : ¬b, assume H2 : a, H1 (iff_elim_left H H2)))
 
 theorem congruence_and : congruence2 iff iff iff and :=
-congruence2_mk
+congruence2.mk
   (take a1 b1 a2 b2,
     assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
     iff_intro
@@ -30,7 +30,7 @@ congruence2_mk
       (assume H3 : b1 ∧ b2, and_imp_and H3 (iff_elim_right H1) (iff_elim_right H2)))
 
 theorem congruence_or : congruence2 iff iff iff or :=
-congruence2_mk
+congruence2.mk
   (take a1 b1 a2 b2,
     assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
     iff_intro
@@ -38,7 +38,7 @@ congruence2_mk
       (assume H3 : b1 ∨ b2, or_imp_or H3 (iff_elim_right H1) (iff_elim_right H2)))
 
 theorem congruence_imp : congruence2 iff iff iff imp :=
-congruence2_mk
+congruence2.mk
   (take a1 b1 a2 b2,
     assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
     iff_intro
@@ -46,7 +46,7 @@ congruence2_mk
       (assume H3 : b1 → b2, assume Ha1 : a1, iff_elim_right H2 (H3 ((iff_elim_left H1) Ha1))))
 
 theorem congruence_iff : congruence2 iff iff iff iff :=
-congruence2_mk
+congruence2.mk
   (take a1 b1 a2 b2,
     assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
     iff_intro
@@ -77,37 +77,37 @@ end general_operations
 -- ----------------------------
 
 theorem is_reflexive_eq [instance] (T : Type) : relation.is_reflexive (@eq T) :=
-relation.is_reflexive_mk (@refl T)
+relation.is_reflexive.mk (@eq.refl T)
 
 theorem is_symmetric_eq [instance] (T : Type) : relation.is_symmetric (@eq T) :=
-relation.is_symmetric_mk (@symm T)
+relation.is_symmetric.mk (@symm T)
 
 theorem is_transitive_eq [instance] (T : Type) : relation.is_transitive (@eq T) :=
-relation.is_transitive_mk (@trans T)
+relation.is_transitive.mk (@trans T)
 
 -- TODO: this is only temporary, needed to inform Lean that is_equivalence is a class
 theorem is_equivalence_eq [instance] (T : Type) : relation.is_equivalence (@eq T) :=
-relation.is_equivalence_mk _ _ _
+relation.is_equivalence.mk _ _ _
 
 
 -- iff is an equivalence relation
 -- ------------------------------
 
 theorem is_reflexive_iff [instance] : relation.is_reflexive iff :=
-relation.is_reflexive_mk (@iff_refl)
+relation.is_reflexive.mk (@iff_refl)
 
 theorem is_symmetric_iff [instance] : relation.is_symmetric iff :=
-relation.is_symmetric_mk (@iff_symm)
+relation.is_symmetric.mk (@iff_symm)
 
 theorem is_transitive_iff [instance] : relation.is_transitive iff :=
-relation.is_transitive_mk (@iff_trans)
+relation.is_transitive.mk (@iff_trans)
 
 
 -- Mp-like for iff
 -- ---------------
 
 theorem mp_like_iff [instance] (a b : Prop) (H : a ↔ b) : @relation.mp_like iff a b H :=
-relation.mp_like_mk (iff_elim_left H)
+relation.mp_like.mk (iff_elim_left H)
 
 
 -- Substition for iff

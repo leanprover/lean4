@@ -7,10 +7,11 @@
 import logic data.nat
 open nat
 
-namespace simp
 -- first define a class of homogeneous equality
 inductive simplifies_to {T : Type} (t1 t2 : T) : Prop :=
 mk : t1 = t2 → simplifies_to t1 t2
+
+namespace simplifies_to
 
 theorem get_eq {T : Type} {t1 t2 : T} (C : simplifies_to t1 t2) : t1 = t2 :=
 simplifies_to.rec (λx, x) C
@@ -28,4 +29,4 @@ have Rs [fact] : simplifies_to f1 f2, from mk Hf,
 have Cs [fact] : simplifies_to s1 s2, from mk Hs,
 infer_eq _ _
 
-end simp
+end simplifies_to

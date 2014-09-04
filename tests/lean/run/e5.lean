@@ -34,6 +34,7 @@ theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
+namespace nat end nat open nat
 
 print "using strict implicit arguments"
 abbreviation symmetric {A : Type} (R : A → A → Prop) := ∀ ⦃a b⦄, R a b → R b a

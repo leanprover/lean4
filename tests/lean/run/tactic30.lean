@@ -8,7 +8,7 @@ section
   parameters {a b : A}
   parameter  H : a = b
   theorem test : a = b ∧ a = a
-  := including H, by apply and_intro; assumption; apply refl
+  := including H, by apply and.intro; assumption; apply eq.refl
 end
 
 check @test

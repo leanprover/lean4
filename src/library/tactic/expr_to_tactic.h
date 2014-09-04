@@ -12,7 +12,7 @@ namespace lean {
 /**
    \brief Return true iff the environment \c env contains the following declarations
    in the namespace 'tactic'
-       builtin_tactic : tactic
+       tactic.builtin : tactic
        and_then : tactic -> tactic -> tactic
        or_else  : tactic -> tactic -> tactic
        repeat   : tactic -> tactic
@@ -21,7 +21,7 @@ bool has_tactic_decls(environment const & env);
 
 /**
    \brief Creates a tactic by 'executing' \c e. Definitions are unfolded, whnf procedure is invoked,
-   and definitions marked as 'tactic.builtin_tactic' are handled by the code registered using
+   and definitions marked as 'tactic.builtin' are handled by the code registered using
    \c register_expr_to_tactic.
 */
 tactic expr_to_tactic(environment const & env, expr const & e, pos_info_provider const *p);

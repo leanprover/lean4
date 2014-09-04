@@ -26,12 +26,12 @@ decidable.rec H1 H2 H
 theorem irrelevant {p : Prop} (d1 d2 : decidable p) : d1 = d2 :=
 decidable.rec
   (assume Hp1 : p, decidable.rec
-    (assume Hp2  : p,  congr_arg inl (refl Hp1)) -- using proof irrelevance for Prop
+    (assume Hp2  : p,  congr_arg inl (eq.refl Hp1)) -- using proof irrelevance for Prop
     (assume Hnp2 : ¬p, absurd Hp1 Hnp2)
     d2)
   (assume Hnp1 : ¬p, decidable.rec
     (assume Hp2  : p,  absurd Hp2 Hnp1)
-    (assume Hnp2 : ¬p, congr_arg inr (refl Hnp1)) -- using proof irrelevance for Prop
+    (assume Hnp2 : ¬p, congr_arg inr (eq.refl Hnp1)) -- using proof irrelevance for Prop
     d2)
   d1
 
@@ -50,7 +50,7 @@ theorem and_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable
   decidable (a ∧ b) :=
 rec_on Ha
   (assume Ha  : a, rec_on Hb
-    (assume Hb  : b,  inl (and_intro Ha Hb))
+    (assume Hb  : b,  inl (and.intro Ha Hb))
     (assume Hnb : ¬b, inr (and_not_right a Hnb)))
   (assume Hna : ¬a, inr (and_not_left b Hna))
 

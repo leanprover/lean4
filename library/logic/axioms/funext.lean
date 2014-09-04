@@ -14,15 +14,15 @@ namespace function
 section
   parameters {A B C D: Type}
   theorem compose_assoc (f : C → D) (g : B → C) (h : A → B) : (f ∘ g) ∘ h = f ∘ (g ∘ h) :=
-  funext (take x, refl _)
+  funext (take x, rfl)
 
   theorem compose_id_left (f : A → B) : id ∘ f = f :=
-  funext (take x, refl _)
+  funext (take x, rfl)
 
   theorem compose_id_right (f : A → B) : f ∘ id = f :=
-  funext (take x, refl _)
+  funext (take x, rfl)
 
   theorem compose_const_right (f : B → C) (b : B) : f ∘ (const A b) = const A (f b) :=
-  funext (take x, refl _)
+  funext (take x, rfl)
 end
 end function

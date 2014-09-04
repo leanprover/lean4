@@ -18,9 +18,9 @@ variables i j : int
 abbreviation c1 := a + b
 
 theorem T1 : c1 = nat_add a b :=
-refl _
+eq.refl _
 
 abbreviation c2 := i + j
 
 theorem T2 : c2 = int_add i j :=
-refl _
+eq.refl _

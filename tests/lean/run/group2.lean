@@ -1,5 +1,4 @@
 import logic
-open num
 
 section
   parameter {A  : Type}
@@ -14,10 +13,10 @@ section
 end
 
 inductive group_struct (A : Type) : Type :=
-mk_group_struct : Π (mul : A → A → A) (one : A) (inv : A → A), is_assoc mul → is_id mul one → is_inv mul one inv → group_struct A
+mk : Π (mul : A → A → A) (one : A) (inv : A → A), is_assoc mul → is_id mul one → is_inv mul one inv → group_struct A
 
 inductive group : Type :=
-mk_group : Π (A : Type), group_struct A → group
+mk : Π (A : Type), group_struct A → group
 
 definition carrier (g : group) : Type
 := group.rec (λ c s, c) g
@@ -57,11 +56,11 @@ axiom    H2    : is_id rmul rone
 axiom    H3    : is_inv rmul rone rinv
 
 definition real_group_struct [inline] [instance] : group_struct pos_real
-:= mk_group_struct rmul rone rinv H1 H2 H3
+:= group_struct.mk rmul rone rinv H1 H2 H3
 
 variables x y : pos_real
 check x * y
 set_option pp.implicit true
 print "---------------"
 theorem T (a b : pos_real): (rmul a b) = a*b
-:= refl (rmul a b)
+:= eq.refl (rmul a b)

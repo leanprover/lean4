@@ -8,10 +8,10 @@ inductive t2 : Type :=
 mk2 : t2
 
 theorem inhabited_t1 : inhabited t1
-:= inhabited_mk mk1
+:= inhabited.mk t1.mk1
 
 theorem inhabited_t2 : inhabited t2
-:= inhabited_mk mk2
+:= inhabited.mk t2.mk2
 
 instance inhabited_t1 inhabited_t2
 

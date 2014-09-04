@@ -21,7 +21,7 @@ section
   definition  elt_of (a : {x, P x}) : A := rec (λ x y, x) a
   theorem has_property (a : {x, P x}) : P (elt_of a) := rec (λ x y, y) a
 
-  theorem elt_of_tag (a : A) (H : P a) : elt_of (tag a H) = a := refl a
+  theorem elt_of_tag (a : A) (H : P a) : elt_of (tag a H) = a := rfl
 
   theorem destruct [protected] {Q : {x, P x} → Prop} (a : {x, P x})
       (H : ∀(x : A) (H1 : P x), Q (tag x H1)) : Q a :=
@@ -40,7 +40,7 @@ section
   destruct a1 (take x1 H1, destruct a2 (take x2 H2 H, tag_eq H))
 
   theorem subtype_inhabited [instance] {a : A} (H : P a) : inhabited {x, P x} :=
-  inhabited_mk (tag a H)
+  inhabited.mk (tag a H)
 
   theorem eq_decidable [protected] [instance] (a1 a2 : {x, P x})
     (H : decidable (elt_of a1 = elt_of a2)) : decidable (a1 = a2) :=

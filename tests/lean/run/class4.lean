@@ -4,6 +4,9 @@ inductive nat : Type :=
 zero : nat,
 succ : nat → nat
 
+abbreviation refl := @eq.refl
+
+namespace nat
 definition add (x y : nat)
 := nat.rec x (λ n r, succ r) y
 
@@ -26,8 +29,8 @@ theorem not_is_zero_succ (x : nat) : ¬ is_zero (succ x)
 
 theorem dichotomy (m : nat) : m = zero ∨ (∃ n, m = succ n)
 := nat.rec
-     (or_intro_left _ (refl zero))
-     (λ m H, or_intro_right _ (exists_intro m (refl (succ m))))
+     (or.intro_left _ (refl zero))
+     (λ m H, or.intro_right _ (exists_intro m (refl (succ m))))
      m
 
 theorem is_zero_to_eq (x : nat) (H : is_zero x) : x = zero
@@ -54,16 +57,16 @@ theorem not_zero_add (x y : nat) (H : ¬ is_zero y) : ¬ is_zero (x + y)
         subst (symm H1) H2)
 
 inductive not_zero (x : nat) : Prop :=
-not_zero_intro : ¬ is_zero x → not_zero x
+intro : ¬ is_zero x → not_zero x
 
 theorem not_zero_not_is_zero {x : nat} (H : not_zero x) : ¬ is_zero x
 := not_zero.rec (λ H1, H1) H
 
 theorem not_zero_add_right [instance] (x y : nat) (H : not_zero y) : not_zero (x + y)
-:= not_zero_intro (not_zero_add x y (not_zero_not_is_zero H))
+:= not_zero.intro (not_zero_add x y (not_zero_not_is_zero H))
 
 theorem not_zero_succ [instance] (x : nat) : not_zero (succ x)
-:= not_zero_intro (not_is_zero_succ x)
+:= not_zero.intro (not_is_zero_succ x)
 
 variable dvd : Π (x y : nat) {H : not_zero y}, nat
 
@@ -85,3 +88,5 @@ check dvd a (a + (succ b))
 
 opaque_hint (exposing add)
 check dvd a (a + (succ b))
+
+end nat

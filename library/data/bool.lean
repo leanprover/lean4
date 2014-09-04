@@ -16,13 +16,13 @@ theorem cases_on {p : bool → Prop} (b : bool) (H0 : p ff) (H1 : p tt) : p b :=
 rec H0 H1 b
 
 theorem bool_inhabited [instance] : inhabited bool :=
-inhabited_mk ff
+inhabited.mk ff
 
 definition cond {A : Type} (b : bool) (t e : A) :=
 rec e t b
 
 theorem dichotomy (b : bool) : b = ff ∨ b = tt :=
-cases_on b (or_inl (refl ff)) (or_inr (refl tt))
+cases_on b (or_inl (eq.refl ff)) (or_inr (eq.refl tt))
 
 theorem cond_ff {A : Type} (t e : A) : cond ff t e = e :=
 rfl
@@ -39,8 +39,8 @@ assume H : ff = tt, absurd
 
 theorem decidable_eq [instance] (a b : bool) : decidable (a = b) :=
 rec
-  (rec (inl (refl ff)) (inr ff_ne_tt) b)
-  (rec (inr (ne_symm ff_ne_tt)) (inl (refl tt)) b)
+  (rec (inl (eq.refl ff)) (inr ff_ne_tt) b)
+  (rec (inr (ne_symm ff_ne_tt)) (inl (eq.refl tt)) b)
   a
 
 definition bor (a b : bool) :=
@@ -52,21 +52,21 @@ rfl
 infixl `||` := bor
 
 theorem bor_tt_right (a : bool) : a || tt = tt :=
-cases_on a (refl (ff || tt)) (refl (tt || tt))
+cases_on a (eq.refl (ff || tt)) (eq.refl (tt || tt))
 
 theorem bor_ff_left (a : bool) : ff || a = a :=
-cases_on a (refl (ff || ff)) (refl (ff || tt))
+cases_on a (eq.refl (ff || ff)) (eq.refl (ff || tt))
 
 theorem bor_ff_right (a : bool) : a || ff = a :=
-cases_on a (refl (ff || ff)) (refl (tt || ff))
+cases_on a (eq.refl (ff || ff)) (eq.refl (tt || ff))
 
 theorem bor_id (a : bool) : a || a = a :=
-cases_on a (refl (ff || ff)) (refl (tt || tt))
+cases_on a (eq.refl (ff || ff)) (eq.refl (tt || tt))
 
 theorem bor_comm (a b : bool) : a || b = b || a :=
 cases_on a
-  (cases_on b (refl (ff || ff)) (refl (ff || tt)))
-  (cases_on b (refl (tt || ff)) (refl (tt || tt)))
+  (cases_on b (eq.refl (ff || ff)) (eq.refl (ff || tt)))
+  (cases_on b (eq.refl (tt || ff)) (eq.refl (tt || tt)))
 
 theorem bor_assoc (a b c : bool) : (a || b) || c = a || (b || c) :=
 cases_on a
@@ -81,7 +81,7 @@ rec
   (assume H : ff || b = tt,
     have Hb : b = tt, from (bor_ff_left b) ▸ H,
     or_inr Hb)
-  (assume H, or_inl (refl tt))
+  (assume H, or_inl (eq.refl tt))
   a
 
 definition band (a b : bool) :=
@@ -93,21 +93,21 @@ theorem band_ff_left (a : bool) : ff && a = ff :=
 rfl
 
 theorem band_tt_left (a : bool) : tt && a = a :=
-cases_on a (refl (tt && ff)) (refl (tt && tt))
+cases_on a (eq.refl (tt && ff)) (eq.refl (tt && tt))
 
 theorem band_ff_right (a : bool) : a && ff = ff :=
-cases_on a (refl (ff && ff)) (refl (tt && ff))
+cases_on a (eq.refl (ff && ff)) (eq.refl (tt && ff))
 
 theorem band_tt_right (a : bool) : a && tt = a :=
-cases_on a (refl (ff && tt)) (refl (tt && tt))
+cases_on a (eq.refl (ff && tt)) (eq.refl (tt && tt))
 
 theorem band_id (a : bool) : a && a = a :=
-cases_on a (refl (ff && ff)) (refl (tt && tt))
+cases_on a (eq.refl (ff && ff)) (eq.refl (tt && tt))
 
 theorem band_comm (a b : bool) : a && b = b && a :=
 cases_on a
-  (cases_on b (refl (ff && ff)) (refl (ff && tt)))
-  (cases_on b (refl (tt && ff)) (refl (tt && tt)))
+  (cases_on b (eq.refl (ff && ff)) (eq.refl (ff && tt)))
+  (cases_on b (eq.refl (tt && ff)) (eq.refl (tt && tt)))
 
 theorem band_assoc (a b c : bool) : (a && b) && c = a && (b && c) :=
 cases_on a
@@ -135,7 +135,7 @@ definition bnot (a : bool) := rec tt ff a
 notation `!` x:max := bnot x
 
 theorem bnot_bnot (a : bool) : !!a = a :=
-cases_on a (refl (!!ff)) (refl (!!tt))
+cases_on a (eq.refl (!!ff)) (eq.refl (!!tt))
 
 theorem bnot_false : !ff = tt :=
 rfl

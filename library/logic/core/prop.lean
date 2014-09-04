@@ -22,7 +22,9 @@ theorem false_elim {c : Prop} (H : false) : c :=
 false.rec c H
 
 inductive true : Prop :=
-trivial : true
+intro : true
+
+abbreviation trivial := true.intro
 
 abbreviation not (a : Prop) := a → false
 prefix `¬` := not

@@ -16,14 +16,16 @@ open nat
 -- open congr
 open eq_ops
 
+inductive list (T : Type) : Type :=
+nil {} : list T,
+cons : T → list T → list T
+
+abbreviation refl := @eq.refl
+
 namespace list
 
 -- Type
 -- ----
-
-inductive list (T : Type) : Type :=
-nil {} : list T,
-cons : T → list T → list T
 
 infix `::` : 65 := cons
 

@@ -18,10 +18,10 @@ definition u [private] := epsilon (λx, x = true ∨ p)
 definition v [private] := epsilon (λx, x = false ∨ p)
 
 lemma u_def [private] : u = true ∨ p :=
-epsilon_spec (exists_intro true (or_inl (refl true)))
+epsilon_spec (exists_intro true (or_inl rfl))
 
 lemma v_def [private] : v = false ∨ p :=
-epsilon_spec (exists_intro false (or_inl (refl false)))
+epsilon_spec (exists_intro false (or_inl rfl))
 
 lemma uv_implies_p [private] : ¬(u = v) ∨ p :=
 or_elim u_def
@@ -43,7 +43,7 @@ assume Hp : p,
       show (x = true ∨ p) = (x = false ∨ p), from
         propext Hl Hr),
   show u = v, from
-    Hpred ▸ (refl (epsilon (λ x, x = true ∨ p)))
+    Hpred ▸ (eq.refl (epsilon (λ x, x = true ∨ p)))
 
 theorem em : p ∨ ¬p :=
 have H : ¬(u = v) → ¬p, from mt p_implies_uv,

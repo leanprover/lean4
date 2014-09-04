@@ -4,24 +4,25 @@
 -- Author: Floris van Doorn
 ----------------------------------------------------------------------------------------------------
 import logic struc.binary
-open tactic num binary eq_ops
+open tactic binary eq_ops
 open decidable
 
-namespace nat
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
 
+
+namespace nat
 notation `ℕ`:max := nat
 
 abbreviation plus (x y : ℕ) : ℕ
 := nat.rec x (λ n r, succ r) y
 
 definition to_nat [coercion] [inline] (n : num) : ℕ
-:= num.num.rec zero (λ n, num.pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
+:= num.rec zero (λ n, pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
 
 namespace helper_tactics
-  definition apply_refl := apply @refl
+  definition apply_refl := apply @eq.refl
   tactic_hint apply_refl
 end helper_tactics
 open helper_tactics
@@ -55,8 +56,8 @@ theorem pred_succ (n : ℕ) : pred (succ n) = n
 
 theorem zero_or_succ (n : ℕ) : n = 0 ∨ n = succ (pred n)
 := induction_on n
-    (or_intro_left _ (refl 0))
-    (take m IH, or_intro_right _
+    (or.intro_left _ (eq.refl 0))
+    (take m IH, or.intro_right _
       (show succ m = succ (pred (succ m)), from congr_arg succ (pred_succ m⁻¹)))
 
 theorem zero_or_succ2 (n : ℕ) : n = 0 ∨ ∃k, n = succ k
@@ -88,7 +89,7 @@ theorem decidable_eq [instance] (n m : ℕ) : decidable (n = m)
      rec_on m
        (take n,
          rec_on n
-           (inl (refl 0))
+           (inl (eq.refl 0))
            (λ m iH, inr (succ_ne_zero m)))
        (λ (m' : ℕ) (iH1 : ∀n, decidable (n = m')),
          take n, rec_on n
@@ -107,11 +108,11 @@ theorem two_step_induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P 0) (H2 : P 1)
     (H3 : ∀ (n : ℕ) (IH1 : P n) (IH2 : P (succ n)), P (succ (succ n))) : P a
 := have stronger : P a ∧ P (succ a), from
     induction_on a
-      (and_intro H1 H2)
+      (and.intro H1 H2)
       (take k IH,
         have IH1 : P k, from and_elim_left IH,
         have IH2 : P (succ k), from and_elim_right IH,
-          and_intro IH2 (H3 k IH1 IH2)),
+          and.intro IH2 (H3 k IH1 IH2)),
     and_elim_left stronger
 
 theorem sub_induction {P : ℕ → ℕ → Prop} (n m : ℕ) (H1 : ∀m, P 0 m)
@@ -225,7 +226,7 @@ theorem add_cancel_right {n m k : ℕ} (H : n + m = k + m) : n = k
 theorem add_eq_zero_left {n m : ℕ} : n + m = 0 → n = 0
 :=
   induction_on n
-    (take (H : 0 + m = 0), refl 0)
+    (take (H : 0 + m = 0), eq.refl 0)
     (take k IH,
       assume (H : succ k + m = 0),
       absurd
@@ -239,7 +240,7 @@ theorem add_eq_zero_right {n m : ℕ} (H : n + m = 0) : m = 0
 := add_eq_zero_left (trans (add_comm m n) H)
 
 theorem add_eq_zero {n m : ℕ} (H : n + m = 0) : n = 0 ∧ m = 0
-:= and_intro (add_eq_zero_left H) (add_eq_zero_right H)
+:= and.intro (add_eq_zero_left H) (add_eq_zero_right H)
 
 -- add_eq_self below
 
@@ -310,8 +311,8 @@ theorem mul_add_distr_left (n m k : ℕ) : (n + m) * k = n * k + m * k
     (calc
       (n + m) * 0 = 0 : mul_zero_right _
         ... = 0 + 0 : symm (add_zero_right _)
-        ... = n * 0 + 0 : refl _
-        ... = n * 0 + m * 0 : refl _)
+        ... = n * 0 + 0 : eq.refl _
+        ... = n * 0 + m * 0 : eq.refl _)
     (take l IH, calc
         (n + m) * succ l = (n + m) * l + (n + m) : mul_succ_right _ _
           ... = n * l + m * l + (n + m) : {IH}
@@ -363,11 +364,11 @@ theorem mul_one_left (n : ℕ) : 1 * n = n
 theorem mul_eq_zero {n m : ℕ} (H : n * m = 0) : n = 0 ∨ m = 0
 :=
   discriminate
-    (take Hn : n = 0, or_intro_left _ Hn)
+    (take Hn : n = 0, or.intro_left _ Hn)
     (take (k : ℕ),
       assume (Hk : n = succ k),
       discriminate
-        (take (Hm : m = 0), or_intro_right _ Hm)
+        (take (Hm : m = 0), or.intro_right _ Hm)
         (take (l : ℕ),
           assume (Hl : m = succ l),
           have Heq : succ (k * succ l + l) = n * m, from
@@ -394,7 +395,7 @@ theorem le_elim {n m : ℕ} (H : n ≤ m) : ∃ k, n + k = m
 ---------- partial order (totality is part of lt)
 
 theorem le_intro2 (n m : ℕ) : n ≤ n + m
-:= le_intro (refl (n + m))
+:= le_intro (eq.refl (n + m))
 
 theorem le_refl (n : ℕ) : n ≤ n
 := le_intro (add_zero_right n)
@@ -490,7 +491,7 @@ theorem succ_le_left_or {n m : ℕ} (H : n ≤ m) : succ n ≤ m ∨ n = m
           n = n + 0 : (add_zero_right n)⁻¹
             ... = n + k : {H3⁻¹}
             ... = m : Hk,
-      or_intro_right _ Heq)
+      or.intro_right _ Heq)
     (take l:ℕ,
       assume H3 : k = succ l,
       have Hlt : succ n ≤ m, from
@@ -499,7 +500,7 @@ theorem succ_le_left_or {n m : ℕ} (H : n ≤ m) : succ n ≤ m ∨ n = m
             succ n + l = n + succ l : add_move_succ n l
               ... = n + k : {H3⁻¹}
               ... = m : Hk)),
-      or_intro_left _ Hlt)
+      or.intro_left _ Hlt)
 
 theorem succ_le_left {n m : ℕ} (H1 : n ≤ m) (H2 : n ≠ m) : succ n ≤ m
 := resolve_left (succ_le_left_or H1) H2
@@ -511,7 +512,7 @@ theorem succ_le_right_inv {n m : ℕ} (H : n ≤ succ m) : n ≤ m ∨ n = succ 
 
 theorem succ_le_left_inv {n m : ℕ} (H : succ n ≤ m) : n ≤ m ∧ n ≠ m
 := obtain (k : ℕ) (H2 : succ n + k = m), from (le_elim H),
-   and_intro
+   and.intro
     (have H3 : n + succ k = m,
       from calc
         n + succ k = succ n + k : symm (add_move_succ n k)
@@ -551,7 +552,7 @@ theorem pred_le {n m : ℕ} (H : n ≤ m) : pred n ≤ pred m
 theorem pred_le_left_inv {n m : ℕ} (H : pred n ≤ m) : n ≤ m ∨ n = succ m
 := discriminate
     (take Hn : n = 0,
-      or_intro_left _ (subst (symm Hn) (zero_le m)))
+      or.intro_left _ (subst (symm Hn) (zero_le m)))
     (take k : ℕ,
       assume Hn : n = succ k,
       have H2 : pred n = k,
@@ -577,7 +578,7 @@ theorem le_imp_succ_le_or_eq {n m : ℕ} (H : n ≤ m) : succ n ≤ m ∨ n = m
           n = n + 0 : symm (add_zero_right n)
             ... = n + k : {symm H3}
             ... = m : Hk,
-      or_intro_right _ Heq)
+      or.intro_right _ Heq)
     (take l : nat,
       assume H3 : k = succ l,
       have Hlt : succ n ≤ m, from
@@ -586,7 +587,7 @@ theorem le_imp_succ_le_or_eq {n m : ℕ} (H : n ≤ m) : succ n ≤ m ∨ n = m
             succ n + l = n + succ l : add_move_succ n l
               ... = n + k : {symm H3}
               ... = m : Hk)),
-      or_intro_left _ Hlt)
+      or.intro_left _ Hlt)
 
 theorem le_ne_imp_succ_le {n m : ℕ} (H1 : n ≤ m) (H2 : n ≠ m) : succ n ≤ m
 := resolve_left (le_imp_succ_le_or_eq H1) H2
@@ -597,7 +598,7 @@ theorem le_succ_imp_le_or_eq {n m : ℕ} (H : n ≤ succ m) : n ≤ m ∨ n = su
 
 theorem succ_le_imp_le_and_ne {n m : ℕ} (H : succ n ≤ m) : n ≤ m ∧ n ≠ m
 :=
-  and_intro
+  and.intro
     (le_trans (self_le_succ n) H)
     (assume H2 : n = m,
         have H3 : succ n ≤ n, from subst (symm H2) H,
@@ -614,7 +615,7 @@ theorem pred_le_imp_le_or_eq {n m : ℕ} (H : pred n ≤ m) : n ≤ m ∨ n = su
 :=
   discriminate
     (take Hn : n = 0,
-      or_intro_left _ (subst (symm Hn) (zero_le m)))
+      or.intro_left _ (subst (symm Hn) (zero_le m)))
     (take k : nat,
       assume Hn : n = succ k,
       have H2 : pred n = k,
@@ -682,7 +683,7 @@ theorem lt_ne {n m : ℕ} (H : n < m) : n ≠ m
 := and_elim_right (succ_le_left_inv H)
 
 theorem lt_irrefl (n : ℕ) : ¬ n < n
-:= assume H : n < n, absurd (refl n) (lt_ne H)
+:= assume H : n < n, absurd (eq.refl n) (lt_ne H)
 
 theorem lt_zero (n : ℕ) : 0 < succ n
 := succ_le (zero_le n)
@@ -784,7 +785,7 @@ theorem succ_lt_right {n m : ℕ} (H : n < m) : n < succ m
 
 theorem le_or_lt (n m : ℕ) : n ≤ m ∨ m < n
 := induction_on n
-    (or_intro_left _ (zero_le m))
+    (or.intro_left _ (zero_le m))
     (take (k : ℕ),
       assume IH : k ≤ m ∨ m < k,
       or_elim IH
@@ -798,7 +799,7 @@ theorem le_or_lt (n m : ℕ) : n ≤ m ∨ m < n
                     ... = k + 0 : {H2}
                     ... = k : add_zero_right k,
               have H4 : m < succ k, from subst  H3 (lt_self_succ m),
-              or_intro_right _ H4)
+              or.intro_right _ H4)
             (take l2 : ℕ,
               assume H2 : l = succ l2,
               have H3 : succ k + l2 = m,
@@ -806,8 +807,8 @@ theorem le_or_lt (n m : ℕ) : n ≤ m ∨ m < n
                   succ k + l2 = k + succ l2 : add_move_succ k l2
                     ... = k + l : {symm H2}
                     ... = m : Hl,
-              or_intro_left _ (le_intro H3)))
-        (assume H : m < k, or_intro_right _ (succ_lt_right H)))
+              or.intro_left _ (le_intro H3)))
+        (assume H : m < k, or.intro_right _ (succ_lt_right H)))
 
 theorem trichotomy_alt (n m : ℕ) : (n < m ∨ n = m) ∨ m < n
 := or_imp_or (le_or_lt n m) (assume H : n ≤ m, le_imp_lt_or_eq H) (assume H : m < n, H)
@@ -866,7 +867,7 @@ theorem add_eq_self {n m : ℕ} (H : n + m = n) : m = 0
             ... = n : H,
       have H3 : n < n, from lt_intro H2,
       have H4 : n ≠ n, from lt_ne H3,
-      absurd (refl n) H4)
+      absurd (eq.refl n) H4)
 
 -------------------------------------------------- positivity
 
@@ -1067,7 +1068,7 @@ theorem mul_eq_one_right {n m : ℕ} (H : n * m = 1) : m = 1
 := mul_eq_one_left (subst (mul_comm n m) H)
 
 theorem mul_eq_one {n m : ℕ} (H : n * m = 1) : n = 1 ∧ m = 1
-:= and_intro (mul_eq_one_left H) (mul_eq_one_right H)
+:= and.intro (mul_eq_one_left H) (mul_eq_one_right H)
 
 -------------------------------------------------- sub
 
@@ -1380,7 +1381,7 @@ theorem dist_eq_zero {n m : ℕ} (H : dist n m = 0) : n = m
 
 theorem dist_le {n m : ℕ} (H : n ≤ m) : dist n m = m - n
 := calc
-    dist n m = (n - m) + (m - n) : refl _
+    dist n m = (n - m) + (m - n) : eq.refl _
          ... = 0       + (m - n) : {le_imp_sub_eq_zero H}
          ... = m - n             : add_zero_left (m - n)
 
@@ -1401,7 +1402,7 @@ theorem dist_intro {n m k : ℕ} (H : n + m = k) : dist k n = m
 theorem dist_add_right (n k m : ℕ) : dist (n + k) (m + k) = dist n m
 :=
   calc
-    dist (n + k) (m + k) = ((n+k) - (m+k)) + ((m+k)-(n+k)) : refl _
+    dist (n + k) (m + k) = ((n+k) - (m+k)) + ((m+k)-(n+k)) : eq.refl _
                      ... = (n - m) + ((m + k) - (n + k))   : {sub_add_add_right _ _ _}
                      ... = (n - m) + (m - n)               : {sub_add_add_right _ _ _}
 

@@ -36,7 +36,7 @@ theorem compose21
     {R1 : T1 → T1 → Prop}
     {f1 : T1 → T2} (C1 : congr.struc R1 R2 f1)
     {f2 : T1 → T3} (C2 : congr.struc R1 R3 f2) :
-  congr.struc R1 R4 (λx, g (f1 x) (f2 x)) := mk (take x1 x2 H, app2 C3 (app C1 H) (app C2 H))
+  congr.struc R1 R4 (λx, g (f1 x) (f2 x)) := struc.mk (take x1 x2 H, app2 C3 (app C1 H) (app C2 H))
 
 theorem congr_and : congr.struc2 iff iff iff and := sorry
 

@@ -1,6 +1,6 @@
 import tools.tactic
 open tactic
 
-definition mytac := apply @and_intro; apply @refl
+definition mytac := apply @and.intro; apply @eq.refl
 
 check @mytac

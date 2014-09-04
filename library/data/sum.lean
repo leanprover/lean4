@@ -11,13 +11,12 @@ import logic.core.prop logic.classes.inhabited logic.classes.decidable
 
 open inhabited decidable
 
-namespace sum
-
 -- TODO: take this outside the namespace when the inductive package handles it better
 inductive sum (A B : Type) : Type :=
 inl : A → sum A B,
 inr : B → sum A B
 
+namespace sum
 infixr `⊎` := sum
 
 namespace sum_plus_notation
@@ -57,10 +56,10 @@ have H2 : f (inr A b2), from subst H H1,
 H2
 
 theorem sum_inhabited_left [instance] {A B : Type} (H : inhabited A) : inhabited (A ⊎ B) :=
-inhabited_mk (inl B (default A))
+inhabited.mk (inl B (default A))
 
 theorem sum_inhabited_right [instance] {A B : Type} (H : inhabited B) : inhabited (A ⊎ B) :=
-inhabited_mk (inr A (default B))
+inhabited.mk (inr A (default B))
 
 theorem sum_eq_decidable [instance] {A B : Type} (s1 s2 : A ⊎ B)
   (H1 : ∀a1 a2 : A, decidable (inl B a1 = inl B a2))

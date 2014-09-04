@@ -3,6 +3,8 @@
 -- Author: Leonardo de Moura
 import logic
 
+abbreviation refl := @eq.refl
+
 definition transport {A : Type} {a b : A} {P : A → Type} (p : a = b) (H : P a) : P b
 := eq.rec H p
 

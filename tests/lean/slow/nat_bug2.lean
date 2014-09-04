@@ -4,13 +4,19 @@
 -- Author: Floris van Doorn
 ----------------------------------------------------------------------------------------------------
 import logic struc.binary
-open tactic num binary eq_ops
+open tactic binary eq_ops
 open decidable
 
-namespace nat
+abbreviation refl := @eq.refl
+abbreviation and_intro := @and.intro
+abbreviation or_intro_left := @or.intro_left
+abbreviation or_intro_right := @or.intro_right
+
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
+
+namespace nat
 
 notation `ℕ`:max := nat
 
@@ -18,7 +24,7 @@ abbreviation plus (x y : ℕ) : ℕ
 := nat.rec x (λ n r, succ r) y
 
 definition to_nat [coercion] [inline] (n : num) : ℕ
-:= num.num.rec zero (λ n, num.pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
+:= num.rec zero (λ n, pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
 
 namespace helper_tactics
   definition apply_refl := apply @refl
@@ -55,8 +61,8 @@ theorem pred_succ (n : ℕ) : pred (succ n) = n
 
 theorem zero_or_succ (n : ℕ) : n = 0 ∨ n = succ (pred n)
 := induction_on n
-    (or_intro_left _ (refl 0))
-    (take m IH, or_intro_right _
+    (or.intro_left _ (refl 0))
+    (take m IH, or.intro_right _
       (show succ m = succ (pred (succ m)), from congr_arg succ (pred_succ m⁻¹)))
 
 theorem zero_or_succ2 (n : ℕ) : n = 0 ∨ ∃k, n = succ k

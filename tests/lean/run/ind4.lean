@@ -6,7 +6,7 @@ section
 end
 
 check list.{1}
-check cons.{1}
+check list.cons.{1}
 
 section
   parameter A : Type

@@ -10,11 +10,12 @@ inductive int : Type :=
 of_nat : nat → int,
 neg : nat → int
 
-coercion of_nat
+coercion int.of_nat
 
 variables n m : nat
 variables i j : int
 variable l : list nat
+namespace list end list open list
 
 check cons i (cons i nil)
 check cons n (cons n nil)

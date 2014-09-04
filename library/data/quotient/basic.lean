@@ -27,10 +27,10 @@ abbreviation is_quotient {A B : Type} (R : A → A → Prop) (abs : A → B) (re
 theorem intro {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (H1 : ∀b, abs (rep b) = b) (H2 : ∀b, R (rep b) (rep b))
   (H3 : ∀r s, R r s ↔ (R r r ∧ R s s ∧ abs r = abs s)) : is_quotient R abs rep :=
-and_intro H1 (and_intro H2 H3)
+and.intro H1 (and.intro H2 H3)
 
 theorem and_absorb_left {a : Prop} (b : Prop) (Ha : a) : a ∧ b ↔ b :=
-iff_intro (assume Hab, and_elim_right Hab) (assume Hb, and_intro Ha Hb)
+iff_intro (assume Hab, and_elim_right Hab) (assume Hb, and.intro Ha Hb)
 
 theorem intro_refl {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (H1 : reflexive R) (H2 : ∀b, abs (rep b) = b)
@@ -70,11 +70,11 @@ and_elim_right (and_elim_right (iff_elim_left (R_iff Q r s) H))
 
 theorem R_intro {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {r s : A} (H1 : R r r) (H2 : R s s) (H3 : abs r = abs s) : R r s :=
-iff_elim_right (R_iff Q r s) (and_intro H1 (and_intro H2 H3))
+iff_elim_right (R_iff Q r s) (and.intro H1 (and.intro H2 H3))
 
 theorem R_intro_refl {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) (H1 : reflexive R) {r s : A} (H2 : abs r = abs s) : R r s :=
-iff_elim_right (R_iff Q r s) (and_intro (H1 r) (and_intro (H1 s) H2))
+iff_elim_right (R_iff Q r s) (and.intro (H1 r) (and.intro (H1 s) H2))
 
 theorem rep_eq {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {a b : B} (H : R (rep a) (rep b)) : a = b :=
@@ -115,18 +115,18 @@ R_intro Q Ha Hc Hac
 
 definition rec {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {C : B → Type} (f : forall (a : A), C (abs a)) (b : B) : C b :=
-eq_rec_on (abs_rep Q b) (f (rep b))
+eq.rec_on (abs_rep Q b) (f (rep b))
 
 theorem comp {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {C : B → Type} {f : forall (a : A), C (abs a)}
-  (H : forall (r s : A) (H' : R r s), eq_rec_on (eq_abs Q H') (f r) = f s)
+  (H : forall (r s : A) (H' : R r s), eq.rec_on (eq_abs Q H') (f r) = f s)
   {a : A} (Ha : R a a) : rec Q f (abs a) = f a :=
 have H2 [fact] : R a (rep (abs a)), from R_rep_abs Q Ha,
 calc
-  rec Q f (abs a) =  eq_rec_on _ (f (rep (abs a))) : rfl
-    ... = eq_rec_on _ (eq_rec_on _ (f a)) : {symm (H _ _ H2)}
-    ... = eq_rec_on _ (f a) : eq_rec_on_compose (eq_abs Q H2) _ _
-    ... = f a : eq_rec_on_id (trans (eq_abs Q H2) (abs_rep Q (abs a))) _
+  rec Q f (abs a) =  eq.rec_on _ (f (rep (abs a))) : rfl
+    ... = eq.rec_on _ (eq.rec_on _ (f a)) : {symm (H _ _ H2)}
+    ... = eq.rec_on _ (f a) : eq.rec_on_compose (eq_abs Q H2) _ _
+    ... = f a : eq.rec_on_id (trans (eq_abs Q H2) (abs_rep Q (abs a))) _
 
 definition rec_constant {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {C : Type} (f : A → C) (b : B) : C :=
@@ -204,10 +204,10 @@ opaque_hint (hiding rec rec_constant rec_binary quotient_map quotient_map_binary
 abbreviation image {A B : Type} (f : A → B) := subtype (fun b, ∃a, f a = b)
 
 theorem image_inhabited {A B : Type} (f : A → B) (H : inhabited A) : inhabited (image f) :=
-inhabited_mk (tag (f (default A)) (exists_intro (default A) rfl))
+inhabited.mk (tag (f (default A)) (exists_intro (default A) rfl))
 
 theorem image_inhabited2 {A B : Type} (f : A → B) (a : A) : inhabited (image f) :=
-image_inhabited f (inhabited_mk a)
+image_inhabited f (inhabited.mk a)
 
 definition fun_image {A B : Type} (f : A → B) (a : A) : image f :=
 tag (f a) (exists_intro a rfl)

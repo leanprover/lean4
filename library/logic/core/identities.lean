@@ -58,7 +58,7 @@ iff_intro
     (assume Ha, absurd (or_inl Ha) H)
     (assume Hna, or_elim (em b)
       (assume Hb, absurd (or_inr Hb) H)
-      (assume Hnb, and_intro Hna Hnb)))
+      (assume Hnb, and.intro Hna Hnb)))
   (assume (H : ¬a ∧ ¬b) (N : a ∨ b),
     or_elim N
       (assume Ha, absurd Ha (and_elim_left H))
@@ -68,7 +68,7 @@ theorem not_and {a b : Prop} {Da : decidable a} {Db : decidable b} : (¬(a ∧ b
 iff_intro
   (assume H, or_elim (em a)
     (assume Ha, or_elim (em b)
-      (assume Hb, absurd (and_intro Ha Hb) H)
+      (assume Hb, absurd (and.intro Ha Hb) H)
       (assume Hnb, or_inr Hnb))
     (assume Hna, or_inl Hna))
   (assume (H : ¬a ∨ ¬b) (N : a ∧ b),
@@ -125,7 +125,7 @@ iff_intro
   (assume H, false_elim H)
 
 theorem eq_id {A : Type} (a : A) : (a = a) ↔ true :=
-iff_true_intro (refl a)
+iff_true_intro rfl
 
 theorem heq_id {A : Type} (a : A) : (a == a) ↔ true :=
 iff_true_intro (hrefl a)

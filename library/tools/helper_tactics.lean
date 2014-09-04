@@ -12,6 +12,6 @@ import .tactic
 open tactic
 
 namespace helper_tactics
-  definition apply_refl := apply @refl
+  definition apply_refl := apply @eq.refl
   tactic_hint apply_refl
 end helper_tactics

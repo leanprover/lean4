@@ -7,7 +7,7 @@ section
   variable {T : Type}
 
   definition concat (s t : list T) : list T
-  := list.rec t (fun x l u, cons x u) s
+  := list.rec t (fun x l u, list.cons x u) s
 
   opaque_hint (hiding concat)
 

@@ -7,5 +7,5 @@ coercion of_nat
 
 theorem tst (n : nat) : n = n :=
 have H : true, from trivial,
-calc n    = n : refl _
-      ... = n : refl _
+calc n    = n : eq.refl _
+      ... = n : eq.refl _

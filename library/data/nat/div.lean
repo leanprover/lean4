@@ -103,7 +103,7 @@ case_strong_induction_on m
           have H3 : restrict default measure f (succ m) x = rec_val x f, from
             calc
               restrict default measure f (succ m) x = f x : if_pos H1
-                ... = f' (succ m') x : refl _
+                ... = f' (succ m') x : eq.refl _
                 ... = if measure x < succ m' then rec_val x (f' m') else default : rfl
                 ... = rec_val x (f' m') : if_pos self_lt_succ
                 ... = rec_val x f : rec_decreasing _ _ _ H3a,
@@ -164,8 +164,8 @@ show lhs = rhs, from
         lhs = 0     : if_pos H1
           ... = rhs : (if_pos H1)⁻¹)
     (assume H1 : ¬ (y = 0 ∨ x < y),
-      have H2a : y ≠ 0, from assume H, H1 (or_intro_left _ H),
-     have H2b : ¬ x < y, from assume H, H1 (or_intro_right _ H),
+      have H2a : y ≠ 0, from assume H, H1 (or_inl H),
+     have H2b : ¬ x < y, from assume H, H1 (or_inr H),
       have ypos : y > 0, from ne_zero_imp_pos H2a,
       have xgey : x ≥ y, from not_lt_imp_ge H2b,
       have H4 : x - y < x, from sub_lt (lt_le_trans ypos xgey) ypos,
@@ -240,8 +240,8 @@ show lhs = rhs, from
         lhs = x : if_pos H1
           ... = rhs : (if_pos H1)⁻¹)
     (assume H1 : ¬ (y = 0 ∨ x < y),
-      have H2a : y ≠ 0, from assume H, H1 (or_intro_left _ H),
-      have H2b : ¬ x < y, from assume H, H1 (or_intro_right _ H),
+      have H2a : y ≠ 0, from assume H, H1 (or_inl H),
+      have H2b : ¬ x < y, from assume H, H1 (or_inr H),
       have ypos : y > 0, from ne_zero_imp_pos H2a,
       have xgey : x ≥ y, from not_lt_imp_ge H2b,
       have H4 : x - y < x, from sub_lt (lt_le_trans ypos xgey) ypos,
@@ -676,7 +676,7 @@ gcd_induct m n
       dvd_add (dvd_trans (and_elim_left IH) dvd_mul_self_right) (and_elim_right IH),
     have H1 : gcd n (m mod n) | m, from div_mod_eq⁻¹ ▸ H,
     have gcd_eq : gcd n (m mod n) = gcd m n, from symm (gcd_pos _ npos),
-    show (gcd m n | m) ∧ (gcd m n | n), from gcd_eq ▸ (and_intro H1 (and_elim_left IH)))
+    show (gcd m n | m) ∧ (gcd m n | n), from gcd_eq ▸ (and.intro H1 (and_elim_left IH)))
 
 theorem gcd_dvd_left (m n : ℕ) : (gcd m n | m) := and_elim_left (gcd_dvd _ _)
 

@@ -91,14 +91,14 @@ that =n=, =m= and =o= have type =nat=.
 The command =variables n m o : nat= can be used as a shorthand for the three commands above.
 
 In Lean, proofs are also expressions, and all functionality provided for manipulating
-expressions is also available for manipulating proofs. For example, =refl n= is a proof
-for =n = n=. In Lean, =refl= is the reflexivity theorem.
+expressions is also available for manipulating proofs. For example, =eq.refl n= is a proof
+for =n = n=. In Lean, =eq.refl= is the reflexivity theorem.
 
 #+BEGIN_SRC lean
   import data.nat
   open nat
   variable n : nat
-  check refl n
+  check eq.refl n
 #+END_SRC
 
 The command =axiom= postulates that a given proposition holds.
@@ -196,11 +196,11 @@ is quite simple, we are just instructing Lean to automatically insert the placeh
 Sometimes, Lean will not be able to infer the parameters automatically.
 The annotation =@f= instructs Lean that we want to provide the
 implicit arguments for =f= explicitly.
-The theorems =refl=, =trans= and =symm= all have implicit arguments.
+The theorems =eq.refl=, =trans= and =symm= all have implicit arguments.
 
 #+BEGIN_SRC lean
   import logic
-  check @refl
+  check @eq.refl
   check @symm
   check @trans
 #+END_SRC
@@ -249,13 +249,13 @@ In the command above, Lean reports that =Type.{l_1}= that lives in
 universe =l_1= has type =Type.{succ l_1}=. That is, its type lives in
 the universe =l_1 + 1=.
 
-Definitions such as =refl=, =symm= and =trans= are all universe
+Definitions such as =eq.refl=, =symm= and =trans= are all universe
 polymorphic.
 
 #+BEGIN_SRC lean
   import logic
   set_option pp.universes true
-  check @refl
+  check @eq.refl
   check @symm
   check @trans
 #+END_SRC
@@ -416,13 +416,13 @@ In Lean, we say two terms are _definitionally equal_ if the have the same
 normal form. For example, the terms =(λ x : nat, x + 1) a= and =a + 1=
 are definitionally equal. The Lean type/proof checker uses the normalizer when
 checking types/proofs. So, we can prove that two definitionally equal terms
-are equal using just =refl=. Here is a simple example.
+are equal using just =eq.refl=. Here is a simple example.
 
 #+BEGIN_SRC lean
   import data.nat
   open nat
 
-  theorem def_eq_th (a : nat) : ((λ x : nat, x + 1) a) = a + 1 := refl (a+1)
+  theorem def_eq_th (a : nat) : ((λ x : nat, x + 1) a) = a + 1 := eq.refl (a+1)
 #+END_SRC
 
 ** Provable equality
@@ -443,15 +443,15 @@ and elimination theorems for the basic Boolean connectives.
 
 *** And (conjunction)
 
-The expression =and_intro H1 H2= creates a proof for =a ∧ b= using proofs
-=H1 : a= and =H2 : b=. We say =and_intro= is the _and-introduction_ operation.
-In the following example we use =and_intro= for creating a proof for
+The expression =and.intro H1 H2= creates a proof for =a ∧ b= using proofs
+=H1 : a= and =H2 : b=. We say =and.intro= is the _and-introduction_ operation.
+In the following example we use =and.intro= for creating a proof for
 =p → q → p ∧ q=.
 
 #+BEGIN_SRC lean
   import logic
   variables p q : Prop
-  check fun (Hp : p) (Hq : q), and_intro Hp Hq
+  check fun (Hp : p) (Hq : q), and.intro Hp Hq
 #+END_SRC
 
 The expression =and_elim_left H= creates a proof =a= from a proof =H : a ∧ b=.
@@ -471,7 +471,7 @@ Now, we prove =p ∧ q → q ∧ p= with the following simple proof term.
 #+BEGIN_SRC lean
   import logic
   variables p q : Prop
-  check fun H : p ∧ q, and_intro (and_elim_right H) (and_elim_left H)
+  check fun H : p ∧ q, and.intro (and_elim_right H) (and_elim_left H)
 #+END_SRC
 
 Note that the proof term is very similar to a function that just swaps the
@@ -479,17 +479,17 @@ elements of a pair.
 
 *** (disjunction)
 
-The expression =or_intro_left b H1= creates a proof for =a ∨ b= using a proof =H1 : a=.
-Similarly, =or_intro_right a H2= creates a proof for =a ∨ b= using a proof =H2 : b=.
+The expression =or.intro_left b H1= creates a proof for =a ∨ b= using a proof =H1 : a=.
+Similarly, =or.intro_right a H2= creates a proof for =a ∨ b= using a proof =H2 : b=.
 We say they are the _left/right or-introduction_.
 
 #+BEGIN_SRC lean
   import logic
   variables p q : Prop
   -- Proof for p → p ∨ q
-  check fun H : p, or_intro_left q H
+  check fun H : p, or.intro_left q H
   -- Proof for q → p ∨ q
-  check fun H : q, or_intro_right p H
+  check fun H : q, or.intro_right p H
 #+END_SRC
 
 The or-elimination rule is slightly more complicated. The basic idea is the
@@ -503,15 +503,15 @@ In the following example, we use =or_elim= to prove that =p v q → q ∨ p=.
   variables p q : Prop
   check fun H : p ∨ q,
            or_elim H
-              (fun Hp : p, or_intro_right q Hp)
-              (fun Hq : q, or_intro_left  p Hq)
+              (fun Hp : p, or.intro_right q Hp)
+              (fun Hq : q, or.intro_left  p Hq)
 
 #+END_SRC
 
-In most cases, the first argument of =or_intro_right= and
-=or_intro_left= can be inferred automatically by Lean. Moreover, Lean
-provides =or_inr= and =or_inl= as shorthands for =or_intro_right _=
-and =or_intro_left _=. These two shorthands are extensively used in
+In most cases, the first argument of =or.intro_right= and
+=or.intro_left= can be inferred automatically by Lean. Moreover, Lean
+provides =or_inr= and =or_inl= as shorthands for =or.intro_right _=
+and =or.intro_left _=. These two shorthands are extensively used in
 the Lean standard library.
 
 #+BEGIN_SRC lean
@@ -573,8 +573,8 @@ Here is the proof term for =a ∧ b ↔ b ∧ a=
   import logic
   variables a b : Prop
   check iff_intro
-          (fun H : a ∧ b, and_intro (and_elim_right H) (and_elim_left H))
-          (fun H : b ∧ a, and_intro (and_elim_right H) (and_elim_left H))
+          (fun H : a ∧ b, and.intro (and_elim_right H) (and_elim_left H))
+          (fun H : b ∧ a, and.intro (and_elim_right H) (and_elim_left H))
 #+END_SRC
 
 In Lean, we can use =assume= instead of =fun= to make proof terms look
@@ -584,8 +584,8 @@ more like proofs found in text books.
   import logic
   variables a b : Prop
   check iff_intro
-          (assume H : a ∧ b, and_intro (and_elim_right H) (and_elim_left H))
-          (assume H : b ∧ a, and_intro (and_elim_right H) (and_elim_left H))
+          (assume H : a ∧ b, and.intro (and_elim_right H) (and_elim_left H))
+          (assume H : b ∧ a, and.intro (and_elim_right H) (and_elim_left H))
 #+END_SRC
 
 *** True and False
@@ -634,7 +634,7 @@ In Lean, the dependent functions is written as =forall a : A, B a=,
 =Pi a : A, B a=, =∀ x : A, B a=, or =Π x : A, B a=. We usually use
 =forall= and =∀= for propositions, and =Pi= and =Π= for everything
 else. In the previous examples, we have seen many examples of
-dependent functions. The theorems =refl=, =trans= and =symm=, and the
+dependent functions. The theorems =eq.refl=, =trans= and =symm=, and the
 equality are all dependent functions.
 
 The universal quantifier is just a dependent function.

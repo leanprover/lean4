@@ -1,25 +1,25 @@
 import logic data.prod
-open num tactic prod
+open tactic prod
 
 inductive inh (A : Type) : Prop :=
-inh_intro : A -> inh A
+intro : A -> inh A
 
-instance inh_intro
+instance inh.intro
 
 theorem inh_elim {A : Type} {B : Prop} (H1 : inh A) (H2 : A → B) : B
 := inh.rec H2 H1
 
 theorem inh_exists [instance] {A : Type} {P : A → Prop} (H : ∃x, P x) : inh A
-:= obtain w Hw, from H, inh_intro w
+:= obtain w Hw, from H, inh.intro w
 
 theorem inh_bool [instance] : inh Prop
-:= inh_intro true
+:= inh.intro true
 
 theorem inh_fun [instance] {A B : Type} (H : inh B) : inh (A → B)
-:= inh.rec (λb, inh_intro (λa : A, b)) H
+:= inh.rec (λb, inh.intro (λa : A, b)) H
 
 theorem pair_inh [instance] {A : Type} {B : Type} (H1 : inh A) (H2 : inh B) : inh (prod A B)
-:= inh_elim H1 (λa, inh_elim H2 (λb, inh_intro (pair a b)))
+:= inh_elim H1 (λa, inh_elim H2 (λb, inh.intro (pair a b)))
 
 definition assump := eassumption
 tactic_hint assump

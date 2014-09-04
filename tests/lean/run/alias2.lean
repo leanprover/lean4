@@ -19,4 +19,4 @@ coercion f
 definition aux2 := foo a b
 check aux2
 theorem T3 : aux2 = N1.foo a b
-:= refl _
+:= eq.refl _

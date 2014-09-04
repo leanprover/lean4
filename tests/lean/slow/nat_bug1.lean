@@ -4,7 +4,7 @@
 -- Author: Floris van Doorn
 ----------------------------------------------------------------------------------------------------
 import logic
-open tactic num
+open tactic
 
 inductive nat : Type :=
 zero : nat,
@@ -12,12 +12,14 @@ succ : nat → nat
 
 notation `ℕ`:max := nat
 
+namespace nat
 abbreviation plus (x y : ℕ) : ℕ
 := nat.rec x (λ n r, succ r) y
 
 definition to_nat [coercion] [inline] (n : num) : ℕ
-:= num.num.rec zero (λ n, num.pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
+:= num.rec zero (λ n, pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
 
 print "=================="
 theorem nat_rec_zero {P : ℕ → Type} (x : P 0) (f : ∀m, P m → P (succ m)) : nat.rec x f 0 = x :=
-refl _
+eq.refl _
+end nat

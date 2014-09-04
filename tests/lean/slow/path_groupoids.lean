@@ -15,7 +15,7 @@ infixl `∘`:60 := compose
 
 inductive path {A : Type} (a : A) : A → Type :=
 idpath : path a a
-
+abbreviation idpath := @path.idpath
 infix `≈`:50 := path
 -- TODO: is this right?
 notation x `≈` y:50 `:>`:0 A:0 := @path A x y

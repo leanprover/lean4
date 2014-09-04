@@ -47,10 +47,10 @@ have H3 : pr1 a + pr2 c + pr2 b = pr2 a + pr1 c + pr2 b, from
 show pr1 a + pr2 c = pr2 a + pr1 c, from add_cancel_right H3
 
 theorem rel_equiv : is_equivalence rel :=
-is_equivalence_mk
-  (is_reflexive_mk @rel_refl)
-  (is_symmetric_mk @rel_symm)
-  (is_transitive_mk @rel_trans)
+is_equivalence.mk
+  (is_reflexive.mk @rel_refl)
+  (is_symmetric.mk @rel_symm)
+  (is_transitive.mk @rel_trans)
 
 theorem rel_flip {a b : ℕ × ℕ} (H : rel a b) : rel (flip a) (flip b) :=
 calc
@@ -288,7 +288,7 @@ obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
 by simp
 
 theorem pos_eq_neg {n m : ℕ} (H : n = -m) : n = 0 ∧ m = 0 :=
-have H2 : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, refl (n),
+have H2 : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, rfl,
 have H3 : psub (pair n 0) = psub (pair 0 m), from iff_mp (by simp) H,
 have H4 : rel (pair n 0) (pair 0 m), from R_intro_refl quotient @rel_refl H3,
 have H5 : n + m = 0, from
@@ -314,7 +314,7 @@ or_imp_or (or_swap (proj_zero_or (rep a)))
         a = psub (rep a) : symm (psub_rep a)
           ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {symm (prod_ext (rep a))}
           ... = psub (pair (pr1 (rep a)) 0) : {H2}
-          ... = of_nat (pr1 (rep a)) : refl _))
+          ... = of_nat (pr1 (rep a)) : rfl))
   (assume H : pr1 (proj (rep a)) = 0,
     have H2 : pr1 (rep a) = 0, from subst Hrep H,
     exists_intro (pr2 (rep a))
@@ -323,7 +323,7 @@ or_imp_or (or_swap (proj_zero_or (rep a)))
           ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {symm (prod_ext (rep a))}
           ... = psub (pair 0 (pr2 (rep a))) : {H2}
           ... = -(psub (pair (pr2 (rep a)) 0)) : by simp
-          ... = -(of_nat (pr2 (rep a))) : refl _))
+          ... = -(of_nat (pr2 (rep a))) : rfl))
 
 opaque_hint (hiding int)
 
@@ -363,7 +363,7 @@ theorem of_nat_eq_neg_of_nat {n m : ℕ} (H : n = - m) : n = 0 ∧ m = 0 :=
 have H2 : n = psub (pair 0 m), from
   calc
     n = -m : H
-      ... = -(psub (pair m 0)) : refl (-m)
+      ... = -(psub (pair m 0)) : rfl
       ... = psub (pair 0 m) : by simp,
 have H3 : rel (pair n 0) (pair 0 m), from R_intro_refl quotient @rel_refl H2,
 have H4 : n + m = 0, from
@@ -417,7 +417,7 @@ right_comm add_comm add_assoc a b c
 
 theorem add_zero_right (a : ℤ) : a + 0 = a :=
 obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-have H0 : 0 = psub (pair 0 0), from refl 0,
+have H0 : 0 = psub (pair 0 0), from rfl,
 by simp
 
 theorem add_zero_left (a : ℤ) : 0 + a = a :=
@@ -446,7 +446,7 @@ by simp
 
 -- TODO: note, we have to add #nat to get the right interpretation
 theorem add_of_nat (n m : nat) : of_nat n + of_nat m = #nat n + m := -- this is of_nat (n + m)
-have H : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, refl n,
+have H : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, rfl,
 by simp
 
 -- add_rewrite add_of_nat
@@ -459,10 +459,10 @@ definition sub (a b : ℤ) : ℤ := a + -b
 infixl `-` := int.sub
 
 theorem sub_def (a b : ℤ) : a - b = a + -b :=
-refl (a - b)
+rfl
 
 theorem add_neg_right (a b : ℤ) : a + -b = a - b :=
-refl (a - b)
+rfl
 
 theorem add_neg_left (a b : ℤ) : -a + b = b - a :=
 add_comm (-a) b
@@ -470,7 +470,7 @@ add_comm (-a) b
 -- opaque_hint (hiding int.sub)
 
 theorem sub_neg_right (a b : ℤ) : a - (-b) = a + b :=
-subst (neg_neg b) (refl (a - (-b)))
+subst (neg_neg b) (eq.refl (a - (-b)))
 
 theorem sub_neg_neg (a b : ℤ) : -a - (-b) = b - a :=
 subst (neg_neg b) (add_comm (-a) (-(-b)))
@@ -656,7 +656,7 @@ right_comm mul_comm mul_assoc
 
 theorem mul_zero_right (a : ℤ) : a * 0 = 0 :=
 obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-have H0 : 0 = psub (pair 0 0), from refl 0,
+have H0 : 0 = psub (pair 0 0), from rfl,
 by simp
 
 theorem mul_zero_left (a : ℤ) : 0 * a = 0 :=
@@ -664,7 +664,7 @@ subst (mul_comm a 0) (mul_zero_right a)
 
 theorem mul_one_right (a : ℤ) : a * 1 = a :=
 obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-have H1 : 1 = psub (pair 1 0), from refl 1,
+have H1 : 1 = psub (pair 1 0), from rfl,
 by simp
 
 theorem mul_one_left (a : ℤ) : 1 * a = a :=
@@ -707,7 +707,7 @@ calc
     ... = a * b + - (a * c) : {mul_neg_right a c}
 
 theorem mul_of_nat (n m : ℕ) : of_nat n * of_nat m = n * m :=
-have H : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, refl n,
+have H : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, rfl,
 by simp
 
 theorem mul_to_nat (a b : ℤ) : (to_nat (a * b)) = #nat (to_nat a) * (to_nat b) :=

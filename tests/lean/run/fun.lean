@@ -1,5 +1,5 @@
 import logic struc.function
-open function num bool
+open function bool
 
 
 variable f : num → bool
@@ -13,9 +13,9 @@ check num → num ⟨is_typeof⟩ id
 variable h : num → bool → num
 
 check flip h
-check flip h ff zero
+check flip h ff num.zero
 
-check typeof flip h ff zero : num
+check typeof flip h ff num.zero : num
 
 variable f1 : num → num → bool
 variable f2 : bool → num

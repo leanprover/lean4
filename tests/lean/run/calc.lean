@@ -1,5 +1,5 @@
 import data.num
-open num
+
 
 namespace foo
   variable le : num → num → Prop

@@ -6,19 +6,15 @@ import data.bool
 
 open bool inhabited
 
-namespace string
-
 inductive char : Type :=
-ascii : bool → bool → bool → bool → bool → bool → bool → bool → char
+mk : bool → bool → bool → bool → bool → bool → bool → bool → char
 
 inductive string : Type :=
 empty : string,
 str   : char → string → string
 
 theorem char_inhabited [instance] : inhabited char :=
-inhabited_mk (ascii ff ff ff ff ff ff ff ff)
+inhabited.mk (char.mk ff ff ff ff ff ff ff ff)
 
 theorem string_inhabited [instance] : inhabited string :=
-inhabited_mk empty
-
-end string
+inhabited.mk string.empty

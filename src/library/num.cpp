@@ -8,13 +8,13 @@ Author: Leonardo de Moura
 #include "library/num.h"
 
 namespace lean {
-static expr g_num(Const({"num", "num"}));
-static expr g_pos_num(Const({"num", "pos_num"}));
+static expr g_num(Const("num"));
+static expr g_pos_num(Const("pos_num"));
 static expr g_zero(Const({"num", "zero"}));
 static expr g_pos(Const({"num", "pos"}));
-static expr g_one(Const({"num", "one"}));
-static expr g_bit0(Const({"num", "bit0"}));
-static expr g_bit1(Const({"num", "bit1"}));
+static expr g_one(Const({"pos_num", "one"}));
+static expr g_bit0(Const({"pos_num", "bit0"}));
+static expr g_bit1(Const({"pos_num", "bit1"}));
 
 bool has_num_decls(environment const & env) {
     try {

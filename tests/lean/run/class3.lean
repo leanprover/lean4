@@ -1,5 +1,5 @@
 import logic data.prod
-open num prod inhabited
+open prod inhabited
 
 section
   parameter {A : Type}

@@ -92,7 +92,7 @@ expr parse_tactic_name(parser & p) {
     auto pos = p.pos();
     name pre_tac = p.check_constant_next("invalid tactic name, constant expected");
     expr pre_tac_type = p.env().get(pre_tac).get_type();
-    if (!is_constant(pre_tac_type) || const_name(pre_tac_type) != name({"tactic", "tactic"}))
+    if (!is_constant(pre_tac_type) || const_name(pre_tac_type) != name("tactic"))
         throw parser_error(sstream() << "invalid tactic name, '" << pre_tac << "' is not a tactic", pos);
     return mk_constant(pre_tac);
 }

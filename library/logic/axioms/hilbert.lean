@@ -25,14 +25,14 @@ axiom strong_indefinite_description {A : Type} (P : A → Prop) (H : nonempty A)
 -- axiom indefinite_description {A : Type} {P : A->Prop} (H : ∃x, P x) : {x : A, P x}
 
 theorem nonempty_imp_exists_true {A : Type} (H : nonempty A) : ∃x : A, true :=
-nonempty_elim H (take x, exists_intro x trivial)
+nonempty.elim H (take x, exists_intro x trivial)
 
 theorem nonempty_imp_inhabited {A : Type} (H : nonempty A) : inhabited A :=
 let u : {x : A, (∃x : A, true) → true} := strong_indefinite_description (λa, true) H in
-inhabited_mk (elt_of u)
+inhabited.mk (elt_of u)
 
 theorem exists_imp_inhabited {A : Type} {P : A → Prop} (H : ∃x, P x) : inhabited A :=
-nonempty_imp_inhabited (obtain w Hw, from H, nonempty_intro w)
+nonempty_imp_inhabited (obtain w Hw, from H, nonempty.intro w)
 
 
 -- the Hilbert epsilon function
@@ -53,8 +53,8 @@ theorem epsilon_spec {A : Type} {P : A → Prop} (Hex : ∃y, P y) :
     P (@epsilon A (exists_imp_nonempty Hex) P) :=
 epsilon_spec_aux (exists_imp_nonempty Hex) P Hex
 
-theorem epsilon_singleton {A : Type} (a : A) : @epsilon A (nonempty_intro a) (λx, x = a) = a :=
-epsilon_spec (exists_intro a (refl a))
+theorem epsilon_singleton {A : Type} (a : A) : @epsilon A (nonempty.intro a) (λx, x = a) = a :=
+epsilon_spec (exists_intro a (eq.refl a))
 
 
 -- the axiom of choice

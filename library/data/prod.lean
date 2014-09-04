@@ -12,12 +12,14 @@ import logic.classes.inhabited logic.core.eq logic.classes.decidable
 open inhabited decidable
 
 inductive prod (A B : Type) : Type :=
-pair : A → B → prod A B
+mk : A → B → prod A B
+
+abbreviation pair := @prod.mk
 
 infixr `×` := prod
 
 -- notation for n-ary tuples
-notation `(` h `,` t:(foldl `,` (e r, pair r e) h) `)` := t
+notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
 
 namespace prod
 
@@ -38,7 +40,7 @@ section
   rec H p
 
   theorem prod_ext (p : prod A B) : pair (pr1 p) (pr2 p) = p :=
-  destruct p (λx y, refl (x, y))
+  destruct p (λx y, eq.refl (x, y))
 
   theorem pair_eq {a1 a2 : A} {b1 b2 : B} (H1 : a1 = a2) (H2 : b1 = b2) : (a1, b1) = (a2, b2) :=
   subst H1 (subst H2 rfl)
@@ -47,13 +49,13 @@ section
   destruct p1 (take a1 b1, destruct p2 (take a2 b2 H1 H2, pair_eq H1 H2))
 
   theorem prod_inhabited [instance] (H1 : inhabited A) (H2 : inhabited B) : inhabited (prod A B) :=
-  inhabited_destruct H1 (λa, inhabited_destruct H2 (λb, inhabited_mk (pair a b)))
+  inhabited.destruct H1 (λa, inhabited.destruct H2 (λb, inhabited.mk (pair a b)))
 
   theorem prod_eq_decidable [instance] (u v : A × B) (H1 : decidable (pr1 u = pr1 v))
       (H2 : decidable (pr2 u = pr2 v)) : decidable (u = v) :=
     have H3 : u = v ↔ (pr1 u = pr1 v) ∧ (pr2 u = pr2 v), from
       iff_intro
-        (assume H, subst H (and_intro rfl rfl))
+        (assume H, subst H (and.intro rfl rfl))
         (assume H, and_elim H (assume H4 H5, prod_eq H4 H5)),
     decidable_iff_equiv _ (iff_symm H3)
 

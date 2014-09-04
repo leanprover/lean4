@@ -1,8 +1,8 @@
 import logic
 open tactic
 
-definition my_tac := repeat ([ apply @and_intro
-                             | apply @refl
+definition my_tac := repeat ([ apply @and.intro
+                             | apply @eq.refl
                              ])
 tactic_hint my_tac
 

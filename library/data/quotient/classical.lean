@@ -16,7 +16,7 @@ open relation nonempty subtype
 definition prelim_map {A : Type} (R : A → A → Prop) (a : A) :=
 -- TODO: it is interesting how the elaborator fails here
 -- epsilon (fun b, R a b)
-@epsilon _ (nonempty_intro a) (fun b, R a b)
+@epsilon _ (nonempty.intro a) (fun b, R a b)
 
 -- TODO: only needed R reflexive (or weaker: R a a)
 theorem prelim_map_rel {A : Type} {R : A → A → Prop} (H : is_equivalence R) (a : A)
@@ -35,7 +35,7 @@ have H3 : ∀c, R a c ↔ R b c, from
       (assume H4 : R a c, transR (symmR H2) H4)
       (assume H4 : R b c, transR H2 H4),
 have H4 : (fun c, R a c) = (fun c, R b c), from funext (take c, iff_to_eq (H3 c)),
-show @epsilon _ (nonempty_intro a) (λc, R a c) = @epsilon _ (nonempty_intro b) (λc, R b c),
+show @epsilon _ (nonempty.intro a) (λc, R a c) = @epsilon _ (nonempty.intro b) (λc, R b c),
   from congr_arg _ H4
 
 definition quotient {A : Type} (R : A → A → Prop) : Type := image (prelim_map R)

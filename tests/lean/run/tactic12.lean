@@ -2,7 +2,7 @@ import logic
 open tactic
 
 theorem tst (a b : Prop) (H : ¬ a ∨ ¬ b) (Hb : b) : ¬ a ∧ b
-:= by apply and_intro;
+:= by apply and.intro;
       apply not_intro;
       exact
         (assume Ha, or_elim H

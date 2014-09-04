@@ -27,8 +27,8 @@ or_elim (prop_complete a)
 
 theorem prop_complete_swapped (a : Prop) : a = false ∨ a = true :=
 cases (λ x, x = false ∨ x = true)
-  (or_inr (refl true))
-  (or_inl (refl false))
+  (or_inr rfl)
+  (or_inl rfl)
   a
 
 theorem propext {a b : Prop} (Hab : a → b) (Hba : b → a) : a = b :=
@@ -50,7 +50,7 @@ propext
 
 open relation
 theorem iff_congruence [instance] (P : Prop → Prop) : congruence iff iff P :=
-congruence_mk
+congruence.mk
   (take (a b : Prop),
     assume H : a ↔ b,
-    show P a ↔ P b, from eq_to_iff (subst (iff_to_eq H) (refl (P a))))
+    show P a ↔ P b, from eq_to_iff (subst (iff_to_eq H) (eq.refl (P a))))

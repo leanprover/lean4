@@ -6,5 +6,5 @@ nil {} : list T,
 cons : T → list T → list T
 
 definition length {T : Type} : list T → nat := list.rec 0 (fun x l m, succ m)
-theorem length_nil {T : Type} : length (@nil T) = 0
-:= refl _
+theorem length_nil {T : Type} : length (@list.nil T) = 0
+:= eq.refl _

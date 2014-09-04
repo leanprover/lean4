@@ -9,7 +9,7 @@
 
 import logic data.num tools.tactic struc.binary tools.helper_tactics
 
-open num tactic binary eq_ops
+open tactic binary eq_ops
 open decidable (hiding induction_on rec_on)
 open relation -- for subst_iff
 open helper_tactics
@@ -44,8 +44,8 @@ abbreviation plus (x y : ℕ) : ℕ :=
 nat.rec x (λ n r, succ r) y
 
 definition to_nat [coercion] [inline] (n : num) : ℕ :=
-num.num.rec zero
-    (λ n, num.pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
+num.rec zero
+    (λ n, pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
 
 
 -- Successor and predecessor
@@ -73,7 +73,7 @@ opaque_hint (hiding pred)
 
 theorem zero_or_succ_pred (n : ℕ) : n = 0 ∨ n = succ (pred n) :=
 induction_on n
-  (or_inl (refl 0))
+  (or_inl rfl)
   (take m IH, or_inr
     (show succ m = succ (pred (succ m)), from congr_arg succ pred_succ⁻¹))
 
@@ -107,7 +107,7 @@ have general : ∀n, decidable (n = m), from
   rec_on m
     (take n,
       rec_on n
-        (inl (refl 0))
+        (inl rfl)
         (λ m iH, inr succ_ne_zero))
     (λ (m' : ℕ) (iH1 : ∀n, decidable (n = m')),
       take n, rec_on n
@@ -126,11 +126,11 @@ theorem two_step_induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P 0) (H2 : P 1)
     (H3 : ∀ (n : ℕ) (IH1 : P n) (IH2 : P (succ n)), P (succ (succ n))) : P a :=
 have stronger : P a ∧ P (succ a), from
   induction_on a
-    (and_intro H1 H2)
+    (and.intro H1 H2)
     (take k IH,
       have IH1 : P k, from and_elim_left IH,
       have IH2 : P (succ k), from and_elim_right IH,
-        and_intro IH2 (H3 k IH1 IH2)),
+        and.intro IH2 (H3 k IH1 IH2)),
   and_elim_left stronger
 
 theorem sub_induction {P : ℕ → ℕ → Prop} (n m : ℕ) (H1 : ∀m, P 0 m)
@@ -229,7 +229,7 @@ have H2 : m + n = m + k, from add_comm ⬝ H ⬝ add_comm,
 
 theorem add_eq_zero_left {n m : ℕ} : n + m = 0 → n = 0 :=
 induction_on n
-  (take (H : 0 + m = 0), refl 0)
+  (take (H : 0 + m = 0), rfl)
   (take k IH,
     assume H : succ k + m = 0,
     absurd
@@ -242,7 +242,7 @@ theorem add_eq_zero_right {n m : ℕ} (H : n + m = 0) : m = 0 :=
 add_eq_zero_left (add_comm ⬝ H)
 
 theorem add_eq_zero {n m : ℕ} (H : n + m = 0) : n = 0 ∧ m = 0 :=
-and_intro (add_eq_zero_left H) (add_eq_zero_right H)
+and.intro (add_eq_zero_left H) (add_eq_zero_right H)
 
 -- ### misc
 

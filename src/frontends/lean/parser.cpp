@@ -132,6 +132,11 @@ void parser::add_ref_index(name const & n, pos_info const & pos) {
         m_index->add_ref(get_stream_name(), pos, n);
 }
 
+void parser::add_abbrev_index(name const & a, name const & d) {
+    if (m_index)
+        m_index->add_abbrev(a, d);
+}
+
 bool parser::are_info_lines_valid(unsigned start_line, unsigned end_line) const {
     if (!m_info_manager)
         return true; // we are not tracking info

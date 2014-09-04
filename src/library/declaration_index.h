@@ -20,10 +20,13 @@ namespace lean {
 class declaration_index {
     typedef std::tuple<std::string, pos_info, name, expr> decl;
     typedef std::tuple<std::string, pos_info, name> ref;
-    name_map<decl>   m_decls;
-    std::vector<ref> m_refs;
+    typedef pair<name, name> abbrev;
+    name_map<decl>      m_decls;
+    std::vector<abbrev> m_abbrevs;
+    std::vector<ref>    m_refs;
 public:
     void add_decl(std::string const fname, pos_info const & p, name const & n, name const & k, expr const & t);
+    void add_abbrev(name const & n, name const & d);
     void add_ref(std::string const fname, pos_info const & p, name const & n);
     void save(io_state_stream const & out) const;
 };

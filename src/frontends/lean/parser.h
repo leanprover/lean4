@@ -198,6 +198,7 @@ public:
     void set_index(declaration_index * i) { m_index = i; }
     void add_decl_index(name const & n, pos_info const & pos, name const & k, expr const & t);
     void add_ref_index(name const & n, pos_info const & pos);
+    void add_abbrev_index(name const & a, name const & d);
 
     environment const & env() const { return m_env; }
     io_state const & ios() const { return m_ios; }

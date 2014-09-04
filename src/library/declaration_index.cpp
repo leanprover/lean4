@@ -11,6 +11,9 @@ namespace lean {
 void declaration_index::add_decl(std::string const fname, pos_info const & p, name const & n, name const & k, expr const & t) {
     m_decls.insert(n, decl(fname, p, k, t));
 }
+void declaration_index::add_abbrev(name const & n, name const & d) {
+    m_abbrevs.emplace_back(n, d);
+}
 void declaration_index::add_ref(std::string const fname, pos_info const & p, name const & n) {
     m_refs.emplace_back(fname, p, n);
 }
@@ -24,6 +27,9 @@ void declaration_index::save(io_state_stream const & out) const {
             out.get_stream() << mk_pair(flatten(out.get_formatter()(t)), opts);
             out << endl;
         });
+    for (auto const & a : m_abbrevs) {
+        out << "a" << "|" << a.first << "|" << a.second << endl;
+    }
     for (auto const & r : m_refs) {
         std::tie(fname, p, n) = r;
         out << "r" << "|" << fname << "|" << p.first << "|" << p.second << "|" << n << endl;

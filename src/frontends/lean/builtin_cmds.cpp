@@ -184,7 +184,7 @@ static void check_identifier(parser & p, environment const & env, name const & n
 }
 
 // add id as an abbreviation for d
-static environment add_abbrev(environment const & env, name const & id, name const & d) {
+static environment add_abbrev(parser & p, environment const & env, name const & id, name const & d) {
     declaration decl = env.get(d);
     buffer<level> ls;
     for (name const & l : decl.get_univ_params())
@@ -193,6 +193,7 @@ static environment add_abbrev(environment const & env, name const & id, name con
     bool opaque = false;
     name const & ns = get_namespace(env);
     name full_id    = ns + id;
+    p.add_abbrev_index(full_id, d);
     environment new_env = module::add(env, check(env, mk_definition(env, full_id, decl.get_univ_params(), decl.get_type(), value, opaque)));
     if (full_id != id)
         new_env = add_expr_alias_rec(new_env, id, full_id);
@@ -238,7 +239,7 @@ environment open_export_cmd(parser & p, bool open) {
                         if (open)
                             env = add_expr_alias(env, as+to_id, ns+from_id);
                         else
-                            env = add_abbrev(env, as+to_id, ns+from_id);
+                            env = add_abbrev(p, env, as+to_id, ns+from_id);
                     }
                 } else if (p.curr_is_token_or_id(g_hiding)) {
                     p.next();
@@ -257,7 +258,7 @@ environment open_export_cmd(parser & p, bool open) {
                         if (open)
                             env = add_expr_alias(env, as+id, ns+id);
                         else
-                            env = add_abbrev(env, as+id, ns+id);
+                            env = add_abbrev(p, env, as+id, ns+id);
                     }
                 } else {
                     throw parser_error("invalid 'open/export' command option, identifier, 'hiding' or 'renaming' expected", p.pos());
@@ -277,7 +278,7 @@ environment open_export_cmd(parser & p, bool open) {
                                 !is_exception(d.get_name(), ns, exceptions.size(), exceptions.data())) {
                                 name new_id = d.get_name().replace_prefix(ns, as);
                                 if (!new_id.is_anonymous())
-                                    new_env = add_abbrev(new_env, new_id, d.get_name());
+                                    new_env = add_abbrev(p, new_env, new_id, d.get_name());
                             }
                         });
                     env = new_env;

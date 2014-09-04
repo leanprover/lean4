@@ -964,7 +964,7 @@ public:
 
     bool is_choice_app(expr const & e) {
         expr const & f = get_app_fn(e);
-        return is_choice(f) || (is_explicit(f) && is_choice(get_explicit_arg(f)));
+        return is_choice(f) || (is_annotation(f) && is_choice(get_nested_annotation_arg(f)));
     }
 
     /** \brief Process ((choice f_1 ... f_n) a_1 ... a_k) as
@@ -972,17 +972,14 @@ public:
     */
     expr visit_choice_app(expr const & e, constraint_seq & cs) {
         buffer<expr> args;
-        expr f = get_app_rev_args(e, args);
-        bool expl = is_explicit(f);
-        if (expl)
-            f = get_explicit_arg(f);
+        expr r = get_app_rev_args(e, args);
+        expr f = get_nested_annotation_arg(r);
         lean_assert(is_choice(f));
         buffer<expr> new_choices;
         unsigned num = get_num_choices(f);
         for (unsigned i = 0; i < num; i++) {
             expr f_i = get_choice(f, i);
-            if (expl)
-                f_i = copy_tag(f_i, mk_explicit(f_i));
+            f_i      = copy_annotations(r, f_i);
             new_choices.push_back(mk_rev_app(f_i, args));
         }
         return visit_choice(copy_tag(e, mk_choice(new_choices.size(), new_choices.data())), none_expr(), cs);
@@ -992,7 +989,7 @@ public:
         if (is_choice_app(e))
             return visit_choice_app(e, cs);
         constraint_seq f_cs;
-        bool expl   = is_explicit(get_app_fn(e));
+        bool expl   = is_nested_explicit(get_app_fn(e));
         expr f      = visit(app_fn(e), f_cs);
         auto f_t    = ensure_fun(f, f_cs);
         f           = f_t.first;
@@ -1198,13 +1195,6 @@ public:
         }
     }
 
-    expr visit_extra_info(expr const & e, constraint_seq & cs) {
-        auto ecs = visit(get_annotation_arg(e));
-        cs += ecs.second;
-        save_extra_type_data(e, ecs.first);
-        return ecs.first;
-    }
-
     expr visit_core(expr const & e, constraint_seq & cs) {
         if (is_placeholder(e)) {
             return visit_placeholder(e, cs);
@@ -1219,8 +1209,6 @@ public:
             return visit(get_annotation_arg(e), cs);
         } else if (is_typed_expr(e)) {
             return visit_typed_expr(e, cs);
-        } else if (is_extra_info(e)) {
-            return visit_extra_info(e, cs);
         } else {
             switch (e.kind()) {
             case expr_kind::Local:      return e;
@@ -1238,6 +1226,11 @@ public:
     }
 
     pair<expr, constraint_seq> visit(expr const & e) {
+        if (is_extra_info(e)) {
+            auto ecs = visit(get_annotation_arg(e));
+            save_extra_type_data(e, ecs.first);
+            return ecs;
+        }
         expr r;
         expr b = e;
         constraint_seq cs;

@@ -33,6 +33,7 @@ static name g_as_is_name    = get_as_is_name();    // force 'as_is' annotation t
 
 expr mk_explicit(expr const & e) { return mk_annotation(get_explicit_name(), e); }
 bool is_explicit(expr const & e) { return is_annotation(e, get_explicit_name()); }
+bool is_nested_explicit(expr const & e) { return is_nested_annotation(e, get_explicit_name()); }
 expr mk_as_is(expr const & e) { return mk_annotation(get_as_is_name(), e); }
 bool is_as_is(expr const & e) { return is_annotation(e, get_as_is_name()); }
 expr mk_implicit(expr const & e) { return mk_annotation(get_implicit_name(), e); }

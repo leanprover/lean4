@@ -15,6 +15,8 @@ namespace lean {
 expr mk_explicit(expr const & e);
 /** \brief Return true iff \c e is an explicit expression. */
 bool is_explicit(expr const & e);
+/** \brief See #is_nested_annotation */
+bool is_nested_explicit(expr const & e);
 /** \brief Create an explicit expression that is accepted as is
     by the elaborator.
 */

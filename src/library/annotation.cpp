@@ -91,6 +91,39 @@ expr const & get_annotation_arg(expr const & e) {
     return macro_arg(e, 0);
 }
 
+bool is_nested_annotation(expr const & e, name const & kind) {
+    expr const * it = &e;
+    while (is_annotation(*it)) {
+        if (get_annotation_kind(*it) == kind)
+            return true;
+        it = &get_annotation_arg(*it);
+    }
+    return false;
+}
+
+expr const & get_nested_annotation_arg(expr const & e) {
+    expr const * it = &e;
+    while (is_annotation(*it))
+        it = &get_annotation_arg(*it);
+    return *it;
+}
+
+expr copy_annotations(expr const & from, expr const & to) {
+    buffer<expr> trace;
+    expr const * it = &from;
+    while (is_annotation(*it)) {
+        trace.push_back(*it);
+        it = &get_annotation_arg(*it);
+    }
+    expr r     = to;
+    unsigned i = trace.size();
+    while (i > 0) {
+        --i;
+        r = copy_tag(trace[i], mk_annotation(get_annotation_kind(trace[i]), r));
+    }
+    return r;
+}
+
 name const & get_have_name() {
     static name g_have("have");
     static register_annotation_fn g_have_annotation(g_have);

@@ -29,6 +29,13 @@ expr mk_annotation(name const & kind, expr const & e);
 bool is_annotation(expr const & e);
 /** \brief Return true iff \c e was created using #mk_annotation, and has tag \c kind. */
 bool is_annotation(expr const & e, name const & kind);
+/** \brief Return true iff \c e is of the form (a_1 ... (a_k e') ...)
+    where all a_i's are annotations and one of the is \c kind.
+
+    \remark is_nested_annotation(e, kind) implies is_annotation(e, kind)
+*/
+bool is_nested_annotation(expr const & e, name const & kind);
+
 /** \brief Return the annotated expression, \c e must have been created using #mk_annotation.
 
     \post get_annotation_arg(mk_annotation(k, e)) == e
@@ -39,6 +46,15 @@ expr const & get_annotation_arg(expr const & e);
     \post get_annotation_arg(mk_annotation(k, e)) == k
 */
 name const & get_annotation_kind(expr const & e);
+
+/** \brief Return the nested annotated expression, \c e must have been created using #mk_annotation.
+    This function is the "transitive" version of #get_annotation_arg.
+    It guarantees that the result does not satisfy the predicate is_annotation.
+*/
+expr const & get_nested_annotation_arg(expr const & e);
+
+/** \brief Copy annotation from \c from to \c to. */
+expr copy_annotations(expr const & from, expr const & to);
 
 /** \brief Tag \c e as a 'have'-expression. 'have' is a pre-registered annotation. */
 expr mk_have_annotation(expr const & e);

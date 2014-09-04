@@ -13,7 +13,7 @@ namespace lean {
     Whenever the elaborator finds this annotation it does not generate
     information for \c e or any subterm of \c e.
 */
-expr mk_noinfo(expr const & e);
-/** \brief Return true iff \c e is a term annotated with mk_noinfo */
-bool is_noinfo(expr const & e);
+expr mk_no_info(expr const & e);
+/** \brief Return true iff \c e is a term annotated with mk_no_info */
+bool is_no_info(expr const & e);
 }

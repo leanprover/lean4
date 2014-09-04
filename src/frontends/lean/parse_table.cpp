@@ -11,18 +11,18 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parse_table.h"
-#include "frontends/lean/noinfo.h"
+#include "frontends/lean/no_info.h"
 
 namespace lean {
 namespace notation {
-/** \brief Annotate subterms of "macro" \c e with noinfo annotation.
+/** \brief Annotate subterms of "macro" \c e with no_info annotation.
 
     1- Variables are not annotated.
     2- A constant f in a macro (f ...) is not annotated if (root == true).
-    3- Every other subterm is annotated with noinfo.
+    3- Every other subterm is annotated with no_info.
 */
 static expr annotate_macro_subterms(expr const & e, bool root = true) {
-    if (is_var(e) || is_noinfo(e))
+    if (is_var(e) || is_no_info(e))
         return e;
     if (is_binding(e))
         return update_binding(e,
@@ -32,7 +32,7 @@ static expr annotate_macro_subterms(expr const & e, bool root = true) {
     bool modified  = false;
     expr const & f = get_app_args(e, args);
     expr new_f;
-    if ((is_constant(f) && root) || is_noinfo(f)) {
+    if ((is_constant(f) && root) || is_no_info(f)) {
         new_f = f;
     } else if (is_annotation(f)) {
         name const & k   = get_annotation_kind(f);
@@ -45,7 +45,7 @@ static expr annotate_macro_subterms(expr const & e, bool root = true) {
             modified = true;
         }
     } else {
-        new_f    = mk_noinfo(f);
+        new_f    = mk_no_info(f);
         modified = true;
     }
     for (expr & arg : args) {

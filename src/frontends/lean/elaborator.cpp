@@ -37,7 +37,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/elaborator.h"
-#include "frontends/lean/noinfo.h"
+#include "frontends/lean/no_info.h"
 #include "frontends/lean/extra_info.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
@@ -310,7 +310,7 @@ class elaborator {
                                               // this mapping is populated by the 'by tactic-expr' expression.
     name_set             m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
     bool                 m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent.
-    bool                 m_noinfo;  // when true, we do not collect information when true, we set is to true whenever we find noinfo annotation.
+    bool                 m_no_info;  // when true, we do not collect information when true, we set is to true whenever we find no_info annotation.
     info_manager         m_pre_info_data;
 
     // Auxiliary object to "saving" elaborator state
@@ -334,21 +334,21 @@ class elaborator {
     /** \brief Auxiliary object for creating backtracking points, and replacing the local scopes. */
     struct new_scope {
         elaborator &           m_main;
-        bool                   m_old_noinfo;
+        bool                   m_old_no_info;
         context::scope_replace m_context_scope;
         context::scope_replace m_full_context_scope;
         cache                  m_old_cache;
-        new_scope(elaborator & e, saved_state const & s, bool noinfo = false):
+        new_scope(elaborator & e, saved_state const & s, bool no_info = false):
             m_main(e),
             m_context_scope(e.m_context, s.m_ctx),
             m_full_context_scope(e.m_full_context, s.m_full_ctx){
-            m_old_noinfo    = m_main.m_noinfo;
-            m_main.m_noinfo = noinfo;
+            m_old_no_info    = m_main.m_no_info;
+            m_main.m_no_info = no_info;
             m_old_cache     = m_main.m_cache;
             m_main.m_cache  = s.m_cache;
         }
         ~new_scope() {
-            m_main.m_noinfo = m_old_noinfo;
+            m_main.m_no_info = m_old_no_info;
             m_main.m_cache  = m_old_cache;
         }
     };
@@ -447,8 +447,8 @@ class elaborator {
                 pre  = copy_tag(m_meta, ::lean::mk_app(pre, copy_tag(m_meta, mk_strict_expr_placeholder())));
             }
             try {
-                bool noinfo = true;
-                new_scope s(m_elab, m_state, noinfo);
+                bool no_info = true;
+                new_scope s(m_elab, m_state, no_info);
                 pair<expr, constraint_seq> rcs = m_elab.visit(pre); // use elaborator to create metavariables, levels, etc.
                 expr r = rcs.first;
                 buffer<constraint> cs;
@@ -525,7 +525,7 @@ public:
         m_context(m_ngen, m_mvar2meta, ctx),
         m_full_context(m_ngen, m_mvar2meta, ctx) {
         m_relax_main_opaque = false;
-        m_noinfo = false;
+        m_no_info = false;
         m_tc[0]  = mk_type_checker_with_hints(env.m_env, m_ngen.mk_child(), false);
         m_tc[1]  = mk_type_checker_with_hints(env.m_env, m_ngen.mk_child(), true);
     }
@@ -552,7 +552,7 @@ public:
 
     /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
     void save_type_data(expr const & e, expr const & r) {
-        if (!m_noinfo && infom() && pip() && (is_constant(e) || is_local(e) || is_placeholder(e))) {
+        if (!m_no_info && infom() && pip() && (is_constant(e) || is_local(e) || is_placeholder(e))) {
             if (auto p = pip()->get_pos_info(e)) {
                 expr t = m_tc[m_relax_main_opaque]->infer(r).first;
                 m_pre_info_data.add_type_info(p->first, p->second, t);
@@ -562,7 +562,7 @@ public:
 
     /** \brief Store type information at pos(e) for r if \c e is marked as "extra" in the info_manager */
     void save_extra_type_data(expr const & e, expr const & r) {
-        if (!m_noinfo && infom() && pip()) {
+        if (!m_no_info && infom() && pip()) {
             if (auto p = pip()->get_pos_info(e)) {
                 expr t = m_tc[m_relax_main_opaque]->infer(r).first;
                 m_pre_info_data.add_extra_type_info(p->first, p->second, r, t);
@@ -572,7 +572,7 @@ public:
 
     /** \brief Auxiliary function for saving information about which overloaded identifier was used by the elaborator. */
     void save_identifier_info(expr const & f) {
-        if (!m_noinfo && infom() && pip() && is_constant(f)) {
+        if (!m_no_info && infom() && pip() && is_constant(f)) {
             if (auto p = pip()->get_pos_info(f))
                 m_pre_info_data.add_identifier_info(p->first, p->second, const_name(f));
         }
@@ -580,7 +580,7 @@ public:
 
     /** \brief Store actual term that was synthesized for an explicit placeholders */
     void save_synth_data(expr const & e, expr const & r) {
-        if (!m_noinfo && infom() && pip() && is_placeholder(e)) {
+        if (!m_no_info && infom() && pip() && is_placeholder(e)) {
             if (auto p = pip()->get_pos_info(e))
                 m_pre_info_data.add_synth_info(p->first, p->second, r);
         }
@@ -597,7 +597,7 @@ public:
         It marks that coercion c was used on e.
     */
     void save_coercion_info(expr const & e, expr const & c) {
-        if (!m_noinfo && infom() && pip()) {
+        if (!m_no_info && infom() && pip()) {
             if (auto p = pip()->get_pos_info(e)) {
                 expr t = m_tc[m_relax_main_opaque]->infer(c).first;
                 m_pre_info_data.add_coercion_info(p->first, p->second, c, t);
@@ -607,7 +607,7 @@ public:
 
     /** \brief Remove coercion information associated with \c e */
     void erase_coercion_info(expr const & e) {
-        if (!m_noinfo && infom() && pip()) {
+        if (!m_no_info && infom() && pip()) {
             if (auto p = pip()->get_pos_info(e))
                 m_pre_info_data.erase_coercion_info(p->first, p->second);
         }
@@ -1214,8 +1214,8 @@ public:
             return visit_let_value(e, cs);
         } else if (is_by(e)) {
             return visit_by(e, none_expr(), cs);
-        } else if (is_noinfo(e)) {
-            flet<bool> let(m_noinfo, true);
+        } else if (is_no_info(e)) {
+            flet<bool> let(m_no_info, true);
             return visit(get_annotation_arg(e), cs);
         } else if (is_typed_expr(e)) {
             return visit_typed_expr(e, cs);

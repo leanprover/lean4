@@ -38,7 +38,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/noinfo.h"
-#include "frontends/lean/qinfo.h"
+#include "frontends/lean/extra_info.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
@@ -1198,7 +1198,7 @@ public:
         }
     }
 
-    expr visit_qinfo(expr const & e, constraint_seq & cs) {
+    expr visit_extra_info(expr const & e, constraint_seq & cs) {
         auto ecs = visit(get_annotation_arg(e));
         cs += ecs.second;
         save_extra_type_data(e, ecs.first);
@@ -1219,8 +1219,8 @@ public:
             return visit(get_annotation_arg(e), cs);
         } else if (is_typed_expr(e)) {
             return visit_typed_expr(e, cs);
-        } else if (is_qinfo(e)) {
-            return visit_qinfo(e, cs);
+        } else if (is_extra_info(e)) {
+            return visit_extra_info(e, cs);
         } else {
             switch (e.kind()) {
             case expr_kind::Local:      return e;

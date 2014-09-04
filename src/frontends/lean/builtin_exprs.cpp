@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/calc.h"
 #include "frontends/lean/begin_end_ext.h"
 #include "frontends/lean/parser.h"
-#include "frontends/lean/qinfo.h"
+#include "frontends/lean/extra_info.h"
 #include "frontends/lean/util.h"
 
 namespace lean {
@@ -363,10 +363,8 @@ static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos
     return p.mk_sorry(pos);
 }
 
-static expr parse_question_mark(parser & p, unsigned, expr const *, pos_info const & pos) {
-    expr e = p.parse_expr(get_max_prec());
-    e = p.save_pos(mk_qinfo(e), pos);
-    return e;
+static expr parse_rparen(parser & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_extra_info(args[0]), pos);
 }
 
 parse_table init_nud_table() {
@@ -374,15 +372,13 @@ parse_table init_nud_table() {
     action Skip(mk_skip_action());
     action Binders(mk_binders_action());
     expr x0 = mk_var(0);
-    expr x1 = mk_var(1);
     parse_table r;
     r = r.add({transition("_", mk_ext_action(parse_placeholder))}, x0);
     r = r.add({transition("by", mk_ext_action(parse_by))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("obtain", mk_ext_action(parse_obtain))}, x0);
-    r = r.add({transition("(", Expr), transition(")", Skip)}, x0);
-    r = r.add({transition("?", mk_ext_action(parse_question_mark))}, x0);
+    r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
     r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
     r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);

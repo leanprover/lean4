@@ -12,11 +12,14 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/stackinfo.h"
 #include "util/debug.h"
+#include "util/sstream.h"
 #include "util/interrupt.h"
 #include "util/script_state.h"
 #include "util/thread.h"
 #include "util/thread_script_state.h"
 #include "util/lean_path.h"
+#include "util/sexpr/options.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/formatter.h"
@@ -49,6 +52,7 @@ using lean::pos_info;
 using lean::pos_info_provider;
 using lean::optional;
 using lean::expr;
+using lean::options;
 using lean::declaration_index;
 
 enum class input_kind { Unspecified, Lean, Lua };
@@ -89,6 +93,7 @@ static void display_help(std::ostream & out) {
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
+    std::cout << "  -D name=value     set a configuration option (see set_option command)\n";
 }
 
 static char const * get_file_extension(char const * fname) {
@@ -121,7 +126,7 @@ static struct option g_long_options[] = {
 #endif
     {"quiet",       no_argument,       0, 'q'},
     {"cache",       required_argument, 0, 'c'},
-    {"deps",        no_argument,       0, 'D'},
+    {"deps",        no_argument,       0, 'd'},
     {"flycheck",    no_argument,       0, 'F'},
     {"index",       no_argument,       0, 'i'},
 #if defined(LEAN_USE_BOOST)
@@ -130,7 +135,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define BASIC_OPT_STR "FDqlupgvhk:012t:012o:c:i:"
+#define BASIC_OPT_STR "FdD:qlupgvhk:012t:012o:c:i:"
 
 #if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
 static char const * g_opt_str = BASIC_OPT_STR "Sj:012s:012";
@@ -149,19 +154,49 @@ public:
     virtual pos_info get_some_pos() const { return pos_info(-1, -1); }
 };
 
+options set_config_option(options const & opts, char const * in) {
+    std::string in_str(in);
+    auto pos = in_str.find('=');
+    if (pos == std::string::npos)
+        throw lean::exception("invalid -D parameter, argument must contain '='");
+    lean::name opt = lean::string_to_name(in_str.substr(0, pos));
+    std::string val = in_str.substr(pos+1);
+    auto decls = lean::get_option_declarations();
+    auto it = decls.find(opt);
+    if (it != decls.end()) {
+        switch (it->second.kind()) {
+        case lean::BoolOption:
+            if (val == "true")
+                return opts.update(opt, true);
+            else if (val == "false")
+                return opts.update(opt, false);
+            else
+                throw lean::exception(lean::sstream() << "invalid -D parameter, invalid configuration option '" << opt
+                                      << "' value, it must be true/false");
+        case lean::IntOption:
+        case lean::UnsignedOption:
+            return opts.update(opt, atoi(val.c_str()));
+        default:
+            throw lean::exception(lean::sstream() << "invalid -D parameter, configuration option '" << opt
+                                  << "' cannot be set in the command line, use set_option command");
+        }
+    } else {
+        throw lean::exception(lean::sstream() << "invalid -D parameter, unknown configuration option '" << opt << "'");
+    }
+}
+
 int main(int argc, char ** argv) {
     lean::save_stack_info();
     lean::init_default_print_fn();
     lean::register_modules();
     bool export_objects  = false;
     unsigned trust_lvl   = 0;
-    bool quiet           = false;
     bool server          = false;
     bool only_deps       = false;
-    bool flycheck        = false;
     unsigned num_threads = 1;
     bool use_cache       = false;
     bool gen_index       = false;
+    options opts;
     std::string output;
     std::string cache_name;
     std::string index_name;
@@ -216,13 +251,21 @@ int main(int argc, char ** argv) {
             trust_lvl = atoi(optarg);
             break;
         case 'q':
-            quiet = true;
+            opts = opts.update("verbose", false);
             break;
-        case 'D':
+        case 'd':
             only_deps = true;
             break;
+        case 'D':
+            try {
+                opts = set_config_option(opts, optarg);
+            } catch (lean::exception & ex) {
+                std::cerr << ex.what() << std::endl;
+                return 1;
+            }
+            break;
         case 'F':
-            flycheck = true;
+            opts = opts.update("flycheck", true);
             break;
         default:
             std::cerr << "Unknown command line option\n";
@@ -237,11 +280,7 @@ int main(int argc, char ** argv) {
     #endif
 
     environment env = mk_environment(trust_lvl);
-    io_state ios(lean::mk_pretty_formatter_factory());
-    if (quiet)
-        ios.set_option("verbose", false);
-    if (flycheck)
-        ios.set_option("flycheck", true);
+    io_state ios(opts, lean::mk_pretty_formatter_factory());
     script_state S = lean::get_thread_script_state();
     set_environment set1(S, env);
     set_io_state    set2(S, ios);

@@ -26,7 +26,7 @@ theorem flip_pr1 {A B : Type} (a : A × B) : pr1 (flip a) = pr2 a := rfl
 theorem flip_pr2 {A B : Type} (a : A × B) : pr2 (flip a) = pr1 a := rfl
 
 theorem flip_flip {A B : Type} (a : A × B) : flip (flip a) = a :=
-pair_destruct a (take x y, rfl)
+prod.destruct a (take x y, rfl)
 
 theorem P_flip {A B : Type} {P : A → B → Prop} {a : A × B} (H : P (pr1 a) (pr2 a))
   : P (pr2 (flip a)) (pr1 (flip a)) :=

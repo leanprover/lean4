@@ -600,7 +600,7 @@ struct add_inductive_fn {
     }
 
     /** \brief Return the name of the eliminator/recursor for \c d. */
-    name get_elim_name(inductive_decl const & d) { return inductive_decl_name(d).append_after("_rec"); }
+    name get_elim_name(inductive_decl const & d) { return inductive_decl_name(d) + name("rec"); }
 
     name get_elim_name(unsigned d_idx) { return get_elim_name(get_ith(m_decls, d_idx)); }
 

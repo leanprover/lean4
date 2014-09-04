@@ -5,7 +5,7 @@ namespace algebra
   mk_mul_struct : (A → A → A) → mul_struct A
 
   definition mul [inline] {A : Type} {s : mul_struct A} (a b : A)
-  := mul_struct_rec (λ f, f) s a b
+  := mul_struct.rec (λ f, f) s a b
 
   infixl `*`:75 := mul
 end algebra

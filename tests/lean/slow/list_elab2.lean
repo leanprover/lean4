@@ -33,7 +33,7 @@ variable {T : Type}
 
 theorem list_induction_on {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hind : forall x : T, forall l : list T, forall H : P l, P (cons x l)) : P l :=
-list_rec Hnil Hind l
+list.rec Hnil Hind l
 
 theorem list_cases_on {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hcons : forall x : T, forall l : list T, P (cons x l)) : P l :=
@@ -46,7 +46,7 @@ notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 -- ------
 
 definition concat (s t : list T) : list T :=
-list_rec t (fun x : T, fun l : list T, fun u : list T, cons x u) s
+list.rec t (fun x : T, fun l : list T, fun u : list T, cons x u) s
 
 infixl `++` : 65 := concat
 
@@ -97,7 +97,7 @@ list_induction_on s (refl _)
 -- Length
 -- ------
 
-definition length : list T → ℕ := list_rec 0 (fun x l m, succ m)
+definition length : list T → ℕ := list.rec 0 (fun x l m, succ m)
 
 -- TODO: cannot replace zero by 0
 theorem length_nil : length (@nil T) = zero := refl _
@@ -121,7 +121,7 @@ list_induction_on s
 -- Reverse
 -- -------
 
-definition reverse : list T → list T := list_rec nil (fun x l r, r ++ [x])
+definition reverse : list T → list T := list.rec nil (fun x l r, r ++ [x])
 
 theorem reverse_nil : reverse (@nil T) = nil := refl _
 
@@ -159,7 +159,7 @@ list_induction_on l (refl _)
 
 -- TODO: define reverse from append
 
-definition append (x : T) : list T → list T := list_rec (x :: nil) (fun y l l', y :: l')
+definition append (x : T) : list T → list T := list.rec (x :: nil) (fun y l l', y :: l')
 
 theorem append_nil (x : T) : append x nil = [x] := refl _
 

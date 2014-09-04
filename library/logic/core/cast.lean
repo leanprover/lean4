@@ -9,7 +9,7 @@ import .eq .quantifiers
 open eq_ops
 
 definition cast {A B : Type} (H : A = B) (a : A) : B :=
-eq_rec a H
+eq.rec a H
 
 theorem cast_refl {A : Type} (a : A) : cast (refl A) a = a :=
 refl (cast (refl A) a)

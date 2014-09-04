@@ -17,15 +17,15 @@ section
 
   parameters {A : Type} {B : A → Type}
 
-  abbreviation dpr1 (p : Σ x, B x) : A := sigma_rec (λ a b, a) p
-  abbreviation dpr2 {A : Type} {B : A → Type} (p : Σ x, B x) : B (dpr1 p) := sigma_rec (λ a b, b) p
+  abbreviation dpr1 (p : Σ x, B x) : A := rec (λ a b, a) p
+  abbreviation dpr2 {A : Type} {B : A → Type} (p : Σ x, B x) : B (dpr1 p) := rec (λ a b, b) p
 
   theorem dpr1_dpair (a : A) (b : B a) : dpr1 (dpair a b) = a := refl a
   theorem dpr2_dpair (a : A) (b : B a) : dpr2 (dpair a b) = b := refl b
 
   -- TODO: remove prefix when we can protect it
   theorem sigma_destruct {P : sigma B → Prop} (p : sigma B) (H : ∀a b, P (dpair a b)) : P p :=
-  sigma_rec H p
+  rec H p
 
   theorem dpair_ext (p : sigma B) : dpair (dpr1 p) (dpr2 p) = p :=
   sigma_destruct p (take a b, rfl)
@@ -34,7 +34,7 @@ section
   theorem dpair_eq {a1 a2 : A} {b1 : B a1} {b2 : B a2} (H1 : a1 = a2) (H2 : eq_rec_on H1 b1 = b2) :
     dpair a1 b1 = dpair a2 b2 :=
   (show ∀(b2 : B a2) (H1 : a1 = a2) (H2 : eq_rec_on H1 b1 = b2), dpair a1 b1 = dpair a2 b2, from
-    eq_rec
+    eq.rec
       (take (b2' : B a1),
         assume (H1' : a1 = a1),
         assume (H2' : eq_rec_on H1' b1 = b2'),

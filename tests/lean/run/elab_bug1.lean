@@ -23,7 +23,7 @@ mk : (∀x y : T1, R1 x y → R2 (f x) (f y)) → congruence R1 R2 f
 -- to trigger class inference
 theorem congr_app {T1 : Type} {T2 : Type} (R1 : T1 → T1 → Prop) (R2 : T2 → T2 → Prop)
     (f : T1 → T2) {C : congruence R1 R2 f} {x y : T1} : R1 x y → R2 (f x) (f y) :=
-  congruence_rec id C x y
+  congruence.rec id C x y
 
 
 -- General tools to build instances
@@ -59,7 +59,7 @@ theorem congr_not [instance] (T : Type) (R : T → T → Prop) (f : T → Prop)
 
 theorem subst_iff {T : Type} {R : T → T → Prop} {P : T → Prop} {C : congruence R iff P}
     {a b : T} (H : R a b) (H1 : P a) : P b :=
--- iff_mp_left (congruence_rec id C a b H) H1
+-- iff_mp_left (congruence.rec id C a b H) H1
 iff_elim_left (@congr_app _ _ R iff P C a b H) H1
 
 theorem test2 (a b c d e : Prop) (H1 : a ↔ b) (H2 : a ∨ c → ¬(d → a)) : b ∨ c → ¬(d → b) :=

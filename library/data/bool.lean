@@ -13,13 +13,13 @@ tt : bool
 namespace bool
 
 theorem cases_on {p : bool → Prop} (b : bool) (H0 : p ff) (H1 : p tt) : p b :=
-bool_rec H0 H1 b
+rec H0 H1 b
 
 theorem bool_inhabited [instance] : inhabited bool :=
 inhabited_mk ff
 
 definition cond {A : Type} (b : bool) (t e : A) :=
-bool_rec e t b
+rec e t b
 
 theorem dichotomy (b : bool) : b = ff ∨ b = tt :=
 cases_on b (or_inl (refl ff)) (or_inr (refl tt))
@@ -38,13 +38,13 @@ assume H : ff = tt, absurd
   true_ne_false
 
 theorem decidable_eq [instance] (a b : bool) : decidable (a = b) :=
-bool_rec
-  (bool_rec (inl (refl ff)) (inr ff_ne_tt) b)
-  (bool_rec (inr (ne_symm ff_ne_tt)) (inl (refl tt)) b)
+rec
+  (rec (inl (refl ff)) (inr ff_ne_tt) b)
+  (rec (inr (ne_symm ff_ne_tt)) (inl (refl tt)) b)
   a
 
 definition bor (a b : bool) :=
-bool_rec (bool_rec ff tt b) tt a
+rec (rec ff tt b) tt a
 
 theorem bor_tt_left (a : bool) : bor tt a = tt :=
 rfl
@@ -77,7 +77,7 @@ cases_on a
                  ...   = tt || (b || c) : bor_tt_left (b || c)⁻¹)
 
 theorem bor_to_or {a b : bool} : a || b = tt → a = tt ∨ b = tt :=
-bool_rec
+rec
   (assume H : ff || b = tt,
     have Hb : b = tt, from (bor_ff_left b) ▸ H,
     or_inr Hb)
@@ -85,7 +85,7 @@ bool_rec
   a
 
 definition band (a b : bool) :=
-bool_rec ff (bool_rec ff tt b) a
+rec ff (rec ff tt b) a
 
 infixl `&&` := band
 
@@ -130,7 +130,7 @@ or_elim (dichotomy a)
 theorem band_eq_tt_elim_right {a b : bool} (H : a && b = tt) : b = tt :=
 band_eq_tt_elim_left (trans (band_comm b a) H)
 
-definition bnot (a : bool) := bool_rec tt ff a
+definition bnot (a : bool) := rec tt ff a
 
 notation `!` x:max := bnot x
 

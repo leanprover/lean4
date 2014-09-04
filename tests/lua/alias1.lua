@@ -30,11 +30,11 @@ env = add_inductive(env,
                     name("list", "cons"), Pi(A, mk_arrow(A, list_l(A), list_l(A))))
 
 env = add_aliases(env, "list", "lst")
-print(not get_expr_aliases(env, {"lst", "list_rec"}):is_nil())
+print(not get_expr_aliases(env, {"lst", "list", "rec"}):is_nil())
 env = add_aliases(env, "list")
-print(get_expr_aliases(env, "list_rec"):head())
-assert(not get_expr_aliases(env, "list_rec"):is_nil())
-assert(not get_expr_aliases(env, {"lst", "list_rec"}):is_nil())
+print(get_expr_aliases(env, {"list", "rec"}):head())
+assert(not get_expr_aliases(env, {"list", "rec"}):is_nil())
+assert(not get_expr_aliases(env, {"lst", "list", "rec"}):is_nil())
 
 env = add_aliases(env, "list", "l")
 print(get_expr_aliases(env, {"l", "list"}):head())

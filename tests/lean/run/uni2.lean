@@ -6,11 +6,11 @@ succ : nat → nat
 
 variable f : nat → nat
 
-check @nat_rec
+check @nat.rec
 
 (*
 local env     = get_env()
-local nat_rec = Const("nat_rec", {1})
+local nat_rec = Const({"nat", "rec"}, {1})
 local nat     = Const("nat")
 local f       = Const("f")
 local n       = Local("n", nat)

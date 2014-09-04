@@ -15,7 +15,7 @@ env = env:add_universe("u")
 local a = Local("a", Prop)
 local r = Local("r", retraction)
 
-local rec = Const("retraction_rec")
+local rec = Const({"retraction", "rec"})
 display_type(env, rec)
 local proj = Fun(r, rec(Prop, Fun(a, a), r))
 local inj  = Const("inj")

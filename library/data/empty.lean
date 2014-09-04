@@ -9,4 +9,4 @@
 
 inductive empty : Type
 
-theorem empty_elim (A : Type) (H : empty) : A := empty_rec (λe, A) H
+theorem empty_elim (A : Type) (H : empty) : A := empty.rec (λe, A) H

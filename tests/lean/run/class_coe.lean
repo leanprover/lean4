@@ -10,7 +10,7 @@ inductive add_struct (A : Type) :=
 mk : (A → A → A) → add_struct A
 
 definition add {A : Type} {S : add_struct A} (a b : A) : A :=
-add_struct_rec (λ m, m) S a b
+add_struct.rec (λ m, m) S a b
 
 infixl `+`:65 := add
 

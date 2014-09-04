@@ -5,10 +5,10 @@ namespace setoid
   mk_setoid: Π (A : Type), (A → A → Prop) → setoid
 
   definition carrier (s : setoid)
-  := setoid_rec (λ a eq, a) s
+  := setoid.rec (λ a eq, a) s
 
   definition eqv {s : setoid} : carrier s → carrier s → Prop
-  := setoid_rec (λ a eqv, eqv) s
+  := setoid.rec (λ a eqv, eqv) s
 
   infix `≈`:50 := eqv
 

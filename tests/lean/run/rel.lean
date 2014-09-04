@@ -7,13 +7,13 @@ namespace is_equivalence
   mk : is_reflexive R → is_symmetric R → is_transitive R → cls R
 
   theorem is_reflexive {T : Type} {R : T → T → Type} {C : cls R} : is_reflexive R :=
-  cls_rec (λx y z, x) C
+  cls.rec (λx y z, x) C
 
   theorem is_symmetric {T : Type} {R : T → T → Type} {C : cls R} : is_symmetric R :=
-  cls_rec (λx y z, y) C
+  cls.rec (λx y z, y) C
 
   theorem is_transitive {T : Type} {R : T → T → Type} {C : cls R} : is_transitive R :=
-  cls_rec (λx y z, z) C
+  cls.rec (λx y z, z) C
 
 end is_equivalence
 

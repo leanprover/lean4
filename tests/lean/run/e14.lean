@@ -21,10 +21,10 @@ check vcons zero vnil
 variable n : nat
 check vcons n vnil
 
-check vector_rec
+check vector.rec
 
 definition vector_to_list {A : Type} {n : nat} (v : vector A n) : list A
-:= vector_rec (@nil A) (fun (n : nat) (a : A) (v : vector A n) (l : list A), cons a l) v
+:= vector.rec (@nil A) (fun (n : nat) (a : A) (v : vector A n) (l : list A), cons a l) v
 
 coercion vector_to_list
 

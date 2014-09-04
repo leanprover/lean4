@@ -15,7 +15,7 @@ epsilon
 Type
 -- ACK
 -- IDENTIFIER|6|21
-nat.nat
+nat
 -- ACK
 -- TYPE|6|26
 Prop

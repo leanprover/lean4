@@ -6,8 +6,8 @@ cons : tree A → forest A → forest A
 
 check tree.{1}
 check forest.{1}
-check tree_rec.{1 1}
-check forest_rec.{1 1}
+check tree.rec.{1 1}
+check forest.rec.{1 1}
 
 print "==============="
 
@@ -16,4 +16,4 @@ mk_group : Π (carrier : Type) (mul : carrier → carrier → carrier) (one : ca
 
 check group.{1}
 check group.{2}
-check group_rec.{1 1}
+check group.rec.{1 1}

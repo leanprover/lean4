@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/placeholder.h"
 #include "library/aliases.h"
+#include "library/protected.h"
 #include "library/explicit.h"
 #include "library/opaque_hints.h"
 #include "frontends/lean/decl_cmds.h"
@@ -92,7 +93,7 @@ struct inductive_cmd_fn {
     [[ noreturn ]] void throw_error(sstream const & strm) { throw parser_error(strm, m_pos); }
 
     name mk_rec_name(name const & n) {
-        return n.append_after("_rec");
+        return n + name("rec");
     }
 
     /** \brief Parse the name of an inductive datatype or introduction rule,
@@ -529,7 +530,9 @@ struct inductive_cmd_fn {
             name d_name = inductive_decl_name(d);
             name d_short_name(d_name.get_string());
             env = create_alias(env, d_name, section_levels, section_params);
-            env = create_alias(env, mk_rec_name(d_name), section_levels, section_params);
+            name rec_name = mk_rec_name(d_name);
+            env = create_alias(env, rec_name, section_levels, section_params);
+            env = add_protected(env, rec_name);
             for (intro_rule const & ir : inductive_decl_intros(d)) {
                 name ir_name = intro_rule_name(ir);
                 env = create_alias(env, ir_name, section_levels, section_params);

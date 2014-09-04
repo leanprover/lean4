@@ -12,6 +12,6 @@ function display_type(env, t)
 end
 
 env = env:add_universe("u")
-local tricky_rec = Const("tricky_rec", {0})
+local tricky_rec = Const({"tricky", "rec"}, {0})
 
 display_type(env, tricky_rec)

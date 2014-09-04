@@ -6,7 +6,7 @@ nil {} : list A,
 cons   : A → list A → list A
 
 definition is_nil {A : Type} (l : list A) : Prop
-:= list_rec true (fun h t r, false) l
+:= list.rec true (fun h t r, false) l
 
 theorem is_nil_nil (A : Type) : is_nil (@nil A)
 := eq_true_elim (refl true)

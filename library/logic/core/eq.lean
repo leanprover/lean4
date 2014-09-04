@@ -23,7 +23,7 @@ theorem eq_id_refl {A : Type} {a : A} (H1 : a = a) : H1 = (refl a) := rfl
 theorem eq_irrel {A : Type} {a b : A} (H1 H2 : a = b) : H1 = H2 := rfl
 
 theorem subst {A : Type} {a b : A} {P : A → Prop} (H1 : a = b) (H2 : P a) : P b :=
-eq_rec H2 H1
+eq.rec H2 H1
 
 theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c :=
 subst H2 H1
@@ -48,12 +48,12 @@ assume H : true = false,
 
 -- eq_rec with arguments swapped, for transporting an element of a dependent type
 definition eq_rec_on {A : Type} {a1 a2 : A} {B : A → Type} (H1 : a1 = a2) (H2 : B a1) : B a2 :=
-eq_rec H2 H1
+eq.rec H2 H1
 
 theorem eq_rec_on_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq_rec_on H b = b :=
 refl (eq_rec_on rfl b)
 
-theorem eq_rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq_rec b H = b :=
+theorem eq_rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq.rec b H = b :=
 eq_rec_on_id H b
 
 theorem eq_rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H1 : a = b) (H2 : b = c)

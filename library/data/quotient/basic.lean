@@ -222,7 +222,7 @@ theorem image_elt_of {A B : Type} {f : A → B} (u : image f) : ∃a, f a = elt_
 has_property u
 
 theorem fun_image_surj {A B : Type} {f : A → B} (u : image f) : ∃a, fun_image f a = u :=
-subtype_destruct u
+subtype.destruct u
   (take (b : B) (H : ∃a, f a = b),
     obtain a (H': f a = b), from H,
     (exists_intro a (tag_eq H')))

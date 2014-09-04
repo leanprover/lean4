@@ -10,7 +10,7 @@ theorem inh_bool [instance] : inh Prop
 := inh_intro true
 
 theorem inh_fun [instance] {A B : Type} (H : inh B) : inh (A → B)
-:= inh_rec (λ b, inh_intro (λ a : A, b)) H
+:= inh.rec (λ b, inh_intro (λ a : A, b)) H
 
 definition assump := eassumption; now
 

@@ -23,12 +23,12 @@ namespace algebra
   mk_add_struct : (A → A → A) → add_struct A
 
   definition mul [inline] {A : Type} {s : mul_struct A} (a b : A)
-  := mul_struct_rec (fun f, f) s a b
+  := mul_struct.rec (fun f, f) s a b
 
   infixl `*`:75 := mul
 
   definition add [inline] {A : Type} {s : add_struct A} (a b : A)
-  := add_struct_rec (fun f, f) s a b
+  := add_struct.rec (fun f, f) s a b
 
   infixl `+`:65 := add
 end algebra
@@ -49,7 +49,7 @@ namespace nat
 
   definition to_nat (n : num) : nat
   := #algebra
-    num_rec zero (λ n, pos_num_rec (succ zero) (λ n r, r + r) (λ n r, r + r + succ zero) n) n
+    num.num.rec zero (λ n, num.pos_num.rec (succ zero) (λ n r, r + r) (λ n r, r + r + succ zero) n) n
 end nat
 
 namespace algebra
@@ -58,10 +58,10 @@ namespace semigroup
   mk_semigroup_struct : Π (mul : A → A → A), is_assoc mul → semigroup_struct A
 
   definition mul [inline] {A : Type} (s : semigroup_struct A) (a b : A)
-  := semigroup_struct_rec (fun f h, f) s a b
+  := semigroup_struct.rec (fun f h, f) s a b
 
   definition assoc [inline] {A : Type} (s : semigroup_struct A) : is_assoc (mul s)
-  := semigroup_struct_rec (fun f h, h) s
+  := semigroup_struct.rec (fun f h, h) s
 
   definition is_mul_struct [inline] [instance] (A : Type) (s : semigroup_struct A) : mul_struct A
   := mk_mul_struct (mul s)
@@ -70,10 +70,10 @@ namespace semigroup
   mk_semigroup : Π (A : Type), semigroup_struct A → semigroup
 
   definition carrier [inline] [coercion] (g : semigroup)
-  := semigroup_rec (fun c s, c) g
+  := semigroup.rec (fun c s, c) g
 
   definition is_semigroup [inline] [instance] (g : semigroup) : semigroup_struct (carrier g)
-  := semigroup_rec (fun c s, s) g
+  := semigroup.rec (fun c s, s) g
 end semigroup
 
 namespace monoid
@@ -83,10 +83,10 @@ namespace monoid
   mk_monoid_struct : Π (mul : A → A → A) (id : A), is_assoc mul → is_id mul id → monoid_struct A
 
   definition mul [inline] {A : Type} (s : monoid_struct A) (a b : A)
-  := monoid_struct_rec (fun mul id a i, mul) s a b
+  := monoid_struct.rec (fun mul id a i, mul) s a b
 
   definition assoc [inline] {A : Type} (s : monoid_struct A) : is_assoc (mul s)
-  := monoid_struct_rec (fun mul id a i, a) s
+  := monoid_struct.rec (fun mul id a i, a) s
 
   open semigroup
   definition is_semigroup_struct [inline] [instance] (A : Type) (s : monoid_struct A) : semigroup_struct A
@@ -96,10 +96,10 @@ namespace monoid
   mk_monoid : Π (A : Type), monoid_struct A → monoid
 
   definition carrier [inline] [coercion] (m : monoid)
-  := monoid_rec (fun c s, c) m
+  := monoid.rec (fun c s, c) m
 
   definition is_monoid [inline] [instance] (m : monoid) : monoid_struct (carrier m)
-  := monoid_rec (fun c s, s) m
+  := monoid.rec (fun c s, s) m
 end monoid
 end algebra
 

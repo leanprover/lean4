@@ -26,11 +26,11 @@ end sum_plus_notation
 
 abbreviation rec_on [protected] {A B : Type} {C : (A ⊎ B) → Type} (s : A ⊎ B)
   (H1 : ∀a : A, C (inl B a)) (H2 : ∀b : B, C (inr A b)) : C s :=
-sum_rec H1 H2 s
+rec H1 H2 s
 
 abbreviation cases_on [protected] {A B : Type} {P : (A ⊎ B) → Prop} (s : A ⊎ B)
   (H1 : ∀a : A, P (inl B a)) (H2 : ∀b : B, P (inr A b)) : P s :=
-sum_rec H1 H2 s
+rec H1 H2 s
 
 -- Here is the trick for the theorems that follow:
 -- Fixing a1, "f s" is a recursive description of "inl B a1 = s".

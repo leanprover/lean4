@@ -27,5 +27,4 @@ env = add_inductive(env,
                     "is_sorted_cons_nil",  Pi(A, lt, a, is_sorted_l(A, lt, cons_l(A, a, nil_l(A)))),
                     "is_sorted_cons_cons", Pi(A, lt, a1, a2, t, Hlt, Hs, is_sorted_l(A, lt, cons_l(A, a1, cons_l(A, a2, t)))))
 
-print(env:find("is_sorted_rec"):type())
-
+print(env:find({"is_sorted", "rec"}):type())

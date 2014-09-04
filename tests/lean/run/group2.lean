@@ -20,17 +20,17 @@ inductive group : Type :=
 mk_group : Π (A : Type), group_struct A → group
 
 definition carrier (g : group) : Type
-:= group_rec (λ c s, c) g
+:= group.rec (λ c s, c) g
 
 coercion carrier
 
 definition group_to_struct [instance] (g : group) : group_struct (carrier g)
-:= group_rec (λ (A : Type) (s : group_struct A), s) g
+:= group.rec (λ (A : Type) (s : group_struct A), s) g
 
 check group_struct
 
 definition mul [inline] {A : Type} {s : group_struct A} (a b : A) : A
-:= group_struct_rec (λ mul one inv h1 h2 h3, mul) s a b
+:= group_struct.rec (λ mul one inv h1 h2 h3, mul) s a b
 
 infixl `*`:75 := mul
 

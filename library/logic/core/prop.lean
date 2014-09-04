@@ -19,7 +19,7 @@ abbreviation imp (a b : Prop) : Prop := a → b
 inductive false : Prop
 
 theorem false_elim {c : Prop} (H : false) : c :=
-false_rec c H
+false.rec c H
 
 inductive true : Prop :=
 trivial : true

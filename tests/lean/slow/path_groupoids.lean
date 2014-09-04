@@ -24,7 +24,7 @@ notation `idp`:max := idpath _     -- TODO: can we / should we use `1`?
 namespace path
   abbreviation induction_on {A : Type} {a b : A} (p : a ≈ b)
     {C : Π (b : A) (p : a ≈ b), Type} (H : C a (idpath a)) : C b p :=
-  path_rec H p
+  path.rec H p
 end path
 
 open path
@@ -33,11 +33,11 @@ open path
 -- -------------------------
 
 definition concat {A : Type} {x y z : A} (p : x ≈ y) (q : y ≈ z) : x ≈ z :=
-path_rec (λu, u) q p
+path.rec (λu, u) q p
 
 -- TODO: should this be an abbreviation?
 definition inverse {A : Type} {x y : A} (p : x ≈ y) : y ≈ x :=
-path_rec (idpath x) p
+path.rec (idpath x) p
 
 infixl `@`:75 := concat
 postfix `^`:100 := inverse

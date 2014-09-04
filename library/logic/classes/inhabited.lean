@@ -10,7 +10,7 @@ inhabited_mk : A → inhabited A
 namespace inhabited
 
 definition inhabited_destruct {A : Type} {B : Type} (H1 : inhabited A) (H2 : A → B) : B :=
-inhabited_rec H2 H1
+inhabited.rec H2 H1
 
 definition Prop_inhabited [instance] : inhabited Prop :=
 inhabited_mk true

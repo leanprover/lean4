@@ -24,10 +24,10 @@ is_reflexive_mk : reflexive R → is_reflexive R
 namespace is_reflexive
 
   abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : is_reflexive R) : reflexive R :=
-  is_reflexive_rec (λu, u) C
+  is_reflexive.rec (λu, u) C
 
   abbreviation infer ⦃T : Type⦄ (R : T → T → Type) {C : is_reflexive R} : reflexive R :=
-  is_reflexive_rec (λu, u) C
+  is_reflexive.rec (λu, u) C
 
 end is_reflexive
 
@@ -38,10 +38,10 @@ is_symmetric_mk : symmetric R → is_symmetric R
 namespace is_symmetric
 
   abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : is_symmetric R) : symmetric R :=
-  is_symmetric_rec (λu, u) C
+  is_symmetric.rec (λu, u) C
 
   abbreviation infer ⦃T : Type⦄ (R : T → T → Type) {C : is_symmetric R} : symmetric R :=
-  is_symmetric_rec (λu, u) C
+  is_symmetric.rec (λu, u) C
 
 end is_symmetric
 
@@ -52,10 +52,10 @@ is_transitive_mk : transitive R → is_transitive R
 namespace is_transitive
 
   abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : is_transitive R) : transitive R :=
-  is_transitive_rec (λu, u) C
+  is_transitive.rec (λu, u) C
 
   abbreviation infer ⦃T : Type⦄ (R : T → T → Type) {C : is_transitive R} : transitive R :=
-  is_transitive_rec (λu, u) C
+  is_transitive.rec (λu, u) C
 
 end is_transitive
 
@@ -66,13 +66,13 @@ is_equivalence_mk : is_reflexive R → is_symmetric R → is_transitive R → is
 namespace is_equivalence
 
   theorem is_reflexive {T : Type} (R : T → T → Type) {C : is_equivalence R} : is_reflexive R :=
-  is_equivalence_rec (λx y z, x) C
+  is_equivalence.rec (λx y z, x) C
 
   theorem is_symmetric {T : Type} {R : T → T → Type} {C : is_equivalence R} : is_symmetric R :=
-  is_equivalence_rec (λx y z, y) C
+  is_equivalence.rec (λx y z, y) C
 
   theorem is_transitive {T : Type} {R : T → T → Type} {C : is_equivalence R} : is_transitive R :=
-  is_equivalence_rec (λx y z, z) C
+  is_equivalence.rec (λx y z, z) C
 
 end is_equivalence
 
@@ -88,10 +88,10 @@ is_PER_mk : is_symmetric R → is_transitive R → is_PER R
 namespace is_PER
 
   theorem is_symmetric {T : Type} {R : T → T → Type} {C : is_PER R} : is_symmetric R :=
-  is_PER_rec (λx y, x) C
+  is_PER.rec (λx y, x) C
 
   theorem is_transitive {T : Type} {R : T → T → Type} {C : is_PER R} : is_transitive R :=
-  is_PER_rec (λx y, y) C
+  is_PER.rec (λx y, y) C
 
 end is_PER
 
@@ -116,17 +116,17 @@ namespace congruence
 
   abbreviation app {T1 : Type} {R1 : T1 → T1 → Prop} {T2 : Type} {R2 : T2 → T2 → Prop}
       {f : T1 → T2} (C : congruence R1 R2 f) ⦃x y : T1⦄ : R1 x y → R2 (f x) (f y) :=
-  congruence_rec (λu, u) C x y
+  congruence.rec (λu, u) C x y
 
   theorem infer {T1 : Type} (R1 : T1 → T1 → Prop) {T2 : Type} (R2 : T2 → T2 → Prop)
       (f : T1 → T2) {C : congruence R1 R2 f} ⦃x y : T1⦄ : R1 x y → R2 (f x) (f y) :=
-  congruence_rec (λu, u) C x y
+  congruence.rec (λu, u) C x y
 
   abbreviation app2 {T1 : Type} {R1 : T1 → T1 → Prop} {T2 : Type} {R2 : T2 → T2 → Prop}
       {T3 : Type} {R3 : T3 → T3 → Prop}
       {f : T1 → T2 → T3} (C : congruence2 R1 R2 R3 f) ⦃x1 y1 : T1⦄ ⦃x2 y2 : T2⦄ :
     R1 x1 y1 → R2 x2 y2 → R3 (f x1 x2) (f y1 y2) :=
-  congruence2_rec (λu, u) C x1 y1 x2 y2
+  congruence2.rec (λu, u) C x1 y1 x2 y2
 
 -- ### general tools to build instances
 
@@ -179,10 +179,10 @@ mp_like_mk {} : (a → b) → @mp_like R a b H
 namespace mp_like
 
   definition app {R : Type → Type → Prop} {a : Type} {b : Type} {H : R a b}
-    (C : mp_like H) : a → b := mp_like_rec (λx, x) C
+    (C : mp_like H) : a → b := mp_like.rec (λx, x) C
 
   definition infer ⦃R : Type → Type → Prop⦄ {a : Type} {b : Type} (H : R a b)
-    {C : mp_like H} : a → b := mp_like_rec (λx, x) C
+    {C : mp_like H} : a → b := mp_like.rec (λx, x) C
 
 end mp_like
 

@@ -4,11 +4,11 @@
 
 import logic.core.connectives
 
-namespace decidable
-
 inductive decidable (p : Prop) : Type :=
 inl : p  → decidable p,
 inr : ¬p → decidable p
+
+namespace decidable
 
 theorem true_decidable [instance] : decidable true :=
 inl trivial
@@ -17,19 +17,19 @@ theorem false_decidable [instance] : decidable false :=
 inr not_false_trivial
 
 theorem induction_on [protected] {p : Prop} {C : Prop} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=
-decidable_rec H1 H2 H
+decidable.rec H1 H2 H
 
 definition rec_on [protected] [inline] {p : Prop} {C : Type} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) :
   C :=
-decidable_rec H1 H2 H
+decidable.rec H1 H2 H
 
 theorem irrelevant {p : Prop} (d1 d2 : decidable p) : d1 = d2 :=
-decidable_rec
-  (assume Hp1 : p, decidable_rec
+decidable.rec
+  (assume Hp1 : p, decidable.rec
     (assume Hp2  : p,  congr_arg inl (refl Hp1)) -- using proof irrelevance for Prop
     (assume Hnp2 : ¬p, absurd Hp1 Hnp2)
     d2)
-  (assume Hnp1 : ¬p, decidable_rec
+  (assume Hnp1 : ¬p, decidable.rec
     (assume Hp2  : p,  absurd Hp2 Hnp1)
     (assume Hnp2 : ¬p, congr_arg inr (refl Hnp1)) -- using proof irrelevance for Prop
     d2)

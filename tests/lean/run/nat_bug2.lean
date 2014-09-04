@@ -6,9 +6,9 @@ zero : nat,
 succ : nat → nat
 
 abbreviation plus (x y : nat) : nat
-:= nat_rec x (λn r, succ r) y
+:= nat.rec x (λn r, succ r) y
 definition to_nat [coercion] [inline] (n : num) : nat
-:= num_rec zero (λn, pos_num_rec (succ zero) (λn r, plus r (plus r (succ zero))) (λn r, plus r r) n) n
+:= num.num.rec zero (λn, num.pos_num.rec (succ zero) (λn r, plus r (plus r (succ zero))) (λn r, plus r r) n) n
 definition add (x y : nat) : nat
 := plus x y
 variable le : nat → nat → Prop

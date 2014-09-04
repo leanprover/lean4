@@ -16,36 +16,36 @@ open helper_tactics
 
 -- Definition of the type
 -- ----------------------
-
-namespace nat
 inductive nat : Type :=
   zero : nat,
   succ : nat → nat
 
+namespace nat
+
 notation `ℕ` := nat
 
-theorem rec_zero {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) : nat_rec x f zero = x
+theorem rec_zero {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) : nat.rec x f zero = x
 
 theorem rec_succ {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) (n : ℕ) :
-  nat_rec x f (succ n) = f n (nat_rec x f n)
+  nat.rec x f (succ n) = f n (nat.rec x f n)
 
 theorem induction_on [protected] {P : ℕ → Prop} (a : ℕ) (H1 : P zero) (H2 : ∀ (n : ℕ) (IH : P n), P (succ n)) :
   P a :=
-nat_rec H1 H2 a
+nat.rec H1 H2 a
 
 definition rec_on [protected] {P : ℕ → Type} (n : ℕ) (H1 : P zero) (H2 : ∀m, P m → P (succ m)) : P n :=
-nat_rec H1 H2 n
+nat.rec H1 H2 n
 
 
 -- Coercion from num
 -- -----------------
 
 abbreviation plus (x y : ℕ) : ℕ :=
-nat_rec x (λ n r, succ r) y
+nat.rec x (λ n r, succ r) y
 
 definition to_nat [coercion] [inline] (n : num) : ℕ :=
-num_rec zero
-    (λ n, pos_num_rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
+num.num.rec zero
+    (λ n, num.pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
 
 
 -- Successor and predecessor
@@ -54,7 +54,7 @@ num_rec zero
 theorem succ_ne_zero {n : ℕ} : succ n ≠ 0 :=
 assume H : succ n = 0,
 have H2 : true = false, from
-  let f := (nat_rec false (fun a b, true)) in
+  let f := (nat.rec false (fun a b, true)) in
     calc
       true = f (succ n) : rfl
        ... = f 0        : {H}
@@ -63,7 +63,7 @@ absurd H2 true_ne_false
 
 -- add_rewrite succ_ne_zero
 
-definition pred (n : ℕ) := nat_rec 0 (fun m x, m) n
+definition pred (n : ℕ) := nat.rec 0 (fun m x, m) n
 
 theorem pred_zero : pred 0 = 0
 
@@ -255,12 +255,12 @@ add_zero_left ▸ add_succ_left
 -- TODO: rename? remove?
 theorem induction_plus_one {P : nat → Prop} (a : ℕ) (H1 : P 0)
     (H2 : ∀ (n : ℕ) (IH : P n), P (n + 1)) : P a :=
-nat_rec H1 (take n IH, add_one ▸ (H2 n IH)) a
+nat.rec H1 (take n IH, add_one ▸ (H2 n IH)) a
 
 -- Multiplication
 -- --------------
 
-definition mul (n m : ℕ) := nat_rec 0 (fun m x, x + n) m
+definition mul (n m : ℕ) := nat.rec 0 (fun m x, x + n) m
 infixl `*` := mul
 
 theorem mul_zero_right {n : ℕ} : n * 0 = 0

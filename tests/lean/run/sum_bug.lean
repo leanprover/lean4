@@ -17,7 +17,7 @@ infixr `+`:25 := sum
 
 abbreviation rec_on {A B : Type} {C : (A + B) → Type} (s : A + B)
   (H1 : ∀a : A, C (inl B a)) (H2 : ∀b : B, C (inr A b)) : C s :=
-sum_rec H1 H2 s
+sum.rec H1 H2 s
 
 
 theorem inl_inj {A B : Type} {a1 a2 : A} (H : inl B a1 = inl B a2) : a1 = a2 :=
@@ -28,7 +28,7 @@ H2
 
 abbreviation cases_on {A B : Type} {P : (A + B) → Prop} (s : A + B)
   (H1 : ∀a : A, P (inl B a)) (H2 : ∀b : B, P (inr A b)) : P s :=
-sum_rec H1 H2 s
+sum.rec H1 H2 s
 
 theorem inl_neq_inr {A B : Type} {a : A} {b : B} (H : inl B a = inr A b) : false :=
 let f := λs, rec_on s (λa', a = a') (λb, false) in

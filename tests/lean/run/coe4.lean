@@ -10,10 +10,10 @@ namespace setoid
   definition test : Type.{2} := setoid.{0}
 
   definition carrier (s : setoid)
-  := setoid_rec (λ a eq, a) s
+  := setoid.rec (λ a eq, a) s
 
   definition eqv {s : setoid} : carrier s → carrier s → Prop
-  := setoid_rec (λ a eqv, eqv) s
+  := setoid.rec (λ a eqv, eqv) s
 
   infix `≈`:50 := eqv
 

@@ -5,7 +5,7 @@ namespace list
 
   check list.{1}
   check cons.{1}
-  check list_rec.{1 1}
+  check list.rec.{1 1}
 end list
 
 check list.list.{1}

@@ -26,15 +26,15 @@ inductive total2 {T: Type} (P: T → Type) : Type :=
 tpair : Π (t : T) (tp : P t), total2 P
 
 definition pr1 {T : Type} {P : T → Type} (tp : total2 P) : T
-:= total2_rec (λ a b, a) tp
+:= total2.rec (λ a b, a) tp
 definition pr2 {T : Type} {P : T → Type} (tp : total2 P) : P (pr1 tp)
-:= total2_rec (λ a b, b) tp
+:= total2.rec (λ a b, b) tp
 
 inductive Phant (T : Type) : Type :=
 phant : Phant T
 
 definition fromempty {X : Type} : empty → X
-:= λe, empty_rec (λe, X) e
+:= λe, empty.rec (λe, X) e
 
 definition tounit {X : Type} : X → unit
 := λx, tt
@@ -50,7 +50,7 @@ abbreviation funcomp {X : Type} {Y : Type} {Z : Type} (f : X → Y) (g : Y → Z
 infixl `∘`:60 := funcomp
 
 definition iteration {T : Type} (f : T → T) (n : nat) : T → T
-:= nat_rec (idfun T) (λ m fm, funcomp fm f) n
+:= nat.rec (idfun T) (λ m fm, funcomp fm f) n
 
 definition adjev {X : Type} {Y : Type} (x : X) (f : X → Y) := f x
 
@@ -98,16 +98,16 @@ definition logeqnegs {X : Type} {Y : Type} (l : X ↔ Y) : (neg X) ↔ (neg Y)
 infix `=`:50      := paths
 
 definition pathscomp0 {X : Type} {a b c : X} (e1 : a = b) (e2 : b = c) : a = c
-:= paths_rec e1 e2
+:= paths.rec e1 e2
 
 definition pathscomp0rid {X : Type} {a b : X} (e1 : a = b) : pathscomp0 e1 (idpath b) = e1
 := idpath _
 
 definition pathsinv0 {X : Type} {a b : X} (e : a = b) : b = a
-:= paths_rec (idpath _) e
+:= paths.rec (idpath _) e
 
 definition transport {A : Type} {a b : A} {P : A → Type} (H1 : a = b) (H2 : P a) : P b
-:= paths_rec H2 H1
+:= paths.rec H2 H1
 
 infixr `▸`:75     := transport
 infixr `⬝`:75     := pathscomp0
@@ -120,13 +120,13 @@ definition idtrans {A : Type} (x : A) : (idpath x) ⬝ (idpath x) = (idpath x)
 := idpath (idpath x)
 
 definition pathsinv0l {X : Type} {a b : X} (e : a = b) : e⁻¹ ⬝ e = idpath b
-:= paths_rec (idinv a⁻¹ ▸ idtrans a) e
+:= paths.rec (idinv a⁻¹ ▸ idtrans a) e
 
 definition pathsinv0r {A : Type} {x y : A} (p : x = y) : p⁻¹ ⬝ p = idpath y
-:= paths_rec (idinv x⁻¹ ▸ idtrans x) p
+:= paths.rec (idinv x⁻¹ ▸ idtrans x) p
 
 definition pathsinv0inv0 {A : Type} {x y : A} (p : x = y) : (p⁻¹)⁻¹ = p
-:= paths_rec (idpath (idpath x)) p
+:= paths.rec (idpath (idpath x)) p
 
 definition pathsdirprod {X : Type} {Y : Type} {x1 x2 : X} {y1 y2 : Y} (ex : x1 = x2) (ey : y1 = y2 ) : dirprodpair x1 y1 =  dirprodpair x2 y2
 := ex ▸ ey ▸ idpath (dirprodpair x1 y1)
@@ -137,13 +137,13 @@ definition maponpaths {T1 : Type} {T2 : Type} (f : T1 → T2) {t1 t2 : T1} (e : 
 definition ap {T1 : Type} {T2 : Type} := @maponpaths T1 T2
 
 definition maponpathscomp0 {X : Type} {Y : Type} {x y z : X} (f : X → Y) (p : x = y) (q : y = z) : ap f (p ⬝ q) = (ap f p) ⬝ (ap f q)
-:= paths_rec (idpath _) q
+:= paths.rec (idpath _) q
 
 definition maponpathsinv0 {X : Type} {Y : Type} (f : X → Y) {x1 x2 : X} (e : x1 = x2 ) : ap f (e⁻¹) = (ap f e)⁻¹
-:= paths_rec (idpath _) e
+:= paths.rec (idpath _) e
 
 lemma maponpathsidfun {X : Type} {x x' : X} (e : x = x') : ap (idfun X) e = e
-:= paths_rec (idpath _) e
+:= paths.rec (idpath _) e
 
 lemma maponpathscomp {X : Type} {Y : Type} {Z : Type} {x x' : X} (f : X → Y) (g : Y → Z) (e : x = x') : ap g (ap f e) = ap (f ∘ g) e
-:= paths_rec (idpath _) e
+:= paths.rec (idpath _) e

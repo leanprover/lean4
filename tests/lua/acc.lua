@@ -20,7 +20,7 @@ env = env:add_universe("u")
 env = env:add_universe("v")
 local u = global_univ("u")
 local v = global_univ("v")
-display_type(env, Const("Acc_rec", {v, u}))
+display_type(env, Const({"Acc", "rec"}, {v, u}))
 
 -- well_founded_induction_type :
 -- Pi (A : Type)
@@ -34,7 +34,7 @@ local l1          = param_univ("l1")
 local l2          = param_univ("l2")
 local Acc         = Const("Acc", {l1})
 local Acc_intro   = Const("Acc_intro", {l1})
-local Acc_rec     = Const("Acc_rec", {l2, l1})
+local Acc_rec     = Const({"Acc", "rec"}, {l2, l1})
 local A           = Local("A", mk_sort(l1))
 local R           = Local("R", mk_arrow(A, A, Prop))
 local x           = Local("x", A)
@@ -61,5 +61,3 @@ local wfi_th_val  = Fun(A, R, Hwf, P, H, a, Acc_rec(A, R,
 print(env:normalize(type_checker(env):check(wfi_th_val, {l1, l2})))
 env = add_decl(env, mk_definition("well_founded_induction_type", {l1, l2}, wfi_th_type, wfi_th_val))
 display_type(env, Const("well_founded_induction_type", {1,1}))
-
-

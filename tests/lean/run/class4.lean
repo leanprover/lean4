@@ -5,7 +5,7 @@ zero : nat,
 succ : nat → nat
 
 definition add (x y : nat)
-:= nat_rec x (λ n r, succ r) y
+:= nat.rec x (λ n r, succ r) y
 
 infixl `+`:65 := add
 
@@ -16,7 +16,7 @@ theorem add_succ_left (x y : nat) : x + (succ y) = succ (x + y)
 := refl _
 
 definition is_zero (x : nat)
-:= nat_rec true (λ n r, false) x
+:= nat.rec true (λ n r, false) x
 
 theorem is_zero_zero : is_zero zero
 := eq_true_elim (refl _)
@@ -25,7 +25,7 @@ theorem not_is_zero_succ (x : nat) : ¬ is_zero (succ x)
 := eq_false_elim (refl _)
 
 theorem dichotomy (m : nat) : m = zero ∨ (∃ n, m = succ n)
-:= nat_rec
+:= nat.rec
      (or_intro_left _ (refl zero))
      (λ m H, or_intro_right _ (exists_intro m (refl (succ m))))
      m
@@ -57,7 +57,7 @@ inductive not_zero (x : nat) : Prop :=
 not_zero_intro : ¬ is_zero x → not_zero x
 
 theorem not_zero_not_is_zero {x : nat} (H : not_zero x) : ¬ is_zero x
-:= not_zero_rec (λ H1, H1) H
+:= not_zero.rec (λ H1, H1) H
 
 theorem not_zero_add_right [instance] (x y : nat) (H : not_zero y) : not_zero (x + y)
 := not_zero_intro (not_zero_add x y (not_zero_not_is_zero H))

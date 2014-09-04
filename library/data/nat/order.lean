@@ -12,7 +12,6 @@ import tools.fake_simplifier
 
 open nat eq_ops tactic
 open fake_simplifier
-open decidable (decidable inl inr)
 
 namespace nat
 

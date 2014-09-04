@@ -13,7 +13,7 @@ notation `exists` binders `,` r:(scoped P, Exists P) := r
 notation `∃` binders `,` r:(scoped P, Exists P) := r
 
 theorem exists_elim {A : Type} {p : A → Prop} {B : Prop} (H1 : ∃x, p x) (H2 : ∀ (a : A) (H : p a), B) : B :=
-Exists_rec H2 H1
+Exists.rec H2 H1
 
 theorem exists_not_forall {A : Type} {p : A → Prop} (H : ∃x, p x) : ¬∀x, ¬p x :=
 assume H1 : ∀x, ¬p x,

@@ -1,6 +1,7 @@
 import logic
 open tactic inhabited
 
+namespace foo
 inductive sum (A : Type) (B : Type) : Type :=
 inl  : A → sum A B,
 inr  : B → sum A B
@@ -22,3 +23,5 @@ definition my_tac := repeat (trace "iteration"; state;
 tactic_hint [inhabited] my_tac
 
 theorem T : inhabited (sum false num.num)
+
+end foo

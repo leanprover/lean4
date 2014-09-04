@@ -18,15 +18,14 @@ open nat
 open eq_ops
 open helper_tactics
 
-namespace list
-
--- Type
--- ----
-
 inductive list (T : Type) : Type :=
 nil {} : list T,
 cons   : T → list T → list T
 
+namespace list
+
+-- Type
+-- ----
 infix `::` := cons
 
 section
@@ -35,7 +34,7 @@ variable {T : Type}
 
 theorem induction_on [protected] {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hind : forall x : T, forall l : list T, forall H : P l, P (cons x l)) : P l :=
-list_rec Hnil Hind l
+rec Hnil Hind l
 
 theorem cases_on [protected] {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hcons : forall x : T, forall l : list T, P (cons x l)) : P l :=
@@ -48,7 +47,7 @@ notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 -- ------
 
 definition concat (s t : list T) : list T :=
-list_rec t (fun x : T, fun l : list T, fun u : list T, cons x u) s
+rec t (fun x : T, fun l : list T, fun u : list T, cons x u) s
 
 infixl `++` : 65 := concat
 
@@ -73,7 +72,7 @@ induction_on s rfl
 -- Length
 -- ------
 
-definition length : list T → ℕ := list_rec 0 (fun x l m, succ m)
+definition length : list T → ℕ := rec 0 (fun x l m, succ m)
 
 theorem length_nil : length (@nil T) = 0 := rfl
 
@@ -98,7 +97,7 @@ induction_on s
 -- Append
 -- ------
 
-definition append (x : T) : list T → list T := list_rec [x] (fun y l l', y :: l')
+definition append (x : T) : list T → list T := rec [x] (fun y l l', y :: l')
 
 theorem append_nil {x : T} : append x nil = [x]
 
@@ -111,7 +110,7 @@ theorem append_eq_concat  {x : T} {l : list T} : append x l = l ++ [x]
 -- Reverse
 -- -------
 
-definition reverse : list T → list T := list_rec nil (fun x l r, r ++ [x])
+definition reverse : list T → list T := rec nil (fun x l r, r ++ [x])
 
 theorem reverse_nil : reverse (@nil T) = nil
 
@@ -153,7 +152,7 @@ induction_on l rfl
 -- Head and tail
 -- -------------
 
-definition head (x : T) : list T → T := list_rec x (fun x l h, x)
+definition head (x : T) : list T → T := rec x (fun x l h, x)
 
 theorem head_nil {x : T} : head x (@nil T) = x
 
@@ -168,7 +167,7 @@ cases_on s
         ... = x                                                   : {head_cons}
         ... = head x (cons x s)                                   : {head_cons⁻¹})
 
-definition tail : list T → list T := list_rec nil (fun x l b, l)
+definition tail : list T → list T := rec nil (fun x l b, l)
 
 theorem tail_nil : tail (@nil T) = nil
 
@@ -182,7 +181,7 @@ cases_on l
 -- List membership
 -- ---------------
 
-definition mem (x : T) : list T → Prop := list_rec false (fun y l H, x = y ∨ H)
+definition mem (x : T) : list T → Prop := rec false (fun y l H, x = y ∨ H)
 
 infix `∈` := mem
 
@@ -238,7 +237,7 @@ induction_on l
 
 -- to do this: need decidability of = for nat
 -- definition find (x : T) : list T → nat
--- := list_rec 0 (fun y l b, if x = y then 0 else succ b)
+-- := rec 0 (fun y l b, if x = y then 0 else succ b)
 
 -- theorem find_nil (f : T) : find f nil = 0
 -- :=refl _
@@ -272,7 +271,7 @@ induction_on l
 -- -----------
 
 definition nth (x : T) (l : list T) (n : ℕ) : T :=
-nat_rec (λl, head x l) (λm f l, f (tail l)) n l
+nat.rec (λl, head x l) (λm f l, f (tail l)) n l
 
 theorem nth_zero {x : T} {l : list T} : nth x l 0 = head x l
 

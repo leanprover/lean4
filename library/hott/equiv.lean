@@ -24,18 +24,18 @@ IsEquiv_mk : Π
 IsEquiv f
 
 definition equiv_inv {A B : Type} {f : A → B} (H : IsEquiv f) : B → A :=
-IsEquiv_rec (λequiv_inv eisretr eissect eisadj, equiv_inv) H
+IsEquiv.rec (λequiv_inv eisretr eissect eisadj, equiv_inv) H
 
 -- TODO: note: does not type check without giving the type
 definition eisretr {A B : Type} {f : A → B} (H : IsEquiv f) : Sect (equiv_inv H) f :=
-IsEquiv_rec (λequiv_inv eisretr eissect eisadj, eisretr) H
+IsEquiv.rec (λequiv_inv eisretr eissect eisadj, eisretr) H
 
 definition eissect {A B : Type} {f : A → B} (H : IsEquiv f) : Sect f (equiv_inv H) :=
-IsEquiv_rec (λequiv_inv eisretr eissect eisadj, eissect) H
+IsEquiv.rec (λequiv_inv eisretr eissect eisadj, eissect) H
 
 definition eisadj {A B : Type} {f : A → B} (H : IsEquiv f) :
   Πx, eisretr H (f x) ≈ ap f (eissect H x) :=
-IsEquiv_rec (λequiv_inv eisretr eissect eisadj, eisadj) H
+IsEquiv.rec (λequiv_inv eisretr eissect eisadj, eisadj) H
 
 -- Structure Equiv
 
@@ -46,13 +46,13 @@ Equiv_mk : Π
 Equiv A B
 
 definition equiv_fun {A B : Type} (e : Equiv A B) : A → B :=
-Equiv_rec (λequiv_fun equiv_isequiv, equiv_fun) e
+Equiv.rec (λequiv_fun equiv_isequiv, equiv_fun) e
 
 -- TODO: use a type class instead?
 coercion equiv_fun : Equiv
 
 definition equiv_isequiv [coercion] {A B : Type} (e : Equiv A B) : IsEquiv (equiv_fun e) :=
-Equiv_rec (λequiv_fun equiv_isequiv, equiv_isequiv) e
+Equiv.rec (λequiv_fun equiv_isequiv, equiv_isequiv) e
 
 -- coercion equiv_isequiv
 

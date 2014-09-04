@@ -54,7 +54,7 @@ if_neg H
 
 definition rec_measure_aux {dom codom : Type} (default : codom) (measure : dom → ℕ)
     (rec_val : dom → (dom → codom) → codom) : ℕ → dom → codom :=
-nat_rec (λx, default) (λm g x, if measure x < succ m then rec_val x g else default)
+rec (λx, default) (λm g x, if measure x < succ m then rec_val x g else default)
 
 definition rec_measure {dom codom : Type} (default : codom) (measure : dom → ℕ)
     (rec_val : dom → (dom → codom) → codom) (x : dom) : codom :=

@@ -15,5 +15,5 @@ function display_type(env, t)
    print(tostring(t) .. " : " .. tostring(type_checker(env):check(t)))
 end
 
-display_type(env, Const("nat_rec", {0}))
-display_type(env, Const("int_rec", {0}))
+display_type(env, Const({"nat", "rec"}, {0}))
+display_type(env, Const({"int", "rec"}, {0}))

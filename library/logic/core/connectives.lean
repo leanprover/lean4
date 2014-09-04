@@ -14,13 +14,13 @@ infixr `/\` := and
 infixr `∧` := and
 
 theorem and_elim {a b c : Prop} (H1 : a ∧ b) (H2 : a → b → c) : c :=
-and_rec H2 H1
+and.rec H2 H1
 
 theorem and_elim_left {a b : Prop} (H : a ∧ b) : a  :=
-and_rec (λa b, a) H
+and.rec (λa b, a) H
 
 theorem and_elim_right {a b : Prop} (H : a ∧ b) : b :=
-and_rec (λa b, b) H
+and.rec (λa b, b) H
 
 theorem and_swap {a b : Prop} (H : a ∧ b) : b ∧ a :=
 and_intro (and_elim_right H) (and_elim_left H)
@@ -55,7 +55,7 @@ theorem or_inl {a b : Prop} (Ha : a) : a ∨ b := or_intro_left b Ha
 theorem or_inr {a b : Prop} (Hb : b) : a ∨ b := or_intro_right a Hb
 
 theorem or_elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c :=
-or_rec H2 H3 H1
+or.rec H2 H3 H1
 
 theorem resolve_right {a b : Prop} (H1 : a ∨ b) (H2 : ¬a) : b :=
 or_elim H1 (assume Ha, absurd Ha H2) (assume Hb, Hb)
@@ -103,7 +103,7 @@ theorem iff_def {a b : Prop} : (a ↔ b) = ((a → b) ∧ (b → a)) := rfl
 
 theorem iff_intro {a b : Prop} (H1 : a → b) (H2 : b → a) : a ↔ b := and_intro H1 H2
 
-theorem iff_elim {a b c : Prop} (H1 : (a → b) → (b → a) → c) (H2 : a ↔ b) : c := and_rec H1 H2
+theorem iff_elim {a b c : Prop} (H1 : (a → b) → (b → a) → c) (H2 : a ↔ b) : c := and.rec H1 H2
 
 theorem iff_elim_left {a b : Prop} (H : a ↔ b) : a → b :=
 iff_elim (assume H1 H2, H1) H

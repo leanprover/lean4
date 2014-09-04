@@ -14,7 +14,7 @@ local env1 = add_inductive(env,
                            "nil", Pi(A, list_l(A)),
                            "cons", Pi(A, mk_arrow(A, list_l(A), list_l(A))))
 
-display_type(env1, Const("list_rec", {1, 1}))
+display_type(env1, Const({"list", "rec"}, {1, 1}))
 
 -- Slightly different definition where A : Type.{l} is an index
 -- instead of a global parameter
@@ -23,8 +23,4 @@ local env2 = add_inductive(env,
                            "list", {l}, 0, Pi(A, U_sl), -- The resultant type must live in the universe succ(l)
                            "nil", Pi(A, list_l(A)),
                            "cons", Pi(A, mk_arrow(A, list_l(A), list_l(A))))
-display_type(env2, Const("list_rec", {1, 1}))
-
-
-
-
+display_type(env2, Const({"list", "rec"}, {1, 1}))

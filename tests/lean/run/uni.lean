@@ -4,11 +4,11 @@ inductive nat : Type :=
 zero : nat,
 succ : nat → nat
 
-check @nat_rec
+check @nat.rec
 
 (*
 local env     = get_env()
-local nat_rec = Const("nat_rec", {1})
+local nat_rec = Const({"nat", "rec"}, {1})
 local nat     = Const("nat")
 local n       = Local("n", nat)
 local C       = Fun(n, Prop)

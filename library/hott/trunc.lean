@@ -15,10 +15,10 @@ Contr_mk : Π
   (contr : Πy : A, center ≈ y),
 Contr A
 
-definition center {A : Type} (C : Contr A) : A := Contr_rec (λcenter contr, center) C
+definition center {A : Type} (C : Contr A) : A := Contr.rec (λcenter contr, center) C
 
 definition contr {A : Type} (C : Contr A) : Πy : A, center C ≈ y :=
-Contr_rec (λcenter contr, contr) C
+Contr.rec (λcenter contr, contr) C
 
 inductive trunc_index : Type :=
 minus_two : trunc_index,
@@ -28,7 +28,7 @@ trunc_S : trunc_index → trunc_index
 
 -- TODO: note in the Coq version, there is an internal version
 definition IsTrunc (n : trunc_index) : Type → Type :=
-trunc_index_rec (λA, Contr A) (λn trunc_n A, (Π(x y : A), trunc_n (x ≈ y))) n
+trunc_index.rec (λA, Contr A) (λn trunc_n A, (Π(x y : A), trunc_n (x ≈ y))) n
 
 -- TODO: in the Coq version, this is notation
 abbreviation minus_one := trunc_S minus_two

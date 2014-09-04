@@ -13,4 +13,4 @@ function display_type(env, t)
    print(tostring(t) .. " : " .. tostring(type_checker(env):check(t)))
 end
 
-display_type(env, Const("inhabited_rec", {1}))
+display_type(env, Const({"inhabited", "rec"}, {1}))

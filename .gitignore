@@ -18,5 +18,6 @@ Makefile
 CMakeFiles/
 .projectile
 .coveralls.yml
+.lean_options
 doc/html
 make.deps

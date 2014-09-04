@@ -65,15 +65,26 @@ def show_download_progress(*data):
     downloaded_packets = data[0]
     log_nonewline("Download: size\t= %i kb, packet: %i/%i" % (file_size, downloaded_packets, total_packets+1))
 
+def get_ninja_url():
+    prefix = "https://leanprover.github.io/bin/"
+    if platform.architecture()[0] == "64bit":
+        if platform.system() == "Linux":
+            return prefix + "ninja-1.5.1-linux-x86_64"
+        elif platform.system() == "Windows" or platform.system().startswith("CYGWIN"):
+            return prefix + "ninja-1.5.1-win.exe"
+        elif platform.system() == "Darwin":
+            return prefix + "ninja-1.5.1-osx"
+    if platform.architecture()[0] == "32bit":
+        if platform.system() == "Linux":
+            return prefix + "ninja-1.5.1-linux-i386"
+        elif platform.system() == "Windows" or platform.system().startswith("CYGWIN"):
+            pass # TODO(soonhok): add support
+        elif platform.system() == "Darwin":
+            pass # TODO(soonhok): add support
+    error("we do not have ninja executable for this platform: %s" % platform.platform())
+
 def download_ninja_and_save_at(ninja_path):
-    if platform.system() == "Linux" and "x86_64" in platform.platform():
-        url = "https://leanprover.github.io/bin/ninja-1.5.1-linux-x86_64"
-    elif platform.system() == "Windows":
-        url = "https://leanprover.github.io/bin/ninja-1.5.1-win.exe"
-    elif platform.system() == "Darwin" and "x86_64" in platform.platform():
-        url = "https://leanprover.github.io/bin/ninja-1.5.1-osx"
-    else:
-        error("we do not have ninja executable for this platform: %s" % platform.platform())
+    url = get_ninja_url()
     log("Downloading ninja: %s ===> %s\n" % (url, ninja_path))
     urllib.urlretrieve(url, ninja_path, show_download_progress)
     log("\n")

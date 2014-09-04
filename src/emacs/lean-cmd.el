@@ -92,6 +92,11 @@ It has the effect of evaluating a command in the end of the current file"
   "Display valid/invalid lines. Invalid lines are the one we need to refresh type information"
   `(VALID))
 
+(defun lean-cmd-findp (line-number prefix)
+  "Find All auto-complete candidates matched with prefix at line-number"
+  `(FINDP ,line-number ,prefix))
+
+
 ;; Type
 ;; ====
 (defun lean-cmd-type (cmd)
@@ -125,6 +130,10 @@ It has the effect of evaluating a command in the end of the current file"
   (cl-third set-cmd))
 (defun lean-cmd-eval-get-lean-cmd (eval-cmd)
   (cl-second eval-cmd))
+(defun lean-cmd-findp-get-line-number (findp-cmd)
+  (cl-second findp-cmd))
+(defun lean-cmd-findp-get-prefix (findp-cmd)
+  (cl-third findp-cmd))
 
 ;; -- Test
 (cl-assert (string= (lean-cmd-load-get-file-name (lean-cmd-load "nat.lean"))
@@ -174,6 +183,12 @@ It has the effect of evaluating a command in the end of the current file"
 (cl-assert (string= (lean-cmd-eval-get-lean-cmd
                      (lean-cmd-eval "print 3"))
                     "print 3"))
+(cl-assert (= (lean-cmd-findp-get-line-number
+               (lean-cmd-findp 10 "iff_"))
+              10))
+(cl-assert (string= (lean-cmd-findp-get-prefix
+                     (lean-cmd-findp 10 "iff_"))
+                    "iff_"))
 
 ;; to-string functions
 ;; ===================
@@ -220,6 +235,11 @@ It has the effect of evaluating a command in the end of the current file"
 (defun lean-cmd-valid-to-string (cmd)
   "Convert valid command to string"
   (format "VALID"))
+(defun lean-cmd-findp-to-string (cmd)
+  "Convert valid command to string"
+  (format "FINDP %d\n%s"
+          (lean-cmd-findp-get-line-number cmd)
+          (lean-cmd-findp-get-prefix cmd)))
 
 (defun lean-cmd-to-string (cmd)
   "Convert command to string"
@@ -236,7 +256,8 @@ It has the effect of evaluating a command in the end of the current file"
     ('OPTIONS     (lean-cmd-options-to-string     cmd))
     ('CLEAR-CACHE (lean-cmd-clear-cache-to-string cmd))
     ('SHOW        (lean-cmd-show-to-string        cmd))
-    ('VALID       (lean-cmd-valid-to-string       cmd))))
+    ('VALID       (lean-cmd-valid-to-string       cmd))
+    ('FINDP       (lean-cmd-findp-to-string       cmd))))
 
 ;; -- Test
 (cl-assert (string= (lean-cmd-to-string (lean-cmd-load "~/work/lean/basic.lean"))
@@ -253,5 +274,7 @@ It has the effect of evaluating a command in the end of the current file"
                     (concat "INFO 42")))
 (cl-assert (string= (lean-cmd-to-string (lean-cmd-check 42 "∀ (n : nat), ne (succ n) zero"))
                     (concat "CHECK 42" "\n" "∀ (n : nat), ne (succ n) zero")))
+(cl-assert (string= (lean-cmd-to-string (lean-cmd-findp 42 "iff_"))
+                    (concat "FINDP 42" "\n" "iff_")))
 ;; ----------------
 (provide 'lean-cmd)

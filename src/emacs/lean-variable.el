@@ -11,7 +11,7 @@
   "A shared variable contains a received message to process.
 
 A message is in the form of (TYPE PRE BODY)
-where TYPE := INFO | SET | EVAL | OPTIONS | SHOW | ERROR,
+where TYPE := INFO | SET | EVAL | OPTIONS | SHOW | FINDP | ERROR,
       PRE is a server message comes before the message
       BODY is a body of the received message.")
 

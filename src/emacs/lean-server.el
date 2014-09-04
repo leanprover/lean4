@@ -42,18 +42,20 @@
 ;; How to read data from an async process
 ;; ======================================
 (defconst lean-server-syntax-pattern
-  `((INFO ,(rx line-start "-- BEGININFO" (* not-newline) line-end)
-          ,(rx line-start (group "-- ENDINFO") line-end))
-    (SET  ,(rx line-start "-- BEGINSET"  line-end)
-          ,(rx line-start (group "-- ENDSET")  line-end))
-    (EVAL ,(rx line-start "-- BEGINEVAL"  line-end)
-          ,(rx line-start (group "-- ENDEVAL") line-end))
+  `((INFO    ,(rx line-start "-- BEGININFO" (* not-newline) line-end)
+             ,(rx line-start (group "-- ENDINFO") line-end))
+    (SET     ,(rx line-start "-- BEGINSET"  line-end)
+             ,(rx line-start (group "-- ENDSET")  line-end))
+    (EVAL    ,(rx line-start "-- BEGINEVAL"  line-end)
+             ,(rx line-start (group "-- ENDEVAL") line-end))
     (OPTIONS ,(rx line-start "-- BEGINOPTIONS" line-end)
-          ,(rx line-start (group "-- ENDOPTIONS") line-end))
-    (SHOW ,(rx line-start "-- BEGINSHOW" line-end)
-          ,(rx line-start (group "-- ENDSHOW") line-end))
-    (ERROR ,(rx line-start "-- " (0+ not-newline) line-end)
-           ,(rx line-start (group "-- ERROR" (0+ not-newline)) line-end)))
+             ,(rx line-start (group "-- ENDOPTIONS") line-end))
+    (SHOW    ,(rx line-start "-- BEGINSHOW" line-end)
+             ,(rx line-start (group "-- ENDSHOW") line-end))
+    (FINDP   ,(rx line-start "-- BEGINFINDP" (* not-newline) line-end)
+             ,(rx line-start (group "-- ENDFINDP") line-end))
+    (ERROR   ,(rx line-start "-- " (0+ not-newline) line-end)
+             ,(rx line-start (group "-- ERROR" (0+ not-newline)) line-end)))
   "Regular expression pattern for lean-server message syntax")
 
 (defun lean-server-split-buffer (buf-str beg-regex end-regex)
@@ -198,8 +200,9 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('SET     ())
     ('EVAL    (lean-server-check-current-file))
     ('OPTIONS ())
-    ('SHOW    ())
-    ('VALID   ())))
+    ('SHOW    (lean-server-check-current-file))
+    ('VALID   (lean-server-check-current-file))
+    ('FINDP   (lean-server-check-current-file))))
 
 (defun lean-server-after-send-cmd (cmd)
   "Operations to perform after sending a command."
@@ -215,7 +218,8 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('EVAL    ())
     ('OPTIONS ())
     ('SHOW    ())
-    ('VALID   ())))
+    ('VALID   ())
+    ('FINDP   ())))
 
 (defun lean-server-send-cmd (cmd &optional cont)
   "Send string to lean-server."
@@ -246,6 +250,18 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
           (-take (- (length str-list) 2)
                  (-drop 1 str-list)))
     (string-join str-list "\n")))
+
+(defun lean-findp-parse-string (str)
+  "Parse the output of findp command."
+  (let ((str-list (split-string str "\n")))
+    ;; Drop the first line "-- BEGINFINDP" and
+    ;; the last line "-- ENDFINDP"
+    (setq str-list
+          (-take (- (length str-list) 2)
+                 (-drop 1 str-list)))
+    (--map
+     (let ((items (split-string it "|")))
+       `(,(cl-first items) . ,(cl-second items))) str-list)))
 
 (defun lean-server-show ()
   (interactive)

@@ -460,20 +460,6 @@ void server::show(bool valid) {
     m_out << "-- ENDSHOW" << std::endl;
 }
 
-static name string_to_name(std::string const & str) {
-    name result;
-    std::string id_part;
-    for (unsigned i = 0; i < str.size(); i++) {
-        if (str[i] == '.') {
-            result = name(result, id_part.c_str());
-            id_part.clear();
-        } else {
-            id_part.push_back(str[i]);
-        }
-    }
-    return name(result, id_part.c_str());
-}
-
 // Return true iff the last part of p is a prefix of the last part of n
 static bool is_last_prefix_of(name const & p, name const & n) {
     if (p.is_string() && n.is_string()) {

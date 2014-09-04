@@ -402,6 +402,21 @@ name name::replace_prefix(name const & prefix, name const & new_prefix) const {
         return name(p, get_numeral());
 }
 
+name string_to_name(std::string const & str) {
+    static_assert(*(lean_name_separator+1) == 0, "this function assumes the length of lean_name_separator is 1");
+    name result;
+    std::string id_part;
+    for (unsigned i = 0; i < str.size(); i++) {
+        if (str[i] == lean_name_separator[0]) {
+            result = name(result, id_part.c_str());
+            id_part.clear();
+        } else {
+            id_part.push_back(str[i]);
+        }
+    }
+    return name(result, id_part.c_str());
+}
+
 enum name_ll_kind { LL_ANON = 0, LL_STRING = 1, LL_INT = 2, LL_STRING_PREFIX = 3, LL_INT_PREFIX = 4 };
 name_ll_kind ll_kind(name const & n) {
     if (n.is_anonymous())

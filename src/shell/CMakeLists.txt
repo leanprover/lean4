@@ -47,6 +47,7 @@ FOREACH(T ${LEANRUNTESTS})
            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
+if("${MULTI_THREAD}" MATCHES "ON")
 # LEAN INTERACTIVE TESTS
 file(GLOB LEANITTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.input")
 FOREACH(T ${LEANITTESTS})
@@ -55,6 +56,7 @@ FOREACH(T ${LEANITTESTS})
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
            COMMAND "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
+endif()
 
 # LEAN SLOW TESTS
 file(GLOB LEANSLOWTESTS "${LEAN_SOURCE_DIR}/../tests/lean/slow/*.lean")

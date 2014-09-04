@@ -238,6 +238,9 @@ server::server(environment const & env, io_state const & ios, unsigned num_threa
     m_env(env), m_ios(ios), m_out(ios.get_regular_channel().get_stream()),
     m_num_threads(num_threads), m_empty_snapshot(m_env, m_ios.get_options()),
     m_worker(env, ios, m_cache) {
+#if !defined(LEAN_MULTI_THREAD)
+    lean_unreachable();
+#endif
 }
 
 server::~server() {

@@ -78,8 +78,10 @@ static void display_help(std::ostream & out) {
     std::cout << "                    0 means 'do not check'.\n";
     std::cout << "  --trust=num -t    trust level (default: 0) \n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
+#if defined(LEAN_MULTI_THREAD)
     std::cout << "  --server          start Lean in 'server' mode\n";
     std::cout << "  --threads=num -j  number of threads used to process lean files\n";
+#endif
     std::cout << "  --deps            just print dependencies of a Lean input\n";
     std::cout << "  --flycheck        print structured error message for flycheck\n";
     std::cout << "  --cache=file -c   load/save cached definitions from/to the given file\n";
@@ -113,9 +115,11 @@ static struct option g_long_options[] = {
     {"githash",     no_argument,       0, 'g'},
     {"output",      required_argument, 0, 'o'},
     {"trust",       required_argument, 0, 't'},
+#if defined(LEAN_MULTI_THREAD)
     {"server",      no_argument,       0, 'S'},
-    {"quiet",       no_argument,       0, 'q'},
     {"threads",     required_argument, 0, 'j'},
+#endif
+    {"quiet",       no_argument,       0, 'q'},
     {"cache",       required_argument, 0, 'c'},
     {"deps",        no_argument,       0, 'D'},
     {"flycheck",    no_argument,       0, 'F'},
@@ -126,10 +130,14 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#if defined(LEAN_USE_BOOST)
-static char const * g_opt_str = "FDSqlupgvhj:012k:012s:012t:012o:c:i:";
+#define BASIC_OPT_STR "FDqlupgvhk:012t:012o:c:i:"
+
+#if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
+static char const * g_opt_str = BASIC_OPT_STR "Sj:012s:012";
+#elif !defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
+static char const * g_opt_str = BASIC_OPT_STR "Sj:012";
 #else
-static char const * g_opt_str = "FDSqlupgvhj:012k:012t:012o:c:i:";
+static char const * g_opt_str = BASIC_OPT_STR;
 #endif
 
 class simple_pos_info_provider : public pos_info_provider {
@@ -222,6 +230,11 @@ int main(int argc, char ** argv) {
             return 1;
         }
     }
+
+    #if !defined(LEAN_MULTI_THREAD)
+    lean_assert(!server);
+    lean_assert(num_threads == 1);
+    #endif
 
     environment env = mk_environment(trust_lvl);
     io_state ios(lean::mk_pretty_formatter_factory());

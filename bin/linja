@@ -70,15 +70,19 @@ def get_ninja_url():
     if platform.architecture()[0] == "64bit":
         if platform.system() == "Linux":
             return prefix + "ninja-1.5.1-linux-x86_64"
-        elif platform.system() == "Windows" or platform.system().startswith("CYGWIN"):
+        elif platform.system() == "Windows":
             return prefix + "ninja-1.5.1-win.exe"
+        elif platform.system().startswith("CYGWIN"):
+            return prefix + "ninja-1.5.1-cygwin-x86_64.exe"
         elif platform.system() == "Darwin":
             return prefix + "ninja-1.5.1-osx"
     if platform.architecture()[0] == "32bit":
         if platform.system() == "Linux":
             return prefix + "ninja-1.5.1-linux-i386"
-        elif platform.system() == "Windows" or platform.system().startswith("CYGWIN"):
+        elif platform.system() == "Windows":
             pass # TODO(soonhok): add support
+        elif platform.system().startswith("CYGWIN"):
+            return prefix + "ninja-1.5.1-cygwin-i386.exe"
         elif platform.system() == "Darwin":
             pass # TODO(soonhok): add support
     error("we do not have ninja executable for this platform: %s" % platform.platform())

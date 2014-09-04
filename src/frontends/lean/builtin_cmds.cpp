@@ -42,6 +42,7 @@ static name g_decls("decls");
 static name g_hiding("hiding");
 static name g_exposing("exposing");
 static name g_renaming("renaming");
+static name g_as("as");
 static name g_module("[module]");
 static name g_colon(":");
 
@@ -181,7 +182,7 @@ static void check_identifier(parser & p, environment const & env, name const & n
         throw parser_error(sstream() << "invalid 'open' command, unknown declaration '" << full_id << "'", p.pos());
 }
 
-// open [class] id (id ...) (renaming id->id id->id) (hiding id ... id)
+// open [class] id (as id)? (id ...) (renaming id->id id->id) (hiding id ... id)
 environment open_cmd(parser & p) {
     environment env = p.env();
     while (true) {
@@ -193,6 +194,11 @@ environment open_cmd(parser & p) {
         if (!real_ns)
             throw parser_error(sstream() << "invalid namespace name '" << ns << "'", pos);
         ns = *real_ns;
+        name as;
+        if (p.curr_is_token_or_id(g_as)) {
+            p.next();
+            as = p.check_id_next("invalid 'open' command, identifier expected");
+        }
         env = using_namespace(env, p.ios(), ns, cls);
         if (decls) {
             // Remark: we currently to not allow renaming and hiding of universe levels
@@ -209,7 +215,7 @@ environment open_cmd(parser & p) {
                         name to_id = p.check_id_next("invalid 'open' command renaming, identifier expected");
                         check_identifier(p, env, ns, from_id);
                         exceptions.push_back(from_id);
-                        env = add_expr_alias(env, to_id, ns+from_id);
+                        env = add_expr_alias(env, as+to_id, ns+from_id);
                     }
                 } else if (p.curr_is_token_or_id(g_hiding)) {
                     p.next();
@@ -225,7 +231,7 @@ environment open_cmd(parser & p) {
                         name id = p.get_name_val();
                         p.next();
                         check_identifier(p, env, ns, id);
-                        env = add_expr_alias(env, id, ns+id);
+                        env = add_expr_alias(env, as+id, ns+id);
                     }
                 } else {
                     throw parser_error("invalid 'open' command option, identifier, 'hiding' or 'renaming' expected", p.pos());
@@ -235,7 +241,7 @@ environment open_cmd(parser & p) {
                 p.check_token_next(g_rparen, "invalid 'open' command option, ')' expected");
             }
             if (!found_explicit)
-                env = add_aliases(env, ns, name(), exceptions.size(), exceptions.data());
+                env = add_aliases(env, ns, as, exceptions.size(), exceptions.data());
         }
         if (!p.curr_is_token(g_lbracket) && !p.curr_is_identifier())
             break;

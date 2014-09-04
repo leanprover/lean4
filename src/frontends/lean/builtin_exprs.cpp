@@ -364,7 +364,10 @@ static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos
 }
 
 static expr parse_rparen(parser & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_extra_info(args[0]), pos);
+    if (p.collecting_info())
+        return p.save_pos(mk_extra_info(args[0]), pos);
+    else
+        return args[0];
 }
 
 parse_table init_nud_table() {

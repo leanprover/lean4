@@ -28,7 +28,7 @@
                            nil t "" nil (car key-list)))
          (option (cdr (assoc option-name option-record-alist)))
          (option-value (lean-option-read option)))
-    (lean-server-send-cmd (lean-cmd-set option-name option-value) 'message)))
+    (lean-server-send-cmd-async (lean-cmd-set option-name option-value) 'message)))
 
 (defun lean-set-option ()
   "Set Lean option."
@@ -49,7 +49,7 @@
              (stringp tmp-str)
              (string= tmp-str str))
         val
-        (error "%s is not an int value" str))))
+      (error "%s is not an int value" str))))
 
 (defun lean-option-read-uint (prompt)
   (interactive)
@@ -134,7 +134,7 @@
 (defun lean-options-parse-string (str)
   "Parse lines of option string into an entry of alist of lean-option-records
 
-(NAME . OPTION-RECORD)."
+'(NAME . OPTION-RECORD)'."
   (let ((str-list (split-string str "\n"))
         str-str-list
         option-list)
@@ -151,8 +151,8 @@
 (defun lean-get-options (cont)
   "Get Lean option."
   (interactive)
-  (lean-server-send-cmd (lean-cmd-options)
-                        (lambda (option-record-alist)
-                          (when cont
-                            (funcall cont option-record-alist)))))
+  (lean-server-send-cmd-async (lean-cmd-options)
+                              (lambda (option-record-alist)
+                                (when cont
+                                  (funcall cont option-record-alist)))))
 (provide 'lean-option)

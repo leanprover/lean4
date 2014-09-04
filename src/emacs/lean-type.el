@@ -60,15 +60,15 @@
 (defun lean-eval-cmd (lean-cmd)
   "Evaluate lean command."
   (interactive "sLean CMD: ")
-  (lean-server-send-cmd (lean-cmd-eval lean-cmd)
-                        'message))
+  (lean-server-send-cmd-async (lean-cmd-eval lean-cmd)
+                              'message))
 
 ;; Clear Cache
 (defun lean-clear-cache ()
   "Send CLEAR_CACHE command to lean-server"
   (interactive)
   (call-process (lean-get-executable "linja") nil 0 nil "clear-cache")
-  (lean-server-send-cmd (lean-cmd-clear-cache)))
+  (lean-server-send-cmd-async (lean-cmd-clear-cache)))
 
 ;; =======================================================
 ;; Change Handling
@@ -138,14 +138,14 @@ pairs, compute changed-lines, inserted-lines, and removed-lines."
 (defun lean-after-change-handle-inserted (inserted-lines changed-lines)
   (lean-flush-changed-lines)
   (cl-loop for n in inserted-lines
-           do (lean-server-send-cmd (lean-cmd-insert n (lean-grab-line n))))
+           do (lean-server-send-cmd-async (lean-cmd-insert n (lean-grab-line n))))
   (setq lean-changed-lines changed-lines)
   (lean-flush-changed-lines))
 
 (defun lean-after-change-handle-removed (removed-lines changed-lines)
   (lean-flush-changed-lines)
   (cl-loop for n in removed-lines
-           do (lean-server-send-cmd (lean-cmd-remove n)))
+           do (lean-server-send-cmd-async (lean-cmd-remove n)))
   (setq lean-changed-lines changed-lines)
   (lean-flush-changed-lines))
 

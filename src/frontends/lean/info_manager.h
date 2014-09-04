@@ -43,7 +43,8 @@ public:
     optional<expr> get_type_at(unsigned line, unsigned col) const;
     optional<expr> get_meta_at(unsigned line, unsigned col) const;
     void clear();
-    void display(environment const & env, io_state const & ios, unsigned line) const;
+    void display(environment const & env, io_state const & ios, unsigned line,
+                 optional<unsigned> const & col = optional<unsigned>()) const;
     void block_new_info(bool f);
     unsigned get_processed_upto() const;
 };

@@ -30,6 +30,11 @@ public:
     info_data_cell():m_column(0), m_rc(0) {}
     info_data_cell(unsigned c):m_column(c), m_rc(0) {}
     virtual ~info_data_cell() {}
+    /** \brief Return true iff the information is considered "cheap"
+        If the column number is not provided in the method info_manager::display,
+        then only "cheap" information is displayed.
+    */
+    virtual bool is_cheap() const { return true; }
     virtual info_kind kind() const = 0;
     unsigned get_column() const { return m_column; }
     virtual void display(io_state_stream const & ios, unsigned line) const = 0;
@@ -58,6 +63,7 @@ public:
     int compare(info_data_cell const & d) const { return m_ptr->compare(d); }
     info_data instantiate(substitution & s) const;
     unsigned get_column() const { return m_ptr->get_column(); }
+    bool is_cheap() const { return m_ptr->is_cheap(); }
     void display(io_state_stream const & ios, unsigned line) const { m_ptr->display(ios, line); }
     info_data_cell const * raw() const { return m_ptr; }
 };
@@ -111,6 +117,7 @@ public:
     extra_type_info_data(unsigned c, expr const & e, expr const & t):info_data_cell(c), m_expr(e), m_type(t) {}
 
     virtual info_kind kind() const { return info_kind::ExtraType; }
+    virtual bool is_cheap() const { return false; }
 
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- EXTRA_TYPE|" << line << "|" << get_column() << "\n";
@@ -472,25 +479,27 @@ struct info_manager::imp {
         return !m_line_valid[l];
     }
 
-    void display_core(environment const & env, options const & o, io_state const & ios, unsigned line) {
+    void display_core(environment const & env, options const & o, io_state const & ios, unsigned line,
+                      optional<unsigned> const & col) {
         io_state_stream out = regular(env, ios).update_options(o);
         m_line_data[line].for_each([&](info_data const & d) {
-                d.display(out, line);
+                if ((!col && d.is_cheap()) || (col && d.get_column() == *col))
+                    d.display(out, line);
             });
     }
 
-    void display(environment const & env, io_state const & ios, unsigned line) {
+    void display(environment const & env, io_state const & ios, unsigned line, optional<unsigned> const & col) {
         lock_guard<mutex> lc(m_mutex);
         if (line >= m_line_data.size() || m_line_data[line].empty()) {
             // do nothing
         } else if (m_env_info.empty()) {
-            display_core(env, ios.get_options(), ios, line);
+            display_core(env, ios.get_options(), ios, line, col);
         } else {
             auto it  = m_env_info.begin();
             auto end = m_env_info.end();
             lean_assert(it != end);
             if (it->m_line > line) {
-                display_core(env, ios.get_options(), ios, line);
+                display_core(env, ios.get_options(), ios, line, col);
                 return;
             }
             while (true) {
@@ -499,7 +508,7 @@ struct info_manager::imp {
                 auto next = it;
                 ++next;
                 if (next == end || next->m_line > line) {
-                    display_core(it->m_env, join(it->m_options, ios.get_options()), ios, line);
+                    display_core(it->m_env, join(it->m_options, ios.get_options()), ios, line, col);
                     return;
                 }
                 it = next;
@@ -596,7 +605,9 @@ void info_manager::save_environment_options(unsigned l, environment const & env,
 void info_manager::clear() { m_ptr->clear(); }
 optional<pair<environment, options>> info_manager::get_final_env_opts() const { return m_ptr->get_final_env_opts(); }
 optional<pair<environment, options>> info_manager::get_closest_env_opts(unsigned linenum) const { return m_ptr->get_closest_env_opts(linenum); }
-void info_manager::display(environment const & env, io_state const & ios, unsigned line) const { m_ptr->display(env, ios, line); }
+void info_manager::display(environment const & env, io_state const & ios, unsigned line, optional<unsigned> const & col) const {
+    m_ptr->display(env, ios, line, col);
+}
 unsigned info_manager::get_processed_upto() const { return m_ptr->m_processed_upto; }
 optional<expr> info_manager::get_type_at(unsigned line, unsigned col) const { return m_ptr->get_type_at(line, col); }
 optional<expr> info_manager::get_meta_at(unsigned line, unsigned col) const { return m_ptr->get_meta_at(line, col); }

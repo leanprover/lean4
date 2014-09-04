@@ -70,11 +70,13 @@ buffer, then the command is ignored.
 ** Extracting information
 
 #+BEGIN_SRC
-INFO [line-number]
+INFO [line-number] [column-number]?
 #+END_SRC
 
 This command extracts typing information associated with line
-=[line-number]= (in the current file).
+=[line-number]= (in the current file) and =[column-number]=.
+If =[column-number]= is not provided then (potentially) long
+information is not included.
 Lean produces a possible empty sequence of entries delimited by the lines
 =-- BEGININFO= and =-- ENDINFO=.
 
@@ -144,6 +146,17 @@ Information about introduced coercions is of the form
 [coercion-application]
 --
 [result-type]
+-- ACK
+#+END_SRC
+
+When =[column-number]= is provided in the =INFO= command, the type of terms surrounded by =()=
+is also included. The ouput has the form
+
+#+BEGIN_SRC
+-- EXTRA_TYPE|[line-number]|[column-number]
+[term]
+--
+[type]
 -- ACK
 #+END_SRC
 

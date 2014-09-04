@@ -44,7 +44,6 @@ class server {
     class worker {
         snapshot             m_empty_snapshot;
         definition_cache &   m_cache;
-        atomic_bool          m_busy;
         file_ptr             m_todo_file;
         unsigned             m_todo_line_num;
         options              m_todo_options;
@@ -77,7 +76,7 @@ class server {
     void replace_line(unsigned line_num, std::string const & new_line);
     void insert_line(unsigned line_num, std::string const & new_line);
     void remove_line(unsigned line_num);
-    void show_info(unsigned line_num);
+    void show_info(unsigned line_num, optional<unsigned> const & col_num);
     void process_from(unsigned line_num);
     void set_option(std::string const & line);
     void eval_core(environment const & env, options const & o, std::string const & line);
@@ -90,6 +89,7 @@ class server {
     void show_options();
     void show(bool valid);
     unsigned get_line_num(std::string const & line, std::string const & cmd);
+    pair<unsigned, optional<unsigned>> get_line_opt_col_num(std::string const & line, std::string const & cmd);
     pair<unsigned, unsigned> get_line_col_num(std::string const & line, std::string const & cmd);
     void find_goal_matches(unsigned line_num, unsigned col_num, std::string const & filters);
 

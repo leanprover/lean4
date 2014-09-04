@@ -353,15 +353,25 @@ unsigned server::get_line_num(std::string const & line, std::string const & cmd)
     return r;
 }
 
-pair<unsigned, unsigned> server::get_line_col_num(std::string const & line, std::string const & cmd) {
+pair<unsigned, optional<unsigned>> server::get_line_opt_col_num(std::string const & line, std::string const & cmd) {
     std::string data = line.substr(cmd.size());
     unsigned i  = 0;
     consume_spaces(data, i);
     unsigned line_num = consume_num(data, i);
     check_line_num(line_num);
     consume_spaces(data, i);
+    if (i == data.size())
+        return mk_pair(line_num, optional<unsigned>());
     unsigned colnum = consume_num(data, i);
-    return mk_pair(line_num, colnum);
+    return mk_pair(line_num, optional<unsigned>(colnum));
+}
+
+pair<unsigned, unsigned> server::get_line_col_num(std::string const & line, std::string const & cmd) {
+    auto r = get_line_opt_col_num(line, cmd);
+    if (r.second)
+        return mk_pair(r.first, *r.second);
+    else
+        return mk_pair(r.first, 0);
 }
 
 void server::check_file() {
@@ -405,7 +415,7 @@ void server::set_option(std::string const & line) {
     m_out << "-- ENDSET" << std::endl;
 }
 
-void server::show_info(unsigned line_num) {
+void server::show_info(unsigned line_num, optional<unsigned> const & col_num) {
     check_file();
     m_out << "-- BEGININFO";
     if (m_file->infom().is_invalidated(line_num))
@@ -413,7 +423,7 @@ void server::show_info(unsigned line_num) {
     if (line_num >= m_file->infom().get_processed_upto())
         m_out << " NAY";
     m_out << std::endl;
-    m_file->infom().display(m_env, m_ios, line_num);
+    m_file->infom().display(m_env, m_ios, line_num, col_num);
     m_out << "-- ENDINFO" << std::endl;
 }
 
@@ -668,8 +678,8 @@ bool server::operator()(std::istream & in) {
                 unsigned line_num = get_line_num(line, g_remove);
                 remove_line(line_num-1);
             } else if (is_command(g_info, line)) {
-                unsigned line_num = get_line_num(line, g_info);
-                show_info(line_num);
+                auto line_col = get_line_opt_col_num(line, g_info);
+                show_info(line_col.first, line_col.second);
             } else if (is_command(g_set, line)) {
                 read_line(in, line);
                 set_option(line);

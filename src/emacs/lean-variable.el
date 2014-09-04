@@ -30,6 +30,9 @@ where TYPE := INFO | SET | EVAL | OPTIONS | SHOW | FINDP | ERROR,
 (defvar lean-global-retry-timer nil
   "Timer used to re-try event-handler-function.")
 
+(defvar lean-global-async-task-queue nil
+  "Tasks (continuations) to be executed.")
+
 (defvar-local lean-changed-lines nil
   "Changed lines")
 (defvar-local lean-removed-lines nil

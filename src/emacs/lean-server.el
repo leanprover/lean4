@@ -5,6 +5,7 @@
 ;; Author: Soonho Kong
 ;;
 (require 'cl-lib)
+(require 'dash)
 (require 'lean-variable)
 (require 'lean-cmd)
 (require 'lean-info)
@@ -18,6 +19,7 @@
 (defvar-local lean-server-trace-buffer-name "*lean-server-trace*")
 (defvar-local lean-server-debug-buffer-name "*lean-server-debug*")
 (defvar-local lean-server-option            "--server")
+(defvar-local lean-server-debug-mode        nil)
 
 ;; Log Function
 ;; ============
@@ -42,11 +44,12 @@
 
 (defun lean-server-debug (format-string &rest args)
   "Display a message at the bottom of the *lean-server-debug* buffer."
-  (with-current-buffer
-      (get-buffer-create lean-server-debug-buffer-name)
-    (goto-char (point-max))
-    (insert (format-time-string "%H:%M:%S:%3N -- " (current-time)))
-    (insert (apply 'format (concat format-string "\n") args))))
+  (when lean-server-debug-mode
+    (with-current-buffer
+        (get-buffer-create lean-server-debug-buffer-name)
+      (goto-char (point-max))
+      (insert (format-time-string "%H:%M:%S:%3N -- " (current-time)))
+      (insert (apply 'format (concat format-string "\n") args)))))
 
 ;; How to read data from an async process
 ;; ======================================
@@ -107,13 +110,13 @@
 
 ;; How to create an async process
 ;; ==============================
-
 (defun lean-server-initialize-global-vars ()
   "Initialize lean-server related global variables"
   (setq lean-global-server-buffer nil)
   (setq lean-global-server-current-file-name nil)
   (setq lean-global-server-message-to-process nil)
   (setq lean-global-server-last-time-sent nil)
+  (setq lean-global-async-task-queue nil)
   (when (timerp lean-global-retry-timer)
     (cancel-timer lean-global-retry-timer))
   (setq lean-global-retry-timer nil))
@@ -138,21 +141,19 @@
 (defun lean-server-kill-process ()
   "Kill lean-server process. Return t if killed, nil if nothing to kill"
   (interactive)
+  (lean-server-initialize-global-vars)
   (cond
    ((and lean-global-server-process
          (not (= 0 (process-exit-status lean-global-server-process))))
-    (setq lean-global-server-process nil)
-    t)
+    (setq lean-global-server-process nil) t)
    (lean-global-server-process
     (when (interactive-p)
       (message "lean-server-kill-process: %S killed" lean-global-server-process))
     (kill-process lean-global-server-process)
-    (setq lean-global-server-process nil)
-    t)
+    (setq lean-global-server-process nil) t)
    (t
     (when (interactive-p)
-      (message "lean-server-kill-process: no process to kill"))
-    nil)))
+      (message "lean-server-kill-process: no process to kill")) nil)))
 
 (defun lean-server-restart-process ()
   "Restart lean-server process."
@@ -182,7 +183,7 @@
 
 Send REPLACE commands to lean-server, reset lean-changed-lines to nil."
   (cl-loop for n in lean-changed-lines
-           do (lean-server-send-cmd (lean-cmd-replace n (lean-grab-line n)))
+           do (lean-server-send-cmd-async (lean-cmd-replace n (lean-grab-line n)))
            finally (setq lean-changed-lines nil)))
 
 (defun lean-server-check-current-file (&optional file-name)
@@ -192,7 +193,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
   (let ((current-file-name (or file-name (buffer-file-name))))
     (unless (string= lean-global-server-current-file-name
                      current-file-name)
-      (lean-server-send-cmd (lean-cmd-visit current-file-name)))))
+      (lean-server-send-cmd-async (lean-cmd-visit current-file-name)))))
 
 (defun lean-server-before-send-cmd (cmd)
   "Operations to perform before sending a command."
@@ -230,8 +231,8 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('VALID   ())
     ('FINDP   ())))
 
-(defun lean-server-send-cmd (cmd &optional cont)
-  "Send string to lean-server."
+(defun lean-server-send-cmd (cmd)
+  "Send cmd to lean-server"
   (let ((proc (lean-server-get-process))
         (string-to-send (concat (lean-cmd-to-string cmd) "\n")))
     (lean-server-before-send-cmd cmd)
@@ -246,12 +247,96 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     (lean-server-trace
      (format "%s" string-to-send))
     (process-send-string proc string-to-send)
-    (lean-server-after-send-cmd cmd)
-    (when cont
-      (lean-server-event-handler cont))))
+    (lean-server-after-send-cmd cmd)))
+
+(defun lean-server-process-message-with-cont (body type cont)
+  "Process the message from lean-server and call continuation"
+  (cl-case type
+    (INFO
+     (let ((info-record (lean-server-get-info-record-at-pos body)))
+       (funcall cont info-record)))
+    (SET
+     ;; Call cont with string
+     (funcall cont (lean-set-parse-string body)))
+    (EVAL
+     ;; Call cont with string
+     (funcall cont (lean-eval-parse-string body)))
+    (OPTIONS
+     ;; Call cont with alist of lean-option-records
+     (funcall cont (lean-options-parse-string body)))
+    (SHOW
+     ;; Call cont with string
+     (funcall cont (lean-show-parse-string body)))
+    (FINDP
+     ;; Call cont with (name * type) list
+     (funcall cont (lean-findp-parse-string body)))
+    (ERROR
+     (lean-server-log "Error detected:\n%s" body))))
+
+(defun lean-server-check-and-process-buffer-with-cont (cont)
+  "Check server-buffer and process the message with a continuation if it's ready."
+  (let ((partition-result (lean-server-check-buffer-and-partition
+                           lean-global-server-buffer))
+        result)
+    (pcase partition-result
+      (`(,type (,pre ,body ,post))
+       (lean-server-log "The following pre-message will be thrown away:")
+       (lean-server-log "%s" pre)
+       (setq lean-global-server-buffer post)
+       (setq result (lean-server-process-message-with-cont body type cont))
+       `(PROCESSED ,result))
+      (`() ()))))
+
+(defun lean-server-send-cmd-async (cmd &optional cont)
+  "Send cmd to lean-server and attach continuation to the queue."
+  (lean-server-debug "send-cmd-async: %S" (lean-cmd-type cmd))
+  (lean-server-debug "send-cmd-async: queue len = %d" (length lean-global-async-task-queue))
+  (lean-server-send-cmd cmd)
+  (when cont
+    (setq lean-global-async-task-queue (-snoc lean-global-async-task-queue cont))
+    (lean-server-cancel-retry-timer)
+    (lean-server-debug "send-cmd-async: call handler")
+    (lean-server-debug "send-cmd-async: queue len = %S" (length lean-global-async-task-queue))
+    (lean-server-event-handler)))
+
+(defun lean-server-cancel-retry-timer ()
+  (when (timerp lean-global-retry-timer)
+    (cancel-timer lean-global-retry-timer)
+    (setq lean-global-retry-timer nil)))
+
+(defun lean-server-send-cmd-sync (cmd &optional cont)
+  "Send cmd to lean-server (sync)."
+  (lean-server-debug "send-cmd-sync: %S" (lean-cmd-type cmd))
+
+  ;; 0. Cancel timer. We take over.
+  (lean-server-cancel-retry-timer)
+
+  ;; 1. CONSUME all the pending async tasks in the queue
+  (while lean-global-async-task-queue
+    (accept-process-output (lean-server-get-process) 0 50 t)
+    (let* ((cont  (car lean-global-async-task-queue))
+           (result (lean-server-check-and-process-buffer-with-cont cont)))
+      (pcase result
+        (`(PROCESSED ,ret)
+         (lean-server-debug "send-cmd-sync: consumed. queue size = "
+                  (length lean-global-async-task-queue))
+         (!cdr lean-global-async-task-queue) ret)
+        (`()))))
+
+  ;; 2. Send cmd
+  (lean-server-send-cmd cmd)
+
+  ;; 3. Blocking until we get something
+  (let ((result (lean-server-check-and-process-buffer-with-cont cont)))
+    (while (not result)
+      (accept-process-output (lean-server-get-process) 0 50 t)
+      (setq result (lean-server-check-and-process-buffer-with-cont cont)))
+    (pcase result
+      (`(PROCESSED ,ret)
+       ret))))
 
 (defun lean-show-parse-string (str)
-  "Parse the output of eval command."
+  "Parse the output of show command."
   (let ((str-list (split-string str "\n")))
     ;; Drop the first line "-- BEGINSHOW" and
     ;; the last line "-- ENDSHOW"
@@ -274,65 +359,50 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
 
 (defun lean-server-show ()
   (interactive)
-  (lean-server-send-cmd (lean-cmd-show) 'message))
+  (lean-server-send-cmd-async (lean-cmd-show) 'message))
 
 (defun lean-server-valid ()
   (interactive)
-  (lean-server-send-cmd (lean-cmd-valid) 'message))
+  (lean-server-send-cmd-async (lean-cmd-valid) 'message))
 
-(defun lean-server-set-timer-for-event-handler (cont)
-  (setq lean-global-retry-timer
-        (run-with-idle-timer
-         (if (current-idle-time)
-             (time-add (seconds-to-time lean-server-retry-time) (current-idle-time))
-           lean-server-retry-time)
-         nil
-         'lean-server-event-handler cont)))
+(defun lean-server-set-timer-for-event-handler ()
+  (unless lean-global-retry-timer
+    (setq lean-global-retry-timer
+          (run-with-idle-timer
+           (if (current-idle-time)
+               (time-add (seconds-to-time lean-server-retry-time) (current-idle-time))
+             lean-server-retry-time)
+           nil
+           'lean-server-event-handler)))
+  nil)
 
 (defun lean-server-get-info-record-at-pos (body)
   (let* ((file-name (buffer-file-name))
          (column (current-column))
          (cur-char (char-after (point))))
     (when (and cur-char
-               (or (char-equal cur-char ?\s)
-                   (char-equal cur-char ?\t)
-                   (char-equal cur-char ?\t)
-                   (char-equal cur-char ?\,)
-                   (char-equal cur-char ?\))
-                   (char-equal cur-char ?\})
-                   (char-equal cur-char ?\]))
+               (--any? (char-equal cur-char it) '(?\s ?\t ?\, ?\) ?\} ?\]))
                (> column 1))
       (setq column (1- column)))
     (lean-info-record-parse body file-name column)))
 
-(defun lean-server-event-handler (cont)
-  (let ((partition-result (lean-server-check-buffer-and-partition lean-global-server-buffer)))
-    (pcase partition-result
-      (`(,type (,pre ,body ,post))
-       (lean-server-log "The following pre-message will be thrown away:")
-       (lean-server-log "%s" pre)
-       (setq lean-global-server-buffer post)
-       (cl-case type
-         (INFO
-          (let ((info-record (lean-server-get-info-record-at-pos body)))
-            (cond
-             ((lean-info-record-nay info-record)
-              (lean-server-send-cmd (lean-cmd-info (line-number-at-pos))
-                                    cont))
-             (t
-              (funcall cont info-record)))))
-         (SET
-          (funcall cont (lean-set-parse-string body)))
-         (EVAL
-          (funcall cont (lean-eval-parse-string body)))
-         (OPTIONS
-          (funcall cont (lean-options-parse-string body)))
-         (SHOW
-          (funcall cont (lean-show-parse-string body)))
-         (ERROR
-          (lean-server-log "Error detected:\n%s" body))))
-      (`()
-       (lean-server-set-timer-for-event-handler cont)
-       nil))))
+(defun lean-server-event-handler ()
+  "Process an item from async-task-queue.
+
+If it's successful, take it out from the queue. Otherwise, set an
+  idle-timer to call the handler again"
+  (lean-server-debug "event-handler: start queue size = %d"
+           (length lean-global-async-task-queue))
+  (setq lean-global-retry-timer nil)
+  (let* ((cont  (car lean-global-async-task-queue))
+        (result (lean-server-check-and-process-buffer-with-cont cont)))
+      (pcase result
+        (`(PROCESSED ,ret)
+         (!cdr lean-global-async-task-queue)
+         (lean-server-debug "event-handler: processed. queue size = %d"
+                  (length lean-global-async-task-queue))
+         ret)))
+  (when lean-global-async-task-queue
+    (lean-server-set-timer-for-event-handler)))
 
 (provide 'lean-server)

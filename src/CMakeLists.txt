@@ -320,5 +320,5 @@ endif()
 
 add_custom_target(clean-olean
    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
-   COMMAND find . -type f -name '*.olean' -delete && find . -type f -name '*.d' -delete && find . -type f -name '*.clean' -delete && find . -type f -name '*.ilean' -delete
+   COMMAND find . -type f -name '*.olean' -delete && find . -type f -name '*.d' -delete && find . -type f -name '*.clean' -delete && find . -type f -name '*.ilean' -delete && find . -type f -name 'TAGS' -delete
    )

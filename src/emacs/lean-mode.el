@@ -26,6 +26,7 @@
 (require 'lean-option)
 (require 'lean-syntax)
 (require 'lean-mmm-lua)
+(require 'lean-company)
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"
@@ -108,7 +109,7 @@
     ;; ;; Immediately show error popups when navigating to an error
     ;; (next-error-hook                  . lean-display-error-at-point))
     )
-    "Hooks which lean-mode needs to hook in.
+  "Hooks which lean-mode needs to hook in.
 
 The `car' of each pair is a hook variable, the `cdr' a function
 to be added or removed from the hook variable if Flycheck mode is
@@ -139,9 +140,7 @@ enabled and disabled respectively.")
     (lean-eldoc-documentation-function))
   ;; company-mode
   (when lean-company-use
-    (require 'company)
-    (company-mode t)
-    (set (make-local-variable 'company-backends) '(company-etags))))
+    (company-lean-hook)))
 
 ;; Automode List
 ;;;###autoload

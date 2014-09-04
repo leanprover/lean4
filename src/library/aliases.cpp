@@ -98,6 +98,11 @@ struct aliases_ext : public environment_extension {
         return env;
     }
 
+    static environment export_namespace(environment const & env, io_state const &, name const &) {
+        // do nothing, aliases are treated in a special way in the frontend.
+        return env;
+    }
+
     static environment push_scope(environment const & env, scope_kind k) {
         aliases_ext ext = get_extension(env);
         ext.push(k != scope_kind::Namespace);
@@ -119,7 +124,9 @@ static name g_aliases("aliases");
 struct aliases_ext_reg {
     unsigned m_ext_id;
     aliases_ext_reg() {
-        register_scoped_ext(g_aliases, aliases_ext::using_namespace, aliases_ext::push_scope, aliases_ext::pop_scope);
+        register_scoped_ext(g_aliases,
+                            aliases_ext::using_namespace, aliases_ext::export_namespace,
+                            aliases_ext::push_scope, aliases_ext::pop_scope);
         m_ext_id = environment::register_extension(std::make_shared<aliases_ext>());
     }
 };
@@ -175,7 +182,7 @@ optional<name> get_level_alias(environment const & env, name const & n) {
 }
 
 // Return true iff \c n is (prefix + ex) for some ex in exceptions
-static bool is_exception(name const & n, name const & prefix, unsigned num_exceptions, name const * exceptions) {
+bool is_exception(name const & n, name const & prefix, unsigned num_exceptions, name const * exceptions) {
     return std::any_of(exceptions, exceptions + num_exceptions, [&](name const & ex) { return (prefix + ex) == n; });
 }
 

@@ -17,12 +17,17 @@ Author: Leonardo de Moura
 namespace lean {
 enum class scope_kind { Namespace, Section, Context };
 typedef environment (*using_namespace_fn)(environment const &, io_state const &, name const &);
+typedef environment (*export_namespace_fn)(environment const &, io_state const &, name const &);
 typedef environment (*push_scope_fn)(environment const &, scope_kind);
 typedef environment (*pop_scope_fn)(environment const &, scope_kind);
 
-void register_scoped_ext(name const & n, using_namespace_fn use, push_scope_fn push, pop_scope_fn pop);
-/** \brief Use objects defined in the namespace \c n, if \c c is not the anonymous name, then only object from "class" \c c are considered. */
+void register_scoped_ext(name const & n, using_namespace_fn use, export_namespace_fn ex, push_scope_fn push, pop_scope_fn pop);
+/** \brief Use objects defined in the namespace \c n. If \c c is not the anonymous name, then only objects from "class" \c c are considered. */
 environment using_namespace(environment const & env, io_state const & ios, name const & n, name const & c = name());
+/** \brief Export objects defined in the namespace \c n to current namespace.
+    If \c c is not the anonymous name, then only objects from "class" \c c are considered. */
+environment export_namespace(environment const & env, io_state const & ios, name const & n, name const & c = name());
+
 /** \brief Create a new scope, all scoped extensions are notified. */
 environment push_scope(environment const & env, io_state const & ios, scope_kind k, name const & n = name());
 /** \brief Delete the most recent scope, all scoped extensions are notified. */
@@ -119,6 +124,19 @@ public:
         return r;
     }
 
+    environment export_namespace(environment env, io_state const & ios, name const & n) const {
+        if (auto it = m_entries.find(n)) {
+            buffer<entry> entries;
+            to_buffer(*it, entries);
+            unsigned i = entries.size();
+            while (i > 0) {
+                --i;
+                env = add_entry(env, ios, entries[i]);
+            }
+        }
+        return env;
+    }
+
     scoped_ext push() const {
         scoped_ext r(*this);
         r.m_scopes     = cons(m_state, r.m_scopes);
@@ -136,7 +154,7 @@ public:
     struct reg {
         unsigned m_ext_id;
         reg() {
-            register_scoped_ext(get_class_name(), using_namespace_fn, push_fn, pop_fn);
+            register_scoped_ext(get_class_name(), using_namespace_fn, export_namespace_fn, push_fn, pop_fn);
             register_module_object_reader(get_serialization_key(), reader);
             m_ext_id = environment::register_extension(std::make_shared<scoped_ext>());
         }
@@ -151,6 +169,9 @@ public:
     }
     static environment using_namespace_fn(environment const & env, io_state const & ios, name const & n) {
         return update(env, get(env).using_namespace(env, ios, n));
+    }
+    static environment export_namespace_fn(environment const & env, io_state const & ios, name const & n) {
+        return get(env).export_namespace(env, ios, n);
     }
     static environment push_fn(environment const & env, scope_kind k) {
         if (k != scope_kind::Section || TransientSection)

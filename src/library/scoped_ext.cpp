@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 
 namespace lean {
-typedef std::tuple<name, using_namespace_fn, push_scope_fn, pop_scope_fn> entry;
+typedef std::tuple<name, using_namespace_fn, export_namespace_fn, push_scope_fn, pop_scope_fn> entry;
 typedef std::vector<entry> scoped_exts;
 
 static scoped_exts & get_exts() {
@@ -22,8 +22,8 @@ static scoped_exts & get_exts() {
     return *exts;
 }
 
-void register_scoped_ext(name const & c, using_namespace_fn use, push_scope_fn push, pop_scope_fn pop) {
-    get_exts().emplace_back(c, use, push, pop);
+void register_scoped_ext(name const & c, using_namespace_fn use, export_namespace_fn ex, push_scope_fn push, pop_scope_fn pop) {
+    get_exts().emplace_back(c, use, ex, push, pop);
 }
 
 struct scope_mng_ext : public environment_extension {
@@ -74,6 +74,15 @@ environment using_namespace(environment const & env, io_state const & ios, name 
     return r;
 }
 
+environment export_namespace(environment const & env, io_state const & ios, name const & n, name const & c) {
+    environment r = env;
+    for (auto const & t : get_exts()) {
+        if (c.is_anonymous() || c == std::get<0>(t))
+            r = std::get<2>(t)(r, ios, n);
+    }
+    return r;
+}
+
 optional<name> to_valid_namespace_name(environment const & env, name const & n) {
     scope_mng_ext const & ext = get_extension(env);
     if (ext.m_namespace_set.contains(n))
@@ -102,7 +111,7 @@ environment push_scope(environment const & env, io_state const & ios, scope_kind
     ext.m_scope_kinds = cons(k, ext.m_scope_kinds);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
-        r = std::get<2>(t)(r, k);
+        r = std::get<3>(t)(r, k);
     }
     if (k == scope_kind::Namespace)
         r = using_namespace(r, ios, n);
@@ -136,7 +145,7 @@ environment pop_scope(environment const & env, name const & n) {
     ext.m_scope_kinds = tail(ext.m_scope_kinds);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
-        r = std::get<3>(t)(r, k);
+        r = std::get<4>(t)(r, k);
     }
     return r;
 }

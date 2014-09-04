@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
+#include "library/protected.h"
 #include "library/locals.h"
 #include "library/coercion.h"
 #include "library/opaque_hints.h"
@@ -182,14 +183,30 @@ static void check_identifier(parser & p, environment const & env, name const & n
         throw parser_error(sstream() << "invalid 'open' command, unknown declaration '" << full_id << "'", p.pos());
 }
 
-// open [class] id (as id)? (id ...) (renaming id->id id->id) (hiding id ... id)
-environment open_cmd(parser & p) {
+// add id as an abbreviation for d
+static environment add_abbrev(environment const & env, name const & id, name const & d) {
+    declaration decl = env.get(d);
+    buffer<level> ls;
+    for (name const & l : decl.get_univ_params())
+        ls.push_back(mk_param_univ(l));
+    expr value  = mk_constant(d, to_list(ls.begin(), ls.end()));
+    bool opaque = false;
+    name const & ns = get_namespace(env);
+    name full_id    = ns + id;
+    environment new_env = module::add(env, check(env, mk_definition(env, full_id, decl.get_univ_params(), decl.get_type(), value, opaque)));
+    if (full_id != id)
+        new_env = add_expr_alias_rec(new_env, id, full_id);
+    return new_env;
+}
+
+// open/export [class] id (as id)? (id ...) (renaming id->id id->id) (hiding id ... id)
+environment open_export_cmd(parser & p, bool open) {
     environment env = p.env();
     while (true) {
         name cls = parse_class(p);
         bool decls = cls.is_anonymous() || cls == g_decls || cls == g_declarations;
         auto pos   = p.pos();
-        name ns    = p.check_id_next("invalid 'open' command, identifier expected");
+        name ns    = p.check_id_next("invalid 'open/export' command, identifier expected");
         optional<name> real_ns = to_valid_namespace_name(env, ns);
         if (!real_ns)
             throw parser_error(sstream() << "invalid namespace name '" << ns << "'", pos);
@@ -197,9 +214,12 @@ environment open_cmd(parser & p) {
         name as;
         if (p.curr_is_token_or_id(g_as)) {
             p.next();
-            as = p.check_id_next("invalid 'open' command, identifier expected");
+            as = p.check_id_next("invalid 'open/export' command, identifier expected");
         }
-        env = using_namespace(env, p.ios(), ns, cls);
+        if (open)
+            env = using_namespace(env, p.ios(), ns, cls);
+        else
+            env = export_namespace(env, p.ios(), ns, cls);
         if (decls) {
             // Remark: we currently to not allow renaming and hiding of universe levels
             buffer<name> exceptions;
@@ -211,11 +231,14 @@ environment open_cmd(parser & p) {
                     while (p.curr_is_identifier()) {
                         name from_id = p.get_name_val();
                         p.next();
-                        p.check_token_next(g_arrow, "invalid 'open' command renaming, '->' expected");
-                        name to_id = p.check_id_next("invalid 'open' command renaming, identifier expected");
+                        p.check_token_next(g_arrow, "invalid 'open/export' command renaming, '->' expected");
+                        name to_id = p.check_id_next("invalid 'open/export' command renaming, identifier expected");
                         check_identifier(p, env, ns, from_id);
                         exceptions.push_back(from_id);
-                        env = add_expr_alias(env, as+to_id, ns+from_id);
+                        if (open)
+                            env = add_expr_alias(env, as+to_id, ns+from_id);
+                        else
+                            env = add_abbrev(env, as+to_id, ns+from_id);
                     }
                 } else if (p.curr_is_token_or_id(g_hiding)) {
                     p.next();
@@ -231,23 +254,43 @@ environment open_cmd(parser & p) {
                         name id = p.get_name_val();
                         p.next();
                         check_identifier(p, env, ns, id);
-                        env = add_expr_alias(env, as+id, ns+id);
+                        if (open)
+                            env = add_expr_alias(env, as+id, ns+id);
+                        else
+                            env = add_abbrev(env, as+id, ns+id);
                     }
                 } else {
-                    throw parser_error("invalid 'open' command option, identifier, 'hiding' or 'renaming' expected", p.pos());
+                    throw parser_error("invalid 'open/export' command option, identifier, 'hiding' or 'renaming' expected", p.pos());
                 }
                 if (found_explicit && !exceptions.empty())
-                    throw parser_error("invalid 'open' command option, mixing explicit and implicit 'open' options", p.pos());
-                p.check_token_next(g_rparen, "invalid 'open' command option, ')' expected");
+                    throw parser_error("invalid 'open/export' command option, mixing explicit and implicit 'open/export' options", p.pos());
+                p.check_token_next(g_rparen, "invalid 'open/export' command option, ')' expected");
             }
-            if (!found_explicit)
-                env = add_aliases(env, ns, as, exceptions.size(), exceptions.data());
+            if (!found_explicit) {
+                if (open) {
+                    env = add_aliases(env, ns, as, exceptions.size(), exceptions.data());
+                } else {
+                    environment new_env = env;
+                    env.for_each_declaration([&](declaration const & d) {
+                            if (!is_protected(env, d.get_name()) &&
+                                is_prefix_of(ns, d.get_name()) &&
+                                !is_exception(d.get_name(), ns, exceptions.size(), exceptions.data())) {
+                                name new_id = d.get_name().replace_prefix(ns, as);
+                                if (!new_id.is_anonymous())
+                                    new_env = add_abbrev(new_env, new_id, d.get_name());
+                            }
+                        });
+                    env = new_env;
+                }
+            }
         }
         if (!p.curr_is_token(g_lbracket) && !p.curr_is_identifier())
             break;
     }
     return env;
 }
+environment open_cmd(parser & p) { return open_export_cmd(p, true); }
+environment export_cmd(parser & p) { return open_export_cmd(p, false); }
 
 environment coercion_cmd(parser & p) {
     auto pos = p.pos();
@@ -310,6 +353,7 @@ environment erase_cache_cmd(parser & p) {
 cmd_table init_cmd_table() {
     cmd_table r;
     add_cmd(r, cmd_info("open",         "create aliases for declarations, and use objects defined in other namespaces", open_cmd));
+    add_cmd(r, cmd_info("export",       "create abbreviations for declarations, and export objects defined in other namespaces", export_cmd));
     add_cmd(r, cmd_info("set_option",   "set configuration option", set_option_cmd));
     add_cmd(r, cmd_info("exit",         "exit", exit_cmd));
     add_cmd(r, cmd_info("print",        "print a string", print_cmd));

@@ -11,7 +11,7 @@
   '("import" "abbreviation" "opaque_hint" "tactic_hint" "definition" "renaming"
     "inline" "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture"
     "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem"
-    "context" "open" "as" "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"
+    "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"
     "options" "precedence" "postfix" "prefix" "calc_trans" "calc_subst" "calc_refl"
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
     "private" "using" "namespace" "builtin" "including" "instance" "class" "section"

@@ -16,6 +16,7 @@
 (defvar-local lean-server-process-name      "lean-server")
 (defvar-local lean-server-buffer-name       "*lean-server*")
 (defvar-local lean-server-trace-buffer-name "*lean-server-trace*")
+(defvar-local lean-server-debug-buffer-name "*lean-server-debug*")
 (defvar-local lean-server-option            "--server")
 
 ;; Log Function
@@ -38,6 +39,14 @@
         (insert (format "SLEEP %i\n" (* 1000 time-diff)))))
     (setq lean-global-server-last-time-sent (float-time))
     (insert (apply 'format format-string args))))
+
+(defun lean-server-debug (format-string &rest args)
+  "Display a message at the bottom of the *lean-server-debug* buffer."
+  (with-current-buffer
+      (get-buffer-create lean-server-debug-buffer-name)
+    (goto-char (point-max))
+    (insert (format-time-string "%H:%M:%S:%3N -- " (current-time)))
+    (insert (apply 'format (concat format-string "\n") args))))
 
 ;; How to read data from an async process
 ;; ======================================

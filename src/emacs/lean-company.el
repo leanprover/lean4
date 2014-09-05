@@ -48,7 +48,18 @@ triggers a completion immediately."
 (defun company-lean--annotation (candidate)
   (let ((type (get-text-property 0 'type candidate)))
     (when type
-      (format " : %s" type))))
+      (let* ((annotation-str (format " : %s" type))
+             (annotation-len (length annotation-str))
+             (candidate-len  (length candidate))
+             (entry-width    (+ candidate-len
+                                annotation-len))
+             (window-width   (window-body-width)))
+        (when (> entry-width window-width)
+          (setq annotation-str
+                (substring-no-properties annotation-str
+                                         0
+                                         (- window-width candidate-len))))
+        annotation-str))))
 
 ;;;###autoload
 (defun company-lean (command &optional arg &rest ignored)

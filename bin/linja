@@ -318,7 +318,7 @@ def expand_target_to_fullname(target):
 def parse_arg(argv):
     global g_working_dir
     parser = argparse.ArgumentParser(description='linja: ninja build wrapper for Lean theorem prover.')
-    parser.add_argument('--flycheck', '-F', action='store_true', default=False, help="Use --flycheck option for Lean.")
+    parser.add_argument('--flycheck', '-F', action='store', type=int, default=None, const=120, nargs='?', help="Use --flycheck option for Lean.")
     parser.add_argument('--directory', '-C', action='store', help="change to DIR before doing anything else.")
     parser.add_argument('targets', nargs='*')
     args = parser.parse_args(argv)
@@ -332,6 +332,7 @@ def get_lean_options(args):
     options = []
     if args.flycheck:
         options.append("--flycheck")
+        options.append("-D pp.width=%d" % args.flycheck)
     return options
 
 def clear_cache(project_dir):

@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 import logic
-
+open eq
 abbreviation refl := @eq.refl
 
 definition transport {A : Type} {a b : A} {P : A → Type} (p : a = b) (H : P a) : P b

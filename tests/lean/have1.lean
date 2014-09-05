@@ -1,5 +1,5 @@
 import logic
-open bool eq_ops tactic
+open bool eq_ops tactic eq
 
 variables a b c : bool
 axiom H1 : a = b

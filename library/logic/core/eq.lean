@@ -18,33 +18,33 @@ refl : eq a a
 infix `=` := eq
 notation `rfl` := eq.refl _
 
-theorem eq_id_refl {A : Type} {a : A} (H1 : a = a) : H1 = (eq.refl a) := rfl
+namespace eq
+theorem id_refl {A : Type} {a : A} (H1 : a = a) : H1 = (eq.refl a) :=
+rfl
 
-theorem eq_irrel {A : Type} {a b : A} (H1 H2 : a = b) : H1 = H2 := rfl
+theorem irrel {A : Type} {a b : A} (H1 H2 : a = b) : H1 = H2 :=
+rfl
 
 theorem subst {A : Type} {a b : A} {P : A → Prop} (H1 : a = b) (H2 : P a) : P b :=
-eq.rec H2 H1
+rec H2 H1
 
 theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c :=
 subst H2 H1
 
-calc_subst subst
-calc_refl  eq.refl
-calc_trans trans
-
 theorem symm {A : Type} {a b : A} (H : a = b) : b = a :=
-subst H (eq.refl a)
+subst H (refl a)
+end eq
+
+calc_subst eq.subst
+calc_refl  eq.refl
+calc_trans eq.trans
 
 namespace eq_ops
-  postfix `⁻¹` := symm
-  infixr `⬝`   := trans
-  infixr `▸`   := subst
+  postfix `⁻¹` := eq.symm
+  infixr `⬝`   := eq.trans
+  infixr `▸`   := eq.subst
 end eq_ops
 open eq_ops
-
-theorem true_ne_false : ¬true = false :=
-assume H : true = false,
-  subst H trivial
 
 namespace eq
 -- eq_rec with arguments swapped, for transporting an element of a dependent type
@@ -78,9 +78,6 @@ H1 ▸ H2 ▸ eq.refl (f a)
 theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀x, f x = g x :=
 take x, congr_fun H x
 
-theorem not_congr {a b : Prop} (H : a = b) : (¬a) = (¬b) :=
-congr_arg not H
-
 theorem eqmp {a b : Prop} (H1 : a = b) (H2 : a) : b :=
 H1 ▸ H2
 
@@ -102,23 +99,28 @@ assume Ha, H2 ▸ (H1 Ha)
 theorem eq_imp_trans {a b c : Prop} (H1 : a = b) (H2 : b → c) : a → c :=
 assume Ha, H2 (H1 ▸ Ha)
 
-
 -- ne
 -- --
 
 definition ne [inline] {A : Type} (a b : A) := ¬(a = b)
 infix `≠` := ne
 
-theorem ne_intro {A : Type} {a b : A} (H : a = b → false) : a ≠ b := H
+namespace ne
+theorem intro {A : Type} {a b : A} (H : a = b → false) : a ≠ b :=
+H
 
-theorem ne_elim {A : Type} {a b : A} (H1 : a ≠ b) (H2 : a = b) : false := H1 H2
+theorem elim {A : Type} {a b : A} (H1 : a ≠ b) (H2 : a = b) : false :=
+H1 H2
 
-theorem a_neq_a_elim {A : Type} {a : A} (H : a ≠ a) : false := H rfl
+theorem irrefl {A : Type} {a : A} (H : a ≠ a) : false :=
+H rfl
 
-theorem ne_irrefl {A : Type} {a : A} (H : a ≠ a) : false := H rfl
-
-theorem ne_symm {A : Type} {a b : A} (H : a ≠ b) : b ≠ a :=
+theorem symm {A : Type} {a b : A} (H : a ≠ b) : b ≠ a :=
 assume H1 : b = a, H (H1⁻¹)
+end ne
+
+theorem a_neq_a_elim {A : Type} {a : A} (H : a ≠ a) : false :=
+H rfl
 
 theorem eq_ne_trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b ≠ c) : a ≠ c :=
 H1⁻¹ ▸ H2
@@ -134,3 +136,7 @@ assume Heq : p = false, Heq ▸ Hp
 
 theorem p_ne_true {p : Prop} (Hnp : ¬p) : p ≠ true :=
 assume Heq : p = true, absurd trivial (Heq ▸ Hnp)
+
+theorem true_ne_false : ¬true = false :=
+assume H : true = false,
+  H ▸ trivial

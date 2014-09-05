@@ -1,4 +1,5 @@
 import logic
+open eq
 section
   parameter {A : Type}
   theorem T {a b : A} (H : a = b) : b = a

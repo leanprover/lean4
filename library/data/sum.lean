@@ -9,7 +9,7 @@
 
 import logic.core.prop logic.classes.inhabited logic.classes.decidable
 
-open inhabited decidable
+open inhabited decidable eq_ops
 
 -- TODO: take this outside the namespace when the inductive package handles it better
 inductive sum (A B : Type) : Type :=
@@ -40,19 +40,19 @@ rec H1 H2 s
 theorem inl_inj {A B : Type} {a1 a2 : A} (H : inl B a1 = inl B a2) : a1 = a2 :=
 let f := λs, rec_on s (λa, a1 = a) (λb, false) in
 have H1 : f (inl B a1), from rfl,
-have H2 : f (inl B a2), from subst H H1,
+have H2 : f (inl B a2), from H ▸ H1,
 H2
 
 theorem inl_neq_inr {A B : Type} {a : A} {b : B} (H : inl B a = inr A b) : false :=
 let f := λs, rec_on s (λa', a = a') (λb, false) in
 have H1 : f (inl B a), from rfl,
-have H2 : f (inr A b), from subst H H1,
+have H2 : f (inr A b), from H ▸ H1,
 H2
 
 theorem inr_inj {A B : Type} {b1 b2 : B} (H : inr A b1 = inr A b2) : b1 = b2 :=
 let f := λs, rec_on s (λa, false) (λb, b1 = b) in
 have H1 : f (inr A b1), from rfl,
-have H2 : f (inr A b2), from subst H H1,
+have H2 : f (inr A b2), from H ▸ H1,
 H2
 
 theorem sum_inhabited_left [instance] {A B : Type} (H : inhabited A) : inhabited (A ⊎ B) :=
@@ -76,7 +76,7 @@ rec_on s1
     rec_on s2
       (take a2,
         have H3 : (inr A b1 = inl B a2) ↔ false,
-          from iff_intro (assume H4, inl_neq_inr (symm H4)) (assume H4, false_elim H4),
+          from iff_intro (assume H4, inl_neq_inr (H4⁻¹)) (assume H4, false_elim H4),
         show decidable (inr A b1 = inl B a2), from decidable_iff_equiv _ (iff_symm H3))
       (take b2, show decidable (inr A b1 = inr A b2), from H2 b1 b2))
 

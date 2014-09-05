@@ -1,5 +1,6 @@
 import logic
 open decidable
+open eq
 
 inductive nat : Type :=
 zero : nat,

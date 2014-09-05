@@ -144,9 +144,10 @@ iff_mp (iff_symm H) trivial
 theorem iff_false_elim {a : Prop} (H : a ↔ false) : ¬a :=
 assume Ha : a, iff_mp H Ha
 
-theorem eq_to_iff {a b : Prop} (H : a = b) : a ↔ b :=
-iff_intro (λ Ha, subst H Ha) (λ Hb, subst (symm H) Hb)
+open eq_ops
 
+theorem eq_to_iff {a b : Prop} (H : a = b) : a ↔ b :=
+iff_intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 
 -- comm and assoc for and / or
 -- ---------------------------

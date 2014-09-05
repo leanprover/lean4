@@ -17,5 +17,5 @@ variable P : nat → Prop
 
 print "==========================="
 theorem tst (n : nat) (H : P (n * zero)) : P zero
-:= subst (mul_zero_right _) H
+:= eq.subst (mul_zero_right _) H
 end nat

@@ -34,7 +34,7 @@ section
     destruct a (take (x : A) (H1 : P x) (H2 : P x), rfl)
 
   theorem tag_eq {a1 a2 : A} {H1 : P a1} {H2 : P a2} (H3 : a1 = a2) : tag a1 H1 = tag a2 H2 :=
-  subst H3 (take H2, tag_irrelevant H1 H2) H2
+  eq.subst H3 (take H2, tag_irrelevant H1 H2) H2
 
   theorem subtype_eq {a1 a2 : {x, P x}} : ∀(H : elt_of a1 = elt_of a2), a1 = a2 :=
   destruct a1 (take x1 H1, destruct a2 (take x2 H2 H, tag_eq H))
@@ -45,7 +45,7 @@ section
   theorem eq_decidable [protected] [instance] (a1 a2 : {x, P x})
     (H : decidable (elt_of a1 = elt_of a2)) : decidable (a1 = a2) :=
   have H1 : (a1 = a2) ↔ (elt_of a1 = elt_of a2), from
-    iff_intro (assume H, subst H rfl) (assume H, subtype_eq H),
+    iff_intro (assume H, eq.subst H rfl) (assume H, subtype_eq H),
   decidable_iff_equiv _ (iff_symm H1)
 
 end

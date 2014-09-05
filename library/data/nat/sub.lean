@@ -52,7 +52,7 @@ induction_on m
                          ... = n - succ k             : sub_succ_right⁻¹)
 
 theorem sub_self {n : ℕ} : n - n = 0 :=
-induction_on n sub_zero_right (take k IH, trans sub_succ_succ IH)
+induction_on n sub_zero_right (take k IH, sub_succ_succ ⬝ IH)
 
 theorem sub_add_add_right {n k m : ℕ} : (n + k) - (m + k) = n - m :=
 induction_on k
@@ -273,7 +273,7 @@ sub_split
     assume H1 : m + k = n,
     assume H2 : k = 0,
     have H3 : n = m, from add_zero_right ▸ H2 ▸ H1⁻¹,
-    subst H3 le_refl)
+    H3 ▸ le_refl)
 
 theorem sub_sub_split {P : ℕ → ℕ → Prop} {n m : ℕ} (H1 : ∀k, n = m + k -> P k 0)
   (H2 : ∀k, m = n + k → P 0 k) : P (n - m) (m - n) :=

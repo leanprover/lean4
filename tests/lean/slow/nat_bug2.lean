@@ -4,7 +4,7 @@
 -- Author: Floris van Doorn
 ----------------------------------------------------------------------------------------------------
 import logic struc.binary
-open tactic binary eq_ops
+open tactic binary eq_ops eq
 open decidable
 
 abbreviation refl := @eq.refl
@@ -98,7 +98,7 @@ theorem decidable_eq [instance] (n m : ℕ) : decidable (n = m)
            (λ m iH, inr (succ_ne_zero m)))
        (λ (m' : ℕ) (iH1 : ∀n, decidable (n = m')),
          take n, rec_on n
-           (inr (ne_symm (succ_ne_zero m')))
+           (inr (ne.symm (succ_ne_zero m')))
            (λ (n' : ℕ) (iH2 : decidable (n' = succ m')),
              have d1 : decidable (n' = m'), from iH1 n',
              decidable.rec_on d1
@@ -960,7 +960,7 @@ theorem mul_left_inj {n m k : ℕ} (Hn : n > 0) (H : n * m = n * k) : m = k
             n * m = n * 0 : H
               ... = 0 : mul_zero_right n,
         have H3 : n = 0 ∨ m = 0, from mul_eq_zero H2,
-        resolve_right H3 (ne_symm (lt_ne Hn)))
+        resolve_right H3 (ne.symm (lt_ne Hn)))
       (take (l : ℕ),
         assume (IH : ∀ m, n * m = n * l → m = l),
         take (m : ℕ),

@@ -5,7 +5,7 @@
 ----------------------------------------------------------------------------------------------------
 
 import logic struc.function
-
+open eq
 open function
 
 namespace congruence

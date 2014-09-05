@@ -75,7 +75,7 @@ case_strong_induction_on m
     have H1 : f' 0 x = default, from rfl,
     have H2 : ¬ measure x < 0, from not_lt_zero,
     have H3 : restrict default measure f 0 x = default, from if_neg H2,
-    show f' 0 x = restrict default measure f 0 x, from trans H1 (symm H3))
+    show f' 0 x = restrict default measure f 0 x, from H1 ⬝ H3⁻¹)
   (take m,
     assume IH: ∀n, n ≤ m → ∀x, f' n x = restrict default measure f n x,
     take x : dom,
@@ -108,7 +108,7 @@ case_strong_induction_on m
                 ... = rec_val x (f' m') : if_pos self_lt_succ
                 ... = rec_val x f : rec_decreasing _ _ _ H3a,
           show f' (succ m) x = restrict default measure f (succ m) x,
-            from trans H2 (symm H3))
+            from H2 ⬝ H3⁻¹)
         (assume H1 : ¬ measure x < succ m,
           have H2 : f' (succ m) x = default, from
             calc
@@ -117,7 +117,7 @@ case_strong_induction_on m
           have H3 : restrict default measure f (succ m) x = default,
             from if_neg H1,
           show f' (succ m) x = restrict default measure f (succ m) x,
-            from trans H2 (symm H3)))
+            from H2 ⬝ H3⁻¹))
 
 theorem rec_measure_spec {dom codom : Type} {default : codom} {measure : dom → ℕ}
     (rec_val : dom → (dom → codom) → codom)
@@ -172,7 +172,7 @@ show lhs = rhs, from
       calc
         lhs = succ (g1 (x - y)) : if_neg H1
           ... = succ (g2 (x - y)) : {H _ H4}
-          ... = rhs : symm (if_neg H1))
+          ... = rhs : (if_neg H1)⁻¹)
 
 theorem div_aux_spec (y : ℕ) (x : ℕ) :
   div_aux y x = if (y = 0 ∨ x < y) then 0 else succ (div_aux y (x - y)) :=
@@ -183,12 +183,12 @@ definition idivide (x : ℕ) (y : ℕ) : ℕ := div_aux y x
 infixl `div` := idivide
 
 theorem div_zero {x : ℕ} : x div 0 = 0 :=
-trans (div_aux_spec _ _) (if_pos (or_inl rfl))
+div_aux_spec _ _ ⬝ if_pos (or_inl rfl)
 
 -- add_rewrite div_zero
 
 theorem div_less {x y : ℕ} (H : x < y) : x div y = 0 :=
-trans (div_aux_spec _ _) (if_pos (or_inr H))
+div_aux_spec _ _ ⬝ if_pos (or_inr H)
 
 -- add_rewrite div_less
 
@@ -202,9 +202,9 @@ have H3 : ¬ (y = 0 ∨ x < y), from
   not_intro
     (assume H4 : y = 0 ∨ x < y,
       or_elim H4
-        (assume H5 : y = 0, not_elim lt_irrefl (subst H5 H1))
+        (assume H5 : y = 0, not_elim lt_irrefl (H5 ▸ H1))
         (assume H5 : x < y, not_elim (lt_imp_not_ge H5) H2)),
-trans (div_aux_spec _ _) (if_neg H3)
+div_aux_spec _ _ ⬝ if_neg H3
 
 theorem div_add_self_right {x z : ℕ} (H : z > 0) : (x + z) div z = succ (x div z) :=
 have H1 : z ≤ x + z, by simp,
@@ -248,7 +248,7 @@ show lhs = rhs, from
       calc
         lhs = g1 (x - y) : if_neg H1
           ... = g2 (x - y) : H _ H4
-          ... = rhs : symm (if_neg H1))
+          ... = rhs : (if_neg H1)⁻¹)
 
 theorem mod_aux_spec (y : ℕ) (x : ℕ) :
   mod_aux y x = if (y = 0 ∨ x < y) then x else mod_aux y (x - y) :=
@@ -259,12 +259,12 @@ definition modulo (x : ℕ) (y : ℕ) : ℕ := mod_aux y x
 infixl `mod` := modulo
 
 theorem mod_zero {x : ℕ} : x mod 0 = x :=
-trans (mod_aux_spec _ _) (if_pos (or_inl rfl))
+mod_aux_spec _ _ ⬝ if_pos (or_inl rfl)
 
 -- add_rewrite mod_zero
 
 theorem mod_lt_eq {x y : ℕ} (H : x < y) : x mod y = x :=
-trans (mod_aux_spec _ _) (if_pos (or_inr H))
+mod_aux_spec _ _ ⬝ if_pos (or_inr H)
 
 -- add_rewrite mod_lt_eq
 
@@ -280,7 +280,7 @@ have H3 : ¬ (y = 0 ∨ x < y), from
       or_elim H4
         (assume H5 : y = 0, not_elim lt_irrefl (H5 ▸ H1))
         (assume H5 : x < y, not_elim (lt_imp_not_ge H5) H2)),
-(mod_aux_spec _ _) ⬝ (if_neg H3)
+mod_aux_spec _ _ ⬝ if_neg H3
 
 -- need more of these, add as rewrite rules
 theorem mod_add_self_right {x z : ℕ} (H : z > 0) : (x + z) mod z = x mod z :=
@@ -327,15 +327,15 @@ case_strong_induction_on x
           have H3 : succ x mod y = (succ x - y) mod y, from mod_rec H H2,
           have H4 : succ x - y < succ x, from sub_lt succ_pos H,
           have H5 : succ x - y ≤ x, from lt_succ_imp_le H4,
-          show succ x mod y < y, from subst (symm H3) (IH _ H5)))
+          show succ x mod y < y, from H3⁻¹ ▸ IH _ H5))
 
 theorem div_mod_eq {x y : ℕ} : x = x div y * y + x mod y :=
 case_zero_pos y
   (show x = x div 0 * 0 + x mod 0, from
-    symm (calc
+    (calc
       x div 0 * 0 + x mod 0 = 0 + x mod 0 : {mul_zero_right}
         ... = x mod 0 : add_zero_left
-        ... = x : mod_zero))
+        ... = x : mod_zero)⁻¹)
   (take y,
     assume H : y > 0,
     show x = x div y * y + x mod y, from
@@ -355,14 +355,14 @@ case_zero_pos y
                 have H4 : succ x mod y = (succ x - y) mod y, from mod_rec H H2,
                 have H5 : succ x - y < succ x, from sub_lt succ_pos H,
                 have H6 : succ x - y ≤ x, from lt_succ_imp_le H5,
-                symm (calc
+                (calc
                   succ x div y * y + succ x mod y = succ ((succ x - y) div y) * y + succ x mod y :
                       {H3}
                     ... = ((succ x - y) div y) * y + y + succ x mod y : {mul_succ_left}
                     ... = ((succ x - y) div y) * y + y + (succ x - y) mod y : {H4}
                     ... = ((succ x - y) div y) * y + (succ x - y) mod y + y : add_right_comm
                     ... = succ x - y + y : {(IH _ H6)⁻¹}
-                    ... = succ x : add_sub_ge_left H2))))
+                    ... = succ x : add_sub_ge_left H2)⁻¹)))
 
 theorem mod_le {x y : ℕ} : x mod y ≤ x :=
 div_mod_eq⁻¹ ▸ le_add_left
@@ -380,7 +380,7 @@ calc
 
 theorem quotient_unique {y : ℕ} (H : y > 0) {q1 r1 q2 r2 : ℕ} (H1 : r1 < y) (H2 : r2 < y)
   (H3 : q1 * y + r1 = q2 * y + r2) : q1 = q2 :=
-have H4 : q1 * y + r2 = q2 * y + r2, from subst (remainder_unique H H1 H2 H3) H3,
+have H4 : q1 * y + r2 = q2 * y + r2, from (remainder_unique H H1 H2 H3) ▸ H3,
 have H5 : q1 * y = q2 * y, from add_cancel_right H4,
 have H6 : y > 0, from le_lt_trans zero_le H1,
 show q1 = q2, from mul_cancel_right H6 H5
@@ -455,10 +455,10 @@ theorem dvd_iff_mod_eq_zero {x y : ℕ} : x | y ↔ y mod x = 0 :=
 refl _
 
 theorem dvd_imp_div_mul_eq {x y : ℕ} (H : y | x) : x div y * y = x :=
-symm (calc
+(calc
   x = x div y * y + x mod y : div_mod_eq
     ... = x div y * y + 0 : {mp dvd_iff_mod_eq_zero H}
-    ... = x div y * y : add_zero_right)
+    ... = x div y * y : add_zero_right)⁻¹
 
 -- add_rewrite dvd_imp_div_mul_eq
 
@@ -538,7 +538,7 @@ have H4 : k = k div n * (n div m) * m, from
     k = k div n * n : by simp
       ... = k div n * (n div m * m) : {H3}
       ... = k div n * (n div m) * m : mul_assoc⁻¹,
-mp (dvd_iff_exists_mul⁻¹) (exists_intro (k div n * (n div m)) (symm H4))
+mp (dvd_iff_exists_mul⁻¹) (exists_intro (k div n * (n div m)) (H4⁻¹))
 
 theorem dvd_add {m n1 n2 : ℕ} (H1 : m | n1) (H2 : m | n2) : m | (n1 + n2) :=
 have H : (n1 div m + n2 div m) * m = n1 + n2, by simp,
@@ -548,9 +548,9 @@ theorem dvd_add_cancel_left {m n1 n2 : ℕ} : m | (n1 + n2) → m | n1 → m | n
 case_zero_pos m
   (assume H1 : 0 | n1 + n2,
     assume H2 : 0 | n1,
-    have H3 : n1 + n2 = 0, from subst zero_dvd_iff H1,
-    have H4 : n1 = 0, from subst zero_dvd_iff H2,
-    have H5 : n2 = 0, from mp (by simp) (subst H4 H3),
+    have H3 : n1 + n2 = 0, from zero_dvd_iff ▸ H1,
+    have H4 : n1 = 0, from zero_dvd_iff ▸ H2,
+    have H5 : n2 = 0, from mp (by simp) (H4 ▸ H3),
     show 0 | n2, by simp)
   (take m,
     assume mpos : m > 0,
@@ -611,11 +611,11 @@ show lhs = rhs, from
     (assume H1 : y ≠ 0,
       have ypos : y > 0, from ne_zero_imp_pos H1,
       have H2 : gcd_aux_measure p' = x mod y, from pr2_pair _ _,
-      have H3 : gcd_aux_measure p' < gcd_aux_measure p, from subst (symm H2) (mod_lt ypos),
+      have H3 : gcd_aux_measure p' < gcd_aux_measure p, from H2⁻¹ ▸ mod_lt ypos,
       calc
         lhs = g1 p' : if_neg H1
           ... = g2 p' : H _ H3
-          ... = rhs : symm (if_neg H1))
+          ... = rhs : (if_neg H1)⁻¹)
 
 theorem gcd_aux_spec (p : ℕ × ℕ) : gcd_aux p =
 let x := pr1 p, y := pr2 p in
@@ -675,7 +675,7 @@ gcd_induct m n
     have H : gcd n (m mod n) | (m div n * n + m mod n), from
       dvd_add (dvd_trans (and.elim_left IH) dvd_mul_self_right) (and.elim_right IH),
     have H1 : gcd n (m mod n) | m, from div_mod_eq⁻¹ ▸ H,
-    have gcd_eq : gcd n (m mod n) = gcd m n, from symm (gcd_pos _ npos),
+    have gcd_eq : gcd n (m mod n) = gcd m n, from (gcd_pos _ npos)⁻¹,
     show (gcd m n | m) ∧ (gcd m n | n), from gcd_eq ▸ (and.intro H1 (and.elim_left IH)))
 
 theorem gcd_dvd_left (m n : ℕ) : (gcd m n | m) := and.elim_left (gcd_dvd _ _)
@@ -694,7 +694,7 @@ gcd_induct m n
     assume H2 : k | n,
     have H3 : k | m div n * n + m mod n, from div_mod_eq ▸ H1,
     have H4 : k | m mod n, from dvd_add_cancel_left H3 (dvd_trans H2 (by simp)),
-    have gcd_eq : gcd n (m mod n) = gcd m n, from symm (gcd_pos _ npos),
-    show k | gcd m n, from subst gcd_eq (IH H2 H4))
+    have gcd_eq : gcd n (m mod n) = gcd m n, from (gcd_pos _ npos)⁻¹,
+    show k | gcd m n, from gcd_eq ▸ IH H2 H4)
 
 end nat

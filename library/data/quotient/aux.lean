@@ -30,7 +30,7 @@ prod.destruct a (take x y, rfl)
 
 theorem P_flip {A B : Type} {P : A → B → Prop} {a : A × B} (H : P (pr1 a) (pr2 a))
   : P (pr2 (flip a)) (pr1 (flip a)) :=
-(symm (flip_pr1 a)) ▸ (symm (flip_pr2 a)) ▸ H
+(flip_pr1 a)⁻¹ ▸ (flip_pr2 a)⁻¹ ▸ H
 
 theorem flip_inj {A B : Type} {a b : A × B} (H : flip a = flip b) : a = b :=
 have H2 : flip (flip a) = flip (flip b), from congr_arg flip H,
@@ -85,16 +85,16 @@ have Hx : pr1 (flip (map_pair2 f a b)) =  pr1 (map_pair2 f (flip a) (flip b)), f
   calc
     pr1 (flip (map_pair2 f a b)) = pr2 (map_pair2 f a b) : flip_pr1 _
       ... = f (pr2 a) (pr2 b) : map_pair2_pr2 f a b
-      ... = f (pr1 (flip a)) (pr2 b) : {symm (flip_pr1 a)}
-      ... = f (pr1 (flip a)) (pr1 (flip b)) : {symm (flip_pr1 b)}
-      ... = pr1 (map_pair2 f (flip a) (flip b)) : symm (map_pair2_pr1 f _ _),
+      ... = f (pr1 (flip a)) (pr2 b) : {(flip_pr1 a)⁻¹}
+      ... = f (pr1 (flip a)) (pr1 (flip b)) : {(flip_pr1 b)⁻¹}
+      ... = pr1 (map_pair2 f (flip a) (flip b)) : (map_pair2_pr1 f _ _)⁻¹,
 have Hy : pr2 (flip (map_pair2 f a b)) =  pr2 (map_pair2 f (flip a) (flip b)), from
   calc
     pr2 (flip (map_pair2 f a b)) = pr1 (map_pair2 f a b) : flip_pr2 _
       ... = f (pr1 a) (pr1 b) : map_pair2_pr1 f a b
-      ... = f (pr2 (flip a)) (pr1 b) : {symm (flip_pr2 a)}
-      ... = f (pr2 (flip a)) (pr2 (flip b)) : {symm (flip_pr2 b)}
-      ... = pr2 (map_pair2 f (flip a) (flip b)) : symm (map_pair2_pr2 f _ _),
+      ... = f (pr2 (flip a)) (pr1 b) : {flip_pr2 a}
+      ... = f (pr2 (flip a)) (pr2 (flip b)) : {flip_pr2 b}
+      ... = pr2 (map_pair2 f (flip a) (flip b)) : (map_pair2_pr2 f _ _)⁻¹,
 pair_eq Hx Hy
 
 -- add_rewrite flip_pr1 flip_pr2 flip_pair
@@ -107,12 +107,12 @@ have Hx : pr1 (map_pair2 f v w) = pr1 (map_pair2 f w v), from
   calc
     pr1 (map_pair2 f v w) = f (pr1 v) (pr1 w) : map_pair2_pr1 f v w
       ... = f (pr1 w) (pr1 v) : Hcomm _ _
-      ... = pr1 (map_pair2 f w v) : symm (map_pair2_pr1 f w v),
+      ... = pr1 (map_pair2 f w v) : (map_pair2_pr1 f w v)⁻¹,
 have Hy : pr2 (map_pair2 f v w) = pr2 (map_pair2 f w v), from
   calc
     pr2 (map_pair2 f v w) = f (pr2 v) (pr2 w) : map_pair2_pr2 f v w
       ... = f (pr2 w) (pr2 v) : Hcomm _ _
-      ... = pr2 (map_pair2 f w v) : symm (map_pair2_pr2 f w v),
+      ... = pr2 (map_pair2 f w v) : (map_pair2_pr2 f w v)⁻¹,
 pair_eq Hx Hy
 
 theorem map_pair2_assoc {A : Type} {f : A → A → A}
@@ -125,8 +125,8 @@ have Hx : pr1 (map_pair2 f (map_pair2 f u v) w) =
           = f (pr1 (map_pair2 f u v)) (pr1 w) : map_pair2_pr1 f _ _
       ... = f (f (pr1 u) (pr1 v)) (pr1 w) : {map_pair2_pr1 f _ _}
       ... = f (pr1 u) (f (pr1 v) (pr1 w)) : Hassoc (pr1 u) (pr1 v) (pr1 w)
-      ... = f (pr1 u) (pr1 (map_pair2 f v w)) : {symm (map_pair2_pr1 f _ _)}
-      ... = pr1 (map_pair2 f u (map_pair2 f v w)) : symm (map_pair2_pr1 f _ _),
+      ... = f (pr1 u) (pr1 (map_pair2 f v w)) : {(map_pair2_pr1 f _ _)⁻¹}
+      ... = pr1 (map_pair2 f u (map_pair2 f v w)) : (map_pair2_pr1 f _ _)⁻¹,
 have Hy : pr2 (map_pair2 f (map_pair2 f u v) w) =
           pr2 (map_pair2 f u (map_pair2 f v w)), from
   calc
@@ -134,8 +134,8 @@ have Hy : pr2 (map_pair2 f (map_pair2 f u v) w) =
           = f (pr2 (map_pair2 f u v)) (pr2 w) : map_pair2_pr2 f _ _
       ... = f (f (pr2 u) (pr2 v)) (pr2 w) : {map_pair2_pr2 f _ _}
       ... = f (pr2 u) (f (pr2 v) (pr2 w)) : Hassoc (pr2 u) (pr2 v) (pr2 w)
-      ... = f (pr2 u) (pr2 (map_pair2 f v w)) : {symm (map_pair2_pr2 f _ _)}
-      ... = pr2 (map_pair2 f u (map_pair2 f v w)) : symm (map_pair2_pr2 f _ _),
+      ... = f (pr2 u) (pr2 (map_pair2 f v w)) : {map_pair2_pr2 f _ _}
+      ... = pr2 (map_pair2 f u (map_pair2 f v w)) : (map_pair2_pr2 f _ _)⁻¹,
 pair_eq Hx Hy
 
 theorem map_pair2_id_right {A B : Type} {f : A → B → A} {e : B} (Hid : ∀a : A, f a e = a)

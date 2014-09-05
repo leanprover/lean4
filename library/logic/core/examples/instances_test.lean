@@ -40,9 +40,8 @@ theorem test6 (a b c d : Prop) (H1 : a ↔ b) (H2 : c ↔ b) (H3 : c ↔ d) : a 
 H1 ⬝ (H2⁻¹ ⬝ H3)
 
 theorem test7 (T : Type) (a b c d : T) (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
-trans H1 (trans (symm H2) H3)
+H1 ⬝ H2⁻¹ ⬝ H3
 
 theorem test8 (a b c d : Prop) (H1 : a ↔ b) (H2 : c ↔ b) (H3 : c ↔ d) : a ↔ d :=
-trans H1 (trans (symm H2) H3)
-
+H1 ⬝ H2⁻¹ ⬝ H3
 end

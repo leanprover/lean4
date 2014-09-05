@@ -205,7 +205,7 @@ discriminate
       from calc
         pred n = pred (succ k) : {Hn}
            ... = k             : pred_succ,
-    have H3 : k ≤ m, from subst H2 H,
+    have H3 : k ≤ m, from H2 ▸ H,
     have H4 : succ k ≤ m ∨ k = m, from le_imp_succ_le_or_eq H3,
     show n ≤ m ∨ n = succ m, from
       or_imp_or H4
@@ -395,7 +395,7 @@ induction_on n
                 m = k + l     : Hl⁻¹
                   ... = k + 0 : {H2}
                   ... = k     : add_zero_right,
-            have H4 : m < succ k, from subst  H3 self_lt_succ,
+            have H4 : m < succ k, from H3 ▸ self_lt_succ,
             or_inr H4)
           (take l2 : ℕ,
             assume H2 : l = succ l2,
@@ -481,7 +481,7 @@ theorem ne_zero_imp_pos {n : ℕ} (H : n ≠ 0) : n > 0 :=
 or_elim zero_or_pos (take H2 : n = 0, absurd H2 H) (take H2 : n > 0, H2)
 
 theorem pos_imp_ne_zero {n : ℕ} (H : n > 0) : n ≠ 0 :=
-ne_symm (lt_imp_ne H)
+ne.symm (lt_imp_ne H)
 
 theorem pos_imp_eq_succ {n : ℕ} (H : n > 0) : exists l, n = succ l :=
 lt_imp_eq_succ H

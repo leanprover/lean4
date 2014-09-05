@@ -26,6 +26,6 @@ end int
 
 open int
 open nat
-
+open eq
 theorem add_lt_left {a b : int} (H : a < b) (c : int) : c + a < c + b :=
 subst (symm (add_assoc c a one)) (add_le_left H c)

@@ -111,7 +111,7 @@ have general : ∀n, decidable (n = m), from
         (λ m iH, inr succ_ne_zero))
     (λ (m' : ℕ) (iH1 : ∀n, decidable (n = m')),
       take n, rec_on n
-        (inr (ne_symm succ_ne_zero))
+        (inr (ne.symm succ_ne_zero))
         (λ (n' : ℕ) (iH2 : decidable (n' = succ m')),
           have d1 : decidable (n' = m'), from iH1 n',
           decidable.rec_on d1
@@ -358,12 +358,12 @@ discriminate
       (take (l : ℕ),
         assume (Hl : m = succ l),
         have Heq : succ (k * succ l + l) = n * m, from
-          symm (calc
+         (calc
             n * m = n * succ l            : {Hl}
               ... = succ k * succ l       : {Hk}
               ... = k * succ l + succ l   : mul_succ_left
-              ... = succ (k * succ l + l) : add_succ_right),
-        absurd (trans Heq H) succ_ne_zero))
+              ... = succ (k * succ l + l) : add_succ_right)⁻¹,
+        absurd (Heq ⬝ H) succ_ne_zero))
 
 ---other inversion theorems appear below
 

@@ -79,13 +79,13 @@ iff_elim_right (R_iff Q r s) (and.intro (H1 r) (and.intro (H1 s) H2))
 theorem rep_eq {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {a b : B} (H : R (rep a) (rep b)) : a = b :=
 calc
-  a = abs (rep a) : symm (abs_rep Q a)
+  a = abs (rep a) : eq.symm (abs_rep Q a)
     ... = abs (rep b) : {eq_abs Q H}
     ... = b : abs_rep Q b
 
 theorem R_rep_abs {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {a : A} (H : R a a) : R a (rep (abs a)) :=
-have H3 : abs a = abs (rep (abs a)), from symm (abs_rep Q (abs a)),
+have H3 : abs a = abs (rep (abs a)), from eq.symm (abs_rep Q (abs a)),
 R_intro Q H (refl_rep Q (abs a)) H3
 
 theorem quotient_imp_symm {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
@@ -94,7 +94,7 @@ take a b : A,
 assume H : R a b,
 have Ha : R a a, from refl_left Q H,
 have Hb : R b b, from refl_right Q H,
-have Hab : abs b = abs a, from symm (eq_abs Q H),
+have Hab : abs b = abs a, from eq.symm (eq_abs Q H),
 R_intro Q Hb Ha Hab
 
 theorem quotient_imp_trans {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
@@ -104,7 +104,7 @@ assume Hab : R a b,
 assume Hbc : R b c,
 have Ha : R a a, from refl_left Q Hab,
 have Hc : R c c, from refl_right Q Hbc,
-have Hac : abs a = abs c, from trans (eq_abs Q Hab) (eq_abs Q Hbc),
+have Hac : abs a = abs c, from eq.trans (eq_abs Q Hab) (eq_abs Q Hbc),
 R_intro Q Ha Hc Hac
 
 
@@ -124,9 +124,9 @@ theorem comp {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
 have H2 [fact] : R a (rep (abs a)), from R_rep_abs Q Ha,
 calc
   rec Q f (abs a) =  eq.rec_on _ (f (rep (abs a))) : rfl
-    ... = eq.rec_on _ (eq.rec_on _ (f a)) : {symm (H _ _ H2)}
+    ... = eq.rec_on _ (eq.rec_on _ (f a)) : {(H _ _ H2)⁻¹}
     ... = eq.rec_on _ (f a) : eq.rec_on_compose (eq_abs Q H2) _ _
-    ... = f a : eq.rec_on_id (trans (eq_abs Q H2) (abs_rep Q (abs a))) _
+    ... = f a : eq.rec_on_id (eq.trans (eq_abs Q H2) (abs_rep Q (abs a))) _
 
 definition rec_constant {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {C : Type} (f : A → C) (b : B) : C :=
@@ -139,7 +139,7 @@ theorem comp_constant {A B : Type} {R : A → A → Prop} {abs : A → B} {rep :
 have H2 : R a (rep (abs a)), from R_rep_abs Q Ha,
 calc
   rec_constant Q f (abs a) = f (rep (abs a)) : rfl
-    ... = f a : {symm (H _ _ H2)}
+    ... = f a : {(H _ _ H2)⁻¹}
 
 definition rec_binary {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {C : Type} (f : A → A → C) (b c : B) : C :=
@@ -153,7 +153,7 @@ have H2 : R a (rep (abs a)), from R_rep_abs Q Ha,
 have H3 : R b (rep (abs b)), from R_rep_abs Q Hb,
 calc
   rec_binary Q f (abs a) (abs b) = f (rep (abs a))  (rep (abs b)) : rfl
-    ... = f a b : {symm (H _ _ _ _ H2 H3)}
+    ... = f a b : {(H _ _ _ _ H2 H3)⁻¹}
 
 theorem comp_binary_refl {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) (Hrefl : reflexive R) {C : Type} {f : A → A → C}
@@ -172,7 +172,7 @@ theorem comp_quotient_map {A B : Type} {R : A → A → Prop} {abs : A → B} {r
 have H2 : R a (rep (abs a)), from R_rep_abs Q Ha,
 have H3 : R (f a) (f (rep (abs a))), from H _ _ H2,
 have H4 : abs (f a) = abs (f (rep (abs a))), from eq_abs Q H3,
-symm H4
+H4⁻¹
 
 definition quotient_map_binary {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) (f : A → A → A) (b c : B) : B :=
@@ -185,7 +185,7 @@ theorem comp_quotient_map_binary {A B : Type} {R : A → A → Prop} {abs : A �
 have Ha2 : R a (rep (abs a)), from R_rep_abs Q Ha,
 have Hb2 : R b (rep (abs b)), from R_rep_abs Q Hb,
 have H2 : R (f a b) (f (rep (abs a)) (rep (abs b))), from H _ _ _ _ Ha2 Hb2,
-symm (eq_abs Q H2)
+(eq_abs Q H2)⁻¹
 
 theorem comp_quotient_map_binary_refl {A B : Type} {R : A → A → Prop} (Hrefl : reflexive R)
   {abs : A → B} {rep : B → A} (Q : is_quotient R abs rep) {f : A → A → A}
@@ -231,18 +231,20 @@ theorem image_tag {A B : Type} {f : A → B} (u : image f) : ∃a H, tag (f a) H
 obtain a (H : fun_image f a = u), from fun_image_surj u,
 exists_intro a (exists_intro (exists_intro a rfl) H)
 
+open eq_ops
+
 theorem fun_image_eq {A B : Type} (f : A → B) (a a' : A)
   : (f a = f a') ↔ (fun_image f a = fun_image f a') :=
 iff_intro
   (assume H : f a = f a', tag_eq H)
   (assume H : fun_image f a = fun_image f a',
-    subst (subst (congr_arg elt_of H) (elt_of_fun_image f a)) (elt_of_fun_image f a'))
+    (congr_arg elt_of H ▸ elt_of_fun_image f a) ▸ elt_of_fun_image f a')
 
 theorem idempotent_image_elt_of {A : Type} {f : A → A} (H : ∀a, f (f a) = f a) (u : image f)
   : fun_image f (elt_of u) = u :=
 obtain (a : A) (Ha : fun_image f a = u), from fun_image_surj u,
 calc
-  fun_image f (elt_of u) = fun_image f (elt_of (fun_image f a)) : {symm Ha}
+  fun_image f (elt_of u) = fun_image f (elt_of (fun_image f a)) : {Ha⁻¹}
     ... = fun_image f (f a) : {elt_of_fun_image f a}
     ... = fun_image f a : {iff_elim_left (fun_image_eq f (f a) a) (H a)}
     ... = u : Ha
@@ -251,7 +253,7 @@ theorem idempotent_image_fix {A : Type} {f : A → A} (H : ∀a, f (f a) = f a) 
   : f (elt_of u) = elt_of u :=
 obtain (a : A) (Ha : f a = elt_of u), from image_elt_of u,
 calc
-  f (elt_of u) = f (f a) : {symm Ha}
+  f (elt_of u) = f (f a) : {Ha⁻¹}
     ... = f a : H a
     ... = elt_of u : Ha
 
@@ -262,17 +264,17 @@ calc
 theorem representative_map_idempotent {A : Type} {R : A → A → Prop} {f : A → A}
     (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b ↔ R a a ∧ R b b ∧ f a = f b) (a : A) :
   f (f a) = f a :=
-symm (and.elim_right (and.elim_right (iff_elim_left (H2 a (f a)) (H1 a))))
+(and.elim_right (and.elim_right (iff_elim_left (H2 a (f a)) (H1 a))))⁻¹
 
 theorem representative_map_idempotent_equiv {A : Type} {R : A → A → Prop} {f : A → A}
     (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b → f a = f b) (a : A) :
   f (f a) = f a :=
-symm (H2 a (f a) (H1 a))
+(H2 a (f a) (H1 a))⁻¹
 
 theorem representative_map_refl_rep {A : Type} {R : A → A → Prop} {f : A → A}
     (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b ↔ R a a ∧ R b b ∧ f a = f b) (a : A) :
   R (f a) (f a) :=
-subst (representative_map_idempotent H1 H2 a) (H1 (f a))
+representative_map_idempotent H1 H2 a ▸ H1 (f a)
 
 theorem representative_map_image_fix {A : Type} {R : A → A → Prop} {f : A → A}
     (H1 : ∀a, R a (f a)) (H2 : ∀a a', R a a' ↔ R a a ∧ R a' a' ∧ f a = f a') (b : image f) :
@@ -289,14 +291,14 @@ intro
     have H : elt_of (abs (elt_of u)) = elt_of u, from
       calc
         elt_of (abs (elt_of u)) = f (elt_of u) : elt_of_fun_image _ _
-          ... = f (f a) : {symm Ha}
+          ... = f (f a) : {Ha⁻¹}
           ... = f a : representative_map_idempotent H1 H2 a
           ... = elt_of u : Ha,
     show abs (elt_of u) = u, from subtype_eq H)
   (take u : image f,
     show R (elt_of u) (elt_of u), from
       obtain (a : A) (Ha : f a = elt_of u), from image_elt_of u,
-        subst Ha (@representative_map_refl_rep A R f H1 H2 a))
+        Ha ▸ (@representative_map_refl_rep A R f H1 H2 a))
   (take a a',
     subst (fun_image_eq f a a') (H2 a a'))
 
@@ -307,7 +309,7 @@ theorem representative_map_equiv_inj {A : Type} {R : A → A → Prop}
 have symmR : symmetric R, from rel_symm R,
 have transR : transitive R, from rel_trans R,
 show R a b, from
-  have H2 : R a (f b), from subst H3 (H1 a),
+  have H2 : R a (f b), from H3 ▸ (H1 a),
   have H3 : R (f b) b, from symmR (H1 b),
   transR H2 H3
 

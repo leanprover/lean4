@@ -103,8 +103,8 @@ for =n = n=. In Lean, =eq.refl= is the reflexivity theorem.
 
 The command =axiom= postulates that a given proposition holds.
 The following commands postulate two axioms =Ax1= and =Ax2= that state that =n = m= and
-=m = o=. =Ax1= and =Ax2= are not just names. For example, =trans Ax1 Ax2= is a proof that
-=n = o=, where =trans= is the transitivity theorem.
+=m = o=. =Ax1= and =Ax2= are not just names. For example, =eq.trans Ax1 Ax2= is a proof that
+=n = o=, where =eq.trans= is the transitivity theorem.
 
 #+BEGIN_SRC lean
   import data.nat
@@ -112,14 +112,14 @@ The following commands postulate two axioms =Ax1= and =Ax2= that state that =n =
   variables m n o : nat
   axiom Ax1 : n = m
   axiom Ax2 : m = o
-  check trans Ax1 Ax2
+  check eq.trans Ax1 Ax2
 #+END_SRC
 
-The expression =trans Ax1 Ax2= is just a function application like any other.
+The expression =eq.trans Ax1 Ax2= is just a function application like any other.
 Moreover, in Lean, _propositions are types_. Any proposition =P= can be used
 as a type. The elements of type =P= can be viewed as the proofs of =P=.
 Moreover, in Lean, _proof checking is type checking_. For example, the Lean type checker
-will reject the type incorrect term =trans Ax2 Ax1=.
+will reject the type incorrect term =eq.trans Ax2 Ax1=.
 
 Because we use _proposition as types_, we must support _empty types_. For example,
 the type =false= must be empty, since we don't have a proof for =false=.
@@ -142,14 +142,14 @@ propositions, and =variable= for everything else.
 
 Similarly, a theorem is just a definition. The following command defines a new theorem
 called =nat_trans3=, and then use it to prove something else. In this
-example, =symm= is the symmetry theorem.
+example, =eq.symm= is the symmetry theorem.
 
 #+BEGIN_SRC lean
   import data.nat
   open nat
 
   theorem nat_trans3 (a b c d : nat) (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
-  trans (trans H1 (symm H2)) H3
+  eq.trans (eq.trans H1 (eq.symm H2)) H3
 
   -- Example using nat_trans3
   variables x y z w : nat
@@ -178,7 +178,7 @@ implicit arguments.
   open nat
 
   theorem nat_trans3i {a b c d : nat} (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
-  trans (trans H1 (symm H2)) H3
+  eq.trans (eq.trans H1 (eq.symm H2)) H3
 
   -- Example using nat_trans3
   variables x y z w : nat
@@ -196,13 +196,13 @@ is quite simple, we are just instructing Lean to automatically insert the placeh
 Sometimes, Lean will not be able to infer the parameters automatically.
 The annotation =@f= instructs Lean that we want to provide the
 implicit arguments for =f= explicitly.
-The theorems =eq.refl=, =trans= and =symm= all have implicit arguments.
+The theorems =eq.refl=, =eq.trans= and =eq.symm= all have implicit arguments.
 
 #+BEGIN_SRC lean
   import logic
   check @eq.refl
-  check @symm
-  check @trans
+  check @eq.symm
+  check @eq.trans
 #+END_SRC
 
 We can also instruct Lean to display all implicit arguments when it prints expressions.
@@ -215,14 +215,14 @@ This is useful when debugging non-trivial problems.
   variables a b c : nat
   axiom H1 : a = b
   axiom H2 : b = c
-  check trans H1 H2
+  check eq.trans H1 H2
 
   set_option pp.implicit true
   -- Now, Lean will display all implicit arguments
-  check trans H1 H2
+  check eq.trans H1 H2
 #+END_SRC
 
-In the previous example, the =check= command stated that =trans H1 H2=
+In the previous example, the =check= command stated that =eq.trans H1 H2=
 has type =@eq ℕ a c=. The expression =a = c= is just notational convenience.
 
 We have seen many occurrences of =Type=.
@@ -249,15 +249,15 @@ In the command above, Lean reports that =Type.{l_1}= that lives in
 universe =l_1= has type =Type.{succ l_1}=. That is, its type lives in
 the universe =l_1 + 1=.
 
-Definitions such as =eq.refl=, =symm= and =trans= are all universe
+Definitions such as =eq.refl=, =eq.symm= and =eq.trans= are all universe
 polymorphic.
 
 #+BEGIN_SRC lean
   import logic
   set_option pp.universes true
   check @eq.refl
-  check @symm
-  check @trans
+  check @eq.symm
+  check @eq.trans
 #+END_SRC
 
 Whenever we declare a new constant, Lean automatically infers the
@@ -634,7 +634,7 @@ In Lean, the dependent functions is written as =forall a : A, B a=,
 =Pi a : A, B a=, =∀ x : A, B a=, or =Π x : A, B a=. We usually use
 =forall= and =∀= for propositions, and =Pi= and =Π= for everything
 else. In the previous examples, we have seen many examples of
-dependent functions. The theorems =eq.refl=, =trans= and =symm=, and the
+dependent functions. The theorems =eq.refl=, =eq.trans= and =eq.symm=, and the
 equality are all dependent functions.
 
 The universal quantifier is just a dependent function.
@@ -672,12 +672,12 @@ abstraction. In the following example, we create a proof term showing that for a
 
   variable f : nat → nat
   axiom fzero : ∀ x, f x = 0
-  check λ x y, trans (fzero x) (symm (fzero y))
+  check λ x y, eq.trans (fzero x) (eq.symm (fzero y))
 #+END_SRC
 
 We can view the proof term above as a simple function or "recipe" for showing that
 =f x = f y= for any =x= and =y=. The function "invokes" =fzero= for creating
-proof terms for =f x = 0= and =f y = 0=. Then, it uses symmetry =symm= to create
+proof terms for =f x = 0= and =f y = 0=. Then, it uses symmetry =eq.symm= to create
 a proof term for =0 = f y=. Finally, transitivity is used to combine the proofs
 for =f x = 0= and =0 = f y=.
 
@@ -696,7 +696,7 @@ for =∃ a : nat, a = w= using
   open nat
 
   theorem nat_trans3i {a b c d : nat} (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
-  trans (trans H1 (symm H2)) H3
+  eq.trans (eq.trans H1 (eq.symm H2)) H3
 
   variables x y z w : nat
   axiom Hxy : x = y
@@ -760,7 +760,7 @@ of two even numbers is an even number.
     exists_intro (w1 + w2)
       (calc a + b  =  2*w1 + b      : {Hw1}
               ...  =  2*w1 + 2*w2   : {Hw2}
-              ...  =  2*(w1 + w2)   : symm mul_distr_left)))
+              ...  =  2*(w1 + w2)   : eq.symm mul_distr_left)))
 
 #+END_SRC
 
@@ -780,5 +780,5 @@ With this macro we can write the example above in a more natural way
     exists_intro (w1 + w2)
       (calc a + b  =  2*w1 + b      : {Hw1}
               ...  =  2*w1 + 2*w2   : {Hw2}
-              ...  =  2*(w1 + w2)   : symm mul_distr_left)
+              ...  =  2*(w1 + w2)   : eq.symm mul_distr_left)
 #+END_SRC

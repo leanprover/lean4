@@ -224,12 +224,12 @@ induction_on l
     or_elim H
       (assume H1 : x = y,
         exists_intro nil
-          (exists_intro l (subst H1 rfl)))
+          (exists_intro l (H1 ▸ rfl)))
       (assume H1 : x ∈ l,
         obtain s (H2 : ∃t : list T, l = s ++ (x :: t)), from IH H1,
         obtain t (H3 : l = s ++ (x :: t)), from H2,
         have H4 : y :: l = (y :: s) ++ (x :: t),
-          from subst H3 rfl,
+          from H3 ▸ rfl,
         exists_intro _ (exists_intro _ H4)))
 
 -- Find

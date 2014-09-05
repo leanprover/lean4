@@ -17,7 +17,7 @@ Each =<proof>_i= is a proof for =<expr>_{i-1} op_i <expr>_i=.
 Recall that proofs are also expressions in Lean. The =<proof>_i=
 may also be of the form ={ <pr> }=, where =<pr>= is a proof
 for some equality =a = b=. The form ={ <pr> }= is just syntax sugar
-for =subst <pr> (refl <expr>_{i-1})=
+for =eq.subst <pr> (refl <expr>_{i-1})=
 
 That is, we are claiming we can obtain =<expr>_i= by replacing =a= with =b=
 in =<expr>_{i-1}=.
@@ -38,7 +38,7 @@ Here is an example
           ...  =  c + 1 : Ax2
           ...  =  d + 1 : { Ax3 }
           ...  =  1 + d : add_comm
-          ...  =  e     : symm Ax4.
+          ...  =  e     : eq.symm Ax4.
 
 #+END_SRC
 

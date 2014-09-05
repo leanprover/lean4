@@ -53,4 +53,4 @@ theorem iff_congruence [instance] (P : Prop → Prop) : congruence iff iff P :=
 congruence.mk
   (take (a b : Prop),
     assume H : a ↔ b,
-    show P a ↔ P b, from eq_to_iff (subst (iff_to_eq H) (eq.refl (P a))))
+    show P a ↔ P b, from eq_to_iff (iff_to_eq H ▸ eq.refl (P a)))

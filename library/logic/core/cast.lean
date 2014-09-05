@@ -54,7 +54,7 @@ theorem hsubst {A B : Type} {a : A} {b : B} {P : ∀ (T : Type), T → Prop} (H1
 have Haux1 : ∀ H : A = A, P A (cast H a), from
   assume H : A = A, (cast_eq H a)⁻¹ ▸ H2,
 obtain (Heq : A = B) (Hw : cast Heq a = b), from H1,
-have Haux2 : P B (cast Heq a), from subst Heq Haux1 Heq,
+have Haux2 : P B (cast Heq a), from eq.subst Heq Haux1 Heq,
 Hw ▸ Haux2
 
 theorem hsymm {A B : Type} {a : A} {b : B} (H : a == b) : b == a :=
@@ -79,7 +79,7 @@ hsubst H (eq.refl A)
 theorem cast_heq {A B : Type} (H : A = B) (a : A) : cast H a == a :=
 have H1 : ∀ (H : A = A) (a : A), cast H a == a, from
   assume H a, eq_to_heq (cast_eq H a),
-subst H H1 H a
+eq.subst H H1 H a
 
 theorem cast_eq_to_heq {A B : Type} {a : A} {b : B} {H : A = B} (H1 : cast H a = b) : a == b :=
 calc a  == cast H a : hsymm (cast_heq H a)
@@ -95,20 +95,20 @@ theorem dcongr_arg {A : Type} {B : A → Type} (f : Πx, B x) {a b : A} (H : a =
 have e1 : ∀ (H : B a = B a), cast H (f a) = f a, from
   assume H, cast_eq H (f a),
 have e2 : ∀ (H : B a = B b), cast H (f a) = f b, from
-  subst H e1,
+  H ▸ e1,
 have e3 : cast (congr_arg B H) (f a) = f b, from
   e2 (congr_arg B H),
 cast_eq_to_heq e3
 
 theorem pi_eq {A : Type} {B B' : A → Type} (H : B = B') : (Π x, B x) = (Π x, B' x) :=
-subst H (eq.refl (Π x, B x))
+H ▸ (eq.refl (Π x, B x))
 
 theorem cast_app' {A : Type} {B B' : A → Type} (H : B = B') (f : Π x, B x) (a : A) :
   cast (pi_eq H) f a == f a :=
 have H1 : ∀ (H : (Π x, B x) = (Π x, B x)), cast H f a == f a, from
   assume H, eq_to_heq (congr_fun (cast_eq H f) a),
 have H2 : ∀ (H : (Π x, B x) = (Π x, B' x)), cast H f a == f a, from
-  subst H H1,
+  H ▸ H1,
 H2 (pi_eq H)
 
 theorem cast_pull {A : Type} {B B' : A → Type} (H : B = B') (f : Π x, B x) (a : A) :

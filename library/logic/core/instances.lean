@@ -80,10 +80,10 @@ theorem is_reflexive_eq [instance] (T : Type) : relation.is_reflexive (@eq T) :=
 relation.is_reflexive.mk (@eq.refl T)
 
 theorem is_symmetric_eq [instance] (T : Type) : relation.is_symmetric (@eq T) :=
-relation.is_symmetric.mk (@symm T)
+relation.is_symmetric.mk (@eq.symm T)
 
 theorem is_transitive_eq [instance] (T : Type) : relation.is_transitive (@eq T) :=
-relation.is_transitive.mk (@trans T)
+relation.is_transitive.mk (@eq.trans T)
 
 -- TODO: this is only temporary, needed to inform Lean that is_equivalence is a class
 theorem is_equivalence_eq [instance] (T : Type) : relation.is_equivalence (@eq T) :=

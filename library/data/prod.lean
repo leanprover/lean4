@@ -42,8 +42,10 @@ section
   theorem prod_ext (p : prod A B) : pair (pr1 p) (pr2 p) = p :=
   destruct p (λx y, eq.refl (x, y))
 
+  open eq_ops
+
   theorem pair_eq {a1 a2 : A} {b1 b2 : B} (H1 : a1 = a2) (H2 : b1 = b2) : (a1, b1) = (a2, b2) :=
-  subst H1 (subst H2 rfl)
+  H1 ▸ H2 ▸ rfl
 
   theorem prod_eq {p1 p2 : prod A B} : ∀ (H1 : pr1 p1 = pr1 p2) (H2 : pr2 p1 = pr2 p2), p1 = p2 :=
   destruct p1 (take a1 b1, destruct p2 (take a2 b2 H1 H2, pair_eq H1 H2))
@@ -55,7 +57,7 @@ section
       (H2 : decidable (pr2 u = pr2 v)) : decidable (u = v) :=
     have H3 : u = v ↔ (pr1 u = pr1 v) ∧ (pr2 u = pr2 v), from
       iff_intro
-        (assume H, subst H (and.intro rfl rfl))
+        (assume H, H ▸ and.intro rfl rfl)
         (assume H, and.elim H (assume H4 H5, prod_eq H4 H5)),
     decidable_iff_equiv _ (iff_symm H3)
 

@@ -40,7 +40,7 @@ assume H : ff = tt, absurd
 theorem decidable_eq [instance] (a b : bool) : decidable (a = b) :=
 rec
   (rec (inl (eq.refl ff)) (inr ff_ne_tt) b)
-  (rec (inr (ne_symm ff_ne_tt)) (inl (eq.refl tt)) b)
+  (rec (inr (ne.symm ff_ne_tt)) (inl (eq.refl tt)) b)
   a
 
 definition bor (a b : bool) :=
@@ -128,7 +128,7 @@ or_elim (dichotomy a)
   (assume H1 : a = tt, H1)
 
 theorem band_eq_tt_elim_right {a b : bool} (H : a && b = tt) : b = tt :=
-band_eq_tt_elim_left (trans (band_comm b a) H)
+band_eq_tt_elim_left (eq.trans (band_comm b a) H)
 
 definition bnot (a : bool) := rec tt ff a
 

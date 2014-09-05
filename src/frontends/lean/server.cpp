@@ -39,12 +39,21 @@ void server::file::replace_line(unsigned line_num, std::string const & new_line)
     lock_guard<mutex> lk(m_lines_mutex);
     while (line_num >= m_lines.size())
         m_lines.push_back("");
+    #if 0
     std::string const & old_line = m_lines[line_num];
     unsigned i = 0;
     while (i < old_line.size() && i < new_line.size() && old_line[i] == new_line[i])
         i++;
+    #endif
     m_info.block_new_info(true);
+    #if 0
+    // It turns out that is not a good idea to try to "keep" some of the information.
+    // The info_manager will accumulate conflicting information and confuse the frontend.
+    // Example: open a theorem, delete the proof, then type "and", then continue with "and.elim"
+    // Now, the info_manager contains the "and" and "and.elim" type.
     m_info.invalidate_line_col(line_num+1, i);
+    #endif
+    m_info.invalidate_line(line_num+1);
     m_lines[line_num] = new_line;
 }
 

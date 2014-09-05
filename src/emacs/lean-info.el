@@ -555,9 +555,9 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
     (lean-server-check-current-file file-name)
     (lean-server-send-cmd-async (lean-cmd-info line-number)
                                 (lambda (info-record)
-                                  (if (lean-info-record-nay info-record)
-                                      (lean-get-info-record-at-point cont)
-                                    (funcall cont info-record))))))
+                                  (cond ((lean-info-record-nay info-record)
+                                         (lean-get-info-record-at-point cont))
+                                        (t (funcall cont info-record)))))))
 
 (defun lean-get-full-name-at-point-cont (info-record)
   "Continuation of lean-get-full-name-at-point"

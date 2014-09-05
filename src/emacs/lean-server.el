@@ -41,9 +41,7 @@
 
 (defun lean-server-trace (format-string &rest args)
   "Display a message at the bottom of the *lean-server* buffer."
-  (message "?\n")
   (when lean-server-trace-mode
-    (message "!\n")
     (when lean-global-server-last-time-sent
       (let ((time-diff (- (float-time) lean-global-server-last-time-sent)))
         (lean-server-output-to-buffer lean-server-trace-buffer-name
@@ -56,10 +54,11 @@
 (defun lean-server-debug (format-string &rest args)
   "Display a message at the bottom of the *lean-server-debug* buffer."
   (when lean-server-debug-mode
-    (lean-server-output-to-buffer lean-server-debug-buffer-name
-                                (concat "%s -- " format-string "\n")
-                                (cons (format-time-string "%H:%M:%S:%3N" (current-time))
-                                      args))))
+    (let ((time-str (format-time-string "%H:%M:%S.%3N" (current-time))))
+      (lean-server-output-to-buffer lean-server-debug-buffer-name
+                                    (concat "%s -- " format-string "\n")
+                                    (cons (propertize time-str 'face 'font-lock-keyword-face)
+                                          args)))))
 
 (defun lean-server-turn-on-debug-mode ()
   (interactive)
@@ -147,6 +146,12 @@
 
 ;; How to create an async process
 ;; ==============================
+
+(defun lean-server-cancel-retry-timer ()
+  (when (timerp lean-global-retry-timer)
+    (cancel-timer lean-global-retry-timer))
+  (setq lean-global-retry-timer nil))
+
 (defun lean-server-initialize-global-vars ()
   "Initialize lean-server related global variables"
   (setq lean-global-server-buffer nil)
@@ -154,9 +159,7 @@
   (setq lean-global-server-message-to-process nil)
   (setq lean-global-server-last-time-sent nil)
   (setq lean-global-async-task-queue nil)
-  (when (timerp lean-global-retry-timer)
-    (cancel-timer lean-global-retry-timer))
-  (setq lean-global-retry-timer nil))
+  (lean-server-cancel-retry-timer))
 
 (defun lean-server-create-process ()
   "Create lean-server process."
@@ -327,16 +330,10 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
   (lean-server-send-cmd cmd)
   (when cont
     (setq lean-global-async-task-queue (-snoc lean-global-async-task-queue cont))
-    (lean-server-cancel-retry-timer)
     (lean-server-debug "send-cmd-async: added to the queue = %S"
                        (length lean-global-async-task-queue))
     (lean-server-debug "send-cmd-async: call handler")
-    (lean-server-event-handler)))
-
-(defun lean-server-cancel-retry-timer ()
-  (when (timerp lean-global-retry-timer)
-    (cancel-timer lean-global-retry-timer)
-    (setq lean-global-retry-timer nil)))
+    (lean-server-set-timer-for-event-handler)))
 
 (defun lean-server-consume-all-async-tasks ()
   (while lean-global-async-task-queue
@@ -415,17 +412,17 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
 (defun lean-server-event-handler ()
   "Process an item from async-task-queue.
 
-If it's successful, take it out from the queue. Otherwise, set an
-  idle-timer to call the handler again"
-  (setq lean-global-retry-timer nil)
-  (let* ((cont  (car lean-global-async-task-queue))
-         (result (lean-server-check-and-process-buffer-with-cont cont)))
-    (pcase result
-      (`(PROCESSED ,ret)
-       (!cdr lean-global-async-task-queue)
-       ret)))
-  (when lean-global-async-task-queue
-    (lean-server-set-timer-for-event-handler)))
+If it's successful, take it out from the queue.
+Otherwise, set an idle-timer to call the handler again"
+  (lean-server-cancel-retry-timer)
+  (when (eq major-mode 'lean-mode)
+    (let* ((cont   (car lean-global-async-task-queue))
+           (result (lean-server-check-and-process-buffer-with-cont cont)))
+      (pcase result
+        (`(PROCESSED ,ret)
+         (!cdr lean-global-async-task-queue)
+         ret)))
+    (if lean-global-async-task-queue (lean-server-set-timer-for-event-handler))))
 
 (defadvice save-buffers-kill-emacs
       (before lean-server-kill-before-kill-emacs activate)

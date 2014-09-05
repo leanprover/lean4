@@ -14,9 +14,9 @@ function init_env(env)
    env = add_decl(env, mk_var_decl("or",  mk_arrow(Prop, Prop, Prop)))
    env = add_decl(env, mk_var_decl("not", mk_arrow(Prop, Prop)))
    env = add_decl(env, mk_var_decl("false", Prop))
-   env = add_decl(env, mk_axiom("or_elim", Pi(a, b, c, mk_arrow(Or(a, b), mk_arrow(a, c), mk_arrow(b, c), c))))
-   env = add_decl(env, mk_axiom("or_intro_left", Pi(a, Ha, b, Or(a, b))))
-   env = add_decl(env, mk_axiom("or_intro_right", Pi(b, a, Hb, Or(a, b))))
+   env = add_decl(env, mk_axiom({"or", "elim"}, Pi(a, b, c, mk_arrow(Or(a, b), mk_arrow(a, c), mk_arrow(b, c), c))))
+   env = add_decl(env, mk_axiom({"or", "intro_left"}, Pi(a, Ha, b, Or(a, b))))
+   env = add_decl(env, mk_axiom({"or", "intro_right"}, Pi(b, a, Hb, Or(a, b))))
    env = add_decl(env, mk_axiom("absurd_elim", Pi(a, b, mk_arrow(a, Not(a), b))))
    return env
 end
@@ -132,5 +132,3 @@ local a = Const("a")
 assert(not pcall(function() a:macro_num_args() end))
 assert(not pcall(function() a:let_name() end))
 assert(not pcall(function() mk_arrow(a) end))
-
-

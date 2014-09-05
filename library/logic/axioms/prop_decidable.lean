@@ -13,7 +13,7 @@ open decidable inhabited nonempty
 -- First, we show that (decidable a) is inhabited for any 'a' using the excluded middle
 theorem decidable_inhabited [instance] (a : Prop) : inhabited (decidable a) :=
 nonempty_imp_inhabited
-  (or_elim (em a)
+  (or.elim (em a)
     (assume Ha, nonempty.intro (inl Ha))
     (assume Hna, nonempty.intro (inr Hna)))
 

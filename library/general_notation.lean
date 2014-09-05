@@ -30,7 +30,6 @@ precedence `↔`:25
 
 precedence `=`:50
 precedence `≠`:50
-precedence `rfl`:max   -- shorthand for reflexivity
 
 precedence `≈`:50      -- used for path in hott
 precedence `∼`:50

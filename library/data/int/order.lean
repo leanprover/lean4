@@ -33,7 +33,7 @@ theorem le_refl (a : ℤ) : a ≤ a :=
 le_intro (add_zero_right a)
 
 theorem le_of_nat (n m : ℕ) : (of_nat n ≤ of_nat m) ↔ (n ≤ m) :=
-iff_intro
+iff.intro
   (assume H : of_nat n ≤ of_nat m,
     obtain (k : ℕ) (Hk : of_nat n + of_nat k = of_nat m), from le_elim H,
     have H2 : n + k = m, from of_nat_inj ((add_of_nat n k)⁻¹ ⬝ Hk),
@@ -121,7 +121,7 @@ discriminate
         a = a + 0 : (add_zero_right a)⁻¹
           ... = a + n : {H2⁻¹}
           ... = b : Hn,
-    or_inr H3)
+    or.inr H3)
   (take k : ℕ,
     assume H2 : n = succ k,
     have H3 : a + 1 + k = b, from
@@ -129,7 +129,7 @@ discriminate
         a + 1 + k = a + succ k : by simp
           ... = a + n : by simp
           ... = b : Hn,
-    or_inl (le_intro H3))
+    or.inl (le_intro H3))
 
 -- ### interaction with neg and sub
 
@@ -173,7 +173,7 @@ le_neg_inv (add_le_cancel_left
     ((add_neg_right _ _)⁻¹ ▸ (add_neg_right _ _)⁻¹ ▸ H))
 
 theorem le_iff_sub_nonneg (a b : ℤ) : a ≤ b ↔ 0 ≤ b - a :=
-iff_intro
+iff.intro
   (assume H, sub_self _ ▸ sub_le_right H a)
   (assume H, sub_add_inverse _ _ ▸ add_zero_left _ ▸ add_le_right H a)
 
@@ -191,13 +191,13 @@ definition gt (a b : ℤ) := b < a
 infix `>`  := int.gt
 
 theorem lt_def (a b : ℤ) : a < b ↔ a + 1 ≤ b :=
-iff_refl (a < b)
+iff.refl (a < b)
 
 theorem gt_def (n m : ℕ) : n > m ↔ m < n :=
-iff_refl (n > m)
+iff.refl (n > m)
 
 theorem ge_def (n m : ℕ) : n ≥ m ↔ m ≤ n :=
-iff_refl (n ≥ m)
+iff.refl (n ≥ m)
 
 -- add_rewrite gt_def ge_def --it might be possible to remove this in Lean 0.2
 
@@ -236,7 +236,7 @@ theorem lt_of_nat (n m : ℕ) : (of_nat n < of_nat m) ↔ (n < m) :=
 calc
   (of_nat n + 1 ≤ of_nat m) ↔ (of_nat (succ n) ≤ of_nat m) : by simp
     ... ↔ (succ n ≤ m) : le_of_nat (succ n) m
-    ... ↔ (n < m) : iff_symm (eq_to_iff (nat.lt_def n m))
+    ... ↔ (n < m) : iff.symm (eq_to_iff (nat.lt_def n m))
 
 theorem gt_of_nat (n m : ℕ) : (of_nat n > of_nat m) ↔ (n > m) :=
 lt_of_nat m n
@@ -260,7 +260,7 @@ theorem le_imp_lt_or_eq {a b : ℤ} (H : a ≤ b) : a < b ∨ a = b :=
 le_imp_succ_le_or_eq H
 
 theorem le_ne_imp_lt {a b : ℤ} (H1 : a ≤ b)  (H2 : a ≠ b) : a < b :=
-resolve_left (le_imp_lt_or_eq H1) H2
+or.resolve_left (le_imp_lt_or_eq H1) H2
 
 theorem le_imp_lt_succ {a b : ℤ} (H : a ≤ b) : a < b + 1 :=
 add_le_right H 1
@@ -369,34 +369,34 @@ int_by_cases a
         show n ≤ -succ m ∨ n > -succ m, from
           have H0 : -succ m < -m, from lt_neg ((of_nat_succ m)⁻¹ ▸ self_lt_succ m),
           have H : -succ m < n, from lt_le_trans H0 (neg_le_pos m n),
-          or_inr H))
+          or.inr H))
   (take n : ℕ,
     int_by_cases_succ b
       (take m : ℕ,
         show -n ≤ m ∨ -n > m, from
-          or_inl (neg_le_pos n m))
+          or.inl (neg_le_pos n m))
       (take m : ℕ,
         show -n ≤ -succ m ∨ -n > -succ m, from
-          or_imp_or le_or_gt
+          or.imp_or le_or_gt
             (assume H : succ m ≤ n,
-              le_neg (iff_elim_left (iff_symm (le_of_nat (succ m) n)) H))
+              le_neg (iff.elim_left (iff.symm (le_of_nat (succ m) n)) H))
             (assume H : succ m > n,
-              lt_neg (iff_elim_left (iff_symm (lt_of_nat n (succ m))) H))))
+              lt_neg (iff.elim_left (iff.symm (lt_of_nat n (succ m))) H))))
 
 theorem trichotomy_alt (a b : ℤ) : (a < b ∨ a = b) ∨ a > b :=
-or_imp_or_left (le_or_gt a b) (assume H : a ≤ b, le_imp_lt_or_eq H)
+or.imp_or_left (le_or_gt a b) (assume H : a ≤ b, le_imp_lt_or_eq H)
 
 theorem trichotomy (a b : ℤ) : a < b ∨ a = b ∨ a > b :=
-iff_elim_left or_assoc (trichotomy_alt a b)
+iff.elim_left or.assoc (trichotomy_alt a b)
 
 theorem le_total (a b : ℤ) : a ≤ b ∨ b ≤ a :=
-or_imp_or_right (le_or_gt a b) (assume H : b < a, lt_imp_le H)
+or.imp_or_right (le_or_gt a b) (assume H : b < a, lt_imp_le H)
 
 theorem not_lt_imp_le {a b : ℤ} (H : ¬ a < b) : b ≤ a :=
-resolve_left (le_or_gt b a) H
+or.resolve_left (le_or_gt b a) H
 
 theorem not_le_imp_lt {a b : ℤ} (H : ¬ a ≤ b) : b < a :=
-resolve_right (le_or_gt a b) H
+or.resolve_right (le_or_gt a b) H
 
 -- (non)positivity and (non)negativity
 -- -------------------------------------
@@ -420,17 +420,17 @@ obtain (n : ℕ) (Hn : a = n), from pos_imp_exists_nat H,
 Hn⁻¹ ▸ congr_arg of_nat (to_nat_of_nat n)
 
 theorem of_nat_nonneg (n : ℕ) : of_nat n ≥ 0 :=
-iff_mp (iff_symm (le_of_nat _ _)) zero_le
+iff.mp (iff.symm (le_of_nat _ _)) zero_le
 
 theorem le_decidable [instance] {a b : ℤ} : decidable (a ≤ b) :=
 have aux : ∀x, decidable (0 ≤ x), from
   take x,
     have H : 0 ≤ x ↔ of_nat (to_nat x) = x, from
-      iff_intro
+      iff.intro
         (assume H1, to_nat_nonneg_eq H1)
         (assume H1, H1 ▸ of_nat_nonneg (to_nat x)),
-    decidable_iff_equiv _ (iff_symm H),
-decidable_iff_equiv (aux _) (iff_symm (le_iff_sub_nonneg a b))
+    decidable_iff_equiv _ (iff.symm H),
+decidable_iff_equiv (aux _) (iff.symm (le_iff_sub_nonneg a b))
 
 theorem ge_decidable [instance] {a b : ℤ} : decidable (a ≥ b)
 theorem lt_decidable [instance] {a b : ℤ} : decidable (a < b)
@@ -446,7 +446,7 @@ calc
   ... = -a : (neg_move (Hn⁻¹))⁻¹
 
 theorem to_nat_cases (a : ℤ) : a = (to_nat a) ∨ a = - (to_nat a) :=
-or_imp_or (le_total 0 a)
+or.imp_or (le_total 0 a)
   (assume H : a ≥ 0, (to_nat_nonneg_eq H)⁻¹)
   (assume H : a ≤ 0, (neg_move ((to_nat_negative H)⁻¹))⁻¹)
 
@@ -517,7 +517,7 @@ lt_trans (mul_lt_right_neg Hb Hc) (mul_lt_left_neg (lt_trans Hc Ha) Hd)
 -- theorem mul_le_lt_neg and mul_lt_le_neg?
 
 theorem mul_lt_cancel_left_nonneg {a b c : ℤ} (Hc : c ≥ 0) (H : c * a < c * b) : a < b :=
-or_elim (le_or_gt b a)
+or.elim (le_or_gt b a)
   (assume H2 : b ≤ a,
     have H3 : c * b ≤ c * a, from mul_le_left_nonneg Hc H2,
     absurd H3 (lt_imp_not_ge H))
@@ -537,7 +537,7 @@ theorem mul_lt_cancel_right_nonpos {a b c : ℤ} (Hc : c ≤ 0) (H : b * c < a *
 mul_lt_cancel_left_nonpos Hc (mul_comm b c ▸ mul_comm a c ▸ H)
 
 theorem mul_le_cancel_left_pos {a b c : ℤ} (Hc : c > 0) (H : c * a ≤ c * b) : a ≤ b :=
-or_elim (le_or_gt a b)
+or.elim (le_or_gt a b)
   (assume H2 : a ≤ b, H2)
   (assume H2 : a > b,
     have H3 : c * a > c * b, from mul_lt_left_pos Hc H2,
@@ -563,7 +563,7 @@ have H2 : (to_nat a) * (to_nat b) = 1, from
       ... = (to_nat 1) : {H}
       ... = 1 : to_nat_of_nat 1,
 have H3 : (to_nat a) = 1, from mul_eq_one_left H2,
-or_imp_or (to_nat_cases a)
+or.imp_or (to_nat_cases a)
   (assume H4 : a = (to_nat a), H3 ▸ H4)
   (assume H4 : a = - (to_nat a), H3 ▸ H4)
 
@@ -575,10 +575,6 @@ mul_eq_one_left (mul_comm a b ▸ H)
 -- -------------
 
 definition sign (a : ℤ) : ℤ := if a > 0 then 1 else (if a < 0 then - 1 else 0)
-
--- TODO: for kernel
-theorem or_elim3 {a b c d : Prop} (H : a ∨ b ∨ c) (Ha : a → d) (Hb : b → d) (Hc : c → d) : d :=
-or_elim H Ha (assume H2,or_elim H2 Hb Hc)
 
 theorem sign_pos {a : ℤ} (H : a > 0) : sign a = 1 :=
 if_pos H
@@ -594,17 +590,17 @@ if_neg (lt_irrefl 0) ⬝ if_neg (lt_irrefl 0)
 theorem mul_sign_to_nat (a : ℤ) : sign a * (to_nat a) = a :=
 have temp1 : ∀a : ℤ, a < 0 → a ≤ 0, from take a, lt_imp_le,
 have temp2 : ∀a : ℤ, a > 0 → a ≥ 0, from take a, lt_imp_le,
-or_elim3 (trichotomy a 0)
+or.elim3 (trichotomy a 0)
   (assume H : a < 0, by simp)
   (assume H : a = 0, by simp)
   (assume H : a > 0, by simp)
 
 -- TODO: show decidable for equality (and avoid classical library)
 theorem sign_mul (a b : ℤ) : sign (a * b) = sign a * sign b :=
-or_elim (em (a = 0))
+or.elim (em (a = 0))
   (assume Ha : a = 0, by simp)
   (assume Ha : a ≠ 0,
-    or_elim (em (b = 0))
+    or.elim (em (b = 0))
       (assume Hb : b = 0, by simp)
       (assume Hb : b ≠ 0,
         have H : sign (a * b) * (to_nat (a * b)) = sign a * sign b  * (to_nat (a * b)), from
@@ -621,21 +617,21 @@ or_elim (em (a = 0))
 --set_option pp::coercion true
 
 theorem sign_idempotent (a : ℤ) : sign (sign a) = sign a :=
-have temp : of_nat 1 > 0, from iff_elim_left (iff_symm (lt_of_nat 0 1)) succ_pos,
+have temp : of_nat 1 > 0, from iff.elim_left (iff.symm (lt_of_nat 0 1)) succ_pos,
     --this should be done with simp
-or_elim3 (trichotomy a 0) sorry sorry sorry
+or.elim3 (trichotomy a 0) sorry sorry sorry
 --  (by simp)
 --  (by simp)
 --  (by simp)
 
 theorem sign_succ (n : ℕ) : sign (succ n) = 1 :=
-sign_pos (iff_elim_left (iff_symm (lt_of_nat 0 (succ n))) succ_pos)
+sign_pos (iff.elim_left (iff.symm (lt_of_nat 0 (succ n))) succ_pos)
   --this should be done with simp
 
 theorem sign_neg (a : ℤ) : sign (-a) = - sign a :=
 have temp1 : a > 0 → -a < 0, from neg_lt_zero,
 have temp2 : a < 0 → -a > 0, from zero_lt_neg,
-or_elim3 (trichotomy a 0) sorry sorry sorry
+or.elim3 (trichotomy a 0) sorry sorry sorry
 --  (by simp)
 --  (by simp)
 --  (by simp)
@@ -643,7 +639,7 @@ or_elim3 (trichotomy a 0) sorry sorry sorry
 -- add_rewrite sign_neg
 
 theorem to_nat_sign_ne_zero {a : ℤ} (H : a ≠ 0) : (to_nat (sign a)) = 1 :=
-or_elim3 (trichotomy a 0) sorry
+or.elim3 (trichotomy a 0) sorry
 --  (by simp)
   (assume H2 : a = 0, absurd H2 H)
   sorry
@@ -652,7 +648,7 @@ or_elim3 (trichotomy a 0) sorry
 theorem sign_to_nat (a : ℤ) : sign (to_nat a) = to_nat (sign a) :=
 have temp1 : ∀a : ℤ, a < 0 → a ≤ 0, from take a, lt_imp_le,
 have temp2 : ∀a : ℤ, a > 0 → a ≥ 0, from take a, lt_imp_le,
-or_elim3 (trichotomy a 0) sorry sorry sorry
+or.elim3 (trichotomy a 0) sorry sorry sorry
 --  (by simp)
 --  (by simp)
 --  (by simp)

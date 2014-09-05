@@ -220,18 +220,18 @@ theorem add_sub_le_left {n m : ℕ} : n ≤ m → n - m + m = m :=
 add_comm ▸ add_sub_ge
 
 theorem le_add_sub_left {n m : ℕ} : n ≤ n + (m - n) :=
-or_elim le_total
+or.elim le_total
   (assume H : n ≤ m, (add_sub_le H)⁻¹ ▸ H)
   (assume H : m ≤ n, (add_sub_ge H)⁻¹ ▸ le_refl)
 
 theorem le_add_sub_right {n m : ℕ} : m ≤ n + (m - n) :=
-or_elim le_total
+or.elim le_total
   (assume H : n ≤ m, (add_sub_le H)⁻¹ ▸ le_refl)
   (assume H : m ≤ n, (add_sub_ge H)⁻¹ ▸ H)
 
 theorem sub_split {P : ℕ → Prop} {n m : ℕ} (H1 : n ≤ m → P 0) (H2 : ∀k, m + k = n -> P k)
   : P (n - m) :=
-or_elim le_total
+or.elim le_total
   (assume H3 : n ≤ m, (le_imp_sub_eq_zero H3)⁻¹ ▸ (H1 H3))
   (assume H3 : m ≤ n, H2 (n - m) (add_sub_le H3))
 
@@ -277,7 +277,7 @@ sub_split
 
 theorem sub_sub_split {P : ℕ → ℕ → Prop} {n m : ℕ} (H1 : ∀k, n = m + k -> P k 0)
   (H2 : ∀k, m = n + k → P 0 k) : P (n - m) (m - n) :=
-or_elim le_total
+or.elim le_total
   (assume H3 : n ≤ m,
     le_imp_sub_eq_zero H3⁻¹ ▸  (H2 (m - n) (add_sub_le H3⁻¹)))
   (assume H3 : m ≤ n,
@@ -305,7 +305,7 @@ obtain (x' : ℕ) (xeq : x = succ x'), from pos_imp_eq_succ xpos,
 
 theorem sub_le_right {n m : ℕ} (H : n ≤ m) (k : nat) : n - k ≤ m - k :=
 obtain (l : ℕ) (Hl : n + l = m), from le_elim H,
-or_elim le_total
+or.elim le_total
   (assume H2 : n ≤ k, (le_imp_sub_eq_zero H2)⁻¹ ▸ zero_le)
   (assume H2 : k ≤ n,
     have H3 : n - k + l = m - k, from
@@ -488,7 +488,7 @@ have aux : ∀k l, k ≥ l → dist n m * dist k l = dist (n * k + m * l) (n * l
       ... = dist (n * k) (n * l + (m * k - m * l)) : {add_comm}
       ... = dist (n * k) (n * l + m * k - m * l)   : {(add_sub_assoc H2 (n * l))⁻¹}
       ... = dist (n * k + m * l) (n * l + m * k)   : dist_sub_move_add' H3 _,
-or_elim le_total
+or.elim le_total
   (assume H : k ≤ l, dist_comm ▸ dist_comm ▸ aux l k H)
   (assume H : l ≤ k, aux k l H)
 

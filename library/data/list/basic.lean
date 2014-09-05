@@ -186,42 +186,42 @@ definition mem (x : T) : list T → Prop := rec false (fun y l H, x = y ∨ H)
 infix `∈` := mem
 
 -- TODO: constructively, equality is stronger. Use that?
-theorem mem_nil {x : T} : x ∈ nil ↔ false := iff_rfl
+theorem mem_nil {x : T} : x ∈ nil ↔ false := iff.rfl
 
-theorem mem_cons {x y : T} {l : list T} : mem x (cons y l) ↔ (x = y ∨ mem x l) := iff_rfl
+theorem mem_cons {x y : T} {l : list T} : mem x (cons y l) ↔ (x = y ∨ mem x l) := iff.rfl
 
 theorem mem_concat_imp_or {x : T} {s t : list T} : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
-induction_on s or_inr
+induction_on s or.inr
   (take y s,
     assume IH : x ∈ s ++ t → x ∈ s ∨ x ∈ t,
     assume H1 : x ∈ (y :: s) ++ t,
     have H2 : x = y ∨ x ∈ s ++ t, from H1,
-    have H3 : x = y ∨ x ∈ s ∨ x ∈ t, from or_imp_or_right H2 IH,
-    iff_elim_right or_assoc H3)
+    have H3 : x = y ∨ x ∈ s ∨ x ∈ t, from or.imp_or_right H2 IH,
+    iff.elim_right or.assoc H3)
 
 theorem mem_or_imp_concat {x : T} {s t : list T} : x ∈ s ∨ x ∈ t → x ∈ s ++ t :=
 induction_on s
-  (take H, or_elim H false_elim (assume H, H))
+  (take H, or.elim H false_elim (assume H, H))
   (take y s,
     assume IH : x ∈ s ∨ x ∈ t → x ∈ s ++ t,
     assume H : x ∈ y :: s ∨ x ∈ t,
-      or_elim H
+      or.elim H
         (assume H1,
-          or_elim H1
-            (take H2 : x = y, or_inl H2)
-            (take H2 : x ∈ s, or_inr (IH (or_inl H2))))
-        (assume H1 : x ∈ t, or_inr (IH (or_inr H1))))
+          or.elim H1
+            (take H2 : x = y, or.inl H2)
+            (take H2 : x ∈ s, or.inr (IH (or.inl H2))))
+        (assume H1 : x ∈ t, or.inr (IH (or.inr H1))))
 
 theorem mem_concat {x : T} {s t : list T} : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t
-:= iff_intro mem_concat_imp_or mem_or_imp_concat
+:= iff.intro mem_concat_imp_or mem_or_imp_concat
 
 theorem mem_split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x :: t) :=
 induction_on l
-  (take H : x ∈ nil, false_elim (iff_elim_left mem_nil H))
+  (take H : x ∈ nil, false_elim (iff.elim_left mem_nil H))
   (take y l,
     assume IH : x ∈ l → ∃s t : list T, l = s ++ (x :: t),
     assume H : x ∈ y :: l,
-    or_elim H
+    or.elim H
       (assume H1 : x = y,
         exists_intro nil
           (exists_intro l (H1 ▸ rfl)))

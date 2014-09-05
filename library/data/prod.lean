@@ -56,10 +56,10 @@ section
   theorem prod_eq_decidable [instance] (u v : A × B) (H1 : decidable (pr1 u = pr1 v))
       (H2 : decidable (pr2 u = pr2 v)) : decidable (u = v) :=
     have H3 : u = v ↔ (pr1 u = pr1 v) ∧ (pr2 u = pr2 v), from
-      iff_intro
+      iff.intro
         (assume H, H ▸ and.intro rfl rfl)
         (assume H, and.elim H (assume H4 H5, prod_eq H4 H5)),
-    decidable_iff_equiv _ (iff_symm H3)
+    decidable_iff_equiv _ (iff.symm H3)
 
 end
 

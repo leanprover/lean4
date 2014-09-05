@@ -2,7 +2,6 @@ import logic struc.relation
 open relation
 
 namespace is_equivalence
-
   inductive cls {T : Type} (R : T → T → Type) : Prop :=
   mk : is_reflexive R → is_symmetric R → is_transitive R → cls R
 
@@ -22,16 +21,16 @@ instance is_equivalence.is_symmetric
 instance is_equivalence.is_transitive
 
 theorem and_inhabited_left {a : Prop} (b : Prop) (Ha : a) : a ∧ b ↔ b :=
-iff_intro (take Hab, and.elim_right Hab) (take Hb, and.intro Ha Hb)
+iff.intro (take Hab, and.elim_right Hab) (take Hb, and.intro Ha Hb)
 
 theorem test (a b c : Prop) (P : Prop → Prop) (H1 : a ↔ b) (H2 : c ∧ a) : c ∧ b :=
-subst_iff H1 H2
+iff.subst H1 H2
 
 theorem test2 (Q R S : Prop) (H3 : R ↔ Q) (H1 : S) : Q ↔ (S ∧ Q) :=
-iff_symm (and_inhabited_left Q H1)
+iff.symm (and_inhabited_left Q H1)
 
 theorem test3 (Q R S : Prop) (H3 : R ↔ Q) (H1 : S) : R ↔ (S ∧ Q) :=
-subst_iff (test2 Q R S H3 H1) H3
+iff.subst (test2 Q R S H3 H1) H3
 
 theorem test4 (Q R S : Prop) (H3 : R ↔ Q) (H1 : S) : R ↔ (S ∧ Q) :=
-subst_iff (iff_symm (and_inhabited_left Q H1)) H3
+iff.subst (iff.symm (and_inhabited_left Q H1)) H3

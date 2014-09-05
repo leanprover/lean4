@@ -31,7 +31,7 @@ have symmR : symmetric R, from is_symmetric.infer R,
 have transR : transitive R, from is_transitive.infer R,
 have H3 : ∀c, R a c ↔ R b c, from
   take c,
-    iff_intro
+    iff.intro
       (assume H4 : R a c, transR (symmR H2) H4)
       (assume H4 : R b c, transR H2 H4),
 have H4 : (fun c, R a c) = (fun c, R b c), from funext (take c, iff_to_eq (H3 c)),

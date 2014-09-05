@@ -39,7 +39,7 @@ take T1 R1 c, congruence.mk (take x y H1, H c)
 -- congruences for logic
 
 theorem congr_const_iff [instance] (T1 : Type) (R1 : T1 → T1 → Prop) (c : Prop) :
-  congruence R1 iff (const T1 c) := congr_const iff iff_refl T1 R1 c
+  congruence R1 iff (const T1 c) := congr_const iff iff.refl T1 R1 c
 
 theorem congr_or [instance] (T : Type) (R : T → T → Prop) (f1 f2 : T → Prop)
     (H1 : congruence R iff f1) (H2 : congruence R iff f2) :
@@ -60,7 +60,7 @@ theorem congr_not [instance] (T : Type) (R : T → T → Prop) (f : T → Prop)
 theorem subst_iff {T : Type} {R : T → T → Prop} {P : T → Prop} {C : congruence R iff P}
     {a b : T} (H : R a b) (H1 : P a) : P b :=
 -- iff_mp_left (congruence.rec id C a b H) H1
-iff_elim_left (@congr_app _ _ R iff P C a b H) H1
+iff.elim_left (@congr_app _ _ R iff P C a b H) H1
 
 theorem test2 (a b c d e : Prop) (H1 : a ↔ b) (H2 : a ∨ c → ¬(d → a)) : b ∨ c → ¬(d → b) :=
 subst_iff H1 H2

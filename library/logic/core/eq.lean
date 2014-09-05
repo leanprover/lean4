@@ -16,7 +16,7 @@ inductive eq {A : Type} (a : A) : A → Prop :=
 refl : eq a a
 
 infix `=` := eq
-notation `rfl` := eq.refl _
+abbreviation rfl {A : Type} {a : A} := eq.refl a
 
 namespace eq
 theorem id_refl {A : Type} {a : A} (H1 : a = a) : H1 = (eq.refl a) :=

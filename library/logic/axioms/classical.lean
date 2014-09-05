@@ -12,7 +12,7 @@ open eq_ops
 axiom prop_complete (a : Prop) : a = true ∨ a = false
 
 theorem cases (P : Prop → Prop) (H1 : P true) (H2 : P false) (a : Prop) : P a :=
-or_elim (prop_complete a)
+or.elim (prop_complete a)
   (assume Ht : a = true,  Ht⁻¹ ▸ H1)
   (assume Hf : a = false, Hf⁻¹ ▸ H2)
 
@@ -21,27 +21,27 @@ cases P H1 H2 a
 
 -- this supercedes the em in decidable
 theorem em (a : Prop) : a ∨ ¬a :=
-or_elim (prop_complete a)
-  (assume Ht : a = true,  or_inl (eq_true_elim Ht))
-  (assume Hf : a = false, or_inr (eq_false_elim Hf))
+or.elim (prop_complete a)
+  (assume Ht : a = true,  or.inl (eq_true_elim Ht))
+  (assume Hf : a = false, or.inr (eq_false_elim Hf))
 
 theorem prop_complete_swapped (a : Prop) : a = false ∨ a = true :=
 cases (λ x, x = false ∨ x = true)
-  (or_inr rfl)
-  (or_inl rfl)
+  (or.inr rfl)
+  (or.inl rfl)
   a
 
 theorem propext {a b : Prop} (Hab : a → b) (Hba : b → a) : a = b :=
-or_elim (prop_complete a)
-  (assume Hat,  or_elim (prop_complete b)
+or.elim (prop_complete a)
+  (assume Hat,  or.elim (prop_complete b)
     (assume Hbt,  Hat ⬝ Hbt⁻¹)
     (assume Hbf, false_elim (Hbf ▸ (Hab (eq_true_elim Hat)))))
-  (assume Haf, or_elim (prop_complete b)
+  (assume Haf, or.elim (prop_complete b)
     (assume Hbt,  false_elim (Haf ▸ (Hba (eq_true_elim Hbt))))
     (assume Hbf, Haf ⬝ Hbf⁻¹))
 
 theorem iff_to_eq {a b : Prop} (H : a ↔ b) : a = b :=
-iff_elim (assume H1 H2, propext H1 H2) H
+iff.elim (assume H1 H2, propext H1 H2) H
 
 theorem iff_eq_eq {a b : Prop} : (a ↔ b) = (a = b) :=
 propext

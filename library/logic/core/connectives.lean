@@ -6,176 +6,191 @@ import general_notation .eq
 
 -- and
 -- ---
-
 inductive and (a b : Prop) : Prop :=
-intro : a → b → and a b
+  intro : a → b → and a b
 
 infixr `/\` := and
 infixr `∧` := and
 
 namespace and
-theorem elim {a b c : Prop} (H1 : a ∧ b) (H2 : a → b → c) : c :=
-rec H2 H1
+  theorem elim {a b c : Prop} (H1 : a ∧ b) (H2 : a → b → c) : c :=
+  rec H2 H1
 
-theorem elim_left {a b : Prop} (H : a ∧ b) : a  :=
-rec (λa b, a) H
+  theorem elim_left {a b : Prop} (H : a ∧ b) : a  :=
+  rec (λa b, a) H
 
-theorem elim_right {a b : Prop} (H : a ∧ b) : b :=
-rec (λa b, b) H
+  theorem elim_right {a b : Prop} (H : a ∧ b) : b :=
+  rec (λa b, b) H
 
-theorem swap {a b : Prop} (H : a ∧ b) : b ∧ a :=
-intro (elim_right H) (elim_left H)
+  theorem swap {a b : Prop} (H : a ∧ b) : b ∧ a :=
+  intro (elim_right H) (elim_left H)
 
-theorem not_left {a : Prop} (b : Prop) (Hna : ¬a) : ¬(a ∧ b) :=
-assume H : a ∧ b, absurd (elim_left H) Hna
+  theorem not_left {a : Prop} (b : Prop) (Hna : ¬a) : ¬(a ∧ b) :=
+  assume H : a ∧ b, absurd (elim_left H) Hna
 
-theorem not_right (a : Prop) {b : Prop} (Hnb : ¬b) : ¬(a ∧ b) :=
-assume H : a ∧ b, absurd (elim_right H) Hnb
+  theorem not_right (a : Prop) {b : Prop} (Hnb : ¬b) : ¬(a ∧ b) :=
+  assume H : a ∧ b, absurd (elim_right H) Hnb
 
-theorem imp_and {a b c d : Prop} (H1 : a ∧ b) (H2 : a → c) (H3 : b → d) : c ∧ d :=
-elim H1 (assume Ha : a, assume Hb : b, intro (H2 Ha) (H3 Hb))
+  theorem imp_and {a b c d : Prop} (H1 : a ∧ b) (H2 : a → c) (H3 : b → d) : c ∧ d :=
+  elim H1 (assume Ha : a, assume Hb : b, intro (H2 Ha) (H3 Hb))
 
-theorem imp_left {a b c : Prop} (H1 : a ∧ c) (H : a → b) : b ∧ c :=
-elim H1 (assume Ha : a, assume Hc : c, intro (H Ha) Hc)
+  theorem imp_left {a b c : Prop} (H1 : a ∧ c) (H : a → b) : b ∧ c :=
+  elim H1 (assume Ha : a, assume Hc : c, intro (H Ha) Hc)
 
-theorem imp_right {a b c : Prop} (H1 : c ∧ a) (H : a → b) : c ∧ b :=
-elim H1 (assume Hc : c, assume Ha : a, intro Hc (H Ha))
+  theorem imp_right {a b c : Prop} (H1 : c ∧ a) (H : a → b) : c ∧ b :=
+  elim H1 (assume Hc : c, assume Ha : a, intro Hc (H Ha))
 end and
 
 -- or
 -- --
-
 inductive or (a b : Prop) : Prop :=
-intro_left  : a → or a b,
-intro_right : b → or a b
+  intro_left  : a → or a b,
+  intro_right : b → or a b
 
 infixr `\/` := or
 infixr `∨` := or
 
-theorem or_inl {a b : Prop} (Ha : a) : a ∨ b := or.intro_left b Ha
-theorem or_inr {a b : Prop} (Hb : b) : a ∨ b := or.intro_right a Hb
+namespace or
+  theorem inl {a b : Prop} (Ha : a) : a ∨ b :=
+  intro_left b Ha
 
-theorem or_elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c :=
-or.rec H2 H3 H1
+  theorem inr {a b : Prop} (Hb : b) : a ∨ b :=
+  intro_right a Hb
 
-theorem resolve_right {a b : Prop} (H1 : a ∨ b) (H2 : ¬a) : b :=
-or_elim H1 (assume Ha, absurd Ha H2) (assume Hb, Hb)
+  theorem elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c :=
+  rec H2 H3 H1
 
-theorem resolve_left {a b : Prop} (H1 : a ∨ b) (H2 : ¬b) : a :=
-or_elim H1 (assume Ha, Ha) (assume Hb, absurd Hb H2)
+  theorem elim3 {a b c d : Prop} (H : a ∨ b ∨ c) (Ha : a → d) (Hb : b → d) (Hc : c → d) : d :=
+  elim H Ha (assume H2, elim H2 Hb Hc)
 
-theorem or_swap {a b : Prop} (H : a ∨ b) : b ∨ a :=
-or_elim H (assume Ha, or_inr Ha) (assume Hb, or_inl Hb)
+  theorem resolve_right {a b : Prop} (H1 : a ∨ b) (H2 : ¬a) : b :=
+  elim H1 (assume Ha, absurd Ha H2) (assume Hb, Hb)
 
-theorem or_not_intro {a b : Prop} (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b) :=
-assume H : a ∨ b, or_elim H
-  (assume Ha, absurd Ha Hna)
-  (assume Hb, absurd Hb Hnb)
+  theorem resolve_left {a b : Prop} (H1 : a ∨ b) (H2 : ¬b) : a :=
+  elim H1 (assume Ha, Ha) (assume Hb, absurd Hb H2)
 
-theorem or_imp_or {a b c d : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → d) : c ∨ d :=
-or_elim H1
-  (assume Ha : a, or_inl (H2 Ha))
-  (assume Hb : b, or_inr (H3 Hb))
+  theorem swap {a b : Prop} (H : a ∨ b) : b ∨ a :=
+  elim H (assume Ha, inr Ha) (assume Hb, inl Hb)
 
-theorem or_imp_or_left {a b c : Prop} (H1 : a ∨ c) (H : a → b) : b ∨ c :=
-or_elim H1
-  (assume H2 : a, or_inl (H H2))
-  (assume H2 : c, or_inr H2)
+  theorem not_intro {a b : Prop} (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b) :=
+  assume H : a ∨ b, elim H
+    (assume Ha, absurd Ha Hna)
+    (assume Hb, absurd Hb Hnb)
 
-theorem or_imp_or_right {a b c : Prop} (H1 : c ∨ a) (H : a → b) : c ∨ b :=
-or_elim H1
-  (assume H2 : c, or_inl H2)
-  (assume H2 : a, or_inr (H H2))
+  theorem imp_or {a b c d : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → d) : c ∨ d :=
+  elim H1
+    (assume Ha : a, inl (H2 Ha))
+    (assume Hb : b, inr (H3 Hb))
+
+  theorem imp_or_left {a b c : Prop} (H1 : a ∨ c) (H : a → b) : b ∨ c :=
+  elim H1
+    (assume H2 : a, inl (H H2))
+    (assume H2 : c, inr H2)
+
+  theorem imp_or_right {a b c : Prop} (H1 : c ∨ a) (H : a → b) : c ∨ b :=
+  elim H1
+    (assume H2 : c, inl H2)
+    (assume H2 : a, inr (H H2))
+end or
 
 theorem not_not_em {p : Prop} : ¬¬(p ∨ ¬p) :=
 assume not_em : ¬(p ∨ ¬p),
   have Hnp : ¬p, from
-    assume Hp : p, absurd (or_inl Hp) not_em,
-  absurd (or_inr Hnp) not_em
+    assume Hp : p, absurd (or.inl Hp) not_em,
+  absurd (or.inr Hnp) not_em
 
 -- iff
 -- ---
-
 definition iff (a b : Prop) := (a → b) ∧ (b → a)
+
 infix `<->` := iff
 infix `↔` := iff
 
-theorem iff_def {a b : Prop} : (a ↔ b) = ((a → b) ∧ (b → a)) := rfl
+namespace iff
+  theorem def {a b : Prop} : (a ↔ b) = ((a → b) ∧ (b → a)) :=
+  rfl
 
-theorem iff_intro {a b : Prop} (H1 : a → b) (H2 : b → a) : a ↔ b := and.intro H1 H2
+  theorem intro {a b : Prop} (H1 : a → b) (H2 : b → a) : a ↔ b :=
+  and.intro H1 H2
 
-theorem iff_elim {a b c : Prop} (H1 : (a → b) → (b → a) → c) (H2 : a ↔ b) : c := and.rec H1 H2
+  theorem elim {a b c : Prop} (H1 : (a → b) → (b → a) → c) (H2 : a ↔ b) : c :=
+  and.rec H1 H2
 
-theorem iff_elim_left {a b : Prop} (H : a ↔ b) : a → b :=
-iff_elim (assume H1 H2, H1) H
+  theorem elim_left {a b : Prop} (H : a ↔ b) : a → b :=
+  elim (assume H1 H2, H1) H
 
-abbreviation iff_mp := @iff_elim_left
+  abbreviation mp := @elim_left
 
-theorem iff_elim_right {a b : Prop} (H : a ↔ b) : b → a :=
-iff_elim (assume H1 H2, H2) H
+  theorem elim_right {a b : Prop} (H : a ↔ b) : b → a :=
+  elim (assume H1 H2, H2) H
 
-theorem iff_flip_sign {a b : Prop} (H1 : a ↔ b) : ¬a ↔ ¬b :=
-iff_intro
-  (assume Hna, mt (iff_elim_right H1) Hna)
-  (assume Hnb, mt (iff_elim_left H1) Hnb)
+  theorem flip_sign {a b : Prop} (H1 : a ↔ b) : ¬a ↔ ¬b :=
+  intro
+    (assume Hna, mt (elim_right H1) Hna)
+    (assume Hnb, mt (elim_left H1) Hnb)
 
-theorem iff_refl (a : Prop) : a ↔ a :=
-iff_intro (assume H, H) (assume H, H)
+  theorem refl (a : Prop) : a ↔ a :=
+  intro (assume H, H) (assume H, H)
 
-theorem iff_rfl {a : Prop} : a ↔ a :=
-iff_refl a
+  theorem rfl {a : Prop} : a ↔ a :=
+  refl a
 
-theorem iff_trans {a b c : Prop} (H1 : a ↔ b) (H2 : b ↔ c) : a ↔ c :=
-iff_intro
-  (assume Ha, iff_elim_left H2 (iff_elim_left H1 Ha))
-  (assume Hc, iff_elim_right H1 (iff_elim_right H2 Hc))
+  theorem trans {a b c : Prop} (H1 : a ↔ b) (H2 : b ↔ c) : a ↔ c :=
+  intro
+    (assume Ha, elim_left H2 (elim_left H1 Ha))
+    (assume Hc, elim_right H1 (elim_right H2 Hc))
 
-theorem iff_symm {a b : Prop} (H : a ↔ b) : b ↔ a :=
-iff_intro
-  (assume Hb, iff_elim_right H Hb)
-  (assume Ha, iff_elim_left H Ha)
+  theorem symm {a b : Prop} (H : a ↔ b) : b ↔ a :=
+  intro
+    (assume Hb, elim_right H Hb)
+    (assume Ha, elim_left H Ha)
 
-calc_refl iff_refl
-calc_trans iff_trans
+  theorem true_elim {a : Prop} (H : a ↔ true) : a :=
+  mp (symm H) trivial
 
-theorem iff_true_elim {a : Prop} (H : a ↔ true) : a :=
-iff_mp (iff_symm H) trivial
+  theorem false_elim {a : Prop} (H : a ↔ false) : ¬a :=
+  assume Ha : a, mp H Ha
+end iff
 
-theorem iff_false_elim {a : Prop} (H : a ↔ false) : ¬a :=
-assume Ha : a, iff_mp H Ha
+calc_refl iff.refl
+calc_trans iff.trans
 
 open eq_ops
 
 theorem eq_to_iff {a b : Prop} (H : a = b) : a ↔ b :=
-iff_intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
+iff.intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 
 -- comm and assoc for and / or
 -- ---------------------------
 
-theorem and_comm {a b : Prop} : a ∧ b ↔ b ∧ a :=
-iff_intro (λH, and.swap H) (λH, and.swap H)
+namespace and
+  theorem comm {a b : Prop} : a ∧ b ↔ b ∧ a :=
+  iff.intro (λH, swap H) (λH, swap H)
 
-theorem and_assoc {a b c : Prop} : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
-iff_intro
-  (assume H, and.intro
-    (and.elim_left (and.elim_left H))
-    (and.intro (and.elim_right (and.elim_left H)) (and.elim_right H)))
-  (assume H, and.intro
-    (and.intro (and.elim_left H) (and.elim_left (and.elim_right H)))
-    (and.elim_right (and.elim_right H)))
+  theorem assoc {a b c : Prop} : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
+  iff.intro
+    (assume H, intro
+      (elim_left (elim_left H))
+      (intro (elim_right (elim_left H)) (elim_right H)))
+    (assume H, intro
+      (intro (elim_left H) (elim_left (elim_right H)))
+      (elim_right (elim_right H)))
+end and
 
-theorem or_comm {a b : Prop} : a ∨ b ↔ b ∨ a :=
-iff_intro (λH, or_swap H) (λH, or_swap H)
+namespace or
+  theorem comm {a b : Prop} : a ∨ b ↔ b ∨ a :=
+  iff.intro (λH, swap H) (λH, swap H)
 
-theorem or_assoc {a b c : Prop} : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
-iff_intro
-  (assume H, or_elim H
-    (assume H1, or_elim H1
-      (assume Ha, or_inl Ha)
-      (assume Hb, or_inr (or_inl Hb)))
-    (assume Hc, or_inr (or_inr Hc)))
-  (assume H, or_elim H
-    (assume Ha, (or_inl (or_inl Ha)))
-    (assume H1, or_elim H1
-      (assume Hb, or_inl (or_inr Hb))
-      (assume Hc, or_inr Hc)))
+  theorem assoc {a b c : Prop} : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
+  iff.intro
+    (assume H, elim H
+      (assume H1, elim H1
+        (assume Ha, inl Ha)
+        (assume Hb, inr (inl Hb)))
+      (assume Hc, inr (inr Hc)))
+    (assume H, elim H
+      (assume Ha, (inl (inl Ha)))
+      (assume H1, elim H1
+        (assume Hb, inl (inr Hb))
+        (assume Hc, inr Hc)))
+end or

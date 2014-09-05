@@ -22,9 +22,9 @@ static std::string g_resolve_opcode("Res");
 static expr g_or(Const("or"));
 static expr g_not(Const("not"));
 static expr g_false(Const("false"));
-static expr g_or_elim(Const("or_elim"));
-static expr g_or_intro_left(Const("or_intro_left"));
-static expr g_or_intro_right(Const("or_intro_right"));
+static expr g_or_elim(Const(name("or", "elim")));
+static expr g_or_intro_left(Const(name("or", "intro_left")));
+static expr g_or_intro_right(Const(name("or", "intro_right")));
 static expr g_absurd_elim(Const("absurd_elim"));
 static expr g_var_0(mk_var(0));
 /**
@@ -46,7 +46,7 @@ static expr g_var_0(mk_var(0));
    It also assumes that the symbol 'or' is opaque. 'not' and 'false' do not need to be opaque.
 
    The macro can be expanded into a term built using
-            or_elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
+            or.elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
             or_intro_left {a : Prop} (H : a) (b : Prop) : a ∨ b
             or_intro_right {b : Prop} (a : Prop) (H : b) : a ∨ b
             absurd_elim {a : Prop} (b : Prop) (H1 : a) (H2 : ¬ a) : b

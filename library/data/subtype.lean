@@ -45,8 +45,8 @@ section
   theorem eq_decidable [protected] [instance] (a1 a2 : {x, P x})
     (H : decidable (elt_of a1 = elt_of a2)) : decidable (a1 = a2) :=
   have H1 : (a1 = a2) ↔ (elt_of a1 = elt_of a2), from
-    iff_intro (assume H, eq.subst H rfl) (assume H, subtype_eq H),
-  decidable_iff_equiv _ (iff_symm H1)
+    iff.intro (assume H, eq.subst H rfl) (assume H, subtype_eq H),
+  decidable_iff_equiv _ (iff.symm H1)
 
 end
 

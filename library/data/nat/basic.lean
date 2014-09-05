@@ -73,19 +73,19 @@ opaque_hint (hiding pred)
 
 theorem zero_or_succ_pred (n : ℕ) : n = 0 ∨ n = succ (pred n) :=
 induction_on n
-  (or_inl rfl)
-  (take m IH, or_inr
+  (or.inl rfl)
+  (take m IH, or.inr
     (show succ m = succ (pred (succ m)), from congr_arg succ pred_succ⁻¹))
 
 theorem zero_or_exists_succ (n : ℕ) : n = 0 ∨ ∃k, n = succ k :=
-or_imp_or (zero_or_succ_pred n) (assume H, H)
+or.imp_or (zero_or_succ_pred n) (assume H, H)
     (assume H : n = succ (pred n), exists_intro (pred n) H)
 
 theorem case {P : ℕ → Prop} (n : ℕ) (H1: P 0) (H2 : ∀m, P (succ m)) : P n :=
 induction_on n H1 (take m IH, H2 m)
 
 theorem discriminate {B : Prop} {n : ℕ} (H1: n = 0 → B) (H2 : ∀m, n = succ m → B) : B :=
-or_elim (zero_or_succ_pred n)
+or.elim (zero_or_succ_pred n)
   (take H3 : n = 0, H1 H3)
   (take H3 : n = succ (pred n), H2 (pred n) H3)
 
@@ -350,11 +350,11 @@ calc
 
 theorem mul_eq_zero {n m : ℕ} (H : n * m = 0) : n = 0 ∨ m = 0 :=
 discriminate
-  (take Hn : n = 0, or_inl Hn)
+  (take Hn : n = 0, or.inl Hn)
   (take (k : ℕ),
     assume (Hk : n = succ k),
     discriminate
-      (take (Hm : m = 0), or_inr Hm)
+      (take (Hm : m = 0), or.inr Hm)
       (take (l : ℕ),
         assume (Hl : m = succ l),
         have Heq : succ (k * succ l + l) = n * m, from

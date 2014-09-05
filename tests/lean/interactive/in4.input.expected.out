@@ -1,8 +1,8 @@
 -- BEGININFO
 -- TYPE|9|0
-∀ (a : A), eq a a
+eq (tst.foo a b) (tst.foo a b)
 -- ACK
--- SYMBOL|9|0
+-- IDENTIFIER|9|0
 rfl
 -- ACK
 -- ENDINFO
@@ -13,9 +13,9 @@ rfl
 -- ENDINFO
 -- BEGININFO
 -- TYPE|9|0
-∀ (a : A), eq a a
+eq (tst.foo a b) (tst.foo a b)
 -- ACK
--- SYMBOL|9|0
+-- IDENTIFIER|9|0
 rfl
 -- ACK
 -- ENDINFO

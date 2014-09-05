@@ -18,13 +18,13 @@ definition eqv {T : Type} (A B : set T) : Prop :=
 infixl `∼`:50 := eqv
 
 theorem eqv_refl {T : Type} (A : set T) : A ∼ A :=
-take x, iff_rfl
+take x, iff.rfl
 
 theorem eqv_symm {T : Type} {A B : set T} (H : A ∼ B) : B ∼ A :=
-take x, iff_symm (H x)
+take x, iff.symm (H x)
 
 theorem eqv_trans {T : Type} {A B C : set T} (H1 : A ∼ B) (H2 : B ∼ C) : A ∼ C :=
-take x, iff_trans (H1 x) (H2 x)
+take x, iff.trans (H1 x) (H2 x)
 
 definition empty {T : Type} : set T :=
 λx, ff
@@ -44,7 +44,7 @@ definition inter {T : Type} (A B : set T) : set T :=
 infixl `∩` := inter
 
 theorem mem_inter {T : Type} (x : T) (A B : set T) : x ∈ A ∩ B ↔ (x ∈ A ∧ x ∈ B) :=
-iff_intro
+iff.intro
   (assume H, and.intro (band_eq_tt_elim_left H) (band_eq_tt_elim_right H))
   (assume H,
     have e1 : A x = tt, from and.elim_left H,
@@ -52,46 +52,46 @@ iff_intro
     show A x && B x = tt, from e1⁻¹ ▸ e2⁻¹ ▸ band_tt_left tt)
 
 theorem inter_id {T : Type} (A : set T) : A ∩ A ∼ A :=
-take x, band_id (A x) ▸ iff_rfl
+take x, band_id (A x) ▸ iff.rfl
 
 theorem inter_empty_right {T : Type} (A : set T) : A ∩ ∅ ∼ ∅ :=
-take x, band_ff_right (A x) ▸ iff_rfl
+take x, band_ff_right (A x) ▸ iff.rfl
 
 theorem inter_empty_left {T : Type} (A : set T) : ∅ ∩ A ∼ ∅ :=
-take x, band_ff_left (A x) ▸ iff_rfl
+take x, band_ff_left (A x) ▸ iff.rfl
 
 theorem inter_comm {T : Type} (A B : set T) : A ∩ B ∼ B ∩ A :=
-take x, band_comm (A x) (B x) ▸ iff_rfl
+take x, band_comm (A x) (B x) ▸ iff.rfl
 
 theorem inter_assoc {T : Type} (A B C : set T) : (A ∩ B) ∩ C ∼ A ∩ (B ∩ C) :=
-take x, band_assoc (A x) (B x) (C x) ▸ iff_rfl
+take x, band_assoc (A x) (B x) (C x) ▸ iff.rfl
 
 definition union {T : Type} (A B : set T) : set T :=
 λx, A x || B x
 infixl `∪` := union
 
 theorem mem_union {T : Type} (x : T) (A B : set T) : x ∈ A ∪ B ↔ (x ∈ A ∨ x ∈ B) :=
-iff_intro
+iff.intro
   (assume H, bor_to_or H)
-  (assume H, or_elim H
+  (assume H, or.elim H
     (assume Ha : A x = tt,
       show A x || B x = tt, from Ha⁻¹ ▸ bor_tt_left (B x))
     (assume Hb : B x = tt,
       show A x || B x = tt, from Hb⁻¹ ▸ bor_tt_right (A x)))
 
 theorem union_id {T : Type} (A : set T) : A ∪ A ∼ A :=
-take x, bor_id (A x) ▸ iff_rfl
+take x, bor_id (A x) ▸ iff.rfl
 
 theorem union_empty_right {T : Type} (A : set T) : A ∪ ∅ ∼ A :=
-take x, bor_ff_right (A x) ▸ iff_rfl
+take x, bor_ff_right (A x) ▸ iff.rfl
 
 theorem union_empty_left {T : Type} (A : set T) : ∅ ∪ A ∼ A :=
-take x, bor_ff_left (A x) ▸ iff_rfl
+take x, bor_ff_left (A x) ▸ iff.rfl
 
 theorem union_comm {T : Type} (A B : set T) : A ∪ B ∼ B ∪ A :=
-take x, bor_comm (A x) (B x) ▸ iff_rfl
+take x, bor_comm (A x) (B x) ▸ iff.rfl
 
 theorem union_assoc {T : Type} (A B C : set T) : (A ∪ B) ∪ C ∼ A ∪ (B ∪ C) :=
-take x, bor_assoc (A x) (B x) (C x) ▸ iff_rfl
+take x, bor_assoc (A x) (B x) (C x) ▸ iff.rfl
 
 end set

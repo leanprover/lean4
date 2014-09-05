@@ -68,7 +68,7 @@ in exists_intro f H
 
 theorem skolem {A : Type} {B : A → Type} {P : Πx, B x → Prop} :
   (∀x, ∃y, P x y) ↔ ∃f, (∀x, P x (f x)) :=
-iff_intro
+iff.intro
   (assume H : (∀x, ∃y, P x y), axiom_of_choice H)
   (assume H : (∃f, (∀x, P x (f x))),
     take x, obtain (fw : ∀x, B x) (Hw : ∀x, P x (fw x)), from H,

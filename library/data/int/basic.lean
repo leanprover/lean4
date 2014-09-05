@@ -71,7 +71,7 @@ have H2 : ¬ pr1 a ≥ pr2 a, from lt_imp_not_ge H,
 if_neg H2
 
 theorem proj_le {a : ℕ × ℕ} (H : pr1 a ≤ pr2 a) : proj a = pair 0 (pr2 a - pr1 a) :=
-or_elim le_or_gt
+or.elim le_or_gt
   (assume H2 : pr2 a ≤ pr1 a,
     have H3 : pr1 a = pr2 a, from le_antisym H H2,
     calc
@@ -119,7 +119,7 @@ have special : ∀a, pr2 a ≤ pr1 a → proj (flip a) = flip (proj a), from
         ... = pr1 (proj a)                              : (proj_ge_pr1 H)⁻¹
         ... = pr2 (flip (proj a))                       : (flip_pr2 (proj a))⁻¹,
   prod_eq H3 H4,
-or_elim le_total
+or.elim le_total
   (assume H : pr2 a ≤ pr1 a, special a H)
   (assume H : pr1 a ≤ pr2 a,
     have H2 : pr2 (flip a) ≤ pr1 (flip a), from P_flip H,
@@ -129,7 +129,7 @@ or_elim le_total
         ... = flip (proj a)                       : {flip_flip a})
 
 theorem proj_rel (a : ℕ × ℕ) : rel a (proj a) :=
-or_elim le_total
+or.elim le_total
   (assume H : pr2 a ≤ pr1 a,
     calc
       pr1 a + pr2 (proj a) = pr1 a + 0 : {proj_ge_pr2 H}
@@ -163,7 +163,7 @@ have special : ∀a b, pr2 a ≤ pr1 a → rel a b → proj a = proj b, from
       pr2 (proj a) = 0 : proj_ge_pr2 H2
         ... = pr2 (proj b) : {(proj_ge_pr2 H4)⁻¹},
   prod_eq H5 H6,
-or_elim le_total
+or.elim le_total
   (assume H2 : pr2 a ≤ pr1 a, special a b H2 H)
   (assume H2 : pr1 a ≤ pr2 a,
     have H3 : pr2 (flip a) ≤ pr1 (flip a), from P_flip H2,
@@ -175,9 +175,9 @@ theorem proj_inj {a b : ℕ × ℕ} (H : proj a = proj b) : rel a b :=
 representative_map_equiv_inj rel_equiv proj_rel @proj_congr H
 
 theorem proj_zero_or (a : ℕ × ℕ) : pr1 (proj a) = 0 ∨ pr2 (proj a) = 0 :=
-or_elim le_total
-  (assume H : pr2 a ≤ pr1 a, or_inr (proj_ge_pr2 H))
-  (assume H : pr1 a ≤ pr2 a, or_inl (proj_le_pr1 H))
+or.elim le_total
+  (assume H : pr2 a ≤ pr1 a, or.inr (proj_ge_pr2 H))
+  (assume H : pr1 a ≤ pr2 a, or.inl (proj_le_pr1 H))
 
 theorem proj_idempotent (a : ℕ × ℕ) : proj (proj a) = proj a :=
 representative_map_idempotent_equiv proj_rel @proj_congr a
@@ -222,7 +222,7 @@ have H : ∀v w : ℕ × ℕ, rel v w → dist (pr1 v) (pr2 v) = dist (pr1 w) (p
   from take v w H, dist_eq_intro H,
 have H2 : ∀v : ℕ × ℕ, (to_nat (psub v)) = dist (pr1 v) (pr2 v),
   from take v, (comp_constant quotient H rel_refl),
-iff_mp (by simp) H2 (pair n m)
+iff.mp (by simp) H2 (pair n m)
 
 -- add_rewrite to_nat_comp --local
 
@@ -278,7 +278,7 @@ by simp
 -- add_rewrite neg_neg neg_zero
 
 theorem neg_inj {a b : ℤ} (H : -a = -b) : a = b :=
-iff_mp (by simp) (congr_arg neg H)
+iff.mp (by simp) (congr_arg neg H)
 
 theorem neg_move {a b : ℤ} (H : -a = b) : -b = a :=
 H ▸ neg_neg a
@@ -289,7 +289,7 @@ by simp
 
 theorem pos_eq_neg {n m : ℕ} (H : n = -m) : n = 0 ∧ m = 0 :=
 have H2 : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, rfl,
-have H3 : psub (pair n 0) = psub (pair 0 m), from iff_mp (by simp) H,
+have H3 : psub (pair n 0) = psub (pair 0 m), from iff.mp (by simp) H,
 have H4 : rel (pair n 0) (pair 0 m), from R_intro_refl quotient @rel_refl H3,
 have H5 : n + m = 0, from
   calc
@@ -306,7 +306,7 @@ opaque_hint (exposing int)
 
 theorem cases (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - n) :=
 have Hrep : proj (rep a) = rep a, from @idempotent_image_fix _ proj proj_idempotent a,
-or_imp_or (or_swap (proj_zero_or (rep a)))
+or.imp_or (or.swap (proj_zero_or (rep a)))
   (assume H : pr2 (proj (rep a)) = 0,
     have H2 : pr2 (rep a) = 0, from Hrep ▸ H,
     exists_intro (pr1 (rep a))
@@ -330,14 +330,14 @@ opaque_hint (hiding int)
 ---rename to by_cases in Lean 0.2 (for now using this to avoid name clash)
 theorem int_by_cases {P : ℤ → Prop} (a : ℤ) (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-n)) :
   P a :=
-or_elim (cases a)
+or.elim (cases a)
   (assume H, obtain (n : ℕ) (H3 : a = n), from H, H3⁻¹ ▸ H1 n)
   (assume H, obtain (n : ℕ) (H3 : a = -n), from H, H3⁻¹ ▸ H2 n)
 
 ---reverse equalities, rename
 theorem cases_succ (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - (of_nat (succ n))) :=
-or_elim (cases a)
-  (assume H : (∃n : ℕ, a = of_nat n), or_inl H)
+or.elim (cases a)
+  (assume H : (∃n : ℕ, a = of_nat n), or.inl H)
   (assume H,
     obtain (n : ℕ) (H2 : a = -(of_nat n)), from H,
     discriminate
@@ -347,15 +347,15 @@ or_elim (cases a)
             a = -(of_nat n) : H2
           ... = -(of_nat 0) : {H3}
           ... = of_nat 0 : neg_zero,
-        or_inl (exists_intro 0 H4))
+        or.inl (exists_intro 0 H4))
       (take k : ℕ,
         assume H3 : n = succ k,
         have H4 : a = -(of_nat (succ k)), from H3 ▸ H2,
-        or_inr (exists_intro k H4)))
+        or.inr (exists_intro k H4)))
 
 theorem int_by_cases_succ {P : ℤ → Prop} (a : ℤ)
   (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-(of_nat (succ n)))) : P a :=
-or_elim (cases_succ a)
+or.elim (cases_succ a)
   (assume H, obtain (n : ℕ) (H3 : a = of_nat n), from H, H3⁻¹ ▸ H1 n)
   (assume H, obtain (n : ℕ) (H3 : a = -(of_nat (succ n))), from H, H3⁻¹ ▸ H2 n)
 
@@ -731,28 +731,28 @@ have H2 : (to_nat a) * (to_nat b) = 0, from
       ... = (to_nat 0) : {H}
       ... = 0 : to_nat_of_nat 0,
 have H3 : (to_nat a) = 0 ∨ (to_nat b) = 0, from mul_eq_zero H2,
-or_imp_or H3
+or.imp_or H3
   (assume H : (to_nat a) = 0, to_nat_eq_zero H)
   (assume H : (to_nat b) = 0, to_nat_eq_zero H)
 
 theorem mul_cancel_left_or {a b c : ℤ} (H : a * b = a * c) : a = 0 ∨ b = c :=
 have H2 : a * (b - c) = 0, by simp,
 have H3 : a = 0 ∨ b - c = 0, from mul_eq_zero H2,
-or_imp_or_right H3 (assume H4 : b - c = 0, sub_eq_zero H4)
+or.imp_or_right H3 (assume H4 : b - c = 0, sub_eq_zero H4)
 
 theorem mul_cancel_left {a b c : ℤ} (H1 : a ≠ 0) (H2 : a * b = a * c) : b = c :=
-resolve_right (mul_cancel_left_or H2) H1
+or.resolve_right (mul_cancel_left_or H2) H1
 
 theorem mul_cancel_right_or {a b c : ℤ} (H : b * a = c * a) : a = 0 ∨ b = c :=
 mul_cancel_left_or ((H ▸ (mul_comm b a)) ▸ mul_comm c a)
 
 theorem mul_cancel_right {a b c : ℤ} (H1 : c ≠ 0) (H2 : a * c = b * c) : a = b :=
-resolve_right (mul_cancel_right_or H2) H1
+or.resolve_right (mul_cancel_right_or H2) H1
 
 theorem mul_ne_zero {a b : ℤ} (Ha : a ≠ 0) (Hb : b ≠ 0) : a * b ≠ 0 :=
 not_intro
   (assume H : a * b = 0,
-    or_elim (mul_eq_zero H)
+    or.elim (mul_eq_zero H)
       (assume H2 : a = 0, absurd H2 Ha)
       (assume H2 : b = 0, absurd H2 Hb))
 

@@ -164,8 +164,8 @@ show lhs = rhs, from
         lhs = 0     : if_pos H1
           ... = rhs : (if_pos H1)⁻¹)
     (assume H1 : ¬ (y = 0 ∨ x < y),
-      have H2a : y ≠ 0, from assume H, H1 (or_inl H),
-     have H2b : ¬ x < y, from assume H, H1 (or_inr H),
+      have H2a : y ≠ 0, from assume H, H1 (or.inl H),
+     have H2b : ¬ x < y, from assume H, H1 (or.inr H),
       have ypos : y > 0, from ne_zero_imp_pos H2a,
       have xgey : x ≥ y, from not_lt_imp_ge H2b,
       have H4 : x - y < x, from sub_lt (lt_le_trans ypos xgey) ypos,
@@ -183,12 +183,12 @@ definition idivide (x : ℕ) (y : ℕ) : ℕ := div_aux y x
 infixl `div` := idivide
 
 theorem div_zero {x : ℕ} : x div 0 = 0 :=
-div_aux_spec _ _ ⬝ if_pos (or_inl rfl)
+div_aux_spec _ _ ⬝ if_pos (or.inl rfl)
 
 -- add_rewrite div_zero
 
 theorem div_less {x y : ℕ} (H : x < y) : x div y = 0 :=
-div_aux_spec _ _ ⬝ if_pos (or_inr H)
+div_aux_spec _ _ ⬝ if_pos (or.inr H)
 
 -- add_rewrite div_less
 
@@ -201,7 +201,7 @@ theorem div_rec {x y : ℕ} (H1 : y > 0) (H2 : x ≥ y) : x div y = succ ((x - y
 have H3 : ¬ (y = 0 ∨ x < y), from
   not_intro
     (assume H4 : y = 0 ∨ x < y,
-      or_elim H4
+      or.elim H4
         (assume H5 : y = 0, not_elim lt_irrefl (H5 ▸ H1))
         (assume H5 : x < y, not_elim (lt_imp_not_ge H5) H2)),
 div_aux_spec _ _ ⬝ if_neg H3
@@ -240,8 +240,8 @@ show lhs = rhs, from
         lhs = x : if_pos H1
           ... = rhs : (if_pos H1)⁻¹)
     (assume H1 : ¬ (y = 0 ∨ x < y),
-      have H2a : y ≠ 0, from assume H, H1 (or_inl H),
-      have H2b : ¬ x < y, from assume H, H1 (or_inr H),
+      have H2a : y ≠ 0, from assume H, H1 (or.inl H),
+      have H2b : ¬ x < y, from assume H, H1 (or.inr H),
       have ypos : y > 0, from ne_zero_imp_pos H2a,
       have xgey : x ≥ y, from not_lt_imp_ge H2b,
       have H4 : x - y < x, from sub_lt (lt_le_trans ypos xgey) ypos,
@@ -259,12 +259,12 @@ definition modulo (x : ℕ) (y : ℕ) : ℕ := mod_aux y x
 infixl `mod` := modulo
 
 theorem mod_zero {x : ℕ} : x mod 0 = x :=
-mod_aux_spec _ _ ⬝ if_pos (or_inl rfl)
+mod_aux_spec _ _ ⬝ if_pos (or.inl rfl)
 
 -- add_rewrite mod_zero
 
 theorem mod_lt_eq {x y : ℕ} (H : x < y) : x mod y = x :=
-mod_aux_spec _ _ ⬝ if_pos (or_inr H)
+mod_aux_spec _ _ ⬝ if_pos (or.inr H)
 
 -- add_rewrite mod_lt_eq
 
@@ -277,7 +277,7 @@ theorem mod_rec {x y : ℕ} (H1 : y > 0) (H2 : x ≥ y) : x mod y = (x - y) mod 
 have H3 : ¬ (y = 0 ∨ x < y), from
   not_intro
     (assume H4 : y = 0 ∨ x < y,
-      or_elim H4
+      or.elim H4
         (assume H5 : y = 0, not_elim lt_irrefl (H5 ▸ H1))
         (assume H5 : x < y, not_elim (lt_imp_not_ge H5) H2)),
 mod_aux_spec _ _ ⬝ if_neg H3
@@ -494,7 +494,7 @@ show x mod y = 0, from
             ... = 0 : mul_zero_left)
 
 theorem dvd_iff_exists_mul {x y : ℕ} : x | y ↔ ∃z, z * x = y :=
-iff_intro
+iff.intro
   (assume H : x | y,
     show ∃z, z * x = y, from exists_intro _ (dvd_imp_div_mul_eq H))
   (assume H : ∃z, z * x = y,

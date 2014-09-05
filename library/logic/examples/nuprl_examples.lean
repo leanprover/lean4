@@ -42,7 +42,7 @@ assume (Hn : ¬(P → Q)) (Hp : P) (Hq : Q),
 -- 4. Conjunction and Disjunction
 theorem thm9 {P : Prop} : (P ∨ ¬P) → (¬¬P → P) :=
 assume (em : P ∨ ¬P) (Hnn : ¬¬P),
-  or_elim em
+  or.elim em
     (assume Hp, Hp)
     (assume Hn, absurd Hn Hnn)
 
@@ -50,32 +50,32 @@ theorem thm10 {P : Prop} : ¬¬(P ∨ ¬P) :=
 assume Hnem : ¬(P ∨ ¬P),
   have Hnp : ¬P, from
     assume Hp : P,
-      have Hem : P ∨ ¬P, from or_inl Hp,
+      have Hem : P ∨ ¬P, from or.inl Hp,
       absurd Hem Hnem,
-  have Hem : P ∨ ¬P, from or_inr Hnp,
+  have Hem : P ∨ ¬P, from or.inr Hnp,
   absurd Hem Hnem
 
 theorem thm11 {P Q : Prop} : ¬P ∨ ¬Q → ¬(P ∧ Q) :=
 assume (H : ¬P ∨ ¬Q) (Hn : P ∧ Q),
-  or_elim H
+  or.elim H
     (assume Hnp : ¬P, absurd (and.elim_left Hn) Hnp)
     (assume Hnq : ¬Q, absurd (and.elim_right Hn) Hnq)
 
 theorem thm12 {P Q : Prop} : ¬(P ∨ Q) → ¬P ∧ ¬Q :=
 assume H : ¬(P ∨ Q),
-  have Hnp : ¬P, from assume Hp : P, absurd (or_inl Hp) H,
-  have Hnq : ¬Q, from assume Hq : Q, absurd (or_inr Hq) H,
+  have Hnp : ¬P, from assume Hp : P, absurd (or.inl Hp) H,
+  have Hnq : ¬Q, from assume Hq : Q, absurd (or.inr Hq) H,
   and.intro Hnp Hnq
 
 theorem thm13 {P Q : Prop} : ¬P ∧ ¬Q → ¬(P ∨ Q) :=
 assume (H : ¬P ∧ ¬Q) (Hn : P ∨ Q),
-  or_elim Hn
+  or.elim Hn
     (assume Hp : P, absurd Hp (and.elim_left H))
     (assume Hq : Q, absurd Hq (and.elim_right H))
 
 theorem thm14 {P Q : Prop} : ¬P ∨ Q → P → Q :=
 assume (Hor : ¬P ∨ Q) (Hp : P),
-  or_elim Hor
+  or.elim Hor
     (assume Hnp : ¬P, absurd Hp Hnp)
     (assume Hq : Q, Hq)
 
@@ -88,13 +88,13 @@ assume (Hpq : P → Q) (Hn : ¬(¬P ∨ Q)),
 theorem thm16 {P Q : Prop} : (P → Q) ∧ ((P ∨ ¬P) ∨ (Q ∨ ¬Q)) → ¬P ∨ Q :=
 assume H : (P → Q) ∧ ((P ∨ ¬P) ∨ (Q ∨ ¬Q)),
   have Hpq : P → Q, from and.elim_left H,
-  or_elim (and.elim_right H)
-    (assume Hem1 : P ∨ ¬P, or_elim Hem1
-      (assume Hp : P, or_inr (Hpq Hp))
-      (assume Hnp : ¬P, or_inl Hnp))
-    (assume Hem2 : Q ∨ ¬Q, or_elim Hem2
-      (assume Hq : Q, or_inr Hq)
-      (assume Hnq : ¬Q, or_inl (mt Hpq Hnq)))
+  or.elim (and.elim_right H)
+    (assume Hem1 : P ∨ ¬P, or.elim Hem1
+      (assume Hp : P, or.inr (Hpq Hp))
+      (assume Hnp : ¬P, or.inl Hnp))
+    (assume Hem2 : Q ∨ ¬Q, or.elim Hem2
+      (assume Hq : Q, or.inr Hq)
+      (assume Hnq : ¬Q, or.inl (mt Hpq Hnq)))
 
 -- 5. First-Order Logic: All and Exists
 section
@@ -122,7 +122,7 @@ assume (H1 : ∀x, P x → C) (H2 : ∃x, P x),
 
 theorem thm19a : (C ∨ ¬C) → (∃x : T, true) → (C → (∃x, P x)) → (∃x, C → P x) :=
 assume (Hem : C ∨ ¬C) (Hin : ∃x : T, true) (H1 : C → ∃x, P x),
-  or_elim Hem
+  or.elim Hem
     (assume Hc : C,
       obtain (w : T) (Hw : P w), from H1 Hc,
       have Hr : C → P w, from assume Hc, Hw,
@@ -139,7 +139,7 @@ assume (H : ∃x, C → P x) (Hc : C),
 
 theorem thm20a : (C ∨ ¬C) → (∃x : T, true) → ((¬∀x, P x) → ∃x, ¬P x) → ((∀x, P x) → C) → (∃x, P x → C) :=
 assume Hem Hin Hnf H,
-  or_elim Hem
+  or.elim Hem
     (assume Hc : C,
       obtain (w : T) (Hw : true), from Hin,
       exists_intro w (assume H : P w, Hc))
@@ -156,37 +156,37 @@ assume Hex Hall,
 
 theorem thm21a : (∃x : T, true) → ((∃x, P x) ∨ C) → (∃x, P x ∨ C) :=
 assume Hin H,
-  or_elim H
+  or.elim H
     (assume Hex : ∃x, P x,
       obtain (w : T) (Hw : P w), from Hex,
-      exists_intro w (or_inl Hw))
+      exists_intro w (or.inl Hw))
     (assume Hc  : C,
       obtain (w : T) (Hw : true), from Hin,
-      exists_intro w (or_inr Hc))
+      exists_intro w (or.inr Hc))
 
 theorem thm21b : (∃x, P x ∨ C) → ((∃x, P x) ∨ C) :=
 assume H,
   obtain (w : T) (Hw : P w ∨ C), from H,
-  or_elim Hw
-    (assume H : P w, or_inl (exists_intro w H))
-    (assume Hc : C, or_inr Hc)
+  or.elim Hw
+    (assume H : P w, or.inl (exists_intro w H))
+    (assume Hc : C, or.inr Hc)
 
 theorem thm22a : (∀x, P x) ∨ C → ∀x, P x ∨ C :=
 assume H, take x,
-  or_elim H
-    (assume Hl, or_inl (Hl x))
-    (assume Hr, or_inr Hr)
+  or.elim H
+    (assume Hl, or.inl (Hl x))
+    (assume Hr, or.inr Hr)
 
 theorem thm22b : (C ∨ ¬C) → (∀x, P x ∨ C) → ((∀x, P x) ∨ C) :=
 assume Hem H1,
-  or_elim Hem
-    (assume Hc : C,   or_inr Hc)
+  or.elim Hem
+    (assume Hc : C,   or.inr Hc)
     (assume Hnc : ¬C,
       have Hx : ∀x, P x, from
         take x,
         have H1 : P x ∨ C, from H1 x,
-        resolve_left H1 Hnc,
-      or_inl Hx)
+        or.resolve_left H1 Hnc,
+      or.inl Hx)
 
 theorem thm23a : (∃x, P x) ∧ C → (∃x, P x ∧ C) :=
 assume H,

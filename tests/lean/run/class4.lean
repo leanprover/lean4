@@ -34,14 +34,14 @@ theorem dichotomy (m : nat) : m = zero ∨ (∃ n, m = succ n)
      m
 
 theorem is_zero_to_eq (x : nat) (H : is_zero x) : x = zero
-:= or_elim (dichotomy x)
+:= or.elim (dichotomy x)
      (assume Hz : x = zero, Hz)
      (assume Hs : (∃ n, x = succ n),
        exists_elim Hs (λ (w : nat) (Hw : x = succ w),
          absurd H (eq.subst (symm Hw) (not_is_zero_succ w))))
 
 theorem is_not_zero_to_eq {x : nat} (H : ¬ is_zero x) : ∃ n, x = succ n
-:= or_elim (dichotomy x)
+:= or.elim (dichotomy x)
      (assume Hz : x = zero,
        absurd (eq.subst (symm Hz) is_zero_zero) H)
      (assume Hs, Hs)

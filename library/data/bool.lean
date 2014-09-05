@@ -22,7 +22,7 @@ definition cond {A : Type} (b : bool) (t e : A) :=
 rec e t b
 
 theorem dichotomy (b : bool) : b = ff ∨ b = tt :=
-cases_on b (or_inl (eq.refl ff)) (or_inr (eq.refl tt))
+cases_on b (or.inl (eq.refl ff)) (or.inr (eq.refl tt))
 
 theorem cond_ff {A : Type} (t e : A) : cond ff t e = e :=
 rfl
@@ -80,8 +80,8 @@ theorem bor_to_or {a b : bool} : a || b = tt → a = tt ∨ b = tt :=
 rec
   (assume H : ff || b = tt,
     have Hb : b = tt, from (bor_ff_left b) ▸ H,
-    or_inr Hb)
-  (assume H, or_inl (eq.refl tt))
+    or.inr Hb)
+  (assume H, or.inl (eq.refl tt))
   a
 
 definition band (a b : bool) :=
@@ -118,7 +118,7 @@ cases_on a
                   ...  = tt && (b && c) : band_tt_left (b && c)⁻¹)
 
 theorem band_eq_tt_elim_left {a b : bool} (H : a && b = tt) : a = tt :=
-or_elim (dichotomy a)
+or.elim (dichotomy a)
   (assume H0 : a = ff,
     absurd
       (calc ff = ff && b : (band_ff_left _)⁻¹

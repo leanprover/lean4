@@ -495,14 +495,14 @@ We say they are the _left/right or-introduction_.
 The or-elimination rule is slightly more complicated. The basic idea is the
 following, we can prove =c= from =a ∨ b=, by showing we can prove =c=
 by assuming =a= or by assuming =b=. It is essentially a proof by cases.
-=or_elim Hab Hac Hbc= takes three arguments =Hab : a ∨ b=, =Hac : a → c= and =Hbc : b → c= and produces a proof for =c=.
-In the following example, we use =or_elim= to prove that =p v q → q ∨ p=.
+=or.elim Hab Hac Hbc= takes three arguments =Hab : a ∨ b=, =Hac : a → c= and =Hbc : b → c= and produces a proof for =c=.
+In the following example, we use =or.elim= to prove that =p v q → q ∨ p=.
 
 #+BEGIN_SRC lean
   import logic
   variables p q : Prop
   check fun H : p ∨ q,
-           or_elim H
+           or.elim H
               (fun Hp : p, or.intro_right q Hp)
               (fun Hq : q, or.intro_left  p Hq)
 
@@ -510,7 +510,7 @@ In the following example, we use =or_elim= to prove that =p v q → q ∨ p=.
 
 In most cases, the first argument of =or.intro_right= and
 =or.intro_left= can be inferred automatically by Lean. Moreover, Lean
-provides =or_inr= and =or_inl= as shorthands for =or.intro_right _=
+provides =or.inr= and =or.inl= as shorthands for =or.intro_right _=
 and =or.intro_left _=. These two shorthands are extensively used in
 the Lean standard library.
 
@@ -518,9 +518,9 @@ the Lean standard library.
   import logic
   variables p q : Prop
   check fun H : p ∨ q,
-           or_elim H
-              (fun Hp : p, or_inr Hp)
-              (fun Hq : q, or_inl Hq)
+           or.elim H
+              (fun Hp : p, or.inr Hp)
+              (fun Hq : q, or.inl Hq)
 
 #+END_SRC
 
@@ -564,15 +564,15 @@ Now, here is the proof term for =¬a → b → (b → a) → c=
 
 *** Iff (if-and-only-if)
 
-The expression =iff_intro H1 H2= produces a proof for =a ↔ b= from =H1 : a → b= and =H2 : b → a=.
-=iff_elim_left H= produces a proof for =a → b= from =H : a ↔ b=. Similarly,
-=iff_elim_right H= produces a proof for =b → a= from =H : a ↔ b=.
+The expression =iff.intro H1 H2= produces a proof for =a ↔ b= from =H1 : a → b= and =H2 : b → a=.
+=iff.elim_left H= produces a proof for =a → b= from =H : a ↔ b=. Similarly,
+=iff.elim_right H= produces a proof for =b → a= from =H : a ↔ b=.
 Here is the proof term for =a ∧ b ↔ b ∧ a=
 
 #+BEGIN_SRC lean
   import logic
   variables a b : Prop
-  check iff_intro
+  check iff.intro
           (fun H : a ∧ b, and.intro (and.elim_right H) (and.elim_left H))
           (fun H : b ∧ a, and.intro (and.elim_right H) (and.elim_left H))
 #+END_SRC
@@ -583,7 +583,7 @@ more like proofs found in text books.
 #+BEGIN_SRC lean
   import logic
   variables a b : Prop
-  check iff_intro
+  check iff.intro
           (assume H : a ∧ b, and.intro (and.elim_right H) (and.elim_left H))
           (assume H : b ∧ a, and.intro (and.elim_right H) (and.elim_left H))
 #+END_SRC
@@ -610,7 +610,7 @@ and use it to prove a theorem that would be quite tedious to prove by hand.
   -- create a rewrite rule set with name 'simple'
   rewrite_set simple
   -- add some theorems to the rewrite rule set 'simple'
-  add_rewrite and_id and_truer and_truel and_comm and_assoc and_left_comm iff_id : simple
+  add_rewrite and_id and_truer and_truel and_comm and.assoc and_left_comm iff_id : simple
   theorem th1 (a b : Bool) : a ∧ b ∧ true ∧ b ∧ true ∧ b ↔ a ∧ b
   := (by simp simple)
 #+END_SRC
@@ -621,7 +621,7 @@ tedious steps. Here is a very simple example.
 
 #+BEGIN_SRC
    theorem th2 (a b : Prop) : a ∧ b ↔ b ∧ a
-   := iff_intro
+   := iff.intro
         (fun H : a ∧ b, (by simp simple))
         (fun H : b ∧ a, (by simp simple))
 #+END_SRC

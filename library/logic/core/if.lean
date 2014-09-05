@@ -41,9 +41,9 @@ theorem if_cond_congr {c₁ c₂ : Prop} {H₁ : decidable c₁} {H₂ : decidab
 decidable.rec_on H₁
  (assume Hc₁  : c₁,  decidable.rec_on H₂
    (assume Hc₂  : c₂,  if_pos Hc₁ ⬝ (if_pos Hc₂)⁻¹)
-   (assume Hnc₂ : ¬c₂, absurd (iff_elim_left Heq Hc₁) Hnc₂))
+   (assume Hnc₂ : ¬c₂, absurd (iff.elim_left Heq Hc₁) Hnc₂))
  (assume Hnc₁ : ¬c₁, decidable.rec_on H₂
-   (assume Hc₂  : c₂,  absurd (iff_elim_right Heq Hc₂) Hnc₁)
+   (assume Hc₂  : c₂,  absurd (iff.elim_right Heq Hc₂) Hnc₁)
    (assume Hnc₂ : ¬c₂, if_neg Hnc₁ ⬝ (if_neg Hnc₂)⁻¹))
 
 theorem if_congr_aux {c₁ c₂ : Prop} {H₁ : decidable c₁} {H₂ : decidable c₂} {A : Type} {t₁ t₂ e₁ e₂ : A}

@@ -41,44 +41,44 @@ obtain w Hw, from H2,
 H1 w (and.elim_left Hw) (and.elim_right Hw)
 
 theorem forall_congr {A : Type} {φ ψ : A → Prop} (H : ∀x, φ x ↔ ψ x) : (∀x, φ x) ↔ (∀x, ψ x) :=
-iff_intro
-  (assume Hl, take x, iff_elim_left (H x) (Hl x))
-  (assume Hr, take x, iff_elim_right (H x) (Hr x))
+iff.intro
+  (assume Hl, take x, iff.elim_left (H x) (Hl x))
+  (assume Hr, take x, iff.elim_right (H x) (Hr x))
 
 theorem exists_congr {A : Type} {φ ψ : A → Prop} (H : ∀x, φ x ↔ ψ x) : (∃x, φ x) ↔ (∃x, ψ x) :=
-iff_intro
+iff.intro
   (assume Hex, obtain w Pw, from Hex,
-    exists_intro w (iff_elim_left (H w) Pw))
+    exists_intro w (iff.elim_left (H w) Pw))
   (assume Hex, obtain w Qw, from Hex,
-    exists_intro w (iff_elim_right (H w) Qw))
+    exists_intro w (iff.elim_right (H w) Qw))
 
 theorem forall_true_iff_true (A : Type) : (∀x : A, true) ↔ true :=
-iff_intro (assume H, trivial) (assume H, take x, trivial)
+iff.intro (assume H, trivial) (assume H, take x, trivial)
 
 theorem forall_p_iff_p (A : Type) {H : inhabited A} (p : Prop) : (∀x : A, p) ↔ p :=
-iff_intro (assume Hl, inhabited.destruct H (take x, Hl x)) (assume Hr, take x, Hr)
+iff.intro (assume Hl, inhabited.destruct H (take x, Hl x)) (assume Hr, take x, Hr)
 
 theorem exists_p_iff_p (A : Type) {H : inhabited A} (p : Prop) : (∃x : A, p) ↔ p :=
-iff_intro
+iff.intro
   (assume Hl, obtain a Hp, from Hl, Hp)
   (assume Hr, inhabited.destruct H (take a, exists_intro a Hr))
 
 theorem forall_and_distribute {A : Type} (φ ψ : A → Prop) : (∀x, φ x ∧ ψ x) ↔ (∀x, φ x) ∧ (∀x, ψ x) :=
-iff_intro
+iff.intro
   (assume H, and.intro (take x, and.elim_left (H x)) (take x, and.elim_right (H x)))
   (assume H, take x, and.intro (and.elim_left H x) (and.elim_right H x))
 
 theorem exists_or_distribute {A : Type} (φ ψ : A → Prop) : (∃x, φ x ∨ ψ x) ↔ (∃x, φ x) ∨ (∃x, ψ x) :=
-iff_intro
+iff.intro
   (assume H, obtain (w : A) (Hw : φ w ∨ ψ w), from H,
-    or_elim Hw
-      (assume Hw1 : φ w, or_inl (exists_intro w Hw1))
-      (assume Hw2 : ψ w, or_inr (exists_intro w Hw2)))
-  (assume H, or_elim H
+    or.elim Hw
+      (assume Hw1 : φ w, or.inl (exists_intro w Hw1))
+      (assume Hw2 : ψ w, or.inr (exists_intro w Hw2)))
+  (assume H, or.elim H
     (assume H1, obtain (w : A) (Hw : φ w), from H1,
-      exists_intro w (or_inl Hw))
+      exists_intro w (or.inl Hw))
     (assume H2, obtain (w : A) (Hw : ψ w), from H2,
-      exists_intro w (or_inr Hw)))
+      exists_intro w (or.inr Hw)))
 
 theorem exists_imp_nonempty {A : Type} {P : A → Prop} (H : ∃x, P x) : nonempty A :=
 obtain w Hw, from H, nonempty.intro w

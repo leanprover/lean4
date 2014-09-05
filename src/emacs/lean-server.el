@@ -395,4 +395,10 @@ If it's successful, take it out from the queue. Otherwise, set an
   (when lean-global-async-task-queue
     (lean-server-set-timer-for-event-handler)))
 
+(defadvice save-buffers-kill-emacs
+      (before lean-server-kill-before-kill-emacs activate)
+      "Call `lean-server-kill-process', to avoid the user being
+prompted to kill the lean-server process."
+      (lean-server-kill-process))
+
 (provide 'lean-server)

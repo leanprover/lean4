@@ -13,33 +13,34 @@ intro : a → b → and a b
 infixr `/\` := and
 infixr `∧` := and
 
-theorem and_elim {a b c : Prop} (H1 : a ∧ b) (H2 : a → b → c) : c :=
-and.rec H2 H1
+namespace and
+theorem elim {a b c : Prop} (H1 : a ∧ b) (H2 : a → b → c) : c :=
+rec H2 H1
 
-theorem and_elim_left {a b : Prop} (H : a ∧ b) : a  :=
-and.rec (λa b, a) H
+theorem elim_left {a b : Prop} (H : a ∧ b) : a  :=
+rec (λa b, a) H
 
-theorem and_elim_right {a b : Prop} (H : a ∧ b) : b :=
-and.rec (λa b, b) H
+theorem elim_right {a b : Prop} (H : a ∧ b) : b :=
+rec (λa b, b) H
 
-theorem and_swap {a b : Prop} (H : a ∧ b) : b ∧ a :=
-and.intro (and_elim_right H) (and_elim_left H)
+theorem swap {a b : Prop} (H : a ∧ b) : b ∧ a :=
+intro (elim_right H) (elim_left H)
 
-theorem and_not_left {a : Prop} (b : Prop) (Hna : ¬a) : ¬(a ∧ b) :=
-assume H : a ∧ b, absurd (and_elim_left H) Hna
+theorem not_left {a : Prop} (b : Prop) (Hna : ¬a) : ¬(a ∧ b) :=
+assume H : a ∧ b, absurd (elim_left H) Hna
 
-theorem and_not_right (a : Prop) {b : Prop} (Hnb : ¬b) : ¬(a ∧ b) :=
-assume H : a ∧ b, absurd (and_elim_right H) Hnb
+theorem not_right (a : Prop) {b : Prop} (Hnb : ¬b) : ¬(a ∧ b) :=
+assume H : a ∧ b, absurd (elim_right H) Hnb
 
-theorem and_imp_and {a b c d : Prop} (H1 : a ∧ b) (H2 : a → c) (H3 : b → d) : c ∧ d :=
-and_elim H1 (assume Ha : a, assume Hb : b, and.intro (H2 Ha) (H3 Hb))
+theorem imp_and {a b c d : Prop} (H1 : a ∧ b) (H2 : a → c) (H3 : b → d) : c ∧ d :=
+elim H1 (assume Ha : a, assume Hb : b, intro (H2 Ha) (H3 Hb))
 
-theorem imp_and_left {a b c : Prop} (H1 : a ∧ c) (H : a → b) : b ∧ c :=
-and_elim H1 (assume Ha : a, assume Hc : c, and.intro (H Ha) Hc)
+theorem imp_left {a b c : Prop} (H1 : a ∧ c) (H : a → b) : b ∧ c :=
+elim H1 (assume Ha : a, assume Hc : c, intro (H Ha) Hc)
 
-theorem imp_and_right {a b c : Prop} (H1 : c ∧ a) (H : a → b) : c ∧ b :=
-and_elim H1 (assume Hc : c, assume Ha : a, and.intro Hc (H Ha))
-
+theorem imp_right {a b c : Prop} (H1 : c ∧ a) (H : a → b) : c ∧ b :=
+elim H1 (assume Hc : c, assume Ha : a, intro Hc (H Ha))
+end and
 
 -- or
 -- --
@@ -151,16 +152,16 @@ iff_intro (λ Ha, subst H Ha) (λ Hb, subst (symm H) Hb)
 -- ---------------------------
 
 theorem and_comm {a b : Prop} : a ∧ b ↔ b ∧ a :=
-iff_intro (λH, and_swap H) (λH, and_swap H)
+iff_intro (λH, and.swap H) (λH, and.swap H)
 
 theorem and_assoc {a b c : Prop} : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
 iff_intro
   (assume H, and.intro
-    (and_elim_left (and_elim_left H))
-    (and.intro (and_elim_right (and_elim_left H)) (and_elim_right H)))
+    (and.elim_left (and.elim_left H))
+    (and.intro (and.elim_right (and.elim_left H)) (and.elim_right H)))
   (assume H, and.intro
-    (and.intro (and_elim_left H) (and_elim_left (and_elim_right H)))
-    (and_elim_right (and_elim_right H)))
+    (and.intro (and.elim_left H) (and.elim_left (and.elim_right H)))
+    (and.elim_right (and.elim_right H)))
 
 theorem or_comm {a b : Prop} : a ∨ b ↔ b ∨ a :=
 iff_intro (λH, or_swap H) (λH, or_swap H)

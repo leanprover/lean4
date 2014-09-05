@@ -454,16 +454,16 @@ In the following example we use =and.intro= for creating a proof for
   check fun (Hp : p) (Hq : q), and.intro Hp Hq
 #+END_SRC
 
-The expression =and_elim_left H= creates a proof =a= from a proof =H : a ∧ b=.
-Similarly =and_elim_right H= is a proof for =b=. We say they are the _left/right and-eliminators_.
+The expression =and.elim_left H= creates a proof =a= from a proof =H : a ∧ b=.
+Similarly =and.elim_right H= is a proof for =b=. We say they are the _left/right and-eliminators_.
 
 #+BEGIN_SRC lean
   import logic
   variables p q : Prop
   -- Proof for p ∧ q → p
-  check fun H : p ∧ q, and_elim_left H
+  check fun H : p ∧ q, and.elim_left H
   -- Proof for p ∧ q → q
-  check fun H : p ∧ q, and_elim_right H
+  check fun H : p ∧ q, and.elim_right H
 #+END_SRC
 
 Now, we prove =p ∧ q → q ∧ p= with the following simple proof term.
@@ -471,7 +471,7 @@ Now, we prove =p ∧ q → q ∧ p= with the following simple proof term.
 #+BEGIN_SRC lean
   import logic
   variables p q : Prop
-  check fun H : p ∧ q, and.intro (and_elim_right H) (and_elim_left H)
+  check fun H : p ∧ q, and.intro (and.elim_right H) (and.elim_left H)
 #+END_SRC
 
 Note that the proof term is very similar to a function that just swaps the
@@ -573,8 +573,8 @@ Here is the proof term for =a ∧ b ↔ b ∧ a=
   import logic
   variables a b : Prop
   check iff_intro
-          (fun H : a ∧ b, and.intro (and_elim_right H) (and_elim_left H))
-          (fun H : b ∧ a, and.intro (and_elim_right H) (and_elim_left H))
+          (fun H : a ∧ b, and.intro (and.elim_right H) (and.elim_left H))
+          (fun H : b ∧ a, and.intro (and.elim_right H) (and.elim_left H))
 #+END_SRC
 
 In Lean, we can use =assume= instead of =fun= to make proof terms look
@@ -584,8 +584,8 @@ more like proofs found in text books.
   import logic
   variables a b : Prop
   check iff_intro
-          (assume H : a ∧ b, and.intro (and_elim_right H) (and_elim_left H))
-          (assume H : b ∧ a, and.intro (and_elim_right H) (and_elim_left H))
+          (assume H : a ∧ b, and.intro (and.elim_right H) (and.elim_left H))
+          (assume H : b ∧ a, and.intro (and.elim_right H) (and.elim_left H))
 #+END_SRC
 
 *** True and False

@@ -30,7 +30,7 @@ theorem intro {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A
 and.intro H1 (and.intro H2 H3)
 
 theorem and_absorb_left {a : Prop} (b : Prop) (Ha : a) : a ∧ b ↔ b :=
-iff_intro (assume Hab, and_elim_right Hab) (assume Hb, and.intro Ha Hb)
+iff_intro (assume Hab, and.elim_right Hab) (assume Hb, and.intro Ha Hb)
 
 theorem intro_refl {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (H1 : reflexive R) (H2 : ∀b, abs (rep b) = b)
@@ -46,27 +46,27 @@ intro
 
 theorem abs_rep {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) (b : B) :  abs (rep b) = b :=
-and_elim_left Q b
+and.elim_left Q b
 
 theorem refl_rep {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) (b : B) : R (rep b) (rep b) :=
-and_elim_left (and_elim_right Q) b
+and.elim_left (and.elim_right Q) b
 
 theorem R_iff {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) (r s : A) : R r s ↔ (R r r ∧ R s s ∧ abs r = abs s) :=
-and_elim_right (and_elim_right Q) r s
+and.elim_right (and.elim_right Q) r s
 
 theorem refl_left {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {r s : A} (H : R r s) : R r r :=
-and_elim_left (iff_elim_left (R_iff Q r s) H)
+and.elim_left (iff_elim_left (R_iff Q r s) H)
 
 theorem refl_right {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {r s : A} (H : R r s) : R s s :=
-and_elim_left (and_elim_right (iff_elim_left (R_iff Q r s) H))
+and.elim_left (and.elim_right (iff_elim_left (R_iff Q r s) H))
 
 theorem eq_abs {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {r s : A} (H : R r s) : abs r = abs s :=
-and_elim_right (and_elim_right (iff_elim_left (R_iff Q r s) H))
+and.elim_right (and.elim_right (iff_elim_left (R_iff Q r s) H))
 
 theorem R_intro {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {r s : A} (H1 : R r r) (H2 : R s s) (H3 : abs r = abs s) : R r s :=
@@ -262,7 +262,7 @@ calc
 theorem representative_map_idempotent {A : Type} {R : A → A → Prop} {f : A → A}
     (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b ↔ R a a ∧ R b b ∧ f a = f b) (a : A) :
   f (f a) = f a :=
-symm (and_elim_right (and_elim_right (iff_elim_left (H2 a (f a)) (H1 a))))
+symm (and.elim_right (and.elim_right (iff_elim_left (H2 a (f a)) (H1 a))))
 
 theorem representative_map_idempotent_equiv {A : Type} {R : A → A → Prop} {f : A → A}
     (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b → f a = f b) (a : A) :

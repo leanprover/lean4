@@ -260,11 +260,11 @@ induction_on l
 --        assume P1 : ¬ (mem x (cons y l)),
 --        have P2 : ¬ (mem x l ∨ (y = x)), from subst P1 (mem_cons _ _ _),
 --        have P3 : ¬ (mem x l) ∧ (y ≠ x),from subst P2 (not_or _ _),
---        have P4 : x ≠ y, from ne_symm (and_elim_right P3),
+--        have P4 : x ≠ y, from ne_symm (and.elim_right P3),
 --        calc
 --           find x (cons y l) = succ (find x l) :
 --               trans (find_cons _ _ _) (not_imp_if_eq P4 _ _)
---             ... = succ (length l) : {IH (and_elim_left P3)}
+--             ... = succ (length l) : {IH (and.elim_left P3)}
 --             ... = length (cons y l) : symm (length_cons _ _))
 
 -- nth element

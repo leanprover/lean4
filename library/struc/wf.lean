@@ -30,7 +30,7 @@ by_contradiction (assume N : ¬∀x, P x,
   have s1 : ∀b, R b r → P b, from
     take b : A, assume H : R b r,
     -- We are using Hr to derive ¬¬P b
-      not_not_elim (and_elim_right Hr b H),
+      not_not_elim (and.elim_right Hr b H),
   have s2 : P r,   from iH r s1,
-  have s3 : ¬P r,  from and_elim_left Hr,
+  have s3 : ¬P r,  from and.elim_left Hr,
   absurd s2 s3)

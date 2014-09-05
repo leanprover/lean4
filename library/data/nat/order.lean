@@ -282,7 +282,7 @@ lt_intro add_move_succ
 -- ### basic facts
 
 theorem lt_imp_ne {n m : ℕ} (H : n < m) : n ≠ m :=
-and_elim_right (succ_le_imp_le_and_ne H)
+and.elim_right (succ_le_imp_le_and_ne H)
 
 theorem lt_irrefl {n : ℕ} : ¬ n < n :=
 not_intro (assume H : n < n, absurd rfl (lt_imp_ne H))
@@ -310,7 +310,7 @@ theorem self_lt_succ {n : ℕ} : n < succ n :=
 le_refl
 
 theorem lt_imp_le {n m : ℕ} (H : n < m) : n ≤ m :=
-and_elim_left (succ_le_imp_le_and_ne H)
+and.elim_left (succ_le_imp_le_and_ne H)
 
 theorem le_imp_lt_or_eq {n m : ℕ} (H : n ≤ m) : n < m ∨ n = m :=
 le_imp_succ_le_or_eq H

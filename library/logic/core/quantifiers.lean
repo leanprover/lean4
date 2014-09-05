@@ -38,7 +38,7 @@ exists_intro w (and.intro H1 H2)
 theorem exists_unique_elim {A : Type} {p : A → Prop} {b : Prop}
                            (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, y ≠ x → ¬p y) → b) : b :=
 obtain w Hw, from H2,
-H1 w (and_elim_left Hw) (and_elim_right Hw)
+H1 w (and.elim_left Hw) (and.elim_right Hw)
 
 theorem forall_congr {A : Type} {φ ψ : A → Prop} (H : ∀x, φ x ↔ ψ x) : (∀x, φ x) ↔ (∀x, ψ x) :=
 iff_intro
@@ -65,8 +65,8 @@ iff_intro
 
 theorem forall_and_distribute {A : Type} (φ ψ : A → Prop) : (∀x, φ x ∧ ψ x) ↔ (∀x, φ x) ∧ (∀x, ψ x) :=
 iff_intro
-  (assume H, and.intro (take x, and_elim_left (H x)) (take x, and_elim_right (H x)))
-  (assume H, take x, and.intro (and_elim_left H x) (and_elim_right H x))
+  (assume H, and.intro (take x, and.elim_left (H x)) (take x, and.elim_right (H x)))
+  (assume H, take x, and.intro (and.elim_left H x) (and.elim_right H x))
 
 theorem exists_or_distribute {A : Type} (φ ψ : A → Prop) : (∃x, φ x ∨ ψ x) ↔ (∃x, φ x) ∨ (∃x, ψ x) :=
 iff_intro

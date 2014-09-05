@@ -51,8 +51,8 @@ theorem and_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable
 rec_on Ha
   (assume Ha  : a, rec_on Hb
     (assume Hb  : b,  inl (and.intro Ha Hb))
-    (assume Hnb : ¬b, inr (and_not_right a Hnb)))
-  (assume Hna : ¬a, inr (and_not_left b Hna))
+    (assume Hnb : ¬b, inr (and.not_right a Hnb)))
+  (assume Hna : ¬a, inr (and.not_left b Hna))
 
 theorem or_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
   decidable (a ∨ b) :=

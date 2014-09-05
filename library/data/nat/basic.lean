@@ -128,10 +128,10 @@ have stronger : P a ∧ P (succ a), from
   induction_on a
     (and.intro H1 H2)
     (take k IH,
-      have IH1 : P k, from and_elim_left IH,
-      have IH2 : P (succ k), from and_elim_right IH,
+      have IH1 : P k, from and.elim_left IH,
+      have IH2 : P (succ k), from and.elim_right IH,
         and.intro IH2 (H3 k IH1 IH2)),
-  and_elim_left stronger
+  and.elim_left stronger
 
 theorem sub_induction {P : ℕ → ℕ → Prop} (n m : ℕ) (H1 : ∀m, P 0 m)
    (H2 : ∀n, P (succ n) 0) (H3 : ∀n m, P n m → P (succ n) (succ m)) : P n m :=

@@ -26,8 +26,8 @@ congruence2.mk
   (take a1 b1 a2 b2,
     assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
     iff_intro
-      (assume H3 : a1 ∧ a2, and_imp_and H3 (iff_elim_left H1) (iff_elim_left H2))
-      (assume H3 : b1 ∧ b2, and_imp_and H3 (iff_elim_right H1) (iff_elim_right H2)))
+      (assume H3 : a1 ∧ a2, and.imp_and H3 (iff_elim_left H1) (iff_elim_left H2))
+      (assume H3 : b1 ∧ b2, and.imp_and H3 (iff_elim_right H1) (iff_elim_right H2)))
 
 theorem congruence_or : congruence2 iff iff iff or :=
 congruence2.mk

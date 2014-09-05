@@ -673,14 +673,14 @@ gcd_induct m n
     assume npos : 0 < n,
     assume IH : (gcd n (m mod n) | n) ∧ (gcd n (m mod n) | (m mod n)),
     have H : gcd n (m mod n) | (m div n * n + m mod n), from
-      dvd_add (dvd_trans (and_elim_left IH) dvd_mul_self_right) (and_elim_right IH),
+      dvd_add (dvd_trans (and.elim_left IH) dvd_mul_self_right) (and.elim_right IH),
     have H1 : gcd n (m mod n) | m, from div_mod_eq⁻¹ ▸ H,
     have gcd_eq : gcd n (m mod n) = gcd m n, from symm (gcd_pos _ npos),
-    show (gcd m n | m) ∧ (gcd m n | n), from gcd_eq ▸ (and.intro H1 (and_elim_left IH)))
+    show (gcd m n | m) ∧ (gcd m n | n), from gcd_eq ▸ (and.intro H1 (and.elim_left IH)))
 
-theorem gcd_dvd_left (m n : ℕ) : (gcd m n | m) := and_elim_left (gcd_dvd _ _)
+theorem gcd_dvd_left (m n : ℕ) : (gcd m n | m) := and.elim_left (gcd_dvd _ _)
 
-theorem gcd_dvd_right (m n : ℕ) : (gcd m n | n) := and_elim_right (gcd_dvd _ _)
+theorem gcd_dvd_right (m n : ℕ) : (gcd m n | n) := and.elim_right (gcd_dvd _ _)
 
 -- add_rewrite gcd_dvd_left gcd_dvd_right
 

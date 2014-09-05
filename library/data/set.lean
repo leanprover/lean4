@@ -47,8 +47,8 @@ theorem mem_inter {T : Type} (x : T) (A B : set T) : x ∈ A ∩ B ↔ (x ∈ A 
 iff_intro
   (assume H, and.intro (band_eq_tt_elim_left H) (band_eq_tt_elim_right H))
   (assume H,
-    have e1 : A x = tt, from and_elim_left H,
-    have e2 : B x = tt, from and_elim_right H,
+    have e1 : A x = tt, from and.elim_left H,
+    have e2 : B x = tt, from and.elim_right H,
     show A x && B x = tt, from e1⁻¹ ▸ e2⁻¹ ▸ band_tt_left tt)
 
 theorem inter_id {T : Type} (A : set T) : A ∩ A ∼ A :=

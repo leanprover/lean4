@@ -115,10 +115,10 @@ theorem two_step_induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P 0) (H2 : P 1)
     induction_on a
       (and_intro H1 H2)
       (take k IH,
-        have IH1 : P k, from and_elim_left IH,
-        have IH2 : P (succ k), from and_elim_right IH,
+        have IH1 : P k, from and.elim_left IH,
+        have IH2 : P (succ k), from and.elim_right IH,
           and_intro IH2 (H3 k IH1 IH2)),
-    and_elim_left stronger
+    and.elim_left stronger
 
 theorem sub_induction {P : ℕ → ℕ → Prop} (n m : ℕ) (H1 : ∀m, P 0 m)
    (H2 : ∀n, P (succ n) 0) (H3 : ∀n m, P n m → P (succ n) (succ m)) : P n m
@@ -681,7 +681,7 @@ infix `>`:50  := gt
 ---------- basic facts
 
 theorem lt_ne {n m : ℕ} (H : n < m) : n ≠ m
-:= and_elim_right (succ_le_left_inv H)
+:= and.elim_right (succ_le_left_inv H)
 
 theorem lt_irrefl (n : ℕ) : ¬ n < n
 := assume H : n < n, absurd (refl n) (lt_ne H)
@@ -711,7 +711,7 @@ theorem self_lt_succ (n : ℕ) : n < succ n
 := le_refl (succ n)
 
 theorem lt_imp_le {n m : ℕ} (H : n < m) : n ≤ m
-:= and_elim_left (succ_le_imp_le_and_ne H)
+:= and.elim_left (succ_le_imp_le_and_ne H)
 
 theorem le_imp_lt_or_eq {n m : ℕ} (H : n ≤ m) : n < m ∨ n = m
 := le_imp_succ_le_or_eq H

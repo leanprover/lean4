@@ -47,9 +47,12 @@
   (when lean-server-debug-mode
     (with-current-buffer
         (get-buffer-create lean-server-debug-buffer-name)
-      (goto-char (point-max))
-      (insert (format-time-string "%H:%M:%S:%3N -- " (current-time)))
-      (insert (apply 'format (concat format-string "\n") args)))))
+      (save-selected-window
+        (ignore-errors
+         (select-window (get-buffer-window lean-server-debug-buffer-name t)))
+        (goto-char (point-max))
+        (insert (format-time-string "%H:%M:%S:%3N -- " (current-time)))
+        (insert (apply 'format (concat format-string "\n") args))))))
 
 ;; How to read data from an async process
 ;; ======================================

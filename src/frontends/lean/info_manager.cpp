@@ -386,9 +386,8 @@ struct info_manager::imp {
             synch_line(i);
             if (!overwrite && m_line_valid[i])
                 continue;
-            unsigned range = m_line_data[i].empty() ? 0 : m_line_data[i].max()->get_column() + 1;
             s.for_each([&](info_data const & d) {
-                    if (overwrite || d.get_column() >= range)
+                    if (overwrite || !m_line_data[i].contains(d))
                         m_line_data[i].insert(d);
                 });
         }

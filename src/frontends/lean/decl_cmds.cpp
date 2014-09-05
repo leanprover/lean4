@@ -318,7 +318,8 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     if (!found_cached) {
         if (is_theorem) {
             auto type_pos = p.pos_of(type);
-            std::tie(type, new_ls) = p.elaborate_type(type);
+            bool clear_pre_info = false; // we don't want to clear pre_info data until we process the proof.
+            std::tie(type, new_ls) = p.elaborate_type(type, list<expr>(), clear_pre_info);
             check_no_metavar(env, real_n, type, true);
             ls = append(ls, new_ls);
             expr type_as_is = p.save_pos(mk_as_is(type), type_pos);

@@ -324,7 +324,7 @@ public:
     /** \brief Elaborate \c e, and tolerate metavariables in the result. */
     std::tuple<expr, level_param_names> elaborate_relaxed(expr const & e, list<expr> const & ctx = list<expr>());
     /** \brief Elaborate \c e, and ensure it is a type. */
-    std::tuple<expr, level_param_names> elaborate_type(expr const & e, list<expr> const & ctx = list<expr>());
+    std::tuple<expr, level_param_names> elaborate_type(expr const & e, list<expr> const & ctx = list<expr>(), bool clear_pre_info = true);
     /** \brief Elaborate \c e in the given environment. */
     std::tuple<expr, level_param_names> elaborate_at(environment const & env, expr const & e);
     /** \brief Elaborate \c e (making sure the result does not have metavariables). */

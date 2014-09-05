@@ -569,14 +569,15 @@ std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e, li
     return r;
 }
 
-std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<expr> const & ctx) {
+std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<expr> const & ctx, bool clear_pre_info) {
     bool relax            = false;
     bool check_unassigned = true;
     bool ensure_type      = true;
     parser_pos_provider pp = get_pos_provider();
     elaborator_context env = mk_elaborator_context(pp, check_unassigned);
     auto r = ::lean::elaborate(env, ctx, e, relax, ensure_type);
-    m_pre_info_manager.clear();
+    if (clear_pre_info)
+        m_pre_info_manager.clear();
     return r;
 }
 

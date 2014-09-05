@@ -2,26 +2,22 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 import logic.classes.decidable logic.classes.inhabited
-
 open decidable
 
 inductive unit : Type :=
-star : unit
-
+  star : unit
 namespace unit
+  notation `⋆`:max := star
 
-notation `⋆`:max := star
+  theorem equal [protected] (a b : unit) : a = b :=
+  rec (rec rfl b) a
 
-theorem at_most_one (a b : unit) : a = b :=
-rec (rec rfl b) a
+  theorem eq_star (a : unit) : a = star :=
+  equal a star
 
-theorem eq_star (a : unit) : a = star :=
-at_most_one a star
+  theorem is_inhabited [protected] [instance] : inhabited unit :=
+  inhabited.mk ⋆
 
-theorem unit_inhabited [instance] : inhabited unit :=
-inhabited.mk ⋆
-
-theorem decidable_eq [instance] (a b : unit) : decidable (a = b) :=
-inl (at_most_one a b)
-
+  theorem has_decidable_eq [protected] [instance] (a b : unit) : decidable (a = b) :=
+  inl (equal a b)
 end unit

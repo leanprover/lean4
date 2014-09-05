@@ -13,12 +13,14 @@ one  : pos_num,
 bit1 : pos_num → pos_num,
 bit0 : pos_num → pos_num
 
+namespace pos_num
+  theorem is_inhabited [instance] : inhabited pos_num :=
+  inhabited.mk one
+end pos_num
+
 inductive num : Type :=
 zero  : num,
 pos   : pos_num → num
-
-theorem inhabited_pos_num [instance] : inhabited pos_num :=
-inhabited.mk pos_num.one
 
 theorem num_inhabited [instance] : inhabited num :=
 inhabited.mk num.zero

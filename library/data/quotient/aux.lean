@@ -150,7 +150,7 @@ have Hy : pr2 (map_pair2 f v (pair e e)) = pr2 v, from
     pr2 (map_pair2 f v (pair e e)) = f (pr2 v) (pr2 (pair e e)) : by simp
       ... = f (pr2 v) e : by simp
       ... = pr2 v : Hid (pr2 v)),
-prod_eq Hx Hy
+prod.equal Hx Hy
 
 theorem map_pair2_id_left {A B : Type} {f : B → A → A} {e : B} (Hid : ∀a : A, f e a = a)
   (v : A × A) : map_pair2 f (pair e e) v = v :=
@@ -164,7 +164,7 @@ have Hy : pr2 (map_pair2 f (pair e e) v) = pr2 v, from
     pr2 (map_pair2 f (pair e e) v) = f (pr2 (pair e e)) (pr2 v) : by simp
       ... = f e (pr2 v) : by simp
       ... = pr2 v : Hid (pr2 v),
-prod_eq Hx Hy
+prod.equal Hx Hy
 
 opaque_hint (hiding flip map_pair map_pair2)
 

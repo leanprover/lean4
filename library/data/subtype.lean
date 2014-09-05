@@ -7,12 +7,11 @@ import logic.classes.inhabited logic.core.eq logic.classes.decidable
 open decidable
 
 inductive subtype {A : Type} (P : A → Prop) : Type :=
-tag : Πx : A, P x → subtype P
+  tag : Πx : A, P x → subtype P
 
 notation `{` binders `,` r:(scoped P, subtype P) `}` := r
 
 namespace subtype
-
 section
   parameter {A : Type}
   parameter {P : A → Prop}
@@ -36,18 +35,16 @@ section
   theorem tag_eq {a1 a2 : A} {H1 : P a1} {H2 : P a2} (H3 : a1 = a2) : tag a1 H1 = tag a2 H2 :=
   eq.subst H3 (take H2, tag_irrelevant H1 H2) H2
 
-  theorem subtype_eq {a1 a2 : {x, P x}} : ∀(H : elt_of a1 = elt_of a2), a1 = a2 :=
+  theorem equal [protected] {a1 a2 : {x, P x}} : ∀(H : elt_of a1 = elt_of a2), a1 = a2 :=
   destruct a1 (take x1 H1, destruct a2 (take x2 H2 H, tag_eq H))
 
-  theorem subtype_inhabited [instance] {a : A} (H : P a) : inhabited {x, P x} :=
+  theorem is_inhabited [protected] [instance] {a : A} (H : P a) : inhabited {x, P x} :=
   inhabited.mk (tag a H)
 
-  theorem eq_decidable [protected] [instance] (a1 a2 : {x, P x})
+  theorem has_decidable_eq [protected] [instance] (a1 a2 : {x, P x})
     (H : decidable (elt_of a1 = elt_of a2)) : decidable (a1 = a2) :=
   have H1 : (a1 = a2) ↔ (elt_of a1 = elt_of a2), from
-    iff.intro (assume H, eq.subst H rfl) (assume H, subtype_eq H),
+    iff.intro (assume H, eq.subst H rfl) (assume H, equal H),
   decidable_iff_equiv _ (iff.symm H1)
-
 end
-
 end subtype

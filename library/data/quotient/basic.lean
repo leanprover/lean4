@@ -294,7 +294,7 @@ intro
           ... = f (f a) : {Ha⁻¹}
           ... = f a : representative_map_idempotent H1 H2 a
           ... = elt_of u : Ha,
-    show abs (elt_of u) = u, from subtype_eq H)
+    show abs (elt_of u) = u, from subtype.equal H)
   (take u : image f,
     show R (elt_of u) (elt_of u), from
       obtain (a : A) (Ha : f a = elt_of u), from image_elt_of u,

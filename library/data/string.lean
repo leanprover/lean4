@@ -7,14 +7,18 @@ import data.bool
 open bool inhabited
 
 inductive char : Type :=
-mk : bool → bool → bool → bool → bool → bool → bool → bool → char
+  mk : bool → bool → bool → bool → bool → bool → bool → bool → char
+
+namespace char
+  theorem is_inhabited [protected] [instance] : inhabited char :=
+  inhabited.mk (mk ff ff ff ff ff ff ff ff)
+end char
 
 inductive string : Type :=
-empty : string,
-str   : char → string → string
+  empty : string,
+  str   : char → string → string
 
-theorem char_inhabited [instance] : inhabited char :=
-inhabited.mk (char.mk ff ff ff ff ff ff ff ff)
-
-theorem string_inhabited [instance] : inhabited string :=
-inhabited.mk string.empty
+namespace string
+  theorem is_inhabited [protected] [instance] : inhabited string :=
+  inhabited.mk empty
+end string

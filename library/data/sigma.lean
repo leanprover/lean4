@@ -42,13 +42,12 @@ section
               ... = dpair a1 b2' : {H2'}) H1)
   b2 H1 H2
 
-  theorem sigma_eq {p1 p2 : Σx : A, B x} :
+  theorem equal [protected] {p1 p2 : Σx : A, B x} :
     ∀(H1 : dpr1 p1 = dpr1 p2) (H2 : eq.rec_on H1 (dpr2 p1) = (dpr2 p2)), p1 = p2 :=
   sigma_destruct p1 (take a1 b1, sigma_destruct p2 (take a2 b2 H1 H2, dpair_eq H1 H2))
 
-  theorem sigma_inhabited [instance] (H1 : inhabited A) (H2 : inhabited (B (default A))) :
+  theorem is_inhabited [protected] [instance] (H1 : inhabited A) (H2 : inhabited (B (default A))) :
     inhabited (sigma B) :=
    inhabited.destruct H1 (λa, inhabited.destruct H2 (λb, inhabited.mk (dpair (default A) b)))
-
 end
 end sigma

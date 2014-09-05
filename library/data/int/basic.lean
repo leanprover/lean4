@@ -118,7 +118,7 @@ have special : ∀a, pr2 a ≤ pr1 a → proj (flip a) = flip (proj a), from
         ... = pr1 a - pr2 a                             : {flip_pr1 a}
         ... = pr1 (proj a)                              : (proj_ge_pr1 H)⁻¹
         ... = pr2 (flip (proj a))                       : (flip_pr2 (proj a))⁻¹,
-  prod_eq H3 H4,
+  prod.equal H3 H4,
 or.elim le_total
   (assume H : pr2 a ≤ pr1 a, special a H)
   (assume H : pr1 a ≤ pr2 a,
@@ -162,7 +162,7 @@ have special : ∀a b, pr2 a ≤ pr1 a → rel a b → proj a = proj b, from
     calc
       pr2 (proj a) = 0 : proj_ge_pr2 H2
         ... = pr2 (proj b) : {(proj_ge_pr2 H4)⁻¹},
-  prod_eq H5 H6,
+  prod.equal H5 H6,
 or.elim le_total
   (assume H2 : pr2 a ≤ pr1 a, special a b H2 H)
   (assume H2 : pr1 a ≤ pr2 a,

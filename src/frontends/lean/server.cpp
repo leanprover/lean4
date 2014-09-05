@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/type_util.h"
 #include "library/unifier.h"
 #include "library/opaque_hints.h"
+#include "library/scoped_ext.h"
 #include "library/tactic/goal.h"
 #include "frontends/lean/server.h"
 #include "frontends/lean/parser.h"
@@ -537,9 +538,21 @@ void server::find_prefix(unsigned line_num, std::string const & prefix) {
                 }
             }
         });
+    list<name> const & ns_list = get_namespaces(env);
     env.for_each_declaration([&](declaration const & d) {
-            if (!already_added.contains(d.get_name()) && is_findp_prefix_of(p, d.get_name()))
-                display_decl(d.get_name(), d.get_name(), env, opts);
+            if (!already_added.contains(d.get_name()) && is_findp_prefix_of(p, d.get_name())) {
+                bool found = false;
+                name n = d.get_name();
+                for (name const & ns : ns_list) {
+                    if (is_prefix_of(ns, n)) {
+                        display_decl(n.replace_prefix(ns, name()), n, env, opts);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    display_decl(n, n, env, opts);
+            }
         });
     m_out << "-- ENDFINDP" << std::endl;
 }

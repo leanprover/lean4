@@ -55,27 +55,44 @@ def build_line_to_byteoffset_map(ilean_filename):
             lines.append(line)
     return (map, lines)
 
+def extract_filename_from_info(info):
+    return next((item['filename'] for item in info if 'filename' in item.keys()), None)
+
 def convert_position_to_etag_style(info):
     """Convert the position format from (line, col) to (line, byteoffset)"""
-    filename = info[0]['filename']
-    (line_to_byteoffset, contents) = build_line_to_byteoffset_map(filename)
-    for item in info:
-        linenum = item['linenum']
-        col     = item['col']
-        item['offset'] = line_to_byteoffset[linenum] + col
-        item['prefix'] = contents[linenum][:col] + get_short_name(item['id'])
+    filename = extract_filename_from_info(info)
+    if filename != None:
+        (line_to_byteoffset, contents) = build_line_to_byteoffset_map(filename)
+        for item in info:
+            if item['category'] != "a":
+                linenum = item['linenum']
+                col     = item['col']
+                item['offset'] = line_to_byteoffset[linenum] + col
+                item['prefix'] = contents[linenum][:col] + get_short_name(item['declname'])
 
-def extract_info_from_ilean(ilean_file):
+def extract_info_from_ilean(ilean_file, decl_dict):
     info = []
     with open(ilean_file) as f:
         for line in f:
             array = line[:-1].split("|")
             item = {}
-            item['type'] = array[0]
-            item['filename'] = array[1]
-            item['linenum'] = int(array[2])
-            item['col'] = int(array[3])
-            item['id'] = array[4]
+            item['category'] = array[0]
+            if item['category'] == 'a':
+                item['abbrname'] = array[1]
+                item['declname'] = array[2]
+            elif item['category'] == 'd':
+                item['filename'] = array[1]
+                item['linenum']  = int(array[2])
+                item['col']      = int(array[3])
+                item['declname'] = array[4]
+                item['kind']     = array[5]
+                item['type']     = array[6]
+                decl_dict[item['declname']] = item
+            elif item['category'] == 'r':
+                item['filename'] = array[1]
+                item['linenum']  = int(array[2])
+                item['col']      = int(array[3])
+                item['declname'] = array[4]
             info.append(item)
     return info
 
@@ -85,24 +102,28 @@ def get_etag_def_header(filename, len):
 
 def get_etag_def_item(item):
     result = "%s\x7f%s\x01%d,%d\n" \
-             % (item['prefix'], item['id'], item['linenum'], item['offset'])
+             % (item['prefix'], item['declname'], item['linenum'], item['offset'])
     return result
 
 def get_etag_def_items(items):
     result = ""
     for item in items:
-        if item['type'] == 'd':
+        if item['category'] == 'd':
             result += get_etag_def_item(item)
     return result
 
 def get_etag_def(info):
     body_str = get_etag_def_items(info)
-    header = get_etag_def_header(info[0]['filename'], len(body_str))
-    return header + body_str
+    filename = extract_filename_from_info(info)
+    if filename:
+        header = get_etag_def_header(filename, len(body_str))
+        return header + body_str
+    else:
+        return ""
 
 def print_item(item):
     print "\t%s\t%-60s:%4d:%4d:%6d - %s" \
-        % (item['type'], item['filename'], item['linenum'], item['col'], item['offset'], item['id'])
+        % (item['category'], item['filename'], item['linenum'], item['col'], item['offset'], item['declname'])
 
 def print_items(items):
     for item in items:
@@ -153,6 +174,14 @@ def filter_ilean_files(ilean_files):
             result.append(ilean_file)
     return result
 
+def resolve_abbr(info, decl_dict):
+    for item in info:
+        if item['category'] == 'a':
+            abbrname = item['abbrname']
+            declname = item['declname']
+            item = decl_dict[declname]
+            item['declname'] = abbrname
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
@@ -162,7 +191,7 @@ def main(argv=None):
     if args.files:
         ilean_files = fnmatch.filter(args.files, '*.ilean')
     else:
-        makefile_names = ["GNUmakefile", "makefile", "Makefile"]
+        makefile_names = ["GNUmakefile", "makefile", "Makefile", "build.ninja"]
         makefile = find_makefile_upward(directory, makefile_names)
         if makefile:
             directory = os.path.dirname(makefile)
@@ -174,11 +203,17 @@ def main(argv=None):
         return 0
 
     with codecs.open(os.path.join(directory, "TAGS"), 'w', 'utf-8') as tag_file:
+        info_list = []
+        decl_dict = {}
         for ilean_file in ilean_files:
-            info = extract_info_from_ilean(ilean_file)
+            info = extract_info_from_ilean(ilean_file, decl_dict)
             if info:
                 convert_position_to_etag_style(info)
-                tag_file.write(get_etag_def(info))
+                info_list.append(info)
+
+        for info in info_list:
+            resolve_abbr(info, decl_dict)
+            tag_file.write(get_etag_def(info))
 
 if __name__ == "__main__":
     sys.exit(main())

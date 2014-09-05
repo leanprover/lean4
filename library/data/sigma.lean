@@ -1,10 +1,8 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura, Jeremy Avigad
-
 import logic.classes.inhabited logic.core.eq
-
-open inhabited
+open inhabited eq_ops
 
 inductive sigma {A : Type} (B : A → Type) : Type :=
 dpair : Πx : A, B x → sigma B
@@ -21,33 +19,27 @@ section
   theorem dpr1_dpair (a : A) (b : B a) : dpr1 (dpair a b) = a := rfl
   theorem dpr2_dpair (a : A) (b : B a) : dpr2 (dpair a b) = b := rfl
 
-  -- TODO: remove prefix when we can protect it
-  theorem sigma_destruct {P : sigma B → Prop} (p : sigma B) (H : ∀a b, P (dpair a b)) : P p :=
+  theorem destruct [protected] {P : sigma B → Prop} (p : sigma B) (H : ∀a b, P (dpair a b)) : P p :=
   rec H p
 
   theorem dpair_ext (p : sigma B) : dpair (dpr1 p) (dpr2 p) = p :=
-  sigma_destruct p (take a b, rfl)
+  destruct p (take a b, rfl)
 
-  -- Note that we give the general statment explicitly, to help the unifier
-  theorem dpair_eq {a1 a2 : A} {b1 : B a1} {b2 : B a2} (H1 : a1 = a2) (H2 : eq.rec_on H1 b1 = b2) :
-    dpair a1 b1 = dpair a2 b2 :=
-  (show ∀(b2 : B a2) (H1 : a1 = a2) (H2 : eq.rec_on H1 b1 = b2), dpair a1 b1 = dpair a2 b2, from
-    eq.rec
-      (take (b2' : B a1),
-        assume (H1' : a1 = a1),
-        assume (H2' : eq.rec_on H1' b1 = b2'),
-        show dpair a1 b1 = dpair a1 b2', from
-          calc
-            dpair a1 b1 = dpair a1 (eq.rec_on H1' b1) : {eq.symm (eq.rec_on_id H1' b1)}
-              ... = dpair a1 b2' : {H2'}) H1)
-  b2 H1 H2
+  theorem dpair_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) :
+    dpair a₁ b₁ = dpair a₂ b₂ :=
+  eq.rec_on H₁
+    (λ (b₂ : B a₁) (H₁ : a₁ = a₁) (H₂ : eq.rec_on H₁ b₁ = b₂),
+      calc
+        dpair a₁ b₁ = dpair a₁ (eq.rec_on H₁ b₁) : {(eq.rec_on_id H₁ b₁)⁻¹}
+                ... = dpair a₁ b₂                : {H₂})
+    b₂ H₁ H₂
 
-  theorem equal [protected] {p1 p2 : Σx : A, B x} :
-    ∀(H1 : dpr1 p1 = dpr1 p2) (H2 : eq.rec_on H1 (dpr2 p1) = (dpr2 p2)), p1 = p2 :=
-  sigma_destruct p1 (take a1 b1, sigma_destruct p2 (take a2 b2 H1 H2, dpair_eq H1 H2))
+  theorem equal [protected] {p₁ p₂ : Σx : A, B x} :
+    ∀(H₁ : dpr1 p₁ = dpr1 p₂) (H₂ : eq.rec_on H₁ (dpr2 p₁) = (dpr2 p₂)), p₁ = p₂ :=
+  destruct p₁ (take a₁ b₁, destruct p₂ (take a₂ b₂ H₁ H₂, dpair_eq H₁ H₂))
 
-  theorem is_inhabited [protected] [instance] (H1 : inhabited A) (H2 : inhabited (B (default A))) :
+  theorem is_inhabited [protected] [instance] (H₁ : inhabited A) (H₂ : inhabited (B (default A))) :
     inhabited (sigma B) :=
-   inhabited.destruct H1 (λa, inhabited.destruct H2 (λb, inhabited.mk (dpair (default A) b)))
+  inhabited.destruct H₁ (λa, inhabited.destruct H₂ (λb, inhabited.mk (dpair (default A) b)))
 end
 end sigma

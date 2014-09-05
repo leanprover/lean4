@@ -24,7 +24,8 @@
 triggers a completion immediately."
   (let ((prefix (company-grab-symbol)))
     (when (or
-           (> (length prefix) 3))
+           (> (length prefix) 3)
+           (string-match "[_.]" prefix))
       prefix)))
 
 (defun company-lean--make-candidate (arg)

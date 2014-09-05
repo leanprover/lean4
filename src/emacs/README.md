@@ -61,6 +61,14 @@ Put the following elisp code on your emacs setup (e.g. ``.emacs.d/init.el``):
 (customize-set-variable 'lean-eldoc-use t)
 ```
 
+If experience a problem reading unicode characters on emacs, consider
+having the following setup:
+
+```elisp
+(when (member "DejaVu Sans Mono" (font-family-list))
+  (set-face-attribute 'default nil :font "DejaVu Sans Mono-11"))
+```
+
 Key Bindings
 ------------
 

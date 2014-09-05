@@ -56,7 +56,7 @@
   :group 'lean
   :type 'string)
 
-(defcustom lean-flycheck-checker-options '("--flycheck")
+(defcustom lean-flycheck-checker-options '("--flycheck" "120")
   "lean-flychecker checker option"
   :group 'lean)
 

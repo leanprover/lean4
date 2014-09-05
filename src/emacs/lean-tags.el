@@ -11,7 +11,9 @@
   (interactive)
   (let ((ltags-file-name (lean-get-executable "linja"))
         tags-file-name)
-    (call-process ltags-file-name nil 0 nil "TAGS"))
+    (message "Generating TAGS...")
+    (call-process ltags-file-name nil nil nil "TAGS")
+    (message "TAGS generated."))
   (unless tags-table-list
     (setq tags-file-name (lean-find-file-upward "TAGS"))
     (when tags-file-name

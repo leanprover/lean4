@@ -53,12 +53,14 @@ triggers a completion immediately."
              (candidate-len  (length candidate))
              (entry-width    (+ candidate-len
                                 annotation-len))
-             (window-width   (window-body-width)))
-        (when (> entry-width window-width)
+             (allowed-width  (truncate (* 0.90 (window-body-width)))))
+        (when (> entry-width allowed-width)
           (setq annotation-str
-                (substring-no-properties annotation-str
+                (concat
+                 (substring-no-properties annotation-str
                                          0
-                                         (- window-width candidate-len))))
+                                         (- allowed-width candidate-len 3))
+                 "...")))
         annotation-str))))
 
 ;;;###autoload

@@ -118,7 +118,9 @@ enabled and disabled respectively.")
 (defun lean-mode-setup ()
   "Default lean-mode setup"
   ;; Flycheck
-  (when lean-flycheck-use (lean-flycheck-turn-on))
+  (when lean-flycheck-use
+    (lean-flycheck-turn-on)
+    (add-hook 'flycheck-after-syntax-check-hook 'lean-flycheck-delete-temporaries nil t))
   ;; Draw a vertical line for rule-column
   (when (and lean-rule-column
              lean-show-rule-column-method)

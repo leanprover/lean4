@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/exception.h"
 #include "util/sexpr/option_declarations.h"
+#include "util/bitap_fuzzy_search.h"
 #include "kernel/instantiate.h"
 #include "library/aliases.h"
 #include "library/type_util.h"
@@ -480,41 +481,23 @@ void server::show(bool valid) {
     m_out << "-- ENDSHOW" << std::endl;
 }
 
-// Return true iff the last part of p is a prefix of the last part of n
-static bool is_last_prefix_of(name const & p, name const & n) {
-    if (p.is_string() && n.is_string()) {
-        char const * it1 = p.get_string();
-        char const * it2 = n.get_string();
-        if (!it1 || !it2)
-            return false;
-        while (*it1 && *it2 && *it1 == *it2) {
-            ++it1;
-            ++it2;
-        }
-        return *it1 == 0;
-    } else {
-        return false;
-    }
-}
-
-// Auxiliary function for find_prefix
-// 1) If p is atomic, then we just check if p is a prefix of the last component of n.
-// 2) Otherwise, we check if p.get_prefix() == n.get_prefix(), and
-//    p.get_string() is a prefix of n.get_string()
-static bool is_findp_prefix_of(name const & p, name const & n) {
-    if (p.is_atomic())
-        return is_last_prefix_of(p, n);
-    else
-        return p.get_prefix() == n.get_prefix() && is_last_prefix_of(p, n);
-}
-
 void server::display_decl(name const & short_name, name const & long_name, environment const & env, options const & o) {
     declaration const & d = env.get(long_name);
     io_state_stream out   = regular(env, m_ios).update_options(o);
     out << short_name << "|" << mk_pair(flatten(out.get_formatter()(d.get_type())), o) << "\n";
 }
 
-void server::find_prefix(unsigned line_num, std::string const & prefix) {
+#define LEAN_FUZZY_MAX_ERRORS 4
+#define LEAN_FUZZY_MAX_ERRORS_FACTOR 3
+
+unsigned get_fuzzy_match_max_errors(unsigned prefix_sz) {
+    unsigned r = (prefix_sz / LEAN_FUZZY_MAX_ERRORS_FACTOR);
+    if (r > LEAN_FUZZY_MAX_ERRORS)
+        return LEAN_FUZZY_MAX_ERRORS;
+    return r;
+}
+
+void server::find_pattern(unsigned line_num, std::string const & pattern) {
     check_file();
     m_out << "-- BEGINFINDP";
     unsigned upto = m_file->infom().get_processed_upto();
@@ -530,10 +513,11 @@ void server::find_prefix(unsigned line_num, std::string const & prefix) {
     options opts            = env_opts->second;
     opts = join(opts, m_ios.get_options());
     m_out << std::endl;
-    name p = string_to_name(prefix);
+    unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
+    bitap_fuzzy_search matcher(pattern, max_errors);
     name_set already_added;
     for_each_expr_alias(env, [&](name const & n, list<name> const & ds) {
-            if (is_findp_prefix_of(p, n)) {
+            if (matcher.match(n.to_string())) {
                 unsigned num = length(ds);
                 if (num == 1) {
                     display_decl(n, head(ds), env, opts);
@@ -549,7 +533,8 @@ void server::find_prefix(unsigned line_num, std::string const & prefix) {
         });
     list<name> const & ns_list = get_namespaces(env);
     env.for_each_declaration([&](declaration const & d) {
-            if (!already_added.contains(d.get_name()) && is_findp_prefix_of(p, d.get_name())) {
+            if (!already_added.contains(d.get_name()) &&
+                matcher.match(d.get_name().to_string())) {
                 bool found = false;
                 name n = d.get_name();
                 for (name const & ns : ns_list) {
@@ -725,7 +710,9 @@ bool server::operator()(std::istream & in) {
             } else if (is_command(g_findp, line)) {
                 unsigned line_num = get_line_num(line, g_findp);
                 read_line(in, line);
-                find_prefix(line_num, line);
+                if (line.size() > 63)
+                    line.resize(63);
+                find_pattern(line_num, line);
             } else if (is_command(g_findg, line)) {
                 pair<unsigned, unsigned> line_col_num = get_line_col_num(line, g_findg);
                 read_line(in, line);

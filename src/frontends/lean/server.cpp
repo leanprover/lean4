@@ -533,6 +533,12 @@ void server::find_pattern(unsigned line_num, std::string const & pattern) {
         m_out << " STALE";
     environment const & env = env_opts->first;
     options opts            = env_opts->second;
+    token_table const & tt  = get_token_table(env);
+    if (is_token(tt, pattern.c_str())) {
+        // we ignore patterns that match commands, keywords, and tokens.
+        m_out << "\n-- ENDFINDP" << std::endl;
+        return;
+    }
     opts = join(opts, m_ios.get_options());
     m_out << std::endl;
     unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());

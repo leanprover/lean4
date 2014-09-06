@@ -38,6 +38,9 @@ optional<unsigned> get_precedence(token_table const & s, char const * token) {
     auto it = find(s, token);
     return it ? optional<unsigned>(it->precedence()) : optional<unsigned>();
 }
+bool is_token(token_table const & s, char const * token) {
+    return static_cast<bool>(find(s, token));
+}
 void for_each(token_table const & s, std::function<void(char const *, token_info const &)> const & fn) {
     s.for_each([&](unsigned num, char const * keys, token_info const & info) {
             buffer<char> str;

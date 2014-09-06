@@ -46,6 +46,7 @@ void for_each(token_table const & s, std::function<void(char const *, token_info
 void display(std::ostream & out, token_table const & s);
 token_table const * find(token_table const & s, char c);
 optional<unsigned> get_precedence(token_table const & s, char const * token);
+bool is_token(token_table const & s, char const * token);
 token_info const * value_of(token_table const & s);
 void open_token_table(lua_State * L);
 }

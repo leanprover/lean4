@@ -31,6 +31,10 @@ Author: Leonardo de Moura
 #define DIAG(CODE)
 #endif
 
+#define LEAN_FUZZY_MAX_ERRORS        3
+#define LEAN_FUZZY_MAX_ERRORS_FACTOR 3
+#define LEAN_FIND_CONSUME_IMPLICIT   true // lean will add metavariables for implicit arguments when printing the type of declarations in FINDP and FINDG
+
 namespace lean {
 server::file::file(std::istream & in, std::string const & fname):m_fname(fname) {
     for (std::string line; std::getline(in, line);) {
@@ -492,7 +496,19 @@ void server::show(bool valid) {
 void server::display_decl(name const & short_name, name const & long_name, environment const & env, options const & o) {
     declaration const & d = env.get(long_name);
     io_state_stream out   = regular(env, m_ios).update_options(o);
-    out << short_name << "|" << mk_pair(flatten(out.get_formatter()(d.get_type())), o) << "\n";
+    expr type = d.get_type();
+    if (LEAN_FIND_CONSUME_IMPLICIT) {
+        name_generator ngen("M");
+        while (true) {
+            if (!is_pi(type))
+                break;
+            if (!binding_info(type).is_implicit())
+                break;
+            expr m = mk_metavar(ngen.next(), binding_domain(type));
+            type   = instantiate(binding_body(type), m);
+        }
+    }
+    out << short_name << "|" << mk_pair(flatten(out.get_formatter()(type)), o) << "\n";
 }
 
 optional<name> is_uniquely_aliased(environment const & env, name const & n) {
@@ -538,9 +554,6 @@ void server::display_decl(name const & d, environment const & env, options const
         display_decl(d, d, env, o);
     }
 }
-
-#define LEAN_FUZZY_MAX_ERRORS 4
-#define LEAN_FUZZY_MAX_ERRORS_FACTOR 3
 
 unsigned get_fuzzy_match_max_errors(unsigned prefix_sz) {
     unsigned r = (prefix_sz / LEAN_FUZZY_MAX_ERRORS_FACTOR);

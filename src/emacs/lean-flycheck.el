@@ -56,26 +56,6 @@
       (lean-flycheck-turn-off)
     (lean-flycheck-turn-on)))
 
-(defun lean-flycheck-try-parse-error-with-pattern (err pattern)
-    "Try to parse a single ERR with a PATTERN.
-
-Return the parsed error if PATTERN matched ERR, or nil
-otherwise."
-    (let ((regexp (car pattern))
-          (level (cdr pattern)))
-      (when (string-match regexp err)
-        (let ((filename (match-string 1 err))
-              (line (match-string 2 err))
-              (column (match-string 3 err))
-              (message (match-string 4 err)))
-          (flycheck-error-new
-           :filename (unless (string-empty-p filename) filename)
-           :line (flycheck-string-to-number-safe line)
-           :column (let ((col (flycheck-string-to-number-safe column)))
-                     (if (= col 0) 1 col))
-           :message (unless (string-empty-p message) message)
-           :level level)))))
-
 (eval-after-load "flycheck"
   '(defadvice flycheck-try-parse-error-with-pattern
      (after lean-flycheck-try-parse-error-with-pattern activate)

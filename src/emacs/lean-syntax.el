@@ -66,15 +66,6 @@
            (zero-or-more (or whitespace "(" "{" "["))
            (group (zero-or-more (not whitespace))))
       (2 'font-lock-function-name-face))
-     ;; namespace/section "name"
-     (,(rx symbol-start
-           (group (or "namespace" "section" "end"))
-           symbol-end
-           (zero-or-more whitespace)
-           (group (zero-or-more (not whitespace)))
-           (zero-or-more whitespace)
-           line-end)
-      (2 'font-lock-function-name-face))
      ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)

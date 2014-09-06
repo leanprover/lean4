@@ -300,8 +300,8 @@ order for the change to take effect."
   ("clr" . ("⌟"))  ("clR" . ("⌋"))
 
   ;; Various operators/symbols.
-  ("trans"     . ("⬝"))
-  ("symm"      . ("⁻¹"))
+  ("tr"        . ("⬝"))
+  ("sy"        . ("⁻¹"))
   ("qed"       . ("∎"))
   ("x"         . ("×"))
   ("o"         . ("∘"))
@@ -419,7 +419,7 @@ order for the change to take effect."
 
   ;; Big/small, black/white.
 
-  ("t" . ,(lean-input-to-string-list "◂◃◄◅▸▹►▻▴▵▾▿◢◿◣◺◤◸◥◹"))
+  ("t" . ,(lean-input-to-string-list "▸▹►▻◂◃◄◅▴▵▾▿◢◿◣◺◤◸◥◹"))
   ("T" . ,(lean-input-to-string-list "◀◁▶▷▲△▼▽◬◭◮"))
 
   ("tb" . ,(lean-input-to-string-list "◂▸▴▾◄►◢◣◤◥"))

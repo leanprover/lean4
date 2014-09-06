@@ -75,13 +75,6 @@
            (zero-or-more whitespace)
            line-end)
       (2 'font-lock-function-name-face))
-     ;; import "names"
-     (,(rx symbol-start
-           (group (or "import" "open"))
-           symbol-end
-           (group (zero-or-more any))
-           line-end)
-      (2 'font-lock-constant-face))
      ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)

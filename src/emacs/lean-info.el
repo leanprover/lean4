@@ -221,6 +221,60 @@
                                          "of_nat")))
             '(417 15)))
 
+;; Extra Information
+;; ----------------
+(defun lean-info-extra-type (extra)
+  (cl-first extra))
+(defun lean-info-extra-p (extra)
+  (pcase extra
+    (`EXTRA t)
+    ((pred stringp) (string-prefix-p "-- EXTRA_TYPE" extra))
+    ((pred listp) (and (lean-info-extra-p (cl-first extra))))))
+(defun lean-info-extra-pos (extra)
+  (cl-second extra))
+(defun lean-info-extra-parse-header (str)
+  (let ((items (split-string str "|")))
+    (list (string-to-number (cl-second items))
+          (string-to-number (cl-third items)))))
+(defun lean-info-extra-parse (seq)
+  (when (lean-info-extra-p seq)
+    (let* ((header (lean-info-extra-parse-header (car seq)))
+           (body (-split-on  "--" (cdr seq)))
+           (coerced-expr (cl-first body))
+           (coerced-type (cl-second body)))
+      `(EXTRA ,header ,coerced-expr ,coerced-type))))
+(defun lean-info-extra-expr (extra)
+  (cl-third extra))
+(defun lean-info-extra-expr-str (extra)
+  (string-join (lean-info-extra-expr extra) "\n"))
+(defun lean-info-extra-type (extra)
+  (cl-fourth extra))
+(defun lean-info-extra-type-str (extra)
+  (string-join (lean-info-extra-type extra) "\n"))
+
+;; -- Test
+(cl-assert (lean-info-extra-p 'EXTRA))
+(cl-assert (lean-info-extra-p "-- EXTRA_TYPE|121|2"))
+(cl-assert (lean-info-extra-p '("-- EXTRA_TYPE|417|15"
+                                "rec_on b ff tt"
+                                "--"
+                                "bool")))
+(cl-assert (equal (lean-info-extra-parse-header "-- EXTRA_TYPE|121|2")
+                  '(121 2)))
+(cl-assert (equal (lean-info-extra-parse '("-- EXTRA_TYPE|417|15"
+                                           "rec_on b ff tt"
+                                           "--"
+                                           "bool"))
+                  '(EXTRA
+                    (417 15)
+                    ("rec_on b ff tt")
+                    ("bool"))))
+(cl-assert (equal
+            (lean-info-extra-pos
+             (lean-info-extra-parse '("-- EXTRA_TYPE|417|15"
+                                      "of_nat")))
+            '(417 15)))
+
 ;; Identifier Information
 ;; ----------------------
 (defun lean-info-identifier-type (identifier)
@@ -325,7 +379,7 @@
     (COERCION   (lean-info-coercion-pos   info))
     (IDENTIFIER (lean-info-identifier-pos info))
     (SYMBOL     (lean-info-symbol-pos     info))
-    ))
+    (EXTRA      (lean-info-extra-pos     info))))
 (defun lean-info-line-number (info)
   (cl-first (lean-info-pos info)))
 (defun lean-info-column (info)
@@ -373,7 +427,8 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                           (lean-info-synth-parse string-seq)
                           (lean-info-coercion-parse string-seq)
                           (lean-info-identifier-parse string-seq)
-                          (lean-info-symbol-parse string-seq)))
+                          (lean-info-symbol-parse string-seq)
+                          (lean-info-extra-parse string-seq)))
              when result
              collect result)))
 
@@ -473,7 +528,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
      ;; When not specified, just return info-list.
      (t info-list))))
 
-(cl-defstruct lean-info-record type overload synth coercion identifier symbol nay stale)
+(cl-defstruct lean-info-record type overload synth coercion identifier symbol extra nay stale)
 
 (defun lean-info-record-parse (string &optional file-name column-number)
   "Parse string into info-record"
@@ -483,13 +538,15 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
          (synths      (-filter 'lean-info-synth-p      info-list))
          (coercions   (-filter 'lean-info-coercion-p   info-list))
          (identifiers (-filter 'lean-info-identifier-p info-list))
-         (symbols     (-filter 'lean-info-symbol-p     info-list)))
+         (symbols     (-filter 'lean-info-symbol-p     info-list))
+         (extras      (-filter 'lean-info-extra-p      info-list)))
     (make-lean-info-record :type       types
                            :overload   overloads
                            :synth      synths
                            :coercion   coercions
                            :identifier identifiers
                            :symbol     symbols
+                           :extra      extras
                            :nay        (lean-info-nay-p   string)
                            :stale      (lean-info-stale-p string))))
 
@@ -499,10 +556,11 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
          (overload (cl-first (lean-info-record-overload   info-record)))
          (synth    (cl-first (lean-info-record-synth      info-record)))
          (coercion (cl-first (lean-info-record-coercion   info-record)))
+         (extra    (cl-first (lean-info-record-extra      info-record)))
          (id       (cl-first (lean-info-record-identifier info-record)))
          (sym      (cl-first (lean-info-record-symbol     info-record)))
          (stale    (lean-info-record-stale                info-record))
-         name-str type-str coercion-str overload-str str)
+         name-str type-str coercion-str extra-str overload-str str)
     (setq name-str
           (cond
            (synth (lean-info-synth-body-str synth))
@@ -528,6 +586,11 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                (and sym (string-prefix-p (lean-info-id-symbol-body-str sym) it)))
               (lean-info-overload-names overload))
              ", ")))
+    (when extra
+      (setq str
+            (format "(%s) : %s"
+                    (propertize (lean-info-extra-expr-str extra) 'face 'font-lock-variable-name-face)
+                    (lean-info-extra-type-str extra))))
     (when (and name-str type-str)
       (setq str (format "%s : %s"
                         (propertize name-str 'face 'font-lock-variable-name-face)
@@ -548,28 +611,47 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                         str)))
     str))
 
+(defun lean-get-info-record-at-point-cont (info-record cont)
+  (cond ((lean-info-record-nay info-record)
+         (lean-server-debug "executing continucation for get-info-record-at-point %d: NAY DETECTED"
+                            lean-global-nay-retry-counter)
+         (setq lean-global-nay-retry-counter (1+ lean-global-nay-retry-counter))
+         (if (and (< lean-global-nay-retry-counter
+                     lean-global-nay-retry-counter-max)
+                  (= (length lean-global-async-task-queue) 1))
+             ;; Retry
+             (lean-get-info-record-at-point cont)
+           ;; Stop
+           (setq lean-global-nay-retry-counter 0)))
+        (t
+         (lean-server-debug "executing continucation for get-info-record-at-point: OK")
+         (setq lean-global-nay-retry-counter 0)
+         (funcall cont info-record))))
+
+(defun lean-get-begin-paren-pos ()
+  (save-excursion
+    (forward-char 1)
+    (backward-list 1)
+    `(,(line-number-at-pos) . ,(current-column))))
+
 (defun lean-get-info-record-at-point (cont)
   "Get info-record at the current point"
-  (let ((file-name (buffer-file-name))
-        (line-number (line-number-at-pos)))
+  (let* ((file-name     (buffer-file-name))
+         (line-number   (line-number-at-pos))
+         (column-number (current-column))
+         (cur-char      (char-after (point)))
+         (cmd           (cond ((char-equal cur-char ?\()
+                               (lean-cmd-info line-number column-number))
+                              ;; TODO(soonhok): give information on '('
+                              ;; ((char-equal cur-char ?\))
+                              ;;  (let ((begin-pos (lean-get-begin-paren-pos)))
+                              ;;    (lean-cmd-info (car begin-pos) (cdr begin-pos))))
+                              (t (lean-cmd-info line-number)))))
+    (lean-server-debug "get-info-record-at-point: %S" cmd)
     (lean-server-check-current-file file-name)
-    (lean-server-send-cmd-async (lean-cmd-info line-number)
-                                (lambda (info-record)
-                                  (cond ((lean-info-record-nay info-record)
-                                         (lean-server-debug "executing continucation for get-info-record-at-point %d: NAY DETECTED"
-                                                            lean-global-nay-retry-counter)
-                                         (setq lean-global-nay-retry-counter (1+ lean-global-nay-retry-counter))
-                                         (if (and (< lean-global-nay-retry-counter
-                                                     lean-global-nay-retry-counter-max)
-                                                  (= (length lean-global-async-task-queue) 1))
-                                             ;; Retry
-                                             (lean-get-info-record-at-point cont)
-                                           ;; Stop
-                                           (setq lean-global-nay-retry-counter 0)))
-                                        (t
-                                         (lean-server-debug "executing continucation for get-info-record-at-point: OK")
-                                         (setq lean-global-nay-retry-counter 0)
-                                         (funcall cont info-record)))))))
+    (lean-server-send-cmd-async cmd (lambda (info-record)
+                                      (lean-get-info-record-at-point-cont info-record
+                                                                          cont)))))
 
 (defun lean-get-full-name-at-point-cont (info-record)
   "Continuation of lean-get-full-name-at-point"

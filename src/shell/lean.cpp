@@ -155,6 +155,9 @@ public:
 };
 
 options set_config_option(options const & opts, char const * in) {
+    if (!in) return opts;
+    while (*in && std::isspace(*in))
+        ++in;
     std::string in_str(in);
     auto pos = in_str.find('=');
     if (pos == std::string::npos)

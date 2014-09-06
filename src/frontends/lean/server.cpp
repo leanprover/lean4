@@ -303,11 +303,16 @@ void server::process_from(unsigned line_num) {
     m_worker.set_todo(m_file, line_num, m_ios.get_options());
 }
 
-void server::load_file(std::string const & fname) {
+void server::load_file(std::string const & fname, bool error_if_nofile) {
     interrupt_worker();
     std::ifstream in(fname);
     if (in.bad() || in.fail()) {
-        m_out << "-- ERROR failed to open file '" << fname << "'" << std::endl;
+        if (error_if_nofile) {
+            m_out << "-- ERROR failed to open file '" << fname << "'" << std::endl;
+        } else {
+            m_file.reset(new file(in, fname));
+            m_file_map.insert(mk_pair(fname, m_file));
+        }
     } else {
         m_file.reset(new file(in, fname));
         m_file_map.insert(mk_pair(fname, m_file));
@@ -319,7 +324,8 @@ void server::visit_file(std::string const & fname) {
     interrupt_worker();
     auto it = m_file_map.find(fname);
     if (it == m_file_map.end()) {
-        load_file(fname);
+        bool error_if_nofile = false;
+        load_file(fname, error_if_nofile);
     } else {
         m_file = it->second;
         process_from(0);

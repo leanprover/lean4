@@ -556,8 +556,20 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
     (lean-server-send-cmd-async (lean-cmd-info line-number)
                                 (lambda (info-record)
                                   (cond ((lean-info-record-nay info-record)
-                                         (lean-get-info-record-at-point cont))
-                                        (t (funcall cont info-record)))))))
+                                         (lean-server-debug "executing continucation for get-info-record-at-point %d: NAY DETECTED"
+                                                            lean-global-nay-retry-counter)
+                                         (setq lean-global-nay-retry-counter (1+ lean-global-nay-retry-counter))
+                                         (if (and (< lean-global-nay-retry-counter
+                                                     lean-global-nay-retry-counter-max)
+                                                  (= (length lean-global-async-task-queue) 1))
+                                             ;; Retry
+                                             (lean-get-info-record-at-point cont)
+                                           ;; Stop
+                                           (setq lean-global-nay-retry-counter 0)))
+                                        (t
+                                         (lean-server-debug "executing continucation for get-info-record-at-point: OK")
+                                         (setq lean-global-nay-retry-counter 0)
+                                         (funcall cont info-record)))))))
 
 (defun lean-get-full-name-at-point-cont (info-record)
   "Continuation of lean-get-full-name-at-point"
@@ -570,6 +582,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
   (lean-get-info-record-at-point
    (lambda (info-record)
      (funcall cont
+              (lean-server-debug "executing continuation for get-full-name-at-point")
               (lean-get-full-name-at-point-cont info-record)))))
 
 (provide 'lean-info)

@@ -27,6 +27,12 @@ where TYPE := INFO | SET | EVAL | OPTIONS | SHOW | FINDP | ERROR,
 (defvar lean-global-server-last-time-sent nil
   "Last time lean-mode sent a command to lean-server")
 
+(defvar lean-global-nay-retry-counter 0
+  "Counter for the number of retries for NAY INFO.")
+
+(defvar lean-global-nay-retry-counter-max 10
+  "The maximum number of retries for NAY INFO.")
+
 (defvar lean-global-retry-timer nil
   "Timer used to re-try event-handler-function.")
 

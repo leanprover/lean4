@@ -159,6 +159,7 @@
   (setq lean-global-server-message-to-process nil)
   (setq lean-global-server-last-time-sent nil)
   (setq lean-global-async-task-queue nil)
+  (setq lean-global-nay-retry-counter 0)
   (lean-server-cancel-retry-timer))
 
 (defun lean-server-create-process ()
@@ -323,26 +324,41 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
        (setq result (lean-server-process-message-with-cont body type cont))
        `(PROCESSED ,result)))))
 
+(defun lean-server-async-task-queue-len ()
+  (length lean-global-async-task-queue))
+
+(defun lean-server-async-task-queue-push-back (cont)
+  (setq lean-global-async-task-queue (-snoc lean-global-async-task-queue cont)))
+
+(defun lean-server-async-task-queue-peek-front ()
+  (car lean-global-async-task-queue))
+
+(defun lean-server-async-task-queue-pop-front ()
+  (!cdr lean-global-async-task-queue))
+
 (defun lean-server-send-cmd-async (cmd &optional cont)
   "Send cmd to lean-server and attach continuation to the queue."
   (lean-server-debug "send-cmd-async: %S %S" (lean-cmd-type cmd) (cl-second cmd))
-  (lean-server-debug "send-cmd-async: queue len = %d" (length lean-global-async-task-queue))
+  (lean-server-debug "send-cmd-async: queue len = %d" (lean-server-async-task-queue-len))
   (lean-server-send-cmd cmd)
   (when cont
-    (setq lean-global-async-task-queue (-snoc lean-global-async-task-queue cont))
+    (lean-server-async-task-queue-push-back cont)
     (lean-server-debug "send-cmd-async: added to the queue = %S"
-                       (length lean-global-async-task-queue))
+                       (lean-server-async-task-queue-len))
     (lean-server-debug "send-cmd-async: call handler")
     (lean-server-set-timer-for-event-handler)))
 
 (defun lean-server-consume-all-async-tasks ()
+  (lean-server-debug "lean-server-consume-all-async-tasks")
   (while lean-global-async-task-queue
     (accept-process-output (lean-server-get-process) 0 50 t)
-    (let* ((cont  (car lean-global-async-task-queue))
+    (let* ((cont   (lean-server-async-task-queue-peek-front))
            (result (lean-server-check-and-process-buffer-with-cont cont)))
       (pcase result
         (`(PROCESSED ,ret)
-         (!cdr lean-global-async-task-queue))))))
+         (lean-server-async-task-queue-pop-front)
+         (lean-server-debug "lean-server-consume-all-sync-tasks: processed. queue size = %d"
+                            (lean-server-async-task-queue-len)))))))
 
 (defun lean-server-send-cmd-sync (cmd &optional cont)
   "Send cmd to lean-server (sync)."
@@ -416,11 +432,13 @@ If it's successful, take it out from the queue.
 Otherwise, set an idle-timer to call the handler again"
   (lean-server-cancel-retry-timer)
   (when (eq major-mode 'lean-mode)
-    (let* ((cont   (car lean-global-async-task-queue))
+    (let* ((cont   (lean-server-async-task-queue-peek-front))
            (result (lean-server-check-and-process-buffer-with-cont cont)))
       (pcase result
         (`(PROCESSED ,ret)
-         (!cdr lean-global-async-task-queue)
+         (lean-server-async-task-queue-pop-front)
+         (lean-server-debug "event-handler: processed. now the queue size = %d\n"
+                            (lean-server-async-task-queue-len))
          ret)))
     (if lean-global-async-task-queue (lean-server-set-timer-for-event-handler))))
 

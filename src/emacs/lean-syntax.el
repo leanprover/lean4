@@ -49,9 +49,7 @@
     st))
 
 (defconst lean-font-lock-defaults
-  `((;; Types
-     (,(rx symbol-start (or "bool" "int" "nat" "real" "Prop" "Type" "ℕ" "ℤ") symbol-end) . 'font-lock-type-face)
-     ;; Keywords
+  `((;; Keywords
      (,(rx symbol-start (or "calc" "have" "obtains" "show" "by" "in" "let" "forall" "fun"
                             "exists" "if" "then" "else" "assume" "take" "obtain" "from") symbol-end)
       . font-lock-keyword-face)
@@ -68,6 +66,22 @@
            (zero-or-more (or whitespace "(" "{" "["))
            (group (zero-or-more (not whitespace))))
       (2 'font-lock-function-name-face))
+     ;; namespace/section "name"
+     (,(rx symbol-start
+           (group (or "namespace" "section" "end"))
+           symbol-end
+           (zero-or-more whitespace)
+           (group (zero-or-more (not whitespace)))
+           (zero-or-more whitespace)
+           line-end)
+      (2 'font-lock-function-name-face))
+     ;; import "names"
+     (,(rx symbol-start
+           (group (or "import" "open"))
+           symbol-end
+           (group (zero-or-more any))
+           line-end)
+      (2 'font-lock-constant-face))
      ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
@@ -78,6 +92,8 @@
            (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "apply" "back" "beta" "done" "exact" "repeat")
            symbol-end)
       . 'font-lock-constant-face)
+     ;; Types
+     (,(rx symbol-start (or "bool" "int" "nat" "real" "Prop" "Type" "ℕ" "ℤ") symbol-end) . 'font-lock-type-face)
      ;; sorry
      (,(rx symbol-start "sorry" symbol-end) . 'font-lock-warning-face)
      ;; lean-keywords

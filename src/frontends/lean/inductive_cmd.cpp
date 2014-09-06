@@ -379,7 +379,7 @@ struct inductive_cmd_fn {
                                  [&](inductive_decl const & d) { return const_name(e) == inductive_decl_name(d); }))
                     return none_expr();
                 // found target
-                expr r = mk_app(mk_explicit(e), section_params);
+                expr r = mk_implicit(mk_app(mk_explicit(e), section_params));
                 return some_expr(r);
             });
     }
@@ -512,15 +512,16 @@ struct inductive_cmd_fn {
     }
 
     /** \brief Create an alias for the fully qualified name \c full_id. */
-    environment create_alias(environment env, bool composite, name const & full_id, levels const & section_leves, buffer<expr> const & section_params) {
+    environment create_alias(environment env, bool composite, name const & full_id, levels const & section_levels, buffer<expr> const & section_params) {
         name id;
         if (composite)
             id = name(name(full_id.get_prefix().get_string()), full_id.get_string());
         else
             id = name(full_id.get_string());
         if (in_section_or_context(env)) {
-            expr r = mk_explicit(mk_constant(full_id, section_leves));
+            expr r = mk_explicit(mk_constant(full_id, section_levels));
             r = mk_app(r, section_params);
+            r = mk_implicit(r);
             m_p.add_local_expr(id, r);
         }
         if (full_id != id)

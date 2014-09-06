@@ -489,6 +489,33 @@ void server::display_decl(name const & short_name, name const & long_name, envir
     out << short_name << "|" << mk_pair(flatten(out.get_formatter()(d.get_type())), o) << "\n";
 }
 
+optional<name> is_uniquely_aliased(environment const & env, name const & n) {
+    if (auto it = is_expr_aliased(env, n))
+        if (length(get_expr_aliases(env, *it)) == 1)
+            return it;
+    return optional<name>();
+}
+
+/** \brief Return an (atomic) name if \c n can be referenced by this atomic
+    name in the given environment. */
+optional<name> is_essentially_atomic(environment const & env, name const & n) {
+    if (n.is_atomic())
+        return optional<name>(n);
+    list<name> const & ns_list = get_namespaces(env);
+    for (name const & ns : ns_list) {
+        if (is_prefix_of(ns, n)) {
+            auto n_prime = n.replace_prefix(ns, name());
+            if (n_prime.is_atomic())
+                return optional<name>(n_prime);
+            break;
+        }
+    }
+    if (auto it = is_uniquely_aliased(env, n))
+        if (it->is_atomic())
+            return it;
+    return optional<name>();
+}
+
 void server::display_decl(name const & d, environment const & env, options const & o) {
     // using namespace override resolution rule
     list<name> const & ns_list = get_namespaces(env);
@@ -499,11 +526,8 @@ void server::display_decl(name const & d, environment const & env, options const
         }
     }
     // if the alias is unique use it
-    if (auto it = is_expr_aliased(env, d)) {
-        if (length(get_expr_aliases(env, *it)) == 1)
-            display_decl(*it, d, env, o);
-        else
-            display_decl(d, d, env, o);
+    if (auto it = is_uniquely_aliased(env, d)) {
+        display_decl(*it, d, env, o);
     } else {
         display_decl(d, d, env, o);
     }
@@ -546,6 +570,14 @@ void server::find_pattern(unsigned line_num, std::string const & pattern) {
     bitap_fuzzy_search matcher(pattern, max_errors);
     env.for_each_declaration([&](declaration const & d) {
             std::string text = d.get_name().to_string();
+            if (auto it = is_essentially_atomic(env, d.get_name())) {
+                std::string it_str = it->to_string();
+                // if pattern "perfectly" matches beginning of declaration name, we just display d on the top of the list
+                if (it_str.compare(0, pattern.size(), pattern) == 0) {
+                    display_decl(*it, d.get_name(), env, opts);
+                    return;
+                }
+            }
             if (matcher.match(text))
                 selected.emplace_back(text, d.get_name());
         });

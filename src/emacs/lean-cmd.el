@@ -53,11 +53,11 @@ the total number of lines in the lean buffer, then the command is
 ignored."
   `(REMOVE ,line-number))
 
-(defun lean-cmd-info (line-number)
+(defun lean-cmd-info (line-number &optional column-number)
   "Extracts typing information associated with line [line-number].
 
 Lean produces a possible empty sequence of entries terminated with '--ENDINFO'"
-  `(INFO ,line-number))
+  `(INFO ,line-number ,column-number))
 
 (defun lean-cmd-check (line-number line)
   "Check whether the text editor and Lean have the 'same view' of the current file + modifications"
@@ -120,6 +120,8 @@ It has the effect of evaluating a command in the end of the current file"
   (cl-second remove-cmd))
 (defun lean-cmd-info-get-line-number (info-cmd)
   (cl-second info-cmd))
+(defun lean-cmd-info-get-column-number (info-cmd)
+  (cl-third info-cmd))
 (defun lean-cmd-check-get-line-number (check-cmd)
   (cl-second check-cmd))
 (defun lean-cmd-check-get-line (check-cmd)
@@ -168,6 +170,8 @@ It has the effect of evaluating a command in the end of the current file"
               34))
 (cl-assert (= (lean-cmd-info-get-line-number (lean-cmd-info 34))
               34))
+(cl-assert (= (lean-cmd-info-get-column-number (lean-cmd-info 34 11))
+              11))
 (cl-assert (= (lean-cmd-check-get-line-number
                (lean-cmd-check 34 "∀ (n : nat), ne (succ n) zero"))
               34))
@@ -211,7 +215,10 @@ It has the effect of evaluating a command in the end of the current file"
   (format "REMOVE %d" (lean-cmd-remove-get-line-number cmd)))
 (defun lean-cmd-info-to-string (cmd)
   "Convert Info command to string"
-  (format "INFO %d" (lean-cmd-info-get-line-number cmd)))
+  (let ((col (lean-cmd-info-get-column-number cmd)))
+    (if col
+        (format "INFO %d %d" (lean-cmd-info-get-line-number cmd) col)
+      (format "INFO %d" (lean-cmd-info-get-line-number cmd)))))
 (defun lean-cmd-check-to-string (cmd)
   "Convert Check command to string"
   (format "CHECK %d\n%s" (lean-cmd-check-get-line-number cmd)
@@ -272,6 +279,8 @@ It has the effect of evaluating a command in the end of the current file"
                     (concat "REMOVE 42")))
 (cl-assert (string= (lean-cmd-to-string (lean-cmd-info 42))
                     (concat "INFO 42")))
+(cl-assert (string= (lean-cmd-to-string (lean-cmd-info 42 11))
+                    (concat "INFO 42 11")))
 (cl-assert (string= (lean-cmd-to-string (lean-cmd-check 42 "∀ (n : nat), ne (succ n) zero"))
                     (concat "CHECK 42" "\n" "∀ (n : nat), ne (succ n) zero")))
 (cl-assert (string= (lean-cmd-to-string (lean-cmd-findp 42 "iff_"))

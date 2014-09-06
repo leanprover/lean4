@@ -35,6 +35,7 @@ triggers a completion immediately."
   (let ((line-number (line-number-at-pos)))
     (lean-server-send-cmd-sync (lean-cmd-findp line-number prefix)
                                (lambda (candidates)
+                                 (lean-server-debug "executing continuation for FINDP")
                                  (-map 'company-lean--make-candidate candidates)))))
 
 (defun company-lean--location (arg)
@@ -71,5 +72,10 @@ triggers a completion immediately."
     (annotation (company-lean--annotation arg))
     (location (company-lean--location arg))
     (sorted t)))
+
+(defadvice company--window-width
+  (after lean-company--window-width activate)
+  (when (eq major-mode 'lean-mode)
+    (setq ad-return-value (truncate (* 0.95 (window-body-width))))))
 
 (provide 'lean-company)

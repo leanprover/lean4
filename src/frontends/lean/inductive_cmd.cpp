@@ -259,7 +259,7 @@ struct inductive_cmd_fn {
     */
     void add_params_to_local_scope(expr d_type, buffer<expr> & params) {
         for (unsigned i = 0; i < m_num_params; i++) {
-            expr l = mk_local_for(d_type);
+            expr l = mk_local(m_p.mk_fresh_name(), binding_name(d_type), mk_as_is(binding_domain(d_type)), binding_info(d_type));
             m_p.add_local(l);
             params.push_back(l);
             d_type = instantiate(binding_body(d_type), l);

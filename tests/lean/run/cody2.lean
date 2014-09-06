@@ -2,7 +2,7 @@ import logic
 open eq
 abbreviation subsets (P : Type) := P → Prop.
 
-section
+context
 
 hypothesis A : Type.
 

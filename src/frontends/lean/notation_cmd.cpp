@@ -7,7 +7,11 @@ Author: Leonardo de Moura
 #include <utility>
 #include <limits>
 #include <string>
+#include "util/sstream.h"
 #include "kernel/abstract.h"
+#include "kernel/replace_fn.h"
+#include "library/scoped_ext.h"
+#include "library/explicit.h"
 #include "frontends/lean/parser.h"
 
 namespace lean {
@@ -69,6 +73,54 @@ environment precedence_cmd(parser & p) {
     return add_token(p.env(), tk.c_str(), prec);
 }
 
+/** \brief Auxiliary function for #cleanup_section_notation. */
+expr cleanup_section_notation_core(parser & p, expr const & e) {
+    if (is_implicit(e)) {
+        return cleanup_section_notation_core(p, get_implicit_arg(e));
+    } else if (is_explicit(e)) {
+        return cleanup_section_notation_core(p, get_explicit_arg(e));
+    } else if (is_app(e)) {
+        buffer<expr> args;
+        expr const & f = get_app_args(e, args);
+        for (expr arg : args) {
+            if (!is_explicit(arg))
+                throw parser_error("unexpected expression in (section) notation", p.pos_of(arg));
+            arg = get_explicit_arg(arg);
+            if (!is_local(arg))
+                throw parser_error("unexpected expression in (section) notation", p.pos_of(arg));
+            binder_info bi = local_info(arg);
+            if (!bi.is_strict_implicit() && !bi.is_implicit())
+                throw parser_error(sstream() << "invalid occurrence of local parameter '" << local_pp_name(arg)
+                                   << "' in (section) notation that is not implicit", p.pos_of(e));
+        }
+        return cleanup_section_notation_core(p, f);
+    } else if (is_constant(e)) {
+        return p.save_pos(mk_constant(const_name(e)), p.pos_of(e));
+    } else if (is_local(e)) {
+        throw parser_error(sstream() << "invalid occurrence of local parameter '" << local_pp_name(e)
+                           << "' in (section) notation", p.pos_of(e));
+    } else {
+        throw parser_error("unexpected expression in (section) notation", p.pos_of(e));
+    }
+}
+
+/** \brief Replace reference to implicit section local constants and universes with placeholders.
+
+    \remark Throws an exception if \c e contains a local constant that is not implicit.
+*/
+expr cleanup_section_notation(parser & p, expr const & e) {
+    if (!in_section(p.env()))
+        return e;
+    return replace(e, [&](expr const & e) {
+            if (is_local(e))
+                throw parser_error(sstream() << "invalid occurrence of local parameter '" << local_pp_name(e)
+                                   << "' in (section) notation", p.pos_of(e));
+            if (is_implicit(e))
+                return some_expr(cleanup_section_notation_core(p, e));
+            return none_expr();
+        });
+}
+
 enum class mixfix_kind { infixl, infixr, postfix, prefix };
 
 using notation::mk_expr_action;
@@ -102,7 +154,7 @@ static pair<notation_entry, optional<token_entry>> parse_mixfix_notation(parser 
     if (k == mixfix_kind::infixr && *prec == 0)
         throw parser_error("invalid infixr declaration, precedence must be greater than zero", p.pos());
     p.check_token_next(g_assign, "invalid notation declaration, ':=' expected");
-    expr f = p.parse_expr();
+    expr f = cleanup_section_notation(p, p.parse_expr());
     char const * tks = tk.c_str();
     switch (k) {
     case mixfix_kind::infixl:
@@ -166,7 +218,7 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
 
 static expr parse_notation_expr(parser & p, buffer<expr> const & locals) {
     expr r = p.parse_expr();
-    return abstract(r, locals.size(), locals.data());
+    return cleanup_section_notation(p, abstract(r, locals.size(), locals.data()));
 }
 
 static expr g_local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant

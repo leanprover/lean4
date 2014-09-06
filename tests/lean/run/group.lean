@@ -1,6 +1,6 @@
 import logic
 
-section
+context
   parameter {A  : Type}
   parameter f   : A → A → A
   parameter one : A

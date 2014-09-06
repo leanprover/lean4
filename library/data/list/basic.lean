@@ -276,10 +276,5 @@ nat.rec (λl, head x l) (λm f l, f (tail l)) n l
 theorem nth_zero {x : T} {l : list T} : nth x l 0 = head x l
 
 theorem nth_succ {x : T} {l : list T} {n : ℕ} : nth x l (succ n) = nth x (tail l) n
-
 end
-
--- declare global notation outside the section
-infixl `++` := concat
-
 end list

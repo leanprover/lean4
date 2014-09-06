@@ -1,5 +1,5 @@
 definition Prop [inline] : Type.{1} := Type.{0}
-section
+context
   variable N : Type.{1}
   variables a b c : N
   variable and : Prop → Prop → Prop

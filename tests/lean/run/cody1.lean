@@ -2,7 +2,7 @@ import logic
 
 abbreviation subsets (P : Type) := P → Prop.
 
-section
+context
 
 hypothesis A : Type.
 

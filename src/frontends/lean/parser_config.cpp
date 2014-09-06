@@ -54,8 +54,8 @@ struct token_config {
     }
 };
 
-template class scoped_ext<token_config, true>;
-typedef scoped_ext<token_config, true> token_ext;
+template class scoped_ext<token_config>;
+typedef scoped_ext<token_config> token_ext;
 
 environment add_token(environment const & env, token_entry const & e) {
     return token_ext::add_entry(env, get_dummy_ios(), e);
@@ -188,8 +188,8 @@ struct notation_config {
     }
 };
 
-template class scoped_ext<notation_config, true>;
-typedef scoped_ext<notation_config, true> notation_ext;
+template class scoped_ext<notation_config>;
+typedef scoped_ext<notation_config> notation_ext;
 
 environment add_notation(environment const & env, notation_entry const & e) {
     return notation_ext::add_entry(env, get_dummy_ios(), e);

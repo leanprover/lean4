@@ -38,6 +38,7 @@ name const & get_namespace(environment const & env);
 list<name> const & get_namespaces(environment const & env);
 bool in_section_or_context(environment const & env);
 bool in_context(environment const & env);
+inline bool in_section(environment const & env) { return in_section_or_context(env) && !in_context(env); }
 
 /** \brief Check if \c n may be a reference to a namespace, if it is return it.
     The procedure checks if \c n is a registered namespace, if it is not, it tries

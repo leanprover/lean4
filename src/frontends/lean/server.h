@@ -82,6 +82,7 @@ class server {
     void eval_core(environment const & env, options const & o, std::string const & line);
     void eval(std::string const & line);
     void display_decl(name const & short_name, name const & long_name, environment const & env, options const & o);
+    void display_decl(name const & long_name, environment const & env, options const & o);
     void find_pattern(unsigned line_num, std::string const & pattern);
     unsigned find(unsigned line_num);
     void read_line(std::istream & in, std::string & line);

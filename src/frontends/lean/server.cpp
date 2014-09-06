@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include <string>
 #include <functional>
 #include <limits>
+#include <algorithm>
+#include <vector>
 #include "util/sstream.h"
 #include "util/exception.h"
 #include "util/sexpr/option_declarations.h"
@@ -487,6 +489,26 @@ void server::display_decl(name const & short_name, name const & long_name, envir
     out << short_name << "|" << mk_pair(flatten(out.get_formatter()(d.get_type())), o) << "\n";
 }
 
+void server::display_decl(name const & d, environment const & env, options const & o) {
+    // using namespace override resolution rule
+    list<name> const & ns_list = get_namespaces(env);
+    for (name const & ns : ns_list) {
+        if (is_prefix_of(ns, d)) {
+            display_decl(d.replace_prefix(ns, name()), d, env, o);
+            return;
+        }
+    }
+    // if the alias is unique use it
+    if (auto it = is_expr_aliased(env, d)) {
+        if (length(get_expr_aliases(env, *it)) == 1)
+            display_decl(*it, d, env, o);
+        else
+            display_decl(d, d, env, o);
+    } else {
+        display_decl(d, d, env, o);
+    }
+}
+
 #define LEAN_FUZZY_MAX_ERRORS 4
 #define LEAN_FUZZY_MAX_ERRORS_FACTOR 3
 
@@ -514,40 +536,31 @@ void server::find_pattern(unsigned line_num, std::string const & pattern) {
     opts = join(opts, m_ios.get_options());
     m_out << std::endl;
     unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
+    std::vector<pair<std::string, name>> selected;
     bitap_fuzzy_search matcher(pattern, max_errors);
-    name_set already_added;
-    for_each_expr_alias(env, [&](name const & n, list<name> const & ds) {
-            if (matcher.match(n.to_string())) {
-                unsigned num = length(ds);
-                if (num == 1) {
-                    display_decl(n, head(ds), env, opts);
-                    already_added.insert(car(ds));
-                } else if (num > 1) {
-                    m_out << n << "\n";
-                    for (name const & d : ds) {
-                        display_decl(d, d, env, opts);
-                        already_added.insert(d);
-                    }
-                }
-            }
-        });
-    list<name> const & ns_list = get_namespaces(env);
     env.for_each_declaration([&](declaration const & d) {
-            if (!already_added.contains(d.get_name()) &&
-                matcher.match(d.get_name().to_string())) {
-                bool found = false;
-                name n = d.get_name();
-                for (name const & ns : ns_list) {
-                    if (is_prefix_of(ns, n)) {
-                        display_decl(n.replace_prefix(ns, name()), n, env, opts);
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                    display_decl(n, n, env, opts);
-            }
+            std::string text = d.get_name().to_string();
+            if (matcher.match(text))
+                selected.emplace_back(text, d.get_name());
         });
+    unsigned sz = selected.size();
+    if (sz == 1) {
+        display_decl(selected[0].second, env, opts);
+    } else if (sz > 1) {
+        std::vector<pair<std::string, name>> next_selected;
+        for (unsigned k = 0; k <= max_errors; k++) {
+            bitap_fuzzy_search matcher(pattern, k);
+            for (auto const & s : selected) {
+                if (matcher.match(s.first)) {
+                    display_decl(s.second, env, opts);
+                } else {
+                    next_selected.push_back(s);
+                }
+            }
+            std::swap(selected, next_selected);
+            next_selected.clear();
+        }
+    }
     m_out << "-- ENDFINDP" << std::endl;
 }
 

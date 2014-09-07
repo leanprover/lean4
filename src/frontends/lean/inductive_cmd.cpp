@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/opaque_hints.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/class.h"
 #include "frontends/lean/parser.h"
 
 namespace lean {
@@ -31,6 +32,7 @@ static name g_colon(":");
 static name g_comma(",");
 static name g_lcurly("{");
 static name g_rcurly("}");
+static name g_class("[class]");
 
 using inductive::intro_rule;
 using inductive::inductive_decl;
@@ -60,6 +62,21 @@ static name g_recursor("recursor");
 
 struct inductive_cmd_fn {
     typedef std::unique_ptr<type_checker> type_checker_ptr;
+    struct modifiers {
+        bool m_is_class;
+        modifiers():m_is_class(false) {}
+        void parse(parser & p) {
+            while (true) {
+                if (p.curr_is_token(g_class)) {
+                    m_is_class = true;
+                    p.next();
+                } else {
+                    break;
+                }
+            }
+        }
+    };
+
     parser &         m_p;
     environment      m_env;
     type_checker_ptr m_tc;
@@ -73,8 +90,10 @@ struct inductive_cmd_fn {
     level            m_u; // temporary auxiliary global universe used for inferring the result universe of an inductive datatype declaration.
     bool             m_infer_result_universe;
     name_set         m_relaxed_implicit_infer; // set of introduction rules where we do not use strict implicit parameter infererence
+    name_map<modifiers> m_modifiers;
     typedef std::tuple<name, name, pos_info> decl_info;
     buffer<decl_info> m_decl_info; // auxiliary buffer used to populate declaration_index
+
 
     inductive_cmd_fn(parser & p):m_p(p) {
         m_env   = p.env();
@@ -299,6 +318,9 @@ struct inductive_cmd_fn {
             parser::local_scope l_scope(m_p);
             name d_name = parse_inductive_decl_name();
             parse_inductive_univ_params();
+            modifiers mods;
+            mods.parse(m_p);
+            m_modifiers.insert(d_name, mods);
             expr d_type = parse_datatype_type();
             bool empty_type = true;
             if (m_p.curr_is_token(g_assign)) {
@@ -578,6 +600,14 @@ struct inductive_cmd_fn {
         }
     }
 
+    environment apply_modifiers(environment env) {
+        m_modifiers.for_each([&](name const & n, modifiers const & m) {
+                if (m.m_is_class)
+                    env = add_class(env, n);
+            });
+        return env;
+    }
+
     environment operator()() {
         parser::no_undef_id_error_scope err_scope(m_p);
         buffer<inductive_decl> decls;
@@ -598,7 +628,8 @@ struct inductive_cmd_fn {
         level_param_names ls = to_list(m_levels.begin(), m_levels.end());
         environment env = module::add_inductive(m_p.env(), ls, m_num_params, to_list(decls.begin(), decls.end()));
         update_declaration_index(env);
-        return add_aliases(env, ls, section_params, decls);
+        env = add_aliases(env, ls, section_params, decls);
+        return apply_modifiers(env);
     }
 };
 

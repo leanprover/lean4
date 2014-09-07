@@ -7,7 +7,7 @@ import logic.core.eq logic.core.connectives
 import data.unit data.sigma data.prod
 import struc.function
 
-inductive category (ob : Type) (mor : ob → ob → Type) : Type :=
+inductive category [class] (ob : Type) (mor : ob → ob → Type) : Type :=
 mk : Π (comp : Π⦃A B C : ob⦄, mor B C → mor A B → mor A C)
            (id : Π {A : ob}, mor A A),
             (Π {A B C D : ob} {f : mor A B} {g : mor B C} {h : mor C D},
@@ -15,7 +15,6 @@ mk : Π (comp : Π⦃A B C : ob⦄, mor B C → mor A B → mor A C)
            (Π {A B : ob} {f : mor A B}, comp f id = f) →
            (Π {A B : ob} {f : mor A B}, comp id f = f) →
             category ob mor
-class category
 
 namespace category
   precedence `∘` : 60

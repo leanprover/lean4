@@ -640,7 +640,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
          (line-number   (line-number-at-pos))
          (column-number (current-column))
          (cur-char      (char-after (point)))
-         (cmd           (cond ((char-equal cur-char ?\()
+         (cmd           (cond ((and cur-char (char-equal cur-char ?\())
                                (lean-cmd-info line-number column-number))
                               ;; TODO(soonhok): give information on '('
                               ;; ((char-equal cur-char ?\))

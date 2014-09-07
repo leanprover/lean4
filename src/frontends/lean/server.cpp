@@ -498,13 +498,14 @@ void server::display_decl(name const & short_name, name const & long_name, envir
     io_state_stream out   = regular(env, m_ios).update_options(o);
     expr type = d.get_type();
     if (LEAN_FIND_CONSUME_IMPLICIT) {
-        name_generator ngen("M");
         while (true) {
             if (!is_pi(type))
                 break;
             if (!binding_info(type).is_implicit())
                 break;
-            expr m = mk_metavar(ngen.next(), binding_domain(type));
+            std::string q("?");
+            q += binding_name(type).to_string();
+            expr m = mk_constant(name(q.c_str()));
             type   = instantiate(binding_body(type), m);
         }
     }

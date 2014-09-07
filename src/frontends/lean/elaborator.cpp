@@ -1248,16 +1248,14 @@ public:
             } else {
                 r = visit_core(e, cs);
             }
-            if (!is_lambda(r)) {
-                tag  g         = e.get_tag();
-                expr r_type    = whnf(infer_type(r, cs), cs);
-                expr imp_arg;
-                bool is_strict = false;
-                while (is_pi(r_type) && binding_info(r_type).is_implicit()) {
-                    imp_arg = mk_placeholder_meta(some_expr(binding_domain(r_type)), g, is_strict, cs);
-                    r       = mk_app(r, imp_arg, g);
-                    r_type  = whnf(instantiate(binding_body(r_type), imp_arg), cs);
-                }
+            tag  g         = e.get_tag();
+            expr r_type    = whnf(infer_type(r, cs), cs);
+            expr imp_arg;
+            bool is_strict = false;
+            while (is_pi(r_type) && binding_info(r_type).is_implicit()) {
+                imp_arg = mk_placeholder_meta(some_expr(binding_domain(r_type)), g, is_strict, cs);
+                r       = mk_app(r, imp_arg, g);
+                r_type  = whnf(instantiate(binding_body(r_type), imp_arg), cs);
             }
         }
         save_type_data(b, r);

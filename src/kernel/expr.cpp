@@ -553,6 +553,10 @@ expr update_local(expr const & e, expr const & new_type, binder_info const & bi)
         return copy_tag(e, mk_local(mlocal_name(e), local_pp_name(e), new_type, bi));
 }
 
+expr update_local(expr const & e, binder_info const & bi) {
+    return update_local(e, mlocal_type(e), bi);
+}
+
 expr update_sort(expr const & e, level const & new_level) {
     if (!is_eqp(sort_level(e), new_level))
         return copy_tag(e, mk_sort(new_level));

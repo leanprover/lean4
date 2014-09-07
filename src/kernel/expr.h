@@ -676,6 +676,7 @@ expr update_binding(expr const & e, expr const & new_domain, expr const & new_bo
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body, binder_info const & bi);
 expr update_mlocal(expr const & e, expr const & new_type);
 expr update_local(expr const & e, expr const & new_type, binder_info const & bi);
+expr update_local(expr const & e, binder_info const & bi);
 expr update_sort(expr const & e, level const & new_level);
 expr update_constant(expr const & e, levels const & new_levels);
 expr update_macro(expr const & e, unsigned num, expr const * args);

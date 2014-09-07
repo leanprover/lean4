@@ -202,6 +202,11 @@ static void check_end_of_theorem(parser const & p) {
         throw parser_error("':=', '.', command, script, or end-of-file expected", p.pos());
 }
 
+static void erase_local_binder_info(buffer<expr> & ps) {
+    for (expr & p : ps)
+        p = update_local(p, binder_info());
+}
+
 environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     auto n_pos = p.pos();
     unsigned start_line = n_pos.first;
@@ -260,6 +265,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
                 value = p.parse_scoped_expr(ps, *lenv);
             }
             type  = Pi(ps, type, p);
+            erase_local_binder_info(ps);
             value = Fun(ps, value, p);
         }
 
@@ -285,7 +291,10 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
         buffer<expr> section_ps;
         collect_section_locals(type, value, p, section_ps);
         type = Pi_as_is(section_ps, type, p);
-        value = Fun_as_is(section_ps, value, p);
+        buffer<expr> section_value_ps;
+        section_value_ps.append(section_ps);
+        erase_local_binder_info(section_value_ps);
+        value = Fun_as_is(section_value_ps, value, p);
         levels section_ls = collect_section_levels(ls, p);
         for (expr & p : section_ps)
             p = mk_explicit(p);

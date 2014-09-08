@@ -60,6 +60,10 @@
   "lean-flychecker checker option"
   :group 'lean)
 
+(defcustom lean-show-only-type-in-parens t
+  "Show only types of expression in parens if non-nil. Otherwise,
+show both of expressions and types.")
+
 (defcustom lean-delete-trailing-whitespace nil
   "Set this variable to true to automatically delete trailing
 whitespace when a buffer is loaded from a file or when it is

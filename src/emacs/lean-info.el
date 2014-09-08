@@ -588,9 +588,10 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
              ", ")))
     (when extra
       (setq str
-            (format "(%s) : %s"
-                    (propertize (lean-info-extra-expr-str extra) 'face 'font-lock-variable-name-face)
-                    (lean-info-extra-type-str extra))))
+            (cond (lean-show-only-type-in-parens (format ": %s" (lean-info-extra-type-str extra)))
+                  (t (format "(%s) : %s"
+                             (propertize (lean-info-extra-expr-str extra) 'face 'font-lock-variable-name-face)
+                             (lean-info-extra-type-str extra))))))
     (when (and name-str type-str)
       (setq str (format "%s : %s"
                         (propertize name-str 'face 'font-lock-variable-name-face)

@@ -563,6 +563,20 @@ unsigned get_fuzzy_match_max_errors(unsigned prefix_sz) {
     return r;
 }
 
+optional<name> exact_prefix_match(environment const & env, std::string const & pattern, declaration const & d) {
+    if (auto it = is_essentially_atomic(env, d.get_name())) {
+        std::string it_str = it->to_string();
+        // if pattern "perfectly" matches beginning of declaration name, we just display d on the top of the list
+        if (it_str.compare(0, pattern.size(), pattern) == 0)
+            return it;
+    } else {
+        std::string d_str = d.get_name().to_string();
+        if (d_str.compare(0, pattern.size(), pattern) == 0)
+            return optional<name>(d.get_name());
+    }
+    return optional<name>();
+}
+
 void server::find_pattern(unsigned line_num, std::string const & pattern) {
     check_file();
     m_out << "-- BEGINFINDP";
@@ -589,17 +603,13 @@ void server::find_pattern(unsigned line_num, std::string const & pattern) {
     std::vector<pair<std::string, name>> selected;
     bitap_fuzzy_search matcher(pattern, max_errors);
     env.for_each_declaration([&](declaration const & d) {
-            std::string text = d.get_name().to_string();
-            if (auto it = is_essentially_atomic(env, d.get_name())) {
-                std::string it_str = it->to_string();
-                // if pattern "perfectly" matches beginning of declaration name, we just display d on the top of the list
-                if (it_str.compare(0, pattern.size(), pattern) == 0) {
-                    display_decl(*it, d.get_name(), env, opts);
-                    return;
-                }
+            if (auto it = exact_prefix_match(env, pattern, d)) {
+                display_decl(*it, d.get_name(), env, opts);
+            } else {
+                std::string text = d.get_name().to_string();
+                if (matcher.match(text))
+                    selected.emplace_back(text, d.get_name());
             }
-            if (matcher.match(text))
-                selected.emplace_back(text, d.get_name());
         });
     unsigned sz = selected.size();
     if (sz == 1) {

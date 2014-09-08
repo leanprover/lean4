@@ -14,7 +14,7 @@
 (defun company-lean-hook ()
   (set (make-local-variable 'company-backends) '(company-lean))
   (setq-local company-tooltip-limit 20)                      ; bigger popup window
-  (setq-local company-idle-delay .3)                         ; decrease delay before autocompletion popup shows
+  (setq-local company-idle-delay nil)                         ; decrease delay before autocompletion popup shows
   (setq-local company-echo-delay 0)                          ; remove annoying blinking
   (setq-local company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
   (company-mode t))

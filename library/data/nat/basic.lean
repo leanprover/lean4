@@ -8,6 +8,7 @@
 -- Basic operations on the natural numbers.
 
 import logic data.num tools.tactic struc.binary tools.helper_tactics
+import logic.classes.inhabited
 
 open tactic binary eq_ops
 open decidable (hiding induction_on rec_on)
@@ -36,6 +37,8 @@ nat.rec H1 H2 a
 definition rec_on [protected] {P : ℕ → Type} (n : ℕ) (H1 : P zero) (H2 : ∀m, P m → P (succ m)) : P n :=
 nat.rec H1 H2 n
 
+theorem is_inhabited [protected] [instance] : inhabited nat :=
+inhabited.mk zero
 
 -- Coercion from num
 -- -----------------

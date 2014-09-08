@@ -84,8 +84,80 @@ triggers a completion immediately."
     (sorted t)))
 
 (defadvice company--window-width
-  (after lean-company--window-width activate)
+    (after lean-company--window-width activate)
   (when (eq major-mode 'lean-mode)
     (setq ad-return-value (truncate (* 0.95 (window-body-width))))))
 
+(defun replace-regex-return-position (regex rep string &optional start)
+  "Find regex and replace with rep on string.
+
+Return replaced string and start and end positions of replacement."
+  (let* ((start   (or start 0))
+         (len     (length string))
+         (m-start (string-match regex string start))
+         (m-end   (match-end 0))
+         pre-string post-string matched-string replaced-string result)
+    (cond (m-start
+           (setq pre-string     (substring string 0 m-start))
+           (setq matched-string (substring string m-start m-end))
+           (setq post-string    (substring string m-end))
+           (string-match regex matched-string)
+           (setq replaced-string
+                 (replace-match rep nil nil matched-string))
+           (setq result (concat pre-string
+                                replaced-string
+                                post-string))
+           `(,result ,m-start ,(+ m-start (length replaced-string)))
+           ))))
+
+(defun replace-regex-add-properties-all (regex rep string properties)
+  "Find all occurrences of regex in string, and replace them with
+rep. Then, add text-properties on the replaced region."
+  (let ((replace-result-items (replace-regex-return-position regex rep string))
+        (result string))
+    (while replace-result-items
+      (pcase replace-result-items
+        (`(,replaced-string ,m-start ,m-end)
+         (setq result replaced-string)
+         (add-text-properties m-start m-end properties result)
+         (setq replace-result-items
+               (replace-regex-return-position regex rep result m-end)))))
+    result))
+
+(defface company-tooltip-annotation-type
+  `((default
+      :foreground  ,(face-foreground 'font-lock-keyword-face)
+      :background  ,(face-background 'company-tooltip)))
+  "Face used for the types in annotation of the auto-completion tooltip.")
+
+(defface company-tooltip-annotation-type-selection
+  `((default
+      :foreground  ,(face-foreground 'font-lock-keyword-face)
+      :background  ,(face-background 'company-tooltip-selection)))
+  "Face used for the types in annotation of the auto-completion tooltip (selected)")
+
+(defadvice company-fill-propertize
+  (after lean-company-fill-propertize activate)
+  (when (eq major-mode 'lean-mode)
+    (let* ((selected (ad-get-arg 3))
+           (properties (if selected
+                           '(face company-tooltip-annotation-type-selection
+                                  mouse-face company-tooltip)
+                         '(face company-tooltip-annotation-type
+                                mouse-face company-tooltip)))
+           (old-return ad-return-value)
+           (old-len    (length old-return))
+           new-return new-len)
+      (setq new-return
+            (replace-regex-add-properties-all
+             (rx "?" word-start (group (+ (not white))) word-end)
+             "\\1"
+             ad-return-value
+             properties))
+      (setq new-len (length new-return))
+      (while (< (length new-return) old-len)
+        (setq new-return
+              (concat new-return " ")))
+      (add-text-properties new-len old-len properties new-return)
+      (setq ad-return-value new-return))))
 (provide 'lean-company)

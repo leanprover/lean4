@@ -28,7 +28,7 @@ void check_has_no_local(expr const & v, expr const & e, char const * tac_name) {
                 if (is_local(l))
                     throw tactic_exception(e, sstream() << "tactic '" << tac_name << "' contains reference to local '" << local_pp_name(l)
                                            << "' which is not visible by this tactic "
-                                           << "possible causes: it was not marked as [fact]; it was destructued");
+                                           << "possible causes: it was not marked as [visible]; it was destructued");
                 return has_local(l);
             });
     }

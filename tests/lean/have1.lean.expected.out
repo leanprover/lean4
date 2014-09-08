@@ -1,7 +1,7 @@
-have e1 [fact] : eq a b, from H1,
+have e1 [visible] : eq a b, from H1,
 have e2 : eq a c, from trans e1 H2,
 have e3 : eq c a, from symm e2,
-have e4 [fact] : eq b a, from symm e1,
+have e4 [visible] : eq b a, from symm e1,
 have e5 : eq b c, from trans e4 e2,
 have e6 : eq a a, from
   trans H1 (trans H2 (trans (symm H2) (trans (symm H1) (trans H1 (trans H2 (trans (symm H2) (symm H1))))))),

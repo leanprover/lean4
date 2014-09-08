@@ -70,7 +70,7 @@
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; modifiers
-     (,(rx (or "\[notation\]" "\[protected\]" "\[private\]" "\[instance\]" "\[class\]" "\[coercion\]" "\[inline\]")) . 'font-lock-doc-face)
+     (,(rx (or "\[notation\]" "\[visible\]" "\[protected\]" "\[private\]" "\[instance\]" "\[class\]" "\[coercion\]" "\[inline\]")) . 'font-lock-doc-face)
      ;; tactics
      (,(rx symbol-start
            (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "apply" "back" "beta" "done" "exact" "repeat")

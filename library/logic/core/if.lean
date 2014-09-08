@@ -53,5 +53,5 @@ Ht ▸ He ▸ (if_cond_congr Hc t₁ e₁)
 
 theorem if_congr {c₁ c₂ : Prop} {H₁ : decidable c₁} {A : Type} {t₁ t₂ e₁ e₂ : A} (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂) (He : e₁ = e₂) :
                  (if c₁ then t₁ else e₁) = (@ite c₂ (decidable_iff_equiv H₁ Hc) A t₂ e₂) :=
-have H2 [fact] : decidable c₂, from (decidable_iff_equiv H₁ Hc),
+have H2 [visible] : decidable c₂, from (decidable_iff_equiv H₁ Hc),
 if_congr_aux Hc Ht He

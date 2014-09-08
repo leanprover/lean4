@@ -43,7 +43,7 @@ static format g_in_fmt          = highlight_keyword(format("in"));
 static format g_assign_fmt      = highlight_keyword(format(":="));
 static format g_have_fmt        = highlight_keyword(format("have"));
 static format g_from_fmt        = highlight_keyword(format("from"));
-static format g_fact_fmt        = highlight_keyword(format("[fact]"));
+static format g_visible_fmt     = highlight_keyword(format("[visible]"));
 static format g_show_fmt        = highlight_keyword(format("show"));
 static format g_explicit_fmt    = highlight_keyword(format("@"));
 
@@ -362,7 +362,7 @@ auto pretty_fn::pp_have(expr const & e) -> result {
     format body_fmt  = pp_child(body, 0).first;
     format r = g_have_fmt + space() + format(n) + space();
     if (binding_info(binding).is_contextual())
-        r += compose(g_fact_fmt, space());
+        r += compose(g_visible_fmt, space());
     r += colon() + nest(m_indent, line() + type_fmt + comma() + space() + g_from_fmt);
     r = group(r);
     r += nest(m_indent, line() + proof_fmt + comma());

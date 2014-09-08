@@ -68,7 +68,7 @@ definition dirprodf {X : Type} {Y : Type} {X' : Type} {Y' : Type} (f : X → Y) 
 := dirprodpair (f (pr1 xx')) (f' (pr2 xx'))
 definition ddualand {X : Type} {Y : Type} {P : Type} (xp : (X → P) → P) (yp : (Y → P) → P) : (dirprod X Y → P) → P
 := λ X0,
-   let int1 [fact] := λ (ypp : (Y → P) → P) (x : X), yp (λ y : Y, X0 (dirprodpair x y)) in
+   let int1 := λ (ypp : (Y → P) → P) (x : X), yp (λ y : Y, X0 (dirprodpair x y)) in
    xp (int1 yp)
 
 definition neg (X : Type) : Type := X → empty

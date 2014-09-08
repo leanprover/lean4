@@ -25,7 +25,7 @@ Author: Leonardo de Moura
 namespace lean {
 namespace notation {
 static name g_llevel_curly(".{"), g_rcurly("}"), g_in("in"), g_colon(":"), g_assign(":=");
-static name g_comma(","), g_fact("[fact]"), g_from("from"), g_using("using");
+static name g_comma(","), g_visible("[visible]"), g_from("from"), g_using("using");
 static name g_then("then"), g_have("have"), g_by("by"), g_qed("qed"), g_end("end");
 static name g_take("take"), g_assume("assume"), g_show("show"), g_fun("fun");
 
@@ -57,10 +57,10 @@ static expr parse_let_body(parser & p, pos_info const & pos) {
     }
 }
 
-static void parse_let_modifiers(parser & p, bool & is_fact) {
+static void parse_let_modifiers(parser & p, bool & is_visible) {
     while (true) {
-        if (p.curr_is_token(g_fact)) {
-            is_fact = true;
+        if (p.curr_is_token(g_visible)) {
+            is_visible = true;
             p.next();
         } else {
             break;
@@ -73,12 +73,12 @@ static expr parse_let(parser & p, pos_info const & pos) {
     if (p.parse_local_notation_decl()) {
         return parse_let_body(p, pos);
     } else {
-        auto id_pos = p.pos();
-        name id  = p.check_atomic_id_next("invalid let declaration, identifier expected");
-        bool is_fact   = false;
+        auto id_pos     = p.pos();
+        name id         = p.check_atomic_id_next("invalid let declaration, identifier expected");
+        bool is_visible = false;
         optional<expr> type;
         expr value;
-        parse_let_modifiers(p, is_fact);
+        parse_let_modifiers(p, is_visible);
         if (p.curr_is_token(g_assign)) {
             p.next();
             value = p.parse_expr();
@@ -195,22 +195,22 @@ static expr parse_proof(parser & p, expr const & prop) {
 
 static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> const & prev_local) {
     auto id_pos       = p.pos();
-    bool is_fact      = false;
+    bool is_visible   = false;
     name id;
     expr prop;
-    if (p.curr_is_token(g_fact)) {
+    if (p.curr_is_token(g_visible)) {
         p.next();
-        is_fact       = true;
+        is_visible    = true;
         id            = p.mk_fresh_name();
         prop          = p.parse_expr();
     } else if (p.curr_is_identifier()) {
         id = p.get_name_val();
         p.next();
-        if (p.curr_is_token(g_fact)) {
+        if (p.curr_is_token(g_visible)) {
             p.next();
             p.check_token_next(g_colon, "invalid 'have' declaration, ':' expected");
-            is_fact   = true;
-            prop      = p.parse_expr();
+            is_visible = true;
+            prop       = p.parse_expr();
         } else if (p.curr_is_token(g_colon)) {
             p.next();
             prop      = p.parse_expr();
@@ -237,7 +237,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     }
     p.check_token_next(g_comma, "invalid 'have' declaration, ',' expected");
     parser::local_scope scope(p);
-    binder_info bi = mk_contextual_info(is_fact);
+    binder_info bi = mk_contextual_info(is_visible);
     expr l = p.save_pos(mk_local(id, prop, bi), pos);
     p.add_local(l);
     expr body;
@@ -280,12 +280,12 @@ static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & po
     unsigned num_ps = ps.size();
     if (num_ps < 2)
         throw parser_error("invalid 'obtain' expression, at least 2 binders expected", b_pos);
-    bool is_fact = false;
-    if (p.curr_is_token(g_fact)) {
+    bool is_visible = false;
+    if (p.curr_is_token(g_visible)) {
         p.next();
-        is_fact = true;
+        is_visible = true;
     }
-    if (!is_fact) {
+    if (!is_visible) {
         expr H = ps[num_ps-1];
         ps[num_ps-1] = update_local(H, mlocal_type(H), local_info(H).update_contextual(false));
     }

@@ -25,8 +25,8 @@ mk (congr (get_eq C1) (get_eq C2))
 
 theorem test1 (S : Type) (T : Type) (f1 f2 : S → T) (s1 s2 : S) (Hf : f1 = f2) (Hs : s1 = s2) :
   f1 s1 = f2 s2 :=
-have Rs [fact] : simplifies_to f1 f2, from mk Hf,
-have Cs [fact] : simplifies_to s1 s2, from mk Hs,
+have Rs [visible] : simplifies_to f1 f2, from mk Hf,
+have Cs [visible] : simplifies_to s1 s2, from mk Hs,
 infer_eq _ _
 
 end simplifies_to

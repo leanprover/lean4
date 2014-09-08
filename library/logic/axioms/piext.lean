@@ -14,13 +14,13 @@ axiom piext {A : Type} {B B' : A → Type} {H : inhabited (Π x, B x)} :
 
 theorem cast_app {A : Type} {B B' : A → Type} (H : (Π x, B x) = (Π x, B' x)) (f : Π x, B x)
   (a : A) : cast H f a == f a :=
-have Hi [fact] : inhabited (Π x, B x), from inhabited.mk f,
+have Hi [visible] : inhabited (Π x, B x), from inhabited.mk f,
 have Hb : B = B', from piext H,
 cast_app' Hb f a
 
 theorem hcongr_fun {A : Type} {B B' : A → Type} {f : Π x, B x} {f' : Π x, B' x} (a : A)
   (H : f == f') : f a == f' a :=
-have Hi [fact] : inhabited (Π x, B x), from inhabited.mk f,
+have Hi [visible] : inhabited (Π x, B x), from inhabited.mk f,
 have Hb : B = B', from piext (type_eq H),
 hcongr_fun' a H Hb
 

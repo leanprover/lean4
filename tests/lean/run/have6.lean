@@ -8,11 +8,11 @@ axiom Hb : b
 axiom Hc : c
 check
   have a ∧ b, from and_intro a b Ha Hb,
-  have [fact] b ∧ a, from and_intro b a Hb Ha,
+  have [visible] b ∧ a, from and_intro b a Hb Ha,
   have H : a ∧ b, from and_intro a b Ha Hb,
-  have H [fact] : a ∧ b, from and_intro a b Ha Hb,
+  have H [visible] : a ∧ b, from and_intro a b Ha Hb,
   then have a ∧ b, from and_intro a b Ha Hb,
-  then have [fact] b ∧ a, from and_intro b a Hb Ha,
+  then have [visible] b ∧ a, from and_intro b a Hb Ha,
   then have H : a ∧ b, from and_intro a b Ha Hb,
-  then have H [fact] : a ∧ b, from and_intro a b Ha Hb,
+  then have H [visible] : a ∧ b, from and_intro a b Ha Hb,
     Ha

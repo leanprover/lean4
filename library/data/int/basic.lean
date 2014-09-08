@@ -11,7 +11,7 @@ import ..nat.basic ..nat.order ..nat.sub ..prod ..quotient ..quotient tools.tact
 import struc.binary
 import tools.fake_simplifier
 
-open nat (hiding case)
+open nat
 open quotient subtype prod relation
 open decidable binary fake_simplifier
 open eq_ops

@@ -779,7 +779,9 @@ bool server::operator()(std::istream & in) {
             } else if (is_command(g_options, line)) {
                 show_options();
             } else if (is_command(g_wait, line)) {
+                m_out << "-- BEGINWAIT" << std::endl;
                 m_worker.wait();
+                m_out << "-- ENDWAIT" << std::endl;
             } else if (is_command(g_show, line)) {
                 show(false);
             } else if (is_command(g_valid, line)) {

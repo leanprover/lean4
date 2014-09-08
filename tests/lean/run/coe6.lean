@@ -10,6 +10,6 @@ variable nsucc : nat → nat
 definition f [coercion] (a : unit) : int := izero
 definition g [coercion] (a : unit) : nat := nzero
 
-set_option pp.coercion true
+set_option pp.coercions true
 check isucc star
 check nsucc star

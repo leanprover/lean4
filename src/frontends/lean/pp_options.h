@@ -7,14 +7,14 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/sexpr/options.h"
 namespace lean {
-name const & get_pp_coercion_option_name();
+name const & get_pp_coercions_option_name();
 name const & get_pp_full_names_option_name();
 
 unsigned get_pp_max_depth(options const & opts);
 unsigned get_pp_max_steps(options const & opts);
 bool     get_pp_notation(options const & opts);
 bool     get_pp_implicit(options const & opts);
-bool     get_pp_coercion(options const & opts);
+bool     get_pp_coercions(options const & opts);
 bool     get_pp_universes(options const & opts);
 bool     get_pp_full_names(options const & opts);
 bool     get_pp_private_names(options const & opts);

@@ -187,7 +187,7 @@ public:
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- COERCION|" << line << "|" << get_column() << "\n";
         options os = ios.get_options();
-        os = os.update(get_pp_coercion_option_name(), true);
+        os = os.update(get_pp_coercions_option_name(), true);
         ios.update_options(os) << m_expr << endl << "--" << endl << m_type << endl;
         ios << "-- ACK" << endl;
     }

@@ -6,7 +6,7 @@ variable g : B → B → B
 variables a1 a2 a3 : A
 variables b1 b2 b3 : B
 check g a1 b1
-set_option pp.coercion true
+set_option pp.coercions true
 check g a1 b1
 
 variable eq {A : Type} : A → A → Type.{0}

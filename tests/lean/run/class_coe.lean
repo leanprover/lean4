@@ -29,7 +29,7 @@ coercion nat_to_int
 coercion int_to_real
 
 set_option pp.implicit true
-set_option pp.coercion true
+set_option pp.coercions true
 check n + m
 check i + j
 check x + y

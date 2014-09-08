@@ -114,7 +114,7 @@ void pretty_fn::set_options_core(options const & o) {
     m_max_steps     = get_pp_max_steps(o);
     m_implict       = get_pp_implicit(o);
     m_unicode       = get_pp_unicode(o);
-    m_coercion      = get_pp_coercion(o);
+    m_coercion      = get_pp_coercions(o);
     m_notation      = get_pp_notation(o);
     m_universes     = get_pp_universes(o);
     m_full_names    = get_pp_full_names(o);

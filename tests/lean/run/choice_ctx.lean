@@ -1,7 +1,7 @@
 import data.nat.basic
 open nat
 open eq
-set_option pp.coercion true
+set_option pp.coercions true
 
 namespace foo
 theorem trans {a b c : nat} (H1 : a = b) (H2 : b = c) : a = c :=

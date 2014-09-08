@@ -462,8 +462,19 @@ class elaborator {
             try {
                 bool no_info = true;
                 new_scope s(m_elab, m_state, no_info);
+                expr type = m_meta_type;
+                buffer<expr> locals;
+                while (is_pi(type)) {
+                    expr local  = ::lean::mk_local(m_elab.m_ngen.next(), binding_name(type), binding_domain(type),
+                                                   binding_info(type));
+                    if (binding_info(type).is_contextual())
+                        m_elab.m_context.add_local(local);
+                    m_elab.m_full_context.add_local(local);
+                    locals.push_back(local);
+                    type = instantiate(binding_body(type), local);
+                }
                 pair<expr, constraint_seq> rcs = m_elab.visit(pre); // use elaborator to create metavariables, levels, etc.
-                expr r = rcs.first;
+                expr r = Fun(locals, rcs.first);
                 buffer<constraint> cs;
                 to_buffer(rcs.second, m_jst, cs);
                 return optional<constraints>(cons(mk_eq_cnstr(m_meta, r, m_jst, m_relax_main_opaque),

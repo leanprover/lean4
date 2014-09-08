@@ -236,7 +236,7 @@ induction_on l
           from H3 ▸ rfl,
         exists_intro _ (exists_intro _ H4)))
 
-theorem mem_is_decidable [instance] {H : Π (x y : T), decidable (x = y)} {x : T} {l : list T} : decidable (mem x l) :=
+theorem mem_is_decidable [instance] {H : decidable_eq T} {x : T} {l : list T} : decidable (mem x l) :=
 rec_on l
   (decidable.inr (iff.false_elim (@mem_nil x)))
   (λ (h : T) (l : list T) (iH : decidable (mem x l)),
@@ -264,15 +264,15 @@ rec_on l
 -- Find
 -- ----
 
-definition find (x : T) {H : Π (x y : T), decidable (x = y)} : list T → nat :=
+definition find {H : decidable_eq T} (x : T) : list T → nat :=
 rec 0 (fun y l b, if x = y then 0 else succ b)
 
-theorem find_nil {f : T} {H : Π (x y : T), decidable (x = y)} : find f nil = 0
+theorem find_nil {H : decidable_eq T} {f : T} : find f nil = 0
 
-theorem find_cons {x y : T} {l : list T} {H : Π (x y : T), decidable (x = y)} :
+theorem find_cons {H : decidable_eq T} {x y : T} {l : list T} :
     find x (cons y l) = if x = y then 0 else succ (find x l)
 
-theorem not_mem_find {l : list T} {x : T} {H : Π (x y : T), decidable (x = y)} :
+theorem not_mem_find {H : decidable_eq T} {l : list T} {x : T} :
      ¬mem x l → find x l = length l :=
 rec_on l
    (assume P₁ : ¬mem x nil, rfl)

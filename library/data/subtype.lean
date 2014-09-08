@@ -41,10 +41,10 @@ section
   theorem is_inhabited [protected] [instance] {a : A} (H : P a) : inhabited {x, P x} :=
   inhabited.mk (tag a H)
 
-  theorem has_decidable_eq [protected] [instance] (a1 a2 : {x, P x})
-    (H : decidable (elt_of a1 = elt_of a2)) : decidable (a1 = a2) :=
-  have H1 : (a1 = a2) ↔ (elt_of a1 = elt_of a2), from
-    iff.intro (assume H, eq.subst H rfl) (assume H, equal H),
-  decidable_iff_equiv _ (iff.symm H1)
+  theorem has_decidable_eq [protected] [instance] (H : decidable_eq A) : decidable_eq {x, P x} :=
+  decidable_eq.intro (λ (a1 a2 : {x, P x}),
+    have H1 : (a1 = a2) ↔ (elt_of a1 = elt_of a2), from
+      iff.intro (assume H, eq.subst H rfl) (assume H, equal H),
+    decidable_iff_equiv _ (iff.symm H1))
 end
 end subtype

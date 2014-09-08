@@ -95,3 +95,11 @@ theorem decidable_eq_equiv {a b : Prop} (Ha : decidable a) (H : a = b) : decidab
 decidable_iff_equiv Ha (eq_to_iff H)
 
 end decidable
+
+inductive decidable_eq [class] (A : Type) : Type :=
+intro : (Π x y : A, decidable (x = y)) → decidable_eq A
+
+theorem decidable_eq_to_decidable [instance] {A : Type} (H : decidable_eq A) (x y : A) : decidable (x = y) :=
+decidable_eq.rec (λ H, H) H x y
+
+coercion decidable_eq_to_decidable : decidable_eq

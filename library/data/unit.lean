@@ -18,6 +18,6 @@ namespace unit
   theorem is_inhabited [protected] [instance] : inhabited unit :=
   inhabited.mk ⋆
 
-  theorem has_decidable_eq [protected] [instance] (a b : unit) : decidable (a = b) :=
-  inl (equal a b)
+  theorem has_decidable_eq [protected] [instance] : decidable_eq unit :=
+  decidable_eq.intro (λ (a b : unit), inl (equal a b))
 end unit

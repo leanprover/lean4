@@ -105,7 +105,8 @@ induction_on n
     absurd H ne)
   (take k IH H, IH (succ_inj H))
 
-theorem decidable_eq [instance] (n m : ℕ) : decidable (n = m) :=
+theorem has_decidable_eq [instance] [protected] : decidable_eq ℕ :=
+decidable_eq.intro (λ (n m : ℕ),
 have general : ∀n, decidable (n = m), from
   rec_on m
     (take n,
@@ -123,7 +124,7 @@ have general : ∀n, decidable (n = m), from
               have H1 : succ n' ≠ succ m', from
                 assume Heq, absurd (succ_inj Heq) Hne,
               inr H1))),
-general n
+general n)
 
 theorem two_step_induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P 0) (H2 : P 1)
     (H3 : ∀ (n : ℕ) (IH1 : P n) (IH2 : P (succ n)), P (succ (succ n))) : P a :=

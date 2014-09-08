@@ -10,7 +10,7 @@ variable gcd_aux : ℕ × ℕ → ℕ
 
 definition gcd (x y : ℕ) : ℕ := gcd_aux (pair x y)
 
-theorem gcd_def (x y : ℕ) : gcd x y = @ite (y = 0) (decidable_eq (pr2 (pair x y)) 0) nat x (gcd y (x mod y)) :=
+theorem gcd_def (x y : ℕ) : gcd x y = @ite (y = 0) (nat.has_decidable_eq (pr2 (pair x y)) 0) nat x (gcd y (x mod y)) :=
 sorry
 
 theorem gcd_succ (m n : ℕ) : gcd m (succ n) = gcd (succ n) (m mod succ n) :=

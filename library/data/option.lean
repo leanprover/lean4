@@ -38,13 +38,13 @@ namespace option
   theorem is_inhabited [protected] [instance] (A : Type) : inhabited (option A) :=
   inhabited.mk none
 
-  theorem has_decidable_eq [protected] [instance] {A : Type} {H : ∀a₁ a₂ : A, decidable (a₁ = a₂)}
-          (o₁ o₂ : option A) : decidable (o₁ = o₂) :=
-  rec_on o₁
-    (rec_on o₂ (inl rfl) (take a₂, (inr (none_ne_some a₂))))
-    (take a₁ : A, rec_on o₂
-      (inr (ne.symm (none_ne_some a₁)))
-      (take a₂ : A, decidable.rec_on (H a₁ a₂)
-        (assume Heq : a₁ = a₂, inl (Heq ▸ rfl))
-        (assume Hne : a₁ ≠ a₂, inr (assume Hn : some a₁ = some a₂, absurd (equal Hn) Hne))))
+  theorem has_decidable_eq [protected] [instance] {A : Type} (H : decidable_eq A) : decidable_eq (option A) :=
+  decidable_eq.intro (λ (o₁ o₂ : option A),
+    rec_on o₁
+      (rec_on o₂ (inl rfl) (take a₂, (inr (none_ne_some a₂))))
+      (take a₁ : A, rec_on o₂
+        (inr (ne.symm (none_ne_some a₁)))
+        (take a₂ : A, decidable.rec_on (H a₁ a₂)
+          (assume Heq : a₁ = a₂, inl (Heq ▸ rfl))
+          (assume Hne : a₁ ≠ a₂, inr (assume Hn : some a₁ = some a₂, absurd (equal Hn) Hne)))))
 end option

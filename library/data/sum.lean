@@ -55,22 +55,28 @@ namespace sum
   theorem is_inhabited_right [protected] [instance] {A B : Type} (H : inhabited B) : inhabited (A ⊎ B) :=
   inhabited.mk (inr A (default B))
 
-  theorem has_eq_decidable [protected] [instance] {A B : Type} (s1 s2 : A ⊎ B)
-    (H1 : ∀a1 a2 : A, decidable (inl B a1 = inl B a2))
-    (H2 : ∀b1 b2 : B, decidable (inr A b1 = inr A b2)) : decidable (s1 = s2) :=
-  rec_on s1
-    (take a1, show decidable (inl B a1 = s2), from
-      rec_on s2
-        (take a2, show decidable (inl B a1 = inl B a2), from H1 a1 a2)
-        (take b2,
-          have H3 : (inl B a1 = inr A b2) ↔ false,
-            from iff.intro inl_neq_inr (assume H4, false_elim H4),
-          show decidable (inl B a1 = inr A b2), from decidable_iff_equiv _ (iff.symm H3)))
-    (take b1, show decidable (inr A b1 = s2), from
-      rec_on s2
-        (take a2,
-          have H3 : (inr A b1 = inl B a2) ↔ false,
-            from iff.intro (assume H4, inl_neq_inr (H4⁻¹)) (assume H4, false_elim H4),
-          show decidable (inr A b1 = inl B a2), from decidable_iff_equiv _ (iff.symm H3))
-        (take b2, show decidable (inr A b1 = inr A b2), from H2 b1 b2))
+  theorem has_eq_decidable [protected] [instance] {A B : Type} (H1 : decidable_eq A) (H2 : decidable_eq B) :
+       decidable_eq (A ⊎ B) :=
+  decidable_eq.intro (λ (s1 s2 : A ⊎ B),
+    rec_on s1
+      (take a1, show decidable (inl B a1 = s2), from
+        rec_on s2
+          (take a2, show decidable (inl B a1 = inl B a2), from
+            decidable.rec_on (H1 a1 a2)
+              (assume Heq : a1 = a2, decidable.inl (Heq ▸ rfl))
+              (assume Hne : a1 ≠ a2, decidable.inr (mt inl_inj Hne)))
+          (take b2,
+            have H3 : (inl B a1 = inr A b2) ↔ false,
+              from iff.intro inl_neq_inr (assume H4, false_elim H4),
+            show decidable (inl B a1 = inr A b2), from decidable_iff_equiv _ (iff.symm H3)))
+      (take b1, show decidable (inr A b1 = s2), from
+        rec_on s2
+          (take a2,
+            have H3 : (inr A b1 = inl B a2) ↔ false,
+              from iff.intro (assume H4, inl_neq_inr (H4⁻¹)) (assume H4, false_elim H4),
+            show decidable (inr A b1 = inl B a2), from decidable_iff_equiv _ (iff.symm H3))
+          (take b2, show decidable (inr A b1 = inr A b2), from
+            decidable.rec_on (H2 b1 b2)
+              (assume Heq : b1 = b2, decidable.inl (Heq ▸ rfl))
+              (assume Hne : b1 ≠ b2, decidable.inr (mt inr_inj Hne)))))
 end sum

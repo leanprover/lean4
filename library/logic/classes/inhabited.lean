@@ -16,7 +16,10 @@ definition Prop_inhabited [instance] : inhabited Prop :=
 mk true
 
 definition fun_inhabited [instance] (A : Type) {B : Type} (H : inhabited B) : inhabited (A → B) :=
-destruct H (take b, mk (λa, b))
+destruct H (λb, mk (λa, b))
+
+definition dfun_inhabited [instance] (A : Type) {B : A → Type} (H : Πx, inhabited (B x)) : inhabited (Πx, B x) :=
+mk (λa, destruct (H a) (λb, b))
 
 definition default (A : Type) {H : inhabited A} : A := destruct H (take a, a)
 

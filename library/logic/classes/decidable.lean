@@ -38,8 +38,8 @@ decidable.rec
 theorem em (p : Prop) {H : decidable p} : p ∨ ¬p :=
 induction_on H (λ Hp, or.inl Hp) (λ Hnp, or.inr Hnp)
 
-theorem by_cases {a b : Prop} {C : decidable a} (Hab : a → b) (Hnab : ¬a → b) : b :=
-or.elim (em a) (assume Ha, Hab Ha) (assume Hna, Hnab Hna)
+theorem by_cases {a : Prop} {b : Type} {C : decidable a} (Hab : a → b) (Hnab : ¬a → b) : b :=
+rec_on C (assume Ha, Hab Ha) (assume Hna, Hnab Hna)
 
 theorem by_contradiction {p : Prop} {Hp : decidable p} (H : ¬p → false) : p :=
 or.elim (em p)

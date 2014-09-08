@@ -241,8 +241,7 @@ have general : ∀n, decidable (n ≤ m), from
       rec_on n
         (decidable.inl zero_le)
         (take (n' : ℕ) (iH2 : decidable (n' ≤ succ m')),
-          have d1 : decidable (n' ≤ m'), from iH1 n',
-          decidable.rec_on d1
+          decidable.by_cases
             (assume Hp : n' ≤ m', decidable.inl (succ_le Hp))
             (assume Hn : ¬ n' ≤ m',
               have H : ¬ succ n' ≤ succ m', from

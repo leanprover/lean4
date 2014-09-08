@@ -11,7 +11,7 @@ import logic data.num tools.tactic struc.binary tools.helper_tactics
 import logic.classes.inhabited
 
 open tactic binary eq_ops
-open decidable (hiding induction_on rec_on)
+open decidable
 open relation -- for subst_iff
 open helper_tactics
 
@@ -117,8 +117,7 @@ have general : ∀n, decidable (n = m), from
       take n, rec_on n
         (inr (ne.symm succ_ne_zero))
         (λ (n' : ℕ) (iH2 : decidable (n' = succ m')),
-          have d1 : decidable (n' = m'), from iH1 n',
-          decidable.rec_on d1
+          decidable.by_cases
             (assume Heq : n' = m', inl (congr_arg succ Heq))
             (assume Hne : n' ≠ m',
               have H1 : succ n' ≠ succ m', from

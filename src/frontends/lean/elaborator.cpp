@@ -645,15 +645,6 @@ public:
         m_pre_info_data.clear();
     }
 
-    list<name> get_class_instances(expr const & type) {
-        if (is_constant(get_app_fn(type))) {
-            name const & c = const_name(get_app_fn(type));
-            return ::lean::get_class_instances(env(), c);
-        } else {
-            return list<name>();
-        }
-    }
-
     static expr instantiate_meta(expr const & meta, substitution & subst) {
         buffer<expr> locals;
         expr mvar = get_app_args(meta, locals);
@@ -684,12 +675,12 @@ public:
         justification j     = mk_failed_to_synthesize_jst(m);
         auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s, name_generator const & /* ngen */) {
             expr const & mvar = get_app_fn(meta);
-            if (is_ext_class(env(), meta_type)) {
-                name const & cls_name = const_name(get_app_fn(meta_type));
+            if (auto cls_name_it = is_ext_class(env(), meta_type)) {
+                name cls_name = *cls_name_it;
                 list<expr> local_insts;
                 if (use_local_instances())
                     local_insts = get_local_instances(env(), st.m_ctx, cls_name);
-                list<name>  insts = get_class_instances(meta_type);
+                list<name>  insts = get_class_instances(env(), cls_name);
                 list<tactic_hint_entry> tacs;
                 if (!s.is_assigned(mvar))
                     tacs = get_tactic_hints(env(), cls_name);

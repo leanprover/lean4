@@ -96,6 +96,10 @@ It has the effect of evaluating a command in the end of the current file"
   "Find All auto-complete candidates matched with prefix at line-number"
   `(FINDP ,line-number ,prefix))
 
+(defun lean-cmd-findg (line-number column-number patterns)
+  "FINDG generates a sequence of declarations that may be used to “fill” a particular placeholder"
+  `(FINDG ,line-number ,column-number ,patterns))
+
 
 ;; Type
 ;; ====
@@ -136,6 +140,13 @@ It has the effect of evaluating a command in the end of the current file"
   (cl-second findp-cmd))
 (defun lean-cmd-findp-get-prefix (findp-cmd)
   (cl-third findp-cmd))
+(defun lean-cmd-findg-get-line-number (findg-cmd)
+  (cl-second findg-cmd))
+(defun lean-cmd-findg-get-column-number (findg-cmd)
+  (cl-third findg-cmd))
+(defun lean-cmd-findg-get-patterns (findg-cmd)
+  (cl-fourth findg-cmd))
+
 
 ;; -- Test
 (cl-assert (string= (lean-cmd-load-get-file-name (lean-cmd-load "nat.lean"))
@@ -194,6 +205,17 @@ It has the effect of evaluating a command in the end of the current file"
                      (lean-cmd-findp 10 "iff_"))
                     "iff_"))
 
+(cl-assert (= (lean-cmd-findg-get-line-number
+               (lean-cmd-findg 48 10 "+intro -and -elim"))
+              48))
+(cl-assert (= (lean-cmd-findg-get-column-number
+               (lean-cmd-findg 48 10 "+intro -and -elim"))
+              10))
+(cl-assert (string= (lean-cmd-findg-get-patterns
+                     (lean-cmd-findg 48 10 "+intro -and -elim"))
+                    "+intro -and -elim"))
+
+
 ;; to-string functions
 ;; ===================
 (defun lean-cmd-load-to-string (cmd)
@@ -247,6 +269,12 @@ It has the effect of evaluating a command in the end of the current file"
   (format "FINDP %d\n%s"
           (lean-cmd-findp-get-line-number cmd)
           (lean-cmd-findp-get-prefix cmd)))
+(defun lean-cmd-findg-to-string (cmd)
+  "Convert valid command to string"
+  (format "FINDG %d %d\n%s"
+          (lean-cmd-findg-get-line-number cmd)
+          (lean-cmd-findg-get-column-number cmd)
+          (lean-cmd-findg-get-patterns cmd)))
 
 (defun lean-cmd-to-string (cmd)
   "Convert command to string"
@@ -264,7 +292,8 @@ It has the effect of evaluating a command in the end of the current file"
     ('CLEAR-CACHE (lean-cmd-clear-cache-to-string cmd))
     ('SHOW        (lean-cmd-show-to-string        cmd))
     ('VALID       (lean-cmd-valid-to-string       cmd))
-    ('FINDP       (lean-cmd-findp-to-string       cmd))))
+    ('FINDP       (lean-cmd-findp-to-string       cmd))
+    ('FINDG       (lean-cmd-findg-to-string       cmd))))
 
 ;; -- Test
 (cl-assert (string= (lean-cmd-to-string (lean-cmd-load "~/work/lean/basic.lean"))
@@ -285,5 +314,8 @@ It has the effect of evaluating a command in the end of the current file"
                     (concat "CHECK 42" "\n" "∀ (n : nat), ne (succ n) zero")))
 (cl-assert (string= (lean-cmd-to-string (lean-cmd-findp 42 "iff_"))
                     (concat "FINDP 42" "\n" "iff_")))
+(cl-assert (string= (lean-cmd-to-string (lean-cmd-findg 48 10 "+intro -and -elim"))
+                    (concat "FINDG 48 10" "\n" "+intro -and -elim")))
+
 ;; ----------------
 (provide 'lean-cmd)

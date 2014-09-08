@@ -100,6 +100,8 @@
              ,(rx line-start (group "-- ENDSHOW") line-end))
     (FINDP   ,(rx line-start "-- BEGINFINDP" (* not-newline) line-end)
              ,(rx line-start (group "-- ENDFINDP") line-end))
+    (FINDG   ,(rx line-start "-- BEGINFINDG" (* not-newline) line-end)
+             ,(rx line-start (group "-- ENDFINDG") line-end))
     (ERROR   ,(rx line-start "-- " (0+ not-newline) line-end)
              ,(rx line-start (group "-- ERROR" (0+ not-newline)) line-end)))
   "Regular expression pattern for lean-server message syntax")
@@ -254,7 +256,8 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('OPTIONS ())
     ('SHOW    (lean-server-check-current-file))
     ('VALID   (lean-server-check-current-file))
-    ('FINDP   (lean-server-check-current-file))))
+    ('FINDP   (lean-server-check-current-file))
+    ('FINDG   (lean-server-check-current-file))))
 
 (defun lean-server-after-send-cmd (cmd)
   "Operations to perform after sending a command."
@@ -271,7 +274,8 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('OPTIONS ())
     ('SHOW    ())
     ('VALID   ())
-    ('FINDP   ())))
+    ('FINDP   ())
+    ('FINDG   ())))
 
 (defun lean-server-send-cmd (cmd)
   "Send cmd to lean-server"
@@ -309,6 +313,9 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     (FINDP
      ;; Call cont with (name * type) list
      (funcall cont (lean-findp-parse-string body)))
+    (FINDG
+     ;; Call cont with (name * type) list
+     (funcall cont (lean-findg-parse-string body)))
     (ERROR
      (lean-server-log "Error detected:\n%s" body))))
 
@@ -389,6 +396,18 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
   (let ((str-list (split-string str "\n")))
     ;; Drop the first line "-- BEGINFINDP" and
     ;; the last line "-- ENDFINDP"
+    (setq str-list
+          (-take (- (length str-list) 2)
+                 (-drop 1 str-list)))
+    (--map
+     (let ((items (split-string it "|")))
+       `(,(cl-first items) . ,(cl-second items))) str-list)))
+
+(defun lean-findg-parse-string (str)
+  "Parse the output of findg command."
+  (let ((str-list (split-string str "\n")))
+    ;; Drop the first line "-- BEGINFINDG" and
+    ;; the last line "-- ENDFINDG"
     (setq str-list
           (-take (- (length str-list) 2)
                  (-drop 1 str-list)))

@@ -99,7 +99,9 @@ static std::string g_new_namespace_key("nspace");
 environment push_scope(environment const & env, io_state const & ios, scope_kind k, name const & n) {
     if (k == scope_kind::Namespace && in_section_or_context(env))
         throw exception("invalid namespace declaration, a namespace cannot be declared inside a section or context");
-    name new_n = get_namespace(env) + n;
+    name new_n = get_namespace(env);
+    if (k == scope_kind::Namespace)
+        new_n = new_n + n;
     scope_mng_ext ext = get_extension(env);
     bool save_ns = false;
     if (!ext.m_namespace_set.contains(new_n)) {

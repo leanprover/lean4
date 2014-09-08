@@ -27,6 +27,14 @@ namespace vec
     (Hcons : ∀(x : T) {n : ℕ} (w : vec T n), C (succ n) (cons x w)) : C n v :=
   rec_on v Hnil (take x n v IH, Hcons x v)
 
+  theorem is_inhabited [instance] [protected] (A : Type) (H : inhabited A) (n : nat) : inhabited (vec A n) :=
+  nat.rec_on n
+    (inhabited.mk (@vec.nil A))
+    (λ (n : nat) (iH : inhabited (vec A n)),
+      inhabited.destruct H
+        (λa, inhabited.destruct iH
+          (λv, inhabited.mk (vec.cons a v))))
+
   theorem case_zero_lem [private] {C : vec T 0 → Type} {n : ℕ} (v : vec T n) (Hnil : C nil) :
     ∀ H : n = 0, C (cast (congr_arg (vec T) H) v) :=
   rec_on v (take H : 0 = 0, (eq.rec Hnil (cast_eq _ nil⁻¹)))

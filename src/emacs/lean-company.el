@@ -19,13 +19,23 @@
   (setq-local company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
   (company-mode t))
 
+(defun company-lean--need-autocomplete ()
+  (not (looking-back
+        (rx (or "theorem" "definition" "lemma" "axiom" "parameter"
+                "abbreviation" "variable" "hypothesis" "conjecture"
+                "corollary")
+            (+ white)
+            (* (not white))))))
+
 (defun company-lean--prefix ()
   "Returns the symbol to complete. Also, if point is on a dot,
 triggers a completion immediately."
   (let ((prefix (company-grab-symbol)))
-    (when (or
-           (> (length prefix) 3)
-           (string-match "[_.]" prefix))
+    (when (and
+           (company-lean--need-autocomplete)
+           (or
+            (> (length prefix) 3)
+            (string-match "[_.]" prefix)))
       prefix)))
 
 (defun company-lean--make-candidate (arg)

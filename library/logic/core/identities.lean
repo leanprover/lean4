@@ -96,8 +96,7 @@ assume H, by_contradiction (assume Hna : ¬a,
 
 theorem not_exists_forall {A : Type} {P : A → Prop} {D : ∀x, decidable (P x)}
     (H : ¬∃x, P x) : ∀x, ¬P x :=
--- TODO: when type class instances can use quantifiers, we can use write em
-take x, or.elim (@em _ (D x))
+take x, or.elim (em (P x))
   (assume Hp : P x,   absurd (exists_intro x Hp) H)
   (assume Hn : ¬P x, Hn)
 

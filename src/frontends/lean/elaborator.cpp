@@ -132,16 +132,32 @@ elaborator_context::elaborator_context(environment const & env, io_state const &
     m_use_local_instances = get_elaborator_local_instances(ios.get_options());
 }
 
+/** \brief Return true iff \c type is a class or Pi that produces a class. */
+optional<name> is_ext_class(environment const & env, expr const & type) {
+    if (is_pi(type)) {
+        return is_ext_class(env, binding_body(type));
+    } else {
+        expr f = get_app_fn(type);
+        if (!is_constant(f))
+            return optional<name>();
+        name const & cls_name = const_name(f);
+        if (is_class(env, cls_name) || !empty(get_tactic_hints(env, cls_name)))
+            return optional<name>(cls_name);
+        else
+            return optional<name>();
+    }
+}
+
 /** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
-list<expr> get_local_instances(list<expr> const & ctx, name const & cls_name) {
+list<expr> get_local_instances(environment const & env, list<expr> const & ctx, name const & cls_name) {
     buffer<expr> buffer;
     for (auto const & l : ctx) {
         if (!is_local(l))
             continue;
         expr inst_type    = mlocal_type(l);
-        if (!is_constant(get_app_fn(inst_type)) || const_name(get_app_fn(inst_type)) != cls_name)
-            continue;
-        buffer.push_back(l);
+        if (auto it = is_ext_class(env, inst_type))
+            if (*it == cls_name)
+                buffer.push_back(l);
     }
     return to_list(buffer.begin(), buffer.end());
 }
@@ -435,13 +451,10 @@ class elaborator {
             collect_metavars(meta_type, m_mvars_in_meta_type);
         }
 
-        optional<constraints> try_instance(name const & inst) {
-            auto decl   = m_elab.env().find(inst);
-            if (!decl)
-                return optional<constraints>();
-            expr type   = decl->get_type();
+        optional<constraints> try_instance(expr const & inst, expr const & inst_type) {
+            expr type   = inst_type;
             // create the term pre (inst _ ... _)
-            expr pre    = copy_tag(m_meta, mk_explicit(copy_tag(m_meta, mk_constant(inst))));
+            expr pre    = copy_tag(m_meta, mk_explicit(inst));
             while (is_pi(type)) {
                 type = binding_body(type);
                 pre  = copy_tag(m_meta, ::lean::mk_app(pre, copy_tag(m_meta, mk_strict_expr_placeholder())));
@@ -453,10 +466,18 @@ class elaborator {
                 expr r = rcs.first;
                 buffer<constraint> cs;
                 to_buffer(rcs.second, m_jst, cs);
-                return optional<constraints>(cons(mk_eq_cnstr(m_meta, r, m_jst, m_relax_main_opaque), to_list(cs.begin(), cs.end())));
+                return optional<constraints>(cons(mk_eq_cnstr(m_meta, r, m_jst, m_relax_main_opaque),
+                                                  to_list(cs.begin(), cs.end())));
             } catch (exception &) {
                 return optional<constraints>();
             }
+        }
+
+        optional<constraints> try_instance(name const & inst) {
+            auto decl   = m_elab.env().find(inst);
+            if (!decl)
+                return optional<constraints>();
+            return try_instance(copy_tag(m_meta, mk_constant(inst)), decl->get_type());
         }
 
         optional<constraints> get_next_tactic_result() {
@@ -479,8 +500,10 @@ class elaborator {
             while (!empty(m_local_instances)) {
                 expr inst         = head(m_local_instances);
                 m_local_instances = tail(m_local_instances);
-                constraints cs(mk_eq_cnstr(m_meta, inst, m_jst, m_relax_main_opaque));
-                return optional<constraints>(cs);
+                if (!is_local(inst))
+                    continue;
+                if (auto r = try_instance(inst, mlocal_type(inst)))
+                    return r;
             }
             while (!empty(m_instances)) {
                 name inst   = head(m_instances);
@@ -631,14 +654,6 @@ public:
         }
     }
 
-    bool is_class(expr const & type) {
-        expr f = get_app_fn(type);
-        if (!is_constant(f))
-            return false;
-        name const & cls_name = const_name(f);
-        return ::lean::is_class(env(), cls_name) || !empty(get_tactic_hints(env(), cls_name));
-    }
-
     static expr instantiate_meta(expr const & meta, substitution & subst) {
         buffer<expr> locals;
         expr mvar = get_app_args(meta, locals);
@@ -669,11 +684,11 @@ public:
         justification j     = mk_failed_to_synthesize_jst(m);
         auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s, name_generator const & /* ngen */) {
             expr const & mvar = get_app_fn(meta);
-            if (is_class(meta_type)) {
+            if (is_ext_class(env(), meta_type)) {
                 name const & cls_name = const_name(get_app_fn(meta_type));
                 list<expr> local_insts;
                 if (use_local_instances())
-                    local_insts = get_local_instances(st.m_ctx, cls_name);
+                    local_insts = get_local_instances(env(), st.m_ctx, cls_name);
                 list<name>  insts = get_class_instances(meta_type);
                 list<tactic_hint_entry> tacs;
                 if (!s.is_assigned(mvar))

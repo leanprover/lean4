@@ -66,7 +66,7 @@ Lean produces a possible empty sequence of entries terminated with '--ENDINFO'"
 (defun lean-cmd-set (option-name option-value)
   "Set a Lean option [option-name] with [option-value].
 
-[option-name] must be a valid Lean option. Any option that can be
+ [option-name] must be a valid Lean option. Any option that can be
 set using the command set_option in a ‘.lean’ file is supported."
   `(SET ,option-name ,option-value))
 
@@ -100,6 +100,9 @@ It has the effect of evaluating a command in the end of the current file"
   "FINDG generates a sequence of declarations that may be used to “fill” a particular placeholder"
   `(FINDG ,line-number ,column-number ,patterns))
 
+(defun lean-cmd-wait ()
+  "Block server until all pending information has been computed."
+  `(WAIT))
 
 ;; Type
 ;; ====
@@ -265,16 +268,19 @@ It has the effect of evaluating a command in the end of the current file"
   "Convert valid command to string"
   (format "VALID"))
 (defun lean-cmd-findp-to-string (cmd)
-  "Convert valid command to string"
+  "Convert findp command to string"
   (format "FINDP %d\n%s"
           (lean-cmd-findp-get-line-number cmd)
           (lean-cmd-findp-get-prefix cmd)))
 (defun lean-cmd-findg-to-string (cmd)
-  "Convert valid command to string"
+  "Convert findg command to string"
   (format "FINDG %d %d\n%s"
           (lean-cmd-findg-get-line-number cmd)
           (lean-cmd-findg-get-column-number cmd)
           (lean-cmd-findg-get-patterns cmd)))
+(defun lean-cmd-wait-to-string (cmd)
+  "Convert wait command to string"
+  (format "WAIT"))
 
 (defun lean-cmd-to-string (cmd)
   "Convert command to string"
@@ -293,7 +299,8 @@ It has the effect of evaluating a command in the end of the current file"
     ('SHOW        (lean-cmd-show-to-string        cmd))
     ('VALID       (lean-cmd-valid-to-string       cmd))
     ('FINDP       (lean-cmd-findp-to-string       cmd))
-    ('FINDG       (lean-cmd-findg-to-string       cmd))))
+    ('FINDG       (lean-cmd-findg-to-string       cmd))
+    ('WAIT        (lean-cmd-wait-to-string        cmd))))
 
 ;; -- Test
 (cl-assert (string= (lean-cmd-to-string (lean-cmd-load "~/work/lean/basic.lean"))
@@ -316,6 +323,8 @@ It has the effect of evaluating a command in the end of the current file"
                     (concat "FINDP 42" "\n" "iff_")))
 (cl-assert (string= (lean-cmd-to-string (lean-cmd-findg 48 10 "+intro -and -elim"))
                     (concat "FINDG 48 10" "\n" "+intro -and -elim")))
+(cl-assert (string= (lean-cmd-to-string (lean-cmd-wait))
+                    (concat "WAIT")))
 
 ;; ----------------
 (provide 'lean-cmd)

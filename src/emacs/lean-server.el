@@ -102,6 +102,8 @@
              ,(rx line-start (group "-- ENDFINDP") line-end))
     (FINDG   ,(rx line-start "-- BEGINFINDG" (* not-newline) line-end)
              ,(rx line-start (group "-- ENDFINDG") line-end))
+    (WAIT   ,(rx line-start "-- BEGINWAIT" line-end)
+             ,(rx line-start (group "-- ENDWAIT") line-end))
     (ERROR   ,(rx line-start "-- " (0+ not-newline) line-end)
              ,(rx line-start (group "-- ERROR" (0+ not-newline)) line-end)))
   "Regular expression pattern for lean-server message syntax")
@@ -258,6 +260,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('VALID   (lean-server-check-current-file))
     ('FINDP   (lean-server-check-current-file))
     ('FINDG   (lean-server-check-current-file))))
+    ('WAIT    (lean-server-check-current-file))))
 
 (defun lean-server-after-send-cmd (cmd)
   "Operations to perform after sending a command."
@@ -276,6 +279,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('VALID   ())
     ('FINDP   ())
     ('FINDG   ())))
+    ('WAIT    ())))
 
 (defun lean-server-send-cmd (cmd)
   "Send cmd to lean-server"

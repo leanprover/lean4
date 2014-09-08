@@ -175,6 +175,7 @@
     (set-process-coding-system lean-server-process 'utf-8 'utf-8)
     (set-process-filter lean-server-process 'lean-server-output-filter)
     (set-process-sentinel lean-server-process 'lean-server-handle-signal)
+    (set-process-query-on-exit-flag lean-server-process nil)
     (lean-server-initialize-global-vars)
     (setq lean-global-server-process lean-server-process)
     lean-server-process))
@@ -441,11 +442,5 @@ Otherwise, set an idle-timer to call the handler again"
                             (lean-server-async-task-queue-len))
          ret)))
     (if lean-global-async-task-queue (lean-server-set-timer-for-event-handler))))
-
-(defadvice save-buffers-kill-emacs
-      (before lean-server-kill-before-kill-emacs activate)
-      "Call `lean-server-kill-process', to avoid the user being
-prompted to kill the lean-server process."
-      (lean-server-kill-process))
 
 (provide 'lean-server)

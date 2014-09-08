@@ -663,8 +663,8 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
   "Return the full-name at point (if any)"
   (lean-get-info-record-at-point
    (lambda (info-record)
+     (lean-server-debug "executing continuation for get-full-name-at-point")
      (funcall cont
-              (lean-server-debug "executing continuation for get-full-name-at-point")
               (lean-get-full-name-at-point-cont info-record)))))
 
 (provide 'lean-info)

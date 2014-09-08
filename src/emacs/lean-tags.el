@@ -12,7 +12,10 @@
   (let ((ltags-file-name (lean-get-executable "linja"))
         tags-file-name)
     (message "Generating TAGS...")
-    (call-process ltags-file-name nil nil nil (string-join lean-flycheck-checker-options " ") "TAGS")
+    (apply 'call-process
+           (append `(,ltags-file-name nil "*lean-tags*" nil)
+                   lean-flycheck-checker-options
+                   '("TAGS")))
     (message "TAGS generated."))
   (unless tags-table-list
     (setq tags-file-name (lean-find-file-upward "TAGS"))

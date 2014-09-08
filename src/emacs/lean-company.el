@@ -31,22 +31,34 @@
   "Returns the symbol to complete. Also, if point is on a dot,
 triggers a completion immediately."
   (let ((prefix (company-grab-symbol)))
-    (when (and
-           (company-lean--need-autocomplete)
-           (or
-            (> (length prefix) 3)
-            (string-match "[_.]" prefix)))
-      prefix)))
+    (cond ((looking-at (rx symbol-start "_")) "")
+          ((and
+            (company-lean--need-autocomplete)
+            (or
+             (> (length prefix) 3)
+             (string-match "[_.]" prefix)))
+           prefix))))
 
 (defun company-lean--make-candidate (arg)
   (propertize (car arg) 'type (cdr arg)))
 
 (defun company-lean--candidates (prefix)
-  (let ((line-number (line-number-at-pos)))
-    (lean-server-send-cmd-sync (lean-cmd-findp line-number prefix)
-                               (lambda (candidates)
-                                 (lean-server-debug "executing continuation for FINDP")
-                                 (-map 'company-lean--make-candidate candidates)))))
+  (let ((line-number (line-number-at-pos))
+        (column-number (current-column))
+        pattern)
+    (lean-server-send-cmd-sync (lean-cmd-wait))
+    (cond
+     ((looking-at (rx symbol-start "_"))
+      (setq pattern (read-string "Filter for find declarations (e.g: +intro -and): " "" nil ""))
+      (lean-server-send-cmd-sync (lean-cmd-findg line-number column-number pattern)
+                                 (lambda (candidates)
+                                   (lean-server-debug "executing continuation for FINDG")
+                                   (-map 'company-lean--make-candidate candidates))))
+     (t
+      (lean-server-send-cmd-sync (lean-cmd-findp line-number prefix)
+                                 (lambda (candidates)
+                                   (lean-server-debug "executing continuation for FINDP")
+                                   (-map 'company-lean--make-candidate candidates)))))))
 
 (defun company-lean--location (arg)
   (lean-generate-tags)
@@ -74,6 +86,10 @@ triggers a completion immediately."
                  "...")))
         annotation-str))))
 
+(defun company-lean--pre-completion (args)
+  (when (looking-at (rx "_"))
+    (delete-forward-char 1)))
+
 ;;;###autoload
 (defun company-lean (command &optional arg &rest ignored)
   (case command
@@ -81,6 +97,7 @@ triggers a completion immediately."
     (candidates (company-lean--candidates arg))
     (annotation (company-lean--annotation arg))
     (location (company-lean--location arg))
+    (pre-completion (company-lean--pre-completion arg))
     (sorted t)))
 
 (defadvice company--window-width

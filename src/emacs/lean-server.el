@@ -258,8 +258,10 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('OPTIONS ())
     ('SHOW    (lean-server-check-current-file))
     ('VALID   (lean-server-check-current-file))
-    ('FINDP   (lean-server-check-current-file))
-    ('FINDG   (lean-server-check-current-file))))
+    ('FINDP   (lean-flush-changed-lines)
+              (lean-server-check-current-file))
+    ('FINDG   (lean-flush-changed-lines)
+              (lean-server-check-current-file))
     ('WAIT    (lean-server-check-current-file))))
 
 (defun lean-server-after-send-cmd (cmd)
@@ -278,7 +280,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('SHOW    ())
     ('VALID   ())
     ('FINDP   ())
-    ('FINDG   ())))
+    ('FINDG   ())
     ('WAIT    ())))
 
 (defun lean-server-send-cmd (cmd)
@@ -361,7 +363,8 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     (lean-server-set-timer-for-event-handler)))
 
 (defun lean-server-consume-all-async-tasks ()
-  (lean-server-debug "lean-server-consume-all-async-tasks")
+  (lean-server-debug "lean-server-consume-all-async-tasks: queue size = %d"
+                     (lean-server-async-task-queue-len))
   (while lean-global-async-task-queue
     (accept-process-output (lean-server-get-process) 0 50 t)
     (let* ((cont   (lean-server-async-task-queue-peek-front))
@@ -370,7 +373,9 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
         (`(PROCESSED ,ret)
          (lean-server-async-task-queue-pop-front)
          (lean-server-debug "lean-server-consume-all-sync-tasks: processed. queue size = %d"
-                            (lean-server-async-task-queue-len)))))))
+                            (lean-server-async-task-queue-len))))))
+  (lean-server-debug "lean-server-consume-all-async-tasks: over. queue size = %d"
+                     (lean-server-async-task-queue-len)))
 
 (defun lean-server-send-cmd-sync (cmd &optional cont)
   "Send cmd to lean-server (sync)."

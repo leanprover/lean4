@@ -12,7 +12,7 @@
 import tools.tactic
 import data.nat
 import logic tools.helper_tactics
--- import if -- for find
+import logic.core.identities
 
 open nat
 open eq_ops
@@ -39,6 +39,10 @@ rec Hnil Hind l
 theorem cases_on [protected] {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hcons : forall x : T, forall l : list T, P (cons x l)) : P l :=
 induction_on l Hnil (take x l IH, Hcons x l)
+
+abbreviation rec_on [protected] {A : Type} {C : list A → Type} (l : list A)
+    (H1 : C nil) (H2 : ∀ (h : A) (t : list A), C t → C (cons h t)) : C l :=
+  rec H1 H2 l
 
 notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 
@@ -232,40 +236,56 @@ induction_on l
           from H3 ▸ rfl,
         exists_intro _ (exists_intro _ H4)))
 
+theorem mem_is_decidable [instance] {H : Π (x y : T), decidable (x = y)} {x : T} {l : list T} : decidable (mem x l) :=
+rec_on l
+  (decidable.inr (iff.false_elim (@mem_nil x)))
+  (λ (h : T) (l : list T) (iH : decidable (mem x l)),
+    show decidable (mem x (cons h l)), from
+    decidable.rec_on iH
+      (assume Hp : mem x l,
+        decidable.rec_on (H x h)
+          (assume Heq : x = h,
+            decidable.inl (or.inl Heq))
+          (assume Hne : x ≠ h,
+            decidable.inl (or.inr Hp)))
+      (assume Hn : ¬mem x l,
+        decidable.rec_on (H x h)
+          (assume Heq : x = h,
+            decidable.inl (or.inl Heq))
+          (assume Hne : x ≠ h,
+            have H1 : ¬(x = h ∨ mem x l), from
+              assume H2 : x = h ∨ mem x l, or.elim H2
+                (assume Heq, absurd Heq Hne)
+                (assume Hp,  absurd Hp Hn),
+            have H2 : ¬mem x (cons h l), from
+              iff.elim_right (iff.flip_sign mem_cons) H1,
+            decidable.inr H2)))
+
 -- Find
 -- ----
 
--- to do this: need decidability of = for nat
--- definition find (x : T) : list T → nat
--- := rec 0 (fun y l b, if x = y then 0 else succ b)
+definition find (x : T) {H : Π (x y : T), decidable (x = y)} : list T → nat :=
+rec 0 (fun y l b, if x = y then 0 else succ b)
 
--- theorem find_nil (f : T) : find f nil = 0
--- :=refl _
+theorem find_nil {f : T} {H : Π (x y : T), decidable (x = y)} : find f nil = 0
 
--- theorem find_cons (x y : T) (l : list T) : find x (cons y l) =
---     if x = y then 0 else succ (find x l)
--- := refl _
+theorem find_cons {x y : T} {l : list T} {H : Π (x y : T), decidable (x = y)} :
+    find x (cons y l) = if x = y then 0 else succ (find x l)
 
--- theorem not_mem_find (l : list T) (x : T) : ¬ mem x l → find x l = length l
--- :=
---   @induction_on T (λl, ¬ mem x l → find x l = length l) l
--- --  induction_on l
---     (assume P1 : ¬ mem x nil,
---       show find x nil = length nil, from
---         calc
---           find x nil = 0 : find_nil _
---             ... = length nil : by simp)
---      (take y l,
---        assume IH : ¬ (mem x l) → find x l = length l,
---        assume P1 : ¬ (mem x (cons y l)),
---        have P2 : ¬ (mem x l ∨ (y = x)), from subst P1 (mem_cons _ _ _),
---        have P3 : ¬ (mem x l) ∧ (y ≠ x),from subst P2 (not_or _ _),
---        have P4 : x ≠ y, from ne_symm (and.elim_right P3),
---        calc
---           find x (cons y l) = succ (find x l) :
---               trans (find_cons _ _ _) (not_imp_if_eq P4 _ _)
---             ... = succ (length l) : {IH (and.elim_left P3)}
---             ... = length (cons y l) : symm (length_cons _ _))
+theorem not_mem_find {l : list T} {x : T} {H : Π (x y : T), decidable (x = y)} :
+     ¬mem x l → find x l = length l :=
+rec_on l
+   (assume P₁ : ¬mem x nil, rfl)
+   (take y l,
+      assume iH : ¬mem x l → find x l = length l,
+      assume P₁ : ¬mem x (cons y l),
+      have P₂ : ¬(x = y ∨ mem x l), from iff.elim_right (iff.flip_sign mem_cons) P₁,
+      have P₃ : ¬x = y ∧ ¬mem x l, from (iff.elim_left not_or P₂),
+      calc
+        find x (cons y l) = if x = y then 0 else succ (find x l) : find_cons
+                      ... = succ (find x l)                      : if_neg (and.elim_left P₃)
+                      ... = succ (length l)                      : {iH (and.elim_right P₃)}
+                      ... = length (cons y l)                    : length_cons⁻¹)
 
 -- nth element
 -- -----------

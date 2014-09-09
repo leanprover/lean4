@@ -136,7 +136,7 @@ elaborator_context::elaborator_context(environment const & env, io_state const &
 optional<name> is_ext_class(type_checker & tc, expr type) {
     type = tc.whnf(type).first;
     if (is_pi(type)) {
-        return is_ext_class(tc, binding_body(type));
+        return is_ext_class(tc, instantiate(binding_body(type), mk_local(tc.mk_fresh_name(), binding_domain(type))));
     } else {
         expr f = get_app_fn(type);
         if (!is_constant(f))
@@ -460,7 +460,7 @@ class elaborator {
                 type = m_elab.whnf(type).first;
                 if (!is_pi(type))
                     break;
-                type = binding_body(type);
+                type = instantiate(binding_body(type), ::lean::mk_local(m_elab.m_ngen.next(), binding_domain(type)));
                 pre  = copy_tag(m_meta, ::lean::mk_app(pre, copy_tag(m_meta, mk_strict_expr_placeholder())));
             }
             try {

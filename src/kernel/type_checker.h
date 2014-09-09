@@ -94,7 +94,6 @@ class type_checker {
     level_param_names const *  m_params;
 
     friend class converter; // allow converter to access the following methods
-    name mk_fresh_name() { return m_gen.next(); }
     pair<expr, expr> open_binding_body(expr const & e);
     pair<expr, constraint_seq> ensure_sort_core(expr e, expr const & s);
     pair<expr, constraint_seq> ensure_pi_core(expr e, expr const & s);
@@ -126,7 +125,7 @@ public:
 
     environment const & env() const { return m_env; }
     name_generator mk_ngen() { return m_gen.mk_child(); }
-
+    name mk_fresh_name() { return m_gen.next(); }
     /**
        \brief Return the type of \c t.
 

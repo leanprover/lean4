@@ -447,7 +447,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
 (defun lean-server-get-info-record-at-pos (body)
   (let* ((file-name (buffer-file-name))
          (column (current-column)))
-    (when (and (looking-at (or white "," ")" "}" "]"))
+    (when (and (looking-at (rx (or white "," ")" "}" "]")))
                (> column 1))
       (setq column (1- column)))
     (lean-info-record-parse body file-name column)))

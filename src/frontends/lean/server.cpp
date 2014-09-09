@@ -34,6 +34,7 @@ Author: Leonardo de Moura
 #define LEAN_FUZZY_MAX_ERRORS        3
 #define LEAN_FUZZY_MAX_ERRORS_FACTOR 3
 #define LEAN_FIND_CONSUME_IMPLICIT   true // lean will add metavariables for implicit arguments when printing the type of declarations in FINDP and FINDG
+#define LEAN_FINDG_MAX_STEPS         128 // maximum number of steps per unification problem
 
 namespace lean {
 server::file::file(std::istream & in, std::string const & fname):m_fname(fname) {
@@ -717,8 +718,14 @@ bool match_type(type_checker & tc, expr const & meta, expr const & expected_type
     // just ingore them.
     if (is_meta(dt))
         return false; // matches anything
-    auto r = unify(tc.env(), dt, expected_type, tc.mk_ngen(), true);
-    return static_cast<bool>(r.pull());
+    try {
+        unifier_config cfg;
+        cfg.m_max_steps = LEAN_FINDG_MAX_STEPS;
+        auto r = unify(tc.env(), dt, expected_type, tc.mk_ngen(), true, substitution(), cfg);
+        return static_cast<bool>(r.pull());
+    } catch (exception&) {
+        return false;
+    }
 }
 
 static name g_tmp_prefix = name::mk_internal_unique_name();

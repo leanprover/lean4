@@ -133,15 +133,16 @@ elaborator_context::elaborator_context(environment const & env, io_state const &
 }
 
 /** \brief Return true iff \c type is a class or Pi that produces a class. */
-optional<name> is_ext_class(environment const & env, expr const & type) {
+optional<name> is_ext_class(type_checker & tc, expr type) {
+    type = tc.whnf(type).first;
     if (is_pi(type)) {
-        return is_ext_class(env, binding_body(type));
+        return is_ext_class(tc, binding_body(type));
     } else {
         expr f = get_app_fn(type);
         if (!is_constant(f))
             return optional<name>();
         name const & cls_name = const_name(f);
-        if (is_class(env, cls_name) || !empty(get_tactic_hints(env, cls_name)))
+        if (is_class(tc.env(), cls_name) || !empty(get_tactic_hints(tc.env(), cls_name)))
             return optional<name>(cls_name);
         else
             return optional<name>();
@@ -149,13 +150,13 @@ optional<name> is_ext_class(environment const & env, expr const & type) {
 }
 
 /** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
-list<expr> get_local_instances(environment const & env, list<expr> const & ctx, name const & cls_name) {
+list<expr> get_local_instances(type_checker & tc, list<expr> const & ctx, name const & cls_name) {
     buffer<expr> buffer;
     for (auto const & l : ctx) {
         if (!is_local(l))
             continue;
         expr inst_type    = mlocal_type(l);
-        if (auto it = is_ext_class(env, inst_type))
+        if (auto it = is_ext_class(tc, inst_type))
             if (*it == cls_name)
                 buffer.push_back(l);
     }
@@ -455,7 +456,10 @@ class elaborator {
             expr type   = inst_type;
             // create the term pre (inst _ ... _)
             expr pre    = copy_tag(m_meta, mk_explicit(inst));
-            while (is_pi(type)) {
+            while (true) {
+                type = m_elab.whnf(type).first;
+                if (!is_pi(type))
+                    break;
                 type = binding_body(type);
                 pre  = copy_tag(m_meta, ::lean::mk_app(pre, copy_tag(m_meta, mk_strict_expr_placeholder())));
             }
@@ -464,7 +468,10 @@ class elaborator {
                 new_scope s(m_elab, m_state, no_info);
                 expr type = m_meta_type;
                 buffer<expr> locals;
-                while (is_pi(type)) {
+                while (true) {
+                    type = m_elab.whnf(type).first;
+                    if (!is_pi(type))
+                        break;
                     expr local  = ::lean::mk_local(m_elab.m_ngen.next(), binding_name(type), binding_domain(type),
                                                    binding_info(type));
                     if (binding_info(type).is_contextual())
@@ -684,13 +691,14 @@ public:
         expr m              = m_context.mk_meta(type, g);
         saved_state st(*this);
         justification j     = mk_failed_to_synthesize_jst(m);
+        bool relax          = m_relax_main_opaque;
         auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s, name_generator const & /* ngen */) {
             expr const & mvar = get_app_fn(meta);
-            if (auto cls_name_it = is_ext_class(env(), meta_type)) {
+            if (auto cls_name_it = is_ext_class(*m_tc[relax], meta_type)) {
                 name cls_name = *cls_name_it;
                 list<expr> local_insts;
                 if (use_local_instances())
-                    local_insts = get_local_instances(env(), st.m_ctx, cls_name);
+                    local_insts = get_local_instances(*m_tc[relax], st.m_ctx, cls_name);
                 list<name>  insts = get_class_instances(env(), cls_name);
                 list<tactic_hint_entry> tacs;
                 if (!s.is_assigned(mvar))

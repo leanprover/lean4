@@ -1,13 +1,19 @@
+;;; lean-mode.el --- Emacs mode for Lean theorem prover
+;;
 ;; Copyright (c) 2013, 2014 Microsoft Corporation. All rights reserved.
+;;
+;; Author: Leonardo de Moura <leonardo@microsoft.com>
+;;         Soonho Kong       <soonhok@cs.cmu.edu>
+;; Maintainer: Soonho Kong   <soonhok@cs.cmu.edu>
+;; Created: Jan 09, 2014
+;; Keywords: languages
+;; Version: 0.1
+;; URL: https://github.com/leanprover/lean/blob/master/src/emacs
+;;
+;;
 ;; Released under Apache 2.0 license as described in the file LICENSE.
 ;;
-;; Author: Leonardo de Moura
-;;         Soonho Kong
 ;;
-;; URL: https://github.com/leanprover/lean/blob/master/src/emacs
-;; Keywords: languages
-;; Package-Requires: ((emacs "24") (dash "2.8.0") (dash-functional "1.1.0"))
-;; Version: 0.1
 
 (require 'cl-lib)
 (require 'eri)
@@ -210,3 +216,4 @@ Invokes `lean-mode-hook'.
     '(lean-flycheck-init)))
 
 (provide 'lean-mode)
+;;; lean-mode.el ends here

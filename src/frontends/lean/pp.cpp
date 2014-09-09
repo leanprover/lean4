@@ -120,6 +120,7 @@ void pretty_fn::set_options_core(options const & o) {
     m_full_names    = get_pp_full_names(o);
     m_private_names = get_pp_private_names(o);
     m_metavar_args  = get_pp_metavar_args(o);
+    m_beta          = get_pp_beta(o);
 }
 
 void pretty_fn::set_options(options const & o) {
@@ -500,7 +501,10 @@ pretty_fn::pretty_fn(environment const & env, options const & o):
 
 format pretty_fn::operator()(expr const & e) {
     m_depth = 0; m_num_steps = 0;
-    return pp_child(purify(e), 0).first;
+    if (m_beta)
+        return pp_child(purify(beta_reduce(e)), 0).first;
+    else
+        return pp_child(purify(e), 0).first;
 }
 
 formatter_factory mk_pretty_formatter_factory() {

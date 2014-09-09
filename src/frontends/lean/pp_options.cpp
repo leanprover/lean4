@@ -42,6 +42,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_METAVAR_ARGS false
 #endif
 
+#ifndef LEAN_DEFAULT_PP_BETA
+#define LEAN_DEFAULT_PP_BETA false
+#endif
+
 namespace lean {
 static name g_pp_max_depth        {"pp", "max_depth"};
 static name g_pp_max_steps        {"pp", "max_steps"};
@@ -52,6 +56,7 @@ static name g_pp_universes        {"pp", "universes"};
 static name g_pp_full_names       {"pp", "full_names"};
 static name g_pp_private_names    {"pp", "private_names"};
 static name g_pp_metavar_args     {"pp", "metavar_args"};
+static name g_pp_beta             {"pp", "beta"};
 
 name const & get_pp_coercions_option_name() { return g_pp_coercions; }
 name const & get_pp_full_names_option_name() { return g_pp_full_names; }
@@ -86,6 +91,8 @@ RegisterBoolOption(g_pp_private_names,  LEAN_DEFAULT_PP_PRIVATE_NAMES,
                    "(pretty printer) display internal names assigned to private declarations");
 RegisterBoolOption(g_pp_metavar_args,  LEAN_DEFAULT_PP_METAVAR_ARGS,
                    "(pretty printer) display metavariable arguments");
+RegisterBoolOption(g_pp_beta,  LEAN_DEFAULT_PP_BETA,
+                   "(pretty printer) apply beta-reduction when pretty printing");
 
 unsigned get_pp_max_depth(options const & opts)     { return opts.get_unsigned(g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
 unsigned get_pp_max_steps(options const & opts)     { return opts.get_unsigned(g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }
@@ -96,4 +103,5 @@ bool     get_pp_universes(options const & opts)     { return opts.get_bool(g_pp_
 bool     get_pp_full_names(options const & opts)    { return opts.get_bool(g_pp_full_names, LEAN_DEFAULT_PP_FULL_NAMES); }
 bool     get_pp_private_names(options const & opts) { return opts.get_bool(g_pp_private_names, LEAN_DEFAULT_PP_PRIVATE_NAMES); }
 bool     get_pp_metavar_args(options const & opts)  { return opts.get_bool(g_pp_metavar_args, LEAN_DEFAULT_PP_METAVAR_ARGS); }
+bool     get_pp_beta(options const & opts)          { return opts.get_bool(g_pp_beta, LEAN_DEFAULT_PP_BETA); }
 }

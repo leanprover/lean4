@@ -264,6 +264,13 @@ static cnstr_group to_cnstr_group(unsigned d) {
     return static_cast<cnstr_group>(d);
 }
 
+/** \brief Return true if all arguments of lhs are local constants */
+static bool all_local(expr const & lhs) {
+    buffer<expr> margs;
+    get_app_args(lhs, margs);
+    return std::all_of(margs.begin(), margs.end(), [&](expr const & e) { return is_local(e); });
+}
+
 /** \brief Convert choice constraint delay factor to cnstr_group */
 cnstr_group get_choice_cnstr_group(constraint const & c) {
     lean_assert(is_choice_cnstr(c));
@@ -1650,13 +1657,6 @@ struct unifier_fn {
             }
         }
         return modified ? mk_app(m, margs) : lhs;
-    }
-
-    /** \brief Return true if all arguments of lhs are local constants */
-    bool all_local(expr const & lhs) {
-        buffer<expr> margs;
-        get_app_args(lhs, margs);
-        return std::all_of(margs.begin(), margs.end(), [&](expr const & e) { return is_local(e); });
     }
 
     optional<expr> expand_rhs(expr const & rhs, bool relax) {

@@ -76,7 +76,8 @@ environment context_cmd(parser & p) {
     name n;
     if (p.curr_is_identifier())
         n = p.check_atomic_id_next("invalid context, atomic identifier expected");
-    p.push_local_scope();
+    bool save_options = true;
+    p.push_local_scope(save_options);
     return push_scope(p.env(), p.ios(), scope_kind::Context, n);
 }
 

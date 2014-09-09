@@ -389,14 +389,23 @@ expr parser::mk_app(std::initializer_list<expr> const & args, pos_info const & p
     return r;
 }
 
-void parser::push_local_scope() {
+void parser::push_local_scope(bool save_options) {
     m_local_level_decls.push();
     m_local_decls.push();
+    if (save_options)
+        m_options_stack.push_back(optional<options>(m_ios.get_options()));
+    else
+        m_options_stack.push_back(optional<options>());
 }
 
 void parser::pop_local_scope() {
     m_local_level_decls.pop();
     m_local_decls.pop();
+    if (auto const & it = m_options_stack.back()) {
+        m_ios.set_options(*it);
+        updt_options();
+    }
+    m_options_stack.pop_back();
 }
 
 void parser::add_local_level(name const & n, level const & l) {

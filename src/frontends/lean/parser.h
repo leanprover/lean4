@@ -61,6 +61,7 @@ struct snapshot {
 typedef std::vector<snapshot> snapshot_vector;
 
 class parser {
+    typedef std::vector<optional<options>> options_stack;
     environment             m_env;
     io_state                m_ios;
     name_generator          m_ngen;
@@ -72,6 +73,7 @@ class parser {
     scanner::token_kind     m_curr;
     local_level_decls       m_local_level_decls;
     local_expr_decls        m_local_decls;
+    options_stack           m_options_stack;
     pos_info                m_last_cmd_pos;
     pos_info                m_last_script_pos;
     unsigned                m_next_tag_idx;
@@ -162,7 +164,7 @@ class parser {
     friend environment context_cmd(parser & p);
     friend environment end_scoped_cmd(parser & p);
 
-    void push_local_scope();
+    void push_local_scope(bool save_options = false);
     void pop_local_scope();
 
     void save_snapshot();

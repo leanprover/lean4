@@ -143,27 +143,14 @@ rep. Then, add text-properties on the replaced region."
                (replace-regex-return-position regex rep result m-end)))))
     result))
 
-(defface company-tooltip-annotation-type
-  `((default
-      :foreground  ,(face-foreground 'font-lock-keyword-face)
-      :background  ,(face-background 'company-tooltip)))
-  "Face used for the types in annotation of the auto-completion tooltip.")
-
-(defface company-tooltip-annotation-type-selection
-  `((default
-      :foreground  ,(face-foreground 'font-lock-keyword-face)
-      :background  ,(face-background 'company-tooltip-selection)))
-  "Face used for the types in annotation of the auto-completion tooltip (selected)")
-
 (defadvice company-fill-propertize
   (after lean-company-fill-propertize activate)
   (when (eq major-mode 'lean-mode)
     (let* ((selected (ad-get-arg 3))
-           (properties (if selected
-                           '(face company-tooltip-annotation-type-selection
-                                  mouse-face company-tooltip)
-                         '(face company-tooltip-annotation-type
-                                mouse-face company-tooltip)))
+           (properties `(face (:foreground ,(face-foreground 'font-lock-keyword-face)
+                               :background ,(face-background (if selected 'company-tooltip-selection
+                                                               'company-tooltip)))
+                         mouse-face company-tooltip))
            (old-return ad-return-value)
            (old-len    (length old-return))
            new-return new-len)
@@ -179,4 +166,5 @@ rep. Then, add text-properties on the replaced region."
               (concat new-return " ")))
       (add-text-properties new-len old-len properties new-return)
       (setq ad-return-value new-return))))
+
 (provide 'lean-company)

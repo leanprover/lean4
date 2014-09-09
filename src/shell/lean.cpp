@@ -333,6 +333,7 @@ int main(int argc, char ** argv) {
         }
         if (ok && server && default_k == input_kind::Lean) {
             signal(SIGINT, on_ctrl_c);
+            ios.set_option(lean::name("pp", "beta"), true);
             lean::server Sv(env, ios, num_threads);
             if (!Sv(std::cin))
                 ok = false;

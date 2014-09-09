@@ -33,7 +33,7 @@ Author: Leonardo de Moura
 #endif
 
 #ifndef LEAN_DEFAULT_UNIFIER_COMPUTATION
-#define LEAN_DEFAULT_UNIFIER_COMPUTATION true
+#define LEAN_DEFAULT_UNIFIER_COMPUTATION false
 #endif
 
 #ifndef LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES
@@ -47,7 +47,7 @@ unsigned get_unifier_max_steps(options const & opts) { return opts.get_unsigned(
 
 static name g_unifier_computation    {"unifier", "computation"};
 RegisterBoolOption(g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION,
-                   "(unifier) case-split on reduction/computational steps when solving flex-rigid constraints");
+                   "(unifier) always case-split on reduction/computational steps when solving flex-rigid constraints");
 bool get_unifier_computation(options const & opts) { return opts.get_bool(g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION); }
 
 static name g_unifier_expensive_classes {"unifier", "expensive_classes"};
@@ -1700,7 +1700,7 @@ struct unifier_fn {
         buffer<constraints> alts;
         process_flex_rigid_core(lhs, rhs, j, relax, alts);
         append_auxiliary_constraints(alts, to_list(aux.begin(), aux.end()));
-        if (!all_local(lhs)) {
+        if (m_config.m_computation || !all_local(lhs)) {
             expr rhs_whnf = whnf(rhs, j, relax, aux);
             if (rhs_whnf != rhs) {
                 if (is_meta(rhs_whnf)) {

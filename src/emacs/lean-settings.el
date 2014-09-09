@@ -30,11 +30,6 @@
   :group 'lean
   :type 'string)
 
-(defcustom lean-flycheck-use t
-  "Use flycheck for lean."
-  :group 'lean
-  :type 'boolean)
-
 (defcustom lean-company-use t
   "Use company mode for lean."
   :group 'lean
@@ -48,21 +43,39 @@
 (defcustom lean-eldoc-nay-retry-time 0.3
   "When eldoc-function had nay, try again after this amount of time.")
 
+(defcustom lean-show-only-type-in-parens t
+  "Show only types of expression in parens if non-nil. Otherwise,
+show both of expressions and types.")
+
 (defcustom lean-server-retry-time 0.1
   "Retry interval for event-handler")
+
+(defcustom lean-flycheck-use t
+  "Use flycheck for lean."
+  :group 'lean
+  :type 'boolean)
 
 (defcustom lean-flycheck-checker-name "linja"
   "lean-flychecker checker name"
   :group 'lean
   :type 'string)
 
-(defcustom lean-flycheck-checker-options '("--flycheck" "120")
+(defcustom lean-flycheck-max-messages-to-display 100
+  "Maximum number of flycheck messages to displaylean-flychecker checker name
+   (Restart required to be effective)"
+  :group 'lean
+  :type 'int)
+
+(defcustom lean-flycheck-pp-width 120
+  "Width of flycheck error messages (Restart required to be effective)"
+  :group 'lean
+  :type 'int)
+
+(defcustom lean-flycheck-checker-options
+  `("--flycheck" ,(format "%d" lean-flycheck-pp-width)
+    "--flycheck-max-messages" ,(format "%d" lean-flycheck-max-messages-to-display))
   "lean-flychecker checker option"
   :group 'lean)
-
-(defcustom lean-show-only-type-in-parens t
-  "Show only types of expression in parens if non-nil. Otherwise,
-show both of expressions and types.")
 
 (defcustom lean-delete-trailing-whitespace nil
   "Set this variable to true to automatically delete trailing
@@ -75,8 +88,7 @@ written."
   "Specify rule-column."
   :group 'lean
   :type '(choice (integer :tag "Columns")
-                 (const :tag "Unlimited" nil))
-  :type 'int)
+                 (const :tag "Unlimited" nil)))
 
 (defcustom lean-rule-color "#cccccc"
   "Color used to draw the fill-column rule"

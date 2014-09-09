@@ -6,16 +6,18 @@
 #
 # Author: Soonho Kong
 #
+import argparse
 import fnmatch
+import glob
 import os
 import platform
+import shutil
 import stat
 import subprocess
 import sys
+import tempfile
 import threading
 import urllib
-import glob
-import argparse
 
 g_lean_path    = "USE DEFAULT"
 g_ltags_path   = "USE DEFAULT"
@@ -54,6 +56,13 @@ def error(msg):
     log("Error: %s" % msg)
     exit(1)
 
+class LinjaException(Exception):
+    """Custom Exception"""
+    def __init__(self, msg):
+        self.msg = msg
+    def __str__(self):
+        return self.msg
+
 def give_exec_permission(filename):
     "chmod +x filename"
     st = os.stat(filename)
@@ -72,8 +81,6 @@ def get_ninja_url():
             return prefix + "ninja-1.5.1-linux-x86_64"
         elif platform.system() == "Windows":
             return prefix + "ninja-1.5.1-win.exe"
-        elif platform.system().startswith("CYGWIN"):
-            return prefix + "ninja-1.5.1-cygwin-x86_64.exe"
         elif platform.system() == "Darwin":
             return prefix + "ninja-1.5.1-osx"
     if platform.architecture()[0] == "32bit":
@@ -81,21 +88,49 @@ def get_ninja_url():
             return prefix + "ninja-1.5.1-linux-i386"
         elif platform.system() == "Windows":
             pass # TODO(soonhok): add support
-        elif platform.system().startswith("CYGWIN"):
-            return prefix + "ninja-1.5.1-cygwin-i386.exe"
         elif platform.system() == "Darwin":
             pass # TODO(soonhok): add support
     error("we do not have ninja executable for this platform: %s" % platform.platform())
 
-def download_ninja_and_save_at(ninja_path):
-    url = get_ninja_url()
-    log("Downloading ninja: %s ===> %s\n" % (url, ninja_path))
-    urllib.urlretrieve(url, ninja_path, show_download_progress)
-    log("\n")
-    if not os.path.isfile(ninja_path):
-        error("failed to download ninja executable from %s" % url)
-    give_exec_permission(ninja_path)
+def build_ninja_and_save_at(ninja_path, platform):
+    saved_current_dir    = os.getcwd()
+    tempdir              = tempfile.mkdtemp()
+    build_dir            = os.path.join(tempdir, "ninja")
+    built_ninja_path     = os.path.join(build_dir, "ninja")
+    cmd_clone_ninja      = ["git", "clone", "git://github.com/martine/ninja.git"]
+    cmd_checkout_release = ["git", "checkout", "release"]
+    cmd_bootstrap        = [os.path.join(build_dir, "bootstrap.py"), "--platform", platform]
+    try:
+        os.chdir(tempdir)
+        if subprocess.call(cmd_clone_ninja):
+            raise LinjaException("Failed to clone ninja repository")
+        os.chdir(os.path.join(build_dir))
+        if subprocess.call(cmd_checkout_release):
+            raise LinjaException("Failed to checkout release branch of ninja")
+        if subprocess.call(cmd_bootstrap):
+            raise LinjaException("Failed to build ninja")
+        shutil.copy2(built_ninja_path, ninja_path)
+    except IOError as e:
+        error(e)
+    except LinjaException as e:
+        error(e)
+    finally:
+        os.chdir(saved_current_dir)
+        shutil.rmtree(tempdir)
     return ninja_path
+
+def download_ninja_and_save_at(ninja_path):
+    if platform.system().startswith("CYGWIN"):
+        return build_ninja_and_save_at(ninja_path, "linux")
+    else:
+        url = get_ninja_url()
+        log("Downloading ninja: %s ===> %s\n" % (url, ninja_path))
+        urllib.urlretrieve(url, ninja_path, show_download_progress)
+        log("\n")
+        if not os.path.isfile(ninja_path):
+            error("failed to download ninja executable from %s" % url)
+            give_exec_permission(ninja_path)
+        return ninja_path
 
 def check_required_packages():
     global g_lean_path, g_ltags_path, g_ninja_path

@@ -18,20 +18,14 @@ open function
 inductive path {A : Type} (a : A) : A → Type :=
 idpath : path a a
 
+namespace path
 infix `≈` := path
 notation x `≈` y:50 `:>`:0 A:0 := @path A x y    -- TODO: is this right?
-abbreviation idpath := @path.idpath
-notation `idp`:max := idpath _    -- TODO: can we / should we use `1`?
+abbreviation idp {A : Type} {a : A} := idpath a
 
-namespace path
-  abbreviation induction_on [protected] {A : Type} {a b : A} (p : a ≈ b)
-    {C : Π (b : A) (p : a ≈ b), Type} (H : C a (idpath a)) : C b p :=
-  path.rec H p
-end path
-
-
--- TODO: should all this be in namespace path?
-open path (induction_on)
+abbreviation induction_on [protected] {A : Type} {a b : A} (p : a ≈ b)
+  {C : Π (b : A) (p : a ≈ b), Type} (H : C a (idpath a)) : C b p :=
+path.rec H p
 
 -- Concatenation and inverse
 -- -------------------------
@@ -693,3 +687,4 @@ Ltac hott_simpl :=
   autorewrite with paths in * |- * ; auto with path_hints.
 
 -/
+end path

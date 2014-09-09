@@ -5,8 +5,8 @@
 
 -- TODO: move this to an "axioms" folder
 -- TODO: take a look at the Coq tricks
-
 import .path .equiv
+open path
 
 -- Funext
 -- ------

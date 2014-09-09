@@ -10,18 +10,10 @@
 ;; Version: 0.1
 ;; URL: https://github.com/leanprover/lean/blob/master/src/emacs
 ;;
-;;
 ;; Released under Apache 2.0 license as described in the file LICENSE.
 ;;
-;;
-
-(require 'cl-lib)
+(require 'lean-require)
 (require 'eri)
-(require 'generic-x)
-(require 'compile)
-(require 'flymake)
-(require 'dash)
-(require 'dash-functional)
 (require 'lean-variable)
 (require 'lean-util)
 (require 'lean-settings)

@@ -8,24 +8,34 @@ Emacs mode for [lean theorem prover][lean]
 Requirement
 -----------
 
-``lean-mode`` requires [Emacs 24][emacs24] and following (optional)
+``lean-mode`` requires [Emacs 24][emacs24] and following
 packages which can be installed via <kbd>M-x package-install</kbd>.
 
- - [company][company]
  - [dash][dash]
  - [dash-functional][dash]
- - [fill-column-indicator][fci]
- - [flycheck][flycheck]
- - [whitespace-cleanup-mode][wcm]
-
+ - [s][s]
 
 [emacs24]: http://www.gnu.org/software/emacs
-[flycheck]: http://flycheck.readthedocs.org/en/latest
-[fci]: https://github.com/alpaker/Fill-Column-Indicator
-[wcm]: https://github.com/purcell/whitespace-cleanup-mode
 [MELPA]: http://melpa.milkbox.net
 [dash]: https://github.com/magnars/dash.el
+[s]: https://github.com/magnars/s.el
+
+The following packages are *optional* but we recommend to install them
+to use full features of ``lean-mode``.
+
+ - [company][company]
+ - [flycheck][flycheck]
+ - [fill-column-indicator][fci]
+ - [lua-mode][lua-mode]
+ - [mmm-mode][mmm-mode]
+ - [whitespace-cleanup-mode][wcm]
+
 [company]: http://company-mode.github.io/
+[flycheck]: http://flycheck.readthedocs.org/en/latest
+[fci]: https://github.com/alpaker/Fill-Column-Indicator
+[lua-mode]: http://immerrr.github.io/lua-mode/
+[mmm-mode]: https://github.com/purcell/mmm-mode
+[wcm]: https://github.com/purcell/whitespace-cleanup-mode
 
 Install
 -------
@@ -39,9 +49,10 @@ Put the following elisp code on your emacs setup (e.g. ``.emacs.d/init.el``):
 (package-initialize)
 (package-refresh-contents)
 
-;; Install required packages for lean-mode
+;; Install required/optional packages for lean-mode
 (defvar lean-mode-required-packages
-  '(company dash dash-functional flycheck whitespace-cleanup-mode fill-column-indicator))
+  '(company dash dash-functional flycheck whitespace-cleanup-mode
+    fill-column-indicator s lua-mode mmm-mode))
 (dolist (p lean-mode-required-packages)
   (when (not (package-installed-p p))
     (package-install p)))
@@ -79,6 +90,6 @@ Key Bindings
 |<kbd>C-c C-t</kbd> | lean-eldoc-documentation-function |
 |<kbd>C-c C-f</kbd> | lean-fill-placeholder             |
 |<kbd>M-.</kbd>     | lean-find-tag                     |
-|<kbd>TAB</kbd>     | lean-complete-tag                 |
+|<kbd>TAB</kbd>     | lean-tab-indent-or-complete       |
 |<kbd>C-c C-o</kbd> | lean-set-option                   |
 |<kbd>C-c C-e</kbd> | lean-eval-cmd                     |

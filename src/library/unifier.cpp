@@ -264,13 +264,6 @@ static cnstr_group to_cnstr_group(unsigned d) {
     return static_cast<cnstr_group>(d);
 }
 
-/** \brief Return true if all arguments of lhs are local constants */
-static bool all_local(expr const & lhs) {
-    buffer<expr> margs;
-    get_app_args(lhs, margs);
-    return std::all_of(margs.begin(), margs.end(), [&](expr const & e) { return is_local(e); });
-}
-
 /** \brief Convert choice constraint delay factor to cnstr_group */
 cnstr_group get_choice_cnstr_group(constraint const & c) {
     lean_assert(is_choice_cnstr(c));
@@ -1677,6 +1670,31 @@ struct unifier_fn {
         return none_expr();
     }
 
+    /** \brief When solving flex-rigid constraints lhs =?= rhs (lhs is of the form ?M a_1 ... a_n),
+        we consider an additional case-split where rhs is put in weak-head-normal-form when
+
+        1- Option unifier.computation is true
+        2- At least one a_i is not a local constant
+        3- rhs contains a local constant that is not equal to any a_i.
+    */
+    bool use_flex_rigid_whnf_split(expr const & lhs, expr const & rhs) {
+        lean_assert(is_meta(lhs));
+        if (m_config.m_computation)
+            return true; // if unifier.computation is true, we always consider the additional whnf split
+        buffer<expr> locals;
+        expr const * it = &lhs;
+        while (is_app(*it)) {
+            expr const & arg = app_arg(*it);
+            if (!is_local(arg))
+                return true; // lhs contains non-local constant
+            locals.push_back(arg);
+            it = &(app_fn(*it));
+        }
+        if (!context_check(rhs, locals))
+            return true; // rhs contains local constant that is not in locals
+        return false;
+    }
+
     /** \brief Process a flex rigid constraint */
     bool process_flex_rigid(expr lhs, expr const & rhs, justification const & j, bool relax) {
         lean_assert(is_meta(lhs));
@@ -1705,7 +1723,7 @@ struct unifier_fn {
         buffer<constraints> alts;
         process_flex_rigid_core(lhs, rhs, j, relax, alts);
         append_auxiliary_constraints(alts, to_list(aux.begin(), aux.end()));
-        if (m_config.m_computation || !all_local(lhs)) {
+        if (use_flex_rigid_whnf_split(lhs, rhs)) {
             expr rhs_whnf = whnf(rhs, j, relax, aux);
             if (rhs_whnf != rhs) {
                 if (is_meta(rhs_whnf)) {

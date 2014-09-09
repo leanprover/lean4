@@ -184,7 +184,7 @@ representative_map_idempotent_equiv proj_rel @proj_congr a
 
 -- ## Definition of ℤ and basic theorems and definitions
 
-definition int := image proj
+definition int [protected] := image proj
 notation `ℤ` := int
 
 definition psub : ℕ × ℕ → ℤ := fun_image proj
@@ -776,5 +776,5 @@ mul_ne_zero_left (mul_comm a b ▸ H)
 -- set_opaque lt true
 -- set_opaque sign true
 --transparent: sub ge gt
-
 end int -- namespace int
+abbreviation int := int.int

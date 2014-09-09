@@ -45,16 +45,11 @@ Equiv_mk : Π
   (equiv_isequiv : IsEquiv equiv_fun),
 Equiv A B
 
-definition equiv_fun {A B : Type} (e : Equiv A B) : A → B :=
+definition equiv_fun [coercion] {A B : Type} (e : Equiv A B) : A → B :=
 Equiv.rec (λequiv_fun equiv_isequiv, equiv_fun) e
-
--- TODO: use a type class instead?
-coercion equiv_fun : Equiv
 
 definition equiv_isequiv [coercion] {A B : Type} (e : Equiv A B) : IsEquiv (equiv_fun e) :=
 Equiv.rec (λequiv_fun equiv_isequiv, equiv_isequiv) e
-
--- coercion equiv_isequiv
 
 -- TODO: better symbol
 infix `<~>`:25 := Equiv

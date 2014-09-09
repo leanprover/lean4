@@ -344,12 +344,16 @@ environment add_coercion(environment const & env, name const & f, io_state const
     declaration d = env.get(f);
     expr t = d.get_type();
     check_pi(f, t);
-    while (is_pi(binding_body(t)))
+    optional<name> C;
+    while (is_pi(t)) {
+        expr d = get_app_fn(binding_domain(t));
+        if (is_constant(d))
+            C = const_name(d);
         t = binding_body(t);
-    expr C = get_app_fn(binding_domain(t));
-    if (!is_constant(C))
+    }
+    if (!C)
         throw exception(sstream() << "invalid coercion, '" << f << "' cannot be used as a coercion");
-    return add_coercion(env, f, const_name(C), ios);
+    return add_coercion(env, f, *C, ios);
 }
 
 optional<pair<name, unsigned>> is_coercion(environment const & env, name const & f) {

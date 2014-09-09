@@ -99,7 +99,5 @@ end decidable
 inductive decidable_eq [class] (A : Type) : Type :=
 intro : (Π x y : A, decidable (x = y)) → decidable_eq A
 
-theorem of_decidable_eq [instance] {A : Type} (H : decidable_eq A) (x y : A) : decidable (x = y) :=
+theorem of_decidable_eq [instance] [coercion] {A : Type} (H : decidable_eq A) (x y : A) : decidable (x = y) :=
 decidable_eq.rec (λ H, H) H x y
-
-coercion of_decidable_eq : decidable_eq

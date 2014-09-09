@@ -408,8 +408,6 @@ def parse_arg(argv):
             error("--cache option can only be used with one target")
         if not args.cache.endswith(".lean"):
             error("cache argument has to be ends with .lean")
-        if not os.path.isfile(args.cache):
-            error("cache argument does not exist: %s" % args.cache)
         args.cache = args.cache[:-4] + "clean"
 
     args.targets = map(expand_target_to_fullname, args.targets)

@@ -128,16 +128,20 @@ def make_deps(lean_file, dlean_file, olean_file):
         deps_str = " " + (" \\\n ".join(deps))
         print >> f, deps_str
 
-def get_lean_names(lean_file):
+def get_lean_names(lean_file, args):
     basename, ext = os.path.splitext(lean_file)
     item = {}
     item['base']  = basename;            item['lean']  = basename + ".lean";
     item['d']     = basename + ".d";     item['olean'] = basename + ".olean";
-    item['clean'] = basename + ".clean"; item['ilean'] = basename + ".ilean"
+    item['ilean'] = basename + ".ilean"
+    if args.cache and len(args.targets) == 1 and item['lean'] == args.targets[0]:
+        item['clean'] = args.cache
+    else:
+        item['clean'] = basename + ".clean";
     return item
 
-def make_deps_all_files(directory, targets):
-    lean_files = find_lean_files(directory, targets)
+def make_deps_all_files(directory, args):
+    lean_files = find_lean_files(directory, args)
     threads = []
     i, num_of_files = 1, len(lean_files)
     for item in lean_files:
@@ -163,8 +167,8 @@ def rule_clean():
 
 def rule_lean():
     return """rule LEAN
-  depfile = ${LEAN_BASE}.d
-  command = "%s" %s "$in" -o "${LEAN_BASE}.olean" -c "${LEAN_BASE}.clean" -i "${LEAN_BASE}.ilean" """ \
+  depfile = ${DLEAN_FILE}
+  command = "%s" %s "$in" -o "${OLEAN_FILE}" -c "${CLEAN_FILE}" -i "${ILEAN_FILE}" """ \
       % (g_lean_path, " ".join(g_lean_options))
 
 def rule_tags():
@@ -190,15 +194,18 @@ def build_clean():
 
 def build_olean(lean, olean, clean, dlean, ilean, base):
     str = """build %s %s %s: LEAN %s | %s\n""" % (olean, ilean, clean, lean, dlean)
-    str += "  LEAN_BASE=%s" % base
+    str += "  DLEAN_FILE=%s\n" % dlean
+    str += "  OLEAN_FILE=%s\n" % olean
+    str += "  CLEAN_FILE=%s\n" % clean
+    str += "  ILEAN_FILE=%s\n" % ilean
     return str
 
 def ninja_default():
     return """default all"""
 
-def make_build_ninja(directory, targets):
+def make_build_ninja(directory, args):
     with open(os.path.join(directory, "build.ninja"), "w") as f:
-        lean_files = find_lean_files(directory, targets)
+        lean_files = find_lean_files(directory, args)
         print >> f, rule_clean()
         print >> f, rule_lean()
         print >> f, rule_tags()
@@ -208,11 +215,6 @@ def make_build_ninja(directory, targets):
         for item in lean_files:
             print >> f, build_olean(item['lean'], item['olean'], item['clean'], item['d'], item['ilean'], item['base'])
         print >> f, ninja_default()
-
-def do_deps(lean_executable, lean_files):
-    for lean in lean_files:
-        item = get_lean_names(lean)
-        make_deps(lean_executable, item['lean'], item['d'], item['olean'])
 
 def find_project_upward(path):
     project_file = os.path.join(path, ".project")
@@ -314,7 +316,7 @@ def find_files(directory, pattern):
             matches.append(os.path.join(root, filename))
     return matches
 
-def find_lean_files(project_dir, targets):
+def find_lean_files(project_dir, args):
     if g_lean_files != []:
         return g_lean_files
     files = set()
@@ -336,14 +338,14 @@ def find_lean_files(project_dir, targets):
         files |= set(find_files(project_dir, pattern))
     for pattern in exclude_patterns:
         files -= set(find_files(project_dir, pattern))
-    for file in targets:
+    for file in args.targets:
         file = os.path.abspath(file)
         if file.endswith(".lean"):
             files.add(file)
         elif file.endswith(".olean"):
             file.add(file[:-5] + "lean")
     for f in files:
-        g_lean_files.append(get_lean_names(f))
+        g_lean_files.append(get_lean_names(f, args))
     return g_lean_files
 
 def expand_target_to_fullname(target):
@@ -359,12 +361,22 @@ def parse_arg(argv):
     parser = argparse.ArgumentParser(description='linja: ninja build wrapper for Lean theorem prover.')
     parser.add_argument('--flycheck', '-F', action='store', type=int, default=None, const=120, nargs='?', help="Use --flycheck option for Lean.")
     parser.add_argument('--flycheck-max-messages', action='store', type=int, default=None, const=999999, nargs='?', help="Number of maximum flycheck messages to display.")
-
+    parser.add_argument('--cache', action='store', help="Use specified cache (clean) file.")
     parser.add_argument('--directory', '-C', action='store', help="change to DIR before doing anything else.")
     parser.add_argument('targets', nargs='*')
     args = parser.parse_args(argv)
     if (args.flycheck == None and args.flycheck_max_messages != None):
         error("Please use --flycheck option with --flycheck-max-messages option.")
+    if args.cache:
+        args.cache = expand_target_to_fullname(args.cache)
+        if len(args.targets) != 1:
+            error("--cache option can only be used with one target")
+        if not args.cache.endswith(".lean"):
+            error("cache argument has to be ends with .lean")
+        if not os.path.isfile(args.cache):
+            error("cache argument does not exist: %s" % args.cache)
+        args.cache = args.cache[:-4] + "clean"
+
     args.targets = map(expand_target_to_fullname, args.targets)
     if args.directory:
         os.chdir(args.directory)
@@ -378,8 +390,8 @@ def get_lean_options(args):
         options.append("-D pp.width=%d" % args.flycheck)
     return options
 
-def clear_cache(project_dir):
-    for item in find_lean_files(project_dir, []):
+def clear_cache(project_dir, args):
+    for item in find_lean_files(project_dir, args):
         if os.path.isfile(item['clean']):
             os.remove(item['clean'])
 
@@ -396,11 +408,12 @@ def main(argv=None):
     if project_dir:
         os.chdir(project_dir)
         if args.targets == ["clear-cache"]:
-            clear_cache(project_dir)
+            args.targets = []
+            clear_cache(project_dir, args)
             return 0
         if not "clean" in args.targets:
-            make_deps_all_files(project_dir, args.targets)
-        make_build_ninja(project_dir, args.targets)
+            make_deps_all_files(project_dir, args)
+        make_build_ninja(project_dir, args)
         return call_ninja(project_dir, args)
     else:
         returncode = 0

@@ -1,3 +1,5 @@
+-- BEGINWAIT
+-- ENDWAIT
 -- BEGININFO
 -- TYPE|9|0
 eq (tst.foo a b) (tst.foo a b)
@@ -11,6 +13,8 @@ rfl
 -- ENDINFO
 -- BEGININFO NAY
 -- ENDINFO
+-- BEGINWAIT
+-- ENDWAIT
 -- BEGININFO
 -- TYPE|9|0
 eq (tst.foo a b) (tst.foo a b)

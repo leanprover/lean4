@@ -1,3 +1,5 @@
+-- BEGINWAIT
+-- ENDWAIT
 -- BEGININFO
 -- TYPE|6|6
 (nat → Prop) → nat

@@ -57,7 +57,7 @@ namespace sum
 
   theorem has_eq_decidable [protected] [instance] {A B : Type} (H1 : decidable_eq A) (H2 : decidable_eq B) :
        decidable_eq (A ⊎ B) :=
-  decidable_eq.intro (λ (s1 s2 : A ⊎ B),
+  take s1 s2 : A ⊎ B,
     rec_on s1
       (take a1, show decidable (inl B a1 = s2), from
         rec_on s2
@@ -78,5 +78,5 @@ namespace sum
           (take b2, show decidable (inr A b1 = inr A b2), from
             decidable.rec_on (H2 b1 b2)
               (assume Heq : b1 = b2, decidable.inl (Heq ▸ rfl))
-              (assume Hne : b1 ≠ b2, decidable.inr (mt inr_inj Hne)))))
+              (assume Hne : b1 ≠ b2, decidable.inr (mt inr_inj Hne))))
 end sum

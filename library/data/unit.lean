@@ -19,5 +19,5 @@ namespace unit
   inhabited.mk ⋆
 
   theorem has_decidable_eq [protected] [instance] : decidable_eq unit :=
-  decidable_eq.intro (λ (a b : unit), inl (equal a b))
+  take (a b : unit), inl (equal a b)
 end unit

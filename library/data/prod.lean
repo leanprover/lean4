@@ -49,11 +49,11 @@ section
   inhabited.destruct H1 (λa, inhabited.destruct H2 (λb, inhabited.mk (pair a b)))
 
   theorem has_decidable_eq [protected] [instance] (H1 : decidable_eq A) (H2 : decidable_eq B) : decidable_eq (A × B) :=
-  decidable_eq.intro (λ (u v : A × B),
+  take u v : A × B,
     have H3 : u = v ↔ (pr1 u = pr1 v) ∧ (pr2 u = pr2 v), from
       iff.intro
         (assume H, H ▸ and.intro rfl rfl)
         (assume H, and.elim H (assume H4 H5, equal H4 H5)),
-    decidable_iff_equiv _ (iff.symm H3))
+    decidable_iff_equiv _ (iff.symm H3)
 end
 end prod

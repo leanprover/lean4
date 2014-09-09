@@ -206,7 +206,7 @@ exists_intro (pr1 (rep a))
 definition of_nat (n : ℕ) : ℤ := psub (pair n 0)
 
 theorem has_decidable_eq [instance] [protected] : decidable_eq ℤ :=
-decidable_eq.intro (λ (a b : ℤ), _)
+take a b : ℤ, _
 
 opaque_hint (hiding int)
 coercion of_nat

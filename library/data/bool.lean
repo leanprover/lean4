@@ -139,8 +139,8 @@ namespace bool
   inhabited.mk ff
 
   theorem has_decidable_eq [protected] [instance] : decidable_eq bool :=
-  decidable_eq.intro (λ (a b : bool),
+  take a b : bool,
     rec_on a
       (rec_on b (inl rfl) (inr ff_ne_tt))
-      (rec_on b (inr (ne.symm ff_ne_tt)) (inl rfl)))
+      (rec_on b (inr (ne.symm ff_ne_tt)) (inl rfl))
 end bool

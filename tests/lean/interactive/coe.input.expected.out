@@ -1,13 +1,13 @@
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGININFO
--- TYPE|5|33
+-- TYPE|5|16
 decidable (eq a b)
 -- ACK
--- SYNTH|5|33
+-- SYNTH|5|16
 int.has_decidable_eq a b
 -- ACK
--- SYMBOL|5|33
+-- SYMBOL|5|16
 _
 -- ACK
 -- ENDINFO

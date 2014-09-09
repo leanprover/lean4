@@ -238,6 +238,41 @@ def handle_failure_for_flycheck(out, target):
     if failed:
         call_lean(target)
 
+def print_flycheck_output_upto_n(target, out, n):
+    if target.endswith(".olean"):
+        target = target[:-5] + "lean"
+    if not target.endswith(".lean") or n == None:
+        print out
+        return
+
+    inside_of_flycheck = False
+    reach_limit        = False
+    flycheck_header    = "FLYCHECK_BEGIN"
+    flycheck_footer    = "FLYCHECK_END"
+    lines              = out.split("\n")
+    lines_len          = len(lines)
+    count              = 0
+    i                  = 0
+    current_file = ""
+    while i < lines_len:
+        line = lines[i]
+        if line.startswith(flycheck_header):
+            inside_of_flycheck = True
+            current_file = lines[i+1].split(":")[0]
+        if inside_of_flycheck and not reach_limit:
+            print line
+        if line.startswith(flycheck_footer):
+            if current_file == target:
+                count += 1
+            inside_of_flycheck = False
+        if count >= n:
+            reach_limit = True
+        i += 1
+    if reach_limit:
+        print "FLYCHECK_BEGIN ERROR"
+        print "%s:1:0: error: For performance, we only display %d errors/warnings out of %d. (lean-flycheck-max-messages-to-display)" % (target, n, count)
+        print "FLYCHECK_END"
+
 def call_ninja(directory, args):
     targets = []
     for item in args.targets:
@@ -255,15 +290,19 @@ def call_ninja(directory, args):
 
     if args.flycheck:
         out = proc.communicate()[0]
-        print out
         if len(args.targets) == 1 and args.targets[0].endswith(".lean"):
+            print_flycheck_output_upto_n(targets[0], out, args.flycheck_max_messages)
             handle_failure_for_flycheck(out, args.targets[0])
+        else:
+            print out
+
     return proc.returncode
 
 def call_lean(filename):
     proc = subprocess.Popen([g_lean_path] + g_lean_options + [filename],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    print proc.communicate()[0]
+    out = proc.communicate()[0]
+    print_flycheck_output_upto_n(filename, out, args.flycheck_max_messages)
     return proc.returncode
 
 def find_files(directory, pattern):
@@ -319,9 +358,13 @@ def parse_arg(argv):
     global g_working_dir
     parser = argparse.ArgumentParser(description='linja: ninja build wrapper for Lean theorem prover.')
     parser.add_argument('--flycheck', '-F', action='store', type=int, default=None, const=120, nargs='?', help="Use --flycheck option for Lean.")
+    parser.add_argument('--flycheck-max-messages', action='store', type=int, default=None, const=999999, nargs='?', help="Number of maximum flycheck messages to display.")
+
     parser.add_argument('--directory', '-C', action='store', help="change to DIR before doing anything else.")
     parser.add_argument('targets', nargs='*')
     args = parser.parse_args(argv)
+    if (args.flycheck == None and args.flycheck_max_messages != None):
+        error("Please use --flycheck option with --flycheck-max-messages option.")
     args.targets = map(expand_target_to_fullname, args.targets)
     if args.directory:
         os.chdir(args.directory)

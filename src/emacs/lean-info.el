@@ -640,11 +640,10 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
   (let* ((file-name     (buffer-file-name))
          (line-number   (line-number-at-pos))
          (column-number (current-column))
-         (cur-char      (char-after (point)))
-         (cmd           (cond ((and cur-char (char-equal cur-char ?\())
+         (cmd           (cond ((looking-at "(")
                                (lean-cmd-info line-number column-number))
                               ;; TODO(soonhok): give information on '('
-                              ;; ((char-equal cur-char ?\))
+                              ;; ((looking-at ")")
                               ;;  (let ((begin-pos (lean-get-begin-paren-pos)))
                               ;;    (lean-cmd-info (car begin-pos) (cdr begin-pos))))
                               (t (lean-cmd-info line-number)))))

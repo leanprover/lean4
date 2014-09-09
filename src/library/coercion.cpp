@@ -71,7 +71,7 @@ struct coercion_state {
     // m_from and m_to contain "direct" coercions
     rb_map<name, list<pair<coercion_class, expr>>, name_quick_cmp>  m_from; // map user-class -> list of (class, coercion-fun)
     rb_map<coercion_class, list<name>, coercion_class_cmp_fn>            m_to;
-    rb_tree<name, name_quick_cmp>                                        m_coercions;
+    rb_map<name, pair<name, unsigned>, name_quick_cmp>                   m_coercions; // map coercion -> (from-class, num-args)
     coercion_info get_info(name const & from, coercion_class const & to) {
         auto it = m_coercion_info.find(from);
         lean_assert(it);
@@ -254,7 +254,7 @@ struct add_coercion_fn {
             m_state.m_coercion_info.insert(C, infos);
         }
         if (is_constant(f))
-            m_state.m_coercions.insert(const_name(f));
+            m_state.m_coercions.insert(const_name(f), mk_pair(C, num_args));
     }
 
     void add_coercion(name const & C, expr const & f, expr const & f_type,
@@ -352,13 +352,18 @@ environment add_coercion(environment const & env, name const & f, io_state const
     return add_coercion(env, f, const_name(C), ios);
 }
 
-bool is_coercion(environment const & env, name const & f) {
+optional<pair<name, unsigned>> is_coercion(environment const & env, name const & f) {
     coercion_state const & ext = coercion_ext::get_state(env);
-    return ext.m_coercions.contains(f);
+    if (auto it = ext.m_coercions.find(f))
+        return optional<pair<name, unsigned>>(*it);
+    else
+        return optional<pair<name, unsigned>>();
 }
 
-bool is_coercion(environment const & env, expr const & f) {
-    return is_constant(f) && is_coercion(env, const_name(f));
+optional<pair<name, unsigned>> is_coercion(environment const & env, expr const & f) {
+    if (!is_constant(f))
+        return optional<pair<name, unsigned>>();
+    return is_coercion(env, const_name(f));
 }
 
 bool has_coercions_to(environment const & env, name const & D) {
@@ -485,10 +490,18 @@ static int add_coercion(lua_State * L) {
         return push_environment(L, add_coercion(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3), to_io_state(L, 4)));
 }
 static int is_coercion(lua_State * L) {
+    optional<pair<name, unsigned>> r;
     if (is_expr(L, 2))
-        return push_boolean(L, is_coercion(to_environment(L, 1), to_expr(L, 2)));
+        r = is_coercion(to_environment(L, 1), to_expr(L, 2));
     else
-        return push_boolean(L, is_coercion(to_environment(L, 1), to_name_ext(L, 2)));
+        r = is_coercion(to_environment(L, 1), to_name_ext(L, 2));
+    if (r) {
+        push_name(L, r->first);
+        push_integer(L, r->second);
+        return 2;
+    } else {
+        return 0;
+    }
 }
 static int has_coercions_from(lua_State * L) {
     if (is_expr(L, 2))

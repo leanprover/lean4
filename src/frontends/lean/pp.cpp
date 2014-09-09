@@ -151,18 +151,35 @@ bool pretty_fn::is_prop(expr const & e) {
     }
 }
 
+auto pretty_fn::pp_coercion(expr const & e, unsigned bp) -> result {
+    buffer<expr> args;
+    expr const & f = get_app_args(e, args);
+    optional<pair<name, unsigned>> r = is_coercion(m_env, f);
+    lean_assert(r);
+    if (r->second >= args.size())
+        return pp_child_core(e, bp);
+    else if (r->second == args.size() - 1)
+        return pp_child(args.back(), bp);
+    else
+        return pp_child(mk_app(args.size() - r->second, args.data() + r->second), bp);
+}
+
+auto pretty_fn::pp_child_core(expr const & e, unsigned bp) -> result {
+    result r = pp(e);
+    if (r.second < bp) {
+        return mk_result(paren(r.first));
+    } else {
+        return r;
+    }
+}
+
 auto pretty_fn::pp_child(expr const & e, unsigned bp) -> result {
     if (is_app(e) && is_implicit(app_fn(e))) {
         return pp_child(app_fn(e), bp);
     } else if (is_app(e) && !m_coercion && is_coercion(m_env, get_app_fn(e))) {
-        return pp_child(app_arg(e), bp); // TODO(Fix): this is not correct for coercions to function-class
+        return pp_coercion(e, bp);
     } else {
-        result r = pp(e);
-        if (r.second < bp) {
-            return mk_result(paren(r.first));
-        } else {
-            return r;
-        }
+        return pp_child_core(e, bp);
     }
 }
 

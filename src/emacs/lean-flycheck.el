@@ -11,6 +11,8 @@
   (cl-concatenate 'list
                   `(,(lean-get-executable lean-flycheck-checker-name))
                   lean-flycheck-checker-options
+                  '("--cache")
+                  '(source-original)
                   '("--")
                   '(source-inplace)))
 
@@ -75,7 +77,7 @@
            (tempbase (file-name-base tempname))
            (tempfile (expand-file-name tempbase
                                        (file-name-directory filename)))
-           (exts     '(".ilean" ".d" ".clean" ".olean"))
+           (exts     '(".ilean" ".d" ".olean"))
            (tempfiles (--map (concat tempfile it) exts)))
       (mapc #'flycheck-safe-delete tempfiles))))
 

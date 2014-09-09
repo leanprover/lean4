@@ -316,7 +316,7 @@ struct coercion_config {
         s = add_coercion(env, ios, s, e.first, e.second);
     }
     static name const & get_class_name() {
-        static name g_class_name("coercion");
+        static name g_class_name("coercions");
         return g_class_name;
     }
     static std::string const & get_serialization_key() {

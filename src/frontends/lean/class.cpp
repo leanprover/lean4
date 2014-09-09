@@ -6,8 +6,10 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "util/sstream.h"
+#include "kernel/instantiate.h"
 #include "library/scoped_ext.h"
 #include "library/kernel_serializer.h"
+#include "library/opaque_hints.h"
 #include "frontends/lean/parser.h"
 
 namespace lean {
@@ -93,11 +95,18 @@ environment add_class(environment const & env, name const & n) {
     return class_ext::add_entry(env, get_dummy_ios(), class_entry(n));
 }
 
+static name g_tmp_prefix = name::mk_internal_unique_name();
 environment add_instance(environment const & env, name const & n) {
     declaration d = env.get(n);
     expr type = d.get_type();
-    while (is_pi(type))
-        type = binding_body(type);
+    name_generator ngen(g_tmp_prefix);
+    auto tc = mk_type_checker_with_hints(env, ngen, false);
+    while (true) {
+        type = tc->whnf(type).first;
+        if (!is_pi(type))
+            break;
+        type = instantiate(binding_body(type), mk_local(ngen.next(), binding_domain(type)));
+    }
     name c = get_class_name(env, get_app_fn(type));
     return class_ext::add_entry(env, get_dummy_ios(), class_entry(c, n));
 }

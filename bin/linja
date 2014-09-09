@@ -260,7 +260,10 @@ def find_project_upward(path):
         return find_project_upward(up)
     return None
 
-def handle_failure_for_flycheck(out, target):
+def handle_failure_for_flycheck(out, args):
+    if len(args.targets) == 0:
+        error("handle_failure_for_flycheck is called without targets")
+    target = args.targets[0]
     failed = set()
     for line in out.split("\n"):
         if line.startswith("FAILED:"):
@@ -273,7 +276,7 @@ def handle_failure_for_flycheck(out, target):
         print "%s:1:0: error: failed to compile %s" % (target, failed_file)
         print "FLYCHECK_END"
     if failed:
-        call_lean(target)
+        call_lean(target, args)
 
 def print_flycheck_output_upto_n(target, out, n):
     if target.endswith(".olean"):
@@ -329,13 +332,13 @@ def call_ninja(directory, args):
         out = proc.communicate()[0]
         if len(args.targets) == 1 and args.targets[0].endswith(".lean"):
             print_flycheck_output_upto_n(targets[0], out, args.flycheck_max_messages)
-            handle_failure_for_flycheck(out, args.targets[0])
+            handle_failure_for_flycheck(out, args)
         else:
             print out
 
     return proc.returncode
 
-def call_lean(filename):
+def call_lean(filename, args):
     proc = subprocess.Popen([g_lean_path] + g_lean_options + [filename],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = proc.communicate()[0]
@@ -452,7 +455,7 @@ def main(argv=None):
         returncode = 0
         for filename in args.targets:
             if os.path.isfile(filename) and filename.endswith(".lean"):
-                returncode |= call_lean(filename)
+                returncode |= call_lean(filename, args)
         return returncode
 
 if __name__ == "__main__":

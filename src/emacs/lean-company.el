@@ -49,7 +49,9 @@ triggers a completion immediately."
     (lean-server-send-cmd-sync (lean-cmd-wait))
     (cond
      ((looking-at (rx symbol-start "_"))
-      (setq pattern (read-string "Filter for find declarations (e.g: +intro -and): " "" nil ""))
+      (setq pattern (if current-prefix-arg
+                        (read-string "Filter for find declarations (e.g: +intro -and): " "" nil "")
+                      ""))
       (lean-server-send-cmd-sync (lean-cmd-findg line-number column-number pattern)
                                  (lambda (candidates)
                                    (lean-server-debug "executing continuation for FINDG")

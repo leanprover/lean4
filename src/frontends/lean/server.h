@@ -57,7 +57,7 @@ class server {
         ~worker();
         void set_todo(file_ptr const & f, unsigned line_num, options const & o);
         void request_interrupt();
-        void wait();
+        bool wait(optional<unsigned> const & ms);
     };
 
     file_map                  m_file_map;
@@ -89,7 +89,9 @@ class server {
     void interrupt_worker();
     void show_options();
     void show(bool valid);
+    void wait(optional<unsigned> ms);
     unsigned get_line_num(std::string const & line, std::string const & cmd);
+    optional<unsigned> get_optional_num(std::string const & line, std::string const & cmd);
     pair<unsigned, optional<unsigned>> get_line_opt_col_num(std::string const & line, std::string const & cmd);
     pair<unsigned, unsigned> get_line_col_num(std::string const & line, std::string const & cmd);
     void find_goal_matches(unsigned line_num, unsigned col_num, std::string const & filters);

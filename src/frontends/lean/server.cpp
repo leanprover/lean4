@@ -232,12 +232,20 @@ void server::worker::request_interrupt() {
     m_thread.request_interrupt();
 }
 
-void server::worker::wait() {
+bool server::worker::wait(optional<unsigned> const & ms) {
     while (true) {
         unique_lock<mutex> lk(m_todo_mutex);
         if (!m_todo_file)
-            break;
-        m_todo_cv.wait(lk);
+            return true;
+        if (ms) {
+            chrono::milliseconds d(*ms);
+            m_todo_cv.wait_for(lk, d);
+            if (!m_todo_file)
+                return true;
+            return false;
+        } else {
+            m_todo_cv.wait(lk);
+        }
     }
 }
 
@@ -359,6 +367,16 @@ unsigned consume_num(std::string const & data, unsigned & i) {
         i++;
     }
     return r;
+}
+
+optional<unsigned> server::get_optional_num(std::string const & line, std::string const & cmd) {
+    std::string data = line.substr(cmd.size());
+    unsigned i = 0;
+    consume_spaces(data, i);
+    if (i == data.size())
+        return optional<unsigned>();
+    unsigned r = consume_num(data, i);
+    return optional<unsigned>(r);
 }
 
 void check_line_num(unsigned line_num) {
@@ -740,6 +758,13 @@ void server::find_goal_matches(unsigned line_num, unsigned col_num, std::string 
     m_out << "-- ENDFINDG" << std::endl;
 }
 
+void server::wait(optional<unsigned> ms) {
+    m_out << "-- BEGINWAIT" << std::endl;
+    if (!m_worker.wait(ms))
+        m_out << "-- INTERRUPTED\n";
+    m_out << "-- ENDWAIT" << std::endl;
+}
+
 bool server::operator()(std::istream & in) {
     for (std::string line; std::getline(in, line);) {
         try {
@@ -779,9 +804,8 @@ bool server::operator()(std::istream & in) {
             } else if (is_command(g_options, line)) {
                 show_options();
             } else if (is_command(g_wait, line)) {
-                m_out << "-- BEGINWAIT" << std::endl;
-                m_worker.wait();
-                m_out << "-- ENDWAIT" << std::endl;
+                optional<unsigned> ms = get_optional_num(line, g_wait);
+                wait(ms);
             } else if (is_command(g_show, line)) {
                 show(false);
             } else if (is_command(g_valid, line)) {

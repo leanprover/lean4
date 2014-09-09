@@ -485,13 +485,18 @@ struct unifier_fn {
         \remark If relax is true then opaque definitions from the main module are treated as transparent.
     */
     bool is_def_eq(expr const & t1, expr const & t2, justification const & j, bool relax) {
-        auto dcs = m_tc[relax]->is_def_eq(t1, t2, j);
-        if (!dcs.first) {
-            // std::cout << "conflict: " << t1 << " =?= " << t2 << "\n";
+        try {
+            auto dcs = m_tc[relax]->is_def_eq(t1, t2, j);
+            if (!dcs.first) {
+                // std::cout << "conflict: " << t1 << " =?= " << t2 << "\n";
+                set_conflict(j);
+                return false;
+            } else {
+                return process_constraints(dcs.second);
+            }
+        } catch (exception&) {
             set_conflict(j);
             return false;
-        } else {
-            return process_constraints(dcs.second);
         }
     }
 

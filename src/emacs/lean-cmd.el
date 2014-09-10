@@ -17,7 +17,7 @@ each command. Lean uses the “snapshots” to process incremental
 updates efficiently."
   `(LOAD ,file-name))
 
-(defun lean-cmd-visit (file-name)
+(defun lean-cmd-visit (&optional file-name)
   "sets [file-name] as the \"current\" file.
 
 Lean can keep information about multiple files. This command The
@@ -26,7 +26,7 @@ remaining commands are all with respect to the current file. If
 it. Some of the remaining commands apply  'changes'  to the current
 file. The LOAD command can be used to discard all these changes,
 and enforce the content of the file stored in file system."
-  `(VISIT ,file-name))
+  `(VISIT ,(or file-name (buffer-file-name))))
 
 (defun lean-cmd-replace (line-number new-line)
   "Replace the line [line-number] (in the current file) with [new-line].

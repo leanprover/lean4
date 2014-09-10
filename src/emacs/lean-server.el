@@ -6,6 +6,7 @@
 ;;
 (require 'cl-lib)
 (require 'dash)
+(require 'dash-functional)
 (require 'lean-variable)
 (require 'lean-cmd)
 (require 'lean-info)
@@ -168,8 +169,6 @@
 
 (defun lean-server-create-process ()
   "Create lean-server process."
-  ;; (when (buffer-modified-p)
-  ;;   (error "Please save the buffer before start lean-server."))
   (let ((process-connection-type nil)
         (lean-server-process
          (start-process lean-server-process-name
@@ -182,6 +181,7 @@
     (set-process-query-on-exit-flag lean-server-process nil)
     (lean-server-initialize-global-vars)
     (setq lean-global-server-process lean-server-process)
+    (lean-server-debug "lean-server process created")
     lean-server-process))
 
 (defun lean-server-kill-process ()
@@ -232,14 +232,18 @@ Send REPLACE commands to lean-server, reset lean-changed-lines to nil."
            do (lean-server-send-cmd-async (lean-cmd-replace n (lean-grab-line n)))
            finally (setq lean-changed-lines nil)))
 
+(defun lean-server-visit-current-buffer ()
+  (cond ((buffer-modified-p) (lean-server-handle-modified-buffer))
+        (t (lean-server-send-cmd-async (lean-cmd-visit)))))
+
 (defun lean-server-check-current-file (&optional file-name)
-  "Check lean-global-server-current-file-name.
+  "Check lean-global-server-current-file-name
 
 If it's not the same with file-name (default: buffer-file-name), send VISIT cmd."
   (let ((current-file-name (or file-name (buffer-file-name))))
     (unless (string= lean-global-server-current-file-name
                      current-file-name)
-      (lean-server-send-cmd-async (lean-cmd-visit current-file-name)))))
+      (lean-server-visit-current-buffer))))
 
 (defun lean-server-before-send-cmd (cmd)
   "Operations to perform before sending a command."
@@ -302,26 +306,37 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
   "Process the message from lean-server and call continuation"
   (cl-case type
     (INFO
+     (lean-server-debug "Process: INFO")
      (let ((info-record (lean-server-get-info-record-at-pos body)))
        (funcall cont info-record)))
     (SET
+     (lean-server-debug "Process: SET")
      ;; Call cont with string
      (funcall cont (lean-set-parse-string body)))
     (EVAL
+     (lean-server-debug "Process: EVAL")
      ;; Call cont with string
      (funcall cont (lean-eval-parse-string body)))
     (OPTIONS
+     (lean-server-debug "Process: OPTIONS")
      ;; Call cont with alist of lean-option-records
      (funcall cont (lean-options-parse-string body)))
     (SHOW
+     (lean-server-debug "Process: SHOW")
      ;; Call cont with string
      (funcall cont (lean-show-parse-string body)))
     (FINDP
+     (lean-server-debug "Process: FINDP")
      ;; Call cont with (name * type) list
      (funcall cont (lean-findp-parse-string body)))
     (FINDG
+     (lean-server-debug "Process: FINDG")
      ;; Call cont with (name * type) list
      (funcall cont (lean-findg-parse-string body)))
+    (WAIT
+     (lean-server-debug "Process: WAIT")
+     ;; Call cont
+     (funcall cont))
     (ERROR
      (lean-server-log "Error detected:\n%s" body))))
 
@@ -357,7 +372,8 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
   (lean-server-send-cmd cmd)
   (when cont
     (lean-server-async-task-queue-push-back cont)
-    (lean-server-debug "send-cmd-async: added to the queue = %S"
+    (lean-server-debug "send-cmd-async: added to %s the queue, queue size = %d"
+                       (lean-cmd-type cmd)
                        (lean-server-async-task-queue-len))
     (lean-server-debug "send-cmd-async: call handler")
     (lean-server-set-timer-for-event-handler)))
@@ -468,5 +484,38 @@ Otherwise, set an idle-timer to call the handler again"
                             (lean-server-async-task-queue-len))
          ret)))
     (if lean-global-async-task-queue (lean-server-set-timer-for-event-handler))))
+
+(defun lean-server-after-save ()
+  (let ((current-file-name (buffer-file-name)))
+    (when current-file-name
+      (lean-server-debug "lean-server-handle-save: %s" current-file-name)
+      (lean-server-send-cmd-async (lean-cmd-visit current-file-name)))))
+
+(defun lean-server-save-buffer-to-temp-file (prefix)
+  "Save the current buffer to a temp-file and return its path"
+  (interactive)
+  (let ((temp-file (make-temp-file prefix)))
+    (with-current-buffer (flymake-copy-buffer-to-temp-buffer (current-buffer))
+      (set-visited-file-name temp-file)
+      (save-buffer)
+      (kill-buffer))
+    temp-file))
+
+(defun lean-server-handle-modified-buffer ()
+  "Handle modified buffer when lean-mode start"
+  (interactive)
+  (when (buffer-file-name)
+    (let* ((current-file-name (buffer-file-name))
+           (current-directory (file-name-directory current-file-name))
+           (temp-prefix (concat (file-name-as-directory current-directory)
+                                "lean-temp"))
+           (temp-file (lean-server-save-buffer-to-temp-file temp-prefix)))
+      (lean-server-debug "lean-server-handle-modified-buffer: %s => %s"
+                         current-file-name
+                         temp-file)
+      (lean-server-send-cmd-async (lean-cmd-visit temp-file))
+      (setq lean-global-server-current-file-name current-file-name)
+      (lean-server-send-cmd-async (lean-cmd-wait)
+                                  (lambda () (delete-file temp-file))))))
 
 (provide 'lean-server)

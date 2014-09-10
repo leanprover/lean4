@@ -25,6 +25,7 @@
 (require 'lean-syntax)
 (require 'lean-mmm-lua)
 (require 'lean-company)
+(require 'lean-server)
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"
@@ -108,7 +109,7 @@
 (defconst lean-hooks-alist
   '(
     ;; Handle events that may start automatic syntax checks
-    ;; (after-save-hook                  . lean-handle-save)
+    (after-save-hook                     . lean-server-after-save)
     (after-change-functions              . lean-after-change-function)
     (before-change-functions             . lean-before-change-function)
     ;; ;; Handle events that may triggered pending deferred checks

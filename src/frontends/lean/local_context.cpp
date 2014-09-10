@@ -8,8 +8,10 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_context.h"
 
 namespace lean {
-local_context::local_context(name_generator & ngen, mvar2meta & m, list<expr> const & ctx):
-    m_ngen(ngen), m_mvar2meta(m) { set_ctx(ctx); }
+local_context::local_context(name const & prefix, list<expr> const & ctx):
+    m_ngen(prefix) {
+    set_ctx(ctx);
+}
 
 void local_context::set_ctx(list<expr> const & ctx) {
     m_ctx = ctx;
@@ -22,7 +24,7 @@ void local_context::set_ctx(list<expr> const & ctx) {
     }
 }
 
-expr local_context::pi_abstract_context(expr e, tag g) {
+expr local_context::pi_abstract_context(expr e, tag g) const {
     e = abstract_locals(e, m_ctx_buffer.size(), m_ctx_buffer.data());
     unsigned i = m_ctx_domain_buffer.size();
     while (i > 0) {
@@ -33,7 +35,7 @@ expr local_context::pi_abstract_context(expr e, tag g) {
     return e;
 }
 
-expr local_context::apply_context(expr const & f, tag g) {
+expr local_context::apply_context(expr const & f, tag g) const {
     expr r = f;
     for (unsigned i = 0; i < m_ctx_buffer.size(); i++)
         r = mk_app(r, m_ctx_buffer[i]).set_tag(g);
@@ -69,6 +71,13 @@ void local_context::add_local(expr const & l) {
     m_ctx = cons(l, m_ctx);
     m_ctx_domain_buffer.push_back(abstract_locals(l, m_ctx_buffer.size(), m_ctx_buffer.data()));
     m_ctx_buffer.push_back(l);
+}
+
+optional<expr> local_context::find_meta(name const & n) const {
+    if (auto it = m_mvar2meta.find(n))
+        return some_expr(*it);
+    else
+        return none_expr();
 }
 
 list<expr> const & local_context::get_data() const {

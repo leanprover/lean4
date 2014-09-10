@@ -75,7 +75,6 @@ class elaborator {
     type_checker_ptr     m_tc[2];
     // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
     // representing the context where ?m was created.
-    mvar2meta            m_mvar2meta;
     local_context        m_context; // current local context: a list of local constants
     local_context        m_full_context; // superset of m_context, it also contains non-contextual locals.
     cache                m_cache;
@@ -305,8 +304,8 @@ public:
     elaborator(elaborator_context & env, list<expr> const & ctx, name_generator const & ngen):
         m_env(env),
         m_ngen(ngen),
-        m_context(m_ngen, m_mvar2meta, ctx),
-        m_full_context(m_ngen, m_mvar2meta, ctx) {
+        m_context(m_ngen.next(), ctx),
+        m_full_context(m_ngen.next(), ctx) {
         m_relax_main_opaque = false;
         m_no_info = false;
         m_tc[0]  = mk_type_checker_with_hints(env.m_env, m_ngen.mk_child(), false);
@@ -330,6 +329,18 @@ public:
     expr infer_type(expr const & e, constraint_seq & s) { return m_tc[m_relax_main_opaque]->infer(e, s); }
     expr whnf(expr const & e, constraint_seq & s) { return m_tc[m_relax_main_opaque]->whnf(e, s); }
     expr mk_app(expr const & f, expr const & a, tag g) { return ::lean::mk_app(f, a).set_tag(g); }
+
+    /** \brief Convert the metavariable to the metavariable application that captures
+        the context where it was defined.
+    */
+    optional<expr> mvar_to_meta(expr const & mvar) {
+        lean_assert(is_metavar(mvar));
+        name const & m = mlocal_name(mvar);
+        if (auto it = m_context.find_meta(m))
+            return it;
+        else
+            return m_full_context.find_meta(m);
+    }
 
     /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
     void save_type_data(expr const & e, expr const & r) {
@@ -441,16 +452,6 @@ public:
         };
         cs += mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::ClassInstance), false, j, m_relax_main_opaque);
         return m;
-    }
-
-    /** \brief Convert the metavariable to the metavariable application that captures
-        the context where it was defined.
-    */
-    optional<expr> mvar_to_meta(expr mvar) {
-        if (auto it = m_mvar2meta.find(mlocal_name(mvar)))
-            return some_expr(*it);
-        else
-            return none_expr();
     }
 
     expr visit_expecting_type(expr const & e, constraint_seq & cs) {
@@ -610,7 +611,8 @@ public:
             if (is_meta(new_a_type)) {
                 if (delay_factor < to_delay_factor(cnstr_group::DelayedChoice)) {
                     // postpone...
-                    return lazy_list<constraints>(constraints(mk_delayed_coercion_cnstr(m, a, a_type, justification(), delay_factor+1)));
+                    return lazy_list<constraints>(constraints(mk_delayed_coercion_cnstr(m, a, a_type, justification(),
+                                                                                        delay_factor+1)));
                 } else {
                     // giveup...
                     return lazy_list<constraints>(constraints(mk_eq_cnstr(mvar, a, justification(), relax)));
@@ -660,7 +662,8 @@ public:
     }
 
     /** \brief Given a term <tt>a : a_type</tt>, and an expected type generate a metavariable with a delayed coercion. */
-    pair<expr, constraint_seq> mk_delayed_coercion(expr const & a, expr const & a_type, expr const & expected_type, justification const & j) {
+    pair<expr, constraint_seq> mk_delayed_coercion(expr const & a, expr const & a_type, expr const & expected_type,
+                                                   justification const & j) {
         expr m = m_full_context.mk_meta(some_expr(expected_type), a.get_tag());
         return to_ecs(m, mk_delayed_coercion_cnstr(m, a, a_type, j, to_delay_factor(cnstr_group::Basic)));
     }
@@ -1153,7 +1156,7 @@ public:
             for_each(e, [&](expr const & e, unsigned) {
                     if (!is_metavar(e))
                         return has_metavar(e);
-                    if (auto it = m_mvar2meta.find(mlocal_name(e))) {
+                    if (auto it = mvar_to_meta(e)) {
                         expr meta      = tmp_s.instantiate(*it);
                         expr meta_type = tmp_s.instantiate(type_checker(env()).infer(meta).first);
                         goal g(meta, meta_type);

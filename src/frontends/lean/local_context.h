@@ -16,13 +16,13 @@ typedef name_map<expr> mvar2meta;
     and creating metavariables in the scope of the local context efficiently
 */
 class local_context {
-    name_generator & m_ngen;
-    mvar2meta &      m_mvar2meta;
-    list<expr>       m_ctx; // current local context: a list of local constants
-    buffer<expr>     m_ctx_buffer; // m_ctx as a buffer
-    buffer<expr>     m_ctx_domain_buffer; // m_ctx_domain_buffer[i] == abstract_locals(m_ctx_buffer[i], i, m_ctx_buffer.beg
+    name_generator  m_ngen;
+    mvar2meta       m_mvar2meta;
+    list<expr>      m_ctx; // current local context: a list of local constants
+    buffer<expr>    m_ctx_buffer; // m_ctx as a buffer
+    buffer<expr>    m_ctx_domain_buffer; // m_ctx_domain_buffer[i] == abstract_locals(m_ctx_buffer[i], i, m_ctx_buffer.beg
 public:
-    local_context(name_generator & ngen, mvar2meta & m, list<expr> const & ctx);
+    local_context(name const & prefix, list<expr> const & ctx);
 
     void set_ctx(list<expr> const & ctx);
 
@@ -31,13 +31,13 @@ public:
         then the result is
            <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), e[x_1, ... x_n])</tt>.
     */
-    expr pi_abstract_context(expr e, tag g);
+    expr pi_abstract_context(expr e, tag g) const;
 
     /** \brief Assuming \c m_ctx is
            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
         return <tt>(f l_1 ... l_n)</tt>.
     */
-    expr apply_context(expr const & f, tag g);
+    expr apply_context(expr const & f, tag g) const;
 
     /** \brief Assuming \c m_ctx is
            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
@@ -78,9 +78,16 @@ public:
     */
     expr mk_meta(optional<expr> const & type, tag g);
 
-    void add_local(expr const & l);
-
+    /** \brief Return context as a list */
     list<expr> const & get_data() const;
+
+    /** \brief Return the metavariable application associated with the metavariable name
+        \c n. The metavariable application contains the context where \c n was created.
+        Return none if \c n was not created using this local context object.
+    */
+    optional<expr> find_meta(name const & n) const;
+
+    void add_local(expr const & l);
 
     /** \brief Scope object for restoring the content of the context */
     class scope {

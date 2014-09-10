@@ -10,6 +10,7 @@
 (require 'lean-cmd)
 (require 'lean-info)
 (require 'lean-util)
+(require 's)
 (require 'flycheck)
 
 ;; Parameters
@@ -142,11 +143,10 @@
 
 (defun lean-server-handle-signal (process event)
   "Handle signals for lean-server-process"
-  (cond
-   ((string-prefix-p "hangup" event)
-    (lean-server-initialize-global-vars))
-   ((string-prefix-p "killed" event)
-    (lean-server-initialize-global-vars))))
+  (let ((event-string (s-trim event)))
+    (lean-server-initialize-global-vars)
+    (lean-server-debug "lean-server-handle-signal: %s"
+                       (propertize event-string 'face '(:foreground "red")))))
 
 ;; How to create an async process
 ;; ==============================

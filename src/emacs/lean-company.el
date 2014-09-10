@@ -35,7 +35,7 @@ triggers a completion immediately."
           ((and
             (company-lean--need-autocomplete)
             (or
-             (> (length prefix) 3)
+             (>= (length prefix) 1)
              (string-match "[_.]" prefix)))
            prefix))))
 

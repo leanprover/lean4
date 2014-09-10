@@ -39,7 +39,8 @@
   "Display a message at the bottom of the *lean-server* buffer."
   (lean-server-output-to-buffer (lean-server-get-buffer)
                               (concat format-string)
-                              args))
+                              args)
+  (apply 'lean-server-debug (cons format-string args)))
 
 (defun lean-server-trace (format-string &rest args)
   "Display a message at the bottom of the *lean-server* buffer."
@@ -486,7 +487,9 @@ Otherwise, set an idle-timer to call the handler again"
          (lean-server-async-task-queue-pop-front)
          (lean-server-debug "event-handler: processed. now the queue size = %d\n"
                             (lean-server-async-task-queue-len))
-         ret)))
+         ret)
+        (t (lean-server-debug "event-handler: not processed. now the queue size = %d\n"
+                              (lean-server-async-task-queue-len)))))
     (if lean-global-async-task-queue (lean-server-set-timer-for-event-handler))))
 
 (defun lean-server-after-save ()

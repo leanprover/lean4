@@ -48,7 +48,11 @@
   (interactive)
   (lean-get-full-name-at-point
    (lambda (full-name)
-     (when full-name (find-tag full-name)))))
+     (lean-server-debug "lean-find-tag: %s" full-name)
+     (when full-name
+       (condition-case err
+           (find-tag full-name)
+         (user-error (message "lean-find-tag error: %s" (cdr err))))))))
 
 (defun lean-complete-tag ()
   "complete with tag"

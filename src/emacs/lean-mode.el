@@ -158,8 +158,7 @@ enabled and disabled respectively.")
   (when lean-eldoc-use
     (set (make-local-variable 'eldoc-documentation-function)
          'lean-eldoc-documentation-function)
-    (eldoc-mode t)
-    (lean-eldoc-documentation-function))
+    (eldoc-mode t))
   ;; company-mode
   (when lean-company-use
     (company-lean-hook)))

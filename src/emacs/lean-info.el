@@ -655,6 +655,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
 
 (defun lean-get-full-name-at-point-cont (info-record)
   "Continuation of lean-get-full-name-at-point"
+  (lean-server-debug "lean-get-full-name-at-point-cont: %S" info-record)
   (let ((id (cl-first (lean-info-record-identifier info-record))))
     (when id
       (lean-info-identifier-body-str id))))
@@ -663,7 +664,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
   "Return the full-name at point (if any)"
   (lean-get-info-record-at-point
    (lambda (info-record)
-     (lean-server-debug "executing continuation for get-full-name-at-point")
+     (lean-server-debug "lean-get-full-name-at-point: executing continuation for get-full-name-at-point")
      (funcall cont
               (lean-get-full-name-at-point-cont info-record)))))
 

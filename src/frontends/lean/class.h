@@ -21,4 +21,10 @@ bool is_class(environment const & env, name const & c);
 list<name> get_class_instances(environment const & env, name const & c);
 name get_class_name(environment const & env, expr const & e);
 void register_class_cmds(cmd_table & r);
+
+/** \brief Return true iff \c type is a class or Pi that produces a class. */
+optional<name> is_ext_class(type_checker & tc, expr type);
+
+/** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
+list<expr> get_local_instances(type_checker & tc, list<expr> const & ctx, name const & cls_name);
 }

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 #include "library/opaque_hints.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/tactic_hint.h"
 
 namespace lean {
 struct class_entry {
@@ -150,5 +151,36 @@ environment add_class_cmd(parser & p) {
 void register_class_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("instance", "add a new instance", add_instance_cmd));
     add_cmd(r, cmd_info("class",    "add a new class", add_class_cmd));
+}
+
+/** \brief Return true iff \c type is a class or Pi that produces a class. */
+optional<name> is_ext_class(type_checker & tc, expr type) {
+    type = tc.whnf(type).first;
+    if (is_pi(type)) {
+        return is_ext_class(tc, instantiate(binding_body(type), mk_local(tc.mk_fresh_name(), binding_domain(type))));
+    } else {
+        expr f = get_app_fn(type);
+        if (!is_constant(f))
+            return optional<name>();
+        name const & cls_name = const_name(f);
+        if (is_class(tc.env(), cls_name) || !empty(get_tactic_hints(tc.env(), cls_name)))
+            return optional<name>(cls_name);
+        else
+            return optional<name>();
+    }
+}
+
+/** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
+list<expr> get_local_instances(type_checker & tc, list<expr> const & ctx, name const & cls_name) {
+    buffer<expr> buffer;
+    for (auto const & l : ctx) {
+        if (!is_local(l))
+            continue;
+        expr inst_type    = mlocal_type(l);
+        if (auto it = is_ext_class(tc, inst_type))
+            if (*it == cls_name)
+                buffer.push_back(l);
+    }
+    return to_list(buffer.begin(), buffer.end());
 }
 }

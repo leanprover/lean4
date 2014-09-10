@@ -41,6 +41,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/no_info.h"
 #include "frontends/lean/extra_info.h"
 #include "frontends/lean/local_context.h"
+#include "frontends/lean/choice_iterator.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
@@ -60,37 +61,6 @@ elaborator_context::elaborator_context(environment const & env, io_state const &
                                        pos_info_provider const * pp, info_manager * info, bool check_unassigned):
     m_env(env), m_ios(ios), m_lls(lls), m_pos_provider(pp), m_info_manager(info), m_check_unassigned(check_unassigned) {
     m_use_local_instances = get_elaborator_local_instances(ios.get_options());
-}
-
-/** \brief Return true iff \c type is a class or Pi that produces a class. */
-optional<name> is_ext_class(type_checker & tc, expr type) {
-    type = tc.whnf(type).first;
-    if (is_pi(type)) {
-        return is_ext_class(tc, instantiate(binding_body(type), mk_local(tc.mk_fresh_name(), binding_domain(type))));
-    } else {
-        expr f = get_app_fn(type);
-        if (!is_constant(f))
-            return optional<name>();
-        name const & cls_name = const_name(f);
-        if (is_class(tc.env(), cls_name) || !empty(get_tactic_hints(tc.env(), cls_name)))
-            return optional<name>(cls_name);
-        else
-            return optional<name>();
-    }
-}
-
-/** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
-list<expr> get_local_instances(type_checker & tc, list<expr> const & ctx, name const & cls_name) {
-    buffer<expr> buffer;
-    for (auto const & l : ctx) {
-        if (!is_local(l))
-            continue;
-        expr inst_type    = mlocal_type(l);
-        if (auto it = is_ext_class(tc, inst_type))
-            if (*it == cls_name)
-                buffer.push_back(l);
-    }
-    return to_list(buffer.begin(), buffer.end());
 }
 
 typedef std::unique_ptr<type_checker> type_checker_ptr;
@@ -162,19 +132,13 @@ class elaborator {
         }
     };
 
-    struct choice_elaborator {
-        bool m_ignore_failure;
-        choice_elaborator(bool ignore_failure = false):m_ignore_failure(ignore_failure) {}
-        virtual optional<constraints> next() = 0;
-    };
-
     /** \brief 'Choice' expressions <tt>(choice e_1 ... e_n)</tt> are mapped into a metavariable \c ?m
         and a choice constraints <tt>(?m in fn)</tt> where \c fn is a choice function.
         The choice function produces a stream of alternatives. In this case, it produces a stream of
         size \c n, one alternative for each \c e_i.
         This is a helper class for implementing this choice functions.
     */
-    struct choice_expr_elaborator : public choice_elaborator {
+    struct choice_expr_elaborator : public choice_iterator {
         elaborator & m_elab;
         expr         m_mvar;
         expr         m_choice;
@@ -221,7 +185,7 @@ class elaborator {
 
         This is a helper class for implementing this choice function.
     */
-    struct placeholder_elaborator : public choice_elaborator {
+    struct placeholder_elaborator : public choice_iterator {
         elaborator &            m_elab;
         expr                    m_meta;
         expr                    m_meta_type; // elaborated type of the metavariable
@@ -238,7 +202,7 @@ class elaborator {
         placeholder_elaborator(elaborator & elab, expr const & meta, expr const & meta_type,
                                list<expr> const & local_insts, list<name> const & instances, list<tactic_hint_entry> const & tacs,
                                saved_state const & s, justification const & j, bool ignore_failure, bool relax):
-            choice_elaborator(ignore_failure),
+            choice_iterator(ignore_failure),
             m_elab(elab), m_meta(meta), m_meta_type(meta_type), m_local_instances(local_insts), m_instances(instances),
             m_tactics(tacs), m_state(s), m_jst(j), m_relax_main_opaque(relax) {
             collect_metavars(meta_type, m_mvars_in_meta_type);
@@ -336,20 +300,6 @@ class elaborator {
             return optional<constraints>();
         }
     };
-
-    lazy_list<constraints> choose(std::shared_ptr<choice_elaborator> c) {
-        return mk_lazy_list<constraints>([=]() {
-                auto s = c->next();
-                if (s) {
-                    return some(mk_pair(*s, choose(c)));
-                } else if (c->m_ignore_failure) {
-                    // return singleton empty list of constraints, and let tactic hints try to instantiate the metavariable.
-                    return lazy_list<constraints>::maybe_pair(constraints(), lazy_list<constraints>());
-                } else {
-                    return lazy_list<constraints>::maybe_pair();
-                }
-            });
-    }
 
 public:
     elaborator(elaborator_context & env, list<expr> const & ctx, name_generator const & ngen):
@@ -453,36 +403,16 @@ public:
         m_pre_info_data.clear();
     }
 
-    static expr instantiate_meta(expr const & meta, substitution & subst) {
-        buffer<expr> locals;
-        expr mvar = get_app_args(meta, locals);
-        mvar = update_mlocal(mvar, subst.instantiate_all(mlocal_type(mvar)));
-        for (auto & local : locals) local = subst.instantiate_all(local);
-        return ::lean::mk_app(mvar, locals);
-    }
-
-    /** \brief Return a 'failed to synthesize placholder' justification for the given
-        metavariable application \c m of the form (?m l_1 ... l_k) */
-    justification mk_failed_to_synthesize_jst(expr const & m) {
-        environment _env = env();
-        return mk_justification(m, [=](formatter const & fmt, substitution const & subst) {
-                substitution tmp(subst);
-                expr new_m    = instantiate_meta(m, tmp);
-                expr new_type = type_checker(_env).infer(new_m).first;
-                proof_state ps(goals(goal(new_m, new_type)), substitution(), name_generator("dontcare"));
-                return format("failed to synthesize placeholder") + line() + ps.pp(fmt);
-            });
-    }
-
     /** \brief Create a metavariable, and attach choice constraint for generating
         solutions using class-instances and tactic-hints.
     */
     expr mk_placeholder_meta(optional<expr> const & type, tag g, bool is_strict, constraint_seq & cs) {
         expr m              = m_context.mk_meta(type, g);
         saved_state st(*this);
-        justification j     = mk_failed_to_synthesize_jst(m);
+        justification j     = mk_failed_to_synthesize_jst(env(), m);
         bool relax          = m_relax_main_opaque;
-        auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s, name_generator const & /* ngen */) {
+        auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
+                             name_generator const & /* ngen */) {
             expr const & mvar = get_app_fn(meta);
             if (auto cls_name_it = is_ext_class(*m_tc[relax], meta_type)) {
                 name cls_name = *cls_name_it;
@@ -633,7 +563,7 @@ public:
         return a;
     }
 
-    struct coercion_case_split {
+    struct coercion_case_split : public choice_iterator {
         elaborator &      m_elab;
         expr              m_arg;
         bool              m_id; // true if identity was not tried yet
@@ -662,21 +592,11 @@ public:
         }
     };
 
-    lazy_list<constraints> choose(std::shared_ptr<coercion_case_split> c) {
-        return mk_lazy_list<constraints>([=]() {
-                auto s = c->next();
-                if (s) {
-                    return some(mk_pair(*s, choose(c)));
-                } else {
-                    return lazy_list<constraints>::maybe_pair();
-                }
-            });
-    }
-
     constraint mk_delayed_coercion_cnstr(expr const & m, expr const & a, expr const & a_type,
                                          justification const & j, unsigned delay_factor) {
         bool relax = m_relax_main_opaque;
-        auto choice_fn = [=](expr const & mvar, expr const & d_type, substitution const & s, name_generator const & /* ngen */) {
+        auto choice_fn = [=](expr const & mvar, expr const & d_type, substitution const & s,
+                             name_generator const & /* ngen */) {
             type_checker & tc = *m_tc[relax];
             expr          new_a_type;
             justification new_a_type_jst;

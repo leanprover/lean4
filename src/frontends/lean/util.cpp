@@ -205,4 +205,24 @@ expr univ_metavars_to_params(environment const & env, local_decls<level> const &
                              name_set & ps, buffer<name> & new_ps, expr const & e) {
     return univ_metavars_to_params_fn(env, lls, s, ps, new_ps)(e);
 }
+
+expr instantiate_meta(expr const & meta, substitution & subst) {
+    lean_assert(is_meta(meta));
+    buffer<expr> locals;
+    expr mvar = get_app_args(meta, locals);
+    mvar = update_mlocal(mvar, subst.instantiate_all(mlocal_type(mvar)));
+    for (auto & local : locals)
+        local = subst.instantiate_all(local);
+    return mk_app(mvar, locals);
+}
+
+justification mk_failed_to_synthesize_jst(environment const & env, expr const & m) {
+    return mk_justification(m, [=](formatter const & fmt, substitution const & subst) {
+            substitution tmp(subst);
+            expr new_m    = instantiate_meta(m, tmp);
+            expr new_type = type_checker(env).infer(new_m).first;
+            proof_state ps(goals(goal(new_m, new_type)), substitution(), name_generator("dontcare"));
+            return format("failed to synthesize placeholder") + line() + ps.pp(fmt);
+        });
+}
 }

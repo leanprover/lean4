@@ -40,4 +40,11 @@ bool occurs(level const & u, level const & l);
 */
 expr univ_metavars_to_params(environment const & env, local_decls<level> const & lls, substitution & s,
                              name_set & ps, buffer<name> & new_ps, expr const & e);
+
+/** \brief Instantiate metavariable application \c meta (?M ...) using \c subst  */
+expr instantiate_meta(expr const & meta, substitution & subst);
+
+/** \brief Return a 'failed to synthesize placholder' justification for the given
+    metavariable application \c m of the form (?m l_1 ... l_k) */
+justification mk_failed_to_synthesize_jst(environment const & env, expr const & m);
 }

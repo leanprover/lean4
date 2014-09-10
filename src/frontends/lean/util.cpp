@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
+#include "kernel/replace_fn.h"
 #include "library/scoped_ext.h"
 #include "library/locals.h"
 #include "library/explicit.h"
@@ -125,5 +126,83 @@ bool occurs(level const & u, level const & l) {
             return true;
         });
     return found;
+}
+
+/** \brief Functional object for converting the universe metavariables in an expression in new universe parameters.
+    The substitution is updated with the mapping metavar -> new param.
+    The set of parameter names m_params and the buffer m_new_params are also updated.
+*/
+class univ_metavars_to_params_fn {
+    environment const &        m_env;
+    local_decls<level> const & m_lls;
+    substitution &             m_subst;
+    name_set &                 m_params;
+    buffer<name> &             m_new_params;
+    unsigned                   m_next_idx;
+
+    /** \brief Create a new universe parameter s.t. the new name does not occur in \c m_params, nor it is
+        a global universe in \e m_env or in the local_decls<level> m_lls.
+        The new name is added to \c m_params, and the new level parameter is returned.
+        The name is of the form "l_i" where \c i >= m_next_idx.
+    */
+    level mk_new_univ_param() {
+        name l("l");
+        name r = l.append_after(m_next_idx);
+        while (m_lls.contains(r) || m_params.contains(r) || m_env.is_universe(r)) {
+            m_next_idx++;
+            r = l.append_after(m_next_idx);
+        }
+        m_params.insert(r);
+        m_new_params.push_back(r);
+        return mk_param_univ(r);
+    }
+
+public:
+    univ_metavars_to_params_fn(environment const & env, local_decls<level> const & lls, substitution & s,
+                               name_set & ps, buffer<name> & new_ps):
+        m_env(env), m_lls(lls), m_subst(s), m_params(ps), m_new_params(new_ps), m_next_idx(1) {}
+
+    level apply(level const & l) {
+        return replace(l, [&](level const & l) {
+                if (!has_meta(l))
+                    return some_level(l);
+                if (is_meta(l)) {
+                    if (auto it = m_subst.get_level(meta_id(l))) {
+                        return some_level(*it);
+                    } else {
+                        level new_p = mk_new_univ_param();
+                        m_subst.assign(l, new_p);
+                        return some_level(new_p);
+                    }
+                }
+                return none_level();
+            });
+    }
+
+    expr apply(expr const & e) {
+        if (!has_univ_metavar(e)) {
+            return e;
+        } else {
+            return replace(e, [&](expr const & e) {
+                    if (!has_univ_metavar(e)) {
+                        return some_expr(e);
+                    } else if (is_sort(e)) {
+                        return some_expr(update_sort(e, apply(sort_level(e))));
+                    } else if (is_constant(e)) {
+                        levels ls = map(const_levels(e), [&](level const & l) { return apply(l); });
+                        return some_expr(update_constant(e, ls));
+                    } else {
+                        return none_expr();
+                    }
+                });
+        }
+    }
+
+    expr operator()(expr const & e) { return apply(e); }
+};
+
+expr univ_metavars_to_params(environment const & env, local_decls<level> const & lls, substitution & s,
+                             name_set & ps, buffer<name> & new_ps, expr const & e) {
+    return univ_metavars_to_params_fn(env, lls, s, ps, new_ps)(e);
 }
 }

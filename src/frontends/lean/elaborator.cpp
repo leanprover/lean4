@@ -34,11 +34,13 @@ Author: Leonardo de Moura
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/class.h"
+#include "frontends/lean/util.h"
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/no_info.h"
 #include "frontends/lean/extra_info.h"
+#include "frontends/lean/local_context.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
@@ -53,78 +55,6 @@ bool get_elaborator_local_instances(options const & opts) {
     return opts.get_bool(g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES);
 }
 // ==========================================
-
-/** \brief Functional object for converting the universe metavariables in an expression in new universe parameters.
-    The substitution is updated with the mapping metavar -> new param.
-    The set of parameter names m_params and the buffer m_new_params are also updated.
-*/
-class univ_metavars_to_params_fn {
-    environment const &        m_env;
-    local_decls<level> const & m_lls;
-    substitution &             m_subst;
-    name_set &                 m_params;
-    buffer<name> &             m_new_params;
-    unsigned                   m_next_idx;
-
-    /** \brief Create a new universe parameter s.t. the new name does not occur in \c m_params, nor it is
-        a global universe in \e m_env or in the local_decls<level> m_lls.
-        The new name is added to \c m_params, and the new level parameter is returned.
-        The name is of the form "l_i" where \c i >= m_next_idx.
-    */
-    level mk_new_univ_param() {
-        name l("l");
-        name r = l.append_after(m_next_idx);
-        while (m_lls.contains(r) || m_params.contains(r) || m_env.is_universe(r)) {
-            m_next_idx++;
-            r = l.append_after(m_next_idx);
-        }
-        m_params.insert(r);
-        m_new_params.push_back(r);
-        return mk_param_univ(r);
-    }
-
-public:
-    univ_metavars_to_params_fn(environment const & env, local_decls<level> const & lls, substitution & s, name_set & ps, buffer<name> & new_ps):
-        m_env(env), m_lls(lls), m_subst(s), m_params(ps), m_new_params(new_ps), m_next_idx(1) {}
-
-    level apply(level const & l) {
-        return replace(l, [&](level const & l) {
-                if (!has_meta(l))
-                    return some_level(l);
-                if (is_meta(l)) {
-                    if (auto it = m_subst.get_level(meta_id(l))) {
-                        return some_level(*it);
-                    } else {
-                        level new_p = mk_new_univ_param();
-                        m_subst.assign(l, new_p);
-                        return some_level(new_p);
-                    }
-                }
-                return none_level();
-            });
-    }
-
-    expr apply(expr const & e) {
-        if (!has_univ_metavar(e)) {
-            return e;
-        } else {
-            return replace(e, [&](expr const & e) {
-                    if (!has_univ_metavar(e)) {
-                        return some_expr(e);
-                    } else if (is_sort(e)) {
-                        return some_expr(update_sort(e, apply(sort_level(e))));
-                    } else if (is_constant(e)) {
-                        levels ls = map(const_levels(e), [&](level const & l) { return apply(l); });
-                        return some_expr(update_constant(e, ls));
-                    } else {
-                        return none_expr();
-                    }
-                });
-        }
-    }
-
-    expr operator()(expr const & e) { return apply(e); }
-};
 
 elaborator_context::elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,
                                        pos_info_provider const * pp, info_manager * info, bool check_unassigned):
@@ -163,170 +93,33 @@ list<expr> get_local_instances(type_checker & tc, list<expr> const & ctx, name c
     return to_list(buffer.begin(), buffer.end());
 }
 
-typedef name_map<expr>                mvar2meta;
 typedef std::unique_ptr<type_checker> type_checker_ptr;
 
 /** \brief Helper class for implementing the \c elaborate functions. */
 class elaborator {
-    /** \brief Auxiliary data-structure for storing the local context, and creating metavariables in the scope of the local context efficiently */
-    class context {
-        name_generator & m_ngen;
-        mvar2meta &      m_mvar2meta;
-        list<expr>       m_ctx; // current local context: a list of local constants
-        buffer<expr>     m_ctx_buffer; // m_ctx as a buffer
-        buffer<expr>     m_ctx_domain_buffer; // m_ctx_domain_buffer[i] == abstract_locals(m_ctx_buffer[i], i, m_ctx_buffer.beg
-    public:
-        context(name_generator & ngen, mvar2meta & m, list<expr> const & ctx):m_ngen(ngen), m_mvar2meta(m) { set_ctx(ctx); }
-
-        void set_ctx(list<expr> const & ctx) {
-            m_ctx = ctx;
-            m_ctx_buffer.clear();
-            m_ctx_domain_buffer.clear();
-            to_buffer(ctx, m_ctx_buffer);
-            std::reverse(m_ctx_buffer.begin(), m_ctx_buffer.end());
-            for (unsigned i = 0; i < m_ctx_buffer.size(); i++) {
-                m_ctx_domain_buffer.push_back(abstract_locals(m_ctx_buffer[i], i, m_ctx_buffer.data()));
-            }
-        }
-
-        /** \brief Given <tt>e[l_1, ..., l_n]</tt> and assuming \c m_ctx is
-               <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-            then the result is
-               <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), e[x_1, ... x_n])</tt>.
-        */
-        expr pi_abstract_context(expr e, tag g) {
-            e = abstract_locals(e, m_ctx_buffer.size(), m_ctx_buffer.data());
-            unsigned i = m_ctx_domain_buffer.size();
-            while (i > 0) {
-                --i;
-                expr const & l = m_ctx_domain_buffer[i];
-                e = save_tag(mk_pi(local_pp_name(l), mlocal_type(l), e, local_info(l)), g);
-            }
-            return e;
-        }
-
-        /** \brief Assuming \c m_ctx is
-               <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-            return <tt>(f l_1 ... l_n)</tt>.
-        */
-        expr apply_context(expr const & f, tag g) {
-            expr r = f;
-            for (unsigned i = 0; i < m_ctx_buffer.size(); i++)
-                r = save_tag(::lean::mk_app(r, m_ctx_buffer[i]), g);
-            return r;
-        }
-
-        /** \brief Assuming \c m_ctx is
-                <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-            return a fresh metavariable \c ?m with type
-                <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
-            where \c ?u is a fresh universe metavariable.
-        */
-        expr mk_type_metavar(tag g) {
-            name n = m_ngen.next();
-            expr s = save_tag(mk_sort(mk_meta_univ(m_ngen.next())), g);
-            expr t = pi_abstract_context(s, g);
-            return save_tag(::lean::mk_metavar(n, t), g);
-        }
-
-        /** \brief Assuming \c m_ctx is
-               <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-            return <tt>(?m l_1 ... l_n)</tt> where \c ?m is a fresh metavariable with type
-               <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
-            and \c ?u is a fresh universe metavariable.
-
-            \remark The type of the resulting expression is <tt>Type.{?u}</tt>
-        */
-        expr mk_type_meta(tag g) {
-            return apply_context(mk_type_metavar(g), g);
-        }
-
-        /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
-               <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-            then the result is a fresh metavariable \c ?m with type
-               <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), type[x_1, ... x_n])</tt>.
-            If <tt>type</tt> is none, then the result is a fresh metavariable \c ?m1 with type
-               <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), ?m2 x1 .... xn)</tt>,
-            where ?m2 is another fresh metavariable with type
-               <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
-            and \c ?u is a fresh universe metavariable.
-        */
-        expr mk_metavar(optional<expr> const & type, tag g) {
-            name n      = m_ngen.next();
-            expr r_type = type ? *type : mk_type_meta(g);
-            expr t      = pi_abstract_context(r_type, g);
-            return save_tag(::lean::mk_metavar(n, t), g);
-        }
-
-        /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
-               <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
-            return (?m l_1 ... l_n), where ?m is a fresh metavariable
-            created using \c mk_metavar.
-
-            \see mk_metavar
-        */
-        expr mk_meta(optional<expr> const & type, tag g) {
-            expr mvar = mk_metavar(type, g);
-            expr meta = apply_context(mvar, g);
-            m_mvar2meta.insert(mlocal_name(mvar), meta);
-            return meta;
-        }
-
-        void add_local(expr const & l) {
-            m_ctx = cons(l, m_ctx);
-            m_ctx_domain_buffer.push_back(abstract_locals(l, m_ctx_buffer.size(), m_ctx_buffer.data()));
-            m_ctx_buffer.push_back(l);
-        }
-
-        list<expr> const & get_data() const {
-            return m_ctx;
-        }
-
-        /** \brief Scope object for restoring the content of the context */
-        class scope {
-            context &   m_main;
-            list<expr>  m_old_ctx;
-            unsigned    m_old_sz;
-        public:
-            scope(context & main):m_main(main), m_old_ctx(main.m_ctx), m_old_sz(main.m_ctx_buffer.size()) {}
-            ~scope() {
-                m_main.m_ctx = m_old_ctx;
-                m_main.m_ctx_buffer.shrink(m_old_sz);
-                m_main.m_ctx_domain_buffer.shrink(m_old_sz);
-            }
-        };
-
-        /** \brief Scope object for temporarily replacing the content of the context */
-        class scope_replace {
-            context &   m_main;
-            list<expr>  m_saved;
-        public:
-            scope_replace(context & main, list<expr> const & new_ctx):m_main(main), m_saved(m_main.m_ctx) {
-                m_main.set_ctx(new_ctx);
-            }
-            ~scope_replace() {
-                m_main.set_ctx(m_saved);
-            }
-        };
-    };
-
     typedef name_map<expr> local_tactic_hints;
     typedef rb_map<expr, pair<expr, constraint_seq>, expr_quick_cmp> cache;
 
     elaborator_context & m_env;
     name_generator       m_ngen;
     type_checker_ptr     m_tc[2];
-    mvar2meta            m_mvar2meta; // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
-                                     // representing the context where ?m was created.
-    context              m_context; // current local context: a list of local constants
-    context              m_full_context; // superset of m_context, it also contains non-contextual locals.
+    // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
+    // representing the context where ?m was created.
+    mvar2meta            m_mvar2meta;
+    local_context        m_context; // current local context: a list of local constants
+    local_context        m_full_context; // superset of m_context, it also contains non-contextual locals.
     cache                m_cache;
 
-    local_tactic_hints   m_local_tactic_hints; // mapping from metavariable name ?m to tactic expression that should be used to solve it.
-                                              // this mapping is populated by the 'by tactic-expr' expression.
-    name_set             m_displayed_errors; // set of metavariables that we already reported unsolved/unassigned
-    bool                 m_relax_main_opaque; // if true, then treat opaque definitions from the main module as transparent.
-    bool                 m_no_info;  // when true, we do not collect information when true, we set is to true whenever we find no_info annotation.
+    // mapping from metavariable name ?m to tactic expression that should be used to solve it.
+    // this mapping is populated by the 'by tactic-expr' expression.
+    local_tactic_hints   m_local_tactic_hints;
+    // set of metavariables that we already reported unsolved/unassigned
+    name_set             m_displayed_errors;
+    // if m_relax_main_opaque is true, then treat opaque definitions from the main module as transparent.
+    bool                 m_relax_main_opaque;
+    // if m_no_info is true, we do not collect information when true,
+    // we set is to true whenever we find no_info annotation.
+    bool                 m_no_info;
     info_manager         m_pre_info_data;
 
     // Auxiliary object to "saving" elaborator state
@@ -339,21 +132,21 @@ class elaborator {
     };
 
     struct scope_ctx {
-        elaborator &   m_main;
-        context::scope m_scope1;
-        context::scope m_scope2;
-        cache          m_old_cache;
+        elaborator &         m_main;
+        local_context::scope m_scope1;
+        local_context::scope m_scope2;
+        cache                m_old_cache;
         scope_ctx(elaborator & e):m_main(e), m_scope1(e.m_context), m_scope2(e.m_full_context), m_old_cache(e.m_cache) {}
         ~scope_ctx() { m_main.m_cache = m_old_cache; }
     };
 
     /** \brief Auxiliary object for creating backtracking points, and replacing the local scopes. */
     struct new_scope {
-        elaborator &           m_main;
-        bool                   m_old_no_info;
-        context::scope_replace m_context_scope;
-        context::scope_replace m_full_context_scope;
-        cache                  m_old_cache;
+        elaborator &                 m_main;
+        bool                         m_old_no_info;
+        local_context::scope_replace m_context_scope;
+        local_context::scope_replace m_full_context_scope;
+        cache                        m_old_cache;
         new_scope(elaborator & e, saved_state const & s, bool no_info = false):
             m_main(e),
             m_context_scope(e.m_context, s.m_ctx),
@@ -586,9 +379,7 @@ public:
     pair<expr, constraint_seq> whnf(expr const & e) { return m_tc[m_relax_main_opaque]->whnf(e); }
     expr infer_type(expr const & e, constraint_seq & s) { return m_tc[m_relax_main_opaque]->infer(e, s); }
     expr whnf(expr const & e, constraint_seq & s) { return m_tc[m_relax_main_opaque]->whnf(e, s); }
-
-    static expr save_tag(expr && e, tag g) { e.set_tag(g); return e; }
-    expr mk_app(expr const & f, expr const & a, tag g) { return save_tag(::lean::mk_app(f, a), g); }
+    expr mk_app(expr const & f, expr const & a, tag g) { return ::lean::mk_app(f, a).set_tag(g); }
 
     /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
     void save_type_data(expr const & e, expr const & r) {
@@ -1458,7 +1249,7 @@ public:
     expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params) {
         expr r = s.instantiate(e);
         if (has_univ_metavar(r))
-            r = univ_metavars_to_params_fn(env(), lls(), s, univ_params, new_params)(r);
+            r = univ_metavars_to_params(env(), lls(), s, univ_params, new_params, r);
         r = solve_unassigned_mvars(s, r);
         display_unassigned_mvars(r, s);
         return r;

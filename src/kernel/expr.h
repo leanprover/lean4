@@ -122,7 +122,7 @@ public:
     bool has_local() const { return m_ptr->has_local(); }
     bool has_param_univ() const { return m_ptr->has_param_univ(); }
 
-    void set_tag(tag t) { m_ptr->set_tag(t); }
+    expr set_tag(tag t) { m_ptr->set_tag(t); return *this; }
     tag get_tag() const { return m_ptr->get_tag(); }
 
 

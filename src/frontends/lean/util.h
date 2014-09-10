@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
+#include "frontends/lean/local_decls.h"
 namespace lean {
 class parser;
 void check_atomic(name const & n);
@@ -32,4 +33,11 @@ expr Pi_as_is(buffer<expr> const & locals, expr const & e, parser & p);
 level mk_result_level(environment const & env, buffer<level> const & r_lvls);
 /** \brief Return true if \c u occurs in \c l */
 bool occurs(level const & u, level const & l);
+
+/** \brief Convert the universe metavariables in \c e in new universe parameters.
+    The substitution \c s is updated with the mapping metavar -> new param.
+    The set of parameter names \c ps and the buffer \c new_ps are also updated.
+*/
+expr univ_metavars_to_params(environment const & env, local_decls<level> const & lls, substitution & s,
+                             name_set & ps, buffer<name> & new_ps, expr const & e);
 }

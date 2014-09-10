@@ -5,6 +5,7 @@ server.cpp notation_cmd.cpp calc.cpp
 decl_cmds.cpp util.cpp inductive_cmd.cpp elaborator.cpp
 dependencies.cpp parser_bindings.cpp begin_end_ext.cpp
 class.cpp pp_options.cpp tactic_hint.cpp pp.cpp theorem_queue.cpp
-structure_cmd.cpp info_manager.cpp no_info.cpp extra_info.cpp)
+structure_cmd.cpp info_manager.cpp no_info.cpp extra_info.cpp
+local_context.cpp)
 
 target_link_libraries(lean_frontend ${LEAN_LIBS})

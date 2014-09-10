@@ -163,10 +163,11 @@ list<expr> get_local_instances(type_checker & tc, list<expr> const & ctx, name c
     return to_list(buffer.begin(), buffer.end());
 }
 
+typedef name_map<expr>                mvar2meta;
+typedef std::unique_ptr<type_checker> type_checker_ptr;
+
 /** \brief Helper class for implementing the \c elaborate functions. */
 class elaborator {
-    typedef name_map<expr> mvar2meta;
-
     /** \brief Auxiliary data-structure for storing the local context, and creating metavariables in the scope of the local context efficiently */
     class context {
         name_generator & m_ngen;
@@ -309,9 +310,7 @@ class elaborator {
         };
     };
 
-    typedef std::vector<constraint> constraint_vect;
     typedef name_map<expr> local_tactic_hints;
-    typedef std::unique_ptr<type_checker> type_checker_ptr;
     typedef rb_map<expr, pair<expr, constraint_seq>, expr_quick_cmp> cache;
 
     elaborator_context & m_env;

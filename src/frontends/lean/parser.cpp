@@ -82,15 +82,19 @@ static name g_tmp_prefix = name::mk_internal_unique_name();
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name,
                bool use_exceptions, unsigned num_threads,
-               local_level_decls const & lds, local_expr_decls const & eds,
-               unsigned line, snapshot_vector * sv, info_manager * im):
+               snapshot const * s, snapshot_vector * sv, info_manager * im):
     m_env(env), m_ios(ios), m_ngen(g_tmp_prefix),
     m_verbose(true), m_use_exceptions(use_exceptions),
-    m_scanner(strm, strm_name, line), m_local_level_decls(lds), m_local_decls(eds),
+    m_scanner(strm, strm_name, s ? s->m_line : 1),
     m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
     m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr), m_index(nullptr) {
+    if (s) {
+        m_local_level_decls = s->m_lds;
+        m_local_decls       = s->m_eds;
+        m_options_stack     = s->m_options_stack;
+    }
     m_num_threads = num_threads;
-    m_no_undef_id_error    = false;
+    m_no_undef_id_error = false;
     m_found_errors = false;
     m_used_sorry = false;
     updt_options();
@@ -393,19 +397,20 @@ void parser::push_local_scope(bool save_options) {
     m_local_level_decls.push();
     m_local_decls.push();
     if (save_options)
-        m_options_stack.push_back(optional<options>(m_ios.get_options()));
+        m_options_stack = cons(optional<options>(m_ios.get_options()), m_options_stack);
     else
-        m_options_stack.push_back(optional<options>());
+        m_options_stack = cons(optional<options>(), m_options_stack);
 }
 
 void parser::pop_local_scope() {
     m_local_level_decls.pop();
     m_local_decls.pop();
-    if (auto const & it = m_options_stack.back()) {
+    lean_assert(!is_nil(m_options_stack));
+    if (auto const & it = head(m_options_stack)) {
         m_ios.set_options(*it);
         updt_options();
     }
-    m_options_stack.pop_back();
+    m_options_stack = tail(m_options_stack);
 }
 
 void parser::add_local_level(name const & n, level const & l) {
@@ -1316,7 +1321,8 @@ void parser::save_snapshot() {
     if (!m_snapshot_vector)
         return;
     if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
-        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls, m_ios.get_options(), m_scanner.get_line()));
+        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls,
+                                              m_options_stack, m_ios.get_options(), m_scanner.get_line()));
 }
 
 void parser::save_pre_info_data() {

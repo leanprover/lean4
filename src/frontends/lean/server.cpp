@@ -202,7 +202,7 @@ server::worker::worker(environment const & env, io_state const & ios, definition
                     bool use_exceptions  = false;
                     unsigned num_threads = 1;
                     parser p(s.m_env, tmp_ios, strm, todo_file->m_fname.c_str(), use_exceptions, num_threads,
-                             s.m_lds, s.m_eds, s.m_line, &todo_file->m_snapshots, &todo_file->m_info);
+                             &s, &todo_file->m_snapshots, &todo_file->m_info);
                     p.set_cache(&m_cache);
                     p();
                 } catch (interrupted &) {

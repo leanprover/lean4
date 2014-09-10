@@ -41,27 +41,29 @@ struct parser_error : public exception {
 };
 
 struct interrupt_parser {};
-typedef local_decls<expr>   local_expr_decls;
-typedef local_decls<level>  local_level_decls;
-typedef environment         local_environment;
+typedef local_decls<expr>       local_expr_decls;
+typedef local_decls<level>      local_level_decls;
+typedef list<optional<options>> options_stack;
+typedef environment             local_environment;
 
 /** \brief Snapshot of the state of the Lean parser */
 struct snapshot {
     environment       m_env;
     local_level_decls m_lds;
     local_expr_decls  m_eds;
+    options_stack     m_options_stack;
     options           m_options;
     unsigned          m_line;
     snapshot():m_line(0) {}
     snapshot(environment const & env, options const & o):m_env(env), m_options(o), m_line(1) {}
-    snapshot(environment const & env, local_level_decls const & lds, local_expr_decls const & eds, options const & opts, unsigned line):
-        m_env(env), m_lds(lds), m_eds(eds), m_options(opts), m_line(line) {}
+    snapshot(environment const & env, local_level_decls const & lds, local_expr_decls const & eds,
+             options_stack const & os, options const & opts, unsigned line):
+        m_env(env), m_lds(lds), m_eds(eds), m_options_stack(os), m_options(opts), m_line(line) {}
 };
 
 typedef std::vector<snapshot> snapshot_vector;
 
 class parser {
-    typedef std::vector<optional<options>> options_stack;
     environment             m_env;
     io_state                m_ios;
     name_generator          m_ngen;
@@ -183,9 +185,8 @@ public:
     parser(environment const & env, io_state const & ios,
            std::istream & strm, char const * str_name,
            bool use_exceptions = false, unsigned num_threads = 1,
-           local_level_decls const & lds = local_level_decls(),
-           local_expr_decls const & eds = local_expr_decls(), unsigned line = 1,
-           snapshot_vector * sv = nullptr, info_manager * im = nullptr);
+           snapshot const * s = nullptr, snapshot_vector * sv = nullptr,
+           info_manager * im = nullptr);
     ~parser();
 
     void set_cache(definition_cache * c) { m_cache = c; }

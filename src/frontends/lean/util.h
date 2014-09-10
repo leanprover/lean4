@@ -7,9 +7,11 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
+#include "kernel/type_checker.h"
 #include "frontends/lean/local_decls.h"
 namespace lean {
 class parser;
+typedef std::unique_ptr<type_checker> type_checker_ptr;
 void check_atomic(name const & n);
 void check_in_section_or_context(parser const & p);
 bool is_root_namespace(name const & n);
@@ -47,4 +49,8 @@ expr instantiate_meta(expr const & meta, substitution & subst);
 /** \brief Return a 'failed to synthesize placholder' justification for the given
     metavariable application \c m of the form (?m l_1 ... l_k) */
 justification mk_failed_to_synthesize_jst(environment const & env, expr const & m);
+
+/** \brief Copy the metavariables occurring in \c e to \c mvars,
+    this procedure ignores metavariables occurring in the type of metavariables. */
+void collect_metavars(expr const & e, buffer<expr> & mvars);
 }

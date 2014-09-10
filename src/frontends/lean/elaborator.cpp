@@ -42,6 +42,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/extra_info.h"
 #include "frontends/lean/local_context.h"
 #include "frontends/lean/choice_iterator.h"
+#include "frontends/lean/placeholder_elaborator.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
@@ -62,8 +63,6 @@ elaborator_context::elaborator_context(environment const & env, io_state const &
     m_env(env), m_ios(ios), m_lls(lls), m_pos_provider(pp), m_info_manager(info), m_check_unassigned(check_unassigned) {
     m_use_local_instances = get_elaborator_local_instances(ios.get_options());
 }
-
-typedef std::unique_ptr<type_checker> type_checker_ptr;
 
 /** \brief Helper class for implementing the \c elaborate functions. */
 class elaborator {
@@ -162,138 +161,6 @@ class elaborator {
                     expr r = rcs.first;
                     constraint_seq cs = mk_eq_cnstr(m_mvar, r, justification(), m_relax_main_opaque) + rcs.second;
                     return optional<constraints>(cs.to_list());
-                } catch (exception &) {}
-            }
-            return optional<constraints>();
-        }
-    };
-
-    /** \brief Whenever the elaborator finds a placeholder '_' or introduces an implicit argument, it creates
-        a metavariable \c ?m. It also creates a delayed choice constraint (?m in fn).
-
-        The function \c fn produces a stream of alternative solutions for ?m.
-        In this case, \c fn will do the following:
-          1) if the elaborated type of ?m is a 'class' C, then the stream will start with
-                  a) all local instances of class C (if elaborator.local_instances == true)
-                  b) solutions produced by tactic_hints for class C
-          2) if the elaborated type of ?m is not a class, then the stream will only contain
-             the solutions produced by tactic_hints.
-
-        The unifier only process delayed choice constraints when there are no other kind of constraint to be
-        processed.
-
-        This is a helper class for implementing this choice function.
-    */
-    struct placeholder_elaborator : public choice_iterator {
-        elaborator &            m_elab;
-        expr                    m_meta;
-        expr                    m_meta_type; // elaborated type of the metavariable
-        list<expr>              m_local_instances; // local instances that should also be included in the class-instance resolution.
-        list<name>              m_instances; // global declaration names that are class instances.
-                                             // This information is retrieved using #get_class_instances.
-        list<tactic_hint_entry> m_tactics;
-        proof_state_seq         m_tactic_result; // result produce by last executed tactic.
-        buffer<expr>            m_mvars_in_meta_type; // metavariables that occur in m_meta_type, the tactics may instantiate some of them
-        saved_state             m_state;
-        justification           m_jst;
-        bool                    m_relax_main_opaque;
-
-        placeholder_elaborator(elaborator & elab, expr const & meta, expr const & meta_type,
-                               list<expr> const & local_insts, list<name> const & instances, list<tactic_hint_entry> const & tacs,
-                               saved_state const & s, justification const & j, bool ignore_failure, bool relax):
-            choice_iterator(ignore_failure),
-            m_elab(elab), m_meta(meta), m_meta_type(meta_type), m_local_instances(local_insts), m_instances(instances),
-            m_tactics(tacs), m_state(s), m_jst(j), m_relax_main_opaque(relax) {
-            collect_metavars(meta_type, m_mvars_in_meta_type);
-        }
-
-        optional<constraints> try_instance(expr const & inst, expr const & inst_type) {
-            expr type   = inst_type;
-            // create the term pre (inst _ ... _)
-            expr pre    = copy_tag(m_meta, mk_explicit(inst));
-            while (true) {
-                type = m_elab.whnf(type).first;
-                if (!is_pi(type))
-                    break;
-                type = instantiate(binding_body(type), ::lean::mk_local(m_elab.m_ngen.next(), binding_domain(type)));
-                pre  = copy_tag(m_meta, ::lean::mk_app(pre, copy_tag(m_meta, mk_strict_expr_placeholder())));
-            }
-            try {
-                bool no_info = true;
-                new_scope s(m_elab, m_state, no_info);
-                expr type = m_meta_type;
-                buffer<expr> locals;
-                while (true) {
-                    type = m_elab.whnf(type).first;
-                    if (!is_pi(type))
-                        break;
-                    expr local  = ::lean::mk_local(m_elab.m_ngen.next(), binding_name(type), binding_domain(type),
-                                                   binding_info(type));
-                    if (binding_info(type).is_contextual())
-                        m_elab.m_context.add_local(local);
-                    m_elab.m_full_context.add_local(local);
-                    locals.push_back(local);
-                    type = instantiate(binding_body(type), local);
-                }
-                pair<expr, constraint_seq> rcs = m_elab.visit(pre); // use elaborator to create metavariables, levels, etc.
-                expr r = Fun(locals, rcs.first);
-                buffer<constraint> cs;
-                to_buffer(rcs.second, m_jst, cs);
-                return optional<constraints>(cons(mk_eq_cnstr(m_meta, r, m_jst, m_relax_main_opaque),
-                                                  to_list(cs.begin(), cs.end())));
-            } catch (exception &) {
-                return optional<constraints>();
-            }
-        }
-
-        optional<constraints> try_instance(name const & inst) {
-            auto decl   = m_elab.env().find(inst);
-            if (!decl)
-                return optional<constraints>();
-            return try_instance(copy_tag(m_meta, mk_constant(inst)), decl->get_type());
-        }
-
-        optional<constraints> get_next_tactic_result() {
-            while (auto next = m_tactic_result.pull()) {
-                m_tactic_result = next->second;
-                if (!empty(next->first.get_goals()))
-                    continue; // has unsolved goals
-                substitution subst = next->first.get_subst();
-                buffer<constraint> cs;
-                expr const & mvar = get_app_fn(m_meta);
-                cs.push_back(mk_eq_cnstr(mvar, subst.instantiate(mvar), m_jst, m_relax_main_opaque));
-                for (auto const & mvar : m_mvars_in_meta_type)
-                    cs.push_back(mk_eq_cnstr(mvar, subst.instantiate(mvar), m_jst, m_relax_main_opaque));
-                return optional<constraints>(to_list(cs.begin(), cs.end()));
-            }
-            return optional<constraints>();
-        }
-
-        virtual optional<constraints> next() {
-            while (!empty(m_local_instances)) {
-                expr inst         = head(m_local_instances);
-                m_local_instances = tail(m_local_instances);
-                if (!is_local(inst))
-                    continue;
-                if (auto r = try_instance(inst, mlocal_type(inst)))
-                    return r;
-            }
-            while (!empty(m_instances)) {
-                name inst   = head(m_instances);
-                m_instances = tail(m_instances);
-                if (auto cs = try_instance(inst))
-                    return cs;
-            }
-            if (auto cs = get_next_tactic_result())
-                return cs;
-            while (!empty(m_tactics)) {
-                tactic const & tac = head(m_tactics).get_tactic();
-                m_tactics          = tail(m_tactics);
-                proof_state ps(goals(goal(m_meta, m_meta_type)), substitution(), m_elab.m_ngen.mk_child());
-                try {
-                    m_tactic_result    = tac(m_elab.env(), m_elab.ios(), ps);
-                    if (auto cs = get_next_tactic_result())
-                        return cs;
                 } catch (exception &) {}
             }
             return optional<constraints>();
@@ -418,40 +285,11 @@ public:
         solutions using class-instances and tactic-hints.
     */
     expr mk_placeholder_meta(optional<expr> const & type, tag g, bool is_strict, constraint_seq & cs) {
-        expr m              = m_context.mk_meta(type, g);
-        saved_state st(*this);
-        justification j     = mk_failed_to_synthesize_jst(env(), m);
-        bool relax          = m_relax_main_opaque;
-        auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
-                             name_generator const & /* ngen */) {
-            expr const & mvar = get_app_fn(meta);
-            if (auto cls_name_it = is_ext_class(*m_tc[relax], meta_type)) {
-                name cls_name = *cls_name_it;
-                list<expr> local_insts;
-                if (use_local_instances())
-                    local_insts = get_local_instances(*m_tc[relax], st.m_ctx, cls_name);
-                list<name>  insts = get_class_instances(env(), cls_name);
-                list<tactic_hint_entry> tacs;
-                if (!s.is_assigned(mvar))
-                    tacs = get_tactic_hints(env(), cls_name);
-                if (empty(local_insts) && empty(insts) && empty(tacs))
-                    return lazy_list<constraints>(); // nothing to be done
-                bool ignore_failure = false; // we are always strict with placeholders associated with classes
-                return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, local_insts, insts, tacs, st,
-                                                                       j, ignore_failure, m_relax_main_opaque));
-            } else if (s.is_assigned(mvar)) {
-                // if the metavariable is assigned and it is not a class, then we just ignore it, and return
-                // the an empty set of constraints.
-                return lazy_list<constraints>(constraints());
-            } else {
-                list<tactic_hint_entry> tacs = get_tactic_hints(env());
-                bool ignore_failure = !is_strict;
-                return choose(std::make_shared<placeholder_elaborator>(*this, meta, meta_type, list<expr>(), list<name>(),
-                                                                       tacs, st, j, ignore_failure, m_relax_main_opaque));
-            }
-        };
-        cs += mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::ClassInstance), false, j, m_relax_main_opaque);
-        return m;
+        auto ec = mk_placeholder_elaborator(env(), ios(), m_context.get_data(),
+                                            m_ngen.next(), m_relax_main_opaque, use_local_instances(),
+                                            is_strict, type, g);
+        cs += ec.second;
+        return ec.first;
     }
 
     expr visit_expecting_type(expr const & e, constraint_seq & cs) {
@@ -484,7 +322,8 @@ public:
         expr m              = m_full_context.mk_meta(t, e.get_tag());
         saved_state s(*this);
         bool relax          = m_relax_main_opaque;
-        auto fn = [=](expr const & mvar, expr const & /* type */, substitution const & /* s */, name_generator const & /* ngen */) {
+        auto fn = [=](expr const & mvar, expr const & /* type */, substitution const & /* s */,
+                      name_generator const & /* ngen */) {
             return choose(std::make_shared<choice_expr_elaborator>(*this, mvar, e, s, relax));
         };
         justification j = mk_justification("none of the overloads is applicable", some_expr(e));
@@ -1012,16 +851,6 @@ public:
         buffer<constraint> tmp;
         cs.linearize(tmp);
         return unify(env(), tmp.size(), tmp.data(), m_ngen.mk_child(), unifier_config(ios().get_options(), true));
-    }
-
-    static void collect_metavars(expr const & e, buffer<expr> & mvars) {
-        for_each(e, [&](expr const & e, unsigned) {
-                if (is_metavar(e)) {
-                    mvars.push_back(e);
-                    return false; /* do not visit its type */
-                }
-                return has_metavar(e);
-            });
     }
 
     void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg) {

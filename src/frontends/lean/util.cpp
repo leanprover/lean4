@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
+#include "kernel/for_each_fn.h"
 #include "library/scoped_ext.h"
 #include "library/locals.h"
 #include "library/explicit.h"
@@ -223,6 +224,16 @@ justification mk_failed_to_synthesize_jst(environment const & env, expr const & 
             expr new_type = type_checker(env).infer(new_m).first;
             proof_state ps(goals(goal(new_m, new_type)), substitution(), name_generator("dontcare"));
             return format("failed to synthesize placeholder") + line() + ps.pp(fmt);
+        });
+}
+
+void collect_metavars(expr const & e, buffer<expr> & mvars) {
+    for_each(e, [&](expr const & e, unsigned) {
+            if (is_metavar(e)) {
+                mvars.push_back(e);
+                return false; /* do not visit its type */
+            }
+            return has_metavar(e);
         });
 }
 }

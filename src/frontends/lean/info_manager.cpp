@@ -175,6 +175,27 @@ public:
     }
 };
 
+class overload_notation_info_data : public info_data_cell {
+    list<expr> m_alts;
+public:
+    overload_notation_info_data(unsigned c, list<expr> const & as):info_data_cell(c), m_alts(as) {}
+
+    virtual info_kind kind() const { return info_kind::Overload; }
+
+    virtual void display(io_state_stream const & ios, unsigned line) const {
+        ios << "-- OVERLOAD|" << line << "|" << get_column() << "\n";
+        options os = ios.get_options();
+        os = os.update(get_pp_full_names_option_name(), true);
+        auto new_ios = ios.update_options(os);
+        bool first = true;
+        for (expr const & e : m_alts) {
+            if (first) first = false; else ios << "--\n";
+            new_ios << e << endl;
+        }
+        new_ios << "-- ACK" << endl;
+    }
+};
+
 class coercion_info_data : public info_data_cell {
     expr m_expr;
     expr m_type;
@@ -225,6 +246,7 @@ info_data mk_type_info(unsigned c, expr const & e) { return info_data(new type_i
 info_data mk_extra_type_info(unsigned c, expr const & e, expr const & t) { return info_data(new extra_type_info_data(c, e, t)); }
 info_data mk_synth_info(unsigned c, expr const & e) { return info_data(new synth_info_data(c, e)); }
 info_data mk_overload_info(unsigned c, expr const & e) { return info_data(new overload_info_data(c, e)); }
+info_data mk_overload_notation_info(unsigned c, list<expr> const & a) { return info_data(new overload_notation_info_data(c, a)); }
 info_data mk_coercion_info(unsigned c, expr const & e, expr const & t) { return info_data(new coercion_info_data(c, e, t)); }
 info_data mk_symbol_info(unsigned c, name const & s) { return info_data(new symbol_info_data(c, s)); }
 info_data mk_identifier_info(unsigned c, name const & full_id) { return info_data(new identifier_info_data(c, full_id)); }
@@ -319,6 +341,14 @@ struct info_manager::imp {
             return;
         synch_line(l);
         m_line_data[l].insert(mk_overload_info(c, e));
+    }
+
+    void add_overload_notation_info(unsigned l, unsigned c, list<expr> const & a) {
+        lock_guard<mutex> lc(m_mutex);
+        if (m_block_new_info)
+            return;
+        synch_line(l);
+        m_line_data[l].insert(mk_overload_notation_info(c, a));
     }
 
     void add_coercion_info(unsigned l, unsigned c, expr const & e, expr const & t) {
@@ -583,6 +613,7 @@ void info_manager::add_type_info(unsigned l, unsigned c, expr const & e) { m_ptr
 void info_manager::add_extra_type_info(unsigned l, unsigned c, expr const & e, expr const & t) { m_ptr->add_extra_type_info(l, c, e, t); }
 void info_manager::add_synth_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_synth_info(l, c, e); }
 void info_manager::add_overload_info(unsigned l, unsigned c, expr const & e) { m_ptr->add_overload_info(l, c, e); }
+void info_manager::add_overload_notation_info(unsigned l, unsigned c, list<expr> const & a) { m_ptr->add_overload_notation_info(l, c, a); }
 void info_manager::add_coercion_info(unsigned l, unsigned c, expr const & e, expr const & t) { m_ptr->add_coercion_info(l, c, e, t); }
 void info_manager::erase_coercion_info(unsigned l, unsigned c) { m_ptr->erase_coercion_info(l, c); }
 void info_manager::add_symbol_info(unsigned l, unsigned c, name const & s) { m_ptr->add_symbol_info(l, c, s); }

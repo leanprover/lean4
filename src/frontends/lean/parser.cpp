@@ -911,6 +911,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
         t = r->second;
     }
     list<expr> const & as = t.is_accepting();
+    save_overload_notation(as, p);
     if (is_nil(as)) {
         if (p == pos())
             throw parser_error(sstream() << "invalid expression", pos());
@@ -923,7 +924,6 @@ expr parser::parse_notation(parse_table t, expr * left) {
         cs.push_back(r);
     }
     expr r = save_pos(mk_choice(cs.size(), cs.data()), p);
-    save_overload(r);
     save_type_info(r);
     return r;
 }
@@ -1333,6 +1333,12 @@ void parser::save_overload(expr const & e) {
         return;
     auto p = pos_of(e);
     m_info_manager->add_overload_info(p.first, p.second, e);
+}
+
+void parser::save_overload_notation(list<expr> const & as, pos_info const & p) {
+    if (!m_info_manager || length(as) <= 1)
+        return;
+    m_info_manager->add_overload_notation_info(p.first, p.second, as);
 }
 
 void parser::save_identifier_info(pos_info const & p, name const & full_id) {

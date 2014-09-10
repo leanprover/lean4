@@ -52,15 +52,19 @@ static std::string get_exe_location() {
 // OSX version
 #include <mach-o/dyld.h>
 #include <limits.h>
+#include <stdlib.h>
 static char g_path_sep     = ':';
 static char g_sep          = '/';
 static char g_bad_sep      = '\\';
 static std::string get_exe_location() {
-    char buf[PATH_MAX];
+    char buf1[PATH_MAX];
+    char buf2[PATH_MAX];
     uint32_t bufsize = PATH_MAX;
-    if (_NSGetExecutablePath(buf, &bufsize) != 0)
+    if (_NSGetExecutablePath(buf1, &bufsize) != 0)
         throw exception("failed to locate Lean executable location");
-    return std::string(buf);
+    if (!realpath(buf1, buf2))
+        throw exception("failed to resolve symbolic links in " + std::string(buf1));
+    return std::string(buf2);
 }
 #else
 // Linux version

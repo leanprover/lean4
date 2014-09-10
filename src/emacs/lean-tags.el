@@ -5,22 +5,41 @@
 ;;
 
 (require 'dash)
+(defun lean-tags-table-list ()
+  (let* ((lean-path-env-list
+          (parse-colon-path (getenv "LEAN_PATH")))
+         (lean--path-list
+          (parse-colon-path
+           (ignore-errors
+             (car (process-lines (lean-get-executable lean-executable-name)
+                                 "--path")))))
+         (lean-path-list
+          (-uniq (append lean-path-env-list lean--path-list)))
+         (tags-file-list
+          (-non-nil
+           (--map (let ((tags-file (concat (file-name-as-directory it)
+                                           "TAGS")))
+                    (if (file-exists-p tags-file)
+                        tags-file
+                      nil))
+                  lean-path-list))))
+    tags-file-list))
 
 (defun lean-generate-tags ()
   "Run linja TAGS and let emacs use the generated TAGS file."
   (interactive)
   (let ((ltags-file-name (lean-get-executable "linja"))
-        tags-file-name)
+        tags-file)
     (message "Generating TAGS...")
     (apply 'call-process
            (append `(,ltags-file-name nil "*lean-tags*" nil)
                    lean-flycheck-checker-options
                    '("TAGS")))
-    (message "TAGS generated."))
-  (unless tags-table-list
-    (setq tags-file-name (lean-find-file-upward "TAGS"))
-    (when tags-file-name
-      (visit-tags-table tags-file-name))))
+    (message "TAGS generated.")
+    (setq tags-table-list (lean-tags-table-list))
+    (setq tags-file (lean-find-file-upward "TAGS"))
+    (when tags-file
+      (add-to-list 'tags-table-list tags-file))))
 
 (defmacro lean-tags-make-advice-to-call-ltags (f)
   (let* ((f-name (symbol-name f))

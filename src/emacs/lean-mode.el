@@ -26,6 +26,7 @@
 (require 'lean-mmm-lua)
 (require 'lean-company)
 (require 'lean-server)
+(require 'lean-project)
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"
@@ -93,6 +94,7 @@
   "Menu for the Lean major mode"
   `("Lean"
     ["Execute lean"         lean-execute                      t]
+    ["Create a new project" (call-interactively 'lean-project-create) (not (lean-project-inside-p))]
     "-----------------"
     ["Show type info"       lean-eldoc-documentation-function lean-eldoc-use]
     ["Fill a placeholder"   lean-fill-placeholder             (looking-at  (rx symbol-start "_"))]

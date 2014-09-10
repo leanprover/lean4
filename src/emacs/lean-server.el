@@ -104,7 +104,7 @@
              ,(rx line-start (group "-- ENDFINDP") line-end))
     (FINDG   ,(rx line-start "-- BEGINFINDG" (* not-newline) line-end)
              ,(rx line-start (group "-- ENDFINDG") line-end))
-    (WAIT   ,(rx line-start "-- BEGINWAIT" line-end)
+    (WAIT    ,(rx line-start "-- BEGINWAIT" line-end)
              ,(rx line-start (group "-- ENDWAIT") line-end))
     (ERROR   ,(rx line-start "-- " (0+ not-newline) line-end)
              ,(rx line-start (group "-- ERROR" (0+ not-newline)) line-end)))
@@ -124,12 +124,16 @@
 
 (defun lean-server-check-buffer-and-partition (buf-str)
   "Return the status of buffer."
-  (let (result)
-    (when buf-str
-      (cl-loop for (type beg-regex end-regex) in lean-server-syntax-pattern
-               do (setq partition-result (lean-server-split-buffer buf-str beg-regex end-regex))
-               if partition-result
-               return `(,type ,partition-result)))))
+  (when buf-str
+    (let (matches partition-result)
+      (setq matches
+            (cl-loop for (type beg-regex end-regex) in lean-server-syntax-pattern
+                     do (setq partition-result (lean-server-split-buffer buf-str beg-regex end-regex))
+                     if partition-result
+                     collect `(,type ,partition-result)))
+      (when matches
+        (-min-by (-on '< (lambda (type-partition-result) (length (car (cdr type-partition-result)))))
+                 matches)))))
 
 (defun lean-server-process-received-message (buf str)
   "Process received message from lean-server"

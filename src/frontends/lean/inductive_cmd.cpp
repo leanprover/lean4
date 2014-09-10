@@ -121,9 +121,9 @@ struct inductive_cmd_fn {
     name parse_decl_name(optional<name> const & ind_name) {
         m_pos   = m_p.pos();
         name id = m_p.check_id_next("invalid declaration, identifier expected");
-        check_atomic(id);
         if (ind_name) {
             // for intro rules, we append the name of the inductive datatype
+            check_atomic(id);
             name full_id = *ind_name + id;
             m_decl_info.emplace_back(full_id, g_intro, m_pos);
             return full_id;

@@ -33,7 +33,6 @@ static name g_coercion("[coercion]");
 
 environment universe_cmd(parser & p) {
     name n = p.check_id_next("invalid universe declaration, identifier expected");
-    check_atomic(n);
     environment env = p.env();
     if (in_section_or_context(env)) {
         p.add_local_level(n, mk_param_univ(n));
@@ -119,7 +118,6 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
     auto pos = p.pos();
     optional<binder_info> bi = parse_binder_info(p);
     name n = p.check_id_next("invalid declaration, identifier expected");
-    check_atomic(n);
     buffer<name> ls_buffer;
     if (p.curr_is_token(g_llevel_curly) && in_section_or_context(p.env()))
         throw parser_error("invalid declaration, axioms/parameters occurring in sections cannot be universe polymorphic", p.pos());
@@ -211,7 +209,6 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     auto n_pos = p.pos();
     unsigned start_line = n_pos.first;
     name n     = p.check_id_next("invalid declaration, identifier expected");
-    check_atomic(n);
     decl_modifiers modifiers;
     name real_n; // real name for this declaration
     modifiers.m_is_opaque = _is_opaque;
@@ -382,7 +379,6 @@ static environment variables_cmd(parser & p) {
         buffer<name> ids;
         while (!p.curr_is_token(g_colon)) {
             name id = p.check_id_next("invalid parameters declaration, identifier expected");
-            check_atomic(id);
             ids.push_back(id);
         }
         p.next();

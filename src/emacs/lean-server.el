@@ -152,6 +152,8 @@
   (let ((event-string (s-trim event)))
     (lean-server-initialize-global-vars)
     (lean-server-debug "lean-server-handle-signal: %s"
+                       (propertize event-string 'face '(:foreground "red")))
+    (lean-server-trace "lean-server-handle-signal: %s\n"
                        (propertize event-string 'face '(:foreground "red")))))
 
 ;; How to create an async process

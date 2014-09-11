@@ -46,7 +46,7 @@ triggers a completion immediately."
   (let ((line-number (line-number-at-pos))
         (column-number (current-column))
         pattern)
-    (lean-server-send-cmd-sync (lean-cmd-wait) 'identity)
+    (lean-server-send-cmd-sync (lean-cmd-wait) '(lambda () ()))
     (cond
      ((looking-at (rx symbol-start "_"))
       (setq pattern (if current-prefix-arg

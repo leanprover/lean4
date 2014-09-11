@@ -43,7 +43,7 @@ namespace category
   theorem id_left  : Π {A B : ob} {f : mor A B}, id ∘ f = f :=
   rec (λ mor comp id assoc idr idl, idl) Cat
 
-  theorem id_compose : (ID A) ∘ id = id :=
+  theorem id_compose {A : ob} : (ID A) ∘ id = id :=
   id_left
 
   theorem left_id_unique (i : mor A A) (H : Π{B} {f : mor B A}, i ∘ f = f) : i = id :=
@@ -125,18 +125,18 @@ namespace category
   theorem iso_of_id {A : ob} : ID A⁻¹ = id :=
   left_inverse_eq_right_inverse inverse_compose id_compose
 
-  theorem composition_is_section [instance] {f : mor A B} {g : mor B C} 
+  theorem composition_is_section [instance] {f : mor A B} {g : mor B C}
       (Hf : is_section f) (Hg : is_section g) : is_section (g ∘ f) :=
   is_section.mk
     (calc
-      (retraction_of f ∘ retraction_of g) ∘ g ∘ f 
+      (retraction_of f ∘ retraction_of g) ∘ g ∘ f
             = retraction_of f ∘ retraction_of g ∘ g ∘ f : symm assoc
         ... = retraction_of f ∘ (retraction_of g ∘ g) ∘ f : {assoc}
         ... = retraction_of f ∘ id ∘ f : {retraction_compose}
         ... = retraction_of f ∘ f : {id_left}
         ... = id : retraction_compose)
 
-  theorem composition_is_retraction [instance] {f : mor A B} {g : mor B C} 
+  theorem composition_is_retraction [instance] {f : mor A B} {g : mor B C}
       (Hf : is_retraction f) (Hg : is_retraction g) : is_retraction (g ∘ f) :=
   is_retraction.mk
     (calc
@@ -146,7 +146,7 @@ namespace category
         ... = g ∘ section_of g : {id_left}
         ... = id : compose_section)
 
-  theorem composition_is_inverse [instance] {f : mor A B} {g : mor B C} 
+  theorem composition_is_inverse [instance] {f : mor A B} {g : mor B C}
       (Hf : is_iso f) (Hg : is_iso g) : is_iso (g ∘ f) :=
   section_retraction_imp_iso _ _
 
@@ -156,7 +156,7 @@ namespace category
   ∀⦃C⦄ {g h : mor B C}, g ∘ f = h ∘ f → g = h
 
   theorem section_is_mono {f : mor A B} (H : is_section f) : mono f :=
-  λ C g h H, 
+  λ C g h H,
   calc
     g = id ∘ g : symm id_left
   ... = (retraction_of f ∘ f) ∘ g : {symm retraction_compose}
@@ -167,7 +167,7 @@ namespace category
   ... = h : id_left
 
   theorem retraction_is_epi {f : mor A B} (H : is_retraction f) : epi f :=
-  λ C g h H, 
+  λ C g h H,
   calc
     g = g ∘ id : symm id_right
   ... = g ∘ f ∘ section_of f : {symm compose_section}
@@ -200,14 +200,14 @@ namespace category
   -- check g ∘ f
   -- check f ∘op g
   -- check f ∘op g = g ∘ f
-  
-  -- theorem compose_op : f ∘op g = g ∘ f := 
+
+  -- theorem compose_op : f ∘op g = g ∘ f :=
   -- rfl
-  -- theorem compose_op {C : category ob} {a b c : ob} {f : @mor ob C a b} {g : @mor ob C b c} : f ∘op g = g ∘ f := 
+  -- theorem compose_op {C : category ob} {a b c : ob} {f : @mor ob C a b} {g : @mor ob C b c} : f ∘op g = g ∘ f :=
   -- rfl
   -- theorem op_op {C : category ob} : opposite (opposite C) = C :=
   -- rec (λ mor comp id assoc idl idr, sorry) C
-  end  
+  end
 
   section
   --need extensionality

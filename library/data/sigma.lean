@@ -14,7 +14,7 @@ section
   parameters {A : Type} {B : A → Type}
 
   abbreviation dpr1 (p : Σ x, B x) : A := rec (λ a b, a) p
-  abbreviation dpr2 {A : Type} {B : A → Type} (p : Σ x, B x) : B (dpr1 p) := rec (λ a b, b) p
+  abbreviation dpr2 (p : Σ x, B x) : B (dpr1 p) := rec (λ a b, b) p
 
   theorem dpr1_dpair (a : A) (b : B a) : dpr1 (dpair a b) = a := rfl
   theorem dpr2_dpair (a : A) (b : B a) : dpr2 (dpair a b) = b := rfl

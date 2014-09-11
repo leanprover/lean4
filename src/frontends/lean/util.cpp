@@ -38,7 +38,7 @@ void sort_section_params(expr_struct_set const & locals, parser const & p, buffe
     for (expr const & l : locals)
         section_ps.push_back(l);
     std::sort(section_ps.begin(), section_ps.end(), [&](expr const & p1, expr const & p2) {
-            return p.get_local_index(mlocal_name(p1)) < p.get_local_index(mlocal_name(p2));
+            return p.get_local_index(local_pp_name(p1)) < p.get_local_index(local_pp_name(p2));
         });
 }
 

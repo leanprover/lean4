@@ -936,7 +936,8 @@ public:
     }
 
     std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n, bool is_opaque) {
-        lean_assert(!has_local(t)); lean_assert(!has_local(v));
+        lean_assert(!has_local(t));
+        lean_assert(!has_local(v));
         constraint_seq t_cs;
         expr r_t      = ensure_type(visit(t, t_cs), t_cs);
         // Opaque definitions in the main module may treat other opaque definitions (in the main module) as transparent.

@@ -81,7 +81,9 @@ static environment declare_var(parser & p, environment env,
     binder_info bi;
     if (_bi) bi = *_bi;
     if (in_section_or_context(p.env())) {
-        p.add_local(p.save_pos(mk_local(n, type, bi), pos));
+        name u = p.mk_fresh_name();
+        expr l = p.save_pos(mk_local(u, n, type, bi), pos);
+        p.add_local_expr(n, l);
         return env;
     } else {
         name const & ns = get_namespace(env);

@@ -93,3 +93,23 @@ Key Bindings
 |<kbd>TAB</kbd>     | lean-tab-indent-or-complete       |
 |<kbd>C-c C-o</kbd> | lean-set-option                   |
 |<kbd>C-c C-e</kbd> | lean-eval-cmd                     |
+
+Contribution
+------------
+
+Contribution is welcome!
+
+If your contribution is a bug fix, create your topic branch from
+`master`. If it is a new feature, check if there exists a
+WIP(work-in-progress) branch (`vMAJOR.MINOR-wip`). If it does, use
+that branch, otherwise use `master`.
+
+Install [Cask](https://github.com/cask/cask) if you haven't already,
+then:
+
+    $ cd /path/to/lean/src/emacs
+    $ cask
+
+Run all tests with:
+
+    $ make

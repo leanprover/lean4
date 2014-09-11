@@ -143,28 +143,35 @@ rep. Then, add text-properties on the replaced region."
                (replace-regex-return-position regex rep result m-end)))))
     result))
 
-(defadvice company-fill-propertize
-  (after lean-company-fill-propertize activate)
-  (when (eq major-mode 'lean-mode)
-    (let* ((selected (ad-get-arg 3))
-           (properties `(face (:foreground ,(face-foreground 'font-lock-keyword-face)
-                               :background ,(face-background (if selected 'company-tooltip-selection
-                                                               'company-tooltip)))
-                         mouse-face company-tooltip))
-           (old-return ad-return-value)
-           (old-len    (length old-return))
-           new-return new-len)
-      (setq new-return
-            (replace-regex-add-properties-all
-             (rx "?" word-start (group (+ (not white))) word-end)
-             "\\1"
-             ad-return-value
-             properties))
-      (setq new-len (length new-return))
-      (while (< (length new-return) old-len)
-        (setq new-return
-              (concat new-return " ")))
-      (add-text-properties new-len old-len properties new-return)
-      (setq ad-return-value new-return))))
+(eval-after-load 'company
+  '(defadvice company-fill-propertize
+     (after lean-company-fill-propertize activate)
+     (when (eq major-mode 'lean-mode)
+       (let* ((selected (ad-get-arg 3))
+              (foreground-color (face-foreground 'font-lock-keyword-face))
+              (background-color (if selected (face-background 'company-tooltip-selection)
+                                  (face-background 'company-tooltip)))
+              (face-attrs
+               (cond (background-color `(:foreground ,foreground-color
+                                         :background ,background-color))
+                     (t `(:foreground ,foreground-color))))
+              (properties `(face       ,face-attrs
+                                       mouse-face company-tooltip))
+              (old-return ad-return-value)
+              (old-len    (length old-return))
+              new-return new-len)
+         (setq new-return
+               (replace-regex-add-properties-all
+                (rx "?" word-start (group (+ (not white))) word-end)
+                "\\1"
+                ad-return-value
+                properties))
+         (setq new-len (length new-return))
+         (while (< (length new-return) old-len)
+           (setq new-return
+                 (concat new-return " ")))
+         (when background-color
+           (add-text-properties new-len old-len properties new-return))
+         (setq ad-return-value new-return)))))
 
 (provide 'lean-company)

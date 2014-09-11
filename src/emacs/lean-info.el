@@ -36,25 +36,8 @@
 (defun lean-info-type-body-str (typeinfo)
   (string-join (lean-info-type-body typeinfo) "\n"))
 
-;; -- Test
-(cl-assert (lean-info-type-p 'TYPE))
-(cl-assert (lean-info-type-p "-- TYPE|121|2"))
-(cl-assert (lean-info-type-p '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
-(cl-assert (equal (lean-info-type-parse-header "-- TYPE|121|2")
-                  '(121 2)))
-(cl-assert (equal (lean-info-type-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))"))
-                  '(TYPE
-                    (121 2)
-                    ("not (eq zero (succ m'))"
-                     "→ decidable (eq zero (succ m'))"))))
-(cl-assert (equal
-            (lean-info-type-pos
-             (lean-info-type-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
-            '(121 2)))
-
 ;; Overload Information
 ;; --------------------
-
 (defun lean-info-overload-type (overload)
   (cl-first overload))
 (defun lean-info-overload-p (overload)
@@ -76,55 +59,6 @@
     (let ((header (lean-info-overload-parse-header (car seq)))
           (body (-split-on "--" (cdr seq))))
       `(OVERLOAD ,header ,body))))
-
-;; -- Test
-(cl-assert (lean-info-overload-p 'OVERLOAD))
-(cl-assert (lean-info-overload-p "-- OVERLOAD|121|2"))
-(cl-assert (lean-info-overload-p '("-- OVERLOAD|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
-(cl-assert (equal (lean-info-overload-parse-header "-- OVERLOAD|121|2")
-                  '(121 2)))
-(cl-assert
- (equal
-  (lean-info-overload-parse
-   '("-- OVERLOAD|121|2"
-     "not (eq zero (succ m'))"
-     "→ decidable (eq zero (succ m'))"
-     "--"
-     "not (eq one (succ m'))"
-     "→ decidable (eq zero (succ m'))"
-     "--"
-     "not (eq two (succ m'))"
-     "→ decidable (eq zero (succ m'))"))
-  '(OVERLOAD (121 2)
-             (("not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")
-              ("not (eq one (succ m'))" "→ decidable (eq zero (succ m'))")
-              ("not (eq two (succ m'))" "→ decidable (eq zero (succ m'))")))))
-(cl-assert (equal
-            (lean-info-overload-pos
-             (lean-info-overload-parse
-              '("-- OVERLOAD|121|2"
-                "not (eq zero (succ m'))"
-                "→ decidable (eq zero (succ m'))"
-                "--"
-                "not (eq one (succ m'))"
-                "→ decidable (eq zero (succ m'))"
-                "--"
-                "not (eq two (succ m'))"
-                "→ decidable (eq zero (succ m'))")))
-            '(121 2)))
-(cl-assert (equal (lean-info-overload-names (lean-info-overload-parse
-                                             '("-- OVERLOAD|121|2"
-                                               "not (eq zero (succ m'))"
-                                               "→ decidable (eq zero (succ m'))"
-                                               "--"
-                                               "not (eq one (succ m'))"
-                                               "→ decidable (eq zero (succ m'))"
-                                               "--"
-                                               "not (eq two (succ m'))"
-                                               "→ decidable (eq zero (succ m'))")))
-                  '("not (eq zero (succ m'))\n→ decidable (eq zero (succ m'))"
-                    "not (eq one (succ m'))\n→ decidable (eq zero (succ m'))"
-                    "not (eq two (succ m'))\n→ decidable (eq zero (succ m'))")))
 
 ;; Synth Information
 ;; ----------------
@@ -150,22 +84,6 @@
   (cl-third synth))
 (defun lean-info-synth-body-str (synth)
   (string-join (lean-info-synth-body synth) "\n"))
-
-;; -- Test
-(cl-assert (lean-info-synth-p 'SYNTH))
-(cl-assert (lean-info-synth-p "-- SYNTH|121|2"))
-(cl-assert (lean-info-synth-p '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
-(cl-assert (equal (lean-info-synth-parse-header "-- SYNTH|121|2")
-                  '(121 2)))
-(cl-assert (equal (lean-info-synth-parse '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))"))
-                  '(SYNTH
-                    (121 2)
-                    ("not (eq zero (succ m'))"
-                     "→ decidable (eq zero (succ m'))"))))
-(cl-assert (equal
-            (lean-info-synth-pos
-             (lean-info-synth-parse '("-- SYNTH|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
-            '(121 2)))
 
 ;; Coercion Information
 ;; ----------------
@@ -198,29 +116,6 @@
 (defun lean-info-coercion-type-str (coercion)
   (string-join (lean-info-coercion-type coercion) "\n"))
 
-;; -- Test
-(cl-assert (lean-info-coercion-p 'COERCION))
-(cl-assert (lean-info-coercion-p "-- COERCION|121|2"))
-(cl-assert (lean-info-coercion-p '("-- COERCION|417|15"
-                                   "of_nat m"
-                                   "--"
-                                   "int")))
-(cl-assert (equal (lean-info-coercion-parse-header "-- COERCION|121|2")
-                  '(121 2)))
-(cl-assert (equal (lean-info-coercion-parse '("-- COERCION|417|15"
-                                              "of_nat"
-                                              "--"
-                                              "int"))
-                  '(COERCION
-                    (417 15)
-                    ("of_nat")
-                    ("int"))))
-(cl-assert (equal
-            (lean-info-coercion-pos
-             (lean-info-coercion-parse '("-- COERCION|417|15"
-                                         "of_nat")))
-            '(417 15)))
-
 ;; Extra Information
 ;; ----------------
 (defun lean-info-extra-type (extra)
@@ -252,29 +147,6 @@
 (defun lean-info-extra-type-str (extra)
   (string-join (lean-info-extra-type extra) "\n"))
 
-;; -- Test
-(cl-assert (lean-info-extra-p 'EXTRA))
-(cl-assert (lean-info-extra-p "-- EXTRA_TYPE|121|2"))
-(cl-assert (lean-info-extra-p '("-- EXTRA_TYPE|417|15"
-                                "rec_on b ff tt"
-                                "--"
-                                "bool")))
-(cl-assert (equal (lean-info-extra-parse-header "-- EXTRA_TYPE|121|2")
-                  '(121 2)))
-(cl-assert (equal (lean-info-extra-parse '("-- EXTRA_TYPE|417|15"
-                                           "rec_on b ff tt"
-                                           "--"
-                                           "bool"))
-                  '(EXTRA
-                    (417 15)
-                    ("rec_on b ff tt")
-                    ("bool"))))
-(cl-assert (equal
-            (lean-info-extra-pos
-             (lean-info-extra-parse '("-- EXTRA_TYPE|417|15"
-                                      "of_nat")))
-            '(417 15)))
-
 ;; Identifier Information
 ;; ----------------------
 (defun lean-info-identifier-type (identifier)
@@ -300,20 +172,6 @@
 (defun lean-info-identifier-body-str (identifier)
   (string-join (lean-info-identifier-body identifier) "\n"))
 
-;; -- Test
-(cl-assert (lean-info-identifier-p 'IDENTIFIER))
-(cl-assert (lean-info-identifier-p "-- IDENTIFIER|121|2"))
-(cl-assert (lean-info-identifier-p '("-- IDENTIFIER|121|2" "foo.f")))
-(cl-assert (equal (lean-info-identifier-parse-header "-- IDENTIFIER|121|2")
-                  '(121 2)))
-(cl-assert (equal (lean-info-identifier-parse '("-- IDENTIFIER|121|2" "foo.f"))
-                  '(IDENTIFIER
-                    (121 2)
-                    ("foo.f"))))
-(cl-assert (equal
-            (lean-info-identifier-pos
-             (lean-info-identifier-parse '("-- IDENTIFIER|121|2" "foo.f")))
-            '(121 2)))
 
 ;; Symbol Information
 ;; ----------------
@@ -339,22 +197,6 @@
   (cl-third symbol))
 (defun lean-info-symbol-body-str (symbol)
   (string-join (lean-info-symbol-body symbol) "\n"))
-
-;; -- Test
-(cl-assert (lean-info-symbol-p 'SYMBOL))
-(cl-assert (lean-info-symbol-p "-- SYMBOL|121|2"))
-(cl-assert (lean-info-symbol-p (lean-info-symbol-parse '("-- SYMBOL|121|2" "→"))))
-(cl-assert (equal (lean-info-symbol-parse-header "-- SYMBOL|121|2")
-                  '(121 2)))
-(cl-assert (lean-info-symbol-p '("-- SYMBOL|121|2" "→")))
-(cl-assert (equal (lean-info-symbol-parse '("-- SYMBOL|121|2" "→"))
-                  '(SYMBOL
-                    (121 2)
-                    ("→"))))
-(cl-assert (equal
-            (lean-info-symbol-pos
-             (lean-info-symbol-parse '("-- SYMBOL|121|2" "→")))
-            '(121 2)))
 
 (defun lean-info-id-symbol-body-str (info)
   (case (lean-info-kind info)
@@ -384,25 +226,6 @@
   (cl-first (lean-info-pos info)))
 (defun lean-info-column (info)
   (cl-second (lean-info-pos info)))
-
-;; -- test
-(cl-assert (equal
-            (lean-info-pos
-             (lean-info-type-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
-            '(121 2)))
-(cl-assert (equal
-            (lean-info-pos
-             (lean-info-overload-parse
-              '("-- OVERLOAD|121|2"
-                "not (eq zero (succ m'))"
-                "→ decidable (eq zero (succ m'))"
-                "--"
-                "not (eq one (succ m'))"
-                "→ decidable (eq zero (succ m'))"
-                "--"
-                "not (eq two (succ m'))"
-                "→ decidable (eq zero (succ m'))")))
-            '(121 2)))
 
 ;; Info Parsing
 ;; ================

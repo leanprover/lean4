@@ -91,6 +91,7 @@ class elaborator : public coercion_info_manager {
     // we set is to true whenever we find no_info annotation.
     bool                 m_no_info;
     info_manager         m_pre_info_data;
+    unifier_config       m_unifier_config;
 
     // Auxiliary object to "saving" elaborator state
     struct saved_state {
@@ -174,7 +175,8 @@ public:
         m_env(env),
         m_ngen(ngen),
         m_context(m_ngen.next(), ctx),
-        m_full_context(m_ngen.next(), ctx) {
+        m_full_context(m_ngen.next(), ctx),
+        m_unifier_config(env.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
         m_relax_main_opaque = false;
         m_no_info = false;
         m_tc[0]  = mk_type_checker_with_hints(env.m_env, m_ngen.mk_child(), false);
@@ -755,10 +757,10 @@ public:
         return r.first;
     }
 
-    lazy_list<substitution> solve(constraint_seq const & cs) {
+    unify_result_seq solve(constraint_seq const & cs) {
         buffer<constraint> tmp;
         cs.linearize(tmp);
-        return unify(env(), tmp.size(), tmp.data(), m_ngen.mk_child(), unifier_config(ios().get_options(), true));
+        return unify(env(), tmp.size(), tmp.data(), m_ngen.mk_child(), m_unifier_config);
     }
 
     void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg) {
@@ -927,7 +929,7 @@ public:
             r = ensure_type(r, cs);
         auto p  = solve(cs).pull();
         lean_assert(p);
-        substitution s = p->first;
+        substitution s = p->first.first;
         auto result = apply(s, r);
         copy_info_to_manager(s);
         return result;
@@ -951,7 +953,7 @@ public:
         constraint_seq cs = t_cs + r_v_cs.second + v_cs;
         auto p  = solve(cs).pull();
         lean_assert(p);
-        substitution s = p->first;
+        substitution s = p->first.first;
         name_set univ_params = collect_univ_params(r_v, collect_univ_params(r_t));
         buffer<name> new_params;
         expr new_r_t = apply(s, r_t, univ_params, new_params);

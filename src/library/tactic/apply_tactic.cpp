@@ -110,9 +110,11 @@ proof_state_seq apply_tactic_core(environment const & env, io_state const & ios,
         }
     }
     list<expr> meta_lst = to_list(metas.begin(), metas.end());
-    lazy_list<substitution> substs = unify(env, t, e_t, ngen.mk_child(), relax_main_opaque, s.get_subst(),
-                                           unifier_config(ios.get_options()));
-    return map2<proof_state>(substs, [=](substitution const & subst) -> proof_state {
+    unify_result_seq rseq = unify(env, t, e_t, ngen.mk_child(), relax_main_opaque, s.get_subst(),
+                                  unifier_config(ios.get_options()));
+    return map2<proof_state>(rseq, [=](pair<substitution, constraints> const & p) -> proof_state {
+            substitution const & subst = p.first;
+            // TODO(Leo): save postponed constraints
             name_generator new_ngen(ngen);
             type_checker tc(env, new_ngen.mk_child());
             substitution new_subst = subst;

@@ -37,14 +37,20 @@ struct unifier_config {
     unsigned m_max_steps;
     bool     m_computation;
     bool     m_expensive_classes;
-    unifier_config(bool use_exceptions = false);
-    explicit unifier_config(options const & o, bool use_exceptions = false);
+    // If m_discard is true, then constraints that cannot be solved are discarded (or incomplete methods are used)
+    // If m_discard is false, unify returns the set of constraints that could not be handled.
+    bool     m_discard;
+    unifier_config(bool use_exceptions = false, bool discard = false);
+    explicit unifier_config(options const & o, bool use_exceptions = false, bool discard = false);
 };
 
-lazy_list<substitution> unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                              unifier_config const & c = unifier_config());
-lazy_list<substitution> unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, bool relax_main_opaque,
-                              substitution const & s = substitution(), unifier_config const & c = unifier_config());
+/** \brief The unification procedures produce a lazy list of pair substitution + constraints that could not be solved. */
+typedef lazy_list<pair<substitution, constraints>> unify_result_seq;
+
+unify_result_seq unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
+                       unifier_config const & c = unifier_config());
+unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, bool relax_main_opaque,
+                       substitution const & s = substitution(), unifier_config const & c = unifier_config());
 
 /**
     The unifier divides the constraints in 8 groups: Simple, Basic, FlexRigid, PluginDelayed, DelayedChoice, ClassInstance, FlexFlex, MaxDelayed

@@ -309,8 +309,11 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     (process-send-string proc string-to-send)
     (lean-server-after-send-cmd cmd)))
 
-(defun lean-server-process-message-with-cont (body type cont)
+(defun lean-server-process-message-with-cont (body type cont cmd-type)
   "Process the message from lean-server and call continuation"
+  (lean-server-debug "process-message-with-cont: type = %S, cmd-type = %S"
+                     type cmd-type)
+  (lean-server-debug "process-message-with-cont: body\n-----\n%s\n-----\n" body)
   (cl-case type
     (INFO
      (lean-server-debug "Process: INFO")
@@ -367,8 +370,9 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
 (defun lean-server-async-task-queue-len ()
   (length lean-global-async-task-queue))
 
-(defun lean-server-async-task-queue-push-back (cont)
-  (setq lean-global-async-task-queue (-snoc lean-global-async-task-queue cont)))
+(defun lean-server-async-task-queue-push-back (cont cmd-type)
+  (setq lean-global-async-task-queue (-snoc lean-global-async-task-queue
+                                            `(,cont . ,cmd-type))))
 
 (defun lean-server-async-task-queue-peek-front ()
   (car lean-global-async-task-queue))
@@ -382,7 +386,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
   (lean-server-debug "send-cmd-async: queue len = %d" (lean-server-async-task-queue-len))
   (lean-server-send-cmd cmd)
   (when cont
-    (lean-server-async-task-queue-push-back cont)
+    (lean-server-async-task-queue-push-back cont (lean-cmd-type cmd))
     (lean-server-debug "send-cmd-async: added to %s the queue, queue size = %d"
                        (lean-cmd-type cmd)
                        (lean-server-async-task-queue-len))
@@ -394,12 +398,22 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
                      (lean-server-async-task-queue-len))
   (while lean-global-async-task-queue
     (accept-process-output (lean-server-get-process) 0 50 t)
-    (let* ((cont   (lean-server-async-task-queue-peek-front))
-           (result (lean-server-check-and-process-buffer-with-cont cont)))
+    (let* ((front-item (lean-server-async-task-queue-peek-front))
+           (cont       (car front-item))
+           (cmd-type   (cdr front-item))
+           (result (lean-server-check-and-process-buffer-with-cont cont
+                                                                   cmd-type)))
       (pcase result
         (`(PROCESSED ,ret)
          (lean-server-async-task-queue-pop-front)
-         (lean-server-debug "lean-server-consume-all-sync-tasks: processed. queue size = %d"
+                  (lean-server-debug "lean-server-consume-all-sync-tasks: processed. queue size = %d"
+                            (lean-server-async-task-queue-len)))
+        (`(NOTREADY)
+         (lean-server-debug "lean-server-consume-all-sync-tasks: not ready. queue size = %d"
+                            (lean-server-async-task-queue-len)))
+        (t
+         (lean-server-async-task-queue-pop-front)
+         (lean-server-debug "lean-server-consume-all-sync-tasks: either error or quit happend. queue size = %d"
                             (lean-server-async-task-queue-len))))))
   (lean-server-debug "lean-server-consume-all-async-tasks: over. queue size = %d"
                      (lean-server-async-task-queue-len)))
@@ -502,8 +516,11 @@ If it's successful, take it out from the queue.
 Otherwise, set an idle-timer to call the handler again"
   (lean-server-cancel-retry-timer)
   (when (eq major-mode 'lean-mode)
-    (let* ((cont   (lean-server-async-task-queue-peek-front))
-           (result (lean-server-check-and-process-buffer-with-cont cont)))
+    (let* ((front-item (lean-server-async-task-queue-peek-front))
+           (cont       (car front-item))
+           (cmd-type   (cdr front-item))
+           (result     (lean-server-check-and-process-buffer-with-cont cont
+                                                                       cmd-type)))
       (pcase result
         (`(PROCESSED ,ret)
          (lean-server-async-task-queue-pop-front)

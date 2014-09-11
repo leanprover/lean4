@@ -1,9 +1,2 @@
-empty.lean:6:25: error: type error in placeholder assigned to
-  num_inhabited
-placeholder has type
-  inhabited num
-but is expected to have type
-  inhabited ?M_1
-the assignment was attempted when trying to solve
-    failed to synthesize placeholder
-     ⊢ inhabited Empty
+empty.lean:6:25: error: failed to synthesize placeholder
+ ⊢ nonempty Empty

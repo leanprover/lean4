@@ -291,7 +291,7 @@ public:
     expr mk_placeholder_meta(optional<expr> const & type, tag g, bool is_strict, constraint_seq & cs) {
         auto ec = mk_placeholder_elaborator(env(), ios(), m_context.get_data(),
                                             m_ngen.next(), m_relax_main_opaque, use_local_instances(),
-                                            is_strict, type, g);
+                                            is_strict, type, g, m_unifier_config);
         cs += ec.second;
         return ec.first;
     }

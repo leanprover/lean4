@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/opaque_hints.h"
 #include "library/metavar_closure.h"
+#include "library/error_handling/error_handling.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/class.h"
 #include "frontends/lean/tactic_hint.h"
@@ -202,9 +203,7 @@ struct placeholder_elaborator : public choice_iterator {
 };
 
 
-pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C,
-                                                 bool is_strict, optional<expr> const & type, tag g) {
-    expr m                  = C->m_ctx.mk_meta(type, g);
+constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, expr const & m, bool is_strict) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
@@ -239,9 +238,86 @@ pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_con
     };
     bool owner      = false;
     bool relax      = C->m_relax;
-    constraint c    = mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::ClassInstance),
-                                      owner, j, relax);
+    return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::ClassInstance),
+                           owner, j, relax);
+}
+
+pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C,
+                                                 bool is_strict, optional<expr> const & type, tag g) {
+    expr m       = C->m_ctx.mk_meta(type, g);
+    constraint c = mk_placeholder_cnstr(C, m, is_strict);
     return mk_pair(m, c);
+}
+
+/** \brief Given a metavariable application (?m l_1 ... l_n), apply \c s to the types of
+    ?m and local constants l_i
+    Return the updated expression and a justification for all substitutions.
+*/
+static pair<expr, justification> update_meta(expr const & meta, substitution s) {
+    buffer<expr> args;
+    expr mvar = get_app_args(meta, args);
+    justification j;
+    auto p = s.instantiate_metavars(mlocal_type(mvar));
+    mvar   = update_mlocal(mvar, p.first);
+    j      = p.second;
+    for (expr & arg : args) {
+        auto p = s.instantiate_metavars(mlocal_type(arg));
+        arg    = update_mlocal(arg, p.first);
+        j      = mk_composite1(j, p.second);
+    }
+    return mk_pair(mk_app(mvar, args), j);
+}
+
+constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const & C, expr const & m, bool is_strict,
+                                     unifier_config const & cfg, unsigned delay_factor) {
+    environment const & env = C->env();
+    justification j         = mk_failed_to_synthesize_jst(env, m);
+    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
+                         name_generator const & ngen) {
+        if (has_expr_metavar(meta_type)) {
+            if (delay_factor < to_delay_factor(cnstr_group::ClassInstance)) {
+                constraint delayed_c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, delay_factor+1);
+                return lazy_list<constraints>(constraints(delayed_c));
+            }
+        }
+        expr const & mvar = get_app_fn(meta);
+        if (!is_ext_class(C->tc(), meta_type) && s.is_assigned(mvar)) {
+            // see mk_placeholder_cnstr
+            return lazy_list<constraints>(constraints());
+        }
+        pair<expr, justification> mj = update_meta(meta, s);
+        expr new_meta       = mj.first;
+        justification new_j = mj.second;
+        try {
+            constraint c = mk_placeholder_cnstr(C, new_meta, is_strict);
+            unifier_config new_cfg(cfg);
+            new_cfg.m_discard = false;
+            unify_result_seq seq = unify(env, 1, &c, ngen, new_cfg);
+            auto p = seq.pull();
+            if (!p)
+                return lazy_list<constraints>();
+            substitution new_s     = p->first.first;
+            constraints  postponed = map(p->first.second,
+                                         [&](constraint const & c) {
+                                             // we erase internal justifications
+                                             return update_justification(c, new_j);
+                                         });
+            if (!new_s.is_expr_assigned(mlocal_name(get_app_fn(new_meta)))) {
+                lazy_list<constraints>(constraints());
+            }
+            metavar_closure cls(new_meta);
+            cls.add(meta_type);
+            bool relax     = C->m_relax;
+            constraints cs = cls.mk_constraints(new_s, new_j, relax);
+            return lazy_list<constraints>(append(cs, postponed));
+        } catch (exception & ex) {
+            return lazy_list<constraints>();
+        }
+        return lazy_list<constraints>();
+    };
+    bool owner = false;
+    bool relax = C->m_relax;
+    return mk_choice_cnstr(m, choice_fn, delay_factor, owner, j, relax);
 }
 
 /** \brief Create a metavariable, and attach choice constraint for generating
@@ -250,8 +326,10 @@ pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_con
 pair<expr, constraint> mk_placeholder_elaborator(
     environment const & env, io_state const & ios, list<expr> const & ctx,
     name const & prefix, bool relax, bool use_local_instances,
-    bool is_strict, optional<expr> const & type, tag g) {
-    auto C = std::make_shared<placeholder_context>(env, ios, ctx, prefix, relax, use_local_instances);
-    return mk_placeholder_elaborator(C, is_strict, type, g);
+    bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg) {
+    auto C       = std::make_shared<placeholder_context>(env, ios, ctx, prefix, relax, use_local_instances);
+    expr m       = C->m_ctx.mk_meta(type, g);
+    constraint c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, to_delay_factor(cnstr_group::Basic));
+    return mk_pair(m, c);
 }
 }

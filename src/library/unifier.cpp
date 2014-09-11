@@ -1897,15 +1897,15 @@ struct unifier_fn {
             if (is_level_eq_cnstr(c)) {
                 if (modified)
                     return process_constraint(c);
-                status st = try_level_eq_zero(c);
-                if (st != Continue) return st == Solved;
-                if (cidx < get_group_first_index(cnstr_group::FlexFlex)) {
-                    add_cnstr(c, cnstr_group::FlexFlex);
-                    return true;
-                }
                 if (m_config.m_discard) {
-                    // try_merge_max is too imprecise, and is only used if we are discarding
-                    // constraints that cannot be solved.
+                    // we only try try_level_eq_zero and try_merge_max when we are discarding
+                    // constraints that canno be solved.
+                    status st = try_level_eq_zero(c);
+                    if (st != Continue) return st == Solved;
+                    if (cidx < get_group_first_index(cnstr_group::FlexFlex)) {
+                        add_cnstr(c, cnstr_group::FlexFlex);
+                        return true;
+                    }
                     st = try_merge_max(c);
                     if (st != Continue) return st == Solved;
                     return process_plugin_constraint(c);

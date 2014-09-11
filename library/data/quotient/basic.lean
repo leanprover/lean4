@@ -7,7 +7,7 @@
 
 import logic tools.tactic ..subtype logic.core.cast struc.relation data.prod
 import logic.core.instances
-import .aux
+import .util
 
 open relation prod inhabited nonempty tactic eq_ops
 open subtype relation.iff_ops

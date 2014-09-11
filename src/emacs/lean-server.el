@@ -240,8 +240,11 @@ Send REPLACE commands to lean-server, reset lean-changed-lines to nil."
            finally (setq lean-changed-lines nil)))
 
 (defun lean-server-visit-current-buffer ()
-  (cond ((buffer-modified-p) (lean-server-handle-modified-buffer))
-        (t (lean-server-send-cmd-async (lean-cmd-visit)))))
+  (cond ((and (buffer-modified-p)
+              (not lean-global-server-current-file-name))
+         (lean-server-handle-modified-buffer))
+        (t
+         (lean-server-send-cmd-async (lean-cmd-visit)))))
 
 (defun lean-server-check-current-file (&optional file-name)
   "Check lean-global-server-current-file-name
@@ -554,7 +557,7 @@ Otherwise, set an idle-timer to call the handler again"
   (let ((temp-file (make-temp-file prefix)))
     (with-current-buffer (flymake-copy-buffer-to-temp-buffer (current-buffer))
       (set-visited-file-name temp-file)
-      (save-buffer)
+      (save-buffer 0)
       (kill-buffer))
     temp-file))
 

@@ -4,6 +4,8 @@
  (depends-on "cl-lib")
  (depends-on "dash" 2.8.0)
  (depends-on "dash-functional" "1.1.0")
+ (depends-on "ert-runner")
+ (depends-on "ecukes")
  (depends-on "f")
  (depends-on "flycheck")
  (depends-on "flymake")

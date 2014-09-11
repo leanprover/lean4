@@ -347,18 +347,22 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     (ERROR
      (lean-server-log "Error detected:\n%s" body))))
 
-(defun lean-server-check-and-process-buffer-with-cont (cont)
+(defun lean-server-check-and-process-buffer-with-cont (cont cmd-type)
   "Check server-buffer and process the message with a continuation if it's ready."
   (let ((partition-result (lean-server-check-buffer-and-partition
                            lean-global-server-buffer))
         result)
-    (pcase partition-result
-      (`(,type (,pre ,body ,post))
-       (lean-server-log "The following pre-message will be thrown away:")
-       (lean-server-log "%s" pre)
-       (setq lean-global-server-buffer post)
-       (setq result (lean-server-process-message-with-cont body type cont))
-       `(PROCESSED ,result)))))
+    (condition-case err
+        (pcase partition-result
+          (`(,type (,pre ,body ,post))
+           (lean-server-log "The following pre-message will be thrown away:")
+           (lean-server-log "%s" pre)
+           (setq lean-global-server-buffer post)
+           (setq result (lean-server-process-message-with-cont body type cont cmd-type))
+           `(PROCESSED ,result))
+          (`nil '(NOTREADY)))
+      (error `(ERROR ,err))
+      (quit  `(QUIT  ,err)))))
 
 (defun lean-server-async-task-queue-len ()
   (length lean-global-async-task-queue))
@@ -406,12 +410,28 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
   (lean-server-cancel-retry-timer)
   (lean-server-consume-all-async-tasks)
   (lean-server-send-cmd cmd)
-  (let ((result (lean-server-check-and-process-buffer-with-cont cont)))
-    (while (not result)
+  (let ((result (lean-server-check-and-process-buffer-with-cont cont (lean-cmd-type cmd))))
+    (while (equal result '(NOTREADY))
       (accept-process-output (lean-server-get-process) 0 50 t)
-      (setq result (lean-server-check-and-process-buffer-with-cont cont)))
+      (setq result (lean-server-check-and-process-buffer-with-cont cont (lean-cmd-type cmd))))
     (pcase result
-      (`(PROCESSED ,ret) ret))))
+      (`(PROCESSED ,ret)
+       (lean-server-debug "lean-server-send-cmd-sync: %S, processed result = %S"
+                          cmd
+                          result)
+       ret)
+      (`(ERROR ,err)
+       (lean-server-debug "lean-server-send-cmd-sync: %S, error = %S"
+                          cmd
+                          err))
+      (`(QUIT ,err)
+       (lean-server-debug "lean-server-send-cmd-sync: %S, quit = %S"
+                          cmd
+                          err))
+      (t
+       (lean-server-debug "lean-server-send-cmd-sync: %S, ??? = %S"
+                          cmd
+                          result)))))
 
 (defun lean-show-parse-string (str)
   "Parse the output of show command."
@@ -490,8 +510,19 @@ Otherwise, set an idle-timer to call the handler again"
          (lean-server-debug "event-handler: processed. now the queue size = %d\n"
                             (lean-server-async-task-queue-len))
          ret)
-        (t (lean-server-debug "event-handler: not processed. now the queue size = %d\n"
-                              (lean-server-async-task-queue-len)))))
+        (`(NOTREADY)
+         (lean-server-debug "event-handler: not ready. queue size = %d"
+                            (lean-server-async-task-queue-len)))
+        (`(ERROR ,err)
+         (lean-server-async-task-queue-pop-front)
+         (lean-server-debug "event-handler: error %S. queue size = %d"
+                            err
+                            (lean-server-async-task-queue-len)))
+        (`(QUIT ,err)
+         (lean-server-async-task-queue-pop-front)
+         (lean-server-debug "event-handler: quit %S. queue size = %d"
+                            err
+                            (lean-server-async-task-queue-len)))))
     (if lean-global-async-task-queue (lean-server-set-timer-for-event-handler))))
 
 (defun lean-server-after-save ()

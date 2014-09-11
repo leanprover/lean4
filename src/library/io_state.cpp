@@ -14,6 +14,8 @@ io_state const & get_dummy_ios() {
     return g_dummy_ios;
 }
 
+io_state::io_state():io_state(mk_print_formatter_factory()) {}
+
 io_state::io_state(formatter_factory const & fmtf):
     m_formatter_factory(fmtf),
     m_regular_channel(std::make_shared<stdout_channel>()),

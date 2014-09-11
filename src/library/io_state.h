@@ -23,6 +23,7 @@ class io_state {
     std::shared_ptr<output_channel> m_regular_channel;
     std::shared_ptr<output_channel> m_diagnostic_channel;
 public:
+    io_state();
     io_state(formatter_factory const & fmtf);
     io_state(options const & opts, formatter_factory const & fmtf);
     io_state(io_state const & ios, std::shared_ptr<output_channel> const & r, std::shared_ptr<output_channel> const d);

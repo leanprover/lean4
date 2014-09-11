@@ -938,6 +938,9 @@ struct unifier_fn {
         st = process_metavar_eq(rhs, lhs, jst);
         if (st != Continue) return st == Solved;
 
+        if (lhs != cnstr_lhs_level(new_c) || rhs != cnstr_rhs_level(new_c))
+            new_c = mk_level_eq_cnstr(lhs, rhs, new_c.get_justification());
+
         add_cnstr(new_c, cnstr_group::FlexRigid);
         return true;
     }

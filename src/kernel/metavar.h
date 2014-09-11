@@ -55,6 +55,7 @@ public:
     void assign(level const & m, level const & t) { assign(m, t, justification ()); }
 
     pair<level, justification> instantiate_metavars(level const & l) { return instantiate_metavars(l, true); }
+    level instantiate(level const & l) { return instantiate_metavars(l, false).first; }
 
     /** \brief Instantiate metavariables occurring in \c e, by default this method does not visit the types of local constants.
         For substituting the metavariables occurring in local constants, use instantiate_metavars_all.

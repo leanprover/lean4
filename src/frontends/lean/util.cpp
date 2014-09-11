@@ -226,14 +226,4 @@ justification mk_failed_to_synthesize_jst(environment const & env, expr const & 
             return format("failed to synthesize placeholder") + line() + ps.pp(fmt);
         });
 }
-
-void collect_metavars(expr const & e, buffer<expr> & mvars) {
-    for_each(e, [&](expr const & e, unsigned) {
-            if (is_metavar(e)) {
-                mvars.push_back(e);
-                return false; /* do not visit its type */
-            }
-            return has_metavar(e);
-        });
-}
 }

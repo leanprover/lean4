@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "library/unifier.h"
 #include "library/opaque_hints.h"
+#include "library/metavar_closure.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/class.h"
 #include "frontends/lean/tactic_hint.h"
@@ -76,8 +77,6 @@ struct placeholder_elaborator : public choice_iterator {
     list<tactic_hint_entry> m_tactics;
     // result produce by last executed tactic.
     proof_state_seq         m_tactic_result;
-    // metavariables that occur in m_meta_type, the tactics may instantiate some of them
-    buffer<expr>            m_mvars_in_meta_type;
     justification           m_jst;
 
     placeholder_elaborator(std::shared_ptr<placeholder_context> const & C,
@@ -90,7 +89,6 @@ struct placeholder_elaborator : public choice_iterator {
         m_local_instances(local_insts), m_instances(instances),
         m_tactics(tacs),
         m_jst(j) {
-        collect_metavars(meta_type, m_mvars_in_meta_type);
     }
 
     constraints mk_constraints(constraint const & c, buffer<constraint> const & cs) {
@@ -163,13 +161,11 @@ struct placeholder_elaborator : public choice_iterator {
             if (!empty(next->first.get_goals()))
                 continue; // has unsolved goals
             substitution subst = next->first.get_subst();
-            buffer<constraint> cs;
             expr const & mvar = get_app_fn(m_meta);
             bool relax        = m_C->m_relax;
-            cs.push_back(mk_eq_cnstr(mvar, subst.instantiate(mvar), m_jst, relax));
-            for (auto const & mvar : m_mvars_in_meta_type)
-                cs.push_back(mk_eq_cnstr(mvar, subst.instantiate(mvar), m_jst, relax));
-            return optional<constraints>(to_list(cs.begin(), cs.end()));
+            constraints cs    = metavar_closure(m_meta_type).mk_constraints(subst, m_jst, relax);
+            constraint  c     = mk_eq_cnstr(mvar, subst.instantiate(mvar), m_jst, relax);
+            return some(cons(c, cs));
         }
         return optional<constraints>();
     }

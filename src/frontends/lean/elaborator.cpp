@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/let.h"
 #include "library/deep_copy.h"
+#include "library/metavar_closure.h"
 #include "library/typed_expr.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -870,14 +871,11 @@ public:
 
     expr solve_unassigned_mvars(substitution & subst, expr e, name_set & visited) {
         e = subst.instantiate(e);
-        buffer<expr> mvars;
-        collect_metavars(e, mvars);
-        if (mvars.empty())
-            return e;
-        for (auto mvar : mvars) {
-            check_interrupted();
-            solve_unassigned_mvar(subst, mvar, visited);
-        }
+        metavar_closure mvars(e);
+        mvars.for_each_expr_mvar([&](expr const & mvar) {
+                check_interrupted();
+                solve_unassigned_mvar(subst, mvar, visited);
+            });
         return subst.instantiate(e);
     }
 

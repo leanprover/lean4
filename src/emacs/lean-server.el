@@ -21,8 +21,8 @@
 (defvar-local lean-server-trace-buffer-name "*lean-server-trace*")
 (defvar-local lean-server-debug-buffer-name "*lean-server-debug*")
 (defvar-local lean-server-option            "--server")
-(defvar-local lean-server-trace-mode        nil)
-(defvar-local lean-server-debug-mode        nil)
+(defvar       lean-server-trace-mode        nil)
+(defvar       lean-server-debug-mode        nil)
 
 ;; Log, Trace, Debug Function
 ;; ==========================

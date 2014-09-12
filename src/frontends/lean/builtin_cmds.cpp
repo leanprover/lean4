@@ -295,19 +295,13 @@ environment open_cmd(parser & p) { return open_export_cmd(p, true); }
 environment export_cmd(parser & p) { return open_export_cmd(p, false); }
 
 environment coercion_cmd(parser & p) {
-    auto pos = p.pos();
-    expr f   = p.parse_expr();
-    if (!is_constant(f))
-        throw parser_error("invalid 'coercion' command, constant expected", pos);
+    name f   = p.check_constant_next("invalid 'coercion' command, constant expected");
     if (p.curr_is_token(g_colon)) {
         p.next();
-        pos = p.pos();
-        expr C = p.parse_expr();
-        if (!is_constant(C))
-            throw parser_error("invalid 'coercion' command, constant expected", pos);
-        return add_coercion(p.env(), const_name(f), const_name(C), p.ios());
+        name C = p.check_constant_next("invalid 'coercion' command, constant expected");
+        return add_coercion(p.env(), f, C, p.ios());
     } else {
-        return add_coercion(p.env(), const_name(f), p.ios());
+        return add_coercion(p.env(), f, p.ios());
     }
 }
 

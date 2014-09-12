@@ -174,7 +174,7 @@ lazy_list<T> filter(lazy_list<T> const & l, P && pred, char const * cname = "laz
                 if (!p) {
                     return p;
                 } else if (pred(p->first)) {
-                    return p;
+                    return some(mk_pair(p->first, filter(p->second, pred, cname)));
                 } else {
                     check_system(cname);
                     return filter(p->second, pred, cname).pull();

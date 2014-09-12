@@ -189,6 +189,13 @@ void tst5() {
     display(take(10, l));
 }
 
+void tst6() {
+    auto l = mk_gen();
+    unsigned counter = 0;
+    for_each(filter(take(10, l), [](unsigned v) { return v % 2 == 0; }), [&](unsigned) { counter++; });
+    lean_assert(counter == 5);
+}
+
 int main() {
     save_stack_info();
     tst1();
@@ -196,5 +203,6 @@ int main() {
     tst3();
     tst4();
     tst5();
+    tst6();
     return has_violations() ? 1 : 0;
 }

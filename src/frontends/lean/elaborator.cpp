@@ -708,6 +708,8 @@ public:
             return visit(get_annotation_arg(e), cs);
         } else if (is_typed_expr(e)) {
             return visit_typed_expr(e, cs);
+        } else if (is_implicit(e)) {
+            return visit_core(get_implicit_arg(e), cs);
         } else {
             switch (e.kind()) {
             case expr_kind::Local:      return e;

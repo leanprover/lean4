@@ -112,9 +112,9 @@ namespace category
       (Hl : is_section f) (Hr : is_retraction f) : is_iso f :=
   is_iso.mk (subst (section_eq_retraction Hl Hr) retraction_compose) compose_section
 
-  -- theorem inverse_unique {A B : ob} {f : mor A B} (H H' : is_iso f)
-  --         : @inverse _ _ f H = @inverse _ _ f H' :=
-  -- left_inverse_eq_right_inverse inverse_compose compose_inverse
+  theorem inverse_unique {A B : ob} {f : mor A B} (H H' : is_iso f)
+          : @inverse _ _ f H = @inverse _ _ f H' :=
+  left_inverse_eq_right_inverse inverse_compose compose_inverse
 
   theorem retraction_of_id {A : ob} : retraction_of (ID A) = id :=
   left_inverse_eq_right_inverse retraction_compose id_compose

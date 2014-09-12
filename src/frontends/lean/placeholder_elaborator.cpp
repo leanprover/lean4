@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/lazy_list_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "library/unifier.h"
@@ -288,32 +289,26 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
         pair<expr, justification> mj = update_meta(meta, s);
         expr new_meta       = mj.first;
         justification new_j = mj.second;
-        try {
-            constraint c = mk_placeholder_cnstr(C, new_meta, is_strict);
-            unifier_config new_cfg(cfg);
-            new_cfg.m_discard = false;
-            unify_result_seq seq = unify(env, 1, &c, ngen, new_cfg);
-            auto p = seq.pull();
-            if (!p)
-                return lazy_list<constraints>();
-            substitution new_s     = p->first.first;
-            constraints  postponed = map(p->first.second,
-                                         [&](constraint const & c) {
-                                             // we erase internal justifications
-                                             return update_justification(c, new_j);
-                                         });
-            if (!new_s.is_expr_assigned(mlocal_name(get_app_fn(new_meta)))) {
-                lazy_list<constraints>(constraints());
-            }
-            metavar_closure cls(new_meta);
-            cls.add(meta_type);
-            bool relax     = C->m_relax;
-            constraints cs = cls.mk_constraints(new_s, new_j, relax);
-            return lazy_list<constraints>(append(cs, postponed));
-        } catch (exception & ex) {
-            return lazy_list<constraints>();
-        }
-        return lazy_list<constraints>();
+        constraint c = mk_placeholder_cnstr(C, new_meta, is_strict);
+        unifier_config new_cfg(cfg);
+        new_cfg.m_discard        = false;
+        new_cfg.m_use_exceptions = false;
+        unify_result_seq seq = unify(env, 1, &c, ngen, new_cfg);
+        return map2<constraints>(seq, [=](pair<substitution, constraints> const & p) {
+                substitution new_s     = p.first;
+                if (!new_s.is_expr_assigned(mlocal_name(get_app_fn(new_meta))))
+                    constraints();
+                constraints  postponed = map(p.second,
+                                             [&](constraint const & c) {
+                                                 // we erase internal justifications
+                                                 return update_justification(c, new_j);
+                                             });
+                metavar_closure cls(new_meta);
+                cls.add(meta_type);
+                bool relax     = C->m_relax;
+                constraints cs = cls.mk_constraints(new_s, new_j, relax);
+                return append(cs, postponed);
+            });
     };
     bool owner = false;
     bool relax = C->m_relax;

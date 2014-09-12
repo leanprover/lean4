@@ -3,11 +3,48 @@
 ;;
 ;; Author: Soonho Kong
 ;;
-
 (require 'cl-lib)
 
-(defun lean-debug-print (name obj)
-  "Display debugging output"
-  (message "[LEAN-DEBUG-PRINT] (%s):\n%s" name (prin1-to-string obj)))
+(defvar lean-debug-mode        nil)
+(defvar lean-debug-buffer-name "*lean-debug*")
+
+(defun lean-turn-on-debug-mode (&optional print-msg)
+  (interactive)
+  (when (eq major-mode 'lean-mode)
+    (when (or (called-interactively-p) print-msg)
+      (message "lean: turn on debug mode"))
+    (get-buffer-create lean-debug-buffer-name)
+    (setq-local lean-debug-mode t)))
+
+(defun lean-turn-off-debug-mode (&optional print-msg)
+  (interactive)
+  (when (eq major-mode 'lean-mode)
+    (when (or (called-interactively-p) print-msg)
+      (message "lean: turn off debug mode"))
+    (setq-local lean-debug-mode nil)))
+
+(defun lean-toggle-debug-mode ()
+  (interactive)
+  (if lean-debug-mode
+      (lean-turn-off-debug-mode (called-interactively-p))
+    (lean-turn-on-debug-mode (called-interactively-p))))
+
+(defun lean-output-to-buffer (buffer-name format-string args)
+  (with-current-buffer
+      (get-buffer-create buffer-name)
+    (save-selected-window
+      (ignore-errors
+        (select-window (get-buffer-window buffer-name t)))
+      (goto-char (point-max))
+      (insert (apply 'format format-string args)))))
+
+(defun lean-debug (format-string &rest args)
+  "Display a message at the bottom of the *lean-debug* buffer."
+  (when lean-debug-mode
+    (let ((time-str (format-time-string "%H:%M:%S.%3N" (current-time))))
+      (lean-output-to-buffer lean-debug-buffer-name
+                             (concat "%s -- " format-string "\n")
+                             (cons (propertize time-str 'face 'font-lock-keyword-face)
+                                   args)))))
 
 (provide 'lean-debug)

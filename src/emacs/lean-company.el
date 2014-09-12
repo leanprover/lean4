@@ -54,12 +54,12 @@ triggers a completion immediately."
                       ""))
       (lean-server-send-cmd-sync (lean-cmd-findg line-number column-number pattern)
                                  (lambda (candidates)
-                                   (lean-server-debug "executing continuation for FINDG")
+                                   (lean-debug "executing continuation for FINDG")
                                    (-map 'company-lean--make-candidate candidates))))
      (t
       (lean-server-send-cmd-sync (lean-cmd-findp line-number prefix)
                                  (lambda (candidates)
-                                   (lean-server-debug "executing continuation for FINDP")
+                                   (lean-debug "executing continuation for FINDP")
                                    (-map 'company-lean--make-candidate candidates)))))))
 
 (defun company-lean--location (arg)

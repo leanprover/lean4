@@ -7,86 +7,65 @@
 (require 'cl-lib)
 (require 'dash)
 (require 'dash-functional)
+(require 'flycheck)
+(require 's)
+(require 'lean-debug)
 (require 'lean-variable)
 (require 'lean-cmd)
 (require 'lean-info)
 (require 'lean-util)
-(require 's)
-(require 'flycheck)
 
 ;; Parameters
 ;; ==========
-(defvar-local lean-server-process-name      "lean-server")
-(defvar-local lean-server-buffer-name       "*lean-server*")
-(defvar-local lean-server-trace-buffer-name "*lean-server-trace*")
-(defvar-local lean-server-debug-buffer-name "*lean-server-debug*")
-(defvar-local lean-server-option            "--server")
-(defvar       lean-server-trace-mode        nil)
-(defvar       lean-server-debug-mode        nil)
+(defvar lean-server-process-name      "lean-server")
+(defvar lean-server-buffer-name       "*lean-server*")
+(defvar lean-server-trace-buffer-name "*lean-server-trace*")
+(defvar lean-server-option            "--server")
 
-;; Log, Trace, Debug Function
-;; ==========================
-(defun lean-server-output-to-buffer (buffer-name format-string args)
-  (with-current-buffer
-        (get-buffer-create buffer-name)
-      (save-selected-window
-        (ignore-errors
-          (select-window (get-buffer-window buffer-name t)))
-        (goto-char (point-max))
-        (insert (apply 'format format-string args)))))
+;; Log & Trace
+;; ===========
+(defvar lean-server-trace-mode        nil)
+
+(defun lean-turn-on-server-trace-mode (&optional print-msg)
+  (interactive)
+  (when (eq major-mode 'lean-mode)
+    (when (or (called-interactively-p) print-msg)
+      (message "lean: turn on server trace mode"))
+    (get-buffer-create lean-server-trace-buffer-name)
+    (setq-local lean-server-trace-mode t)))
+
+(defun lean-turn-off-server-trace-mode (&optional print-msg)
+  (interactive)
+  (when (eq major-mode 'lean-mode)
+    (when (or (called-interactively-p) print-msg)
+      (message "lean: turn off server trace mode"))
+    (setq-local lean-server-trace-mode nil)))
+
+(defun lean-toggle-server-trace-mode ()
+  (interactive)
+  (if lean-server-trace-mode
+      (lean-turn-off-server-trace-mode (called-interactively-p))
+    (lean-turn-on-server-trace-mode (called-interactively-p))))
 
 (defun lean-server-log (format-string &rest args)
   "Display a message at the bottom of the *lean-server* buffer."
-  (lean-server-output-to-buffer (lean-server-get-buffer)
-                              (concat format-string)
-                              args)
-  (apply 'lean-server-debug (cons format-string args)))
+  (lean-output-to-buffer (lean-server-get-buffer)
+                         (concat format-string)
+                         args)
+  (apply 'lean-debug (cons format-string args)))
+
 
 (defun lean-server-trace (format-string &rest args)
   "Display a message at the bottom of the *lean-server* buffer."
   (when lean-server-trace-mode
     (when lean-global-server-last-time-sent
       (let ((time-diff (- (float-time) lean-global-server-last-time-sent)))
-        (lean-server-output-to-buffer lean-server-trace-buffer-name
+        (lean-output-to-buffer lean-server-trace-buffer-name
                                     "SLEEP %i\n"
                                     `(,(truncate (* 1000 time-diff))))))
     (setq lean-global-server-last-time-sent (float-time))
-    (lean-server-output-to-buffer lean-server-trace-buffer-name
+    (lean-output-to-buffer lean-server-trace-buffer-name
                                 format-string args)))
-
-(defun lean-server-debug (format-string &rest args)
-  "Display a message at the bottom of the *lean-server-debug* buffer."
-  (when lean-server-debug-mode
-    (let ((time-str (format-time-string "%H:%M:%S.%3N" (current-time))))
-      (lean-server-output-to-buffer lean-server-debug-buffer-name
-                                    (concat "%s -- " format-string "\n")
-                                    (cons (propertize time-str 'face 'font-lock-keyword-face)
-                                          args)))))
-
-(defun lean-server-turn-on-debug-mode ()
-  (interactive)
-  (setq-local lean-server-debug-mode t))
-(defun lean-server-turn-off-debug-mode ()
-  (interactive)
-  (setq-local lean-server-debug-mode nil))
-(defun lean-server-toggle-debug-mode ()
-  (interactive)
-  (if lean-server-debug-mode
-      (lean-server-turn-off-debug-mode)
-    (lean-server-turn-on-debug-mode)))
-
-(defun lean-server-turn-on-trace-mode ()
-  (interactive)
-  (setq-local lean-server-trace-mode t))
-(defun lean-server-turn-off-trace-mode ()
-  (interactive)
-  (setq-local lean-server-trace-mode nil))
-(defun lean-server-toggle-trace-mode ()
-  (interactive)
-  (if lean-server-trace-mode
-      (lean-server-turn-off-trace-mode)
-    (lean-server-turn-on-trace-mode)))
-
 
 ;; How to read data from an async process
 ;; ======================================
@@ -151,7 +130,7 @@
   "Handle signals for lean-server-process"
   (let ((event-string (s-trim event)))
     (lean-server-initialize-global-vars)
-    (lean-server-debug "lean-server-handle-signal: %s"
+    (lean-debug "lean-server-handle-signal: %s"
                        (propertize event-string 'face '(:foreground "red")))
     (lean-server-trace "lean-server-handle-signal: %s\n"
                        (propertize event-string 'face '(:foreground "red")))))
@@ -188,7 +167,7 @@
     (set-process-query-on-exit-flag lean-server-process nil)
     (lean-server-initialize-global-vars)
     (setq lean-global-server-process lean-server-process)
-    (lean-server-debug "lean-server process created")
+    (lean-debug "lean-server process created")
     lean-server-process))
 
 (defun lean-server-kill-process ()
@@ -314,40 +293,40 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
 
 (defun lean-server-process-message-with-cont (body type cont cmd-type)
   "Process the message from lean-server and call continuation"
-  (lean-server-debug "process-message-with-cont: type = %S, cmd-type = %S"
+  (lean-debug "process-message-with-cont: type = %S, cmd-type = %S"
                      type cmd-type)
-  (lean-server-debug "process-message-with-cont: body\n-----\n%s\n-----\n" body)
+  (lean-debug "process-message-with-cont: body\n-----\n%s\n-----\n" body)
   (cl-case type
     (INFO
-     (lean-server-debug "Process: INFO")
+     (lean-debug "Process: INFO")
      (let ((info-record (lean-server-get-info-record-at-pos body)))
        (funcall cont info-record)))
     (SET
-     (lean-server-debug "Process: SET")
+     (lean-debug "Process: SET")
      ;; Call cont with string
      (funcall cont (lean-set-parse-string body)))
     (EVAL
-     (lean-server-debug "Process: EVAL")
+     (lean-debug "Process: EVAL")
      ;; Call cont with string
      (funcall cont (lean-eval-parse-string body)))
     (OPTIONS
-     (lean-server-debug "Process: OPTIONS")
+     (lean-debug "Process: OPTIONS")
      ;; Call cont with alist of lean-option-records
      (funcall cont (lean-options-parse-string body)))
     (SHOW
-     (lean-server-debug "Process: SHOW")
+     (lean-debug "Process: SHOW")
      ;; Call cont with string
      (funcall cont (lean-show-parse-string body)))
     (FINDP
-     (lean-server-debug "Process: FINDP")
+     (lean-debug "Process: FINDP")
      ;; Call cont with (name * type) list
      (funcall cont (lean-findp-parse-string body)))
     (FINDG
-     (lean-server-debug "Process: FINDG")
+     (lean-debug "Process: FINDG")
      ;; Call cont with (name * type) list
      (funcall cont (lean-findg-parse-string body)))
     (WAIT
-     (lean-server-debug "Process: WAIT")
+     (lean-debug "Process: WAIT")
      ;; Call cont
      (funcall cont))
     (ERROR
@@ -385,19 +364,19 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
 
 (defun lean-server-send-cmd-async (cmd &optional cont)
   "Send cmd to lean-server and attach continuation to the queue."
-  (lean-server-debug "send-cmd-async: %S %S" (lean-cmd-type cmd) (cl-second cmd))
-  (lean-server-debug "send-cmd-async: queue len = %d" (lean-server-async-task-queue-len))
+  (lean-debug "send-cmd-async: %S %S" (lean-cmd-type cmd) (cl-second cmd))
+  (lean-debug "send-cmd-async: queue len = %d" (lean-server-async-task-queue-len))
   (lean-server-send-cmd cmd)
   (when cont
     (lean-server-async-task-queue-push-back cont (lean-cmd-type cmd))
-    (lean-server-debug "send-cmd-async: added to %s the queue, queue size = %d"
+    (lean-debug "send-cmd-async: added to %s the queue, queue size = %d"
                        (lean-cmd-type cmd)
                        (lean-server-async-task-queue-len))
-    (lean-server-debug "send-cmd-async: call handler")
+    (lean-debug "send-cmd-async: call handler")
     (lean-server-set-timer-for-event-handler)))
 
 (defun lean-server-consume-all-async-tasks ()
-  (lean-server-debug "lean-server-consume-all-async-tasks: queue size = %d"
+  (lean-debug "lean-server-consume-all-async-tasks: queue size = %d"
                      (lean-server-async-task-queue-len))
   (while lean-global-async-task-queue
     (accept-process-output (lean-server-get-process) 0 50 t)
@@ -409,21 +388,21 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
       (pcase result
         (`(PROCESSED ,ret)
          (lean-server-async-task-queue-pop-front)
-                  (lean-server-debug "lean-server-consume-all-sync-tasks: processed. queue size = %d"
+                  (lean-debug "lean-server-consume-all-sync-tasks: processed. queue size = %d"
                             (lean-server-async-task-queue-len)))
         (`(NOTREADY)
-         (lean-server-debug "lean-server-consume-all-sync-tasks: not ready. queue size = %d"
+         (lean-debug "lean-server-consume-all-sync-tasks: not ready. queue size = %d"
                             (lean-server-async-task-queue-len)))
         (t
          (lean-server-async-task-queue-pop-front)
-         (lean-server-debug "lean-server-consume-all-sync-tasks: either error or quit happend. queue size = %d"
+         (lean-debug "lean-server-consume-all-sync-tasks: either error or quit happend. queue size = %d"
                             (lean-server-async-task-queue-len))))))
-  (lean-server-debug "lean-server-consume-all-async-tasks: over. queue size = %d"
+  (lean-debug "lean-server-consume-all-async-tasks: over. queue size = %d"
                      (lean-server-async-task-queue-len)))
 
 (defun lean-server-send-cmd-sync (cmd &optional cont)
   "Send cmd to lean-server (sync)."
-  (lean-server-debug "send-cmd-sync: %S" (lean-cmd-type cmd))
+  (lean-debug "send-cmd-sync: %S" (lean-cmd-type cmd))
   (lean-server-cancel-retry-timer)
   (lean-server-consume-all-async-tasks)
   (lean-server-send-cmd cmd)
@@ -433,20 +412,20 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
       (setq result (lean-server-check-and-process-buffer-with-cont cont (lean-cmd-type cmd))))
     (pcase result
       (`(PROCESSED ,ret)
-       (lean-server-debug "lean-server-send-cmd-sync: %S, processed result = %S"
+       (lean-debug "lean-server-send-cmd-sync: %S, processed result = %S"
                           cmd
                           result)
        ret)
       (`(ERROR ,err)
-       (lean-server-debug "lean-server-send-cmd-sync: %S, error = %S"
+       (lean-debug "lean-server-send-cmd-sync: %S, error = %S"
                           cmd
                           err))
       (`(QUIT ,err)
-       (lean-server-debug "lean-server-send-cmd-sync: %S, quit = %S"
+       (lean-debug "lean-server-send-cmd-sync: %S, quit = %S"
                           cmd
                           err))
       (t
-       (lean-server-debug "lean-server-send-cmd-sync: %S, ??? = %S"
+       (lean-debug "lean-server-send-cmd-sync: %S, ??? = %S"
                           cmd
                           result)))))
 
@@ -493,7 +472,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
   (lean-server-send-cmd-async (lean-cmd-valid) 'message))
 
 (defun lean-server-set-timer-for-event-handler ()
-  (lean-server-debug "set-timer-for-event-handler")
+  (lean-debug "set-timer-for-event-handler")
   (unless lean-global-retry-timer
     (setq lean-global-retry-timer
           (run-with-idle-timer
@@ -527,20 +506,20 @@ Otherwise, set an idle-timer to call the handler again"
       (pcase result
         (`(PROCESSED ,ret)
          (lean-server-async-task-queue-pop-front)
-         (lean-server-debug "event-handler: processed. now the queue size = %d\n"
+         (lean-debug "event-handler: processed. now the queue size = %d\n"
                             (lean-server-async-task-queue-len))
          ret)
         (`(NOTREADY)
-         (lean-server-debug "event-handler: not ready. queue size = %d"
+         (lean-debug "event-handler: not ready. queue size = %d"
                             (lean-server-async-task-queue-len)))
         (`(ERROR ,err)
          (lean-server-async-task-queue-pop-front)
-         (lean-server-debug "event-handler: error %S. queue size = %d"
+         (lean-debug "event-handler: error %S. queue size = %d"
                             err
                             (lean-server-async-task-queue-len)))
         (`(QUIT ,err)
          (lean-server-async-task-queue-pop-front)
-         (lean-server-debug "event-handler: quit %S. queue size = %d"
+         (lean-debug "event-handler: quit %S. queue size = %d"
                             err
                             (lean-server-async-task-queue-len)))))
     (if lean-global-async-task-queue (lean-server-set-timer-for-event-handler))))
@@ -548,7 +527,7 @@ Otherwise, set an idle-timer to call the handler again"
 (defun lean-server-after-save ()
   (let ((current-file-name (buffer-file-name)))
     (when current-file-name
-      (lean-server-debug "lean-server-handle-save: %s" current-file-name)
+      (lean-debug "lean-server-handle-save: %s" current-file-name)
       (lean-server-send-cmd-async (lean-cmd-visit current-file-name)))))
 
 (defun lean-server-save-buffer-to-temp-file (prefix)
@@ -570,7 +549,7 @@ Otherwise, set an idle-timer to call the handler again"
            (temp-prefix (concat (file-name-as-directory current-directory)
                                 "lean-temp"))
            (temp-file (lean-server-save-buffer-to-temp-file temp-prefix)))
-      (lean-server-debug "lean-server-handle-modified-buffer: %s => %s"
+      (lean-debug "lean-server-handle-modified-buffer: %s => %s"
                          current-file-name
                          temp-file)
       (lean-server-send-cmd-async (lean-cmd-visit temp-file))

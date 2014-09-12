@@ -437,7 +437,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
 
 (defun lean-get-info-record-at-point-cont (info-record cont)
   (cond ((lean-info-record-nay info-record)
-         (lean-server-debug "executing continucation for get-info-record-at-point %d: NAY DETECTED"
+         (lean-debug "executing continucation for get-info-record-at-point %d: NAY DETECTED"
                             lean-global-nay-retry-counter)
          (setq lean-global-nay-retry-counter (1+ lean-global-nay-retry-counter))
          (if (and (< lean-global-nay-retry-counter
@@ -448,7 +448,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
            ;; Stop
            (setq lean-global-nay-retry-counter 0)))
         (t
-         (lean-server-debug "executing continucation for get-info-record-at-point: OK")
+         (lean-debug "executing continucation for get-info-record-at-point: OK")
          (setq lean-global-nay-retry-counter 0)
          (funcall cont info-record))))
 
@@ -470,7 +470,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                               ;;  (let ((begin-pos (lean-get-begin-paren-pos)))
                               ;;    (lean-cmd-info (car begin-pos) (cdr begin-pos))))
                               (t (lean-cmd-info line-number)))))
-    (lean-server-debug "get-info-record-at-point: %S" cmd)
+    (lean-debug "get-info-record-at-point: %S" cmd)
     (lean-server-check-current-file file-name)
     (lean-server-send-cmd-async cmd (lambda (info-record)
                                       (lean-get-info-record-at-point-cont info-record
@@ -478,7 +478,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
 
 (defun lean-get-full-name-at-point-cont (info-record)
   "Continuation of lean-get-full-name-at-point"
-  (lean-server-debug "lean-get-full-name-at-point-cont: %S" info-record)
+  (lean-debug "lean-get-full-name-at-point-cont: %S" info-record)
   (let ((id (cl-first (lean-info-record-identifier info-record))))
     (when id
       (lean-info-identifier-body-str id))))
@@ -487,7 +487,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
   "Return the full-name at point (if any)"
   (lean-get-info-record-at-point
    (lambda (info-record)
-     (lean-server-debug "lean-get-full-name-at-point: executing continuation for get-full-name-at-point")
+     (lean-debug "lean-get-full-name-at-point: executing continuation for get-full-name-at-point")
      (funcall cont
               (lean-get-full-name-at-point-cont info-record)))))
 

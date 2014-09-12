@@ -67,7 +67,7 @@
   (interactive)
   (lean-get-full-name-at-point
    (lambda (full-name)
-     (lean-server-debug "lean-find-tag: %s" full-name)
+     (lean-debug "lean-find-tag: %s" full-name)
      (when full-name
        (condition-case err
            (find-tag full-name)

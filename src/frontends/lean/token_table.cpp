@@ -65,6 +65,7 @@ static char const * g_pi_unicode     = "\u03A0";
 static char const * g_forall_unicode = "\u2200";
 static char const * g_arrow_unicode  = "\u2192";
 static char const * g_cup            = "\u2294";
+static char const * g_qed_unicode    = "∎";
 
 token_table init_token_table() {
     token_table t;
@@ -87,7 +88,7 @@ token_table init_token_table() {
 
     pair<char const *, char const *> aliases[] =
         {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},
-         {nullptr, nullptr}};
+         {g_qed_unicode, "qed"}, {nullptr, nullptr}};
 
     pair<char const *, char const *> cmd_aliases[] =
         {{"parameter", "variable"}, {"parameters", "variables"}, {"lemma", "theorem"},

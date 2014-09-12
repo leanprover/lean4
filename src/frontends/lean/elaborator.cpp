@@ -315,6 +315,8 @@ public:
             return visit_choice(e, some_expr(t), cs);
         } else if (is_by(e)) {
             return visit_by(e, some_expr(t), cs);
+        } else if (is_proof_qed_annotation(e)) {
+            return visit_proof_qed(e, some_expr(t), cs);
         } else {
             return visit(e, cs);
         }
@@ -341,6 +343,12 @@ public:
         expr m   = m_context.mk_meta(t, e.get_tag());
         m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
         return m;
+    }
+
+    expr visit_proof_qed(expr const & e, optional<expr> const & /* t */, constraint_seq & cs) {
+        lean_assert(is_proof_qed_annotation(e));
+        // TODO(Leo)
+        return visit(get_annotation_arg(e), cs);
     }
 
     /** \brief Make sure \c f is really a function, if it is not, try to apply coercions.
@@ -693,6 +701,8 @@ public:
             return visit_let_value(e, cs);
         } else if (is_by(e)) {
             return visit_by(e, none_expr(), cs);
+        } else if (is_proof_qed_annotation(e)) {
+            return visit_proof_qed(e, none_expr(), cs);
         } else if (is_no_info(e)) {
             flet<bool> let(m_no_info, true);
             return visit(get_annotation_arg(e), cs);

@@ -80,6 +80,8 @@
      (,(rx symbol-start (or "bool" "int" "nat" "real" "Prop" "Type" "ℕ" "ℤ") symbol-end) . 'font-lock-type-face)
      ;; sorry
      (,(rx symbol-start "sorry" symbol-end) . 'font-lock-warning-face)
+     ;; extra-keywords
+     (,(rx (or "∎")) . 'font-lock-keyword-face)
      ;; lean-keywords
      (, (concat "\\(" (regexp-opt lean-keywords 'words) "\\)")
         (1 'font-lock-keyword-face)))))

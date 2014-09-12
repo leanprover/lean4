@@ -136,11 +136,20 @@ name const & get_show_name() {
     return g_show;
 }
 
+name const & get_proof_qed_name() {
+    static name g_proof_qed("proof-qed");
+    static register_annotation_fn g_proof_qed_annotation(g_proof_qed);
+    return g_proof_qed;
+}
+
 static name g_have_name = get_have_name(); // force 'have' annotation to be registered
 static name g_show_name = get_show_name(); // force 'show' annotation to be registered
+static name g_proof_qed_name = get_proof_qed_name(); // force 'proof-qed' annotation to be registered
 
 expr mk_have_annotation(expr const & e) { return mk_annotation(get_have_name(), e); }
 expr mk_show_annotation(expr const & e) { return mk_annotation(get_show_name(), e); }
+expr mk_proof_qed_annotation(expr const & e) { return mk_annotation(get_proof_qed_name(), e); }
 bool is_have_annotation(expr const & e) { return is_annotation(e, get_have_name()); }
 bool is_show_annotation(expr const & e) { return is_annotation(e, get_show_name()); }
+bool is_proof_qed_annotation(expr const & e) { return is_annotation(e, get_proof_qed_name()); }
 }

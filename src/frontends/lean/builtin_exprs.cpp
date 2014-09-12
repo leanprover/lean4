@@ -26,7 +26,7 @@ namespace lean {
 namespace notation {
 static name g_llevel_curly(".{"), g_rcurly("}"), g_in("in"), g_colon(":"), g_assign(":=");
 static name g_comma(","), g_visible("[visible]"), g_from("from"), g_using("using");
-static name g_then("then"), g_have("have"), g_by("by"), g_qed("qed"), g_end("end");
+static name g_then("then"), g_have("have"), g_by("by"), g_proof("proof"), g_qed("qed"), g_end("end");
 static name g_take("take"), g_assume("assume"), g_show("show"), g_fun("fun");
 
 static expr parse_Type(parser & p, unsigned, expr const *, pos_info const & pos) {
@@ -153,11 +153,21 @@ static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const &
     }
 }
 
+static expr parse_proof_qed_core(parser & p, pos_info const & pos) {
+    expr r = p.save_pos(mk_proof_qed_annotation(p.parse_expr()), pos);
+    p.check_token_next(g_qed, "invalid proof-qed, 'qed' expected");
+    return r;
+}
+
 static expr parse_proof(parser & p, expr const & prop) {
     if (p.curr_is_token(g_from)) {
         // parse: 'from' expr
         p.next();
         return p.parse_expr();
+    } else if (p.curr_is_token(g_proof)) {
+        auto pos = p.pos();
+        p.next();
+        return parse_proof_qed_core(p, pos);
     } else if (p.curr_is_token(g_by)) {
         // parse: 'by' tactic
         auto pos = p.pos();
@@ -369,6 +379,10 @@ static expr parse_rparen(parser & p, unsigned, expr const * args, pos_info const
         return args[0];
 }
 
+static expr parse_proof_qed(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return parse_proof_qed_core(p, pos);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -390,6 +404,7 @@ parse_table init_nud_table() {
     r = r.add({transition("#", mk_ext_action(parse_overwrite_notation))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     r = r.add({transition("begin", mk_ext_action(parse_begin_end))}, x0);
+    r = r.add({transition("proof", mk_ext_action(parse_proof_qed))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("including", mk_ext_action(parse_including_expr))}, x0);
     return r;

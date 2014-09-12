@@ -36,7 +36,9 @@ remaining commands are all with respect to the current file. If
 it. Some of the remaining commands apply  'changes'  to the current
 file. The LOAD command can be used to discard all these changes,
 and enforce the content of the file stored in file system."
-  `(VISIT ,(or file-name (buffer-file-name))))
+(let ((file-name (or file-name (buffer-file-name))))
+  (cl-assert file-name)
+  `(VISIT ,file-name)))
 
 (defun lean-cmd-visit-get-file-name (visit-cmd)
   (cl-second visit-cmd))

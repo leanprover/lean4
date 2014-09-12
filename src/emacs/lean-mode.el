@@ -25,6 +25,7 @@
 (require 'lean-syntax)
 (require 'lean-mmm-lua)
 (require 'lean-company)
+(require 'lean-changes)
 (require 'lean-server)
 (require 'lean-project)
 
@@ -121,15 +122,14 @@
     ;; ;; clean up temporary files and directories.
     ;; (kill-buffer-hook                 . lean-teardown)
     ;; (change-major-mode-hook           . lean-teardown)
-    ;; (before-revert-hook               . lean-teardown)
+    (before-revert-hook                  . lean-before-revert)
+    (after-revert-hook                   . lean-after-revert)
     ;; ;; Update the error list if necessary
     ;; (post-command-hook                . lean-error-list-update-source)
     ;; (post-command-hook                . lean-error-list-highlight-errors)
     ;; ;; Show or hide error popups after commands
     ;; (post-command-hook                . lean-display-error-at-point-soon)
     ;; (post-command-hook                . lean-hide-error-buffer)
-    ;; ;; Immediately show error popups when navigating to an error
-    ;; (next-error-hook                  . lean-display-error-at-point))
     )
   "Hooks which lean-mode needs to hook in.
 

@@ -167,7 +167,7 @@
     (set-process-query-on-exit-flag lean-server-process nil)
     (lean-server-initialize-global-vars)
     (setq lean-global-server-process lean-server-process)
-    (lean-debug "lean-server process created")
+    (lean-debug "lean-server process %S is created" lean-server-process)
     lean-server-process))
 
 (defun lean-server-kill-process ()
@@ -192,6 +192,12 @@
   (interactive)
   (and (lean-server-kill-process)
        (lean-server-create-process)))
+
+(defun lean-server-process-exist-p ()
+  "Return t if lean-server-process exists, otherwise return nil"
+  (if lean-global-server-process
+      t
+    nil))
 
 (defun lean-server-get-process ()
   "Get lean-server process. If needed, create a one."
@@ -219,11 +225,11 @@ Send REPLACE commands to lean-server, reset lean-changed-lines to nil."
            finally (setq lean-changed-lines nil)))
 
 (defun lean-server-visit-current-buffer ()
+  "Send VISIT for the current buffer"
   (cond ((and (buffer-modified-p)
               (not lean-global-server-current-file-name))
          (lean-server-handle-modified-buffer))
-        (t
-         (lean-server-send-cmd-async (lean-cmd-visit)))))
+        (t (lean-server-send-cmd-async (lean-cmd-visit)))))
 
 (defun lean-server-check-current-file (&optional file-name)
   "Check lean-global-server-current-file-name

@@ -39,21 +39,18 @@ where TYPE := INFO | SET | EVAL | OPTIONS | SHOW | FINDP | FINDG | ERROR,
 (defvar lean-global-async-task-queue nil
   "Tasks (continuations) to be executed.")
 
-(defvar-local lean-changed-lines nil
-  "Changed lines")
-(defvar-local lean-removed-lines nil
-  "Removed lines")
-(defvar-local lean-inserted-lines nil
-  "Inserted lines")
-
 (defvar lean-global-before-change-beg nil
   "Before-change BEG")
+
 (defvar lean-global-before-change-end nil
   "Before-change END")
+
 (defvar lean-global-before-change-beg-line-number nil
   "Before-change BEG line-number")
+
 (defvar lean-global-before-change-end-line-number nil
   "Before-change END line-number")
+
 (defvar lean-global-before-change-text ""
   "Before-change text")
 

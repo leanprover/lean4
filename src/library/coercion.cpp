@@ -115,7 +115,7 @@ static void check_valid_coercion(name const & f, expr const & t) {
         throw exception(sstream() << "invalid coercion, type of '" << f << "' does not match any of the allowed expected types for coercions\n"
                         << "  Pi (x_1 : A_1) ... (x_n : A_n) (y: C x_1 ... x_n), D t_1 ... t_m\n"
                         << "  Pi (x_1 : A_1) ... (x_n : A_n) (y: C x_1 ... x_n), Type\n"
-                        << "  Pi (x_1 : A_1) ... (x_n : A_n) (y: C x_1 ... x_n), A -> B\n");
+                        << "  Pi (x_1 : A_1) ... (x_n : A_n) (y: C x_1 ... x_n), A -> B");
     }
 }
 

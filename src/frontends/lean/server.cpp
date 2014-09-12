@@ -324,10 +324,13 @@ void server::load_file(std::string const & fname, bool error_if_nofile) {
             m_out << "-- ERROR failed to open file '" << fname << "'" << std::endl;
         } else {
             m_file.reset(new file(in, fname));
+            m_file_map.erase(fname);
             m_file_map.insert(mk_pair(fname, m_file));
         }
     } else {
+        m_cache.clear();
         m_file.reset(new file(in, fname));
+        m_file_map.erase(fname);
         m_file_map.insert(mk_pair(fname, m_file));
         process_from(0);
     }

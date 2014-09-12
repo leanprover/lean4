@@ -210,7 +210,7 @@
 
 ;; How to send data to an async process
 ;; ====================================
-(defun lean-flush-changed-lines ()
+(defun lean-server-flush-changed-lines ()
   "Flush lean-changed-lines.
 
 Send REPLACE commands to lean-server, reset lean-changed-lines to nil."
@@ -244,16 +244,16 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('REPLACE (lean-server-check-current-file))
     ('INSERT  (lean-server-check-current-file))
     ('REMOVE  (lean-server-check-current-file))
-    ('INFO    (lean-flush-changed-lines))
+    ('INFO    (lean-server-flush-changed-lines))
     ('CHECK   ())
     ('SET     ())
     ('EVAL    (lean-server-check-current-file))
     ('OPTIONS ())
     ('SHOW    (lean-server-check-current-file))
     ('VALID   (lean-server-check-current-file))
-    ('FINDP   (lean-flush-changed-lines)
+    ('FINDP   (lean-server-flush-changed-lines)
               (lean-server-check-current-file))
-    ('FINDG   (lean-flush-changed-lines)
+    ('FINDG   (lean-server-flush-changed-lines)
               (lean-server-check-current-file))
     ('WAIT    (lean-server-check-current-file))))
 

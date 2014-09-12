@@ -136,18 +136,18 @@ pairs, compute changed-lines, inserted-lines, and removed-lines."
            do (add-to-list 'lean-changed-lines n)))
 
 (defun lean-after-change-handle-inserted (inserted-lines changed-lines)
-  (lean-flush-changed-lines)
+  (lean-server-flush-changed-lines)
   (cl-loop for n in inserted-lines
            do (lean-server-send-cmd-async (lean-cmd-insert n (lean-grab-line n))))
   (setq lean-changed-lines changed-lines)
-  (lean-flush-changed-lines))
+  (lean-server-flush-changed-lines))
 
 (defun lean-after-change-handle-removed (removed-lines changed-lines)
-  (lean-flush-changed-lines)
+  (lean-server-flush-changed-lines)
   (cl-loop for n in removed-lines
            do (lean-server-send-cmd-async (lean-cmd-remove n)))
   (setq lean-changed-lines changed-lines)
-  (lean-flush-changed-lines))
+  (lean-server-flush-changed-lines))
 
 (defun lean-after-change-function (beg end leng-before)
   "Function attached to after-change-functions hook"

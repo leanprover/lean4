@@ -24,10 +24,10 @@ namespace category
   section
   parameters {ob : Type} {Cat : category ob} {A B C D : ob}
 
-
-  definition mor : ob → ob → Type := rec (λ mor compose id assoc idr idl, mor) Cat
-  definition compose : Π {A B C : ob}, mor B C → mor A B → mor A C :=
+  abbreviation mor : ob → ob → Type := rec (λ mor compose id assoc idr idl, mor) Cat
+  abbreviation compose : Π {A B C : ob}, mor B C → mor A B → mor A C :=
   rec (λ mor compose id assoc idr idl, compose) Cat
+
   definition id : Π {A : ob}, mor A A :=
   rec (λ mor compose id assoc idr idl, id) Cat
   abbreviation ID (A : ob) : mor A A := @id A
@@ -190,23 +190,19 @@ namespace category
 
   section
   parameter {ob : Type}
-  definition opposite [instance] (C : category ob) : category ob :=
+  abbreviation opposite [instance] (C : category ob) : category ob :=
   category.mk (λa b, mor b a) (λ a b c f g, g ∘ f) (λ a, id) (λ a b c d f g h, symm assoc)
     (λ a b f, id_left) (λ a b f, id_right)
   precedence `∘op` : 60
   infixr `∘op` := @compose _ (opposite _) _ _ _
 
-  -- parameters {C : category ob} {a b c : ob} {f : @mor ob C a b} {g : @mor ob C b c}
-  -- check g ∘ f
-  -- check f ∘op g
-  -- check f ∘op g = g ∘ f
+  parameters {C : category ob} {a b c : ob} {f : @mor ob C a b} {g : @mor ob C b c}
 
-  -- theorem compose_op : f ∘op g = g ∘ f :=
-  -- rfl
-  -- theorem compose_op {C : category ob} {a b c : ob} {f : @mor ob C a b} {g : @mor ob C b c} : f ∘op g = g ∘ f :=
-  -- rfl
-  -- theorem op_op {C : category ob} : opposite (opposite C) = C :=
-  -- rec (λ mor comp id assoc idl idr, sorry) C
+  theorem compose_op : f ∘op g = g ∘ f :=
+  rfl
+
+  theorem op_op {C : category ob} : opposite (opposite C) = C :=
+  rec (λ mor comp id assoc idl idr, sorry) C
   end
 
   section

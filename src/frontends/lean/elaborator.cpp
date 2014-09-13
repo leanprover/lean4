@@ -97,18 +97,16 @@ class elaborator : public coercion_info_manager {
     struct saved_state {
         list<expr> m_ctx;
         list<expr> m_full_ctx;
-        cache      m_cache;
         saved_state(elaborator & e):
-            m_ctx(e.m_context.get_data()), m_full_ctx(e.m_full_context.get_data()), m_cache(e.m_cache) {}
+            m_ctx(e.m_context.get_data()), m_full_ctx(e.m_full_context.get_data()) {}
     };
 
     struct scope_ctx {
         elaborator &         m_main;
         local_context::scope m_scope1;
         local_context::scope m_scope2;
-        cache                m_old_cache;
-        scope_ctx(elaborator & e):m_main(e), m_scope1(e.m_context), m_scope2(e.m_full_context), m_old_cache(e.m_cache) {}
-        ~scope_ctx() { m_main.m_cache = m_old_cache; }
+        scope_ctx(elaborator & e):m_main(e), m_scope1(e.m_context), m_scope2(e.m_full_context) {}
+        ~scope_ctx() {}
     };
 
     /** \brief Auxiliary object for creating backtracking points, and replacing the local scopes. */
@@ -117,19 +115,15 @@ class elaborator : public coercion_info_manager {
         bool                         m_old_no_info;
         local_context::scope_replace m_context_scope;
         local_context::scope_replace m_full_context_scope;
-        cache                        m_old_cache;
         new_scope(elaborator & e, saved_state const & s, bool no_info = false):
             m_main(e),
             m_context_scope(e.m_context, s.m_ctx),
             m_full_context_scope(e.m_full_context, s.m_full_ctx){
             m_old_no_info    = m_main.m_no_info;
             m_main.m_no_info = no_info;
-            m_old_cache     = m_main.m_cache;
-            m_main.m_cache  = s.m_cache;
         }
         ~new_scope() {
             m_main.m_no_info = m_old_no_info;
-            m_main.m_cache  = m_old_cache;
         }
     };
 
@@ -141,14 +135,14 @@ class elaborator : public coercion_info_manager {
     */
     struct choice_expr_elaborator : public choice_iterator {
         elaborator & m_elab;
-        expr         m_mvar;
+        expr         m_meta;
         expr         m_choice;
         saved_state  m_state;
         unsigned     m_idx;
         bool         m_relax_main_opaque;
-        choice_expr_elaborator(elaborator & elab, expr const & mvar, expr const & c,
+        choice_expr_elaborator(elaborator & elab, expr const & meta, expr const & c,
                                saved_state const & s, bool relax):
-            m_elab(elab), m_mvar(mvar), m_choice(c), m_state(s),
+            m_elab(elab), m_meta(meta), m_choice(c), m_state(s),
             m_idx(get_num_choices(m_choice)), m_relax_main_opaque(relax) {
         }
 
@@ -162,7 +156,7 @@ class elaborator : public coercion_info_manager {
                     new_scope s(m_elab, m_state);
                     pair<expr, constraint_seq> rcs = m_elab.visit(c);
                     expr r = rcs.first;
-                    constraint_seq cs = mk_eq_cnstr(m_mvar, r, justification(), m_relax_main_opaque) + rcs.second;
+                    constraint_seq cs = mk_eq_cnstr(m_meta, r, justification(), m_relax_main_opaque) + rcs.second;
                     return optional<constraints>(cs.to_list());
                 } catch (exception &) {}
             }
@@ -328,9 +322,9 @@ public:
         expr m              = m_full_context.mk_meta(t, e.get_tag());
         saved_state s(*this);
         bool relax          = m_relax_main_opaque;
-        auto fn = [=](expr const & mvar, expr const & /* type */, substitution const & /* s */,
+        auto fn = [=](expr const & meta, expr const & /* type */, substitution const & /* s */,
                       name_generator const & /* ngen */) {
-            return choose(std::make_shared<choice_expr_elaborator>(*this, mvar, e, s, relax));
+            return choose(std::make_shared<choice_expr_elaborator>(*this, meta, e, s, relax));
         };
         justification j = mk_justification("none of the overloads is applicable", some_expr(e));
         cs += mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), true, j, m_relax_main_opaque);

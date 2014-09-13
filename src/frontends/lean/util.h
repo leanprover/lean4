@@ -49,4 +49,18 @@ expr instantiate_meta(expr const & meta, substitution & subst);
 /** \brief Return a 'failed to synthesize placholder' justification for the given
     metavariable application \c m of the form (?m l_1 ... l_k) */
 justification mk_failed_to_synthesize_jst(environment const & env, expr const & m);
+
+/** \brief Return a justification for \c v_type being definitionally equal to \c t,
+    <tt> v : v_type</tt>, the expressiong \c src is used to extract position information.
+*/
+justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr const & t, expr const & src);
+inline justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr const & t) {
+    return mk_type_mismatch_jst(v, v_type, t, v);
+}
+
+/** \brief Given a metavariable application (?m l_1 ... l_n), apply \c s to the types of
+    ?m and local constants l_i
+    Return the updated expression and a justification for all substitutions.
+*/
+pair<expr, justification> update_meta(expr const & meta, substitution s);
 }

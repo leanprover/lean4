@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
+#include "kernel/error_msgs.h"
 #include "kernel/for_each_fn.h"
 #include "library/scoped_ext.h"
 #include "library/locals.h"
@@ -225,5 +226,35 @@ justification mk_failed_to_synthesize_jst(environment const & env, expr const & 
             proof_state ps(goals(goal(new_m, new_type)), substitution(), name_generator("dontcare"));
             return format("failed to synthesize placeholder") + line() + ps.pp(fmt);
         });
+}
+
+justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr const & t, expr const & src) {
+    return mk_justification(src, [=](formatter const & fmt, substitution const & subst) {
+            substitution s(subst);
+            format expected_fmt, given_fmt;
+            std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, s.instantiate(t), s.instantiate(v_type));
+            format r("type mismatch at term");
+            r += pp_indent_expr(fmt, s.instantiate(v));
+            r += compose(line(), format("has type"));
+            r += given_fmt;
+            r += compose(line(), format("but is expected to have type"));
+            r += expected_fmt;
+            return r;
+        });
+}
+
+pair<expr, justification> update_meta(expr const & meta, substitution s) {
+    buffer<expr> args;
+    expr mvar = get_app_args(meta, args);
+    justification j;
+    auto p = s.instantiate_metavars(mlocal_type(mvar));
+    mvar   = update_mlocal(mvar, p.first);
+    j      = p.second;
+    for (expr & arg : args) {
+        auto p = s.instantiate_metavars(mlocal_type(arg));
+        arg    = update_mlocal(arg, p.first);
+        j      = mk_composite1(j, p.second);
+    }
+    return mk_pair(mk_app(mvar, args), j);
 }
 }

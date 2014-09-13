@@ -53,7 +53,8 @@ unify_result_seq unify(environment const & env, expr const & lhs, expr const & r
                        substitution const & s = substitution(), unifier_config const & c = unifier_config());
 
 /**
-    The unifier divides the constraints in 8 groups: Simple, Basic, FlexRigid, PluginDelayed, DelayedChoice, ClassInstance, FlexFlex, MaxDelayed
+    The unifier divides the constraints in 9 groups: Simple, Basic, FlexRigid, PluginDelayed, DelayedChoice, ClassInstance,
+    Epilogue, FlexFlex, MaxDelayed
 
     1) Simple: constraints that never create case-splits. Example: pattern matching constraints (?M l_1 ... l_n) =?= t.
        The are not even inserted in the constraint priority queue.
@@ -71,13 +72,15 @@ unify_result_seq unify(environment const & env, expr const & lhs, expr const & r
 
     6) ClassInstance: for delayed choice constraints (we use this group for class-instance).
 
-    7) FlexFlex:  (?m1 ...) =?= (?m2 ...) we don't try to solve this constraint, we delay them and hope the other
-       ones instantiate ?m1 or ?m2. If this kind of constraint is the next to be processed in the queue, then
-       we simply discard it.
+    7) Epilogue: constraints that must be solved before FlexFlex are discarded/postponed.
 
-    8) MaxDelayed: maximally delayed constraint group
+    8) FlexFlex:  (?m1 ...) =?= (?m2 ...) we don't try to solve this constraint, we delay them and hope the other
+       ones instantiate ?m1 or ?m2. If this kind of constraint is the next to be processed in the queue, then
+       we simply discard it (or save it and return to the caller as residue).
+
+    9) MaxDelayed: maximally delayed constraint group
 */
-enum class cnstr_group { Basic = 0, FlexRigid, PluginDelayed, DelayedChoice, ClassInstance, FlexFlex, MaxDelayed };
+enum class cnstr_group { Basic = 0, FlexRigid, PluginDelayed, DelayedChoice, ClassInstance, Epilogue, FlexFlex, MaxDelayed };
 inline unsigned to_delay_factor(cnstr_group g) { return static_cast<unsigned>(g); }
 
 class unifier_exception : public exception {

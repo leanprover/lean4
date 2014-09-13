@@ -22,6 +22,7 @@ class local_context {
     buffer<expr>    m_ctx_buffer; // m_ctx as a buffer
     buffer<expr>    m_ctx_domain_buffer; // m_ctx_domain_buffer[i] == abstract_locals(m_ctx_buffer[i], i, m_ctx_buffer.beg
 public:
+    local_context(name const & prefix);
     local_context(name const & prefix, list<expr> const & ctx);
 
     void set_ctx(list<expr> const & ctx);

@@ -250,25 +250,6 @@ pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_con
     return mk_pair(m, c);
 }
 
-/** \brief Given a metavariable application (?m l_1 ... l_n), apply \c s to the types of
-    ?m and local constants l_i
-    Return the updated expression and a justification for all substitutions.
-*/
-static pair<expr, justification> update_meta(expr const & meta, substitution s) {
-    buffer<expr> args;
-    expr mvar = get_app_args(meta, args);
-    justification j;
-    auto p = s.instantiate_metavars(mlocal_type(mvar));
-    mvar   = update_mlocal(mvar, p.first);
-    j      = p.second;
-    for (expr & arg : args) {
-        auto p = s.instantiate_metavars(mlocal_type(arg));
-        arg    = update_mlocal(arg, p.first);
-        j      = mk_composite1(j, p.second);
-    }
-    return mk_pair(mk_app(mvar, args), j);
-}
-
 constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const & C, expr const & m, bool is_strict,
                                      unifier_config const & cfg, unsigned delay_factor) {
     environment const & env = C->env();

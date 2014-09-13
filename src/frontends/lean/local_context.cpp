@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_context.h"
 
 namespace lean {
+local_context::local_context(name const & prefix):m_ngen(prefix) {}
 local_context::local_context(name const & prefix, list<expr> const & ctx):
     m_ngen(prefix) {
     set_ctx(ctx);

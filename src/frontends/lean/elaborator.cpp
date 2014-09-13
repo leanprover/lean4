@@ -45,6 +45,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/choice_iterator.h"
 #include "frontends/lean/placeholder_elaborator.h"
 #include "frontends/lean/coercion_elaborator.h"
+#include "frontends/lean/proof_qed_elaborator.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
@@ -153,11 +154,11 @@ class elaborator : public coercion_info_manager {
     };
 
 public:
-    elaborator(elaborator_context & env, list<expr> const & ctx, name_generator const & ngen):
+    elaborator(elaborator_context & env, name_generator const & ngen):
         m_env(env),
         m_ngen(ngen),
-        m_context(m_ngen.next(), ctx),
-        m_full_context(m_ngen.next(), ctx),
+        m_context(m_ngen.next()),
+        m_full_context(m_ngen.next()),
         m_unifier_config(env.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
         m_relax_main_opaque = false;
         m_no_info = false;
@@ -326,10 +327,13 @@ public:
         return m;
     }
 
-    expr visit_proof_qed(expr const & e, optional<expr> const & /* t */, constraint_seq & cs) {
+    expr visit_proof_qed(expr const & e, optional<expr> const & t, constraint_seq & cs) {
         lean_assert(is_proof_qed_annotation(e));
-        // TODO(Leo)
-        return visit(get_annotation_arg(e), cs);
+        pair<expr, constraint_seq> ecs = visit(get_annotation_arg(e));
+        pair<expr, constraint> mc = mk_proof_qed_elaborator(env(), m_full_context, ecs.first, t, ecs.second,
+                                                            m_unifier_config, m_relax_main_opaque);
+        cs += mc.second;
+        return mc.first;
     }
 
     /** \brief Make sure \c f is really a function, if it is not, try to apply coercions.
@@ -642,18 +646,7 @@ public:
         constraint_seq v_cs;
         expr v      = visit(get_typed_expr_expr(e), v_cs);
         expr v_type = infer_type(v, v_cs);
-        justification j = mk_justification(e, [=](formatter const & fmt, substitution const & subst) {
-                substitution s(subst);
-                format expected_fmt, given_fmt;
-                std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, s.instantiate(t), s.instantiate(v_type));
-                format r("type mismatch at term");
-                r += pp_indent_expr(fmt, s.instantiate(v));
-                r += compose(line(), format("has type"));
-                r += given_fmt;
-                r += compose(line(), format("but is expected to have type"));
-                r += expected_fmt;
-                return r;
-            });
+        justification j = mk_type_mismatch_jst(v, v_type, t, e);
         auto new_vcs    = ensure_has_type(v, v_type, t, j, m_relax_main_opaque);
         v = new_vcs.first;
         cs += t_cs + new_vcs.second + v_cs;
@@ -914,7 +907,10 @@ public:
         return std::make_tuple(r, to_list(new_ps.begin(), new_ps.end()));
     }
 
-    std::tuple<expr, level_param_names> operator()(expr const & e, bool _ensure_type, bool relax_main_opaque) {
+    std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type,
+                                                   bool relax_main_opaque) {
+        m_context.set_ctx(ctx);
+        m_full_context.set_ctx(ctx);
         flet<bool> set_relax(m_relax_main_opaque, relax_main_opaque && !get_hide_main_opaque(env()));
         constraint_seq cs;
         expr r = visit(e, cs);
@@ -961,11 +957,11 @@ static name g_tmp_prefix = name::mk_internal_unique_name();
 
 std::tuple<expr, level_param_names> elaborate(elaborator_context & env, list<expr> const & ctx, expr const & e,
                                               bool relax_main_opaque, bool ensure_type) {
-    return elaborator(env, ctx, name_generator(g_tmp_prefix))(e, ensure_type, relax_main_opaque);
+    return elaborator(env, name_generator(g_tmp_prefix))(ctx, e, ensure_type, relax_main_opaque);
 }
 
 std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t, expr const & v,
                                                     bool is_opaque) {
-    return elaborator(env, list<expr>(), name_generator(g_tmp_prefix))(t, v, n, is_opaque);
+    return elaborator(env, name_generator(g_tmp_prefix))(t, v, n, is_opaque);
 }
 }

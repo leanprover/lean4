@@ -93,39 +93,28 @@ class elaborator : public coercion_info_manager {
     info_manager         m_pre_info_data;
     unifier_config       m_unifier_config;
 
-    // Auxiliary object to "saving" elaborator state
-    struct saved_state {
-        list<expr> m_ctx;
-        list<expr> m_full_ctx;
-        saved_state(elaborator & e):
-            m_ctx(e.m_context.get_data()), m_full_ctx(e.m_full_context.get_data()) {}
-    };
-
     struct scope_ctx {
         elaborator &         m_main;
         local_context::scope m_scope1;
         local_context::scope m_scope2;
         scope_ctx(elaborator & e):m_main(e), m_scope1(e.m_context), m_scope2(e.m_full_context) {}
-        ~scope_ctx() {}
     };
 
-    /** \brief Auxiliary object for creating backtracking points, and replacing the local scopes. */
-    struct new_scope {
-        elaborator &                 m_main;
-        bool                         m_old_no_info;
-        local_context::scope_replace m_context_scope;
-        local_context::scope_replace m_full_context_scope;
-        new_scope(elaborator & e, saved_state const & s, bool no_info = false):
-            m_main(e),
-            m_context_scope(e.m_context, s.m_ctx),
-            m_full_context_scope(e.m_full_context, s.m_full_ctx){
-            m_old_no_info    = m_main.m_no_info;
-            m_main.m_no_info = no_info;
+    /** \brief Set local context for the given metavariable application */
+    void set_local_context_for(expr const & meta) {
+        lean_assert(is_meta(meta));
+        buffer<expr> args;
+        get_app_args(meta, args);
+        list<expr> ctx, full_ctx;
+        for (expr const & arg : args) {
+            lean_assert(is_local(arg));
+            if (local_info(arg).is_contextual())
+                ctx = cons(arg, ctx);
+            full_ctx = cons(arg, full_ctx);
         }
-        ~new_scope() {
-            m_main.m_no_info = m_old_no_info;
-        }
-    };
+        m_context.set_ctx(ctx);
+        m_full_context.set_ctx(full_ctx);
+    }
 
     /** \brief 'Choice' expressions <tt>(choice e_1 ... e_n)</tt> are mapped into a metavariable \c ?m
         and a choice constraints <tt>(?m in fn)</tt> where \c fn is a choice function.
@@ -137,13 +126,12 @@ class elaborator : public coercion_info_manager {
         elaborator & m_elab;
         expr         m_meta;
         expr         m_choice;
-        saved_state  m_state;
         unsigned     m_idx;
         bool         m_relax_main_opaque;
-        choice_expr_elaborator(elaborator & elab, expr const & meta, expr const & c,
-                               saved_state const & s, bool relax):
-            m_elab(elab), m_meta(meta), m_choice(c), m_state(s),
-            m_idx(get_num_choices(m_choice)), m_relax_main_opaque(relax) {
+        choice_expr_elaborator(elaborator & elab, expr const & meta, expr const & c, bool relax):
+            m_elab(elab), m_meta(meta), m_choice(c),
+            m_idx(get_num_choices(m_choice)),
+            m_relax_main_opaque(relax) {
         }
 
         virtual optional<constraints> next() {
@@ -153,7 +141,7 @@ class elaborator : public coercion_info_manager {
                 expr const & f = get_app_fn(c);
                 m_elab.save_identifier_info(f);
                 try {
-                    new_scope s(m_elab, m_state);
+                    m_elab.set_local_context_for(m_meta);
                     pair<expr, constraint_seq> rcs = m_elab.visit(c);
                     expr r = rcs.first;
                     constraint_seq cs = mk_eq_cnstr(m_meta, r, justification(), m_relax_main_opaque) + rcs.second;
@@ -320,11 +308,10 @@ public:
         lean_assert(is_choice(e));
         // Possible optimization: try to lookahead and discard some of the alternatives.
         expr m              = m_full_context.mk_meta(t, e.get_tag());
-        saved_state s(*this);
         bool relax          = m_relax_main_opaque;
         auto fn = [=](expr const & meta, expr const & /* type */, substitution const & /* s */,
                       name_generator const & /* ngen */) {
-            return choose(std::make_shared<choice_expr_elaborator>(*this, meta, e, s, relax));
+            return choose(std::make_shared<choice_expr_elaborator>(*this, meta, e, relax));
         };
         justification j = mk_justification("none of the overloads is applicable", some_expr(e));
         cs += mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), true, j, m_relax_main_opaque);

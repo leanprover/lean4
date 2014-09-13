@@ -98,14 +98,5 @@ public:
         scope(local_context & main);
         ~scope();
     };
-
-    /** \brief Scope object for temporarily replacing the content of the context */
-    class scope_replace {
-        local_context & m_main;
-        list<expr>      m_saved;
-    public:
-        scope_replace(local_context & main, list<expr> const & new_ctx);
-        ~scope_replace();
-    };
 };
 }

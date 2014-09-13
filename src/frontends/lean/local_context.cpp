@@ -91,13 +91,4 @@ local_context::scope::~scope() {
     m_main.m_ctx_buffer.shrink(m_old_sz);
     m_main.m_ctx_domain_buffer.shrink(m_old_sz);
 }
-
-local_context::scope_replace::scope_replace(local_context & main,
-                                            list<expr> const & new_ctx):
-    m_main(main), m_saved(m_main.m_ctx) {
-    m_main.set_ctx(new_ctx);
-}
-local_context::scope_replace::~scope_replace() {
-    m_main.set_ctx(m_saved);
-}
 }

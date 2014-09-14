@@ -13,11 +13,13 @@ packages which can be installed via <kbd>M-x package-install</kbd>.
 
  - [dash][dash]
  - [dash-functional][dash]
+ - [f][f]
  - [s][s]
 
 [emacs24]: http://www.gnu.org/software/emacs
 [MELPA]: http://melpa.milkbox.net
 [dash]: https://github.com/magnars/dash.el
+[f]: https://github.com/rejeep/f.el
 [s]: https://github.com/magnars/s.el
 
 The following packages are *optional* but we recommend to install them
@@ -52,7 +54,7 @@ Put the following elisp code on your emacs setup (e.g. ``.emacs.d/init.el``):
 ;; Install required/optional packages for lean-mode
 (defvar lean-mode-required-packages
   '(company dash dash-functional flycheck whitespace-cleanup-mode
-    fill-column-indicator s lua-mode mmm-mode))
+    f fill-column-indicator s lua-mode mmm-mode))
 (dolist (p lean-mode-required-packages)
   (when (not (package-installed-p p))
     (package-install p)))

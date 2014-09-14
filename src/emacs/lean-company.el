@@ -8,61 +8,155 @@
 (require 'company-etags)
 (require 'dash)
 (require 'dash-functional)
+(require 'f)
 (require 'lean-tags)
 (require 'lean-server)
 
 (defun company-lean-hook ()
-  (set (make-local-variable 'company-backends) '(company-lean))
+  (set (make-local-variable 'company-backends) '(company-lean--import
+                                                 company-lean--findg
+                                                 company-lean--findp))
   (setq-local company-tooltip-limit 20)                      ; bigger popup window
-  (setq-local company-idle-delay nil)                         ; decrease delay before autocompletion popup shows
+  (setq-local company-idle-delay nil)                        ; decrease delay before autocompletion popup shows
   (setq-local company-echo-delay 0)                          ; remove annoying blinking
   (setq-local company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
   (company-mode t))
 
-(defun company-lean--need-autocomplete ()
-  (not (looking-back
-        (rx (or "theorem" "definition" "lemma" "axiom" "parameter"
-                "abbreviation" "variable" "hypothesis" "conjecture"
-                "corollary")
-            (+ white)
-            (* (not white))))))
+(defun company-lean--import-remove-lean (file-name)
+  (cond
+   ((s-ends-with? "/default.lean" file-name)
+    (s-left (- (length file-name)
+                   (length "/default.lean"))
+                file-name))
+   ((s-ends-with? ".lean" file-name)
+    (s-left (- (length file-name)
+                   (length ".lean"))
+                file-name))
+   (t file-name)))
 
-(defun company-lean--prefix ()
-  "Returns the symbol to complete. Also, if point is on a dot,
-triggers a completion immediately."
-  (let ((prefix (company-grab-symbol)))
-    (cond ((looking-at (rx symbol-start "_")) "")
-          ((and
-            (company-lean--need-autocomplete)
-            (or
-             (>= (length prefix) 1)
-             (string-match "[_.]" prefix)))
-           prefix))))
+(defun company-lean--import-candidates-main (&optional root-dir)
+  (interactive)
+  (unless root-dir
+    (setq root-dir
+          (f--traverse-upwards (f-exists? (f-expand ".project" it))
+                               (f-dirname (buffer-file-name)))))
+  (let* ((lean-files (f-files root-dir
+                              (lambda (file) (equal (f-ext file) "lean"))
+                              t))
+         ;; Relative to project root-dir
+         (lean-files-r (--map (f-relative it root-dir) lean-files))
+         (candidates
+          (--map (s-replace-all `((,(f-path-separator)  . "."))
+                                (company-lean--import-remove-lean it))
+                 lean-files-r)))
+    (--zip-with (propertize it 'file-name other) candidates lean-files)))
 
-(defun company-lean--make-candidate (arg)
-  (propertize (car arg) 'type (cdr arg)))
+(defun company-lean--import-prefix ()
+  "FINDG is triggered when it looks at '_'"
+  (when (looking-back
+         (rx "import"
+             (* (+ white)
+                (+ (or alnum digit "." "_")))
+             (? (+ white))))
+    (company-grab-symbol)))
 
-(defun company-lean--candidates (prefix)
+(defun company-lean--import-candidates (prefix)
+  (let* ((cur-dir (f-dirname (buffer-file-name)))
+         (parent-dir (f-parent cur-dir))
+         (candidates
+          (cond
+           ;; prefix = ".."
+           ((and parent-dir (s-starts-with? ".." prefix))
+            (--map (concat ".." it)
+                   (company-lean--import-candidates-main parent-dir)))
+           ;; prefix = "."
+           ((s-starts-with? "." prefix)
+            (--map (concat "." it)
+                   (company-lean--import-candidates-main cur-dir)))
+           (t (company-lean--import-candidates-main)))))
+    (--filter (s-starts-with? prefix it) candidates)))
+
+(defun company-lean--import-location (arg)
+  (let ((file-name (get-text-property 0 'file-name arg)))
+    `(,file-name . 1)))
+
+(defun company-lean--import (command &optional arg &rest ignored)
+  (case command
+    (prefix (company-lean--import-prefix))
+    (candidates (company-lean--import-candidates arg))
+    (location   (company-lean--import-location arg))
+    (sorted t)))
+
+;; FINDG
+;; =====
+
+(defun company-lean--findg-prefix ()
+  "FINDG is triggered when it looks at '_'"
+  (when (looking-at (rx symbol-start "_")) ""))
+
+(defun company-lean--findg-candidates (prefix)
   (let ((line-number (line-number-at-pos))
         (column-number (current-column))
         pattern)
     (lean-server-send-cmd-sync (lean-cmd-wait) '(lambda () ()))
-    (cond
-     ((looking-at (rx symbol-start "_"))
-      (setq pattern (if current-prefix-arg
-                        (read-string "Filter for find declarations (e.g: +intro -and): " "" nil "")
-                      ""))
-      (lean-server-send-cmd-sync (lean-cmd-findg line-number column-number pattern)
-                                 (lambda (candidates)
-                                   (lean-debug "executing continuation for FINDG")
-                                   (-map 'company-lean--make-candidate candidates))))
-     (t
-      (lean-server-send-cmd-sync (lean-cmd-findp line-number prefix)
-                                 (lambda (candidates)
-                                   (lean-debug "executing continuation for FINDP")
-                                   (-map 'company-lean--make-candidate candidates)))))))
+    (setq pattern (if current-prefix-arg
+                      (read-string "Filter for find declarations (e.g: +intro -and): " "" nil "")
+                    ""))
+    (lean-server-send-cmd-sync (lean-cmd-findg line-number column-number pattern)
+                               (lambda (candidates)
+                                 (lean-debug "executing continuation for FINDG")
+                                 (-map 'company-lean--findp-make-candidate candidates)))))
 
-(defun company-lean--location (arg)
+(defun company-lean--findg-pre-completion (args)
+  "Delete current '_' before filling the selected AC candidate"
+  (when (looking-at (rx "_"))
+    (delete-forward-char 1)))
+
+(defun company-lean--findg (command &optional arg &rest ignored)
+  (case command
+    (prefix (company-lean--findg-prefix))
+    (candidates (company-lean--findg-candidates arg))
+    (annotation (company-lean--findp-annotation arg))
+    (location (company-lean--findp-location arg))
+    (pre-completion (company-lean--findg-pre-completion arg))
+    (sorted t)))
+
+;; FINDP
+;; -----
+(defun company-lean--need-autocomplete ()
+  (not (looking-back
+        (rx (or "theorem" "definition" "lemma" "axiom" "parameter"
+                "abbreviation" "variable" "hypothesis" "conjecture"
+                "corollary" "open")
+            (+ white)
+            (* (not white))))))
+
+(defun company-lean--findp-prefix ()
+  "Returns the symbol to complete. Also, if point is on a dot,
+triggers a completion immediately."
+  (let ((prefix (company-grab-symbol)))
+    (when (and
+           prefix
+           (company-lean--need-autocomplete)
+           (or
+            (>= (length prefix) 1)
+            (string-match "[_.]" prefix)))
+      prefix)))
+
+(defun company-lean--findp-make-candidate (arg)
+  (propertize (car arg) 'type (cdr arg)))
+
+(defun company-lean--findp-candidates (prefix)
+  (let ((line-number (line-number-at-pos))
+        (column-number (current-column))
+        pattern)
+    (lean-server-send-cmd-sync (lean-cmd-wait) '(lambda () ()))
+    (lean-server-send-cmd-sync (lean-cmd-findp line-number prefix)
+                               (lambda (candidates)
+                                 (lean-debug "executing continuation for FINDP")
+                                 (-map 'company-lean--findp-make-candidate candidates)))))
+
+(defun company-lean--findp-location (arg)
   (lean-generate-tags)
   (let ((tags-table-list (company-etags-buffer-table)))
     (when (fboundp 'find-tag-noselect)
@@ -70,7 +164,7 @@ triggers a completion immediately."
         (let ((buffer (find-tag-noselect arg)))
           (cons buffer (with-current-buffer buffer (point))))))))
 
-(defun company-lean--annotation (candidate)
+(defun company-lean--findp-annotation (candidate)
   (let ((type (get-text-property 0 'type candidate)))
     (when type
       (let* ((annotation-str (format " : %s" type))
@@ -88,19 +182,16 @@ triggers a completion immediately."
                  "...")))
         annotation-str))))
 
-(defun company-lean--pre-completion (args)
-  (when (looking-at (rx "_"))
-    (delete-forward-char 1)))
-
-;;;###autoload
-(defun company-lean (command &optional arg &rest ignored)
+(defun company-lean--findp (command &optional arg &rest ignored)
   (case command
-    (prefix (company-lean--prefix))
-    (candidates (company-lean--candidates arg))
-    (annotation (company-lean--annotation arg))
-    (location (company-lean--location arg))
-    (pre-completion (company-lean--pre-completion arg))
+    (prefix (company-lean--findp-prefix))
+    (candidates (company-lean--findp-candidates arg))
+    (annotation (company-lean--findp-annotation arg))
+    (location (company-lean--findp-location arg))
     (sorted t)))
+
+;; ADVICES
+;; =======
 
 (defadvice company--window-width
     (after lean-company--window-width activate)

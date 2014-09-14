@@ -67,10 +67,12 @@
   (interactive)
   (if (minibufferp)
       (minibuffer-complete)
-    (if (lean-check-expansion)
-        (cond (lean-company-use (company-complete-common))
-              (t (completion-at-point-functions)))
-      (eri-indent))))
+    (cond (lean-company-use
+           (or (company-complete)
+               (eri-indent)))
+          ((lean-check-expansion)
+           (completion-at-point-functions))
+          (t (eri-indent)))))
 
 (defun lean-set-keys ()
   (local-set-key "\C-c\C-x"  'lean-std-exe)

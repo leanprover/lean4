@@ -65,12 +65,11 @@ optional<expr> get_coercion_to_fun(environment const & env, expr const & C);
 */
 bool get_user_coercions(environment const & env, expr const & C, buffer<std::tuple<name, expr, expr>> & result);
 
-void for_each_coercion_user(environment const & env,
-                            std::function<void(name const &, name const &, expr const &, level_param_names const &, unsigned)> const & f);
-void for_each_coercion_sort(environment const & env,
-                            std::function<void(name const &, expr const &, level_param_names const &, unsigned)> const & f);
-void for_each_coercion_fun(environment const & env,
-                           std::function<void(name const &, expr const &, level_param_names const &, unsigned)> const & f);
-
+typedef std::function<void(name const &, name const &, expr const &, level_param_names const &, unsigned)> coercion_user_fn;
+typedef std::function<void(name const &, expr const &, level_param_names const &, unsigned)> coercion_sort_fn;
+typedef std::function<void(name const &, expr const &, level_param_names const &, unsigned)> coercion_fun_fn;
+void for_each_coercion_user(environment const & env, coercion_user_fn const & f);
+void for_each_coercion_sort(environment const & env, coercion_sort_fn const & f);
+void for_each_coercion_fun(environment const & env, coercion_fun_fn const & f);
 void open_coercion(lua_State * L);
 }

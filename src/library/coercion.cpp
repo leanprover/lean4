@@ -31,7 +31,9 @@ public:
     static coercion_class mk_user(name n) { return coercion_class(coercion_class_kind::User, n); }
     static coercion_class mk_sort() { return coercion_class(coercion_class_kind::Sort); }
     static coercion_class mk_fun() { return coercion_class(coercion_class_kind::Fun); }
-    friend bool operator==(coercion_class const & c1, coercion_class const & c2) { return c1.m_kind == c2.m_kind && c1.m_name == c2.m_name; }
+    friend bool operator==(coercion_class const & c1, coercion_class const & c2) {
+        return c1.m_kind == c2.m_kind && c1.m_name == c2.m_name;
+    }
     friend bool operator!=(coercion_class const & c1, coercion_class const & c2) { return !(c1 == c2); }
     coercion_class_kind kind() const { return m_kind; }
     name get_name() const { return m_name; }
@@ -69,7 +71,7 @@ struct coercion_info {
 struct coercion_state {
     rb_map<name, list<coercion_info>, name_quick_cmp>                    m_coercion_info;
     // m_from and m_to contain "direct" coercions
-    rb_map<name, list<pair<coercion_class, expr>>, name_quick_cmp>  m_from; // map user-class -> list of (class, coercion-fun)
+    rb_map<name, list<pair<coercion_class, expr>>, name_quick_cmp>       m_from; // map user-class -> list of (class, coercion-fun)
     rb_map<coercion_class, list<name>, coercion_class_cmp_fn>            m_to;
     rb_map<name, pair<name, unsigned>, name_quick_cmp>                   m_coercions; // map coercion -> (from-class, num-args)
     coercion_info get_info(name const & from, coercion_class const & to) {
@@ -112,7 +114,8 @@ static void check_pi(name const & f, expr const & t) {
 // similar to check_pi, but produces a more informative message
 static void check_valid_coercion(name const & f, expr const & t) {
     if (!is_pi(t)) {
-        throw exception(sstream() << "invalid coercion, type of '" << f << "' does not match any of the allowed expected types for coercions\n"
+        throw exception(sstream() << "invalid coercion, type of '" << f
+                        << "' does not match any of the allowed expected types for coercions\n"
                         << "  Pi (x_1 : A_1) ... (x_n : A_n) (y: C x_1 ... x_n), D t_1 ... t_m\n"
                         << "  Pi (x_1 : A_1) ... (x_n : A_n) (y: C x_1 ... x_n), Type\n"
                         << "  Pi (x_1 : A_1) ... (x_n : A_n) (y: C x_1 ... x_n), A -> B");
@@ -198,7 +201,8 @@ struct add_coercion_fn {
         expr gf_type = g_type;
         while (is_pi(gf_type))
             gf_type = binding_body(gf_type);
-        gf_type = instantiate(instantiate_univ_params(gf_type, g_level_params, const_levels(D_cnst)), gf_args.size(), gf_args.data());
+        gf_type = instantiate(instantiate_univ_params(gf_type, g_level_params,
+                                                      const_levels(D_cnst)), gf_args.size(), gf_args.data());
         unsigned i = f_arg_types.size();
         while (i > 0) {
             --i;
@@ -280,7 +284,8 @@ struct add_coercion_fn {
     }
 };
 
-coercion_state add_coercion(environment const & env, io_state const & ios, coercion_state const & st, name const & f, name const & C) {
+coercion_state add_coercion(environment const & env, io_state const & ios, coercion_state const & st,
+                            name const & f, name const & C) {
     declaration d = env.get(f);
     unsigned num = 0;
     buffer<expr> args;
@@ -475,24 +480,24 @@ void for_each_coercion(environment const & env, F && f) {
         });
 }
 
-void for_each_coercion_user(environment const & env,
-                            std::function<void(name const &, name const &, expr const &, level_param_names const &, unsigned)> const & f) {
+void for_each_coercion_user(environment const & env, coercion_user_fn const & f) {
     for_each_coercion(env, [&](name const & C, coercion_info const & info) {
-            if (info.m_to.kind() == coercion_class_kind::User) f(C, info.m_to.get_name(), info.m_fun, info.m_level_params, info.m_num_args);
+            if (info.m_to.kind() == coercion_class_kind::User)
+                f(C, info.m_to.get_name(), info.m_fun, info.m_level_params, info.m_num_args);
         });
 }
 
-void for_each_coercion_sort(environment const & env,
-                            std::function<void(name const &, expr const &, level_param_names const &, unsigned)> const & f) {
+void for_each_coercion_sort(environment const & env, coercion_sort_fn const & f) {
     for_each_coercion(env, [&](name const & C, coercion_info const & info) {
-            if (info.m_to.kind() == coercion_class_kind::Sort) f(C, info.m_fun, info.m_level_params, info.m_num_args);
+            if (info.m_to.kind() == coercion_class_kind::Sort)
+                f(C, info.m_fun, info.m_level_params, info.m_num_args);
         });
 }
 
-void for_each_coercion_fun(environment const & env,
-                           std::function<void(name const &, expr const &, level_param_names const &, unsigned)> const & f) {
+void for_each_coercion_fun(environment const & env, coercion_fun_fn const & f) {
     for_each_coercion(env, [&](name const & C, coercion_info const & info) {
-            if (info.m_to.kind() == coercion_class_kind::Fun) f(C, info.m_fun, info.m_level_params, info.m_num_args);
+            if (info.m_to.kind() == coercion_class_kind::Fun)
+                f(C, info.m_fun, info.m_level_params, info.m_num_args);
         });
 }
 
@@ -507,6 +512,7 @@ static int add_coercion(lua_State * L) {
     else
         return push_environment(L, add_coercion(to_environment(L, 1), to_name_ext(L, 2), to_name_ext(L, 3), to_io_state(L, 4)));
 }
+
 static int is_coercion(lua_State * L) {
     optional<pair<name, unsigned>> r;
     if (is_expr(L, 2))
@@ -521,15 +527,26 @@ static int is_coercion(lua_State * L) {
         return 0;
     }
 }
+
 static int has_coercions_from(lua_State * L) {
     if (is_expr(L, 2))
         return push_boolean(L, has_coercions_from(to_environment(L, 1), to_expr(L, 2)));
     else
         return push_boolean(L, has_coercions_from(to_environment(L, 1), to_name_ext(L, 2)));
 }
-static int get_coercion(lua_State * L) { return push_optional_expr(L, get_coercion(to_environment(L, 1), to_expr(L, 2), to_name_ext(L, 3))); }
-static int get_coercion_to_sort(lua_State * L) { return push_optional_expr(L, get_coercion_to_sort(to_environment(L, 1), to_expr(L, 2))); }
-static int get_coercion_to_fun(lua_State * L) { return push_optional_expr(L, get_coercion_to_fun(to_environment(L, 1), to_expr(L, 2))); }
+
+static int get_coercion(lua_State * L) {
+    return push_optional_expr(L, get_coercion(to_environment(L, 1), to_expr(L, 2), to_name_ext(L, 3)));
+}
+
+static int get_coercion_to_sort(lua_State * L) {
+    return push_optional_expr(L, get_coercion_to_sort(to_environment(L, 1), to_expr(L, 2)));
+}
+
+static int get_coercion_to_fun(lua_State * L) {
+    return push_optional_expr(L, get_coercion_to_fun(to_environment(L, 1), to_expr(L, 2)));
+}
+
 static int get_user_coercions(lua_State * L) {
     buffer<std::tuple<name, expr, expr>> r;
     get_user_coercions(to_environment(L, 1), to_expr(L, 2), r);

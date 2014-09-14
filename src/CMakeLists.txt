@@ -319,6 +319,6 @@ if((${CYGWIN} EQUAL "1") OR (NOT (${CMAKE_SYSTEM_NAME} MATCHES "Windows")))
 endif()
 
 add_custom_target(clean-olean
-   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
-   COMMAND find . -type f -name '*.olean' -delete && find . -type f -name '*.d' -delete && find . -type f -name '*.clean' -delete && find . -type f -name '*.ilean' -delete && find . -type f -name 'TAGS' -delete
-   )
+  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_MODULE_PATH}CleanOlean.cmake
+  )

@@ -155,7 +155,7 @@ def check_required_packages():
 def make_deps(lean_file, dlean_file, olean_file):
     with open(dlean_file, "w") as f:
         deps = []
-        proc = subprocess.Popen([g_lean_path, "--deps", lean_file], stdout=subprocess.PIPE, stderr=None)
+        proc = subprocess.Popen([g_lean_path, "--deps", lean_file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]
         print >> f, olean_file + ": \\"
         for olean_file in output.strip().split("\n"):
@@ -228,7 +228,10 @@ def build_clean():
     return """build clean: CLEAN"""
 
 def build_olean(lean, olean, clean, dlean, ilean, base):
-    str = """build %s %s %s: LEAN %s | %s\n""" % (olean, ilean, clean, lean, dlean)
+    if clean.startswith(base):
+        str = """build %s %s %s: LEAN %s | %s\n""" % (olean, ilean, clean, lean, dlean)
+    else:
+        str = """build %s %s: LEAN %s | %s\n""" % (olean, ilean, lean, dlean)
     str += "  DLEAN_FILE=%s\n" % dlean
     str += "  OLEAN_FILE=%s\n" % olean
     str += "  CLEAN_FILE=%s\n" % clean
@@ -260,7 +263,7 @@ def find_project_upward(path):
         return find_project_upward(up)
     return None
 
-def handle_failure_for_flycheck(out, args):
+def handle_failure_for_flycheck(out, err, args):
     if len(args.targets) == 0:
         error("handle_failure_for_flycheck is called without targets")
     target = args.targets[0]
@@ -274,6 +277,10 @@ def handle_failure_for_flycheck(out, args):
     for failed_file in failed:
         print "FLYCHECK_BEGIN ERROR"
         print "%s:1:0: error: failed to compile %s" % (target, failed_file)
+        print "FLYCHECK_END"
+    if err:
+        print "FLYCHECK_BEGIN ERROR"
+        print "%s:1:0: error: %s" % (target, err.strip())
         print "FLYCHECK_END"
     if failed:
         call_lean(target, args)
@@ -329,12 +336,12 @@ def call_ninja(directory, args):
     proc.wait()
 
     if args.flycheck:
-        out = proc.communicate()[0]
+        (out, err) = proc.communicate()
         if len(args.targets) == 1 and args.targets[0].endswith(".lean"):
             print_flycheck_output_upto_n(targets[0], out, args.flycheck_max_messages)
-            handle_failure_for_flycheck(out, args)
+            handle_failure_for_flycheck(out, err, args)
         else:
-            print out
+            print out + err
 
     return proc.returncode
 

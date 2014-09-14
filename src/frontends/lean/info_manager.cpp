@@ -212,6 +212,12 @@ public:
         ios.update_options(os) << m_expr << endl << "--" << endl << m_type << endl;
         ios << "-- ACK" << endl;
     }
+
+    virtual info_data_cell * instantiate(substitution & s) const {
+        expr e = s.instantiate(m_expr);
+        expr t = s.instantiate(m_type);
+        return is_eqp(e, m_expr) && is_eqp(t, m_type) ? nullptr : new coercion_info_data(get_column(), e, t);
+    }
 };
 
 class symbol_info_data : public info_data_cell {

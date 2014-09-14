@@ -22,8 +22,8 @@ env = add_coercion(env, "ar2ag")
 for_each_coercion_sort(env, function(C, f) print(tostring(C) .. " >-> sort : " .. tostring(f)) end)
 for_each_coercion_user(env, function(C, D, f) print(tostring(C) .. " >-> " .. tostring(D) .. " : " .. tostring(f)) end)
 
-print(get_coercion_to_sort(env, Const("abelian_ring", {1})))
-assert(env:type_check(get_coercion_to_sort(env, Const("abelian_ring", {1}))))
+print(get_coercions_to_sort(env, Const("abelian_ring", {1})):head())
+assert(env:type_check(get_coercions_to_sort(env, Const("abelian_ring", {1})):head()))
 print("Coercions (abelian ring): ")
 cs = get_user_coercions(env, ab_ring)
 for i = 1, #cs do

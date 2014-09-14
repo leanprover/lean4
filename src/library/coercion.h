@@ -53,9 +53,9 @@ bool has_coercions_to(environment const & env, name const & D);
    The coercion is a unary function that takes a term of type (C_name.{l1 lk} t_1 ... t_n) and returns
    and element of type (D.{L_1  L_o} s_1 ... s_m)
 */
-optional<expr> get_coercion(environment const & env, expr const & C, name const & D);
-optional<expr> get_coercion_to_sort(environment const & env, expr const & C);
-optional<expr> get_coercion_to_fun(environment const & env, expr const & C);
+list<expr> get_coercions(environment const & env, expr const & C, name const & D);
+list<expr> get_coercions_to_sort(environment const & env, expr const & C);
+list<expr> get_coercions_to_fun(environment const & env, expr const & C);
 /**
    \brief Return all user coercions C >-> D for the type C of the form (C_name.{l1 ... lk} t_1 ... t_n)
    The result is a pair (user-class D, coercion, coercion type), and is stored in the result buffer \c result.

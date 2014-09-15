@@ -346,7 +346,10 @@ def call_ninja(directory, args):
     return proc.returncode
 
 def call_lean(filename, args):
-    proc = subprocess.Popen([g_lean_path] + g_lean_options + [filename],
+    lean_options = list(g_lean_options)
+    if args.cache:
+        lean_options += ["-c", args.cache]
+    proc = subprocess.Popen([g_lean_path] + lean_options + [filename],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = proc.communicate()[0]
     print_flycheck_output_upto_n(filename, out, args.flycheck_max_messages)
@@ -431,8 +434,9 @@ def get_lean_options(args):
     options = []
     if args.flycheck:
         options.append("--flycheck")
-    for item in args.lean_config_option:
-        options.append("-D" + item)
+    if args.lean_config_option:
+        for item in args.lean_config_option:
+            options.append("-D" + item)
     return options
 
 def clear_cache(project_dir, args):

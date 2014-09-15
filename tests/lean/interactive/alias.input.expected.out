@@ -1,0 +1,28 @@
+-- BEGINSET
+-- ENDSET
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGINFINDP
+bool.bor_tt_left|∀ (a : bool), eq (bool.bor bool.tt a) bool.tt
+bool.tt|bool
+bool.bor_tt_right|∀ (a : bool), eq (bool.bor a bool.tt) bool.tt
+bool.band_tt_left|∀ (a : bool), eq (bool.band bool.tt a) a
+bool.band_tt_right|∀ (a : bool), eq (bool.band a bool.tt) a
+bool.cond_tt|∀ (t e : ?A), eq (bool.cond bool.tt t e) t
+bool.ff_ne_tt|not (eq bool.ff bool.tt)
+bool.band_eq_tt_elim_left|eq (bool.band ?a ?b) bool.tt → eq ?a bool.tt
+bool.band_eq_tt_elim_right|eq (bool.band ?a ?b) bool.tt → eq ?b bool.tt
+-- ENDFINDP
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGINFINDP
+tt|bool
+bor_tt_left|∀ (a : bool), eq (bor tt a) tt
+bor_tt_right|∀ (a : bool), eq (bor a tt) tt
+band_tt_left|∀ (a : bool), eq (band tt a) a
+band_tt_right|∀ (a : bool), eq (band a tt) a
+cond_tt|∀ (t e : ?A), eq (cond tt t e) t
+ff_ne_tt|not (eq ff tt)
+band_eq_tt_elim_left|eq (band ?a ?b) tt → eq ?a tt
+band_eq_tt_elim_right|eq (band ?a ?b) tt → eq ?b tt
+-- ENDFINDP

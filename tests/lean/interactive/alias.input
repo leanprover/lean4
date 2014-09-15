@@ -1,0 +1,15 @@
+VISIT alias.lean
+SET
+pp.notation false
+REPLACE 1
+import data.bool
+WAIT
+FINDP 1
+tt
+REPLACE 2
+open bool
+REPLACE 3
+check tt
+WAIT
+FINDP 3
+tt

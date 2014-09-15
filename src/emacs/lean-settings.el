@@ -109,4 +109,10 @@ written."
                  ;;(const :tag "Only Beyond lean-rule-column" lines-tail)
                  ))
 
+(defcustom lean-debug-mode-line '(:eval (lean-debug-mode-line-status-text))
+  "Mode line lighter for Lean debug mode."
+  :group 'lean
+  :type 'sexp
+  :risky t)
+
 (provide 'lean-settings)

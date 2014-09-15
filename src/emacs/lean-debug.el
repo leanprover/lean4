@@ -5,7 +5,6 @@
 ;;
 (require 'cl-lib)
 
-(defvar lean-debug-mode        nil)
 (defvar lean-debug-buffer-name "*lean-debug*")
 
 (defun lean-turn-on-debug-mode (&optional print-msg)
@@ -46,5 +45,26 @@
                              (concat "%s -- " format-string "\n")
                              (cons (propertize time-str 'face 'font-lock-keyword-face)
                                    args)))))
+
+(defun lean-debug-mode-line-status-text ()
+  "Get a text describing STATUS for use in the mode line."
+  (let ((text
+               ;; No Process : "X"
+         (cond ((not (lean-server-process-exist-p))
+                "X")
+               ;; Number of Async Queue: *-n
+               ((> (lean-server-async-task-queue-len) 0)
+                (format "*-%d" (lean-server-async-task-queue-len)))
+               ;; Async Queue = 0
+               (t ""))))
+    (concat " LeanDebug" text)))
+
+(define-minor-mode lean-debug-mode
+  "Minor mode for lean debugging."
+
+  :init-value nil
+  :lighter lean-debug-mode-line
+  :group 'lean
+  :require 'lean)
 
 (provide 'lean-debug)

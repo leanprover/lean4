@@ -36,6 +36,13 @@ flyinfo_scope::~flyinfo_scope() {
 
 void display_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
     ios << strm_name << ":";
+    if (ios.get_options().get_bool("flycheck", false)) {
+        // generate valid line and column for flycheck mode
+        if (line == static_cast<unsigned>(-1))
+            line = 1;
+        if (pos == static_cast<unsigned>(-1))
+            pos = 0;
+    }
     if (line != static_cast<unsigned>(-1))
         ios << line << ":";
     if (pos != static_cast<unsigned>(-1))

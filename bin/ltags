@@ -31,11 +31,17 @@ def parse_arg(argv):
     args = parser.parse_args(argv)
     return args
 
-def get_short_name(id):
-    last_pos_of_dot = id.rfind('.')
-    if last_pos_of_dot >= 0:
-        return id[last_pos_of_dot+1:]
-    return id
+def get_short_name(item):
+    category = item['category']
+    declname = item['declname']
+    names    = declname.split(".")
+    if category == "d":
+        kind = item['kind']
+        # For instance, for the recursor "nat.rec", this function should return "nat"
+        if kind == "recursor" and len(names) >= 2:
+            return names[-2]
+    # Normally, it returns the last part of hierarchical name
+    return names[-1]
 
 def build_line_to_byteoffset_map(ilean_filename):
     """Given a .ilean filename, return a mapping from a line number to the
@@ -68,7 +74,7 @@ def convert_position_to_etag_style(info):
                 linenum = item['linenum']
                 col     = item['col']
                 item['offset'] = line_to_byteoffset[linenum] + col
-                item['prefix'] = contents[linenum][:col] + get_short_name(item['declname'])
+                item['prefix'] = contents[linenum][:col] + get_short_name(item)
 
 def extract_info_from_ilean(ilean_file, decl_dict):
     info = []

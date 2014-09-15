@@ -5,6 +5,10 @@
 ;;
 
 (require 'cl-lib)
+(require 'f)
+(require 's)
+(require 'dash)
+(require 'dash-functional)
 
 (defun lean-concat-paths (&rest seq)
   "Concatenate paths"
@@ -42,5 +46,25 @@
   "Return fullpath of lean executable"
   (let ((lean-bin-dir-name "bin"))
     (lean-concat-paths (lean-get-rootdir) lean-bin-dir-name exe-name)))
+
+(defun lean-path-list ()
+  (interactive)
+  (let* ((lean-path-env-list
+          (parse-colon-path (getenv "LEAN_PATH")))
+         (lean--path-list
+          (parse-colon-path
+           (ignore-errors
+             (car (process-lines (lean-get-executable lean-executable-name)
+                                 "--path")))))
+         (project-dir (f--traverse-upwards (f-exists? (f-expand ".project" it))
+                                           (f-dirname (buffer-file-name))))
+         (path-list (append lean-path-env-list lean--path-list)))
+    (when project-dir
+      (setq path-list
+            (--map-when (f-relative? it)
+                        (f-canonical (f-join project-dir it))
+                        path-list)))
+    (-uniq (-map (-compose 'f-slash 'f-canonical)
+                 path-list))))
 
 (provide 'lean-util)

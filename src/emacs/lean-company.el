@@ -34,22 +34,18 @@
                 file-name))
    (t file-name)))
 
-(defun company-lean--import-candidates-main (&optional root-dir)
-  (interactive)
-  (unless root-dir
-    (setq root-dir
-          (f--traverse-upwards (f-exists? (f-expand ".project" it))
-                               (f-dirname (buffer-file-name)))))
-  (let* ((lean-files (f-files root-dir
-                              (lambda (file) (equal (f-ext file) "lean"))
-                              t))
-         ;; Relative to project root-dir
-         (lean-files-r (--map (f-relative it root-dir) lean-files))
-         (candidates
-          (--map (s-replace-all `((,(f-path-separator)  . "."))
-                                (company-lean--import-remove-lean it))
-                 lean-files-r)))
-    (--zip-with (propertize it 'file-name other) candidates lean-files)))
+(defun company-lean--import-candidates-main (root-dir)
+  (when root-dir
+    (let* ((lean-files (f-files root-dir
+                                (lambda (file) (equal (f-ext file) "lean"))
+                                t))
+           ;; Relative to project root-dir
+           (lean-files-r (--map (f-relative it root-dir) lean-files))
+           (candidates
+            (--map (s-replace-all `((,(f-path-separator)  . "."))
+                                  (company-lean--import-remove-lean it))
+                   lean-files-r)))
+      (--zip-with (propertize it 'file-name other) candidates lean-files))))
 
 (defun company-lean--import-prefix ()
   "FINDG is triggered when it looks at '_'"
@@ -63,6 +59,8 @@
 (defun company-lean--import-candidates (prefix)
   (let* ((cur-dir (f-dirname (buffer-file-name)))
          (parent-dir (f-parent cur-dir))
+         (project-dir (f--traverse-upwards (f-exists? (f-expand ".project" it))
+                                           (f-dirname (buffer-file-name))))
          (candidates
           (cond
            ;; prefix = ".."
@@ -73,7 +71,10 @@
            ((s-starts-with? "." prefix)
             (--map (concat "." it)
                    (company-lean--import-candidates-main cur-dir)))
-           (t (company-lean--import-candidates-main)))))
+           ;; normal prefix
+           (t (-flatten
+               (-map 'company-lean--import-candidates-main
+                     (lean-path-list)))))))
     (--filter (s-starts-with? prefix it) candidates)))
 
 (defun company-lean--import-location (arg)

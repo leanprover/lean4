@@ -5,6 +5,7 @@
 ;;
 
 (require 'lean-settings)
+(require 'lean-option)
 
 (defun lean-flycheck-command ()
   "Concat lean-flychecker-checker-name with options"
@@ -13,6 +14,7 @@
                   lean-flycheck-checker-options
                   '("--cache")
                   '(source-original)
+                  '((eval (lean-option-string)))
                   '("--")
                   '(source-inplace)))
 

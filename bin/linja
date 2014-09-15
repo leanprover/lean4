@@ -404,13 +404,14 @@ def expand_target_to_fullname(target):
 def parse_arg(argv):
     global g_working_dir
     parser = argparse.ArgumentParser(description='linja: ninja build wrapper for Lean theorem prover.')
-    parser.add_argument('--flycheck', '-F', action='store', type=int, default=None, const=120, nargs='?', help="Use --flycheck option for Lean.")
+    parser.add_argument('--flycheck', '-F', action='store_true', default=False, help="Use --flycheck option for Lean.")
     parser.add_argument('--flycheck-max-messages', action='store', type=int, default=None, const=999999, nargs='?', help="Number of maximum flycheck messages to display.")
     parser.add_argument('--cache', action='store', help="Use specified cache (clean) file.")
     parser.add_argument('--directory', '-C', action='store', help="change to DIR before doing anything else.")
+    parser.add_argument('--lean-config-option', '-D', action='append', help="set a Lean configuration option (name=value)")
     parser.add_argument('targets', nargs='*')
     args = parser.parse_args(argv)
-    if (args.flycheck == None and args.flycheck_max_messages != None):
+    if (args.flycheck == False and args.flycheck_max_messages != None):
         error("Please use --flycheck option with --flycheck-max-messages option.")
     if args.cache:
         args.cache = expand_target_to_fullname(args.cache)
@@ -430,7 +431,8 @@ def get_lean_options(args):
     options = []
     if args.flycheck:
         options.append("--flycheck")
-        options.append("-D pp.width=%d" % args.flycheck)
+    for item in args.lean_config_option:
+        options.append("-D" + item)
     return options
 
 def clear_cache(project_dir, args):

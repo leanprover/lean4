@@ -21,6 +21,9 @@
            :insert ((?l lean-tag nil @ "(*\n" @ " " _ "" @ "\n*)" @))
            :front "[(][*]"
            :back "[*][)]")))
-       (mmm-add-mode-ext-class 'lean-mode "\\.lean" 'lean-lua))))
+       (mmm-add-mode-ext-class 'lean-mode "\\.lean" 'lean-lua)))
+  (defun lean-mmm-lua-hook ()
+    (setq-local mmm-parse-when-idle t)
+    (setq-local mmm-idle-timer-delay 0.5)))
 
 (provide 'lean-mmm-lua)

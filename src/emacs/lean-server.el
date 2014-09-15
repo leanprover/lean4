@@ -151,6 +151,7 @@
   (setq lean-global-server-last-time-sent nil)
   (setq lean-global-async-task-queue nil)
   (setq lean-global-nay-retry-counter 0)
+  (setq lean-global-option-alist nil)
   (lean-server-cancel-retry-timer))
 
 (defun lean-server-create-process ()

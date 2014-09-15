@@ -54,4 +54,7 @@ where TYPE := INFO | SET | EVAL | OPTIONS | SHOW | FINDP | FINDG | ERROR,
 (defvar lean-global-before-change-text ""
   "Before-change text")
 
+(defvar lean-global-option-alist nil
+  "Current Lean options set by lean-set-option command")
+
 (provide 'lean-variable)

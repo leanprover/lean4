@@ -106,7 +106,7 @@
     (lean-server-send-cmd-sync (lean-cmd-findg line-number column-number pattern)
                                (lambda (candidates)
                                  (lean-debug "executing continuation for FINDG")
-                                 (-map 'company-lean--findp-make-candidate candidates)))))
+                                 (--map (company-lean--findp-make-candidate it prefix) candidates)))))
 
 (defun company-lean--findg-pre-completion (args)
   "Delete current '_' before filling the selected AC candidate"
@@ -144,8 +144,14 @@ triggers a completion immediately."
             (string-match "[_.]" prefix)))
       prefix)))
 
-(defun company-lean--findp-make-candidate (arg)
-  (propertize (car arg) 'type (cdr arg)))
+(defun company-lean--findp-make-candidate (arg prefix)
+  (let* ((text  (car arg))
+         (type  (cdr arg))
+         (start (s-index-of prefix text)))
+    (propertize text
+                'type  type
+                'start start
+                'prefix prefix)))
 
 (defun company-lean--findp-candidates (prefix)
   (let ((line-number (line-number-at-pos))
@@ -155,7 +161,7 @@ triggers a completion immediately."
     (lean-server-send-cmd-sync (lean-cmd-findp line-number prefix)
                                (lambda (candidates)
                                  (lean-debug "executing continuation for FINDP")
-                                 (-map 'company-lean--findp-make-candidate candidates)))))
+                                 (--map (company-lean--findp-make-candidate it prefix) candidates)))))
 
 (defun company-lean--findp-location (arg)
   (lean-generate-tags)
@@ -183,12 +189,22 @@ triggers a completion immediately."
                  "...")))
         annotation-str))))
 
+(defun company-lean--findp-match (arg)
+  "Return the end of matched region"
+  (let ((prefix (get-text-property 0 'prefix arg))
+        (start  (get-text-property 0 'start  arg)))
+    (if start
+        (+ start (length prefix))
+      0)))
+
 (defun company-lean--findp (command &optional arg &rest ignored)
   (case command
     (prefix (company-lean--findp-prefix))
     (candidates (company-lean--findp-candidates arg))
     (annotation (company-lean--findp-annotation arg))
     (location (company-lean--findp-location arg))
+    (match (company-lean--findp-match arg))
+    (no-cache t)
     (sorted t)))
 
 ;; ADVICES

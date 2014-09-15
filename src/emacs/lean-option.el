@@ -21,9 +21,10 @@
     (string-join str-list "\n")))
 
 (defun lean-option-string ()
-  (--reduce (format "%s %s" acc it)
-            (--map (format "-D %s=%s" (car it) (cdr it))
-                   lean-global-option-alist)))
+  (when lean-global-option-alist
+    (--reduce (format "%s %s" acc it)
+            (--map (format "-D%s=%s" (car it) (cdr it))
+                   lean-global-option-alist))))
 
 (defun lean-update-option-alist (name value)
   (let ((needle (assoc-string name lean-global-option-alist)))

@@ -565,7 +565,7 @@ void server::display_decl(name const & d, environment const & env, options const
     // using namespace override resolution rule
     list<name> const & ns_list = get_namespaces(env);
     for (name const & ns : ns_list) {
-        if (is_prefix_of(ns, d)) {
+        if (is_prefix_of(ns, d) && ns != d) {
             display_decl(d.replace_prefix(ns, name()), d, env, o);
             return;
         }

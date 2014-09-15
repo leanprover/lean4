@@ -8,6 +8,8 @@
 (require 'f)
 (require 'lean-util)
 
+(defalias 'lean-global-search 'tags-apropos)
+
 (defun lean-tags-table-list ()
   (-filter 'f-exists?
            (--map (f-join it "TAGS") (lean-path-list))))

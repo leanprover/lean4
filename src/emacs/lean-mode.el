@@ -105,6 +105,7 @@
     ["Show type info"       lean-eldoc-documentation-function lean-eldoc-use]
     ["Fill a placeholder"   lean-fill-placeholder             (looking-at  (rx symbol-start "_"))]
     ["Find tag at point"    lean-find-tag                     t]
+    ["Global tag search"    lean-global-search                t]
     "-----------------"
     ["Run flycheck"         flycheck-compile                  lean-flycheck-use]
     ["List of errors"       flycheck-list-errors              lean-flycheck-use]

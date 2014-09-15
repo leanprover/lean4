@@ -239,7 +239,7 @@ rep. Then, add text-properties on the replaced region."
      (after lean-company-fill-propertize activate)
      (when (eq major-mode 'lean-mode)
        (let* ((selected (ad-get-arg 3))
-              (foreground-color (face-foreground 'font-lock-keyword-face))
+              (foreground-color lean-company-type-foreground)
               (background-color (if selected (face-background 'company-tooltip-selection)
                                   (face-background 'company-tooltip)))
               (face-attrs

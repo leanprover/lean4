@@ -9,7 +9,7 @@
   (require 'mmm-mode)
   (require 'mmm-auto)
   (require 'lua-mode)
-  (setq mmm-global-mode 'buffers-with-submode-classes)
+  (setq mmm-global-mode 'maybe)
   (setq mmm-submode-decoration-level 0)
   (eval-after-load 'mmm-vars
     '(progn
@@ -18,6 +18,7 @@
         '((lua-inline
            :submode lua-mode
            :face mmm-code-submode-face
+           :insert ((?l lean-tag nil @ "(*\n" @ " " _ "" @ "\n*)" @))
            :front "[(][*]"
            :back "[*][)]")))
        (mmm-add-mode-ext-class 'lean-mode "\\.lean" 'lean-lua))))

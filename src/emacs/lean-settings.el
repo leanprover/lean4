@@ -70,13 +70,13 @@ show both of expressions and types.")
   :group 'lean
   :type 'int)
 
-(defcustom lean-flycheck-pp-width 120
-  "Width of flycheck error messages (Restart required to be effective)"
+(defcustom lean-default-pp-width 120
+  "Width of Lean error/warning messages"
   :group 'lean
   :type 'int)
 
 (defcustom lean-flycheck-checker-options
-  `("--flycheck" ,(format "%d" lean-flycheck-pp-width)
+  `("--flycheck"
     "--flycheck-max-messages" ,(format "%d" lean-flycheck-max-messages-to-display))
   "lean-flychecker checker option"
   :group 'lean)

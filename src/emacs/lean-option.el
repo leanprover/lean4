@@ -21,6 +21,10 @@
     (string-join str-list "\n")))
 
 (defun lean-option-string ()
+  "Return string of Lean options set by lean-set-option command"
+  (let ((pp-width-entry (assoc-string "pp.width" lean-global-option-alist)))
+    (unless pp-width-entry
+      (lean-update-option-alist "pp.width" lean-default-pp-width)))
   (when lean-global-option-alist
     (--reduce (format "%s %s" acc it)
             (--map (format "-D%s=%s" (car it) (cdr it))

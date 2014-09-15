@@ -39,7 +39,10 @@
 
 (defun lean-execute (&optional arg)
   "Execute Lean in the current buffer"
-  (interactive "sarg: ")
+  (interactive)
+  (setq arg (concat (lean-option-string) " " arg))
+  (when (called-interactively-p)
+    (setq arg (read-string "arg: " arg)))
   (let ((target-file-name
          (or
           (buffer-file-name)

@@ -1,2 +1,2 @@
-install(FILES "lean-mode.el" DESTINATION emacs)
-install(FILES "lean-input.el" DESTINATION emacs)
+FILE(GLOB LEAN_MODE_FILES *.el)
+install(FILES ${LEAN_MODE_FILES} DESTINATION ./emacs)

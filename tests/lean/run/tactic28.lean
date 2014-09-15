@@ -17,7 +17,7 @@ infixl `..`:100 := append
 definition my_tac := repeat (trace "iteration"; state;
                               (  apply @inl_inhabited; trace "used inl"
                               .. apply @inr_inhabited; trace "used inr"
-                              .. apply @num_inhabited; trace "used num")) ; now
+                              .. apply @num.is_inhabited; trace "used num")) ; now
 
 
 tactic_hint [inhabited] my_tac

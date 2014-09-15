@@ -10,13 +10,13 @@ inductive bool : Type :=
   ff : bool,
   tt : bool
 namespace bool
-  definition rec_on [protected] {C : bool → Type} (b : bool) (H₁ : C ff) (H₂ : C tt) : C b :=
+  abbreviation rec_on [protected] {C : bool → Type} (b : bool) (H₁ : C ff) (H₂ : C tt) : C b :=
   rec H₁ H₂ b
 
-  theorem cases_on [protected] {p : bool → Prop} (b : bool) (H₁ : p ff) (H₂ : p tt) : p b :=
+  abbreviation cases_on [protected] {p : bool → Prop} (b : bool) (H₁ : p ff) (H₂ : p tt) : p b :=
   rec H₁ H₂ b
 
-  definition cond {A : Type} (b : bool) (t e : A) :=
+  abbreviation cond {A : Type} (b : bool) (t e : A) :=
   rec_on b e t
 
   theorem dichotomy (b : bool) : b = ff ∨ b = tt :=

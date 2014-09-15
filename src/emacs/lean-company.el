@@ -22,6 +22,12 @@
   (setq-local company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
   (company-mode t))
 
+(defun company-lean--check-prefix ()
+  "Check whether to use company-lean or not"
+  (or (company-lean--import-prefix)
+      (company-lean--findg-prefix)
+      (company-lean--findp-prefix)))
+
 (defun company-lean--import-remove-lean (file-name)
   (cond
    ((s-ends-with? "/default.lean" file-name)

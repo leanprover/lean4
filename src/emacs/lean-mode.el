@@ -67,9 +67,9 @@
   (interactive)
   (if (minibufferp)
       (minibuffer-complete)
-    (cond (lean-company-use
-           (or (company-complete)
-               (eri-indent)))
+    (cond ((and lean-company-use (company-lean--check-prefix))
+           (company-complete-common))
+          (lean-company-use (eri-indent))
           ((lean-check-expansion)
            (completion-at-point-functions))
           (t (eri-indent)))))

@@ -1189,7 +1189,9 @@ void parser::parse_imports() {
     buffer<module_name> olean_files;
     buffer<name>        lua_files;
     std::string base = dirname(get_stream_name().c_str());
+    bool imported    = false;
     while (curr_is_token(g_import)) {
+        imported       = true;
         m_last_cmd_pos = pos();
         next();
         while (true) {
@@ -1235,6 +1237,8 @@ void parser::parse_imports() {
                 s << f;
             });
     }
+    if (imported)
+        commit_info(1);
 }
 
 void parser::commit_info(unsigned line) {
@@ -1260,7 +1264,6 @@ bool parser::parse_commands() {
             display_warning_pos(pos());
             regular_stream() << " imported file uses 'sorry'" << endl;
         }
-        commit_info(1);
         while (!done) {
             protected_call([&]() {
                     check_interrupted();

@@ -24,12 +24,12 @@
       :command ,(lean-flycheck-command)
       :error-patterns
       ((error line-start "FLYCHECK_BEGIN ERROR\n"
-              (file-name) ":" line ":" column  ": error: "
+              (file-name) ":" line ":" (? column ":") " error: "
               (minimal-match
                (message (one-or-more (one-or-more not-newline) "\n") ))
               "FLYCHECK_END" line-end)
        (warning line-start "FLYCHECK_BEGIN WARNING\n"
-                (file-name) ":" line ":" column  ": warning "
+                (file-name) ":" line ":" (? column ":") " warning "
                 (minimal-match
                  (message (one-or-more (one-or-more not-newline) "\n") ))
                 "FLYCHECK_END" line-end))

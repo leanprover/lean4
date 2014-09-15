@@ -112,6 +112,7 @@ class parser {
     void display_error(char const * msg, unsigned line, unsigned pos);
     void display_error(char const * msg, pos_info p);
     void display_error(exception const & ex);
+    void display_error(script_exception const & ex);
     void throw_parser_exception(char const * msg, pos_info p);
     void throw_nested_exception(exception & ex, pos_info p);
 

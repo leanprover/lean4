@@ -205,6 +205,11 @@ void parser::display_error(exception const & ex) {
     ::lean::display_error(regular_stream(), &pos_provider, ex);
 }
 
+void parser::display_error(script_exception const & ex) {
+    parser_pos_provider pos_provider(m_pos_table, get_stream_name(), m_last_script_pos);
+    ::lean::display_error(regular_stream(), &pos_provider, ex);
+}
+
 void parser::throw_parser_exception(char const * msg, pos_info p) {
     throw parser_exception(msg, get_stream_name().c_str(), p.first, p.second);
 }

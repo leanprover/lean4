@@ -53,7 +53,7 @@ void server::file::replace_line(unsigned line_num, std::string const & new_line)
     while (i < old_line.size() && i < new_line.size() && old_line[i] == new_line[i])
         i++;
     #endif
-    m_info.block_new_info(true);
+    m_info.block_new_info();
     #if 0
     // It turns out that is not a good idea to try to "keep" some of the information.
     // The info_manager will accumulate conflicting information and confuse the frontend.
@@ -67,7 +67,7 @@ void server::file::replace_line(unsigned line_num, std::string const & new_line)
 
 void server::file::insert_line(unsigned line_num, std::string const & new_line) {
     lock_guard<mutex> lk(m_lines_mutex);
-    m_info.block_new_info(true);
+    m_info.block_new_info();
     m_info.insert_line(line_num+1);
     while (line_num >= m_lines.size())
         m_lines.push_back("");
@@ -83,7 +83,7 @@ void server::file::insert_line(unsigned line_num, std::string const & new_line) 
 
 void server::file::remove_line(unsigned line_num) {
     lock_guard<mutex> lk(m_lines_mutex);
-    m_info.block_new_info(true);
+    m_info.block_new_info();
     m_info.remove_line(line_num+1);
     if (line_num >= m_lines.size())
         return;
@@ -181,7 +181,7 @@ server::worker::worker(environment const & env, io_state const & ios, definition
                     todo_file->m_snapshots.resize(i);
                     s = i == 0 ? m_empty_snapshot : todo_file->m_snapshots[i-1];
                     lean_assert(s.m_line > 0);
-                    todo_file->m_info.block_new_info(false);
+                    todo_file->m_info.start();
                     todo_file->m_info.set_processed_upto(s.m_line);
                     num_lines = todo_file->copy_to(block, s.m_line - 1);
                 }

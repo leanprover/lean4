@@ -46,7 +46,15 @@ public:
     void clear();
     void display(environment const & env, io_state const & ios, unsigned line,
                  optional<unsigned> const & col = optional<unsigned>()) const;
-    void block_new_info(bool f);
+    /** \brief Block new information from being inserted into this info_manager.
+        \remark #start_iteration unblocks it.
+    */
+    void block_new_info();
+    /** \breif Mark the start of a new information collection cycle.
+        It also enables new information to be added, i.e., it will undo
+        the effect of #block_new_info.
+    */
+    void start();
     unsigned get_processed_upto() const;
 };
 }

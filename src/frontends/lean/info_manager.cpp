@@ -307,12 +307,13 @@ struct info_manager::imp {
         auto it  = m_env_info.begin();
         auto end = m_env_info.end();
         while (it != end) {
-            if (it->m_line > l)
+            if (it->m_line > l) {
                 break;
-            else if (it->m_line <= l && it->m_iteration < m_iteration)
-                it = m_env_info.erase(it);
-            else
+            } else if (it->m_line <= l && it->m_iteration < m_iteration) {
+                m_env_info.erase(it++);
+            } else {
                 ++it;
+            }
         }
         m_env_info.insert(env_info(l, m_iteration, env, o));
     }
@@ -647,7 +648,11 @@ void info_manager::display(environment const & env, io_state const & ios, unsign
 unsigned info_manager::get_processed_upto() const { return m_ptr->m_processed_upto; }
 optional<expr> info_manager::get_type_at(unsigned line, unsigned col) const { return m_ptr->get_type_at(line, col); }
 optional<expr> info_manager::get_meta_at(unsigned line, unsigned col) const { return m_ptr->get_meta_at(line, col); }
-void info_manager::block_new_info(bool f) {
-    m_ptr->block_new_info(f);
+void info_manager::block_new_info() {
+    m_ptr->block_new_info(true);
+}
+void info_manager::start() {
+    m_ptr->m_iteration++;
+    m_ptr->block_new_info(false);
 }
 }

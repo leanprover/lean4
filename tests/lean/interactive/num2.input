@@ -1,0 +1,16 @@
+VISIT num2.lean
+WAIT
+SET
+pp.notation false
+FINDP 39
+pos_num.si
+REPLACE 23
+  definition size (a : pos_num) : pos_num :=
+WAIT
+REPLACE 39
+  rec (pos pos_num.one) (λp, pos (pos_num.size p)) a
+WAIT
+FINDP 39
+pos_num.si
+FINDP 26
+pos_num.si

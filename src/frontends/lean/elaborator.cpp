@@ -336,6 +336,35 @@ public:
         return mc.first;
     }
 
+    static bool is_implicit_pi(expr const & e) {
+        if (!is_pi(e))
+            return false;
+        binder_info bi = binding_info(e);
+        return bi.is_strict_implicit() || bi.is_implicit();
+    }
+
+    expr add_implict_args(expr e, constraint_seq & cs, bool relax) {
+        type_checker & tc = *m_tc[relax];
+        constraint_seq new_cs;
+        expr type = tc.whnf(tc.infer(e, new_cs), new_cs);
+        if (!is_implicit_pi(type))
+            return e;
+        cs += new_cs;
+        while (true) {
+            lean_assert(is_pi(type));
+            tag g = e.get_tag();
+            bool is_strict = false;
+            expr imp_arg   = mk_placeholder_meta(some_expr(binding_domain(type)), g, is_strict, cs);
+            e              = mk_app(e, imp_arg, g);
+            type           = instantiate(binding_body(type), imp_arg);
+            constraint_seq new_cs;
+            type           = tc.whnf(type, new_cs);
+            if (!is_implicit_pi(type))
+                return e;
+            cs += new_cs;
+        }
+    }
+
     /** \brief Make sure \c f is really a function, if it is not, try to apply coercions.
         The result is a pair <tt>new_f, f_type</tt>, where new_f is the new value for \c f,
         and \c f_type is its type (and a Pi-expression)
@@ -362,7 +391,9 @@ public:
                 throw_kernel_exception(env(), f, [=](formatter const & fmt) { return pp_function_expected(fmt, f); });
             } else if (is_nil(tail(coes))) {
                 expr old_f = f;
+                bool relax = m_relax_main_opaque;
                 f = mk_app(head(coes), f, f.get_tag());
+                f = add_implict_args(f, cs, relax);
                 f_type = infer_type(f, cs);
                 save_coercion_info(old_f, f);
                 lean_assert(is_pi(f_type));
@@ -375,18 +406,7 @@ public:
                     list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
                             expr new_f      = copy_tag(f, ::lean::mk_app(coe, f));
                             constraint_seq cs;
-                            while (true) {
-                                expr new_f_type = m_tc[relax]->infer(new_f, cs);
-                                if (!is_pi(new_f_type))
-                                    break;
-                                binder_info bi = binding_info(new_f_type);
-                                if (!bi.is_strict_implicit() && !bi.is_implicit())
-                                    break;
-                                tag g          = f.get_tag();
-                                bool is_strict = false;
-                                expr imp_arg   = mk_placeholder_meta(some_expr(binding_domain(new_f_type)), g, is_strict, cs);
-                                new_f          = mk_app(new_f, imp_arg, g);
-                            }
+                            new_f = add_implict_args(new_f, cs, relax);
                             cs += mk_eq_cnstr(meta, new_f, j, relax);
                             return cs.to_list();
                         });

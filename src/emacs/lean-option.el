@@ -10,6 +10,12 @@
 
 (cl-defstruct lean-option-record name type value desc)
 
+(defun lean-option-record-value-to-string (option-record)
+  (format "%s : %s = %s"
+          (lean-option-record-name  option-record)
+          (lean-option-record-type  option-record)
+          (lean-option-record-value option-record)))
+
 (defun lean-set-parse-string (str)
   "Parse the output of eval command."
   (let ((str-list (split-string str "\n")))
@@ -51,14 +57,12 @@
 (defun lean-set-option ()
   "Set Lean option."
   (interactive)
-  (lean-get-options 'lean-set-option-cont))
+  (lean-get-options-with-cont 'lean-set-option-cont))
 
 (defun lean-option-read-bool (prompt)
-  (interactive)
   (completing-read prompt'(("true" 1) ("false" 2)) nil t "" nil "true"))
 
 (defun lean-option-read-int (prompt)
-  (interactive)
   (let* ((str (read-string prompt))
          (val (string-to-int str))
          tmp-str)
@@ -70,7 +74,6 @@
       (error "%s is not an int value" str))))
 
 (defun lean-option-read-uint (prompt)
-  (interactive)
   (let* ((str (read-string prompt))
          (val (string-to-int str))
          tmp-str)
@@ -83,7 +86,6 @@
       (error "%s is not an unsigned int value" str))))
 
 (defun lean-option-read-double (prompt)
-  (interactive)
   (let* ((str (read-string prompt))
          (val (string-to-number str))
          tmp-str)
@@ -96,11 +98,9 @@
       (error "%s is not a double value" str))))
 
 (defun lean-option-read-string (prompt)
-  (interactive)
   (read-string prompt))
 
 (defun lean-option-read-sexp (prompt)
-  (interactive)
   (let* ((str (read-string prompt))
          (sexp (ignore-errors (read str))))
     (if (ignore-errors
@@ -166,11 +166,20 @@
               `(,(lean-option-record-name option-record) . ,option-record)))
           str-list)))
 
-(defun lean-get-options (cont)
-  "Get Lean option."
-  (interactive)
+(defun lean-get-options-with-cont (cont)
+  "Get Lean option and call continuation"
   (lean-server-send-cmd-async (lean-cmd-options)
                               (lambda (option-record-alist)
-                                (when cont
-                                  (funcall cont option-record-alist)))))
+                                (funcall cont option-record-alist))))
+
+(defun lean-get-options ()
+  "Get Lean option and call continuation"
+  (interactive)
+  (lean-get-options-with-cont
+   (lambda (option-record-alist)
+     (message
+      (s-join "\n"
+              (--map (lean-option-record-value-to-string (cdr it))
+                     option-record-alist))))))
+
 (provide 'lean-option)

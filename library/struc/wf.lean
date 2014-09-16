@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 
-import logic.axioms.classical logic.axioms.prop_decidable logic.classes.decidable
+import logic.axioms.classical logic.axioms.prop_decidable logic.core.decidable
 import logic.core.identities
 
 open decidable

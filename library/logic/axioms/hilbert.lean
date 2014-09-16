@@ -9,7 +9,7 @@
 -- constructive one).
 
 import logic.core.quantifiers
-import logic.classes.inhabited logic.classes.nonempty
+import logic.core.inhabited logic.core.nonempty
 import data.subtype data.sum
 
 open subtype inhabited nonempty

@@ -8,7 +8,7 @@
 -- Useful logical identities. In the absence of propositional extensionality, some of the
 -- calculations use the type class support provided by logic.connectives.instances
 
-import logic.core.instances logic.classes.decidable logic.core.quantifiers logic.core.cast
+import logic.core.instances logic.core.decidable logic.core.quantifiers logic.core.cast
 
 open relation decidable relation.iff_ops
 

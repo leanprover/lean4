@@ -4,6 +4,6 @@
 
 import logic.core.connectives logic.core.eq logic.core.cast 
 import logic.core.quantifiers logic.core.if 
-import logic.classes.decidable logic.classes.inhabited logic.classes.nonempty
+import logic.core.decidable logic.core.inhabited logic.core.nonempty
 import logic.core.instances
 import logic.core.identities

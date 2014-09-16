@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Leonardo de Moura, Jeremy Avigad
 
-import .connectives ..classes.nonempty
+import .connectives ..core.nonempty
 
 open inhabited nonempty
 

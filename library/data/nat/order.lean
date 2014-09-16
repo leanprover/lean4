@@ -7,7 +7,7 @@
 --
 -- The ordering on the natural numbers
 
-import .basic logic.classes.decidable
+import .basic logic.core.decidable
 import tools.fake_simplifier
 
 open nat eq_ops tactic

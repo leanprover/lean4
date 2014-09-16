@@ -1,16 +1,14 @@
-----------------------------------------------------------------------------------------------------
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-----------------------------------------------------------------------------------------------------
 
-import logic.classes.inhabited logic.core.cast
+import logic.core.inhabited logic.core.cast
 
 open inhabited
 
 -- Pi extensionality
 axiom piext {A : Type} {B B' : A → Type} {H : inhabited (Π x, B x)} :
-  (Π x, B x) = (Π x, B' x) → B = B'
+   (Π x, B x) = (Π x, B' x) → B = B'
 
 theorem cast_app {A : Type} {B B' : A → Type} (H : (Π x, B x) = (Π x, B' x)) (f : Π x, B x)
   (a : A) : cast H f a == f a :=

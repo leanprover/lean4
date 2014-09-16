@@ -5,7 +5,7 @@
 -- logic.axioms.prop_decidable
 -- ===========================
 
-import logic.axioms.classical logic.axioms.hilbert logic.classes.decidable
+import logic.axioms.classical logic.axioms.hilbert logic.core.decidable
 open decidable inhabited nonempty
 
 -- Excluded middle + Hilbert implies every proposition is decidable

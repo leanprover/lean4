@@ -28,7 +28,7 @@ namespace category
   abbreviation compose : Π {A B C : ob}, mor B C → mor A B → mor A C :=
   rec (λ mor compose id assoc idr idl, compose) Cat
 
-  definition id : Π {A : ob}, mor A A :=
+  abbreviation id : Π {A : ob}, mor A A :=
   rec (λ mor compose id assoc idr idl, id) Cat
   abbreviation ID (A : ob) : mor A A := @id A
 
@@ -190,7 +190,7 @@ namespace category
 
   section
   parameter {ob : Type}
-  abbreviation opposite [instance] (C : category ob) : category ob :=
+  abbreviation opposite (C : category ob) : category ob :=
   category.mk (λa b, mor b a) (λ a b c f g, g ∘ f) (λ a, id) (λ a b c d f g h, symm assoc)
     (λ a b f, id_left) (λ a b f, id_right)
   precedence `∘op` : 60
@@ -222,16 +222,34 @@ mk : Π (obF : obC → obD) (morF : Π{A B : obC}, mor A B → mor (obF A) (obF 
     (Π {A B C : obC} {f : mor A B} {g : mor B C}, morF (g ∘ f) = morF g ∘ morF f) →
      @functor obC obD C D
 
+infixl `⇒`:25 := functor
+
 namespace functor
   section
-  parameters {obC obD : Type} {C : category obC} {D : category obD} (F : functor C D)
-  definition object : obC → obD := rec (λ obF morF Hid Hcomp, obF) F
-  definition morphism : Π{A B : obC}, mor A B → mor (object A) (object B) :=
+  parameters {obC obD : Type} {C : category obC} {D : category obD}
+  definition object [coercion] (F : C ⇒ D) : obC → obD := rec (λ obF morF Hid Hcomp, obF) F
+
+  definition morphism [coercion] (F : C ⇒ D) : Π{A B : obC}, mor A B → mor (F A) (F B) :=
   rec (λ obF morF Hid Hcomp, morF) F
-  theorem respect_id : Π {A : obC}, morphism (ID A) = ID (object A) :=
+
+  theorem respect_id (F : C ⇒ D) : Π {A : obC}, F (ID A) = ID (F A) :=
   rec (λ obF morF Hid Hcomp, Hid) F
-  theorem respect_comp : Π {a b c : obC} {f : mor a b} {g : mor b c},
-      morphism (g ∘ f) = morphism g ∘ morphism f :=
+
+  theorem respect_comp (F : C ⇒ D) : Π {a b c : obC} {f : mor a b} {g : mor b c},
+      F (g ∘ f) = F g ∘ F f :=
   rec (λ obF morF Hid Hcomp, Hcomp) F
   end
+
+  definition compose {obC obD obE : Type} {C : category obC} {D : category obD} {E : category obE}
+      (F : C ⇒ D) (G : D ⇒ E) : C ⇒ E :=
+  functor.mk C E
+    (λx, G (F x))
+    (λ a b f, G (F f))
+    (λ a, calc
+      G (F (ID a)) = G id : {respect_id F}
+               ... = id   : respect_id G)
+    (λ a b c f g, calc
+      G (F (g ∘ f)) = G (F g ∘ F f)     : {respect_comp F}
+                ... = G (F g) ∘ G (F f) : respect_comp G)
+
 end functor

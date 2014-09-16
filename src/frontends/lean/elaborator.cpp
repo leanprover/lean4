@@ -343,6 +343,7 @@ public:
         return bi.is_strict_implicit() || bi.is_implicit();
     }
 
+    /** \brief Auxiliary function for adding implicit arguments to coercions to function-class */
     expr add_implict_args(expr e, constraint_seq & cs, bool relax) {
         type_checker & tc = *m_tc[relax];
         constraint_seq new_cs;
@@ -403,6 +404,7 @@ public:
                         return pp_function_expected(fmt, substitution(subst).instantiate(f));
                     });
                 auto choice_fn = [=](expr const & meta, expr const &, substitution const &, name_generator const &) {
+                    set_local_context_for(meta);
                     list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
                             expr new_f      = copy_tag(f, ::lean::mk_app(coe, f));
                             constraint_seq cs;

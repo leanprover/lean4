@@ -118,7 +118,7 @@ struct inductive_cmd_fn {
     /** \brief Parse the name of an inductive datatype or introduction rule,
         prefix the current namespace to it and return it.
     */
-    name parse_decl_name(optional<name> const & ind_name) {
+    pair<name, name> parse_decl_name(optional<name> const & ind_name) {
         m_pos   = m_p.pos();
         name id = m_p.check_id_next("invalid declaration, identifier expected");
         if (ind_name) {
@@ -126,17 +126,17 @@ struct inductive_cmd_fn {
             check_atomic(id);
             name full_id = *ind_name + id;
             m_decl_info.emplace_back(full_id, g_intro, m_pos);
-            return full_id;
+            return mk_pair(id, full_id);
         } else {
             name full_id = m_namespace + id;
             m_decl_info.emplace_back(full_id, g_inductive, m_pos);
             m_decl_info.emplace_back(mk_rec_name(full_id), g_recursor, m_pos);
-            return full_id;
+            return mk_pair(id, full_id);
         }
     }
 
-    name parse_inductive_decl_name() { return parse_decl_name(optional<name>()); }
-    name parse_intro_decl_name(name const & ind_name) { return parse_decl_name(optional<name>(ind_name)); }
+    pair<name, name> parse_inductive_decl_name() { return parse_decl_name(optional<name>()); }
+    name parse_intro_decl_name(name const & ind_name) { return parse_decl_name(optional<name>(ind_name)).second; }
 
     /** \brief Parse inductive declaration universe parameters.
         If this is the first declaration in a mutually recursive block, then this method
@@ -316,7 +316,9 @@ struct inductive_cmd_fn {
         optional<level_param_names> first_d_lvls;
         while (true) {
             parser::local_scope l_scope(m_p);
-            name d_name = parse_inductive_decl_name();
+            pair<name, name> d_names = parse_inductive_decl_name();
+            name d_short_name = d_names.first;
+            name d_name       = d_names.second;
             parse_inductive_univ_params();
             modifiers mods;
             mods.parse(m_p);
@@ -338,6 +340,8 @@ struct inductive_cmd_fn {
             if (empty_type) {
                 decls.push_back(inductive_decl(d_name, d_type, list<intro_rule>()));
             } else {
+                expr d_const = mk_constant(d_name);
+                m_p.add_local_expr(d_short_name, d_const);
                 buffer<expr> params;
                 add_params_to_local_scope(d_type, params);
                 auto d_intro_rules = parse_intro_rules(d_name, params);
@@ -611,7 +615,10 @@ struct inductive_cmd_fn {
     environment operator()() {
         parser::no_undef_id_error_scope err_scope(m_p);
         buffer<inductive_decl> decls;
-        parse_inductive_decls(decls);
+        {
+            parser::local_scope scope(m_p);
+            parse_inductive_decls(decls);
+        }
         include_section_levels(decls);
         buffer<expr> section_params;
         abstract_section_locals(decls, section_params);

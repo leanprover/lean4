@@ -3,7 +3,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
-import logic.classes.inhabited data.bool
+import logic.classes.inhabited data.bool general_notation
 open bool
 
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.
@@ -50,6 +50,70 @@ namespace pos_num
                        ...   = bit1 (pred (succ n))               : rfl
                        ...   = bit1 n                             : {iH})
     (take (n : pos_num) (iH : pred (succ n) = n), rfl)
+
+  abbreviation add (a b : pos_num) : pos_num :=
+  rec_on a
+    succ
+    (λn f b, rec_on b
+      (succ (bit1 n))
+      (λm r, succ (bit1 (f m)))
+      (λm r, bit1 (f m)))
+    (λn f b, rec_on b
+      (bit1 n)
+      (λm r, bit1 (f m))
+      (λm r, bit0 (f m)))
+    b
+
+  infixl `+` := add
+
+  theorem add_one_one : one + one = bit0 one :=
+  rfl
+
+  theorem add_one_bit0 {a : pos_num} : one + (bit0 a) = bit1 a :=
+  rfl
+
+  theorem add_one_bit1 {a : pos_num} : one + (bit1 a) = succ (bit1 a) :=
+  rfl
+
+  theorem add_bit0_one {a : pos_num} : (bit0 a) + one = bit1 a :=
+  rfl
+
+  theorem add_bit1_one {a : pos_num} : (bit1 a) + one = succ (bit1 a) :=
+  rfl
+
+  theorem add_bit0_bit0 {a b : pos_num} : (bit0 a) + (bit0 b) = bit0 (a + b) :=
+  rfl
+
+  theorem add_bit0_bit1 {a b : pos_num} : (bit0 a) + (bit1 b) = bit1 (a + b) :=
+  rfl
+
+  theorem add_bit1_bit0 {a b : pos_num} : (bit1 a) + (bit0 b) = bit1 (a + b) :=
+  rfl
+
+  theorem add_bit1_bit1 {a b : pos_num} : (bit1 a) + (bit1 b) = succ (bit1 (a + b)) :=
+  rfl
+
+  abbreviation mul (a b : pos_num) : pos_num :=
+  rec_on a
+    b
+    (λn r, bit0 r + b)
+    (λn r, bit0 r)
+
+  infixl `*` := mul
+
+  theorem mul_one_left (a : pos_num) : one * a = a :=
+  rfl
+
+  theorem mul_one_right (a : pos_num) : a * one = a :=
+  induction_on a
+    rfl
+    (take (n : pos_num) (iH : n * one = n),
+      calc bit1 n * one = bit0 (n * one) + one : rfl
+                   ...  = bit0 n + one : {iH}
+                   ...  = bit1 n       : add_bit0_one)
+    (take (n : pos_num) (iH : n * one = n),
+      calc bit0 n * one = bit0 (n * one) : rfl
+                    ... = bit0 n         : {iH})
 end pos_num
 
 inductive num : Type :=
@@ -86,4 +150,13 @@ namespace num
                    ...    = cond ff zero (pos (pos_num.pred (pos_num.succ p))) : {succ_not_is_one}
                    ...    = pos (pos_num.pred (pos_num.succ p)) : cond_ff _ _
                    ...    = pos p : {pos_num.pred_succ})
+
+  abbreviation add (a b : num) : num :=
+  rec_on a b (λp_a, rec_on b (pos p_a) (λp_b, pos (pos_num.add p_a p_b)))
+
+  abbreviation mul (a b : num) : num :=
+  rec_on a zero (λp_a, rec_on b zero (λp_b, pos (pos_num.mul p_a p_b)))
+
+  infixl `+` := add
+  infixl `*` := mul
 end num

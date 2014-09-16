@@ -1,4 +1,4 @@
-import logic data.nat.sub struc.relation data.prod
+import logic data.nat.sub algebra.relation data.prod
 import tools.fake_simplifier
 
 open nat relation relation.iff_ops prod

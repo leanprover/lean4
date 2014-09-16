@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jeremy Avigad
 
--- struc.relation
+-- algebra.relation
 -- ==============
 
 import logic.core.prop

@@ -8,7 +8,7 @@
 -- This is a continuation of the development of the natural numbers, with a general way of
 -- defining recursive functions, and definitions of div, mod, and gcd.
 
-import logic .sub struc.relation data.prod
+import logic .sub algebra.relation data.prod
 import tools.fake_simplifier
 
 open nat relation relation.iff_ops prod

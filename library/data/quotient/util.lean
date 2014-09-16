@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn
 
-import logic ..prod struc.relation
+import logic ..prod algebra.relation
 import tools.fake_simplifier
 
 open prod eq_ops

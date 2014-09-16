@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn
 
-import struc.relation logic.core.nonempty data.subtype
+import algebra.relation logic.core.nonempty data.subtype
 import .basic
 import logic.axioms.classical logic.axioms.hilbert logic.axioms.funext
 

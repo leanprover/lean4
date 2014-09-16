@@ -1,4 +1,4 @@
-import logic struc.relation
+import logic algebra.relation
 open relation
 
 namespace is_equivalence

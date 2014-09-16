@@ -5,7 +5,7 @@
 -- category
 import logic.core.eq logic.core.connectives
 import data.unit data.sigma data.prod
-import struc.function
+import algebra.function
 
 inductive category [class] (ob : Type) (mor : ob → ob → Type) : Type :=
 mk : Π (comp : Π⦃A B C : ob⦄, mor B C → mor A B → mor A C)

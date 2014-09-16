@@ -7,8 +7,8 @@
 
 -- The integers, with addition, multiplication, and subtraction.
 
-import ..nat.basic ..nat.order ..nat.sub ..prod ..quotient ..quotient tools.tactic struc.relation
-import struc.binary
+import ..nat.basic ..nat.order ..nat.sub ..prod ..quotient ..quotient tools.tactic algebra.relation
+import algebra.binary
 import tools.fake_simplifier
 
 open nat

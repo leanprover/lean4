@@ -5,7 +5,7 @@
 -- category
 import logic.core.eq logic.core.connectives
 import data.unit data.sigma data.prod
-import struc.function
+import algebra.function
 
 open eq
 

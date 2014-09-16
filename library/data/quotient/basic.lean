@@ -5,7 +5,7 @@
 -- Theory data.quotient
 -- ====================
 
-import logic tools.tactic ..subtype logic.core.cast struc.relation data.prod
+import logic tools.tactic ..subtype logic.core.cast algebra.relation data.prod
 import logic.core.instances
 import .util
 

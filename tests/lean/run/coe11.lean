@@ -1,4 +1,4 @@
-import data.category
+import algebra.category
 open category
 
 inductive my_functor {obC obD : Type} (C : category obC) (D : category obD) : Type :=

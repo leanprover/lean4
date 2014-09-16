@@ -7,7 +7,7 @@
 --
 -- Basic operations on the natural numbers.
 
-import logic data.num tools.tactic struc.binary tools.helper_tactics
+import logic data.num tools.tactic algebra.binary tools.helper_tactics
 import logic.core.inhabited
 
 open tactic binary eq_ops

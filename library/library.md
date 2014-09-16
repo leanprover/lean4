@@ -6,7 +6,7 @@ The Lean library is contained in the following modules and directories:
 * [general_notation](general_notation.lean) : commonly shared notation
 * [logic](logic/logic.md) : logical constructs and axioms
 * [data](data/data.md) : concrete datatypes and type constructors
-* [struc](struc/struc.md) : axiomatic structures
+* [algebra](algebra/algebra.md) : algebraic structures
 * [hott](hott/hott.md) : homotopy type theory
 * [tools](tools/tools.md) : additional tools
 

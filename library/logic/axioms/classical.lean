@@ -5,7 +5,7 @@
 -- logic.axioms.classical
 -- ======================
 
-import logic.core.quantifiers logic.core.cast struc.relation
+import logic.core.quantifiers logic.core.cast algebra.relation
 
 open eq_ops
 

@@ -7,65 +7,78 @@ Author: Leonardo de Moura
 #include <vector>
 #include <utility>
 #include <string>
+#include <memory>
 #include "util/thread.h"
 #include "util/pair.h"
 #include "util/script_state.h"
 
 namespace lean {
-static mutex g_code_mutex;
-static std::vector<pair<bool, std::string>> g_code;
-static mutex g_state_mutex;
-static std::vector<script_state> g_states;
-static std::vector<script_state> g_available_states;
+struct script_state_manager {
+    mutex g_code_mutex;
+    std::vector<pair<bool, std::string>> g_code;
+    mutex g_state_mutex;
+    std::vector<script_state> g_states;
+    std::vector<script_state> g_available_states;
+};
+
+static script_state_manager & get_manager() {
+    static script_state_manager g_manager;
+    return g_manager;
+}
+
+static script_state_manager & g_aux = get_manager(); // force manager to be initialized at startup
 
 /** \brief Execute \c code in all states in the pool */
 void system_dostring(char const * code) {
+    script_state_manager & m = get_manager();
     {
         // Execute code in all existing states
-        lock_guard<mutex> lk(g_state_mutex);
-        for (auto & s : g_states) {
+        lock_guard<mutex> lk(m.g_state_mutex);
+        for (auto & s : m.g_states) {
             s.dostring(code);
         }
     }
     {
         // Save code for future states
-        lock_guard<mutex> lk(g_code_mutex);
-        g_code.push_back(mk_pair(true, code));
+        lock_guard<mutex> lk(m.g_code_mutex);
+        m.g_code.push_back(mk_pair(true, code));
     }
 }
 
 /** \brief Import \c fname in all states in the pool */
 void system_import(char const * fname) {
+    script_state_manager & m = get_manager();
     {
         // Import file in all existing states
-        lock_guard<mutex> lk(g_state_mutex);
-        for (auto & s : g_states) {
+        lock_guard<mutex> lk(m.g_state_mutex);
+        for (auto & s : m.g_states) {
             s.import_explicit(fname);
         }
     }
     {
         // Save module for future states
-        lock_guard<mutex> lk(g_code_mutex);
-        g_code.push_back(mk_pair(false, fname));
+        lock_guard<mutex> lk(m.g_code_mutex);
+        m.g_code.push_back(mk_pair(false, fname));
     }
 }
 
 static script_state get_state() {
+    script_state_manager & m = get_manager();
     {
         // Try to reuse existing state
-        lock_guard<mutex> lk(g_state_mutex);
-        if (!g_available_states.empty()) {
-            script_state r(g_available_states.back());
-            g_available_states.pop_back();
+        lock_guard<mutex> lk(m.g_state_mutex);
+        if (!m.g_available_states.empty()) {
+            script_state r(m.g_available_states.back());
+            m.g_available_states.pop_back();
             return r;
         }
     }
 
     {
         // Execute existing code in new state
-        lock_guard<mutex> lk(g_code_mutex);
+        lock_guard<mutex> lk(m.g_code_mutex);
         script_state r;
-        for (auto const & p : g_code) {
+        for (auto const & p : m.g_code) {
             if (p.first)
                 r.dostring(p.second.c_str());
             else
@@ -73,16 +86,17 @@ static script_state get_state() {
         }
         {
             // save new state in vector of all states
-            lock_guard<mutex> lk(g_state_mutex);
-            g_states.push_back(r);
+            lock_guard<mutex> lk(m.g_state_mutex);
+            m.g_states.push_back(r);
         }
         return r;
     }
 }
 
 static void recycle_state(script_state s) {
-    lock_guard<mutex> lk(g_state_mutex);
-    g_available_states.push_back(s);
+    script_state_manager & m = get_manager();
+    lock_guard<mutex> lk(m.g_state_mutex);
+    m.g_available_states.push_back(s);
 }
 
 struct script_state_ref {

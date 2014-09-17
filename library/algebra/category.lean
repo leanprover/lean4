@@ -24,13 +24,13 @@ namespace category
   section
   parameters {ob : Type} {Cat : category ob} {A B C D : ob}
 
-  abbreviation mor : ob → ob → Type := rec (λ mor compose id assoc idr idl, mor) Cat
-  abbreviation compose : Π {A B C : ob}, mor B C → mor A B → mor A C :=
+  definition mor : ob → ob → Type := rec (λ mor compose id assoc idr idl, mor) Cat
+  definition compose : Π {A B C : ob}, mor B C → mor A B → mor A C :=
   rec (λ mor compose id assoc idr idl, compose) Cat
 
-  abbreviation id : Π {A : ob}, mor A A :=
+  definition id : Π {A : ob}, mor A A :=
   rec (λ mor compose id assoc idr idl, id) Cat
-  abbreviation ID (A : ob) : mor A A := @id A
+  definition ID (A : ob) : mor A A := @id A
 
   infixr `∘` := compose
 
@@ -190,7 +190,7 @@ namespace category
 
   section
   parameter {ob : Type}
-  abbreviation opposite (C : category ob) : category ob :=
+  definition opposite (C : category ob) : category ob :=
   category.mk (λa b, mor b a) (λ a b c f g, g ∘ f) (λ a, id) (λ a b c d f g h, symm assoc)
     (λ a b f, id_left) (λ a b f, id_right)
   precedence `∘op` : 60

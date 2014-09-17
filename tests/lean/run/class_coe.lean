@@ -49,7 +49,7 @@ check x + 0
 namespace foo
 variable eq {A : Type} : A → A → Prop
 infixl `=`:50 := eq
-abbreviation id (A : Type) (a : A) := a
+definition id (A : Type) (a : A) := a
 notation A `=` B `:` C := @eq C A B
 check nat_to_int n + nat_to_int m = (n + m) : int
 end foo

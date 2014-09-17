@@ -127,10 +127,10 @@ namespace iff_ops
   postfix `⁻¹`:100   := iff.symm
   infixr `⬝`:75      := iff.trans
   infixr `▸`:75      := iff.subst
-  abbreviation refl  := iff.refl
-  abbreviation symm  := @iff.symm
-  abbreviation trans := @iff.trans
-  abbreviation subst := @iff.subst
-  abbreviation mp    := @iff.mp
+  definition refl  := iff.refl
+  definition symm  := @iff.symm
+  definition trans := @iff.trans
+  definition subst := @iff.subst
+  definition mp    := @iff.mp
 end iff_ops
 end relation

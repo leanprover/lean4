@@ -1,4 +1,4 @@
-definition Prop [inline] : Type.{1} := Type.{0}
+definition Prop : Type.{1} := Type.{0}
 variable eq : forall {A : Type}, A → A → Prop
 variable N : Type.{1}
 variables a b c : N

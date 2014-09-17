@@ -1,2 +1,2 @@
-definition Prop [inline] := Type.{0}
+definition Prop := Type.{0}
 check Prop

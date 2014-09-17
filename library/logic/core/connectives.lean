@@ -119,7 +119,7 @@ namespace iff
   theorem elim_left {a b : Prop} (H : a ↔ b) : a → b :=
   elim (assume H₁ H₂, H₁) H
 
-  abbreviation mp := @elim_left
+  definition mp := @elim_left
 
   theorem elim_right {a b : Prop} (H : a ↔ b) : b → a :=
   elim (assume H₁ H₂, H₂) H

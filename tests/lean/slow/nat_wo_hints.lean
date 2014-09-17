@@ -15,10 +15,10 @@ succ : nat → nat
 namespace nat
 notation `ℕ`:max := nat
 
-abbreviation plus (x y : ℕ) : ℕ
+definition plus (x y : ℕ) : ℕ
 := nat.rec x (λ n r, succ r) y
 
-definition to_nat [coercion] [inline] (n : num) : ℕ
+definition to_nat [coercion] (n : num) : ℕ
 := num.rec zero (λ n, pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
 
 namespace helper_tactics

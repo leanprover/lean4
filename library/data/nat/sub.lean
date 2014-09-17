@@ -67,6 +67,7 @@ induction_on k
                               ... = (n + l) - (m + l)           : sub_succ_succ
                               ... =  n - m                      : IH)
 
+opaque add mul le
 theorem sub_add_add_left {k n m : ℕ} : (k + n) - (k + m) = n - m :=
 add_comm ▸ add_comm ▸ sub_add_add_right
 

@@ -6,9 +6,9 @@ zero : nat,
 succ : nat → nat
 
 namespace nat
-abbreviation plus (x y : nat) : nat
+definition plus (x y : nat) : nat
 := nat.rec x (λn r, succ r) y
-definition to_nat [coercion] [inline] (n : num) : nat
+definition to_nat [coercion] (n : num) : nat
 := num.rec zero (λn, pos_num.rec (succ zero) (λn r, plus r (plus r (succ zero))) (λn r, plus r r) n) n
 definition add (x y : nat) : nat
 := plus x y

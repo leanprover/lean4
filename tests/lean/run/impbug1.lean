@@ -1,6 +1,6 @@
 -- category
 
-abbreviation Prop := Type.{0}
+definition Prop := Type.{0}
 variable eq {A : Type} : A → A → Prop
 infix `=`:50 := eq
 
@@ -8,7 +8,7 @@ inductive category (ob : Type) (mor : ob → ob → Type) : Type :=
 mk : Π (id : Π (A : ob), mor A A),
      (Π (A B : ob) (f : mor A A), id A = f) → category ob mor
 
-abbreviation id (ob : Type) (mor : ob → ob → Type) (Cat : category ob mor) := category.rec (λ id idl, id) Cat
+definition id (ob : Type) (mor : ob → ob → Type) (Cat : category ob mor) := category.rec (λ id idl, id) Cat
 
 theorem id_left (ob : Type) (mor : ob → ob → Type) (Cat : category ob mor) (A : ob) (f : mor A A) :
      @eq (mor A A) (id ob mor Cat A) f :=

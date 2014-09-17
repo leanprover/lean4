@@ -6,8 +6,8 @@
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
 
-abbreviation id {A : Type} (a : A) := a
-abbreviation compose {A : Type} {B : Type} {C : Type} (g : B → C) (f : A → B) := λ x, g (f x)
+definition id {A : Type} (a : A) := a
+definition compose {A : Type} {B : Type} {C : Type} (g : B → C) (f : A → B) := λ x, g (f x)
 infixl `∘`:60 := compose
 
 -- Path
@@ -15,14 +15,14 @@ infixl `∘`:60 := compose
 
 inductive path {A : Type} (a : A) : A → Type :=
 idpath : path a a
-abbreviation idpath := @path.idpath
+definition idpath := @path.idpath
 infix `≈`:50 := path
 -- TODO: is this right?
 notation x `≈` y:50 `:>`:0 A:0 := @path A x y
 notation `idp`:max := idpath _     -- TODO: can we / should we use `1`?
 
 namespace path
-  abbreviation induction_on {A : Type} {a b : A} (p : a ≈ b)
+  definition induction_on {A : Type} {a b : A} (p : a ≈ b)
     {C : Π (b : A) (p : a ≈ b), Type} (H : C a (idpath a)) : C b p :=
   path.rec H p
 end path
@@ -35,7 +35,6 @@ open path
 definition concat {A : Type} {x y z : A} (p : x ≈ y) (q : y ≈ z) : x ≈ z :=
 path.rec (λu, u) q p
 
--- TODO: should this be an abbreviation?
 definition inverse {A : Type} {x y : A} (p : x ≈ y) : y ≈ x :=
 path.rec (idpath x) p
 
@@ -188,7 +187,7 @@ induction_on p (take q h, h @ (concat_1p _)) q
 -- ---------
 
 -- keep transparent, so transport _ idp p is definitionally equal to p
-abbreviation transport {A : Type} (P : A → Type) {x y : A} (p : x ≈ y) (u : P x) : P y :=
+definition transport {A : Type} (P : A → Type) {x y : A} (p : x ≈ y) (u : P x) : P y :=
 path.induction_on p u
 
 definition transport_1 {A : Type} (P : A → Type) {x : A} (u : P x) : transport _ idp u ≈ u :=
@@ -203,9 +202,9 @@ definition ap ⦃A B : Type⦄ (f : A → B) {x y:A} (p : x ≈ y) : f x ≈ f y
 path.induction_on p idp
 
 -- TODO: is this better than an alias? Note use of curly brackets
-abbreviation ap01 := ap
+definition ap01 := ap
 
-abbreviation pointwise_paths {A : Type} {P : A → Type} (f g : Πx, P x) : Type :=
+definition pointwise_paths {A : Type} {P : A → Type} (f g : Πx, P x) : Type :=
 Πx : A, f x ≈ g x
 
 infix `∼`:50 := pointwise_paths

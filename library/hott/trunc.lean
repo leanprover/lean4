@@ -30,8 +30,8 @@ definition IsTrunc (n : trunc_index) : Type → Type :=
 trunc_index.rec (λA, Contr A) (λn trunc_n A, (Π(x y : A), trunc_n (x ≈ y))) n
 
 -- TODO: in the Coq version, this is notation
-abbreviation minus_one := trunc_index.trunc_S trunc_index.minus_two
-abbreviation IsHProp := IsTrunc minus_one
-abbreviation IsHSet := IsTrunc (trunc_index.trunc_S minus_one)
+definition minus_one := trunc_index.trunc_S trunc_index.minus_two
+definition IsHProp := IsTrunc minus_one
+definition IsHSet := IsTrunc (trunc_index.trunc_S minus_one)
 
 prefix `!`:75 := center

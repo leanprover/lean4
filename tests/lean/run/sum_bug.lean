@@ -15,7 +15,7 @@ namespace sum
 
 infixr `+`:25 := sum
 
-abbreviation rec_on {A B : Type} {C : (A + B) → Type} (s : A + B)
+definition rec_on {A B : Type} {C : (A + B) → Type} (s : A + B)
   (H1 : ∀a : A, C (inl B a)) (H2 : ∀b : B, C (inr A b)) : C s :=
 sum.rec H1 H2 s
 open eq
@@ -26,7 +26,7 @@ have H1 : f (inl B a1), from rfl,
 have H2 : f (inl B a2), from subst H H1,
 H2
 
-abbreviation cases_on {A B : Type} {P : (A + B) → Prop} (s : A + B)
+definition cases_on {A B : Type} {P : (A + B) → Prop} (s : A + B)
   (H1 : ∀a : A, P (inl B a)) (H2 : ∀b : B, P (inr A b)) : P s :=
 sum.rec H1 H2 s
 

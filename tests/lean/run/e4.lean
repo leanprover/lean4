@@ -1,4 +1,4 @@
-definition Prop [inline] := Type.{0}
+definition Prop := Type.{0}
 
 definition false : Prop := ∀x : Prop, x
 check false
@@ -30,4 +30,3 @@ theorem symm {A : Type} {a b : A} (H : a = b) : b = a
 
 theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 := subst H2 H1
-

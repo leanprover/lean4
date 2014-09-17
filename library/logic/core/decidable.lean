@@ -19,7 +19,7 @@ inr not_false_trivial
 theorem induction_on [protected] {p : Prop} {C : Prop} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=
 decidable.rec H1 H2 H
 
-definition rec_on [protected] [inline] {p : Prop} {C : Type} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) :
+definition rec_on [protected] {p : Prop} {C : Type} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) :
   C :=
 decidable.rec H1 H2 H
 
@@ -96,4 +96,4 @@ decidable_iff_equiv Ha (eq_to_iff H)
 
 end decidable
 
-abbreviation decidable_eq (A : Type) := Π (a b : A), decidable (a = b)
+definition decidable_eq (A : Type) := Π (a b : A), decidable (a = b)

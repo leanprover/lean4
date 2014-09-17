@@ -20,7 +20,7 @@ inductive list (T : Type) : Type :=
 nil {} : list T,
 cons : T → list T → list T
 
-abbreviation refl := @eq.refl
+definition refl := @eq.refl
 
 namespace list
 

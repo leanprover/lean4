@@ -1,6 +1,6 @@
 import logic
 open eq
-abbreviation subsets (P : Type) := P → Prop.
+definition subsets (P : Type) := P → Prop.
 
 context
 

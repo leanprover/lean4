@@ -133,7 +133,7 @@
 (defun company-lean--need-autocomplete ()
   (not (looking-back
         (rx (or "theorem" "definition" "lemma" "axiom" "parameter"
-                "abbreviation" "variable" "hypothesis" "conjecture"
+                "variable" "hypothesis" "conjecture"
                 "corollary" "open")
             (+ white)
             (* (not white))))))

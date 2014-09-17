@@ -11,7 +11,7 @@ open function
 namespace congruence
 
 -- TODO: move this somewhere else
-abbreviation reflexive {T : Type} (R : T → T → Type) : Prop := ∀x, R x x
+definition reflexive {T : Type} (R : T → T → Type) : Prop := ∀x, R x x
 
 -- Congruence classes for unary and binary functions
 -- -------------------------------------------------

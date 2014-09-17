@@ -12,7 +12,7 @@ open inhabited decidable
 inductive prod (A B : Type) : Type :=
   mk : A → B → prod A B
 
-abbreviation pair := @prod.mk
+definition pair := @prod.mk
 infixr `×` := prod
 
 -- notation for n-ary tuples
@@ -22,8 +22,8 @@ namespace prod
 section
   parameters {A B : Type}
 
-  abbreviation pr1 (p : prod A B) := rec (λ x y, x) p
-  abbreviation pr2 (p : prod A B) := rec (λ x y, y) p
+  definition pr1 (p : prod A B) := rec (λ x y, x) p
+  definition pr2 (p : prod A B) := rec (λ x y, y) p
 
   theorem pr1_pair (a : A) (b : B) : pr1 (a, b) = a :=
   rfl

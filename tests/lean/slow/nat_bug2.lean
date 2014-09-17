@@ -7,10 +7,10 @@ import logic algebra.binary
 open tactic binary eq_ops eq
 open decidable
 
-abbreviation refl := @eq.refl
-abbreviation and_intro := @and.intro
-abbreviation or_intro_left := @or.intro_left
-abbreviation or_intro_right := @or.intro_right
+definition refl := @eq.refl
+definition and_intro := @and.intro
+definition or_intro_left := @or.intro_left
+definition or_intro_right := @or.intro_right
 
 inductive nat : Type :=
 zero : nat,
@@ -20,10 +20,10 @@ namespace nat
 
 notation `ℕ`:max := nat
 
-abbreviation plus (x y : ℕ) : ℕ
+definition plus (x y : ℕ) : ℕ
 := nat.rec x (λ n r, succ r) y
 
-definition to_nat [coercion] [inline] (n : num) : ℕ
+definition to_nat [coercion] (n : num) : ℕ
 := num.rec zero (λ n, pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
 
 namespace helper_tactics

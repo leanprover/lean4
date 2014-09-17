@@ -9,7 +9,7 @@ open inhabited nonempty
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 intro : ∀ (a : A), P a → Exists P
 
-abbreviation exists_intro := @Exists.intro
+definition exists_intro := @Exists.intro
 
 notation `exists` binders `,` r:(scoped P, Exists P) := r
 notation `∃` binders `,` r:(scoped P, Exists P) := r

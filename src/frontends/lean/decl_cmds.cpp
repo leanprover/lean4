@@ -27,9 +27,9 @@ static name g_colon(":");
 static name g_assign(":=");
 static name g_private("[private]");
 static name g_protected("[protected]");
-static name g_inline("[inline]");
 static name g_instance("[instance]");
 static name g_coercion("[coercion]");
+static name g_opaque("[opaque]");
 
 environment universe_cmd(parser & p) {
     name n = p.check_id_next("invalid universe declaration, identifier expected");
@@ -181,8 +181,8 @@ struct decl_modifiers {
             } else if (p.curr_is_token(g_protected)) {
                 m_is_protected = true;
                 p.next();
-            } else if (p.curr_is_token(g_inline)) {
-                m_is_opaque = false;
+            } else if (p.curr_is_token(g_opaque)) {
+                m_is_opaque = true;
                 p.next();
             } else if (p.curr_is_token(g_instance)) {
                 m_is_instance = true;
@@ -207,13 +207,13 @@ static void erase_local_binder_info(buffer<expr> & ps) {
         p = update_local(p, binder_info());
 }
 
-environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
+environment definition_cmd_core(parser & p, bool is_theorem) {
     auto n_pos = p.pos();
     unsigned start_line = n_pos.first;
     name n     = p.check_id_next("invalid declaration, identifier expected");
     decl_modifiers modifiers;
     name real_n; // real name for this declaration
-    modifiers.m_is_opaque = _is_opaque;
+    modifiers.m_is_opaque = is_theorem;
     buffer<name> ls_buffer;
     expr type, value;
     level_param_names ls;
@@ -362,13 +362,10 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool _is_opaque) {
     return env;
 }
 environment definition_cmd(parser & p) {
-    return definition_cmd_core(p, false, true);
-}
-environment abbreviation_cmd(parser & p) {
-    return definition_cmd_core(p, false, false);
+    return definition_cmd_core(p, false);
 }
 environment theorem_cmd(parser & p) {
-    return definition_cmd_core(p, true, true);
+    return definition_cmd_core(p, true);
 }
 
 static name g_lparen("("), g_lcurly("{"), g_ldcurly("⦃"), g_lbracket("[");
@@ -413,7 +410,6 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("variable",     "declare a new parameter", variable_cmd));
     add_cmd(r, cmd_info("axiom",        "declare a new axiom", axiom_cmd));
     add_cmd(r, cmd_info("definition",   "add new definition", definition_cmd));
-    add_cmd(r, cmd_info("abbreviation", "add new abbreviation (aka transparent definition)", abbreviation_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("variables",    "declare new parameters", variables_cmd));
 }

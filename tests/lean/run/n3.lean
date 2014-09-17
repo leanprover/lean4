@@ -1,4 +1,4 @@
-definition Prop [inline] : Type.{1} := Type.{0}
+definition Prop : Type.{1} := Type.{0}
 variable N : Type.{1}
 variable and : Prop → Prop → Prop
 infixr `∧`:35 := and

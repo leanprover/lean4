@@ -18,7 +18,7 @@ open eq_ops
 
 namespace int
 -- ## The defining equivalence relation on ℕ × ℕ
-abbreviation rel (a b : ℕ × ℕ) : Prop :=  pr1 a + pr2 b = pr2 a + pr1 b
+definition rel (a b : ℕ × ℕ) : Prop :=  pr1 a + pr2 b = pr2 a + pr1 b
 
 theorem rel_comp (n m k l : ℕ) : (rel (pair n m) (pair k l)) ↔ (n + l = m + k) :=
 have H : (pr1 (pair n m) + pr2 (pair k l) = pr2 (pair n m) + pr1 (pair k l)) ↔ (n + l = m + k),
@@ -105,7 +105,7 @@ theorem proj_flip (a : ℕ × ℕ) : proj (flip a) = flip (proj a) :=
 have special : ∀a, pr2 a ≤ pr1 a → proj (flip a) = flip (proj a), from
   take a,
   assume H : pr2 a ≤ pr1 a,
-  have H2 : pr1 (flip a) ≤ pr2 (flip a), from P_flip H,
+  have H2 : pr1 (flip a) ≤ pr2 (flip a), from P_flip a H,
   have H3 : pr1 (proj (flip a)) = pr1 (flip (proj a)), from
     calc
       pr1 (proj (flip a)) = 0 : proj_le_pr1 H2
@@ -122,7 +122,7 @@ have special : ∀a, pr2 a ≤ pr1 a → proj (flip a) = flip (proj a), from
 or.elim le_total
   (assume H : pr2 a ≤ pr1 a, special a H)
   (assume H : pr1 a ≤ pr2 a,
-    have H2 : pr2 (flip a) ≤ pr1 (flip a), from P_flip H,
+    have H2 : pr2 (flip a) ≤ pr1 (flip a), from P_flip a H,
     calc
       proj (flip a) = flip (flip (proj (flip a))) : (flip_flip (proj (flip a)))⁻¹
         ... = flip (proj (flip (flip a)))         : {(special (flip a) H2)⁻¹}
@@ -143,6 +143,7 @@ or.elim le_total
         ... = pr2 a + 0                              : add_zero_right⁻¹
         ... = pr2 a + pr1 (proj a)                   : {(proj_le_pr1 H)⁻¹})
 
+opaque add sub le
 theorem proj_congr {a b : ℕ × ℕ} (H : rel a b) : proj a = proj b :=
 have special : ∀a b, pr2 a ≤ pr1 a → rel a b → proj a = proj b, from
   take a b,
@@ -166,7 +167,7 @@ have special : ∀a b, pr2 a ≤ pr1 a → rel a b → proj a = proj b, from
 or.elim le_total
   (assume H2 : pr2 a ≤ pr1 a, special a b H2 H)
   (assume H2 : pr1 a ≤ pr2 a,
-    have H3 : pr2 (flip a) ≤ pr1 (flip a), from P_flip H2,
+    have H3 : pr2 (flip a) ≤ pr1 (flip a), from P_flip a H2,
     have H4 : proj (flip a) = proj (flip b), from special (flip a) (flip b) H3 (rel_flip H),
     have H5 : flip (proj a) = flip (proj b), from proj_flip a ▸ proj_flip b ▸ H4,
     show proj a = proj b, from flip_inj H5)
@@ -184,11 +185,11 @@ representative_map_idempotent_equiv proj_rel @proj_congr a
 
 -- ## Definition of ℤ and basic theorems and definitions
 
-definition int [protected] := image proj
+definition int [opaque] [protected] := image proj
 notation `ℤ` := int
 
-definition psub : ℕ × ℕ → ℤ := fun_image proj
-definition rep : ℤ → ℕ × ℕ := subtype.elt_of
+definition psub [opaque] : ℕ × ℕ → ℤ := fun_image proj
+definition rep [opaque] : ℤ → ℕ × ℕ := subtype.elt_of
 
 theorem quotient : is_quotient rel psub rep :=
 representative_map_to_quotient_equiv rel_equiv proj_rel @proj_congr
@@ -763,16 +764,5 @@ not_intro
 theorem mul_ne_zero_right {a b : ℤ} (H : a * b ≠ 0) : b ≠ 0 :=
 mul_ne_zero_left (mul_comm a b ▸ H)
 
--- set_opaque rel true
--- set_opaque rep true
--- set_opaque of_nat true
--- set_opaque to_nat true
--- set_opaque neg true
--- set_opaque add true
--- set_opaque mul true
--- set_opaque le true
--- set_opaque lt true
--- set_opaque sign true
---transparent: sub ge gt
-end int -- namespace int
-abbreviation int := int.int
+end int
+definition int := int.int

@@ -1,4 +1,4 @@
-definition Prop [inline] : Type.{1} := Type.{0}
+definition Prop : Type.{1} := Type.{0}
 context
   variable N : Type.{1}
   variables a b c : N

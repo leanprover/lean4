@@ -1,4 +1,4 @@
-definition Prop [inline] := Type.{0}
+definition Prop := Type.{0}
 
 definition false : Prop := ∀x : Prop, x
 check false
@@ -37,7 +37,7 @@ succ : nat → nat
 namespace nat end nat open nat
 
 print "using strict implicit arguments"
-abbreviation symmetric {A : Type} (R : A → A → Prop) := ∀ ⦃a b⦄, R a b → R b a
+definition symmetric {A : Type} (R : A → A → Prop) := ∀ ⦃a b⦄, R a b → R b a
 
 check symmetric
 variable p : nat → nat → Prop
@@ -49,7 +49,7 @@ check H1 H2
 
 print "------------"
 print "using implicit arguments"
-abbreviation symmetric2 {A : Type} (R : A → A → Prop) := ∀ {a b}, R a b → R b a
+definition symmetric2 {A : Type} (R : A → A → Prop) := ∀ {a b}, R a b → R b a
 check symmetric2
 check symmetric2 p
 axiom H3 : symmetric2 p
@@ -59,7 +59,7 @@ check H3 H4
 
 print "-----------------"
 print "using strict implicit arguments (ASCII notation)"
-abbreviation symmetric3 {A : Type} (R : A → A → Prop) := ∀ {{a b}}, R a b → R b a
+definition symmetric3 {A : Type} (R : A → A → Prop) := ∀ {{a b}}, R a b → R b a
 
 check symmetric3
 check symmetric3 p

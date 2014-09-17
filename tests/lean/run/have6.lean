@@ -1,4 +1,4 @@
-abbreviation Prop : Type.{1} := Type.{0}
+definition Prop : Type.{1} := Type.{0}
 variable and : Prop → Prop → Prop
 infixl `∧`:25 := and
 variable and_intro : forall (a b : Prop), a → b → a ∧ b

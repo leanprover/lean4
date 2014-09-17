@@ -21,9 +21,9 @@ idpath : path a a
 namespace path
 infix `≈` := path
 notation x `≈` y:50 `:>`:0 A:0 := @path A x y    -- TODO: is this right?
-abbreviation idp {A : Type} {a : A} := idpath a
+definition idp {A : Type} {a : A} := idpath a
 
-abbreviation induction_on [protected] {A : Type} {a b : A} (p : a ≈ b)
+definition induction_on [protected] {A : Type} {a b : A} (p : a ≈ b)
   {C : Π (b : A) (p : a ≈ b), Type} (H : C a (idpath a)) : C b p :=
 path.rec H p
 
@@ -33,7 +33,6 @@ path.rec H p
 definition concat {A : Type} {x y z : A} (p : x ≈ y) (q : y ≈ z) : x ≈ z :=
 path.rec (λu, u) q p
 
--- TODO: should this be an abbreviation?
 definition inverse {A : Type} {x y : A} (p : x ≈ y) : y ≈ x :=
 path.rec (idpath x) p
 
@@ -185,8 +184,7 @@ induction_on p (take q h, h @ (concat_1p _)) q
 -- Transport
 -- ---------
 
--- TODO: keep transparent?
-abbreviation transport {A : Type} (P : A → Type) {x y : A} (p : x ≈ y) (u : P x) : P y :=
+definition transport {A : Type} (P : A → Type) {x y : A} (p : x ≈ y) (u : P x) : P y :=
 path.induction_on p u
 
 -- This idiom makes the operation right associative.
@@ -195,10 +193,9 @@ notation p `#`:65 x:64 := transport _ p x
 definition ap ⦃A B : Type⦄ (f : A → B) {x y:A} (p : x ≈ y) : f x ≈ f y :=
 path.induction_on p idp
 
--- TODO: is this better than an alias? Note use of curly brackets
-abbreviation ap01 := ap
+definition ap01 := ap
 
-abbreviation pointwise_paths {A : Type} {P : A → Type} (f g : Πx, P x) : Type :=
+definition pointwise_paths {A : Type} {P : A → Type} (f g : Πx, P x) : Type :=
 Πx : A, f x ≈ g x
 
 infix `∼` := pointwise_paths

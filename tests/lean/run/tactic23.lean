@@ -6,17 +6,17 @@ zero : nat,
 succ : nat → nat
 
 namespace nat
-definition add [inline] (a b : nat) : nat
+definition add (a b : nat) : nat
 := nat.rec a (λ n r, succ r) b
 infixl `+`:65 := add
 
-definition one [inline] := succ zero
+definition one := succ zero
 
 -- Define coercion from num -> nat
 -- By default the parser converts numerals into a binary representation num
-definition pos_num_to_nat [inline] (n : pos_num) : nat
+definition pos_num_to_nat (n : pos_num) : nat
 := pos_num.rec one (λ n r, r + r) (λ n r, r + r + one) n
-definition num_to_nat [inline] (n : num) : nat
+definition num_to_nat (n : num) : nat
 := num.rec zero (λ n, pos_num_to_nat n) n
 coercion num_to_nat
 

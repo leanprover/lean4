@@ -5,7 +5,7 @@ open eq
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
-abbreviation refl := @eq.refl
+definition refl := @eq.refl
 namespace nat
 theorem induction_on {P : nat → Prop} (a : nat) (H1 : P zero) (H2 : ∀ (n : nat) (IH : P n), P (succ n)) : P a
 := nat.rec H1 H2 a

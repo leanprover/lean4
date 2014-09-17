@@ -9,8 +9,8 @@ namespace binary
     parameter {A : Type}
     parameter f : A → A → A
     infixl `*`:75 := f
-    abbreviation commutative := ∀{a b}, a*b = b*a
-    abbreviation associative := ∀{a b c}, (a*b)*c = a*(b*c)
+    definition commutative := ∀{a b}, a*b = b*a
+    definition associative := ∀{a b c}, (a*b)*c = a*(b*c)
   end
 
   context

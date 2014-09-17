@@ -1,6 +1,6 @@
 -- category
 
-abbreviation Prop := Type.{0}
+definition Prop := Type.{0}
 variable eq {A : Type} : A → A → Prop
 infix `=`:50 := eq
 
@@ -11,7 +11,7 @@ inductive category : Type :=
 mk : Π (id : Π (A : ob), mor A A),
      (Π (A B : ob) (f : mor A A), id A = f) → category
 
-abbreviation id (Cat : category) := category.rec (λ id idl, id) Cat
+definition id (Cat : category) := category.rec (λ id idl, id) Cat
 variable Cat : category
 
 set_option unifier.computation true

@@ -1,4 +1,4 @@
-abbreviation Prop : Type.{1} := Type.{0}
+definition Prop : Type.{1} := Type.{0}
 section
   parameter A : Type
 

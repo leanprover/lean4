@@ -20,13 +20,13 @@ std::string const & get_typed_expr_opcode() {
 
 
 /** \brief This macro is used to "enforce" a given type to an expression.
-    It is equivalent to the abbreviation
+    It is equivalent to
 
-        abbreviation typed_expr (A : Type) (a : A) := a
+        definition typed_expr (A : Type) (a : A) := a
 
-    We use a macro instead of an abbreviation because we want to be able
+    We use a macro instead of the definition because we want to be able
     to use in any environment, even one that does not contain the
-    abbreviation such as typed_expr.
+    definition such as typed_expr.
 
     The macro is also slightly for efficient because we don't need a
     universe parameter.

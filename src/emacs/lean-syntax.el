@@ -8,7 +8,7 @@
 (require 'rx)
 
 (defconst lean-keywords
-  '("import" "abbreviation" "opaque" "transparent" "tactic_hint" "definition" "renaming"
+  '("import" "opaque" "transparent" "tactic_hint" "definition" "renaming"
     "inline" "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture"
     "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem"
     "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"
@@ -61,7 +61,7 @@
      ;; universe/inductive/theorem... "names"
      (,(rx symbol-start
            (group (or "universe" "inductive" "theorem" "axiom" "lemma" "hypothesis"
-                      "abbreviation" "definition" "variable" "parameter"))
+                      "definition" "variable" "parameter"))
            symbol-end
            (zero-or-more (or whitespace "(" "{" "["))
            (group (zero-or-more (not whitespace))))

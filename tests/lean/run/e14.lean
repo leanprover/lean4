@@ -6,8 +6,8 @@ namespace nat end nat open nat
 inductive list (A : Type) : Type :=
 nil {} : list A,
 cons   : A → list A → list A
-abbreviation nil := @list.nil
-abbreviation cons := @list.cons
+definition nil := @list.nil
+definition cons := @list.cons
 
 check nil
 check nil.{1}

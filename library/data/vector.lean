@@ -77,7 +77,7 @@ namespace vec
   -- Concat
   -- ------
 
-  abbreviation cast_subst {A : Type} {P : A → Type} {a a' : A} (H : a = a') (B : P a) : P a' :=
+  definition cast_subst {A : Type} {P : A → Type} {a a' : A} (H : a = a') (B : P a) : P a' :=
   cast (congr_arg P H) B
 
   definition concat {n m : ℕ} (v : vec T n) (w : vec T m) : vec T (n + m) :=

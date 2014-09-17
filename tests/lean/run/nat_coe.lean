@@ -15,12 +15,12 @@ coercion of_nat
 variables a b : nat
 variables i j : int
 
-abbreviation c1 := a + b
+definition c1 := a + b
 
 theorem T1 : c1 = nat_add a b :=
 eq.refl _
 
-abbreviation c2 := i + j
+definition c2 := i + j
 
 theorem T2 : c2 = int_add i j :=
 eq.refl _

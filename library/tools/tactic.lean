@@ -18,28 +18,28 @@ namespace tactic
 -- uses them when converting Lean expressions into actual tactic objects.
 -- The bultin 'by' construct triggers the process of converting a
 -- a term of type 'tactic' into a tactic that sythesizes a term
-definition and_then    (t1 t2 : tactic) : tactic := builtin
-definition or_else     (t1 t2 : tactic) : tactic := builtin
-definition append      (t1 t2 : tactic) : tactic := builtin
-definition interleave  (t1 t2 : tactic) : tactic := builtin
-definition par         (t1 t2 : tactic) : tactic := builtin
-definition fixpoint    (f : tactic → tactic) : tactic := builtin
-definition repeat      (t : tactic) : tactic := builtin
-definition at_most     (t : tactic) (k : num)  : tactic := builtin
-definition discard     (t : tactic) (k : num)  : tactic := builtin
-definition focus_at    (t : tactic) (i : num)  : tactic := builtin
-definition try_for     (t : tactic) (ms : num) : tactic := builtin
-definition now         : tactic := builtin
-definition assumption  : tactic := builtin
-definition eassumption : tactic := builtin
-definition state       : tactic := builtin
-definition fail        : tactic := builtin
-definition id          : tactic := builtin
-definition beta        : tactic := builtin
-definition apply       {B : Type} (b : B) : tactic := builtin
-definition unfold      {B : Type} (b : B) : tactic := builtin
-definition exact       {B : Type} (b : B) : tactic := builtin
-definition trace       (s : string) : tactic := builtin
+definition and_then    [opaque] (t1 t2 : tactic) : tactic := builtin
+definition or_else     [opaque] (t1 t2 : tactic) : tactic := builtin
+definition append      [opaque] (t1 t2 : tactic) : tactic := builtin
+definition interleave  [opaque] (t1 t2 : tactic) : tactic := builtin
+definition par         [opaque] (t1 t2 : tactic) : tactic := builtin
+definition fixpoint    [opaque] (f : tactic → tactic) : tactic := builtin
+definition repeat      [opaque] (t : tactic) : tactic := builtin
+definition at_most     [opaque] (t : tactic) (k : num)  : tactic := builtin
+definition discard     [opaque] (t : tactic) (k : num)  : tactic := builtin
+definition focus_at    [opaque] (t : tactic) (i : num)  : tactic := builtin
+definition try_for     [opaque] (t : tactic) (ms : num) : tactic := builtin
+definition now         [opaque] : tactic := builtin
+definition assumption  [opaque] : tactic := builtin
+definition eassumption [opaque] : tactic := builtin
+definition state       [opaque] : tactic := builtin
+definition fail        [opaque] : tactic := builtin
+definition id          [opaque] : tactic := builtin
+definition beta        [opaque] : tactic := builtin
+definition apply       [opaque] {B : Type} (b : B) : tactic := builtin
+definition unfold      [opaque] {B : Type} (b : B) : tactic := builtin
+definition exact       [opaque] {B : Type} (b : B) : tactic := builtin
+definition trace       [opaque] (s : string) : tactic := builtin
 precedence `;`:200
 infixl ; := and_then
 notation `!` t:max     := repeat t

@@ -1,4 +1,4 @@
-abbreviation Prop := Type.{0}
+definition Prop := Type.{0}
 
 inductive nat :=
 zero : nat,

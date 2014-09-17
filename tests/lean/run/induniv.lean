@@ -32,7 +32,7 @@ section
   mk_pair : A → B → pair
 end
 
-definition Prop [inline] := Type.{0}
+definition Prop := Type.{0}
 inductive eq {A : Type} (a : A) : A → Prop :=
 refl : eq a a
 

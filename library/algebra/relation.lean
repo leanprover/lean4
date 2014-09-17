@@ -13,9 +13,9 @@ import logic.core.prop
 
 namespace relation
 
-abbreviation reflexive {T : Type} (R : T → T → Type) : Type := ∀x, R x x
-abbreviation symmetric {T : Type} (R : T → T → Type) : Type := ∀⦃x y⦄, R x y → R y x
-abbreviation transitive {T : Type} (R : T → T → Type) : Type := ∀⦃x y z⦄, R x y → R y z → R x z
+definition reflexive {T : Type} (R : T → T → Type) : Type := ∀x, R x x
+definition symmetric {T : Type} (R : T → T → Type) : Type := ∀⦃x y⦄, R x y → R y x
+definition transitive {T : Type} (R : T → T → Type) : Type := ∀⦃x y z⦄, R x y → R y z → R x z
 
 
 inductive is_reflexive {T : Type} (R : T → T → Type) : Prop :=
@@ -23,10 +23,10 @@ mk : reflexive R → is_reflexive R
 
 namespace is_reflexive
 
-  abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : is_reflexive R) : reflexive R :=
+  definition app ⦃T : Type⦄ {R : T → T → Type} (C : is_reflexive R) : reflexive R :=
   is_reflexive.rec (λu, u) C
 
-  abbreviation infer ⦃T : Type⦄ (R : T → T → Type) {C : is_reflexive R} : reflexive R :=
+  definition infer ⦃T : Type⦄ (R : T → T → Type) {C : is_reflexive R} : reflexive R :=
   is_reflexive.rec (λu, u) C
 
 end is_reflexive
@@ -37,10 +37,10 @@ mk : symmetric R → is_symmetric R
 
 namespace is_symmetric
 
-  abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : is_symmetric R) : symmetric R :=
+  definition app ⦃T : Type⦄ {R : T → T → Type} (C : is_symmetric R) : symmetric R :=
   is_symmetric.rec (λu, u) C
 
-  abbreviation infer ⦃T : Type⦄ (R : T → T → Type) {C : is_symmetric R} : symmetric R :=
+  definition infer ⦃T : Type⦄ (R : T → T → Type) {C : is_symmetric R} : symmetric R :=
   is_symmetric.rec (λu, u) C
 
 end is_symmetric
@@ -51,10 +51,10 @@ mk : transitive R → is_transitive R
 
 namespace is_transitive
 
-  abbreviation app ⦃T : Type⦄ {R : T → T → Type} (C : is_transitive R) : transitive R :=
+  definition app ⦃T : Type⦄ {R : T → T → Type} (C : is_transitive R) : transitive R :=
   is_transitive.rec (λu, u) C
 
-  abbreviation infer ⦃T : Type⦄ (R : T → T → Type) {C : is_transitive R} : transitive R :=
+  definition infer ⦃T : Type⦄ (R : T → T → Type) {C : is_transitive R} : transitive R :=
   is_transitive.rec (λu, u) C
 
 end is_transitive
@@ -102,7 +102,7 @@ mk : (∀(x1 y1 : T1) (x2 y2 : T2), R1 x1 y1 → R2 x2 y2 → R3 (f x1 x2) (f y1
 
 namespace congruence
 
-  abbreviation app {T1 : Type} {R1 : T1 → T1 → Prop} {T2 : Type} {R2 : T2 → T2 → Prop}
+  definition app {T1 : Type} {R1 : T1 → T1 → Prop} {T2 : Type} {R2 : T2 → T2 → Prop}
       {f : T1 → T2} (C : congruence R1 R2 f) ⦃x y : T1⦄ : R1 x y → R2 (f x) (f y) :=
   rec (λu, u) C x y
 
@@ -110,7 +110,7 @@ namespace congruence
       (f : T1 → T2) {C : congruence R1 R2 f} ⦃x y : T1⦄ : R1 x y → R2 (f x) (f y) :=
   rec (λu, u) C x y
 
-  abbreviation app2 {T1 : Type} {R1 : T1 → T1 → Prop} {T2 : Type} {R2 : T2 → T2 → Prop}
+  definition app2 {T1 : Type} {R1 : T1 → T1 → Prop} {T2 : Type} {R2 : T2 → T2 → Prop}
       {T3 : Type} {R3 : T3 → T3 → Prop}
       {f : T1 → T2 → T3} (C : congruence2 R1 R2 R3 f) ⦃x1 y1 : T1⦄ ⦃x2 y2 : T2⦄ :
     R1 x1 y1 → R2 x2 y2 → R3 (f x1 x2) (f y1 y2) :=

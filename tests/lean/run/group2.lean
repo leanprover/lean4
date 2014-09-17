@@ -28,7 +28,7 @@ definition group_to_struct [instance] (g : group) : group_struct (carrier g)
 
 check group_struct
 
-definition mul [inline] {A : Type} {s : group_struct A} (a b : A) : A
+definition mul {A : Type} {s : group_struct A} (a b : A) : A
 := group_struct.rec (λ mul one inv h1 h2 h3, mul) s a b
 
 infixl `*`:75 := mul
@@ -55,7 +55,7 @@ axiom    H1    : is_assoc rmul
 axiom    H2    : is_id rmul rone
 axiom    H3    : is_inv rmul rone rinv
 
-definition real_group_struct [inline] [instance] : group_struct pos_real
+definition real_group_struct [instance] : group_struct pos_real
 := group_struct.mk rmul rone rinv H1 H2 H3
 
 variables x y : pos_real

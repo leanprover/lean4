@@ -20,7 +20,7 @@ infixl `+`:65 := add
 infix `≤`:50  := le
 axiom add_assoc (a b c : int) : (a + b) + c = a + (b + c)
 axiom add_le_left {a b : int} (H : a ≤ b) (c : int) : c + a ≤ c + b
-abbreviation lt (a b : int) := a + one ≤ b
+definition lt (a b : int) := a + one ≤ b
 infix `<`:50  := lt
 end int
 

@@ -22,20 +22,20 @@ namespace pos_num
       (H₁ : P one) (H₂ : ∀ (n : pos_num), P n → P (bit1 n)) (H₃ : ∀ (n : pos_num), P n → P (bit0 n)) : P a :=
   rec H₁ H₂ H₃ a
 
-  abbreviation rec_on [protected] {P : pos_num → Type} (a : pos_num)
+  definition rec_on [protected] {P : pos_num → Type} (a : pos_num)
       (H₁ : P one) (H₂ : ∀ (n : pos_num), P n → P (bit1 n)) (H₃ : ∀ (n : pos_num), P n → P (bit0 n)) : P a :=
   rec H₁ H₂ H₃ a
 
-  abbreviation succ (a : pos_num) : pos_num :=
+  definition succ (a : pos_num) : pos_num :=
   rec_on a (bit0 one) (λn r, bit0 r) (λn r, bit1 n)
 
-  abbreviation is_one (a : pos_num) : bool :=
+  definition is_one (a : pos_num) : bool :=
   rec_on a tt (λn r, ff) (λn r, ff)
 
-  abbreviation pred (a : pos_num) : pos_num :=
+  definition pred (a : pos_num) : pos_num :=
   rec_on a one (λn r, bit0 n) (λn r, cond (is_one n) one (bit1 r))
 
-  abbreviation size (a : pos_num) : pos_num :=
+  definition size (a : pos_num) : pos_num :=
   rec_on a one (λn r, succ r) (λn r, succ r)
 
   theorem succ_not_is_one {a : pos_num} : is_one (succ a) = ff :=
@@ -51,7 +51,7 @@ namespace pos_num
                        ...   = bit1 n                             : {iH})
     (take (n : pos_num) (iH : pred (succ n) = n), rfl)
 
-  abbreviation add (a b : pos_num) : pos_num :=
+  definition add (a b : pos_num) : pos_num :=
   rec_on a
     succ
     (λn f b, rec_on b
@@ -93,7 +93,7 @@ namespace pos_num
   theorem add_bit1_bit1 {a b : pos_num} : (bit1 a) + (bit1 b) = succ (bit1 (a + b)) :=
   rfl
 
-  abbreviation mul (a b : pos_num) : pos_num :=
+  definition mul (a b : pos_num) : pos_num :=
   rec_on a
     b
     (λn r, bit0 r + b)
@@ -129,17 +129,17 @@ namespace num
       (H₁ : P zero) (H₂ : ∀ (p : pos_num), P (pos p)) : P a :=
   rec H₁ H₂ a
 
-  abbreviation rec_on [protected] {P : num → Type} (a : num)
+  definition rec_on [protected] {P : num → Type} (a : num)
       (H₁ : P zero) (H₂ : ∀ (p : pos_num), P (pos p)) : P a :=
   rec H₁ H₂ a
 
-  abbreviation succ (a : num) : num :=
+  definition succ (a : num) : num :=
   rec_on a (pos one) (λp, pos (succ p))
 
-  abbreviation pred (a : num) : num :=
+  definition pred (a : num) : num :=
   rec_on a zero (λp, cond (is_one p) zero (pos (pred p)))
 
-  abbreviation size (a : num) : num :=
+  definition size (a : num) : num :=
   rec_on a (pos one) (λp, pos (size p))
 
   theorem pred_succ (a : num) : pred (succ a) = a :=
@@ -151,10 +151,10 @@ namespace num
                    ...    = pos (pos_num.pred (pos_num.succ p)) : cond_ff _ _
                    ...    = pos p : {pos_num.pred_succ})
 
-  abbreviation add (a b : num) : num :=
+  definition add (a b : num) : num :=
   rec_on a b (λp_a, rec_on b (pos p_a) (λp_b, pos (pos_num.add p_a p_b)))
 
-  abbreviation mul (a b : num) : num :=
+  definition mul (a b : num) : num :=
   rec_on a zero (λp_a, rec_on b zero (λp_b, pos (pos_num.mul p_a p_b)))
 
   infixl `+` := add

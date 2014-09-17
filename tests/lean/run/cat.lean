@@ -21,9 +21,9 @@ namespace category
 
   section
   parameters {ob : Type} {mor : ob → ob → Type} {Cat : category ob mor}
-  abbreviation compose := rec (λ comp id assoc idr idl, comp) Cat
-  abbreviation id := rec (λ comp id assoc idr idl, id) Cat
-  abbreviation ID (A : ob) := @id A
+  definition compose := rec (λ comp id assoc idr idl, comp) Cat
+  definition id := rec (λ comp id assoc idr idl, id) Cat
+  definition ID (A : ob) := @id A
 
   infixr `∘` := compose
 

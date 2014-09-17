@@ -4,13 +4,13 @@
 
 import general_notation
 
-definition Prop [inline] := Type.{0}
+definition Prop := Type.{0}
 
 
 -- implication
 -- -----------
 
-abbreviation imp (a b : Prop) : Prop := a → b
+definition imp (a b : Prop) : Prop := a → b
 
 
 -- true and false
@@ -24,9 +24,9 @@ false.rec c H
 inductive true : Prop :=
 intro : true
 
-abbreviation trivial := true.intro
+definition trivial := true.intro
 
-abbreviation not (a : Prop) := a → false
+definition not (a : Prop) := a → false
 prefix `¬` := not
 
 

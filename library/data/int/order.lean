@@ -133,6 +133,7 @@ discriminate
 
 -- ### interaction with neg and sub
 
+opaque le neg
 theorem le_neg {a b : ℤ} (H : a ≤ b) : -b ≤ -a :=
 obtain (n : ℕ) (Hn : a + n = b), from le_elim H,
 have H2 : b - n = a, from add_imp_sub_right Hn,

@@ -1,6 +1,6 @@
 import logic
 
-abbreviation Type1 := Type.{1}
+definition Type1 := Type.{1}
 
 context
   parameter {A  : Type}
@@ -21,12 +21,12 @@ namespace algebra
   inductive add_struct (A : Type) : Type :=
   mk : (A → A → A) → add_struct A
 
-  definition mul [inline] {A : Type} {s : mul_struct A} (a b : A)
+  definition mul  {A : Type} {s : mul_struct A} (a b : A)
   := mul_struct.rec (fun f, f) s a b
 
   infixl `*`:75 := mul
 
-  definition add [inline] {A : Type} {s : add_struct A} (a b : A)
+  definition add  {A : Type} {s : add_struct A} (a b : A)
   := add_struct.rec (fun f, f) s a b
 
   infixl `+`:65 := add
@@ -41,10 +41,10 @@ namespace nat
   variable add : nat → nat → nat
   variable mul : nat → nat → nat
 
-  definition is_mul_struct [inline] [instance] : algebra.mul_struct nat
+  definition is_mul_struct  [instance] : algebra.mul_struct nat
   := algebra.mul_struct.mk mul
 
-  definition is_add_struct [inline] [instance] : algebra.add_struct nat
+  definition is_add_struct  [instance] : algebra.add_struct nat
   := algebra.add_struct.mk add
 
   definition to_nat (n : num) : nat
@@ -57,22 +57,22 @@ namespace semigroup
   inductive semigroup_struct (A : Type) : Type :=
   mk : Π (mul : A → A → A), is_assoc mul → semigroup_struct A
 
-  definition mul [inline] {A : Type} (s : semigroup_struct A) (a b : A)
+  definition mul  {A : Type} (s : semigroup_struct A) (a b : A)
   := semigroup_struct.rec (fun f h, f) s a b
 
-  definition assoc [inline] {A : Type} (s : semigroup_struct A) : is_assoc (mul s)
+  definition assoc  {A : Type} (s : semigroup_struct A) : is_assoc (mul s)
   := semigroup_struct.rec (fun f h, h) s
 
-  definition is_mul_struct [inline] [instance] (A : Type) (s : semigroup_struct A) : mul_struct A
+  definition is_mul_struct  [instance] (A : Type) (s : semigroup_struct A) : mul_struct A
   := mul_struct.mk (mul s)
 
   inductive semigroup : Type :=
   mk : Π (A : Type), semigroup_struct A → semigroup
 
-  definition carrier [inline] [coercion] (g : semigroup)
+  definition carrier  [coercion] (g : semigroup)
   := semigroup.rec (fun c s, c) g
 
-  definition is_semigroup [inline] [instance] (g : semigroup) : semigroup_struct (carrier g)
+  definition is_semigroup  [instance] (g : semigroup) : semigroup_struct (carrier g)
   := semigroup.rec (fun c s, s) g
 end semigroup
 
@@ -82,23 +82,23 @@ namespace monoid
   inductive monoid_struct (A : Type) : Type :=
   mk_monoid_struct : Π (mul : A → A → A) (id : A), is_assoc mul → is_id mul id → monoid_struct A
 
-  definition mul [inline] {A : Type} (s : monoid_struct A) (a b : A)
+  definition mul  {A : Type} (s : monoid_struct A) (a b : A)
   := monoid_struct.rec (fun mul id a i, mul) s a b
 
-  definition assoc [inline] {A : Type} (s : monoid_struct A) : is_assoc (mul s)
+  definition assoc  {A : Type} (s : monoid_struct A) : is_assoc (mul s)
   := monoid_struct.rec (fun mul id a i, a) s
 
   open semigroup
-  definition is_semigroup_struct [inline] [instance] (A : Type) (s : monoid_struct A) : semigroup_struct A
+  definition is_semigroup_struct  [instance] (A : Type) (s : monoid_struct A) : semigroup_struct A
   := semigroup_struct.mk (mul s) (assoc s)
 
   inductive monoid : Type :=
   mk_monoid : Π (A : Type), monoid_struct A → monoid
 
-  definition carrier [inline] [coercion] (m : monoid)
+  definition carrier  [coercion] (m : monoid)
   := monoid.rec (fun c s, c) m
 
-  definition is_monoid [inline] [instance] (m : monoid) : monoid_struct (carrier m)
+  definition is_monoid  [instance] (m : monoid) : monoid_struct (carrier m)
   := monoid.rec (fun c s, s) m
 end monoid
 end algebra

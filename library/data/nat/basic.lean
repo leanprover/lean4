@@ -43,13 +43,13 @@ inhabited.mk zero
 -- Coercion from num
 -- -----------------
 
-abbreviation plus (x y : ℕ) : ℕ :=
+definition add (x y : ℕ) : ℕ :=
 nat.rec x (λ n r, succ r) y
+infixl `+` := add
 
-definition to_nat [coercion] [inline] (n : num) : ℕ :=
+definition to_nat [coercion] (n : num) : ℕ :=
 num.rec zero
-    (λ n, pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
-
+    (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n
 
 -- Successor and predecessor
 -- -------------------------
@@ -150,11 +150,6 @@ general m
 
 -- Addition
 -- --------
-
-definition add (x y : ℕ) : ℕ := plus x y
-
-infixl `+` := add
-
 theorem add_zero_right {n : ℕ} : n + 0 = n
 
 theorem add_succ_right {n m : ℕ} : n + succ m = succ (n + m)

@@ -305,6 +305,7 @@ case_zero_pos n (by simp)
 
 -- add_rewrite mod_mul_self_right
 
+opaque add mul
 theorem mod_mul_self_left {m n : ℕ} : (m * n) mod m = 0 :=
 mul_comm ▸ mod_mul_self_right
 

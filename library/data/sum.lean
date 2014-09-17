@@ -17,11 +17,11 @@ namespace sum
     infixr `+`:25 := sum    -- conflicts with notation for addition
   end extra_notation
 
-  abbreviation rec_on [protected] {A B : Type} {C : (A ⊎ B) → Type} (s : A ⊎ B)
+  definition rec_on [protected] {A B : Type} {C : (A ⊎ B) → Type} (s : A ⊎ B)
     (H1 : ∀a : A, C (inl B a)) (H2 : ∀b : B, C (inr A b)) : C s :=
   rec H1 H2 s
 
-  abbreviation cases_on [protected] {A B : Type} {P : (A ⊎ B) → Prop} (s : A ⊎ B)
+  definition cases_on [protected] {A B : Type} {P : (A ⊎ B) → Prop} (s : A ⊎ B)
     (H1 : ∀a : A, P (inl B a)) (H2 : ∀b : B, P (inr A b)) : P s :=
   rec H1 H2 s
 

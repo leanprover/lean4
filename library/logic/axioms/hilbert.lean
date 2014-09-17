@@ -38,7 +38,7 @@ nonempty_imp_inhabited (obtain w Hw, from H, nonempty.intro w)
 -- the Hilbert epsilon function
 -- ----------------------------
 
-definition epsilon {A : Type} {H : nonempty A} (P : A → Prop) : A :=
+definition epsilon [opaque] {A : Type} {H : nonempty A} (P : A → Prop) : A :=
 let u : {x : A, (∃y, P y) → P x} :=
   strong_indefinite_description P H in
 elt_of u

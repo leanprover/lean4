@@ -1,4 +1,4 @@
-abbreviation Prop : Type.{1} := Type.{0}
+definition Prop : Type.{1} := Type.{0}
 variables a b c : Prop
 axiom Ha : a
 axiom Hb : b

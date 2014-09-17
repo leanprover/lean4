@@ -30,7 +30,7 @@ end
 check double
 check double.{1 2}
 
-definition Prop [inline] := Type.{0}
+definition Prop := Type.{0}
 variable eq : Π {A : Type}, A → A → Prop
 infix `=`:50 := eq
 

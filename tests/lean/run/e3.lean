@@ -1,4 +1,4 @@
-definition Prop [inline] := Type.{0}
+definition Prop := Type.{0}
 
 definition false := ∀x : Prop, x
 check false
@@ -18,4 +18,3 @@ theorem refl {A : Type} (a : A) : a = a
 
 theorem subst {A : Type} {P : A -> Prop} {a b : A} (H1 : a = b) (H2 : P a) : P b
 := @H1 P H2
-

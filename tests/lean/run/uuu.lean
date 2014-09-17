@@ -5,14 +5,14 @@ notation `take`   binders `,` r:(scoped f, f) := r
 inductive empty : Type
 inductive unit : Type :=
 tt : unit
-abbreviation tt := @unit.tt
+definition tt := @unit.tt
 inductive nat : Type :=
 O : nat,
 S : nat → nat
 
 inductive paths {A : Type} (a : A) : A → Type :=
 idpath : paths a a
-abbreviation idpath := @paths.idpath
+definition idpath := @paths.idpath
 
 inductive sum (A : Type) (B : Type) : Type :=
 inl : A -> sum A B,
@@ -26,7 +26,7 @@ definition ii2 {A : Type} {B : Type} (b : B) := sum.inl A b
 
 inductive total2 {T: Type} (P: T → Type) : Type :=
 tpair : Π (t : T) (tp : P t), total2 P
-abbreviation tpair := @total2.tpair
+definition tpair := @total2.tpair
 
 definition pr1 {T : Type} {P : T → Type} (tp : total2 P) : T
 := total2.rec (λ a b, a) tp
@@ -45,9 +45,9 @@ definition tounit {X : Type} : X → unit
 definition termfun {X : Type} (x : X) : unit → X
 := λt, x
 
-abbreviation idfun (T : Type) := λt : T, t
+definition idfun (T : Type) := λt : T, t
 
-abbreviation funcomp {X : Type} {Y : Type} {Z : Type} (f : X → Y) (g : Y → Z)
+definition funcomp {X : Type} {Y : Type} {Z : Type} (f : X → Y) (g : Y → Z)
 := λx, g (f x)
 
 infixl `∘`:60 := funcomp

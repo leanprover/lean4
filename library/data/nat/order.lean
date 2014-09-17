@@ -258,11 +258,11 @@ general n
 definition lt (n m : ℕ) := succ n ≤ m
 infix `<` := lt
 
-abbreviation ge (n m : ℕ) := m ≤ n
+definition ge (n m : ℕ) := m ≤ n
 infix `>=` := ge
 infix `≥` := ge
 
-abbreviation gt (n m : ℕ) := m < n
+definition gt (n m : ℕ) := m < n
 infix `>` := gt
 
 theorem lt_def (n m : ℕ) : (n < m) = (succ n ≤ m) := rfl

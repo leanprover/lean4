@@ -8,7 +8,7 @@ open path
 -- Equivalences
 -- ------------
 
-abbreviation Sect {A B : Type} (s : A → B) (r : B → A) := Πx : A, r (s x) ≈ x
+definition Sect {A B : Type} (s : A → B) (r : B → A) := Πx : A, r (s x) ≈ x
 
 -- -- TODO: need better means of declaring structures
 -- -- TODO: note that Coq allows projections to be declared to be coercions on the fly

@@ -79,9 +79,9 @@ token_table init_token_table() {
 
     char const * commands[] = {"theorem", "axiom", "variable", "definition", "coercion",
                                "variables", "[persistent]", "[private]", "[protected]", "[inline]", "[visible]", "[instance]",
-                               "[class]", "[coercion]", "abbreviation", "opaque", "transparent",
+                               "[class]", "[coercion]", "[opaque]", "abbreviation", "opaque", "transparent",
                                "evaluate", "check", "print", "end", "namespace", "section", "import",
-                               "abbreviation", "inductive", "record", "renaming", "extends", "structure", "module", "universe",
+                               "inductive", "record", "renaming", "extends", "structure", "module", "universe",
                                "precedence", "infixl", "infixr", "infix", "postfix", "prefix", "notation", "context",
                                "exit", "set_option", "open", "export", "calc_subst", "calc_refl", "calc_trans", "tactic_hint",
                                "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class", "#erase_cache", nullptr};

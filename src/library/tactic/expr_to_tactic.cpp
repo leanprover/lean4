@@ -49,7 +49,7 @@ bool has_tactic_decls(environment const & env) {
             tc.infer(g_and_then_tac_fn).first == g_tac_type >> (g_tac_type >> g_tac_type) &&
             tc.infer(g_or_else_tac_fn).first  == g_tac_type >> (g_tac_type >> g_tac_type) &&
             tc.infer(g_repeat_tac_fn).first   == g_tac_type >> g_tac_type;
-    } catch (...) {
+    } catch (exception &) {
         return false;
     }
 }

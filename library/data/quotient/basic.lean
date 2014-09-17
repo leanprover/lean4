@@ -19,7 +19,7 @@ namespace quotient
 -- ---------------------
 
 -- TODO: make this a structure
-abbreviation is_quotient {A B : Type} (R : A → A → Prop) (abs : A → B) (rep : B → A) : Prop :=
+definition is_quotient {A B : Type} (R : A → A → Prop) (abs : A → B) (rep : B → A) : Prop :=
   (∀b, abs (rep b) = b) ∧
   (∀b, R (rep b) (rep b)) ∧
   (∀r s, R r s ↔ (R r r ∧ R s s ∧ abs r = abs s))
@@ -197,10 +197,7 @@ opaque rec rec_constant rec_binary quotient_map quotient_map_binary
 
 -- image
 -- -----
-
--- has to be an abbreviation, so that fun_image_definition below will typecheck outside
--- the file
-abbreviation image {A B : Type} (f : A → B) := subtype (fun b, ∃a, f a = b)
+definition image {A B : Type} (f : A → B) := subtype (fun b, ∃a, f a = b)
 
 theorem image_inhabited {A B : Type} (f : A → B) (H : inhabited A) : inhabited (image f) :=
 inhabited.mk (tag (f (default A)) (exists_intro (default A) rfl))

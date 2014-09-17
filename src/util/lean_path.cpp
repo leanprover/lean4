@@ -4,6 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
+#include <windows.h>
+#endif
 #include <string>
 #include <cstdlib>
 #include <fstream>
@@ -37,7 +40,6 @@ bool is_directory(char const * pathname) {
 
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 // Windows version
-#include <windows.h>
 static char g_path_sep     = ';';
 static char g_sep          = '\\';
 static char g_bad_sep      = '/';

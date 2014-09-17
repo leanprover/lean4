@@ -41,6 +41,7 @@ namespace this_thread = std::this_thread;
 #else
 // MULTI THREADING SUPPORT BASED ON THE BOOST LIBRARY
 #include <boost/thread.hpp>
+#include <boost/atomic.hpp>
 #define LEAN_THREAD_LOCAL thread_local
 namespace lean {
 void set_thread_stack_size(size_t );

@@ -188,7 +188,18 @@ options set_config_option(options const & opts, char const * in) {
     }
 }
 
+
+// Auxiliary object for disabling script_state recycling when
+// its destructor is invoked
+struct disable_script_state_recycling {
+    ~disable_script_state_recycling() {
+        lean::enable_script_state_recycling(false);
+    }
+};
+
+
 int main(int argc, char ** argv) {
+    disable_script_state_recycling at_end;
     lean::save_stack_info();
     lean::init_default_print_fn();
     lean::register_modules();

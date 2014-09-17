@@ -38,4 +38,6 @@ script_state get_thread_script_state();
    and available for other threads.
 */
 void release_thread_script_state();
+
+void enable_script_state_recycling(bool flag);
 }

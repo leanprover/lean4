@@ -91,10 +91,14 @@ list<tactic_hint_entry> get_tactic_hints(environment const & env) {
 expr parse_tactic_name(parser & p) {
     auto pos = p.pos();
     name pre_tac = p.check_constant_next("invalid tactic name, constant expected");
-    expr pre_tac_type = p.env().get(pre_tac).get_type();
+    auto decl    = p.env().get(pre_tac);
+    expr pre_tac_type = decl.get_type();
     if (!is_constant(pre_tac_type) || const_name(pre_tac_type) != name("tactic"))
         throw parser_error(sstream() << "invalid tactic name, '" << pre_tac << "' is not a tactic", pos);
-    return mk_constant(pre_tac);
+    buffer<level> ls;
+    for (auto const & n : decl.get_univ_params())
+        ls.push_back(mk_meta_univ(n));
+    return mk_constant(pre_tac, to_list(ls.begin(), ls.end()));
 }
 
 static name g_lbracket("[");

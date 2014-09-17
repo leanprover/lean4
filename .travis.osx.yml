@@ -28,10 +28,10 @@ install:
 - brew install gmp; brew link --overwrite gmp
 - brew install mpfr; brew link --overwrite mpfr
 - if [[ $LUA == 52 ]]; then
-      brew tap homebrew/versions; brew install lua52;
+      brew install lua;
   fi
 - if [[ $LUA == 51 ]]; then
-      brew install lua;
+      brew install lua51;
   fi
 - if [[ $LUA == JIT ]]; then
       brew install luajit;

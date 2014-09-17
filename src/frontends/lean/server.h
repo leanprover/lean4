@@ -38,6 +38,7 @@ class server {
         void show(std::ostream & out, bool valid);
         std::string const & get_fname() const { return m_fname; }
         info_manager const & infom() const { return m_info; }
+        void sync(std::vector<std::string> const & lines);
     };
     typedef std::shared_ptr<file>                     file_ptr;
     typedef std::unordered_map<std::string, file_ptr> file_map;
@@ -89,9 +90,11 @@ class server {
     void interrupt_worker();
     void show_options();
     void show(bool valid);
+    void sync(std::vector<std::string> const & lines);
     void wait(optional<unsigned> ms);
     unsigned get_line_num(std::string const & line, std::string const & cmd);
     optional<unsigned> get_optional_num(std::string const & line, std::string const & cmd);
+    unsigned get_num(std::string const & line, std::string const & cmd);
     pair<unsigned, optional<unsigned>> get_line_opt_col_num(std::string const & line, std::string const & cmd);
     pair<unsigned, unsigned> get_line_col_num(std::string const & line, std::string const & cmd);
     void find_goal_matches(unsigned line_num, unsigned col_num, std::string const & filters);

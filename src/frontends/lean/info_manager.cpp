@@ -607,10 +607,11 @@ struct info_manager::imp {
 
     void clear() {
         lock_guard<mutex> lc(m_mutex);
-        if (m_block_new_info)
-            return;
         m_line_data.clear();
         m_line_valid.clear();
+        m_env_info.clear();
+        m_iteration      = 0;
+        m_processed_upto = 0;
     }
 };
 

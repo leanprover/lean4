@@ -1,0 +1,10 @@
+SET
+pp.notation false
+VISIT simple.lean
+WAIT
+SYNC 3
+import logic
+definition id {A : Type} (a : A) := a
+definition pr2 {A : Type} (a b : A) := b
+WAIT
+INFO 3

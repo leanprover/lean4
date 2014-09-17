@@ -107,6 +107,13 @@ void server::file::show(std::ostream & out, bool valid) {
     }
 }
 
+void server::file::sync(std::vector<std::string> const & lines) {
+    lock_guard<mutex> lk(m_lines_mutex);
+    m_info.block_new_info();
+    m_info.clear();
+    m_lines = lines;
+}
+
 /**
    \brief Return index i <= m_snapshots.size() s.t.
       * forall j < i, m_snapshots[j].m_line < line
@@ -278,6 +285,7 @@ void server::interrupt_worker() {
 
 static std::string g_load("LOAD");
 static std::string g_visit("VISIT");
+static std::string g_sync("SYNC");
 static std::string g_replace("REPLACE");
 static std::string g_insert("INSERT");
 static std::string g_remove("REMOVE");
@@ -383,6 +391,13 @@ optional<unsigned> server::get_optional_num(std::string const & line, std::strin
     return optional<unsigned>(r);
 }
 
+unsigned server::get_num(std::string const & line, std::string const & cmd) {
+    if (auto r = get_optional_num(line, cmd))
+        return *r;
+    else
+        throw exception("numeral expected");
+}
+
 void check_line_num(unsigned line_num) {
     if (line_num == 0)
         throw exception("line numbers are indexed from 1");
@@ -422,6 +437,13 @@ pair<unsigned, unsigned> server::get_line_col_num(std::string const & line, std:
 void server::check_file() {
     if (!m_file)
         throw exception("no file has been loaded/visited");
+}
+
+void server::sync(std::vector<std::string> const & lines) {
+    interrupt_worker();
+    check_file();
+    m_file->sync(lines);
+    process_from(0);
 }
 
 void server::replace_line(unsigned line_num, std::string const & new_line) {
@@ -786,6 +808,14 @@ bool server::operator()(std::istream & in) {
                 std::string fname = line.substr(g_visit.size());
                 trim(fname);
                 visit_file(fname);
+            } else if (is_command(g_sync, line)) {
+                unsigned nlines = get_num(line, g_sync);
+                std::vector<std::string> lines;
+                for (unsigned i = 0; i < nlines; i++) {
+                    read_line(in, line);
+                    lines.push_back(line);
+                }
+                sync(lines);
             } else if (is_command(g_echo, line)) {
                 std::string str = line.substr(g_echo.size());
                 m_out << "--" << str << "\n";

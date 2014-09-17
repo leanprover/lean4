@@ -34,6 +34,18 @@ apply "changes" to the current file. The =LOAD= command can be used to
 discard all these changes, and enforce the content of the file stored
 in file system.
 
+** Synchronize
+
+The following command can be used to make sure the front-end application
+and lean have the same "view". It resets the contents associated with current visited file/buffer.
+
+#+BEGIN_SRC
+SYNC [num]
+line_1
+...
+line_num
+#+END_SRC
+
 ** Replace line
 
 #+BEGIN_SRC

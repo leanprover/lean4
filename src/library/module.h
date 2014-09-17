@@ -31,22 +31,19 @@ public:
     optional<unsigned> const & get_k() const { return m_relative; }
 };
 
-/**
-   \brief Return an environment based on \c env, where all modules in \c modules are imported.
-   Modules included directly or indirectly by them are also imported.
-   The environment \c env is usually an empty environment.
+/** \brief Return an environment based on \c env, where all modules in \c modules are imported.
+    Modules included directly or indirectly by them are also imported.
+    The environment \c env is usually an empty environment.
 
-   If \c keep_proofs is false, then the proof of the imported theorems is discarded after being
-   checked. The idea is to save memory.
+    If \c keep_proofs is false, then the proof of the imported theorems is discarded after being
+    checked. The idea is to save memory.
 */
 environment import_modules(environment const & env, std::string const & base, unsigned num_modules, module_name const * modules,
                            unsigned num_threads, bool keep_proofs, io_state const & ios);
 environment import_module(environment const & env, std::string const & base, module_name const & module,
                           unsigned num_threads, bool keep_proofs, io_state const & ios);
 
-/**
-   \brief Store/Export module using \c env to the output stream \c out.
-*/
+/** \brief Store/Export module using \c env to the output stream \c out. */
 void export_module(std::ostream & out, environment const & env);
 
 /** \brief An asynchronous update. It goes into a task queue, and can be executed by a different execution thread. */
@@ -59,9 +56,8 @@ typedef std::function<void(shared_environment & env)> asynch_update_fn;
 */
 typedef std::function<environment(environment const & env, io_state const & ios)> delayed_update_fn;
 
-/**
-   \brief A reader for importing data from a stream using deserializer \c d.
-   There are three ways to update the environment being constructed.
+/** \brief A reader for importing data from a stream using deserializer \c d.
+    There are three ways to update the environment being constructed.
      1- Direct update it using \c senv.
      2- Asynchronous update using add_asynch_update.
      3- Delayed update using add_delayed_update.
@@ -70,9 +66,8 @@ typedef void (*module_object_reader)(deserializer & d, module_idx midx, shared_e
                                      std::function<void(asynch_update_fn const &)> & add_asynch_update,
                                      std::function<void(delayed_update_fn const &)> & add_delayed_update);
 
-/**
-   \brief Register a module object reader. The key \c k is used to identify the class of objects
-   that can be read by the given reader.
+/** \brief Register a module object reader. The key \c k is used to identify the class of objects
+    that can be read by the given reader.
 */
 void register_module_object_reader(std::string const & k, module_object_reader r);
 
@@ -84,8 +79,7 @@ struct register_module_object_reader_fn {
 };
 
 namespace module {
-/**
-    \brief Add a function that should be invoked when the environment is exported.
+/** \brief Add a function that should be invoked when the environment is exported.
     The key \c k identifies which module_object_reader should be used to deserialize the object
     when the module is imported.
 
@@ -98,11 +92,13 @@ environment add_universe(environment const & env, name const & l);
 
 /** \brief Add the given declaration to the environment, and mark it to be exported. */
 environment add(environment const & env, certified_declaration const & d);
-/**
-    \brief Add the given declaration to the environment, and mark it to be exported.
+/** \brief Add the given declaration to the environment, and mark it to be exported.
     This method throws an exception if the trust_level <= LEAN_BELIEVER_TRUST_LEVEL
 */
 environment add(environment const & env, declaration const & d);
+
+/** \brief Return true iff \c n is a definition added to the current module using #module::add */
+bool is_definition(environment const & env, name const & n);
 
 /** \brief Add the given inductive declaration to the environment, and mark it to be exported. */
 environment add_inductive(environment                  env,

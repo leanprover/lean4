@@ -38,6 +38,7 @@ typedef pair<std::string, std::function<void(serializer &)>> writer;
 struct module_ext : public environment_extension {
     list<module_name> m_direct_imports;
     list<writer>      m_writers;
+    name_set          m_module_defs;
 };
 
 struct module_ext_reg {
@@ -140,15 +141,32 @@ environment add_universe(environment const & env, name const & l) {
     return add(new_env, g_glvl_key, [=](serializer & s) { s << l; });
 }
 
+environment update_module_defs(environment const & env, declaration const & d) {
+    if (d.is_definition() && !d.is_theorem()) {
+        module_ext ext = get_extension(env);
+        ext.m_module_defs.insert(d.get_name());
+        return update(env, ext);
+    } else {
+        return env;
+    }
+}
+
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
     declaration _d = d.get_declaration();
+    new_env = update_module_defs(new_env, _d);
     return add(new_env, g_decl_key, [=](serializer & s) { s << _d; });
 }
 
 environment add(environment const & env, declaration const & d) {
     environment new_env = env.add(d);
+    new_env = update_module_defs(new_env, d);
     return add(new_env, g_decl_key, [=](serializer & s) { s << d; });
+}
+
+bool is_definition(environment const & env, name const & n) {
+    module_ext const & ext = get_extension(env);
+    return ext.m_module_defs.contains(n);
 }
 
 static std::string g_inductive("ind");

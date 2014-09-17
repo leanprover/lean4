@@ -3,6 +3,11 @@ project(LEAN CXX)
 set(LEAN_VERSION_MAJOR 0)
 set(LEAN_VERSION_MINOR 2)
 
+if (NOT CMAKE_BUILD_TYPE)
+  message(STATUS "No build type selected, default to Release")
+  set(CMAKE_BUILD_TYPE "Release")
+endif()
+
 set(CMAKE_COLOR_MAKEFILE ON)
 enable_testing()
 

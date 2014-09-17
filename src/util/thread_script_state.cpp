@@ -91,7 +91,7 @@ void enable_script_state_recycling(bool flag) {
 static void recycle_state(script_state s) {
     if (g_recycle_state) {
         lock_guard<mutex> lk(g_state_mutex);
-	g_available_states.push_back(s);
+        g_available_states.push_back(s);
     }
 }
 

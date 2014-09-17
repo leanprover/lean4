@@ -22,8 +22,10 @@ struct script_state_manager {
 };
 
 static script_state_manager & get_manager() {
-    static script_state_manager g_manager;
-    return g_manager;
+    static std::unique_ptr<script_state_manager> g_manager;
+    if (!g_manager.get())
+        g_manager.reset(new script_state_manager());
+    return *g_manager;
 }
 
 static script_state_manager & g_aux = get_manager(); // force manager to be initialized at startup

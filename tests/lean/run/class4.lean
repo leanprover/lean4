@@ -73,20 +73,20 @@ variable dvd : Π (x y : nat) {H : not_zero y}, nat
 variables a b : nat
 
 set_option pp.implicit true
-opaque_hint (hiding [module])
+opaque add
 check dvd a (succ b)
 check (λ H : not_zero b, dvd a b)
 check (succ zero)
 check a + (succ zero)
 check dvd a (a + (succ b))
 
-opaque_hint (exposing [module])
+transparent add
 check dvd a (a + (succ b))
 
-opaque_hint (hiding add)
+opaque add
 check dvd a (a + (succ b))
 
-opaque_hint (exposing add)
+transparent add
 check dvd a (a + (succ b))
 
 end nat

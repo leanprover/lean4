@@ -8,7 +8,7 @@
 (require 'rx)
 
 (defconst lean-keywords
-  '("import" "abbreviation" "opaque_hint" "tactic_hint" "definition" "renaming"
+  '("import" "abbreviation" "opaque" "transparent" "tactic_hint" "definition" "renaming"
     "inline" "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture"
     "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem"
     "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"

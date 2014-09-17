@@ -48,7 +48,7 @@ eq_to_heq (eq.refl a)
 theorem heqt_elim {a : Prop} (H : a == true) : a :=
 eq_true_elim (heq_to_eq H)
 
-opaque_hint (hiding cast)
+opaque cast
 
 theorem hsubst {A B : Type} {a : A} {b : B} {P : ∀ (T : Type), T → Prop} (H1 : a == b)
   (H2 : P A a) : P B b :=

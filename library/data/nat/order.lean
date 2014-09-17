@@ -30,7 +30,7 @@ exists_intro k H
 theorem le_elim {n m : ℕ} (H : n ≤ m) : ∃k, n + k = m :=
 H
 
-opaque_hint (hiding le)
+opaque le
 
 -- ### partial order (totality is part of less than)
 

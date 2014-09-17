@@ -208,7 +208,7 @@ definition of_nat (n : ℕ) : ℤ := psub (pair n 0)
 theorem has_decidable_eq [instance] [protected] : decidable_eq ℤ :=
 take a b : ℤ, _
 
-opaque_hint (hiding int)
+opaque int
 coercion of_nat
 
 theorem eq_zero_intro (n : ℕ) : psub (pair n n) = 0 :=
@@ -302,7 +302,7 @@ have H5 : n + m = 0, from
 
 ---reverse equalities
 
-opaque_hint (exposing int)
+transparent int
 
 theorem cases (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - n) :=
 have Hrep : proj (rep a) = rep a, from @idempotent_image_fix _ proj proj_idempotent a,
@@ -325,7 +325,7 @@ or.imp_or (or.swap (proj_zero_or (rep a)))
           ... = -(psub (pair (pr2 (rep a)) 0)) : by simp
           ... = -(of_nat (pr2 (rep a))) : rfl))
 
-opaque_hint (hiding int)
+opaque int
 
 ---rename to by_cases in Lean 0.2 (for now using this to avoid name clash)
 theorem int_by_cases {P : ℤ → Prop} (a : ℤ) (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-n)) :
@@ -374,7 +374,7 @@ have H4 : n + m = 0, from
 add_eq_zero H4
 
 --some of these had to be transparent for theorem cases
-opaque_hint (hiding psub proj)
+opaque psub proj
 
 -- ## add
 

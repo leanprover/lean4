@@ -29,7 +29,7 @@ static environment update(environment const & env, opaque_hints_ext const & ext)
 static void check_definition(environment const & env, name const & n) {
     declaration d = env.get(n);
     if (!d.is_definition())
-        throw exception(sstream() << "invalid opaque_hint, '" << n << "' is not a definition");
+        throw exception(sstream() << "invalid opaque/transparent, '" << n << "' is not a definition");
 }
 environment hide_definition(environment const & env, name const & n) {
     check_definition(env, n);
@@ -41,7 +41,7 @@ environment expose_definition(environment const & env, name const & n) {
     check_definition(env, n);
     auto ext = get_extension(env);
     if (!ext.m_extra_opaque.contains(n))
-        throw exception(sstream() << "invalid 'exposing' opaque_hint, '" << n << "' is not in the 'extra opaque' set");
+        throw exception(sstream() << "invalid 'exposing' opaque/transparent, '" << n << "' is not in the 'extra opaque' set");
     ext.m_extra_opaque.erase(n);
     return update(env, ext);
 }
@@ -53,9 +53,11 @@ environment set_hide_main_opaque(environment const & env, bool f) {
 bool get_hide_main_opaque(environment const & env) {
     return get_extension(env).m_hide_module;
 }
-std::unique_ptr<type_checker> mk_type_checker_with_hints(environment const & env, name_generator const & ngen, bool relax_main_opaque) {
+std::unique_ptr<type_checker> mk_type_checker_with_hints(environment const & env, name_generator const & ngen,
+                                                         bool relax_main_opaque) {
     auto const & ext = get_extension(env);
-    return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, !ext.m_hide_module && relax_main_opaque,
+    return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env,
+                                                                                          !ext.m_hide_module && relax_main_opaque,
                                                                                           true, ext.m_extra_opaque)));
 }
 }

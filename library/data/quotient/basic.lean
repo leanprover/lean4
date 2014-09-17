@@ -193,8 +193,7 @@ theorem comp_quotient_map_binary_refl {A B : Type} {R : A → A → Prop} (Hrefl
   (a b : A) : quotient_map_binary Q f (abs a) (abs b) = abs (f a b) :=
 comp_quotient_map_binary Q H (Hrefl a) (Hrefl b)
 
-opaque_hint (hiding rec rec_constant rec_binary quotient_map quotient_map_binary)
-
+opaque rec rec_constant rec_binary quotient_map quotient_map_binary
 
 -- image
 -- -----
@@ -325,9 +324,5 @@ representative_map_to_quotient
     have H5 : R a b ↔ R b b ∧ f a = f b,
       from subst (symm (and_absorb_left _ (reflR b))) H4,
     subst (symm (and_absorb_left _ (reflR a))) H5)
-
--- previously:
--- opaque_hint (hiding fun_image rec is_quotient prelim_map)
--- transparent: image, image_incl, quotient, quotient_abs, quotient_rep
 
 end quotient

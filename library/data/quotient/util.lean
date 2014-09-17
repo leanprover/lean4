@@ -166,6 +166,4 @@ have Hy : pr2 (map_pair2 f (pair e e) v) = pr2 v, from
       ... = pr2 v : Hid (pr2 v),
 prod.equal Hx Hy
 
-opaque_hint (hiding flip map_pair map_pair2)
-
 end quotient

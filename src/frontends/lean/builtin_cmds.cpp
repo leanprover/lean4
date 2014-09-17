@@ -44,7 +44,6 @@ static name g_hiding("hiding");
 static name g_exposing("exposing");
 static name g_renaming("renaming");
 static name g_as("as");
-static name g_module("[module]");
 static name g_colon(":");
 
 environment print_cmd(parser & p) {
@@ -305,39 +304,28 @@ environment coercion_cmd(parser & p) {
     }
 }
 
-environment opaque_hint_cmd(parser & p) {
+environment opaque_cmd_core(parser & p, bool hiding) {
     environment env = p.env();
     bool found = false;
-    while (p.curr_is_token(g_lparen)) {
-        p.next();
-        bool hiding;
-        auto pos = p.pos();
-        if (p.curr_is_token_or_id(g_hiding))
-            hiding = true;
-        else if (p.curr_is_token_or_id(g_exposing))
-            hiding = false;
+    while (p.curr_is_identifier()) {
+        name c = p.check_constant_next("invalid 'opaque/transparent' command, constant expected");
+        found   = true;
+        if (hiding)
+            env = hide_definition(env, c);
         else
-            throw parser_error("invalid 'opaque_hint', 'hiding' or 'exposing' expected", pos);
-        p.next();
-        while (!p.curr_is_token(g_rparen)) {
-            if (p.curr_is_token(g_module)) {
-                found = true;
-                p.next();
-                env = set_hide_main_opaque(env, hiding);
-            } else {
-                name c  = p.check_constant_next("invalid 'opaque_hint', constant expected");
-                found   = true;
-                if (hiding)
-                    env = hide_definition(env, c);
-                else
-                    env = expose_definition(env, c);
-            }
-        }
-        p.next();
+            env = expose_definition(env, c);
     }
     if (!found)
-        throw exception("invalid empty 'opaque_hint' command");
+        throw exception("invalid empty 'opaque/transparent' command");
     return env;
+}
+
+environment opaque_cmd(parser & p) {
+    return opaque_cmd_core(p, true);
+}
+
+environment transparent_cmd(parser & p) {
+    return opaque_cmd_core(p, false);
 }
 
 environment erase_cache_cmd(parser & p) {
@@ -359,7 +347,8 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("end",          "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
     add_cmd(r, cmd_info("coercion",     "add a new coercion", coercion_cmd));
-    add_cmd(r, cmd_info("opaque_hint",  "add hints for the elaborator/unifier", opaque_hint_cmd));
+    add_cmd(r, cmd_info("opaque",       "mark constants as opaque for the elaborator/unifier", opaque_cmd));
+    add_cmd(r, cmd_info("transparent",  "mark constants as transparent for the elaborator/unifier", transparent_cmd));
     add_cmd(r, cmd_info("#erase_cache", "erase cached definition (for debugging purposes)", erase_cache_cmd));
 
     register_decl_cmds(r);

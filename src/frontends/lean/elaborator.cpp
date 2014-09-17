@@ -419,8 +419,8 @@ public:
                 lean_assert(is_meta(f));
                 // let type checker add constraint
                 f_type = infer_type(f, cs);
-                lean_assert(is_pi(f_type));
                 f_type = m_tc[m_relax_main_opaque]->ensure_pi(f_type, f, cs);
+                lean_assert(is_pi(f_type));
             }
         } else {
             erase_coercion_info(f);

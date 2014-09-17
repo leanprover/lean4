@@ -17,7 +17,8 @@ coercion_elaborator::coercion_elaborator(coercion_info_manager & info, expr cons
                                          list<constraints> const & choices, list<expr> const & coes,
                                          bool use_id):
     m_info(info), m_arg(arg), m_id(use_id), m_choices(choices), m_coercions(coes) {
-    lean_assert(length(m_coercions) + 1 == length(m_choices));
+    lean_assert(!use_id || length(m_coercions) + 1 == length(m_choices));
+    lean_assert(use_id  || length(m_coercions)     == length(m_choices));
 }
 
 optional<constraints> coercion_elaborator::next() {

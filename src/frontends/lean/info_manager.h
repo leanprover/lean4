@@ -54,7 +54,7 @@ public:
         It also enables new information to be added, i.e., it will undo
         the effect of #block_new_info.
     */
-    void start();
+    void start_from(unsigned l);
     unsigned get_processed_upto() const;
 };
 }

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/thread.h"
 #include "kernel/environment.h"
 #include "library/choice.h"
+#include "library/scoped_ext.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/pp_options.h"
 
@@ -267,10 +268,10 @@ struct info_manager::imp {
         Whenever "lean server" starts processing a file again, we bump the iteration.
     */
     struct env_info {
-        unsigned    m_line;
-        unsigned    m_iteration;
-        environment m_env;
-        options     m_options;
+        unsigned         m_line;
+        mutable unsigned m_iteration;
+        environment      m_env;
+        options          m_options;
         env_info():m_line(0), m_iteration(0) {}
         env_info(unsigned l, unsigned i, environment const & env, options const & o):
             m_line(l), m_iteration(i), m_env(env), m_options(o) {}
@@ -497,6 +498,20 @@ struct info_manager::imp {
         m_processed_upto = l;
     }
 
+    void start_from(unsigned l) {
+        lock_guard<mutex> lc(m_mutex);
+        m_iteration++;
+        synch_line(l);
+        m_processed_upto = l;
+        for (auto it = m_env_info.begin(); it != m_env_info.end(); ++it) {
+            if (it->m_line < l)
+                it->m_iteration = m_iteration;
+            else
+                break;
+        }
+        m_block_new_info = false;
+    }
+
     void commit_upto(unsigned l, bool valid) {
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
@@ -649,11 +664,6 @@ void info_manager::display(environment const & env, io_state const & ios, unsign
 unsigned info_manager::get_processed_upto() const { return m_ptr->m_processed_upto; }
 optional<expr> info_manager::get_type_at(unsigned line, unsigned col) const { return m_ptr->get_type_at(line, col); }
 optional<expr> info_manager::get_meta_at(unsigned line, unsigned col) const { return m_ptr->get_meta_at(line, col); }
-void info_manager::block_new_info() {
-    m_ptr->block_new_info(true);
-}
-void info_manager::start() {
-    m_ptr->m_iteration++;
-    m_ptr->block_new_info(false);
-}
+void info_manager::block_new_info() { m_ptr->block_new_info(true); }
+void info_manager::start_from(unsigned l) { m_ptr->start_from(l); }
 }

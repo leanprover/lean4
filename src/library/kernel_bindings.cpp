@@ -1842,8 +1842,8 @@ static int mk_type_checker(lua_State * L) {
         return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2)));
     } else {
         optional<module_idx> mod_idx; bool memoize; name_set extra_opaque;
-        extra_opaque_pred pred([=](name const & n) { return extra_opaque.contains(n); });
         get_type_checker_args(L, 3, mod_idx, memoize, extra_opaque);
+        extra_opaque_pred pred([=](name const & n) { return extra_opaque.contains(n); });
         auto t = std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2),
                                                 mk_default_converter(to_environment(L, 1), mod_idx, memoize, pred),
                                                 memoize);

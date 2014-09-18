@@ -29,7 +29,7 @@ class type_checker;
 class environment;
 class certified_declaration;
 
-typedef std::function<bool(name const &)> extra_opaque_pred;
+typedef std::function<bool(name const &)> extra_opaque_pred; // NOLINT
 extra_opaque_pred const & no_extra_opaque();
 
 /**

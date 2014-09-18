@@ -80,12 +80,33 @@ bool is_super_sub_script_alnum_unicode(unsigned u) {
 
 void scanner::next() {
     lean_assert(m_curr != EOF);
-    m_curr = m_stream.get();
     m_spos++;
-    if (m_uskip > 0) {
-        if (!is_utf8_next(m_curr)) {
-            throw_exception("invalid utf-8 sequence character");
+    while (m_spos >= static_cast<int>(m_curr_line.size())) {
+        if (m_last_line) {
+            m_curr = EOF;
+            return;
+        } else {
+            m_curr_line.clear();
+            if (std::getline(m_stream, m_curr_line)) {
+                m_curr_line.push_back('\n');
+                m_sline++;
+                m_spos  = 0;
+                m_upos  = 0;
+                m_curr  = m_curr_line[m_spos];
+                m_uskip = get_utf8_size(m_curr);
+                m_uskip--;
+                return;
+            } else {
+                m_last_line = true;
+                m_curr      = EOF;
+                return;
+            }
         }
+    }
+    m_curr = m_curr_line[m_spos];
+    if (m_uskip > 0) {
+        if (!is_utf8_next(m_curr))
+            throw_exception("invalid utf-8 sequence character");
         m_uskip--;
     } else {
         m_upos++;
@@ -113,7 +134,6 @@ auto scanner::read_string() -> token_kind {
     m_buffer.clear();
     while (true) {
         check_not_eof(end_error_msg);
-        update_line();
         char c = curr();
         if (c == '\"') {
             next();
@@ -155,10 +175,10 @@ auto scanner::read_quoted_symbol() -> token_kind {
 
 bool scanner::is_next_digit() {
     lean_assert(curr() != EOF);
-    char c = m_stream.get();
-    bool r = std::isdigit(c);
-    m_stream.unget();
-    return r;
+    if (m_spos + 1 < static_cast<int>(m_curr_line.size()))
+        return std::isdigit(m_curr_line[m_spos+1]);
+    else
+        return false;
 }
 
 auto scanner::read_number() -> token_kind {
@@ -198,7 +218,6 @@ void scanner::read_single_line_comment() {
     while (true) {
         if (curr() == '\n') {
             next();
-            new_line();
             return;
         } else if (curr() == EOF) {
             return;
@@ -218,7 +237,6 @@ bool scanner::consume(char const * str, char const * error_msg) {
             if (!str[i])
                 return true;
             check_not_eof(error_msg);
-            update_line();
             if (curr_next() != str[i])
                 return false;
             i++;
@@ -244,7 +262,6 @@ void scanner::read_comment_block() {
                 return;
         }
         check_not_eof(end_error_msg);
-        update_line();
         next();
     }
 }
@@ -257,7 +274,6 @@ void scanner::read_until(char const * end_str, char const * error_msg) {
     m_buffer.clear();
     while (true) {
         check_not_eof(error_msg);
-        update_line();
         char c = curr_next();
         if (c == end_str[0]) {
             m_aux_buffer.clear();
@@ -267,7 +283,6 @@ void scanner::read_until(char const * end_str, char const * error_msg) {
                 if (!end_str[i])
                     return;
                 check_not_eof(error_msg);
-                update_line();
                 c = curr_next();
                 if (c != end_str[i]) {
                     m_buffer += m_aux_buffer;
@@ -291,14 +306,12 @@ void scanner::move_back(unsigned offset, unsigned u_offset) {
     if (offset != 0) {
         if (curr() == EOF) {
             m_curr = 0;
-            m_stream.clear();
             m_spos--;
             m_upos--;
             offset--;
             u_offset--;
         }
         if (offset != 0) {
-            m_stream.seekg(-static_cast<std::streamoff>(offset), std::ios_base::cur);
             m_spos -= offset;
             m_upos -= u_offset;
         }
@@ -431,11 +444,8 @@ auto scanner::scan(environment const & env) -> token_kind {
         m_pos  = m_upos;
         m_line = m_sline;
         switch (c) {
-        case ' ': case '\r': case '\t':
+        case ' ': case '\r': case '\t': case '\n':
             next();
-            break;
-        case '\n':
-            next(); new_line();
             break;
         case '\"':
             return read_string();
@@ -468,12 +478,23 @@ auto scanner::scan(environment const & env) -> token_kind {
 }
 
 scanner::scanner(std::istream & strm, char const * strm_name, unsigned line):
-    m_tokens(nullptr), m_stream(strm), m_spos(0), m_upos(0), m_uskip(0), m_sline(line), m_curr(0), m_pos(0), m_line(line),
-    m_token_info(nullptr) {
+    m_tokens(nullptr), m_stream(strm), m_token_info(nullptr) {
     m_stream_name = strm_name ? strm_name : "[unknown]";
-    next();
-    m_spos = 0;
-    m_upos = 0;
+    m_sline = line;
+    m_line  = line;
+    m_spos  = 0;
+    m_upos  = 0;
+    if (std::getline(m_stream, m_curr_line)) {
+        m_last_line = false;
+        m_curr_line.push_back('\n');
+        m_curr  = m_curr_line[m_spos];
+        m_uskip = get_utf8_size(m_curr);
+        m_uskip--;
+    } else {
+        m_last_line = true;
+        m_curr      = EOF;
+        m_uskip     = 0;
+    }
 }
 
 std::ostream & operator<<(std::ostream & out, scanner::token_kind k) {

@@ -29,6 +29,9 @@ class type_checker;
 class environment;
 class certified_declaration;
 
+typedef std::function<bool(name const &)> extra_opaque_pred;
+extra_opaque_pred const & no_extra_opaque();
+
 /**
    \brief The header of an environment is created when we create the empty environment.
    Moreover if environment B is an extension of environment A, then A and B share the same header.
@@ -223,7 +226,8 @@ class name_generator;
    Only the type_checker class can create certified declarations.
 */
 class certified_declaration {
-    friend certified_declaration check(environment const & env, declaration const & d, name_generator const & g, name_set const & extra_opaque, bool memoize);
+    friend certified_declaration check(environment const & env, declaration const & d,
+                                       name_generator const & g, extra_opaque_pred const & extra_opaque);
     environment_id m_id;
     declaration    m_declaration;
     certified_declaration(environment_id const & id, declaration const & d):m_id(id), m_declaration(d) {}

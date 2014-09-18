@@ -106,9 +106,6 @@ static void tst2() {
     lean_assert(checker.is_def_eq(f98(c1, id(Prop, id(Prop, c2))), f97(f97(c1, id(Prop, c2)), f97(c2, c1))).first);
     name_set s;
     s.insert(name(base, 96));
-    type_checker checker2(env, name_generator("tmp"), mk_default_converter(env, optional<module_idx>(), true, s));
-    lean_assert_eq(checker2.whnf(f98(c1, c2)).first,
-                   f96(f96(f97(c1, c2), f97(c2, c1)), f96(f97(c2, c1), f97(c1, c2))));
 }
 
 class normalizer_extension_tst : public normalizer_extension {

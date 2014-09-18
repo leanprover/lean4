@@ -1842,9 +1842,10 @@ static int mk_type_checker(lua_State * L) {
         return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2)));
     } else {
         optional<module_idx> mod_idx; bool memoize; name_set extra_opaque;
+        extra_opaque_pred pred([=](name const & n) { return extra_opaque.contains(n); });
         get_type_checker_args(L, 3, mod_idx, memoize, extra_opaque);
         auto t = std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2),
-                                                mk_default_converter(to_environment(L, 1), mod_idx, memoize, extra_opaque),
+                                                mk_default_converter(to_environment(L, 1), mod_idx, memoize, pred),
                                                 memoize);
         return push_type_checker_ref(L, t);
     }
@@ -1905,28 +1906,29 @@ static const struct luaL_Reg type_checker_ref_m[] = {
 // type_check procedure
 static int type_check(lua_State * L) {
     int nargs = lua_gettop(L);
-    if (nargs == 2)
+    if (nargs == 2) {
         return push_certified_declaration(L, check(to_environment(L, 1), to_declaration(L, 2)));
-    else if (nargs == 3)
+    } else if (nargs == 3) {
         return push_certified_declaration(L, check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3)));
-    else if (nargs == 4)
-        return push_certified_declaration(L, check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4)));
-    else
-        return push_certified_declaration(L, check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4),
-                                                  lua_toboolean(L, 5)));
+    } else {
+        name_set extra_opaque = to_name_set(L, 4);
+        extra_opaque_pred pred([=](name const & n) { return extra_opaque.contains(n); });
+        return push_certified_declaration(L, check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), pred));
+    }
 }
 
 static int add_declaration(lua_State * L) {
     int nargs = lua_gettop(L);
     optional<certified_declaration> d;
-    if (nargs == 2)
+    if (nargs == 2) {
         d = check(to_environment(L, 1), to_declaration(L, 2));
-    else if (nargs == 3)
+    } else if (nargs == 3) {
         d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3));
-    else if (nargs == 4)
-        d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4));
-    else
-        d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), to_name_set(L, 4), lua_toboolean(L, 5));
+    } else {
+        name_set extra_opaque = to_name_set(L, 4);
+        extra_opaque_pred pred([=](name const & n) { return extra_opaque.contains(n); });
+        d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), pred);
+    }
     return push_environment(L, module::add(to_environment(L, 1), *d));
 }
 

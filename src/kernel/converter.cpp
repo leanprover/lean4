@@ -23,31 +23,36 @@ namespace lean {
    We also believe it increases the modularity of Lean developments by minimizing the dependency on how things are defined.
    We should view non-opaque definitions as "inline definitions" used in programming languages such as C++.
 
-   2) Whenever type checking an expression, the user can provide an additional set of definition names (m_extra_opaque) that
-   should be considered opaque. Note that, if \c t type checks when using an extra_opaque set S, then t also type checks
-   (modulo resource constraints) with the empty set. Again, the purpose of extra_opaque is to mimimize the number
+   2) Whenever type checking an expression, the user can provide a predicate that is true for for additional definitions that
+   should be considered opaque. Note that, if \c t type checks when using predicate P, then t also type checks
+   (modulo resource constraints) without it. Again, the purpose of the predicate is to mimimize the number
    of delta-reduction steps.
 
    3) To be able to prove theorems about an opaque definition, we treat an opaque definition D in a module M as
    transparent when we are type checking another definition/theorem D' also in M. This rule only applies if
-   D is not a theorem, nor D is in the set m_extra_opaque. To implement this feature, this class has a field
+   D is not a theorem, nor pred(D) is true. To implement this feature, this class has a field
    m_module_idx that is not none when this rule should be applied.
 */
-bool is_opaque(declaration const & d, name_set const & extra_opaque, optional<module_idx> const & mod_idx) {
+bool is_opaque(declaration const & d, extra_opaque_pred const & pred, optional<module_idx> const & mod_idx) {
     lean_assert(d.is_definition());
     if (d.is_theorem()) return true;                               // theorems are always opaque
-    if (extra_opaque.contains(d.get_name())) return true;          // extra_opaque set overrides opaque flag
+    if (pred(d.get_name())) return true;                           // extra_opaque predicate overrides opaque flag
     if (!d.is_opaque()) return false;                              // d is a transparent definition
     if (mod_idx && d.get_module_idx() == *mod_idx) return false;   // the opaque definitions in mod_idx are considered transparent
     return true;                                                   // d is opaque
 }
 
+extra_opaque_pred g_always_false([](name const &) { return false; });
+extra_opaque_pred const & no_extra_opaque() {
+    return g_always_false;
+}
+
 /** \brief Auxiliary method for \c is_delta */
-static optional<declaration> is_delta_core(environment const & env, expr const & e, name_set const & extra_opaque,
+static optional<declaration> is_delta_core(environment const & env, expr const & e, extra_opaque_pred const & pred,
                                            optional<module_idx> const & mod_idx) {
     if (is_constant(e)) {
         if (auto d = env.find(const_name(e)))
-            if (d->is_definition() && !is_opaque(*d, extra_opaque, mod_idx))
+            if (d->is_definition() && !is_opaque(*d, pred, mod_idx))
                 return d;
     }
     return none_declaration();
@@ -57,14 +62,20 @@ static optional<declaration> is_delta_core(environment const & env, expr const &
    \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
    to be expanded.
 */
-optional<declaration> is_delta(environment const & env, expr const & e, name_set const & extra_opaque, optional<module_idx> const & mod_idx) {
-    return is_delta_core(env, get_app_fn(e), extra_opaque, mod_idx);
+optional<declaration> is_delta(environment const & env, expr const & e,
+                               extra_opaque_pred const & pred, optional<module_idx> const & mod_idx) {
+    return is_delta_core(env, get_app_fn(e), pred, mod_idx);
 }
 
 static optional<module_idx> g_opt_main_module_idx(g_main_module_idx);
-optional<declaration> is_delta(environment const & env, expr const & e, name_set const & extra_opaque) {
-    return is_delta(env, e, extra_opaque, g_opt_main_module_idx);
+optional<declaration> is_delta(environment const & env, expr const & e, extra_opaque_pred const & pred) {
+    return is_delta(env, e, pred, g_opt_main_module_idx);
 }
+
+optional<declaration> is_delta(environment const & env, expr const & e) {
+    return is_delta(env, e, g_always_false);
+}
+
 
 static no_delayed_justification g_no_delayed_jst;
 pair<bool, constraint_seq> converter::is_def_eq(expr const & t, expr const & s, type_checker & c) {
@@ -95,12 +106,13 @@ struct default_converter : public converter {
     environment                                 m_env;
     optional<module_idx>                        m_module_idx;
     bool                                        m_memoize;
-    name_set                                    m_extra_opaque;
+    extra_opaque_pred                           m_extra_pred;
     expr_struct_map<expr>                       m_whnf_core_cache;
     expr_struct_map<pair<expr, constraint_seq>> m_whnf_cache;
 
-    default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize, name_set const & extra_opaque):
-        m_env(env), m_module_idx(mod_idx), m_memoize(memoize), m_extra_opaque(extra_opaque) {
+    default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize,
+                      extra_opaque_pred const & pred):
+        m_env(env), m_module_idx(mod_idx), m_memoize(memoize), m_extra_pred(pred) {
     }
 
     constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j) {
@@ -211,7 +223,7 @@ struct default_converter : public converter {
     }
 
     bool is_opaque(declaration const & d) const {
-        return ::lean::is_opaque(d, m_extra_opaque, m_module_idx);
+        return ::lean::is_opaque(d, m_extra_pred, m_module_idx);
     }
 
     /** \brief Expand \c e if it is non-opaque constant with weight >= w */
@@ -252,7 +264,7 @@ struct default_converter : public converter {
         to be expanded.
     */
     optional<declaration> is_delta(expr const & e) {
-        return ::lean::is_delta(m_env, get_app_fn(e), m_extra_opaque, m_module_idx);
+        return ::lean::is_delta(m_env, get_app_fn(e), m_extra_pred, m_module_idx);
     }
 
     /**
@@ -632,14 +644,21 @@ struct default_converter : public converter {
 };
 
 std::unique_ptr<converter> mk_default_converter(environment const & env, optional<module_idx> mod_idx,
-                                                bool memoize, name_set const & extra_opaque) {
-    return std::unique_ptr<converter>(new default_converter(env, mod_idx, memoize, extra_opaque));
+                                                bool memoize, extra_opaque_pred const & pred) {
+    return std::unique_ptr<converter>(new default_converter(env, mod_idx, memoize, pred));
+}
+std::unique_ptr<converter> mk_default_converter(environment const & env, optional<module_idx> mod_idx,
+                                                bool memoize) {
+    return mk_default_converter(env, mod_idx, memoize, g_always_false);
 }
 std::unique_ptr<converter> mk_default_converter(environment const & env, bool unfold_opaque_main, bool memoize,
-                                                name_set const & extra_opaque) {
+                                                extra_opaque_pred const & pred) {
     if (unfold_opaque_main)
-        return mk_default_converter(env, optional<module_idx>(0), memoize, extra_opaque);
+        return mk_default_converter(env, optional<module_idx>(0), memoize, pred);
     else
-        return mk_default_converter(env, optional<module_idx>(), memoize, extra_opaque);
+        return mk_default_converter(env, optional<module_idx>(), memoize, pred);
+}
+std::unique_ptr<converter> mk_default_converter(environment const & env, bool unfold_opaque_main, bool memoize) {
+    return mk_default_converter(env, unfold_opaque_main, memoize, g_always_false);
 }
 }

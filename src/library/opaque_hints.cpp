@@ -56,8 +56,10 @@ bool get_hide_main_opaque(environment const & env) {
 std::unique_ptr<type_checker> mk_type_checker_with_hints(environment const & env, name_generator const & ngen,
                                                          bool relax_main_opaque) {
     auto const & ext = get_extension(env);
+    name_set extra_opaque = ext.m_extra_opaque;
+    extra_opaque_pred pred([=](name const & n) { return extra_opaque.contains(n); });
     return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env,
                                                                                           !ext.m_hide_module && relax_main_opaque,
-                                                                                          true, ext.m_extra_opaque)));
+                                                                                          true, pred)));
 }
 }

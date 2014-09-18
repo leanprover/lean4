@@ -139,7 +139,7 @@ bool pretty_fn::is_implicit(expr const & f) {
     try {
         binder_info bi = binding_info(m_tc.ensure_pi(m_tc.infer(f).first).first);
         return bi.is_implicit() || bi.is_strict_implicit();
-    } catch (...) {
+    } catch (exception &) {
         return false;
     }
 }
@@ -147,7 +147,7 @@ bool pretty_fn::is_implicit(expr const & f) {
 bool pretty_fn::is_prop(expr const & e) {
     try {
         return m_env.impredicative() && m_tc.is_prop(e).first;
-    } catch (...) {
+    } catch (exception &) {
         return false;
     }
 }
@@ -251,15 +251,19 @@ auto pretty_fn::pp_local(expr const & e) -> result {
 static name g_tmp_prefix = name::mk_internal_unique_name();
 bool pretty_fn::has_implicit_args(expr const & f) {
     name_generator ngen(g_tmp_prefix);
-    expr type = m_tc.whnf(m_tc.infer(f).first).first;
-    while (is_pi(type)) {
-        binder_info bi = binding_info(type);
-        if (bi.is_implicit() || bi.is_strict_implicit())
-            return true;
-        expr local = mk_local(ngen.next(), binding_name(type), binding_domain(type), binding_info(type));
-        type = m_tc.whnf(instantiate(binding_body(type), local)).first;
+    try {
+        expr type = m_tc.whnf(m_tc.infer(f).first).first;
+        while (is_pi(type)) {
+            binder_info bi = binding_info(type);
+            if (bi.is_implicit() || bi.is_strict_implicit())
+                return true;
+            expr local = mk_local(ngen.next(), binding_name(type), binding_domain(type), binding_info(type));
+            type = m_tc.whnf(instantiate(binding_body(type), local)).first;
+        }
+        return false;
+    } catch (exception &) {
+        return false;
     }
-    return false;
 }
 
 auto pretty_fn::pp_app(expr const & e) -> result {

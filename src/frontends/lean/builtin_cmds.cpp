@@ -46,6 +46,8 @@ static name g_renaming("renaming");
 static name g_as("as");
 static name g_colon(":");
 
+static name g_persistent("[persistent]");
+
 environment print_cmd(parser & p) {
     if (p.curr() == scanner::token_kind::String) {
         p.regular_stream() << p.get_str_val() << endl;
@@ -129,7 +131,8 @@ environment set_option_cmd(parser & p) {
         name lean_id = name("lean") + id;
         decl_it = get_option_declarations().find(lean_id);
         if (decl_it == get_option_declarations().end()) {
-            throw parser_error(sstream() << "unknown option '" << id << "', type 'help options.' for list of available options", id_pos);
+            throw parser_error(sstream() << "unknown option '" << id
+                               << "', type 'help options.' for list of available options", id_pos);
         } else {
             id = lean_id;
         }
@@ -293,14 +296,26 @@ environment open_export_cmd(parser & p, bool open) {
 environment open_cmd(parser & p) { return open_export_cmd(p, true); }
 environment export_cmd(parser & p) { return open_export_cmd(p, false); }
 
+bool parse_persistent(parser & p, bool & persistent) {
+    if (p.curr_is_token_or_id(g_persistent)) {
+        p.next();
+        persistent = true;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 environment coercion_cmd(parser & p) {
+    bool persistent = false;
+    parse_persistent(p, persistent);
     name f   = p.check_constant_next("invalid 'coercion' command, constant expected");
     if (p.curr_is_token(g_colon)) {
         p.next();
         name C = p.check_constant_next("invalid 'coercion' command, constant expected");
-        return add_coercion(p.env(), f, C, p.ios());
+        return add_coercion(p.env(), f, C, p.ios(), persistent);
     } else {
-        return add_coercion(p.env(), f, p.ios());
+        return add_coercion(p.env(), f, p.ios(), persistent);
     }
 }
 

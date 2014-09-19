@@ -35,9 +35,12 @@ namespace lean {
    \pre \c f is a constant defined in \c env.
 
    \remark \c ios is used to report warning messages.
+
+   \remark if persistent == true, then coercion is saved in .olean files
 */
-environment add_coercion(environment const & env, name const & f, io_state const & ios);
-environment add_coercion(environment const & env, name const & f, name const & C, io_state const & ios);
+environment add_coercion(environment const & env, name const & f, io_state const & ios, bool persistent = true);
+environment add_coercion(environment const & env, name const & f, name const & C, io_state const & ios,
+                         bool persistent = true);
 /** \brief If \c f is a coercion, then return the name of the 'from-class' and the number of
     class parameters.
 */

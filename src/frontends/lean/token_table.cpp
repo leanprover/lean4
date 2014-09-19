@@ -78,7 +78,7 @@ token_table init_token_table() {
          {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {nullptr, 0}};
 
     char const * commands[] = {"theorem", "axiom", "variable", "definition", "coercion",
-                               "variables", "[private]", "[protected]", "[inline]", "[visible]", "[instance]",
+                               "variables", "[persistent]", "[private]", "[protected]", "[inline]", "[visible]", "[instance]",
                                "[class]", "[coercion]", "abbreviation", "opaque", "transparent",
                                "evaluate", "check", "print", "end", "namespace", "section", "import",
                                "abbreviation", "inductive", "record", "renaming", "extends", "structure", "module", "universe",

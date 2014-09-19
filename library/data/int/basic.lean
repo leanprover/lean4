@@ -203,13 +203,11 @@ exists_intro (pr1 (rep a))
       a = psub (rep a) : (psub_rep a)⁻¹
     ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {(prod_ext (rep a))⁻¹}))
 
-definition of_nat (n : ℕ) : ℤ := psub (pair n 0)
-
 theorem has_decidable_eq [instance] [protected] : decidable_eq ℤ :=
 take a b : ℤ, _
 
 opaque int
-coercion of_nat
+definition of_nat [coercion] (n : ℕ) : ℤ := psub (pair n 0)
 
 theorem eq_zero_intro (n : ℕ) : psub (pair n n) = 0 :=
 have H : rel (pair n n) (pair 0 0), by simp,

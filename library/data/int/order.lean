@@ -614,8 +614,6 @@ or.elim (em (a = 0))
         have H3 : (to_nat (a * b)) ≠ of_nat 0, from mt of_nat_inj H2,
         mul_cancel_right H3 H))
 
---set_option pp::coercion true
-
 theorem sign_idempotent (a : ℤ) : sign (sign a) = sign a :=
 have temp : of_nat 1 > 0, from iff.elim_left (iff.symm (lt_of_nat 0 1)) succ_pos,
     --this should be done with simp

@@ -361,11 +361,11 @@ struct coercion_config {
 template class scoped_ext<coercion_config>;
 typedef scoped_ext<coercion_config> coercion_ext;
 
-environment add_coercion(environment const & env, name const & f, name const & C, io_state const & ios) {
-    return coercion_ext::add_entry(env, ios, coercion_entry(f, C));
+environment add_coercion(environment const & env, name const & f, name const & C, io_state const & ios, bool persistent) {
+    return coercion_ext::add_entry(env, ios, coercion_entry(f, C), persistent);
 }
 
-environment add_coercion(environment const & env, name const & f, io_state const & ios) {
+environment add_coercion(environment const & env, name const & f, io_state const & ios, bool persistent) {
     declaration d = env.get(f);
     expr t = d.get_type();
     check_pi(f, t);
@@ -383,10 +383,10 @@ environment add_coercion(environment const & env, name const & f, io_state const
         --i;
         if (i == 0) {
             // last alternative
-            return add_coercion(env, f, Cs[i], ios);
+            return add_coercion(env, f, Cs[i], ios, persistent);
         } else {
             try {
-                return add_coercion(env, f, Cs[i], ios);
+                return add_coercion(env, f, Cs[i], ios, persistent);
             } catch (exception &) {
                 // failed, keep trying...
             }

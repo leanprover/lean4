@@ -14,60 +14,78 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 
 namespace lean {
-mutex g_code_mutex;
-std::vector<pair<bool, std::string>> g_code;
-mutex g_state_mutex;
-std::vector<script_state> g_states;
-std::vector<script_state> g_available_states;
+struct script_state_manager {
+    static bool                          g_alive;
+    mutex                                m_code_mutex;
+    std::vector<pair<bool, std::string>> m_code;
+    mutex                                m_state_mutex;
+    std::vector<script_state>            m_states;
+    std::vector<script_state>            m_available_states;
+    script_state_manager() { g_alive = true; }
+    ~script_state_manager() { g_alive = false; }
+    static bool is_alive() { return g_alive; }
+};
+
+script_state_manager & get_script_state_manager() {
+    static script_state_manager m;
+    return m;
+}
+
+// make sure it is initialize at startup.
+static script_state_manager & g_aux = get_script_state_manager();
+bool script_state_manager::g_alive  = true;
 
 /** \brief Execute \c code in all states in the pool */
 void system_dostring(char const * code) {
+    script_state_manager & m = get_script_state_manager();
     {
         // Execute code in all existing states
-        lock_guard<mutex> lk(g_state_mutex);
-        for (auto & s : g_states) {
+        lock_guard<mutex> lk(m.m_state_mutex);
+        for (auto & s : m.m_states) {
             s.dostring(code);
         }
     }
     {
         // Save code for future states
-        lock_guard<mutex> lk(g_code_mutex);
-        g_code.push_back(mk_pair(true, code));
+        lock_guard<mutex> lk(m.m_code_mutex);
+        m.m_code.push_back(mk_pair(true, code));
     }
 }
 
 /** \brief Import \c fname in all states in the pool */
 void system_import(char const * fname) {
+    script_state_manager & m = get_script_state_manager();
     {
         // Import file in all existing states
-        lock_guard<mutex> lk(g_state_mutex);
-        for (auto & s : g_states) {
+        lock_guard<mutex> lk(m.m_state_mutex);
+        for (auto & s : m.m_states) {
             s.import_explicit(fname);
         }
     }
     {
         // Save module for future states
-        lock_guard<mutex> lk(g_code_mutex);
-        g_code.push_back(mk_pair(false, fname));
+        lock_guard<mutex> lk(m.m_code_mutex);
+        m.m_code.push_back(mk_pair(false, fname));
     }
 }
 
 static script_state get_state() {
+    script_state_manager & m = get_script_state_manager();
     {
         // Try to reuse existing state
-        lock_guard<mutex> lk(g_state_mutex);
-        if (!g_available_states.empty()) {
-            script_state r(g_available_states.back());
-            g_available_states.pop_back();
+        lock_guard<mutex> lk(m.m_state_mutex);
+        if (!m.m_available_states.empty()) {
+            script_state r(m.m_available_states.back());
+            m.m_available_states.pop_back();
             return r;
         }
     }
 
     {
         // Execute existing code in new state
-        lock_guard<mutex> lk(g_code_mutex);
+        lock_guard<mutex> lk(m.m_code_mutex);
         script_state r;
-        for (auto const & p : g_code) {
+        for (auto const & p : m.m_code) {
             if (p.first)
                 r.dostring(p.second.c_str());
             else
@@ -75,23 +93,18 @@ static script_state get_state() {
         }
         {
             // save new state in vector of all states
-            lock_guard<mutex> lk(g_state_mutex);
-            g_states.push_back(r);
+            lock_guard<mutex> lk(m.m_state_mutex);
+            m.m_states.push_back(r);
         }
         return r;
     }
 }
 
-static bool g_recycle_state = true;
-
-void enable_script_state_recycling(bool flag) {
-    g_recycle_state = flag;
-}
-
 static void recycle_state(script_state s) {
-    if (g_recycle_state) {
-        lock_guard<mutex> lk(g_state_mutex);
-        g_available_states.push_back(s);
+    if (script_state_manager::is_alive()) {
+        script_state_manager & m = get_script_state_manager();
+        lock_guard<mutex> lk(m.m_state_mutex);
+        m.m_available_states.push_back(s);
     }
 }
 

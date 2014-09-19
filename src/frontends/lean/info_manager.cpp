@@ -590,7 +590,7 @@ struct info_manager::imp {
             auto next = it;
             next++;
             if (next == m_env_info.end() || next->m_line > linenum)
-                return optional<pair<environment, options>>(mk_pair(it->m_env, it->m_options));
+                return optional<pair<environment, options>>(mk_pair(next->m_env, next->m_options));
             it = next;
         }
     }

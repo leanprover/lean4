@@ -9,14 +9,18 @@
 
 (defun lean-flycheck-command ()
   "Concat lean-flychecker-checker-name with options"
-  (cl-concatenate 'list
-                  `(,(lean-get-executable lean-flycheck-checker-name))
-                  lean-flycheck-checker-options
-                  '("--cache")
-                  '(source-original)
-                  '((eval (lean-option-string)))
-                  '("--")
-                  '(source-inplace)))
+  (let ((command
+         (cl-concatenate 'list
+                         `(,(lean-get-executable lean-flycheck-checker-name))
+                         lean-flycheck-checker-options
+                         '("--cache")
+                         '(source-original)
+                         '((eval (lean-option-string)))
+                         '("--")
+                         '(source-inplace))))
+    (when (string= system-type "windows-nt")
+      (setq command (cons "python" command)))
+    command))
 
 (defun lean-flycheck-init ()
   "Initialize lean-flychek checker"
@@ -25,15 +29,25 @@
       "A Lean syntax checker."
       :command ,(lean-flycheck-command)
       :error-patterns
-      ((error line-start "FLYCHECK_BEGIN ERROR\n"
+      ;; ((error line-start "FLYCHECK_BEGIN ERROR" (? "\r") "\n"
+      ;;         (file-name) ":" line ":" (? column ":") " error: "
+      ;;         (minimal-match
+      ;;          (message (+ (+ not-newline) (? "\r") "\n")))
+      ;;         "FLYCHECK_END" line-end)
+      ;;  (warning line-start "FLYCHECK_BEGIN WARNING" (? "\r") "\n"
+      ;;           (file-name) ":" line ":" (? column ":") " warning "
+      ;;           (minimal-match
+      ;;            (message (+ (* not-newline) (? "\r") "\n") ))
+      ;;           "FLYCHECK_END" line-end))
+      ((error line-start "FLYCHECK_BEGIN ERROR" (? "\r") "\n"
               (file-name) ":" line ":" (? column ":") " error: "
               (minimal-match
-               (message (one-or-more (one-or-more not-newline) "\n") ))
+               (message (one-or-more (one-or-more not-newline) (? "\r") "\n")))
               "FLYCHECK_END" line-end)
-       (warning line-start "FLYCHECK_BEGIN WARNING\n"
+       (warning line-start "FLYCHECK_BEGIN WARNING" (? "\r") "\n"
                 (file-name) ":" line ":" (? column ":") " warning "
                 (minimal-match
-                 (message (one-or-more (one-or-more not-newline) "\n") ))
+                 (message (one-or-more (one-or-more not-newline) (? "\r") "\n")))
                 "FLYCHECK_END" line-end))
       :modes (lean-mode)))
   (add-to-list 'flycheck-checkers 'lean-checker))

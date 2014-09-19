@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "library/standard_kernel.h"
-#include "library/hott_kernel.h"
 #include "library/occurs.h"
 #include "library/io_state_stream.h"
 #include "library/expr_lt.h"
@@ -1043,7 +1042,6 @@ static unsigned get_trust_lvl(lua_State * L, int i) {
     return trust_lvl;
 }
 static int mk_environment(lua_State * L)      { return push_environment(L, mk_environment(get_trust_lvl(L, 1))); }
-static int mk_hott_environment(lua_State * L) { return push_environment(L, mk_hott_environment(get_trust_lvl(L, 1))); }
 
 static int environment_forget(lua_State * L) { return push_environment(L, to_environment(L, 1).forget()); }
 static int environment_whnf(lua_State * L) { return push_ecs(L, type_checker(to_environment(L, 1)).whnf(to_expr(L, 2))); }
@@ -1108,10 +1106,6 @@ static int import_modules(lua_State * L) {
         return import_modules(to_environment(L, 1), L, 2);
     else
         return import_modules(mk_environment(), L, 1);
-}
-
-static int import_hott_modules(lua_State * L) {
-    return import_modules(mk_hott_environment(), L, 1);
 }
 
 static int export_module(lua_State * L) {
@@ -1199,14 +1193,12 @@ static void open_environment(lua_State * L) {
 
     SET_GLOBAL_FUN(mk_bare_environment,    "bare_environment");
     SET_GLOBAL_FUN(mk_environment,         "environment");
-    SET_GLOBAL_FUN(mk_hott_environment,    "hott_environment");
     SET_GLOBAL_FUN(environment_pred,       "is_environment");
     SET_GLOBAL_FUN(get_environment,        "get_environment");
     SET_GLOBAL_FUN(get_environment,        "get_env");
     SET_GLOBAL_FUN(set_environment,        "set_environment");
     SET_GLOBAL_FUN(set_environment,        "set_env");
     SET_GLOBAL_FUN(import_modules,         "import_modules");
-    SET_GLOBAL_FUN(import_hott_modules,    "import_hott_modules");
     SET_GLOBAL_FUN(export_module,          "export_module");
 }
 

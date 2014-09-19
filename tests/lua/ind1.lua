@@ -143,16 +143,3 @@ local tc = type_checker(env2)
 assert(tc:is_def_eq(length(nil_nat), zero))
 assert(tc:is_def_eq(length(cons_nat(zero, nil_nat)), succ(zero)))
 assert(tc:is_def_eq(length(cons_nat(zero, cons_nat(zero, nil_nat))), succ(succ(zero))))
-
--- Martin-Lof style identity type
-local env  = hott_environment()
-local Id_l = Const("Id", {l})
-local A = Local("A", U_l)
-local a = Local("a", A)
-local b = Local("b", A)
-env = env:add_universe("u")
-env = env:add_universe("v")
-env = add_inductive(env,
-                    "Id", {l}, 1, Pi(A, a, b, U_l),
-                    "Id_refl", Pi(A, b, Id_l(A, b, b)))
-display_type(env, Const({"Id", "rec"}, {v, u}))

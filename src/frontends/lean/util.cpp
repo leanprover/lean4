@@ -17,6 +17,18 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 
 namespace lean {
+static name g_persistent("[persistent]");
+
+bool parse_persistent(parser & p, bool & persistent) {
+    if (p.curr_is_token_or_id(g_persistent)) {
+        p.next();
+        persistent = true;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void check_atomic(name const & n) {
     if (!n.is_atomic())
         throw exception(sstream() << "invalid declaration name '" << n << "', identifier must be atomic");

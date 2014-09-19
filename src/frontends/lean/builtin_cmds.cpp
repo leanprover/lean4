@@ -46,8 +46,6 @@ static name g_renaming("renaming");
 static name g_as("as");
 static name g_colon(":");
 
-static name g_persistent("[persistent]");
-
 environment print_cmd(parser & p) {
     if (p.curr() == scanner::token_kind::String) {
         p.regular_stream() << p.get_str_val() << endl;
@@ -295,16 +293,6 @@ environment open_export_cmd(parser & p, bool open) {
 }
 environment open_cmd(parser & p) { return open_export_cmd(p, true); }
 environment export_cmd(parser & p) { return open_export_cmd(p, false); }
-
-bool parse_persistent(parser & p, bool & persistent) {
-    if (p.curr_is_token_or_id(g_persistent)) {
-        p.next();
-        persistent = true;
-        return true;
-    } else {
-        return false;
-    }
-}
 
 environment coercion_cmd(parser & p) {
     bool persistent = false;

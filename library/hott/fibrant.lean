@@ -22,14 +22,12 @@ axiom sigma_fibrant {A : Type} {B : A → Type} (C1 : fibrant A) (C2 : Πx : A, 
 axiom pi_fibrant {A : Type} {B : A → Type} (C1 : fibrant A) (C2 : Πx : A, fibrant (B x)) :
   fibrant (Πx : A, B x)
 
-instance unit_fibrant
-instance nat_fibrant
-instance bool_fibrant
-instance sum_fibrant
-instance prod_fibrant
-instance sigma_fibrant
-instance pi_fibrant
-
-theorem test_fibrant : fibrant (nat × (nat ⊎ nat)) := _
+instance [persistent] unit_fibrant
+instance [persistent] nat_fibrant
+instance [persistent] bool_fibrant
+instance [persistent] sum_fibrant
+instance [persistent] prod_fibrant
+instance [persistent] sigma_fibrant
+instance [persistent] pi_fibrant
 
 end fibrant

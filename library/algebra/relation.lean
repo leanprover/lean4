@@ -63,41 +63,29 @@ end is_transitive
 inductive is_equivalence {T : Type} (R : T → T → Type) : Prop :=
 mk : is_reflexive R → is_symmetric R → is_transitive R → is_equivalence R
 
-namespace is_equivalence
+theorem is_equivalence.is_reflexive [instance]
+        {T : Type} (R : T → T → Type) {C : is_equivalence R} : is_reflexive R :=
+is_equivalence.rec (λx y z, x) C
 
-  theorem is_reflexive {T : Type} (R : T → T → Type) {C : is_equivalence R} : is_reflexive R :=
-  is_equivalence.rec (λx y z, x) C
+theorem is_equivalence.is_symmetric [instance]
+        {T : Type} {R : T → T → Type} {C : is_equivalence R} : is_symmetric R :=
+is_equivalence.rec (λx y z, y) C
 
-  theorem is_symmetric {T : Type} {R : T → T → Type} {C : is_equivalence R} : is_symmetric R :=
-  is_equivalence.rec (λx y z, y) C
-
-  theorem is_transitive {T : Type} {R : T → T → Type} {C : is_equivalence R} : is_transitive R :=
-  is_equivalence.rec (λx y z, z) C
-
-end is_equivalence
-
-instance is_equivalence.is_reflexive
-instance is_equivalence.is_symmetric
-instance is_equivalence.is_transitive
-
+theorem is_equivalence.is_transitive [instance]
+       {T : Type} {R : T → T → Type} {C : is_equivalence R} : is_transitive R :=
+is_equivalence.rec (λx y z, z) C
 
 -- partial equivalence relation
 inductive is_PER {T : Type} (R : T → T → Type) : Prop :=
 mk : is_symmetric R → is_transitive R → is_PER R
 
-namespace is_PER
+theorem is_PER.is_symmetric [instance]
+        {T : Type} {R : T → T → Type} {C : is_PER R} : is_symmetric R :=
+is_PER.rec (λx y, x) C
 
-  theorem is_symmetric {T : Type} {R : T → T → Type} {C : is_PER R} : is_symmetric R :=
-  is_PER.rec (λx y, x) C
-
-  theorem is_transitive {T : Type} {R : T → T → Type} {C : is_PER R} : is_transitive R :=
+theorem is_PER.is_transitive [instance]
+        {T : Type} {R : T → T → Type} {C : is_PER R} : is_transitive R :=
   is_PER.rec (λx y, y) C
-
-end is_PER
-
-instance is_PER.is_symmetric
-instance is_PER.is_transitive
-
 
 -- Congruence for unary and binary functions
 -- -----------------------------------------

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 #include "library/opaque_hints.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/util.h"
 #include "frontends/lean/tactic_hint.h"
 
 namespace lean {
@@ -91,13 +92,13 @@ name get_class_name(environment const & env, expr const & e) {
     return c_name;
 }
 
-environment add_class(environment const & env, name const & n) {
+environment add_class(environment const & env, name const & n, bool persistent) {
     check_class(env, n);
-    return class_ext::add_entry(env, get_dummy_ios(), class_entry(n));
+    return class_ext::add_entry(env, get_dummy_ios(), class_entry(n), persistent);
 }
 
 static name g_tmp_prefix = name::mk_internal_unique_name();
-environment add_instance(environment const & env, name const & n) {
+environment add_instance(environment const & env, name const & n, bool persistent) {
     declaration d = env.get(n);
     expr type = d.get_type();
     name_generator ngen(g_tmp_prefix);
@@ -109,7 +110,7 @@ environment add_instance(environment const & env, name const & n) {
         type = instantiate(binding_body(type), mk_local(ngen.next(), binding_domain(type)));
     }
     name c = get_class_name(env, get_app_fn(type));
-    return class_ext::add_entry(env, get_dummy_ios(), class_entry(c, n));
+    return class_ext::add_entry(env, get_dummy_ios(), class_entry(c, n), persistent);
 }
 
 bool is_class(environment const & env, name const & c) {
@@ -124,24 +125,29 @@ list<name> get_class_instances(environment const & env, name const & c) {
 
 environment add_instance_cmd(parser & p) {
     bool found = false;
+    bool persistent = false;
+    parse_persistent(p, persistent);
     environment env = p.env();
     while (p.curr_is_identifier()) {
         found    = true;
         name c   = p.check_constant_next("invalid 'class instance' declaration, constant expected");
-        env = add_instance(env, c);
+        env = add_instance(env, c, persistent);
     }
     if (!found)
         throw parser_error("invalid 'class instance' declaration, at least one identifier expected", p.pos());
     return env;
 }
 
+
 environment add_class_cmd(parser & p) {
     bool found = false;
     environment env = p.env();
+    bool persistent = false;
+    parse_persistent(p, persistent);
     while (p.curr_is_identifier()) {
         found    = true;
         name c   = p.check_constant_next("invalid 'class' declaration, constant expected");
-        env = add_class(env, c);
+        env = add_class(env, c, persistent);
     }
     if (!found)
         throw parser_error("invalid 'class' declaration, at least one identifier expected", p.pos());

@@ -12,6 +12,12 @@ Author: Leonardo de Moura
 namespace lean {
 class parser;
 typedef std::unique_ptr<type_checker> type_checker_ptr;
+
+/** \brief Parse optional '[persistent]' modifier.
+    return true if it is was found, and paremeter \c persistent to true.
+*/
+bool parse_persistent(parser & p, bool & persistent);
+
 void check_atomic(name const & n);
 void check_in_section_or_context(parser const & p);
 bool is_root_namespace(name const & n);

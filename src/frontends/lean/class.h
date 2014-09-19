@@ -12,9 +12,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \brief Add a new 'class' to the environment (if it is not already declared) */
-environment add_class(environment const & env, name const & n);
+environment add_class(environment const & env, name const & n, bool persistent = true);
 /** \brief Add a new 'class instance' to the environment. */
-environment add_instance(environment const & env, name const & n);
+environment add_instance(environment const & env, name const & n, bool persistent = true);
 /** \brief Return true iff \c c was declared with \c add_class . */
 bool is_class(environment const & env, name const & c);
 /** \brief Return the instances of the given class. */

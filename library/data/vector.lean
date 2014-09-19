@@ -4,49 +4,49 @@
 import data.nat.basic data.empty
 open nat eq_ops
 
-inductive vec (T : Type) : ℕ → Type :=
-  nil {} : vec T 0,
-  cons : T → ∀{n}, vec T n → vec T (succ n)
+inductive vector (T : Type) : ℕ → Type :=
+  nil {} : vector T 0,
+  cons : T → ∀{n}, vector T n → vector T (succ n)
 
-namespace vec
+namespace vector
   infix `::` := cons --at what level?
   notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 
-  section sc_vec
+  section sc_vector
   variable {T : Type}
 
-  protected theorem rec_on {C : ∀ (n : ℕ), vec T n → Type} {n : ℕ} (v : vec T n) (Hnil : C 0 nil)
-    (Hcons : ∀(x : T) {n : ℕ} (w : vec T n), C n w → C (succ n) (cons x w)) : C n v :=
+  protected theorem rec_on {C : ∀ (n : ℕ), vector T n → Type} {n : ℕ} (v : vector T n) (Hnil : C 0 nil)
+    (Hcons : ∀(x : T) {n : ℕ} (w : vector T n), C n w → C (succ n) (cons x w)) : C n v :=
   rec Hnil Hcons v
 
-  protected theorem induction_on {C : ∀ (n : ℕ), vec T n → Prop} {n : ℕ} (v : vec T n) (Hnil : C 0 nil)
-    (Hcons : ∀(x : T) {n : ℕ} (w : vec T n), C n w → C (succ n) (cons x w)) : C n v :=
+  protected theorem induction_on {C : ∀ (n : ℕ), vector T n → Prop} {n : ℕ} (v : vector T n) (Hnil : C 0 nil)
+    (Hcons : ∀(x : T) {n : ℕ} (w : vector T n), C n w → C (succ n) (cons x w)) : C n v :=
   rec_on v Hnil Hcons
 
-  protected theorem case_on {C : ∀ (n : ℕ), vec T n → Type} {n : ℕ} (v : vec T n) (Hnil : C 0 nil)
-    (Hcons : ∀(x : T) {n : ℕ} (w : vec T n), C (succ n) (cons x w)) : C n v :=
+  protected theorem case_on {C : ∀ (n : ℕ), vector T n → Type} {n : ℕ} (v : vector T n) (Hnil : C 0 nil)
+    (Hcons : ∀(x : T) {n : ℕ} (w : vector T n), C (succ n) (cons x w)) : C n v :=
   rec_on v Hnil (take x n v IH, Hcons x v)
 
-  protected theorem is_inhabited [instance] (A : Type) (H : inhabited A) (n : nat) : inhabited (vec A n) :=
+  protected theorem is_inhabited [instance] (A : Type) (H : inhabited A) (n : nat) : inhabited (vector A n) :=
   nat.rec_on n
-    (inhabited.mk (@vec.nil A))
-    (λ (n : nat) (iH : inhabited (vec A n)),
+    (inhabited.mk (@vector.nil A))
+    (λ (n : nat) (iH : inhabited (vector A n)),
       inhabited.destruct H
         (λa, inhabited.destruct iH
-          (λv, inhabited.mk (vec.cons a v))))
+          (λv, inhabited.mk (vector.cons a v))))
 
-  private theorem case_zero_lem {C : vec T 0 → Type} {n : ℕ} (v : vec T n) (Hnil : C nil) :
-    ∀ H : n = 0, C (cast (congr_arg (vec T) H) v) :=
+  private theorem case_zero_lem {C : vector T 0 → Type} {n : ℕ} (v : vector T n) (Hnil : C nil) :
+    ∀ H : n = 0, C (cast (congr_arg (vector T) H) v) :=
   rec_on v (take H : 0 = 0, (eq.rec Hnil (cast_eq _ nil⁻¹)))
-  (take (x : T) (n : ℕ) (w : vec T n) IH (H : succ n = 0),
+  (take (x : T) (n : ℕ) (w : vector T n) IH (H : succ n = 0),
      false.rec_type _ (absurd H succ_ne_zero))
 
-  theorem case_zero {C : vec T 0 → Type} (v : vec T 0) (Hnil : C nil) : C v :=
+  theorem case_zero {C : vector T 0 → Type} (v : vector T 0) (Hnil : C nil) : C v :=
   eq.rec (case_zero_lem v Hnil (eq.refl 0)) (cast_eq _ v)
 
-  private theorem rec_nonempty_lem {C : Π{n}, vec T (succ n) → Type} {n : ℕ} (v : vec T n)
-    (Hone : Πa, C [a]) (Hcons : Πa {n} (v : vec T (succ n)), C v → C (a :: v))
-    : ∀{m} (H : n = succ m), C (cast (congr_arg (vec T) H) v) :=
+  private theorem rec_nonempty_lem {C : Π{n}, vector T (succ n) → Type} {n : ℕ} (v : vector T n)
+    (Hone : Πa, C [a]) (Hcons : Πa {n} (v : vector T (succ n)), C v → C (a :: v))
+    : ∀{m} (H : n = succ m), C (cast (congr_arg (vector T) H) v) :=
   case_on v (take m (H : 0 = succ m), false.rec_type _ (absurd (H⁻¹) succ_ne_zero))
     (take x n v m H,
       have H2 : C (x::v), from
@@ -54,24 +54,24 @@ namespace vec
         -- rec_on v
         --   (Hone x)
         --   (take y n w IH, Hcons x (y::w)),
-      show C (cast (congr_arg (vec T) H) (x::v)), from
+      show C (cast (congr_arg (vector T) H) (x::v)), from
         sorry
     )
 
-  theorem rec_nonempty {C : Π{n}, vec T (succ n) → Type} {n : ℕ} (v : vec T (succ n))
-    (Hone : Πa, C [a]) (Hcons : Πa {n} (v : vec T (succ n)), C v → C (a :: v)) : C v :=
+  theorem rec_nonempty {C : Π{n}, vector T (succ n) → Type} {n : ℕ} (v : vector T (succ n))
+    (Hone : Πa, C [a]) (Hcons : Πa {n} (v : vector T (succ n)), C v → C (a :: v)) : C v :=
   sorry
 
-  private theorem case_succ_lem {C : Π{n}, vec T (succ n) → Type} {n : ℕ} (v : vec T n)
-    (H : Πa {n} (v : vec T n), C (a :: v))
-    : ∀{m} (H : n = succ m), C (cast (congr_arg (vec T) H) v) :=
+  private theorem case_succ_lem {C : Π{n}, vector T (succ n) → Type} {n : ℕ} (v : vector T n)
+    (H : Πa {n} (v : vector T n), C (a :: v))
+    : ∀{m} (H : n = succ m), C (cast (congr_arg (vector T) H) v) :=
   sorry
 
-  theorem case_succ {C : Π{n}, vec T (succ n) → Type} {n : ℕ} (v : vec T (succ n))
-    (H : Πa {n} (v : vec T n), C (a :: v)) : C v :=
+  theorem case_succ {C : Π{n}, vector T (succ n) → Type} {n : ℕ} (v : vector T (succ n))
+    (H : Πa {n} (v : vector T n), C (a :: v)) : C v :=
   sorry
 
-  theorem vec0_eq_nil (v : vec T 0) : v = nil :=
+  theorem vector0_eq_nil (v : vector T 0) : v = nil :=
   case_zero v rfl
 
   -- Concat
@@ -80,14 +80,14 @@ namespace vec
   definition cast_subst {A : Type} {P : A → Type} {a a' : A} (H : a = a') (B : P a) : P a' :=
   cast (congr_arg P H) B
 
-  definition concat {n m : ℕ} (v : vec T n) (w : vec T m) : vec T (n + m) :=
-  vec.rec (cast_subst (add_zero_left⁻¹) w) (λx n w' u, cast_subst (add_succ_left⁻¹) (x::u)) v
+  definition concat {n m : ℕ} (v : vector T n) (w : vector T m) : vector T (n + m) :=
+  vector.rec (cast_subst (add_zero_left⁻¹) w) (λx n w' u, cast_subst (add_succ_left⁻¹) (x::u)) v
 
   infixl `++`:65 := concat
 
-  theorem nil_concat {n : ℕ} (v : vec T n) : nil ++ v = cast_subst (add_zero_left⁻¹) v := rfl
+  theorem nil_concat {n : ℕ} (v : vector T n) : nil ++ v = cast_subst (add_zero_left⁻¹) v := rfl
 
-  theorem cons_concat {n m : ℕ} (x : T) (v : vec T n) (w : vec T m)
+  theorem cons_concat {n m : ℕ} (x : T) (v : vector T n) (w : vector T m)
     : (x :: v) ++ w = cast_subst (add_succ_left⁻¹) (x::(v++w)) := rfl
 
 /-
@@ -111,7 +111,7 @@ namespace vec
   -- Length
   -- ------
 
-  definition length {n : ℕ} (v : vec T n) := n
+  definition length {n : ℕ} (v : vector T n) := n
 
   theorem length_nil : length (@nil T) = 0 := rfl
 
@@ -320,6 +320,6 @@ namespace vec
 
 -- theorem nth_succ (x0 : T) (l : list T) (n : ℕ) : nth x0 l (succ n) = nth x0 (tail l) n := refl _
 
-  end sc_vec
+  end sc_vector
   infixl `++`:65 := concat
-end vec
+end vector

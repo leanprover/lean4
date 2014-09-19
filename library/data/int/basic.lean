@@ -184,11 +184,11 @@ representative_map_idempotent_equiv proj_rel @proj_congr a
 
 -- ## Definition of ℤ and basic theorems and definitions
 
-definition int [opaque] [protected] := image proj
+opaque definition int [protected] := image proj
 notation `ℤ` := int
 
-definition psub [opaque] : ℕ × ℕ → ℤ := fun_image proj
-definition rep [opaque] : ℤ → ℕ × ℕ := subtype.elt_of
+opaque definition psub : ℕ × ℕ → ℤ := fun_image proj
+opaque definition rep  : ℤ → ℕ × ℕ := subtype.elt_of
 
 theorem quotient : is_quotient rel psub rep :=
 representative_map_to_quotient_equiv rel_equiv proj_rel @proj_congr

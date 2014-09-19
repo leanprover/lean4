@@ -607,20 +607,6 @@ struct default_converter : public converter {
             }
         }
 
-        list<name> const & cls_proof_irrel = m_env.cls_proof_irrel();
-        if (!is_nil(cls_proof_irrel)) {
-            // Proof irrelevance support for classes
-            auto tcs    = infer_type(c, t);
-            auto wcs    = whnf(tcs.first, c);
-            expr t_type = wcs.first;
-            if (std::any_of(cls_proof_irrel.begin(), cls_proof_irrel.end(), [&](name const & cls_name) { return is_app_of(t_type, cls_name); })) {
-                auto ccs = infer_type(c, s);
-                auto cs_prime = tcs.second + wcs.second + ccs.second;
-                if (is_def_eq(t_type, ccs.first, c, jst, cs_prime))
-                    return to_bcs(true, cs_prime);
-            }
-        }
-
         if (may_reduce_later(t_n, c) || may_reduce_later(s_n, c) || delay_check) {
             cs = cs + constraint_seq(mk_eq_cnstr(t_n, s_n, jst.get()));
             return to_bcs(true, cs);

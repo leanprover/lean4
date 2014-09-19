@@ -1010,7 +1010,6 @@ DECL_UDATA(environment)
 static int environment_is_descendant(lua_State * L) { return push_boolean(L, to_environment(L, 1).is_descendant(to_environment(L, 2))); }
 static int environment_trust_lvl(lua_State * L) { return push_integer(L, to_environment(L, 1).trust_lvl()); }
 static int environment_prop_proof_irrel(lua_State * L) { return push_boolean(L, to_environment(L, 1).prop_proof_irrel()); }
-static int environment_cls_proof_irrel(lua_State * L) { return push_list_name(L, to_environment(L, 1).cls_proof_irrel()); }
 static int environment_eta(lua_State * L) { return push_boolean(L, to_environment(L, 1).eta()); }
 static int environment_impredicative(lua_State * L) { return push_boolean(L, to_environment(L, 1).impredicative()); }
 static int environment_add_universe(lua_State * L) {
@@ -1032,8 +1031,7 @@ static int mk_bare_environment(lua_State * L) {
     bool prop_proof_irrel = get_bool_named_param(L, 1, "prop_proof_irrel", true);
     bool eta              = get_bool_named_param(L, 1, "eta", true);
     bool impredicative    = get_bool_named_param(L, 1, "impredicative", true);
-    list<name> const & cls_proof_irrel = get_list_name_named_param(L, 1, "cls_proof_irrel", list<name>());
-    return push_environment(L, environment(trust_lvl, prop_proof_irrel, eta, impredicative, cls_proof_irrel));
+    return push_environment(L, environment(trust_lvl, prop_proof_irrel, eta, impredicative));
 }
 static unsigned get_trust_lvl(lua_State * L, int i) {
     unsigned trust_lvl = 0;
@@ -1120,7 +1118,6 @@ static const struct luaL_Reg environment_m[] = {
     {"trust_lvl",             safe_function<environment_trust_lvl>},
     {"trust_level",           safe_function<environment_trust_lvl>},
     {"prop_proof_irrel",      safe_function<environment_prop_proof_irrel>},
-    {"cls_proof_irrel",       safe_function<environment_cls_proof_irrel>},
     {"eta",                   safe_function<environment_eta>},
     {"impredicative",         safe_function<environment_impredicative>},
     {"add_universe",          safe_function<environment_add_universe>},

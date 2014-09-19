@@ -18,7 +18,6 @@ environment mk_environment(unsigned trust_lvl) {
                                   true /* Type.{0} is proof irrelevant */,
                                   true /* Eta */,
                                   true /* Type.{0} is impredicative */,
-                                  list<name>() /* No type class has proof irrelevance */,
                                   /* builtin support for inductive and record datatypes */
                                   compose(std::unique_ptr<normalizer_extension>(new inductive_normalizer_extension()),
                                           std::unique_ptr<normalizer_extension>(new record_normalizer_extension())));

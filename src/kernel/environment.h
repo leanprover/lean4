@@ -45,17 +45,15 @@ class environment_header {
     bool m_prop_proof_irrel;  //!< true if the kernel assumes proof irrelevance for Prop (aka Type.{0})
     bool m_eta;               //!< true if the kernel uses eta-reduction in convertability checks
     bool m_impredicative;     //!< true if the kernel should treat (universe level 0) as a impredicative Prop.
-    list<name> m_cls_proof_irrel; //!< list of proof irrelevant classes, if we want Id types to be proof irrelevant, we the name 'Id' in this list.
     std::unique_ptr<normalizer_extension const> m_norm_ext;
     void dealloc();
 public:
     environment_header(unsigned trust_lvl, bool prop_proof_irrel, bool eta, bool impredicative,
-                       list<name> const & cls_proof_irrel, std::unique_ptr<normalizer_extension const> ext);
+                       std::unique_ptr<normalizer_extension const> ext);
     unsigned trust_lvl() const { return m_trust_lvl; }
     bool prop_proof_irrel() const { return m_prop_proof_irrel; }
     bool eta() const { return m_eta; }
     bool impredicative() const { return m_impredicative; }
-    list<name> const & cls_proof_irrel() const { return m_cls_proof_irrel; }
     normalizer_extension const & norm_ext() const { return *(m_norm_ext.get()); }
 };
 
@@ -115,9 +113,8 @@ class environment {
     environment(header const & h, environment_id const & id, declarations const & d, name_set const & global_levels, extensions const & ext);
 
 public:
-    environment(unsigned trust_lvl = 0, bool prop_proof_irrel = true, bool eta = true, bool impredicative = true,
-                list<name> const & cls_proof_irrel = list<name>());
-    environment(unsigned trust_lvl, bool prop_proof_irrel, bool eta, bool impredicative, list<name> const & cls_proof_irrel,
+    environment(unsigned trust_lvl = 0, bool prop_proof_irrel = true, bool eta = true, bool impredicative = true);
+    environment(unsigned trust_lvl, bool prop_proof_irrel, bool eta, bool impredicative,
                 std::unique_ptr<normalizer_extension> ext);
     ~environment();
 
@@ -132,9 +129,6 @@ public:
 
     /** \brief Return true iff the environment assumes proof irrelevance for Type.{0} (i.e., Prop) */
     bool prop_proof_irrel() const { return m_header->prop_proof_irrel(); }
-
-    /** \brief Return the list of classes marked as proof irrelevant */
-    list<name> const & cls_proof_irrel() const { return m_header->cls_proof_irrel(); }
 
     /** \brief Return true iff the environment assumes Eta-reduction */
     bool eta() const { return m_header->eta(); }

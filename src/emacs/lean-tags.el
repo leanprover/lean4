@@ -17,12 +17,21 @@
 (defun lean-generate-tags ()
   "Run linja TAGS and let emacs use the generated TAGS file."
   (interactive)
-  (let ((ltags-file-name (lean-get-executable "linja")))
+  (let* ((ltags-file-name (lean-get-executable "linja"))
+         ltags-command)
+    (setq ltags-command
+          (cond ((string= system-type "windows-nt")
+
+                 (append '("python" nil "*lean-tags*" nil)
+                         `(,ltags-file-name)
+                         lean-flycheck-checker-options
+                         '("tags")))
+                (t
+                 (append `(,ltags-file-name nil "*lean-tags*" nil)
+                         lean-flycheck-checker-options
+                         '("tags")))))
     (message "Generating TAGS...")
-    (apply 'call-process
-           (append `(,ltags-file-name nil "*lean-tags*" nil)
-                   lean-flycheck-checker-options
-                   '("TAGS")))
+    (apply 'call-process ltags-command)
     (message "TAGS generated.")
     (setq tags-table-list (lean-tags-table-list))))
 

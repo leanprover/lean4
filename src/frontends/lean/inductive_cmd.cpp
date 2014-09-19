@@ -19,7 +19,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/protected.h"
 #include "library/explicit.h"
-#include "library/opaque_hints.h"
+#include "library/reducible.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/class.h"
@@ -105,7 +105,7 @@ struct inductive_cmd_fn {
         m_u = mk_global_univ(u_name);
         m_infer_result_universe = false;
         m_namespace = get_namespace(m_env);
-        m_tc = mk_type_checker_with_hints(m_env, m_p.mk_ngen(), false);
+        m_tc = mk_type_checker(m_env, m_p.mk_ngen(), false);
     }
 
     [[ noreturn ]] void throw_error(char const * error_msg) { throw parser_error(error_msg, m_pos); }
@@ -451,7 +451,7 @@ struct inductive_cmd_fn {
             std::tie(d_name, d_type, std::ignore) = d;
             m_env = m_env.add(check(m_env, mk_var_decl(d_name, ls, d_type)));
         }
-        m_tc = mk_type_checker_with_hints(m_env, m_p.mk_ngen(), false);
+        m_tc = mk_type_checker(m_env, m_p.mk_ngen(), false);
     }
 
     /** \brief Traverse the introduction rule type and collect the universes where non-parameters reside in \c r_lvls.

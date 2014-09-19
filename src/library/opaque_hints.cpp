@@ -7,12 +7,13 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
+#include "library/module.h"
 
 namespace lean {
 struct opaque_hints_ext : public environment_extension {
-    name_set m_extra_opaque;
-    bool     m_hide_module;
-    opaque_hints_ext():m_hide_module(false) {}
+    name_set m_opaque;
+    name_set m_transparent;
+    opaque_hints_ext() {}
 };
 
 struct opaque_hints_ext_reg {
@@ -34,32 +35,39 @@ static void check_definition(environment const & env, name const & n) {
 environment hide_definition(environment const & env, name const & n) {
     check_definition(env, n);
     auto ext = get_extension(env);
-    ext.m_extra_opaque.insert(n);
+    ext.m_opaque.insert(n);
+    ext.m_transparent.erase(n);
     return update(env, ext);
 }
 environment expose_definition(environment const & env, name const & n) {
     check_definition(env, n);
     auto ext = get_extension(env);
-    if (!ext.m_extra_opaque.contains(n))
-        throw exception(sstream() << "invalid 'exposing' opaque/transparent, '" << n << "' is not in the 'extra opaque' set");
-    ext.m_extra_opaque.erase(n);
+    ext.m_opaque.erase(n);
+    ext.m_transparent.insert(n);
     return update(env, ext);
 }
-environment set_hide_main_opaque(environment const & env, bool f) {
-    auto ext = get_extension(env);
-    ext.m_hide_module = f;
-    return update(env, ext);
-}
-bool get_hide_main_opaque(environment const & env) {
-    return get_extension(env).m_hide_module;
+bool is_exposed(environment const & env, name const & n) {
+    auto const & ext = get_extension(env);
+    return ext.m_transparent.contains(n);
 }
 std::unique_ptr<type_checker> mk_type_checker_with_hints(environment const & env, name_generator const & ngen,
-                                                         bool relax_main_opaque) {
+                                                         bool relax_main_opaque, bool only_main_transparent) {
     auto const & ext = get_extension(env);
-    name_set extra_opaque = ext.m_extra_opaque;
-    extra_opaque_pred pred([=](name const & n) { return extra_opaque.contains(n); });
-    return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env,
-                                                                                          !ext.m_hide_module && relax_main_opaque,
-                                                                                          true, pred)));
+    if (only_main_transparent) {
+        name_set extra_opaque      = ext.m_opaque;
+        name_set extra_transparent = ext.m_transparent;
+        extra_opaque_pred pred([=](name const & n) {
+                return
+                    (!module::is_definition(env, n) || extra_opaque.contains(n)) &&
+                    (!extra_transparent.contains(n));
+            });
+        return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, relax_main_opaque,
+                                                                                              true, pred)));
+    } else {
+        name_set extra_opaque = ext.m_opaque;
+        extra_opaque_pred pred([=](name const & n) { return extra_opaque.contains(n); });
+        return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, relax_main_opaque,
+                                                                                              true, pred)));
+    }
 }
 }

@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/explicit.h"
 #include "library/unifier.h"
-#include "library/opaque_hints.h"
+#include "library/reducible.h"
 #include "library/locals.h"
 #include "library/let.h"
 #include "library/deep_copy.h"
@@ -162,8 +162,8 @@ public:
         m_unifier_config(env.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
         m_relax_main_opaque = false;
         m_no_info = false;
-        m_tc[0]  = mk_type_checker_with_hints(env.m_env, m_ngen.mk_child(), false);
-        m_tc[1]  = mk_type_checker_with_hints(env.m_env, m_ngen.mk_child(), true);
+        m_tc[0]  = mk_type_checker(env.m_env, m_ngen.mk_child(), false);
+        m_tc[1]  = mk_type_checker(env.m_env, m_ngen.mk_child(), true);
     }
 
     environment const & env() const { return m_env.m_env; }
@@ -983,7 +983,7 @@ public:
                                                    bool relax_main_opaque) {
         m_context.set_ctx(ctx);
         m_full_context.set_ctx(ctx);
-        flet<bool> set_relax(m_relax_main_opaque, relax_main_opaque && !get_hide_main_opaque(env()));
+        flet<bool> set_relax(m_relax_main_opaque, relax_main_opaque);
         constraint_seq cs;
         expr r = visit(e, cs);
         if (_ensure_type)
@@ -1002,7 +1002,7 @@ public:
         constraint_seq t_cs;
         expr r_t      = ensure_type(visit(t, t_cs), t_cs);
         // Opaque definitions in the main module may treat other opaque definitions (in the main module) as transparent.
-        flet<bool> set_relax(m_relax_main_opaque, is_opaque && !get_hide_main_opaque(env()));
+        flet<bool> set_relax(m_relax_main_opaque, is_opaque);
         constraint_seq v_cs;
         expr r_v      = visit(v, v_cs);
         expr r_v_type = infer_type(r_v, v_cs);

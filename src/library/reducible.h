@@ -1,0 +1,39 @@
+/*
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#pragma once
+#include <memory>
+#include "kernel/type_checker.h"
+
+namespace lean {
+enum class reducible_status { On, Off, None };
+/** \brief Mark the definition named \c n as reducible or not.
+
+    The method throws an exception if \c n is
+      - not a definition
+      - a theorem
+      - an opaque definition that was not defined in main module
+
+    "Reducible" definitions can be freely unfolded by automation (i.e., elaborator, simplifier, etc).
+    We should view it as a hint to automation.
+*/
+environment set_reducible(environment const & env, name const & n, reducible_status s, bool persistent = true);
+/** \brief Return true iff \c n was explicitly marked as reducible in the given environment.
+
+    \remark is_reducible_on(env, n) and is_reducible_off(env, n) cannot be simultaneously true,
+    but both can be false (when set_reducible(env, n, None))
+*/
+bool is_reducible_on(environment const & env, name const & n);
+/** \brief Return true iff \c n was explicitly marked as not reducible in the given environment.
+
+    \see is_reducible_on
+*/
+bool is_reducible_off(environment const & env, name const & n);
+
+/** \brief Create a type checker that takes the "reducibility" hints into account. */
+std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator const & ngen,
+                                              bool relax_main_opaque, bool only_main_reducible = false);
+}

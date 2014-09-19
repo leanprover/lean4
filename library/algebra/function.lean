@@ -6,10 +6,10 @@ namespace function
 section
   parameters {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
 
-  definition compose (f : B → C) (g : A → B) : A → C :=
+  definition compose [reducible] (f : B → C) (g : A → B) : A → C :=
   λx, f (g x)
 
-  definition id (a : A) : A :=
+  definition id [reducible] (a : A) : A :=
   a
 
   definition on_fun (f : B → B → C) (g : A → B) : A → A → C :=

@@ -73,20 +73,20 @@ variable dvd : Π (x y : nat) {H : not_zero y}, nat
 variables a b : nat
 
 set_option pp.implicit true
-opaque add
+reducible add
 check dvd a (succ b)
 check (λ H : not_zero b, dvd a b)
 check (succ zero)
 check a + (succ zero)
 check dvd a (a + (succ b))
 
-transparent add
+reducible [off] add
 check dvd a (a + (succ b))
 
-opaque add
+reducible add
 check dvd a (a + (succ b))
 
-transparent add
+reducible [off] add
 check dvd a (a + (succ b))
 
 end nat

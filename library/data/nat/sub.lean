@@ -26,7 +26,7 @@ theorem sub_zero_right {n : ℕ} : n - 0 = n
 
 theorem sub_succ_right {n m : ℕ} : n - succ m = pred (n - m)
 
-opaque sub
+reducible [off] sub
 
 theorem sub_zero_left {n : ℕ} : 0 - n = 0 :=
 induction_on n sub_zero_right
@@ -67,7 +67,6 @@ induction_on k
                               ... = (n + l) - (m + l)           : sub_succ_succ
                               ... =  n - m                      : IH)
 
-opaque add mul le
 theorem sub_add_add_left {k n m : ℕ} : (k + n) - (k + m) = n - m :=
 add_comm ▸ add_comm ▸ sub_add_add_right
 

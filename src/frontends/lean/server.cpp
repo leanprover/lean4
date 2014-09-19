@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/type_util.h"
 #include "library/unifier.h"
-#include "library/opaque_hints.h"
+#include "library/reducible.h"
 #include "library/scoped_ext.h"
 #include "library/tactic/goal.h"
 #include "frontends/lean/server.h"
@@ -769,7 +769,7 @@ void server::find_goal_matches(unsigned line_num, unsigned col_num, std::string 
     environment const & env = env_opts->first;
     options const & opts    = env_opts->second;
     name_generator ngen(g_tmp_prefix);
-    std::unique_ptr<type_checker> tc = mk_type_checker_with_hints(env, ngen, true);
+    std::unique_ptr<type_checker> tc = mk_type_checker(env, ngen, true);
     if (auto meta = m_file->infom().get_meta_at(line_num, col_num)) {
     if (is_meta(*meta)) {
     if (auto type = m_file->infom().get_type_at(line_num, col_num)) {

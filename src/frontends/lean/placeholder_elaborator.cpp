@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "library/unifier.h"
-#include "library/opaque_hints.h"
+#include "library/reducible.h"
 #include "library/metavar_closure.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/util.h"
@@ -30,7 +30,7 @@ struct placeholder_context {
                         name const & prefix, bool relax, bool use_local_instances):
         m_ios(ios),
         m_ngen(prefix),
-        m_tc(mk_type_checker_with_hints(env, m_ngen.mk_child(), relax)),
+        m_tc(mk_type_checker(env, m_ngen.mk_child(), relax)),
         m_ctx(m_ngen.next(), ctx),
         m_relax(relax),
         m_use_local_instances(use_local_instances) {

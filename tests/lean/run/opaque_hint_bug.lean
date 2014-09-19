@@ -9,5 +9,5 @@ section
   definition concat (s t : list T) : list T
   := list.rec t (fun x l u, list.cons x u) s
 
-  opaque concat
+  reducible concat
 end

@@ -29,7 +29,7 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/normalize.h"
 #include "library/module.h"
-#include "library/opaque_hints.h"
+#include "library/reducible.h"
 #include "library/print.h"
 
 // Lua Bindings for the Kernel classes. We do not include the Lua
@@ -1870,13 +1870,13 @@ static int mk_type_checker_with_hints(lua_State * L) {
     environment const & env = to_environment(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 1) {
-        return push_type_checker_ref(L, mk_type_checker_with_hints(env, name_generator(g_tmp_prefix), false));
+        return push_type_checker_ref(L, mk_type_checker(env, name_generator(g_tmp_prefix), false));
     } else if (nargs == 2 && lua_isboolean(L, 2)) {
-        return push_type_checker_ref(L, mk_type_checker_with_hints(env, name_generator(g_tmp_prefix), lua_toboolean(L, 2)));
+        return push_type_checker_ref(L, mk_type_checker(env, name_generator(g_tmp_prefix), lua_toboolean(L, 2)));
     } else if (nargs == 2) {
-        return push_type_checker_ref(L, mk_type_checker_with_hints(env, to_name_generator(L, 2), false));
+        return push_type_checker_ref(L, mk_type_checker(env, to_name_generator(L, 2), false));
     } else {
-        return push_type_checker_ref(L, mk_type_checker_with_hints(env, to_name_generator(L, 2), lua_toboolean(L, 3)));
+        return push_type_checker_ref(L, mk_type_checker(env, to_name_generator(L, 2), lua_toboolean(L, 3)));
     }
 }
 

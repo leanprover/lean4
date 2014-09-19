@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/unifier.h"
-#include "library/opaque_hints.h"
+#include "library/reducible.h"
 #include "library/metavar_closure.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/local_context.h"
@@ -17,7 +17,7 @@ constraint mk_proof_qed_cnstr(environment const & env, expr const & m, expr cons
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
                          name_generator const & _ngen) {
         name_generator ngen(_ngen);
-        type_checker_ptr tc(mk_type_checker_with_hints(env, ngen.mk_child(), relax));
+        type_checker_ptr tc(mk_type_checker(env, ngen.mk_child(), relax));
         pair<expr, constraint_seq> tcs = tc->infer(e);
         expr e_type                    = tcs.first;
         justification new_j            = mk_type_mismatch_jst(e, e_type, meta_type);

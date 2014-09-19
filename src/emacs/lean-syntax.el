@@ -8,7 +8,7 @@
 (require 'rx)
 
 (defconst lean-keywords
-  '("import" "opaque" "transparent" "tactic_hint" "definition" "renaming"
+  '("import" "reducible" "tactic_hint" "definition" "renaming"
     "inline" "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture"
     "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem"
     "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"
@@ -70,8 +70,8 @@
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; modifiers
-     (,(rx (or "\[persistent\]" "\[notation\]" "\[visible\]" "\[protected\]" "\[private\]"
-               "\[instance\]" "\[class\]" "\[coercion\]" "\[inline\]")) . 'font-lock-doc-face)
+     (,(rx (or "\[persistent\]" "\[notation\]" "\[opaque\]" "\[visible\]" "\[protected\]" "\[private\]"
+               "\[instance\]" "\[class\]" "\[coercion\]" "\[off\]" "\[none\]" "\[on\]")) . 'font-lock-doc-face)
      ;; tactics
      (,(rx symbol-start
            (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "apply" "back" "beta" "done" "exact" "repeat")

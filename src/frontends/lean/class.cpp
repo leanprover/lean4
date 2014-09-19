@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/scoped_ext.h"
 #include "library/kernel_serializer.h"
-#include "library/opaque_hints.h"
+#include "library/reducible.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tactic_hint.h"
@@ -102,7 +102,7 @@ environment add_instance(environment const & env, name const & n, bool persisten
     declaration d = env.get(n);
     expr type = d.get_type();
     name_generator ngen(g_tmp_prefix);
-    auto tc = mk_type_checker_with_hints(env, ngen, false);
+    auto tc = mk_type_checker(env, ngen, false);
     while (true) {
         type = tc->whnf(type).first;
         if (!is_pi(type))

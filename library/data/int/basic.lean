@@ -143,7 +143,6 @@ or.elim le_total
         ... = pr2 a + 0                              : add_zero_right⁻¹
         ... = pr2 a + pr1 (proj a)                   : {(proj_le_pr1 H)⁻¹})
 
-opaque add sub le
 theorem proj_congr {a b : ℕ × ℕ} (H : rel a b) : proj a = proj b :=
 have special : ∀a b, pr2 a ≤ pr1 a → rel a b → proj a = proj b, from
   take a b,
@@ -207,7 +206,7 @@ exists_intro (pr1 (rep a))
 theorem has_decidable_eq [instance] [protected] : decidable_eq ℤ :=
 take a b : ℤ, _
 
-opaque int
+reducible [off] int
 definition of_nat [coercion] (n : ℕ) : ℤ := psub (pair n 0)
 
 theorem eq_zero_intro (n : ℕ) : psub (pair n n) = 0 :=
@@ -301,7 +300,7 @@ have H5 : n + m = 0, from
 
 ---reverse equalities
 
-transparent int
+reducible int
 
 theorem cases (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - n) :=
 have Hrep : proj (rep a) = rep a, from @idempotent_image_fix _ proj proj_idempotent a,
@@ -324,7 +323,7 @@ or.imp_or (or.swap (proj_zero_or (rep a)))
           ... = -(psub (pair (pr2 (rep a)) 0)) : by simp
           ... = -(of_nat (pr2 (rep a))) : rfl))
 
-opaque int
+reducible [off] int
 
 ---rename to by_cases in Lean 0.2 (for now using this to avoid name clash)
 theorem int_by_cases {P : ℤ → Prop} (a : ℤ) (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-n)) :
@@ -373,7 +372,7 @@ have H4 : n + m = 0, from
 add_eq_zero H4
 
 --some of these had to be transparent for theorem cases
-opaque psub proj
+reducible [off] psub proj
 
 -- ## add
 
@@ -465,8 +464,6 @@ rfl
 
 theorem add_neg_left (a b : ℤ) : -a + b = b - a :=
 add_comm (-a) b
-
--- opaque_hint (hiding int.sub)
 
 theorem sub_neg_right (a b : ℤ) : a - (-b) = a + b :=
 neg_neg b ▸ eq.refl (a - (-b))

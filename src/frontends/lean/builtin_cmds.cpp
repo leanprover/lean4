@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "library/protected.h"
 #include "library/locals.h"
 #include "library/coercion.h"
-#include "library/opaque_hints.h"
+#include "library/reducible.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -45,6 +45,9 @@ static name g_exposing("exposing");
 static name g_renaming("renaming");
 static name g_as("as");
 static name g_colon(":");
+static name g_on("[on]");
+static name g_off("[off]");
+static name g_none("[none]");
 
 environment print_cmd(parser & p) {
     if (p.curr() == scanner::token_kind::String) {
@@ -105,7 +108,7 @@ environment check_cmd(parser & p) {
     level_param_names ls = to_level_param_names(collect_univ_params(e));
     level_param_names new_ls;
     std::tie(e, new_ls) = p.elaborate_relaxed(e, ctx);
-    auto tc = mk_type_checker_with_hints(p.env(), p.mk_ngen(), true);
+    auto tc = mk_type_checker(p.env(), p.mk_ngen(), true);
     expr type = tc->check(e, append(ls, new_ls)).first;
     auto reg              = p.regular_stream();
     formatter const & fmt = reg.get_formatter();
@@ -307,28 +310,38 @@ environment coercion_cmd(parser & p) {
     }
 }
 
-environment opaque_cmd_core(parser & p, bool hiding) {
-    environment env = p.env();
+static void parse_reducible_modifiers(parser & p, reducible_status & status, bool & persistent) {
+    while (true) {
+        if (parse_persistent(p, persistent)) {
+        } else if (p.curr_is_token_or_id(g_on)) {
+            p.next();
+            status = reducible_status::On;
+        } else if (p.curr_is_token_or_id(g_off)) {
+            p.next();
+            status = reducible_status::Off;
+        } else if (p.curr_is_token_or_id(g_none)) {
+            p.next();
+            status = reducible_status::None;
+        } else {
+            break;
+        }
+    }
+}
+
+environment reducible_cmd(parser & p) {
+    environment env         = p.env();
+    reducible_status status = reducible_status::On;
+    bool persistent         = false;
+    parse_reducible_modifiers(p, status, persistent);
     bool found = false;
     while (p.curr_is_identifier()) {
-        name c = p.check_constant_next("invalid 'opaque/transparent' command, constant expected");
+        name c = p.check_constant_next("invalid 'reducible' command, constant expected");
         found   = true;
-        if (hiding)
-            env = hide_definition(env, c);
-        else
-            env = expose_definition(env, c);
+        env = set_reducible(env, c, status, persistent);
     }
     if (!found)
-        throw exception("invalid empty 'opaque/transparent' command");
+        throw exception("invalid empty 'reducible' command");
     return env;
-}
-
-environment opaque_cmd(parser & p) {
-    return opaque_cmd_core(p, true);
-}
-
-environment transparent_cmd(parser & p) {
-    return opaque_cmd_core(p, false);
 }
 
 environment erase_cache_cmd(parser & p) {
@@ -350,8 +363,7 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("end",          "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
     add_cmd(r, cmd_info("coercion",     "add a new coercion", coercion_cmd));
-    add_cmd(r, cmd_info("opaque",       "mark constants as opaque for the elaborator/unifier", opaque_cmd));
-    add_cmd(r, cmd_info("transparent",  "mark constants as transparent for the elaborator/unifier", transparent_cmd));
+    add_cmd(r, cmd_info("reducible",    "mark definitions as reducible/irreducible for automation", reducible_cmd));
     add_cmd(r, cmd_info("#erase_cache", "erase cached definition (for debugging purposes)", erase_cache_cmd));
 
     register_decl_cmds(r);

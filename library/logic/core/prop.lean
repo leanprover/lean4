@@ -4,7 +4,7 @@
 
 import general_notation
 
-definition Prop := Type.{0}
+definition Prop [reducible] := Type.{0}
 
 
 -- implication

@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/explicit.h"
+#include "library/reducible.h"
 #include "library/coercion.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
@@ -30,6 +31,7 @@ static name g_protected("[protected]");
 static name g_instance("[instance]");
 static name g_coercion("[coercion]");
 static name g_opaque("[opaque]");
+static name g_reducible("[reducible]");
 
 environment universe_cmd(parser & p) {
     name n = p.check_id_next("invalid universe declaration, identifier expected");
@@ -165,12 +167,14 @@ struct decl_modifiers {
     bool m_is_opaque;
     bool m_is_instance;
     bool m_is_coercion;
+    bool m_is_reducible;
     decl_modifiers() {
         m_is_private   = false;
         m_is_protected = false;
         m_is_opaque    = true;
         m_is_instance  = false;
         m_is_coercion  = false;
+        m_is_reducible = false;
     }
 
     void parse(parser & p) {
@@ -189,6 +193,9 @@ struct decl_modifiers {
                 p.next();
             } else if (p.curr_is_token(g_coercion)) {
                 m_is_coercion = true;
+                p.next();
+            } else if (p.curr_is_token(g_reducible)) {
+                m_is_reducible = true;
                 p.next();
             } else {
                 break;
@@ -359,6 +366,8 @@ environment definition_cmd_core(parser & p, bool is_theorem) {
         env = add_coercion(env, real_n, p.ios());
     if (modifiers.m_is_protected)
         env = add_protected(env, real_n);
+    if (modifiers.m_is_reducible)
+        env = set_reducible(env, real_n, reducible_status::On);
     return env;
 }
 environment definition_cmd(parser & p) {

@@ -22,8 +22,9 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "library/occurs.h"
 #include "library/locals.h"
+#include "library/module.h"
 #include "library/unifier.h"
-#include "library/opaque_hints.h"
+#include "library/reducible.h"
 #include "library/unifier_plugin.h"
 #include "library/kernel_bindings.h"
 #include "library/print.h"
@@ -47,7 +48,7 @@ unsigned get_unifier_max_steps(options const & opts) { return opts.get_unsigned(
 
 static name g_unifier_computation    {"unifier", "computation"};
 RegisterBoolOption(g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION,
-                   "(unifier) always case-split on reduction/computational steps when solving flex-rigid constraints");
+                   "(unifier) always case-split on reduction/computational steps when solving flex-rigid and delta-delta constraints");
 bool get_unifier_computation(options const & opts) { return opts.get_bool(g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION); }
 
 static name g_unifier_expensive_classes {"unifier", "expensive_classes"};
@@ -295,6 +296,8 @@ struct unifier_fn {
     owned_map        m_owned_map; // mapping from metavariable name m to delay factor of the choice constraint that owns m
     unifier_plugin   m_plugin;
     type_checker_ptr m_tc[2];
+    type_checker_ptr m_flex_rigid_tc[2]; // type checker used when solving flex rigid constraints. By default,
+                                         // only the definitions from the main module are treated as transparent.
     unifier_config   m_config;
     unsigned         m_num_steps;
     bool             m_pattern; //!< If true, then only higher-order (pattern) matching is used
@@ -391,8 +394,12 @@ struct unifier_fn {
                unifier_config const & cfg):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(get_unifier_plugin(env)),
         m_config(cfg), m_num_steps(0), m_pattern(false) {
-        m_tc[0] = mk_type_checker_with_hints(env, m_ngen.mk_child(), false);
-        m_tc[1] = mk_type_checker_with_hints(env, m_ngen.mk_child(), true);
+        m_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false);
+        m_tc[1] = mk_type_checker(env, m_ngen.mk_child(), true);
+        if (!cfg.m_computation) {
+            m_flex_rigid_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false, true);
+            m_flex_rigid_tc[1] = mk_type_checker(env, m_ngen.mk_child(), true,  true);
+        }
         m_next_assumption_idx = 0;
         m_next_cidx = 0;
         m_first     = true;
@@ -557,6 +564,17 @@ struct unifier_fn {
         expr r = whnf(e, relax, _cs);
         to_buffer(_cs, j, cs);
         return r;
+    }
+
+    expr flex_rigid_whnf(expr const & e, justification const & j, bool relax, buffer<constraint> & cs) {
+        if (m_config.m_computation) {
+            return whnf(e, j, relax, cs);
+        } else {
+            constraint_seq _cs;
+            expr r = m_flex_rigid_tc[relax]->whnf(e, _cs);
+            to_buffer(_cs, j, cs);
+            return r;
+        }
     }
 
     justification mk_assign_justification(expr const & m, expr const & m_type, expr const & v_type, justification const & j) {
@@ -1178,17 +1196,19 @@ struct unifier_fn {
         }
 
         justification a;
-        // add case_split for t =?= s
-        expr lhs_fn_val = instantiate_value_univ_params(d, const_levels(lhs_fn));
-        expr rhs_fn_val = instantiate_value_univ_params(d, const_levels(rhs_fn));
-        expr t = apply_beta(lhs_fn_val, lhs_args.size(), lhs_args.data());
-        expr s = apply_beta(rhs_fn_val, rhs_args.size(), rhs_args.data());
         bool relax = relax_main_opaque(c);
-        auto dcs = m_tc[relax]->is_def_eq(t, s, j);
-        if (dcs.first) {
-            // create a case split
-            a = mk_assumption_justification(m_next_assumption_idx);
-            add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, j, dcs.second.to_list())));
+        if (m_config.m_computation || module::is_definition(m_env, d.get_name()) || is_reducible_on(m_env, d.get_name())) {
+            // add case_split for t =?= s
+            expr lhs_fn_val = instantiate_value_univ_params(d, const_levels(lhs_fn));
+            expr rhs_fn_val = instantiate_value_univ_params(d, const_levels(rhs_fn));
+            expr t = apply_beta(lhs_fn_val, lhs_args.size(), lhs_args.data());
+            expr s = apply_beta(rhs_fn_val, rhs_args.size(), rhs_args.data());
+            auto dcs = m_tc[relax]->is_def_eq(t, s, j);
+            if (dcs.first) {
+                // create a case split
+                a = mk_assumption_justification(m_next_assumption_idx);
+                add_case_split(std::unique_ptr<case_split>(new simple_case_split(*this, j, dcs.second.to_list())));
+            }
         }
 
         // process first case
@@ -1245,6 +1265,18 @@ struct unifier_fn {
         buffer<constraints> & alts; // result: alternatives
 
         optional<bool>        _has_meta_args;
+
+        type_checker & tc() {
+            return *u.m_tc[relax];
+        }
+
+        type_checker & restricted_tc() {
+            if (u.m_config.m_computation)
+                return *u.m_tc[relax];
+            else
+                return *u.m_flex_rigid_tc[relax];
+        }
+
         /** \brief Return true if margs contains an expression \c e s.t. is_meta(e) */
         bool has_meta_args() {
             if (!_has_meta_args) {
@@ -1291,7 +1323,7 @@ struct unifier_fn {
         expr ensure_sufficient_args_core(expr mtype, unsigned i, constraint_seq & cs) {
             if (i == margs.size())
                 return mtype;
-            mtype = u.m_tc[relax]->ensure_pi(mtype, cs);
+            mtype = tc().ensure_pi(mtype, cs);
             expr local = u.mk_local_for(mtype);
             expr body  = instantiate(binding_body(mtype), local);
             return Pi(local, ensure_sufficient_args_core(body, i+1, cs));
@@ -1329,6 +1361,18 @@ struct unifier_fn {
             alts.push_back(cs.to_list());
         }
 
+        bool restricted_is_def_eq(expr const & marg, expr const & rhs, justification const & j, constraint_seq & cs) {
+            try {
+                if (restricted_tc().is_def_eq(marg, rhs, j, cs)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (exception & ex) {
+                return false;
+            }
+        }
+
         /**
            Given,
                m      := a metavariable ?m
@@ -1351,8 +1395,8 @@ struct unifier_fn {
             auto new_mtype = ensure_sufficient_args(mtype, cs);
             // Remark: we should not use mk_eq_cnstr(marg, rhs, j) since is_def_eq may be able to reduce them.
             // The unifier assumes the eq constraints are reduced.
-            if (u.m_tc[relax]->is_def_eq_types(marg, rhs, j, cs) &&
-                u.m_tc[relax]->is_def_eq(marg, rhs, j, cs)) {
+            if (tc().is_def_eq_types(marg, rhs, j, cs) &&
+                restricted_is_def_eq(marg, rhs, j, cs)) {
                 expr v = mk_lambda_for(new_mtype, mk_var(vidx));
                 cs = cs + mk_eq_cnstr(m, v, j, relax);
                 alts.push_back(cs.to_list());
@@ -1501,9 +1545,9 @@ struct unifier_fn {
             get_app_args(rhs, rargs);
             buffer<expr> sargs;
             try {
-                expr f_type = u.m_tc[relax]->infer(f, cs);
+                expr f_type = tc().infer(f, cs);
                 for (expr const & rarg : rargs) {
-                    f_type      = u.m_tc[relax]->ensure_pi(f_type, cs);
+                    f_type      = tc().ensure_pi(f_type, cs);
                     expr d_type = binding_domain(f_type);
                     expr sarg   = mk_imitiation_arg(rarg, d_type, locals, cs);
                     sargs.push_back(sarg);
@@ -1578,13 +1622,13 @@ struct unifier_fn {
             try {
                 // create a scope to make sure no constraints "leak" into the current state
                 expr rhs_A     = binding_domain(rhs);
-                expr A_type    = u.m_tc[relax]->infer(rhs_A, cs);
+                expr A_type    = tc().infer(rhs_A, cs);
                 expr A         = mk_imitiation_arg(rhs_A, A_type, locals, cs);
                 expr local     = mk_local(u.m_ngen.next(), binding_name(rhs), A, binding_info(rhs));
                 locals.push_back(local);
                 margs.push_back(local);
                 expr rhs_B     = instantiate(binding_body(rhs), local);
-                expr B_type    = u.m_tc[relax]->infer(rhs_B, cs);
+                expr B_type    = tc().infer(rhs_B, cs);
                 expr B         = mk_imitiation_arg(rhs_B, B_type, locals, cs);
                 expr binding   = is_pi(rhs) ? Pi(local, B) : Fun(local, B);
                 locals.pop_back();
@@ -1725,7 +1769,7 @@ struct unifier_fn {
         process_flex_rigid_core(lhs, rhs, j, relax, alts);
         append_auxiliary_constraints(alts, to_list(aux.begin(), aux.end()));
         if (use_flex_rigid_whnf_split(lhs, rhs)) {
-            expr rhs_whnf = whnf(rhs, j, relax, aux);
+            expr rhs_whnf = flex_rigid_whnf(rhs, j, relax, aux);
             if (rhs_whnf != rhs) {
                 if (is_meta(rhs_whnf)) {
                     // it become a flex-flex constraint

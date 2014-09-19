@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/placeholder.h"
 #include "library/locals.h"
-#include "library/opaque_hints.h"
+#include "library/reducible.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_cmds.h"
@@ -235,7 +235,7 @@ struct structure_cmd_fn {
         This information is used to compute the resultant universe level for the inductive datatype declaration.
      */
     void accumulate_levels(expr intro_type, unsigned num_params, buffer<level> & r_lvls) {
-        auto tc = mk_type_checker_with_hints(m_env, m_p.mk_ngen(), false);
+        auto tc = mk_type_checker(m_env, m_p.mk_ngen(), false);
         unsigned i = 0;
         while (is_pi(intro_type)) {
             if (i >= num_params) {

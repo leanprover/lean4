@@ -13,17 +13,17 @@ hypothesis propext {a b : Prop} : (a → b) → (b → a) → a = b
 
 parameter p : Prop
 
-definition u [private] := epsilon (λx, x = true ∨ p)
+private definition u := epsilon (λx, x = true ∨ p)
 
-definition v [private] := epsilon (λx, x = false ∨ p)
+private definition v := epsilon (λx, x = false ∨ p)
 
-lemma u_def [private] : u = true ∨ p :=
+private lemma u_def : u = true ∨ p :=
 epsilon_spec (exists_intro true (or.inl rfl))
 
-lemma v_def [private] : v = false ∨ p :=
+private lemma v_def : v = false ∨ p :=
 epsilon_spec (exists_intro false (or.inl rfl))
 
-lemma uv_implies_p [private] : ¬(u = v) ∨ p :=
+private lemma uv_implies_p : ¬(u = v) ∨ p :=
 or.elim u_def
   (assume Hut : u = true, or.elim v_def
     (assume Hvf : v = false,
@@ -32,7 +32,7 @@ or.elim u_def
     (assume Hp : p, or.inr Hp))
   (assume Hp : p, or.inr Hp)
 
-lemma p_implies_uv [private] : p → u = v :=
+private lemma p_implies_uv : p → u = v :=
 assume Hp : p,
   have Hpred : (λ x, x = true ∨ p) = (λ x, x = false ∨ p), from
     funext (take x : Prop,

@@ -5,7 +5,7 @@ section
   parameter   R : A → A → Prop
   parameter   B : Type
   definition  id (a : A) : A := a
-  definition  refl [private] : Prop := ∀ (a : A), R a a
+  private definition  refl : Prop := ∀ (a : A), R a a
   definition  symm : Prop := ∀ (a b : A), R a b → R b a
   definition  trans : Prop := ∀ (a b c : A), R a b → R b c → R a c
   definition  equivalence : Prop := and (and refl symm) trans

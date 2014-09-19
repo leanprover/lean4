@@ -6,7 +6,7 @@ check g
 namespace foo
   definition h : N := f a
   check h
-  definition q [private] : N := f a
+  private definition q : N := f a
   check q
 end foo
 check foo.h

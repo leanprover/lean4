@@ -35,7 +35,7 @@ namespace vec
         (λa, inhabited.destruct iH
           (λv, inhabited.mk (vec.cons a v))))
 
-  theorem case_zero_lem [private] {C : vec T 0 → Type} {n : ℕ} (v : vec T n) (Hnil : C nil) :
+  private theorem case_zero_lem {C : vec T 0 → Type} {n : ℕ} (v : vec T n) (Hnil : C nil) :
     ∀ H : n = 0, C (cast (congr_arg (vec T) H) v) :=
   rec_on v (take H : 0 = 0, (eq.rec Hnil (cast_eq _ nil⁻¹)))
   (take (x : T) (n : ℕ) (w : vec T n) IH (H : succ n = 0),
@@ -44,7 +44,7 @@ namespace vec
   theorem case_zero {C : vec T 0 → Type} (v : vec T 0) (Hnil : C nil) : C v :=
   eq.rec (case_zero_lem v Hnil (eq.refl 0)) (cast_eq _ v)
 
-  theorem rec_nonempty_lem [private] {C : Π{n}, vec T (succ n) → Type} {n : ℕ} (v : vec T n)
+  private theorem rec_nonempty_lem {C : Π{n}, vec T (succ n) → Type} {n : ℕ} (v : vec T n)
     (Hone : Πa, C [a]) (Hcons : Πa {n} (v : vec T (succ n)), C v → C (a :: v))
     : ∀{m} (H : n = succ m), C (cast (congr_arg (vec T) H) v) :=
   case_on v (take m (H : 0 = succ m), false.rec_type _ (absurd (H⁻¹) succ_ne_zero))
@@ -62,7 +62,7 @@ namespace vec
     (Hone : Πa, C [a]) (Hcons : Πa {n} (v : vec T (succ n)), C v → C (a :: v)) : C v :=
   sorry
 
-  theorem case_succ_lem [private] {C : Π{n}, vec T (succ n) → Type} {n : ℕ} (v : vec T n)
+  private theorem case_succ_lem {C : Π{n}, vec T (succ n) → Type} {n : ℕ} (v : vec T n)
     (H : Πa {n} (v : vec T n), C (a :: v))
     : ∀{m} (H : n = succ m), C (cast (congr_arg (vec T) H) v) :=
   sorry

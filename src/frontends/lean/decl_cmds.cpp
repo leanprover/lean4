@@ -27,7 +27,7 @@ static name g_rcurly("}");
 static name g_colon(":");
 static name g_assign(":=");
 static name g_definition("definition");
-static name g_private("[private]");
+static name g_theorem("theorem");
 static name g_protected("[protected]");
 static name g_instance("[instance]");
 static name g_coercion("[coercion]");
@@ -162,13 +162,11 @@ environment axiom_cmd(parser & p)    {
 }
 
 struct decl_modifiers {
-    bool m_is_private;
     bool m_is_protected;
     bool m_is_instance;
     bool m_is_coercion;
     bool m_is_reducible;
     decl_modifiers() {
-        m_is_private   = false;
         m_is_protected = false;
         m_is_instance  = false;
         m_is_coercion  = false;
@@ -177,10 +175,7 @@ struct decl_modifiers {
 
     void parse(parser & p) {
         while (true) {
-            if (p.curr_is_token(g_private)) {
-                m_is_private = true;
-                p.next();
-            } else if (p.curr_is_token(g_protected)) {
+            if (p.curr_is_token(g_protected)) {
                 m_is_protected = true;
                 p.next();
             } else if (p.curr_is_token(g_instance)) {
@@ -209,7 +204,7 @@ static void erase_local_binder_info(buffer<expr> & ps) {
         p = update_local(p, binder_info());
 }
 
-environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
+environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, bool is_private) {
     auto n_pos = p.pos();
     unsigned start_line = n_pos.first;
     name n     = p.check_id_next("invalid declaration, identifier expected");
@@ -278,7 +273,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
         p.declare_sorry();
     environment env = p.env();
 
-    if (modifiers.m_is_private) {
+    if (is_private) {
         auto env_n = add_private_name(env, n, optional<unsigned>(hash(p.pos().first, p.pos().second)));
         env    = env_n.first;
         real_n = env_n.second;
@@ -316,7 +311,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
                     cd = check(env, mk_theorem(real_n, c_ls, c_type, c_value));
                 else
                     cd = check(env, mk_definition(env, real_n, c_ls, c_type, c_value, is_opaque));
-                if (!modifiers.m_is_private)
+                if (!is_private)
                     p.add_decl_index(real_n, n_pos, p.get_cmd_token(), c_type);
                 env = module::add(env, *cd);
                 found_cached = true;
@@ -348,7 +343,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
             env = module::add(env, check(env, mk_definition(env, real_n, new_ls, type, value, is_opaque)));
             p.cache_definition(real_n, pre_type, pre_value, new_ls, type, value);
         }
-        if (!modifiers.m_is_private)
+        if (!is_private)
             p.add_decl_index(real_n, n_pos, p.get_cmd_token(), type);
     }
 
@@ -365,14 +360,26 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque) {
     return env;
 }
 environment definition_cmd(parser & p) {
-    return definition_cmd_core(p, false, false);
+    return definition_cmd_core(p, false, false, false);
 }
 environment opaque_definition_cmd(parser & p) {
     p.check_token_next(g_definition, "invalid 'opaque' definition, 'definition' expected");
-    return definition_cmd_core(p, false, true);
+    return definition_cmd_core(p, false, true, false);
 }
 environment theorem_cmd(parser & p) {
-    return definition_cmd_core(p, true, true);
+    return definition_cmd_core(p, true, true, false);
+}
+environment private_definition_cmd(parser & p) {
+    bool is_theorem = false;
+    if (p.curr_is_token_or_id(g_definition)) {
+        p.next();
+    } else if (p.curr_is_token_or_id(g_theorem)) {
+        p.next();
+        is_theorem = true;
+    } else {
+        throw parser_error("invalid 'private' definition/theorem, 'definition' or 'theorem' expected", p.pos());
+    }
+    return definition_cmd_core(p, is_theorem, true, true);
 }
 
 static name g_lparen("("), g_lcurly("{"), g_ldcurly("⦃"), g_lbracket("[");
@@ -418,6 +425,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("axiom",        "declare a new axiom", axiom_cmd));
     add_cmd(r, cmd_info("definition",   "add new definition", definition_cmd));
     add_cmd(r, cmd_info("opaque",       "add new opaque definition", opaque_definition_cmd));
+    add_cmd(r, cmd_info("private",      "add new private definition/theorem", private_definition_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("variables",    "declare new parameters", variables_cmd));
 }

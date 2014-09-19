@@ -189,15 +189,17 @@ public:
     static environment register_entry(environment const & env, io_state const & ios, name const & n, entry const & e) {
         return update(env, get(env)._register_entry(env, ios, n, e));
     }
-    static environment add_entry(environment env, io_state const & ios, entry const & e) {
+    static environment add_entry(environment env, io_state const & ios, entry const & e, bool persistent = true) {
         if ((!TransientSection && in_context(env)) || (TransientSection && in_section_or_context(env))) {
             return update(env, get(env)._add_tmp_entry(env, ios, e));
         } else {
             name n = get_namespace(env);
-            env = module::add(env, get_serialization_key(), [=](serializer & s) {
-                    s << n;
-                    write_entry(s, e);
-                });
+            if (persistent) {
+                env = module::add(env, get_serialization_key(), [=](serializer & s) {
+                        s << n;
+                        write_entry(s, e);
+                    });
+            }
             return update(env, get(env)._add_entry(env, ios, e));
         }
     }

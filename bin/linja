@@ -22,10 +22,9 @@ import urllib
 g_lean_path    = "USE DEFAULT"
 g_ltags_path   = "USE DEFAULT"
 g_ninja_path   = "USE DEFAULT"
-g_working_dir  = os.getcwd()
 g_lean_files   = []
-g_linja_path   = os.path.realpath(__file__)
-g_lean_bin_dir = os.path.dirname(g_linja_path)
+g_linja_path   = ""
+g_lean_bin_dir = ""
 g_lean_options = []
 
 def which(program):
@@ -104,7 +103,7 @@ def build_ninja_and_save_at(ninja_path, platform):
         os.chdir(tempdir)
         if subprocess.call(cmd_clone_ninja):
             raise LinjaException("Failed to clone ninja repository")
-        os.chdir(os.path.join(build_dir))
+        os.chdir(build_dir)
         if subprocess.call(cmd_checkout_release):
             raise LinjaException("Failed to checkout release branch of ninja")
         if subprocess.call(cmd_bootstrap):
@@ -129,26 +128,30 @@ def download_ninja_and_save_at(ninja_path):
         log("\n")
         if not os.path.isfile(ninja_path):
             error("failed to download ninja executable from %s" % url)
-            give_exec_permission(ninja_path)
+        give_exec_permission(ninja_path)
         return ninja_path
 
 def check_required_packages():
+    global g_linja_path, g_lean_bin_dir
     global g_lean_path, g_ltags_path, g_ninja_path
+    g_linja_path   = os.path.abspath(os.path.realpath(__file__))
+    g_lean_bin_dir = os.path.dirname(g_linja_path)
+    ltags_exec_name = "ltags"
     lean_exec_name  = "lean.exe"  if platform.system() == "Windows" else "lean"
-    ltags_exec_name = "ltags.exe" if platform.system() == "Windows" else "ltags"
     ninja_exec_name = "ninja.exe" if platform.system() == "Windows" else "ninja"
-
     if g_lean_path == "USE DEFAULT":
         g_lean_path = which(lean_exec_name) or os.path.join(g_lean_bin_dir, lean_exec_name)
+        g_lean_path = os.path.abspath(g_lean_path)
     if g_ltags_path == "USE DEFAULT":
         g_ltags_path = which(ltags_exec_name) or os.path.join(g_lean_bin_dir, ltags_exec_name)
+        g_ltags_path = os.path.abspath(g_ltags_path)
     if g_ninja_path == "USE DEFAULT":
         g_ninja_path = which(ninja_exec_name) or os.path.join(g_lean_bin_dir, ninja_exec_name)
-
+        g_ninja_path = os.path.abspath(g_ninja_path)
     if not os.path.isfile(g_lean_path):
-        error("cannot find lean executable at " + g_lean_path)
+        error("cannot find lean executable at " + os.path.abspath(g_lean_path))
     if not os.path.isfile(g_ltags_path):
-        error("cannot find ltags executable at " + g_ltags_path)
+        error("cannot find ltags executable at " + os.path.abspath(g_ltags_path))
     if not os.path.isfile(g_ninja_path):
         g_ninja_path = download_ninja_and_save_at(g_ninja_path)
 
@@ -158,12 +161,14 @@ def make_deps(lean_file, dlean_file, olean_file):
         proc = subprocess.Popen([g_lean_path, "--deps", lean_file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]
         print >> f, olean_file + ": \\"
-        for olean_file in output.strip().split("\n"):
-            deps.append(olean_file)
+        for olean_file in output.strip().splitlines():
+            if olean_file:
+                deps.append(os.path.abspath(olean_file))
         deps_str = " " + (" \\\n ".join(deps))
         print >> f, deps_str
 
 def get_lean_names(lean_file, args):
+    lean_file = os.path.abspath(lean_file)
     basename, ext = os.path.splitext(lean_file)
     item = {}
     item['base']  = basename;            item['lean']  = basename + ".lean";
@@ -207,6 +212,10 @@ def rule_lean():
       % (g_lean_path, " ".join(g_lean_options))
 
 def rule_tags():
+  if platform.system() == "Windows":
+    return """rule LTAGS
+  command = python "%s" $in """ % (g_ltags_path)
+  else:
     return """rule LTAGS
   command = "%s" $in """ % (g_ltags_path)
 
@@ -217,7 +226,7 @@ def build_all(lean_files):
     return str
 
 def build_tags(lean_files):
-    tags_file = os.path.join(g_working_dir, "TAGS")
+    tags_file = "TAGS"
     str = "build tags: phony " + tags_file + "\n"
     str += "build " + tags_file + ": LTAGS"
     for item in lean_files:
@@ -268,7 +277,7 @@ def handle_failure_for_flycheck(out, err, args):
         error("handle_failure_for_flycheck is called without targets")
     target = args.targets[0]
     failed = set()
-    for line in out.split("\n"):
+    for line in out.splitlines():
         if line.startswith("FAILED:"):
             for lean_file in g_lean_files:
                 lean = lean_file['lean']
@@ -296,7 +305,7 @@ def print_flycheck_output_upto_n(target, out, n):
     reach_limit        = False
     flycheck_header    = "FLYCHECK_BEGIN"
     flycheck_footer    = "FLYCHECK_END"
-    lines              = out.split("\n")
+    lines              = out.splitlines()
     lines_len          = len(lines)
     count              = 0
     i                  = 0
@@ -387,7 +396,6 @@ def find_lean_files(project_dir, args):
     for pattern in exclude_patterns:
         files -= set(find_files(project_dir, pattern))
     for file in args.targets:
-        file = os.path.abspath(file)
         if file.endswith(".lean"):
             files.add(file)
         elif file.endswith(".olean"):
@@ -396,16 +404,7 @@ def find_lean_files(project_dir, args):
         g_lean_files.append(get_lean_names(f, args))
     return g_lean_files
 
-def expand_target_to_fullname(target):
-    if target in ["all", "clean", "tags", "clear-cache"]:
-        return target
-    elif os.path.isfile(target):
-        return os.path.abspath(target)
-    else:
-        return os.path.join(g_working_dir, target)
-
 def parse_arg(argv):
-    global g_working_dir
     parser = argparse.ArgumentParser(description='linja: ninja build wrapper for Lean theorem prover.')
     parser.add_argument('--flycheck', '-F', action='store_true', default=False, help="Use --flycheck option for Lean.")
     parser.add_argument('--flycheck-max-messages', action='store', type=int, default=None, const=999999, nargs='?', help="Number of maximum flycheck messages to display.")
@@ -414,20 +413,24 @@ def parse_arg(argv):
     parser.add_argument('--lean-config-option', '-D', action='append', help="set a Lean configuration option (name=value)")
     parser.add_argument('targets', nargs='*')
     args = parser.parse_args(argv)
+    args.targets = map(make_target_abs, args.targets)
+
     if (args.flycheck == False and args.flycheck_max_messages != None):
         error("Please use --flycheck option with --flycheck-max-messages option.")
+    args.project_dir = None
+    if args.directory:
+        os.chdir(args.directory)
+    args.project_dir = find_project_upward(os.getcwd())
+    if args.project_dir:
+        os.chdir(args.project_dir)
     if args.cache:
-        args.cache = expand_target_to_fullname(args.cache)
+        args.cache = handle_target_name(args.cache)
         if len(args.targets) != 1:
             error("--cache option can only be used with one target")
         if not args.cache.endswith(".lean"):
             error("cache argument has to be ends with .lean")
         args.cache = args.cache[:-4] + "clean"
-
-    args.targets = map(expand_target_to_fullname, args.targets)
-    if args.directory:
-        os.chdir(args.directory)
-        g_working_dir = args.directory
+    args.targets = map(handle_target_name, args.targets)
     return args
 
 def get_lean_options(args):
@@ -444,18 +447,29 @@ def clear_cache(project_dir, args):
         if os.path.isfile(item['clean']):
             os.remove(item['clean'])
 
+def make_target_abs(target):
+    if target in ["all", "clean", "tags", "clear-cache"]:
+        return target
+    if os.path.isfile(target):
+        return os.path.abspath(target)
+    return target
+
+def handle_target_name(target):
+    if target in ["all", "clean", "tags", "clear-cache"]:
+        return target
+    return os.path.abspath(target)
+
 def main(argv=None):
     global g_lean_options
     if argv is None:
         argv = sys.argv[1:]
-    check_required_packages()
     args = parse_arg(argv)
-    project_dir = find_project_upward(g_working_dir)
+    project_dir = args.project_dir
+    check_required_packages()
     g_lean_options += get_lean_options(args)
     if not project_dir and args.targets in [[], ["all"], ["clean"], ["tags"], ["clear-cache"]]:
         error("cannot find project directory. Make sure that you have .project file at the project root.")
     if project_dir:
-        os.chdir(project_dir)
         if args.targets == ["clear-cache"]:
             args.targets = []
             clear_cache(project_dir, args)

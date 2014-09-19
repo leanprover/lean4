@@ -61,8 +61,13 @@ static void on_ctrl_c(int ) {
     lean::request_interrupt();
 }
 
+#define XSTR(x) #x
+#define STR(x) XSTR(x)
+
 static void display_header(std::ostream & out) {
-    out << "Lean (version " << LEAN_VERSION_MAJOR << "." << LEAN_VERSION_MINOR << ", commit " << std::string(g_githash).substr(0, 12) << ")\n";
+    out << "Lean (version " << LEAN_VERSION_MAJOR << "." << LEAN_VERSION_MINOR
+        << ", commit " << std::string(g_githash).substr(0, 12)
+        << ", " << STR(LEAN_BUILD_TYPE) << ")\n";
 }
 
 static void display_help(std::ostream & out) {

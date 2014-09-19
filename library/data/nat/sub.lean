@@ -26,7 +26,7 @@ theorem sub_zero_right {n : ℕ} : n - 0 = n
 
 theorem sub_succ_right {n m : ℕ} : n - succ m = pred (n - m)
 
-reducible [off] sub
+irreducible sub
 
 theorem sub_zero_left {n : ℕ} : 0 - n = 0 :=
 induction_on n sub_zero_right

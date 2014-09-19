@@ -8,13 +8,13 @@
 (require 'rx)
 
 (defconst lean-keywords
-  '("import" "reducible" "tactic_hint" "protected" "private" "opaque" "definition" "renaming"
-    "inline" "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture"
+  '("import" "reducible" "irreducible" "tactic_hint" "protected" "private" "opaque" "definition" "renaming"
+    "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture"
     "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem"
     "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"
     "options" "precedence" "postfix" "prefix" "calc_trans" "calc_subst" "calc_refl"
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
-    "using" "namespace" "builtin" "including" "instance" "class" "section"
+    "using" "namespace" "including" "instance" "class" "section"
     "set_option" "add_rewrite" "extends")
   "lean keywords")
 

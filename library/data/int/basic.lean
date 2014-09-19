@@ -206,7 +206,7 @@ exists_intro (pr1 (rep a))
 protected theorem has_decidable_eq [instance] : decidable_eq ℤ :=
 take a b : ℤ, _
 
-reducible [off] int
+irreducible int
 definition of_nat [coercion] (n : ℕ) : ℤ := psub (pair n 0)
 
 theorem eq_zero_intro (n : ℕ) : psub (pair n n) = 0 :=
@@ -323,7 +323,7 @@ or.imp_or (or.swap (proj_zero_or (rep a)))
           ... = -(psub (pair (pr2 (rep a)) 0)) : by simp
           ... = -(of_nat (pr2 (rep a))) : rfl))
 
-reducible [off] int
+irreducible int
 
 ---rename to by_cases in Lean 0.2 (for now using this to avoid name clash)
 theorem int_by_cases {P : ℤ → Prop} (a : ℤ) (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-n)) :
@@ -372,7 +372,7 @@ have H4 : n + m = 0, from
 add_eq_zero H4
 
 --some of these had to be transparent for theorem cases
-reducible [off] psub proj
+irreducible psub proj
 
 -- ## add
 

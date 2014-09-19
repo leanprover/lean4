@@ -72,7 +72,7 @@ theorem pred_zero : pred 0 = 0
 
 theorem pred_succ {n : ℕ} : pred (succ n) = n
 
-reducible [off] pred
+irreducible pred
 
 theorem zero_or_succ_pred (n : ℕ) : n = 0 ∨ n = succ (pred n) :=
 induction_on n
@@ -154,7 +154,7 @@ theorem add_zero_right {n : ℕ} : n + 0 = n
 
 theorem add_succ_right {n m : ℕ} : n + succ m = succ (n + m)
 
-reducible [off] add
+irreducible add
 
 theorem add_zero_left {n : ℕ} : 0 + n = n :=
 induction_on n
@@ -265,7 +265,7 @@ theorem mul_zero_right {n : ℕ} : n * 0 = 0
 
 theorem mul_succ_right {n m : ℕ} : n * succ m = n * m + n
 
-reducible [off] mul
+irreducible mul
 
 -- ### commutativity, distributivity, associativity, identity
 

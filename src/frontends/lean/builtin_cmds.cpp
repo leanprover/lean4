@@ -344,6 +344,22 @@ environment reducible_cmd(parser & p) {
     return env;
 }
 
+environment irreducible_cmd(parser & p) {
+    environment env         = p.env();
+    reducible_status status = reducible_status::Off;
+    bool persistent         = false;
+    parse_persistent(p, persistent);
+    bool found = false;
+    while (p.curr_is_identifier()) {
+        name c = p.check_constant_next("invalid 'irreducible' command, constant expected");
+        found   = true;
+        env = set_reducible(env, c, status, persistent);
+    }
+    if (!found)
+        throw exception("invalid empty 'irreducible' command");
+    return env;
+}
+
 environment erase_cache_cmd(parser & p) {
     name n = p.check_id_next("invalid #erase_cache command, identifier expected");
     p.erase_cached_definition(n);
@@ -364,6 +380,7 @@ cmd_table init_cmd_table() {
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
     add_cmd(r, cmd_info("coercion",     "add a new coercion", coercion_cmd));
     add_cmd(r, cmd_info("reducible",    "mark definitions as reducible/irreducible for automation", reducible_cmd));
+    add_cmd(r, cmd_info("irreducible",  "mark definitions as irreducible for automation", irreducible_cmd));
     add_cmd(r, cmd_info("#erase_cache", "erase cached definition (for debugging purposes)", erase_cache_cmd));
 
     register_decl_cmds(r);

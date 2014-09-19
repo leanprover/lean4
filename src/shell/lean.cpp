@@ -296,7 +296,7 @@ int main(int argc, char ** argv) {
     definition_cache * cache_ptr = nullptr;
     if (use_cache) {
         cache_ptr = &cache;
-        std::ifstream in(cache_name);
+        std::ifstream in(cache_name, std::ifstream::binary);
         if (!in.bad() && !in.fail())
             cache.load(in);
     }

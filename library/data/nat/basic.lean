@@ -30,14 +30,14 @@ theorem rec_zero {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) 
 theorem rec_succ {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) (n : ℕ) :
   nat.rec x f (succ n) = f n (nat.rec x f n)
 
-theorem induction_on [protected] {P : ℕ → Prop} (a : ℕ) (H1 : P zero) (H2 : ∀ (n : ℕ) (IH : P n), P (succ n)) :
+protected theorem induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P zero) (H2 : ∀ (n : ℕ) (IH : P n), P (succ n)) :
   P a :=
 nat.rec H1 H2 a
 
-definition rec_on [protected] {P : ℕ → Type} (n : ℕ) (H1 : P zero) (H2 : ∀m, P m → P (succ m)) : P n :=
+protected definition rec_on {P : ℕ → Type} (n : ℕ) (H1 : P zero) (H2 : ∀m, P m → P (succ m)) : P n :=
 nat.rec H1 H2 n
 
-theorem is_inhabited [protected] [instance] : inhabited nat :=
+protected theorem is_inhabited [instance] : inhabited nat :=
 inhabited.mk zero
 
 -- Coercion from num
@@ -105,7 +105,7 @@ induction_on n
     absurd H ne)
   (take k IH H, IH (succ_inj H))
 
-theorem has_decidable_eq [instance] [protected] : decidable_eq ℕ :=
+protected theorem has_decidable_eq [instance] : decidable_eq ℕ :=
 take n m : ℕ,
 have general : ∀n, decidable (n = m), from
   rec_on m

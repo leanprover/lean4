@@ -1,7 +1,7 @@
 import logic
 
 namespace foo
-  definition C [protected] := true
+  protected definition C := true
   definition D := true
 end foo
 

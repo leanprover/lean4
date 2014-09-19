@@ -15,19 +15,19 @@ namespace vec
   section sc_vec
   variable {T : Type}
 
-  theorem rec_on [protected] {C : ∀ (n : ℕ), vec T n → Type} {n : ℕ} (v : vec T n) (Hnil : C 0 nil)
+  protected theorem rec_on {C : ∀ (n : ℕ), vec T n → Type} {n : ℕ} (v : vec T n) (Hnil : C 0 nil)
     (Hcons : ∀(x : T) {n : ℕ} (w : vec T n), C n w → C (succ n) (cons x w)) : C n v :=
   rec Hnil Hcons v
 
-  theorem induction_on [protected] {C : ∀ (n : ℕ), vec T n → Prop} {n : ℕ} (v : vec T n) (Hnil : C 0 nil)
+  protected theorem induction_on {C : ∀ (n : ℕ), vec T n → Prop} {n : ℕ} (v : vec T n) (Hnil : C 0 nil)
     (Hcons : ∀(x : T) {n : ℕ} (w : vec T n), C n w → C (succ n) (cons x w)) : C n v :=
   rec_on v Hnil Hcons
 
-  theorem case_on [protected] {C : ∀ (n : ℕ), vec T n → Type} {n : ℕ} (v : vec T n) (Hnil : C 0 nil)
+  protected theorem case_on {C : ∀ (n : ℕ), vec T n → Type} {n : ℕ} (v : vec T n) (Hnil : C 0 nil)
     (Hcons : ∀(x : T) {n : ℕ} (w : vec T n), C (succ n) (cons x w)) : C n v :=
   rec_on v Hnil (take x n v IH, Hcons x v)
 
-  theorem is_inhabited [instance] [protected] (A : Type) (H : inhabited A) (n : nat) : inhabited (vec A n) :=
+  protected theorem is_inhabited [instance] (A : Type) (H : inhabited A) (n : nat) : inhabited (vec A n) :=
   nat.rec_on n
     (inhabited.mk (@vec.nil A))
     (λ (n : nat) (iH : inhabited (vec A n)),

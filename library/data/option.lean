@@ -10,11 +10,11 @@ inductive option (A : Type) : Type :=
   some    : A → option A
 
 namespace option
-  theorem induction_on [protected] {A : Type} {p : option A → Prop} (o : option A)
+  protected theorem induction_on {A : Type} {p : option A → Prop} (o : option A)
     (H1 : p none) (H2 : ∀a, p (some a)) : p o :=
   rec H1 H2 o
 
-  definition rec_on [protected] {A : Type} {C : option A → Type} (o : option A)
+  protected definition rec_on {A : Type} {C : option A → Type} (o : option A)
     (H1 : C none) (H2 : ∀a, C (some a)) : C o :=
   rec H1 H2 o
 
@@ -32,13 +32,13 @@ namespace option
     (H ▸ is_none_none)
     (not_is_none_some a)
 
-  theorem equal [protected] {A : Type} {a₁ a₂ : A} (H : some a₁ = some a₂) : a₁ = a₂ :=
+  protected theorem equal {A : Type} {a₁ a₂ : A} (H : some a₁ = some a₂) : a₁ = a₂ :=
   congr_arg (option.rec a₁ (λ a, a)) H
 
-  theorem is_inhabited [protected] [instance] (A : Type) : inhabited (option A) :=
+  protected theorem is_inhabited [instance] (A : Type) : inhabited (option A) :=
   inhabited.mk none
 
-  theorem has_decidable_eq [protected] [instance] {A : Type} (H : decidable_eq A) : decidable_eq (option A) :=
+  protected theorem has_decidable_eq [instance] {A : Type} (H : decidable_eq A) : decidable_eq (option A) :=
   take o₁ o₂ : option A,
     rec_on o₁
       (rec_on o₂ (inl rfl) (take a₂, (inr (none_ne_some a₂))))

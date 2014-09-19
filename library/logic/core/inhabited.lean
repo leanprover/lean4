@@ -9,7 +9,7 @@ mk : A → inhabited A
 
 namespace inhabited
 
-definition destruct [protected] {A : Type} {B : Type} (H1 : inhabited A) (H2 : A → B) : B :=
+protected definition destruct {A : Type} {B : Type} (H1 : inhabited A) (H2 : A → B) : B :=
 inhabited.rec H2 H1
 
 definition Prop_inhabited [instance] : inhabited Prop :=

@@ -16,10 +16,10 @@ inl trivial
 theorem false_decidable [instance] : decidable false :=
 inr not_false_trivial
 
-theorem induction_on [protected] {p : Prop} {C : Prop} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=
+protected theorem induction_on {p : Prop} {C : Prop} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=
 decidable.rec H1 H2 H
 
-definition rec_on [protected] {p : Prop} {C : Type} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) :
+protected definition rec_on {p : Prop} {C : Type} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) :
   C :=
 decidable.rec H1 H2 H
 

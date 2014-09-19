@@ -9,15 +9,15 @@ inductive unit : Type :=
 namespace unit
   notation `⋆`:max := star
 
-  theorem equal [protected] (a b : unit) : a = b :=
+  protected theorem equal (a b : unit) : a = b :=
   rec (rec rfl b) a
 
   theorem eq_star (a : unit) : a = star :=
   equal a star
 
-  theorem is_inhabited [protected] [instance] : inhabited unit :=
+  protected theorem is_inhabited [instance] : inhabited unit :=
   inhabited.mk ⋆
 
-  theorem has_decidable_eq [protected] [instance] : decidable_eq unit :=
+  protected theorem has_decidable_eq [instance] : decidable_eq unit :=
   take (a b : unit), inl (equal a b)
 end unit

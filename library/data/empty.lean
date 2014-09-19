@@ -10,7 +10,7 @@ import logic.core.cast
 inductive empty : Type
 
 namespace empty
-  theorem elim [protected] (A : Type) (H : empty) : A :=
+  protected theorem elim (A : Type) (H : empty) : A :=
   rec (λe, A) H
 end empty
 

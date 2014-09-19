@@ -19,7 +19,7 @@ section
   theorem dpr1_dpair (a : A) (b : B a) : dpr1 (dpair a b) = a := rfl
   theorem dpr2_dpair (a : A) (b : B a) : dpr2 (dpair a b) = b := rfl
 
-  theorem destruct [protected] {P : sigma B → Prop} (p : sigma B) (H : ∀a b, P (dpair a b)) : P p :=
+  protected theorem destruct {P : sigma B → Prop} (p : sigma B) (H : ∀a b, P (dpair a b)) : P p :=
   rec H p
 
   theorem dpair_ext (p : sigma B) : dpair (dpr1 p) (dpr2 p) = p :=
@@ -34,11 +34,11 @@ section
                 ... = dpair a₁ b₂                : {H₂})
     b₂ H₁ H₂
 
-  theorem equal [protected] {p₁ p₂ : Σx : A, B x} :
+  protected theorem equal {p₁ p₂ : Σx : A, B x} :
     ∀(H₁ : dpr1 p₁ = dpr1 p₂) (H₂ : eq.rec_on H₁ (dpr2 p₁) = (dpr2 p₂)), p₁ = p₂ :=
   destruct p₁ (take a₁ b₁, destruct p₂ (take a₂ b₂ H₁ H₂, dpair_eq H₁ H₂))
 
-  theorem is_inhabited [protected] [instance] (H₁ : inhabited A) (H₂ : inhabited (B (default A))) :
+  protected theorem is_inhabited [instance] (H₁ : inhabited A) (H₂ : inhabited (B (default A))) :
     inhabited (sigma B) :=
   inhabited.destruct H₁ (λa, inhabited.destruct H₂ (λb, inhabited.mk (dpair (default A) b)))
 end

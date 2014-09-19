@@ -184,7 +184,7 @@ representative_map_idempotent_equiv proj_rel @proj_congr a
 
 -- ## Definition of ℤ and basic theorems and definitions
 
-opaque definition int [protected] := image proj
+protected opaque definition int := image proj
 notation `ℤ` := int
 
 opaque definition psub : ℕ × ℕ → ℤ := fun_image proj
@@ -203,7 +203,7 @@ exists_intro (pr1 (rep a))
       a = psub (rep a) : (psub_rep a)⁻¹
     ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {(prod_ext (rep a))⁻¹}))
 
-theorem has_decidable_eq [instance] [protected] : decidable_eq ℤ :=
+protected theorem has_decidable_eq [instance] : decidable_eq ℤ :=
 take a b : ℤ, _
 
 reducible [off] int

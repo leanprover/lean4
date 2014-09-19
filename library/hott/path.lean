@@ -23,7 +23,7 @@ infix `≈` := path
 notation x `≈` y:50 `:>`:0 A:0 := @path A x y    -- TODO: is this right?
 definition idp {A : Type} {a : A} := idpath a
 
-definition induction_on [protected] {A : Type} {a b : A} (p : a ≈ b)
+protected definition induction_on {A : Type} {a b : A} (p : a ≈ b)
   {C : Π (b : A) (p : a ≈ b), Type} (H : C a (idpath a)) : C b p :=
 path.rec H p
 

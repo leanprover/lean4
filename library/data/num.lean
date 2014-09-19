@@ -18,11 +18,11 @@ theorem pos_num.is_inhabited [instance] : inhabited pos_num :=
 inhabited.mk pos_num.one
 
 namespace pos_num
-  theorem induction_on [protected] {P : pos_num → Prop} (a : pos_num)
+  protected theorem induction_on {P : pos_num → Prop} (a : pos_num)
       (H₁ : P one) (H₂ : ∀ (n : pos_num), P n → P (bit1 n)) (H₃ : ∀ (n : pos_num), P n → P (bit0 n)) : P a :=
   rec H₁ H₂ H₃ a
 
-  definition rec_on [protected] {P : pos_num → Type} (a : pos_num)
+  protected definition rec_on {P : pos_num → Type} (a : pos_num)
       (H₁ : P one) (H₂ : ∀ (n : pos_num), P n → P (bit1 n)) (H₃ : ∀ (n : pos_num), P n → P (bit0 n)) : P a :=
   rec H₁ H₂ H₃ a
 
@@ -125,11 +125,11 @@ inhabited.mk num.zero
 
 namespace num
   open pos_num
-  theorem induction_on [protected] {P : num → Prop} (a : num)
+  protected theorem induction_on {P : num → Prop} (a : num)
       (H₁ : P zero) (H₂ : ∀ (p : pos_num), P (pos p)) : P a :=
   rec H₁ H₂ a
 
-  definition rec_on [protected] {P : num → Type} (a : num)
+  protected definition rec_on {P : num → Type} (a : num)
       (H₁ : P zero) (H₂ : ∀ (p : pos_num), P (pos p)) : P a :=
   rec H₁ H₂ a
 

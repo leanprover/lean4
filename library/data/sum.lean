@@ -17,11 +17,11 @@ namespace sum
     infixr `+`:25 := sum    -- conflicts with notation for addition
   end extra_notation
 
-  definition rec_on [protected] {A B : Type} {C : (A ⊎ B) → Type} (s : A ⊎ B)
+  protected definition rec_on {A B : Type} {C : (A ⊎ B) → Type} (s : A ⊎ B)
     (H1 : ∀a : A, C (inl B a)) (H2 : ∀b : B, C (inr A b)) : C s :=
   rec H1 H2 s
 
-  definition cases_on [protected] {A B : Type} {P : (A ⊎ B) → Prop} (s : A ⊎ B)
+  protected definition cases_on {A B : Type} {P : (A ⊎ B) → Prop} (s : A ⊎ B)
     (H1 : ∀a : A, P (inl B a)) (H2 : ∀b : B, P (inr A b)) : P s :=
   rec H1 H2 s
 
@@ -49,13 +49,13 @@ namespace sum
   have H2 : f (inr A b2), from H ▸ H1,
   H2
 
-  theorem is_inhabited_left [protected] [instance] {A B : Type} (H : inhabited A) : inhabited (A ⊎ B) :=
+  protected theorem is_inhabited_left [instance] {A B : Type} (H : inhabited A) : inhabited (A ⊎ B) :=
   inhabited.mk (inl B (default A))
 
-  theorem is_inhabited_right [protected] [instance] {A B : Type} (H : inhabited B) : inhabited (A ⊎ B) :=
+  protected theorem is_inhabited_right [instance] {A B : Type} (H : inhabited B) : inhabited (A ⊎ B) :=
   inhabited.mk (inr A (default B))
 
-  theorem has_eq_decidable [protected] [instance] {A B : Type} (H1 : decidable_eq A) (H2 : decidable_eq B) :
+  protected theorem has_eq_decidable [instance] {A B : Type} (H1 : decidable_eq A) (H2 : decidable_eq B) :
        decidable_eq (A ⊎ B) :=
   take s1 s2 : A ⊎ B,
     rec_on s1

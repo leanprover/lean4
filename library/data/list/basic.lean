@@ -29,15 +29,15 @@ section
 
 variable {T : Type}
 
-theorem induction_on [protected] {P : list T → Prop} (l : list T) (Hnil : P nil)
+protected theorem induction_on {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hind : ∀ (x : T) (l : list T),  P l → P (x::l)) : P l :=
 rec Hnil Hind l
 
-theorem cases_on [protected] {P : list T → Prop} (l : list T) (Hnil : P nil)
+protected theorem cases_on {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hcons : ∀ (x : T) (l : list T), P (x::l)) : P l :=
 induction_on l Hnil (take x l IH, Hcons x l)
 
-definition rec_on [protected] {A : Type} {C : list A → Type} (l : list A)
+protected definition rec_on {A : Type} {C : list A → Type} (l : list A)
     (H1 : C nil) (H2 : Π (h : A) (t : list A), C t → C (h::t)) : C l :=
   rec H1 H2 l
 

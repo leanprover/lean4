@@ -10,10 +10,10 @@ inductive bool : Type :=
   ff : bool,
   tt : bool
 namespace bool
-  definition rec_on [protected] {C : bool → Type} (b : bool) (H₁ : C ff) (H₂ : C tt) : C b :=
+  protected definition rec_on {C : bool → Type} (b : bool) (H₁ : C ff) (H₂ : C tt) : C b :=
   rec H₁ H₂ b
 
-  definition cases_on [protected] {p : bool → Prop} (b : bool) (H₁ : p ff) (H₂ : p tt) : p b :=
+  protected definition cases_on {p : bool → Prop} (b : bool) (H₁ : p ff) (H₂ : p tt) : p b :=
   rec H₁ H₂ b
 
   definition cond {A : Type} (b : bool) (t e : A) :=
@@ -135,10 +135,10 @@ namespace bool
   theorem bnot_true  : !tt = ff :=
   rfl
 
-  theorem is_inhabited [protected] [instance] : inhabited bool :=
+  protected theorem is_inhabited [instance] : inhabited bool :=
   inhabited.mk ff
 
-  theorem has_decidable_eq [protected] [instance] : decidable_eq bool :=
+  protected theorem has_decidable_eq [instance] : decidable_eq bool :=
   take a b : bool,
     rec_on a
       (rec_on b (inl rfl) (inr ff_ne_tt))

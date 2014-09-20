@@ -41,6 +41,7 @@ bool is_directory(char const * pathname) {
 #if defined(LEAN_WINDOWS) && !defined(LEAN_CYGWIN)
 // Windows version
 static char g_path_sep     = ';';
+static char g_path_alt_sep = ':';
 static char g_sep          = '\\';
 static char g_bad_sep      = '/';
 static std::string get_exe_location() {
@@ -50,6 +51,7 @@ static std::string get_exe_location() {
     std::wstring pathstr(path);
     return std::string(pathstr.begin(), pathstr.end());
 }
+bool is_path_sep(char c) { return c == g_path_sep || c == g_path_alt_sep; }
 #elif defined(__APPLE__)
 // OSX version
 #include <mach-o/dyld.h>
@@ -68,6 +70,7 @@ static std::string get_exe_location() {
         throw exception("failed to resolve symbolic links in " + std::string(buf1));
     return std::string(buf2);
 }
+bool is_path_sep(char c) { return c == g_path_sep; }
 #else
 // Linux version
 #include <unistd.h>
@@ -89,6 +92,7 @@ static std::string get_exe_location() {
         return std::string(dest);
     }
 }
+bool is_path_sep(char c) { return c == g_path_sep; }
 #endif
 
 std::string normalize_path(std::string f) {
@@ -129,7 +133,7 @@ void init_lean_path() {
     unsigned j  = 0;
     unsigned sz = g_lean_path.size();
     for (; j < sz; j++) {
-        if (g_lean_path[j] == g_path_sep) {
+        if (is_path_sep(g_lean_path[j])) {
             if (j > i)
                 g_lean_path_vector.push_back(g_lean_path.substr(i, j - i));
             i = j + 1;

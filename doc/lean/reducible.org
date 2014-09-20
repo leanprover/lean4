@@ -3,7 +3,7 @@
 Lean automation can be configured using different commands and
 annotations. The =reducible= hint/annotation instructs automation
 which declarations can be freely unfolded. One of the main components
-of the Lean elaborator is a procedure for solving simulateneous
+of the Lean elaborator is a procedure for solving simultaneous
 higher-order unification constraints. Higher-order unification is a
 undecidable problem. Thus, the procedure implemented in Lean is
 clearly incomplete, that is, it may fail to find a solution for a set
@@ -19,9 +19,9 @@ The higher-order unification procedure has to perform case-analysis.
 The procedure is essentially implementing a backtracking search.  This
 procedure has to decide whether a definition =C= should be unfolded or
 not.  Here, we roughly divide this decision in two groups: _simple_
-and _complex_.  We say a unfolding decision is _simple_ if the
+and _complex_.  We say an unfolding decision is _simple_ if the
 procedure does not have to consider an extra case (aka
-case-split). That is, it does not increase the search space.  We say a
+case-split). That is, it does not increase the search space.  We say an
 unfolding decision is _complex_ if it produces at least one extra
 case, and consequently increases the search space.
 
@@ -30,7 +30,7 @@ We write =reducible(C)= to denote that =C= was marked as reducible by the user,
 and =irreducible(C)= to denote that =C= was marked as irreducible by the user.
 
 Theorems are never unfolded. For a transparent definition =C=, the
-higher-order unification procedure uses the following decisition tree.
+higher-order unification procedure uses the following decision tree.
 
 #+BEGIN_SRC
 if simple unfolding decision then
@@ -88,7 +88,7 @@ modification permanent, and save it in the .olean file.
   irreducible [persistent] pr2
 #+END_SRC
 
-The reducible and irreducible annotations can be removed using the modifer =[none]=.
+The reducible and irreducible annotations can be removed using the modifier =[none]=.
 
 #+BEGIN_SRC lean
   definition pr2 (A : Type) (a b : A) : A := b

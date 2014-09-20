@@ -2,14 +2,18 @@
 
 ** Definitions
 
-The command =definition= declares a new constrant/function. The identity function is defined as
+The command =definition= declares a new constant/function. The identity function is defined as
 
 #+BEGIN_SRC lean
   definition id (A : Type) (a : A) : A := a
 #+END_SRC
 
-We say definitions are "transparent", because the type checker can unfold them. The following declaration only type checks because =+= is a transparent definition.
-Otherwise, the type checker would reject the expression =v = w= since it would not be able to stablish that =2+3= and =5= are "identical". In Lean, we say they are _definitionally equal_.
+We say definitions are "transparent", because the type checker can
+unfold them. The following declaration only type checks because =+= is
+a transparent definition.  Otherwise, the type checker would reject
+the expression =v = w= since it would not be able to establish that
+=2+3= and =5= are "identical". In type theory, we say they are
+_definitionally equal_.
 
 #+BEGIN_SRC lean
   import data.vector data.nat
@@ -17,7 +21,7 @@ Otherwise, the type checker would reject the expression =v = w= since it would n
   check λ (v : vector nat (2+3)) (w : vector nat 5), v = w
 #+END_SRC
 
-Similarly, the followin definition only type checks because =id= is transparent, and the type checker can stablish that
+Similarly, the following definition only type checks because =id= is transparent, and the type checker can establish that
 =nat= and =id Type nat= are definitionally equal, that is, they are the "same".
 
 #+BEGIN_SRC lean
@@ -29,12 +33,12 @@ Similarly, the followin definition only type checks because =id= is transparent,
 ** Theorems
 
 In Lean, a theorem is just an =opaque= definition. We usually use
-=theorem= for declarating propositions.  The idea is that users don't
+=theorem= for declaring propositions.  The idea is that users don't
 really care about the actual proof, only about its existence.  As
 described in previous sections, =Prop= (the type of all propositions)
 is _proof irrelevant_.  If we had defined =id= using a theorem the
 previous example would produce a typing error because the type checker
-would be unable to unfold =id= and stablish that =nat= and =id Type
+would be unable to unfold =id= and establish that =nat= and =id Type
 nat= are definitionally equal.
 
 ** Opaque definitions
@@ -70,7 +74,7 @@ Here is an example
     id A a
 
     -- The following definition is type incorrect. It only type checks if
-    -- we unfold id, but it is not allowed because the definition is transparent.
+    -- we unfold id, but it is not allowed because the definition is opaque.
     /-
     definition buggy_def (A : Type) (a : A) : Prop :=
     ∀ (b : id Type A), a = b
@@ -102,7 +106,7 @@ transparent in this example.
 
 ** Private definitions and theorems
 
-Sometimes it is useful to hide auxiliary definitions and theorems form
+Sometimes it is useful to hide auxiliary definitions and theorems from
 the module interface. The keyword =private= allows us to declare local
 hidden definitions and theorems. A private definition is always
 opaque.  The name of a =private= definition is only visible in the

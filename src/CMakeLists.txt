@@ -313,15 +313,13 @@ if(NOT DEFINED PROCESSOR_COUNT)
   endif()
 endif()
 
-if((${CYGWIN} EQUAL "1") OR (NOT (${CMAKE_SYSTEM_NAME} MATCHES "Windows")))
-  # Only build libraries if we are NOT cross compiling
-  add_custom_target(
-    standard_lib ALL
-    COMMAND ${LEAN_SOURCE_DIR}/../bin/linja
-    DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
-    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
-    )
-endif()
+# Only build libraries if we are NOT cross compiling
+add_custom_target(
+  standard_lib ALL
+  COMMAND python ${LEAN_SOURCE_DIR}/../bin/linja
+  DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
+  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
+  )
 
 add_custom_target(clean-olean
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library

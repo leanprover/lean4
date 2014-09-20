@@ -42,11 +42,15 @@
 (defun lean-eldoc-documentation-function ()
   "Show information of lean expression at point if any"
   (interactive)
-  (when (or (and (not (looking-at (rx white)))
-                 (not (eolp)))
-            (and (looking-back (rx (not white)))
-                 (not (bolp))))
-    (lean-get-info-record-at-point 'lean-eldoc-documentation-function-cont)))
+  (cond ((and lean-flycheck-use
+              (or (get-char-property (point) 'flycheck-error)
+                  (get-char-property (point) 'flycheck-warning)))
+         nil)
+        ((or (and (not (looking-at (rx white)))
+                  (not (eolp)))
+             (and (looking-back (rx (not white)))
+                  (not (bolp))))
+         (lean-get-info-record-at-point 'lean-eldoc-documentation-function-cont))))
 
 ;; =======================================================
 ;; eval

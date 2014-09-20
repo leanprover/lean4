@@ -19,30 +19,15 @@ import tempfile
 import threading
 import urllib
 
-g_lean_path    = "USE DEFAULT"
-g_ltags_path   = "USE DEFAULT"
-g_ninja_path   = "USE DEFAULT"
-g_lean_files   = []
-g_linja_path   = ""
-g_lean_bin_dir = ""
-g_lean_options = []
-
-def which(program):
-    """ Lookup program in a path """
-    import os
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            path = path.strip('"')
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-    return None
+g_linja_path       = os.path.abspath(os.path.realpath(__file__))
+g_lean_bin_dir     = os.path.dirname(g_linja_path)
+g_phony_targets    = ["clean", "tags", "clear-cache"]
+g_project_filename = ".project"
+g_lean_path        = "USE DEFAULT" # System will search automatically
+g_ltags_path       = "USE DEFAULT" # System will search automatically
+g_ninja_path       = "USE DEFAULT" # System will search automatically
+g_flycheck_header    = "FLYCHECK_BEGIN"
+g_flycheck_footer    = "FLYCHECK_END"
 
 def log(msg):
     print >> sys.stderr, msg
@@ -63,7 +48,7 @@ class LinjaException(Exception):
         return self.msg
 
 def give_exec_permission(filename):
-    "chmod +x filename"
+    """chmod +x filename"""
     st = os.stat(filename)
     os.chmod(filename, st.st_mode | stat.S_IEXEC)
 
@@ -131,170 +116,160 @@ def download_ninja_and_save_at(ninja_path):
         give_exec_permission(ninja_path)
         return ninja_path
 
-def check_required_packages():
-    global g_linja_path, g_lean_bin_dir
+def find_file_upward(name, path = os.getcwd()):
+    project_file = os.path.join(path, name)
+    if os.path.isfile(project_file):
+        return path
+    up = os.path.dirname(path)
+    if up != path:
+        return find_file_upward(name, up)
+    return None
+
+def escape_ninja_char(name):
+    return name.replace(":", "$:")
+
+def normalize_drive_name(name):
+    if platform.system() == "Windows":
+        drive, path = os.path.splitdrive(name)
+        if drive == None:
+            return name
+        else:
+            return drive.lower() + path
+    else:
+        return name
+
+def process_target(target):
+    if target in g_phony_targets:
+        return target
+    return normalize_drive_name(os.path.abspath(target))
+
+def which(program):
+    """ Lookup program in a path """
+    import os
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+    return None
+
+def find_location(exec_name):
+    pathname = which(exec_name) or os.path.join(g_lean_bin_dir, exec_name)
+    pathname = os.path.abspath(pathname)
+    return pathname
+
+def check_requirements():
     global g_lean_path, g_ltags_path, g_ninja_path
-    g_linja_path   = os.path.abspath(os.path.realpath(__file__))
-    g_lean_bin_dir = os.path.dirname(g_linja_path)
     ltags_exec_name = "ltags"
-    lean_exec_name  = "lean.exe"  if platform.system() == "Windows" else "lean"
-    ninja_exec_name = "ninja.exe" if platform.system() == "Windows" else "ninja"
+    lean_exec_name  = "lean"
+    ninja_exec_name = "ninja"
+    if platform.system() == "Windows" or platform.system().startswith("MSYS"):
+        lean_exec_name  = "lean.exe"
+        ninja_exec_name = "ninja.exe"
+
     if g_lean_path == "USE DEFAULT":
-        g_lean_path = which(lean_exec_name) or os.path.join(g_lean_bin_dir, lean_exec_name)
-        g_lean_path = os.path.abspath(g_lean_path)
+        g_lean_path = find_location(lean_exec_name)
     if g_ltags_path == "USE DEFAULT":
-        g_ltags_path = which(ltags_exec_name) or os.path.join(g_lean_bin_dir, ltags_exec_name)
-        g_ltags_path = os.path.abspath(g_ltags_path)
+        g_ltags_path = find_location(ltags_exec_name)
     if g_ninja_path == "USE DEFAULT":
-        g_ninja_path = which(ninja_exec_name) or os.path.join(g_lean_bin_dir, ninja_exec_name)
-        g_ninja_path = os.path.abspath(g_ninja_path)
+        g_ninja_path = find_location(ninja_exec_name)
     if not os.path.isfile(g_lean_path):
-        error("cannot find lean executable at " + os.path.abspath(g_lean_path))
+        error("cannot find leanpp executable at " + os.path.abspath(g_lean_path))
     if not os.path.isfile(g_ltags_path):
         error("cannot find ltags executable at " + os.path.abspath(g_ltags_path))
     if not os.path.isfile(g_ninja_path):
         g_ninja_path = download_ninja_and_save_at(g_ninja_path)
 
-def make_deps(lean_file, dlean_file, olean_file):
-    with open(dlean_file, "w") as f:
-        deps = []
-        proc = subprocess.Popen([g_lean_path, "--deps", lean_file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = proc.communicate()[0]
-        print >> f, olean_file + ": \\"
-        for olean_file in output.strip().splitlines():
-            if olean_file:
-                deps.append(os.path.abspath(olean_file))
-        deps_str = " " + (" \\\n ".join(deps))
-        print >> f, deps_str
+def process_args(args):
+    if (args.flycheck == False and args.flycheck_max_messages != None):
+        error("Please use --flycheck option with --flycheck-max-messages option.")
+    args.targets = map(process_target, args.targets)
+    if args.directory:
+        os.chdir(args.directory)
+    args.project_dir = find_file_upward(g_project_filename)
+    if args.project_dir:
+        os.chdir(args.project_dir)
+    if args.cache:
+        args.cache = process_target(args.cache)
+        if len(args.targets) != 1:
+            error("--cache option can only be used with one target")
+        if not args.cache.endswith(".lean"):
+            error("cache argument has to be ends with .lean")
+        args.cache = args.cache[:-4] + "clean"
+    args.phony_targets = list(set(g_phony_targets) & set(args.targets))
+    if len(args.phony_targets) > 1:
+        error("Please provide at most one phony target: " + str(args.phony_targets))
+    return args
 
-def get_lean_names(lean_file, args):
-    lean_file = os.path.abspath(lean_file)
-    basename, ext = os.path.splitext(lean_file)
-    item = {}
-    item['base']  = basename;            item['lean']  = basename + ".lean";
-    item['d']     = basename + ".d";     item['olean'] = basename + ".olean";
-    item['ilean'] = basename + ".ilean"
-    if args.cache and len(args.targets) == 1 and item['lean'] == args.targets[0]:
-        item['clean'] = args.cache
-    else:
-        item['clean'] = basename + ".clean";
-    return item
+def get_lean_options(args):
+    args.lean_options = []
+    if args.flycheck:
+        args.lean_options.append("--flycheck")
+    if args.cache:
+        args.lean_options += ["-c", args.cache]
+    if args.lean_config_option:
+        for item in args.lean_config_option:
+            args.lean_options.append("-D" + item)
+    return args
 
-def make_deps_all_files(directory, args):
-    lean_files = find_lean_files(directory, args)
-    threads = []
-    i, num_of_files = 1, len(lean_files)
-    for item in lean_files:
-        lean_file  = item['lean']
-        dlean_file = item['d']
-        olean_file = item['olean']
-        if not os.path.isfile(dlean_file) or os.path.getmtime(dlean_file) < os.path.getmtime(lean_file):
-            thread = threading.Thread(target=make_deps, args = [lean_file, dlean_file, olean_file])
-            sys.stderr.write("[%i/%i] generating dep... % -80s\r" % (i, num_of_files, dlean_file))
-            sys.stderr.flush()
-            thread.start()
-            threads.append(thread)
-        i += 1
-    for thread in threads:
-        thread.join()
-    if threads != []:
-        sys.stderr.write("\n")
+def parse_arg(argv):
+    parser = argparse.ArgumentParser(description='linja: ninja build wrapper for Lean theorem prover.')
+    parser.add_argument('--flycheck', '-F', action='store_true', default=False, help="Use --flycheck option for Lean.")
+    parser.add_argument('--flycheck-max-messages', action='store', type=int, default=None, const=999999, nargs='?', help="Number of maximum flycheck messages to display.")
+    parser.add_argument('--cache', action='store', help="Use specified cache (clean) file.")
+    parser.add_argument('--directory', '-C', action='store', help="change to DIR before doing anything else.")
+    parser.add_argument('--lean-config-option', '-D', action='append', help="set a Lean configuration option (name=value)")
+    parser.add_argument('targets', nargs='*')
+    args = parser.parse_args(argv)
+    check_requirements()
+    args = process_args(args)
+    args = get_lean_options(args)
+    return args
 
-def rule_clean():
-    return """rule CLEAN
-  command = "%s" -t clean
-  description = Cleaning all built files...""" % g_ninja_path
+def debug_status(args):
+    print "Working Directory =", os.getcwd()
+    print ""
+    for key, val in vars(args).iteritems():
+        print "Option[" + key + "] =", val
+    print ""
+    print "linja path    =", g_linja_path
+    print "lean/bin dir  =", g_lean_bin_dir
+    print "phony targets =", g_phony_targets
+    print "lean path     =", g_lean_path
+    print "ltags path    =", g_ltags_path
+    print "ninja path    =", g_ninja_path
 
-def rule_lean():
-    return """rule LEAN
-  depfile = ${DLEAN_FILE}
-  command = "%s" %s "$in" -o "${OLEAN_FILE}" -c "${CLEAN_FILE}" -i "${ILEAN_FILE}" """ \
-      % (g_lean_path, " ".join(g_lean_options))
-
-def rule_tags():
-  if platform.system() == "Windows":
-    return """rule LTAGS
-  command = python "%s" $in """ % (g_ltags_path)
-  else:
-    return """rule LTAGS
-  command = "%s" $in """ % (g_ltags_path)
-
-def build_all(lean_files):
-    str = "build all: phony"
-    for item in lean_files:
-        str = str + " " + item['olean']
-    return str
-
-def build_tags(lean_files):
-    tags_file = "TAGS"
-    str = "build tags: phony " + tags_file + "\n"
-    str += "build " + tags_file + ": LTAGS"
-    for item in lean_files:
-        str = str + " " + item['ilean']
-    return str
-
-def build_clean():
-    return """build clean: CLEAN"""
-
-def build_olean(lean, olean, clean, dlean, ilean, base):
-    if clean.startswith(base):
-        str = """build %s %s %s: LEAN %s | %s\n""" % (olean, ilean, clean, lean, dlean)
-    else:
-        str = """build %s %s: LEAN %s | %s\n""" % (olean, ilean, lean, dlean)
-    str += "  DLEAN_FILE=%s\n" % dlean
-    str += "  OLEAN_FILE=%s\n" % olean
-    str += "  CLEAN_FILE=%s\n" % clean
-    str += "  ILEAN_FILE=%s\n" % ilean
-    return str
-
-def ninja_default():
-    return """default all"""
-
-def make_build_ninja(directory, args):
-    with open(os.path.join(directory, "build.ninja"), "w") as f:
-        lean_files = find_lean_files(directory, args)
-        print >> f, rule_clean()
-        print >> f, rule_lean()
-        print >> f, rule_tags()
-        print >> f, build_all(lean_files)
-        print >> f, build_tags(lean_files)
-        print >> f, build_clean()
-        for item in lean_files:
-            print >> f, build_olean(item['lean'], item['olean'], item['clean'], item['d'], item['ilean'], item['base'])
-        print >> f, ninja_default()
-
-def find_project_upward(path):
-    project_file = os.path.join(path, ".project")
-    if os.path.isfile(project_file):
-        return path
-    up = os.path.dirname(path)
-    if up != path:
-        return find_project_upward(up)
-    return None
-
-def handle_failure_for_flycheck(out, err, args):
+def handle_flycheck_failure(out, err, args):
     if len(args.targets) == 0:
-        error("handle_failure_for_flycheck is called without targets")
+        error("handle_flycheck_failure is called without targets")
     target = args.targets[0]
     failed = set()
     for line in out.splitlines():
         if line.startswith("FAILED:"):
-            for lean_file in g_lean_files:
+            for lean_file in find_lean_files(args):
                 lean = lean_file['lean']
                 if lean in line and lean != target:
                     failed.add(lean)
     for failed_file in failed:
-        print "FLYCHECK_BEGIN ERROR"
+        print g_flycheck_header, "ERROR"
         print "%s:1:0: error: failed to compile %s" % (target, failed_file)
-        print "FLYCHECK_END"
+        print g_flycheck_footer
     if err:
-        print "FLYCHECK_BEGIN ERROR"
+        print g_flycheck_header, "ERROR"
         print "%s:1:0: error: %s" % (target, err.strip())
-        print "FLYCHECK_END"
+        print g_flycheck_footer
     if failed:
         call_lean(target, args)
 
-def print_flycheck_output_upto_n(target, out, n):
+def process_lean_output(target, out, args):
+    n = args.flycheck_max_messages
     if target.endswith(".olean"):
         target = target[:-5] + "lean"
     if not target.endswith(".lean") or n == None:
@@ -303,8 +278,6 @@ def print_flycheck_output_upto_n(target, out, n):
 
     inside_of_flycheck = False
     reach_limit        = False
-    flycheck_header    = "FLYCHECK_BEGIN"
-    flycheck_footer    = "FLYCHECK_END"
     lines              = out.splitlines()
     lines_len          = len(lines)
     count              = 0
@@ -312,24 +285,27 @@ def print_flycheck_output_upto_n(target, out, n):
     current_file = ""
     while i < lines_len:
         line = lines[i]
-        if line.startswith(flycheck_header):
+        i += 1
+        if line == "":
+            continue
+        if line.startswith(g_flycheck_header):
             inside_of_flycheck = True
-            current_file = lines[i+1].split(":")[0]
+            current_file = lines[i].split(":")[0]
         if inside_of_flycheck and not reach_limit:
             print line
-        if line.startswith(flycheck_footer):
+        if line.startswith(g_flycheck_footer):
             if current_file == target:
                 count += 1
             inside_of_flycheck = False
         if count >= n:
             reach_limit = True
-        i += 1
-    if reach_limit:
-        print "FLYCHECK_BEGIN ERROR"
-        print "%s:1:0: error: For performance, we only display %d errors/warnings out of %d. (lean-flycheck-max-messages-to-display)" % (target, n, count)
-        print "FLYCHECK_END"
 
-def call_ninja(directory, args):
+    if reach_limit:
+        print g_flycheck_header, "ERROR"
+        print "%s:1:0: error: For performance, we only display %d errors/warnings out of %d. (lean-flycheck-max-messages-to-display)" % (target, n, count)
+        print g_flycheck_footer
+
+def call_ninja(args):
     targets = []
     for item in args.targets:
         if item.endswith(".lean"):
@@ -340,29 +316,37 @@ def call_ninja(directory, args):
     if args.flycheck:
         proc_out = subprocess.PIPE
         proc_err = subprocess.PIPE
-
     proc = subprocess.Popen([g_ninja_path] + targets, stdout=proc_out, stderr=proc_err)
     proc.wait()
 
     if args.flycheck:
         (out, err) = proc.communicate()
         if len(args.targets) == 1 and args.targets[0].endswith(".lean"):
-            print_flycheck_output_upto_n(targets[0], out, args.flycheck_max_messages)
-            handle_failure_for_flycheck(out, err, args)
+            process_lean_output(targets[0], out, args)
+            handle_flycheck_failure(out, err, args)
         else:
             print out + err
 
     return proc.returncode
 
 def call_lean(filename, args):
-    lean_options = list(g_lean_options)
-    if args.cache:
-        lean_options += ["-c", args.cache]
-    proc = subprocess.Popen([g_lean_path] + lean_options + [filename],
+    proc = subprocess.Popen([g_lean_path] + args.lean_options + [filename],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = proc.communicate()[0]
-    print_flycheck_output_upto_n(filename, out, args.flycheck_max_messages)
+    process_lean_output(filename, out, args)
     return proc.returncode
+
+def get_lean_names(lean_file, args):
+    lean_file = os.path.abspath(lean_file)
+    basename, ext = os.path.splitext(lean_file)
+    basename = normalize_drive_name(basename)
+    lean_name_exts = ["lean", "olean", "clean", "ilean", "d"]
+    item = {"base" : basename}
+    for ext in lean_name_exts:
+        item[ext] = basename + "." + ext
+    if args.cache and len(args.targets) == 1 and item['lean'] == args.targets[0]:
+        item['clean'] = args.cache
+    return item
 
 def find_files(directory, pattern):
     if "/" in pattern:
@@ -370,15 +354,19 @@ def find_files(directory, pattern):
     matches = []
     for root, dirnames, filenames in os.walk(directory):
         for filename in fnmatch.filter(filenames, pattern):
-            matches.append(os.path.join(root, filename))
+            matches.append(normalize_drive_name(os.path.join(root, filename)))
     return matches
 
-def find_lean_files(project_dir, args):
-    if g_lean_files != []:
-        return g_lean_files
+def find_lean_files(args):
+    """Find lean files under project directory. Include and exclude
+    files based on patterns in .project file. Use static cache to
+    compute only once and reuse it"""
+    project_dir = args.project_dir
+    if find_lean_files.cached_list != []:
+        return find_lean_files.cached_list
     files = set()
     include_patterns, exclude_patterns = [], []
-    with open(os.path.join(project_dir, ".project"), 'r') as f:
+    with open(os.path.join(project_dir, g_project_filename), 'r') as f:
         for line in f:
             c = line[0]
             if c == '+':
@@ -401,89 +389,137 @@ def find_lean_files(project_dir, args):
         elif file.endswith(".olean"):
             file.add(file[:-5] + "lean")
     for f in files:
-        g_lean_files.append(get_lean_names(f, args))
-    return g_lean_files
+        find_lean_files.cached_list.append(get_lean_names(f, args))
+    return find_lean_files.cached_list
 
-def parse_arg(argv):
-    parser = argparse.ArgumentParser(description='linja: ninja build wrapper for Lean theorem prover.')
-    parser.add_argument('--flycheck', '-F', action='store_true', default=False, help="Use --flycheck option for Lean.")
-    parser.add_argument('--flycheck-max-messages', action='store', type=int, default=None, const=999999, nargs='?', help="Number of maximum flycheck messages to display.")
-    parser.add_argument('--cache', action='store', help="Use specified cache (clean) file.")
-    parser.add_argument('--directory', '-C', action='store', help="change to DIR before doing anything else.")
-    parser.add_argument('--lean-config-option', '-D', action='append', help="set a Lean configuration option (name=value)")
-    parser.add_argument('targets', nargs='*')
-    args = parser.parse_args(argv)
-    args.targets = map(make_target_abs, args.targets)
+# Initialize static variable
+find_lean_files.cached_list = []
 
-    if (args.flycheck == False and args.flycheck_max_messages != None):
-        error("Please use --flycheck option with --flycheck-max-messages option.")
-    args.project_dir = None
-    if args.directory:
-        os.chdir(args.directory)
-    args.project_dir = find_project_upward(os.getcwd())
-    if args.project_dir:
-        os.chdir(args.project_dir)
-    if args.cache:
-        args.cache = handle_target_name(args.cache)
-        if len(args.targets) != 1:
-            error("--cache option can only be used with one target")
-        if not args.cache.endswith(".lean"):
-            error("cache argument has to be ends with .lean")
-        args.cache = args.cache[:-4] + "clean"
-    args.targets = map(handle_target_name, args.targets)
-    return args
+def clear_cache(args):
+    files = find_lean_files(args)
+    files = find_lean_files(args)
+    files = find_lean_files(args)
+    files = find_lean_files(args)
+    num_of_files = len(files)
+    i = 0
+    for item in files:
+        i += 1
+        clean_file = item['clean']
+        if os.path.isfile(clean_file):
+            sys.stderr.write("[%i/%i] clear cache... % -80s\r" % (i, num_of_files, clean_file))
+            sys.stderr.flush()
+            os.remove(clean_file)
+    if num_of_files > 0:
+        sys.stderr.write("\n")
 
-def get_lean_options(args):
-    options = []
-    if args.flycheck:
-        options.append("--flycheck")
-    if args.lean_config_option:
-        for item in args.lean_config_option:
-            options.append("-D" + item)
-    return options
+def build_olean(lean, olean, clean, dlean, ilean, base):
+    (lean, olean, clean, dlean, ilean, base) = map(escape_ninja_char, (lean, olean, clean, dlean, ilean, base))
+    if clean.startswith(base):
+        str = """build %s %s %s: LEAN %s | %s\n""" % (olean, ilean, clean, lean, dlean)
+    else:
+        str = """build %s %s: LEAN %s | %s\n""" % (olean, ilean, lean, dlean)
+    str += "  DLEAN_FILE=%s\n" % dlean
+    str += "  OLEAN_FILE=%s\n" % olean
+    str += "  CLEAN_FILE=%s\n" % clean
+    str += "  ILEAN_FILE=%s\n" % ilean
+    return str
 
-def clear_cache(project_dir, args):
-    for item in find_lean_files(project_dir, args):
-        if os.path.isfile(item['clean']):
-            os.remove(item['clean'])
+def make_build_ninja(args):
+    with open(os.path.join(args.project_dir, "build.ninja"), "w") as f:
+        lean_files = find_lean_files(args)
 
-def make_target_abs(target):
-    if target in ["all", "clean", "tags", "clear-cache"]:
-        return target
-    if os.path.isfile(target):
-        return os.path.abspath(target)
-    return target
+        print >> f, """rule CLEAN"""
+        print >> f, """  command = """,
+        print >> f, """"%s" -t clean""" % g_ninja_path
+        print >> f, """  description = Cleaning all built files..."""
 
-def handle_target_name(target):
-    if target in ["all", "clean", "tags", "clear-cache"]:
-        return target
-    return os.path.abspath(target)
+        print >> f, """rule LEAN"""
+        print >> f, """  depfile = ${DLEAN_FILE}"""
+        print >> f, """  command = "%s" %s "$in" -o "${OLEAN_FILE}" -c "${CLEAN_FILE}" -i "${ILEAN_FILE}" """ \
+            % (g_lean_path, " ".join(args.lean_options))
+
+        print >> f, """rule LTAGS"""
+        print >> f, """  command = """,
+        if platform.system() == "Windows":
+            print >> f, "python ",
+        print >> f, """"%s" $in """ % (g_ltags_path)
+
+        print >> f, "build all: phony",
+        for item in lean_files:
+            print >> f, " " + escape_ninja_char(item['olean']),
+        print >> f, ""
+
+        tags_file = "TAGS"
+        print >> f, "build tags: phony " + tags_file
+        print >> f, "build " + tags_file + ": LTAGS",
+        for item in lean_files:
+            print >> f, " " + escape_ninja_char(item['ilean']),
+        print >> f, ""
+
+        print >> f, """build clean: CLEAN"""
+
+        for item in lean_files:
+            print >> f, build_olean(item['lean'], item['olean'], item['clean'], item['d'], item['ilean'], item['base'])
+
+        print >> f, """default all"""
+
+def make_deps(lean_file, dlean_file, olean_file):
+    with open(dlean_file, "w") as f:
+        deps = []
+        proc = subprocess.Popen([g_lean_path, "--deps", lean_file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output = proc.communicate()[0]
+        print >> f, olean_file + ": \\"
+        for olean_file in output.strip().splitlines():
+            if olean_file:
+                deps.append(normalize_drive_name(os.path.abspath(olean_file)))
+        deps_str = " " + (" \\\n ".join(deps))
+        print >> f, deps_str
+
+def make_deps_all_files(args):
+    lean_files = find_lean_files(args)
+    threads = []
+    i, num_of_files = 1, len(lean_files)
+    for item in lean_files:
+        lean_file  = item['lean']
+        dlean_file = item['d']
+        olean_file = item['olean']
+        if not os.path.isfile(dlean_file) or os.path.getmtime(dlean_file) < os.path.getmtime(lean_file):
+            thread = threading.Thread(target=make_deps, args = [lean_file, dlean_file, olean_file])
+            sys.stderr.write("[%i/%i] generating dep... % -80s\r" % (i, num_of_files, dlean_file))
+            sys.stderr.flush()
+            thread.start()
+            threads.append(thread)
+        i += 1
+    for thread in threads:
+        thread.join()
+    if threads != []:
+        sys.stderr.write("\n")
 
 def main(argv=None):
-    global g_lean_options
     if argv is None:
         argv = sys.argv[1:]
     args = parse_arg(argv)
-    project_dir = args.project_dir
-    check_required_packages()
-    g_lean_options += get_lean_options(args)
-    if not project_dir and args.targets in [[], ["all"], ["clean"], ["tags"], ["clear-cache"]]:
-        error("cannot find project directory. Make sure that you have .project file at the project root.")
-    if project_dir:
+    if args.project_dir:
         if args.targets == ["clear-cache"]:
             args.targets = []
-            clear_cache(project_dir, args)
+            clear_cache(args)
             return 0
         if not "clean" in args.targets:
-            make_deps_all_files(project_dir, args)
-        make_build_ninja(project_dir, args)
-        return call_ninja(project_dir, args)
-    else:
+            make_deps_all_files(args)
+        make_build_ninja(args)
+        return call_ninja(args)
+
+    else: # NO Project Directory Found
+        if args.phony_targets:
+            error("cannot find project directory. Make sure that you have " \
+                   + g_project_filename + " file at the project root.")
         returncode = 0
         for filename in args.targets:
             if os.path.isfile(filename) and filename.endswith(".lean"):
                 returncode |= call_lean(filename, args)
         return returncode
+
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

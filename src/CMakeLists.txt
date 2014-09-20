@@ -287,7 +287,7 @@ file(GLOB_RECURSE LEAN_SOURCES
          ${LEAN_SOURCE_DIR}/[A-Za-z]*.cpp
          ${LEAN_SOURCE_DIR}/[A-Za-z]*.h)
 add_style_check_target(style "${LEAN_SOURCES}")
-add_test(NAME style_check COMMAND ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})
+add_test(NAME style_check COMMAND python ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})
 
 # Set PROCESSOR_COUNT
 if(NOT DEFINED PROCESSOR_COUNT)

@@ -15,7 +15,7 @@ f=$2
 echo "-- testing $f"
 $LEAN config.lean $f &> $f.produced.out
 if test -f $f.expected.out; then
-    if diff -I "executing external script" $f.produced.out $f.expected.out; then
+    if diff --ignore-all-space -I "executing external script" $f.produced.out $f.expected.out; then
         echo "-- checked"
         exit 0
     else
@@ -26,7 +26,7 @@ if test -f $f.expected.out; then
                 echo "-- mismath was fixed"
             fi
         else
-            diff -I "executing external script" $f.produced.out $f.expected.out
+            diff --ignore-all-space -I "executing external script" $f.produced.out $f.expected.out
         fi
         exit 1
     fi

@@ -152,17 +152,41 @@ bool pretty_fn::is_prop(expr const & e) {
     }
 }
 
+auto pretty_fn::pp_coercion_fn(expr const & e, unsigned sz) -> result {
+    if (sz == 1) {
+        return pp_child(app_arg(e), max_bp()-1);
+    } else if (is_app(e) && is_implicit(app_fn(e))) {
+        return pp_coercion_fn(app_fn(e), sz-1);
+    } else {
+        expr const & fn = app_fn(e);
+        result res_fn   = pp_coercion_fn(fn, sz-1);
+        format fn_fmt   = res_fn.first;
+        if (m_implict && sz == 2 && has_implicit_args(fn))
+            fn_fmt = compose(g_explicit_fmt, fn_fmt);
+        result res_arg  = pp_child(app_arg(e), max_bp());
+        return mk_result(group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.first)))), max_bp()-1);
+    }
+}
+
 auto pretty_fn::pp_coercion(expr const & e, unsigned bp) -> result {
     buffer<expr> args;
     expr const & f = get_app_args(e, args);
     optional<pair<name, unsigned>> r = is_coercion(m_env, f);
     lean_assert(r);
-    if (r->second >= args.size())
+    if (r->second >= args.size()) {
         return pp_child_core(e, bp);
-    else if (r->second == args.size() - 1)
+    } else if (r->second == args.size() - 1) {
         return pp_child(args.back(), bp);
-    else
-        return pp_child(mk_app(args.size() - r->second, args.data() + r->second), bp);
+    } else {
+        unsigned sz = args.size() - r->second;
+        lean_assert(sz >= 2);
+        auto r = pp_coercion_fn(e, sz);
+        if (r.second < bp) {
+            return mk_result(paren(r.first));
+        } else {
+            return r;
+        }
+    }
 }
 
 auto pretty_fn::pp_child_core(expr const & e, unsigned bp) -> result {

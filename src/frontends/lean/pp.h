@@ -59,6 +59,7 @@ private:
     format pp_binders(buffer<expr> const & locals);
     format pp_level(level const & l);
 
+    result pp_coercion_fn(expr const & e, unsigned sz);
     result pp_coercion(expr const & e, unsigned bp);
     result pp_child_core(expr const & e, unsigned bp);
     result pp_child(expr const & e, unsigned bp);

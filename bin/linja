@@ -134,7 +134,8 @@ def normalize_drive_name(name):
         if drive == None:
             return name
         else:
-            return drive.lower() + path
+            # Leo: return drive.lower() + path
+            return path
     else:
         return name
 

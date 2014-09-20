@@ -255,6 +255,8 @@ void display_path(std::ostream & out, std::string const & fname) {
 std::string dirname(char const * fname) {
     if (fname == nullptr)
         return ".";
+    std::string nfname = normalize_path(std::string(fname));
+    fname = nfname.c_str();
     unsigned i        = 0;
     unsigned last_sep = 0;
     bool found_sep    = false;

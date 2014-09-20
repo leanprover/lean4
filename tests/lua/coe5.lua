@@ -25,7 +25,7 @@ for_each_coercion_user(env, function(C, D, f) print(tostring(C) .. " >-> " .. to
 print(get_coercions_to_sort(env, Const("abelian_ring", {1})):head())
 assert(env:type_check(get_coercions_to_sort(env, Const("abelian_ring", {1})):head()))
 print("Coercions (abelian ring): ")
-cs = get_user_coercions(env, ab_ring)
+cs = get_coercions_from(env, ab_ring)
 for i = 1, #cs do
-   print(tostring(cs[i][1]) .. " : " .. tostring(cs[i][3]) .. " : " .. tostring(cs[i][2]))
+   print(tostring(cs[i][2]) .. " : " .. tostring(cs[i][4]) .. " : " .. tostring(cs[i][3]))
 end

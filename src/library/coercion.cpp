@@ -16,28 +16,15 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 
 namespace lean {
-enum class coercion_class_kind { User, Sort, Fun };
-
-/**
-   \brief A coercion is a mapping between classes.
-   We support three kinds of classes: User, Sort, Function.
-*/
-class coercion_class {
-    coercion_class_kind m_kind;
-    name                m_name; // relevant only if m_kind == User
-    coercion_class(coercion_class_kind k, name const & n = name()):m_kind(k), m_name(n) {}
-public:
-    coercion_class():m_kind(coercion_class_kind::Sort) {}
-    static coercion_class mk_user(name n) { return coercion_class(coercion_class_kind::User, n); }
-    static coercion_class mk_sort() { return coercion_class(coercion_class_kind::Sort); }
-    static coercion_class mk_fun() { return coercion_class(coercion_class_kind::Fun); }
-    friend bool operator==(coercion_class const & c1, coercion_class const & c2) {
-        return c1.m_kind == c2.m_kind && c1.m_name == c2.m_name;
-    }
-    friend bool operator!=(coercion_class const & c1, coercion_class const & c2) { return !(c1 == c2); }
-    coercion_class_kind kind() const { return m_kind; }
-    name get_name() const { return m_name; }
-};
+coercion_class coercion_class::mk_user(name n) { return coercion_class(coercion_class_kind::User, n); }
+coercion_class coercion_class::mk_sort() { return coercion_class(coercion_class_kind::Sort); }
+coercion_class coercion_class::mk_fun() { return coercion_class(coercion_class_kind::Fun); }
+bool operator==(coercion_class const & c1, coercion_class const & c2) {
+    return c1.m_kind == c2.m_kind && c1.m_name == c2.m_name;
+}
+bool operator!=(coercion_class const & c1, coercion_class const & c2) {
+    return !(c1 == c2);
+}
 
 std::ostream & operator<<(std::ostream & out, coercion_class const & cls) {
     switch (cls.kind()) {
@@ -415,6 +402,18 @@ bool has_coercions_to(environment const & env, name const & D) {
     return it && !is_nil(*it);
 }
 
+bool has_coercions_to_sort(environment const & env) {
+    coercion_state const & ext = coercion_ext::get_state(env);
+    auto it = ext.m_to.find(coercion_class::mk_sort());
+    return it && !is_nil(*it);
+}
+
+bool has_coercions_to_fun(environment const & env) {
+    coercion_state const & ext = coercion_ext::get_state(env);
+    auto it = ext.m_to.find(coercion_class::mk_fun());
+    return it && !is_nil(*it);
+}
+
 bool has_coercions_from(environment const & env, name const & C) {
     coercion_state const & ext = coercion_ext::get_state(env);
     return ext.m_coercion_info.contains(C);
@@ -465,7 +464,7 @@ list<expr> get_coercions_to_fun(environment const & env, expr const & C) {
     return get_coercions(env, C, coercion_class::mk_fun());
 }
 
-bool get_user_coercions(environment const & env, expr const & C, buffer<std::tuple<name, expr, expr>> & result) {
+bool get_coercions_from(environment const & env, expr const & C, buffer<std::tuple<coercion_class, expr, expr>> & result) {
     buffer<expr> args;
     expr const & C_fn = get_app_rev_args(C, args);
     if (!is_constant(C_fn))
@@ -476,15 +475,14 @@ bool get_user_coercions(environment const & env, expr const & C, buffer<std::tup
         return false;
     bool r = false;
     for (coercion_info const & info : *it) {
-        if (info.m_to.kind() == coercion_class_kind::User &&
-            info.m_num_args == args.size() &&
+        if (info.m_num_args == args.size() &&
             length(info.m_level_params) == length(const_levels(C_fn))) {
             expr f = instantiate_univ_params(info.m_fun, info.m_level_params, const_levels(C_fn));
             expr c = apply_beta(f, args.size(), args.data());
             expr t = instantiate_univ_params(info.m_fun_type, info.m_level_params, const_levels(C_fn));
             for (unsigned i = 0; i < args.size(); i++) t = binding_body(t);
             t = instantiate(t, args.size(), args.data());
-            result.emplace_back(info.m_to.get_name(), c, t);
+            result.emplace_back(info.m_to, c, t);
             r = true;
         }
     }
@@ -568,19 +566,26 @@ static int get_coercions_to_fun(lua_State * L) {
     return push_list_expr(L, get_coercions_to_fun(to_environment(L, 1), to_expr(L, 2)));
 }
 
-static int get_user_coercions(lua_State * L) {
-    buffer<std::tuple<name, expr, expr>> r;
-    get_user_coercions(to_environment(L, 1), to_expr(L, 2), r);
+static int get_coercions_from(lua_State * L) {
+    buffer<std::tuple<coercion_class, expr, expr>> r;
+    get_coercions_from(to_environment(L, 1), to_expr(L, 2), r);
     lua_newtable(L);
     int i = 1;
     for (auto p : r) {
         lua_newtable(L);
-        push_name(L, std::get<0>(p));
+        coercion_class c = std::get<0>(p);
+        push_integer(L, static_cast<unsigned>(c.kind()));
         lua_rawseti(L, -2, 1);
-        push_expr(L, std::get<1>(p));
+        if (c.kind() == coercion_class_kind::User) {
+            push_name(L, c.get_name());
+        } else {
+            push_nil(L);
+        }
         lua_rawseti(L, -2, 2);
-        push_expr(L, std::get<2>(p));
+        push_expr(L, std::get<1>(p));
         lua_rawseti(L, -2, 3);
+        push_expr(L, std::get<2>(p));
+        lua_rawseti(L, -2, 4);
         lua_rawseti(L, -2, i);
         i = i + 1;
     }
@@ -616,10 +621,10 @@ void open_coercion(lua_State * L) {
     SET_GLOBAL_FUN(add_coercion,           "add_coercion");
     SET_GLOBAL_FUN(is_coercion,            "is_coercion");
     SET_GLOBAL_FUN(has_coercions_from,     "has_coercions_from");
-    SET_GLOBAL_FUN(get_coercions,           "get_coercions");
-    SET_GLOBAL_FUN(get_coercions_to_sort,   "get_coercions_to_sort");
-    SET_GLOBAL_FUN(get_coercions_to_fun,    "get_coercions_to_fun");
-    SET_GLOBAL_FUN(get_user_coercions,     "get_user_coercions");
+    SET_GLOBAL_FUN(get_coercions,          "get_coercions");
+    SET_GLOBAL_FUN(get_coercions_to_sort,  "get_coercions_to_sort");
+    SET_GLOBAL_FUN(get_coercions_to_fun,   "get_coercions_to_fun");
+    SET_GLOBAL_FUN(get_coercions_from,     "get_coercions_from");
     SET_GLOBAL_FUN(for_each_coercion_user, "for_each_coercion_user");
     SET_GLOBAL_FUN(for_each_coercion_sort, "for_each_coercion_sort");
     SET_GLOBAL_FUN(for_each_coercion_fun,  "for_each_coercion_fun");

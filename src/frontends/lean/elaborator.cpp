@@ -434,37 +434,40 @@ public:
         return is_constant(a_cls) && ::lean::has_coercions_from(env(), const_name(a_cls));
     }
 
-    bool has_coercions_to(expr const & d_type) {
-        expr const & d_cls = get_app_fn(whnf(d_type).first);
-        return is_constant(d_cls) && ::lean::has_coercions_to(env(), const_name(d_cls));
+    bool has_coercions_to(expr d_type) {
+        d_type = whnf(d_type).first;
+        expr const & fn = get_app_fn(d_type);
+        if (is_constant(fn))
+            return ::lean::has_coercions_to(env(), const_name(fn));
+        else if (is_pi(d_type))
+            return ::lean::has_coercions_to_fun(env());
+        else if (is_sort(d_type))
+            return ::lean::has_coercions_to_sort(env());
+        else
+            return false;
     }
 
     expr apply_coercion(expr const & a, expr a_type, expr d_type) {
         a_type = whnf(a_type).first;
         d_type = whnf(d_type).first;
-        expr const & d_cls = get_app_fn(d_type);
-        if (is_constant(d_cls)) {
-            list<expr> coes = get_coercions(env(), a_type, const_name(d_cls));
-            if (is_nil(coes)) {
-                erase_coercion_info(a);
-                return a;
-            } else if (is_nil(tail(coes))) {
-                expr r = mk_app(head(coes), a, a.get_tag());
-                save_coercion_info(a, r);
-                return r;
-            } else {
-                for (expr const & coe : coes) {
-                    expr r = mk_app(coe, a, a.get_tag());
-                    expr r_type = infer_type(r).first;
-                    if (m_tc[m_relax_main_opaque]->is_def_eq(r_type, d_type).first) {
-                        save_coercion_info(a, r);
-                        return r;
-                    }
-                }
-                erase_coercion_info(a);
-                return a;
-            }
+        constraint_seq aux_cs;
+        list<expr> coes = get_coercions_from_to(*m_tc[m_relax_main_opaque], a_type, d_type, aux_cs);
+        if (is_nil(coes)) {
+            erase_coercion_info(a);
+            return a;
+        } else if (is_nil(tail(coes))) {
+            expr r = mk_app(head(coes), a, a.get_tag());
+            save_coercion_info(a, r);
+            return r;
         } else {
+            for (expr const & coe : coes) {
+                expr r = mk_app(coe, a, a.get_tag());
+                expr r_type = infer_type(r).first;
+                if (m_tc[m_relax_main_opaque]->is_def_eq(r_type, d_type).first) {
+                    save_coercion_info(a, r);
+                    return r;
+                }
+            }
             erase_coercion_info(a);
             return a;
         }

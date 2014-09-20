@@ -21,6 +21,23 @@ coercion_elaborator::coercion_elaborator(coercion_info_manager & info, expr cons
     lean_assert(use_id  || length(m_coercions)     == length(m_choices));
 }
 
+list<expr> get_coercions_from_to(type_checker & tc, expr const & from_type, expr const & to_type, constraint_seq & cs) {
+    constraint_seq new_cs;
+    expr whnf_to_type = tc.whnf(to_type, new_cs);
+    expr const & fn   = get_app_fn(whnf_to_type);
+    list<expr> r;
+    if (is_constant(fn)) {
+        r = get_coercions(tc.env(), from_type, const_name(fn));
+    } else if (is_pi(whnf_to_type)) {
+        r = get_coercions_to_fun(tc.env(), from_type);
+    } else if (is_sort(whnf_to_type)) {
+        r = get_coercions_to_sort(tc.env(), from_type);
+    }
+    if (r)
+        cs += new_cs;
+    return r;
+}
+
 optional<constraints> coercion_elaborator::next() {
     if (!m_choices)
         return optional<constraints>();
@@ -65,8 +82,8 @@ constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
         new_a_type = tc.whnf(new_a_type, cs);
         if (is_meta(d_type)) {
             // case-split
-            buffer<std::tuple<name, expr, expr>> alts;
-            get_user_coercions(tc.env(), new_a_type, alts);
+            buffer<std::tuple<coercion_class, expr, expr>> alts;
+            get_coercions_from(tc.env(), new_a_type, alts);
             buffer<constraints> choices;
             buffer<expr> coes;
             // first alternative: no coercion
@@ -86,33 +103,24 @@ constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
                                                                 to_list(choices.begin(), choices.end()),
                                                                 to_list(coes.begin(), coes.end())));
         } else {
-            expr new_d_type    = tc.whnf(d_type, cs);
-            expr const & d_cls = get_app_fn(new_d_type);
-            if (is_constant(d_cls)) {
-                list<expr> coes = get_coercions(tc.env(), new_a_type, const_name(d_cls));
-                if (is_nil(coes)) {
-                    expr new_a = a;
-                    infom.erase_coercion_info(a);
-                    cs += mk_eq_cnstr(meta, new_a, new_a_type_jst, relax);
-                    return lazy_list<constraints>(cs.to_list());
-                } else if (is_nil(tail(coes))) {
-                    expr new_a = copy_tag(a, mk_app(head(coes), a));
-                    infom.save_coercion_info(a, new_a);
-                    cs += mk_eq_cnstr(meta, new_a, new_a_type_jst, relax);
-                    return lazy_list<constraints>(cs.to_list());
-                } else {
-                    list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
-                            expr new_a   = copy_tag(a, mk_app(coe, a));
-                            constraint c = mk_eq_cnstr(meta, new_a, new_a_type_jst, relax);
-                            return (cs + c).to_list();
-                        });
-                    return choose(std::make_shared<coercion_elaborator>(infom, meta, choices, coes, false));
-                }
-            } else {
+            list<expr> coes    = get_coercions_from_to(tc, new_a_type, d_type, cs);
+            if (is_nil(coes)) {
                 expr new_a = a;
                 infom.erase_coercion_info(a);
                 cs += mk_eq_cnstr(meta, new_a, new_a_type_jst, relax);
                 return lazy_list<constraints>(cs.to_list());
+            } else if (is_nil(tail(coes))) {
+                expr new_a = copy_tag(a, mk_app(head(coes), a));
+                infom.save_coercion_info(a, new_a);
+                cs += mk_eq_cnstr(meta, new_a, new_a_type_jst, relax);
+                return lazy_list<constraints>(cs.to_list());
+            } else {
+                list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
+                        expr new_a   = copy_tag(a, mk_app(coe, a));
+                        constraint c = mk_eq_cnstr(meta, new_a, new_a_type_jst, relax);
+                        return (cs + c).to_list();
+                    });
+                return choose(std::make_shared<coercion_elaborator>(infom, meta, choices, coes, false));
             }
         }
     };

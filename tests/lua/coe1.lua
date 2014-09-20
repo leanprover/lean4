@@ -84,7 +84,7 @@ assert(not has_coercions_from(env2, Const("vec", {1})(nat)))
 assert(not has_coercions_from(env2, Const("vec")(nat, one)))
 
 print("Coercions (vec nat one): ")
-cs = get_user_coercions(env2, Const("vec", {1})(nat, one))
+cs = get_coercions_from(env2, Const("vec", {1})(nat, one))
 for i = 1, #cs do
-   print(tostring(cs[i][1]) .. " : " .. tostring(cs[i][3]) .. " : " .. tostring(cs[i][2]))
+   print(tostring(cs[i][2]) .. " : " .. tostring(cs[i][4]) .. " : " .. tostring(cs[i][3]))
 end

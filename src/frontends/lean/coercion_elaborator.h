@@ -51,4 +51,6 @@ pair<expr, constraint> mk_coercion_elaborator(
 pair<expr, constraint> coercions_to_choice(coercion_info_manager & infom, local_context & ctx,
                                            list<expr> const & coes, expr const & a,
                                            justification const & j, bool relax);
+
+list<expr> get_coercions_from_to(type_checker & tc, expr const & from_type, expr const & to_type, constraint_seq & cs);
 }

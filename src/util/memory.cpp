@@ -14,12 +14,18 @@ size_t     get_allocated_memory() {
     return 0;
 }
 
-void * malloc(size_t sz)  {
+void * malloc(size_t sz, bool use_ex)  {
     void * r = ::malloc(sz);
     if (r || sz == 0)
         return r;
-    else
+    else if (use_ex)
         throw std::bad_alloc();
+    else
+        return nullptr;
+}
+
+void * malloc(size_t sz) {
+    return malloc(sz, true);
 }
 
 void * realloc(void * ptr, size_t sz) {
@@ -105,15 +111,21 @@ static alloc_info                          g_global_memory;
 
 size_t     get_allocated_memory() { return g_global_memory.size(); }
 
-void * malloc(size_t sz)  {
+void * malloc(size_t sz, bool use_ex)  {
     void * r = malloc_core(sz);
     if (r || sz == 0) {
         size_t rsz = malloc_size(r);
         g_global_memory.inc(rsz);
         return r;
-    } else {
+    } else if (use_ex) {
         throw std::bad_alloc();
+    } else {
+        return nullptr;
     }
+}
+
+void * malloc(size_t sz) {
+    return malloc(sz, true);
 }
 
 void * realloc(void * ptr, size_t sz) {
@@ -143,8 +155,10 @@ void free(void * ptr) {
 }
 }
 
-void* operator new(std::size_t sz) throw(std::bad_alloc) { return lean::malloc(sz); }
+void* operator new(std::size_t sz) throw(std::bad_alloc) { return lean::malloc(sz, true); }
 void  operator delete(void * ptr) throw() { return lean::free(ptr); }
-void* operator new[](std::size_t sz) throw(std::bad_alloc) { return lean::malloc(sz); }
+void* operator new[](std::size_t sz) throw(std::bad_alloc) { return lean::malloc(sz, true); }
 void  operator delete[](void * ptr) throw() { return lean::free(ptr); }
+void* operator new(std::size_t sz, std::nothrow_t const &) { return lean::malloc(sz, false); }
+void* operator new[](std::size_t sz, std::nothrow_t const &) { return lean::malloc(sz, false); }
 #endif

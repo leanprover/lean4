@@ -15,18 +15,17 @@ Author: Leonardo de Moura
 #include "library/bin_app.h"
 
 namespace lean {
-static name g_resolve_macro_name("resolve");
-static std::string g_resolve_opcode("Res");
-
+static name * g_resolve_macro_name    = nullptr;
+static std::string * g_resolve_opcode = nullptr;
 // Declarations used by the resolve_macro
-static expr g_or(Const("or"));
-static expr g_not(Const("not"));
-static expr g_false(Const("false"));
-static expr g_or_elim(Const(name("or", "elim")));
-static expr g_or_intro_left(Const(name("or", "intro_left")));
-static expr g_or_intro_right(Const(name("or", "intro_right")));
-static expr g_absurd_elim(Const("absurd_elim"));
-static expr g_var_0(mk_var(0));
+static expr * g_or                    = nullptr;
+static expr * g_not                   = nullptr;
+static expr * g_false                 = nullptr;
+static expr * g_or_elim               = nullptr;
+static expr * g_or_intro_left         = nullptr;
+static expr * g_or_intro_right        = nullptr;
+static expr * g_absurd_elim           = nullptr;
+static expr * g_var_0                 = nullptr;
 /**
    \brief Resolve macro encodes a simple propositional resolution step.
    It takes three arguments:
@@ -68,7 +67,8 @@ class resolve_macro_definition_cell : public macro_definition_cell {
     simple_delayed_justification m_dummy_jst;
 public:
     resolve_macro_definition_cell():m_dummy_jst([] { return mk_justification("resolve macro"); }) {
-        m_dummy_jst.get(); // the delayed_justification may be accessed by different threads, thus we force its initialization.
+        // the delayed_justification may be accessed by different threads, thus we force its initialization.
+        m_dummy_jst.get();
     }
 
     // The following const cast is say because we already initialized the delayed justification in the constructor.
@@ -112,7 +112,7 @@ public:
         return false;
     }
 
-    bool is_or(expr const & a, expr & lhs, expr & rhs) const { return is_bin_app(a, g_or, lhs, rhs); }
+    bool is_or(expr const & a, expr & lhs, expr & rhs) const { return is_bin_app(a, *g_or, lhs, rhs); }
 
     bool collect(expr const & lhs, expr const & rhs, expr const & l, buffer<expr> & R, extension_context & ctx) const {
         bool r1 = collect(lhs, l, R, ctx);
@@ -143,7 +143,7 @@ public:
         environment const & env = ctx.env();
         check_num_args(env, m);
         expr l     = whnf(macro_arg(m, 0), ctx);
-        expr not_l = whnf(g_not(l), ctx);
+        expr not_l = whnf(mk_app(*g_not, l), ctx);
         expr C1    = arg_types[1];
         expr C2    = arg_types[2];
         buffer<expr> R; // resolvent
@@ -151,7 +151,7 @@ public:
             throw_kernel_exception(env, "invalid resolve macro, positive literal was not found", m);
         if (!collect(C2, not_l, R, ctx))
             throw_kernel_exception(env, "invalid resolve macro, negative literal was not found", m);
-        return mk_bin_rop(g_or, g_false, R.size(), R.data());
+        return mk_bin_rop(*g_or, *g_false, R.size(), R.data());
     }
 
     // End of resolve_macro get_type implementation
@@ -166,7 +166,7 @@ public:
         environment const & env = ctx.env();
         check_num_args(env, m);
         expr l     = whnf(macro_arg(m, 0), ctx);
-        expr not_l = whnf(g_not(l), ctx);
+        expr not_l = whnf(mk_app(*g_not, l), ctx);
         expr H1    = macro_arg(m, 1);
         expr H2    = macro_arg(m, 2);
         expr C1    = infer_type(H1, ctx);
@@ -176,7 +176,7 @@ public:
         return some_expr(mk_or_elim_tree1(l, not_l, C1, H1, C2, H2, R, ctx));
     }
 
-    bool is_or_app(expr const & a) const { return is_bin_app(a, g_or); }
+    bool is_or_app(expr const & a) const { return is_bin_app(a, *g_or); }
 
     /** \brief Given l : H, and R == (or ... l ...), create a proof term for R using or_intro_left and or_intro_right */
     expr mk_or_intro(expr const & l, expr const & H, expr const & R, extension_context & ctx) const {
@@ -187,11 +187,11 @@ public:
             // or_intro_left {a : Prop} (H : a) (b : Prop) : a ∨ b
             // or_intro_right {b : Prop} (a : Prop) (H : b) : a ∨ b
             if (is_def_eq(l, lhs, ctx)) {
-                return g_or_intro_left(l, H, rhs);
+                return mk_app(*g_or_intro_left, l, H, rhs);
             } else if (is_def_eq(l, rhs, ctx)) {
-                return g_or_intro_right(l, lhs, H);
+                return mk_app(*g_or_intro_right, l, lhs, H);
             } else {
-                return g_or_intro_right(rhs, lhs, mk_or_intro(l, H, rhs, ctx));
+                return mk_app(*g_or_intro_right, rhs, lhs, mk_or_intro(l, H, rhs, ctx));
             }
         } else if (is_def_eq(l, R, ctx)) {
             return H;
@@ -242,9 +242,10 @@ public:
         expr H2_1    = lift(H2);
         expr R_1     = lift(R);
         // or_elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
-        return g_or_elim(lhs1, rhs1, R, H1,
-                         mk_lambda("H2", lhs1, mk_or_elim_tree1(l_1, not_l_1, lhs1_1, g_var_0, C2_1, H2_1, R_1, ctx)),
-                         mk_lambda("H3", rhs1, mk_or_elim_tree1(l_1, not_l_1, rhs1_1, g_var_0, C2_1, H2_1, R_1, ctx)));
+        return mk_app({*g_or_elim,
+                    lhs1, rhs1, R, H1,
+                    mk_lambda("H2", lhs1, mk_or_elim_tree1(l_1, not_l_1, lhs1_1, *g_var_0, C2_1, H2_1, R_1, ctx)),
+                    mk_lambda("H3", rhs1, mk_or_elim_tree1(l_1, not_l_1, rhs1_1, *g_var_0, C2_1, H2_1, R_1, ctx))});
     }
 
     /**
@@ -265,7 +266,7 @@ public:
                 return mk_or_elim_tree2(l, H, not_l, lhs, rhs, H2, R, ctx);
             } else if (is_def_eq(C2, not_l, ctx)) {
                 // absurd_elim {a : Prop} (b : Prop) (H1 : a) (H2 : ¬ a) : b
-                return g_absurd_elim(l, R, H, H2);
+                return mk_app(*g_absurd_elim, l, R, H, H2);
             } else {
                 return mk_or_intro(C2, H2, R, ctx);
             }
@@ -288,31 +289,58 @@ public:
         expr rhs2_1  = lift(rhs2);
         expr R_1     = lift(R);
         // or_elim {a b c : Prop} (H1 : a ∨ b) (H2 : a → c) (H3 : b → c) : c
-        return g_or_elim(lhs2, rhs2, R, H2,
-                         mk_lambda("H2", lhs2, mk_or_elim_tree2(l_1, H_1, not_l_1, lhs2_1, g_var_0, R_1, ctx)),
-                         mk_lambda("H3", rhs2, mk_or_elim_tree2(l_1, H_1, not_l_1, rhs2_1, g_var_0, R_1, ctx)));
+        return mk_app({*g_or_elim,
+                    lhs2, rhs2, R, H2,
+                    mk_lambda("H2", lhs2, mk_or_elim_tree2(l_1, H_1, not_l_1, lhs2_1, *g_var_0, R_1, ctx)),
+                    mk_lambda("H3", rhs2, mk_or_elim_tree2(l_1, H_1, not_l_1, rhs2_1, *g_var_0, R_1, ctx))});
     }
 
-    virtual name get_name() const { return g_resolve_macro_name; }
+    virtual name get_name() const { return *g_resolve_macro_name; }
     /** \brief Resolve is a very simple macro, we can trust its implementation most of the time. */
     virtual unsigned trust_level() const { return 0; }
-    virtual void write(serializer & s) const { s.write_string(g_resolve_opcode); }
+    virtual void write(serializer & s) const { s.write_string(*g_resolve_opcode); }
 };
 
-static macro_definition g_resolve_macro_definition(new resolve_macro_definition_cell());
+static macro_definition * g_resolve_macro_definition = nullptr;
 
 expr mk_resolve_macro(expr const & l, expr const & H1, expr const & H2) {
     expr args[3] = {l, H1, H2};
-    return mk_macro(g_resolve_macro_definition, 3, args);
+    return mk_macro(*g_resolve_macro_definition, 3, args);
 }
 
-static register_macro_deserializer_fn
-resolve_macro_des_fn(g_resolve_opcode,
-                     [](deserializer &, unsigned num, expr const * args) {
-                         if (num != 3)
-                             throw corrupted_stream_exception();
-                         return mk_resolve_macro(args[0], args[1], args[2]);
-                     });
+void initialize_resolve_macro() {
+    g_resolve_macro_name = new name("resolve");
+    g_resolve_opcode = new std::string("Res");
+    g_or = new expr(Const("or"));
+    g_not = new expr(Const("not"));
+    g_false = new expr(Const("false"));
+    g_or_elim = new expr(Const(name("or", "elim")));
+    g_or_intro_left = new expr(Const(name("or", "intro_left")));
+    g_or_intro_right = new expr(Const(name("or", "intro_right")));
+    g_absurd_elim = new expr(Const("absurd_elim"));
+    g_var_0 = new expr(mk_var(0));
+    g_resolve_macro_definition = new macro_definition(new resolve_macro_definition_cell());
+    register_macro_deserializer(*g_resolve_opcode,
+                                [](deserializer &, unsigned num, expr const * args) {
+                                    if (num != 3)
+                                        throw corrupted_stream_exception();
+                                    return mk_resolve_macro(args[0], args[1], args[2]);
+                                });
+}
+
+void finalize_resolve_macro() {
+    delete g_resolve_macro_definition;
+    delete g_var_0;
+    delete g_absurd_elim;
+    delete g_or_intro_right;
+    delete g_or_intro_left;
+    delete g_or_elim;
+    delete g_false;
+    delete g_not;
+    delete g_or;
+    delete g_resolve_opcode;
+    delete g_resolve_macro_name;
+}
 
 static int mk_resolve_macro(lua_State * L) { return push_expr(L, mk_resolve_macro(to_expr(L, 1), to_expr(L, 2), to_expr(L, 3))); }
 void open_resolve_macro(lua_State * L) {  SET_GLOBAL_FUN(mk_resolve_macro, "resolve_macro"); }

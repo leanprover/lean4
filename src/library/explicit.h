@@ -42,4 +42,6 @@ expr const & get_as_is_arg(expr const & e);
 */
 expr const & get_implicit_arg(expr const & e);
 void open_explicit(lua_State * L);
+void initialize_explicit();
+void finalize_explicit();
 }

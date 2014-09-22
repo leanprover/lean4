@@ -7,8 +7,12 @@ Author: Leonardo de Moura
 #include <locale>
 #include "util/test.h"
 #include "util/exception.h"
+#include "util/init_module.h"
+#include "util/sexpr/init_module.h"
+#include "kernel/init_module.h"
 #include "kernel/level.h"
 #include "library/kernel_serializer.h"
+#include "library/init_module.h"
 using namespace lean;
 
 static void check_serializer(level const & l) {
@@ -63,7 +67,15 @@ static void tst2() {
 
 int main() {
     save_stack_info();
+    initialize_util_module();
+    initialize_sexpr_module();
+    initialize_kernel_module();
+    initialize_library_module();
     tst1();
     tst2();
+    finalize_library_module();
+    finalize_kernel_module();
+    finalize_sexpr_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

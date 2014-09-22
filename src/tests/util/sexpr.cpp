@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/test.h"
 #include "util/name.h"
+#include "util/init_module.h"
 #include "util/numerics/mpq.h"
 #include "util/sexpr/sexpr.h"
 #include "util/sexpr/sexpr_fn.h"
@@ -240,6 +241,7 @@ static void tst10() {
 
 int main() {
     save_stack_info();
+    initialize_util_module();
     initialize_sexpr_module();
     tst1();
     tst2();
@@ -252,5 +254,6 @@ int main() {
     tst9();
     tst10();
     finalize_sexpr_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

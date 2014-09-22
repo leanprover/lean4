@@ -10,11 +10,15 @@ Author: Leonardo de Moura
 #include <vector>
 #include <limits>
 #include "util/test.h"
+#include "util/init_module.h"
+#include "util/sexpr/init_module.h"
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
 #include "kernel/free_vars.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
+#include "kernel/init_module.h"
+#include "library/init_module.h"
 #include "library/max_sharing.h"
 #include "library/print.h"
 #include "library/deep_copy.h"
@@ -363,6 +367,10 @@ static void tst18() {
 
 int main() {
     save_stack_info();
+    initialize_util_module();
+    initialize_sexpr_module();
+    initialize_kernel_module();
+    initialize_library_module();
     init_default_print_fn();
     lean_assert(sizeof(expr) == sizeof(optional<expr>));
     tst1();
@@ -392,5 +400,9 @@ int main() {
     std::cout << "sizeof(optional<sexpr>): " << sizeof(optional<sexpr>) << "\n";
     std::cout << "sizeof(std::function):   " << sizeof(std::function<expr(expr const &, optional<expr> const &)>) << "\n";
     std::cout << "done" << "\n";
+    finalize_library_module();
+    finalize_kernel_module();
+    finalize_sexpr_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

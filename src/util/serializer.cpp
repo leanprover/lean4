@@ -12,6 +12,16 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 
 namespace lean {
+void initialize_serializer() {
+    serializer::initialize();
+    deserializer::initialize();
+}
+
+void finalize_serializer() {
+    deserializer::finalize();
+    serializer::finalize();
+}
+
 void serializer_core::write_unsigned(unsigned i) {
     static_assert(sizeof(i) == 4, "unexpected unsigned size");
     m_out.put((i >> 24) & 0xff);

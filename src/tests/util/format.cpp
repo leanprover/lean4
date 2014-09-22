@@ -10,6 +10,7 @@ Author: Soonho Kong
 #include <utility>
 #include <string>
 #include "util/test.h"
+#include "util/init_module.h"
 #include "util/numerics/mpq.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/sexpr_fn.h"
@@ -127,6 +128,7 @@ static void tst6() {
 
 int main() {
     save_stack_info();
+    initialize_util_module();
     initialize_sexpr_module();
     tst1();
     tst2();
@@ -135,5 +137,6 @@ int main() {
     tst5();
     tst6();
     finalize_sexpr_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

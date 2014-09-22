@@ -11,17 +11,16 @@ Author: Leonardo de Moura
 #include "library/string.h"
 
 namespace lean {
-static name g_string_macro("string_macro");
-static std::string g_string_opcode("Str");
-
-static expr g_bool(Const(name("bool")));
-static expr g_ff(Const(name("bool", "ff")));
-static expr g_tt(Const(name("bool", "tt")));
-static expr g_char(Const(name("char")));
-static expr g_ascii(Const(name("char", "mk")));
-static expr g_string(Const(name("string")));
-static expr g_empty(Const(name("string", "empty")));
-static expr g_str(Const(name("string", "str")));
+static name * g_string_macro         = nullptr;
+static std::string * g_string_opcode = nullptr;
+static expr * g_bool                 = nullptr;
+static expr * g_ff                   = nullptr;
+static expr * g_tt                   = nullptr;
+static expr * g_char                 = nullptr;
+static expr * g_ascii                = nullptr;
+static expr * g_string               = nullptr;
+static expr * g_empty                = nullptr;
+static expr * g_str                  = nullptr;
 
 expr from_string_core(unsigned i, std::string const & s);
 
@@ -33,9 +32,9 @@ public:
     virtual bool lt(macro_definition_cell const & d) const {
         return m_value < static_cast<string_macro const &>(d).m_value;
     }
-    virtual name get_name() const { return g_string_macro; }
+    virtual name get_name() const { return *g_string_macro; }
     virtual expr get_type(expr const &, expr const *, extension_context &) const {
-        return g_string;
+        return *g_string;
     }
     virtual optional<expr> expand(expr const &, extension_context &) const {
         return some_expr(from_string_core(0, m_value));
@@ -71,7 +70,7 @@ public:
     }
     virtual bool is_atomic_pp(bool, bool) const { return true; }
     virtual unsigned hash() const { return std::hash<std::string>()(m_value); }
-    virtual void write(serializer & s) const { s << g_string_opcode << m_value; }
+    virtual void write(serializer & s) const { s << *g_string_opcode << m_value; }
     std::string const & get_value() const { return m_value; }
 };
 
@@ -88,25 +87,49 @@ string_macro const & to_string_macro(expr const & e) {
     return *static_cast<string_macro const *>(macro_def(e).raw());
 }
 
-static register_macro_deserializer_fn
-string_macro_des_fn(g_string_opcode,
-                    [](deserializer & d, unsigned num, expr const *) {
-                         if (num != 0)
-                             throw corrupted_stream_exception();
-                         std::string v = d.read_string();
-                         return mk_string_macro(v);
-                    });
+void initialize_string() {
+    g_string_macro  = new name("string_macro");
+    g_string_opcode = new std::string("Str");
+    g_bool          = new expr(Const(name("bool")));
+    g_ff            = new expr(Const(name("bool", "ff")));
+    g_tt            = new expr(Const(name("bool", "tt")));
+    g_char          = new expr(Const(name("char")));
+    g_ascii         = new expr(Const(name("char", "mk")));
+    g_string        = new expr(Const(name("string")));
+    g_empty         = new expr(Const(name("string", "empty")));
+    g_str           = new expr(Const(name("string", "str")));
+    register_macro_deserializer(*g_string_opcode,
+                                [](deserializer & d, unsigned num, expr const *) {
+                                    if (num != 0)
+                                        throw corrupted_stream_exception();
+                                    std::string v = d.read_string();
+                                    return mk_string_macro(v);
+                                });
+}
+
+void finalize_string() {
+    delete g_str;
+    delete g_empty;
+    delete g_string;
+    delete g_ascii;
+    delete g_char;
+    delete g_tt;
+    delete g_ff;
+    delete g_bool;
+    delete g_string_opcode;
+    delete g_string_macro;
+}
 
 bool has_string_decls(environment const & env) {
     try {
         type_checker tc(env);
         return
-            tc.infer(g_ff).first    == g_bool &&
-            tc.infer(g_tt).first    == g_bool &&
-            tc.infer(g_ascii).first == g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> (g_bool >> g_char))))))) &&
-            tc.infer(g_empty).first == g_string &&
-            tc.infer(g_str).first   == g_char >> (g_string >> g_string);
-    } catch (...) {
+            tc.infer(*g_ff).first    == *g_bool &&
+            tc.infer(*g_tt).first    == *g_bool &&
+            tc.infer(*g_ascii).first == *g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> (*g_bool >> *g_char))))))) &&
+            tc.infer(*g_empty).first == *g_string &&
+            tc.infer(*g_str).first   == *g_char >> (*g_string >> *g_string);
+    } catch (exception &) {
         return false;
     }
 }
@@ -115,21 +138,21 @@ expr from_char(unsigned char c) {
     buffer<expr> bits;
     while (c != 0) {
         if (c % 2 == 1)
-            bits.push_back(g_tt);
+            bits.push_back(*g_tt);
         else
-            bits.push_back(g_ff);
+            bits.push_back(*g_ff);
         c /= 2;
     }
     while (bits.size() < 8)
-        bits.push_back(g_ff);
-    return mk_rev_app(g_ascii, bits.size(), bits.data());
+        bits.push_back(*g_ff);
+    return mk_rev_app(*g_ascii, bits.size(), bits.data());
 }
 
 expr from_string_core(unsigned i, std::string const & s) {
     if (i == s.size())
-        return g_empty;
+        return *g_empty;
     else
-        return mk_app(g_str, from_char(s[i]), from_string_core(i+1, s));
+        return mk_app(*g_str, from_char(s[i]), from_string_core(i+1, s));
 }
 
 expr from_string(std::string const & s) {
@@ -138,13 +161,13 @@ expr from_string(std::string const & s) {
 
 bool to_char_core(expr const & e, buffer<char> & tmp) {
     buffer<expr> args;
-    if (get_app_rev_args(e, args) == g_ascii && args.size() == 8) {
+    if (get_app_rev_args(e, args) == *g_ascii && args.size() == 8) {
         unsigned v = 0;
         for (unsigned i = 0; i < args.size(); i++) {
             v *= 2;
-            if (args[i] == g_tt)
+            if (args[i] == *g_tt)
                 v++;
-            else if (args[i] != g_ff)
+            else if (args[i] != *g_ff)
                 return false;
         }
         tmp.push_back(v);
@@ -155,12 +178,12 @@ bool to_char_core(expr const & e, buffer<char> & tmp) {
 }
 
 bool to_string_core(expr const & e, buffer<char> & tmp) {
-    if (e == g_empty) {
+    if (e == *g_empty) {
         return true;
     } else {
         buffer<expr> args;
         return
-            get_app_args(e, args) == g_str &&
+            get_app_args(e, args) == *g_str &&
             args.size() == 2 &&
             to_char_core(args[0], tmp) &&
             to_string_core(args[1], tmp);

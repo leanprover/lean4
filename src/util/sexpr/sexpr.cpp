@@ -370,15 +370,23 @@ struct sexpr_sd {
         m_d_extid = deserializer::register_extension([](){ return std::unique_ptr<deserializer::extension>(new sexpr_deserializer()); });
     }
 };
-static sexpr_sd g_sexpr_sd;
+static sexpr_sd * g_sexpr_sd = nullptr;
+
+void initialize_sexpr() {
+    g_sexpr_sd = new sexpr_sd();
+}
+
+void finalize_sexpr() {
+    delete g_sexpr_sd;
+}
 
 serializer & operator<<(serializer & s, sexpr const & n) {
-    s.get_extension<sexpr_serializer>(g_sexpr_sd.m_s_extid).write(n);
+    s.get_extension<sexpr_serializer>(g_sexpr_sd->m_s_extid).write(n);
     return s;
 }
 
 sexpr read_sexpr(deserializer & d) {
-    return d.get_extension<sexpr_deserializer>(g_sexpr_sd.m_d_extid).read();
+    return d.get_extension<sexpr_deserializer>(g_sexpr_sd->m_d_extid).read();
 }
 
 DECL_UDATA(sexpr)

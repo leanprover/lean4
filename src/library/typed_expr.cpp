@@ -8,16 +8,12 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 
 namespace lean {
-name const & get_typed_expr_name() {
-    static name g_typed_expr("typed_expr");
-    return g_typed_expr;
-}
+static name * g_typed_expr_name = nullptr;
+static std::string * g_typed_expr_opcode = nullptr;
+static macro_definition * g_typed_expr = nullptr;
 
-std::string const & get_typed_expr_opcode() {
-    static std::string g_typed_expr_opcode("TyE");
-    return g_typed_expr_opcode;
-}
-
+name const & get_typed_expr_name() { return *g_typed_expr_name; }
+std::string const & get_typed_expr_opcode() { return *g_typed_expr_opcode; }
 
 /** \brief This macro is used to "enforce" a given type to an expression.
     It is equivalent to
@@ -51,24 +47,33 @@ public:
     }
 };
 
-static macro_definition g_typed_expr(new typed_expr_macro_definition_cell());
-
 bool is_typed_expr(expr const & e) {
-    return is_macro(e) && macro_def(e) == g_typed_expr;
+    return is_macro(e) && macro_def(e) == *g_typed_expr;
 }
 
 expr mk_typed_expr(expr const & t, expr const & v) {
     expr args[2] = {t, v};
-    return mk_macro(g_typed_expr, 2, args);
+    return mk_macro(*g_typed_expr, 2, args);
 }
 
 expr get_typed_expr_type(expr const & e) { lean_assert(is_typed_expr(e)); return macro_arg(e, 0); }
 expr get_typed_expr_expr(expr const & e) { lean_assert(is_typed_expr(e)); return macro_arg(e, 1); }
 
-static register_macro_deserializer_fn
-typed_expr_macro_des_fn(get_typed_expr_opcode(), [](deserializer &, unsigned num, expr const * args) {
-        if (num != 2)
-            throw corrupted_stream_exception();
-        return mk_typed_expr(args[0], args[1]);
-    });
+void initialize_typed_expr() {
+    g_typed_expr_name = new name("typed_expr");
+    g_typed_expr_opcode = new std::string("TyE");
+    g_typed_expr = new macro_definition(new typed_expr_macro_definition_cell());
+    register_macro_deserializer(*g_typed_expr_opcode,
+                                [](deserializer &, unsigned num, expr const * args) {
+                                    if (num != 2)
+                                        throw corrupted_stream_exception();
+                                    return mk_typed_expr(args[0], args[1]);
+                                });
+}
+
+void finalize_typed_expr() {
+    delete g_typed_expr;
+    delete g_typed_expr_opcode;
+    delete g_typed_expr_name;
+}
 }

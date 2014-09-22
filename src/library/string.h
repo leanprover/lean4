@@ -36,4 +36,7 @@ expr from_string(std::string const & s);
    \see from_string
 */
 optional<std::string> to_string(expr const & e);
+
+void initialize_string();
+void finalize_string();
 }

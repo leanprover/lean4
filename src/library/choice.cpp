@@ -11,10 +11,10 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 
 namespace lean {
-static name g_choice_name("choice");
-static std::string g_choice_opcode("Choice");
-[[ noreturn ]] static void throw_ex() { throw exception("unexpected occurrence of 'choice' expression");
-}
+static name * g_choice_name = nullptr;
+static std::string * g_choice_opcode = nullptr;
+
+[[ noreturn ]] static void throw_ex() { throw exception("unexpected occurrence of 'choice' expression"); }
 
 // We encode a 'choice' expression using a macro.
 // This is a trick to avoid creating a new kind of expression.
@@ -22,31 +22,44 @@ static std::string g_choice_opcode("Choice");
 // and have no semantic significance.
 class choice_macro_cell : public macro_definition_cell {
 public:
-    virtual name get_name() const { return g_choice_name; }
+    virtual name get_name() const { return *g_choice_name; }
     // Choice expressions must be replaced with metavariables before invoking the type checker.
     // Choice expressions cannot be exported. They are transient/auxiliary objects.
     virtual expr get_type(expr const &, expr const *, extension_context &) const { throw_ex(); }
     virtual optional<expr> expand(expr const &, extension_context &) const { throw_ex(); }
     virtual void write(serializer & s) const {
         // we should be able to write choice expressions because of notation declarations
-        s.write_string(g_choice_opcode);
+        s.write_string(*g_choice_opcode);
     }
 };
 
-static macro_definition g_choice(new choice_macro_cell());
+static macro_definition * g_choice = nullptr;
 expr mk_choice(unsigned num_es, expr const * es) {
     lean_assert(num_es > 0);
     if (num_es == 1)
         return es[0];
     else
-        return mk_macro(g_choice, num_es, es);
+        return mk_macro(*g_choice, num_es, es);
 }
 
-static register_macro_deserializer_fn
-choice_macro_des_fn(g_choice_opcode, [](deserializer &, unsigned num, expr const * args) { return mk_choice(num, args); });
+void initialize_choice() {
+    g_choice_name   = new name("choice");
+    g_choice_opcode = new std::string("Choice");
+    g_choice        = new macro_definition(new choice_macro_cell());
+    register_macro_deserializer(*g_choice_opcode,
+                                [](deserializer &, unsigned num, expr const * args) {
+                                    return mk_choice(num, args);
+                                });
+}
+
+void finalize_choice() {
+    delete g_choice;
+    delete g_choice_opcode;
+    delete g_choice_name;
+}
 
 bool is_choice(expr const & e) {
-    return is_macro(e) && macro_def(e) == g_choice;
+    return is_macro(e) && macro_def(e) == *g_choice;
 }
 
 unsigned get_num_choices(expr const & e) {

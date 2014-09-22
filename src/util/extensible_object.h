@@ -49,13 +49,10 @@ public:
         }
     };
 
-    static std::unique_ptr<extension_factory> g_extension_factory;
-
-    static extension_factory & get_extension_factory() {
-        if (!g_extension_factory)
-            g_extension_factory.reset(new extension_factory());
-        return *g_extension_factory;
-    }
+    static extension_factory * g_extension_factory;
+    static void initialize() { g_extension_factory = new extension_factory(); }
+    static void finalize() { delete g_extension_factory; }
+    static extension_factory & get_extension_factory() { return *g_extension_factory; }
 
     static unsigned register_extension(mk_extension mk) {
         return get_extension_factory().register_extension(mk);
@@ -79,5 +76,6 @@ public:
     }
 };
 template<typename T>
-std::unique_ptr<typename extensible_object<T>::extension_factory> extensible_object<T>::g_extension_factory;
+typename extensible_object<T>::extension_factory *
+extensible_object<T>::g_extension_factory = nullptr;
 }

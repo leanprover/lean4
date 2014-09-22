@@ -10,15 +10,17 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 
 namespace lean {
-static name g_let_value("letv");
-std::string const & get_let_value_opcode() {
-    static std::string g_let_value_opcode("LetV");
-    return g_let_value_opcode;
-}
+static name * g_let_value = nullptr;
+static std::string * g_let_value_opcode = nullptr;
+static atomic<unsigned> * g_next_let_value_id = nullptr;
+static name * g_let = nullptr;
+static std::string * g_let_opcode = nullptr;
 
-static atomic<unsigned> g_next_let_value_id(0);
+std::string const & get_let_value_opcode() { return *g_let_value_opcode; }
+std::string const & get_let_opcode() { return * g_let_opcode; }
+
 static unsigned next_let_value_id() {
-    return atomic_fetch_add_explicit(&g_next_let_value_id, 1u, memory_order_seq_cst);
+    return atomic_fetch_add_explicit(g_next_let_value_id, 1u, memory_order_seq_cst);
 }
 
 class let_value_definition_cell : public macro_definition_cell {
@@ -29,7 +31,7 @@ class let_value_definition_cell : public macro_definition_cell {
     }
 public:
     let_value_definition_cell():m_id(next_let_value_id()) {}
-    virtual name get_name() const { return g_let_value; }
+    virtual name get_name() const { return *g_let_value; }
     virtual expr get_type(expr const & m, expr const * arg_types, extension_context &) const {
         check_macro(m);
         return arg_types[0];
@@ -63,19 +65,6 @@ expr get_let_value_expr(expr const e) {
     return macro_arg(e, 0);
 }
 
-static register_macro_deserializer_fn
-let_value_des_fn(get_let_value_opcode(),
-               [](deserializer &, unsigned num, expr const * args) {
-                     if (num != 1) throw corrupted_stream_exception();
-                     return mk_let_value(args[0]);
-                 });
-
-static name g_let("let");
-std::string const & get_let_opcode() {
-    static std::string g_let_opcode("Let");
-    return g_let_opcode;
-}
-
 class let_macro_definition_cell : public macro_definition_cell {
     name m_var_name;
     void check_macro(expr const & m) const {
@@ -85,7 +74,7 @@ class let_macro_definition_cell : public macro_definition_cell {
 public:
     let_macro_definition_cell(name const & n):m_var_name(n) {}
     name const & get_var_name() const { return m_var_name; }
-    virtual name get_name() const { return g_let; }
+    virtual name get_name() const { return *g_let; }
     virtual expr get_type(expr const & m, expr const * arg_types, extension_context &) const {
         check_macro(m);
         return arg_types[1];
@@ -125,12 +114,31 @@ expr const & get_let_body(expr const & e) {
     return macro_arg(e, 1);
 }
 
-static register_macro_deserializer_fn
-let_des_fn(get_let_opcode(),
-               [](deserializer & d, unsigned num, expr const * args) {
-                   if (num != 2) throw corrupted_stream_exception();
-                   name n;
-                   d >> n;
-                   return mk_let(n, args[0], args[1]);
-           });
+void initialize_let() {
+    g_let_value = new name("letv");
+    g_let_value_opcode = new std::string("LetV");
+    g_next_let_value_id = new atomic<unsigned>(0);
+    register_macro_deserializer(*g_let_value_opcode,
+                                [](deserializer &, unsigned num, expr const * args) {
+                                    if (num != 1) throw corrupted_stream_exception();
+                                    return mk_let_value(args[0]);
+                                });
+    g_let = new name("let");
+    g_let_opcode = new std::string("Let");
+    register_macro_deserializer(*g_let_opcode,
+                                [](deserializer & d, unsigned num, expr const * args) {
+                                    if (num != 2) throw corrupted_stream_exception();
+                                    name n;
+                                    d >> n;
+                                    return mk_let(n, args[0], args[1]);
+                                });
+}
+
+void finalize_let() {
+    delete g_let_opcode;
+    delete g_let;
+    delete g_next_let_value_id;
+    delete g_let_value_opcode;
+    delete g_let_value;
+}
 }

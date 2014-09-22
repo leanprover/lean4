@@ -186,4 +186,6 @@ inline deserializer & operator>>(deserializer & d, sexpr & a) { a = read_sexpr(d
 
 UDATA_DEFS(sexpr)
 void open_sexpr(lua_State * L);
+void initialize_sexpr();
+void finalize_sexpr();
 }

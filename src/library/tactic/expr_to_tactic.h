@@ -57,21 +57,12 @@ public:
 typedef std::function<tactic(type_checker & tc, expr const & e, pos_info_provider const *)> expr_to_tactic_fn;
 
 /** \brief Register a new "procedural attachment" for expr_to_tactic. */
-void register_expr_to_tactic(name const & n, expr_to_tactic_fn const & fn);
+void register_tac(name const & n, expr_to_tactic_fn const & fn);
+void register_simple_tac(name const & n, std::function<tactic()> const & f);
+void register_bin_tac(name const & n, std::function<tactic(tactic const &, tactic const &)> const & f);
+void register_unary_tac(name const & n, std::function<tactic(tactic const &)> const & f);
+void register_unary_num_tac(name const & n, std::function<tactic(tactic const &, unsigned)> const & f);
 
-struct register_tac {
-    register_tac(name const & n, expr_to_tactic_fn fn) { register_expr_to_tactic(n, fn); }
-};
-struct register_simple_tac {
-    register_simple_tac(name const & n, std::function<tactic()> f);
-};
-struct register_bin_tac {
-    register_bin_tac(name const & n, std::function<tactic(tactic const &, tactic const &)> f);
-};
-struct register_unary_tac {
-    register_unary_tac(name const & n, std::function<tactic(tactic const &)> f);
-};
-struct register_unary_num_tac {
-    register_unary_num_tac(name const & n, std::function<tactic(tactic const &, unsigned)> f);
-};
+void initialize_expr_to_tactic();
+void finalize_expr_to_tactic();
 }

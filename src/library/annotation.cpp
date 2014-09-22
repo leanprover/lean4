@@ -8,18 +8,15 @@ Author: Leonardo de Moura
 #include <memory>
 #include <string>
 #include "util/sstream.h"
+#include "library/kernel_serializer.h"
 #include "library/annotation.h"
 
 namespace lean {
-name const & get_annotation_name() {
-    static name g_annotation("annotation");
-    return g_annotation;
-}
+static name * g_annotation = nullptr;
+static std::string * g_annotation_opcode = nullptr;
 
-std::string const & get_annotation_opcode() {
-    static std::string g_annotation_opcode("Annot");
-    return g_annotation_opcode;
-}
+name const & get_annotation_name() { return *g_annotation; }
+std::string const & get_annotation_opcode() { return *g_annotation_opcode; }
 
 /** \brief We use a macro to mark expressions that denote "let" and "have"-expressions.
     These marks have no real semantic meaning, but are useful for helping Lean's pretty printer.
@@ -51,14 +48,12 @@ public:
 };
 
 typedef std::unordered_map<name, macro_definition, name_hash, name_eq> annotation_macros;
-annotation_macros & get_annotation_macros() {
-    static std::unique_ptr<annotation_macros> g_annotation_macros;
-    if (!g_annotation_macros) g_annotation_macros.reset(new annotation_macros());
-    return *(g_annotation_macros.get());
-}
+static annotation_macros * g_annotation_macros = nullptr;
+
+annotation_macros & get_annotation_macros() { return *g_annotation_macros; }
 
 void register_annotation(name const & n) {
-     annotation_macros & ms = get_annotation_macros();
+    annotation_macros & ms = get_annotation_macros();
     lean_assert(ms.find(n) == ms.end());
     ms.insert(mk_pair(n, macro_definition(new annotation_macro_definition_cell(n))));
 }
@@ -124,32 +119,45 @@ expr copy_annotations(expr const & from, expr const & to) {
     return r;
 }
 
-name const & get_have_name() {
-    static name g_have("have");
-    static register_annotation_fn g_have_annotation(g_have);
-    return g_have;
+static name * g_have = nullptr;
+static name * g_show = nullptr;
+static name * g_proof_qed = nullptr;
+
+expr mk_have_annotation(expr const & e) { return mk_annotation(*g_have, e); }
+expr mk_show_annotation(expr const & e) { return mk_annotation(*g_show, e); }
+expr mk_proof_qed_annotation(expr const & e) { return mk_annotation(*g_proof_qed, e); }
+bool is_have_annotation(expr const & e) { return is_annotation(e, *g_have); }
+bool is_show_annotation(expr const & e) { return is_annotation(e, *g_show); }
+bool is_proof_qed_annotation(expr const & e) { return is_annotation(e, *g_proof_qed); }
+
+void initialize_annotation() {
+    g_annotation = new name("annotation");
+    g_annotation_opcode = new std::string("Annot");
+    g_annotation_macros = new annotation_macros();
+    g_have = new name("have");
+    g_show = new name("show");
+    g_proof_qed = new name("proof-qed");
+
+    register_annotation(*g_have);
+    register_annotation(*g_show);
+    register_annotation(*g_proof_qed);
+
+    register_macro_deserializer(get_annotation_opcode(),
+                                [](deserializer & d, unsigned num, expr const * args) {
+                                    if (num != 1)
+                                        throw corrupted_stream_exception();
+                                    name k;
+                                    d >> k;
+                                    return mk_annotation(k, args[0]);
+                                });
 }
 
-name const & get_show_name() {
-    static name g_show("show");
-    static register_annotation_fn g_show_annotation(g_show);
-    return g_show;
+void finalize_annotation() {
+    delete g_proof_qed;
+    delete g_show;
+    delete g_have;
+    delete g_annotation_macros;
+    delete g_annotation_opcode;
+    delete g_annotation;
 }
-
-name const & get_proof_qed_name() {
-    static name g_proof_qed("proof-qed");
-    static register_annotation_fn g_proof_qed_annotation(g_proof_qed);
-    return g_proof_qed;
-}
-
-static name g_have_name = get_have_name(); // force 'have' annotation to be registered
-static name g_show_name = get_show_name(); // force 'show' annotation to be registered
-static name g_proof_qed_name = get_proof_qed_name(); // force 'proof-qed' annotation to be registered
-
-expr mk_have_annotation(expr const & e) { return mk_annotation(get_have_name(), e); }
-expr mk_show_annotation(expr const & e) { return mk_annotation(get_show_name(), e); }
-expr mk_proof_qed_annotation(expr const & e) { return mk_annotation(get_proof_qed_name(), e); }
-bool is_have_annotation(expr const & e) { return is_annotation(e, get_have_name()); }
-bool is_show_annotation(expr const & e) { return is_annotation(e, get_show_name()); }
-bool is_proof_qed_annotation(expr const & e) { return is_annotation(e, get_proof_qed_name()); }
 }

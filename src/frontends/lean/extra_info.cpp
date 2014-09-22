@@ -7,13 +7,18 @@ Author: Leonardo de Moura
 #include "frontends/lean/extra_info.h"
 
 namespace lean {
-name const & get_extra_info() {
-    static name g_extra_info("extra_info");
-    static register_annotation_fn g_extra_info_annotation(g_extra_info);
-    return g_extra_info;
-}
-static name g_extra_info_name = get_extra_info(); // force 'extra_info' annotation to be registered
+static name * g_extra_info = nullptr;
+name const & get_extra_info() { return *g_extra_info; }
 
 expr mk_extra_info(expr const & e) { return mk_annotation(get_extra_info(), e); }
 bool is_extra_info(expr const & e) { return is_annotation(e, get_extra_info()); }
+
+void initialize_extra_info() {
+    g_extra_info = new name("extra_info");
+    register_annotation(*g_extra_info);
+}
+
+void finalize_extra_info() {
+    delete g_extra_info;
+}
 }

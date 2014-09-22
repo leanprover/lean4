@@ -11,4 +11,6 @@ Author: Leonardo de Moura
 namespace lean {
 expr mk_resolve_macro(expr const & l, expr const & H1, expr const & H2);
 void open_resolve_macro(lua_State * L);
+void initialize_resolve_macro();
+void finalize_resolve_macro();
 }

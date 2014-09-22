@@ -477,15 +477,23 @@ struct name_sd {
         m_deserializer_extid = deserializer::register_extension([](){ return std::unique_ptr<deserializer::extension>(new name_deserializer()); });
     }
 };
-static name_sd g_name_sd;
+static name_sd * g_name_sd = nullptr;
+
+void initialize_name() {
+    g_name_sd = new name_sd();
+}
+
+void finalize_name() {
+    delete g_name_sd;
+}
 
 serializer & operator<<(serializer & s, name const & n) {
-    s.get_extension<name_serializer>(g_name_sd.m_serializer_extid).write(n);
+    s.get_extension<name_serializer>(g_name_sd->m_serializer_extid).write(n);
     return s;
 }
 
 name read_name(deserializer & d) {
-    return d.get_extension<name_deserializer>(g_name_sd.m_deserializer_extid).read();
+    return d.get_extension<name_deserializer>(g_name_sd->m_deserializer_extid).read();
 }
 
 DECL_UDATA(name)

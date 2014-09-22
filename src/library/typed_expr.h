@@ -22,4 +22,7 @@ expr get_typed_expr_type(expr const & e);
     \remark get_typed_expr_type(mk_typed_expr(t, e)) == e
 */
 expr get_typed_expr_expr(expr const & e);
+
+void initialize_typed_expr();
+void finalize_typed_expr();
 }

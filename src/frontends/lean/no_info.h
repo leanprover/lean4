@@ -16,4 +16,7 @@ namespace lean {
 expr mk_no_info(expr const & e);
 /** \brief Return true iff \c e is a term annotated with mk_no_info */
 bool is_no_info(expr const & e);
+
+void initialize_no_info();
+void finalize_no_info();
 }

@@ -35,4 +35,6 @@ unsigned get_num_choices(expr const & e);
 */
 expr const & get_choice(expr const & e, unsigned i);
 void open_choice(lua_State * L);
+void initialize_choice();
+void finalize_choice();
 }

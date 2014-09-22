@@ -71,6 +71,9 @@ public:
     corrupted_stream_exception();
 };
 
+void initialize_serializer();
+void finalize_serializer();
+
 template<typename T>
 serializer & write_list(serializer & s, list<T> const & ls) {
     s << length(ls);

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Microsoft Corporation. All rights reserved.
+Copyright (c) 2013-2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -14,9 +14,7 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-/**
-   \brief Helper class for serializing objects.
-*/
+/** \brief Helper class for serializing objects. */
 template<class T, class HashFn, class EqFn>
 class object_serializer : public serializer::extension {
     std::unordered_map<T, unsigned, HashFn, EqFn> m_table;
@@ -43,9 +41,7 @@ public:
     }
 };
 
-/**
-   \brief Helper class for deserializing objects.
-*/
+/** \brief Helper class for deserializing objects. */
 template<class T>
 class object_deserializer : public deserializer::extension {
     std::vector<T> m_table;

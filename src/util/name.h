@@ -196,4 +196,6 @@ list<name> & to_list_name(lua_State * L, int idx);
 list<name> to_list_name_ext(lua_State * L, int idx);
 int push_list_name(lua_State * L, list<name> const & l);
 void open_name(lua_State * L);
+void initialize_name();
+void finalize_name();
 }

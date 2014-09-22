@@ -81,14 +81,14 @@ struct level_sd {
     }
 };
 
-static level_sd g_level_sd;
+static level_sd * g_level_sd = nullptr;
 
 serializer & operator<<(serializer & s, level const & n) {
-    s.get_extension<level_serializer>(g_level_sd.m_s_extid).write(n);
+    s.get_extension<level_serializer>(g_level_sd->m_s_extid).write(n);
     return s;
 }
 
-level read_level(deserializer & d) { return d.get_extension<level_deserializer>(g_level_sd.m_d_extid).read(); }
+level read_level(deserializer & d) { return d.get_extension<level_deserializer>(g_level_sd->m_d_extid).read(); }
 
 serializer & operator<<(serializer & s, levels const & ls) { return write_list<level>(s, ls); }
 
@@ -96,11 +96,10 @@ levels read_levels(deserializer & d) { return read_list<level>(d, read_level); }
 
 // Expression serialization
 typedef std::unordered_map<std::string, macro_definition_cell::reader> macro_readers;
-static std::unique_ptr<macro_readers> g_macro_readers;
+static macro_readers * g_macro_readers = nullptr;
+
 macro_readers & get_macro_readers() {
-    if (!g_macro_readers)
-        g_macro_readers.reset(new macro_readers());
-    return *(g_macro_readers.get());
+    return *g_macro_readers;
 }
 
 void register_macro_deserializer(std::string const & k, macro_definition_cell::reader rd) {
@@ -133,7 +132,7 @@ static binder_info read_binder_info(deserializer & d) {
     return binder_info(imp, cast, ctx, s_imp);
 }
 
-static name g_binder_name("a");
+static name * g_binder_name = nullptr;
 
 class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp> {
     typedef object_serializer<expr, expr_hash_alloc, expr_eqp> super;
@@ -143,7 +142,7 @@ class expr_serializer : public object_serializer<expr, expr_hash_alloc, expr_eqp
     void write_binder_name(serializer & s, name const & a) {
         // make sure binding names are atomic string
         if (!a.is_atomic() || a.is_numeral()) {
-            s << g_binder_name.append_after(m_next_id);
+            s << g_binder_name->append_after(m_next_id);
             m_next_id++;
         } else {
             s << a;
@@ -260,15 +259,15 @@ struct expr_sd {
         m_d_extid = deserializer::register_extension([](){ return std::unique_ptr<deserializer::extension>(new expr_deserializer()); });
     }
 };
-static expr_sd g_expr_sd;
+static expr_sd * g_expr_sd = nullptr;
 
 serializer & operator<<(serializer & s, expr const & n) {
-    s.get_extension<expr_serializer>(g_expr_sd.m_s_extid).write(n);
+    s.get_extension<expr_serializer>(g_expr_sd->m_s_extid).write(n);
     return s;
 }
 
 expr read_expr(deserializer & d) {
-    return d.get_extension<expr_deserializer>(g_expr_sd.m_d_extid).read();
+    return d.get_extension<expr_deserializer>(g_expr_sd->m_d_extid).read();
 }
 
 // Declaration serialization
@@ -359,13 +358,17 @@ inductive_decls read_inductive_decls(deserializer & d) {
     return inductive_decls(ps, num_params, to_list(decls.begin(), decls.end()));
 }
 
-static register_macro_deserializer_fn
-annotation_des_fn(get_annotation_opcode(),
-                  [](deserializer & d, unsigned num, expr const * args) {
-                      if (num != 1)
-                          throw corrupted_stream_exception();
-                      name k;
-                      d >> k;
-                      return mk_annotation(k, args[0]);
-                  });
+void initialize_kernel_serializer() {
+    g_level_sd      = new level_sd();
+    g_macro_readers = new macro_readers();
+    g_binder_name   = new name("a");
+    g_expr_sd       = new expr_sd();
+}
+
+void finalize_kernel_serializer() {
+    delete g_expr_sd;
+    delete g_binder_name;
+    delete g_macro_readers;
+    delete g_level_sd;
+}
 }

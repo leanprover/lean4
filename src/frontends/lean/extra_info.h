@@ -14,4 +14,7 @@ namespace lean {
 expr mk_extra_info(expr const & e);
 /** \brief Return true iff \c e is a term annotated with mk_extra_info */
 bool is_extra_info(expr const & e);
+
+void initialize_extra_info();
+void finalize_extra_info();
 }

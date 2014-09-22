@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <cstring>
 #include <sstream>
 #include "util/test.h"
+#include "util/init_module.h"
 #include "util/sexpr/options.h"
 #include "util/sexpr/option_declarations.h"
 #include "util/sexpr/init_module.h"
@@ -155,6 +156,7 @@ static void tst6() {
 
 int main() {
     save_stack_info();
+    initialize_util_module();
     initialize_sexpr_module();
     name fakeopt("fakeopt");
     register_bool_option(fakeopt, false, "fake option");
@@ -167,5 +169,6 @@ int main() {
     tst6();
 
     finalize_sexpr_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

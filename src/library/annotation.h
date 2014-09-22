@@ -13,10 +13,6 @@ namespace lean {
     Use helper obect #register_annotation_fn.
 */
 void register_annotation(name const & n);
-/** \brief Helper object for declaring a new kind of annotation */
-struct register_annotation_fn {
-    register_annotation_fn(name const & kind) { register_annotation(kind); }
-};
 
 /** \brief Create an annotated expression with tag \c kind based on \c e.
 
@@ -71,4 +67,7 @@ bool is_proof_qed_annotation(expr const & e);
 
 /** \brief Return the serialization 'opcode' for annotation macros. */
 std::string const & get_annotation_opcode();
+
+void initialize_annotation();
+void finalize_annotation();
 }

@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/list.h"
 #include "util/name.h"
+#include "util/init_module.h"
 using namespace lean;
 
 template<typename T>
@@ -66,15 +67,15 @@ struct list_int_initializer {
     }
 };
 
-static list_int_initializer g_list_int_initializer;
+std::unique_ptr<list_int_initializer> g_list_int_initializer;
 
 serializer & operator<<(serializer & s, list<int> const & l) {
-    s.get_extension<list_int_serializer>(g_list_int_initializer.m_serializer_extid).write(l);
+    s.get_extension<list_int_serializer>(g_list_int_initializer->m_serializer_extid).write(l);
     return s;
 }
 
 deserializer & operator>>(deserializer & d, list<int> & l) {
-    l = d.get_extension<list_int_deserializer>(g_list_int_initializer.m_deserializer_extid).read();
+    l = d.get_extension<list_int_deserializer>(g_list_int_initializer->m_deserializer_extid).read();
     return d;
 }
 
@@ -171,9 +172,13 @@ static void tst4() {
 }
 
 int main() {
+    save_stack_info();
+    initialize_util_module();
+    g_list_int_initializer.reset(new list_int_initializer());
     tst1();
     tst2();
     tst3();
     tst4();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

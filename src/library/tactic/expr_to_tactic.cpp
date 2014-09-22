@@ -17,38 +17,39 @@ Author: Leonardo de Moura
 
 namespace lean {
 typedef std::unordered_map<name, expr_to_tactic_fn, name_hash, name_eq> expr_to_tactic_map;
+static expr_to_tactic_map * g_map = nullptr;
+
 expr_to_tactic_map & get_expr_to_tactic_map() {
-    static expr_to_tactic_map g_map;
-    return g_map;
+    return *g_map;
 }
 
-void register_expr_to_tactic(name const & n, expr_to_tactic_fn const & fn) {
+void register_tac(name const & n, expr_to_tactic_fn const & fn) {
     get_expr_to_tactic_map().insert(mk_pair(n, fn));
 }
 
-static name g_tac("tactic"), g_builtin_tac_name(g_tac, "builtin");
-static name g_exact_tac_name(g_tac, "exact"), g_and_then_tac_name(g_tac, "and_then");
-static name g_or_else_tac_name(g_tac, "or_else"), g_repeat_tac_name(g_tac, "repeat"), g_fixpoint_name(g_tac, "fixpoint");
-static name g_determ_tac_name(g_tac, "determ");
-static expr g_exact_tac_fn(Const(g_exact_tac_name)), g_and_then_tac_fn(Const(g_and_then_tac_name));
-static expr g_or_else_tac_fn(Const(g_or_else_tac_name)), g_repeat_tac_fn(Const(g_repeat_tac_name));
-static expr g_determ_tac_fn(Const(g_determ_tac_name));
-static expr g_tac_type(Const(g_tac)), g_builtin_tac(Const(g_builtin_tac_name)), g_fixpoint_tac(Const(g_fixpoint_name));
-expr const & get_exact_tac_fn() { return g_exact_tac_fn; }
-expr const & get_and_then_tac_fn() { return g_and_then_tac_fn; }
-expr const & get_or_else_tac_fn() { return g_or_else_tac_fn; }
-expr const & get_determ_tac_fn() { return g_determ_tac_fn; }
-expr const & get_repeat_tac_fn() { return g_repeat_tac_fn; }
-expr const & get_tactic_type() { return g_tac_type; }
+static expr * g_exact_tac_fn      = nullptr;
+static expr * g_and_then_tac_fn   = nullptr;
+static expr * g_or_else_tac_fn    = nullptr;
+static expr * g_repeat_tac_fn     = nullptr;
+static expr * g_determ_tac_fn     = nullptr;
+static expr * g_tac_type          = nullptr;
+static expr * g_builtin_tac       = nullptr;
+static expr * g_fixpoint_tac      = nullptr;
+expr const & get_exact_tac_fn() { return *g_exact_tac_fn; }
+expr const & get_and_then_tac_fn() { return *g_and_then_tac_fn; }
+expr const & get_or_else_tac_fn() { return *g_or_else_tac_fn; }
+expr const & get_determ_tac_fn() { return *g_determ_tac_fn; }
+expr const & get_repeat_tac_fn() { return *g_repeat_tac_fn; }
+expr const & get_tactic_type() { return *g_tac_type; }
 
 bool has_tactic_decls(environment const & env) {
     try {
         type_checker tc(env);
         return
-            tc.infer(g_builtin_tac).first     == g_tac_type &&
-            tc.infer(g_and_then_tac_fn).first == g_tac_type >> (g_tac_type >> g_tac_type) &&
-            tc.infer(g_or_else_tac_fn).first  == g_tac_type >> (g_tac_type >> g_tac_type) &&
-            tc.infer(g_repeat_tac_fn).first   == g_tac_type >> g_tac_type;
+            tc.infer(*g_builtin_tac).first     == *g_tac_type &&
+            tc.infer(*g_and_then_tac_fn).first == *g_tac_type >> (*g_tac_type >> *g_tac_type) &&
+            tc.infer(*g_or_else_tac_fn).first  == *g_tac_type >> (*g_tac_type >> *g_tac_type) &&
+            tc.infer(*g_repeat_tac_fn).first   == *g_tac_type >> *g_tac_type;
     } catch (exception &) {
         return false;
     }
@@ -62,7 +63,7 @@ static void throw_failed(expr const & e) {
 static bool is_builtin_tactic(expr const & v) {
     if (is_lambda(v))
         return is_builtin_tactic(binding_body(v));
-    else if (v == g_builtin_tac)
+    else if (v == *g_builtin_tac)
         return true;
     else
         return false;
@@ -107,13 +108,13 @@ tactic expr_to_tactic(type_checker & tc, expr e, pos_info_provider const * p) {
     }
 }
 
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
 MK_THREAD_LOCAL_GET(unsigned, get_expr_tac_id, 0)
 static name_generator next_name_generator() {
     unsigned & c = get_expr_tac_id();
     unsigned r = c;
     c++;
-    return name_generator(name(g_tmp_prefix, r));
+    return name_generator(name(*g_tmp_prefix, r));
 }
 
 tactic expr_to_tactic(environment const & env, expr const & e, pos_info_provider const * p) {
@@ -127,16 +128,16 @@ tactic fixpoint(expr const & b) {
         });
 }
 
-register_simple_tac::register_simple_tac(name const & n, std::function<tactic()> f) {
-    register_expr_to_tactic(n, [=](type_checker &, expr const & e, pos_info_provider const *) {
+void register_simple_tac(name const & n, std::function<tactic()> const & f) {
+    register_tac(n, [=](type_checker &, expr const & e, pos_info_provider const *) {
             if (!is_constant(e))
                 throw expr_to_tactic_exception(e, "invalid constant tactic");
             return f();
         });
 }
 
-register_bin_tac::register_bin_tac(name const & n, std::function<tactic(tactic const &, tactic const &)> f) {
-    register_expr_to_tactic(n, [=](type_checker & tc, expr const & e, pos_info_provider const * p) {
+void register_bin_tac(name const & n, std::function<tactic(tactic const &, tactic const &)> const & f) {
+    register_tac(n, [=](type_checker & tc, expr const & e, pos_info_provider const * p) {
             buffer<expr> args;
             get_app_args(e, args);
             if (args.size() != 2)
@@ -146,8 +147,8 @@ register_bin_tac::register_bin_tac(name const & n, std::function<tactic(tactic c
         });
 }
 
-register_unary_tac::register_unary_tac(name const & n, std::function<tactic(tactic const &)> f) {
-    register_expr_to_tactic(n, [=](type_checker & tc, expr const & e, pos_info_provider const * p) {
+void register_unary_tac(name const & n, std::function<tactic(tactic const &)> const & f) {
+    register_tac(n, [=](type_checker & tc, expr const & e, pos_info_provider const * p) {
             buffer<expr> args;
             get_app_args(e, args);
             if (args.size() != 1)
@@ -156,8 +157,8 @@ register_unary_tac::register_unary_tac(name const & n, std::function<tactic(tact
         });
 }
 
-register_unary_num_tac::register_unary_num_tac(name const & n, std::function<tactic(tactic const &, unsigned k)> f) {
-    register_expr_to_tactic(n, [=](type_checker & tc, expr const & e, pos_info_provider const * p) {
+void register_unary_num_tac(name const & n, std::function<tactic(tactic const &, unsigned k)> const & f) {
+    register_tac(n, [=](type_checker & tc, expr const & e, pos_info_provider const * p) {
             buffer<expr> args;
             get_app_args(e, args);
             if (args.size() != 2)
@@ -174,64 +175,103 @@ register_unary_num_tac::register_unary_num_tac(name const & n, std::function<tac
         });
 }
 
-static register_simple_tac reg_id(name(g_tac, "id"), []() { return id_tactic(); });
-static register_simple_tac reg_now(name(g_tac, "now"), []() { return now_tactic(); });
-static register_simple_tac reg_assumption(name(g_tac, "assumption"), []() { return assumption_tactic(); });
-static register_simple_tac reg_eassumption(name(g_tac, "eassumption"), []() { return eassumption_tactic(); });
-static register_simple_tac reg_fail(name(g_tac, "fail"), []() { return fail_tactic(); });
-static register_simple_tac reg_beta(name(g_tac, "beta"), []() { return beta_tactic(); });
-static register_bin_tac reg_then(g_and_then_tac_name, [](tactic const & t1, tactic const & t2) { return then(t1, t2); });
-static register_bin_tac reg_append(name(g_tac, "append"), [](tactic const & t1, tactic const & t2) { return append(t1, t2); });
-static register_bin_tac reg_interleave(name(g_tac, "interleave"), [](tactic const & t1, tactic const & t2) { return interleave(t1, t2); });
-static register_bin_tac reg_par(name(g_tac, "par"), [](tactic const & t1, tactic const & t2) { return par(t1, t2); });
-static register_bin_tac reg_orelse(g_or_else_tac_name, [](tactic const & t1, tactic const & t2) { return orelse(t1, t2); });
-static register_unary_tac reg_repeat(g_repeat_tac_name, [](tactic const & t1) { return repeat(t1); });
-static register_tac reg_state(name(g_tac, "state"), [](type_checker &, expr const & e, pos_info_provider const * p) {
-        if (p)
-            if (auto it = p->get_pos_info(e))
-                return trace_state_tactic(std::string(p->get_file_name()), *it);
-        return trace_state_tactic();
-    });
-static register_tac reg_trace(name(g_tac, "trace"), [](type_checker & tc, expr const & e, pos_info_provider const *) {
-        buffer<expr> args;
-        get_app_args(e, args);
-        if (args.size() != 1)
-            throw expr_to_tactic_exception(e, "invalid trace tactic, argument expected");
-        if (auto str = to_string(args[0]))
-            return trace_tactic(*str);
-        else if (auto str = to_string(tc.whnf(args[0]).first))
-            return trace_tactic(*str);
-        else
-            throw expr_to_tactic_exception(e, "invalid trace tactic, string value expected");
-    });
-static register_tac reg_apply(name(g_tac, "apply"), [](type_checker &, expr const & e, pos_info_provider const *) {
-        return apply_tactic(app_arg(e));
-    });
-static register_tac reg_exact(g_exact_tac_name, [](type_checker &, expr const & e, pos_info_provider const *) {
-        return exact_tactic(app_arg(e));
-    });
-static register_tac reg_unfold(name(g_tac, "unfold"), [](type_checker &, expr const & e, pos_info_provider const *) {
-        expr id = get_app_fn(app_arg(e));
-        if (!is_constant(id))
-            return fail_tactic();
-        else
-            return unfold_tactic(const_name(id));
-    });
-static register_unary_num_tac reg_at_most(name(g_tac, "at_most"), [](tactic const & t, unsigned k) { return take(t, k); });
-static register_unary_num_tac reg_discard(name(g_tac, "discard"), [](tactic const & t, unsigned k) { return discard(t, k); });
-static register_unary_num_tac reg_focus_at(name(g_tac, "focus_at"), [](tactic const & t, unsigned k) { return focus(t, k); });
-static register_unary_num_tac reg_try_for(name(g_tac, "try_for"), [](tactic const & t, unsigned k) { return try_for(t, k); });
-static register_tac reg_fixpoint(g_fixpoint_name, [](type_checker & tc, expr const & e, pos_info_provider const *) {
-        if (!is_constant(app_fn(e)))
-            throw expr_to_tactic_exception(e, "invalid fixpoint tactic, it must have one argument");
-        expr r = tc.whnf(mk_app(app_arg(e), e)).first;
-        return fixpoint(r);
-    });
+static name * g_by_name = nullptr;
 
-static name g_by_name("by");
-register_annotation_fn g_by_annotation(g_by_name);
-
-expr mk_by(expr const & e) { return mk_annotation(g_by_name, e); }
-bool is_by(expr const & e) { return is_annotation(e, g_by_name); }
+expr mk_by(expr const & e) { return mk_annotation(*g_by_name, e); }
+bool is_by(expr const & e) { return is_annotation(e, *g_by_name); }
 expr const & get_by_arg(expr const & e) { lean_assert(is_by(e)); return get_annotation_arg(e); }
+
+void initialize_expr_to_tactic() {
+    g_tmp_prefix        = new name(name::mk_internal_unique_name());
+
+    g_by_name           = new name("by");
+    register_annotation(*g_by_name);
+
+    g_map               = new expr_to_tactic_map();
+
+    name g_tac("tactic");
+    name g_builtin_tac_name(g_tac, "builtin");
+    name g_exact_tac_name(g_tac, "exact");
+    name g_and_then_tac_name(g_tac, "and_then");
+    name g_or_else_tac_name(g_tac, "or_else");
+    name g_repeat_tac_name(g_tac, "repeat");
+    name g_fixpoint_name(g_tac, "fixpoint");
+    name g_determ_tac_name(g_tac, "determ");
+    g_exact_tac_fn      = new expr(Const(g_exact_tac_name));
+    g_and_then_tac_fn   = new expr(Const(g_and_then_tac_name));
+    g_or_else_tac_fn    = new expr(Const(g_or_else_tac_name));
+    g_repeat_tac_fn     = new expr(Const(g_repeat_tac_name));
+    g_determ_tac_fn     = new expr(Const(g_determ_tac_name));
+    g_tac_type          = new expr(Const(g_tac));
+    g_builtin_tac       = new expr(Const(g_builtin_tac_name));
+    g_fixpoint_tac      = new expr(Const(g_fixpoint_name));
+
+    register_simple_tac(name(g_tac, "id"), []() { return id_tactic(); });
+    register_simple_tac(name(g_tac, "now"), []() { return now_tactic(); });
+    register_simple_tac(name(g_tac, "assumption"), []() { return assumption_tactic(); });
+    register_simple_tac(name(g_tac, "eassumption"), []() { return eassumption_tactic(); });
+    register_simple_tac(name(g_tac, "fail"), []() { return fail_tactic(); });
+    register_simple_tac(name(g_tac, "beta"), []() { return beta_tactic(); });
+    register_bin_tac(g_and_then_tac_name, [](tactic const & t1, tactic const & t2) { return then(t1, t2); });
+    register_bin_tac(name(g_tac, "append"), [](tactic const & t1, tactic const & t2) { return append(t1, t2); });
+    register_bin_tac(name(g_tac, "interleave"), [](tactic const & t1, tactic const & t2) { return interleave(t1, t2); });
+    register_bin_tac(name(g_tac, "par"), [](tactic const & t1, tactic const & t2) { return par(t1, t2); });
+    register_bin_tac(g_or_else_tac_name, [](tactic const & t1, tactic const & t2) { return orelse(t1, t2); });
+    register_unary_tac(g_repeat_tac_name, [](tactic const & t1) { return repeat(t1); });
+    register_tac(name(g_tac, "state"), [](type_checker &, expr const & e, pos_info_provider const * p) {
+            if (p)
+                if (auto it = p->get_pos_info(e))
+                    return trace_state_tactic(std::string(p->get_file_name()), *it);
+            return trace_state_tactic();
+        });
+    register_tac(name(g_tac, "trace"), [](type_checker & tc, expr const & e, pos_info_provider const *) {
+            buffer<expr> args;
+            get_app_args(e, args);
+            if (args.size() != 1)
+                throw expr_to_tactic_exception(e, "invalid trace tactic, argument expected");
+            if (auto str = to_string(args[0]))
+                return trace_tactic(*str);
+            else if (auto str = to_string(tc.whnf(args[0]).first))
+                return trace_tactic(*str);
+            else
+                throw expr_to_tactic_exception(e, "invalid trace tactic, string value expected");
+        });
+    register_tac(name(g_tac, "apply"), [](type_checker &, expr const & e, pos_info_provider const *) {
+            return apply_tactic(app_arg(e));
+        });
+    register_tac(g_exact_tac_name, [](type_checker &, expr const & e, pos_info_provider const *) {
+            return exact_tactic(app_arg(e));
+        });
+    register_tac(name(g_tac, "unfold"), [](type_checker &, expr const & e, pos_info_provider const *) {
+            expr id = get_app_fn(app_arg(e));
+            if (!is_constant(id))
+                return fail_tactic();
+            else
+                return unfold_tactic(const_name(id));
+        });
+    register_unary_num_tac(name(g_tac, "at_most"), [](tactic const & t, unsigned k) { return take(t, k); });
+    register_unary_num_tac(name(g_tac, "discard"), [](tactic const & t, unsigned k) { return discard(t, k); });
+    register_unary_num_tac(name(g_tac, "focus_at"), [](tactic const & t, unsigned k) { return focus(t, k); });
+    register_unary_num_tac(name(g_tac, "try_for"), [](tactic const & t, unsigned k) { return try_for(t, k); });
+    register_tac(g_fixpoint_name, [](type_checker & tc, expr const & e, pos_info_provider const *) {
+            if (!is_constant(app_fn(e)))
+                throw expr_to_tactic_exception(e, "invalid fixpoint tactic, it must have one argument");
+            expr r = tc.whnf(mk_app(app_arg(e), e)).first;
+            return fixpoint(r);
+        });
+}
+
+void finalize_expr_to_tactic() {
+    delete g_fixpoint_tac;
+    delete g_builtin_tac;
+    delete g_tac_type;
+    delete g_determ_tac_fn;
+    delete g_repeat_tac_fn;
+    delete g_or_else_tac_fn;
+    delete g_and_then_tac_fn;
+    delete g_exact_tac_fn;
+    delete g_map;
+    delete g_by_name;
+    delete g_tmp_prefix;
+}
 }

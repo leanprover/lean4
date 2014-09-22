@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 void initialize_sexpr_module() {
+    initialize_sexpr();
     initialize_option_declarations();
     initialize_options();
     initialize_format();
@@ -19,5 +20,6 @@ void finalize_sexpr_module() {
     finalize_format();
     finalize_options();
     finalize_option_declarations();
+    finalize_sexpr();
 }
 }

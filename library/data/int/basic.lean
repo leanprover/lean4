@@ -357,20 +357,6 @@ or.elim (cases_succ a)
   (assume H, obtain (n : ℕ) (H3 : a = of_nat n), from H, H3⁻¹ ▸ H1 n)
   (assume H, obtain (n : ℕ) (H3 : a = -(of_nat (succ n))), from H, H3⁻¹ ▸ H2 n)
 
-theorem of_nat_eq_neg_of_nat {n m : ℕ} (H : n = - m) : n = 0 ∧ m = 0 :=
-have H2 : n = psub (pair 0 m), from
-  calc
-    n = -m : H
-      ... = -(psub (pair m 0)) : rfl
-      ... = psub (pair 0 m) : by simp,
-have H3 : rel (pair n 0) (pair 0 m), from R_intro_refl quotient @rel_refl H2,
-have H4 : n + m = 0, from
-  calc
-    n + m = pr1 (pair n 0) + pr2 (pair 0 m) : by simp
-      ... = pr2 (pair n 0) + pr1 (pair 0 m) : H3
-      ... = 0 : by simp,
-add_eq_zero H4
-
 --some of these had to be transparent for theorem cases
 irreducible psub proj
 
@@ -578,7 +564,6 @@ calc
 theorem sub_add_add_left (a b c : ℤ) : c + a - (c + b) = a - b :=
 add_comm b c ▸ add_comm a c ▸ sub_add_add_right a b c
 
--- TODO: fix this
 theorem dist_def (n m : ℕ) : dist n m = (to_nat (of_nat n - m)) :=
 have H : of_nat n - m = psub (pair n m), from
   calc
@@ -586,7 +571,7 @@ have H : of_nat n - m = psub (pair n m), from
       ... = psub (pair n m) : by simp,
 calc
   dist n m = (to_nat (psub (pair n m))) : by simp
-    ... = (to_nat (of_nat n - m)) : sorry -- {symm H}
+    ... = (to_nat (of_nat n - m)) : {H⁻¹}
 
 -- ## mul
 theorem rel_mul_prep {xa ya xb yb xn yn xm ym : ℕ}

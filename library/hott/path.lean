@@ -40,9 +40,9 @@ infixl `@`:75 := concat
 postfix `^`:100 := inverse
 
 -- In Coq, these are not needed, because concat and inv are kept transparent
-definition inv_1 {A : Type} (x : A) : (idpath x)^ ≈ idpath x := idp
+-- definition inv_1 {A : Type} (x : A) : (idpath x)^ ≈ idpath x := idp
 
-definition concat_11 {A : Type} (x : A) : idpath x @ idpath x ≈ idpath x := idp
+-- definition concat_11 {A : Type} (x : A) : idpath x @ idpath x ≈ idpath x := idp
 
 
 -- The 1-dimensional groupoid structure

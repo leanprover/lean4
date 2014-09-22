@@ -71,6 +71,16 @@ H ▸ rfl
 theorem congr_arg {A : Type} {B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b :=
 H ▸ rfl
 
+theorem congr_arg2 {A : Type} {B : A → Type} {C : Type} {a₁ a₂ : A}
+    {b₁ : B a₁} {b₂ : B a₂} (f : Πa, B a → C) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) :
+    f a₁ b₁ = f a₂ b₂ :=
+  eq.rec_on H₁
+    (λ (b₂ : B a₁) (H₁ : a₁ = a₁) (H₂ : eq.rec_on H₁ b₁ = b₂),
+      calc
+        f a₁ b₁ = f a₁ (eq.rec_on H₁ b₁) : {(eq.rec_on_id H₁ b₁)⁻¹}
+            ... = f a₁ b₂                : {H₂})
+    b₂ H₁ H₂
+
 theorem congr {A : Type} {B : Type} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) :
   f a = g b :=
 H1 ▸ H2 ▸ rfl
@@ -98,6 +108,9 @@ assume Ha, H2 ▸ (H1 Ha)
 
 theorem eq_imp_trans {a b c : Prop} (H1 : a = b) (H2 : b → c) : a → c :=
 assume Ha, H2 (H1 ▸ Ha)
+
+-- proof irrelevance is built in the kernel
+theorem proof_irrel {a : Prop} {H1 H2 : a} : H1 = H2 := rfl
 
 -- ne
 -- --

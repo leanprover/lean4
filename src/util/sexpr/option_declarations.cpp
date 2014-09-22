@@ -51,4 +51,22 @@ void option_declaration::display_value(std::ostream & out, options const & o) co
     if (!contains)
         out << get_default_value();
 }
+
+static option_declarations * g_option_declarations = nullptr;
+
+void initialize_option_declarations() {
+    g_option_declarations = new option_declarations();
+}
+
+void finalize_option_declarations() {
+    delete g_option_declarations;
+}
+
+option_declarations const & get_option_declarations() {
+    return *g_option_declarations;
+}
+
+void register_option(name const & n, option_kind k, char const * default_value, char const * description) {
+    g_option_declarations->insert(mk_pair(n, option_declaration(n, k, default_value, description)));
+}
 }

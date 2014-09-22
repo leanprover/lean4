@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/flet.h"
 #include "util/lean_path.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "kernel/abstract.h"
@@ -51,14 +52,30 @@ Author: Leonardo de Moura
 namespace lean {
 // ==========================================
 // Parser configuration options
-static name g_parser_show_errors     {"parser", "show_errors"};
-static name g_parser_parallel_import {"parser", "parallel_import"};
+static name * g_parser_show_errors;
+static name * g_parser_parallel_import;
 
-RegisterBoolOption(g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS, "(lean parser) display error messages in the regular output channel");
-RegisterBoolOption(g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT, "(lean parser) import modules in parallel");
+void initialize_parser() {
+    g_parser_show_errors     = new name{"parser", "show_errors"};
+    g_parser_parallel_import = new name{"parser", "parallel_import"};
+    register_bool_option(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS,
+                         "(lean parser) display error messages in the regular output channel");
+    register_bool_option(*g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT,
+                         "(lean parser) import modules in parallel");
+}
 
-bool     get_parser_show_errors(options const & opts)  { return opts.get_bool(g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS); }
-bool     get_parser_parallel_import(options const & opts)  { return opts.get_bool(g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT); }
+void finalize_parser() {
+    delete g_parser_show_errors;
+    delete g_parser_parallel_import;
+}
+
+bool get_parser_show_errors(options const & opts) {
+    return opts.get_bool(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS);
+}
+
+bool get_parser_parallel_import(options const & opts) {
+    return opts.get_bool(*g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT);
+}
 // ==========================================
 
 parser::local_scope::local_scope(parser & p):

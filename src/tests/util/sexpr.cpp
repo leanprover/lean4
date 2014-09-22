@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/sexpr_fn.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/options.h"
+#include "util/sexpr/init_module.h"
 using namespace lean;
 
 static void tst1() {
@@ -239,6 +240,7 @@ static void tst10() {
 
 int main() {
     save_stack_info();
+    initialize_sexpr_module();
     tst1();
     tst2();
     tst3();
@@ -249,5 +251,6 @@ int main() {
     tst8();
     tst9();
     tst10();
+    finalize_sexpr_module();
     return has_violations() ? 1 : 0;
 }

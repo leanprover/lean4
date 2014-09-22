@@ -114,4 +114,7 @@ options get_global_options(lua_State * L);
 */
 void set_global_options(lua_State * L, options const & o);
 void open_options(lua_State * L);
+
+void initialize_options();
+void finalize_options();
 }

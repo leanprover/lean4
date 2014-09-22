@@ -32,5 +32,10 @@ public:
 };
 
 typedef std::map<name, option_declaration> option_declarations;
+void initialize_option_declarations();
+void finalize_option_declarations();
 option_declarations const & get_option_declarations();
+void register_option(name const & n, option_kind k, char const * default_value, char const * description);
+#define register_bool_option(n, v, d) register_option(n, BoolOption, #v, d)
+#define register_unsigned_option(n, v, d) register_option(n, UnsignedOption, #v, d)
 }

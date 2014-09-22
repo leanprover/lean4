@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "util/lbool.h"
 #include "util/flet.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
@@ -42,20 +43,38 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static name g_unifier_max_steps      {"unifier", "max_steps"};
-RegisterUnsignedOption(g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS, "(unifier) maximum number of steps");
-unsigned get_unifier_max_steps(options const & opts) { return opts.get_unsigned(g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS); }
+static name * g_unifier_max_steps         = nullptr;
+static name * g_unifier_computation       = nullptr;
+static name * g_unifier_expensive_classes = nullptr;
 
-static name g_unifier_computation    {"unifier", "computation"};
-RegisterBoolOption(g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION,
-                   "(unifier) always case-split on reduction/computational steps when solving flex-rigid and delta-delta constraints");
-bool get_unifier_computation(options const & opts) { return opts.get_bool(g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION); }
+void initialize_unifier() {
+    g_unifier_max_steps         = new name{"unifier", "max_steps"};
+    g_unifier_computation       = new name{"unifier", "computation"};
+    g_unifier_expensive_classes = new name{"unifier", "expensive_classes"};
 
-static name g_unifier_expensive_classes {"unifier", "expensive_classes"};
-RegisterBoolOption(g_unifier_expensive_classes, LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES,
-                   "(unifier) use \"full\" higher-order unification when solving class instances");
+    register_unsigned_option(*g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS, "(unifier) maximum number of steps");
+    register_bool_option(*g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION,
+                         "(unifier) always case-split on reduction/computational steps when solving flex-rigid and delta-delta constraints");
+    register_bool_option(*g_unifier_expensive_classes, LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES,
+                         "(unifier) use \"full\" higher-order unification when solving class instances");
+}
+
+void finalize_unifier() {
+    delete g_unifier_max_steps;
+    delete g_unifier_computation;
+    delete g_unifier_expensive_classes;
+}
+
+unsigned get_unifier_max_steps(options const & opts) {
+    return opts.get_unsigned(*g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS);
+}
+
+bool get_unifier_computation(options const & opts) {
+    return opts.get_bool(*g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION);
+}
+
 bool get_unifier_expensive_classes(options const & opts) {
-    return opts.get_bool(g_unifier_expensive_classes, LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES);
+    return opts.get_bool(*g_unifier_expensive_classes, LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES);
 }
 
 unifier_config::unifier_config(bool use_exceptions, bool discard):

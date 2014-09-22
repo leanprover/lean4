@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/sexpr/options.h"
 #include "util/sexpr/option_declarations.h"
+#include "util/sexpr/init_module.h"
 using namespace lean;
 
 static void tst1() {
@@ -128,8 +129,6 @@ static void tst4() {
     lean_assert(s.str() == "Bool Int Unsigned Int Double String S-Expression");
 }
 
-RegisterBoolOption("fakeopt", false, "fake option");
-
 static void tst5() {
     option_declarations const & decls = get_option_declarations();
     auto it = decls.find("fakeopt");
@@ -156,11 +155,17 @@ static void tst6() {
 
 int main() {
     save_stack_info();
+    initialize_sexpr_module();
+    name fakeopt("fakeopt");
+    register_bool_option(fakeopt, false, "fake option");
+
     tst1();
     tst2();
     tst3();
     tst4();
     tst5();
     tst6();
+
+    finalize_sexpr_module();
     return has_violations() ? 1 : 0;
 }

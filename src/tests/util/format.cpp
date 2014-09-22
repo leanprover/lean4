@@ -14,6 +14,7 @@ Author: Soonho Kong
 #include "util/sexpr/format.h"
 #include "util/sexpr/sexpr_fn.h"
 #include "util/sexpr/options.h"
+#include "util/sexpr/init_module.h"
 using namespace lean;
 
 using std::cout;
@@ -126,11 +127,13 @@ static void tst6() {
 
 int main() {
     save_stack_info();
+    initialize_sexpr_module();
     tst1();
     tst2();
     tst3();
     tst4();
     tst5();
     tst6();
+    finalize_sexpr_module();
     return has_violations() ? 1 : 0;
 }

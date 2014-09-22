@@ -36,4 +36,6 @@ std::tuple<expr, level_param_names> elaborate(elaborator_context & env, list<exp
 
 std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t, expr const & v,
                                                     bool is_opaque);
+void initialize_elaborator();
+void finalize_elaborator();
 }

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/lazy_list_fn.h"
 #include "util/sstream.h"
 #include "util/name_map.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
@@ -54,10 +55,21 @@ Author: Leonardo de Moura
 namespace lean {
 // ==========================================
 // elaborator configuration options
-static name g_elaborator_local_instances{"elaborator", "local_instances"};
-RegisterBoolOption(g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES, "(lean elaborator) use local declarates as class instances");
+static name * g_elaborator_local_instances = nullptr;
+
+void initialize_elaborator() {
+    g_elaborator_local_instances = new name{"elaborator", "local_instances"};
+
+    register_bool_option(*g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES,
+                         "(lean elaborator) use local declarates as class instances");
+}
+
+void finalize_elaborator() {
+    delete g_elaborator_local_instances;
+}
+
 bool get_elaborator_local_instances(options const & opts) {
-    return opts.get_bool(g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES);
+    return opts.get_bool(*g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES);
 }
 // ==========================================
 

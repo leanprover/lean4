@@ -18,6 +18,7 @@
 #include "util/sexpr/format.h"
 #include "util/sexpr/sexpr_fn.h"
 #include "util/sexpr/options.h"
+#include "util/sexpr/option_declarations.h"
 
 #ifndef LEAN_DEFAULT_PP_INDENTATION
 #define LEAN_DEFAULT_PP_INDENTATION 2
@@ -48,32 +49,41 @@
 #endif
 
 namespace lean {
-static name g_pp_indent{"pp", "indent"};
-static name g_pp_unicode{"pp", "unicode"};
-static name g_pp_colors{"pp", "colors"};
-static name g_pp_width{"pp", "width"};
+static name * g_pp_indent  = nullptr;
+static name * g_pp_unicode = nullptr;
+static name * g_pp_colors  = nullptr;
+static name * g_pp_width   = nullptr;
 
-RegisterUnsignedOption(g_pp_indent, LEAN_DEFAULT_PP_INDENTATION, "(pretty printer) default indentation");
-RegisterBoolOption(g_pp_unicode, LEAN_DEFAULT_PP_UNICODE, "(pretty printer) use unicode characters");
-RegisterBoolOption(g_pp_colors, LEAN_DEFAULT_PP_COLORS, "(pretty printer) use colors");
-RegisterUnsignedOption(g_pp_width, LEAN_DEFAULT_PP_WIDTH, "(pretty printer) line width");
+void initialize_format() {
+    g_pp_indent  = new name{"pp", "indent"};
+    g_pp_unicode = new name{"pp", "unicode"};
+    g_pp_colors  = new name{"pp", "colors"};
+    g_pp_width   = new name{"pp", "width"};
+    register_unsigned_option(*g_pp_indent, LEAN_DEFAULT_PP_INDENTATION, "(pretty printer) default indentation");
+    register_bool_option(*g_pp_unicode, LEAN_DEFAULT_PP_UNICODE, "(pretty printer) use unicode characters");
+    register_bool_option(*g_pp_colors, LEAN_DEFAULT_PP_COLORS, "(pretty printer) use colors");
+    register_unsigned_option(*g_pp_width, LEAN_DEFAULT_PP_WIDTH, "(pretty printer) line width");
+}
+
+void finalize_format() {
+    delete g_pp_indent;
+    delete g_pp_unicode;
+    delete g_pp_colors;
+    delete g_pp_width;
+}
 
 unsigned get_pp_indent(options const & o) {
-    return o.get_unsigned(g_pp_indent, LEAN_DEFAULT_PP_INDENTATION);
+    return o.get_unsigned(*g_pp_indent, LEAN_DEFAULT_PP_INDENTATION);
 }
-
 bool get_pp_unicode(options const & o) {
-    return o.get_bool(g_pp_unicode, LEAN_DEFAULT_PP_UNICODE);
+    return o.get_bool(*g_pp_unicode, LEAN_DEFAULT_PP_UNICODE);
 }
-
 bool get_pp_colors(options const & o) {
-    return o.get_bool(g_pp_colors, LEAN_DEFAULT_PP_COLORS);
+    return o.get_bool(*g_pp_colors, LEAN_DEFAULT_PP_COLORS);
 }
-
 unsigned get_pp_width(options const & o) {
-    return o.get_unsigned(g_pp_width, LEAN_DEFAULT_PP_WIDTH);
+    return o.get_unsigned(*g_pp_width, LEAN_DEFAULT_PP_WIDTH);
 }
-
 format compose(format const & f1, format const & f2) {
     return format(format::sexpr_compose({f1.m_value, f2.m_value}));
 }

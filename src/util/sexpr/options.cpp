@@ -16,9 +16,20 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static name g_verbose("verbose");
-RegisterBoolOption(g_verbose,  LEAN_DEFAULT_VERBOSE, "disable/enable verbose messages");
-bool get_verbose(options const & opts) { return opts.get_bool(g_verbose, LEAN_DEFAULT_VERBOSE); }
+static name * g_verbose = nullptr;
+
+void initialize_options() {
+    g_verbose = new name("verbose");
+    register_bool_option(*g_verbose, LEAN_DEFAULT_VERBOSE, "disable/enable verbose messages");
+}
+
+void finalize_options() {
+    delete g_verbose;
+}
+
+bool get_verbose(options const & opts) {
+    return opts.get_bool(*g_verbose, LEAN_DEFAULT_VERBOSE);
+}
 
 std::ostream & operator<<(std::ostream & out, option_kind k) {
     switch (k) {
@@ -30,19 +41,6 @@ std::ostream & operator<<(std::ostream & out, option_kind k) {
     case SExprOption: out << "S-Expression"; break;
     }
     return out;
-}
-
-option_declarations & get_option_declarations_core() {
-    static option_declarations g_option_declarations;
-    return g_option_declarations;
-}
-
-option_declarations const & get_option_declarations() {
-    return get_option_declarations_core();
-}
-
-mk_option_declaration::mk_option_declaration(name const & n, option_kind k, char const * default_value, char const * description) {
-    get_option_declarations_core().insert(mk_pair(n, option_declaration(n, k, default_value, description)));
 }
 
 bool options::empty() const {

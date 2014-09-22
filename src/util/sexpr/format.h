@@ -323,4 +323,7 @@ bool format_pp_eq(format const & f1, format const & f2, options const & o);
 
 UDATA_DEFS(format)
 void open_format(lua_State * L);
+
+void initialize_format();
+void finalize_format();
 }

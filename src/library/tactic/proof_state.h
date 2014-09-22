@@ -46,4 +46,7 @@ io_state_stream const & operator<<(io_state_stream const & out, proof_state cons
 UDATA_DEFS_CORE(goals)
 UDATA_DEFS(proof_state)
 void open_proof_state(lua_State * L);
+
+void initialize_proof_state();
+void finalize_proof_state();
 }

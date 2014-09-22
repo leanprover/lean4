@@ -95,4 +95,7 @@ public:
 };
 
 void open_unifier(lua_State * L);
+
+void initialize_unifier();
+void finalize_unifier();
 }

@@ -355,4 +355,7 @@ bool parse_commands(environment & env, io_state & ios, std::istream & in, char c
                     declaration_index * index = nullptr);
 bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads,
                     definition_cache * cache = nullptr, declaration_index * index = nullptr);
+
+void initialize_parser();
+void finalize_parser();
 }

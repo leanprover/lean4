@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include "util/sstream.h"
 #include "util/interrupt.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -23,9 +24,21 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static name g_proof_state_goal_names          {"tactic", "goal_names"};
-RegisterBoolOption(g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES, "(tactic) display goal names when pretty printing proof state");
-bool get_proof_state_goal_names(options const & opts) { return opts.get_bool(g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES); }
+static name * g_proof_state_goal_names = nullptr;
+
+void initialize_proof_state() {
+    g_proof_state_goal_names = new name{"tactic", "goal_names"};
+    register_bool_option(*g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES,
+                         "(tactic) display goal names when pretty printing proof state");
+}
+
+void finalize_proof_state() {
+    delete g_proof_state_goal_names;
+}
+
+bool get_proof_state_goal_names(options const & opts) {
+    return opts.get_bool(*g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES);
+}
 
 format proof_state::pp(formatter const & fmt) const {
     options const & opts = fmt.get_options();

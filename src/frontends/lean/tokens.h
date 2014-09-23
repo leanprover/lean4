@@ -33,4 +33,18 @@ name const & get_assume_tk();
 name const & get_take_tk();
 name const & get_fun_tk();
 name const & get_ellipsis_tk();
+name const & get_raw_tk();
+name const & get_true_tk();
+name const & get_false_tk();
+name const & get_options_tk();
+name const & get_arrow_tk();
+name const & get_declarations_tk();
+name const & get_decls_tk();
+name const & get_hiding_tk();
+name const & get_exposing_tk();
+name const & get_renaming_tk();
+name const & get_as_tk();
+name const & get_on_tk();
+name const & get_off_tk();
+name const & get_none_tk();
 }

@@ -27,37 +27,18 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/class.h"
 #include "frontends/lean/tactic_hint.h"
+#include "frontends/lean/tokens.h"
 
 namespace lean {
-static name g_raw("raw");
-static name g_true("true");
-static name g_false("false");
-static name g_options("options");
-static name g_lparen("(");
-static name g_rparen(")");
-static name g_arrow("->");
-static name g_lbracket("[");
-static name g_rbracket("]");
-static name g_declarations("declarations");
-static name g_decls("decls");
-static name g_hiding("hiding");
-static name g_exposing("exposing");
-static name g_renaming("renaming");
-static name g_as("as");
-static name g_colon(":");
-static name g_on("[on]");
-static name g_off("[off]");
-static name g_none("[none]");
-
 environment print_cmd(parser & p) {
     if (p.curr() == scanner::token_kind::String) {
         p.regular_stream() << p.get_str_val() << endl;
         p.next();
-    } else if (p.curr_is_token_or_id(g_raw)) {
+    } else if (p.curr_is_token_or_id(get_raw_tk())) {
         p.next();
         expr e = p.parse_expr();
         p.regular_stream() << e << endl;
-    } else if (p.curr_is_token_or_id(g_options)) {
+    } else if (p.curr_is_token_or_id(get_options_tk())) {
         p.next();
         p.regular_stream() << p.ios().get_options() << endl;
     } else {
@@ -140,9 +121,9 @@ environment set_option_cmd(parser & p) {
     }
     option_kind k = decl_it->second.kind();
     if (k == BoolOption) {
-        if (p.curr_is_token_or_id(g_true))
+        if (p.curr_is_token_or_id(get_true_tk()))
             p.set_option(id, true);
-        else if (p.curr_is_token_or_id(g_false))
+        else if (p.curr_is_token_or_id(get_false_tk()))
             p.set_option(id, false);
         else
             throw parser_error("invalid Boolean option value, 'true' or 'false' expected", p.pos());
@@ -164,7 +145,7 @@ environment set_option_cmd(parser & p) {
 }
 
 static name parse_class(parser & p) {
-    if (p.curr_is_token(g_lbracket)) {
+    if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
         name n;
         if (p.curr_is_identifier())
@@ -174,7 +155,7 @@ static name parse_class(parser & p) {
         else
             throw parser_error("invalid 'open' command, identifier or symbol expected", p.pos());
         p.next();
-        p.check_token_next(g_rbracket, "invalid 'open' command, ']' expected");
+        p.check_token_next(get_rbracket_tk(), "invalid 'open' command, ']' expected");
         return n;
     } else {
         return name();
@@ -209,7 +190,7 @@ environment open_export_cmd(parser & p, bool open) {
     environment env = p.env();
     while (true) {
         name cls = parse_class(p);
-        bool decls = cls.is_anonymous() || cls == g_decls || cls == g_declarations;
+        bool decls = cls.is_anonymous() || cls == get_decls_tk() || cls == get_declarations_tk();
         auto pos   = p.pos();
         name ns    = p.check_id_next("invalid 'open/export' command, identifier expected");
         optional<name> real_ns = to_valid_namespace_name(env, ns);
@@ -217,7 +198,7 @@ environment open_export_cmd(parser & p, bool open) {
             throw parser_error(sstream() << "invalid namespace name '" << ns << "'", pos);
         ns = *real_ns;
         name as;
-        if (p.curr_is_token_or_id(g_as)) {
+        if (p.curr_is_token_or_id(get_as_tk())) {
             p.next();
             as = p.check_id_next("invalid 'open/export' command, identifier expected");
         }
@@ -229,14 +210,14 @@ environment open_export_cmd(parser & p, bool open) {
             // Remark: we currently to not allow renaming and hiding of universe levels
             buffer<name> exceptions;
             bool found_explicit = false;
-            while (p.curr_is_token(g_lparen)) {
+            while (p.curr_is_token(get_lparen_tk())) {
                 p.next();
-                if (p.curr_is_token_or_id(g_renaming)) {
+                if (p.curr_is_token_or_id(get_renaming_tk())) {
                     p.next();
                     while (p.curr_is_identifier()) {
                         name from_id = p.get_name_val();
                         p.next();
-                        p.check_token_next(g_arrow, "invalid 'open/export' command renaming, '->' expected");
+                        p.check_token_next(get_arrow_tk(), "invalid 'open/export' command renaming, '->' expected");
                         name to_id = p.check_id_next("invalid 'open/export' command renaming, identifier expected");
                         check_identifier(p, env, ns, from_id);
                         exceptions.push_back(from_id);
@@ -245,7 +226,7 @@ environment open_export_cmd(parser & p, bool open) {
                         else
                             env = add_abbrev(p, env, as+to_id, ns+from_id);
                     }
-                } else if (p.curr_is_token_or_id(g_hiding)) {
+                } else if (p.curr_is_token_or_id(get_hiding_tk())) {
                     p.next();
                     while (p.curr_is_identifier()) {
                         name id = p.get_name_val();
@@ -269,7 +250,7 @@ environment open_export_cmd(parser & p, bool open) {
                 }
                 if (found_explicit && !exceptions.empty())
                     throw parser_error("invalid 'open/export' command option, mixing explicit and implicit 'open/export' options", p.pos());
-                p.check_token_next(g_rparen, "invalid 'open/export' command option, ')' expected");
+                p.check_token_next(get_rparen_tk(), "invalid 'open/export' command option, ')' expected");
             }
             if (!found_explicit) {
                 if (open) {
@@ -289,7 +270,7 @@ environment open_export_cmd(parser & p, bool open) {
                 }
             }
         }
-        if (!p.curr_is_token(g_lbracket) && !p.curr_is_identifier())
+        if (!p.curr_is_token(get_lbracket_tk()) && !p.curr_is_identifier())
             break;
     }
     return env;
@@ -301,7 +282,7 @@ environment coercion_cmd(parser & p) {
     bool persistent = false;
     parse_persistent(p, persistent);
     name f   = p.check_constant_next("invalid 'coercion' command, constant expected");
-    if (p.curr_is_token(g_colon)) {
+    if (p.curr_is_token(get_colon_tk())) {
         p.next();
         name C = p.check_constant_next("invalid 'coercion' command, constant expected");
         return add_coercion(p.env(), f, C, p.ios(), persistent);
@@ -313,13 +294,13 @@ environment coercion_cmd(parser & p) {
 static void parse_reducible_modifiers(parser & p, reducible_status & status, bool & persistent) {
     while (true) {
         if (parse_persistent(p, persistent)) {
-        } else if (p.curr_is_token_or_id(g_on)) {
+        } else if (p.curr_is_token_or_id(get_on_tk())) {
             p.next();
             status = reducible_status::On;
-        } else if (p.curr_is_token_or_id(g_off)) {
+        } else if (p.curr_is_token_or_id(get_off_tk())) {
             p.next();
             status = reducible_status::Off;
-        } else if (p.curr_is_token_or_id(g_none)) {
+        } else if (p.curr_is_token_or_id(get_none_tk())) {
             p.next();
             status = reducible_status::None;
         } else {

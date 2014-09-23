@@ -31,6 +31,20 @@ static name * g_assume       = nullptr;
 static name * g_take         = nullptr;
 static name * g_fun          = nullptr;
 static name * g_ellipsis     = nullptr;
+static name * g_raw          = nullptr;
+static name * g_true         = nullptr;
+static name * g_false        = nullptr;
+static name * g_options      = nullptr;
+static name * g_arrow        = nullptr;
+static name * g_declarations = nullptr;
+static name * g_decls        = nullptr;
+static name * g_hiding       = nullptr;
+static name * g_exposing     = nullptr;
+static name * g_renaming     = nullptr;
+static name * g_as           = nullptr;
+static name * g_on           = nullptr;
+static name * g_off          = nullptr;
+static name * g_none         = nullptr;
 
 void initialize_tokens() {
     g_period       = new name(".");
@@ -57,9 +71,37 @@ void initialize_tokens() {
     g_take         = new name("take");
     g_fun          = new name("fun");
     g_ellipsis     = new name("...");
+    g_raw          = new name("raw");
+    g_true         = new name("true");
+    g_false        = new name("false");
+    g_options      = new name("options");
+    g_arrow        = new name("->");
+    g_declarations = new name("declarations");
+    g_decls        = new name("decls");
+    g_hiding       = new name("hiding");
+    g_exposing     = new name("exposing");
+    g_renaming     = new name("renaming");
+    g_as           = new name("as");
+    g_on           = new name("[on]");
+    g_off          = new name("[off]");
+    g_none         = new name("[none]");
 }
 
 void finalize_tokens() {
+    delete g_raw;
+    delete g_true;
+    delete g_false;
+    delete g_options;
+    delete g_arrow;
+    delete g_declarations;
+    delete g_decls;
+    delete g_hiding;
+    delete g_exposing;
+    delete g_renaming;
+    delete g_as;
+    delete g_on;
+    delete g_off;
+    delete g_none;
     delete g_ellipsis;
     delete g_fun;
     delete g_take;
@@ -110,4 +152,18 @@ name const & get_assume_tk() { return *g_assume; }
 name const & get_take_tk() { return *g_take; }
 name const & get_fun_tk() { return *g_fun; }
 name const & get_ellipsis_tk() { return *g_ellipsis; }
+name const & get_raw_tk() { return *g_raw; }
+name const & get_true_tk() { return *g_true; }
+name const & get_false_tk() { return *g_false; }
+name const & get_options_tk() { return *g_options; }
+name const & get_arrow_tk() { return *g_arrow; }
+name const & get_declarations_tk() { return *g_declarations; }
+name const & get_decls_tk() { return *g_decls; }
+name const & get_hiding_tk() { return *g_hiding; }
+name const & get_exposing_tk() { return *g_exposing; }
+name const & get_renaming_tk() { return *g_renaming; }
+name const & get_as_tk() { return *g_as; }
+name const & get_on_tk() { return *g_on; }
+name const & get_off_tk() { return *g_off; }
+name const & get_none_tk() { return *g_none; }
 }

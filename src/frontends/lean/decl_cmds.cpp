@@ -20,19 +20,9 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/class.h"
+#include "frontends/lean/tokens.h"
 
 namespace lean {
-static name g_llevel_curly(".{");
-static name g_rcurly("}");
-static name g_colon(":");
-static name g_assign(":=");
-static name g_definition("definition");
-static name g_theorem("theorem");
-static name g_opaque("opaque");
-static name g_instance("[instance]");
-static name g_coercion("[coercion]");
-static name g_reducible("[reducible]");
-
 environment universe_cmd(parser & p) {
     name n = p.check_id_next("invalid universe declaration, identifier expected");
     environment env = p.env();
@@ -49,9 +39,9 @@ environment universe_cmd(parser & p) {
 }
 
 bool parse_univ_params(parser & p, buffer<name> & ps) {
-    if (p.curr_is_token(g_llevel_curly)) {
+    if (p.curr_is_token(get_llevel_curly_tk())) {
         p.next();
-        while (!p.curr_is_token(g_rcurly)) {
+        while (!p.curr_is_token(get_rcurly_tk())) {
             name l = p.check_id_next("invalid universe parameter, identifier expected");
             p.add_local_level(l, mk_param_univ(l));
             ps.push_back(l);
@@ -74,9 +64,6 @@ void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found, pa
         });
 }
 
-static name g_axiom("axiom");
-static name g_variable("variable");
-
 static environment declare_var(parser & p, environment env,
                                name const & n, level_param_names const & ls, expr const & type,
                                bool is_axiom, optional<binder_info> const & _bi, pos_info const & pos) {
@@ -92,10 +79,10 @@ static environment declare_var(parser & p, environment env,
         name full_n  = ns + n;
         if (is_axiom) {
             env = module::add(env, check(env, mk_axiom(full_n, ls, type)));
-            p.add_decl_index(full_n, pos, g_axiom, type);
+            p.add_decl_index(full_n, pos, get_axiom_tk(), type);
         } else {
             env = module::add(env, check(env, mk_var_decl(full_n, ls, type)));
-            p.add_decl_index(full_n, pos, g_variable, type);
+            p.add_decl_index(full_n, pos, get_variable_tk(), type);
         }
         if (!ns.is_anonymous())
             env = add_expr_alias(env, n, full_n);
@@ -123,17 +110,17 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
     optional<binder_info> bi = parse_binder_info(p);
     name n = p.check_id_next("invalid declaration, identifier expected");
     buffer<name> ls_buffer;
-    if (p.curr_is_token(g_llevel_curly) && in_section_or_context(p.env()))
+    if (p.curr_is_token(get_llevel_curly_tk()) && in_section_or_context(p.env()))
         throw parser_error("invalid declaration, axioms/parameters occurring in sections cannot be universe polymorphic", p.pos());
     optional<parser::local_scope> scope1;
     if (!in_section_or_context(p.env()))
         scope1.emplace(p);
     parse_univ_params(p, ls_buffer);
     expr type;
-    if (!p.curr_is_token(g_colon)) {
+    if (!p.curr_is_token(get_colon_tk())) {
         buffer<expr> ps;
         auto lenv = p.parse_binders(ps);
-        p.check_token_next(g_colon, "invalid declaration, ':' expected");
+        p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
         type = p.parse_scoped_expr(ps, lenv);
         type = Pi(ps, type, p);
     } else {
@@ -173,13 +160,13 @@ struct decl_modifiers {
 
     void parse(parser & p) {
         while (true) {
-            if (p.curr_is_token(g_instance)) {
+            if (p.curr_is_token(get_instance_tk())) {
                 m_is_instance = true;
                 p.next();
-            } else if (p.curr_is_token(g_coercion)) {
+            } else if (p.curr_is_token(get_coercion_tk())) {
                 m_is_coercion = true;
                 p.next();
-            } else if (p.curr_is_token(g_reducible)) {
+            } else if (p.curr_is_token(get_reducible_tk())) {
                 m_is_reducible = true;
                 p.next();
             } else {
@@ -219,20 +206,20 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
         // Parse modifiers
         modifiers.parse(p);
 
-        if (p.curr_is_token(g_assign)) {
+        if (p.curr_is_token(get_assign_tk())) {
             auto pos = p.pos();
             p.next();
             type  = p.save_pos(mk_expr_placeholder(), pos);
             value = p.parse_expr();
-        } else if (p.curr_is_token(g_colon)) {
+        } else if (p.curr_is_token(get_colon_tk())) {
             p.next();
             auto pos = p.pos();
             type = p.parse_expr();
-            if (is_theorem && !p.curr_is_token(g_assign)) {
+            if (is_theorem && !p.curr_is_token(get_assign_tk())) {
                 check_end_of_theorem(p);
                 value = mk_expr_placeholder();
             } else {
-                p.check_token_next(g_assign, "invalid declaration, ':=' expected");
+                p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
                 value = p.save_pos(p.parse_expr(), pos);
             }
         } else {
@@ -240,19 +227,19 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
             optional<local_environment> lenv;
             lenv = p.parse_binders(ps);
             auto pos = p.pos();
-            if (p.curr_is_token(g_colon)) {
+            if (p.curr_is_token(get_colon_tk())) {
                 p.next();
                 type = p.parse_scoped_expr(ps, *lenv);
-                if (is_theorem && !p.curr_is_token(g_assign)) {
+                if (is_theorem && !p.curr_is_token(get_assign_tk())) {
                     check_end_of_theorem(p);
                     value = p.save_pos(mk_expr_placeholder(), pos);
                 } else {
-                    p.check_token_next(g_assign, "invalid declaration, ':=' expected");
+                    p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
                     value = p.parse_scoped_expr(ps, *lenv);
                 }
             } else {
                 type = p.save_pos(mk_expr_placeholder(), p.pos());
-                p.check_token_next(g_assign, "invalid declaration, ':=' expected");
+                p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
                 value = p.parse_scoped_expr(ps, *lenv);
             }
             type  = Pi(ps, type, p);
@@ -359,7 +346,7 @@ environment definition_cmd(parser & p) {
     return definition_cmd_core(p, false, false, false, false);
 }
 environment opaque_definition_cmd(parser & p) {
-    p.check_token_next(g_definition, "invalid 'opaque' definition, 'definition' expected");
+    p.check_token_next(get_definition_tk(), "invalid 'opaque' definition, 'definition' expected");
     return definition_cmd_core(p, false, true, false, false);
 }
 environment theorem_cmd(parser & p) {
@@ -367,9 +354,9 @@ environment theorem_cmd(parser & p) {
 }
 environment private_definition_cmd(parser & p) {
     bool is_theorem = false;
-    if (p.curr_is_token_or_id(g_definition)) {
+    if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
-    } else if (p.curr_is_token_or_id(g_theorem)) {
+    } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
         is_theorem = true;
     } else {
@@ -380,13 +367,13 @@ environment private_definition_cmd(parser & p) {
 environment protected_definition_cmd(parser & p) {
     bool is_theorem = false;
     bool is_opaque  = false;
-    if (p.curr_is_token_or_id(g_opaque)) {
+    if (p.curr_is_token_or_id(get_opaque_tk())) {
         is_opaque = true;
         p.next();
-        p.check_token_next(g_definition, "invalid 'protected' definition, 'definition' expected");
-    } else if (p.curr_is_token_or_id(g_definition)) {
+        p.check_token_next(get_definition_tk(), "invalid 'protected' definition, 'definition' expected");
+    } else if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
-    } else if (p.curr_is_token_or_id(g_theorem)) {
+    } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
         is_theorem = true;
         is_opaque  = true;
@@ -396,15 +383,13 @@ environment protected_definition_cmd(parser & p) {
     return definition_cmd_core(p, is_theorem, is_opaque, false, true);
 }
 
-static name g_lparen("("), g_lcurly("{"), g_ldcurly("⦃"), g_lbracket("[");
-
 static environment variables_cmd(parser & p) {
     auto pos = p.pos();
     environment env = p.env();
     while (true) {
         optional<binder_info> bi = parse_binder_info(p);
         buffer<name> ids;
-        while (!p.curr_is_token(g_colon)) {
+        while (!p.curr_is_token(get_colon_tk())) {
             name id = p.check_id_next("invalid parameters declaration, identifier expected");
             ids.push_back(id);
         }
@@ -426,8 +411,8 @@ static environment variables_cmd(parser & p) {
             new_ls = append(ls, new_ls);
             env = declare_var(p, env, id, new_ls, new_type, false, bi, pos);
         }
-        if (!p.curr_is_token(g_lparen) && !p.curr_is_token(g_lcurly) &&
-            !p.curr_is_token(g_ldcurly) && !p.curr_is_token(g_lbracket))
+        if (!p.curr_is_token(get_lparen_tk()) && !p.curr_is_token(get_lcurly_tk()) &&
+            !p.curr_is_token(get_ldcurly_tk()) && !p.curr_is_token(get_lbracket_tk()))
             break;
     }
     return env;

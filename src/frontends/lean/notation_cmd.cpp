@@ -13,28 +13,9 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/explicit.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/tokens.h"
 
 namespace lean {
-static name g_max("max");
-static name g_prev("prev");
-static name g_colon(":");
-static name g_comma(",");
-static name g_assign(":=");
-static name g_lparen("(");
-static name g_rparen(")");
-static name g_scoped("scoped");
-static name g_foldr("foldr");
-static name g_foldl("foldl");
-static name g_binder("binder");
-static name g_binders("binders");
-static name g_infix("infix");
-static name g_infixl("infixl");
-static name g_infixr("infixr");
-static name g_postfix("postfix");
-static name g_prefix("prefix");
-static name g_notation("notation");
-static name g_call("call");
-
 static std::string parse_symbol(parser & p, char const * msg) {
     name n;
     if (p.curr_is_identifier() || p.curr_is_quoted_symbol()) {
@@ -51,7 +32,7 @@ static std::string parse_symbol(parser & p, char const * msg) {
 static optional<unsigned> parse_optional_precedence(parser & p) {
     if (p.curr_is_numeral()) {
         return optional<unsigned>(p.parse_small_nat());
-    } else if (p.curr_is_token_or_id(g_max)) {
+    } else if (p.curr_is_token_or_id(get_max_tk())) {
         p.next();
         return optional<unsigned>(std::numeric_limits<unsigned>::max());
     } else {
@@ -68,7 +49,7 @@ static unsigned parse_precedence(parser & p, char const * msg) {
 
 environment precedence_cmd(parser & p) {
     std::string tk = parse_symbol(p, "invalid precedence declaration, quoted symbol or identifier expected");
-    p.check_token_next(g_colon, "invalid precedence declaration, ':' expected");
+    p.check_token_next(get_colon_tk(), "invalid precedence declaration, ':' expected");
     unsigned prec = parse_precedence(p, "invalid precedence declaration, numeral or 'max' expected");
     return add_token(p.env(), tk.c_str(), prec);
 }
@@ -136,7 +117,7 @@ using notation::action;
 static pair<notation_entry, optional<token_entry>> parse_mixfix_notation(parser & p, mixfix_kind k, bool overload) {
     std::string tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
     optional<unsigned> prec;
-    if (p.curr_is_token(g_colon)) {
+    if (p.curr_is_token(get_colon_tk())) {
         p.next();
         prec = parse_precedence(p, "invalid notation declaration, numeral or 'max' expected");
     }
@@ -153,7 +134,7 @@ static pair<notation_entry, optional<token_entry>> parse_mixfix_notation(parser 
                            "solution: use the 'precedence' command", p.pos());
     if (k == mixfix_kind::infixr && *prec == 0)
         throw parser_error("invalid infixr declaration, precedence must be greater than zero", p.pos());
-    p.check_token_next(g_assign, "invalid notation declaration, ':=' expected");
+    p.check_token_next(get_assign_tk(), "invalid notation declaration, ':=' expected");
     expr f = cleanup_section_notation(p, p.parse_expr());
     char const * tks = tk.c_str();
     switch (k) {
@@ -197,7 +178,7 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
         auto tks  = tk.to_string();
         auto tkcs = tks.c_str();
         p.next();
-        if (p.curr_is_token(g_colon)) {
+        if (p.curr_is_token(get_colon_tk())) {
             p.next();
             unsigned prec = parse_precedence(p, "invalid notation declaration, precedence (small numeral) expected");
             auto old_prec = get_precedence(get_token_table(env), tkcs);
@@ -221,13 +202,12 @@ static expr parse_notation_expr(parser & p, buffer<expr> const & locals) {
     return cleanup_section_notation(p, abstract(r, locals.size(), locals.data()));
 }
 
-static expr g_local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
-
 static void parse_notation_local(parser & p, buffer<expr> & locals) {
     if (p.curr_is_identifier()) {
         name n = p.get_name_val();
         p.next();
-        expr l = mk_local(n, g_local_type); // remark: the type doesn't matter
+        expr local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
+        expr l = mk_local(n, local_type); // remark: the type doesn't matter
         p.add_local_expr(n, l);
         locals.push_back(l);
     } else {
@@ -249,63 +229,63 @@ unsigned get_precedence(environment const & env, buffer<token_entry> const & new
 }
 
 static action parse_action(parser & p, name const & prev_token, unsigned default_prec, buffer<expr> & locals, buffer<token_entry> & new_tokens) {
-    if (p.curr_is_token(g_colon)) {
+    if (p.curr_is_token(get_colon_tk())) {
         p.next();
-        if (p.curr_is_numeral() || p.curr_is_token_or_id(g_max)) {
+        if (p.curr_is_numeral() || p.curr_is_token_or_id(get_max_tk())) {
             unsigned prec = parse_precedence(p, "invalid notation declaration, small numeral expected");
             return mk_expr_action(prec);
-        } else if (p.curr_is_token_or_id(g_prev)) {
+        } else if (p.curr_is_token_or_id(get_prev_tk())) {
             p.next();
             return mk_expr_action(get_precedence(p.env(), new_tokens, prev_token));
         } else if (p.curr_is_string()) {
             std::string fn = p.get_str_val();
             p.next();
             return mk_ext_lua_action(fn.c_str());
-        } else if (p.curr_is_token_or_id(g_scoped)) {
+        } else if (p.curr_is_token_or_id(get_scoped_tk())) {
             p.next();
             return mk_scoped_expr_action(mk_var(0));
         } else {
-            p.check_token_next(g_lparen, "invalid notation declaration, '(', numeral or 'scoped' expected");
-            if (p.curr_is_token_or_id(g_foldl) || p.curr_is_token_or_id(g_foldr)) {
-                bool is_fold_right = p.curr_is_token_or_id(g_foldr);
+            p.check_token_next(get_lparen_tk(), "invalid notation declaration, '(', numeral or 'scoped' expected");
+            if (p.curr_is_token_or_id(get_foldl_tk()) || p.curr_is_token_or_id(get_foldr_tk())) {
+                bool is_fold_right = p.curr_is_token_or_id(get_foldr_tk());
                 p.next();
                 auto prec = parse_optional_precedence(p);
                 name sep  = parse_quoted_symbol_or_token(p, new_tokens);
                 expr rec;
                 {
                     parser::local_scope scope(p);
-                    p.check_token_next(g_lparen, "invalid fold notation argument, '(' expected");
+                    p.check_token_next(get_lparen_tk(), "invalid fold notation argument, '(' expected");
                     parse_notation_local(p, locals);
                     parse_notation_local(p, locals);
-                    p.check_token_next(g_comma,  "invalid fold notation argument, ',' expected");
+                    p.check_token_next(get_comma_tk(),  "invalid fold notation argument, ',' expected");
                     rec  = parse_notation_expr(p, locals);
-                    p.check_token_next(g_rparen, "invalid fold notation argument, ')' expected");
+                    p.check_token_next(get_rparen_tk(), "invalid fold notation argument, ')' expected");
                     locals.pop_back();
                     locals.pop_back();
                 }
                 expr ini  = parse_notation_expr(p, locals);
                 optional<name> terminator;
-                if (!p.curr_is_token(g_rparen))
+                if (!p.curr_is_token(get_rparen_tk()))
                     terminator = parse_quoted_symbol_or_token(p, new_tokens);
-                p.check_token_next(g_rparen, "invalid fold notation argument, ')' expected");
+                p.check_token_next(get_rparen_tk(), "invalid fold notation argument, ')' expected");
                 return mk_exprs_action(sep, rec, ini, terminator, is_fold_right, prec ? *prec : 0);
-            } else if (p.curr_is_token_or_id(g_scoped)) {
+            } else if (p.curr_is_token_or_id(get_scoped_tk())) {
                 p.next();
                 auto prec = parse_optional_precedence(p);
                 expr rec;
                 {
                     parser::local_scope scope(p);
                     parse_notation_local(p, locals);
-                    p.check_token_next(g_comma,  "invalid scoped notation argument, ',' expected");
+                    p.check_token_next(get_comma_tk(),  "invalid scoped notation argument, ',' expected");
                     rec  = parse_notation_expr(p, locals);
                     locals.pop_back();
                 }
-                p.check_token_next(g_rparen, "invalid scoped notation argument, ')' expected");
+                p.check_token_next(get_rparen_tk(), "invalid scoped notation argument, ')' expected");
                 return mk_scoped_expr_action(rec, prec ? *prec : 0);
-            } else if (p.curr_is_token_or_id(g_call)) {
+            } else if (p.curr_is_token_or_id(get_call_tk())) {
                 p.next();
                 name fn = p.check_id_next("invalid call notation argument, identifier expected");
-                p.check_token_next(g_rparen, "invalid call notation argument, ')' expected");
+                p.check_token_next(get_rparen_tk(), "invalid call notation argument, ')' expected");
                 return mk_ext_lua_action(fn.to_string().c_str());
             } else {
                 throw parser_error("invalid notation declaration, 'foldl', 'foldr' or 'scoped' expected", p.pos());
@@ -345,12 +325,12 @@ notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry
     } else {
         pt = get_nud_table(p.env());
     }
-    while (!p.curr_is_token(g_assign)) {
+    while (!p.curr_is_token(get_assign_tk())) {
         name tk = parse_quoted_symbol_or_token(p, new_tokens);
-        if (p.curr_is_token_or_id(g_binder)) {
+        if (p.curr_is_token_or_id(get_binder_tk())) {
             p.next();
             ts.push_back(transition(tk, mk_binder_action()));
-        } else if (p.curr_is_token_or_id(g_binders)) {
+        } else if (p.curr_is_token_or_id(get_binders_tk())) {
             p.next();
             ts.push_back(transition(tk, mk_binders_action()));
         } else if (p.curr_is_identifier()) {
@@ -358,11 +338,12 @@ notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry
             name n   = p.get_name_val();
             p.next();
             action a = parse_action(p, tk, default_prec, locals, new_tokens);
-            expr l = mk_local(n, g_local_type);
+            expr local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
+            expr l = mk_local(n, local_type);
             p.add_local_expr(n, l);
             locals.push_back(l);
             ts.push_back(transition(tk, a));
-        } else if (p.curr_is_quoted_symbol() || p.curr_is_keyword() || p.curr_is_token(g_assign)) {
+        } else if (p.curr_is_quoted_symbol() || p.curr_is_keyword() || p.curr_is_token(get_assign_tk())) {
             ts.push_back(transition(tk, mk_skip_action()));
         } else {
             throw parser_error("invalid notation declaration, quoted-symbol, identifier, 'binder', 'binders' expected", p.pos());
@@ -401,24 +382,24 @@ environment notation_cmd_core(parser & p, bool overload) {
 }
 
 bool curr_is_notation_decl(parser & p) {
-    return p.curr_is_token(g_infix) || p.curr_is_token(g_infixl) || p.curr_is_token(g_infixr) ||
-        p.curr_is_token(g_postfix) || p.curr_is_token(g_prefix) || p.curr_is_token(g_notation);
+    return p.curr_is_token(get_infix_tk()) || p.curr_is_token(get_infixl_tk()) || p.curr_is_token(get_infixr_tk()) ||
+        p.curr_is_token(get_postfix_tk()) || p.curr_is_token(get_prefix_tk()) || p.curr_is_token(get_notation_tk());
 }
 
 notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & new_tokens) {
-    if (p.curr_is_token(g_infix) || p.curr_is_token(g_infixl)) {
+    if (p.curr_is_token(get_infix_tk()) || p.curr_is_token(get_infixl_tk())) {
         p.next();
         return parse_mixfix_notation(p, mixfix_kind::infixl, overload, new_tokens);
-    } else if (p.curr_is_token(g_infixr)) {
+    } else if (p.curr_is_token(get_infixr_tk())) {
         p.next();
         return parse_mixfix_notation(p, mixfix_kind::infixr, overload, new_tokens);
-    } else if (p.curr_is_token(g_postfix)) {
+    } else if (p.curr_is_token(get_postfix_tk())) {
         p.next();
         return parse_mixfix_notation(p, mixfix_kind::postfix, overload, new_tokens);
-    } else if (p.curr_is_token(g_prefix)) {
+    } else if (p.curr_is_token(get_prefix_tk())) {
         p.next();
         return parse_mixfix_notation(p, mixfix_kind::prefix, overload, new_tokens);
-    } else if (p.curr_is_token(g_notation)) {
+    } else if (p.curr_is_token(get_notation_tk())) {
         p.next();
         return parse_notation_core(p, overload, new_tokens);
     } else {

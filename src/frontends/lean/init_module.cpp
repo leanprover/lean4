@@ -15,12 +15,26 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/calc.h"
 #include "frontends/lean/begin_end_ext.h"
+#include "frontends/lean/builtin_cmds.h"
+#include "frontends/lean/builtin_exprs.h"
+#include "frontends/lean/inductive_cmd.h"
+#include "frontends/lean/structure_cmd.h"
+#include "frontends/lean/info_manager.h"
+#include "frontends/lean/parse_table.h"
+#include "frontends/lean/token_table.h"
+#include "frontends/lean/scanner.h"
+#include "frontends/lean/pp.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
     initialize_tokens();
+    initialize_token_table();
+    initialize_parse_table();
+    initialize_builtin_cmds();
+    initialize_builtin_exprs();
     initialize_elaborator();
     initialize_pp_options();
+    initialize_scanner();
     initialize_parser();
     initialize_no_info();
     initialize_extra_info();
@@ -29,18 +43,31 @@ void initialize_frontend_lean_module() {
     initialize_parser_config();
     initialize_calc();
     initialize_begin_end_ext();
+    initialize_inductive_cmd();
+    initialize_structure_cmd();
+    initialize_info_manager();
+    initialize_pp();
 }
 void finalize_frontend_lean_module() {
+    finalize_pp();
+    finalize_info_manager();
+    finalize_structure_cmd();
+    finalize_inductive_cmd();
     finalize_begin_end_ext();
     finalize_calc();
     finalize_parser_config();
     finalize_class();
     finalize_tactic_hint();
-    finalize_tokens();
     finalize_extra_info();
     finalize_no_info();
     finalize_parser();
+    finalize_scanner();
     finalize_pp_options();
     finalize_elaborator();
+    finalize_builtin_exprs();
+    finalize_builtin_cmds();
+    finalize_parse_table();
+    finalize_token_table();
+    finalize_tokens();
 }
 }

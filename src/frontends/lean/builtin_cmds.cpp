@@ -347,8 +347,7 @@ environment erase_cache_cmd(parser & p) {
     return p.env();
 }
 
-cmd_table init_cmd_table() {
-    cmd_table r;
+void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",         "create aliases for declarations, and use objects defined in other namespaces", open_cmd));
     add_cmd(r, cmd_info("export",       "create abbreviations for declarations, and export objects defined in other namespaces", export_cmd));
     add_cmd(r, cmd_info("set_option",   "set configuration option", set_option_cmd));
@@ -372,13 +371,20 @@ cmd_table init_cmd_table() {
     register_begin_end_cmds(r);
     register_class_cmds(r);
     register_tactic_hint_cmd(r);
-    return r;
 }
 
+static cmd_table * g_cmds = nullptr;
+
 cmd_table get_builtin_cmds() {
-    static optional<cmd_table> r;
-    if (!r)
-        r = init_cmd_table();
-    return *r;
+    return *g_cmds;
+}
+
+void initialize_builtin_cmds() {
+    g_cmds = new cmd_table();
+    init_cmd_table(*g_cmds);
+}
+
+void finalize_builtin_cmds() {
+    delete g_cmds;
 }
 }

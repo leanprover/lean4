@@ -75,8 +75,16 @@ struct tmp_info_data : public info_data_cell {
     virtual void display(io_state_stream const &, unsigned) const { lean_unreachable(); } // LCOV_EXCL_LINE
 };
 
-static info_data g_dummy(new tmp_info_data(0));
-info_data::info_data():info_data(g_dummy) {}
+static info_data * g_dummy = nullptr;
+void initialize_info_manager() {
+    g_dummy = new info_data(new tmp_info_data(0));
+}
+
+void finalize_info_manager() {
+    delete g_dummy;
+}
+
+info_data::info_data():info_data(*g_dummy) {}
 
 info_data info_data::instantiate(substitution & s) const {
     if (auto r = m_ptr->instantiate(s)) {

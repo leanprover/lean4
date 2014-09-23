@@ -213,21 +213,26 @@ void action_cell::dealloc() {
     }
 }
 
-action mk_skip_action() {
-    static optional<action> r;
-    if (!r) r = action(new action_cell(action_kind::Skip));
-    return *r;
+static action * g_skip_action = nullptr;
+static action * g_binder_action = nullptr;
+static action * g_binders_action = nullptr;
+
+action mk_skip_action() { return *g_skip_action; }
+action mk_binder_action() { return *g_binder_action; }
+action mk_binders_action() { return *g_binders_action; }
+
+void initialize_parse_table() {
+    g_skip_action    = new action(new action_cell(action_kind::Skip));
+    g_binder_action  = new action(new action_cell(action_kind::Binder));
+    g_binders_action = new action(new action_cell(action_kind::Binders));
 }
-action mk_binder_action() {
-    static optional<action> r;
-    if (!r) r = action(new action_cell(action_kind::Binder));
-    return *r;
+
+void finalize_parse_table() {
+    delete g_binders_action;
+    delete g_binder_action;
+    delete g_skip_action;
 }
-action mk_binders_action() {
-    static optional<action> r;
-    if (!r) r = action(new action_cell(action_kind::Binders));
-    return *r;
-}
+
 action mk_expr_action(unsigned rbp) { return action(new expr_action_cell(rbp)); }
 action mk_exprs_action(name const & sep, expr const & rec, expr const & ini,
                        optional<name> const & terminator, bool right, unsigned rbp) {

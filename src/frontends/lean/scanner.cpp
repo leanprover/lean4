@@ -127,20 +127,21 @@ void scanner::check_not_eof(char const * error_msg) {
     throw parser_exception(msg, m_stream_name.c_str(), line, pos);
 }
 
+static char const * g_end_error_str_msg = "unexpected end of string";
+
 auto scanner::read_string() -> token_kind {
-    static char const * end_error_msg = "unexpected end of string";
     lean_assert(curr() == '\"');
     next();
     m_buffer.clear();
     while (true) {
-        check_not_eof(end_error_msg);
+        check_not_eof(g_end_error_str_msg);
         char c = curr();
         if (c == '\"') {
             next();
             return token_kind::String;
         } else if (c == '\\') {
             next();
-            check_not_eof(end_error_msg);
+            check_not_eof(g_end_error_str_msg);
             c = curr();
             if (c != '\\' && c != '\"' && c != 'n')
                 throw_exception("invalid escape sequence");
@@ -248,20 +249,20 @@ bool scanner::consume(char const * str, char const * error_msg) {
 
 static char const * g_begin_comment_block = "/-";
 static char const * g_end_comment_block = "-/";
+static char const * g_end_error_block_msg = "unexpected end of comment block";
 
 void scanner::read_comment_block() {
-    static char const * end_error_msg = "unexpected end of comment block";
     unsigned nesting = 1;
     while (true) {
-        if (consume(g_begin_comment_block, end_error_msg)) {
+        if (consume(g_begin_comment_block, g_end_error_block_msg)) {
             nesting++;
         }
-        if (consume(g_end_comment_block, end_error_msg)) {
+        if (consume(g_end_comment_block, g_end_error_block_msg)) {
             nesting--;
             if (nesting == 0)
                 return;
         }
-        check_not_eof(end_error_msg);
+        check_not_eof(g_end_error_block_msg);
         next();
     }
 }
@@ -346,8 +347,9 @@ static bool is_id_rest(buffer<char> const & cs, unsigned i)  {
     return is_letter_like_unicode(u) || is_super_sub_script_alnum_unicode(u);
 }
 
+static char const * g_error_key_msg = "unexpected token";
+
 auto scanner::read_key_cmd_id() -> token_kind {
-    static char const * error_msg = "unexpected token";
     buffer<char> cs;
     next_utf_core(curr(), cs);
     unsigned num_utfs  = 1;
@@ -410,7 +412,7 @@ auto scanner::read_key_cmd_id() -> token_kind {
     }
 
     if (id_sz == 0 && key_sz == 0)
-        throw_exception(error_msg);
+        throw_exception(g_error_key_msg);
     if (id_sz > key_sz) {
         move_back(cs.size() - id_sz, num_utfs - id_utf_sz);
         m_name_val = name();
@@ -433,9 +435,21 @@ auto scanner::read_key_cmd_id() -> token_kind {
     }
 }
 
-static name g_begin_script_tk("(*");
-static name g_begin_comment_tk("--");
-static name g_begin_comment_block_tk("/-");
+static name * g_begin_script_tk         = nullptr;
+static name * g_begin_comment_tk        = nullptr;
+static name * g_begin_comment_block_tk  = nullptr;
+
+void initialize_scanner() {
+    g_begin_script_tk        = new name("(*");
+    g_begin_comment_tk       = new name("--");
+    g_begin_comment_block_tk = new name("/-");
+}
+
+void finalize_scanner() {
+    delete g_begin_script_tk;
+    delete g_begin_comment_tk;
+    delete g_begin_comment_block_tk;
+}
 
 auto scanner::scan(environment const & env) -> token_kind {
     m_tokens = &get_token_table(env);
@@ -461,11 +475,11 @@ auto scanner::scan(environment const & env) -> token_kind {
                 if (k == token_kind::Keyword) {
                     // We treat '(--', '(*', '--' as "keywords.
                     name const & n = m_token_info->value();
-                    if (n == g_begin_comment_tk)
+                    if (n == *g_begin_comment_tk)
                         read_single_line_comment();
-                    else if (n == g_begin_comment_block_tk)
+                    else if (n == *g_begin_comment_block_tk)
                         read_comment_block();
-                    else if (n == g_begin_script_tk)
+                    else if (n == *g_begin_script_tk)
                         return read_script_block();
                     else
                         return k;

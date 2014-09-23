@@ -27,25 +27,72 @@ Author: Leonardo de Moura
 #include "frontends/lean/builtin_exprs.h"
 
 namespace lean {
-static format g_ellipsis_n_fmt  = highlight(format("\u2026"));
-static format g_ellipsis_fmt    = highlight(format("..."));
-static format g_placeholder_fmt = highlight(format("_"));
-static format g_lambda_n_fmt    = highlight_keyword(format("\u03BB"));
-static format g_lambda_fmt      = highlight_keyword(format("fun"));
-static format g_forall_n_fmt    = highlight_keyword(format("\u2200"));
-static format g_forall_fmt      = highlight_keyword(format("forall"));
-static format g_pi_n_fmt        = highlight_keyword(format("Π"));
-static format g_pi_fmt          = highlight_keyword(format("Pi"));
-static format g_arrow_n_fmt     = highlight_keyword(format("\u2192"));
-static format g_arrow_fmt       = highlight_keyword(format("->"));
-static format g_let_fmt         = highlight_keyword(format("let"));
-static format g_in_fmt          = highlight_keyword(format("in"));
-static format g_assign_fmt      = highlight_keyword(format(":="));
-static format g_have_fmt        = highlight_keyword(format("have"));
-static format g_from_fmt        = highlight_keyword(format("from"));
-static format g_visible_fmt     = highlight_keyword(format("[visible]"));
-static format g_show_fmt        = highlight_keyword(format("show"));
-static format g_explicit_fmt    = highlight_keyword(format("@"));
+static format * g_ellipsis_n_fmt  = nullptr;
+static format * g_ellipsis_fmt    = nullptr;
+static format * g_placeholder_fmt = nullptr;
+static format * g_lambda_n_fmt    = nullptr;
+static format * g_lambda_fmt      = nullptr;
+static format * g_forall_n_fmt    = nullptr;
+static format * g_forall_fmt      = nullptr;
+static format * g_pi_n_fmt        = nullptr;
+static format * g_pi_fmt          = nullptr;
+static format * g_arrow_n_fmt     = nullptr;
+static format * g_arrow_fmt       = nullptr;
+static format * g_let_fmt         = nullptr;
+static format * g_in_fmt          = nullptr;
+static format * g_assign_fmt      = nullptr;
+static format * g_have_fmt        = nullptr;
+static format * g_from_fmt        = nullptr;
+static format * g_visible_fmt     = nullptr;
+static format * g_show_fmt        = nullptr;
+static format * g_explicit_fmt    = nullptr;
+static name   * g_tmp_prefix      = nullptr;
+
+void initialize_pp() {
+    g_ellipsis_n_fmt  = new format(highlight(format("\u2026")));
+    g_ellipsis_fmt    = new format(highlight(format("...")));
+    g_placeholder_fmt = new format(highlight(format("_")));
+    g_lambda_n_fmt    = new format(highlight_keyword(format("\u03BB")));
+    g_lambda_fmt      = new format(highlight_keyword(format("fun")));
+    g_forall_n_fmt    = new format(highlight_keyword(format("\u2200")));
+    g_forall_fmt      = new format(highlight_keyword(format("forall")));
+    g_pi_n_fmt        = new format(highlight_keyword(format("Π")));
+    g_pi_fmt          = new format(highlight_keyword(format("Pi")));
+    g_arrow_n_fmt     = new format(highlight_keyword(format("\u2192")));
+    g_arrow_fmt       = new format(highlight_keyword(format("->")));
+    g_let_fmt         = new format(highlight_keyword(format("let")));
+    g_in_fmt          = new format(highlight_keyword(format("in")));
+    g_assign_fmt      = new format(highlight_keyword(format(":=")));
+    g_have_fmt        = new format(highlight_keyword(format("have")));
+    g_from_fmt        = new format(highlight_keyword(format("from")));
+    g_visible_fmt     = new format(highlight_keyword(format("[visible]")));
+    g_show_fmt        = new format(highlight_keyword(format("show")));
+    g_explicit_fmt    = new format(highlight_keyword(format("@")));
+    g_tmp_prefix      = new name(name::mk_internal_unique_name());
+}
+
+void finalize_pp() {
+    delete g_ellipsis_n_fmt;
+    delete g_ellipsis_fmt;
+    delete g_placeholder_fmt;
+    delete g_lambda_n_fmt;
+    delete g_lambda_fmt;
+    delete g_forall_n_fmt;
+    delete g_forall_fmt;
+    delete g_pi_n_fmt;
+    delete g_pi_fmt;
+    delete g_arrow_n_fmt;
+    delete g_arrow_fmt;
+    delete g_let_fmt;
+    delete g_in_fmt;
+    delete g_assign_fmt;
+    delete g_have_fmt;
+    delete g_from_fmt;
+    delete g_visible_fmt;
+    delete g_show_fmt;
+    delete g_explicit_fmt;
+    delete g_tmp_prefix;
+}
 
 name pretty_fn::mk_metavar_name(name const & m) {
     if (auto it = m_purify_meta_table.find(m))
@@ -162,7 +209,7 @@ auto pretty_fn::pp_coercion_fn(expr const & e, unsigned sz) -> result {
         result res_fn   = pp_coercion_fn(fn, sz-1);
         format fn_fmt   = res_fn.first;
         if (m_implict && sz == 2 && has_implicit_args(fn))
-            fn_fmt = compose(g_explicit_fmt, fn_fmt);
+            fn_fmt = compose(*g_explicit_fmt, fn_fmt);
         result res_arg  = pp_child(app_arg(e), max_bp());
         return mk_result(group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.first)))), max_bp()-1);
     }
@@ -272,9 +319,8 @@ auto pretty_fn::pp_local(expr const & e) -> result {
     return mk_result(format(local_pp_name(e)));
 }
 
-static name g_tmp_prefix = name::mk_internal_unique_name();
 bool pretty_fn::has_implicit_args(expr const & f) {
-    name_generator ngen(g_tmp_prefix);
+    name_generator ngen(*g_tmp_prefix);
     try {
         expr type = m_tc.whnf(m_tc.infer(f).first).first;
         while (is_pi(type)) {
@@ -295,7 +341,7 @@ auto pretty_fn::pp_app(expr const & e) -> result {
     result res_fn = pp_child(fn, max_bp()-1);
     format fn_fmt = res_fn.first;
     if (m_implict && !is_app(fn) && has_implicit_args(fn))
-        fn_fmt = compose(g_explicit_fmt, fn_fmt);
+        fn_fmt = compose(*g_explicit_fmt, fn_fmt);
     result res_arg = pp_child(app_arg(e), max_bp());
     return mk_result(group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.first)))), max_bp()-1);
 }
@@ -352,7 +398,7 @@ auto pretty_fn::pp_lambda(expr const & e) -> result {
         locals.push_back(p.second);
         b = p.first;
     }
-    format r = m_unicode ? g_lambda_n_fmt : g_lambda_fmt;
+    format r = m_unicode ? *g_lambda_n_fmt : *g_lambda_fmt;
     r += pp_binders(locals);
     r += compose(comma(), nest(m_indent, compose(line(), pp_child(b, 0).first)));
     return mk_result(r, 0);
@@ -369,7 +415,7 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
     if (is_default_arrow(e)) {
         result lhs = pp_child(binding_domain(e), get_arrow_prec());
         result rhs = pp_child(lift_free_vars(binding_body(e), 1), get_arrow_prec()-1);
-        format r   = group(lhs.first + space() + (m_unicode ? g_arrow_n_fmt : g_arrow_fmt) + line() + rhs.first);
+        format r   = group(lhs.first + space() + (m_unicode ? *g_arrow_n_fmt : *g_arrow_fmt) + line() + rhs.first);
         return mk_result(r, get_arrow_prec()-1);
     } else {
         expr b = e;
@@ -381,9 +427,9 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
         }
         format r;
         if (is_prop(b))
-            r = m_unicode ? g_forall_n_fmt : g_forall_fmt;
+            r = m_unicode ? *g_forall_n_fmt : *g_forall_fmt;
         else
-            r = m_unicode ? g_pi_n_fmt : g_pi_fmt;
+            r = m_unicode ? *g_pi_n_fmt : *g_pi_fmt;
         r += pp_binders(locals);
         r += compose(comma(), nest(m_indent, compose(line(), pp_child(b, 0).first)));
         return mk_result(r, 0);
@@ -406,10 +452,10 @@ auto pretty_fn::pp_have(expr const & e) -> result {
     format type_fmt  = pp_child(mlocal_type(local), 0).first;
     format proof_fmt = pp_child(proof, 0).first;
     format body_fmt  = pp_child(body, 0).first;
-    format r = g_have_fmt + space() + format(n) + space();
+    format r = *g_have_fmt + space() + format(n) + space();
     if (binding_info(binding).is_contextual())
-        r += compose(g_visible_fmt, space());
-    r += colon() + nest(m_indent, line() + type_fmt + comma() + space() + g_from_fmt);
+        r += compose(*g_visible_fmt, space());
+    r += colon() + nest(m_indent, line() + type_fmt + comma() + space() + *g_from_fmt);
     r = group(r);
     r += nest(m_indent, line() + proof_fmt + comma());
     r = group(r);
@@ -424,7 +470,7 @@ auto pretty_fn::pp_show(expr const & e) -> result {
     expr type        = binding_domain(app_fn(s));
     format type_fmt  = pp_child(type, 0).first;
     format proof_fmt = pp_child(proof, 0).first;
-    format r = g_show_fmt + space() + nest(5, type_fmt) + comma() + space() + g_from_fmt;
+    format r = *g_show_fmt + space() + nest(5, type_fmt) + comma() + space() + *g_from_fmt;
     r = group(r);
     r += nest(m_indent, compose(line(), proof_fmt));
     return mk_result(group(r), 0);
@@ -432,7 +478,7 @@ auto pretty_fn::pp_show(expr const & e) -> result {
 
 auto pretty_fn::pp_explicit(expr const & e) -> result {
     result res_arg = pp_child(get_explicit_arg(e), max_bp());
-    return mk_result(compose(g_explicit_fmt, res_arg.first), max_bp());
+    return mk_result(compose(*g_explicit_fmt, res_arg.first), max_bp());
 }
 
 auto pretty_fn::pp_macro(expr const & e) -> result {
@@ -469,7 +515,7 @@ auto pretty_fn::pp_let(expr e) -> result {
     }
     if (decls.empty())
         return pp(e);
-    format r    = g_let_fmt;
+    format r    = *g_let_fmt;
     unsigned sz = decls.size();
     for (unsigned i = 0; i < sz; i++) {
         name const & n = decls[i].first;
@@ -478,11 +524,11 @@ auto pretty_fn::pp_let(expr e) -> result {
         format sep     = i < sz - 1 ? comma() : format();
         format entry   = format(n);
         format v_fmt   = pp_child(v, 0).first;
-        entry += space() + g_assign_fmt + nest(m_indent, line() + v_fmt + sep);
+        entry += space() + *g_assign_fmt + nest(m_indent, line() + v_fmt + sep);
         r += nest(3 + 1, beg + group(entry));
     }
     format b = pp_child(e, 0).first;
-    r += line() + g_in_fmt + space() + nest(2 + 1, b);
+    r += line() + *g_in_fmt + space() + nest(2 + 1, b);
     return mk_result(r, 0);
 }
 
@@ -492,11 +538,11 @@ auto pretty_fn::pp_num(mpz const & n) -> result {
 
 auto pretty_fn::pp(expr const & e) -> result {
     if (m_depth > m_max_depth || m_num_steps > m_max_steps)
-        return mk_result(m_unicode ? g_ellipsis_n_fmt : g_ellipsis_fmt);
+        return mk_result(m_unicode ? *g_ellipsis_n_fmt : *g_ellipsis_fmt);
     flet<unsigned> let_d(m_depth, m_depth+1);
     m_num_steps++;
 
-    if (is_placeholder(e))  return mk_result(g_placeholder_fmt);
+    if (is_placeholder(e))  return mk_result(*g_placeholder_fmt);
     if (is_show(e))         return pp_show(e);
     if (is_have(e))         return pp_have(e);
     if (is_let(e))          return pp_let(e);

@@ -57,11 +57,10 @@ public:
     action & operator=(action const & s);
     action & operator=(action && s);
 
-    friend action mk_skip_action();
+    friend void initialize_parse_table();
     friend action mk_expr_action(unsigned rbp);
-    friend action mk_exprs_action(name const & sep, expr const & rec, expr const & ini, optional<name> const & terminator, bool right, unsigned rbp);
-    friend action mk_binder_action();
-    friend action mk_binders_action();
+    friend action mk_exprs_action(name const & sep, expr const & rec, expr const & ini,
+                                  optional<name> const & terminator, bool right, unsigned rbp);
     friend action mk_scoped_expr_action(expr const & rec, unsigned rbp, bool lambda);
     friend action mk_ext_action(parse_fn const & fn);
     friend action mk_ext_lua_action(char const * lua_fn);
@@ -136,7 +135,11 @@ public:
 
     void display(std::ostream & out) const;
 };
+void initialize_parse_table();
+void finalize_parse_table();
 }
 typedef notation::parse_table parse_table;
 void open_parse_table(lua_State * L);
+inline void initialize_parse_table() { notation::initialize_parse_table(); }
+inline void finalize_parse_table() { notation::finalize_parse_table(); }
 }

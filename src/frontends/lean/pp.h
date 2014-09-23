@@ -88,4 +88,6 @@ public:
 };
 
 formatter_factory mk_pretty_formatter_factory();
+void initialize_pp();
+void finalize_pp();
 }

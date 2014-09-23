@@ -67,8 +67,7 @@ static char const * g_arrow_unicode  = "\u2192";
 static char const * g_cup            = "\u2294";
 static char const * g_qed_unicode    = "∎";
 
-token_table init_token_table() {
-    token_table t;
+void init_token_table(token_table & t) {
     pair<char const *, unsigned> builtin[] =
         {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"have", 0}, {"show", 0}, {"obtain", 0}, {"by", 0}, {"then", 0},
          {"from", 0}, {"(", g_max_prec}, {")", 0}, {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
@@ -119,17 +118,22 @@ token_table init_token_table() {
         t = add_command_token(t, it4->first, it4->second);
         ++it4;
     }
-    return t;
 }
+
+static token_table * g_default_token_table = nullptr;
 
 token_table mk_default_token_table() {
-    static optional<token_table> r;
-    if (!r)
-        r = init_token_table();
-    return *r;
+    return *g_default_token_table;
 }
 
-static token_table g_init(mk_default_token_table());
+void initialize_token_table() {
+    g_default_token_table = new token_table();
+    init_token_table(*g_default_token_table);
+}
+
+void finalize_token_table() {
+    delete g_default_token_table;
+}
 
 token_table mk_token_table() { return token_table(); }
 

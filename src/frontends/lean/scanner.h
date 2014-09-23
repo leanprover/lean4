@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#pragma once
 #include <string>
 #include <iostream>
 #include "util/name.h"
 #include "util/numerics/mpq.h"
 #include "kernel/environment.h"
 #include "frontends/lean/token_table.h"
-
 
 namespace lean {
 /**
@@ -83,4 +83,6 @@ public:
     std::string const & get_stream_name() const { return m_stream_name; }
 };
 std::ostream & operator<<(std::ostream & out, scanner::token_kind k);
+void initialize_scanner();
+void finalize_scanner();
 }

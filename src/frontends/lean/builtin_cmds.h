@@ -8,4 +8,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/cmd_table.h"
 namespace lean {
 cmd_table get_builtin_cmds();
+void initialize_builtin_cmds();
+void finalize_builtin_cmds();
 }

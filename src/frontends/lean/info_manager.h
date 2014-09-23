@@ -57,4 +57,6 @@ public:
     void start_from(unsigned l);
     unsigned get_processed_upto() const;
 };
+void initialize_info_manager();
+void finalize_info_manager();
 }

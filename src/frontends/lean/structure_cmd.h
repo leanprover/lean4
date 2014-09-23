@@ -8,4 +8,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/cmd_table.h"
 namespace lean {
 void register_structure_cmd(cmd_table & r);
+void initialize_structure_cmd();
+void finalize_structure_cmd();
 }

@@ -57,17 +57,6 @@ namespace lean {
 // elaborator configuration options
 static name * g_elaborator_local_instances = nullptr;
 
-void initialize_elaborator() {
-    g_elaborator_local_instances = new name{"elaborator", "local_instances"};
-
-    register_bool_option(*g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES,
-                         "(lean elaborator) use local declarates as class instances");
-}
-
-void finalize_elaborator() {
-    delete g_elaborator_local_instances;
-}
-
 bool get_elaborator_local_instances(options const & opts) {
     return opts.get_bool(*g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES);
 }
@@ -1040,15 +1029,28 @@ public:
     }
 };
 
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
 
 std::tuple<expr, level_param_names> elaborate(elaborator_context & env, list<expr> const & ctx, expr const & e,
                                               bool relax_main_opaque, bool ensure_type) {
-    return elaborator(env, name_generator(g_tmp_prefix))(ctx, e, ensure_type, relax_main_opaque);
+    return elaborator(env, name_generator(*g_tmp_prefix))(ctx, e, ensure_type, relax_main_opaque);
 }
 
 std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t, expr const & v,
                                                     bool is_opaque) {
-    return elaborator(env, name_generator(g_tmp_prefix))(t, v, n, is_opaque);
+    return elaborator(env, name_generator(*g_tmp_prefix))(t, v, n, is_opaque);
+}
+
+void initialize_elaborator() {
+    g_elaborator_local_instances = new name{"elaborator", "local_instances"};
+
+    register_bool_option(*g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES,
+                         "(lean elaborator) use local declarates as class instances");
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
+}
+
+void finalize_elaborator() {
+    delete g_elaborator_local_instances;
+    delete g_tmp_prefix;
 }
 }

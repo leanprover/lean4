@@ -19,19 +19,18 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_cmds.h"
+#include "frontends/lean/tokens.h"
 
 namespace lean {
-static name g_assign(":=");
-static name g_colon(":");
-static name g_dcolon("::");
-static name g_comma(",");
-static name g_lparen("(");
-static name g_rparen(")");
-static name g_arrow("->");
-static name g_extends("extends");
-static name g_renaming("renaming");
+static name * g_tmp_prefix = nullptr;
 
-static name g_tmp_prefix = name::mk_internal_unique_name();
+void initialize_structure_cmd() {
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
+}
+
+void finalize_structure_cmd() {
+    delete g_tmp_prefix;
+}
 
 struct structure_cmd_fn {
     typedef std::unique_ptr<type_checker> type_checker_ptr;
@@ -55,7 +54,7 @@ struct structure_cmd_fn {
     bool                       m_using_explicit_levels;
 
     structure_cmd_fn(parser & p):m_p(p), m_env(p.env()), m_ngen(p.mk_ngen()), m_namespace(get_namespace(m_env)) {
-        name u_name(g_tmp_prefix, "u");
+        name u_name(*g_tmp_prefix, "u");
         m_env = m_env.add_universe(u_name);
         m_u = mk_global_univ(u_name);
         m_infer_result_universe = false;
@@ -75,29 +74,29 @@ struct structure_cmd_fn {
     }
 
     void parse_params() {
-        if (!m_p.curr_is_token(g_extends) && !m_p.curr_is_token(g_assign))
+        if (!m_p.curr_is_token(get_extends_tk()) && !m_p.curr_is_token(get_assign_tk()))
             m_p.parse_binders(m_params);
         for (expr const & l : m_params)
             m_p.add_local(l);
     }
 
     void parse_extends() {
-        if (m_p.curr_is_token(g_extends)) {
+        if (m_p.curr_is_token(get_extends_tk())) {
             m_p.next();
             while (true) {
                 m_parents.push_back(m_p.parse_expr());
                 m_renames.push_back(rename_vector());
-                if (m_p.curr_is_token(g_renaming)) {
+                if (m_p.curr_is_token(get_renaming_tk())) {
                     m_p.next();
                     rename_vector & v = m_renames.back();
-                    while (!m_p.curr_is_token(g_comma)) {
+                    while (!m_p.curr_is_token(get_comma_tk())) {
                         name from = m_p.check_id_next("invalid 'renaming', identifier expected");
-                        m_p.check_token_next(g_arrow, "invalid 'renaming', '->' expected");
+                        m_p.check_token_next(get_arrow_tk(), "invalid 'renaming', '->' expected");
                         name to   = m_p.check_id_next("invalid 'renaming', identifier expected");
                         v.emplace_back(from, to);
                     }
                 }
-                if (!m_p.curr_is_token(g_comma))
+                if (!m_p.curr_is_token(get_comma_tk()))
                     break;
                 m_p.next();
             }
@@ -106,7 +105,7 @@ struct structure_cmd_fn {
 
     void parse_result_type() {
         auto pos = m_p.pos();
-        if (m_p.curr_is_token(g_colon)) {
+        if (m_p.curr_is_token(get_colon_tk())) {
             m_p.next();
             m_type = m_p.parse_expr();
             if (!is_sort(m_type))
@@ -262,9 +261,9 @@ struct structure_cmd_fn {
         parse_extends();
         // TODO(Leo): process extends
         parse_result_type();
-        m_p.check_token_next(g_assign, "invalid 'structure', ':=' expected");
+        m_p.check_token_next(get_assign_tk(), "invalid 'structure', ':=' expected");
         m_mk = m_p.check_atomic_id_next("invalid 'structure', identifier expected");
-        m_p.check_token_next(g_dcolon, "invalid 'structure', '::' expected");
+        m_p.check_token_next(get_dcolon_tk(), "invalid 'structure', '::' expected");
         m_p.parse_binders(m_fields, m_nentries);
         m_type = Pi(m_params, m_type, m_p);
         include_section_levels();

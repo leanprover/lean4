@@ -24,16 +24,9 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/class.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/tokens.h"
 
 namespace lean {
-static name g_assign(":=");
-static name g_with("with");
-static name g_colon(":");
-static name g_comma(",");
-static name g_lcurly("{");
-static name g_rcurly("}");
-static name g_class("[class]");
-
 using inductive::intro_rule;
 using inductive::inductive_decl;
 using inductive::inductive_decl_name;
@@ -54,11 +47,24 @@ intro_rule update_intro_rule(intro_rule const & r, expr const & t) {
     return intro_rule(intro_rule_name(r), t);
 }
 
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
+static name * g_inductive  = nullptr;
+static name * g_intro      = nullptr;
+static name * g_recursor   = nullptr;
 
-static name g_inductive("inductive");
-static name g_intro("intro");
-static name g_recursor("recursor");
+void initialize_inductive_cmd() {
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
+    g_inductive  = new name("inductive");
+    g_intro      = new name("intro");
+    g_recursor   = new name("recursor");
+}
+
+void finalize_inductive_cmd() {
+    delete g_recursor;
+    delete g_intro;
+    delete g_inductive;
+    delete g_tmp_prefix;
+}
 
 struct inductive_cmd_fn {
     typedef std::unique_ptr<type_checker> type_checker_ptr;
@@ -67,7 +73,7 @@ struct inductive_cmd_fn {
         modifiers():m_is_class(false) {}
         void parse(parser & p) {
             while (true) {
-                if (p.curr_is_token(g_class)) {
+                if (p.curr_is_token(get_class_tk())) {
                     m_is_class = true;
                     p.next();
                 } else {
@@ -100,7 +106,7 @@ struct inductive_cmd_fn {
         m_first = true;
         m_using_explicit_levels = false;
         m_num_params = 0;
-        name u_name(g_tmp_prefix, "u");
+        name u_name(*g_tmp_prefix, "u");
         m_env = m_env.add_universe(u_name);
         m_u = mk_global_univ(u_name);
         m_infer_result_universe = false;
@@ -125,12 +131,12 @@ struct inductive_cmd_fn {
             // for intro rules, we append the name of the inductive datatype
             check_atomic(id);
             name full_id = *ind_name + id;
-            m_decl_info.emplace_back(full_id, g_intro, m_pos);
+            m_decl_info.emplace_back(full_id, *g_intro, m_pos);
             return mk_pair(id, full_id);
         } else {
             name full_id = m_namespace + id;
-            m_decl_info.emplace_back(full_id, g_inductive, m_pos);
-            m_decl_info.emplace_back(mk_rec_name(full_id), g_recursor, m_pos);
+            m_decl_info.emplace_back(full_id, *g_inductive, m_pos);
+            m_decl_info.emplace_back(mk_rec_name(full_id), *g_recursor, m_pos);
             return mk_pair(id, full_id);
         }
     }
@@ -179,11 +185,11 @@ struct inductive_cmd_fn {
         expr type;
         buffer<expr> ps;
         m_pos = m_p.pos();
-        if (m_p.curr_is_token(g_assign)) {
+        if (m_p.curr_is_token(get_assign_tk())) {
             type = mk_sort(mk_level_placeholder());
-        } else if (!m_p.curr_is_token(g_colon)) {
+        } else if (!m_p.curr_is_token(get_colon_tk())) {
             m_p.parse_binders(ps);
-            if (m_p.curr_is_token(g_colon)) {
+            if (m_p.curr_is_token(get_colon_tk())) {
                 m_p.next();
                 type = m_p.parse_scoped_expr(ps);
             } else {
@@ -293,18 +299,18 @@ struct inductive_cmd_fn {
         while (true) {
             name intro_name = parse_intro_decl_name(ind_name);
             bool strict = true;
-            if (m_p.curr_is_token(g_lcurly)) {
+            if (m_p.curr_is_token(get_lcurly_tk())) {
                 m_p.next();
-                m_p.check_token_next(g_rcurly, "invalid introduction rule, '}' expected");
+                m_p.check_token_next(get_rcurly_tk(), "invalid introduction rule, '}' expected");
                 strict = false;
                 m_relaxed_implicit_infer.insert(intro_name);
             }
-            m_p.check_token_next(g_colon, "invalid introduction rule, ':' expected");
+            m_p.check_token_next(get_colon_tk(), "invalid introduction rule, ':' expected");
             expr intro_type = m_p.parse_scoped_expr(params, m_env);
             intro_type = Pi(params, intro_type, m_p);
             intro_type = infer_implicit(intro_type, params.size(), strict);
             intros.push_back(intro_rule(intro_name, intro_type));
-            if (!m_p.curr_is_token(g_comma))
+            if (!m_p.curr_is_token(get_comma_tk()))
                 break;
             m_p.next();
         }
@@ -325,7 +331,7 @@ struct inductive_cmd_fn {
             m_modifiers.insert(d_name, mods);
             expr d_type = parse_datatype_type();
             bool empty_type = true;
-            if (m_p.curr_is_token(g_assign)) {
+            if (m_p.curr_is_token(get_assign_tk())) {
                 empty_type = false;
                 m_p.next();
             }
@@ -347,7 +353,7 @@ struct inductive_cmd_fn {
                 auto d_intro_rules = parse_intro_rules(d_name, params);
                 decls.push_back(inductive_decl(d_name, d_type, d_intro_rules));
             }
-            if (!m_p.curr_is_token(g_with)) {
+            if (!m_p.curr_is_token(get_with_tk())) {
                 m_levels.append(m_explict_levels);
                 for (auto l : d_lvls) m_levels.push_back(l);
                 break;

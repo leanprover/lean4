@@ -15,12 +15,11 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/explicit.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/tokens.h"
 
 namespace lean {
-static name g_persistent("[persistent]");
-
 bool parse_persistent(parser & p, bool & persistent) {
-    if (p.curr_is_token_or_id(g_persistent)) {
+    if (p.curr_is_token_or_id(get_persistent_tk())) {
         p.next();
         persistent = true;
         return true;
@@ -38,12 +37,11 @@ void check_in_section_or_context(parser const & p) {
     if (!in_section_or_context(p.env()))
         throw exception(sstream() << "invalid command, it must be used in a section");
 }
-static name g_root("_root_");
 bool is_root_namespace(name const & n) {
-    return n == g_root;
+    return n == get_root_tk();
 }
 name remove_root_prefix(name const & n) {
-    return n.replace_prefix(g_root, name());
+    return n.replace_prefix(get_root_tk(), name());
 }
 
 // Sort local_names by order of occurrence in the section, and copy the associated parameters to section_ps

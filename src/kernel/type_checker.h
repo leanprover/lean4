@@ -235,4 +235,7 @@ public:
     app_delayed_justification(expr const & e, expr const & arg, expr const & f_type, expr const & a_type);
     virtual justification get();
 };
+
+void initialize_type_checker();
+void finalize_type_checker();
 }

@@ -6,11 +6,15 @@ Author: Leonardo de Moura
 */
 #include "util/test.h"
 #include "util/name.h"
+#include "util/init_module.h"
+#include "util/sexpr/init_module.h"
 #include "kernel/expr.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/expr_maps.h"
 #include "kernel/replace_fn.h"
+#include "kernel/init_module.h"
+#include "library/init_module.h"
 #include "library/print.h"
 using namespace lean;
 
@@ -31,6 +35,7 @@ static void tst1() {
 }
 
 static void tst2() {
+    expr Type = mk_Type();
     expr r = mk_lambda("x", Type, mk_app({Var(0), Var(1), Var(2)}));
     std::cout << instantiate(r, Const("a")) << std::endl;
     lean_assert(instantiate(r, Const("a")) == mk_lambda("x", Type, mk_app({Var(0), Const("a"), Var(1)})));
@@ -60,8 +65,14 @@ public:
 int main() {
     save_stack_info();
     init_default_print_fn();
+    initialize_util_module();
+    initialize_sexpr_module();
+    initialize_kernel_module();
     tst1();
     tst2();
     std::cout << "done" << "\n";
+    finalize_kernel_module();
+    finalize_sexpr_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

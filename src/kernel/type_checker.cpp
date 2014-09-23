@@ -22,8 +22,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 
 namespace lean {
-static name g_x_name("x");
-
 expr replace_range(expr const & type, expr const & new_range) {
     if (is_pi(type))
         return update_binding(type, binding_domain(type), replace_range(binding_body(type), new_range));
@@ -398,7 +396,7 @@ pair<bool, constraint_seq> type_checker::is_def_eq_types(expr const & t, expr co
 pair<bool, constraint_seq> type_checker::is_prop(expr const & e) {
     auto tcs  = infer_type(e);
     auto wtcs = whnf(tcs.first);
-    bool r    = wtcs.first == Prop;
+    bool r    = wtcs.first == mk_Prop();
     if (r)
         return mk_pair(true, tcs.second + wtcs.second);
     else
@@ -414,10 +412,10 @@ type_checker::type_checker(environment const & env, name_generator const & g, st
     m_memoize(memoize), m_params(nullptr) {
 }
 
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
 
 type_checker::type_checker(environment const & env):
-    type_checker(env, name_generator(g_tmp_prefix), mk_default_converter(env), true) {}
+    type_checker(env, name_generator(*g_tmp_prefix), mk_default_converter(env), true) {}
 
 type_checker::~type_checker() {}
 
@@ -484,10 +482,18 @@ certified_declaration check(environment const & env, declaration const & d, name
 }
 
 certified_declaration check(environment const & env, declaration const & d, extra_opaque_pred const & pred) {
-    return check(env, d, name_generator(g_tmp_prefix), pred);
+    return check(env, d, name_generator(*g_tmp_prefix), pred);
 }
 
 certified_declaration check(environment const & env, declaration const & d) {
     return check(env, d, no_extra_opaque());
+}
+
+void initialize_type_checker() {
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
+}
+
+void finalize_type_checker() {
+    delete g_tmp_prefix;
 }
 }

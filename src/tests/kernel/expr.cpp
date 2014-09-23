@@ -45,6 +45,7 @@ static void tst1() {
     expr f;
     f = Var(0);
     expr fa = f(a);
+    expr Type = mk_Type();
     expr ty = Type;
     std::cout << fa << "\n";
     std::cout << fa(a) << "\n";
@@ -181,6 +182,7 @@ static void tst8() {
     expr x = Var(0);
     expr a = Const("a");
     expr n = Const("n");
+    expr Type = mk_Type();
     expr p = Type;
     expr y = Var(1);
     lean_assert(closed(a));
@@ -239,6 +241,7 @@ static void tst11() {
     expr b = Const("b");
     expr x = Var(0);
     expr y = Var(1);
+    expr Type = mk_Type();
     expr t = Type;
     std::cout << instantiate(mk_lambda("x", t, f(f(y, b), f(x, y))), f(a)) << "\n";
     lean_assert(instantiate(mk_lambda("x", t, f(f(y, b), f(x, y))), f(a)) ==
@@ -263,6 +266,7 @@ static void tst12() {
 }
 
 static void tst13() {
+    expr Type = mk_Type();
     expr t0 = Type;
     expr t1 = mk_sort(mk_succ(mk_succ(level())));
     check_serializer(t0);
@@ -282,7 +286,9 @@ static void tst14() {
 static void tst15() {
     expr f = Const("f");
     expr x = Var(0);
+    expr Type = mk_Type();
     expr a = Local("a", Type);
+    expr Prop = mk_Prop();
     expr m = mk_metavar("m", Prop);
     check_serializer(m);
     lean_assert(has_metavar(m));
@@ -314,6 +320,7 @@ static void tst16() {
     expr f = Const("f");
     expr a = Const("a");
     check_copy(f(a));
+    expr Prop = mk_Prop();
     check_copy(mk_metavar("M", Prop));
     check_copy(mk_lambda("x", a, Var(0)));
     check_copy(mk_pi("x", a, Var(0)));
@@ -338,9 +345,11 @@ static void tst17() {
 static void tst18() {
     expr f = Const("f");
     expr x = Var(0);
+    expr Prop = mk_Prop();
     expr l = mk_local("m", Prop);
     expr m = mk_metavar("m", Prop);
     expr a0 = Const("a");
+    expr Type = mk_Type();
     expr a  = Local("a", Type);
     expr a1 = Local("a", m);
     expr a2 = Local("a", l);

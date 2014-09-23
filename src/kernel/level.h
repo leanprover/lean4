@@ -221,5 +221,8 @@ format pp(level const & lhs, level const & rhs, bool unicode, unsigned indent);
 format pp(level const & lhs, level const & rhs, options const & opts = options());
 /** \brief Convert a list of universe level parameter names into a list of levels. */
 levels param_names_to_levels(level_param_names const & ps);
+
+void initialize_level();
+void finalize_level();
 }
 void print(lean::level const & l);

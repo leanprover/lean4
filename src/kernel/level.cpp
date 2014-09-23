@@ -241,23 +241,11 @@ level mk_param_univ(name const & n) { return level(new level_param_core(level_ki
 level mk_global_univ(name const & n) { return level(new level_param_core(level_kind::Global, n)); }
 level mk_meta_univ(name const & n) { return level(new level_param_core(level_kind::Meta, n)); }
 
-level const & mk_level_zero() {
-    static optional<level> r;
-    if (!r) r = level(new level_cell(level_kind::Zero, 7u));
-    return *r;
-}
-level const & mk_level_one() {
-    static optional<level> r;
-    if (!r) r = mk_succ(mk_level_zero());
-    return *r;
-}
-// Force g_one_ptr and g_zero_ptr to be created at initialization time.
-// Purpose: avoid any kind of synchronization at mk_level_zero and mk_level_one
-static level g_dummy(mk_level_one());
-
-bool is_one(level const & l) {
-    return l == mk_level_one();
-}
+static level * g_level_zero = nullptr;
+static level * g_level_one  = nullptr;
+level const & mk_level_zero() { return *g_level_zero; }
+level const & mk_level_one() { return *g_level_one; }
+bool is_one(level const & l) { return l == mk_level_one(); }
 
 level::level():level(mk_level_zero()) {}
 level::level(level_cell * ptr):m_ptr(ptr) { if (m_ptr) m_ptr->inc_ref(); }
@@ -711,6 +699,16 @@ bool is_geq(level const & l1, level const & l2) {
 }
 levels param_names_to_levels(level_param_names const & ps) {
     return map2<level>(ps, [](name const & p) { return mk_param_univ(p); });
+}
+
+void initialize_level() {
+    g_level_zero = new level(new level_cell(level_kind::Zero, 7u));
+    g_level_one  = new level(mk_succ(mk_level_zero()));
+}
+
+void finalize_level() {
+    delete g_level_one;
+    delete g_level_zero;
 }
 }
 void print(lean::level const & l) { std::cout << l << std::endl; }

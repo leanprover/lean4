@@ -686,10 +686,10 @@ static void open_expr(lua_State * L) {
 
     SET_GLOBAL_FUN(enable_expr_caching, "enable_expr_caching");
 
-    push_expr(L, Prop);
+    push_expr(L, mk_Prop());
     lua_setglobal(L, "Prop");
 
-    push_expr(L, Type);
+    push_expr(L, mk_Type());
     lua_setglobal(L, "Type");
 
     lua_newtable(L);

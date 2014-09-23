@@ -40,8 +40,8 @@ unsigned inc_weight(unsigned w) {
         return w;
 }
 
-static expr g_dummy(mk_var(0));
-expr::expr():expr(g_dummy) {}
+static expr * g_dummy = nullptr;
+expr::expr():expr(*g_dummy) {}
 
 unsigned hash_levels(levels const & ls) {
     unsigned r = 23;
@@ -448,9 +448,9 @@ unsigned get_app_num_args(expr const & e) {
     return n;
 }
 
+static name * g_default_name = nullptr;
 static name const & get_default_var_name() {
-    static name r("a");
-    return r;
+    return *g_default_name;
 }
 static name const & g_default_var_name = get_default_var_name(); // force it to be initialized
 
@@ -467,20 +467,10 @@ expr mk_pi(unsigned sz, expr const * domain, expr const & range) {
     return r;
 }
 
-expr mk_Prop() {
-    static optional<expr> Prop;
-    if (!Prop) Prop = mk_sort(mk_level_zero());
-    return *Prop;
-}
-
-expr mk_Type() {
-    static optional<expr> Type;
-    if (!Type) Type = mk_sort(mk_level_one());
-    return *Type;
-}
-
-expr Prop = mk_Prop();
-expr Type = mk_Type();
+static expr * g_Prop  = nullptr;
+static expr * g_Type1 = nullptr;
+expr mk_Prop() { return *g_Prop; }
+expr mk_Type() { return *g_Type1; }
 
 unsigned get_weight(expr const & e) {
     switch (e.kind()) {
@@ -652,5 +642,19 @@ expr infer_implicit(expr const & t, unsigned num_params, bool strict) {
 
 expr infer_implicit(expr const & t, bool strict) {
     return infer_implicit(t, std::numeric_limits<unsigned>::max(), strict);
+}
+
+void initialize_expr() {
+    g_dummy        = new expr(mk_var(0));
+    g_default_name = new name("a");
+    g_Type1        = new expr(mk_sort(mk_level_one()));
+    g_Prop         = new expr(mk_sort(mk_level_zero()));
+}
+
+void finalize_expr() {
+    delete g_Prop;
+    delete g_Type1;
+    delete g_dummy;
+    delete g_default_name;
 }
 }

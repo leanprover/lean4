@@ -8,10 +8,12 @@ Author: Leonardo de Moura
 #include "kernel/formatter.h"
 
 namespace lean {
-static std::unique_ptr<std::function<void(std::ostream &, expr const & e)>> g_print;
+static std::function<void(std::ostream &, expr const & e)> * g_print = nullptr;
 
 void set_print_fn(std::function<void(std::ostream &, expr const &)> const & fn) {
-    g_print.reset(new std::function<void(std::ostream &, expr const &)>(fn));
+    if (g_print)
+        delete g_print;
+    g_print = new std::function<void(std::ostream &, expr const &)>(fn);
 }
 
 std::ostream & operator<<(std::ostream & out, expr const & e) {
@@ -24,4 +26,11 @@ std::ostream & operator<<(std::ostream & out, expr const & e) {
 }
 
 void print(lean::expr const & a) { std::cout << a << std::endl; }
+
+void initialize_formatter() {}
+
+void finalize_formatter() {
+    if (g_print)
+        delete g_print;
+}
 }

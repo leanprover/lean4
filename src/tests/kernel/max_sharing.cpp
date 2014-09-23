@@ -6,7 +6,11 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include "util/test.h"
+#include "util/init_module.h"
+#include "util/sexpr/init_module.h"
 #include "kernel/abstract.h"
+#include "kernel/init_module.h"
+#include "library/init_module.h"
 #include "library/max_sharing.h"
 #include "library/print.h"
 using namespace lean;
@@ -60,10 +64,18 @@ static void tst3() {
 
 int main() {
     save_stack_info();
+    initialize_util_module();
+    initialize_sexpr_module();
+    initialize_kernel_module();
+    initialize_library_module();
     init_default_print_fn();
     scoped_expr_caching set(false);
     tst1();
     tst2();
     tst3();
+    finalize_library_module();
+    finalize_kernel_module();
+    finalize_sexpr_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

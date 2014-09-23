@@ -141,7 +141,7 @@ struct structure_cmd_fn {
     /** \brief Collect section local parameters used in m_params and m_fields */
     void collect_section_locals(expr_struct_set & ls) {
         collect_locals(m_type, ls);
-        expr tmp = Pi(m_fields, Prop, m_p); // temp expr just for collecting section parameters occurring in the fields.
+        expr tmp = Pi(m_fields, mk_Prop(), m_p); // temp expr just for collecting section parameters occurring in the fields.
         collect_locals(tmp, ls);
     }
 

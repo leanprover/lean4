@@ -67,9 +67,9 @@ optional<declaration> is_delta(environment const & env, expr const & e,
     return is_delta_core(env, get_app_fn(e), pred, mod_idx);
 }
 
-static optional<module_idx> g_opt_main_module_idx(g_main_module_idx);
+static optional<module_idx> * g_opt_main_module_idx = nullptr;
 optional<declaration> is_delta(environment const & env, expr const & e, extra_opaque_pred const & pred) {
-    return is_delta(env, e, pred, g_opt_main_module_idx);
+    return is_delta(env, e, pred, *g_opt_main_module_idx);
 }
 
 optional<declaration> is_delta(environment const & env, expr const & e) {
@@ -77,9 +77,9 @@ optional<declaration> is_delta(environment const & env, expr const & e) {
 }
 
 
-static no_delayed_justification g_no_delayed_jst;
+static no_delayed_justification * g_no_delayed_jst = nullptr;
 pair<bool, constraint_seq> converter::is_def_eq(expr const & t, expr const & s, type_checker & c) {
-    return is_def_eq(t, s, c, g_no_delayed_jst);
+    return is_def_eq(t, s, c, *g_no_delayed_jst);
 }
 
 /** \brief Do nothing converter */
@@ -100,7 +100,7 @@ std::unique_ptr<converter> mk_dummy_converter() {
 name converter::mk_fresh_name(type_checker & tc) { return tc.mk_fresh_name(); }
 pair<expr, constraint_seq> converter::infer_type(type_checker & tc, expr const & e) { return tc.infer_type(e); }
 extension_context & converter::get_extension(type_checker & tc) { return tc.get_extension(); }
-static expr g_dont_care(Const("dontcare"));
+static expr * g_dont_care = nullptr;
 
 struct default_converter : public converter {
     environment                                 m_env;
@@ -355,7 +355,7 @@ struct default_converter : public converter {
                     var_s_type = instantiate_rev(binding_domain(s), subst.size(), subst.data());
                 subst.push_back(mk_local(mk_fresh_name(c), binding_name(s), *var_s_type, binding_info(s)));
             } else {
-                subst.push_back(g_dont_care); // don't care
+                subst.push_back(*g_dont_care); // don't care
             }
             t = binding_body(t);
             s = binding_body(s);
@@ -618,7 +618,7 @@ struct default_converter : public converter {
     pair<bool, constraint_seq> is_prop(expr const & e, type_checker & c) {
         auto tcs = infer_type(c, e);
         auto wcs = whnf(tcs.first, c);
-        if (wcs.first == Prop)
+        if (wcs.first == mk_Prop())
             return to_bcs(true, wcs.second + tcs.second);
         else
             return to_bcs(false);
@@ -646,5 +646,17 @@ std::unique_ptr<converter> mk_default_converter(environment const & env, bool un
 }
 std::unique_ptr<converter> mk_default_converter(environment const & env, bool unfold_opaque_main, bool memoize) {
     return mk_default_converter(env, unfold_opaque_main, memoize, g_always_false);
+}
+
+void initialize_converter() {
+    g_opt_main_module_idx = new optional<module_idx>(g_main_module_idx);
+    g_no_delayed_jst      = new no_delayed_justification();
+    g_dont_care           = new expr(Const("dontcare"));
+}
+
+void finalize_converter() {
+    delete g_opt_main_module_idx;
+    delete g_no_delayed_jst;
+    delete g_dont_care;
 }
 }

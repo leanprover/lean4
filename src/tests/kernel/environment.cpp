@@ -64,11 +64,13 @@ static void tst1() {
     } catch (kernel_exception & ex) {
         std::cout << "expected error: " << ex.pp(mk_formatter(ex.get_environment())) << "\n";
     }
+    expr Type = mk_Type();
     expr A = Local("A", Type);
     expr x = Local("x", A);
     auto env3 = add_decl(env2, mk_definition("id", level_param_names(),
                                              Pi(A, A >> A),
                                              Fun({A, x}, x)));
+    expr Prop = mk_Prop();
     expr c  = mk_local("c", Prop);
     expr id = Const("id");
     type_checker checker(env3, name_generator("tmp"));
@@ -83,6 +85,7 @@ static void tst1() {
 static void tst2() {
     environment env;
     name base("base");
+    expr Prop = mk_Prop();
     env = add_decl(env, mk_var_decl(name(base, 0u), level_param_names(), Prop >> (Prop >> Prop)));
     expr x = Local("x", Prop);
     expr y = Local("y", Prop);
@@ -91,6 +94,7 @@ static void tst2() {
         env = add_decl(env, mk_definition(env, name(base, i), level_param_names(), Prop >> (Prop >> Prop),
                                           Fun({x, y}, prev(prev(x, y), prev(y, x)))));
     }
+    expr Type = mk_Type();
     expr A = Local("A", Type);
     expr a = Local("a", A);
     env = add_decl(env, mk_definition("id", level_param_names(),
@@ -136,6 +140,7 @@ public:
 
 static void tst3() {
     environment env(0, true, true, true, std::unique_ptr<normalizer_extension>(new normalizer_extension_tst()));
+    expr Type = mk_Type();
     expr A = Local("A", Type);
     expr x = Local("x", A);
     expr id = Const("id");

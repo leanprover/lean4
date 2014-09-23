@@ -89,4 +89,7 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, module_idx mod_idx = 0);
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
 declaration mk_var_decl(name const & n, level_param_names const & params, expr const & t);
+
+void initialize_declaration();
+void finalize_declaration();
 }

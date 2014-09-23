@@ -5,8 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/test.h"
+#include "util/init_module.h"
+#include "util/sexpr/init_module.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
+#include "kernel/init_module.h"
+#include "library/init_module.h"
 using namespace lean;
 
 static void tst1() {
@@ -33,6 +37,12 @@ static void tst1() {
 
 int main() {
     save_stack_info();
+    initialize_util_module();
+    initialize_sexpr_module();
+    initialize_kernel_module();
     tst1();
+    finalize_kernel_module();
+    finalize_sexpr_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

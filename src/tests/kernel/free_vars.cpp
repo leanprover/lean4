@@ -5,8 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/test.h"
+#include "util/init_module.h"
+#include "util/sexpr/init_module.h"
 #include "kernel/free_vars.h"
 #include "kernel/abstract.h"
+#include "kernel/init_module.h"
 using namespace lean;
 
 static void tst1() {
@@ -59,7 +62,7 @@ static void tst3() {
 
 static void tst4() {
     expr f = Const("f");
-    expr B = Prop;
+    expr B = mk_Prop();
     expr x = Local("x", B);
     expr y = Local("y", B);
     expr t = f(Fun({x, y}, f(x, y))(f(Var(1), Var(2))), x);
@@ -72,9 +75,15 @@ static void tst4() {
 
 int main() {
     save_stack_info();
+    initialize_util_module();
+    initialize_sexpr_module();
+    initialize_kernel_module();
     tst1();
     tst2();
     tst3();
     tst4();
+    finalize_kernel_module();
+    finalize_sexpr_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

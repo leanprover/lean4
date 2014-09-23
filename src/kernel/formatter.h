@@ -30,4 +30,7 @@ std::ostream & operator<<(std::ostream & out, expr const & e);
 typedef std::function<format(formatter const &)> pp_fn;
 
 void set_print_fn(std::function<void(std::ostream &, expr const &)> const & fn);
+
+void initialize_formatter();
+void finalize_formatter();
 }

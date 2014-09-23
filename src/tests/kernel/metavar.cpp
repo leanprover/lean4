@@ -11,9 +11,13 @@ Author: Leonardo de Moura
 #include <set>
 #include "util/test.h"
 #include "util/buffer.h"
+#include "util/init_module.h"
+#include "util/sexpr/init_module.h"
 #include "kernel/metavar.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "kernel/init_module.h"
+#include "library/init_module.h"
 #include "library/print.h"
 using namespace lean;
 
@@ -69,6 +73,7 @@ static bool check_assumptions(justification const & j, std::initializer_list<uns
 
 static void tst1() {
     substitution subst;
+    expr Prop = mk_Prop();
     expr m1 = mk_metavar("m1", Prop);
     lean_assert(!subst.is_assigned(m1));
     expr m2 = mk_metavar("m2", Prop);
@@ -86,6 +91,7 @@ static void tst1() {
 
 static void tst2() {
     substitution s;
+    expr Prop = mk_Prop();
     expr m1 = mk_metavar("m1", Prop);
     expr m2 = mk_metavar("m2", Prop);
     expr m3 = mk_metavar("m3", Prop);
@@ -108,6 +114,7 @@ static void tst2() {
 }
 
 static void tst3() {
+    expr Prop = mk_Prop();
     expr m1 = mk_metavar("m1", Prop >> (Prop >> Prop));
     substitution s;
     expr f  = Const("f");
@@ -124,6 +131,7 @@ static void tst3() {
 }
 
 static void tst4() {
+    expr Prop = mk_Prop();
     expr m1  = mk_metavar("m1", Prop);
     expr m2  = mk_metavar("m2", Prop);
     expr m3  = mk_metavar("m3", Prop);
@@ -146,10 +154,18 @@ static void tst4() {
 
 int main() {
     save_stack_info();
+    initialize_util_module();
+    initialize_sexpr_module();
+    initialize_kernel_module();
+    initialize_library_module();
     init_default_print_fn();
     tst1();
     tst2();
     tst3();
     tst4();
+    finalize_library_module();
+    finalize_kernel_module();
+    finalize_sexpr_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

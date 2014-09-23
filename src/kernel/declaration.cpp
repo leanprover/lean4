@@ -38,9 +38,9 @@ struct declaration::cell {
         m_value(v), m_weight(w), m_module_idx(mod_idx), m_opaque(opaque), m_use_conv_opt(use_conv_opt) {}
 };
 
-declaration g_dummy = mk_axiom(name(), level_param_names(), expr());
+static declaration * g_dummy = nullptr;
 
-declaration::declaration():declaration(g_dummy) {}
+declaration::declaration():declaration(*g_dummy) {}
 declaration::declaration(cell * ptr):m_ptr(ptr) {}
 declaration::declaration(declaration const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
 declaration::declaration(declaration && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
@@ -89,5 +89,13 @@ declaration mk_axiom(name const & n, level_param_names const & params, expr cons
 }
 declaration mk_var_decl(name const & n, level_param_names const & params, expr const & t) {
     return declaration(new declaration::cell(n, params, t, false));
+}
+
+void initialize_declaration() {
+    g_dummy = new declaration(mk_axiom(name(), level_param_names(), expr()));
+}
+
+void finalize_declaration() {
+    delete g_dummy;
 }
 }

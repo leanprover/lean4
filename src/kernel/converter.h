@@ -38,4 +38,7 @@ bool is_opaque(declaration const & d, extra_opaque_pred const & pred, optional<m
 optional<declaration> is_delta(environment const & env, expr const & e, extra_opaque_pred const & pred, optional<module_idx> const & mod_idx);
 optional<declaration> is_delta(environment const & env, expr const & e, extra_opaque_pred const & pred);
 optional<declaration> is_delta(environment const & env, expr const & e);
+
+void initialize_converter();
+void finalize_converter();
 }

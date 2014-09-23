@@ -464,8 +464,6 @@ inline expr mk_pi(buffer<expr> const & domain, expr const & range) { return mk_p
 
 expr mk_Prop();
 expr mk_Type();
-extern expr Type;
-extern expr Prop;
 
 bool is_default_var_name(name const & n);
 expr mk_arrow(expr const & t, expr const & e);
@@ -695,4 +693,7 @@ expr infer_implicit(expr const & t, bool strict);
 // =======================================
 
 std::ostream & operator<<(std::ostream & out, expr const & e);
+
+void initialize_expr();
+void finalize_expr();
 }

@@ -15,6 +15,7 @@ using namespace lean;
 static void tst1() {
     environment env;
     name_generator ngen("foo");
+    expr Type = mk_Type();
     expr A  = Local("A", Type);
     expr f  = Local("f", A >> (A >> A));
     expr a  = Local("a", A);

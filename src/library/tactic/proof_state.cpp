@@ -26,16 +26,6 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_proof_state_goal_names = nullptr;
 
-void initialize_proof_state() {
-    g_proof_state_goal_names = new name{"tactic", "goal_names"};
-    register_bool_option(*g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES,
-                         "(tactic) display goal names when pretty printing proof state");
-}
-
-void finalize_proof_state() {
-    delete g_proof_state_goal_names;
-}
-
 bool get_proof_state_goal_names(options const & opts) {
     return opts.get_bool(*g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES);
 }
@@ -167,11 +157,11 @@ static int mk_proof_state(lua_State * L) {
     }
 }
 
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
 static int to_proof_state(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_proof_state(L, to_proof_state(to_expr(L, 1), to_expr(L, 2), name_generator(g_tmp_prefix)));
+        return push_proof_state(L, to_proof_state(to_expr(L, 1), to_expr(L, 2), name_generator(*g_tmp_prefix)));
     else
         return push_proof_state(L, to_proof_state(to_expr(L, 1), to_expr(L, 2), to_name_generator(L, 3)));
 }
@@ -227,5 +217,17 @@ void open_proof_state(lua_State * L) {
     SET_GLOBAL_FUN(proof_state_pred, "is_proof_state");
     SET_GLOBAL_FUN(mk_proof_state,   "proof_state");
     SET_GLOBAL_FUN(to_proof_state,   "to_proof_state");
+}
+
+void initialize_proof_state() {
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
+    g_proof_state_goal_names = new name{"tactic", "goal_names"};
+    register_bool_option(*g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES,
+                         "(tactic) display goal names when pretty printing proof state");
+}
+
+void finalize_proof_state() {
+    delete g_tmp_prefix;
+    delete g_proof_state_goal_names;
 }
 }

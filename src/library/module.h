@@ -71,13 +71,6 @@ typedef void (*module_object_reader)(deserializer & d, module_idx midx, shared_e
 */
 void register_module_object_reader(std::string const & k, module_object_reader r);
 
-/** \brief Auxiliary class for registering module readers when the lean executable is loaded. */
-struct register_module_object_reader_fn {
-    register_module_object_reader_fn(std::string const & k, module_object_reader r) {
-        register_module_object_reader(k, r);
-    }
-};
-
 namespace module {
 /** \brief Add a function that should be invoked when the environment is exported.
     The key \c k identifies which module_object_reader should be used to deserialize the object
@@ -118,4 +111,7 @@ environment add_inductive(environment const &        env,
                           list<inductive::intro_rule> const & intro_rules);     // introduction rules
 
 }
+
+void initialize_module();
+void finalize_module();
 }

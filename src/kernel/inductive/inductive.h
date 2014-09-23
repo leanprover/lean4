@@ -68,4 +68,6 @@ optional<name> is_elim_rule(environment const & env, name const & n);
 optional<unsigned> get_elim_major_idx(environment const & env, name const & n);
 bool is_elim_meta_app(type_checker & tc, expr const & e);
 }
+void initialize_inductive_module();
+void finalize_inductive_module();
 }

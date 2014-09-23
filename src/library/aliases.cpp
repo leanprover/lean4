@@ -119,23 +119,23 @@ struct aliases_ext : public environment_extension {
     }
 };
 
-static name g_aliases("aliases");
+static name * g_aliases = nullptr;
 
 struct aliases_ext_reg {
     unsigned m_ext_id;
     aliases_ext_reg() {
-        register_scoped_ext(g_aliases,
+        register_scoped_ext(*g_aliases,
                             aliases_ext::using_namespace, aliases_ext::export_namespace,
                             aliases_ext::push_scope, aliases_ext::pop_scope);
         m_ext_id = environment::register_extension(std::make_shared<aliases_ext>());
     }
 };
-static aliases_ext_reg g_ext;
+static aliases_ext_reg * g_ext = nullptr;
 static aliases_ext const & get_extension(environment const & env) {
-    return static_cast<aliases_ext const &>(env.get_extension(g_ext.m_ext_id));
+    return static_cast<aliases_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, aliases_ext const & ext) {
-    return env.update(g_ext.m_ext_id, std::make_shared<aliases_ext>(ext));
+    return env.update(g_ext->m_ext_id, std::make_shared<aliases_ext>(ext));
 }
 
 environment add_expr_alias(environment const & env, name const & a, name const & e) {
@@ -264,5 +264,15 @@ void open_aliases(lua_State * L) {
     SET_GLOBAL_FUN(get_expr_aliases, "get_expr_aliases");
     SET_GLOBAL_FUN(get_level_alias,  "get_level_alias");
     SET_GLOBAL_FUN(add_aliases,      "add_aliases");
+}
+
+void initialize_aliases() {
+    g_aliases = new name("aliases");
+    g_ext     = new aliases_ext_reg();
+}
+
+void finalize_aliases() {
+    delete g_ext;
+    delete g_aliases;
 }
 }

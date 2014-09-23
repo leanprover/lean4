@@ -35,4 +35,6 @@ unifier_plugin orelse(unifier_plugin const & p1, unifier_plugin const & p2);
 
 environment set_unifier_plugin(environment const & env, unifier_plugin const & p);
 unifier_plugin const & get_unifier_plugin(environment const & env);
+void initialize_unifier_plugin();
+void finalize_unifier_plugin();
 }

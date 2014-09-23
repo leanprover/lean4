@@ -33,16 +33,17 @@ struct token_state {
 struct token_config {
     typedef token_state  state;
     typedef token_entry  entry;
+    static name * g_class_name;
+    static std::string * g_key;
+
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
         s.m_table = add_token(s.m_table, e.m_token.c_str(), e.m_prec);
     }
     static name const & get_class_name() {
-        static name g_class_name("notation");
-        return g_class_name;
+        return *g_class_name;
     }
     static std::string const & get_serialization_key() {
-        static std::string g_key("tk");
-        return g_key;
+        return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
         s << e.m_token.c_str() << e.m_prec;
@@ -53,6 +54,8 @@ struct token_config {
         return entry(tk, prec);
     }
 };
+name * token_config::g_class_name = nullptr;
+std::string * token_config::g_key = nullptr;
 
 template class scoped_ext<token_config>;
 typedef scoped_ext<token_config> token_ext;
@@ -154,6 +157,9 @@ struct notation_state {
 struct notation_config {
     typedef notation_state  state;
     typedef notation_entry  entry;
+    static name * g_class_name;
+    static std::string * g_key;
+
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
         buffer<transition> ts;
         to_buffer(e.m_transitions, ts);
@@ -163,12 +169,10 @@ struct notation_config {
             s.m_led = s.m_led.add(ts.size(), ts.data(), e.m_expr, e.m_overload);
     }
     static name const & get_class_name() {
-        static name g_class_name("notation");
-        return g_class_name;
+        return *g_class_name;
     }
     static std::string const & get_serialization_key() {
-        static std::string g_key("nota");
-        return g_key;
+        return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
         s << e.m_is_nud << e.m_overload << e.m_expr;
@@ -187,6 +191,8 @@ struct notation_config {
         return entry(is_nud, to_list(ts.begin(), ts.end()), e, overload);
     }
 };
+name * notation_config::g_class_name = nullptr;
+std::string * notation_config::g_key = nullptr;
 
 template class scoped_ext<notation_config>;
 typedef scoped_ext<notation_config> notation_ext;
@@ -251,11 +257,30 @@ struct cmd_ext_reg {
     unsigned m_ext_id;
     cmd_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<cmd_ext>()); }
 };
-static cmd_ext_reg g_ext;
+static cmd_ext_reg * g_ext = nullptr;
 static cmd_ext const & get_extension(environment const & env) {
-    return static_cast<cmd_ext const &>(env.get_extension(g_ext.m_ext_id));
+    return static_cast<cmd_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 cmd_table const & get_cmd_table(environment const & env) {
     return get_extension(env).m_cmds;
+}
+
+void initialize_parser_config() {
+    token_config::g_class_name = new name("notation");
+    token_config::g_key        = new std::string("tk");
+    token_ext::initialize();
+    notation_config::g_class_name = new name("notation");
+    notation_config::g_key        = new std::string("nota");
+    notation_ext::initialize();
+    g_ext = new cmd_ext_reg();
+}
+void finalize_parser_config() {
+    delete g_ext;
+    notation_ext::finalize();
+    delete notation_config::g_key;
+    delete notation_config::g_class_name;
+    token_ext::finalize();
+    delete token_config::g_key;
+    delete token_config::g_class_name;
 }
 }

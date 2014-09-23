@@ -46,12 +46,13 @@ struct module_ext_reg {
     module_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<module_ext>()); }
 };
 
-static module_ext_reg g_ext;
+static module_ext_reg * g_ext = nullptr;
+
 static module_ext const & get_extension(environment const & env) {
-    return static_cast<module_ext const &>(env.get_extension(g_ext.m_ext_id));
+    return static_cast<module_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, module_ext const & ext) {
-    return env.update(g_ext.m_ext_id, std::make_shared<module_ext>(ext));
+    return env.update(g_ext->m_ext_id, std::make_shared<module_ext>(ext));
 }
 
 static char const * g_olean_end_file = "EndFile";
@@ -113,12 +114,8 @@ void export_module(std::ostream & out, environment const & env) {
 }
 
 typedef std::unordered_map<std::string, module_object_reader> object_readers;
-static std::unique_ptr<object_readers> g_object_readers;
-static object_readers & get_object_readers() {
-    if (!g_object_readers)
-        g_object_readers.reset(new object_readers());
-    return *(g_object_readers.get());
-}
+static object_readers * g_object_readers = nullptr;
+static object_readers & get_object_readers() { return *g_object_readers; }
 
 void register_module_object_reader(std::string const & k, module_object_reader r) {
     object_readers & readers = get_object_readers();
@@ -126,8 +123,9 @@ void register_module_object_reader(std::string const & k, module_object_reader r
     readers[k] = r;
 }
 
-static std::string g_glvl_key("glvl");
-static std::string g_decl_key("decl");
+static std::string * g_glvl_key = nullptr;
+static std::string * g_decl_key = nullptr;
+static std::string * g_inductive = nullptr;
 
 namespace module {
 environment add(environment const & env, std::string const & k, std::function<void(serializer &)> const & wr) {
@@ -138,7 +136,7 @@ environment add(environment const & env, std::string const & k, std::function<vo
 
 environment add_universe(environment const & env, name const & l) {
     environment new_env = env.add_universe(l);
-    return add(new_env, g_glvl_key, [=](serializer & s) { s << l; });
+    return add(new_env, *g_glvl_key, [=](serializer & s) { s << l; });
 }
 
 environment update_module_defs(environment const & env, declaration const & d) {
@@ -155,13 +153,13 @@ environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
     declaration _d = d.get_declaration();
     new_env = update_module_defs(new_env, _d);
-    return add(new_env, g_decl_key, [=](serializer & s) { s << _d; });
+    return add(new_env, *g_decl_key, [=](serializer & s) { s << _d; });
 }
 
 environment add(environment const & env, declaration const & d) {
     environment new_env = env.add(d);
     new_env = update_module_defs(new_env, d);
-    return add(new_env, g_decl_key, [=](serializer & s) { s << d; });
+    return add(new_env, *g_decl_key, [=](serializer & s) { s << d; });
 }
 
 bool is_definition(environment const & env, name const & n) {
@@ -169,14 +167,12 @@ bool is_definition(environment const & env, name const & n) {
     return ext.m_module_defs.contains(n);
 }
 
-static std::string g_inductive("ind");
-
 environment add_inductive(environment                  env,
                           level_param_names const &    level_params,
                           unsigned                     num_params,
                           list<inductive::inductive_decl> const & decls) {
     environment new_env = inductive::add_inductive(env, level_params, num_params, decls);
-    return add(new_env, g_inductive, [=](serializer & s) {
+    return add(new_env, *g_inductive, [=](serializer & s) {
             s << inductive_decls(level_params, num_params, decls);
         });
 }
@@ -194,8 +190,6 @@ environment add_inductive(environment const & env, name const & ind_name, level_
                           unsigned num_params, expr const & type, list<inductive::intro_rule> const & intro_rules) {
     return add_inductive(env, level_params, num_params, to_list(inductive::inductive_decl(ind_name, type, intro_rules)));
 }
-
-static register_module_object_reader_fn g_reg_ind_reader(g_inductive, inductive_reader);
 } // end of namespace module
 
 struct import_modules_fn {
@@ -371,9 +365,9 @@ struct import_modules_fn {
             d >> k;
             if (k == g_olean_end_file) {
                 break;
-            } else if (k == g_decl_key) {
+            } else if (k == *g_decl_key) {
                 import_decl(d, r->m_module_idx);
-            } else if (k == g_glvl_key) {
+            } else if (k == *g_glvl_key) {
                 import_universe(d);
             } else {
                 object_readers & readers = get_object_readers();
@@ -499,5 +493,22 @@ environment import_modules(environment const & env, std::string const & base, un
 environment import_module(environment const & env, std::string const & base, module_name const & module,
                           unsigned num_threads, bool keep_proofs, io_state const & ios) {
     return import_modules(env, base, 1, &module, num_threads, keep_proofs, ios);
+}
+
+void initialize_module() {
+    g_ext            = new module_ext_reg();
+    g_object_readers = new object_readers();
+    g_glvl_key       = new std::string("glvl");
+    g_decl_key       = new std::string("decl");
+    g_inductive      = new std::string("ind");
+    register_module_object_reader(*g_inductive, module::inductive_reader);
+}
+
+void finalize_module() {
+    delete g_inductive;
+    delete g_decl_key;
+    delete g_glvl_key;
+    delete g_object_readers;
+    delete g_ext;
 }
 }

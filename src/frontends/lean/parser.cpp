@@ -34,6 +34,7 @@ Author: Leonardo de Moura
 #include "library/sorry.h"
 #include "library/error_handling/error_handling.h"
 #include "library/tactic/expr_to_tactic.h"
+#include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser_bindings.h"
@@ -54,20 +55,6 @@ namespace lean {
 // Parser configuration options
 static name * g_parser_show_errors;
 static name * g_parser_parallel_import;
-
-void initialize_parser() {
-    g_parser_show_errors     = new name{"parser", "show_errors"};
-    g_parser_parallel_import = new name{"parser", "parallel_import"};
-    register_bool_option(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS,
-                         "(lean parser) display error messages in the regular output channel");
-    register_bool_option(*g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT,
-                         "(lean parser) import modules in parallel");
-}
-
-void finalize_parser() {
-    delete g_parser_show_errors;
-    delete g_parser_parallel_import;
-}
 
 bool get_parser_show_errors(options const & opts) {
     return opts.get_bool(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS);
@@ -94,13 +81,13 @@ parser::no_undef_id_error_scope::~no_undef_id_error_scope() {
     m_p.m_no_undef_id_error = m_old;
 }
 
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
 
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name,
                bool use_exceptions, unsigned num_threads,
                snapshot const * s, snapshot_vector * sv, info_manager * im):
-    m_env(env), m_ios(ios), m_ngen(g_tmp_prefix),
+    m_env(env), m_ios(ios), m_ngen(*g_tmp_prefix),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name, s ? s->m_line : 1),
     m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
@@ -455,10 +442,6 @@ unsigned parser::get_local_index(name const & n) const {
     return m_local_decls.find_idx(n);
 }
 
-static name g_period("."), g_colon(":"), g_lparen("("), g_rparen(")"), g_llevel_curly(".{");
-static name g_lcurly("{"), g_rcurly("}"), g_ldcurly("⦃"), g_rdcurly("⦄"), g_lbracket("["), g_rbracket("]");
-static name g_bar("|"), g_comma(","), g_add("+"), g_max("max"), g_imax("imax"), g_cup("\u2294");
-static name g_import("import"), g_show("show"), g_have("have"), g_assume("assume"), g_take("take"), g_fun("fun");
 static unsigned g_level_add_prec = 10;
 static unsigned g_level_cup_prec = 5;
 
@@ -493,9 +476,9 @@ static level lift(level l, unsigned k) {
 }
 
 unsigned parser::curr_level_lbp() const {
-    if (curr_is_token(g_cup))
+    if (curr_is_token(get_cup_tk()))
         return g_level_cup_prec;
-    else if (curr_is_token(g_add))
+    else if (curr_is_token(get_add_tk()))
         return g_level_add_prec;
     else
         return 0;
@@ -505,7 +488,7 @@ level parser::parse_max_imax(bool is_max) {
     auto p = pos();
     next();
     buffer<level> lvls;
-    while (curr_is_identifier() || curr_is_numeral() || curr_is_token(g_lparen)) {
+    while (curr_is_identifier() || curr_is_numeral() || curr_is_token(get_lparen_tk())) {
         lvls.push_back(parse_level());
     }
     if (lvls.size() < 2)
@@ -536,14 +519,14 @@ level parser::parse_level_id() {
 }
 
 level parser::parse_level_nud() {
-    if (curr_is_token_or_id(g_max)) {
+    if (curr_is_token_or_id(get_max_tk())) {
         return parse_max_imax(true);
-    } else if (curr_is_token_or_id(g_imax)) {
+    } else if (curr_is_token_or_id(get_imax_tk())) {
         return parse_max_imax(false);
-    } else if (curr_is_token(g_lparen)) {
+    } else if (curr_is_token(get_lparen_tk())) {
         next();
         level l = parse_level();
-        check_token_next(g_rparen, "invalid level expression, ')' expected");
+        check_token_next(get_rparen_tk(), "invalid level expression, ')' expected");
         return l;
     } else if (curr_is_numeral()) {
         unsigned k = parse_small_nat();
@@ -557,11 +540,11 @@ level parser::parse_level_nud() {
 
 level parser::parse_level_led(level left) {
     auto p = pos();
-    if (curr_is_token(g_cup)) {
+    if (curr_is_token(get_cup_tk())) {
         next();
         level right = parse_level(g_level_cup_prec);
         return mk_max(left, right);
-    } else if (curr_is_token(g_add)) {
+    } else if (curr_is_token(get_add_tk())) {
         next();
         if (curr_is_numeral()) {
             unsigned k = parse_small_nat();
@@ -656,21 +639,21 @@ std::tuple<expr, expr, level_param_names> parser::elaborate_definition_at(enviro
       - '['          : cast
 */
 optional<binder_info> parser::parse_optional_binder_info() {
-    if (curr_is_token(g_lparen)) {
+    if (curr_is_token(get_lparen_tk())) {
         next();
         return some(binder_info());
-    } else if (curr_is_token(g_lcurly)) {
+    } else if (curr_is_token(get_lcurly_tk())) {
         next();
-        if (curr_is_token(g_lcurly)) {
+        if (curr_is_token(get_lcurly_tk())) {
             next();
             return some(mk_strict_implicit_binder_info());
         } else {
             return some(mk_implicit_binder_info());
         }
-    } else if (curr_is_token(g_lbracket)) {
+    } else if (curr_is_token(get_lbracket_tk())) {
         next();
         return some(mk_cast_binder_info());
-    } else if (curr_is_token(g_ldcurly)) {
+    } else if (curr_is_token(get_ldcurly_tk())) {
         next();
         return some(mk_strict_implicit_binder_info());
     } else {
@@ -705,18 +688,18 @@ void parser::parse_close_binder_info(optional<binder_info> const & bi) {
     if (!bi) {
         return;
     } else if (bi->is_implicit()) {
-        check_token_next(g_rcurly, "invalid declaration, '}' expected");
+        check_token_next(get_rcurly_tk(), "invalid declaration, '}' expected");
     } else if (bi->is_cast()) {
-        check_token_next(g_rbracket, "invalid declaration, ']' expected");
+        check_token_next(get_rbracket_tk(), "invalid declaration, ']' expected");
     } else if (bi->is_strict_implicit()) {
-        if (curr_is_token(g_rcurly)) {
+        if (curr_is_token(get_rcurly_tk())) {
             next();
-            check_token_next(g_rcurly, "invalid declaration, '}' expected");
+            check_token_next(get_rcurly_tk(), "invalid declaration, '}' expected");
         } else {
-            check_token_next(g_rdcurly, "invalid declaration, '⦄' expected");
+            check_token_next(get_rdcurly_tk(), "invalid declaration, '⦄' expected");
         }
     } else {
-        check_token_next(g_rparen, "invalid declaration, ')' expected");
+        check_token_next(get_rparen_tk(), "invalid declaration, ')' expected");
     }
 }
 
@@ -725,7 +708,7 @@ expr parser::parse_binder_core(binder_info const & bi) {
     auto p  = pos();
     name id = check_atomic_id_next("invalid binder, atomic identifier expected");
     expr type;
-    if (curr_is_token(g_colon)) {
+    if (curr_is_token(get_colon_tk())) {
         next();
         type = parse_expr();
     } else {
@@ -758,7 +741,7 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi) {
     if (names.empty())
         throw parser_error("invalid binder, identifier expected", pos());
     optional<expr> type;
-    if (curr_is_token(g_colon)) {
+    if (curr_is_token(get_colon_tk())) {
         next();
         type = parse_expr();
     }
@@ -969,9 +952,9 @@ expr parser::parse_led_notation(expr left) {
 expr parser::id_to_expr(name const & id, pos_info const & p) {
     buffer<level> lvl_buffer;
     levels ls;
-    if (curr_is_token(g_llevel_curly)) {
+    if (curr_is_token(get_llevel_curly_tk())) {
         next();
-        while (!curr_is_token(g_rcurly)) {
+        while (!curr_is_token(get_rcurly_tk())) {
             lvl_buffer.push_back(parse_level());
         }
         next();
@@ -1188,7 +1171,7 @@ static optional<std::string> try_file(std::string const & base, optional<unsigne
     }
 }
 
-static std::string g_lua_module_key("lua_module");
+static std::string * g_lua_module_key = nullptr;
 static void lua_module_reader(deserializer & d, module_idx, shared_environment &,
                               std::function<void(asynch_update_fn const &)> &,
                               std::function<void(delayed_update_fn const &)> & add_delayed_update) {
@@ -1200,20 +1183,19 @@ static void lua_module_reader(deserializer & d, module_idx, shared_environment &
             return env;
         });
 }
-register_module_object_reader_fn g_lua_module_reader(g_lua_module_key, lua_module_reader);
 
 void parser::parse_imports() {
     buffer<module_name> olean_files;
     buffer<name>        lua_files;
     std::string base = dirname(get_stream_name().c_str());
     bool imported    = false;
-    while (curr_is_token(g_import)) {
+    while (curr_is_token(get_import_tk())) {
         imported       = true;
         m_last_cmd_pos = pos();
         next();
         while (true) {
             optional<unsigned> k;
-            while (curr_is_token(g_period)) {
+            while (curr_is_token(get_period_tk())) {
                 next();
                 if (!k)
                     k = 0;
@@ -1250,7 +1232,7 @@ void parser::parse_imports() {
     for (auto const & f : lua_files) {
         std::string rname = find_file(f, {".lua"});
         system_import(rname.c_str());
-        m_env = module::add(m_env, g_lua_module_key, [=](serializer & s) {
+        m_env = module::add(m_env, *g_lua_module_key, [=](serializer & s) {
                 s << f;
             });
     }
@@ -1297,7 +1279,7 @@ bool parser::parse_commands() {
                         done = true;
                         break;
                     case scanner::token_kind::Keyword:
-                        if (curr_is_token(g_period)) {
+                        if (curr_is_token(get_period_tk())) {
                             next();
                             break;
                         }
@@ -1331,7 +1313,7 @@ bool parser::curr_is_command_like() const {
     case scanner::token_kind::Eof:
         return true;
     case scanner::token_kind::Keyword:
-        return curr_is_token(g_period);
+        return curr_is_token(get_period_tk());
     default:
         return false;
     }
@@ -1422,5 +1404,24 @@ bool parse_commands(environment & env, io_state & ios, char const * fname, bool 
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");
     return parse_commands(env, ios, in, fname, use_exceptions, num_threads, cache, index);
+}
+
+void initialize_parser() {
+    g_parser_show_errors     = new name{"parser", "show_errors"};
+    g_parser_parallel_import = new name{"parser", "parallel_import"};
+    register_bool_option(*g_parser_show_errors, LEAN_DEFAULT_PARSER_SHOW_ERRORS,
+                         "(lean parser) display error messages in the regular output channel");
+    register_bool_option(*g_parser_parallel_import, LEAN_DEFAULT_PARSER_PARALLEL_IMPORT,
+                         "(lean parser) import modules in parallel");
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
+    g_lua_module_key = new std::string("lua_module");
+    register_module_object_reader(*g_lua_module_key, lua_module_reader);
+}
+
+void finalize_parser() {
+    delete g_lua_module_key;
+    delete g_tmp_prefix;
+    delete g_parser_show_errors;
+    delete g_parser_parallel_import;
 }
 }

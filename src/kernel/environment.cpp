@@ -169,11 +169,17 @@ public:
     }
 };
 
+static extension_manager * g_extension_manager = nullptr;
 static extension_manager & get_extension_manager() {
-    static std::unique_ptr<extension_manager> g_extension_manager;
-    if (!g_extension_manager)
-        g_extension_manager.reset(new extension_manager());
     return *g_extension_manager;
+}
+
+void initialize_environment() {
+    g_extension_manager = new extension_manager();
+}
+
+void finalize_environment() {
+    delete g_extension_manager;
 }
 
 unsigned environment::register_extension(std::shared_ptr<environment_extension const> const & initial) {

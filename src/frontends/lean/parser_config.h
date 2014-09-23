@@ -48,4 +48,7 @@ parse_table const & get_led_table(environment const & env);
 cmd_table const & get_cmd_table(environment const & env);
 /** \brief Force notation from namespace \c n to shadow any existing notation */
 environment overwrite_notation(environment const & env, name const & n);
+
+void initialize_parser_config();
+void finalize_parser_config();
 }

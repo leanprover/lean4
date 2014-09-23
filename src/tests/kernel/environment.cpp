@@ -8,10 +8,14 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/exception.h"
 #include "util/trace.h"
+#include "util/init_module.h"
+#include "util/sexpr/init_module.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/kernel_exception.h"
+#include "kernel/init_module.h"
+#include "library/init_module.h"
 #include "library/print.h"
 using namespace lean;
 
@@ -241,6 +245,10 @@ public:
 
 int main() {
     save_stack_info();
+    initialize_util_module();
+    initialize_sexpr_module();
+    initialize_kernel_module();
+    initialize_library_module();
     init_default_print_fn();
     tst1();
     tst2();
@@ -248,5 +256,9 @@ int main() {
     tst4();
     environment_id_tester::tst1();
     environment_id_tester::tst2();
+    finalize_library_module();
+    finalize_kernel_module();
+    finalize_sexpr_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

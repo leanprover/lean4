@@ -320,6 +320,9 @@ coercion_state add_coercion(environment const & env, io_state const & ios, coerc
     }
 }
 
+static name * g_class_name = nullptr;
+static std::string * g_key = nullptr;
+
 typedef pair<name, name> coercion_entry;
 struct coercion_config {
     typedef coercion_state  state;
@@ -328,12 +331,10 @@ struct coercion_config {
         s = add_coercion(env, ios, s, e.first, e.second);
     }
     static name const & get_class_name() {
-        static name g_class_name("coercions");
-        return g_class_name;
+        return *g_class_name;
     }
     static std::string const & get_serialization_key() {
-        static std::string g_key("coerce");
-        return g_key;
+        return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
         s << e.first << e.second;
@@ -347,6 +348,18 @@ struct coercion_config {
 
 template class scoped_ext<coercion_config>;
 typedef scoped_ext<coercion_config> coercion_ext;
+
+void initialize_coercion() {
+    g_class_name = new name("coercions");
+    g_key        = new std::string("coerce");
+    coercion_ext::initialize();
+}
+
+void finalize_coercion() {
+    coercion_ext::finalize();
+    delete g_key;
+    delete g_class_name;
+}
 
 environment add_coercion(environment const & env, name const & f, name const & C, io_state const & ios, bool persistent) {
     return coercion_ext::add_entry(env, ios, coercion_entry(f, C), persistent);

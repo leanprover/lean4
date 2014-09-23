@@ -41,6 +41,9 @@ struct class_state {
     }
 };
 
+static name * g_class_name = nullptr;
+static std::string * g_key = nullptr;
+
 struct class_config {
     typedef class_state state;
     typedef class_entry entry;
@@ -51,12 +54,10 @@ struct class_config {
             s.add_instance(e.m_class, e.m_instance);
     }
     static name const & get_class_name() {
-        static name g_class_name("class");
-        return g_class_name;
+        return *g_class_name;
     }
     static std::string const & get_serialization_key() {
-        static std::string g_key("class");
-        return g_key;
+        return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
         if (e.m_class_cmd)
@@ -77,6 +78,18 @@ struct class_config {
 
 template class scoped_ext<class_config>;
 typedef scoped_ext<class_config> class_ext;
+
+void initialize_class() {
+    g_class_name = new name("class");
+    g_key = new std::string("class");
+    class_ext::initialize();
+}
+
+void finalize_class() {
+    class_ext::finalize();
+    delete g_key;
+    delete g_class_name;
+}
 
 static void check_class(environment const & env, name const & c_name) {
     declaration c_d = env.get(c_name);

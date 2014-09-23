@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/tokens.h"
 
 namespace lean {
 // Check whether e is of the form (f ...) where f is a constant. If it is return f.
@@ -92,6 +93,9 @@ struct calc_state {
     }
 };
 
+static name * g_calc_name  = nullptr;
+static std::string * g_key = nullptr;
+
 struct calc_config {
     typedef calc_state state;
     typedef calc_entry entry;
@@ -103,12 +107,10 @@ struct calc_config {
         }
     }
     static name const & get_class_name() {
-        static name g_calc_name("calc");
-        return g_calc_name;
+        return *g_calc_name;
     }
     static std::string const & get_serialization_key() {
-        static std::string g_key("calc");
-        return g_key;
+        return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
         s << static_cast<char>(e.m_cmd) << e.m_name;
@@ -153,10 +155,6 @@ inline expr const & pred_lhs(calc_pred const & p) { return std::get<1>(p); }
 inline expr const & pred_rhs(calc_pred const & p) { return std::get<2>(p); }
 inline calc_pred const & step_pred(calc_step const & s) { return s.first; }
 inline expr const & step_proof(calc_step const & s) { return s.second; }
-static name g_lcurly("{");
-static name g_rcurly("}");
-static name g_ellipsis("...");
-static name g_colon(":");
 
 static void decode_expr_core(expr const & e, buffer<calc_pred> & preds) {
     buffer<expr> args;
@@ -196,11 +194,11 @@ static expr mk_op_fn(parser & p, name const & op, unsigned num_placeholders, pos
 static void parse_calc_proof(parser & p, buffer<calc_pred> const & preds, std::vector<calc_step> & steps) {
     steps.clear();
     auto pos = p.pos();
-    p.check_token_next(g_colon, "invalid 'calc' expression, ':' expected");
-    if (p.curr_is_token(g_lcurly)) {
+    p.check_token_next(get_colon_tk(), "invalid 'calc' expression, ':' expected");
+    if (p.curr_is_token(get_lcurly_tk())) {
         p.next();
         expr pr = p.parse_expr();
-        p.check_token_next(g_rcurly, "invalid 'calc' expression, '}' expected");
+        p.check_token_next(get_rcurly_tk(), "invalid 'calc' expression, '}' expected");
         calc_state const & state = calc_ext::get_state(p.env());
         for (auto const & pred : preds) {
             if (auto refl_it = state.m_refl_table.find(pred_op(pred))) {
@@ -265,7 +263,7 @@ expr parse_calc(parser & p) {
     decode_expr(p.parse_expr(), preds, pos);
     parse_calc_proof(p, preds, steps);
     expr dummy     = mk_expr_placeholder();
-    while (p.curr_is_token(g_ellipsis)) {
+    while (p.curr_is_token(get_ellipsis_tk())) {
         pos = p.pos();
         p.next();
         decode_expr(p.parse_led(dummy), preds, pos);
@@ -289,5 +287,17 @@ expr parse_calc(parser & p) {
     for (auto const & s : steps)
         choices.push_back(step_proof(s));
     return p.save_pos(mk_choice(choices.size(), choices.data()), pos);
+}
+
+void initialize_calc() {
+    g_calc_name = new name("calc");
+    g_key       = new std::string("calc");
+    calc_ext::initialize();
+}
+
+void finalize_calc() {
+    calc_ext::finalize();
+    delete g_key;
+    delete g_calc_name;
 }
 }

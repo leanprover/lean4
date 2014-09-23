@@ -27,6 +27,9 @@ struct be_state {
     optional<expr> m_pre_tac_body;
 };
 
+static name * g_class_name = nullptr;
+static std::string * g_key = nullptr;
+
 struct be_config {
     typedef be_state state;
     typedef be_entry entry;
@@ -44,12 +47,10 @@ struct be_config {
         }
     }
     static name const & get_class_name() {
-        static name g_class_name("begin_end");
-        return g_class_name;
+        return *g_class_name;
     }
     static std::string const & get_serialization_key() {
-        static std::string g_key("be_pre_tac");
-        return g_key;
+        return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
         s << e.m_accumulate << e.m_tac;
@@ -63,6 +64,18 @@ struct be_config {
 
 template class scoped_ext<be_config>;
 typedef scoped_ext<be_config> begin_end_ext;
+
+void initialize_begin_end_ext() {
+    g_class_name = new name("begin_end");
+    g_key        = new std::string("be_pre_tac");
+    begin_end_ext::initialize();
+}
+
+void finalize_begin_end_ext() {
+    begin_end_ext::finalize();
+    delete g_key;
+    delete g_class_name;
+}
 
 static void check_valid_tactic(environment const & env, expr const & pre_tac) {
     type_checker tc(env);

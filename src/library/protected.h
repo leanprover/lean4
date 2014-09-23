@@ -12,4 +12,7 @@ namespace lean {
 environment add_protected(environment const & env, name const & n);
 /** \brief Return true iff \c n was marked as protected in the environment \c n. */
 bool is_protected(environment const & env, name const & n);
+
+void initialize_protected();
+void finalize_protected();
 }

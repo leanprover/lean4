@@ -23,21 +23,21 @@ struct private_ext_reg {
     private_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<private_ext>()); }
 };
 
-static private_ext_reg g_ext;
+static private_ext_reg * g_ext = nullptr;
 static private_ext const & get_extension(environment const & env) {
-    return static_cast<private_ext const &>(env.get_extension(g_ext.m_ext_id));
+    return static_cast<private_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, private_ext const & ext) {
-    return env.update(g_ext.m_ext_id, std::make_shared<private_ext>(ext));
+    return env.update(g_ext->m_ext_id, std::make_shared<private_ext>(ext));
 }
 
-static name g_private("private");
-static std::string g_prv_key("prv");
+static name * g_private = nullptr;
+static std::string * g_prv_key = nullptr;
 
 // Make sure the mapping "hidden-name r ==> user-name n" is preserved when we close sections and
 // export .olean files.
 static environment preserve_private_data(environment const & env, name const & r, name const & n) {
-    return module::add(env, g_prv_key, [=](serializer & s) { s << n << r; });
+    return module::add(env, *g_prv_key, [=](serializer & s) { s << n << r; });
 }
 
 pair<environment, name> add_private_name(environment const & env, name const & n, optional<unsigned> const & extra_hash) {
@@ -45,7 +45,7 @@ pair<environment, name> add_private_name(environment const & env, name const & n
     unsigned h      = hash(n.hash(), ext.m_counter);
     if (extra_hash)
         h = hash(h, *extra_hash);
-    name r = name(g_private, h) + n;
+    name r = name(*g_private, h) + n;
     ext.m_inv_map.insert(r, n);
     ext.m_counter++;
     environment new_env = update(env, ext);
@@ -67,8 +67,6 @@ static void private_reader(deserializer & d, module_idx, shared_environment & se
         });
 }
 
-register_module_object_reader_fn g_private_reader(g_prv_key, private_reader);
-
 optional<name> hidden_to_user_name(environment const & env, name const & n) {
     auto it = get_extension(env).m_inv_map.find(n);
     return it ? optional<name>(*it) : optional<name>();
@@ -85,10 +83,25 @@ static int add_private_name(lua_State * L) {
     return 2;
 }
 
-static int hidden_to_user_name(lua_State * L) { return push_optional_name(L, hidden_to_user_name(to_environment(L, 1), to_name_ext(L, 2))); }
+static int hidden_to_user_name(lua_State * L) {
+    return push_optional_name(L, hidden_to_user_name(to_environment(L, 1), to_name_ext(L, 2)));
+}
 
 void open_private(lua_State * L) {
     SET_GLOBAL_FUN(add_private_name,    "add_private_name");
     SET_GLOBAL_FUN(hidden_to_user_name, "hidden_to_user_name");
+}
+
+void initialize_private() {
+    g_ext     = new private_ext_reg();
+    g_private = new name("private");
+    g_prv_key = new std::string("prv");
+    register_module_object_reader(*g_prv_key, private_reader);
+}
+
+void finalize_private() {
+    delete g_prv_key;
+    delete g_private;
+    delete g_ext;
 }
 }

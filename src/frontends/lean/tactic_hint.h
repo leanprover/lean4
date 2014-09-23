@@ -27,4 +27,7 @@ list<tactic_hint_entry> get_tactic_hints(environment const & env);
 class parser;
 expr parse_tactic_name(parser & p);
 void register_tactic_hint_cmd(cmd_table & r);
+
+void initialize_tactic_hint();
+void finalize_tactic_hint();
 }

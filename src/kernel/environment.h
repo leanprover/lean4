@@ -213,6 +213,10 @@ public:
     void for_each_universe(std::function<void(name const & u)> const & f) const;
 };
 
+void initialize_environment();
+void finalize_environment();
+
+
 class name_generator;
 
 /**

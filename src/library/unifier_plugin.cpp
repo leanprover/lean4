@@ -66,12 +66,20 @@ struct unifier_plugin_ext_reg {
     unifier_plugin_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<unifier_plugin_ext>()); }
 };
 
-static unifier_plugin_ext_reg g_ext;
+static unifier_plugin_ext_reg * g_ext = nullptr;
 static unifier_plugin_ext const & get_extension(environment const & env) {
-    return static_cast<unifier_plugin_ext const &>(env.get_extension(g_ext.m_ext_id));
+    return static_cast<unifier_plugin_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, unifier_plugin_ext const & ext) {
-    return env.update(g_ext.m_ext_id, std::make_shared<unifier_plugin_ext>(ext));
+    return env.update(g_ext->m_ext_id, std::make_shared<unifier_plugin_ext>(ext));
+}
+
+void initialize_unifier_plugin() {
+    g_ext = new unifier_plugin_ext_reg();
+}
+
+void finalize_unifier_plugin() {
+    delete g_ext;
 }
 
 environment set_unifier_plugin(environment const & env, unifier_plugin const & p) {

@@ -55,4 +55,6 @@ bool is_exception(name const & n, name const & prefix, unsigned num_exceptions, 
 void for_each_expr_alias(environment const & env, std::function<void(name const &, list<name> const &)> const & fn);
 
 void open_aliases(lua_State * L);
+void initialize_aliases();
+void finalize_aliases();
 }

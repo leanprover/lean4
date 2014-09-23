@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/parser_config.h"
+#include "init/init.h"
 using namespace lean;
 
 #define tk scanner::token_kind
@@ -197,9 +198,11 @@ static void tst4(unsigned N) {
 
 int main() {
     save_stack_info();
+    initialize();
     tst1();
     tst2();
     tst3();
     tst4(100000);
+    finalize();
     return has_violations() ? 1 : 0;
 }

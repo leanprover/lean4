@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/cmd_table.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/class.h"
+#include "frontends/lean/tokens.h"
 
 namespace lean {
 typedef list<tactic_hint_entry> tactic_hint_entries;
@@ -24,6 +25,9 @@ struct tactic_hint_state {
     class_tactics        m_class_tactics;
     tactic_hint_entries  m_tactics;
 };
+
+static name * g_class_name = nullptr;
+static std::string * g_key = nullptr;
 
 struct tactic_hint_config {
     typedef tactic_hint_state   state;
@@ -55,13 +59,11 @@ struct tactic_hint_config {
     }
 
     static name const & get_class_name() {
-        static name g_class_name("tactic_hint");
-        return g_class_name;
+        return *g_class_name;
     }
 
     static std::string const & get_serialization_key() {
-        static std::string g_key("tachint");
-        return g_key;
+        return *g_key;
     }
 
     static void  write_entry(serializer & s, entry const & e) {
@@ -77,6 +79,18 @@ struct tactic_hint_config {
 
 template class scoped_ext<tactic_hint_config>;
 typedef scoped_ext<tactic_hint_config> tactic_hint_ext;
+
+void initialize_tactic_hint() {
+    g_class_name = new name("tactic_hint");
+    g_key        = new std::string("tachint");
+    tactic_hint_ext::initialize();
+}
+
+void finalize_tactic_hint() {
+    tactic_hint_ext::finalize();
+    delete g_key;
+    delete g_class_name;
+}
 
 list<tactic_hint_entry> get_tactic_hints(environment const & env, name const & c) {
     tactic_hint_state const & s = tactic_hint_ext::get_state(env);
@@ -101,15 +115,12 @@ expr parse_tactic_name(parser & p) {
     return mk_constant(pre_tac, to_list(ls.begin(), ls.end()));
 }
 
-static name g_lbracket("[");
-static name g_rbracket("]");
-
 environment tactic_hint_cmd(parser & p) {
     name cls;
-    if (p.curr_is_token(g_lbracket)) {
+    if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
         cls      = get_class_name(p.env(), p.parse_expr());
-        p.check_token_next(g_rbracket, "invalid tactic hint, ']' expected");
+        p.check_token_next(get_rbracket_tk(), "invalid tactic hint, ']' expected");
     }
     expr pre_tac = parse_tactic_name(p);
     tactic tac   = expr_to_tactic(p.env(), pre_tac, nullptr);

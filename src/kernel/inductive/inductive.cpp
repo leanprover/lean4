@@ -93,8 +93,8 @@ Author: Leonardo de Moura
 */
 namespace lean {
 namespace inductive {
-static name g_tmp_prefix = name::mk_internal_unique_name();
-static name g_inductive_extension("inductive_extension");
+static name * g_tmp_prefix = nullptr;
+static name * g_inductive_extension = nullptr;
 
 /** \brief Environment extension used to store the computational rules associated with inductive datatype declarations. */
 struct inductive_env_ext : public environment_extension {
@@ -156,16 +156,16 @@ struct inductive_env_ext_reg {
     inductive_env_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<inductive_env_ext>()); }
 };
 
-static inductive_env_ext_reg g_ext;
+static inductive_env_ext_reg * g_ext = nullptr;
 
 /** \brief Retrieve environment extension */
 static inductive_env_ext const & get_extension(environment const & env) {
-    return static_cast<inductive_env_ext const &>(env.get_extension(g_ext.m_ext_id));
+    return static_cast<inductive_env_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 
 /** \brief Update environment extension */
 static environment update(environment const & env, inductive_env_ext const & ext) {
-    return env.update(g_ext.m_ext_id, std::make_shared<inductive_env_ext>(ext));
+    return env.update(g_ext->m_ext_id, std::make_shared<inductive_env_ext>(ext));
 }
 
 /** \brief Helper functional object for processing inductive datatype declarations. */
@@ -201,7 +201,7 @@ struct add_inductive_fn {
                      unsigned                     num_params,
                      list<inductive_decl> const & decls):
         m_env(env), m_level_names(level_params), m_num_params(num_params), m_decls(decls),
-        m_ngen(g_tmp_prefix), m_tc(new type_checker(m_env)) {
+        m_ngen(*g_tmp_prefix), m_tc(new type_checker(m_env)) {
         m_decls_sz = length(m_decls);
         m_levels = param_names_to_levels(level_params);
     }
@@ -736,7 +736,7 @@ struct add_inductive_fn {
     }
 
     environment operator()() {
-        if (!m_env.norm_ext().supports(g_inductive_extension))
+        if (!m_env.norm_ext().supports(*g_inductive_extension))
             throw kernel_exception(m_env, "environment does not support inductive datatypes");
         if (get_num_its() == 0)
             throw kernel_exception(m_env, "at least one inductive datatype declaration expected");
@@ -758,7 +758,7 @@ environment add_inductive(environment                  env,
 }
 
 bool inductive_normalizer_extension::supports(name const & feature) const {
-    return feature == g_inductive_extension;
+    return feature == *g_inductive_extension;
 }
 
 optional<pair<expr, constraint_seq>> inductive_normalizer_extension::operator()(expr const & e, extension_context & ctx) const {
@@ -878,5 +878,17 @@ optional<unsigned> get_elim_major_idx(environment const & env, name const & n) {
     else
         return optional<unsigned>();
 }
+}
+
+void initialize_inductive_module() {
+    inductive::g_tmp_prefix          = new name(name::mk_internal_unique_name());
+    inductive::g_inductive_extension = new name("inductive_extension");
+    inductive::g_ext                 = new inductive::inductive_env_ext_reg();
+}
+
+void finalize_inductive_module() {
+    delete inductive::g_ext;
+    delete inductive::g_inductive_extension;
+    delete inductive::g_tmp_prefix;
 }
 }

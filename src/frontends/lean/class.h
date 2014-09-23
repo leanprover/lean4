@@ -27,4 +27,7 @@ optional<name> is_ext_class(type_checker & tc, expr type);
 
 /** \brief Return a list of instances of the class \c cls_name that occur in \c ctx */
 list<expr> get_local_instances(type_checker & tc, list<expr> const & ctx, name const & cls_name);
+
+void initialize_class();
+void finalize_class();
 }

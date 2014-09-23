@@ -1,12 +1,12 @@
-add_library(lean_frontend register_module.cpp token_table.cpp
-scanner.cpp parse_table.cpp parser_config.cpp parser.cpp
-parser_pos_provider.cpp builtin_cmds.cpp builtin_exprs.cpp
-server.cpp notation_cmd.cpp calc.cpp
-decl_cmds.cpp util.cpp inductive_cmd.cpp elaborator.cpp
-dependencies.cpp parser_bindings.cpp begin_end_ext.cpp
-class.cpp pp_options.cpp tactic_hint.cpp pp.cpp theorem_queue.cpp
-structure_cmd.cpp info_manager.cpp no_info.cpp extra_info.cpp
-local_context.cpp choice_iterator.cpp placeholder_elaborator.cpp
-coercion_elaborator.cpp proof_qed_elaborator.cpp init_module.cpp)
+add_library(lean_frontend tokens.cpp register_module.cpp
+token_table.cpp scanner.cpp parse_table.cpp parser_config.cpp
+parser.cpp parser_pos_provider.cpp builtin_cmds.cpp builtin_exprs.cpp
+server.cpp notation_cmd.cpp calc.cpp decl_cmds.cpp util.cpp
+inductive_cmd.cpp elaborator.cpp dependencies.cpp parser_bindings.cpp
+begin_end_ext.cpp class.cpp pp_options.cpp tactic_hint.cpp pp.cpp
+theorem_queue.cpp structure_cmd.cpp info_manager.cpp no_info.cpp
+extra_info.cpp local_context.cpp choice_iterator.cpp
+placeholder_elaborator.cpp coercion_elaborator.cpp
+proof_qed_elaborator.cpp init_module.cpp)
 
 target_link_libraries(lean_frontend ${LEAN_LIBS})

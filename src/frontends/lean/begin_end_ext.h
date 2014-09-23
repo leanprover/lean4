@@ -13,4 +13,7 @@ environment add_begin_end_pre_tactic(environment const & env, expr const & pre_t
 environment reset_begin_end_pre_tactic(environment const & env, expr const & pre_tac);
 optional<expr> get_begin_end_pre_tactic(environment const & env);
 void register_begin_end_cmds(cmd_table & r);
+
+void initialize_begin_end_ext();
+void finalize_begin_end_ext();
 }

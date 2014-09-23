@@ -161,12 +161,15 @@ public:
         }
     };
 
-    static reg g_ext;
+    static reg * g_ext;
+    static void initialize() { g_ext = new reg(); }
+    static void finalize() { delete g_ext; }
+
     static scoped_ext const & get(environment const & env) {
-        return static_cast<scoped_ext const &>(env.get_extension(g_ext.m_ext_id));
+        return static_cast<scoped_ext const &>(env.get_extension(g_ext->m_ext_id));
     }
     static environment update(environment const & env, scoped_ext const & ext) {
-        return env.update(g_ext.m_ext_id, std::make_shared<scoped_ext>(ext));
+        return env.update(g_ext->m_ext_id, std::make_shared<scoped_ext>(ext));
     }
     static environment using_namespace_fn(environment const & env, io_state const & ios, name const & n) {
         return update(env, get(env).using_namespace(env, ios, n));
@@ -222,5 +225,8 @@ public:
 };
 
 template<typename Config, bool TransientSection>
-typename scoped_ext<Config, TransientSection>::reg scoped_ext<Config, TransientSection>::g_ext;
+typename scoped_ext<Config, TransientSection>::reg * scoped_ext<Config, TransientSection>::g_ext = nullptr;
+
+void initialize_scoped_ext();
+void finalize_scoped_ext();
 }

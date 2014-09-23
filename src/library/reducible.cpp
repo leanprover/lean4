@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 
 namespace lean {
-
 struct reducible_entry {
     reducible_status m_status;
     name             m_name;
@@ -43,6 +42,9 @@ struct reducible_state {
     }
 };
 
+static name * g_class_name = nullptr;
+static std::string * g_key = nullptr;
+
 struct reducible_config {
     typedef reducible_state  state;
     typedef reducible_entry  entry;
@@ -50,12 +52,10 @@ struct reducible_config {
         s.add(e);
     }
     static name const & get_class_name() {
-        static name g_class_name("reducible");
-        return g_class_name;
+         return *g_class_name;
     }
     static std::string const & get_serialization_key() {
-        static std::string g_key("redu");
-        return g_key;
+        return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
         s << static_cast<char>(e.m_status) << e.m_name;
@@ -70,6 +70,18 @@ struct reducible_config {
 
 template class scoped_ext<reducible_config>;
 typedef scoped_ext<reducible_config> reducible_ext;
+
+void initialize_reducible() {
+    g_class_name = new name("reducible");
+    g_key        = new std::string("redu");
+    reducible_ext::initialize();
+}
+
+void finalize_reducible() {
+    reducible_ext::finalize();
+    delete g_key;
+    delete g_class_name;
+}
 
 static void check_declaration(environment const & env, name const & n) {
     declaration const & d = env.get(n);

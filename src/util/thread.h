@@ -203,3 +203,8 @@ static T & GETTER_NAME() {                              \
 #define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE) static T & GETTER_NAME() { static T LEAN_THREAD_LOCAL r(DEF_VALUE); return r; }
 #define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME) static T & GETTER_NAME() { static T LEAN_THREAD_LOCAL r; return r; }
 #endif
+
+namespace lean {
+void initialize_thread();
+void finalize_thread();
+}

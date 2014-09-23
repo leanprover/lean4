@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/name_generator.h"
 #include "util/name_set.h"
+#include "util/init_module.h"
 using namespace lean;
 
 static void tst1() {
@@ -172,6 +173,8 @@ static void tst13() {
 }
 
 int main() {
+    save_stack_info();
+    initialize_util_module();
     tst1();
     tst2();
     tst3();
@@ -185,5 +188,6 @@ int main() {
     tst11();
     tst12();
     tst13();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

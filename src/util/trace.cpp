@@ -21,11 +21,20 @@ std::ofstream tout(LEAN_TRACE_OUT);
 mutex         trace_mutex;
 #endif
 
-static std::unique_ptr<std::set<std::string>> g_enabled_trace_tags;
+static std::set<std::string> * g_enabled_trace_tags = nullptr;
+
+void initialize_trace() {
+    // lazy initialization
+}
+
+void finalize_trace() {
+    if (g_enabled_trace_tags)
+        delete g_enabled_trace_tags;
+}
 
 void enable_trace(char const * tag) {
     if (!g_enabled_trace_tags)
-        g_enabled_trace_tags.reset(new std::set<std::string>());
+        g_enabled_trace_tags = new std::set<std::string>();
     g_enabled_trace_tags->insert(tag);
 }
 

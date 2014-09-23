@@ -16,4 +16,7 @@ bool is_safe_ascii(char c);
     ASCII character.
 */
 bool is_safe_ascii(char const * str);
+
+void initialize_ascii();
+void finalize_ascii();
 }

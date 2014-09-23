@@ -29,7 +29,7 @@ file_not_found_exception::file_not_found_exception(std::string const & fname):
     exception(sstream() << "file '" << fname << "' not found in the LEAN_PATH"),
     m_fname(fname) {}
 
-static std::string g_default_file_name(LEAN_DEFAULT_MODULE_FILE_NAME);
+static std::string * g_default_file_name = nullptr;
 
 bool is_directory(char const * pathname) {
     struct stat info;
@@ -115,39 +115,51 @@ std::string get_path(std::string f) {
     }
 }
 
-static std::string              g_lean_path;
-static std::vector<std::string> g_lean_path_vector;
+static std::string *              g_lean_path = nullptr;
+static std::vector<std::string> * g_lean_path_vector = nullptr;
+
 void init_lean_path() {
     char * r = getenv("LEAN_PATH");
     if (r == nullptr) {
-        g_lean_path  = ".";
+        *g_lean_path  = ".";
         std::string exe_path = get_path(get_exe_location());
-        g_lean_path += g_path_sep;
-        g_lean_path += exe_path + g_sep + ".." + g_sep + "library";
+        *g_lean_path += g_path_sep;
+        *g_lean_path += exe_path + g_sep + ".." + g_sep + "library";
     } else {
-        g_lean_path = r;
+        *g_lean_path = r;
     }
-    g_lean_path_vector.clear();
-    g_lean_path = normalize_path(g_lean_path);
+    g_lean_path_vector->clear();
+    *g_lean_path = normalize_path(*g_lean_path);
     unsigned i  = 0;
     unsigned j  = 0;
-    unsigned sz = g_lean_path.size();
+    unsigned sz = g_lean_path->size();
     for (; j < sz; j++) {
-        if (is_path_sep(g_lean_path[j])) {
+        if (is_path_sep((*g_lean_path)[j])) {
             if (j > i)
-                g_lean_path_vector.push_back(g_lean_path.substr(i, j - i));
+                g_lean_path_vector->push_back(g_lean_path->substr(i, j - i));
             i = j + 1;
         }
     }
     if (j > i)
-        g_lean_path_vector.push_back(g_lean_path.substr(i, j - i));
+        g_lean_path_vector->push_back(g_lean_path->substr(i, j - i));
 }
 
-struct init_lean_path_fn {
-    init_lean_path_fn() { init_lean_path(); }
-};
-static init_lean_path_fn g_init_lean_path_fn;
-static std::string       g_sep_str(1, g_sep);
+static char g_sep_str[2];
+
+void initialize_lean_path() {
+    g_default_file_name = new std::string(LEAN_DEFAULT_MODULE_FILE_NAME);
+    g_lean_path         = new std::string();
+    g_lean_path_vector  = new std::vector<std::string>();
+    g_sep_str[0]        = g_sep;
+    g_sep_str[1]        = 0;
+    init_lean_path();
+}
+
+void finalize_lean_path() {
+    delete g_lean_path_vector;
+    delete g_lean_path;
+    delete g_default_file_name;
+}
 
 bool has_file_ext(std::string const & fname, char const * ext) {
     unsigned ext_len = strlen(ext);
@@ -183,7 +195,7 @@ optional<std::string> check_file_core(std::string file, char const * ext) {
 optional<std::string> check_file(std::string const & path, std::string const & fname, char const * ext = nullptr) {
     std::string file = path + g_sep + fname;
     if (is_directory(file.c_str())) {
-        std::string default_file = file + g_sep + g_default_file_name;
+        std::string default_file = file + g_sep + *g_default_file_name;
         if (auto r1 = check_file_core(default_file, ext)) {
             if (auto r2 = check_file_core(file, ext))
                 throw exception(sstream() << "ambiguous import, it can be '" << *r1 << "' or '" << *r2 << "'");
@@ -194,13 +206,13 @@ optional<std::string> check_file(std::string const & path, std::string const & f
 }
 
 std::string name_to_file(name const & fname) {
-    return fname.to_string(g_sep_str.c_str());
+    return fname.to_string(g_sep_str);
 }
 
 std::string find_file(std::string fname, std::initializer_list<char const *> const & extensions) {
     bool is_known = is_known_file_ext(fname);
     fname = normalize_path(fname);
-    for (auto path : g_lean_path_vector) {
+    for (auto path : *g_lean_path_vector) {
         if (is_known) {
             if (auto r = check_file(path, fname))
                 return *r;
@@ -217,7 +229,7 @@ std::string find_file(std::string fname, std::initializer_list<char const *> con
 std::string find_file(std::string const & base, optional<unsigned> const & rel, name const & fname,
                       std::initializer_list<char const *> const & extensions) {
     if (!rel) {
-        return find_file(fname.to_string(g_sep_str.c_str()), extensions);
+        return find_file(fname.to_string(g_sep_str), extensions);
     } else {
         auto path = base;
         for (unsigned i = 0; i < *rel; i++) {
@@ -225,7 +237,7 @@ std::string find_file(std::string const & base, optional<unsigned> const & rel, 
             path += "..";
         }
         for (auto ext : extensions) {
-            if (auto r = check_file(path, fname.to_string(g_sep_str.c_str()), ext))
+            if (auto r = check_file(path, fname.to_string(g_sep_str), ext))
                 return *r;
         }
         throw file_not_found_exception(fname.to_string());
@@ -241,15 +253,15 @@ std::string find_file(std::string fname) {
 }
 
 std::string find_file(name const & fname) {
-    return find_file(fname.to_string(g_sep_str.c_str()));
+    return find_file(fname.to_string(g_sep_str));
 }
 
 std::string find_file(name const & fname, std::initializer_list<char const *> const & exts) {
-    return find_file(fname.to_string(g_sep_str.c_str()), exts);
+    return find_file(fname.to_string(g_sep_str), exts);
 }
 
 char const * get_lean_path() {
-    return g_lean_path.c_str();
+    return g_lean_path->c_str();
 }
 
 void display_path(std::ostream & out, std::string const & fname) {

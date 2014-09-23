@@ -93,6 +93,8 @@ Author: Leonardo de Moura
 #define lean_assert_le(A, B) lean_assert(A <= B, A, B)
 
 namespace lean {
+void initialize_debug();
+void finalize_debug();
 void notify_assertion_violation(char const * file_name, int line, char const * condition);
 void enable_debug(char const * tag);
 void disable_debug(char const * tag);

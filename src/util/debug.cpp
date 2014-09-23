@@ -17,9 +17,18 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 
 namespace lean {
-static volatile bool                          g_has_violations    = false;
-static volatile bool                          g_enable_assertions = true;
-static std::unique_ptr<std::set<std::string>> g_enabled_debug_tags;
+static volatile bool           g_has_violations     = false;
+static volatile bool           g_enable_assertions  = true;
+static std::set<std::string> * g_enabled_debug_tags = nullptr;
+
+void initialize_debug() {
+    // lazy initialization
+}
+
+void finalize_debug() {
+    if (g_enabled_debug_tags)
+        delete g_enabled_debug_tags;
+}
 
 bool has_violations() {
     return g_has_violations;
@@ -43,7 +52,7 @@ void notify_assertion_violation(const char * fileName, int line, const char * co
 
 void enable_debug(char const * tag) {
     if (!g_enabled_debug_tags)
-        g_enabled_debug_tags.reset(new std::set<std::string>());
+        g_enabled_debug_tags = new std::set<std::string>();
     g_enabled_debug_tags->insert(tag);
 }
 

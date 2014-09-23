@@ -28,4 +28,6 @@ namespace lean {
 void enable_trace(char const * tag);
 void disable_trace(char const * tag);
 bool is_trace_enabled(char const * tag);
+void initialize_trace();
+void finalize_trace();
 }

@@ -877,7 +877,7 @@ static const struct luaL_Reg formatter_m[] = {
 };
 
 static char g_formatter_factory_key;
-static formatter_factory g_print_formatter_factory = mk_print_formatter_factory();
+static formatter_factory * g_print_formatter_factory = nullptr;
 
 optional<formatter_factory> get_global_formatter_factory_core(lua_State * L) {
     io_state * io = get_io_state_ptr(L);
@@ -902,7 +902,7 @@ formatter_factory get_global_formatter_factory(lua_State * L) {
     if (r)
         return *r;
     else
-        return g_print_formatter_factory;
+        return *g_print_formatter_factory;
 }
 
 void set_global_formatter_factory(lua_State * L, formatter_factory const & fmtf) {
@@ -1223,7 +1223,7 @@ static int io_state_get_options(lua_State * L) { return push_options(L, to_io_st
 static int io_state_get_formatter_factory(lua_State * L) { return push_formatter_factory(L, to_io_state(L, 1).get_formatter_factory()); }
 static int io_state_set_options(lua_State * L) { to_io_state(L, 1).set_options(to_options(L, 2)); return 0; }
 
-static mutex g_print_mutex;
+static mutex * g_print_mutex = nullptr;
 
 static void print(io_state * ios, bool reg, char const * msg) {
     if (ios) {
@@ -1238,7 +1238,7 @@ static void print(io_state * ios, bool reg, char const * msg) {
 
 /** \brief Thread safe version of print function */
 static int print(lua_State * L, int start, bool reg) {
-    lock_guard<mutex> lock(g_print_mutex);
+    lock_guard<mutex> lock(*g_print_mutex);
     io_state * ios = get_io_state_ptr(L);
     int n = lua_gettop(L);
     int i;
@@ -1864,15 +1864,15 @@ static int type_checker_infer(lua_State * L) { return push_ecs(L, to_type_checke
 static int type_checker_is_def_eq(lua_State * L) { return push_bcs(L, to_type_checker_ref(L, 1)->is_def_eq(to_expr(L, 2), to_expr(L, 3))); }
 static int type_checker_is_prop(lua_State * L) { return push_bcs(L, to_type_checker_ref(L, 1)->is_prop(to_expr(L, 2))); }
 
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
 
 static int mk_type_checker_with_hints(lua_State * L) {
     environment const & env = to_environment(L, 1);
     int nargs = lua_gettop(L);
     if (nargs == 1) {
-        return push_type_checker_ref(L, mk_type_checker(env, name_generator(g_tmp_prefix), false));
+        return push_type_checker_ref(L, mk_type_checker(env, name_generator(*g_tmp_prefix), false));
     } else if (nargs == 2 && lua_isboolean(L, 2)) {
-        return push_type_checker_ref(L, mk_type_checker(env, name_generator(g_tmp_prefix), lua_toboolean(L, 2)));
+        return push_type_checker_ref(L, mk_type_checker(env, name_generator(*g_tmp_prefix), lua_toboolean(L, 2)));
     } else if (nargs == 2) {
         return push_type_checker_ref(L, mk_type_checker(env, to_name_generator(L, 2), false));
     } else {
@@ -2029,5 +2029,16 @@ void open_kernel_module(lua_State * L) {
     open_substitution(L);
     open_type_checker(L);
     open_inductive(L);
+}
+
+void initialize_kernel_bindings() {
+    g_print_formatter_factory = new formatter_factory(mk_print_formatter_factory());
+    g_print_mutex             = new mutex();
+    g_tmp_prefix              = new name(name::mk_internal_unique_name());
+}
+void finalize_kernel_bindings() {
+    delete g_tmp_prefix;
+    delete g_print_mutex;
+    delete g_print_formatter_factory;
 }
 }

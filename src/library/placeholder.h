@@ -43,4 +43,6 @@ optional<expr> placeholder_type(expr const & e);
 bool has_placeholder(expr const & e);
 
 void open_placeholder(lua_State * L);
+void initialize_placeholder();
+void finalize_placeholder();
 }

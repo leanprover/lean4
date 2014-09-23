@@ -18,4 +18,6 @@ environment declare_sorry(environment const & env);
 /** \brief Return the constant \c sorry */
 expr mk_sorry();
 name const & get_sorry_name();
+void initialize_sorry();
+void finalize_sorry();
 }

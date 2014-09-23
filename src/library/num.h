@@ -36,4 +36,7 @@ expr from_num(mpz const & n);
    \see from_num
 */
 optional<mpz> to_num(expr const & e);
+
+void initialize_num();
+void finalize_num();
 }

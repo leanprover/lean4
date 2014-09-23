@@ -28,4 +28,7 @@ formatter_factory mk_print_formatter_factory();
 
 /** \brief Use simple formatter as the default print function */
 void init_default_print_fn();
+
+void initialize_print();
+void finalize_print();
 }

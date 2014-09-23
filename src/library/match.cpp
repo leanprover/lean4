@@ -14,17 +14,25 @@ Author: Leonardo de Moura
 #include "library/match.h"
 
 namespace lean {
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
+
+void initialize_match() {
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
+}
+
+void finalize_match() {
+    delete g_tmp_prefix;
+}
 
 level mk_idx_meta_univ(unsigned i) {
-    return mk_meta_univ(name(g_tmp_prefix, i));
+    return mk_meta_univ(name(*g_tmp_prefix, i));
 }
 
 bool is_idx_meta_univ(level const & l) {
     if (!is_meta(l))
         return false;
     name const & n = meta_id(l);
-    return !n.is_atomic() && n.is_numeral() && n.get_prefix() == g_tmp_prefix;
+    return !n.is_atomic() && n.is_numeral() && n.get_prefix() == *g_tmp_prefix;
 }
 
 unsigned to_meta_idx(level const & l) {
@@ -341,7 +349,7 @@ bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buff
     if (prefix)
         return match_fn(esubst, lsubst, name_generator(*prefix), name_subst, plugin).match(p, t);
     else
-        return match_fn(esubst, lsubst, name_generator(g_tmp_prefix), name_subst, plugin).match(p, t);
+        return match_fn(esubst, lsubst, name_generator(*g_tmp_prefix), name_subst, plugin).match(p, t);
 }
 
 match_plugin mk_whnf_match_plugin(std::shared_ptr<type_checker> const & tc) {

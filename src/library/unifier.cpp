@@ -47,24 +47,6 @@ static name * g_unifier_max_steps         = nullptr;
 static name * g_unifier_computation       = nullptr;
 static name * g_unifier_expensive_classes = nullptr;
 
-void initialize_unifier() {
-    g_unifier_max_steps         = new name{"unifier", "max_steps"};
-    g_unifier_computation       = new name{"unifier", "computation"};
-    g_unifier_expensive_classes = new name{"unifier", "expensive_classes"};
-
-    register_unsigned_option(*g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS, "(unifier) maximum number of steps");
-    register_bool_option(*g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION,
-                         "(unifier) always case-split on reduction/computational steps when solving flex-rigid and delta-delta constraints");
-    register_bool_option(*g_unifier_expensive_classes, LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES,
-                         "(unifier) use \"full\" higher-order unification when solving class instances");
-}
-
-void finalize_unifier() {
-    delete g_unifier_max_steps;
-    delete g_unifier_computation;
-    delete g_unifier_expensive_classes;
-}
-
 unsigned get_unifier_max_steps(options const & opts) {
     return opts.get_unsigned(*g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS);
 }
@@ -264,7 +246,7 @@ unify_status unify_simple(substitution & s, constraint const & c) {
         return unify_status::Unsupported;
 }
 
-static constraint g_dont_care_cnstr = mk_eq_cnstr(expr(), expr(), justification(), false);
+static constraint * g_dont_care_cnstr = nullptr;
 static unsigned g_group_size = 1u << 28;
 constexpr unsigned g_num_groups = 8;
 static unsigned g_cnstr_group_first_index[g_num_groups] = { 0, g_group_size, 2*g_group_size, 3*g_group_size, 4*g_group_size, 5*g_group_size, 6*g_group_size, 7*g_group_size};
@@ -1027,7 +1009,7 @@ struct unifier_fn {
     bool process_constraint_cidx(unsigned cidx) {
         if (in_conflict())
             return false;
-        cnstr c(g_dont_care_cnstr, cidx);
+        cnstr c(*g_dont_care_cnstr, cidx);
         if (auto it = m_cnstrs.find(c)) {
             constraint c2 = it->first;
             m_cnstrs.erase(c);
@@ -2196,7 +2178,7 @@ static unifier_plugin to_unifier_plugin(lua_State * L, int idx) {
 }
 #endif
 
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
 
 static int unify(lua_State * L) {
     int nargs = lua_gettop(L);
@@ -2236,5 +2218,28 @@ void open_unifier(lua_State * L) {
     SET_ENUM("Failed",       unify_status::Failed);
     SET_ENUM("Unsupported",  unify_status::Unsupported);
     lua_setglobal(L, "unify_status");
+}
+
+void initialize_unifier() {
+    g_unifier_max_steps         = new name{"unifier", "max_steps"};
+    g_unifier_computation       = new name{"unifier", "computation"};
+    g_unifier_expensive_classes = new name{"unifier", "expensive_classes"};
+
+    register_unsigned_option(*g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS, "(unifier) maximum number of steps");
+    register_bool_option(*g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION,
+                         "(unifier) always case-split on reduction/computational steps when solving flex-rigid and delta-delta constraints");
+    register_bool_option(*g_unifier_expensive_classes, LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES,
+                         "(unifier) use \"full\" higher-order unification when solving class instances");
+
+    g_dont_care_cnstr = new constraint(mk_eq_cnstr(expr(), expr(), justification(), false));
+    g_tmp_prefix      = new name(name::mk_internal_unique_name());
+}
+
+void finalize_unifier() {
+    delete g_tmp_prefix;
+    delete g_dont_care_cnstr;
+    delete g_unifier_max_steps;
+    delete g_unifier_computation;
+    delete g_unifier_expensive_classes;
 }
 }

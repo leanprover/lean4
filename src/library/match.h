@@ -78,4 +78,6 @@ match_plugin mk_whnf_match_plugin(std::shared_ptr<type_checker> const & tc);
 bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst,
            name const * prefix = nullptr, name_map<name> * name_subst = nullptr, match_plugin const * plugin = nullptr);
 void open_match(lua_State * L);
+void initialize_match();
+void finalize_match();
 }

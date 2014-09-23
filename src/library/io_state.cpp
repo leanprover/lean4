@@ -9,9 +9,18 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 
 namespace lean {
-static io_state g_dummy_ios(mk_print_formatter_factory());
+static io_state * g_dummy_ios = nullptr;
+
+void initialize_io_state() {
+    g_dummy_ios = new io_state(mk_print_formatter_factory());
+}
+
+void finalize_io_state() {
+    delete g_dummy_ios;
+}
+
 io_state const & get_dummy_ios() {
-    return g_dummy_ios;
+    return *g_dummy_ios;
 }
 
 io_state::io_state():io_state(mk_print_formatter_factory()) {}

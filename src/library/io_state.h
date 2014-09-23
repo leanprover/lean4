@@ -45,4 +45,6 @@ public:
 };
 /** \brief Return a dummy io_state that is meant to be used in contexts that require an io_state, but it is not really used */
 io_state const & get_dummy_ios();
+void initialize_io_state();
+void finalize_io_state();
 }

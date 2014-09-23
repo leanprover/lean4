@@ -10,7 +10,15 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 
 namespace lean {
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
+
+void initialize_normalize() {
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
+}
+
+void finalize_normalize() {
+    delete g_tmp_prefix;
+}
 
 class normalize_fn {
     type_checker   m_tc;
@@ -46,7 +54,7 @@ class normalize_fn {
     }
 
 public:
-    normalize_fn(environment const & env):m_tc(env), m_ngen(g_tmp_prefix) {}
+    normalize_fn(environment const & env):m_tc(env), m_ngen(*g_tmp_prefix) {}
     expr operator()(expr const & e) { return normalize(e); }
 };
 

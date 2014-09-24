@@ -79,18 +79,6 @@ struct class_config {
 template class scoped_ext<class_config>;
 typedef scoped_ext<class_config> class_ext;
 
-void initialize_class() {
-    g_class_name = new name("class");
-    g_key = new std::string("class");
-    class_ext::initialize();
-}
-
-void finalize_class() {
-    class_ext::finalize();
-    delete g_key;
-    delete g_class_name;
-}
-
 static void check_class(environment const & env, name const & c_name) {
     declaration c_d = env.get(c_name);
     if (c_d.is_definition() && !c_d.is_opaque())
@@ -110,11 +98,11 @@ environment add_class(environment const & env, name const & n, bool persistent) 
     return class_ext::add_entry(env, get_dummy_ios(), class_entry(n), persistent);
 }
 
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
 environment add_instance(environment const & env, name const & n, bool persistent) {
     declaration d = env.get(n);
     expr type = d.get_type();
-    name_generator ngen(g_tmp_prefix);
+    name_generator ngen(*g_tmp_prefix);
     auto tc = mk_type_checker(env, ngen, false);
     while (true) {
         type = tc->whnf(type).first;
@@ -201,5 +189,18 @@ list<expr> get_local_instances(type_checker & tc, list<expr> const & ctx, name c
                 buffer.push_back(l);
     }
     return to_list(buffer.begin(), buffer.end());
+}
+void initialize_class() {
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
+    g_class_name = new name("class");
+    g_key = new std::string("class");
+    class_ext::initialize();
+}
+
+void finalize_class() {
+    class_ext::finalize();
+    delete g_key;
+    delete g_class_name;
+    delete g_tmp_prefix;
 }
 }

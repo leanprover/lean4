@@ -350,10 +350,17 @@ void display_decimal(std::ostream & out, mpbq const & a, unsigned prec) {
     }
 }
 
-static mpbq g_zero;
+static mpbq * g_zero = nullptr;
 mpbq const & numeric_traits<mpbq>::zero() {
-    lean_assert(is_zero(g_zero));
-    return g_zero;
+    lean_assert(is_zero(*g_zero));
+    return *g_zero;
+}
+
+void initialize_mpbq() {
+    g_zero = new mpbq();
+}
+void finalize_mpbq() {
+    delete g_zero;
 }
 }
 

@@ -115,4 +115,7 @@ public:
     static void power(zpz & v, unsigned k) { v = lean::power(v, k); }
     static zpz const & zero();
 };
+
+void initialize_zpz();
+void finalize_zpz();
 }

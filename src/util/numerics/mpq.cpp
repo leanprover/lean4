@@ -10,10 +10,21 @@ Author: Leonardo de Moura
 #include "util/numerics/mpbq.h"
 
 namespace lean {
+mpq * numeric_traits<mpq>::pi_l = nullptr;
+mpq * numeric_traits<mpq>::pi_n = nullptr;
+mpq * numeric_traits<mpq>::pi_u = nullptr;
 
-const mpq numeric_traits<mpq>::pi_l((3373259426.0 + 273688.0 / (1<<21)) / (1<<30));
-const mpq numeric_traits<mpq>::pi_n((3373259426.0 + 273688.0 / (1<<21)) / (1<<30));
-const mpq numeric_traits<mpq>::pi_u((3373259426.0 + 273688.0 / (1<<21)) / (1<<30));
+void numeric_traits<mpq>::initialize() {
+    pi_l = new mpq((3373259426.0 + 273688.0 / (1<<21)) / (1<<30));
+    pi_n = new mpq((3373259426.0 + 273688.0 / (1<<21)) / (1<<30));
+    pi_u = new mpq((3373259426.0 + 273688.0 / (1<<21)) / (1<<30));
+}
+
+void numeric_traits<mpq>::finalize() {
+    delete pi_l;
+    delete pi_n;
+    delete pi_u;
+}
 
 mpq & mpq::operator=(mpbq const & b) {
     *this = 2;
@@ -119,11 +130,11 @@ void display_decimal(std::ostream & out, mpq const & a, unsigned prec) {
     out << "?";
 }
 
-static mpq g_zero;
+static mpq * g_zero = nullptr;
 
 mpq const & numeric_traits<mpq>::zero() {
-    lean_assert(is_zero(g_zero));
-    return g_zero;
+    lean_assert(is_zero(*g_zero));
+    return *g_zero;
 }
 
 serializer & operator<<(serializer & s, mpq const & n) {
@@ -131,6 +142,16 @@ serializer & operator<<(serializer & s, mpq const & n) {
     out << n;
     s << out.str();
     return s;
+}
+
+void initialize_mpq() {
+    g_zero = new mpq();
+    numeric_traits<mpq>::initialize();
+}
+
+void finalize_mpq() {
+    numeric_traits<mpq>::finalize();
+    delete g_zero;
 }
 
 mpq read_mpq(deserializer & d) {

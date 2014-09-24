@@ -19,8 +19,14 @@ void zpz::inv() {
     m_value = remainder(a, static_cast<int64>(m_p));
 }
 
-static zpz g_zero;
+static zpz * g_zero = nullptr;
 zpz const & numeric_traits<zpz>::zero() {
-    return g_zero;
+    return *g_zero;
+}
+void initialize_zpz() {
+    g_zero = new zpz();
+}
+void finalize_zpz() {
+    delete g_zero;
 }
 }

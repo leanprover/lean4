@@ -513,19 +513,18 @@ public:
     static void ceil(mpfp & v) { v.ceil(); }
     static void floor(mpfp & v) { v.floor(); }
 
-    // constants
-    static mpfp pi_l;
-    static mpfp pi_n;
-    static mpfp pi_u;
     static inline mpfp pi_lower()       {
+        mpfp pi_l;
         mpfr_const_pi(pi_l.m_val, MPFR_RNDD);
         return pi_l;
     }
     static inline mpfp pi()             {
+        mpfp pi_n;
         mpfr_const_pi(pi_n.m_val, MPFR_RNDN);
         return pi_n;
     }
     static inline mpfp pi_upper()       {
+        mpfp pi_u;
         mpfr_const_pi(pi_u.m_val, MPFR_RNDU);
         return pi_u;
     }
@@ -559,4 +558,6 @@ public:
     static void acosh(mpfp & v) { LEAN_TRANS_MPFP_FUNC(acosh, v, rnd()); }
     static void atanh(mpfp & v) { LEAN_TRANS_MPFP_FUNC(atanh, v, rnd()); }
 };
+void initialize_mpfp();
+void finalize_mpfp();
 }

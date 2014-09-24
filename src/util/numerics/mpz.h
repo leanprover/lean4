@@ -244,4 +244,7 @@ inline deserializer & operator>>(deserializer & d, mpz & n) { n = read_mpz(d); r
 UDATA_DEFS(mpz)
 mpz to_mpz_ext(lua_State * L, int idx);
 void open_mpz(lua_State * L);
+
+void initialize_mpz();
+void finalize_mpz();
 }

@@ -90,9 +90,18 @@ public:
     }
 };
 
-static prime_generator g_prime_generator;
-static mutex           g_prime_generator_mutex;
+static prime_generator * g_prime_generator = nullptr;
+static mutex           * g_prime_generator_mutex = nullptr;
 
+void initialize_primes() {
+    g_prime_generator = new prime_generator();
+    g_prime_generator_mutex = new mutex();
+}
+
+void finalize_primes() {
+    delete g_prime_generator_mutex;
+    delete g_prime_generator;
+}
 
 prime_iterator::prime_iterator():
     m_idx(0) {
@@ -102,8 +111,8 @@ uint64 prime_iterator::next() {
     unsigned idx = m_idx;
     m_idx++;
     {
-        lock_guard<mutex> guard(g_prime_generator_mutex);
-        return g_prime_generator(idx);
+        lock_guard<mutex> guard(*g_prime_generator_mutex);
+        return (*g_prime_generator)(idx);
     }
 }
 

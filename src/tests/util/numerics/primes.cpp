@@ -6,7 +6,9 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include "util/test.h"
+#include "util/init_module.h"
 #include "util/numerics/primes.h"
+#include "util/numerics/init_module.h"
 using namespace lean;
 
 #define NUM_SMALL_PRIMES 168
@@ -36,8 +38,11 @@ static void tst2() {
 }
 
 int main() {
+    initialize_util_module();
+    initialize_numerics_module();
     tst1();
     tst2();
+    finalize_numerics_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }
-

@@ -13,10 +13,6 @@ Author: Soonho Kong
 namespace lean {
 MK_THREAD_LOCAL_GET(mpfr_rnd_t, get_g_mpfp_rnd, MPFR_RNDN);
 
-mpfp numeric_traits<mpfp>::pi_l;
-mpfp numeric_traits<mpfp>::pi_n;
-mpfp numeric_traits<mpfp>::pi_u;
-
 void set_mpfp_rnd(bool plus_inf) {
     get_g_mpfp_rnd() = plus_inf ? MPFR_RNDU : MPFR_RNDD;
 }
@@ -24,16 +20,6 @@ void set_mpfp_rnd(bool plus_inf) {
 mpfr_rnd_t get_mpfp_rnd() {
     return get_g_mpfp_rnd();
 }
-
-/**
-    \brief Auxiliary class for invoking mpfr_free_cache before
-    exiting and avoiding Valgrind memory leak warnings.
-*/
-class mpfr_finalizer {
-public:
-    ~mpfr_finalizer() { mpfr_free_cache(); }
-};
-static mpfr_finalizer g_mpfr_finalizer;
 
 inline unsigned necessary_digits(mpfr_prec_t p) {
     static constexpr double LOG10_2 = 0.30102999566;
@@ -51,11 +37,19 @@ std::ostream & operator<<(std::ostream & out, mpfp const & v) {
     return out;
 }
 
-static mpfp g_zero(0.0);
+static mpfp * g_zero = nullptr;
 mpfp const & numeric_traits<mpfp>::zero() {
-    lean_assert(is_zero(g_zero));
-    return g_zero;
-}
+    lean_assert(is_zero(*g_zero));
+    return *g_zero;
 }
 
+void initialize_mpfp() {
+    g_zero = new mpfp(0.0);
+}
+
+void finalize_mpfp() {
+    delete g_zero;
+    mpfr_free_cache();
+}
+}
 void print(lean::mpfp const & v) { std::cout << v << std::endl; }

@@ -77,11 +77,19 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
     return out;
 }
 
-static mpz g_zero;
+static mpz * g_zero = nullptr;
 
 mpz const & numeric_traits<mpz>::zero() {
-    lean_assert(is_zero(g_zero));
-    return g_zero;
+    lean_assert(is_zero(*g_zero));
+    return *g_zero;
+}
+
+void initialize_mpz() {
+    g_zero = new mpz();
+}
+
+void finalize_mpz() {
+    delete g_zero;
 }
 
 serializer & operator<<(serializer & s, mpz const & n) {

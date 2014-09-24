@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/test.h"
+#include "util/init_module.h"
+#include "util/numerics/init_module.h"
 #include "util/numerics/mpq.h"
 #include "util/numerics/mpz.h"
 #include "util/numerics/mpbq.h"
@@ -38,6 +40,10 @@ static void tst1() {
 }
 
 int main() {
+    initialize_util_module();
+    initialize_numerics_module();
     tst1();
+    finalize_numerics_module();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }

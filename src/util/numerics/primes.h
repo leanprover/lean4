@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#pragma once
 #include "util/int64.h"
 
 namespace lean {
@@ -17,4 +18,7 @@ public:
 };
 /** \brief Return true iff \c p is a prime number. */
 bool is_prime(uint64 p);
+
+void initialize_primes();
+void finalize_primes();
 }

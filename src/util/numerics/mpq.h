@@ -223,7 +223,13 @@ public:
 
 template<>
 class numeric_traits<mpq> {
+    static mpq * pi_l;
+    static mpq * pi_n;
+    static mpq * pi_u;
 public:
+    static void initialize();
+    static void finalize();
+
     static bool precise() { return true; }
     static bool is_zero(mpq const &  v) { return v.is_zero(); }
     static bool is_pos(mpq const & v) { return v.is_pos(); }
@@ -240,18 +246,15 @@ public:
     static void floor(mpq & v) { v.floor(); }
 
     // constants
-    static const  mpq pi_l;
-    static const  mpq pi_n;
-    static const  mpq pi_u;
-    static inline mpq pi_lower()       { return pi_l;     }
-    static inline mpq pi()             { return pi_n;     }
-    static inline mpq pi_upper()       { return pi_u;     }
-    static inline mpq pi_half_lower()  { return pi_l / 2; }
-    static inline mpq pi_half()        { return pi_n / 2; }
-    static inline mpq pi_half_upper()  { return pi_u / 2; }
-    static inline mpq pi_twice_lower() { return pi_l * 2; }
-    static inline mpq pi_twice()       { return pi_n * 2; }
-    static inline mpq pi_twice_upper() { return pi_u * 2; }
+    static inline mpq pi_lower()       { return *pi_l;     }
+    static inline mpq pi()             { return *pi_n;     }
+    static inline mpq pi_upper()       { return *pi_u;     }
+    static inline mpq pi_half_lower()  { return *pi_l / 2; }
+    static inline mpq pi_half()        { return *pi_n / 2; }
+    static inline mpq pi_half_upper()  { return *pi_u / 2; }
+    static inline mpq pi_twice_lower() { return *pi_l * 2; }
+    static inline mpq pi_twice()       { return *pi_n * 2; }
+    static inline mpq pi_twice_upper() { return *pi_u * 2; }
 
     // Transcendental functions
     static void exp(mpq & )   { lean_unreachable(); } // LCOV_EXCL_LINE
@@ -284,4 +287,7 @@ inline deserializer & operator>>(deserializer & d, mpq & n) { n = read_mpq(d); r
 UDATA_DEFS(mpq)
 mpq to_mpq_ext(lua_State * L, int idx);
 void open_mpq(lua_State * L);
+
+void initialize_mpq();
+void finalize_mpq();
 }

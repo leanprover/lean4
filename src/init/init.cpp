@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/stackinfo.h"
 #include "util/init_module.h"
+#include "util/numerics/init_module.h"
 #include "util/sexpr/init_module.h"
 #include "kernel/init_module.h"
 #include "kernel/inductive/inductive.h"
@@ -20,6 +21,7 @@ namespace lean {
 void initialize() {
     save_stack_info();
     initialize_util_module();
+    initialize_numerics_module();
     initialize_sexpr_module();
     initialize_kernel_module();
     initialize_inductive_module();
@@ -36,6 +38,7 @@ void finalize() {
     finalize_inductive_module();
     finalize_kernel_module();
     finalize_sexpr_module();
+    finalize_numerics_module();
     finalize_util_module();
 }
 

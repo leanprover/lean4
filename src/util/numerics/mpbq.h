@@ -305,5 +305,6 @@ public:
     static void acosh(mpbq & ) { lean_unreachable(); } // LCOV_EXCL_LINE
     static void atanh(mpbq & ) { lean_unreachable(); } // LCOV_EXCL_LINE
 };
-
+void initialize_mpbq();
+void finalize_mpbq();
 }

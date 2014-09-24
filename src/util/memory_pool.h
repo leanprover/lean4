@@ -9,11 +9,11 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \brief Auxiliary object for "recycling" allocated memory of fixed size */
-template<unsigned Size>
 class memory_pool {
-    void * m_free_list;
+    unsigned m_size;
+    void *   m_free_list;
 public:
-    memory_pool():m_free_list(nullptr) {}
+    memory_pool(unsigned size):m_size(size), m_free_list(nullptr) {}
     ~memory_pool() {
         while (m_free_list != nullptr) {
             void * r = m_free_list;
@@ -28,7 +28,7 @@ public:
             m_free_list = *(reinterpret_cast<void **>(r));
             return r;
         } else {
-            return malloc(Size);
+            return malloc(m_size);
         }
     }
 

@@ -109,8 +109,7 @@ bool is_meta(expr const & e) {
 }
 
 // Expr variables
-typedef memory_pool<sizeof(expr_var)> var_allocator;
-MK_THREAD_LOCAL_GET_DEF(var_allocator, get_var_allocator);
+MK_THREAD_LOCAL_GET(memory_pool, get_var_allocator, sizeof(expr_var));
 expr_var::expr_var(unsigned idx):
     expr_cell(expr_kind::Var, idx, false, false, false, false),
     m_vidx(idx) {
@@ -123,8 +122,7 @@ void expr_var::dealloc() {
 }
 
 // Expr constants
-typedef memory_pool<sizeof(expr_const)> const_allocator;
-MK_THREAD_LOCAL_GET_DEF(const_allocator, get_const_allocator);
+MK_THREAD_LOCAL_GET(memory_pool, get_const_allocator, sizeof(expr_const));
 expr_const::expr_const(name const & n, levels const & ls):
     expr_cell(expr_kind::Constant, ::lean::hash(n.hash(), hash_levels(ls)), false, has_meta(ls), false, has_param(ls)),
     m_name(n),
@@ -136,8 +134,7 @@ void expr_const::dealloc() {
 }
 
 // Expr metavariables and local variables
-typedef memory_pool<sizeof(expr_mlocal)> mlocal_allocator;
-MK_THREAD_LOCAL_GET_DEF(mlocal_allocator, get_mlocal_allocator);
+MK_THREAD_LOCAL_GET(memory_pool, get_mlocal_allocator, sizeof(expr_mlocal));
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, expr const & t):
     expr_composite(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
                    !is_meta || t.has_local(), t.has_param_univ(),
@@ -150,8 +147,7 @@ void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
     get_mlocal_allocator().recycle(this);
 }
 
-typedef memory_pool<sizeof(expr_local)> local_allocator;
-MK_THREAD_LOCAL_GET_DEF(local_allocator, get_local_allocator);
+MK_THREAD_LOCAL_GET(memory_pool, get_local_allocator, sizeof(expr_local));
 expr_local::expr_local(name const & n, name const & pp_name, expr const & t, binder_info const & bi):
     expr_mlocal(false, n, t),
     m_pp_name(pp_name),
@@ -170,8 +166,7 @@ expr_composite::expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool h
     m_free_var_range(fv_range) {}
 
 // Expr applications
-typedef memory_pool<sizeof(expr_app)> app_allocator;
-MK_THREAD_LOCAL_GET_DEF(app_allocator, get_app_allocator);
+MK_THREAD_LOCAL_GET(memory_pool, get_app_allocator, sizeof(expr_app));
 expr_app::expr_app(expr const & fn, expr const & arg):
     expr_composite(expr_kind::App, ::lean::hash(fn.hash(), arg.hash()),
                    fn.has_expr_metavar() || arg.has_expr_metavar(),
@@ -201,8 +196,7 @@ bool operator==(binder_info const & i1, binder_info const & i2) {
 }
 
 // Expr binders (Lambda, Pi)
-typedef memory_pool<sizeof(expr_binding)> binding_allocator;
-MK_THREAD_LOCAL_GET_DEF(binding_allocator, get_binding_allocator);
+MK_THREAD_LOCAL_GET(memory_pool, get_binding_allocator, sizeof(expr_binding));
 expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr const & b, binder_info const & i):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
                    t.has_expr_metavar()   || b.has_expr_metavar(),
@@ -224,8 +218,7 @@ void expr_binding::dealloc(buffer<expr_cell*> & todelete) {
 }
 
 // Expr Sort
-typedef memory_pool<sizeof(expr_sort)> sort_allocator;
-MK_THREAD_LOCAL_GET_DEF(sort_allocator, get_sort_allocator);
+MK_THREAD_LOCAL_GET(memory_pool, get_sort_allocator, sizeof(expr_sort));
 expr_sort::expr_sort(level const & l):
     expr_cell(expr_kind::Sort, ::lean::hash(l), false, has_meta(l), false, has_param(l)),
     m_level(l) {

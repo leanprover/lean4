@@ -68,8 +68,7 @@ struct name::imp {
     }
 };
 
-typedef memory_pool<sizeof(name::imp)> numeric_name_allocator;
-MK_THREAD_LOCAL_GET_DEF(numeric_name_allocator, get_numeric_name_allocator);
+MK_THREAD_LOCAL_GET(memory_pool, get_numeric_name_allocator, sizeof(name::imp));
 
 void name::imp::dealloc() {
     imp * curr = this;

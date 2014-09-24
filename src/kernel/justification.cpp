@@ -123,16 +123,11 @@ approx_set get_approx_assumption_set(justification const & j) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-typedef memory_pool<sizeof(asserted_cell)>        asserted_allocator;
-typedef memory_pool<sizeof(composite_cell)>       composite_allocator;
-typedef memory_pool<sizeof(ext_composite_cell)>   ext_composite_allocator;
-typedef memory_pool<sizeof(assumption_cell)>      assumption_allocator;
-typedef memory_pool<sizeof(ext_assumption_cell)>  ext_assumption_allocator;
-MK_THREAD_LOCAL_GET_DEF(asserted_allocator,       get_asserted_allocator);
-MK_THREAD_LOCAL_GET_DEF(composite_allocator,      get_composite_allocator);
-MK_THREAD_LOCAL_GET_DEF(ext_composite_allocator,  get_ext_composite_allocator);
-MK_THREAD_LOCAL_GET_DEF(assumption_allocator,     get_assumption_allocator);
-MK_THREAD_LOCAL_GET_DEF(ext_assumption_allocator, get_ext_assumption_allocator);
+MK_THREAD_LOCAL_GET(memory_pool, get_asserted_allocator, sizeof(asserted_cell));
+MK_THREAD_LOCAL_GET(memory_pool, get_composite_allocator, sizeof(composite_cell));
+MK_THREAD_LOCAL_GET(memory_pool, get_ext_composite_allocator, sizeof(ext_composite_cell));
+MK_THREAD_LOCAL_GET(memory_pool, get_assumption_allocator, sizeof(assumption_cell));
+MK_THREAD_LOCAL_GET(memory_pool, get_ext_assumption_allocator, sizeof(ext_assumption_cell));
 
 void justification_cell::dealloc() {
     switch (m_kind) {

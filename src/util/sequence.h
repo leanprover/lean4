@@ -48,21 +48,20 @@ class sequence {
         join_cell(node const & f, node const & s):cell(true), m_first(f), m_second(s) {}
     };
 
-    typedef memory_pool<sizeof(elem_cell)> elem_cell_allocator;
-    typedef memory_pool<sizeof(join_cell)> join_cell_allocator;
-    static elem_cell_allocator & get_elem_cell_allocator() {
-        LEAN_THREAD_PTR(elem_cell_allocator) g_allocator;
+    static memory_pool & get_elem_cell_allocator() {
+        LEAN_THREAD_PTR(memory_pool) g_allocator;
         if (!g_allocator.get())
-            g_allocator.reset(new elem_cell_allocator());
+            g_allocator.reset(new memory_pool(sizeof(elem_cell)));
         return *g_allocator;
     }
 
-    static join_cell_allocator & get_join_cell_allocator() {
-        LEAN_THREAD_PTR(join_cell_allocator) g_allocator;
+    static memory_pool & get_join_cell_allocator() {
+        LEAN_THREAD_PTR(memory_pool) g_allocator;
         if (!g_allocator.get())
-            g_allocator.reset(new join_cell_allocator());
+            g_allocator.reset(new memory_pool(sizeof(join_cell)));
         return *g_allocator;
     }
+
 private:
     node m_node;
 public:

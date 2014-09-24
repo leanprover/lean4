@@ -54,24 +54,6 @@ static name * g_pp_unicode = nullptr;
 static name * g_pp_colors  = nullptr;
 static name * g_pp_width   = nullptr;
 
-void initialize_format() {
-    g_pp_indent  = new name{"pp", "indent"};
-    g_pp_unicode = new name{"pp", "unicode"};
-    g_pp_colors  = new name{"pp", "colors"};
-    g_pp_width   = new name{"pp", "width"};
-    register_unsigned_option(*g_pp_indent, LEAN_DEFAULT_PP_INDENTATION, "(pretty printer) default indentation");
-    register_bool_option(*g_pp_unicode, LEAN_DEFAULT_PP_UNICODE, "(pretty printer) use unicode characters");
-    register_bool_option(*g_pp_colors, LEAN_DEFAULT_PP_COLORS, "(pretty printer) use colors");
-    register_unsigned_option(*g_pp_width, LEAN_DEFAULT_PP_WIDTH, "(pretty printer) line width");
-}
-
-void finalize_format() {
-    delete g_pp_indent;
-    delete g_pp_unicode;
-    delete g_pp_colors;
-    delete g_pp_width;
-}
-
 unsigned get_pp_indent(options const & o) {
     return o.get_unsigned(*g_pp_indent, LEAN_DEFAULT_PP_INDENTATION);
 }
@@ -106,28 +88,29 @@ format highlight_command(format const & f) {
 format mk_line() {
     return format(format::sexpr_line());
 }
-static format g_line(mk_line());
-static format g_space(" ");
-static format g_lp("(");
-static format g_rp(")");
-static format g_lsb("[");
-static format g_rsb("]");
-static format g_lcurly("{");
-static format g_rcurly("}");
-static format g_comma(",");
-static format g_colon(":");
-static format g_dot(".");
-format const & line() { return g_line; }
-format const & space() { return g_space; }
-format const & lp() { return g_lp; }
-format const & rp() { return g_rp; }
-format const & lsb() { return g_lsb; }
-format const & rsb() { return g_rsb; }
-format const & lcurly() { return g_lcurly; }
-format const & rcurly() { return g_rcurly; }
-format const & comma() { return g_comma; }
-format const & colon() { return g_colon; }
-format const & dot() { return g_dot; }
+
+static format * g_line = nullptr;
+static format * g_space = nullptr;
+static format * g_lp = nullptr;
+static format * g_rp = nullptr;
+static format * g_lsb = nullptr;
+static format * g_rsb = nullptr;
+static format * g_lcurly = nullptr;
+static format * g_rcurly = nullptr;
+static format * g_comma = nullptr;
+static format * g_colon = nullptr;
+static format * g_dot = nullptr;
+format const & line() { return *g_line; }
+format const & space() { return *g_space; }
+format const & lp() { return *g_lp; }
+format const & rp() { return *g_rp; }
+format const & lsb() { return *g_lsb; }
+format const & rsb() { return *g_rsb; }
+format const & lcurly() { return *g_lcurly; }
+format const & rcurly() { return *g_rcurly; }
+format const & comma() { return *g_comma; }
+format const & colon() { return *g_colon; }
+format const & dot() { return *g_dot; }
 // Auxiliary flag used to mark whether flatten
 // produce a different sexpr
 MK_THREAD_LOCAL_GET(bool, get_g_diff_flatten, false);
@@ -512,5 +495,45 @@ void open_format(lua_State * L) {
     SET_GLOBAL_FUN(format_line,  "line");
     SET_GLOBAL_FUN(format_space, "space");
     SET_GLOBAL_FUN(format_pred,  "is_format");
+}
+
+void initialize_format() {
+    g_pp_indent  = new name{"pp", "indent"};
+    g_pp_unicode = new name{"pp", "unicode"};
+    g_pp_colors  = new name{"pp", "colors"};
+    g_pp_width   = new name{"pp", "width"};
+    register_unsigned_option(*g_pp_indent, LEAN_DEFAULT_PP_INDENTATION, "(pretty printer) default indentation");
+    register_bool_option(*g_pp_unicode, LEAN_DEFAULT_PP_UNICODE, "(pretty printer) use unicode characters");
+    register_bool_option(*g_pp_colors, LEAN_DEFAULT_PP_COLORS, "(pretty printer) use colors");
+    register_unsigned_option(*g_pp_width, LEAN_DEFAULT_PP_WIDTH, "(pretty printer) line width");
+    g_line = new format(mk_line());
+    g_space = new format(" ");
+    g_lp = new format("(");
+    g_rp = new format(")");
+    g_lsb = new format("[");
+    g_rsb = new format("]");
+    g_lcurly = new format("{");
+    g_rcurly = new format("}");
+    g_comma = new format(",");
+    g_colon = new format(":");
+    g_dot = new format(".");
+}
+
+void finalize_format() {
+    delete g_line;
+    delete g_space;
+    delete g_lp;
+    delete g_rp;
+    delete g_lsb;
+    delete g_rsb;
+    delete g_lcurly;
+    delete g_rcurly;
+    delete g_comma;
+    delete g_colon;
+    delete g_dot;
+    delete g_pp_indent;
+    delete g_pp_unicode;
+    delete g_pp_colors;
+    delete g_pp_width;
 }
 }

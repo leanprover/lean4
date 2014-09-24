@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
-#include "kernel/record/record.h"
 #include "library/scoped_ext.h"
 #include "library/placeholder.h"
 #include "library/locals.h"
@@ -280,9 +279,7 @@ struct structure_cmd_fn {
             level r_lvl = mk_result_level(m_env, r_lvls);
             m_type = update_result_sort(m_type, r_lvl);
         }
-        m_env = record::add_record(m_p.env(), to_list(m_level_names.begin(), m_level_names.end()), m_name, m_type,
-                                   m_mk, intro_type);
-        // TODO(Leo): create aliases, declare notation, create to_parent methods.
+        // TODO(Leo): create record, aliases, declare notation, create to_parent methods.
         return m_env;
     }
 };

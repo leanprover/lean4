@@ -107,6 +107,7 @@ public:
     size_t size() const { return m_size; }
 };
 
+// TODO(Leo): use explicit initialization?
 static alloc_info                          g_global_memory;
 
 size_t     get_allocated_memory() { return g_global_memory.size(); }

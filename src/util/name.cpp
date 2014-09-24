@@ -154,17 +154,17 @@ name::~name() {
         m_ptr->dec_ref();
 }
 
-static name g_anonymous;
+static name * g_anonymous = nullptr;
 
 name const & name::anonymous() {
-    lean_assert(g_anonymous.is_anonymous());
-    return g_anonymous;
+    lean_assert(g_anonymous->is_anonymous());
+    return *g_anonymous;
 }
 
-static atomic<unsigned> g_next_id(0);
+static atomic<unsigned> * g_next_id = nullptr;
 
 name name::mk_internal_unique_name() {
-    unsigned id = g_next_id++;
+    unsigned id = (*g_next_id)++;
     return name(id);
 }
 
@@ -479,14 +479,6 @@ struct name_sd {
 };
 static name_sd * g_name_sd = nullptr;
 
-void initialize_name() {
-    g_name_sd = new name_sd();
-}
-
-void finalize_name() {
-    delete g_name_sd;
-}
-
 serializer & operator<<(serializer & s, name const & n) {
     s.get_extension<name_serializer>(g_name_sd->m_serializer_extid).write(n);
     return s;
@@ -621,6 +613,18 @@ void open_name(lua_State * L) {
     SET_GLOBAL_FUN(name_pred, "is_name");
 
     open_list_name(L);
+}
+
+void initialize_name() {
+    g_anonymous = new name();
+    g_name_sd   = new name_sd();
+    g_next_id   = new atomic<unsigned>(0);
+}
+
+void finalize_name() {
+    delete g_next_id;
+    delete g_name_sd;
+    delete g_anonymous;
 }
 }
 void print(lean::name const & n) { std::cout << n << std::endl; }

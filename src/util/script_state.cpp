@@ -25,9 +25,18 @@ Author: Leonardo de Moura
 extern "C" void * lua_realloc(void *, void * q, size_t, size_t new_size) { return lean::realloc(q, new_size); }
 
 namespace lean {
-static std::vector<script_state::reg_fn> g_modules;
+static std::vector<script_state::reg_fn> * g_modules = nullptr;
+
 void script_state::register_module(reg_fn f) {
-    g_modules.push_back(f);
+    g_modules->push_back(f);
+}
+
+void initialize_script_state() {
+    g_modules = new std::vector<script_state::reg_fn>();
+}
+
+void finalize_script_state() {
+    delete g_modules;
 }
 
 static unsigned g_check_interrupt_freq = 1048576;
@@ -91,7 +100,7 @@ struct script_state::imp {
         open_rb_map(m_state);
         open_extra(m_state);
 
-        for (auto f : g_modules) {
+        for (auto f : *g_modules) {
             f(m_state);
         }
     }

@@ -28,13 +28,11 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
-#include "library/print.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/server.h"
 #include "frontends/lean/dependencies.h"
-#include "frontends/lua/register_modules.h"
 #include "init/init.h"
 #include "version.h"
 #include "githash.h" // NOLINT
@@ -195,9 +193,6 @@ options set_config_option(options const & opts, char const * in) {
 }
 
 int main(int argc, char ** argv) {
-    lean::save_stack_info();
-    lean::init_default_print_fn();
-    lean::register_modules();
     lean::initializer init;
     bool export_objects  = false;
     unsigned trust_lvl   = 0;

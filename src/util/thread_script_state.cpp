@@ -15,25 +15,31 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct script_state_manager {
-    static bool                          g_alive;
     mutex                                m_code_mutex;
     std::vector<pair<bool, std::string>> m_code;
     mutex                                m_state_mutex;
     std::vector<script_state>            m_states;
     std::vector<script_state>            m_available_states;
-    script_state_manager() { g_alive = true; }
-    ~script_state_manager() { g_alive = false; }
-    static bool is_alive() { return g_alive; }
+    script_state_manager() {}
+    ~script_state_manager() {}
 };
 
-script_state_manager & get_script_state_manager() {
-    static script_state_manager m;
-    return m;
+static script_state_manager * g_manager = nullptr;
+
+void initialize_thread_script_state() {
+    g_manager = new script_state_manager();
 }
 
-// make sure it is initialize at startup.
-static script_state_manager & g_aux = get_script_state_manager();
-bool script_state_manager::g_alive  = true;
+void finalize_thread_script_state() {
+    delete g_manager;
+    g_manager = nullptr;
+}
+
+static script_state_manager & get_script_state_manager() {
+    return *g_manager;
+}
+
+static bool is_manager_alive() { return g_manager; }
 
 /** \brief Execute \c code in all states in the pool */
 void system_dostring(char const * code) {
@@ -101,7 +107,7 @@ static script_state get_state() {
 }
 
 static void recycle_state(script_state s) {
-    if (script_state_manager::is_alive()) {
+    if (is_manager_alive()) {
         script_state_manager & m = get_script_state_manager();
         lock_guard<mutex> lk(m.m_state_mutex);
         m.m_available_states.push_back(s);

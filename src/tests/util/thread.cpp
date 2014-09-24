@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/shared_mutex.h"
 #include "util/interrupt.h"
 #include "util/thread_script_state.h"
+#include "util/init_module.h"
 using namespace lean;
 
 #if defined(LEAN_MULTI_THREAD) && !defined(__APPLE__)
@@ -214,6 +215,7 @@ static void tst8() {
 
 int main() {
     save_stack_info();
+    initialize_util_module();
     tst1();
     tst2();
     tst3();
@@ -222,6 +224,7 @@ int main() {
     tst6();
     tst7();
     tst8();
+    finalize_util_module();
     return has_violations() ? 1 : 0;
 }
 #else

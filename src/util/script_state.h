@@ -60,4 +60,6 @@ public:
    \brief Return a reference to the script_state object that is wrapping \c L.
 */
 script_state to_script_state(lua_State * L);
+void initialize_script_state();
+void finalize_script_state();
 }

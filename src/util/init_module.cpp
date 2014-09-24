@@ -8,7 +8,10 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/trace.h"
 #include "util/serializer.h"
+#include "util/thread_script_state.h"
+#include "util/script_state.h"
 #include "util/name.h"
+#include "util/name_generator.h"
 #include "util/lean_path.h"
 #include "util/thread.h"
 
@@ -16,18 +19,24 @@ namespace lean {
 void initialize_util_module() {
     initialize_debug();
     initialize_trace();
+    initialize_serializer();
     initialize_thread();
     initialize_ascii();
-    initialize_lean_path();
-    initialize_serializer();
+    initialize_thread_script_state();
+    initialize_script_state();
     initialize_name();
+    initialize_name_generator();
+    initialize_lean_path();
 }
 void finalize_util_module() {
-    finalize_name();
-    finalize_serializer();
     finalize_lean_path();
+    finalize_name_generator();
+    finalize_name();
+    finalize_script_state();
+    finalize_thread_script_state();
     finalize_ascii();
     finalize_thread();
+    finalize_serializer();
     finalize_trace();
     finalize_debug();
 }

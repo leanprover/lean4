@@ -39,4 +39,6 @@ void swap(name_generator & a, name_generator & b);
 
 UDATA_DEFS(name_generator)
 void open_name_generator(lua_State * L);
+void initialize_name_generator();
+void finalize_name_generator();
 }

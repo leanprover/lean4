@@ -26,10 +26,10 @@ void swap(name_generator & a, name_generator & b) {
 }
 
 DECL_UDATA(name_generator)
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
 static int mk_name_generator(lua_State * L) {
     if (lua_gettop(L) == 0)
-        return push_name_generator(L, name_generator(g_tmp_prefix));
+        return push_name_generator(L, name_generator(*g_tmp_prefix));
     else
         return push_name_generator(L, name_generator(to_name_ext(L, 1)));
 }
@@ -52,5 +52,13 @@ void open_name_generator(lua_State * L) {
 
     SET_GLOBAL_FUN(mk_name_generator,   "name_generator");
     SET_GLOBAL_FUN(name_generator_pred, "is_name_generator");
+}
+
+void initialize_name_generator() {
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
+}
+
+void finalize_name_generator() {
+    delete g_tmp_prefix;
 }
 }

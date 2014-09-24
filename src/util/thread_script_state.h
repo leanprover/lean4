@@ -40,4 +40,6 @@ script_state get_thread_script_state();
 void release_thread_script_state();
 
 void enable_script_state_recycling(bool flag);
+void initialize_thread_script_state();
+void finalize_thread_script_state();
 }

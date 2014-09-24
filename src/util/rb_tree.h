@@ -14,11 +14,6 @@ Author: Leonardo de Moura
 #include "util/memory_pool.h"
 
 namespace lean {
-#if defined(__CLANG__) && defined(__APPLE__) && !defined(LEAN_USE_BOOST)
-    // TODO(Leo): remove when problen on clang++ OSX thread local storage implementation is fixed
-    #define LEAN_TEMPLATE_THREAD_LOCAL_UNSAFE
-#endif
-
 /**
    \brief Left-leaning Red-Black Trees
 
@@ -68,27 +63,13 @@ class rb_tree : public CMP {
         node_cell(node_cell const & s):m_left(s.m_left), m_right(s.m_right), m_value(s.m_value), m_red(s.m_red), m_rc(0) {}
     };
 
-    #if !defined(LEAN_TEMPLATE_THREAD_LOCAL_UNSAFE)
-    typedef memory_pool<sizeof(node_cell)> node_allocator;
-    static node_allocator & get_node_allocator() {
-        LEAN_THREAD_PTR(node_allocator) g_allocator;
-        if (!g_allocator.get())
-            g_allocator.reset(new node_allocator());
-        return *g_allocator;
-    }
-    #endif
-
     int cmp(T const & v1, T const & v2) const {
         return CMP::operator()(v1, v2);
     }
 
     static node ensure_unshared(node && n) {
         if (n.is_shared()) {
-            #if defined(LEAN_TEMPLATE_THREAD_LOCAL_UNSAFE)
             return node(new node_cell(*n.m_ptr));
-            #else
-            return node(new (get_node_allocator().allocate()) node_cell(*n.m_ptr));
-            #endif
         } else {
             return n;
         }
@@ -147,11 +128,7 @@ class rb_tree : public CMP {
 
     node insert(node && n, T const & v) {
         if (!n) {
-            #if defined(LEAN_TEMPLATE_THREAD_LOCAL_UNSAFE)
             return node(new node_cell(v));
-            #else
-            return node(new (get_node_allocator().allocate()) node_cell(v));
-            #endif
         }
         node h = ensure_unshared(n.steal());
 
@@ -400,12 +377,7 @@ public:
 
 template<typename T, typename CMP>
 void rb_tree<T, CMP>::node_cell::dealloc() {
-    #if defined(LEAN_TEMPLATE_THREAD_LOCAL_UNSAFE)
     delete this;
-    #else
-    this->~node_cell();
-    get_node_allocator().recycle(this);
-    #endif
 }
 
 template<typename T, typename CMP>

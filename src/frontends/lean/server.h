@@ -104,4 +104,7 @@ public:
     ~server();
     bool operator()(std::istream & in);
 };
+
+void initialize_server();
+void finalize_server();
 }

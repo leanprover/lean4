@@ -282,24 +282,24 @@ void server::interrupt_worker() {
     m_worker.request_interrupt();
 }
 
-static std::string g_load("LOAD");
-static std::string g_visit("VISIT");
-static std::string g_sync("SYNC");
-static std::string g_replace("REPLACE");
-static std::string g_insert("INSERT");
-static std::string g_remove("REMOVE");
-static std::string g_info("INFO");
-static std::string g_set("SET");
-static std::string g_eval("EVAL");
-static std::string g_wait("WAIT");
-static std::string g_clear_cache("CLEAR_CACHE");
-static std::string g_echo("ECHO");
-static std::string g_options("OPTIONS");
-static std::string g_show("SHOW");
-static std::string g_valid("VALID");
-static std::string g_sleep("SLEEP");
-static std::string g_findp("FINDP");
-static std::string g_findg("FINDG");
+static std::string * g_load = nullptr;
+static std::string * g_visit = nullptr;
+static std::string * g_sync = nullptr;
+static std::string * g_replace = nullptr;
+static std::string * g_insert = nullptr;
+static std::string * g_remove = nullptr;
+static std::string * g_info = nullptr;
+static std::string * g_set = nullptr;
+static std::string * g_eval = nullptr;
+static std::string * g_wait = nullptr;
+static std::string * g_clear_cache = nullptr;
+static std::string * g_echo = nullptr;
+static std::string * g_options = nullptr;
+static std::string * g_show = nullptr;
+static std::string * g_valid = nullptr;
+static std::string * g_sleep = nullptr;
+static std::string * g_findp = nullptr;
+static std::string * g_findg = nullptr;
 
 static bool is_command(std::string const & cmd, std::string const & line) {
     return line.compare(0, cmd.size(), cmd) == 0;
@@ -752,7 +752,7 @@ bool match_type(type_checker & tc, expr const & meta, expr const & expected_type
     }
 }
 
-static name g_tmp_prefix = name::mk_internal_unique_name();
+static name * g_tmp_prefix = nullptr;
 void server::find_goal_matches(unsigned line_num, unsigned col_num, std::string const & filters) {
     buffer<std::string> pos_names, neg_names;
     consume_pos_neg_strs(filters, pos_names, neg_names);
@@ -768,7 +768,7 @@ void server::find_goal_matches(unsigned line_num, unsigned col_num, std::string 
     m_out << std::endl;
     environment const & env = env_opts->first;
     options const & opts    = env_opts->second;
-    name_generator ngen(g_tmp_prefix);
+    name_generator ngen(*g_tmp_prefix);
     std::unique_ptr<type_checker> tc = mk_type_checker(env, ngen, true);
     if (auto meta = m_file->infom().get_meta_at(line_num, col_num)) {
     if (is_meta(*meta)) {
@@ -799,68 +799,68 @@ void server::wait(optional<unsigned> ms) {
 bool server::operator()(std::istream & in) {
     for (std::string line; std::getline(in, line);) {
         try {
-            if (is_command(g_load, line)) {
-                std::string fname = line.substr(g_load.size());
+            if (is_command(*g_load, line)) {
+                std::string fname = line.substr(g_load->size());
                 trim(fname);
                 load_file(fname);
-            } else if (is_command(g_visit, line)) {
-                std::string fname = line.substr(g_visit.size());
+            } else if (is_command(*g_visit, line)) {
+                std::string fname = line.substr(g_visit->size());
                 trim(fname);
                 visit_file(fname);
-            } else if (is_command(g_sync, line)) {
-                unsigned nlines = get_num(line, g_sync);
+            } else if (is_command(*g_sync, line)) {
+                unsigned nlines = get_num(line, *g_sync);
                 std::vector<std::string> lines;
                 for (unsigned i = 0; i < nlines; i++) {
                     read_line(in, line);
                     lines.push_back(line);
                 }
                 sync(lines);
-            } else if (is_command(g_echo, line)) {
-                std::string str = line.substr(g_echo.size());
+            } else if (is_command(*g_echo, line)) {
+                std::string str = line.substr(g_echo->size());
                 m_out << "--" << str << "\n";
-            } else if (is_command(g_replace, line)) {
-                unsigned line_num = get_line_num(line, g_replace);
+            } else if (is_command(*g_replace, line)) {
+                unsigned line_num = get_line_num(line, *g_replace);
                 read_line(in, line);
                 replace_line(line_num-1, line);
-            } else if (is_command(g_insert, line)) {
-                unsigned line_num = get_line_num(line, g_insert);
+            } else if (is_command(*g_insert, line)) {
+                unsigned line_num = get_line_num(line, *g_insert);
                 read_line(in, line);
                 insert_line(line_num-1, line);
-            } else if (is_command(g_remove, line)) {
-                unsigned line_num = get_line_num(line, g_remove);
+            } else if (is_command(*g_remove, line)) {
+                unsigned line_num = get_line_num(line, *g_remove);
                 remove_line(line_num-1);
-            } else if (is_command(g_info, line)) {
-                auto line_col = get_line_opt_col_num(line, g_info);
+            } else if (is_command(*g_info, line)) {
+                auto line_col = get_line_opt_col_num(line, *g_info);
                 show_info(line_col.first, line_col.second);
-            } else if (is_command(g_set, line)) {
+            } else if (is_command(*g_set, line)) {
                 read_line(in, line);
                 set_option(line);
-            } else if (is_command(g_eval, line)) {
+            } else if (is_command(*g_eval, line)) {
                 read_line(in, line);
                 eval(line);
-            } else if (is_command(g_clear_cache, line)) {
+            } else if (is_command(*g_clear_cache, line)) {
                 m_cache.clear();
-            } else if (is_command(g_options, line)) {
+            } else if (is_command(*g_options, line)) {
                 show_options();
-            } else if (is_command(g_wait, line)) {
-                optional<unsigned> ms = get_optional_num(line, g_wait);
+            } else if (is_command(*g_wait, line)) {
+                optional<unsigned> ms = get_optional_num(line, *g_wait);
                 wait(ms);
-            } else if (is_command(g_show, line)) {
+            } else if (is_command(*g_show, line)) {
                 show(false);
-            } else if (is_command(g_valid, line)) {
+            } else if (is_command(*g_valid, line)) {
                 show(true);
-            } else if (is_command(g_sleep, line)) {
-                unsigned ms = get_line_num(line, g_sleep);
+            } else if (is_command(*g_sleep, line)) {
+                unsigned ms = get_line_num(line, *g_sleep);
                 chrono::milliseconds d(ms);
                 this_thread::sleep_for(d);
-            } else if (is_command(g_findp, line)) {
-                unsigned line_num = get_line_num(line, g_findp);
+            } else if (is_command(*g_findp, line)) {
+                unsigned line_num = get_line_num(line, *g_findp);
                 read_line(in, line);
                 if (line.size() > 63)
                     line.resize(63);
                 find_pattern(line_num, line);
-            } else if (is_command(g_findg, line)) {
-                pair<unsigned, unsigned> line_col_num = get_line_col_num(line, g_findg);
+            } else if (is_command(*g_findg, line)) {
+                pair<unsigned, unsigned> line_col_num = get_line_col_num(line, *g_findg);
                 read_line(in, line);
                 find_goal_matches(line_col_num.first, line_col_num.second, line);
             } else {
@@ -871,5 +871,48 @@ bool server::operator()(std::istream & in) {
         }
     }
     return true;
+}
+
+void initialize_server() {
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
+    g_load = new std::string("LOAD");
+    g_visit = new std::string("VISIT");
+    g_sync = new std::string("SYNC");
+    g_replace = new std::string("REPLACE");
+    g_insert = new std::string("INSERT");
+    g_remove = new std::string("REMOVE");
+    g_info = new std::string("INFO");
+    g_set = new std::string("SET");
+    g_eval = new std::string("EVAL");
+    g_wait = new std::string("WAIT");
+    g_clear_cache = new std::string("CLEAR_CACHE");
+    g_echo = new std::string("ECHO");
+    g_options = new std::string("OPTIONS");
+    g_show = new std::string("SHOW");
+    g_valid = new std::string("VALID");
+    g_sleep = new std::string("SLEEP");
+    g_findp = new std::string("FINDP");
+    g_findg = new std::string("FINDG");
+}
+void finalize_server() {
+    delete g_tmp_prefix;
+    delete g_load;
+    delete g_visit;
+    delete g_sync;
+    delete g_replace;
+    delete g_insert;
+    delete g_remove;
+    delete g_info;
+    delete g_set;
+    delete g_eval;
+    delete g_wait;
+    delete g_clear_cache;
+    delete g_echo;
+    delete g_options;
+    delete g_show;
+    delete g_valid;
+    delete g_sleep;
+    delete g_findp;
+    delete g_findg;
 }
 }

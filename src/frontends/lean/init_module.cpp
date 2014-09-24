@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/pp.h"
+#include "frontends/lean/server.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
@@ -47,8 +48,10 @@ void initialize_frontend_lean_module() {
     initialize_structure_cmd();
     initialize_info_manager();
     initialize_pp();
+    initialize_server();
 }
 void finalize_frontend_lean_module() {
+    finalize_server();
     finalize_pp();
     finalize_info_manager();
     finalize_structure_cmd();

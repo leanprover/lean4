@@ -63,13 +63,20 @@ class rb_tree : public CMP {
         node_cell(node_cell const & s):m_left(s.m_left), m_right(s.m_right), m_value(s.m_value), m_red(s.m_red), m_rc(0) {}
     };
 
+    static memory_pool & get_allocator() {
+        LEAN_THREAD_PTR(memory_pool, g_allocator);
+        if (!g_allocator)
+            g_allocator = allocate_thread_memory_pool(sizeof(node_cell));
+        return *g_allocator;
+    }
+
     int cmp(T const & v1, T const & v2) const {
         return CMP::operator()(v1, v2);
     }
 
     static node ensure_unshared(node && n) {
         if (n.is_shared()) {
-            return node(new node_cell(*n.m_ptr));
+            return node(new (get_allocator().allocate()) node_cell(*n.m_ptr));
         } else {
             return n;
         }
@@ -128,7 +135,7 @@ class rb_tree : public CMP {
 
     node insert(node && n, T const & v) {
         if (!n) {
-            return node(new node_cell(v));
+            return node(new (get_allocator().allocate()) node_cell(v));
         }
         node h = ensure_unshared(n.steal());
 
@@ -377,7 +384,8 @@ public:
 
 template<typename T, typename CMP>
 void rb_tree<T, CMP>::node_cell::dealloc() {
-    delete this;
+    this->~node_cell();
+    get_allocator().recycle(this);
 }
 
 template<typename T, typename CMP>

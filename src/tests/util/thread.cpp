@@ -16,10 +16,19 @@ Author: Leonardo de Moura
 using namespace lean;
 
 #if defined(LEAN_MULTI_THREAD) && !defined(__APPLE__)
+LEAN_THREAD_PTR(std::vector<int>, g_v);
+void finalize_vector() {
+    if (g_v) {
+        delete g_v;
+        g_v = nullptr;
+    }
+}
 void foo() {
-    LEAN_THREAD_PTR(std::vector<int>) v;
-    if (!v.get()) v.reset(new std::vector<int>(1024));
-    if (v->size() != 1024) {
+    if (!g_v) {
+        g_v = new std::vector<int>(1024);
+        register_thread_finalizer(finalize_vector);
+    }
+    if (g_v->size() != 1024) {
         std::cerr << "Error\n";
         exit(1);
     }
@@ -28,7 +37,10 @@ void foo() {
 static void tst1() {
     unsigned n = 5;
     for (unsigned i = 0; i < n; i++) {
-        thread t([](){ foo(); });
+        thread t([](){
+                foo();
+                run_thread_finalizers();
+            });
         t.join();
     }
 }
@@ -175,25 +187,33 @@ static void tst6() {
     t1.join();
 }
 
+static __thread script_state * g_state = nullptr;
+
 static void tst7() {
     std::cout << "start\n";
     system_import("import_test.lua");
     system_dostring("print('hello'); x = 10;");
     interruptible_thread t1([]() {
+            g_state = new script_state();
+            g_state->dostring("x = 1");
             script_state S = get_thread_script_state();
             S.dostring("print(x)\n"
                        "for i = 1, 100000 do\n"
                        "  x = x + 1\n"
                        "end\n"
                        "print(x)\n");
+            delete g_state;
         });
     interruptible_thread t2([]() {
+            g_state = new script_state();
+            g_state->dostring("x = 0");
             script_state S = get_thread_script_state();
             S.dostring("print(x)\n"
                        "for i = 1, 20000 do\n"
                        "  x = x + 1\n"
                        "end\n"
                        "print(x)\n");
+            delete g_state;
         });
     t1.join(); t2.join();
     std::cout << "done\n";
@@ -224,7 +244,9 @@ int main() {
     tst6();
     tst7();
     tst8();
+    run_thread_finalizers();
     finalize_util_module();
+    run_post_thread_finalizers();
     return has_violations() ? 1 : 0;
 }
 #else

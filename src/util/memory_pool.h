@@ -14,27 +14,21 @@ class memory_pool {
     void *   m_free_list;
 public:
     memory_pool(unsigned size):m_size(size), m_free_list(nullptr) {}
-    ~memory_pool() {
-        while (m_free_list != nullptr) {
-            void * r = m_free_list;
-            m_free_list = *(reinterpret_cast<void **>(r));
-            free(r);
-        }
-    }
-
-    void * allocate() {
-        if (m_free_list != nullptr) {
-            void * r = m_free_list;
-            m_free_list = *(reinterpret_cast<void **>(r));
-            return r;
-        } else {
-            return malloc(m_size);
-        }
-    }
-
+    ~memory_pool();
+    void * allocate();
     void recycle(void * ptr) {
         *(reinterpret_cast<void**>(ptr)) = m_free_list;
         m_free_list = ptr;
     }
 };
+
+memory_pool * allocate_thread_memory_pool(unsigned sz);
+
+#define DEF_THREAD_MEMORY_POOL(NAME, SZ)                        \
+LEAN_THREAD_PTR(memory_pool, NAME ## _tlocal);                  \
+memory_pool & NAME() {                                          \
+    if (!NAME ## _tlocal)                                       \
+        NAME ## _tlocal = allocate_thread_memory_pool(SZ);      \
+    return *(NAME ## _tlocal);                                  \
+}
 }

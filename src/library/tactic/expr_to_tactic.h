@@ -58,10 +58,12 @@ typedef std::function<tactic(type_checker & tc, expr const & e, pos_info_provide
 
 /** \brief Register a new "procedural attachment" for expr_to_tactic. */
 void register_tac(name const & n, expr_to_tactic_fn const & fn);
-void register_simple_tac(name const & n, std::function<tactic()> const & f);
-void register_bin_tac(name const & n, std::function<tactic(tactic const &, tactic const &)> const & f);
-void register_unary_tac(name const & n, std::function<tactic(tactic const &)> const & f);
-void register_unary_num_tac(name const & n, std::function<tactic(tactic const &, unsigned)> const & f);
+// remark: we can use "const &" in the following procedures, for some obscure reason it produces
+// memory leaks when we compile using clang 3.3
+void register_simple_tac(name const & n, std::function<tactic()> f);
+void register_bin_tac(name const & n, std::function<tactic(tactic const &, tactic const &)> f);
+void register_unary_tac(name const & n, std::function<tactic(tactic const &)> f);
+void register_unary_num_tac(name const & n, std::function<tactic(tactic const &, unsigned)> f);
 
 void initialize_expr_to_tactic();
 void finalize_expr_to_tactic();

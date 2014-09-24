@@ -266,11 +266,12 @@ public:
     };
 };
 
+
 template<>
 class numeric_traits<mpbq> {
 private:
-    MK_THREAD_LOCAL_GET(bool, get_rnd, false);
 public:
+    static bool & get_rnd();
     static bool precise() { return true; }
     static bool is_zero(mpbq const &  v) { return v.is_zero(); }
     static bool is_pos(mpbq const & v) { return v.is_pos(); }

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/stackinfo.h"
+#include "util/thread.h"
 #include "util/init_module.h"
 #include "util/numerics/init_module.h"
 #include "util/sexpr/init_module.h"
@@ -32,6 +33,7 @@ void initialize() {
     register_modules();
 }
 void finalize() {
+    run_thread_finalizers();
     finalize_frontend_lean_module();
     finalize_tactic_module();
     finalize_library_module();
@@ -40,6 +42,7 @@ void finalize() {
     finalize_sexpr_module();
     finalize_numerics_module();
     finalize_util_module();
+    run_post_thread_finalizers();
 }
 
 initializer::initializer() {

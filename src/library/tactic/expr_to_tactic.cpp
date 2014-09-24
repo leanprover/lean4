@@ -109,11 +109,10 @@ tactic expr_to_tactic(type_checker & tc, expr e, pos_info_provider const * p) {
 }
 
 static name * g_tmp_prefix = nullptr;
-MK_THREAD_LOCAL_GET(unsigned, get_expr_tac_id, 0)
+LEAN_THREAD_VALUE(unsigned, g_expr_tac_id, 0);
 static name_generator next_name_generator() {
-    unsigned & c = get_expr_tac_id();
-    unsigned r = c;
-    c++;
+    unsigned r = g_expr_tac_id;
+    g_expr_tac_id++;
     return name_generator(name(*g_tmp_prefix, r));
 }
 
@@ -128,7 +127,7 @@ tactic fixpoint(expr const & b) {
         });
 }
 
-void register_simple_tac(name const & n, std::function<tactic()> const & f) {
+void register_simple_tac(name const & n, std::function<tactic()> f) {
     register_tac(n, [=](type_checker &, expr const & e, pos_info_provider const *) {
             if (!is_constant(e))
                 throw expr_to_tactic_exception(e, "invalid constant tactic");
@@ -136,7 +135,7 @@ void register_simple_tac(name const & n, std::function<tactic()> const & f) {
         });
 }
 
-void register_bin_tac(name const & n, std::function<tactic(tactic const &, tactic const &)> const & f) {
+void register_bin_tac(name const & n, std::function<tactic(tactic const &, tactic const &)> f) {
     register_tac(n, [=](type_checker & tc, expr const & e, pos_info_provider const * p) {
             buffer<expr> args;
             get_app_args(e, args);
@@ -147,7 +146,7 @@ void register_bin_tac(name const & n, std::function<tactic(tactic const &, tacti
         });
 }
 
-void register_unary_tac(name const & n, std::function<tactic(tactic const &)> const & f) {
+void register_unary_tac(name const & n, std::function<tactic(tactic const &)> f) {
     register_tac(n, [=](type_checker & tc, expr const & e, pos_info_provider const * p) {
             buffer<expr> args;
             get_app_args(e, args);
@@ -157,7 +156,7 @@ void register_unary_tac(name const & n, std::function<tactic(tactic const &)> co
         });
 }
 
-void register_unary_num_tac(name const & n, std::function<tactic(tactic const &, unsigned k)> const & f) {
+void register_unary_num_tac(name const & n, std::function<tactic(tactic const &, unsigned k)> f) {
     register_tac(n, [=](type_checker & tc, expr const & e, pos_info_provider const * p) {
             buffer<expr> args;
             get_app_args(e, args);

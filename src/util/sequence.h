@@ -49,16 +49,16 @@ class sequence {
     };
 
     static memory_pool & get_elem_cell_allocator() {
-        LEAN_THREAD_PTR(memory_pool) g_allocator;
-        if (!g_allocator.get())
-            g_allocator.reset(new memory_pool(sizeof(elem_cell)));
+        LEAN_THREAD_PTR(memory_pool, g_allocator);
+        if (!g_allocator)
+            g_allocator = allocate_thread_memory_pool(sizeof(elem_cell));
         return *g_allocator;
     }
 
     static memory_pool & get_join_cell_allocator() {
-        LEAN_THREAD_PTR(memory_pool) g_allocator;
-        if (!g_allocator.get())
-            g_allocator.reset(new memory_pool(sizeof(join_cell)));
+        LEAN_THREAD_PTR(memory_pool, g_allocator);
+        if (!g_allocator)
+            g_allocator = allocate_thread_memory_pool(sizeof(join_cell));
         return *g_allocator;
     }
 

@@ -160,25 +160,6 @@ mpq read_mpq(deserializer & d) {
 
 DECL_UDATA(mpq)
 
-template<int idx>
-static mpq const & to_mpq(lua_State * L) {
-    LEAN_THREAD_PTR(mpq) arg;
-    if (!arg.get())
-        arg.reset(new mpq());
-    switch (lua_type(L, idx)) {
-    case LUA_TNUMBER:       *arg = lua_tonumber(L, idx);      return *arg;
-    case LUA_TSTRING:       *arg = mpq(lua_tostring(L, idx)); return *arg;
-    case LUA_TUSERDATA:
-        if (is_mpz(L, idx)) {
-            *arg = mpq(to_mpz(L, idx));
-            return *arg;
-        } else {
-            return *static_cast<mpq*>(luaL_checkudata(L, idx, mpq_mt));
-        }
-    default: throw exception(sstream() << "arg #" << idx << " must be a number, string, mpz or mpq");
-    }
-}
-
 mpq to_mpq_ext(lua_State * L, int idx) {
     switch (lua_type(L, idx)) {
     case LUA_TNUMBER:       return mpq(lua_tonumber(L, idx));
@@ -201,43 +182,43 @@ static int mpq_tostring(lua_State * L) {
 }
 
 static int mpq_eq(lua_State * L) {
-    return push_boolean(L, to_mpq<1>(L) == to_mpq<2>(L));
+    return push_boolean(L, to_mpq_ext(L, 1) == to_mpq_ext(L, 2));
 }
 
 static int mpq_lt(lua_State * L) {
-    return push_boolean(L, to_mpq<1>(L) < to_mpq<2>(L));
+    return push_boolean(L, to_mpq_ext(L, 1) < to_mpq_ext(L, 2));
 }
 
 static int mpq_add(lua_State * L) {
-    return push_mpq(L, to_mpq<1>(L) + to_mpq<2>(L));
+    return push_mpq(L, to_mpq_ext(L, 1) + to_mpq_ext(L, 2));
 }
 
 static int mpq_sub(lua_State * L) {
-    return push_mpq(L, to_mpq<1>(L) - to_mpq<2>(L));
+    return push_mpq(L, to_mpq_ext(L, 1) - to_mpq_ext(L, 2));
 }
 
 static int mpq_mul(lua_State * L) {
-    return push_mpq(L, to_mpq<1>(L) * to_mpq<2>(L));
+    return push_mpq(L, to_mpq_ext(L, 1) * to_mpq_ext(L, 2));
 }
 
 static int mpq_div(lua_State * L) {
-    mpq const & arg2 = to_mpq<2>(L);
+    mpq arg2 = to_mpq_ext(L, 2);
     if (arg2 == 0) throw exception("division by zero");
-    return push_mpq(L, to_mpq<1>(L) / arg2);
+    return push_mpq(L, to_mpq_ext(L, 1) / arg2);
 }
 
 static int mpq_umn(lua_State * L) {
-    return push_mpq(L, 0 - to_mpq<1>(L));
+    return push_mpq(L, 0 - to_mpq_ext(L, 1));
 }
 
 static int mpq_power(lua_State * L) {
     int k = luaL_checkinteger(L, 2);
     if (k < 0) throw exception("argument #2 must be positive");
-    return push_mpq(L, pow(to_mpq<1>(L), k));
+    return push_mpq(L, pow(to_mpq_ext(L, 1), k));
 }
 
 static int mk_mpq(lua_State * L) {
-    mpq const & arg = to_mpq<1>(L);
+    mpq arg = to_mpq_ext(L, 1);
     return push_mpq(L, arg);
 }
 

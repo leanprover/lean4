@@ -161,50 +161,54 @@ public:
 }
 #endif
 
-// LEAN_THREAD_PTR macro
-#if defined(LEAN_USE_BOOST)
-  #include <boost/thread/tss.hpp>
-  #define LEAN_THREAD_PTR(T) static boost::thread_specific_ptr<T>
+#ifdef MSVC
+#define LEAN_THREAD_PTR(T, V) static __declspec(thread) T * V = nullptr
+#define LEAN_THREAD_VALUE(T, V, VAL) static __declspec(thread) T V = VAL
 #else
-  template<typename T>
-  class thread_specific_ptr {
-      T * m_ptr;
-  public:
-      thread_specific_ptr():m_ptr(nullptr) {}
-      ~thread_specific_ptr() { if (m_ptr) delete m_ptr; m_ptr = nullptr; }
-      T * get() const { return m_ptr; }
-      void reset(T * ptr) { if (m_ptr) delete m_ptr; m_ptr = ptr; }
-      T * operator->() const { return m_ptr; }
-      T & operator*() { return *m_ptr; }
-  };
-  #define LEAN_THREAD_PTR(T) static thread_specific_ptr<T> LEAN_THREAD_LOCAL
+#define LEAN_THREAD_PTR(T, V) static __thread T * V = nullptr
+#define LEAN_THREAD_VALUE(T, V, VAL) static __thread T V = VAL
 #endif
 
-#if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
 #define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE)          \
-LEAN_THREAD_PTR(T) GETTER_NAME ## _tlocal;                      \
+LEAN_THREAD_PTR(T, GETTER_NAME ## _tlocal);                     \
+static void finalize_ ## GETTER_NAME() {                        \
+    if (GETTER_NAME ## _tlocal) {                               \
+        delete GETTER_NAME ## _tlocal;                          \
+        GETTER_NAME ## _tlocal = nullptr;                       \
+    }                                                           \
+}                                                               \
 static T & GETTER_NAME() {                                      \
-    if (!(GETTER_NAME ## _tlocal).get())                        \
-        (GETTER_NAME ## _tlocal).reset(new T(DEF_VALUE));       \
+    if (!GETTER_NAME ## _tlocal) {                              \
+        GETTER_NAME ## _tlocal  = new T(DEF_VALUE);             \
+        register_thread_finalizer(finalize_ ## GETTER_NAME);    \
+    }                                                           \
     return *(GETTER_NAME ## _tlocal);                           \
 }
 
-#define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME)         \
-LEAN_THREAD_PTR(T) GETTER_NAME ## _tlocal;              \
-static T & GETTER_NAME() {                              \
-    if (!(GETTER_NAME ## _tlocal).get())                \
-        (GETTER_NAME ## _tlocal).reset(new T());        \
-    return *(GETTER_NAME ## _tlocal);                   \
+#define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME)                 \
+LEAN_THREAD_PTR(T, GETTER_NAME ## _tlocal);                     \
+static void finalize_ ## GETTER_NAME() {                        \
+    if (GETTER_NAME ## _tlocal) {                               \
+        delete GETTER_NAME ## _tlocal;                          \
+        GETTER_NAME ## _tlocal = nullptr;                       \
+    }                                                           \
+}                                                               \
+static T & GETTER_NAME() {                                      \
+    if (!GETTER_NAME ## _tlocal) {                              \
+        GETTER_NAME ## _tlocal  = new T();                      \
+        register_thread_finalizer(finalize_ ## GETTER_NAME);    \
+    }                                                           \
+    return *(GETTER_NAME ## _tlocal);                           \
 }
-#else
-// MK_THREAD_LOCAL_GET_DEF and MK_THREAD_LOCAL_GET when LEAN_USE_BOOST is not defined
-// REMARK: LEAN_THREAD_LOCAL is a 'blank' when LEAN_MULTI_THREAD is not defined.
-// So, the getter is just returning a reference to a global variable if LEAN_MULTI_THREAD is not defined.
-#define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE) static T & GETTER_NAME() { static T LEAN_THREAD_LOCAL r(DEF_VALUE); return r; }
-#define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME) static T & GETTER_NAME() { static T LEAN_THREAD_LOCAL r; return r; }
-#endif
+
 
 namespace lean {
 void initialize_thread();
 void finalize_thread();
+
+typedef void (*thread_finalizer)();
+void register_post_thread_finalizer(thread_finalizer fn);
+void register_thread_finalizer(thread_finalizer fn);
+void run_post_thread_finalizers();
+void run_thread_finalizers();
 }

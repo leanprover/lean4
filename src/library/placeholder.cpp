@@ -28,11 +28,10 @@ void finalize_placeholder() {
     delete g_explicit_placeholder_name;
 }
 
-MK_THREAD_LOCAL_GET(unsigned, get_placeholder_id, 0)
+LEAN_THREAD_VALUE(unsigned, g_placeholder_id, 0);
 static unsigned next_placeholder_id() {
-    unsigned & c = get_placeholder_id();
-    unsigned r = c;
-    c++;
+    unsigned r = g_placeholder_id;
+    g_placeholder_id++;
     return r;
 }
 level mk_level_placeholder() { return mk_global_univ(name(*g_placeholder_name, next_placeholder_id())); }

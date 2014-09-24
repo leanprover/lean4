@@ -56,6 +56,8 @@ public:
                 save_stack_info(false);
                 fun(std::forward<Args>(args)...);
                 m_flag_addr.store(&m_dummy_addr); // see comment before m_dummy_addr
+                run_thread_finalizers();
+                run_post_thread_finalizers();
             },
             std::forward<Function>(fun),
             std::forward<Args>(args)...)
@@ -69,6 +71,8 @@ private:
         save_stack_info(false);
         _this->m_fun();
         _this->m_flag_addr.store(&(_this->m_dummy_addr)); // see comment before m_dummy_addr
+        run_thread_finalizers();
+        run_post_thread_finalizers();
     }
 public:
     template<typename Function>

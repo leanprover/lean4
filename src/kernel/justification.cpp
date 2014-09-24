@@ -37,7 +37,7 @@ enum class justification_kind { Asserted, Composite, ExtComposite, Assumption, E
 
 approx_set get_approx_assumption_set(justification const & j);
 
-MK_THREAD_LOCAL_GET(unsigned, get_hash_alloc_jst_counter, 0)
+LEAN_THREAD_VALUE(unsigned, g_hash_alloc_jst_counter, 0);
 
 struct justification_cell {
     MK_LEAN_RC();
@@ -45,8 +45,8 @@ struct justification_cell {
     unsigned           m_hash_alloc;
     void dealloc();
     justification_cell(justification_kind k):m_rc(0), m_kind(k) {
-        m_hash_alloc = get_hash_alloc_jst_counter();
-        get_hash_alloc_jst_counter()++;
+        m_hash_alloc = g_hash_alloc_jst_counter;
+        g_hash_alloc_jst_counter++;
     }
     bool is_asserted() const { return m_kind == justification_kind::Asserted; }
     bool is_assumption() const { return m_kind == justification_kind::Assumption || m_kind == justification_kind::ExtAssumption; }
@@ -123,11 +123,11 @@ approx_set get_approx_assumption_set(justification const & j) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-MK_THREAD_LOCAL_GET(memory_pool, get_asserted_allocator, sizeof(asserted_cell));
-MK_THREAD_LOCAL_GET(memory_pool, get_composite_allocator, sizeof(composite_cell));
-MK_THREAD_LOCAL_GET(memory_pool, get_ext_composite_allocator, sizeof(ext_composite_cell));
-MK_THREAD_LOCAL_GET(memory_pool, get_assumption_allocator, sizeof(assumption_cell));
-MK_THREAD_LOCAL_GET(memory_pool, get_ext_assumption_allocator, sizeof(ext_assumption_cell));
+DEF_THREAD_MEMORY_POOL(get_asserted_allocator, sizeof(asserted_cell));
+DEF_THREAD_MEMORY_POOL(get_composite_allocator, sizeof(composite_cell));
+DEF_THREAD_MEMORY_POOL(get_ext_composite_allocator, sizeof(ext_composite_cell));
+DEF_THREAD_MEMORY_POOL(get_assumption_allocator, sizeof(assumption_cell));
+DEF_THREAD_MEMORY_POOL(get_ext_assumption_allocator, sizeof(ext_assumption_cell));
 
 void justification_cell::dealloc() {
     switch (m_kind) {

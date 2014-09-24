@@ -104,20 +104,6 @@ mpz read_mpz(deserializer & d) {
 }
 
 DECL_UDATA(mpz)
-
-template<int idx>
-static mpz const & to_mpz(lua_State * L) {
-    LEAN_THREAD_PTR(mpz) arg;
-    if (!arg.get())
-        arg.reset(new mpz());
-    switch (lua_type(L, idx)) {
-    case LUA_TNUMBER:       *arg = static_cast<long>(lua_tointeger(L, idx)); return *arg;
-    case LUA_TSTRING:       *arg = mpz(lua_tostring(L, idx)); return *arg;
-    case LUA_TUSERDATA:     return *static_cast<mpz*>(luaL_checkudata(L, idx, mpz_mt));
-    default: throw exception(sstream() << "arg #" << idx << " must be a number, string or mpz");
-    }
-}
-
 mpz to_mpz_ext(lua_State * L, int idx) {
     switch (lua_type(L, idx)) {
     case LUA_TNUMBER:       return mpz(static_cast<long>(lua_tointeger(L, idx)));
@@ -135,43 +121,43 @@ static int mpz_tostring(lua_State * L) {
 }
 
 static int mpz_eq(lua_State * L) {
-    return push_boolean(L, to_mpz<1>(L) == to_mpz<2>(L));
+    return push_boolean(L, to_mpz_ext(L, 1) == to_mpz_ext(L, 2));
 }
 
 static int mpz_lt(lua_State * L) {
-    return push_boolean(L, to_mpz<1>(L) < to_mpz<2>(L));
+    return push_boolean(L, to_mpz_ext(L, 1) < to_mpz_ext(L, 2));
 }
 
 static int mpz_add(lua_State * L) {
-    return push_mpz(L, to_mpz<1>(L) + to_mpz<2>(L));
+    return push_mpz(L, to_mpz_ext(L, 1) + to_mpz_ext(L, 2));
 }
 
 static int mpz_sub(lua_State * L) {
-    return push_mpz(L, to_mpz<1>(L) - to_mpz<2>(L));
+    return push_mpz(L, to_mpz_ext(L, 1) - to_mpz_ext(L, 2));
 }
 
 static int mpz_mul(lua_State * L) {
-    return push_mpz(L, to_mpz<1>(L) * to_mpz<2>(L));
+    return push_mpz(L, to_mpz_ext(L, 1) * to_mpz_ext(L, 2));
 }
 
 static int mpz_div(lua_State * L) {
-    mpz const & arg2 = to_mpz<2>(L);
+    mpz arg2 = to_mpz_ext(L, 2);
     if (arg2 == 0) throw exception("division by zero");
-    return push_mpz(L, to_mpz<1>(L) / arg2);
+    return push_mpz(L, to_mpz_ext(L, 1) / arg2);
 }
 
 static int mpz_umn(lua_State * L) {
-    return push_mpz(L, 0 - to_mpz<1>(L));
+    return push_mpz(L, 0 - to_mpz_ext(L, 1));
 }
 
 static int mpz_power(lua_State * L) {
     int k = luaL_checkinteger(L, 2);
     if (k < 0) throw exception("argument #2 must be positive");
-    return push_mpz(L, pow(to_mpz<1>(L), k));
+    return push_mpz(L, pow(to_mpz_ext(L, 1), k));
 }
 
 static int mk_mpz(lua_State * L) {
-    mpz const & arg = to_mpz<1>(L);
+    mpz arg = to_mpz_ext(L, 1);
     return push_mpz(L, arg);
 }
 

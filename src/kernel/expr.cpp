@@ -50,7 +50,7 @@ unsigned hash_levels(levels const & ls) {
     return r;
 }
 
-MK_THREAD_LOCAL_GET(unsigned, get_hash_alloc_counter, 0)
+LEAN_THREAD_VALUE(unsigned, g_hash_alloc_counter, 0);
 
 expr_cell::expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local, bool has_param_univ):
     m_flags(0),
@@ -68,8 +68,8 @@ expr_cell::expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv
     // Remark: using pointer address as a hash code is not a good idea.
     //    - each execution run will behave differently.
     //    - the hash is not diverse enough
-    m_hash_alloc = get_hash_alloc_counter();
-    get_hash_alloc_counter()++;
+    m_hash_alloc = g_hash_alloc_counter;
+    g_hash_alloc_counter++;
 }
 
 void expr_cell::dec_ref(expr & e, buffer<expr_cell*> & todelete) {
@@ -109,7 +109,7 @@ bool is_meta(expr const & e) {
 }
 
 // Expr variables
-MK_THREAD_LOCAL_GET(memory_pool, get_var_allocator, sizeof(expr_var));
+DEF_THREAD_MEMORY_POOL(get_var_allocator, sizeof(expr_var));
 expr_var::expr_var(unsigned idx):
     expr_cell(expr_kind::Var, idx, false, false, false, false),
     m_vidx(idx) {
@@ -122,7 +122,7 @@ void expr_var::dealloc() {
 }
 
 // Expr constants
-MK_THREAD_LOCAL_GET(memory_pool, get_const_allocator, sizeof(expr_const));
+DEF_THREAD_MEMORY_POOL(get_const_allocator, sizeof(expr_const));
 expr_const::expr_const(name const & n, levels const & ls):
     expr_cell(expr_kind::Constant, ::lean::hash(n.hash(), hash_levels(ls)), false, has_meta(ls), false, has_param(ls)),
     m_name(n),
@@ -134,7 +134,7 @@ void expr_const::dealloc() {
 }
 
 // Expr metavariables and local variables
-MK_THREAD_LOCAL_GET(memory_pool, get_mlocal_allocator, sizeof(expr_mlocal));
+DEF_THREAD_MEMORY_POOL(get_mlocal_allocator, sizeof(expr_mlocal));
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, expr const & t):
     expr_composite(is_meta ? expr_kind::Meta : expr_kind::Local, n.hash(), is_meta || t.has_expr_metavar(), t.has_univ_metavar(),
                    !is_meta || t.has_local(), t.has_param_univ(),
@@ -147,7 +147,7 @@ void expr_mlocal::dealloc(buffer<expr_cell*> & todelete) {
     get_mlocal_allocator().recycle(this);
 }
 
-MK_THREAD_LOCAL_GET(memory_pool, get_local_allocator, sizeof(expr_local));
+DEF_THREAD_MEMORY_POOL(get_local_allocator, sizeof(expr_local));
 expr_local::expr_local(name const & n, name const & pp_name, expr const & t, binder_info const & bi):
     expr_mlocal(false, n, t),
     m_pp_name(pp_name),
@@ -166,7 +166,7 @@ expr_composite::expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool h
     m_free_var_range(fv_range) {}
 
 // Expr applications
-MK_THREAD_LOCAL_GET(memory_pool, get_app_allocator, sizeof(expr_app));
+DEF_THREAD_MEMORY_POOL(get_app_allocator, sizeof(expr_app));
 expr_app::expr_app(expr const & fn, expr const & arg):
     expr_composite(expr_kind::App, ::lean::hash(fn.hash(), arg.hash()),
                    fn.has_expr_metavar() || arg.has_expr_metavar(),
@@ -196,7 +196,7 @@ bool operator==(binder_info const & i1, binder_info const & i2) {
 }
 
 // Expr binders (Lambda, Pi)
-MK_THREAD_LOCAL_GET(memory_pool, get_binding_allocator, sizeof(expr_binding));
+DEF_THREAD_MEMORY_POOL(get_binding_allocator, sizeof(expr_binding));
 expr_binding::expr_binding(expr_kind k, name const & n, expr const & t, expr const & b, binder_info const & i):
     expr_composite(k, ::lean::hash(t.hash(), b.hash()),
                    t.has_expr_metavar()   || b.has_expr_metavar(),
@@ -218,7 +218,7 @@ void expr_binding::dealloc(buffer<expr_cell*> & todelete) {
 }
 
 // Expr Sort
-MK_THREAD_LOCAL_GET(memory_pool, get_sort_allocator, sizeof(expr_sort));
+DEF_THREAD_MEMORY_POOL(get_sort_allocator, sizeof(expr_sort));
 expr_sort::expr_sort(level const & l):
     expr_cell(expr_kind::Sort, ::lean::hash(l), false, has_meta(l), false, has_param(l)),
     m_level(l) {
@@ -297,15 +297,15 @@ expr_macro::~expr_macro() {
 
 #ifdef LEAN_CACHE_EXPRS
 typedef lru_cache<expr, expr_hash, is_bi_equal_proc> expr_cache;
-MK_THREAD_LOCAL_GET(bool, get_expr_cache_enabled, true)
+LEAN_THREAD_VALUE(bool, g_expr_cache_enabled, true);
 MK_THREAD_LOCAL_GET(expr_cache, get_expr_cache, LEAN_INITIAL_EXPR_CACHE_CAPACITY);
 bool enable_expr_caching(bool f) {
-    bool r = get_expr_cache_enabled();
-    get_expr_cache_enabled() = f;
+    bool r = g_expr_cache_enabled;
+    g_expr_cache_enabled = f;
     return r;
 }
 inline expr cache(expr const & e) {
-    if (get_expr_cache_enabled()) {
+    if (g_expr_cache_enabled) {
         if (auto r = get_expr_cache().insert(e))
             return *r;
     }

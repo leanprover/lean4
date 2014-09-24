@@ -113,7 +113,7 @@ format const & colon() { return *g_colon; }
 format const & dot() { return *g_dot; }
 // Auxiliary flag used to mark whether flatten
 // produce a different sexpr
-MK_THREAD_LOCAL_GET(bool, get_g_diff_flatten, false);
+LEAN_THREAD_VALUE(bool, g_diff_flatten, false);
 //
 sexpr format::flatten(sexpr const & s) {
     lean_assert(is_cons(s));
@@ -132,10 +132,10 @@ sexpr format::flatten(sexpr const & s) {
                                       }));
     case format_kind::CHOICE:
         /* flatten (x <|> y) = flatten x */
-        get_g_diff_flatten() = true;
+        g_diff_flatten = true;
         return flatten(sexpr_choice_1(s));
     case format_kind::LINE:
-        get_g_diff_flatten() = true;
+        g_diff_flatten = true;
         return sexpr_text(sexpr(" "));
     case format_kind::FLAT_COMPOSE:
     case format_kind::TEXT:
@@ -149,9 +149,9 @@ format flatten(format const & f){
     return format(format::flatten(f.m_value));
 }
 format group(format const & f) {
-    get_g_diff_flatten() = false;
+    g_diff_flatten = false;
     format flat_f = flatten(f);
-    if (get_g_diff_flatten()) {
+    if (g_diff_flatten) {
         return choice(flat_f, f);
     } else {
         // flat_f and f are essentially the same format object.

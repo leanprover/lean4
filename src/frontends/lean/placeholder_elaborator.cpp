@@ -279,7 +279,7 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
         return map2<constraints>(seq, [=](pair<substitution, constraints> const & p) {
                 substitution new_s     = p.first;
                 if (!new_s.is_expr_assigned(mlocal_name(get_app_fn(new_meta))))
-                    constraints();
+                    return constraints();
                 constraints  postponed = map(p.second,
                                              [&](constraint const & c) {
                                                  // we erase internal justifications

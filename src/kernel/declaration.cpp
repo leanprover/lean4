@@ -54,12 +54,12 @@ bool declaration::is_var_decl() const   { return !is_definition(); }
 bool declaration::is_axiom() const      { return is_var_decl() && m_ptr->m_theorem; }
 bool declaration::is_theorem() const    { return is_definition() && m_ptr->m_theorem; }
 
-name declaration::get_name() const { return m_ptr->m_name; }
+name const & declaration::get_name() const { return m_ptr->m_name; }
 level_param_names const & declaration::get_univ_params() const { return m_ptr->m_params; }
-expr declaration::get_type() const { return m_ptr->m_type; }
+expr const & declaration::get_type() const { return m_ptr->m_type; }
 
 bool declaration::is_opaque() const { return m_ptr->m_opaque; }
-expr declaration::get_value() const { lean_assert(is_definition()); return *(m_ptr->m_value); }
+expr const & declaration::get_value() const { lean_assert(is_definition()); return *(m_ptr->m_value); }
 unsigned declaration::get_weight() const { return m_ptr->m_weight; }
 module_idx declaration::get_module_idx() const { return m_ptr->m_module_idx; }
 bool declaration::use_conv_opt() const { return m_ptr->m_use_conv_opt; }

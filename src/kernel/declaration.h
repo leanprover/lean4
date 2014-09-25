@@ -59,11 +59,11 @@ public:
     bool is_theorem() const;
     bool is_var_decl() const;
 
-    name get_name() const;
+    name const & get_name() const;
     level_param_names const & get_univ_params() const;
-    expr get_type() const;
+    expr const & get_type() const;
 
-    expr get_value() const;
+    expr const & get_value() const;
     bool is_opaque() const;
     unsigned get_weight() const;
     module_idx get_module_idx() const;

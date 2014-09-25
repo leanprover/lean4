@@ -414,7 +414,7 @@ bool type_checker::is_opaque(declaration const & d) const {
 bool type_checker::is_opaque(expr const & c) const {
     lean_assert(is_constant(c));
     if (auto d = m_env.find(const_name(c)))
-        return is_opaque(*d);
+        return d->is_definition() && is_opaque(*d);
     else
         return true;
 }

@@ -407,6 +407,18 @@ pair<expr, constraint_seq> type_checker::whnf(expr const & t) {
     return m_conv->whnf(t, *this);
 }
 
+bool type_checker::is_opaque(declaration const & d) const {
+    return m_conv->is_opaque(d);
+}
+
+bool type_checker::is_opaque(expr const & c) const {
+    lean_assert(is_constant(c));
+    if (auto d = m_env.find(const_name(c)))
+        return is_opaque(*d);
+    else
+        return true;
+}
+
 type_checker::type_checker(environment const & env, name_generator const & g, std::unique_ptr<converter> && conv, bool memoize):
     m_env(env), m_gen(g), m_conv(std::move(conv)), m_tc_ctx(*this),
     m_memoize(memoize), m_params(nullptr) {

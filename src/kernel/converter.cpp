@@ -91,6 +91,7 @@ struct dummy_converter : public converter {
         return mk_pair(true, constraint_seq());
     }
     virtual optional<module_idx> get_module_idx() const { return optional<module_idx>(); }
+    virtual bool is_opaque(declaration const &) const { return false; }
 };
 
 std::unique_ptr<converter> mk_dummy_converter() {
@@ -222,15 +223,19 @@ struct default_converter : public converter {
         return r;
     }
 
-    bool is_opaque(declaration const & d) const {
+    bool is_opaque_core(declaration const & d) const {
         return ::lean::is_opaque(d, m_extra_pred, m_module_idx);
+    }
+
+    virtual bool is_opaque(declaration const & d) const {
+        return is_opaque_core(d);
     }
 
     /** \brief Expand \c e if it is non-opaque constant with weight >= w */
     expr unfold_name_core(expr e, unsigned w) {
         if (is_constant(e)) {
             if (auto d = m_env.find(const_name(e))) {
-                if (d->is_definition() && !is_opaque(*d) && d->get_weight() >= w)
+                if (d->is_definition() && !is_opaque_core(*d) && d->get_weight() >= w)
                     return unfold_name_core(instantiate_value_univ_params(*d, const_levels(e)), w);
             }
         }
@@ -515,7 +520,7 @@ struct default_converter : public converter {
                             // If they are, then t_n and s_n must be definitionally equal, and we can
                             // skip the delta-reduction step.
                             // If the flag use_conv_opt() is not true, then we skip this optimization
-                            if (!is_opaque(*d_t) && d_t->use_conv_opt() &&
+                            if (!is_opaque_core(*d_t) && d_t->use_conv_opt() &&
                                 is_def_eq_args(t_n, s_n, c, jst, cs))
                                 return to_bcs(true, cs);
                         }

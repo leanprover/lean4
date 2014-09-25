@@ -199,6 +199,11 @@ public:
     }
 
     optional<expr> expand_macro(expr const & m);
+
+    /** \brief Return true iff \c d is opaque with respect to this type checker. */
+    bool is_opaque(declaration const & d) const;
+    /** \brief Return true iff the constant \c c is opaque with respect to this type checker. */
+    bool is_opaque(expr const & c) const;
 };
 
 typedef std::shared_ptr<type_checker> type_checker_ref;

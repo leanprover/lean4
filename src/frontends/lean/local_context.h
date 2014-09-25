@@ -19,8 +19,7 @@ class local_context {
     name_generator  m_ngen;
     mvar2meta       m_mvar2meta;
     list<expr>      m_ctx; // current local context: a list of local constants
-    buffer<expr>    m_ctx_buffer; // m_ctx as a buffer
-    buffer<expr>    m_ctx_domain_buffer; // m_ctx_domain_buffer[i] == abstract_locals(m_ctx_buffer[i], i, m_ctx_buffer.beg
+    list<expr>      m_ctx_abstracted; // m_ctx where elements have been abstracted
 public:
     local_context(name const & prefix);
     local_context(name const & prefix, list<expr> const & ctx);
@@ -94,7 +93,7 @@ public:
     class scope {
         local_context & m_main;
         list<expr>      m_old_ctx;
-        unsigned        m_old_sz;
+        list<expr>      m_old_ctx_abstracted;
     public:
         scope(local_context & main);
         ~scope();

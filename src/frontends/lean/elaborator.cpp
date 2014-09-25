@@ -99,22 +99,6 @@ class elaborator : public coercion_info_manager {
     info_manager         m_pre_info_data;
     unifier_config       m_unifier_config;
 
-    /** \brief Set local context for the given metavariable application */
-    void set_local_context_for(expr const & meta) {
-        lean_assert(is_meta(meta));
-        buffer<expr> args;
-        get_app_args(meta, args);
-        list<expr> ctx, full_ctx;
-        for (expr const & arg : args) {
-            lean_assert(is_local(arg));
-            if (local_info(arg).is_contextual())
-                ctx = cons(arg, ctx);
-            full_ctx = cons(arg, full_ctx);
-        }
-        m_context.set_ctx(ctx);
-        m_full_context.set_ctx(full_ctx);
-    }
-
     /** \brief 'Choice' expressions <tt>(choice e_1 ... e_n)</tt> are mapped into a metavariable \c ?m
         and a choice constraints <tt>(?m in fn)</tt> where \c fn is a choice function.
         The choice function produces a stream of alternatives. In this case, it produces a stream of
@@ -122,13 +106,16 @@ class elaborator : public coercion_info_manager {
         This is a helper class for implementing this choice functions.
     */
     struct choice_expr_elaborator : public choice_iterator {
-        elaborator & m_elab;
-        expr         m_meta;
-        expr         m_choice;
-        unsigned     m_idx;
-        bool         m_relax_main_opaque;
-        choice_expr_elaborator(elaborator & elab, expr const & meta, expr const & c, bool relax):
-            m_elab(elab), m_meta(meta), m_choice(c),
+        elaborator &  m_elab;
+        local_context m_context;
+        local_context m_full_context;
+        expr          m_meta;
+        expr          m_choice;
+        unsigned      m_idx;
+        bool          m_relax_main_opaque;
+        choice_expr_elaborator(elaborator & elab, local_context const & ctx, local_context const & full_ctx,
+                               expr const & meta, expr const & c, bool relax):
+            m_elab(elab), m_context(ctx), m_full_context(full_ctx), m_meta(meta), m_choice(c),
             m_idx(get_num_choices(m_choice)),
             m_relax_main_opaque(relax) {
         }
@@ -140,7 +127,8 @@ class elaborator : public coercion_info_manager {
                 expr const & f = get_app_fn(c);
                 m_elab.save_identifier_info(f);
                 try {
-                    m_elab.set_local_context_for(m_meta);
+                    flet<local_context> set1(m_elab.m_context,      m_context);
+                    flet<local_context> set2(m_elab.m_full_context, m_full_context);
                     pair<expr, constraint_seq> rcs = m_elab.visit(c);
                     expr r = rcs.first;
                     constraint_seq cs = mk_eq_cnstr(m_meta, r, justification(), m_relax_main_opaque) + rcs.second;
@@ -311,12 +299,14 @@ public:
     expr visit_choice(expr const & e, optional<expr> const & t, constraint_seq & cs) {
         lean_assert(is_choice(e));
         // Possible optimization: try to lookahead and discard some of the alternatives.
-        expr m              = m_full_context.mk_meta(m_ngen, t, e.get_tag());
+        expr m                 = m_full_context.mk_meta(m_ngen, t, e.get_tag());
         register_meta(m);
-        bool relax          = m_relax_main_opaque;
+        bool relax             = m_relax_main_opaque;
+        local_context ctx      = m_context;
+        local_context full_ctx = m_full_context;
         auto fn = [=](expr const & meta, expr const & /* type */, substitution const & /* s */,
                       name_generator const & /* ngen */) {
-            return choose(std::make_shared<choice_expr_elaborator>(*this, meta, e, relax));
+            return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, full_ctx, meta, e, relax));
         };
         justification j = mk_justification("none of the overloads is applicable", some_expr(e));
         cs += mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), true, j, m_relax_main_opaque);
@@ -405,12 +395,15 @@ public:
                 save_coercion_info(old_f, f);
                 lean_assert(is_pi(f_type));
             } else {
-                bool relax = m_relax_main_opaque;
-                justification j = mk_justification(f, [=](formatter const & fmt, substitution const & subst) {
+                bool relax             = m_relax_main_opaque;
+                local_context ctx      = m_context;
+                local_context full_ctx = m_full_context;
+                justification j        = mk_justification(f, [=](formatter const & fmt, substitution const & subst) {
                         return pp_function_expected(fmt, substitution(subst).instantiate(f));
                     });
                 auto choice_fn = [=](expr const & meta, expr const &, substitution const &, name_generator const &) {
-                    set_local_context_for(meta);
+                    flet<local_context> save1(m_context,      ctx);
+                    flet<local_context> save2(m_full_context, full_ctx);
                     list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
                             expr new_f      = copy_tag(f, ::lean::mk_app(coe, f));
                             constraint_seq cs;

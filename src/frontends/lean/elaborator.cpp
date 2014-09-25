@@ -162,8 +162,8 @@ public:
     elaborator(elaborator_context & env, name_generator const & ngen):
         m_env(env),
         m_ngen(ngen),
-        m_context(m_ngen.next()),
-        m_full_context(m_ngen.next()),
+        m_context(),
+        m_full_context(),
         m_unifier_config(env.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
         m_relax_main_opaque = false;
         m_no_info = false;
@@ -291,7 +291,7 @@ public:
 
     expr visit_expecting_type(expr const & e, constraint_seq & cs) {
         if (is_placeholder(e) && !placeholder_type(e)) {
-            expr r = m_context.mk_type_meta(e.get_tag());
+            expr r = m_context.mk_type_meta(m_ngen, e.get_tag());
             save_placeholder_info(e, r);
             return r;
         } else {
@@ -318,7 +318,7 @@ public:
     expr visit_choice(expr const & e, optional<expr> const & t, constraint_seq & cs) {
         lean_assert(is_choice(e));
         // Possible optimization: try to lookahead and discard some of the alternatives.
-        expr m              = m_full_context.mk_meta(t, e.get_tag());
+        expr m              = m_full_context.mk_meta(m_ngen, t, e.get_tag());
         register_meta(m);
         bool relax          = m_relax_main_opaque;
         auto fn = [=](expr const & meta, expr const & /* type */, substitution const & /* s */,
@@ -333,7 +333,7 @@ public:
     expr visit_by(expr const & e, optional<expr> const & t, constraint_seq & cs) {
         lean_assert(is_by(e));
         expr tac = visit(get_by_arg(e), cs);
-        expr m   = m_context.mk_meta(t, e.get_tag());
+        expr m   = m_context.mk_meta(m_ngen, t, e.get_tag());
         register_meta(m);
         m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
         return m;
@@ -342,7 +342,7 @@ public:
     expr visit_proof_qed(expr const & e, optional<expr> const & t, constraint_seq & cs) {
         lean_assert(is_proof_qed_annotation(e));
         pair<expr, constraint_seq> ecs = visit(get_annotation_arg(e));
-        expr m                         = m_full_context.mk_meta(t, e.get_tag());
+        expr m                         = m_full_context.mk_meta(m_ngen, t, e.get_tag());
         register_meta(m);
         constraint c                   = mk_proof_qed_cnstr(env(), m, ecs.first, ecs.second, m_unifier_config, m_relax_main_opaque);
         cs += c;
@@ -427,7 +427,7 @@ public:
                         });
                     return choose(std::make_shared<coercion_elaborator>(*this, f, choices, coes, false));
                 };
-                f   = m_full_context.mk_meta(none_expr(), f.get_tag());
+                f   = m_full_context.mk_meta(m_ngen, none_expr(), f.get_tag());
                 register_meta(f);
                 cs += mk_choice_cnstr(f, choice_fn, to_delay_factor(cnstr_group::Basic), true, j, relax);
                 lean_assert(is_meta(f));
@@ -492,7 +492,7 @@ public:
                                                    justification const & j) {
         bool relax = m_relax_main_opaque;
         type_checker & tc = *m_tc[relax];
-        expr m       = m_full_context.mk_meta(some_expr(expected_type), a.get_tag());
+        expr m       = m_full_context.mk_meta(m_ngen, some_expr(expected_type), a.get_tag());
         register_meta(m);
         constraint c = mk_coercion_cnstr(tc, *this, m, a, a_type, j, to_delay_factor(cnstr_group::Basic), relax);
         return to_ecs(m, c);

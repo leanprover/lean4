@@ -31,7 +31,7 @@ struct placeholder_context {
         m_ios(ios),
         m_ngen(prefix),
         m_tc(mk_type_checker(env, m_ngen.mk_child(), relax)),
-        m_ctx(m_ngen.next(), ctx),
+        m_ctx(ctx),
         m_relax(relax),
         m_use_local_instances(use_local_instances) {
     }
@@ -245,7 +245,7 @@ constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, 
 
 pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C,
                                                  bool is_strict, optional<expr> const & type, tag g) {
-    expr m       = C->m_ctx.mk_meta(type, g);
+    expr m       = C->m_ctx.mk_meta(C->m_ngen, type, g);
     constraint c = mk_placeholder_cnstr(C, m, is_strict);
     return mk_pair(m, c);
 }
@@ -304,7 +304,7 @@ pair<expr, constraint> mk_placeholder_elaborator(
     name const & prefix, bool relax, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg) {
     auto C       = std::make_shared<placeholder_context>(env, ios, ctx, prefix, relax, use_local_instances);
-    expr m       = C->m_ctx.mk_meta(type, g);
+    expr m       = C->m_ctx.mk_meta(C->m_ngen, type, g);
     constraint c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, to_delay_factor(cnstr_group::Basic));
     return mk_pair(m, c);
 }

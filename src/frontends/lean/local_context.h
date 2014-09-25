@@ -13,12 +13,11 @@ namespace lean {
     and creating metavariables in the scope of the local context efficiently
 */
 class local_context {
-    name_generator  m_ngen;
     list<expr>      m_ctx; // current local context: a list of local constants
     list<expr>      m_ctx_abstracted; // m_ctx where elements have been abstracted
 public:
-    local_context(name const & prefix);
-    local_context(name const & prefix, list<expr> const & ctx);
+    local_context();
+    local_context(list<expr> const & ctx);
 
     void set_ctx(list<expr> const & ctx);
 
@@ -41,7 +40,7 @@ public:
            <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
         where \c ?u is a fresh universe metavariable.
     */
-    expr mk_type_metavar(tag g);
+    expr mk_type_metavar(name_generator & ngen, tag g);
 
     /** \brief Assuming \c m_ctx is
            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
@@ -51,7 +50,7 @@ public:
 
         \remark The type of the resulting expression is <tt>Type.{?u}</tt>
     */
-    expr mk_type_meta(tag g);
+    expr mk_type_meta(name_generator & ngen, tag g);
 
     /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
@@ -63,7 +62,7 @@ public:
            <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
         and \c ?u is a fresh universe metavariable.
     */
-    expr mk_metavar(optional<expr> const & type, tag g);
+    expr mk_metavar(name_generator & ngen, optional<expr> const & type, tag g);
 
     /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
@@ -72,7 +71,7 @@ public:
 
         \see mk_metavar
     */
-    expr mk_meta(optional<expr> const & type, tag g);
+    expr mk_meta(name_generator & ngen, optional<expr> const & type, tag g);
 
     /** \brief Return context as a list */
     list<expr> const & get_data() const;

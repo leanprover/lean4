@@ -92,7 +92,6 @@ expr local_context::mk_metavar(optional<expr> const & type, tag g) {
 expr local_context::mk_meta(optional<expr> const & type, tag g) {
     expr mvar = mk_metavar(type, g);
     expr meta = apply_context(mvar, g);
-    m_mvar2meta.insert(mlocal_name(mvar), meta);
     return meta;
 }
 
@@ -102,13 +101,6 @@ void local_context::add_local(expr const & l) {
     m_ctx            = cons(l, m_ctx);
     lean_assert(length(m_ctx) == length(m_ctx_abstracted));
     lean_assert(is_local(head(m_ctx_abstracted)));
-}
-
-optional<expr> local_context::find_meta(name const & n) const {
-    if (auto it = m_mvar2meta.find(n))
-        return some_expr(*it);
-    else
-        return none_expr();
 }
 
 list<expr> const & local_context::get_data() const {

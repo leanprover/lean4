@@ -68,6 +68,9 @@ elaborator_context::elaborator_context(environment const & env, io_state const &
     m_use_local_instances = get_elaborator_local_instances(ios.get_options());
 }
 
+/** \brief Mapping from metavariable names to metavariable applications (?M ...) */
+typedef name_map<expr> mvar2meta;
+
 /** \brief Helper class for implementing the \c elaborate functions. */
 class elaborator : public coercion_info_manager {
     typedef name_map<expr> local_tactic_hints;
@@ -80,6 +83,7 @@ class elaborator : public coercion_info_manager {
     // representing the context where ?m was created.
     local_context        m_context; // current local context: a list of local constants
     local_context        m_full_context; // superset of m_context, it also contains non-contextual locals.
+    mvar2meta            m_mvar2meta;
     cache                m_cache;
 
     // mapping from metavariable name ?m to tactic expression that should be used to solve it.
@@ -185,16 +189,21 @@ public:
     expr whnf(expr const & e, constraint_seq & s) { return m_tc[m_relax_main_opaque]->whnf(e, s); }
     expr mk_app(expr const & f, expr const & a, tag g) { return ::lean::mk_app(f, a).set_tag(g); }
 
+    void register_meta(expr const & meta) {
+        lean_assert(is_meta(meta));
+        m_mvar2meta.insert(mlocal_name(get_app_fn(meta)), meta);
+    }
+
     /** \brief Convert the metavariable to the metavariable application that captures
         the context where it was defined.
     */
     optional<expr> mvar_to_meta(expr const & mvar) {
         lean_assert(is_metavar(mvar));
         name const & m = mlocal_name(mvar);
-        if (auto it = m_context.find_meta(m))
-            return it;
+        if (auto it = m_mvar2meta.find(m))
+            return some_expr(*it);
         else
-            return m_full_context.find_meta(m);
+            return none_expr();
     }
 
     /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
@@ -310,6 +319,7 @@ public:
         lean_assert(is_choice(e));
         // Possible optimization: try to lookahead and discard some of the alternatives.
         expr m              = m_full_context.mk_meta(t, e.get_tag());
+        register_meta(m);
         bool relax          = m_relax_main_opaque;
         auto fn = [=](expr const & meta, expr const & /* type */, substitution const & /* s */,
                       name_generator const & /* ngen */) {
@@ -324,6 +334,7 @@ public:
         lean_assert(is_by(e));
         expr tac = visit(get_by_arg(e), cs);
         expr m   = m_context.mk_meta(t, e.get_tag());
+        register_meta(m);
         m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
         return m;
     }
@@ -332,6 +343,7 @@ public:
         lean_assert(is_proof_qed_annotation(e));
         pair<expr, constraint_seq> ecs = visit(get_annotation_arg(e));
         expr m                         = m_full_context.mk_meta(t, e.get_tag());
+        register_meta(m);
         constraint c                   = mk_proof_qed_cnstr(env(), m, ecs.first, ecs.second, m_unifier_config, m_relax_main_opaque);
         cs += c;
         return m;
@@ -416,6 +428,7 @@ public:
                     return choose(std::make_shared<coercion_elaborator>(*this, f, choices, coes, false));
                 };
                 f   = m_full_context.mk_meta(none_expr(), f.get_tag());
+                register_meta(f);
                 cs += mk_choice_cnstr(f, choice_fn, to_delay_factor(cnstr_group::Basic), true, j, relax);
                 lean_assert(is_meta(f));
                 // let type checker add constraint
@@ -480,6 +493,7 @@ public:
         bool relax = m_relax_main_opaque;
         type_checker & tc = *m_tc[relax];
         expr m       = m_full_context.mk_meta(some_expr(expected_type), a.get_tag());
+        register_meta(m);
         constraint c = mk_coercion_cnstr(tc, *this, m, a, a_type, j, to_delay_factor(cnstr_group::Basic), relax);
         return to_ecs(m, c);
     }

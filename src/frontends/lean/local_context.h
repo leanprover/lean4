@@ -9,15 +9,11 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-/** \brief Mapping from metavariable names to metavariable applications (?M ...) */
-typedef name_map<expr> mvar2meta;
-
 /** \brief Auxiliary data-structure for storing the local context,
     and creating metavariables in the scope of the local context efficiently
 */
 class local_context {
     name_generator  m_ngen;
-    mvar2meta       m_mvar2meta;
     list<expr>      m_ctx; // current local context: a list of local constants
     list<expr>      m_ctx_abstracted; // m_ctx where elements have been abstracted
 public:
@@ -80,12 +76,6 @@ public:
 
     /** \brief Return context as a list */
     list<expr> const & get_data() const;
-
-    /** \brief Return the metavariable application associated with the metavariable name
-        \c n. The metavariable application contains the context where \c n was created.
-        Return none if \c n was not created using this local context object.
-    */
-    optional<expr> find_meta(name const & n) const;
 
     void add_local(expr const & l);
 

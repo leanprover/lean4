@@ -8,9 +8,10 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/metavar_closure.h"
 #include "frontends/lean/util.h"
-#include "frontends/lean/local_context.h"
-
 namespace lean {
+/** \brief Create a "choice" constraint that postpone the
+    solving the constraints <tt>(cs union (m =?= e))</tt>.
+*/
 constraint mk_proof_qed_cnstr(environment const & env, expr const & m, expr const & e,
                               constraint_seq const & cs, unifier_config const & cfg, bool relax) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
@@ -46,17 +47,5 @@ constraint mk_proof_qed_cnstr(environment const & env, expr const & m, expr cons
     };
     bool owner = false;
     return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::Epilogue), owner, j, relax);
-}
-
-/** \brief Create a metavariable m, and attach "choice" constraint that postpone the
-    solving the constraints <tt>(cs union m =?= e)</tt>.
-*/
-pair<expr, constraint> mk_proof_qed_elaborator(
-    environment const & env, local_context & ctx,
-    expr const & e, optional<expr> const & type, constraint_seq const & cs,
-    unifier_config const & cfg, bool relax) {
-    expr m       = ctx.mk_meta(type, e.get_tag());
-    constraint c = mk_proof_qed_cnstr(env, m, e, cs, cfg, relax);
-    return mk_pair(m, c);
 }
 }

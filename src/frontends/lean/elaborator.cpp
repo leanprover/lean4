@@ -331,10 +331,10 @@ public:
     expr visit_proof_qed(expr const & e, optional<expr> const & t, constraint_seq & cs) {
         lean_assert(is_proof_qed_annotation(e));
         pair<expr, constraint_seq> ecs = visit(get_annotation_arg(e));
-        pair<expr, constraint> mc = mk_proof_qed_elaborator(env(), m_full_context, ecs.first, t, ecs.second,
-                                                            m_unifier_config, m_relax_main_opaque);
-        cs += mc.second;
-        return mc.first;
+        expr m                         = m_full_context.mk_meta(t, e.get_tag());
+        constraint c                   = mk_proof_qed_cnstr(env(), m, ecs.first, ecs.second, m_unifier_config, m_relax_main_opaque);
+        cs += c;
+        return m;
     }
 
     static bool is_implicit_pi(expr const & e) {

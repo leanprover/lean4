@@ -8,10 +8,9 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 
 namespace lean {
-/** \brief Create a metavariable m, and attach "choice" constraint that postpone the
-    solving the constraints <tt>(cs union m =?= e)</tt>.
+/** \brief Create a "choice" constraint that postpone the
+    solving the constraints <tt>(cs union (m =?= e))</tt>.
 */
-pair<expr, constraint> mk_proof_qed_elaborator(environment const & env, local_context & ctx,
-                                               expr const & e, optional<expr> const & type, constraint_seq const & cs,
-                                               unifier_config const & cfg, bool relax);
+constraint mk_proof_qed_cnstr(environment const & env, expr const & m, expr const & e,
+                              constraint_seq const & cs, unifier_config const & cfg, bool relax);
 }

@@ -6,10 +6,15 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <limits>
+#include <vector>
 #include "kernel/free_vars.h"
 #include "kernel/replace_fn.h"
 #include "kernel/declaration.h"
 #include "kernel/instantiate.h"
+
+#ifndef LEAN_INST_UNIV_CACHE_SIZE
+#define LEAN_INST_UNIV_CACHE_SIZE 1023
+#endif
 
 namespace lean {
 template<bool rev>
@@ -172,13 +177,58 @@ expr instantiate_univ_params(expr const & e, level_param_names const & ps, level
         });
 }
 
+class instantiate_univ_cache {
+    typedef std::tuple<declaration, levels, expr> entry;
+    std::vector<optional<entry>> m_cache;
+public:
+    instantiate_univ_cache() {
+        m_cache.resize(LEAN_INST_UNIV_CACHE_SIZE);
+    }
+
+    optional<expr> is_cached(declaration const & d, levels const & ls) {
+        unsigned idx = d.get_name().hash() % LEAN_INST_UNIV_CACHE_SIZE;
+        if (auto it = m_cache[idx]) {
+            declaration d_c; levels ls_c; expr r_c;
+            std::tie(d_c, ls_c, r_c) = *it;
+            if (!is_eqp(d_c, d))
+                return none_expr();
+            if (ls == ls_c)
+                return some_expr(r_c);
+            else
+                return none_expr();
+        }
+        return none_expr();
+    }
+    void save(declaration const & d, levels const & ls, expr const & r) {
+        unsigned idx = d.get_name().hash() % LEAN_INST_UNIV_CACHE_SIZE;
+        m_cache[idx] = entry(d, ls, r);
+    }
+};
+
+MK_THREAD_LOCAL_GET_DEF(instantiate_univ_cache, get_type_univ_cache);
+MK_THREAD_LOCAL_GET_DEF(instantiate_univ_cache, get_value_univ_cache);
+
 expr instantiate_type_univ_params(declaration const & d, levels const & ls) {
     lean_assert(length(d.get_univ_params()) == length(ls));
-    return instantiate_univ_params(d.get_type(), d.get_univ_params(), ls);
+    if (is_nil(ls) || !has_param_univ(d.get_type()))
+        return d.get_type();
+    instantiate_univ_cache & cache = get_type_univ_cache();
+    if (auto r = cache.is_cached(d, ls))
+        return *r;
+    expr r = instantiate_univ_params(d.get_type(), d.get_univ_params(), ls);
+    cache.save(d, ls, r);
+    return r;
 }
 
 expr instantiate_value_univ_params(declaration const & d, levels const & ls) {
     lean_assert(length(d.get_univ_params()) == length(ls));
-    return instantiate_univ_params(d.get_value(), d.get_univ_params(), ls);
+    if (is_nil(ls) || !has_param_univ(d.get_value()))
+        return d.get_value();
+    instantiate_univ_cache & cache = get_value_univ_cache();
+    if (auto r = cache.is_cached(d, ls))
+        return *r;
+    expr r = instantiate_univ_params(d.get_value(), d.get_univ_params(), ls);
+    cache.save(d, ls, r);
+    return r;
 }
 }

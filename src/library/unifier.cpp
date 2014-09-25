@@ -1204,12 +1204,16 @@ struct unifier_fn {
             if (dcs.first) {
                 constraints cnstrs = dcs.second.to_list();
                 return process_constraints(cnstrs, mk_composite1(cs.get_jst(), mk_assumption_justification(cs.m_assumption_idx)));
+            } else {
+                set_conflict(j);
+                return false;
             }
+        } else {
+            // update conflict
+            update_conflict(mk_composite1(*m_conflict, cs.m_failed_justifications));
+            pop_case_split();
+            return false;
         }
-        // update conflict
-        update_conflict(mk_composite1(*m_conflict, cs.m_failed_justifications));
-        pop_case_split();
-        return false;
     }
 
     /**

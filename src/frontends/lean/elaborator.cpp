@@ -479,9 +479,9 @@ public:
                                                    justification const & j) {
         bool relax = m_relax_main_opaque;
         type_checker & tc = *m_tc[relax];
-        pair<expr, constraint> ec = mk_coercion_elaborator(tc, *this, m_full_context, relax,
-                                                           a, a_type, expected_type, j);
-        return to_ecs(ec.first, ec.second);
+        expr m       = m_full_context.mk_meta(some_expr(expected_type), a.get_tag());
+        constraint c = mk_coercion_cnstr(tc, *this, m, a, a_type, j, to_delay_factor(cnstr_group::Basic), relax);
+        return to_ecs(m, c);
     }
 
     /** \brief Given a term <tt>a : a_type</tt>, ensure it has type \c expected_type. Apply coercions if needed

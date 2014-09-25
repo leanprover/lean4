@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "kernel/type_checker.h"
-#include "frontends/lean/local_context.h"
 
 namespace lean {
 /** \brief Abstract class for hiding details of the info_manager from the coercion_elaborator */
@@ -30,27 +29,22 @@ public:
     optional<constraints> next();
 };
 
-/** \brief Create a metavariable, and attach choice constraint for generating
-    coercions of the form <tt>f a</tt>, where \c f is registered coercion,
-    and \c a is the input argument that has type \c a_type, but is expected
-    to have type \c expected_type because of \c j.
+/** \brief Given a term <tt>a : a_type</tt>, and a metavariable \c m, creates a constraint
+    that considers coercions from a_type to the type assigned to \c m.
 
-    This function is used when the types \c a_type and/or \c expected_type
+    This function is used when the types \c a_type and/or the type of \c m
     are not known at preprocessing time, and a choice function is used to
-    enumerate coercion functions \c f.
+    enumerate coercion functions \c f. By "not known", we mean the type is a
+    metavariable application.
 
     \param relax True if opaque constants in the current module should be treated
                  as transparent
 
     \see coercion_info_manager
 */
-pair<expr, constraint> mk_coercion_elaborator(
-    type_checker & tc, coercion_info_manager & infom, local_context & ctx, bool relax,
-    expr const & a, expr const & a_type, expr const & expected_type, justification const & j);
-
-pair<expr, constraint> coercions_to_choice(coercion_info_manager & infom, local_context & ctx,
-                                           list<expr> const & coes, expr const & a,
-                                           justification const & j, bool relax);
+constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
+                             expr const & m, expr const & a, expr const & a_type,
+                             justification const & j, unsigned delay_factor, bool relax);
 
 list<expr> get_coercions_from_to(type_checker & tc, expr const & from_type, expr const & to_type, constraint_seq & cs);
 }

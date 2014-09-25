@@ -54,6 +54,8 @@ optional<constraints> coercion_elaborator::next() {
     return optional<constraints>(r);
 }
 
+/** \brief Given a term <tt>a : a_type</tt>, and a metavariable \c m, creates a constraint
+    that considers coercions from a_type to the type assigned to \c m. */
 constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
                              expr const & m, expr const & a, expr const & a_type,
                              justification const & j, unsigned delay_factor, bool relax) {
@@ -125,13 +127,5 @@ constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
         }
     };
     return mk_choice_cnstr(m, choice_fn, delay_factor, true, j, relax);
-}
-
-/** \brief Given a term <tt>a : a_type</tt>, and an expected type generate a metavariable with a delayed coercion. */
-pair<expr, constraint> mk_coercion_elaborator(type_checker & tc, coercion_info_manager & infom, local_context & ctx,
-                                              bool relax, expr const & a, expr const & a_type, expr const & expected_type,
-                                              justification const & j) {
-    expr m = ctx.mk_meta(some_expr(expected_type), a.get_tag());
-    return mk_pair(m, mk_coercion_cnstr(tc, infom, m, a, a_type, j, to_delay_factor(cnstr_group::Basic), relax));
 }
 }

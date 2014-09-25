@@ -77,15 +77,5 @@ public:
     list<expr> const & get_data() const;
 
     void add_local(expr const & l);
-
-    /** \brief Scope object for restoring the content of the context */
-    class scope {
-        local_context & m_main;
-        list<expr>      m_old_ctx;
-        list<expr>      m_old_ctx_abstracted;
-    public:
-        scope(local_context & main);
-        ~scope();
-    };
 };
 }

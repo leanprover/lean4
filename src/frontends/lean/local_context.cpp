@@ -105,11 +105,4 @@ void local_context::add_local(expr const & l) {
 list<expr> const & local_context::get_data() const {
     return m_ctx;
 }
-
-local_context::scope::scope(local_context & main):
-    m_main(main), m_old_ctx(main.m_ctx), m_old_ctx_abstracted(main.m_ctx_abstracted) {}
-local_context::scope::~scope() {
-    m_main.m_ctx            = m_old_ctx;
-    m_main.m_ctx_abstracted = m_old_ctx_abstracted;
-}
 }

@@ -99,13 +99,6 @@ class elaborator : public coercion_info_manager {
     info_manager         m_pre_info_data;
     unifier_config       m_unifier_config;
 
-    struct scope_ctx {
-        elaborator &         m_main;
-        local_context::scope m_scope1;
-        local_context::scope m_scope2;
-        scope_ctx(elaborator & e):m_main(e), m_scope1(e.m_context), m_scope2(e.m_full_context) {}
-    };
-
     /** \brief Set local context for the given metavariable application */
     void set_local_context_for(expr const & meta) {
         lean_assert(is_meta(meta));
@@ -701,7 +694,8 @@ public:
     }
 
     expr visit_binding(expr e, expr_kind k, constraint_seq & cs) {
-        scope_ctx scope(*this);
+        flet<local_context> save1(m_context, m_context);
+        flet<local_context> save2(m_full_context, m_full_context);
         buffer<expr> ds, ls, es;
         while (e.kind() == k) {
             es.push_back(e);

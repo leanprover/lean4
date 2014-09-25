@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/lazy_list_fn.h"
+#include "util/flet.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "library/unifier.h"
@@ -103,7 +104,7 @@ struct placeholder_elaborator : public choice_iterator {
         tag g                 = inst.get_tag();
         local_context & ctx   = m_C->m_ctx;
         try {
-            local_context::scope scope(ctx);
+            flet<local_context> scope(ctx, ctx);
             buffer<expr> locals;
             expr meta_type = m_meta_type;
             while (true) {

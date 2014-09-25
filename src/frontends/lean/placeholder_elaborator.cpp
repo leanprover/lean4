@@ -27,7 +27,7 @@ struct placeholder_context {
     local_context    m_ctx;
     bool             m_relax;
     bool             m_use_local_instances;
-    placeholder_context(environment const & env, io_state const & ios, list<expr> const & ctx,
+    placeholder_context(environment const & env, io_state const & ios, local_context const & ctx,
                         name const & prefix, bool relax, bool use_local_instances):
         m_ios(ios),
         m_ngen(prefix),
@@ -301,7 +301,7 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
     solutions using class-instances and tactic-hints.
 */
 pair<expr, constraint> mk_placeholder_elaborator(
-    environment const & env, io_state const & ios, list<expr> const & ctx,
+    environment const & env, io_state const & ios, local_context const & ctx,
     name const & prefix, bool relax, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg) {
     auto C       = std::make_shared<placeholder_context>(env, ios, ctx, prefix, relax, use_local_instances);

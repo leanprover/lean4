@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "library/io_state.h"
+#include "frontends/lean/local_context.h"
 
 namespace lean {
 /** \brief Create a metavariable, and attach choice constraint for generating
@@ -24,7 +25,7 @@ namespace lean {
     \param tag  To be associated with new metavariables and expressions (for error localization).
 */
 pair<expr, constraint> mk_placeholder_elaborator(
-    environment const & env, io_state const & ios, list<expr> const & ctx,
+    environment const & env, io_state const & ios, local_context const & ctx,
     name const & prefix, bool relax_opaque, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg);
 }

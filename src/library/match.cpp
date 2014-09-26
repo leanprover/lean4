@@ -352,7 +352,7 @@ bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buff
         return match_fn(esubst, lsubst, name_generator(*g_tmp_prefix), name_subst, plugin).match(p, t);
 }
 
-match_plugin mk_whnf_match_plugin(std::shared_ptr<type_checker> const & tc) {
+match_plugin mk_whnf_match_plugin(std::shared_ptr<type_checker> tc) {
     return [=](expr const & p, expr const & t, match_context & ctx) { // NOLINT
         try {
             constraint_seq cs;

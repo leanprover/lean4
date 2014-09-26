@@ -189,6 +189,7 @@ server::worker::worker(environment const & env, io_state const & ios, definition
                     s = i == 0 ? m_empty_snapshot : todo_file->m_snapshots[i-1];
                     lean_assert(s.m_line > 0);
                     todo_file->m_info.start_from(s.m_line);
+                    todo_file->m_info.save_environment_options(s.m_line, s.m_env, s.m_options);
                     num_lines = todo_file->copy_to(block, s.m_line - 1);
                 }
                 if (m_terminate)

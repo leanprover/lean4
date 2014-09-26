@@ -9,6 +9,7 @@
 (require 'dash)
 (require 'dash-functional)
 (require 'f)
+(require 's)
 (require 'lean-tags)
 (require 'lean-server)
 
@@ -148,6 +149,8 @@ triggers a completion immediately."
            (or
             (>= (length prefix) 1)
             (string-match "[_.]" prefix)))
+      (when (s-starts-with? "@" prefix)
+        (setq prefix (substring prefix 1)))
       prefix)))
 
 (defun company-lean--findp-make-candidate (arg prefix)

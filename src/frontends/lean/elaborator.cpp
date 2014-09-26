@@ -351,7 +351,7 @@ public:
         while (true) {
             lean_assert(is_pi(type));
             tag g = e.get_tag();
-            bool is_strict = false;
+            bool is_strict = true;
             expr imp_arg   = mk_placeholder_meta(some_expr(binding_domain(type)), g, is_strict, cs);
             e              = mk_app(e, imp_arg, g);
             type           = instantiate(binding_body(type), imp_arg);
@@ -556,7 +556,7 @@ public:
             bool first = true;
             while (binding_info(f_type).is_strict_implicit() || (!first && binding_info(f_type).is_implicit())) {
                 tag g          = f.get_tag();
-                bool is_strict = false;
+                bool is_strict = true;
                 expr imp_arg   = mk_placeholder_meta(some_expr(binding_domain(f_type)), g, is_strict, f_cs);
                 f              = mk_app(f, imp_arg, g);
                 auto f_t       = ensure_fun(f, f_cs);
@@ -804,7 +804,7 @@ public:
             tag  g         = e.get_tag();
             expr r_type    = whnf(infer_type(r, cs), cs);
             expr imp_arg;
-            bool is_strict = false;
+            bool is_strict = true;
             while (is_pi(r_type) && binding_info(r_type).is_implicit()) {
                 imp_arg = mk_placeholder_meta(some_expr(binding_domain(r_type)), g, is_strict, cs);
                 r       = mk_app(r, imp_arg, g);

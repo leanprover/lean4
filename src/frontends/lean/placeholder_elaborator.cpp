@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/lazy_list_fn.h"
 #include "util/flet.h"
 #include "kernel/instantiate.h"
+#include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
 #include "library/unifier.h"
 #include "library/reducible.h"
@@ -44,7 +45,7 @@ struct placeholder_context {
 };
 
 pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C,
-                                                 bool is_strict, optional<expr> const & type, tag g);
+                                                 optional<expr> const & type, tag g);
 
 /** \brief Whenever the elaborator finds a placeholder '_' or introduces an
     implicit argument, it creates a metavariable \c ?m. It also creates a
@@ -86,8 +87,8 @@ struct placeholder_elaborator : public choice_iterator {
                            expr const & meta, expr const & meta_type,
                            list<expr> const & local_insts, list<name> const & instances,
                            list<tactic_hint_entry> const & tacs,
-                           justification const & j, bool ignore_failure):
-        choice_iterator(ignore_failure), m_C(C),
+                           justification const & j):
+        choice_iterator(), m_C(C),
         m_meta(meta), m_meta_type(meta_type),
         m_local_instances(local_insts), m_instances(instances),
         m_tactics(tacs),
@@ -124,9 +125,7 @@ struct placeholder_elaborator : public choice_iterator {
                 type = tc.whnf(type).first;
                 if (!is_pi(type))
                     break;
-                bool is_strict = true;
-                pair<expr, constraint> ac = mk_placeholder_elaborator(m_C, is_strict,
-                                                                      some_expr(binding_domain(type)), g);
+                pair<expr, constraint> ac = mk_placeholder_elaborator(m_C, some_expr(binding_domain(type)), g);
                 expr arg = ac.first;
                 cs.push_back(ac.second);
                 r    = mk_app(r, arg).set_tag(g);
@@ -205,7 +204,7 @@ struct placeholder_elaborator : public choice_iterator {
 };
 
 
-constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, expr const & m, bool is_strict) {
+constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, expr const & m) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
@@ -224,18 +223,10 @@ constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, 
             if (empty(local_insts) && empty(insts) && empty(tacs))
                 return lazy_list<constraints>(); // nothing to be done
             // we are always strict with placeholders associated with classes
-            bool ignore_failure = false;
-            return choose(std::make_shared<placeholder_elaborator>(C, meta, meta_type, local_insts, insts, tacs,
-                                                                   j, ignore_failure));
-        } else if (s.is_assigned(mvar)) {
-            // if the metavariable is assigned and it is not a class, then we just ignore it, and return
-            // the an empty set of constraints.
-            return lazy_list<constraints>(constraints());
+            return choose(std::make_shared<placeholder_elaborator>(C, meta, meta_type, local_insts, insts, tacs, j));
         } else {
-            list<tactic_hint_entry> tacs = get_tactic_hints(env);
-            bool ignore_failure = !is_strict;
-            return choose(std::make_shared<placeholder_elaborator>(C, meta, meta_type, list<expr>(), list<name>(),
-                                                                   tacs, j, ignore_failure));
+            // do nothing, type is not a class...
+            return lazy_list<constraints>(constraints());
         }
     };
     bool owner      = false;
@@ -245,10 +236,30 @@ constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, 
 }
 
 pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C,
-                                                 bool is_strict, optional<expr> const & type, tag g) {
+                                                 optional<expr> const & type, tag g) {
     expr m       = C->m_ctx.mk_meta(C->m_ngen, type, g);
-    constraint c = mk_placeholder_cnstr(C, m, is_strict);
+    constraint c = mk_placeholder_cnstr(C, m);
     return mk_pair(m, c);
+}
+
+/** \brief Similar to has_expr_metavar, but ignores metavariables occurring in the type
+    of local constants */
+static bool has_expr_metavar_relaxed(expr const & e) {
+    if (!has_expr_metavar(e))
+        return false;
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (found || !has_expr_metavar(e))
+                return false;
+            if (is_metavar(e)) {
+                found = true;
+                return false;
+            }
+            if (is_local(e))
+                return false; // do not visit type
+            return true;
+        });
+    return found;
 }
 
 constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const & C, expr const & m, bool is_strict,
@@ -257,40 +268,50 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
                          name_generator const & ngen) {
-        if (has_expr_metavar(meta_type)) {
+        if (has_expr_metavar_relaxed(meta_type)) {
             if (delay_factor < to_delay_factor(cnstr_group::ClassInstance)) {
                 constraint delayed_c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, delay_factor+1);
                 return lazy_list<constraints>(constraints(delayed_c));
             }
         }
-        expr const & mvar = get_app_fn(meta);
-        if (!is_ext_class(C->tc(), meta_type) && s.is_assigned(mvar)) {
-            // see mk_placeholder_cnstr
+        if (!is_ext_class(C->tc(), meta_type)) {
+            // do nothing, since type is not a class.
             return lazy_list<constraints>(constraints());
         }
         pair<expr, justification> mj = update_meta(meta, s);
         expr new_meta       = mj.first;
         justification new_j = mj.second;
-        constraint c = mk_placeholder_cnstr(C, new_meta, is_strict);
+        constraint c = mk_placeholder_cnstr(C, new_meta);
         unifier_config new_cfg(cfg);
         new_cfg.m_discard        = false;
         new_cfg.m_use_exceptions = false;
-        unify_result_seq seq = unify(env, 1, &c, ngen, new_cfg);
-        return map2<constraints>(seq, [=](pair<substitution, constraints> const & p) {
+        unify_result_seq seq1    = unify(env, 1, &c, ngen, new_cfg);
+        unify_result_seq seq2    = filter(seq1, [=](pair<substitution, constraints> const & p) {
                 substitution new_s     = p.first;
-                if (!new_s.is_expr_assigned(mlocal_name(get_app_fn(new_meta))))
-                    return constraints();
-                constraints  postponed = map(p.second,
-                                             [&](constraint const & c) {
-                                                 // we erase internal justifications
-                                                 return update_justification(c, new_j);
-                                             });
-                metavar_closure cls(new_meta);
-                cls.add(meta_type);
-                bool relax     = C->m_relax;
-                constraints cs = cls.mk_constraints(new_s, new_j, relax);
-                return append(cs, postponed);
+                expr result = new_s.instantiate(new_meta);
+                // We only keep complete solution (modulo universe metavariables)
+                return !has_expr_metavar_relaxed(result);
             });
+        lazy_list<constraints> seq3 = map2<constraints>(seq2, [=](pair<substitution, constraints> const & p) {
+                substitution new_s     = p.first;
+            // some constraints may have been postponed (example: universe level constraints)
+            constraints  postponed = map(p.second,
+                                         [&](constraint const & c) {
+                                             // we erase internal justifications
+                                             return update_justification(c, new_j);
+                                         });
+            metavar_closure cls(new_meta);
+            cls.add(meta_type);
+            bool relax     = C->m_relax;
+            constraints cs = cls.mk_constraints(new_s, new_j, relax);
+            return append(cs, postponed);
+            });
+        if (is_strict) {
+            return seq3;
+        } else {
+            // make sure it does not fail by appending empty set of constraints
+            return append(seq3, lazy_list<constraints>(constraints()));
+        }
     };
     bool owner = false;
     bool relax = C->m_relax;

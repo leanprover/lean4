@@ -8,7 +8,7 @@ import data.unit data.sigma data.prod
 import algebra.function
 import logic.axioms.funext
 
-open eq
+open eq eq_ops
 
 inductive category [class] (ob : Type) : Type :=
 mk : Π (mor : ob → ob → Type) (comp : Π⦃A B C : ob⦄, mor B C → mor A B → mor A C)
@@ -37,6 +37,7 @@ namespace category
 
   precedence `∘` : 60
   infixr `∘` := compose
+  infixl `=>`:25 := mor
 
   theorem assoc : Π {A B C D : ob} {h : mor C D} {g : mor B C} {f : mor A B},
                 h ∘ (g ∘ f) = (h ∘ g) ∘ f :=
@@ -52,7 +53,7 @@ namespace category
 
   theorem left_id_unique (i : mor A A) (H : Π{B} {f : mor B A}, i ∘ f = f) : i = id :=
   calc
-    i = i ∘ id : eq.symm id_right
+    i = i ∘ id : symm id_right
     ... = id : H
 
   theorem right_id_unique (i : mor A A) (H : Π{B} {f : mor A B}, f ∘ i = f) : i = id :=
@@ -193,42 +194,6 @@ namespace category
 
   end
 
-  section
-  open unit
-  definition one [instance] : category unit :=
-  category.mk (λa b, unit) (λ a b c f g, star) (λ a, star) (λ a b c d f g h, unit.equal _ _)
-    (λ a b f, unit.equal _ _) (λ a b f, unit.equal _ _)
-  end
-
-  section
-  parameter {ob : Type}
-  definition opposite (C : category ob) : category ob :=
-  category.mk (λa b, mor b a) (λ a b c f g, g ∘ f) (λ a, id) (λ a b c d f g h, symm assoc)
-    (λ a b f, id_right) (λ a b f, id_left)
-  precedence `∘op` : 60
-  infixr `∘op` := @compose _ (opposite _) _ _ _
-
-  parameters {C : category ob} {a b c : ob}
-
-  theorem compose_op {f : @mor ob C a b} {g : mor b c} : f ∘op g = g ∘ f :=
-  rfl
-
-  theorem op_op {C : category ob} : opposite (opposite C) = C :=
-  rec (λ mor comp id assoc idl idr, rfl) C
-
-  end
-
-  definition Opposite (C : Category) : Category :=
-  Category.mk (objects C) (opposite (category_instance C))
-
-
-  section
-  --need extensionality
-  -- definition type_cat : category Type :=
-  -- mk (λA B, A → B) (λ a b c f g, function.compose f g) (λ a, function.id) (λ a b c d f g h, sorry)
-  --   (λ a b f, sorry) (λ a b f, sorry)
-  end
-
 end category
 
 open category
@@ -262,7 +227,7 @@ namespace functor
 
   section category_functor
 
-  definition compose {obC obD obE : Type} {C : category obC} {D : category obD} {E : category obE}
+  protected definition compose {obC obD obE : Type} {C : category obC} {D : category obD} {E : category obE}
       (G : D ⇒ E) (F : C ⇒ D) : C ⇒ E :=
   functor.mk C E
     (λx, G (F x))
@@ -277,34 +242,23 @@ namespace functor
   precedence `∘∘` : 60
   infixr `∘∘` := compose
 
-  -- theorem congr_functor {obC obD : Type} {C : category obC} {D : category obD} {o : obC → obD}
-  --     {m m' : Π⦃A B : obC⦄, mor A B → mor (o A) (o B)} {i i' c c'}
-  --     (Hm : ∀{a b : obC} {f : mor a b}, m f = m' f)
-  --       : functor.mk C D o m i c = functor.mk C D o m' i' c' :=
-  -- sorry
-
-  -- theorem congr_functor_refl {obC obD : Type} {C : category obC} {D : category obD} {o : obC → obD}
-  --     {m : Π⦃A B : obC⦄, mor A B → mor (o A) (o B)} {i i' c c'}
-  --       : functor.mk C D o m i c = functor.mk C D o m i' c' :=
-  -- rfl
-
-  theorem assoc {obA obB obC obD : Type} {A : category obA} {B : category obB}
-      {C : category obC} {D : category obD} (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B) :
+  protected theorem assoc {obA obB obC obD : Type} {A : category obA} {B : category obB}
+      {C : category obC} {D : category obD} {H : C ⇒ D} {G : B ⇒ C} {F : A ⇒ B} :
       H ∘∘ (G ∘∘ F) = (H ∘∘ G) ∘∘ F :=
   rfl
 
   -- later check whether we want implicit or explicit arguments here. For the moment, define both
-  definition id {ob : Type} {C : category ob} : functor C C :=
+  protected definition id {ob : Type} {C : category ob} : functor C C :=
   mk C C (λa, a) (λ a b f, f) (λ a, rfl) (λ a b c f g, rfl)
-  definition ID {ob : Type} (C : category ob) : functor C C := id
-  definition Id {C : Category} : Functor C C := Functor.mk id
-  definition iD (C : Category) : Functor C C := Functor.mk id
+  protected definition ID {ob : Type} (C : category ob) : functor C C := id
+  protected definition Id {C : Category} : Functor C C := Functor.mk id
+  protected definition iD (C : Category) : Functor C C := Functor.mk id
 
-  theorem id_left {obC obB : Type} {B : category obB} {C : category obC} (F : B ⇒ C)
+  protected theorem id_left {obC obB : Type} {B : category obB} {C : category obC} {F : B ⇒ C}
       : id ∘∘ F = F :=
   rec (λ obF morF idF compF, rfl) F
 
-  theorem id_right {obC obB : Type} {B : category obB} {C : category obC} (F : B ⇒ C)
+  protected theorem id_right {obC obB : Type} {B : category obB} {C : category obC} {F : B ⇒ C}
       : F ∘∘ id = F :=
   rec (λ obF morF idF compF, rfl) F
 
@@ -315,7 +269,7 @@ namespace functor
   definition Functor_functor {C D : Category} (F : Functor C D) : functor (category_instance C) (category_instance D) :=
   Functor.rec (λ x, x) F
 
-  definition Compose {C D E : Category} (G : Functor D E) (F : Functor C D) : Functor C E :=
+  protected definition Compose {C D E : Category} (G : Functor D E) (F : Functor C D) : Functor C E :=
   Functor.mk (compose (Functor_functor G) (Functor_functor F))
 
 --  namespace Functor
@@ -323,17 +277,17 @@ namespace functor
   infixr `∘∘` := Compose
 --  end Functor
 
-  definition Assoc {A B C D : Category} (H : Functor C D) (G : Functor B C) (F : Functor A B)
+  protected definition Assoc {A B C D : Category} {H : Functor C D} {G : Functor B C} {F : Functor A B}
     :  H ∘∘ (G ∘∘ F) = (H ∘∘ G) ∘∘ F :=
   rfl
 
-  theorem Id_left {B : Category} {C : Category} (F : Functor B C)
+  protected theorem Id_left {B : Category} {C : Category} {F : Functor B C}
       : Id ∘∘ F = F :=
-  Functor.rec (λ f, subst (id_left f) rfl) F
+  Functor.rec (λ f, subst id_left rfl) F
 
-  theorem Id_right {B : Category} {C : Category} (F : Functor B C)
+  protected theorem Id_right {B : Category} {C : Category} {F : Functor B C}
       : F ∘∘ Id = F :=
-  Functor.rec (λ f, subst (id_right f) rfl) F
+  Functor.rec (λ f, subst id_right rfl) F
 
   end Functor
 
@@ -343,27 +297,127 @@ open functor
 
 inductive natural_transformation {obC obD : Type} {C : category obC} {D : category obD}
     (F G : functor C D) : Type :=
-mk : Π (η : Π(a : obC), mor (object F a) (object G a)), Π{a b : obC} (f : mor a b), morphism G f ∘ η a = η b ∘ morphism F f
+mk : Π (η : Π(a : obC), mor (object F a) (object G a)), (Π{a b : obC} (f : mor a b), morphism G f ∘ η a = η b ∘ morphism F f)
  → natural_transformation F G
 
-inductive Natural_transformation {C D : Category} (F G : Functor C D) : Type :=
-mk : natural_transformation (Functor_functor F) (Functor_functor G) → Natural_transformation F G
+-- inductive Natural_transformation {C D : Category} (F G : Functor C D) : Type :=
+-- mk : natural_transformation (Functor_functor F) (Functor_functor G) → Natural_transformation F G
 
-namespace natural_tranformation
+infixl `==>`:25 := natural_transformation
 
-  -- todo
+namespace natural_transformation
+  section
+  parameters {obC obD : Type} {C : category obC} {D : category obD} {F G : C ⇒ D}
 
-end natural_tranformation
+  definition natural_map [coercion] (η : F ==> G) :
+      Π(a : obC), mor (object F a) (object G a) :=
+  rec (λ x y, x) η
+
+  definition naturality (η : F ==> G) :
+      Π{a b : obC} (f : mor a b), morphism G f ∘ η a = η b ∘ morphism F f :=
+  rec (λ x y, y) η
+  end
+
+  section
+  parameters {obC obD : Type} {C : category obC} {D : category obD} {F G H : C ⇒ D}
+  protected definition compose (η : G ==> H) (θ : F ==> G) : F ==> H :=
+  natural_transformation.mk
+    (λ a, η a ∘ θ a)
+    (λ a b f,
+      calc
+        morphism H f ∘ (η a ∘ θ a) = (morphism H f ∘ η a) ∘ θ a : assoc
+          ... = (η b ∘ morphism G f) ∘ θ a : {naturality η f}
+          ... = η b ∘ (morphism G f ∘ θ a) : symm assoc
+          ... = η b ∘ (θ b ∘ morphism F f) : {naturality θ f}
+          ... = (η b ∘ θ b) ∘ morphism F f : assoc)
+  end
+  precedence `∘n` : 60
+  infixr `∘n` := compose
+  section
+  protected theorem assoc {obC obD : Type} {C : category obC} {D : category obD} {F₄ F₃ F₂ F₁ : C ⇒ D} {η₃ : F₃ ==> F₄} {η₂ : F₂ ==> F₃} {η₁ : F₁ ==> F₂} : η₃ ∘n (η₂ ∘n η₁) = (η₃ ∘n η₂) ∘n η₁ :=
+  congr_arg2_dep mk (funext (take x, assoc)) proof_irrel
+
+  --TODO: check whether some of the below identities are superfluous
+  protected definition id {obC obD : Type} {C : category obC} {D : category obD} {F : C ⇒ D}
+      : natural_transformation F F :=
+  mk (λa, id) (λa b f, id_right ⬝ symm id_left)
+  protected definition ID {obC obD : Type} {C : category obC} {D : category obD} (F : C ⇒ D)
+      : natural_transformation F F := id
+  -- protected definition Id {C D : Category} {F : Functor C D} : Natural_transformation F F :=
+  -- Natural_transformation.mk id
+  -- protected definition iD {C D : Category} (F : Functor C D) : Natural_transformation F F :=
+  -- Natural_transformation.mk id
+
+  protected theorem id_left {obC obD : Type} {C : category obC} {D : category obD} {F G : C ⇒ D}
+      {η : F ==> G} : natural_transformation.compose id η = η :=
+  rec (λf H, congr_arg2_dep mk (funext (take x, id_left)) proof_irrel) η
+
+  protected theorem id_right {obC obD : Type} {C : category obC} {D : category obD} {F G : C ⇒ D}
+      {η : F ==> G} : natural_transformation.compose η id = η :=
+  rec (λf H, congr_arg2_dep mk (funext (take x, id_right)) proof_irrel) η
+
+  end
+end natural_transformation
+
+-- examples of categories / basic constructions (TODO: move to separate file)
 
 open functor
 namespace category
+  section
+  open unit
+  definition one [instance] : category unit :=
+  category.mk (λa b, unit) (λ a b c f g, star) (λ a, star) (λ a b c d f g h, unit.equal _ _)
+    (λ a b f, unit.equal _ _) (λ a b f, unit.equal _ _)
+  end
+
+  section
+  parameter {ob : Type}
+  definition opposite (C : category ob) : category ob :=
+  category.mk (λa b, mor b a) (λ a b c f g, g ∘ f) (λ a, id) (λ a b c d f g h, symm assoc)
+    (λ a b f, id_right) (λ a b f, id_left)
+  precedence `∘op` : 60
+  infixr `∘op` := @compose _ (opposite _) _ _ _
+
+  parameters {C : category ob} {a b c : ob}
+
+  theorem compose_op {f : @mor ob C a b} {g : mor b c} : f ∘op g = g ∘ f :=
+  rfl
+
+  theorem op_op {C : category ob} : opposite (opposite C) = C :=
+  category.rec (λ mor comp id assoc idl idr, refl (mk _ _ _ _ _ _)) C
+  end
+
+  definition Opposite (C : Category) : Category :=
+  Category.mk (objects C) (opposite (category_instance C))
+
+
+  section
+  definition type_category : category Type :=
+  mk (λA B, A → B) (λ a b c, function.compose) (λ a, function.id)
+    (λ a b c d h g f, symm (function.compose_assoc h g f))
+    (λ a b f, function.compose_id_left f) (λ a b f, function.compose_id_right f)
+  end
+
   section cat_Cat
 
   definition Cat : category Category :=
-  mk (λ a b, Functor a b) (λ a b c g f, Compose g f) (λ a, Id)
-     (λ a b c d h g f, Assoc h g f) (λ a b f, Id_left f) (λ a b f, Id_right f)
+  mk (λ a b, Functor a b) (λ a b c g f, functor.Compose g f) (λ a, functor.Id)
+     (λ a b c d h g f, functor.Assoc) (λ a b f, functor.Id_left)
+     (λ a b f, functor.Id_right)
 
   end cat_Cat
+
+  section functor_category
+  parameters {obC obD : Type} (C : category obC) (D : category obD)
+  definition functor_category : category (functor C D) :=
+  mk (λa b, natural_transformation a b)
+     (λ a b c g f, natural_transformation.compose g f)
+     (λ a, natural_transformation.id)
+     (λ a b c d h g f, natural_transformation.assoc)
+     (λ a b f, natural_transformation.id_left)
+     (λ a b f, natural_transformation.id_right)
+  end functor_category
+
 
   section slice
   open sigma
@@ -371,17 +425,19 @@ namespace category
   definition slice {ob : Type} (C : category ob) (c : ob) : category (Σ(b : ob), mor b c) :=
   mk (λa b, Σ(g : mor (dpr1 a) (dpr1 b)), dpr2 b ∘ g = dpr2 a)
      (λ a b c g f, dpair (dpr1 g ∘ dpr1 f)
-       (calc
-         dpr2 c ∘ (dpr1 g ∘ dpr1 f) = (dpr2 c ∘ dpr1 g) ∘ dpr1 f : assoc
-           ... = dpr2 b ∘ dpr1 f : {dpr2 g}
-           ... = dpr2 a : {dpr2 f}))
+       (show dpr2 c ∘ (dpr1 g ∘ dpr1 f) = dpr2 a,
+         proof
+         calc
+           dpr2 c ∘ (dpr1 g ∘ dpr1 f) = (dpr2 c ∘ dpr1 g) ∘ dpr1 f : assoc
+             ... = dpr2 b ∘ dpr1 f : {dpr2 g}
+             ... = dpr2 a : {dpr2 f}
+         qed))
      (λ a, dpair id id_right)
      (λ a b c d h g f, dpair_eq    assoc    proof_irrel)
      (λ a b f,         sigma.equal id_left  proof_irrel)
      (λ a b f,         sigma.equal id_right proof_irrel)
-  --replacing proof_irrel with rfl confuses the unifier
+  -- We give proof_irrel instead of rfl, to give the unifier an easier time
   end slice
-
 
   section coslice
   open sigma
@@ -389,10 +445,13 @@ namespace category
   definition coslice {ob : Type} (C : category ob) (c : ob) : category (Σ(b : ob), mor c b) :=
   mk (λa b, Σ(g : mor (dpr1 a) (dpr1 b)), g ∘ dpr2 a = dpr2 b)
      (λ a b c g f, dpair (dpr1 g ∘ dpr1 f)
-       (calc
-         (dpr1 g ∘ dpr1 f) ∘ dpr2 a = dpr1 g ∘ (dpr1 f ∘ dpr2 a): symm assoc
-           ... = dpr1 g ∘ dpr2 b : {dpr2 f}
-           ... = dpr2 c : {dpr2 g}))
+       (show (dpr1 g ∘ dpr1 f) ∘ dpr2 a = dpr2 c,
+         proof
+         calc
+           (dpr1 g ∘ dpr1 f) ∘ dpr2 a = dpr1 g ∘ (dpr1 f ∘ dpr2 a): symm assoc
+             ... = dpr1 g ∘ dpr2 b : {dpr2 f}
+             ... = dpr2 c : {dpr2 g}
+         qed))
      (λ a, dpair id id_left)
      (λ a b c d h g f, dpair_eq    assoc    proof_irrel)
      (λ a b f,         sigma.equal id_left  proof_irrel)
@@ -418,29 +477,73 @@ namespace category
 
   section arrow
   open sigma eq_ops
+  -- theorem concat_commutative_squares {ob : Type} {C : category ob} {a1 a2 a3 b1 b2 b3 : ob}
+  --     {f1 : a1 => b1} {f2 : a2 => b2} {f3 : a3 => b3} {g2 : a2 => a3} {g1 : a1 => a2}
+  --     {h2 : b2 => b3} {h1 : b1 => b2} (H1 : f2 ∘ g1 = h1 ∘ f1) (H2 : f3 ∘ g2 = h2 ∘ f2)
+  --       : f3 ∘ (g2 ∘ g1) = (h2 ∘ h1) ∘ f1 :=
+  -- calc
+  --   f3 ∘ (g2 ∘ g1) = (f3 ∘ g2) ∘ g1 : assoc
+  --     ... = (h2 ∘ f2) ∘ g1 : {H2}
+  --     ... = h2 ∘ (f2 ∘ g1) : symm assoc
+  --     ... = h2 ∘ (h1 ∘ f1) : {H1}
+  --     ... = (h2 ∘ h1) ∘ f1 : assoc
 
-  definition arrow {ob : Type} (C : category ob) : category (Σ(a b : ob), mor a b) :=
-  mk (λa b, Σ(g : mor (dpr1 a) (dpr1 b)) (h : mor (dpr2' a) (dpr2' b)),
-       dpr3 b ∘ g = h ∘ dpr3 a)
-     (λ a b c g f, dpair (dpr1 g ∘ dpr1 f) (dpair (dpr2' g ∘ dpr2' f)
-       (calc
-         dpr3 c ∘ (dpr1 g ∘ dpr1 f) = (dpr3 c ∘ dpr1 g) ∘ dpr1 f : assoc
-           ... = (dpr2' g ∘ dpr3 b) ∘ dpr1 f : {dpr3 g}
-           ... = dpr2' g ∘ (dpr3 b ∘ dpr1 f) : symm assoc
-           ... = dpr2' g ∘ (dpr2' f ∘ dpr3 a) : {dpr3 f}
-           ... = (dpr2' g ∘ dpr2' f) ∘ dpr3 a : assoc)))
+  -- definition arrow {ob : Type} (C : category ob) : category (Σ(a b : ob), mor a b) :=
+  -- mk (λa b, Σ(g : mor (dpr1 a) (dpr1 b)) (h : mor (dpr2' a) (dpr2' b)),
+  --      dpr3 b ∘ g = h ∘ dpr3 a)
+  --    (λ a b c g f, dpair (dpr1 g ∘ dpr1 f) (dpair (dpr2' g ∘ dpr2' f) (concat_commutative_squares (dpr3 f) (dpr3 g))))
+  --    (λ a, dpair id (dpair id (id_right ⬝ (symm id_left))))
+  --    (λ a b c d h g f, dtrip_eq2   assoc    assoc    proof_irrel)
+  --    (λ a b f,         trip.equal2 id_left  id_left  proof_irrel)
+  --    (λ a b f,         trip.equal2 id_right id_right proof_irrel)
+
+  definition arrow_obs (ob : Type) (C : category ob) :=
+  Σ(a b : ob), mor a b
+
+  definition src {ob : Type} {C : category ob} (a : arrow_obs ob C) : ob :=
+  dpr1 a
+
+  definition dst {ob : Type} {C : category ob} (a : arrow_obs ob C) : ob :=
+  dpr2' a
+
+  definition to_mor {ob : Type} {C : category ob} (a : arrow_obs ob C) : mor (src a) (dst a) :=
+  dpr3 a
+
+  definition arrow_mor (ob : Type) (C : category ob) (a b : arrow_obs ob C) : Type :=
+  Σ (g : mor (src a) (src b)) (h : mor (dst a) (dst b)), to_mor b ∘ g = h ∘ to_mor a
+
+  definition mor_src {ob : Type} {C : category ob} {a b : arrow_obs ob C} (m : arrow_mor ob C a b) : mor (src a) (src b) :=
+  dpr1 m
+
+  definition mor_dst {ob : Type} {C : category ob} {a b : arrow_obs ob C} (m : arrow_mor ob C a b) : mor (dst a) (dst b) :=
+  dpr2' m
+
+  definition commute {ob : Type} {C : category ob} {a b : arrow_obs ob C} (m : arrow_mor ob C a b) :
+       to_mor b ∘ (mor_src m) = (mor_dst m) ∘ to_mor a :=
+  dpr3 m
+
+  definition arrow (ob : Type) (C : category ob) : category (arrow_obs ob C) :=
+  mk (λa b, arrow_mor ob C a b)
+     (λ a b c g f, dpair (mor_src g ∘ mor_src f) (dpair (mor_dst g ∘ mor_dst f)
+        (show to_mor c ∘ (mor_src g ∘ mor_src f) = (mor_dst g ∘ mor_dst f) ∘ to_mor a,
+         proof
+         calc
+         to_mor c ∘ (mor_src g ∘ mor_src f) = (to_mor c ∘ mor_src g) ∘ mor_src f : assoc
+           ... = (mor_dst g ∘ to_mor b) ∘ mor_src f  : {commute g}
+           ... = mor_dst g ∘ (to_mor b ∘ mor_src f)  : symm assoc
+           ... = mor_dst g ∘ (mor_dst f ∘ to_mor a)  : {commute f}
+           ... = (mor_dst g ∘ mor_dst f) ∘ to_mor a  : assoc
+         qed)
+       ))
      (λ a, dpair id (dpair id (id_right ⬝ (symm id_left))))
-     (λ a b c d h g f, dtrip_eq2   assoc    assoc    proof_irrel)
-     (λ a b f,         trip.equal2 id_left  id_left  proof_irrel)
-     (λ a b f,         trip.equal2 id_right id_right proof_irrel)
-     -- (λ a b c d h g f, dpair_eq assoc sorry)
-     -- (λ a b f,         sigma.equal id_left sorry)
-     -- (λ a b f,         sigma.equal id_right sorry)
+     (λ a b c d h g f, dtrip_eq_ndep   assoc    assoc    proof_irrel)
+     (λ a b f,         trip.equal_ndep id_left  id_left  proof_irrel)
+     (λ a b f,         trip.equal_ndep id_right id_right proof_irrel)
+
   end arrow
 
-
-  -- definition foo {obC obD : Type} (C : category obC) (D : category obD)
-  --     : category (obC × obD) :=
+  -- definition foo
+  --     : category (sorry) :=
   -- mk (λa b, sorry)
   --    (λ a b c g f, sorry)
   --    (λ a, sorry)

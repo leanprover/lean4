@@ -1,6 +1,6 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura, Jeremy Avigad
+-- Author: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 import logic.core.inhabited logic.core.eq
 open inhabited eq_ops
 
@@ -27,7 +27,7 @@ section
 
   theorem dpair_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) :
     dpair a₁ b₁ = dpair a₂ b₂ :=
-  congr_arg2 dpair H₁ H₂
+  congr_arg2_dep dpair H₁ H₂
 
   protected theorem equal {p₁ p₂ : Σx : A, B x} :
     ∀(H₁ : dpr1 p₁ = dpr1 p₂) (H₂ : eq.rec_on H₁ (dpr2 p₁) = dpr2 p₂), p₁ = p₂ :=
@@ -50,36 +50,22 @@ section trip_quad
   definition dpr3' (x : Σ a b c, D a b c) := dpr1 (dpr2 (dpr2 x))
   definition dpr4  (x : Σ a b c, D a b c) := dpr2 (dpr2 (dpr2 x))
 
-  -- theorem dtrip_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
-  --     (H₁ : a₁ = a₂)  (H₂ : eq.rec_on H₁ b₁ = b₂) (H₃ : eq.rec_on (congr_arg2 C H₁ H₂) c₁ = c₂) :
-  --   dtrip a₁ b₁ c₁ = dtrip a₂ b₂ c₂ :=
-  -- eq.rec_on H₁
-  --   (λ (b₂ : B a₁) (c₂ : C a₁ b₂) (H₁ : a₁ = a₁) (H₂ : eq.rec_on H₁ b₁ = b₂)
-  --       (x : (eq (eq.rec_on (congr_arg2 C H₁ H₂) c₁) c₂)), sorry
-  --     -- have H : dpair b₁ c₁ = dpair b₂ c₂, from
-  --     --   dpair_eq H₂ (eq.subst (eq.rec_on_id H₁ c₁) H₃),
-  --     -- eq.subst H rfl
-  --   )
-  --   b₂ c₂ H₁ H₂ H₃
+  theorem dtrip_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
+      (H₁ : a₁ = a₂)  (H₂ : eq.rec_on H₁ b₁ = b₂) (H₃ : eq.rec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) :
+    dtrip a₁ b₁ c₁ = dtrip a₂ b₂ c₂ :=
+  congr_arg3_dep dtrip H₁ H₂ H₃
 end trip_quad
 
-  theorem dtrip_eq2 {A B : Type} {C : A → B → Type} {a₁ a₂ : A} {b₁ b₂ : B}
+  theorem dtrip_eq_ndep {A B : Type} {C : A → B → Type} {a₁ a₂ : A} {b₁ b₂ : B}
       {c₁ : C a₁ b₁} {c₂ : C a₂ b₂} (H₁ : a₁ = a₂)  (H₂ : b₁ = b₂)
-      (H₃ : eq.rec_on H₂ (eq.rec_on H₁ c₁) = c₂) :
+      (H₃ : eq.rec_on (congr_arg2 C H₁ H₂) c₁ = c₂) :
     dtrip a₁ b₁ c₁ = dtrip a₂ b₂ c₂ :=
-  eq.rec_on H₁
-    (λ (b₂ : B) (c₂ : C a₁ b₂) (H₁ : a₁ = a₁) (H₂ : b₁ = b₂)
-        (H₃ : eq.rec_on H₂ (eq.rec_on H₁ c₁) = c₂),
-      have H : dpair b₁ c₁ = dpair b₂ c₂, from
-        dpair_eq H₂ (eq.subst (eq.rec_on_id H₁ c₁) H₃),
-      eq.subst H rfl
-    )
-    b₂ c₂ H₁ H₂ H₃
+  congr_arg3_ndep_dep dtrip H₁ H₂ H₃
 
-  theorem trip.equal2 {A B : Type} {C : A → B → Type} {p₁ p₂ : Σa b, C a b} :
+  theorem trip.equal_ndep {A B : Type} {C : A → B → Type} {p₁ p₂ : Σa b, C a b} :
       ∀(H₁ : dpr1 p₁ = dpr1 p₂) (H₂ : dpr2' p₁ = dpr2' p₂)
-      (H₃ : eq.rec_on H₂ (eq.rec_on H₁ (dpr3 p₁)) = dpr3 p₂), p₁ = p₂ :=
+      (H₃ : eq.rec_on (congr_arg2 C H₁ H₂) (dpr3 p₁) = dpr3 p₂), p₁ = p₂ :=
   destruct p₁ (take a₁ q₁, destruct q₁ (take b₁ c₁, destruct p₂ (take a₂ q₂, destruct q₂
-    (take b₂ c₂ H₁ H₂ H₃, dtrip_eq2 H₁ H₂ H₃))))
+    (take b₂ c₂ H₁ H₂ H₃, dtrip_eq_ndep H₁ H₂ H₃))))
 
 end sigma

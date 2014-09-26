@@ -39,11 +39,20 @@ Requirements
 Installing required packages at
 --------------------------------
 
+_Windows_
+
+- [MSys2](doc/make/msys2.md)
+- [Cygwin](doc/make/cygwin.md)
+
+_Linux_
+
 - [Ubuntu 12.04](doc/make/ubuntu-12.04.md)
 - [Ubuntu 12.04 (detailed)](doc/make/ubuntu-12.04-detailed.md)
 - [Fedora 19](doc/make/fedora-19.md)
+
+_OS X_
+
 - [OS X 10.9](doc/make/osx-10.9.md)
-- [Cygwin](doc/make/cygwin.md)
 
 Build Instructions
 ------------------

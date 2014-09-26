@@ -266,6 +266,7 @@ public:
         auto ec = mk_placeholder_elaborator(env(), ios(), m_context,
                                             m_ngen.next(), m_relax_main_opaque, use_local_instances(),
                                             is_strict, type, g, m_unifier_config);
+        register_meta(ec.first);
         cs += ec.second;
         return ec.first;
     }

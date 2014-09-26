@@ -183,6 +183,10 @@ format pretty_fn::pp_level(level const & l) {
 bool pretty_fn::is_implicit(expr const & f) {
     if (m_implict)
         return false; // showing implicit arguments
+    if (!closed(f)) {
+        // the Lean type checker assumes expressions are closed.
+        return false;
+    }
     try {
         binder_info bi = binding_info(m_tc.ensure_pi(m_tc.infer(f).first).first);
         return bi.is_implicit() || bi.is_strict_implicit();
@@ -320,6 +324,10 @@ auto pretty_fn::pp_local(expr const & e) -> result {
 }
 
 bool pretty_fn::has_implicit_args(expr const & f) {
+    if (!closed(f)) {
+        // the Lean type checker assumes expressions are closed.
+        return false;
+    }
     name_generator ngen(*g_tmp_prefix);
     try {
         expr type = m_tc.whnf(m_tc.infer(f).first).first;

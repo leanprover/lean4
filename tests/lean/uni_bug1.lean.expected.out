@@ -1,2 +1,1 @@
-uni_bug1.lean:2:0: warning: imported file uses 'sorry'
 f 1 0 (Rtrue (pr1 (pair 1 0)) 0) : nat

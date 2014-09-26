@@ -887,8 +887,11 @@ public:
     /** \brief Try to instantiate meta-variable \c mvar (modulo its state ps) using the given tactic.
         If it succeeds, then update subst with the solution.
         Return true iff the metavariable \c mvar has been assigned.
+
+        If \c show_failure == true, then display reason for failure.
     */
-    bool try_using(substitution & subst, expr const & mvar, proof_state const & ps, tactic const & tac) {
+    bool try_using(substitution & subst, expr const & mvar, proof_state const & ps, tactic const & tac,
+                   bool show_failure) {
         lean_assert(length(ps.get_goals()) == 1);
         // make sure ps is a really a proof state for mvar.
         lean_assert(mlocal_name(get_app_fn(head(ps.get_goals()).get_meta())) == mlocal_name(mvar));
@@ -897,11 +900,13 @@ public:
             auto r = seq.pull();
             if (!r) {
                 // tactic failed to produce any result
-                display_unsolved_proof_state(mvar, ps, "tactic failed");
+                if (show_failure)
+                    display_unsolved_proof_state(mvar, ps, "tactic failed");
                 return false;
             } else if (!empty(r->first.get_goals())) {
                 // tactic contains unsolved subgoals
-                display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+                if (show_failure)
+                    display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
                 return false;
             } else {
                 subst = r->first.get_subst();
@@ -910,9 +915,11 @@ public:
                 return true;
             }
         } catch (tactic_exception & ex) {
-            auto out = regular(env(), ios());
-            display_error_pos(out, pip(), ex.get_expr());
-            out << " tactic failed: " << ex.what() << "\n";
+            if (show_failure) {
+                auto out = regular(env(), ios());
+                display_error_pos(out, pip(), ex.get_expr());
+                out << " tactic failed: " << ex.what() << "\n";
+            }
             return false;
         }
     }
@@ -921,17 +928,26 @@ public:
         if (visited.contains(mlocal_name(mvar)))
             return;
         visited.insert(mlocal_name(mvar));
+        auto meta = mvar_to_meta(mvar);
+        if (!meta)
+            return;
+        meta = instantiate_meta(*meta, subst);
+        // TODO(Leo): we are discarding constraints here
+        expr type = m_tc[m_relax_main_opaque]->infer(*meta).first;
+        // first solve unassigned metavariables in type
+        type = solve_unassigned_mvars(subst, type, visited);
+        proof_state ps(goals(goal(*meta, type)), subst, m_ngen.mk_child());
         if (auto local_hint = get_local_tactic_hint(subst, mvar, visited)) {
-            auto meta = mvar_to_meta(mvar);
-            if (!meta)
-                return;
-            meta = instantiate_meta(*meta, subst);
-            // TODO(Leo): we are discarding constraints here
-            expr type = m_tc[m_relax_main_opaque]->infer(*meta).first;
-            // first solve unassigned metavariables in type
-            type = solve_unassigned_mvars(subst, type, visited);
-            proof_state ps(goals(goal(*meta, type)), subst, m_ngen.mk_child());
-            try_using(subst, mvar, ps, *local_hint);
+            // using user provided tactic
+            bool show_failure = true;
+            try_using(subst, mvar, ps, *local_hint, show_failure);
+        } else {
+            // using tactic_hints
+            for (tactic_hint_entry const & tentry : get_tactic_hints(env())) {
+                bool show_failure = false;
+                if (try_using(subst, mvar, ps, tentry.get_tactic(), show_failure))
+                    return;
+            }
         }
     }
 

@@ -24,7 +24,7 @@ script:
   - mkdir -p build
   - LEAN_ROOT=`pwd`
   - cd build
-  - cmake -DIGNORE_SORRY=ON -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src -DTCMALLOC=OFF -DCMAKE_TOOLCHAIN_FILE=/tmp/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake
+  - cmake -DCROSS_COMPILE=ON -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ../src -DTCMALLOC=OFF -DCMAKE_TOOLCHAIN_FILE=/tmp/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake
   - SITE=Windows@Travis
   - if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
         BUILD_TYPE=Release;

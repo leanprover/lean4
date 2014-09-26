@@ -24,6 +24,9 @@ option(JEMALLOC           "JEMALLOC"           OFF)
 # a version of Lean that does not report when 'sorry' is used.
 # This is useful for suppressing warning messages in the nightly builds.
 option(IGNORE_SORRY       "IGNORE_SORRY"      OFF)
+# When cross-compiling, we do not compile the standard library since
+# the executable will not work on the host machine
+option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
 
 # Added for CTest
 include(CTest)
@@ -322,13 +325,16 @@ if(NOT DEFINED PROCESSOR_COUNT)
   endif()
 endif()
 
-# Only build libraries if we are NOT cross compiling
-add_custom_target(
-  standard_lib ALL
-  COMMAND python ${LEAN_SOURCE_DIR}/../bin/linja
-  DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
-  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
-  )
+if("${CROSS_COMPILE}" MATCHES "ON")
+  message(STATUS "Lean standard library will not be compiled when using cross-compilation.")
+else()
+  add_custom_target(
+    standard_lib ALL
+    COMMAND python ${LEAN_SOURCE_DIR}/../bin/linja
+    DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
+    )
+endif()
 
 add_custom_target(clean-olean
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library

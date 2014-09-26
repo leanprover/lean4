@@ -28,7 +28,12 @@ constraint mk_proof_qed_cnstr(environment const & env, expr const & m, expr cons
         constraint_seq new_cs          = cs + tcs.second + dcs.second;
         buffer<constraint> cs_buffer;
         new_cs.linearize(cs_buffer);
+
+        metavar_closure cls(meta);
+        cls.add(meta_type);
+        cls.mk_constraints(s, j, relax, cs_buffer);
         cs_buffer.push_back(mk_eq_cnstr(meta, e, j, relax));
+
         unifier_config new_cfg(cfg);
         new_cfg.m_discard    = false;
         unify_result_seq seq = unify(env, cs_buffer.size(), cs_buffer.data(), ngen, new_cfg);
@@ -40,8 +45,6 @@ constraint mk_proof_qed_cnstr(environment const & env, expr const & m, expr cons
                                          // we erase internal justifications
                                          return update_justification(c, j);
                                      });
-        metavar_closure cls(meta);
-        cls.add(meta_type);
         constraints r = cls.mk_constraints(new_s, j, relax);
         return append(r, postponed);
     };

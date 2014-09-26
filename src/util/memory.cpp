@@ -160,6 +160,6 @@ void* operator new(std::size_t sz) throw(std::bad_alloc) { return lean::malloc(s
 void  operator delete(void * ptr) throw() { return lean::free(ptr); }
 void* operator new[](std::size_t sz) throw(std::bad_alloc) { return lean::malloc(sz, true); }
 void  operator delete[](void * ptr) throw() { return lean::free(ptr); }
-void* operator new(std::size_t sz, std::nothrow_t const &) { return lean::malloc(sz, false); }
-void* operator new[](std::size_t sz, std::nothrow_t const &) { return lean::malloc(sz, false); }
+void* operator new(std::size_t sz, std::nothrow_t const &) noexcept { return lean::malloc(sz, false); }
+void* operator new[](std::size_t sz, std::nothrow_t const &) noexcept { return lean::malloc(sz, false); }
 #endif

@@ -36,8 +36,10 @@ environment add_token(environment const & env, token_entry const & e);
 environment add_notation(environment const & env, notation_entry const & e);
 
 environment add_token(environment const & env, char const * val, unsigned prec);
-environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a, bool overload = true);
-environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a, bool overload = true);
+environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a,
+                             bool overload = true);
+environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a,
+                             bool overload = true);
 environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a,
                              bool overload = true);
 environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a,
@@ -48,6 +50,14 @@ parse_table const & get_led_table(environment const & env);
 cmd_table const & get_cmd_table(environment const & env);
 /** \brief Force notation from namespace \c n to shadow any existing notation */
 environment overwrite_notation(environment const & env, name const & n);
+
+/** \brief Add \c n as notation for \c e */
+environment add_mpz_notation(environment const & env, mpz const & n, expr const & e, bool overload = true);
+/** \brief Return the additional interpretations for \c n in the current environment.
+
+    \remark It does not include the default one based on the \c num inductive datatype.
+*/
+list<expr> get_mpz_notation(environment const & env, mpz const & n);
 
 void initialize_parser_config();
 void finalize_parser_config();

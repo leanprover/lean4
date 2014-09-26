@@ -217,27 +217,6 @@ environment add_led_notation(environment const & env, std::initializer_list<nota
     return add_led_notation(env, ts.size(), ts.begin(), a, overload);
 }
 
-environment overwrite_notation(environment const & env, name const & n) {
-    environment r = env;
-    bool found = false;
-    if (auto it = token_ext::get_entries(r, n)) {
-        found = true;
-        for (token_entry e : *it) {
-            r = add_token(r, e);
-        }
-    }
-    if (auto it = notation_ext::get_entries(env, n)) {
-        found = true;
-        for (notation_entry e : *it) {
-            e.m_overload = false;
-            r = add_notation(r, e);
-        }
-    }
-    if (!found)
-        throw exception(sstream() << "unknown namespace '" << n << "'");
-    return r;
-}
-
 parse_table const & get_nud_table(environment const & env) {
     return notation_ext::get_state(env).m_nud;
 }
@@ -265,6 +244,101 @@ cmd_table const & get_cmd_table(environment const & env) {
     return get_extension(env).m_cmds;
 }
 
+struct mpz_notation_entry {
+    mpz  m_num;
+    expr m_expr;
+    bool m_overload;
+    mpz_notation_entry():m_overload(false) {}
+    mpz_notation_entry(mpz const & n, expr const & e, bool o):m_num(n), m_expr(e), m_overload(o) {}
+};
+
+struct mpz_notation_state {
+    typedef rb_map<mpz, list<expr>, mpz_cmp_fn> map;
+    map m_map;
+};
+
+struct mpz_notation_config {
+    typedef mpz_notation_state  state;
+    typedef mpz_notation_entry  entry;
+    static name * g_class_name;
+    static std::string * g_key;
+
+    static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
+        if (!e.m_overload) {
+            s.m_map.insert(e.m_num, list<expr>(e.m_expr));
+        } else if (auto it = s.m_map.find(e.m_num)) {
+            list<expr> new_exprs = cons(e.m_expr, filter(*it, [&](expr const & n) { return n != e.m_expr; }));
+            s.m_map.insert(e.m_num, new_exprs);
+        } else {
+            s.m_map.insert(e.m_num, list<expr>(e.m_expr));
+        }
+    }
+    static name const & get_class_name() {
+        return *g_class_name;
+    }
+    static std::string const & get_serialization_key() {
+        return *g_key;
+    }
+    static void  write_entry(serializer & s, entry const & e) {
+        s << e.m_num << e.m_expr << e.m_overload;
+    }
+    static entry read_entry(deserializer & d) {
+        entry e;
+        d >> e.m_num >> e.m_expr >> e.m_overload;
+        return e;
+    }
+};
+
+name * mpz_notation_config::g_class_name = nullptr;
+std::string * mpz_notation_config::g_key = nullptr;
+
+template class scoped_ext<mpz_notation_config>;
+typedef scoped_ext<mpz_notation_config> mpz_notation_ext;
+
+environment add_mpz_notation(environment const & env, mpz_notation_entry const & e) {
+    return mpz_notation_ext::add_entry(env, get_dummy_ios(), e);
+}
+
+environment add_mpz_notation(environment const & env, mpz const & n, expr const & e, bool overload) {
+    return add_mpz_notation(env, mpz_notation_entry(n, e, overload));
+}
+
+list<expr> get_mpz_notation(environment const & env, mpz const & n) {
+    if (auto it = mpz_notation_ext::get_state(env).m_map.find(n)) {
+        return *it;
+    } else {
+        return list<expr>();
+    }
+}
+
+environment overwrite_notation(environment const & env, name const & n) {
+    environment r = env;
+    bool found = false;
+    if (auto it = token_ext::get_entries(r, n)) {
+        found = true;
+        for (token_entry e : *it) {
+            r = add_token(r, e);
+        }
+    }
+    if (auto it = notation_ext::get_entries(env, n)) {
+        found = true;
+        for (notation_entry e : *it) {
+            e.m_overload = false;
+            r = add_notation(r, e);
+        }
+    }
+    if (auto it = mpz_notation_ext::get_entries(env, n)) {
+        found = true;
+        for (mpz_notation_entry e : *it) {
+            e.m_overload = false;
+            r = add_mpz_notation(r, e);
+        }
+    }
+    if (!found)
+        throw exception(sstream() << "unknown namespace '" << n << "'");
+    return r;
+}
+
 void initialize_parser_config() {
     token_config::g_class_name = new name("notation");
     token_config::g_key        = new std::string("tk");
@@ -273,8 +347,14 @@ void initialize_parser_config() {
     notation_config::g_key        = new std::string("nota");
     notation_ext::initialize();
     g_ext = new cmd_ext_reg();
+    mpz_notation_config::g_class_name = new name("notation");
+    mpz_notation_config::g_key        = new std::string("numnota");
+    mpz_notation_ext::initialize();
 }
 void finalize_parser_config() {
+    mpz_notation_ext::finalize();
+    delete mpz_notation_config::g_key;
+    delete mpz_notation_config::g_class_name;
     delete g_ext;
     notation_ext::finalize();
     delete notation_config::g_key;

@@ -222,6 +222,10 @@ public:
     friend std::ostream & operator<<(std::ostream & out, mpz const & v);
 };
 
+struct mpz_cmp_fn {
+    int operator()(mpz const & v1, mpz const & v2) const { return cmp(v1, v2); }
+};
+
 template<>
 class numeric_traits<mpz> {
 public:

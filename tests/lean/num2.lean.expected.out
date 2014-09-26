@@ -1,0 +1,4 @@
+o : N
+z : N
+eq gz a : Prop
+eq b z : Prop

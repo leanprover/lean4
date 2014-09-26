@@ -1058,10 +1058,22 @@ expr parser::parse_numeral_expr() {
     next();
     if (!m_has_num)
         m_has_num = has_num_decls(m_env);
-    if (!*m_has_num)
+    list<expr> vals = get_mpz_notation(m_env, n);
+    if (!*m_has_num && !vals) {
         throw parser_error("numeral cannot be encoded as expression, environment does not contain the type 'num' "
-                           "(solution: use 'import num')", p);
-    return from_num(n);
+                           "nor notation was defined for the given numeral "
+                           "(solution: use 'import data.num', or define notation for the given numeral)", p);
+    }
+    buffer<expr> cs;
+    for (expr const & c : vals)
+        cs.push_back(copy_with_new_pos(c, p));
+    if (*m_has_num)
+        cs.push_back(save_pos(from_num(n), p));
+    lean_assert(!cs.empty());
+    if (cs.size() == 1)
+        return cs[0];
+    else
+        return save_pos(mk_choice(cs.size(), cs.data()), p);
 }
 
 expr parser::parse_decimal_expr() {

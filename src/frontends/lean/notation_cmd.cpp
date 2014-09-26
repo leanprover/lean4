@@ -371,14 +371,27 @@ notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry
     return notation_entry(is_nud, to_list(ts.begin(), ts.end()), n, overload);
 }
 
+environment parse_num_notation(parser & p, bool overload) {
+    lean_assert(p.curr_is_numeral());
+    mpz num = p.get_num_val().get_numerator();
+    p.next();
+    p.check_token_next(get_assign_tk(), "invalid numeral notation, `:=` expected");
+    expr e  = cleanup_section_notation(p, p.parse_expr());
+    return add_mpz_notation(p.env(), num, e, overload);
+}
+
 environment notation_cmd_core(parser & p, bool overload) {
     environment env = p.env();
     buffer<token_entry> new_tokens;
-    auto ne = parse_notation_core(p, overload, new_tokens);
-    for (auto const & te : new_tokens)
-        env = add_token(env, te);
-    env = add_notation(env, ne);
-    return env;
+    if (p.curr_is_numeral()) {
+        return parse_num_notation(p, overload);
+    } else {
+        auto ne = parse_notation_core(p, overload, new_tokens);
+        for (auto const & te : new_tokens)
+            env = add_token(env, te);
+        env = add_notation(env, ne);
+        return env;
+    }
 }
 
 bool curr_is_notation_decl(parser & p) {

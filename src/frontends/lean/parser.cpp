@@ -157,9 +157,14 @@ bool parser::are_info_lines_valid(unsigned start_line, unsigned end_line) const 
 expr parser::mk_sorry(pos_info const & p) {
     m_used_sorry = true;
     {
+#ifndef LEAN_IGNORE_SORRY
+        // TODO(Leo): remove the #ifdef.
+        // The compilation option LEAN_IGNORE_SORRY is a temporary hack for the nightly builds
+        // We use it to avoid a buch of warnings on cdash.
         flycheck_warning wrn(regular_stream());
         display_warning_pos(p.first, p.second);
         regular_stream() << " using 'sorry'" << endl;
+#endif
     }
     return save_pos(::lean::mk_sorry(), p);
 }
@@ -1259,9 +1264,14 @@ bool parser::parse_commands() {
             },
             [&]() { sync_command(); });
         if (has_sorry(m_env)) {
+#ifndef LEAN_IGNORE_SORRY
+            // TODO(Leo): remove the #ifdef.
+            // The compilation option LEAN_IGNORE_SORRY is a temporary hack for the nightly builds
+            // We use it to avoid a buch of warnings on cdash.
             flycheck_warning wrn(regular_stream());
             display_warning_pos(pos());
             regular_stream() << " imported file uses 'sorry'" << endl;
+#endif
         }
         while (!done) {
             protected_call([&]() {

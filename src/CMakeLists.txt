@@ -20,6 +20,10 @@ option(READLINE           "READLINE"           OFF)
 option(CACHE_EXPRS        "CACHE_EXPRS"        ON)
 option(TCMALLOC           "TCMALLOC"           ON)
 option(JEMALLOC           "JEMALLOC"           OFF)
+# IGNORE_SORRY is a tempory option (hack). It allows us to build
+# a version of Lean that does not report when 'sorry' is used.
+# This is useful for suppressing warning messages in the nightly builds.
+option(IGNORE_SORRY       "IGNORE_SORRY"      OFF)
 
 # Added for CTest
 include(CTest)
@@ -71,6 +75,11 @@ set(CMAKE_CXX_FLAGS_GPROF          "-O2 -g -pg")
 
 include(CheckIncludeFileCXX)
 check_include_file_cxx("unistd.h" HAVE_UNISTD)
+
+if ("${IGNORE_SORRY}" MATCHES "ON")
+  message(STATUS "IGNORE_SORRY is ON, Lean will not report when 'sorry' is used directly or indirectly")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D LEAN_IGNORE_SORRY")
+endif()
 
 # SPLIT_STACK
 if ("${SPLIT_STACK}" MATCHES "ON")

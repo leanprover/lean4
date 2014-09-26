@@ -247,7 +247,7 @@ script:
        sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE;
        sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE;
        if [[ $MEMCHECK == TRUE ]]; then
-           ninja;
+           ninja -j1;
        else
            ctest -D ExperimentalConfigure;
            sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE;
@@ -262,7 +262,7 @@ after_script:
 - cd build
 - if [[ $REPO == BLESSED && $TESTCOV == ON ]]; then
      ctest -D ExperimentalCoverage;
-     ninja cov;
+     ninja -j1 cov;
      npm install coveralls --save;
      cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
   fi

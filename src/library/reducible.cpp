@@ -71,14 +71,18 @@ struct reducible_config {
 template class scoped_ext<reducible_config>;
 typedef scoped_ext<reducible_config> reducible_ext;
 
+static name * g_tmp_prefix = nullptr;
+
 void initialize_reducible() {
     g_class_name = new name("reducible");
     g_key        = new std::string("redu");
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
     reducible_ext::initialize();
 }
 
 void finalize_reducible() {
     reducible_ext::finalize();
+    delete g_tmp_prefix;
     delete g_key;
     delete g_class_name;
 }
@@ -127,5 +131,8 @@ std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_gene
         return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, relax_main_opaque,
                                                                                               true, pred)));
     }
+}
+std::unique_ptr<type_checker> mk_type_checker(environment const & env, bool relax_main_opaque, bool only_main_reducible) {
+    return mk_type_checker(env, name_generator(*g_tmp_prefix), relax_main_opaque, only_main_reducible);
 }
 }

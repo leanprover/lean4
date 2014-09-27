@@ -8,21 +8,12 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "library/reducible.h"
 
 namespace lean {
-static name * g_tmp_prefix = nullptr;
-
-void initialize_normalize() {
-    g_tmp_prefix = new name(name::mk_internal_unique_name());
-}
-
-void finalize_normalize() {
-    delete g_tmp_prefix;
-}
-
 class normalize_fn {
-    type_checker   m_tc;
-    name_generator m_ngen;
+    std::unique_ptr<type_checker> m_tc;
+    name_generator                m_ngen;
 
     expr normalize_binding(expr const & e) {
         expr d = normalize(binding_domain(e));
@@ -40,7 +31,7 @@ class normalize_fn {
     }
 
     expr normalize(expr e) {
-        e = m_tc.whnf(e).first;
+        e = m_tc->whnf(e).first;
         switch (e.kind()) {
         case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
         case expr_kind::Meta: case expr_kind::Local: case expr_kind::Macro:
@@ -54,9 +45,15 @@ class normalize_fn {
     }
 
 public:
-    normalize_fn(environment const & env):m_tc(env), m_ngen(*g_tmp_prefix) {}
+    normalize_fn(environment const & env):m_tc(mk_type_checker(env, true)), m_ngen(m_tc->mk_ngen()) {}
     expr operator()(expr const & e) { return normalize(e); }
+    expr operator()(level_param_names const & ls, expr const & e) {
+        return m_tc->with_params(ls, [&]() {
+                return normalize(e);
+            });
+    }
 };
 
 expr normalize(environment const & env, expr const & e) { return normalize_fn(env)(e); }
+expr normalize(environment const & env, level_param_names const & ls, expr const & e) { return normalize_fn(env)(ls, e); }
 }

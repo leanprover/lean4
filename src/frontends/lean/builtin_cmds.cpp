@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/coercion.h"
 #include "library/reducible.h"
+#include "library/normalize.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -83,20 +84,35 @@ environment end_scoped_cmd(parser & p) {
     }
 }
 
-environment check_cmd(parser & p) {
+/** \brief Auxiliary function for check/eval */
+static std::tuple<expr, level_param_names> parse_local_expr(parser & p) {
     expr e   = p.parse_expr();
     list<expr> ctx = locals_to_context(e, p);
     level_param_names ls = to_level_param_names(collect_univ_params(e));
     level_param_names new_ls;
     std::tie(e, new_ls) = p.elaborate_relaxed(e, ctx);
+    return std::make_tuple(e, append(ls, new_ls));
+}
+
+environment check_cmd(parser & p) {
+    expr e; level_param_names ls;
+    std::tie(e, ls) = parse_local_expr(p);
     auto tc = mk_type_checker(p.env(), p.mk_ngen(), true);
-    expr type = tc->check(e, append(ls, new_ls)).first;
+    expr type = tc->check(e, ls).first;
     auto reg              = p.regular_stream();
     formatter const & fmt = reg.get_formatter();
     options opts          = p.ios().get_options();
     unsigned indent       = get_pp_indent(opts);
     format r = group(fmt(e) + space() + colon() + nest(indent, line() + fmt(type)));
     reg << mk_pair(r, opts) << endl;
+    return p.env();
+}
+
+environment eval_cmd(parser & p) {
+    expr e; level_param_names ls;
+    std::tie(e, ls) = parse_local_expr(p);
+    expr r = normalize(p.env(), ls, e);
+    p.regular_stream() << r << endl;
     return p.env();
 }
 
@@ -358,6 +374,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("namespace",    "open a new namespace", namespace_cmd));
     add_cmd(r, cmd_info("end",          "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
+    add_cmd(r, cmd_info("eval",         "evaluate given expression", eval_cmd));
     add_cmd(r, cmd_info("coercion",     "add a new coercion", coercion_cmd));
     add_cmd(r, cmd_info("reducible",    "mark definitions as reducible/irreducible for automation", reducible_cmd));
     add_cmd(r, cmd_info("irreducible",  "mark definitions as irreducible for automation", irreducible_cmd));

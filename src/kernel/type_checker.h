@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <utility>
 #include <algorithm>
+#include "util/flet.h"
 #include "util/name_generator.h"
 #include "util/name_set.h"
 #include "kernel/environment.h"
@@ -204,6 +205,12 @@ public:
     bool is_opaque(declaration const & d) const;
     /** \brief Return true iff the constant \c c is opaque with respect to this type checker. */
     bool is_opaque(expr const & c) const;
+
+    template<typename F>
+    typename std::result_of<F()>::type with_params(level_param_names const & ps, F && f) {
+        flet<level_param_names const *> updt(m_params, &ps);
+        return f();
+    }
 };
 
 typedef std::shared_ptr<type_checker> type_checker_ref;

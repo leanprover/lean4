@@ -25,7 +25,6 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 #include "library/kernel_bindings.h"
 #include "library/match.h"
-#include "library/normalize.h"
 #include "library/sorry.h"
 #include "library/placeholder.h"
 #include "library/print.h"
@@ -35,7 +34,6 @@ void initialize_library_module() {
     initialize_print();
     initialize_placeholder();
     initialize_match();
-    initialize_normalize();
     initialize_kernel_bindings();
     initialize_io_state();
     initialize_unifier();
@@ -81,7 +79,6 @@ void finalize_library_module() {
     finalize_unifier();
     finalize_io_state();
     finalize_kernel_bindings();
-    finalize_normalize();
     finalize_match();
     finalize_placeholder();
     finalize_print();

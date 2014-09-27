@@ -10,6 +10,5 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief Return the \c e normal form with respect to the environment \c env. */
 expr normalize(environment const & env, expr const & e);
-void initialize_normalize();
-void finalize_normalize();
+expr normalize(environment const & env, level_param_names const & ls, expr const & e);
 }

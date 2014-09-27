@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include <getopt.h>
 #include <string>
 #include "util/stackinfo.h"
+#include "util/macros.h"
 #include "util/debug.h"
 #include "util/sstream.h"
 #include "util/interrupt.h"
@@ -60,13 +61,10 @@ static void on_ctrl_c(int ) {
     lean::request_interrupt();
 }
 
-#define XSTR(x) #x
-#define STR(x) XSTR(x)
-
 static void display_header(std::ostream & out) {
     out << "Lean (version " << LEAN_VERSION_MAJOR << "." << LEAN_VERSION_MINOR
         << ", commit " << std::string(g_githash).substr(0, 12)
-        << ", " << STR(LEAN_BUILD_TYPE) << ")\n";
+        << ", " << LEAN_STR(LEAN_BUILD_TYPE) << ")\n";
 }
 
 static void display_help(std::ostream & out) {

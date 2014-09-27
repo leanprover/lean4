@@ -262,7 +262,7 @@ after_script:
 - cd build
 - if [[ $REPO == BLESSED && $TESTCOV == ON ]]; then
      ctest -D ExperimentalCoverage;
-     ninja cov;
+     ninja -j 1 cov;
      npm install coveralls --save;
      cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
   fi

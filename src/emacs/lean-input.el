@@ -363,6 +363,7 @@ order for the change to take effect."
   ("ur" . ,(lean-input-to-string-list "↗⇗                                         ➶➹➚                             "))
   ("dr" . ,(lean-input-to-string-list "↘⇘                        ⇲                ➴➷➘                             "))
   ("dl" . ,(lean-input-to-string-list "↙⇙                                                                         "))
+  ("==>" . ("⟹"))
 
   ("l-"  . ("←"))  ("<-"  . ("←"))  ("l="  . ("⇐"))
   ("r-"  . ("→"))  ("->"  . ("→"))  ("r="  . ("⇒"))  ("=>"  . ("⇒"))

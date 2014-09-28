@@ -26,7 +26,7 @@ struct class_entry {
 };
 
 struct class_state {
-    typedef rb_map<name, list<name>, name_quick_cmp> class_instances;
+    typedef name_map<list<name>> class_instances;
     class_instances m_instances;
     void add_class(name const & c) {
         auto it = m_instances.find(c);

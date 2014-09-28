@@ -51,8 +51,8 @@ struct calc_entry {
 };
 
 struct calc_state {
-    typedef rb_map<name, pair<name, unsigned>, name_quick_cmp> refl_table;
-    typedef rb_map<name, pair<name, unsigned>, name_quick_cmp> subst_table;
+    typedef name_map<pair<name, unsigned>> refl_table;
+    typedef name_map<pair<name, unsigned>> subst_table;
     typedef rb_map<name_pair, std::tuple<name, name, unsigned>, name_pair_quick_cmp> trans_table;
     trans_table    m_trans_table;
     refl_table     m_refl_table;

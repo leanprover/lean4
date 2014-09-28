@@ -269,9 +269,9 @@ transition replace(transition const & t, std::function<expr(expr const &)> const
 }
 
 struct parse_table::cell {
-    bool                                                    m_nud;
-    list<expr>                                              m_accept;
-    rb_map<name, pair<action, parse_table>, name_quick_cmp> m_children;
+    bool                                m_nud;
+    list<expr>                          m_accept;
+    name_map<pair<action, parse_table>> m_children;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc() { delete this; }
     cell(bool nud = true):m_nud(nud), m_rc(1) {}

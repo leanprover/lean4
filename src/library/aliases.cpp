@@ -25,11 +25,11 @@ static environment update(environment const & env, aliases_ext const & ext);
 
 struct aliases_ext : public environment_extension {
     struct state {
-        bool                                      m_in_section_or_context;
-        rb_map<name, list<name>, name_quick_cmp>  m_aliases;
-        rb_map<name, name,       name_quick_cmp>  m_inv_aliases;
-        rb_map<name, name,       name_quick_cmp>  m_level_aliases;
-        rb_map<name, name,       name_quick_cmp>  m_inv_level_aliases;
+        bool                  m_in_section_or_context;
+        name_map<list<name>>  m_aliases;
+        name_map<name>        m_inv_aliases;
+        name_map<name>        m_level_aliases;
+        name_map<name>        m_inv_level_aliases;
         state():m_in_section_or_context(false) {}
 
         void add_expr_alias(name const & a, name const & e) {

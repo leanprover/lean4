@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "util/list.h"
 #include "util/rb_map.h"
 #include "util/name_set.h"
+#include "util/name_map.h"
 #include "kernel/expr.h"
 #include "kernel/constraint.h"
 #include "kernel/declaration.h"
@@ -101,7 +102,7 @@ public:
 */
 class environment {
     typedef std::shared_ptr<environment_header const>     header;
-    typedef rb_map<name, declaration, name_quick_cmp>     declarations;
+    typedef name_map<declaration>                         declarations;
     typedef std::shared_ptr<environment_extensions const> extensions;
 
     header         m_header;

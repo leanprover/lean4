@@ -290,8 +290,8 @@ struct unifier_fn {
     };
     typedef rb_tree<cnstr, cnstr_cmp> cnstr_set;
     typedef rb_tree<unsigned, unsigned_cmp> cnstr_idx_set;
-    typedef rb_map<name, cnstr_idx_set, name_quick_cmp> name_to_cnstrs;
-    typedef rb_map<name, unsigned, name_quick_cmp> owned_map;
+    typedef name_map<cnstr_idx_set> name_to_cnstrs;
+    typedef name_map<unsigned> owned_map;
     typedef rb_map<expr, pair<expr, justification>, expr_quick_cmp> expr_map;
     typedef std::unique_ptr<type_checker> type_checker_ptr;
     environment      m_env;

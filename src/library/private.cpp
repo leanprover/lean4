@@ -13,8 +13,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct private_ext : public environment_extension {
-    unsigned                           m_counter;
-    rb_map<name, name, name_quick_cmp> m_inv_map;  // map: hidden-name -> user-name
+    unsigned       m_counter;
+    name_map<name> m_inv_map;  // map: hidden-name -> user-name
     private_ext():m_counter(0) {}
 };
 

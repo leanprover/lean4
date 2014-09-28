@@ -69,9 +69,9 @@ class scoped_ext : public environment_extension {
     static name const & get_class_name()  { return Config::get_class_name(); }
     static std::string const & get_serialization_key() { return Config::get_serialization_key(); }
 
-    state                                     m_state;
-    list<state>                               m_scopes;
-    rb_map<name, list<entry>, name_quick_cmp> m_entries;
+    state                 m_state;
+    list<state>           m_scopes;
+    name_map<list<entry>> m_entries;
 
     void using_namespace_core(environment const & env, io_state const & ios, name const & n) {
         if (auto it = m_entries.find(n)) {

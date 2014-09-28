@@ -21,7 +21,7 @@ namespace lean {
 typedef list<tactic_hint_entry> tactic_hint_entries;
 
 struct tactic_hint_state {
-    typedef rb_map<name, tactic_hint_entries, name_quick_cmp> class_tactics;
+    typedef name_map<tactic_hint_entries> class_tactics;
     class_tactics        m_class_tactics;
     tactic_hint_entries  m_tactics;
 };

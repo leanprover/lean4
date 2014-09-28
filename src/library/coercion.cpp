@@ -56,12 +56,12 @@ struct coercion_info {
 };
 
 struct coercion_state {
-    rb_map<name, list<coercion_info>, name_quick_cmp>                    m_coercion_info;
+    name_map<list<coercion_info>>                             m_coercion_info;
     // m_from and m_to contain "direct" coercions
-    typedef std::tuple<coercion_class, expr, expr> from_data;
-    rb_map<name, list<from_data>, name_quick_cmp>                        m_from; // map user-class -> list of (class, coercion-fun)
-    rb_map<coercion_class, list<name>, coercion_class_cmp_fn>            m_to;
-    rb_map<name, pair<name, unsigned>, name_quick_cmp>                   m_coercions; // map coercion -> (from-class, num-args)
+    typedef std::tuple<coercion_class, expr, expr>            from_data;
+    name_map<list<from_data>>                                 m_from; // map user-class -> list of (class, coercion-fun)
+    rb_map<coercion_class, list<name>, coercion_class_cmp_fn> m_to;
+    name_map<pair<name, unsigned>>                            m_coercions; // map coercion -> (from-class, num-args)
 
     template<typename F>
     void for_each_info(name const & from, coercion_class const & to, F && f) {

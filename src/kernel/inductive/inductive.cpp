@@ -123,15 +123,16 @@ struct inductive_env_ext : public environment_extension {
     };
 
     // mapping from introduction rule name to computation rule data
-    rb_map<name, elim_info, name_quick_cmp>             m_elim_info;
-    rb_map<name, comp_rule, name_quick_cmp>             m_comp_rules;
+    name_map<elim_info>             m_elim_info;
+    name_map<comp_rule>             m_comp_rules;
     // mapping from intro rule to datatype
-    rb_map<name, name, name_quick_cmp>                  m_intro_info;
-    rb_map<name, inductive_decls, name_quick_cmp>       m_inductive_info;
+    name_map<name>                  m_intro_info;
+    name_map<inductive_decls>       m_inductive_info;
 
     inductive_env_ext() {}
 
-    void add_elim(name const & n, name const & id_name, level_param_names const & ls, unsigned num_ps, unsigned num_ace, unsigned num_indices) {
+    void add_elim(name const & n, name const & id_name, level_param_names const & ls,
+                  unsigned num_ps, unsigned num_ace, unsigned num_indices) {
         m_elim_info.insert(n, elim_info(id_name, ls, num_ps, num_ace, num_indices));
     }
 

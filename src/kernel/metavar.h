@@ -9,14 +9,15 @@ Author: Leonardo de Moura
 #include "util/rb_map.h"
 #include "util/optional.h"
 #include "util/name_set.h"
+#include "util/name_map.h"
 #include "kernel/expr.h"
 #include "kernel/justification.h"
 
 namespace lean {
 class substitution {
-    typedef rb_map<name, expr, name_quick_cmp>          expr_map;
-    typedef rb_map<name, level, name_quick_cmp>         level_map;
-    typedef rb_map<name, justification, name_quick_cmp> jst_map;
+    typedef name_map<expr>          expr_map;
+    typedef name_map<level>         level_map;
+    typedef name_map<justification> jst_map;
 
     expr_map  m_expr_subst;
     level_map m_level_subst;

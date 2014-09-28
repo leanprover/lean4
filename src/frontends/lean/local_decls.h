@@ -19,7 +19,7 @@ namespace lean {
 */
 template<typename V>
 class local_decls {
-    typedef rb_map<name, pair<V, unsigned>, name_quick_cmp> map;
+    typedef name_map<pair<V, unsigned>> map;
     typedef list<std::tuple<map, unsigned, list<V>>> scopes;
     map       m_map;
     unsigned  m_counter;

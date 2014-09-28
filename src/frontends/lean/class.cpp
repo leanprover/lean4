@@ -11,34 +11,66 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/kernel_serializer.h"
 #include "library/reducible.h"
+#include "library/num.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tactic_hint.h"
+#include "frontends/lean/tokens.h"
+
+#ifndef LEAN_INSTANCE_DEFAULT_PRIORITY
+#define LEAN_INSTANCE_DEFAULT_PRIORITY 1000
+#endif
 
 namespace lean {
 struct class_entry {
-    bool  m_class_cmd;
-    name  m_class;
-    name  m_instance; // only relevant if m_class_cmd == false
-    class_entry():m_class_cmd(false) {}
-    explicit class_entry(name const & c):m_class_cmd(true), m_class(c) {}
-    class_entry(name const & c, name const & i):m_class_cmd(false), m_class(c), m_instance(i) {}
+    bool     m_class_cmd;
+    name     m_class;
+    name     m_instance; // only relevant if m_class_cmd == false
+    unsigned m_priority; // only relevant if m_class_cmd == false
+    class_entry():m_class_cmd(false), m_priority(0) {}
+    explicit class_entry(name const & c):m_class_cmd(true), m_class(c), m_priority(0) {}
+    class_entry(name const & c, name const & i, unsigned p):
+        m_class_cmd(false), m_class(c), m_instance(i), m_priority(p) {}
 };
 
 struct class_state {
     typedef name_map<list<name>> class_instances;
-    class_instances m_instances;
+    typedef name_map<unsigned>   instance_priorities;
+    class_instances     m_instances;
+    instance_priorities m_priorities;
+
+    unsigned get_priority(name const & i) const {
+        if (auto it = m_priorities.find(i))
+            return *it;
+        else
+            return LEAN_INSTANCE_DEFAULT_PRIORITY;
+    }
+
+    list<name> insert(name const & inst, unsigned priority, list<name> const & insts) const {
+        if (!insts)
+            return to_list(inst);
+        else if (priority >= get_priority(head(insts)))
+            return list<name>(inst, insts);
+        else
+            return list<name>(head(insts), insert(inst, priority, tail(insts)));
+    }
+
     void add_class(name const & c) {
         auto it = m_instances.find(c);
         if (!it)
             m_instances.insert(c, list<name>());
     }
-    void add_instance(name const & c, name const & i) {
+
+    void add_instance(name const & c, name const & i, unsigned p) {
         auto it = m_instances.find(c);
-        if (!it)
+        if (!it) {
             m_instances.insert(c, to_list(i));
-        else
-            m_instances.insert(c, cons(i, filter(*it, [&](name const & i1) { return i1 != i; })));
+        } else {
+            auto lst = filter(*it, [&](name const & i1) { return i1 != i; });
+            m_instances.insert(c, insert(i, p, lst));
+        }
+        if (p != LEAN_INSTANCE_DEFAULT_PRIORITY)
+            m_priorities.insert(i, p);
     }
 };
 
@@ -52,7 +84,7 @@ struct class_config {
         if (e.m_class_cmd)
             s.add_class(e.m_class);
         else
-            s.add_instance(e.m_class, e.m_instance);
+            s.add_instance(e.m_class, e.m_instance, e.m_priority);
     }
     static name const & get_class_name() {
         return *g_class_name;
@@ -64,7 +96,7 @@ struct class_config {
         if (e.m_class_cmd)
             s << true << e.m_class;
         else
-            s << false << e.m_class << e.m_instance;
+            s << false << e.m_class << e.m_instance << e.m_priority;
     }
     static entry read_entry(deserializer & d) {
         entry e;
@@ -72,7 +104,7 @@ struct class_config {
         if (e.m_class_cmd)
             d >> e.m_class;
         else
-            d >> e.m_class >> e.m_instance;
+            d >> e.m_class >> e.m_instance >> e.m_priority;
         return e;
     }
 };
@@ -100,7 +132,7 @@ environment add_class(environment const & env, name const & n, bool persistent) 
 }
 
 static name * g_tmp_prefix = nullptr;
-environment add_instance(environment const & env, name const & n, bool persistent) {
+environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
     declaration d = env.get(n);
     expr type = d.get_type();
     name_generator ngen(*g_tmp_prefix);
@@ -112,7 +144,11 @@ environment add_instance(environment const & env, name const & n, bool persisten
         type = instantiate(binding_body(type), mk_local(ngen.next(), binding_domain(type)));
     }
     name c = get_class_name(env, get_app_fn(type));
-    return class_ext::add_entry(env, get_dummy_ios(), class_entry(c, n), persistent);
+    return class_ext::add_entry(env, get_dummy_ios(), class_entry(c, n, priority), persistent);
+}
+
+environment add_instance(environment const & env, name const & n, bool persistent) {
+    return add_instance(env, n, LEAN_INSTANCE_DEFAULT_PRIORITY, persistent);
 }
 
 bool is_class(environment const & env, name const & c) {
@@ -125,15 +161,38 @@ list<name> get_class_instances(environment const & env, name const & c) {
     return ptr_to_list(s.m_instances.find(c));
 }
 
+optional<unsigned> parse_instance_priority(parser & p) {
+    if (p.curr_is_token(get_priority_tk())) {
+        p.next();
+        auto pos = p.pos();
+        expr val = p.parse_expr();
+        val = type_checker(p.env()).whnf(val).first;
+        if (optional<mpz> mpz_val = to_num(val)) {
+            if (!mpz_val->is_unsigned_int())
+                throw parser_error("invalid 'priority', argument does not fit in a machine integer", pos);
+            p.check_token_next(get_rbracket_tk(), "invalid 'priority', ']' expected");
+            return optional<unsigned>(mpz_val->get_unsigned_int());
+        } else {
+            throw parser_error("invalid 'priority', argument does not evaluate to a numeral", pos);
+        }
+    } else {
+        return optional<unsigned>();
+    }
+}
+
 environment add_instance_cmd(parser & p) {
     bool found = false;
     bool persistent = false;
     parse_persistent(p, persistent);
+    optional<unsigned> priority = parse_instance_priority(p);
     environment env = p.env();
     while (p.curr_is_identifier()) {
         found    = true;
         name c   = p.check_constant_next("invalid 'class instance' declaration, constant expected");
-        env = add_instance(env, c, persistent);
+        if (priority)
+            env = add_instance(env, c, *priority, persistent);
+        else
+            env = add_instance(env, c, persistent);
     }
     if (!found)
         throw parser_error("invalid 'class instance' declaration, at least one identifier expected", p.pos());

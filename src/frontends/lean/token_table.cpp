@@ -71,19 +71,22 @@ void init_token_table(token_table & t) {
     pair<char const *, unsigned> builtin[] =
         {{"fun", 0}, {"Pi", 0}, {"let", 0}, {"in", 0}, {"have", 0}, {"show", 0}, {"obtain", 0}, {"by", 0}, {"then", 0},
          {"from", 0}, {"(", g_max_prec}, {")", 0}, {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
-         {"[", g_max_prec}, {"]", 0}, {"⦃", g_max_prec}, {"⦄", 0}, {".{", 0}, {"Type", g_max_prec}, {"Type'", g_max_prec}, {"using", 0},
-         {"|", 0}, {"!", 0}, {"with", 0}, {"...", 0}, {",", 0}, {".", 0}, {":", 0}, {"::", 0}, {"calc", 0}, {":=", 0}, {"--", 0}, {"#", 0},
-         {"(*", 0}, {"/-", 0}, {"begin", g_max_prec}, {"proof", g_max_prec}, {"qed", 0}, {"@", g_max_prec}, {"including", 0}, {"sorry", g_max_prec},
-         {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {nullptr, 0}};
+         {"[", g_max_prec}, {"]", 0}, {"⦃", g_max_prec}, {"⦄", 0}, {".{", 0}, {"Type", g_max_prec},
+         {"Type'", g_max_prec}, {"using", 0}, {"|", 0}, {"!", 0}, {"with", 0}, {"...", 0}, {",", 0},
+         {".", 0}, {":", 0}, {"::", 0}, {"calc", 0}, {":=", 0}, {"--", 0}, {"#", 0},
+         {"(*", 0}, {"/-", 0}, {"begin", g_max_prec}, {"proof", g_max_prec}, {"qed", 0}, {"@", g_max_prec},
+         {"including", 0}, {"sorry", g_max_prec}, {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec},
+         {nullptr, 0}};
 
-    char const * commands[] = {"theorem", "axiom", "variable", "protected", "private", "opaque", "definition", "coercion",
-                               "variables", "[persistent]", "[visible]", "[instance]",
-                               "[off]", "[on]", "[none]", "[class]", "[coercion]", "[reducible]", "reducible", "irreducible",
-                               "evaluate", "check", "eval", "print", "end", "namespace", "section", "import",
-                               "inductive", "record", "renaming", "extends", "structure", "module", "universe",
-                               "precedence", "infixl", "infixr", "infix", "postfix", "prefix", "notation", "context",
-                               "exit", "set_option", "open", "export", "calc_subst", "calc_refl", "calc_trans", "tactic_hint",
-                               "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class", "#erase_cache", nullptr};
+    char const * commands[] =
+        {"theorem", "axiom", "variable", "protected", "private", "opaque", "definition", "coercion",
+         "variables", "[persistent]", "[visible]", "[instance]",
+         "[off]", "[on]", "[none]", "[class]", "[coercion]", "[reducible]", "reducible", "irreducible",
+         "evaluate", "check", "eval", "[priority", "print", "end", "namespace", "section", "import",
+         "inductive", "record", "renaming", "extends", "structure", "module", "universe",
+         "precedence", "infixl", "infixr", "infix", "postfix", "prefix", "notation", "context",
+         "exit", "set_option", "open", "export", "calc_subst", "calc_refl", "calc_trans", "tactic_hint",
+         "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class", "#erase_cache", nullptr};
 
     pair<char const *, char const *> aliases[] =
         {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},

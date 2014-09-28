@@ -149,10 +149,11 @@ environment axiom_cmd(parser & p)    {
 }
 
 struct decl_modifiers {
-    bool m_is_instance;
-    bool m_is_coercion;
-    bool m_is_reducible;
-    decl_modifiers() {
+    bool               m_is_instance;
+    bool               m_is_coercion;
+    bool               m_is_reducible;
+    optional<unsigned> m_priority;
+    decl_modifiers():m_priority() {
         m_is_instance  = false;
         m_is_coercion  = false;
         m_is_reducible = false;
@@ -160,6 +161,7 @@ struct decl_modifiers {
 
     void parse(parser & p) {
         while (true) {
+            auto pos = p.pos();
             if (p.curr_is_token(get_instance_tk())) {
                 m_is_instance = true;
                 p.next();
@@ -169,6 +171,10 @@ struct decl_modifiers {
             } else if (p.curr_is_token(get_reducible_tk())) {
                 m_is_reducible = true;
                 p.next();
+            } else if (auto it = parse_instance_priority(p)) {
+                m_priority = *it;
+                if (!m_is_instance)
+                    throw parser_error("invalid '[priority]' occurrence, declaration must be marked as an '[instance]'", pos);
             } else {
                 break;
             }
@@ -332,8 +338,14 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
 
     if (real_n != n)
         env = add_expr_alias_rec(env, n, real_n);
-    if (modifiers.m_is_instance)
-        env = add_instance(env, real_n);
+    if (modifiers.m_is_instance) {
+        bool persistent = true;
+        if (modifiers.m_priority) {
+            env = add_instance(env, real_n, *modifiers.m_priority, persistent);
+        } else {
+            env = add_instance(env, real_n, persistent);
+        }
+    }
     if (modifiers.m_is_coercion)
         env = add_coercion(env, real_n, p.ios());
     if (is_protected)

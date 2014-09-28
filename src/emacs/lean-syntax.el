@@ -72,6 +72,7 @@
      ;; modifiers
      (,(rx (or "\[persistent\]" "\[notation\]" "\[visible\]" "\[instance\]" "\[class\]"
                "\[coercion\]" "\[reducible\]" "\[off\]" "\[none\]" "\[on\]")) . 'font-lock-doc-face)
+     (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      ;; tactics
      (,(rx symbol-start
            (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "apply" "back" "beta" "done" "exact" "repeat")

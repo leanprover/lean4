@@ -63,6 +63,7 @@ static name * g_axiom        = nullptr;
 static name * g_variable     = nullptr;
 static name * g_opaque       = nullptr;
 static name * g_instance     = nullptr;
+static name * g_priority     = nullptr;
 static name * g_coercion     = nullptr;
 static name * g_reducible    = nullptr;
 static name * g_with         = nullptr;
@@ -140,6 +141,7 @@ void initialize_tokens() {
     g_axiom        = new name("axiom");
     g_variable     = new name("variable");
     g_instance     = new name("[instance]");
+    g_priority     = new name("[priority");
     g_coercion     = new name("[coercion]");
     g_reducible    = new name("[reducible]");
     g_with         = new name("with");
@@ -185,6 +187,7 @@ void finalize_tokens() {
     delete g_axiom;
     delete g_variable;
     delete g_instance;
+    delete g_priority;
     delete g_coercion;
     delete g_reducible;
     delete g_in;
@@ -295,6 +298,7 @@ name const & get_axiom_tk() { return *g_axiom; }
 name const & get_variable_tk() { return *g_variable; }
 name const & get_opaque_tk() { return *g_opaque; }
 name const & get_instance_tk() { return *g_instance; }
+name const & get_priority_tk() { return *g_priority; }
 name const & get_coercion_tk() { return *g_coercion; }
 name const & get_reducible_tk() { return *g_reducible; }
 name const & get_class_tk() { return *g_class; }

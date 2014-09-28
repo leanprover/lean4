@@ -357,7 +357,8 @@ parse_table parse_table::add(unsigned num, transition const * ts, expr const & a
     return add_core(num, ts, new_a, overload);
 }
 
-void parse_table::for_each(buffer<transition> & ts, std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const {
+void parse_table::for_each(buffer<transition> & ts,
+                           std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const {
     if (!is_nil(m_ptr->m_accept))
         fn(ts.size(), ts.data(), m_ptr->m_accept);
     m_ptr->m_children.for_each([&](name const & k, pair<action, parse_table> const & p) {

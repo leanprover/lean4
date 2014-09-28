@@ -16,6 +16,16 @@ namespace lean {
 class expr;
 class justification;
 class substitution;
+
+class delay_factor {
+    optional<unsigned> m_value;
+public:
+    delay_factor() {}
+    delay_factor(unsigned v):m_value(v) {}
+    bool on_demand() const { return !m_value; }
+    unsigned explict_value() const { lean_assert(!on_demand()); return *m_value; }
+};
+
 /**
    \brief The lean kernel type checker produces two kinds of constraints:
 
@@ -69,7 +79,7 @@ public:
 
     friend constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j, bool relax_main_opaque);
     friend constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j);
-    friend constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, unsigned delay_factor, bool owner,
+    friend constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, delay_factor const & f, bool owner,
                                       justification const & j, bool relax_main_opaque);
 
     constraint_cell * raw() const { return m_ptr; }
@@ -83,6 +93,7 @@ inline bool operator!=(constraint const & c1, constraint const & c2) { return !(
 */
 constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j, bool relax_main_opaque);
 constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j);
+
 /** \brief Create a "choice" constraint m in fn(...), where fn produces a stream of possible solutions.
     \c delay_factor allows to control when the constraint is processed by the elaborator, bigger == later.
     If \c owner is true, then the elaborator should not assign the metavariable get_app_fn(m).
@@ -92,7 +103,8 @@ constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification
     If \c relax_main_opaque is true, then it signs that constraint was created in a context where
     opaque constants of the main module can be treated as transparent.
 */
-constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, unsigned delay_factor, bool owner, justification const & j, bool relax_main_opaque);
+constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, delay_factor const & f,
+                           bool owner, justification const & j, bool relax_main_opaque);
 
 inline bool is_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::Eq; }
 inline bool is_level_eq_cnstr(constraint const & c) { return c.kind() == constraint_kind::LevelEq; }
@@ -110,10 +122,12 @@ bool relax_main_opaque(constraint const & c);
 level const & cnstr_lhs_level(constraint const & c);
 /** \brief Return the rhs of an level constraint. */
 level const & cnstr_rhs_level(constraint const & c);
-/** \brief Return the expression associated with a choice constraint */
+/** \brief Return the expression associated with the given choice constraint */
 expr const & cnstr_expr(constraint const & c);
 /** \brief Return the choice_fn associated with a choice constraint. */
 choice_fn const & cnstr_choice_fn(constraint const & c);
+/** \brief Return true iff the choice constraint should be solved as soon the type does not contains type variables */
+bool cnstr_on_demand(constraint const & c);
 /** \brief Return the choice constraint delay factor */
 unsigned cnstr_delay_factor(constraint const & c);
 /** \brief Return true iff the given choice constraints owns the right to assign the metavariable in \c c. */

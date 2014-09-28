@@ -29,6 +29,7 @@ Author: Leonardo de Moura
 #include "library/unifier_plugin.h"
 #include "library/kernel_bindings.h"
 #include "library/print.h"
+#include "library/expr_lt.h"
 
 #ifndef LEAN_DEFAULT_UNIFIER_MAX_STEPS
 #define LEAN_DEFAULT_UNIFIER_MAX_STEPS 20000
@@ -283,18 +284,22 @@ cnstr_group get_choice_cnstr_group(constraint const & c) {
 struct unifier_fn {
     typedef pair<constraint, unsigned> cnstr; // constraint + idx
     struct cnstr_cmp {
-        int operator()(cnstr const & c1, cnstr const & c2) const { return c1.second < c2.second ? -1 : (c1.second == c2.second ? 0 : 1); }
+        int operator()(cnstr const & c1, cnstr const & c2) const {
+            return c1.second < c2.second ? -1 : (c1.second == c2.second ? 0 : 1);
+        }
     };
     typedef rb_tree<cnstr, cnstr_cmp> cnstr_set;
     typedef rb_tree<unsigned, unsigned_cmp> cnstr_idx_set;
     typedef rb_map<name, cnstr_idx_set, name_quick_cmp> name_to_cnstrs;
     typedef rb_map<name, unsigned, name_quick_cmp> owned_map;
+    typedef rb_map<expr, pair<expr, justification>, expr_quick_cmp> expr_map;
     typedef std::unique_ptr<type_checker> type_checker_ptr;
     environment      m_env;
     name_generator   m_ngen;
     substitution     m_subst;
     constraints      m_postponed; // constraints that will not be solved
     owned_map        m_owned_map; // mapping from metavariable name m to delay factor of the choice constraint that owns m
+    expr_map         m_type_map;  // auxiliary map for storing the type of the expr in choice constraints
     unifier_plugin   m_plugin;
     type_checker_ptr m_tc[2];
     type_checker_ptr m_flex_rigid_tc[2]; // type checker used when solving flex rigid constraints. By default,
@@ -343,6 +348,7 @@ struct unifier_fn {
         substitution     m_subst;
         constraints      m_postponed;
         cnstr_set        m_cnstrs;
+        expr_map         m_type_map;
         name_to_cnstrs   m_mvar_occs;
         owned_map        m_owned_map;
         bool             m_pattern;
@@ -350,7 +356,7 @@ struct unifier_fn {
         /** \brief Save unifier's state */
         case_split(unifier_fn & u, justification const & j):
             m_assumption_idx(u.m_next_assumption_idx), m_jst(j), m_subst(u.m_subst),
-            m_postponed(u.m_postponed), m_cnstrs(u.m_cnstrs),
+            m_postponed(u.m_postponed), m_cnstrs(u.m_cnstrs), m_type_map(u.m_type_map),
             m_mvar_occs(u.m_mvar_occs), m_owned_map(u.m_owned_map), m_pattern(u.m_pattern) {
             u.m_next_assumption_idx++;
         }
@@ -364,6 +370,7 @@ struct unifier_fn {
             u.m_mvar_occs = m_mvar_occs;
             u.m_owned_map = m_owned_map;
             u.m_pattern   = m_pattern;
+            u.m_type_map  = m_type_map;
             m_assumption_idx = u.m_next_assumption_idx;
             m_failed_justifications = mk_composite1(m_failed_justifications, *u.m_conflict);
             u.m_next_assumption_idx++;
@@ -468,11 +475,16 @@ struct unifier_fn {
         add_mvar_occ(mlocal_name(get_app_fn(m)), cidx);
     }
 
-    void add_meta_occs(expr const & e, unsigned cidx) {
+    /** \brief For each metavariable m in e add an entry m -> cidx at m_mvar_occs.
+        Return true if at least one entry was added.
+    */
+    bool add_meta_occs(expr const & e, unsigned cidx) {
+        bool added = false;
         if (has_expr_metavar(e)) {
             for_each(e, [&](expr const & e, unsigned) {
                     if (is_meta(e)) {
                         add_meta_occ(e, cidx);
+                        added = true;
                         return false;
                     }
                     if (is_local(e))
@@ -480,6 +492,7 @@ struct unifier_fn {
                     return has_expr_metavar(e);
                 });
         }
+        return added;
     }
 
     /** \brief Add constraint to the constraint queue */
@@ -661,7 +674,8 @@ struct unifier_fn {
         return true;
     }
 
-    justification mk_invalid_local_ctx_justification(expr const & lhs, expr const & rhs, justification const & j, expr const & bad_local) {
+    justification mk_invalid_local_ctx_justification(expr const & lhs, expr const & rhs, justification const & j,
+                                                     expr const & bad_local) {
         justification new_j = mk_justification(get_app_fn(lhs), [=](formatter const & fmt, substitution const & subst) {
                 format r = format("invalid local context when tried to assign");
                 r += pp_indent_expr(fmt, rhs);
@@ -979,15 +993,64 @@ struct unifier_fn {
         return true;
     }
 
-    bool preprocess_choice_constraint(constraint const & c) {
-        if (cnstr_is_owner(c)) {
-            expr m = get_app_fn(cnstr_expr(c));
-            lean_assert(is_metavar(m));
-            m_owned_map.insert(mlocal_name(m), cnstr_delay_factor(c));
+    bool preprocess_choice_constraint(constraint c) {
+        if (!cnstr_on_demand(c)) {
+            if (cnstr_is_owner(c)) {
+                expr m = get_app_fn(cnstr_expr(c));
+                lean_assert(is_metavar(m));
+                m_owned_map.insert(mlocal_name(m), cnstr_delay_factor(c));
+            }
+            add_cnstr(c, get_choice_cnstr_group(c));
+            return true;
+        } else {
+            expr m = cnstr_expr(c);
+            // choice constraints that are marked as "on demand"
+            // are only processed when all metavariables in the
+            // type of m have been instantiated.
+            expr type;
+            justification jst;
+            if (auto it = m_type_map.find(m)) {
+                // Type of m is already cached in m_type_map
+                type = it->first;
+                jst  = it->second;
+            } else {
+                // Type of m is not cached yet, we
+                // should infer it, process generated
+                // constraints and save the result in
+                // m_type_map.
+                bool relax = relax_main_opaque(c);
+                constraint_seq cs;
+                optional<expr> t = infer(m, relax, cs);
+                if (!t) {
+                    set_conflict(c.get_justification());
+                    return false;
+                }
+                if (!process_constraints(cs))
+                    return false;
+                type = *t;
+                m_type_map.insert(m, mk_pair(type, justification()));
+            }
+            // Try to instantiate metavariables in type
+            pair<expr, justification> type_jst = m_subst.instantiate_metavars(type);
+            if (type_jst.first != type) {
+                // Type was modified by instantiation,
+                // we update the constraint justification,
+                // and store the new type in m_type_map
+                jst  = mk_composite1(jst, type_jst.second);
+                type = type_jst.first;
+                c    = update_justification(c, jst);
+                m_type_map.insert(m, mk_pair(type, jst));
+            }
+            unsigned cidx = add_cnstr(c, cnstr_group::ClassInstance);
+            if (!add_meta_occs(type, cidx)) {
+                // type does not contain metavariables...
+                // so this "on demand" constraint is ready to be solved
+                m_cnstrs.erase(cnstr(c, cidx));
+                add_cnstr(c, cnstr_group::Basic);
+                m_type_map.erase(m);
+            }
+            return true;
         }
-        // Choice constraints are never considered easy.
-        add_cnstr(c, get_choice_cnstr_group(c));
-        return true;
     }
 
     /**

@@ -1,2 +1,11 @@
-empty.lean:6:25: error: failed to synthesize placeholder
- ⊢ nonempty Empty
+empty.lean:6:25: error: type error in placeholder assigned to
+  Empty
+placeholder has type
+  Type.{1}
+but is expected to have type
+  Type.{?M_1}
+the assignment was attempted when trying to solve
+    type mismatch at definition 'v2', has type
+      Empty
+    but is expected to have type
+      Empty

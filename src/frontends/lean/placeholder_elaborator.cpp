@@ -263,14 +263,18 @@ static bool has_expr_metavar_relaxed(expr const & e) {
 }
 
 constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const & C, expr const & m, bool is_strict,
-                                     unifier_config const & cfg, unsigned delay_factor) {
+                                     unifier_config const & cfg, delay_factor const & factor) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
                          name_generator const & ngen) {
         if (has_expr_metavar_relaxed(meta_type)) {
-            if (delay_factor < to_delay_factor(cnstr_group::ClassInstance)) {
-                constraint delayed_c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, delay_factor+1);
+            // TODO(Leo): remove
+            if (factor.on_demand()) {
+                constraint delayed_c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, to_delay_factor(cnstr_group::Basic));
+                return lazy_list<constraints>(constraints(delayed_c));
+            } else if (factor.explict_value() < to_delay_factor(cnstr_group::ClassInstance)) {
+                constraint delayed_c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, factor.explict_value()+1);
                 return lazy_list<constraints>(constraints(delayed_c));
             }
         }
@@ -315,7 +319,7 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
     };
     bool owner = false;
     bool relax = C->m_relax;
-    return mk_choice_cnstr(m, choice_fn, delay_factor, owner, j, relax);
+    return mk_choice_cnstr(m, choice_fn, factor, owner, j, relax);
 }
 
 /** \brief Create a metavariable, and attach choice constraint for generating
@@ -327,7 +331,7 @@ pair<expr, constraint> mk_placeholder_elaborator(
     bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg) {
     auto C       = std::make_shared<placeholder_context>(env, ios, ctx, prefix, relax, use_local_instances);
     expr m       = C->m_ctx.mk_meta(C->m_ngen, type, g);
-    constraint c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, to_delay_factor(cnstr_group::Basic));
+    constraint c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, delay_factor());
     return mk_pair(m, c);
 }
 }

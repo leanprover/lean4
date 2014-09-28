@@ -268,16 +268,6 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
                          name_generator const & ngen) {
-        if (has_expr_metavar_relaxed(meta_type)) {
-            // TODO(Leo): remove
-            if (factor.on_demand()) {
-                constraint delayed_c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, to_delay_factor(cnstr_group::Basic));
-                return lazy_list<constraints>(constraints(delayed_c));
-            } else if (factor.explict_value() < to_delay_factor(cnstr_group::ClassInstance)) {
-                constraint delayed_c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, factor.explict_value()+1);
-                return lazy_list<constraints>(constraints(delayed_c));
-            }
-        }
         if (!is_ext_class(C->tc(), meta_type)) {
             // do nothing, since type is not a class.
             return lazy_list<constraints>(constraints());

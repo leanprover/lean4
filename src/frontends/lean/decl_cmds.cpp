@@ -341,6 +341,9 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
     if (modifiers.m_is_instance) {
         bool persistent = true;
         if (modifiers.m_priority) {
+            #if defined(__GNUC__)
+            #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+            #endif
             env = add_instance(env, real_n, *modifiers.m_priority, persistent);
         } else {
             env = add_instance(env, real_n, persistent);

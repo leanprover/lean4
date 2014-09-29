@@ -597,7 +597,9 @@ struct info_manager::imp {
             lean_assert(it != m_env_info.end() && it->m_line <= linenum);
             auto next = it;
             next++;
-            if (next == m_env_info.end() || next->m_line > linenum)
+            if (next == m_env_info.end())
+                return optional<pair<environment, options>>(mk_pair(it->m_env, it->m_options));
+            if (next->m_line > linenum)
                 return optional<pair<environment, options>>(mk_pair(next->m_env, next->m_options));
             it = next;
         }

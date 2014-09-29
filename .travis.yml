@@ -23,6 +23,7 @@ env:
      PUSH_TO_CDASH=TRUE
      TCMALLOC=OFF
      LUA=52
+     CONSERVE_MEMORY=ON
    # =======================================================
    # DEBUG Build
    # =======================================================
@@ -41,6 +42,7 @@ env:
      TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
      LUA=52
+     CONSERVE_MEMORY=ON
    # D3. clang++-3.3 | DEBUG
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=DEBUG
@@ -53,6 +55,7 @@ env:
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
      LUA=52
+     CONSERVE_MEMORY=ON
    # =======================================================
    # RELEASE Build
    # =======================================================
@@ -70,6 +73,7 @@ env:
      PUSH_TO_CDASH=TRUE
      LUA=52
      PACKAGE=TRUE
+     CONSERVE_MEMORY=ON
    # R3. clang++-3.3 | RELEASE
    - CMAKE_CXX_COMPILER=clang++-3.3
      CMAKE_BUILD_TYPE=RELEASE
@@ -83,6 +87,7 @@ env:
      UPLOAD=linux
      PUSH_TO_CDASH=TRUE
      LUA=52
+     CONSERVE_MEMORY=ON
    # =======================================================
    # MEMCHECK Build
    # =======================================================
@@ -110,6 +115,7 @@ env:
      MEMCHECK_RANGE=1,40
      PUSH_TO_CDASH=TRUE
      LUA=52
+     CONSERVE_MEMORY=ON
     # M2-2. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=DEBUG
@@ -118,6 +124,7 @@ env:
      MEMCHECK_RANGE=40,80
      PUSH_TO_CDASH=TRUE
      LUA=52
+     CONSERVE_MEMORY=ON
    # =======================================================
    # DOXYGEN Build
    # =======================================================
@@ -127,6 +134,7 @@ env:
      BUILD_DOXYGEN=TRUE
      TCMALLOC=OFF
      LUA=52
+     CONSERVE_MEMORY=ON
    # =======================================================
    # Different Lua Versions
    # =======================================================
@@ -137,6 +145,7 @@ env:
      UPLOAD=linux
      PUSH_TO_CDASH=TRUE
      LUA=51
+     CONSERVE_MEMORY=ON
    # LJIT. g++-4.8     | RELEASE |                | CDASH
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=RELEASE
@@ -144,6 +153,7 @@ env:
      UPLOAD=linux
      PUSH_TO_CDASH=TRUE
      LUA=JIT
+     CONSERVE_MEMORY=ON
 
 install:
   - until sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; do echo retry; done
@@ -230,7 +240,7 @@ script:
   - if [[ $TESTCOV != ON ]]; then
        TESTCOV=OFF;
     fi
-  - /usr/bin/cmake -DIGNORE_SORRY=ON -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTESTCOV=${TESTCOV} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ${GENERATOR} -DCMAKE_PROGRAM_PATH=/usr/bin ../src;
+  - /usr/bin/cmake -DIGNORE_SORRY=ON -DCONSERVE_MEMORY=${CONSERVE_MEMORY} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTESTCOV=${TESTCOV} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ${GENERATOR} -DCMAKE_PROGRAM_PATH=/usr/bin ../src;
   - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE || $TESTCOV == ON ]]; then
        SITE=Ubuntu12.04@Travis;
        if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then

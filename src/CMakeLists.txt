@@ -27,6 +27,9 @@ option(IGNORE_SORRY       "IGNORE_SORRY"      OFF)
 # When cross-compiling, we do not compile the standard library since
 # the executable will not work on the host machine
 option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
+# When ON we try to minimize the amount of memory needed to compile Lean using gcc.
+# We use this flag when compiling at Travis.
+option(CONSERVE_MEMORY    "CONSERVE_MEMORY"   OFF)
 
 # Added for CTest
 include(CTest)
@@ -60,9 +63,14 @@ if("${CACHE_EXPRS}" MATCHES "ON")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_CACHE_EXPRS")
 endif()
 
+if(("${CONSERVE_MEMORY}" MATCHES "ON") AND ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"))
+  message(STATUS "Using compilation flags for minimizing the amount of memory used by gcc")
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} --param ggc-min-heapsize=32768 --param ggc-min-expand=20")
+endif()
+
 if("${STATIC}" MATCHES "ON")
-  set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -static")
   message(STATUS "Creating a static executable")
+  set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -static")
 endif()
 
 # Set Module Path

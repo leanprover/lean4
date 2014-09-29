@@ -66,16 +66,21 @@
           (backward-char 1)
           (if (looking-at "->") t nil))))))
 
+(defun lean-tab-indent ()
+  (cond ((looking-back (rx line-start (* white)))
+         (eri-indent))
+        (t (indent-for-tab-command))))
+
 (defun lean-tab-indent-or-complete ()
   (interactive)
   (if (minibufferp)
       (minibuffer-complete)
     (cond ((and lean-company-use (company-lean--check-prefix))
            (company-complete-common))
-          (lean-company-use (eri-indent))
+          (lean-company-use (lean-tab-indent))
           ((lean-check-expansion)
            (completion-at-point-functions))
-          (t (eri-indent)))))
+          (t (lean-tab-indent)))))
 
 (defun lean-set-keys ()
   (local-set-key "\C-c\C-x"  'lean-std-exe)

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include <sstream>
 #include <fstream>
 #include <algorithm>
+#include <sys/stat.h>
 #include "util/hash.h"
 #include "util/thread.h"
 #include "util/lean_path.h"
@@ -39,6 +40,10 @@ struct module_ext : public environment_extension {
     list<module_name> m_direct_imports;
     list<writer>      m_writers;
     name_set          m_module_defs;
+    // auxiliary information for detecting whether
+    // directly imported files have changed
+    list<time_t>      m_direct_imports_mod_time;
+    std::string       m_base;
 };
 
 struct module_ext_reg {
@@ -53,6 +58,35 @@ static module_ext const & get_extension(environment const & env) {
 }
 static environment update(environment const & env, module_ext const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<module_ext>(ext));
+}
+
+list<module_name> get_direct_imports(environment const & env) {
+    return get_extension(env).m_direct_imports;
+}
+
+bool direct_imports_have_changed(environment const & env) {
+    module_ext const & ext   = get_extension(env);
+    std::string const & base = ext.m_base;
+    list<module_name> mods   = ext.m_direct_imports;
+    list<time_t>      mtimes = ext.m_direct_imports_mod_time;
+    lean_assert(length(mods) == length(mtimes));
+    while (mods && mtimes) {
+        module_name const & mname = head(mods);
+        std::string fname;
+        try {
+            fname = find_file(base, mname.get_k(), mname.get_name(), {".olean"});
+        } catch (exception &) {
+            return true; // direct import doesn't even exist anymore
+        }
+        struct stat st;
+        if (stat(fname.c_str(), &st) != 0)
+            return true; // failed to read stats
+        if (st.st_mtime != head(mtimes))
+            return true; // mod time has changed
+        mods   = tail(mods);
+        mtimes = tail(mtimes);
+    }
+    return false;
 }
 
 static char const * g_olean_end_file = "EndFile";
@@ -235,7 +269,6 @@ struct import_modules_fn {
     }
 
     module_info_ptr load_module_file(std::string const & base, module_name const & mname) {
-        // TODO(Leo): support module_name
         std::string fname = find_file(base, mname.get_k(), mname.get_name(), {".olean"});
         auto it    = m_module_info.find(fname);
         if (it)
@@ -467,17 +500,25 @@ struct import_modules_fn {
         return env;
     }
 
-    void store_direct_imports(unsigned num_modules, module_name const * modules) {
+    void store_direct_imports(std::string const & base, unsigned num_modules, module_name const * modules) {
         m_senv.update([&](environment const & env) -> environment {
                 module_ext ext = get_extension(env);
-                for (unsigned i = 0; i < num_modules; i++)
-                    ext.m_direct_imports = cons(modules[i], ext.m_direct_imports);
+                ext.m_base     = base;
+                for (unsigned i = 0; i < num_modules; i++) {
+                    module_name const & mname = modules[i];
+                    ext.m_direct_imports = cons(mname, ext.m_direct_imports);
+                    std::string fname = find_file(base, mname.get_k(), mname.get_name(), {".olean"});
+                    struct stat st;
+                    if (stat(fname.c_str(), &st) != 0)
+                        throw exception(sstream() << "failed to access stats of file '" << fname << "'");
+                    ext.m_direct_imports_mod_time = cons(st.st_mtime, ext.m_direct_imports_mod_time);
+                }
                 return update(env, ext);
             });
     }
 
     environment operator()(std::string const & base, unsigned num_modules, module_name const * modules) {
-        store_direct_imports(num_modules, modules);
+        store_direct_imports(base, num_modules, modules);
         for (unsigned i = 0; i < num_modules; i++)
             load_module_file(base, modules[i]);
         process_asynch_tasks();

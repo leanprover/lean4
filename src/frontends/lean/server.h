@@ -72,6 +72,7 @@ class server {
     worker                    m_worker;
 
     void load_file(std::string const & fname, bool error_if_nofile = true);
+    void save_olean(std::string const & fname);
     void visit_file(std::string const & fname);
     void check_file();
     void replace_line(unsigned line_num, std::string const & new_line);

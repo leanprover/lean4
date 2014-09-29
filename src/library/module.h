@@ -43,6 +43,13 @@ environment import_modules(environment const & env, std::string const & base, un
 environment import_module(environment const & env, std::string const & base, module_name const & module,
                           unsigned num_threads, bool keep_proofs, io_state const & ios);
 
+/** \brief Return the direct imports of the main module in the given environment. */
+list<module_name> get_direct_imports(environment const & env);
+
+/** \brief Return true iff the direct imports of the main module in the given environment have
+    been modified in the file system. */
+bool direct_imports_have_changed(environment const & env);
+
 /** \brief Store/Export module using \c env to the output stream \c out. */
 void export_module(std::ostream & out, environment const & env);
 

@@ -1,0 +1,20 @@
+-- BEGINSAVE
+-- ENDSAVE
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGINEVAL
+my_id : Π {A : Type}, A → A
+-- ENDEVAL
+-- BEGINEVAL
+my_id2 : Π {A : Type}, A → A
+-- ENDEVAL
+-- BEGINSAVE
+-- ENDSAVE
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGINEVAL
+EVAL_command:1:7: error: unknown identifier 'my_id'
+-- ENDEVAL
+-- BEGINEVAL
+my_id2 : Π {A : Type}, A → A
+-- ENDEVAL

@@ -1,0 +1,26 @@
+VISIT A.lean
+REPLACE 1
+definition id {A : Type} (a : A) := a
+SAVE A.olean
+VISIT B.lean
+REPLACE 1
+import A
+REPLACE 2
+definition my_id {A : Type} (a : A) := id a
+REPLACE 3
+definition my_id2 {A : Type} (a : A) := a
+WAIT
+EVAL
+check @my_id
+EVAL
+check @my_id2
+VISIT A.lean
+REPLACE 1
+definition id2 {A : Type} (a : A) := a
+SAVE A.olean
+VISIT B.lean
+WAIT
+EVAL
+check @my_id
+EVAL
+check @my_id2

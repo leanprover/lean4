@@ -187,6 +187,8 @@ server::worker::worker(environment const & env, io_state const & ios, definition
                     unsigned i = todo_file->find(todo_line_num);
                     todo_file->m_snapshots.resize(i);
                     s = i == 0 ? m_empty_snapshot : todo_file->m_snapshots[i-1];
+                    if (direct_imports_have_changed(s.m_env))
+                        s = m_empty_snapshot;
                     lean_assert(s.m_line > 0);
                     todo_file->m_info.start_from(s.m_line);
                     todo_file->m_info.save_environment_options(s.m_line, s.m_env, s.m_options);
@@ -284,6 +286,7 @@ void server::interrupt_worker() {
 }
 
 static std::string * g_load = nullptr;
+static std::string * g_save = nullptr;
 static std::string * g_visit = nullptr;
 static std::string * g_sync = nullptr;
 static std::string * g_replace = nullptr;
@@ -352,6 +355,7 @@ void server::visit_file(std::string const & fname) {
         load_file(fname, error_if_nofile);
     } else {
         m_file = it->second;
+        m_cache.clear();
         process_from(0);
     }
 }
@@ -797,6 +801,20 @@ void server::wait(optional<unsigned> ms) {
     m_out << "-- ENDWAIT" << std::endl;
 }
 
+void server::save_olean(std::string const & fname) {
+    m_out << "-- BEGINSAVE" << std::endl;
+    check_file();
+    m_worker.wait(optional<unsigned>());
+    if (auto it = m_file->infom().get_final_env_opts()) {
+        std::ofstream out(fname, std::ofstream::binary);
+        environment const & env = it->first;
+        export_module(out, env);
+    } else {
+        m_out << "ERROR: nothing to be saved\n";
+    }
+    m_out << "-- ENDSAVE" << std::endl;
+}
+
 bool server::operator()(std::istream & in) {
     for (std::string line; std::getline(in, line);) {
         try {
@@ -804,6 +822,10 @@ bool server::operator()(std::istream & in) {
                 std::string fname = line.substr(g_load->size());
                 trim(fname);
                 load_file(fname);
+            } else if (is_command(*g_save, line)) {
+                std::string fname = line.substr(g_save->size());
+                trim(fname);
+                save_olean(fname);
             } else if (is_command(*g_visit, line)) {
                 std::string fname = line.substr(g_visit->size());
                 trim(fname);
@@ -877,6 +899,7 @@ bool server::operator()(std::istream & in) {
 void initialize_server() {
     g_tmp_prefix = new name(name::mk_internal_unique_name());
     g_load = new std::string("LOAD");
+    g_save = new std::string("SAVE");
     g_visit = new std::string("VISIT");
     g_sync = new std::string("SYNC");
     g_replace = new std::string("REPLACE");
@@ -898,6 +921,7 @@ void initialize_server() {
 void finalize_server() {
     delete g_tmp_prefix;
     delete g_load;
+    delete g_save;
     delete g_visit;
     delete g_sync;
     delete g_replace;

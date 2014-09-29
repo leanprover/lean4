@@ -648,17 +648,27 @@ void server::find_pattern(unsigned line_num, std::string const & pattern) {
     opts = join(opts, m_ios.get_options());
     m_out << std::endl;
     unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
+    std::vector<pair<name, name>> exact_matches;
     std::vector<pair<std::string, name>> selected;
     bitap_fuzzy_search matcher(pattern, max_errors);
     env.for_each_declaration([&](declaration const & d) {
             if (auto it = exact_prefix_match(env, pattern, d)) {
-                display_decl(*it, d.get_name(), env, opts);
+                exact_matches.emplace_back(*it, d.get_name());
             } else {
                 std::string text = d.get_name().to_string();
                 if (matcher.match(text))
                     selected.emplace_back(text, d.get_name());
             }
         });
+    if (!exact_matches.empty()) {
+        std::sort(exact_matches.begin(), exact_matches.end(),
+                  [](pair<name, name> const & p1, pair<name, name> const & p2) {
+                      return p1.first.size() < p2.first.size();
+                  });
+        for (pair<name, name> const & p : exact_matches) {
+            display_decl(p.first, p.second, env, opts);
+        }
+    }
     unsigned sz = selected.size();
     if (sz == 1) {
         display_decl(selected[0].second, env, opts);

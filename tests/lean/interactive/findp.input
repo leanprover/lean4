@@ -1,0 +1,4 @@
+VISIT findp.lean
+WAIT
+FINDP 7
+false

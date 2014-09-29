@@ -161,12 +161,12 @@ congruence.mk (λx y H, H)
 -- Relations that can be coerced to functions / implications
 -- ---------------------------------------------------------
 
-inductive mp_like {R : Type → Type → Prop} {a b : Type} (H : R a b) : Prop :=
+inductive mp_like {R : Type → Type → Prop} {a b : Type} (H : R a b) : Type :=
 mk {} : (a → b) → @mp_like R a b H
 
 namespace mp_like
 
-  definition app {R : Type → Type → Prop} {a : Type} {b : Type} {H : R a b}
+  definition app.{l} {R : Type → Type → Prop} {a : Type} {b : Type} {H : R a b}
     (C : mp_like H) : a → b := rec (λx, x) C
 
   definition infer ⦃R : Type → Type → Prop⦄ {a : Type} {b : Type} (H : R a b)

@@ -75,7 +75,7 @@ typedef name_map<expr> mvar2meta;
 class elaborator : public coercion_info_manager {
     typedef name_map<expr> local_tactic_hints;
     typedef rb_map<expr, pair<expr, constraint_seq>, expr_quick_cmp> cache;
-
+    typedef std::vector<pair<expr, expr>> to_check_sorts;
     elaborator_context & m_env;
     name_generator       m_ngen;
     type_checker_ptr     m_tc[2];
@@ -85,6 +85,9 @@ class elaborator : public coercion_info_manager {
     local_context        m_full_context; // superset of m_context, it also contains non-contextual locals.
     mvar2meta            m_mvar2meta;
     cache                m_cache;
+    // The following vector contains sorts that we should check
+    // whether the computed universe is too specific or not.
+    to_check_sorts       m_to_check_sorts;
 
     // mapping from metavariable name ?m to tactic expression that should be used to solve it.
     // this mapping is populated by the 'by tactic-expr' expression.
@@ -598,7 +601,10 @@ public:
     }
 
     expr visit_sort(expr const & e) {
-        return update_sort(e, replace_univ_placeholder(sort_level(e)));
+        expr r = update_sort(e, replace_univ_placeholder(sort_level(e)));
+        if (is_placeholder(sort_level(e)))
+            m_to_check_sorts.emplace_back(e, r);
+        return r;
     }
 
     expr visit_macro(expr const & e, constraint_seq & cs) {
@@ -984,6 +990,30 @@ public:
         }
     }
 
+    /** \brief Check whether the solution found by the elaborator is producing too specific
+        universes.
+
+        \remark For now, we only check if a term Type.{?u} was solved by assigning ?u to 0.
+        In this case, the user should write Prop instead of Type.
+    */
+    void check_sort_assignments(substitution const & s) {
+        for (auto const & p : m_to_check_sorts) {
+            expr pre  = p.first;
+            expr post = p.second;
+            lean_assert(is_sort(post));
+            level u   = sort_level(post);
+            lean_assert(is_meta(u));
+            if (s.is_assigned(u)) {
+                level r = *s.get_level(u);
+                if (is_zero(r)) {
+                    throw_kernel_exception(env(), pre, [=](formatter const &) {
+                            return format("solution computed by the elaborator forces Type to be Prop");
+                        });
+                }
+            }
+        }
+    }
+
     /** \brief Apply substitution and solve remaining metavariables using tactics. */
     expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params) {
         expr r = s.instantiate(e);
@@ -1013,6 +1043,7 @@ public:
         auto p  = solve(cs).pull();
         lean_assert(p);
         substitution s = p->first.first;
+        check_sort_assignments(s);
         auto result = apply(s, r);
         copy_info_to_manager(s);
         return result;
@@ -1038,6 +1069,7 @@ public:
         auto p  = solve(cs).pull();
         lean_assert(p);
         substitution s = p->first.first;
+        check_sort_assignments(s);
         name_set univ_params = collect_univ_params(r_v, collect_univ_params(r_t));
         buffer<name> new_params;
         expr new_r_t = apply(s, r_t, univ_params, new_params);

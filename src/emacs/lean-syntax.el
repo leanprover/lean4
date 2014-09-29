@@ -50,8 +50,8 @@
 
 (defconst lean-font-lock-defaults
   `((;; Keywords
-     (,(rx symbol-start (or "calc" "have" "obtains" "show" "by" "in" "let" "forall" "fun"
-                            "exists" "if" "then" "else" "assume" "take" "obtain" "from") symbol-end)
+     (,(rx word-start (or "calc" "have" "obtains" "show" "by" "in" "let" "forall" "fun"
+                            "exists" "if" "then" "else" "assume" "take" "obtain" "from") word-end)
       . font-lock-keyword-face)
      ;; String
      ("\"[^\"]*\"" . 'font-lock-string-face)
@@ -59,10 +59,10 @@
      (,(rx (or "#" "@" "->" "∼" "↔" "/" "==" "=" ":=" "<->" "/\\" "\\/" "∧" "∨" "≠" "<" ">" "≤" "≥" "¬" "<=" ">=" "⁻¹" "⬝" "▸" "+" "*" "-" "/")) . 'font-lock-constant-face)
      (,(rx (or "λ" "→" "∃" "∀" ":=")) . 'font-lock-constant-face )
      ;; universe/inductive/theorem... "names"
-     (,(rx symbol-start
+     (,(rx word-start
            (group (or "universe" "inductive" "theorem" "axiom" "lemma" "hypothesis"
                       "definition" "variable" "parameter"))
-           symbol-end
+           word-end
            (zero-or-more (or whitespace "(" "{" "["))
            (group (zero-or-more (not whitespace))))
       (2 'font-lock-function-name-face))
@@ -74,14 +74,14 @@
                "\[coercion\]" "\[reducible\]" "\[off\]" "\[none\]" "\[on\]")) . 'font-lock-doc-face)
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      ;; tactics
-     (,(rx symbol-start
+     (,(rx word-start
            (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "apply" "back" "beta" "done" "exact" "repeat")
-           symbol-end)
+           word-end)
       . 'font-lock-constant-face)
      ;; Types
-     (,(rx symbol-start (or "bool" "int" "nat" "real" "Prop" "Type" "ℕ" "ℤ") symbol-end) . 'font-lock-type-face)
+     (,(rx word-start (or "bool" "int" "nat" "real" "Prop" "Type" "ℕ" "ℤ") word-end) . 'font-lock-type-face)
      ;; sorry
-     (,(rx symbol-start "sorry" symbol-end) . 'font-lock-warning-face)
+     (,(rx word-start "sorry" word-end) . 'font-lock-warning-face)
      ;; extra-keywords
      (,(rx (or "∎")) . 'font-lock-keyword-face)
      ;; lean-keywords

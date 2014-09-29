@@ -170,10 +170,32 @@
          nil)
         (t t)))
 
+(defun lean-find-id-beg ()
+  (save-excursion
+    (let ((initial-pos (point))
+          (mode 'backward)
+          stop char-at-pos success)
+      (while (not stop)
+        (setq char-at-pos (char-after))
+        (cl-case mode
+          ('backward
+           (cond
+            ((lean-id-rest-p char-at-pos) (backward-char 1))
+            (t                            (forward-char  1)
+                                          (setq mode 'forward))))
+          ('forward
+           (cond
+            ((lean-id-first-p char-at-pos) (setq stop t)
+             (setq success t))
+            ((< (point) initial-pos)       (forward-char 1))
+            (t                             (setq stop t))))))
+      (when success
+        (point)))))
+
 (defun company-lean--findp-prefix ()
   "Returns the symbol to complete. Also, if point is on a dot,
 triggers a completion immediately."
-  (let ((prefix (company-grab-symbol)))
+  (let ((prefix (lean-grab-id)))
     (when (and
            prefix
            (company-lean--need-autocomplete)

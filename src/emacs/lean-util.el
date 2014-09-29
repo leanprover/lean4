@@ -67,4 +67,58 @@
     (-uniq (-map (-compose 'f-slash 'f-canonical)
                  path-list))))
 
+(defun lean-letter-like-unicode-p (u)
+  (when u
+    (cond ((and (<= #x3b1 u)  (<= u #x3c9)   (not (= u #x3bb))) t)
+          ((and (<= #x3ca u)  (<= u #x3fb))                     t)
+          ((and (<= #x1f00 u) (<= u #x1ffe))                    t)
+          ((and (<= #x2100 u) (<= u #x214f))                    t))))
+
+(defun lean-super-sub-script-alnum-unicode-p (u)
+  (when u
+    (cond ((and (<= #x2070 u) (<= u #x2078)) t)
+          ((and (<= #x207f u) (<= u #x2089)) t)
+          ((and (<= #x2090 u) (<= u #x209c)) t))))
+
+(defun lean-isalpha (c)
+  (when c
+    (cond ((and (<= ?a c) (<= c ?z)) t)
+          ((and (<= ?A c) (<= c ?Z)) t))))
+
+(defun lean-isnum (c)
+  (when c
+    (if (and (<= ?0 c) (<= c ?9)) t)))
+
+(defun lean-isalnum (c)
+  (when c
+    (or (lean-isalpha c)
+        (lean-isnum   c))))
+
+(defun lean-id-rest-p (c)
+  (when c
+    (or (lean-isalnum c)
+        (= c ?_)
+        (= c ?\')
+        (lean-letter-like-unicode-p c)
+        (lean-super-sub-script-alnum-unicode-p c))))
+
+(defun lean-id-first-p (c)
+  (when c
+    (or (lean-isalnum c)
+      (= c ?_)
+      (lean-letter-like-unicode-p c))))
+
+(defun lean-grab-id ()
+  (interactive)
+  (save-excursion
+    (when (and (or (eolp)
+                   (looking-at (rx white))
+                   (eobp))
+               (not (bolp)))
+      (backward-char 1))
+    (let ((cur-pos (point))
+          (id-beg (lean-find-id-beg)))
+      (when id-beg
+        (buffer-substring id-beg (1+ (point)))))))
+
 (provide 'lean-util)

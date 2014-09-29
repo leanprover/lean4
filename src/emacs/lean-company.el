@@ -214,6 +214,7 @@ triggers a completion immediately."
     (location (company-lean--findp-location arg))
     (match (company-lean--findp-match arg))
     (no-cache t)
+    (require-match 'never)
     (sorted t)))
 
 ;; ADVICES

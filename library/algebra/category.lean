@@ -229,7 +229,7 @@ namespace functor
 
   protected definition compose {obC obD obE : Type} {C : category obC} {D : category obD} {E : category obE}
       (G : D ⇒ E) (F : C ⇒ D) : C ⇒ E :=
-  functor.mk C E
+  functor.mk
     (λx, G (F x))
     (λ a b f, G (F f))
     (λ a, calc
@@ -249,7 +249,7 @@ namespace functor
 
   -- later check whether we want implicit or explicit arguments here. For the moment, define both
   protected definition id {ob : Type} {C : category ob} : functor C C :=
-  mk C C (λa, a) (λ a b f, f) (λ a, rfl) (λ a b c f g, rfl)
+  mk (λa, a) (λ a b f, f) (λ a, rfl) (λ a b c f g, rfl)
   protected definition ID {ob : Type} (C : category ob) : functor C C := id
   protected definition Id {C : Category} : Functor C C := Functor.mk id
   protected definition iD (C : Category) : Functor C C := Functor.mk id

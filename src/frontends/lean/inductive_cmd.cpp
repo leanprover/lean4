@@ -83,19 +83,22 @@ struct inductive_cmd_fn {
         }
     };
 
-    parser &         m_p;
-    environment      m_env;
-    type_checker_ptr m_tc;
-    name             m_namespace; // current namespace
-    pos_info         m_pos; // current position for reporting errors
-    bool             m_first; // true if parsing the first inductive type in a mutually recursive inductive decl.
-    buffer<name>     m_explict_levels;
-    buffer<name>     m_levels;
-    bool             m_using_explicit_levels; // true if the user is providing explicit universe levels
-    unsigned         m_num_params; // number of parameters
-    level            m_u; // temporary auxiliary global universe used for inferring the result universe of an inductive datatype declaration.
-    bool             m_infer_result_universe;
-    name_set         m_relaxed_implicit_infer; // set of introduction rules where we do not use strict implicit parameter infererence
+    enum class implicit_infer_kind { Implicit, RelaxedImplicit, None };
+    typedef name_map<implicit_infer_kind> implicit_infer_map;
+
+    parser &            m_p;
+    environment         m_env;
+    type_checker_ptr    m_tc;
+    name                m_namespace; // current namespace
+    pos_info            m_pos; // current position for reporting errors
+    bool                m_first; // true if parsing the first inductive type in a mutually recursive inductive decl.
+    buffer<name>        m_explict_levels;
+    buffer<name>        m_levels;
+    bool                m_using_explicit_levels; // true if the user is providing explicit universe levels
+    unsigned            m_num_params; // number of parameters
+    level               m_u; // temporary auxiliary global universe used for inferring the result universe of an inductive datatype declaration.
+    bool                m_infer_result_universe;
+    implicit_infer_map  m_implicit_infer_map; // implicit argument inference mode
     name_map<modifiers> m_modifiers;
     typedef std::tuple<name, name, pos_info> decl_info;
     buffer<decl_info> m_decl_info; // auxiliary buffer used to populate declaration_index
@@ -116,6 +119,13 @@ struct inductive_cmd_fn {
 
     [[ noreturn ]] void throw_error(char const * error_msg) { throw parser_error(error_msg, m_pos); }
     [[ noreturn ]] void throw_error(sstream const & strm) { throw parser_error(strm, m_pos); }
+
+    implicit_infer_kind get_implicit_infer_kind(name const & n) {
+        if (auto it = m_implicit_infer_map.find(n))
+            return *it;
+        else
+            return implicit_infer_kind::Implicit;
+    }
 
     name mk_rec_name(name const & n) {
         return n + name("rec");
@@ -292,23 +302,27 @@ struct inductive_cmd_fn {
     }
 
     /** \brief Parse introduction rules in the scope of the given parameters.
+
         Introduction rules with the annotation '{}' are marked for relaxed (aka non-strict) implicit parameter inference.
+        Introduction rules with the annotation '()' are marked for no implicit parameter inference.
     */
     list<intro_rule> parse_intro_rules(name const & ind_name, buffer<expr> & params) {
         buffer<intro_rule> intros;
         while (true) {
             name intro_name = parse_intro_decl_name(ind_name);
-            bool strict = true;
             if (m_p.curr_is_token(get_lcurly_tk())) {
                 m_p.next();
                 m_p.check_token_next(get_rcurly_tk(), "invalid introduction rule, '}' expected");
-                strict = false;
-                m_relaxed_implicit_infer.insert(intro_name);
+                m_implicit_infer_map.insert(intro_name, implicit_infer_kind::RelaxedImplicit);
+            }
+            if (m_p.curr_is_token(get_lparen_tk())) {
+                m_p.next();
+                m_p.check_token_next(get_rparen_tk(), "invalid introduction rule, ')' expected");
+                m_implicit_infer_map.insert(intro_name, implicit_infer_kind::None);
             }
             m_p.check_token_next(get_colon_tk(), "invalid introduction rule, ':' expected");
             expr intro_type = m_p.parse_scoped_expr(params, m_env);
             intro_type = Pi(params, intro_type, m_p);
-            intro_type = infer_implicit(intro_type, params.size(), strict);
             intros.push_back(intro_rule(intro_name, intro_type));
             if (!m_p.curr_is_token(get_comma_tk()))
                 break;
@@ -439,8 +453,6 @@ struct inductive_cmd_fn {
                 expr type = intro_rule_type(ir);
                 type = fix_inductive_occs(type, decls, section_params);
                 type = Pi_as_is(section_params, type, m_p);
-                bool strict = m_relaxed_implicit_infer.contains(intro_rule_name(ir));
-                type = infer_implicit(type, section_params.size(), strict);
                 new_irs.push_back(update_intro_rule(ir, type));
             }
             d = update_inductive_decl(d, new_irs);
@@ -500,6 +512,21 @@ struct inductive_cmd_fn {
                 std::tie(ir_type, new_ls) = m_p.elaborate_at(m_env, ir_type);
                 for (auto l : new_ls) m_levels.push_back(l);
                 accumulate_levels(ir_type, r_lvls);
+                implicit_infer_kind k = get_implicit_infer_kind(ir_name);
+                switch (k) {
+                case implicit_infer_kind::Implicit: {
+                    bool strict = true;
+                    ir_type = infer_implicit(ir_type, m_num_params, strict);
+                    break;
+                }
+                case implicit_infer_kind::RelaxedImplicit: {
+                    bool strict = false;
+                    ir_type = infer_implicit(ir_type, m_num_params, strict);
+                    break;
+                }
+                case implicit_infer_kind::None:
+                    break;
+                }
                 new_irs.push_back(intro_rule(ir_name, ir_type));
             }
             d = inductive_decl(d_name, d_type, to_list(new_irs.begin(), new_irs.end()));

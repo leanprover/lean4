@@ -57,7 +57,7 @@
 (defun lean-set-option ()
   "Set Lean option."
   (interactive)
-  (lean-get-options-with-cont 'lean-set-option-cont))
+  (lean-get-options-async-with-cont 'lean-set-option-cont))
 
 (defun lean-option-read-bool (prompt)
   (completing-read prompt'(("true" 1) ("false" 2)) nil t "" nil "true"))
@@ -166,16 +166,22 @@
               `(,(lean-option-record-name option-record) . ,option-record)))
           str-list)))
 
-(defun lean-get-options-with-cont (cont)
+(defun lean-get-options-async-with-cont (cont)
   "Get Lean option and call continuation"
   (lean-server-send-cmd-async (lean-cmd-options)
+                              (lambda (option-record-alist)
+                                (funcall cont option-record-alist))))
+
+(defun lean-get-options-sync-with-cont (cont)
+  "Get Lean option and call continuation"
+  (lean-server-send-cmd-sync (lean-cmd-options)
                               (lambda (option-record-alist)
                                 (funcall cont option-record-alist))))
 
 (defun lean-get-options ()
   "Get Lean option and call continuation"
   (interactive)
-  (lean-get-options-with-cont
+  (lean-get-options-async-with-cont
    (lambda (option-record-alist)
      (message
       (s-join "\n"

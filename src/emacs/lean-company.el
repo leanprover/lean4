@@ -15,6 +15,7 @@
 
 (defun company-lean-hook ()
   (set (make-local-variable 'company-backends) '(company-lean--import
+                                                 company-lean--option-name
                                                  company-lean--findg
                                                  company-lean--findp))
   (setq-local company-tooltip-limit 20)                      ; bigger popup window
@@ -26,6 +27,7 @@
 (defun company-lean--check-prefix ()
   "Check whether to use company-lean or not"
   (or (company-lean--import-prefix)
+      (company-lean--option-name-prefix)
       (company-lean--findg-prefix)
       (company-lean--findp-prefix)))
 
@@ -55,7 +57,7 @@
       (--zip-with (propertize it 'file-name other) candidates lean-files))))
 
 (defun company-lean--import-prefix ()
-  "FINDG is triggered when it looks at '_'"
+  "Import auto-completion is triggered when it looks at 'import ...'"
   (when (looking-back
          (rx "import"
              (* (+ white)
@@ -95,6 +97,26 @@
     (location   (company-lean--import-location arg))
     (sorted t)))
 
+;; OPTION
+;; ======
+(defun company-lean--option-name-prefix ()
+  "Option auto-completion is triggered when it looks at 'set-option '"
+  (when (looking-back (rx "set_option" (+ white) (* (or alnum digit "." "_"))))
+    (company-grab-symbol)))
+
+(defun company-lean--option-name-candidates (prefix)
+  (let ((candidates
+         (lean-get-options-sync-with-cont
+          (lambda (option-record-alist)
+            (-map 'car option-record-alist)))))
+    (--filter (s-starts-with? prefix it) candidates)))
+
+(defun company-lean--option-name (command &optional arg &rest ignored)
+  (case command
+    (prefix (company-lean--option-name-prefix))
+    (candidates (company-lean--option-name-candidates arg))
+    (sorted t)))
+
 ;; FINDG
 ;; =====
 
@@ -132,12 +154,21 @@
 ;; FINDP
 ;; -----
 (defun company-lean--need-autocomplete ()
-  (not (looking-back
-        (rx (or "theorem" "definition" "lemma" "axiom" "parameter"
-                "variable" "hypothesis" "conjecture"
-                "corollary" "open")
-            (+ white)
-            (* (not white))))))
+  (interactive)
+  (cond ((looking-back
+          (rx (or "theorem" "definition" "lemma" "axiom" "parameter"
+                  "variable" "hypothesis" "conjecture"
+                  "corollary" "open")
+              (+ white)
+              (* (not white))))
+         nil)
+        ((looking-back (rx "set_option"
+                           (+ white)
+                           (+ (or alnum digit "." "_"))
+                           (+ white)
+                           (* (or alnum digit "." "_"))))
+         nil)
+        (t t)))
 
 (defun company-lean--findp-prefix ()
   "Returns the symbol to complete. Also, if point is on a dot,

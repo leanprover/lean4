@@ -238,6 +238,7 @@ public:
     bool is_cast() const { return m_cast; }
     bool is_contextual() const { return m_contextual; }
     bool is_strict_implicit() const { return m_strict_implicit; }
+    unsigned hash() const;
     binder_info update_contextual(bool f) const { return binder_info(m_implicit, m_cast, f, m_strict_implicit); }
 };
 
@@ -248,6 +249,10 @@ inline binder_info mk_contextual_info(bool f) { return binder_info(false, false,
 
 bool operator==(binder_info const & i1, binder_info const & i2);
 inline bool operator!=(binder_info const & i1, binder_info const & i2) { return !(i1 == i2); }
+
+/** \brief Compute a hash code that takes binder_info into account.
+    \remark This information is not cached like hash(). */
+unsigned hash_bi(expr const & e);
 
 /** \brief expr_mlocal subclass for local constants. */
 class expr_local : public expr_mlocal {

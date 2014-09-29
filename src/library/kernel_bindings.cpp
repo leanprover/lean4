@@ -580,10 +580,11 @@ static int binding_domain(lua_State * L) { return push_expr(L, binding_domain(to
 static int binding_body(lua_State * L) { return push_expr(L, binding_body(to_binding(L, 1))); }
 static int binding_info(lua_State * L) { return push_binder_info(L, binding_info(to_binding(L, 1))); }
 
-static int expr_occurs(lua_State * L) { return push_boolean(L, occurs(to_expr(L, 1), to_expr(L, 2))); }
-static int expr_is_eqp(lua_State * L) { return push_boolean(L, is_eqp(to_expr(L, 1), to_expr(L, 2))); }
-static int expr_hash(lua_State * L)   { return push_integer(L, to_expr(L, 1).hash()); }
-static int expr_weight(lua_State * L) { return push_integer(L, get_weight(to_expr(L, 1))); }
+static int expr_occurs(lua_State * L)  { return push_boolean(L, occurs(to_expr(L, 1), to_expr(L, 2))); }
+static int expr_is_eqp(lua_State * L)  { return push_boolean(L, is_eqp(to_expr(L, 1), to_expr(L, 2))); }
+static int expr_hash(lua_State * L)    { return push_integer(L, to_expr(L, 1).hash()); }
+static int expr_hash_bi(lua_State * L) { return push_integer(L, hash_bi(to_expr(L, 1))); }
+static int expr_weight(lua_State * L)  { return push_integer(L, get_weight(to_expr(L, 1))); }
 static int expr_is_lt(lua_State * L) {
     int nargs = lua_gettop(L);
     return push_boolean(L, is_lt(to_expr(L, 1), to_expr(L, 2), nargs == 3 && lua_toboolean(L, 3)));
@@ -653,6 +654,7 @@ static const struct luaL_Reg expr_m[] = {
     {"is_equal",         safe_function<expr_is_equal>},
     {"is_bi_equal",      safe_function<expr_is_bi_equal>},
     {"hash",             safe_function<expr_hash>},
+    {"hash_bi",          safe_function<expr_hash_bi>},
     {"tag",              safe_function<expr_tag>},
     {"set_tag",          safe_function<expr_set_tag>},
     {0, 0}

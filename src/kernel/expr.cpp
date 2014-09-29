@@ -133,6 +133,10 @@ void expr_const::dealloc() {
     get_const_allocator().recycle(this);
 }
 
+unsigned binder_info::hash() const {
+    return (m_implicit << 3) | (m_cast << 2) | (m_contextual << 1) | m_strict_implicit;
+}
+
 // Expr metavariables and local variables
 DEF_THREAD_MEMORY_POOL(get_mlocal_allocator, sizeof(expr_mlocal));
 expr_mlocal::expr_mlocal(bool is_meta, name const & n, expr const & t):
@@ -635,6 +639,22 @@ expr infer_implicit(expr const & t, unsigned num_params, bool strict) {
 
 expr infer_implicit(expr const & t, bool strict) {
     return infer_implicit(t, std::numeric_limits<unsigned>::max(), strict);
+}
+
+unsigned hash_bi(expr const & e) {
+    unsigned h = e.hash();
+    for_each(e, [&](expr const & e, unsigned) {
+            if (is_binding(e)) {
+                h = hash(h, hash(binding_name(e).hash(), binding_info(e).hash()));
+            } else if (is_local(e)) {
+                h = hash(h, hash(mlocal_name(e).hash(), local_info(e).hash()));
+                return false; // do not visit type
+            } else if (is_metavar(e)) {
+                return false; // do not visit type
+            }
+            return true;
+        });
+    return h;
 }
 
 void initialize_expr() {

@@ -336,10 +336,8 @@ def call_ninja(args):
         proc_out = subprocess.PIPE
         proc_err = subprocess.PIPE
     proc = subprocess.Popen([g_ninja_path] + targets, stdout=proc_out, stderr=proc_err)
-    proc.wait()
-
+    (out, err) = proc.communicate()
     if args.flycheck:
-        (out, err) = proc.communicate()
         if len(args.targets) == 1 and args.targets[0].endswith(".lean"):
             process_lean_output(targets[0], out, args)
             handle_flycheck_failure(out, err, args)

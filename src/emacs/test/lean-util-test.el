@@ -8,13 +8,6 @@
 (require 'dash)
 (require 'lean-util)
 
-(ert-deftest lean-test-unicode ()
-  (--map (should (lean-letter-like-unicode-p it))
-         (list ?α ?β ?μ ?δ ?ε ?ζ ?η ?θ ?ι ?κ ?μ ?ν ?ξ ?ο
-               ?π ?ρ ?ς ?σ ?τ ?υ ?υ ?φ ?χ ?ψ ?ω))
-  (should (not (lean-letter-like-unicode-p ?λ)))
-  (should (lean-super-sub-script-alnum-unicode-p ?⁰)))
-
 (ert-deftest lean-test-isalpha ()
   (--map (should (lean-isalpha it))
          (list ?a ?b ?c ?d ?e ?f ?g ?h ?i ?j ?k ?l ?m

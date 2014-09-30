@@ -304,6 +304,8 @@ def process_lean_output(target, out, args):
     current_file = ""
     while i < lines_len:
         line = lines[i]
+        if platform.system() == "Windows":
+            line = line.replace("\\", "/")
         i += 1
         if line == "":
             continue

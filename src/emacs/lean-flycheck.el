@@ -15,7 +15,7 @@
                          lean-flycheck-checker-options
                          '("--cache")
                          '(source-original)
-                         '((eval (lean-option-string)))
+                         '((eval (lean-option-string t)))
                          '("--")
                          '(source-inplace))))
     (when (string= system-type "windows-nt")
@@ -96,5 +96,28 @@
            (exts     '(".ilean" ".d" ".olean"))
            (tempfiles (--map (concat tempfile it) exts)))
       (mapc #'flycheck-safe-delete tempfiles))))
+
+
+(defun lean-flycheck-error-list-buffer-width ()
+  "Return the width of flycheck-error list buffer"
+  (interactive)
+  (let* ((flycheck-error-window (get-buffer-window "*Flycheck errors*" t))
+         (window                (selected-window))
+         (body-width            (window-body-width window)))
+    (cond
+     ;; If "*Flycheck errors" buffer is available, use its width
+     (flycheck-error-window
+      (window-body-width flycheck-error-window))
+     ;; If lean-flycheck-msg-width is set, use it
+     (lean-flycheck-msg-width
+      lean-flycheck-msg-width)
+     ;; Can we split vertically?
+     ((window-splittable-p window nil)
+      body-width)
+     ;; Can we split horizontally?
+     ((window-splittable-p window t)
+      (/ body-width 2))
+     ;; In worst case, just use the same width of current window
+     (t body-width))))
 
 (provide 'lean-flycheck)

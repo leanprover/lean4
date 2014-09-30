@@ -68,12 +68,18 @@ show both of expressions and types.")
   "Maximum number of flycheck messages to displaylean-flychecker checker name
    (Restart required to be effective)"
   :group 'lean
-  :type 'int)
+  :type 'number)
 
 (defcustom lean-default-pp-width 120
   "Width of Lean error/warning messages"
   :group 'lean
-  :type 'int)
+  :type 'number)
+
+(defcustom lean-flycheck-msg-width nil
+  "Width of Lean error/warning messages"
+  :group 'lean
+  :type '(choice (const   :tag "Let lean-mode automatically detect this" nil)
+                 (integer :tag "Specify the value and force lean-mode to use")))
 
 (defcustom lean-flycheck-checker-options
   `("--flycheck"

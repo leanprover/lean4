@@ -26,21 +26,30 @@
                  (-drop 1 str-list)))
     (string-join str-list "\n")))
 
-(defun lean-option-string ()
+(defun lean-option-string (&optional use-flycheck)
   "Return string of Lean options set by lean-set-option command"
-  (let ((pp-width-entry (assoc-string "pp.width" lean-global-option-alist)))
-    (unless pp-width-entry
-      (lean-update-option-alist "pp.width" lean-default-pp-width)))
-  (when lean-global-option-alist
-    (--reduce (format "%s %s" acc it)
-            (--map (format "-D%s=%s" (car it) (cdr it))
-                   lean-global-option-alist))))
+  (let* ((option-alist lean-global-option-alist)
+         (pp-width-entry (assoc-string "pp.width" option-alist)))
+    (cond (use-flycheck
+           (setq option-alist
+                 (lean-update-option-alist option-alist
+                                           "pp.width"
+                                           (lean-flycheck-error-list-buffer-width))))
+          ((not pp-width-entry)
+           (setq option-alist
+                 (lean-update-option-alist option-alist
+                                           "pp.width"
+                                           lean-default-pp-width))))
+    (when option-alist
+      (--reduce (format "%s %s" acc it)
+                (--map (format "-D%s=%s" (car it) (cdr it))
+                       option-alist)))))
 
-(defun lean-update-option-alist (name value)
-  (let ((needle (assoc-string name lean-global-option-alist)))
+(defun lean-update-option-alist (option-alist name value)
+  (let ((needle (assoc-string name option-alist)))
     (when needle
-      (setq lean-global-option-alist (delq needle lean-global-option-alist)))
-    (setq lean-global-option-alist (cl-acons name value lean-global-option-alist))))
+      (setq option-alist (delq needle option-alist)))
+    (setq option-alist (cl-acons name value option-alist))))
 
 (defun lean-set-option-cont (option-record-alist)
   (let* ((key-list (-map 'car option-record-alist))
@@ -52,7 +61,10 @@
          (option-value (lean-option-read option)))
     (lean-server-send-cmd-async
      (lean-cmd-set option-name option-value)
-     (lambda (dummy) (lean-update-option-alist option-name option-value)))))
+     (lambda (dummy) (setq lean-global-option-alist
+                      (lean-update-option-alist lean-global-option-alist
+                                                option-name
+                                                option-value))))))
 
 (defun lean-set-option ()
   "Set Lean option."

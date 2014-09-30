@@ -43,12 +43,12 @@
               (file-name) ":" line ":" (? column ":") " error: "
               (minimal-match
                (message (one-or-more (one-or-more not-newline) (? "\r") "\n")))
-              "FLYCHECK_END" line-end)
+              "FLYCHECK_END" (? "\r") line-end)
        (warning line-start "FLYCHECK_BEGIN WARNING" (? "\r") "\n"
                 (file-name) ":" line ":" (? column ":") " warning "
                 (minimal-match
                  (message (one-or-more (one-or-more not-newline) (? "\r") "\n")))
-                "FLYCHECK_END" line-end))
+                "FLYCHECK_END" (? "\r") line-end))
       :modes (lean-mode)))
   (add-to-list 'flycheck-checkers 'lean-checker))
 

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/debug.h"
+#include "util/int64.h"
 
 namespace lean {
 
@@ -17,6 +18,13 @@ inline unsigned hash(unsigned h1, unsigned h2) {
     h2 -= h1; h2 ^= (h1 << 8);
     h1 -= h2; h2 ^= (h1 << 16);
     h2 -= h1; h2 ^= (h1 << 10);
+    return h2;
+}
+
+inline uint64 hash(uint64 h1, uint64 h2) {
+    h2 -= h1; h2 ^= (h1 << 16);
+    h1 -= h2; h2 ^= (h1 << 32);
+    h2 -= h1; h2 ^= (h1 << 20);
     return h2;
 }
 
@@ -69,6 +77,4 @@ unsigned hash(unsigned n, H h, unsigned init_value = 31) {
         return c;
     }
 }
-
-
 }

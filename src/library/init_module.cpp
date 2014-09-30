@@ -28,9 +28,11 @@ Author: Leonardo de Moura
 #include "library/sorry.h"
 #include "library/placeholder.h"
 #include "library/print.h"
+#include "library/fingerprint.h"
 
 namespace lean {
 void initialize_library_module() {
+    initialize_fingerprint();
     initialize_print();
     initialize_placeholder();
     initialize_match();
@@ -82,5 +84,6 @@ void finalize_library_module() {
     finalize_match();
     finalize_placeholder();
     finalize_print();
+    finalize_fingerprint();
 }
 }

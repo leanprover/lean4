@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/interrupt.h"
+#include "kernel/for_each_fn.h"
 #include "library/placeholder.h"
 #include "library/kernel_serializer.h"
 #include "library/definition_cache.h"
@@ -118,6 +119,12 @@ public:
     bool operator()(expr const & a, expr const & b) { return compare(a, b); }
 };
 
+definition_cache::entry::entry(expr const & pre_t, expr const & pre_v,
+                               level_param_names const & ps, expr const & t, expr const & v,
+                               dependencies const & deps):
+    m_pre_type(pre_t), m_pre_value(pre_v), m_params(ps),
+    m_type(t), m_value(v), m_dependencies(deps) {}
+
 definition_cache::definition_cache() {}
 
 void definition_cache::load(std::istream & in) {
@@ -130,19 +137,46 @@ void definition_cache::load(std::istream & in) {
         level_param_names ls;
         expr pre_type, pre_value, type, value;
         d >> n >> pre_type >> pre_value >> ls >> type >> value;
-        add_core(n, pre_type, pre_value, ls, type, value);
+        dependencies deps;
+        unsigned num;
+        d >> num;
+        for (unsigned i = 0; i < num; i++) {
+            name n; unsigned h;
+            d >> n >> h;
+            deps.insert(n, h);
+        }
+        add_core(n, pre_type, pre_value, ls, type, value, deps);
     }
 }
 
-void definition_cache::add_core(name const & n, expr const & pre_type, expr const & pre_value,
-                                 level_param_names const & ls, expr const & type, expr const & value) {
-    m_definitions.insert(n, entry(pre_type, pre_value, ls, type, value));
+void definition_cache::collect_dependencies(environment const & env, expr const & e, dependencies & deps) {
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!is_constant(e))
+                return true;
+            name const & n = const_name(e);
+            if (deps.contains(n))
+                return true;
+            auto d = env.find(n);
+            if (!d)
+                return true;
+            deps.insert(n, hash_bi(d->get_type()));
+            return true;
+        });
 }
 
-void definition_cache::add(name const & n, expr const & pre_type, expr const & pre_value,
-                            level_param_names const & ls, expr const & type, expr const & value) {
+void definition_cache::add_core(name const & n, expr const & pre_type, expr const & pre_value,
+                                level_param_names const & ls, expr const & type, expr const & value,
+                                dependencies const & deps) {
+    m_definitions.insert(n, entry(pre_type, pre_value, ls, type, value, deps));
+}
+
+void definition_cache::add(environment const & env, name const & n, expr const & pre_type, expr const & pre_value,
+                           level_param_names const & ls, expr const & type, expr const & value) {
+    dependencies deps;
+    collect_dependencies(env, type, deps);
+    collect_dependencies(env, value, deps);
     lock_guard<mutex> lc(m_mutex);
-    add_core(n, pre_type, pre_value, ls, type, value);
+    add_core(n, pre_type, pre_value, ls, type, value, deps);
 }
 
 void definition_cache::erase(name const & n) {
@@ -155,21 +189,42 @@ void definition_cache::clear() {
     m_definitions.clear();
 }
 
-optional<std::tuple<level_param_names, expr, expr>> definition_cache::find(name const & n, expr const & pre_type, expr const & pre_value) {
-    entry const * it;
+/** \brief Return true iff the type of all declarations in deps still have the same hashcode
+    stored in deps. */
+bool definition_cache::check_dependencies(environment const & env, dependencies const & deps) {
+    bool ok = true;
+    deps.for_each([&](name const & n, unsigned h) {
+            if (ok) {
+                if (auto d = env.find(n)) {
+                    if (h != hash_bi(d->get_type()))
+                        ok = false;
+                } else {
+                    ok = false;
+                }
+            }
+        });
+    return ok;
+}
+
+optional<std::tuple<level_param_names, expr, expr>>
+definition_cache::find(environment const & env, name const & n, expr const & pre_type, expr const & pre_value) {
+    entry e;
     {
         lock_guard<mutex> lc(m_mutex);
-        it = m_definitions.find(n);
+        if (auto it = m_definitions.find(n)) {
+            e = *it;
+        } else {
+            return optional<std::tuple<level_param_names, expr, expr>>();
+        }
     }
-    if (it) {
-        level_param_names ls;
-        expr c_pre_type, c_pre_value, type, value;
-        std::tie(c_pre_type, c_pre_value, ls, type, value) = *it;
-        if (expr_eq_modulo_placeholders_fn()(c_pre_type, pre_type) &&
-            expr_eq_modulo_placeholders_fn()(c_pre_value, pre_value))
-            return some(std::make_tuple(ls, type, value));
+    level_param_names ls;
+    if (expr_eq_modulo_placeholders_fn()(e.m_pre_type, pre_type) &&
+        expr_eq_modulo_placeholders_fn()(e.m_pre_value, pre_value) &&
+        check_dependencies(env, e.m_dependencies)) {
+        return some(std::make_tuple(e.m_params, e.m_type, e.m_value));
+    } else {
+        return optional<std::tuple<level_param_names, expr, expr>>();
     }
-    return optional<std::tuple<level_param_names, expr, expr>>();
 }
 
 void definition_cache::save(std::ostream & out) {
@@ -177,10 +232,12 @@ void definition_cache::save(std::ostream & out) {
     serializer s(out);
     s << m_definitions.size();
     m_definitions.for_each([&](name const & n, entry const & e) {
-            level_param_names ls;
-            expr c_pre_type, c_pre_value, type, value;
-            std::tie(c_pre_type, c_pre_value, ls, type, value) = e;
-            s << n << c_pre_type << c_pre_value << ls << type << value;
+            s << n << e.m_pre_type << e.m_pre_value << e.m_params
+              << e.m_type << e.m_value;
+            s << static_cast<unsigned>(e.m_dependencies.size());
+            e.m_dependencies.for_each([&](name const & n, unsigned h) {
+                    s << n << h;
+                });
         });
 }
 }

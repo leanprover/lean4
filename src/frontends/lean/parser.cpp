@@ -120,12 +120,12 @@ parser::~parser() {
 void parser::cache_definition(name const & n, expr const & pre_type, expr const & pre_value,
                               level_param_names const & ls, expr const & type, expr const & value) {
     if (m_cache)
-        m_cache->add(n, pre_type, pre_value, ls, type, value);
+        m_cache->add(m_env, n, pre_type, pre_value, ls, type, value);
 }
 
 optional<std::tuple<level_param_names, expr, expr>> parser::find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value) {
     if (m_cache)
-        return m_cache->find(n, pre_type, pre_value);
+        return m_cache->find(m_env, n, pre_type, pre_value);
     else
         return optional<std::tuple<level_param_names, expr, expr>>();
 }

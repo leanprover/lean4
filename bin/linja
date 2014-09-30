@@ -9,6 +9,8 @@
 import argparse
 import fnmatch
 import glob
+import logging
+import logging.handlers
 import os
 import platform
 import shutil
@@ -26,8 +28,21 @@ g_project_filename = ".project"
 g_lean_path        = "USE DEFAULT" # System will search automatically
 g_ltags_path       = "USE DEFAULT" # System will search automatically
 g_ninja_path       = "USE DEFAULT" # System will search automatically
-g_flycheck_header    = "FLYCHECK_BEGIN"
-g_flycheck_footer    = "FLYCHECK_END"
+g_flycheck_header  = "FLYCHECK_BEGIN"
+g_flycheck_footer  = "FLYCHECK_END"
+
+g_logger = logging.getLogger('linja_logger')
+g_debug_mode = False
+
+def init_logger():
+    formatter = logging.Formatter('[%(levelname)s] %(asctime)s %(message)s')
+    streamHandler = logging.StreamHandler()
+    streamHandler.setFormatter(formatter)
+    g_logger.addHandler(streamHandler)
+    if g_debug_mode == True:
+        fileHandler = logging.FileHandler('./linja.log')
+        fileHandler.setFormatter(formatter)    
+        g_logger.addHandler(fileHandler)
 
 def log(msg):
     print >> sys.stderr, msg
@@ -207,6 +222,8 @@ def process_args(args):
     args.phony_targets = list(set(g_phony_targets) & set(args.targets))
     if len(args.phony_targets) > 1:
         error("Please provide at most one phony target: " + str(args.phony_targets))
+    if args.verbose:
+        g_logger.setLevel(logging.INFO)
     return args
 
 def get_lean_options(args):
@@ -227,6 +244,7 @@ def parse_arg(argv):
     parser.add_argument('--cache', action='store', help="Use specified cache (clean) file.")
     parser.add_argument('--directory', '-C', action='store', help="change to DIR before doing anything else.")
     parser.add_argument('--lean-config-option', '-D', action='append', help="set a Lean configuration option (name=value)")
+    parser.add_argument('--verbose', '-v', action='store_true', help="turn on verbose option")
     parser.add_argument('targets', nargs='*')
     args = parser.parse_args(argv)
     check_requirements()
@@ -497,6 +515,7 @@ def make_deps_all_files(args):
         sys.stderr.write("\n")
 
 def main(argv=None):
+    init_logger()
     if argv is None:
         argv = sys.argv[1:]
     args = parse_arg(argv)

@@ -215,6 +215,14 @@ triggers a completion immediately."
                 'start start
                 'prefix prefix)))
 
+(defun company-lean--handle-singleton-candidate (prefix candidates)
+  "Handle singleton candidate. If the candidate does not start
+  with prefix, we add prefix itself as a candidate to prevent
+  from auto-completion."
+  (let ((candidate (car candidates)))
+    (cond ((s-prefix? prefix candidate) candidates)
+          (t                            `(,candidate ,prefix)))))
+
 (defun company-lean--findp-candidates (prefix)
   (let ((line-number (line-number-at-pos))
         (column-number (current-column))
@@ -223,7 +231,13 @@ triggers a completion immediately."
     (lean-server-send-cmd-sync (lean-cmd-findp line-number prefix)
                                (lambda (candidates)
                                  (lean-debug "executing continuation for FINDP")
-                                 (--map (company-lean--findp-make-candidate it prefix) candidates)))))
+                                 (setq candidates
+                                       (--map (company-lean--findp-make-candidate it prefix)
+                                              candidates))
+                                 (when (= (length candidates) 1)
+                                   (setq candidates
+                                         (company-lean--handle-singleton-candidate prefix candidates)))
+                                 candidates))))
 
 (defun company-lean--findp-location (arg)
   (lean-generate-tags)

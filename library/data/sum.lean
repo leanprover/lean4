@@ -55,7 +55,7 @@ namespace sum
   protected theorem is_inhabited_right [instance] {A B : Type} (H : inhabited B) : inhabited (A ⊎ B) :=
   inhabited.mk (inr A (default B))
 
-  protected theorem has_eq_decidable [instance] {A B : Type} (H1 : decidable_eq A) (H2 : decidable_eq B) :
+  protected definition has_eq_decidable [instance] {A B : Type} (H1 : decidable_eq A) (H2 : decidable_eq B) :
        decidable_eq (A ⊎ B) :=
   take s1 s2 : A ⊎ B,
     rec_on s1

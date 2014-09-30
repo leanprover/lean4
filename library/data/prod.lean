@@ -48,7 +48,7 @@ section
   protected theorem is_inhabited [instance] (H1 : inhabited A) (H2 : inhabited B) : inhabited (prod A B) :=
   inhabited.destruct H1 (λa, inhabited.destruct H2 (λb, inhabited.mk (pair a b)))
 
-  protected theorem has_decidable_eq [instance] (H1 : decidable_eq A) (H2 : decidable_eq B) : decidable_eq (A × B) :=
+  protected definition has_decidable_eq [instance] (H1 : decidable_eq A) (H2 : decidable_eq B) : decidable_eq (A × B) :=
   take u v : A × B,
     have H3 : u = v ↔ (pr1 u = pr1 v) ∧ (pr2 u = pr2 v), from
       iff.intro

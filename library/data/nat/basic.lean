@@ -105,7 +105,7 @@ induction_on n
     absurd H ne)
   (take k IH H, IH (succ_inj H))
 
-protected theorem has_decidable_eq [instance] : decidable_eq ℕ :=
+protected definition has_decidable_eq [instance] : decidable_eq ℕ :=
 take n m : ℕ,
 have general : ∀n, decidable (n = m), from
   rec_on m

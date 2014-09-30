@@ -38,7 +38,7 @@ namespace option
   protected theorem is_inhabited [instance] (A : Type) : inhabited (option A) :=
   inhabited.mk none
 
-  protected theorem has_decidable_eq [instance] {A : Type} (H : decidable_eq A) : decidable_eq (option A) :=
+  protected definition has_decidable_eq [instance] {A : Type} (H : decidable_eq A) : decidable_eq (option A) :=
   take o₁ o₂ : option A,
     rec_on o₁
       (rec_on o₂ (inl rfl) (take a₂, (inr (none_ne_some a₂))))

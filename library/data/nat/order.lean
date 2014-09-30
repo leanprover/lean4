@@ -230,7 +230,7 @@ le_trans (mul_le_right H1 m) (mul_le_left H2 k)
 
 -- mul_le_[left|right]_inv below
 
-theorem le_decidable [instance] (n m : ℕ) : decidable (n ≤ m) :=
+definition le_decidable [instance] (n m : ℕ) : decidable (n ≤ m) :=
 have general : ∀n, decidable (n ≤ m), from
   rec_on m
     (take n,
@@ -422,9 +422,9 @@ theorem not_le_imp_gt {n m : ℕ} (H : ¬ n ≤ m) : n > m :=
 or.resolve_right le_or_gt H
 
 -- The following three theorems are automatically proved using the instance le_decidable
-theorem lt_decidable [instance] (n m : ℕ) : decidable (n < m)
-theorem gt_decidable [instance] (n m : ℕ) : decidable (n > m)
-theorem ge_decidable [instance] (n m : ℕ) : decidable (n ≥ m)
+definition lt_decidable [instance] (n m : ℕ) : decidable (n < m) := _
+definition gt_decidable [instance] (n m : ℕ) : decidable (n > m) := _
+definition ge_decidable [instance] (n m : ℕ) : decidable (n ≥ m) := _
 
 -- Note: interaction with multiplication under "positivity"
 

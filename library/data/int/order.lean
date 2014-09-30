@@ -422,8 +422,8 @@ Hn⁻¹ ▸ congr_arg of_nat (to_nat_of_nat n)
 theorem of_nat_nonneg (n : ℕ) : of_nat n ≥ 0 :=
 iff.mp (iff.symm (le_of_nat _ _)) zero_le
 
-theorem le_decidable [instance] {a b : ℤ} : decidable (a ≤ b) :=
-have aux : ∀x, decidable (0 ≤ x), from
+definition le_decidable [instance] {a b : ℤ} : decidable (a ≤ b) :=
+have aux : Πx, decidable (0 ≤ x), from
   take x,
     have H : 0 ≤ x ↔ of_nat (to_nat x) = x, from
       iff.intro
@@ -432,9 +432,9 @@ have aux : ∀x, decidable (0 ≤ x), from
     decidable_iff_equiv _ (iff.symm H),
 decidable_iff_equiv (aux _) (iff.symm (le_iff_sub_nonneg a b))
 
-theorem ge_decidable [instance] {a b : ℤ} : decidable (a ≥ b)
-theorem lt_decidable [instance] {a b : ℤ} : decidable (a < b)
-theorem gt_decidable [instance] {a b : ℤ} : decidable (a > b)
+definition ge_decidable [instance] {a b : ℤ} : decidable (a ≥ b) := _
+definition lt_decidable [instance] {a b : ℤ} : decidable (a < b) := _
+definition gt_decidable [instance] {a b : ℤ} : decidable (a > b) := _
 
 --to_nat_neg is already taken... rename?
 theorem to_nat_negative {a : ℤ} (H : a ≤ 0) : (to_nat a) = -a :=

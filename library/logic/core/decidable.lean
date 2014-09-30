@@ -10,10 +10,10 @@ inr : ¬p → decidable p
 
 namespace decidable
 
-theorem true_decidable [instance] : decidable true :=
+definition true_decidable [instance] : decidable true :=
 inl trivial
 
-theorem false_decidable [instance] : decidable false :=
+definition false_decidable [instance] : decidable false :=
 inr not_false_trivial
 
 protected theorem induction_on {p : Prop} {C : Prop} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=
@@ -38,7 +38,7 @@ decidable.rec
 theorem em (p : Prop) {H : decidable p} : p ∨ ¬p :=
 induction_on H (λ Hp, or.inl Hp) (λ Hnp, or.inr Hnp)
 
-theorem by_cases {a : Prop} {b : Type} {C : decidable a} (Hab : a → b) (Hnab : ¬a → b) : b :=
+definition by_cases {a : Prop} {b : Type} {C : decidable a} (Hab : a → b) (Hnab : ¬a → b) : b :=
 rec_on C (assume Ha, Hab Ha) (assume Hna, Hnab Hna)
 
 theorem by_contradiction {p : Prop} {Hp : decidable p} (H : ¬p → false) : p :=
@@ -46,7 +46,7 @@ or.elim (em p)
   (assume H1 : p, H1)
   (assume H1 : ¬p, false_elim (H H1))
 
-theorem and_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
+definition and_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
   decidable (a ∧ b) :=
 rec_on Ha
   (assume Ha  : a, rec_on Hb
@@ -54,7 +54,7 @@ rec_on Ha
     (assume Hnb : ¬b, inr (and.not_right a Hnb)))
   (assume Hna : ¬a, inr (and.not_left b Hna))
 
-theorem or_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
+definition or_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
   decidable (a ∨ b) :=
 rec_on Ha
   (assume Ha  : a, inl (or.inl Ha))
@@ -62,12 +62,12 @@ rec_on Ha
     (assume Hb  : b,  inl (or.inr Hb))
     (assume Hnb : ¬b, inr (or.not_intro Hna Hnb)))
 
-theorem not_decidable [instance] {a : Prop} (Ha : decidable a) : decidable (¬a) :=
+definition not_decidable [instance] {a : Prop} (Ha : decidable a) : decidable (¬a) :=
 rec_on Ha
   (assume Ha,  inr (not_not_intro Ha))
   (assume Hna, inl Hna)
 
-theorem iff_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
+definition iff_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
   decidable (a ↔ b) :=
 rec_on Ha
   (assume Ha, rec_on Hb
@@ -78,7 +78,7 @@ rec_on Ha
     (assume Hnb : ¬b, inl
         (iff.intro (assume Ha, absurd Ha Hna) (assume Hb, absurd Hb Hnb))))
 
-theorem implies_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
+definition implies_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
   decidable (a → b) :=
 rec_on Ha
   (assume Ha  : a, rec_on Hb
@@ -86,12 +86,12 @@ rec_on Ha
     (assume Hnb : ¬b, inr (assume H : a → b, absurd (H Ha) Hnb)))
   (assume Hna : ¬a, inl (assume Ha, absurd Ha Hna))
 
-theorem decidable_iff_equiv {a b : Prop} (Ha : decidable a) (H : a ↔ b) : decidable b :=
+definition decidable_iff_equiv {a b : Prop} (Ha : decidable a) (H : a ↔ b) : decidable b :=
 rec_on Ha
   (assume Ha : a,   inl (iff.elim_left H Ha))
   (assume Hna : ¬a, inr (iff.elim_left (iff.flip_sign H) Hna))
 
-theorem decidable_eq_equiv {a b : Prop} (Ha : decidable a) (H : a = b) : decidable b :=
+definition decidable_eq_equiv {a b : Prop} (Ha : decidable a) (H : a = b) : decidable b :=
 decidable_iff_equiv Ha (eq_to_iff H)
 
 end decidable

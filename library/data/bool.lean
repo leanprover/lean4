@@ -138,7 +138,7 @@ namespace bool
   protected theorem is_inhabited [instance] : inhabited bool :=
   inhabited.mk ff
 
-  protected theorem has_decidable_eq [instance] : decidable_eq bool :=
+  protected definition has_decidable_eq [instance] : decidable_eq bool :=
   take a b : bool,
     rec_on a
       (rec_on b (inl rfl) (inr ff_ne_tt))

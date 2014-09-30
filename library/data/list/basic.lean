@@ -204,7 +204,7 @@ induction_on l
           from H3 ▸ rfl,
         exists_intro _ (exists_intro _ H4)))
 
-theorem mem_is_decidable [instance] {H : decidable_eq T} {x : T} {l : list T} : decidable (x ∈ l) :=
+definition mem_is_decidable [instance] {H : decidable_eq T} {x : T} {l : list T} : decidable (x ∈ l) :=
 rec_on l
   (decidable.inr (iff.false_elim mem_nil))
   (λ (h : T) (l : list T) (iH : decidable (x ∈ l)),

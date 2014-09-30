@@ -203,8 +203,9 @@ exists_intro (pr1 (rep a))
       a = psub (rep a) : (psub_rep a)⁻¹
     ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {(prod_ext (rep a))⁻¹}))
 
-protected theorem has_decidable_eq [instance] : decidable_eq ℤ :=
-take a b : ℤ, _
+-- TODO it should not be opaque.
+protected opaque definition has_decidable_eq [instance] : decidable_eq ℤ :=
+_
 
 irreducible int
 definition of_nat [coercion] (n : ℕ) : ℤ := psub (pair n 0)

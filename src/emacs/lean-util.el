@@ -110,15 +110,13 @@
 
 (defun lean-grab-id ()
   (interactive)
-  (save-excursion
-    (when (and (or (eolp)
-                   (looking-at (rx white))
-                   (eobp))
-               (not (bolp)))
-      (backward-char 1))
-    (let ((cur-pos (point))
-          (id-beg (lean-find-id-beg)))
-      (when id-beg
-        (buffer-substring id-beg (1+ (point)))))))
+  (when (not (bolp))
+    (save-excursion
+      (let ((cur-pos (point))
+            id-beg)
+        (backward-char 1)
+        (setq id-beg (lean-find-id-beg))
+        (when id-beg
+          (buffer-substring id-beg cur-pos))))))
 
 (provide 'lean-util)

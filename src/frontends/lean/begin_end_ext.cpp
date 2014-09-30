@@ -60,6 +60,9 @@ struct be_config {
         d >> e.m_accumulate >> e.m_tac;
         return e;
     }
+    static optional<unsigned> get_fingerprint(entry const & e) {
+        return some(hash(e.m_accumulate, e.m_tac.hash()));
+    }
 };
 
 template class scoped_ext<be_config>;

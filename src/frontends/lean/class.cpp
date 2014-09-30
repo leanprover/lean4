@@ -107,6 +107,12 @@ struct class_config {
             d >> e.m_class >> e.m_instance >> e.m_priority;
         return e;
     }
+    static optional<unsigned> get_fingerprint(entry const & e) {
+        if (e.m_class_cmd)
+            return some(e.m_class.hash());
+        else
+            return some(hash(hash(e.m_class.hash(), e.m_instance.hash()), e.m_priority));
+    }
 };
 
 template class scoped_ext<class_config>;

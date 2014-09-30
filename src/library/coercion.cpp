@@ -344,6 +344,9 @@ struct coercion_config {
         d >> e.first >> e.second;
         return e;
     }
+    static optional<unsigned> get_fingerprint(entry const & e) {
+        return some(hash(e.first.hash(), e.second.hash()));
+    }
 };
 
 template class scoped_ext<coercion_config>;

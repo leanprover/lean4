@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/kernel_serializer.h"
 #include "library/definition_cache.h"
+#include "library/fingerprint.h"
 
 namespace lean {
 /** \brief Similar to expr_eq_fn, but allows different placeholders
@@ -121,9 +122,9 @@ public:
 
 definition_cache::entry::entry(expr const & pre_t, expr const & pre_v,
                                level_param_names const & ps, expr const & t, expr const & v,
-                               dependencies const & deps):
+                               dependencies const & deps, uint64 fingerprint):
     m_pre_type(pre_t), m_pre_value(pre_v), m_params(ps),
-    m_type(t), m_value(v), m_dependencies(deps) {}
+    m_type(t), m_value(v), m_dependencies(deps), m_fingerprint(fingerprint) {}
 
 definition_cache::definition_cache() {}
 
@@ -145,7 +146,9 @@ void definition_cache::load(std::istream & in) {
             d >> n >> h;
             deps.insert(n, h);
         }
-        add_core(n, pre_type, pre_value, ls, type, value, deps);
+        uint64 fingerprint;
+        d >> fingerprint;
+        add_core(n, pre_type, pre_value, ls, type, value, deps, fingerprint);
     }
 }
 
@@ -166,8 +169,8 @@ void definition_cache::collect_dependencies(environment const & env, expr const 
 
 void definition_cache::add_core(name const & n, expr const & pre_type, expr const & pre_value,
                                 level_param_names const & ls, expr const & type, expr const & value,
-                                dependencies const & deps) {
-    m_definitions.insert(n, entry(pre_type, pre_value, ls, type, value, deps));
+                                dependencies const & deps, uint64 fingerprint) {
+    m_definitions.insert(n, entry(pre_type, pre_value, ls, type, value, deps, fingerprint));
 }
 
 void definition_cache::add(environment const & env, name const & n, expr const & pre_type, expr const & pre_value,
@@ -175,8 +178,9 @@ void definition_cache::add(environment const & env, name const & n, expr const &
     dependencies deps;
     collect_dependencies(env, type, deps);
     collect_dependencies(env, value, deps);
+    uint64 fingerprint = get_fingerprint(env);
     lock_guard<mutex> lc(m_mutex);
-    add_core(n, pre_type, pre_value, ls, type, value, deps);
+    add_core(n, pre_type, pre_value, ls, type, value, deps, fingerprint);
 }
 
 void definition_cache::erase(name const & n) {
@@ -220,6 +224,7 @@ definition_cache::find(environment const & env, name const & n, expr const & pre
     level_param_names ls;
     if (expr_eq_modulo_placeholders_fn()(e.m_pre_type, pre_type) &&
         expr_eq_modulo_placeholders_fn()(e.m_pre_value, pre_value) &&
+        get_fingerprint(env) == e.m_fingerprint &&
         check_dependencies(env, e.m_dependencies)) {
         return some(std::make_tuple(e.m_params, e.m_type, e.m_value));
     } else {
@@ -238,6 +243,7 @@ void definition_cache::save(std::ostream & out) {
             e.m_dependencies.for_each([&](name const & n, unsigned h) {
                     s << n << h;
                 });
+            s << e.m_fingerprint;
         });
 }
 }

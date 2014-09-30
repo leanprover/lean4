@@ -66,6 +66,9 @@ struct reducible_config {
         e.m_status = static_cast<reducible_status>(s);
         return e;
     }
+    static optional<unsigned> get_fingerprint(entry const & e) {
+        return some(hash(static_cast<unsigned>(e.m_status), e.m_name.hash()));
+    }
 };
 
 template class scoped_ext<reducible_config>;

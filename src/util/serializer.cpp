@@ -30,6 +30,12 @@ void serializer_core::write_unsigned(unsigned i) {
     m_out.put(i & 0xff);
 }
 
+void serializer_core::write_uint64(uint64 i) {
+    static_assert(sizeof(i) == 8, "unexpected uint64 size");
+    write_unsigned((i >> 32) & 0xffffffff);
+    write_unsigned(i & 0xffffffff);
+}
+
 void serializer_core::write_int(int i) {
     static_assert(sizeof(i) == 4, "unexpected int size");
     write_unsigned(i);
@@ -71,6 +77,14 @@ unsigned deserializer_core::read_unsigned() {
     r |= static_cast<unsigned>(m_in.get()) << 16;
     r |= static_cast<unsigned>(m_in.get()) << 8;
     r |= static_cast<unsigned>(m_in.get());
+    return r;
+}
+
+uint64 deserializer_core::read_uint64() {
+    uint64 r;
+    static_assert(sizeof(r) == 8, "unexpected uint64 size");
+    r  = static_cast<uint64>(read_unsigned()) << 32;
+    r |= static_cast<uint64>(read_unsigned());
     return r;
 }
 

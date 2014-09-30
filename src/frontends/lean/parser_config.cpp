@@ -53,6 +53,9 @@ struct token_config {
         unsigned prec  = d.read_unsigned();
         return entry(tk, prec);
     }
+    static optional<unsigned> get_fingerprint(entry const &) {
+        return optional<unsigned>();
+    }
 };
 name * token_config::g_class_name = nullptr;
 std::string * token_config::g_key = nullptr;
@@ -190,6 +193,9 @@ struct notation_config {
             ts.push_back(read_transition(d));
         return entry(is_nud, to_list(ts.begin(), ts.end()), e, overload);
     }
+    static optional<unsigned> get_fingerprint(entry const &) {
+        return optional<unsigned>();
+    }
 };
 name * notation_config::g_class_name = nullptr;
 std::string * notation_config::g_key = nullptr;
@@ -286,6 +292,9 @@ struct mpz_notation_config {
         entry e;
         d >> e.m_num >> e.m_expr >> e.m_overload;
         return e;
+    }
+    static optional<unsigned> get_fingerprint(entry const &) {
+        return optional<unsigned>();
     }
 };
 

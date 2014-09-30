@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "util/extensible_object.h"
 #include "util/list.h"
 #include "util/buffer.h"
+#include "util/int64.h"
 
 namespace lean {
 /**
@@ -25,6 +26,7 @@ public:
     void write_string(char const * str) { m_out.write(str, strlen(str) + 1); }
     void write_string(std::string const & str) { m_out.write(str.c_str(), str.size() + 1); }
     void write_unsigned(unsigned i);
+    void write_uint64(uint64 i);
     void write_int(int i);
     void write_char(char c) { m_out.put(c); }
     void write_bool(bool b) { m_out.put(b ? 1 : 0); }
@@ -36,6 +38,7 @@ typedef extensible_object<serializer_core> serializer;
 inline serializer & operator<<(serializer & s, char const * str) { s.write_string(str); return s; }
 inline serializer & operator<<(serializer & s, std::string const & str) { s.write_string(str); return s; }
 inline serializer & operator<<(serializer & s, unsigned i) { s.write_unsigned(i); return s; }
+inline serializer & operator<<(serializer & s, uint64 i) { s.write_uint64(i); return s; }
 inline serializer & operator<<(serializer & s, int i) { s.write_int(i); return s; }
 inline serializer & operator<<(serializer & s, char c) { s.write_char(c); return s; }
 inline serializer & operator<<(serializer & s, bool b) { s.write_bool(b); return s; }
@@ -51,6 +54,7 @@ public:
     deserializer_core(std::istream & in):m_in(in) {}
     std::string read_string();
     unsigned read_unsigned();
+    uint64 read_uint64();
     int read_int();
     char read_char() { return m_in.get(); }
     bool read_bool() { return m_in.get() != 0; }
@@ -61,6 +65,7 @@ typedef extensible_object<deserializer_core> deserializer;
 
 inline deserializer & operator>>(deserializer & d, std::string & str) { str = d.read_string(); return d; }
 inline deserializer & operator>>(deserializer & d, unsigned & i) { i = d.read_unsigned(); return d; }
+inline deserializer & operator>>(deserializer & d, uint64 & i) { i = d.read_uint64(); return d; }
 inline deserializer & operator>>(deserializer & d, int & i) { i = d.read_int(); return d; }
 inline deserializer & operator>>(deserializer & d, char & c) { c = d.read_char(); return d; }
 inline deserializer & operator>>(deserializer & d, bool & b) { b = d.read_bool(); return d; }

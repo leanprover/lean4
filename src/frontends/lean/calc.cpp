@@ -122,6 +122,9 @@ struct calc_config {
         e.m_cmd = static_cast<calc_cmd>(cmd);
         return e;
     }
+    static optional<unsigned> get_fingerprint(entry const &) {
+        return optional<unsigned>();
+    }
 };
 
 template class scoped_ext<calc_config>;

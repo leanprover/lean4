@@ -75,6 +75,9 @@ struct tactic_hint_config {
         d >> e.m_class >> e.m_pre_tactic;
         return e;
     }
+    static optional<unsigned> get_fingerprint(entry const & e) {
+        return some(hash(e.m_class.hash(), e.m_pre_tactic.hash()));
+    }
 };
 
 template class scoped_ext<tactic_hint_config>;

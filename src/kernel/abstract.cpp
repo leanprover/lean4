@@ -58,10 +58,10 @@ class mk_binding_cache {
     std::vector<optional<expr>> m_abstract_types;
 public:
     mk_binding_cache() {}
-    void abstract(unsigned num, expr const * locals) {
+    void abstract(unsigned num, expr const * locals, bool use_cache) {
         m_locals.resize(num, none_expr());
         m_abstract_types.resize(num, none_expr());
-        bool matching = true;
+        bool matching = use_cache;
         for (unsigned i = 0; i < num; i++) {
             if (!(matching && m_locals[i] && *m_locals[i] == locals[i])) {
                 m_locals[i]         = locals[i];
@@ -79,10 +79,10 @@ public:
 MK_THREAD_LOCAL_GET_DEF(mk_binding_cache, get_mk_binding_cache);
 
 template<bool is_lambda>
-expr mk_binding(unsigned num, expr const * locals, expr const & b) {
+expr mk_binding(unsigned num, expr const * locals, expr const & b, bool use_cache) {
     expr r       = abstract_locals(b, num, locals);
     auto & cache = get_mk_binding_cache();
-    cache.abstract(num, locals);
+    cache.abstract(num, locals, use_cache);
     unsigned i = num;
     while (i > 0) {
         --i;
@@ -96,6 +96,6 @@ expr mk_binding(unsigned num, expr const * locals, expr const & b) {
     return r;
 }
 
-expr Pi(unsigned num, expr const * locals, expr const & b) { return mk_binding<false>(num, locals, b); }
-expr Fun(unsigned num, expr const * locals, expr const & b) { return mk_binding<true>(num, locals, b); }
+expr Pi(unsigned num, expr const * locals, expr const & b, bool use_cache) { return mk_binding<false>(num, locals, b, use_cache); }
+expr Fun(unsigned num, expr const * locals, expr const & b, bool use_cache) { return mk_binding<true>(num, locals, b, use_cache); }
 }

@@ -83,11 +83,13 @@ list<expr> locals_to_context(expr const & e, parser const & p) {
 }
 
 expr Fun(buffer<expr> const & locals, expr const & e, parser & p) {
-    return p.rec_save_pos(Fun(locals, e), p.pos_of(e));
+    bool use_cache = false;
+    return p.rec_save_pos(Fun(locals, e, use_cache), p.pos_of(e));
 }
 
 expr Pi(buffer<expr> const & locals, expr const & e, parser & p) {
-    return p.rec_save_pos(Pi(locals, e), p.pos_of(e));
+    bool use_cache = false;
+    return p.rec_save_pos(Pi(locals, e, use_cache), p.pos_of(e));
 }
 
 template<bool is_lambda>

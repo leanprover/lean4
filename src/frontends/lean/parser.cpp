@@ -869,11 +869,12 @@ expr parser::parse_notation(parse_table t, expr * left) {
             break;
         case notation::action_kind::ScopedExpr: {
             expr r   = parse_scoped_expr(ps, lenv, a.rbp());
+            bool no_cache = false;
             if (is_var(a.get_rec(), 0)) {
                 if (a.use_lambda_abstraction())
-                    r = Fun(ps, r);
+                    r = Fun(ps, r, no_cache);
                 else
-                    r = Pi(ps, r);
+                    r = Pi(ps, r, no_cache);
                 r = rec_save_pos(r, binder_pos);
             } else {
                 expr rec = copy_with_new_pos(a.get_rec(), p);
@@ -882,9 +883,9 @@ expr parser::parse_notation(parse_table t, expr * left) {
                     --i;
                     expr const & l = ps[i];
                     if (a.use_lambda_abstraction())
-                        r = Fun(l, r);
+                        r = Fun(l, r, no_cache);
                     else
-                        r = Pi(l, r);
+                        r = Pi(l, r, no_cache);
                     r = save_pos(r, binder_pos);
                     args.push_back(r);
                     r = instantiate_rev(rec, args.size(), args.data());

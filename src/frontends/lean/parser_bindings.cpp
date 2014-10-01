@@ -96,10 +96,11 @@ static int lambda_abstract(lua_State * L) {
     local_scope const & s = to_local_scope(L, 1);
     expr const & e = to_expr(L, 2);
     expr r;
+    bool using_cache = false;
     if (nargs == 2)
-        r = gparser.rec_save_pos(Fun(s->second.size(), s->second.data(), e), gparser.pos_of(e));
+        r = gparser.rec_save_pos(Fun(s->second.size(), s->second.data(), e, using_cache), gparser.pos_of(e));
     else
-        r = gparser.rec_save_pos(Fun(s->second.size(), s->second.data(), e), pos_info(lua_tointeger(L, 3), lua_tointeger(L, 4)));
+        r = gparser.rec_save_pos(Fun(s->second.size(), s->second.data(), e, using_cache), pos_info(lua_tointeger(L, 3), lua_tointeger(L, 4)));
     return push_expr(L, r);
 }
 static int next(lua_State * L) { gparser.next(); return 0; }

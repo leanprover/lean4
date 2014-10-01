@@ -24,29 +24,6 @@
 
 ;; Log & Trace
 ;; ===========
-(defvar lean-server-trace-mode        nil)
-
-(defun lean-turn-on-server-trace-mode (&optional print-msg)
-  (interactive)
-  (when (eq major-mode 'lean-mode)
-    (when (or (called-interactively-p) print-msg)
-      (message "lean: turn on server trace mode"))
-    (get-buffer-create lean-server-trace-buffer-name)
-    (setq-local lean-server-trace-mode t)))
-
-(defun lean-turn-off-server-trace-mode (&optional print-msg)
-  (interactive)
-  (when (eq major-mode 'lean-mode)
-    (when (or (called-interactively-p) print-msg)
-      (message "lean: turn off server trace mode"))
-    (setq-local lean-server-trace-mode nil)))
-
-(defun lean-toggle-server-trace-mode ()
-  (interactive)
-  (if lean-server-trace-mode
-      (lean-turn-off-server-trace-mode (called-interactively-p))
-    (lean-turn-on-server-trace-mode (called-interactively-p))))
-
 (defun lean-server-log (format-string &rest args)
   "Display a message at the bottom of the *lean-server* buffer."
   (lean-output-to-buffer (lean-server-get-buffer)
@@ -57,7 +34,7 @@
 
 (defun lean-server-trace (format-string &rest args)
   "Display a message at the bottom of the *lean-server* buffer."
-  (when lean-server-trace-mode
+  (when lean-debug-mode
     (when lean-global-server-last-time-sent
       (let ((time-diff (- (float-time) lean-global-server-last-time-sent)))
         (lean-output-to-buffer lean-server-trace-buffer-name

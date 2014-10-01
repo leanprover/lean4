@@ -504,7 +504,11 @@ def make_deps_all_files(args):
         olean_file = item['olean']
         if not os.path.isfile(dlean_file) or os.path.getmtime(dlean_file) < os.path.getmtime(lean_file):
             thread = threading.Thread(target=make_deps, args = [lean_file, dlean_file, olean_file])
-            sys.stderr.write("[%i/%i] generating dep... % -80s\r" % (i, num_of_files, dlean_file))
+            sys.stderr.write("[%i/%i] generating dep... % -80s" % (i, num_of_files, dlean_file))
+            if args.flycheck == True:
+                sys.stderr.write("\n")
+            else:
+                sys.stderr.write("\r")
             sys.stderr.flush()
             thread.start()
             threads.append(thread)

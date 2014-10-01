@@ -274,10 +274,23 @@ auto pretty_fn::pp_sort(expr const & e) -> result {
     }
 }
 
+optional<name> pretty_fn::is_aliased(name const & n) const {
+    if (auto it = is_expr_aliased(m_env, n)) {
+        // must check if we are not shadow by current namespace
+        for (name const & ns : get_namespaces(m_env)) {
+            if (!ns.is_anonymous() && m_env.find(ns + *it))
+                return optional<name>();
+        }
+        return it;
+    } else {
+        return optional<name>();
+    }
+}
+
 auto pretty_fn::pp_const(expr const & e) -> result {
     name n = const_name(e);
     if (!m_full_names) {
-        if (auto it = is_expr_aliased(m_env, n)) {
+        if (auto it = is_aliased(n)) {
             n = *it;
         } else {
             for (name const & ns : get_namespaces(m_env)) {

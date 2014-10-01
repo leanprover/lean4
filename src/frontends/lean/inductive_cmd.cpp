@@ -92,11 +92,12 @@ struct inductive_cmd_fn {
     name                m_namespace; // current namespace
     pos_info            m_pos; // current position for reporting errors
     bool                m_first; // true if parsing the first inductive type in a mutually recursive inductive decl.
-    buffer<name>        m_explict_levels;
+    buffer<name>        m_explicit_levels;
     buffer<name>        m_levels;
     bool                m_using_explicit_levels; // true if the user is providing explicit universe levels
     unsigned            m_num_params; // number of parameters
-    level               m_u; // temporary auxiliary global universe used for inferring the result universe of an inductive datatype declaration.
+    level               m_u; // temporary auxiliary global universe used for inferring the result universe of
+                             // an inductive datatype declaration.
     bool                m_infer_result_universe;
     implicit_infer_map  m_implicit_infer_map; // implicit argument inference mode
     name_map<modifiers> m_modifiers;
@@ -156,26 +157,26 @@ struct inductive_cmd_fn {
 
     /** \brief Parse inductive declaration universe parameters.
         If this is the first declaration in a mutually recursive block, then this method
-        stores the levels in m_explict_levels, and set m_using_explicit_levels to true (iff they were provided).
+        stores the levels in m_explicit_levels, and set m_using_explicit_levels to true (iff they were provided).
 
         If this is not the first declaration, then this function just checks if the parsed parameters
-        match the ones in the first declaration (stored in \c m_explict_levels)
+        match the ones in the first declaration (stored in \c m_explicit_levels)
     */
     void parse_inductive_univ_params() {
         buffer<name> curr_ls_buffer;
         if (parse_univ_params(m_p, curr_ls_buffer)) {
             if (m_first) {
                 m_using_explicit_levels = true;
-                m_explict_levels.append(curr_ls_buffer);
+                m_explicit_levels.append(curr_ls_buffer);
             } else if (!m_using_explicit_levels) {
                 throw_error("invalid mutually recursive declaration, "
                             "explicit universe levels were not provided for previous inductive types in this declaration");
-            } else if (curr_ls_buffer.size() != m_explict_levels.size()) {
+            } else if (curr_ls_buffer.size() != m_explicit_levels.size()) {
                 throw_error("invalid mutually recursive declaration, "
                             "all inductive types must have the same number of universe paramaters");
             } else {
-                for (unsigned i = 0; i < m_explict_levels.size(); i++) {
-                    if (curr_ls_buffer[i] != m_explict_levels[i])
+                for (unsigned i = 0; i < m_explicit_levels.size(); i++) {
+                    if (curr_ls_buffer[i] != m_explicit_levels[i])
                         throw_error("invalid mutually recursive inductive declaration, "
                                     "all inductive types must have the same universe paramaters");
                 }
@@ -215,7 +216,8 @@ struct inductive_cmd_fn {
             m_num_params = ps.size();
         } else if (m_num_params != ps.size()) {
             // mutually recursive declaration checks
-            throw_error("invalid mutually recursive inductive declaration, all inductive types must have the same number of arguments");
+            throw_error("invalid mutually recursive inductive declaration, "
+                        "all inductive types must have the same number of arguments");
         }
         return type;
     }
@@ -286,7 +288,8 @@ struct inductive_cmd_fn {
         if (!is_nil(d_lvls) || !is_nil(first_d_lvls))
             throw_error("invalid mutually recursive inductive declaration, "
                         "all declarations must have the same number of arguments "
-                        "(this is error is probably due to inferred implicit parameters, provide all parameters explicitly to fix the problem");
+                        "(this is error is probably due to inferred implicit parameters, "
+                        "provide all parameters explicitly to fix the problem");
     }
 
     /** \brief Add the parameters of the inductive decl type to the local scoped.
@@ -294,7 +297,8 @@ struct inductive_cmd_fn {
     */
     void add_params_to_local_scope(expr d_type, buffer<expr> & params) {
         for (unsigned i = 0; i < m_num_params; i++) {
-            expr l = mk_local(m_p.mk_fresh_name(), binding_name(d_type), mk_as_is(binding_domain(d_type)), binding_info(d_type));
+            expr l = mk_local(m_p.mk_fresh_name(), binding_name(d_type), mk_as_is(binding_domain(d_type)),
+                              binding_info(d_type));
             m_p.add_local(l);
             params.push_back(l);
             d_type = instantiate(binding_body(d_type), l);
@@ -351,7 +355,10 @@ struct inductive_cmd_fn {
             }
             level_param_names d_lvls;
             std::tie(d_type, d_lvls) = elaborate_inductive_type(d_type);
-            if (!m_first) {
+            if (m_first) {
+                m_levels.append(m_explicit_levels);
+                for (auto l : d_lvls) m_levels.push_back(l);
+            } else {
                 lean_assert(first_d_type);
                 lean_assert(first_d_lvls);
                 check_params(d_type, *first_d_type);
@@ -360,7 +367,8 @@ struct inductive_cmd_fn {
             if (empty_type) {
                 decls.push_back(inductive_decl(d_name, d_type, list<intro_rule>()));
             } else {
-                expr d_const = mk_constant(d_name);
+                expr d_const = mk_constant(d_name, param_names_to_levels(to_list(m_explicit_levels.begin(),
+                                                                                 m_explicit_levels.end())));
                 m_p.add_local_expr(d_short_name, d_const);
                 buffer<expr> params;
                 add_params_to_local_scope(d_type, params);
@@ -368,8 +376,6 @@ struct inductive_cmd_fn {
                 decls.push_back(inductive_decl(d_name, d_type, d_intro_rules));
             }
             if (!m_p.curr_is_token(get_with_tk())) {
-                m_levels.append(m_explict_levels);
-                for (auto l : d_lvls) m_levels.push_back(l);
                 break;
             }
             m_p.next();
@@ -484,7 +490,8 @@ struct inductive_cmd_fn {
                 if (l == m_u) {
                     // ignore, this is the auxiliary level
                 } else if (occurs(m_u, l)) {
-                    throw exception("failed to infer inductive datatype resultant universe, provide the universe levels explicitly");
+                    throw exception("failed to infer inductive datatype resultant universe, "
+                                    "provide the universe levels explicitly");
                 } else if (std::find(r_lvls.begin(), r_lvls.end(), l) == r_lvls.end()) {
                     r_lvls.push_back(l);
                 }
@@ -571,7 +578,8 @@ struct inductive_cmd_fn {
     }
 
     /** \brief Create an alias for the fully qualified name \c full_id. */
-    environment create_alias(environment env, bool composite, name const & full_id, levels const & section_levels, buffer<expr> const & section_params) {
+    environment create_alias(environment env, bool composite, name const & full_id,
+                             levels const & section_levels, buffer<expr> const & section_params) {
         name id;
         if (composite)
             id = name(name(full_id.get_prefix().get_string()), full_id.get_string());

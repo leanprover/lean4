@@ -7,7 +7,6 @@ variable N : Type.{1}
 section
   parameter A : Type
   definition g (a : A) (B : Type) : A := a
-  check g.{2}
+  check g.{_ 2}
 end
 check g.{2 3}
-

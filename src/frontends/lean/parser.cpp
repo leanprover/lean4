@@ -335,15 +335,8 @@ expr parser::propagate_levels(expr const & e, levels const & ls) {
         return e;
     } else {
         return replace(e, [&](expr const & e) {
-                if (is_constant(e)) {
-                    auto it = m_env.find(const_name(e));
-                    if (it) {
-                        level_param_names const & univ_ps = it->get_univ_params();
-                        levels const & old_ls = const_levels(e);
-                        if (length(old_ls) + length(ls) <= length(univ_ps))
-                            return some_expr(update_constant(e, append(old_ls, ls)));
-                    }
-                }
+                if (is_constant(e))
+                    return some_expr(update_constant(e, ls));
                 return none_expr();
             });
     }

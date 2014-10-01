@@ -1,3 +1,5 @@
+set_option pp.implicit true
+set_option pp.universes true
 section
 parameter {A : Type}
 definition foo : A → A → Type := (λ x y, Type)

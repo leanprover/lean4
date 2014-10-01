@@ -45,26 +45,26 @@ infixl `∩` := inter
 
 theorem mem_inter {T : Type} (x : T) (A B : set T) : x ∈ A ∩ B ↔ (x ∈ A ∧ x ∈ B) :=
 iff.intro
-  (assume H, and.intro (band_eq_tt_elim_left H) (band_eq_tt_elim_right H))
+  (assume H, and.intro (and_eq_tt_elim_left H) (and_eq_tt_elim_right H))
   (assume H,
     have e1 : A x = tt, from and.elim_left H,
     have e2 : B x = tt, from and.elim_right H,
-    show A x && B x = tt, from e1⁻¹ ▸ e2⁻¹ ▸ band_tt_left tt)
+    show A x && B x = tt, from e1⁻¹ ▸ e2⁻¹ ▸ and_tt_left tt)
 
 theorem inter_id {T : Type} (A : set T) : A ∩ A ∼ A :=
-take x, band_id (A x) ▸ iff.rfl
+take x, and_id (A x) ▸ iff.rfl
 
 theorem inter_empty_right {T : Type} (A : set T) : A ∩ ∅ ∼ ∅ :=
-take x, band_ff_right (A x) ▸ iff.rfl
+take x, and_ff_right (A x) ▸ iff.rfl
 
 theorem inter_empty_left {T : Type} (A : set T) : ∅ ∩ A ∼ ∅ :=
-take x, band_ff_left (A x) ▸ iff.rfl
+take x, and_ff_left (A x) ▸ iff.rfl
 
 theorem inter_comm {T : Type} (A B : set T) : A ∩ B ∼ B ∩ A :=
-take x, band_comm (A x) (B x) ▸ iff.rfl
+take x, and_comm (A x) (B x) ▸ iff.rfl
 
 theorem inter_assoc {T : Type} (A B C : set T) : (A ∩ B) ∩ C ∼ A ∩ (B ∩ C) :=
-take x, band_assoc (A x) (B x) (C x) ▸ iff.rfl
+take x, and_assoc (A x) (B x) (C x) ▸ iff.rfl
 
 definition union {T : Type} (A B : set T) : set T :=
 λx, A x || B x
@@ -72,26 +72,26 @@ infixl `∪` := union
 
 theorem mem_union {T : Type} (x : T) (A B : set T) : x ∈ A ∪ B ↔ (x ∈ A ∨ x ∈ B) :=
 iff.intro
-  (assume H, bor_to_or H)
+  (assume H, or_to_or H)
   (assume H, or.elim H
     (assume Ha : A x = tt,
-      show A x || B x = tt, from Ha⁻¹ ▸ bor_tt_left (B x))
+      show A x || B x = tt, from Ha⁻¹ ▸ or_tt_left (B x))
     (assume Hb : B x = tt,
-      show A x || B x = tt, from Hb⁻¹ ▸ bor_tt_right (A x)))
+      show A x || B x = tt, from Hb⁻¹ ▸ or_tt_right (A x)))
 
 theorem union_id {T : Type} (A : set T) : A ∪ A ∼ A :=
-take x, bor_id (A x) ▸ iff.rfl
+take x, or_id (A x) ▸ iff.rfl
 
 theorem union_empty_right {T : Type} (A : set T) : A ∪ ∅ ∼ A :=
-take x, bor_ff_right (A x) ▸ iff.rfl
+take x, or_ff_right (A x) ▸ iff.rfl
 
 theorem union_empty_left {T : Type} (A : set T) : ∅ ∪ A ∼ A :=
-take x, bor_ff_left (A x) ▸ iff.rfl
+take x, or_ff_left (A x) ▸ iff.rfl
 
 theorem union_comm {T : Type} (A B : set T) : A ∪ B ∼ B ∪ A :=
-take x, bor_comm (A x) (B x) ▸ iff.rfl
+take x, or_comm (A x) (B x) ▸ iff.rfl
 
 theorem union_assoc {T : Type} (A B C : set T) : (A ∪ B) ∪ C ∼ A ∪ (B ∪ C) :=
-take x, bor_assoc (A x) (B x) (C x) ▸ iff.rfl
+take x, or_assoc (A x) (B x) (C x) ▸ iff.rfl
 
 end set

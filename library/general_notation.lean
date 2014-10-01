@@ -65,7 +65,6 @@ precedence `>`:50
 
 precedence `&&`:70     -- infixl
 precedence `||`:65     -- infixl
-precedence `!`:85      -- boolean negation, follow by rbp 100
 
 -- ### set operations
 

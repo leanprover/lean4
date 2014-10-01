@@ -176,6 +176,10 @@ struct add_inductive_fn {
     level_param_names    m_level_names;  // universe level parameters
     unsigned             m_num_params;
     list<inductive_decl> m_decls;
+    // when kernel sets Type.{0} as impredicative, then
+    // we track whether the resultant universe cannot be zero for any
+    // universe level instantiation
+    bool                 m_is_not_zero;
     unsigned             m_decls_sz;     // length(m_decls)
     list<level>          m_levels;       // m_level_names ==> m_levels
     name_generator       m_ngen;
@@ -203,8 +207,9 @@ struct add_inductive_fn {
                      list<inductive_decl> const & decls):
         m_env(env), m_level_names(level_params), m_num_params(num_params), m_decls(decls),
         m_ngen(*g_tmp_prefix), m_tc(new type_checker(m_env)) {
-        m_decls_sz = length(m_decls);
-        m_levels = param_names_to_levels(level_params);
+        m_is_not_zero = false;
+        m_decls_sz    = length(m_decls);
+        m_levels      = param_names_to_levels(level_params);
     }
 
     /** \brief Return the number of inductive datatypes being defined. */
@@ -237,7 +242,6 @@ struct add_inductive_fn {
     */
     void check_inductive_types() {
         bool first   = true;
-        bool to_prop = false; // set to true if the inductive datatypes live in Prop (Type 0)
         for (auto d : m_decls) {
             expr t = inductive_decl_type(d);
             tc().check(t, m_level_names);
@@ -264,16 +268,14 @@ struct add_inductive_fn {
                 throw kernel_exception(m_env, "number of parameters mismatch in inductive datatype declaration");
             t = tc().ensure_sort(t).first;
             if (m_env.impredicative()) {
-                // if the environment is impredicative, then the resultant universe is 0 (Prop),
-                // or is never zero (under any parameter assignment).
-                if (!is_zero(sort_level(t)) && !is_not_zero(sort_level(t)))
-                    throw kernel_exception(m_env,
-                                           "the resultant universe must be 0 or different "
-                                           "from zero for all parameter/global level assignments");
+                // If the environment is impredicative, we track whether the resultant universe
+                // is never zero (under any parameter assignment).
+                // TODO(Leo): when the resultant universe may be 0 and not zero depending on parameter assignment,
+                // we may generate two recursors: one when it is 0, and another one when it is not.
                 if (first) {
-                    to_prop = is_zero(sort_level(t));
+                    m_is_not_zero = is_not_zero(sort_level(t));
                 } else {
-                    if (is_zero(sort_level(t)) != to_prop)
+                    if (is_not_zero(sort_level(t)) != m_is_not_zero)
                         throw kernel_exception(m_env,
                                                "for impredicative environments, if one datatype is in Prop, "
                                                "then all of them must be in Prop");
@@ -444,7 +446,7 @@ struct add_inductive_fn {
 
     /** \brief Return true if type formers C in the recursors can only map to Type.{0} */
     bool elim_only_at_universe_zero() {
-        if (!m_env.impredicative() || !is_zero(m_it_levels[0])) {
+        if (!m_env.impredicative() || m_is_not_zero) {
             // If Type.{0} is not impredicative or the resultant inductive datatype is not in Type.{0},
             // then the recursor may return Type.{l} where l is a universe level parameter.
             return false;

@@ -108,6 +108,42 @@
       (= c ?_)
       (lean-letter-like-unicode-p c))))
 
+(defun lean-find-id-beg ()
+  (save-excursion
+    (let ((initial-pos (point))
+          (mode 'backward)
+          stop char-at-pos success)
+      (while (not stop)
+        (setq char-at-pos (char-after))
+        (cl-case mode
+          ('backward
+           (cond
+            ((lean-id-rest-p char-at-pos) (backward-char 1))
+            (t                            (forward-char  1)
+                                          (setq mode 'forward))))
+          ('forward
+           (cond
+            ((lean-id-first-p char-at-pos) (setq stop t)
+             (setq success t))
+            ((< (point) initial-pos)       (forward-char 1))
+            (t                             (setq stop t))))))
+      (when success
+        (point)))))
+
+(defun lean-find-hname-beg ()
+  (save-excursion
+    (let* ((new-id-beg (lean-find-id-beg))
+           old-id-beg)
+      (while new-id-beg
+        (setq old-id-beg new-id-beg)
+        (goto-char old-id-beg)
+        (cond ((looking-back ".[.]")
+               (backward-char 2)
+               (setq new-id-beg (lean-find-id-beg)))
+              (t
+               (setq new-id-beg nil))))
+      old-id-beg)))
+
 (defun lean-grab-id ()
   (interactive)
   (when (not (bolp))
@@ -116,6 +152,17 @@
             id-beg)
         (backward-char 1)
         (setq id-beg (lean-find-id-beg))
+        (when id-beg
+          (buffer-substring id-beg cur-pos))))))
+
+(defun lean-grab-hname ()
+  (interactive)
+  (when (not (bolp))
+    (save-excursion
+      (let ((cur-pos (point))
+            id-beg)
+        (backward-char 1)
+        (setq id-beg (lean-find-hname-beg))
         (when id-beg
           (buffer-substring id-beg cur-pos))))))
 

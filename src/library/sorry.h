@@ -18,6 +18,8 @@ environment declare_sorry(environment const & env);
 /** \brief Return the constant \c sorry */
 expr mk_sorry();
 name const & get_sorry_name();
+/** \brief Return true iff \c e is a sorry expression */
+bool is_sorry(expr const & e);
 void initialize_sorry();
 void finalize_sorry();
 }

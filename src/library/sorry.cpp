@@ -42,4 +42,5 @@ environment declare_sorry(environment const & env) {
 
 expr mk_sorry() { return mk_constant(*g_sorry_name); }
 name const & get_sorry_name() { return *g_sorry_name; }
+bool is_sorry(expr const & e) { return is_constant(e) && const_name(e) == get_sorry_name(); }
 }

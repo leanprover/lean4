@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/locals.h"
 #include "library/let.h"
+#include "library/sorry.h"
 #include "library/deep_copy.h"
 #include "library/metavar_closure.h"
 #include "library/typed_expr.h"
@@ -100,6 +101,7 @@ class elaborator : public coercion_info_manager {
     // we set is to true whenever we find no_info annotation.
     bool                 m_no_info;
     info_manager         m_pre_info_data;
+    bool                 m_has_sorry;
     unifier_config       m_unifier_config;
 
     /** \brief 'Choice' expressions <tt>(choice e_1 ... e_n)</tt> are mapped into a metavariable \c ?m
@@ -149,6 +151,7 @@ public:
         m_context(),
         m_full_context(),
         m_unifier_config(env.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
+        m_has_sorry = has_sorry(m_env.m_env),
         m_relax_main_opaque = false;
         m_no_info = false;
         m_tc[0]  = mk_type_checker(env.m_env, m_ngen.mk_child(), false);
@@ -750,6 +753,17 @@ public:
         }
     }
 
+    bool is_sorry(expr const & e) const {
+        return m_has_sorry && ::lean::is_sorry(e);
+    }
+
+    expr visit_sorry(expr const & e) {
+        level u = mk_meta_univ(m_ngen.next());
+        expr t  = mk_sort(u);
+        expr m  = m_full_context.mk_meta(m_ngen, some_expr(t), e.get_tag());
+        return mk_app(update_constant(e, to_list(u)), m, e.get_tag());
+    }
+
     expr visit_core(expr const & e, constraint_seq & cs) {
         if (is_placeholder(e)) {
             return visit_placeholder(e, cs);
@@ -768,6 +782,8 @@ public:
             return visit_typed_expr(e, cs);
         } else if (is_implicit(e)) {
             return visit_core(get_implicit_arg(e), cs);
+        } else if (is_sorry(e)) {
+            return visit_sorry(e);
         } else {
             switch (e.kind()) {
             case expr_kind::Local:      return e;
@@ -795,7 +811,11 @@ public:
         constraint_seq cs;
         if (is_explicit(e)) {
             b    = get_explicit_arg(e);
-            r    = visit_core(get_explicit_arg(e), cs);
+            if (is_sorry(b)) {
+                r = visit_constant(b);
+            } else {
+                r = visit_core(b, cs);
+            }
         } else if (is_explicit(get_app_fn(e))) {
             r    = visit_core(e, cs);
         } else {

@@ -10,6 +10,7 @@ namespace lean {
 void initialize_tokens();
 void finalize_tokens();
 name const & get_period_tk();
+name const & get_placeholder_tk();
 name const & get_colon_tk();
 name const & get_dcolon_tk();
 name const & get_lparen_tk();

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name * g_period       = nullptr;
+static name * g_placeholder  = nullptr;
 static name * g_colon        = nullptr;
 static name * g_dcolon       = nullptr;
 static name * g_lparen       = nullptr;
@@ -86,6 +87,7 @@ static name * g_root         = nullptr;
 
 void initialize_tokens() {
     g_period       = new name(".");
+    g_placeholder  = new name("_");
     g_colon        = new name(":");
     g_dcolon       = new name("::");
     g_lparen       = new name("(");
@@ -239,10 +241,12 @@ void finalize_tokens() {
     delete g_lparen;
     delete g_colon;
     delete g_dcolon;
+    delete g_placeholder;
     delete g_period;
 }
 
 name const & get_period_tk() { return *g_period; }
+name const & get_placeholder_tk() { return *g_placeholder; }
 name const & get_colon_tk() { return *g_colon; }
 name const & get_dcolon_tk() { return *g_dcolon; }
 name const & get_lparen_tk() { return *g_lparen; }

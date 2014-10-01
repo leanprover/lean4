@@ -528,6 +528,9 @@ level parser::parse_level_nud() {
         return parse_max_imax(true);
     } else if (curr_is_token_or_id(get_imax_tk())) {
         return parse_max_imax(false);
+    } else if (curr_is_token_or_id(get_placeholder_tk())) {
+        next();
+        return mk_level_placeholder();
     } else if (curr_is_token(get_lparen_tk())) {
         next();
         level l = parse_level();

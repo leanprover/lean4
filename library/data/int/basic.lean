@@ -208,7 +208,8 @@ protected opaque definition has_decidable_eq [instance] : decidable_eq ℤ :=
 _
 
 irreducible int
-definition of_nat [coercion] (n : ℕ) : ℤ := psub (pair n 0)
+definition of_nat [coercion] [reducible] (n : ℕ) : ℤ := psub (pair n 0)
+definition of_num [coercion] [reducible] (n : num) : ℤ := of_nat (nat.to_nat n)
 
 theorem eq_zero_intro (n : ℕ) : psub (pair n n) = 0 :=
 have H : rel (pair n n) (pair 0 0), by simp,

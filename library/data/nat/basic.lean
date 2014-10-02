@@ -47,7 +47,7 @@ definition add (x y : ℕ) : ℕ :=
 nat.rec x (λ n r, succ r) y
 infixl `+` := add
 
-definition to_nat [coercion] [reducible] (n : num) : ℕ :=
+definition of_num [coercion] [reducible] (n : num) : ℕ :=
 num.rec zero
     (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n
 

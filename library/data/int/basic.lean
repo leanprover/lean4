@@ -209,7 +209,7 @@ _
 
 irreducible int
 definition of_nat [coercion] [reducible] (n : ℕ) : ℤ := psub (pair n 0)
-definition of_num [coercion] [reducible] (n : num) : ℤ := of_nat (nat.to_nat n)
+definition of_num [coercion] [reducible] (n : num) : ℤ := of_nat (nat.of_num n)
 
 theorem eq_zero_intro (n : ℕ) : psub (pair n n) = 0 :=
 have H : rel (pair n n) (pair 0 0), by simp,

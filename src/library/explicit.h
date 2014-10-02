@@ -17,30 +17,43 @@ expr mk_explicit(expr const & e);
 bool is_explicit(expr const & e);
 /** \brief See #is_nested_annotation */
 bool is_nested_explicit(expr const & e);
+/** \brief Return the argument of an explicit expression.
+    \pre is_explicit(e)
+*/
+expr const & get_explicit_arg(expr const & e);
+
 /** \brief Create an explicit expression that is accepted as is
     by the elaborator.
 */
 expr mk_as_is(expr const & e);
 /** \brief Return true iff \c e was created with mk_as_is. */
 bool is_as_is(expr const & e);
+/** \brief Return the argument of an expression created using mk_as_is.
+    \pre is_as_is(e)
+*/
+expr const & get_as_is_arg(expr const & e);
+
 /** \brief Create an implicit expression '@^-1 f'.
     This only affects the elaborator behavior. This expression "cancels" the effect of '@'
 */
 expr mk_implicit(expr const & e);
 /** \brief Return true iff \c e is an implicit expression. */
 bool is_implicit(expr const & e);
-/** \brief Return the argument of an explicit expression.
-    \pre is_explicit(e)
-*/
-expr const & get_explicit_arg(expr const & e);
-/** \brief Return the argument of an expression created using mk_as_is.
-    \pre is_as_is(e)
-*/
-expr const & get_as_is_arg(expr const & e);
 /** \brief Return the argument of an implicit expression.
     \pre is_implicit(e)
 */
 expr const & get_implicit_arg(expr const & e);
+
+/** \brief Create the expression '! e'.
+    This only affects the elaborator behavior.
+    It instructs the elaborator to keep adding '_'
+    for \c e arguments.
+*/
+expr mk_consume_args(expr const & e);
+/** \brief Return true iff \c e is an '!f' expression. */
+bool is_consume_args(expr const & e);
+expr const & get_consume_args_arg(expr const & e);
+
 void open_explicit(lua_State * L);
 void initialize_explicit();
 void finalize_explicit();

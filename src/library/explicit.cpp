@@ -13,32 +13,42 @@ namespace lean {
 static name * g_explicit_name = nullptr;
 static name * g_implicit_name = nullptr;
 static name * g_as_is_name    = nullptr;
+static name * g_consume_args_name = nullptr;
 
 expr mk_explicit(expr const & e) { return mk_annotation(*g_explicit_name, e); }
 bool is_explicit(expr const & e) { return is_annotation(e, *g_explicit_name); }
 bool is_nested_explicit(expr const & e) { return is_nested_annotation(e, *g_explicit_name); }
+expr const & get_explicit_arg(expr const & e) { lean_assert(is_explicit(e)); return get_annotation_arg(e); }
+
 expr mk_as_is(expr const & e) { return mk_annotation(*g_as_is_name, e); }
 bool is_as_is(expr const & e) { return is_annotation(e, *g_as_is_name); }
+expr const & get_as_is_arg(expr const & e) { lean_assert(is_as_is(e)); return get_annotation_arg(e); }
+
 expr mk_implicit(expr const & e) { return mk_annotation(*g_implicit_name, e); }
 bool is_implicit(expr const & e) { return is_annotation(e, *g_implicit_name); }
-expr const & get_explicit_arg(expr const & e) { lean_assert(is_explicit(e)); return get_annotation_arg(e); }
-expr const & get_as_is_arg(expr const & e) { lean_assert(is_as_is(e)); return get_annotation_arg(e); }
 expr const & get_implicit_arg(expr const & e) { lean_assert(is_implicit(e)); return get_annotation_arg(e); }
 
+expr mk_consume_args(expr const & e) { return mk_annotation(*g_consume_args_name, e); }
+bool is_consume_args(expr const & e) { return is_annotation(e, *g_consume_args_name); }
+expr const & get_consume_args_arg(expr const & e) { lean_assert(is_consume_args(e)); return get_annotation_arg(e); }
+
 void initialize_explicit() {
-    g_explicit_name = new name("@");
-    g_implicit_name = new name("@^-1");
-    g_as_is_name    = new name("as_is");
+    g_explicit_name     = new name("@");
+    g_implicit_name     = new name("@^-1");
+    g_as_is_name        = new name("as_is");
+    g_consume_args_name = new name("!");
 
     register_annotation(*g_explicit_name);
     register_annotation(*g_implicit_name);
     register_annotation(*g_as_is_name);
+    register_annotation(*g_consume_args_name);
 }
 
 void finalize_explicit() {
     delete g_as_is_name;
     delete g_implicit_name;
     delete g_explicit_name;
+    delete g_consume_args_name;
 }
 
 static int mk_explicit(lua_State * L) { return push_expr(L, mk_explicit(to_expr(L, 1))); }

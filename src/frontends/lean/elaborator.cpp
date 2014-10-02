@@ -781,7 +781,14 @@ public:
         } else if (is_typed_expr(e)) {
             return visit_typed_expr(e, cs);
         } else if (is_implicit(e)) {
+            // ignore annotation
             return visit_core(get_implicit_arg(e), cs);
+        } else if (is_consume_args(e)) {
+            // ignore annotation
+            return visit_core(get_consume_args_arg(e), cs);
+        } else if (is_explicit(e)) {
+            // ignore annotation
+            return visit_core(get_explicit_arg(e), cs);
         } else if (is_sorry(e)) {
             return visit_sorry(e);
         } else {
@@ -819,11 +826,15 @@ public:
         } else if (is_explicit(get_app_fn(e))) {
             r    = visit_core(e, cs);
         } else {
+            bool consume_args = false;
             if (is_implicit(e)) {
                 r = get_implicit_arg(e);
                 if (is_explicit(r)) r = get_explicit_arg(r);
                 b = r;
                 r = visit_core(r, cs);
+            } else if (is_consume_args(e)) {
+                consume_args = true;
+                r = visit_core(get_consume_args_arg(e), cs);
             } else {
                 r = visit_core(e, cs);
             }
@@ -831,7 +842,7 @@ public:
             expr r_type    = whnf(infer_type(r, cs), cs);
             expr imp_arg;
             bool is_strict = true;
-            while (is_pi(r_type) && binding_info(r_type).is_implicit()) {
+            while (is_pi(r_type) && (consume_args || binding_info(r_type).is_implicit())) {
                 imp_arg = mk_placeholder_meta(some_expr(binding_domain(r_type)), g, is_strict, cs);
                 r       = mk_app(r, imp_arg, g);
                 r_type  = whnf(instantiate(binding_body(r_type), imp_arg), cs);

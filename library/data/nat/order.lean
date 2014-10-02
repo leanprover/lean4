@@ -48,7 +48,7 @@ theorem not_succ_zero_le {n : ℕ} : ¬ succ n ≤ 0 :=
 not_intro
   (assume H : succ n ≤ 0,
     have H2 : succ n = 0, from le_zero H,
-    absurd H2 succ_ne_zero)
+    absurd H2 !succ_ne_zero)
 
 theorem le_trans {n m k : ℕ} (H1 : n ≤ m) (H2 : m ≤ k) : n ≤ k :=
 obtain (l1 : ℕ) (Hl1 : n + l1 = m), from le_elim H1,

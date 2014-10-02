@@ -60,7 +60,7 @@ some form of transitivity. It can even combine different relations.
   := calc  a = b      : H1
          ... = c + 1  : H2
          ... = succ c : add.one c
-         ... ≠ 0      : succ_ne_zero
+         ... ≠ 0      : succ_ne_zero c
 #+END_SRC
 
 The Lean simplifier can be used to reduce the size of calculational proofs.

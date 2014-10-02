@@ -54,7 +54,7 @@ num.rec zero
 -- Successor and predecessor
 -- -------------------------
 
-theorem succ_ne_zero {n : ℕ} : succ n ≠ 0 :=
+theorem succ_ne_zero (n : ℕ) : succ n ≠ 0 :=
 assume H : succ n = 0,
 have H2 : true = false, from
   let f := (nat.rec false (fun a b, true)) in
@@ -101,7 +101,7 @@ calc
 theorem succ.ne_self {n : ℕ} : succ n ≠ n :=
 induction_on n
   (take H : 1 = 0,
-    have ne : 1 ≠ 0, from succ_ne_zero,
+    have ne : 1 ≠ 0, from !succ_ne_zero,
     absurd H ne)
   (take k IH H, IH (succ.inj H))
 
@@ -112,10 +112,10 @@ have general : ∀n, decidable (n = m), from
     (take n,
       rec_on n
         (inl rfl)
-        (λ m iH, inr succ_ne_zero))
+        (λ m iH, inr !succ_ne_zero))
     (λ (m' : ℕ) (iH1 : ∀n, decidable (n = m')),
       take n, rec_on n
-        (inr (ne.symm succ_ne_zero))
+        (inr (ne.symm !succ_ne_zero))
         (λ (n' : ℕ) (iH2 : decidable (n' = succ m')),
           decidable.by_cases
             (assume Heq : n' = m', inl (congr_arg succ Heq))
@@ -230,7 +230,7 @@ induction_on n
       (show succ (k + m) = 0, from calc
          succ (k + m) = succ k + m : !add.succ_left⁻¹
                   ... = 0          : H)
-      succ_ne_zero)
+      !succ_ne_zero)
 
 theorem add.eq_zero_right {n m : ℕ} (H : n + m = 0) : m = 0 :=
 add.eq_zero_left (!add.comm ⬝ H)
@@ -357,6 +357,6 @@ discriminate
               ... = succ k * succ l       : {Hk}
               ... = k * succ l + succ l   : !mul.succ_left
               ... = succ (k * succ l + l) : !add.succ_right)⁻¹,
-        absurd (Heq ⬝ H) succ_ne_zero))
+        absurd (Heq ⬝ H) !succ_ne_zero))
 
 end nat

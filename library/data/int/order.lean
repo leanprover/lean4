@@ -227,7 +227,7 @@ not_intro
           ... = a + 0 : by simp,
     have H3 : succ n = 0, from add_cancel_left H2,
     have H4 : succ n = 0, from of_nat_inj H3,
-    absurd H4 succ_ne_zero)
+    absurd H4 !succ_ne_zero)
 
 theorem lt_imp_ne {a b : ℤ} (H : a < b) : a ≠ b :=
 not_intro (assume H2 : a = b, absurd (H2 ▸ H) (lt_irrefl b))

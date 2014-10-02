@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/error_msgs.h"
+#include "kernel/free_vars.h"
 #include "kernel/expr_maps.h"
 #include "library/coercion.h"
 #include "library/placeholder.h"
@@ -842,7 +843,16 @@ public:
             expr r_type    = whnf(infer_type(r, cs), cs);
             expr imp_arg;
             bool is_strict = true;
-            while (is_pi(r_type) && (consume_args || binding_info(r_type).is_implicit())) {
+            while (is_pi(r_type)) {
+                if (!binding_info(r_type).is_implicit()) {
+                    if (!consume_args)
+                        break;
+                    if (!has_free_var(binding_body(r_type), 0)) {
+                        // if the rest of the type does not reference argument,
+                        // then we also stop consuming arguments
+                        break;
+                    }
+                }
                 imp_arg = mk_placeholder_meta(some_expr(binding_domain(r_type)), g, is_strict, cs);
                 r       = mk_app(r, imp_arg, g);
                 r_type  = whnf(instantiate(binding_body(r_type), imp_arg), cs);

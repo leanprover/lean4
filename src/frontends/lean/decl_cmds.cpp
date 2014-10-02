@@ -194,7 +194,6 @@ static void erase_local_binder_info(buffer<expr> & ps) {
 
 environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, bool is_private, bool is_protected) {
     lean_assert(!(is_theorem && !is_opaque));
-    lean_assert(!(is_private && !is_opaque));
     lean_assert(!(is_private && is_protected));
     auto n_pos = p.pos();
     unsigned start_line = n_pos.first;

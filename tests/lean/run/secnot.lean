@@ -14,7 +14,7 @@ cons   : T → list T → list T
 
 namespace list
 section
-variable {T : Type}
+parameter {T : Type}
 notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 check [10, 20, 30]
 end

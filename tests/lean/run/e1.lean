@@ -1,15 +1,15 @@
 definition Prop : Type.{1} := Type.{0}
-variable eq : forall {A : Type}, A → A → Prop
-variable N : Type.{1}
-variables a b c : N
+constant eq : forall {A : Type}, A → A → Prop
+constant N : Type.{1}
+constants a b c : N
 infix `=`:50 := eq
 check a = b
 
-variable f : Prop → N → N
-variable g : N → N → N
+constant f : Prop → N → N
+constant g : N → N → N
 precedence `+`:50
 infixl + := f
 infixl + := g
 check a + b + c
-variable p : Prop
+constant p : Prop
 check p + a + b + c

@@ -27,7 +27,7 @@ infix `::` := cons
 
 section
 
-variable {T : Type}
+parameter {T : Type}
 
 protected theorem induction_on {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hind : ∀ (x : T) (l : list T),  P l → P (x::l)) : P l :=

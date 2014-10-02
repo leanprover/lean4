@@ -12,7 +12,7 @@ definition to_nat [coercion] (n : num) : nat
 := num.rec zero (λn, pos_num.rec (succ zero) (λn r, plus r (plus r (succ zero))) (λn r, plus r r) n) n
 definition add (x y : nat) : nat
 := plus x y
-variable le : nat → nat → Prop
+constant le : nat → nat → Prop
 
 infixl `+`:65 := add
 infix `≤`:50  := le

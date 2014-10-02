@@ -22,7 +22,7 @@ vcons   : forall {n : nat}, A → vector A n → vector A (succ n)
 namespace vector end vector open vector
 
 check vcons zero vnil
-variable n : nat
+constant n : nat
 check vcons n vnil
 
 check vector.rec
@@ -32,7 +32,7 @@ definition vector_to_list {A : Type} {n : nat} (v : vector A n) : list A
 
 coercion vector_to_list
 
-variable f : forall {A : Type}, list A → nat
+constant f : forall {A : Type}, list A → nat
 
 check f (cons zero nil)
 check f (vcons zero vnil)

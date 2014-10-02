@@ -1,6 +1,6 @@
 import data.nat
 
-variables a b : nat
+constants a b : nat
 
 namespace boo
   export nat (rec add)

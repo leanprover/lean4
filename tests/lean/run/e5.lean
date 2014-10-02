@@ -40,7 +40,7 @@ print "using strict implicit arguments"
 definition symmetric {A : Type} (R : A → A → Prop) := ∀ ⦃a b⦄, R a b → R b a
 
 check symmetric
-variable p : nat → nat → Prop
+constant p : nat → nat → Prop
 check symmetric p
 axiom H1 : symmetric p
 axiom H2 : p zero (succ zero)

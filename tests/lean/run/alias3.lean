@@ -3,7 +3,7 @@ import logic
 namespace N1
   section
     section
-      variable A : Type
+      parameter A : Type
       definition foo (a : A) : Prop := true
       check foo
     end

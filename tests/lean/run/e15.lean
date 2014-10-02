@@ -20,7 +20,7 @@ vcons   : forall {n : nat}, A → vector A n → vector A (succ n)
 namespace vector end vector open vector
 
 check vcons zero vnil
-variable n : nat
+constant n : nat
 check vcons n vnil
 
 check vector.rec

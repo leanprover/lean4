@@ -14,12 +14,12 @@ definition my_morphism [coercion] {obC obD : Type} {C : category obC} {D : categ
       Π{A B : obC}, mor A B → mor (my_object F A) (my_object F B) :=
 my_functor.rec (λ obF morF Hid Hcomp, morF) F
 
-variables obC obD : Type
-variables a b : obC
-variable C : category obC
+constants obC obD : Type
+constants a b : obC
+constant C : category obC
 instance C
-variable D : category obD
-variable F : my_functor C D
-variable m : mor a b
+constant D : category obD
+constant F : my_functor C D
+constant m : mor a b
 check F a
 check F m

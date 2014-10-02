@@ -1,7 +1,7 @@
-variable A : Type.{1}
-variable a : A
-variable g : A → A
-variable f : A → A → A
+constant A : Type.{1}
+constant a : A
+constant g : A → A
+constant f : A → A → A
 
 (*
 local f     = Const("f")
@@ -29,5 +29,5 @@ end
 
 notation `tst` A:(call parse_pair) := A
 notation `simple` A:(call parse_bracket) `,` B:(call parse_bracket) := f A B
-variable b : A
+constant b : A
 check g (tst (simple [b], [a]), a)

@@ -1,10 +1,10 @@
 import logic
 
 namespace nat
-variable nat : Type.{1}
-variable add : nat → nat → nat
-variable le : nat → nat → Prop
-variable one : nat
+constant nat : Type.{1}
+constant add : nat → nat → nat
+constant le : nat → nat → Prop
+constant one : nat
 infixl `+`:65 := add
 infix `≤`:50 := le
 axiom add_assoc (a b c : nat) : (a + b) + c = a + (b + c)
@@ -12,10 +12,10 @@ axiom add_le_left {a b : nat} (H : a ≤ b) (c : nat) : c + a ≤ c + b
 end nat
 
 namespace int
-variable int : Type.{1}
-variable add : int → int → int
-variable le : int → int → Prop
-variable one : int
+constant int : Type.{1}
+constant add : int → int → int
+constant le : int → int → Prop
+constant one : int
 infixl `+`:65 := add
 infix `≤`:50  := le
 axiom add_assoc (a b c : int) : (a + b) + c = a + (b + c)

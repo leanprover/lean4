@@ -1,19 +1,19 @@
 import logic
 
-variable nat : Type.{1}
-variable int : Type.{1}
+constant nat : Type.{1}
+constant int : Type.{1}
 
-variable nat_add : nat → nat → nat
+constant nat_add : nat → nat → nat
 infixl `+`:65 := nat_add
 
-variable int_add : int → int → int
+constant int_add : int → int → int
 infixl `+`:65 := int_add
 
-variable of_nat : nat → int
+constant of_nat : nat → int
 coercion of_nat
 
-variables a b : nat
-variables i j : int
+constants a b : nat
+constants i j : int
 
 definition c1 := a + b
 

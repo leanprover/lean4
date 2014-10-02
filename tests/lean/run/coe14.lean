@@ -15,7 +15,7 @@ struct.rec (λA r, A) s
 
 definition g (f : nat → nat) (a : nat) := f a
 
-variable f : functor nat nat
+constant f : functor nat nat
 
 check g (functor.to_fun f) 0
 
@@ -23,8 +23,8 @@ check g f 0
 
 definition id (A : Type) (a : A) := a
 
-variable S : struct
-variable a : S
+constant S : struct
+constant a : S
 
 check id (struct.to_sort S) a
 check id S a

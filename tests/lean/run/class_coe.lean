@@ -1,10 +1,10 @@
 import data.num
 
 
-variables int nat real : Type.{1}
-variable nat_add  : nat → nat → nat
-variable int_add  : int → int → int
-variable real_add : real → real → real
+constants int nat real : Type.{1}
+constant nat_add  : nat → nat → nat
+constant int_add  : int → int → int
+constant real_add : real → real → real
 
 inductive add_struct (A : Type) :=
 mk : (A → A → A) → add_struct A
@@ -18,12 +18,12 @@ definition add_nat_struct  [instance] : add_struct nat := add_struct.mk nat_add
 definition add_int_struct  [instance] : add_struct int := add_struct.mk int_add
 definition add_real_struct [instance] : add_struct real := add_struct.mk real_add
 
-variables n m : nat
-variables i j : int
-variables x y : real
-variable num_to_nat : num → nat
-variable nat_to_int : nat → int
-variable int_to_real : int → real
+constants n m : nat
+constants i j : int
+constants x y : real
+constant num_to_nat : num → nat
+constant nat_to_int : nat → int
+constant int_to_real : int → real
 coercion num_to_nat
 coercion nat_to_int
 coercion int_to_real
@@ -47,7 +47,7 @@ check i + 0
 check 0 + x
 check x + 0
 namespace foo
-variable eq {A : Type} : A → A → Prop
+constant eq {A : Type} : A → A → Prop
 infixl `=`:50 := eq
 definition id (A : Type) (a : A) := a
 notation A `=` B `:` C := @eq C A B

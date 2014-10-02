@@ -1,8 +1,8 @@
 import data.nat.basic data.prod
 open nat prod
 
-variable R : nat → nat → Prop
-variable f (a b : nat) (H : R a b) : nat
+constant R : nat → nat → Prop
+constant f (a b : nat) (H : R a b) : nat
 axiom Rtrue (a b : nat) : R a b
 
 

@@ -9,7 +9,7 @@
 
 (defconst lean-keywords
   '("import" "reducible" "irreducible" "tactic_hint" "protected" "private" "opaque" "definition" "renaming"
-    "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture"
+    "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture" "constant" "constants"
     "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem"
     "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"
     "options" "precedence" "postfix" "prefix" "calc_trans" "calc_subst" "calc_refl"
@@ -105,7 +105,7 @@
      ;; universe/inductive/theorem... "names"
      (,(rx word-start
            (group (or "universe" "inductive" "theorem" "axiom" "lemma" "hypothesis"
-                      "definition" "variable" "parameter"))
+                      "definition" "variable" "constant" "parameter"))
            word-end
            (zero-or-more (or whitespace "(" "{" "["))
            (group (zero-or-more (not whitespace))))

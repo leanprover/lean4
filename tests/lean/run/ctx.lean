@@ -1,8 +1,8 @@
 import data.nat logic.core.inhabited
 open nat inhabited
 
-variable N : Type.{1}
-variable a : N
+constant N : Type.{1}
+constant a : N
 
 section s1
   set_option pp.implicit true
@@ -18,5 +18,5 @@ section s1
 end s1
 
 theorem tst : inhabited nat
-variables n m : nat
+constants n m : nat
 check n = a

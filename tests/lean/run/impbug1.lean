@@ -1,7 +1,7 @@
 -- category
 
 definition Prop := Type.{0}
-variable eq {A : Type} : A → A → Prop
+constant eq {A : Type} : A → A → Prop
 infix `=`:50 := eq
 
 inductive category (ob : Type) (mor : ob → ob → Type) : Type :=

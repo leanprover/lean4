@@ -1,10 +1,10 @@
 import logic
 
-variable N : Type
-variable α : N
-variable β₁ : N
+constant N : Type
+constant α : N
+constant β₁ : N
 check β₁
-variable δ : N
+constant δ : N
 check δ
-variable δ₁₁ : N
+constant δ₁₁ : N
 check δ₁₁

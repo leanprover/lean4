@@ -34,23 +34,23 @@ definition mul {A : Type} {s : group_struct A} (a b : A) : A
 infixl `*`:75 := mul
 
 section
-  variable  G1 : group
-  variable  G2 : group
-  variables a b c : G2
-  variables d e   : G1
+  parameter  G1 : group
+  parameter  G2 : group
+  parameters a b c : G2
+  parameters d e   : G1
   check a * b * b
   check d * e
 end
 
-variable G : group.{1}
-variables a b : G
+constant G : group.{1}
+constants a b : G
 definition val : G := a*b
 check val
 
-variable pos_real : Type.{1}
-variable rmul  : pos_real → pos_real → pos_real
-variable rone  : pos_real
-variable rinv  : pos_real → pos_real
+constant pos_real : Type.{1}
+constant rmul  : pos_real → pos_real → pos_real
+constant rone  : pos_real
+constant rinv  : pos_real → pos_real
 axiom    H1    : is_assoc rmul
 axiom    H2    : is_id rmul rone
 axiom    H3    : is_inv rmul rone rinv
@@ -58,7 +58,7 @@ axiom    H3    : is_inv rmul rone rinv
 definition real_group_struct [instance] : group_struct pos_real
 := group_struct.mk rmul rone rinv H1 H2 H3
 
-variables x y : pos_real
+constants x y : pos_real
 check x * y
 set_option pp.implicit true
 print "---------------"

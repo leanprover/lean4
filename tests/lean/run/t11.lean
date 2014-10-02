@@ -1,6 +1,6 @@
-parameter A : Type.{1}
-parameters a b c : A
-parameter f : A → A → A
+constant A : Type.{1}
+constants a b c : A
+constant f : A → A → A
 check f a b
 section
   parameters A B : Type
@@ -11,4 +11,4 @@ section
   definition g (a : A) (b : B) (c : C) : A := e
 end
 check g.{2 1}
-variables x y : A
+constants x y : A

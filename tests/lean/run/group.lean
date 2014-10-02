@@ -31,9 +31,9 @@ definition mul {A : Type} {s : group_struct A} (a b : A) : A
 
 infixl `*`:75 := mul
 
-variable  G1 : group.{1}
-variable  G2 : group.{1}
-variables a b c : (carrier G2)
-variables d e : (carrier G1)
+constant  G1 : group.{1}
+constant  G2 : group.{1}
+constants a b c : (carrier G2)
+constants d e : (carrier G1)
 check a * b * b
 check d * e

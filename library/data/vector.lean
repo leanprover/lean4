@@ -13,7 +13,7 @@ namespace vector
   notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 
   section sc_vector
-  variable {T : Type}
+  parameter {T : Type}
 
   protected theorem rec_on {C : ∀ (n : ℕ), vector T n → Type} {n : ℕ} (v : vector T n) (Hnil : C 0 nil)
     (Hcons : ∀(x : T) {n : ℕ} (w : vector T n), C n w → C (succ n) (cons x w)) : C n v :=

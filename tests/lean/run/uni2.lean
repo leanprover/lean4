@@ -4,7 +4,7 @@ inductive nat : Type :=
 zero : nat,
 succ : nat → nat
 
-variable f : nat → nat
+constant f : nat → nat
 
 check @nat.rec
 

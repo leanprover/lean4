@@ -4,8 +4,8 @@ open nat
 definition two1 : nat := 2
 definition two2 : nat := succ (succ (zero))
 definition f (x : nat) (y : nat) := y
-variable g : nat → nat → nat
-variables a b : nat
+constant g : nat → nat → nat
+constants a b : nat
 
 (*
 local tc     = type_checker_with_hints(get_env(), true)

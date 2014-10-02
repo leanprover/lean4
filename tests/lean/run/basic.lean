@@ -1,9 +1,9 @@
-variable A.{l1 l2} : Type.{l1} → Type.{l2}
+constant A.{l1 l2} : Type.{l1} → Type.{l2}
 check A
 definition tst.{l} (A : Type) (B : Type) (C : Type.{l}) : Type := A → B → C
 check tst
-variable group.{l} : Type.{l+1}
-variable carrier.{l} : group.{l} → Type.{l}
+constant group.{l} : Type.{l+1}
+constant carrier.{l} : group.{l} → Type.{l}
 definition to_carrier (g : group) := carrier g
 
 check to_carrier.{1}
@@ -13,11 +13,11 @@ section
   check A
   definition B := A → A
 end
-variable N : Type.{1}
+constant N : Type.{1}
 check B N
-variable f : B N
+constant f : B N
 check f
-variable a : N
+constant a : N
 check f a
 
 section
@@ -31,7 +31,7 @@ check double
 check double.{1 2}
 
 definition Prop := Type.{0}
-variable eq : Π {A : Type}, A → A → Prop
+constant eq : Π {A : Type}, A → A → Prop
 infix `=`:50 := eq
 
 check eq.{1}

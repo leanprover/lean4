@@ -9,7 +9,7 @@ section
   cons2   : A → list2 → list2
 end
 
-variable num : Type.{1}
+constant num : Type.{1}
 
 namespace Tree
 inductive tree (A : Type) : Type :=

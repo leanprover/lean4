@@ -1,6 +1,6 @@
-variable N : Type.{1}
-variables a b c : N
-variable f : forall {a b : N}, N → N
+constant N : Type.{1}
+constants a b c : N
+constant f : forall {a b : N}, N → N
 
 check f
 check @f
@@ -13,7 +13,7 @@ definition l2 : N → N → N := @f a
 definition l3 : N → N := @f a b
 definition l4 : N := @f a b c
 
-variable g : forall ⦃a b : N⦄, N → N
+constant g : forall ⦃a b : N⦄, N → N
 
 check g
 check g a

@@ -1,17 +1,17 @@
 precedence `+`:65
 
 namespace nat
-  variable nat : Type.{1}
-  variable add : nat → nat → nat
+  constant nat : Type.{1}
+  constant add : nat → nat → nat
   infixl + := add
 end nat
 
 namespace int
   open nat (nat)
-  variable int : Type.{1}
-  variable add : int → int → int
+  constant int : Type.{1}
+  constant add : int → int → int
   infixl + := add
-  variable of_nat : nat → int
+  constant of_nat : nat → int
   coercion of_nat
 end int
 
@@ -22,8 +22,8 @@ section
   open [decls] nat
   open [decls] int
 
-  variables n m : nat
-  variables i j : int
+  parameters n m : nat
+  parameters i j : int
   check n + m
   check i + j
 

@@ -2,7 +2,7 @@ definition bool  : Type.{1}           := Type.{0}
 definition and   (p q : bool) : bool  := ∀ c : bool, (p → q → c) → c
 infixl `∧`:25 := and
 
-variable a : bool
+constant a : bool
 
 -- Error
 theorem and_intro (p q : bool) (H1 : p) (H2 : q) : a

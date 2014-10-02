@@ -1,6 +1,6 @@
 import logic
 open tactic
-variables a b c d : Prop
+constants a b c d : Prop
 axiom Ha : a
 axiom Hb : b
 axiom Hc : c

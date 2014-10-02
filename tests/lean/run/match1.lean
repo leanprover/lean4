@@ -3,7 +3,7 @@ open nat
 
 definition two1 : nat := 2
 definition two2 : nat := succ (succ (zero))
-variable f      : nat → nat → nat
+constant f      : nat → nat → nat
 
 (*
 local tc     = type_checker_with_hints(get_env(), true)

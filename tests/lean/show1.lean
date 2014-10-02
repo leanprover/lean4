@@ -1,7 +1,7 @@
 import logic
 open bool eq.ops tactic
 
-variables a b c : bool
+constants a b c : bool
 axiom H1 : a = b
 axiom H2 : b = c
 

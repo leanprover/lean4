@@ -1,6 +1,5 @@
 * Calculational Proofs
 
-
 A calculational proof is just a chain of intermediate results that are
 meant to be composed by basic principles such as the transitivity of
 ===. In Lean, a calculation proof starts with the keyword =calc=, and has
@@ -27,7 +26,7 @@ Here is an example
 #+BEGIN_SRC lean
   import data.nat
   open nat
-  variables a b c d e : nat.
+  constants a b c d e : nat.
   axiom Ax1 : a = b.
   axiom Ax2 : b = c + 1.
   axiom Ax3 : c = d.

@@ -1,6 +1,6 @@
 import logic
 namespace foo
-  variable x : num
+  constant x : num
   check x
   check x
   set_option pp.full_names true

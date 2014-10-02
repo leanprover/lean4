@@ -1,7 +1,7 @@
 import data.num
 
 
-variable f : num → num → num → num
+constant f : num → num → num → num
 
 check
   let a := 10,

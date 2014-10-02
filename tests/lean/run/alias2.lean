@@ -1,19 +1,19 @@
 import logic
 
 namespace N1
-  variable num : Type.{1}
-  variable foo : num → num → num
+  constant num : Type.{1}
+  constant foo : num → num → num
 end N1
 
 namespace N2
-  variable val : Type.{1}
-  variable foo : val → val → val
+  constant val : Type.{1}
+  constant foo : val → val → val
 end N2
 
 open N1
 open N2
-variables a b : num
-variable f : num → val
+constants a b : num
+constant f : num → val
 coercion f
 
 definition aux2 := foo a b

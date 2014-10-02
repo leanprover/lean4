@@ -3,7 +3,7 @@ namespace foo
   check f.{1}
 end foo
 
-variable N : Type.{1}
+constant N : Type.{1}
 section
   parameter A : Type
   definition g (a : A) (B : Type) : A := a

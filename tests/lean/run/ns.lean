@@ -1,17 +1,17 @@
-variable nat : Type.{1}
-variable f : nat → nat
+constant nat : Type.{1}
+constant f : nat → nat
 
 namespace foo
-  variable int : Type.{1}
-  variable f   : int → int
-  variable a   : nat
-  variable i   : int
+  constant int : Type.{1}
+  constant f   : int → int
+  constant a   : nat
+  constant i   : int
   check _root_.f a
   check f i
 end foo
 
 open foo
-variables a : nat
-variables i : int
+constants a : nat
+constants i : int
 check f a
 check f i

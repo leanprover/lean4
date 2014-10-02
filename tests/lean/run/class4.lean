@@ -68,9 +68,9 @@ theorem not_zero_add_right [instance] (x y : nat) (H : not_zero y) : not_zero (x
 theorem not_zero_succ [instance] (x : nat) : not_zero (succ x)
 := not_zero.intro (not_is_zero_succ x)
 
-variable dvd : Π (x y : nat) {H : not_zero y}, nat
+constant dvd : Π (x y : nat) {H : not_zero y}, nat
 
-variables a b : nat
+constants a b : nat
 
 set_option pp.implicit true
 reducible add

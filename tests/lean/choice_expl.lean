@@ -7,8 +7,8 @@ namespace N2
 end N2
 
 open N1 N2
-variable N : Type.{1}
-variables a b : N
+constant N : Type.{1}
+constants a b : N
 check @pr
 check @pr N a b
 check pr a b

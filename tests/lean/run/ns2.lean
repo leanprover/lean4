@@ -1,5 +1,5 @@
 definition foo.id {A : Type} (a : A) := a
-variable foo.T : Type.{1}
+constant foo.T : Type.{1}
 check foo.id
 check foo.T
 

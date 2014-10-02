@@ -1,25 +1,25 @@
 import data.nat
 open nat
 
-variable list.{l} : Type.{l} → Type.{l}
-variable vector.{l} : Type.{l} → nat → Type.{l}
-variable matrix.{l} : Type.{l} → nat → nat → Type.{l}
-variable length : Pi {A : Type}, list A → nat
+constant list.{l} : Type.{l} → Type.{l}
+constant vector.{l} : Type.{l} → nat → Type.{l}
+constant matrix.{l} : Type.{l} → nat → nat → Type.{l}
+constant length : Pi {A : Type}, list A → nat
 
-variable list_to_vec {A : Type} (l : list A) : vector A (length l)
-variable to_row {A : Type} {n : nat} : vector A n → matrix A 1 n
-variable to_col {A : Type} {n : nat} : vector A n → matrix A n 1
-variable to_list {A : Type} {n : nat} : vector A n → list A
+constant list_to_vec {A : Type} (l : list A) : vector A (length l)
+constant to_row {A : Type} {n : nat} : vector A n → matrix A 1 n
+constant to_col {A : Type} {n : nat} : vector A n → matrix A n 1
+constant to_list {A : Type} {n : nat} : vector A n → list A
 
 coercion to_row
 coercion to_col
 coercion list_to_vec
 coercion to_list
 
-variable f {A : Type} {n : nat} (M : matrix A n 1) : nat
-variable g {A : Type} {n : nat} (M : matrix A 1 n) : nat
-variable v : vector nat 10
-variable l : list nat
+constant f {A : Type} {n : nat} (M : matrix A n 1) : nat
+constant g {A : Type} {n : nat} (M : matrix A 1 n) : nat
+constant v : vector nat 10
+constant l : list nat
 
 check f v
 check g v

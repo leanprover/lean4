@@ -1,7 +1,7 @@
-variable A : Type.{1}
-variable a : A
-variable g : A → A
-variable f : A → A → A
+constant A : Type.{1}
+constant a : A
+constant g : A → A
+constant f : A → A → A
 precedence `|` : 0
 
 (*

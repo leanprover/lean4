@@ -38,8 +38,8 @@ end algebra
 
 namespace nat
 
-  variable add : nat → nat → nat
-  variable mul : nat → nat → nat
+  constant add : nat → nat → nat
+  constant mul : nat → nat → nat
 
   definition is_mul_struct  [instance] : algebra.mul_struct nat
   := algebra.mul_struct.mk mul
@@ -105,8 +105,8 @@ end algebra
 
 section
   open algebra algebra.semigroup algebra.monoid
-  variable M : monoid
-  variables a b c : M
+  parameter M : monoid
+  parameters a b c : M
   check a*b*c*a*b*c*a*b*a*b*c*a
   check a*b
 end

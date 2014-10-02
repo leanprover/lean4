@@ -13,7 +13,7 @@ infixl `*`:75 := mul
 
 axiom mul_zero_right (n : nat) : n * zero = zero
 
-variable P : nat → Prop
+constant P : nat → Prop
 
 print "==========================="
 theorem tst (n : nat) (H : P (n * zero)) : P zero

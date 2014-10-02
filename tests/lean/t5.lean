@@ -1,6 +1,6 @@
-variable N : Type.{1}
-variable f : N → N
-variable a : N
+constant N : Type.{1}
+constant f : N → N
+constant a : N
 definition g (a : N) : N := f a
 check g
 namespace foo

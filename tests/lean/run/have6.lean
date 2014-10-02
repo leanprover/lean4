@@ -1,8 +1,8 @@
 definition Prop : Type.{1} := Type.{0}
-variable and : Prop → Prop → Prop
+constant and : Prop → Prop → Prop
 infixl `∧`:25 := and
-variable and_intro : forall (a b : Prop), a → b → a ∧ b
-variables a b c d : Prop
+constant and_intro : forall (a b : Prop), a → b → a ∧ b
+constants a b c d : Prop
 axiom Ha : a
 axiom Hb : b
 axiom Hc : c

@@ -1,21 +1,21 @@
 definition Prop : Type.{1} := Type.{0}
-variable N : Type.{1}
+constant N : Type.{1}
 check N
-variable a : N
+constant a : N
 check a
 check Prop → Prop
-variable F.{l} : Type.{l} → Type.{l}
+constant F.{l} : Type.{l} → Type.{l}
 check F.{2}
 universe u
 check F.{u}
-variable vec.{l} (A : Type.{l}) (n : N) : Type.{l}
-variable f (a b : N) : N
-variable len.{l} (A : Type.{l}) (n : N) (v : vec.{l} A n) : N
+constant vec.{l} (A : Type.{l}) (n : N) : Type.{l}
+constant f (a b : N) : N
+constant len.{l} (A : Type.{l}) (n : N) (v : vec.{l} A n) : N
 check f
 check len.{1}
 section
-   variable A  : Type
-   variable B  : Prop
+   parameter A  : Type
+   parameter B  : Prop
    hypothesis H : B
    parameter {C : Type}
    check B -> B
@@ -24,20 +24,20 @@ section
 end
 check A -- Error: A is part of the section
 
-variable R : Type → Type
+constant R : Type → Type
 check R.{1 0}
 
 check fun x y : N, x
 
 namespace tst
-  variable N : Type.{2}
-  variable M : Type.{2}
+  constant N : Type.{2}
+  constant M : Type.{2}
   print raw N -- Two possible interpretations N and tst.N
   print raw tst.N -- Only one interpretation
 end tst
 print raw N -- Only one interpretation
 namespace foo
-  variable M : Type.{3}
+  constant M : Type.{3}
   print raw M -- Only one interpretation
 end foo
 check tst.M
@@ -56,4 +56,4 @@ print("-------------")
 *)
 
 universe l_1
-variable T1 : Type -- T1 parameter is going to be called l_2
+constant T1 : Type -- T1 parameter is going to be called l_2

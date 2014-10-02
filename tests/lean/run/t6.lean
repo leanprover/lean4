@@ -1,8 +1,8 @@
 precedence `+`  : 65
 precedence `++` : 100
-variable N : Type.{1}
-variable f : N → N → N
-variable a : N
+constant N : Type.{1}
+constant f : N → N → N
+constant a : N
 check
    let g x y         := f x y,
        infix +       := g,

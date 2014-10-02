@@ -1,12 +1,12 @@
 import data.unit
 open unit
 
-variable int : Type.{1}
-variable nat : Type.{1}
-variable izero : int
-variable nzero : nat
-variable isucc : int → int
-variable nsucc : nat → nat
+constant int : Type.{1}
+constant nat : Type.{1}
+constant izero : int
+constant nzero : nat
+constant isucc : int → int
+constant nsucc : nat → nat
 definition f [coercion] (a : unit) : int := izero
 definition g [coercion] (a : unit) : nat := nzero
 

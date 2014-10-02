@@ -1,19 +1,19 @@
-variable N : Type.{1}
+constant N : Type.{1}
 precedence `+`:65
 
 namespace foo
-  variable a : N
-  variable f : N → N → N
+  constant a : N
+  constant f : N → N → N
   infix + := f
 end foo
 
 namespace bla
-  variable b : N
-  variable f : N → N → N
+  constant b : N
+  constant f : N → N → N
   infix + := f
 end bla
 
-variable g : N → N → N
+constant g : N → N → N
 
 open foo
 open bla

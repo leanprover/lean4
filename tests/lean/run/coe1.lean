@@ -1,15 +1,15 @@
-variable A : Type.{1}
-variable B : Type.{1}
-variable f : A → B
+constant A : Type.{1}
+constant B : Type.{1}
+constant f : A → B
 coercion f
-variable g : B → B → B
-variables a1 a2 a3 : A
-variables b1 b2 b3 : B
+constant g : B → B → B
+constants a1 a2 a3 : A
+constants b1 b2 b3 : B
 check g a1 b1
 set_option pp.coercions true
 check g a1 b1
 
-variable eq {A : Type} : A → A → Type.{0}
+constant eq {A : Type} : A → A → Type.{0}
 check eq a1 a2
 check eq a1 b1
 set_option pp.implicit true

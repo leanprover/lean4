@@ -1,20 +1,20 @@
 import logic
 
 namespace S1
-hypothesis I : Type
+axiom I : Type
 definition F (X : Type) : Type := (X → Prop) → Prop
-hypothesis unfold.{l} : I.{l} → F I.{l}
-hypothesis fold.{l}   : F I.{l} → I.{l}
-hypothesis iso1 : ∀x, fold (unfold x) = x
+axiom unfold.{l} : I.{l} → F I.{l}
+axiom fold.{l}   : F I.{l} → I.{l}
+axiom iso1 : ∀x, fold (unfold x) = x
 end S1
 
 namespace S2
 universe u
-hypothesis I : Type.{u}
+axiom I : Type.{u}
 definition F (X : Type) : Type := (X → Prop) → Prop
-hypothesis unfold : I → F I
-hypothesis fold   : F I → I
-hypothesis iso1 : ∀x, fold (unfold x) = x
+axiom unfold : I → F I
+axiom fold   : F I → I
+axiom iso1 : ∀x, fold (unfold x) = x
 end S2
 
 

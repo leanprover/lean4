@@ -8,7 +8,7 @@ mk : A → C A
 definition val {A : Type} (c : C A) : A :=
 C.rec (λa, a) c
 
-variable magic (A : Type) : A
+constant magic (A : Type) : A
 definition C_magic [instance] [priority max] (A : Type) : C A :=
 C.mk (magic A)
 

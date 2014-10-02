@@ -64,9 +64,11 @@ void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found, pa
         });
 }
 
+enum class variable_kind { Constant, Parameter, Variable, Axiom };
+
 static environment declare_var(parser & p, environment env,
                                name const & n, level_param_names const & ls, expr const & type,
-                               bool is_axiom, optional<binder_info> const & _bi, pos_info const & pos) {
+                               variable_kind k, optional<binder_info> const & _bi, pos_info const & pos) {
     binder_info bi;
     if (_bi) bi = *_bi;
     if (in_section_or_context(p.env())) {
@@ -77,7 +79,7 @@ static environment declare_var(parser & p, environment env,
     } else {
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
-        if (is_axiom) {
+        if (k == variable_kind::Axiom) {
             env = module::add(env, check(env, mk_axiom(full_n, ls, type)));
             p.add_decl_index(full_n, pos, get_axiom_tk(), type);
         } else {
@@ -105,7 +107,20 @@ optional<binder_info> parse_binder_info(parser & p) {
     return bi;
 }
 
-environment variable_cmd_core(parser & p, bool is_axiom) {
+static void check_variable_kind(parser & p, variable_kind k) {
+    if (in_section_or_context(p.env())) {
+        if (k == variable_kind::Axiom || k == variable_kind::Constant)
+            throw parser_error("invalid declaration, 'constant/axiom' cannot be used in sections/contexts",
+                               p.pos());
+    } else {
+        if (k == variable_kind::Parameter || k == variable_kind::Variable)
+            throw parser_error("invalid declaration, 'parameter/variable/hypothesis/conjecture' "
+                               "can only be used in sections/contexts", p.pos());
+    }
+}
+
+environment variable_cmd_core(parser & p, variable_kind k) {
+    check_variable_kind(p, k);
     auto pos = p.pos();
     optional<binder_info> bi = parse_binder_info(p);
     name n = p.check_id_next("invalid declaration, identifier expected");
@@ -139,14 +154,66 @@ environment variable_cmd_core(parser & p, bool is_axiom) {
     list<expr> ctx = locals_to_context(type, p);
     std::tie(type, new_ls) = p.elaborate_type(type, ctx);
     update_section_local_levels(p, new_ls);
-    return declare_var(p, p.env(), n, append(ls, new_ls), type, is_axiom, bi, pos);
+    return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos);
 }
 environment variable_cmd(parser & p) {
-    return variable_cmd_core(p, false);
+    return variable_cmd_core(p, variable_kind::Variable);
 }
 environment axiom_cmd(parser & p)    {
-    return variable_cmd_core(p, true);
+    return variable_cmd_core(p, variable_kind::Axiom);
 }
+environment constant_cmd(parser & p)    {
+    return variable_cmd_core(p, variable_kind::Constant);
+}
+environment parameter_cmd(parser & p)    {
+    return variable_cmd_core(p, variable_kind::Parameter);
+}
+
+static environment variables_cmd_core(parser & p, variable_kind k) {
+    check_variable_kind(p, k);
+    auto pos = p.pos();
+    environment env = p.env();
+    while (true) {
+        optional<binder_info> bi = parse_binder_info(p);
+        buffer<name> ids;
+        while (!p.curr_is_token(get_colon_tk())) {
+            name id = p.check_id_next("invalid parameters declaration, identifier expected");
+            ids.push_back(id);
+        }
+        p.next();
+        optional<parser::local_scope> scope1;
+        if (!in_section_or_context(p.env()))
+            scope1.emplace(p);
+        expr type = p.parse_expr();
+        p.parse_close_binder_info(bi);
+        level_param_names ls = to_level_param_names(collect_univ_params(type));
+        list<expr> ctx = locals_to_context(type, p);
+        for (auto id : ids) {
+            // Hack: to make sure we get different universe parameters for each parameter.
+            // Alternative: elaborate once and copy types replacing universes in new_ls.
+            level_param_names new_ls;
+            expr new_type;
+            std::tie(new_type, new_ls) = p.elaborate_type(type, ctx);
+            update_section_local_levels(p, new_ls);
+            new_ls = append(ls, new_ls);
+            env = declare_var(p, env, id, new_ls, new_type, k, bi, pos);
+        }
+        if (!p.curr_is_token(get_lparen_tk()) && !p.curr_is_token(get_lcurly_tk()) &&
+            !p.curr_is_token(get_ldcurly_tk()) && !p.curr_is_token(get_lbracket_tk()))
+            break;
+    }
+    return env;
+}
+static environment variables_cmd(parser & p) {
+    return variables_cmd_core(p, variable_kind::Variable);
+}
+static environment parameters_cmd(parser & p) {
+    return variables_cmd_core(p, variable_kind::Parameter);
+}
+static environment constants_cmd(parser & p) {
+    return variables_cmd_core(p, variable_kind::Constant);
+}
+
 
 struct decl_modifiers {
     bool               m_is_instance;
@@ -403,50 +470,19 @@ environment protected_definition_cmd(parser & p) {
     return definition_cmd_core(p, is_theorem, is_opaque, false, true);
 }
 
-static environment variables_cmd(parser & p) {
-    auto pos = p.pos();
-    environment env = p.env();
-    while (true) {
-        optional<binder_info> bi = parse_binder_info(p);
-        buffer<name> ids;
-        while (!p.curr_is_token(get_colon_tk())) {
-            name id = p.check_id_next("invalid parameters declaration, identifier expected");
-            ids.push_back(id);
-        }
-        p.next();
-        optional<parser::local_scope> scope1;
-        if (!in_section_or_context(p.env()))
-            scope1.emplace(p);
-        expr type = p.parse_expr();
-        p.parse_close_binder_info(bi);
-        level_param_names ls = to_level_param_names(collect_univ_params(type));
-        list<expr> ctx = locals_to_context(type, p);
-        for (auto id : ids) {
-            // Hack: to make sure we get different universe parameters for each parameter.
-            // Alternative: elaborate once and copy types replacing universes in new_ls.
-            level_param_names new_ls;
-            expr new_type;
-            std::tie(new_type, new_ls) = p.elaborate_type(type, ctx);
-            update_section_local_levels(p, new_ls);
-            new_ls = append(ls, new_ls);
-            env = declare_var(p, env, id, new_ls, new_type, false, bi, pos);
-        }
-        if (!p.curr_is_token(get_lparen_tk()) && !p.curr_is_token(get_lcurly_tk()) &&
-            !p.curr_is_token(get_ldcurly_tk()) && !p.curr_is_token(get_lbracket_tk()))
-            break;
-    }
-    return env;
-}
-
 void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("universe",     "declare a global universe level", universe_cmd));
-    add_cmd(r, cmd_info("variable",     "declare a new parameter", variable_cmd));
+    add_cmd(r, cmd_info("variable",     "declare a new variable", variable_cmd));
+    add_cmd(r, cmd_info("parameter",    "declare a new parameter", parameter_cmd));
+    add_cmd(r, cmd_info("constant",     "declare a new constant (aka top-level variable)", constant_cmd));
     add_cmd(r, cmd_info("axiom",        "declare a new axiom", axiom_cmd));
+    add_cmd(r, cmd_info("variables",    "declare new variables", variables_cmd));
+    add_cmd(r, cmd_info("parameters",   "declare new parameters", parameters_cmd));
+    add_cmd(r, cmd_info("constants",    "declare new constants (aka top-level variables)", constants_cmd));
     add_cmd(r, cmd_info("definition",   "add new definition", definition_cmd));
     add_cmd(r, cmd_info("opaque",       "add new opaque definition", opaque_definition_cmd));
     add_cmd(r, cmd_info("private",      "add new private definition/theorem", private_definition_cmd));
     add_cmd(r, cmd_info("protected",    "add new protected definition/theorem", protected_definition_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
-    add_cmd(r, cmd_info("variables",    "declare new parameters", variables_cmd));
 }
 }

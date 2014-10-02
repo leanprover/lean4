@@ -2,11 +2,11 @@ precedence `+` : 65
 precedence `*` : 75
 precedence `=` : 50
 precedence `≃` : 50
-variable N : Type.{1}
-variable a : N
-variable b : N
-variable add : N → N → N
-variable mul : N → N → N
+constant N : Type.{1}
+constant a : N
+constant b : N
+constant add : N → N → N
+constant mul : N → N → N
 namespace foo
   infixl + := add
   infixl * := mul

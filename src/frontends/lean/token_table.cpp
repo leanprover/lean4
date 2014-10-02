@@ -80,7 +80,7 @@ void init_token_table(token_table & t) {
 
     char const * commands[] =
         {"theorem", "axiom", "variable", "protected", "private", "opaque", "definition", "coercion",
-         "variables", "[persistent]", "[visible]", "[instance]",
+         "variables", "parameter", "parameters", "constant", "constants", "[persistent]", "[visible]", "[instance]",
          "[off]", "[on]", "[none]", "[class]", "[coercion]", "[reducible]", "reducible", "irreducible",
          "evaluate", "check", "eval", "[priority", "print", "end", "namespace", "section", "import",
          "inductive", "record", "renaming", "extends", "structure", "module", "universe",
@@ -93,8 +93,7 @@ void init_token_table(token_table & t) {
          {g_qed_unicode, "qed"}, {nullptr, nullptr}};
 
     pair<char const *, char const *> cmd_aliases[] =
-        {{"parameter", "variable"}, {"parameters", "variables"}, {"lemma", "theorem"},
-         {"hypothesis", "axiom"}, {"conjecture", "axiom"}, {"corollary", "theorem"},
+        {{"lemma", "theorem"}, {"corollary", "theorem"}, {"hypothesis", "parameter"}, {"conjecture", "parameter"},
          {nullptr, nullptr}};
 
     auto it = builtin;

@@ -1,8 +1,8 @@
 namespace foo
-  variable A : Type.{1}
-  variable a : A
-  variable x : A
-  variable c : A
+  constant A : Type.{1}
+  constant a : A
+  constant x : A
+  constant c : A
 end foo
 
 context
@@ -31,7 +31,7 @@ context
 end
 
 namespace foo
-  variable f : A → A → A
+  constant f : A → A → A
   infix `*`:75 := f
 end foo
 

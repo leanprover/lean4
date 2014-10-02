@@ -74,21 +74,21 @@ the following command creates aliases for all objects starting with
   check ge -- display the type of nat.ge
 #+END_SRC
 
-The command =variable= assigns a type to an identifier. The following command postulates/assumes
+The command =constant= assigns a type to an identifier. The following command postulates/assumes
 that =n=, =m= and =o= have type =nat=.
 
 #+BEGIN_SRC lean
   import data.nat
   open nat
-  variable n : nat
-  variable m : nat
-  variable o : nat
+  constant n : nat
+  constant m : nat
+  constant o : nat
   -- The command 'open nat' also imported the notation defined at the namespace 'nat'
   check n + m
   check n ≤ m
 #+END_SRC
 
-The command =variables n m o : nat= can be used as a shorthand for the three commands above.
+The command =constants n m o : nat= can be used as a shorthand for the three commands above.
 
 In Lean, proofs are also expressions, and all functionality provided for manipulating
 expressions is also available for manipulating proofs. For example, =eq.refl n= is a proof
@@ -97,7 +97,7 @@ for =n = n=. In Lean, =eq.refl= is the reflexivity theorem.
 #+BEGIN_SRC lean
   import data.nat
   open nat
-  variable n : nat
+  constant n : nat
   check eq.refl n
 #+END_SRC
 
@@ -109,7 +109,7 @@ The following commands postulate two axioms =Ax1= and =Ax2= that state that =n =
 #+BEGIN_SRC lean
   import data.nat
   open nat
-  variables m n o : nat
+  constants m n o : nat
   axiom Ax1 : n = m
   axiom Ax2 : m = o
   check eq.trans Ax1 Ax2
@@ -132,13 +132,13 @@ and =em p= is a proof for =p ∨ ¬ p=.
 
 #+BEGIN_SRC lean
   import logic.axioms.classical
-  variable p : Prop
+  constant p : Prop
   check em p
 #+END_SRC
 
-The commands =axiom= and =variable= are essentially the same command. We provide both
+The commands =axiom= and =constant= are essentially the same command. We provide both
 just to make Lean files more readable. We encourage users to use =axiom= only for
-propositions, and =variable= for everything else.
+propositions, and =constant= for everything else.
 
 Similarly, a theorem is just a definition. The following command defines a new theorem
 called =nat_trans3=, and then use it to prove something else. In this
@@ -152,7 +152,7 @@ example, =eq.symm= is the symmetry theorem.
   eq.trans (eq.trans H1 (eq.symm H2)) H3
 
   -- Example using nat_trans3
-  variables x y z w : nat
+  constants x y z w : nat
   axiom Hxy : x = y
   axiom Hzy : z = y
   axiom Hzw : z = w
@@ -181,7 +181,7 @@ implicit arguments.
   eq.trans (eq.trans H1 (eq.symm H2)) H3
 
   -- Example using nat_trans3
-  variables x y z w : nat
+  constants x y z w : nat
   axiom Hxy : x = y
   axiom Hzy : z = y
   axiom Hzw : z = w
@@ -212,7 +212,7 @@ This is useful when debugging non-trivial problems.
   import data.nat
   open nat
 
-  variables a b c : nat
+  constants a b c : nat
   axiom H1 : a = b
   axiom H2 : b = c
   check eq.trans H1 H2
@@ -302,7 +302,7 @@ Here is a simple example using the connectives above.
 
 #+BEGIN_SRC lean
   import logic
-  variables p q : Prop
+  constants p q : Prop
   check p → q → p ∧ q
   check ¬p → p ↔ false
   check p ∨ q → q ∨ p
@@ -318,7 +318,7 @@ change this behavior.
 #+BEGIN_SRC lean
   import logic
   set_option pp.unicode false
-  variables p q : Prop
+  constants p q : Prop
   check p → q → p ∧ q
   set_option pp.unicode true
   check p → q → p ∧ q
@@ -330,7 +330,7 @@ of the functions that given a proof for =p=, returns a proof for =q=. This is ve
 
 #+BEGIN_SRC lean
   import logic
-  variables p q : Prop
+  constants p q : Prop
   -- Hpq is a function that takes a proof for p and returns a proof for q
   axiom Hpq : p → q
   -- Hq is a proof/certificate for p
@@ -405,7 +405,7 @@ For example, a proof for =p → p= is just =fun H : p, H= (the identity function
 
 #+BEGIN_SRC lean
   import logic
-  variable p : Prop
+  constant p : Prop
   check fun H : p, H
 #+END_SRC
 
@@ -450,7 +450,7 @@ In the following example we use =and.intro= for creating a proof for
 
 #+BEGIN_SRC lean
   import logic
-  variables p q : Prop
+  constants p q : Prop
   check fun (Hp : p) (Hq : q), and.intro Hp Hq
 #+END_SRC
 
@@ -459,7 +459,7 @@ Similarly =and.elim_right H= is a proof for =b=. We say they are the _left/right
 
 #+BEGIN_SRC lean
   import logic
-  variables p q : Prop
+  constants p q : Prop
   -- Proof for p ∧ q → p
   check fun H : p ∧ q, and.elim_left H
   -- Proof for p ∧ q → q
@@ -470,7 +470,7 @@ Now, we prove =p ∧ q → q ∧ p= with the following simple proof term.
 
 #+BEGIN_SRC lean
   import logic
-  variables p q : Prop
+  constants p q : Prop
   check fun H : p ∧ q, and.intro (and.elim_right H) (and.elim_left H)
 #+END_SRC
 
@@ -485,7 +485,7 @@ We say they are the _left/right or-introduction_.
 
 #+BEGIN_SRC lean
   import logic
-  variables p q : Prop
+  constants p q : Prop
   -- Proof for p → p ∨ q
   check fun H : p, or.intro_left q H
   -- Proof for q → p ∨ q
@@ -500,7 +500,7 @@ In the following example, we use =or.elim= to prove that =p v q → q ∨ p=.
 
 #+BEGIN_SRC lean
   import logic
-  variables p q : Prop
+  constants p q : Prop
   check fun H : p ∨ q,
            or.elim H
               (fun Hp : p, or.intro_right q Hp)
@@ -516,7 +516,7 @@ the Lean standard library.
 
 #+BEGIN_SRC lean
   import logic
-  variables p q : Prop
+  constants p q : Prop
   check fun H : p ∨ q,
            or.elim H
               (fun Hp : p, or.inr Hp)
@@ -535,7 +535,7 @@ We now use =not_intro= and =absurd= to produce a proof term for
 
 #+BEGIN_SRC lean
   import logic
-  variables a b : Prop
+  constants a b : Prop
   check fun (Hab : a → b) (Hnb : ¬ b),
             not_intro (fun Ha : a, absurd (Hab Ha) Hnb)
 
@@ -547,7 +547,7 @@ explicitly.
 
 #+BEGIN_SRC lean
   import logic
-  variables a b : Prop
+  constants a b : Prop
   check fun (Hab : a → b) (Hnb : ¬ b),
             (fun Ha : a, Hnb (Hab Ha))
 
@@ -557,7 +557,7 @@ Now, here is the proof term for =¬a → b → (b → a) → c=
 
 #+BEGIN_SRC lean
   import logic
-  variables a b c : Prop
+  constants a b c : Prop
   check fun (Hna : ¬ a) (Hb : b) (Hba : b → a),
             absurd (Hba Hb) Hna
 #+END_SRC
@@ -571,7 +571,7 @@ Here is the proof term for =a ∧ b ↔ b ∧ a=
 
 #+BEGIN_SRC lean
   import logic
-  variables a b : Prop
+  constants a b : Prop
   check iff.intro
           (fun H : a ∧ b, and.intro (and.elim_right H) (and.elim_left H))
           (fun H : b ∧ a, and.intro (and.elim_right H) (and.elim_left H))
@@ -582,7 +582,7 @@ more like proofs found in text books.
 
 #+BEGIN_SRC lean
   import logic
-  variables a b : Prop
+  constants a b : Prop
   check iff.intro
           (assume H : a ∧ b, and.intro (and.elim_right H) (and.elim_left H))
           (assume H : b ∧ a, and.intro (and.elim_right H) (and.elim_left H))
@@ -654,10 +654,10 @@ Then we instantiate the axiom using function application.
   import data.nat
   open nat
 
-  variable f : nat → nat
+  constant f : nat → nat
   axiom fzero : ∀ x, f x = 0
   check fzero 1
-  variable a : nat
+  constant a : nat
   check fzero a
 #+END_SRC
 
@@ -670,7 +670,7 @@ abstraction. In the following example, we create a proof term showing that for a
   import data.nat
   open nat
 
-  variable f : nat → nat
+  constant f : nat → nat
   axiom fzero : ∀ x, f x = 0
   check λ x y, eq.trans (fzero x) (eq.symm (fzero y))
 #+END_SRC
@@ -698,7 +698,7 @@ for =∃ a : nat, a = w= using
   theorem nat_trans3i {a b c d : nat} (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
   eq.trans (eq.trans H1 (eq.symm H2)) H3
 
-  variables x y z w : nat
+  constants x y z w : nat
   axiom Hxy : x = y
   axiom Hzy : z = y
   axiom Hzw : z = w
@@ -723,7 +723,7 @@ has different values for the implicit argument =P=.
   open nat
 
   check @exists_intro
-  variable g : nat → nat → nat
+  constant g : nat → nat → nat
   axiom Hg : g 0 0 = 0
   theorem gex1 : ∃ x, g x x = x := exists_intro 0 Hg
   theorem gex2 : ∃ x, g x 0 = x := exists_intro 0 Hg

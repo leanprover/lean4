@@ -12,9 +12,9 @@ neg : nat → int
 
 coercion int.of_nat
 
-variables n m : nat
-variables i j : int
-variable l : list nat
+constants n m : nat
+constants i j : int
+constant l : list nat
 namespace list end list open list
 
 check cons i (cons i nil)

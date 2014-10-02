@@ -1,8 +1,8 @@
 import logic
 
-variable nat : Type.{1}
-variable int : Type.{1}
-variable of_nat : nat → int
+constant nat : Type.{1}
+constant int : Type.{1}
+constant of_nat : nat → int
 coercion of_nat
 
 theorem tst (n : nat) : n = n :=

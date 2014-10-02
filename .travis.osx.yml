@@ -4,10 +4,10 @@ env:
   # DROPBOX_KEY=[secure]
   - secure: "W8vou0KRJOOboZXP9q+D/9Wl6LlBeVS2T85MHWPz7EwCMQbJq5xWnGzYLE6FmC0iILcZkXyP63vqoYMFo5MJaEQeALGx2RuIiW7XgrD+7Bn4Vfsp6BLT7K9/AJETGGTQnLs8oZJJCXHGtzbc8EPFIZd/ZPPrve4jhEE5ZNhXnRc="
   matrix:
-  - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=51
-  - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=51 UPLOAD=osx PACKAGE=TRUE
-  - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=52
-  - CMAKE_CXX_COMPILER=g++-4.8 CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=JIT
+  - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=51
+  - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=51 UPLOAD=osx PACKAGE=TRUE
+  - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=52
+  - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=JIT
 
 # Turn off tcmalloc on OSX due to segmentation fault.
 # Soonho filed a bug report for this:
@@ -23,7 +23,7 @@ install:
 - if [[ $CMAKE_CXX_COMPILER == g++ ]]; then
       brew install gcc;
       brew link gcc;
-      COMPILER=g++-4.8.3;
+      COMPILER=g++-4.9.1;
   fi
 - brew install gmp; brew link --overwrite gmp
 - brew install mpfr; brew link --overwrite mpfr
@@ -58,7 +58,8 @@ before_script:
 
 script:
 - cd build
-- SITE=OSX10.9.2@Travis
+- OSX_VERSION=`sw_vers | grep 'ProductVersion:' | grep -o '[0-9]*\.[0-9]*\.[0-9]*'`
+- SITE=${OSX_VERSION}@Travis
 - if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
       BUILD_TYPE=Release;
   else

@@ -35,7 +35,7 @@ namespace option
   protected theorem equal {A : Type} {a₁ a₂ : A} (H : some a₁ = some a₂) : a₁ = a₂ :=
   congr_arg (option.rec a₁ (λ a, a)) H
 
-  protected theorem is_inhabited [instance] (A : Type) : inhabited (option A) :=
+  protected definition is_inhabited [instance] (A : Type) : inhabited (option A) :=
   inhabited.mk none
 
   protected definition has_decidable_eq [instance] {A : Type} (H : decidable_eq A) : decidable_eq (option A) :=

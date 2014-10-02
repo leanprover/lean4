@@ -133,7 +133,7 @@ namespace bool
   theorem bnot_true  : not tt = ff :=
   rfl
 
-  protected theorem is_inhabited [instance] : inhabited bool :=
+  protected definition is_inhabited [instance] : inhabited bool :=
   inhabited.mk ff
 
   protected definition has_decidable_eq [instance] : decidable_eq bool :=

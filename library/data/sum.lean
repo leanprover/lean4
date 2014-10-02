@@ -49,10 +49,10 @@ namespace sum
   have H2 : f (inr A b2), from H ▸ H1,
   H2
 
-  protected theorem is_inhabited_left [instance] {A B : Type} (H : inhabited A) : inhabited (A ⊎ B) :=
+  protected definition is_inhabited_left [instance] {A B : Type} (H : inhabited A) : inhabited (A ⊎ B) :=
   inhabited.mk (inl B (default A))
 
-  protected theorem is_inhabited_right [instance] {A B : Type} (H : inhabited B) : inhabited (A ⊎ B) :=
+  protected definition is_inhabited_right [instance] {A B : Type} (H : inhabited B) : inhabited (A ⊎ B) :=
   inhabited.mk (inr A (default B))
 
   protected definition has_eq_decidable [instance] {A B : Type} (H1 : decidable_eq A) (H2 : decidable_eq B) :

@@ -15,7 +15,7 @@ namespace unit
   theorem eq_star (a : unit) : a = star :=
   equal a star
 
-  protected theorem is_inhabited [instance] : inhabited unit :=
+  protected definition is_inhabited [instance] : inhabited unit :=
   inhabited.mk ⋆
 
   protected definition has_decidable_eq [instance] : decidable_eq unit :=

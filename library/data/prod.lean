@@ -45,7 +45,7 @@ section
   protected theorem equal {p1 p2 : prod A B} : ∀ (H1 : pr1 p1 = pr1 p2) (H2 : pr2 p1 = pr2 p2), p1 = p2 :=
   destruct p1 (take a1 b1, destruct p2 (take a2 b2 H1 H2, pair_eq H1 H2))
 
-  protected theorem is_inhabited [instance] (H1 : inhabited A) (H2 : inhabited B) : inhabited (prod A B) :=
+  protected definition is_inhabited [instance] (H1 : inhabited A) (H2 : inhabited B) : inhabited (prod A B) :=
   inhabited.destruct H1 (λa, inhabited.destruct H2 (λb, inhabited.mk (pair a b)))
 
   protected definition has_decidable_eq [instance] (H1 : decidable_eq A) (H2 : decidable_eq B) : decidable_eq (A × B) :=

@@ -27,7 +27,7 @@ namespace vector
     (Hcons : ∀(x : T) {n : ℕ} (w : vector T n), C (succ n) (cons x w)) : C n v :=
   rec_on v Hnil (take x n v IH, Hcons x v)
 
-  protected theorem is_inhabited [instance] (A : Type) (H : inhabited A) (n : nat) : inhabited (vector A n) :=
+  protected definition is_inhabited [instance] (A : Type) (H : inhabited A) (n : nat) : inhabited (vector A n) :=
   nat.rec_on n
     (inhabited.mk (@vector.nil A))
     (λ (n : nat) (iH : inhabited (vector A n)),

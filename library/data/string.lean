@@ -10,7 +10,7 @@ inductive char : Type :=
   mk : bool → bool → bool → bool → bool → bool → bool → bool → char
 
 namespace char
-  protected theorem is_inhabited [instance] : inhabited char :=
+  protected definition is_inhabited [instance] : inhabited char :=
   inhabited.mk (mk ff ff ff ff ff ff ff ff)
 end char
 
@@ -19,6 +19,6 @@ inductive string : Type :=
   str   : char → string → string
 
 namespace string
-  protected theorem is_inhabited [instance] : inhabited string :=
+  protected definition is_inhabited [instance] : inhabited string :=
   inhabited.mk empty
 end string

@@ -37,7 +37,7 @@ nat.rec H1 H2 a
 protected definition rec_on {P : ℕ → Type} (n : ℕ) (H1 : P zero) (H2 : ∀m, P m → P (succ m)) : P n :=
 nat.rec H1 H2 n
 
-protected theorem is_inhabited [instance] : inhabited nat :=
+protected definition is_inhabited [instance] : inhabited nat :=
 inhabited.mk zero
 
 -- Coercion from num

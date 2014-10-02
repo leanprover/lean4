@@ -252,6 +252,12 @@ order for the change to take effect."
   ("inn" . ("∉"))
   ("nin" . ("∌"))
 
+  ;; Types
+
+  ("T1" . ("Type₁"))
+  ("T2" . ("Type₂"))
+  ("T+" . ("Type₊"))
+
   ;; Intersections, unions etc.
 
   ("intersection" . ,(lean-input-to-string-list "∩⋂∧⋀⋏⨇⊓⨅⋒∏ ⊼      ⨉"))
@@ -421,7 +427,7 @@ order for the change to take effect."
   ;; Big/small, black/white.
 
   ("t" . ,(lean-input-to-string-list "▸▹►▻◂◃◄◅▴▵▾▿◢◿◣◺◤◸◥◹"))
-  ("T" . ,(lean-input-to-string-list "◀◁▶▷▲△▼▽◬◭◮"))
+  ("Tr" . ,(lean-input-to-string-list "◀◁▶▷▲△▼▽◬◭◮"))
 
   ("tb" . ,(lean-input-to-string-list "◂▸▴▾◄►◢◣◤◥"))
   ("tw" . ,(lean-input-to-string-list "◃▹▵▿◅▻◿◺◸◹"))

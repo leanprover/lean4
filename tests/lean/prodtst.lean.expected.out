@@ -1,0 +1,1 @@
+prod.{l_1 l_2} : Type.{succ l_1} → Type.{succ l_2} → Type.{max (succ l_1) (succ l_2)}

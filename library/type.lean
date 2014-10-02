@@ -2,6 +2,9 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Leonardo de Moura
 
-definition Type₁ [reducible] := Type.{1}
-definition Type₂ [reducible] := Type.{2}
-definition Type₃ [reducible] := Type.{3}
+notation `Prop`:max  := Type.{0}
+notation `Type₁`:max := Type.{1}
+notation `Type₂`:max := Type.{2}
+notation `Type₃`:max := Type.{3}
+notation `Type'`:max := Type.{_+1}
+notation `Type₊`:max := Type.{_+1}

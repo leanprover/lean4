@@ -5,7 +5,7 @@
 The command =definition= declares a new constant/function. The identity function is defined as
 
 #+BEGIN_SRC lean
-  definition id (A : Type) (a : A) : A := a
+  definition id {A : Type} (a : A) : A := a
 #+END_SRC
 
 We say definitions are "transparent", because the type checker can
@@ -22,12 +22,12 @@ _definitionally equal_.
 #+END_SRC
 
 Similarly, the following definition only type checks because =id= is transparent, and the type checker can establish that
-=nat= and =id Type nat= are definitionally equal, that is, they are the "same".
+=nat= and =id nat= are definitionally equal, that is, they are the "same".
 
 #+BEGIN_SRC lean
   import data.nat
-  definition id (A : Type) (a : A) : A := a
-  check λ (x : nat) (y : id Type nat), x = y
+  definition id {A : Type} (a : A) : A := a
+  check λ (x : nat) (y : id nat), x = y
 #+END_SRC
 
 ** Theorems
@@ -38,8 +38,8 @@ really care about the actual proof, only about its existence.  As
 described in previous sections, =Prop= (the type of all propositions)
 is _proof irrelevant_.  If we had defined =id= using a theorem the
 previous example would produce a typing error because the type checker
-would be unable to unfold =id= and establish that =nat= and =id Type
-nat= are definitionally equal.
+would be unable to unfold =id= and establish that =nat= and =id nat=
+are definitionally equal.
 
 ** Opaque definitions
 
@@ -58,26 +58,26 @@ Here is an example
 
 #+BEGIN_SRC lean
     import data.nat
-    opaque definition id (A : Type) (a : A) : A := a
+    opaque definition id {A : Type} (a : A) : A := a
     -- The following command is type correct since it is being executed in the
     -- same file where id was defined
-    check λ (x : nat) (y : id Type nat), x = y
+    check λ (x : nat) (y : id nat), x = y
 
     -- The following theorem is also type correct since id is being treated as
     -- transparent only in the proof by reflexivity.
-    theorem id_eq (A : Type) (a : A) : id A a = a :=
+    theorem id_eq {A : Type} (a : A) : id a = a :=
     eq.refl a
 
     -- The following transparent definition is also type correct. It uses
     -- id but it can be type checked without unfolding id.
-    definition id2 (A : Type) (a : A) : A :=
-    id A a
+    definition id2 {A : Type} (a : A) : A :=
+    id a
 
     -- The following definition is type incorrect. It only type checks if
     -- we unfold id, but it is not allowed because the definition is opaque.
     /-
-    definition buggy_def (A : Type) (a : A) : Prop :=
-    ∀ (b : id Type A), a = b
+    definition buggy_def {A : Type} (a : A) : Prop :=
+    ∀ (b : id A), a = b
     -/
 #+END_SRC
 
@@ -87,9 +87,9 @@ unfold the opaque definition =id= to type check it.
 
 #+BEGIN_SRC lean
     import data.unit
-    opaque definition id (A : Type) (a : A) : A := a
+    opaque definition id {A : Type} (a : A) : A := a
     /-
-    theorem buggy_thm (a : unit) (b : id Type unit) : a = b :=
+    theorem buggy_thm (a : unit) (b : id unit) : a = b :=
     unit.equal a b
     -/
 #+END_SRC
@@ -99,8 +99,8 @@ transparent in this example.
 
 #+BEGIN_SRC lean
   import data.unit
-  definition id (A : Type) (a : A) : A := a
-  theorem simple (a : unit) (b : id Type unit) : a = b :=
+  definition id {A : Type} (a : A) : A := a
+  theorem simple (a : unit) (b : id unit) : a = b :=
   unit.equal a b
 #+END_SRC
 

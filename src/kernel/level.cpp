@@ -205,6 +205,11 @@ pair<level, unsigned> to_offset(level l) {
     return mk_pair(l, k);
 }
 
+unsigned to_explicit(level const & l) {
+    lean_assert(is_explicit(l));
+    return to_offset(l).second;
+}
+
 level mk_max(level const & l1, level const & l2)  {
     if (is_explicit(l1) && is_explicit(l2)) {
         return get_depth(l1) >= get_depth(l2) ? l1 : l2;

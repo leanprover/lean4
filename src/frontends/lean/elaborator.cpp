@@ -1051,6 +1051,15 @@ public:
                             return format("solution computed by the elaborator forces Type to be Prop");
                         });
                 }
+                if (is_explicit(r)) {
+                    throw_kernel_exception(env(), pre, [=](formatter const &) {
+                            unsigned u = to_explicit(r);
+                            format   r = format("solution computed by the elaborator forces Type to be Type.{");
+                            r += format(u);
+                            r += format("}, (possible solution: use Type')");
+                            return r;
+                        });
+                }
             }
         }
     }

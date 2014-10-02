@@ -26,7 +26,7 @@ trunc_S : trunc_index → trunc_index
 -- TODO: add coercions to / from nat
 
 -- TODO: note in the Coq version, there is an internal version
-definition IsTrunc (n : trunc_index) : Type → Type :=
+definition IsTrunc (n : trunc_index) : Type.{1} → Type.{1} :=
 trunc_index.rec (λA, Contr A) (λn trunc_n A, (Π(x y : A), trunc_n (x ≈ y))) n
 
 -- TODO: in the Coq version, this is notation

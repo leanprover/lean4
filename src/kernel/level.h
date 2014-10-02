@@ -114,7 +114,10 @@ name const & level_id(level const & l);
    2) l = succ(l') and l' is explicit
 */
 bool is_explicit(level const & l);
-
+/** \brief Convert an explicit universe into a unsigned integer.
+    \pre is_explicit(l)
+*/
+unsigned to_explicit(level const & l);
 /** \brief Return true iff \c l contains placeholder (aka meta parameters). */
 bool has_meta(level const & l);
 /** \brief Return true iff \c l contains globals */

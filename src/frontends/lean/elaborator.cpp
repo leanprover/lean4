@@ -49,6 +49,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/placeholder_elaborator.h"
 #include "frontends/lean/coercion_elaborator.h"
 #include "frontends/lean/proof_qed_elaborator.h"
+#include "frontends/lean/pp_options.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
@@ -604,9 +605,20 @@ public:
             });
     }
 
+    static bool contains_placeholder(level const & l) {
+        bool contains = false;
+        for_each(l, [&](level const & l) {
+                if (contains) return false;
+                if (is_placeholder(l))
+                    contains = true;
+                return true;
+            });
+        return contains;
+    }
+
     expr visit_sort(expr const & e) {
         expr r = update_sort(e, replace_univ_placeholder(sort_level(e)));
-        if (is_placeholder(sort_level(e)))
+        if (contains_placeholder(sort_level(e)))
             m_to_check_sorts.emplace_back(e, r);
         return r;
     }
@@ -1042,25 +1054,23 @@ public:
             expr pre  = p.first;
             expr post = p.second;
             lean_assert(is_sort(post));
-            level u   = sort_level(post);
-            lean_assert(is_meta(u));
-            if (s.is_assigned(u)) {
-                level r = *s.get_level(u);
-                if (is_zero(r)) {
-                    throw_kernel_exception(env(), pre, [=](formatter const &) {
-                            return format("solution computed by the elaborator forces Type to be Prop");
-                        });
-                }
-                if (is_explicit(r)) {
-                    throw_kernel_exception(env(), pre, [=](formatter const &) {
-                            unsigned u = to_explicit(r);
-                            format   r = format("solution computed by the elaborator forces Type to be Type.{");
-                            r += format(u);
-                            r += format("}, (possible solution: use Type')");
-                            return r;
-                        });
-                }
-            }
+            for_each(sort_level(post), [&](level const & u) {
+                    if (is_meta(u) && s.is_assigned(u)) {
+                        level r = *s.get_level(u);
+                        if (is_explicit(r)) {
+                            substitution saved_s(s);
+                            throw_kernel_exception(env(), pre, [=](formatter const & fmt) {
+                                    options o = fmt.get_options();
+                                    o  = o.update(get_pp_universes_option_name(), true);
+                                    format r("solution computed by the elaborator forces a universe placeholder"
+                                             " to be a fixed value, computed sort is");
+                                    r += pp_indent_expr(fmt.update_options(o), substitution(saved_s).instantiate(post));
+                                    return r;
+                                });
+                        }
+                    }
+                    return true;
+                });
         }
     }
 

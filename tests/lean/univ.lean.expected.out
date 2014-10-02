@@ -1,0 +1,13 @@
+univ.lean:5:9: error: solution computed by the elaborator forces a universe placeholder to be a fixed value, computed sort is
+  Type.{1}
+univ.lean:7:9: error: solution computed by the elaborator forces a universe placeholder to be a fixed value, computed sort is
+  Type.{1}
+id Type num : Type
+id Type num : Type
+univ.lean:13:9: error: solution computed by the elaborator forces a universe placeholder to be a fixed value, computed sort is
+  Type.{1}
+id Type num : Type
+univ.lean:17:9: error: solution computed by the elaborator forces a universe placeholder to be a fixed value, computed sort is
+  Type.{2}
+univ.lean:19:9: error: solution computed by the elaborator forces a universe placeholder to be a fixed value, computed sort is
+  Type.{2}

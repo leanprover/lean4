@@ -11,9 +11,9 @@ function init_env(env)
    local c   = Local("c", Prop)
    local Ha  = Local("Ha", a)
    local Hb  = Local("Hb", b)
-   env = add_decl(env, mk_var_decl("or",  mk_arrow(Prop, Prop, Prop)))
-   env = add_decl(env, mk_var_decl("not", mk_arrow(Prop, Prop)))
-   env = add_decl(env, mk_var_decl("false", Prop))
+   env = add_decl(env, mk_constant_assumption("or",  mk_arrow(Prop, Prop, Prop)))
+   env = add_decl(env, mk_constant_assumption("not", mk_arrow(Prop, Prop)))
+   env = add_decl(env, mk_constant_assumption("false", Prop))
    env = add_decl(env, mk_axiom({"or", "elim"}, Pi(a, b, c, mk_arrow(Or(a, b), mk_arrow(a, c), mk_arrow(b, c), c))))
    env = add_decl(env, mk_axiom({"or", "intro_left"}, Pi(a, Ha, b, Or(a, b))))
    env = add_decl(env, mk_axiom({"or", "intro_right"}, Pi(b, a, Hb, Or(a, b))))
@@ -23,7 +23,7 @@ end
 
 function decl_bools(env, ls)
    for i = 1, #ls do
-      env = add_decl(env, mk_var_decl(ls[i]:data(), Prop))
+      env = add_decl(env, mk_constant_assumption(ls[i]:data(), Prop))
    end
    return env
 end

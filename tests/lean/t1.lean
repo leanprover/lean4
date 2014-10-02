@@ -1,8 +1,7 @@
-
 (*
 print("testing...")
 local env = get_env()
-env = add_decl(env, mk_var_decl("x", Prop))
+env = add_decl(env, mk_constant_assumption("x", Prop))
 assert(env:find("x"))
 set_env(env)
 *)

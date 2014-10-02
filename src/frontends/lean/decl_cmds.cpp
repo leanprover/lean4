@@ -83,7 +83,7 @@ static environment declare_var(parser & p, environment env,
             env = module::add(env, check(env, mk_axiom(full_n, ls, type)));
             p.add_decl_index(full_n, pos, get_axiom_tk(), type);
         } else {
-            env = module::add(env, check(env, mk_var_decl(full_n, ls, type)));
+            env = module::add(env, check(env, mk_constant_assumption(full_n, ls, type)));
             p.add_decl_index(full_n, pos, get_variable_tk(), type);
         }
         if (!ns.is_anonymous())

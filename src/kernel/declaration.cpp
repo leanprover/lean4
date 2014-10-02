@@ -49,10 +49,10 @@ declaration::~declaration() { if (m_ptr) m_ptr->dec_ref(); }
 declaration & declaration::operator=(declaration const & s) { LEAN_COPY_REF(s); }
 declaration & declaration::operator=(declaration && s) { LEAN_MOVE_REF(s); }
 
-bool declaration::is_definition() const { return static_cast<bool>(m_ptr->m_value); }
-bool declaration::is_var_decl() const   { return !is_definition(); }
-bool declaration::is_axiom() const      { return is_var_decl() && m_ptr->m_theorem; }
-bool declaration::is_theorem() const    { return is_definition() && m_ptr->m_theorem; }
+bool declaration::is_definition() const    { return static_cast<bool>(m_ptr->m_value); }
+bool declaration::is_constant_assumption() const { return !is_definition(); }
+bool declaration::is_axiom() const         { return is_constant_assumption() && m_ptr->m_theorem; }
+bool declaration::is_theorem() const       { return is_definition() && m_ptr->m_theorem; }
 
 name const & declaration::get_name() const { return m_ptr->m_name; }
 level_param_names const & declaration::get_univ_params() const { return m_ptr->m_params; }
@@ -87,7 +87,7 @@ declaration mk_theorem(name const & n, level_param_names const & params, expr co
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
     return declaration(new declaration::cell(n, params, t, true));
 }
-declaration mk_var_decl(name const & n, level_param_names const & params, expr const & t) {
+declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t) {
     return declaration(new declaration::cell(n, params, t, false));
 }
 

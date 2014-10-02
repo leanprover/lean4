@@ -11,10 +11,10 @@ function test_unify(env, m, lhs, rhs, num_s)
 end
 
 local env = environment()
-env = add_decl(env, mk_var_decl("N", Type))
+env = add_decl(env, mk_constant_assumption("N", Type))
 local N = Const("N")
-env = add_decl(env, mk_var_decl("f", mk_arrow(N, N, N)))
-env = add_decl(env, mk_var_decl("a", N))
+env = add_decl(env, mk_constant_assumption("f", mk_arrow(N, N, N)))
+env = add_decl(env, mk_constant_assumption("a", N))
 local f  = Const("f")
 local a  = Const("a")
 local l1 = mk_local("l1", "x", N)

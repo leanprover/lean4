@@ -36,7 +36,7 @@ environment declare_sorry(environment const & env) {
             throw exception("failed to declare 'sorry', environment already has an object named 'sorry'");
         return env;
     } else {
-        return module::add(env, check(env, mk_var_decl(*g_sorry_name, list<name>(*g_l), *g_sorry_type)));
+        return module::add(env, check(env, mk_constant_assumption(*g_sorry_name, list<name>(*g_l), *g_sorry_type)));
     }
 }
 

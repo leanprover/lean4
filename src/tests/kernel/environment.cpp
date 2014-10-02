@@ -86,7 +86,7 @@ static void tst2() {
     environment env;
     name base("base");
     expr Prop = mk_Prop();
-    env = add_decl(env, mk_var_decl(name(base, 0u), level_param_names(), Prop >> (Prop >> Prop)));
+    env = add_decl(env, mk_constant_assumption(name(base, 0u), level_param_names(), Prop >> (Prop >> Prop)));
     expr x = Local("x", Prop);
     expr y = Local("y", Prop);
     for (unsigned i = 1; i <= 100; i++) {

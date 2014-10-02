@@ -1,6 +1,6 @@
 local env = bare_environment()
-env = add_decl(env, mk_var_decl("or", mk_arrow(Prop, Prop, Prop)))
-env = add_decl(env, mk_var_decl("A", Prop))
+env = add_decl(env, mk_constant_assumption("or", mk_arrow(Prop, Prop, Prop)))
+env = add_decl(env, mk_constant_assumption("A", Prop))
 local Or = Const("or")
 local A  = Const("A")
 local B  = Const("B")

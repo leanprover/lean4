@@ -1,5 +1,5 @@
 local env = bare_environment()
-env = add_decl(env, mk_var_decl("f", mk_arrow(Prop, mk_arrow(Prop, Prop))))
+env = add_decl(env, mk_constant_assumption("f", mk_arrow(Prop, mk_arrow(Prop, Prop))))
 local f   = Const("f")
 local x   = Local("x", Prop)
 local y   = Local("y", Prop)

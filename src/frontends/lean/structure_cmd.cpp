@@ -191,7 +191,7 @@ struct structure_cmd_fn {
     }
 
     void add_tmp_record_decl() {
-        m_env = m_env.add(check(m_env, mk_var_decl(m_name, to_list(m_level_names.begin(), m_level_names.end()), m_type)));
+        m_env = m_env.add(check(m_env, mk_constant_assumption(m_name, to_list(m_level_names.begin(), m_level_names.end()), m_type)));
     }
 
     levels to_levels(buffer<name> const & lvl_names) {

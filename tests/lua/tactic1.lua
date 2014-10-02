@@ -1,6 +1,6 @@
 local env = environment()
 local A = Local("A", Type)
-env = add_decl(env, mk_var_decl("eq", Pi(A, mk_arrow(A, A, Prop))))
+env = add_decl(env, mk_constant_assumption("eq", Pi(A, mk_arrow(A, A, Prop))))
 local eq = Const("eq")
 local a  = Local("a", A)
 local b  = Local("b", A)

@@ -1,5 +1,5 @@
 local env = bare_environment()
-env = add_decl(env, mk_var_decl("A", Prop))
+env = add_decl(env, mk_constant_assumption("A", Prop))
 local A   = Const("A")
 local x   = Local("x", Prop)
 env = add_decl(env, mk_axiom("magic", Pi(x, x)))

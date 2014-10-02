@@ -57,7 +57,7 @@ public:
     bool is_definition() const;
     bool is_axiom() const;
     bool is_theorem() const;
-    bool is_var_decl() const;
+    bool is_constant_assumption() const;
 
     name const & get_name() const;
     level_param_names const & get_univ_params() const;
@@ -75,7 +75,7 @@ public:
                                     unsigned weight, module_idx mod_idx, bool use_conv_opt);
     friend declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, module_idx mod_idx);
     friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
-    friend declaration mk_var_decl(name const & n, level_param_names const & params, expr const & t);
+    friend declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t);
 };
 
 inline optional<declaration> none_declaration() { return optional<declaration>(); }
@@ -88,7 +88,7 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
                          bool opaque = false, module_idx mod_idx = 0, bool use_conv_opt = true);
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, module_idx mod_idx = 0);
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
-declaration mk_var_decl(name const & n, level_param_names const & params, expr const & t);
+declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t);
 
 void initialize_declaration();
 void finalize_declaration();

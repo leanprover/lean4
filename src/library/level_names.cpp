@@ -100,7 +100,7 @@ declaration sanitize_level_params(declaration const & d) {
     if (param_name_map.empty())
         return d;
     expr new_type = rename_param_levels(d.get_type(), param_name_map);
-    if (d.is_var_decl()) {
+    if (d.is_constant_assumption()) {
         return update_declaration(d, new_ls, new_type);
     } else {
         expr new_value = rename_param_levels(d.get_value(), param_name_map);

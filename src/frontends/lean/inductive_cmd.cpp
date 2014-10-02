@@ -473,7 +473,7 @@ struct inductive_cmd_fn {
         for (auto const & d : decls) {
             name d_name; expr d_type;
             std::tie(d_name, d_type, std::ignore) = d;
-            m_env = m_env.add(check(m_env, mk_var_decl(d_name, ls, d_type)));
+            m_env = m_env.add(check(m_env, mk_constant_assumption(d_name, ls, d_type)));
         }
         m_tc = mk_type_checker(m_env, m_p.mk_ngen(), false);
     }

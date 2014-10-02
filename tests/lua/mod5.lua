@@ -15,8 +15,8 @@ function mk_module(midx, imports)
    end
    local env   = import_modules(imp_names, {num_threads=NumThreads})
    if #imports == 0 then
-      env = add_decl(env, mk_var_decl(const_name(midx), Prop))
-      env = add_decl(env, mk_var_decl("and", mk_arrow(Prop, Prop, Prop)))
+      env = add_decl(env, mk_constant_assumption(const_name(midx), Prop))
+      env = add_decl(env, mk_constant_assumption("and", mk_arrow(Prop, Prop, Prop)))
    elseif #imports == 1 then
       env = add_decl(env, mk_definition(const_name(midx), Prop, Const(const_name(imports[1]))))
    else

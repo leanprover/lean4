@@ -314,7 +314,7 @@ declaration read_declaration(deserializer & d, module_idx midx) {
         if (is_th_ax)
             return mk_axiom(n, ps, t);
         else
-            return mk_var_decl(n, ps, t);
+            return mk_constant_assumption(n, ps, t);
     }
 }
 

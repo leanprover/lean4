@@ -1,5 +1,5 @@
 local env1 = bare_environment()
-local env2 = add_decl(env1, mk_var_decl("A", Type))
+local env2 = add_decl(env1, mk_constant_assumption("A", Type))
 assert(env2:is_descendant(env1))
 assert(env2:is_descendant(env2))
 assert(not env1:is_descendant(env2))

@@ -1,6 +1,6 @@
 function init(env)
-   env = add_decl(env, mk_var_decl("A", Prop))
-   env = add_decl(env, mk_var_decl("And", mk_arrow(Prop, mk_arrow(Prop, Prop))))
+   env = add_decl(env, mk_constant_assumption("A", Prop))
+   env = add_decl(env, mk_constant_assumption("And", mk_arrow(Prop, mk_arrow(Prop, Prop))))
    env = add_decl(env, mk_axiom("p", Const("A")))
    env = add_decl(env, mk_axiom("q", Const("A")))
    return env
@@ -18,4 +18,3 @@ env = init(bare_environment({prop_proof_irrel=false}))
 t   = type_checker(env)
 assert(not t:is_def_eq(p, q))
 assert(not t:is_def_eq(And(p, q), And(q, p)))
-

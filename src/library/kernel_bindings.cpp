@@ -746,7 +746,7 @@ int push_optional_declaration(lua_State * L, optional<declaration> const & e) { 
 DECLARATION_PRED(is_definition)
 DECLARATION_PRED(is_theorem)
 DECLARATION_PRED(is_axiom)
-DECLARATION_PRED(is_var_decl)
+DECLARATION_PRED(is_constant_assumption)
 DECLARATION_PRED(is_opaque)
 DECLARATION_PRED(use_conv_opt)
 static int declaration_get_name(lua_State * L) { return push_name(L, to_declaration(L, 1).get_name()); }
@@ -759,12 +759,12 @@ static int declaration_get_value(lua_State * L) {
 }
 static int declaration_get_weight(lua_State * L) { return push_integer(L, to_declaration(L, 1).get_weight()); }
 static int declaration_get_module_idx(lua_State * L) { return push_integer(L, to_declaration(L, 1).get_module_idx()); }
-static int mk_var_decl(lua_State * L) {
+static int mk_constant_assumption(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2)
-        return push_declaration(L, mk_var_decl(to_name_ext(L, 1), level_param_names(), to_expr(L, 2)));
+        return push_declaration(L, mk_constant_assumption(to_name_ext(L, 1), level_param_names(), to_expr(L, 2)));
     else
-        return push_declaration(L, mk_var_decl(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3)));
+        return push_declaration(L, mk_constant_assumption(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3)));
 }
 static int mk_axiom(lua_State * L) {
     int nargs = lua_gettop(L);
@@ -821,7 +821,7 @@ static const struct luaL_Reg declaration_m[] = {
     {"is_definition",    safe_function<declaration_is_definition>},
     {"is_theorem",       safe_function<declaration_is_theorem>},
     {"is_axiom",         safe_function<declaration_is_axiom>},
-    {"is_var_decl",      safe_function<declaration_is_var_decl>},
+    {"is_constant_assumption", safe_function<declaration_is_constant_assumption>},
     {"opaque",           safe_function<declaration_is_opaque>},
     {"use_conv_opt",     safe_function<declaration_use_conv_opt>},
     {"name",             safe_function<declaration_get_name>},
@@ -839,11 +839,11 @@ static void open_declaration(lua_State * L) {
     lua_setfield(L, -2, "__index");
     setfuncs(L, declaration_m, 0);
 
-    SET_GLOBAL_FUN(declaration_pred, "is_declaration");
-    SET_GLOBAL_FUN(mk_var_decl,      "mk_var_decl");
-    SET_GLOBAL_FUN(mk_axiom,         "mk_axiom");
-    SET_GLOBAL_FUN(mk_theorem,       "mk_theorem");
-    SET_GLOBAL_FUN(mk_definition,    "mk_definition");
+    SET_GLOBAL_FUN(declaration_pred,       "is_declaration");
+    SET_GLOBAL_FUN(mk_constant_assumption, "mk_constant_assumption");
+    SET_GLOBAL_FUN(mk_axiom,               "mk_axiom");
+    SET_GLOBAL_FUN(mk_theorem,             "mk_theorem");
+    SET_GLOBAL_FUN(mk_definition,          "mk_definition");
 }
 
 // Formatter

@@ -290,7 +290,7 @@ struct add_inductive_fn {
     /** \brief Add all datatype declarations to environment. */
     void declare_inductive_types() {
         for (auto d : m_decls) {
-            m_env = m_env.add(check(m_env, mk_var_decl(inductive_decl_name(d), m_level_names, inductive_decl_type(d))));
+            m_env = m_env.add(check(m_env, mk_constant_assumption(inductive_decl_name(d), m_level_names, inductive_decl_type(d))));
         }
         inductive_env_ext ext(get_extension(m_env));
         ext.add_inductive_info(m_level_names, m_num_params, m_decls);
@@ -436,7 +436,7 @@ struct add_inductive_fn {
         inductive_env_ext ext(get_extension(m_env));
         for (auto d : m_decls) {
             for (auto ir : inductive_decl_intros(d)) {
-                m_env = m_env.add(check(m_env, mk_var_decl(intro_rule_name(ir), m_level_names, intro_rule_type(ir))));
+                m_env = m_env.add(check(m_env, mk_constant_assumption(intro_rule_name(ir), m_level_names, intro_rule_type(ir))));
                 ext.add_intro_info(intro_rule_name(ir), inductive_decl_name(d));
             }
         }
@@ -649,7 +649,7 @@ struct add_inductive_fn {
         }
         elim_ty   = Pi(m_param_consts, elim_ty);
         elim_ty   = infer_implicit(elim_ty, true /* strict */);
-        m_env = m_env.add(check(m_env, mk_var_decl(get_elim_name(d), get_elim_level_param_names(), elim_ty)));
+        m_env = m_env.add(check(m_env, mk_constant_assumption(get_elim_name(d), get_elim_level_param_names(), elim_ty)));
     }
 
     /** \brief Declare the eliminator/recursor for each datatype. */

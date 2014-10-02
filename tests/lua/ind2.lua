@@ -95,7 +95,7 @@ bad_add_inductive(env,
                   "cons", Pi(A, mk_arrow(list_l(A), A, list_l(A))))
 
 local A = Local("A", Type)
-env = add_decl(env, mk_var_decl("eq", Pi(A, mk_arrow(A, A, Prop))))
+env = add_decl(env, mk_constant_assumption("eq", Pi(A, mk_arrow(A, A, Prop))))
 local eq   = Const("eq")
 local Nat2 = Const("nat2")
 local a    = Local("a", Nat2)

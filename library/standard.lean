@@ -7,4 +7,4 @@
 
 -- The constructive core of Lean's library.
 
-import logic data tools.tactic
+import type logic data tools.tactic

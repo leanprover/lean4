@@ -369,15 +369,21 @@ environment theorem_cmd(parser & p) {
 }
 environment private_definition_cmd(parser & p) {
     bool is_theorem = false;
-    if (p.curr_is_token_or_id(get_definition_tk())) {
+    bool is_opaque  = false;
+    if (p.curr_is_token_or_id(get_opaque_tk())) {
+        is_opaque = true;
+        p.next();
+        p.check_token_next(get_definition_tk(), "invalid 'private' definition, 'definition' expected");
+    } else if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
     } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
         is_theorem = true;
+        is_opaque  = true;
     } else {
         throw parser_error("invalid 'private' definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
-    return definition_cmd_core(p, is_theorem, true, true, false);
+    return definition_cmd_core(p, is_theorem, is_opaque, true, false);
 }
 environment protected_definition_cmd(parser & p) {
     bool is_theorem = false;

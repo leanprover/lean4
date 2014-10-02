@@ -123,7 +123,7 @@
            word-end)
       . 'font-lock-constant-face)
      ;; Types
-     (,(rx word-start (or "bool" "int" "nat" "real" "Prop" "Type" "ℕ" "ℤ") word-end) . 'font-lock-type-face)
+     (,(rx word-start (or "bool" "int" "nat" "real" "Prop" "Type" "Type'" "ℕ" "ℤ") word-end) . 'font-lock-type-face)
      ;; sorry
      (,(rx word-start "sorry" word-end) . 'font-lock-warning-face)
      ;; extra-keywords

@@ -9,7 +9,7 @@ import logic tools.tactic ..subtype logic.core.cast algebra.relation data.prod
 import logic.core.instances
 import .util
 
-open relation prod inhabited nonempty tactic eq_ops
+open relation prod inhabited nonempty tactic eq.ops
 open subtype relation.iff_ops
 
 namespace quotient
@@ -225,7 +225,7 @@ theorem image_tag {A B : Type} {f : A → B} (u : image f) : ∃a H, tag (f a) H
 obtain a (H : fun_image f a = u), from fun_image_surj u,
 exists_intro a (exists_intro (exists_intro a rfl) H)
 
-open eq_ops
+open eq.ops
 
 theorem fun_image_eq {A B : Type} (f : A → B) (a a' : A)
   : (f a = f a') ↔ (fun_image f a = fun_image f a') :=

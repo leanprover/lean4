@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 import logic.core.eq
-open eq_ops
+open eq.ops
 
 namespace binary
   context

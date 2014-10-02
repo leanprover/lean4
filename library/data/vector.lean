@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn
 import data.nat.basic data.empty
-open nat eq_ops
+open nat eq.ops
 
 inductive vector (T : Type) : ℕ → Type :=
   nil {} : vector T 0,

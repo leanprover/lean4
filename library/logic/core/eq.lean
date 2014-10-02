@@ -36,18 +36,19 @@ namespace eq
 
   theorem symm {A : Type} {a b : A} (H : a = b) : b = a :=
   subst H (refl a)
+
+  namespace ops
+    postfix `⁻¹` := symm
+    infixr `⬝`   := trans
+    infixr `▸`   := subst
+  end ops
 end eq
 
 calc_subst eq.subst
 calc_refl  eq.refl
 calc_trans eq.trans
 
-namespace eq_ops
-  postfix `⁻¹` := eq.symm
-  infixr `⬝`   := eq.trans
-  infixr `▸`   := eq.subst
-end eq_ops
-open eq_ops
+open eq.ops
 
 namespace eq
   -- eq_rec with arguments swapped, for transporting an element of a dependent type

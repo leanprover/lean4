@@ -15,7 +15,7 @@ import logic tools.helper_tactics
 import logic.core.identities
 
 open nat
-open eq_ops
+open eq.ops
 open helper_tactics
 
 inductive list (T : Type) : Type :=

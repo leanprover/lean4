@@ -12,7 +12,7 @@ import .basic
 open nat (hiding case)
 open decidable
 open fake_simplifier
-open int eq_ops
+open int eq.ops
 
 namespace int
 

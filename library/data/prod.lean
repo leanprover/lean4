@@ -37,7 +37,7 @@ section
   theorem prod_ext (p : prod A B) : pair (pr1 p) (pr2 p) = p :=
   destruct p (λx y, eq.refl (x, y))
 
-  open eq_ops
+  open eq.ops
 
   theorem pair_eq {a1 a2 : A} {b1 b2 : B} (H1 : a1 = a2) (H2 : b1 = b2) : (a1, b1) = (a2, b2) :=
   H1 ▸ H2 ▸ rfl

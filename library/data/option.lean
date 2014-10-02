@@ -3,7 +3,7 @@
 -- Author: Leonardo de Moura
 
 import logic.core.eq logic.core.inhabited logic.core.decidable
-open eq_ops decidable
+open eq.ops decidable
 
 inductive option (A : Type) : Type :=
   none {} : option A,

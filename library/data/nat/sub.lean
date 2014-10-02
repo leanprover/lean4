@@ -10,7 +10,7 @@
 import data.nat.order
 import tools.fake_simplifier
 
-open nat eq_ops tactic
+open nat eq.ops tactic
 open helper_tactics
 open fake_simplifier
 

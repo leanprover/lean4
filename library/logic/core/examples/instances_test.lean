@@ -7,7 +7,7 @@ import ..instances
 open relation
 open relation.general_operations
 open relation.iff_ops
-open eq_ops
+open eq.ops
 
 section
 

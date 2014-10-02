@@ -4,7 +4,7 @@
 --- Author: Jeremy Avigad, Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
 import data.bool
-open eq_ops bool
+open eq.ops bool
 
 namespace set
 definition set (T : Type) :=

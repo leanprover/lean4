@@ -14,7 +14,7 @@ import tools.fake_simplifier
 open nat
 open quotient subtype prod relation
 open decidable binary fake_simplifier
-open eq_ops
+open eq.ops
 
 namespace int
 -- ## The defining equivalence relation on ℕ × ℕ

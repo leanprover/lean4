@@ -155,7 +155,7 @@ end iff
 calc_refl iff.refl
 calc_trans iff.trans
 
-open eq_ops
+open eq.ops
 
 theorem eq_to_iff {a b : Prop} (H : a = b) : a ↔ b :=
 iff.intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)

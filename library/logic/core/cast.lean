@@ -7,7 +7,7 @@
 
 import .eq .quantifiers
 
-open eq_ops
+open eq.ops
 
 definition cast {A B : Type} (H : A = B) (a : A) : B :=
 eq.rec a H

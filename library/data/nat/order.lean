@@ -10,7 +10,7 @@
 import .basic logic.core.decidable
 import tools.fake_simplifier
 
-open nat eq_ops tactic
+open nat eq.ops tactic
 open fake_simplifier
 
 namespace nat

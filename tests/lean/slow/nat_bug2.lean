@@ -4,7 +4,7 @@
 -- Author: Floris van Doorn
 ----------------------------------------------------------------------------------------------------
 import logic algebra.binary
-open tactic binary eq_ops eq
+open tactic binary eq.ops eq
 open decidable
 
 definition refl := @eq.refl

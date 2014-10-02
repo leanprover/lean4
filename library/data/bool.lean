@@ -4,7 +4,7 @@
 import general_notation
 import logic.core.connectives logic.core.decidable logic.core.inhabited
 
-open eq_ops eq decidable
+open eq eq.ops decidable
 
 inductive bool : Type :=
   ff : bool,

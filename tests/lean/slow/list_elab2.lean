@@ -14,7 +14,7 @@ import logic data.nat
 
 open nat
 -- open congr
-open eq_ops eq
+open eq.ops eq
 
 inductive list (T : Type) : Type :=
 nil {} : list T,

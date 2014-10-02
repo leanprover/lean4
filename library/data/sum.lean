@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura, Jeremy Avigad
 import logic.core.prop logic.core.inhabited logic.core.decidable
-open inhabited decidable eq_ops
+open inhabited decidable eq.ops
 -- data.sum
 -- ========
 -- The sum type, aka disjoint union.

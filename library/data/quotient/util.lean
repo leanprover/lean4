@@ -5,7 +5,7 @@
 import logic ..prod algebra.relation
 import tools.fake_simplifier
 
-open prod eq_ops
+open prod eq.ops
 open fake_simplifier
 
 namespace quotient

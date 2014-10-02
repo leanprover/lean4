@@ -7,7 +7,7 @@
 
 import logic.core.quantifiers logic.core.cast algebra.relation
 
-open eq_ops
+open eq.ops
 
 axiom prop_complete (a : Prop) : a = true ∨ a = false
 

@@ -8,7 +8,7 @@ import data.unit data.sigma data.prod
 import algebra.function
 import logic.axioms.funext
 
-open eq eq_ops
+open eq eq.ops
 
 inductive category [class] (ob : Type) : Type :=
 mk : Π (mor : ob → ob → Type) (comp : Π⦃A B C : ob⦄, mor B C → mor A B → mor A C)
@@ -476,7 +476,7 @@ namespace category
   end product
 
   section arrow
-  open sigma eq_ops
+  open sigma eq.ops
   -- theorem concat_commutative_squares {ob : Type} {C : category ob} {a1 a2 a3 b1 b2 b3 : ob}
   --     {f1 : a1 => b1} {f2 : a2 => b2} {f3 : a3 => b3} {g2 : a2 => a3} {g1 : a1 => a2}
   --     {h2 : b2 => b3} {h1 : b1 => b2} (H1 : f2 ∘ g1 = h1 ∘ f1) (H2 : f3 ∘ g2 = h2 ∘ f2)

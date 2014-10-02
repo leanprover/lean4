@@ -42,7 +42,6 @@ opaque definition exact       {B : Type} (b : B) : tactic := builtin
 opaque definition trace       (s : string) : tactic := builtin
 precedence `;`:200
 infixl ; := and_then
-notation `!` t:max     := repeat t
 -- [ t_1 | ... | t_n ] notation
 notation `[` h:100 `|` r:(foldl 100 `|` (e r, or_else r e) h) `]` := r
 -- [ t_1 || ... || t_n ] notation

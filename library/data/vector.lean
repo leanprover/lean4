@@ -81,14 +81,14 @@ namespace vector
   cast (congr_arg P H) B
 
   definition concat {n m : ℕ} (v : vector T n) (w : vector T m) : vector T (n + m) :=
-  vector.rec (cast_subst (add_zero_left⁻¹) w) (λx n w' u, cast_subst (add_succ_left⁻¹) (x::u)) v
+  vector.rec (cast_subst (!add.zero_left⁻¹) w) (λx n w' u, cast_subst (!add.succ_left⁻¹) (x::u)) v
 
   infixl `++`:65 := concat
 
-  theorem nil_concat {n : ℕ} (v : vector T n) : nil ++ v = cast_subst (add_zero_left⁻¹) v := rfl
+  theorem nil_concat {n : ℕ} (v : vector T n) : nil ++ v = cast_subst (!add.zero_left⁻¹) v := rfl
 
   theorem cons_concat {n m : ℕ} (x : T) (v : vector T n) (w : vector T m)
-    : (x :: v) ++ w = cast_subst (add_succ_left⁻¹) (x::(v++w)) := rfl
+    : (x :: v) ++ w = cast_subst (!add.succ_left⁻¹) (x::(v++w)) := rfl
 
 /-
   theorem cons_concat (x : T) (s t : list T) : (x :: s) ++ t = x :: (s ++ t) := refl _

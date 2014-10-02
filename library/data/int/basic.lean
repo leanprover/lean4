@@ -28,13 +28,13 @@ H
 -- add_rewrite rel_comp --local
 
 theorem rel_refl {a : ℕ × ℕ} : rel a a :=
-add_comm
+!add.comm
 
 theorem rel_symm {a b : ℕ × ℕ} (H : rel a b) : rel b a :=
 calc
-  pr1 b + pr2 a = pr2 a + pr1 b : add_comm
+  pr1 b + pr2 a = pr2 a + pr1 b : !add.comm
     ... = pr1 a + pr2 b         : H⁻¹
-    ... = pr2 b + pr1 a         : add_comm
+    ... = pr2 b + pr1 a         : !add.comm
 
 theorem rel_trans {a b c : ℕ × ℕ} (H1 : rel a b) (H2 : rel b c) : rel a c :=
 have H3 : pr1 a + pr2 c + pr2 b = pr2 a + pr1 c + pr2 b, from
@@ -44,7 +44,7 @@ have H3 : pr1 a + pr2 c + pr2 b = pr2 a + pr1 c + pr2 b, from
     ... = pr2 a + (pr1 b + pr2 c)                : by simp
     ... = pr2 a + (pr2 b + pr1 c)                : {H2}
     ... = pr2 a + pr1 c + pr2 b                  : by simp,
-show pr1 a + pr2 c = pr2 a + pr1 c, from add_cancel_right H3
+show pr1 a + pr2 c = pr2 a + pr1 c, from add.cancel_right H3
 
 theorem rel_equiv : is_equivalence rel :=
 is_equivalence.mk
@@ -133,14 +133,14 @@ or.elim le_total
   (assume H : pr2 a ≤ pr1 a,
     calc
       pr1 a + pr2 (proj a) = pr1 a + 0 : {proj_ge_pr2 H}
-        ... = pr1 a                    : add_zero_right
+        ... = pr1 a                    : !add.zero_right
         ... = pr2 a + (pr1 a - pr2 a)  : (add_sub_le H)⁻¹
         ... = pr2 a + pr1 (proj a)     : {(proj_ge_pr1 H)⁻¹})
   (assume H : pr1 a ≤ pr2 a,
     calc
       pr1 a + pr2 (proj a) = pr1 a + (pr2 a - pr1 a) : {proj_le_pr2 H}
         ... = pr2 a                                  : add_sub_le H
-        ... = pr2 a + 0                              : add_zero_right⁻¹
+        ... = pr2 a + 0                              : !add.zero_right⁻¹
         ... = pr2 a + pr1 (proj a)                   : {(proj_le_pr1 H)⁻¹})
 
 theorem proj_congr {a b : ℕ × ℕ} (H : rel a b) : proj a = proj b :=
@@ -296,7 +296,7 @@ have H5 : n + m = 0, from
     n + m = pr1 (pair n 0) + pr2 (pair 0 m) : by simp
       ... = pr2 (pair n 0) + pr1 (pair 0 m) : H4
       ... = 0                               : by simp,
- add_eq_zero H5
+ add.eq_zero H5
 
 -- add_rewrite to_nat_neg
 
@@ -591,7 +591,7 @@ have H3 : xa * xn + ya * yn + (xb * ym + yb * xm) + (yb * xn + xb * yn + (xb * x
             : by simp
       ... = xa * yn + ya * xn + (xb * xm + yb * ym) + (yb * xn + xb * yn + (xb * xn + yb * yn))
             : by simp,
-nat.add_cancel_right H3
+nat.add.cancel_right H3
 
 theorem rel_mul {u u' v v' : ℕ × ℕ} (H1 : rel u u') (H2 : rel v v') :
   rel (pair (pr1 u * pr1 v + pr2 u * pr2 v) (pr1 u * pr2 v + pr2 u * pr1 v))
@@ -713,7 +713,7 @@ have H2 : (to_nat a) * (to_nat b) = 0, from
     (to_nat a) * (to_nat b) = (to_nat (a * b)) : (mul_to_nat a b)⁻¹
       ... = (to_nat 0) : {H}
       ... = 0 : to_nat_of_nat 0,
-have H3 : (to_nat a) = 0 ∨ (to_nat b) = 0, from mul_eq_zero H2,
+have H3 : (to_nat a) = 0 ∨ (to_nat b) = 0, from mul.eq_zero H2,
 or.imp_or H3
   (assume H : (to_nat a) = 0, to_nat_eq_zero H)
   (assume H : (to_nat b) = 0, to_nat_eq_zero H)

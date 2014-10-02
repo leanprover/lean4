@@ -306,7 +306,7 @@ case_zero_pos n (by simp)
 -- add_rewrite mod_mul_self_right
 
 theorem mod_mul_self_left {m n : ℕ} : (m * n) mod m = 0 :=
-mul_comm ▸ mod_mul_self_right
+!mul.comm ▸ mod_mul_self_right
 
 -- add_rewrite mod_mul_self_left
 
@@ -333,8 +333,8 @@ theorem div_mod_eq {x y : ℕ} : x = x div y * y + x mod y :=
 case_zero_pos y
   (show x = x div 0 * 0 + x mod 0, from
     (calc
-      x div 0 * 0 + x mod 0 = 0 + x mod 0 : {mul_zero_right}
-        ... = x mod 0 : add_zero_left
+      x div 0 * 0 + x mod 0 = 0 + x mod 0 : {!mul.zero_right}
+        ... = x mod 0 : !add.zero_left
         ... = x : mod_zero)⁻¹)
   (take y,
     assume H : y > 0,
@@ -358,9 +358,9 @@ case_zero_pos y
                 (calc
                   succ x div y * y + succ x mod y = succ ((succ x - y) div y) * y + succ x mod y :
                       {H3}
-                    ... = ((succ x - y) div y) * y + y + succ x mod y : {mul_succ_left}
+                    ... = ((succ x - y) div y) * y + y + succ x mod y : {!mul.succ_left}
                     ... = ((succ x - y) div y) * y + y + (succ x - y) mod y : {H4}
-                    ... = ((succ x - y) div y) * y + (succ x - y) mod y + y : add_right_comm
+                    ... = ((succ x - y) div y) * y + (succ x - y) mod y + y : !add.right_comm
                     ... = succ x - y + y : {(IH _ H6)⁻¹}
                     ... = succ x : add_sub_ge_left H2)⁻¹)))
 
@@ -373,7 +373,7 @@ theorem remainder_unique {y : ℕ} (H : y > 0) {q1 r1 q2 r2 : ℕ} (H1 : r1 < y)
 calc
   r1 = r1 mod y : by simp
     ... = (r1 + q1 * y) mod y : (mod_add_mul_self_right H)⁻¹
-    ... = (q1 * y + r1) mod y : {add_comm}
+    ... = (q1 * y + r1) mod y : {!add.comm}
     ... = (r2 + q2 * y) mod y : by simp
     ... = r2 mod y            : mod_add_mul_self_right H
     ... = r2                  : by simp
@@ -381,7 +381,7 @@ calc
 theorem quotient_unique {y : ℕ} (H : y > 0) {q1 r1 q2 r2 : ℕ} (H1 : r1 < y) (H2 : r2 < y)
   (H3 : q1 * y + r1 = q2 * y + r2) : q1 = q2 :=
 have H4 : q1 * y + r2 = q2 * y + r2, from (remainder_unique H H1 H2 H3) ▸ H3,
-have H5 : q1 * y = q2 * y, from add_cancel_right H4,
+have H5 : q1 * y = q2 * y, from add.cancel_right H4,
 have H6 : y > 0, from le_lt_trans zero_le H1,
 show q1 = q2, from mul_cancel_right H6 H5
 
@@ -397,8 +397,8 @@ by_cases -- (y = 0)
       (calc
         ((z * x) div (z * y)) * (z * y) + (z * x) mod (z * y) = z * x : div_mod_eq⁻¹
           ... = z * (x div y * y + x mod y)                           : {div_mod_eq}
-          ... = z * (x div y * y) + z * (x mod y)                     : mul_distr_left
-          ... = (x div y) * (z * y) + z * (x mod y)                   : {mul_left_comm}))
+          ... = z * (x div y * y) + z * (x mod y)                     : !mul.distr_left
+          ... = (x div y) * (z * y) + z * (x mod y)                   : {!mul.left_comm}))
 --- something wrong with the term order
 ---            ... = (x div y) * (z * y) + z * (x mod y) : by simp))
 
@@ -414,8 +414,8 @@ by_cases -- (y = 0)
       (calc
         ((z * x) div (z * y)) * (z * y) + (z * x) mod (z * y) = z * x : div_mod_eq⁻¹
           ... = z * (x div y * y + x mod y) : {div_mod_eq}
-          ... = z * (x div y * y) + z * (x mod y) : mul_distr_left
-          ... = (x div y) * (z * y) + z * (x mod y) : {mul_left_comm}))
+          ... = z * (x div y * y) + z * (x mod y) : !mul.distr_left
+          ... = (x div y) * (z * y) + z * (x mod y) : {!mul.left_comm}))
 
 theorem mod_one {x : ℕ} : x mod 1 = 0 :=
 have H1 : x mod 1 < 1, from mod_lt succ_pos,
@@ -458,13 +458,13 @@ theorem dvd_imp_div_mul_eq {x y : ℕ} (H : y | x) : x div y * y = x :=
 (calc
   x = x div y * y + x mod y : div_mod_eq
     ... = x div y * y + 0 : {mp dvd_iff_mod_eq_zero H}
-    ... = x div y * y : add_zero_right)⁻¹
+    ... = x div y * y : !add.zero_right)⁻¹
 
 -- add_rewrite dvd_imp_div_mul_eq
 
 theorem mul_eq_imp_dvd {z x y : ℕ} (H : z * y = x) :  y | x :=
 have H1 : z * y = x mod y + x div y * y, from
-  H ⬝ div_mod_eq ⬝ add_comm,
+  H ⬝ div_mod_eq ⬝ !add.comm,
 have H2 : (z - x div y) * y = x mod y, from
   calc
     (z - x div y) * y = z * y - x div y * y      : mul_sub_distr_right
@@ -477,7 +477,7 @@ show x mod y = 0, from
         calc
           x = z * y     : H⁻¹
             ... = z * 0 : {yz}
-            ... = 0     : mul_zero_right,
+            ... = 0     : !mul.zero_right,
       calc
         x mod y = x mod 0 : {yz}
           ... = x         : mod_zero
@@ -485,13 +485,13 @@ show x mod y = 0, from
     (assume ynz : y ≠ 0,
       have ypos : y > 0, from ne_zero_imp_pos ynz,
       have H3 : (z - x div y) * y < y, from H2⁻¹ ▸ mod_lt ypos,
-      have H4 : (z - x div y) * y < 1 * y, from mul_one_left⁻¹ ▸ H3,
+      have H4 : (z - x div y) * y < 1 * y, from !mul.one_left⁻¹ ▸ H3,
       have H5 : z - x div y < 1, from mul_lt_cancel_right H4,
       have H6 : z - x div y = 0, from le_zero (lt_succ_imp_le H5),
       calc
         x mod y = (z - x div y) * y : H2⁻¹
             ... = 0 * y : {H6}
-            ... = 0 : mul_zero_left)
+            ... = 0 : !mul.zero_left)
 
 theorem dvd_iff_exists_mul {x y : ℕ} : x | y ↔ ∃z, z * x = y :=
 iff.intro
@@ -537,7 +537,7 @@ have H4 : k = k div n * (n div m) * m, from
   calc
     k = k div n * n : by simp
       ... = k div n * (n div m * m) : {H3}
-      ... = k div n * (n div m) * m : mul_assoc⁻¹,
+      ... = k div n * (n div m) * m : !mul.assoc⁻¹,
 mp (dvd_iff_exists_mul⁻¹) (exists_intro (k div n * (n div m)) (H4⁻¹))
 
 theorem dvd_add {m n1 n2 : ℕ} (H1 : m | n1) (H2 : m | n2) : m | (n1 + n2) :=
@@ -560,16 +560,16 @@ case_zero_pos m
      calc
        n1 + n2 = (n1 + n2) div m * m : by simp
          ... = (n1 div m * m + n2) div m * m : by simp
-         ... = (n2 + n1 div m * m) div m * m : {add_comm}
+         ... = (n2 + n1 div m * m) div m * m : {!add.comm}
          ... = (n2 div m + n1 div m) * m : {div_add_mul_self_right mpos}
-         ... = n2 div m * m + n1 div m * m : mul_distr_right
-         ... = n1 div m * m + n2 div m * m : add_comm
+         ... = n2 div m * m + n1 div m * m : !mul.distr_right
+         ... = n1 div m * m + n2 div m * m : !add.comm
          ... = n1 + n2 div m * m : by simp,
-    have H4 : n2 = n2 div m * m, from add_cancel_left H3,
+    have H4 : n2 = n2 div m * m, from add.cancel_left H3,
     mp (dvd_iff_exists_mul⁻¹) (exists_intro _ (H4⁻¹)))
 
 theorem dvd_add_cancel_right {m n1 n2 : ℕ} (H : m | (n1 + n2)) : m | n2 → m | n1 :=
-dvd_add_cancel_left (add_comm ▸ H)
+dvd_add_cancel_left (!add.comm ▸ H)
 
 theorem dvd_sub {m n1 n2 : ℕ} (H1 : m | n1) (H2 : m | n2) : m | (n1 - n2) :=
 by_cases

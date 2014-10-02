@@ -35,14 +35,14 @@ induction_on n sub_zero_right
     calc
       0 - succ k = pred (0 - k) : sub_succ_right
              ... = pred 0       : {IH}
-             ... = 0            : pred_zero)
+             ... = 0            : pred.zero)
 
 theorem sub_succ_succ {n m : ℕ} : succ n - succ m = n - m :=
 induction_on m
   (calc
     succ n - 1 = pred (succ n - 0) : sub_succ_right
            ... = pred (succ n)     : {sub_zero_right}
-           ... = n                 : pred_succ
+           ... = n                 : !pred.succ
            ... = n - 0             : sub_zero_right⁻¹)
   (take k : nat,
     assume IH : succ n - succ k = n - k,
@@ -57,50 +57,50 @@ induction_on n sub_zero_right (take k IH, sub_succ_succ ⬝ IH)
 theorem sub_add_add_right {n k m : ℕ} : (n + k) - (m + k) = n - m :=
 induction_on k
   (calc
-    (n + 0) - (m + 0) = n - (m + 0) : {add_zero_right}
-                  ... = n - m       : {add_zero_right})
+    (n + 0) - (m + 0) = n - (m + 0) : {!add.zero_right}
+                  ... = n - m       : {!add.zero_right})
   (take l : nat,
     assume IH : (n + l) - (m + l) = n - m,
     calc
-      (n + succ l) - (m + succ l) = succ (n + l) - (m + succ l) : {add_succ_right}
-                              ... = succ (n + l) - succ (m + l) : {add_succ_right}
+      (n + succ l) - (m + succ l) = succ (n + l) - (m + succ l) : {!add.succ_right}
+                              ... = succ (n + l) - succ (m + l) : {!add.succ_right}
                               ... = (n + l) - (m + l)           : sub_succ_succ
                               ... =  n - m                      : IH)
 
 theorem sub_add_add_left {k n m : ℕ} : (k + n) - (k + m) = n - m :=
-add_comm ▸ add_comm ▸ sub_add_add_right
+!add.comm ▸ !add.comm ▸ sub_add_add_right
 
 theorem sub_add_left {n m : ℕ} : n + m - m = n :=
 induction_on m
-  (add_zero_right⁻¹ ▸ sub_zero_right)
+  (!add.zero_right⁻¹ ▸ sub_zero_right)
   (take k : ℕ,
     assume IH : n + k - k = n,
     calc
-      n + succ k - succ k = succ (n + k) - succ k : {add_succ_right}
+      n + succ k - succ k = succ (n + k) - succ k : {!add.succ_right}
                       ... = n + k - k             : sub_succ_succ
                       ... = n                     : IH)
 
 -- TODO: add_sub_inv'
 theorem sub_add_left2 {n m : ℕ} : n + m - n = m :=
-add_comm ▸ sub_add_left
+!add.comm ▸ sub_add_left
 
 theorem sub_sub {n m k : ℕ} : n - m - k = n - (m + k) :=
 induction_on k
   (calc
     n - m - 0 = n - m        : sub_zero_right
-          ... =  n - (m + 0) : {add_zero_right⁻¹})
+          ... =  n - (m + 0) : {!add.zero_right⁻¹})
   (take l : nat,
     assume IH : n - m - l = n - (m + l),
     calc
       n - m - succ l = pred (n - m - l)   : sub_succ_right
                  ... = pred (n - (m + l)) : {IH}
                  ... = n - succ (m + l)   : sub_succ_right⁻¹
-                 ... = n - (m + succ l)   : {add_succ_right⁻¹})
+                 ... = n - (m + succ l)   : {!add.succ_right⁻¹})
 
 theorem succ_sub_sub {n m k : ℕ} : succ n - m - succ k = n - m - k :=
 calc
   succ n - m - succ k = succ n - (m + succ k) : sub_sub
-                  ... = succ n - succ (m + k) : {add_succ_right}
+                  ... = succ n - succ (m + k) : {!add.succ_right}
                   ... = n - (m + k)           : sub_succ_succ
                   ... = n - m - k             : sub_sub⁻¹
 
@@ -113,7 +113,7 @@ calc
 theorem sub_comm {m n k : ℕ} : m - n - k = m - k - n :=
 calc
   m - n - k = m - (n + k) : sub_sub
-        ... = m - (k + n) : {add_comm}
+        ... = m - (k + n) : {!add.comm}
         ... = m - k - n   : sub_sub⁻¹
 
 theorem sub_one {n : ℕ} : n - 1 = pred n :=
@@ -131,28 +131,28 @@ sub_succ_succ ⬝ sub_zero_right
 theorem mul_pred_left {n m : ℕ} : pred n * m = n * m - m :=
 induction_on n
   (calc
-    pred 0 * m = 0 * m     : {pred_zero}
-           ... = 0         : mul_zero_left
+    pred 0 * m = 0 * m     : {pred.zero}
+           ... = 0         : !mul.zero_left
            ... = 0 - m     : sub_zero_left⁻¹
-           ... = 0 * m - m : {mul_zero_left⁻¹})
+           ... = 0 * m - m : {!mul.zero_left⁻¹})
   (take k : nat,
     assume IH : pred k * m = k * m - m,
     calc
-      pred (succ k) * m = k * m          : {pred_succ}
+      pred (succ k) * m = k * m          : {!pred.succ}
                     ... = k * m + m - m  : sub_add_left⁻¹
-                    ... = succ k * m - m : {mul_succ_left⁻¹})
+                    ... = succ k * m - m : {!mul.succ_left⁻¹})
 
 theorem mul_pred_right {n m : ℕ} : n * pred m = n * m - n :=
-calc n * pred m = pred m * n : mul_comm
+calc n * pred m = pred m * n : !mul.comm
             ... = m * n - n  : mul_pred_left
-            ... = n * m - n  : {mul_comm}
+            ... = n * m - n  : {!mul.comm}
 
 theorem mul_sub_distr_right {n m k : ℕ} : (n - m) * k = n * k - m * k :=
 induction_on m
   (calc
     (n - 0) * k = n * k         : {sub_zero_right}
             ... = n * k - 0     : sub_zero_right⁻¹
-            ... = n * k - 0 * k : {mul_zero_left⁻¹})
+            ... = n * k - 0 * k : {!mul.zero_left⁻¹})
   (take l : nat,
     assume IH : (n - l) * k = n * k - l * k,
     calc
@@ -160,14 +160,14 @@ induction_on m
                    ... = (n - l) * k - k      : mul_pred_left
                    ... = n * k - l * k - k    : {IH}
                    ... = n * k - (l * k + k)  : sub_sub
-                   ... = n * k - (succ l * k) : {mul_succ_left⁻¹})
+                   ... = n * k - (succ l * k) : {!mul.succ_left⁻¹})
 
 theorem mul_sub_distr_left {n m k : ℕ} : n * (m - k) = n * m - n * k :=
 calc
-  n * (m - k) = (m - k) * n   : mul_comm
+  n * (m - k) = (m - k) * n   : !mul.comm
           ... = m * n - k * n : mul_sub_distr_right
-          ... = n * m - k * n : {mul_comm}
-          ... = n * m - n * k : {mul_comm}
+          ... = n * m - k * n : {!mul.comm}
+          ... = n * m - n * k : {!mul.comm}
 
 -- ### interaction with inequalities
 
@@ -197,7 +197,7 @@ sub_induction n m
   (take k,
     assume H : 0 ≤ k,
     calc
-      0 + (k - 0) = k - 0 : add_zero_left
+      0 + (k - 0) = k - 0 : !add.zero_left
               ... = k     : sub_zero_right)
   (take k, assume H : succ k ≤ 0, absurd H not_succ_zero_le)
   (take k l,
@@ -205,19 +205,19 @@ sub_induction n m
     take H : succ k ≤ succ l,
     calc
       succ k + (succ l - succ k) = succ k + (l - k)   : {sub_succ_succ}
-                             ... = succ (k + (l - k)) : add_succ_left
+                             ... = succ (k + (l - k)) : !add.succ_left
                              ... = succ l             : {IH (succ_le_cancel H)})
 
 theorem add_sub_ge_left {n m : ℕ} : n ≥ m → n - m + m = n :=
-add_comm ▸ add_sub_le
+!add.comm ▸ add_sub_le
 
 theorem add_sub_ge {n m : ℕ} (H : n ≥ m) : n + (m - n) = n :=
 calc
   n + (m - n) = n + 0 : {le_imp_sub_eq_zero H}
-          ... = n     : add_zero_right
+          ... = n     : !add.zero_right
 
 theorem add_sub_le_left {n m : ℕ} : n ≤ m → n - m + m = m :=
-add_comm ▸ add_sub_ge
+!add.comm ▸ add_sub_ge
 
 theorem le_add_sub_left {n m : ℕ} : n ≤ n + (m - n) :=
 or.elim le_total
@@ -238,7 +238,7 @@ or.elim le_total
 theorem sub_le_self {n m : ℕ} : n - m ≤ n :=
 sub_split
   (assume H : n ≤ m, zero_le)
-  (take k : ℕ, assume H : m + k = n, le_intro (add_comm ▸ H))
+  (take k : ℕ, assume H : m + k = n, le_intro (!add.comm ▸ H))
 
 theorem le_elim_sub {n m : ℕ} (H : n ≤ m) : ∃k, m - k = n :=
 obtain (k : ℕ) (Hk : n + k = m), from le_elim H,
@@ -260,7 +260,7 @@ have l1 : k ≤ m → n + m - k = n + (m - k), from
       assume IH : k ≤ m → n + m - k = n + (m - k),
       take H : succ k ≤ succ m,
       calc
-        n + succ m - succ k = succ (n + m) - succ k : {add_succ_right}
+        n + succ m - succ k = succ (n + m) - succ k : {!add.succ_right}
                         ... = n + m - k             : sub_succ_succ
                         ... = n + (m - k)           : IH (succ_le_cancel H)
                         ... = n + (succ m - succ k) : {sub_succ_succ⁻¹}),
@@ -272,7 +272,7 @@ sub_split
   (take k : ℕ,
     assume H1 : m + k = n,
     assume H2 : k = 0,
-    have H3 : n = m, from add_zero_right ▸ H2 ▸ H1⁻¹,
+    have H3 : n = m, from !add.zero_right ▸ H2 ▸ H1⁻¹,
     H3 ▸ le_refl)
 
 theorem sub_sub_split {P : ℕ → ℕ → Prop} {n m : ℕ} (H1 : ∀k, n = m + k -> P k 0)
@@ -288,8 +288,8 @@ have H2 : k - n + n = m + n, from
   calc
     k - n + n = k     : add_sub_ge_left (le_intro H)
           ... = n + m : H⁻¹
-          ... = m + n : add_comm,
-add_cancel_right H2
+          ... = m + n : !add.comm,
+add.cancel_right H2
 
 theorem sub_lt {x y : ℕ} (xpos : x > 0) (ypos : y > 0) : x - y < x :=
 obtain (x' : ℕ) (xeq : x = succ x'), from pos_imp_eq_succ xpos,
@@ -312,7 +312,7 @@ or.elim le_total
       calc
         n - k + l = l + (n - k) : by simp
               ... = l + n - k   : (add_sub_assoc H2 l)⁻¹
-              ... = n + l - k   : {add_comm}
+              ... = n + l - k   : {!add.comm}
               ... = m - k       : {Hl},
     le_intro H3)
 
@@ -329,7 +329,7 @@ sub_split
                ... = m + m'     : {Hl}
                ... = k          : Hm
                ... = k - n + n  : (add_sub_ge_left H3)⁻¹,
-    le_intro (add_cancel_right H4))
+    le_intro (add.cancel_right H4))
 
 -- theorem sub_lt_cancel_right {n m k : ℕ) (H : n - k < m - k) : n < m
 -- :=
@@ -341,14 +341,14 @@ sub_split
 
 theorem sub_triangle_inequality {n m k : ℕ} : n - k ≤ (n - m) + (m - k) :=
 sub_split
-  (assume H : n ≤ m, add_zero_left⁻¹ ▸ sub_le_right H k)
+  (assume H : n ≤ m, !add.zero_left⁻¹ ▸ sub_le_right H k)
   (take mn : ℕ,
     assume Hmn : m + mn = n,
     sub_split
       (assume H : m ≤ k,
         have H2 : n - k ≤ n - m, from sub_le_left H n,
         have H3 : n - k ≤ mn, from sub_intro Hmn ▸ H2,
-        show n - k ≤ mn + 0, from add_zero_right⁻¹ ▸ H3)
+        show n - k ≤ mn + 0, from !add.zero_right⁻¹ ▸ H3)
       (take km : ℕ,
         assume Hkm : k + km = m,
         have H : k + (mn + km) = n, from
@@ -384,7 +384,7 @@ theorem right_le_max {n m : ℕ} : m ≤ max n m := le_add_sub_right
 definition dist (n m : ℕ) := (n - m) + (m - n)
 
 theorem dist_comm {n m : ℕ} : dist n m = dist m n :=
-add_comm
+!add.comm
 
 theorem dist_self {n : ℕ} : dist n n = 0 :=
 calc
@@ -392,16 +392,16 @@ calc
                 ... = 0     : by simp
 
 theorem dist_eq_zero {n m : ℕ} (H : dist n m = 0) : n = m :=
-have H2 : n - m = 0, from add_eq_zero_left H,
+have H2 : n - m = 0, from add.eq_zero_left H,
 have H3 : n ≤ m, from sub_eq_zero_imp_le H2,
-have H4 : m - n = 0, from add_eq_zero_right H,
+have H4 : m - n = 0, from add.eq_zero_right H,
 have H5 : m ≤ n, from sub_eq_zero_imp_le H4,
 le_antisym H3 H5
 
 theorem dist_le {n m : ℕ} (H : n ≤ m) : dist n m = m - n :=
 calc
   dist n m = 0 + (m - n) : {le_imp_sub_eq_zero H}
-       ... = m - n       : add_zero_left
+       ... = m - n       : !add.zero_left
 
 theorem dist_ge {n m : ℕ} (H : n ≥ m) : dist n m = n - m :=
 dist_comm ▸ dist_le H
@@ -424,7 +424,7 @@ calc
                    ... = (n - m) + (m - n)               : {sub_add_add_right}
 
 theorem dist_add_left {k n m : ℕ} : dist (k + n) (k + m) = dist n m :=
-add_comm ▸ add_comm ▸ dist_add_right
+!add.comm ▸ !add.comm ▸ dist_add_right
 
 -- add_rewrite dist_self dist_add_right dist_add_left dist_zero_left dist_zero_right
 
@@ -485,7 +485,7 @@ have aux : ∀k l, k ≥ l → dist n m * dist k l = dist (n * k + m * l) (n * l
       ... = dist (n * (k - l)) (m * (k - l))       : dist_mul_right⁻¹
       ... = dist (n * k - n * l) (m * k - m * l)   : by simp
       ... = dist (n * k) (m * k - m * l + n * l)   : dist_sub_move_add (mul_le_left H n) _
-      ... = dist (n * k) (n * l + (m * k - m * l)) : {add_comm}
+      ... = dist (n * k) (n * l + (m * k - m * l)) : {!add.comm}
       ... = dist (n * k) (n * l + m * k - m * l)   : {(add_sub_assoc H2 (n * l))⁻¹}
       ... = dist (n * k + m * l) (n * l + m * k)   : dist_sub_move_add' H3 _,
 or.elim le_total

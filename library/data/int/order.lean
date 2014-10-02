@@ -66,7 +66,7 @@ have H3 : a + of_nat (n + m) = a + 0, from
       ... = a + 0 : (add_zero_right a)⁻¹,
 have H4 : of_nat (n + m) = of_nat 0, from add_cancel_left H3,
 have H5 : n + m = 0, from of_nat_inj H4,
-have H6 : n = 0, from nat.add_eq_zero_left H5,
+have H6 : n = 0, from nat.add.eq_zero_left H5,
 show a = b, from
   calc
     a = a + of_nat 0 : (add_zero_right a)⁻¹

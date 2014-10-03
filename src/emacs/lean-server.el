@@ -242,11 +242,26 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('WAIT    (lean-server-check-current-file))
     ('SYNC    )))
 
+(defun lean-server-delete-cache-file ()
+  "Delete the .clean file for the current buffer (if any)"
+  (let* ((file-name (buffer-file-name))
+         (ext       (and file-name (f-ext file-name)))
+         cache-file-name
+         )
+    (when (string= ext "lean")
+      (setq cache-file-name
+            (concat (f-no-ext file-name)
+                    ".clean"))
+      (when (f-file? cache-file-name)
+        (lean-debug "Delete cache file %s" cache-file-name)
+        (ignore-errors
+          (delete-file cache-file-name))))))
+
 (defun lean-server-after-send-cmd (cmd)
   "Operations to perform after sending a command."
   (cl-case (lean-cmd-type cmd)
-    ('LOAD    ())
-    ('VISIT   ())
+    ('LOAD    (lean-server-delete-cache-file))
+    ('VISIT   (lean-server-delete-cache-file))
     ('REPLACE ())
     ('INSERT  ())
     ('REMOVE  ())

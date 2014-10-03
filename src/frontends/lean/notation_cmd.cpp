@@ -420,11 +420,11 @@ notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & n
     }
 }
 
-environment notation_cmd(parser & p) { return notation_cmd_core(p, true); }
-environment infixl_cmd(parser & p) { return infixl_cmd_core(p, true); }
-environment infixr_cmd(parser & p) { return infixr_cmd_core(p, true); }
-environment postfix_cmd(parser & p) { return postfix_cmd_core(p, true); }
-environment prefix_cmd(parser & p) { return prefix_cmd_core(p, true); }
+environment notation_cmd(parser & p) { return notation_cmd_core(p, !in_context(p.env())); }
+environment infixl_cmd(parser & p) { return infixl_cmd_core(p, !in_context(p.env())); }
+environment infixr_cmd(parser & p) { return infixr_cmd_core(p, !in_context(p.env())); }
+environment postfix_cmd(parser & p) { return postfix_cmd_core(p, !in_context(p.env())); }
+environment prefix_cmd(parser & p) { return prefix_cmd_core(p, !in_context(p.env())); }
 
 void register_notation_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("precedence",   "set token left binding power", precedence_cmd));

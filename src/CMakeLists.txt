@@ -230,6 +230,9 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND ${LUA_FOUND} AND
   set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -pagezero_size 10000 -image_base 100000000")
 ENDIF()
 
+# Python
+find_package(PythonInterp REQUIRED)
+
 # CPack
 set(CPACK_PACKAGE_NAME lean)
 string(TOLOWER ${CMAKE_SYSTEM_NAME} LOWER_SYSTEM_NAME)
@@ -307,7 +310,7 @@ file(GLOB_RECURSE LEAN_SOURCES
          ${LEAN_SOURCE_DIR}/[A-Za-z]*.cpp
          ${LEAN_SOURCE_DIR}/[A-Za-z]*.h)
 add_style_check_target(style "${LEAN_SOURCES}")
-add_test(NAME style_check COMMAND python ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})
+add_test(NAME style_check COMMAND ${PYTHON_EXECUTABLE} ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})
 
 # Set PROCESSOR_COUNT
 if(NOT DEFINED PROCESSOR_COUNT)
@@ -338,7 +341,7 @@ if("${CROSS_COMPILE}" MATCHES "ON")
 else()
   add_custom_target(
     standard_lib ALL
-    COMMAND python ${LEAN_SOURCE_DIR}/../bin/linja
+    COMMAND ${PYTHON_EXECUTABLE} ${LEAN_SOURCE_DIR}/../bin/linja
     DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
     )

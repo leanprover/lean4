@@ -315,10 +315,12 @@ public:
     void add_local_expr(name const & n, expr const & p, bool is_variable = false);
     void add_local(expr const & p) { return add_local_expr(local_pp_name(p), p); }
     bool is_section_variable(name const & n) const { return m_variables.contains(n); }
+    bool is_section_variable(expr const & e) const { return is_section_variable(local_pp_name(e)); }
     /** \brief Position of the local level declaration named \c n in the sequence of local level decls. */
     unsigned get_local_level_index(name const & n) const;
     /** \brief Position of the local declaration named \c n in the sequence of local decls. */
     unsigned get_local_index(name const & n) const;
+    unsigned get_local_index(expr const & e) const { return get_local_index(local_pp_name(e)); }
     /** \brief Return the local parameter named \c n */
     expr const * get_local(name const & n) const { return m_local_decls.find(n); }
 

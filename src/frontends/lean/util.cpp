@@ -49,7 +49,14 @@ void sort_section_params(expr_struct_set const & locals, parser const & p, buffe
     for (expr const & l : locals)
         section_ps.push_back(l);
     std::sort(section_ps.begin(), section_ps.end(), [&](expr const & p1, expr const & p2) {
-            return p.get_local_index(local_pp_name(p1)) < p.get_local_index(local_pp_name(p2));
+            bool is_sec_var1 = p.is_section_variable(p1);
+            bool is_sec_var2 = p.is_section_variable(p2);
+            if (!is_sec_var1 && is_sec_var2)
+                return true;
+            else if (is_sec_var1 && !is_sec_var2)
+                return false;
+            else
+                return p.get_local_index(p1) < p.get_local_index(p2);
         });
 }
 

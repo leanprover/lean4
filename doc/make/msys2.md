@@ -20,19 +20,19 @@ Here are the commands to install all dependencies needed to compile Lean on your
 
 ```bash
 # Update Packages
-pacman -Syu
+pacman -Sy
 
 # Install gcc (4.9.1)
-pacman -Su mingw-w64-x86_64-gcc
+pacman -S mingw-w64-x86_64-gcc
 
 # Install mpfr, gmp, lua
-pacman -Su mingw-w64-x86_64-mpfr mingw-w64-x86_64-gmp mingw-w64-x86_64-lua
+pacman -S mingw-w64-x86_64-mpfr mingw-w64-x86_64-gmp mingw-w64-x86_64-lua
 
-# Install python, ninja, gdb, cmake
-pacman -Su python2 mingw-w64-x86_64-ninja mingw-w64-x86_64-gdb mingw-w64-x86_64-cmake
+# Install python, ninja, cmake
+pacman -S mingw-w64-x86_64-python2 mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake
 
 # Install git
-pacman -Su git
+pacman -S git
 ```
 Make sure that you add `c:\msys64\mingw64\bin` into the `PATH` environment variable.
 

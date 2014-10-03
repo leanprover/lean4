@@ -73,7 +73,21 @@
              10))
   (should (string= (lean-cmd-findg-get-patterns
                     (lean-cmd-findg 48 10 "+intro -and -elim"))
-                   "+intro -and -elim")))
+                   "+intro -and -elim"))
+
+
+  (should (= (lean-cmd-sync-get-num-lines
+              (lean-cmd-sync '("line 1"
+                               "line 2"
+                               "line 3")))
+             3))
+  (should (equal (lean-cmd-sync-get-lines
+              (lean-cmd-sync '("line 1"
+                               "line 2"
+                               "line 3")))
+             '("line 1"
+               "line 2"
+               "line 3"))))
 
 (ert-deftest lean-test-cmd-to-string ()
   "Test lean-cmd-to-string"
@@ -110,4 +124,11 @@
   (should (string= (lean-cmd-to-string (lean-cmd-findg 48 10 "+intro -and -elim"))
                    (concat "FINDG 48 10" "\n" "+intro -and -elim")))
   (should (string= (lean-cmd-to-string (lean-cmd-wait))
-                   (concat "WAIT"))))
+                   (concat "WAIT")))
+  (should (string= (lean-cmd-to-string (lean-cmd-sync '("line 1"
+                                                        "line 2"
+                                                        "line 3")))
+                   (concat "SYNC 3\n"
+                           "line 1\n"
+                           "line 2\n"
+                           "line 3"))))

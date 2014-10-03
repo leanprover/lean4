@@ -239,7 +239,8 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
               (lean-server-check-current-file))
     ('FINDG   (lean-server-flush-changed-lines)
               (lean-server-check-current-file))
-    ('WAIT    (lean-server-check-current-file))))
+    ('WAIT    (lean-server-check-current-file))
+    ('SYNC    )))
 
 (defun lean-server-after-send-cmd (cmd)
   "Operations to perform after sending a command."
@@ -258,7 +259,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
     ('VALID   ())
     ('FINDP   ())
     ('FINDG   ())
-    ('WAIT    ())))
+    ('SYNC    ())))
 
 (defun lean-server-send-cmd (cmd)
   "Send cmd to lean-server"

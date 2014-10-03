@@ -7,7 +7,6 @@
 (require 'cl-lib)
 (require 'lean-util)
 
-
 ;; Load
 ;; ----
 (defun lean-cmd-load (file-name)
@@ -271,6 +270,28 @@ It has the effect of evaluating a command in the end of the current file"
   "Convert wait command to string"
   (format "WAIT"))
 
+;; SYNC
+;; -----
+(defun lean-cmd-sync (&optional lines)
+  "Force lean-server to synchonize with emacs buffer. SYNC command provides a number of lines in a buffer, and the contents of the buffer"
+  (unless lines
+    (let* ((buffer-contents (buffer-substring-no-properties
+                             (point-min)
+                             (point-max))))
+      (setq lines (s-lines buffer-contents))))
+  `(SYNC ,lines))
+
+(defun lean-cmd-sync-get-num-lines (sync-cmd)
+  (length (cl-second sync-cmd)))
+
+(defun lean-cmd-sync-get-lines (sync-cmd)
+  (cl-second sync-cmd))
+
+(defun lean-cmd-sync-to-string (cmd)
+  "Convert sync command to string"
+  (format "SYNC %d\n%s"
+          (lean-cmd-sync-get-num-lines cmd)
+          (s-join "\n" (lean-cmd-sync-get-lines cmd))))
 
 ;; Type
 ;; ====
@@ -295,7 +316,8 @@ It has the effect of evaluating a command in the end of the current file"
     ('VALID       (lean-cmd-valid-to-string       cmd))
     ('FINDP       (lean-cmd-findp-to-string       cmd))
     ('FINDG       (lean-cmd-findg-to-string       cmd))
-    ('WAIT        (lean-cmd-wait-to-string        cmd))))
+    ('WAIT        (lean-cmd-wait-to-string        cmd))
+    ('SYNC        (lean-cmd-sync-to-string        cmd))))
 
 ;; ----------------
 (provide 'lean-cmd)

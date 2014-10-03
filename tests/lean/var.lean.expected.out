@@ -1,0 +1,1 @@
+var.lean:6:12: error: invalid parameter declaration 'a', it depends on section variable 'A'

@@ -51,14 +51,16 @@ struct snapshot {
     environment       m_env;
     local_level_decls m_lds;
     local_expr_decls  m_eds;
+    name_set          m_vars; // subset of m_eds that is tagged as section variables
     options_stack     m_options_stack;
     options           m_options;
     unsigned          m_line;
     snapshot():m_line(0) {}
     snapshot(environment const & env, options const & o):m_env(env), m_options(o), m_line(1) {}
     snapshot(environment const & env, local_level_decls const & lds, local_expr_decls const & eds,
-             options_stack const & os, options const & opts, unsigned line):
-        m_env(env), m_lds(lds), m_eds(eds), m_options_stack(os), m_options(opts), m_line(line) {}
+             name_set const & vars, options_stack const & os, options const & opts,
+             unsigned line):
+        m_env(env), m_lds(lds), m_eds(eds), m_vars(vars), m_options_stack(os), m_options(opts), m_line(line) {}
 };
 
 typedef std::vector<snapshot> snapshot_vector;
@@ -75,6 +77,7 @@ class parser {
     scanner::token_kind     m_curr;
     local_level_decls       m_local_level_decls;
     local_expr_decls        m_local_decls;
+    name_set                m_variables; // subset of m_local_decls that is marked as variables
     options_stack           m_options_stack;
     pos_info                m_last_cmd_pos;
     pos_info                m_last_script_pos;
@@ -309,8 +312,9 @@ public:
 
     struct local_scope { parser & m_p; environment m_env; local_scope(parser & p); ~local_scope(); };
     void add_local_level(name const & n, level const & l);
-    void add_local_expr(name const & n, expr const & p);
+    void add_local_expr(name const & n, expr const & p, bool is_variable = false);
     void add_local(expr const & p) { return add_local_expr(local_pp_name(p), p); }
+    bool is_section_variable(name const & n) const { return m_variables.contains(n); }
     /** \brief Position of the local level declaration named \c n in the sequence of local level decls. */
     unsigned get_local_level_index(name const & n) const;
     /** \brief Position of the local declaration named \c n in the sequence of local decls. */

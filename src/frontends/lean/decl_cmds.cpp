@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
+#include "kernel/for_each_fn.h"
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
 #include "library/private.h"
@@ -66,17 +67,30 @@ void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found, pa
 
 enum class variable_kind { Constant, Parameter, Variable, Axiom };
 
+static void check_parameter_type(parser & p, name const & n, expr const & type, pos_info const & pos) {
+    for_each(type, [&](expr const & e, unsigned) {
+            if (is_local(e) && p.is_section_variable(mlocal_name(e)))
+                throw parser_error(sstream() << "invalid parameter declaration '" << n << "', it depends on " <<
+                                   "section variable '" << local_pp_name(e) << "'", pos);
+            return true;
+        });
+}
+
 static environment declare_var(parser & p, environment env,
                                name const & n, level_param_names const & ls, expr const & type,
                                variable_kind k, optional<binder_info> const & _bi, pos_info const & pos) {
     binder_info bi;
     if (_bi) bi = *_bi;
     if (in_section_or_context(p.env())) {
+        lean_assert(k == variable_kind::Parameter || k == variable_kind::Variable);
+        if (k == variable_kind::Parameter)
+            check_parameter_type(p, n, type, pos);
         name u = p.mk_fresh_name();
         expr l = p.save_pos(mk_local(u, n, type, bi), pos);
-        p.add_local_expr(n, l);
+        p.add_local_expr(n, l, k == variable_kind::Variable);
         return env;
     } else {
+        lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom);
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
         if (k == variable_kind::Axiom) {

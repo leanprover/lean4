@@ -41,8 +41,9 @@ mk : Π mul: A → A → A,
 namespace semigroup
   section
   parameters {A : Type} {s : semigroup A}
-  definition mul (a b : A) : A := semigroup.rec (λmul assoc, mul) s a b
-  definition assoc {a b c : A} : mul (mul a b) c = mul a (mul b c) :=
+  variables a b c : A
+  definition mul := semigroup.rec (λmul assoc, mul) s a b
+  definition assoc : mul (mul a b) c = mul a (mul b c) :=
     semigroup.rec (λmul assoc, assoc) s a b c
   end
 end semigroup
@@ -53,7 +54,7 @@ section
   definition semigroup_has_mul [instance] : has_mul A := has_mul.mk (semigroup.mul)
 
   theorem mul_assoc [instance] (a b c : A) : a * b * c = a * (b * c) :=
-    semigroup.assoc
+    !semigroup.assoc
 end
 
 

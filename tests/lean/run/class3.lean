@@ -9,8 +9,8 @@ section
   -- The section mechanism only includes parameters that are explicitly cited.
   -- So, we use the 'including' expression to make explicit we want to use
   -- Ha and Hb
+  include Ha Hb
   theorem tst : inhabited (Prop × A × B)
-  := including Ha Hb, _
 
 end
 

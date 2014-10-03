@@ -348,31 +348,6 @@ static expr parse_consume_args_expr(parser & p, unsigned, expr const *, pos_info
     }
 }
 
-static expr parse_including_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
-    buffer<expr> locals;
-    while (!p.curr_is_token(get_comma_tk())) {
-        auto pos = p.pos();
-        name id  = p.check_id_next("invalid 'including', identifier expected");
-        if (auto it = p.get_local(id)) {
-            locals.push_back(*it);
-        } else {
-            throw parser_error(sstream() << "invalid 'including', '" << id << "' is not a local declaraton", pos);
-        }
-    }
-    p.next();
-    parser::local_scope scope(p);
-    buffer<expr> new_locals;
-    for (auto old_l : locals) {
-        binder_info bi = mk_contextual_info(true);
-        expr new_l     = p.save_pos(mk_local(p.mk_fresh_name(), local_pp_name(old_l), mk_as_is(mlocal_type(old_l)), bi), pos);
-        p.add_local(new_l);
-        new_locals.push_back(new_l);
-    }
-    expr r = Fun(new_locals, p.parse_expr(), p);
-    r = p.rec_save_pos(mk_app(r, locals), pos);
-    return r;
-}
-
 static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.mk_sorry(pos);
 }
@@ -411,7 +386,6 @@ parse_table init_nud_table() {
     r = r.add({transition("begin", mk_ext_action(parse_begin_end))}, x0);
     r = r.add({transition("proof", mk_ext_action(parse_proof_qed))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
-    r = r.add({transition("including", mk_ext_action(parse_including_expr))}, x0);
     return r;
 }
 

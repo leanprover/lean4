@@ -14,7 +14,7 @@
     "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"
     "options" "precedence" "postfix" "prefix" "calc_trans" "calc_subst" "calc_refl"
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
-    "using" "namespace" "including" "instance" "class" "section"
+    "using" "namespace" "instance" "class" "section"
     "set_option" "add_rewrite" "extends" "include" "omit")
   "lean keywords")
 

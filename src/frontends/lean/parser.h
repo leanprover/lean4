@@ -52,15 +52,17 @@ struct snapshot {
     local_level_decls m_lds;
     local_expr_decls  m_eds;
     name_set          m_vars; // subset of m_eds that is tagged as section variables
+    name_set          m_include_vars; // subset of m_eds that must be includes
     options_stack     m_options_stack;
     options           m_options;
     unsigned          m_line;
     snapshot():m_line(0) {}
     snapshot(environment const & env, options const & o):m_env(env), m_options(o), m_line(1) {}
     snapshot(environment const & env, local_level_decls const & lds, local_expr_decls const & eds,
-             name_set const & vars, options_stack const & os, options const & opts,
+             name_set const & vars, name_set const & includes, options_stack const & os, options const & opts,
              unsigned line):
-        m_env(env), m_lds(lds), m_eds(eds), m_vars(vars), m_options_stack(os), m_options(opts), m_line(line) {}
+        m_env(env), m_lds(lds), m_eds(eds), m_vars(vars), m_include_vars(includes),
+        m_options_stack(os), m_options(opts), m_line(line) {}
 };
 
 typedef std::vector<snapshot> snapshot_vector;
@@ -78,6 +80,7 @@ class parser {
     local_level_decls       m_local_level_decls;
     local_expr_decls        m_local_decls;
     name_set                m_variables; // subset of m_local_decls that is marked as variables
+    name_set                m_include_vars; // subset of m_local_decls that is marked as include
     options_stack           m_options_stack;
     pos_info                m_last_cmd_pos;
     pos_info                m_last_script_pos;
@@ -316,6 +319,10 @@ public:
     void add_local(expr const & p) { return add_local_expr(local_pp_name(p), p); }
     bool is_section_variable(name const & n) const { return m_variables.contains(n); }
     bool is_section_variable(expr const & e) const { return is_section_variable(local_pp_name(e)); }
+    void include_variable(name const & n) { m_include_vars.insert(n); }
+    void omit_variable(name const & n) { m_include_vars.erase(n); }
+    bool is_include_variable(name const & n) const { return m_include_vars.contains(n); }
+    void get_include_variables(buffer<expr> & vars) const;
     /** \brief Position of the local level declaration named \c n in the sequence of local level decls. */
     unsigned get_local_level_index(name const & n) const;
     /** \brief Position of the local declaration named \c n in the sequence of local decls. */

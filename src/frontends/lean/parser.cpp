@@ -96,6 +96,7 @@ parser::parser(environment const & env, io_state const & ios,
         m_local_level_decls = s->m_lds;
         m_local_decls       = s->m_eds;
         m_variables         = s->m_vars;
+        m_include_vars      = s->m_include_vars;
         m_options_stack     = s->m_options_stack;
     }
     m_num_threads = num_threads;
@@ -443,6 +444,12 @@ unsigned parser::get_local_level_index(name const & n) const {
 
 unsigned parser::get_local_index(name const & n) const {
     return m_local_decls.find_idx(n);
+}
+
+void parser::get_include_variables(buffer<expr> & vars) const {
+    m_include_vars.for_each([&](name const & n) {
+            vars.push_back(*get_local(n));
+        });
 }
 
 static unsigned g_level_add_prec = 10;
@@ -1352,7 +1359,7 @@ void parser::save_snapshot() {
     if (!m_snapshot_vector)
         return;
     if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
-        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls, m_variables,
+        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls, m_variables, m_include_vars,
                                               m_options_stack, m_ios.get_options(), m_scanner.get_line()));
 }
 

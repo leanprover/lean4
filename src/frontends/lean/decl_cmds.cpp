@@ -334,9 +334,6 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
             erase_local_binder_info(ps);
             value = Fun(ps, value, p);
         }
-
-        update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
-        ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
     unsigned end_line = p.pos().first;
 
@@ -361,6 +358,8 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
         section_value_ps.append(section_ps);
         erase_local_binder_info(section_value_ps);
         value = Fun_as_is(section_value_ps, value, p);
+        update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
+        ls = to_list(ls_buffer.begin(), ls_buffer.end());
         levels section_ls = collect_section_levels(ls, p);
         while (!section_ps.empty() && p.is_section_variable(section_ps.back()))
             section_ps.pop_back(); // we do not fix section variables
@@ -368,6 +367,9 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
             param = mk_explicit(param);
         expr ref = mk_implicit(mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_ps));
         p.add_local_expr(n, ref);
+    } else {
+        update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
+        ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
     expr pre_type  = type;
     expr pre_value = value;
@@ -488,6 +490,36 @@ environment protected_definition_cmd(parser & p) {
     return definition_cmd_core(p, is_theorem, is_opaque, false, true);
 }
 
+environment include_cmd_core(parser & p, bool include) {
+    if (!p.curr_is_identifier())
+        throw parser_error(sstream() << "invalid include/omit command, identifier expected", p.pos());
+    while (p.curr_is_identifier()) {
+        auto pos = p.pos();
+        name n = p.get_name_val();
+        p.next();
+        if (!p.get_local(n))
+            throw parser_error(sstream() << "invalid include/omit command, '" << n << "' is not a section parameter/variable", pos);
+        if (include) {
+            if (p.is_include_variable(n))
+                throw parser_error(sstream() << "invalid include command, '" << n << "' has already been included", pos);
+            p.include_variable(n);
+        } else {
+            if (!p.is_include_variable(n))
+                throw parser_error(sstream() << "invalid omit command, '" << n << "' has not been included", pos);
+            p.omit_variable(n);
+        }
+    }
+    return p.env();
+}
+
+environment include_cmd(parser & p) {
+    return include_cmd_core(p, true);
+}
+
+environment omit_cmd(parser & p) {
+    return include_cmd_core(p, false);
+}
+
 void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("universe",     "declare a global universe level", universe_cmd));
     add_cmd(r, cmd_info("variable",     "declare a new variable", variable_cmd));
@@ -502,5 +534,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("private",      "add new private definition/theorem", private_definition_cmd));
     add_cmd(r, cmd_info("protected",    "add new protected definition/theorem", protected_definition_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
+    add_cmd(r, cmd_info("include",      "force section parameter/variable to be included", include_cmd));
+    add_cmd(r, cmd_info("omit",         "undo 'include' command", omit_cmd));
 }
 }

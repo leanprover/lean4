@@ -413,6 +413,12 @@ struct inductive_cmd_fn {
 
     /** \brief Collect section local parameters used in the inductive decls */
     void collect_section_locals(buffer<inductive_decl> const & decls, expr_struct_set & ls) {
+        buffer<expr> include_vars;
+        m_p.get_include_variables(include_vars);
+        for (expr const & param : include_vars) {
+            collect_locals(mlocal_type(param), ls);
+            ls.insert(param);
+        }
         for (auto const & d : decls) {
             collect_locals(inductive_decl_type(d), ls);
             for (auto const & ir : inductive_decl_intros(d))
@@ -665,9 +671,9 @@ struct inductive_cmd_fn {
             parser::local_scope scope(m_p);
             parse_inductive_decls(decls);
         }
-        include_section_levels(decls);
         buffer<expr> section_params;
         abstract_section_locals(decls, section_params);
+        include_section_levels(decls);
         m_num_params += section_params.size();
         declare_inductive_types(decls);
         unsigned num_univ_params = m_levels.size();

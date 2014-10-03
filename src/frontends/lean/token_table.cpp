@@ -86,7 +86,8 @@ void init_token_table(token_table & t) {
          "inductive", "record", "renaming", "extends", "structure", "module", "universe",
          "precedence", "infixl", "infixr", "infix", "postfix", "prefix", "notation", "context",
          "exit", "set_option", "open", "export", "calc_subst", "calc_refl", "calc_trans", "tactic_hint",
-         "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class", "#erase_cache", nullptr};
+         "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class",
+         "include", "omit", "#erase_cache", nullptr};
 
     pair<char const *, char const *> aliases[] =
         {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},

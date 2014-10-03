@@ -15,7 +15,7 @@
     "options" "precedence" "postfix" "prefix" "calc_trans" "calc_subst" "calc_refl"
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
     "using" "namespace" "including" "instance" "class" "section"
-    "set_option" "add_rewrite" "extends")
+    "set_option" "add_rewrite" "extends" "include" "omit")
   "lean keywords")
 
 (defconst lean-syntax-table

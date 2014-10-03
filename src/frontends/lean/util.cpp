@@ -75,6 +75,12 @@ levels collect_section_levels(level_param_names const & ls, parser & p) {
 // Collect local (section) constants occurring in type and value, sort them, and store in section_ps
 void collect_section_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & section_ps) {
     expr_struct_set ls;
+    buffer<expr> include_vars;
+    p.get_include_variables(include_vars);
+    for (expr const & param : include_vars) {
+        collect_locals(mlocal_type(param), ls);
+        ls.insert(param);
+    }
     collect_locals(type, ls);
     collect_locals(value, ls);
     sort_section_params(ls, p, section_ps);

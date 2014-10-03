@@ -1,0 +1,4 @@
+omit.lean:5:7: error: invalid omit command, 'A' has not been included
+omit.lean:7:10: error: invalid include command, 'A' has already been included
+foo : Π (A : Type), A → A → (Π (B : Type), B → B)
+tst : Π (A : Type), A → A → Type → Type

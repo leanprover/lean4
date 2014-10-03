@@ -22,9 +22,9 @@ inductive has_mul [class] (A : Type) : Type := mk : (A → A → A) → has_mul 
 inductive has_one [class] (A : Type) : Type := mk : A → has_one A
 inductive has_inv [class] (A : Type) : Type := mk : (A → A) → has_inv A
 
-definition mul {A : Type} {s : has_mul A} (a b : A) : A := has_mul.rec (fun f, f) s a b
-definition one {A : Type} {s : has_one A} : A := has_one.rec (fun o, o) s
-definition inv {A : Type} {s : has_inv A} (a : A) : A := has_inv.rec (fun i, i) s a
+definition mul {A : Type} {s : has_mul A} (a b : A) : A := has_mul.rec (λf, f) s a b
+definition one {A : Type} {s : has_one A} : A := has_one.rec (λo, o) s
+definition inv {A : Type} {s : has_inv A} (a : A) : A := has_inv.rec (λi, i) s a
 
 infix `*`    := mul
 postfix `⁻¹` := inv
@@ -39,36 +39,39 @@ mk : Π mul: A → A → A,
     semigroup A
 
 namespace semigroup
-  section
+section
   parameters {A : Type} {s : semigroup A}
   variables a b c : A
   definition mul := semigroup.rec (λmul assoc, mul) s a b
-  definition assoc : mul (mul a b) c = mul a (mul b c) :=
-    semigroup.rec (λmul assoc, assoc) s a b c
+  context
+    infixl `*` := mul
+    definition assoc : (a * b) * c = a * (b * c) :=
+      semigroup.rec (λmul assoc, assoc) s a b c
   end
+end
 end semigroup
 
 section
   parameters {A : Type} {s : semigroup A}
   include s
-  definition semigroup_has_mul [instance] : has_mul A := has_mul.mk (semigroup.mul)
+  definition semigroup_has_mul [instance] : has_mul A := has_mul.mk semigroup.mul
 
   theorem mul_assoc [instance] (a b c : A) : a * b * c = a * (b * c) :=
     !semigroup.assoc
 end
 
-
 -- comm_semigroup
 -- --------------
 
 inductive comm_semigroup [class] (A : Type) : Type :=
-mk : Π mul: A → A → A,
-  (∀a b c : A, (mul (mul a b) c = mul a (mul b c))) →
-  (∀a b : A, mul a b = mul b a) →
+mk : Π (mul: A → A → A)
+       (infixl `*` := mul),
+       (∀a b c, (a * b) * c = a * (b * c)) →
+       (∀a b,   a * b = b * a) →
     comm_semigroup A
 
 namespace comm_semigroup
-  section
+section
   parameters {A : Type} {s : comm_semigroup A}
   variables a b c : A
   definition mul (a b : A) : A := comm_semigroup.rec (λmul assoc comm, mul) s a b
@@ -76,7 +79,7 @@ namespace comm_semigroup
     comm_semigroup.rec (λmul assoc comm, assoc) s a b c
   definition comm : mul a b = mul b a :=
     comm_semigroup.rec (λmul assoc comm, comm) s a b
-  end
+end
 end comm_semigroup
 
 section
@@ -96,25 +99,30 @@ end
 -- ------
 
 inductive monoid [class] (A : Type) : Type :=
-mk : Π mul: A → A → A,
-  Π one : A,
-  (∀a b c : A, (mul (mul a b) c = mul a (mul b c))) →
-  (∀a : A, mul a one = a) →
-  (∀a : A, mul one a = a) →
+mk : Π (mul: A → A → A) (one : A)
+       (infixl `*` := mul) (notation 1 := one),
+       (∀a b c, (a * b) * c = a * (b * c)) →
+       (∀a, a * 1 = a) →
+       (∀a, 1 * a = a) →
     monoid A
 
 namespace monoid
   section
   parameters {A : Type} {s : monoid A}
   variables a b c : A
+  include s
+  context
   definition mul := monoid.rec (λmul one assoc right_id left_id, mul) s a b
   definition one := monoid.rec (λmul one assoc right_id left_id, one) s
-  definition assoc : mul (mul a b) c = mul a (mul b c) :=
+  infixl `*` := mul
+  notation 1 := one
+  definition assoc : (a * b) * c = a * (b * c) :=
     monoid.rec (λmul one assoc right_id left_id, assoc) s a b c
-  definition right_id : mul a one = a :=
+  definition right_id : a * 1 = a :=
     monoid.rec (λmul one assoc right_id left_id, right_id) s a
-  definition left_id : mul one a = a :=
+  definition left_id : 1 * a = a :=
     monoid.rec (λmul one assoc right_id left_id, left_id) s a
+  end
   end
 end monoid
 
@@ -126,8 +134,8 @@ section
   definition monoid_semigroup [instance] : semigroup A :=
     semigroup.mk monoid.mul monoid.assoc
 
-  theorem mul_right_id : a * one = a := !monoid.right_id
-  theorem mul_left_id  : one * a = a := !monoid.left_id
+  theorem mul_right_id : a * 1 = a := !monoid.right_id
+  theorem mul_left_id  : 1 * a = a := !monoid.left_id
 end
 
 
@@ -135,18 +143,17 @@ end
 -- -----------
 
 inductive comm_monoid [class] (A : Type) : Type :=
-mk : Π mul: A → A → A,
-  Π one : A,
-  (∀a b c : A, (mul (mul a b) c = mul a (mul b c))) →
-  (∀a : A, mul a one = a) →
-  (∀a : A, mul one a = a) →
-  (∀a b : A, mul a b = mul b a) →
-    comm_monoid A
+mk : Π (mul: A → A → A) (one : A)
+       (infixl `*` := mul) (notation 1 := one),
+       (∀a b c, (a * b) * c = a * (b * c)) →
+       (∀a, a * 1 = a) →
+       (∀a, 1 * a = a) →
+       (∀a b, a * b = b * a) →
+ comm_monoid A
 
 namespace comm_monoid
   section
   parameters {A : Type} {s : comm_monoid A}
-  include s
   variables a b c : A
   definition mul := comm_monoid.rec (λmul one assoc right_id left_id comm, mul) s a b
   definition one := comm_monoid.rec (λmul one assoc right_id left_id comm, one) s

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
+#include <vector>
 #include "util/list.h"
 #include "kernel/metavar.h"
 #include "kernel/type_checker.h"

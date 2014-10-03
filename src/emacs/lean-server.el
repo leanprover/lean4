@@ -202,13 +202,6 @@ Send REPLACE commands to lean-server, reset lean-changed-lines to nil."
            do (lean-server-send-cmd-async (lean-cmd-replace n (lean-grab-line n)))
            finally (setq lean-changed-lines nil)))
 
-(defun lean-server-visit-current-buffer ()
-  "Send VISIT for the current buffer"
-  (cond ((and (buffer-modified-p)
-              (not lean-global-server-current-file-name))
-         (lean-server-handle-modified-buffer))
-        (t (lean-server-send-cmd-async (lean-cmd-visit)))))
-
 (defun lean-server-check-current-file (&optional file-name)
   "Check lean-global-server-current-file-name
 
@@ -216,7 +209,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
   (let ((current-file-name (or file-name (buffer-file-name))))
     (unless (string= lean-global-server-current-file-name
                      current-file-name)
-      (lean-server-visit-current-buffer))))
+      (lean-server-send-cmd-async (lean-cmd-visit)))))
 
 (defun lean-server-before-send-cmd (cmd)
   "Operations to perform before sending a command."
@@ -260,8 +253,10 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
 (defun lean-server-after-send-cmd (cmd)
   "Operations to perform after sending a command."
   (cl-case (lean-cmd-type cmd)
-    ('LOAD    (lean-server-delete-cache-file))
-    ('VISIT   (lean-server-delete-cache-file))
+    ('LOAD    (lean-server-delete-cache-file)
+              (lean-server-handle-modified-buffer))
+    ('VISIT   (lean-server-delete-cache-file)
+              (lean-server-handle-modified-buffer))
     ('REPLACE ())
     ('INSERT  ())
     ('REMOVE  ())
@@ -543,19 +538,7 @@ Otherwise, set an idle-timer to call the handler again"
 
 (defun lean-server-handle-modified-buffer ()
   "Handle modified buffer when lean-mode start"
-  (interactive)
-  (when (buffer-file-name)
-    (let* ((current-file-name (buffer-file-name))
-           (current-directory (file-name-directory current-file-name))
-           (temp-prefix (concat (file-name-as-directory current-directory)
-                                "lean-temp"))
-           (temp-file (lean-server-save-buffer-to-temp-file temp-prefix)))
-      (lean-debug "lean-server-handle-modified-buffer: %s => %s"
-                         current-file-name
-                         temp-file)
-      (lean-server-send-cmd-async (lean-cmd-visit temp-file))
-      (setq lean-global-server-current-file-name current-file-name)
-      (lean-server-send-cmd-async (lean-cmd-wait)
-                                  (lambda () (delete-file temp-file))))))
+  (when (buffer-modified-p)
+    (lean-server-send-cmd-async (lean-cmd-sync))))
 
 (provide 'lean-server)

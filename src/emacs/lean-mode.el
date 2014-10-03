@@ -115,6 +115,7 @@
     ["Run flycheck"         flycheck-compile                  lean-flycheck-use]
     ["List of errors"       flycheck-list-errors              lean-flycheck-use]
     "-----------------"
+    ["Clear all cache"      lean-clear-cache                  t]
     ["Kill lean process"    lean-server-kill-process          t]
     ["Restart lean process" lean-server-restart-process       t]
     "-----------------"

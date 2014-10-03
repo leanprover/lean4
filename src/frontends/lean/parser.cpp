@@ -93,11 +93,11 @@ parser::parser(environment const & env, io_state const & ios,
     m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
     m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr), m_index(nullptr) {
     if (s) {
-        m_local_level_decls = s->m_lds;
-        m_local_decls       = s->m_eds;
-        m_variables         = s->m_vars;
-        m_include_vars      = s->m_include_vars;
-        m_options_stack     = s->m_options_stack;
+        m_local_level_decls  = s->m_lds;
+        m_local_decls        = s->m_eds;
+        m_variables          = s->m_vars;
+        m_include_vars       = s->m_include_vars;
+        m_parser_scope_stack = s->m_parser_scope_stack;
     }
     m_num_threads = num_threads;
     m_no_undef_id_error = false;
@@ -405,21 +405,25 @@ expr parser::mk_app(std::initializer_list<expr> const & args, pos_info const & p
 void parser::push_local_scope(bool save_options) {
     m_local_level_decls.push();
     m_local_decls.push();
+    optional<options> opts;
     if (save_options)
-        m_options_stack = cons(optional<options>(m_ios.get_options()), m_options_stack);
-    else
-        m_options_stack = cons(optional<options>(), m_options_stack);
+        opts = m_ios.get_options();
+    m_parser_scope_stack = cons(parser_scope_stack_elem(opts, m_variables, m_include_vars),
+                                m_parser_scope_stack);
 }
 
 void parser::pop_local_scope() {
     m_local_level_decls.pop();
     m_local_decls.pop();
-    lean_assert(!is_nil(m_options_stack));
-    if (auto const & it = head(m_options_stack)) {
-        m_ios.set_options(*it);
+    lean_assert(!is_nil(m_parser_scope_stack));
+    auto s = head(m_parser_scope_stack);
+    if (s.m_options) {
+        m_ios.set_options(*s.m_options);
         updt_options();
     }
-    m_options_stack = tail(m_options_stack);
+    m_variables          = s.m_variables;
+    m_include_vars       = s.m_include_vars;
+    m_parser_scope_stack = tail(m_parser_scope_stack);
 }
 
 void parser::add_local_level(name const & n, level const & l) {
@@ -1360,7 +1364,7 @@ void parser::save_snapshot() {
         return;
     if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
         m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls, m_variables, m_include_vars,
-                                              m_options_stack, m_ios.get_options(), m_scanner.get_line()));
+                                              m_ios.get_options(), m_parser_scope_stack, m_scanner.get_line()));
 }
 
 void parser::save_pre_info_data() {

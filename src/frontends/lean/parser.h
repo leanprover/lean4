@@ -43,26 +43,35 @@ struct parser_error : public exception {
 struct interrupt_parser {};
 typedef local_decls<expr>       local_expr_decls;
 typedef local_decls<level>      local_level_decls;
-typedef list<optional<options>> options_stack;
 typedef environment             local_environment;
+
+/** \brief Extra data needed to be saved when we execute parser::push_local_scope */
+struct parser_scope_stack_elem {
+    optional<options>  m_options;
+    name_set           m_variables;
+    name_set           m_include_vars;
+    parser_scope_stack_elem(optional<options> const & o, name_set const & vs, name_set const & ivs):
+        m_options(o), m_variables(vs), m_include_vars(ivs) {}
+};
+typedef list<parser_scope_stack_elem> parser_scope_stack;
 
 /** \brief Snapshot of the state of the Lean parser */
 struct snapshot {
-    environment       m_env;
-    local_level_decls m_lds;
-    local_expr_decls  m_eds;
-    name_set          m_vars; // subset of m_eds that is tagged as section variables
-    name_set          m_include_vars; // subset of m_eds that must be includes
-    options_stack     m_options_stack;
-    options           m_options;
-    unsigned          m_line;
+    environment        m_env;
+    local_level_decls  m_lds;
+    local_expr_decls   m_eds;
+    name_set           m_vars; // subset of m_eds that is tagged as section variables
+    name_set           m_include_vars; // subset of m_eds that must be includes
+    options            m_options;
+    parser_scope_stack m_parser_scope_stack;
+    unsigned           m_line;
     snapshot():m_line(0) {}
     snapshot(environment const & env, options const & o):m_env(env), m_options(o), m_line(1) {}
     snapshot(environment const & env, local_level_decls const & lds, local_expr_decls const & eds,
-             name_set const & vars, name_set const & includes, options_stack const & os, options const & opts,
-             unsigned line):
+             name_set const & vars, name_set const & includes, options const & opts,
+             parser_scope_stack const & pss, unsigned line):
         m_env(env), m_lds(lds), m_eds(eds), m_vars(vars), m_include_vars(includes),
-        m_options_stack(os), m_options(opts), m_line(line) {}
+        m_options(opts), m_parser_scope_stack(pss), m_line(line) {}
 };
 
 typedef std::vector<snapshot> snapshot_vector;
@@ -81,7 +90,7 @@ class parser {
     local_expr_decls        m_local_decls;
     name_set                m_variables; // subset of m_local_decls that is marked as variables
     name_set                m_include_vars; // subset of m_local_decls that is marked as include
-    options_stack           m_options_stack;
+    parser_scope_stack      m_parser_scope_stack;
     pos_info                m_last_cmd_pos;
     pos_info                m_last_script_pos;
     unsigned                m_next_tag_idx;

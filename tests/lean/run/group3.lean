@@ -49,9 +49,10 @@ end semigroup
 
 section
   parameters {A : Type} {s : semigroup A}
-  definition semigroup_has_mul [instance] : including A s, has_mul A := has_mul.mk (semigroup.mul)
+  include s
+  definition semigroup_has_mul [instance] : has_mul A := has_mul.mk (semigroup.mul)
 
-  theorem mul_assoc [instance] {a b c : A} : including A s, a * b * c = a * (b * c) :=
+  theorem mul_assoc [instance] (a b c : A) : a * b * c = a * (b * c) :=
     semigroup.assoc
 end
 
@@ -68,25 +69,27 @@ mk : Π mul: A → A → A,
 namespace comm_semigroup
   section
   parameters {A : Type} {s : comm_semigroup A}
+  variables a b c : A
   definition mul (a b : A) : A := comm_semigroup.rec (λmul assoc comm, mul) s a b
-  definition assoc {a b c : A} : mul (mul a b) c = mul a (mul b c) :=
+  definition assoc : mul (mul a b) c = mul a (mul b c) :=
     comm_semigroup.rec (λmul assoc comm, assoc) s a b c
-  definition comm {a b : A} : mul a b = mul b a :=
+  definition comm : mul a b = mul b a :=
     comm_semigroup.rec (λmul assoc comm, comm) s a b
   end
 end comm_semigroup
 
 section
   parameters {A : Type} {s : comm_semigroup A}
-  definition comm_semigroup_semigroup [instance] : including A s, semigroup A :=
-    semigroup.mk (comm_semigroup.mul) (@comm_semigroup.assoc _ _)
+  variables a b c : A
+  include s
+  definition comm_semigroup_semigroup [instance] : semigroup A :=
+    semigroup.mk comm_semigroup.mul comm_semigroup.assoc
 
-  theorem mul_comm {a b : A} : including A s, a * b = b * a := comm_semigroup.comm
+  theorem mul_comm : a * b = b * a := !comm_semigroup.comm
 
-  theorem mul_left_comm {a b c : A} : including A s, a * (b * c) = b * (a * c) :=
-    binary.left_comm (@mul_comm) (@mul_assoc _ _) a b c
+  theorem mul_left_comm : a * (b * c) = b * (a * c) :=
+    binary.left_comm mul_comm mul_assoc a b c
 end
-
 
 -- monoid
 -- ------
@@ -102,25 +105,28 @@ mk : Π mul: A → A → A,
 namespace monoid
   section
   parameters {A : Type} {s : monoid A}
-  definition mul (a b : A) : A := monoid.rec (λmul one assoc right_id left_id, mul) s a b
-  definition one : A := monoid.rec (λmul one assoc right_id left_id, one) s
-  definition assoc {a b c : A} : mul (mul a b) c = mul a (mul b c) :=
+  variables a b c : A
+  definition mul := monoid.rec (λmul one assoc right_id left_id, mul) s a b
+  definition one := monoid.rec (λmul one assoc right_id left_id, one) s
+  definition assoc : mul (mul a b) c = mul a (mul b c) :=
     monoid.rec (λmul one assoc right_id left_id, assoc) s a b c
-  definition right_id {a : A} : mul a one = a :=
+  definition right_id : mul a one = a :=
     monoid.rec (λmul one assoc right_id left_id, right_id) s a
-  definition left_id {a : A} : mul one a = a :=
+  definition left_id : mul one a = a :=
     monoid.rec (λmul one assoc right_id left_id, left_id) s a
   end
 end monoid
 
 section
   parameters {A : Type} {s : monoid A}
-  definition monoid_has_one [instance] : including A s, has_one A := has_one.mk (monoid.one)
-  definition monoid_semigroup [instance] : including A s, semigroup A :=
-    semigroup.mk (monoid.mul) (@monoid.assoc _ _)
+  variable a : A
+  include s
+  definition monoid_has_one [instance] : has_one A := has_one.mk (monoid.one)
+  definition monoid_semigroup [instance] : semigroup A :=
+    semigroup.mk monoid.mul monoid.assoc
 
-  theorem mul_right_id {a : A} : including s, a * one = a := monoid.right_id
-  theorem mul_left_id {a : A} : including s, one * a = a := monoid.left_id
+  theorem mul_right_id : a * one = a := !monoid.right_id
+  theorem mul_left_id  : one * a = a := !monoid.left_id
 end
 
 
@@ -139,79 +145,63 @@ mk : Π mul: A → A → A,
 namespace comm_monoid
   section
   parameters {A : Type} {s : comm_monoid A}
-  definition mul (a b : A) : A := comm_monoid.rec (λmul one assoc right_id left_id comm, mul) s a b
-  definition one : A := comm_monoid.rec (λmul one assoc right_id left_id comm, one) s
-  definition assoc {a b c : A} : mul (mul a b) c = mul a (mul b c) :=
+  include s
+  variables a b c : A
+  definition mul := comm_monoid.rec (λmul one assoc right_id left_id comm, mul) s a b
+  definition one := comm_monoid.rec (λmul one assoc right_id left_id comm, one) s
+  definition assoc : mul (mul a b) c = mul a (mul b c) :=
     comm_monoid.rec (λmul one assoc right_id left_id comm, assoc) s a b c
-  definition right_id {a : A} : mul a one = a :=
+  definition right_id : mul a one = a :=
     comm_monoid.rec (λmul one assoc right_id left_id comm, right_id) s a
-  definition left_id {a : A} : mul one a = a :=
+  definition left_id : mul one a = a :=
     comm_monoid.rec (λmul one assoc right_id left_id comm, left_id) s a
-  definition comm {a b : A} : mul a b = mul b a :=
+  definition comm : mul a b = mul b a :=
     comm_monoid.rec (λmul one assoc right_id left_id comm, comm) s a b
   end
 end comm_monoid
 
 section
   parameters {A : Type} {s : comm_monoid A}
-  definition comm_monoid_monoid [instance] : including A s, monoid A :=
-    monoid.mk (comm_monoid.mul) (comm_monoid.one) (@comm_monoid.assoc _ _)
-        (@comm_monoid.right_id _ _) (@comm_monoid.left_id _ _)
-  definition comm_monoid_comm_semigroup [instance] : including A s, comm_semigroup A :=
-    comm_semigroup.mk (comm_monoid.mul) (@comm_monoid.assoc _ _) (@comm_monoid.comm _ _)
+  include s
+  definition comm_monoid_monoid [instance] : monoid A :=
+    monoid.mk comm_monoid.mul comm_monoid.one comm_monoid.assoc
+              comm_monoid.right_id comm_monoid.left_id
+  definition comm_monoid_comm_semigroup [instance] : comm_semigroup A :=
+    comm_semigroup.mk comm_monoid.mul comm_monoid.assoc comm_monoid.comm
 end
-
 
 -- bundled structures
 -- ------------------
 
 inductive Semigroup [class] : Type := mk : Π carrier : Type, semigroup carrier → Semigroup
-namespace Semigroup
-  section
-  parameter (S : Semigroup)
-  definition carrier : Type := Semigroup.rec (λc s, c) S
-  definition struc : semigroup carrier := Semigroup.rec (λc s, s) S
-  end
-end Semigroup
-coercion Semigroup.carrier
-instance Semigroup.struc
+section
+  parameter S : Semigroup
+  definition Semigroup.carrier [coercion] : Type := Semigroup.rec (λc s, c) S
+  definition Semigroup.struc   [instance] : semigroup S := Semigroup.rec (λc s, s) S
+end
 
 inductive CommSemigroup [class] : Type :=
   mk : Π carrier : Type, comm_semigroup carrier → CommSemigroup
-namespace CommSemigroup
-  section
-  parameter (S : CommSemigroup)
-  definition carrier : Type := CommSemigroup.rec (λc s, c) S
-  definition struc : comm_semigroup carrier := CommSemigroup.rec (λc s, s) S
-  end
-end CommSemigroup
-coercion CommSemigroup.carrier
-instance CommSemigroup.struc
+section
+  parameter S : CommSemigroup
+  definition CommSemigroup.carrier [coercion] : Type := CommSemigroup.rec (λc s, c) S
+  definition CommSemigroup.struc [instance] : comm_semigroup S := CommSemigroup.rec (λc s, s) S
+end
 
 inductive Monoid [class] : Type := mk : Π carrier : Type, monoid carrier → Monoid
-namespace Monoid
-  section
-  parameter (S : Monoid)
-  definition carrier : Type := Monoid.rec (λc s, c) S
-  definition struc : monoid carrier := Monoid.rec (λc s, s) S
-  end
-end Monoid
-coercion Monoid.carrier
-instance Monoid.struc
+section
+  parameter S : Monoid
+  definition Monoid.carrier [coercion] : Type := Monoid.rec (λc s, c) S
+  definition Monoid.struc [instance] : monoid S := Monoid.rec (λc s, s) S
+end
 
 inductive CommMonoid : Type := mk : Π carrier : Type, comm_monoid carrier → CommMonoid
-namespace CommMonoid
-  section
-  parameter (S : CommMonoid)
-  definition carrier : Type := CommMonoid.rec (λc s, c) S
-  definition struc : comm_monoid carrier := CommMonoid.rec (λc s, s) S
-  end
-end CommMonoid
-coercion CommMonoid.carrier
-instance CommMonoid.struc
-
+section
+  parameter S : CommMonoid
+  definition CommMonoid.carrier [coercion] : Type := CommMonoid.rec (λc s, c) S
+  definition CommMonoid.struc [instance] : comm_monoid S := CommMonoid.rec (λc s, s) S
+end
 end algebra
-
 
 open algebra
 
@@ -219,15 +209,15 @@ section examples
 
 theorem test1 {S : Semigroup} (a b c d : S) : a * (b * c) * d = a * b * (c * d) :=
 calc
-  a * (b * c) * d = a * b * c * d   : {symm mul_assoc}
-              ... = a * b * (c * d) : mul_assoc
+  a * (b * c) * d = a * b * c * d   : {symm !mul_assoc}
+              ... = a * b * (c * d) : !mul_assoc
 
 theorem test2 {M : CommSemigroup} (a b : M) : a * b = a * b := rfl
 
 theorem test3 {M : Monoid} (a b c d : M) : a * (b * c) * d = a * b * (c * d) :=
 calc
-  a * (b * c) * d = a * b * c * d   : {symm mul_assoc}
-              ... = a * b * (c * d) : mul_assoc
+  a * (b * c) * d = a * b * c * d   : {symm !mul_assoc}
+              ... = a * b * (c * d) : !mul_assoc
 
 -- for test4b to work, we need instances at the level of the bundled structures as well
 definition Monoid_Semigroup [instance] (M : Monoid) : Semigroup :=
@@ -238,21 +228,21 @@ test1 a b c d
 
 theorem test5 {M : Monoid} (a b c : M) : a * 1 * b * c = a * (b * c) :=
 calc
-  a * 1 * b * c = a * b * c   : {mul_right_id}
-            ... = a * (b * c) : mul_assoc
+  a * 1 * b * c = a * b * c   : {!mul_right_id}
+            ... = a * (b * c) : !mul_assoc
 
 theorem test5a {M : Monoid} (a b c : M) : a * 1 * b * c = a * (b * c) :=
 calc
-  a * 1 * b * c = a * b * c   : {mul_right_id}
-            ... = a * (b * c) : mul_assoc
+  a * 1 * b * c = a * b * c   : {!mul_right_id}
+            ... = a * (b * c) : !mul_assoc
 
 theorem test5b {A : Type} {M : monoid A} (a b c : A) : a * 1 * b * c = a * (b * c) :=
 calc
-  a * 1 * b * c = a * b * c   : {mul_right_id}
-            ... = a * (b * c) : mul_assoc
+  a * 1 * b * c = a * b * c   : {!mul_right_id}
+            ... = a * (b * c) : !mul_assoc
 
 theorem test6 {M : CommMonoid} (a b c : M) : a * 1 * b * c = a * (b * c) :=
 calc
-  a * 1 * b * c = a * b * c   : {mul_right_id}
-            ... = a * (b * c) : mul_assoc
+  a * 1 * b * c = a * b * c   : {!mul_right_id}
+            ... = a * (b * c) : !mul_assoc
 end examples

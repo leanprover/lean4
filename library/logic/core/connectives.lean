@@ -113,24 +113,26 @@ infix `<->` := iff
 infix `↔` := iff
 
 namespace iff
-  theorem def {a b : Prop} : (a ↔ b) = ((a → b) ∧ (b → a)) :=
+  section
+  variables {a b c : Prop}
+  theorem def : (a ↔ b) = ((a → b) ∧ (b → a)) :=
   rfl
 
-  theorem intro {a b : Prop} (H₁ : a → b) (H₂ : b → a) : a ↔ b :=
+  theorem intro (H₁ : a → b) (H₂ : b → a) : a ↔ b :=
   and.intro H₁ H₂
 
-  theorem elim {a b c : Prop} (H₁ : (a → b) → (b → a) → c) (H₂ : a ↔ b) : c :=
+  theorem elim (H₁ : (a → b) → (b → a) → c) (H₂ : a ↔ b) : c :=
   and.rec H₁ H₂
 
-  theorem elim_left {a b : Prop} (H : a ↔ b) : a → b :=
+  theorem elim_left (H : a ↔ b) : a → b :=
   elim (assume H₁ H₂, H₁) H
 
   definition mp := @elim_left
 
-  theorem elim_right {a b : Prop} (H : a ↔ b) : b → a :=
+  theorem elim_right (H : a ↔ b) : b → a :=
   elim (assume H₁ H₂, H₂) H
 
-  theorem flip_sign {a b : Prop} (H₁ : a ↔ b) : ¬a ↔ ¬b :=
+  theorem flip_sign (H₁ : a ↔ b) : ¬a ↔ ¬b :=
   intro
     (assume Hna, mt (elim_right H₁) Hna)
     (assume Hnb, mt (elim_left H₁) Hnb)
@@ -141,21 +143,23 @@ namespace iff
   theorem rfl {a : Prop} : a ↔ a :=
   refl a
 
-  theorem trans {a b c : Prop} (H₁ : a ↔ b) (H₂ : b ↔ c) : a ↔ c :=
+  theorem trans (H₁ : a ↔ b) (H₂ : b ↔ c) : a ↔ c :=
   intro
     (assume Ha, elim_left H₂ (elim_left H₁ Ha))
     (assume Hc, elim_right H₁ (elim_right H₂ Hc))
 
-  theorem symm {a b : Prop} (H : a ↔ b) : b ↔ a :=
+  theorem symm (H : a ↔ b) : b ↔ a :=
   intro
     (assume Hb, elim_right H Hb)
     (assume Ha, elim_left H Ha)
 
-  theorem true_elim {a : Prop} (H : a ↔ true) : a :=
+  theorem true_elim (H : a ↔ true) : a :=
   mp (symm H) trivial
 
-  theorem false_elim {a : Prop} (H : a ↔ false) : ¬a :=
+  theorem false_elim (H : a ↔ false) : ¬a :=
   assume Ha : a, mp H Ha
+
+  end
 end iff
 
 calc_refl iff.refl
@@ -168,12 +172,13 @@ iff.intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 
 -- comm and assoc for and / or
 -- ---------------------------
-
 namespace and
-  theorem comm {a b : Prop} : a ∧ b ↔ b ∧ a :=
+  section
+  variables {a b c : Prop}
+  theorem comm : a ∧ b ↔ b ∧ a :=
   iff.intro (λH, swap H) (λH, swap H)
 
-  theorem assoc {a b c : Prop} : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
+  theorem assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
   iff.intro
     (assume H, intro
       (elim_left (elim_left H))
@@ -181,13 +186,16 @@ namespace and
     (assume H, intro
       (intro (elim_left H) (elim_left (elim_right H)))
       (elim_right (elim_right H)))
+  end
 end and
 
 namespace or
-  theorem comm {a b : Prop} : a ∨ b ↔ b ∨ a :=
+  section
+  variables {a b c : Prop}
+  theorem comm : a ∨ b ↔ b ∨ a :=
   iff.intro (λH, swap H) (λH, swap H)
 
-  theorem assoc {a b c : Prop} : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
+  theorem assoc : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
   iff.intro
     (assume H, elim H
       (assume H₁, elim H₁
@@ -199,4 +207,5 @@ namespace or
       (assume H₁, elim H₁
         (assume Hb, inl (inr Hb))
         (assume Hc, inr Hc)))
+  end
 end or

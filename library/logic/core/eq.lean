@@ -22,26 +22,29 @@ definition rfl {A : Type} {a : A} := eq.refl a
 theorem proof_irrel {a : Prop} {H1 H2 : a} : H1 = H2 := rfl
 
 namespace eq
-  theorem id_refl {A : Type} {a : A} (H1 : a = a) : H1 = (eq.refl a) :=
+section
+  variables {A : Type}
+  variables {a b c : A}
+  theorem id_refl (H1 : a = a) : H1 = (eq.refl a) :=
   proof_irrel
 
-  theorem irrel {A : Type} {a b : A} (H1 H2 : a = b) : H1 = H2 :=
+  theorem irrel (H1 H2 : a = b) : H1 = H2 :=
   proof_irrel
 
-  theorem subst {A : Type} {a b : A} {P : A → Prop} (H1 : a = b) (H2 : P a) : P b :=
+  theorem subst {P : A → Prop} (H1 : a = b) (H2 : P a) : P b :=
   rec H2 H1
 
-  theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c :=
+  theorem trans (H1 : a = b) (H2 : b = c) : a = c :=
   subst H2 H1
 
-  theorem symm {A : Type} {a b : A} (H : a = b) : b = a :=
+  theorem symm (H : a = b) : b = a :=
   subst H (refl a)
-
-  namespace ops
-    postfix `⁻¹` := symm
-    infixr `⬝`   := trans
-    infixr `▸`   := subst
-  end ops
+end
+namespace ops
+  postfix `⁻¹` := symm
+  infixr `⬝`   := trans
+  infixr `▸`   := subst
+end ops
 end eq
 
 calc_subst eq.subst
@@ -175,17 +178,22 @@ definition ne {A : Type} (a b : A) := ¬(a = b)
 infix `≠` := ne
 
 namespace ne
-  theorem intro {A : Type} {a b : A} (H : a = b → false) : a ≠ b :=
+section
+  variable {A : Type}
+  variables {a b : A}
+
+  theorem intro (H : a = b → false) : a ≠ b :=
   H
 
-  theorem elim {A : Type} {a b : A} (H1 : a ≠ b) (H2 : a = b) : false :=
+  theorem elim (H1 : a ≠ b) (H2 : a = b) : false :=
   H1 H2
 
-  theorem irrefl {A : Type} {a : A} (H : a ≠ a) : false :=
+  theorem irrefl (H : a ≠ a) : false :=
   H rfl
 
-  theorem symm {A : Type} {a b : A} (H : a ≠ b) : b ≠ a :=
+  theorem symm (H : a ≠ b) : b ≠ a :=
   assume H1 : b = a, H (H1⁻¹)
+end
 end ne
 
 theorem a_neq_a_elim {A : Type} {a : A} (H : a ≠ a) : false :=

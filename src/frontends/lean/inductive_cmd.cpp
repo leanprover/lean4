@@ -599,18 +599,23 @@ struct inductive_cmd_fn {
     /** \brief Add aliases for the inductive datatype, introduction and elimination rules */
     environment add_aliases(environment env, level_param_names const & ls, buffer<expr> const & section_params,
                             buffer<inductive_decl> const & decls) {
+        buffer<expr> section_params_only;
+        for (expr const & param : section_params) {
+            if (!m_p.is_section_variable(param))
+                section_params_only.push_back(param);
+        }
         // Create aliases/local refs
         levels section_levels = collect_section_levels(ls, m_p);
         for (auto & d : decls) {
             name d_name = inductive_decl_name(d);
             name d_short_name(d_name.get_string());
-            env = create_alias(env, false, d_name, section_levels, section_params);
+            env = create_alias(env, false, d_name, section_levels, section_params_only);
             name rec_name = mk_rec_name(d_name);
-            env = create_alias(env, true, rec_name, section_levels, section_params);
+            env = create_alias(env, true, rec_name, section_levels, section_params_only);
             env = add_protected(env, rec_name);
             for (intro_rule const & ir : inductive_decl_intros(d)) {
                 name ir_name = intro_rule_name(ir);
-                env = create_alias(env, true, ir_name, section_levels, section_params);
+                env = create_alias(env, true, ir_name, section_levels, section_params_only);
             }
         }
         return env;

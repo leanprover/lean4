@@ -360,8 +360,10 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
         erase_local_binder_info(section_value_ps);
         value = Fun_as_is(section_value_ps, value, p);
         levels section_ls = collect_section_levels(ls, p);
-        for (expr & p : section_ps)
-            p = mk_explicit(p);
+        while (!section_ps.empty() && p.is_section_variable(section_ps.back()))
+            section_ps.pop_back(); // we do not fix section variables
+        for (expr & param : section_ps)
+            param = mk_explicit(param);
         expr ref = mk_implicit(mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_ps));
         p.add_local_expr(n, ref);
     }

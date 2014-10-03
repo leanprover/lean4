@@ -21,7 +21,12 @@ import tempfile
 import threading
 import urllib
 
-g_linja_path       = os.path.abspath(os.path.realpath(__file__))
+if platform.system().startswith("MSYS"):
+    # In MSYS platform, realpath has a strange behavior.
+    #    os.path.realpath("c:\a\b\c") => \:\a\b\c
+    g_linja_path   = os.path.abspath(os.path.normpath(__file__))
+else:
+    g_linja_path   = os.path.abspath(os.path.realpath(__file__))
 g_lean_bin_dir     = os.path.dirname(g_linja_path)
 g_phony_targets    = ["clean", "tags", "clear-cache"]
 g_project_filename = ".project"

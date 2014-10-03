@@ -79,7 +79,7 @@ class elaborator : public coercion_info_manager {
     typedef name_map<expr> local_tactic_hints;
     typedef rb_map<expr, pair<expr, constraint_seq>, expr_quick_cmp> cache;
     typedef std::vector<pair<expr, expr>> to_check_sorts;
-    elaborator_context & m_env;
+    elaborator_context & m_ctx;
     name_generator       m_ngen;
     type_checker_ptr     m_tc[2];
     // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
@@ -147,26 +147,26 @@ class elaborator : public coercion_info_manager {
     };
 
 public:
-    elaborator(elaborator_context & env, name_generator const & ngen):
-        m_env(env),
+    elaborator(elaborator_context & ctx, name_generator const & ngen):
+        m_ctx(ctx),
         m_ngen(ngen),
         m_context(),
         m_full_context(),
-        m_unifier_config(env.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
-        m_has_sorry = has_sorry(m_env.m_env),
+        m_unifier_config(ctx.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
+        m_has_sorry = has_sorry(m_ctx.m_env),
         m_relax_main_opaque = false;
         m_no_info = false;
-        m_tc[0]  = mk_type_checker(env.m_env, m_ngen.mk_child(), false);
-        m_tc[1]  = mk_type_checker(env.m_env, m_ngen.mk_child(), true);
+        m_tc[0]  = mk_type_checker(ctx.m_env, m_ngen.mk_child(), false);
+        m_tc[1]  = mk_type_checker(ctx.m_env, m_ngen.mk_child(), true);
     }
 
-    environment const & env() const { return m_env.m_env; }
-    io_state const & ios() const { return m_env.m_ios; }
-    local_decls<level> const & lls() const { return m_env.m_lls; }
-    bool use_local_instances() const { return m_env.m_use_local_instances; }
-    info_manager * infom() const { return m_env.m_info_manager; }
-    pos_info_provider const * pip() const { return m_env.m_pos_provider; }
-    bool check_unassigned() const { return m_env.m_check_unassigned; }
+    environment const & env() const { return m_ctx.m_env; }
+    io_state const & ios() const { return m_ctx.m_ios; }
+    local_decls<level> const & lls() const { return m_ctx.m_lls; }
+    bool use_local_instances() const { return m_ctx.m_use_local_instances; }
+    info_manager * infom() const { return m_ctx.m_info_manager; }
+    pos_info_provider const * pip() const { return m_ctx.m_pos_provider; }
+    bool check_unassigned() const { return m_ctx.m_check_unassigned; }
 
     expr mk_local(name const & n, expr const & t, binder_info const & bi) {
         return ::lean::mk_local(m_ngen.next(), n, t, bi);

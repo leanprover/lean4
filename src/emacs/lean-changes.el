@@ -29,6 +29,7 @@ It saves the following information to the global variable:
 
 These information will be used by lean-after-changed-function."
   (lean-server-get-process)
+  (lean-server-check-current-file)
   (setq lean-global-before-change-beg beg)
   (setq lean-global-before-change-end end)
   (setq lean-global-before-change-beg-line-number (line-number-at-pos beg))

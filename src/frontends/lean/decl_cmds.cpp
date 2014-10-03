@@ -85,6 +85,8 @@ static environment declare_var(parser & p, environment env,
         lean_assert(k == variable_kind::Parameter || k == variable_kind::Variable);
         if (k == variable_kind::Parameter)
             check_parameter_type(p, n, type, pos);
+        if (p.get_local(n))
+            throw parser_error(sstream() << "invalid declaration, section/context already contains '" << n << "'", pos);
         name u = p.mk_fresh_name();
         expr l = p.save_pos(mk_local(u, n, type, bi), pos);
         p.add_local_expr(n, l, k == variable_kind::Variable);

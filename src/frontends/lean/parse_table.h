@@ -82,7 +82,8 @@ public:
 
 action mk_skip_action();
 action mk_expr_action(unsigned rbp = 0);
-action mk_exprs_action(name const & sep, expr const & rec, expr const & ini, optional<name> const & terminator, bool right, unsigned rbp = 0);
+action mk_exprs_action(name const & sep, expr const & rec, expr const & ini, optional<name> const & terminator, bool right,
+                       unsigned rbp = 0);
 action mk_binder_action();
 action mk_binders_action();
 action mk_scoped_expr_action(expr const & rec, unsigned rbp = 0, bool lambda = true);

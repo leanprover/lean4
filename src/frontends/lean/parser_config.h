@@ -18,15 +18,31 @@ struct token_entry {
     token_entry(std::string const & tk, unsigned prec):m_token(tk), m_prec(prec) {}
 };
 
-struct notation_entry {
+enum class notation_entry_kind { NuD, LeD, Numeral };
+
+class notation_entry {
     typedef notation::transition transition;
-    bool             m_is_nud;
-    list<transition> m_transitions;
-    expr             m_expr;
-    bool             m_overload;
-    notation_entry():m_is_nud(true) {}
-    notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload):
-        m_is_nud(is_nud), m_transitions(ts), m_expr(e), m_overload(overload) {}
+    notation_entry_kind  m_kind;
+    union {
+        list<transition> m_transitions;
+        mpz              m_num;
+    };
+    expr                 m_expr;
+    bool                 m_overload;
+public:
+    notation_entry();
+    notation_entry(notation_entry const & e);
+    notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload);
+    notation_entry(mpz const & val, expr const & e, bool overload);
+    notation_entry(notation_entry const & e, bool overload);
+    ~notation_entry();
+    notation_entry_kind kind() const { return m_kind; }
+    bool is_numeral() const { return m_kind == notation_entry_kind::Numeral; }
+    bool is_nud() const { return m_kind == notation_entry_kind::NuD; }
+    list<transition> const & get_transitions() const { lean_assert(!is_numeral()); return m_transitions; }
+    mpz const & get_num() const { lean_assert(is_numeral()); return m_num; }
+    expr const & get_expr() const { return m_expr; }
+    bool overload() const { return m_overload; }
 };
 
 /** \brief Apply \c f to expressions embedded in the notation entry */

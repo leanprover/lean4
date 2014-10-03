@@ -197,7 +197,7 @@ def check_requirements():
     if g_ninja_path == "USE DEFAULT":
         g_ninja_path = find_location(ninja_exec_name)
     if not os.path.isfile(g_lean_path):
-        error("cannot find leanpp executable at " + os.path.abspath(g_lean_path))
+        error("cannot find lean executable at " + os.path.abspath(g_lean_path))
     if not os.path.isfile(g_ltags_path):
         error("cannot find ltags executable at " + os.path.abspath(g_ltags_path))
     if not os.path.isfile(g_ninja_path):

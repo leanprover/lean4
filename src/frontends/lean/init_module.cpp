@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "frontends/lean/tokens.h"
+#include "frontends/lean/elaborator_context.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/pp_options.h"
 #include "frontends/lean/parser.h"
@@ -33,6 +34,7 @@ void initialize_frontend_lean_module() {
     initialize_parse_table();
     initialize_builtin_cmds();
     initialize_builtin_exprs();
+    initialize_elaborator_context();
     initialize_elaborator();
     initialize_pp_options();
     initialize_scanner();
@@ -67,6 +69,7 @@ void finalize_frontend_lean_module() {
     finalize_scanner();
     finalize_pp_options();
     finalize_elaborator();
+    finalize_elaborator_context();
     finalize_builtin_exprs();
     finalize_builtin_cmds();
     finalize_parse_table();

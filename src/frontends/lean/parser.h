@@ -23,7 +23,7 @@ Author: Leonardo de Moura
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
 #include "frontends/lean/scanner.h"
-#include "frontends/lean/elaborator.h"
+#include "frontends/lean/elaborator_context.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/parser_pos_provider.h"

@@ -1,0 +1,2 @@
+cls_err.lean:13:2: error: failed to synthesize placeholder
+A : Type ⊢ H A

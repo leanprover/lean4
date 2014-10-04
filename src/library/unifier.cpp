@@ -442,7 +442,8 @@ struct unifier_fn {
         if (m_num_steps > m_config.m_max_steps)
             throw exception(sstream() << "unifier maximum number of steps (" << m_config.m_max_steps << ") exceeded, " <<
                             "the maximum number of steps can be increased by setting the option unifier.max_steps " <<
-                            "(remark: the unifier uses higher order unification and unification-hints, which may trigger non-termination");
+                            "(remark: the unifier uses higher order unification and unification-hints, " <<
+                            "which may trigger non-termination");
         m_num_steps++;
     }
 
@@ -1025,7 +1026,7 @@ struct unifier_fn {
                     set_conflict(c.get_justification());
                     return false;
                 }
-                if (!process_constraints(cs))
+                if (!process_constraints(cs, c.get_justification()))
                     return false;
                 type = *t;
                 m_type_map.insert(m, mk_pair(type, justification()));
@@ -1038,7 +1039,7 @@ struct unifier_fn {
                 // and store the new type in m_type_map
                 jst  = mk_composite1(jst, type_jst.second);
                 type = type_jst.first;
-                c    = update_justification(c, jst);
+                c    = update_justification(c, mk_composite1(c.get_justification(), jst));
                 m_type_map.insert(m, mk_pair(type, jst));
             }
             unsigned cidx = add_cnstr(c, cnstr_group::ClassInstance);

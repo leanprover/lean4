@@ -1,0 +1,61 @@
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGININFO
+-- SYMBOL|11|4
+@
+-- ACK
+-- TYPE|11|5
+∀ {A : Type} {a b c : A}, eq a b → eq b c → eq a c
+-- ACK
+-- IDENTIFIER|11|5
+eq.trans
+-- ACK
+-- TYPE|11|14
+Type
+-- ACK
+-- SYNTH|11|14
+A
+-- ACK
+-- SYMBOL|11|14
+_
+-- ACK
+-- TYPE|11|16
+A
+-- ACK
+-- SYNTH|11|16
+a
+-- ACK
+-- SYMBOL|11|16
+_
+-- ACK
+-- TYPE|11|18
+A
+-- ACK
+-- SYNTH|11|18
+b
+-- ACK
+-- SYMBOL|11|18
+_
+-- ACK
+-- TYPE|11|20
+A
+-- ACK
+-- SYNTH|11|20
+c
+-- ACK
+-- SYMBOL|11|20
+_
+-- ACK
+-- TYPE|11|22
+eq a b
+-- ACK
+-- IDENTIFIER|11|22
+H1
+-- ACK
+-- TYPE|11|25
+eq b c
+-- ACK
+-- IDENTIFIER|11|25
+H2
+-- ACK
+-- ENDINFO

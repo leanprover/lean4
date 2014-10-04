@@ -257,11 +257,14 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & t, constraint_s
 
 expr elaborator::visit_proof_qed(expr const & e, optional<expr> const & t, constraint_seq & cs) {
     lean_assert(is_proof_qed_annotation(e));
+    info_manager * im = nullptr;
+    if (infom())
+        im = &m_pre_info_data;
     pair<expr, constraint_seq> ecs = visit(get_annotation_arg(e));
     expr m                         = m_full_context.mk_meta(m_ngen, t, e.get_tag());
     register_meta(m);
-    constraint c                   = mk_proof_qed_cnstr(env(), m, ecs.first, ecs.second,
-                                                        m_unifier_config, m_relax_main_opaque);
+    constraint c                   = mk_proof_qed_cnstr(env(), m, ecs.first, ecs.second, m_unifier_config,
+                                                        im, m_relax_main_opaque);
     cs += c;
     return m;
 }

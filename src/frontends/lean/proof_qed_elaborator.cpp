@@ -8,12 +8,14 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/metavar_closure.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/info_manager.h"
 namespace lean {
 /** \brief Create a "choice" constraint that postpone the
     solving the constraints <tt>(cs union (m =?= e))</tt>.
 */
 constraint mk_proof_qed_cnstr(environment const & env, expr const & m, expr const & e,
-                              constraint_seq const & cs, unifier_config const & cfg, bool relax) {
+                              constraint_seq const & cs, unifier_config const & cfg,
+                              info_manager * im, bool relax) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
                          name_generator const & _ngen) {
@@ -45,6 +47,10 @@ constraint mk_proof_qed_cnstr(environment const & env, expr const & m, expr cons
                                          // we erase internal justifications
                                          return update_justification(c, j);
                                      });
+        if (im)
+            im->instantiate(new_s);
+        // TODO(Leo): the solution new_s also assigns auxiliary metavariables
+        // that are needed to generate data for the info_manager
         constraints r = cls.mk_constraints(new_s, j, relax);
         return append(r, postponed);
     };

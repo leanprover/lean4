@@ -127,7 +127,7 @@ theorem eq_id {A : Type} (a : A) : (a = a) ↔ true :=
 iff_true_intro rfl
 
 theorem heq_id {A : Type} (a : A) : (a == a) ↔ true :=
-iff_true_intro (hrefl a)
+iff_true_intro (heq.refl a)
 
 theorem a_iff_not_a (a : Prop) : (a ↔ ¬a) ↔ false :=
 iff.intro

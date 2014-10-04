@@ -19,7 +19,7 @@ cast_app' Hb f a
 theorem hcongr_fun {A : Type} {B B' : A → Type} {f : Π x, B x} {f' : Π x, B' x} (a : A)
   (H : f == f') : f a == f' a :=
 have Hi [visible] : inhabited (Π x, B x), from inhabited.mk f,
-have Hb : B = B', from piext (type_eq H),
+have Hb : B = B', from piext (heq.type_eq H),
 hcongr_fun' a H Hb
 
 theorem hcongr {A A' : Type} {B : A → Type} {B' : A' → Type}
@@ -28,5 +28,5 @@ theorem hcongr {A A' : Type} {B : A → Type} {B' : A' → Type}
 have H1 : ∀ (B B' : A → Type) (f : Π x, B x) (f' : Π x, B' x), f == f' → f a == f' a, from
   take B B' f f' e, hcongr_fun a e,
 have H2 : ∀ (B : A → Type) (B' : A' → Type) (f : Π x, B x) (f' : Π x, B' x),
-    f == f' → f a == f' a', from hsubst Haa' H1,
+    f == f' → f a == f' a', from heq.subst Haa' H1,
 H2 B B' f f' Hff'

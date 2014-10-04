@@ -21,6 +21,12 @@ import tempfile
 import threading
 import urllib
 
+
+# Fixate the path separator as '\' on Windows Platform
+# even if users are on CYGWIN/MSYS2 environment
+if platform.system() == "Windows":
+    os.path.sep = "\\"
+
 if platform.system().startswith("MSYS"):
     # In MSYS platform, realpath has a strange behavior.
     #    os.path.realpath("c:\a\b\c") => \:\a\b\c

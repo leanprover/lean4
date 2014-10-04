@@ -273,9 +273,9 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
             return lazy_list<constraints>(constraints());
         }
         pair<expr, justification> mj = update_meta(meta, s);
-        expr new_meta       = mj.first;
-        justification new_j = mj.second;
-        constraint c = mk_placeholder_cnstr(C, new_meta);
+        expr new_meta            = mj.first;
+        justification new_j      = mj.second;
+        constraint c             = mk_placeholder_cnstr(C, new_meta);
         unifier_config new_cfg(cfg);
         new_cfg.m_discard        = false;
         new_cfg.m_use_exceptions = false;
@@ -288,17 +288,17 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
             });
         lazy_list<constraints> seq3 = map2<constraints>(seq2, [=](pair<substitution, constraints> const & p) {
                 substitution new_s     = p.first;
-            // some constraints may have been postponed (example: universe level constraints)
-            constraints  postponed = map(p.second,
-                                         [&](constraint const & c) {
-                                             // we erase internal justifications
-                                             return update_justification(c, new_j);
-                                         });
-            metavar_closure cls(new_meta);
-            cls.add(meta_type);
-            bool relax     = C->m_relax;
-            constraints cs = cls.mk_constraints(new_s, new_j, relax);
-            return append(cs, postponed);
+                // some constraints may have been postponed (example: universe level constraints)
+                constraints  postponed = map(p.second,
+                                             [&](constraint const & c) {
+                                                 // we erase internal justifications
+                                                 return update_justification(c, mk_composite1(j, new_j));
+                                             });
+                metavar_closure cls(new_meta);
+                cls.add(meta_type);
+                bool relax     = C->m_relax;
+                constraints cs = cls.mk_constraints(new_s, new_j, relax);
+                return append(cs, postponed);
             });
         if (is_strict) {
             return seq3;

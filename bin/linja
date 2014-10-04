@@ -27,6 +27,11 @@ import urllib
 if platform.system() == "Windows":
     os.path.sep = "\\"
 
+# Reset MSYSTEM environment variable to enforce native-WINDOWS
+# behavior to subprocesses.
+if "MSYSTEM" in os.environ:
+    del os.environ["MSYSTEM"]
+    
 if platform.system().startswith("MSYS"):
     # In MSYS platform, realpath has a strange behavior.
     #    os.path.realpath("c:\a\b\c") => \:\a\b\c

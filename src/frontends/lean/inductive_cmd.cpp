@@ -430,6 +430,8 @@ struct inductive_cmd_fn {
         section parameters \c section_params as arguments.
     */
     expr fix_inductive_occs(expr const & type, buffer<inductive_decl> const & decls, buffer<expr> const & section_params) {
+        if (section_params.empty())
+            return type;
         return replace(type, [&](expr const & e) {
                 if (!is_constant(e))
                     return none_expr();

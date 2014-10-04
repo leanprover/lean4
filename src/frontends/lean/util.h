@@ -22,12 +22,14 @@ void check_atomic(name const & n);
 void check_in_section_or_context(parser const & p);
 bool is_root_namespace(name const & n);
 name remove_root_prefix(name const & n);
-/** \brief Return the levels in \c ls that are defined in the section. */
-levels collect_section_levels(level_param_names const & ls, parser & p);
+/** \brief Return the levels in \c ls that are defined in the section, but are not tagged as variables. */
+levels collect_section_nonvar_levels(parser & p, level_param_names const & ls);
 /** \brief Collect local (section) constants occurring in type and value, sort them, and store in section_ps */
 void collect_section_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & section_ps);
 /** \brief Copy the local parameters to \c section_ps, then sort \c section_ps (using the order in which they were declared). */
 void sort_section_params(expr_struct_set const & locals, parser const & p, buffer<expr> & section_ps);
+/** \brief Remove from \c ps local constants that are tagged as section variables. */
+void remove_section_variables(parser const & p, buffer<expr> & ps);
 list<expr> locals_to_context(expr const & e, parser const & p);
 /** \brief Fun(locals, e), but also propagate \c e position to result */
 expr Fun(buffer<expr> const & locals, expr const & e, parser & p);

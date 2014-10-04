@@ -109,10 +109,10 @@ static environment declare_var(parser & p, environment env,
 }
 
 /** \brief If we are in a section, then add the new local levels to it. */
-static void update_section_local_levels(parser & p, level_param_names const & new_ls) {
+static void update_section_local_levels(parser & p, level_param_names const & new_ls, bool is_variable) {
     if (in_section_or_context(p.env())) {
         for (auto const & l : new_ls)
-            p.add_local_level(l, mk_param_univ(l));
+            p.add_local_level(l, mk_param_univ(l), is_variable);
     }
 }
 
@@ -169,7 +169,7 @@ environment variable_cmd_core(parser & p, variable_kind k) {
     level_param_names new_ls;
     list<expr> ctx = locals_to_context(type, p);
     std::tie(type, new_ls) = p.elaborate_type(type, ctx);
-    update_section_local_levels(p, new_ls);
+    update_section_local_levels(p, new_ls, k == variable_kind::Variable);
     return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos);
 }
 environment variable_cmd(parser & p) {
@@ -210,7 +210,7 @@ static environment variables_cmd_core(parser & p, variable_kind k) {
             level_param_names new_ls;
             expr new_type;
             std::tie(new_type, new_ls) = p.elaborate_type(type, ctx);
-            update_section_local_levels(p, new_ls);
+            update_section_local_levels(p, new_ls, k == variable_kind::Variable);
             new_ls = append(ls, new_ls);
             env = declare_var(p, env, id, new_ls, new_type, k, bi, pos);
         }
@@ -360,9 +360,8 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
         value = Fun_as_is(section_value_ps, value, p);
         update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
-        levels section_ls = collect_section_levels(ls, p);
-        while (!section_ps.empty() && p.is_section_variable(section_ps.back()))
-            section_ps.pop_back(); // we do not fix section variables
+        levels section_ls = collect_section_nonvar_levels(p, ls);
+        remove_section_variables(p, section_ps);
         for (expr & param : section_ps)
             param = mk_explicit(param);
         expr ref = mk_implicit(mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_ps));

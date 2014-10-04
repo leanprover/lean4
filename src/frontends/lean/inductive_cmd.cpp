@@ -605,13 +605,10 @@ struct inductive_cmd_fn {
     /** \brief Add aliases for the inductive datatype, introduction and elimination rules */
     environment add_aliases(environment env, level_param_names const & ls, buffer<expr> const & section_params,
                             buffer<inductive_decl> const & decls) {
-        buffer<expr> section_params_only;
-        for (expr const & param : section_params) {
-            if (!m_p.is_section_variable(param))
-                section_params_only.push_back(param);
-        }
+        buffer<expr> section_params_only(section_params);
+        remove_section_variables(m_p, section_params_only);
         // Create aliases/local refs
-        levels section_levels = collect_section_levels(ls, m_p);
+        levels section_levels = collect_section_nonvar_levels(m_p, ls);
         for (auto & d : decls) {
             name d_name = inductive_decl_name(d);
             name d_short_name(d_name.get_string());

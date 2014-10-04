@@ -48,10 +48,11 @@ typedef environment             local_environment;
 /** \brief Extra data needed to be saved when we execute parser::push_local_scope */
 struct parser_scope_stack_elem {
     optional<options>  m_options;
+    name_set           m_level_variables;
     name_set           m_variables;
     name_set           m_include_vars;
-    parser_scope_stack_elem(optional<options> const & o, name_set const & vs, name_set const & ivs):
-        m_options(o), m_variables(vs), m_include_vars(ivs) {}
+    parser_scope_stack_elem(optional<options> const & o, name_set const & lvs, name_set const & vs, name_set const & ivs):
+        m_options(o), m_level_variables(lvs), m_variables(vs), m_include_vars(ivs) {}
 };
 typedef list<parser_scope_stack_elem> parser_scope_stack;
 
@@ -60,17 +61,18 @@ struct snapshot {
     environment        m_env;
     local_level_decls  m_lds;
     local_expr_decls   m_eds;
-    name_set           m_vars; // subset of m_eds that is tagged as section variables
-    name_set           m_include_vars; // subset of m_eds that must be includes
+    name_set           m_lvars; // subset of m_lds that is tagged as section level variable
+    name_set           m_vars; // subset of m_eds that is tagged as section variable
+    name_set           m_include_vars; // subset of m_eds that must be included
     options            m_options;
     parser_scope_stack m_parser_scope_stack;
     unsigned           m_line;
     snapshot():m_line(0) {}
     snapshot(environment const & env, options const & o):m_env(env), m_options(o), m_line(1) {}
     snapshot(environment const & env, local_level_decls const & lds, local_expr_decls const & eds,
-             name_set const & vars, name_set const & includes, options const & opts,
+             name_set const & lvars, name_set const & vars, name_set const & includes, options const & opts,
              parser_scope_stack const & pss, unsigned line):
-        m_env(env), m_lds(lds), m_eds(eds), m_vars(vars), m_include_vars(includes),
+        m_env(env), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
         m_options(opts), m_parser_scope_stack(pss), m_line(line) {}
 };
 
@@ -88,6 +90,7 @@ class parser {
     scanner::token_kind     m_curr;
     local_level_decls       m_local_level_decls;
     local_expr_decls        m_local_decls;
+    name_set                m_level_variables;
     name_set                m_variables; // subset of m_local_decls that is marked as variables
     name_set                m_include_vars; // subset of m_local_decls that is marked as include
     parser_scope_stack      m_parser_scope_stack;
@@ -323,9 +326,10 @@ public:
     expr parse_scoped_expr(buffer<expr> & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
 
     struct local_scope { parser & m_p; environment m_env; local_scope(parser & p); ~local_scope(); };
-    void add_local_level(name const & n, level const & l);
+    void add_local_level(name const & n, level const & l, bool is_variable = false);
     void add_local_expr(name const & n, expr const & p, bool is_variable = false);
     void add_local(expr const & p) { return add_local_expr(local_pp_name(p), p); }
+    bool is_section_level_variable(name const & n) const { return m_level_variables.contains(n); }
     bool is_section_variable(name const & n) const { return m_variables.contains(n); }
     bool is_section_variable(expr const & e) const { return is_section_variable(local_pp_name(e)); }
     void include_variable(name const & n) { m_include_vars.insert(n); }

@@ -61,10 +61,10 @@ void sort_section_params(expr_struct_set const & locals, parser const & p, buffe
 }
 
 // Return the levels in \c ls that are defined in the section
-levels collect_section_levels(level_param_names const & ls, parser & p) {
+levels collect_section_nonvar_levels(parser & p, level_param_names const & ls) {
     buffer<level> section_ls_buffer;
     for (name const & l : ls) {
-        if (p.get_local_level_index(l))
+        if (p.get_local_level_index(l) && !p.is_section_level_variable(l))
             section_ls_buffer.push_back(mk_param_univ(l));
         else
             break;
@@ -84,6 +84,18 @@ void collect_section_locals(expr const & type, expr const & value, parser const 
     collect_locals(type, ls);
     collect_locals(value, ls);
     sort_section_params(ls, p, section_ps);
+}
+
+void remove_section_variables(parser const & p, buffer<expr> & ps) {
+    unsigned j = 0;
+    for (unsigned i = 0; i < ps.size(); i++) {
+        expr const & param = ps[i];
+        if (!is_local(param) || !p.is_section_variable(param)) {
+            ps[j] = param;
+            j++;
+        }
+    }
+    ps.shrink(j);
 }
 
 list<expr> locals_to_context(expr const & e, parser const & p) {

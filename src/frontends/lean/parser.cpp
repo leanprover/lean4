@@ -95,6 +95,7 @@ parser::parser(environment const & env, io_state const & ios,
     if (s) {
         m_local_level_decls  = s->m_lds;
         m_local_decls        = s->m_eds;
+        m_level_variables    = s->m_lvars;
         m_variables          = s->m_vars;
         m_include_vars       = s->m_include_vars;
         m_parser_scope_stack = s->m_parser_scope_stack;
@@ -408,7 +409,7 @@ void parser::push_local_scope(bool save_options) {
     optional<options> opts;
     if (save_options)
         opts = m_ios.get_options();
-    m_parser_scope_stack = cons(parser_scope_stack_elem(opts, m_variables, m_include_vars),
+    m_parser_scope_stack = cons(parser_scope_stack_elem(opts, m_level_variables, m_variables, m_include_vars),
                                 m_parser_scope_stack);
 }
 
@@ -421,17 +422,22 @@ void parser::pop_local_scope() {
         m_ios.set_options(*s.m_options);
         updt_options();
     }
+    m_level_variables    = s.m_level_variables;
     m_variables          = s.m_variables;
     m_include_vars       = s.m_include_vars;
     m_parser_scope_stack = tail(m_parser_scope_stack);
 }
 
-void parser::add_local_level(name const & n, level const & l) {
+void parser::add_local_level(name const & n, level const & l, bool is_variable) {
     if (m_env.is_universe(n))
         throw exception(sstream() << "invalid universe declaration, '" << n << "' shadows a global universe");
     if (m_local_level_decls.contains(n))
         throw exception(sstream() << "invalid universe declaration, '" << n << "' shadows a local universe");
     m_local_level_decls.insert(n, l);
+    if (is_variable) {
+        lean_assert(is_param(l));
+        m_level_variables.insert(n);
+    }
 }
 
 void parser::add_local_expr(name const & n, expr const & p, bool is_variable) {
@@ -1363,7 +1369,8 @@ void parser::save_snapshot() {
     if (!m_snapshot_vector)
         return;
     if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
-        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls, m_variables, m_include_vars,
+        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls,
+                                              m_level_variables, m_variables, m_include_vars,
                                               m_ios.get_options(), m_parser_scope_stack, m_scanner.get_line()));
 }
 

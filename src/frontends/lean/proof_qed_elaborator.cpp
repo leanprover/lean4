@@ -49,8 +49,6 @@ constraint mk_proof_qed_cnstr(environment const & env, expr const & m, expr cons
                                      });
         if (im)
             im->instantiate(new_s);
-        // TODO(Leo): the solution new_s also assigns auxiliary metavariables
-        // that are needed to generate data for the info_manager
         constraints r = cls.mk_constraints(new_s, j, relax);
         return append(r, postponed);
     };

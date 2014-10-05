@@ -4,7 +4,7 @@
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
 
-import logic.core.decidable tools.tactic
+import logic.decidable tools.tactic
 open decidable tactic eq.ops
 
 definition ite (c : Prop) {H : decidable c} {A : Type} (t e : A) : A :=

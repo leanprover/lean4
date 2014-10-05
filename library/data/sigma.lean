@@ -1,7 +1,7 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
-import logic.core.inhabited logic.core.eq
+import logic.inhabited logic.eq
 open inhabited eq.ops
 
 inductive sigma {A : Type} (B : A → Type) : Type :=

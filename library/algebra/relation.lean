@@ -5,7 +5,7 @@
 -- algebra.relation
 -- ==============
 
-import logic.core.prop
+import logic.prop
 
 
 -- General properties of relations

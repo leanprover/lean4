@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 
-import logic.core.eq logic.core.inhabited logic.core.decidable
+import logic.eq logic.inhabited logic.decidable
 open eq.ops decidable
 
 inductive option (A : Type) : Type :=

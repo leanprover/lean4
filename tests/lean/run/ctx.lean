@@ -1,4 +1,4 @@
-import data.nat logic.core.inhabited
+import data.nat logic.inhabited
 open nat inhabited
 
 constant N : Type.{1}

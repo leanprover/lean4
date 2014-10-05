@@ -3,7 +3,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
-import logic.core.inhabited data.bool general_notation
+import logic.inhabited data.bool general_notation
 open bool
 
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.

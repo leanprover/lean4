@@ -1,4 +1,4 @@
-import logic.core.eq algebra.relation
+import logic.eq algebra.relation
 
 check proof_irrel
 

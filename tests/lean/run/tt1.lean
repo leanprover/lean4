@@ -1,4 +1,4 @@
-import data.prod data.num logic.core.quantifiers
+import data.prod data.num logic.quantifiers
 open prod
 
 check (true, false, 10)

@@ -8,7 +8,7 @@
 -- Basic operations on the natural numbers.
 
 import logic data.num tools.tactic algebra.binary tools.helper_tactics
-import logic.core.inhabited
+import logic.inhabited
 
 open tactic binary eq.ops
 open decidable

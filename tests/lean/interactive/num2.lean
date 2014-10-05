@@ -3,7 +3,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
-import logic.core.inhabited
+import logic.inhabited
 
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.
 -- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).

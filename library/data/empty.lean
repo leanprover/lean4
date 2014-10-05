@@ -5,7 +5,7 @@
 -- Empty type
 -- ----------
 
-import logic.core.cast
+import logic.cast
 
 inductive empty : Type
 

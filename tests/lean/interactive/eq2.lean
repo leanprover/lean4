@@ -7,7 +7,7 @@
 
 -- Equality.
 
-import logic.core.prop
+import logic.prop
 
 -- eq
 -- --

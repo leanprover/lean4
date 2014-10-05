@@ -3,7 +3,7 @@
 -- Author: Floris van Doorn
 
 -- category
-import logic.core.eq logic.core.connectives
+import logic.eq logic.connectives
 import data.unit data.sigma data.prod
 import algebra.function
 

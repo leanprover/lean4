@@ -2,13 +2,13 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Jeremy Avigad, Leonardo de Moura
 
--- logic.connectives.identities
+-- logic.identities
 -- ============================
 
 -- Useful logical identities. In the absence of propositional extensionality, some of the
 -- calculations use the type class support provided by logic.connectives.instances
 
-import logic.core.instances logic.core.decidable logic.core.quantifiers logic.core.cast
+import logic.instances logic.decidable logic.quantifiers logic.cast
 
 open relation decidable relation.iff_ops
 

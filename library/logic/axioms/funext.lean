@@ -5,7 +5,7 @@
 -- logic.axioms.funext
 -- ===================
 
-import logic.core.eq algebra.function
+import logic.eq algebra.function
 open function
 
 -- Function extensionality

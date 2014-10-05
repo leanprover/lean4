@@ -12,7 +12,6 @@
 import tools.tactic
 import data.nat
 import logic tools.helper_tactics
-import logic.core.identities
 
 open nat
 open eq.ops

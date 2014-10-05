@@ -5,7 +5,7 @@
 -- logic.core.instances
 -- ====================
 
-import logic.core.connectives algebra.relation
+import logic.connectives algebra.relation
 
 namespace relation
 

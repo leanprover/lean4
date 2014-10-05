@@ -1,13 +1,12 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
+import .prop
 
 -- logic.connectives.eq
 -- ====================
 
 -- Equality.
-
-import .prop
 
 -- eq
 -- --
@@ -19,23 +18,24 @@ infix `=` := eq
 definition rfl {A : Type} {a : A} := eq.refl a
 
 -- proof irrelevance is built in
-theorem proof_irrel {a : Prop} {H1 H2 : a} : H1 = H2 := rfl
+theorem proof_irrel {a : Prop} {H₁ H₂ : a} : H₁ = H₂ :=
+rfl
 
 namespace eq
 section
   variables {A : Type}
   variables {a b c : A}
-  theorem id_refl (H1 : a = a) : H1 = (eq.refl a) :=
+  theorem id_refl (H₁ : a = a) : H₁ = (eq.refl a) :=
   proof_irrel
 
-  theorem irrel (H1 H2 : a = b) : H1 = H2 :=
+  theorem irrel (H₁ H₂ : a = b) : H₁ = H₂ :=
   proof_irrel
 
-  theorem subst {P : A → Prop} (H1 : a = b) (H2 : P a) : P b :=
-  rec H2 H1
+  theorem subst {P : A → Prop} (H₁ : a = b) (H₂ : P a) : P b :=
+  rec H₂ H₁
 
-  theorem trans (H1 : a = b) (H2 : b = c) : a = c :=
-  subst H2 H1
+  theorem trans (H₁ : a = b) (H₂ : b = c) : a = c :=
+  subst H₂ H₁
 
   theorem symm (H : a = b) : b = a :=
   subst H (refl a)
@@ -54,13 +54,8 @@ calc_trans eq.trans
 open eq.ops
 
 namespace eq
-  -- eq_rec with arguments swapped, for transporting an element of a dependent type
-
-  -- definition rec_on {A : Type} {a1 a2 : A} {B : A → Type} (H1 : a1 = a2) (H2 : B a1) : B a2 :=
-  -- eq.rec H2 H1
-
-  definition rec_on {A : Type} {a a' : A} {B : Πa' : A, a = a' → Type} (H1 : a = a') (H2 : B a (refl a)) : B a' H1 :=
-  eq.rec (λH1 : a = a, show B a H1, from H2) H1 H1
+  definition rec_on {A : Type} {a a' : A} {B : Πa' : A, a = a' → Type} (H₁ : a = a') (H₂ : B a (refl a)) : B a' H₁ :=
+  eq.rec (λH₁ : a = a, show B a H₁, from H₂) H₁ H₁
 
   theorem rec_on_id {A : Type} {a : A} {B : Πa' : A, a = a' → Type} (H : a = a) (b : B a H) : rec_on H b = b :=
   refl (rec_on rfl b)
@@ -68,62 +63,73 @@ namespace eq
   theorem rec_on_constant {A : Type} {a a' : A} {B : Type} (H : a = a') (b : B) : rec_on H b = b :=
   rec_on H (λ(H' : a = a), rec_on_id H' b) H
 
-  theorem rec_on_constant2 {A : Type} {a₁ a₂ a₃ a₄ : A} {B : Type} (H₁ : a₁ = a₂) (H₂ : a₃ = a₄) (b : B) : rec_on H₁ b = rec_on H₂ b :=
-  rec_on_constant H₁ b ⬝ rec_on_constant H₂ b ⁻¹
+  theorem rec_on_constant2 {A : Type} {a₁ a₂ a₃ a₄ : A} {B : Type} (H₁ : a₁ = a₂) (H₂ : a₃ = a₄) (b : B) :
+                           rec_on H₁ b = rec_on H₂ b :=
+  rec_on_constant H₁ b ⬝ (rec_on_constant H₂ b)⁻¹
 
-  theorem rec_on_irrel {A B : Type} {a a' : A} {f : A → B} {D : B → Type} (H : a = a') (H' : f a = f a') (b : D (f a)) : rec_on H b = rec_on H' b :=
+  theorem rec_on_irrel {A B : Type} {a a' : A} {f : A → B} {D : B → Type} (H : a = a') (H' : f a = f a') (b : D (f a)) :
+                       rec_on H b = rec_on H' b :=
   rec_on H (λ(H : a = a) (H' : f a = f a), rec_on_id H b ⬝ rec_on_id H' b⁻¹) H H'
 
   theorem rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : rec b H = b :=
   id_refl H⁻¹ ▸ refl (eq.rec b (refl a))
 
-  theorem rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H1 : a = b) (H2 : b = c)
+  theorem rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H₁ : a = b) (H₂ : b = c)
           (u : P a) :
-    rec_on H2 (rec_on H1 u) = rec_on (trans H1 H2) u :=
-    (show ∀(H2 : b = c), rec_on H2 (rec_on H1 u) = rec_on (trans H1 H2) u,
-      from rec_on H2 (take (H2 : b = b), rec_on_id H2 _))
-    H2
+    rec_on H₂ (rec_on H₁ u) = rec_on (trans H₁ H₂) u :=
+    (show ∀ H₂ : b = c, rec_on H₂ (rec_on H₁ u) = rec_on (trans H₁ H₂) u,
+      from rec_on H₂ (take (H₂ : b = b), rec_on_id H₂ _))
+    H₂
 end eq
 
 open eq
 
-theorem congr_fun {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a :=
-H ▸ rfl
+section
+  variables {A B C D E F : Type}
+  variables {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E} {f f' : F}
 
-theorem congr_arg {A : Type} {B : Type} {a b : A} (f : A → B) (H : a = b) : f a = f b :=
-H ▸ rfl
+  theorem congr_fun {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a :=
+  H ▸ rfl
 
-theorem congr {A : Type} {B : Type} {f g : A → B} {a b : A} (H1 : f = g) (H2 : a = b) :
-  f a = g b :=
-H1 ▸ H2 ▸ rfl
+  theorem congr_arg (f : A → B) (H : a = a') : f a = f a' :=
+  H ▸ rfl
 
-theorem congr_arg2 {A B C : Type} {a a' : A} {b b' : B} (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
-congr (congr_arg f Ha) Hb
+  theorem congr {f g : A → B} (H₁ : f = g) (H₂ : a = a') : f a = g a' :=
+  H₁ ▸ H₂ ▸ rfl
 
-theorem congr_arg3 {A B C D : Type} {a a' : A} {b b' : B} {c c' : C} (f : A → B → C → D) (Ha : a = a') (Hb : b = b') (Hc : c = c') : f a b c = f a' b' c' :=
-congr (congr_arg2 f Ha Hb) Hc
+  theorem congr_arg2 (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
+  congr (congr_arg f Ha) Hb
 
-theorem congr_arg4 {A B C D E : Type} {a a' : A} {b b' : B} {c c' : C} {d d' : D} (f : A → B → C → D → E) (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') : f a b c d = f a' b' c' d' :=
-congr (congr_arg3 f Ha Hb Hc) Hd
+  theorem congr_arg3 (f : A → B → C → D) (Ha : a = a') (Hb : b = b') (Hc : c = c') : f a b c = f a' b' c' :=
+  congr (congr_arg2 f Ha Hb) Hc
 
-theorem congr_arg5 {A B C D E F : Type} {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E} (f : A → B → C → D → E → F) (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') (He : e = e') : f a b c d e = f a' b' c' d' e' :=
-congr (congr_arg4 f Ha Hb Hc Hd) He
+  theorem congr_arg4 (f : A → B → C → D → E) (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') : f a b c d = f a' b' c' d' :=
+  congr (congr_arg3 f Ha Hb Hc) Hd
 
-theorem congr2 {A B C : Type} {a a' : A} {b b' : B} (f f' : A → B → C) (Hf : f = f') (Ha : a = a') (Hb : b = b') : f a b = f' a' b' :=
-Hf ▸ congr_arg2 f Ha Hb
+  theorem congr_arg5 (f : A → B → C → D → E → F) (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') (He : e = e')
+                     : f a b c d e = f a' b' c' d' e' :=
+  congr (congr_arg4 f Ha Hb Hc Hd) He
 
-theorem congr3 {A B C D : Type} {a a' : A} {b b' : B} {c c' : C} (f f' : A → B → C → D) (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') : f a b c = f' a' b' c' :=
-Hf ▸ congr_arg3 f Ha Hb Hc
+  theorem congr2 (f f' : A → B → C) (Hf : f = f') (Ha : a = a') (Hb : b = b') : f a b = f' a' b' :=
+  Hf ▸ congr_arg2 f Ha Hb
 
-theorem congr4 {A B C D E : Type} {a a' : A} {b b' : B} {c c' : C} {d d' : D} (f f' : A → B → C → D → E) (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') : f a b c d = f' a' b' c' d' :=
-Hf ▸ congr_arg4 f Ha Hb Hc Hd
+  theorem congr3 (f f' : A → B → C → D) (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') : f a b c = f' a' b' c' :=
+  Hf ▸ congr_arg3 f Ha Hb Hc
 
-theorem congr5 {A B C D E F : Type} {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E} (f f' : A → B → C → D → E → F) (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') (He : e = e') : f a b c d e = f' a' b' c' d' e' :=
-Hf ▸ congr_arg5 f Ha Hb Hc Hd He
+  theorem congr4 (f f' : A → B → C → D → E) (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d')
+                 : f a b c d = f' a' b' c' d' :=
+  Hf ▸ congr_arg4 f Ha Hb Hc Hd
 
-theorem congr_arg2_dep {A : Type} {B : A → Type} {C : Type} {a₁ a₂ : A}
-    {b₁ : B a₁} {b₂ : B a₂} (f : Πa, B a → C) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) :
-    f a₁ b₁ = f a₂ b₂ :=
+  theorem congr5 (f f' : A → B → C → D → E → F) (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') (He : e = e')
+                 : f a b c d e = f' a' b' c' d' e' :=
+  Hf ▸ congr_arg5 f Ha Hb Hc Hd He
+end
+
+section
+  variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {R : Type}
+  variables {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
+
+  theorem congr_arg2_dep (f : Πa, B a → R) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) : f a₁ b₁ = f a₂ b₂ :=
   eq.rec_on H₁
     (λ (b₂ : B a₁) (H₁ : a₁ = a₁) (H₂ : eq.rec_on H₁ b₁ = b₂),
       calc
@@ -131,45 +137,52 @@ theorem congr_arg2_dep {A : Type} {B : A → Type} {C : Type} {a₁ a₂ : A}
             ... = f a₁ b₂                : {H₂})
     b₂ H₁ H₂
 
-theorem congr_arg3_dep {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Type} {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂} (f : Πa b, C a b → D)
-    (H₁ : a₁ = a₂)  (H₂ : eq.rec_on H₁ b₁ = b₂) (H₃ : eq.rec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) :
-  f a₁ b₁ c₁ = f a₂ b₂ c₂ :=
-eq.rec_on H₁
-  (λ (b₂ : B a₁) (H₂ : b₁ = b₂) (c₂ : C a₁ b₂)
-    (H₃ : (rec_on (congr_arg2_dep C (refl a₁) H₂) c₁) = c₂),
-    have H₃' : eq.rec_on H₂ c₁ = c₂,
-      from (rec_on_irrel H₂ (congr_arg2_dep C (refl a₁) H₂) c₁⁻¹) ▸ H₃,
-    congr_arg2_dep (f a₁) H₂ H₃')
-  b₂ H₂ c₂ H₃
+  theorem congr_arg3_dep (f : Πa b, C a b → R) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂)
+                         (H₃ : eq.rec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) : f a₁ b₁ c₁ = f a₂ b₂ c₂ :=
+  eq.rec_on H₁
+    (λ (b₂ : B a₁) (H₂ : b₁ = b₂) (c₂ : C a₁ b₂)
+      (H₃ : (rec_on (congr_arg2_dep C (refl a₁) H₂) c₁) = c₂),
+      have H₃' : eq.rec_on H₂ c₁ = c₂,
+        from (rec_on_irrel H₂ (congr_arg2_dep C (refl a₁) H₂) c₁⁻¹) ▸ H₃,
+      congr_arg2_dep (f a₁) H₂ H₃')
+    b₂ H₂ c₂ H₃
+end
 
-theorem congr_arg3_ndep_dep {A B : Type} {C : A → B → Type} {D : Type} {a₁ a₂ : A} {b₁ b₂ : B} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂} (f : Πa b, C a b → D)
-    (H₁ : a₁ = a₂)  (H₂ : b₁ = b₂) (H₃ : eq.rec_on (congr_arg2 C H₁ H₂) c₁ = c₂) :
-  f a₁ b₁ c₁ = f a₂ b₂ c₂ :=
-congr_arg3_dep f H₁ (rec_on_constant H₁ b₁ ⬝ H₂) H₃
+section
+  variables {A B : Type} {C : A → B → Type} {R : Type}
+  variables {a₁ a₂ : A} {b₁ b₂ : B} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
+  theorem congr_arg3_ndep_dep (f : Πa b, C a b → R) (H₁ : a₁ = a₂) (H₂ : b₁ = b₂) (H₃ : eq.rec_on (congr_arg2 C H₁ H₂) c₁ = c₂) :
+                              f a₁ b₁ c₁ = f a₂ b₂ c₂ :=
+  congr_arg3_dep f H₁ (rec_on_constant H₁ b₁ ⬝ H₂) H₃
+end
 
 theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀x, f x = g x :=
 take x, congr_fun H x
 
-theorem eqmp {a b : Prop} (H1 : a = b) (H2 : a) : b :=
-H1 ▸ H2
+section
+  variables {a b c : Prop}
 
-theorem eqmpr {a b : Prop} (H1 : a = b) (H2 : b) : a :=
-H1⁻¹ ▸ H2
+  theorem eqmp (H₁ : a = b) (H₂ : a) : b :=
+  H₁ ▸ H₂
 
-theorem eq_true_elim {a : Prop} (H : a = true) : a :=
-H⁻¹ ▸ trivial
+  theorem eqmpr (H₁ : a = b) (H₂ : b) : a :=
+  H₁⁻¹ ▸ H₂
 
-theorem eq_false_elim {a : Prop} (H : a = false) : ¬a :=
-assume Ha : a, H ▸ Ha
+  theorem eq_true_elim (H : a = true) : a :=
+  H⁻¹ ▸ trivial
 
-theorem imp_trans {a b c : Prop} (H1 : a → b) (H2 : b → c) : a → c :=
-assume Ha, H2 (H1 Ha)
+  theorem eq_false_elim (H : a = false) : ¬a :=
+  assume Ha : a, H ▸ Ha
 
-theorem imp_eq_trans {a b c : Prop} (H1 : a → b) (H2 : b = c) : a → c :=
-assume Ha, H2 ▸ (H1 Ha)
+  theorem imp_trans (H₁ : a → b) (H₂ : b → c) : a → c :=
+  assume Ha, H₂ (H₁ Ha)
 
-theorem eq_imp_trans {a b c : Prop} (H1 : a = b) (H2 : b → c) : a → c :=
-assume Ha, H2 (H1 ▸ Ha)
+  theorem imp_eq_trans (H₁ : a → b) (H₂ : b = c) : a → c :=
+  assume Ha, H₂ ▸ (H₁ Ha)
+
+  theorem eq_imp_trans (H₁ : a = b) (H₂ : b → c) : a → c :=
+  assume Ha, H₂ (H₁ ▸ Ha)
+end
 
 -- ne
 -- --
@@ -182,37 +195,45 @@ section
   variable {A : Type}
   variables {a b : A}
 
-  theorem intro (H : a = b → false) : a ≠ b :=
-  H
+  theorem intro : (a = b → false) → a ≠ b :=
+  assume H, H
 
-  theorem elim (H1 : a ≠ b) (H2 : a = b) : false :=
-  H1 H2
+  theorem elim : a ≠ b → a = b → false :=
+  assume H₁ H₂, H₁ H₂
 
-  theorem irrefl (H : a ≠ a) : false :=
-  H rfl
+  theorem irrefl : a ≠ a → false :=
+  assume H, H rfl
 
-  theorem symm (H : a ≠ b) : b ≠ a :=
-  assume H1 : b = a, H (H1⁻¹)
+  theorem symm : a ≠ b → b ≠ a :=
+  assume (H : a ≠ b) (H₁ : b = a), H (H₁⁻¹)
 end
 end ne
 
-theorem a_neq_a_elim {A : Type} {a : A} (H : a ≠ a) : false :=
-H rfl
+section
+  variables {A : Type} {a b c : A}
 
-theorem eq_ne_trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b ≠ c) : a ≠ c :=
-H1⁻¹ ▸ H2
+  theorem a_neq_a_elim : a ≠ a → false :=
+  assume H, H rfl
 
-theorem ne_eq_trans {A : Type} {a b c : A} (H1 : a ≠ b) (H2 : b = c) : a ≠ c :=
-H2 ▸ H1
+  theorem eq_ne_trans : a = b → b ≠ c → a ≠ c :=
+  assume H₁ H₂, H₁⁻¹ ▸ H₂
+
+  theorem ne_eq_trans : a ≠ b → b = c → a ≠ c :=
+  assume H₁ H₂, H₂ ▸ H₁
+end
 
 calc_trans eq_ne_trans
 calc_trans ne_eq_trans
 
-theorem p_ne_false {p : Prop} (Hp : p) : p ≠ false :=
-assume Heq : p = false, Heq ▸ Hp
+section
+  variables {p : Prop}
 
-theorem p_ne_true {p : Prop} (Hnp : ¬p) : p ≠ true :=
-assume Heq : p = true, absurd trivial (Heq ▸ Hnp)
+  theorem p_ne_false : p → p ≠ false :=
+  assume (Hp : p) (Heq : p = false), Heq ▸ Hp
+
+  theorem p_ne_true : ¬p → p ≠ true :=
+  assume (Hnp : ¬p) (Heq : p = true), absurd trivial (Heq ▸ Hnp)
+end
 
 theorem true_ne_false : ¬true = false :=
 assume H : true = false,

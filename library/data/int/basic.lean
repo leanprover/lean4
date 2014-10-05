@@ -76,9 +76,9 @@ or.elim le_or_gt
     have H3 : pr1 a = pr2 a, from le_antisym H H2,
     calc
       proj a = pair (pr1 a - pr2 a) 0 : proj_ge H2
-        ... = pair (pr1 a - pr2 a) (pr1 a - pr1 a) : {sub_self⁻¹}
+        ... = pair (pr1 a - pr2 a) (pr1 a - pr1 a) : {!sub_self⁻¹}
         ... = pair (pr2 a - pr2 a) (pr2 a - pr1 a) : {H3}
-        ... = pair 0 (pr2 a - pr1 a)               : {sub_self})
+        ... = pair 0 (pr2 a - pr1 a)               : {!sub_self})
   (assume H2 : pr1 a < pr2 a, proj_lt H2)
 
 theorem proj_ge_pr1 {a : ℕ × ℕ} (H : pr1 a ≥ pr2 a) : pr1 (proj a) = pr1 a - pr2 a :=
@@ -153,10 +153,10 @@ have special : ∀a b, pr2 a ≤ pr1 a → rel a b → proj a = proj b, from
   have H5 : pr1 (proj a) = pr1 (proj b), from
     calc
       pr1 (proj a) = pr1 a - pr2 a          : proj_ge_pr1 H2
-        ... = pr1 a + pr2 b - pr2 b - pr2 a : {sub_add_left⁻¹}
+        ... = pr1 a + pr2 b - pr2 b - pr2 a : {!sub_add_left⁻¹}
         ... = pr2 a + pr1 b - pr2 b - pr2 a : {H}
-        ... = pr2 a + pr1 b - pr2 a - pr2 b : {sub_comm}
-        ... = pr1 b - pr2 b                 : {sub_add_left2}
+        ... = pr2 a + pr1 b - pr2 a - pr2 b : {!sub_comm}
+        ... = pr1 b - pr2 b                 : {!sub_add_left2}
         ... = pr1 (proj b)                  : (proj_ge_pr1 H4)⁻¹,
   have H6 : pr2 (proj a) = pr2 (proj b), from
     calc
@@ -427,7 +427,7 @@ theorem to_nat_add_le (a b : ℤ) : to_nat (a + b) ≤ to_nat a + to_nat b :=
 obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
 obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
 have H : dist (xa + xb) (ya + yb) ≤ dist xa ya + dist xb yb,
-  from dist_add_le_add_dist,
+  from !dist_add_le_add_dist,
 by simp
 
 -- TODO: note, we have to add #nat to get the right interpretation
@@ -697,7 +697,7 @@ theorem mul_to_nat (a b : ℤ) : (to_nat (a * b)) = #nat (to_nat a) * (to_nat b)
 obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
 obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
 have H : dist xa ya * dist xb yb = dist (xa * xb + ya * yb) (xa * yb + ya * xb),
-  from dist_mul_dist,
+  from !dist_mul_dist,
 by simp
 
 -- add_rewrite mul_zero_left mul_zero_right mul_one_right mul_one_left

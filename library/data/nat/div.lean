@@ -467,9 +467,9 @@ have H1 : z * y = x mod y + x div y * y, from
   H ⬝ div_mod_eq ⬝ !add.comm,
 have H2 : (z - x div y) * y = x mod y, from
   calc
-    (z - x div y) * y = z * y - x div y * y      : mul_sub_distr_right
+    (z - x div y) * y = z * y - x div y * y      : !mul_sub_distr_right
        ... = x mod y + x div y * y - x div y * y : {H1}
-       ... = x mod y                             : sub_add_left,
+       ... = x mod y                             : !sub_add_left,
 show x mod y = 0, from
   by_cases
     (assume yz : y = 0,

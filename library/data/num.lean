@@ -148,7 +148,7 @@ namespace num
     (λp, calc
       pred (succ (pos p)) = pred (pos (pos_num.succ p)) : rfl
                    ...    = cond ff zero (pos (pos_num.pred (pos_num.succ p))) : {succ_not_is_one}
-                   ...    = pos (pos_num.pred (pos_num.succ p)) : cond_ff _ _
+                   ...    = pos (pos_num.pred (pos_num.succ p)) : !cond.ff
                    ...    = pos p : {pos_num.pred_succ})
 
   definition add (a b : num) : num :=

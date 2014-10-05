@@ -3,26 +3,26 @@
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGINFINDP
-bool.and_tt_left|∀ (a : bool), eq (bool.and bool.tt a) a
-bool.and_tt_right|∀ (a : bool), eq (bool.and a bool.tt) a
+bool.band.tt_left|∀ (a : bool), eq (bool.band bool.tt a) a
 bool.tt|bool
-bool.or_tt_left|∀ (a : bool), eq (bool.or bool.tt a) bool.tt
-bool.and_eq_tt_elim_left|eq (bool.and ?a ?b) bool.tt → eq ?a bool.tt
-bool.and_eq_tt_elim_right|eq (bool.and ?a ?b) bool.tt → eq ?b bool.tt
-bool.cond_tt|∀ (t e : ?A), eq (bool.cond bool.tt t e) t
-bool.or_tt_right|∀ (a : bool), eq (bool.or a bool.tt) bool.tt
+bool.band.eq_tt_elim_right|eq (bool.band ?a ?b) bool.tt → eq ?b bool.tt
+bool.band.eq_tt_elim_left|eq (bool.band ?a ?b) bool.tt → eq ?a bool.tt
+bool.band.tt_right|∀ (a : bool), eq (bool.band a bool.tt) a
+bool.bor.tt_right|∀ (a : bool), eq (bool.bor a bool.tt) bool.tt
+bool.bor.tt_left|∀ (a : bool), eq (bool.bor bool.tt a) bool.tt
 bool.ff_ne_tt|not (eq bool.ff bool.tt)
+bool.cond.tt|∀ (t e : ?A), eq (bool.cond bool.tt t e) t
 -- ENDFINDP
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGINFINDP
 tt|bool
-and_tt_left|∀ (a : bool), eq (and tt a) a
-and_tt_right|∀ (a : bool), eq (and a tt) a
-or_tt_left|∀ (a : bool), eq (or tt a) tt
-and_eq_tt_elim_left|eq (and ?a ?b) tt → eq ?a tt
-and_eq_tt_elim_right|eq (and ?a ?b) tt → eq ?b tt
-cond_tt|∀ (t e : ?A), eq (cond tt t e) t
-or_tt_right|∀ (a : bool), eq (or a tt) tt
+band.tt_left|∀ (a : bool), eq (band tt a) a
+band.eq_tt_elim_right|eq (band ?a ?b) tt → eq ?b tt
+band.eq_tt_elim_left|eq (band ?a ?b) tt → eq ?a tt
+band.tt_right|∀ (a : bool), eq (band a tt) a
+bor.tt_right|∀ (a : bool), eq (bor a tt) tt
+bor.tt_left|∀ (a : bool), eq (bor tt a) tt
 ff_ne_tt|not (eq ff tt)
+cond.tt|∀ (t e : ?A), eq (cond tt t e) t
 -- ENDFINDP

@@ -119,7 +119,7 @@ have special : ∀a, pr2 a ≤ pr1 a → proj (flip a) = flip (proj a), from
         ... = pr1 (proj a)                              : (proj_ge_pr1 H)⁻¹
         ... = pr2 (flip (proj a))                       : (flip_pr2 (proj a))⁻¹,
   prod.equal H3 H4,
-or.elim le_total
+or.elim !le_total
   (assume H : pr2 a ≤ pr1 a, special a H)
   (assume H : pr1 a ≤ pr2 a,
     have H2 : pr2 (flip a) ≤ pr1 (flip a), from P_flip a H,
@@ -129,7 +129,7 @@ or.elim le_total
         ... = flip (proj a)                       : {flip_flip a})
 
 theorem proj_rel (a : ℕ × ℕ) : rel a (proj a) :=
-or.elim le_total
+or.elim !le_total
   (assume H : pr2 a ≤ pr1 a,
     calc
       pr1 a + pr2 (proj a) = pr1 a + 0 : {proj_ge_pr2 H}
@@ -148,7 +148,7 @@ have special : ∀a b, pr2 a ≤ pr1 a → rel a b → proj a = proj b, from
   take a b,
   assume H2 : pr2 a ≤ pr1 a,
   assume H : rel a b,
-  have H3 : pr1 a + pr2 b ≤ pr2 a + pr1 b, from H ▸ le_refl,
+  have H3 : pr1 a + pr2 b ≤ pr2 a + pr1 b, from H ▸ !le_refl,
   have H4 : pr2 b ≤ pr1 b, from add_le_inv H3 H2,
   have H5 : pr1 (proj a) = pr1 (proj b), from
     calc
@@ -163,7 +163,7 @@ have special : ∀a b, pr2 a ≤ pr1 a → rel a b → proj a = proj b, from
       pr2 (proj a) = 0 : proj_ge_pr2 H2
         ... = pr2 (proj b) : {(proj_ge_pr2 H4)⁻¹},
   prod.equal H5 H6,
-or.elim le_total
+or.elim !le_total
   (assume H2 : pr2 a ≤ pr1 a, special a b H2 H)
   (assume H2 : pr1 a ≤ pr2 a,
     have H3 : pr2 (flip a) ≤ pr1 (flip a), from P_flip a H2,
@@ -175,7 +175,7 @@ theorem proj_inj {a b : ℕ × ℕ} (H : proj a = proj b) : rel a b :=
 representative_map_equiv_inj rel_equiv proj_rel @proj_congr H
 
 theorem proj_zero_or (a : ℕ × ℕ) : pr1 (proj a) = 0 ∨ pr2 (proj a) = 0 :=
-or.elim le_total
+or.elim !le_total
   (assume H : pr2 a ≤ pr1 a, or.inr (proj_ge_pr2 H))
   (assume H : pr1 a ≤ pr2 a, or.inl (proj_le_pr1 H))
 

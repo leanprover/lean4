@@ -420,7 +420,7 @@ obtain (n : ℕ) (Hn : a = n), from pos_imp_exists_nat H,
 Hn⁻¹ ▸ congr_arg of_nat (to_nat_of_nat n)
 
 theorem of_nat_nonneg (n : ℕ) : of_nat n ≥ 0 :=
-iff.mp (iff.symm (le_of_nat _ _)) zero_le
+iff.mp (iff.symm !le_of_nat) !zero_le
 
 definition le_decidable [instance] {a b : ℤ} : decidable (a ≤ b) :=
 have aux : Πx, decidable (0 ≤ x), from
@@ -615,7 +615,7 @@ or.elim (em (a = 0))
         mul_cancel_right H3 H))
 
 theorem sign_idempotent (a : ℤ) : sign (sign a) = sign a :=
-have temp : of_nat 1 > 0, from iff.elim_left (iff.symm (lt_of_nat 0 1)) succ_pos,
+have temp : of_nat 1 > 0, from iff.elim_left (iff.symm (lt_of_nat 0 1)) !succ_pos,
     --this should be done with simp
 or.elim3 (trichotomy a 0) sorry sorry sorry
 --  (by simp)
@@ -623,7 +623,7 @@ or.elim3 (trichotomy a 0) sorry sorry sorry
 --  (by simp)
 
 theorem sign_succ (n : ℕ) : sign (succ n) = 1 :=
-sign_pos (iff.elim_left (iff.symm (lt_of_nat 0 (succ n))) succ_pos)
+sign_pos (iff.elim_left (iff.symm (lt_of_nat 0 (succ n))) !succ_pos)
   --this should be done with simp
 
 theorem sign_neg (a : ℤ) : sign (-a) = - sign a :=

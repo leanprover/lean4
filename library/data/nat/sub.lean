@@ -180,7 +180,7 @@ sub_induction n m
              ... = succ (k - 0) : {sub_zero_right⁻¹})
   (take k,
     assume H : succ k ≤ 0,
-    absurd H not_succ_zero_le)
+    absurd H !not_succ_zero_le)
   (take k l,
     assume IH : k ≤ l → succ l - k = succ (l - k),
     take H : succ k ≤ succ l,
@@ -199,7 +199,7 @@ sub_induction n m
     calc
       0 + (k - 0) = k - 0 : !add.zero_left
               ... = k     : sub_zero_right)
-  (take k, assume H : succ k ≤ 0, absurd H not_succ_zero_le)
+  (take k, assume H : succ k ≤ 0, absurd H !not_succ_zero_le)
   (take k l,
     assume IH : k ≤ l → k + (l - k) = l,
     take H : succ k ≤ succ l,
@@ -209,7 +209,7 @@ sub_induction n m
                              ... = succ l             : {IH (succ_le_cancel H)})
 
 theorem add_sub_ge_left {n m : ℕ} : n ≥ m → n - m + m = n :=
-!add.comm ▸ add_sub_le
+!add.comm ▸ !add_sub_le
 
 theorem add_sub_ge {n m : ℕ} (H : n ≥ m) : n + (m - n) = n :=
 calc
@@ -220,24 +220,24 @@ theorem add_sub_le_left {n m : ℕ} : n ≤ m → n - m + m = m :=
 !add.comm ▸ add_sub_ge
 
 theorem le_add_sub_left {n m : ℕ} : n ≤ n + (m - n) :=
-or.elim le_total
+or.elim !le_total
   (assume H : n ≤ m, (add_sub_le H)⁻¹ ▸ H)
-  (assume H : m ≤ n, (add_sub_ge H)⁻¹ ▸ le_refl)
+  (assume H : m ≤ n, (add_sub_ge H)⁻¹ ▸ !le_refl)
 
 theorem le_add_sub_right {n m : ℕ} : m ≤ n + (m - n) :=
-or.elim le_total
-  (assume H : n ≤ m, (add_sub_le H)⁻¹ ▸ le_refl)
+or.elim !le_total
+  (assume H : n ≤ m, (add_sub_le H)⁻¹ ▸ !le_refl)
   (assume H : m ≤ n, (add_sub_ge H)⁻¹ ▸ H)
 
 theorem sub_split {P : ℕ → Prop} {n m : ℕ} (H1 : n ≤ m → P 0) (H2 : ∀k, m + k = n -> P k)
   : P (n - m) :=
-or.elim le_total
+or.elim !le_total
   (assume H3 : n ≤ m, (le_imp_sub_eq_zero H3)⁻¹ ▸ (H1 H3))
   (assume H3 : m ≤ n, H2 (n - m) (add_sub_le H3))
 
 theorem sub_le_self {n m : ℕ} : n - m ≤ n :=
 sub_split
-  (assume H : n ≤ m, zero_le)
+  (assume H : n ≤ m, !zero_le)
   (take k : ℕ, assume H : m + k = n, le_intro (!add.comm ▸ H))
 
 theorem le_elim_sub {n m : ℕ} (H : n ≤ m) : ∃k, m - k = n :=
@@ -255,7 +255,7 @@ have l1 : k ≤ m → n + m - k = n + (m - k), from
       calc
         n + m - 0 = n + m       : sub_zero_right
               ... = n + (m - 0) : {sub_zero_right⁻¹})
-    (take k : ℕ, assume H : succ k ≤ 0, absurd H not_succ_zero_le)
+    (take k : ℕ, assume H : succ k ≤ 0, absurd H !not_succ_zero_le)
     (take k m,
       assume IH : k ≤ m → n + m - k = n + (m - k),
       take H : succ k ≤ succ m,
@@ -273,11 +273,11 @@ sub_split
     assume H1 : m + k = n,
     assume H2 : k = 0,
     have H3 : n = m, from !add.zero_right ▸ H2 ▸ H1⁻¹,
-    H3 ▸ le_refl)
+    H3 ▸ !le_refl)
 
 theorem sub_sub_split {P : ℕ → ℕ → Prop} {n m : ℕ} (H1 : ∀k, n = m + k -> P k 0)
   (H2 : ∀k, m = n + k → P 0 k) : P (n - m) (m - n) :=
-or.elim le_total
+or.elim !le_total
   (assume H3 : n ≤ m,
     le_imp_sub_eq_zero H3⁻¹ ▸  (H2 (m - n) (add_sub_le H3⁻¹)))
   (assume H3 : m ≤ n,
@@ -300,13 +300,13 @@ obtain (x' : ℕ) (xeq : x = succ x'), from pos_imp_eq_succ xpos,
        ... = succ x' - succ y' : {yeq}
        ... = x' - y'           : sub_succ_succ,
  have H1 : x' - y' ≤ x', from sub_le_self,
- have H2 : x' < succ x', from self_lt_succ,
+ have H2 : x' < succ x', from !self_lt_succ,
  show x - y < x, from xeq⁻¹ ▸ xsuby_eq⁻¹ ▸ le_lt_trans H1 H2
 
 theorem sub_le_right {n m : ℕ} (H : n ≤ m) (k : nat) : n - k ≤ m - k :=
 obtain (l : ℕ) (Hl : n + l = m), from le_elim H,
-or.elim le_total
-  (assume H2 : n ≤ k, (le_imp_sub_eq_zero H2)⁻¹ ▸ zero_le)
+or.elim !le_total
+  (assume H2 : n ≤ k, (le_imp_sub_eq_zero H2)⁻¹ ▸ !zero_le)
   (assume H2 : k ≤ n,
     have H3 : n - k + l = m - k, from
       calc
@@ -319,7 +319,7 @@ or.elim le_total
 theorem sub_le_left {n m : ℕ} (H : n ≤ m) (k : nat) : k - m ≤ k - n :=
 obtain (l : ℕ) (Hl : n + l = m), from le_elim H,
 sub_split
-  (assume H2 : k ≤ m, zero_le)
+  (assume H2 : k ≤ m, !zero_le)
   (take m' : ℕ,
     assume Hm : m + m' = k,
     have H3 : n ≤ k, from le_trans H (le_intro Hm),
@@ -357,7 +357,7 @@ sub_split
                       ... = m + mn      : {Hkm}
                       ... = n           : Hmn,
         have H2 : n - k = mn + km, from sub_intro H,
-        H2 ▸ le_refl))
+        H2 ▸ !le_refl))
 
 
 -- add_rewrite sub_self mul_sub_distr_left mul_sub_distr_right
@@ -407,10 +407,10 @@ theorem dist_ge {n m : ℕ} (H : n ≥ m) : dist n m = n - m :=
 dist_comm ▸ dist_le H
 
 theorem dist_zero_right {n : ℕ} : dist n 0 = n :=
-dist_ge zero_le ⬝ sub_zero_right
+dist_ge !zero_le ⬝ sub_zero_right
 
 theorem dist_zero_left {n : ℕ} : dist 0 n = n :=
-dist_le zero_le ⬝ sub_zero_right
+dist_le !zero_le ⬝ sub_zero_right
 
 theorem dist_intro {n m k : ℕ} (H : n + m = k) : dist k n = m :=
 calc
@@ -479,7 +479,7 @@ have aux : ∀k l, k ≥ l → dist n m * dist k l = dist (n * k + m * l) (n * l
   take k l : ℕ,
   assume H : k ≥ l,
   have H2 : m * k ≥ m * l, from mul_le_left H m,
-  have H3 : n * l + m * k ≥ m * l, from le_trans H2 le_add_left,
+  have H3 : n * l + m * k ≥ m * l, from le_trans H2 !le_add_left,
   calc
     dist n m * dist k l = dist n m * (k - l)       : {dist_ge H}
       ... = dist (n * (k - l)) (m * (k - l))       : dist_mul_right⁻¹
@@ -488,7 +488,7 @@ have aux : ∀k l, k ≥ l → dist n m * dist k l = dist (n * k + m * l) (n * l
       ... = dist (n * k) (n * l + (m * k - m * l)) : {!add.comm}
       ... = dist (n * k) (n * l + m * k - m * l)   : {(add_sub_assoc H2 (n * l))⁻¹}
       ... = dist (n * k + m * l) (n * l + m * k)   : dist_sub_move_add' H3 _,
-or.elim le_total
+or.elim !le_total
   (assume H : k ≤ l, dist_comm ▸ dist_comm ▸ aux l k H)
   (assume H : l ≤ k, aux k l H)
 

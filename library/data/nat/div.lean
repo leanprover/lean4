@@ -73,7 +73,7 @@ let f  := rec_measure default measure rec_val in
 case_strong_induction_on m
   (take x,
     have H1 : f' 0 x = default, from rfl,
-    have H2 : ¬ measure x < 0, from not_lt_zero,
+    have H2 : ¬ measure x < 0, from !not_lt_zero,
     have H3 : restrict default measure f 0 x = default, from if_neg H2,
     show f' 0 x = restrict default measure f 0 x, from H1 ⬝ H3⁻¹)
   (take m,
@@ -86,7 +86,7 @@ case_strong_induction_on m
             take z,
               assume Hzx : measure z < measure x,
               calc
-                f' m z = restrict default measure f m z : IH m le_refl z
+                f' m z = restrict default measure f m z : IH m !le_refl z
                   ... = f z : restrict_lt_eq _ _ _ _ _ (lt_le_trans Hzx (lt_succ_imp_le H1)),
           have H2 : f' (succ m) x = rec_val x f, from
             calc
@@ -105,7 +105,7 @@ case_strong_induction_on m
               restrict default measure f (succ m) x = f x : if_pos H1
                 ... = f' (succ m') x : eq.refl _
                 ... = if measure x < succ m' then rec_val x (f' m') else default : rfl
-                ... = rec_val x (f' m') : if_pos self_lt_succ
+                ... = rec_val x (f' m') : if_pos !self_lt_succ
                 ... = rec_val x f : rec_decreasing _ _ _ H3a,
           show f' (succ m) x = restrict default measure f (succ m) x,
             from H2 ⬝ H3⁻¹)
@@ -138,7 +138,7 @@ have H : ∀z, measure z < measure x → f' m z = f z, from
 calc
   f x = f' (succ m) x : rfl
     ... = if measure x < succ m then rec_val x (f' m) else default : rfl
-    ... = rec_val x (f' m) : if_pos (self_lt_succ)
+    ... = rec_val x (f' m) : if_pos !self_lt_succ
     ... = rec_val x f : rec_decreasing _ _ _ H
 
 
@@ -193,7 +193,7 @@ div_aux_spec _ _ ⬝ if_pos (or.inr H)
 -- add_rewrite div_less
 
 theorem zero_div {y : ℕ} : 0 div y = 0 :=
-case y div_zero (take y', div_less succ_pos)
+case y div_zero (take y', div_less !succ_pos)
 
 -- add_rewrite zero_div
 
@@ -202,7 +202,7 @@ have H3 : ¬ (y = 0 ∨ x < y), from
   not_intro
     (assume H4 : y = 0 ∨ x < y,
       or.elim H4
-        (assume H5 : y = 0, not_elim lt_irrefl (H5 ▸ H1))
+        (assume H5 : y = 0, not_elim !lt_irrefl (H5 ▸ H1))
         (assume H5 : x < y, not_elim (lt_imp_not_ge H5) H2)),
 div_aux_spec _ _ ⬝ if_neg H3
 
@@ -269,7 +269,7 @@ mod_aux_spec _ _ ⬝ if_pos (or.inr H)
 -- add_rewrite mod_lt_eq
 
 theorem zero_mod {y : ℕ} : 0 mod y = 0 :=
-case y mod_zero (take y', mod_lt_eq succ_pos)
+case y mod_zero (take y', mod_lt_eq !succ_pos)
 
 -- add_rewrite zero_mod
 
@@ -278,7 +278,7 @@ have H3 : ¬ (y = 0 ∨ x < y), from
   not_intro
     (assume H4 : y = 0 ∨ x < y,
       or.elim H4
-        (assume H5 : y = 0, not_elim lt_irrefl (H5 ▸ H1))
+        (assume H5 : y = 0, not_elim !lt_irrefl (H5 ▸ H1))
         (assume H5 : x < y, not_elim (lt_imp_not_ge H5) H2)),
 mod_aux_spec _ _ ⬝ if_neg H3
 
@@ -325,7 +325,7 @@ case_strong_induction_on x
         (assume H1 : ¬ succ x < y,
           have H2 : y ≤ succ x, from not_lt_imp_ge H1,
           have H3 : succ x mod y = (succ x - y) mod y, from mod_rec H H2,
-          have H4 : succ x - y < succ x, from sub_lt succ_pos H,
+          have H4 : succ x - y < succ x, from sub_lt !succ_pos H,
           have H5 : succ x - y ≤ x, from lt_succ_imp_le H4,
           show succ x mod y < y, from H3⁻¹ ▸ IH _ H5))
 
@@ -353,7 +353,7 @@ case_zero_pos y
                 have H2 : y ≤ succ x, from not_lt_imp_ge H1,
                 have H3 : succ x div y = succ ((succ x - y) div y), from div_rec H H2,
                 have H4 : succ x mod y = (succ x - y) mod y, from mod_rec H H2,
-                have H5 : succ x - y < succ x, from sub_lt succ_pos H,
+                have H5 : succ x - y < succ x, from sub_lt !succ_pos H,
                 have H6 : succ x - y ≤ x, from lt_succ_imp_le H5,
                 (calc
                   succ x div y * y + succ x mod y = succ ((succ x - y) div y) * y + succ x mod y :
@@ -365,7 +365,7 @@ case_zero_pos y
                     ... = succ x : add_sub_ge_left H2)⁻¹)))
 
 theorem mod_le {x y : ℕ} : x mod y ≤ x :=
-div_mod_eq⁻¹ ▸ le_add_left
+div_mod_eq⁻¹ ▸ !le_add_left
 
 --- a good example where simplifying using the context causes problems
 theorem remainder_unique {y : ℕ} (H : y > 0) {q1 r1 q2 r2 : ℕ} (H1 : r1 < y) (H2 : r2 < y)
@@ -382,7 +382,7 @@ theorem quotient_unique {y : ℕ} (H : y > 0) {q1 r1 q2 r2 : ℕ} (H1 : r1 < y) 
   (H3 : q1 * y + r1 = q2 * y + r2) : q1 = q2 :=
 have H4 : q1 * y + r2 = q2 * y + r2, from (remainder_unique H H1 H2 H3) ▸ H3,
 have H5 : q1 * y = q2 * y, from add.cancel_right H4,
-have H6 : y > 0, from le_lt_trans zero_le H1,
+have H6 : y > 0, from le_lt_trans !zero_le H1,
 show q1 = q2, from mul_cancel_right H6 H5
 
 theorem div_mul_mul {z x y : ℕ} (zpos : z > 0) : (z * x) div (z * y) = x div y :=
@@ -418,7 +418,7 @@ by_cases -- (y = 0)
           ... = (x div y) * (z * y) + z * (x mod y) : {!mul.left_comm}))
 
 theorem mod_one {x : ℕ} : x mod 1 = 0 :=
-have H1 : x mod 1 < 1, from mod_lt succ_pos,
+have H1 : x mod 1 < 1, from mod_lt !succ_pos,
 le_zero (lt_succ_imp_le H1)
 
 -- add_rewrite mod_one
@@ -427,7 +427,7 @@ theorem mod_self {n : ℕ} : n mod n = 0 :=
 case n (by simp)
   (take n,
     have H : (succ n * 1) mod (succ n * 1) = succ n * (1 mod 1),
-      from mod_mul_mul succ_pos,
+      from mod_mul_mul !succ_pos,
     (by simp) ▸ H)
 
 -- add_rewrite mod_self
@@ -651,9 +651,9 @@ have aux : ∀m, P m n, from
     (take n,
       assume IH : ∀k, k ≤ n → ∀m, P m k,
       take m,
-      have H2 : m mod succ n ≤ n, from lt_succ_imp_le (mod_lt succ_pos),
+      have H2 : m mod succ n ≤ n, from lt_succ_imp_le (mod_lt !succ_pos),
       have H3 : P (succ n) (m mod succ n), from IH _ H2 _,
-      show P m (succ n), from H1 _ _ succ_pos H3),
+      show P m (succ n), from H1 _ _ !succ_pos H3),
 aux m
 
 theorem gcd_succ (m n : ℕ) : gcd m (succ n) = gcd (succ n) (m mod succ n) :=

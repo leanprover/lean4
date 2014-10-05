@@ -63,7 +63,7 @@ let f  := rec_measure default measure rec_val in
 case_strong_induction_on m
   (take x,
     have H1 : f' 0 x = default, from rfl,
-    have H2 : ¬ measure x < 0, from not_lt_zero,
+    have H2 : ¬ measure x < 0, from !not_lt_zero,
     have H3 : restrict default measure f 0 x = default, from if_neg H2,
     show f' 0 x = restrict default measure f 0 x, from H1 ⬝ H3⁻¹)
   (take m,
@@ -77,8 +77,8 @@ case_strong_induction_on m
             take z,
               assume Hzx : measure z < measure x,
               calc
-                f' m z = restrict default measure f m z : IH m le_refl z
-                  ... = f z : restrict_lt_eq _ _ _ _ _ (lt_le_trans Hzx (lt_succ_imp_le H1))
+                f' m z = restrict default measure f m z : IH m !le_refl z
+                  ... = f z : !restrict_lt_eq (lt_le_trans Hzx (lt_succ_imp_le H1))
           ∎,
           have H2 : f' (succ m) x = rec_val x f,
           proof
@@ -94,15 +94,15 @@ case_strong_induction_on m
               assume Hzx : measure z < measure x,
               calc
                 f' m' z = restrict default measure f m' z : IH _ (lt_succ_imp_le H1) _
-                  ... = f z : restrict_lt_eq _ _ _ _ _ Hzx
+                  ... = f z : !restrict_lt_eq Hzx
           qed,
           have H3 : restrict default measure f (succ m) x = rec_val x f,
           proof
             calc
               restrict default measure f (succ m) x = f x : if_pos H1
-                ... = f' (succ m') x : eq.refl _
+                ... = f' (succ m') x : !eq.refl
                 ... = if measure x < succ m' then rec_val x (f' m') else default : rfl
-                ... = rec_val x (f' m') : if_pos self_lt_succ
+                ... = rec_val x (f' m') : if_pos !self_lt_succ
                 ... = rec_val x f : rec_decreasing _ _ _ H3a
           qed,
           show f' (succ m) x = restrict default measure f (succ m) x,

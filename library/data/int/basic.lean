@@ -7,7 +7,7 @@
 
 -- The integers, with addition, multiplication, and subtraction.
 
-import ..nat.basic ..nat.order ..nat.sub ..prod ..quotient ..quotient tools.tactic algebra.relation
+import data.nat.basic data.nat.order data.nat.sub data.prod data.quotient tools.tactic algebra.relation
 import algebra.binary
 import tools.fake_simplifier
 
@@ -84,22 +84,22 @@ or.elim le_or_gt
 theorem proj_ge_pr1 {a : ℕ × ℕ} (H : pr1 a ≥ pr2 a) : pr1 (proj a) = pr1 a - pr2 a :=
 calc
   pr1 (proj a) = pr1 (pair (pr1 a - pr2 a) 0) : {proj_ge H}
-    ... = pr1 a - pr2 a : pr1_pair (pr1 a - pr2 a) 0
+    ... = pr1 a - pr2 a : pr1.pair (pr1 a - pr2 a) 0
 
 theorem proj_ge_pr2 {a : ℕ × ℕ} (H : pr1 a ≥ pr2 a) : pr2 (proj a) = 0 :=
 calc
   pr2 (proj a) = pr2 (pair (pr1 a - pr2 a) 0) : {proj_ge H}
-    ... = 0 : pr2_pair (pr1 a - pr2 a) 0
+    ... = 0 : pr2.pair (pr1 a - pr2 a) 0
 
 theorem proj_le_pr1 {a : ℕ × ℕ} (H : pr1 a ≤ pr2 a) : pr1 (proj a) = 0 :=
 calc
   pr1 (proj a) = pr1 (pair 0 (pr2 a - pr1 a)) : {proj_le H}
-    ... = 0 : pr1_pair 0 (pr2 a - pr1 a)
+    ... = 0 : pr1.pair 0 (pr2 a - pr1 a)
 
 theorem proj_le_pr2 {a : ℕ × ℕ} (H : pr1 a ≤ pr2 a) : pr2 (proj a) = pr2 a - pr1 a :=
 calc
   pr2 (proj a) = pr2 (pair 0 (pr2 a - pr1 a)) : {proj_le H}
-    ... = pr2 a - pr1 a : pr2_pair 0 (pr2 a - pr1 a)
+    ... = pr2 a - pr1 a : pr2.pair 0 (pr2 a - pr1 a)
 
 theorem proj_flip (a : ℕ × ℕ) : proj (flip a) = flip (proj a) :=
 have special : ∀a, pr2 a ≤ pr1 a → proj (flip a) = flip (proj a), from

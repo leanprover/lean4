@@ -3,7 +3,7 @@
 -- Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 import .prop
 
--- logic.connectives.eq
+-- logic.eq
 -- ====================
 
 -- Equality.

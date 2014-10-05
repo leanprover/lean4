@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jeremy Avigad
 
--- logic.core.instances
+-- logic.instances
 -- ====================
 
 import logic.connectives algebra.relation

@@ -6,7 +6,7 @@
 -- ============================
 
 -- Useful logical identities. In the absence of propositional extensionality, some of the
--- calculations use the type class support provided by logic.connectives.instances
+-- calculations use the type class support provided by logic.instances
 
 import logic.instances logic.decidable logic.quantifiers logic.cast
 

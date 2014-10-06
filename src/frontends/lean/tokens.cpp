@@ -37,6 +37,8 @@ static name * g_raw          = nullptr;
 static name * g_true         = nullptr;
 static name * g_false        = nullptr;
 static name * g_options      = nullptr;
+static name * g_instances    = nullptr;
+static name * g_coercions    = nullptr;
 static name * g_arrow        = nullptr;
 static name * g_declarations = nullptr;
 static name * g_decls        = nullptr;
@@ -116,6 +118,8 @@ void initialize_tokens() {
     g_true         = new name("true");
     g_false        = new name("false");
     g_options      = new name("options");
+    g_instances    = new name("instances");
+    g_coercions    = new name("coercions");
     g_arrow        = new name("->");
     g_declarations = new name("declarations");
     g_decls        = new name("decls");
@@ -206,6 +210,8 @@ void finalize_tokens() {
     delete g_true;
     delete g_false;
     delete g_options;
+    delete g_instances;
+    delete g_coercions;
     delete g_arrow;
     delete g_declarations;
     delete g_decls;
@@ -275,6 +281,8 @@ name const & get_raw_tk() { return *g_raw; }
 name const & get_true_tk() { return *g_true; }
 name const & get_false_tk() { return *g_false; }
 name const & get_options_tk() { return *g_options; }
+name const & get_instances_tk() { return *g_instances; }
+name const & get_coercions_tk() { return *g_coercions; }
 name const & get_arrow_tk() { return *g_arrow; }
 name const & get_declarations_tk() { return *g_declarations; }
 name const & get_decls_tk() { return *g_decls; }

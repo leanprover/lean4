@@ -29,8 +29,29 @@ Author: Leonardo de Moura
 #include "frontends/lean/class.h"
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/tokens.h"
+#include "frontends/lean/pp_options.h"
 
 namespace lean {
+static void print_coercions(parser & p, optional<name> const & C) {
+    environment const & env = p.env();
+    options opts = p.regular_stream().get_options();
+    opts = opts.update(get_pp_coercions_option_name(), true);
+    io_state_stream out = p.regular_stream().update_options(opts);
+    char const * arrow = get_pp_unicode(opts) ? "↣" : ">->";
+    for_each_coercion_user(env, [&](name const & C1, name const & D, expr const & c, level_param_names const &, unsigned) {
+            if (!C || *C == C1)
+                out << C1 << " " << arrow << " " << D << " : " << c << endl;
+        });
+    for_each_coercion_sort(env, [&](name const & C1, expr const & c, level_param_names const &, unsigned) {
+            if (!C || *C == C1)
+                out << C1 << " " << arrow << " [sort-class] : " << c << endl;
+        });
+    for_each_coercion_fun(env, [&](name const & C1, expr const & c, level_param_names const &, unsigned) {
+            if (!C || *C == C1)
+                out << C1 << " " << arrow << " [fun-class] : " << c << endl;
+        });
+}
+
 environment print_cmd(parser & p) {
     if (p.curr() == scanner::token_kind::String) {
         p.regular_stream() << p.get_str_val() << endl;
@@ -42,6 +63,19 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_options_tk())) {
         p.next();
         p.regular_stream() << p.ios().get_options() << endl;
+    } else if (p.curr_is_token_or_id(get_instances_tk())) {
+        p.next();
+        name c = p.check_constant_next("invalid 'print instances', constant expected");
+        environment const & env = p.env();
+        for (name const & i : get_class_instances(env, c)) {
+            p.regular_stream() << i << " : " << env.get(i).get_type() << endl;
+        }
+    } else if (p.curr_is_token_or_id(get_coercions_tk())) {
+        p.next();
+        optional<name> C;
+        if (p.curr_is_identifier())
+            C = p.check_constant_next("invalid 'print coercions', constant expected");
+        print_coercions(p, C);
     } else {
         throw parser_error("invalid print command", p.pos());
     }

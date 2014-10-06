@@ -30,6 +30,8 @@ option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
 # When ON we try to minimize the amount of memory needed to compile Lean using gcc.
 # We use this flag when compiling at Travis.
 option(CONSERVE_MEMORY    "CONSERVE_MEMORY"   OFF)
+# Place to install emacs related files
+option(EMACS_LIB          "EMACS_LIB"         "emacs")
 
 # Added for CTest
 include(CTest)
@@ -293,7 +295,6 @@ set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ft
 set(ALL_LIBS ${LEAN_LIBS} ${EXTRA_LIBS})
 add_subdirectory(shell)
 add_subdirectory(emacs)
-
 add_subdirectory(tests/util)
 add_subdirectory(tests/util/numerics)
 add_subdirectory(tests/util/interval)

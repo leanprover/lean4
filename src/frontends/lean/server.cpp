@@ -872,7 +872,10 @@ bool server::operator()(std::istream & in) {
                 read_line(in, line);
                 eval(line);
             } else if (is_command(*g_clear_cache, line)) {
+                interrupt_worker();
                 m_cache.clear();
+                if (m_file)
+                    process_from(0);
             } else if (is_command(*g_options, line)) {
                 show_options();
             } else if (is_command(*g_wait, line)) {

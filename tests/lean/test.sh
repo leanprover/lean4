@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+cd "$(dirname "$0")"
 if [ $# -ne 2 -a $# -ne 1 ]; then
     echo "Usage: test.sh [lean-executable-path] [yes/no]?"
     exit 1
@@ -12,7 +13,7 @@ else
     INTERACTIVE=$2
 fi
 NUM_ERRORS=0
-for f in `ls *.lean`; do
+for f in *.lean; do
     echo "-- testing $f"
     $LEAN -t config.lean $f &> $f.produced.out
     if test -f $f.expected.out; then

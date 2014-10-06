@@ -6,24 +6,30 @@ env:
   matrix:
   - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=51
   - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=51 UPLOAD=osx PACKAGE=TRUE
+  - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=52
   - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=52
+  - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_BUILD_TYPE=DEBUg   TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=JIT
   - CMAKE_CXX_COMPILER=g++-4.9 CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=JIT
+  - CMAKE_CXX_COMPILER=clang++ CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=51
+  - CMAKE_CXX_COMPILER=clang++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=51
+  - CMAKE_CXX_COMPILER=clang++ CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=52
+  - CMAKE_CXX_COMPILER=clang++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=52
+  - CMAKE_CXX_COMPILER=clang++ CMAKE_BUILD_TYPE=DEBUG   TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=JIT
+  - CMAKE_CXX_COMPILER=clang++ CMAKE_BUILD_TYPE=RELEASE TCMALLOC=OFF PUSH_TO_CDASH=TRUE LUA=JIT
 
 # Turn off tcmalloc on OSX due to segmentation fault.
 # Soonho filed a bug report for this:
 #   https://code.google.com/p/gperftools/issues/detail?id=573&thanks=573&ts=1379701793
 
-# Turn off Thread on OSX due to segmantation fault.
-# This is due to a bug in clang C++11 on OSX.
-# Soonho has reported the issue to the clang developers.
-# It is a known bug.
-
 install:
 - brew update
-- if [[ $CMAKE_CXX_COMPILER == g++ ]]; then
+- if [[ $CMAKE_CXX_COMPILER == g++-4.9 ]]; then
       brew install gcc;
       brew link gcc;
-      COMPILER=g++-4.9.1;
+      COMPILER=g++-`${CMAKE_CXX_COMPILER} --version | head -n 1 | grep -o '[0-9]*\.[0-9]*\.[0-9]*$'`;
+  fi
+- if [[ $CMAKE_CXX_COMPILER == clang++ ]]; then
+      COMPILER=${CMAKE_CXX_COMPILER}`${CMAKE_CXX_COMPILER} --version | head -n 1 | grep -o '[0-9]*\.[0-9]*\.[0-9]*'`;
   fi
 - brew install gmp; brew link --overwrite gmp
 - brew install mpfr; brew link --overwrite mpfr

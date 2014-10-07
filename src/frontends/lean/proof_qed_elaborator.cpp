@@ -38,7 +38,7 @@ constraint mk_proof_qed_cnstr(environment const & env, expr const & m, expr cons
 
         unifier_config new_cfg(cfg);
         new_cfg.m_discard    = false;
-        unify_result_seq seq = unify(env, cs_buffer.size(), cs_buffer.data(), ngen, new_cfg);
+        unify_result_seq seq = unify(env, cs_buffer.size(), cs_buffer.data(), ngen, substitution(), new_cfg);
         auto p = seq.pull();
         lean_assert(p);
         substitution new_s     = p->first.first;

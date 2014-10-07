@@ -2148,8 +2148,8 @@ unify_result_seq unify(std::shared_ptr<unifier_fn> u) {
 }
 
 unify_result_seq unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                       unifier_config const & cfg) {
-    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, ngen, substitution(), cfg));
+                       substitution const & s, unifier_config const & cfg) {
+    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, ngen, s, cfg));
 }
 
 unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
@@ -2295,8 +2295,10 @@ static int unify(lua_State * L) {
     } else {
         buffer<constraint> cs;
         to_constraint_buffer(L, 2, cs);
-        if (nargs == 4)
-            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3), unifier_config(to_options(L, 4)));
+        if (nargs == 5)
+            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3), to_substitution(L, 4), unifier_config(to_options(L, 5)));
+        else if (nargs == 4)
+            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3), to_substitution(L, 4));
         else
             r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3));
     }

@@ -48,9 +48,9 @@ struct unifier_config {
 typedef lazy_list<pair<substitution, constraints>> unify_result_seq;
 
 unify_result_seq unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
-                       unifier_config const & c = unifier_config());
-unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen, bool relax_main_opaque,
                        substitution const & s = substitution(), unifier_config const & c = unifier_config());
+unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
+                       bool relax_main_opaque, substitution const & s = substitution(), unifier_config const & c = unifier_config());
 
 /**
     The unifier divides the constraints in 9 groups: Simple, Basic, FlexRigid, PluginDelayed, DelayedChoice, ClassInstance,

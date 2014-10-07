@@ -230,7 +230,7 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
         unifier_config new_cfg(cfg);
         new_cfg.m_discard        = false;
         new_cfg.m_use_exceptions = false;
-        unify_result_seq seq1    = unify(env, 1, &c, ngen, new_cfg);
+        unify_result_seq seq1    = unify(env, 1, &c, ngen, substitution(), new_cfg);
         unify_result_seq seq2    = filter(seq1, [=](pair<substitution, constraints> const & p) {
                 substitution new_s     = p.first;
                 expr result = new_s.instantiate(new_meta);

@@ -816,7 +816,7 @@ expr elaborator::visit(expr const & e, constraint_seq & cs) {
 unify_result_seq elaborator::solve(constraint_seq const & cs) {
     buffer<constraint> tmp;
     cs.linearize(tmp);
-    return unify(env(), tmp.size(), tmp.data(), m_ngen.mk_child(), m_unifier_config);
+    return unify(env(), tmp.size(), tmp.data(), m_ngen.mk_child(), substitution(), m_unifier_config);
 }
 
 void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg) {

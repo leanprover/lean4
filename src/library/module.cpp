@@ -135,7 +135,7 @@ void export_module(std::ostream & out, environment const & env) {
     serializer s2(out);
     std::string r = out1.str();
     unsigned h    = hash(r.size(), [&](unsigned i) { return r[i]; });
-    s2 << g_olean_header << LEAN_VERSION_MAJOR << LEAN_VERSION_MINOR;
+    s2 << g_olean_header << LEAN_VERSION_MAJOR << LEAN_VERSION_MINOR << LEAN_VERSION_PATCH;
     s2 << h;
     // store imported files
     s2 << imports.size();
@@ -285,8 +285,8 @@ struct import_modules_fn {
             d1 >> header;
             if (header != g_olean_header)
                 throw exception(sstream() << "file '" << fname << "' does not seem to be a valid object Lean file, invalid header");
-            unsigned major, minor, claimed_hash;
-            d1 >> major >> minor >> claimed_hash;
+            unsigned major, minor, patch, claimed_hash;
+            d1 >> major >> minor >> patch >> claimed_hash;
             // Enforce version?
 
             unsigned num_imports  = d1.read_unsigned();

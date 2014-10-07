@@ -62,7 +62,8 @@ static void on_ctrl_c(int ) {
 }
 
 static void display_header(std::ostream & out) {
-    out << "Lean (version " << LEAN_VERSION_MAJOR << "." << LEAN_VERSION_MINOR;
+    out << "Lean (version " << LEAN_VERSION_MAJOR << "."
+        << LEAN_VERSION_MINOR << "." << LEAN_VERSION_PATCH;
     if (!std::strcmp(g_githash, "GITDIR-NOTFOUND")) {
         out << ", commit " << std::string(g_githash).substr(0, 12);
     }

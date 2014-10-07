@@ -1,3 +1,4 @@
 // the configured options and settings for Tutorial
 #define LEAN_VERSION_MAJOR @LEAN_VERSION_MAJOR@
 #define LEAN_VERSION_MINOR @LEAN_VERSION_MINOR@
+#define LEAN_VERSION_PATCH @LEAN_VERSION_PATCH@

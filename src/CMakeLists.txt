@@ -343,7 +343,7 @@ if("${CROSS_COMPILE}" MATCHES "ON")
 else()
   add_custom_target(
     standard_lib ALL
-    COMMAND ${PYTHON_EXECUTABLE} ${LEAN_SOURCE_DIR}/../bin/linja
+    COMMAND ${PYTHON_EXECUTABLE} ${LEAN_SOURCE_DIR}/../bin/linja all tags
     DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
     )

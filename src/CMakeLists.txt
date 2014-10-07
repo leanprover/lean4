@@ -34,9 +34,13 @@ option(CONSERVE_MEMORY    "CONSERVE_MEMORY"   OFF)
 
 # emacs site-lisp dir
 set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-lisp dir")
+# library dir
+set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
 
 message(STATUS "Lean emacs-mode will be installed at "
   ${CMAKE_INSTALL_PREFIX}/${EMACS_LISP_DIR})
+message(STATUS "Lean library will be installed at "
+  ${CMAKE_INSTALL_PREFIX}/${LIBRARY_DIR})
 
 # Added for CTest
 include(CTest)
@@ -357,3 +361,12 @@ add_custom_target(clean-olean
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_MODULE_PATH}CleanOlean.cmake
   )
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/../library DESTINATION ${LIBRARY_DIR}
+        FILES_MATCHING PATTERN "*.lean")
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/../library DESTINATION ${LIBRARY_DIR}
+        FILES_MATCHING
+        PATTERN "*.lean"
+        PATTERN "*.olean"
+        PATTERN ".project"
+        PATTERN "TAGS")

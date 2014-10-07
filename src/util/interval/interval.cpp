@@ -6,6 +6,7 @@ Author: Leonardo de Moura
         Soonho Kong
 */
 #pragma once
+#include <cstddef>
 #include <gmp.h>
 #include <mpfr.h>
 #include <utility>

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <cstddef>
 #include <gmp.h>
 #include "util/memory.h"
 #include "util/numerics/mpz.h"

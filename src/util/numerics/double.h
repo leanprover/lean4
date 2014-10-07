@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Soonho Kong
 */
 #pragma once
+#include <cstddef>
 #include <mpfr.h>
 #include "util/numerics/mpfp.h"
 

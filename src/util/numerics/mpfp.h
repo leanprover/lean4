@@ -6,6 +6,7 @@ Author: Soonho Kong
 */
 #pragma once
 #include <stdint.h>
+#include <cstddef>
 #include <mpfr.h>
 #include "util/numerics/mpz.h"
 #include "util/numerics/mpq.h"

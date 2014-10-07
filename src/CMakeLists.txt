@@ -266,6 +266,16 @@ include_directories(${LEAN_SOURCE_DIR})
 # Git HASH
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+set(LEAN_PACKAGE_VERSION "NOT-FOUND")
+if(${GIT_SHA1} MATCHES "GITDIR-NOTFOUND")
+  message(STATUS "Failed to read git_sha1")
+  if(EXISTS "${LEAN_SOURCE_DIR}/../bin/package_version")
+    file(STRINGS "${LEAN_SOURCE_DIR}/../bin/package_version" LEAN_PACKAGE_VERSION)
+    message(STATUS "Package version detected: ${LEAN_PACKAGE_VERSION}")
+  endif()
+else()
+  message(STATUS "git commit sha1: ${GIT_SHA1}")
+endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
 # Version

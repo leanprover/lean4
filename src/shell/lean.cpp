@@ -64,7 +64,11 @@ static void on_ctrl_c(int ) {
 static void display_header(std::ostream & out) {
     out << "Lean (version " << LEAN_VERSION_MAJOR << "."
         << LEAN_VERSION_MINOR << "." << LEAN_VERSION_PATCH;
-    if (!std::strcmp(g_githash, "GITDIR-NOTFOUND")) {
+    if (std::strcmp(g_githash, "GITDIR-NOTFOUND") == 0) {
+        if (std::strcmp(LEAN_PACKAGE_VERSION, "NOT-FOUND") != 0) {
+            out << ", package " << LEAN_PACKAGE_VERSION;
+        }
+    } else {
         out << ", commit " << std::string(g_githash).substr(0, 12);
     }
     out << ", " << LEAN_STR(LEAN_BUILD_TYPE) << ")\n";

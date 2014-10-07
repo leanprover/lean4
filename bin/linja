@@ -475,7 +475,7 @@ def make_build_ninja(args):
         print >> f, """  command = """,
         if platform.system() == "Windows":
             print >> f, "python ",
-        print >> f, """"%s" $in """ % (g_ltags_path)
+        print >> f, """"%s" --relative -- $in """ % (g_ltags_path)
 
         print >> f, "build all: phony",
         for item in lean_files:

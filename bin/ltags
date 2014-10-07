@@ -24,9 +24,10 @@ def get_ilean_files(directory):
 
 def parse_arg(argv):
     """ Parse arguments """
-    parser = argparse.ArgumentParser(description='Process arguments.')
+    parser = argparse.ArgumentParser(description='ltags: tag generator for Lean theorem prover.')
     parser.add_argument('--etags', '-e', action='store_true', default=True,  help="Generate etags TAGS file.")
-    parser.add_argument('--gtags', '-g', action='store_true', default=False, help="Generate gtags files (GTAGS, GRTAGS, GPATH).")
+    # parser.add_argument('--gtags', '-g', action='store_true', default=False, help="Generate gtags files (GTAGS, GRTAGS, GPATH).")
+    parser.add_argument('--relative', action='store', default=None, const=os.getcwd(), nargs='?', help="Generate relative paths based on the parameter.")
     parser.add_argument('files', nargs='*')
     args = parser.parse_args(argv)
     return args
@@ -76,7 +77,7 @@ def convert_position_to_etag_style(info):
                 item['offset'] = line_to_byteoffset[linenum] + col
                 item['prefix'] = contents[linenum][:col] + get_short_name(item)
 
-def extract_info_from_ilean(ilean_file, decl_dict):
+def extract_info_from_ilean(ilean_file, decl_dict, args):
     info = []
     with open(ilean_file) as f:
         for line in f:
@@ -99,6 +100,8 @@ def extract_info_from_ilean(ilean_file, decl_dict):
                 item['linenum']  = int(array[2])
                 item['col']      = int(array[3])
                 item['declname'] = array[4]
+            if args.relative and "filename" in item:
+                item['filename'] = os.path.relpath(item['filename'], args.relative)
             info.append(item)
     return info
 
@@ -212,7 +215,7 @@ def main(argv=None):
         info_list = []
         decl_dict = {}
         for ilean_file in ilean_files:
-            info = extract_info_from_ilean(ilean_file, decl_dict)
+            info = extract_info_from_ilean(ilean_file, decl_dict, args)
             if info:
                 convert_position_to_etag_style(info)
                 info_list.append(info)

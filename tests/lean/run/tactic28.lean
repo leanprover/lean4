@@ -20,7 +20,7 @@ definition my_tac := repeat (trace "iteration"; state;
                               .. apply @num.is_inhabited; trace "used num")) ; now
 
 
-tactic_hint [inhabited] my_tac
+tactic_hint my_tac
 
 theorem T : inhabited (sum false num)
 

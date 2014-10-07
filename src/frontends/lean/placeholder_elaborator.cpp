@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/class.h"
-#include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/local_context.h"
 #include "frontends/lean/choice_iterator.h"
 
@@ -55,15 +54,7 @@ pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_con
     In this case, \c fn will do the following:
     1) if the elaborated type of ?m is a 'class' C, then the stream will start with
          a) all local instances of class C (if elaborator.local_instances == true)
-         b) solutions produced by tactic_hints for class C
-
-    2) if the elaborated type of ?m is not a class, then the stream will only contain
-       the solutions produced by tactic_hints.
-
-    The unifier only process delayed choice constraints when there are no other kind
-    of constraint to be processed.
-
-    This is a helper class for implementing this choice function.
+         b) all global instances of class C
 */
 struct placeholder_elaborator : public choice_iterator {
     std::shared_ptr<placeholder_context> m_C;
@@ -77,22 +68,14 @@ struct placeholder_elaborator : public choice_iterator {
     // global declaration names that are class instances.
     // This information is retrieved using #get_class_instances.
     list<name>              m_instances;
-    // Tactic hints for the class
-    list<tactic_hint_entry> m_tactics;
-    // result produce by last executed tactic.
-    proof_state_seq         m_tactic_result;
     justification           m_jst;
 
     placeholder_elaborator(std::shared_ptr<placeholder_context> const & C,
                            expr const & meta, expr const & meta_type,
                            list<expr> const & local_insts, list<name> const & instances,
-                           list<tactic_hint_entry> const & tacs,
                            justification const & j):
-        choice_iterator(), m_C(C),
-        m_meta(meta), m_meta_type(meta_type),
-        m_local_instances(local_insts), m_instances(instances),
-        m_tactics(tacs),
-        m_jst(j) {
+        choice_iterator(), m_C(C), m_meta(meta), m_meta_type(meta_type),
+        m_local_instances(local_insts), m_instances(instances), m_jst(j) {
     }
 
     constraints mk_constraints(constraint const & c, buffer<constraint> const & cs) {
@@ -157,21 +140,6 @@ struct placeholder_elaborator : public choice_iterator {
         }
     }
 
-    optional<constraints> get_next_tactic_result() {
-        while (auto next = m_tactic_result.pull()) {
-            m_tactic_result = next->second;
-            if (!empty(next->first.get_goals()))
-                continue; // has unsolved goals
-            substitution subst = next->first.get_subst();
-            expr const & mvar = get_app_fn(m_meta);
-            bool relax        = m_C->m_relax;
-            constraints cs    = metavar_closure(m_meta_type).mk_constraints(subst, m_jst, relax);
-            constraint  c     = mk_eq_cnstr(mvar, subst.instantiate(mvar), m_jst, relax);
-            return some(cons(c, cs));
-        }
-        return optional<constraints>();
-    }
-
     virtual optional<constraints> next() {
         while (!empty(m_local_instances)) {
             expr inst         = head(m_local_instances);
@@ -187,18 +155,6 @@ struct placeholder_elaborator : public choice_iterator {
             if (auto cs = try_instance(inst))
                 return cs;
         }
-        if (auto cs = get_next_tactic_result())
-            return cs;
-        while (!empty(m_tactics)) {
-            tactic const & tac = head(m_tactics).get_tactic();
-            m_tactics          = tail(m_tactics);
-            proof_state ps(goals(goal(m_meta, m_meta_type)), substitution(), m_C->m_ngen.mk_child());
-            try {
-                m_tactic_result    = tac(m_C->env(), m_C->ios(), ps);
-                if (auto cs = get_next_tactic_result())
-                    return cs;
-            } catch (exception &) {}
-        }
         return optional<constraints>();
     }
 };
@@ -207,9 +163,7 @@ struct placeholder_elaborator : public choice_iterator {
 constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, expr const & m) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
-    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
-                         name_generator const & /* ngen */) {
-        expr const & mvar = get_app_fn(meta);
+    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const &, name_generator const &) {
         if (auto cls_name_it = is_ext_class(C->tc(), meta_type)) {
             name cls_name = *cls_name_it;
             list<expr> const & ctx = C->m_ctx.get_data();
@@ -217,13 +171,10 @@ constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, 
             if (C->use_local_instances())
                 local_insts = get_local_instances(C->tc(), ctx, cls_name);
             list<name>  insts = get_class_instances(env, cls_name);
-            list<tactic_hint_entry> tacs;
-            if (!s.is_assigned(mvar))
-                tacs = get_tactic_hints(env, cls_name);
-            if (empty(local_insts) && empty(insts) && empty(tacs))
+            if (empty(local_insts) && empty(insts))
                 return lazy_list<constraints>(); // nothing to be done
             // we are always strict with placeholders associated with classes
-            return choose(std::make_shared<placeholder_elaborator>(C, meta, meta_type, local_insts, insts, tacs, j));
+            return choose(std::make_shared<placeholder_elaborator>(C, meta, meta_type, local_insts, insts, j));
         } else {
             // do nothing, type is not a class...
             return lazy_list<constraints>(constraints());
@@ -313,7 +264,7 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
 }
 
 /** \brief Create a metavariable, and attach choice constraint for generating
-    solutions using class-instances and tactic-hints.
+    solutions using class-instances
 */
 pair<expr, constraint> mk_placeholder_elaborator(
     environment const & env, io_state const & ios, local_context const & ctx,

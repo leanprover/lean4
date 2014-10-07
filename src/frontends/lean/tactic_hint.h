@@ -11,18 +11,16 @@ Author: Leonardo de Moura
 namespace lean {
 class tactic_hint_entry {
     friend struct tactic_hint_config;
-    name   m_class;
     expr   m_pre_tactic;
     tactic m_tactic;
     bool   m_compiled;
 public:
     tactic_hint_entry():m_compiled(false) {}
-    tactic_hint_entry(name const & c, expr const & pre_tac, tactic const & tac):
-        m_class(c), m_pre_tactic(pre_tac), m_tactic(tac), m_compiled(true) {}
+    tactic_hint_entry(expr const & pre_tac, tactic const & tac):
+        m_pre_tactic(pre_tac), m_tactic(tac), m_compiled(true) {}
     expr const & get_pre_tactic() const { return m_pre_tactic; }
     tactic const & get_tactic() const { return m_tactic; }
 };
-list<tactic_hint_entry> get_tactic_hints(environment const & env, name const & cls_name);
 list<tactic_hint_entry> get_tactic_hints(environment const & env);
 class parser;
 expr parse_tactic_name(parser & p);

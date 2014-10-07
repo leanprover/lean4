@@ -15,5 +15,5 @@ definition my_tac3 := fixpoint (λ f, [apply @or.intro_left; f  |
                                       apply @or.intro_right; f |
                                       assumption])
 
-tactic_hint [or] my_tac3
+tactic_hint my_tac3
 theorem T3 {a b c : Prop} (Hb : b) : a ∨ b ∨ c

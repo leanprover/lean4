@@ -21,8 +21,6 @@ namespace lean {
 typedef list<tactic_hint_entry> tactic_hint_entries;
 
 struct tactic_hint_state {
-    typedef name_map<tactic_hint_entries> class_tactics;
-    class_tactics        m_class_tactics;
     tactic_hint_entries  m_tactics;
 };
 
@@ -39,12 +37,7 @@ struct tactic_hint_config {
     }
 
     static void add_entry_core(state & s, entry const & e) {
-        if (e.m_class.is_anonymous())
-            s.m_tactics = add(s.m_tactics, e);
-        else if (auto it = s.m_class_tactics.find(e.m_class))
-            s.m_class_tactics.insert(e.m_class, add(*it, e));
-        else
-            s.m_class_tactics.insert(e.m_class, entries(e));
+        s.m_tactics = add(s.m_tactics, e);
     }
 
     static void add_entry(environment const & env, io_state const &, state & s, entry const & e) {
@@ -67,16 +60,16 @@ struct tactic_hint_config {
     }
 
     static void  write_entry(serializer & s, entry const & e) {
-        s << e.m_class << e.m_pre_tactic;
+        s << e.m_pre_tactic;
     }
 
     static entry read_entry(deserializer & d) {
         entry e;
-        d >> e.m_class >> e.m_pre_tactic;
+        d >> e.m_pre_tactic;
         return e;
     }
     static optional<unsigned> get_fingerprint(entry const & e) {
-        return some(hash(e.m_class.hash(), e.m_pre_tactic.hash()));
+        return some(e.m_pre_tactic.hash());
     }
 };
 
@@ -93,11 +86,6 @@ void finalize_tactic_hint() {
     tactic_hint_ext::finalize();
     delete g_key;
     delete g_class_name;
-}
-
-list<tactic_hint_entry> get_tactic_hints(environment const & env, name const & c) {
-    tactic_hint_state const & s = tactic_hint_ext::get_state(env);
-    return ptr_to_list(s.m_class_tactics.find(c));
 }
 
 list<tactic_hint_entry> get_tactic_hints(environment const & env) {
@@ -119,15 +107,9 @@ expr parse_tactic_name(parser & p) {
 }
 
 environment tactic_hint_cmd(parser & p) {
-    name cls;
-    if (p.curr_is_token(get_lbracket_tk())) {
-        p.next();
-        cls      = get_class_name(p.env(), p.parse_expr());
-        p.check_token_next(get_rbracket_tk(), "invalid tactic hint, ']' expected");
-    }
     expr pre_tac = parse_tactic_name(p);
     tactic tac   = expr_to_tactic(p.env(), pre_tac, nullptr);
-    return tactic_hint_ext::add_entry(p.env(), get_dummy_ios(), tactic_hint_entry(cls, pre_tac, tac));
+    return tactic_hint_ext::add_entry(p.env(), get_dummy_ios(), tactic_hint_entry(pre_tac, tac));
 }
 
 void register_tactic_hint_cmd(cmd_table & r) {

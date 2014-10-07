@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
-#include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/tokens.h"
 
 #ifndef LEAN_INSTANCE_DEFAULT_PRIORITY
@@ -229,7 +228,7 @@ void register_class_cmds(cmd_table & r) {
 /** \brief If the constant \c e is a class, return its name */
 optional<name> constant_is_ext_class(environment const & env, expr const & e) {
     name const & cls_name = const_name(e);
-    if (is_class(env, cls_name) || !empty(get_tactic_hints(env, cls_name))) {
+    if (is_class(env, cls_name)) {
         return optional<name>(cls_name);
     } else {
         return optional<name>();

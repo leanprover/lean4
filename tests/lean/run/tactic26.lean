@@ -17,7 +17,7 @@ definition my_tac := fixpoint (λ t, [ apply @inl_inhabited; t
                                     | apply @num.is_inhabited
                                     ])
 
-tactic_hint [inhabited] my_tac
+tactic_hint my_tac
 
 theorem T : inhabited (sum false num)
 

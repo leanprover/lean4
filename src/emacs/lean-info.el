@@ -456,13 +456,13 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
   (save-excursion
     (forward-char 1)
     (backward-list 1)
-    `(,(line-number-at-pos) . ,(current-column))))
+    `(,(line-number-at-pos) . ,(lean-line-offset))))
 
 (defun lean-get-info-record-at-point (cont)
   "Get info-record at the current point"
   (let* ((file-name     (buffer-file-name))
          (line-number   (line-number-at-pos))
-         (column-number (current-column))
+         (column-number (lean-line-offset))
          (cmd           (cond ((looking-at "(")
                                (lean-cmd-info line-number column-number))
                               ;; TODO(soonhok): give information on '('

@@ -126,7 +126,7 @@
 
 (defun company-lean--findg-candidates (prefix)
   (let ((line-number (line-number-at-pos))
-        (column-number (current-column))
+        (column-number (lean-line-offset))
         pattern)
     (lean-server-send-cmd-sync (lean-cmd-wait) '(lambda () ()))
     (setq pattern (if current-prefix-arg
@@ -203,7 +203,6 @@ triggers a completion immediately."
 
 (defun company-lean--findp-candidates (prefix)
   (let ((line-number (line-number-at-pos))
-        (column-number (current-column))
         pattern)
     (lean-server-send-cmd-sync (lean-cmd-wait) '(lambda () ()))
     (lean-server-send-cmd-sync (lean-cmd-findp line-number prefix)

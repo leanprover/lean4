@@ -480,7 +480,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
 
 (defun lean-server-get-info-record-at-pos (body)
   (let* ((file-name (buffer-file-name))
-         (column (current-column)))
+         (column (lean-line-offset)))
     (when (and (or (looking-at (rx (or white "," ")" "}" "]")))
                    (eolp))
                (> column 1))

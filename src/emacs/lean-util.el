@@ -166,4 +166,15 @@
         (when id-beg
           (buffer-substring id-beg cur-pos))))))
 
+(defun lean-line-offset ()
+  "Return the byte-offset of current position, counting from the
+  beginning of the line"
+  (interactive)
+  (let ((bol-pos
+         (save-excursion
+           (beginning-of-line)
+           (point)))
+        (pos (point)))
+    (- pos bol-pos)))
+
 (provide 'lean-util)

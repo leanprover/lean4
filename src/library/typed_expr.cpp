@@ -34,9 +34,9 @@ class typed_expr_macro_definition_cell : public macro_definition_cell {
     }
 public:
     virtual name get_name() const { return get_typed_expr_name(); }
-    virtual expr get_type(expr const & m, expr const * arg_types, extension_context &) const {
+    virtual pair<expr, constraint_seq> get_type(expr const & m, extension_context & ctx) const {
         check_macro(m);
-        return arg_types[0];
+        return ctx.infer_type(macro_arg(m, 0));
     }
     virtual optional<expr> expand(expr const & m, extension_context &) const {
         check_macro(m);

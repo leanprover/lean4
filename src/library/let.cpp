@@ -32,9 +32,9 @@ class let_value_definition_cell : public macro_definition_cell {
 public:
     let_value_definition_cell():m_id(next_let_value_id()) {}
     virtual name get_name() const { return *g_let_value; }
-    virtual expr get_type(expr const & m, expr const * arg_types, extension_context &) const {
+    virtual pair<expr, constraint_seq> get_type(expr const & m, extension_context & ctx) const {
         check_macro(m);
-        return arg_types[0];
+        return ctx.infer_type(macro_arg(m, 0));
     }
     virtual optional<expr> expand(expr const & m, extension_context &) const {
         check_macro(m);
@@ -75,9 +75,9 @@ public:
     let_macro_definition_cell(name const & n):m_var_name(n) {}
     name const & get_var_name() const { return m_var_name; }
     virtual name get_name() const { return *g_let; }
-    virtual expr get_type(expr const & m, expr const * arg_types, extension_context &) const {
+    virtual pair<expr, constraint_seq> get_type(expr const & m, extension_context & ctx) const {
         check_macro(m);
-        return arg_types[1];
+        return ctx.infer_type(macro_arg(m, 1));
     }
     virtual optional<expr> expand(expr const & m, extension_context &) const {
         check_macro(m);

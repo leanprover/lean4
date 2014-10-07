@@ -33,8 +33,8 @@ public:
         return m_value < static_cast<string_macro const &>(d).m_value;
     }
     virtual name get_name() const { return *g_string_macro; }
-    virtual expr get_type(expr const &, expr const *, extension_context &) const {
-        return *g_string;
+    virtual pair<expr, constraint_seq> get_type(expr const &, extension_context &) const {
+        return mk_pair(*g_string, constraint_seq());
     }
     virtual optional<expr> expand(expr const &, extension_context &) const {
         return some_expr(from_string_core(0, m_value));

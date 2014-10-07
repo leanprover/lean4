@@ -184,13 +184,10 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
 }
 
 pair<expr, constraint_seq> type_checker::infer_macro(expr const & e, bool infer_only) {
-    buffer<expr> arg_types;
-    constraint_seq cs;
-    for (unsigned i = 0; i < macro_num_args(e); i++) {
-        arg_types.push_back(infer_type_core(macro_arg(e, i), infer_only, cs));
-    }
     auto def = macro_def(e);
-    expr t   = def.get_type(e, arg_types.data(), m_tc_ctx);
+    pair<expr, constraint_seq> tcs = def.get_type(e, m_tc_ctx);
+    expr t            = tcs.first;
+    constraint_seq cs = tcs.second;
     if (!infer_only && def.trust_level() >= m_env.trust_lvl()) {
         optional<expr> m = expand_macro(e);
         if (!m)

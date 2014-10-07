@@ -139,19 +139,24 @@ public:
         }
     }
 
-    virtual expr get_type(expr const & m, expr const * arg_types, extension_context & ctx) const {
-        environment const & env = ctx.env();
-        check_num_args(env, m);
-        expr l     = whnf(macro_arg(m, 0), ctx);
-        expr not_l = whnf(mk_app(*g_not, l), ctx);
-        expr C1    = arg_types[1];
-        expr C2    = arg_types[2];
+    expr mk_resolvent(environment const & env, extension_context & ctx, expr const & m,
+                      expr const & l, expr const & not_l, expr const C1, expr const & C2) const {
         buffer<expr> R; // resolvent
         if (!collect(C1, l, R, ctx))
             throw_kernel_exception(env, "invalid resolve macro, positive literal was not found", m);
         if (!collect(C2, not_l, R, ctx))
             throw_kernel_exception(env, "invalid resolve macro, negative literal was not found", m);
         return mk_bin_rop(*g_or, *g_false, R.size(), R.data());
+    }
+
+    virtual pair<expr, constraint_seq> get_type(expr const & m, extension_context & ctx) const {
+        environment const & env = ctx.env();
+        check_num_args(env, m);
+        expr l     = whnf(macro_arg(m, 0), ctx);
+        expr not_l = whnf(mk_app(*g_not, l), ctx);
+        expr C1    = infer_type(macro_arg(m, 1), ctx);
+        expr C2    = infer_type(macro_arg(m, 2), ctx);
+        return mk_pair(mk_resolvent(env, ctx, m, l, not_l, C1, C2), constraint_seq());
     }
 
     // End of resolve_macro get_type implementation
@@ -171,8 +176,7 @@ public:
         expr H2    = macro_arg(m, 2);
         expr C1    = infer_type(H1, ctx);
         expr C2    = infer_type(H2, ctx);
-        expr arg_types[3] = { expr() /* get_type() does not use first argument */, C1, C2 };
-        expr R     = get_type(m, arg_types, ctx);
+        expr R     = mk_resolvent(env, ctx, m, l, not_l, C1, C2);
         return some_expr(mk_or_elim_tree1(l, not_l, C1, H1, C2, H2, R, ctx));
     }
 

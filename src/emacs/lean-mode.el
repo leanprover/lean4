@@ -200,6 +200,7 @@ Invokes `lean-mode-hook'.
   (set (make-local-variable 'comment-use-syntax) t)
   (set (make-local-variable 'font-lock-defaults) lean-font-lock-defaults)
   (set (make-local-variable 'indent-tabs-mode) nil)
+  (set 'compilation-mode-font-lock-keywords '())
   (set-input-method "Lean")
   (set (make-local-variable 'lisp-indent-function)
        'common-lisp-indent-function)

@@ -939,10 +939,12 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
         try_using(subst, mvar, ps, *local_hint, show_failure);
     } else {
         // using tactic_hints
-        for (tactic_hint_entry const & tentry : get_tactic_hints(env())) {
-            bool show_failure = false;
-            if (try_using(subst, mvar, ps, tentry.get_tactic(), show_failure))
-                return;
+        for (expr const & pre_tac : get_tactic_hints(env())) {
+            if (auto tac = pre_tactic_to_tactic(pre_tac, mvar)) {
+                bool show_failure = false;
+                if (try_using(subst, mvar, ps, *tac, show_failure))
+                    return;
+            }
         }
     }
 }

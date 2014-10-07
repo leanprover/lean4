@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/kernel_serializer.h"
 #include "library/tactic/tactic.h"
-#include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/cmd_table.h"
 #include "frontends/lean/parser.h"
@@ -18,37 +17,17 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 
 namespace lean {
-typedef list<tactic_hint_entry> tactic_hint_entries;
-
-struct tactic_hint_state {
-    tactic_hint_entries  m_tactics;
-};
+typedef list<expr> tactic_hints;
 
 static name * g_class_name = nullptr;
 static std::string * g_key = nullptr;
 
 struct tactic_hint_config {
-    typedef tactic_hint_state   state;
-    typedef tactic_hint_entry   entry;
-    typedef tactic_hint_entries entries;
+    typedef tactic_hints   state;
+    typedef expr           entry;
 
-    static entries add(entries const & l, entry const & e) {
-        return cons(e, filter(l, [&](entry const & e1) { return e1.m_pre_tactic != e.m_pre_tactic; }));
-    }
-
-    static void add_entry_core(state & s, entry const & e) {
-        s.m_tactics = add(s.m_tactics, e);
-    }
-
-    static void add_entry(environment const & env, io_state const &, state & s, entry const & e) {
-        if (!e.m_compiled) {
-            entry new_e(e);
-            new_e.m_tactic   = expr_to_tactic(env, e.m_pre_tactic, nullptr);
-            new_e.m_compiled = true;
-            add_entry_core(s, new_e);
-        } else {
-            add_entry_core(s, e);
-        }
+    static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
+        s = cons(e, filter(s, [&](expr const & e1) { return e1 != e; }));
     }
 
     static name const & get_class_name() {
@@ -60,16 +39,17 @@ struct tactic_hint_config {
     }
 
     static void  write_entry(serializer & s, entry const & e) {
-        s << e.m_pre_tactic;
+        s << e;
     }
 
     static entry read_entry(deserializer & d) {
         entry e;
-        d >> e.m_pre_tactic;
+        d >> e;
         return e;
     }
+
     static optional<unsigned> get_fingerprint(entry const & e) {
-        return some(e.m_pre_tactic.hash());
+        return some(e.hash());
     }
 };
 
@@ -88,9 +68,8 @@ void finalize_tactic_hint() {
     delete g_class_name;
 }
 
-list<tactic_hint_entry> get_tactic_hints(environment const & env) {
-    tactic_hint_state const & s = tactic_hint_ext::get_state(env);
-    return s.m_tactics;
+list<expr> const & get_tactic_hints(environment const & env) {
+    return tactic_hint_ext::get_state(env);
 }
 
 expr parse_tactic_name(parser & p) {
@@ -108,8 +87,7 @@ expr parse_tactic_name(parser & p) {
 
 environment tactic_hint_cmd(parser & p) {
     expr pre_tac = parse_tactic_name(p);
-    tactic tac   = expr_to_tactic(p.env(), pre_tac, nullptr);
-    return tactic_hint_ext::add_entry(p.env(), get_dummy_ios(), tactic_hint_entry(pre_tac, tac));
+    return tactic_hint_ext::add_entry(p.env(), get_dummy_ios(), pre_tac);
 }
 
 void register_tactic_hint_cmd(cmd_table & r) {

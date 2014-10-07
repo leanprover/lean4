@@ -31,8 +31,12 @@ option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
 # When ON we try to minimize the amount of memory needed to compile Lean using gcc.
 # We use this flag when compiling at Travis.
 option(CONSERVE_MEMORY    "CONSERVE_MEMORY"   OFF)
-# Place to install emacs related files
-option(EMACS_LIB          "EMACS_LIB"         "emacs")
+
+# emacs site-lisp dir
+set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-lisp dir")
+
+message(STATUS "Lean emacs-mode will be installed at "
+  ${CMAKE_INSTALL_PREFIX}/${EMACS_LISP_DIR})
 
 # Added for CTest
 include(CTest)

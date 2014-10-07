@@ -31,7 +31,7 @@ if platform.system() == "Windows":
 # behavior to subprocesses.
 if "MSYSTEM" in os.environ:
     del os.environ["MSYSTEM"]
-    
+
 if platform.system().startswith("MSYS"):
     # In MSYS platform, realpath has a strange behavior.
     #    os.path.realpath("c:\a\b\c") => \:\a\b\c
@@ -39,7 +39,7 @@ if platform.system().startswith("MSYS"):
 else:
     g_linja_path   = os.path.abspath(os.path.realpath(__file__))
 g_lean_bin_dir     = os.path.dirname(g_linja_path)
-g_phony_targets    = ["clean", "tags", "clear-cache"]
+g_phony_targets    = ["all", "clean", "tags", "clear-cache"]
 g_project_filename = ".project"
 g_lean_path        = "USE DEFAULT" # System will search automatically
 g_ltags_path       = "USE DEFAULT" # System will search automatically
@@ -57,7 +57,7 @@ def init_logger():
     g_logger.addHandler(streamHandler)
     if g_debug_mode == True:
         fileHandler = logging.FileHandler('./linja.log')
-        fileHandler.setFormatter(formatter)    
+        fileHandler.setFormatter(formatter)
         g_logger.addHandler(fileHandler)
 
 def log(msg):
@@ -236,8 +236,6 @@ def process_args(args):
             error("cache argument has to be ends with .lean")
         args.cache = args.cache[:-4] + "clean"
     args.phony_targets = list(set(g_phony_targets) & set(args.targets))
-    if len(args.phony_targets) > 1:
-        error("Please provide at most one phony target: " + str(args.phony_targets))
     if args.verbose:
         g_logger.setLevel(logging.INFO)
     return args

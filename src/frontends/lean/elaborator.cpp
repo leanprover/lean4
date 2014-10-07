@@ -556,16 +556,10 @@ expr elaborator::visit_sort(expr const & e) {
 }
 
 expr elaborator::visit_macro(expr const & e, constraint_seq & cs) {
-    if (is_as_is(e)) {
-        return get_as_is_arg(e);
-    } else {
-        // Remark: Macros are not meant to be used in the front end.
-        // Perhaps, we should throw error.
-        buffer<expr> args;
-        for (unsigned i = 0; i < macro_num_args(e); i++)
-            args.push_back(visit(macro_arg(e, i), cs));
-        return update_macro(e, args.size(), args.data());
-    }
+    buffer<expr> args;
+    for (unsigned i = 0; i < macro_num_args(e); i++)
+        args.push_back(visit(macro_arg(e, i), cs));
+    return update_macro(e, args.size(), args.data());
 }
 
 expr elaborator::visit_constant(expr const & e) {
@@ -766,7 +760,9 @@ pair<expr, constraint_seq> elaborator::visit(expr const & e) {
     expr r;
     expr b = e;
     constraint_seq cs;
-    if (is_explicit(e)) {
+    if (is_as_is(e)) {
+        r = get_as_is_arg(e);
+    } else if (is_explicit(e)) {
         b    = get_explicit_arg(e);
         if (is_sorry(b)) {
             r = visit_constant(b);

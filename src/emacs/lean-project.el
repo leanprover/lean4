@@ -18,7 +18,7 @@
 
 (defun lean-project-create (directory)
   (interactive
-   (list (read-directory-name "Project root: ")))
+   (list (read-directory-name "Specify the project root directory: ")))
   (let ((project-file (concat (file-name-as-directory directory)
                                lean-project-file-name)))
     (if (file-exists-p project-file)

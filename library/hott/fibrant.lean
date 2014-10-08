@@ -7,7 +7,7 @@ import data.prod data.sum data.sigma
 
 open unit bool nat prod sum sigma
 
-inductive fibrant (T : Type) : Type :=
+inductive fibrant [class] (T : Type) : Type :=
 fibrant_mk : fibrant T
 
 namespace fibrant

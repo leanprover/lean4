@@ -4,7 +4,7 @@
 import .inhabited
 open inhabited
 
-inductive nonempty (A : Type) : Prop :=
+inductive nonempty [class] (A : Type) : Prop :=
 intro : A → nonempty A
 
 namespace nonempty

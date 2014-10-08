@@ -56,7 +56,7 @@ section
   include s
   definition semigroup_has_mul [instance] : has_mul A := has_mul.mk semigroup.mul
 
-  theorem mul_assoc [instance] (a b c : A) : a * b * c = a * (b * c) :=
+  theorem mul_assoc (a b c : A) : a * b * c = a * (b * c) :=
     !semigroup.assoc
 end
 

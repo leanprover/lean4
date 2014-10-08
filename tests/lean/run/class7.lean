@@ -1,7 +1,7 @@
 import logic
 open tactic
 
-inductive inh (A : Type) : Type :=
+inductive inh [class] (A : Type) : Type :=
 intro : A -> inh A
 
 theorem inh_bool [instance] : inh Prop

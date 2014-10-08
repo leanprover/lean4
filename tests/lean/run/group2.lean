@@ -12,7 +12,7 @@ context
   definition is_inv   := ∀ a, a*a^-1 = one
 end
 
-inductive group_struct (A : Type) : Type :=
+inductive group_struct [class] (A : Type) : Type :=
 mk : Π (mul : A → A → A) (one : A) (inv : A → A), is_assoc mul → is_id mul one → is_inv mul one inv → group_struct A
 
 inductive group : Type :=

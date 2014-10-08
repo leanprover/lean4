@@ -1,7 +1,7 @@
 import logic
 
 namespace algebra
-  inductive mul_struct (A : Type) : Type :=
+  inductive mul_struct [class] (A : Type) : Type :=
   mk : (A → A → A) → mul_struct A
 
   definition mul {A : Type} {s : mul_struct A} (a b : A)
@@ -10,6 +10,7 @@ namespace algebra
   infixl `*`:75 := mul
 end algebra
 
+open algebra
 namespace nat
   inductive nat : Type :=
   zero : nat,

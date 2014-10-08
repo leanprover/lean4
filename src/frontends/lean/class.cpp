@@ -123,11 +123,17 @@ static void check_class(environment const & env, name const & c_name) {
         throw exception(sstream() << "invalid class, '" << c_name << "' is a definition");
 }
 
+static void check_is_class(environment const & env, name const & c_name) {
+    class_state const & s = class_ext::get_state(env);
+    if (!s.m_instances.contains(c_name))
+        throw exception(sstream() << "'" << c_name << "' is not a class");
+}
+
 name get_class_name(environment const & env, expr const & e) {
     if (!is_constant(e))
         throw exception("class expected, expression is not a constant");
     name const & c_name = const_name(e);
-    check_class(env, c_name);
+    check_is_class(env, c_name);
     return c_name;
 }
 
@@ -156,7 +162,7 @@ environment add_instance(environment const & env, name const & n, unsigned prior
         type = instantiate(binding_body(type), mk_local(ngen.next(), binding_domain(type)));
     }
     name c = get_class_name(env, get_app_fn(type));
-    check_class(env, c);
+    check_is_class(env, c);
     return class_ext::add_entry(env, get_dummy_ios(), class_entry(c, n, priority), persistent);
 }
 

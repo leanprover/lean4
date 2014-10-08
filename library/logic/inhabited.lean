@@ -4,7 +4,7 @@
 
 import logic.connectives
 
-inductive inhabited (A : Type) : Type :=
+inductive inhabited [class] (A : Type) : Type :=
 mk : A → inhabited A
 
 namespace inhabited

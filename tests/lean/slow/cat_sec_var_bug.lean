@@ -60,9 +60,9 @@ namespace category
     i = id ∘ i : eq.symm !id_left
     ... = id : H
 
-  inductive is_section    (f : hom a b) : Type := mk : ∀{g}, g ∘ f = id → is_section f
-  inductive is_retraction (f : hom a b) : Type := mk : ∀{g}, f ∘ g = id → is_retraction f
-  inductive is_iso        (f : hom a b) : Type := mk : ∀{g}, g ∘ f = id → f ∘ g = id → is_iso f
+  inductive is_section    [class] (f : hom a b) : Type := mk : ∀{g}, g ∘ f = id → is_section f
+  inductive is_retraction [class] (f : hom a b) : Type := mk : ∀{g}, f ∘ g = id → is_retraction f
+  inductive is_iso        [class] (f : hom a b) : Type := mk : ∀{g}, g ∘ f = id → f ∘ g = id → is_iso f
 
   definition retraction_of (f : hom a b) {H : is_section f} : hom b a :=
   is_section.rec (λg h, g) H

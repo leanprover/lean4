@@ -6,7 +6,7 @@ constant nat_add  : nat → nat → nat
 constant int_add  : int → int → int
 constant real_add : real → real → real
 
-inductive add_struct (A : Type) :=
+inductive add_struct [class] (A : Type) :=
 mk : (A → A → A) → add_struct A
 
 definition add {A : Type} {S : add_struct A} (a b : A) : A :=

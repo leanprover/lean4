@@ -61,11 +61,11 @@ namespace category
     i = id ∘ i : eq.symm id_left
     ... = id : H
 
-  inductive is_section {A B : ob} (f : mor A B) : Type :=
+  inductive is_section [class] {A B : ob} (f : mor A B) : Type :=
   mk : ∀{g}, g ∘ f = id → is_section f
-  inductive is_retraction {A B : ob} (f : mor A B) : Type :=
+  inductive is_retraction [class] {A B : ob} (f : mor A B) : Type :=
   mk : ∀{g}, f ∘ g = id → is_retraction f
-  inductive is_iso {A B : ob} (f : mor A B) : Type :=
+  inductive is_iso [class] {A B : ob} (f : mor A B) : Type :=
   mk : ∀{g}, g ∘ f = id → f ∘ g = id → is_iso f
 
   definition retraction_of {A B : ob} (f : mor A B) {H : is_section f} : mor B A :=

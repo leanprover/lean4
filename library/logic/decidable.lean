@@ -4,7 +4,7 @@
 
 import logic.connectives
 
-inductive decidable (p : Prop) : Type :=
+inductive decidable [class] (p : Prop) : Type :=
 inl : p  → decidable p,
 inr : ¬p → decidable p
 

@@ -1,7 +1,7 @@
 import logic data.prod
 open tactic prod
 
-inductive inh (A : Type) : Prop :=
+inductive inh [class] (A : Type) : Prop :=
 intro : A -> inh A
 
 instance inh.intro

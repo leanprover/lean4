@@ -2,7 +2,7 @@ import logic data.prod priority
 open priority
 set_option pp.notation false
 
-inductive C (A : Type) :=
+inductive C [class] (A : Type) :=
 mk : A → C A
 
 definition val {A : Type} (c : C A) : A :=

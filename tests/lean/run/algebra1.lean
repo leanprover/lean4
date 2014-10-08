@@ -15,10 +15,10 @@ context
 end
 
 namespace algebra
-  inductive mul_struct (A : Type) : Type :=
+  inductive mul_struct [class] (A : Type) : Type :=
   mk : (A → A → A) → mul_struct A
 
-  inductive add_struct (A : Type) : Type :=
+  inductive add_struct [class] (A : Type) : Type :=
   mk : (A → A → A) → add_struct A
 
   definition mul  {A : Type} {s : mul_struct A} (a b : A)
@@ -32,6 +32,7 @@ namespace algebra
   infixl `+`:65 := add
 end algebra
 
+open algebra
   inductive nat : Type :=
   zero : nat,
   succ : nat → nat
@@ -54,7 +55,7 @@ end nat
 
 namespace algebra
 namespace semigroup
-  inductive semigroup_struct (A : Type) : Type :=
+  inductive semigroup_struct [class] (A : Type) : Type :=
   mk : Π (mul : A → A → A), is_assoc mul → semigroup_struct A
 
   definition mul  {A : Type} (s : semigroup_struct A) (a b : A)
@@ -79,7 +80,7 @@ end semigroup
 namespace monoid
   check semigroup.mul
 
-  inductive monoid_struct (A : Type) : Type :=
+  inductive monoid_struct [class] (A : Type) : Type :=
   mk_monoid_struct : Π (mul : A → A → A) (id : A), is_assoc mul → is_id mul id → monoid_struct A
 
   definition mul  {A : Type} (s : monoid_struct A) (a b : A)

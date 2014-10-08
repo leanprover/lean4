@@ -16,7 +16,7 @@ definition reflexive {T : Type} (R : T → T → Prop) : Prop := ∀x, R x x
 -- Congruence classes for unary and binary functions
 -- -------------------------------------------------
 
-inductive congruence {T1 : Type} {T2 : Type} (R1 : T1 → T1 → Prop) (R2 : T2 → T2 → Prop)
+inductive congruence [class] {T1 : Type} {T2 : Type} (R1 : T1 → T1 → Prop) (R2 : T2 → T2 → Prop)
     (f : T1 → T2) : Prop :=
 mk : (∀x y : T1, R1 x y → R2 (f x) (f y)) → congruence R1 R2 f
 

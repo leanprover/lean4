@@ -8,7 +8,7 @@ open function
 
 namespace congr
 
-inductive struc {T1 : Type} {T2 : Type} (R1 : T1 → T1 → Prop) (R2 : T2 → T2 → Prop)
+inductive struc [class] {T1 : Type} {T2 : Type} (R1 : T1 → T1 → Prop) (R2 : T2 → T2 → Prop)
     (f : T1 → T2) : Prop :=
 mk : (∀x y : T1, R1 x y → R2 (f x) (f y)) → struc R1 R2 f
 

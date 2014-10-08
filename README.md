@@ -66,6 +66,7 @@ Miscellaneous
 
 - [Testing and Code Coverage](doc/make/coverage.md)
 - Building Doxygen Documentation: `doxygen src/Doxyfile`
-- [Coding style](doc/coding_style.md)
+- [Coding Style](doc/coding_style.md)
 - [Git Commit Convention](doc/commit_convention.md)
-- [Automatic builds](doc/make/travis.md)
+- [Automatic Builds](doc/make/travis.md)
+- [Syntax Highlight Lean Code in LaTeX](doc/syntax_highlight_in_latex.md)

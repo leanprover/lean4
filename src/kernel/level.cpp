@@ -235,9 +235,11 @@ level mk_imax(level const & l1, level const & l2) {
     if (is_not_zero(l2))
         return mk_max(l1, l2);
     else if (is_zero(l2))
-        return l2;
+        return l2;  // imax u 0 = 0  for any u
+    else if (is_zero(l1))
+        return l2;  // imax 0 u = u  for any u
     else if (l1 == l2)
-        return l1;
+        return l1;  // imax u u = u
     else
         return level(new level_max_core(true,  l1, l2));
 }

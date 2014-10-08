@@ -212,7 +212,8 @@ public:
     void cache_definition(name const & n, expr const & pre_type, expr const & pre_value,
                           level_param_names const & ls, expr const & type, expr const & value);
     /** \brief Try to find an elaborated definition for (n, pre_type, pre_value) in the cache */
-    optional<std::tuple<level_param_names, expr, expr>> find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value);
+    optional<std::tuple<level_param_names, expr, expr>>
+    find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value);
     void erase_cached_definition(name const & n) { if (m_cache) m_cache->erase(n); }
 
     bool are_info_lines_valid(unsigned start_line, unsigned end_line) const;
@@ -279,9 +280,11 @@ public:
     bool curr_is_token(name const & tk) const;
     /** \brief Check current token, and move to next characther, throw exception if current token is not \c tk. */
     void check_token_next(name const & tk, char const * msg);
-    /** \brief Check if the current token is an identifier, if it is return it and move to next token, otherwise throw an exception. */
+    /** \brief Check if the current token is an identifier, if it is return it and move to next token,
+        otherwise throw an exception. */
     name check_id_next(char const * msg);
-    /** \brief Check if the current token is an atomic identifier, if it is, return it and move to next token, otherwise throw an exception. */
+    /** \brief Check if the current token is an atomic identifier, if it is, return it and move to next token,
+        otherwise throw an exception. */
     name check_atomic_id_next(char const * msg);
     /** \brief Check if the current token is a constant, if it is, return it and move to next token, otherwise throw an exception. */
     name check_constant_next(char const * msg);
@@ -343,6 +346,8 @@ public:
     unsigned get_local_index(expr const & e) const { return get_local_index(local_pp_name(e)); }
     /** \brief Return the local parameter named \c n */
     expr const * get_local(name const & n) const { return m_local_decls.find(n); }
+    /** \brief Return local declarations as a list of local constants. */
+    list<expr> locals_to_context() const;
 
     /**
         \brief By default, when the parser finds a unknown identifier, it signs an error.
@@ -355,7 +360,8 @@ public:
     /** \brief Elaborate \c e, and tolerate metavariables in the result. */
     std::tuple<expr, level_param_names> elaborate_relaxed(expr const & e, list<expr> const & ctx = list<expr>());
     /** \brief Elaborate \c e, and ensure it is a type. */
-    std::tuple<expr, level_param_names> elaborate_type(expr const & e, list<expr> const & ctx = list<expr>(), bool clear_pre_info = true);
+    std::tuple<expr, level_param_names> elaborate_type(expr const & e, list<expr> const & ctx = list<expr>(),
+                                                       bool clear_pre_info = true);
     /** \brief Elaborate \c e in the given environment. */
     std::tuple<expr, level_param_names> elaborate_at(environment const & env, expr const & e);
     /** \brief Elaborate \c e (making sure the result does not have metavariables). */

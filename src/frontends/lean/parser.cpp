@@ -126,7 +126,8 @@ void parser::cache_definition(name const & n, expr const & pre_type, expr const 
         m_cache->add(m_env, n, pre_type, pre_value, ls, type, value);
 }
 
-optional<std::tuple<level_param_names, expr, expr>> parser::find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value) {
+auto parser::find_cached_definition(name const & n, expr const & pre_type, expr const & pre_value)
+-> optional<std::tuple<level_param_names, expr, expr>> {
     if (m_cache)
         return m_cache->find(m_env, n, pre_type, pre_value);
     else
@@ -596,7 +597,8 @@ elaborator_context parser::mk_elaborator_context(environment const & env, pos_in
     return elaborator_context(env, m_ios, m_local_level_decls, &pp, m_info_manager, true);
 }
 
-elaborator_context parser::mk_elaborator_context(environment const & env, local_level_decls const & lls, pos_info_provider const & pp) {
+elaborator_context parser::mk_elaborator_context(environment const & env, local_level_decls const & lls,
+                                                 pos_info_provider const & pp) {
     return elaborator_context(env, m_ios, lls, &pp, m_info_manager, true);
 }
 
@@ -632,8 +634,9 @@ std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env
     return r;
 }
 
-std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name const & n, expr const & t, expr const & v,
-                                                                       bool is_opaque) {
+auto parser::elaborate_definition(name const & n, expr const & t, expr const & v,
+                                  bool is_opaque)
+-> std::tuple<expr, expr, level_param_names> {
     parser_pos_provider pp = get_pos_provider();
     elaborator_context eenv = mk_elaborator_context(pp);
     auto r = ::lean::elaborate(eenv, n, t, v, is_opaque);
@@ -641,8 +644,9 @@ std::tuple<expr, expr, level_param_names> parser::elaborate_definition(name cons
     return r;
 }
 
-std::tuple<expr, expr, level_param_names> parser::elaborate_definition_at(environment const & env, local_level_decls const & lls,
-                                                                          name const & n, expr const & t, expr const & v, bool is_opaque) {
+auto parser::elaborate_definition_at(environment const & env, local_level_decls const & lls,
+                                     name const & n, expr const & t, expr const & v, bool is_opaque)
+-> std::tuple<expr, expr, level_param_names> {
     parser_pos_provider pp = get_pos_provider();
     elaborator_context eenv = mk_elaborator_context(env, lls, pp);
     auto r = ::lean::elaborate(eenv, n, t, v, is_opaque);
@@ -923,7 +927,8 @@ expr parser::parse_notation(parse_table t, expr * left) {
                     scoped_set_parser scope(L, *this);
                     lua_getglobal(L, a.get_lua_fn().c_str());
                     if (!lua_isfunction(L, -1))
-                        throw parser_error(sstream() << "failed to use notation implemented in Lua, Lua state does not contain function '"
+                        throw parser_error(sstream() << "failed to use notation implemented in Lua, "
+                                           << "Lua state does not contain function '"
                                            << a.get_lua_fn() << "'", p);
                     lua_pushinteger(L, p.first);
                     lua_pushinteger(L, p.second);
@@ -1360,7 +1365,8 @@ bool parser::curr_is_command_like() const {
     }
 }
 
-void parser::add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls, expr const & t, expr const & v) {
+void parser::add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls,
+                                 expr const & t, expr const & v) {
     m_theorem_queue.add(env, n, ls, get_local_level_decls(), t, v);
 }
 

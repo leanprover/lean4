@@ -49,15 +49,18 @@ Put the following elisp code on your emacs setup (e.g. ``.emacs.d/init.el``):
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
-(package-refresh-contents)
 
 ;; Install required/optional packages for lean-mode
 (defvar lean-mode-required-packages
   '(company dash dash-functional flycheck whitespace-cleanup-mode
     f fill-column-indicator s lua-mode mmm-mode))
-(dolist (p lean-mode-required-packages)
-  (when (not (package-installed-p p))
-    (package-install p)))
+(let ((need-to-refresh t))
+  (dolist (p lean-mode-required-packages)
+    (when (not (package-installed-p p))
+      (when need-to-refresh
+        (package-refresh-contents)
+        (set need-to-refresh nil))
+      (package-install p))))
 
 ;; Set up lean-root path
 (setq lean-rootdir "~/projects/lean")

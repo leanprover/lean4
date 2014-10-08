@@ -463,6 +463,10 @@ void parser::get_include_variables(buffer<expr> & vars) const {
         });
 }
 
+list<expr> parser::locals_to_context() const {
+    return filter(m_local_decls.get_values(), [](expr const & e) { return is_local(e); });
+}
+
 static unsigned g_level_add_prec = 10;
 static unsigned g_level_cup_prec = 5;
 

@@ -167,7 +167,7 @@ environment variable_cmd_core(parser & p, variable_kind k) {
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
     }
     level_param_names new_ls;
-    list<expr> ctx = locals_to_context(type, p);
+    list<expr> ctx = p.locals_to_context();
     std::tie(type, new_ls) = p.elaborate_type(type, ctx);
     update_section_local_levels(p, new_ls, k == variable_kind::Variable);
     return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos);

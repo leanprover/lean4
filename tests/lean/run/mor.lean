@@ -11,5 +11,6 @@ namespace morphism
   parameter {ob : Type}
   parameter {C : category ob}
   variables {a b c d : ob} {h : mor c d} {g : mor b c} {f : mor a b}
+  check mor a b
   end
 end morphism

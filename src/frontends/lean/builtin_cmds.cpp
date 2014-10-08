@@ -131,10 +131,10 @@ environment end_scoped_cmd(parser & p) {
 static std::tuple<expr, level_param_names> parse_local_expr(parser & p) {
     expr e   = p.parse_expr();
     list<expr> ctx = p.locals_to_context();
-    level_param_names ls = to_level_param_names(collect_univ_params(e));
     level_param_names new_ls;
     std::tie(e, new_ls) = p.elaborate_relaxed(e, ctx);
-    return std::make_tuple(e, append(ls, new_ls));
+    level_param_names ls = to_level_param_names(collect_univ_params(e));
+    return std::make_tuple(e, ls);
 }
 
 environment check_cmd(parser & p) {

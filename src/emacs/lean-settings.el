@@ -82,7 +82,8 @@ show both of expressions and types.")
                  (integer :tag "Specify the value and force lean-mode to use")))
 
 (defcustom lean-flycheck-checker-options
-  `("--flycheck"
+  `("--keep-going" ,(format "%d" 999)
+    "--flycheck"
     "--flycheck-max-messages" ,(format "%d" lean-flycheck-max-messages-to-display))
   "lean-flychecker checker option"
   :group 'lean)

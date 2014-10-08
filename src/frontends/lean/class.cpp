@@ -119,8 +119,8 @@ typedef scoped_ext<class_config> class_ext;
 
 static void check_class(environment const & env, name const & c_name) {
     declaration c_d = env.get(c_name);
-    if (c_d.is_definition() && !c_d.is_opaque())
-        throw exception(sstream() << "invalid class, '" << c_name << "' is a transparent definition");
+    if (c_d.is_definition())
+        throw exception(sstream() << "invalid class, '" << c_name << "' is a definition");
 }
 
 name get_class_name(environment const & env, expr const & e) {
@@ -149,6 +149,7 @@ environment add_instance(environment const & env, name const & n, unsigned prior
         type = instantiate(binding_body(type), mk_local(ngen.next(), binding_domain(type)));
     }
     name c = get_class_name(env, get_app_fn(type));
+    check_class(env, c);
     return class_ext::add_entry(env, get_dummy_ios(), class_entry(c, n, priority), persistent);
 }
 

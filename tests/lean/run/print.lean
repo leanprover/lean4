@@ -7,3 +7,5 @@ print options
 print coercions functor
 print "-----------"
 print coercions
+print "-----------"
+print classes

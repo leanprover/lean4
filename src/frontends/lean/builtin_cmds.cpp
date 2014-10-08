@@ -70,6 +70,15 @@ environment print_cmd(parser & p) {
         for (name const & i : get_class_instances(env, c)) {
             p.regular_stream() << i << " : " << env.get(i).get_type() << endl;
         }
+    } else if (p.curr_is_token_or_id(get_classes_tk())) {
+        p.next();
+        environment const & env = p.env();
+        buffer<name> classes;
+        get_classes(env, classes);
+        std::sort(classes.begin(), classes.end());
+        for (name const & c : classes) {
+            p.regular_stream() << c << " : " << env.get(c).get_type() << endl;
+        }
     } else if (p.curr_is_token_or_id(get_coercions_tk())) {
         p.next();
         optional<name> C;

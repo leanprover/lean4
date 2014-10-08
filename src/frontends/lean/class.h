@@ -21,6 +21,8 @@ environment add_instance(environment const & env, name const & n, unsigned prior
 bool is_class(environment const & env, name const & c);
 /** \brief Return the instances of the given class. */
 list<name> get_class_instances(environment const & env, name const & c);
+/** \brief Return the classes in the given environment. */
+void get_classes(environment const & env, buffer<name> & classes);
 name get_class_name(environment const & env, expr const & e);
 /** \brief Parse priority for an class instance */
 optional<unsigned> parse_instance_priority(parser & p);

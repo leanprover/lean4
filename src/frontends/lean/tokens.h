@@ -40,6 +40,7 @@ name const & get_true_tk();
 name const & get_false_tk();
 name const & get_options_tk();
 name const & get_instances_tk();
+name const & get_classes_tk();
 name const & get_coercions_tk();
 name const & get_arrow_tk();
 name const & get_declarations_tk();

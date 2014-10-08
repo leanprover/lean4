@@ -136,6 +136,13 @@ environment add_class(environment const & env, name const & n, bool persistent) 
     return class_ext::add_entry(env, get_dummy_ios(), class_entry(n), persistent);
 }
 
+void get_classes(environment const & env, buffer<name> & classes) {
+    class_state const & s = class_ext::get_state(env);
+    s.m_instances.for_each([&](name const & c, list<name> const &) {
+            classes.push_back(c);
+        });
+}
+
 static name * g_tmp_prefix = nullptr;
 environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
     declaration d = env.get(n);

@@ -203,7 +203,7 @@ static environment variables_cmd_core(parser & p, variable_kind k) {
         expr type = p.parse_expr();
         p.parse_close_binder_info(bi);
         level_param_names ls = to_level_param_names(collect_univ_params(type));
-        list<expr> ctx = locals_to_context(type, p);
+        list<expr> ctx = p.locals_to_context();
         for (auto id : ids) {
             // Hack: to make sure we get different universe parameters for each parameter.
             // Alternative: elaborate once and copy types replacing universes in new_ls.

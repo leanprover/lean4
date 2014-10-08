@@ -259,6 +259,7 @@ def parse_arg(argv):
     parser.add_argument('--directory', '-C', action='store', help="change to DIR before doing anything else.")
     parser.add_argument('--lean-config-option', '-D', action='append', help="set a Lean configuration option (name=value)")
     parser.add_argument('--verbose', '-v', action='store_true', help="turn on verbose option")
+    parser.add_argument('--keep-going', '-k', action='store', default=None, const=1, nargs='?', help="keep going until N jobs fail [default=1]")
     parser.add_argument('targets', nargs='*')
     args = parser.parse_args(argv)
     check_requirements()
@@ -351,7 +352,10 @@ def call_ninja(args):
     if args.flycheck:
         proc_out = subprocess.PIPE
         proc_err = subprocess.PIPE
-    proc = subprocess.Popen([g_ninja_path] + targets, stdout=proc_out, stderr=proc_err)
+    ninja_option = []
+    if args.keep_going:
+        ninja_option += ["-k", args.keep_going]
+    proc = subprocess.Popen([g_ninja_path] + ninja_option + targets, stdout=proc_out, stderr=proc_err)
     (out, err) = proc.communicate()
     if args.flycheck:
         if len(args.targets) == 1 and args.targets[0].endswith(".lean"):

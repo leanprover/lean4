@@ -1,12 +1,9 @@
-lean-mode
-=========
-
 Emacs mode for [lean theorem prover][lean]
 
 [lean]: https://github.com/leanprover/lean
 
 Requirement
------------
+===========
 
 ``lean-mode`` requires [Emacs 24][emacs24] and following
 packages which can be installed via <kbd>M-x package-install</kbd>.
@@ -40,7 +37,7 @@ to use full features of ``lean-mode``.
 [wcm]: https://github.com/purcell/whitespace-cleanup-mode
 
 Install
--------
+=======
 
 Put the following elisp code on your emacs setup (e.g. ``.emacs.d/init.el``):
 
@@ -77,16 +74,8 @@ Put the following elisp code on your emacs setup (e.g. ``.emacs.d/init.el``):
 (customize-set-variable 'lean-eldoc-use t)
 ```
 
-If experience a problem reading unicode characters on emacs, consider
-having the following setup:
-
-```elisp
-(when (member "DejaVu Sans Mono" (font-family-list))
-  (set-face-attribute 'default nil :font "DejaVu Sans Mono-11"))
-```
-
 Key Bindings
-------------
+============
 
 |Key                | Function                          |
 |-------------------|-----------------------------------|
@@ -99,8 +88,26 @@ Key Bindings
 |<kbd>C-c C-o</kbd> | lean-set-option                   |
 |<kbd>C-c C-e</kbd> | lean-eval-cmd                     |
 
+
+Known Issues and Possible Solutions
+===================================
+
+Unicode
+-------
+
+If you experience a problem reading unicode characters on emacs,
+first consider using a unicode-friendly font such as `DejaVu Sans Mono`:
+
+```elisp
+(when (member "DejaVu Sans Mono" (font-family-list))
+  (set-face-attribute 'default nil :font "DejaVu Sans Mono-11"))
+```
+
+If you still experience rendering problem. Please consider trying
+[emacs-unicode-fonts](https://github.com/rolandwalker/unicode-fonts).
+
 Contribution
-------------
+============
 
 Contribution is welcome!
 

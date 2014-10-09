@@ -1054,8 +1054,8 @@ std::tuple<expr, level_param_names> elaborator::operator()(list<expr> const & ct
     auto p  = solve(cs).pull();
     lean_assert(p);
     substitution s = p->first.first;
-    check_sort_assignments(s);
     auto result = apply(s, r);
+    check_sort_assignments(s);
     copy_info_to_manager(s);
     return result;
 }
@@ -1081,11 +1081,11 @@ std::tuple<expr, expr, level_param_names> elaborator::operator()(
     auto p  = solve(cs).pull();
     lean_assert(p);
     substitution s = p->first.first;
-    check_sort_assignments(s);
     name_set univ_params = collect_univ_params(r_v, collect_univ_params(r_t));
     buffer<name> new_params;
     expr new_r_t = apply(s, r_t, univ_params, new_params);
     expr new_r_v = apply(s, r_v, univ_params, new_params);
+    check_sort_assignments(s);
     copy_info_to_manager(s);
     return std::make_tuple(new_r_t, new_r_v, to_list(new_params.begin(), new_params.end()));
 }

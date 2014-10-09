@@ -23,10 +23,10 @@ mk : reflexive R → is_reflexive R
 
 namespace is_reflexive
 
-  definition app ⦃T : Type⦄ {R : T → T → Type} (C : is_reflexive R) : reflexive R :=
+  definition app ⦃T : Type⦄ {R : T → T → Prop} (C : is_reflexive R) : reflexive R :=
   is_reflexive.rec (λu, u) C
 
-  definition infer ⦃T : Type⦄ (R : T → T → Type) {C : is_reflexive R} : reflexive R :=
+  definition infer ⦃T : Type⦄ (R : T → T → Prop) {C : is_reflexive R} : reflexive R :=
   is_reflexive.rec (λu, u) C
 
 end is_reflexive
@@ -37,10 +37,10 @@ mk : symmetric R → is_symmetric R
 
 namespace is_symmetric
 
-  definition app ⦃T : Type⦄ {R : T → T → Type} (C : is_symmetric R) : symmetric R :=
+  definition app ⦃T : Type⦄ {R : T → T → Prop} (C : is_symmetric R) : symmetric R :=
   is_symmetric.rec (λu, u) C
 
-  definition infer ⦃T : Type⦄ (R : T → T → Type) {C : is_symmetric R} : symmetric R :=
+  definition infer ⦃T : Type⦄ (R : T → T → Prop) {C : is_symmetric R} : symmetric R :=
   is_symmetric.rec (λu, u) C
 
 end is_symmetric
@@ -51,10 +51,10 @@ mk : transitive R → is_transitive R
 
 namespace is_transitive
 
-  definition app ⦃T : Type⦄ {R : T → T → Type} (C : is_transitive R) : transitive R :=
+  definition app ⦃T : Type⦄ {R : T → T → Prop} (C : is_transitive R) : transitive R :=
   is_transitive.rec (λu, u) C
 
-  definition infer ⦃T : Type⦄ (R : T → T → Type) {C : is_transitive R} : transitive R :=
+  definition infer ⦃T : Type⦄ (R : T → T → Prop) {C : is_transitive R} : transitive R :=
   is_transitive.rec (λu, u) C
 
 end is_transitive

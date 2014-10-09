@@ -22,13 +22,10 @@ namespace adjoint
   section
   parameters {obC obD : Type} (C : category obC) {D : category obD}
 
-  -- Add auxiliary category instance needed by functor.compose at (Hom D ∘f sorry)
-  private definition aux_prod_cat [instance] : category (obD × obD) := prod_category (opposite.opposite D) D
-
-  definition adjoint (obC obD : Type) (C : category obC) (D : category obD) (F : C ⇒ D) (G : D ⇒ C) :=
-  natural_transformation (Hom D ∘f sorry)
+  definition adjoint (F : C ⇒ D) (G : D ⇒ C) :=
+  natural_transformation (@functor.compose _ _ _ _ _ _ (Hom D) sorry)
                        --(Hom C ∘f sorry)
---product.prod_functor (opposite.opposite_functor F) (functor.ID D)
+  --product.prod_functor (opposite.opposite_functor F) (functor.ID D)
 
   end
 end adjoint

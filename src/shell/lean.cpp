@@ -86,10 +86,12 @@ static void display_help(std::ostream & out) {
     std::cout << "  --githash         display the git commit hash number used to build this binary\n";
     std::cout << "  --path            display the path used for finding Lean libraries and extensions\n";
     std::cout << "  --output=file -o  save the final environment in binary format in the given file\n";
+    std::cout << "  --cpp=file -C     save the final environment as a C++ array\n";
     std::cout << "  --luahook=num -k  how often the Lua interpreter checks the interrupted flag,\n";
     std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
     std::cout << "                    0 means 'do not check'.\n";
     std::cout << "  --trust=num -t    trust level (default: 0) \n";
+    std::cout << "  --discard -T      discard the proof of imported theorems after checking\n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
 #if defined(LEAN_MULTI_THREAD)
     std::cout << "  --server          start Lean in 'server' mode\n";
@@ -128,7 +130,9 @@ static struct option g_long_options[] = {
     {"luahook",     required_argument, 0, 'k'},
     {"githash",     no_argument,       0, 'g'},
     {"output",      required_argument, 0, 'o'},
+    {"cpp",         required_argument, 0, 'C'},
     {"trust",       required_argument, 0, 't'},
+    {"discard",     no_argument,       0, 'T'},
 #if defined(LEAN_MULTI_THREAD)
     {"server",      no_argument,       0, 'S'},
     {"threads",     required_argument, 0, 'j'},
@@ -144,7 +148,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define BASIC_OPT_STR "FdD:qlupgvhk:012t:012o:c:i:"
+#define BASIC_OPT_STR "TFC:dD:qlupgvhk:012t:012o:c:i:"
 
 #if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
 static char const * g_opt_str = BASIC_OPT_STR "Sj:012s:012";
@@ -197,6 +201,23 @@ options set_config_option(options const & opts, char const * in) {
     }
 }
 
+static void export_as_cpp_file(std::string const & fname, char const * varname, environment const & env) {
+    std::ostringstream buffer(std::ofstream::binary);
+    export_module(buffer, env);
+    std::string r = buffer.str();
+    std::ofstream out(fname);
+    out << "// automatically generated file do not edit\n";
+    out << "namespace lean {\n";
+    out << "    char " << varname << "[" << r.size() + 1 << "] = {";
+    for (unsigned i = 0; i < r.size(); i++) {
+        if (i > 0)
+            out << ", ";
+        out << static_cast<unsigned>(static_cast<unsigned char>(r[i]));
+    }
+    out << "    }\n";
+    out << "}\n";
+}
+
 int main(int argc, char ** argv) {
     lean::initializer init;
     bool export_objects  = false;
@@ -206,8 +227,11 @@ int main(int argc, char ** argv) {
     unsigned num_threads = 1;
     bool use_cache       = false;
     bool gen_index       = false;
+    bool export_cpp      = false;
+    bool keep_thms       = true;
     options opts;
     std::string output;
+    std::string cpp_output;
     std::string cache_name;
     std::string index_name;
     input_kind default_k = input_kind::Lean; // default
@@ -250,6 +274,10 @@ int main(int argc, char ** argv) {
             output         = optarg;
             export_objects = true;
             break;
+        case 'C':
+            cpp_output = optarg;
+            export_cpp = true;
+            break;
         case 'c':
             cache_name = optarg;
             use_cache  = true;
@@ -259,6 +287,9 @@ int main(int argc, char ** argv) {
             gen_index  = true;
         case 't':
             trust_lvl = atoi(optarg);
+            break;
+        case 'T':
+            keep_thms = false;
             break;
         case 'q':
             opts = opts.update("verbose", false);
@@ -324,7 +355,8 @@ int main(int argc, char ** argv) {
                     if (only_deps) {
                         if (!display_deps(env, std::cout, std::cerr, argv[i]))
                             ok = false;
-                    } else if (!parse_commands(env, ios, argv[i], false, num_threads, cache_ptr, index_ptr)) {
+                    } else if (!parse_commands(env, ios, argv[i], false, num_threads,
+                                               cache_ptr, index_ptr, keep_thms)) {
                         ok = false;
                     }
                 } else if (k == input_kind::Lua) {
@@ -357,6 +389,9 @@ int main(int argc, char ** argv) {
         if (export_objects && ok) {
             std::ofstream out(output, std::ofstream::binary);
             export_module(out, env);
+        }
+        if (export_cpp && ok) {
+            export_as_cpp_file(cpp_output, "olean_lib", env);
         }
         return ok ? 0 : 1;
     } catch (lean::exception & ex) {

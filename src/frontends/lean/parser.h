@@ -120,6 +120,8 @@ class parser {
     // index support
     declaration_index *    m_index;
 
+    bool                   m_keep_imported_thms;
+
     // curr command token
     name                   m_cmd_token;
 
@@ -205,7 +207,7 @@ public:
            std::istream & strm, char const * str_name,
            bool use_exceptions = false, unsigned num_threads = 1,
            snapshot const * s = nullptr, snapshot_vector * sv = nullptr,
-           info_manager * im = nullptr);
+           info_manager * im = nullptr, bool keep_imported_proofs = true);
     ~parser();
 
     void set_cache(definition_cache * c) { m_cache = c; }
@@ -386,9 +388,9 @@ public:
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,
                     bool use_exceptions, unsigned num_threads, definition_cache * cache = nullptr,
-                    declaration_index * index = nullptr);
+                    declaration_index * index = nullptr, bool keep_imported_proofs = true);
 bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads,
-                    definition_cache * cache = nullptr, declaration_index * index = nullptr);
+                    definition_cache * cache = nullptr, declaration_index * index = nullptr, bool keep_imported_proofs = true);
 
 void initialize_parser();
 void finalize_parser();

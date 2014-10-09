@@ -208,7 +208,7 @@ static void parse_notation_local(parser & p, buffer<expr> & locals) {
         p.next();
         expr local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
         expr l = mk_local(n, local_type); // remark: the type doesn't matter
-        p.add_local_expr(n, l);
+        p.add_local(l);
         locals.push_back(l);
     } else {
         throw parser_error("invalid notation declaration, identifier expected", p.pos());
@@ -347,7 +347,7 @@ notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry
             action a = parse_action(p, tk, default_prec, locals, new_tokens);
             expr local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
             expr l = mk_local(n, local_type);
-            p.add_local_expr(n, l);
+            p.add_local(l);
             locals.push_back(l);
             ts.push_back(transition(tk, a));
         } else if (p.curr_is_quoted_symbol() || p.curr_is_keyword() || p.curr_is_token(get_assign_tk())) {

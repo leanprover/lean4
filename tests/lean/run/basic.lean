@@ -9,7 +9,7 @@ definition to_carrier (g : group) := carrier g
 check to_carrier.{1}
 
 section
-  parameter A : Type
+  variable A : Type
   check A
   definition B := A → A
 end
@@ -21,9 +21,9 @@ constant a : N
 check f a
 
 section
-  parameter T1 : Type
-  parameter T2 : Type
-  parameter f : T1 → T2 → T2
+  variable T1 : Type
+  variable T2 : Type
+  variable f : T1 → T2 → T2
   definition double (a : T1) (b : T2) := f a (f a b)
 end
 
@@ -39,10 +39,10 @@ check eq.{1}
 section
   universe l
   universe u
-  parameter {T1 : Type.{l}}
-  parameter {T2 : Type.{l}}
-  parameter {T3 : Type.{u}}
-  parameter f  : T1 → T2 → T2
+  variable {T1 : Type.{l}}
+  variable {T2 : Type.{l}}
+  variable {T3 : Type.{u}}
+  variable f  : T1 → T2 → T2
   definition is_proj2 := ∀ x y, f x y = y
   definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z
 end
@@ -52,9 +52,9 @@ check @is_proj3.{1 2}
 
 namespace foo
 section
-  parameters {T1 T2 : Type}
-  parameter  {T3 : Type}
-  parameter  f : T1 → T2 → T2
+  variables {T1 T2 : Type}
+  variable  {T3 : Type}
+  variable  f : T1 → T2 → T2
   definition is_proj2 := ∀ x y, f x y = y
   definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z
 end
@@ -64,10 +64,10 @@ end foo
 
 namespace bla
 section
-  parameter  {T1 : Type}
-  parameter  {T2 : Type}
-  parameter  {T3 : Type}
-  parameter  f : T1 → T2 → T2
+  variable  {T1 : Type}
+  variable  {T2 : Type}
+  variable  {T3 : Type}
+  variable  f : T1 → T2 → T2
   definition is_proj2 := ∀ x y, f x y = y
   definition is_proj3 (f : T1 → T2 → T3 → T3) := ∀ x y z, f x y z = z
 end

@@ -19,8 +19,8 @@ section
   open nat
   open int
 
-  parameters n m : nat
-  parameters i j : int
+  variables n m : nat
+  variables i j : int
 
   -- 'Most recent' are always tried first
   print raw i + n

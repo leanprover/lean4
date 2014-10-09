@@ -12,7 +12,7 @@ namespace foo
   namespace tst
     print raw N N -> N
     section
-      parameter N : Type.{4} -- Shadow previous ones.
+      variable N : Type.{4} -- Shadow previous ones.
       print raw N
     end
   end tst

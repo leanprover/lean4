@@ -21,7 +21,7 @@ infixr `×` := prod
 notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
 
 section
-  parameters {A B : Type}
+  variables {A B : Type}
   protected theorem destruct {P : A × B → Prop} (p : A × B) (H : ∀a b, P (a, b)) : P p :=
   rec H p
 

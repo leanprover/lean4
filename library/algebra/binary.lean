@@ -6,18 +6,18 @@ open eq.ops
 
 namespace binary
   context
-    parameter {A : Type}
-    parameter f : A → A → A
+    variable {A : Type}
+    variable f : A → A → A
     infixl `*`:75 := f
     definition commutative := ∀{a b}, a*b = b*a
     definition associative := ∀{a b c}, (a*b)*c = a*(b*c)
   end
 
   context
-    parameter {A : Type}
-    parameter {f : A → A → A}
-    hypothesis H_comm : commutative f
-    hypothesis H_assoc : associative f
+    variable {A : Type}
+    variable {f : A → A → A}
+    variable H_comm : commutative f
+    variable H_assoc : associative f
     infixl `*`:75 := f
     theorem left_comm : ∀a b c, a*(b*c) = b*(a*c) :=
     take a b c, calc
@@ -33,9 +33,9 @@ namespace binary
   end
 
   context
-    parameter {A : Type}
-    parameter {f : A → A → A}
-    hypothesis H_assoc : associative f
+    variable {A : Type}
+    variable {f : A → A → A}
+    variable H_assoc : associative f
     infixl `*`:75 := f
     theorem assoc4helper (a b c d) : (a*b)*(c*d) = a*((b*c)*d) :=
     calc

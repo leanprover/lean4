@@ -2,13 +2,10 @@ import logic data.prod
 open prod inhabited
 
 section
-  parameter {A : Type}
-  parameter {B : Type}
-  parameter Ha : inhabited A
-  parameter Hb : inhabited B
-  -- The section mechanism only includes parameters that are explicitly cited.
-  -- So, we use the 'including' expression to make explicit we want to use
-  -- Ha and Hb
+  variable {A : Type}
+  variable {B : Type}
+  variable Ha : inhabited A
+  variable Hb : inhabited B
   include Ha Hb
   theorem tst : inhabited (Prop × A × B)
 

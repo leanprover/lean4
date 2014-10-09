@@ -1,17 +1,17 @@
 import data.nat
 
 section foo
-  parameter A : Type
+  variable A : Type
   definition id (a : A) := a
-  parameter a : nat
+  variable a : nat
   check _root_.id nat a
 end foo
 
 namespace n1
 section foo
-  parameter A : Type
+  variable A : Type
   definition id (a : A) := a
-  parameter a : nat
+  variable a : nat
   check n1.id _ a
 end foo
 end n1

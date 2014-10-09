@@ -8,10 +8,9 @@ open eq.ops nonempty inhabited
 -- Diaconescu’s theorem
 -- Show that Excluded middle follows from
 --   Hilbert's choice operator, function extensionality and Prop extensionality
-section
+context
 hypothesis propext {a b : Prop} : (a → b) → (b → a) → a = b
-
-parameter p : Prop
+parameter  p : Prop
 
 private definition u := epsilon (λx, x = true ∨ p)
 

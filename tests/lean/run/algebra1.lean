@@ -3,10 +3,10 @@ import logic
 definition Type1 := Type.{1}
 
 context
-  parameter {A  : Type}
-  parameter f   : A → A → A
-  parameter one : A
-  parameter inv : A → A
+  variable {A  : Type}
+  variable f   : A → A → A
+  variable one : A
+  variable inv : A → A
   infixl `*`:75     := f
   postfix `^-1`:100 := inv
   definition is_assoc := ∀ a b c, (a*b)*c = a*b*c
@@ -106,8 +106,8 @@ end algebra
 
 section
   open algebra algebra.semigroup algebra.monoid
-  parameter M : monoid
-  parameters a b c : M
+  variable M : monoid
+  variables a b c : M
   check a*b*c*a*b*c*a*b*a*b*c*a
   check a*b
 end

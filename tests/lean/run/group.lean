@@ -1,10 +1,10 @@
 import logic
 
 context
-  parameter {A  : Type}
-  parameter f   : A → A → A
-  parameter one : A
-  parameter inv : A → A
+  variable {A  : Type}
+  variable f   : A → A → A
+  variable one : A
+  variable inv : A → A
   infixl `*`:75     := f
   postfix `^-1`:100 := inv
   definition is_assoc := ∀ a b c, (a*b)*c = a*b*c

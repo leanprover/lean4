@@ -31,7 +31,7 @@ infix `::` : 65 := cons
 
 section
 
-parameter {T : Type}
+variable {T : Type}
 
 theorem list_induction_on {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hind : forall x : T, forall l : list T, forall H : P l, P (cons x l)) : P l :=

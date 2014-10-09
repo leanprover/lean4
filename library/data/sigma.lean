@@ -11,7 +11,7 @@ notation `Σ` binders `,` r:(scoped P, sigma P) := r
 
 namespace sigma
 section
-  parameters {A : Type} {B : A → Type}
+  variables {A : Type} {B : A → Type}
 
   --without reducible tag, slice.composition_functor in algebra.category.constructions fails
   definition dpr1 [reducible] (p : Σ x, B x) : A := rec (λ a b, a) p
@@ -40,7 +40,7 @@ section
 end
 
 section trip_quad
-  parameters {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
+  variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
 
   definition dtrip (a : A) (b : B a) (c : C a b) := dpair a (dpair b c)
   definition dquad (a : A) (b : B a) (c : C a b) (d : D a b c) := dpair a (dpair b (dpair c d))

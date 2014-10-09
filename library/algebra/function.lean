@@ -4,7 +4,7 @@
 namespace function
 
 section
-  parameters {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
+  variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
 
   definition compose [reducible] (f : B → C) (g : A → B) : A → C :=
   λx, f (g x)

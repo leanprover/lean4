@@ -1,10 +1,10 @@
 import logic
 
 context
-  parameter {A  : Type}
-  parameter f   : A → A → A
-  parameter one : A
-  parameter inv : A → A
+  variable {A  : Type}
+  variable f   : A → A → A
+  variable one : A
+  variable inv : A → A
   infixl `*`:75     := f
   postfix `^-1`:100 := inv
   definition is_assoc := ∀ a b c, (a*b)*c = a*b*c
@@ -34,10 +34,10 @@ definition mul {A : Type} {s : group_struct A} (a b : A) : A
 infixl `*`:75 := mul
 
 section
-  parameter  G1 : group
-  parameter  G2 : group
-  parameters a b c : G2
-  parameters d e   : G1
+  variable  G1 : group
+  variable  G2 : group
+  variables a b c : G2
+  variables d e   : G1
   check a * b * b
   check d * e
 end

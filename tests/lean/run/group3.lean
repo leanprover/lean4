@@ -40,7 +40,7 @@ mk : Π mul: A → A → A,
 
 namespace semigroup
 section
-  parameters {A : Type} {s : semigroup A}
+  variables {A : Type} {s : semigroup A}
   variables a b c : A
   definition mul := semigroup.rec (λmul assoc, mul) s a b
   context
@@ -52,7 +52,7 @@ end
 end semigroup
 
 section
-  parameters {A : Type} {s : semigroup A}
+  variables {A : Type} {s : semigroup A}
   include s
   definition semigroup_has_mul [instance] : has_mul A := has_mul.mk semigroup.mul
 
@@ -72,7 +72,7 @@ mk : Π (mul: A → A → A)
 
 namespace comm_semigroup
 section
-  parameters {A : Type} {s : comm_semigroup A}
+  variables {A : Type} {s : comm_semigroup A}
   variables a b c : A
   definition mul (a b : A) : A := comm_semigroup.rec (λmul assoc comm, mul) s a b
   definition assoc : mul (mul a b) c = mul a (mul b c) :=
@@ -83,7 +83,7 @@ end
 end comm_semigroup
 
 section
-  parameters {A : Type} {s : comm_semigroup A}
+  variables {A : Type} {s : comm_semigroup A}
   variables a b c : A
   include s
   definition comm_semigroup_semigroup [instance] : semigroup A :=
@@ -108,7 +108,7 @@ mk : Π (mul: A → A → A) (one : A)
 
 namespace monoid
   section
-  parameters {A : Type} {s : monoid A}
+  variables {A : Type} {s : monoid A}
   variables a b c : A
   include s
   context
@@ -127,7 +127,7 @@ namespace monoid
 end monoid
 
 section
-  parameters {A : Type} {s : monoid A}
+  variables {A : Type} {s : monoid A}
   variable a : A
   include s
   definition monoid_has_one [instance] : has_one A := has_one.mk (monoid.one)
@@ -153,7 +153,7 @@ mk : Π (mul: A → A → A) (one : A)
 
 namespace comm_monoid
   section
-  parameters {A : Type} {s : comm_monoid A}
+  variables {A : Type} {s : comm_monoid A}
   variables a b c : A
   definition mul := comm_monoid.rec (λmul one assoc right_id left_id comm, mul) s a b
   definition one := comm_monoid.rec (λmul one assoc right_id left_id comm, one) s
@@ -169,7 +169,7 @@ namespace comm_monoid
 end comm_monoid
 
 section
-  parameters {A : Type} {s : comm_monoid A}
+  variables {A : Type} {s : comm_monoid A}
   include s
   definition comm_monoid_monoid [instance] : monoid A :=
     monoid.mk comm_monoid.mul comm_monoid.one comm_monoid.assoc
@@ -183,7 +183,7 @@ end
 
 inductive Semigroup [class] : Type := mk : Π carrier : Type, semigroup carrier → Semigroup
 section
-  parameter S : Semigroup
+  variable S : Semigroup
   definition Semigroup.carrier [coercion] : Type := Semigroup.rec (λc s, c) S
   definition Semigroup.struc   [instance] : semigroup S := Semigroup.rec (λc s, s) S
 end
@@ -191,21 +191,21 @@ end
 inductive CommSemigroup [class] : Type :=
   mk : Π carrier : Type, comm_semigroup carrier → CommSemigroup
 section
-  parameter S : CommSemigroup
+  variable S : CommSemigroup
   definition CommSemigroup.carrier [coercion] : Type := CommSemigroup.rec (λc s, c) S
   definition CommSemigroup.struc [instance] : comm_semigroup S := CommSemigroup.rec (λc s, s) S
 end
 
 inductive Monoid [class] : Type := mk : Π carrier : Type, monoid carrier → Monoid
 section
-  parameter S : Monoid
+  variable S : Monoid
   definition Monoid.carrier [coercion] : Type := Monoid.rec (λc s, c) S
   definition Monoid.struc [instance] : monoid S := Monoid.rec (λc s, s) S
 end
 
 inductive CommMonoid : Type := mk : Π carrier : Type, comm_monoid carrier → CommMonoid
 section
-  parameter S : CommMonoid
+  variable S : CommMonoid
   definition CommMonoid.carrier [coercion] : Type := CommMonoid.rec (λc s, c) S
   definition CommMonoid.struc [instance] : comm_monoid S := CommMonoid.rec (λc s, s) S
 end

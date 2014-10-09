@@ -99,21 +99,21 @@ namespace morphism
   is_section.mk
     (calc
       (retraction_of f ∘ retraction_of g) ∘ g ∘ f
-	    = retraction_of f ∘ retraction_of g ∘ g ∘ f : symm !assoc
-	... = retraction_of f ∘ (retraction_of g ∘ g) ∘ f : {assoc _ g f}
-	... = retraction_of f ∘ id ∘ f : {!retraction_compose}
-	... = retraction_of f ∘ f : {!id_left}
-	... = id : !retraction_compose)
+            = retraction_of f ∘ retraction_of g ∘ g ∘ f : symm !assoc
+        ... = retraction_of f ∘ (retraction_of g ∘ g) ∘ f : {assoc _ g f}
+        ... = retraction_of f ∘ id ∘ f : {!retraction_compose}
+        ... = retraction_of f ∘ f : {!id_left}
+        ... = id : !retraction_compose)
 
   theorem composition_is_retraction [instance] (Hf : is_retraction f) (Hg : is_retraction g)
       : is_retraction (g ∘ f) :=
   is_retraction.mk
     (calc
       (g ∘ f) ∘ section_of f ∘ section_of g = g ∘ f ∘ section_of f ∘ section_of g : symm !assoc
-	... = g ∘ (f ∘ section_of f) ∘ section_of g : {assoc f _ _}
-	... = g ∘ id ∘ section_of g : {!compose_section}
-	... = g ∘ section_of g : {!id_left}
-	... = id : !compose_section)
+        ... = g ∘ (f ∘ section_of f) ∘ section_of g : {assoc f _ _}
+        ... = g ∘ id ∘ section_of g : {!compose_section}
+        ... = g ∘ section_of g : {!id_left}
+        ... = id : !compose_section)
 
   theorem composition_is_inverse [instance] (Hf : is_iso f) (Hg : is_iso g) : is_iso (g ∘ f) :=
   !section_retraction_imp_iso
@@ -159,7 +159,7 @@ namespace morphism
   is_mono.mk
     (λ c g h H,
       calc
-	g = id ∘ g : symm !id_left
+        g = id ∘ g : symm !id_left
       ... = (retraction_of f ∘ f) ∘ g : {symm (retraction_compose f)}
       ... = retraction_of f ∘ f ∘ g : symm !assoc
       ... = retraction_of f ∘ f ∘ h : {H}
@@ -171,7 +171,7 @@ namespace morphism
   is_epi.mk
     (λ c g h H,
       calc
-	g = g ∘ id : symm !id_right
+        g = g ∘ id : symm !id_right
       ... = g ∘ f ∘ section_of f : {symm (compose_section f)}
       ... = (g ∘ f) ∘ section_of f : !assoc
       ... = (h ∘ f) ∘ section_of f : {H}
@@ -204,8 +204,8 @@ namespace morphism
   section
   parameters {ob : Type} {C : category ob} include C
   variables {a b c d : ob}                                         (f : @hom ob C b a)
-			   (r : @hom ob C c d) (q : @hom ob C b c) (p : @hom ob C a b)
-			   (g : @hom ob C d c)
+                           (r : @hom ob C c d) (q : @hom ob C b c) (p : @hom ob C a b)
+                           (g : @hom ob C d c)
   variable {Hq : is_iso q} include Hq
   theorem compose_pV : q ∘ q⁻¹ = id := !compose_inverse
   theorem compose_Vp : q⁻¹ ∘ q = id := !inverse_compose
@@ -249,11 +249,11 @@ namespace morphism
   section
   parameters {ob : Type} {C : category ob} include C
   variables {d                   c                   b                   a : ob}
-				  {i : @hom ob C b c} {f : @hom ob C b a}
-	      {r : @hom ob C c d} {q : @hom ob C b c} {p : @hom ob C a b}
-	      {g : @hom ob C d c} {h : @hom ob C c b}
-		       {x : @hom ob C b d} {z : @hom ob C a c}
-		       {y : @hom ob C d b} {w : @hom ob C c a}
+                                  {i : @hom ob C b c} {f : @hom ob C b a}
+              {r : @hom ob C c d} {q : @hom ob C b c} {p : @hom ob C a b}
+              {g : @hom ob C d c} {h : @hom ob C c b}
+                       {x : @hom ob C b d} {z : @hom ob C a c}
+                       {y : @hom ob C d b} {w : @hom ob C c a}
   variable {Hq : is_iso q} include Hq
 
   theorem moveR_Mp (H : y = q⁻¹ ∘ g) : q ∘ y = g := H⁻¹ ▸ compose_p_Vp q g

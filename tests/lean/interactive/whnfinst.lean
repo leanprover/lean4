@@ -1,11 +1,11 @@
 import logic
 open decidable
 
-abbreviation decidable_bin_rel {A : Type} (R : A → A → Prop) := Πx y, decidable (R x y)
+definition decidable_bin_rel {A : Type} (R : A → A → Prop) := Πx y, decidable (R x y)
 
 section
-  parameter {A : Type}
-  parameter (R : A → A → Prop)
+  variable {A : Type}
+  variable (R : A → A → Prop)
 
   theorem tst1 (H : Πx y, decidable (R x y)) (a b c : A) : decidable (R a b ∧ R b a)
 

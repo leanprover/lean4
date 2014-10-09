@@ -3,7 +3,7 @@ nil {} : list A,
 cons   : A → list A → list A
 
 section
-  parameter A : Type
+  variable A : Type
   inductive list2 : Type :=
   nil2 {} : list2,
   cons2   : A → list2 → list2
@@ -26,8 +26,8 @@ inductive group : Type :=
 mk_group : Π (A : Type), (A → A → A) → A → group
 
 section
-  parameter A : Type
-  parameter B : Type
+  variable A : Type
+  variable B : Type
   inductive pair : Type :=
   mk_pair : A → B → pair
 end
@@ -37,15 +37,15 @@ inductive eq {A : Type} (a : A) : A → Prop :=
 refl : eq a a
 
 section
-  parameter {A : Type}
+  variable {A : Type}
   inductive eq2 (a : A) : A → Prop :=
   refl2 : eq2 a a
 end
 
 
 section
-  parameter A : Type
-  parameter B : Type
+  variable A : Type
+  variable B : Type
   inductive triple (C : Type) : Type :=
   mk_triple : A → B → C → triple C
 end

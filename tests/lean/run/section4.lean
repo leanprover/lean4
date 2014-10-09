@@ -1,10 +1,10 @@
 import logic
 
-section
+context
   universe k
   parameter A : Type
 
-  section
+  context
     universe l
     universe u
     parameter B : Type

@@ -6,9 +6,9 @@ mk : A → H A
 definition foo {A : Type} {h : H A} : A :=
 H.rec (λa, a) h
 
-section
-  parameter A : Type
-  parameter h : H A
+context
+  variable A : Type
+  variable h : H A
   definition tst : A :=
   foo
 end

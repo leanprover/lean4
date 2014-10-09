@@ -8,7 +8,7 @@ definition mem {T : Type} (a : T) (s : set T) := s a = tt
 infix `∈`:50 := mem
 
 section
-  parameter {T : Type}
+  variable {T : Type}
 
   definition empty : set T := λx, ff
   notation `∅` := empty

@@ -22,8 +22,8 @@ section
   open [decls] nat
   open [decls] int
 
-  parameters n m : nat
-  parameters i j : int
+  variables n m : nat
+  variables i j : int
   check n + m
   check i + j
 

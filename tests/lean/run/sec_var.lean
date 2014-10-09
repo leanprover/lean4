@@ -1,6 +1,6 @@
 import logic
 
-section
+context
   parameter A : Type
   definition foo : ∀ ⦃ a b : A ⦄, a = b → a = b :=
   take a b H, H

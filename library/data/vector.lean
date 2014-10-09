@@ -13,7 +13,7 @@ namespace vector
   notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 
   section sc_vector
-  parameter {T : Type}
+  variable {T : Type}
 
   protected theorem rec_on {C : ∀ (n : ℕ), vector T n → Type} {n : ℕ} (v : vector T n) (Hnil : C 0 nil)
     (Hcons : ∀(x : T) {n : ℕ} (w : vector T n), C n w → C (succ n) (cons x w)) : C n v :=
@@ -35,14 +35,15 @@ namespace vector
         (λa, inhabited.destruct iH
           (λv, inhabited.mk (vector.cons a v))))
 
-  private theorem case_zero_lem {C : vector T 0 → Type} {n : ℕ} (v : vector T n) (Hnil : C nil) :
+  -- TODO(Leo): mark_it_private
+  theorem case_zero_lem_aux {C : vector T 0 → Type} {n : ℕ} (v : vector T n) (Hnil : C nil) :
     ∀ H : n = 0, C (cast (congr_arg (vector T) H) v) :=
   rec_on v (take H : 0 = 0, (eq.rec Hnil (cast_eq _ nil⁻¹)))
   (take (x : T) (n : ℕ) (w : vector T n) IH (H : succ n = 0),
      false.rec_type _ (absurd H !succ_ne_zero))
 
   theorem case_zero {C : vector T 0 → Type} (v : vector T 0) (Hnil : C nil) : C v :=
-  eq.rec (case_zero_lem v Hnil (eq.refl 0)) (cast_eq _ v)
+  eq.rec (case_zero_lem_aux v Hnil (eq.refl 0)) (cast_eq _ v)
 
   private theorem rec_nonempty_lem {C : Π{n}, vector T (succ n) → Type} {n : ℕ} (v : vector T n)
     (Hone : Πa, C [a]) (Hcons : Πa {n} (v : vector T (succ n)), C v → C (a :: v))

@@ -11,7 +11,7 @@ mk : Π (comp : Π⦃A B C : ob⦄, mor B C → mor A B → mor A C)
 class category
 
 namespace category
-section sec_cat
+context sec_cat
   parameter A : Type
   inductive foo :=
   mk : A → foo

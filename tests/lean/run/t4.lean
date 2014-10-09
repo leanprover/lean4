@@ -5,7 +5,7 @@ end foo
 
 constant N : Type.{1}
 section
-  parameter A : Type
+  variable A : Type
   definition g (a : A) (B : Type) : A := a
   check g.{_ 2}
 end

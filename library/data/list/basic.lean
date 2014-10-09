@@ -19,7 +19,7 @@ namespace list
 infix `::` := cons
 
 section
-parameter {T : Type}
+variable {T : Type}
 
 protected theorem induction_on {P : list T → Prop} (l : list T) (Hnil : P nil)
     (Hind : ∀ (x : T) (l : list T),  P l → P (x::l)) : P l :=
@@ -224,7 +224,7 @@ rec_on l
 -- Find
 -- ----
 section
-parameter {H : decidable_eq T}
+variable {H : decidable_eq T}
 include H
 
 definition find (x : T) : list T → nat :=

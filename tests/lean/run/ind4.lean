@@ -1,5 +1,5 @@
 section
-  parameter A : Type
+  variable A : Type
   inductive list : Type :=
   nil  : list,
   cons : A → list → list
@@ -9,7 +9,7 @@ check list.{1}
 check list.cons.{1}
 
 section
-  parameter A : Type
+  variable A : Type
   inductive tree : Type :=
   node : A → forest → tree
   with forest : Type :=

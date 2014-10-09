@@ -1,5 +1,5 @@
 definition Prop : Type.{1} := Type.{0}
-section
+context
   parameter A : Type
 
   definition eq (a b : A) : Prop

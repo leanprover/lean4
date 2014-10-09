@@ -1,10 +1,10 @@
 import data.num
 
 section
-parameter {A : Type}
+variable {A : Type}
 definition f (a b : A) := a
 infixl `◀`:65 := f
-parameters a b : A
+variables a b : A
 check a ◀ b
 end
 
@@ -14,7 +14,7 @@ cons   : T → list T → list T
 
 namespace list
 section
-parameter {T : Type}
+variable {T : Type}
 notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 check [10, 20, 30]
 end

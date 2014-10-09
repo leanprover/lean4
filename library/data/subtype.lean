@@ -13,8 +13,7 @@ notation `{` binders `,` r:(scoped P, subtype P) `}` := r
 
 namespace subtype
 section
-  parameter {A : Type}
-  parameter {P : A → Prop}
+  variables {A : Type} {P : A → Prop}
 
   -- TODO: make this a coercion?
   definition  elt_of (a : {x, P x}) : A := rec (λ x y, x) a

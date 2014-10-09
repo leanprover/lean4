@@ -18,7 +18,7 @@ infix `=` := eq
 definition rfl {A : Type} {a : A} := eq.refl a
 
 -- proof irrelevance is built in
-theorem proof_irrel {a : Prop} {H₁ H₂ : a} : H₁ = H₂ :=
+theorem proof_irrel {a : Prop} (H₁ H₂ : a) : H₁ = H₂ :=
 rfl
 
 namespace eq
@@ -26,10 +26,10 @@ section
   variables {A : Type}
   variables {a b c : A}
   theorem id_refl (H₁ : a = a) : H₁ = (eq.refl a) :=
-  proof_irrel
+  !proof_irrel
 
   theorem irrel (H₁ H₂ : a = b) : H₁ = H₂ :=
-  proof_irrel
+  !proof_irrel
 
   theorem subst {P : A → Prop} (H₁ : a = b) (H₂ : P a) : P b :=
   rec H₂ H₁
@@ -126,10 +126,14 @@ section
 end
 
 section
-  variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {R : Type}
-  variables {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
+  variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type} {R : Type}
+  variables {a₁ a₂ : A} 
+            {b₁ : B a₁} {b₂ : B a₂} 
+            {c₁ : C a₁ b₁} {c₂ : C a₂ b₂} 
+            {d₁ : D a₁ b₁ c₁} {d₂ : D a₂ b₂ c₂}
 
-  theorem congr_arg2_dep (f : Πa, B a → R) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) : f a₁ b₁ = f a₂ b₂ :=
+  theorem congr_arg2_dep (f : Πa, B a → R) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) 
+      : f a₁ b₁ = f a₂ b₂ :=
   eq.rec_on H₁
     (λ (b₂ : B a₁) (H₁ : a₁ = a₁) (H₂ : eq.rec_on H₁ b₁ = b₂),
       calc
@@ -138,14 +142,24 @@ section
     b₂ H₁ H₂
 
   theorem congr_arg3_dep (f : Πa b, C a b → R) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂)
-                         (H₃ : eq.rec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) : f a₁ b₁ c₁ = f a₂ b₂ c₂ :=
+      (H₃ : eq.rec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) : f a₁ b₁ c₁ = f a₂ b₂ c₂ :=
   eq.rec_on H₁
     (λ (b₂ : B a₁) (H₂ : b₁ = b₂) (c₂ : C a₁ b₂)
       (H₃ : (rec_on (congr_arg2_dep C (refl a₁) H₂) c₁) = c₂),
-      have H₃' : eq.rec_on H₂ c₁ = c₂,
-        from (rec_on_irrel H₂ (congr_arg2_dep C (refl a₁) H₂) c₁⁻¹) ▸ H₃,
+      have H₃' : eq.rec_on H₂ c₁ = c₂, from rec_on_irrel H₂ _ c₁ ⬝ H₃,
       congr_arg2_dep (f a₁) H₂ H₃')
     b₂ H₂ c₂ H₃
+
+  -- for the moment the following theorem is commented out, because it takes long to prove
+  -- theorem congr_arg4_dep (f : Πa b c, D a b c → R) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂)
+  --     (H₃ : eq.rec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) 
+  --     (H₄ : eq.rec_on (congr_arg3_dep D H₁ H₂ H₃) d₁ = d₂) : f a₁ b₁ c₁ d₁ = f a₂ b₂ c₂ d₂ :=
+  -- eq.rec_on H₁
+  --   (λ b₂ H₂ c₂ H₃ d₂ (H₄ : _),
+  --     have H₃' [visible] : eq.rec_on H₂ c₁ = c₂, from rec_on_irrel H₂ _ c₁ ⬝ H₃,
+  --     have H₄' : rec_on (congr_arg2_dep (D a₁) H₂ H₃') d₁ = d₂, from rec_on_irrel _ _ d₁ ⬝ H₄,
+  --     congr_arg3_dep (f a₁) H₂ H₃' H₄')
+  --   b₂ H₂ c₂ H₃ d₂ H₄
 end
 
 section
@@ -238,3 +252,14 @@ end
 theorem true_ne_false : ¬true = false :=
 assume H : true = false,
   H ▸ trivial
+
+inductive subsingleton [class] (A : Type) : Prop :=
+intro : (∀ a b : A, a = b) -> subsingleton A
+
+namespace subsingleton
+definition elim {A : Type} (H : subsingleton A) : ∀(a b : A), a = b :=
+rec (fun p, p) H
+end subsingleton
+
+protected definition prop.subsingleton [instance] (P : Prop) : subsingleton P := 
+subsingleton.intro (λa b, !proof_irrel)

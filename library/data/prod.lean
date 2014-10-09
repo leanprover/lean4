@@ -13,12 +13,13 @@ inductive prod (A B : Type) : Type :=
   mk : A → B → prod A B
 
 definition pair := @prod.mk
+
+namespace prod
 infixr `×` := prod
 
 -- notation for n-ary tuples
 notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
 
-namespace prod
 section
   parameters {A B : Type}
   protected theorem destruct {P : A × B → Prop} (p : A × B) (H : ∀a b, P (a, b)) : P p :=

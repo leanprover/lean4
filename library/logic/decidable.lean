@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 
-import logic.connectives
+import logic.connectives data.empty
 
 inductive decidable [class] (p : Prop) : Type :=
 inl : p  → decidable p,
@@ -10,90 +10,102 @@ inr : ¬p → decidable p
 
 namespace decidable
 
-definition true_decidable [instance] : decidable true :=
-inl trivial
+  definition true_decidable [instance] : decidable true :=
+  inl trivial
 
-definition false_decidable [instance] : decidable false :=
-inr not_false_trivial
+  definition false_decidable [instance] : decidable false :=
+  inr not_false_trivial
 
-protected theorem induction_on {p : Prop} {C : Prop} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=
-decidable.rec H1 H2 H
+  section
+  variables {p q : Prop}
+  protected theorem induction_on {C : Prop} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=
+  decidable.rec H1 H2 H
 
-protected definition rec_on {p : Prop} {C : Type} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) :
-  C :=
-decidable.rec H1 H2 H
+  protected definition rec_on {C : decidable p → Type} (H : decidable p) 
+    (H1 : Π(a : p), C (inl a)) (H2 : Π(a : ¬p), C (inr a)) :
+    C H :=
+  decidable.rec H1 H2 H
 
-theorem irrelevant {p : Prop} (d1 d2 : decidable p) : d1 = d2 :=
-decidable.rec
-  (assume Hp1 : p, decidable.rec
-    (assume Hp2  : p,  congr_arg inl (eq.refl Hp1)) -- using proof irrelevance for Prop
-    (assume Hnp2 : ¬p, absurd Hp1 Hnp2)
-    d2)
-  (assume Hnp1 : ¬p, decidable.rec
-    (assume Hp2  : p,  absurd Hp2 Hnp1)
-    (assume Hnp2 : ¬p, congr_arg inr (eq.refl Hnp1)) -- using proof irrelevance for Prop
-    d2)
-  d1
+  definition rec_on_true {H : decidable p} {H1 : p → Type} {H2 : ¬p → Type} (H3 : p) (H4 : H1 H3) 
+      : rec_on H H1 H2 :=
+  rec_on H (λh, H4) (λh, false.rec_type _ (h H3))
 
-theorem em (p : Prop) {H : decidable p} : p ∨ ¬p :=
-induction_on H (λ Hp, or.inl Hp) (λ Hnp, or.inr Hnp)
+  definition rec_on_false {H : decidable p} {H1 : p → Type} {H2 : ¬p → Type} (H3 : ¬p) (H4 : H2 H3) 
+      : rec_on H H1 H2 :=
+  rec_on H (λh, false.rec_type _ (H3 h)) (λh, H4)
 
-definition by_cases {a : Prop} {b : Type} {C : decidable a} (Hab : a → b) (Hnab : ¬a → b) : b :=
-rec_on C (assume Ha, Hab Ha) (assume Hna, Hnab Hna)
+  theorem irrelevant [instance] : subsingleton (decidable p) := 
+  subsingleton.intro (fun d1 d2,
+    decidable.rec
+      (assume Hp1 : p, decidable.rec
+        (assume Hp2  : p,  congr_arg inl (eq.refl Hp1)) -- using proof irrelevance for Prop
+        (assume Hnp2 : ¬p, absurd Hp1 Hnp2)
+        d2)
+      (assume Hnp1 : ¬p, decidable.rec
+        (assume Hp2  : p,  absurd Hp2 Hnp1)
+        (assume Hnp2 : ¬p, congr_arg inr (eq.refl Hnp1)) -- using proof irrelevance for Prop
+        d2)
+      d1)
 
-theorem by_contradiction {p : Prop} {Hp : decidable p} (H : ¬p → false) : p :=
-or.elim (em p)
-  (assume H1 : p, H1)
-  (assume H1 : ¬p, false_elim (H H1))
+  theorem em (p : Prop) {H : decidable p} : p ∨ ¬p :=
+  induction_on H (λ Hp, or.inl Hp) (λ Hnp, or.inr Hnp)
 
-definition and_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
-  decidable (a ∧ b) :=
-rec_on Ha
-  (assume Ha  : a, rec_on Hb
-    (assume Hb  : b,  inl (and.intro Ha Hb))
-    (assume Hnb : ¬b, inr (and.not_right a Hnb)))
-  (assume Hna : ¬a, inr (and.not_left b Hna))
+  definition by_cases {q : Type} {C : decidable p} (Hpq : p → q) (Hnpq : ¬p → q) : q :=
+  rec_on C (assume Hp, Hpq Hp) (assume Hnp, Hnpq Hnp)
 
-definition or_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
-  decidable (a ∨ b) :=
-rec_on Ha
-  (assume Ha  : a, inl (or.inl Ha))
-  (assume Hna : ¬a, rec_on Hb
-    (assume Hb  : b,  inl (or.inr Hb))
-    (assume Hnb : ¬b, inr (or.not_intro Hna Hnb)))
+  theorem by_contradiction {Hp : decidable p} (H : ¬p → false) : p :=
+  or.elim (em p)
+    (assume H1 : p, H1)
+    (assume H1 : ¬p, false_elim (H H1))
 
-definition not_decidable [instance] {a : Prop} (Ha : decidable a) : decidable (¬a) :=
-rec_on Ha
-  (assume Ha,  inr (not_not_intro Ha))
-  (assume Hna, inl Hna)
+  definition and_decidable [instance] (Hp : decidable p) (Hq : decidable q) : decidable (p ∧ q) :=
+  rec_on Hp
+    (assume Hp  : p, rec_on Hq
+      (assume Hq  : q,  inl (and.intro Hp Hq))
+      (assume Hnq : ¬q, inr (and.not_right p Hnq)))
+    (assume Hnp : ¬p, inr (and.not_left q Hnp))
 
-definition iff_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
-  decidable (a ↔ b) :=
-rec_on Ha
-  (assume Ha, rec_on Hb
-    (assume Hb  : b,  inl (iff.intro (assume H, Hb) (assume H, Ha)))
-    (assume Hnb : ¬b, inr (assume H : a ↔ b, absurd (iff.elim_left H Ha) Hnb)))
-  (assume Hna, rec_on Hb
-    (assume Hb  : b,  inr (assume H : a ↔ b, absurd (iff.elim_right H Hb) Hna))
-    (assume Hnb : ¬b, inl
-        (iff.intro (assume Ha, absurd Ha Hna) (assume Hb, absurd Hb Hnb))))
+  definition or_decidable [instance] (Hp : decidable p) (Hq : decidable q) : decidable (p ∨ q) :=
+  rec_on Hp
+    (assume Hp  : p, inl (or.inl Hp))
+    (assume Hnp : ¬p, rec_on Hq
+      (assume Hq  : q,  inl (or.inr Hq))
+      (assume Hnq : ¬q, inr (or.not_intro Hnp Hnq)))
 
-definition implies_decidable [instance] {a b : Prop} (Ha : decidable a) (Hb : decidable b) :
-  decidable (a → b) :=
-rec_on Ha
-  (assume Ha  : a, rec_on Hb
-    (assume Hb  : b,  inl (assume H, Hb))
-    (assume Hnb : ¬b, inr (assume H : a → b, absurd (H Ha) Hnb)))
-  (assume Hna : ¬a, inl (assume Ha, absurd Ha Hna))
+  definition not_decidable [instance] (Hp : decidable p) : decidable (¬p) :=
+  rec_on Hp
+    (assume Hp,  inr (not_not_intro Hp))
+    (assume Hnp, inl Hnp)
 
-definition decidable_iff_equiv {a b : Prop} (Ha : decidable a) (H : a ↔ b) : decidable b :=
-rec_on Ha
-  (assume Ha : a,   inl (iff.elim_left H Ha))
-  (assume Hna : ¬a, inr (iff.elim_left (iff.flip_sign H) Hna))
+  definition implies_decidable [instance] (Hp : decidable p) (Hq : decidable q) : decidable (p → q) :=
+  rec_on Hp
+    (assume Hp  : p, rec_on Hq
+      (assume Hq  : q,  inl (assume H, Hq))
+      (assume Hnq : ¬q, inr (assume H : p → q, absurd (H Hp) Hnq)))
+    (assume Hnp : ¬p, inl (assume Hp, absurd Hp Hnp))
 
-definition decidable_eq_equiv {a b : Prop} (Ha : decidable a) (H : a = b) : decidable b :=
-decidable_iff_equiv Ha (eq_to_iff H)
+  definition iff_decidable [instance] (Hp : decidable p) (Hq : decidable q) : decidable (p ↔ q) := _
 
+  definition decidable_iff_equiv (Hp : decidable p) (H : p ↔ q) : decidable q :=
+  rec_on Hp
+    (assume Hp : p,   inl (iff.elim_left H Hp))
+    (assume Hnp : ¬p, inr (iff.elim_left (iff.flip_sign H) Hnp))
+
+  definition decidable_eq_equiv (Hp : decidable p) (H : p = q) : decidable q :=
+  decidable_iff_equiv Hp (eq_to_iff H)
+
+  protected theorem rec_subsingleton [instance] {H : decidable p} {H1 : p → Type} {H2 : ¬p → Type}
+      (H3 : Π(h : p), subsingleton (H1 h)) (H4 : Π(h : ¬p), subsingleton (H2 h)) 
+      : subsingleton (rec_on H H1 H2) :=
+  rec_on H (λh, H3 h) (λh, H4 h) --this can be proven using dependent version of "by_cases"
+
+end
 end decidable
 
-definition decidable_eq (A : Type) := Π (a b : A), decidable (a = b)
+definition decidable_rel  {A : Type} (R : A     → Prop) := Π (a   : A), decidable (R a)
+definition decidable_rel2 {A : Type} (R : A → A → Prop) := Π (a b : A), decidable (R a b)
+definition decidable_eq (A : Type) := decidable_rel2 (@eq A)
+
+--empty cannot depend on decidable
+protected definition empty.has_decidable_eq [instance] : decidable_eq empty :=
+take (a b : empty), decidable.inl (!empty.elim a)

@@ -12,6 +12,9 @@ inductive empty : Type
 namespace empty
   protected theorem elim (A : Type) (H : empty) : A :=
   rec (λe, A) H
+
+  protected theorem subsingleton [instance] : subsingleton empty :=
+  subsingleton.intro (λ a b, !elim a)
 end empty
 
 namespace false
@@ -19,5 +22,5 @@ namespace false
   cast (false_elim H) true
 
   theorem rec_type (A : Type) (H : false) : A :=
-  empty.rec (λx,A) (to_empty H)
+  !empty.elim (to_empty H)
 end false

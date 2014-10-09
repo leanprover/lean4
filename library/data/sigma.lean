@@ -13,8 +13,9 @@ namespace sigma
 section
   parameters {A : Type} {B : A → Type}
 
-  definition dpr1 (p : Σ x, B x) : A := rec (λ a b, a) p
-  definition dpr2 (p : Σ x, B x) : B (dpr1 p) := rec (λ a b, b) p
+  --without reducible tag, slice.composition_functor in algebra.category.constructions fails
+  definition dpr1 [reducible] (p : Σ x, B x) : A := rec (λ a b, a) p
+  definition dpr2 [reducible] (p : Σ x, B x) : B (dpr1 p) := rec (λ a b, b) p
 
   theorem dpr1_dpair (a : A) (b : B a) : dpr1 (dpair a b) = a := rfl
   theorem dpr2_dpair (a : A) (b : B a) : dpr2 (dpair a b) = b := rfl

@@ -9,8 +9,12 @@ inductive unit : Type :=
 namespace unit
   notation `⋆`:max := star
 
+  -- remove duplication?
   protected theorem equal (a b : unit) : a = b :=
   rec (rec rfl b) a
+
+  protected theorem subsingleton [instance] : subsingleton unit :=
+  subsingleton.intro (λ a b, equal a b)
 
   theorem eq_star (a : unit) : a = star :=
   equal a star

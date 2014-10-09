@@ -31,4 +31,17 @@ namespace binary
         ...   = a*(c*b) : {H_comm}
         ...   = (a*c)*b : H_assoc⁻¹
   end
+
+  context
+    parameter {A : Type}
+    parameter {f : A → A → A}
+    hypothesis H_assoc : associative f
+    infixl `*`:75 := f
+    theorem assoc4helper (a b c d) : (a*b)*(c*d) = a*((b*c)*d) :=
+    calc
+      (a*b)*(c*d) = a*(b*(c*d)) : H_assoc
+              ... = a*((b*c)*d) : {H_assoc⁻¹}
+  end
+
+
 end binary

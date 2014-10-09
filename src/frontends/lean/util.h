@@ -31,6 +31,12 @@ void sort_section_params(expr_struct_set const & locals, parser const & p, buffe
 /** \brief Remove from \c ps local constants that are tagged as section variables. */
 void remove_section_variables(parser const & p, buffer<expr> & ps);
 list<expr> locals_to_context(expr const & e, parser const & p);
+/** \brief Create the term <tt>(@^-1 (@n.{sec_ls} @sec_params[0] ... @sec_params[num_sec_params-1]))</tt>
+    When we declare \c n inside of a section, the section parameters and universes are fixes.
+    That is, when the user writes \c n inside the section she is really getting the term returned by this function.
+*/
+expr mk_section_local_ref(name const & n, levels const & sec_ls, unsigned num_sec_params, expr const * sec_params);
+
 /** \brief Fun(locals, e), but also propagate \c e position to result */
 expr Fun(buffer<expr> const & locals, expr const & e, parser & p);
 /** \brief Pi(locals, e), but also propagate \c e position to result */

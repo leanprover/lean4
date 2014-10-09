@@ -362,10 +362,8 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
         levels section_ls = collect_section_nonvar_levels(p, ls);
         remove_section_variables(p, section_ps);
-        for (expr & param : section_ps)
-            param = mk_explicit(param);
         if (!section_ps.empty()) {
-            expr ref = mk_implicit(mk_app(mk_explicit(mk_constant(real_n, section_ls)), section_ps));
+            expr ref = mk_section_local_ref(real_n, section_ls, section_ps.size(), section_ps.data());
             p.add_local_expr(n, ref);
         } else if (section_ls) {
             expr ref = mk_constant(real_n, section_ls);

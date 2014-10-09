@@ -107,6 +107,13 @@ list<expr> locals_to_context(expr const & e, parser const & p) {
     return to_list(locals.begin(), locals.end());
 }
 
+expr mk_section_local_ref(name const & n, levels const & sec_ls, unsigned num_sec_params, expr const * sec_params) {
+    buffer<expr> params;
+    for (unsigned i = 0; i < num_sec_params; i++)
+        params.push_back(mk_explicit(sec_params[i]));
+    return mk_implicit(mk_app(mk_explicit(mk_constant(n, sec_ls)), params));
+}
+
 expr Fun(buffer<expr> const & locals, expr const & e, parser & p) {
     bool use_cache = false;
     return p.rec_save_pos(Fun(locals, e, use_cache), p.pos_of(e));

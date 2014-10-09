@@ -319,6 +319,8 @@ order for the change to take effect."
   ;; Various operators/symbols.
   ("tr"        . ("⬝"))
   ("sy"        . ("⁻¹"))
+  ("inv"       . ("⁻¹"))
+  ("-1"       . ("⁻¹"))
   ("qed"       . ("∎"))
   ("x"         . ("×"))
   ("o"         . ("∘"))
@@ -337,6 +339,7 @@ order for the change to take effect."
   ("increment" . ("∆"))
   ("inf"       . ("∞"))
   ("&"         . ("⅋"))
+  ("op"        . ("ᵒᵖ"))
 
   ;; Circled operators.
 
@@ -559,10 +562,23 @@ order for the change to take effect."
   ;; Types
   ("nat"  . ("ℕ"))
   ("Nat"  . ("ℕ"))
+  ("N"    . ("ℕ"))
   ("int"  . ("ℤ"))
   ("Int"  . ("ℤ"))
+  ("Z"    . ("ℤ"))
+  ("rat"  . ("ℚ"))
+  ("Rat"  . ("ℚ"))
+  ("Q"    . ("ℚ"))
   ("real" . ("ℝ"))
   ("Real" . ("ℝ"))
+  ("R"    . ("ℝ"))
+  ("Com"  . ("ℂ"))
+  ("com"  . ("ℂ"))
+  ("C"    . ("ℂ"))
+  ("A"    . ("𝔸"))
+  ("F"    . ("𝔽"))
+  ("H"    . ("ℍ"))
+  ("K"    . ("𝕂"))
 
   ;; Musical symbols.
 
@@ -576,6 +592,7 @@ order for the change to take effect."
   ("en"         . ("–"))
   ("em"         . ("—"))
   ("^i"         . ("ⁱ"))
+  ("^o"         . ("ᵒ"))
   ("!!"         . ("‼"))
   ("??"         . ("⁇"))
   ("?!"         . ("‽" "⁈"))

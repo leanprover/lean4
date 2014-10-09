@@ -4,19 +4,14 @@
 
 import .basic .constructions
 
-open eq eq.ops category functor category.ops prod
+open eq eq.ops category functor natural_transformation category.ops prod category.product
 
-namespace yoneda
+namespace adjoint
 --representable functor
-  section
-  parameters {ob : Type} {C : category ob}
-  set_option pp.universes true
-  check @type_category
-  section
-    parameters {a a' b b' : ob} (f : @hom ob C a' a) (g : @hom ob C b b')
---    definition Hom_fun_fun :
-  end
-  definition Hom : Cᵒᵖ ×c C ⇒ type :=
+
+  definition foo {obC : Type} (C : category obC) : C ×c C ⇒ C ×c C := functor.id
+
+  definition Hom {obC : Type} (C : category obC) : Cᵒᵖ ×c C ⇒ type :=
   @functor.mk _ _ _ _ (λ a, hom (pr1 a) (pr2 a))
 	     (λ a b f h, pr2 f ∘ h ∘ pr1 f)
 	     (λ a, funext (λh, !id_left ⬝ !id_right))
@@ -24,7 +19,13 @@ namespace yoneda
     show (pr2 g ∘ pr2 f) ∘ h ∘ (pr1 f ∘ pr1 g) = pr2 g ∘ (pr2 f ∘ h ∘ pr1 f) ∘ pr1 g, from sorry))
   --I'm lazy, waiting for automation to fill this
 
+  section
+  parameters {obC obD : Type} (C : category obC) {D : category obD}
 
+  definition adjoint (F : C ⇒ D) (G : D ⇒ C) :=
+  natural_transformation (Hom D ∘f sorry)
+			 --(Hom C ∘f sorry)
+--product.prod_functor (opposite.opposite_functor F) (functor.ID D)
 
   end
-end yoneda
+end adjoint

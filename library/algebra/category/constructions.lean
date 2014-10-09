@@ -21,6 +21,7 @@ namespace category
      (λ a b f, !unit.equal)
   end
 
+  namespace opposite
   section
   variables {ob : Type} {C : category ob} {a b c : ob}
   definition opposite (C : category ob) : category ob :=
@@ -43,6 +44,7 @@ namespace category
 
   definition Opposite (C : Category) : Category :=
   Category.mk (objects C) (opposite (category_instance C))
+  end opposite
 
   section
   definition type_category : category Type :=
@@ -93,9 +95,10 @@ namespace category
      (λ a b f, !functor.Id_right)
   end cat_of_cat
 
-  section product
+  namespace product
+  section
   open prod
-  definition product_category {obC obD : Type} (C : category obC) (D : category obD)
+  definition prod_category {obC obD : Type} (C : category obC) (D : category obD)
       : category (obC × obD) :=
   mk (λa b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
      (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f) )
@@ -103,17 +106,48 @@ namespace category
      (λ a b c d h g f, pair_eq    !assoc    !assoc   )
      (λ a b f,         prod.equal !id_left  !id_left )
      (λ a b f,         prod.equal !id_right !id_right)
-
+  end
   end product
 
 namespace ops
   notation `Cat` := category_of_categories
   notation `type` := type_category
   notation 1 := category_one
-  postfix `ᵒᵖ`:max := opposite
-  infixr `×` := product_category
-  instance category_of_categories type_category category_one product_category
+  postfix `ᵒᵖ`:max := opposite.opposite
+  infixr `×c`:30 := product.prod_category
+  instance category_of_categories type_category category_one product.prod_category
 end ops
+  open ops
+  namespace opposite
+  section
+  open ops functor
+  --set_option pp.implicit true
+  definition opposite_functor {obC obD : Type} {C : category obC} {D : category obD} (F : C ⇒ D)
+      : Cᵒᵖ ⇒ Dᵒᵖ :=
+  @functor.mk obC obD (Cᵒᵖ) (Dᵒᵖ)
+	      (λ a, F a)
+	      (λ a b f, F f)
+	      (λ a, !respect_id)
+	      (λ a b c g f, !respect_comp)
+  end
+  end opposite
+
+  namespace product
+  section
+  open ops functor
+  definition prod_functor {obC obC' obD obD' : Type} {C : category obC} {C' : category obC'}
+    {D : category obD} {D' : category obD'} (F : C ⇒ D) (G : C' ⇒ D') : C ×c C' ⇒ D ×c D' :=
+  functor.mk (λ a, pair (F (pr1 a)) (G (pr2 a)))
+	     (λ a b f, pair (F (pr1 f)) (G (pr2 f)))
+	     (λ a, pair_eq !respect_id !respect_id)
+	     (λ a b c g f, pair_eq !respect_comp !respect_comp)
+  end
+  end product
+
+  namespace ops
+  infixr `×f`:30 := product.prod_functor
+  infixr `ᵒᵖᶠ`:max := opposite.opposite_functor
+  end ops
 
   section functor_category
   parameters {obC obD : Type} (C : category obC) (D : category obD)

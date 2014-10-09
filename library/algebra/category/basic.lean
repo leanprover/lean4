@@ -32,7 +32,7 @@ namespace category
   definition ID [reducible] : Π (a : ob), hom a a := @id
 
   infixr `∘`:60 := compose
-  infixl `⟶`:25 := hom -- input ⟶ using \-->
+  infixl `⟶`:25 := hom -- input ⟶ using \--> (this is a different arrow than \-> (→))
 
   variables {h : hom c d} {g : hom b c} {f : hom a b} {i : hom a a}
 
@@ -109,11 +109,11 @@ namespace functor
       G (F (g ∘ f)) = G (F g ∘ F f)     : {respect_comp F g f}
                 ... = G (F g) ∘ G (F f) : respect_comp G (F g) (F f))
 
-  infixr `∘∘`:60 := compose
+  infixr `∘f`:60 := compose
 
   protected theorem assoc {obA obB obC obD : Type} {A : category obA} {B : category obB}
       {C : category obC} {D : category obD} (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B) :
-      H ∘∘ (G ∘∘ F) = (H ∘∘ G) ∘∘ F :=
+      H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
   rfl
 
   -- later check whether we want implicit or explicit arguments here. For the moment, define both
@@ -123,8 +123,8 @@ namespace functor
   protected definition Id {C : Category} : Functor C C := Functor.mk id
   protected definition iD (C : Category) : Functor C C := Functor.mk id
 
-  protected theorem id_left  (F : C ⇒ D) : id ∘∘ F = F := rec (λ obF homF idF compF, rfl) F
-  protected theorem id_right (F : C ⇒ D) : F ∘∘ id = F := rec (λ obF homF idF compF, rfl) F
+  protected theorem id_left  (F : C ⇒ D) : id ∘f F = F := rec (λ obF homF idF compF, rfl) F
+  protected theorem id_right (F : C ⇒ D) : F ∘f id = F := rec (λ obF homF idF compF, rfl) F
 
   end basic_functor
 
@@ -138,17 +138,17 @@ namespace functor
   Functor.mk (compose (Functor_functor G) (Functor_functor F))
 
 --  namespace Functor
-  infixr `∘∘`:60 := Compose
+  infixr `∘F`:60 := Compose
 --  end Functor
 
   protected definition Assoc (H : Functor C₃ C₄) (G : Functor C₂ C₃) (F : Functor C₁ C₂)
-    :  H ∘∘ (G ∘∘ F) = (H ∘∘ G) ∘∘ F :=
+    :  H ∘F (G ∘F F) = (H ∘F G) ∘F F :=
   rfl
 
-  protected theorem Id_left (F : Functor C₁ C₂) : Id ∘∘ F = F := 
+  protected theorem Id_left (F : Functor C₁ C₂) : Id ∘F F = F := 
   Functor.rec (λ f, subst !id_left rfl) F
 
-  protected theorem Id_right {F : Functor C₁ C₂} : F ∘∘ Id = F :=
+  protected theorem Id_right {F : Functor C₁ C₂} : F ∘F Id = F :=
   Functor.rec (λ f, subst !id_right rfl) F
   end Functor
 

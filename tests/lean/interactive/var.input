@@ -1,0 +1,7 @@
+VISIT foo.lean
+SYNC 3
+import data.prod
+open prod
+definition foo A := λB, A × B
+WAIT
+INFO 3

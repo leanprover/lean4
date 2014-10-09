@@ -1,0 +1,37 @@
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGININFO
+-- TYPE|3|15
+Type
+-- ACK
+-- IDENTIFIER|3|15
+A
+-- ACK
+-- SYMBOL|3|20
+λ
+-- ACK
+-- TYPE|3|21
+Type
+-- ACK
+-- IDENTIFIER|3|21
+B
+-- ACK
+-- TYPE|3|24
+Type
+-- ACK
+-- IDENTIFIER|3|24
+A
+-- ACK
+-- TYPE|3|26
+Type → Type → Type
+-- ACK
+-- SYMBOL|3|26
+×
+-- ACK
+-- TYPE|3|28
+Type
+-- ACK
+-- IDENTIFIER|3|28
+B
+-- ACK
+-- ENDINFO

@@ -129,6 +129,15 @@ void elaborator::save_type_data(expr const & e, expr const & r) {
     }
 }
 
+/** \brief Store the pair (pos(e), r) in the info_data if m_info_manager is available. */
+void elaborator::save_binder_type(expr const & e, expr const & r) {
+    if (!m_no_info && infom() && pip()) {
+        if (auto p = pip()->get_pos_info(e)) {
+            m_pre_info_data.add_type_info(p->first, p->second, r);
+        }
+    }
+}
+
 /** \brief Store type information at pos(e) for r if \c e is marked as "extra" in the info_manager */
 void elaborator::save_extra_type_data(expr const & e, expr const & r) {
     if (!m_no_info && infom() && pip()) {
@@ -646,9 +655,14 @@ expr elaborator::visit_binding(expr e, expr_kind k, constraint_seq & cs) {
     buffer<expr> ds, ls, es;
     while (e.kind() == k) {
         es.push_back(e);
-        expr d   = binding_domain(e);
+        expr const & d0 = binding_domain(e);
+        expr d          = d0;
         d = instantiate_rev_locals(d, ls.size(), ls.data());
         d = ensure_type(visit_expecting_type(d, cs), cs);
+
+        if (is_placeholder(d0) && !is_explicit_placeholder(d0))
+            save_binder_type(d0, d);
+
         ds.push_back(d);
         expr l   = mk_local(binding_name(e), d, binding_info(e));
         if (binding_info(e).is_contextual())

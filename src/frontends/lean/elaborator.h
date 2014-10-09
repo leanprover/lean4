@@ -76,6 +76,7 @@ class elaborator : public coercion_info_manager {
 
     optional<expr> mvar_to_meta(expr const & mvar);
     void save_type_data(expr const & e, expr const & r);
+    void save_binder_type(expr const & e, expr const & r);
     void save_extra_type_data(expr const & e, expr const & r);
     void save_identifier_info(expr const & f);
     void save_synth_data(expr const & e, expr const & r);

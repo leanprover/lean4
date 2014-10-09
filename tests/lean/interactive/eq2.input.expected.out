@@ -11,6 +11,9 @@
 -- SYMBOL|134|3
 λ
 -- ACK
+-- IDENTIFIER|134|6
+b₂
+-- ACK
 -- TYPE|134|11
 A → Type
 -- ACK
@@ -22,6 +25,9 @@ A
 -- ACK
 -- IDENTIFIER|134|13
 a₁
+-- ACK
+-- IDENTIFIER|134|18
+H₂
 -- ACK
 -- TYPE|134|23
 B a₁
@@ -41,6 +47,9 @@ B a₁
 -- IDENTIFIER|134|28
 b₂
 -- ACK
+-- IDENTIFIER|134|33
+c₂
+-- ACK
 -- TYPE|134|38
 Π (a : A), B a → Type
 -- ACK
@@ -58,6 +67,9 @@ B a₁
 -- ACK
 -- IDENTIFIER|134|43
 b₂
+-- ACK
+-- IDENTIFIER|134|48
+H₃
 -- ACK
 -- TYPE|134|53
 C a₁ b₂

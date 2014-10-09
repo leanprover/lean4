@@ -13,6 +13,9 @@ epsilon
 -- SYMBOL|6|15
 λ
 -- ACK
+-- IDENTIFIER|6|17
+x
+-- ACK
 -- TYPE|6|21
 Type
 -- ACK

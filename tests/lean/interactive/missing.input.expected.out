@@ -7,6 +7,9 @@ have
 -- SYMBOL|10|15
 ∀
 -- ACK
+-- IDENTIFIER|10|18
+t
+-- ACK
 -- TYPE|10|22
 Type → Type
 -- ACK

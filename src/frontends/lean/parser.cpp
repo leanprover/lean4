@@ -749,6 +749,7 @@ expr parser::parse_binder_core(binder_info const & bi) {
     } else {
         type = save_pos(mk_expr_placeholder(), p);
     }
+    save_identifier_info(p, id);
     return save_pos(mk_local(id, type, bi), p);
 }
 
@@ -782,6 +783,7 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi) {
     }
     for (auto p : names) {
         expr arg_type = type ? *type : save_pos(mk_expr_placeholder(), p.first);
+        save_identifier_info(p.first, p.second);
         expr local = save_pos(mk_local(p.second, arg_type, bi), p.first);
         add_local(local);
         r.push_back(local);

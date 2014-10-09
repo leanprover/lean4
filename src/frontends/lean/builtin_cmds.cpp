@@ -116,14 +116,53 @@ environment namespace_cmd(parser & p) {
     return push_scope(p.env(), p.ios(), scope_kind::Namespace, n);
 }
 
+static void redeclare_aliases(parser & p,
+                              list<pair<name, level>> old_level_entries,
+                              list<pair<name, expr>> old_entries) {
+    environment const & env = p.env();
+    if (!in_section_or_context(env))
+        return;
+    list<pair<name, expr>> new_entries = p.get_local_entries();
+    buffer<pair<name, expr>> to_redeclare;
+    name_set popped_locals;
+    while (!is_eqp(old_entries, new_entries)) {
+        pair<name, expr> entry = head(old_entries);
+        if (is_section_local_ref(entry.second))
+            to_redeclare.push_back(entry);
+        else if (is_local(entry.second))
+            popped_locals.insert(mlocal_name(entry.second));
+        old_entries = tail(old_entries);
+    }
+    name_set popped_levels;
+    list<pair<name, level>> new_level_entries = p.get_local_level_entries();
+    while (!is_eqp(old_level_entries, new_level_entries)) {
+        level const & l = head(old_level_entries).second;
+        if (is_param(l))
+            popped_levels.insert(param_id(l));
+        old_level_entries = tail(old_level_entries);
+    }
+
+    for (auto const & entry : to_redeclare) {
+        expr new_ref = update_section_local_ref(entry.second, popped_levels, popped_locals);
+        if (!is_constant(new_ref))
+            p.add_local_expr(entry.first, new_ref);
+    }
+}
+
 environment end_scoped_cmd(parser & p) {
+    list<pair<name, level>> level_entries = p.get_local_level_entries();
+    list<pair<name, expr>> entries        = p.get_local_entries();
     if (in_section_or_context(p.env()))
         p.pop_local_scope();
     if (p.curr_is_identifier()) {
         name n = p.check_atomic_id_next("invalid end of scope, atomic identifier expected");
-        return pop_scope(p.env(), n);
+        environment env = pop_scope(p.env(), n);
+        redeclare_aliases(p, level_entries, entries);
+        return env;
     } else {
-        return pop_scope(p.env());
+        environment env = pop_scope(p.env());
+        redeclare_aliases(p, level_entries, entries);
+        return env;
     }
 }
 

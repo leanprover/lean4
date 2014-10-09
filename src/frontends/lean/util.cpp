@@ -114,6 +114,61 @@ expr mk_section_local_ref(name const & n, levels const & sec_ls, unsigned num_se
     return mk_implicit(mk_app(mk_explicit(mk_constant(n, sec_ls)), params));
 }
 
+bool is_section_local_ref(expr const & e) {
+    if (!is_implicit(e))
+        return false;
+    expr const & imp_arg = get_implicit_arg(e);
+    if (!is_app(imp_arg))
+        return false;
+    buffer<expr> locals;
+    expr const & f = get_app_args(imp_arg, locals);
+    return
+        is_explicit(f) &&
+        is_constant(get_explicit_arg(f)) &&
+        std::all_of(locals.begin(), locals.end(),
+                    [](expr const & l) {
+                        return is_explicit(l) && is_local(get_explicit_arg(l));
+                    });
+}
+
+expr update_section_local_ref(expr const & e, name_set const & lvls_to_remove, name_set const & locals_to_remove) {
+    lean_assert(is_section_local_ref(e));
+    if (locals_to_remove.empty() && lvls_to_remove.empty())
+        return e;
+    buffer<expr> locals;
+    expr const & f = get_app_args(get_implicit_arg(e), locals);
+    lean_assert(is_explicit(f));
+
+    expr new_f;
+    if (!lvls_to_remove.empty()) {
+        expr const & c = get_explicit_arg(f);
+        lean_assert(is_constant(c));
+        new_f = mk_explicit(update_constant(c, filter(const_levels(c), [&](level const & l) {
+                        return is_param(l) && !lvls_to_remove.contains(param_id(l));
+                    })));
+    } else {
+        new_f = f;
+    }
+
+    if (!locals_to_remove.empty()) {
+        unsigned j = 0;
+        for (unsigned i = 0; i < locals.size(); i++) {
+            expr const & l = locals[i];
+            if (!locals_to_remove.contains(mlocal_name(get_explicit_arg(l)))) {
+                locals[j] = l;
+                j++;
+            }
+        }
+        locals.shrink(j);
+    }
+
+    if (locals.empty()) {
+        return get_explicit_arg(new_f);
+    } else {
+        return mk_implicit(mk_app(new_f, locals));
+    }
+}
+
 expr Fun(buffer<expr> const & locals, expr const & e, parser & p) {
     bool use_cache = false;
     return p.rec_save_pos(Fun(locals, e, use_cache), p.pos_of(e));

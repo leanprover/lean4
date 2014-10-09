@@ -348,9 +348,11 @@ public:
     expr const * get_local(name const & n) const { return m_local_decls.find(n); }
     /** \brief Return local declarations as a list of local constants. */
     list<expr> locals_to_context() const;
-
-    /**
-        \brief By default, when the parser finds a unknown identifier, it signs an error.
+    /** \brief Return all local declarations and aliases */
+    list<pair<name, expr>> const & get_local_entries() const { return m_local_decls.get_entries(); }
+    /** \brief Return all local level declarations */
+    list<pair<name, level>> const & get_local_level_entries() const { return m_local_level_decls.get_entries(); }
+    /** \brief By default, when the parser finds a unknown identifier, it signs an error.
         This scope object temporarily changes this behavior. In any scope where this object
         is declared, the parse creates a constant even when the identifier is unknown.
         This behavior is useful when we are trying to parse mutually recursive declarations.

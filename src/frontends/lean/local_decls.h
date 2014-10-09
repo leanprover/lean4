@@ -20,29 +20,30 @@ namespace lean {
 template<typename V>
 class local_decls {
     typedef name_map<pair<V, unsigned>> map;
-    typedef list<std::tuple<map, unsigned, list<V>>> scopes;
-    map       m_map;
-    unsigned  m_counter;
-    scopes    m_scopes;
-    list<V>   m_values;
+    typedef list<pair<name, V>> entries;
+    typedef std::tuple<map, unsigned, entries> scope;
+    typedef list<scope> scopes;
+    map      m_map;
+    unsigned m_counter;
+    scopes   m_scopes;
+    entries  m_entries;
 public:
     local_decls():m_counter(1) {}
-    local_decls(local_decls const & d):m_map(d.m_map), m_counter(d.m_counter), m_scopes(d.m_scopes) {}
+    local_decls(local_decls const & d):
+        m_map(d.m_map), m_counter(d.m_counter), m_scopes(d.m_scopes), m_entries(d.m_entries) {}
     void insert(name const & k, V const & v) {
         m_map.insert(k, mk_pair(v, m_counter));
         m_counter++;
-        m_values = cons(v, m_values);
+        m_entries = cons(mk_pair(k, v), m_entries);
     }
     V const * find(name const & k) const { auto it = m_map.find(k); return it ? &(it->first) : nullptr; }
     unsigned find_idx(name const & k) const { auto it = m_map.find(k); return it ? it->second : 0; }
     bool contains(name const & k) const { return m_map.contains(k); }
-    list<V> const & get_values() const { return m_values; }
-    void push() { m_scopes = scopes(std::make_tuple(m_map, m_counter, m_values), m_scopes); }
+    entries const & get_entries() const { return m_entries; }
+    void push() { m_scopes = cons(scope(m_map, m_counter, m_entries), m_scopes); }
     void pop() {
         lean_assert(!is_nil(m_scopes));
-        m_map     = std::get<0>(head(m_scopes));
-        m_counter = std::get<1>(head(m_scopes));
-        m_values  = std::get<2>(head(m_scopes));
+        std::tie(m_map, m_counter, m_entries) = head(m_scopes);
         m_scopes  = tail(m_scopes);
     }
     struct mk_scope {

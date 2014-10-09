@@ -464,7 +464,11 @@ void parser::get_include_variables(buffer<expr> & vars) const {
 }
 
 list<expr> parser::locals_to_context() const {
-    return filter(m_local_decls.get_values(), [](expr const & e) { return is_local(e); });
+    return map_filter<expr>(m_local_decls.get_entries(),
+                            [](pair<name, expr> const & p, expr & out) {
+                                out = p.second;
+                                return is_local(p.second);
+                            });
 }
 
 static unsigned g_level_add_prec = 10;

@@ -36,6 +36,21 @@ list<expr> locals_to_context(expr const & e, parser const & p);
     That is, when the user writes \c n inside the section she is really getting the term returned by this function.
 */
 expr mk_section_local_ref(name const & n, levels const & sec_ls, unsigned num_sec_params, expr const * sec_params);
+/** \brief Return true iff \c e is a term of the form
+    <tt>(@^-1 (@n.{ls} @l_1 ... @l_n))</tt> where
+    \c n is a constant and l_i's are local constants.
+
+    \remark is_section_local_ref(mk_section_local_ref(n, ls, num_ps, ps)) always hold.
+*/
+bool is_section_local_ref(expr const & e);
+/** \brief Given a term \c e s.t. is_section_local_ref(e) is true, remove all local constants in \c to_remove.
+    That is, if \c e is of the form
+    <tt>(@^-1 (@n.{u_1 ... u_k} @l_1 ... @l_n))</tt>
+    Then, return a term s.t.
+       1) any l_i s.t. mlocal_name(l_i) in \c locals_to_remove is removed.
+       2) any level u_j in \c lvls_to_remove is removed
+*/
+expr update_section_local_ref(expr const & e, name_set const & lvls_to_remove, name_set const & locals_to_remove);
 
 /** \brief Fun(locals, e), but also propagate \c e position to result */
 expr Fun(buffer<expr> const & locals, expr const & e, parser & p);

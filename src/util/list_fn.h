@@ -206,18 +206,18 @@ list<T> remove_last(list<T> const & l, P && p) {
 
    If \c out becomes part of the result iff \c f returns true.
 */
-template<typename T, typename F>
-list<T> map_filter(list<T> const & l, F && f) {
+template<typename To, typename From, typename F>
+list<To> map_filter(list<From> const & l, F && f) {
     if (is_nil(l)) {
-        return l;
+        return list<To>();
     } else {
-        buffer<typename list<T>::cell*> tmp;
+        buffer<typename list<From>::cell*> tmp;
         to_buffer(l, tmp);
         unsigned i = tmp.size();
-        list<T> r;
+        list<To> r;
         while (i > 0) {
             --i;
-            T out;
+            To out;
             if (f(tmp[i]->head(), out))
                 r = cons(out, r);
         }

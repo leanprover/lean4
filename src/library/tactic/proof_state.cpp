@@ -49,7 +49,7 @@ format proof_state::pp(formatter const & fmt) const {
 }
 
 goals map_goals(proof_state const & s, std::function<optional<goal>(goal const & g)> f) {
-    return map_filter(s.get_goals(), [=](goal const & in, goal & out) -> bool {
+    return map_filter<goal>(s.get_goals(), [=](goal const & in, goal & out) -> bool {
             check_interrupted();
             optional<goal> new_goal = f(in);
             if (new_goal) {

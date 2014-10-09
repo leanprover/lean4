@@ -13,18 +13,21 @@ namespace adjoint
 
   definition Hom {obC : Type} (C : category obC) : Cᵒᵖ ×c C ⇒ type :=
   @functor.mk _ _ _ _ (λ a, hom (pr1 a) (pr2 a))
-	     (λ a b f h, pr2 f ∘ h ∘ pr1 f)
-	     (λ a, funext (λh, !id_left ⬝ !id_right))
-	     (λ a b c g f, funext (λh,
+             (λ a b f h, pr2 f ∘ h ∘ pr1 f)
+             (λ a, funext (λh, !id_left ⬝ !id_right))
+             (λ a b c g f, funext (λh,
     show (pr2 g ∘ pr2 f) ∘ h ∘ (pr1 f ∘ pr1 g) = pr2 g ∘ (pr2 f ∘ h ∘ pr1 f) ∘ pr1 g, from sorry))
   --I'm lazy, waiting for automation to fill this
 
   section
   parameters {obC obD : Type} (C : category obC) {D : category obD}
 
-  definition adjoint (F : C ⇒ D) (G : D ⇒ C) :=
+  -- Add auxiliary category instance needed by functor.compose at (Hom D ∘f sorry)
+  private definition aux_prod_cat [instance] : category (obD × obD) := prod_category (opposite.opposite D) D
+
+  definition adjoint (obC obD : Type) (C : category obC) (D : category obD) (F : C ⇒ D) (G : D ⇒ C) :=
   natural_transformation (Hom D ∘f sorry)
-			 --(Hom C ∘f sorry)
+                       --(Hom C ∘f sorry)
 --product.prod_functor (opposite.opposite_functor F) (functor.ID D)
 
   end

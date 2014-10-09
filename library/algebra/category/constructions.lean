@@ -115,7 +115,7 @@ namespace ops
   notation 1 := category_one
   postfix `ᵒᵖ`:max := opposite.opposite
   infixr `×c`:30 := product.prod_category
-  instance category_of_categories type_category category_one product.prod_category
+  instance [persistent] category_of_categories type_category category_one product.prod_category
 end ops
   open ops
   namespace opposite
@@ -125,10 +125,10 @@ end ops
   definition opposite_functor {obC obD : Type} {C : category obC} {D : category obD} (F : C ⇒ D)
       : Cᵒᵖ ⇒ Dᵒᵖ :=
   @functor.mk obC obD (Cᵒᵖ) (Dᵒᵖ)
-	      (λ a, F a)
-	      (λ a b f, F f)
-	      (λ a, !respect_id)
-	      (λ a b c g f, !respect_comp)
+              (λ a, F a)
+              (λ a b f, F f)
+              (λ a, !respect_id)
+              (λ a b c g f, !respect_comp)
   end
   end opposite
 
@@ -138,9 +138,9 @@ end ops
   definition prod_functor {obC obC' obD obD' : Type} {C : category obC} {C' : category obC'}
     {D : category obD} {D' : category obD'} (F : C ⇒ D) (G : C' ⇒ D') : C ×c C' ⇒ D ×c D' :=
   functor.mk (λ a, pair (F (pr1 a)) (G (pr2 a)))
-	     (λ a b f, pair (F (pr1 f)) (G (pr2 f)))
-	     (λ a, pair_eq !respect_id !respect_id)
-	     (λ a b c g f, pair_eq !respect_comp !respect_comp)
+             (λ a b f, pair (F (pr1 f)) (G (pr2 f)))
+             (λ a, pair_eq !respect_id !respect_id)
+             (λ a b c g f, pair_eq !respect_comp !respect_comp)
   end
   end product
 
@@ -167,12 +167,12 @@ end ops
   mk (λa b, Σ(g : hom (dpr1 a) (dpr1 b)), dpr2 b ∘ g = dpr2 a)
      (λ a b c g f, dpair (dpr1 g ∘ dpr1 f)
        (show dpr2 c ∘ (dpr1 g ∘ dpr1 f) = dpr2 a,
-	 proof
-	 calc
-	   dpr2 c ∘ (dpr1 g ∘ dpr1 f) = (dpr2 c ∘ dpr1 g) ∘ dpr1 f : !assoc
-	     ... = dpr2 b ∘ dpr1 f : {dpr2 g}
-	     ... = dpr2 a : {dpr2 f}
-	 qed))
+         proof
+         calc
+           dpr2 c ∘ (dpr1 g ∘ dpr1 f) = (dpr2 c ∘ dpr1 g) ∘ dpr1 f : !assoc
+             ... = dpr2 b ∘ dpr1 f : {dpr2 g}
+             ... = dpr2 a : {dpr2 f}
+         qed))
      (λ a, dpair id !id_right)
      (λ a b c d h g f, dpair_eq    !assoc    !proof_irrel)
      (λ a b f,         sigma.equal !id_left  !proof_irrel)
@@ -182,31 +182,31 @@ end ops
   namespace slice
   section --remove
   open sigma category.ops --remove sigma
-  instance slice_category
+  instance [persistent] slice_category
   parameters {ob : Type} (C : category ob)
   definition forgetful (x : ob) : (slice_category C x) ⇒ C :=
   functor.mk (λ a, dpr1 a)
-	     (λ a b f, dpr1 f)
-	     (λ a, rfl)
-	     (λ a b c g f, rfl)
+             (λ a b f, dpr1 f)
+             (λ a, rfl)
+             (λ a b c g f, rfl)
   definition composition_functor {x y : ob} (h : x ⟶ y) : slice_category C x ⇒ slice_category C y :=
   functor.mk (λ a, dpair (dpr1 a) (h ∘ dpr2 a))
-	     (λ a b f, dpair (dpr1 f)
-	       (calc
-		 (h ∘ dpr2 b) ∘ dpr1 f = h ∘ (dpr2 b ∘ dpr1 f) : !assoc⁻¹
-		    ... = h ∘ dpr2 a : {dpr2 f}))
-	     (λ a, rfl)
-	     (λ a b c g f, dpair_eq rfl !proof_irrel)
+             (λ a b f, dpair (dpr1 f)
+               (calc
+                 (h ∘ dpr2 b) ∘ dpr1 f = h ∘ (dpr2 b ∘ dpr1 f) : !assoc⁻¹
+                    ... = h ∘ dpr2 a : {dpr2 f}))
+             (λ a, rfl)
+             (λ a b c g f, dpair_eq rfl !proof_irrel)
   -- the following definition becomes complicated
   -- definition slice_functor : C ⇒ category_of_categories :=
   -- functor.mk (λ a, Category.mk _ (slice_category C a))
   --            (λ a b f, Functor.mk (composition_functor f))
   --            (λ a, congr_arg Functor.mk
   --              (congr_arg4_dep functor.mk
-  --		 (funext (λx, sigma.equal rfl !id_left))
-  --		 sorry
-  --		 !proof_irrel
-  --		 !proof_irrel))
+  --             (funext (λx, sigma.equal rfl !id_left))
+  --             sorry
+  --             !proof_irrel
+  --             !proof_irrel))
   --            (λ a b c g f, sorry)
   end
   end slice
@@ -218,12 +218,12 @@ end ops
   mk (λa b, Σ(g : hom (dpr1 a) (dpr1 b)), g ∘ dpr2 a = dpr2 b)
      (λ a b c g f, dpair (dpr1 g ∘ dpr1 f)
        (show (dpr1 g ∘ dpr1 f) ∘ dpr2 a = dpr2 c,
-	 proof
-	 calc
-	   (dpr1 g ∘ dpr1 f) ∘ dpr2 a = dpr1 g ∘ (dpr1 f ∘ dpr2 a): symm !assoc
-	     ... = dpr1 g ∘ dpr2 b : {dpr2 f}
-	     ... = dpr2 c : {dpr2 g}
-	 qed))
+         proof
+         calc
+           (dpr1 g ∘ dpr1 f) ∘ dpr2 a = dpr1 g ∘ (dpr1 f ∘ dpr2 a): symm !assoc
+             ... = dpr1 g ∘ dpr2 b : {dpr2 f}
+             ... = dpr2 c : {dpr2 g}
+         qed))
      (λ a, dpair id !id_left)
      (λ a b c d h g f, dpair_eq    !assoc    !proof_irrel)
      (λ a b f,         sigma.equal !id_left  !proof_irrel)
@@ -275,15 +275,15 @@ end ops
   definition arrow (ob : Type) (C : category ob) : category (arrow_obs ob C) :=
   mk (λa b, arrow_hom a b)
      (λ a b c g f, dpair (hom_src g ∘ hom_src f) (dpair (hom_dst g ∘ hom_dst f)
-	(show to_hom c ∘ (hom_src g ∘ hom_src f) = (hom_dst g ∘ hom_dst f) ∘ to_hom a,
-	 proof
-	 calc
-	 to_hom c ∘ (hom_src g ∘ hom_src f) = (to_hom c ∘ hom_src g) ∘ hom_src f : !assoc
-	   ... = (hom_dst g ∘ to_hom b) ∘ hom_src f  : {commute g}
-	   ... = hom_dst g ∘ (to_hom b ∘ hom_src f)  : symm !assoc
-	   ... = hom_dst g ∘ (hom_dst f ∘ to_hom a)  : {commute f}
-	   ... = (hom_dst g ∘ hom_dst f) ∘ to_hom a  : !assoc
-	 qed)
+        (show to_hom c ∘ (hom_src g ∘ hom_src f) = (hom_dst g ∘ hom_dst f) ∘ to_hom a,
+         proof
+         calc
+         to_hom c ∘ (hom_src g ∘ hom_src f) = (to_hom c ∘ hom_src g) ∘ hom_src f : !assoc
+           ... = (hom_dst g ∘ to_hom b) ∘ hom_src f  : {commute g}
+           ... = hom_dst g ∘ (to_hom b ∘ hom_src f)  : symm !assoc
+           ... = hom_dst g ∘ (hom_dst f ∘ to_hom a)  : {commute f}
+           ... = (hom_dst g ∘ hom_dst f) ∘ to_hom a  : !assoc
+         qed)
        ))
      (λ a, dpair id (dpair id (!id_right ⬝ (symm !id_left))))
      (λ a b c d h g f, dtrip_eq_ndep   !assoc    !assoc    !proof_irrel)

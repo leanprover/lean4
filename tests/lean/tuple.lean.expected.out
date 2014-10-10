@@ -1,0 +1,1 @@
+tuple.{l_1} : Type.{max 1 l_1} → nat → Type.{max 1 l_1}

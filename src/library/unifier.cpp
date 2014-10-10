@@ -1953,6 +1953,78 @@ struct unifier_fn {
         }
     }
 
+    /** \brief Return true iff \c rhs is of the form <tt> max(l_1 ... lhs ... l_k) </tt>,
+        such that l_i's do not contain lhs.
+
+        If the result is true, then all l_i's are stored in rest.
+    */
+    static bool generalized_check_meta(level const & m, level const & rhs, bool & found_m, buffer<level> & rest) {
+        lean_assert(is_meta(m));
+        if (is_max(rhs)) {
+            return
+                generalized_check_meta(m, max_lhs(rhs), found_m, rest) &&
+                generalized_check_meta(m, max_rhs(rhs), found_m, rest);
+        } else if (m == rhs) {
+            found_m = true;
+            return true;
+        } else if (occurs_meta(m, rhs)) {
+            return false;
+        } else {
+            rest.push_back(rhs);
+            return true;
+        }
+    }
+
+    status process_l_eq_max_core(level const & lhs, level const & rhs, justification const & jst) {
+        lean_assert(is_meta(lhs));
+        buffer<level> rest;
+        bool found_lhs = false;
+        if (generalized_check_meta(lhs, rhs, found_lhs, rest)) {
+            level r;
+            if (found_lhs) {
+                // rhs is of the form max(rest, lhs)
+                // Solution is lhs := max(rest, ?u) where ?u is fresh metavariable
+                r = mk_meta_univ(m_ngen.next());
+                rest.push_back(r);
+                unsigned i = rest.size();
+                while (i > 0) {
+                    --i;
+                    r = mk_max(rest[i], r);
+                }
+                r = normalize(r);
+            } else {
+                // lhs does not occur in rhs
+                r = rhs;
+            }
+
+            if (assign(lhs, r, jst)) {
+                return Solved;
+            } else {
+                set_conflict(jst);
+                return Failed;
+            }
+        } else {
+            return Continue;
+        }
+    }
+
+    /** \brief Return true iff \c is a constraint of the form
+                   lhs =?= max(rest, lhs)
+               and is successfully solved.
+    */
+    status process_l_eq_max(constraint const & c) {
+        lean_assert(is_level_eq_cnstr(c));
+        level lhs = cnstr_lhs_level(c);
+        level rhs = cnstr_rhs_level(c);
+        justification jst = c.get_justification();
+        if (is_meta(lhs))
+            return process_l_eq_max_core(lhs, rhs, jst);
+        else if (is_meta(rhs))
+            return process_l_eq_max_core(rhs, lhs, jst);
+        else
+            return Continue;
+    }
+
     /**
        \brief Process the following constraints
           1. (max l1 l2) =?= 0    OR
@@ -2040,12 +2112,15 @@ struct unifier_fn {
             c = r.first;
             bool modified = r.second;
             if (is_level_eq_cnstr(c)) {
-                if (modified)
+                if (modified) {
                     return process_constraint(c);
+                }
+                status st = process_l_eq_max(c);
+                if (st != Continue) return st == Solved;
                 if (m_config.m_discard) {
                     // we only try try_level_eq_zero and try_merge_max when we are discarding
                     // constraints that canno be solved.
-                    status st = try_level_eq_zero(c);
+                    st = try_level_eq_zero(c);
                     if (st != Continue) return st == Solved;
                     if (cidx < get_group_first_index(cnstr_group::FlexFlex)) {
                         add_cnstr(c, cnstr_group::FlexFlex);

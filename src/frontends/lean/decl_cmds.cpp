@@ -24,9 +24,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 
 namespace lean {
-environment universe_cmd(parser & p) {
-    name n = p.check_id_next("invalid universe declaration, identifier expected");
-    environment env = p.env();
+static environment declare_universe(parser & p, environment env, name const & n) {
     if (in_section_or_context(env)) {
         p.add_local_level(n, mk_param_univ(n));
     } else {
@@ -35,6 +33,23 @@ environment universe_cmd(parser & p) {
         env = module::add_universe(env, full_n);
         if (!ns.is_anonymous())
             env = add_level_alias(env, n, full_n);
+    }
+    return env;
+}
+
+environment universe_cmd(parser & p) {
+    name n = p.check_id_next("invalid 'universe' command, identifier expected");
+    return declare_universe(p, p.env(), n);
+}
+
+environment universes_cmd(parser & p) {
+    if (!p.curr_is_identifier())
+        throw parser_error("invalid 'universes' command, identifier expected", p.pos());
+    environment env = p.env();
+    while (p.curr_is_identifier()) {
+        name n = p.get_name_val();
+        p.next();
+        env = declare_universe(p, env, n);
     }
     return env;
 }
@@ -523,7 +538,8 @@ environment omit_cmd(parser & p) {
 }
 
 void register_decl_cmds(cmd_table & r) {
-    add_cmd(r, cmd_info("universe",     "declare a global universe level", universe_cmd));
+    add_cmd(r, cmd_info("universe",     "declare a universe level", universe_cmd));
+    add_cmd(r, cmd_info("universes",    "declare universe levels", universes_cmd));
     add_cmd(r, cmd_info("variable",     "declare a new variable", variable_cmd));
     add_cmd(r, cmd_info("parameter",    "declare a new parameter", parameter_cmd));
     add_cmd(r, cmd_info("constant",     "declare a new constant (aka top-level variable)", constant_cmd));

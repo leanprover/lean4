@@ -83,7 +83,7 @@ void init_token_table(token_table & t) {
          "variables", "parameter", "parameters", "constant", "constants", "[persistent]", "[visible]", "[instance]",
          "[off]", "[on]", "[none]", "[class]", "[coercion]", "[reducible]", "reducible", "irreducible",
          "evaluate", "check", "eval", "[priority", "print", "end", "namespace", "section", "import",
-         "inductive", "record", "renaming", "extends", "structure", "module", "universe",
+         "inductive", "record", "renaming", "extends", "structure", "module", "universe", "universes",
          "precedence", "infixl", "infixr", "infix", "postfix", "prefix", "notation", "context",
          "exit", "set_option", "open", "export", "calc_subst", "calc_refl", "calc_trans", "tactic_hint",
          "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class",

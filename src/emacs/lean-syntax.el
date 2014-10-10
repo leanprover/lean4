@@ -11,8 +11,8 @@
   '("import" "reducible" "irreducible" "tactic_hint" "protected" "private" "opaque" "definition" "renaming"
     "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture" "constant" "constants"
     "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem"
-    "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "universe" "alias" "help" "environment"
-    "options" "precedence" "postfix" "prefix" "calc_trans" "calc_subst" "calc_refl"
+    "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "universe" "universes"
+    "alias" "help" "environment" "options" "precedence" "postfix" "prefix" "calc_trans" "calc_subst" "calc_refl"
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
     "using" "namespace" "instance" "class" "section"
     "set_option" "add_rewrite" "extends" "include" "omit" "classes" "instances" "coercions" "raw")

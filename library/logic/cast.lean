@@ -16,8 +16,7 @@ theorem cast_proof_irrel {A B : Type} (H₁ H₂ : A = B) (a : A) : cast H₁ a 
 rfl
 
 theorem cast_eq {A : Type} (H : A = A) (a : A) : cast H a = a :=
-calc cast H a = cast (eq.refl A) a : rfl
-         ...  = a                  : rfl
+rfl
 
 inductive heq.{l} {A : Type.{l}} (a : A) : Π {B : Type.{l}}, B → Prop :=
 refl : heq a a

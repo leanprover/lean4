@@ -26,7 +26,7 @@ section
   variables {A : Type}
   variables {a b c : A}
   theorem id_refl (H₁ : a = a) : H₁ = (eq.refl a) :=
-  !proof_irrel
+  rfl
 
   theorem irrel (H₁ H₂ : a = b) : H₁ = H₂ :=
   !proof_irrel
@@ -58,7 +58,7 @@ namespace eq
   eq.rec (λH₁ : a = a, show B a H₁, from H₂) H₁ H₁
 
   theorem rec_on_id {A : Type} {a : A} {B : Πa' : A, a = a' → Type} (H : a = a) (b : B a H) : rec_on H b = b :=
-  refl (rec_on rfl b)
+  rfl
 
   theorem rec_on_constant {A : Type} {a a' : A} {B : Type} (H : a = a') (b : B) : rec_on H b = b :=
   rec_on H (λ(H' : a = a), rec_on_id H' b) H
@@ -72,7 +72,7 @@ namespace eq
   rec_on H (λ(H : a = a) (H' : f a = f a), rec_on_id H b ⬝ rec_on_id H' b⁻¹) H H'
 
   theorem rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : rec b H = b :=
-  id_refl H⁻¹ ▸ refl (eq.rec b (refl a))
+  rfl
 
   theorem rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H₁ : a = b) (H₂ : b = c)
           (u : P a) :
@@ -127,12 +127,12 @@ end
 
 section
   variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type} {R : Type}
-  variables {a₁ a₂ : A} 
-            {b₁ : B a₁} {b₂ : B a₂} 
-            {c₁ : C a₁ b₁} {c₂ : C a₂ b₂} 
+  variables {a₁ a₂ : A}
+            {b₁ : B a₁} {b₂ : B a₂}
+            {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
             {d₁ : D a₁ b₁ c₁} {d₂ : D a₂ b₂ c₂}
 
-  theorem congr_arg2_dep (f : Πa, B a → R) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) 
+  theorem congr_arg2_dep (f : Πa, B a → R) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂)
       : f a₁ b₁ = f a₂ b₂ :=
   eq.rec_on H₁
     (λ (b₂ : B a₁) (H₁ : a₁ = a₁) (H₂ : eq.rec_on H₁ b₁ = b₂),
@@ -152,7 +152,7 @@ section
 
   -- for the moment the following theorem is commented out, because it takes long to prove
   -- theorem congr_arg4_dep (f : Πa b c, D a b c → R) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂)
-  --     (H₃ : eq.rec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) 
+  --     (H₃ : eq.rec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂)
   --     (H₄ : eq.rec_on (congr_arg3_dep D H₁ H₂ H₃) d₁ = d₂) : f a₁ b₁ c₁ d₁ = f a₂ b₂ c₂ d₂ :=
   -- eq.rec_on H₁
   --   (λ b₂ H₂ c₂ H₃ d₂ (H₄ : _),
@@ -261,5 +261,5 @@ definition elim {A : Type} (H : subsingleton A) : ∀(a b : A), a = b :=
 rec (fun p, p) H
 end subsingleton
 
-protected definition prop.subsingleton [instance] (P : Prop) : subsingleton P := 
+protected definition prop.subsingleton [instance] (P : Prop) : subsingleton P :=
 subsingleton.intro (λa b, !proof_irrel)

@@ -17,7 +17,6 @@ namespace sum
     infixr `+`:25 := sum    -- conflicts with notation for addition
   end extra_notation
 
-  section
   variables {A B : Type}
   variables {a a₁ a₂ : A} {b b₁ b₂ : B}
   protected definition rec_on {C : (A ⊎ B) → Type} (s : A ⊎ B) (H₁ : ∀a : A, C (inl B a)) (H₂ : ∀b : B, C (inr A b)) : C s :=
@@ -83,5 +82,4 @@ namespace sum
             decidable.rec_on (H₂ b₁ b₂)
               (assume Heq : b₁ = b₂, decidable.inl (Heq ▸ rfl))
               (assume Hne : b₁ ≠ b₂, decidable.inr (mt inr_inj Hne))))
-end
 end sum

@@ -18,7 +18,6 @@ cons   : T → list T → list T
 namespace list
 infix `::` := cons
 
-section
 variable {T : Type}
 
 protected theorem induction_on {P : list T → Prop} (l : list T) (Hnil : P nil)
@@ -258,5 +257,5 @@ nat.rec (λl, head x l) (λm f l, f (tail l)) n l
 theorem nth.zero (x : T) (l : list T) : nth x l 0 = head x l
 
 theorem nth.succ (x : T) (l : list T) (n : nat) : nth x l (succ n) = nth x (tail l) n
-end
+
 end list

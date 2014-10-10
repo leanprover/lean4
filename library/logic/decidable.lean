@@ -9,32 +9,30 @@ inl : p  → decidable p,
 inr : ¬p → decidable p
 
 namespace decidable
-
   definition true_decidable [instance] : decidable true :=
   inl trivial
 
   definition false_decidable [instance] : decidable false :=
   inr not_false_trivial
 
-  section
   variables {p q : Prop}
   protected theorem induction_on {C : Prop} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=
   decidable.rec H1 H2 H
 
-  protected definition rec_on {C : decidable p → Type} (H : decidable p) 
+  protected definition rec_on {C : decidable p → Type} (H : decidable p)
     (H1 : Π(a : p), C (inl a)) (H2 : Π(a : ¬p), C (inr a)) :
     C H :=
   decidable.rec H1 H2 H
 
-  definition rec_on_true {H : decidable p} {H1 : p → Type} {H2 : ¬p → Type} (H3 : p) (H4 : H1 H3) 
+  definition rec_on_true {H : decidable p} {H1 : p → Type} {H2 : ¬p → Type} (H3 : p) (H4 : H1 H3)
       : rec_on H H1 H2 :=
   rec_on H (λh, H4) (λh, false.rec_type _ (h H3))
 
-  definition rec_on_false {H : decidable p} {H1 : p → Type} {H2 : ¬p → Type} (H3 : ¬p) (H4 : H2 H3) 
+  definition rec_on_false {H : decidable p} {H1 : p → Type} {H2 : ¬p → Type} (H3 : ¬p) (H4 : H2 H3)
       : rec_on H H1 H2 :=
   rec_on H (λh, false.rec_type _ (H3 h)) (λh, H4)
 
-  theorem irrelevant [instance] : subsingleton (decidable p) := 
+  theorem irrelevant [instance] : subsingleton (decidable p) :=
   subsingleton.intro (fun d1 d2,
     decidable.rec
       (assume Hp1 : p, decidable.rec
@@ -95,11 +93,9 @@ namespace decidable
   decidable_iff_equiv Hp (eq_to_iff H)
 
   protected theorem rec_subsingleton [instance] {H : decidable p} {H1 : p → Type} {H2 : ¬p → Type}
-      (H3 : Π(h : p), subsingleton (H1 h)) (H4 : Π(h : ¬p), subsingleton (H2 h)) 
+      (H3 : Π(h : p), subsingleton (H1 h)) (H4 : Π(h : ¬p), subsingleton (H2 h))
       : subsingleton (rec_on H H1 H2) :=
   rec_on H (λh, H3 h) (λh, H4 h) --this can be proven using dependent version of "by_cases"
-
-end
 end decidable
 
 definition decidable_rel  {A : Type} (R : A     → Prop) := Π (a   : A), decidable (R a)

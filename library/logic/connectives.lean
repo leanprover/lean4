@@ -12,9 +12,9 @@ inductive and (a b : Prop) : Prop :=
 infixr `/\` := and
 infixr `∧` := and
 
+variables {a b c d : Prop}
+
 namespace and
-  section
-  variables {a b c d : Prop}
   theorem elim (H₁ : a ∧ b) (H₂ : a → b → c) : c :=
   rec H₂ H₁
 
@@ -41,7 +41,6 @@ namespace and
 
   theorem imp_right (H₁ : c ∧ a) (H : a → b) : c ∧ b :=
   elim H₁ (assume Hc : c, assume Ha : a, intro Hc (H Ha))
-  end
 end and
 
 -- or
@@ -54,8 +53,6 @@ infixr `\/` := or
 infixr `∨` := or
 
 namespace or
-  section
-  variables {a b c d : Prop}
   theorem inl (Ha : a) : a ∨ b :=
   intro_left b Ha
 
@@ -96,7 +93,6 @@ namespace or
   elim H₁
     (assume H₂ : c, inl H₂)
     (assume H₂ : a, inr (H H₂))
-  end
 end or
 
 theorem not_not_em {p : Prop} : ¬¬(p ∨ ¬p) :=
@@ -113,8 +109,6 @@ infix `<->` := iff
 infix `↔` := iff
 
 namespace iff
-  section
-  variables {a b c : Prop}
   theorem def : (a ↔ b) = ((a → b) ∧ (b → a)) :=
   rfl
 
@@ -158,8 +152,6 @@ namespace iff
 
   theorem false_elim (H : a ↔ false) : ¬a :=
   assume Ha : a, mp H Ha
-
-  end
 end iff
 
 calc_refl iff.refl
@@ -173,8 +165,6 @@ iff.intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 -- comm and assoc for and / or
 -- ---------------------------
 namespace and
-  section
-  variables {a b c : Prop}
   theorem comm : a ∧ b ↔ b ∧ a :=
   iff.intro (λH, swap H) (λH, swap H)
 
@@ -186,12 +176,9 @@ namespace and
     (assume H, intro
       (intro (elim_left H) (elim_left (elim_right H)))
       (elim_right (elim_right H)))
-  end
 end and
 
 namespace or
-  section
-  variables {a b c : Prop}
   theorem comm : a ∨ b ↔ b ∨ a :=
   iff.intro (λH, swap H) (λH, swap H)
 
@@ -207,5 +194,4 @@ namespace or
       (assume H₁, elim H₁
         (assume Hb, inl (inr Hb))
         (assume Hc, inr Hc)))
-  end
 end or

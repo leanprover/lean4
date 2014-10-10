@@ -10,7 +10,6 @@ dpair : Πx : A, B x → sigma B
 notation `Σ` binders `,` r:(scoped P, sigma P) := r
 
 namespace sigma
-section
   variables {A : Type} {B : A → Type}
 
   --without reducible tag, slice.composition_functor in algebra.category.constructions fails
@@ -37,10 +36,8 @@ section
   protected definition is_inhabited [instance] (H₁ : inhabited A) (H₂ : inhabited (B (default A))) :
     inhabited (sigma B) :=
   inhabited.destruct H₁ (λa, inhabited.destruct H₂ (λb, inhabited.mk (dpair (default A) b)))
-end
 
-section trip_quad
-  variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
+  variables {C : Πa, B a → Type} {D : Πa b, C a b → Type}
 
   definition dtrip (a : A) (b : B a) (c : C a b) := dpair a (dpair b c)
   definition dquad (a : A) (b : B a) (c : C a b) (d : D a b c) := dpair a (dpair b (dpair c d))
@@ -55,7 +52,6 @@ section trip_quad
       (H₁ : a₁ = a₂)  (H₂ : eq.rec_on H₁ b₁ = b₂) (H₃ : eq.rec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) :
     dtrip a₁ b₁ c₁ = dtrip a₂ b₂ c₂ :=
   congr_arg3_dep dtrip H₁ H₂ H₃
-end trip_quad
 
   theorem dtrip_eq_ndep {A B : Type} {C : A → B → Type} {a₁ a₂ : A} {b₁ b₂ : B}
       {c₁ : C a₁ b₁} {c₂ : C a₂ b₂} (H₁ : a₁ = a₂)  (H₂ : b₁ = b₂)

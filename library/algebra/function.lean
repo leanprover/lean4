@@ -3,21 +3,19 @@
 -- Author: Leonardo de Moura
 namespace function
 
-section
-  variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
+variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
 
-  definition compose [reducible] (f : B → C) (g : A → B) : A → C :=
-  λx, f (g x)
+definition compose [reducible] (f : B → C) (g : A → B) : A → C :=
+λx, f (g x)
 
-  definition id [reducible] (a : A) : A :=
-  a
+definition id [reducible] (a : A) : A :=
+a
 
-  definition on_fun (f : B → B → C) (g : A → B) : A → A → C :=
-  λx y, f (g x) (g y)
+definition on_fun (f : B → B → C) (g : A → B) : A → A → C :=
+λx y, f (g x) (g y)
 
-  definition combine (f : A → B → C) (op : C → D → E) (g : A → B → D) : A → B → E :=
-  λx y, op (f x y) (g x y)
-end
+definition combine (f : A → B → C) (op : C → D → E) (g : A → B → D) : A → B → E :=
+λx y, op (f x y) (g x y)
 
 definition const {A : Type} (B : Type) (a : A) : B → A :=
 λx, a

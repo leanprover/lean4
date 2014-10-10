@@ -12,8 +12,7 @@ open function
 axiom funext : ∀ {A : Type} {B : A → Type} {f g : Π x, B x} (H : ∀ x, f x = g x), f = g
 
 namespace function
-section
-  parameters {A B C D: Type}
+  variables {A B C D: Type}
 
   theorem compose_assoc (f : C → D) (g : B → C) (h : A → B) : (f ∘ g) ∘ h = f ∘ (g ∘ h) :=
   funext (take x, rfl)
@@ -26,5 +25,4 @@ section
 
   theorem compose_const_right (f : B → C) (b : B) : f ∘ (const A b) = const A (f b) :=
   funext (take x, rfl)
-end
 end function

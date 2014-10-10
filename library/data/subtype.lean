@@ -12,7 +12,6 @@ inductive subtype {A : Type} (P : A → Prop) : Type :=
 notation `{` binders `,` r:(scoped P, subtype P) `}` := r
 
 namespace subtype
-section
   variables {A : Type} {P : A → Prop}
 
   -- TODO: make this a coercion?
@@ -45,5 +44,4 @@ section
     have H1 : (a1 = a2) ↔ (elt_of a1 = elt_of a2), from
       iff.intro (assume H, eq.subst H rfl) (assume H, equal H),
     decidable_iff_equiv _ (iff.symm H1)
-end
 end subtype

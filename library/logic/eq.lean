@@ -22,7 +22,6 @@ theorem proof_irrel {a : Prop} (H₁ H₂ : a) : H₁ = H₂ :=
 rfl
 
 namespace eq
-section
   variables {A : Type}
   variables {a b c : A}
   theorem id_refl (H₁ : a = a) : H₁ = (eq.refl a) :=
@@ -39,12 +38,12 @@ section
 
   theorem symm (H : a = b) : b = a :=
   subst H (refl a)
-end
-namespace ops
-  postfix `⁻¹` := symm
-  infixr `⬝`   := trans
-  infixr `▸`   := subst
-end ops
+
+  namespace ops
+    postfix `⁻¹` := symm
+    infixr `⬝`   := trans
+    infixr `▸`   := subst
+ end ops
 end eq
 
 calc_subst eq.subst
@@ -205,7 +204,6 @@ definition ne {A : Type} (a b : A) := ¬(a = b)
 infix `≠` := ne
 
 namespace ne
-section
   variable {A : Type}
   variables {a b : A}
 
@@ -220,7 +218,6 @@ section
 
   theorem symm : a ≠ b → b ≠ a :=
   assume (H : a ≠ b) (H₁ : b = a), H (H₁⁻¹)
-end
 end ne
 
 section

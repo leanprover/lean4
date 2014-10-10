@@ -15,12 +15,11 @@ inductive prod (A B : Type) : Type :=
 definition pair := @prod.mk
 
 namespace prod
-infixr `×` := prod
+  infixr `×` := prod
 
--- notation for n-ary tuples
-notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
+  -- notation for n-ary tuples
+  notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
 
-section
   variables {A B : Type}
   protected theorem destruct {P : A × B → Prop} (p : A × B) (H : ∀a b, P (a, b)) : P p :=
   rec H p
@@ -60,5 +59,4 @@ section
         (assume H, H ▸ and.intro rfl rfl)
         (assume H, and.elim H (assume H₄ H₅, equal H₄ H₅)),
     decidable_iff_equiv _ (iff.symm H₃)
-end
 end prod

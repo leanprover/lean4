@@ -387,7 +387,7 @@ struct inductive_cmd_fn {
 
     /** \brief Include in m_levels any section level referenced by decls. */
     void include_section_levels(buffer<inductive_decl> const & decls) {
-        if (!in_section_or_context(m_env))
+        if (!m_p.has_locals())
             return;
         name_set all_lvl_params;
         for (auto const & d : decls) {
@@ -448,7 +448,7 @@ struct inductive_cmd_fn {
         The section parameters are stored in section_params
     */
     void abstract_section_locals(buffer<inductive_decl> & decls, buffer<expr> & section_params) {
-        if (!in_section_or_context(m_env))
+        if (!m_p.has_locals())
             return;
         expr_struct_set section_locals;
         collect_section_locals(decls, section_locals);
@@ -593,7 +593,7 @@ struct inductive_cmd_fn {
             id = name(name(full_id.get_prefix().get_string()), full_id.get_string());
         else
             id = name(full_id.get_string());
-        if (in_section_or_context(env)) {
+        if (!empty(section_levels) || !section_params.empty()) {
             expr r = mk_section_local_ref(full_id, section_levels, section_params);
             m_p.add_local_expr(id, r);
         }

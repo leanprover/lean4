@@ -46,6 +46,7 @@ public:
         std::tie(m_map, m_counter, m_entries) = head(m_scopes);
         m_scopes  = tail(m_scopes);
     }
+    bool empty() const { return m_map.empty(); }
     struct mk_scope {
         local_decls & m_d;
         mk_scope(local_decls & d):m_d(d) { m_d.push(); }

@@ -86,7 +86,7 @@ static void check_parameter_type(parser & p, name const & n, expr const & type, 
     for_each(type, [&](expr const & e, unsigned) {
             if (is_local(e) && p.is_section_variable(e))
                 throw parser_error(sstream() << "invalid parameter declaration '" << n << "', it depends on " <<
-                                   "section variable '" << local_pp_name(e) << "'", pos);
+                                   "variable '" << local_pp_name(e) << "'", pos);
             return true;
         });
 }
@@ -96,12 +96,14 @@ static environment declare_var(parser & p, environment env,
                                variable_kind k, optional<binder_info> const & _bi, pos_info const & pos) {
     binder_info bi;
     if (_bi) bi = *_bi;
-    if (in_section_or_context(p.env())) {
-        lean_assert(k == variable_kind::Parameter || k == variable_kind::Variable);
-        if (k == variable_kind::Parameter)
+    if (k == variable_kind::Parameter || k == variable_kind::Variable) {
+        if (k == variable_kind::Parameter) {
+            check_in_section_or_context(p);
             check_parameter_type(p, n, type, pos);
+        }
         if (p.get_local(n))
-            throw parser_error(sstream() << "invalid declaration, section/context already contains '" << n << "'", pos);
+            throw parser_error(sstream() << "invalid parameter/variable declaration, '"
+                               << n << "' has already been declared", pos);
         name u = p.mk_fresh_name();
         expr l = p.save_pos(mk_local(u, n, type, bi), pos);
         p.add_local_expr(n, l, k == variable_kind::Variable);
@@ -124,17 +126,15 @@ static environment declare_var(parser & p, environment env,
 }
 
 /** \brief If we are in a section, then add the new local levels to it. */
-static void update_section_local_levels(parser & p, level_param_names const & new_ls, bool is_variable) {
-    if (in_section_or_context(p.env())) {
-        for (auto const & l : new_ls)
-            p.add_local_level(l, mk_param_univ(l), is_variable);
-    }
+static void update_local_levels(parser & p, level_param_names const & new_ls, bool is_variable) {
+    for (auto const & l : new_ls)
+        p.add_local_level(l, mk_param_univ(l), is_variable);
 }
 
-optional<binder_info> parse_binder_info(parser & p) {
+optional<binder_info> parse_binder_info(parser & p, variable_kind k) {
     optional<binder_info> bi = p.parse_optional_binder_info();
-    if (bi)
-        check_in_section_or_context(p);
+    if (bi && k != variable_kind::Parameter && k != variable_kind::Variable)
+        parser_error("invalid binder annotation, it can only be used to declare variables/parameters", p.pos());
     return bi;
 }
 
@@ -144,8 +144,8 @@ static void check_variable_kind(parser & p, variable_kind k) {
             throw parser_error("invalid declaration, 'constant/axiom' cannot be used in sections/contexts",
                                p.pos());
     } else {
-        if (k == variable_kind::Parameter || k == variable_kind::Variable)
-            throw parser_error("invalid declaration, 'parameter/variable/hypothesis/conjecture' "
+        if (k == variable_kind::Parameter)
+            throw parser_error("invalid declaration, 'parameter/hypothesis/conjecture' "
                                "can only be used in sections/contexts", p.pos());
     }
 }
@@ -153,13 +153,13 @@ static void check_variable_kind(parser & p, variable_kind k) {
 environment variable_cmd_core(parser & p, variable_kind k) {
     check_variable_kind(p, k);
     auto pos = p.pos();
-    optional<binder_info> bi = parse_binder_info(p);
+    optional<binder_info> bi = parse_binder_info(p, k);
     name n = p.check_id_next("invalid declaration, identifier expected");
     buffer<name> ls_buffer;
-    if (p.curr_is_token(get_llevel_curly_tk()) && in_section_or_context(p.env()))
-        throw parser_error("invalid declaration, axioms/parameters occurring in sections cannot be universe polymorphic", p.pos());
+    if (p.curr_is_token(get_llevel_curly_tk()) && (k == variable_kind::Parameter || k == variable_kind::Variable))
+        throw parser_error("invalid declaration, only constants/axioms can be universe polymorphic", p.pos());
     optional<parser::local_scope> scope1;
-    if (!in_section_or_context(p.env()))
+    if (k == variable_kind::Constant || k == variable_kind::Axiom)
         scope1.emplace(p);
     parse_univ_params(p, ls_buffer);
     expr type;
@@ -175,7 +175,7 @@ environment variable_cmd_core(parser & p, variable_kind k) {
     }
     p.parse_close_binder_info(bi);
     level_param_names ls;
-    if (in_section_or_context(p.env())) {
+    if (ls_buffer.empty()) {
         ls = to_level_param_names(collect_univ_params(type));
     } else {
         update_univ_parameters(ls_buffer, collect_univ_params(type), p);
@@ -184,7 +184,8 @@ environment variable_cmd_core(parser & p, variable_kind k) {
     level_param_names new_ls;
     list<expr> ctx = p.locals_to_context();
     std::tie(type, new_ls) = p.elaborate_type(type, ctx);
-    update_section_local_levels(p, new_ls, k == variable_kind::Variable);
+    if (k == variable_kind::Variable || k == variable_kind::Parameter)
+        update_local_levels(p, new_ls, k == variable_kind::Variable);
     return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos);
 }
 environment variable_cmd(parser & p) {
@@ -205,7 +206,7 @@ static environment variables_cmd_core(parser & p, variable_kind k) {
     auto pos = p.pos();
     environment env = p.env();
     while (true) {
-        optional<binder_info> bi = parse_binder_info(p);
+        optional<binder_info> bi = parse_binder_info(p, k);
         buffer<name> ids;
         while (!p.curr_is_token(get_colon_tk())) {
             name id = p.check_id_next("invalid parameters declaration, identifier expected");
@@ -213,7 +214,7 @@ static environment variables_cmd_core(parser & p, variable_kind k) {
         }
         p.next();
         optional<parser::local_scope> scope1;
-        if (!in_section_or_context(p.env()))
+        if (k == variable_kind::Constant || k == variable_kind::Axiom)
             scope1.emplace(p);
         expr type = p.parse_expr();
         p.parse_close_binder_info(bi);
@@ -225,7 +226,8 @@ static environment variables_cmd_core(parser & p, variable_kind k) {
             level_param_names new_ls;
             expr new_type;
             std::tie(new_type, new_ls) = p.elaborate_type(type, ctx);
-            update_section_local_levels(p, new_ls, k == variable_kind::Variable);
+            if (k == variable_kind::Variable || k == variable_kind::Parameter)
+                update_local_levels(p, new_ls, k == variable_kind::Variable);
             new_ls = append(ls, new_ls);
             env = declare_var(p, env, id, new_ls, new_type, k, bi, pos);
         }
@@ -244,7 +246,6 @@ static environment parameters_cmd(parser & p) {
 static environment constants_cmd(parser & p) {
     return variables_cmd_core(p, variable_kind::Constant);
 }
-
 
 struct decl_modifiers {
     bool               m_is_instance;
@@ -365,7 +366,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
         real_n     = ns + n;
     }
 
-    if (in_section_or_context(env)) {
+    if (p.has_locals()) {
         buffer<expr> section_ps;
         collect_section_locals(type, value, p, section_ps);
         type = Pi_as_is(section_ps, type, p);
@@ -515,7 +516,7 @@ environment include_cmd_core(parser & p, bool include) {
         name n = p.get_name_val();
         p.next();
         if (!p.get_local(n))
-            throw parser_error(sstream() << "invalid include/omit command, '" << n << "' is not a section parameter/variable", pos);
+            throw parser_error(sstream() << "invalid include/omit command, '" << n << "' is not a parameter/variable", pos);
         if (include) {
             if (p.is_include_variable(n))
                 throw parser_error(sstream() << "invalid include command, '" << n << "' has already been included", pos);

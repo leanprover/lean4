@@ -113,6 +113,7 @@ environment namespace_cmd(parser & p) {
     name n = p.check_atomic_id_next("invalid namespace declaration, atomic identifier expected");
     if (is_root_namespace(n))
         throw parser_error(sstream() << "invalid namespace name, '" << n << "' is reserved", pos);
+    p.push_local_scope();
     return push_scope(p.env(), p.ios(), scope_kind::Namespace, n);
 }
 
@@ -152,8 +153,7 @@ static void redeclare_aliases(parser & p,
 environment end_scoped_cmd(parser & p) {
     list<pair<name, level>> level_entries = p.get_local_level_entries();
     list<pair<name, expr>> entries        = p.get_local_entries();
-    if (in_section_or_context(p.env()))
-        p.pop_local_scope();
+    p.pop_local_scope();
     if (p.curr_is_identifier()) {
         name n = p.check_atomic_id_next("invalid end of scope, atomic identifier expected");
         environment env = pop_scope(p.env(), n);

@@ -185,6 +185,7 @@ class parser {
 
     friend environment section_cmd(parser & p);
     friend environment context_cmd(parser & p);
+    friend environment namespace_cmd(parser & p);
     friend environment end_scoped_cmd(parser & p);
 
     void push_local_scope(bool save_options = false);

@@ -20,16 +20,16 @@ inductive Category : Type := mk : Π (ob : Type), category ob → Category
 
 namespace category
   section
-  parameters {ob : Type} {C : category ob} 
+  variables {ob : Type} {C : category ob} 
   variables {a b c d : ob} 
-
+  include C
   definition hom [reducible] : ob → ob → Type := rec (λ hom compose id assoc idr idl, hom) C
   -- note: needs to be reducible to typecheck composition in opposite category
   definition compose [reducible] : Π {a b c : ob}, hom b c → hom a b → hom a c :=
   rec (λ hom compose id assoc idr idl, compose) C
 
   definition id [reducible] : Π {a : ob}, hom a a := rec (λ hom compose id assoc idr idl, id) C
-  definition ID [reducible] : Π (a : ob), hom a a := @id
+  definition ID [reducible] : Π (a : ob), hom a a := @id ob C
 
   infixr `∘`:60 := compose
   infixl `⟶`:25 := hom -- input ⟶ using \--> (this is a different arrow than \-> (→))
@@ -168,7 +168,7 @@ infixl `⟹`:25 := natural_transformation
 
 namespace natural_transformation
   section
-  parameters {obC obD : Type} {C : category obC} {D : category obD} {F G : C ⇒ D}
+  variables {obC obD : Type} {C : category obC} {D : category obD} {F G : C ⇒ D}
 
   definition natural_map [coercion] (η : F ⟹ G) :
       Π(a : obC), hom (object F a) (object G a) :=
@@ -180,7 +180,7 @@ namespace natural_transformation
   end
 
   section
-  parameters {obC obD : Type} {C : category obC} {D : category obD} {F G H : C ⇒ D}
+  variables {obC obD : Type} {C : category obC} {D : category obD} {F G H : C ⇒ D}
   protected definition compose (η : G ⟹ H) (θ : F ⟹ G) : F ⟹ H :=
   natural_transformation.mk
     (λ a, η a ∘ θ a)

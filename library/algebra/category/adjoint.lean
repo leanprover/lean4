@@ -20,7 +20,7 @@ namespace adjoint
   --I'm lazy, waiting for automation to fill this
 
   section
-  parameters {obC obD : Type} (C : category obC) {D : category obD}
+  variables {obC obD : Type} (C : category obC) {D : category obD}
 
   definition adjoint (F : C ⇒ D) (G : D ⇒ C) :=
   natural_transformation (@functor.compose _ _ _ _ _ _ (Hom D) sorry)

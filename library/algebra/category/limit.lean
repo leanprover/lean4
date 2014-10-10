@@ -10,7 +10,7 @@ open eq eq.ops category functor natural_transformation
 namespace limits
 --representable functor
   section
-  parameters {obI ob : Type} {I : category obI} {C : category ob} {D : I ⇒ C}
+  variables {obI ob : Type} {I : category obI} {C : category ob} {D : I ⇒ C}
 
   definition constant_diagram (a : ob) : I ⇒ C :=
   mk (λ i, a)

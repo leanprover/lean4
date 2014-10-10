@@ -58,10 +58,11 @@ namespace category
 
   section
   open decidable unit empty
-  parameters (A : Type) {H : decidable_eq A}
-  private definition set_hom (a b : A) := decidable.rec_on (H a b) (λh, unit) (λh, empty)
-  private theorem set_hom_subsingleton [instance] (a b : A) : subsingleton (set_hom a b) := _
-  private definition set_compose {a b c : A} (g : set_hom b c) (f : set_hom a b) : set_hom a c :=
+  variables {A : Type} {H : decidable_eq A}
+  include H
+  definition set_hom (a b : A) := decidable.rec_on (H a b) (λh, unit) (λh, empty)
+  theorem set_hom_subsingleton [instance] (a b : A) : subsingleton (set_hom a b) := _
+  definition set_compose {a b c : A} (g : set_hom b c) (f : set_hom a b) : set_hom a c :=
   decidable.rec_on
     (H b c)
     (λ Hbc g, decidable.rec_on
@@ -70,7 +71,7 @@ namespace category
       (λh f, empty.rec _ f) f)
     (λh (g : empty), empty.rec _ g) g
 
-  definition set_category : category A :=
+  definition set_category (A : Type) {H : decidable_eq A} : category A :=
   mk (λa b, set_hom a b)
      (λ a b c g f, set_compose g f)
      (λ a, rec_on_true rfl ⋆)
@@ -150,7 +151,7 @@ end ops
   end ops
 
   section functor_category
-  parameters {obC obD : Type} (C : category obC) (D : category obD)
+  variables {obC obD : Type} (C : category obC) (D : category obD)
   definition functor_category : category (functor C D) :=
   mk (λa b, natural_transformation a b)
      (λ a b c g f, natural_transformation.compose g f)
@@ -183,7 +184,7 @@ end ops
   section --remove
   open sigma category.ops --remove sigma
   instance [persistent] slice_category
-  parameters {ob : Type} (C : category ob)
+  variables {ob : Type} (C : category ob)
   definition forgetful (x : ob) : (slice_category C x) ⇒ C :=
   functor.mk (λ a, dpr1 a)
              (λ a b f, dpr1 f)

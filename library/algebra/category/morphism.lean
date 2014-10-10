@@ -8,7 +8,7 @@ open eq eq.ops category
 
 namespace morphism
   section
-  parameters {ob : Type} {C : category ob} include C
+  variables {ob : Type} {C : category ob} include C
   variables {a b c d : ob} {h : @hom ob C c d} {g : @hom ob C b c} {f : @hom ob C a b} {i : @hom ob C b a}
   inductive is_section    [class] (f : @hom ob C a b) : Type
   := mk : ∀{g}, g ∘ f = id → is_section f
@@ -79,7 +79,7 @@ namespace morphism
       : is_iso f :=
   is_iso.mk (subst (section_eq_retraction f) (retraction_compose f)) (compose_section f)
 
-  theorem inverse_unique (H H' : is_iso f) : @inverse _ _ f H = @inverse _ _ f H' :=
+  theorem inverse_unique (H H' : is_iso f) : @inverse _ _ _ _ f H = @inverse _ _ _ _ f H' :=
   inverse_eq_intro_left !inverse_compose
 
   theorem inverse_involutive (f : a ⟶ b) {H : is_iso f} : (f⁻¹)⁻¹ = f :=
@@ -99,10 +99,10 @@ namespace morphism
   is_section.mk
     (calc
       (retraction_of f ∘ retraction_of g) ∘ g ∘ f
-            = retraction_of f ∘ retraction_of g ∘ g ∘ f : symm !assoc
+            = retraction_of f ∘ retraction_of g ∘ g ∘ f : symm (assoc _ _ (g ∘ f))
         ... = retraction_of f ∘ (retraction_of g ∘ g) ∘ f : {assoc _ g f}
-        ... = retraction_of f ∘ id ∘ f : {!retraction_compose}
-        ... = retraction_of f ∘ f : {!id_left}
+        ... = retraction_of f ∘ id ∘ f : {retraction_compose g}
+        ... = retraction_of f ∘ f : {id_left f}
         ... = id : !retraction_compose)
 
   theorem composition_is_retraction [instance] (Hf : is_retraction f) (Hg : is_retraction g)
@@ -111,8 +111,8 @@ namespace morphism
     (calc
       (g ∘ f) ∘ section_of f ∘ section_of g = g ∘ f ∘ section_of f ∘ section_of g : symm !assoc
         ... = g ∘ (f ∘ section_of f) ∘ section_of g : {assoc f _ _}
-        ... = g ∘ id ∘ section_of g : {!compose_section}
-        ... = g ∘ section_of g : {!id_left}
+        ... = g ∘ id ∘ section_of g : {compose_section f}
+        ... = g ∘ section_of g : {id_left (section_of g)}
         ... = id : !compose_section)
 
   theorem composition_is_inverse [instance] (Hf : is_iso f) (Hg : is_iso g) : is_iso (g ∘ f) :=
@@ -123,7 +123,7 @@ namespace morphism
   end -- remove
   namespace isomorphic
   section --remove
-  parameters {ob : Type} {C : category ob} include C --remove
+  variables {ob : Type} {C : category ob} include C --remove
   variables {a b c d : ob} {h : @hom ob C c d} {g : @hom ob C b c} {f : @hom ob C a b} --remove
   open relation
   -- should these be coercions?
@@ -142,7 +142,7 @@ namespace morphism
   end -- remove
   end isomorphic
   section --remove
-  parameters {ob : Type} {C : category ob} include C --remove
+  variables {ob : Type} {C : category ob} include C --remove
   variables {a b c d : ob} {h : @hom ob C c d} {g : @hom ob C b c} {f : @hom ob C a b} --remove
   --remove implicit arguments below
   inductive is_mono [class] (f : @hom ob C a b) : Prop :=
@@ -202,7 +202,7 @@ namespace morphism
 
   namespace iso
   section
-  parameters {ob : Type} {C : category ob} include C
+  variables {ob : Type} {C : category ob} include C
   variables {a b c d : ob}                                         (f : @hom ob C b a)
                            (r : @hom ob C c d) (q : @hom ob C b c) (p : @hom ob C a b)
                            (g : @hom ob C d c)
@@ -247,7 +247,7 @@ namespace morphism
 
   end
   section
-  parameters {ob : Type} {C : category ob} include C
+  variables {ob : Type} {C : category ob} include C
   variables {d                   c                   b                   a : ob}
                                   {i : @hom ob C b c} {f : @hom ob C b a}
               {r : @hom ob C c d} {q : @hom ob C b c} {p : @hom ob C a b}

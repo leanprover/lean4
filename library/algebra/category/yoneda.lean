@@ -9,11 +9,11 @@ open eq eq.ops category functor category.ops prod
 namespace yoneda
 --representable functor
   section
-  parameters {ob : Type} {C : category ob}
+  variables {ob : Type} {C : category ob}
   set_option pp.universes true
   check @type_category
   section
-    parameters {a a' b b' : ob} (f : @hom ob C a' a) (g : @hom ob C b b')
+    variables {a a' b b' : ob} (f : @hom ob C a' a) (g : @hom ob C b b')
 --    definition Hom_fun_fun :
   end
   definition Hom : Cᵒᵖ ×c C ⇒ type :=

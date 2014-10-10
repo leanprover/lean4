@@ -98,7 +98,7 @@ assume H : (P → Q) ∧ ((P ∨ ¬P) ∨ (Q ∨ ¬Q)),
 
 -- 5. First-Order Logic: All and Exists
 section
-parameters {T : Type} {C : Prop} {P : T → Prop}
+variables {T : Type} {C : Prop} {P : T → Prop}
 theorem thm17a : (C → ∀x, P x) → (∀x, C → P x) :=
 assume H : C → ∀x, P x,
   take x : T, assume Hc : C,

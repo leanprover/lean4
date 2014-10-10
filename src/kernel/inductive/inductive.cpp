@@ -104,9 +104,22 @@ struct inductive_env_ext : public environment_extension {
         unsigned          m_num_params;  // number of global parameters A
         unsigned          m_num_ACe;     // sum of number of global parameters A, type formers C, and minor preimises e.
         unsigned          m_num_indices; // number of inductive datatype indices
+        /** \brief We support K-like reduction when the inductive datatype is in Type.{0} (aka Prop), proof irrelevance
+            is enabled, it has only one introduction rule, the introduction rule has "0 arguments".
+            Example: equality defined as
+
+            inductive eq {A : Type} (a : A) : A -> Prop :=
+            refl : eq a a
+
+            satisfies these requirements when proof irrelevance is enabled.
+            Another example is heterogeneous equality.
+        */
+        bool              m_K_target;
         elim_info() {}
-        elim_info(name const & id_name, level_param_names const & ls, unsigned num_ps, unsigned num_ACe, unsigned num_indices):
-            m_inductive_name(id_name), m_level_names(ls), m_num_params(num_ps), m_num_ACe(num_ACe), m_num_indices(num_indices) {}
+        elim_info(name const & id_name, level_param_names const & ls, unsigned num_ps, unsigned num_ACe, unsigned num_indices,
+                  bool is_K_target):
+            m_inductive_name(id_name), m_level_names(ls), m_num_params(num_ps), m_num_ACe(num_ACe),
+            m_num_indices(num_indices), m_K_target(is_K_target) {}
     };
 
     struct comp_rule {
@@ -132,8 +145,8 @@ struct inductive_env_ext : public environment_extension {
     inductive_env_ext() {}
 
     void add_elim(name const & n, name const & id_name, level_param_names const & ls,
-                  unsigned num_ps, unsigned num_ace, unsigned num_indices) {
-        m_elim_info.insert(n, elim_info(id_name, ls, num_ps, num_ace, num_indices));
+                  unsigned num_ps, unsigned num_ace, unsigned num_indices, bool is_K_target) {
+        m_elim_info.insert(n, elim_info(id_name, ls, num_ps, num_ace, num_indices, is_K_target));
     }
 
     void add_comp_rhs(name const & n, name const & e, unsigned num_bu, expr const & rhs) {
@@ -198,6 +211,8 @@ struct add_inductive_fn {
         buffer<expr>     m_indices;        // local constant for each index
         expr             m_major_premise;  // major premise for each inductive decl
         buffer<expr>     m_minor_premises; // minor premise for each introduction rule
+        bool             m_K_target;
+        elim_info():m_K_target(false) {}
     };
     buffer<elim_info>    m_elim_info; // for each datatype being declared
 
@@ -530,7 +545,8 @@ struct add_inductive_fn {
                 }
                 i++;
             }
-            info.m_major_premise = mk_local(mk_fresh_name(), "n", mk_app(mk_app(m_it_consts[d_idx], m_param_consts), info.m_indices), binder_info());
+            info.m_major_premise = mk_local(mk_fresh_name(), "n",
+                                            mk_app(mk_app(m_it_consts[d_idx], m_param_consts), info.m_indices), binder_info());
             expr C_ty = mk_sort(m_elim_level);
             if (m_dep_elim)
                 C_ty = Pi(info.m_major_premise, C_ty);
@@ -546,6 +562,15 @@ struct add_inductive_fn {
         unsigned minor_idx = 1;
         d_idx = 0;
         for (auto d : m_decls) {
+            // A declaration is target for K-like reduction when
+            // it has one intro, the intro has 0 arguments, proof irrelevance is enabled,
+            // and it is a proposition.
+            // In the following for-loop we check if the intro rule
+            // has 0 arguments.
+            bool is_K_target =
+                m_env.prop_proof_irrel() &&  // Proof irrelevance is enabled
+                is_zero(m_it_levels[d_idx]) &&   // It a Prop
+                length(inductive_decl_intros(d)) == 1; // datatype has only one intro rule
             for (auto ir : inductive_decl_intros(d)) {
                 buffer<expr> b; // nonrec args
                 buffer<expr> u; // rec args
@@ -556,6 +581,7 @@ struct add_inductive_fn {
                     if (i < m_num_params) {
                         t = instantiate(binding_body(t), m_param_consts[i]);
                     } else {
+                        is_K_target = false; // See comment before for-loop.
                         expr l = mk_local_for(t);
                         if (!is_rec_argument(binding_domain(t)))
                             b.push_back(l);
@@ -598,6 +624,7 @@ struct add_inductive_fn {
                 m_elim_info[d_idx].m_minor_premises.push_back(minor);
                 minor_idx++;
             }
+            m_elim_info[d_idx].m_K_target = is_K_target;
             d_idx++;
         }
     }
@@ -680,6 +707,9 @@ struct add_inductive_fn {
     /** \brief Return the number of indices of the i-th datatype. */
     unsigned get_num_indices(unsigned i) { return m_elim_info[i].m_indices.size(); }
 
+    /** \brief Return true iff it is a target of a K-like reduction */
+    bool is_K_target(unsigned i) { return m_elim_info[i].m_K_target; }
+
     /** \brief Create computional rules RHS. They are used by the normalizer extension. */
     void mk_comp_rules_rhs() {
         unsigned d_idx  = 0;
@@ -690,7 +720,7 @@ struct add_inductive_fn {
         inductive_env_ext ext(get_extension(m_env));
         for (auto d : m_decls) {
             ext.add_elim(get_elim_name(d), inductive_decl_name(d), get_elim_level_param_names(), m_num_params,
-                         m_num_params + C.size() + e.size(), get_num_indices(d_idx));
+                         m_num_params + C.size() + e.size(), get_num_indices(d_idx), is_K_target(d_idx));
             for (auto ir : inductive_decl_intros(d)) {
                 buffer<expr> b;
                 buffer<expr> u;

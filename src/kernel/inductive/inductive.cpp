@@ -794,10 +794,54 @@ bool inductive_normalizer_extension::supports(name const & feature) const {
     return feature == *g_inductive_extension;
 }
 
-optional<pair<expr, constraint_seq>> inductive_normalizer_extension::operator()(expr const & e, extension_context & ctx) const {
+/** \brief Return true if \c e is an introduction rule for an eliminator named \c elim */
+static inductive_env_ext::comp_rule const * is_intro_for(inductive_env_ext const & ext, name const & elim, expr const & e) {
+    expr const & intro_fn  = get_app_fn(e);
+    if (!is_constant(intro_fn))
+        return nullptr;
+    auto it = ext.m_comp_rules.find(const_name(intro_fn));
+    if (it && it->m_elim_name == elim)
+        return it;
+    else
+        return nullptr;
+}
+
+/** \brief If \c d_name is the name of a non-empty inductive datatype, then return the
+    name of the first introduction rule. Return none otherwise. */
+static optional<name> get_first_intro(environment const & env, name const & d_name) {
+    inductive_env_ext const & ext = get_extension(env);
+    if (inductive_decls const * it = ext.m_inductive_info.find(d_name)) {
+        list<inductive_decl> const & decls = std::get<2>(*it);
+        for (auto const & decl : decls) {
+            if (inductive_decl_name(decl) != d_name)
+                continue;
+            auto intros = inductive_decl_intros(decl);
+            if (intros)
+                return optional<name>(intro_rule_name(head(intros)));
+        }
+    }
+    return optional<name>();
+}
+
+static optional<expr> mk_nullary_intro(environment const & env, expr const & type, unsigned num_params) {
+    buffer<expr> args;
+    expr const & d = get_app_args(type, args);
+    if (!is_constant(d))
+        return none_expr();
+    name const & d_name = const_name(d);
+    auto intro_name = get_first_intro(env, d_name);
+    if (!intro_name)
+        return none_expr();
+    args.shrink(num_params);
+    return some(mk_app(mk_constant(*intro_name, const_levels(d)), args));
+}
+
+auto inductive_normalizer_extension::operator()(expr const & e, extension_context & ctx) const
+    -> optional<pair<expr, constraint_seq>> {
     // Reduce terms \c e of the form
     //    elim_k A C e p[A,b] (intro_k_i A b u)
-    inductive_env_ext const & ext = get_extension(ctx.env());
+    environment const & env = ctx.env();
+    inductive_env_ext const & ext = get_extension(env);
     expr const & elim_fn   = get_app_fn(e);
     if (!is_constant(elim_fn))
         return none_ecs();
@@ -812,14 +856,37 @@ optional<pair<expr, constraint_seq>> inductive_normalizer_extension::operator()(
     auto intro_app_cs = ctx.whnf(elim_args[major_idx]);
     expr intro_app    = intro_app_cs.first;
     constraint_seq cs = intro_app_cs.second;
-    expr const & intro_fn  = get_app_fn(intro_app);
-    // Last argument must be a constant and an application of a constant.
-    if (!is_constant(intro_fn))
-        return none_ecs();
-    // Check if intro_fn is an introduction rule matching elim_fn
-    auto it2 = ext.m_comp_rules.find(const_name(intro_fn));
-    if (!it2 || it2->m_elim_name != const_name(elim_fn))
-        return none_ecs();
+    auto it2 = is_intro_for(ext, const_name(elim_fn), intro_app);
+    if (!it2) {
+        if (it1->m_K_target) {
+            // If the inductive type support K-like reduction
+            // we try to replace the term with associated nullary
+            // intro rule
+            auto app_type_cs = ctx.infer_type(intro_app);
+            expr app_type    = app_type_cs.first;
+            if (has_expr_metavar(app_type))
+                return none_ecs();
+            auto new_intro_app = mk_nullary_intro(env, app_type, it1->m_num_params);
+            if (!new_intro_app)
+                return none_ecs();
+            auto new_type_cs = ctx.infer_type(*new_intro_app);
+            expr new_type    = new_type_cs.first;
+            if (has_expr_metavar(new_type))
+                return none_ecs();
+            simple_delayed_justification jst([=]() {
+                    return mk_justification("elim/intro global parameters must match", some_expr(e));
+                });
+            auto dcs = ctx.is_def_eq(app_type, new_type, jst);
+            if (!dcs.first)
+                return none_ecs();
+            cs += app_type_cs.second + new_type_cs.second + dcs.second;
+            intro_app = *new_intro_app;
+            it2 = ext.m_comp_rules.find(const_name(get_app_fn(intro_app)));
+        } else {
+            return none_ecs();
+        }
+    }
+
     buffer<expr> intro_args;
     get_app_args(intro_app, intro_args);
     // Check intro num_args
@@ -827,7 +894,9 @@ optional<pair<expr, constraint_seq>> inductive_normalizer_extension::operator()(
         return none_ecs();
     if (it1->m_num_params > 0) {
         // Global parameters of elim and intro be definitionally equal
-        simple_delayed_justification jst([=]() { return mk_justification("elim/intro global parameters must match", some_expr(e)); });
+        simple_delayed_justification jst([=]() {
+                return mk_justification("elim/intro global parameters must match", some_expr(e));
+            });
         for (unsigned i = 0; i < it1->m_num_params; i++) {
             auto dcs = ctx.is_def_eq(elim_args[i], intro_args[i], jst);
             if (!dcs.first)

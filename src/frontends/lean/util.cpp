@@ -111,13 +111,13 @@ expr mk_section_local_ref(name const & n, levels const & sec_ls, unsigned num_se
     buffer<expr> params;
     for (unsigned i = 0; i < num_sec_params; i++)
         params.push_back(mk_explicit(sec_params[i]));
-    return mk_implicit(mk_app(mk_explicit(mk_constant(n, sec_ls)), params));
+    return mk_as_atomic(mk_app(mk_explicit(mk_constant(n, sec_ls)), params));
 }
 
 bool is_section_local_ref(expr const & e) {
-    if (!is_implicit(e))
+    if (!is_as_atomic(e))
         return false;
-    expr const & imp_arg = get_implicit_arg(e);
+    expr const & imp_arg = get_as_atomic_arg(e);
     if (!is_app(imp_arg))
         return false;
     buffer<expr> locals;
@@ -136,7 +136,7 @@ expr update_section_local_ref(expr const & e, name_set const & lvls_to_remove, n
     if (locals_to_remove.empty() && lvls_to_remove.empty())
         return e;
     buffer<expr> locals;
-    expr const & f = get_app_args(get_implicit_arg(e), locals);
+    expr const & f = get_app_args(get_as_atomic_arg(e), locals);
     lean_assert(is_explicit(f));
 
     expr new_f;
@@ -165,7 +165,7 @@ expr update_section_local_ref(expr const & e, name_set const & lvls_to_remove, n
     if (locals.empty()) {
         return get_explicit_arg(new_f);
     } else {
-        return mk_implicit(mk_app(new_f, locals));
+        return mk_as_atomic(mk_app(new_f, locals));
     }
 }
 

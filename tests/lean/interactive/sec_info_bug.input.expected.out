@@ -1,0 +1,10 @@
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGININFO
+-- TYPE|8|20
+ob → ob → Type
+-- ACK
+-- IDENTIFIER|8|20
+hom
+-- ACK
+-- ENDINFO

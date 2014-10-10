@@ -62,7 +62,7 @@ expr mk_annotation(name const & kind, expr const & e) {
     annotation_macros & ms = get_annotation_macros();
     auto it = ms.find(kind);
     if (it != ms.end()) {
-        return mk_macro(it->second, 1, &e);
+        return copy_tag(e, mk_macro(it->second, 1, &e));
     } else {
         throw exception(sstream() << "unknown annotation kind '" << kind << "'");
     }

@@ -439,7 +439,7 @@ struct inductive_cmd_fn {
                                  [&](inductive_decl const & d) { return const_name(e) == inductive_decl_name(d); }))
                     return none_expr();
                 // found target
-                expr r = mk_implicit(mk_app(mk_explicit(e), section_params));
+                expr r = mk_as_atomic(mk_app(mk_explicit(e), section_params));
                 return some_expr(r);
             });
     }

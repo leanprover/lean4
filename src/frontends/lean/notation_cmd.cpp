@@ -56,8 +56,8 @@ environment precedence_cmd(parser & p) {
 
 /** \brief Auxiliary function for #cleanup_section_notation. */
 expr cleanup_section_notation_core(parser & p, expr const & e) {
-    if (is_implicit(e)) {
-        return cleanup_section_notation_core(p, get_implicit_arg(e));
+    if (is_as_atomic(e)) {
+        return cleanup_section_notation_core(p, get_as_atomic_arg(e));
     } else if (is_explicit(e)) {
         return cleanup_section_notation_core(p, get_explicit_arg(e));
     } else if (is_app(e)) {
@@ -96,7 +96,7 @@ expr cleanup_section_notation(parser & p, expr const & e) {
             if (is_local(e))
                 throw parser_error(sstream() << "invalid occurrence of local parameter '" << local_pp_name(e)
                                    << "' in (section) notation", p.pos_of(e));
-            if (is_implicit(e))
+            if (is_as_atomic(e))
                 return some_expr(cleanup_section_notation_core(p, e));
             return none_expr();
         });

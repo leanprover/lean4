@@ -1066,8 +1066,8 @@ name parser::check_constant_next(char const * msg) {
     name id = check_id_next(msg);
     expr e  = id_to_expr(id, p);
 
-    if (in_section_or_context(m_env) && is_implicit(e)) {
-        e = get_app_fn(get_implicit_arg(e));
+    if (in_section_or_context(m_env) && is_as_atomic(e)) {
+        e = get_app_fn(get_as_atomic_arg(e));
         if (is_explicit(e))
             e = get_explicit_arg(e);
     }
@@ -1423,8 +1423,8 @@ void parser::save_type_info(expr const & e) {
         return;
     if (is_explicit(e)) {
         save_type_info(get_explicit_arg(e));
-    } else if (is_implicit(e)) {
-        save_type_info(get_implicit_arg(e));
+    } else if (is_as_atomic(e)) {
+        save_type_info(get_as_atomic_arg(e));
     } else if (is_choice(e)) {
         for (unsigned i = 0; i < get_num_choices(e); i++)
             save_type_info(get_choice(e, i));

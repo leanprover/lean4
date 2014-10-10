@@ -1,0 +1,14 @@
+VISIT cat.lean
+SYNC 10
+import logic
+constant category : Type -> Type
+namespace category
+  section
+  parameters {ob : Type} {C : category ob}
+  variables {a b c d : ob}
+  definition hom : ob → ob → Type := let aux := C in sorry
+  definition foo := hom
+  end
+end category
+WAIT
+INFO 8

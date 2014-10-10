@@ -121,7 +121,8 @@ optional<expr> elaborator::mvar_to_meta(expr const & mvar) {
 
 /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
 void elaborator::save_type_data(expr const & e, expr const & r) {
-    if (!m_no_info && infom() && pip() && (is_constant(e) || is_local(e) || is_placeholder(e))) {
+    if (!m_no_info && infom() && pip() &&
+        (is_constant(e) || is_local(e) || is_placeholder(e) || is_as_atomic(e))) {
         if (auto p = pip()->get_pos_info(e)) {
             expr t = m_tc[m_relax_main_opaque]->infer(r).first;
             m_pre_info_data.add_type_info(p->first, p->second, t);
@@ -742,9 +743,9 @@ expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit(get_annotation_arg(e), cs);
     } else if (is_typed_expr(e)) {
         return visit_typed_expr(e, cs);
-    } else if (is_implicit(e)) {
+    } else if (is_as_atomic(e)) {
         // ignore annotation
-        return visit_core(get_implicit_arg(e), cs);
+        return visit_core(get_as_atomic_arg(e), cs);
     } else if (is_consume_args(e)) {
         // ignore annotation
         return visit_core(get_consume_args_arg(e), cs);
@@ -789,10 +790,10 @@ pair<expr, constraint_seq> elaborator::visit(expr const & e) {
         r    = visit_core(e, cs);
     } else {
         bool consume_args = false;
-        if (is_implicit(e)) {
-            r = get_implicit_arg(e);
+        if (is_as_atomic(e)) {
+            flet<bool> let(m_no_info, true);
+            r = get_as_atomic_arg(e);
             if (is_explicit(r)) r = get_explicit_arg(r);
-            b = r;
             r = visit_core(r, cs);
         } else if (is_consume_args(e)) {
             consume_args = true;

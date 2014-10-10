@@ -33,16 +33,16 @@ bool is_as_is(expr const & e);
 */
 expr const & get_as_is_arg(expr const & e);
 
-/** \brief Create an implicit expression '@^-1 f'.
-    This only affects the elaborator behavior. This expression "cancels" the effect of '@'
+/** \brief Create an expression that should be treated as an atom by the elaborator.
+    This expression also "cancels" the effect of a nested '@'.
 */
-expr mk_implicit(expr const & e);
-/** \brief Return true iff \c e is an implicit expression. */
-bool is_implicit(expr const & e);
-/** \brief Return the argument of an implicit expression.
-    \pre is_implicit(e)
+expr mk_as_atomic(expr const & e);
+/** \brief Return true iff \c e is an atomic expression. */
+bool is_as_atomic(expr const & e);
+/** \brief Return the argument of an atomic expression.
+    \pre is_atomic(e)
 */
-expr const & get_implicit_arg(expr const & e);
+expr const & get_as_atomic_arg(expr const & e);
 
 /** \brief Create the expression '! e'.
     This only affects the elaborator behavior.

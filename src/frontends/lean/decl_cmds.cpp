@@ -378,7 +378,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
         levels section_ls = collect_section_nonvar_levels(p, ls);
         remove_section_variables(p, section_ps);
         if (!section_ps.empty()) {
-            expr ref = mk_section_local_ref(real_n, section_ls, section_ps.size(), section_ps.data());
+            expr ref = mk_section_local_ref(real_n, section_ls, section_ps);
             p.add_local_expr(n, ref);
         } else if (section_ls) {
             expr ref = mk_constant(real_n, section_ls);

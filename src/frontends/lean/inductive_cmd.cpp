@@ -594,7 +594,7 @@ struct inductive_cmd_fn {
         else
             id = name(full_id.get_string());
         if (in_section_or_context(env)) {
-            expr r = mk_section_local_ref(full_id, section_levels, section_params.size(), section_params.data());
+            expr r = mk_section_local_ref(full_id, section_levels, section_params);
             m_p.add_local_expr(id, r);
         }
         if (full_id != id)

@@ -36,6 +36,9 @@ list<expr> locals_to_context(expr const & e, parser const & p);
     That is, when the user writes \c n inside the section she is really getting the term returned by this function.
 */
 expr mk_section_local_ref(name const & n, levels const & sec_ls, unsigned num_sec_params, expr const * sec_params);
+inline expr mk_section_local_ref(name const & n, levels const & sec_ls, buffer<expr> const & sec_params) {
+    return mk_section_local_ref(n, sec_ls, sec_params.size(), sec_params.data());
+}
 /** \brief Return true iff \c e is a term of the form
     <tt>(@^-1 (@n.{ls} @l_1 ... @l_n))</tt> where
     \c n is a constant and l_i's are local constants.

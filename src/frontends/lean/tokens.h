@@ -67,6 +67,7 @@ name const & get_definition_tk();
 name const & get_theorem_tk();
 name const & get_axiom_tk();
 name const & get_variable_tk();
+name const & get_variables_tk();
 name const & get_opaque_tk();
 name const & get_instance_tk();
 name const & get_priority_tk();

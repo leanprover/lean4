@@ -608,7 +608,7 @@ struct inductive_cmd_fn {
         buffer<expr> section_params_only(section_params);
         remove_section_variables(m_p, section_params_only);
         // Create aliases/local refs
-        levels section_levels = collect_section_nonvar_levels(m_p, ls);
+        levels section_levels = collect_local_nonvar_levels(m_p, ls);
         for (auto & d : decls) {
             name d_name = inductive_decl_name(d);
             name d_short_name(d_name.get_string());

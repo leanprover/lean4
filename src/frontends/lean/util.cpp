@@ -60,8 +60,8 @@ void sort_section_params(expr_struct_set const & locals, parser const & p, buffe
         });
 }
 
-// Return the levels in \c ls that are defined in the section
-levels collect_section_nonvar_levels(parser & p, level_param_names const & ls) {
+// Return the local levels in \c ls that are not associated with variables
+levels collect_local_nonvar_levels(parser & p, level_param_names const & ls) {
     buffer<level> section_ls_buffer;
     for (name const & l : ls) {
         if (p.get_local_level_index(l) && !p.is_local_level_variable(l))

@@ -24,8 +24,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 
 namespace lean {
-static environment declare_universe(parser & p, environment env, name const & n) {
-    if (in_section_or_context(env)) {
+static environment declare_universe(parser & p, environment env, name const & n, bool local) {
+    if (in_section_or_context(env) || local) {
         p.add_local_level(n, mk_param_univ(n));
     } else {
         name const & ns = get_namespace(env);
@@ -37,21 +37,35 @@ static environment declare_universe(parser & p, environment env, name const & n)
     return env;
 }
 
-environment universe_cmd(parser & p) {
-    name n = p.check_id_next("invalid 'universe' command, identifier expected");
-    return declare_universe(p, p.env(), n);
-}
-
-environment universes_cmd(parser & p) {
+static environment universes_cmd_core(parser & p, bool local) {
     if (!p.curr_is_identifier())
         throw parser_error("invalid 'universes' command, identifier expected", p.pos());
     environment env = p.env();
     while (p.curr_is_identifier()) {
         name n = p.get_name_val();
         p.next();
-        env = declare_universe(p, env, n);
+        env = declare_universe(p, env, n, local);
     }
     return env;
+}
+
+static environment universe_cmd(parser & p) {
+    if (p.curr_is_token(get_variables_tk())) {
+        p.next();
+        return universes_cmd_core(p, true);
+    } else {
+        bool local = false;
+        if (p.curr_is_token(get_variable_tk())) {
+            p.next();
+            local = true;
+        }
+        name n = p.check_id_next("invalid 'universe' command, identifier expected");
+        return declare_universe(p, p.env(), n, local);
+    }
+}
+
+static environment universes_cmd(parser & p) {
+    return universes_cmd_core(p, false);
 }
 
 bool parse_univ_params(parser & p, buffer<name> & ps) {
@@ -383,7 +397,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
         value = Fun_as_is(section_value_ps, value, p);
         update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
-        levels section_ls = collect_section_nonvar_levels(p, ls);
+        levels section_ls = collect_local_nonvar_levels(p, ls);
         remove_section_variables(p, section_ps);
         if (!section_ps.empty()) {
             expr ref = mk_section_local_ref(real_n, section_ls, section_ps);

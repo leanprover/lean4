@@ -22,8 +22,10 @@ void check_atomic(name const & n);
 void check_in_section_or_context(parser const & p);
 bool is_root_namespace(name const & n);
 name remove_root_prefix(name const & n);
-/** \brief Return the levels in \c ls that are defined in the section, but are not tagged as variables. */
-levels collect_section_nonvar_levels(parser & p, level_param_names const & ls);
+/** \brief Return the local levels in \c ls that are not tagged as variables.
+    A local level is tagged as variable if it associated with a variable.
+*/
+levels collect_local_nonvar_levels(parser & p, level_param_names const & ls);
 /** \brief Collect local (section) constants occurring in type and value, sort them, and store in section_ps */
 void collect_section_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & section_ps);
 /** \brief Copy the local parameters to \c section_ps, then sort \c section_ps (using the order in which they were declared). */

@@ -792,13 +792,16 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi) {
     }
 }
 
-void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries) {
+void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries,
+                                bool & last_block_delimited) {
     while (true) {
         if (curr_is_identifier()) {
             parse_binder_block(r, binder_info());
+            last_block_delimited = false;
         } else {
             optional<binder_info> bi = parse_optional_binder_info();
             if (bi) {
+                last_block_delimited = true;
                 if (!parse_local_notation_decl(nentries))
                     parse_binder_block(r, *bi);
                 parse_close_binder_info(bi);
@@ -809,11 +812,12 @@ void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentr
     }
 }
 
-local_environment parser::parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries) {
+local_environment parser::parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries,
+                                        bool & last_block_delimited) {
     flet<environment> save(m_env, m_env); // save environment
     local_expr_decls::mk_scope scope(m_local_decls);
     unsigned old_sz = r.size();
-    parse_binders_core(r, nentries);
+    parse_binders_core(r, nentries, last_block_delimited);
     if (old_sz == r.size())
         throw_invalid_open_binder(pos());
     return local_environment(m_env);

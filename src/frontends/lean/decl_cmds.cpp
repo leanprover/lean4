@@ -329,7 +329,8 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
         } else {
             buffer<expr> ps;
             optional<local_environment> lenv;
-            lenv = p.parse_binders(ps);
+            bool last_block_delimited = false;
+            lenv = p.parse_binders(ps, last_block_delimited);
             auto pos = p.pos();
             if (p.curr_is_token(get_colon_tk())) {
                 p.next();
@@ -342,6 +343,12 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
                     value = p.parse_scoped_expr(ps, *lenv);
                 }
             } else {
+                if (!last_block_delimited && !ps.empty() &&
+                    !is_placeholder(mlocal_type(ps.back()))) {
+                    throw parser_error("invalid declaration, ambiguous parameter declaration, "
+                                       "(solution: put parentheses around parameters)",
+                                       pos);
+                }
                 type = p.save_pos(mk_expr_placeholder(), p.pos());
                 p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
                 value = p.parse_scoped_expr(ps, *lenv);

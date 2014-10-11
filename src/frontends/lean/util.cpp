@@ -44,11 +44,11 @@ name remove_root_prefix(name const & n) {
     return n.replace_prefix(get_root_tk(), name());
 }
 
-// Sort local_names by order of occurrence in the section, and copy the associated parameters to section_ps
-void sort_section_params(expr_struct_set const & locals, parser const & p, buffer<expr> & section_ps) {
+// Sort local names by order of occurrence, and copy the associated parameters to ps
+void sort_locals(expr_struct_set const & locals, parser const & p, buffer<expr> & ps) {
     for (expr const & l : locals)
-        section_ps.push_back(l);
-    std::sort(section_ps.begin(), section_ps.end(), [&](expr const & p1, expr const & p2) {
+        ps.push_back(l);
+    std::sort(ps.begin(), ps.end(), [&](expr const & p1, expr const & p2) {
             bool is_var1 = p.is_local_variable(p1);
             bool is_var2 = p.is_local_variable(p2);
             if (!is_var1 && is_var2)
@@ -72,8 +72,8 @@ levels collect_local_nonvar_levels(parser & p, level_param_names const & ls) {
     return to_list(section_ls_buffer.begin(), section_ls_buffer.end());
 }
 
-// Collect local (section) constants occurring in type and value, sort them, and store in section_ps
-void collect_section_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & section_ps) {
+// Collect local constants occurring in type and value, sort them, and store in ctx_ps
+void collect_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & ctx_ps) {
     expr_struct_set ls;
     buffer<expr> include_vars;
     p.get_include_variables(include_vars);
@@ -83,38 +83,38 @@ void collect_section_locals(expr const & type, expr const & value, parser const 
     }
     collect_locals(type, ls);
     collect_locals(value, ls);
-    sort_section_params(ls, p, section_ps);
+    sort_locals(ls, p, ctx_ps);
 }
 
-void remove_section_variables(parser const & p, buffer<expr> & ps) {
+void remove_local_vars(parser const & p, buffer<expr> & locals) {
     unsigned j = 0;
-    for (unsigned i = 0; i < ps.size(); i++) {
-        expr const & param = ps[i];
+    for (unsigned i = 0; i < locals.size(); i++) {
+        expr const & param = locals[i];
         if (!is_local(param) || !p.is_local_variable(param)) {
-            ps[j] = param;
+            locals[j] = param;
             j++;
         }
     }
-    ps.shrink(j);
+    locals.shrink(j);
 }
 
 list<expr> locals_to_context(expr const & e, parser const & p) {
     expr_struct_set ls;
     collect_locals(e, ls);
     buffer<expr> locals;
-    sort_section_params(ls, p, locals);
+    sort_locals(ls, p, locals);
     std::reverse(locals.begin(), locals.end());
     return to_list(locals.begin(), locals.end());
 }
 
-expr mk_section_local_ref(name const & n, levels const & sec_ls, unsigned num_sec_params, expr const * sec_params) {
+expr mk_local_ref(name const & n, levels const & ctx_ls, unsigned num_ctx_params, expr const * ctx_params) {
     buffer<expr> params;
-    for (unsigned i = 0; i < num_sec_params; i++)
-        params.push_back(mk_explicit(sec_params[i]));
-    return mk_as_atomic(mk_app(mk_explicit(mk_constant(n, sec_ls)), params));
+    for (unsigned i = 0; i < num_ctx_params; i++)
+        params.push_back(mk_explicit(ctx_params[i]));
+    return mk_as_atomic(mk_app(mk_explicit(mk_constant(n, ctx_ls)), params));
 }
 
-bool is_section_local_ref(expr const & e) {
+bool is_local_ref(expr const & e) {
     if (!is_as_atomic(e))
         return false;
     expr const & imp_arg = get_as_atomic_arg(e);
@@ -131,8 +131,8 @@ bool is_section_local_ref(expr const & e) {
                     });
 }
 
-expr update_section_local_ref(expr const & e, name_set const & lvls_to_remove, name_set const & locals_to_remove) {
-    lean_assert(is_section_local_ref(e));
+expr update_local_ref(expr const & e, name_set const & lvls_to_remove, name_set const & locals_to_remove) {
+    lean_assert(is_local_ref(e));
     if (locals_to_remove.empty() && lvls_to_remove.empty())
         return e;
     buffer<expr> locals;

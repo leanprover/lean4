@@ -385,8 +385,8 @@ struct inductive_cmd_fn {
         }
     }
 
-    /** \brief Include in m_levels any section level referenced by decls. */
-    void include_section_levels(buffer<inductive_decl> const & decls) {
+    /** \brief Include in m_levels any local level referenced by decls. */
+    void include_local_levels(buffer<inductive_decl> const & decls) {
         if (!m_p.has_locals())
             return;
         name_set all_lvl_params;
@@ -396,41 +396,41 @@ struct inductive_cmd_fn {
                 all_lvl_params = collect_univ_params(intro_rule_type(ir), all_lvl_params);
             }
         }
-        buffer<name> section_lvls;
+        buffer<name> local_lvls;
         all_lvl_params.for_each([&](name const & l) {
                 if (std::find(m_levels.begin(), m_levels.end(), l) == m_levels.end())
-                    section_lvls.push_back(l);
+                    local_lvls.push_back(l);
             });
-        std::sort(section_lvls.begin(), section_lvls.end(), [&](name const & n1, name const & n2) {
+        std::sort(local_lvls.begin(), local_lvls.end(), [&](name const & n1, name const & n2) {
                 return m_p.get_local_level_index(n1) < m_p.get_local_level_index(n2);
             });
         buffer<name> new_levels;
-        new_levels.append(section_lvls);
+        new_levels.append(local_lvls);
         new_levels.append(m_levels);
         m_levels.clear();
         m_levels.append(new_levels);
     }
 
-    /** \brief Collect section local parameters used in the inductive decls */
-    void collect_section_locals(buffer<inductive_decl> const & decls, expr_struct_set & ls) {
+    /** \brief Collect local constants used in the inductive decls */
+    void collect_locals(buffer<inductive_decl> const & decls, expr_struct_set & ls) {
         buffer<expr> include_vars;
         m_p.get_include_variables(include_vars);
         for (expr const & param : include_vars) {
-            collect_locals(mlocal_type(param), ls);
+            ::lean::collect_locals(mlocal_type(param), ls);
             ls.insert(param);
         }
         for (auto const & d : decls) {
-            collect_locals(inductive_decl_type(d), ls);
+            ::lean::collect_locals(inductive_decl_type(d), ls);
             for (auto const & ir : inductive_decl_intros(d))
-                collect_locals(intro_rule_type(ir), ls);
+                ::lean::collect_locals(intro_rule_type(ir), ls);
         }
     }
 
     /** \brief Make sure that every occurrence of an inductive datatype (in decls) in \c type has
-        section parameters \c section_params as arguments.
+        locals as arguments.
     */
-    expr fix_inductive_occs(expr const & type, buffer<inductive_decl> const & decls, buffer<expr> const & section_params) {
-        if (section_params.empty())
+    expr fix_inductive_occs(expr const & type, buffer<inductive_decl> const & decls, buffer<expr> const & locals) {
+        if (locals.empty())
             return type;
         return replace(type, [&](expr const & e) {
                 if (!is_constant(e))
@@ -439,34 +439,34 @@ struct inductive_cmd_fn {
                                  [&](inductive_decl const & d) { return const_name(e) == inductive_decl_name(d); }))
                     return none_expr();
                 // found target
-                expr r = mk_as_atomic(mk_app(mk_explicit(e), section_params));
+                expr r = mk_as_atomic(mk_app(mk_explicit(e), locals));
                 return some_expr(r);
             });
     }
 
-    /** \brief Include the used section parameters as additional arguments.
-        The section parameters are stored in section_params
+    /** \brief Include the used locals as additional arguments.
+        The locals are stored in \c locals
     */
-    void abstract_section_locals(buffer<inductive_decl> & decls, buffer<expr> & section_params) {
+    void abstract_locals(buffer<inductive_decl> & decls, buffer<expr> & locals) {
         if (!m_p.has_locals())
             return;
-        expr_struct_set section_locals;
-        collect_section_locals(decls, section_locals);
-        if (section_locals.empty())
+        expr_struct_set local_set;
+        collect_locals(decls, local_set);
+        if (local_set.empty())
             return;
-        sort_section_params(section_locals, m_p, section_params);
-        // First, add section_params to inductive types type.
+        sort_locals(local_set, m_p, locals);
+        // First, add locals to inductive types type.
         for (inductive_decl & d : decls) {
-            d = update_inductive_decl(d, Pi(section_params, inductive_decl_type(d), m_p));
+            d = update_inductive_decl(d, Pi(locals, inductive_decl_type(d), m_p));
         }
-        // Add section_params to introduction rules type, and also "fix"
+        // Add locals to introduction rules type, and also "fix"
         // occurrences of inductive types.
         for (inductive_decl & d : decls) {
             buffer<intro_rule> new_irs;
             for (auto const & ir : inductive_decl_intros(d)) {
                 expr type = intro_rule_type(ir);
-                type = fix_inductive_occs(type, decls, section_params);
-                type = Pi_as_is(section_params, type, m_p);
+                type = fix_inductive_occs(type, decls, locals);
+                type = Pi_as_is(locals, type, m_p);
                 new_irs.push_back(update_intro_rule(ir, type));
             }
             d = update_inductive_decl(d, new_irs);
@@ -587,14 +587,14 @@ struct inductive_cmd_fn {
 
     /** \brief Create an alias for the fully qualified name \c full_id. */
     environment create_alias(environment env, bool composite, name const & full_id,
-                             levels const & section_levels, buffer<expr> const & section_params) {
+                             levels const & ctx_levels, buffer<expr> const & ctx_params) {
         name id;
         if (composite)
             id = name(name(full_id.get_prefix().get_string()), full_id.get_string());
         else
             id = name(full_id.get_string());
-        if (!empty(section_levels) || !section_params.empty()) {
-            expr r = mk_section_local_ref(full_id, section_levels, section_params);
+        if (!empty(ctx_levels) || !ctx_params.empty()) {
+            expr r = mk_local_ref(full_id, ctx_levels, ctx_params);
             m_p.add_local_expr(id, r);
         }
         if (full_id != id)
@@ -603,22 +603,22 @@ struct inductive_cmd_fn {
     }
 
     /** \brief Add aliases for the inductive datatype, introduction and elimination rules */
-    environment add_aliases(environment env, level_param_names const & ls, buffer<expr> const & section_params,
+    environment add_aliases(environment env, level_param_names const & ls, buffer<expr> const & locals,
                             buffer<inductive_decl> const & decls) {
-        buffer<expr> section_params_only(section_params);
-        remove_section_variables(m_p, section_params_only);
+        buffer<expr> params_only(locals);
+        remove_local_vars(m_p, params_only);
         // Create aliases/local refs
-        levels section_levels = collect_local_nonvar_levels(m_p, ls);
+        levels ctx_levels = collect_local_nonvar_levels(m_p, ls);
         for (auto & d : decls) {
             name d_name = inductive_decl_name(d);
             name d_short_name(d_name.get_string());
-            env = create_alias(env, false, d_name, section_levels, section_params_only);
+            env = create_alias(env, false, d_name, ctx_levels, params_only);
             name rec_name = mk_rec_name(d_name);
-            env = create_alias(env, true, rec_name, section_levels, section_params_only);
+            env = create_alias(env, true, rec_name, ctx_levels, params_only);
             env = add_protected(env, rec_name);
             for (intro_rule const & ir : inductive_decl_intros(d)) {
                 name ir_name = intro_rule_name(ir);
-                env = create_alias(env, true, ir_name, section_levels, section_params_only);
+                env = create_alias(env, true, ir_name, ctx_levels, params_only);
             }
         }
         return env;
@@ -668,10 +668,10 @@ struct inductive_cmd_fn {
             parser::local_scope scope(m_p);
             parse_inductive_decls(decls);
         }
-        buffer<expr> section_params;
-        abstract_section_locals(decls, section_params);
-        include_section_levels(decls);
-        m_num_params += section_params.size();
+        buffer<expr> locals;
+        abstract_locals(decls, locals);
+        include_local_levels(decls);
+        m_num_params += locals.size();
         declare_inductive_types(decls);
         unsigned num_univ_params = m_levels.size();
         buffer<level> r_lvls;
@@ -684,7 +684,7 @@ struct inductive_cmd_fn {
         level_param_names ls = to_list(m_levels.begin(), m_levels.end());
         environment env = module::add_inductive(m_p.env(), ls, m_num_params, to_list(decls.begin(), decls.end()));
         update_declaration_index(env);
-        env = add_aliases(env, ls, section_params, decls);
+        env = add_aliases(env, ls, locals, decls);
         return apply_modifiers(env);
     }
 };

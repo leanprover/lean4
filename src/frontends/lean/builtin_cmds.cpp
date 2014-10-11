@@ -128,7 +128,7 @@ static void redeclare_aliases(parser & p,
     name_set popped_locals;
     while (!is_eqp(old_entries, new_entries)) {
         pair<name, expr> entry = head(old_entries);
-        if (is_section_local_ref(entry.second))
+        if (is_local_ref(entry.second))
             to_redeclare.push_back(entry);
         else if (is_local(entry.second))
             popped_locals.insert(mlocal_name(entry.second));
@@ -144,7 +144,7 @@ static void redeclare_aliases(parser & p,
     }
 
     for (auto const & entry : to_redeclare) {
-        expr new_ref = update_section_local_ref(entry.second, popped_levels, popped_locals);
+        expr new_ref = update_local_ref(entry.second, popped_levels, popped_locals);
         if (!is_constant(new_ref))
             p.add_local_expr(entry.first, new_ref);
     }

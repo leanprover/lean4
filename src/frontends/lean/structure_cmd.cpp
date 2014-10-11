@@ -154,7 +154,7 @@ struct structure_cmd_fn {
         collect_section_locals(section_locals);
         if (section_locals.empty())
             return;
-        sort_section_params(section_locals, m_p, section_params);
+        sort_locals(section_locals, m_p, section_params);
         m_type = Pi_as_is(section_params, m_type, m_p);
     }
 

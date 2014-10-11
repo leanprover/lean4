@@ -26,36 +26,36 @@ name remove_root_prefix(name const & n);
     A local level is tagged as variable if it associated with a variable.
 */
 levels collect_local_nonvar_levels(parser & p, level_param_names const & ls);
-/** \brief Collect local (section) constants occurring in type and value, sort them, and store in section_ps */
-void collect_section_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & section_ps);
-/** \brief Copy the local parameters to \c section_ps, then sort \c section_ps (using the order in which they were declared). */
-void sort_section_params(expr_struct_set const & locals, parser const & p, buffer<expr> & section_ps);
-/** \brief Remove from \c ps local constants that are tagged as section variables. */
-void remove_section_variables(parser const & p, buffer<expr> & ps);
+/** \brief Collect local constants occurring in \c type and \c value, sort them, and store in ctx_ps */
+void collect_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & ctx_ps);
+/** \brief Copy the local names to \c ps, then sort \c ps (using the order in which they were declared). */
+void sort_locals(expr_struct_set const & locals, parser const & p, buffer<expr> & ps);
+/** \brief Remove from \c ps local constants that are tagged as variables. */
+void remove_local_vars(parser const & p, buffer<expr> & ps);
 list<expr> locals_to_context(expr const & e, parser const & p);
-/** \brief Create the term <tt>(@^-1 (@n.{sec_ls} @sec_params[0] ... @sec_params[num_sec_params-1]))</tt>
-    When we declare \c n inside of a section, the section parameters and universes are fixes.
+/** \brief Create the term <tt>(as_atomic (@n.{ls} @params[0] ... @params[num_params-1]))</tt>
+    When we declare \c n inside of a context, the parameters and universes are fixed.
     That is, when the user writes \c n inside the section she is really getting the term returned by this function.
 */
-expr mk_section_local_ref(name const & n, levels const & sec_ls, unsigned num_sec_params, expr const * sec_params);
-inline expr mk_section_local_ref(name const & n, levels const & sec_ls, buffer<expr> const & sec_params) {
-    return mk_section_local_ref(n, sec_ls, sec_params.size(), sec_params.data());
+expr mk_local_ref(name const & n, levels const & ctx_ls, unsigned num_ctx_params, expr const * ctx_params);
+inline expr mk_local_ref(name const & n, levels const & ctx_ls, buffer<expr> const & ctx_params) {
+    return mk_local_ref(n, ctx_ls, ctx_params.size(), ctx_params.data());
 }
 /** \brief Return true iff \c e is a term of the form
-    <tt>(@^-1 (@n.{ls} @l_1 ... @l_n))</tt> where
+    <tt>(as_atomic (@n.{ls} @l_1 ... @l_n))</tt> where
     \c n is a constant and l_i's are local constants.
 
-    \remark is_section_local_ref(mk_section_local_ref(n, ls, num_ps, ps)) always hold.
+    \remark is_local_ref(mk_local_ref(n, ls, num_ps, ps)) always hold.
 */
-bool is_section_local_ref(expr const & e);
-/** \brief Given a term \c e s.t. is_section_local_ref(e) is true, remove all local constants in \c to_remove.
+bool is_local_ref(expr const & e);
+/** \brief Given a term \c e s.t. is_local_ref(e) is true, remove all local constants in \c to_remove.
     That is, if \c e is of the form
-    <tt>(@^-1 (@n.{u_1 ... u_k} @l_1 ... @l_n))</tt>
+    <tt>(as_atomic (@n.{u_1 ... u_k} @l_1 ... @l_n))</tt>
     Then, return a term s.t.
        1) any l_i s.t. mlocal_name(l_i) in \c locals_to_remove is removed.
        2) any level u_j in \c lvls_to_remove is removed
 */
-expr update_section_local_ref(expr const & e, name_set const & lvls_to_remove, name_set const & locals_to_remove);
+expr update_local_ref(expr const & e, name_set const & lvls_to_remove, name_set const & locals_to_remove);
 
 /** \brief Fun(locals, e), but also propagate \c e position to result */
 expr Fun(buffer<expr> const & locals, expr const & e, parser & p);

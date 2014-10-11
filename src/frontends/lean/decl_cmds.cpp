@@ -388,22 +388,22 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
     }
 
     if (p.has_locals()) {
-        buffer<expr> section_ps;
-        collect_section_locals(type, value, p, section_ps);
-        type = Pi_as_is(section_ps, type, p);
-        buffer<expr> section_value_ps;
-        section_value_ps.append(section_ps);
-        erase_local_binder_info(section_value_ps);
-        value = Fun_as_is(section_value_ps, value, p);
+        buffer<expr> locals;
+        collect_locals(type, value, p, locals);
+        type = Pi_as_is(locals, type, p);
+        buffer<expr> new_locals;
+        new_locals.append(locals);
+        erase_local_binder_info(new_locals);
+        value = Fun_as_is(new_locals, value, p);
         update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
-        levels section_ls = collect_local_nonvar_levels(p, ls);
-        remove_section_variables(p, section_ps);
-        if (!section_ps.empty()) {
-            expr ref = mk_section_local_ref(real_n, section_ls, section_ps);
+        levels local_ls = collect_local_nonvar_levels(p, ls);
+        remove_local_vars(p, locals);
+        if (!locals.empty()) {
+            expr ref = mk_local_ref(real_n, local_ls, locals);
             p.add_local_expr(n, ref);
-        } else if (section_ls) {
-            expr ref = mk_constant(real_n, section_ls);
+        } else if (local_ls) {
+            expr ref = mk_constant(real_n, local_ls);
             p.add_local_expr(n, ref);
         }
     } else {

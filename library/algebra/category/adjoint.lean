@@ -19,13 +19,10 @@ namespace adjoint
     show (pr2 g ∘ pr2 f) ∘ h ∘ (pr1 f ∘ pr1 g) = pr2 g ∘ (pr2 f ∘ h ∘ pr1 f) ∘ pr1 g, from sorry))
   --I'm lazy, waiting for automation to fill this
 
-  section
   variables {obC obD : Type} (C : category obC) {D : category obD}
 
   definition adjoint (F : C ⇒ D) (G : D ⇒ C) :=
   natural_transformation (@functor.compose _ _ _ _ _ _ (Hom D) sorry)
                        --(Hom C ∘f sorry)
   --product.prod_functor (opposite.opposite_functor F) (functor.ID D)
-
-  end
 end adjoint

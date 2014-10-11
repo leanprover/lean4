@@ -7,7 +7,7 @@ import logic.axioms.funext
 open eq eq.ops
 
 inductive category [class] (ob : Type) : Type :=
-mk : Π (hom : ob → ob → Type) 
+mk : Π (hom : ob → ob → Type)
        (comp : Π⦃a b c : ob⦄, hom b c → hom a b → hom a c)
        (id : Π {a : ob}, hom a a),
        (Π ⦃a b c d : ob⦄ {h : hom c d} {g : hom b c} {f : hom a b},
@@ -16,12 +16,9 @@ mk : Π (hom : ob → ob → Type)
        (Π ⦃a b : ob⦄ {f : hom a b}, comp f id = f) →
          category ob
 
-inductive Category : Type := mk : Π (ob : Type), category ob → Category
-
 namespace category
-  section
-  variables {ob : Type} {C : category ob} 
-  variables {a b c d : ob} 
+  variables {ob : Type} {C : category ob}
+  variables {a b c d : ob}
   include C
   definition hom [reducible] : ob → ob → Type := rec (λ hom compose id assoc idr idl, hom) C
   -- note: needs to be reducible to typecheck composition in opposite category
@@ -36,7 +33,7 @@ namespace category
 
   variables {h : hom c d} {g : hom b c} {f : hom a b} {i : hom a a}
 
-  theorem assoc : Π ⦃a b c d : ob⦄ (h : hom c d) (g : hom b c) (f : hom a b), 
+  theorem assoc : Π ⦃a b c d : ob⦄ (h : hom c d) (g : hom b c) (f : hom a b),
       h ∘ (g ∘ f) = (h ∘ g) ∘ f :=
   rec (λ hom comp id assoc idr idl, assoc) C
 
@@ -56,18 +53,16 @@ namespace category
   calc
     i = id ∘ i : eq.symm !id_left
     ... = id : H
-  end
+end category
 
-  section
+inductive Category : Type := mk : Π (ob : Type), category ob → Category
 
+namespace category
   definition objects [coercion] (C : Category) : Type
   := Category.rec (fun c s, c) C
 
   definition category_instance [instance] (C : Category) : category (objects C)
   := Category.rec (fun c s, s) C
-
-  end
-
 end category
 
 open category
@@ -84,7 +79,6 @@ mk : functor (category_instance C) (category_instance D) → Functor C D
 infixl `⇒`:25 := functor
 
 namespace functor
-  section basic_functor
   variables {obC obD obE : Type} {C : category obC} {D : category obD} {E : category obE}
   definition object [coercion] (F : C ⇒ D) : obC → obD := rec (λ obF homF Hid Hcomp, obF) F
 
@@ -126,32 +120,25 @@ namespace functor
   protected theorem id_left  (F : C ⇒ D) : id ∘f F = F := rec (λ obF homF idF compF, rfl) F
   protected theorem id_right (F : C ⇒ D) : F ∘f id = F := rec (λ obF homF idF compF, rfl) F
 
-  end basic_functor
-
-  section Functor
-  variables {C₁ C₂ C₃ C₄: Category} --(G : Functor D E) (F : Functor C D)
-  definition Functor_functor {C₁ C₂ : Category} (F : Functor C₁ C₂) : --remove params
+  variables {C₁ C₂ C₃ C₄: Category}
+  definition Functor_functor (F : Functor C₁ C₂) :
       functor (category_instance C₁) (category_instance C₂) :=
   Functor.rec (λ x, x) F
 
   protected definition Compose (G : Functor C₂ C₃) (F : Functor C₁ C₂) : Functor C₁ C₃ :=
   Functor.mk (compose (Functor_functor G) (Functor_functor F))
 
---  namespace Functor
   infixr `∘F`:60 := Compose
---  end Functor
 
   protected definition Assoc (H : Functor C₃ C₄) (G : Functor C₂ C₃) (F : Functor C₁ C₂)
     :  H ∘F (G ∘F F) = (H ∘F G) ∘F F :=
   rfl
 
-  protected theorem Id_left (F : Functor C₁ C₂) : Id ∘F F = F := 
+  protected theorem Id_left (F : Functor C₁ C₂) : Id ∘F F = F :=
   Functor.rec (λ f, subst !id_left rfl) F
 
   protected theorem Id_right {F : Functor C₁ C₂} : F ∘F Id = F :=
   Functor.rec (λ f, subst !id_right rfl) F
-  end Functor
-
 end functor
 
 open functor
@@ -167,8 +154,7 @@ mk : Π (η : Π(a : obC), hom (object F a) (object G a)), (Π{a b : obC} (f : h
 infixl `⟹`:25 := natural_transformation
 
 namespace natural_transformation
-  section
-  variables {obC obD : Type} {C : category obC} {D : category obD} {F G : C ⇒ D}
+  variables {obC obD : Type} {C : category obC} {D : category obD} {F G H : C ⇒ D}
 
   definition natural_map [coercion] (η : F ⟹ G) :
       Π(a : obC), hom (object F a) (object G a) :=
@@ -177,10 +163,7 @@ namespace natural_transformation
   definition naturality (η : F ⟹ G) :
       Π{a b : obC} (f : hom a b), morphism G f ∘ η a = η b ∘ morphism F f :=
   rec (λ x y, y) η
-  end
 
-  section
-  variables {obC obD : Type} {C : category obC} {D : category obD} {F G H : C ⇒ D}
   protected definition compose (η : G ⟹ H) (θ : F ⟹ G) : F ⟹ H :=
   natural_transformation.mk
     (λ a, η a ∘ θ a)
@@ -191,12 +174,12 @@ namespace natural_transformation
           ... = η b ∘ (morphism G f ∘ θ a) : symm !assoc
           ... = η b ∘ (θ b ∘ morphism F f) : {naturality θ f}
           ... = (η b ∘ θ b) ∘ morphism F f : !assoc)
-  end
+
   precedence `∘n` : 60
   infixr `∘n` := compose
-  section
-  variables {obC obD : Type} {C : category obC} {D : category obD} {F₁ F₂ F₃ F₄ : C ⇒ D}
-  protected theorem assoc (η₃ : F₃ ⟹ F₄) (η₂ : F₂ ⟹ F₃) (η₁ : F₁ ⟹ F₂) : 
+
+  variables {F₁ F₂ F₃ F₄ : C ⇒ D}
+  protected theorem assoc (η₃ : F₃ ⟹ F₄) (η₂ : F₂ ⟹ F₃) (η₁ : F₁ ⟹ F₂) :
       η₃ ∘n (η₂ ∘n η₁) = (η₃ ∘n η₂) ∘n η₁ :=
   congr_arg2_dep mk (funext (take x, !assoc)) !proof_irrel
 
@@ -216,8 +199,4 @@ namespace natural_transformation
 
   protected theorem id_right (η : F₁ ⟹ F₂) : natural_transformation.compose η id = η :=
   rec (λf H, congr_arg2_dep mk (funext (take x, !id_right)) !proof_irrel) η
-
-  end
 end natural_transformation
-
-

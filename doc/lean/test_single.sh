@@ -35,6 +35,6 @@ while read -r line; do
         echo -E "$line" >> $f.$i.lean
     fi
 done < $f
-rm -f *.produced.out
-rm -f *.lean
+rm -f $f.*.produced.out
+rm -f $f.*.lean
 exit 0

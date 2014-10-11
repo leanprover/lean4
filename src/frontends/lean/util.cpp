@@ -49,11 +49,11 @@ void sort_section_params(expr_struct_set const & locals, parser const & p, buffe
     for (expr const & l : locals)
         section_ps.push_back(l);
     std::sort(section_ps.begin(), section_ps.end(), [&](expr const & p1, expr const & p2) {
-            bool is_sec_var1 = p.is_section_variable(p1);
-            bool is_sec_var2 = p.is_section_variable(p2);
-            if (!is_sec_var1 && is_sec_var2)
+            bool is_var1 = p.is_local_variable(p1);
+            bool is_var2 = p.is_local_variable(p2);
+            if (!is_var1 && is_var2)
                 return true;
-            else if (is_sec_var1 && !is_sec_var2)
+            else if (is_var1 && !is_var2)
                 return false;
             else
                 return p.get_local_index(p1) < p.get_local_index(p2);
@@ -64,7 +64,7 @@ void sort_section_params(expr_struct_set const & locals, parser const & p, buffe
 levels collect_section_nonvar_levels(parser & p, level_param_names const & ls) {
     buffer<level> section_ls_buffer;
     for (name const & l : ls) {
-        if (p.get_local_level_index(l) && !p.is_section_level_variable(l))
+        if (p.get_local_level_index(l) && !p.is_local_level_variable(l))
             section_ls_buffer.push_back(mk_param_univ(l));
         else
             break;
@@ -90,7 +90,7 @@ void remove_section_variables(parser const & p, buffer<expr> & ps) {
     unsigned j = 0;
     for (unsigned i = 0; i < ps.size(); i++) {
         expr const & param = ps[i];
-        if (!is_local(param) || !p.is_section_variable(param)) {
+        if (!is_local(param) || !p.is_local_variable(param)) {
             ps[j] = param;
             j++;
         }

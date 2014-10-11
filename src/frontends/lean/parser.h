@@ -61,8 +61,8 @@ struct snapshot {
     environment        m_env;
     local_level_decls  m_lds;
     local_expr_decls   m_eds;
-    name_set           m_lvars; // subset of m_lds that is tagged as section level variable
-    name_set           m_vars; // subset of m_eds that is tagged as section variable
+    name_set           m_lvars; // subset of m_lds that is tagged as level variable
+    name_set           m_vars; // subset of m_eds that is tagged as variable
     name_set           m_include_vars; // subset of m_eds that must be included
     options            m_options;
     parser_scope_stack m_parser_scope_stack;
@@ -343,9 +343,9 @@ public:
     void add_local_level(name const & n, level const & l, bool is_variable = false);
     void add_local_expr(name const & n, expr const & p, bool is_variable = false);
     void add_local(expr const & p) { return add_local_expr(local_pp_name(p), p); }
-    bool is_section_level_variable(name const & n) const { return m_level_variables.contains(n); }
-    bool is_section_variable(name const & n) const { return m_variables.contains(n); }
-    bool is_section_variable(expr const & e) const { return is_section_variable(local_pp_name(e)); }
+    bool is_local_level_variable(name const & n) const { return m_level_variables.contains(n); }
+    bool is_local_variable(name const & n) const { return m_variables.contains(n); }
+    bool is_local_variable(expr const & e) const { return is_local_variable(local_pp_name(e)); }
     void include_variable(name const & n) { m_include_vars.insert(n); }
     void omit_variable(name const & n) { m_include_vars.erase(n); }
     bool is_include_variable(name const & n) const { return m_include_vars.contains(n); }

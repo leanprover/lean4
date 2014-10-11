@@ -377,21 +377,29 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
 }
 
 bool elaborator::has_coercions_from(expr const & a_type) {
-    expr const & a_cls = get_app_fn(whnf(a_type).first);
-    return is_constant(a_cls) && ::lean::has_coercions_from(env(), const_name(a_cls));
+    try {
+        expr const & a_cls = get_app_fn(whnf(a_type).first);
+        return is_constant(a_cls) && ::lean::has_coercions_from(env(), const_name(a_cls));
+    } catch (exception&) {
+        return false;
+    }
 }
 
 bool elaborator::has_coercions_to(expr d_type) {
-    d_type = whnf(d_type).first;
-    expr const & fn = get_app_fn(d_type);
-    if (is_constant(fn))
-        return ::lean::has_coercions_to(env(), const_name(fn));
-    else if (is_pi(d_type))
-        return ::lean::has_coercions_to_fun(env());
-    else if (is_sort(d_type))
-        return ::lean::has_coercions_to_sort(env());
-    else
+    try {
+        d_type = whnf(d_type).first;
+        expr const & fn = get_app_fn(d_type);
+        if (is_constant(fn))
+            return ::lean::has_coercions_to(env(), const_name(fn));
+        else if (is_pi(d_type))
+            return ::lean::has_coercions_to_fun(env());
+        else if (is_sort(d_type))
+            return ::lean::has_coercions_to_sort(env());
+        else
+            return false;
+    } catch (exception&) {
         return false;
+    }
 }
 
 expr elaborator::apply_coercion(expr const & a, expr a_type, expr d_type) {
@@ -410,9 +418,12 @@ expr elaborator::apply_coercion(expr const & a, expr a_type, expr d_type) {
         for (expr const & coe : coes) {
             expr r = mk_app(coe, a, a.get_tag());
             expr r_type = infer_type(r).first;
-            if (m_tc[m_relax_main_opaque]->is_def_eq(r_type, d_type).first) {
-                save_coercion_info(a, r);
-                return r;
+            try {
+                if (m_tc[m_relax_main_opaque]->is_def_eq(r_type, d_type).first) {
+                    save_coercion_info(a, r);
+                    return r;
+                }
+            } catch (exception&) {
             }
         }
         erase_coercion_info(a);
@@ -444,7 +455,12 @@ pair<expr, constraint_seq> elaborator::ensure_has_type(
     } else if (is_meta(a_type) && has_coercions_to(expected_type)) {
         return mk_delayed_coercion(a, a_type, expected_type, j);
     } else {
-        auto dcs = m_tc[relax]->is_def_eq(a_type, expected_type, j);
+        pair<bool, constraint_seq> dcs;
+        try {
+            dcs = m_tc[relax]->is_def_eq(a_type, expected_type, j);
+        } catch (exception&) {
+            dcs.first = false;
+        }
         if (dcs.first) {
             return to_ecs(a, dcs.second);
         } else {
@@ -453,7 +469,11 @@ pair<expr, constraint_seq> elaborator::ensure_has_type(
             bool coercion_worked = false;
             if (!is_eqp(a, new_a)) {
                 expr new_a_type = infer_type(new_a, cs);
-                coercion_worked = m_tc[relax]->is_def_eq(new_a_type, expected_type, j, cs);
+                try {
+                    coercion_worked = m_tc[relax]->is_def_eq(new_a_type, expected_type, j, cs);
+                } catch (exception&) {
+                    coercion_worked = false;
+                }
             }
             if (coercion_worked) {
                 return to_ecs(new_a, cs);

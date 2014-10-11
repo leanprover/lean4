@@ -104,11 +104,10 @@
      (,(rx (or "λ" "→" "∃" "∀" ":=")) . 'font-lock-constant-face )
      ;; universe/inductive/theorem... "names"
      (,(rx word-start
-           (group (or "universe" "inductive" "theorem" "axiom" "lemma" "hypothesis"
-                      "definition" "variable" "constant" "parameter"))
+           (group (or "inductive" "theorem" "axiom" "lemma" "hypothesis" "definition" "constant"))
            word-end
            (zero-or-more (or whitespace "(" "{" "["))
-           (group (zero-or-more (not whitespace))))
+           (group (zero-or-more (not (any " \t\n\r")))))
       (2 'font-lock-function-name-face))
      ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
      ;; place holder

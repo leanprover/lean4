@@ -1,0 +1,2 @@
+bad_notation.lean:6:23: error: invalid notation declaration, contains reference to local variables
+bad_notation.lean:9:18: error: unknown identifier 'a1'

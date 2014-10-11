@@ -826,7 +826,9 @@ local_environment parser::parse_binders(buffer<expr> & r, buffer<notation_entry>
 bool parser::parse_local_notation_decl(buffer<notation_entry> * nentries) {
     if (curr_is_notation_decl(*this)) {
         buffer<token_entry> new_tokens;
-        auto ne = ::lean::parse_notation(*this, false, new_tokens);
+        bool overload    = false;
+        bool allow_local = true;
+        auto ne = ::lean::parse_notation(*this, overload, new_tokens, allow_local);
         for (auto const & te : new_tokens)
             m_env = add_token(m_env, te);
         if (nentries) nentries->push_back(ne);

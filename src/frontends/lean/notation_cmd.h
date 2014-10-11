@@ -12,8 +12,10 @@ namespace lean {
 class parser;
 /** \brief Return true iff the current token is a notation declaration */
 bool curr_is_notation_decl(parser & p);
-/** \brief Parse a notation declaration, throws an error if the current token is not a "notation declaration". */
-notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & new_tokens);
+/** \brief Parse a notation declaration, throws an error if the current token is not a "notation declaration".
+    If allow_local is true, then notation may contain reference to local constants.
+*/
+notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & new_tokens, bool allow_local);
 
 void register_notation_cmds(cmd_table & r);
 }

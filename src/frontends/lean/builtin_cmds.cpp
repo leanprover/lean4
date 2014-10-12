@@ -377,6 +377,8 @@ environment open_cmd(parser & p) { return open_export_cmd(p, true); }
 environment export_cmd(parser & p) { return open_export_cmd(p, false); }
 
 environment coercion_cmd(parser & p) {
+    if (in_context(p.env()))
+        throw parser_error("invalid 'coercion' command, coercions cannot be defined in contexts", p.pos());
     bool persistent = false;
     parse_persistent(p, persistent);
     name f   = p.check_constant_next("invalid 'coercion' command, constant expected");

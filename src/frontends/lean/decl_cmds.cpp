@@ -279,8 +279,11 @@ struct decl_modifiers {
                 m_is_instance = true;
                 p.next();
             } else if (p.curr_is_token(get_coercion_tk())) {
-                m_is_coercion = true;
+                auto pos = p.pos();
                 p.next();
+                if (in_context(p.env()))
+                    throw parser_error("invalid '[coercion]' modifier, coercions cannot be defined in contexts", pos);
+                m_is_coercion = true;
             } else if (p.curr_is_token(get_reducible_tk())) {
                 m_is_reducible = true;
                 p.next();

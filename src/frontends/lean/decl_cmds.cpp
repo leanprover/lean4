@@ -153,7 +153,7 @@ optional<binder_info> parse_binder_info(parser & p, variable_kind k) {
 }
 
 static void check_variable_kind(parser & p, variable_kind k) {
-    if (in_section_or_context(p.env())) {
+    if (in_context(p.env())) {
         if (k == variable_kind::Axiom || k == variable_kind::Constant)
             throw parser_error("invalid declaration, 'constant/axiom' cannot be used in sections/contexts",
                                p.pos());

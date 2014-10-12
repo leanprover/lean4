@@ -25,12 +25,12 @@ static environment update(environment const & env, aliases_ext const & ext);
 
 struct aliases_ext : public environment_extension {
     struct state {
-        bool                  m_in_section_or_context;
+        bool                  m_in_context;
         name_map<list<name>>  m_aliases;
         name_map<name>        m_inv_aliases;
         name_map<name>        m_level_aliases;
         name_map<name>        m_inv_level_aliases;
-        state():m_in_section_or_context(false) {}
+        state():m_in_context(false) {}
 
         void add_expr_alias(name const & a, name const & e) {
             auto it = m_aliases.find(a);
@@ -63,7 +63,7 @@ struct aliases_ext : public environment_extension {
         } else {
             state s = head(scopes);
             s.add_expr_alias(a, e);
-            if (s.m_in_section_or_context) {
+            if (s.m_in_context) {
                 return cons(s, add_expr_alias_rec_core(tail(scopes), a, e));
             } else {
                 return cons(s, tail(scopes));
@@ -72,16 +72,16 @@ struct aliases_ext : public environment_extension {
     }
 
     void add_expr_alias_rec(name const & a, name const & e) {
-        if (m_state.m_in_section_or_context) {
+        if (m_state.m_in_context) {
             m_scopes = add_expr_alias_rec_core(m_scopes, a, e);
         } else {
             add_expr_alias(a, e);
         }
     }
 
-    void push(bool in_section_or_context) {
+    void push(bool in_context) {
         m_scopes = cons(m_state, m_scopes);
-        m_state.m_in_section_or_context = in_section_or_context;
+        m_state.m_in_context = in_context;
     }
 
     void pop() {
@@ -107,7 +107,7 @@ struct aliases_ext : public environment_extension {
         aliases_ext ext = get_extension(env);
         ext.push(k != scope_kind::Namespace);
         environment new_env = update(env, ext);
-        if (!::lean::in_section_or_context(new_env))
+        if (!::lean::in_context(new_env))
             new_env = add_aliases(new_env, get_namespace(new_env), name());
         return new_env;
     }

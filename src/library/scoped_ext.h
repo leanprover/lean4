@@ -37,9 +37,8 @@ bool has_open_scopes(environment const & env);
 
 name const & get_namespace(environment const & env);
 list<name> const & get_namespaces(environment const & env);
-bool in_section_or_context(environment const & env);
 bool in_context(environment const & env);
-inline bool in_section(environment const & env) { return in_section_or_context(env) && !in_context(env); }
+bool in_section(environment const & env);
 
 /** \brief Check if \c n may be a reference to a namespace, if it is return it.
     The procedure checks if \c n is a registered namespace, if it is not, it tries
@@ -58,7 +57,7 @@ void open_scoped_ext(lua_State * L);
    \brief Auxilary template used to simplify the creation of environment extensions that support
    the scope
 */
-template<typename Config, bool TransientSection = false>
+template<typename Config>
 class scoped_ext : public environment_extension {
     typedef typename Config::state            state;
     typedef typename Config::entry            entry;
@@ -182,13 +181,13 @@ public:
         return get(env).export_namespace(env, ios, n);
     }
     static environment push_fn(environment const & env, scope_kind k) {
-        if (k != scope_kind::Section || TransientSection)
+        if (k != scope_kind::Section)
             return update(env, get(env).push());
         else
             return env;
     }
     static environment pop_fn(environment const & env, scope_kind k) {
-        if (k != scope_kind::Section || TransientSection)
+        if (k != scope_kind::Section)
             return update(env, get(env).pop());
         else
             return env;
@@ -200,7 +199,7 @@ public:
         if (auto h = get_fingerprint(e)) {
             env = update_fingerprint(env, *h);
         }
-        if ((!TransientSection && in_context(env)) || (TransientSection && in_section_or_context(env))) {
+        if (in_context(env)) {
             return update(env, get(env)._add_tmp_entry(env, ios, e));
         } else {
             name n = get_namespace(env);
@@ -231,8 +230,8 @@ public:
     }
 };
 
-template<typename Config, bool TransientSection>
-typename scoped_ext<Config, TransientSection>::reg * scoped_ext<Config, TransientSection>::g_ext = nullptr;
+template<typename Config>
+typename scoped_ext<Config>::reg * scoped_ext<Config>::g_ext = nullptr;
 
 void initialize_scoped_ext();
 void finalize_scoped_ext();

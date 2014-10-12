@@ -60,6 +60,10 @@ bool in_context(environment const & env) {
     return !is_nil(ext.m_scope_kinds) && head(ext.m_scope_kinds) == scope_kind::Context;
 }
 
+bool in_section(environment const & env) {
+    return in_section_or_context(env) && !in_context(env);
+}
+
 environment using_namespace(environment const & env, io_state const & ios, name const & n, name const & c) {
     environment r = env;
     for (auto const & t : get_exts()) {
@@ -94,6 +98,8 @@ static std::string * g_new_namespace_key = nullptr;
 environment push_scope(environment const & env, io_state const & ios, scope_kind k, name const & n) {
     if (k == scope_kind::Namespace && in_section_or_context(env))
         throw exception("invalid namespace declaration, a namespace cannot be declared inside a section or context");
+    if (k == scope_kind::Section && in_context(env))
+        throw exception("invalid section declaration, a section cannot be declared inside a context");
     name new_n = get_namespace(env);
     if (k == scope_kind::Namespace)
         new_n = new_n + n;

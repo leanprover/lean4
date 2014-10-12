@@ -121,7 +121,7 @@ static void redeclare_aliases(parser & p,
                               list<pair<name, level>> old_level_entries,
                               list<pair<name, expr>> old_entries) {
     environment const & env = p.env();
-    if (!in_section_or_context(env))
+    if (!in_context(env))
         return;
     list<pair<name, expr>> new_entries = p.get_local_entries();
     buffer<pair<name, expr>> to_redeclare;

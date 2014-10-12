@@ -36,7 +36,7 @@ infix `=`:50 := eq
 
 check eq.{1}
 
-section
+context
   universe l
   universe u
   variable {T1 : Type.{l}}

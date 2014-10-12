@@ -25,7 +25,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static environment declare_universe(parser & p, environment env, name const & n, bool local) {
-    if (in_section_or_context(env) || local) {
+    if (in_context(env) || local) {
         p.add_local_level(n, mk_param_univ(n));
     } else {
         name const & ns = get_namespace(env);
@@ -112,7 +112,7 @@ static environment declare_var(parser & p, environment env,
     if (_bi) bi = *_bi;
     if (k == variable_kind::Parameter || k == variable_kind::Variable) {
         if (k == variable_kind::Parameter) {
-            check_in_section_or_context(p);
+            check_in_context(p);
             check_parameter_type(p, n, type, pos);
         }
         if (p.get_local(n))

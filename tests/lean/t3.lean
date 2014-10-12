@@ -7,13 +7,13 @@ namespace tst
 end tst
 print raw Type.{tst.v}
 print raw Type.{v}  -- Error: alias 'v' is not available anymore
-section
+context
   universe z        -- Remark: this is a local universe
   print raw Type.{z}
 end
 print raw Type.{z}  -- Error: local universe 'z' is gone
-section
-  namespace foo -- Error: we cannot create a namespace inside a section
+context
+  namespace foo -- Error: we cannot create a namespace inside a context
 end
 namespace tst
   print raw Type.{v} -- Remark: alias 'v' is available again

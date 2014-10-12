@@ -1,6 +1,6 @@
 import logic
 
-section
+context
 hypothesis P : Prop.
 
 definition crash

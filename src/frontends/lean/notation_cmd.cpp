@@ -49,7 +49,7 @@ static unsigned parse_precedence(parser & p, char const * msg) {
 
 LEAN_THREAD_VALUE(bool, g_allow_local, false);
 
-static void check_notation_expr(parser & p, expr const & e, pos_info const & pos) {
+static void check_notation_expr(expr const & e, pos_info const & pos) {
     if (!g_allow_local && (has_local(e) || has_param_univ(e)))
         throw parser_error("invalid notation declaration, contains reference to local variables", pos);
 }
@@ -89,7 +89,7 @@ static pair<notation_entry, optional<token_entry>> parse_mixfix_notation(parser 
     p.check_token_next(get_assign_tk(), "invalid notation declaration, ':=' expected");
     auto f_pos = p.pos();
     expr f     = p.parse_expr();
-    check_notation_expr(p, f, f_pos);
+    check_notation_expr(f, f_pos);
     char const * tks = tk.c_str();
     switch (k) {
     case mixfix_kind::infixl:
@@ -145,7 +145,7 @@ static expr parse_notation_expr(parser & p, buffer<expr> const & locals) {
     auto pos = p.pos();
     expr r = p.parse_expr();
     r = abstract(r, locals.size(), locals.data());
-    check_notation_expr(p, r, pos);
+    check_notation_expr(r, pos);
     return r;
 }
 
@@ -273,7 +273,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, buffer<toke
         p.check_token_next(get_assign_tk(), "invalid numeral notation, `:=` expected");
         auto e_pos = p.pos();
         expr e     = p.parse_expr();
-        check_notation_expr(p, e, e_pos);
+        check_notation_expr(e, e_pos);
         return notation_entry(num, e, overload);
     } else if (p.curr_is_identifier()) {
         parse_notation_local(p, locals);

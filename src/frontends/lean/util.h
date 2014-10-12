@@ -19,7 +19,7 @@ typedef std::unique_ptr<type_checker> type_checker_ptr;
 bool parse_persistent(parser & p, bool & persistent);
 
 void check_atomic(name const & n);
-void check_in_section_or_context(parser const & p);
+void check_in_context(parser const & p);
 bool is_root_namespace(name const & n);
 name remove_root_prefix(name const & n);
 /** \brief Return the local levels in \c ls that are not tagged as variables.

@@ -1,10 +1,10 @@
 import logic
 
 
-definition foo {A : Type} {H : inhabited A} : A :=
+definition foo {A : Type} [H : inhabited A] : A :=
 inhabited.rec (λa, a) H
 
-constant bla {A : Type} {H : inhabited A} : Type.{1}
+constant bla {A : Type} [H : inhabited A] : Type.{1}
 
 set_option pp.implicit true
 

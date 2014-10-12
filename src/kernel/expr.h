@@ -229,21 +229,30 @@ public:
 class binder_info {
     unsigned m_implicit:1;        //! if true, binder argument is an implicit argument
     unsigned m_cast:1;            //! if true, binder argument is a target for using cast
-    unsigned m_contextual:1;      //! if true, binder argument is assumed to be part of the context, and may be argument for metavariables.
+    /** if m_contextual is true, binder argument is assumed to be part of the context,
+        and may be argument for metavariables. */
+    unsigned m_contextual:1;
     unsigned m_strict_implicit:1; //! if true, binder argument is assumed to be a strict implicit argument
+    /** \brief if m_inst_implicit is true, binder argument is an implicit argument, and should be
+        inferred by class-instance resolution. */
+    unsigned m_inst_implicit:1;
 public:
-    binder_info(bool implicit = false, bool cast = false, bool contextual = true, bool strict_implicit = false):
-        m_implicit(implicit), m_cast(cast), m_contextual(contextual), m_strict_implicit(strict_implicit) {}
+    binder_info(bool implicit = false, bool cast = false, bool contextual = true, bool strict_implicit = false,
+                bool inst_implicit = false):
+        m_implicit(implicit), m_cast(cast), m_contextual(contextual), m_strict_implicit(strict_implicit),
+        m_inst_implicit(inst_implicit) {}
     bool is_implicit() const { return m_implicit; }
     bool is_cast() const { return m_cast; }
     bool is_contextual() const { return m_contextual; }
     bool is_strict_implicit() const { return m_strict_implicit; }
+    bool is_inst_implicit() const { return m_inst_implicit; }
     unsigned hash() const;
-    binder_info update_contextual(bool f) const { return binder_info(m_implicit, m_cast, f, m_strict_implicit); }
+    binder_info update_contextual(bool f) const { return binder_info(m_implicit, m_cast, f, m_strict_implicit, m_inst_implicit); }
 };
 
 inline binder_info mk_implicit_binder_info() { return binder_info(true); }
 inline binder_info mk_strict_implicit_binder_info() { return binder_info(false, false, true, true); }
+inline binder_info mk_inst_implicit_binder_info() { return binder_info(false, false, true, false, true); }
 inline binder_info mk_cast_binder_info() { return binder_info(false, true); }
 inline binder_info mk_contextual_info(bool f) { return binder_info(false, false, f); }
 

@@ -22,6 +22,6 @@ definition dfun_inhabited [instance] (A : Type) {B : A → Type} (H : Πx, inhab
   inhabited (Πx, B x) :=
 mk (λa, destruct (H a) (λb, b))
 
-definition default (A : Type) {H : inhabited A} : A := destruct H (take a, a)
+definition default (A : Type) [H : inhabited A] : A := destruct H (take a, a)
 
 end inhabited

@@ -21,12 +21,12 @@ namespace algebra
   inductive add_struct [class] (A : Type) : Type :=
   mk : (A → A → A) → add_struct A
 
-  definition mul  {A : Type} {s : mul_struct A} (a b : A)
+  definition mul  {A : Type} [s : mul_struct A] (a b : A)
   := mul_struct.rec (fun f, f) s a b
 
   infixl `*`:75 := mul
 
-  definition add  {A : Type} {s : add_struct A} (a b : A)
+  definition add  {A : Type} [s : add_struct A] (a b : A)
   := add_struct.rec (fun f, f) s a b
 
   infixl `+`:65 := add

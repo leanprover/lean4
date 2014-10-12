@@ -22,9 +22,9 @@ inductive has_mul [class] (A : Type) : Type := mk : (A → A → A) → has_mul 
 inductive has_one [class] (A : Type) : Type := mk : A → has_one A
 inductive has_inv [class] (A : Type) : Type := mk : (A → A) → has_inv A
 
-definition mul {A : Type} {s : has_mul A} (a b : A) : A := has_mul.rec (λf, f) s a b
-definition one {A : Type} {s : has_one A} : A := has_one.rec (λo, o) s
-definition inv {A : Type} {s : has_inv A} (a : A) : A := has_inv.rec (λi, i) s a
+definition mul {A : Type} [s : has_mul A] (a b : A) : A := has_mul.rec (λf, f) s a b
+definition one {A : Type} [s : has_one A] : A := has_one.rec (λo, o) s
+definition inv {A : Type} [s : has_inv A] (a : A) : A := has_inv.rec (λi, i) s a
 
 infix `*`    := mul
 postfix `⁻¹` := inv
@@ -40,7 +40,7 @@ mk : Π mul: A → A → A,
 
 namespace semigroup
 section
-  variables {A : Type} {s : semigroup A}
+  variables {A : Type} [s : semigroup A]
   variables a b c : A
   definition mul := semigroup.rec (λmul assoc, mul) s a b
   context
@@ -52,7 +52,7 @@ end
 end semigroup
 
 section
-  variables {A : Type} {s : semigroup A}
+  variables {A : Type} [s : semigroup A]
   include s
   definition semigroup_has_mul [instance] : has_mul A := has_mul.mk semigroup.mul
 
@@ -72,7 +72,7 @@ mk : Π (mul: A → A → A)
 
 namespace comm_semigroup
 section
-  variables {A : Type} {s : comm_semigroup A}
+  variables {A : Type} [s : comm_semigroup A]
   variables a b c : A
   definition mul (a b : A) : A := comm_semigroup.rec (λmul assoc comm, mul) s a b
   definition assoc : mul (mul a b) c = mul a (mul b c) :=
@@ -83,7 +83,7 @@ end
 end comm_semigroup
 
 section
-  variables {A : Type} {s : comm_semigroup A}
+  variables {A : Type} [s : comm_semigroup A]
   variables a b c : A
   include s
   definition comm_semigroup_semigroup [instance] : semigroup A :=
@@ -108,7 +108,7 @@ mk : Π (mul: A → A → A) (one : A)
 
 namespace monoid
   section
-  variables {A : Type} {s : monoid A}
+  variables {A : Type} [s : monoid A]
   variables a b c : A
   include s
   context
@@ -127,7 +127,7 @@ namespace monoid
 end monoid
 
 section
-  variables {A : Type} {s : monoid A}
+  variables {A : Type} [s : monoid A]
   variable a : A
   include s
   definition monoid_has_one [instance] : has_one A := has_one.mk (monoid.one)
@@ -153,7 +153,7 @@ mk : Π (mul: A → A → A) (one : A)
 
 namespace comm_monoid
   section
-  variables {A : Type} {s : comm_monoid A}
+  variables {A : Type} [s : comm_monoid A]
   variables a b c : A
   definition mul := comm_monoid.rec (λmul one assoc right_id left_id comm, mul) s a b
   definition one := comm_monoid.rec (λmul one assoc right_id left_id comm, one) s
@@ -169,7 +169,7 @@ namespace comm_monoid
 end comm_monoid
 
 section
-  variables {A : Type} {s : comm_monoid A}
+  variables {A : Type} [s : comm_monoid A]
   include s
   definition comm_monoid_monoid [instance] : monoid A :=
     monoid.mk comm_monoid.mul comm_monoid.one comm_monoid.assoc

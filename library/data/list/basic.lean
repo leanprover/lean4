@@ -195,7 +195,7 @@ induction_on l
           from H3 ▸ rfl,
         !exists_intro (!exists_intro H4)))
 
-definition mem.is_decidable [instance] {H : decidable_eq T} (x : T) (l : list T) : decidable (x ∈ l) :=
+definition mem.is_decidable [instance] (H : decidable_eq T) (x : T) (l : list T) : decidable (x ∈ l) :=
 rec_on l
   (decidable.inr (iff.false_elim !mem.nil))
   (take (h : T) (l : list T) (iH : decidable (x ∈ l)),
@@ -223,7 +223,7 @@ rec_on l
 -- Find
 -- ----
 section
-variable {H : decidable_eq T}
+variable [H : decidable_eq T]
 include H
 
 definition find (x : T) : list T → nat :=

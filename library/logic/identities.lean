@@ -37,13 +37,13 @@ calc
      ... ↔ b ∧ (a ∧ c)      : and.assoc
 
 
-theorem not_not_iff {a : Prop} {D : decidable a} : (¬¬a) ↔ a :=
+theorem not_not_iff {a : Prop} [D : decidable a] : (¬¬a) ↔ a :=
 iff.intro
   (assume H : ¬¬a,
     by_cases (assume H' : a, H') (assume H' : ¬a, absurd H' H))
   (assume H : a, assume H', H' H)
 
-theorem not_not_elim {a : Prop} {D : decidable a} (H : ¬¬a) : a :=
+theorem not_not_elim {a : Prop} [D : decidable a] (H : ¬¬a) : a :=
 iff.mp not_not_iff H
 
 theorem not_true : (¬true) ↔ false :=
@@ -52,7 +52,7 @@ iff.intro (assume H, H trivial) false_elim
 theorem not_false : (¬false) ↔ true :=
 iff.intro (assume H, trivial) (assume H H', H')
 
-theorem not_or {a b : Prop} {Da : decidable a} {Db : decidable b} : (¬(a ∨ b)) ↔ (¬a ∧ ¬b) :=
+theorem not_or {a b : Prop} [Da : decidable a] [Db : decidable b] : (¬(a ∨ b)) ↔ (¬a ∧ ¬b) :=
 iff.intro
   (assume H, or.elim (em a)
     (assume Ha, absurd (or.inl Ha) H)
@@ -64,7 +64,7 @@ iff.intro
       (assume Ha, absurd Ha (and.elim_left H))
       (assume Hb, absurd Hb (and.elim_right H)))
 
-theorem not_and {a b : Prop} {Da : decidable a} {Db : decidable b} : (¬(a ∧ b)) ↔ (¬a ∨ ¬b) :=
+theorem not_and {a b : Prop} [Da : decidable a] [Db : decidable b] : (¬(a ∧ b)) ↔ (¬a ∨ ¬b) :=
 iff.intro
   (assume H, or.elim (em a)
     (assume Ha, or.elim (em b)
@@ -76,7 +76,7 @@ iff.intro
       (assume Hna, absurd (and.elim_left N) Hna)
       (assume Hnb, absurd (and.elim_right N) Hnb))
 
-theorem imp_or {a b : Prop} {Da : decidable a} : (a → b) ↔ (¬a ∨ b) :=
+theorem imp_or {a b : Prop} [Da : decidable a] : (a → b) ↔ (¬a ∨ b) :=
 iff.intro
   (assume H : a → b, (or.elim (em a)
     (assume Ha  : a,   or.inr (H Ha))
@@ -84,24 +84,24 @@ iff.intro
   (assume (H : ¬a ∨ b) (Ha : a),
     or.resolve_right H (not_not_iff⁻¹ ▸ Ha))
 
-theorem not_implies {a b : Prop} {Da : decidable a} {Db : decidable b} : (¬(a → b)) ↔ (a ∧ ¬b) :=
+theorem not_implies {a b : Prop} [Da : decidable a] [Db : decidable b] : (¬(a → b)) ↔ (a ∧ ¬b) :=
 calc (¬(a → b)) ↔ (¬(¬a ∨ b)) : {imp_or}
             ... ↔ (¬¬a ∧ ¬b)  : not_or
             ... ↔ (a ∧ ¬b)    : {not_not_iff}
 
-theorem peirce {a b : Prop} {D : decidable a} : ((a → b) → a) → a :=
+theorem peirce {a b : Prop} [D : decidable a] : ((a → b) → a) → a :=
 assume H, by_contradiction (assume Hna : ¬a,
   have Hnna : ¬¬a, from not_implies_left (mt H Hna),
   absurd (not_not_elim Hnna) Hna)
 
-theorem not_exists_forall {A : Type} {P : A → Prop} {D : ∀x, decidable (P x)}
+theorem not_exists_forall {A : Type} {P : A → Prop} [D : ∀x, decidable (P x)]
     (H : ¬∃x, P x) : ∀x, ¬P x :=
 take x, or.elim (em (P x))
   (assume Hp : P x,   absurd (exists_intro x Hp) H)
   (assume Hn : ¬P x, Hn)
 
-theorem not_forall_exists {A : Type} {P : A → Prop} {D : ∀x, decidable (P x)}
-    {D' : decidable (∃x, ¬P x)} (H : ¬∀x, P x) :
+theorem not_forall_exists {A : Type} {P : A → Prop} [D : ∀x, decidable (P x)]
+    [D' : decidable (∃x, ¬P x)] (H : ¬∀x, P x) :
   ∃x, ¬P x :=
 @by_contradiction _ D' (assume H1 : ¬∃x, ¬P x,
   have H2 : ∀x, ¬¬P x, from @not_exists_forall _ _ (take x, not_decidable (D x)) H1,

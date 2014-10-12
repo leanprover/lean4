@@ -84,7 +84,7 @@ class elaborator : public coercion_info_manager {
     virtual void save_coercion_info(expr const & e, expr const & c);
     virtual void erase_coercion_info(expr const & e);
     void copy_info_to_manager(substitution s);
-    expr mk_placeholder_meta(optional<expr> const & type, tag g, bool is_strict, constraint_seq & cs);
+    expr mk_placeholder_meta(optional<expr> const & type, tag g, bool is_strict, bool inst_implicit, constraint_seq & cs);
 
     expr visit_expecting_type(expr const & e, constraint_seq & cs);
     expr visit_expecting_type_of(expr const & e, expr const & t, constraint_seq & cs);

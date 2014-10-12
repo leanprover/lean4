@@ -17,7 +17,7 @@ mk : Π (hom : ob → ob → Type)
          category ob
 
 namespace category
-  variables {ob : Type} {C : category ob}
+  variables {ob : Type} [C : category ob]
   variables {a b c d : ob}
   include C
   definition hom [reducible] : ob → ob → Type := rec (λ hom compose id assoc idr idl, hom) C

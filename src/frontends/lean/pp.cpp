@@ -189,7 +189,7 @@ bool pretty_fn::is_implicit(expr const & f) {
     }
     try {
         binder_info bi = binding_info(m_tc.ensure_pi(m_tc.infer(f).first).first);
-        return bi.is_implicit() || bi.is_strict_implicit();
+        return bi.is_implicit() || bi.is_strict_implicit() || bi.is_inst_implicit();
     } catch (exception &) {
         return false;
     }
@@ -346,7 +346,7 @@ bool pretty_fn::has_implicit_args(expr const & f) {
         expr type = m_tc.whnf(m_tc.infer(f).first).first;
         while (is_pi(type)) {
             binder_info bi = binding_info(type);
-            if (bi.is_implicit() || bi.is_strict_implicit())
+            if (bi.is_implicit() || bi.is_strict_implicit() || bi.is_inst_implicit())
                 return true;
             expr local = mk_local(ngen.next(), binding_name(type), binding_domain(type), binding_info(type));
             type = m_tc.whnf(instantiate(binding_body(type), local)).first;
@@ -370,7 +370,7 @@ auto pretty_fn::pp_app(expr const & e) -> result {
 format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type, binder_info const & bi) {
     format r;
     if (bi.is_implicit()) r += format("{");
-    else if (bi.is_cast()) r += format("[");
+    else if (bi.is_inst_implicit()) r += format("[");
     else if (bi.is_strict_implicit() && m_unicode) r += format("⦃");
     else if (bi.is_strict_implicit() && !m_unicode) r += format("{{");
     else r += format("(");
@@ -380,7 +380,7 @@ format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type,
     }
     r += compose(colon(), nest(m_indent, compose(line(), pp_child(type, 0).first)));
     if (bi.is_implicit()) r += format("}");
-    else if (bi.is_cast()) r += format("]");
+    else if (bi.is_inst_implicit()) r += format("]");
     else if (bi.is_strict_implicit() && m_unicode) r += format("⦄");
     else if (bi.is_strict_implicit() && !m_unicode) r += format("}}");
     else r += format(")");

@@ -58,7 +58,7 @@ namespace category
 
   section
   open decidable unit empty
-  variables {A : Type} {H : decidable_eq A}
+  variables {A : Type} [H : decidable_eq A]
   include H
   definition set_hom (a b : A) := decidable.rec_on (H a b) (λh, unit) (λh, empty)
   theorem set_hom_subsingleton [instance] (a b : A) : subsingleton (set_hom a b) := _
@@ -71,7 +71,7 @@ namespace category
       (λh f, empty.rec _ f) f)
     (λh (g : empty), empty.rec _ g) g
 
-  definition set_category (A : Type) {H : decidable_eq A} : category A :=
+  definition set_category (A : Type) [H : decidable_eq A] : category A :=
   mk (λa b, set_hom a b)
      (λ a b c g f, set_compose g f)
      (λ a, rec_on_true rfl ⋆)

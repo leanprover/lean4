@@ -7,7 +7,7 @@ import logic.inhabited logic.cast
 open inhabited
 
 -- Pi extensionality
-axiom piext {A : Type} {B B' : A → Type} {H : inhabited (Π x, B x)} :
+axiom piext {A : Type} {B B' : A → Type} [H : inhabited (Π x, B x)] :
    (Π x, B x) = (Π x, B' x) → B = B'
 
 theorem cast_app {A : Type} {B B' : A → Type} (H : (Π x, B x) = (Π x, B' x)) (f : Π x, B x)

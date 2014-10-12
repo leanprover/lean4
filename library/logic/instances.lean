@@ -68,7 +68,7 @@ definition congruence_iff_compose [instance] := congruence.compose21 congruence_
 
 namespace general_operations
 
-theorem subst {T : Type} (R : T → T → Prop) ⦃P : T → Prop⦄ {C : congruence R iff P}
+theorem subst {T : Type} (R : T → T → Prop) ⦃P : T → Prop⦄ [C : congruence R iff P]
   {a b : T} (H : R a b) (H1 : P a) : P b := iff.elim_left (congruence.app C H) H1
 
 end general_operations
@@ -113,7 +113,7 @@ relation.mp_like.mk (iff.elim_left H)
 -- Substition for iff
 -- ------------------
 namespace iff
-theorem subst {P : Prop → Prop} {C : congruence iff iff P} {a b : Prop} (H : a ↔ b) (H1 : P a) :
+theorem subst {P : Prop → Prop} [C : congruence iff iff P] {a b : Prop} (H : a ↔ b) (H1 : P a) :
   P b :=
 @general_operations.subst Prop iff P C a b H H1
 end iff

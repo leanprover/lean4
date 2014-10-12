@@ -121,6 +121,7 @@ serializer & operator<<(serializer & s, binder_info const & i) {
     s.write_bool(i.is_cast());
     s.write_bool(i.is_contextual());
     s.write_bool(i.is_strict_implicit());
+    s.write_bool(i.is_inst_implicit());
     return s;
 }
 
@@ -129,7 +130,8 @@ static binder_info read_binder_info(deserializer & d) {
     bool cast  = d.read_bool();
     bool ctx   = d.read_bool();
     bool s_imp = d.read_bool();
-    return binder_info(imp, cast, ctx, s_imp);
+    bool i_imp = d.read_bool();
+    return binder_info(imp, cast, ctx, s_imp, i_imp);
 }
 
 static name * g_binder_name = nullptr;

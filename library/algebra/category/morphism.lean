@@ -8,7 +8,7 @@ open eq eq.ops category
 
 namespace morphism
   section
-  variables {ob : Type} {C : category ob} include C
+  variables {ob : Type} [C : category ob] include C
   variables {a b c d : ob} {h : @hom ob C c d} {g : @hom ob C b c} {f : @hom ob C a b} {i : @hom ob C b a}
   inductive is_section    [class] (f : @hom ob C a b) : Type
   := mk : ∀{g}, g ∘ f = id → is_section f
@@ -17,37 +17,37 @@ namespace morphism
   inductive is_iso        [class] (f : @hom ob C a b) : Type
   := mk : ∀{g}, g ∘ f = id → f ∘ g = id → is_iso f
   --remove implicit arguments in above lines
-  definition retraction_of (f : hom a b) {H : is_section f} : hom b a :=
+  definition retraction_of (f : hom a b) [H : is_section f] : hom b a :=
   is_section.rec (λg h, g) H
-  definition section_of    (f : hom a b) {H : is_retraction f} : hom b a :=
+  definition section_of    (f : hom a b) [H : is_retraction f] : hom b a :=
   is_retraction.rec (λg h, g) H
-  definition inverse       (f : hom a b) {H : is_iso f} : hom b a :=
+  definition inverse       (f : hom a b) [H : is_iso f] : hom b a :=
   is_iso.rec (λg h1 h2, g) H
 
   postfix `⁻¹` := inverse
 
-  theorem inverse_compose (f : hom a b) {H : is_iso f} : f⁻¹ ∘ f = id :=
+  theorem inverse_compose (f : hom a b) [H : is_iso f] : f⁻¹ ∘ f = id :=
   is_iso.rec (λg h1 h2, h1) H
 
-  theorem compose_inverse (f : hom a b) {H : is_iso f} : f ∘ f⁻¹ = id :=
+  theorem compose_inverse (f : hom a b) [H : is_iso f] : f ∘ f⁻¹ = id :=
   is_iso.rec (λg h1 h2, h2) H
 
-  theorem retraction_compose (f : hom a b) {H : is_section f} : retraction_of f ∘ f = id :=
+  theorem retraction_compose (f : hom a b) [H : is_section f] : retraction_of f ∘ f = id :=
   is_section.rec (λg h, h) H
 
-  theorem compose_section (f : hom a b) {H : is_retraction f} : f ∘ section_of f = id :=
+  theorem compose_section (f : hom a b) [H : is_retraction f] : f ∘ section_of f = id :=
   is_retraction.rec (λg h, h) H
 
-  theorem iso_imp_retraction [instance] (f : hom a b) {H : is_iso f} : is_section f :=
+  theorem iso_imp_retraction [instance] (f : hom a b) [H : is_iso f] : is_section f :=
   is_section.mk !inverse_compose
 
-  theorem iso_imp_section [instance] (f : hom a b) {H : is_iso f} : is_retraction f :=
+  theorem iso_imp_section [instance] (f : hom a b) [H : is_iso f] : is_retraction f :=
   is_retraction.mk !compose_inverse
 
   theorem id_is_iso [instance] : is_iso (ID a) :=
   is_iso.mk !id_compose !id_compose
 
-  theorem inverse_is_iso [instance] (f : a ⟶ b) {H : is_iso f} : is_iso (f⁻¹) :=
+  theorem inverse_is_iso [instance] (f : a ⟶ b) [H : is_iso f] : is_iso (f⁻¹) :=
   is_iso.mk !compose_inverse !inverse_compose
 
   theorem left_inverse_eq_right_inverse {f : hom a b} {g g' : hom b a}
@@ -59,30 +59,30 @@ namespace morphism
      ... = id ∘ g' : {Hl}
      ... = g' : !id_left
 
-  theorem retraction_eq_intro {H : is_section f} (H2 : f ∘ i = id) : retraction_of f = i
+  theorem retraction_eq_intro [H : is_section f] (H2 : f ∘ i = id) : retraction_of f = i
   := left_inverse_eq_right_inverse !retraction_compose H2
 
-  theorem section_eq_intro {H : is_retraction f} (H2 : i ∘ f = id) : section_of f = i
+  theorem section_eq_intro [H : is_retraction f] (H2 : i ∘ f = id) : section_of f = i
   := symm (left_inverse_eq_right_inverse H2 !compose_section)
 
-  theorem inverse_eq_intro_right {H : is_iso f} (H2 : f ∘ i = id) : f⁻¹ = i
+  theorem inverse_eq_intro_right [H : is_iso f] (H2 : f ∘ i = id) : f⁻¹ = i
   := left_inverse_eq_right_inverse !inverse_compose H2
 
-  theorem inverse_eq_intro_left {H : is_iso f} (H2 : i ∘ f = id) : f⁻¹ = i
+  theorem inverse_eq_intro_left [H : is_iso f] (H2 : i ∘ f = id) : f⁻¹ = i
   := symm (left_inverse_eq_right_inverse H2 !compose_inverse)
 
-  theorem section_eq_retraction (f : a ⟶ b) {Hl : is_section f} {Hr : is_retraction f} :
+  theorem section_eq_retraction (f : a ⟶ b) [Hl : is_section f] [Hr : is_retraction f] :
       retraction_of f = section_of f :=
   retraction_eq_intro !compose_section
 
-  theorem section_retraction_imp_iso (f : a ⟶ b) {Hl : is_section f} {Hr : is_retraction f}
+  theorem section_retraction_imp_iso (f : a ⟶ b) [Hl : is_section f] [Hr : is_retraction f]
       : is_iso f :=
   is_iso.mk (subst (section_eq_retraction f) (retraction_compose f)) (compose_section f)
 
   theorem inverse_unique (H H' : is_iso f) : @inverse _ _ _ _ f H = @inverse _ _ _ _ f H' :=
   inverse_eq_intro_left !inverse_compose
 
-  theorem inverse_involutive (f : a ⟶ b) {H : is_iso f} : (f⁻¹)⁻¹ = f :=
+  theorem inverse_involutive (f : a ⟶ b) [H : is_iso f] : (f⁻¹)⁻¹ = f :=
   inverse_eq_intro_right !inverse_compose
 
   theorem retraction_of_id : retraction_of (ID a) = id :=
@@ -94,7 +94,7 @@ namespace morphism
   theorem iso_of_id : ID a⁻¹ = id :=
   inverse_eq_intro_left !id_compose
 
-  theorem composition_is_section [instance] {Hf : is_section f} {Hg : is_section g}
+  theorem composition_is_section [instance] [Hf : is_section f] [Hg : is_section g]
       : is_section (g ∘ f) :=
   is_section.mk
     (calc
@@ -118,7 +118,7 @@ namespace morphism
   theorem composition_is_inverse [instance] (Hf : is_iso f) (Hg : is_iso g) : is_iso (g ∘ f) :=
   !section_retraction_imp_iso
 
-  inductive isomorphic (a b : ob) : Type := mk : ∀(g : a ⟶ b) {H : is_iso g}, isomorphic a b
+  inductive isomorphic (a b : ob) : Type := mk : ∀(g : a ⟶ b) [H : is_iso g], isomorphic a b
 
   end -- remove
   namespace isomorphic
@@ -150,12 +150,12 @@ namespace morphism
   inductive is_epi  [class] (f : @hom ob C a b) : Prop :=
   mk : (∀c (g h : hom b c), g ∘ f = h ∘ f → g = h) → is_epi f
 
-  theorem mono_elim {H : is_mono f} {g h : c ⟶ a} (H2 : f ∘ g = f ∘ h) : g = h
+  theorem mono_elim [H : is_mono f] {g h : c ⟶ a} (H2 : f ∘ g = f ∘ h) : g = h
   := is_mono.rec (λH3, H3 c g h H2) H
-  theorem epi_elim {H : is_epi f} {g h : b ⟶ c} (H2 : g ∘ f = h ∘ f) : g = h
+  theorem epi_elim [H : is_epi f] {g h : b ⟶ c} (H2 : g ∘ f = h ∘ f) : g = h
   := is_epi.rec  (λH3, H3 c g h H2) H
 
-  theorem section_is_mono [instance] (f : hom a b) {H : is_section f} : is_mono f :=
+  theorem section_is_mono [instance] (f : hom a b) [H : is_section f] : is_mono f :=
   is_mono.mk
     (λ c g h H,
       calc
@@ -167,7 +167,7 @@ namespace morphism
       ... = id ∘ h : {retraction_compose f}
       ... = h : !id_left)
 
-  theorem retraction_is_epi [instance] (f : hom a b) {H : is_retraction f} : is_epi f :=
+  theorem retraction_is_epi [instance] (f : hom a b) [H : is_retraction f] : is_epi f :=
   is_epi.mk
     (λ c g h H,
       calc
@@ -184,13 +184,13 @@ namespace morphism
   theorem id_is_mono : is_mono (ID a)
   theorem id_is_epi  : is_epi  (ID a)
 
-  theorem composition_is_mono [instance] {Hf : is_mono f} {Hg : is_mono g} : is_mono (g ∘ f) :=
+  theorem composition_is_mono [instance] [Hf : is_mono f] [Hg : is_mono g] : is_mono (g ∘ f) :=
   is_mono.mk
     (λ d h₁ h₂ H,
     have H2 : g ∘ (f ∘ h₁) = g ∘ (f ∘ h₂), from symm (assoc g f h₁)  ▸ symm (assoc g f h₂) ▸ H,
     mono_elim (mono_elim H2))
 
-  theorem composition_is_epi  [instance] {Hf : is_epi f}  {Hg : is_epi g}  : is_epi  (g ∘ f) :=
+  theorem composition_is_epi  [instance] [Hf : is_epi f] [Hg : is_epi g] : is_epi  (g ∘ f) :=
   is_epi.mk
     (λ d h₁ h₂ H,
     have H2 : (h₁ ∘ g) ∘ f = (h₂ ∘ g) ∘ f, from assoc h₁ g f  ▸ assoc h₂ g f ▸ H,
@@ -202,11 +202,11 @@ namespace morphism
 
   namespace iso
   section
-  variables {ob : Type} {C : category ob} include C
+  variables {ob : Type} [C : category ob] include C
   variables {a b c d : ob}                                         (f : @hom ob C b a)
                            (r : @hom ob C c d) (q : @hom ob C b c) (p : @hom ob C a b)
                            (g : @hom ob C d c)
-  variable {Hq : is_iso q} include Hq
+  variable [Hq : is_iso q] include Hq
   theorem compose_pV : q ∘ q⁻¹ = id := !compose_inverse
   theorem compose_Vp : q⁻¹ ∘ q = id := !inverse_compose
   theorem compose_V_pp : q⁻¹ ∘ (q ∘ p) = p :=
@@ -230,7 +230,7 @@ namespace morphism
       ... = f ∘ id : {inverse_compose q}
       ... = f : id_right f
 
-  theorem inv_pp {H' : is_iso p} : (q ∘ p)⁻¹ = p⁻¹ ∘ q⁻¹ :=
+  theorem inv_pp [H' : is_iso p] : (q ∘ p)⁻¹ = p⁻¹ ∘ q⁻¹ :=
   have H1 : (p⁻¹ ∘ q⁻¹) ∘ q ∘ p = p⁻¹ ∘ (q⁻¹ ∘ (q ∘ p)), from assoc (p⁻¹) (q⁻¹) (q ∘ p)⁻¹,
   have H2 : (p⁻¹) ∘ (q⁻¹ ∘ (q ∘ p)) = p⁻¹ ∘ p, from congr_arg _ (compose_V_pp q p),
   have H3 : p⁻¹ ∘ p = id, from inverse_compose p,
@@ -241,9 +241,9 @@ namespace morphism
   --     (p⁻¹ ∘ (q⁻¹)) ∘ q ∘ p = p⁻¹ ∘ (q⁻¹ ∘ (q ∘ p)) : assoc (p⁻¹) (q⁻¹) (q ∘ p)⁻¹
   --     ... = (p⁻¹) ∘ p : congr_arg (λx, p⁻¹ ∘ x) (compose_V_pp q p)
   --     ... = id : inverse_compose p)
-  theorem inv_Vp {H' : is_iso g} : (q⁻¹ ∘ g)⁻¹ = g⁻¹ ∘ q := inverse_involutive q ▸ inv_pp (q⁻¹) g
-  theorem inv_pV {H' : is_iso f} : (q ∘ f⁻¹)⁻¹ = f ∘ q⁻¹ := inverse_involutive f ▸ inv_pp q (f⁻¹)
-  theorem inv_VV {H' : is_iso r} : (q⁻¹ ∘ r⁻¹)⁻¹ = r ∘ q := inverse_involutive r ▸ inv_Vp q (r⁻¹)
+  theorem inv_Vp [H' : is_iso g] : (q⁻¹ ∘ g)⁻¹ = g⁻¹ ∘ q := inverse_involutive q ▸ inv_pp (q⁻¹) g
+  theorem inv_pV [H' : is_iso f] : (q ∘ f⁻¹)⁻¹ = f ∘ q⁻¹ := inverse_involutive f ▸ inv_pp q (f⁻¹)
+  theorem inv_VV [H' : is_iso r] : (q⁻¹ ∘ r⁻¹)⁻¹ = r ∘ q := inverse_involutive r ▸ inv_Vp q (r⁻¹)
 
   end
   section
@@ -254,7 +254,7 @@ namespace morphism
               {g : @hom ob C d c} {h : @hom ob C c b}
                        {x : @hom ob C b d} {z : @hom ob C a c}
                        {y : @hom ob C d b} {w : @hom ob C c a}
-  variable {Hq : is_iso q} include Hq
+  variable [Hq : is_iso q] include Hq
 
   theorem moveR_Mp (H : y = q⁻¹ ∘ g) : q ∘ y = g := H⁻¹ ▸ compose_p_Vp q g
   theorem moveR_pM (H : w = f ∘ q⁻¹) : w ∘ q = f := H⁻¹ ▸ compose_pV_p f q

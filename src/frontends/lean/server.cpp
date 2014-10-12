@@ -549,7 +549,7 @@ void server::display_decl(name const & short_name, name const & long_name, envir
         while (true) {
             if (!is_pi(type))
                 break;
-            if (!binding_info(type).is_implicit())
+            if (!binding_info(type).is_implicit() && !binding_info(type).is_inst_implicit())
                 break;
             std::string q("?");
             q += binding_name(type).to_string();

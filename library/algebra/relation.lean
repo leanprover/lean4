@@ -26,7 +26,7 @@ namespace is_reflexive
   definition app ⦃T : Type⦄ {R : T → T → Prop} (C : is_reflexive R) : reflexive R :=
   is_reflexive.rec (λu, u) C
 
-  definition infer ⦃T : Type⦄ (R : T → T → Prop) {C : is_reflexive R} : reflexive R :=
+  definition infer ⦃T : Type⦄ (R : T → T → Prop) [C : is_reflexive R] : reflexive R :=
   is_reflexive.rec (λu, u) C
 
 end is_reflexive
@@ -40,7 +40,7 @@ namespace is_symmetric
   definition app ⦃T : Type⦄ {R : T → T → Prop} (C : is_symmetric R) : symmetric R :=
   is_symmetric.rec (λu, u) C
 
-  definition infer ⦃T : Type⦄ (R : T → T → Prop) {C : is_symmetric R} : symmetric R :=
+  definition infer ⦃T : Type⦄ (R : T → T → Prop) [C : is_symmetric R] : symmetric R :=
   is_symmetric.rec (λu, u) C
 
 end is_symmetric
@@ -54,7 +54,7 @@ namespace is_transitive
   definition app ⦃T : Type⦄ {R : T → T → Prop} (C : is_transitive R) : transitive R :=
   is_transitive.rec (λu, u) C
 
-  definition infer ⦃T : Type⦄ (R : T → T → Prop) {C : is_transitive R} : transitive R :=
+  definition infer ⦃T : Type⦄ (R : T → T → Prop) [C : is_transitive R] : transitive R :=
   is_transitive.rec (λu, u) C
 
 end is_transitive
@@ -107,7 +107,7 @@ namespace congruence
   rec (λu, u) C x y
 
   theorem infer {T1 : Type} (R1 : T1 → T1 → Prop) {T2 : Type} (R2 : T2 → T2 → Prop)
-      (f : T1 → T2) {C : congruence R1 R2 f} ⦃x y : T1⦄ : R1 x y → R2 (f x) (f y) :=
+      (f : T1 → T2) [C : congruence R1 R2 f] ⦃x y : T1⦄ : R1 x y → R2 (f x) (f y) :=
   rec (λu, u) C x y
 
   definition app2 {T1 : Type} {R1 : T1 → T1 → Prop} {T2 : Type} {R2 : T2 → T2 → Prop}
@@ -149,7 +149,7 @@ end congruence
 -- using congruence.
 
 theorem congruence_const [instance] {T2 : Type} (R2 : T2 → T2 → Prop)
-    {C : is_reflexive R2} ⦃T1 : Type⦄ (R1 : T1 → T1 → Prop) (c : T2) :
+    [C : is_reflexive R2] ⦃T1 : Type⦄ (R1 : T1 → T1 → Prop) (c : T2) :
   congruence R1 R2 (λu : T1, c) :=
 congruence.const R2 (is_reflexive.app C) R1 c
 

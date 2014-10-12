@@ -55,10 +55,10 @@ iff.intro
 theorem forall_true_iff_true (A : Type) : (∀x : A, true) ↔ true :=
 iff.intro (assume H, trivial) (assume H, take x, trivial)
 
-theorem forall_p_iff_p (A : Type) {H : inhabited A} (p : Prop) : (∀x : A, p) ↔ p :=
+theorem forall_p_iff_p (A : Type) [H : inhabited A] (p : Prop) : (∀x : A, p) ↔ p :=
 iff.intro (assume Hl, inhabited.destruct H (take x, Hl x)) (assume Hr, take x, Hr)
 
-theorem exists_p_iff_p (A : Type) {H : inhabited A} (p : Prop) : (∃x : A, p) ↔ p :=
+theorem exists_p_iff_p (A : Type) [H : inhabited A] (p : Prop) : (∃x : A, p) ↔ p :=
 iff.intro
   (assume Hl, obtain a Hp, from Hl, Hp)
   (assume Hr, inhabited.destruct H (take a, exists_intro a Hr))

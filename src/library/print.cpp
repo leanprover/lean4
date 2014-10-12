@@ -148,7 +148,7 @@ struct print_expr_fn {
             expr const & n = p.second;
             if (binding_info(e).is_implicit())
                 out() << "{";
-            else if (binding_info(e).is_cast())
+            else if (binding_info(e).is_inst_implicit())
                 out() << "[";
             else if (!binding_info(e).is_contextual())
                 out() << "[[";
@@ -160,7 +160,7 @@ struct print_expr_fn {
             print(binding_domain(e));
             if (binding_info(e).is_implicit())
                 out() << "}";
-            else if (binding_info(e).is_cast())
+            else if (binding_info(e).is_inst_implicit())
                 out() << "]";
             else if (!binding_info(e).is_contextual())
                 out() << "]]";

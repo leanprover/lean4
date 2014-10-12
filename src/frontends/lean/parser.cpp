@@ -689,7 +689,7 @@ optional<binder_info> parser::parse_optional_binder_info() {
         }
     } else if (curr_is_token(get_lbracket_tk())) {
         next();
-        return some(mk_cast_binder_info());
+        return some(mk_inst_implicit_binder_info());
     } else if (curr_is_token(get_ldcurly_tk())) {
         next();
         return some(mk_strict_implicit_binder_info());
@@ -719,14 +719,14 @@ binder_info parser::parse_binder_info() {
      - default         : consume ')'
      - implicit        : consume '}'
      - strict implicit : consume '}}' or '⦄'
-     - cast            : consume ']'
+     - inst implicit   : consume ']'
 */
 void parser::parse_close_binder_info(optional<binder_info> const & bi) {
     if (!bi) {
         return;
     } else if (bi->is_implicit()) {
         check_token_next(get_rcurly_tk(), "invalid declaration, '}' expected");
-    } else if (bi->is_cast()) {
+    } else if (bi->is_inst_implicit()) {
         check_token_next(get_rbracket_tk(), "invalid declaration, ']' expected");
     } else if (bi->is_strict_implicit()) {
         if (curr_is_token(get_rcurly_tk())) {

@@ -57,7 +57,7 @@ theorem congr_not [instance] (T : Type) (R : T → T → Prop) (f : T → Prop)
     (H : congruence R iff f) :
   congruence R iff (λx, ¬ f x) := sorry
 
-theorem subst_iff {T : Type} {R : T → T → Prop} {P : T → Prop} {C : congruence R iff P}
+theorem subst_iff {T : Type} {R : T → T → Prop} {P : T → Prop} [C : congruence R iff P]
     {a b : T} (H : R a b) (H1 : P a) : P b :=
 -- iff_mp_left (congruence.rec id C a b H) H1
 iff.elim_left (@congr_app _ _ R iff P C a b H) H1

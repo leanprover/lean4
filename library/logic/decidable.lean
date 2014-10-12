@@ -24,11 +24,11 @@ namespace decidable
     C H :=
   decidable.rec H1 H2 H
 
-  definition rec_on_true {H : decidable p} {H1 : p → Type} {H2 : ¬p → Type} (H3 : p) (H4 : H1 H3)
+  definition rec_on_true [H : decidable p] {H1 : p → Type} {H2 : ¬p → Type} (H3 : p) (H4 : H1 H3)
       : rec_on H H1 H2 :=
   rec_on H (λh, H4) (λh, false.rec_type _ (h H3))
 
-  definition rec_on_false {H : decidable p} {H1 : p → Type} {H2 : ¬p → Type} (H3 : ¬p) (H4 : H2 H3)
+  definition rec_on_false [H : decidable p] {H1 : p → Type} {H2 : ¬p → Type} (H3 : ¬p) (H4 : H2 H3)
       : rec_on H H1 H2 :=
   rec_on H (λh, false.rec_type _ (H3 h)) (λh, H4)
 
@@ -45,13 +45,13 @@ namespace decidable
         d2)
       d1)
 
-  theorem em (p : Prop) {H : decidable p} : p ∨ ¬p :=
+  theorem em (p : Prop) [H : decidable p] : p ∨ ¬p :=
   induction_on H (λ Hp, or.inl Hp) (λ Hnp, or.inr Hnp)
 
-  definition by_cases {q : Type} {C : decidable p} (Hpq : p → q) (Hnpq : ¬p → q) : q :=
+  definition by_cases {q : Type} [C : decidable p] (Hpq : p → q) (Hnpq : ¬p → q) : q :=
   rec_on C (assume Hp, Hpq Hp) (assume Hnp, Hnpq Hnp)
 
-  theorem by_contradiction {Hp : decidable p} (H : ¬p → false) : p :=
+  theorem by_contradiction [Hp : decidable p] (H : ¬p → false) : p :=
   or.elim (em p)
     (assume H1 : p, H1)
     (assume H1 : ¬p, false_elim (H H1))
@@ -92,7 +92,7 @@ namespace decidable
   definition decidable_eq_equiv (Hp : decidable p) (H : p = q) : decidable q :=
   decidable_iff_equiv Hp (eq_to_iff H)
 
-  protected theorem rec_subsingleton [instance] {H : decidable p} {H1 : p → Type} {H2 : ¬p → Type}
+  protected theorem rec_subsingleton [instance] [H : decidable p] {H1 : p → Type} {H2 : ¬p → Type}
       (H3 : Π(h : p), subsingleton (H1 h)) (H4 : Π(h : ¬p), subsingleton (H2 h))
       : subsingleton (rec_on H H1 H2) :=
   rec_on H (λh, H3 h) (λh, H4 h) --this can be proven using dependent version of "by_cases"

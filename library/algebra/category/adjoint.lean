@@ -21,6 +21,11 @@ namespace adjoint
 
   variables {obC obD : Type} (C : category obC) {D : category obD}
 
+  variables (f : Cᵒᵖ ×c C ⇒ C ×c C) (g : C ×c C ⇒ C ×c C)
+  check g ∘f f
+
+  check natural_transformation (Hom D)
+
   definition adjoint (F : C ⇒ D) (G : D ⇒ C) :=
   natural_transformation (@functor.compose _ _ _ _ _ _ (Hom D) sorry)
                        --(Hom C ∘f sorry)

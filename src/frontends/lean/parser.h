@@ -334,13 +334,13 @@ public:
     expr parse_expr(unsigned rbp = 0);
     expr parse_led(expr left);
     expr parse_scoped_expr(unsigned num_params, expr const * ps, local_environment const & lenv, unsigned rbp = 0);
-    expr parse_scoped_expr(buffer<expr> & ps, local_environment const & lenv, unsigned rbp = 0) {
+    expr parse_scoped_expr(buffer<expr> const & ps, local_environment const & lenv, unsigned rbp = 0) {
         return parse_scoped_expr(ps.size(), ps.data(), lenv, rbp);
     }
     expr parse_scoped_expr(unsigned num_params, expr const * ps, unsigned rbp = 0) {
         return parse_scoped_expr(num_params, ps, local_environment(m_env), rbp);
     }
-    expr parse_scoped_expr(buffer<expr> & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
+    expr parse_scoped_expr(buffer<expr> const & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
 
     struct local_scope { parser & m_p; environment m_env; local_scope(parser & p); ~local_scope(); };
     bool has_locals() const { return !m_local_decls.empty() || !m_local_level_decls.empty(); }

@@ -87,13 +87,13 @@ parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name,
                bool use_exceptions, unsigned num_threads,
                snapshot const * s, snapshot_vector * sv, info_manager * im,
-               bool keep_imported_proofs):
+               keep_theorem_mode tmode):
     m_env(env), m_ios(ios), m_ngen(*g_tmp_prefix),
     m_verbose(true), m_use_exceptions(use_exceptions),
     m_scanner(strm, strm_name, s ? s->m_line : 1),
     m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
     m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr), m_index(nullptr) {
-    m_keep_imported_thms = keep_imported_proofs;
+    m_keep_theorem_mode = tmode;
     if (s) {
         m_local_level_decls  = s->m_lds;
         m_local_decls        = s->m_eds;
@@ -1287,8 +1287,9 @@ void parser::parse_imports() {
     unsigned num_threads = 0;
     if (get_parser_parallel_import(m_ios.get_options()))
         num_threads = m_num_threads;
+    bool keep_imported_thms = (m_keep_theorem_mode == keep_theorem_mode::All);
     m_env = import_modules(m_env, base, olean_files.size(), olean_files.data(), num_threads,
-                           m_keep_imported_thms, m_ios);
+                           keep_imported_thms, m_ios);
     for (auto const & f : lua_files) {
         std::string rname = find_file(f, {".lua"});
         system_import(rname.c_str());
@@ -1364,7 +1365,8 @@ bool parser::parse_commands() {
     } catch (interrupt_parser) {}
     commit_info(m_scanner.get_line()+1);
     for (certified_declaration const & thm : m_theorem_queue.join()) {
-        m_env.replace(thm);
+        if (keep_new_thms())
+            m_env.replace(thm);
     }
     return !m_found_errors;
 }
@@ -1455,8 +1457,9 @@ void parser::save_type_info(expr const & e) {
 }
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, bool use_exceptions,
-                    unsigned num_threads, definition_cache * cache, declaration_index * index, bool keep_thms) {
-    parser p(env, ios, in, strm_name, use_exceptions, num_threads, nullptr, nullptr, nullptr, keep_thms);
+                    unsigned num_threads, definition_cache * cache, declaration_index * index,
+                    keep_theorem_mode tmode) {
+    parser p(env, ios, in, strm_name, use_exceptions, num_threads, nullptr, nullptr, nullptr, tmode);
     p.set_cache(cache);
     p.set_index(index);
     bool r = p();
@@ -1466,11 +1469,11 @@ bool parse_commands(environment & env, io_state & ios, std::istream & in, char c
 }
 
 bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads,
-                    definition_cache * cache, declaration_index * index, bool keep_thms) {
+                    definition_cache * cache, declaration_index * index, keep_theorem_mode tmode) {
     std::ifstream in(fname);
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");
-    return parse_commands(env, ios, in, fname, use_exceptions, num_threads, cache, index, keep_thms);
+    return parse_commands(env, ios, in, fname, use_exceptions, num_threads, cache, index, tmode);
 }
 
 void initialize_parser() {

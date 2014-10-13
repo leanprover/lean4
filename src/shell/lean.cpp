@@ -54,6 +54,7 @@ using lean::optional;
 using lean::expr;
 using lean::options;
 using lean::declaration_index;
+using lean::keep_theorem_mode;
 
 enum class input_kind { Unspecified, Lean, Lua };
 
@@ -92,6 +93,8 @@ static void display_help(std::ostream & out) {
     std::cout << "                    0 means 'do not check'.\n";
     std::cout << "  --trust=num -t    trust level (default: 0) \n";
     std::cout << "  --discard -T      discard the proof of imported theorems after checking\n";
+    std::cout << "  --to_axiom -X     discard proofs of all theorems after checking them, i.e.,\n";
+    std::cout << "                    theorems become axioms after checking\n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
 #if defined(LEAN_MULTI_THREAD)
     std::cout << "  --server          start Lean in 'server' mode\n";
@@ -133,6 +136,7 @@ static struct option g_long_options[] = {
     {"cpp",         required_argument, 0, 'C'},
     {"trust",       required_argument, 0, 't'},
     {"discard",     no_argument,       0, 'T'},
+    {"to_axiom",    no_argument,       0, 'X'},
 #if defined(LEAN_MULTI_THREAD)
     {"server",      no_argument,       0, 'S'},
     {"threads",     required_argument, 0, 'j'},
@@ -148,7 +152,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define BASIC_OPT_STR "TFC:dD:qlupgvhk:012t:012o:c:i:"
+#define BASIC_OPT_STR "XTFC:dD:qlupgvhk:012t:012o:c:i:"
 
 #if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
 static char const * g_opt_str = BASIC_OPT_STR "Sj:012s:012";
@@ -220,15 +224,15 @@ static void export_as_cpp_file(std::string const & fname, char const * varname, 
 
 int main(int argc, char ** argv) {
     lean::initializer init;
-    bool export_objects  = false;
-    unsigned trust_lvl   = 0;
-    bool server          = false;
-    bool only_deps       = false;
-    unsigned num_threads = 1;
-    bool use_cache       = false;
-    bool gen_index       = false;
-    bool export_cpp      = false;
-    bool keep_thms       = true;
+    bool export_objects     = false;
+    unsigned trust_lvl      = 0;
+    bool server             = false;
+    bool only_deps          = false;
+    unsigned num_threads    = 1;
+    bool use_cache          = false;
+    bool gen_index          = false;
+    bool export_cpp         = false;
+    keep_theorem_mode tmode = keep_theorem_mode::All;
     options opts;
     std::string output;
     std::string cpp_output;
@@ -289,7 +293,10 @@ int main(int argc, char ** argv) {
             trust_lvl = atoi(optarg);
             break;
         case 'T':
-            keep_thms = false;
+            tmode = keep_theorem_mode::DiscardImported;
+            break;
+        case 'X':
+            tmode = keep_theorem_mode::DiscardAll;
             break;
         case 'q':
             opts = opts.update("verbose", false);
@@ -356,7 +363,7 @@ int main(int argc, char ** argv) {
                         if (!display_deps(env, std::cout, std::cerr, argv[i]))
                             ok = false;
                     } else if (!parse_commands(env, ios, argv[i], false, num_threads,
-                                               cache_ptr, index_ptr, keep_thms)) {
+                                               cache_ptr, index_ptr, tmode)) {
                         ok = false;
                     }
                 } else if (k == input_kind::Lua) {

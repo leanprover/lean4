@@ -78,6 +78,8 @@ struct snapshot {
 
 typedef std::vector<snapshot> snapshot_vector;
 
+enum class keep_theorem_mode { All, DiscardImported, DiscardAll };
+
 class parser {
     environment             m_env;
     io_state                m_ios;
@@ -120,7 +122,7 @@ class parser {
     // index support
     declaration_index *    m_index;
 
-    bool                   m_keep_imported_thms;
+    keep_theorem_mode      m_keep_theorem_mode;
 
     // curr command token
     name                   m_cmd_token;
@@ -208,7 +210,7 @@ public:
            std::istream & strm, char const * str_name,
            bool use_exceptions = false, unsigned num_threads = 1,
            snapshot const * s = nullptr, snapshot_vector * sv = nullptr,
-           info_manager * im = nullptr, bool keep_imported_proofs = true);
+           info_manager * im = nullptr, keep_theorem_mode tmode = keep_theorem_mode::All);
     ~parser();
 
     void set_cache(definition_cache * c) { m_cache = c; }
@@ -234,6 +236,8 @@ public:
 
     bool has_tactic_decls();
     expr mk_by(expr const & t, pos_info const & pos);
+
+    bool keep_new_thms() const { return m_keep_theorem_mode != keep_theorem_mode::DiscardAll; }
 
     void updt_options();
     template<typename T> void set_option(name const & n, T const & v) { m_ios.set_option(n, v); }
@@ -397,9 +401,10 @@ public:
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,
                     bool use_exceptions, unsigned num_threads, definition_cache * cache = nullptr,
-                    declaration_index * index = nullptr, bool keep_imported_proofs = true);
+                    declaration_index * index = nullptr, keep_theorem_mode tmode = keep_theorem_mode::All);
 bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads,
-                    definition_cache * cache = nullptr, declaration_index * index = nullptr, bool keep_imported_proofs = true);
+                    definition_cache * cache = nullptr, declaration_index * index = nullptr,
+                    keep_theorem_mode tmode = keep_theorem_mode::All);
 
 void initialize_parser();
 void finalize_parser();

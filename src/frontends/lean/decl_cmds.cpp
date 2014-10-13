@@ -424,10 +424,15 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
             try {
                 level_param_names c_ls; expr c_type, c_value;
                 std::tie(c_ls, c_type, c_value) = *it;
-                if (is_theorem)
+                if (is_theorem) {
                     cd = check(env, mk_theorem(real_n, c_ls, c_type, c_value));
-                else
+                    if (!p.keep_new_thms()) {
+                        // discard theorem
+                        cd = check(env, mk_axiom(real_n, c_ls, c_type));
+                    }
+                } else {
                     cd = check(env, mk_definition(env, real_n, c_ls, c_type, c_value, is_opaque));
+                }
                 if (!is_private)
                     p.add_decl_index(real_n, n_pos, p.get_cmd_token(), c_type);
                 env = module::add(env, *cd);
@@ -451,7 +456,12 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
             } else {
                 std::tie(type, value, new_ls) = p.elaborate_definition(n, type_as_is, value, is_opaque);
                 new_ls = append(ls, new_ls);
-                env = module::add(env, check(env, mk_theorem(real_n, new_ls, type, value)));
+                auto cd = check(env, mk_theorem(real_n, new_ls, type, value));
+                if (!p.keep_new_thms()) {
+                    // discard theorem
+                    cd = check(env, mk_axiom(real_n, new_ls, type));
+                }
+                env = module::add(env, cd);
                 p.cache_definition(real_n, pre_type, pre_value, new_ls, type, value);
             }
         } else {

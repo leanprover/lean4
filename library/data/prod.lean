@@ -15,7 +15,7 @@ inductive prod (A B : Type) : Type :=
 definition pair := @prod.mk
 
 namespace prod
-  infixr `×` := prod
+  infixl `×` := prod
 
   -- notation for n-ary tuples
   notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t

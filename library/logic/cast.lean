@@ -18,7 +18,7 @@ rfl
 theorem cast_eq {A : Type} (H : A = A) (a : A) : cast H a = a :=
 rfl
 
-inductive heq.{l} {A : Type.{l}} (a : A) : Π {B : Type.{l}}, B → Prop :=
+inductive heq {A : Type} (a : A) : Π {B : Type}, B → Prop :=
 refl : heq a a
 infixl `==`:50 := heq
 

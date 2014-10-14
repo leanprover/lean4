@@ -162,7 +162,7 @@ congruence.mk (λx y H, H)
 -- ---------------------------------------------------------
 
 inductive mp_like [class] {R : Type → Type → Prop} {a b : Type} (H : R a b) : Type :=
-mk {} : (a → b) → @mp_like R a b H
+mk {} : (a → b) → mp_like H
 
 namespace mp_like
 

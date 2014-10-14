@@ -548,8 +548,7 @@ struct default_converter : public converter {
             is_def_eq(const_levels(t_n), const_levels(s_n), c, jst, cs))
             return to_bcs(true, cs);
 
-        if (is_local(t_n) && is_local(s_n) && mlocal_name(t_n) == mlocal_name(s_n) &&
-            is_def_eq(mlocal_type(t_n), mlocal_type(s_n), c, jst, cs))
+        if (is_local(t_n) && is_local(s_n) && mlocal_name(t_n) == mlocal_name(s_n))
             return to_bcs(true, cs);
 
         optional<declaration> d_t, d_s;

@@ -417,6 +417,9 @@ void parser::push_local_scope(bool save_options) {
 }
 
 void parser::pop_local_scope() {
+    if (!m_local_level_decls.has_scopes()) {
+        throw parser_error("invalid 'end', there is no open namespace/section/context", pos());
+    }
     m_local_level_decls.pop();
     m_local_decls.pop();
     lean_assert(!is_nil(m_parser_scope_stack));

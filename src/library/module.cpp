@@ -252,8 +252,8 @@ struct import_modules_fn {
     };
     typedef std::shared_ptr<module_info> module_info_ptr;
     name_map<module_info_ptr> m_module_info;
-    name_set                  m_visited;
-    name_set                  m_imported; // all imported files
+    name_set                  m_visited; // contains visited files in the current call
+    name_set                  m_imported; // contains all imported files, even ones from previous calls
 
     import_modules_fn(environment const & env, unsigned num_threads, bool keep_proofs, io_state const & ios):
         m_senv(env), m_num_threads(num_threads), m_keep_proofs(keep_proofs), m_ios(ios),
@@ -282,6 +282,7 @@ struct import_modules_fn {
         if (m_visited.contains(fname))
             throw exception(sstream() << "circular dependency detected at '" << fname << "'");
         m_visited.insert(fname);
+        m_imported.insert(fname);
         std::ifstream in(fname, std::ifstream::binary);
         if (!in.good())
             throw exception(sstream() << "failed to open file '" << fname << "'");
@@ -430,7 +431,6 @@ struct import_modules_fn {
                 add_import_module_task(d);
             }
         }
-        m_imported.insert(r->m_fname);
     }
 
     optional<asynch_update_fn> next_task() {

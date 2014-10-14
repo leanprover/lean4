@@ -14,7 +14,7 @@ constant num : Type.{1}
 namespace Tree
 inductive tree (A : Type) : Type :=
 node : A → forest A → tree A
-with forest (A : Type) : Type :=
+with forest : Type :=
 nil  : forest A,
 cons : tree A → forest A → forest A
 end Tree

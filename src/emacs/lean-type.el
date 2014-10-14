@@ -33,13 +33,16 @@
   (interactive)
   (lean-get-info-record-at-point 'lean-fill-placeholder-cont))
 
-(defun lean-eldoc-documentation-function-cont (info-record)
+(defun lean-eldoc-documentation-function-cont (info-record &optional add-to-kill-ring)
   "Continuation for lean-eldoc-documentation-function"
   (let ((info-string (lean-info-record-to-string info-record)))
     (when info-string
+      (when add-to-kill-ring
+        (kill-new
+         (substring-no-properties info-string)))
       (message "%s" info-string))))
 
-(defun lean-eldoc-documentation-function ()
+(defun lean-eldoc-documentation-function (&optional add-to-kill-ring)
   "Show information of lean expression at point if any"
   (interactive)
   (cond ((and lean-flycheck-use
@@ -50,7 +53,14 @@
                   (not (eolp)))
              (and (looking-back (rx (not white)))
                   (not (bolp))))
-         (lean-get-info-record-at-point 'lean-eldoc-documentation-function-cont))))
+         (lean-get-info-record-at-point
+          (lambda (info-record)
+            (lean-eldoc-documentation-function-cont info-record add-to-kill-ring))))))
+
+(defun lean-show-type ()
+  "Show information of lean-expression at point if any."
+  (interactive)
+  (lean-eldoc-documentation-function lean-show-type-add-to-kill-ring))
 
 ;; =======================================================
 ;; eval

@@ -122,4 +122,11 @@ written."
   :type 'sexp
   :risky t)
 
+(defcustom lean-show-type-add-to-kill-ring nil
+  "If it is non-nil, add the type information to the kill-ring so
+that user can yank(paste) it later. By default, it's
+false (nil)."
+  :group 'lean
+  :type 'boolean)
+
 (provide 'lean-settings)

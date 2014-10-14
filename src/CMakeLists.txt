@@ -319,8 +319,6 @@ add_subdirectory(tests/util/numerics)
 add_subdirectory(tests/util/interval)
 add_subdirectory(tests/kernel)
 add_subdirectory(tests/library)
-# add_subdirectory(tests/library/rewriter)
-# add_subdirectory(tests/library/tactic)
 add_subdirectory(tests/frontends/lean)
 
 # Include style check

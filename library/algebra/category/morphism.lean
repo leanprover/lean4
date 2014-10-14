@@ -9,12 +9,12 @@ open eq eq.ops category
 namespace morphism
   section
   variables {ob : Type} [C : category ob] include C
-  variables {a b c d : ob} {h : @hom ob C c d} {g : @hom ob C b c} {f : @hom ob C a b} {i : @hom ob C b a}
-  inductive is_section    [class] (f : @hom ob C a b) : Type
+  variables {a b c d : ob} {h : hom c d} {g : hom b c} {f : hom a b} {i : hom b a}
+  inductive is_section    [class] (f : hom a b) : Type
   := mk : ∀{g}, g ∘ f = id → is_section f
-  inductive is_retraction [class] (f : @hom ob C a b) : Type
+  inductive is_retraction [class] (f : hom a b) : Type
   := mk : ∀{g}, f ∘ g = id → is_retraction f
-  inductive is_iso        [class] (f : @hom ob C a b) : Type
+  inductive is_iso        [class] (f : hom a b) : Type
   := mk : ∀{g}, g ∘ f = id → f ∘ g = id → is_iso f
   --remove implicit arguments in above lines
   definition retraction_of (f : hom a b) [H : is_section f] : hom b a :=

@@ -55,6 +55,7 @@ using lean::expr;
 using lean::options;
 using lean::declaration_index;
 using lean::keep_theorem_mode;
+using lean::module_name;
 
 enum class input_kind { Unspecified, Lean, Lua };
 
@@ -220,6 +221,17 @@ static void export_as_cpp_file(std::string const & fname, char const * varname, 
     }
     out << "    }\n";
     out << "}\n";
+}
+
+environment import_module(environment const & env, io_state const & ios, module_name const & mod, bool keep_proofs = true) {
+    std::string base = ".";
+    bool num_threads = 1;
+    return import_modules(env, base, 1, &mod, num_threads, keep_proofs, ios);
+}
+
+environment import_standard(environment const & env, io_state const & ios, bool keep_proofs = true) {
+    module_name std(lean::name("standard"));
+    return import_module(env, ios, std, keep_proofs);
 }
 
 int main(int argc, char ** argv) {

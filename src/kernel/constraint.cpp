@@ -143,7 +143,10 @@ std::ostream & operator<<(std::ostream & out, constraint const & c) {
         break;
     case constraint_kind::Choice:
         out << "choice ";
-        if (cnstr_delay_factor(c) != 0) out << "[delayed:" << cnstr_delay_factor(c) << "] ";
+        if (cnstr_on_demand(c))
+            out << "[on-demand]";
+        else if (cnstr_delay_factor(c) != 0)
+            out << "[delayed:" << cnstr_delay_factor(c) << "] ";
         out << cnstr_expr(c);
         break;
     }

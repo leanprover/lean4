@@ -52,6 +52,7 @@ expr mk_tactic_macro(name const & kind, unsigned num_args, expr const * args);
 expr mk_tactic_macro(name const & kind, expr const & e);
 bool is_tactic_macro(expr const & e);
 expr mk_apply_tactic_macro(expr const & e);
+expr mk_rename_tactic_macro(name const & from, name const & to);
 
 /** \brief Exception used to report a problem when an expression is being converted into a tactic. */
 class expr_to_tactic_exception : public tactic_exception {

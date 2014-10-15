@@ -127,6 +127,9 @@ tactic take(tactic const & t, unsigned k);
 */
 tactic discard(tactic const & t, unsigned k);
 
+/** \brief Return a tactic that renames hypothesis \c from into \c to in the current goal. */
+tactic rename_tactic(name const & from, name const & to);
+
 typedef std::function<bool(environment const & env, io_state const & ios, proof_state const & s)> proof_state_pred; // NOLINT
 /**
     \brief Return a tactic that applies the predicate \c p to the input state.

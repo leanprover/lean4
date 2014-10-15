@@ -20,9 +20,16 @@ static expr parse_apply(parser & p, unsigned, expr const *, pos_info const & pos
     return p.save_pos(mk_apply_tactic_macro(e), pos);
 }
 
+static expr parse_rename(parser & p, unsigned, expr const *, pos_info const & pos) {
+    name from = p.check_id_next("invalid 'rename' tactic, identifier expected");
+    name to   = p.check_id_next("invalid 'rename' tactic, identifier expected");
+    return p.save_pos(mk_rename_tactic_macro(from, to), pos);
+}
+
 void init_nud_tactic_table(parse_table & r) {
     expr x0 = mk_var(0);
-    r = r.add({transition("apply", mk_ext_action(parse_apply))}, x0);
+    r = r.add({transition("apply",  mk_ext_action(parse_apply))}, x0);
+    r = r.add({transition("rename", mk_ext_action(parse_rename))}, x0);
 }
 
 void initialize_builtin_tactics() {

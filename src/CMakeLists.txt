@@ -84,6 +84,12 @@ if("${STATIC}" MATCHES "ON")
   set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -static")
 endif()
 
+if("${CMAKE_C_COMPILER}" MATCHES "emcc")
+  set(EMSCRIPTEN ON)
+  set(CROSS_COMPILE ON)
+  set(IGNORE_SORRY ON)
+endif()
+
 # Set Module Path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
@@ -94,6 +100,7 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 set(CMAKE_CXX_FLAGS_GPROF          "-O2 -g -pg")
+set(CMAKE_CXX_FLAGS_EMSCRIPTEN     "-Oz -s DISABLE_EXCEPTION_CATCHING=0 -D LEAN_EMSCRIPTEN -Wno-warn-absolute-paths --bind")
 
 include(CheckIncludeFileCXX)
 check_include_file_cxx("unistd.h" HAVE_UNISTD)
@@ -135,7 +142,9 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     set(LEAN_EXTRA_LINKER_FLAGS "-stdlib=libc++")
   endif ()
-else ()
+elseif ("${EMSCRIPTEN}" MATCHES "ON")
+    message(STATUS "Emscripten is detected: Make sure the wraped compiler supports C++11")
+else()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
 
@@ -203,7 +212,7 @@ if("${READLINE}" MATCHES "ON")
 endif()
 
 # Check malloc_usable_size
-if(NOT "${TCMALLOC_FOUND}" AND NOT "${JEMALLOC_FOUND}" AND "${TRACK_MEMORY_USAGE}" MATCHES "ON")
+if(NOT "${EMSCRIPTEN}" AND NOT "${TCMALLOC_FOUND}" AND NOT "${JEMALLOC_FOUND}" AND "${TRACK_MEMORY_USAGE}" MATCHES "ON")
   find_package(MallocUsableSize)
   if("${MUS_FOUND}" MATCHES "TRUE")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I ${MALLOC_DIR} -D HAS_MALLOC_USABLE_SIZE")
@@ -223,7 +232,7 @@ endif()
 # Lua
 find_package(Lua REQUIRED)
 set(EXTRA_LIBS ${EXTRA_LIBS} ${LUA_LIBRARIES})
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if(NOT "${EMSCRIPTEN}" AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   # Lua static library for linux depends on dl.so
   set(EXTRA_LIBS ${EXTRA_LIBS} -ldl)
 endif()
@@ -354,7 +363,7 @@ if(NOT DEFINED PROCESSOR_COUNT)
   endif()
 endif()
 
-if("${CROSS_COMPILE}" MATCHES "ON")
+if("${CROSS_COMPILE}" MATCHES "ON" OR "${CMAKE_C_COMPILER}" MATCHES "emcc")
   message(STATUS "Lean standard library will not be compiled when using cross-compilation.")
 else()
   add_custom_target(

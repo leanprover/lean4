@@ -1,13 +1,16 @@
-add_executable(lean lean.cpp)
-target_link_libraries(lean ${ALL_LIBS})
-
-ADD_CUSTOM_COMMAND(TARGET lean
-          POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E make_directory ${LEAN_SOURCE_DIR}/../bin
-          COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX} ${LEAN_SOURCE_DIR}/../bin/
-)
-
-install(TARGETS lean DESTINATION bin)
+if(${EMSCRIPTEN})
+  add_executable(lean.js lean.cpp)
+  target_link_libraries(lean.js ${ALL_LIBS} "--preload-file library")
+else()
+  add_executable(lean lean.cpp)
+  target_link_libraries(lean ${ALL_LIBS})
+  ADD_CUSTOM_COMMAND(TARGET lean
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${LEAN_SOURCE_DIR}/../bin
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/lean${CMAKE_EXECUTABLE_SUFFIX} ${LEAN_SOURCE_DIR}/../bin/
+    )
+  install(TARGETS lean DESTINATION bin)
+endif()
 
 # add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 # add_test(example1_stdin2 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "-l" "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")

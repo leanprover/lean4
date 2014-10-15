@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/let.h"
 #include "library/sorry.h"
+#include "library/flycheck.h"
 #include "library/deep_copy.h"
 #include "library/metavar_closure.h"
 #include "library/typed_expr.h"

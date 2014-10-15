@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/string.h"
 #include "library/sorry.h"
+#include "library/flycheck.h"
 #include "library/error_handling/error_handling.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/tokens.h"

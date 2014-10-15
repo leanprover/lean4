@@ -236,7 +236,6 @@ environment import_standard(environment const & env, io_state const & ios, bool 
 
 #if defined(LEAN_EMSCRIPTEN)
 #include <emscripten/bind.h>
-using namespace emscripten;
 
 class emscripten_shell {
 private:
@@ -299,9 +298,9 @@ int emscripten_process_file(std::string input_filename) {
 }
 
 EMSCRIPTEN_BINDINGS(LEAN_JS) {
-    function("lean_init", &emscripten_init);
-    function("lean_import_module", &emscripten_import_module);
-    function("lean_process_file", &emscripten_process_file);
+    emscripten::function("lean_init", &emscripten_init);
+    emscripten::function("lean_import_module", &emscripten_import_module);
+    emscripten::function("lean_process_file", &emscripten_process_file);
 }
 
 int main() {

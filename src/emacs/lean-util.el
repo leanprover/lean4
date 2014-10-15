@@ -64,8 +64,9 @@
             (--map-when (f-relative? it)
                         (f-canonical (f-join project-dir it))
                         path-list)))
-    (-uniq (-map (-compose 'f-slash 'f-canonical)
-                 path-list))))
+    (setq path-list (-uniq (-map (-compose 'f-slash 'f-canonical)
+                                 path-list)))
+    (--filter (f-directory? it) path-list)))
 
 (defun lean-letter-like-unicode-p (u)
   (when u

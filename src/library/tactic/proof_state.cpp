@@ -30,6 +30,15 @@ bool get_proof_state_goal_names(options const & opts) {
     return opts.get_bool(*g_proof_state_goal_names, LEAN_PROOF_STATE_GOAL_NAMES);
 }
 
+proof_state::proof_state(goals const & gs, substitution const & s,
+                         name_generator const & ngen, constraints const & postponed):
+    m_goals(gs), m_subst(s), m_ngen(ngen), m_postponed(postponed) {
+    if (std::any_of(gs.begin(), gs.end(),
+                    [&](goal const & g) { return s.is_assigned(g.get_mvar()); })) {
+        m_goals = filter(gs, [&](goal const & g) { return !s.is_assigned(g.get_mvar()); });
+    }
+}
+
 format proof_state::pp(formatter const & fmt) const {
     options const & opts = fmt.get_options();
     bool show_goal_names = get_proof_state_goal_names(opts);
@@ -67,8 +76,12 @@ io_state_stream const & operator<<(io_state_stream const & out, proof_state cons
     return out;
 }
 
+proof_state to_proof_state(expr const & meta, expr const & type, substitution const & subst, name_generator ngen) {
+    return proof_state(goals(goal(meta, type)), subst, ngen, constraints());
+}
+
 proof_state to_proof_state(expr const & meta, expr const & type, name_generator ngen) {
-    return proof_state(goals(goal(meta, type)), substitution(), ngen);
+    return to_proof_state(meta, type, substitution(), ngen);
 }
 
 DECL_UDATA(goals)
@@ -148,10 +161,11 @@ static int mk_proof_state(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2) {
         return push_proof_state(L, proof_state(to_proof_state(L, 1), to_goals(L, 2)));
-    } else if (nargs == 3) {
+    } else if (nargs == 3 && is_proof_state(L, 1)) {
         return push_proof_state(L, proof_state(to_proof_state(L, 1), to_goals(L, 2), to_substitution(L, 3)));
-    } else if (nargs == 4) {
-        return push_proof_state(L, proof_state(to_goals(L, 1), to_substitution(L, 2), to_name_generator(L, 3)));
+    } else if (nargs == 3) {
+        return push_proof_state(L, proof_state(to_goals(L, 1), to_substitution(L, 2), to_name_generator(L, 3),
+                                               constraints()));
     } else {
         throw exception("proof_state invalid number of arguments");
     }

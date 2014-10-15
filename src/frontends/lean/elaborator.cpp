@@ -91,8 +91,9 @@ elaborator::elaborator(elaborator_context & ctx, name_generator const & ngen):
     m_context(),
     m_full_context(),
     m_unifier_config(ctx.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
-    m_has_sorry = has_sorry(m_ctx.m_env),
-        m_relax_main_opaque = false;
+    m_has_sorry = has_sorry(m_ctx.m_env);
+    m_relax_main_opaque = false;
+    m_use_tactic_hints  = true;
     m_no_info = false;
     m_tc[0]  = mk_type_checker(ctx.m_env, m_ngen.mk_child(), false);
     m_tc[1]  = mk_type_checker(ctx.m_env, m_ngen.mk_child(), true);
@@ -601,6 +602,8 @@ expr elaborator::visit_sort(expr const & e) {
 expr elaborator::visit_macro(expr const & e, constraint_seq & cs) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
+    } else if (is_tactic_macro(e)) {
+        return e;
     } else {
         buffer<expr> args;
         for (unsigned i = 0; i < macro_num_args(e); i++)
@@ -882,25 +885,12 @@ void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state con
     }
 }
 
-// For each occurrence of \c exact_tac in \c pre_tac, display its unassigned metavariables.
-// This is a trick to improve the quality of the error messages.
-void elaborator::check_exact_tacs(expr const & pre_tac, substitution const & s) {
-    for_each(pre_tac, [&](expr const & e, unsigned) {
-            expr const & f = get_app_fn(e);
-            if (is_constant(f) && const_name(f) == const_name(get_exact_tac_fn())) {
-                display_unassigned_mvars(e, s);
-                return false;
-            } else {
-                return true;
-            }
-        });
-}
-
 optional<expr> elaborator::get_pre_tactic_for(substitution & subst, expr const & mvar, name_set & visited) {
     if (auto it = m_local_tactic_hints.find(mlocal_name(mvar))) {
         expr pre_tac = subst.instantiate(*it);
-        pre_tac = solve_unassigned_mvars(subst, pre_tac, visited);
-        check_exact_tacs(pre_tac, subst);
+        // TODO(Leo): after we move to new apply/exact, we will not need the following
+        // command anymore.
+        pre_tac      = solve_unassigned_mvars(subst, pre_tac, visited);
         return some_expr(pre_tac);
     } else {
         return none_expr();
@@ -909,7 +899,15 @@ optional<expr> elaborator::get_pre_tactic_for(substitution & subst, expr const &
 
 optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac, expr const & mvar) {
     try {
-        return optional<tactic>(expr_to_tactic(env(), pre_tac, pip()));
+        bool relax = m_relax_main_opaque;
+        auto fn = [=](goal const & g, name_generator const & ngen, expr const & e) {
+            elaborator aux_elaborator(m_ctx, ngen);
+            // Disable tactic hints when processing expressions nested in tactics.
+            // We must do it otherwise, it is easy to make the system loop.
+            bool use_tactic_hints = false;
+            return aux_elaborator.elaborate_nested(g.to_context(), e, relax, use_tactic_hints);
+        };
+        return optional<tactic>(expr_to_tactic(env(), fn, pre_tac, pip()));
     } catch (expr_to_tactic_exception & ex) {
         auto out = regular(env(), ios());
         display_error_pos(out, pip(), mvar);
@@ -980,12 +978,12 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
     expr type = m_tc[m_relax_main_opaque]->infer(*meta).first;
     // first solve unassigned metavariables in type
     type = solve_unassigned_mvars(subst, type, visited);
-    proof_state ps(goals(goal(*meta, type)), subst, m_ngen.mk_child());
+    proof_state ps = to_proof_state(*meta, type, subst, m_ngen.mk_child());
     if (auto local_hint = get_local_tactic_hint(subst, mvar, visited)) {
         // using user provided tactic
         bool show_failure = true;
         try_using(subst, mvar, ps, *local_hint, show_failure);
-    } else {
+    } else if (m_use_tactic_hints) {
         // using tactic_hints
         for (expr const & pre_tac : get_tactic_hints(env())) {
             if (auto tac = pre_tactic_to_tactic(pre_tac, mvar)) {
@@ -1022,8 +1020,8 @@ void elaborator::display_unassigned_mvars(expr const & e, substitution const & s
                     expr meta      = tmp_s.instantiate(*it);
                     expr meta_type = tmp_s.instantiate(type_checker(env()).infer(meta).first);
                     goal g(meta, meta_type);
-                    display_unsolved_proof_state(e, proof_state(goals(g), substitution(), m_ngen),
-                                                 "don't know how to synthesize it");
+                    proof_state ps(goals(g), substitution(), m_ngen, constraints());
+                    display_unsolved_proof_state(e, ps, "don't know how to synthesize it");
                 }
                 return false;
             });
@@ -1078,8 +1076,8 @@ std::tuple<expr, level_param_names> elaborator::apply(substitution & s, expr con
     return std::make_tuple(r, to_list(new_ps.begin(), new_ps.end()));
 }
 
-std::tuple<expr, level_param_names> elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure_type,
-                                                           bool relax_main_opaque) {
+auto elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure_type, bool relax_main_opaque)
+-> std::tuple<expr, level_param_names> {
     m_context.set_ctx(ctx);
     m_full_context.set_ctx(ctx);
     flet<bool> set_relax(m_relax_main_opaque, relax_main_opaque);
@@ -1124,6 +1122,62 @@ std::tuple<expr, expr, level_param_names> elaborator::operator()(
     check_sort_assignments(s);
     copy_info_to_manager(s);
     return std::make_tuple(new_r_t, new_r_v, to_list(new_params.begin(), new_params.end()));
+}
+
+// Auxiliary procedure for #translate
+static expr translate_local_name(environment const & env, list<expr> const & ctx, name const & local_name,
+                                 expr const & src) {
+    for (expr const & local : ctx) {
+        if (mlocal_name(local) == local_name)
+            return local;
+    }
+    // TODO(Leo): we should create an elaborator exception.
+    // Using kernel_exception here is just a dirty hack.
+    throw_kernel_exception(env, sstream() << "unknown identifier '" << local_name << "'", src);
+}
+
+/** \brief Translated local constants (and undefined constants) occurring in \c e into
+    local constants provided by \c ctx.
+    Throw exception is \c ctx does not contain the local constant.
+*/
+static expr translate(environment const & env, list<expr> const & ctx, expr const & e) {
+    auto fn = [&](expr const & e) {
+        if (is_placeholder(e)) {
+            return some_expr(e); // ignore placeholders
+        } else if (is_constant(e)) {
+            if (!env.find(const_name(e))) {
+                return some_expr(translate_local_name(env, ctx, const_name(e), e));
+            } else {
+                return none_expr();
+            }
+        } else if (is_local(e)) {
+            return some_expr(translate_local_name(env, ctx, mlocal_name(e), e));
+        } else {
+            return none_expr();
+        }
+    };
+    return replace(e, fn);
+}
+
+/** \brief Elaborate expression \c e in context \c ctx. */
+pair<expr, constraints> elaborator::elaborate_nested(list<expr> const & ctx, expr const & n,
+                                                     bool relax, bool use_tactic_hints) {
+    expr e = translate(env(), ctx, n);
+    m_context.set_ctx(ctx);
+    m_full_context.set_ctx(ctx);
+    flet<bool> set_relax(m_relax_main_opaque, relax);
+    flet<bool> set_discard(m_unifier_config.m_discard, false);
+    flet<bool> set_use_hints(m_use_tactic_hints, use_tactic_hints);
+    constraint_seq cs;
+    expr r  = visit(e, cs);
+    auto p  = solve(cs).pull();
+    lean_assert(p);
+    substitution s  = p->first.first;
+    constraints rcs = p->first.second;
+    r = s.instantiate(r);
+    r = solve_unassigned_mvars(s, r);
+    copy_info_to_manager(s);
+    return mk_pair(r, rcs);
 }
 
 static name * g_tmp_prefix = nullptr;

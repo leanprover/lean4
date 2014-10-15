@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/let.h"
 #include "frontends/lean/builtin_exprs.h"
+#include "frontends/lean/builtin_tactics.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/calc.h"
 #include "frontends/lean/begin_end_ext.h"
@@ -117,12 +118,21 @@ static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.mk_by(t, pos);
 }
 
-static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_begin_end_core(parser & p, pos_info const & pos) {
     if (!p.has_tactic_decls())
         throw parser_error("invalid 'begin-end' expression, tactic module has not been imported", pos);
     optional<expr> pre_tac = get_begin_end_pre_tactic(p.env());
-    optional<expr> r;
-    while (true) {
+    buffer<expr> tacs;
+    bool first = true;
+    while (!p.curr_is_token(get_end_tk())) {
+        if (first)
+            first = false;
+        else
+            p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
+        if (p.curr_is_token(get_end_tk())) {
+            p.next();
+            throw parser_error("invalid 'begin-end' expression, tactic or expression expected", p.pos());
+        }
         bool use_exact = (p.curr_is_token(get_have_tk()) || p.curr_is_token(get_show_tk()) ||
                           p.curr_is_token(get_assume_tk()) || p.curr_is_token(get_take_tk()) ||
                           p.curr_is_token(get_fun_tk()));
@@ -133,17 +143,25 @@ static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const &
         if (pre_tac)
             tac = p.mk_app({get_and_then_tac_fn(), *pre_tac, tac}, pos);
         tac = p.mk_app(get_determ_tac_fn(), tac, pos);
-        r = r ? p.mk_app({get_and_then_tac_fn(), *r, tac}, pos) : tac;
-        if (p.curr_is_token(get_end_tk())) {
-            auto pos = p.pos();
-            p.next();
-            return p.mk_by(*r, pos);
-        } else if (p.curr_is_token(get_comma_tk())) {
-            p.next();
-        } else {
-            throw parser_error("invalid begin-end, ',' or 'end' expected", p.pos());
-        }
+        tacs.push_back(tac);
     }
+    auto end_pos = p.pos();
+    p.next();
+    if (tacs.empty()) {
+        expr tac = get_id_tac_fn();
+        if (pre_tac)
+            tac = p.mk_app({get_and_then_tac_fn(), *pre_tac, tac}, end_pos);
+        tacs.push_back(tac);
+    }
+    expr r = tacs[0];
+    for (unsigned i = 1; i < tacs.size(); i++) {
+        r = p.mk_app({get_and_then_tac_fn(), r, tacs[i]}, end_pos);
+    }
+    return p.mk_by(r, end_pos);
+}
+
+static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return parse_begin_end_core(p, pos);
 }
 
 static expr parse_proof_qed_core(parser & p, pos_info const & pos) {
@@ -161,6 +179,10 @@ static expr parse_proof(parser & p, expr const & prop) {
         auto pos = p.pos();
         p.next();
         return parse_proof_qed_core(p, pos);
+    } else if (p.curr_is_token(get_begin_tk())) {
+        auto pos = p.pos();
+        p.next();
+        return parse_begin_end_core(p, pos);
     } else if (p.curr_is_token(get_by_tk())) {
         // parse: 'by' tactic
         auto pos = p.pos();
@@ -386,6 +408,7 @@ parse_table init_nud_table() {
     r = r.add({transition("begin", mk_ext_action(parse_begin_end))}, x0);
     r = r.add({transition("proof", mk_ext_action(parse_proof_qed))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
+    init_nud_tactic_table(r);
     return r;
 }
 

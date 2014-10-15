@@ -60,6 +60,7 @@ static name * g_then         = nullptr;
 static name * g_by           = nullptr;
 static name * g_proof        = nullptr;
 static name * g_qed          = nullptr;
+static name * g_begin        = nullptr;
 static name * g_end          = nullptr;
 static name * g_definition   = nullptr;
 static name * g_theorem      = nullptr;
@@ -143,6 +144,7 @@ void initialize_tokens() {
     g_by           = new name("by");
     g_proof        = new name("proof");
     g_qed          = new name("qed");
+    g_begin        = new name("begin");
     g_end          = new name("end");
     g_definition   = new name("definition");
     g_theorem      = new name("theorem");
@@ -210,6 +212,7 @@ void finalize_tokens() {
     delete g_by;
     delete g_proof;
     delete g_qed;
+    delete g_begin;
     delete g_end;
     delete g_raw;
     delete g_true;
@@ -310,6 +313,7 @@ name const & get_then_tk() { return *g_then; }
 name const & get_by_tk() { return *g_by; }
 name const & get_proof_tk() { return *g_proof; }
 name const & get_qed_tk() { return *g_qed; }
+name const & get_begin_tk() { return *g_begin; }
 name const & get_end_tk() { return *g_end; }
 name const & get_definition_tk() { return *g_definition; }
 name const & get_theorem_tk() { return *g_theorem; }

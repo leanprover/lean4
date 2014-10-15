@@ -76,7 +76,7 @@ void init_token_table(token_table & t) {
          {".", 0}, {":", 0}, {"::", 0}, {"calc", 0}, {":=", 0}, {"--", 0}, {"#", 0},
          {"(*", 0}, {"/-", 0}, {"begin", g_max_prec}, {"proof", g_max_prec}, {"qed", 0}, {"@", g_max_prec},
          {"sorry", g_max_prec}, {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {"local", 0},
-         {nullptr, 0}};
+         {"apply", 0}, {nullptr, 0}};
 
     char const * commands[] =
         {"theorem", "axiom", "variable", "protected", "private", "opaque", "definition", "coercion",

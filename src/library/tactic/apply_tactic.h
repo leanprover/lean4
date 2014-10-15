@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 namespace lean {
 tactic apply_tactic(expr const & e, bool relax_main_opaque = true, bool refresh_univ_mvars = true);
+tactic apply_tactic(elaborate_fn const & fn, expr const & e, bool relax_main_opaque = true);
 tactic eassumption_tactic(bool relax_main_opaque = true);
 void open_apply_tactic(lua_State * L);
 }

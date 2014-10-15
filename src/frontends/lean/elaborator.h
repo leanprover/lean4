@@ -50,10 +50,10 @@ class elaborator : public coercion_info_manager {
     // if m_no_info is true, we do not collect information when true,
     // we set is to true whenever we find no_info annotation.
     bool                 m_no_info;
+    bool                 m_use_tactic_hints;
     info_manager         m_pre_info_data;
     bool                 m_has_sorry;
     unifier_config       m_unifier_config;
-
     struct choice_expr_elaborator;
 
     environment const & env() const { return m_ctx.m_env; }
@@ -122,7 +122,6 @@ class elaborator : public coercion_info_manager {
     expr visit(expr const & e, constraint_seq & cs);
     unify_result_seq solve(constraint_seq const & cs);
     void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg);
-    void check_exact_tacs(expr const & pre_tac, substitution const & s);
     optional<expr> get_pre_tactic_for(substitution & subst, expr const & mvar, name_set & visited);
     optional<tactic> pre_tactic_to_tactic(expr const & pre_tac, expr const & mvar);
     optional<tactic> get_local_tactic_hint(substitution & subst, expr const & mvar, name_set & visited);
@@ -135,9 +134,10 @@ class elaborator : public coercion_info_manager {
     void check_sort_assignments(substitution const & s);
     expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params);
     std::tuple<expr, level_param_names> apply(substitution & s, expr const & e);
+    pair<expr, constraints> elaborate_nested(list<expr> const & g, expr const & e,
+                                             bool relax, bool use_tactic_hints);
 public:
     elaborator(elaborator_context & ctx, name_generator const & ngen);
-
     std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type,
                                                    bool relax_main_opaque);
     std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n, bool is_opaque);

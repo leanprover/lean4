@@ -12,7 +12,7 @@ section
   check H
   check H2
   theorem test : a = b ∧ a = a
-  := by apply and.intro; apply H; apply eq.refl
+  := by apply and.intro; apply eq.refl; apply H
 end
 
 check @test

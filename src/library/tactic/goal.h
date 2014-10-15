@@ -44,31 +44,33 @@ public:
 
     expr get_mvar() const { return get_app_fn(m_meta); }
 
-    /**
-        \brief Given a term \c v with type get_type(), build a lambda abstraction
+    /** \brief Given a term \c v with type get_type(), build a lambda abstraction
         that is the solution for the metavariable associated with this goal.
     */
     expr abstract(expr const & v) const;
 
-    /**
-        \brief Create a metavariable application <tt>(?m l_1 ... l_n)</tt> with the given type,
+    /** \brief Create a metavariable application <tt>(?m l_1 ... l_n)</tt> with the given type,
         and the locals from this goal. If <tt>only_contextual == true</tt>, then we only include
         the local constants that are marked as contextual.
     */
     expr mk_meta(name const & m, expr const & type, bool only_contextual = true) const;
 
-    /**
-        brief Return true iff get_type() only contains local constants that arguments
+    /** \brief Return true iff get_type() only contains local constants that arguments
         of get_meta(), and each argument of get_meta() only contains local constants
         that are previous arguments.
     */
     bool validate_locals() const;
 
-    /**
-        \brief Return true iff \c validate_locals() return true and type of \c get_meta() in
+    /** \brief Return true iff \c validate_locals() return true and type of \c get_meta() in
         \c env is get_type()
     */
     bool validate(environment const & env) const;
+
+    /** \brief Return the goal's "context".
+         That is, given <tt>?m l_1 ... l_n</tt>, return the list
+         <tt>[l_n, ..., l_1]</tt>
+    */
+    list<expr> to_context() const;
 
     format pp(formatter const & fmt) const;
 };

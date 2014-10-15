@@ -19,16 +19,20 @@ class proof_state {
     goals            m_goals;
     substitution     m_subst;
     name_generator   m_ngen;
+    constraints      m_postponed;
 public:
-    proof_state(goals const & gs, substitution const & s, name_generator const & ngen):
-        m_goals(gs), m_subst(s), m_ngen(ngen) {}
-    proof_state(proof_state const & s, goals const & gs, substitution const & subst):proof_state(gs, subst, s.m_ngen) {}
-    proof_state(proof_state const & s, goals const & gs):proof_state(s, gs, s.m_subst) {}
-    proof_state(proof_state const & s, name_generator const & ngen):proof_state(s.m_goals, s.m_subst, ngen) {}
+    proof_state(goals const & gs, substitution const & s, name_generator const & ngen, constraints const & postponed);
+    proof_state(proof_state const & s, goals const & gs, substitution const & subst):
+        proof_state(gs, subst, s.m_ngen, s.m_postponed) {}
+    proof_state(proof_state const & s, goals const & gs):
+        proof_state(s, gs, s.m_subst) {}
+    proof_state(proof_state const & s, name_generator const & ngen):
+        proof_state(s.m_goals, s.m_subst, ngen, s.m_postponed) {}
 
     goals const & get_goals() const { return m_goals; }
     substitution const & get_subst() const { return m_subst; }
     name_generator const & get_ngen() const { return m_ngen; }
+    constraints const & get_postponed() const { return m_postponed; }
 
     /** \brief Return true iff this state does not have any goals left */
     bool is_final_state() const { return empty(m_goals); }
@@ -38,6 +42,7 @@ public:
 inline optional<proof_state> some_proof_state(proof_state const & s) { return some(s); }
 inline optional<proof_state> none_proof_state() { return optional<proof_state> (); }
 
+proof_state to_proof_state(expr const & meta, expr const & type, substitution const & subst, name_generator ngen);
 proof_state to_proof_state(expr const & meta, expr const & type, name_generator ngen);
 
 goals map_goals(proof_state const & s, std::function<optional<goal>(goal const & g)> f);

@@ -92,6 +92,12 @@ bool goal::validate(environment const & env) const {
     }
 }
 
+list<expr> goal::to_context() const {
+    buffer<expr> locals;
+    get_app_rev_args(m_meta, locals);
+    return to_list(locals.begin(), locals.end());
+}
+
 DECL_UDATA(goal)
 
 static int mk_goal(lua_State * L) { return push_goal(L, goal(to_expr(L, 1), to_expr(L, 2))); }

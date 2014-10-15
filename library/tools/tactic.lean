@@ -36,7 +36,6 @@ opaque definition state       : tactic := builtin
 opaque definition fail        : tactic := builtin
 opaque definition id          : tactic := builtin
 opaque definition beta        : tactic := builtin
-opaque definition apply       {B : Type} (b : B) : tactic := builtin
 opaque definition unfold      {B : Type} (b : B) : tactic := builtin
 opaque definition exact       {B : Type} (b : B) : tactic := builtin
 opaque definition trace       (s : string) : tactic := builtin

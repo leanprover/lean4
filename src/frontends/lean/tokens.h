@@ -61,6 +61,7 @@ name const & get_using_tk();
 name const & get_then_tk();
 name const & get_by_tk();
 name const & get_proof_tk();
+name const & get_begin_tk();
 name const & get_qed_tk();
 name const & get_end_tk();
 name const & get_definition_tk();

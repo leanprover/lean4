@@ -6,7 +6,7 @@ axiom H1 : a = b
 axiom H2 : b = c
 
 check have e1 [visible] : a = b, from H1,
-      have e2 : a = c, by apply trans; apply e1; apply H2,
+      have e2 : a = c, by apply trans; apply H2; apply e1,
       have e3 : c = a, from e2⁻¹,
       have e4 [visible] : b = a, from e1⁻¹,
       have e5 : b = c, from e4 ⬝ e2,

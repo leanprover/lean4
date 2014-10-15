@@ -30,7 +30,6 @@ constraint mk_proof_qed_cnstr(environment const & env, expr const & m, expr cons
         constraint_seq new_cs          = cs + tcs.second + dcs.second;
         buffer<constraint> cs_buffer;
         new_cs.linearize(cs_buffer);
-
         metavar_closure cls(meta);
         cls.add(meta_type);
         cls.mk_constraints(s, j, relax, cs_buffer);

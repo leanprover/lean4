@@ -234,6 +234,81 @@ environment import_standard(environment const & env, io_state const & ios, bool 
     return import_module(env, ios, std, keep_proofs);
 }
 
+#if defined(LEAN_EMSCRIPTEN)
+#include <emscripten/bind.h>
+using namespace emscripten;
+
+class emscripten_shell {
+private:
+    unsigned trust_lvl;
+    unsigned num_threads;
+    options opts;
+    environment env;
+    io_state ios;
+    script_state S;
+    set_environment set1;
+    set_io_state    set2;
+
+public:
+    emscripten_shell() : trust_lvl(0), num_threads(1), opts(),
+        env(mk_environment(trust_lvl)), ios(opts, lean::mk_pretty_formatter_factory()),
+        S(lean::get_thread_script_state()), set1(S, env), set2(S, ios) {
+    }
+
+    int import_module(std::string mname) {
+        try {
+            env = ::import_module(env, ios, lean::module_name(mname), false);
+        } catch (lean::exception & ex) {
+            simple_pos_info_provider pp("import_module");
+            lean::display_error(diagnostic(env, ios), &pp, ex);
+            return 1;
+        }
+        return 0;
+    }
+
+    int process_file(std::string input_filename) {
+        bool ok = true;
+        try {
+            environment temp_env(env);
+            if (!parse_commands(temp_env, ios, input_filename.c_str(), false, num_threads)) {
+                ok = false;
+            }
+        } catch (lean::exception & ex) {
+            simple_pos_info_provider pp(input_filename.c_str());
+            ok = false;
+            lean::display_error(diagnostic(env, ios), &pp, ex);
+        }
+        return ok ? 0 : 1;
+    }
+};
+
+lean::initializer* g_init;
+emscripten_shell* g_shell;
+
+void emscripten_init() {
+    g_init = new lean::initializer();
+    g_shell = new emscripten_shell();
+}
+
+int emscripten_import_module(std::string mname) {
+    return g_shell->import_module(mname);
+}
+
+int emscripten_process_file(std::string input_filename) {
+    return g_shell->process_file(input_filename);
+}
+
+EMSCRIPTEN_BINDINGS(LEAN_JS) {
+    function("lean_init", &emscripten_init);
+    function("lean_import_module", &emscripten_import_module);
+    function("lean_process_file", &emscripten_process_file);
+}
+
+int main() {
+    return 0;
+}
+
+#else
 int main(int argc, char ** argv) {
     lean::initializer init;
     bool export_objects     = false;
@@ -418,3 +493,4 @@ int main(int argc, char ** argv) {
     }
     return 1;
 }
+#endif

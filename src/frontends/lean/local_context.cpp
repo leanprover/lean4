@@ -55,13 +55,13 @@ void local_context::set_ctx(list<expr> const & ctx) {
 expr local_context::pi_abstract_context(expr e, tag g) const {
     e = abstract_locals(e, m_ctx);
     for (expr const & l : m_ctx_abstracted)
-        e = mk_pi(local_pp_name(l), mlocal_type(l), e, local_info(l)).set_tag(g);
+        e = mk_pi(local_pp_name(l), mlocal_type(l), e, local_info(l), g);
     return e;
 }
 
 static expr apply_context_core(expr const & f, list<expr> const & ctx, tag g) {
     if (ctx)
-        return mk_app(apply_context_core(f, tail(ctx), g), head(ctx)).set_tag(g);
+        return mk_app(apply_context_core(f, tail(ctx), g), head(ctx), g);
     else
         return f;
 }
@@ -72,9 +72,9 @@ expr local_context::apply_context(expr const & f, tag g) const {
 
 expr local_context::mk_type_metavar(name_generator & ngen, tag g) {
     name n = ngen.next();
-    expr s = mk_sort(mk_meta_univ(ngen.next())).set_tag(g);
+    expr s = mk_sort(mk_meta_univ(ngen.next()), g);
     expr t = pi_abstract_context(s, g);
-    return ::lean::mk_metavar(n, t).set_tag(g);
+    return ::lean::mk_metavar(n, t, g);
 }
 
 expr local_context::mk_type_meta(name_generator & ngen, tag g) {
@@ -85,7 +85,7 @@ expr local_context::mk_metavar(name_generator & ngen, optional<expr> const & typ
     name n      = ngen.next();
     expr r_type = type ? *type : mk_type_meta(ngen, g);
     expr t      = pi_abstract_context(r_type, g);
-    return ::lean::mk_metavar(n, t).set_tag(g);
+    return ::lean::mk_metavar(n, t, g);
 }
 
 expr local_context::mk_meta(name_generator & ngen, optional<expr> const & type, tag g) {

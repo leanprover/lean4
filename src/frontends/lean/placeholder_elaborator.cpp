@@ -111,7 +111,7 @@ struct placeholder_elaborator : public choice_iterator {
                 pair<expr, constraint> ac = mk_placeholder_elaborator(m_C, some_expr(binding_domain(type)), g);
                 expr arg = ac.first;
                 cs.push_back(ac.second);
-                r    = mk_app(r, arg).set_tag(g);
+                r    = mk_app(r, arg, g);
                 type = instantiate(binding_body(type), arg);
             }
             r = Fun(locals, r);

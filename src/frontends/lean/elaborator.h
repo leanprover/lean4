@@ -70,7 +70,7 @@ class elaborator : public coercion_info_manager {
     pair<expr, constraint_seq> whnf(expr const & e) { return m_tc[m_relax_main_opaque]->whnf(e); }
     expr infer_type(expr const & e, constraint_seq & s) { return m_tc[m_relax_main_opaque]->infer(e, s); }
     expr whnf(expr const & e, constraint_seq & s) { return m_tc[m_relax_main_opaque]->whnf(e, s); }
-    expr mk_app(expr const & f, expr const & a, tag g) { return ::lean::mk_app(f, a).set_tag(g); }
+    expr mk_app(expr const & f, expr const & a, tag g) { return ::lean::mk_app(f, a, g); }
 
     void register_meta(expr const & meta);
 

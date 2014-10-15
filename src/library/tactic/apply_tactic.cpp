@@ -29,7 +29,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
     if (empty(gs))
         return proof_state_seq();
     name_generator ngen = s.get_ngen();
-    std::unique_ptr<type_checker> tc = mk_type_checker(env, ngen.mk_child(), relax_main_opaque);
+    std::shared_ptr<type_checker> tc(mk_type_checker(env, ngen.mk_child(), relax_main_opaque));
     goal  g          = head(gs);
     goals tail_gs    = tail(gs);
     expr  t          = g.get_type();
@@ -73,9 +73,6 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
             new_subst.assign(g.get_name(), new_p);
             goals new_gs = tail_gs;
             if (add_subgoals) {
-                // TODO(Leo): if mk_type_checker should return a shared_ptr, then we can reuse the tc defined
-                // before
-                std::unique_ptr<type_checker> tc = mk_type_checker(env, new_ngen.mk_child(), relax_main_opaque);
                 buffer<expr> metas;
                 for (auto m : meta_lst) {
                     if (!new_subst.is_assigned(get_app_fn(m)))

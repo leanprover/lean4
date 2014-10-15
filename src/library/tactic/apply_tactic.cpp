@@ -22,68 +22,9 @@ Author: Leonardo de Moura
 #include "library/tactic/apply_tactic.h"
 
 namespace lean {
-/** \brief Traverse \c e and collect metavariable applications (?m l1 ... ln), and store in result.
-    The function only succeeds if all metavariable applications are "simple", i.e., the arguments
-    are distinct local constants.
-*/
-bool collect_simple_metas(expr const & e, buffer<expr> & result) {
-    bool failed = false;
-    // collect metavariables
-    for_each(e, [&](expr const & e, unsigned) {
-            if (is_meta(e)) {
-                if (!is_simple_meta(e)) {
-                    failed = true;
-                } else {
-                    result.push_back(e);
-                    return false; /* do not visit type */
-                }
-            }
-            return !failed && has_metavar(e);
-        });
-    return !failed;
-}
-
-void collect_simple_meta(expr const & e, buffer<expr> & metas) {
-    for_each(e, [&](expr const & e, unsigned) {
-            if (is_meta(e)) {
-                if (is_simple_meta(e))
-                    metas.push_back(e);
-                return false; /* do not visit its type */
-            }
-            return has_metavar(e);
-        });
-}
-
-/**
-    \brief Given a sequence metas: <tt>(?m_1 ...) (?m_2 ... ) ... (?m_k ...)</tt>,
-    we say ?m_i is "redundant" if it occurs in the type of some ?m_j.
-    This procedure removes from metas any redundant element.
-*/
-void remove_redundant_metas(buffer<expr> & metas) {
-    buffer<expr> mvars;
-    for (expr const & m : metas)
-        mvars.push_back(get_app_fn(m));
-    unsigned k = 0;
-    for (unsigned i = 0; i < metas.size(); i++) {
-        bool found = false;
-        for (unsigned j = 0; j < metas.size(); j++) {
-            if (j != i) {
-                if (occurs(mvars[i], mlocal_type(mvars[j]))) {
-                    found = true;
-                    break;
-                }
-            }
-        }
-        if (!found) {
-            metas[k] = metas[i];
-            k++;
-        }
-    }
-    metas.shrink(k);
-}
-
-static proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & _e,
-                                         buffer<constraint> & cs, bool add_meta, bool add_subgoals, bool relax_main_opaque) {
+static proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s,
+                                         expr const & _e, buffer<constraint> & cs,
+                                         bool add_meta, bool add_subgoals, bool relax_main_opaque) {
     goals const & gs = s.get_goals();
     if (empty(gs))
         return proof_state_seq();
@@ -130,7 +71,6 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
             expr new_p = g.abstract(new_e);
             check_has_no_local(new_p, _e, "apply");
             new_subst.assign(g.get_name(), new_p);
-            // std::cout << g.get_name() << " := " << new_p << "\n";
             goals new_gs = tail_gs;
             if (add_subgoals) {
                 // TODO(Leo): if mk_type_checker should return a shared_ptr, then we can reuse the tc defined
@@ -152,56 +92,6 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
                                          bool add_meta, bool add_subgoals, bool relax_main_opaque) {
     buffer<constraint> cs;
     return apply_tactic_core(env, ios, s, e, cs, add_meta, add_subgoals, relax_main_opaque);
-}
-
-
-level refresh_univ_metavars(level const & l, name_generator & ngen, name_map<level> & level_map) {
-    return replace(l, [&](level const & l) {
-            if (!has_meta(l))
-                return some_level(l);
-            if (is_meta(l)) {
-                name id = meta_id(l);
-                if (auto it = level_map.find(id))
-                    return some_level(*it);
-                level r = mk_meta_univ(ngen.next());
-                level_map.insert(id, r);
-                return some_level(r);
-            }
-            return none_level();
-        });
-}
-
-expr refresh_univ_metavars(expr const & e, name_generator & ngen) {
-    if (has_univ_metavar(e)) {
-        name_map<level> level_map;
-        return replace(e, [&](expr const & e) {
-                if (!has_univ_metavar(e))
-                    return some_expr(e);
-                if (is_sort(e))
-                    return some_expr(update_sort(e, refresh_univ_metavars(sort_level(e), ngen, level_map)));
-                if (is_constant(e))
-                    return some_expr(update_constant(e, map(const_levels(e), [&](level const & l) {
-                                    return refresh_univ_metavars(l, ngen, level_map);
-                                })));
-                return none_expr();
-            });
-    } else {
-        return e;
-    }
-}
-
-tactic apply_tactic(expr const & e, bool relax_main_opaque, bool refresh_univ_mvars) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
-            if (refresh_univ_mvars) {
-                name_generator ngen    = s.get_ngen();
-                substitution new_subst = s.get_subst();
-                expr new_e = refresh_univ_metavars(new_subst.instantiate_all(e), ngen);
-                proof_state new_s(s.get_goals(), new_subst, ngen, s.get_postponed());
-                return apply_tactic_core(env, ios, new_s, new_e, true, true, relax_main_opaque);
-            } else {
-                return apply_tactic_core(env, ios, s, e, true, true, relax_main_opaque);
-            }
-        });
 }
 
 tactic eassumption_tactic(bool relax_main_opaque) {
@@ -229,21 +119,17 @@ tactic apply_tactic(elaborate_fn const & elab, expr const & e, bool relax_main_o
             name_generator ngen = s.get_ngen();
             expr       new_e;
             buffer<constraint> cs;
-            // std::cout << "new apply tactic: " << e << "\n";
             auto ecs = elab(g, ngen.mk_child(), e);
             new_e    = ecs.first;
             to_buffer(ecs.second, cs);
-            // std::cout << "after elaboration: " << new_e << "\n";
             to_buffer(s.get_postponed(), cs);
             proof_state new_s(s.get_goals(), s.get_subst(), ngen, constraints());
             return apply_tactic_core(env, ios, new_s, new_e, cs, true, true, relax_main_opaque);
         });
 }
 
-int mk_apply_tactic(lua_State * L) { return push_tactic(L, apply_tactic(to_expr(L, 1))); }
 int mk_eassumption_tactic(lua_State * L) { return push_tactic(L, eassumption_tactic()); }
 void open_apply_tactic(lua_State * L) {
-    SET_GLOBAL_FUN(mk_apply_tactic,       "apply_tac");
     SET_GLOBAL_FUN(mk_eassumption_tactic, "eassumption_tac");
 }
 }

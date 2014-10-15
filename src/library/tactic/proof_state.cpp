@@ -45,12 +45,13 @@ format proof_state::pp(formatter const & fmt) const {
     unsigned indent      = get_pp_indent(opts);
     format r;
     bool first = true;
+
     for (auto const & g : get_goals()) {
         if (first) first = false; else r += line();
         if (show_goal_names) {
-            r += group(format(g.get_name()) + colon() + nest(indent, line() + g.pp(fmt)));
+            r += group(format(g.get_name()) + colon() + nest(indent, line() + g.pp(fmt, m_subst)));
         } else {
-            r += g.pp(fmt);
+            r += g.pp(fmt, m_subst);
         }
     }
     if (first) r = format("no goals");

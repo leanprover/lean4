@@ -72,6 +72,7 @@ public:
     */
     list<expr> to_context() const;
 
+    format pp(formatter const & fmt, substitution const & s) const;
     format pp(formatter const & fmt) const;
 };
 

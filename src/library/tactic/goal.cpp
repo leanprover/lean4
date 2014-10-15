@@ -11,11 +11,17 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
+#include "kernel/metavar.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/goal.h"
 
 namespace lean {
 format goal::pp(formatter const & fmt) const {
+    return pp(fmt, substitution());
+}
+
+format goal::pp(formatter const & fmt, substitution const & s) const {
+    substitution tmp_subst(s);
     options const & opts = fmt.get_options();
     unsigned indent  = get_pp_indent(opts);
     bool unicode     = get_pp_unicode(opts);
@@ -29,10 +35,11 @@ format goal::pp(formatter const & fmt) const {
     for (auto it = tmp.begin(); it != end; ++it) {
         if (first) first = false; else r += compose(comma(), line());
         expr l     = *it;
-        r += fmt(l) + space() + colon() + nest(indent, line() + fmt(mlocal_type(l)));
+        expr t     = tmp_subst.instantiate(mlocal_type(l));
+        r += fmt(l) + space() + colon() + nest(indent, line() + fmt(t));
     }
     r = group(r);
-    r += line() + turnstile + space() + nest(indent, fmt(conclusion));
+    r += line() + turnstile + space() + nest(indent, fmt(tmp_subst.instantiate(conclusion)));
     return group(r);
 }
 

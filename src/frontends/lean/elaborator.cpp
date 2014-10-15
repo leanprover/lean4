@@ -1128,7 +1128,7 @@ std::tuple<expr, expr, level_param_names> elaborator::operator()(
 static expr translate_local_name(environment const & env, list<expr> const & ctx, name const & local_name,
                                  expr const & src) {
     for (expr const & local : ctx) {
-        if (mlocal_name(local) == local_name)
+        if (local_pp_name(local) == local_name)
             return local;
     }
     // TODO(Leo): we should create an elaborator exception.
@@ -1151,7 +1151,7 @@ static expr translate(environment const & env, list<expr> const & ctx, expr cons
                 return none_expr();
             }
         } else if (is_local(e)) {
-            return some_expr(translate_local_name(env, ctx, mlocal_name(e), e));
+            return some_expr(translate_local_name(env, ctx, local_pp_name(e), e));
         } else {
             return none_expr();
         }

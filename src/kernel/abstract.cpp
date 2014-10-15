@@ -20,7 +20,7 @@ expr abstract(expr const & e, unsigned s, unsigned n, expr const * subst) {
                 while (i > 0) {
                     --i;
                     if (subst[i] == e)
-                        return some_expr(copy_tag(e, mk_var(offset + s + n - i - 1)));
+                        return some_expr(mk_var(offset + s + n - i - 1, e.get_tag()));
                 }
             }
             return none_expr();
@@ -41,7 +41,7 @@ expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
                 while (i > 0) {
                     --i;
                     if (mlocal_name(subst[i]) == mlocal_name(m))
-                        return some_expr(copy_tag(m, mk_var(offset + n - i - 1)));
+                        return some_expr(mk_var(offset + n - i - 1, m.get_tag()));
                 }
             }
             return none_expr();

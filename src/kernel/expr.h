@@ -69,7 +69,7 @@ protected:
 
      static void dec_ref(expr & c, buffer<expr_cell*> & todelete);
 public:
-    expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local, bool has_param_univ);
+    expr_cell(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local, bool has_param_univ, tag g);
     expr_kind kind() const { return static_cast<expr_kind>(m_kind); }
     unsigned  hash() const { return m_hash; }
     unsigned  hash_alloc() const { return m_hash_alloc; }
@@ -128,29 +128,35 @@ public:
 
     expr_cell * raw() const { return m_ptr; }
 
-    friend expr mk_var(unsigned idx);
-    friend expr mk_sort(level const & l);
-    friend expr mk_constant(name const & n, levels const & ls);
-    friend expr mk_metavar(name const & n, expr const & t);
-    friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
-    friend expr mk_app(expr const & f, expr const & a);
-    friend expr mk_pair(expr const & f, expr const & s, expr const & t);
-    friend expr mk_proj(bool fst, expr const & p);
-    friend expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i);
-    friend expr mk_macro(macro_definition const & m, unsigned num, expr const * args);
+    friend expr mk_var(unsigned idx, tag g);
+    friend expr mk_sort(level const & l, tag g);
+    friend expr mk_constant(name const & n, levels const & ls, tag g);
+    friend expr mk_metavar(name const & n, expr const & t, tag g);
+    friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi,
+                         tag g);
+    friend expr mk_app(expr const & f, expr const & a, tag g);
+    friend expr mk_pair(expr const & f, expr const & s, expr const & t, tag g);
+    friend expr mk_proj(bool fst, expr const & p, tag g);
+    friend expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i,
+                           tag g);
+    friend expr mk_macro(macro_definition const & m, unsigned num, expr const * args, tag g);
 
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
     // Overloaded operator() can be used to create applications
-    expr operator()(expr const & a1) const;
-    expr operator()(expr const & a1, expr const & a2) const;
-    expr operator()(expr const & a1, expr const & a2, expr const & a3) const;
-    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4) const;
-    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5) const;
-    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6) const;
-    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6,
-                    expr const & a7) const;
-    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5, expr const & a6,
-                    expr const & a7, expr const & a8) const;
+    expr operator()(expr const & a1, tag g = nulltag) const;
+    expr operator()(expr const & a1, expr const & a2, tag g = nulltag) const;
+    expr operator()(expr const & a1, expr const & a2, expr const & a3, tag g = nulltag) const;
+    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4,
+                    tag g = nulltag) const;
+    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4,
+                    expr const & a5, tag g = nulltag) const;
+    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4,
+                    expr const & a5, expr const & a6, tag g = nulltag) const;
+    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4,
+                    expr const & a5, expr const & a6, expr const & a7, tag g = nulltag) const;
+    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4,
+                    expr const & a5, expr const & a6, expr const & a7, expr const & a8,
+                    tag g = nulltag) const;
 };
 
 expr copy_tag(expr const & e, expr && new_e);
@@ -181,7 +187,7 @@ class expr_var : public expr_cell {
     friend expr_cell;
     void dealloc();
 public:
-    expr_var(unsigned idx);
+    expr_var(unsigned idx, tag g);
     unsigned get_vidx() const { return m_vidx; }
 };
 
@@ -192,7 +198,7 @@ class expr_const : public expr_cell {
     friend expr_cell;
     void dealloc();
 public:
-    expr_const(name const & n, levels const & ls);
+    expr_const(name const & n, levels const & ls, tag g);
     name const & get_name() const { return m_name; }
     levels const & get_levels() const { return m_levels; }
 };
@@ -206,7 +212,7 @@ protected:
     friend unsigned get_free_var_range(expr const & e);
 public:
     expr_composite(expr_kind k, unsigned h, bool has_expr_mv, bool has_univ_mv, bool has_local,
-                   bool has_param_univ, unsigned w, unsigned fv_range);
+                   bool has_param_univ, unsigned w, unsigned fv_range, tag g);
 };
 
 /** \brief Metavariables and local constants */
@@ -217,7 +223,7 @@ protected:
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
 public:
-    expr_mlocal(bool is_meta, name const & n, expr const & t);
+    expr_mlocal(bool is_meta, name const & n, expr const & t, tag g);
     name const & get_name() const { return m_name; }
     expr const & get_type() const { return m_type; }
 };
@@ -273,7 +279,7 @@ class expr_local : public expr_mlocal {
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
 public:
-    expr_local(name const & n, name const & pp_name, expr const & t, binder_info const & bi);
+    expr_local(name const & n, name const & pp_name, expr const & t, binder_info const & bi, tag g);
     name const & get_pp_name() const { return m_pp_name; }
     binder_info const & get_info() const { return m_bi; }
 };
@@ -285,7 +291,7 @@ class expr_app : public expr_composite {
     friend expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
 public:
-    expr_app(expr const & fn, expr const & arg);
+    expr_app(expr const & fn, expr const & arg, tag g);
     expr const & get_fn() const { return m_fn; }
     expr const & get_arg() const { return m_arg; }
 };
@@ -296,7 +302,7 @@ class binder {
     expr             m_type;
     binder_info      m_info;
 public:
-    binder(name const & n, expr const & t, binder_info const & bi = binder_info()):
+    binder(name const & n, expr const & t, binder_info const & bi):
         m_name(n), m_type(t), m_info(bi) {}
     name const & get_name() const { return m_name; }
     expr const & get_type() const { return m_type; }
@@ -311,7 +317,8 @@ class expr_binding : public expr_composite {
     friend class expr_cell;
     void dealloc(buffer<expr_cell*> & todelete);
 public:
-    expr_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i = binder_info());
+    expr_binding(expr_kind k, name const & n, expr const & t, expr const & e,
+                 binder_info const & i, tag g);
     name const & get_name() const   { return m_binder.get_name(); }
     expr const & get_domain() const { return m_binder.get_type(); }
     expr const & get_body() const   { return m_body; }
@@ -325,7 +332,7 @@ class expr_sort : public expr_cell {
     friend expr_cell;
     void dealloc();
 public:
-    expr_sort(level const & l);
+    expr_sort(level const & l, tag g);
     ~expr_sort();
     level const & get_level() const { return m_level; }
 };
@@ -399,7 +406,7 @@ class expr_macro : public expr_composite {
     friend expr update_macro(expr const & e, unsigned num, expr const * args);
     void dealloc(buffer<expr_cell*> & todelete);
 public:
-    expr_macro(macro_definition const & v, unsigned num, expr const * args);
+    expr_macro(macro_definition const & v, unsigned num, expr const * args, tag g);
     ~expr_macro();
 
     macro_definition const & get_def() const { return m_definition; }
@@ -442,79 +449,105 @@ bool is_meta(expr const & e);
 
 // =======================================
 // Constructors
-expr mk_var(unsigned idx);
+expr mk_var(unsigned idx, tag g = nulltag);
 inline expr Var(unsigned idx) { return mk_var(idx); }
-expr mk_constant(name const & n, levels const & ls);
+expr mk_constant(name const & n, levels const & ls, tag g = nulltag);
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline expr Const(name const & n) { return mk_constant(n); }
-expr mk_macro(macro_definition const & m, unsigned num = 0, expr const * args = nullptr);
-expr mk_metavar(name const & n, expr const & t);
-expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
-inline expr mk_local(name const & n, expr const & t) { return mk_local(n, n, t, binder_info()); }
-inline expr mk_local(name const & n, expr const & t, binder_info const & bi) { return mk_local(n, n, t, bi); }
-inline expr Local(name const & n, expr const & t, binder_info const & bi = binder_info()) { return mk_local(n, t, bi); }
-expr mk_app(expr const & f, expr const & a);
-expr mk_app(expr const & f, unsigned num_args, expr const * args);
-expr mk_app(unsigned num_args, expr const * args);
-inline expr mk_app(std::initializer_list<expr> const & l) { return mk_app(l.size(), l.begin()); }
-template<typename T> expr mk_app(T const & args) { return mk_app(args.size(), args.data()); }
-template<typename T> expr mk_app(expr const & f, T const & args) { return mk_app(f, args.size(), args.data()); }
-expr mk_rev_app(expr const & f, unsigned num_args, expr const * args);
-expr mk_rev_app(unsigned num_args, expr const * args);
-template<typename T> expr mk_rev_app(T const & args) { return mk_rev_app(args.size(), args.data()); }
-template<typename T> expr mk_rev_app(expr const & f, T const & args) { return mk_rev_app(f, args.size(), args.data()); }
-expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i = binder_info());
-inline expr mk_lambda(name const & n, expr const & t, expr const & e, binder_info const & i = binder_info()) {
-    return mk_binding(expr_kind::Lambda, n, t, e, i);
+expr mk_macro(macro_definition const & m, unsigned num = 0, expr const * args = nullptr, tag g = nulltag);
+expr mk_metavar(name const & n, expr const & t, tag g = nulltag);
+expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi, tag g = nulltag);
+inline expr mk_local(name const & n, expr const & t, tag g = nulltag) { return mk_local(n, n, t, binder_info(), g); }
+inline expr mk_local(name const & n, expr const & t, binder_info const & bi, tag g = nulltag) {
+    return mk_local(n, n, t, bi, g);
 }
-inline expr mk_pi(name const & n, expr const & t, expr const & e, binder_info const & i = binder_info()) {
-    return mk_binding(expr_kind::Pi, n, t, e, i);
+inline expr Local(name const & n, expr const & t, binder_info const & bi = binder_info(), tag g = nulltag) {
+    return mk_local(n, t, bi, g);
 }
-expr mk_sort(level const & l);
+expr mk_app(expr const & f, expr const & a, tag g = nulltag);
+expr mk_app(expr const & f, unsigned num_args, expr const * args, tag g = nulltag);
+expr mk_app(unsigned num_args, expr const * args, tag g = nulltag);
+inline expr mk_app(std::initializer_list<expr> const & l, tag g = nulltag) {
+    return mk_app(l.size(), l.begin(), g);
+}
+template<typename T> expr mk_app(T const & args, tag g = nulltag) { return mk_app(args.size(), args.data(), g); }
+template<typename T> expr mk_app(expr const & f, T const & args, tag g = nulltag) {
+    return mk_app(f, args.size(), args.data(), g);
+}
+expr mk_rev_app(expr const & f, unsigned num_args, expr const * args, tag g = nulltag);
+expr mk_rev_app(unsigned num_args, expr const * args, tag g = nulltag);
+template<typename T> expr mk_rev_app(T const & args, tag g = nulltag) { return mk_rev_app(args.size(), args.data(), g); }
+template<typename T> expr mk_rev_app(expr const & f, T const & args, tag g = nulltag) {
+    return mk_rev_app(f, args.size(), args.data(), g);
+}
+expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e,
+                binder_info const & i = binder_info(), tag g = nulltag);
+inline expr mk_lambda(name const & n, expr const & t, expr const & e,
+                      binder_info const & i = binder_info(), tag g = nulltag) {
+    return mk_binding(expr_kind::Lambda, n, t, e, i, g);
+}
+inline expr mk_pi(name const & n, expr const & t, expr const & e, binder_info const & i = binder_info(), tag g = nulltag) {
+    return mk_binding(expr_kind::Pi, n, t, e, i, g);
+}
+expr mk_sort(level const & l, tag g = nulltag);
 
 /** \brief Return <tt>Pi(x.{sz-1}, domain[sz-1], ..., Pi(x.{0}, domain[0], range)...)</tt> */
-expr mk_pi(unsigned sz, expr const * domain, expr const & range);
-inline expr mk_pi(buffer<expr> const & domain, expr const & range) { return mk_pi(domain.size(), domain.data(), range); }
+expr mk_pi(unsigned sz, expr const * domain, expr const & range, tag g = nulltag);
+inline expr mk_pi(buffer<expr> const & domain, expr const & range, tag g = nulltag) {
+    return mk_pi(domain.size(), domain.data(), range, g);
+}
 
 expr mk_Prop();
 expr mk_Type();
 
 bool is_default_var_name(name const & n);
-expr mk_arrow(expr const & t, expr const & e);
+expr mk_arrow(expr const & t, expr const & e, tag g = nulltag);
 inline expr operator>>(expr const & t, expr const & e) { return mk_arrow(t, e); }
 
 // Auxiliary
-inline expr mk_app(expr const & e1, expr const & e2, expr const & e3) { return mk_app({e1, e2, e3}); }
-inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4) { return mk_app({e1, e2, e3, e4}); }
-inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5) {
-    return mk_app({e1, e2, e3, e4, e5});
+inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, tag g = nulltag) {
+    return mk_app({e1, e2, e3}, g);
 }
-inline expr expr::operator()(expr const & a1) const { return mk_app({*this, a1}); }
-inline expr expr::operator()(expr const & a1, expr const & a2) const { return mk_app({*this, a1, a2}); }
-inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3) const { return mk_app({*this, a1, a2, a3}); }
-inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4) const {
-    return mk_app({*this, a1, a2, a3, a4});
+inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, tag g = nulltag) {
+    return mk_app({e1, e2, e3, e4}, g);
 }
-inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5) const {
-    return mk_app({*this, a1, a2, a3, a4, a5});
+inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5,
+                   tag g = nulltag) {
+    return mk_app({e1, e2, e3, e4, e5}, g);
+}
+inline expr expr::operator()(expr const & a, tag g) const {
+    return mk_app({*this, a}, g);
+}
+inline expr expr::operator()(expr const & a1, expr const & a2, tag g) const {
+    return mk_app({*this, a1, a2}, g);
+}
+inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, tag g) const {
+    return mk_app({*this, a1, a2, a3}, g);
+}
+inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, tag g) const {
+    return mk_app({*this, a1, a2, a3, a4}, g);
+}
+inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4,
+                             expr const & a5, tag g) const {
+    return mk_app({*this, a1, a2, a3, a4, a5}, g);
 }
 inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5,
-                             expr const & a6) const {
-    return mk_app({*this, a1, a2, a3, a4, a5, a6});
+                             expr const & a6, tag g) const {
+    return mk_app({*this, a1, a2, a3, a4, a5, a6}, g);
 }
 inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5,
-                             expr const & a6, expr const & a7) const {
-    return mk_app({*this, a1, a2, a3, a4, a5, a6, a7});
+                             expr const & a6, expr const & a7, tag g) const {
+    return mk_app({*this, a1, a2, a3, a4, a5, a6, a7}, g);
 }
 inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5,
-                             expr const & a6, expr const & a7, expr const & a8) const {
-    return mk_app({*this, a1, a2, a3, a4, a5, a6, a7, a8});
+                             expr const & a6, expr const & a7, expr const & a8, tag g) const {
+    return mk_app({*this, a1, a2, a3, a4, a5, a6, a7, a8}, g);
 }
 
 /** \brief Return application (...((f x_{n-1}) x_{n-2}) ... x_0) */
-expr mk_app_vars(expr const & f, unsigned n);
+expr mk_app_vars(expr const & f, unsigned n, tag g = nulltag);
 
-expr mk_local_for(expr const & b, name_generator const & ngen);
+expr mk_local_for(expr const & b, name_generator const & ngen, tag g = nulltag);
 
 bool enable_expr_caching(bool f);
 /** \brief Helper class for temporarily enabling/disabling expression caching */

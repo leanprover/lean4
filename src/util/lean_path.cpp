@@ -119,6 +119,10 @@ static std::string *              g_lean_path = nullptr;
 static std::vector<std::string> * g_lean_path_vector = nullptr;
 
 void init_lean_path() {
+#if defined(LEAN_EMSCRIPTEN)
+    *g_lean_path = "/library";
+    g_lean_path_vector->push_back(*g_lean_path);
+#else
     char * r = getenv("LEAN_PATH");
     if (r == nullptr) {
         *g_lean_path  = ".";
@@ -144,6 +148,7 @@ void init_lean_path() {
     }
     if (j > i)
         g_lean_path_vector->push_back(g_lean_path->substr(i, j - i));
+#endif
 }
 
 static char g_sep_str[2];

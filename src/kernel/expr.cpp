@@ -427,13 +427,6 @@ expr const & get_app_args(expr const & e, buffer<expr> & args) {
     return *it;
 }
 
-void flat_app(expr const & e, buffer<expr> & args) {
-    unsigned i = args.size();
-    args.push_back(expr());
-    expr const & f = get_app_args(e, args);
-    args[i] = f;
-}
-
 expr const & get_app_rev_args(expr const & e, buffer<expr> & args) {
     expr const * it = &e;
     while (is_app(*it)) {
@@ -472,16 +465,6 @@ expr mk_arrow(expr const & t, expr const & e, tag g) {
     return mk_pi(get_default_var_name(), t, e, binder_info(), g);
 }
 
-expr mk_pi(unsigned sz, expr const * domain, expr const & range, tag g) {
-    expr r = range;
-    unsigned i = sz;
-    while (i > 0) {
-        --i;
-        r = mk_pi(name(g_default_var_name, i), domain[i], r, binder_info(), g);
-    }
-    return r;
-}
-
 static expr * g_Prop  = nullptr;
 static expr * g_Type1 = nullptr;
 expr mk_Prop() { return *g_Prop; }
@@ -514,18 +497,6 @@ expr update_app(expr const & e, expr const & new_fn, expr const & new_arg) {
         return mk_app(new_fn, new_arg, e.get_tag());
     else
         return e;
-}
-
-expr update_rev_app(expr const & e, unsigned num, expr const * new_args) {
-    expr const * it = &e;
-    for (unsigned i = 0; i < num - 1; i++) {
-        if (!is_app(*it) || !is_eqp(app_arg(*it), new_args[i]))
-            return mk_rev_app(num, new_args, e.get_tag());
-        it = &app_fn(*it);
-    }
-    if (!is_eqp(*it, new_args[num - 1]))
-        return mk_rev_app(num, new_args, e.get_tag());
-    return e;
 }
 
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body) {

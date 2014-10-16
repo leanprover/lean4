@@ -466,12 +466,6 @@ inline expr mk_pi(name const & n, expr const & t, expr const & e, binder_info co
 }
 expr mk_sort(level const & l, tag g = nulltag);
 
-/** \brief Return <tt>Pi(x.{sz-1}, domain[sz-1], ..., Pi(x.{0}, domain[0], range)...)</tt> */
-expr mk_pi(unsigned sz, expr const * domain, expr const & range, tag g = nulltag);
-inline expr mk_pi(buffer<expr> const & domain, expr const & range, tag g = nulltag) {
-    return mk_pi(domain.size(), domain.data(), range, g);
-}
-
 expr mk_Prop();
 expr mk_Type();
 
@@ -568,8 +562,6 @@ inline unsigned get_free_var_range(expr const & e) {
 inline bool has_free_vars(expr const & e) { return get_free_var_range(e) > 0; }
 /** \brief Return true iff the given expression does not have free variables. */
 inline bool closed(expr const & e) { return !has_free_vars(e); }
-/** \brief Return true iff \c e contains a free variable >= low. */
-inline bool has_free_var_ge(expr const & e, unsigned low) { return get_free_var_range(e) > low; }
 /**
     \brief Given \c e of the form <tt>(...(f a1) ... an)</tt>, store a1 ... an in args.
     If \c e is not an application, then nothing is stored in args.
@@ -582,16 +574,10 @@ expr const & get_app_args(expr const & e, buffer<expr> & args);
    If e is of the form <tt>(...(f a1) ... an)</tt>, then the procedure stores [an, ..., a1] in \c args.
 */
 expr const & get_app_rev_args(expr const & e, buffer<expr> & args);
-/**
-   \brief Given an application \c e of the form <tt>(...(f a1) ... an)</tt>, store f, a1, ... an in args.
-*/
-void flat_app(expr const & e, buffer<expr> & args);
 /** \brief Given \c e of the form <tt>(...(f a_1) ... a_n)</tt>, return \c f. If \c e is not an application, then return \c e. */
 expr const & get_app_fn(expr const & e);
 /** \brief Given \c e of the form <tt>(...(f a_1) ... a_n)</tt>, return \c n. If \c e is not an application, then return 0. */
 unsigned get_app_num_args(expr const & e);
-/** \brief Return the name of constant, local, metavar */
-inline name const & named_expr_name(expr const & e) { return is_constant(e) ? const_name(e) : mlocal_name(e); }
 // =======================================
 
 // =======================================

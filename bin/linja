@@ -21,6 +21,9 @@ import tempfile
 import threading
 import urllib
 
+# Enforce subprocesses to use 'utf-8'
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 # Fixate the path separator as '\' on Windows Platform
 # even if users are on CYGWIN/MSYS2 environment
@@ -49,6 +52,87 @@ g_flycheck_footer  = "FLYCHECK_END"
 
 g_logger = logging.getLogger('linja_logger')
 g_debug_mode = False
+
+class FlycheckItem:
+    def __init__(self, filename, lineno, colno, ty, msg):
+        self.filename = filename
+        self.lineno   = lineno
+        self.colno    = colno
+        self.ty       = ty
+        self.msg      = msg
+        pass
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+    def __unicode__(self):
+        ret = g_flycheck_header + " " + self.ty.upper() + "\n"
+        ret += "%s:%d:%d: %s: %s" % (self.filename, self.lineno, self.colno, self.ty, self.msg) + "\n"
+        ret += g_flycheck_footer
+        return ret
+    def __lt__(self, other):
+        return (self.filename, self.ty, self.lineno, self.colno) < (other.filename, other.ty, other.lineno, other.colno)
+    def loc(self):
+        return (self.filename, self.ty, self.lineno, self.colno)
+    @classmethod
+    def fromString(cls, text):
+        # Throw the first and last lines (header/footer)
+        lines     = text.splitlines()
+        lines     = lines[1:-1]
+        firstLine = lines[0]
+        items     = [item.strip() for item in firstLine.split(":")]
+        filename  = items[0]
+        lineno    = int(items[1])
+        colno     = int(items[2])
+        ty        = items[3]
+        msg       = ":".join(items[4:]) + "\n" + "\n".join(lines[1:])
+        msg       = msg.strip()
+        return cls(filename, lineno, colno, ty, msg)
+
+class FlycheckItemList:
+    def __init__(self, items):
+        self.items = items
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+    def __unicode__(self):
+        return "\n".join([unicode(item) for item in self.items])
+    def __getitem__(self, i):
+        return self.items[i]
+    def __len__(self):
+        return len(self.items)
+    def sort(self):
+        self.items = sorted(self.items)
+    def filter(self, pred):
+        self.items = filter(pred, self.items)
+    def append(self, item):
+        self.items.append(item)
+    def removeExtraItemsStartswith(self, text):
+        self.sort()
+        newItems = self.items[:1]
+        i = 1
+        while i < len(self.items):
+            prev_item = self.items[i-1]
+            cur_item = self.items[i]
+            if not cur_item.msg.startswith(text) or prev_item.loc() != cur_item.loc():
+                newItems.append(cur_item)
+            i += 1
+        self.items = newItems
+
+    @classmethod
+    def fromString(cls, text):
+        items = []
+        tmpBuffer = ""
+        ignore = True
+        for line in text.splitlines():
+            if line.startswith(g_flycheck_header):
+                tmpBuffer = tmpBuffer + line + "\n"
+                ignore = False
+            elif line.startswith(g_flycheck_footer):
+                tmpBuffer = tmpBuffer + line + "\n"
+                items.append(FlycheckItem.fromString(tmpBuffer.strip()))
+                tmpBuffer = ""
+                ignore = True
+            elif not ignore:
+                tmpBuffer = tmpBuffer + line + "\n"
+        return cls(items)
 
 def init_logger():
     formatter = logging.Formatter('[%(levelname)s] %(asctime)s %(message)s')
@@ -312,40 +396,21 @@ def process_lean_output(target, out, args):
     n = args.flycheck_max_messages
     if target.endswith(".olean"):
         target = target[:-5] + "lean"
-    if not target.endswith(".lean") or n == None:
+    if not target.endswith(".lean"):
         print out
         return
-
-    inside_of_flycheck = False
-    reach_limit        = False
-    lines              = out.splitlines()
-    lines_len          = len(lines)
-    count              = 0
-    i                  = 0
-    current_file = ""
-    while i < lines_len:
-        line = lines[i]
-        if platform.system() == "Windows":
-            line = line.replace("\\", "/")
-        i += 1
-        if line == "":
-            continue
-        if line.startswith(g_flycheck_header):
-            inside_of_flycheck = True
-            current_file = lines[i].split(":")[0]
-        if inside_of_flycheck and not reach_limit:
-            print line
-        if line.startswith(g_flycheck_footer):
-            if current_file == target:
-                count += 1
-            inside_of_flycheck = False
-        if count >= n:
-            reach_limit = True
-
-    if reach_limit:
-        print g_flycheck_header, "ERROR"
-        print "%s:1:0: error: For performance, we only display %d errors/warnings out of %d. (lean-flycheck-max-messages-to-display)" % (target, n, count)
-        print g_flycheck_footer
+    # Parse, filter, and remove extra items
+    flycheckItemList = FlycheckItemList.fromString(out)
+    flycheckItemList.filter(lambda item: item.filename == target)
+    flycheckItemList.removeExtraItemsStartswith("failed to add declaration")
+    # Only keep n items in the list.
+    # Add tooManyItemsError at the end if we truncated the list
+    if n and len(flycheckItemList) > n:
+        count = len(flycheckItemList)
+        flycheckItemList = flycheckItemList[:n]
+        tooManyItemsError = FlycheckItem(target, 1, 0, "error", "For performance, we only display %d errors/warnings out of %d. (lean-flycheck-max-messages-to-display)" % (n, count))
+        flycheckItemList.append(tooManyItemsError)
+    print flycheckItemList
 
 def call_ninja(args):
     targets = []

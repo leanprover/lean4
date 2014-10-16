@@ -249,7 +249,7 @@ private:
     set_io_state    set2;
 
 public:
-    emscripten_shell() : trust_lvl(0), num_threads(1), opts(),
+    emscripten_shell() : trust_lvl(10000), num_threads(1), opts("flycheck", true),
         env(mk_environment(trust_lvl)), ios(opts, lean::mk_pretty_formatter_factory()),
         S(lean::get_thread_script_state()), set1(S, env), set2(S, ios) {
     }

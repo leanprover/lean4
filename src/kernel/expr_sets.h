@@ -14,21 +14,9 @@ Author: Leonardo de Moura
 namespace lean {
 
 // =======================================
-// Expression Set && Expression Offset Set
+// Expression Set
 // Remark: to expressions are assumed to be equal if they are "pointer-equal"
 typedef std::unordered_set<expr, expr_hash_alloc, expr_eqp> expr_set;
-typedef std::unordered_set<expr_offset, expr_offset_hash, expr_offset_eqp> expr_offset_set;
-// =======================================
-
-// =======================================
-// (low level) Expression Cell Set
-// Remark: to expressions are assumed to be equal if they are "pointer-equal"
-//
-// WARNING: use with care, this kind of set
-// does not prevent an expression from being
-// garbage collected.
-typedef std::unordered_set<expr_cell*, expr_cell_hash, expr_cell_eqp> expr_cell_set;
-typedef std::unordered_set<expr_cell_offset, expr_cell_offset_hash, expr_cell_offset_eqp> expr_cell_offset_set;
 // =======================================
 
 // =======================================

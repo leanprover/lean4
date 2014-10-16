@@ -682,13 +682,6 @@ assert(f(Var(0), Var(2)):lift_free_vars(2, 3) == f(Var(0), Var(5)))
 
 assert(f(Var(1)):lower_free_vars(1) == f(Var(0)))
 assert(f(Var(2)):lower_free_vars(1) == f(Var(1)))
--- It is an error to invoke t:lower_free_vars(i) when
--- t contains free variables with indices in [0, n).
--- In Lua, pcall(fn) stands for protected call, it traps
--- any error occurred when executing fn.
-assert(not pcall(function()
-    f(Var(1)):lower_free_vars(2)
-end))
 -- lower the free variables >= 2 by 1
 assert(f(Var(0), Var(2)):lower_free_vars(2, 1) ==
        f(Var(0), Var(1)))
@@ -747,4 +740,3 @@ assert(bi:is_implicit())
 local y, T, C, bi2 = B:data()
 assert(not bi2:is_implicit())
 ```
-

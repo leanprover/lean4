@@ -637,13 +637,6 @@ unsigned get_app_num_args(expr const & e);
 inline name const & named_expr_name(expr const & e) { return is_constant(e) ? const_name(e) : mlocal_name(e); }
 // =======================================
 
-
-// =======================================
-// Expression+Offset
-typedef pair<expr, unsigned>       expr_offset;
-typedef pair<expr_cell*, unsigned> expr_cell_offset;
-// =======================================
-
 // =======================================
 // Auxiliary functionals
 /** \brief Functional object for hashing kernel expressions. */
@@ -661,14 +654,6 @@ struct expr_eqp { bool operator()(expr const & e1, expr const & e2) const { retu
 struct expr_cell_hash { unsigned operator()(expr_ptr e) const { return e->hash_alloc(); } };
 /** \brief Functional object for testing pointer equality between kernel cell expressions. */
 struct expr_cell_eqp { bool operator()(expr_ptr e1, expr_ptr e2) const { return e1 == e2; } };
-/** \brief Functional object for hashing a pair (n, k) where n is a kernel expressions, and k is an offset. */
-struct expr_offset_hash { unsigned operator()(expr_offset const & p) const { return hash(p.first.hash_alloc(), p.second); } };
-/** \brief Functional object for comparing pairs (expression, offset). */
-struct expr_offset_eqp { unsigned operator()(expr_offset const & p1, expr_offset const & p2) const { return is_eqp(p1.first, p2.first) && p1.second == p2.second; } };
-/** \brief Functional object for hashing a pair (n, k) where n is a kernel cell expressions, and k is an offset. */
-struct expr_cell_offset_hash { unsigned operator()(expr_cell_offset const & p) const { return hash(p.first->hash_alloc(), p.second); } };
-/** \brief Functional object for comparing pairs (expression cell, offset). */
-struct expr_cell_offset_eqp { unsigned operator()(expr_cell_offset const & p1, expr_cell_offset const & p2) const { return p1 == p2; } };
 // =======================================
 
 // =======================================

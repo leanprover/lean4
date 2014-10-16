@@ -11,7 +11,7 @@ namespace lean {
     \brief Return true iff \c e constains a free variable <tt>(var i)</tt> s.t. \c i in <tt>[low, high)</tt>.
     \pre low < high
 */
-bool has_free_var(expr const & e, unsigned low, unsigned high);
+// bool has_free_var(expr const & e, unsigned low, unsigned high);
 /** \brief Return true iff \c e contains the free variable <tt>(var i)</tt>. */
 bool has_free_var(expr const & e, unsigned i);
 

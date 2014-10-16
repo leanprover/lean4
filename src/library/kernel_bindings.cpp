@@ -505,11 +505,7 @@ static int expr_replace(lua_State * L) {
 }
 
 static int expr_has_free_var(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 2)
-        return push_boolean(L, has_free_var(to_expr(L, 1), luaL_checkinteger(L, 2)));
-    else
-        return push_boolean(L, has_free_var(to_expr(L, 1), luaL_checkinteger(L, 2), luaL_checkinteger(L, 3)));
+    return push_boolean(L, has_free_var(to_expr(L, 1), luaL_checkinteger(L, 2)));
 }
 
 static int expr_lift_free_vars(lua_State * L) {
@@ -526,15 +522,11 @@ static int expr_lower_free_vars(lua_State * L) {
     expr const & e = to_expr(L, 1);
     int s          = luaL_checkinteger(L, 2);
     if (nargs == 2) {
-        if (has_free_var(e, 0, s))
-            throw exception(sstream() << "invalid lower_free_vars, expression contains free variables with de-Bruijn indices in the range [0, " << s << ")");
         return push_expr(L, lower_free_vars(e, s));
     } else {
         int d = luaL_checkinteger(L, 3);
         if (s < d)
             throw exception(sstream() << "invalid lower_free_vars, first argument must be >= second one");
-        if (has_free_var(e, s-d, s))
-            throw exception(sstream() << "invalid lower_free_vars, expression contains free variables with de-Bruijn indices in the range [" << s-d << ", " << s << ")");
         return push_expr(L, lower_free_vars(e, s, d));
     }
 }

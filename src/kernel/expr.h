@@ -81,6 +81,8 @@ public:
     tag get_tag() const { return m_tag; }
 };
 
+typedef expr_cell * expr_ptr;
+
 class macro_definition;
 class binder_info;
 
@@ -125,7 +127,7 @@ public:
     expr set_tag(tag t) { m_ptr->set_tag(t); return *this; }
     tag get_tag() const { return m_ptr->get_tag(); }
 
-
+    operator expr_ptr() const { return m_ptr; }
     expr_cell * raw() const { return m_ptr; }
 
     friend expr mk_var(unsigned idx, tag g);
@@ -417,29 +419,17 @@ public:
 
 // =======================================
 // Testers
-inline bool is_var(expr_cell * e)         { return e->kind() == expr_kind::Var; }
-inline bool is_constant(expr_cell * e)    { return e->kind() == expr_kind::Constant; }
-inline bool is_local(expr_cell * e)       { return e->kind() == expr_kind::Local; }
-inline bool is_metavar(expr_cell * e)     { return e->kind() == expr_kind::Meta; }
-inline bool is_macro(expr_cell * e)       { return e->kind() == expr_kind::Macro; }
-inline bool is_app(expr_cell * e)         { return e->kind() == expr_kind::App; }
-inline bool is_lambda(expr_cell * e)      { return e->kind() == expr_kind::Lambda; }
-inline bool is_pi(expr_cell * e)          { return e->kind() == expr_kind::Pi; }
-inline bool is_sort(expr_cell * e)        { return e->kind() == expr_kind::Sort; }
-inline bool is_binding(expr_cell * e)     { return is_lambda(e) || is_pi(e); }
-inline bool is_mlocal(expr_cell * e)      { return is_metavar(e) || is_local(e); }
-
-inline bool is_var(expr const & e)        { return e.kind() == expr_kind::Var; }
-inline bool is_constant(expr const & e)   { return e.kind() == expr_kind::Constant; }
-inline bool is_local(expr const & e)      { return e.kind() == expr_kind::Local; }
-inline bool is_metavar(expr const & e)    { return e.kind() == expr_kind::Meta; }
-inline bool is_macro(expr const & e)      { return e.kind() == expr_kind::Macro; }
-inline bool is_app(expr const & e)        { return e.kind() == expr_kind::App; }
-inline bool is_lambda(expr const & e)     { return e.kind() == expr_kind::Lambda; }
-inline bool is_pi(expr const & e)         { return e.kind() == expr_kind::Pi; }
-inline bool is_sort(expr const & e)       { return e.kind() == expr_kind::Sort; }
-inline bool is_binding(expr const & e)    { return is_lambda(e) || is_pi(e); }
-inline bool is_mlocal(expr const & e)     { return is_metavar(e) || is_local(e); }
+inline bool is_var(expr_ptr e)         { return e->kind() == expr_kind::Var; }
+inline bool is_constant(expr_ptr e)    { return e->kind() == expr_kind::Constant; }
+inline bool is_local(expr_ptr e)       { return e->kind() == expr_kind::Local; }
+inline bool is_metavar(expr_ptr e)     { return e->kind() == expr_kind::Meta; }
+inline bool is_macro(expr_ptr e)       { return e->kind() == expr_kind::Macro; }
+inline bool is_app(expr_ptr e)         { return e->kind() == expr_kind::App; }
+inline bool is_lambda(expr_ptr e)      { return e->kind() == expr_kind::Lambda; }
+inline bool is_pi(expr_ptr e)          { return e->kind() == expr_kind::Pi; }
+inline bool is_sort(expr_ptr e)        { return e->kind() == expr_kind::Sort; }
+inline bool is_binding(expr_ptr e)     { return is_lambda(e) || is_pi(e); }
+inline bool is_mlocal(expr_ptr e)      { return is_metavar(e) || is_local(e); }
 
 bool is_atomic(expr const & e);
 bool is_arrow(expr const & t);
@@ -560,73 +550,42 @@ struct scoped_expr_caching {
 
 // =======================================
 // Casting (these functions are only needed for low-level code)
-inline expr_var *         to_var(expr_cell * e)        { lean_assert(is_var(e));         return static_cast<expr_var*>(e); }
-inline expr_const *       to_constant(expr_cell * e)   { lean_assert(is_constant(e));    return static_cast<expr_const*>(e); }
-inline expr_app *         to_app(expr_cell * e)        { lean_assert(is_app(e));         return static_cast<expr_app*>(e); }
-inline expr_binding *     to_binding(expr_cell * e)    { lean_assert(is_binding(e));     return static_cast<expr_binding*>(e); }
-inline expr_sort *        to_sort(expr_cell * e)       { lean_assert(is_sort(e));        return static_cast<expr_sort*>(e); }
-inline expr_mlocal *      to_mlocal(expr_cell * e)     { lean_assert(is_mlocal(e));      return static_cast<expr_mlocal*>(e); }
-inline expr_local *       to_local(expr_cell * e)      { lean_assert(is_local(e));       return static_cast<expr_local*>(e); }
-inline expr_mlocal *      to_metavar(expr_cell * e)    { lean_assert(is_metavar(e));     return static_cast<expr_mlocal*>(e); }
-inline expr_macro *       to_macro(expr_cell * e)      { lean_assert(is_macro(e));       return static_cast<expr_macro*>(e); }
-
-inline expr_var *         to_var(expr const & e)         { return to_var(e.raw()); }
-inline expr_const *       to_constant(expr const & e)    { return to_constant(e.raw()); }
-inline expr_app *         to_app(expr const & e)         { return to_app(e.raw()); }
-inline expr_binding *     to_binding(expr const & e)     { return to_binding(e.raw()); }
-inline expr_sort *        to_sort(expr const & e)        { return to_sort(e.raw()); }
-inline expr_mlocal *      to_mlocal(expr const & e)      { return to_mlocal(e.raw()); }
-inline expr_mlocal *      to_metavar(expr const & e)     { return to_metavar(e.raw()); }
-inline expr_local *       to_local(expr const & e)       { return to_local(e.raw()); }
-inline expr_macro *       to_macro(expr const & e)       { return to_macro(e.raw()); }
+inline expr_var *         to_var(expr_ptr e)        { lean_assert(is_var(e));         return static_cast<expr_var*>(e); }
+inline expr_const *       to_constant(expr_ptr e)   { lean_assert(is_constant(e));    return static_cast<expr_const*>(e); }
+inline expr_app *         to_app(expr_ptr e)        { lean_assert(is_app(e));         return static_cast<expr_app*>(e); }
+inline expr_binding *     to_binding(expr_ptr e)    { lean_assert(is_binding(e));     return static_cast<expr_binding*>(e); }
+inline expr_sort *        to_sort(expr_ptr e)       { lean_assert(is_sort(e));        return static_cast<expr_sort*>(e); }
+inline expr_mlocal *      to_mlocal(expr_ptr e)     { lean_assert(is_mlocal(e));      return static_cast<expr_mlocal*>(e); }
+inline expr_local *       to_local(expr_ptr e)      { lean_assert(is_local(e));       return static_cast<expr_local*>(e); }
+inline expr_mlocal *      to_metavar(expr_ptr e)    { lean_assert(is_metavar(e));     return static_cast<expr_mlocal*>(e); }
+inline expr_macro *       to_macro(expr_ptr e)      { lean_assert(is_macro(e));       return static_cast<expr_macro*>(e); }
 // =======================================
 
 
 // =======================================
 // Accessors
-inline unsigned       get_rc(expr_cell * e)                { return e->get_rc(); }
-inline bool           is_shared(expr_cell * e)             { return get_rc(e) > 1; }
-inline unsigned       var_idx(expr_cell * e)               { return to_var(e)->get_vidx(); }
-inline bool           is_var(expr_cell * e, unsigned i)    { return is_var(e) && var_idx(e) == i; }
-inline name const &   const_name(expr_cell * e)            { return to_constant(e)->get_name(); }
-inline levels const & const_levels(expr_cell * e)          { return to_constant(e)->get_levels(); }
-inline macro_definition const & macro_def(expr_cell * e)   { return to_macro(e)->get_def(); }
-inline expr const *   macro_args(expr_cell * e)            { return to_macro(e)->get_args(); }
-inline expr const &   macro_arg(expr_cell * e, unsigned i) { return to_macro(e)->get_arg(i); }
-inline unsigned       macro_num_args(expr_cell * e)        { return to_macro(e)->get_num_args(); }
-inline expr const &   app_fn(expr_cell * e)                { return to_app(e)->get_fn(); }
-inline expr const &   app_arg(expr_cell * e)               { return to_app(e)->get_arg(); }
-inline name const &   binding_name(expr_cell * e)          { return to_binding(e)->get_name(); }
-inline expr const &   binding_domain(expr_cell * e)        { return to_binding(e)->get_domain(); }
-inline expr const &   binding_body(expr_cell * e)          { return to_binding(e)->get_body(); }
-inline binder_info const & binding_info(expr_cell * e)     { return to_binding(e)->get_info(); }
-inline binder const & binding_binder(expr_cell * e)        { return to_binding(e)->get_binder(); }
-inline level const &  sort_level(expr_cell * e)            { return to_sort(e)->get_level(); }
-inline name const &   mlocal_name(expr_cell * e)           { return to_mlocal(e)->get_name(); }
-inline expr const &   mlocal_type(expr_cell * e)           { return to_mlocal(e)->get_type(); }
-
-inline unsigned       get_rc(expr const & e)                { return e.raw()->get_rc(); }
-inline bool           is_shared(expr const & e)             { return get_rc(e) > 1; }
-inline unsigned       var_idx(expr const & e)               { return to_var(e)->get_vidx(); }
-inline bool           is_var(expr const & e, unsigned i)    { return is_var(e) && var_idx(e) == i; }
-inline name const &   const_name(expr const & e)            { return to_constant(e)->get_name(); }
-inline levels const & const_levels(expr const & e)          { return to_constant(e)->get_levels(); }
-inline macro_definition const & macro_def(expr const & e)   { return to_macro(e)->get_def(); }
-inline expr const *   macro_args(expr const & e)            { return to_macro(e)->get_args(); }
-inline expr const &   macro_arg(expr const & e, unsigned i) { return to_macro(e)->get_arg(i); }
-inline unsigned       macro_num_args(expr const & e)        { return to_macro(e)->get_num_args(); }
-inline expr const &   app_fn(expr const & e)                { return to_app(e)->get_fn(); }
-inline expr const &   app_arg(expr const & e)               { return to_app(e)->get_arg(); }
-inline name const &   binding_name(expr const & e)          { return to_binding(e)->get_name(); }
-inline expr const &   binding_domain(expr const & e)        { return to_binding(e)->get_domain(); }
-inline expr const &   binding_body(expr const & e)          { return to_binding(e)->get_body(); }
-inline binder_info const & binding_info(expr const & e)     { return to_binding(e)->get_info(); }
-inline binder const & binding_binder(expr const & e)        { return to_binding(e)->get_binder(); }
-inline level const &  sort_level(expr const & e)            { return to_sort(e)->get_level(); }
-inline name const &   mlocal_name(expr const & e)           { return to_mlocal(e)->get_name(); }
-inline expr const &   mlocal_type(expr const & e)           { return to_mlocal(e)->get_type(); }
-inline name const &   local_pp_name(expr const & e)         { return to_local(e)->get_pp_name(); }
-inline binder_info const & local_info(expr const & e)       { return to_local(e)->get_info(); }
+inline unsigned       get_rc(expr_ptr e)                { return e->get_rc(); }
+inline bool           is_shared(expr_ptr e)             { return get_rc(e) > 1; }
+inline unsigned       var_idx(expr_ptr e)               { return to_var(e)->get_vidx(); }
+inline bool           is_var(expr_ptr e, unsigned i)    { return is_var(e) && var_idx(e) == i; }
+inline name const &   const_name(expr_ptr e)            { return to_constant(e)->get_name(); }
+inline levels const & const_levels(expr_ptr e)          { return to_constant(e)->get_levels(); }
+inline macro_definition const & macro_def(expr_ptr e)   { return to_macro(e)->get_def(); }
+inline expr const *   macro_args(expr_ptr e)            { return to_macro(e)->get_args(); }
+inline expr const &   macro_arg(expr_ptr e, unsigned i) { return to_macro(e)->get_arg(i); }
+inline unsigned       macro_num_args(expr_ptr e)        { return to_macro(e)->get_num_args(); }
+inline expr const &   app_fn(expr_ptr e)                { return to_app(e)->get_fn(); }
+inline expr const &   app_arg(expr_ptr e)               { return to_app(e)->get_arg(); }
+inline name const &   binding_name(expr_ptr e)          { return to_binding(e)->get_name(); }
+inline expr const &   binding_domain(expr_ptr e)        { return to_binding(e)->get_domain(); }
+inline expr const &   binding_body(expr_ptr e)          { return to_binding(e)->get_body(); }
+inline binder_info const & binding_info(expr_ptr e)     { return to_binding(e)->get_info(); }
+inline binder const & binding_binder(expr_ptr e)        { return to_binding(e)->get_binder(); }
+inline level const &  sort_level(expr_ptr e)            { return to_sort(e)->get_level(); }
+inline name const &   mlocal_name(expr_ptr e)           { return to_mlocal(e)->get_name(); }
+inline expr const &   mlocal_type(expr_ptr e)           { return to_mlocal(e)->get_type(); }
+inline name const &   local_pp_name(expr_ptr e)         { return to_local(e)->get_pp_name(); }
+inline binder_info const & local_info(expr_ptr e)       { return to_local(e)->get_info(); }
 
 inline bool is_constant(expr const & e, name const & n) { return is_constant(e) && const_name(e) == n; }
 inline bool has_metavar(expr const & e) { return e.has_metavar(); }
@@ -699,9 +658,9 @@ struct expr_hash_alloc { unsigned operator()(expr const & e) const { return e.ha
 /** \brief Functional object for testing pointer equality between kernel expressions. */
 struct expr_eqp { bool operator()(expr const & e1, expr const & e2) const { return is_eqp(e1, e2); } };
 /** \brief Functional object for hashing kernel expression cells. */
-struct expr_cell_hash { unsigned operator()(expr_cell * e) const { return e->hash_alloc(); } };
+struct expr_cell_hash { unsigned operator()(expr_ptr e) const { return e->hash_alloc(); } };
 /** \brief Functional object for testing pointer equality between kernel cell expressions. */
-struct expr_cell_eqp { bool operator()(expr_cell * e1, expr_cell * e2) const { return e1 == e2; } };
+struct expr_cell_eqp { bool operator()(expr_ptr e1, expr_ptr e2) const { return e1 == e2; } };
 /** \brief Functional object for hashing a pair (n, k) where n is a kernel expressions, and k is an offset. */
 struct expr_offset_hash { unsigned operator()(expr_offset const & p) const { return hash(p.first.hash_alloc(), p.second); } };
 /** \brief Functional object for comparing pairs (expression, offset). */
@@ -715,8 +674,6 @@ struct expr_cell_offset_eqp { unsigned operator()(expr_cell_offset const & p1, e
 // =======================================
 // Update
 expr update_app(expr const & e, expr const & new_fn, expr const & new_arg);
-expr update_rev_app(expr const & e, unsigned num, expr const * new_args);
-template<typename C> expr update_rev_app(expr const & e, C const & c) { return update_rev_app(e, c.size(), c.data()); }
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body);
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body, binder_info const & bi);
 expr update_mlocal(expr const & e, expr const & new_type);

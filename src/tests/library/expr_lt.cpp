@@ -20,15 +20,15 @@ static void tst1() {
     lt(Const("a"), Const("b"), true);
     lt(Const("a"), Const("a"), false);
     lt(Var(1), Const("a"), true);
-    lt(Const("f")(Var(0)), Const("f")(Var(0), Const("a")), true);
-    lt(Const("f")(Var(0), Const("a"), Const("b")), Const("f")(Var(0), Const("a")), false);
-    lt(Const("f")(Var(0), Const("a")), Const("g")(Var(0), Const("a")), true);
-    lt(Const("f")(Var(0), Const("a")), Const("f")(Var(1), Const("a")), true);
-    lt(Const("f")(Var(0), Const("a")), Const("f")(Var(0), Const("b")), true);
-    lt(Const("f")(Var(0), Const("a")), Const("f")(Var(0), Const("a")), false);
-    lt(Const("g")(Var(0), Const("a")), Const("f")(Var(0), Const("a")), false);
-    lt(Const("f")(Var(1), Const("a")), Const("f")(Var(0), Const("a")), false);
-    lt(Const("f")(Var(0), Const("b")), Const("f")(Var(0), Const("a")), false);
+    lt(mk_app(Const("f"), Var(0)), mk_app(Const("f"), Var(0), Const("a")), true);
+    lt(mk_app(Const("f"), Var(0), Const("a"), Const("b")), mk_app(Const("f"), Var(0), Const("a")), false);
+    lt(mk_app(Const("f"), Var(0), Const("a")), mk_app(Const("g"), Var(0), Const("a")), true);
+    lt(mk_app(Const("f"), Var(0), Const("a")), mk_app(Const("f"), Var(1), Const("a")), true);
+    lt(mk_app(Const("f"), Var(0), Const("a")), mk_app(Const("f"), Var(0), Const("b")), true);
+    lt(mk_app(Const("f"), Var(0), Const("a")), mk_app(Const("f"), Var(0), Const("a")), false);
+    lt(mk_app(Const("g"), Var(0), Const("a")), mk_app(Const("f"), Var(0), Const("a")), false);
+    lt(mk_app(Const("f"), Var(1), Const("a")), mk_app(Const("f"), Var(0), Const("a")), false);
+    lt(mk_app(Const("f"), Var(0), Const("b")), mk_app(Const("f"), Var(0), Const("a")), false);
 }
 
 int main() {

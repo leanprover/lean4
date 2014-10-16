@@ -21,8 +21,8 @@ static void tst1() {
     expr a  = Local("a", A);
     expr b  = Local("b", A);
     expr m  = mk_metavar("m", A);
-    expr t1 = f(m, m);
-    expr t2 = f(a, b);
+    expr t1 = mk_app(f, m, m);
+    expr t2 = mk_app(f, a, b);
     auto r = unify(env, t1, t2, ngen, false);
     lean_assert(!r.pull());
 }

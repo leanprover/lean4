@@ -144,21 +144,6 @@ public:
     friend expr mk_macro(macro_definition const & m, unsigned num, expr const * args, tag g);
 
     friend bool is_eqp(expr const & a, expr const & b) { return a.m_ptr == b.m_ptr; }
-    // Overloaded operator() can be used to create applications
-    expr operator()(expr const & a1, tag g = nulltag) const;
-    expr operator()(expr const & a1, expr const & a2, tag g = nulltag) const;
-    expr operator()(expr const & a1, expr const & a2, expr const & a3, tag g = nulltag) const;
-    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4,
-                    tag g = nulltag) const;
-    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4,
-                    expr const & a5, tag g = nulltag) const;
-    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4,
-                    expr const & a5, expr const & a6, tag g = nulltag) const;
-    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4,
-                    expr const & a5, expr const & a6, expr const & a7, tag g = nulltag) const;
-    expr operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4,
-                    expr const & a5, expr const & a6, expr const & a7, expr const & a8,
-                    tag g = nulltag) const;
 };
 
 expr copy_tag(expr const & e, expr && new_e);
@@ -460,14 +445,14 @@ expr mk_app(unsigned num_args, expr const * args, tag g = nulltag);
 inline expr mk_app(std::initializer_list<expr> const & l, tag g = nulltag) {
     return mk_app(l.size(), l.begin(), g);
 }
-template<typename T> expr mk_app(T const & args, tag g = nulltag) { return mk_app(args.size(), args.data(), g); }
-template<typename T> expr mk_app(expr const & f, T const & args, tag g = nulltag) {
+inline expr mk_app(buffer<expr> const & args, tag g = nulltag) { return mk_app(args.size(), args.data(), g); }
+inline expr mk_app(expr const & f, buffer<expr> const & args, tag g = nulltag) {
     return mk_app(f, args.size(), args.data(), g);
 }
 expr mk_rev_app(expr const & f, unsigned num_args, expr const * args, tag g = nulltag);
 expr mk_rev_app(unsigned num_args, expr const * args, tag g = nulltag);
-template<typename T> expr mk_rev_app(T const & args, tag g = nulltag) { return mk_rev_app(args.size(), args.data(), g); }
-template<typename T> expr mk_rev_app(expr const & f, T const & args, tag g = nulltag) {
+inline expr mk_rev_app(buffer<expr> const & args, tag g = nulltag) { return mk_rev_app(args.size(), args.data(), g); }
+inline expr mk_rev_app(expr const & f, buffer<expr> const & args, tag g = nulltag) {
     return mk_rev_app(f, args.size(), args.data(), g);
 }
 expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e,
@@ -504,34 +489,6 @@ inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const
 inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const & e4, expr const & e5,
                    tag g = nulltag) {
     return mk_app({e1, e2, e3, e4, e5}, g);
-}
-inline expr expr::operator()(expr const & a, tag g) const {
-    return mk_app({*this, a}, g);
-}
-inline expr expr::operator()(expr const & a1, expr const & a2, tag g) const {
-    return mk_app({*this, a1, a2}, g);
-}
-inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, tag g) const {
-    return mk_app({*this, a1, a2, a3}, g);
-}
-inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, tag g) const {
-    return mk_app({*this, a1, a2, a3, a4}, g);
-}
-inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4,
-                             expr const & a5, tag g) const {
-    return mk_app({*this, a1, a2, a3, a4, a5}, g);
-}
-inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5,
-                             expr const & a6, tag g) const {
-    return mk_app({*this, a1, a2, a3, a4, a5, a6}, g);
-}
-inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5,
-                             expr const & a6, expr const & a7, tag g) const {
-    return mk_app({*this, a1, a2, a3, a4, a5, a6, a7}, g);
-}
-inline expr expr::operator()(expr const & a1, expr const & a2, expr const & a3, expr const & a4, expr const & a5,
-                             expr const & a6, expr const & a7, expr const & a8, tag g) const {
-    return mk_app({*this, a1, a2, a3, a4, a5, a6, a7, a8}, g);
 }
 
 /** \brief Return application (...((f x_{n-1}) x_{n-2}) ... x_0) */

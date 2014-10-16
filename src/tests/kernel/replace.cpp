@@ -22,7 +22,7 @@ expr mk_big(expr f, unsigned depth, unsigned val) {
     if (depth == 1)
         return mk_constant(name(name("foo"), val));
     else
-        return f(mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
+        return mk_app(f, mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
 }
 
 static void tst1() {

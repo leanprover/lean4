@@ -22,10 +22,10 @@ static void tst1() {
     expr a1 = Local("a", T);
     lean_assert(occurs(f, f));
     lean_assert(!occurs(a, f));
-    lean_assert(occurs(a, f(a)));
-    lean_assert(occurs("a", f(a)));
+    lean_assert(occurs(a, mk_app(f, a)));
+    lean_assert(occurs("a", mk_app(f, a)));
     lean_assert(!occurs("b", f));
-    lean_assert(!occurs(a, Fun(a1, f(a1))));
+    lean_assert(!occurs(a, Fun(a1, mk_app(f, a1))));
 }
 
 int main() {

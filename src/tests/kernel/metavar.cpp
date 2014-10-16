@@ -81,11 +81,11 @@ static void tst1() {
     lean_assert(m1 != m2);
     expr f = Const("f");
     expr a = Const("a");
-    subst.assign(m1, f(a));
+    subst.assign(m1, mk_app(f, a));
     lean_assert(subst.is_assigned(m1));
     lean_assert(!subst.is_assigned(m2));
-    lean_assert(*subst.get_expr(m1) == f(a));
-    lean_assert(subst.instantiate_metavars(f(m1)).first == f(f(a)));
+    lean_assert(*subst.get_expr(m1) == mk_app(f, a));
+    lean_assert(subst.instantiate_metavars(mk_app(f, m1)).first == mk_app(f, mk_app(f, a)));
     std::cout << subst << "\n";
 }
 
@@ -98,19 +98,19 @@ static void tst2() {
     expr f = Const("f");
     expr g = Const("g");
     expr a = Const("a");
-    s.assign(m1, f(m2), mk_assumption_justification(1));
-    s.assign(m2, g(a),  mk_assumption_justification(2));
+    s.assign(m1, mk_app(f, m2), mk_assumption_justification(1));
+    s.assign(m2, mk_app(g, a),  mk_assumption_justification(2));
     lean_assert(check_assumptions(s.get_assignment(m1)->second, {1}));
-    lean_assert(s.occurs(m1, f(m1)));
-    lean_assert(s.occurs(m2, f(m1)));
-    lean_assert(!s.occurs(m1, f(m2)));
-    lean_assert(!s.occurs(m1, f(a)));
-    lean_assert(!s.occurs(m3, f(m1)));
+    lean_assert(s.occurs(m1, mk_app(f, m1)));
+    lean_assert(s.occurs(m2, mk_app(f, m1)));
+    lean_assert(!s.occurs(m1, mk_app(f, m2)));
+    lean_assert(!s.occurs(m1, mk_app(f, a)));
+    lean_assert(!s.occurs(m3, mk_app(f, m1)));
     std::cout << s << "\n";
-    auto p1 = s.instantiate_metavars(g(m1));
+    auto p1 = s.instantiate_metavars(mk_app(g, m1));
     check_assumptions(p1.second, {1, 2});
     lean_assert(check_assumptions(s.get_assignment(m1)->second, {1, 2}));
-    lean_assert(p1.first == g(f(g(a))));
+    lean_assert(p1.first == mk_app(g, mk_app(f, mk_app(g, a))));
 }
 
 static void tst3() {
@@ -123,11 +123,11 @@ static void tst3() {
     expr b  = Const("b");
     expr x  = Local("x", Prop);
     expr y  = Local("y", Prop);
-    s.assign(m1, Fun({x, y}, f(y, x)));
-    lean_assert_eq(s.instantiate_metavars(m1(a, b, g(a))).first, f(b, a, g(a)));
-    lean_assert_eq(s.instantiate_metavars(m1(a)).first, Fun(y, f(y, a)));
-    lean_assert_eq(s.instantiate_metavars(m1(a, b)).first, f(b, a));
-    std::cout << s.instantiate_metavars(m1(a, b, g(a))).first << "\n";
+    s.assign(m1, Fun({x, y}, mk_app(f, y, x)));
+    lean_assert_eq(s.instantiate_metavars(mk_app(m1, a, b, mk_app(g, a))).first, mk_app(f, b, a, mk_app(g, a)));
+    lean_assert_eq(s.instantiate_metavars(mk_app(m1, a)).first, Fun(y, mk_app(f, y, a)));
+    lean_assert_eq(s.instantiate_metavars(mk_app(m1, a, b)).first, mk_app(f, b, a));
+    std::cout << s.instantiate_metavars(mk_app(m1, a, b, mk_app(g, a))).first << "\n";
 }
 
 static void tst4() {
@@ -143,13 +143,13 @@ static void tst4() {
     expr a  = Const("a");
     expr T1 = mk_sort(l1);
     expr T2 = mk_sort(u);
-    expr t  = f(T1, T2, m1, m2);
+    expr t  = mk_app(f, T1, T2, m1, m2);
     lean_assert(s.instantiate_metavars(t).first == t);
     s.assign(m1, a, justification());
     s.assign(m2, m3, justification());
-    lean_assert(s.instantiate_metavars(t).first == f(T1, T2, a, m3));
+    lean_assert(s.instantiate_metavars(t).first == mk_app(f, T1, T2, a, m3));
     s.assign(l1, level(), justification());
-    lean_assert(s.instantiate_metavars(t).first == f(Prop, T2, a, m3));
+    lean_assert(s.instantiate_metavars(t).first == mk_app(f, Prop, T2, a, m3));
 }
 
 int main() {

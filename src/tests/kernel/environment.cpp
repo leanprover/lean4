@@ -74,12 +74,12 @@ static void tst1() {
     expr c  = mk_local("c", Prop);
     expr id = Const("id");
     type_checker checker(env3, name_generator("tmp"));
-    lean_assert(checker.check(id(Prop)).first == Prop >> Prop);
-    lean_assert(checker.whnf(id(Prop, c)).first == c);
-    lean_assert(checker.whnf(id(Prop, id(Prop, id(Prop, c)))).first == c);
+    lean_assert(checker.check(mk_app(id, Prop)).first == Prop >> Prop);
+    lean_assert(checker.whnf(mk_app(id, Prop, c)).first == c);
+    lean_assert(checker.whnf(mk_app(id, Prop, mk_app(id, Prop, mk_app(id, Prop, c)))).first == c);
 
     type_checker checker2(env2, name_generator("tmp"));
-    lean_assert(checker2.whnf(id(Prop, id(Prop, id(Prop, c)))).first == id(Prop, id(Prop, id(Prop, c))));
+    lean_assert(checker2.whnf(mk_app(id, Prop, mk_app(id, Prop, mk_app(id, Prop, c)))).first == mk_app(id, Prop, mk_app(id, Prop, mk_app(id, Prop, c))));
 }
 
 static void tst2() {
@@ -92,7 +92,7 @@ static void tst2() {
     for (unsigned i = 1; i <= 100; i++) {
         expr prev = Const(name(base, i-1));
         env = add_decl(env, mk_definition(env, name(base, i), level_param_names(), Prop >> (Prop >> Prop),
-                                          Fun({x, y}, prev(prev(x, y), prev(y, x)))));
+                                          Fun({x, y}, mk_app(prev, mk_app(prev, x, y), mk_app(prev, y, x)))));
     }
     expr Type = mk_Type();
     expr A = Local("A", Type);
@@ -108,10 +108,10 @@ static void tst2() {
     expr c1  =  mk_local("c1", Prop);
     expr c2  = mk_local("c2", Prop);
     expr id = Const("id");
-    std::cout << checker.whnf(f3(c1, c2)).first << "\n";
+    std::cout << checker.whnf(mk_app(f3, c1, c2)).first << "\n";
     lean_assert_eq(env.find(name(base, 98))->get_weight(), 98);
-    lean_assert(checker.is_def_eq(f98(c1, c2), f97(f97(c1, c2), f97(c2, c1))).first);
-    lean_assert(checker.is_def_eq(f98(c1, id(Prop, id(Prop, c2))), f97(f97(c1, id(Prop, c2)), f97(c2, c1))).first);
+    lean_assert(checker.is_def_eq(mk_app(f98, c1, c2), mk_app(f97, mk_app(f97, c1, c2), mk_app(f97, c2, c1))).first);
+    lean_assert(checker.is_def_eq(mk_app(f98, c1, mk_app(id, Prop, mk_app(id, Prop, c2))), mk_app(f97, mk_app(f97, c1, mk_app(id, Prop, c2)), mk_app(f97, c2, c1))).first);
     name_set s;
     s.insert(name(base, 96));
 }
@@ -152,7 +152,7 @@ static void tst3() {
     expr a = Const("a");
     expr b = Const("b");
     type_checker checker(env, name_generator("tmp"));
-    lean_assert_eq(checker.whnf(proj1(proj1(mk(id(A, mk(a, b)), b)))).first, a);
+    lean_assert_eq(checker.whnf(mk_app(proj1, mk_app(proj1, mk_app(mk, mk_app(id, A, mk_app(mk, a, b)), b)))).first, a);
 }
 
 class dummy_ext : public environment_extension {};

@@ -210,7 +210,7 @@ static expr parse_proof(parser & p, expr const & prop) {
             --i;
             expr l = locals[i];
             pr = p.save_pos(Fun(l, pr), using_pos);
-            pr = p.save_pos(pr(l), using_pos);
+            pr = p.save_pos(mk_app(pr, l), using_pos);
         }
         return pr;
     } else {
@@ -256,7 +256,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
         auto proof_pos = p.pos();
         proof = parse_proof(p, prop);
         proof = p.save_pos(Fun(*prev_local, proof), proof_pos);
-        proof = p.save_pos(proof(*prev_local), proof_pos);
+        proof = p.save_pos(mk_app(proof, *prev_local), proof_pos);
     } else {
         proof = parse_proof(p, prop);
     }
@@ -327,12 +327,12 @@ static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & po
         expr a      = ps[i];
         expr H_aux  = mk_local(p.mk_fresh_name(), H_name.append_after(i), mk_expr_placeholder(), mk_contextual_info(false));
         expr  H2    = Fun({a, H}, b);
-        b = mk_constant(*g_exists_elim)(H_aux, H2);
+        b = mk_app(mk_constant(*g_exists_elim), H_aux, H2);
         H = H_aux;
     }
     expr a  = ps[0];
     expr H2 = Fun({a, H}, b);
-    expr r  = mk_constant(*g_exists_elim)(H1, H2);
+    expr r  = mk_app(mk_constant(*g_exists_elim), H1, H2);
     return p.rec_save_pos(r, pos);
 }
 

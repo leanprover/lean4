@@ -19,16 +19,16 @@ static void tst1() {
     expr x = Var(0);
     expr y = Var(1);
     expr t = Const("t");
-    expr F = mk_lambda("_", t, f(x));
-    lean_assert(has_free_var(mk_lambda("_", t, f(Var(1))), 0));
-    lean_assert(!has_free_var(mk_lambda("_", t, f(Var(0))), 1));
-    lean_assert(!has_free_var(mk_pi("_", t, mk_lambda("_", t, f(Var(1)))), 0));
-    lean_assert(has_free_var(f(Var(0)), 0));
-    lean_assert(has_free_var(f(Var(1)), 1));
-    lean_assert(!has_free_var(f(Var(1)), 0));
-    lean_assert_eq(lower_free_vars(f(Var(1)), 1), f(Var(0)));
-    lean_assert_eq(lower_free_vars(mk_lambda("_", t, f(Var(2))), 1), mk_lambda("_", t, f(Var(1))));
-    lean_assert_eq(lower_free_vars(mk_lambda("_", t, f(Var(0))), 1), mk_lambda("_", t, f(Var(0))));
+    expr F = mk_lambda("_", t, mk_app(f, x));
+    lean_assert(has_free_var(mk_lambda("_", t, mk_app(f, Var(1))), 0));
+    lean_assert(!has_free_var(mk_lambda("_", t, mk_app(f, Var(0))), 1));
+    lean_assert(!has_free_var(mk_pi("_", t, mk_lambda("_", t, mk_app(f, Var(1)))), 0));
+    lean_assert(has_free_var(mk_app(f, Var(0)), 0));
+    lean_assert(has_free_var(mk_app(f, Var(1)), 1));
+    lean_assert(!has_free_var(mk_app(f, Var(1)), 0));
+    lean_assert_eq(lower_free_vars(mk_app(f, Var(1)), 1), mk_app(f, Var(0)));
+    lean_assert_eq(lower_free_vars(mk_lambda("_", t, mk_app(f, Var(2))), 1), mk_lambda("_", t, mk_app(f, Var(1))));
+    lean_assert_eq(lower_free_vars(mk_lambda("_", t, mk_app(f, Var(0))), 1), mk_lambda("_", t, mk_app(f, Var(0))));
 }
 
 static void tst2() {
@@ -46,7 +46,7 @@ static void tst3() {
     unsigned m = 10;
     expr f = Const("f");
     expr a = Const("a");
-    expr r = f(a, Var(m));
+    expr r = mk_app(f, a, Var(m));
     expr b = Const("Prop");
     for (unsigned i = 0; i < n; i++)
         r = mk_lambda(name(), b, r);
@@ -63,11 +63,11 @@ static void tst4() {
     expr B = mk_Prop();
     expr x = Local("x", B);
     expr y = Local("y", B);
-    expr t = f(Fun({x, y}, f(x, y))(f(Var(1), Var(2))), x);
+    expr t = mk_app(f, mk_app(Fun({x, y}, mk_app(f, x, y)), mk_app(f, Var(1), Var(2))), x);
     lean_assert_eq(lift_free_vars(t, 1, 2),
-                   f(Fun(x, Fun(y, f(x, y)))(f(Var(3), Var(4))), x));
+                   mk_app(f, mk_app(Fun(x, Fun(y, mk_app(f, x, y))), mk_app(f, Var(3), Var(4))), x));
     lean_assert_eq(lift_free_vars(t, 0, 3),
-                   f(Fun(x, Fun(y, f(x, y)))(f(Var(4), Var(5))), x));
+                   mk_app(f, mk_app(Fun(x, Fun(y, mk_app(f, x, y))), mk_app(f, Var(4), Var(5))), x));
     lean_assert_eq(lift_free_vars(t, 3, 2), t);
 }
 

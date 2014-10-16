@@ -24,7 +24,7 @@ static void tst1() {
     expr y = Local("y", N);
     expr f = Const("f");
     expr F1, F2;
-    F1 = f(Fun(x, f(x, x)), Fun(y, f(y, y)));
+    F1 = mk_app(f, Fun(x, mk_app(f, x, x)), Fun(y, mk_app(f, y, y)));
     lean_assert(!is_eqp(app_arg(app_fn(F1)), app_arg(F1)));
     F2 = max_fn(F1);
     std::cout << F2 << "\n";
@@ -38,8 +38,8 @@ static void tst2() {
     expr x   = Const("x");
     expr f   = Const("f");
     expr g   = Const("g");
-    expr t1  = max_fn2(max_fn1(f(g(x))));
-    expr t2  = max_fn2(f(t1, g(x)));
+    expr t1  = max_fn2(max_fn1(mk_app(f, mk_app(g, x))));
+    expr t2  = max_fn2(mk_app(f, t1, mk_app(g, x)));
     expr arg1 = app_arg(app_arg(app_fn(t2)));
     expr arg2 = app_arg(t2);
     lean_assert(is_eqp(arg1, arg2));
@@ -54,11 +54,11 @@ static void tst3() {
     expr f  = Const("f");
     expr new_a1 = max_fn(a1);
     lean_assert(is_eqp(new_a1, a1));
-    expr t1 = max_fn(f(a2));
+    expr t1 = max_fn(mk_app(f, a2));
     lean_assert(is_eqp(app_arg(t1), a1));
-    expr t2 = max_fn(f(a2));
+    expr t2 = max_fn(mk_app(f, a2));
     lean_assert(is_eqp(t1, t2));
-    expr t3 = max_fn(f(a3));
+    expr t3 = max_fn(mk_app(f, a3));
     lean_assert(is_eqp(t1, t3));
 }
 

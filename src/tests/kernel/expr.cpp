@@ -44,22 +44,22 @@ static void tst1() {
     a = Const("a");
     expr f;
     f = Var(0);
-    expr fa = f(a);
+    expr fa = mk_app(f, a);
     expr Type = mk_Type();
     expr ty = Type;
     std::cout << fa << "\n";
-    std::cout << fa(a) << "\n";
+    std::cout << mk_app(fa, a) << "\n";
     lean_assert(is_eqp(app_fn(fa), f));
     lean_assert(is_eqp(app_arg(fa), a));
     {
         scoped_expr_caching set(false);
-        lean_assert(!is_eqp(fa, f(a)));
+        lean_assert(!is_eqp(fa, mk_app(f, a)));
     }
-    lean_assert(fa(a) == f(a, a));
-    std::cout << fa(fa, fa) << "\n";
+    lean_assert(mk_app(fa, a) == mk_app(f, a, a));
+    std::cout << mk_app(fa, fa, fa) << "\n";
     std::cout << mk_lambda("x", ty, Var(0)) << "\n";
-    lean_assert(f(a)(a) == f(a, a));
-    lean_assert(f(a(a)) != f(a, a));
+    lean_assert(mk_app(mk_app(f, a), a) == mk_app(f, a, a));
+    lean_assert(mk_app(f, mk_app(a, a)) != mk_app(f, a, a));
     lean_assert(mk_lambda("x", ty, Var(0)) == mk_lambda("y", ty, Var(0)));
     std::cout << mk_pi("x", ty, Var(0)) << "\n";
 }
@@ -69,7 +69,7 @@ static expr mk_dag(unsigned depth, bool _closed = false) {
     expr a = _closed ? Const("a") : Var(0);
     while (depth > 0) {
         depth--;
-        a = f(a, a);
+        a = mk_app(f, a, a);
     }
     return a;
 }
@@ -86,7 +86,7 @@ static expr mk_big(expr f, unsigned depth, unsigned val) {
     if (depth == 1)
         return Const(name(name("foo"), val));
     else
-        return f(mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
+        return mk_app(f, mk_big(f, depth - 1, val << 1), mk_big(f, depth - 1, (val << 1) + 1));
 }
 
 static void tst3() {
@@ -101,7 +101,7 @@ static void tst4() {
     expr f = Const("f");
     expr a = Var(0);
     for (unsigned i = 0; i < 10000; i++) {
-        a = f(a);
+        a = mk_app(f, a);
     }
 }
 
@@ -109,7 +109,7 @@ static expr mk_redundant_dag(expr f, unsigned depth) {
     if (depth == 0)
         return Var(0);
     else
-        return f(mk_redundant_dag(f, depth - 1), mk_redundant_dag(f, depth - 1));
+        return mk_app(f, mk_redundant_dag(f, depth - 1), mk_redundant_dag(f, depth - 1));
 }
 
 static unsigned count_core(expr const & a, expr_set & s) {
@@ -170,10 +170,10 @@ static void tst7() {
     scoped_expr_caching set(false);
     expr f  = Const("f");
     expr v  = Var(0);
-    expr a1 = max_sharing(f(v, v));
-    expr a2 = max_sharing(f(v, v));
+    expr a1 = max_sharing(mk_app(f, v, v));
+    expr a2 = max_sharing(mk_app(f, v, v));
     lean_assert(!is_eqp(a1, a2));
-    expr b  = max_sharing(f(a1, a2));
+    expr b  = max_sharing(mk_app(f, a1, a2));
     lean_assert(is_eqp(app_arg(app_fn(b)), app_arg(b)));
 }
 
@@ -188,16 +188,16 @@ static void tst8() {
     lean_assert(closed(a));
     lean_assert(!closed(x));
     lean_assert(closed(f));
-    lean_assert(!closed(f(x)));
+    lean_assert(!closed(mk_app(f, x)));
     lean_assert(closed(mk_lambda("x", p, x)));
     lean_assert(!closed(mk_lambda("x", x, x)));
     lean_assert(!closed(mk_lambda("x", p, y)));
-    lean_assert(closed(f(f(f(a)))));
-    lean_assert(closed(mk_lambda("x", p, f(f(f(a))))));
+    lean_assert(closed(mk_app(f, mk_app(f, mk_app(f, a)))));
+    lean_assert(closed(mk_lambda("x", p, mk_app(f, mk_app(f, mk_app(f, a))))));
     lean_assert(closed(mk_pi("x", p, x)));
     lean_assert(!closed(mk_pi("x", x, x)));
     lean_assert(!closed(mk_pi("x", p, y)));
-    lean_assert(closed(mk_pi("x", p, f(f(f(a))))));
+    lean_assert(closed(mk_pi("x", p, mk_app(f, mk_app(f, mk_app(f, a))))));
     lean_assert(closed(mk_lambda("y", p, mk_lambda("x", p, y))));
     lean_assert(closed(mk_lambda("y", p, mk_app({mk_lambda("x", p, y), Var(0)}))));
     expr r = mk_lambda("y", p, mk_app({mk_lambda("x", p, y), Var(0)}));
@@ -243,25 +243,25 @@ static void tst11() {
     expr y = Var(1);
     expr Type = mk_Type();
     expr t = Type;
-    std::cout << instantiate(mk_lambda("x", t, f(f(y, b), f(x, y))), f(a)) << "\n";
-    lean_assert(instantiate(mk_lambda("x", t, f(f(y, b), f(x, y))), f(a)) ==
-                mk_lambda("x", t, f(f(f(a), b), f(x, f(a)))));
-    std::cout << abstract(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) << "\n";
-    lean_assert(abstract(mk_lambda("x", t, f(a, mk_lambda("y", t, f(b, a)))), Const("a")) ==
-                mk_lambda("x", t, f(Var(1), mk_lambda("y", t, f(b, Var(2))))));
-    lean_assert(substitute(f(f(f(a))), f(a), b) == f(f(b)));
+    std::cout << instantiate(mk_lambda("x", t, mk_app(f, mk_app(f, y, b), mk_app(f, x, y))), mk_app(f, a)) << "\n";
+    lean_assert(instantiate(mk_lambda("x", t, mk_app(f, mk_app(f, y, b), mk_app(f, x, y))), mk_app(f, a)) ==
+                mk_lambda("x", t, mk_app(f, mk_app(f, mk_app(f, a), b), mk_app(f, x, mk_app(f, a)))));
+    std::cout << abstract(mk_lambda("x", t, mk_app(f, a, mk_lambda("y", t, mk_app(f, b, a)))), Const("a")) << "\n";
+    lean_assert(abstract(mk_lambda("x", t, mk_app(f, a, mk_lambda("y", t, mk_app(f, b, a)))), Const("a")) ==
+                mk_lambda("x", t, mk_app(f, Var(1), mk_lambda("y", t, mk_app(f, b, Var(2))))));
+    lean_assert(substitute(mk_app(f, mk_app(f, mk_app(f, a))), mk_app(f, a), b) == mk_app(f, mk_app(f, b)));
 }
 
 static void tst12() {
     scoped_expr_caching set(false);
     expr f  = Const("f");
     expr v  = Var(0);
-    expr a1 = max_sharing(f(v, v));
-    expr a2 = max_sharing(f(v, v));
+    expr a1 = max_sharing(mk_app(f, v, v));
+    expr a2 = max_sharing(mk_app(f, v, v));
     lean_assert(!is_eqp(a1, a2));
     lean_assert(a1 == a2);
     max_sharing_fn M;
-    lean_assert(is_eqp(M(f(v, v)), M(f(v, v))));
+    lean_assert(is_eqp(M(mk_app(f, v, v)), M(mk_app(f, v, v))));
     lean_assert(is_eqp(M(a1), M(a2)));
 }
 
@@ -292,9 +292,9 @@ static void tst15() {
     expr m = mk_metavar("m", Prop);
     check_serializer(m);
     lean_assert(has_metavar(m));
-    lean_assert(has_metavar(f(m)));
-    lean_assert(!has_metavar(f(a)));
-    lean_assert(!has_metavar(f(x)));
+    lean_assert(has_metavar(mk_app(f, m)));
+    lean_assert(!has_metavar(mk_app(f, a)));
+    lean_assert(!has_metavar(mk_app(f, x)));
     lean_assert(!has_metavar(Pi(a, a)));
     lean_assert(!has_metavar(Type));
     lean_assert(!has_metavar(Fun(a, a)));
@@ -303,9 +303,9 @@ static void tst15() {
     lean_assert(has_metavar(Pi(a1, a1)));
     lean_assert(has_metavar(Fun(a, m)));
     lean_assert(has_metavar(Fun(a1, a)));
-    lean_assert(has_metavar(f(a, a, m)));
-    lean_assert(has_metavar(f(a, m, a, a)));
-    lean_assert(!has_metavar(f(a, a, a, a)));
+    lean_assert(has_metavar(mk_app(f, a, a, m)));
+    lean_assert(has_metavar(mk_app(f, a, m, a, a)));
+    lean_assert(!has_metavar(mk_app(f, a, a, a, a)));
 }
 
 static void check_copy(expr const & e) {
@@ -319,7 +319,7 @@ static void check_copy(expr const & e) {
 static void tst16() {
     expr f = Const("f");
     expr a = Const("a");
-    check_copy(f(a));
+    check_copy(mk_app(f, a));
     expr Prop = mk_Prop();
     check_copy(mk_metavar("M", Prop));
     check_copy(mk_lambda("x", a, Var(0)));
@@ -356,10 +356,10 @@ static void tst18() {
     check_serializer(l);
     lean_assert(!has_local(m));
     lean_assert(has_local(l));
-    lean_assert(!has_local(f(m)));
-    lean_assert(has_local(f(l)));
-    lean_assert(!has_local(f(a0)));
-    lean_assert(!has_local(f(x)));
+    lean_assert(!has_local(mk_app(f, m)));
+    lean_assert(has_local(mk_app(f, l)));
+    lean_assert(!has_local(mk_app(f, a0)));
+    lean_assert(!has_local(mk_app(f, x)));
     lean_assert(!has_local(Pi(a, a)));
     lean_assert(!has_local(Pi(a1, a1)));
     lean_assert(!has_local(Type));
@@ -369,9 +369,9 @@ static void tst18() {
     lean_assert(has_local(Pi(a2, a2)));
     lean_assert(has_local(Fun(a, l)));
     lean_assert(has_local(Fun(a2, a2)));
-    lean_assert(has_local(f(a, a, l)));
-    lean_assert(has_local(f(a, l, a, a)));
-    lean_assert(!has_local(f(a0, a0, a0, a0)));
+    lean_assert(has_local(mk_app(f, a, a, l)));
+    lean_assert(has_local(mk_app(f, a, l, a, a)));
+    lean_assert(!has_local(mk_app(f, a0, a0, a0, a0)));
 }
 
 int main() {

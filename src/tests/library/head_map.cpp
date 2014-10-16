@@ -21,7 +21,7 @@ static void tst1() {
     expr Prop = mk_Prop();
     expr x = Local("x", Prop);
     expr l1 = Fun(x, x);
-    expr l2 = Fun(x, f(x));
+    expr l2 = Fun(x, mk_app(f, x));
     lean_assert(l1 != l2);
     lean_assert(map.empty());
     map.insert(a, a);
@@ -52,9 +52,9 @@ static void tst1() {
     map.erase(a);
     lean_assert(size_fn(map) == 0);
     lean_assert(map.empty());
-    map.insert(f(a), f(a));
-    map.insert(f(b), f(b));
-    lean_assert(length(*map.find(f(a))) == 2);
+    map.insert(mk_app(f, a), mk_app(f, a));
+    map.insert(mk_app(f, b), mk_app(f, b));
+    lean_assert(length(*map.find(mk_app(f, a))) == 2);
 }
 
 int main() {

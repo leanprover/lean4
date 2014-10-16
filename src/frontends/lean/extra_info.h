@@ -11,6 +11,7 @@ namespace lean {
 /** \brief Annotate \c e with "extra-info" annotation.
     It instructs elaborator to store the type of \c e.
 */
+expr mk_extra_info(expr const & e, tag g);
 expr mk_extra_info(expr const & e);
 /** \brief Return true iff \c e is a term annotated with mk_extra_info */
 bool is_extra_info(expr const & e);

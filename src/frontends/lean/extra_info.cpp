@@ -10,6 +10,7 @@ namespace lean {
 static name * g_extra_info = nullptr;
 name const & get_extra_info() { return *g_extra_info; }
 
+expr mk_extra_info(expr const & e, tag g) { return mk_annotation(get_extra_info(), e, g); }
 expr mk_extra_info(expr const & e) { return mk_annotation(get_extra_info(), e); }
 bool is_extra_info(expr const & e) { return is_annotation(e, get_extra_info()); }
 

@@ -58,14 +58,18 @@ void register_annotation(name const & n) {
     ms.insert(mk_pair(n, macro_definition(new annotation_macro_definition_cell(n))));
 }
 
-expr mk_annotation(name const & kind, expr const & e) {
+expr mk_annotation(name const & kind, expr const & e, tag g) {
     annotation_macros & ms = get_annotation_macros();
     auto it = ms.find(kind);
     if (it != ms.end()) {
-        return copy_tag(e, mk_macro(it->second, 1, &e));
+        return mk_macro(it->second, 1, &e, g);
     } else {
         throw exception(sstream() << "unknown annotation kind '" << kind << "'");
     }
+}
+
+expr mk_annotation(name const & kind, expr const & e) {
+    return mk_annotation(kind, e, e.get_tag());
 }
 
 bool is_annotation(expr const & e) {

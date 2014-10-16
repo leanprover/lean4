@@ -1,0 +1,15 @@
+-- BEGINSET
+-- ENDSET
+-- ERROR unexpected command line: end bool
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGININFO
+-- EXTRA_TYPE|20|13
+or.inl rfl
+--
+or (eq ff ff) (eq ff tt)
+-- ACK
+-- SYMBOL|20|13
+(
+-- ACK
+-- ENDINFO

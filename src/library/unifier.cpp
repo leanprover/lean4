@@ -1440,7 +1440,7 @@ struct unifier_fn {
                 num++;
                 t = binding_body(t);
             }
-            if (num == margs.size())
+            if (num >= margs.size())
                 return mtype;
             return ensure_sufficient_args_core(mtype, 0, cs);
         }

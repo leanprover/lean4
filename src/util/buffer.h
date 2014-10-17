@@ -102,6 +102,7 @@ public:
     iterator end() { return m_buffer + size(); }
     const_iterator begin() const { return m_buffer; }
     const_iterator end() const { return m_buffer + size(); }
+    unsigned capacity() const { return m_capacity; }
 
     void push_back(T const & elem) {
         if (m_pos >= m_capacity)

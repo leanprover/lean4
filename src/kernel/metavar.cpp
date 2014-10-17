@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
+#include <vector>
 #include "util/interrupt.h"
 #include "kernel/metavar.h"
 #include "kernel/free_vars.h"
@@ -13,6 +14,11 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/expr_maps.h"
 #include "kernel/level.h"
+#include "kernel/cache_stack.h"
+
+#ifndef LEAN_INSTANTIATE_METAVARS_CACHE_CAPACITY
+#define LEAN_INSTANTIATE_METAVARS_CACHE_CAPACITY 1024*8
+#endif
 
 namespace lean {
 substitution::substitution() {}
@@ -92,11 +98,48 @@ pair<level, justification> substitution::instantiate_metavars(level const & l, b
     return mk_pair(r, j);
 }
 
+struct instantiate_metavars_cache {
+    struct entry {
+        optional<expr> m_expr;
+        expr           m_result;
+    };
+    unsigned              m_capacity;
+    std::vector<entry>    m_cache;
+    std::vector<unsigned> m_used;
+    instantiate_metavars_cache(unsigned c):m_capacity(c), m_cache(c) {}
+
+    expr * find(expr const & e) {
+        unsigned i = e.hash() % m_capacity;
+        if (m_cache[i].m_expr && is_bi_equal(*m_cache[i].m_expr, e))
+            return &m_cache[i].m_result;
+        else
+            return nullptr;
+    }
+
+    void insert(expr const & e, expr const & v) {
+        unsigned i = e.hash() % m_capacity;
+        if (!m_cache[i].m_expr)
+            m_used.push_back(i);
+        m_cache[i].m_expr   = e;
+        m_cache[i].m_result = v;
+    }
+
+    void clear() {
+        for (unsigned i : m_used) {
+            m_cache[i].m_expr   = none_expr();
+            m_cache[i].m_result = expr();
+        }
+        m_used.clear();
+    }
+};
+
+MK_CACHE_STACK(instantiate_metavars_cache, LEAN_INSTANTIATE_METAVARS_CACHE_CAPACITY)
+
 class instantiate_metavars_fn {
 protected:
-    typedef expr_bi_struct_map<expr> cache;
+    typedef instantiate_metavars_cache_ref cache_ref;
     substitution & m_subst;
-    cache          m_cache;
+    cache_ref      m_cache;
     justification  m_jst;
     bool           m_use_jst;
     bool           m_inst_local_types;
@@ -175,7 +218,7 @@ protected:
     }
 
     expr save_result(expr const & e, expr && r) {
-        m_cache.insert(std::make_pair(e, r));
+        m_cache->insert(e, r);
         return r;
     }
 
@@ -199,9 +242,8 @@ protected:
             return e;
         check_system("instantiate metavars");
 
-        auto it = m_cache.find(e);
-        if (it != m_cache.end())
-            return it->second;
+        if (auto it = m_cache->find(e))
+            return *it;
 
         switch (e.kind()) {
         case expr_kind::Sort:      return save_result(e, visit_sort(e));

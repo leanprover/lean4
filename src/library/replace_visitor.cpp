@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <tuple>
 #include "util/interrupt.h"
-#include "kernel/replace_visitor.h"
+#include "library/replace_visitor.h"
 
 namespace lean {
 expr replace_visitor::visit_sort(expr const & e) { lean_assert(is_sort(e)); return e; }

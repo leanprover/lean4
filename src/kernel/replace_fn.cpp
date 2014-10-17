@@ -13,6 +13,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_REPLACE_CACHE_CAPACITY 1024*8
 #endif
 
+#ifndef LEAN_REPLACE_SMALL_TERM_THRESHOLD
+#define LEAN_REPLACE_SMALL_TERM_THRESHOLD 10000
+#endif
+
 namespace lean {
 struct replace_cache {
     struct entry {
@@ -253,7 +257,7 @@ public:
 };
 
 expr replace(expr const & e, std::function<optional<expr>(expr const &, unsigned)> const & f) {
-    if (get_weight(e) < 10000)
+    if (get_weight(e) < LEAN_REPLACE_SMALL_TERM_THRESHOLD)
         return replace_rec_fn(f)(e);
     else
         return replace_fn(f)(e);

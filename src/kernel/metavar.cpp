@@ -5,12 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
+#include "util/interrupt.h"
 #include "kernel/metavar.h"
 #include "kernel/free_vars.h"
-#include "kernel/replace_visitor.h"
 #include "kernel/justification.h"
 #include "kernel/instantiate.h"
 #include "kernel/find_fn.h"
+#include "kernel/expr_maps.h"
 #include "kernel/level.h"
 
 namespace lean {
@@ -90,9 +91,11 @@ pair<level, justification> substitution::instantiate_metavars(level const & l, b
     return mk_pair(r, j);
 }
 
-class instantiate_metavars_fn : public replace_visitor {
+class instantiate_metavars_fn {
 protected:
+    typedef expr_bi_struct_map<expr> cache;
     substitution & m_subst;
+    cache          m_cache;
     justification  m_jst;
     bool           m_use_jst;
     bool           m_inst_local_types;
@@ -107,25 +110,20 @@ protected:
     }
 
     levels visit_levels(levels const & ls) {
-        return map_reuse(ls, [&](level const & l) { return visit_level(l); }, [](level const & l1, level const & l2) { return is_eqp(l1, l2); });
+        return map_reuse(ls,
+                         [&](level const & l) { return visit_level(l); },
+                         [](level const & l1, level const & l2) { return is_eqp(l1, l2); });
     }
 
-    virtual expr visit_sort(expr const & s) {
+    expr visit_sort(expr const & s) {
         return update_sort(s, visit_level(sort_level(s)));
     }
 
-    virtual expr visit_constant(expr const & c) {
+    expr visit_constant(expr const & c) {
         return update_constant(c, visit_levels(const_levels(c)));
     }
 
-    virtual expr visit_local(expr const & l) {
-        if (m_inst_local_types)
-            return replace_visitor::visit_local(l);
-        else
-            return l;
-    }
-
-    virtual expr visit_meta(expr const & m) {
+    expr visit_meta(expr const & m) {
         name const & m_name = mlocal_name(m);
         auto p1 = m_subst.get_expr_assignment(m_name);
         if (p1) {
@@ -149,7 +147,7 @@ protected:
         }
     }
 
-    virtual expr visit_app(expr const & e) {
+    expr visit_app(expr const & e) {
         buffer<expr> args;
         expr const & f = get_app_rev_args(e, args);
         if (is_metavar(f)) {
@@ -175,18 +173,58 @@ protected:
             return mk_rev_app(new_f, new_args);
     }
 
-    virtual expr visit(expr const & e) {
-        if (!has_metavar(e)) {
+    expr save_result(expr const & e, expr && r) {
+        m_cache.insert(std::make_pair(e, r));
+        return r;
+    }
+
+    expr visit_macro(expr const & e) {
+        lean_assert(is_macro(e));
+        buffer<expr> new_args;
+        for (unsigned i = 0; i < macro_num_args(e); i++)
+            new_args.push_back(visit(macro_arg(e, i)));
+        return update_macro(e, new_args.size(), new_args.data());
+    }
+
+    expr visit_binding(expr const & e) {
+        lean_assert(is_binding(e));
+        expr new_d = visit(binding_domain(e));
+        expr new_b = visit(binding_body(e));
+        return update_binding(e, new_d, new_b);
+    }
+
+    expr visit(expr const & e) {
+        if (!has_metavar(e))
             return e;
-        } else {
-            return replace_visitor::visit(e);
+        check_system("instantiate metavars");
+
+        auto it = m_cache.find(e);
+        if (it != m_cache.end())
+            return it->second;
+
+        switch (e.kind()) {
+        case expr_kind::Sort:      return save_result(e, visit_sort(e));
+        case expr_kind::Var:       lean_unreachable();
+        case expr_kind::Local:
+            if (m_inst_local_types)
+                return save_result(e, update_mlocal(e, visit(mlocal_type(e))));
+            else
+                return e;
+        case expr_kind::Constant:  return save_result(e, visit_constant(e));
+        case expr_kind::Macro:     return save_result(e, visit_macro(e));
+        case expr_kind::Meta:      return save_result(e, visit_meta(e));
+        case expr_kind::App:       return save_result(e, visit_app(e));
+        case expr_kind::Lambda:
+        case expr_kind::Pi:        return save_result(e, visit_binding(e));
         }
+        lean_unreachable();
     }
 
 public:
     instantiate_metavars_fn(substitution & s, bool use_jst, bool inst_local_types):
         m_subst(s), m_use_jst(use_jst), m_inst_local_types(inst_local_types) {}
     justification const & get_justification() const { return m_jst; }
+    expr operator()(expr const & e) { return visit(e); }
 };
 
 pair<expr, justification> substitution::instantiate_metavars_core(expr const & e, bool inst_local_types) {

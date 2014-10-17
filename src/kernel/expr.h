@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "kernel/level.h"
 #include "kernel/formatter.h"
 #include "kernel/extension_context.h"
+#include "kernel/expr_eq_fn.h"
 
 namespace lean {
 // Tags are used by frontends to mark expressions. They are automatically propagated by
@@ -147,16 +148,6 @@ public:
 };
 
 expr copy_tag(expr const & e, expr && new_e);
-
-// =======================================
-// Structural equality
-/** \brief Binder information is ignored in the following predicate */
-bool operator==(expr const & a, expr const & b);
-inline bool operator!=(expr const & a, expr const & b) { return !operator==(a, b); }
-/** \brief Similar to ==, but it also compares binder information */
-bool is_bi_equal(expr const & a, expr const & b);
-struct is_bi_equal_proc { bool operator()(expr const & e1, expr const & e2) const { return is_bi_equal(e1, e2); } };
-// =======================================
 
 SPECIALIZE_OPTIONAL_FOR_SMART_PTR(expr)
 

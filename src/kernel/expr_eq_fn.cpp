@@ -4,67 +4,116 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/expr_eq_fn.h"
+#include <vector>
+#include <memory>
+#include "util/interrupt.h"
+#include "util/thread.h"
+#include "kernel/expr.h"
+#include "kernel/expr_sets.h"
 
-#ifndef LEAN_EQ_CACHE_THRESHOLD
-#define LEAN_EQ_CACHE_THRESHOLD 4
+#ifndef LEAN_EQ_CACHE_CAPACITY
+#define LEAN_EQ_CACHE_CAPACITY 1024*8
 #endif
 
 namespace lean {
-bool expr_eq_fn::apply(expr const & a, expr const & b) {
-    if (is_eqp(a, b))          return true;
-    if (a.hash() != b.hash())  return false;
-    if (a.kind() != b.kind())  return false;
-    if (is_var(a))             return var_idx(a) == var_idx(b);
-    if (m_counter >= LEAN_EQ_CACHE_THRESHOLD && is_shared(a) && is_shared(b)) {
-        auto p = std::make_pair(a.raw(), b.raw());
-        if (!m_eq_visited)
-            m_eq_visited.reset(new expr_cell_pair_set);
-        if (m_eq_visited->find(p) != m_eq_visited->end())
+struct eq_cache {
+    struct entry {
+        expr_ptr m_a;
+        expr_ptr m_b;
+        entry():m_a(nullptr), m_b(nullptr) {}
+    };
+    unsigned              m_capacity;
+    std::vector<entry>    m_cache;
+    std::vector<unsigned> m_used;
+    eq_cache():m_capacity(LEAN_EQ_CACHE_CAPACITY), m_cache(LEAN_EQ_CACHE_CAPACITY) {}
+
+    bool check(expr const & a, expr const & b) {
+        unsigned i = hash(a.hash_alloc(), b.hash_alloc()) % m_capacity;
+        if (m_cache[i].m_a == a.raw() && m_cache[i].m_b == b.raw()) {
             return true;
-        m_eq_visited->insert(p);
-    }
-    check_system("expression equality test");
-    switch (a.kind()) {
-    case expr_kind::Var:
-        lean_unreachable(); // LCOV_EXCL_LINE
-    case expr_kind::Constant:
-        return
-            const_name(a) == const_name(b) &&
-            compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
-    case expr_kind::Meta:
-        return
-            mlocal_name(a) == mlocal_name(b) &&
-            apply(mlocal_type(a), mlocal_type(b));
-    case expr_kind::Local:
-        return
-            mlocal_name(a) == mlocal_name(b) &&
-            apply(mlocal_type(a), mlocal_type(b)) &&
-            (!m_compare_binder_info || local_pp_name(a) == local_pp_name(b)) &&
-            (!m_compare_binder_info || local_info(a) == local_info(b));
-    case expr_kind::App:
-        m_counter++;
-        return
-            apply(app_fn(a), app_fn(b)) &&
-            apply(app_arg(a), app_arg(b));
-    case expr_kind::Lambda: case expr_kind::Pi:
-        m_counter++;
-        return
-            apply(binding_domain(a), binding_domain(b)) &&
-            apply(binding_body(a), binding_body(b)) &&
-            (!m_compare_binder_info || binding_info(a) == binding_info(b));
-    case expr_kind::Sort:
-        return sort_level(a) == sort_level(b);
-    case expr_kind::Macro:
-        m_counter++;
-        if (macro_def(a) != macro_def(b) || macro_num_args(a) != macro_num_args(b))
+        } else {
+            if (m_cache[i].m_a == nullptr)
+                m_used.push_back(i);
+            m_cache[i].m_a = a.raw();
+            m_cache[i].m_b = b.raw();
             return false;
-        for (unsigned i = 0; i < macro_num_args(a); i++) {
-            if (!apply(macro_arg(a, i), macro_arg(b, i)))
-                return false;
         }
-        return true;
     }
-    lean_unreachable(); // LCOV_EXCL_LINE
+
+    void clear() {
+        for (unsigned i : m_used)
+            m_cache[i].m_a = nullptr;
+        m_used.clear();
+    }
+};
+
+MK_THREAD_LOCAL_GET_DEF(eq_cache, get_eq_cache);
+
+/** \brief Functional object for comparing expressions.
+
+    Remark if CompareBinderInfo is true, then functional object will also compare
+    binder information attached to lambda and Pi expressions */
+template<bool CompareBinderInfo>
+class expr_eq_fn {
+    eq_cache & m_cache;
+
+    bool apply(expr const & a, expr const & b) {
+        if (is_eqp(a, b))          return true;
+        if (a.hash() != b.hash())  return false;
+        if (a.kind() != b.kind())  return false;
+        if (is_var(a))             return var_idx(a) == var_idx(b);
+        if (m_cache.check(a, b))
+            return true;
+        check_system("expression equality test");
+        switch (a.kind()) {
+        case expr_kind::Var:
+            lean_unreachable(); // LCOV_EXCL_LINE
+        case expr_kind::Constant:
+            return
+                const_name(a) == const_name(b) &&
+                compare(const_levels(a), const_levels(b), [](level const & l1, level const & l2) { return l1 == l2; });
+        case expr_kind::Meta:
+            return
+                mlocal_name(a) == mlocal_name(b) &&
+                apply(mlocal_type(a), mlocal_type(b));
+        case expr_kind::Local:
+            return
+                mlocal_name(a) == mlocal_name(b) &&
+                apply(mlocal_type(a), mlocal_type(b)) &&
+                (!CompareBinderInfo || local_pp_name(a) == local_pp_name(b)) &&
+                (!CompareBinderInfo || local_info(a) == local_info(b));
+        case expr_kind::App:
+            return
+                apply(app_fn(a), app_fn(b)) &&
+                apply(app_arg(a), app_arg(b));
+        case expr_kind::Lambda: case expr_kind::Pi:
+            return
+                apply(binding_domain(a), binding_domain(b)) &&
+                apply(binding_body(a), binding_body(b)) &&
+                (!CompareBinderInfo || binding_info(a) == binding_info(b));
+        case expr_kind::Sort:
+            return sort_level(a) == sort_level(b);
+        case expr_kind::Macro:
+            if (macro_def(a) != macro_def(b) || macro_num_args(a) != macro_num_args(b))
+                return false;
+            for (unsigned i = 0; i < macro_num_args(a); i++) {
+                if (!apply(macro_arg(a, i), macro_arg(b, i)))
+                    return false;
+            }
+            return true;
+        }
+        lean_unreachable(); // LCOV_EXCL_LINE
+    }
+public:
+    expr_eq_fn():m_cache(get_eq_cache()) {}
+    ~expr_eq_fn() { m_cache.clear(); }
+    bool operator()(expr const & a, expr const & b) { return apply(a, b); }
+};
+
+bool is_equal(expr const & a, expr const & b) {
+    return expr_eq_fn<false>()(a, b);
+}
+bool is_bi_equal(expr const & a, expr const & b) {
+    return expr_eq_fn<true>()(a, b);
 }
 }

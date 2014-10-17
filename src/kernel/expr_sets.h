@@ -12,30 +12,10 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-
 // =======================================
 // Expression Set
 // Remark: to expressions are assumed to be equal if they are "pointer-equal"
 typedef std::unordered_set<expr, expr_hash_alloc, expr_eqp> expr_set;
-// =======================================
-
-// =======================================
-// (low level) Expression Cell pair Set
-// Remark: to expressions are assumed to be equal if they are "pointer-equal"
-//
-// WARNING: use with care, this kind of set
-// does not prevent an expression from being
-// garbage collected.
-typedef pair<expr_cell *, expr_cell *> expr_cell_pair;
-struct expr_cell_pair_hash {
-    unsigned operator()(expr_cell_pair const & p) const { return hash(p.first->hash_alloc(), p.second->hash_alloc()); }
-};
-struct expr_cell_pair_eqp {
-    bool operator()(expr_cell_pair const & p1, expr_cell_pair const & p2) const {
-        return p1.first == p2.first && p1.second == p2.second;
-    }
-};
-typedef std::unordered_set<expr_cell_pair, expr_cell_pair_hash, expr_cell_pair_eqp> expr_cell_pair_set;
 // =======================================
 
 // Similar to expr_set, but using structural equality

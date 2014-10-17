@@ -482,9 +482,6 @@ unsigned get_weight(expr const & e) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-bool operator==(expr const & a, expr const & b) { return expr_eq_fn()(a, b); }
-bool is_bi_equal(expr const & a, expr const & b) { return expr_eq_fn(true)(a, b); }
-
 expr copy_tag(expr const & e, expr && new_e) {
     tag t = e.get_tag();
     if (t != nulltag)

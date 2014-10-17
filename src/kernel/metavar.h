@@ -15,21 +15,28 @@ Author: Leonardo de Moura
 
 namespace lean {
 class substitution {
-    typedef name_map<expr>          expr_map;
-    typedef name_map<level>         level_map;
-    typedef name_map<justification> jst_map;
+    typedef name_map<expr>                 expr_map;
+    typedef name_map<level>                level_map;
+    typedef name_map<justification>        jst_map;
+    typedef name_map<name_set> occs_map;
 
     expr_map  m_expr_subst;
     level_map m_level_subst;
     jst_map   m_expr_jsts;
     jst_map   m_level_jsts;
+    /** \brief m_occs_map is mapping that contains entries ?m -> {?m_1, ..., ?m_k}
+        where ?m is an assigned metavariable in m_expr_subst, and ?m_i's are unassigned
+        metavariables occurring directly/indirectly in the term assigned to ?m.
+        This mapping is built (and updated) on demand, and is used to improve the performance of #occurs_expr.
+    */
+    occs_map  m_occs_map;
 
     friend class instantiate_metavars_fn;
     pair<level, justification> instantiate_metavars(level const & l, bool use_jst);
     expr instantiate_metavars_wo_jst(expr const & e, bool inst_local_types);
     pair<expr, justification> instantiate_metavars_core(expr const & e, bool inst_local_types);
     bool occurs_expr_core(name const & m, expr const & e, name_set & visited) const;
-
+    name_set get_occs(name const & m, name_set & fresh);
 public:
     substitution();
     typedef optional<pair<expr,  justification>> opt_expr_jst;
@@ -43,8 +50,12 @@ public:
 
     optional<expr> get_expr(name const & m) const;
     optional<level> get_level(name const & m) const;
-    justification get_expr_jst(name const & m) const { if (auto it = m_expr_jsts.find(m)) return *it; else return justification(); }
-    justification get_level_jst(name const & m) const { if (auto it = m_level_jsts.find(m)) return *it; else return justification(); }
+    justification get_expr_jst(name const & m) const {
+        if (auto it = m_expr_jsts.find(m)) return *it; else return justification();
+    }
+    justification get_level_jst(name const & m) const {
+        if (auto it = m_level_jsts.find(m)) return *it; else return justification();
+    }
 
     void assign(name const & m, expr const & t, justification const & j);
     void assign(name const & m, expr const & t) { assign(m, t, justification()); }
@@ -58,7 +69,8 @@ public:
     pair<level, justification> instantiate_metavars(level const & l) { return instantiate_metavars(l, true); }
     level instantiate(level const & l) { return instantiate_metavars(l, false).first; }
 
-    /** \brief Instantiate metavariables occurring in \c e, by default this method does not visit the types of local constants.
+    /** \brief Instantiate metavariables occurring in \c e, by default this method does not visit the
+        types of local constants.
         For substituting the metavariables occurring in local constants, use instantiate_metavars_all.
     */
     pair<expr, justification> instantiate_metavars(expr const & e) { return instantiate_metavars_core(e, false); }
@@ -82,7 +94,10 @@ public:
     }
 
     bool is_assigned(expr const & m) const { lean_assert(is_metavar(m)); return is_expr_assigned(mlocal_name(m)); }
-    opt_expr_jst get_assignment(expr const & m) const { lean_assert(is_metavar(m)); return get_expr_assignment(mlocal_name(m)); }
+    opt_expr_jst get_assignment(expr const & m) const {
+        lean_assert(is_metavar(m));
+        return get_expr_assignment(mlocal_name(m));
+    }
     optional<expr> get_expr(expr const & m) const { lean_assert(is_metavar(m)); return get_expr(mlocal_name(m)); }
 
     bool is_assigned(level const & m) const { lean_assert(is_meta(m)); return is_level_assigned(meta_id(m)); }

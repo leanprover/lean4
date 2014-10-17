@@ -54,6 +54,7 @@ optional<level> substitution::get_level(name const & m) const {
 void substitution::assign(name const & m, expr const & t, justification const & j) {
     lean_assert(closed(t));
     m_expr_subst.insert(m, t);
+    m_occs_map.erase(m);
     if (!j.is_none())
         m_expr_jsts.insert(m, j);
 }
@@ -241,33 +242,79 @@ expr substitution::instantiate_metavars_wo_jst(expr const & e, bool inst_local_t
     return instantiate_metavars_fn(*this, false, inst_local_types)(e);
 }
 
+static name_set merge(name_set s1, name_set const & s2) {
+    s2.for_each([&](name const & n) { s1.insert(n); });
+    return s1;
+}
 
-bool substitution::occurs_expr_core(name const & m, expr const & e, name_set & visited) const {
+static bool all_unassigned(substitution const & subst, name_set const & s) {
+    return !s.find_if([&](name const & m) { return subst.is_expr_assigned(m); });
+}
+
+name_set substitution::get_occs(name const & m, name_set & fresh) {
+    lean_assert(is_expr_assigned(m));
+    if (fresh.contains(m)) {
+        return *m_occs_map.find(m);
+    } else if (name_set const * it = m_occs_map.find(m)) {
+        name_set curr_occs = *it;
+        if (all_unassigned(*this, curr_occs)) {
+            return curr_occs;
+        }
+        name_set new_occs;
+        curr_occs.for_each([&](name const & n) {
+                if (is_expr_assigned(n)) {
+                    new_occs = merge(new_occs, get_occs(n, fresh));
+                } else {
+                    // we need to update
+                    new_occs.insert(n);
+                }
+            });
+        m_occs_map.insert(m, new_occs);
+        fresh.insert(m);
+        return new_occs;
+    } else {
+        expr e = *get_expr(m);
+        name_set occs;
+        ::lean::for_each(e, [&](expr const & e, unsigned) {
+                if (!has_expr_metavar(e)) return false;
+                if (is_local(e)) return false; // do not process type
+                if (is_metavar(e)) {
+                    name const & n = mlocal_name(e);
+                    if (is_expr_assigned(n)) {
+                        occs = merge(occs, get_occs(n, fresh));
+                    } else {
+                        occs.insert(n);
+                    }
+                    return false;
+                }
+                return true;
+            });
+        m_occs_map.insert(m, occs);
+        fresh.insert(m);
+        return occs;
+    }
+}
+
+bool substitution::occurs_expr(name const & m, expr const & e) const {
+    if (!has_expr_metavar(e))
+        return false;
+    name_set fresh;
     bool found = false;
     for_each(e, [&](expr const & e, unsigned) {
             if (found || !has_expr_metavar(e)) return false;
             if (is_metavar(e)) {
                 name const & n = mlocal_name(e);
-                if (n == m)
+                if (is_expr_assigned(n)) {
+                    if (get_occs(n, fresh).contains(m))
+                        found = true;
+                } else if (n == m) {
                     found = true;
-                auto s = get_expr(e);
-                if (!s || visited.contains(n))
-                    return false; // do not visit type
-                visited.insert(n);
-                if (s && occurs_expr_core(m, *s, visited))
-                    found = true;
+                }
                 return false; // do not visit type
             }
             if (is_local(e)) return false; // do not visit type
             return true;
         });
     return found;
-}
-
-bool substitution::occurs_expr(name const & m, expr const & e) const {
-    if (!has_expr_metavar(e))
-        return false;
-    name_set visited;
-    return occurs_expr_core(m, e, visited);
 }
 }

@@ -99,10 +99,11 @@ static void tst2() {
     expr g = Const("g");
     expr a = Const("a");
     s.assign(m1, mk_app(f, m2), mk_assumption_justification(1));
-    s.assign(m2, mk_app(g, a),  mk_assumption_justification(2));
     lean_assert(check_assumptions(s.get_assignment(m1)->second, {1}));
-    lean_assert(s.occurs(m1, mk_app(f, m1)));
+    lean_assert(!s.occurs(m1, mk_app(f, m1)));
     lean_assert(s.occurs(m2, mk_app(f, m1)));
+    s.assign(m2, mk_app(g, a),  mk_assumption_justification(2));
+    lean_assert(!s.occurs(m2, mk_app(f, m1)));
     lean_assert(!s.occurs(m1, mk_app(f, m2)));
     lean_assert(!s.occurs(m1, mk_app(f, a)));
     lean_assert(!s.occurs(m3, mk_app(f, m1)));

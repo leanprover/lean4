@@ -359,10 +359,6 @@ static bool is_simple(unsigned num, transition const * ts) {
     return std::all_of(ts, ts+num, [](transition const & t) { return t.is_simple(); });
 }
 
-bool is_safe_ascii(unsigned num, transition const * ts) {
-    return std::all_of(ts, ts+num, [](transition const & t) { return t.is_safe_ascii(); });
-}
-
 /** \brief Given \c a, an expression that is the denotation of an expression, if \c a is a variable,
     then use the actions in the transitions \c ts to expand \c a. The idea is to produce a head symbol
     we can use to decide whether the notation should be considered during pretty printing.

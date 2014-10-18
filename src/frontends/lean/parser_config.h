@@ -29,6 +29,7 @@ class notation_entry {
     };
     expr                 m_expr;
     bool                 m_overload;
+    bool                 m_safe_ascii;
 public:
     notation_entry();
     notation_entry(notation_entry const & e);
@@ -43,7 +44,12 @@ public:
     mpz const & get_num() const { lean_assert(is_numeral()); return m_num; }
     expr const & get_expr() const { return m_expr; }
     bool overload() const { return m_overload; }
+    bool is_safe_ascii() const { return m_safe_ascii; }
 };
+bool operator==(notation_entry const & e1, notation_entry const & e2);
+inline bool operator!=(notation_entry const & e1, notation_entry const & e2) {
+    return !(e1 == e2);
+}
 
 /** \brief Apply \c f to expressions embedded in the notation entry */
 notation_entry replace(notation_entry const & e, std::function<expr(expr const &)> const & f);
@@ -74,6 +80,13 @@ environment add_mpz_notation(environment const & env, mpz const & n, expr const 
     \remark It does not include the default one based on the \c num inductive datatype.
 */
 list<expr> get_mpz_notation(environment const & env, mpz const & n);
+
+/** \brief Return the notation declaration that start with a given head symbol.
+
+    \remark Notation declarations that contain C++ and Lua actions are not indexed.
+    Thus, they are to included in the result.
+*/
+list<notation_entry> get_notation_entries(environment const & env, head_index const & idx);
 
 void initialize_parser_config();
 void finalize_parser_config();

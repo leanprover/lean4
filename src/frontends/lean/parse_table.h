@@ -83,6 +83,8 @@ public:
     /** \brief Return true iff the action is not Ext or LuaExt */
     bool is_simple() const;
 };
+inline bool operator==(action const & a1, action const & a2) { return a1.is_equal(a2); }
+inline bool operator!=(action const & a1, action const & a2) { return !a1.is_equal(a2); }
 
 action mk_skip_action();
 action mk_expr_action(unsigned rbp = 0);
@@ -108,8 +110,12 @@ public:
     bool is_simple() const { return m_action.is_simple(); }
     bool is_safe_ascii() const { return m_token.is_safe_ascii(); }
 };
-
-bool is_safe_ascii(unsigned num, transition const * ts);
+inline bool operator==(transition const & t1, transition const & t2) {
+    return t1.get_token() == t2.get_token() && t1.get_action() == t2.get_action();
+}
+inline bool operator!=(transition const & t1, transition const & t2) {
+    return !(t1 == t2);
+}
 
 /** \brief Apply \c f to expressions embedded in the given transition */
 transition replace(transition const & t, std::function<expr(expr const &)> const & f);

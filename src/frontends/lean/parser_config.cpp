@@ -30,7 +30,7 @@ notation_entry replace(notation_entry const & e, std::function<expr(expr const &
 
 notation_entry::notation_entry():m_kind(notation_entry_kind::NuD) {}
 notation_entry::notation_entry(notation_entry const & e):
-    m_kind(e.m_kind), m_expr(e.m_expr), m_overload(e.m_overload) {
+    m_kind(e.m_kind), m_expr(e.m_expr), m_overload(e.m_overload), m_safe_ascii(e.m_safe_ascii) {
     if (is_numeral())
         new (&m_num) mpz(e.m_num);
     else
@@ -41,13 +41,14 @@ notation_entry::notation_entry(bool is_nud, list<transition> const & ts, expr co
     m_kind(is_nud ? notation_entry_kind::NuD : notation_entry_kind::LeD),
     m_expr(e), m_overload(overload) {
     new (&m_transitions) list<transition>(ts);
+    m_safe_ascii = std::all_of(ts.begin(), ts.end(), [](transition const & t) { return t.is_safe_ascii(); });
 }
 notation_entry::notation_entry(notation_entry const & e, bool overload):
     notation_entry(e) {
     m_overload = overload;
 }
 notation_entry::notation_entry(mpz const & val, expr const & e, bool overload):
-    m_kind(notation_entry_kind::Numeral), m_expr(e), m_overload(overload) {
+    m_kind(notation_entry_kind::Numeral), m_expr(e), m_overload(overload), m_safe_ascii(true) {
     new (&m_num) mpz(val);
 }
 
@@ -56,6 +57,15 @@ notation_entry::~notation_entry() {
         m_num.~mpz();
     else
         m_transitions.~list<transition>();
+}
+
+bool operator==(notation_entry const & e1, notation_entry const & e2) {
+    if (e1.kind() != e2.kind() || e1.overload() != e2.overload() || e1.get_expr() != e2.get_expr())
+        return false;
+    if (e1.is_numeral())
+        return e1.get_num() == e2.get_num();
+    else
+        return e1.get_transitions() == e2.get_transitions();
 }
 
 struct token_state {
@@ -183,9 +193,12 @@ transition read_transition(deserializer & d) {
 
 struct notation_state {
     typedef rb_map<mpz, list<expr>, mpz_cmp_fn> num_map;
+    typedef head_map<notation_entry>            head_to_entries;
     parse_table      m_nud;
     parse_table      m_led;
     num_map          m_num_map;
+    head_to_entries  m_inv_map;
+
     notation_state() {
         m_nud = get_builtin_nud_table();
         m_led = get_builtin_led_table();
@@ -198,18 +211,28 @@ struct notation_config {
     static name * g_class_name;
     static std::string * g_key;
 
+    static void updt_inv_map(state & s, head_index const & idx, entry const & e) {
+        s.m_inv_map.insert(idx, e);
+    }
+
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
         buffer<transition> ts;
         switch (e.kind()) {
         case notation_entry_kind::NuD:
             to_buffer(e.get_transitions(), ts);
+            if (auto idx = get_head_index(ts.size(), ts.data(), e.get_expr()))
+                updt_inv_map(s, *idx, e);
             s.m_nud = s.m_nud.add(ts.size(), ts.data(), e.get_expr(), e.overload());
             break;
         case notation_entry_kind::LeD:
             to_buffer(e.get_transitions(), ts);
+            if (auto idx = get_head_index(ts.size(), ts.data(), e.get_expr()))
+                updt_inv_map(s, *idx, e);
             s.m_led = s.m_led.add(ts.size(), ts.data(), e.get_expr(), e.overload());
             break;
         case notation_entry_kind::Numeral:
+            if (!is_var(e.get_expr()))
+                updt_inv_map(s, head_index(e.get_expr()), e);
             if (!e.overload()) {
                 s.m_num_map.insert(e.get_num(), list<expr>(e.get_expr()));
             } else if (auto it = s.m_num_map.find(e.get_num())) {
@@ -306,6 +329,13 @@ list<expr> get_mpz_notation(environment const & env, mpz const & n) {
     } else {
         return list<expr>();
     }
+}
+
+list<notation_entry> get_notation_entries(environment const & env, head_index const & idx) {
+    if (auto it = notation_ext::get_state(env).m_inv_map.find(idx))
+        return *it;
+    else
+        return list<notation_entry>();
 }
 
 environment overwrite_notation(environment const & env, name const & n) {

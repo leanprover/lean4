@@ -91,18 +91,7 @@ expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
 }
 
 bool is_head_beta(expr const & t) {
-    expr const * it = &t;
-    while (is_app(*it)) {
-        expr const & f = app_fn(*it);
-        if (is_lambda(f)) {
-            return true;
-        } else if (is_app(f)) {
-            it = &f;
-        } else {
-            return false;
-        }
-    }
-    return false;
+    return is_app(t) && is_lambda(get_app_fn(t));
 }
 
 expr apply_beta(expr f, unsigned num_args, expr const * args) {
@@ -126,33 +115,28 @@ expr head_beta_reduce(expr const & t) {
         return t;
     } else {
         buffer<expr> args;
-        expr const * it = &t;
-        while (true) {
-            lean_assert(is_app(*it));
-            expr const & f = app_fn(*it);
-            args.push_back(app_arg(*it));
-            if (is_lambda(f)) {
-                return apply_beta(f, args.size(), args.data());
-            } else {
-                lean_assert(is_app(f));
-                it = &f;
-            }
-        }
+        expr const & f = get_app_rev_args(t, args);
+        lean_assert(is_lambda(f));
+        return apply_beta(f, args.size(), args.data());
     }
 }
 
 expr beta_reduce(expr t) {
-    auto f = [=](expr const & m, unsigned) -> optional<expr> {
-        if (is_head_beta(m))
+    bool reduced = false;
+    auto f = [&](expr const & m, unsigned) -> optional<expr> {
+        if (is_head_beta(m)) {
+            reduced = true;
             return some_expr(head_beta_reduce(m));
-        else if (is_local(m) || is_metavar(m))
+        } else if (is_local(m) || is_metavar(m)) {
             return some_expr(m); // do not simplify local constants and metavariables types.
-        else
+        } else {
             return none_expr();
+        }
     };
     while (true) {
+        reduced = false;
         expr new_t = replace(t, f);
-        if (new_t == t)
+        if (!reduced)
             return new_t;
         else
             t = new_t;

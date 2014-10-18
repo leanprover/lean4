@@ -240,6 +240,10 @@ inline binder_info mk_inst_implicit_binder_info() { return binder_info(false, fa
 inline binder_info mk_cast_binder_info() { return binder_info(false, true); }
 inline binder_info mk_contextual_info(bool f) { return binder_info(false, false, f); }
 
+inline bool is_explicit(binder_info const & bi) {
+    return !bi.is_implicit() && !bi.is_strict_implicit() && !bi.is_inst_implicit();
+}
+
 bool operator==(binder_info const & i1, binder_info const & i2);
 inline bool operator!=(binder_info const & i1, binder_info const & i2) { return !(i1 == i2); }
 

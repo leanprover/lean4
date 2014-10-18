@@ -404,11 +404,6 @@ struct inductive_cmd_fn {
         }
     }
 
-    // TODO(Leo): move to different file
-    static bool is_explicit(binder_info const & bi) {
-        return !bi.is_implicit() && !bi.is_strict_implicit() && !bi.is_inst_implicit();
-    }
-
     /** \brief Replace every occurrences of the inductive datatypes (in decls) in \c type with a local constant */
     expr fix_intro_rule_type(expr const & type, name_map<expr> const & ind_to_local) {
         unsigned nparams = 0; // number of explicit parameters

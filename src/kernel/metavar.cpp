@@ -337,7 +337,7 @@ name_set substitution::get_occs(name const & m, name_set & fresh) {
     }
 }
 
-bool substitution::occurs_expr(name const & m, expr const & e) const {
+bool substitution::occurs_expr(name const & m, expr const & e) {
     if (!has_expr_metavar(e))
         return false;
     name_set fresh;

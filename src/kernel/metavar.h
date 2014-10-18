@@ -105,7 +105,7 @@ public:
     optional<level> get_level(level const & m) const { lean_assert(is_meta(m)); return get_level(meta_id(m)); }
 
     /** \brief Return true iff the metavariable \c m occurrs (directly or indirectly) in \c e. */
-    bool occurs_expr(name const & m, expr const & e) const;
-    bool occurs(expr const & m, expr const & e) const { lean_assert(is_metavar(m)); return occurs_expr(mlocal_name(m), e); }
+    bool occurs_expr(name const & m, expr const & e);
+    bool occurs(expr const & m, expr const & e) { lean_assert(is_metavar(m)); return occurs_expr(mlocal_name(m), e); }
 };
 }

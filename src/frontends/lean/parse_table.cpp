@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/rb_map.h"
 #include "util/sstream.h"
 #include "kernel/free_vars.h"
+#include "kernel/replace_fn.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/no_info.h"
@@ -201,6 +202,9 @@ void action::display(std::ostream & out) const {
         break;
     }
 }
+bool action::is_simple() const {
+    return kind() != action_kind::Ext && kind() != action_kind::LuaExt;
+}
 
 void action_cell::dealloc() {
     switch (m_kind) {
@@ -349,6 +353,72 @@ parse_table parse_table::add_core(unsigned num, transition const * ts, expr cons
         r.m_ptr->m_children.insert(ts->get_token(), mk_pair(ts->get_action(), new_child));
     }
     return r;
+}
+
+static bool is_simple(unsigned num, transition const * ts) {
+    return std::all_of(ts, ts+num, [](transition const & t) { return t.is_simple(); });
+}
+
+bool is_safe_ascii(unsigned num, transition const * ts) {
+    return std::all_of(ts, ts+num, [](transition const & t) { return t.is_safe_ascii(); });
+}
+
+/** \brief Given \c a, an expression that is the denotation of an expression, if \c a is a variable,
+    then use the actions in the transitions \c ts to expand \c a. The idea is to produce a head symbol
+    we can use to decide whether the notation should be considered during pretty printing.
+
+    \see get_head_index
+*/
+static expr expand_pp_pattern(unsigned num, transition const * ts, expr const & a) {
+    lean_assert(is_simple(num, ts));
+    if (!is_var(a))
+        return a;
+    return replace(a, [&](expr const & e) {
+            if (is_var(e)) {
+                unsigned vidx = var_idx(e);
+                unsigned i = num;
+                unsigned offset = 0;
+                while (i > 0) {
+                    --i;
+                    action const & act = ts[i].get_action();
+                    switch (act.kind()) {
+                    case action_kind::Binder: case action_kind::Binders: case action_kind::Skip:
+                        break;
+                    case action_kind::Ext: case action_kind::LuaExt:
+                        lean_unreachable();
+                    case action_kind::Expr:
+                        if (vidx == 0) return none_expr();
+                        offset++;
+                        vidx--;
+                        break;
+                    case action_kind::Exprs:
+                        if (vidx == 0)
+                            return some_expr(lift_free_vars(act.get_rec(), offset));
+                        offset++;
+                        vidx--;
+                        break;
+                    case action_kind::ScopedExpr:
+                        if (vidx == 0)
+                            return some_expr(lift_free_vars(act.get_rec(), offset));
+                        offset++;
+                        vidx--;
+                        break;
+                    }
+                }
+                return none_expr();
+            } else {
+                return none_expr();
+            }
+        });
+}
+
+optional<head_index> get_head_index(unsigned num, transition const * ts, expr const & a) {
+    if (is_simple(num, ts)) {
+        expr n = expand_pp_pattern(num, ts, a);
+        if (!is_var(n))
+            return some(head_index(n));
+    }
+    return optional<head_index>();
 }
 
 parse_table parse_table::add(unsigned num, transition const * ts, expr const & a, bool overload) const {

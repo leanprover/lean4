@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/lua.h"
 #include "kernel/expr.h"
+#include "library/head_map.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/parser_pos_provider.h"
 
@@ -78,6 +79,9 @@ public:
 
     bool is_equal(action const & a) const;
     void display(std::ostream & out) const;
+
+    /** \brief Return true iff the action is not Ext or LuaExt */
+    bool is_simple() const;
 };
 
 action mk_skip_action();
@@ -101,7 +105,11 @@ public:
         m_token(t), m_action(a) {}
     name const & get_token() const { return m_token; }
     action const & get_action() const { return m_action; }
+    bool is_simple() const { return m_action.is_simple(); }
+    bool is_safe_ascii() const { return m_token.is_safe_ascii(); }
 };
+
+bool is_safe_ascii(unsigned num, transition const * ts);
 
 /** \brief Apply \c f to expressions embedded in the given transition */
 transition replace(transition const & t, std::function<expr(expr const &)> const & f);
@@ -136,6 +144,15 @@ public:
 
     void display(std::ostream & out) const;
 };
+
+/** \brief Given a notation definition, return the "head symbol" of
+    every instance of the given notation.
+
+    \remark The result is none if the notation uses actions implemented in C++ or Lua.
+    The result is none if the denotation is a variable.
+*/
+optional<head_index> get_head_index(unsigned num, transition const * ts, expr const & a);
+
 void initialize_parse_table();
 void finalize_parse_table();
 }

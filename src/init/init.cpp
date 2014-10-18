@@ -26,10 +26,10 @@ void initialize() {
     initialize_sexpr_module();
     initialize_kernel_module();
     initialize_inductive_module();
+    init_default_print_fn();
     initialize_library_module();
     initialize_tactic_module();
     initialize_frontend_lean_module();
-    init_default_print_fn();
     register_modules();
 }
 void finalize() {

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/rc.h"
 #include "util/debug.h"
 #include "util/optional.h"
+#include "util/memory_pool.h"
 
 namespace lean {
 /**
@@ -29,15 +30,22 @@ public:
         ~cell() {}
         T const & head() const { return m_head; }
         list const & tail() const { return m_tail; }
-        void dealloc() { delete this; }
+        void dealloc();
     };
 private:
+    static memory_pool & get_allocator() {
+        LEAN_THREAD_PTR(memory_pool, g_allocator);
+        if (!g_allocator)
+            g_allocator = allocate_thread_memory_pool(sizeof(cell));
+        return *g_allocator;
+    }
+
     cell * m_ptr;
     cell * steal_ptr() { cell * r = m_ptr; m_ptr = nullptr; return r; }
 public:
     list():m_ptr(nullptr) {}
-    list(T const & h, list const & t):m_ptr(new cell(h, t)) {}
-    list(T const & h):m_ptr(new cell(h, list())) {}
+    list(T const & h, list const & t):m_ptr(new (get_allocator().allocate()) cell(h, t)) {}
+    list(T const & h):m_ptr(new (get_allocator().allocate()) cell(h, list())) {}
     list(list const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     list(list&& s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     list(std::initializer_list<T> const & l):list() {
@@ -55,7 +63,7 @@ public:
                 lean_assert(it);
                 lean_assert(it->get_rc() == 0);
                 cell * next = it->m_tail.steal_ptr();
-                delete it;
+                it->dealloc();
                 if (next && next->dec_ref_core()) {
                     it = next;
                 } else {
@@ -93,7 +101,7 @@ public:
 
     template<typename... Args>
     void emplace_front(Args&&... args) {
-        cell * new_ptr = new cell(true, *this, args...);
+        cell * new_ptr = new (get_allocator().allocate()) cell(true, *this, args...);
         if (m_ptr) m_ptr->dec_ref();
         m_ptr = new_ptr;
     }
@@ -138,6 +146,12 @@ public:
     iterator begin() const { return iterator(m_ptr); }
     iterator end() const { return iterator(nullptr); }
 };
+
+template<typename T>
+void list<T>::cell::dealloc() {
+    this->~cell();
+    get_allocator().recycle(this);
+}
 
 template<typename T> inline list<T>         cons(T const & h, list<T> const & t) { return list<T>(h, t); }
 template<typename T> inline T const &       car(list<T> const & l) { return head(l); }

@@ -691,6 +691,13 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
     }
 }
 
+static bool add_extra_space(name const & tk) {
+    // TODO(Leo): this is a hard-coded temporary solution for deciding whether extra
+    // spaces should be added or not when pretty printing notation.
+    // We should implement a better solution in the future.
+    return tk != "," && tk != "(" && tk != ")";
+}
+
 auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>> & args) -> optional<result> {
     if (entry.is_numeral()) {
         return some(result(format(entry.get_num())));
@@ -703,7 +710,8 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
         unsigned i         = ts.size();
         unsigned last_rbp  = max_bp()-1;
         unsigned token_lbp = 0;
-        bool last  = true;
+        bool extra_space   = false;
+        bool last          = true;
         while (i > 0) {
             --i;
             format curr;
@@ -723,7 +731,10 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     args.pop_back();
                     result e_r   = pp_notation_child(e, token_lbp, a.rbp());
                     format e_fmt = e_r.fmt();
-                    curr = format(tk) + space() + e_fmt;
+                    curr = format(tk);
+                    if (add_extra_space(tk))
+                        curr = curr + space();
+                    curr = curr + e_fmt;
                     if (last)
                         last_rbp = a.rbp();
                     break;
@@ -764,6 +775,8 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     unsigned curr_lbp = token_lbp;
                     if (auto t = a.get_terminator()) {
                         curr = format(*t);
+                        if (add_extra_space(*t))
+                            curr = space() + curr;
                         curr_lbp = get_some_precedence(m_token_table, *t);
                     }
                     unsigned i       = rec_args.size();
@@ -774,7 +787,9 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                         result arg_res = pp_notation_child(rec_args[i], curr_lbp, a.rbp());
                         if (i == 0)
                             sep_fmt = format(tk);
-                        curr = sep_fmt + space() + arg_res.fmt() + space() + curr;
+                        curr = sep_fmt + space() + arg_res.fmt() + curr;
+                        if (i > 0 && add_extra_space(a.get_sep()))
+                            curr = space() + curr;
                         curr_lbp = sep_lbp;
                     }
                     break;
@@ -836,8 +851,11 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                 fmt = curr;
                 last = false;
             } else {
-                fmt = curr + space() + fmt;
+                if (extra_space)
+                    curr = curr + space();
+                fmt = curr + fmt;
             }
+            extra_space = add_extra_space(tk);
         }
         unsigned first_lbp = token_lbp;
         if (!entry.is_nud()) {

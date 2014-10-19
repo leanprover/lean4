@@ -1,6 +1,6 @@
-ite (and p q) (f x) y : N
+if p ∧ q then f x else y : N
 t10.lean:14:6: error: type mismatch at application
-  ite (and p q) q
+  ite (p ∧ q) q
 term
   q
 has type
@@ -9,4 +9,4 @@ but is expected to have type
   N
 cons x (cons y (cons z (cons x (cons y (cons y nil))))) : list
 cons x nil : list
-nil : list
+[ ] : list

@@ -14,43 +14,57 @@ Author: Leonardo de Moura
 #include "util/sexpr/format.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
+#include "frontends/lean/token_table.h"
 
 namespace lean {
+class notation_entry;
+
 class pretty_fn {
 public:
-    typedef pair<format, unsigned> result;
+    static unsigned max_bp() { return std::numeric_limits<unsigned>::max(); }
+    class result {
+        unsigned m_lbp;
+        unsigned m_rbp;
+        format   m_fmt;
+    public:
+        result():m_lbp(max_bp()), m_rbp(max_bp()) {}
+        result(format const & fmt):m_lbp(max_bp()), m_rbp(max_bp()), m_fmt(fmt) {}
+        result(unsigned rbp, format const & fmt):m_lbp(max_bp()), m_rbp(rbp), m_fmt(fmt) {}
+        result(unsigned lbp, unsigned rbp, format const & fmt):m_lbp(lbp), m_rbp(rbp), m_fmt(fmt) {}
+        unsigned lbp() const { return m_lbp; }
+        unsigned rbp() const { return m_rbp; }
+        format const & fmt() const { return m_fmt; }
+    };
 private:
-    environment        m_env;
-    type_checker       m_tc;
-    unsigned           m_num_steps;
-    unsigned           m_depth;
-    name               m_meta_prefix;
-    unsigned           m_next_meta_idx;
-    name_map<name>     m_purify_meta_table;
-    name_map<name>     m_purify_local_table;
-    name_set           m_purify_used_locals;
+    environment         m_env;
+    type_checker        m_tc;
+    token_table const & m_token_table;
+    unsigned            m_num_steps;
+    unsigned            m_depth;
+    name                m_meta_prefix;
+    unsigned            m_next_meta_idx;
+    name_map<name>      m_purify_meta_table;
+    name_map<name>      m_purify_local_table;
+    name_set            m_purify_used_locals;
     // cached configuration
-    options            m_options;
-    unsigned           m_indent;
-    unsigned           m_max_depth;
-    unsigned           m_max_steps;
-    bool               m_implict;          //!< if true show implicit arguments
-    bool               m_unicode;          //!< if true use unicode chars
-    bool               m_coercion;         //!< if true show coercions
-    bool               m_notation;
-    bool               m_universes;
-    bool               m_full_names;
-    bool               m_private_names;
-    bool               m_metavar_args;
-    bool               m_beta;
+    options             m_options;
+    unsigned            m_indent;
+    unsigned            m_max_depth;
+    unsigned            m_max_steps;
+    bool                m_implict;          //!< if true show implicit arguments
+    bool                m_unicode;          //!< if true use unicode chars
+    bool                m_coercion;         //!< if true show coercions
+    bool                m_notation;
+    bool                m_universes;
+    bool                m_full_names;
+    bool                m_private_names;
+    bool                m_metavar_args;
+    bool                m_beta;
 
-    unsigned max_bp() const { return std::numeric_limits<unsigned>::max(); }
     name mk_metavar_name(name const & m);
     name mk_local_name(name const & n, name const & suggested);
     level purify(level const & l);
     expr purify(expr const & e);
-    result mk_result(format const & e, unsigned rbp) const { return mk_pair(e, rbp); }
-    result mk_result(format const & e) const { return mk_result(e, max_bp()); }
     bool is_implicit(expr const & f);
     bool is_prop(expr const & e);
     bool has_implicit_args(expr const & f);
@@ -59,6 +73,12 @@ private:
     format pp_binder_block(buffer<name> const & names, expr const & type, binder_info const & bi);
     format pp_binders(buffer<expr> const & locals);
     format pp_level(level const & l);
+
+    bool match(level const & p, level const & l);
+    bool match(expr const & p, expr const & e, buffer<optional<expr>> & args);
+    result pp_notation_child(expr const & e, unsigned lbp, unsigned rbp);
+    optional<result> pp_notation(notation_entry const & entry, buffer<optional<expr>> & args);
+    optional<result> pp_notation(expr const & e);
 
     result pp_coercion_fn(expr const & e, unsigned sz);
     result pp_coercion(expr const & e, unsigned bp);

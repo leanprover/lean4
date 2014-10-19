@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include "util/flet.h"
 #include "kernel/replace_fn.h"
 #include "kernel/free_vars.h"
@@ -25,6 +26,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp_options.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/builtin_exprs.h"
+#include "frontends/lean/parser_config.h"
 
 namespace lean {
 static format * g_ellipsis_n_fmt  = nullptr;
@@ -211,11 +213,11 @@ auto pretty_fn::pp_coercion_fn(expr const & e, unsigned sz) -> result {
     } else {
         expr const & fn = app_fn(e);
         result res_fn   = pp_coercion_fn(fn, sz-1);
-        format fn_fmt   = res_fn.first;
+        format fn_fmt   = res_fn.fmt();
         if (m_implict && sz == 2 && has_implicit_args(fn))
             fn_fmt = compose(*g_explicit_fmt, fn_fmt);
         result res_arg  = pp_child(app_arg(e), max_bp());
-        return mk_result(group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.first)))), max_bp()-1);
+        return result(max_bp()-1, group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.fmt())))));
     }
 }
 
@@ -232,8 +234,8 @@ auto pretty_fn::pp_coercion(expr const & e, unsigned bp) -> result {
         unsigned sz = args.size() - r->second;
         lean_assert(sz >= 2);
         auto r = pp_coercion_fn(e, sz);
-        if (r.second < bp) {
-            return mk_result(paren(r.first));
+        if (r.rbp() < bp) {
+            return result(paren(r.fmt()));
         } else {
             return r;
         }
@@ -242,8 +244,8 @@ auto pretty_fn::pp_coercion(expr const & e, unsigned bp) -> result {
 
 auto pretty_fn::pp_child_core(expr const & e, unsigned bp) -> result {
     result r = pp(e);
-    if (r.second < bp) {
-        return mk_result(paren(r.first));
+    if (r.rbp() < bp) {
+        return result(paren(r.fmt()));
     } else {
         return r;
     }
@@ -261,16 +263,16 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp) -> result {
 
 auto pretty_fn::pp_var(expr const & e) -> result {
     unsigned vidx = var_idx(e);
-    return mk_result(compose(format("#"), format(vidx)));
+    return result(compose(format("#"), format(vidx)));
 }
 
 auto pretty_fn::pp_sort(expr const & e) -> result {
     if (m_env.impredicative() && e == mk_Prop()) {
-        return mk_result(format("Prop"));
+        return result(format("Prop"));
     } else if (m_universes) {
-        return mk_result(group(format("Type.{") + nest(6, pp_level(sort_level(e))) + format("}")));
+        return result(group(format("Type.{") + nest(6, pp_level(sort_level(e))) + format("}")));
     } else {
-        return mk_result(format("Type"));
+        return result(format("Type"));
     }
 }
 
@@ -322,18 +324,18 @@ auto pretty_fn::pp_const(expr const & e) -> result {
             first = false;
         }
         r += format("}");
-        return mk_result(group(r));
+        return result(group(r));
     } else {
-        return mk_result(format(n));
+        return result(format(n));
     }
 }
 
 auto pretty_fn::pp_meta(expr const & e) -> result {
-    return mk_result(compose(format("?"), format(mlocal_name(e))));
+    return result(compose(format("?"), format(mlocal_name(e))));
 }
 
 auto pretty_fn::pp_local(expr const & e) -> result {
-    return mk_result(format(local_pp_name(e)));
+    return result(format(local_pp_name(e)));
 }
 
 bool pretty_fn::has_implicit_args(expr const & f) {
@@ -360,11 +362,11 @@ bool pretty_fn::has_implicit_args(expr const & f) {
 auto pretty_fn::pp_app(expr const & e) -> result {
     expr const & fn = app_fn(e);
     result res_fn = pp_child(fn, max_bp()-1);
-    format fn_fmt = res_fn.first;
+    format fn_fmt = res_fn.fmt();
     if (m_implict && !is_app(fn) && has_implicit_args(fn))
         fn_fmt = compose(*g_explicit_fmt, fn_fmt);
     result res_arg = pp_child(app_arg(e), max_bp());
-    return mk_result(group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.first)))), max_bp()-1);
+    return result(max_bp()-1, group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.fmt())))));
 }
 
 format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type, binder_info const & bi) {
@@ -378,7 +380,7 @@ format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type,
         r += format(n);
         r += space();
     }
-    r += compose(colon(), nest(m_indent, compose(line(), pp_child(type, 0).first)));
+    r += compose(colon(), nest(m_indent, compose(line(), pp_child(type, 0).fmt())));
     if (bi.is_implicit()) r += format("}");
     else if (bi.is_inst_implicit()) r += format("]");
     else if (bi.is_strict_implicit() && m_unicode) r += format("⦄");
@@ -421,8 +423,8 @@ auto pretty_fn::pp_lambda(expr const & e) -> result {
     }
     format r = m_unicode ? *g_lambda_n_fmt : *g_lambda_fmt;
     r += pp_binders(locals);
-    r += compose(comma(), nest(m_indent, compose(line(), pp_child(b, 0).first)));
-    return mk_result(r, 0);
+    r += compose(comma(), nest(m_indent, compose(line(), pp_child(b, 0).fmt())));
+    return result(0, r);
 }
 
 /** \brief Similar to #is_arrow, but only returns true if binder_info is the default one.
@@ -436,8 +438,8 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
     if (is_default_arrow(e)) {
         result lhs = pp_child(binding_domain(e), get_arrow_prec());
         result rhs = pp_child(lift_free_vars(binding_body(e), 1), get_arrow_prec()-1);
-        format r   = group(lhs.first + space() + (m_unicode ? *g_arrow_n_fmt : *g_arrow_fmt) + line() + rhs.first);
-        return mk_result(r, get_arrow_prec()-1);
+        format r   = group(lhs.fmt() + space() + (m_unicode ? *g_arrow_n_fmt : *g_arrow_fmt) + line() + rhs.fmt());
+        return result(get_arrow_prec()-1, r);
     } else {
         expr b = e;
         buffer<expr> locals;
@@ -452,8 +454,8 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
         else
             r = m_unicode ? *g_pi_n_fmt : *g_pi_fmt;
         r += pp_binders(locals);
-        r += compose(comma(), nest(m_indent, compose(line(), pp_child(b, 0).first)));
-        return mk_result(r, 0);
+        r += compose(comma(), nest(m_indent, compose(line(), pp_child(b, 0).fmt())));
+        return result(0, r);
     }
 }
 
@@ -470,9 +472,9 @@ auto pretty_fn::pp_have(expr const & e) -> result {
     expr local   = p.second;
     expr body    = p.first;
     name const & n = local_pp_name(local);
-    format type_fmt  = pp_child(mlocal_type(local), 0).first;
-    format proof_fmt = pp_child(proof, 0).first;
-    format body_fmt  = pp_child(body, 0).first;
+    format type_fmt  = pp_child(mlocal_type(local), 0).fmt();
+    format proof_fmt = pp_child(proof, 0).fmt();
+    format body_fmt  = pp_child(body, 0).fmt();
     format r = *g_have_fmt + space() + format(n) + space();
     if (binding_info(binding).is_contextual())
         r += compose(*g_visible_fmt, space());
@@ -481,7 +483,7 @@ auto pretty_fn::pp_have(expr const & e) -> result {
     r += nest(m_indent, line() + proof_fmt + comma());
     r = group(r);
     r += line() + body_fmt;
-    return mk_result(r, 0);
+    return result(0, r);
 }
 
 auto pretty_fn::pp_show(expr const & e) -> result {
@@ -489,17 +491,17 @@ auto pretty_fn::pp_show(expr const & e) -> result {
     expr s           = get_annotation_arg(e);
     expr proof       = app_arg(s);
     expr type        = binding_domain(app_fn(s));
-    format type_fmt  = pp_child(type, 0).first;
-    format proof_fmt = pp_child(proof, 0).first;
+    format type_fmt  = pp_child(type, 0).fmt();
+    format proof_fmt = pp_child(proof, 0).fmt();
     format r = *g_show_fmt + space() + nest(5, type_fmt) + comma() + space() + *g_from_fmt;
     r = group(r);
     r += nest(m_indent, compose(line(), proof_fmt));
-    return mk_result(group(r), 0);
+    return result(0, group(r));
 }
 
 auto pretty_fn::pp_explicit(expr const & e) -> result {
     result res_arg = pp_child(get_explicit_arg(e), max_bp());
-    return mk_result(compose(*g_explicit_fmt, res_arg.first), max_bp());
+    return result(max_bp(), compose(*g_explicit_fmt, res_arg.fmt()));
 }
 
 auto pretty_fn::pp_macro(expr const & e) -> result {
@@ -510,9 +512,9 @@ auto pretty_fn::pp_macro(expr const & e) -> result {
         // fix macro<->pp interface
         format r = compose(format("["), format(macro_def(e).get_name()));
         for (unsigned i = 0; i < macro_num_args(e); i++)
-            r += nest(m_indent, compose(line(), pp_child(macro_arg(e, i), max_bp()).first));
+            r += nest(m_indent, compose(line(), pp_child(macro_arg(e, i), max_bp()).fmt()));
         r += format("]");
-        return mk_result(group(r));
+        return result(group(r));
     }
 }
 
@@ -544,26 +546,221 @@ auto pretty_fn::pp_let(expr e) -> result {
         format beg     = i == 0 ? space() : line();
         format sep     = i < sz - 1 ? comma() : format();
         format entry   = format(n);
-        format v_fmt   = pp_child(v, 0).first;
+        format v_fmt   = pp_child(v, 0).fmt();
         entry += space() + *g_assign_fmt + nest(m_indent, line() + v_fmt + sep);
         r += nest(3 + 1, beg + group(entry));
     }
-    format b = pp_child(e, 0).first;
+    format b = pp_child(e, 0).fmt();
     r += line() + *g_in_fmt + space() + nest(2 + 1, b);
-    return mk_result(r, 0);
+    return result(0, r);
 }
 
 auto pretty_fn::pp_num(mpz const & n) -> result {
-    return mk_result(format(n));
+    return result(format(n));
+}
+
+bool pretty_fn::match(level const & p, level const & l) {
+    if (p == l)
+        return true;
+    if (m_universes)
+        return false;
+    if (is_placeholder(p))
+        return true;
+    if (is_succ(p) && is_succ(l))
+        return match(succ_of(p), succ_of(l));
+    return false;
+}
+
+bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & args) {
+    if (is_explicit(p)) {
+        return match(get_explicit_arg(p), e, args);
+    } else if (is_var(p)) {
+        unsigned vidx = var_idx(p);
+        if (vidx >= args.size()) args.resize(vidx+1);
+        if (args[vidx])
+            return *args[vidx] == e;
+        args[vidx] = e;
+        return true;
+    } else if (is_placeholder(p)) {
+        return true;
+    } else if (is_constant(p)) {
+        if (!is_constant(e))
+            return false;
+        levels p_ls = const_levels(p);
+        levels e_ls = const_levels(p);
+        while (!is_nil(p_ls)) {
+            if (is_nil(e_ls))
+                return false; // e must have at least as many arguments as p
+            if (!match(head(p_ls), head(e_ls)))
+                return false;
+            p_ls = tail(p_ls);
+            e_ls = tail(e_ls);
+        }
+        return true;
+    } else if (is_sort(p)) {
+        if (!is_sort(e))
+            return false;
+        return match(sort_level(p), sort_level(e));
+    } else if (is_app(e)) {
+        buffer<expr> p_args, e_args;
+        expr const & p_fn = get_app_args(p, p_args);
+        expr const & e_fn = get_app_args(e, e_args);
+        if (!match(p_fn, e_fn, args))
+            return false;
+        bool expl   = is_explicit(p);
+        if (expl) {
+            if (p_args.size() != e_args.size())
+                return false;
+            for (unsigned i = 0; i < p_args.size(); i++) {
+                if (!match(p_args[i], e_args[i], args))
+                    return false;
+            }
+            return true;
+        } else {
+            try {
+                expr fn_type = m_tc.infer(e_fn).first;
+                unsigned j = 0;
+                for (unsigned i = 0; i < e_args.size(); i++) {
+                    fn_type = m_tc.ensure_pi(fn_type).first;
+                    if (is_explicit(binding_info(fn_type))) {
+                        if (j >= p_args.size())
+                            return false;
+                        if (!match(p_args[j], e_args[i], args))
+                            return false;
+                        j++;
+                    }
+                    fn_type = instantiate(binding_body(fn_type), e_args[i]);
+                }
+                return j == p_args.size();
+            } catch (exception&) {
+                return false;
+            }
+        }
+    } else {
+        return false;
+    }
+}
+
+static unsigned get_some_precedence(token_table const & t, name const & tk) {
+    if (tk.is_atomic() && tk.is_string()) {
+        if (auto p = get_precedence(t, tk.get_string()))
+            return *p;
+    } else {
+        if (auto p = get_precedence(t, tk.to_string().c_str()))
+            return *p;
+    }
+    return 0;
+}
+
+auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) -> result {
+    if (is_app(e) && !m_coercion && is_coercion(m_env, get_app_fn(e))) {
+        return pp_coercion(e, rbp);
+    } else {
+        result r = pp(e);
+        // std::cout << "e:   " << e << "\n";
+        // std::cout << "lbp: " << lbp << ", rbp: " << rbp << ", r.lbp(): " << r.lbp() << ", r.rbp(): " << r.rbp() << "\n\n";
+        if (r.rbp() < lbp || r.lbp() <= rbp) {
+            return result(paren(r.fmt()));
+        } else {
+            return r;
+        }
+    }
+}
+
+auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>> & args) -> optional<result> {
+    std::reverse(args.begin(), args.end());
+    if (entry.is_numeral()) {
+        return some(result(format(entry.get_num())));
+    } else {
+        using notation::transition;
+        buffer<transition> ts;
+        to_buffer(entry.get_transitions(), ts);
+        format fmt;
+        unsigned i         = ts.size();
+        unsigned last_rbp  = max_bp()-1;
+        unsigned token_lbp = 0;
+        bool last  = true;
+        while (i > 0) {
+            --i;
+            format curr;
+            notation::action const & a = ts[i].get_action();
+            name const & tk = ts[i].get_token();
+            switch (a.kind()) {
+            case notation::action_kind::Skip:
+                curr = format(tk);
+                if (last)
+                    last_rbp = get_some_precedence(m_token_table, tk);
+                break;
+            case notation::action_kind::Expr:
+                if (args.empty() || !args.back()) {
+                    return optional<result>();
+                } else {
+                    expr e = *args.back();
+                    args.pop_back();
+                    result e_r   = pp_notation_child(e, token_lbp, a.rbp());
+                    format e_fmt = e_r.fmt();
+                    curr = format(tk) + space() + e_fmt;
+                    if (last)
+                        last_rbp = a.rbp();
+                }
+                break;
+            case notation::action_kind::Exprs:
+            case notation::action_kind::Binder:
+            case notation::action_kind::Binders:
+            case notation::action_kind::ScopedExpr:
+                // TODO(Leo)
+                return optional<result>();
+            case notation::action_kind::Ext:
+            case notation::action_kind::LuaExt:
+                return optional<result>();
+            }
+            token_lbp = get_some_precedence(m_token_table, tk);
+            if (last) {
+                fmt = curr;
+                last = false;
+            } else {
+                fmt = curr + space() + fmt;
+            }
+        }
+        unsigned first_lbp = token_lbp;
+        if (!entry.is_nud()) {
+            lean_assert(!last);
+            if (args.size() != 1 || !args.back())
+                return optional<result>();
+            expr e = *args.back();
+            args.pop_back();
+            format e_fmt = pp_notation_child(e, token_lbp, 0).fmt();
+            fmt = e_fmt + space() + fmt;
+        }
+        return optional<result>(result(first_lbp, last_rbp, fmt));
+    }
+}
+
+auto pretty_fn::pp_notation(expr const & e) -> optional<result> {
+    if (!m_notation || is_var(e))
+        return optional<result>();
+    for (notation_entry const & entry : get_notation_entries(m_env, head_index(e))) {
+        if (!m_unicode && !entry.is_safe_ascii())
+            continue; // ignore this notation declaration since unicode support is not enabled
+        buffer<optional<expr>> args;
+        if (match(entry.get_expr(), e, args)) {
+            if (auto r = pp_notation(entry, args))
+                return r;
+        }
+    }
+    return optional<result>();
 }
 
 auto pretty_fn::pp(expr const & e) -> result {
     if (m_depth > m_max_depth || m_num_steps > m_max_steps)
-        return mk_result(m_unicode ? *g_ellipsis_n_fmt : *g_ellipsis_fmt);
+        return result(m_unicode ? *g_ellipsis_n_fmt : *g_ellipsis_fmt);
     flet<unsigned> let_d(m_depth, m_depth+1);
     m_num_steps++;
 
-    if (is_placeholder(e))  return mk_result(*g_placeholder_fmt);
+    if (auto r = pp_notation(e))
+        return *r;
+
+    if (is_placeholder(e))  return result(*g_placeholder_fmt);
     if (is_show(e))         return pp_show(e);
     if (is_have(e))         return pp_have(e);
     if (is_let(e))          return pp_let(e);
@@ -588,7 +785,7 @@ auto pretty_fn::pp(expr const & e) -> result {
 }
 
 pretty_fn::pretty_fn(environment const & env, options const & o):
-    m_env(env), m_tc(env) {
+    m_env(env), m_tc(env), m_token_table(get_token_table(env)) {
     set_options_core(o);
     m_meta_prefix   = "M";
     m_next_meta_idx = 1;
@@ -597,9 +794,9 @@ pretty_fn::pretty_fn(environment const & env, options const & o):
 format pretty_fn::operator()(expr const & e) {
     m_depth = 0; m_num_steps = 0;
     if (m_beta)
-        return pp_child(purify(beta_reduce(e)), 0).first;
+        return pp_child(purify(beta_reduce(e)), 0).fmt();
     else
-        return pp_child(purify(e), 0).first;
+        return pp_child(purify(e), 0).fmt();
 }
 
 formatter_factory mk_pretty_formatter_factory() {

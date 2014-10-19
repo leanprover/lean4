@@ -2,7 +2,7 @@
 -- ENDWAIT
 -- BEGININFO
 -- TYPE|5|16
-decidable (eq a b)
+decidable (a = b)
 -- ACK
 -- SYNTH|5|16
 int.has_decidable_eq a b

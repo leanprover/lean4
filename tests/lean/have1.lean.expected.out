@@ -1,9 +1,8 @@
-have e1 [visible] : eq a b, from H1,
-have e2 : eq a c, from trans e1 H2,
-have e3 : eq c a, from symm e2,
-have e4 [visible] : eq b a, from symm e1,
-have e5 : eq b c, from trans e4 e2,
-have e6 : eq a a, from
-  trans H1 (trans H2 (trans (symm H2) (trans (symm H1) (trans H1 (trans H2 (trans (symm H2) (symm H1))))))),
-trans e3 e2 :
-  eq c c
+have e1 [visible] : a = b, from H1,
+have e2 : a = c, from e1 ⬝ H2,
+have e3 : c = a, from e2 ⁻¹,
+have e4 [visible] : b = a, from e1 ⁻¹,
+have e5 : b = c, from e4 ⬝ e2,
+have e6 : a = a, from H1 ⬝ H2 ⬝ H2 ⁻¹ ⬝ H1 ⁻¹ ⬝ H1 ⬝ H2 ⬝ H2 ⁻¹ ⬝ H1 ⁻¹,
+e3 ⬝ e2 :
+  c = c

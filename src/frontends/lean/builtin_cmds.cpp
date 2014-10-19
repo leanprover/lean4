@@ -59,7 +59,10 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_raw_tk())) {
         p.next();
         expr e = p.parse_expr();
-        p.regular_stream() << e << endl;
+        io_state_stream out = p.regular_stream();
+        options opts = out.get_options();
+        opts = opts.update(get_pp_notation_option_name(), false);
+        out.update_options(opts) << e << endl;
     } else if (p.curr_is_token_or_id(get_options_tk())) {
         p.next();
         p.regular_stream() << p.ios().get_options() << endl;

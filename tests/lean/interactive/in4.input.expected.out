@@ -2,7 +2,7 @@
 -- ENDWAIT
 -- BEGININFO
 -- TYPE|9|0
-eq (tst.foo a b) (tst.foo a b)
+tst.foo a b = tst.foo a b
 -- ACK
 -- IDENTIFIER|9|0
 rfl
@@ -17,7 +17,7 @@ rfl
 -- ENDWAIT
 -- BEGININFO
 -- TYPE|9|0
-eq (tst.foo a b) (tst.foo a b)
+tst.foo a b = tst.foo a b
 -- ACK
 -- IDENTIFIER|9|0
 rfl

@@ -2,7 +2,7 @@
 -- ENDWAIT
 -- BEGININFO
 -- TYPE|6|6
-(nat → Prop) → nat
+(ℕ → Prop) → ℕ
 -- ACK
 -- IDENTIFIER|6|6
 epsilon
@@ -17,7 +17,7 @@ epsilon
 x
 -- ACK
 -- TYPE|6|21
-Type
+Type₁
 -- ACK
 -- IDENTIFIER|6|21
 nat

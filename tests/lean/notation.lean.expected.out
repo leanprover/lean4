@@ -1,0 +1,11 @@
+b + b + b : num
+true ∧ false ∧ true : Prop
+(true ∧ false) ∧ true : Prop
+2 + (2 + 2) : num
+2 + 2 + 2 : num
+1 = (2 + 3) * 2 : Prop
+2 + 3 * 2 = 3 * 2 + 2 : Prop
+(true ∨ false) = (true ∨ false) ∧ true : Prop
+true ∧ (false ∨ true) : Prop
+1 : A
+ℕ → ℕ : Type₁

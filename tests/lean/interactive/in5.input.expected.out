@@ -2,7 +2,7 @@
 -- ENDWAIT
 -- BEGININFO
 -- TYPE|4|0
-A → B → and A B
+A → B → A ∧ B
 -- ACK
 -- IDENTIFIER|4|0
 and.intro

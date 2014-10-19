@@ -8,8 +8,8 @@ t14.lean:23:26: error: invalid 'open/export' command option, mixing explicit and
 a : A
 c : A
 A : Type
-f a c : A
-foo.f foo.a foo.c : foo.A
+a * c : A
+foo.a * foo.c : foo.A
 t14.lean:46:8: error: unknown identifier 'a'
 f a c : A
 t14.lean:52:9: error: unexpected token

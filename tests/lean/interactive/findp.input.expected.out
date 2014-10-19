@@ -4,8 +4,8 @@
 false|Prop
 false.rec|∀ (C : Prop), false → C
 false_elim|false → ?c
-not_false_trivial|not false
-true_ne_false|not (eq true false)
-p_ne_false|?p → ne ?p false
-eq_false_elim|eq ?a false → not ?a
+not_false_trivial|¬ false
+true_ne_false|¬ true = false
+p_ne_false|?p → ?p ≠ false
+eq_false_elim|?a = false → ¬ ?a
 -- ENDFINDP

@@ -17,6 +17,7 @@ cons   : T → list T → list T
 
 namespace list
 infixr `::` := cons
+notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 
 variable {T : Type}
 
@@ -31,9 +32,6 @@ induction_on l Hnil (take x l IH, Hcons x l)
 protected definition rec_on {A : Type} {C : list A → Type} (l : list A)
     (H1 : C nil) (H2 : Π (h : A) (t : list A), C t → C (h::t)) : C l :=
   rec H1 H2 l
-
-notation `[` l:(foldr `,` (h t, h::t) nil) `]` := l
-
 
 -- Concat
 -- ------

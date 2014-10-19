@@ -728,6 +728,56 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                 }
                 break;
             case notation::action_kind::Exprs:
+                if (args.empty() || !args.back()) {
+                    return optional<result>();
+                } else {
+                    expr e = *args.back();
+                    args.pop_back();
+                    expr const & rec = a.get_rec();
+                    expr const & ini = a.get_initial();
+                    buffer<expr> rec_args;
+                    bool matched_once = false;
+                    while (true) {
+                        args.resize(args.size() + 2);
+                        if (!match(rec, e, args)) {
+                            args.pop_back();
+                            args.pop_back();
+                            break;
+                        }
+                        matched_once = true;
+                        optional<expr> new_e = args.back();
+                        args.pop_back();
+                        optional<expr> rec_arg = args.back();
+                        args.pop_back();
+                        if (!new_e || !rec_arg)
+                            return optional<result>();
+                        rec_args.push_back(*rec_arg);
+                        e = *new_e;
+                    }
+                    if (!matched_once)
+                        return optional<result>();
+                    if (!match(ini, e, args))
+                        return optional<result>();
+                    if (!a.is_fold_right())
+                        std::reverse(rec_args.begin(), rec_args.end());
+                    unsigned curr_lbp = token_lbp;
+                    if (auto t = a.get_terminator()) {
+                        curr = format(*t);
+                        curr_lbp = get_some_precedence(m_token_table, *t);
+                    }
+                    unsigned i       = rec_args.size();
+                    format sep_fmt   = format(a.get_sep());
+                    unsigned sep_lbp = get_some_precedence(m_token_table, a.get_sep());
+                    while (i > 0) {
+                        --i;
+                        result arg_res = pp_notation_child(rec_args[i], curr_lbp, a.rbp());
+                        if (i == 0)
+                            sep_fmt = format(tk);
+                        curr = sep_fmt + space() + arg_res.fmt() + space() + curr;
+                        curr_lbp = sep_lbp;
+                    }
+                    break;
+                }
             case notation::action_kind::Binder:
             case notation::action_kind::Binders:
             case notation::action_kind::ScopedExpr:

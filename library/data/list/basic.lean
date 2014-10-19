@@ -16,7 +16,7 @@ nil {} : list T,
 cons   : T → list T → list T
 
 namespace list
-infix `::` := cons
+infixr `::` := cons
 
 variable {T : Type}
 

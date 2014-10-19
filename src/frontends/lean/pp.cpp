@@ -609,9 +609,7 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
         return true;
     } else if (is_placeholder(p)) {
         return true;
-    } else if (is_constant(p)) {
-        if (!is_constant(e))
-            return false;
+    } else if (is_constant(p) && is_constant(e)) {
         levels p_ls = const_levels(p);
         levels e_ls = const_levels(p);
         while (!is_nil(p_ls)) {

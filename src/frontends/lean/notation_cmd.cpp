@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include <string>
 #include "util/sstream.h"
+#include "util/utf8.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "library/scoped_ext.h"
@@ -356,13 +357,49 @@ notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & n
     }
 }
 
+static char g_reserved_chars[] = {'(', ')', ',', 0};
+
+static void check_token(char const * tk) {
+    while (tk && *tk) {
+        unsigned sz = get_utf8_size(*tk);
+        if (sz == 0) {
+            throw exception(sstream() << "invalid token `" << tk << "`, contains invalid utf-8 character");
+        } else if (sz > 1) {
+            // multi-size unicode character
+            for (unsigned i = 0; i < sz; i++) {
+                if (!*tk)
+                    throw exception(sstream() << "invalid token `" << tk << "`, contains invalid utf-8 character");
+                ++tk;
+            }
+        } else {
+            auto it = g_reserved_chars;
+            while (*it) {
+                if (*tk == *it)
+                    throw exception(sstream() << "invalid token `" << tk << "`, it contains reserved character `" << *it << "`");
+                ++it;
+            }
+            ++tk;
+        }
+    }
+}
+
+static environment add_user_token(environment const & env, token_entry const & e) {
+    check_token(e.m_token.c_str());
+    return add_token(env, e);
+}
+
+static environment add_user_token(environment const & env, char const * val, unsigned prec) {
+    check_token(val);
+    return add_token(env, val, prec);
+}
+
 static environment notation_cmd_core(parser & p, bool overload) {
     flet<bool> set_allow_local(g_allow_local, in_context(p.env()));
     environment env = p.env();
     buffer<token_entry> new_tokens;
     auto ne = parse_notation_core(p, overload, new_tokens);
     for (auto const & te : new_tokens)
-        env = add_token(env, te);
+        env = add_user_token(env, te);
     env = add_notation(env, ne);
     return env;
 }
@@ -371,7 +408,7 @@ static environment mixfix_cmd(parser & p, mixfix_kind k, bool overload) {
     auto nt = parse_mixfix_notation(p, k, overload);
     environment env = p.env();
     if (nt.second)
-        env = add_token(env, *nt.second);
+        env = add_user_token(env, *nt.second);
     env = add_notation(env, nt.first);
     return env;
 }
@@ -389,7 +426,7 @@ static environment precedence_cmd(parser & p) {
     std::string tk = parse_symbol(p, "invalid precedence declaration, quoted symbol or identifier expected");
     p.check_token_next(get_colon_tk(), "invalid precedence declaration, ':' expected");
     unsigned prec = parse_precedence(p, "invalid precedence declaration, numeral or 'max' expected");
-    return add_token(p.env(), tk.c_str(), prec);
+    return add_user_token(p.env(), tk.c_str(), prec);
 }
 
 void register_notation_cmds(cmd_table & r) {

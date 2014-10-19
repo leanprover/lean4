@@ -1,0 +1,5 @@
+notation5.lean:3:0: error: invalid token `((`, it contains reserved character `(`
+notation5.lean:5:0: error: invalid token `(`, it contains reserved character `(`
+notation5.lean:7:0: error: invalid token `))`, it contains reserved character `)`
+notation5.lean:9:0: error: invalid token `,,`, it contains reserved character `,`
+notation5.lean:11:0: error: invalid token `,`, it contains reserved character `,`

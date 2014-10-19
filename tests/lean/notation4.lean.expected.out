@@ -1,0 +1,5 @@
+notation4.lean:2:0: warning: imported file uses 'sorry'
+∃ (A : Type₁) (x y : A) , x = y : Prop
+∃ (x : num) , x = 0 : Prop
+Σ (x : num) , x = 10 : Type₁
+Σ (A : Type₁) , list A : Type₂

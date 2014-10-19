@@ -697,6 +697,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
     } else {
         using notation::transition;
         buffer<transition> ts;
+        buffer<expr> locals; // from scoped_expr
         to_buffer(entry.get_transitions(), ts);
         format fmt;
         unsigned i         = ts.size();
@@ -725,8 +726,8 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     curr = format(tk) + space() + e_fmt;
                     if (last)
                         last_rbp = a.rbp();
+                    break;
                 }
-                break;
             case notation::action_kind::Exprs:
                 if (args.empty() || !args.back()) {
                     return optional<result>();
@@ -779,10 +780,53 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     break;
                 }
             case notation::action_kind::Binder:
+                if (locals.size() != 1)
+                    return optional<result>();
+                curr = format(tk) + pp_binders(locals);
+                break;
             case notation::action_kind::Binders:
+                curr = format(tk) + pp_binders(locals);
+                break;
             case notation::action_kind::ScopedExpr:
-                // TODO(Leo)
-                return optional<result>();
+                if (args.empty() || !args.back()) {
+                    return optional<result>();
+                } else {
+                    expr e            = *args.back();
+                    bool first_scoped = locals.empty();
+                    unsigned i = 0;
+                    args.pop_back();
+                    expr const & rec = a.get_rec();
+                    while (true) {
+                        args.resize(args.size() + 1);
+                        if (!match(rec, e, args) || !args.back()) {
+                            args.pop_back();
+                            break;
+                        }
+                        expr b = *args.back();
+                        args.pop_back();
+                        if (!((is_lambda(b) && a.use_lambda_abstraction()) ||
+                              (is_pi(b) && !a.use_lambda_abstraction()))) {
+                            break;
+                        }
+                        auto p = binding_body_fresh(b, true);
+                        if (first_scoped) {
+                            locals.push_back(p.second);
+                        } else {
+                            if (i >= locals.size() || locals[i] != p.second)
+                                return optional<result>();
+                        }
+                        e = p.first;
+                        i++;
+                    }
+                    if (locals.empty())
+                        return optional<result>();
+                    result e_r   = pp_notation_child(e, token_lbp, a.rbp());
+                    format e_fmt = e_r.fmt();
+                    curr = format(tk) + space() + e_fmt;
+                    if (last)
+                        last_rbp = a.rbp();
+                    break;
+                }
             case notation::action_kind::Ext:
             case notation::action_kind::LuaExt:
                 return optional<result>();

@@ -653,12 +653,12 @@ static unsigned get_some_precedence(token_table const & t, name const & tk) {
 }
 
 auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) -> result {
-    if (is_app(e) && !m_coercion && is_coercion(m_env, get_app_fn(e))) {
+    if (is_app(e) && is_implicit(app_fn(e))) {
+        return pp_notation_child(app_fn(e), lbp, rbp);
+    } else if (is_app(e) && !m_coercion && is_coercion(m_env, get_app_fn(e))) {
         return pp_coercion(e, rbp);
     } else {
         result r = pp(e);
-        // std::cout << "e:   " << e << "\n";
-        // std::cout << "lbp: " << lbp << ", rbp: " << rbp << ", r.lbp(): " << r.lbp() << ", r.rbp(): " << r.rbp() << "\n\n";
         if (r.rbp() < lbp || r.lbp() <= rbp) {
             return result(paren(r.fmt()));
         } else {

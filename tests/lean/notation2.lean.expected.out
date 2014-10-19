@@ -1,0 +1,3 @@
+notation2.lean:2:0: warning: imported file uses 'sorry'
+1 :: 2 :: nil : list num
+1 :: 2 :: 3 :: 4 :: 5 :: nil : list num

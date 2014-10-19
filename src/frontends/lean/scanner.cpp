@@ -7,29 +7,16 @@ Author: Leonardo de Moura
 #include <cctype>
 #include <string>
 #include "util/exception.h"
+#include "util/utf8.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/parser_config.h"
 
 namespace lean {
-bool is_utf8_next(unsigned char c) { return (c & 0xC0) == 0x80; }
-
 unsigned scanner::get_utf8_size(unsigned char c) {
-    if ((c & 0x80) == 0)
-        return 1;
-    else if ((c & 0xE0) == 0xC0)
-        return 2;
-    else if ((c & 0xF0) == 0xE0)
-        return 3;
-    else if ((c & 0xF8) == 0xF0)
-        return 4;
-    else if ((c & 0xFC) == 0xF8)
-        return 5;
-    else if ((c & 0xFE) == 0xFC)
-        return 6;
-    else if (c == 0xFF)
-        return 1;
-    else
+    unsigned r = ::lean::get_utf8_size(c);
+    if (r == 0)
         throw_exception("invalid utf-8 head character");
+    return r;
 }
 
 unsigned char to_uchar(char c) { return static_cast<unsigned char>(c); }

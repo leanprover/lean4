@@ -559,6 +559,30 @@ auto pretty_fn::pp_num(mpz const & n) -> result {
     return result(format(n));
 }
 
+// Return the number of parameters in a notation declaration.
+static unsigned get_num_parameters(notation_entry const & entry) {
+    if (entry.is_numeral())
+        return 0;
+    unsigned r = 0;
+    if (!entry.is_nud())
+        r++;
+    for (auto const & t : entry.get_transitions()) {
+        switch (t.get_action().kind()) {
+        case notation::action_kind::Skip:
+        case notation::action_kind::Binder:
+        case notation::action_kind::Binders:
+            break;
+        case notation::action_kind::Expr:
+        case notation::action_kind::Exprs:
+        case notation::action_kind::ScopedExpr:
+        case notation::action_kind::Ext:
+        case notation::action_kind::LuaExt:
+            r++;
+        }
+    }
+    return r;
+}
+
 bool pretty_fn::match(level const & p, level const & l) {
     if (p == l)
         return true;
@@ -576,10 +600,12 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
         return match(get_explicit_arg(p), e, args);
     } else if (is_var(p)) {
         unsigned vidx = var_idx(p);
-        if (vidx >= args.size()) args.resize(vidx+1);
-        if (args[vidx])
-            return *args[vidx] == e;
-        args[vidx] = e;
+        if (vidx >= args.size())
+            return false;
+        unsigned i = args.size() - vidx - 1;
+        if (args[i])
+            return *args[i] == e;
+        args[i] = e;
         return true;
     } else if (is_placeholder(p)) {
         return true;
@@ -668,7 +694,6 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
 }
 
 auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>> & args) -> optional<result> {
-    std::reverse(args.begin(), args.end());
     if (entry.is_numeral()) {
         return some(result(format(entry.get_num())));
     } else {
@@ -742,7 +767,9 @@ auto pretty_fn::pp_notation(expr const & e) -> optional<result> {
     for (notation_entry const & entry : get_notation_entries(m_env, head_index(e))) {
         if (!m_unicode && !entry.is_safe_ascii())
             continue; // ignore this notation declaration since unicode support is not enabled
+        unsigned num_params = get_num_parameters(entry);
         buffer<optional<expr>> args;
+        args.resize(num_params);
         if (match(entry.get_expr(), e, args)) {
             if (auto r = pp_notation(entry, args))
                 return r;

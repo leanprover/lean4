@@ -312,19 +312,23 @@ struct import_modules_fn {
 
             module_info_ptr r = std::make_shared<module_info>();
             r->m_fname        = fname;
-            r->m_counter      = imports.size();
+            r->m_counter      = 0;
             r->m_module_idx   = g_null_module_idx;
             m_import_counter++;
             std::string new_base = dirname(fname.c_str());
             std::swap(r->m_obj_code, code);
+            bool has_dependency = false;
             for (auto i : imports) {
-                if (auto d = load_module_file(new_base, i))
+                if (auto d = load_module_file(new_base, i)) {
+                    r->m_counter++;
                     d->m_dependents.push_back(r);
+                    has_dependency = true;
+                }
             }
             m_module_info.insert(fname, r);
             r->m_module_idx = m_next_module_idx++;
 
-            if (imports.empty())
+            if (!has_dependency)
                 add_import_module_task(r);
             return r;
         } catch (corrupted_stream_exception&) {

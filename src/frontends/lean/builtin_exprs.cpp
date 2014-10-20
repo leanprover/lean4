@@ -154,6 +154,11 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
         tacs.push_back(tac);
     }
     expr r = tacs[0];
+    if (tacs.size() == 1) {
+        // Hack: for having a uniform squiggle placement for unsolved goals.
+        // That is, the result is always of the form and_then(...).
+        r = p.mk_app({get_and_then_tac_fn(), r, get_id_tac_fn()}, end_pos);
+    }
     for (unsigned i = 1; i < tacs.size(); i++) {
         r = p.mk_app({get_and_then_tac_fn(), r, tacs[i]}, end_pos);
     }

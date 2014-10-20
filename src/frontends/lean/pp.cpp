@@ -507,6 +507,8 @@ auto pretty_fn::pp_explicit(expr const & e) -> result {
 auto pretty_fn::pp_macro(expr const & e) -> result {
     if (is_explicit(e)) {
         return pp_explicit(e);
+    } else if (is_annotation(e)) {
+        return pp(get_annotation_arg(e));
     } else {
         // TODO(Leo): have macro annotations
         // fix macro<->pp interface

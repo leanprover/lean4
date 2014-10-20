@@ -1,0 +1,55 @@
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGININFO
+-- SYMBOL|7|15
+=
+-- ACK
+-- TYPE|7|17
+ℕ
+-- ACK
+-- IDENTIFIER|7|17
+a
+-- ACK
+-- TYPE|7|19
+ℕ → ℕ → ℕ
+-- ACK
+-- SYMBOL|7|19
++
+-- ACK
+-- TYPE|7|21
+ℕ
+-- ACK
+-- IDENTIFIER|7|21
+c
+-- ACK
+-- TYPE|7|23
+ℕ → ℕ → ℕ
+-- ACK
+-- SYMBOL|7|23
++
+-- ACK
+-- TYPE|7|25
+ℕ
+-- ACK
+-- IDENTIFIER|7|25
+b
+-- ACK
+-- SYMBOL|7|31
+(
+-- ACK
+-- SYMBOL|7|32
+!
+-- ACK
+-- TYPE|7|33
+a + c + b = a + (c + b)
+-- ACK
+-- IDENTIFIER|7|33
+nat.add.assoc
+-- ACK
+-- TYPE|7|43
+a + c + b = a + (c + b) → a + (c + b) = a + c + b
+-- ACK
+-- SYMBOL|7|43
+⁻¹
+-- ACK
+-- ENDINFO

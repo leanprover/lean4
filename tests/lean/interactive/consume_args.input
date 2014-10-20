@@ -1,0 +1,11 @@
+VISIT consume_args.lean
+SYNC 7
+import logic data.nat.basic
+open nat eq.ops
+
+theorem tst (a b c : nat) : a + b + c = a + c + b :=
+calc a + b + c = a + (b + c) : !add.assoc
+         ...   = a + (c + b) : {!add.comm}
+         ...   = a + c + b   : (!add.assoc)⁻¹
+WAIT
+INFO 7

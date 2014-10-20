@@ -24,6 +24,8 @@ public:
     proof_state(goals const & gs, substitution const & s, name_generator const & ngen, constraints const & postponed);
     proof_state(proof_state const & s, goals const & gs, substitution const & subst):
         proof_state(gs, subst, s.m_ngen, s.m_postponed) {}
+    proof_state(proof_state const & s, goals const & gs, name_generator const & ngen):
+        proof_state(gs, s.m_subst, ngen, s.m_postponed) {}
     proof_state(proof_state const & s, goals const & gs):
         proof_state(s, gs, s.m_subst) {}
     proof_state(proof_state const & s, name_generator const & ngen):

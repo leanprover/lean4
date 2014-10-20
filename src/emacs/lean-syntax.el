@@ -118,7 +118,7 @@
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      ;; tactics
      (,(rx word-start
-           (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "apply" "rename"
+           (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "apply" "rename" "intros"
                "back" "beta" "done" "exact" "repeat")
            word-end)
       . 'font-lock-constant-face)

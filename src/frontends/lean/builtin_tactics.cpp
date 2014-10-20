@@ -26,10 +26,20 @@ static expr parse_rename(parser & p, unsigned, expr const *, pos_info const & po
     return p.save_pos(mk_rename_tactic_macro(from, to), pos);
 }
 
+static expr parse_intros(parser & p, unsigned, expr const *, pos_info const & pos) {
+    buffer<name> ns;
+    while (p.curr_is_identifier()) {
+        ns.push_back(p.get_name_val());
+        p.next();
+    }
+    return p.save_pos(mk_intros_tactic_macro(ns), pos);
+}
+
 void init_nud_tactic_table(parse_table & r) {
     expr x0 = mk_var(0);
     r = r.add({transition("apply",  mk_ext_action(parse_apply))}, x0);
     r = r.add({transition("rename", mk_ext_action(parse_rename))}, x0);
+    r = r.add({transition("intros", mk_ext_action(parse_intros))}, x0);
 }
 
 void initialize_builtin_tactics() {

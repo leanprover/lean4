@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/apply_tactic.h"
+#include "library/tactic/intros_tactic.h"
 
 namespace lean {
 static expr * g_exact_tac_fn      = nullptr;
@@ -80,6 +81,13 @@ public:
         m_name(n), m_fn(fn) {}
     name const & get_tatic_kind() const { return m_name; }
     expr_to_tactic_fn const & get_fn() const { return m_fn; }
+    virtual bool operator==(macro_definition_cell const & other) const {
+        if (tactic_macro_definition_cell const * other_ptr = dynamic_cast<tactic_macro_definition_cell const *>(&other)) {
+            return m_name == other_ptr->m_name;
+        } else {
+            return false;
+        }
+    }
     virtual name get_name() const { return get_tactic_name(); }
     virtual format pp(formatter const &) const { return format(m_name); }
     virtual void display(std::ostream & out) const { out << m_name; }
@@ -138,6 +146,7 @@ bool is_tactic_macro(expr const & e) {
 
 static name * g_apply_tactic_name = nullptr;
 static name * g_rename_tactic_name = nullptr;
+static name * g_intros_tactic_name = nullptr;
 
 expr mk_apply_tactic_macro(expr const & e) {
     return mk_tactic_macro(*g_apply_tactic_name, e);
@@ -146,6 +155,14 @@ expr mk_apply_tactic_macro(expr const & e) {
 expr mk_rename_tactic_macro(name const & from, name const & to) {
     expr args[2] = { Const(from), Const(to) };
     return mk_tactic_macro(*g_rename_tactic_name, 2, args);
+}
+
+expr mk_intros_tactic_macro(buffer<name> const & ns) {
+    buffer<expr> args;
+    for (name const & n : ns) {
+        args.push_back(Const(n));
+    }
+    return mk_tactic_macro(*g_intros_tactic_name, args.size(), args.data());
 }
 
 expr_to_tactic_fn const & get_tactic_macro_fn(expr const & e) {
@@ -220,7 +237,6 @@ static name_generator next_name_generator() {
 }
 
 tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
-    // std::cout << "expr_to_tactic: " << e << "\n";
     flet<bool> let(g_unfold_tactic_macros, false);
     type_checker tc(env, next_name_generator());
     return expr_to_tactic(tc, fn, e, p);
@@ -315,6 +331,7 @@ void initialize_expr_to_tactic() {
 
     g_apply_tactic_name = new name(*g_tactic_name, "apply");
     g_rename_tactic_name = new name(*g_tactic_name, "rename");
+    g_intros_tactic_name = new name(*g_tactic_name, "intros");
 
     name builtin_tac_name(*g_tactic_name, "builtin");
     name exact_tac_name(*g_tactic_name, "exact");
@@ -380,7 +397,6 @@ void initialize_expr_to_tactic() {
                  });
     register_tacm(*g_apply_tactic_name,
                   [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
-                      // std::cout << "gen apply: " << e << "\n";
                       check_macro_args(e, 1, "invalid 'apply' tactic, it must have one argument");
                       return apply_tactic(fn, macro_arg(e, 0));
                   });
@@ -390,6 +406,17 @@ void initialize_expr_to_tactic() {
                       if (!is_constant(macro_arg(e, 0)) || !is_constant(macro_arg(e, 1)))
                           throw expr_to_tactic_exception(e, "invalid 'rename' tactic, arguments must be identifiers");
                       return rename_tactic(const_name(macro_arg(e, 0)), const_name(macro_arg(e, 1)));
+                  });
+    register_tacm(*g_intros_tactic_name,
+                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                      buffer<name> ns;
+                      for (unsigned i = 0; i < macro_num_args(e); i++) {
+                          expr const & arg = macro_arg(e, i);
+                          if (!is_constant(arg))
+                              throw expr_to_tactic_exception(e, "invalid 'intros' tactic, arguments must be identifiers");
+                          ns.push_back(const_name(arg));
+                      }
+                      return intros_tactic(to_list(ns.begin(), ns.end()));
                   });
     register_tac(exact_tac_name,
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
@@ -433,6 +460,7 @@ void finalize_expr_to_tactic() {
     delete g_exact_tac_fn;
     delete g_apply_tactic_name;
     delete g_rename_tactic_name;
+    delete g_intros_tactic_name;
     delete g_tactic_macros;
     delete g_map;
     delete g_tactic_name;

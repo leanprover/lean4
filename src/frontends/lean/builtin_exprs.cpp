@@ -130,8 +130,9 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
         else
             p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
         if (p.curr_is_token(get_end_tk())) {
+            auto pos = p.pos();
             p.next();
-            throw parser_error("invalid 'begin-end' expression, tactic or expression expected", p.pos());
+            throw parser_error("invalid 'begin-end' expression, tactic or expression expected", pos);
         }
         bool use_exact = (p.curr_is_token(get_have_tk()) || p.curr_is_token(get_show_tk()) ||
                           p.curr_is_token(get_assume_tk()) || p.curr_is_token(get_take_tk()) ||

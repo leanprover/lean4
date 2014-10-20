@@ -246,8 +246,9 @@ void register_bin_tac(name const & n, std::function<tactic(tactic const &, tacti
             get_app_args(e, args);
             if (args.size() != 2)
                 throw expr_to_tactic_exception(e, "invalid binary tactic, it must have two arguments");
-            return f(expr_to_tactic(tc, fn, args[0], p),
-                     expr_to_tactic(tc, fn, args[1], p));
+            tactic t1 = expr_to_tactic(tc, fn, args[0], p);
+            tactic t2 = expr_to_tactic(tc, fn, args[1], p);
+            return f(t1, t2);
         });
 }
 

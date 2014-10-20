@@ -1,4 +1,3 @@
-notation3.lean:2:0: warning: imported file uses 'sorry'
 [ a, b, b ] : list num
 (a, true, a = b, b) : num × Prop × Prop × num
 (a, b) : num × num

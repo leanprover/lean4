@@ -700,9 +700,21 @@ static bool add_extra_space(name const & tk) {
     return tk != "," && tk != "(" && tk != ")";
 }
 
+static bool is_atomic_notation(notation_entry const & entry) {
+    if (!entry.is_nud())
+        return false;
+    list<notation::transition> const & ts = entry.get_transitions();
+    if (!is_nil(tail(ts)))
+        return false;
+    return head(ts).get_action().kind() == notation::action_kind::Skip;
+}
+
 auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>> & args) -> optional<result> {
     if (entry.is_numeral()) {
         return some(result(format(entry.get_num())));
+    } else if (is_atomic_notation(entry)) {
+        format fmt   = format(head(entry.get_transitions()).get_token());
+        return some(result(fmt));
     } else {
         using notation::transition;
         buffer<transition> ts;

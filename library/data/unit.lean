@@ -7,7 +7,7 @@ open decidable
 inductive unit : Type :=
   star : unit
 namespace unit
-  notation `⋆`:max := star
+  notation `⋆` := star
 
   -- remove duplication?
   protected theorem equal (a b : unit) : a = b :=

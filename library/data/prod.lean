@@ -26,8 +26,8 @@ namespace prod
 
   definition pr1 (p : prod A B) := rec (λ x y, x) p
   definition pr2 (p : prod A B) := rec (λ x y, y) p
-  notation `pr₁`:max := pr1
-  notation `pr₂`:max := pr2
+  notation `pr₁` := pr1
+  notation `pr₂` := pr2
 
   variables (a : A) (b : B)
 

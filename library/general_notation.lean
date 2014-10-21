@@ -40,9 +40,6 @@ precedence `▸`:75      -- infixr
 
 -- ### types and type constructors
 
-precedence `ℕ`:max
-precedence `ℤ`:max
-
 precedence `⊎`:25      -- infixr
 precedence `×`:30      -- infixr
 
@@ -69,7 +66,6 @@ precedence `||`:65     -- infixl
 -- ### set operations
 
 precedence `∈`:50
-precedence `∅`:max
 precedence `∩`:70
 precedence `∪`:65
 

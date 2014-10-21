@@ -8,4 +8,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 namespace lean {
 tactic intros_tactic(list<name> ns, bool relax_main_opaque = true);
+expr mk_intros_tactic_macro(buffer<name> const & ns);
+void initialize_intros_tactic();
+void finalize_intros_tactic();
 }

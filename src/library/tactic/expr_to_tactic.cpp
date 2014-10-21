@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/kernel_serializer.h"
 #include "library/tactic/expr_to_tactic.h"
-#include "library/tactic/intros_tactic.h"
 
 namespace lean {
 static expr * g_exact_tac_fn      = nullptr;
@@ -141,16 +140,6 @@ expr mk_tactic_macro(name const & kind, expr const & e) {
 
 bool is_tactic_macro(expr const & e) {
     return is_macro(e) && macro_def(e).get_name() == get_tactic_name();
-}
-
-static name * g_intros_tactic_name = nullptr;
-
-expr mk_intros_tactic_macro(buffer<name> const & ns) {
-    buffer<expr> args;
-    for (name const & n : ns) {
-        args.push_back(Const(n));
-    }
-    return mk_tactic_macro(*g_intros_tactic_name, args.size(), args.data());
 }
 
 expr_to_tactic_fn const & get_tactic_macro_fn(expr const & e) {
@@ -317,8 +306,6 @@ void initialize_expr_to_tactic() {
                                     return mk_tactic_macro(kind, num, args);
                                 });
 
-    g_intros_tactic_name = new name(*g_tactic_name, "intros");
-
     name builtin_tac_name(*g_tactic_name, "builtin");
     name exact_tac_name(*g_tactic_name, "exact");
     name and_then_tac_name(*g_tactic_name, "and_then");
@@ -379,17 +366,6 @@ void initialize_expr_to_tactic() {
                      else
                          throw expr_to_tactic_exception(e, "invalid trace tactic, string value expected");
                  });
-    register_tacm(*g_intros_tactic_name,
-                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                      buffer<name> ns;
-                      for (unsigned i = 0; i < macro_num_args(e); i++) {
-                          expr const & arg = macro_arg(e, i);
-                          if (!is_constant(arg))
-                              throw expr_to_tactic_exception(e, "invalid 'intros' tactic, arguments must be identifiers");
-                          ns.push_back(const_name(arg));
-                      }
-                      return intros_tactic(to_list(ns.begin(), ns.end()));
-                  });
     register_tac(exact_tac_name,
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      // TODO(Leo): use elaborate_fn
@@ -430,7 +406,6 @@ void finalize_expr_to_tactic() {
     delete g_and_then_tac_fn;
     delete g_id_tac_fn;
     delete g_exact_tac_fn;
-    delete g_intros_tactic_name;
     delete g_tactic_macros;
     delete g_map;
     delete g_tactic_name;

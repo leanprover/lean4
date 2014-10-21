@@ -33,5 +33,3 @@ trunc_index.rec (λA, Contr A) (λn trunc_n A, (Π(x y : A), trunc_n (x ≈ y)))
 definition minus_one := trunc_index.trunc_S trunc_index.minus_two
 definition IsHProp := IsTrunc minus_one
 definition IsHSet := IsTrunc (trunc_index.trunc_S minus_one)
-
-prefix `!`:75 := center

@@ -67,10 +67,22 @@ using notation::mk_ext_lua_action;
 using notation::transition;
 using notation::action;
 
+static char const * g_forbidden_tokens[] = {"!", "@", nullptr};
+
+void check_not_forbidden(char const * tk) {
+    auto it = g_forbidden_tokens;
+    while (*it) {
+        if (strcmp(*it, tk) == 0)
+            throw exception(sstream() << "invalid token `" << tk << "`, it is reserved");
+        ++it;
+    }
+}
+
 static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool reserve)
 -> pair<notation_entry, optional<token_entry>> {
     std::string tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
     char const * tks = tk.c_str();
+    check_not_forbidden(tks);
     environment const & env = p.env();
     optional<token_entry> new_token;
     optional<unsigned> prec;
@@ -192,6 +204,7 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
         auto tk   = p.get_name_val();
         auto tks  = tk.to_string();
         auto tkcs = tks.c_str();
+        check_not_forbidden(tkcs);
         p.next();
         if (p.curr_is_token(get_colon_tk())) {
             p.next();
@@ -205,6 +218,7 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
         return tk;
     } else if (p.curr_is_keyword()) {
         auto tk = p.get_token_info().token();
+        check_not_forbidden(tk.to_string().c_str());
         p.next();
         return tk;
     } else {

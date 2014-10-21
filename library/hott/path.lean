@@ -73,7 +73,6 @@ induction_on p idp
 definition concat_Vp {A : Type} {x y : A} (p : x ≈ y) : p^ @ p ≈ idp :=
 induction_on p idp
 
-
 -- Several auxiliary theorems about canceling inverses across associativity. These are somewhat
 -- redundant, following from earlier theorems.
 
@@ -98,7 +97,7 @@ induction_on q (induction_on p idp)
 
 -- universe metavariables
 definition inv_pV {A : Type} {x y z : A} (p : x ≈ y) (q : z ≈ y) : (p @ q^)^ ≈ q @ p^ :=
-induction_on p (λq, induction_on q idp) q
+induction_on p (take q, induction_on q idp) q
 
 definition inv_VV {A : Type} {x y z : A} (p : y ≈ x) (q : z ≈ y) : (p^ @ q^)^ ≈ q @ p :=
 induction_on p (induction_on q idp)
@@ -107,62 +106,56 @@ induction_on p (induction_on q idp)
 definition inv_V {A : Type} {x y : A} (p : x ≈ y) : p^^ ≈ p :=
 induction_on p idp
 
-
 -- Theorems for moving things around in equations
 -- ----------------------------------------------
 
 definition moveR_Mp {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) (r : y ≈ x) :
   p ≈ (r^ @ q) → (r @ p) ≈ q :=
-have gen : Πp q, p ≈ (r^ @ q) → (r @ p) ≈ q, from
-  induction_on r
-    (take p q,
-      assume h : p ≈ idp^ @ q,
-      show idp @ p ≈ q, from concat_1p _ @ h @ concat_1p _),
-gen p q
+induction_on r (take p h, concat_1p _ @ h @ concat_1p _) p
 
 definition moveR_pM {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) (r : y ≈ x) :
   r ≈ q @ p^ → r @ p ≈ q :=
-induction_on p (take q r h, (concat_p1 _ @ h @ concat_p1 _)) q r
+induction_on p (take q h, (concat_p1 _ @ h @ concat_p1 _)) q
 
 definition moveR_Vp {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) (r : x ≈ y) :
   p ≈ r @ q → r^ @ p ≈ q :=
-induction_on r (take p q h, concat_1p _ @ h @ concat_1p _) p q
+induction_on r (take q h, concat_1p _ @ h @ concat_1p _) q
 
 definition moveR_pV {A : Type} {x y z : A} (p : z ≈ x) (q : y ≈ z) (r : y ≈ x) :
   r ≈ q @ p → r @ p^ ≈ q :=
-induction_on p (take q r h, concat_p1 _ @ h @ concat_p1 _) q r
+induction_on p (take r h, concat_p1 _ @ h @ concat_p1 _) r
 
 definition moveL_Mp {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) (r : y ≈ x) :
   r^ @ q ≈ p → q ≈ r @ p :=
-induction_on r (take p q h, (concat_1p _)^ @ h @ (concat_1p _)^) p q
+induction_on r (take p h, (concat_1p _)^ @ h @ (concat_1p _)^) p
 
 definition moveL_pM {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) (r : y ≈ x) :
   q @ p^ ≈ r → q ≈ r @ p :=
-induction_on p (take q r h, (concat_p1 _)^ @ h @ (concat_p1 _)^) q r
+induction_on p (take q h, (concat_p1 _)^ @ h @ (concat_p1 _)^) q
 
 definition moveL_Vp {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) (r : x ≈ y) :
   r @ q ≈ p → q ≈ r^ @ p :=
-induction_on r (take p q h, (concat_1p _)^ @ h @ (concat_1p _)^) p q
+induction_on r (take q h, (concat_1p _)^ @ h @ (concat_1p _)^) q
 
 definition moveL_pV {A : Type} {x y z : A} (p : z ≈ x) (q : y ≈ z) (r : y ≈ x) :
   q @ p ≈ r → q ≈ r @ p^ :=
-induction_on p (take q r h, (concat_p1 _)^ @ h @ (concat_p1 _)^) q r
+induction_on p (take r h, (concat_p1 _)^ @ h @ (concat_p1 _)^) r
 
 definition moveL_1M {A : Type} {x y : A} (p q : x ≈ y) :
   p @ q^ ≈ idp → p ≈ q :=
-induction_on q (take p h, (concat_p1 _)^ @ h)  p
+induction_on q (take p h, (concat_p1 _)^ @ h) p
 
 definition moveL_M1 {A : Type} {x y : A} (p q : x ≈ y) :
   q^ @ p ≈ idp → p ≈ q :=
-induction_on q (take p h, (concat_1p _)^ @ h)  p
+induction_on q (take p h, (concat_1p _)^ @ h) p
 
 definition moveL_1V {A : Type} {x y : A} (p : x ≈ y) (q : y ≈ x) :
   p @ q ≈ idp → p ≈ q^ :=
-induction_on q (take p h, (concat_p1 _)^ @ h)  p
+induction_on q (take p h, (concat_p1 _)^ @ h) p
 
 definition moveL_V1 {A : Type} {x y : A} (p : x ≈ y) (q : y ≈ x) :
   q @ p ≈ idp → p ≈ q^ :=
-induction_on q (take p h, (concat_1p _)^ @ h)  p
+induction_on q (take p h, (concat_1p _)^ @ h) p
 
 definition moveR_M1 {A : Type} {x y : A} (p q : x ≈ y) :
   idp ≈ p^ @ q → p ≈ q :=
@@ -225,20 +218,19 @@ calc_refl idpath
 
 definition moveR_transport_p {A : Type} (P : A → Type) {x y : A} (p : x ≈ y) (u : P x) (v : P y) :
   u ≈ p^ # v → p # u ≈ v :=
-induction_on p (take u v, id) u v
+induction_on p (take v, id) v
 
 definition moveR_transport_V {A : Type} (P : A → Type) {x y : A} (p : y ≈ x) (u : P x) (v : P y) :
   u ≈ p # v → p^ # u ≈ v :=
-induction_on p (take u v, id) u v
+induction_on p (take u, id) u
 
 definition moveL_transport_V {A : Type} (P : A → Type) {x y : A} (p : x ≈ y) (u : P x) (v : P y) :
   p # u ≈ v → u ≈ p^ # v :=
-induction_on p (take u v, id) u v
+induction_on p (take v, id) v
 
 definition moveL_transport_p {A : Type} (P : A → Type) {x y : A} (p : y ≈ x) (u : P x) (v : P y) :
   p^ # u ≈ v → u ≈ p # v :=
-induction_on p (take u v, id) u v
-
+induction_on p (take u, id) u
 
 -- Functoriality of functions
 -- --------------------------
@@ -258,11 +250,11 @@ induction_on q (induction_on p idp)
 
 definition ap_p_pp {A B : Type} (f : A → B) {w x y z : A} (r : f w ≈ f x) (p : x ≈ y) (q : y ≈ z) :
   r @ (ap f (p @ q)) ≈ (r @ ap f p) @ (ap f q) :=
-induction_on p (take r q, induction_on q (concat_p_pp r idp idp)) r q
+induction_on q (take p, induction_on p (concat_p_pp r idp idp)) p
 
 definition ap_pp_p {A B : Type} (f : A → B) {w x y z : A} (p : x ≈ y) (q : y ≈ z) (r : f z ≈ f w) :
   (ap f (p @ q)) @ r ≈ (ap f p) @ (ap f q @ r) :=
-induction_on p (take q, induction_on q (take r, concat_pp_p _ _ _)) q r
+induction_on q (induction_on p (take r, concat_pp_p _ _ _)) r
 
 -- Functions commute with path inverses.
 definition inverse_ap {A B : Type} (f : A → B) {x y : A} (p : x ≈ y) : (ap f p)^ ≈ ap f (p^) :=
@@ -538,7 +530,7 @@ definition cancelL {A} {x y z : A} (p : x ≈ y) (q r : y ≈ z) : (p @ q ≈ p 
 induction_on p (take r, induction_on r (take q a, (concat_1p q)^ @ a)) r q
 
 definition cancelR {A} {x y z : A} (p q : x ≈ y) (r : y ≈ z) : (p @ r ≈ q @ r) → (p ≈ q) :=
-induction_on r (take p, induction_on p (take q a, a @ concat_p1 q)) p q
+induction_on r (induction_on p (take q a, a @ concat_p1 q)) q
 
 -- Whiskering and identity paths.
 
@@ -585,12 +577,12 @@ definition pentagon {A : Type} {v w x y z : A} (p : v ≈ w) (q : w ≈ x) (r : 
     @ concat_p_pp p (q @ r) s
     @ whiskerR (concat_p_pp p q r) s
   ≈ concat_p_pp p q (r @ s) @ concat_p_pp (p @ q) r s :=
-induction_on p (take q, induction_on q (take r, induction_on r (take s, induction_on s idp))) q r s
+induction_on s (induction_on r (induction_on q (induction_on p idp)))
 
 -- The 3-cell witnessing the left unit triangle.
 definition triangulator {A : Type} {x y z : A} (p : x ≈ y) (q : y ≈ z) :
   concat_p_pp p idp q @ whiskerR (concat_p1 p) q ≈ whiskerL p (concat_1p q) :=
-induction_on p (take q, induction_on q idp) q
+induction_on q (induction_on p idp)
 
 definition eckmann_hilton {A : Type} {x:A} (p q : idp ≈ idp :> (x ≈ x)) : p @ q ≈ q @ p :=
   (whiskerR_p1 p @@ whiskerL_1p q)^
@@ -629,8 +621,7 @@ definition apD02_pp {A} (B : A → Type) (f : Π x:A, B x) {x y : A}
     @ whiskerL (transport2 B r1 (f x)) (apD02 f r2)
     @ concat_p_pp _ _ _
     @ (whiskerR ((transport2_p2p B r1 r2 (f x))^) (apD f p3)) :=
-induction_on r1 (take r2, induction_on r2 (induction_on p1 idp)) r2
-
+induction_on r2 (induction_on r1 (induction_on p1 idp))
 
 /- From the Coq version:
 

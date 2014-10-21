@@ -143,13 +143,7 @@ bool is_tactic_macro(expr const & e) {
     return is_macro(e) && macro_def(e).get_name() == get_tactic_name();
 }
 
-static name * g_rename_tactic_name = nullptr;
 static name * g_intros_tactic_name = nullptr;
-
-expr mk_rename_tactic_macro(name const & from, name const & to) {
-    expr args[2] = { Const(from), Const(to) };
-    return mk_tactic_macro(*g_rename_tactic_name, 2, args);
-}
 
 expr mk_intros_tactic_macro(buffer<name> const & ns) {
     buffer<expr> args;
@@ -323,7 +317,6 @@ void initialize_expr_to_tactic() {
                                     return mk_tactic_macro(kind, num, args);
                                 });
 
-    g_rename_tactic_name = new name(*g_tactic_name, "rename");
     g_intros_tactic_name = new name(*g_tactic_name, "intros");
 
     name builtin_tac_name(*g_tactic_name, "builtin");
@@ -386,13 +379,6 @@ void initialize_expr_to_tactic() {
                      else
                          throw expr_to_tactic_exception(e, "invalid trace tactic, string value expected");
                  });
-    register_tacm(*g_rename_tactic_name,
-                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                      check_macro_args(e, 2, "invalid 'rename' tactic, it must have two arguments");
-                      if (!is_constant(macro_arg(e, 0)) || !is_constant(macro_arg(e, 1)))
-                          throw expr_to_tactic_exception(e, "invalid 'rename' tactic, arguments must be identifiers");
-                      return rename_tactic(const_name(macro_arg(e, 0)), const_name(macro_arg(e, 1)));
-                  });
     register_tacm(*g_intros_tactic_name,
                   [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                       buffer<name> ns;
@@ -444,7 +430,6 @@ void finalize_expr_to_tactic() {
     delete g_and_then_tac_fn;
     delete g_id_tac_fn;
     delete g_exact_tac_fn;
-    delete g_rename_tactic_name;
     delete g_intros_tactic_name;
     delete g_tactic_macros;
     delete g_map;

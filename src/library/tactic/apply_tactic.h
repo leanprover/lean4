@@ -11,7 +11,7 @@ namespace lean {
 tactic apply_tactic(elaborate_fn const & fn, expr const & e, bool relax_main_opaque = true);
 tactic eassumption_tactic(bool relax_main_opaque = true);
 void open_apply_tactic(lua_State * L);
-
+expr mk_apply_tactic_macro(expr const & e);
 void initialize_apply_tactic();
 void finalize_apply_tactic();
 }

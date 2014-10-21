@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include "library/explicit.h"
+#include "library/tactic/apply_tactic.h"
+#include "library/tactic/rename_tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/parse_table.h"

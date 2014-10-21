@@ -180,7 +180,7 @@ rec_measure_spec (div_aux_rec y) (div_aux_decreasing y) x
 
 definition idivide (x : ℕ) (y : ℕ) : ℕ := div_aux y x
 
-infixl `div` := idivide
+notation a div b := idivide a b
 
 theorem div_zero {x : ℕ} : x div 0 = 0 :=
 div_aux_spec _ _ ⬝ if_pos (or.inl rfl)
@@ -256,7 +256,7 @@ rec_measure_spec (mod_aux_rec y) (mod_aux_decreasing y) x
 
 definition modulo (x : ℕ) (y : ℕ) : ℕ := mod_aux y x
 
-infixl `mod` := modulo
+notation a mod b := modulo a b
 
 theorem mod_zero {x : ℕ} : x mod 0 = x :=
 mod_aux_spec _ _ ⬝ if_pos (or.inl rfl)

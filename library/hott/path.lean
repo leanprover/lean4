@@ -19,8 +19,8 @@ inductive path {A : Type} (a : A) : A → Type :=
 idpath : path a a
 
 namespace path
-infix `≈` := path
-notation x `≈` y:50 `:>`:0 A:0 := @path A x y    -- TODO: is this right?
+notation a ≈ b := path a b
+notation x ≈ y `:>`:50 A:49 := @path A x y
 definition idp {A : Type} {a : A} := idpath a
 
 protected definition induction_on {A : Type} {a b : A} (p : a ≈ b)

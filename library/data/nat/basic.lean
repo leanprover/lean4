@@ -45,7 +45,7 @@ inhabited.mk zero
 
 definition add (x y : ℕ) : ℕ :=
 nat.rec x (λ n r, succ r) y
-infixl `+` := add
+notation a + b := add a b
 
 definition of_num [coercion] [reducible] (n : num) : ℕ :=
 num.rec zero
@@ -255,7 +255,7 @@ nat.rec H1 (take n IH, !add.one ▸ (H2 n IH)) a
 -- --------------
 
 definition mul (n m : ℕ) := nat.rec 0 (fun m x, x + n) m
-infixl `*` := mul
+notation a * b := mul a b
 
 theorem mul.zero_right (n : ℕ) : n * 0 = 0
 

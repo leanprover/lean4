@@ -124,9 +124,9 @@ end iff
 calc_subst iff.subst
 
 namespace iff_ops
-  postfix `⁻¹`:100   := iff.symm
-  infixr `⬝`:75      := iff.trans
-  infixr `▸`:75      := iff.subst
+  notation H ⁻¹ := iff.symm H
+  notation H1 ⬝ H2 := iff.trans H1 H2
+  notation H1 ▸ H2 := iff.subst H1 H2
   definition refl  := iff.refl
   definition symm  := @iff.symm
   definition trans := @iff.trans

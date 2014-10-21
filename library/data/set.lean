@@ -11,11 +11,11 @@ definition set (T : Type) :=
 T → bool
 definition mem {T : Type} (x : T) (s : set T) :=
 (s x) = tt
-infix `∈` := mem
+notation e ∈ s := mem e s
 
 definition eqv {T : Type} (A B : set T) : Prop :=
 ∀x, x ∈ A ↔ x ∈ B
-infixl `∼`:50 := eqv
+notation a ∼ b := eqv a b
 
 theorem eqv_refl {T : Type} (A : set T) : A ∼ A :=
 take x, iff.rfl
@@ -41,7 +41,7 @@ rfl
 
 definition inter {T : Type} (A B : set T) : set T :=
 λx, A x && B x
-infixl `∩` := inter
+notation a ∩ b := inter a b
 
 theorem mem_inter {T : Type} (x : T) (A B : set T) : x ∈ A ∩ B ↔ (x ∈ A ∧ x ∈ B) :=
 iff.intro
@@ -68,7 +68,7 @@ take x, band.assoc (A x) (B x) (C x) ▸ iff.rfl
 
 definition union {T : Type} (A B : set T) : set T :=
 λx, A x || B x
-infixl `∪` := union
+notation a ∪ b := union a b
 
 theorem mem_union {T : Type} (x : T) (A B : set T) : x ∈ A ∪ B ↔ (x ∈ A ∨ x ∈ B) :=
 iff.intro

@@ -64,7 +64,7 @@ namespace pos_num
       (λm r, bit0 (f m)))
     b
 
-  infixl `+` := add
+  notation a + b := add a b
 
   section
   variables (a b : pos_num)
@@ -103,7 +103,7 @@ namespace pos_num
     (λn r, bit0 r + b)
     (λn r, bit0 r)
 
-  infixl `*` := mul
+  notation a * b := mul a b
 
   theorem mul.one_left (a : pos_num) : one * a = a :=
   rfl
@@ -161,6 +161,6 @@ namespace num
   definition mul (a b : num) : num :=
   rec_on a zero (λp_a, rec_on b zero (λp_b, pos (pos_num.mul p_a p_b)))
 
-  infixl `+` := add
-  infixl `*` := mul
+  notation a + b := add a b
+  notation a * b := mul a b
 end num

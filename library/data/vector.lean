@@ -9,7 +9,7 @@ inductive vector (T : Type) : ℕ → Type :=
   cons : T → ∀{n}, vector T n → vector T (succ n)
 
 namespace vector
-  infix `::` := cons --at what level?
+  notation a :: b := cons a b
   notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 
   section sc_vector
@@ -322,5 +322,5 @@ namespace vector
 -- theorem nth_succ (x0 : T) (l : list T) (n : ℕ) : nth x0 l (succ n) = nth x0 (tail l) n := refl _
 
   end sc_vector
-  infixl `++`:65 := concat
+  notation a ++ b := concat a b
 end vector

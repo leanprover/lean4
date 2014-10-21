@@ -41,7 +41,7 @@ namespace bool
   theorem bor.tt_left (a : bool) : bor tt a = tt :=
   rfl
 
-  infixl `||` := bor
+  notation a || b := bor a b
 
   theorem bor.tt_right (a : bool) : a || tt = tt :=
   cases_on a rfl rfl
@@ -78,7 +78,7 @@ namespace bool
   definition band (a b : bool) :=
   rec_on a ff (rec_on b ff tt)
 
-  infixl `&&` := band
+  notation a && b := band a b
 
   theorem band.ff_left (a : bool) : ff && a = ff :=
   rfl

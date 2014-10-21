@@ -16,7 +16,7 @@ nil {} : list T,
 cons   : T → list T → list T
 
 namespace list
-infixr `::` := cons
+notation h :: t  := cons h t
 notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 
 variable {T : Type}
@@ -39,7 +39,7 @@ protected definition rec_on {A : Type} {C : list A → Type} (l : list A)
 definition append (s t : list T) : list T :=
 rec t (λx l u, x::u) s
 
-infixl `++` : 65 := append
+notation l₁ ++ l₂ := append l₁ l₂
 
 theorem append.nil_left (t : list T) : nil ++ t = t
 
@@ -144,7 +144,7 @@ cases_on l
 definition mem (x : T) : list T → Prop :=
 rec false (λy l H, x = y ∨ H)
 
-infix `∈` := mem
+notation e ∈ s := mem e s
 
 theorem mem.nil (x : T) : x ∈ nil ↔ false :=
 iff.rfl

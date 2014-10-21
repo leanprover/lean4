@@ -20,7 +20,7 @@ namespace nat
 -- -----------
 
 definition sub (n m : ℕ) : nat := rec n (fun m x, pred x) m
-infixl `-` := sub
+notation a - b := sub a b
 
 theorem sub_zero_right (n : ℕ) : n - 0 = n
 

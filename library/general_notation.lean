@@ -11,7 +11,6 @@
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
 
-
 -- Global declarations of right binding strength
 -- ---------------------------------------------
 
@@ -19,58 +18,55 @@ notation `take`   binders `,` r:(scoped f, f) := r
 -- conventions.
 
 -- ### Logical operations and relations
+reserve prefix `¬`:40
+reserve infixr `∧`:35
+reserve infixr `/\`:35
+reserve infixr `‌\/`:30
+reserve infixr `∨`:30
+reserve infix `<->`:25
+reserve infix `↔`:25
+reserve infix `=`:50
+reserve infix `≠`:50
+reserve infix `≈`:50
+reserve infix `∼`:50
 
-precedence `¬`:40
-precedence `/\`:35    -- infixr
-precedence `∧`:35     -- infixr
-precedence `\/`:30    -- infixr
-precedence `∨`:30     -- infixr
-precedence `<->`:25
-precedence `↔`:25
-
-precedence `=`:50
-precedence `≠`:50
-
-precedence `≈`:50      -- used for path in hott
-precedence `∼`:50
-
-precedence `⁻¹`:100
-precedence `⬝`:75      -- infixr
-precedence `▸`:75      -- infixr
+reserve postfix `⁻¹`:100
+reserve infixr `⬝`:75
+reserve infixr `▸`:75
 
 -- ### types and type constructors
 
-precedence `⊎`:25      -- infixr
-precedence `×`:30      -- infixr
+reserve infixl `⊎`:25
+reserve infixl `×`:30
 
 -- ### arithmetic operations
 
-precedence `+`:65      -- infixl
-precedence `-`:65      -- infixl; for negation, follow by rbp 100
-precedence `*`:70      -- infixl
-precedence `div`:70    -- infixl
-precedence `mod`:70    -- infixl
+reserve infixl `+`:65
+reserve infixl `-`:65
+reserve infixl `*`:70
+reserve infixl `div`:70
+reserve infixl `mod`:70
 
-precedence `<=`:50
-precedence `≤`:50
-precedence `<`:50
-precedence `>=`:50
-precedence `≥`:50
-precedence `>`:50
+reserve infix `<=`:50
+reserve infix `≤`:50
+reserve infix `<`:50
+reserve infix `>=`:50
+reserve infix `≥`:50
+reserve infix `>`:50
 
 -- ### boolean operations
 
-precedence `&&`:70     -- infixl
-precedence `||`:65     -- infixl
+reserve infixl `&&`:70
+reserve infixl `||`:65
 
 -- ### set operations
 
-precedence `∈`:50
-precedence `∩`:70
-precedence `∪`:65
+reserve infix `∈`:50
+reserve infixl `∩`:70
+reserve infixl `∪`:65
 
 -- ### other symbols
-
-precedence `|`:55     -- used for absolute value, subtypes, divisibility
-precedence `++`:65    -- list append
-precedence `::`:65    -- list cons
+precedence `|`:55
+reserve notation | a:55 |
+reserve infixl `++`:65
+reserve infixr `::`:65

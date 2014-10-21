@@ -9,8 +9,8 @@ import general_notation .eq
 inductive and (a b : Prop) : Prop :=
   intro : a → b → and a b
 
-infixr `/\` := and
-infixr `∧` := and
+notation a /\ b := and a b
+notation a ∧ b  := and a b
 
 variables {a b c d : Prop}
 
@@ -49,8 +49,8 @@ inductive or (a b : Prop) : Prop :=
   intro_left  : a → or a b,
   intro_right : b → or a b
 
-infixr `\/` := or
-infixr `∨` := or
+notation a `\/` b := or a b
+notation a ∨ b := or a b
 
 namespace or
   theorem inl (Ha : a) : a ∨ b :=
@@ -105,8 +105,8 @@ assume not_em : ¬(p ∨ ¬p),
 -- ---
 definition iff (a b : Prop) := (a → b) ∧ (b → a)
 
-infix `<->` := iff
-infix `↔` := iff
+notation a <-> b := iff a b
+notation a ↔ b := iff a b
 
 namespace iff
   theorem def : (a ↔ b) = ((a → b) ∧ (b → a)) :=

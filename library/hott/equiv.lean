@@ -53,4 +53,4 @@ Equiv.rec (λequiv_fun equiv_isequiv, equiv_isequiv) e
 
 -- TODO: better symbol
 infix `<~>`:25 := Equiv
-notation e `⁻¹` := equiv_inv e
+notation H ⁻¹ := equiv_inv H

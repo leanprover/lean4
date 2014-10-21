@@ -18,8 +18,8 @@ namespace int
 
 -- ## le
 definition le (a b : ℤ) : Prop := ∃n : ℕ, a + n = b
-infix  `<=` := int.le
-infix  `≤`  := int.le
+notation a <= b := int.le a b
+notation a ≤ b  := int.le a b
 
 theorem le_intro {a b : ℤ} {n : ℕ} (H : a + n = b) : a ≤ b :=
 exists_intro n H
@@ -180,14 +180,14 @@ iff.intro
 -- ----------------------------------------------
 
 definition lt (a b : ℤ) := a + 1 ≤ b
-infix `<`  := int.lt
+notation a < b  := int.lt a b
 
 definition ge (a b : ℤ) := b ≤ a
-infix `>=` := int.ge
-infix `≥`  := int.ge
+notation a >= b := int.ge a b
+notation a ≥ b  := int.ge a b
 
 definition gt (a b : ℤ) := b < a
-infix `>`  := int.gt
+notation a > b  := int.gt a b
 
 theorem lt_def (a b : ℤ) : a < b ↔ a + 1 ≤ b :=
 iff.refl (a < b)

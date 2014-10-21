@@ -1,7 +1,7 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
-import .prop
+import general_notation .prop
 
 -- logic.eq
 -- ====================
@@ -14,7 +14,7 @@ import .prop
 inductive eq {A : Type} (a : A) : A → Prop :=
 refl : eq a a
 
-infix `=` := eq
+notation a = b := eq a b
 definition rfl {A : Type} {a : A} := eq.refl a
 
 -- proof irrelevance is built in
@@ -40,9 +40,9 @@ namespace eq
   subst H (refl a)
 
   namespace ops
-    postfix `⁻¹` := symm
-    infixr `⬝`   := trans
-    infixr `▸`   := subst
+    notation H `⁻¹` := symm H
+    notation H1 ⬝ H2 := trans H1 H2
+    notation H1 ▸ H2 := subst H1 H2
  end ops
 end eq
 
@@ -201,7 +201,7 @@ end
 -- --
 
 definition ne {A : Type} (a b : A) := ¬(a = b)
-infix `≠` := ne
+notation a ≠ b := ne a b
 
 namespace ne
   variable {A : Type}

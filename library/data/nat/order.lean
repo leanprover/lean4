@@ -21,8 +21,8 @@ namespace nat
 
 definition le (n m : ℕ) : Prop := exists k : nat, n + k = m
 
-infix  `<=` := le
-infix  `≤`  := le
+notation a <= b := le a b
+notation a ≤ b  := le a b
 
 theorem le_intro {n m k : ℕ} (H : n + k = m) : n ≤ m :=
 exists_intro k H
@@ -256,14 +256,14 @@ general n
 -- ge and gt will be transparent, so we don't need to reprove theorems for le and lt for them
 
 definition lt (n m : ℕ) := succ n ≤ m
-infix `<` := lt
+notation a < b := lt a b
 
 definition ge (n m : ℕ) := m ≤ n
-infix `>=` := ge
-infix `≥` := ge
+notation a >= b := ge a b
+notation a ≥ b := ge a b
 
 definition gt (n m : ℕ) := m < n
-infix `>` := gt
+notation a > b := gt a b
 
 theorem lt_def (n m : ℕ) : (n < m) = (succ n ≤ m) := rfl
 

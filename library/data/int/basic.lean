@@ -373,7 +373,7 @@ calc
     ... = pr2 (map_pair2 add a b) + pr1 (map_pair2 add a' b') : by simp
 
 definition add : ℤ → ℤ → ℤ := quotient_map_binary quotient (map_pair2 nat.add)
-infixl `+` := int.add
+notation a + b := int.add a b
 
 theorem add_comp (n m k l : ℕ) : psub (pair n m) + psub (pair k l) = psub (pair (n + k) (m + l)) :=
 have H : ∀a b, psub a + psub b = psub (map_pair2 nat.add a b),
@@ -442,7 +442,7 @@ by simp
 
 -- ## sub
 definition sub (a b : ℤ) : ℤ := a + -b
-infixl `-` := int.sub
+notation a - b := int.sub a b
 
 theorem sub_def (a b : ℤ) : a - b = a + -b :=
 rfl
@@ -607,7 +607,7 @@ calc
 definition mul : ℤ → ℤ → ℤ := quotient_map_binary quotient
   (fun u v : ℕ × ℕ, pair (pr1 u * pr1 v + pr2 u * pr2 v) (pr1 u * pr2 v + pr2 u * pr1 v))
 
-infixl `*` := int.mul
+notation a * b := int.mul a b
 
 theorem mul_comp (n m k l : ℕ) :
   psub (pair n m) * psub (pair k l) = psub (pair (n * k + m * l) (n * l + m * k)) :=

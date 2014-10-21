@@ -24,7 +24,7 @@ namespace morphism
   definition inverse       (f : hom a b) [H : is_iso f] : hom b a :=
   is_iso.rec (λg h1 h2, g) H
 
-  postfix `⁻¹` := inverse
+  notation H ⁻¹ := inverse H
 
   theorem inverse_compose (f : hom a b) [H : is_iso f] : f⁻¹ ∘ f = id :=
   is_iso.rec (λg h1 h2, h1) H

@@ -10,13 +10,15 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/parse_table.h"
 
+#define LEAN_APPLY_RBP 16 // it should be bigger than `;` (and_then) precedence
+
 namespace lean {
 using notation::transition;
 using notation::mk_ext_action;
 
 static expr parse_apply(parser & p, unsigned, expr const *, pos_info const & pos) {
     parser::no_undef_id_error_scope scope(p);
-    expr e = p.parse_expr(std::numeric_limits<unsigned>::max());
+    expr e = p.parse_expr(LEAN_APPLY_RBP);
     return p.save_pos(mk_apply_tactic_macro(e), pos);
 }
 

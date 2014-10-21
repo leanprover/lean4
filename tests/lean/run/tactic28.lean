@@ -12,7 +12,7 @@ theorem inl_inhabited {A : Type} (B : Type) (H : inhabited A) : inhabited (sum A
 theorem inr_inhabited (A : Type) {B : Type} (H : inhabited B) : inhabited (sum A B)
 := inhabited.destruct H (λ b, inhabited.mk (sum.inr A b))
 
-infixl `..`:100 := append
+infixl `..`:10 := append
 
 definition my_tac := repeat (trace "iteration"; state;
                               (  apply @inl_inhabited; trace "used inl"

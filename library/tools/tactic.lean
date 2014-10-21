@@ -39,15 +39,10 @@ opaque definition beta        : tactic := builtin
 opaque definition unfold      {B : Type} (b : B) : tactic := builtin
 opaque definition exact       {B : Type} (b : B) : tactic := builtin
 opaque definition trace       (s : string) : tactic := builtin
-precedence `;`:200
-infixl ; := and_then
--- [ t_1 | ... | t_n ] notation
-notation `[` h:100 `|` r:(foldl 100 `|` (e r, or_else r e) h) `]` := r
--- [ t_1 || ... || t_n ] notation
-notation `[` h:100 `||` r:(foldl 100 `||` (e r, par r e) h) `]` := r
-definition try         (t : tactic) : tactic := [ t | id ]
-notation `?` t:max     := try t
-definition repeat1     (t : tactic) : tactic := t ; !t
+infixl `;`:15 := and_then
+notation `[` h:10 `|`:10 r:(foldl 10 `|` (e r, or_else r e) h) `]` := r
+definition try         (t : tactic) : tactic := [t | id]
+definition repeat1     (t : tactic) : tactic := t ; repeat t
 definition focus       (t : tactic) : tactic := focus_at t 0
 definition determ      (t : tactic) : tactic := at_most t 1
 

@@ -84,7 +84,7 @@ namespace vector
   definition concat {n m : ℕ} (v : vector T n) (w : vector T m) : vector T (n + m) :=
   vector.rec (cast_subst (!add.zero_left⁻¹) w) (λx n w' u, cast_subst (!add.succ_left⁻¹) (x::u)) v
 
-  infixl `++`:65 := concat
+  notation h ++ t := concat h t
 
   theorem nil_concat {n : ℕ} (v : vector T n) : nil ++ v = cast_subst (!add.zero_left⁻¹) v := rfl
 

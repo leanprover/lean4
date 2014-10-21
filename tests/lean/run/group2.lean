@@ -5,7 +5,7 @@ context
   variable f   : A → A → A
   variable one : A
   variable inv : A → A
-  infixl `*`:75     := f
+  infixl `*`     := f
   postfix `^-1`:100 := inv
   definition is_assoc := ∀ a b c, (a*b)*c = a*b*c
   definition is_id    := ∀ a, a*one = a
@@ -31,7 +31,7 @@ check group_struct
 definition mul {A : Type} [s : group_struct A] (a b : A) : A
 := group_struct.rec (λ mul one inv h1 h2 h3, mul) s a b
 
-infixl `*`:75 := mul
+infixl `*` := mul
 
 section
   variable  G1 : group

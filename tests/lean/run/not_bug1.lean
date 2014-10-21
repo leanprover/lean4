@@ -5,7 +5,7 @@ constant list : Type.{1}
 constant nil  : list
 constant cons : bool → list → list
 
-infixr `::`:65 := cons
+infixr `::` := cons
 notation `[` l:(foldr `,` (h t, cons h t) nil `]`) := l
 
 check []

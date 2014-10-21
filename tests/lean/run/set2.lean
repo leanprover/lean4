@@ -5,7 +5,7 @@ namespace set
 
 definition set (T : Type) := T → bool
 definition mem {T : Type} (a : T) (s : set T) := s a = tt
-infix `∈`:50 := mem
+infix `∈` := mem
 
 section
   variable {T : Type}

@@ -7,7 +7,7 @@ context
   variable f   : A → A → A
   variable one : A
   variable inv : A → A
-  infixl `*`:75     := f
+  infixl `*`     := f
   postfix `^-1`:100 := inv
   definition is_assoc := ∀ a b c, (a*b)*c = a*b*c
   definition is_id    := ∀ a, a*one = a
@@ -24,12 +24,12 @@ namespace algebra
   definition mul  {A : Type} [s : mul_struct A] (a b : A)
   := mul_struct.rec (fun f, f) s a b
 
-  infixl `*`:75 := mul
+  infixl `*` := mul
 
   definition add  {A : Type} [s : add_struct A] (a b : A)
   := add_struct.rec (fun f, f) s a b
 
-  infixl `+`:65 := add
+  infixl `+` := add
 end algebra
 
 open algebra

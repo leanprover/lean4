@@ -6,8 +6,8 @@ constant of_nat : nat → int
 coercion of_nat
 constant nat_add : nat → nat → nat
 constant int_add : int → int → int
-infixl `+`:65 := int_add
-infixl `+`:65 := nat_add
+infixl `+` := int_add
+infixl `+` := nat_add
 
 print "================"
 constant tst (n m : nat) : @eq int (of_nat n + of_nat m) (n + m)

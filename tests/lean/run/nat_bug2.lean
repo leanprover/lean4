@@ -14,8 +14,8 @@ definition add (x y : nat) : nat
 := plus x y
 constant le : nat → nat → Prop
 
-infixl `+`:65 := add
-infix `≤`:50  := le
+infixl `+` := add
+infix `≤`  := le
 axiom add_one (n:nat) : n + (succ zero) = succ n
 axiom add_le_right {n m : nat} (H : n ≤ m) (k : nat) : n + k ≤ m + k
 

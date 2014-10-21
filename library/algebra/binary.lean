@@ -8,7 +8,7 @@ namespace binary
   context
     variable {A : Type}
     variable f : A → A → A
-    infixl `*`:75 := f
+    infixl `*` := f
     definition commutative := ∀{a b}, a*b = b*a
     definition associative := ∀{a b c}, (a*b)*c = a*(b*c)
   end
@@ -18,7 +18,7 @@ namespace binary
     variable {f : A → A → A}
     variable H_comm : commutative f
     variable H_assoc : associative f
-    infixl `*`:75 := f
+    infixl `*` := f
     theorem left_comm : ∀a b c, a*(b*c) = b*(a*c) :=
     take a b c, calc
       a*(b*c) = (a*b)*c  : H_assoc⁻¹
@@ -36,7 +36,7 @@ namespace binary
     variable {A : Type}
     variable {f : A → A → A}
     variable H_assoc : associative f
-    infixl `*`:75 := f
+    infixl `*` := f
     theorem assoc4helper (a b c d) : (a*b)*(c*d) = a*((b*c)*d) :=
     calc
       (a*b)*(c*d) = a*(b*(c*d)) : H_assoc

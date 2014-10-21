@@ -5,8 +5,8 @@ constant nat : Type.{1}
 constant add : nat → nat → nat
 constant le : nat → nat → Prop
 constant one : nat
-infixl `+`:65 := add
-infix `≤`:50 := le
+infixl `+` := add
+infix `≤` := le
 axiom add_assoc (a b c : nat) : (a + b) + c = a + (b + c)
 axiom add_le_left {a b : nat} (H : a ≤ b) (c : nat) : c + a ≤ c + b
 end nat
@@ -16,12 +16,12 @@ constant int : Type.{1}
 constant add : int → int → int
 constant le : int → int → Prop
 constant one : int
-infixl `+`:65 := add
-infix `≤`:50  := le
+infixl `+` := add
+infix `≤`  := le
 axiom add_assoc (a b c : int) : (a + b) + c = a + (b + c)
 axiom add_le_left {a b : int} (H : a ≤ b) (c : int) : c + a ≤ c + b
 definition lt (a b : int) := a + one ≤ b
-infix `<`:50  := lt
+infix `<`  := lt
 end int
 
 open int

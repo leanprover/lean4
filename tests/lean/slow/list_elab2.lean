@@ -27,7 +27,7 @@ namespace list
 -- Type
 -- ----
 
-infix `::` : 65 := cons
+infixr `::` := cons
 
 section
 
@@ -50,7 +50,7 @@ notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 definition concat (s t : list T) : list T :=
 list.rec t (fun x : T, fun l : list T, fun u : list T, cons x u) s
 
-infixl `++` : 65 := concat
+infixl `++` := concat
 
 theorem nil_concat (t : list T) : nil ++ t = t := refl _
 

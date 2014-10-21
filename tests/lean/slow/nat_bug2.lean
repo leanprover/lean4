@@ -137,7 +137,7 @@ theorem sub_induction {P : ℕ → ℕ → Prop} (n m : ℕ) (H1 : ∀m, P 0 m)
 
 -------------------------------------------------- add
 definition add (x y : ℕ) : ℕ := plus x y
-infixl `+`:65 := add
+infixl `+` := add
 theorem add_zero_right (n : ℕ) : n + 0 = n
 theorem add_succ_right (n m : ℕ) : n + succ m = succ (n + m)
 ---------- comm, assoc
@@ -271,7 +271,7 @@ theorem induction_plus_one {P : ℕ → Prop} (a : ℕ) (H1 : P 0)
 -------------------------------------------------- mul
 
 definition mul (n m : ℕ) := nat.rec 0 (fun m x, x + n) m
-infixl `*`:75 := mul
+infixl `*` := mul
 
 theorem mul_zero_right (n:ℕ) : n * 0 = 0
 theorem mul_succ_right (n m:ℕ) : n * succ m = n * m + n
@@ -388,8 +388,8 @@ theorem mul_eq_zero {n m : ℕ} (H : n * m = 0) : n = 0 ∨ m = 0
 -------------------------------------------------- le
 
 definition le (n m:ℕ) : Prop := ∃k, n + k = m
-infix  `<=`:50 := le
-infix  `≤`:50  := le
+infix  `<=` := le
+infix  `≤`  := le
 
 theorem le_intro {n m k : ℕ} (H : n + k = m) : n ≤ m
 := exists_intro k H
@@ -658,7 +658,7 @@ theorem mul_le {n m k l : ℕ} (H1 : n ≤ k) (H2 : m ≤ l) : n * m ≤ k * l
 -------------------------------------------------- lt
 
 definition lt (n m : ℕ) := succ n ≤ m
-infix `<`:50 := lt
+infix `<` := lt
 
 theorem lt_intro {n m k : ℕ} (H : succ n + k = m) : n < m
 := le_intro H
@@ -672,11 +672,11 @@ theorem lt_intro2 (n m : ℕ) : n < n + succ m
 -------------------------------------------------- ge, gt
 
 definition ge (n m : ℕ) := m ≤ n
-infix `>=`:50 := ge
-infix `≥`:50  := ge
+infix `>=` := ge
+infix `≥`  := ge
 
 definition gt (n m : ℕ) := m < n
-infix `>`:50  := gt
+infix `>`  := gt
 
 ---------- basic facts
 
@@ -1068,7 +1068,7 @@ theorem mul_eq_one {n m : ℕ} (H : n * m = 1) : n = 1 ∧ m = 1
 -------------------------------------------------- sub
 
 definition sub (n m : ℕ) : ℕ := nat.rec n (fun m x, pred x) m
-infixl `-`:65 := sub
+infixl `-` := sub
 theorem sub_zero_right (n : ℕ) : n - 0 = n
 theorem sub_succ_right (n m : ℕ) : n - succ m = pred (n - m)
 

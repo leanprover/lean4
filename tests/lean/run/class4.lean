@@ -10,7 +10,7 @@ namespace nat
 definition add (x y : nat)
 := nat.rec x (λ n r, succ r) y
 
-infixl `+`:65 := add
+infixl `+` := add
 
 theorem add_zero_left (x : nat) : x + zero = x
 := refl _

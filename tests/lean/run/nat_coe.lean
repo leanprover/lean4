@@ -4,10 +4,10 @@ constant nat : Type.{1}
 constant int : Type.{1}
 
 constant nat_add : nat → nat → nat
-infixl `+`:65 := nat_add
+infixl `+` := nat_add
 
 constant int_add : int → int → int
-infixl `+`:65 := int_add
+infixl `+` := int_add
 
 constant of_nat : nat → int
 coercion of_nat

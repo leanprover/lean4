@@ -7,7 +7,7 @@ namespace algebra
   definition mul {A : Type} [s : mul_struct A] (a b : A)
   := mul_struct.rec (λ f, f) s a b
 
-  infixl `*`:75 := mul
+  infixl `*` := mul
 end algebra
 
 open algebra

@@ -12,7 +12,7 @@ mk : (A → A → A) → add_struct A
 definition add {A : Type} {S : add_struct A} (a b : A) : A :=
 add_struct.rec (λ m, m) S a b
 
-infixl `+`:65 := add
+infixl `+` := add
 
 definition add_nat_struct  [instance] : add_struct nat := add_struct.mk nat_add
 definition add_int_struct  [instance] : add_struct int := add_struct.mk int_add
@@ -48,7 +48,7 @@ check 0 + x
 check x + 0
 namespace foo
 constant eq {A : Type} : A → A → Prop
-infixl `=`:50 := eq
+infixl `=` := eq
 definition id (A : Type) (a : A) := a
 notation A `=` B `:` C := @eq C A B
 check nat_to_int n + nat_to_int m = (n + m) : int

@@ -14,7 +14,8 @@ inductive sum (A B : Type) : Type :=
 namespace sum
   notation A ⊎ B := sum A B
   namespace extra_notation
-    infixr `+`:25 := sum    -- conflicts with notation for addition
+    reserve infixr `+`:25 -- conflicts with notation for addition
+    infixr `+` := sum
   end extra_notation
 
   variables {A B : Type}

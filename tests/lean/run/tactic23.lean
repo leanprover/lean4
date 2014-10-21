@@ -8,7 +8,7 @@ succ : nat → nat
 namespace nat
 definition add (a b : nat) : nat
 := nat.rec a (λ n r, succ r) b
-infixl `+`:65 := add
+infixl `+` := add
 
 definition one := succ zero
 

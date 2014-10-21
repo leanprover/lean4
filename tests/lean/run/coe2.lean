@@ -10,7 +10,7 @@ namespace setoid
   definition eqv {s : setoid} : carrier s → carrier s → Prop
   := setoid.rec (λ a eqv, eqv) s
 
-  infix `≈`:50 := eqv
+  infix `≈` := eqv
 
   coercion carrier
 

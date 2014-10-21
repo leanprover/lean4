@@ -67,53 +67,113 @@ using notation::mk_ext_lua_action;
 using notation::transition;
 using notation::action;
 
-static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool reserve )
+static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool reserve)
 -> pair<notation_entry, optional<token_entry>> {
     std::string tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
+    char const * tks = tk.c_str();
+    environment const & env = p.env();
+    optional<token_entry> new_token;
     optional<unsigned> prec;
+
+    optional<parse_table> reserved_pt;
+    optional<action> reserved_action;
+    if (!reserve) {
+        if (k == mixfix_kind::prefix) {
+            if (auto at = get_reserved_nud_table(p.env()).find(tks)) {
+                reserved_pt     = at->second;
+                reserved_action = at->first;
+            }
+        } else {
+            if (auto at = get_reserved_led_table(p.env()).find(tks)) {
+                reserved_pt     = at->second;
+                reserved_action = at->first;
+            }
+        }
+    }
+
     if (p.curr_is_token(get_colon_tk())) {
+        if (reserved_pt)
+            throw parser_error("invalid notation declaration, invalid ':' occurrence "
+                               "(declaration matches reserved notation)", p.pos());
         p.next();
         prec = parse_precedence(p, "invalid notation declaration, numeral or 'max' expected");
     }
-    environment const & env = p.env();
-    optional<token_entry> new_token;
+
     if (!prec) {
         prec = get_precedence(get_token_table(env), tk.c_str());
     } else if (prec != get_precedence(get_token_table(env), tk.c_str())) {
         new_token = token_entry(tk.c_str(), *prec);
     }
 
-    if (!prec)
+    if (!prec) {
+        lean_assert(!reserved_pt);
         throw parser_error("invalid notation declaration, precedence was not provided, "
                            "and it is not set for the given symbol, "
                            "solution: use the 'precedence' command", p.pos());
+    }
+
     if (k == mixfix_kind::infixr && *prec == 0)
         throw parser_error("invalid infixr declaration, precedence must be greater than zero", p.pos());
-    expr f;
+
+    if (reserved_action) {
+        switch (k) {
+        case mixfix_kind::infixl:
+            if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != *prec)
+                throw parser_error("invalid infixl declaration, declaration conflicts with reserved notation", p.pos());
+            break;
+        case mixfix_kind::infixr:
+            if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != *prec-1)
+                throw parser_error("invalid infixr declaration, declaration conflicts with reserved notation", p.pos());
+            break;
+        case mixfix_kind::postfix:
+            if (reserved_action->kind() != notation::action_kind::Skip)
+                throw parser_error("invalid postfix declaration, declaration conflicts with reserved notation", p.pos());
+            break;
+        case mixfix_kind::prefix:
+            if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != *prec)
+                throw parser_error("invalid prefix declaration, declaration conflicts with reserved notation", p.pos());
+            break;
+        }
+    }
+
     if (reserve) {
         // reserve notation commands do not have a denotation
+        expr dummy = mk_Prop();
         if (p.curr_is_token(get_assign_tk()))
             throw parser_error("invalid reserve notation, found `:=`", p.pos());
+        switch (k) {
+        case mixfix_kind::infixl:
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
+                                          dummy, overload, reserve), new_token);
+        case mixfix_kind::infixr:
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec-1))),
+                                          dummy, overload, reserve), new_token);
+        case mixfix_kind::postfix:
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action())),
+                                          dummy, overload, reserve), new_token);
+        case mixfix_kind::prefix:
+            return mk_pair(notation_entry(true, to_list(transition(tks, mk_expr_action(*prec))),
+                                          dummy, overload, reserve), new_token);
+        }
     } else {
         p.check_token_next(get_assign_tk(), "invalid notation declaration, ':=' expected");
         auto f_pos = p.pos();
-        f     = p.parse_expr();
+        expr f     = p.parse_expr();
         check_notation_expr(f, f_pos);
-    }
-    char const * tks = tk.c_str();
-    switch (k) {
-    case mixfix_kind::infixl:
-        return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
-                                      mk_app(f, Var(1), Var(0)), overload, reserve), new_token);
-    case mixfix_kind::infixr:
-        return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec-1))),
-                                      mk_app(f, Var(1), Var(0)), overload, reserve), new_token);
-    case mixfix_kind::postfix:
-        return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action())),
-                                      mk_app(f, Var(0)), overload, reserve), new_token);
-    case mixfix_kind::prefix:
-        return mk_pair(notation_entry(true, to_list(transition(tks, mk_expr_action(*prec))),
-                                      mk_app(f, Var(0)), overload, reserve), new_token);
+        switch (k) {
+        case mixfix_kind::infixl:
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
+                                          mk_app(f, Var(1), Var(0)), overload, reserve), new_token);
+        case mixfix_kind::infixr:
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec-1))),
+                                          mk_app(f, Var(1), Var(0)), overload, reserve), new_token);
+        case mixfix_kind::postfix:
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action())),
+                                          mk_app(f, Var(0)), overload, reserve), new_token);
+        case mixfix_kind::prefix:
+            return mk_pair(notation_entry(true, to_list(transition(tks, mk_expr_action(*prec))),
+                                          mk_app(f, Var(0)), overload, reserve), new_token);
+        }
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
@@ -357,7 +417,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, bool reserv
                 break;
             }}
             if (p.curr_is_token(get_colon_tk()))
-                throw parser_error("invalid notation declaration, invalid `:` occurrence "
+                throw parser_error("invalid notation declaration, invalid ':' occurrence "
                                    "(declaration prefix matches reserved notation)", p.pos());
         } else {
             reserved_pt = optional<parse_table>();

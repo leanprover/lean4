@@ -10,8 +10,8 @@ inl : A → sum A B,
 inr : B → sum A B
 
 namespace sum
-
-infixr `+`:25 := sum
+reserve infixr `+`:25
+infixr `+` := sum
 
 definition rec_on {A B : Type} {C : (A + B) → Type} (s : A + B)
   (H1 : ∀a : A, C (inl B a)) (H2 : ∀b : B, C (inr A b)) : C s :=

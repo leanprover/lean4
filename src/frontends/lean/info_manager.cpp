@@ -195,6 +195,7 @@ public:
         ios << "-- OVERLOAD|" << line << "|" << get_column() << "\n";
         options os = ios.get_options();
         os = os.update(get_pp_full_names_option_name(), true);
+        os = os.update(get_pp_notation_option_name(), false);
         auto new_ios = ios.update_options(os);
         bool first = true;
         for (expr const & e : m_alts) {

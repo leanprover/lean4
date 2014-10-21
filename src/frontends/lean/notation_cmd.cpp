@@ -130,7 +130,7 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
             if (!old_prec || prec != *old_prec)
                 new_tokens.push_back(token_entry(tkcs, prec));
         } else if (!get_precedence(get_token_table(env), tkcs)) {
-            new_tokens.push_back(token_entry(tkcs, 0));
+            new_tokens.push_back(token_entry(tkcs, LEAN_DEFAULT_PRECEDENCE));
         }
         return tk;
     } else if (p.curr_is_keyword()) {
@@ -253,12 +253,12 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
 */
 static unsigned get_default_prec(optional<parse_table> const & pt, name const & tk) {
     if (!pt)
-        return 0;
+        return LEAN_DEFAULT_PRECEDENCE;
     if (auto at = pt->find(tk)) {
         if (at->first.kind() == notation::action_kind::Expr)
             return at->first.rbp();
     }
-    return 0;
+    return LEAN_DEFAULT_PRECEDENCE;
 }
 
 static notation_entry parse_notation_core(parser & p, bool overload, buffer<token_entry> & new_tokens) {

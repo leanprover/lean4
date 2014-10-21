@@ -111,7 +111,7 @@ void init_token_table(token_table & t) {
 
     auto it3 = aliases;
     while (it3->first) {
-        t = add_token(t, it3->first, it3->second);
+        t = add_token(t, it3->first, it3->second, 0);
         it3++;
     }
     t = add_token(t, g_arrow_unicode, "->", get_arrow_prec());

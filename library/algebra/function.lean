@@ -37,9 +37,6 @@ precedence `∘`:60
 precedence `∘'`:60
 precedence `on`:1
 precedence `$`:1
-precedence `-[`:1
-precedence `]-`:1
-precedence `⟨`:1
 
 infixr  ∘                  := compose
 infixr  ∘'                 := dcompose

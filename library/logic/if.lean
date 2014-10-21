@@ -10,7 +10,7 @@ open decidable tactic eq.ops
 definition ite (c : Prop) [H : decidable c] {A : Type} (t e : A) : A :=
 decidable.rec_on H (assume Hc,  t) (assume Hnc, e)
 
-notation `if` c `then` t `else` e:45 := ite c t e
+notation `if` c `then` t:45 `else` e:45 := ite c t e
 
 theorem if_pos {c : Prop} [H : decidable c] (Hc : c) {A : Type} {t e : A} : (if c then t else e) = t :=
 decidable.rec

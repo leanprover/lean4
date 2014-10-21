@@ -9,7 +9,7 @@ constant x : N
 constant y : N
 constant z : N
 infixr `∧`:25 := and
-notation `if` c `then` t `else` e := ite c t e
+notation `if` c `then` t:45 `else` e:45 := ite c t e
 check if p ∧ q then f x else y
 check if p ∧ q then q else y
 constant list : Type.{1}

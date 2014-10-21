@@ -11,6 +11,10 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/lua.h"
 
+#ifndef LEAN_DEFAULT_PRECEDENCE
+#define LEAN_DEFAULT_PRECEDENCE 1
+#endif
+
 namespace lean {
 unsigned get_max_prec();
 unsigned get_arrow_prec();
@@ -22,9 +26,9 @@ class token_info {
 public:
     token_info():m_command(true) {}
     token_info(char const * val):
-        m_command(true), m_token(val), m_value(val), m_precedence(0) {}
+        m_command(true), m_token(val), m_value(val), m_precedence(LEAN_DEFAULT_PRECEDENCE) {}
     token_info(char const * token, char const * val):
-        m_command(true), m_token(token), m_value(val), m_precedence(0) {}
+        m_command(true), m_token(token), m_value(val), m_precedence(LEAN_DEFAULT_PRECEDENCE) {}
     token_info(char const * val, unsigned prec):
         m_command(false), m_token(val), m_value(val), m_precedence(prec) {}
     token_info(char const * token, char const * val, unsigned prec):
@@ -40,8 +44,8 @@ token_table mk_token_table();
 token_table mk_default_token_table();
 token_table add_command_token(token_table const & s, char const * token);
 token_table add_command_token(token_table const & s, char const * token, char const * val);
-token_table add_token(token_table const & s, char const * token, unsigned prec = 0);
-token_table add_token(token_table const & s, char const * token, char const * val, unsigned prec = 0);
+token_table add_token(token_table const & s, char const * token, unsigned prec = LEAN_DEFAULT_PRECEDENCE);
+token_table add_token(token_table const & s, char const * token, char const * val, unsigned prec = LEAN_DEFAULT_PRECEDENCE);
 void for_each(token_table const & s, std::function<void(char const *, token_info const&)> const & fn);
 void display(std::ostream & out, token_table const & s);
 token_table const * find(token_table const & s, char c);

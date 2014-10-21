@@ -528,10 +528,7 @@ static environment prefix_cmd(parser & p) {
 static environment reserve_cmd(parser & p) {
     bool overload = false;
     bool reserve  = true;
-    if (in_context(p.env()) || in_section(p.env()) || get_namespace(p.env())) {
-        throw parser_error("invalid reserve notation, command cannot be used in contexts/sections/namespaces",
-                           p.pos());
-    } else if (p.curr_is_token(get_notation_tk())) {
+    if (p.curr_is_token(get_notation_tk())) {
         p.next();
         return notation_cmd_core(p, overload, reserve);
     } else if (p.curr_is_token(get_infixl_tk())) {

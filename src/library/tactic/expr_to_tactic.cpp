@@ -120,10 +120,6 @@ void register_tactic_macro(name const & n, expr_to_tactic_fn const & fn) {
     ms.insert(mk_pair(n, macro_definition(new tactic_macro_definition_cell(n, fn))));
 }
 
-static void register_tacm(name const & n, expr_to_tactic_fn const & fn) {
-    register_tactic_macro(n, fn);
-}
-
 expr mk_tactic_macro(name const & kind, unsigned num_args, expr const * args) {
     tactic_macros & ms = get_tactic_macros();
     auto it = ms.find(kind);

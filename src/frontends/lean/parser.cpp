@@ -377,6 +377,12 @@ void parser::check_token_next(name const & tk, char const * msg) {
     next();
 }
 
+void parser::check_token_or_id_next(name const & tk, char const * msg) {
+    if (!curr_is_token_or_id(tk))
+        throw parser_error(msg, pos());
+    next();
+}
+
 name parser::check_id_next(char const * msg) {
     if (!curr_is_identifier())
         throw parser_error(msg, pos());

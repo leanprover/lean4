@@ -30,10 +30,11 @@ class notation_entry {
     expr                 m_expr;
     bool                 m_overload;
     bool                 m_safe_ascii;
+    bool                 m_reserve;
 public:
     notation_entry();
     notation_entry(notation_entry const & e);
-    notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload);
+    notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload, bool reserve);
     notation_entry(mpz const & val, expr const & e, bool overload);
     notation_entry(notation_entry const & e, bool overload);
     ~notation_entry();
@@ -45,6 +46,7 @@ public:
     expr const & get_expr() const { return m_expr; }
     bool overload() const { return m_overload; }
     bool is_safe_ascii() const { return m_safe_ascii; }
+    bool reserve() const { return m_reserve; }
 };
 bool operator==(notation_entry const & e1, notation_entry const & e2);
 inline bool operator!=(notation_entry const & e1, notation_entry const & e2) {
@@ -59,9 +61,9 @@ environment add_notation(environment const & env, notation_entry const & e);
 
 environment add_token(environment const & env, char const * val, unsigned prec);
 environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a,
-                             bool overload = true);
+                             bool overload = true, bool reserve = false);
 environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a,
-                             bool overload = true);
+                             bool overload = true, bool reserve = false);
 environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a,
                              bool overload = true);
 environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a,
@@ -69,6 +71,8 @@ environment add_led_notation(environment const & env, std::initializer_list<nota
 token_table const & get_token_table(environment const & env);
 parse_table const & get_nud_table(environment const & env);
 parse_table const & get_led_table(environment const & env);
+parse_table const & get_reserved_nud_table(environment const & env);
+parse_table const & get_reserved_led_table(environment const & env);
 cmd_table const & get_cmd_table(environment const & env);
 /** \brief Force notation from namespace \c n to shadow any existing notation */
 environment overwrite_notation(environment const & env, name const & n);

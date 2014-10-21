@@ -275,6 +275,8 @@ public:
     bool curr_is_keyword() const { return curr() == scanner::token_kind::Keyword; }
     /** \brief Return true iff the current token is a keyword */
     bool curr_is_command() const { return curr() == scanner::token_kind::CommandKeyword; }
+    /** \brief Return true iff the current token is EOF */
+    bool curr_is_eof() const { return curr() == scanner::token_kind::Eof; }
     /** \brief Return true iff the current token is a keyword */
     bool curr_is_quoted_symbol() const { return curr() == scanner::token_kind::QuotedSymbol; }
     /** \brief Return true iff the current token is a keyword named \c tk or an identifier named \c tk */
@@ -287,6 +289,7 @@ public:
     bool curr_is_token(name const & tk) const;
     /** \brief Check current token, and move to next characther, throw exception if current token is not \c tk. */
     void check_token_next(name const & tk, char const * msg);
+    void check_token_or_id_next(name const & tk, char const * msg);
     /** \brief Check if the current token is an identifier, if it is return it and move to next token,
         otherwise throw an exception. */
     name check_id_next(char const * msg);

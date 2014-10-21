@@ -24,22 +24,22 @@ notation_entry replace(notation_entry const & e, std::function<expr(expr const &
     else
         return notation_entry(e.is_nud(),
                               map(e.get_transitions(), [&](transition const & t) { return notation::replace(t, f); }),
-                              f(e.get_expr()),
-                              e.overload());
+                              f(e.get_expr()), e.overload(), e.reserve());
 }
 
 notation_entry::notation_entry():m_kind(notation_entry_kind::NuD) {}
 notation_entry::notation_entry(notation_entry const & e):
-    m_kind(e.m_kind), m_expr(e.m_expr), m_overload(e.m_overload), m_safe_ascii(e.m_safe_ascii) {
+    m_kind(e.m_kind), m_expr(e.m_expr), m_overload(e.m_overload),
+    m_safe_ascii(e.m_safe_ascii), m_reserve(e.m_reserve) {
     if (is_numeral())
         new (&m_num) mpz(e.m_num);
     else
         new (&m_transitions) list<transition>(e.m_transitions);
 }
 
-notation_entry::notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload):
+notation_entry::notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload, bool reserve):
     m_kind(is_nud ? notation_entry_kind::NuD : notation_entry_kind::LeD),
-    m_expr(e), m_overload(overload) {
+    m_expr(e), m_overload(overload), m_reserve(reserve) {
     new (&m_transitions) list<transition>(ts);
     m_safe_ascii = std::all_of(ts.begin(), ts.end(), [](transition const & t) { return t.is_safe_ascii(); });
 }
@@ -48,7 +48,7 @@ notation_entry::notation_entry(notation_entry const & e, bool overload):
     m_overload = overload;
 }
 notation_entry::notation_entry(mpz const & val, expr const & e, bool overload):
-    m_kind(notation_entry_kind::Numeral), m_expr(e), m_overload(overload), m_safe_ascii(true) {
+    m_kind(notation_entry_kind::Numeral), m_expr(e), m_overload(overload), m_safe_ascii(true), m_reserve(false) {
     new (&m_num) mpz(val);
 }
 
@@ -60,7 +60,8 @@ notation_entry::~notation_entry() {
 }
 
 bool operator==(notation_entry const & e1, notation_entry const & e2) {
-    if (e1.kind() != e2.kind() || e1.overload() != e2.overload() || e1.get_expr() != e2.get_expr())
+    if (e1.kind() != e2.kind() || e1.overload() != e2.overload() || e1.get_expr() != e2.get_expr() ||
+        e1.reserve() != e2.reserve())
         return false;
     if (e1.is_numeral())
         return e1.get_num() == e2.get_num();
@@ -198,10 +199,14 @@ struct notation_state {
     parse_table      m_led;
     num_map          m_num_map;
     head_to_entries  m_inv_map;
-
-    notation_state() {
-        m_nud = get_builtin_nud_table();
-        m_led = get_builtin_led_table();
+    // The following two tables are used to implement `reserve notation` commands
+    parse_table      m_reserved_nud;
+    parse_table      m_reserved_led;
+    notation_state():
+        m_nud(get_builtin_nud_table()),
+        m_led(get_builtin_led_table()),
+        m_reserved_nud(true),
+        m_reserved_led(false) {
     }
 };
 
@@ -218,18 +223,22 @@ struct notation_config {
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
         buffer<transition> ts;
         switch (e.kind()) {
-        case notation_entry_kind::NuD:
+        case notation_entry_kind::NuD: {
             to_buffer(e.get_transitions(), ts);
             if (auto idx = get_head_index(ts.size(), ts.data(), e.get_expr()))
                 updt_inv_map(s, *idx, e);
-            s.m_nud = s.m_nud.add(ts.size(), ts.data(), e.get_expr(), e.overload());
+            parse_table & nud = e.reserve() ? s.m_reserved_nud : s.m_nud;
+            nud = nud.add(ts.size(), ts.data(), e.get_expr(), e.overload());
             break;
-        case notation_entry_kind::LeD:
+        }
+        case notation_entry_kind::LeD: {
             to_buffer(e.get_transitions(), ts);
             if (auto idx = get_head_index(ts.size(), ts.data(), e.get_expr()))
                 updt_inv_map(s, *idx, e);
-            s.m_led = s.m_led.add(ts.size(), ts.data(), e.get_expr(), e.overload());
+            parse_table & led = e.reserve() ? s.m_reserved_led : s.m_led;
+            led = led.add(ts.size(), ts.data(), e.get_expr(), e.overload());
             break;
+        }
         case notation_entry_kind::Numeral:
             if (!is_var(e.get_expr()))
                 updt_inv_map(s, head_index(e.get_expr()), e);
@@ -254,7 +263,7 @@ struct notation_config {
         if (e.is_numeral()) {
             s << e.get_num();
         } else {
-            s << length(e.get_transitions());
+            s << e.reserve() << length(e.get_transitions());
             for (auto const & t : e.get_transitions())
                 s << t;
         }
@@ -269,12 +278,13 @@ struct notation_config {
             return entry(val, e, overload);
         } else {
             bool is_nud = k == notation_entry_kind::NuD;
+            bool reserve;
             unsigned sz;
-            d >> sz;
+            d >> reserve >> sz;
             buffer<transition> ts;
             for (unsigned i = 0; i < sz; i++)
                 ts.push_back(read_transition(d));
-            return entry(is_nud, to_list(ts.begin(), ts.end()), e, overload);
+            return entry(is_nud, to_list(ts.begin(), ts.end()), e, overload, reserve);
         }
     }
     static optional<unsigned> get_fingerprint(entry const &) {
@@ -292,23 +302,25 @@ environment add_notation(environment const & env, notation_entry const & e) {
 }
 
 environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts,
-                             expr const & a, bool overload) {
-    return add_notation(env, notation_entry(true, to_list(ts, ts+num), a, overload));
+                             expr const & a, bool overload, bool reserve) {
+    return add_notation(env, notation_entry(true, to_list(ts, ts+num), a, overload, reserve));
 }
 
 environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts,
-                             expr const & a, bool overload) {
-    return add_notation(env, notation_entry(false, to_list(ts, ts+num), a, overload));
+                             expr const & a, bool overload, bool reserve) {
+    return add_notation(env, notation_entry(false, to_list(ts, ts+num), a, overload, reserve));
 }
 
 environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts,
                              expr const & a, bool overload) {
-    return add_nud_notation(env, ts.size(), ts.begin(), a, overload);
+    bool reserve = false;
+    return add_nud_notation(env, ts.size(), ts.begin(), a, overload, reserve);
 }
 
 environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts,
                              expr const & a, bool overload) {
-    return add_led_notation(env, ts.size(), ts.begin(), a, overload);
+    bool reserve = false;
+    return add_led_notation(env, ts.size(), ts.begin(), a, overload, reserve);
 }
 
 parse_table const & get_nud_table(environment const & env) {
@@ -317,6 +329,14 @@ parse_table const & get_nud_table(environment const & env) {
 
 parse_table const & get_led_table(environment const & env) {
     return notation_ext::get_state(env).m_led;
+}
+
+parse_table const & get_reserved_nud_table(environment const & env) {
+    return notation_ext::get_state(env).m_reserved_nud;
+}
+
+parse_table const & get_reserved_led_table(environment const & env) {
+    return notation_ext::get_state(env).m_reserved_led;
 }
 
 environment add_mpz_notation(environment const & env, mpz const & n, expr const & e, bool overload) {

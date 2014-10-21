@@ -612,6 +612,8 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
     } else if (is_placeholder(p)) {
         return true;
     } else if (is_constant(p) && is_constant(e)) {
+        if (const_name(p) != const_name(e))
+            return false;
         levels p_ls = const_levels(p);
         levels e_ls = const_levels(p);
         while (!is_nil(p_ls)) {

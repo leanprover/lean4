@@ -144,26 +144,6 @@ struct default_converter : public converter {
         return m_env.norm_ext().may_reduce_later(e, get_extension(c));
     }
 
-    /** \brief Try to apply eta-reduction to \c e. */
-    expr try_eta(expr const & e) {
-        lean_assert(is_lambda(e));
-        expr const & b = binding_body(e);
-        if (is_lambda(b)) {
-            expr new_b = try_eta(b);
-            if (is_eqp(b, new_b)) {
-                return e;
-            } else if (is_app(new_b) && is_var(app_arg(new_b), 0) && !has_free_var(app_fn(new_b), 0)) {
-                return lower_free_vars(app_fn(new_b), 1);
-            } else {
-                return update_binding(e, binding_domain(e), new_b);
-            }
-        } else if (is_app(b) && is_var(app_arg(b), 0) && !has_free_var(app_fn(b), 0)) {
-            return lower_free_vars(app_fn(b), 1);
-        } else {
-            return e;
-        }
-    }
-
     /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
     expr whnf_core(expr const & e, type_checker & c) {
         check_system("whnf");
@@ -171,9 +151,9 @@ struct default_converter : public converter {
         // handle easy cases
         switch (e.kind()) {
         case expr_kind::Var:  case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local:
-        case expr_kind::Pi:   case expr_kind::Constant:
+        case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
             return e;
-        case expr_kind::Lambda: case expr_kind::Macro: case expr_kind::App:
+        case expr_kind::Macro: case expr_kind::App:
             break;
         }
 
@@ -188,11 +168,8 @@ struct default_converter : public converter {
         expr r;
         switch (e.kind()) {
         case expr_kind::Var:    case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local:
-        case expr_kind::Pi:   case expr_kind::Constant:
+        case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
             lean_unreachable(); // LCOV_EXCL_LINE
-        case expr_kind::Lambda:
-            r = (m_env.eta()) ? try_eta(e) : e;
-            break;
         case expr_kind::Macro:
             if (auto m = expand_macro(e, c))
                 r = whnf_core(*m, c);

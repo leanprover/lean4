@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/metavar_closure.h"
 #include "library/type_util.h"
 #include "library/tactic/apply_tactic.h"
+#include "library/tactic/expr_to_tactic.h"
 
 namespace lean {
 static proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s,
@@ -128,5 +129,27 @@ tactic apply_tactic(elaborate_fn const & elab, expr const & e, bool relax_main_o
 int mk_eassumption_tactic(lua_State * L) { return push_tactic(L, eassumption_tactic()); }
 void open_apply_tactic(lua_State * L) {
     SET_GLOBAL_FUN(mk_eassumption_tactic, "eassumption_tac");
+}
+
+static name * g_apply_tactic_name = nullptr;
+
+expr mk_apply_tactic_macro(expr const & e) {
+    return mk_tactic_macro(*g_apply_tactic_name, e);
+}
+
+void initialize_apply_tactic() {
+    g_apply_tactic_name = new name({"tactic", "apply"});
+    auto fn = [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+        check_macro_args(e, 1, "invalid 'apply' tactic, it must have one argument");
+        return apply_tactic(fn, macro_arg(e, 0));
+    };
+    register_tactic_macro(*g_apply_tactic_name, fn);
+
+    register_simple_tac(name({"tactic", "eassumption"}),
+                        []() { return eassumption_tactic(); });
+}
+
+void finalize_apply_tactic() {
+    delete g_apply_tactic_name;
 }
 }

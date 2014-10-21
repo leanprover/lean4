@@ -66,9 +66,14 @@ public:
 typedef std::function<tactic(type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *)>
 expr_to_tactic_fn;
 
+/** \brief Throw an error if the given expression is not a macro with \c num_args arguments */
+void check_macro_args(expr const & e, unsigned num_args, char const * msg);
+
+void register_tactic_macro(name const & n, expr_to_tactic_fn const & fn);
+
 /** \brief Register a new "procedural attachment" for expr_to_tactic. */
 void register_tac(name const & n, expr_to_tactic_fn const & fn);
-// remark: we can use "const &" in the following procedures, for some obscure reason it produces
+// remark: we cannot use "std::function <...> const &" in the following procedures, for some obscure reason it produces
 // memory leaks when we compile using clang 3.3
 void register_simple_tac(name const & n, std::function<tactic()> f);
 void register_bin_tac(name const & n, std::function<tactic(tactic const &, tactic const &)> f);

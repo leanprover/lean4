@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/kernel_serializer.h"
 #include "library/tactic/expr_to_tactic.h"
-#include "library/tactic/apply_tactic.h"
 #include "library/tactic/intros_tactic.h"
 
 namespace lean {
@@ -144,13 +143,8 @@ bool is_tactic_macro(expr const & e) {
     return is_macro(e) && macro_def(e).get_name() == get_tactic_name();
 }
 
-static name * g_apply_tactic_name = nullptr;
 static name * g_rename_tactic_name = nullptr;
 static name * g_intros_tactic_name = nullptr;
-
-expr mk_apply_tactic_macro(expr const & e) {
-    return mk_tactic_macro(*g_apply_tactic_name, e);
-}
 
 expr mk_rename_tactic_macro(name const & from, name const & to) {
     expr args[2] = { Const(from), Const(to) };
@@ -304,8 +298,8 @@ expr mk_by(expr const & e) { return mk_annotation(*g_by_name, e); }
 bool is_by(expr const & e) { return is_annotation(e, *g_by_name); }
 expr const & get_by_arg(expr const & e) { lean_assert(is_by(e)); return get_annotation_arg(e); }
 
-static void check_macro_args(expr const & e, unsigned num_args, char const * msg) {
-    if (macro_num_args(e) != num_args)
+void check_macro_args(expr const & e, unsigned num_args, char const * msg) {
+    if (!is_macro(e) || macro_num_args(e) != num_args)
         throw expr_to_tactic_exception(e, msg);
 }
 
@@ -329,7 +323,6 @@ void initialize_expr_to_tactic() {
                                     return mk_tactic_macro(kind, num, args);
                                 });
 
-    g_apply_tactic_name = new name(*g_tactic_name, "apply");
     g_rename_tactic_name = new name(*g_tactic_name, "rename");
     g_intros_tactic_name = new name(*g_tactic_name, "intros");
 
@@ -357,8 +350,6 @@ void initialize_expr_to_tactic() {
                         []() { return now_tactic(); });
     register_simple_tac(name(*g_tactic_name, "assumption"),
                         []() { return assumption_tactic(); });
-    register_simple_tac(name(*g_tactic_name, "eassumption"),
-                        []() { return eassumption_tactic(); });
     register_simple_tac(name(*g_tactic_name, "fail"),
                         []() { return fail_tactic(); });
     register_simple_tac(name(*g_tactic_name, "beta"),
@@ -395,11 +386,6 @@ void initialize_expr_to_tactic() {
                      else
                          throw expr_to_tactic_exception(e, "invalid trace tactic, string value expected");
                  });
-    register_tacm(*g_apply_tactic_name,
-                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
-                      check_macro_args(e, 1, "invalid 'apply' tactic, it must have one argument");
-                      return apply_tactic(fn, macro_arg(e, 0));
-                  });
     register_tacm(*g_rename_tactic_name,
                   [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                       check_macro_args(e, 2, "invalid 'rename' tactic, it must have two arguments");
@@ -458,7 +444,6 @@ void finalize_expr_to_tactic() {
     delete g_and_then_tac_fn;
     delete g_id_tac_fn;
     delete g_exact_tac_fn;
-    delete g_apply_tactic_name;
     delete g_rename_tactic_name;
     delete g_intros_tactic_name;
     delete g_tactic_macros;

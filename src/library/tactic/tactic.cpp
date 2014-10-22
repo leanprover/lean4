@@ -88,48 +88,6 @@ tactic cond(proof_state_pred p, tactic const & t1, tactic const & t2) {
         });
 }
 
-tactic trace_tactic(std::string const & msg) {
-    return tactic1([=](environment const &, io_state const & ios, proof_state const & s) -> proof_state {
-            ios.get_diagnostic_channel() << msg << "\n";
-            ios.get_diagnostic_channel().get_stream().flush();
-            return s;
-        });
-}
-
-tactic trace_tactic(sstream const & msg) {
-    return trace_tactic(msg.str());
-}
-
-tactic trace_tactic(char const * msg) {
-    return trace_tactic(std::string(msg));
-}
-
-tactic trace_state_tactic(std::string const & fname, pair<unsigned, unsigned> const & pos) {
-    return tactic1([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state {
-            diagnostic(env, ios) << fname << ":" << pos.first << ":" << pos.second << ": proof state\n"
-                                 << s << endl;
-            ios.get_diagnostic_channel().get_stream().flush();
-            return s;
-        });
-}
-
-tactic trace_state_tactic() {
-    return tactic1([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state {
-            diagnostic(env, ios) << "proof state\n" << s << endl;
-            ios.get_diagnostic_channel().get_stream().flush();
-            return s;
-        });
-}
-
-tactic suppress_trace(tactic const & t) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
-            io_state new_ios(ios);
-            std::shared_ptr<output_channel> out(std::make_shared<string_output_channel>());
-            new_ios.set_diagnostic_channel(out);
-            return t(env, new_ios, s);
-        });
-}
-
 tactic then(tactic const & t1, tactic const & t2) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s1) -> proof_state_seq {
             return map_append(t1(env, ios, s1), [=](proof_state const & s2) {
@@ -473,7 +431,6 @@ static int tactic_par(lua_State * L)            {  return push_tactic(L, par(to_
 static int tactic_repeat(lua_State * L)         {  return push_tactic(L, repeat(to_tactic(L, 1))); }
 static int tactic_repeat_at_most(lua_State * L) {  return push_tactic(L, repeat_at_most(to_tactic(L, 1), luaL_checkinteger(L, 2))); }
 static int tactic_take(lua_State * L)           {  return push_tactic(L, take(to_tactic(L, 1), luaL_checkinteger(L, 2))); }
-static int tactic_suppress_trace(lua_State * L) {  return push_tactic(L, suppress_trace(to_tactic(L, 1))); }
 static int tactic_try_for(lua_State * L)        {  return push_tactic(L, try_for(to_tactic(L, 1), luaL_checkinteger(L, 2))); }
 static int tactic_using_params(lua_State * L)   {  return push_tactic(L, using_params(to_tactic(L, 1), to_options(L, 2))); }
 static int tactic_focus(lua_State * L) {
@@ -528,7 +485,6 @@ static int mk_lua_when_tactic(lua_State * L) { return mk_lua_cond_tactic(L, to_t
 static int mk_id_tactic(lua_State * L)          {  return push_tactic(L, id_tactic()); }
 static int mk_now_tactic(lua_State * L)         {  return push_tactic(L, now_tactic()); }
 static int mk_fail_tactic(lua_State * L)        {  return push_tactic(L, fail_tactic()); }
-static int mk_trace_tactic(lua_State * L)       {  return push_tactic(L, trace_tactic(luaL_checkstring(L, 1))); }
 static int mk_assumption_tactic(lua_State * L)  {  return push_tactic(L, assumption_tactic()); }
 static int mk_unfold_tactic(lua_State * L)      {
     int nargs = lua_gettop(L);
@@ -552,7 +508,6 @@ static const struct luaL_Reg tactic_m[] = {
     {"repeat",          safe_function<tactic_repeat>},
     {"repeat_at_most",  safe_function<tactic_repeat_at_most>},
     {"take",            safe_function<tactic_take>},
-    {"suppress_trace",  safe_function<tactic_suppress_trace>},
     {"try_for",         safe_function<tactic_try_for>},
     {"using_params",    safe_function<tactic_using_params>},
     {"using",           safe_function<tactic_using_params>},
@@ -573,7 +528,6 @@ void open_tactic(lua_State * L) {
     setfuncs(L, tactic_m, 0);
 
     SET_GLOBAL_FUN(tactic_pred,           "is_tactic");
-    SET_GLOBAL_FUN(mk_trace_tactic,       "trace_tac");
     SET_GLOBAL_FUN(mk_id_tactic,          "id_tac");
     SET_GLOBAL_FUN(mk_now_tactic,         "now_tac");
     SET_GLOBAL_FUN(mk_fail_tactic,        "fail_tac");

@@ -342,26 +342,6 @@ void initialize_expr_to_tactic() {
                      [](tactic const & t1, tactic const & t2) { return orelse(t1, t2); });
     register_unary_tac(repeat_tac_name,
                        [](tactic const & t1) { return repeat(t1); });
-    register_tac(name(*g_tactic_name, "state"),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const * p) {
-                     if (p)
-                         if (auto it = p->get_pos_info(e))
-                             return trace_state_tactic(std::string(p->get_file_name()), *it);
-                     return trace_state_tactic();
-                 });
-    register_tac(name(*g_tactic_name, "trace"),
-                 [](type_checker & tc, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     buffer<expr> args;
-                     get_app_args(e, args);
-                     if (args.size() != 1)
-                         throw expr_to_tactic_exception(e, "invalid trace tactic, argument expected");
-                     if (auto str = to_string(args[0]))
-                         return trace_tactic(*str);
-                     else if (auto str = to_string(tc.whnf(args[0]).first))
-                         return trace_tactic(*str);
-                     else
-                         throw expr_to_tactic_exception(e, "invalid trace tactic, string value expected");
-                 });
     register_tac(exact_tac_name,
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      // TODO(Leo): use elaborate_fn

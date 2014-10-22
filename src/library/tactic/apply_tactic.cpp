@@ -139,11 +139,11 @@ expr mk_apply_tactic_macro(expr const & e) {
 
 void initialize_apply_tactic() {
     g_apply_tactic_name = new name({"tactic", "apply"});
-    auto fn = [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
-        check_macro_args(e, 1, "invalid 'apply' tactic, it must have one argument");
-        return apply_tactic(fn, macro_arg(e, 0));
-    };
-    register_tactic_macro(*g_apply_tactic_name, fn);
+    register_tac(*g_apply_tactic_name,
+                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                     check_tactic_expr(app_arg(e), "invalid 'apply' tactic, invalid argument");
+                     return apply_tactic(fn, get_tactic_expr_expr(app_arg(e)));
+                 });
 
     register_simple_tac(name({"tactic", "eassumption"}),
                         []() { return eassumption_tactic(); });

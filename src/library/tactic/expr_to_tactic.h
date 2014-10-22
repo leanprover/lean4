@@ -26,6 +26,12 @@ bool has_tactic_decls(environment const & env);
 */
 tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr const & e, pos_info_provider const * p);
 
+expr const & get_tactic_expr_type();
+expr mk_tactic_expr(expr const & e);
+bool is_tactic_expr(expr const & e);
+expr const & get_tactic_expr_expr(expr const & e);
+void check_tactic_expr(expr const & e, char const * msg);
+
 /**
    \brief Create an expression `by t`, where \c t is an expression of type `tactic`.
    This kind of expression only affects the elaborator, the kernel will reject

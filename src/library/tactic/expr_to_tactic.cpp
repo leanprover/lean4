@@ -57,13 +57,69 @@ bool has_tactic_decls(environment const & env) {
     }
 }
 
+static expr * g_tactic_expr_type = nullptr;
+static expr * g_tactic_expr_builtin = nullptr;
+
+expr const & get_tactic_expr_type() { return *g_tactic_expr_type; }
+expr const & get_tactic_expr_builtin() { return *g_tactic_expr_builtin; }
+
+static name * g_tactic_expr_name = nullptr;
+static std::string * g_tactic_expr_opcode = nullptr;
+
 static name * g_tactic_name = nullptr;
 static std::string * g_tactic_opcode = nullptr;
+
+name const & get_tactic_expr_name() { return *g_tactic_expr_name; }
+std::string const & get_tactic_expr_opcode() { return *g_tactic_expr_opcode; }
 
 name const & get_tactic_name() { return *g_tactic_name; }
 std::string const & get_tactic_opcode() { return *g_tactic_opcode; }
 
 LEAN_THREAD_VALUE(bool, g_unfold_tactic_macros, true);
+
+class tactic_expr_macro_definition_cell : public macro_definition_cell {
+public:
+    tactic_expr_macro_definition_cell() {}
+    virtual name get_name() const { return get_tactic_expr_name(); }
+    virtual pair<expr, constraint_seq> get_type(expr const &, extension_context &) const {
+        return mk_pair(get_tactic_expr_type(), constraint_seq());
+    }
+    virtual optional<expr> expand(expr const &, extension_context &) const {
+        // Remark: small hack for conditionally expanding tactic expr macros.
+        // When type checking a macro definition, we want to unfold it,
+        // otherwise the kernel will not accept it.
+        // When converting it to a tactic object, we don't want to unfold it.
+        // The procedure expr_to_tactic temporarily sets g_unfold_tactic_macros to false.
+        // This is a thread local storage. So, there is no danger.
+        if (g_unfold_tactic_macros)
+            return some_expr(get_tactic_expr_builtin());
+        else
+            return none_expr();
+    }
+    virtual void write(serializer & s) const {
+        s.write_string(get_tactic_expr_opcode());
+    }
+};
+
+static macro_definition * g_tactic_expr_macro = nullptr;
+
+expr mk_tactic_expr(expr const & e) {
+    return mk_macro(*g_tactic_expr_macro, 1, &e, e.get_tag());
+}
+
+bool is_tactic_expr(expr const & e) {
+    return is_macro(e) && macro_def(e).get_name() == get_tactic_expr_name();
+}
+
+expr const & get_tactic_expr_expr(expr const & e) {
+    lean_assert(is_tactic_expr(e));
+    return macro_arg(e, 0);
+}
+
+void check_tactic_expr(expr const & e, char const * msg) {
+    if (!is_tactic_expr(e))
+        throw expr_to_tactic_exception(e, msg);
+}
 
 /** \brief We use macros to wrap some builtin tactics that would not type check otherwise.
     Example: in the tactic `apply t`, `t` is a pre-term (i.e., a term before elaboration).
@@ -289,6 +345,20 @@ void initialize_expr_to_tactic() {
     g_map               = new expr_to_tactic_map();
 
     g_tactic_name       = new name("tactic");
+
+    g_tactic_expr_type    = new expr(mk_constant(name(*g_tactic_name, "expr")));
+    g_tactic_expr_builtin = new expr(mk_constant(name(const_name(*g_tactic_expr_type), "builtin")));
+    g_tactic_expr_name   = new name("tactic-expr");
+    g_tactic_expr_opcode = new std::string("TACE");
+    g_tactic_expr_macro  = new macro_definition(new tactic_expr_macro_definition_cell());
+
+    register_macro_deserializer(*g_tactic_expr_opcode,
+                                [](deserializer &, unsigned num, expr const * args) {
+                                    if (num != 1)
+                                        throw corrupted_stream_exception();
+                                    return mk_tactic_expr(args[0]);
+                                });
+
     g_tactic_opcode     = new std::string("TAC");
 
     g_tactic_macros     = new tactic_macros();
@@ -364,6 +434,11 @@ void initialize_expr_to_tactic() {
 }
 
 void finalize_expr_to_tactic() {
+    delete g_tactic_expr_type;
+    delete g_tactic_expr_builtin;
+    delete g_tactic_expr_name;
+    delete g_tactic_expr_opcode;
+    delete g_tactic_expr_macro;
     delete g_fixpoint_tac;
     delete g_builtin_tac;
     delete g_tac_type;

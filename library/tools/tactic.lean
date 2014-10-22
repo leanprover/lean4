@@ -36,6 +36,15 @@ opaque definition state       : tactic := builtin
 opaque definition fail        : tactic := builtin
 opaque definition id          : tactic := builtin
 opaque definition beta        : tactic := builtin
+
+-- This is just a trick to embed expressions into tactics.
+-- The nested expressions are "raw". They tactic should
+-- elaborate them when it is executed.
+inductive expr : Type :=
+builtin : expr
+
+opaque definition apply (e : expr) : tactic := builtin
+
 opaque definition unfold      {B : Type} (b : B) : tactic := builtin
 opaque definition exact       {B : Type} (b : B) : tactic := builtin
 opaque definition trace       (s : string) : tactic := builtin

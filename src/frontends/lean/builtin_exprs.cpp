@@ -115,6 +115,7 @@ static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const
 }
 
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
+    parser::no_undef_id_error_scope scope(p);
     expr t = p.parse_expr();
     return p.mk_by(t, pos);
 }
@@ -125,6 +126,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
     optional<expr> pre_tac = get_begin_end_pre_tactic(p.env());
     buffer<expr> tacs;
     bool first = true;
+    parser::no_undef_id_error_scope scope(p);
     while (!p.curr_is_token(get_end_tk())) {
         if (first)
             first = false;

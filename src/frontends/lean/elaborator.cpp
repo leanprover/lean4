@@ -553,15 +553,20 @@ expr elaborator::visit_app(expr const & e, constraint_seq & cs) {
     }
     constraint_seq a_cs;
     expr d_type = binding_domain(f_type);
-    expr a      = visit_expecting_type_of(app_arg(e), d_type, a_cs);
-    expr a_type = infer_type(a, a_cs);
-    expr r      = mk_app(f, a, e.get_tag());
-
-    justification j = mk_app_justification(r, a, d_type, a_type);
-    auto new_a_cs   = ensure_has_type(a, a_type, d_type, j, m_relax_main_opaque);
-    expr new_a      = new_a_cs.first;
-    cs += f_cs + new_a_cs.second + a_cs;
-    return update_app(r, app_fn(r), new_a);
+    if (d_type == get_tactic_expr_type()) {
+        expr r = mk_app(f, mk_tactic_expr(app_arg(e)), e.get_tag());
+        cs += f_cs + a_cs;
+        return r;
+    } else {
+        expr a          = visit_expecting_type_of(app_arg(e), d_type, a_cs);
+        expr a_type     = infer_type(a, a_cs);
+        expr r          = mk_app(f, a, e.get_tag());
+        justification j = mk_app_justification(r, a, d_type, a_type);
+        auto new_a_cs   = ensure_has_type(a, a_type, d_type, j, m_relax_main_opaque);
+        expr new_a      = new_a_cs.first;
+        cs += f_cs + new_a_cs.second + a_cs;
+        return update_app(r, app_fn(r), new_a);
+    }
 }
 
 expr elaborator::visit_placeholder(expr const & e, constraint_seq & cs) {

@@ -49,15 +49,24 @@ expr mk_rename_tactic_macro(name const & from, name const & to) {
     return mk_tactic_macro(*g_rename_tactic_name, 2, args);
 }
 
+static name const & get_rename_arg(expr const & _e) {
+    check_tactic_expr(_e, "invalid 'rename' tactic, arguments must be identifiers");
+    expr const & e = get_tactic_expr_expr(_e);
+    if (is_constant(e))
+        return const_name(e);
+    else if (is_local(e))
+        return local_pp_name(e);
+    else
+        throw expr_to_tactic_exception(e, "invalid 'rename' tactic, arguments must be identifiers");
+}
+
 void initialize_rename_tactic() {
     g_rename_tactic_name = new name({"tactic", "rename"});
     auto fn = [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-        check_macro_args(e, 2, "invalid 'rename' tactic, it must have two arguments");
-        if (!is_constant(macro_arg(e, 0)) || !is_constant(macro_arg(e, 1)))
-            throw expr_to_tactic_exception(e, "invalid 'rename' tactic, arguments must be identifiers");
-        return rename_tactic(const_name(macro_arg(e, 0)), const_name(macro_arg(e, 1)));
+        return rename_tactic(get_rename_arg(app_arg(app_fn(e))),
+                             get_rename_arg(app_arg(e)));
     };
-    register_tactic_macro(*g_rename_tactic_name, fn);
+    register_tac(*g_rename_tactic_name, fn);
 }
 
 void finalize_rename_tactic() {

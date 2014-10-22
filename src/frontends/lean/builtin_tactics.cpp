@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <limits>
 #include "library/explicit.h"
-#include "library/tactic/rename_tactic.h"
 #include "library/tactic/intros_tactic.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/parse_table.h"
@@ -16,12 +15,6 @@ Author: Leonardo de Moura
 namespace lean {
 using notation::transition;
 using notation::mk_ext_action;
-
-static expr parse_rename(parser & p, unsigned, expr const *, pos_info const & pos) {
-    name from = p.check_id_next("invalid 'rename' tactic, identifier expected");
-    name to   = p.check_id_next("invalid 'rename' tactic, identifier expected");
-    return p.save_pos(mk_rename_tactic_macro(from, to), pos);
-}
 
 static expr parse_intros(parser & p, unsigned, expr const *, pos_info const & pos) {
     buffer<name> ns;
@@ -34,7 +27,6 @@ static expr parse_intros(parser & p, unsigned, expr const *, pos_info const & po
 
 void init_nud_tactic_table(parse_table & r) {
     expr x0 = mk_var(0);
-    r = r.add({transition("rename", mk_ext_action(parse_rename))}, x0);
     r = r.add({transition("intros", mk_ext_action(parse_intros))}, x0);
 }
 

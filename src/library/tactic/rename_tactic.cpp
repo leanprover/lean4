@@ -49,15 +49,8 @@ expr mk_rename_tactic_macro(name const & from, name const & to) {
     return mk_tactic_macro(*g_rename_tactic_name, 2, args);
 }
 
-static name const & get_rename_arg(expr const & _e) {
-    check_tactic_expr(_e, "invalid 'rename' tactic, arguments must be identifiers");
-    expr const & e = get_tactic_expr_expr(_e);
-    if (is_constant(e))
-        return const_name(e);
-    else if (is_local(e))
-        return local_pp_name(e);
-    else
-        throw expr_to_tactic_exception(e, "invalid 'rename' tactic, arguments must be identifiers");
+static name const & get_rename_arg(expr const & e) {
+    return tactic_expr_to_id(e, "invalid 'rename' tactic, arguments must be identifiers");
 }
 
 void initialize_rename_tactic() {

@@ -45,6 +45,15 @@ builtin : expr
 
 opaque definition apply  (e : expr) : tactic := builtin
 opaque definition rename (a b : expr) : tactic := builtin
+opaque definition intro (e : expr) : tactic := builtin
+
+inductive expr_list : Type :=
+nil  : expr_list,
+cons : expr → expr_list → expr_list
+
+opaque definition intro_list (es : expr_list) : tactic := builtin
+notation `intros`   := intro_list expr_list.nil
+notation `intros` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := intro_list l
 
 opaque definition unfold      {B : Type} (b : B) : tactic := builtin
 opaque definition exact       {B : Type} (b : B) : tactic := builtin

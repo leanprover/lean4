@@ -75,32 +75,20 @@ tactic intros_tactic(list<name> _ns, bool relax_main_opaque) {
     return tactic01(fn);
 }
 
-static name * g_intros_tactic_name = nullptr;
-
-expr mk_intros_tactic_macro(buffer<name> const & ns) {
-    buffer<expr> args;
-    for (name const & n : ns) {
-        args.push_back(Const(n));
-    }
-    return mk_tactic_macro(*g_intros_tactic_name, args.size(), args.data());
-}
-
 void initialize_intros_tactic() {
-    g_intros_tactic_name = new name({"tactic", "intros"});
-    auto fn = [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-        buffer<name> ns;
-        for (unsigned i = 0; i < macro_num_args(e); i++) {
-            expr const & arg = macro_arg(e, i);
-            if (!is_constant(arg))
-                throw expr_to_tactic_exception(e, "invalid 'intros' tactic, arguments must be identifiers");
-            ns.push_back(const_name(arg));
-        }
-        return intros_tactic(to_list(ns.begin(), ns.end()));
-    };
-    register_tactic_macro(*g_intros_tactic_name, fn);
+    register_tac(name({"tactic", "intro"}),
+                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                     name const & id = tactic_expr_to_id(app_arg(e), "invalid 'intro' tactic, argument must be an identifier");
+                     return intros_tactic(to_list(id));
+                 });
+    register_tac(name({"tactic", "intro_list"}),
+                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                     buffer<name> ns;
+                     get_tactic_id_list_elements(app_arg(e), ns, "invalid 'intros' tactic, arguments must be identifiers");
+                     return intros_tactic(to_list(ns.begin(), ns.end()));
+                 });
 }
 
 void finalize_intros_tactic() {
-    delete g_intros_tactic_name;
 }
 }

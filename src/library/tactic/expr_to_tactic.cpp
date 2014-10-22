@@ -116,9 +116,45 @@ expr const & get_tactic_expr_expr(expr const & e) {
     return macro_arg(e, 0);
 }
 
-void check_tactic_expr(expr const & e, char const * msg) {
+void check_tactic_expr(expr const & e, char const * error_msg) {
     if (!is_tactic_expr(e))
-        throw expr_to_tactic_exception(e, msg);
+        throw expr_to_tactic_exception(e, error_msg);
+}
+
+name const & tactic_expr_to_id(expr e, char const * error_msg) {
+    if (is_tactic_expr(e))
+        e = get_tactic_expr_expr(e);
+    if (is_constant(e))
+        return const_name(e);
+    else if (is_local(e))
+        return local_pp_name(e);
+    else
+        throw expr_to_tactic_exception(e, error_msg);
+}
+
+static expr * g_expr_list_cons = nullptr;
+static expr * g_expr_list_nil  = nullptr;
+
+void get_tactic_expr_list_elements(expr l, buffer<expr> & r, char const * error_msg) {
+    while (true) {
+        if (l == *g_expr_list_nil)
+            return;
+        if (!is_app(l) ||
+            !is_app(app_fn(l)) ||
+            app_fn(app_fn(l)) != *g_expr_list_cons ||
+            !is_tactic_expr(app_arg(app_fn(l))))
+            throw expr_to_tactic_exception(l, error_msg);
+        r.push_back(get_tactic_expr_expr(app_arg(app_fn(l))));
+        l = app_arg(l);
+    }
+}
+
+void get_tactic_id_list_elements(expr l, buffer<name> & r, char const * error_msg) {
+    buffer<expr> es;
+    get_tactic_expr_list_elements(l, es, error_msg);
+    for (unsigned i = 0; i < es.size(); i++) {
+        r.push_back(tactic_expr_to_id(es[i], error_msg));
+    }
 }
 
 /** \brief We use macros to wrap some builtin tactics that would not type check otherwise.
@@ -358,6 +394,9 @@ void initialize_expr_to_tactic() {
                                         throw corrupted_stream_exception();
                                     return mk_tactic_expr(args[0]);
                                 });
+
+    g_expr_list_cons = new expr(mk_constant(name({"tactic", "expr_list", "cons"})));
+    g_expr_list_nil  = new expr(mk_constant(name({"tactic", "expr_list", "nil"})));
 
     g_tactic_opcode     = new std::string("TAC");
 

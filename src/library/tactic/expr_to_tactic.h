@@ -32,6 +32,10 @@ bool is_tactic_expr(expr const & e);
 expr const & get_tactic_expr_expr(expr const & e);
 void check_tactic_expr(expr const & e, char const * msg);
 
+name const & tactic_expr_to_id(expr e, char const * error_msg);
+void get_tactic_expr_list_elements(expr l, buffer<expr> & r, char const * error_msg);
+void get_tactic_id_list_elements(expr l, buffer<name> & r, char const * error_msg);
+
 /**
    \brief Create an expression `by t`, where \c t is an expression of type `tactic`.
    This kind of expression only affects the elaborator, the kernel will reject

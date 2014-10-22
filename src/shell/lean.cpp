@@ -269,7 +269,8 @@ public:
         bool ok = true;
         try {
             environment temp_env(env);
-            if (!parse_commands(temp_env, ios, input_filename.c_str(), false, num_threads)) {
+            io_state    temp_ios(ios);
+            if (!parse_commands(temp_env, temp_ios, input_filename.c_str(), false, num_threads)) {
                 ok = false;
             }
         } catch (lean::exception & ex) {

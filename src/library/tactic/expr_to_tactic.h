@@ -41,7 +41,6 @@ bool is_by(expr const & t);
 expr const & get_by_arg(expr const & t);
 
 expr const & get_tactic_type();
-expr const & get_exact_tac_fn();
 expr const & get_and_then_tac_fn();
 expr const & get_or_else_tac_fn();
 expr const & get_id_tac_fn();

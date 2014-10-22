@@ -200,28 +200,6 @@ tactic assumption_tactic() {
         });
 }
 
-tactic exact_tactic(expr const & _e) {
-    return tactic01([=](environment const & env, io_state const &, proof_state const & s) {
-            type_checker tc(env);
-            substitution subst  = s.get_subst();
-            goals const & gs    = s.get_goals();
-            goal const & g      = head(gs);
-            expr e              = subst.instantiate(_e);
-            auto e_t_cs         = tc.infer(e);
-            expr e_t            = subst.instantiate(e_t_cs.first);
-            expr t              = subst.instantiate(g.get_type());
-            auto dcs            = tc.is_def_eq(e_t, t);
-            if (dcs.first && !dcs.second && !e_t_cs.second) {
-                expr new_p = g.abstract(e);
-                check_has_no_local(new_p, _e, "exact");
-                subst.assign(g.get_name(), new_p);
-                return some(proof_state(s, tail(gs), subst));
-            } else {
-                return none_proof_state();
-            }
-        });
-}
-
 tactic beta_tactic() {
     return tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             bool reduced = false;

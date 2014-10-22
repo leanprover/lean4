@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
+#include "library/tactic/exact_tactic.h"
 #include "library/typed_expr.h"
 #include "library/choice.h"
 #include "library/let.h"

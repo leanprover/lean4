@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/tactic/expr_to_tactic.h"
 
 namespace lean {
-static expr * g_exact_tac_fn      = nullptr;
 static expr * g_and_then_tac_fn   = nullptr;
 static expr * g_or_else_tac_fn    = nullptr;
 static expr * g_id_tac_fn         = nullptr;
@@ -26,7 +25,6 @@ static expr * g_determ_tac_fn     = nullptr;
 static expr * g_tac_type          = nullptr;
 static expr * g_builtin_tac       = nullptr;
 static expr * g_fixpoint_tac      = nullptr;
-expr const & get_exact_tac_fn() { return *g_exact_tac_fn; }
 expr const & get_and_then_tac_fn() { return *g_and_then_tac_fn; }
 expr const & get_or_else_tac_fn() { return *g_or_else_tac_fn; }
 expr const & get_id_tac_fn() { return *g_id_tac_fn; }
@@ -303,14 +301,12 @@ void initialize_expr_to_tactic() {
                                 });
 
     name builtin_tac_name(*g_tactic_name, "builtin");
-    name exact_tac_name(*g_tactic_name, "exact");
     name and_then_tac_name(*g_tactic_name, "and_then");
     name or_else_tac_name(*g_tactic_name, "or_else");
     name repeat_tac_name(*g_tactic_name, "repeat");
     name fixpoint_name(*g_tactic_name, "fixpoint");
     name determ_tac_name(*g_tactic_name, "determ");
     name id_tac_name(*g_tactic_name, "id");
-    g_exact_tac_fn      = new expr(Const(exact_tac_name));
     g_and_then_tac_fn   = new expr(Const(and_then_tac_name));
     g_or_else_tac_fn    = new expr(Const(or_else_tac_name));
     g_id_tac_fn         = new expr(Const(id_tac_name));
@@ -342,11 +338,6 @@ void initialize_expr_to_tactic() {
                      [](tactic const & t1, tactic const & t2) { return orelse(t1, t2); });
     register_unary_tac(repeat_tac_name,
                        [](tactic const & t1) { return repeat(t1); });
-    register_tac(exact_tac_name,
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     // TODO(Leo): use elaborate_fn
-                     return exact_tactic(app_arg(e));
-                 });
     register_tac(name(*g_tactic_name, "unfold"),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      expr id = get_app_fn(app_arg(e));
@@ -381,7 +372,6 @@ void finalize_expr_to_tactic() {
     delete g_or_else_tac_fn;
     delete g_and_then_tac_fn;
     delete g_id_tac_fn;
-    delete g_exact_tac_fn;
     delete g_tactic_macros;
     delete g_map;
     delete g_tactic_name;

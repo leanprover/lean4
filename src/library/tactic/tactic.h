@@ -134,8 +134,6 @@ inline tactic when(proof_state_pred p, tactic const & t) { return cond(p, t, id_
 */
 tactic focus(tactic const & t, unsigned i);
 inline tactic focus(tactic const & t) { return focus(t, 1); }
-/** \brief Solve first goal iff it is definitionally equal to \c e */
-tactic exact_tactic(expr const & e);
 /** \brief Return a tactic that unfolds the definition named \c n. */
 tactic unfold_tactic(name const & n);
 /** \brief Return a tactic that unfolds all (non-opaque) definitions. */

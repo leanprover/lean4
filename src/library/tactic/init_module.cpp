@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/tactic/rename_tactic.h"
 #include "library/tactic/intros_tactic.h"
 #include "library/tactic/trace_tactic.h"
+#include "library/tactic/exact_tactic.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -19,9 +20,11 @@ void initialize_tactic_module() {
     initialize_rename_tactic();
     initialize_intros_tactic();
     initialize_trace_tactic();
+    initialize_exact_tactic();
 }
 
 void finalize_tactic_module() {
+    finalize_exact_tactic();
     finalize_trace_tactic();
     finalize_intros_tactic();
     finalize_rename_tactic();

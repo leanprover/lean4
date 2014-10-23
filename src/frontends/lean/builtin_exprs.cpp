@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/extra_info.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
+#include "frontends/lean/info_tactic.h"
 
 namespace lean {
 namespace notation {
@@ -142,10 +143,16 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
     parser::no_undef_id_error_scope scope(p);
     environment env = open_tactic_namespace(p);
     while (!p.curr_is_token(get_end_tk())) {
-        if (first)
+        if (first) {
             first = false;
-        else
+        } else {
+            auto pos = p.pos();
             p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
+            if (p.collecting_info()) {
+                expr info_tac = p.save_pos(mk_info_tactic_expr(), pos);
+                tacs.push_back(info_tac);
+            }
+        }
         if (p.curr_is_token(get_end_tk()))
             break;
         bool use_exact = (p.curr_is_token(get_have_tk()) || p.curr_is_token(get_show_tk()) ||

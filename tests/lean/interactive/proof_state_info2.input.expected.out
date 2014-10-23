@@ -1,0 +1,27 @@
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGININFO
+-- TYPE|5|17
+tactic
+-- ACK
+-- PROOF_STATE|5|17
+a : Prop, b : Prop, c : Prop, Ha : a, Hb : b ⊢ a ∧ b
+-- ACK
+-- ENDINFO
+-- BEGININFO
+-- TYPE|6|17
+tactic
+-- ACK
+-- PROOF_STATE|6|17
+a : Prop, b : Prop, c : Prop, Ha : a, Hb : b ⊢ a
+a : Prop, b : Prop, c : Prop, Ha : a, Hb : b ⊢ b
+-- ACK
+-- ENDINFO
+-- BEGININFO
+-- TYPE|7|10
+tactic
+-- ACK
+-- PROOF_STATE|7|10
+a : Prop, b : Prop, c : Prop, Ha : a, Hb : b ⊢ b
+-- ACK
+-- ENDINFO

@@ -41,8 +41,14 @@ tactic mk_info_tactic(elaborate_fn const & fn, expr const & e) {
         });
 }
 
+#define INFO_TAC_NAME name({"tactic", "info"})
+
+expr mk_info_tactic_expr() {
+    return mk_constant(INFO_TAC_NAME);
+}
+
 void initialize_info_tactic() {
-    register_tac(name({"tactic", "info"}),
+    register_tac(INFO_TAC_NAME,
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      return mk_info_tactic(fn, e);
                  });

@@ -1,0 +1,13 @@
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGININFO
+-- TYPE|7|2
+tactic
+-- ACK
+-- IDENTIFIER|7|2
+tactic.info
+-- ACK
+-- PROOF_STATE|7|2
+a : Prop, b : Prop, c : Prop, Ha : a, Hb : b ⊢ a ∧ b
+-- ACK
+-- ENDINFO

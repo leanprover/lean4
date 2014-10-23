@@ -209,7 +209,8 @@ static name_generator next_name_generator() {
 }
 
 tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
-    type_checker tc(env, next_name_generator());
+    bool memoize             = false;
+    type_checker tc(env, next_name_generator(), memoize);
     return expr_to_tactic(tc, fn, e, p);
 }
 

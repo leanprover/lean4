@@ -43,6 +43,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/choice_iterator.h"
 #include "frontends/lean/placeholder_elaborator.h"
 #include "frontends/lean/proof_qed_elaborator.h"
+#include "frontends/lean/info_tactic.h"
 #include "frontends/lean/pp_options.h"
 
 namespace lean {
@@ -147,6 +148,15 @@ void elaborator::save_extra_type_data(expr const & e, expr const & r) {
         if (auto p = pip()->get_pos_info(e)) {
             expr t = m_tc[m_relax_main_opaque]->infer(r).first;
             m_pre_info_data.add_extra_type_info(p->first, p->second, r, t);
+        }
+    }
+}
+
+/** \brief Store proof_state information at pos(e) in the info_manager */
+void elaborator::save_proof_state_info(proof_state const & ps, expr const & e) {
+    if (!m_no_info && infom() && pip()) {
+        if (auto p = pip()->get_pos_info(e)) {
+            m_pre_info_data.add_proof_state_info(p->first, p->second, ps);
         }
     }
 }
@@ -1167,6 +1177,11 @@ static expr translate(environment const & env, list<expr> const & ctx, expr cons
 /** \brief Elaborate expression \c e in context \c ctx. */
 pair<expr, constraints> elaborator::elaborate_nested(list<expr> const & ctx, expr const & n,
                                                      bool relax, bool use_tactic_hints) {
+    if (infom()) {
+        if (auto ps = get_info_tactic_proof_state()) {
+            save_proof_state_info(*ps, n);
+        }
+    }
     expr e = translate(env(), ctx, n);
     m_context.set_ctx(ctx);
     m_full_context.set_ctx(ctx);

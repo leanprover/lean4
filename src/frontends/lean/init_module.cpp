@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/token_table.h"
+#include "frontends/lean/info_tactic.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/server.h"
@@ -49,12 +50,14 @@ void initialize_frontend_lean_module() {
     initialize_inductive_cmd();
     initialize_structure_cmd();
     initialize_info_manager();
+    initialize_info_tactic();
     initialize_pp();
     initialize_server();
 }
 void finalize_frontend_lean_module() {
     finalize_server();
     finalize_pp();
+    finalize_info_tactic();
     finalize_info_manager();
     finalize_structure_cmd();
     finalize_inductive_cmd();

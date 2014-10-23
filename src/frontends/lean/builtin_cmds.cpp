@@ -66,6 +66,15 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_options_tk())) {
         p.next();
         p.regular_stream() << p.ios().get_options() << endl;
+    } else if (p.curr_is_token_or_id(get_definition_tk())) {
+        p.next();
+        auto pos = p.pos();
+        name c = p.check_constant_next("invalid 'print definition', constant expected");
+        environment const & env = p.env();
+        declaration d = env.get(c);
+        if (!d.is_definition())
+            throw parser_error(sstream() << "invalid 'print definition', '" << c << "' is not a definition", pos);
+        p.regular_stream() << d.get_value() << endl;
     } else if (p.curr_is_token_or_id(get_instances_tk())) {
         p.next();
         name c = p.check_constant_next("invalid 'print instances', constant expected");

@@ -737,7 +737,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             case notation::action_kind::Skip:
                 curr = format(tk);
                 if (last)
-                    last_rbp = get_some_precedence(m_token_table, tk);
+                    last_rbp = max_bp();
                 break;
             case notation::action_kind::Expr:
                 if (args.empty() || !args.back()) {
@@ -873,8 +873,9 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             }
             extra_space = add_extra_space(tk);
         }
-        unsigned first_lbp = token_lbp;
+        unsigned first_lbp = max_bp();
         if (!entry.is_nud()) {
+            first_lbp = token_lbp;
             lean_assert(!last);
             if (args.size() != 1 || !args.back())
                 return optional<result>();

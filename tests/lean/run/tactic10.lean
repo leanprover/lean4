@@ -1,5 +1,4 @@
 import logic
-open tactic
 
 theorem tst (a b : Prop) (H : a ↔ b) : b ↔ a
 := by rapply iff.intro;

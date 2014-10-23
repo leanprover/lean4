@@ -9,9 +9,12 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
+#include "library/aliases.h"
+#include "library/scoped_ext.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/exact_tactic.h"
+#include "library/tactic/util.h"
 #include "library/typed_expr.h"
 #include "library/choice.h"
 #include "library/let.h"
@@ -113,9 +116,20 @@ static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const
     return p.save_pos(mk_explicit_expr_placeholder(), pos);
 }
 
+static environment open_tactic_namespace(parser & p) {
+    if (!is_tactic_namespace_open(p.env())) {
+        environment env = using_namespace(p.env(), p.ios(), "tactic");
+        env = add_aliases(env, name("tactic"), name());
+        return env;
+    } else {
+        return p.env();
+    }
+}
+
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     parser::no_undef_id_error_scope scope(p);
-    expr t = p.parse_expr();
+    environment env = open_tactic_namespace(p);
+    expr t = p.parse_scoped_expr(0, nullptr, env);
     return p.mk_by(t, pos);
 }
 
@@ -126,6 +140,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
     buffer<expr> tacs;
     bool first = true;
     parser::no_undef_id_error_scope scope(p);
+    environment env = open_tactic_namespace(p);
     while (!p.curr_is_token(get_end_tk())) {
         if (first)
             first = false;
@@ -137,7 +152,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
                           p.curr_is_token(get_assume_tk()) || p.curr_is_token(get_take_tk()) ||
                           p.curr_is_token(get_fun_tk()));
         auto pos = p.pos();
-        expr tac = p.parse_expr();
+        expr tac = p.parse_scoped_expr(0, nullptr, env);
         if (use_exact)
             tac = p.mk_app(get_exact_tac_fn(), tac, pos);
         if (pre_tac)

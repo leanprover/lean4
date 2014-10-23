@@ -347,10 +347,12 @@ environment open_export_cmd(parser & p, bool open) {
                             env = add_abbrev(p, env, as+id, ns+id);
                     }
                 } else {
-                    throw parser_error("invalid 'open/export' command option, identifier, 'hiding' or 'renaming' expected", p.pos());
+                    throw parser_error("invalid 'open/export' command option, "
+                                       "identifier, 'hiding' or 'renaming' expected", p.pos());
                 }
                 if (found_explicit && !exceptions.empty())
-                    throw parser_error("invalid 'open/export' command option, mixing explicit and implicit 'open/export' options", p.pos());
+                    throw parser_error("invalid 'open/export' command option, "
+                                       "mixing explicit and implicit 'open/export' options", p.pos());
                 p.check_token_next(get_rparen_tk(), "invalid 'open/export' command option, ')' expected");
             }
             if (!found_explicit) {

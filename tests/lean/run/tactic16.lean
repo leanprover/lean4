@@ -1,5 +1,4 @@
 import logic data.string
-open tactic
 
 constant A : Type.{1}
 constant f : A → A → A

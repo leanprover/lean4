@@ -1,5 +1,4 @@
 import logic
-open tactic
 
 inductive nat : Type :=
 zero : nat,
@@ -24,7 +23,7 @@ coercion num_to_nat
 check 2 + 3
 
 -- Define an assump as an alias for the eassumption tactic
-definition assump : tactic := eassumption
+definition assump : tactic := tactic.eassumption
 
 theorem T1 {p : nat → Prop} {a : nat } (H : p (a+2)) : ∃ x, p (succ x)
 := by apply exists_intro; assump

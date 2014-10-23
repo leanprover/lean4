@@ -57,10 +57,6 @@ expr const & get_id_tac_fn();
 expr const & get_repeat_tac_fn();
 expr const & get_determ_tac_fn();
 
-expr mk_tactic_macro(name const & kind, unsigned num_args, expr const * args);
-expr mk_tactic_macro(name const & kind, expr const & e);
-bool is_tactic_macro(expr const & e);
-
 /** \brief Exception used to report a problem when an expression is being converted into a tactic. */
 class expr_to_tactic_exception : public tactic_exception {
 public:
@@ -70,11 +66,6 @@ public:
 
 typedef std::function<tactic(type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *)>
 expr_to_tactic_fn;
-
-/** \brief Throw an error if the given expression is not a macro with \c num_args arguments */
-void check_macro_args(expr const & e, unsigned num_args, char const * msg);
-
-void register_tactic_macro(name const & n, expr_to_tactic_fn const & fn);
 
 /** \brief Register a new "procedural attachment" for expr_to_tactic. */
 void register_tac(name const & n, expr_to_tactic_fn const & fn);

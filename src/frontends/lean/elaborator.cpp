@@ -608,8 +608,6 @@ expr elaborator::visit_sort(expr const & e) {
 expr elaborator::visit_macro(expr const & e, constraint_seq & cs) {
     if (is_as_is(e)) {
         return get_as_is_arg(e);
-    } else if (is_tactic_macro(e)) {
-        return e;
     } else {
         buffer<expr> args;
         for (unsigned i = 0; i < macro_num_args(e); i++)

@@ -42,27 +42,18 @@ tactic rename_tactic(name const & from, name const & to) {
         });
 }
 
-static name * g_rename_tactic_name = nullptr;
-
-expr mk_rename_tactic_macro(name const & from, name const & to) {
-    expr args[2] = { Const(from), Const(to) };
-    return mk_tactic_macro(*g_rename_tactic_name, 2, args);
-}
-
 static name const & get_rename_arg(expr const & e) {
     return tactic_expr_to_id(e, "invalid 'rename' tactic, arguments must be identifiers");
 }
 
 void initialize_rename_tactic() {
-    g_rename_tactic_name = new name({"tactic", "rename"});
     auto fn = [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
         return rename_tactic(get_rename_arg(app_arg(app_fn(e))),
                              get_rename_arg(app_arg(e)));
     };
-    register_tac(*g_rename_tactic_name, fn);
+    register_tac(name({"tactic", "rename"}), fn);
 }
 
 void finalize_rename_tactic() {
-    delete g_rename_tactic_name;
 }
 }

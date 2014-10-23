@@ -157,82 +157,6 @@ void get_tactic_id_list_elements(expr l, buffer<name> & r, char const * error_ms
     }
 }
 
-/** \brief We use macros to wrap some builtin tactics that would not type check otherwise.
-    Example: in the tactic `apply t`, `t` is a pre-term (i.e., a term before elaboration).
-    Moreover its context depends on the goal it is applied to.
-*/
-class tactic_macro_definition_cell : public macro_definition_cell {
-    name              m_name;
-    expr_to_tactic_fn m_fn;
-public:
-    tactic_macro_definition_cell(name const & n, expr_to_tactic_fn const & fn):
-        m_name(n), m_fn(fn) {}
-    name const & get_tatic_kind() const { return m_name; }
-    expr_to_tactic_fn const & get_fn() const { return m_fn; }
-    virtual bool operator==(macro_definition_cell const & other) const {
-        if (tactic_macro_definition_cell const * other_ptr = dynamic_cast<tactic_macro_definition_cell const *>(&other)) {
-            return m_name == other_ptr->m_name;
-        } else {
-            return false;
-        }
-    }
-    virtual name get_name() const { return get_tactic_name(); }
-    virtual format pp(formatter const &) const { return format(m_name); }
-    virtual void display(std::ostream & out) const { out << m_name; }
-    virtual pair<expr, constraint_seq> get_type(expr const &, extension_context &) const {
-        return mk_pair(get_tactic_type(), constraint_seq());
-    }
-    virtual optional<expr> expand(expr const &, extension_context &) const {
-        // Remark: small hack for conditionally expanding tactic macros.
-        // When processing type checking a macro definition, we want to unfold it,
-        // otherwise the kernel will not accept it.
-        // When converting it to a tactic object, we don't want to unfold it.
-        // The procedure expr_to_tactic temporarily sets g_unfold_tactic_macros to false.
-        // This is a thread local storage. So, there is no danger.
-        if (g_unfold_tactic_macros)
-            return some_expr(get_builtin_tac());
-        else
-            return none_expr();
-    }
-    virtual void write(serializer & s) const {
-        s.write_string(get_tactic_opcode());
-        s << m_name;
-    }
-};
-
-typedef std::unordered_map<name, macro_definition, name_hash, name_eq>  tactic_macros;
-static tactic_macros * g_tactic_macros = nullptr;
-tactic_macros & get_tactic_macros() { return *g_tactic_macros; }
-
-void register_tactic_macro(name const & n, expr_to_tactic_fn const & fn) {
-    tactic_macros & ms = get_tactic_macros();
-    lean_assert(ms.find(n) == ms.end());
-    ms.insert(mk_pair(n, macro_definition(new tactic_macro_definition_cell(n, fn))));
-}
-
-expr mk_tactic_macro(name const & kind, unsigned num_args, expr const * args) {
-    tactic_macros & ms = get_tactic_macros();
-    auto it = ms.find(kind);
-    if (it != ms.end()) {
-        return mk_macro(it->second, num_args, args);
-    } else {
-        throw exception(sstream() << "unknown builtin tactic '" << kind << "'");
-    }
-}
-
-expr mk_tactic_macro(name const & kind, expr const & e) {
-    return mk_tactic_macro(kind, 1, &e);
-}
-
-bool is_tactic_macro(expr const & e) {
-    return is_macro(e) && macro_def(e).get_name() == get_tactic_name();
-}
-
-expr_to_tactic_fn const & get_tactic_macro_fn(expr const & e) {
-    lean_assert(is_tactic_macro(e));
-    return static_cast<tactic_macro_definition_cell const*>(macro_def(e).raw())->get_fn();
-}
-
 static void throw_failed(expr const & e) {
     throw expr_to_tactic_exception(e, "failed to convert expression into tactic");
 }
@@ -249,45 +173,41 @@ static bool is_builtin_tactic(expr const & v) {
 
 tactic expr_to_tactic(type_checker & tc, elaborate_fn const & fn, expr e, pos_info_provider const * p) {
     e = tc.whnf(e).first;
-    if (is_tactic_macro(e)) {
-        return get_tactic_macro_fn(e)(tc, fn, e, p);
+    expr f = get_app_fn(e);
+    if (!is_constant(f))
+        throw_failed(e);
+    optional<declaration> it = tc.env().find(const_name(f));
+    if (!it || !it->is_definition())
+        throw_failed(e);
+    expr v = it->get_value();
+    if (is_builtin_tactic(v)) {
+        auto const & map = get_expr_to_tactic_map();
+        auto it2 = map.find(const_name(f));
+        if (it2 != map.end())
+            return it2->second(tc, fn, e, p);
+        else
+            throw expr_to_tactic_exception(e, sstream() << "implementation for builtin tactic '" <<
+                                           const_name(f) << "' was not found");
     } else {
-        expr f = get_app_fn(e);
-        if (!is_constant(f))
-            throw_failed(e);
-        optional<declaration> it = tc.env().find(const_name(f));
-        if (!it || !it->is_definition())
-            throw_failed(e);
-        expr v = it->get_value();
-        if (is_builtin_tactic(v)) {
-            auto const & map = get_expr_to_tactic_map();
-            auto it2 = map.find(const_name(f));
-            if (it2 != map.end())
-                return it2->second(tc, fn, e, p);
-            else
-                throw expr_to_tactic_exception(e, sstream() << "implementation for builtin tactic '" <<
-                                               const_name(f) << "' was not found");
-        } else {
-            // unfold definition
-            buffer<expr> locals;
-            get_app_rev_args(e, locals);
-            level_param_names const & ps = it->get_univ_params();
-            levels ls = const_levels(f);
-            unsigned num_ps = length(ps);
-            unsigned num_ls = length(ls);
-            if (num_ls > num_ps)
-                throw expr_to_tactic_exception(e, sstream() << "invalid number of universes");
-            if (num_ls < num_ps) {
-                buffer<level> extra_ls;
-                name_generator ngen = tc.mk_ngen();
-                for (unsigned i = num_ls; i < num_ps; i++)
-                    extra_ls.push_back(mk_meta_univ(ngen.next()));
-                ls = append(ls, to_list(extra_ls.begin(), extra_ls.end()));
-            }
-            v = instantiate_univ_params(v, ps, ls);
-            v = apply_beta(v, locals.size(), locals.data());
-            return expr_to_tactic(tc, fn, v, p);
+        // unfold definition
+        buffer<expr> locals;
+        get_app_rev_args(e, locals);
+        level_param_names const & ps = it->get_univ_params();
+        levels ls = const_levels(f);
+        unsigned num_ps = length(ps);
+        unsigned num_ls = length(ls);
+        if (num_ls > num_ps)
+            throw expr_to_tactic_exception(e, sstream() << "invalid number of universes");
+        if (num_ls < num_ps) {
+            buffer<level> extra_ls;
+            name_generator ngen = tc.mk_ngen();
+            for (unsigned i = num_ls; i < num_ps; i++)
+                extra_ls.push_back(mk_meta_univ(ngen.next()));
+            ls = append(ls, to_list(extra_ls.begin(), extra_ls.end()));
         }
+        v = instantiate_univ_params(v, ps, ls);
+        v = apply_beta(v, locals.size(), locals.data());
+        return expr_to_tactic(tc, fn, v, p);
     }
 }
 
@@ -367,11 +287,6 @@ expr mk_by(expr const & e) { return mk_annotation(*g_by_name, e); }
 bool is_by(expr const & e) { return is_annotation(e, *g_by_name); }
 expr const & get_by_arg(expr const & e) { lean_assert(is_by(e)); return get_annotation_arg(e); }
 
-void check_macro_args(expr const & e, unsigned num_args, char const * msg) {
-    if (!is_macro(e) || macro_num_args(e) != num_args)
-        throw expr_to_tactic_exception(e, msg);
-}
-
 void initialize_expr_to_tactic() {
     g_tmp_prefix        = new name(name::mk_internal_unique_name());
 
@@ -397,17 +312,6 @@ void initialize_expr_to_tactic() {
 
     g_expr_list_cons = new expr(mk_constant(name({"tactic", "expr_list", "cons"})));
     g_expr_list_nil  = new expr(mk_constant(name({"tactic", "expr_list", "nil"})));
-
-    g_tactic_opcode     = new std::string("TAC");
-
-    g_tactic_macros     = new tactic_macros();
-
-    register_macro_deserializer(*g_tactic_opcode,
-                                [](deserializer & d, unsigned num, expr const * args) {
-                                    name kind;
-                                    d >> kind;
-                                    return mk_tactic_macro(kind, num, args);
-                                });
 
     name builtin_tac_name(*g_tactic_name, "builtin");
     name and_then_tac_name(*g_tactic_name, "and_then");
@@ -486,7 +390,6 @@ void finalize_expr_to_tactic() {
     delete g_or_else_tac_fn;
     delete g_and_then_tac_fn;
     delete g_id_tac_fn;
-    delete g_tactic_macros;
     delete g_map;
     delete g_tactic_name;
     delete g_tactic_opcode;

@@ -131,15 +131,8 @@ void open_apply_tactic(lua_State * L) {
     SET_GLOBAL_FUN(mk_eassumption_tactic, "eassumption_tac");
 }
 
-static name * g_apply_tactic_name = nullptr;
-
-expr mk_apply_tactic_macro(expr const & e) {
-    return mk_tactic_macro(*g_apply_tactic_name, e);
-}
-
 void initialize_apply_tactic() {
-    g_apply_tactic_name = new name({"tactic", "apply"});
-    register_tac(*g_apply_tactic_name,
+    register_tac(name({"tactic", "apply"}),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'apply' tactic, invalid argument");
                      return apply_tactic(fn, get_tactic_expr_expr(app_arg(e)));
@@ -150,6 +143,5 @@ void initialize_apply_tactic() {
 }
 
 void finalize_apply_tactic() {
-    delete g_apply_tactic_name;
 }
 }

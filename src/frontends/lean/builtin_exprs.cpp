@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/let.h"
 #include "frontends/lean/builtin_exprs.h"
-#include "frontends/lean/builtin_tactics.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/calc.h"
 #include "frontends/lean/begin_end_ext.h"
@@ -414,7 +413,6 @@ parse_table init_nud_table() {
     r = r.add({transition("begin", mk_ext_action(parse_begin_end))}, x0);
     r = r.add({transition("proof", mk_ext_action(parse_proof_qed))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
-    init_nud_tactic_table(r);
     return r;
 }
 

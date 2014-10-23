@@ -564,8 +564,8 @@ struct info_manager::imp {
 
     void display_core(environment const & env, options const & o, io_state const & ios, unsigned line,
                       optional<unsigned> const & col) {
-        io_state_stream out = regular(env, ios).update_options(o);
         m_line_data[line].for_each([&](info_data const & d) {
+                io_state_stream out = regular(env, ios).update_options(o);
                 if ((!col && d.is_cheap()) || (col && d.get_column() == *col))
                     d.display(out, line);
             });

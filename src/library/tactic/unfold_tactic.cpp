@@ -117,11 +117,9 @@ tactic unfold_tactic() {
 void initialize_unfold_tactic() {
     register_tac(name({"tactic", "unfold"}),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     expr id = get_app_fn(app_arg(e));
-                     if (!is_constant(id))
-                         return fail_tactic();
-                     else
-                         return unfold_tactic(const_name(id));
+                     name const & id = tactic_expr_to_id(app_arg(e),
+                                                         "invalid 'unfold' tactic, argument must be an identifier");
+                     return unfold_tactic(id);
                  });
 }
 void finalize_unfold_tactic() {

@@ -119,8 +119,7 @@ public:
        memoize: if true, then inferred types are memoized/cached
     */
     type_checker(environment const & env, name_generator const & g, std::unique_ptr<converter> && conv, bool memoize = true);
-    type_checker(environment const & env, name_generator const & g, bool memoize = true):
-        type_checker(env, g, mk_default_converter(env), memoize) {}
+    type_checker(environment const & env, name_generator const & g, bool memoize = true);
     type_checker(environment const & env);
     ~type_checker();
 

@@ -421,6 +421,9 @@ type_checker::type_checker(environment const & env, name_generator const & g, st
     m_memoize(memoize), m_params(nullptr) {
 }
 
+type_checker::type_checker(environment const & env, name_generator const & g, bool memoize):
+    type_checker(env, g, mk_default_converter(env, optional<module_idx>(), memoize), memoize) {}
+
 static name * g_tmp_prefix = nullptr;
 
 type_checker::type_checker(environment const & env):

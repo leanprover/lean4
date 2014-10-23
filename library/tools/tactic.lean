@@ -43,9 +43,10 @@ opaque definition beta        : tactic := builtin
 inductive expr : Type :=
 builtin : expr
 
-opaque definition apply  (e : expr) : tactic := builtin
-opaque definition rename (a b : expr) : tactic := builtin
-opaque definition intro (e : expr) : tactic := builtin
+opaque definition apply   (e : expr) : tactic := builtin
+opaque definition rapply  (e : expr) : tactic := builtin
+opaque definition rename  (a b : expr) : tactic := builtin
+opaque definition intro   (e : expr) : tactic := builtin
 
 inductive expr_list : Type :=
 nil  : expr_list,

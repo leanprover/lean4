@@ -23,9 +23,39 @@ Author: Leonardo de Moura
 #include "library/tactic/expr_to_tactic.h"
 
 namespace lean {
+/**
+    \brief Given a sequence metas: <tt>(?m_1 ...) (?m_2 ... ) ... (?m_k ...)</tt>,
+    we say ?m_i is "redundant" if it occurs in the type of some ?m_j.
+    This procedure removes from metas any redundant element.
+*/
+static void remove_redundant_metas(buffer<expr> & metas) {
+    buffer<expr> mvars;
+    for (expr const & m : metas)
+        mvars.push_back(get_app_fn(m));
+    unsigned k = 0;
+    for (unsigned i = 0; i < metas.size(); i++) {
+        bool found = false;
+        for (unsigned j = 0; j < metas.size(); j++) {
+            if (j != i) {
+                if (occurs(mvars[i], mlocal_type(mvars[j]))) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found) {
+            metas[k] = metas[i];
+            k++;
+        }
+    }
+    metas.shrink(k);
+}
+
+enum subgoals_action_kind { IgnoreSubgoals, AddRevSubgoals, AddSubgoals };
+
 static proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s,
                                          expr const & _e, buffer<constraint> & cs,
-                                         bool add_meta, bool add_subgoals, bool relax_main_opaque) {
+                                         bool add_meta, subgoals_action_kind subgoals_action, bool relax_main_opaque) {
     goals const & gs = s.get_goals();
     if (empty(gs))
         return proof_state_seq();
@@ -73,23 +103,33 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
             check_has_no_local(new_p, _e, "apply");
             new_subst.assign(g.get_name(), new_p);
             goals new_gs = tail_gs;
-            if (add_subgoals) {
+            if (subgoals_action != IgnoreSubgoals) {
                 buffer<expr> metas;
                 for (auto m : meta_lst) {
                     if (!new_subst.is_assigned(get_app_fn(m)))
                         metas.push_back(m);
                 }
-                for (unsigned i = 0; i < metas.size(); i++)
-                    new_gs = cons(goal(metas[i], new_subst.instantiate_all(tc->infer(metas[i]).first)), new_gs);
+                if (subgoals_action == AddRevSubgoals) {
+                    for (unsigned i = 0; i < metas.size(); i++)
+                        new_gs = cons(goal(metas[i], new_subst.instantiate_all(tc->infer(metas[i]).first)), new_gs);
+                } else {
+                    lean_assert(subgoals_action == AddSubgoals);
+                    remove_redundant_metas(metas);
+                    unsigned i = metas.size();
+                    while (i > 0) {
+                        --i;
+                        new_gs = cons(goal(metas[i], new_subst.instantiate_all(tc->infer(metas[i]).first)), new_gs);
+                    }
+                }
             }
             return proof_state(new_gs, new_subst, new_ngen, postponed);
         });
 }
 
 static proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & e,
-                                         bool add_meta, bool add_subgoals, bool relax_main_opaque) {
+                                         bool add_meta, subgoals_action_kind subgoals_action, bool relax_main_opaque) {
     buffer<constraint> cs;
-    return apply_tactic_core(env, ios, s, e, cs, add_meta, add_subgoals, relax_main_opaque);
+    return apply_tactic_core(env, ios, s, e, cs, add_meta, subgoals_action, relax_main_opaque);
 }
 
 tactic eassumption_tactic(bool relax_main_opaque) {
@@ -102,13 +142,13 @@ tactic eassumption_tactic(bool relax_main_opaque) {
             buffer<expr> hs;
             get_app_args(g.get_meta(), hs);
             for (expr const & h : hs) {
-                r = append(r, apply_tactic_core(env, ios, s, h, false, false, relax_main_opaque));
+                r = append(r, apply_tactic_core(env, ios, s, h, false, IgnoreSubgoals, relax_main_opaque));
             }
             return r;
         });
 }
 
-tactic apply_tactic(elaborate_fn const & elab, expr const & e, bool relax_main_opaque) {
+tactic apply_tactic(elaborate_fn const & elab, expr const & e, bool rev, bool relax_main_opaque) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
             if (empty(gs))
@@ -122,7 +162,7 @@ tactic apply_tactic(elaborate_fn const & elab, expr const & e, bool relax_main_o
             to_buffer(ecs.second, cs);
             to_buffer(s.get_postponed(), cs);
             proof_state new_s(s.get_goals(), s.get_subst(), ngen, constraints());
-            return apply_tactic_core(env, ios, new_s, new_e, cs, true, true, relax_main_opaque);
+            return apply_tactic_core(env, ios, new_s, new_e, cs, true, rev ? AddRevSubgoals : AddSubgoals, relax_main_opaque);
         });
 }
 
@@ -135,7 +175,13 @@ void initialize_apply_tactic() {
     register_tac(name({"tactic", "apply"}),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'apply' tactic, invalid argument");
-                     return apply_tactic(fn, get_tactic_expr_expr(app_arg(e)));
+                     return apply_tactic(fn, get_tactic_expr_expr(app_arg(e)), false);
+                 });
+
+    register_tac(name({"tactic", "rapply"}),
+                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                     check_tactic_expr(app_arg(e), "invalid 'apply' tactic, invalid argument");
+                     return apply_tactic(fn, get_tactic_expr_expr(app_arg(e)), true);
                  });
 
     register_simple_tac(name({"tactic", "eassumption"}),

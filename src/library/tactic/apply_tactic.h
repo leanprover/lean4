@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "util/lua.h"
 #include "library/tactic/tactic.h"
 namespace lean {
-tactic apply_tactic(elaborate_fn const & fn, expr const & e, bool relax_main_opaque = true);
+tactic apply_tactic(elaborate_fn const & fn, expr const & e, bool rev_goals = false, bool relax_main_opaque = true);
 tactic eassumption_tactic(bool relax_main_opaque = true);
 void open_apply_tactic(lua_State * L);
 void initialize_apply_tactic();

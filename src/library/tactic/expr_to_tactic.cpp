@@ -75,8 +75,6 @@ std::string const & get_tactic_expr_opcode() { return *g_tactic_expr_opcode; }
 name const & get_tactic_name() { return *g_tactic_name; }
 std::string const & get_tactic_opcode() { return *g_tactic_opcode; }
 
-LEAN_THREAD_VALUE(bool, g_unfold_tactic_macros, true);
-
 class tactic_expr_macro_definition_cell : public macro_definition_cell {
 public:
     tactic_expr_macro_definition_cell() {}
@@ -85,16 +83,7 @@ public:
         return mk_pair(get_tactic_expr_type(), constraint_seq());
     }
     virtual optional<expr> expand(expr const &, extension_context &) const {
-        // Remark: small hack for conditionally expanding tactic expr macros.
-        // When type checking a macro definition, we want to unfold it,
-        // otherwise the kernel will not accept it.
-        // When converting it to a tactic object, we don't want to unfold it.
-        // The procedure expr_to_tactic temporarily sets g_unfold_tactic_macros to false.
-        // This is a thread local storage. So, there is no danger.
-        if (g_unfold_tactic_macros)
-            return some_expr(get_tactic_expr_builtin());
-        else
-            return none_expr();
+        return some_expr(get_tactic_expr_builtin());
     }
     virtual void write(serializer & s) const {
         s.write_string(get_tactic_expr_opcode());
@@ -220,7 +209,6 @@ static name_generator next_name_generator() {
 }
 
 tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
-    flet<bool> let(g_unfold_tactic_macros, false);
     type_checker tc(env, next_name_generator());
     return expr_to_tactic(tc, fn, e, p);
 }

@@ -11,13 +11,14 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "library/choice.h"
 #include "library/scoped_ext.h"
+#include "library/tactic/proof_state.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/pp_options.h"
 
 namespace lean {
 class info_data;
 
-enum class info_kind { Type = 0, ExtraType, Synth, Overload, Coercion, Symbol, Identifier };
+enum class info_kind { Type = 0, ExtraType, Synth, Overload, Coercion, Symbol, Identifier, ProofState };
 bool operator<(info_kind k1, info_kind k2) { return static_cast<unsigned>(k1) < static_cast<unsigned>(k2); }
 
 class info_data_cell {
@@ -258,6 +259,19 @@ public:
     }
 };
 
+class proof_state_info_data : public info_data_cell {
+    proof_state m_ps;
+public:
+    proof_state_info_data(unsigned c, proof_state const & ps):info_data_cell(c), m_ps(ps) {}
+    virtual info_kind kind() const { return info_kind::ProofState; }
+    virtual bool is_cheap() const { return false; }
+    virtual void display(io_state_stream const & ios, unsigned line) const {
+        ios << "-- PROOF_STATE|" << line << "|" << get_column() << "\n";
+        ios << m_ps << endl;
+        ios << "-- ACK" << endl;
+    }
+};
+
 info_data mk_type_info(unsigned c, expr const & e) { return info_data(new type_info_data(c, e)); }
 info_data mk_extra_type_info(unsigned c, expr const & e, expr const & t) { return info_data(new extra_type_info_data(c, e, t)); }
 info_data mk_synth_info(unsigned c, expr const & e) { return info_data(new synth_info_data(c, e)); }
@@ -266,6 +280,7 @@ info_data mk_overload_notation_info(unsigned c, list<expr> const & a) { return i
 info_data mk_coercion_info(unsigned c, expr const & e, expr const & t) { return info_data(new coercion_info_data(c, e, t)); }
 info_data mk_symbol_info(unsigned c, name const & s) { return info_data(new symbol_info_data(c, s)); }
 info_data mk_identifier_info(unsigned c, name const & full_id) { return info_data(new identifier_info_data(c, full_id)); }
+info_data mk_proof_state_info(unsigned c, proof_state const & ps) { return info_data(new proof_state_info_data(c, ps)); }
 
 struct info_data_cmp {
     int operator()(info_data const & i1, info_data const & i2) const { return i1.compare(i2); }
@@ -398,6 +413,14 @@ struct info_manager::imp {
             return;
         synch_line(l);
         m_line_data[l].insert(mk_identifier_info(c, full_id));
+    }
+
+    void add_proof_state_info(unsigned l, unsigned c, proof_state const & ps) {
+        lock_guard<mutex> lc(m_mutex);
+        if (m_block_new_info)
+            return;
+        synch_line(l);
+        m_line_data[l].insert(mk_proof_state_info(c, ps));
     }
 
     static info_data_set instantiate(info_data_set const & s, substitution & subst) {
@@ -653,6 +676,9 @@ void info_manager::erase_coercion_info(unsigned l, unsigned c) { m_ptr->erase_co
 void info_manager::add_symbol_info(unsigned l, unsigned c, name const & s) { m_ptr->add_symbol_info(l, c, s); }
 void info_manager::add_identifier_info(unsigned l, unsigned c, name const & full_id) {
     m_ptr->add_identifier_info(l, c, full_id);
+}
+void info_manager::add_proof_state_info(unsigned l, unsigned c, proof_state const & ps) {
+    m_ptr->add_proof_state_info(l, c, ps);
 }
 void info_manager::instantiate(substitution const & s) { m_ptr->instantiate(s); }
 void info_manager::merge(info_manager const & m, bool overwrite) { m_ptr->merge(*m.m_ptr, overwrite); }

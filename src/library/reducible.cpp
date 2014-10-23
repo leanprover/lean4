@@ -116,7 +116,8 @@ bool is_reducible_off(environment const & env, name const & n) {
 }
 
 std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator const & ngen,
-                                              bool relax_main_opaque, bool only_main_reducible) {
+                                              bool relax_main_opaque, bool only_main_reducible,
+                                              bool memoize) {
     reducible_state const & s = reducible_ext::get_state(env);
     if (only_main_reducible) {
         name_set reducible_on  = s.m_reducible_on;
@@ -127,12 +128,12 @@ std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_gene
                     (!reducible_on.contains(n));
             });
         return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, relax_main_opaque,
-                                                                                              true, pred)));
+                                                                                              memoize, pred)));
     } else {
         name_set reducible_off = s.m_reducible_off;
         extra_opaque_pred pred([=](name const & n) { return reducible_off.contains(n); });
         return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, relax_main_opaque,
-                                                                                              true, pred)));
+                                                                                              memoize, pred)));
     }
 }
 std::unique_ptr<type_checker> mk_type_checker(environment const & env, bool relax_main_opaque, bool only_main_reducible) {

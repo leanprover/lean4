@@ -35,7 +35,8 @@ bool is_reducible_off(environment const & env, name const & n);
 
 /** \brief Create a type checker that takes the "reducibility" hints into account. */
 std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator const & ngen,
-                                              bool relax_main_opaque = true, bool only_main_reducible = false);
+                                              bool relax_main_opaque = true, bool only_main_reducible = false,
+                                              bool memoize = true);
 std::unique_ptr<type_checker> mk_type_checker(environment const & env, bool relax_main_opaque, bool only_main_reducible = false);
 
 void initialize_reducible();

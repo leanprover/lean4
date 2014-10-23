@@ -44,7 +44,7 @@ calc_trans eq.trans
 
 namespace eq_ops
   postfix `⁻¹` := eq.symm
-  infixr `⬝`   := eq.trans
+  reserve infixr `⬝`:75  infixr `⬝`   := eq.trans
   infixr `▸`   := eq.subst
 end eq_ops
 open eq_ops

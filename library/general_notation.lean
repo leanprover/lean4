@@ -31,7 +31,7 @@ reserve infix `≈`:50
 reserve infix `∼`:50
 
 reserve postfix `⁻¹`:100
-reserve infixr `⬝`:75
+reserve infixl `⬝`:75
 reserve infixr `▸`:75
 
 -- ### types and type constructors

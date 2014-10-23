@@ -19,17 +19,23 @@ optional<expr> elaborate_with_respect_to(environment const & env, io_state const
     expr new_e = ecs.first;
     buffer<constraint> cs;
     to_buffer(ecs.second, cs);
-    to_buffer(s.get_postponed(), cs);
-    unifier_config cfg(ios.get_options());
-    unify_result_seq rseq = unify(env, cs.size(), cs.data(), ngen.mk_child(), subst, cfg);
-    if (auto p = rseq.pull()) {
-        substitution new_subst     = p->first.first;
-        constraints  new_postponed = p->first.second;
-        new_e = new_subst.instantiate(new_e);
-        s = proof_state(gs, new_subst, ngen, new_postponed);
+    if (cs.empty()) {
+        // easy case: no constraints to be solved
+        s = proof_state(s, ngen);
         return some_expr(new_e);
     } else {
-        return none_expr();
+        to_buffer(s.get_postponed(), cs);
+        unifier_config cfg(ios.get_options());
+        unify_result_seq rseq = unify(env, cs.size(), cs.data(), ngen.mk_child(), subst, cfg);
+        if (auto p = rseq.pull()) {
+            substitution new_subst     = p->first.first;
+            constraints  new_postponed = p->first.second;
+            new_e = new_subst.instantiate(new_e);
+            s = proof_state(gs, new_subst, ngen, new_postponed);
+            return some_expr(new_e);
+        } else {
+            return none_expr();
+        }
     }
 }
 }

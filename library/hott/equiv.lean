@@ -1,6 +1,6 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Jeremy Avigad
+-- Author: Jeremy Avigad, Jakob von Raumer
 -- Ported from Coq HoTT
 import .path
 open path function
@@ -37,7 +37,7 @@ namespace IsEquiv
     IsEquiv.rec (λinv retr sect adj, sect) H
 
   definition adj {A B : Type} {f : A → B} (H : IsEquiv f) :
-	     Πx, retr H (f x) ≈ ap f (sect H x) :=
+             Πx, retr H (f x) ≈ ap f (sect H x) :=
     IsEquiv.rec (λinv retr sect adj, adj) H
 
 end IsEquiv
@@ -76,16 +76,16 @@ namespace IsEquiv
 
   definition comp_closed [instance] (Hf : IsEquiv f) (Hg : IsEquiv g) : (IsEquiv (g ∘ f)) :=
     IsEquiv_mk ((inv Hf) ∘ (inv Hg))
-	       (λc, ap g (retr Hf ((inv Hg) c)) ⬝ retr Hg c)
-	       (λa, ap (inv Hf) (sect Hg (f a)) ⬝ sect Hf a)
-	       (λa, (whiskerL _ (adj Hg (f a))) ⬝
-		    (ap_pp g _ _)⁻¹ ⬝
-		    ap02 g (concat_A1p (retr Hf) (sect Hg (f a))⁻¹ ⬝
-			    (ap_compose (inv Hf) f _ ◾  adj Hf a) ⬝
-			    (ap_pp f _ _)⁻¹
-			   ) ⬝
-		    (ap_compose f g _)⁻¹
-	       )
+               (λc, ap g (retr Hf ((inv Hg) c)) ⬝ retr Hg c)
+               (λa, ap (inv Hf) (sect Hg (f a)) ⬝ sect Hf a)
+               (λa, (whiskerL _ (adj Hg (f a))) ⬝
+                    (ap_pp g _ _)⁻¹ ⬝
+                    ap02 g (concat_A1p (retr Hf) (sect Hg (f a))⁻¹ ⬝
+                            (ap_compose (inv Hf) f _ ◾  adj Hf a) ⬝
+                            (ap_pp f _ _)⁻¹
+                           ) ⬝
+                    (ap_compose f g _)⁻¹
+               )
 
   -- Any function equal to an equivalence is an equivlance as well.
   definition path_closed (Hf : IsEquiv f) (Heq : f ≈ f') : (IsEquiv f') :=
@@ -123,7 +123,7 @@ namespace IsEquiv
           ... ≈ ap f' ((ap invf ff'a)⁻¹ ⬝ secta) : !ap_pp⁻¹,
     eq3) in
   IsEquiv_mk (inv Hf) sect' retr' adj'
-               
+
   --TODO: Maybe wait until rewrite rules are available.
   definition inv_closed (Hf : IsEquiv f) : (IsEquiv (inv Hf)) :=
     IsEquiv_mk sorry sorry sorry sorry
@@ -140,7 +140,7 @@ namespace IsEquiv
   --Rewrite rules
   section
   variables {Hf : IsEquiv f}
-  
+
   definition moveR_M {x : A} {y : B} (p : x ≈ (inv Hf) y) : (f x ≈ y) :=
     (ap f p) ⬝ (retr Hf y)
 
@@ -152,7 +152,7 @@ namespace IsEquiv
 
   definition moveL_V {x : B} {y : A} (p : f y ≈ x) : y ≈ (inv Hf) x :=
     (moveR_V (p⁻¹))⁻¹
-  
+
   end
 
 end IsEquiv
@@ -165,7 +165,7 @@ namespace Equiv
 
   theorem compose (eqg: B ≃ C) : A ≃ C :=
     Equiv_mk ((equiv_fun eqg) ∘ (equiv_fun eqf))
-	     (IsEquiv.comp_closed (equiv_isequiv eqf) (equiv_isequiv eqg))
+             (IsEquiv.comp_closed (equiv_isequiv eqf) (equiv_isequiv eqg))
 
   check IsEquiv.path_closed
 
@@ -175,10 +175,10 @@ namespace Equiv
   theorem inv_closed : B ≃ A :=
     Equiv_mk (IsEquiv.inv (equiv_isequiv eqf)) (IsEquiv.inv_closed (equiv_isequiv eqf))
 
-  theorem cancel_L {f : A → B} {g : B → C} 
+  theorem cancel_L {f : A → B} {g : B → C}
                    (Hf : IsEquiv f) (Hgf : IsEquiv (g ∘ f)) : B ≃ C :=
     Equiv_mk g (IsEquiv.cancel_R _ _)
-  
+
   theorem cancel_R {f : A → B} {g : B → C}
                    (Hg : IsEquiv g) (Hgf : IsEquiv (g ∘ f)) : A ≃ B :=
     Equiv_mk f (!IsEquiv.cancel_L _ _)

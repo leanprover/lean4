@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/pos_info_provider.h"
 #include "library/tactic/tactic.h"
+#include "library/tactic/elaborate.h"
 
 namespace lean {
 /**

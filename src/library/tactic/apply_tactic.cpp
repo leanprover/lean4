@@ -19,8 +19,8 @@ Author: Leonardo de Moura
 #include "library/occurs.h"
 #include "library/metavar_closure.h"
 #include "library/type_util.h"
-#include "library/tactic/apply_tactic.h"
 #include "library/tactic/expr_to_tactic.h"
+#include "library/tactic/apply_tactic.h"
 
 namespace lean {
 /**

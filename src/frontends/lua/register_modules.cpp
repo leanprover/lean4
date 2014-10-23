@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "util/numerics/register_module.h"
 #include "util/sexpr/register_module.h"
 #include "library/register_module.h"
-// #include "library/simplifier/register_module.h"
 #include "library/tactic/register_module.h"
 #include "frontends/lean/register_module.h"
 
@@ -17,7 +16,6 @@ void register_modules() {
     register_numerics_module();
     register_sexpr_module();
     register_core_module();
-    // register_simplifier_module();
     register_tactic_module();
     register_frontend_lean_module();
 }

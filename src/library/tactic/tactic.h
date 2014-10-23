@@ -14,11 +14,6 @@ Author: Leonardo de Moura
 #include "library/tactic/proof_state.h"
 
 namespace lean {
-/** \brief Function for elaborating expressions nested in tactics.
-    Some tactics contain nested expression (aka pre-terms) that need to be elaborated.
-*/
-typedef std::function<pair<expr, constraints>(goal const &, name_generator const &, expr const &)> elaborate_fn;
-
 /** \brief Throw an exception is \c v contains local constants, \c e is only used for position information. */
 void check_has_no_local(expr const & v, expr const & e, char const * tac_name);
 

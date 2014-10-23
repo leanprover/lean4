@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/lua.h"
-#include "library/tactic/tactic.h"
+#include "library/tactic/elaborate.h"
 namespace lean {
 tactic apply_tactic(elaborate_fn const & fn, expr const & e, bool rev_goals = false, bool relax_main_opaque = true);
 tactic eassumption_tactic(bool relax_main_opaque = true);

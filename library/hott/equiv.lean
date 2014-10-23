@@ -70,21 +70,21 @@ namespace IsEquiv
 
   -- The identity function is an equivalence.
 
-  definition idIsEquiv [instance] : (@IsEquiv A A id) := IsEquiv_mk id (λa, idp) (λa, idp) (λa, idp)
+  definition id_closed [instance] : (@IsEquiv A A id) := IsEquiv_mk id (λa, idp) (λa, idp) (λa, idp)
 
   -- The composition of two equivalences is, again, an equivalence.
 
   definition comp_closed [instance] (Hf : IsEquiv f) (Hg : IsEquiv g) : (IsEquiv (g ∘ f)) :=
     IsEquiv_mk ((inv Hf) ∘ (inv Hg))
-	       (λc, ap g (retr Hf ((inv Hg) c)) @ retr Hg c)
-	       (λa, ap (inv Hf) (sect Hg (f a)) @ sect Hf a)
-	       (λa, (whiskerL _ (adj Hg (f a))) @
-		    (ap_pp g _ _)^ @
-		    ap02 g (concat_A1p (retr Hf) (sect Hg (f a))^ @
-			    (ap_compose (inv Hf) f _ @@ adj Hf a) @
-			    (ap_pp f _ _)^
-			   ) @
-		    (ap_compose f g _)^
+	       (λc, ap g (retr Hf ((inv Hg) c)) ⬝ retr Hg c)
+	       (λa, ap (inv Hf) (sect Hg (f a)) ⬝ sect Hf a)
+	       (λa, (whiskerL _ (adj Hg (f a))) ⬝
+		    (ap_pp g _ _)⁻¹ ⬝
+		    ap02 g (concat_A1p (retr Hf) (sect Hg (f a))⁻¹ ⬝
+			    (ap_compose (inv Hf) f _ ◾  adj Hf a) ⬝
+			    (ap_pp f _ _)⁻¹
+			   ) ⬝
+		    (ap_compose f g _)⁻¹
 	       )
 
   -- Any function equal to an equivalence is an equivlance as well.
@@ -93,34 +93,34 @@ namespace IsEquiv
 
   -- Any function pointwise equal to an equivalence is an equivalence as well.
   definition homotopic (Hf : IsEquiv f) (Heq : f ∼ f') : (IsEquiv f') :=
-    let sect' := (λ b, (Heq (inv Hf b))^ @ retr Hf b) in
-    let retr' := (λ a, (ap (inv Hf) (Heq a))^ @ sect Hf a) in
+    let sect' := (λ b, (Heq (inv Hf b))⁻¹ ⬝ retr Hf b) in
+    let retr' := (λ a, (ap (inv Hf) (Heq a))⁻¹ ⬝ sect Hf a) in
     let adj' := (λ (a : A),
       let ff'a := Heq a in
       let invf := inv Hf in
       let secta := sect Hf a in
       let retrfa := retr Hf (f a) in
       let retrf'a := retr Hf (f' a) in
-      have eq1 : ap f secta @ ff'a ≈ ap f (ap invf ff'a) @ retr Hf (f' a),
-        from calc ap f secta @ ff'a
-              ≈ retrfa @ ff'a : (ap _ (adj Hf _ ))^
-          ... ≈ ap (f ∘ invf) ff'a @ retrf'a : !concat_A1p^
-          ... ≈ ap f (ap invf ff'a) @ retr Hf (f' a) : {ap_compose invf f ff'a},
-      have eq2 : retrf'a ≈ Heq (invf (f' a)) @ ((ap f' (ap invf ff'a))^ @ ap f' secta),
+      have eq1 : _ ≈ _,
+        from calc ap f secta ⬝ ff'a
+              ≈ retrfa ⬝ ff'a : (ap _ (adj Hf _ ))⁻¹
+          ... ≈ ap (f ∘ invf) ff'a ⬝ retrf'a : !concat_A1p⁻¹
+          ... ≈ ap f (ap invf ff'a) ⬝ retr Hf (f' a) : {ap_compose invf f ff'a},
+      have eq2 : _ ≈ _,
         from calc retrf'a
-              ≈ (ap f (ap invf ff'a))^ @ (ap f secta @ ff'a) : moveL_Vp _ _ _ (eq1^)
-          ... ≈ ap f (ap invf ff'a)^ @ (ap f secta @ Heq a) : {ap_V invf ff'a}
-          ... ≈ ap f (ap invf ff'a)^ @ (Heq (invf (f a)) @ ap f' secta) : {!concat_Ap}
-          ... ≈ ap f (ap invf ff'a)^ @ Heq (invf (f a)) @ ap f' secta : {!concat_pp_p^}
-          ... ≈ ap f ((ap invf ff'a)^) @ Heq (invf (f a)) @ ap f' secta : {!ap_V^}
-          ... ≈ Heq (invf (f' a)) @ ap f' ((ap invf ff'a)^) @ ap f' secta : {!concat_Ap}
-          ... ≈ Heq (invf (f' a)) @ (ap f' (ap invf ff'a))^ @ ap f' secta : {!ap_V}
-          ... ≈ Heq (invf (f' a)) @ ((ap f' (ap invf ff'a))^ @ ap f' secta) : !concat_pp_p,
-      have eq3 : (Heq (invf (f' a)))^ @ retr Hf (f' a) ≈ ap f' ((ap invf ff'a)^ @ secta),
-        from calc (Heq (invf (f' a)))^ @ retr Hf (f' a)
-              ≈ (ap f' (ap invf ff'a))^ @ ap f' secta : moveR_Vp _ _ _ eq2
-          ... ≈ (ap f' ((ap invf ff'a)^)) @ ap f' secta : {!ap_V^}
-          ... ≈ ap f' ((ap invf ff'a)^ @ secta) : !ap_pp^,
+              ≈ (ap f (ap invf ff'a))⁻¹ ⬝ (ap f secta ⬝ ff'a) : moveL_Vp _ _ _ (eq1⁻¹)
+          ... ≈ ap f (ap invf ff'a)⁻¹ ⬝ (ap f secta ⬝ Heq a) : {ap_V invf ff'a}
+          ... ≈ ap f (ap invf ff'a)⁻¹ ⬝ (Heq (invf (f a)) ⬝ ap f' secta) : {!concat_Ap}
+          ... ≈ (ap f (ap invf ff'a)⁻¹ ⬝ Heq (invf (f a))) ⬝ ap f' secta : {!concat_pp_p⁻¹}
+          ... ≈ (ap f ((ap invf ff'a)⁻¹) ⬝ Heq (invf (f a))) ⬝ ap f' secta : {!ap_V⁻¹}
+          ... ≈ (Heq (invf (f' a)) ⬝ ap f' ((ap invf ff'a)⁻¹)) ⬝ ap f' secta : {!concat_Ap}
+          ... ≈ (Heq (invf (f' a)) ⬝ (ap f' (ap invf ff'a))⁻¹) ⬝ ap f' secta : {!ap_V}
+          ... ≈ Heq (invf (f' a)) ⬝ ((ap f' (ap invf ff'a))⁻¹ ⬝ ap f' secta) : !concat_pp_p,
+      have eq3 : _ ≈ _,
+        from calc (Heq (invf (f' a)))⁻¹ ⬝ retr Hf (f' a)
+              ≈ (ap f' (ap invf ff'a))⁻¹ ⬝ ap f' secta : moveR_Vp _ _ _ eq2
+          ... ≈ (ap f' ((ap invf ff'a)⁻¹)) ⬝ ap f' secta : {!ap_V⁻¹}
+          ... ≈ ap f' ((ap invf ff'a)⁻¹ ⬝ secta) : !ap_pp⁻¹,
     eq3) in
   IsEquiv_mk (inv Hf) sect' retr' adj'
                
@@ -135,23 +135,23 @@ namespace IsEquiv
     homotopic (comp_closed Hgf (inv_closed Hg)) (λa, sect Hg (f a))
 
   definition transport (P : A → Type) {x y : A} (p : x ≈ y) : (IsEquiv (transport P p)) :=
-    IsEquiv_mk (transport P (p^)) (transport_pV P p) (transport_Vp P p) (transport_pVp P p)
+    IsEquiv_mk (transport P (p⁻¹)) (transport_pV P p) (transport_Vp P p) (transport_pVp P p)
 
   --Rewrite rules
   section
   variables {Hf : IsEquiv f}
   
   definition moveR_M {x : A} {y : B} (p : x ≈ (inv Hf) y) : (f x ≈ y) :=
-    ap f p @ retr Hf y
+    (ap f p) ⬝ (retr Hf y)
 
   definition moveL_M {x : A} {y : B} (p : (inv Hf) y ≈ x) : (y ≈ f x) :=
-    (moveR_M (p^))^
+    (moveR_M (p⁻¹))⁻¹
 
   definition moveR_V {x : B} {y : A} (p : x ≈ f y) : (inv Hf) x ≈ y :=
-    ap (inv Hf) p @ sect Hf y
+    ap (inv Hf) p ⬝ sect Hf y
 
   definition moveL_V {x : B} {y : A} (p : f y ≈ x) : y ≈ (inv Hf) x :=
-    (moveR_V (p^))^
+    (moveR_V (p⁻¹))⁻¹
   
   end
 
@@ -161,7 +161,7 @@ namespace Equiv
 
   variables {A B C : Type} (eqf : A ≃ B)
 
-  theorem id : A ≃ A := Equiv_mk id IsEquiv.idIsEquiv
+  theorem id : A ≃ A := Equiv_mk id IsEquiv.id_closed
 
   theorem compose (eqg: B ≃ C) : A ≃ C :=
     Equiv_mk ((equiv_fun eqg) ∘ (equiv_fun eqf))

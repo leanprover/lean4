@@ -1,0 +1,206 @@
+* Introduction
+
+- Lean is a new automated/interactive theorem prover.
+
+- It is a powerful system for
+  - reasoning about complex systems
+  - reasoning about mathematics
+  - proving claims about both
+
+- It aims to bring the automated and interactive theorem proving worlds together.
+
+* Big picture
+
+- Proving should be as easy as programming.
+  - We can teach logic to any kid that knows how to program.
+
+- Lean as a new engine for software verification tools.
+  - Lean offers a much richer language.
+  - We offer multiple APIs (C/C++, Lua, Lean, Javascript).
+
+- Impact on education.
+  - We want to have a "live" and formalized version of Euclid's Elements (book 1).
+  - _Natural deduction_ style proofs are like _flowcharts_, they should be "eradicated".
+
+- Revolutionize mathematics.
+
+* The logical framework
+
+- Lean's default logical framework is a version of the *Calculus of Constructions* with:
+  - an impredicative, proof irrelevant type `Prop` of propositions.
+  - a non-cumulative hierarchy of universes `Type 1`, `Type 2`, ... above `Prop`
+  - universe polymorphism
+  - inductively defined types
+
+- Features
+  - the kernel is *constructive*
+  - smooth support for *classical* logic
+  - support for Homotopy Type Theory (HoTT)
+
+* Reasoning about abstractions
+
+- At CMU, Jeremy Avigad, Floris van Doorn and Jakob von Raumer are formalizing
+  Category theory and Homotopy type theory using Lean.
+
+- Why this relevant?
+  - It is stressing all lean major components.
+  - _If we can do it, then we can do anything._
+  - _Test if we can reason about higher-level abstractions._
+  - In CS, we also want to reason about higher-level abstractions.
+
+* Constructive and classical logic
+
+- Almost everything we do is constructive, but we want to support _classical_ users
+smoothly.
+
+#+BEGIN_SRC lean
+inductive decidable [class] (p : Prop) : Type :=
+inl : p  → decidable p,
+inr : ¬p → decidable p
+#+END_SRC
+
+- `decidable` is the _type class_ of decidable propositions.
+
+- The excluded middle is a theorem for decidable propositions.
+
+#+BEGIN_SRC lean
+theorem em (p : Prop) [H : decidable p] : p ∨ ¬p :=
+induction_on H (assume Hp, or.inl Hp) (assume Hnp, or.inr Hnp)
+#+END_SRC
+
+- The `[...]` instructs lean that `H : decidable p` is an _implicit argument_,
+and it should be synthesized automatically using type-class instantiation
+
+- We have populated the lean standard library with many decidability results.
+Example: the conjunction of two decidable propositions is decidable
+#+BEGIN_SRC lean
+variables p q : Prop
+definition and_decidable [instance] (Hp : decidable p) (Hq : decidable q) : decidable (p ∧ q) :=
+rec_on Hp
+  (assume Hp  : p, rec_on Hq
+    (assume Hq  : q,  inl (and.intro Hp Hq))
+    (assume Hnq : ¬q, inr (and.not_right p Hnq)))
+  (assume Hnp : ¬p, inr (and.not_left q Hnp))
+#+END_SRC
+
+#+BEGIN_SRC lean
+definition decidable_eq (A : Type) := Π (a b : A), decidable (a = b)
+
+protected definition nat.has_decidable_eq [instance] : decidable_eq ℕ :=
+take n m : ℕ,
+...
+#+END_SRC
+
+- We define `if-then-else` expressions as
+
+#+BEGIN_SRC lean
+definition ite (c : Prop) [H : decidable c] {A : Type} (t e : A) : A :=
+decidable.rec_on H (assume Hc,  t) (assume Hnc, e)
+
+notation `if` c `then` t:45 `else` e:45 := ite c t e
+#+END_SRC
+
+Lean will only allow us to use `if-then-else` for decidable propositions.
+By default, it will try to prove decidability using type-class resolution.
+If we write
+
+#+BEGIN_SRC lean
+import standard
+open nat decidable
+
+variables a b : nat
+check if a = b ∧ a > 0 then a else b
+#+END_SRC
+
+Lean automatically synthesizes the implicit argument `H : decidable c`.
+
+```
+(and_decidable (nat.has_decidable_eq a b) (ge_decidable a (succ 0)))
+```
+
+# Note: we can see this argument by setting options
+# set_option pp.notation false
+# set_option pp.implicit true
+
+- When we import the classical axioms, then we can prove that *all propositions are decidable*.
+#+BEGIN_SRC lean
+theorem prop_decidable [instance] (a : Prop) : decidable a
+#+END_SRC
+
+Moreover, we can write arbitrary `if-then-else` expressions.
+#+BEGIN_SRC lean
+if riemman_hypothesis then t else e
+#+END_SRC
+
+* Lean interfaces
+...
+
+* Future work
+
+- Definitional package: convert "recursive equations" into recursors.
+The user wants to write
+
+#+BEGIN_SRC lean
+append : list A → list A → list A
+append nil      t = t
+append (x :: l) t = x :: (append l t)
+#+END_SRC
+
+instead of
+
+#+BEGIN_SRC lean
+definition append (s t : list A) : list A :=
+rec_on s
+  t
+  (λx l u, x::u)
+#+END_SRC
+
+- Automation
+  - Simplifier
+  - SMT-like engines
+  - Arithmetic
+
+* Future work (cont.)
+
+- Next semester, we will have a course on theorem proving based on Lean at CMU
+
+- Tutorial at CADE
+
+* Example
+#+BEGIN_SRC lean
+import algebra.category
+open eq.ops category functor natural_transformation
+
+variables {ob₁ ob₂ : Type} {C : category ob₁} {D : category ob₂} {F G H : C ⇒ D}
+
+-- infix `↣`:20 := hom
+
+-- F G H are functors
+-- η θ are natural transformations
+
+-- A natural transformation provides a way of transforming one functor
+-- into another while respecting the internal structure.
+-- A natural transformation can be considered to be a "morphism of functors".
+
+-- http://en.wikipedia.org/wiki/Natural_transformation
+
+definition nt_compose (η : G ⟹ H) (θ : F ⟹ G) : F ⟹ H :=
+natural_transformation.mk
+  (take a, η a ∘ θ a)
+  (take a b f, calc
+    H f ∘ (η a ∘ θ a) = (H f ∘ η a) ∘ θ a : !assoc
+                  ... = (η b ∘ G f) ∘ θ a : {naturality η f}
+                  ... = η b ∘ (G f ∘ θ a) : !assoc⁻¹
+                  ... = η b ∘ (θ b ∘ F f) : {naturality θ f} -- {@naturality _ _ _ _ _ _ θ _ _ f}
+                  ... = (η b ∘ θ b) ∘ F f : !assoc)
+
+-- check nt_compose
+-- check @nt_compose
+exit
+set_option pp.implicit true
+set_option pp.full_names true
+set_option pp.notation false
+set_option pp.coercions true
+-- set_option pp.universes true
+print definition nt_compose
+#+END_SRC

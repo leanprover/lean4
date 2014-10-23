@@ -339,14 +339,6 @@ void initialize_expr_to_tactic() {
                      [](tactic const & t1, tactic const & t2) { return orelse(t1, t2); });
     register_unary_tac(repeat_tac_name,
                        [](tactic const & t1) { return repeat(t1); });
-    register_tac(name(*g_tactic_name, "unfold"),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     expr id = get_app_fn(app_arg(e));
-                     if (!is_constant(id))
-                         return fail_tactic();
-                     else
-                         return unfold_tactic(const_name(id));
-                 });
     register_unary_num_tac(name(*g_tactic_name, "at_most"),
                            [](tactic const & t, unsigned k) { return take(t, k); });
     register_unary_num_tac(name(*g_tactic_name, "discard"),

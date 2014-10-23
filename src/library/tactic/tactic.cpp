@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
-#include "library/replace_visitor.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/tactic.h"
 #include "library/io_state_stream.h"
@@ -239,110 +238,6 @@ tactic focus(tactic const & t, unsigned i) {
         });
 }
 
-class unfold_core_fn : public replace_visitor {
-protected:
-    bool m_unfolded;
-
-    virtual expr visit_app(expr const & e) {
-        expr const & f = get_app_fn(e);
-        if (is_constant(f)) {
-            expr new_f = visit(f);
-            bool modified = new_f != f;
-            buffer<expr> new_args;
-            get_app_args(e, new_args);
-            for (unsigned i = 0; i < new_args.size(); i++) {
-                expr arg    = new_args[i];
-                new_args[i] = visit(arg);
-                if (!modified && new_args[i] != arg)
-                    modified = true;
-            }
-            if (is_lambda(new_f)) {
-                std::reverse(new_args.begin(), new_args.end());
-                return apply_beta(new_f, new_args.size(), new_args.data());
-            } else if (modified) {
-                return mk_app(new_f, new_args);
-            } else {
-                return e;
-            }
-        } else {
-            return replace_visitor::visit_app(e);
-        }
-    }
-public:
-    unfold_core_fn():m_unfolded(false) {}
-    bool unfolded() const { return m_unfolded; }
-};
-
-class unfold_fn : public unfold_core_fn {
-protected:
-    name const &              m_name;
-    level_param_names const & m_ps;
-    expr const &              m_def;
-
-    virtual expr visit_constant(expr const & c) {
-        if (const_name(c) == m_name) {
-            m_unfolded = true;
-            return instantiate_univ_params(m_def, m_ps, const_levels(c));
-        } else {
-            return c;
-        }
-    }
-
-public:
-    unfold_fn(name const & n, level_param_names const & ps, expr const & d):m_name(n), m_ps(ps), m_def(d) {}
-};
-
-class unfold_all_fn : public unfold_core_fn {
-protected:
-    environment m_env;
-
-    virtual expr visit_constant(expr const & c) {
-        optional<declaration> d = m_env.find(const_name(c));
-        if (d && d->is_definition() && (!d->is_opaque() || d->get_module_idx() == 0)) {
-            m_unfolded = true;
-            return instantiate_value_univ_params(*d, const_levels(c));
-        } else {
-            return c;
-        }
-    }
-
-public:
-    unfold_all_fn(environment const & env):m_env(env) {}
-};
-
-optional<proof_state> unfold_tactic_core(unfold_core_fn & fn, proof_state const & s) {
-    bool reduced = false;
-    goals new_gs = map_goals(s, [&](goal const & g) -> optional<goal> {
-            expr new_meta = fn(g.get_meta());
-            expr new_type = fn(g.get_type());
-            if (new_meta != g.get_meta() || new_type != g.get_type())
-                reduced = true;
-            return some(goal(new_meta, new_type));
-        });
-    if (reduced) {
-        return some(proof_state(s, new_gs));
-    } else {
-        return none_proof_state();
-    }
-}
-
-tactic unfold_tactic(name const & n) {
-    return tactic01([=](environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
-            optional<declaration> d = env.find(n);
-            if (!d || !d->is_definition() || (d->is_opaque() && d->get_module_idx() != 0))
-                return none_proof_state(); // tactic failed
-            unfold_fn fn(n, d->get_univ_params(), d->get_value());
-            return unfold_tactic_core(fn, s);
-        });
-}
-
-tactic unfold_tactic() {
-    return tactic01([=](environment const & env, io_state const &, proof_state const & s) -> optional<proof_state> {
-            unfold_all_fn fn(env);
-            return unfold_tactic_core(fn, s);
-        });
-}
-
 DECL_UDATA(proof_state_seq)
 static const struct luaL_Reg proof_state_seq_m[] = {
     {"__gc",            proof_state_seq_gc}, // never throws
@@ -464,13 +359,6 @@ static int mk_id_tactic(lua_State * L)          {  return push_tactic(L, id_tact
 static int mk_now_tactic(lua_State * L)         {  return push_tactic(L, now_tactic()); }
 static int mk_fail_tactic(lua_State * L)        {  return push_tactic(L, fail_tactic()); }
 static int mk_assumption_tactic(lua_State * L)  {  return push_tactic(L, assumption_tactic()); }
-static int mk_unfold_tactic(lua_State * L)      {
-    int nargs = lua_gettop(L);
-    if (nargs == 0)
-        return push_tactic(L, unfold_tactic());
-    else
-        return push_tactic(L, unfold_tactic(to_name_ext(L, 1)));
-}
 static int mk_beta_tactic(lua_State * L) {  return push_tactic(L, beta_tactic()); }
 static const struct luaL_Reg tactic_m[] = {
     {"__gc",            tactic_gc}, // never throws
@@ -510,7 +398,6 @@ void open_tactic(lua_State * L) {
     SET_GLOBAL_FUN(mk_now_tactic,         "now_tac");
     SET_GLOBAL_FUN(mk_fail_tactic,        "fail_tac");
     SET_GLOBAL_FUN(mk_assumption_tactic,  "assumption_tac");
-    SET_GLOBAL_FUN(mk_unfold_tactic,      "unfold_tac");
     SET_GLOBAL_FUN(mk_beta_tactic,        "beta_tac");
     SET_GLOBAL_FUN(mk_lua_tactic01,       "tactic01");
 

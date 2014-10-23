@@ -901,7 +901,7 @@ optional<expr> elaborator::get_pre_tactic_for(substitution & subst, expr const &
     }
 }
 
-optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac, expr const & mvar) {
+optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
     try {
         bool relax = m_relax_main_opaque;
         auto fn = [=](goal const & g, name_generator const & ngen, expr const & e) {
@@ -914,7 +914,8 @@ optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac, expr con
         return optional<tactic>(expr_to_tactic(env(), fn, pre_tac, pip()));
     } catch (expr_to_tactic_exception & ex) {
         auto out = regular(env(), ios());
-        display_error_pos(out, pip(), mvar);
+        flycheck_error err(out);
+        display_error_pos(out, pip(), ex.get_expr());
         out << " " << ex.what();
         out << pp_indent_expr(out.get_formatter(), pre_tac) << endl << "failed at:"
             << pp_indent_expr(out.get_formatter(), ex.get_expr()) << endl;
@@ -924,7 +925,7 @@ optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac, expr con
 
 optional<tactic> elaborator::get_local_tactic_hint(substitution & subst, expr const & mvar, name_set & visited) {
     if (auto pre_tac = get_pre_tactic_for(subst, mvar, visited)) {
-        return pre_tactic_to_tactic(*pre_tac, mvar);
+        return pre_tactic_to_tactic(*pre_tac);
     } else {
         return optional<tactic>();
     }
@@ -990,7 +991,7 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
     } else if (m_use_tactic_hints) {
         // using tactic_hints
         for (expr const & pre_tac : get_tactic_hints(env())) {
-            if (auto tac = pre_tactic_to_tactic(pre_tac, mvar)) {
+            if (auto tac = pre_tactic_to_tactic(pre_tac)) {
                 bool show_failure = false;
                 if (try_using(subst, mvar, ps, *tac, show_failure))
                     return;

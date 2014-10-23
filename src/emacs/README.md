@@ -56,7 +56,7 @@ Put the following elisp code on your emacs setup (e.g. ``.emacs.d/init.el``):
     (when (not (package-installed-p p))
       (when need-to-refresh
         (package-refresh-contents)
-        (set need-to-refresh nil))
+        (setq need-to-refresh nil))
       (package-install p))))
 
 ;; Set up lean-root path

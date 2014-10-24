@@ -123,10 +123,59 @@ namespace IsEquiv
           ... ≈ ap f' ((ap invf ff'a)⁻¹ ⬝ secta) : !ap_pp⁻¹,
     eq3) in
   IsEquiv_mk (inv Hf) sect' retr' adj'
+end IsEquiv
 
-  --TODO: Maybe wait until rewrite rules are available.
-  definition inv_closed (Hf : IsEquiv f) : (IsEquiv (inv Hf)) :=
-    sorry -- IsEquiv_mk sorry sorry sorry sorry
+namespace IsEquiv
+
+  variables {A B : Type} (f : A → B) (g : B → A)
+            (retr : Sect g f) (sect : Sect f g)
+
+  --To construct an equivalence it suffices to state the proof that the inverse is a quasi-inverse.
+  definition adjointify : IsEquiv f :=
+    let sect' := (λx, ap g (ap f ((sect x)⁻¹))  ⬝  ap g (retr (f x))  ⬝  sect x) in
+    let adj' := (λ (a : A),
+      let fgretrfa := ap f (ap g (retr (f a))) in
+      let fgfinvsect := ap f (ap g (ap f ((sect a)⁻¹))) in
+      let fgfa := f (g (f a)) in
+      let retrfa := retr (f a) in
+      have eq1 : ap f (sect a) ≈ _,
+        from calc ap f (sect a)
+              ≈ idp ⬝ ap f (sect a) : !concat_1p⁻¹
+          ... ≈ (retr (f a) ⬝ (retr (f a)⁻¹)) ⬝ ap f (sect a) : {!concat_pV⁻¹}
+          ... ≈ ((retr (fgfa))⁻¹ ⬝ ap (f ∘ g) (retr (f a))) ⬝ ap f (sect a) : {!concat_pA1⁻¹}
+          ... ≈ ((retr (fgfa))⁻¹ ⬝ fgretrfa) ⬝ ap f (sect a) : {ap_compose g f _}
+          ... ≈ (retr (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sect a)) : !concat_pp_p,
+      have eq2 : ap f (sect a) ⬝ idp ≈ (retr (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sect a)),
+        from !concat_p1 ▹ eq1,
+      have eq3 : idp ≈ _,
+        from calc idp
+              ≈ (ap f (sect a))⁻¹ ⬝ ((retr (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sect a))) : moveL_Vp _ _ _ eq2
+          ... ≈ (ap f (sect a)⁻¹ ⬝ (retr (fgfa))⁻¹) ⬝ (fgretrfa ⬝ ap f (sect a)) : !concat_p_pp
+          ... ≈ (ap f ((sect a)⁻¹) ⬝ (retr (fgfa))⁻¹) ⬝ (fgretrfa ⬝ ap f (sect a)) : {!ap_V⁻¹}
+          ... ≈ ((ap f ((sect a)⁻¹) ⬝ (retr (fgfa))⁻¹) ⬝ fgretrfa) ⬝ ap f (sect a) : !concat_p_pp
+          ... ≈ ((retrfa⁻¹ ⬝ ap (f ∘ g) (ap f ((sect a)⁻¹))) ⬝ fgretrfa) ⬝ ap f (sect a) : {!concat_pA1⁻¹}
+          ... ≈ ((retrfa⁻¹ ⬝ fgfinvsect) ⬝ fgretrfa) ⬝ ap f (sect a) : {ap_compose g f _}
+          ... ≈ (retrfa⁻¹ ⬝ (fgfinvsect ⬝ fgretrfa)) ⬝ ap f (sect a) : {!concat_p_pp⁻¹}
+          ... ≈ retrfa⁻¹ ⬝ ap f (ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ ap f (sect a) : {!ap_pp⁻¹}
+          ... ≈ retrfa⁻¹ ⬝ (ap f (ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ ap f (sect a)) : !concat_p_pp⁻¹
+          ... ≈ retrfa⁻¹ ⬝ ap f ((ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ sect a) : {!ap_pp⁻¹},
+      have eq4 : retr (f a) ≈ ap f ((ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ sect a),
+        from moveR_M1 _ _ eq3,
+      eq4) in
+    IsEquiv_mk g retr sect' adj'
+end IsEquiv
+
+namespace IsEquiv
+  variables {A B: Type} {f : A → B} (Hf : IsEquiv f)
+
+  --The inverse of an equivalence is, again, an equivalence.
+  definition inv_closed : (IsEquiv (inv Hf)) :=
+    adjointify (inv Hf) f (sect Hf) (retr Hf)
+
+end IsEquiv
+
+namespace IsEquiv
+  variables {A B C : Type} {f : A → B} {g : B → C} {f' : A → B}
 
   definition cancel_R (Hf : IsEquiv f) (Hgf : IsEquiv (g ∘ f)) : (IsEquiv g) :=
     homotopic (comp_closed (inv_closed Hf) Hgf) (λb, ap g (retr Hf b))
@@ -158,7 +207,6 @@ namespace IsEquiv
 end IsEquiv
 
 namespace Equiv
-
   variables {A B C : Type} (eqf : A ≃ B)
 
   theorem id : A ≃ A := Equiv_mk id IsEquiv.id_closed
@@ -166,8 +214,6 @@ namespace Equiv
   theorem compose (eqg: B ≃ C) : A ≃ C :=
     Equiv_mk ((equiv_fun eqg) ∘ (equiv_fun eqf))
              (IsEquiv.comp_closed (equiv_isequiv eqf) (equiv_isequiv eqg))
-
-  check IsEquiv.path_closed
 
   theorem path_closed (f' : A → B) (Heq : equiv_fun eqf ≈ f') : A ≃ B :=
     Equiv_mk f' (IsEquiv.path_closed (equiv_isequiv eqf) Heq)
@@ -187,43 +233,3 @@ namespace Equiv
     Equiv_mk (transport P p) (IsEquiv.transport P p)
 
 end Equiv
-
-namespace IsEquiv
-
-variables {A B : Type} (f : A → B) (g : B → A)
-  (retr : Sect g f) (sect : Sect f g)
-
-definition adjointify : IsEquiv f :=
-  let sect' := (λx, ap g (ap f ((sect x)⁻¹))  ⬝  ap g (retr (f x))  ⬝  sect x) in
-  let adj' := (λ (a : A),
-    let fgretrfa := ap f (ap g (retr (f a))) in
-    let fgfinvsect := ap f (ap g (ap f ((sect a)⁻¹))) in
-    let fgfa := f (g (f a)) in
-    let retrfa := retr (f a) in
-    have eq1 : ap f (sect a) ≈ _,
-      from calc ap f (sect a) 
-            ≈ idp ⬝ ap f (sect a) : !concat_1p⁻¹
-        ... ≈ (retr (f a) ⬝ (retr (f a)⁻¹)) ⬝ ap f (sect a) : {!concat_pV⁻¹}
-        ... ≈ ((retr (fgfa))⁻¹ ⬝ ap (f ∘ g) (retr (f a))) ⬝ ap f (sect a) : {!concat_pA1⁻¹}
-        ... ≈ ((retr (fgfa))⁻¹ ⬝ fgretrfa) ⬝ ap f (sect a) : {ap_compose g f _}
-        ... ≈ (retr (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sect a)) : !concat_pp_p,
-    have eq2 : ap f (sect a) ⬝ idp ≈ (retr (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sect a)),
-      from !concat_p1 ▹ eq1,
-    have eq3 : idp ≈ _,
-      from calc idp
-            ≈ (ap f (sect a))⁻¹ ⬝ ((retr (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sect a))) : moveL_Vp _ _ _ eq2
-        ... ≈ (ap f (sect a)⁻¹ ⬝ (retr (fgfa))⁻¹) ⬝ (fgretrfa ⬝ ap f (sect a)) : !concat_p_pp
-        ... ≈ (ap f ((sect a)⁻¹) ⬝ (retr (fgfa))⁻¹) ⬝ (fgretrfa ⬝ ap f (sect a)) : {!ap_V⁻¹}
-        ... ≈ ((ap f ((sect a)⁻¹) ⬝ (retr (fgfa))⁻¹) ⬝ fgretrfa) ⬝ ap f (sect a) : !concat_p_pp
-        ... ≈ ((retrfa⁻¹ ⬝ ap (f ∘ g) (ap f ((sect a)⁻¹))) ⬝ fgretrfa) ⬝ ap f (sect a) : {!concat_pA1⁻¹}
-        ... ≈ ((retrfa⁻¹ ⬝ fgfinvsect) ⬝ fgretrfa) ⬝ ap f (sect a) : {ap_compose g f _}
-        ... ≈ (retrfa⁻¹ ⬝ (fgfinvsect ⬝ fgretrfa)) ⬝ ap f (sect a) : {!concat_p_pp⁻¹}
-        ... ≈ retrfa⁻¹ ⬝ ap f (ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ ap f (sect a) : {!ap_pp⁻¹}
-        ... ≈ retrfa⁻¹ ⬝ (ap f (ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ ap f (sect a)) : !concat_p_pp⁻¹
-        ... ≈ retrfa⁻¹ ⬝ ap f ((ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ sect a) : {!ap_pp⁻¹},
-    have eq4 : retr (f a) ≈ ap f ((ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ sect a),
-      from moveR_M1 _ _ eq3,
-    eq4) in
-  IsEquiv_mk g retr sect' adj'
-
-end IsEquiv

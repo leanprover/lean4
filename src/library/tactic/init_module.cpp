@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/tactic/trace_tactic.h"
 #include "library/tactic/exact_tactic.h"
 #include "library/tactic/unfold_tactic.h"
+#include "library/tactic/generalize_tactic.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -23,9 +24,11 @@ void initialize_tactic_module() {
     initialize_trace_tactic();
     initialize_exact_tactic();
     initialize_unfold_tactic();
+    initialize_generalize_tactic();
 }
 
 void finalize_tactic_module() {
+    finalize_generalize_tactic();
     finalize_unfold_tactic();
     finalize_exact_tactic();
     finalize_trace_tactic();

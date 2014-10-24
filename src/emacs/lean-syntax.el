@@ -119,7 +119,7 @@
      ;; tactics
      (,(rx (not (any "\.")) word-start
            (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "rapply" "apply" "rename" "intro" "intros"
-               "back" "beta" "done" "exact" "repeat")
+               "generalize" "back" "beta" "done" "exact" "repeat")
            word-end)
       . 'font-lock-constant-face)
      ;; Types

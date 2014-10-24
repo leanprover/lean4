@@ -1,0 +1,56 @@
+/*
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#include "kernel/abstract.h"
+#include "library/reducible.h"
+#include "library/tactic/elaborate.h"
+#include "library/tactic/expr_to_tactic.h"
+
+namespace lean {
+tactic generalize_tactic(elaborate_fn const & elab, expr const & e, name const & x) {
+    return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
+            proof_state new_s = s;
+            if (auto new_e = elaborate_with_respect_to(env, ios, elab, new_s, e)) {
+                name_generator ngen = new_s.get_ngen();
+                substitution subst  = new_s.get_subst();
+                goals const & gs    = new_s.get_goals();
+                goal const & g      = head(gs);
+                auto tc     = mk_type_checker(env, ngen.mk_child());
+                auto e_t_cs = tc->infer(*new_e);
+                if (e_t_cs.second)
+                    return none_proof_state(); // constraints were generated
+                expr e_t    = e_t_cs.first;
+                expr t      = subst.instantiate(g.get_type());
+                name n;
+                if (is_constant(e))
+                    n = const_name(e);
+                else if (is_local(e))
+                    n = local_pp_name(e);
+                else
+                    n = x;
+                expr new_t = mk_pi(n, e_t, abstract(t, *new_e));
+                expr new_m = g.mk_meta(ngen.next(), new_t);
+                expr new_v = g.abstract(mk_app(new_m, *new_e));
+                subst.assign(g.get_name(), new_v);
+                goal new_g(new_m, new_t);
+                return some(proof_state(new_s, goals(new_g, tail(gs)), subst, ngen));
+            }
+            return none_proof_state();
+        });
+}
+
+void initialize_generalize_tactic() {
+    register_tac(name({"tactic", "generalize"}),
+                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                     check_tactic_expr(app_arg(e), "invalid 'generalize' tactic, invalid argument");
+                     // TODO(Leo): allow user to provide name to abstract variable
+                     return generalize_tactic(fn, get_tactic_expr_expr(app_arg(e)), "x");
+                 });
+}
+
+void finalize_generalize_tactic() {
+}
+}

@@ -358,6 +358,8 @@ void initialize_expr_to_tactic() {
 }
 
 void finalize_expr_to_tactic() {
+    delete g_expr_list_cons;
+    delete g_expr_list_nil;
     delete g_tactic_expr_type;
     delete g_tactic_expr_builtin;
     delete g_tactic_expr_name;

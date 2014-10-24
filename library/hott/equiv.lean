@@ -105,7 +105,7 @@ namespace IsEquiv
         from calc ap f secta ⬝ ff'a
               ≈ retrfa ⬝ ff'a : (ap _ (adj Hf _ ))⁻¹
           ... ≈ ap (f ∘ invf) ff'a ⬝ retrf'a : !concat_A1p⁻¹
-          ... ≈ ap f (ap invf ff'a) ⬝ retr Hf (f' a) : {ap_compose invf f ff'a},
+          ... ≈ ap f (ap invf ff'a) ⬝ retr Hf (f' a) : {ap_compose invf f _},
       have eq2 : _ ≈ _,
         from calc retrf'a
               ≈ (ap f (ap invf ff'a))⁻¹ ⬝ (ap f secta ⬝ ff'a) : moveL_Vp _ _ _ (eq1⁻¹)
@@ -205,7 +205,7 @@ definition adjointify : IsEquiv f :=
             ≈ idp ⬝ ap f (sect a) : !concat_1p⁻¹
         ... ≈ (retr (f a) ⬝ (retr (f a)⁻¹)) ⬝ ap f (sect a) : {!concat_pV⁻¹}
         ... ≈ ((retr (fgfa))⁻¹ ⬝ ap (f ∘ g) (retr (f a))) ⬝ ap f (sect a) : {!concat_pA1⁻¹}
-        ... ≈ ((retr (fgfa))⁻¹ ⬝ fgretrfa) ⬝ ap f (sect a) : sorry --{!ap_compose⁻¹},
+        ... ≈ ((retr (fgfa))⁻¹ ⬝ fgretrfa) ⬝ ap f (sect a) : {ap_compose g f _}
         ... ≈ (retr (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sect a)) : !concat_pp_p,
     have eq2 : ap f (sect a) ⬝ idp ≈ (retr (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sect a)),
       from !concat_p1 ▹ eq1,
@@ -216,7 +216,7 @@ definition adjointify : IsEquiv f :=
         ... ≈ (ap f ((sect a)⁻¹) ⬝ (retr (fgfa))⁻¹) ⬝ (fgretrfa ⬝ ap f (sect a)) : {!ap_V⁻¹}
         ... ≈ ((ap f ((sect a)⁻¹) ⬝ (retr (fgfa))⁻¹) ⬝ fgretrfa) ⬝ ap f (sect a) : !concat_p_pp
         ... ≈ ((retrfa⁻¹ ⬝ ap (f ∘ g) (ap f ((sect a)⁻¹))) ⬝ fgretrfa) ⬝ ap f (sect a) : {!concat_pA1⁻¹}
-        ... ≈ ((retrfa⁻¹ ⬝ fgfinvsect) ⬝ fgretrfa) ⬝ ap f (sect a) : sorry --{!ap_compose⁻¹}
+        ... ≈ ((retrfa⁻¹ ⬝ fgfinvsect) ⬝ fgretrfa) ⬝ ap f (sect a) : {ap_compose g f _}
         ... ≈ (retrfa⁻¹ ⬝ (fgfinvsect ⬝ fgretrfa)) ⬝ ap f (sect a) : {!concat_p_pp⁻¹}
         ... ≈ retrfa⁻¹ ⬝ ap f (ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ ap f (sect a) : {!ap_pp⁻¹}
         ... ≈ retrfa⁻¹ ⬝ (ap f (ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ ap f (sect a)) : !concat_p_pp⁻¹

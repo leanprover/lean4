@@ -187,3 +187,43 @@ namespace Equiv
     Equiv_mk (transport P p) (IsEquiv.transport P p)
 
 end Equiv
+
+namespace IsEquiv
+
+variables {A B : Type} (f : A → B) (g : B → A)
+  (retr : Sect g f) (sect : Sect f g)
+
+definition adjointify : IsEquiv f :=
+  let sect' := (λx, ap g (ap f ((sect x)⁻¹))  ⬝  ap g (retr (f x))  ⬝  sect x) in
+  let adj' := (λ (a : A),
+    let fgretrfa := ap f (ap g (retr (f a))) in
+    let fgfinvsect := ap f (ap g (ap f ((sect a)⁻¹))) in
+    let fgfa := f (g (f a)) in
+    let retrfa := retr (f a) in
+    have eq1 : ap f (sect a) ≈ _,
+      from calc ap f (sect a) 
+            ≈ idp ⬝ ap f (sect a) : !concat_1p⁻¹
+        ... ≈ (retr (f a) ⬝ (retr (f a)⁻¹)) ⬝ ap f (sect a) : {!concat_pV⁻¹}
+        ... ≈ ((retr (fgfa))⁻¹ ⬝ ap (f ∘ g) (retr (f a))) ⬝ ap f (sect a) : {!concat_pA1⁻¹}
+        ... ≈ ((retr (fgfa))⁻¹ ⬝ fgretrfa) ⬝ ap f (sect a) : sorry --{!ap_compose⁻¹},
+        ... ≈ (retr (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sect a)) : !concat_pp_p,
+    have eq2 : ap f (sect a) ⬝ idp ≈ (retr (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sect a)),
+      from !concat_p1 ▹ eq1,
+    have eq3 : idp ≈ _,
+      from calc idp
+            ≈ (ap f (sect a))⁻¹ ⬝ ((retr (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sect a))) : moveL_Vp _ _ _ eq2
+        ... ≈ (ap f (sect a)⁻¹ ⬝ (retr (fgfa))⁻¹) ⬝ (fgretrfa ⬝ ap f (sect a)) : !concat_p_pp
+        ... ≈ (ap f ((sect a)⁻¹) ⬝ (retr (fgfa))⁻¹) ⬝ (fgretrfa ⬝ ap f (sect a)) : {!ap_V⁻¹}
+        ... ≈ ((ap f ((sect a)⁻¹) ⬝ (retr (fgfa))⁻¹) ⬝ fgretrfa) ⬝ ap f (sect a) : !concat_p_pp
+        ... ≈ ((retrfa⁻¹ ⬝ ap (f ∘ g) (ap f ((sect a)⁻¹))) ⬝ fgretrfa) ⬝ ap f (sect a) : {!concat_pA1⁻¹}
+        ... ≈ ((retrfa⁻¹ ⬝ fgfinvsect) ⬝ fgretrfa) ⬝ ap f (sect a) : sorry --{!ap_compose⁻¹}
+        ... ≈ (retrfa⁻¹ ⬝ (fgfinvsect ⬝ fgretrfa)) ⬝ ap f (sect a) : {!concat_p_pp⁻¹}
+        ... ≈ retrfa⁻¹ ⬝ ap f (ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ ap f (sect a) : {!ap_pp⁻¹}
+        ... ≈ retrfa⁻¹ ⬝ (ap f (ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ ap f (sect a)) : !concat_p_pp⁻¹
+        ... ≈ retrfa⁻¹ ⬝ ap f ((ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ sect a) : {!ap_pp⁻¹},
+    have eq4 : retr (f a) ≈ ap f ((ap g (ap f ((sect a)⁻¹)) ⬝ ap g (retr (f a))) ⬝ sect a),
+      from moveR_M1 _ _ eq3,
+    eq4) in
+  IsEquiv_mk g retr sect' adj'
+
+end IsEquiv

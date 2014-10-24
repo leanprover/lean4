@@ -1,0 +1,22 @@
+VISIT apply_info.lean
+SYNC 17
+import logic
+theorem tst1 (a b : Prop) : a → b → a ∧ b :=
+begin
+ intro Ha,
+ intro Hb,
+ apply and.intro,
+ apply Ha,
+ apply Hb,
+end
+
+theorem tst2 (a b : Prop) : a → b → a ∧ b :=
+assume Ha Hb,
+begin
+ apply and.intro,
+ apply Ha,
+ apply Hb,
+end
+WAIT
+INFO 7
+INFO 16

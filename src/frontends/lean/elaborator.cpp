@@ -1144,7 +1144,7 @@ static expr translate_local_name(environment const & env, list<expr> const & ctx
                                  expr const & src) {
     for (expr const & local : ctx) {
         if (local_pp_name(local) == local_name)
-            return local;
+            return copy(local);
     }
     // TODO(Leo): we should create an elaborator exception.
     // Using kernel_exception here is just a dirty hack.
@@ -1161,12 +1161,14 @@ static expr translate(environment const & env, list<expr> const & ctx, expr cons
             return some_expr(e); // ignore placeholders
         } else if (is_constant(e)) {
             if (!env.find(const_name(e))) {
-                return some_expr(translate_local_name(env, ctx, const_name(e), e));
+                expr new_e = copy_tag(e, translate_local_name(env, ctx, const_name(e), e));
+                return some_expr(new_e);
             } else {
                 return none_expr();
             }
         } else if (is_local(e)) {
-            return some_expr(translate_local_name(env, ctx, local_pp_name(e), e));
+            expr new_e = copy_tag(e, translate_local_name(env, ctx, local_pp_name(e), e));
+            return some_expr(new_e);
         } else {
             return none_expr();
         }

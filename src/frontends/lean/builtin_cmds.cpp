@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include <string>
 #include "util/sstream.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
@@ -181,6 +182,27 @@ environment end_scoped_cmd(parser & p) {
 /** \brief Auxiliary function for check/eval */
 static std::tuple<expr, level_param_names> parse_local_expr(parser & p) {
     expr e   = p.parse_expr();
+    environment const & env = p.env();
+    if (is_constant(e) && !const_levels(e)) {
+        // manually elaborate simple constant using nicer names for meta-variables
+        if (auto decl = env.find(const_name(e))) {
+            levels ls = param_names_to_levels(decl->get_univ_params());
+            e         = mk_constant(const_name(e), ls);
+            expr type = instantiate_type_univ_params(*decl, ls);
+            while (true) {
+                if (!is_pi(type))
+                    break;
+                if (is_explicit(binding_info(type)))
+                    break;
+                std::string q("?");
+                q += binding_name(type).to_string();
+                expr m = mk_local(name(q.c_str()), binding_domain(type));
+                type   = instantiate(binding_body(type), m);
+                e      = mk_app(e, m);
+            }
+            return std::make_tuple(e, decl->get_univ_params());
+        }
+    }
     list<expr> ctx = p.locals_to_context();
     level_param_names new_ls;
     std::tie(e, new_ls) = p.elaborate_relaxed(e, ctx);

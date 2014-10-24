@@ -321,7 +321,7 @@ name const & get_end_tk() { return *g_end; }
 name const & get_definition_tk() { return *g_definition; }
 name const & get_theorem_tk() { return *g_theorem; }
 name const & get_axiom_tk() { return *g_axiom; }
-name const & get_axioms_tk() { return *g_axiom; }
+name const & get_axioms_tk() { return *g_axioms; }
 name const & get_variable_tk() { return *g_variable; }
 name const & get_variables_tk() { return *g_variables; }
 name const & get_opaque_tk() { return *g_opaque; }

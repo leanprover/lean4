@@ -1,0 +1,2 @@
+funext : ∀ {A : Type} {B : A → Type} {f g : Π (x : A), B x}, (∀ (x : A), f x = g x) → f = g
+strong_indefinite_description : Π {A : Type} (P : A → Prop), nonempty A → { (x : A), (∃ (x : A), P x) → P x }

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
+#include "kernel/inductive/inductive.h"
 #include "library/io_state_stream.h"
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
@@ -51,6 +52,23 @@ static void print_coercions(parser & p, optional<name> const & C) {
             if (!C || *C == C1)
                 out << C1 << " " << arrow << " [fun-class] : " << c << endl;
         });
+}
+
+static void print_axioms(parser & p) {
+    bool has_axioms = false;
+    environment const & env = p.env();
+    env.for_each_declaration([&](declaration const & d) {
+            name const & n = d.get_name();
+            if (!d.is_definition() &&
+                !inductive::is_inductive_decl(env, n) &&
+                !inductive::is_elim_rule(env, n) &&
+                !inductive::is_intro_rule(env, n)) {
+                p.regular_stream() << n << " : " << d.get_type() << endl;
+                has_axioms = true;
+            }
+        });
+    if (!has_axioms)
+        p.regular_stream() << "no axioms" << endl;
 }
 
 environment print_cmd(parser & p) {
@@ -98,6 +116,9 @@ environment print_cmd(parser & p) {
         if (p.curr_is_identifier())
             C = p.check_constant_next("invalid 'print coercions', constant expected");
         print_coercions(p, C);
+    } else if (p.curr_is_token_or_id(get_axioms_tk())) {
+        p.next();
+        print_axioms(p);
     } else {
         throw parser_error("invalid print command", p.pos());
     }

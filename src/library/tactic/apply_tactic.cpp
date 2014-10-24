@@ -70,11 +70,12 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
     expr  e_t        = e_t_cs.first;
     buffer<expr> metas;
     if (add_meta) {
-        unsigned num_t   = get_expect_num_args(*tc, t);
+        // unsigned num_t   = get_expect_num_args(*tc, t);
         unsigned num_e_t = get_expect_num_args(*tc, e_t);
-        if (num_t > num_e_t)
-            return proof_state_seq(); // no hope to unify then
-        for (unsigned i = 0; i < num_e_t - num_t; i++) {
+        // Remark: we used to add (num_e_t - num_t) arguments.
+        // This would allow us to handle (A -> B) without using intros,
+        // but it was preventing us from solving other problems
+        for (unsigned i = 0; i < num_e_t; i++) {
             auto e_t_cs = tc->whnf(e_t);
             e_t_cs.second.linearize(cs);
             e_t        = e_t_cs.first;

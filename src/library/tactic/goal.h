@@ -50,10 +50,9 @@ public:
     expr abstract(expr const & v) const;
 
     /** \brief Create a metavariable application <tt>(?m l_1 ... l_n)</tt> with the given type,
-        and the locals from this goal. If <tt>only_contextual == true</tt>, then we only include
-        the local constants that are marked as contextual.
+        and the locals from this goal.
     */
-    expr mk_meta(name const & m, expr const & type, bool only_contextual = true) const;
+    expr mk_meta(name const & m, expr const & type) const;
 
     /** \brief Return true iff get_type() only contains local constants that arguments
         of get_meta(), and each argument of get_meta() only contains local constants

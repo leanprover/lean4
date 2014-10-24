@@ -49,14 +49,9 @@ expr goal::abstract(expr const & v) const {
     return Fun(locals, v);
 }
 
-expr goal::mk_meta(name const & n, expr const & type, bool only_contextual) const {
+expr goal::mk_meta(name const & n, expr const & type) const {
     buffer<expr> locals;
     expr this_mvar = get_app_args(m_meta, locals);
-    if (only_contextual) {
-        auto new_end = std::remove_if(locals.begin(), locals.end(),
-                                      [](expr const & l) { return !local_info(l).is_contextual(); });
-        locals.shrink(locals.size() - (locals.end() - new_end));
-    }
     expr mvar = copy_tag(this_mvar, mk_metavar(n, Pi(locals, type)));
     return copy_tag(m_meta, mk_app(mvar, locals));
 }
@@ -120,8 +115,7 @@ static int goal_tostring(lua_State * L) {
     return 1;
 }
 static int goal_mk_meta(lua_State * L) {
-    int nargs = lua_gettop(L);
-    return push_expr(L, to_goal(L, 1).mk_meta(to_name_ext(L, 2), to_expr(L, 3), nargs == 4 ? lua_toboolean(L, 4) : true));
+    return push_expr(L, to_goal(L, 1).mk_meta(to_name_ext(L, 2), to_expr(L, 3)));
 }
 
 static int goal_pp(lua_State * L) {

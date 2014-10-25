@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/sstream.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -14,6 +15,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 environment mk_rec_on(environment const & env, name const & n) {
+    if (!inductive::is_inductive_decl(env, n))
+        throw exception(sstream() << "error in 'rec_on' generation, '" << n << "' is not an inductive datatype");
     name rec_on_name(n, "rec_on");
     name_generator ngen;
     declaration rec_decl = env.get(inductive::get_elim_name(n));

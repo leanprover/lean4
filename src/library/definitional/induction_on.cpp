@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/sstream.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
@@ -14,6 +15,8 @@ namespace lean {
 environment mk_induction_on(environment const & env, name const & n) {
     if (!env.impredicative())
         throw exception("induction_on generation failed, Prop/Type.{0} is not impredicative in the given environment");
+    if (!inductive::is_inductive_decl(env, n))
+        throw exception(sstream() << "error in 'induction_on' generation, '" << n << "' is not an inductive datatype");
     name rec_on_name(n, "rec_on");
     name induction_on_name(n, "induction_on");
     name_generator ngen;

@@ -7,8 +7,6 @@ zero : nat,
 succ : nat → nat
 definition refl := @eq.refl
 namespace nat
-theorem induction_on {P : nat → Prop} (a : nat) (H1 : P zero) (H2 : ∀ (n : nat) (IH : P n), P (succ n)) : P a
-:= nat.rec H1 H2 a
 
 definition pred (n : nat) := nat.rec zero (fun m x, m) n
 theorem pred_zero : pred zero = zero := refl _

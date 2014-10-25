@@ -17,7 +17,6 @@ axiom add_zero_right (n : nat) : n + zero = n
 axiom mul_succ_right (n m : nat) : n * succ m = n * m + n
 axiom add_assoc (n m k : nat) : (n + m) + k = n + (m + k)
 axiom add_right_comm (n m k : nat) : n + m + k = n + k + m
-axiom induction_on {P : nat → Prop} (a : nat) (H1 : P zero) (H2 : ∀ (n : nat) (IH : P n), P (succ n)) : P a
 set_option unifier.max_steps 50000
 theorem mul_add_distr_left (n m k : nat) : (n + m) * k = n * k + m * k
 := induction_on k

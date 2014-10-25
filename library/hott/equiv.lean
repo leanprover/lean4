@@ -89,7 +89,7 @@ namespace IsEquiv
 
   -- Any function equal to an equivalence is an equivlance as well.
   definition path_closed (Hf : IsEquiv f) (Heq : f ≈ f') : (IsEquiv f') :=
-     path.induction_on Heq Hf
+     path.rec_on Heq Hf
 
   -- Any function pointwise equal to an equivalence is an equivalence as well.
   definition homotopic (Hf : IsEquiv f) (Heq : f ∼ f') : (IsEquiv f') :=

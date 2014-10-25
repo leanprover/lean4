@@ -30,10 +30,6 @@ theorem rec_zero {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) 
 theorem rec_succ {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) (n : ℕ) :
   nat.rec x f (succ n) = f n (nat.rec x f n)
 
-protected theorem induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P zero) (H2 : ∀ (n : ℕ) (IH : P n), P (succ n)) :
-  P a :=
-nat.rec H1 H2 a
-
 protected definition is_inhabited [instance] : inhabited nat :=
 inhabited.mk zero
 

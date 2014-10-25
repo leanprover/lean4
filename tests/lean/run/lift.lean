@@ -11,8 +11,6 @@ rec (λ a, a) a
 theorem down_up {A : Type} (a : A) : down (up a) = a :=
 rfl
 
-protected theorem induction_on {A : Type} {P : lift A → Prop} (a : lift A) (H : ∀ (a : A), P (up a)) : P a :=
-rec H a
 
 theorem up_down {A : Type} (a' : lift A) : up (down a') = a' :=
 induction_on a' (λ a, rfl)

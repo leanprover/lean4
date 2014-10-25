@@ -9,11 +9,11 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \brief Given an inductive datatype \c n in \c env, add
-    <tt>n.rec_on</tt> to the environment.
-
-    \remark <tt>rec_on</tt> is based on <tt>n.rec</tt>
+    <tt>n.induction_on</tt> to the environment.
 
     \remark Throws an exception if \c n is not an inductive datatype.
+
+    \remark Throws an exception if <tt>n.rec_on</tt> is not defined in the given environment.
 */
-environment mk_rec_on(environment const & env, name const & n);
+environment mk_induction_on(environment const & env, name const & n);
 }

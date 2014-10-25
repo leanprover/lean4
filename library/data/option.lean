@@ -10,10 +10,6 @@ inductive option (A : Type) : Type :=
   some    : A → option A
 
 namespace option
-  protected theorem induction_on {A : Type} {p : option A → Prop} (o : option A)
-    (H1 : p none) (H2 : ∀a, p (some a)) : p o :=
-  rec H1 H2 o
-
   definition is_none {A : Type} (o : option A) : Prop :=
   rec true (λ a, false) o
 

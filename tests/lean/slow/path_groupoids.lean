@@ -22,13 +22,6 @@ notation x `≈`:50 y `:>`:0 A:0 := @path A x y
 notation `idp`:max := idpath _     -- TODO: can we / should we use `1`?
 
 namespace path
-  definition induction_on {A : Type} {a b : A} (p : a ≈ b)
-    {C : Π (b : A) (p : a ≈ b), Type} (H : C a (idpath a)) : C b p :=
-  path.rec H p
-end path
-
-open path
-
 -- Concatenation and inverse
 -- -------------------------
 
@@ -52,62 +45,62 @@ definition concat_11 {A : Type} (x : A) : idpath x ⬝ idpath x ≈ idpath x := 
 
 -- The identity path is a right unit.
 definition concat_p1 {A : Type} {x y : A} (p : x ≈ y) : p ⬝ idp ≈ p :=
-induction_on p idp
+rec_on p idp
 
 -- The identity path is a right unit.
 definition concat_1p {A : Type} {x y : A} (p : x ≈ y) : idp ⬝ p ≈ p :=
-induction_on p idp
+rec_on p idp
 
 -- Concatenation is associative.
 definition concat_p_pp {A : Type} {x y z t : A} (p : x ≈ y) (q : y ≈ z) (r : z ≈ t) :
   p ⬝ (q ⬝ r) ≈ (p ⬝ q) ⬝ r :=
-induction_on r (induction_on q idp)
+rec_on r (rec_on q idp)
 
 definition concat_pp_p {A : Type} {x y z t : A} (p : x ≈ y) (q : y ≈ z) (r : z ≈ t) :
   (p ⬝ q) ⬝ r ≈ p ⬝ (q ⬝ r) :=
-induction_on r (induction_on q idp)
+rec_on r (rec_on q idp)
 
 -- The left inverse law.
 definition concat_pV {A : Type} {x y : A} (p : x ≈ y) : p ⬝ p^ ≈ idp :=
-induction_on p idp
+rec_on p idp
 
 -- The right inverse law.
 definition concat_Vp {A : Type} {x y : A} (p : x ≈ y) : p^ ⬝ p ≈ idp :=
-induction_on p idp
+rec_on p idp
 
 
 -- Several auxiliary theorems about canceling inverses across associativity. These are somewhat
 -- redundant, following from earlier theorems.
 
 definition concat_V_pp {A : Type} {x y z : A} (p : x ≈ y) (q : y ≈ z) : p^ ⬝ (p ⬝ q) ≈ q :=
-induction_on q (induction_on p idp)
+rec_on q (rec_on p idp)
 
 definition concat_p_Vp {A : Type} {x y z : A} (p : x ≈ y) (q : x ≈ z) : p ⬝ (p^ ⬝ q) ≈ q :=
-induction_on q (induction_on p idp)
+rec_on q (rec_on p idp)
 
 definition concat_pp_V {A : Type} {x y z : A} (p : x ≈ y) (q : y ≈ z) : (p ⬝ q) ⬝ q^ ≈ p :=
-induction_on q (induction_on p idp)
+rec_on q (rec_on p idp)
 
 definition concat_pV_p {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) : (p ⬝ q^) ⬝ q ≈ p :=
-induction_on q (take p, induction_on p idp) p
+rec_on q (take p, rec_on p idp) p
 
 -- Inverse distributes over concatenation
 definition inv_pp {A : Type} {x y z : A} (p : x ≈ y) (q : y ≈ z) : (p ⬝ q)^ ≈ q^ ⬝ p^ :=
-induction_on q (induction_on p idp)
+rec_on q (rec_on p idp)
 
 definition inv_Vp {A : Type} {x y z : A} (p : y ≈ x) (q : y ≈ z) : (p^ ⬝ q)^ ≈ q^ ⬝ p :=
-induction_on q (induction_on p idp)
+rec_on q (rec_on p idp)
 
 -- universe metavariables
 definition inv_pV {A : Type} {x y z : A} (p : x ≈ y) (q : z ≈ y) : (p ⬝ q^)^ ≈ q ⬝ p^ :=
-induction_on p (λq, induction_on q idp) q
+rec_on p (λq, rec_on q idp) q
 
 definition inv_VV {A : Type} {x y z : A} (p : y ≈ x) (q : z ≈ y) : (p^ ⬝ q^)^ ≈ q ⬝ p :=
-induction_on p (induction_on q idp)
+rec_on p (rec_on q idp)
 
 -- Inverse is an involution.
 definition inv_V {A : Type} {x y : A} (p : x ≈ y) : p^^ ≈ p :=
-induction_on p idp
+rec_on p idp
 
 
 -- Theorems for moving things around in equations
@@ -116,7 +109,7 @@ induction_on p idp
 definition moveR_Mp {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) (r : y ≈ x) :
   p ≈ (r^ ⬝ q) → (r ⬝ p) ≈ q :=
 have gen : Πp q, p ≈ (r^ ⬝ q) → (r ⬝ p) ≈ q, from
-  induction_on r
+  rec_on r
     (take p q,
       assume h : p ≈ idp^ ⬝ q,
       show idp ⬝ p ≈ q, from concat_1p _ ⬝ h ⬝ concat_1p _),
@@ -124,63 +117,63 @@ gen p q
 
 definition moveR_pM {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) (r : y ≈ x) :
   r ≈ q ⬝ p^ → r ⬝ p ≈ q :=
-induction_on p (take q r h, (concat_p1 _ ⬝ h ⬝ concat_p1 _)) q r
+rec_on p (take q r h, (concat_p1 _ ⬝ h ⬝ concat_p1 _)) q r
 
 definition moveR_Vp {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) (r : x ≈ y) :
   p ≈ r ⬝ q → r^ ⬝ p ≈ q :=
-induction_on r (take p q h, concat_1p _ ⬝ h ⬝ concat_1p _) p q
+rec_on r (take p q h, concat_1p _ ⬝ h ⬝ concat_1p _) p q
 
 definition moveR_pV {A : Type} {x y z : A} (p : z ≈ x) (q : y ≈ z) (r : y ≈ x) :
   r ≈ q ⬝ p → r ⬝ p^ ≈ q :=
-induction_on p (take q r h, concat_p1 _ ⬝ h ⬝ concat_p1 _) q r
+rec_on p (take q r h, concat_p1 _ ⬝ h ⬝ concat_p1 _) q r
 
 definition moveL_Mp {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) (r : y ≈ x) :
   r^ ⬝ q ≈ p → q ≈ r ⬝ p :=
-induction_on r (take p q h, (concat_1p _)^ ⬝ h ⬝ (concat_1p _)^) p q
+rec_on r (take p q h, (concat_1p _)^ ⬝ h ⬝ (concat_1p _)^) p q
 
 definition moveL_pM {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) (r : y ≈ x) :
   q ⬝ p^ ≈ r → q ≈ r ⬝ p :=
-induction_on p (take q r h, (concat_p1 _)^ ⬝ h ⬝ (concat_p1 _)^) q r
+rec_on p (take q r h, (concat_p1 _)^ ⬝ h ⬝ (concat_p1 _)^) q r
 
 definition moveL_Vp {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) (r : x ≈ y) :
   r ⬝ q ≈ p → q ≈ r^ ⬝ p :=
-induction_on r (take p q h, (concat_1p _)^ ⬝ h ⬝ (concat_1p _)^) p q
+rec_on r (take p q h, (concat_1p _)^ ⬝ h ⬝ (concat_1p _)^) p q
 
 definition moveL_pV {A : Type} {x y z : A} (p : z ≈ x) (q : y ≈ z) (r : y ≈ x) :
   q ⬝ p ≈ r → q ≈ r ⬝ p^ :=
-induction_on p (take q r h, (concat_p1 _)^ ⬝ h ⬝ (concat_p1 _)^) q r
+rec_on p (take q r h, (concat_p1 _)^ ⬝ h ⬝ (concat_p1 _)^) q r
 
 definition moveL_1M {A : Type} {x y : A} (p q : x ≈ y) :
   p ⬝ q^ ≈ idp → p ≈ q :=
-induction_on q (take p h, (concat_p1 _)^ ⬝ h)  p
+rec_on q (take p h, (concat_p1 _)^ ⬝ h)  p
 
 definition moveL_M1 {A : Type} {x y : A} (p q : x ≈ y) :
   q^ ⬝ p ≈ idp → p ≈ q :=
-induction_on q (take p h, (concat_1p _)^ ⬝ h)  p
+rec_on q (take p h, (concat_1p _)^ ⬝ h)  p
 
 definition moveL_1V {A : Type} {x y : A} (p : x ≈ y) (q : y ≈ x) :
   p ⬝ q ≈ idp → p ≈ q^ :=
-induction_on q (take p h, (concat_p1 _)^ ⬝ h)  p
+rec_on q (take p h, (concat_p1 _)^ ⬝ h)  p
 
 definition moveL_V1 {A : Type} {x y : A} (p : x ≈ y) (q : y ≈ x) :
   q ⬝ p ≈ idp → p ≈ q^ :=
-induction_on q (take p h, (concat_1p _)^ ⬝ h)  p
+rec_on q (take p h, (concat_1p _)^ ⬝ h)  p
 
 definition moveR_M1 {A : Type} {x y : A} (p q : x ≈ y) :
   idp ≈ p^ ⬝ q → p ≈ q :=
-induction_on p (take q h, h ⬝ (concat_1p _)) q
+rec_on p (take q h, h ⬝ (concat_1p _)) q
 
 definition moveR_1M {A : Type} {x y : A} (p q : x ≈ y) :
   idp ≈ q ⬝ p^ → p ≈ q :=
-induction_on p (take q h, h ⬝ (concat_p1 _)) q
+rec_on p (take q h, h ⬝ (concat_p1 _)) q
 
 definition moveR_1V {A : Type} {x y : A} (p : x ≈ y) (q : y ≈ x) :
   idp ≈ q ⬝ p → p^ ≈ q :=
-induction_on p (take q h, h ⬝ (concat_p1 _)) q
+rec_on p (take q h, h ⬝ (concat_p1 _)) q
 
 definition moveR_V1 {A : Type} {x y : A} (p : x ≈ y) (q : y ≈ x) :
   idp ≈ p ⬝ q → p^ ≈ q :=
-induction_on p (take q h, h ⬝ (concat_1p _)) q
+rec_on p (take q h, h ⬝ (concat_1p _)) q
 
 
 -- Transport
@@ -188,7 +181,7 @@ induction_on p (take q h, h ⬝ (concat_1p _)) q
 
 -- keep transparent, so transport _ idp p is definitionally equal to p
 definition transport {A : Type} (P : A → Type) {x y : A} (p : x ≈ y) (u : P x) : P y :=
-path.induction_on p u
+path.rec_on p u
 
 definition transport_1 {A : Type} (P : A → Type) {x : A} (u : P x) : transport _ idp u ≈ u :=
 idp
@@ -199,7 +192,7 @@ idp
 notation p `#`:65 x:64 := transport _ p x
 
 definition ap ⦃A B : Type⦄ (f : A → B) {x y:A} (p : x ≈ y) : f x ≈ f y :=
-path.induction_on p idp
+path.rec_on p idp
 
 -- TODO: is this better than an alias? Note use of curly brackets
 definition ap01 := ap
@@ -210,18 +203,18 @@ definition pointwise_paths {A : Type} {P : A → Type} (f g : Πx, P x) : Type :
 infix `∼`:50 := pointwise_paths
 
 definition apD10 {A} {B : A → Type} {f g : Πx, B x} (H : f ≈ g) : f ∼ g :=
-λx, path.induction_on H idp
+λx, path.rec_on H idp
 
 definition ap10 {A B} {f g : A → B} (H : f ≈ g) : f ∼ g := apD10 H
 
 definition ap11 {A B} {f g : A → B} (H : f ≈ g) {x y : A} (p : x ≈ y) : f x ≈ g y :=
-induction_on H (induction_on p idp)
+rec_on H (rec_on p idp)
 
 -- TODO: Note that the next line breaks the proof!
--- opaque_hint (hiding induction_on)
+-- opaque_hint (hiding rec_on)
 -- set_option pp.implicit true
 definition apD {A:Type} {B : A → Type} (f : Πa:A, B a) {x y : A} (p : x ≈ y) : p # (f x) ≈ f y :=
-induction_on p idp
+rec_on p idp
 
 
 -- More theorems for moving things around in equations
@@ -229,19 +222,19 @@ induction_on p idp
 
 definition moveR_transport_p {A : Type} (P : A → Type) {x y : A} (p : x ≈ y) (u : P x) (v : P y) :
   u ≈ p^ # v → p # u ≈ v :=
-induction_on p (take u v, id) u v
+rec_on p (take u v, id) u v
 
 definition moveR_transport_V {A : Type} (P : A → Type) {x y : A} (p : y ≈ x) (u : P x) (v : P y) :
   u ≈ p # v → p^ # u ≈ v :=
-induction_on p (take u v, id) u v
+rec_on p (take u v, id) u v
 
 definition moveL_transport_V {A : Type} (P : A → Type) {x y : A} (p : x ≈ y) (u : P x) (v : P y) :
   p # u ≈ v → u ≈ p^ # v :=
-induction_on p (take u v, id) u v
+rec_on p (take u v, id) u v
 
 definition moveL_transport_p {A : Type} (P : A → Type) {x y : A} (p : y ≈ x) (u : P x) (v : P y) :
   p^ # u ≈ v → u ≈ p # v :=
-induction_on p (take u v, id) u v
+rec_on p (take u v, id) u v
 
 
 -- Functoriality of functions
@@ -258,54 +251,54 @@ definition apD_1 {A B} (x : A) (f : forall x : A, B x) : apD f idp ≈ idp :> (f
 -- Functions commute with concatenation.
 definition ap_pp {A B : Type} (f : A → B) {x y z : A} (p : x ≈ y) (q : y ≈ z) :
   ap f (p ⬝ q) ≈ (ap f p) ⬝ (ap f q) :=
-induction_on q (induction_on p idp)
+rec_on q (rec_on p idp)
 
 definition ap_p_pp {A B : Type} (f : A → B) {w x y z : A} (r : f w ≈ f x) (p : x ≈ y) (q : y ≈ z) :
   r ⬝ (ap f (p ⬝ q)) ≈ (r ⬝ ap f p) ⬝ (ap f q) :=
-induction_on p (take r q, induction_on q (concat_p_pp r idp idp)) r q
+rec_on p (take r q, rec_on q (concat_p_pp r idp idp)) r q
 
 definition ap_pp_p {A B : Type} (f : A → B) {w x y z : A} (p : x ≈ y) (q : y ≈ z) (r : f z ≈ f w) :
   (ap f (p ⬝ q)) ⬝ r ≈ (ap f p) ⬝ (ap f q ⬝ r) :=
-induction_on p (take q, induction_on q (take r, concat_pp_p _ _ _)) q r
+rec_on p (take q, rec_on q (take r, concat_pp_p _ _ _)) q r
 
 -- Functions commute with path inverses.
 definition inverse_ap {A B : Type} (f : A → B) {x y : A} (p : x ≈ y) : (ap f p)^ ≈ ap f (p^) :=
-induction_on p idp
+rec_on p idp
 
 definition ap_V {A B : Type} (f : A → B) {x y : A} (p : x ≈ y) : ap f (p^) ≈ (ap f p)^ :=
-induction_on p idp
+rec_on p idp
 
 -- TODO: rename id to idmap?
 definition ap_idmap {A : Type} {x y : A} (p : x ≈ y) : ap id p ≈ p :=
-induction_on p idp
+rec_on p idp
 
 definition ap_compose {A B C : Type} (f : A → B) (g : B → C) {x y : A} (p : x ≈ y) :
   ap (g ∘ f) p ≈ ap g (ap f p) :=
-induction_on p idp
+rec_on p idp
 
 -- Sometimes we don't have the actual function [compose].
 definition ap_compose' {A B C : Type} (f : A → B) (g : B → C) {x y : A} (p : x ≈ y) :
   ap (λa, g (f a)) p ≈ ap g (ap f p) :=
-induction_on p idp
+rec_on p idp
 
 -- The action of constant maps.
 definition ap_const {A B : Type} {x y : A} (p : x ≈ y) (z : B) :
   ap (λu, z) p ≈ idp :=
-induction_on p idp
+rec_on p idp
 
 -- Naturality of [ap].
 definition concat_Ap {A B : Type} {f g : A → B} (p : forall x, f x ≈ g x) {x y : A} (q : x ≈ y) :
   (ap f q) ⬝ (p y) ≈ (p x) ⬝ (ap g q) :=
-induction_on q (concat_1p _ ⬝ (concat_p1 _)^)
+rec_on q (concat_1p _ ⬝ (concat_p1 _)^)
 
 -- Naturality of [ap] at identity.
 definition concat_A1p {A : Type} {f : A → A} (p : forall x, f x ≈ x) {x y : A} (q : x ≈ y) :
   (ap f q) ⬝ (p y) ≈ (p x) ⬝ q :=
-induction_on q (concat_1p _ ⬝ (concat_p1 _)^)
+rec_on q (concat_1p _ ⬝ (concat_p1 _)^)
 
 definition concat_pA1 {A : Type} {f : A → A} (p : forall x, x ≈ f x) {x y : A} (q : x ≈ y) :
   (p x) ⬝ (ap f q) ≈  q ⬝ (p y) :=
-induction_on q (concat_p1 _ ⬝ (concat_1p _)^)
+rec_on q (concat_p1 _ ⬝ (concat_1p _)^)
 
 --TODO: note that the Coq proof for the preceding is
 --
@@ -320,7 +313,7 @@ definition concat_pA_pp {A B : Type} {f g : A → B} (p : forall x, f x ≈ g x)
     {x y : A} (q : x ≈ y)
     {w z : B} (r : w ≈ f x) (s : g y ≈ z) :
   (r ⬝ ap f q) ⬝ (p y ⬝ s) ≈ (r ⬝ p x) ⬝ (ap g q ⬝ s) :=
-induction_on q (take s, induction_on s (take r, idp)) s r
+rec_on q (take s, rec_on s (take r, idp)) s r
 
 -- Action of [apD10] and [ap10] on paths
 -- -------------------------------------
@@ -331,11 +324,11 @@ definition apD10_1 {A} {B : A → Type} (f : Πx, B x) (x : A) : apD10 (idpath f
 
 definition apD10_pp {A} {B : A → Type} {f f' f'' : Πx, B x} (h : f ≈ f') (h' : f' ≈ f'') (x : A) :
   apD10 (h ⬝ h') x ≈ apD10 h x ⬝ apD10 h' x :=
-induction_on h (take h', induction_on h' idp) h'
+rec_on h (take h', rec_on h' idp) h'
 
 definition apD10_V {A : Type} {B : A → Type} {f g : Πx : A, B x} (h : f ≈ g) (x : A) :
   apD10 (h^) x ≈ (apD10 h x)^ :=
-induction_on h idp
+rec_on h idp
 
 definition ap10_1 {A B} {f : A → B} (x : A) : ap10 (idpath f) x ≈ idp := idp
 
@@ -347,7 +340,7 @@ definition ap10_V {A B} {f g : A→B} (h : f ≈ g) (x:A) : ap10 (h^) x ≈ (ap1
 -- [ap10] also behaves nicely on paths produced by [ap]
 definition ap_ap10 {A B C} (f g : A → B) (h : B → C) (p : f ≈ g) (a : A) :
   ap h (ap10 p a) ≈ ap10 (ap (λ f', h ∘ f') p) a:=
-induction_on p idp
+rec_on p idp
 
 
 -- Transport and the groupoid structure of paths
@@ -359,7 +352,7 @@ induction_on p idp
 
 definition transport_pp {A : Type} (P : A → Type) {x y z : A} (p : x ≈ y) (q : y ≈ z) (u : P x) :
   p ⬝ q # u ≈ q # p # u :=
-induction_on q (induction_on p idp)
+rec_on q (rec_on p idp)
 
 definition transport_pV {A : Type} (P : A → Type) {x y : A} (p : x ≈ y) (z : P y) :
   p # p^ # z ≈ z :=
@@ -379,27 +372,27 @@ theorem double_induction
     {C : Π(x y z : A), Π(p : x ≈ y), Π(q : y ≈ z), Type}
     (H : C x x x (idpath x) (idpath x)) :
   C x y z p q :=
-induction_on p (take z q, induction_on q H) z q
+rec_on p (take z q, rec_on q H) z q
 
 theorem double_induction2
     {A : Type} {x y z : A} (p : x ≈ y) (q : z ≈ y)
     {C : Π(x y z : A), Π(p : x ≈ y), Π(q : z ≈ y), Type}
     (H : C z z z (idpath z) (idpath z)) :
   C x y z p q :=
-induction_on p (take y q, induction_on q H) y q
+rec_on p (take y q, rec_on q H) y q
 
 theorem double_induction2'
   {A : Type} {x y z : A} (p : x ≈ y) (q : z ≈ y)
   {C : Π(x y z : A), Π(p : x ≈ y), Π(q : z ≈ y), Type}
   (H : C z z z (idpath z) (idpath z)) : C x y z p q :=
-induction_on p (take y q, induction_on q H) y q
+rec_on p (take y q, rec_on q H) y q
 
 theorem triple_induction
     {A : Type} {x y z w : A} (p : x ≈ y) (q : y ≈ z) (r : z ≈ w)
     {C : Π(x y z w : A), Π(p : x ≈ y), Π(q : y ≈ z), Π(r: z ≈ w), Type}
     (H : C x x x x (idpath x) (idpath x) (idpath x)) :
   C x y z w p q r :=
-induction_on p (take z q, induction_on q (take w r, induction_on r H)) z q w r
+rec_on p (take z q, rec_on q (take w r, rec_on r H)) z q w r
 
 -- try this again
 definition concat_pV_p_new {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) : (p ⬝ q^) ⬝ q ≈ p :=
@@ -416,13 +409,13 @@ triple_induction p q r (take u, idp) u
 --  Here is another coherence lemma for transport.
 definition transport_pVp {A} (P : A → Type) {x y : A} (p : x ≈ y) (z : P x) :
   transport_pV P p (transport P p z) ≈ ap (transport P p) (transport_Vp P p z)
-:= induction_on p idp
+:= rec_on p idp
 
 -- Dependent transport in a doubly dependent type.
 definition transportD {A : Type} (B : A → Type) (C : Π a : A, B a → Type)
     {x1 x2 : A} (p : x1 ≈ x2) (y : B x1) (z : C x1 y) :
   C x2 (p # y) :=
-induction_on p z
+rec_on p z
 
 -- Transporting along higher-dimensional paths
 definition transport2 {A : Type} (P : A → Type) {x y : A} {p q : x ≈ y} (r : p ≈ q) (z : P x) :
@@ -432,28 +425,28 @@ definition transport2 {A : Type} (P : A → Type) {x y : A} {p q : x ≈ y} (r :
 definition transport2_is_ap10 {A : Type} (Q : A → Type) {x y : A} {p q : x ≈ y} (r : p ≈ q)
     (z : Q x) :
   transport2 Q r z ≈ ap10 (ap (transport Q) r) z :=
-induction_on r idp
+rec_on r idp
 
 definition transport2_p2p {A : Type} (P : A → Type) {x y : A} {p1 p2 p3 : x ≈ y}
     (r1 : p1 ≈ p2) (r2 : p2 ≈ p3) (z : P x) :
   transport2 P (r1 ⬝ r2) z ≈ transport2 P r1 z ⬝ transport2 P r2 z :=
-induction_on r1 (induction_on r2 idp)
+rec_on r1 (rec_on r2 idp)
 
 -- TODO: another interesting case
 definition transport2_V {A : Type} (Q : A → Type) {x y : A} {p q : x ≈ y} (r : p ≈ q) (z : Q x) :
   transport2 Q (r^) z ≈ ((transport2 Q r z)^) :=
--- induction_on r idp -- doesn't work
-induction_on r (idpath (inverse (transport2 Q (idpath p) z)))
+-- rec_on r idp -- doesn't work
+rec_on r (idpath (inverse (transport2 Q (idpath p) z)))
 
 definition concat_AT {A : Type} (P : A → Type) {x y : A} {p q : x ≈ y} {z w : P x} (r : p ≈ q)
     (s : z ≈ w) :
   ap (transport P p) s  ⬝  transport2 P r w ≈ transport2 P r z  ⬝  ap (transport P q) s :=
-induction_on r (concat_p1 _ ⬝ (concat_1p _)^)
+rec_on r (concat_p1 _ ⬝ (concat_1p _)^)
 
 -- TODO (from Coq library): What should this be called?
 definition ap_transport {A} {P Q : A → Type} {x y : A} (p : x ≈ y) (f : Πx, P x → Q x) (z : P x) :
   f y (p # z) ≈ (p # (f x z)) :=
-induction_on p idp
+rec_on p idp
 
 
 -- Transporting in particular fibrations
@@ -471,34 +464,34 @@ subdirectory.  Here we consider only the most basic cases.
 -- Transporting in a constant fibration.
 definition transport_const {A B : Type} {x1 x2 : A} (p : x1 ≈ x2) (y : B) :
   transport (λx, B) p y ≈ y :=
-induction_on p idp
+rec_on p idp
 
 definition transport2_const {A B : Type} {x1 x2 : A} {p q : x1 ≈ x2} (r : p ≈ q) (y : B) :
   transport_const p y ≈ transport2 (λu, B) r y ⬝ transport_const q y :=
-induction_on r (concat_1p _)^
+rec_on r (concat_1p _)^
 
 -- Transporting in a pulled back fibration.
 definition transport_compose {A B} {x y : A} (P : B → Type) (f : A → B) (p : x ≈ y) (z : P (f x)) :
   transport (λx, P (f x)) p z  ≈  transport P (ap f p) z :=
-induction_on p idp
+rec_on p idp
 
 definition transport_precompose {A B C} (f : A → B) (g g' : B → C) (p : g ≈ g') :
   transport (λh : B → C, g ∘ f ≈ h ∘ f) p idp ≈ ap (λh, h ∘ f) p :=
-induction_on p idp
+rec_on p idp
 
 definition apD10_ap_precompose {A B C} (f : A → B) (g g' : B → C) (p : g ≈ g') (a : A) :
   apD10 (ap (λh : B → C, h ∘ f) p) a ≈ apD10 p (f a) :=
-induction_on p idp
+rec_on p idp
 
 definition apD10_ap_postcompose {A B C} (f : B → C) (g g' : A → B) (p : g ≈ g') (a : A) :
   apD10 (ap (λh : A → B, f ∘ h) p) a ≈ ap f (apD10 p a) :=
-induction_on p idp
+rec_on p idp
 
 -- TODO: another example where a term has to be given explicitly
 -- A special case of [transport_compose] which seems to come up a lot.
 definition transport_idmap_ap A (P : A → Type) x y (p : x ≈ y) (u : P x) :
   transport P p u ≈ transport (λz, z) (ap P p) u :=
-induction_on p (idpath (transport (λ (z : Type), z) (ap P (idpath x)) u))
+rec_on p (idpath (transport (λ (z : Type), z) (ap P (idpath x)) u))
 
 
 -- The behavior of [ap] and [apD]
@@ -507,7 +500,7 @@ induction_on p (idpath (transport (λ (z : Type), z) (ap P (idpath x)) u))
 -- In a constant fibration, [apD] reduces to [ap], modulo [transport_const].
 definition apD_const {A B} {x y : A} (f : A → B) (p: x ≈ y) :
   apD f p ≈ transport_const p (f x) ⬝ ap f p :=
-induction_on p idp
+rec_on p idp
 
 
 -- The 2-dimensional groupoid structure
@@ -516,13 +509,13 @@ induction_on p idp
 -- Horizontal composition of 2-dimensional paths.
 definition concat2 {A} {x y z : A} {p p' : x ≈ y} {q q' : y ≈ z} (h : p ≈ p') (h' : q ≈ q') :
   p ⬝ q ≈ p' ⬝ q' :=
-induction_on h (induction_on h' idp)
+rec_on h (rec_on h' idp)
 
 infixl `⬝⬝`:75 := concat2
 
 -- 2-dimensional path inversion
 definition inverse2 {A : Type} {x y : A} {p q : x ≈ y} (h : p ≈ q) : p^ ≈ q^ :=
-induction_on h idp
+rec_on h idp
 
 -- Whiskering
 -- ----------
@@ -538,47 +531,47 @@ h ⬝⬝ idp
 -- -------------------------------
 
 definition cancelL {A} {x y z : A} (p : x ≈ y) (q r : y ≈ z) : (p ⬝ q ≈ p ⬝ r) → (q ≈ r) :=
-induction_on p (take r, induction_on r (take q a, (concat_1p q)^ ⬝ a)) r q
+rec_on p (take r, rec_on r (take q a, (concat_1p q)^ ⬝ a)) r q
 
 definition cancelR {A} {x y z : A} (p q : x ≈ y) (r : y ≈ z) : (p ⬝ r ≈ q ⬝ r) → (p ≈ q) :=
-induction_on r (take p, induction_on p (take q a, a ⬝ concat_p1 q)) p q
+rec_on r (take p, rec_on p (take q a, a ⬝ concat_p1 q)) p q
 
 -- Whiskering and identity paths.
 
 definition whiskerR_p1 {A : Type} {x y : A} {p q : x ≈ y} (h : p ≈ q) :
   (concat_p1 p)^ ⬝ whiskerR h idp ⬝ concat_p1 q ≈ h :=
-induction_on h (induction_on p idp)
+rec_on h (rec_on p idp)
 
 definition whiskerR_1p {A : Type} {x y z : A} (p : x ≈ y) (q : y ≈ z) :
   whiskerR idp q ≈ idp :> (p ⬝ q ≈ p ⬝ q) :=
-induction_on q idp
+rec_on q idp
 
 definition whiskerL_p1 {A : Type} {x y z : A} (p : x ≈ y) (q : y ≈ z) :
   whiskerL p idp ≈ idp :> (p ⬝ q ≈ p ⬝ q) :=
-induction_on q idp
+rec_on q idp
 
 definition whiskerL_1p {A : Type} {x y : A} {p q : x ≈ y} (h : p ≈ q) :
   (concat_1p p) ^ ⬝ whiskerL idp h ⬝ concat_1p q ≈ h :=
-induction_on h (induction_on p idp)
+rec_on h (rec_on p idp)
 
 definition concat2_p1 {A : Type} {x y : A} {p q : x ≈ y} (h : p ≈ q) :
   h ⬝⬝ idp ≈ whiskerR h idp :> (p ⬝ idp ≈ q ⬝ idp) :=
-induction_on h idp
+rec_on h idp
 
 definition concat2_1p {A : Type} {x y : A} {p q : x ≈ y} (h : p ≈ q) :
   idp ⬝⬝ h ≈ whiskerL idp h :> (idp ⬝ p ≈ idp ⬝ q) :=
-induction_on h idp
+rec_on h idp
 
 -- TODO: note, 4 inductions
 -- The interchange law for concatenation.
 definition concat_concat2 {A : Type} {x y z : A} {p p' p'' : x ≈ y} {q q' q'' : y ≈ z}
     (a : p ≈ p') (b : p' ≈ p'') (c : q ≈ q') (d : q' ≈ q'') :
   (a ⬝⬝ c) ⬝ (b ⬝⬝ d) ≈ (a ⬝ b) ⬝⬝ (c ⬝ d) :=
-induction_on d (induction_on c (induction_on b (induction_on a idp)))
+rec_on d (rec_on c (rec_on b (rec_on a idp)))
 
 definition concat_whisker {A} {x y z : A} (p p' : x ≈ y) (q q' : y ≈ z) (a : p ≈ p') (b : q ≈ q') :
   (whiskerR a q) ⬝ (whiskerL p' b) ≈ (whiskerL p b) ⬝ (whiskerR a q') :=
-induction_on b (induction_on a (concat_1p _)^)
+rec_on b (rec_on a (concat_1p _)^)
 
 -- Structure corresponding to the coherence equations of a bicategory.
 
@@ -588,12 +581,12 @@ definition pentagon {A : Type} {v w x y z : A} (p : v ≈ w) (q : w ≈ x) (r : 
     ⬝ concat_p_pp p (q ⬝ r) s
     ⬝ whiskerR (concat_p_pp p q r) s
   ≈ concat_p_pp p q (r ⬝ s) ⬝ concat_p_pp (p ⬝ q) r s :=
-induction_on p (take q, induction_on q (take r, induction_on r (take s, induction_on s idp))) q r s
+rec_on p (take q, rec_on q (take r, rec_on r (take s, rec_on s idp))) q r s
 
 -- The 3-cell witnessing the left unit triangle.
 definition triangulator {A : Type} {x y z : A} (p : x ≈ y) (q : y ≈ z) :
   concat_p_pp p idp q ⬝ whiskerR (concat_p1 p) q ≈ whiskerL p (concat_1p q) :=
-induction_on p (take q, induction_on q idp) q
+rec_on p (take q, rec_on q idp) q
 
 definition eckmann_hilton {A : Type} {x:A} (p q : idp ≈ idp :> (x ≈ x)) : p ⬝ q ≈ q ⬝ p :=
   (whiskerR_p1 p ⬝⬝ whiskerL_1p q)^
@@ -607,19 +600,20 @@ definition eckmann_hilton {A : Type} {x:A} (p q : idp ≈ idp :> (x ≈ x)) : p 
 
 -- The action of functions on 2-dimensional paths
 definition ap02 {A B : Type} (f:A → B) {x y : A} {p q : x ≈ y} (r : p ≈ q) : ap f p ≈ ap f q :=
-induction_on r idp
+rec_on r idp
 
 definition ap02_pp {A B} (f : A → B) {x y : A} {p p' p'' : x ≈ y} (r : p ≈ p') (r' : p' ≈ p'') :
   ap02 f (r ⬝ r') ≈ ap02 f r ⬝ ap02 f r' :=
-induction_on r (induction_on r' idp)
+rec_on r (rec_on r' idp)
 
 definition ap02_p2p {A B} (f : A→B) {x y z : A} {p p' : x ≈ y} {q q' :y ≈ z} (r : p ≈ p')
     (s : q ≈ q') :
   ap02 f (r ⬝⬝ s) ≈   ap_pp f p q
                       ⬝ (ap02 f r  ⬝⬝  ap02 f s)
                       ⬝ (ap_pp f p' q')^ :=
-induction_on r (induction_on s (induction_on q (induction_on p idp)))
+rec_on r (rec_on s (rec_on q (rec_on p idp)))
 
 definition apD02 {A : Type} {B : A → Type} {x y : A} {p q : x ≈ y} (f : Π x, B x) (r : p ≈ q) :
   apD f p ≈ transport2 B r (f x) ⬝ apD f q :=
-induction_on r (concat_1p _)^
+rec_on r (concat_1p _)^
+end path

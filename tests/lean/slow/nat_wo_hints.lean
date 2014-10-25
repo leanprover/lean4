@@ -31,11 +31,6 @@ theorem nat_rec_zero {P : ℕ → Type} (x : P 0) (f : ∀m, P m → P (succ m))
 
 theorem nat_rec_succ {P : ℕ → Type} (x : P 0) (f : ∀m, P m → P (succ m)) (n : ℕ) : nat.rec x f (succ n) = f n (nat.rec x f n)
 
-theorem induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P 0) (H2 : ∀ (n : ℕ) (IH : P n), P (succ n)) : P a
-:= nat.rec H1 H2 a
-
--------------------------------------------------- succ pred
-
 theorem succ_ne_zero (n : ℕ) : succ n ≠ 0
 := assume H : succ n = 0,
      have H2 : true = false, from

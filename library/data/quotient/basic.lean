@@ -115,17 +115,17 @@ R_intro Q Ha Hc Hac
 
 definition rec {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {C : B → Type} (f : forall (a : A), C (abs a)) (b : B) : C b :=
-eq.rec_on (abs_rep Q b) (f (rep b))
+eq.drec_on (abs_rep Q b) (f (rep b))
 
 theorem comp {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {C : B → Type} {f : forall (a : A), C (abs a)}
-  (H : forall (r s : A) (H' : R r s), eq.rec_on (eq_abs Q H') (f r) = f s)
+  (H : forall (r s : A) (H' : R r s), eq.drec_on (eq_abs Q H') (f r) = f s)
   {a : A} (Ha : R a a) : rec Q f (abs a) = f a :=
 have H2 [visible] : R a (rep (abs a)), from R_rep_abs Q Ha,
 calc
-  rec Q f (abs a) =  eq.rec_on _ (f (rep (abs a))) : rfl
-    ... = eq.rec_on _ (eq.rec_on _ (f a)) : {(H _ _ H2)⁻¹}
-    ... = eq.rec_on _ (f a) : eq.rec_on_compose (eq_abs Q H2) _ _
+  rec Q f (abs a) =  eq.drec_on _ (f (rep (abs a))) : rfl
+    ... = eq.drec_on _ (eq.drec_on _ (f a)) : {(H _ _ H2)⁻¹}
+    ... = eq.drec_on _ (f a) : eq.rec_on_compose (eq_abs Q H2) _ _
     ... = f a : eq.rec_on_id (eq.trans (eq_abs Q H2) (abs_rep Q (abs a))) _
 
 definition rec_constant {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}

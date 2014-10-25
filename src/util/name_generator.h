@@ -21,6 +21,7 @@ class name_generator {
     unsigned m_next_idx;
 public:
     name_generator(name const & prefix):m_prefix(prefix), m_next_idx(0) { lean_assert(!prefix.is_anonymous()); }
+    name_generator();
 
     name const & prefix() const { return m_prefix; }
 

@@ -53,31 +53,31 @@ calc_trans eq.trans
 open eq.ops
 
 namespace eq
-  definition rec_on {A : Type} {a a' : A} {B : Πa' : A, a = a' → Type} (H₁ : a = a') (H₂ : B a (refl a)) : B a' H₁ :=
+  definition drec_on {A : Type} {a a' : A} {B : Πa' : A, a = a' → Type} (H₁ : a = a') (H₂ : B a (refl a)) : B a' H₁ :=
   eq.rec (λH₁ : a = a, show B a H₁, from H₂) H₁ H₁
 
-  theorem rec_on_id {A : Type} {a : A} {B : Πa' : A, a = a' → Type} (H : a = a) (b : B a H) : rec_on H b = b :=
+  theorem rec_on_id {A : Type} {a : A} {B : Πa' : A, a = a' → Type} (H : a = a) (b : B a H) : drec_on H b = b :=
   rfl
 
-  theorem rec_on_constant {A : Type} {a a' : A} {B : Type} (H : a = a') (b : B) : rec_on H b = b :=
-  rec_on H (λ(H' : a = a), rec_on_id H' b) H
+  theorem rec_on_constant {A : Type} {a a' : A} {B : Type} (H : a = a') (b : B) : drec_on H b = b :=
+  drec_on H (λ(H' : a = a), rec_on_id H' b) H
 
   theorem rec_on_constant2 {A : Type} {a₁ a₂ a₃ a₄ : A} {B : Type} (H₁ : a₁ = a₂) (H₂ : a₃ = a₄) (b : B) :
-                           rec_on H₁ b = rec_on H₂ b :=
+                           drec_on H₁ b = drec_on H₂ b :=
   rec_on_constant H₁ b ⬝ (rec_on_constant H₂ b)⁻¹
 
   theorem rec_on_irrel {A B : Type} {a a' : A} {f : A → B} {D : B → Type} (H : a = a') (H' : f a = f a') (b : D (f a)) :
-                       rec_on H b = rec_on H' b :=
-  rec_on H (λ(H : a = a) (H' : f a = f a), rec_on_id H b ⬝ rec_on_id H' b⁻¹) H H'
+                       drec_on H b = drec_on H' b :=
+  drec_on H (λ(H : a = a) (H' : f a = f a), rec_on_id H b ⬝ rec_on_id H' b⁻¹) H H'
 
   theorem rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : rec b H = b :=
   rfl
 
   theorem rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H₁ : a = b) (H₂ : b = c)
           (u : P a) :
-    rec_on H₂ (rec_on H₁ u) = rec_on (trans H₁ H₂) u :=
-    (show ∀ H₂ : b = c, rec_on H₂ (rec_on H₁ u) = rec_on (trans H₁ H₂) u,
-      from rec_on H₂ (take (H₂ : b = b), rec_on_id H₂ _))
+    drec_on H₂ (drec_on H₁ u) = drec_on (trans H₁ H₂) u :=
+    (show ∀ H₂ : b = c, drec_on H₂ (drec_on H₁ u) = drec_on (trans H₁ H₂) u,
+      from drec_on H₂ (take (H₂ : b = b), rec_on_id H₂ _))
     H₂
 end eq
 
@@ -131,21 +131,21 @@ section
             {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
             {d₁ : D a₁ b₁ c₁} {d₂ : D a₂ b₂ c₂}
 
-  theorem congr_arg2_dep (f : Πa, B a → R) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂)
+  theorem congr_arg2_dep (f : Πa, B a → R) (H₁ : a₁ = a₂) (H₂ : eq.drec_on H₁ b₁ = b₂)
       : f a₁ b₁ = f a₂ b₂ :=
-  eq.rec_on H₁
-    (λ (b₂ : B a₁) (H₁ : a₁ = a₁) (H₂ : eq.rec_on H₁ b₁ = b₂),
+  eq.drec_on H₁
+    (λ (b₂ : B a₁) (H₁ : a₁ = a₁) (H₂ : eq.drec_on H₁ b₁ = b₂),
       calc
-        f a₁ b₁ = f a₁ (eq.rec_on H₁ b₁) : {(eq.rec_on_id H₁ b₁)⁻¹}
+        f a₁ b₁ = f a₁ (eq.drec_on H₁ b₁) : {(eq.rec_on_id H₁ b₁)⁻¹}
             ... = f a₁ b₂                : {H₂})
     b₂ H₁ H₂
 
-  theorem congr_arg3_dep (f : Πa b, C a b → R) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂)
-      (H₃ : eq.rec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) : f a₁ b₁ c₁ = f a₂ b₂ c₂ :=
-  eq.rec_on H₁
+  theorem congr_arg3_dep (f : Πa b, C a b → R) (H₁ : a₁ = a₂) (H₂ : eq.drec_on H₁ b₁ = b₂)
+      (H₃ : eq.drec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) : f a₁ b₁ c₁ = f a₂ b₂ c₂ :=
+  eq.drec_on H₁
     (λ (b₂ : B a₁) (H₂ : b₁ = b₂) (c₂ : C a₁ b₂)
-      (H₃ : (rec_on (congr_arg2_dep C (refl a₁) H₂) c₁) = c₂),
-      have H₃' : eq.rec_on H₂ c₁ = c₂, from rec_on_irrel H₂ _ c₁ ⬝ H₃,
+      (H₃ : (drec_on (congr_arg2_dep C (refl a₁) H₂) c₁) = c₂),
+      have H₃' : eq.drec_on H₂ c₁ = c₂, from rec_on_irrel H₂ _ c₁ ⬝ H₃,
       congr_arg2_dep (f a₁) H₂ H₃')
     b₂ H₂ c₂ H₃
 
@@ -164,7 +164,7 @@ end
 section
   variables {A B : Type} {C : A → B → Type} {R : Type}
   variables {a₁ a₂ : A} {b₁ b₂ : B} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
-  theorem congr_arg3_ndep_dep (f : Πa b, C a b → R) (H₁ : a₁ = a₂) (H₂ : b₁ = b₂) (H₃ : eq.rec_on (congr_arg2 C H₁ H₂) c₁ = c₂) :
+  theorem congr_arg3_ndep_dep (f : Πa b, C a b → R) (H₁ : a₁ = a₂) (H₂ : b₁ = b₂) (H₃ : eq.drec_on (congr_arg2 C H₁ H₂) c₁ = c₂) :
                               f a₁ b₁ c₁ = f a₂ b₂ c₂ :=
   congr_arg3_dep f H₁ (rec_on_constant H₁ b₁ ⬝ H₂) H₃
 end

@@ -126,7 +126,7 @@ namespace IsEquiv
 
   --TODO: Maybe wait until rewrite rules are available.
   definition inv_closed (Hf : IsEquiv f) : (IsEquiv (inv Hf)) :=
-    IsEquiv_mk sorry sorry sorry sorry
+    sorry -- IsEquiv_mk sorry sorry sorry sorry
 
   definition cancel_R (Hf : IsEquiv f) (Hgf : IsEquiv (g ∘ f)) : (IsEquiv g) :=
     homotopic (comp_closed (inv_closed Hf) Hgf) (λb, ap g (retr Hf b))

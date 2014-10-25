@@ -20,9 +20,6 @@ namespace sum
 
   variables {A B : Type}
   variables {a a₁ a₂ : A} {b b₁ b₂ : B}
-  protected definition rec_on {C : (A ⊎ B) → Type} (s : A ⊎ B) (H₁ : ∀a : A, C (inl B a)) (H₂ : ∀b : B, C (inr A b)) : C s :=
-  rec H₁ H₂ s
-
   protected definition cases_on {P : (A ⊎ B) → Prop} (s : A ⊎ B) (H₁ : ∀a : A, P (inl B a)) (H₂ : ∀b : B, P (inr A b)) : P s :=
   rec H₁ H₂ s
 

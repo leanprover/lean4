@@ -9,6 +9,9 @@ Author: Leonardo de Moura
 #include "util/name_generator.h"
 
 namespace lean {
+static name * g_tmp_prefix = nullptr;
+name_generator::name_generator():name_generator(*g_tmp_prefix) {}
+
 name name_generator::next() {
     if (m_next_idx == std::numeric_limits<unsigned>::max()) {
         // avoid overflow
@@ -26,7 +29,6 @@ void swap(name_generator & a, name_generator & b) {
 }
 
 DECL_UDATA(name_generator)
-static name * g_tmp_prefix = nullptr;
 static int mk_name_generator(lua_State * L) {
     if (lua_gettop(L) == 0)
         return push_name_generator(L, name_generator(*g_tmp_prefix));

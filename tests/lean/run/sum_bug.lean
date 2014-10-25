@@ -13,9 +13,6 @@ namespace sum
 reserve infixr `+`:25
 infixr `+` := sum
 
-definition rec_on {A B : Type} {C : (A + B) → Type} (s : A + B)
-  (H1 : ∀a : A, C (inl B a)) (H2 : ∀b : B, C (inr A b)) : C s :=
-sum.rec H1 H2 s
 open eq
 
 theorem inl_inj {A B : Type} {a1 a2 : A} (H : inl B a1 = inl B a2) : a1 = a2 :=

@@ -23,11 +23,11 @@ refl : heq a a
 infixl `==`:50 := heq
 
 namespace heq
-  theorem rec_on {A B : Type} {a : A} {b : B} {C : Π {B : Type} (b : B), a == b → Type} (H₁ : a == b) (H₂ : C a (refl a)) : C b H₁ :=
+  theorem drec_on {A B : Type} {a : A} {b : B} {C : Π {B : Type} (b : B), a == b → Type} (H₁ : a == b) (H₂ : C a (refl a)) : C b H₁ :=
   rec (λ H₁ : a == a, show C a H₁, from H₂) H₁ H₁
 
   theorem subst {A B : Type} {a : A} {b : B} {P : ∀T : Type, T → Prop} (H₁ : a == b) (H₂ : P A a) : P B b :=
-  rec H₂ H₁
+  rec_on H₁ H₂
 
   theorem symm {A B : Type} {a : A} {b : B} (H : a == b) : b == a :=
   subst H (refl a)
@@ -48,7 +48,7 @@ namespace heq
   trans (from_eq H₁) H₂
 
   theorem to_cast_eq {A B : Type} {a : A} {b : B} (H : a == b) : cast (type_eq H) a = b :=
-  rec_on H !cast_eq
+  drec_on H !cast_eq
 
   theorem to_eq {A : Type} {a b : A} (H : a == b) : a = b :=
   calc a = cast (eq.refl A) a : !cast_eq⁻¹

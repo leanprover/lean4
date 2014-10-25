@@ -14,10 +14,6 @@ namespace option
     (H1 : p none) (H2 : ∀a, p (some a)) : p o :=
   rec H1 H2 o
 
-  protected definition rec_on {A : Type} {C : option A → Type} (o : option A)
-    (H1 : C none) (H2 : ∀a, C (some a)) : C o :=
-  rec H1 H2 o
-
   definition is_none {A : Type} (o : option A) : Prop :=
   rec true (λ a, false) o
 

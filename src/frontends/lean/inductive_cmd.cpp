@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/protected.h"
 #include "library/explicit.h"
 #include "library/reducible.h"
+#include "library/definitional/rec_on.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/class.h"
@@ -646,6 +647,13 @@ struct inductive_cmd_fn {
         return env;
     }
 
+    environment mk_aux_decls(environment env, buffer<inductive_decl> const & decls) {
+        for (inductive_decl const & d : decls) {
+            env = mk_rec_on(env, inductive_decl_name(d));
+        }
+        return env;
+    }
+
     /** \brief Auxiliary method used for debugging */
     void display(std::ostream & out, buffer<inductive_decl> const & decls) {
         if (!m_levels.empty()) {
@@ -681,7 +689,8 @@ struct inductive_cmd_fn {
         environment env = module::add_inductive(m_p.env(), ls, m_num_params, to_list(decls.begin(), decls.end()));
         update_declaration_index(env);
         env = add_aliases(env, ls, locals, decls);
-        return apply_modifiers(env);
+        env = apply_modifiers(env);
+        return mk_aux_decls(env, decls);
     }
 };
 

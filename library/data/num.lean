@@ -22,10 +22,6 @@ namespace pos_num
       (H₁ : P one) (H₂ : ∀ (n : pos_num), P n → P (bit1 n)) (H₃ : ∀ (n : pos_num), P n → P (bit0 n)) : P a :=
   rec H₁ H₂ H₃ a
 
-  protected definition rec_on {P : pos_num → Type} (a : pos_num)
-      (H₁ : P one) (H₂ : ∀ (n : pos_num), P n → P (bit1 n)) (H₃ : ∀ (n : pos_num), P n → P (bit0 n)) : P a :=
-  rec H₁ H₂ H₃ a
-
   definition succ (a : pos_num) : pos_num :=
   rec_on a (bit0 one) (λn r, bit0 r) (λn r, bit1 n)
 
@@ -130,10 +126,6 @@ inhabited.mk num.zero
 namespace num
   open pos_num
   protected theorem induction_on {P : num → Prop} (a : num)
-      (H₁ : P zero) (H₂ : ∀ (p : pos_num), P (pos p)) : P a :=
-  rec H₁ H₂ a
-
-  protected definition rec_on {P : num → Type} (a : num)
       (H₁ : P zero) (H₂ : ∀ (p : pos_num), P (pos p)) : P a :=
   rec H₁ H₂ a
 

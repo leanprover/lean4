@@ -34,9 +34,6 @@ theorem nat_rec_succ {P : ℕ → Type} (x : P 0) (f : ∀m, P m → P (succ m))
 theorem induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P 0) (H2 : ∀ (n : ℕ) (IH : P n), P (succ n)) : P a
 := nat.rec H1 H2 a
 
-definition rec_on {P : ℕ → Type} (n : ℕ) (H1 : P 0) (H2 : ∀m, P m → P (succ m)) : P n
-:= nat.rec H1 H2 n
-
 -------------------------------------------------- succ pred
 
 theorem succ_ne_zero (n : ℕ) : succ n ≠ 0

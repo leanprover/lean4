@@ -19,11 +19,6 @@ namespace decidable
   protected theorem induction_on {C : Prop} (H : decidable p) (H1 : p → C) (H2 : ¬p → C) : C :=
   decidable.rec H1 H2 H
 
-  protected definition rec_on {C : decidable p → Type} (H : decidable p)
-    (H1 : Π(a : p), C (inl a)) (H2 : Π(a : ¬p), C (inr a)) :
-    C H :=
-  decidable.rec H1 H2 H
-
   definition rec_on_true [H : decidable p] {H1 : p → Type} {H2 : ¬p → Type} (H3 : p) (H4 : H1 H3)
       : rec_on H H1 H2 :=
   rec_on H (λh, H4) (λh, false.rec_type _ (h H3))

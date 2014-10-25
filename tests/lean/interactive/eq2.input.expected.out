@@ -75,7 +75,7 @@ H₃
 C a₁ b₂
 -- ACK
 -- SYNTH|134|53
-rec_on (congr_arg2_dep C (refl a₁) H₂) c₁
+drec_on (congr_arg2_dep C (refl a₁) H₂) c₁
 -- ACK
 -- SYMBOL|134|53
 _

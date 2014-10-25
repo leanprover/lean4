@@ -4,6 +4,7 @@
 false|Prop
 false.rec|∀ (C : Prop), false → C
 false_elim|false → ?c
+false.rec_on|∀ (C : Prop), false → C
 not_false_trivial|¬ false
 true_ne_false|¬ true = false
 p_ne_false|?p → ?p ≠ false

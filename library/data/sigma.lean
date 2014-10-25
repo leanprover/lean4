@@ -25,12 +25,12 @@ namespace sigma
   theorem dpair_ext (p : sigma B) : dpair (dpr1 p) (dpr2 p) = p :=
   destruct p (take a b, rfl)
 
-  theorem dpair_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) :
+  theorem dpair_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂) (H₂ : eq.drec_on H₁ b₁ = b₂) :
     dpair a₁ b₁ = dpair a₂ b₂ :=
   congr_arg2_dep dpair H₁ H₂
 
   protected theorem equal {p₁ p₂ : Σx : A, B x} :
-    ∀(H₁ : dpr1 p₁ = dpr1 p₂) (H₂ : eq.rec_on H₁ (dpr2 p₁) = dpr2 p₂), p₁ = p₂ :=
+    ∀(H₁ : dpr1 p₁ = dpr1 p₂) (H₂ : eq.drec_on H₁ (dpr2 p₁) = dpr2 p₂), p₁ = p₂ :=
   destruct p₁ (take a₁ b₁, destruct p₂ (take a₂ b₂ H₁ H₂, dpair_eq H₁ H₂))
 
   protected definition is_inhabited [instance] (H₁ : inhabited A) (H₂ : inhabited (B (default A))) :
@@ -49,19 +49,19 @@ namespace sigma
   definition dpr4  (x : Σ a b c, D a b c) := dpr2 (dpr2 (dpr2 x))
 
   theorem dtrip_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
-      (H₁ : a₁ = a₂)  (H₂ : eq.rec_on H₁ b₁ = b₂) (H₃ : eq.rec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) :
+      (H₁ : a₁ = a₂)  (H₂ : eq.drec_on H₁ b₁ = b₂) (H₃ : eq.drec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) :
     dtrip a₁ b₁ c₁ = dtrip a₂ b₂ c₂ :=
   congr_arg3_dep dtrip H₁ H₂ H₃
 
   theorem dtrip_eq_ndep {A B : Type} {C : A → B → Type} {a₁ a₂ : A} {b₁ b₂ : B}
       {c₁ : C a₁ b₁} {c₂ : C a₂ b₂} (H₁ : a₁ = a₂)  (H₂ : b₁ = b₂)
-      (H₃ : eq.rec_on (congr_arg2 C H₁ H₂) c₁ = c₂) :
+      (H₃ : eq.drec_on (congr_arg2 C H₁ H₂) c₁ = c₂) :
     dtrip a₁ b₁ c₁ = dtrip a₂ b₂ c₂ :=
   congr_arg3_ndep_dep dtrip H₁ H₂ H₃
 
   theorem trip.equal_ndep {A B : Type} {C : A → B → Type} {p₁ p₂ : Σa b, C a b} :
       ∀(H₁ : dpr1 p₁ = dpr1 p₂) (H₂ : dpr2' p₁ = dpr2' p₂)
-      (H₃ : eq.rec_on (congr_arg2 C H₁ H₂) (dpr3 p₁) = dpr3 p₂), p₁ = p₂ :=
+      (H₃ : eq.drec_on (congr_arg2 C H₁ H₂) (dpr3 p₁) = dpr3 p₂), p₁ = p₂ :=
   destruct p₁ (take a₁ q₁, destruct q₁ (take b₁ c₁, destruct p₂ (take a₂ q₂, destruct q₂
     (take b₂ c₂ H₁ H₂ H₃, dtrip_eq_ndep H₁ H₂ H₃))))
 

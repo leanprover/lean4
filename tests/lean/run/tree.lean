@@ -15,8 +15,6 @@ namespace tree
     variables {A : Type} {C : tree A → Type}
     definition cases_on  (t : tree A) (e₁ : Πa, C (leaf a)) (e₂ : Πt₁ t₂, C (node t₁ t₂)) : C t :=
     rec e₁ (λt₁ t₂ r₁ r₂, e₂ t₁ t₂) t
-    definition rec_on (t : tree A) (e₁ : Πa, C (leaf a)) (e₂ : Πt₁ t₂ r₁ r₂, C (node t₁ t₂)) : C t :=
-    rec e₁ e₂ t
   end
 
   section

@@ -15,10 +15,6 @@ namespace vector
   section sc_vector
   variable {T : Type}
 
-  protected theorem rec_on {C : ∀ (n : ℕ), vector T n → Type} {n : ℕ} (v : vector T n) (Hnil : C 0 nil)
-    (Hcons : ∀(x : T) {n : ℕ} (w : vector T n), C n w → C (succ n) (cons x w)) : C n v :=
-  rec Hnil Hcons v
-
   protected theorem induction_on {C : ∀ (n : ℕ), vector T n → Prop} {n : ℕ} (v : vector T n) (Hnil : C 0 nil)
     (Hcons : ∀(x : T) {n : ℕ} (w : vector T n), C n w → C (succ n) (cons x w)) : C n v :=
   rec_on v Hnil Hcons

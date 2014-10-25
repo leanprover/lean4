@@ -295,6 +295,7 @@ static bool all_unassigned(substitution const & subst, name_set const & s) {
 
 name_set substitution::get_occs(name const & m, name_set & fresh) {
     lean_assert(is_expr_assigned(m));
+    check_system("substitution occurs check");
     if (fresh.contains(m)) {
         return *m_occs_map.find(m);
     } else if (name_set const * it = m_occs_map.find(m)) {

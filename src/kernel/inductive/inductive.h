@@ -72,6 +72,9 @@ bool is_elim_meta_app(type_checker & tc, expr const & e);
     If \c n is not an inductive datatype in \c env, then return none.
 */
 optional<unsigned> get_num_indices(environment const & env, name const & n);
+
+/** \brief Return the eliminator/recursor associated with an inductive datatype */
+name get_elim_name(name const & n);
 }
 void initialize_inductive_module();
 void finalize_inductive_module();

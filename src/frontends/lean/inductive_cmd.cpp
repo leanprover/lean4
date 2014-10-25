@@ -131,7 +131,7 @@ struct inductive_cmd_fn {
     }
 
     name mk_rec_name(name const & n) {
-        return n + name("rec");
+        return ::lean::inductive::get_elim_name(n);
     }
 
     /** \brief Parse the name of an inductive datatype or introduction rule,

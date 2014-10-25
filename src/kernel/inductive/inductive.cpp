@@ -183,7 +183,7 @@ static environment update(environment const & env, inductive_env_ext const & ext
 }
 
 /**\ brief Return recursor name */
-static name get_elim_name(name const & n) {
+name get_elim_name(name const & n) {
     return n + name("rec");
 }
 

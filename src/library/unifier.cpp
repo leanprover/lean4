@@ -151,6 +151,12 @@ occurs_check_status occurs_context_check(substitution & s, expr const & e, expr 
                 return has_expr_metavar(e) || has_local(e);
             }
         });
+    if (r != occurs_check_status::Ok)
+        return r;
+    for (expr const & local : locals) {
+        if (s.occurs(m, mlocal_type(local)))
+            return occurs_check_status::Maybe;
+    }
     return r;
 }
 

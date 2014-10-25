@@ -4,14 +4,14 @@
 import logic.decidable logic.inhabited
 open decidable
 
-inductive unit : Type :=
+inductive unit.{l} : Type.{l} :=
   star : unit
 namespace unit
   notation `⋆` := star
 
   -- remove duplication?
   protected theorem equal (a b : unit) : a = b :=
-  rec (rec rfl b) a
+  rec_on a (rec_on b rfl)
 
   protected theorem subsingleton [instance] : subsingleton unit :=
   subsingleton.intro (λ a b, equal a b)

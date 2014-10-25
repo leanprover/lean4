@@ -182,6 +182,11 @@ static environment update(environment const & env, inductive_env_ext const & ext
     return env.update(g_ext->m_ext_id, std::make_shared<inductive_env_ext>(ext));
 }
 
+/**\ brief Return recursor name */
+static name get_elim_name(name const & n) {
+    return n + name("rec");
+}
+
 /** \brief Helper functional object for processing inductive datatype declarations. */
 struct add_inductive_fn {
     typedef std::unique_ptr<type_checker> type_checker_ptr;
@@ -630,7 +635,7 @@ struct add_inductive_fn {
     }
 
     /** \brief Return the name of the eliminator/recursor for \c d. */
-    name get_elim_name(inductive_decl const & d) { return inductive_decl_name(d) + name("rec"); }
+    name get_elim_name(inductive_decl const & d) { return ::lean::inductive::get_elim_name(inductive_decl_name(d)); }
 
     name get_elim_name(unsigned d_idx) { return get_elim_name(get_ith(m_decls, d_idx)); }
 
@@ -955,6 +960,15 @@ optional<inductive_decls> is_inductive_decl(environment const & env, name const 
         return optional<inductive_decls>(*it);
     else
         return optional<inductive_decls>();
+}
+
+optional<unsigned> get_num_indices(environment const & env, name const & n) {
+    inductive_env_ext const & ext = get_extension(env);
+    if (auto it = ext.m_elim_info.find(get_elim_name(n))) {
+        return optional<unsigned>(it->m_num_indices);
+    } else {
+        return optional<unsigned>();
+    }
 }
 
 optional<name> is_intro_rule(environment const & env, name const & n) {

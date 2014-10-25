@@ -19,7 +19,6 @@ environment mk_induction_on(environment const & env, name const & n) {
         throw exception(sstream() << "error in 'induction_on' generation, '" << n << "' is not an inductive datatype");
     name rec_on_name(n, "rec_on");
     name induction_on_name(n, "induction_on");
-    name_generator ngen;
     declaration rec_on_decl   = env.get(rec_on_name);
     declaration ind_decl      = env.get(n);
     unsigned rec_on_num_univs = length(rec_on_decl.get_univ_params());

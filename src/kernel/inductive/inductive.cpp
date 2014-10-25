@@ -971,6 +971,24 @@ optional<unsigned> get_num_indices(environment const & env, name const & n) {
     }
 }
 
+optional<unsigned> get_num_type_formers(environment const & env, name const & n) {
+    if (auto decls = is_inductive_decl(env, n)) {
+        return some(length(std::get<2>(*decls)));
+    } else {
+        return optional<unsigned>();
+    }
+}
+
+optional<unsigned> get_num_minor_premises(environment const & env, name const & n) {
+    inductive_env_ext const & ext = get_extension(env);
+    if (auto it = ext.m_elim_info.find(get_elim_name(n))) {
+        unsigned num_Cs = *get_num_type_formers(env, n);
+        return some(it->m_num_ACe - it->m_num_params - num_Cs);
+    } else {
+        return optional<unsigned>();
+    }
+}
+
 optional<name> is_intro_rule(environment const & env, name const & n) {
     inductive_env_ext const & ext = get_extension(env);
     if (auto it = ext.m_intro_info.find(n))

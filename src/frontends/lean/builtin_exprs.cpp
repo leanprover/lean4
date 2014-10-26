@@ -137,11 +137,12 @@ static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
 static expr parse_begin_end_core(parser & p, pos_info const & pos) {
     if (!p.has_tactic_decls())
         throw parser_error("invalid 'begin-end' expression, tactic module has not been imported", pos);
-    optional<expr> pre_tac = get_begin_end_pre_tactic(p.env());
+    environment env = open_tactic_namespace(p);
+    parser::local_scope scope2(p, env);
+    parser::undef_id_to_local_scope scope1(p);
+    optional<expr> pre_tac = get_begin_end_pre_tactic(env);
     buffer<expr> tacs;
     bool first = true;
-    parser::undef_id_to_local_scope scope(p);
-    environment env = open_tactic_namespace(p);
     while (!p.curr_is_token(get_end_tk())) {
         if (first) {
             first = false;
@@ -159,7 +160,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
                           p.curr_is_token(get_assume_tk()) || p.curr_is_token(get_take_tk()) ||
                           p.curr_is_token(get_fun_tk()));
         auto pos = p.pos();
-        expr tac = p.parse_scoped_expr(0, nullptr, env);
+        expr tac = p.parse_expr();
         if (use_exact)
             tac = p.mk_app(get_exact_tac_fn(), tac, pos);
         if (pre_tac)

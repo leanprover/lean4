@@ -348,7 +348,9 @@ public:
     }
     expr parse_scoped_expr(buffer<expr> const & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
 
-    struct local_scope { parser & m_p; environment m_env; local_scope(parser & p); ~local_scope(); };
+    struct local_scope { parser & m_p; environment m_env;
+        local_scope(parser & p); local_scope(parser & p, environment const & env); ~local_scope();
+    };
     bool has_locals() const { return !m_local_decls.empty() || !m_local_level_decls.empty(); }
     void add_local_level(name const & n, level const & l, bool is_variable = false);
     void add_local_expr(name const & n, expr const & p, bool is_variable = false);

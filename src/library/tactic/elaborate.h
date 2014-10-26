@@ -24,5 +24,5 @@ typedef std::function<pair<expr, constraints>(goal const &, name_generator const
     is not modified.
 */
 optional<expr> elaborate_with_respect_to(environment const & env, io_state const & ios, elaborate_fn const & elab,
-                                         proof_state & s, expr const & e);
+                                         proof_state & s, expr const & e, optional<expr> const & expected_type = optional<expr>());
 }

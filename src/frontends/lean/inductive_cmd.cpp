@@ -52,22 +52,25 @@ intro_rule update_intro_rule(intro_rule const & r, expr const & t) {
     return intro_rule(intro_rule_name(r), t);
 }
 
-static name * g_tmp_prefix = nullptr;
-static name * g_inductive  = nullptr;
-static name * g_intro      = nullptr;
-static name * g_recursor   = nullptr;
+static name * g_tmp_prefix  = nullptr;
+static name * g_inductive   = nullptr;
+static name * g_definition  = nullptr;
+static name * g_intro       = nullptr;
+static name * g_recursor    = nullptr;
 
 void initialize_inductive_cmd() {
     g_tmp_prefix = new name(name::mk_internal_unique_name());
     g_inductive  = new name("inductive");
     g_intro      = new name("intro");
     g_recursor   = new name("recursor");
+    g_definition = new name("definition");
 }
 
 void finalize_inductive_cmd() {
     delete g_recursor;
     delete g_intro;
     delete g_inductive;
+    delete g_definition;
     delete g_tmp_prefix;
 }
 
@@ -107,6 +110,7 @@ struct inductive_cmd_fn {
     bool                m_infer_result_universe;
     implicit_infer_map  m_implicit_infer_map; // implicit argument inference mode
     name_map<modifiers> m_modifiers;
+    name_map<pos_info>  m_decl_pos_map;
     typedef std::tuple<name, name, pos_info> decl_info;
     buffer<decl_info> m_decl_info; // auxiliary buffer used to populate declaration_index
 
@@ -272,9 +276,11 @@ struct inductive_cmd_fn {
     void parse_inductive_decls(buffer<inductive_decl> & decls) {
         while (true) {
             parser::local_scope l_scope(m_p);
+            auto pos = m_p.pos();
             pair<name, name> d_names = parse_inductive_decl_name();
             name d_short_name = d_names.first;
             name d_name       = d_names.second;
+            m_decl_pos_map.insert(d_name, pos);
             parse_inductive_univ_params();
             if (!m_first) {
                 add_params_to_local_scope();
@@ -650,13 +656,23 @@ struct inductive_cmd_fn {
         return env;
     }
 
+    void save_def_info(name const & n, pos_info pos) {
+        m_decl_info.emplace_back(n, *g_definition, pos);
+    }
+
     environment mk_aux_decls(environment env, buffer<inductive_decl> const & decls) {
         bool has_unit = has_unit_decls(env);
         for (inductive_decl const & d : decls) {
+            name const & n = inductive_decl_name(d);
+            pos_info pos   = *m_decl_pos_map.find(n);
             env = mk_rec_on(env, inductive_decl_name(d));
             env = mk_induction_on(env, inductive_decl_name(d));
-            if (has_unit)
+            save_def_info(name(n, "rec_on"), pos);
+            save_def_info(name(n, "induction_on"), pos);
+            if (has_unit) {
                 env = mk_cases_on(env, inductive_decl_name(d));
+                save_def_info(name(n, "cases_on"), pos);
+            }
         }
         return env;
     }
@@ -694,10 +710,10 @@ struct inductive_cmd_fn {
         elaborate_decls(decls, locals);
         level_param_names ls = to_list(m_levels.begin(), m_levels.end());
         environment env = module::add_inductive(m_p.env(), ls, m_num_params, to_list(decls.begin(), decls.end()));
+        env = mk_aux_decls(env, decls);
         update_declaration_index(env);
         env = add_aliases(env, ls, locals, decls);
-        env = apply_modifiers(env);
-        return mk_aux_decls(env, decls);
+        return apply_modifiers(env);
     }
 };
 

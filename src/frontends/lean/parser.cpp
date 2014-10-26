@@ -1077,6 +1077,8 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
     if (is_constant(*r)) {
         add_ref_index(const_name(*r), p);
         save_identifier_info(p, const_name(*r));
+    } else if (is_local(*r)) {
+        save_identifier_info(p, local_pp_name(*r));
     }
     return *r;
 }

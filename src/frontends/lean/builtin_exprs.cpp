@@ -128,7 +128,7 @@ static environment open_tactic_namespace(parser & p) {
 }
 
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
-    parser::no_undef_id_error_scope scope(p);
+    parser::undef_id_to_local_scope scope(p);
     environment env = open_tactic_namespace(p);
     expr t = p.parse_scoped_expr(0, nullptr, env);
     return p.mk_by(t, pos);
@@ -140,7 +140,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
     optional<expr> pre_tac = get_begin_end_pre_tactic(p.env());
     buffer<expr> tacs;
     bool first = true;
-    parser::no_undef_id_error_scope scope(p);
+    parser::undef_id_to_local_scope scope(p);
     environment env = open_tactic_namespace(p);
     while (!p.curr_is_token(get_end_tk())) {
         if (first) {

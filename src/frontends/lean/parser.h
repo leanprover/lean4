@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
+#include "util/flet.h"
 #include "util/script_state.h"
 #include "util/name_map.h"
 #include "util/exception.h"
@@ -80,6 +81,8 @@ typedef std::vector<snapshot> snapshot_vector;
 
 enum class keep_theorem_mode { All, DiscardImported, DiscardAll };
 
+enum class undef_id_behavior { Error, AssumeConstant, AssumeLocal };
+
 class parser {
     environment             m_env;
     io_state                m_ios;
@@ -105,7 +108,7 @@ class parser {
     // By default, when the parser finds a unknown identifier, it signs an error.
     // When the following flag is true, it creates a constant.
     // This flag is when we are trying to parse mutually recursive declarations.
-    bool                    m_no_undef_id_error;
+    undef_id_behavior       m_undef_id_behavior;
     optional<bool>          m_has_num;
     optional<bool>          m_has_string;
     optional<bool>          m_has_tactic_decls;
@@ -371,11 +374,13 @@ public:
     /** \brief Return all local level declarations */
     list<pair<name, level>> const & get_local_level_entries() const { return m_local_level_decls.get_entries(); }
     /** \brief By default, when the parser finds a unknown identifier, it signs an error.
-        This scope object temporarily changes this behavior. In any scope where this object
-        is declared, the parse creates a constant even when the identifier is unknown.
-        This behavior is useful when we are trying to parse mutually recursive declarations.
+        These scope objects temporarily change this behavior. In any scope where this object
+        is declared, the parse creates a constant/local even when the identifier is unknown.
+        This behavior is useful when we are trying to parse mutually recursive declarations and
+        tactics.
     */
-    struct no_undef_id_error_scope { parser & m_p; bool m_old; no_undef_id_error_scope(parser &); ~no_undef_id_error_scope(); };
+    struct undef_id_to_const_scope : public flet<undef_id_behavior> { undef_id_to_const_scope(parser & p); };
+    struct undef_id_to_local_scope : public flet<undef_id_behavior> { undef_id_to_local_scope(parser &); };
 
     /** \brief Elaborate \c e, and tolerate metavariables in the result. */
     std::tuple<expr, level_param_names> elaborate_relaxed(expr const & e, list<expr> const & ctx = list<expr>());

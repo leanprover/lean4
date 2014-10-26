@@ -698,7 +698,7 @@ struct inductive_cmd_fn {
     }
 
     environment operator()() {
-        parser::no_undef_id_error_scope err_scope(m_p);
+        parser::undef_id_to_const_scope err_scope(m_p);
         buffer<inductive_decl> decls;
         {
             parser::local_scope scope(m_p);

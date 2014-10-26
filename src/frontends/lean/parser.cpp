@@ -75,12 +75,10 @@ parser::local_scope::~local_scope() {
     m_p.m_env = m_env;
 }
 
-parser::no_undef_id_error_scope::no_undef_id_error_scope(parser & p):m_p(p), m_old(m_p.m_no_undef_id_error) {
-    m_p.m_no_undef_id_error = true;
-}
-parser::no_undef_id_error_scope::~no_undef_id_error_scope() {
-    m_p.m_no_undef_id_error = m_old;
-}
+parser::undef_id_to_const_scope::undef_id_to_const_scope(parser & p):
+    flet<undef_id_behavior>(p.m_undef_id_behavior, undef_id_behavior::AssumeConstant) {}
+parser::undef_id_to_local_scope::undef_id_to_local_scope(parser & p):
+    flet<undef_id_behavior>(p.m_undef_id_behavior, undef_id_behavior::AssumeLocal) {}
 
 static name * g_tmp_prefix = nullptr;
 
@@ -104,7 +102,7 @@ parser::parser(environment const & env, io_state const & ios,
         m_parser_scope_stack = s->m_parser_scope_stack;
     }
     m_num_threads = num_threads;
-    m_no_undef_id_error = false;
+    m_undef_id_behavior = undef_id_behavior::Error;
     m_found_errors = false;
     m_used_sorry = false;
     updt_options();
@@ -1067,8 +1065,12 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         r = save_pos(mk_choice(new_as.size(), new_as.data()), p);
         save_overload(*r);
     }
-    if (!r && m_no_undef_id_error)
-        r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
+    if (!r) {
+        if (m_undef_id_behavior == undef_id_behavior::AssumeConstant)
+            r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
+        else if (m_undef_id_behavior == undef_id_behavior::AssumeLocal)
+            r = save_pos(mk_local(id, mk_expr_placeholder()), p);
+    }
     if (!r)
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
     save_type_info(*r);

@@ -1035,7 +1035,7 @@ void elaborator::display_unassigned_mvars(expr const & e, substitution const & s
                     expr meta      = tmp_s.instantiate(*it);
                     expr meta_type = tmp_s.instantiate(type_checker(env()).infer(meta).first);
                     goal g(meta, meta_type);
-                    proof_state ps(goals(g), substitution(), m_ngen, constraints());
+                    proof_state ps(goals(g), s, m_ngen, constraints());
                     display_unsolved_proof_state(e, ps, "don't know how to synthesize it");
                 }
                 return false;

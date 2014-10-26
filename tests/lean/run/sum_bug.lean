@@ -21,10 +21,6 @@ have H1 : f (inl B a1), from rfl,
 have H2 : f (inl B a2), from subst H H1,
 H2
 
-definition cases_on {A B : Type} {P : (A + B) → Prop} (s : A + B)
-  (H1 : ∀a : A, P (inl B a)) (H2 : ∀b : B, P (inr A b)) : P s :=
-sum.rec H1 H2 s
-
 theorem inl_neq_inr {A B : Type} {a : A} {b : B} (H : inl B a = inr A b) : false :=
 let f := λs, rec_on s (λa', a = a') (λb, false) in
 have H1 : f (inl B a), from rfl,

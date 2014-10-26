@@ -23,6 +23,8 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
+#include "library/definitional/cases_on.h"
+#include "library/definitional/unit.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/class.h"
@@ -649,9 +651,12 @@ struct inductive_cmd_fn {
     }
 
     environment mk_aux_decls(environment env, buffer<inductive_decl> const & decls) {
+        bool has_unit = has_unit_decls(env);
         for (inductive_decl const & d : decls) {
             env = mk_rec_on(env, inductive_decl_name(d));
             env = mk_induction_on(env, inductive_decl_name(d));
+            if (has_unit)
+                env = mk_cases_on(env, inductive_decl_name(d));
         }
         return env;
     }

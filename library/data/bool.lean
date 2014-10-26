@@ -10,9 +10,6 @@ inductive bool : Type :=
   ff : bool,
   tt : bool
 namespace bool
-  protected definition cases_on {p : bool → Prop} (b : bool) (H₁ : p ff) (H₂ : p tt) : p b :=
-  rec H₁ H₂ b
-
   definition cond {A : Type} (b : bool) (t e : A) :=
   rec_on b e t
 

@@ -21,10 +21,6 @@ notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 
 variable {T : Type}
 
-protected theorem cases_on {P : list T → Prop} (l : list T) (Hnil : P nil)
-    (Hcons : ∀ (x : T) (l : list T), P (x::l)) : P l :=
-induction_on l Hnil (take x l IH, Hcons x l)
-
 -- Concat
 -- ------
 

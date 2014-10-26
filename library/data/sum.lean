@@ -20,8 +20,6 @@ namespace sum
 
   variables {A B : Type}
   variables {a a₁ a₂ : A} {b b₁ b₂ : B}
-  protected definition cases_on {P : (A ⊎ B) → Prop} (s : A ⊎ B) (H₁ : ∀a : A, P (inl B a)) (H₂ : ∀b : B, P (inr A b)) : P s :=
-  rec H₁ H₂ s
 
   -- Here is the trick for the theorems that follow:
   -- Fixing a₁, "f s" is a recursive description of "inl B a₁ = s".

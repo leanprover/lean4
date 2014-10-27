@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/interrupt.h"
 #include "util/name_generator.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
@@ -14,7 +15,7 @@ namespace lean {
 class normalize_fn {
     type_checker   &                  m_tc;
     name_generator                    m_ngen;
-    std::function<bool(expr const &)> m_pred;
+    std::function<bool(expr const &)> m_pred;  // NOLINT
     bool                              m_save_cnstrs;
     constraint_seq                    m_cnstrs;
 
@@ -34,6 +35,7 @@ class normalize_fn {
     }
 
     expr normalize(expr e) {
+        check_system("normalize");
         if (!m_pred(e))
             return e;
         auto w = m_tc.whnf(e);
@@ -58,7 +60,7 @@ public:
         m_pred([](expr const &) { return true; }),
         m_save_cnstrs(save) {}
 
-    normalize_fn(type_checker & tc, std::function<bool(expr const &)> const & fn):
+    normalize_fn(type_checker & tc, std::function<bool(expr const &)> const & fn): // NOLINT
         m_tc(tc), m_ngen(m_tc.mk_ngen()),
         m_pred(fn) {}
 
@@ -101,7 +103,8 @@ expr normalize(type_checker & tc, expr const & e, constraint_seq & cs) {
     return r;
 }
 
-expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const &)> const & pred, constraint_seq & cs) {
+expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const &)> const & pred, // NOLINT
+               constraint_seq & cs) {
     normalize_fn fn(tc, pred);
     expr r = fn(e);
     cs += fn.get_cnstrs();

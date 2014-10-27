@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/error_msgs.h"
+#include "library/normalize.h"
 #include "library/occurs.h"
 #include "library/locals.h"
 #include "library/module.h"
@@ -726,13 +727,18 @@ struct unifier_fn {
         auto status = occurs_context_check(m_subst, rhs, *m, locals, bad_local);
         if (status == occurs_check_status::FailLocal || status == occurs_check_status::FailCircular) {
             // Try to normalize rhs
-            // TODO(Leo): use a custom normalizer that uses reduction to solve just the failure.
-            // TODO(Leo): this code is using only whnf, we may fail to eliminate the failure.
             // Example:  ?M := f (pr1 (pair 0 ?M))
             constraint_seq cs;
-            expr rhs_whnf = whnf(rhs, relax, cs);
-            if (rhs != rhs_whnf && process_constraints(cs))
-                return process_metavar_eq(lhs, rhs_whnf, j, relax);
+            auto is_target_fn = [&](expr const & e) {
+                if (status == occurs_check_status::FailLocal && occurs(bad_local, e))
+                    return true;
+                else if (status == occurs_check_status::FailCircular && occurs(*m, e))
+                    return true;
+                return false;
+            };
+            expr rhs_n = normalize(*m_tc[relax], rhs, is_target_fn, cs);
+            if (rhs != rhs_n && process_constraints(cs))
+                return process_metavar_eq(lhs, rhs_n, j, relax);
         }
         switch (status) {
         case occurs_check_status::FailLocal:

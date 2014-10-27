@@ -28,6 +28,6 @@ expr normalize(type_checker & tc, expr const & e, constraint_seq & cs);
 
     \remark A sub-expression is evaluated only if \c pred returns true.
 */
-expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const&)> const & pred,
+expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const&)> const & pred, // NOLINT
                constraint_seq & cs);
 }

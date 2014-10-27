@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/coercion.h"
 #include "library/reducible.h"
 #include "library/normalize.h"
+#include "library/print.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -217,7 +218,8 @@ static std::tuple<expr, level_param_names> parse_local_expr(parser & p) {
                     break;
                 std::string q("?");
                 q += binding_name(type).to_string();
-                expr m = mk_local(name(q.c_str()), binding_domain(type));
+                name n = pick_unused_name(binding_body(type), name(q.c_str()));
+                expr m = mk_local(n, binding_domain(type));
                 type   = instantiate(binding_body(type), m);
                 e      = mk_app(e, m);
             }

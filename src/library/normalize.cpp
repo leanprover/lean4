@@ -12,8 +12,11 @@ Author: Leonardo de Moura
 
 namespace lean {
 class normalize_fn {
-    std::unique_ptr<type_checker> m_tc;
-    name_generator                m_ngen;
+    type_checker   &                  m_tc;
+    name_generator                    m_ngen;
+    std::function<bool(expr const &)> m_pred;
+    bool                              m_save_cnstrs;
+    constraint_seq                    m_cnstrs;
 
     expr normalize_binding(expr const & e) {
         expr d = normalize(binding_domain(e));
@@ -31,7 +34,12 @@ class normalize_fn {
     }
 
     expr normalize(expr e) {
-        e = m_tc->whnf(e).first;
+        if (!m_pred(e))
+            return e;
+        auto w = m_tc.whnf(e);
+        e = w.first;
+        if (m_save_cnstrs)
+            m_cnstrs += w.second;
         switch (e.kind()) {
         case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
         case expr_kind::Meta: case expr_kind::Local: case expr_kind::Macro:
@@ -45,15 +53,58 @@ class normalize_fn {
     }
 
 public:
-    normalize_fn(environment const & env):m_tc(mk_type_checker(env, true)), m_ngen(m_tc->mk_ngen()) {}
-    expr operator()(expr const & e) { return normalize(e); }
+    normalize_fn(type_checker & tc, bool save = true):
+        m_tc(tc), m_ngen(m_tc.mk_ngen()),
+        m_pred([](expr const &) { return true; }),
+        m_save_cnstrs(save) {}
+
+    normalize_fn(type_checker & tc, std::function<bool(expr const &)> const & fn):
+        m_tc(tc), m_ngen(m_tc.mk_ngen()),
+        m_pred(fn) {}
+
+    expr operator()(expr const & e) {
+        m_cnstrs = constraint_seq();
+        return normalize(e);
+    }
+
     expr operator()(level_param_names const & ls, expr const & e) {
-        return m_tc->with_params(ls, [&]() {
+        m_cnstrs = constraint_seq();
+        return m_tc.with_params(ls, [&]() {
                 return normalize(e);
             });
     }
+
+    constraint_seq get_cnstrs() const { return m_cnstrs; }
 };
 
-expr normalize(environment const & env, expr const & e) { return normalize_fn(env)(e); }
-expr normalize(environment const & env, level_param_names const & ls, expr const & e) { return normalize_fn(env)(ls, e); }
+expr normalize(environment const & env, expr const & e) {
+    auto tc          = mk_type_checker(env, true);
+    bool save_cnstrs = false;
+    return normalize_fn(*tc, save_cnstrs)(e);
+}
+
+expr normalize(environment const & env, level_param_names const & ls, expr const & e) {
+    auto tc          = mk_type_checker(env, true);
+    bool save_cnstrs = false;
+    return normalize_fn(*tc, save_cnstrs)(ls, e);
+}
+
+expr normalize(type_checker & tc, expr const & e) {
+    bool save_cnstrs = false;
+    return normalize_fn(tc, save_cnstrs)(e);
+}
+
+expr normalize(type_checker & tc, expr const & e, constraint_seq & cs) {
+    normalize_fn fn(tc);
+    expr r = fn(e);
+    cs += fn.get_cnstrs();
+    return r;
+}
+
+expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const &)> const & pred, constraint_seq & cs) {
+    normalize_fn fn(tc, pred);
+    expr r = fn(e);
+    cs += fn.get_cnstrs();
+    return r;
+}
 }

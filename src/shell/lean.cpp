@@ -57,7 +57,7 @@ using lean::declaration_index;
 using lean::keep_theorem_mode;
 using lean::module_name;
 
-enum class input_kind { Unspecified, Lean, Lua };
+enum class input_kind { Unspecified, Lean, Lua, Trace };
 
 static void on_ctrl_c(int ) {
     lean::request_interrupt();
@@ -82,6 +82,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --lean            use parser for Lean default input format for files,\n";
     std::cout << "                    with unknown extension (default)\n";
     std::cout << "  --lua             use Lua parser for files with unknown extension\n";
+    std::cout << "  --server-trace    use lean server trace parser for files with unknown extension\n";
     std::cout << "Miscellaneous:\n";
     std::cout << "  --help -h         display this message\n";
     std::cout << "  --version -v      display version number\n";
@@ -126,34 +127,35 @@ static char const * get_file_extension(char const * fname) {
 }
 
 static struct option g_long_options[] = {
-    {"version",     no_argument,       0, 'v'},
-    {"help",        no_argument,       0, 'h'},
-    {"lean",        no_argument,       0, 'l'},
-    {"lua",         no_argument,       0, 'u'},
-    {"path",        no_argument,       0, 'p'},
-    {"luahook",     required_argument, 0, 'k'},
-    {"githash",     no_argument,       0, 'g'},
-    {"output",      required_argument, 0, 'o'},
-    {"cpp",         required_argument, 0, 'C'},
-    {"trust",       required_argument, 0, 't'},
-    {"discard",     no_argument,       0, 'T'},
-    {"to_axiom",    no_argument,       0, 'X'},
+    {"version",      no_argument,       0, 'v'},
+    {"help",         no_argument,       0, 'h'},
+    {"lean",         no_argument,       0, 'l'},
+    {"lua",          no_argument,       0, 'u'},
+    {"server-trace", no_argument,       0, 'R'},
+    {"path",         no_argument,       0, 'p'},
+    {"luahook",      required_argument, 0, 'k'},
+    {"githash",      no_argument,       0, 'g'},
+    {"output",       required_argument, 0, 'o'},
+    {"cpp",          required_argument, 0, 'C'},
+    {"trust",        required_argument, 0, 't'},
+    {"discard",      no_argument,       0, 'T'},
+    {"to_axiom",     no_argument,       0, 'X'},
 #if defined(LEAN_MULTI_THREAD)
-    {"server",      no_argument,       0, 'S'},
-    {"threads",     required_argument, 0, 'j'},
+    {"server",       no_argument,       0, 'S'},
+    {"threads",      required_argument, 0, 'j'},
 #endif
-    {"quiet",       no_argument,       0, 'q'},
-    {"cache",       required_argument, 0, 'c'},
-    {"deps",        no_argument,       0, 'd'},
-    {"flycheck",    no_argument,       0, 'F'},
-    {"index",       no_argument,       0, 'i'},
+    {"quiet",        no_argument,       0, 'q'},
+    {"cache",        required_argument, 0, 'c'},
+    {"deps",         no_argument,       0, 'd'},
+    {"flycheck",     no_argument,       0, 'F'},
+    {"index",        no_argument,       0, 'i'},
 #if defined(LEAN_USE_BOOST)
-    {"tstack",      required_argument, 0, 's'},
+    {"tstack",       required_argument, 0, 's'},
 #endif
     {0, 0, 0, 0}
 };
 
-#define BASIC_OPT_STR "XTFC:dD:qlupgvhk:012t:012o:c:i:"
+#define BASIC_OPT_STR "RXTFC:dD:qlupgvhk:012t:012o:c:i:"
 
 #if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
 static char const * g_opt_str = BASIC_OPT_STR "Sj:012s:012";
@@ -352,6 +354,9 @@ int main(int argc, char ** argv) {
         case 'u':
             default_k = input_kind::Lua;
             break;
+        case 'R':
+            default_k = input_kind::Trace;
+            break;
         case 'k':
             script_state::set_check_interrupt_freq(atoi(optarg));
             break;
@@ -445,7 +450,8 @@ int main(int argc, char ** argv) {
                         k = input_kind::Lua;
                     }
                 }
-                if (k == input_kind::Lean) {
+                switch (k) {
+                case input_kind::Lean:
                     if (only_deps) {
                         if (!display_deps(env, std::cout, std::cerr, argv[i]))
                             ok = false;
@@ -453,10 +459,16 @@ int main(int argc, char ** argv) {
                                                cache_ptr, index_ptr, tmode)) {
                         ok = false;
                     }
-                } else if (k == input_kind::Lua) {
+                    break;
+                case input_kind::Lua:
                     lean::system_import(argv[i]);
-                } else {
-                    lean_unreachable(); // LCOV_EXCL_LINE
+                    break;
+                case input_kind::Trace:
+                    ok = lean::parse_server_trace(env, ios, argv[i]);
+                    break;
+                default:
+                    lean_unreachable();
+                    break;
                 }
             } catch (lean::exception & ex) {
                 simple_pos_info_provider pp(argv[i]);

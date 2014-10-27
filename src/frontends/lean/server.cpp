@@ -909,6 +909,14 @@ bool server::operator()(std::istream & in) {
     return true;
 }
 
+bool parse_server_trace(environment const & env, io_state const & ios, char const * fname) {
+    lean::server Sv(env, ios);
+    std::ifstream in(fname);
+    if (in.bad() || in.fail())
+        throw exception(sstream() << "failed to open file '" << fname << "'");
+    return Sv(in);
+}
+
 void initialize_server() {
     g_tmp_prefix = new name(name::mk_internal_unique_name());
     g_load = new std::string("LOAD");

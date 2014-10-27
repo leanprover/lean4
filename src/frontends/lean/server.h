@@ -106,6 +106,8 @@ public:
     bool operator()(std::istream & in);
 };
 
+bool parse_server_trace(environment const & env, io_state const & ios, char const * fname);
+
 void initialize_server();
 void finalize_server();
 }

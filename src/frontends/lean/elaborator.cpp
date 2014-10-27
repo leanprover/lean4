@@ -1157,7 +1157,7 @@ static expr translate_local_name(environment const & env, list<expr> const & ctx
 */
 static expr translate(environment const & env, list<expr> const & ctx, expr const & e) {
     auto fn = [&](expr const & e) {
-        if (is_placeholder(e)) {
+        if (is_placeholder(e) || is_by(e)) {
             return some_expr(e); // ignore placeholders
         } else if (is_constant(e)) {
             if (!env.find(const_name(e))) {

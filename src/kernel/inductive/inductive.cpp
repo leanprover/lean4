@@ -928,29 +928,29 @@ auto inductive_normalizer_extension::operator()(expr const & e, extension_contex
 }
 
 template<typename Ctx>
-bool is_elim_meta_app_core(Ctx & ctx, expr const & e) {
+optional<expr> is_elim_meta_app_core(Ctx & ctx, expr const & e) {
     inductive_env_ext const & ext = get_extension(ctx.env());
     expr const & elim_fn   = get_app_fn(e);
     if (!is_constant(elim_fn))
-        return false;
+        return none_expr();
     auto it1 = ext.m_elim_info.find(const_name(elim_fn));
     if (!it1)
-        return false;
+        return none_expr();
     buffer<expr> elim_args;
     get_app_args(e, elim_args);
     unsigned major_idx = it1->m_num_ACe + it1->m_num_indices;
     if (elim_args.size() < major_idx + 1)
-        return false;
+        return none_expr();
     expr intro_app = ctx.whnf(elim_args[major_idx]).first;
     return has_expr_metavar_strict(intro_app);
 }
 
 bool is_elim_meta_app(type_checker & tc, expr const & e) {
-    return is_elim_meta_app_core(tc, e);
+    return static_cast<bool>(is_elim_meta_app_core(tc, e));
 }
 
 // Return true if \c e is of the form (elim ... (?m ...))
-bool inductive_normalizer_extension::may_reduce_later(expr const & e, extension_context & ctx) const {
+optional<expr> inductive_normalizer_extension::may_reduce_later(expr const & e, extension_context & ctx) const {
     return is_elim_meta_app_core(ctx, e);
 }
 

@@ -18,8 +18,10 @@ class normalizer_extension {
 public:
     virtual ~normalizer_extension() {}
     virtual optional<pair<expr, constraint_seq>> operator()(expr const & e, extension_context & ctx) const = 0;
-    /** \brief Return true if the extension may reduce \c e after metavariables are instantiated. */
-    virtual bool may_reduce_later(expr const & e, extension_context & ctx) const = 0;
+    /** \brief Return a non-none expression if the extension may reduce \c e after metavariables are instantiated.
+        The expression returned is a meta-variable that if instantiated my allow the reduction to continue.
+    */
+    virtual optional<expr> may_reduce_later(expr const & e, extension_context & ctx) const = 0;
     /** \brief Return true iff the extension supports a feature with the given name,
         this method is only used for sanity checking. */
     virtual bool supports(name const & feature) const = 0;

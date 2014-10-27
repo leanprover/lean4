@@ -141,7 +141,7 @@ struct default_converter : public converter {
 
     /** \brief Return true if \c e may be reduced later after metavariables are instantiated. */
     bool may_reduce_later(expr const & e, type_checker & c) {
-        return m_env.norm_ext().may_reduce_later(e, get_extension(c));
+        return static_cast<bool>(m_env.norm_ext().may_reduce_later(e, get_extension(c)));
     }
 
     /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */

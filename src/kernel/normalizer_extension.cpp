@@ -12,7 +12,7 @@ public:
     virtual optional<pair<expr, constraint_seq>> operator()(expr const &, extension_context &) const {
         return optional<pair<expr, constraint_seq>>();
     }
-    virtual bool may_reduce_later(expr const &, extension_context &) const { return false; }
+    virtual optional<expr> may_reduce_later(expr const &, extension_context &) const { return none_expr(); }
     virtual bool supports(name const &) const { return false; }
 };
 
@@ -34,8 +34,11 @@ public:
             return (*m_ext2)(e, ctx);
     }
 
-    virtual bool may_reduce_later(expr const & e, extension_context & ctx) const {
-        return m_ext1->may_reduce_later(e, ctx) || m_ext2->may_reduce_later(e, ctx);
+    virtual optional<expr> may_reduce_later(expr const & e, extension_context & ctx) const {
+        if (auto r = m_ext1->may_reduce_later(e, ctx))
+            return r;
+        else
+            return m_ext2->may_reduce_later(e, ctx);
     }
 
     virtual bool supports(name const & feature) const {

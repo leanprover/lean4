@@ -205,6 +205,9 @@ public:
     /** \brief Return true iff the constant \c c is opaque with respect to this type checker. */
     bool is_opaque(expr const & c) const;
 
+    /** \brief Return a metavariable that may be stucking the \c e's reduction. */
+    optional<expr> is_stuck(expr const & e);
+
     template<typename F>
     typename std::result_of<F()>::type with_params(level_param_names const & ps, F && f) {
         flet<level_param_names const *> updt(m_params, &ps);

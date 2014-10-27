@@ -583,17 +583,17 @@ bool is_arrow(expr const & t) {
     }
 }
 
-bool has_expr_metavar_strict(expr const & e) {
+optional<expr> has_expr_metavar_strict(expr const & e) {
     if (!has_expr_metavar(e))
-        return false;
-    bool found = false;
+        return none_expr();
+    optional<expr> r;
     for_each(e, [&](expr const & e, unsigned) {
-            if (found || !has_expr_metavar(e)) return false;
-            if (is_metavar(e)) { found = true; return false; }
+            if (r || !has_expr_metavar(e)) return false;
+            if (is_meta(e)) { r = e; return false; }
             if (is_local(e)) return false; // do not visit type
             return true;
         });
-    return found;
+    return r;
 }
 
 static bool has_free_var_in_domain(expr const & b, unsigned vidx) {

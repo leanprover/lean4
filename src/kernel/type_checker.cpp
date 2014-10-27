@@ -121,8 +121,8 @@ pair<expr, constraint_seq> type_checker::ensure_pi_core(expr e, expr const & s) 
     auto ecs = whnf(e);
     if (is_pi(ecs.first)) {
         return ecs;
-    } else if (is_meta(ecs.first)) {
-        expr r             = mk_pi_for(m_gen, ecs.first);
+    } else if (auto m = is_stuck(ecs.first)) {
+        expr r             = mk_pi_for(m_gen, *m);
         justification j    = mk_justification(s, [=](formatter const & fmt, substitution const & subst) {
                 return pp_function_expected(fmt, substitution(subst).instantiate(s));
             });
@@ -145,11 +145,13 @@ void type_checker::check_level(level const & l, expr const & s) {
         throw_kernel_exception(m_env, sstream() << "invalid reference to undefined global universe level '" << *n1 << "'", s);
     if (m_params) {
         if (auto n2 = get_undef_param(l, *m_params))
-            throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '" << *n2 << "'", s);
+            throw_kernel_exception(m_env, sstream() << "invalid reference to undefined universe level parameter '"
+                                   << *n2 << "'", s);
     }
 }
 
-app_delayed_justification::app_delayed_justification(expr const & e, expr const & arg, expr const & f_type, expr const & a_type):
+app_delayed_justification::app_delayed_justification(expr const & e, expr const & arg, expr const & f_type,
+                                                     expr const & a_type):
     m_e(e), m_arg(arg), m_fn_type(f_type), m_arg_type(a_type) {}
 
 justification mk_app_justification(expr const & e, expr const & arg, expr const & d_type, expr const & a_type) {
@@ -174,7 +176,8 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
     auto const & ps = d.get_univ_params();
     auto const & ls = const_levels(e);
     if (length(ps) != length(ls))
-        throw_kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '" << const_name(e) << "', #"
+        throw_kernel_exception(m_env, sstream() << "incorrect number of universe levels parameters for '"
+                               << const_name(e) << "', #"
                                << length(ps)  << " expected, #" << length(ls) << " provided");
     if (!infer_only) {
         for (level const & l : ls)
@@ -431,6 +434,14 @@ type_checker::type_checker(environment const & env):
 
 type_checker::~type_checker() {}
 
+optional<expr> type_checker::is_stuck(expr const & e) {
+    if (is_meta(e)) {
+        return some_expr(e);
+    } else {
+        return m_env.norm_ext().may_reduce_later(e, m_tc_ctx);
+    }
+}
+
 void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type) {
     if (has_metavar(e))
         throw_kernel_exception(env, e, [=](formatter const & fmt) { return pp_decl_has_metavars(fmt, n, e, is_type); });
@@ -457,7 +468,8 @@ static void check_duplicated_params(environment const & env, declaration const &
         auto const & p = head(ls);
         ls = tail(ls);
         if (std::find(ls.begin(), ls.end(), p) != ls.end()) {
-            throw_kernel_exception(env, sstream() << "failed to add declaration to environment, duplicate universe level parameter: '"
+            throw_kernel_exception(env, sstream() << "failed to add declaration to environment, "
+                                   << "duplicate universe level parameter: '"
                                    << p << "'", d.get_type());
         }
     }

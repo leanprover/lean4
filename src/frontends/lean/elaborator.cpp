@@ -341,7 +341,7 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
     if (!is_pi(f_type) && has_metavar(f_type)) {
         constraint_seq saved_cs = cs;
         expr new_f_type = whnf(f_type, cs);
-        if (!is_pi(new_f_type) && is_meta(new_f_type)) {
+        if (!is_pi(new_f_type) && m_tc[m_relax_main_opaque]->is_stuck(new_f_type)) {
             cs = saved_cs;
             // let type checker add constraint
             f_type = m_tc[m_relax_main_opaque]->ensure_pi(f_type, f, cs);

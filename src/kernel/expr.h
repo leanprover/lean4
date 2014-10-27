@@ -537,8 +537,10 @@ inline bool is_constant(expr const & e, name const & n) { return is_constant(e) 
 inline bool has_metavar(expr const & e) { return e.has_metavar(); }
 inline bool has_expr_metavar(expr const & e) { return e.has_expr_metavar(); }
 inline bool has_univ_metavar(expr const & e) { return e.has_univ_metavar(); }
-/** \brief Similar to \c has_expr_metavar, but ignores metavariables occurring in local constant types. */
-bool has_expr_metavar_strict(expr const & e);
+/** \brief Similar to \c has_expr_metavar, but ignores metavariables occurring in local constant types.
+    It also returns the meta-variable application found in \c e.
+*/
+optional<expr> has_expr_metavar_strict(expr const & e);
 inline bool has_local(expr const & e) { return e.has_local(); }
 inline bool has_param_univ(expr const & e) { return e.has_param_univ(); }
 unsigned get_weight(expr const & e);

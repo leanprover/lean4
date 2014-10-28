@@ -78,6 +78,11 @@ expr goal::mk_meta(name const & n, expr const & type) const {
     return copy_tag(m_meta, mk_app(mvar, locals));
 }
 
+goal goal::instantiate(substitution const & s) const {
+    substitution s1(s);
+    return goal(s1.instantiate_all(m_meta), s1.instantiate_all(m_type));
+}
+
 static bool validate_locals(expr const & r, unsigned num_locals, expr const * locals) {
     bool failed = false;
     for_each(r, [&](expr const & e, unsigned) {
@@ -120,6 +125,12 @@ list<expr> goal::to_context() const {
     buffer<expr> locals;
     get_app_rev_args(m_meta, locals);
     return to_list(locals.begin(), locals.end());
+}
+
+io_state_stream const & operator<<(io_state_stream const & out, goal const & g) {
+    options const & opts = out.get_options();
+    out.get_stream() << mk_pair(g.pp(out.get_formatter()), opts);
+    return out;
 }
 
 DECL_UDATA(goal)

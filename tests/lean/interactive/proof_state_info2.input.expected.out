@@ -24,6 +24,7 @@ c : Prop,
 Ha : a,
 Hb : b
 ⊢ a
+--
 a : Prop,
 b : Prop,
 c : Prop,

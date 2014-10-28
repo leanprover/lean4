@@ -267,7 +267,15 @@ public:
     virtual bool is_cheap() const { return false; }
     virtual void display(io_state_stream const & ios, unsigned line) const {
         ios << "-- PROOF_STATE|" << line << "|" << get_column() << "\n";
-        ios << m_ps << endl;
+        bool first = true;
+        substitution s = m_ps.get_subst();
+        for (goal const & g : m_ps.get_goals()) {
+            if (first)
+                first = false;
+            else
+                ios << "--" << endl;
+            ios << g.instantiate(s) << endl;
+        }
         ios << "-- ACK" << endl;
     }
 };

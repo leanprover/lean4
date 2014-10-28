@@ -71,6 +71,9 @@ public:
     */
     list<expr> to_context() const;
 
+    /** \brief Apply given substitution to goal */
+    goal instantiate(substitution const & s) const;
+
     format pp(formatter const & fmt, substitution const & s) const;
     format pp(formatter const & fmt) const;
 };

@@ -200,8 +200,35 @@
 
 (defun lean-info-id-symbol-body-str (info)
   (case (lean-info-kind info)
+    ('PROOFSTATE (string-join (lean-info-proofstate-body info) "\n"))
     ('IDENTIFIER (string-join (lean-info-symbol-body info) "\n"))
     ('SYMBOL     (string-join (lean-info-identifier-body info) "\n"))))
+
+
+;; Proofstate Information
+;; ----------------
+(defun lean-info-proofstate-kind (proofstate)
+  (cl-first proofstate))
+(defun lean-info-proofstate-p (proofstate)
+  (pcase proofstate
+    (`PROOFSTATE t)
+    ((pred stringp) (string-prefix-p "-- PROOF_STATE" proofstate))
+    ((pred listp) (and (lean-info-proofstate-p (cl-first proofstate))))))
+(defun lean-info-proofstate-pos (proofstate)
+  (cl-second proofstate))
+(defun lean-info-proofstate-parse-header (str)
+  (let ((items (split-string str "|")))
+    (list (string-to-number (cl-second items))
+          (string-to-number (cl-third items)))))
+(defun lean-info-proofstate-parse (seq)
+  (when (lean-info-proofstate-p seq)
+    (let ((header (lean-info-proofstate-parse-header (car seq)))
+          (body (cdr seq)))
+      `(PROOFSTATE ,header ,body))))
+(defun lean-info-proofstate-body (proofstate)
+  (cl-third proofstate))
+(defun lean-info-proofstate-body-str (proofstate)
+  (string-join (lean-info-proofstate-body proofstate) "\n"))
 
 ;; Basic
 ;; -----
@@ -221,7 +248,8 @@
     (COERCION   (lean-info-coercion-pos   info))
     (IDENTIFIER (lean-info-identifier-pos info))
     (SYMBOL     (lean-info-symbol-pos     info))
-    (EXTRA      (lean-info-extra-pos     info))))
+    (EXTRA      (lean-info-extra-pos      info))
+    (PROOFSTATE (lean-info-proofstate-pos info))))
 (defun lean-info-line-number (info)
   (cl-first (lean-info-pos info)))
 (defun lean-info-column (info)
@@ -251,7 +279,8 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                           (lean-info-coercion-parse string-seq)
                           (lean-info-identifier-parse string-seq)
                           (lean-info-symbol-parse string-seq)
-                          (lean-info-extra-parse string-seq)))
+                          (lean-info-extra-parse string-seq)
+                          (lean-info-proofstate-parse string-seq)))
              when result
              collect result)))
 
@@ -351,7 +380,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
      ;; When not specified, just return info-list.
      (t info-list))))
 
-(cl-defstruct lean-info-record type overload synth coercion identifier symbol extra nay stale)
+(cl-defstruct lean-info-record type overload synth coercion identifier symbol extra proofstate nay stale)
 
 (defun lean-info-record-parse (string &optional file-name column-number)
   "Parse string into info-record"
@@ -362,7 +391,8 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
          (coercions   (-filter 'lean-info-coercion-p   info-list))
          (identifiers (-filter 'lean-info-identifier-p info-list))
          (symbols     (-filter 'lean-info-symbol-p     info-list))
-         (extras      (-filter 'lean-info-extra-p      info-list)))
+         (extras      (-filter 'lean-info-extra-p      info-list))
+         (proofstates (-filter 'lean-info-proofstate-p info-list)))
     (make-lean-info-record :type       types
                            :overload   overloads
                            :synth      synths
@@ -370,20 +400,22 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                            :identifier identifiers
                            :symbol     symbols
                            :extra      extras
+                           :proofstate proofstates
                            :nay        (lean-info-nay-p   string)
                            :stale      (lean-info-stale-p string))))
 
 (defun lean-info-record-to-string (info-record)
   "Given typeinfo, overload, and sym-name, compose string information."
-  (let* ((type     (cl-first (lean-info-record-type       info-record)))
-         (overload (cl-first (lean-info-record-overload   info-record)))
-         (synth    (cl-first (lean-info-record-synth      info-record)))
-         (coercion (cl-first (lean-info-record-coercion   info-record)))
-         (extra    (cl-first (lean-info-record-extra      info-record)))
-         (id       (cl-first (lean-info-record-identifier info-record)))
-         (sym      (cl-first (lean-info-record-symbol     info-record)))
-         (stale    (lean-info-record-stale                info-record))
-         name-str type-str coercion-str extra-str overload-str str)
+  (let* ((type       (cl-first (lean-info-record-type       info-record)))
+         (overload   (cl-first (lean-info-record-overload   info-record)))
+         (synth      (cl-first (lean-info-record-synth      info-record)))
+         (coercion   (cl-first (lean-info-record-coercion   info-record)))
+         (extra      (cl-first (lean-info-record-extra      info-record)))
+         (proofstate (cl-first (lean-info-record-proofstate info-record)))
+         (id         (cl-first (lean-info-record-identifier info-record)))
+         (sym        (cl-first (lean-info-record-symbol     info-record)))
+         (stale      (lean-info-record-stale                info-record))
+         name-str type-str coercion-str extra-str proofstate-str overload-str str)
     (setq name-str
           (cond
            (synth (lean-info-synth-body-str synth))
@@ -429,6 +461,8 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                         (format "\n%s with %s"
                                 (propertize "overloaded" 'face 'font-lock-keyword-face)
                                 overload-str))))
+    (when proofstate
+      (setq str (format "%s" (lean-info-proofstate-body-str proofstate))))
     (when (and stale str)
       (setq str (format "[%s] %s"
                         (propertize "stale" 'face '(foreground-color . "red"))

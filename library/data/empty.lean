@@ -16,11 +16,3 @@ namespace empty
   protected theorem subsingleton [instance] : subsingleton empty :=
   subsingleton.intro (λ a b, !elim a)
 end empty
-
-namespace false
-  theorem to_empty (H : false) : empty :=
-  cast (false_elim H) true
-
-  theorem rec_type (A : Type) (H : false) : A :=
-  !empty.elim (to_empty H)
-end false

@@ -2,9 +2,9 @@
 -- ENDWAIT
 -- BEGINFINDP STALE
 false|Prop
-false.rec|∀ (C : Prop), false → C
+false.rec|Π (C : Type), false → C
 false_elim|false → ?c
-false.rec_on|∀ (C : Prop), false → C
+false.rec_on|Π (C : Type), false → C
 false.induction_on|∀ (C : Prop), false → C
 not_false_trivial|¬ false
 true_ne_false|¬ true = false

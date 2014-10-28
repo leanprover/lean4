@@ -471,10 +471,17 @@ struct add_inductive_fn {
             // then the recursor may return Type.{l} where l is a universe level parameter.
             return false;
         }
-        if (get_num_its() > 1 || length(inductive_decl_intros(head(m_decls))) != 1) {
+        if (get_num_its() > 1)
+            return true; // we don't consider mutually recursive datatypes for propositions
+        unsigned num_intros = length(inductive_decl_intros(head(m_decls)));
+        if (num_intros > 1) {
             // If we have more than one introduction rule, then yes, the type formers can only
             // map to Type.{0}
             return true;
+        }
+        if (num_intros == 0) {
+            // if we don't have intro rules, then we don't need to check anything else
+            return false;
         }
         // We have only one introduction rule, the final check is, the type of each argument
         // that is not a parameter must live in Type.{0}.

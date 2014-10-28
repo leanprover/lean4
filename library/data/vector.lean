@@ -32,7 +32,7 @@ namespace vector
     ∀ H : n = 0, C (cast (congr_arg (vector T) H) v) :=
   rec_on v (take H : 0 = 0, (eq.rec Hnil (cast_eq _ nil⁻¹)))
   (take (x : T) (n : ℕ) (w : vector T n) IH (H : succ n = 0),
-     false.rec_type _ (absurd H !succ_ne_zero))
+     false.rec _ (absurd H !succ_ne_zero))
 
   theorem case_zero {C : vector T 0 → Type} (v : vector T 0) (Hnil : C nil) : C v :=
   eq.rec (case_zero_lem_aux v Hnil (eq.refl 0)) (cast_eq _ v)
@@ -40,7 +40,7 @@ namespace vector
   private theorem rec_nonempty_lem {C : Π{n}, vector T (succ n) → Type} {n : ℕ} (v : vector T n)
     (Hone : Πa, C [a]) (Hcons : Πa {n} (v : vector T (succ n)), C v → C (a :: v))
     : ∀{m} (H : n = succ m), C (cast (congr_arg (vector T) H) v) :=
-  case_on v (take m (H : 0 = succ m), false.rec_type _ (absurd (H⁻¹) !succ_ne_zero))
+  case_on v (take m (H : 0 = succ m), false.rec _ (absurd (H⁻¹) !succ_ne_zero))
     (take x n v m H,
       have H2 : C (x::v), from
         sorry,

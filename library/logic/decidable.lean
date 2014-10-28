@@ -19,11 +19,11 @@ namespace decidable
 
   definition rec_on_true [H : decidable p] {H1 : p → Type} {H2 : ¬p → Type} (H3 : p) (H4 : H1 H3)
       : rec_on H H1 H2 :=
-  rec_on H (λh, H4) (λh, false.rec_type _ (h H3))
+  rec_on H (λh, H4) (λh, false.rec _ (h H3))
 
   definition rec_on_false [H : decidable p] {H1 : p → Type} {H2 : ¬p → Type} (H3 : ¬p) (H4 : H2 H3)
       : rec_on H H1 H2 :=
-  rec_on H (λh, false.rec_type _ (H3 h)) (λh, H4)
+  rec_on H (λh, false.rec _ (H3 h)) (λh, H4)
 
   theorem irrelevant [instance] : subsingleton (decidable p) :=
   subsingleton.intro (fun d1 d2,

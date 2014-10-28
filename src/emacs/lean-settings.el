@@ -129,4 +129,9 @@ false (nil)."
   :group 'lean
   :type 'boolean)
 
+(defcustom lean-show-proofstate-in-minibuffer nil
+  "Set this variable to true to show proof state at minibuffer."
+  :group 'lean
+  :type 'boolean)
+
 (provide 'lean-settings)

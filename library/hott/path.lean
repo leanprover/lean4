@@ -8,7 +8,7 @@
 -- o Try doing these proofs with tactics.
 -- o Try using the simplifier on some of these proofs.
 
-import general_notation algebra.function
+import general_notation algebra.function tools.tactic
 
 open function
 
@@ -344,8 +344,11 @@ rec_on q idp
 definition concat_p_A1p {A : Type} {g : A → A} (p : Πx, x ≈ g x) {x y : A} (q : x ≈ y)
     {z : A} (s : g y ≈ z) :
   p x ⬝ (ap g q ⬝ s) ≈ q ⬝ (p y ⬝ s) :=
-rec_on s (rec_on q (concat_1p _ ▹ idp))
-
+begin
+  apply (rec_on s),
+  apply (rec_on q),
+  apply (concat_1p _ ▹ idp)
+end
 
 -- Action of [apD10] and [ap10] on paths
 -- -------------------------------------

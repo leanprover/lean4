@@ -130,6 +130,8 @@ namespace IsEquiv
   variables {A B : Type} (f : A → B) (g : B → A)
             (retr : Sect g f) (sect : Sect f g)
 
+  context
+  set_option unifier.max_steps 30000
   --To construct an equivalence it suffices to state the proof that the inverse is a quasi-inverse.
   definition adjointify : IsEquiv f :=
     let sect' := (λx, ap g (ap f ((sect x)⁻¹))  ⬝  ap g (retr (f x))  ⬝  sect x) in
@@ -163,6 +165,7 @@ namespace IsEquiv
         from moveR_M1 _ _ eq3,
       eq4) in
     IsEquiv_mk g retr sect' adj'
+  end
 end IsEquiv
 
 namespace IsEquiv

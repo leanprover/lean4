@@ -12,6 +12,7 @@ infixl `∘`:60 := compose
 
 -- Path
 -- ----
+set_option unifier.max_steps 100000
 
 inductive path {A : Type} (a : A) : A → Type :=
 idpath : path a a

@@ -1635,21 +1635,44 @@ struct unifier_fn {
 
         expr mk_imitiation_arg(expr const & arg, expr const & type, buffer<expr> const & locals,
                                constraint_seq & cs) {
-            if (!has_meta_args() && is_local(arg) && contains_local(arg, locals)) {
-                return arg;
+            // The following optimization is broken. It does not really work when we have dependent
+            // types. The problem is that the type of arg may depend on other arguments,
+            // and constraints are not generated to enforce it.
+            //
+            //  Here is a minimal counterexample
+            //     ?M A B a b H B b  =?=  heq.type_eq A B a b H
+            //  with this optimization the imitation is
+            //
+            //    ?M := fun (A B a b H B' b'), heq.type_eq A (?M1 A B a b H B' b') a (?M2 A B a b H B' b') H
+            //
+            //  This imitation is only correct if
+            //     typeof(H) is (heq A a (?M1 A B a b H B' b') (?M2 A B a b H B' b'))
+            //
+            //  Adding an extra constraint is problematic since typeof(H) may contain local constants,
+            //  and these local constants may have been "renamed" by mk_local_context above
+            //
+            //  For now, we simply comment the optimization.
+            //
+
+            // Broken optimization
+            // if (!has_meta_args() && is_local(arg) && contains_local(arg, locals)) {
+            //    return arg;
+            // }
+
+            // The following code is not affected by the problem above because we
+            // attach the type \c type to the new metavariables being created.
+
+            // std::cout << "type: " << type << "\n";
+            if (context_check(type, locals)) {
+                expr maux    = mk_metavar(u.m_ngen.next(), Pi(locals, type));
+                // std::cout << "  >> " << maux << " : " << mlocal_type(maux) << "\n";
+                cs = mk_eq_cnstr(mk_app(maux, margs), arg, j, relax) + cs;
+                return mk_app(maux, locals);
             } else {
-                // std::cout << "type: " << type << "\n";
-                if (context_check(type, locals)) {
-                    expr maux    = mk_metavar(u.m_ngen.next(), Pi(locals, type));
-                    // std::cout << "  >> " << maux << " : " << mlocal_type(maux) << "\n";
-                    cs = mk_eq_cnstr(mk_app(maux, margs), arg, j, relax) + cs;
-                    return mk_app(maux, locals);
-                } else {
-                    expr maux_type   = mk_metavar(u.m_ngen.next(), Pi(locals, mk_sort(mk_meta_univ(u.m_ngen.next()))));
-                    expr maux        = mk_metavar(u.m_ngen.next(), Pi(locals, mk_app(maux_type, locals)));
-                    cs = mk_eq_cnstr(mk_app(maux, margs), arg, j, relax) + cs;
-                    return mk_app(maux, locals);
-                }
+                expr maux_type   = mk_metavar(u.m_ngen.next(), Pi(locals, mk_sort(mk_meta_univ(u.m_ngen.next()))));
+                expr maux        = mk_metavar(u.m_ngen.next(), Pi(locals, mk_app(maux_type, locals)));
+                cs = mk_eq_cnstr(mk_app(maux, margs), arg, j, relax) + cs;
+                return mk_app(maux, locals);
             }
         }
 

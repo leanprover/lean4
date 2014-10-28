@@ -1,0 +1,8 @@
+unifier_bug.lean:7:0: error: type mismatch at application
+  heq.rec_on H rfl
+term
+  rfl
+has type
+  eq.rec_on (heq.type_eq H) a = eq.rec_on (heq.type_eq H) a
+but is expected to have type
+  eq.rec_on (heq.type_eq H) a = b

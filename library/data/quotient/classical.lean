@@ -34,9 +34,12 @@ have H3 : ∀c, R a c ↔ R b c, from
     iff.intro
       (assume H4 : R a c, transR (symmR H2) H4)
       (assume H4 : R b c, transR H2 H4),
-have H4 : (fun c, R a c) = (fun c, R b c), from funext (take c, iff_to_eq (H3 c)),
-show @epsilon _ (nonempty.intro a) (λc, R a c) = @epsilon _ (nonempty.intro b) (λc, R b c),
-  from congr_arg _ H4
+have H4 : (fun c, R a c) = (fun c, R b c), from
+  funext (take c, iff_to_eq (H3 c)),
+have H5 [visible] : nonempty A, from
+  nonempty.intro a,
+show epsilon (λc, R a c) = epsilon (λc, R b c), from
+  congr_arg _ H4
 
 definition quotient {A : Type} (R : A → A → Prop) : Type := image (prelim_map R)
 

@@ -40,7 +40,11 @@
       (when add-to-kill-ring
         (kill-new
          (substring-no-properties info-string)))
-      (message "%s" info-string))))
+      (when (or lean-show-proofstate-in-minibuffer
+                (not (lean-info-record-proofstate info-record)))
+        (message "%s" info-string))
+      (lean-output-to-buffer "*lean-info*" "--------------------------\n" nil)
+      (lean-output-to-buffer "*lean-info*" "%s\n" (list info-string)))))
 
 (defun lean-eldoc-documentation-function (&optional add-to-kill-ring)
   "Show information of lean expression at point if any"

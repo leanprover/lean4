@@ -36,7 +36,7 @@ format goal::pp(formatter const & fmt, substitution const & s) const {
         if (first) first = false; else r += compose(comma(), line());
         expr l     = *it;
         expr t     = tmp_subst.instantiate(mlocal_type(l));
-        r += fmt(l) + space() + colon() + nest(indent, line() + fmt(t));
+        r += group(fmt(l) + space() + colon() + nest(indent, line() + fmt(t)));
     }
     r = group(r);
     r += line() + turnstile + space() + nest(indent, fmt(tmp_subst.instantiate(conclusion)));

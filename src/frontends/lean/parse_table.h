@@ -63,6 +63,7 @@ public:
     friend action mk_exprs_action(name const & sep, expr const & rec, expr const & ini,
                                   optional<name> const & terminator, bool right, unsigned rbp);
     friend action mk_scoped_expr_action(expr const & rec, unsigned rbp, bool lambda);
+    friend action mk_ext_action_core(parse_fn const & fn);
     friend action mk_ext_action(parse_fn const & fn);
     friend action mk_ext_lua_action(char const * lua_fn);
 
@@ -93,6 +94,7 @@ action mk_exprs_action(name const & sep, expr const & rec, expr const & ini, opt
 action mk_binder_action();
 action mk_binders_action();
 action mk_scoped_expr_action(expr const & rec, unsigned rbp = 0, bool lambda = true);
+action mk_ext_action_core(parse_fn const & fn);
 action mk_ext_action(parse_fn const & fn);
 action mk_ext_lua_action(char const * lua_fn);
 

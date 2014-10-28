@@ -869,15 +869,17 @@ expr parser::parse_notation(parse_table t, expr * left) {
         auto r = t.find(get_token_info().value());
         if (!r)
             break;
-        next();
         notation::action const & a = r->first;
         switch (a.kind()) {
         case notation::action_kind::Skip:
+            next();
             break;
         case notation::action_kind::Expr:
+            next();
             args.push_back(parse_expr(a.rbp()));
             break;
         case notation::action_kind::Exprs: {
+            next();
             buffer<expr> r_args;
             auto terminator = a.get_terminator();
             if (!terminator || !curr_is_token(*terminator)) {
@@ -917,14 +919,17 @@ expr parser::parse_notation(parse_table t, expr * left) {
             break;
         }
         case notation::action_kind::Binder:
+            next();
             binder_pos = pos();
             ps.push_back(parse_binder());
             break;
         case notation::action_kind::Binders:
+            next();
             binder_pos = pos();
             lenv = parse_binders(ps);
             break;
         case notation::action_kind::ScopedExpr: {
+            next();
             expr r   = parse_scoped_expr(ps, lenv, a.rbp());
             bool no_cache = false;
             if (is_var(a.get_rec(), 0)) {
@@ -953,6 +958,7 @@ expr parser::parse_notation(parse_table t, expr * left) {
             break;
         }
         case notation::action_kind::LuaExt:
+            next();
             m_last_script_pos = p;
             using_script([&](lua_State * L) {
                     scoped_set_parser scope(L, *this);

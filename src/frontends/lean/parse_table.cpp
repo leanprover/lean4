@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parse_table.h"
+#include "frontends/lean/parser.h"
 #include "frontends/lean/no_info.h"
 
 namespace lean {
@@ -251,7 +252,15 @@ action mk_scoped_expr_action(expr const & rec, unsigned rb, bool lambda) {
     expr new_rec = annotate_macro_subterms(rec);
     return action(new scoped_expr_action_cell(new_rec, rb, lambda));
 }
-action mk_ext_action(parse_fn const & fn) { return action(new ext_action_cell(fn)); }
+action mk_ext_action_core(parse_fn const & fn) { return action(new ext_action_cell(fn)); }
+action mk_ext_action(parse_fn const & fn) {
+    auto new_fn = [=](parser & p, unsigned num, expr const * args, pos_info const & pos) -> expr {
+        p.next();
+        return fn(p, num, args, pos);
+    };
+    return action(new ext_action_cell(new_fn));
+}
+
 action mk_ext_lua_action(char const * fn) { return action(new ext_lua_action_cell(fn)); }
 
 action replace(action const & a, std::function<expr(expr const &)> const & f) {

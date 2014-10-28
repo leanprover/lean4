@@ -128,9 +128,12 @@ static environment open_tactic_namespace(parser & p) {
 }
 
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
-    parser::undef_id_to_local_scope scope(p);
     environment env = open_tactic_namespace(p);
-    expr t = p.parse_scoped_expr(0, nullptr, env);
+    parser::undef_id_to_local_scope scope(p);
+    parser::local_scope scope2(p, env);
+    parser::undef_id_to_local_scope scope1(p);
+    p.next();
+    expr t = p.parse_expr();
     return p.mk_by(t, pos);
 }
 
@@ -140,6 +143,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
     environment env = open_tactic_namespace(p);
     parser::local_scope scope2(p, env);
     parser::undef_id_to_local_scope scope1(p);
+    p.next();
     optional<expr> pre_tac = get_begin_end_pre_tactic(env);
     buffer<expr> tacs;
     bool first = true;
@@ -209,7 +213,6 @@ static expr parse_proof(parser & p, expr const & prop) {
         return parse_proof_qed_core(p, pos);
     } else if (p.curr_is_token(get_begin_tk())) {
         auto pos = p.pos();
-        p.next();
         return parse_begin_end_core(p, pos);
     } else if (p.curr_is_token(get_by_tk())) {
         // parse: 'by' tactic
@@ -420,7 +423,7 @@ parse_table init_nud_table() {
     expr x0 = mk_var(0);
     parse_table r;
     r = r.add({transition("_", mk_ext_action(parse_placeholder))}, x0);
-    r = r.add({transition("by", mk_ext_action(parse_by))}, x0);
+    r = r.add({transition("by", mk_ext_action_core(parse_by))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("obtain", mk_ext_action(parse_obtain))}, x0);
@@ -433,7 +436,7 @@ parse_table init_nud_table() {
     r = r.add({transition("#", mk_ext_action(parse_overwrite_notation))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     r = r.add({transition("!", mk_ext_action(parse_consume_args_expr))}, x0);
-    r = r.add({transition("begin", mk_ext_action(parse_begin_end))}, x0);
+    r = r.add({transition("begin", mk_ext_action_core(parse_begin_end))}, x0);
     r = r.add({transition("proof", mk_ext_action(parse_proof_qed))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     return r;

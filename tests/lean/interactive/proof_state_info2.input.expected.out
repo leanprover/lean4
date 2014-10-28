@@ -5,7 +5,12 @@
 tactic
 -- ACK
 -- PROOF_STATE|5|17
-a : Prop, b : Prop, c : Prop, Ha : a, Hb : b ⊢ a ∧ b
+a : Prop,
+b : Prop,
+c : Prop,
+Ha : a,
+Hb : b
+⊢ a ∧ b
 -- ACK
 -- ENDINFO
 -- BEGININFO
@@ -13,8 +18,18 @@ a : Prop, b : Prop, c : Prop, Ha : a, Hb : b ⊢ a ∧ b
 tactic
 -- ACK
 -- PROOF_STATE|6|17
-a : Prop, b : Prop, c : Prop, Ha : a, Hb : b ⊢ a
-a : Prop, b : Prop, c : Prop, Ha : a, Hb : b ⊢ b
+a : Prop,
+b : Prop,
+c : Prop,
+Ha : a,
+Hb : b
+⊢ a
+a : Prop,
+b : Prop,
+c : Prop,
+Ha : a,
+Hb : b
+⊢ b
 -- ACK
 -- ENDINFO
 -- BEGININFO
@@ -22,6 +37,11 @@ a : Prop, b : Prop, c : Prop, Ha : a, Hb : b ⊢ b
 tactic
 -- ACK
 -- PROOF_STATE|7|10
-a : Prop, b : Prop, c : Prop, Ha : a, Hb : b ⊢ b
+a : Prop,
+b : Prop,
+c : Prop,
+Ha : a,
+Hb : b
+⊢ b
 -- ACK
 -- ENDINFO

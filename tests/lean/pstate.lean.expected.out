@@ -1,5 +1,11 @@
 pstate.lean:4:26: error: unsolved placeholder, don't know how to synthesize it
-A : Type, a : A, b : A, c : A, h₁ : a = b, h₂ : b = c ⊢ b = c
+A : Type,
+a : A,
+b : A,
+c : A,
+h₁ : a = b,
+h₂ : b = c
+⊢ b = c
 pstate.lean:4:7: error: failed to add declaration 'foo' to environment, value has metavariables
   λ (A : Type) (a b c : A) (h₁ : a = b) (h₂ : b = c),
     eq.trans h₁ ?M_1

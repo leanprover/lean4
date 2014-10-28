@@ -8,6 +8,11 @@ tactic
 tactic.info
 -- ACK
 -- PROOF_STATE|7|2
-a : Prop, b : Prop, c : Prop, Ha : a, Hb : b ⊢ a ∧ b
+a : Prop,
+b : Prop,
+c : Prop,
+Ha : a,
+Hb : b
+⊢ a ∧ b
 -- ACK
 -- ENDINFO

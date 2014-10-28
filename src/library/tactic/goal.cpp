@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include "util/buffer.h"
 #include "util/sstream.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
@@ -15,7 +16,24 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/tactic/goal.h"
 
+#ifndef LEAN_DEFAULT_PP_COMPACT_GOALS
+#define LEAN_DEFAULT_PP_COMPACT_GOALS false
+#endif
+
 namespace lean {
+static name * g_pp_compact_goals = nullptr;
+void initialize_goal() {
+    g_pp_compact_goals = new name({"pp", "compact_goals"});
+    register_bool_option(*g_pp_compact_goals, LEAN_DEFAULT_PP_COMPACT_GOALS,
+                         "(pretty printer) try to display goal in a single line when possible");
+}
+void finalize_goal() {
+    delete g_pp_compact_goals;
+}
+bool get_pp_compact_goals(options const & o) {
+    return o.get_bool(*g_pp_compact_goals, LEAN_DEFAULT_PP_COMPACT_GOALS);
+}
+
 format goal::pp(formatter const & fmt) const {
     return pp(fmt, substitution());
 }
@@ -25,6 +43,7 @@ format goal::pp(formatter const & fmt, substitution const & s) const {
     options const & opts = fmt.get_options();
     unsigned indent  = get_pp_indent(opts);
     bool unicode     = get_pp_unicode(opts);
+    bool compact     = get_pp_compact_goals(opts);
     format turnstile = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
     expr conclusion  = m_type;
     buffer<expr> tmp;
@@ -38,9 +57,12 @@ format goal::pp(formatter const & fmt, substitution const & s) const {
         expr t     = tmp_subst.instantiate(mlocal_type(l));
         r += group(fmt(l) + space() + colon() + nest(indent, line() + fmt(t)));
     }
-    r = group(r);
+    if (compact)
+        r = group(r);
     r += line() + turnstile + space() + nest(indent, fmt(tmp_subst.instantiate(conclusion)));
-    return group(r);
+    if (compact)
+        r = group(r);
+    return r;
 }
 
 expr goal::abstract(expr const & v) const {

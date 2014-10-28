@@ -370,6 +370,8 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
   (let ((info-list (lean-info-list-parse-string str))
         start-column)
     (cond
+     ((and column-number (or (looking-at ",") (looking-back (rx "," (* white)))))
+      info-list)
      ;; When file-name/column-number is specified, try to start-column of id/symbol
      ((and file-name column-number)
       (setq start-column (lean-info-list-find-start-column info-list file-name column-number))
@@ -497,12 +499,10 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
   (let* ((file-name     (buffer-file-name))
          (line-number   (line-number-at-pos))
          (column-number (lean-line-offset))
-         (cmd           (cond ((looking-at "(")
+         (cmd           (cond ((or (looking-at "(") (looking-at ","))
                                (lean-cmd-info line-number column-number))
-                              ;; TODO(soonhok): give information on '('
-                              ;; ((looking-at ")")
-                              ;;  (let ((begin-pos (lean-get-begin-paren-pos)))
-                              ;;    (lean-cmd-info (car begin-pos) (cdr begin-pos))))
+                              ((and (eolp) (looking-back ",") (> column-number 1))
+                               (lean-cmd-info line-number (1- column-number)))
                               (t (lean-cmd-info line-number)))))
     (lean-debug "get-info-record-at-point: %S" cmd)
     (lean-server-check-current-file file-name)

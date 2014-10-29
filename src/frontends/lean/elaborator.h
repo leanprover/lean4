@@ -126,9 +126,8 @@ class elaborator : public coercion_info_manager {
     unify_result_seq solve(constraint_seq const & cs);
     void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg, expr const & pos);
     void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg);
-    optional<expr> get_pre_tactic_for(substitution & subst, expr const & mvar, name_set & visited);
+    optional<expr> get_pre_tactic_for(expr const & mvar);
     optional<tactic> pre_tactic_to_tactic(expr const & pre_tac);
-    optional<tactic> get_local_tactic_hint(substitution & subst, expr const & mvar, name_set & visited);
     bool try_using(substitution & subst, expr const & mvar, proof_state const & ps, tactic const & tac,
                    bool show_failure);
     void try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac);

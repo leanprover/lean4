@@ -907,13 +907,9 @@ void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state con
     display_unsolved_proof_state(mvar, ps, msg, mvar);
 }
 
-optional<expr> elaborator::get_pre_tactic_for(substitution & subst, expr const & mvar, name_set & visited) {
+optional<expr> elaborator::get_pre_tactic_for(expr const & mvar) {
     if (auto it = m_local_tactic_hints.find(mlocal_name(mvar))) {
-        expr pre_tac = subst.instantiate(*it);
-        // TODO(Leo): after we move to new apply/exact, we will not need the following
-        // command anymore.
-        pre_tac      = solve_unassigned_mvars(subst, pre_tac, visited);
-        return some_expr(pre_tac);
+        return some_expr(*it);
     } else {
         return none_expr();
     }
@@ -937,14 +933,6 @@ optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
         out << " " << ex.what();
         out << pp_indent_expr(out.get_formatter(), pre_tac) << endl << "failed at:"
             << pp_indent_expr(out.get_formatter(), ex.get_expr()) << endl;
-        return optional<tactic>();
-    }
-}
-
-optional<tactic> elaborator::get_local_tactic_hint(substitution & subst, expr const & mvar, name_set & visited) {
-    if (auto pre_tac = get_pre_tactic_for(subst, mvar, visited)) {
-        return pre_tactic_to_tactic(*pre_tac);
-    } else {
         return optional<tactic>();
     }
 }
@@ -1053,7 +1041,7 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
     type = solve_unassigned_mvars(subst, type, visited);
     bool relax_main_opaque = m_relaxed_mvars.contains(mlocal_name(mvar));
     proof_state ps = to_proof_state(*meta, type, subst, m_ngen.mk_child(), relax_main_opaque);
-    if (auto pre_tac = get_pre_tactic_for(subst, mvar, visited)) {
+    if (auto pre_tac = get_pre_tactic_for(mvar)) {
         if (is_begin_end_annotation(*pre_tac)) {
             try_using_begin_end(subst, mvar, ps, *pre_tac);
             return;

@@ -45,6 +45,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/proof_qed_elaborator.h"
 #include "frontends/lean/info_tactic.h"
 #include "frontends/lean/pp_options.h"
+#include "frontends/lean/begin_end_ext.h"
 
 namespace lean {
 /** \brief 'Choice' expressions <tt>(choice e_1 ... e_n)</tt> are mapped into a metavariable \c ?m
@@ -888,15 +889,19 @@ unify_result_seq elaborator::solve(constraint_seq const & cs) {
     return unify(env(), tmp.size(), tmp.data(), m_ngen.mk_child(), substitution(), m_unifier_config);
 }
 
-void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg) {
+void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg, expr const & pos) {
     lean_assert(is_metavar(mvar));
     if (!m_displayed_errors.contains(mlocal_name(mvar))) {
         m_displayed_errors.insert(mlocal_name(mvar));
         auto out = regular(env(), ios());
         flycheck_error err(out);
-        display_error_pos(out, pip(), mvar);
-        out << " unsolved placeholder, " << msg << "\n" << ps << endl;
+        display_error_pos(out, pip(), pos);
+        out << " " << msg << "\n" << ps << endl;
     }
+}
+
+void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg) {
+    display_unsolved_proof_state(mvar, ps, msg, mvar);
 }
 
 optional<expr> elaborator::get_pre_tactic_for(substitution & subst, expr const & mvar, name_set & visited) {
@@ -981,6 +986,56 @@ bool elaborator::try_using(substitution & subst, expr const & mvar, proof_state 
     }
 }
 
+static void extract_begin_end_tactics(expr pre_tac, buffer<expr> & pre_tac_seq) {
+    if (is_begin_end_element_annotation(pre_tac)) {
+        pre_tac_seq.push_back(get_annotation_arg(pre_tac));
+    } else {
+        buffer<expr> args;
+        if (get_app_args(pre_tac, args) == get_and_then_tac_fn()) {
+            for (expr const & arg : args) {
+                extract_begin_end_tactics(arg, pre_tac_seq);
+            }
+        } else {
+            throw exception("internal error, invalid begin-end tactic");
+        }
+    }
+}
+
+void elaborator::try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac) {
+    lean_assert(is_begin_end_annotation(pre_tac));
+    buffer<expr> pre_tac_seq;
+    extract_begin_end_tactics(get_annotation_arg(pre_tac), pre_tac_seq);
+    for (expr const & ptac : pre_tac_seq) {
+        if (auto tac = pre_tactic_to_tactic(ptac)) {
+            try {
+                proof_state_seq seq = (*tac)(env(), ios(), ps);
+                auto r = seq.pull();
+                if (!r) {
+                    // tactic failed to produce any result
+                    display_unsolved_proof_state(mvar, ps, "tactic failed", ptac);
+                    return;
+                }
+                ps = r->first;
+            } catch (tactic_exception & ex) {
+                auto out = regular(env(), ios());
+                display_error_pos(out, pip(), ex.get_expr());
+                out << " tactic failed: " << ex.what() << "\n";
+                return;
+            }
+        } else {
+            return;
+        }
+    }
+
+    if (!empty(ps.get_goals())) {
+        display_unsolved_proof_state(mvar, ps, "unsolved subgoals", pre_tac);
+    } else {
+        subst = ps.get_subst();
+        expr v = subst.instantiate(mvar);
+        subst.assign(mlocal_name(mvar), v);
+    }
+}
+
 void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited) {
     if (visited.contains(mlocal_name(mvar)))
         return;
@@ -994,11 +1049,20 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
     // first solve unassigned metavariables in type
     type = solve_unassigned_mvars(subst, type, visited);
     proof_state ps = to_proof_state(*meta, type, subst, m_ngen.mk_child());
-    if (auto local_hint = get_local_tactic_hint(subst, mvar, visited)) {
-        // using user provided tactic
-        bool show_failure = true;
-        try_using(subst, mvar, ps, *local_hint, show_failure);
-    } else if (m_use_tactic_hints) {
+    if (auto pre_tac = get_pre_tactic_for(subst, mvar, visited)) {
+        if (is_begin_end_annotation(*pre_tac)) {
+            try_using_begin_end(subst, mvar, ps, *pre_tac);
+            return;
+        }
+
+        if (auto tac = pre_tactic_to_tactic(*pre_tac)) {
+            bool show_failure = true;
+            try_using(subst, mvar, ps, *tac, show_failure);
+            return;
+        }
+    }
+
+    if (m_use_tactic_hints) {
         // using tactic_hints
         for (expr const & pre_tac : get_tactic_hints(env())) {
             if (auto tac = pre_tactic_to_tactic(pre_tac)) {
@@ -1036,7 +1100,7 @@ void elaborator::display_unassigned_mvars(expr const & e, substitution const & s
                     expr meta_type = tmp_s.instantiate(type_checker(env()).infer(meta).first);
                     goal g(meta, meta_type);
                     proof_state ps(goals(g), s, m_ngen, constraints());
-                    display_unsolved_proof_state(e, ps, "don't know how to synthesize it");
+                    display_unsolved_proof_state(e, ps, "don't know how to synthesize placeholder");
                 }
                 return false;
             });

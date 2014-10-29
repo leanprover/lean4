@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/scoped_ext.h"
 #include "library/kernel_serializer.h"
+#include "library/annotation.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tactic_hint.h"
@@ -68,13 +69,27 @@ struct be_config {
 template class scoped_ext<be_config>;
 typedef scoped_ext<be_config> begin_end_ext;
 
+static name * g_begin_end = nullptr;
+static name * g_begin_end_element = nullptr;
+
+expr mk_begin_end_annotation(expr const & e) { return mk_annotation(*g_begin_end, e); }
+expr mk_begin_end_element_annotation(expr const & e) { return mk_annotation(*g_begin_end_element, e); }
+bool is_begin_end_annotation(expr const & e) { return is_annotation(e, *g_begin_end); }
+bool is_begin_end_element_annotation(expr const & e) { return is_annotation(e, *g_begin_end_element); }
+
 void initialize_begin_end_ext() {
     g_class_name = new name("begin_end");
     g_key        = new std::string("be_pre_tac");
     begin_end_ext::initialize();
+    g_begin_end  = new name("begin_end");
+    g_begin_end_element = new name("begin_end_element");
+    register_annotation(*g_begin_end);
+    register_annotation(*g_begin_end_element);
 }
 
 void finalize_begin_end_ext() {
+    delete g_begin_end;
+    delete g_begin_end_element;
     begin_end_ext::finalize();
     delete g_key;
     delete g_class_name;

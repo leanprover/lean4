@@ -155,7 +155,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
             p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
             if (p.collecting_info()) {
                 expr info_tac = p.save_pos(mk_info_tactic_expr(), pos);
-                tacs.push_back(info_tac);
+                tacs.push_back(mk_begin_end_element_annotation(info_tac));
             }
         }
         if (p.curr_is_token(get_end_tk()))
@@ -169,7 +169,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
             tac = p.mk_app(get_exact_tac_fn(), tac, pos);
         if (pre_tac)
             tac = p.mk_app({get_and_then_tac_fn(), *pre_tac, tac}, pos);
-        tac = p.mk_app(get_determ_tac_fn(), tac, pos);
+        tac = mk_begin_end_element_annotation(tac);
         tacs.push_back(tac);
     }
     auto end_pos = p.pos();
@@ -178,18 +178,14 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
         expr tac = get_id_tac_fn();
         if (pre_tac)
             tac = p.mk_app({get_and_then_tac_fn(), *pre_tac, tac}, end_pos);
+        tac = mk_begin_end_element_annotation(tac);
         tacs.push_back(tac);
     }
     expr r = tacs[0];
-    if (tacs.size() == 1) {
-        // Hack: for having a uniform squiggle placement for unsolved goals.
-        // That is, the result is always of the form and_then(...).
-        r = p.mk_app({get_and_then_tac_fn(), r, get_id_tac_fn()}, end_pos);
-    }
     for (unsigned i = 1; i < tacs.size(); i++) {
         r = p.mk_app({get_and_then_tac_fn(), r, tacs[i]}, end_pos);
     }
-    return p.mk_by(r, end_pos);
+    return p.mk_by(mk_begin_end_annotation(r), end_pos);
 }
 
 static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {

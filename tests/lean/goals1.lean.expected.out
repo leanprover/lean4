@@ -1,4 +1,4 @@
-goals1.lean:9:0: error: unsolved placeholder, unsolved subgoals
+goals1.lean:9:0: error: unsolved subgoals
 A : Type,
 a : A,
 b : A,

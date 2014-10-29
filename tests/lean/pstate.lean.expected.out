@@ -1,4 +1,4 @@
-pstate.lean:4:26: error: unsolved placeholder, don't know how to synthesize it
+pstate.lean:4:26: error: don't know how to synthesize placeholder
 A : Type,
 a : A,
 b : A,

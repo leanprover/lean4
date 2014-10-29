@@ -123,13 +123,22 @@ optional<expr> elaborator::mvar_to_meta(expr const & mvar) {
         return none_expr();
 }
 
+static bool is_tactic_type(expr const & e) {
+    expr const * it = &e;
+    while (is_pi(*it)) {
+        it = &binding_body(*it);
+    }
+    return *it == get_tactic_type() || *it == get_tactic_expr_type() || *it == get_tactic_expr_list_type();
+}
+
 /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
 void elaborator::save_type_data(expr const & e, expr const & r) {
     if (!m_no_info && infom() && pip() &&
         (is_constant(e) || is_local(e) || is_placeholder(e) || is_as_atomic(e) || is_consume_args(e))) {
         if (auto p = pip()->get_pos_info(e)) {
             expr t = m_tc[m_relax_main_opaque]->infer(r).first;
-            m_pre_info_data.add_type_info(p->first, p->second, t);
+            if (!is_tactic_type(t))
+                m_pre_info_data.add_type_info(p->first, p->second, t);
         }
     }
 }
@@ -148,7 +157,8 @@ void elaborator::save_extra_type_data(expr const & e, expr const & r) {
     if (!m_no_info && infom() && pip()) {
         if (auto p = pip()->get_pos_info(e)) {
             expr t = m_tc[m_relax_main_opaque]->infer(r).first;
-            m_pre_info_data.add_extra_type_info(p->first, p->second, r, t);
+            if (!is_tactic_type(t))
+                m_pre_info_data.add_extra_type_info(p->first, p->second, r, t);
         }
     }
 }

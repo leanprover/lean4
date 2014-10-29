@@ -1,9 +1,6 @@
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGININFO
--- TYPE|5|17
-tactic
--- ACK
 -- PROOF_STATE|5|17
 a : Prop,
 b : Prop,
@@ -14,9 +11,6 @@ Hb : b
 -- ACK
 -- ENDINFO
 -- BEGININFO
--- TYPE|6|17
-tactic
--- ACK
 -- PROOF_STATE|6|17
 a : Prop,
 b : Prop,
@@ -34,9 +28,6 @@ Hb : b
 -- ACK
 -- ENDINFO
 -- BEGININFO
--- TYPE|7|10
-tactic
--- ACK
 -- PROOF_STATE|7|10
 a : Prop,
 b : Prop,

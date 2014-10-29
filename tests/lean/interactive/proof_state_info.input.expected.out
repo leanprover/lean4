@@ -1,9 +1,6 @@
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGININFO
--- TYPE|7|2
-tactic
--- ACK
 -- IDENTIFIER|7|2
 tactic.info
 -- ACK

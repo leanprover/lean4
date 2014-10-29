@@ -1,9 +1,6 @@
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGININFO
--- TYPE|7|1
-tactic.expr → tactic
--- ACK
 -- IDENTIFIER|7|1
 tactic.apply
 -- ACK
@@ -13,14 +10,8 @@ a
 -- IDENTIFIER|7|7
 Ha
 -- ACK
--- TYPE|7|9
-tactic
--- ACK
 -- ENDINFO
 -- BEGININFO
--- TYPE|16|1
-tactic.expr → tactic
--- ACK
 -- IDENTIFIER|16|1
 tactic.apply
 -- ACK
@@ -29,8 +20,5 @@ b
 -- ACK
 -- IDENTIFIER|16|7
 Hb
--- ACK
--- TYPE|16|9
-tactic
 -- ACK
 -- ENDINFO

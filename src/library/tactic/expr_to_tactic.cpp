@@ -59,9 +59,11 @@ bool has_tactic_decls(environment const & env) {
 
 static expr * g_tactic_expr_type = nullptr;
 static expr * g_tactic_expr_builtin = nullptr;
+static expr * g_tactic_expr_list_type = nullptr;
 
 expr const & get_tactic_expr_type() { return *g_tactic_expr_type; }
 expr const & get_tactic_expr_builtin() { return *g_tactic_expr_builtin; }
+expr const & get_tactic_expr_list_type() { return *g_tactic_expr_list_type; }
 
 static name * g_tactic_expr_name = nullptr;
 static std::string * g_tactic_expr_opcode = nullptr;
@@ -286,11 +288,12 @@ void initialize_expr_to_tactic() {
 
     g_tactic_name       = new name("tactic");
 
-    g_tactic_expr_type    = new expr(mk_constant(name(*g_tactic_name, "expr")));
-    g_tactic_expr_builtin = new expr(mk_constant(name(const_name(*g_tactic_expr_type), "builtin")));
-    g_tactic_expr_name   = new name("tactic-expr");
-    g_tactic_expr_opcode = new std::string("TACE");
-    g_tactic_expr_macro  = new macro_definition(new tactic_expr_macro_definition_cell());
+    g_tactic_expr_type      = new expr(mk_constant(name(*g_tactic_name, "expr")));
+    g_tactic_expr_builtin   = new expr(mk_constant(name(const_name(*g_tactic_expr_type), "builtin")));
+    g_tactic_expr_list_type = new expr(mk_constant(name(*g_tactic_name, "expr_list")));
+    g_tactic_expr_name      = new name("tactic-expr");
+    g_tactic_expr_opcode    = new std::string("TACE");
+    g_tactic_expr_macro     = new macro_definition(new tactic_expr_macro_definition_cell());
 
     register_macro_deserializer(*g_tactic_expr_opcode,
                                 [](deserializer &, unsigned num, expr const * args) {
@@ -362,6 +365,7 @@ void finalize_expr_to_tactic() {
     delete g_expr_list_nil;
     delete g_tactic_expr_type;
     delete g_tactic_expr_builtin;
+    delete g_tactic_expr_list_type;
     delete g_tactic_expr_name;
     delete g_tactic_expr_opcode;
     delete g_tactic_expr_macro;

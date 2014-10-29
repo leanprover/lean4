@@ -200,18 +200,17 @@
 
 (defun lean-info-id-symbol-body-str (info)
   (case (lean-info-kind info)
-    ('PROOFSTATE (string-join (lean-info-proofstate-body info) "\n"))
     ('IDENTIFIER (string-join (lean-info-symbol-body info) "\n"))
     ('SYMBOL     (string-join (lean-info-identifier-body info) "\n"))))
 
 
 ;; Proofstate Information
-;; ----------------
-(defun lean-info-proofstate-kind (proofstate)
+;; --------------------
+(defun lean-info-proofstate-type (proofstate)
   (cl-first proofstate))
 (defun lean-info-proofstate-p (proofstate)
   (pcase proofstate
-    (`PROOFSTATE t)
+    (`PROOF_STATE t)
     ((pred stringp) (string-prefix-p "-- PROOF_STATE" proofstate))
     ((pred listp) (and (lean-info-proofstate-p (cl-first proofstate))))))
 (defun lean-info-proofstate-pos (proofstate)
@@ -223,12 +222,18 @@
 (defun lean-info-proofstate-parse (seq)
   (when (lean-info-proofstate-p seq)
     (let ((header (lean-info-proofstate-parse-header (car seq)))
-          (body (cdr seq)))
-      `(PROOFSTATE ,header ,body))))
-(defun lean-info-proofstate-body (proofstate)
+          (body (-split-on "--" (cdr seq))))
+      `(PROOF_STATE ,header ,body)
+      )))
+(defun lean-info-proofstate-states (proofstate)
   (cl-third proofstate))
-(defun lean-info-proofstate-body-str (proofstate)
-  (string-join (lean-info-proofstate-body proofstate) "\n"))
+(defun lean-info-proofstate-state-str (string-seq)
+  (string-join string-seq "\n"))
+(defun lean-info-proofstate-states-str (proofstate)
+  (string-join
+   (-map 'lean-info-proofstate-state-str
+         (lean-info-proofstate-states proofstate))
+   "\n\n"))
 
 ;; Basic
 ;; -----
@@ -242,14 +247,14 @@
     t))
 (defun lean-info-pos (info)
   (cl-case (lean-info-kind info)
-    (TYPE       (lean-info-type-pos       info))
-    (OVERLOAD   (lean-info-overload-pos   info))
-    (SYNTH      (lean-info-synth-pos      info))
-    (COERCION   (lean-info-coercion-pos   info))
-    (IDENTIFIER (lean-info-identifier-pos info))
-    (SYMBOL     (lean-info-symbol-pos     info))
-    (EXTRA      (lean-info-extra-pos      info))
-    (PROOFSTATE (lean-info-proofstate-pos info))))
+    (TYPE        (lean-info-type-pos       info))
+    (OVERLOAD    (lean-info-overload-pos   info))
+    (SYNTH       (lean-info-synth-pos      info))
+    (COERCION    (lean-info-coercion-pos   info))
+    (IDENTIFIER  (lean-info-identifier-pos info))
+    (SYMBOL      (lean-info-symbol-pos     info))
+    (EXTRA       (lean-info-extra-pos      info))
+    (PROOF_STATE (lean-info-proofstate-pos info))))
 (defun lean-info-line-number (info)
   (cl-first (lean-info-pos info)))
 (defun lean-info-column (info)
@@ -406,8 +411,8 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                            :nay        (lean-info-nay-p   string)
                            :stale      (lean-info-stale-p string))))
 
-(defun lean-info-record-to-string (info-record)
-  "Given typeinfo, overload, and sym-name, compose string information."
+(defun lean-info-record-to-strings (info-record)
+  "Given typeinfo, overload, and sym-name, compose information as a list of strings."
   (let* ((type       (cl-first (lean-info-record-type       info-record)))
          (overload   (cl-first (lean-info-record-overload   info-record)))
          (synth      (cl-first (lean-info-record-synth      info-record)))
@@ -417,7 +422,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
          (id         (cl-first (lean-info-record-identifier info-record)))
          (sym        (cl-first (lean-info-record-symbol     info-record)))
          (stale      (lean-info-record-stale                info-record))
-         name-str type-str coercion-str extra-str proofstate-str overload-str str)
+         name-str type-str coercion-str extra-str proofstate-str overload-str stale-str str)
     (setq name-str
           (cond
            (synth (lean-info-synth-body-str synth))
@@ -464,12 +469,14 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                                 (propertize "overloaded" 'face 'font-lock-keyword-face)
                                 overload-str))))
     (when proofstate
-      (setq str (format "%s" (lean-info-proofstate-body-str proofstate))))
+      (cond ((not (lean-info-proofstate-states proofstate))
+             (setq str "No Goal"))
+            (t (setq str (lean-info-proofstate-states-str proofstate)))))
     (when (and stale str)
-      (setq str (format "[%s] %s"
-                        (propertize "stale" 'face '(foreground-color . "red"))
-                        str)))
-    str))
+      (setq stale-str (format "[%s]"
+                              (propertize "stale" 'face '(foreground-color . "red")))))
+    (cond (stale-str (list stale-str str))
+          (t         (list str)))))
 
 (defun lean-get-info-record-at-point-cont (info-record cont)
   (cond ((lean-info-record-nay info-record)

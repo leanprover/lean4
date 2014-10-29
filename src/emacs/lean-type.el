@@ -33,18 +33,29 @@
   (interactive)
   (lean-get-info-record-at-point 'lean-fill-placeholder-cont))
 
+(defconst lean-info-buffer-name "*lean-info*")
+
+(defun lean-setup-info-buffer ()
+  (unless (get-buffer lean-info-buffer-name)
+    (with-current-buffer (get-buffer-create lean-info-buffer-name)
+      (lean-info-mode))))
+
 (defun lean-eldoc-documentation-function-cont (info-record &optional add-to-kill-ring)
   "Continuation for lean-eldoc-documentation-function"
-  (let ((info-string (lean-info-record-to-string info-record)))
-    (when info-string
+  (let* ((info-strings (lean-info-record-to-strings info-record))
+         (info-string-mini-buffer (and info-strings (string-join info-strings " ")))
+         (info-string-info-buffer (and info-strings (string-join info-strings "\n")))
+         (info-buffer-delimiter "-------------------------------\n"))
+    (when info-strings
       (when add-to-kill-ring
         (kill-new
-         (substring-no-properties info-string)))
+         (substring-no-properties info-string-mini-buffer)))
       (when (or lean-show-proofstate-in-minibuffer
                 (not (lean-info-record-proofstate info-record)))
-        (message "%s" info-string))
-      (lean-output-to-buffer "*lean-info*" "--------------------------\n" nil)
-      (lean-output-to-buffer "*lean-info*" "%s\n" (list info-string)))))
+        (message "%s" info-string-mini-buffer))
+      (lean-setup-info-buffer)
+      (lean-output-to-buffer "*lean-info*" info-buffer-delimiter nil)
+      (lean-output-to-buffer "*lean-info*" "%s\n" (list info-string-info-buffer)))))
 
 (defun lean-eldoc-documentation-function (&optional add-to-kill-ring)
   "Show information of lean expression at point if any"

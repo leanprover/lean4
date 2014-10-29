@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/scoped_ext.h"
 #include "library/tactic/proof_state.h"
+#include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/pp_options.h"
 
@@ -351,7 +352,17 @@ struct info_manager::imp {
         m_env_info.insert(env_info(l, m_iteration, env, o));
     }
 
+    static bool is_tactic_type(expr const & e) {
+        expr const * it = &e;
+        while (is_pi(*it)) {
+            it = &binding_body(*it);
+        }
+        return *it == get_tactic_type() || *it == get_tactic_expr_type() || *it == get_tactic_expr_list_type();
+    }
+
     void add_type_info(unsigned l, unsigned c, expr const & e) {
+        if (is_tactic_type(e))
+            return;
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
             return;
@@ -360,6 +371,8 @@ struct info_manager::imp {
     }
 
     void add_extra_type_info(unsigned l, unsigned c, expr const & e, expr const & t) {
+        if (is_tactic_type(t))
+            return;
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
             return;

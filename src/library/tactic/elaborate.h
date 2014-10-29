@@ -8,6 +8,8 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 
 namespace lean {
+bool solve_constraints(environment const & env, io_state const & ios, proof_state & ps, constraint_seq const & cs);
+
 /** \brief Function for elaborating expressions nested in tactics.
     Some tactics contain nested expression (aka pre-terms) that need to be elaborated.
 */

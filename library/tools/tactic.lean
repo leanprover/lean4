@@ -37,6 +37,7 @@ opaque definition fail        : tactic := builtin
 opaque definition id          : tactic := builtin
 opaque definition beta        : tactic := builtin
 opaque definition info        : tactic := builtin
+opaque definition whnf        : tactic := builtin
 
 -- This is just a trick to embed expressions into tactics.
 -- The nested expressions are "raw". They tactic should

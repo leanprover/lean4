@@ -9,6 +9,26 @@ Author: Leonardo de Moura
 #include "library/tactic/elaborate.h"
 
 namespace lean {
+bool solve_constraints(environment const & env, io_state const & ios, proof_state & ps, constraint_seq const & cs) {
+    if (!cs)
+        return true;
+    unifier_config cfg(ios.get_options());
+    buffer<constraint> cs_buffer;
+    cs.linearize(cs_buffer);
+    to_buffer(ps.get_postponed(), cs_buffer);
+    name_generator ngen   = ps.get_ngen();
+    substitution subst    = ps.get_subst();
+    unify_result_seq rseq = unify(env, cs_buffer.size(), cs_buffer.data(), ngen.mk_child(), subst, cfg);
+    if (auto p = rseq.pull()) {
+        substitution new_subst     = p->first.first;
+        constraints  new_postponed = p->first.second;
+        ps = proof_state(ps.get_goals(), new_subst, ngen, new_postponed);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 optional<expr> elaborate_with_respect_to(environment const & env, io_state const & ios, elaborate_fn const & elab,
                                          proof_state & s, expr const & e, optional<expr> const & expected_type) {
     name_generator ngen = s.get_ngen();

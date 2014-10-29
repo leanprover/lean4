@@ -1,0 +1,4 @@
+whnf_tac.lean:9:2: proof state
+a : Prop,
+Ha : a
+⊢ a

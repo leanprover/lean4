@@ -131,4 +131,22 @@
      ;; lean-keywords
      (, (concat "\\(" (regexp-opt lean-keywords 'words) "\\)")
         (1 'font-lock-keyword-face)))))
+
+;; Syntax Highlighting for Lean Info Mode
+(defconst lean-info-font-lock-defaults
+  (let ((new-entries
+         `(;; Please add more after this:
+           (,(rx word-start (group (+ wordchar)) word-end (+ white) ":")
+            (1 'font-lock-variable-name-face))
+           (,(rx white ":" white)
+            . 'font-lock-keyword-face)
+           (,(rx "⊢" white)
+            . 'font-lock-keyword-face)
+           (,(rx "[" (group "stale") "]")
+            (1 'font-lock-warning-face))
+           (,(rx line-start "No Goal" line-end)
+            . 'font-lock-constant-face)))
+        (inherited-entries (car lean-font-lock-defaults)))
+    `(,(-concat new-entries inherited-entries))))
+
 (provide 'lean-syntax)

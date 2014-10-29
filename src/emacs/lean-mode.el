@@ -227,5 +227,20 @@ Invokes `lean-mode-hook'.
   (eval-after-load 'flycheck
     '(lean-flycheck-init)))
 
+
+;; Lean Info Mode (for "*lean-info*" buffer)
+;; Automode List
+;;;###autoload
+(define-derived-mode lean-info-mode prog-mode "Lean-Info"
+  "Major mode for Lean Info Buffer"
+  :syntax-table lean-syntax-table
+  :group 'lean
+  (set (make-local-variable 'font-lock-defaults) lean-info-font-lock-defaults)
+  (set (make-local-variable 'indent-tabs-mode) nil)
+  (set 'compilation-mode-font-lock-keywords '())
+  (set-input-method "Lean")
+  (set (make-local-variable 'lisp-indent-function)
+       'common-lisp-indent-function))
+
 (provide 'lean-mode)
 ;;; lean-mode.el ends here

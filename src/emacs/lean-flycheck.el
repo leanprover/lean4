@@ -42,7 +42,7 @@
       ((error line-start "FLYCHECK_BEGIN ERROR" (? "\r") "\n"
               (file-name) ":" line ":" (? column ":") " error: "
               (minimal-match
-               (message (one-or-more (one-or-more not-newline) (? "\r") "\n")))
+               (message (one-or-more (zero-or-more not-newline) (? "\r") "\n")))
               "FLYCHECK_END" (? "\r") line-end)
        (warning line-start "FLYCHECK_BEGIN WARNING" (? "\r") "\n"
                 (file-name) ":" line ":" (? column ":") " warning "

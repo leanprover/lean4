@@ -178,6 +178,76 @@
             (lean-info-symbol-parse '("-- SYMBOL|121|2" "→")))
            '(121 2))))
 
+(ert-deftest lean-test-info-proofstate ()
+  "Test lean-info-proofstate"
+  (should (lean-info-proofstate-p 'PROOF_STATE))
+  (should (lean-info-proofstate-p "-- PROOF_STATE|121|2"))
+  (should (lean-info-proofstate-p '("-- PROOF_STATE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+  (should (equal (lean-info-proofstate-parse-header "-- PROOF_STATE|121|2")
+                 '(121 2)))
+  (should
+   (equal
+    (lean-info-proofstate-parse
+     '("-- PROOF_STATE|6|17"
+       "a : Prop,"
+       "b : Prop,"
+       "c : Prop,"
+       "H_1 : a,"
+       "H_2 : b,"
+       "H_3 : c"
+       "⊢ a"
+       "--"
+       "a : Prop,"
+       "b : Prop,"
+       "c : Prop,"
+       "H_1 : a,"
+       "H_2 : b,"
+       "H_3 : c"
+       "⊢ and b c"))
+    '(PROOF_STATE (6 17)
+                 (("a : Prop," "b : Prop," "c : Prop," "H_1 : a," "H_2 : b," "H_3 : c" "⊢ a")
+                  ("a : Prop," "b : Prop," "c : Prop," "H_1 : a," "H_2 : b," "H_3 : c" "⊢ and b c")))))
+  (should (equal
+           (lean-info-proofstate-pos
+            (lean-info-proofstate-parse
+             '("-- PROOF_STATE|6|17"
+               "a : Prop,"
+               "b : Prop,"
+               "c : Prop,"
+               "H_1 : a,"
+               "H_2 : b,"
+               "H_3 : c"
+               "⊢ a"
+               "--"
+               "a : Prop,"
+               "b : Prop,"
+               "c : Prop,"
+               "H_1 : a,"
+               "H_2 : b,"
+               "H_3 : c"
+               "⊢ and b c")))
+           '(6 17)))
+  (should (equal (lean-info-proofstate-states (lean-info-proofstate-parse
+                                            '("-- PROOF_STATE|6|17"
+               "a : Prop,"
+               "b : Prop,"
+               "c : Prop,"
+               "H_1 : a,"
+               "H_2 : b,"
+               "H_3 : c"
+               "⊢ a"
+               "--"
+               "a : Prop,"
+               "b : Prop,"
+               "c : Prop,"
+               "H_1 : a,"
+               "H_2 : b,"
+               "H_3 : c"
+               "⊢ and b c")))
+
+                 '(("a : Prop," "b : Prop," "c : Prop," "H_1 : a," "H_2 : b," "H_3 : c" "⊢ a")
+                   ("a : Prop," "b : Prop," "c : Prop," "H_1 : a," "H_2 : b," "H_3 : c" "⊢ and b c")))))
+
 (ert-deftest lean-test-info-pos ()
   "Test lean-info-pos"
   (should (equal
@@ -196,6 +266,4 @@
                   "--"
                   "not (eq two (succ m'))"
                   "→ decidable (eq zero (succ m'))")))
-              '(121 2)))
-
-  )
+              '(121 2))))

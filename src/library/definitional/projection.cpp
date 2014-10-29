@@ -14,23 +14,23 @@ Author: Leonardo de Moura
 
 namespace lean {
 [[ noreturn ]] static void throw_ill_formed(name const & n) {
-    throw exception(sstream() << "error in projection generation, '" << n << "' is an ill-formed inductive datatype");
+    throw exception(sstream() << "projection generation, '" << n << "' is an ill-formed inductive datatype");
 }
 
 static pair<unsigned, inductive::intro_rule> get_nparam_intro_rule(environment const & env, name const & n) {
     optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
     if (!decls)
-        throw exception(sstream() << "error in projection generation, '" << n << "' is not an inductive datatype");
+        throw exception(sstream() << "projection generation, '" << n << "' is not an inductive datatype");
     optional<unsigned> num_indices = inductive::get_num_indices(env, n);
     if (num_indices && *num_indices > 0)
-        throw exception(sstream() << "error in projection generation, '"
+        throw exception(sstream() << "projection generation, '"
                         << n << "' is an indexed inductive datatype family");
     unsigned num_params = std::get<1>(*decls);
     for (auto const & decl : std::get<2>(*decls)) {
         if (inductive::inductive_decl_name(decl) == n) {
             auto intros = inductive::inductive_decl_intros(decl);
             if (length(intros) != 1)
-                throw exception(sstream() << "error in projection generation, '"
+                throw exception(sstream() << "projection generation, '"
                                 << n << "' does not have a single constructor");
             return mk_pair(num_params, head(intros));
         }
@@ -60,7 +60,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
     name rec_name                = inductive::get_elim_name(n);
     declaration ind_decl         = env.get(n);
     if (env.impredicative() && is_prop(ind_decl.get_type()))
-        throw exception(sstream() << "error in projection generation, '" << n << "' is a proposition");
+        throw exception(sstream() << "projection generation, '" << n << "' is a proposition");
     declaration rec_decl         = env.get(rec_name);
     level_param_names lvl_params = ind_decl.get_univ_params();
     levels lvls                  = param_names_to_levels(lvl_params);
@@ -86,7 +86,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
     environment new_env = env;
     for (name const & proj_name : proj_names) {
         if (!is_pi(intro_type))
-            throw exception(sstream() << "error generating projection '" << proj_name << "', '"
+            throw exception(sstream() << "generating projection '" << proj_name << "', '"
                             << n << "' does not have sufficient data");
         expr result_type   = binding_domain(intro_type);
         buffer<expr> proj_args;

@@ -123,7 +123,7 @@
            word-end)
       . 'font-lock-constant-face)
      ;; Types
-     (,(rx word-start (or "Prop" "Type" "Type'" "Type₊" "Type₁" "Type₂" "Type₃") word-end) . 'font-lock-type-face)
+     (,(rx symbol-start (or "Prop" "Type" "Type'" "Type₊" "Type₁" "Type₂" "Type₃") symbol-end) . 'font-lock-type-face)
      ;; sorry
      (,(rx word-start "sorry" word-end) . 'font-lock-warning-face)
      ;; extra-keywords

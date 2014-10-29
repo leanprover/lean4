@@ -47,7 +47,7 @@ format proof_state::pp(formatter const & fmt) const {
     bool first = true;
 
     for (auto const & g : get_goals()) {
-        if (first) first = false; else r += line();
+        if (first) first = false; else r += line() + line();
         if (show_goal_names) {
             r += group(format(g.get_name()) + colon() + nest(indent, line() + g.pp(fmt, m_subst)));
         } else {

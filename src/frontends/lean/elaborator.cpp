@@ -108,7 +108,10 @@ expr elaborator::mk_local(name const & n, expr const & t, binder_info const & bi
 
 void elaborator::register_meta(expr const & meta) {
     lean_assert(is_meta(meta));
-    m_mvar2meta.insert(mlocal_name(get_app_fn(meta)), meta);
+    name const & n = mlocal_name(get_app_fn(meta));
+    m_mvar2meta.insert(n, meta);
+    if (m_relax_main_opaque)
+        m_relaxed_mvars.insert(n);
 }
 
 /** \brief Convert the metavariable to the metavariable application that captures
@@ -1058,7 +1061,8 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
     expr type = m_tc[m_relax_main_opaque]->infer(*meta).first;
     // first solve unassigned metavariables in type
     type = solve_unassigned_mvars(subst, type, visited);
-    proof_state ps = to_proof_state(*meta, type, subst, m_ngen.mk_child());
+    bool relax_main_opaque = m_relaxed_mvars.contains(mlocal_name(mvar));
+    proof_state ps = to_proof_state(*meta, type, subst, m_ngen.mk_child(), relax_main_opaque);
     if (auto pre_tac = get_pre_tactic_for(subst, mvar, visited)) {
         if (is_begin_end_annotation(*pre_tac)) {
             try_using_begin_end(subst, mvar, ps, *pre_tac);
@@ -1109,7 +1113,8 @@ void elaborator::display_unassigned_mvars(expr const & e, substitution const & s
                     expr meta      = tmp_s.instantiate(*it);
                     expr meta_type = tmp_s.instantiate(type_checker(env()).infer(meta).first);
                     goal g(meta, meta_type);
-                    proof_state ps(goals(g), s, m_ngen, constraints());
+                    bool relax     = true;
+                    proof_state ps(goals(g), s, m_ngen, constraints(), relax);
                     display_unsolved_proof_state(e, ps, "don't know how to synthesize placeholder");
                 }
                 return false;

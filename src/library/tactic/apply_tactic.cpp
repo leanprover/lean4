@@ -55,12 +55,12 @@ enum subgoals_action_kind { IgnoreSubgoals, AddRevSubgoals, AddSubgoals };
 
 static proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s,
                                          expr const & _e, buffer<constraint> & cs,
-                                         bool add_meta, subgoals_action_kind subgoals_action, bool relax_main_opaque) {
+                                         bool add_meta, subgoals_action_kind subgoals_action) {
     goals const & gs = s.get_goals();
     if (empty(gs))
         return proof_state_seq();
     name_generator ngen = s.get_ngen();
-    std::shared_ptr<type_checker> tc(mk_type_checker(env, ngen.mk_child(), relax_main_opaque));
+    std::shared_ptr<type_checker> tc(mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque()));
     goal  g          = head(gs);
     goals tail_gs    = tail(gs);
     expr  t          = g.get_type();
@@ -86,7 +86,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
         }
     }
     metavar_closure cls(t);
-    cls.mk_constraints(s.get_subst(), justification(), relax_main_opaque);
+    cls.mk_constraints(s.get_subst(), justification(), s.relax_main_opaque());
     pair<bool, constraint_seq> dcs = tc->is_def_eq(t, e_t);
     if (!dcs.first)
         return proof_state_seq();
@@ -123,17 +123,17 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
                     }
                 }
             }
-            return proof_state(new_gs, new_subst, new_ngen, postponed);
+            return proof_state(s, new_gs, new_subst, new_ngen, postponed);
         });
 }
 
 static proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & e,
-                                         bool add_meta, subgoals_action_kind subgoals_action, bool relax_main_opaque) {
+                                         bool add_meta, subgoals_action_kind subgoals_action) {
     buffer<constraint> cs;
-    return apply_tactic_core(env, ios, s, e, cs, add_meta, subgoals_action, relax_main_opaque);
+    return apply_tactic_core(env, ios, s, e, cs, add_meta, subgoals_action);
 }
 
-tactic eassumption_tactic(bool relax_main_opaque) {
+tactic eassumption_tactic() {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
             if (empty(gs))
@@ -143,13 +143,13 @@ tactic eassumption_tactic(bool relax_main_opaque) {
             buffer<expr> hs;
             get_app_args(g.get_meta(), hs);
             for (expr const & h : hs) {
-                r = append(r, apply_tactic_core(env, ios, s, h, false, IgnoreSubgoals, relax_main_opaque));
+                r = append(r, apply_tactic_core(env, ios, s, h, false, IgnoreSubgoals));
             }
             return r;
         });
 }
 
-tactic apply_tactic(elaborate_fn const & elab, expr const & e, bool rev, bool relax_main_opaque) {
+tactic apply_tactic(elaborate_fn const & elab, expr const & e, bool rev) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
             if (empty(gs))
@@ -162,8 +162,8 @@ tactic apply_tactic(elaborate_fn const & elab, expr const & e, bool rev, bool re
             new_e    = ecs.first;
             to_buffer(ecs.second, cs);
             to_buffer(s.get_postponed(), cs);
-            proof_state new_s(s.get_goals(), s.get_subst(), ngen, constraints());
-            return apply_tactic_core(env, ios, new_s, new_e, cs, true, rev ? AddRevSubgoals : AddSubgoals, relax_main_opaque);
+            proof_state new_s(s, ngen, constraints());
+            return apply_tactic_core(env, ios, new_s, new_e, cs, true, rev ? AddRevSubgoals : AddSubgoals);
         });
 }
 

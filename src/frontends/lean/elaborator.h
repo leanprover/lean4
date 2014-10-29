@@ -35,6 +35,8 @@ class elaborator : public coercion_info_manager {
     local_context        m_context; // current local context: a list of local constants
     local_context        m_full_context; // superset of m_context, it also contains non-contextual locals.
     mvar2meta            m_mvar2meta;
+    // Set of metavariable that where created when m_relax_main_opaque flag is set to true.
+    name_set             m_relaxed_mvars;
     cache                m_cache;
     // The following vector contains sorts that we should check
     // whether the computed universe is too specific or not.

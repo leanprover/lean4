@@ -22,7 +22,7 @@ bool solve_constraints(environment const & env, io_state const & ios, proof_stat
     if (auto p = rseq.pull()) {
         substitution new_subst     = p->first.first;
         constraints  new_postponed = p->first.second;
-        ps = proof_state(ps.get_goals(), new_subst, ngen, new_postponed);
+        ps = proof_state(ps, ps.get_goals(), new_subst, ngen, new_postponed);
         return true;
     } else {
         return false;
@@ -62,7 +62,7 @@ optional<expr> elaborate_with_respect_to(environment const & env, io_state const
             substitution new_subst     = p->first.first;
             constraints  new_postponed = p->first.second;
             new_e = new_subst.instantiate(new_e);
-            s = proof_state(gs, new_subst, ngen, new_postponed);
+            s = proof_state(s, gs, new_subst, ngen, new_postponed);
             return some_expr(new_e);
         } else {
             return none_expr();

@@ -1,0 +1,141 @@
+/*
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#include "util/sstream.h"
+#include "kernel/instantiate.h"
+#include "kernel/abstract.h"
+#include "kernel/type_checker.h"
+#include "kernel/inductive/inductive.h"
+#include "library/reducible.h"
+#include "library/module.h"
+
+namespace lean {
+[[ noreturn ]] static void throw_ill_formed(name const & n) {
+    throw exception(sstream() << "error in 'projection' generation, '" << n << "' is an ill-formed inductive datatype");
+}
+
+static pair<unsigned, inductive::intro_rule> get_nparam_intro_rule(environment const & env, name const & n) {
+    optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
+    if (!decls)
+        throw exception(sstream() << "error in 'projection' generation, '" << n << "' is not an inductive datatype");
+    unsigned num_params = std::get<1>(*decls);
+    for (auto const & decl : std::get<2>(*decls)) {
+        if (inductive::inductive_decl_name(decl) == n) {
+            auto intros = inductive::inductive_decl_intros(decl);
+            if (length(intros) != 1)
+                throw exception(sstream() << "error in 'projection' generation, '"
+                                << n << "' must have a single constructor");
+            return mk_pair(num_params, head(intros));
+        }
+    }
+    optional<unsigned> num_indices = inductive::get_num_indices(env, n);
+    if (num_indices && *num_indices > 0)
+        throw exception(sstream() << "error in 'projection' generation, '"
+                        << n << "' is an indexed inductive datatype family");
+    throw_ill_formed(n);
+}
+
+environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names) {
+    // Given an inductive datatype C A (where A represent parameters)
+    //   intro : Pi A (x_1 : B_1[A]) (x_2 : B_2[A, x_1]) ..., C A
+    //
+    // we generate projections of the form
+    //   proj_i A (c : C A) : B_i[A, (proj_1 A n), ..., (proj_{i-1} A n)]
+    //     C.rec A (fun (x : C A), B_i[A, ...]) (fun (x_1 ... x_n), x_i) c
+    auto p = get_nparam_intro_rule(env, n);
+    name_generator ngen;
+    unsigned nparams             = p.first;
+    inductive::intro_rule intro  = p.second;
+    expr intro_type              = inductive::intro_rule_type(intro);
+    name rec_name                = inductive::get_elim_name(n);
+    declaration ind_decl         = env.get(n);
+    declaration rec_decl         = env.get(rec_name);
+    level_param_names lvl_params = ind_decl.get_univ_params();
+    levels lvls                  = param_names_to_levels(lvl_params);
+    buffer<expr> params; // datatype parameters
+    for (unsigned i = 0; i < nparams; i++) {
+        if (!is_pi(intro_type))
+            throw_ill_formed(n);
+        expr param = mk_local(ngen.next(), binding_name(intro_type), binding_domain(intro_type), mk_implicit_binder_info());
+        intro_type = instantiate(binding_body(intro_type), param);
+        params.push_back(param);
+    }
+    expr C_A                     = mk_app(mk_constant(n, lvls), params);
+    expr c                       = mk_local(ngen.next(), name("c"), C_A, binder_info());
+    buffer<expr> intro_type_args; // arguments that are not parameters
+    expr it = intro_type;
+    while (is_pi(it)) {
+        expr local = mk_local(ngen.next(), binding_name(it), binding_domain(it), binding_info(it));
+        intro_type_args.push_back(local);
+        it = instantiate(binding_body(it), local);
+    }
+    buffer<expr> projs; // projections generated so far
+    unsigned i = 0;
+    environment new_env = env;
+    for (name const & proj_name : proj_names) {
+        if (!is_pi(intro_type))
+            throw exception(sstream() << "error in projection '" << proj_name << "' generation, '"
+                            << n << "' does not have sufficient data");
+        expr result_type   = binding_domain(intro_type);
+        buffer<expr> proj_args;
+        proj_args.append(params);
+        proj_args.push_back(c);
+        expr type_former   = Fun(c, result_type);
+        expr minor_premise = Fun(intro_type_args, mk_var(intro_type_args.size() - i - 1));
+        expr major_premise = c;
+        type_checker tc(new_env);
+        level l            = sort_level(tc.ensure_sort(tc.infer(result_type).first).first);
+        levels rec_lvls    = append(to_list(l), lvls);
+        expr rec           = mk_constant(rec_name, rec_lvls);
+        buffer<expr> rec_args;
+        rec_args.append(params);
+        rec_args.push_back(type_former);
+        rec_args.push_back(minor_premise);
+        rec_args.push_back(major_premise);
+        expr rec_app      = mk_app(rec, rec_args);
+        expr proj_type    = Pi(proj_args, result_type);
+        expr proj_val     = Fun(proj_args, rec_app);
+        bool opaque       = false;
+        bool use_conv_opt = false;
+        declaration new_d = mk_definition(env, proj_name, lvl_params, proj_type, proj_val,
+                                          opaque, rec_decl.get_module_idx(), use_conv_opt);
+        new_env = module::add(new_env, check(new_env, new_d));
+        new_env = set_reducible(new_env, proj_name, reducible_status::On);
+        expr proj         = mk_app(mk_app(mk_constant(proj_name, lvls), params), c);
+        intro_type        = instantiate(binding_body(intro_type), proj);
+        i++;
+    }
+    return new_env;
+}
+
+static name mk_fresh_name(environment const & env, buffer<name> const & names, name const & s) {
+    unsigned i = 1;
+    name c = s;
+    while (true) {
+        if (!env.find(c) &&
+            std::find(names.begin(), names.end(), c) == names.end())
+            return c;
+        c = s.append_after(i);
+        i++;
+    }
+}
+
+environment mk_projections(environment const & env, name const & n) {
+    auto p  = get_nparam_intro_rule(env, n);
+    unsigned num_params = p.first;
+    inductive::intro_rule ir = p.second;
+    expr type = inductive::intro_rule_type(ir);
+    buffer<name> proj_names;
+    unsigned i = 0;
+    while (is_pi(type)) {
+        if (i >= num_params)
+            proj_names.push_back(mk_fresh_name(env, proj_names, n + binding_name(type)));
+        i++;
+        type = binding_body(type);
+    }
+    return mk_projections(env, n, proj_names);
+}
+}

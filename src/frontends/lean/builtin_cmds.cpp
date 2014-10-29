@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/normalize.h"
 #include "library/print.h"
+#include "library/definitional/projection.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -506,9 +507,26 @@ environment erase_cache_cmd(parser & p) {
     return p.env();
 }
 
+environment projections_cmd(parser & p) {
+    name n = p.check_id_next("invalid #projections command, identifier expected");
+    if (p.curr_is_token(get_dcolon_tk())) {
+        p.next();
+        buffer<name> proj_names;
+        while (p.curr_is_identifier()) {
+            proj_names.push_back(n + p.get_name_val());
+            p.next();
+        }
+        return mk_projections(p.env(), n, proj_names);
+    } else {
+        return mk_projections(p.env(), n);
+    }
+}
+
 void init_cmd_table(cmd_table & r) {
-    add_cmd(r, cmd_info("open",         "create aliases for declarations, and use objects defined in other namespaces", open_cmd));
-    add_cmd(r, cmd_info("export",       "create abbreviations for declarations, and export objects defined in other namespaces", export_cmd));
+    add_cmd(r, cmd_info("open",         "create aliases for declarations, and use objects defined in other namespaces",
+                        open_cmd));
+    add_cmd(r, cmd_info("export",       "create abbreviations for declarations, "
+                        "and export objects defined in other namespaces", export_cmd));
     add_cmd(r, cmd_info("set_option",   "set configuration option", set_option_cmd));
     add_cmd(r, cmd_info("exit",         "exit", exit_cmd));
     add_cmd(r, cmd_info("print",        "print a string", print_cmd));
@@ -522,6 +540,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("reducible",    "mark definitions as reducible/irreducible for automation", reducible_cmd));
     add_cmd(r, cmd_info("irreducible",  "mark definitions as irreducible for automation", irreducible_cmd));
     add_cmd(r, cmd_info("#erase_cache", "erase cached definition (for debugging purposes)", erase_cache_cmd));
+    add_cmd(r, cmd_info("#projections", "generate projections for inductive datatype (for debugging)", projections_cmd));
 
     register_decl_cmds(r);
     register_inductive_cmd(r);

@@ -1,9 +1,6 @@
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGININFO
--- IDENTIFIER|7|2
-tactic.info
--- ACK
 -- PROOF_STATE|7|2
 a : Prop,
 b : Prop,

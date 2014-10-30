@@ -1,9 +1,6 @@
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGININFO
--- IDENTIFIER|7|1
-tactic.apply
--- ACK
 -- TYPE|7|7
 a
 -- ACK
@@ -12,9 +9,6 @@ Ha
 -- ACK
 -- ENDINFO
 -- BEGININFO
--- IDENTIFIER|16|1
-tactic.apply
--- ACK
 -- TYPE|16|7
 b
 -- ACK

@@ -272,6 +272,25 @@ void register_unary_num_tac(name const & n, std::function<tactic(tactic const &,
         });
 }
 
+void register_num_tac(name const & n, std::function<tactic(unsigned k)> f) {
+    register_tac(n, [=](type_checker & tc, elaborate_fn const &, expr const & e, pos_info_provider const * p) {
+            buffer<expr> args;
+            get_app_args(e, args);
+            if (args.size() != 1)
+                throw expr_to_tactic_exception(e, "invalid tactic, it must have one argument");
+            optional<mpz> k = to_num(args[0]);
+            if (!k)
+                k = to_num(tc.whnf(args[0]).first);
+            if (!k)
+                throw expr_to_tactic_exception(e, "invalid tactic, argument must be a numeral");
+            if (!k->is_unsigned_int())
+                throw expr_to_tactic_exception(e,
+                                               "invalid tactic, argument does not fit in "
+                                               "a machine unsigned integer");
+            return f(k->get_unsigned_int());
+        });
+}
+
 static name * g_by_name = nullptr;
 
 expr mk_by(expr const & e) { return mk_annotation(*g_by_name, e); }
@@ -351,6 +370,9 @@ void initialize_expr_to_tactic() {
                            [](tactic const & t, unsigned k) { return focus(t, k); });
     register_unary_num_tac(name(*g_tactic_name, "try_for"),
                            [](tactic const & t, unsigned k) { return try_for(t, k); });
+    register_num_tac(name(*g_tactic_name, "rotate_left"), [](unsigned k) { return rotate_left(k); });
+    register_num_tac(name(*g_tactic_name, "rotate_right"), [](unsigned k) { return rotate_right(k); });
+
     register_tac(fixpoint_name,
                  [](type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      if (!is_constant(app_fn(e)))

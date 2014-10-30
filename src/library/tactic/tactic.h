@@ -71,6 +71,12 @@ tactic try_for(tactic const & t, unsigned ms, unsigned check_ms = 1);
    from tactic \c t2.
 */
 tactic append(tactic const & t1, tactic const & t2);
+
+/** \brief Return a tactic that rotate goals to the left n steps */
+tactic rotate_left(unsigned n);
+/** \brief Return a tactic that rotate goals to the right n steps */
+tactic rotate_right(unsigned n);
+
 inline tactic operator+(tactic const & t1, tactic const & t2) { return append(t1, t2); }
 /**
    \brief Execute both tactics and and combines their results.

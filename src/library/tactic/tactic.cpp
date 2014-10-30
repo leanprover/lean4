@@ -110,6 +110,32 @@ tactic using_params(tactic const & t, options const & opts) {
         });
 }
 
+proof_state rotate_left(proof_state const & s, unsigned n) {
+    buffer<goal> gs;
+    to_buffer(s.get_goals(), gs);
+    unsigned sz = gs.size();
+    if (sz == 0)
+        return s;
+    n = n%sz;
+    std::rotate(gs.begin(), gs.begin() + n, gs.end());
+    return proof_state(s, to_list(gs.begin(), gs.end()));
+}
+
+tactic rotate_left(unsigned n) {
+    return tactic1([=](environment const &, io_state const &, proof_state const & s) -> proof_state {
+            return rotate_left(s, n);
+        });
+}
+
+tactic rotate_right(unsigned n) {
+    return tactic1([=](environment const &, io_state const &, proof_state const & s) -> proof_state {
+            unsigned ngoals = length(s.get_goals());
+            if (ngoals == 0)
+                return s;
+            return rotate_left(s, ngoals - n%ngoals);
+        });
+}
+
 tactic try_for(tactic const & t, unsigned ms, unsigned check_ms) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
             return timeout(t(env, ios, s), ms, check_ms);

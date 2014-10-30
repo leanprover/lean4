@@ -79,6 +79,7 @@ void register_simple_tac(name const & n, std::function<tactic()> f);
 void register_bin_tac(name const & n, std::function<tactic(tactic const &, tactic const &)> f);
 void register_unary_tac(name const & n, std::function<tactic(tactic const &)> f);
 void register_unary_num_tac(name const & n, std::function<tactic(tactic const &, unsigned)> f);
+void register_num_tac(name const & n, std::function<tactic(unsigned k)> f);
 
 void initialize_expr_to_tactic();
 void finalize_expr_to_tactic();

@@ -229,11 +229,32 @@
   (cl-third proofstate))
 (defun lean-info-proofstate-state-str (string-seq)
   (string-join string-seq "\n"))
-(defun lean-info-proofstate-states-str (proofstate)
-  (string-join
-   (-map 'lean-info-proofstate-state-str
-         (lean-info-proofstate-states proofstate))
-   "\n\n"))
+(defun lean-info-proofstate-extract-conclusion (string-seq)
+  (--drop-while (not (s-starts-with? "⊢" it)) string-seq))
+(defun lean-info-proofstate-extract-premises (string-seq)
+  (--take-while (not (s-starts-with? "⊢" it)) string-seq))
+(defun lean-info-proofstate-states-str (proofstate &optional display-style)
+  (let* ((states (lean-info-proofstate-states proofstate))
+         (first-state (-first-item states))
+         (rest-states (cdr states))
+         (display-style (or display-style lean-proofstate-display-style)))
+    (cond
+     (first-state
+      (pcase display-style
+        (`show-all
+         (string-join
+          (-map 'lean-info-proofstate-state-str states)
+          "\n\n"))
+        (`show-first
+         (lean-info-proofstate-state-str first-state))
+        (`show-first-and-other-conclusions
+         (string-join
+          (-map 'lean-info-proofstate-state-str
+                (cons first-state (-map
+                                   'lean-info-proofstate-extract-conclusion
+                                   rest-states)))
+          "\n\n"))))
+     (t "No Goal"))))
 
 ;; Basic
 ;; -----
@@ -469,9 +490,7 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
                                 (propertize "overloaded" 'face 'font-lock-keyword-face)
                                 overload-str))))
     (when proofstate
-      (cond ((not (lean-info-proofstate-states proofstate))
-             (setq str "No Goal"))
-            (t (setq str (lean-info-proofstate-states-str proofstate)))))
+      (setq str (lean-info-proofstate-states-str proofstate)))
     (when (and stale str)
       (setq stale-str (format "[%s]"
                               (propertize "stale" 'face '(foreground-color . "red")))))

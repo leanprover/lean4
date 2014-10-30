@@ -59,15 +59,19 @@ buffer. It's used to avoid outputting the same message")
   "Continuation for lean-eldoc-documentation-function"
   (let* ((info-strings (lean-info-record-to-strings info-record))
          (info-string-mini-buffer (and info-strings (string-join info-strings " ")))
-         (info-string-info-buffer (and info-strings (-last-item info-strings))))
+         (info-string-info-buffer (and info-strings (-last-item info-strings)))
+         (proofstate (lean-info-record-proofstate info-record)))
     (when info-strings
       (when add-to-kill-ring
         (kill-new
          (substring-no-properties info-string-mini-buffer)))
+      ;; Display on Mini-buffer
       (when (or lean-show-proofstate-in-minibuffer
-                (not (lean-info-record-proofstate info-record)))
+                (not proofstate))
         (message "%s" info-string-mini-buffer))
-      (lean-output-to-lean-info-buffer "%s" (list info-string-info-buffer)))))
+      ;; Display on Info Buffer
+      (when info-string-info-buffer
+        (lean-output-to-lean-info-buffer "%s" (list info-string-info-buffer))))))
 
 (defun lean-eldoc-documentation-function (&optional add-to-kill-ring)
   "Show information of lean expression at point if any"

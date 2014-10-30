@@ -218,8 +218,10 @@ environment check_cmd(parser & p) {
     auto tc = mk_type_checker(p.env(), p.mk_ngen(), true);
     expr type = tc->check(e, ls).first;
     auto reg              = p.regular_stream();
-    formatter const & fmt = reg.get_formatter();
+    formatter fmt         = reg.get_formatter();
     options opts          = p.ios().get_options();
+    opts                  = opts.update(get_pp_metavar_args_name(), true);
+    fmt                   = fmt.update_options(opts);
     unsigned indent       = get_pp_indent(opts);
     format r = group(fmt(e) + space() + colon() + nest(indent, line() + fmt(type)));
     reg << mk_pair(r, opts) << endl;

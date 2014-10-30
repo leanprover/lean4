@@ -96,13 +96,55 @@ void finalize_pp() {
     delete g_tmp_prefix;
 }
 
+/** \brief We assume a metavariable name has a suggestion embedded in it WHEN its
+    last component is a string. */
+static bool has_embedded_suggestion(name const & m) {
+    return m.is_string();
+}
+
+/** \see extract_suggestion */
+static name extract_suggestion_core(name const & m) {
+    if (m.is_string()) {
+        if (m.is_atomic())
+            return m;
+        else
+            return name(extract_suggestion_core(m.get_prefix()), m.get_string());
+    } else {
+        return name();
+    }
+}
+
+/** \brief Extract "suggested name" embedded in a metavariable name
+
+    \pre has_embedded_suggestion(m)
+*/
+static name extract_suggestion(name const & m) {
+    lean_assert(has_embedded_suggestion(m));
+    name r = extract_suggestion_core(m);
+    lean_assert(!r.is_anonymous());
+    return r;
+}
+
 name pretty_fn::mk_metavar_name(name const & m) {
     if (auto it = m_purify_meta_table.find(m))
         return *it;
-    name new_m = m_meta_prefix.append_after(m_next_meta_idx);
-    m_next_meta_idx++;
-    m_purify_meta_table.insert(m, new_m);
-    return new_m;
+    if (has_embedded_suggestion(m)) {
+        name suggested = extract_suggestion(m);
+        name r         = suggested;
+        unsigned i     = 1;
+        while (m_purify_used_metas.contains(r)) {
+            r = suggested.append_after(i);
+            i++;
+        }
+        m_purify_used_metas.insert(r);
+        m_purify_meta_table.insert(m, r);
+        return r;
+    } else {
+        name new_m = m_meta_prefix.append_after(m_next_meta_idx);
+        m_next_meta_idx++;
+        m_purify_meta_table.insert(m, new_m);
+        return new_m;
+    }
 }
 
 name pretty_fn::mk_local_name(name const & n, name const & suggested) {

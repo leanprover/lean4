@@ -268,10 +268,10 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
 */
 pair<expr, constraint> mk_placeholder_elaborator(
     environment const & env, io_state const & ios, local_context const & ctx,
-    name const & prefix, bool relax, bool use_local_instances,
+    name const & prefix, optional<name> const & suffix, bool relax, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg) {
     auto C       = std::make_shared<placeholder_context>(env, ios, ctx, prefix, relax, use_local_instances);
-    expr m       = C->m_ctx.mk_meta(C->m_ngen, type, g);
+    expr m       = C->m_ctx.mk_meta(C->m_ngen, suffix, type, g);
     constraint c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, delay_factor());
     return mk_pair(m, c);
 }

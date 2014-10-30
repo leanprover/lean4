@@ -44,6 +44,7 @@ private:
     name                m_meta_prefix;
     unsigned            m_next_meta_idx;
     name_map<name>      m_purify_meta_table;
+    name_set            m_purify_used_metas;
     name_map<name>      m_purify_local_table;
     name_set            m_purify_used_locals;
     // cached configuration

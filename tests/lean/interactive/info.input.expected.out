@@ -2,7 +2,7 @@
 -- ENDWAIT
 -- BEGININFO
 -- TYPE|6|8
-?M_1 → ?M_2 → ?M_1 ∧ ?M_2
+?a → ?b → ?a ∧ ?b
 -- ACK
 -- IDENTIFIER|6|8
 and.intro

@@ -217,20 +217,27 @@ void elaborator::copy_info_to_manager(substitution s) {
     m_pre_info_data.clear();
 }
 
+optional<name> elaborator::mk_mvar_suffix(expr const & b) {
+    if (!infom())
+        return optional<name>();
+    else
+        return optional<name>(binding_name(b));
+}
+
 /** \brief Create a metavariable, and attach choice constraint for generating
     solutions using class-instances and tactic-hints.
 */
-expr elaborator::mk_placeholder_meta(optional<expr> const & type, tag g, bool is_strict,
-                                     bool is_inst_implicit, constraint_seq & cs) {
+expr elaborator::mk_placeholder_meta(optional<name> const & suffix, optional<expr> const & type,
+                                     tag g, bool is_strict, bool is_inst_implicit, constraint_seq & cs) {
     if (is_inst_implicit) {
         auto ec = mk_placeholder_elaborator(env(), ios(), m_context,
-                                            m_ngen.next(), m_relax_main_opaque, use_local_instances(),
+                                            m_ngen.next(), suffix, m_relax_main_opaque, use_local_instances(),
                                             is_strict, type, g, m_unifier_config);
         register_meta(ec.first);
         cs += ec.second;
         return ec.first;
     } else {
-        expr m = m_context.mk_meta(m_ngen, type, g);
+        expr m = m_context.mk_meta(m_ngen, suffix, type, g);
         register_meta(m);
         return m;
     }
@@ -323,7 +330,8 @@ expr elaborator::add_implict_args(expr e, constraint_seq & cs, bool relax) {
         tag g = e.get_tag();
         bool is_strict = true;
         bool inst_imp  = binding_info(type).is_inst_implicit();
-        expr imp_arg   = mk_placeholder_meta(some_expr(binding_domain(type)), g, is_strict, inst_imp, cs);
+        expr imp_arg   = mk_placeholder_meta(mk_mvar_suffix(type), some_expr(binding_domain(type)),
+                                             g, is_strict, inst_imp, cs);
         e              = mk_app(e, imp_arg, g);
         type           = instantiate(binding_body(type), imp_arg);
         constraint_seq new_cs;
@@ -553,7 +561,8 @@ expr elaborator::visit_app(expr const & e, constraint_seq & cs) {
             tag g          = f.get_tag();
             bool is_strict = true;
             bool inst_imp  = binding_info(f_type).is_inst_implicit();
-            expr imp_arg   = mk_placeholder_meta(some_expr(binding_domain(f_type)), g, is_strict, inst_imp, f_cs);
+            expr imp_arg   = mk_placeholder_meta(mk_mvar_suffix(f_type), some_expr(binding_domain(f_type)),
+                                                 g, is_strict, inst_imp, f_cs);
             f              = mk_app(f, imp_arg, g);
             auto f_t       = ensure_fun(f, f_cs);
             f              = f_t.first;
@@ -871,7 +880,8 @@ pair<expr, constraint_seq> elaborator::visit(expr const & e) {
                 }
             }
             bool inst_imp = bi.is_inst_implicit();
-            imp_arg = mk_placeholder_meta(some_expr(binding_domain(r_type)), g, is_strict, inst_imp, cs);
+            imp_arg = mk_placeholder_meta(mk_mvar_suffix(r_type), some_expr(binding_domain(r_type)),
+                                          g, is_strict, inst_imp, cs);
             r       = mk_app(r, imp_arg, g);
             r_type  = whnf(instantiate(binding_body(r_type), imp_arg), cs);
         }

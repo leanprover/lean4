@@ -61,8 +61,10 @@ public:
         where ?m2 is another fresh metavariable with type
            <tt>(Pi (x_1 : A_1) ... (x_n : A_n[x_1, ..., x_{n-1}]), Type.{?u})</tt>,
         and \c ?u is a fresh universe metavariable.
+
+        \remark If \c suffix is not none, then it is appended to the (fresh) metavariable name.
     */
-    expr mk_metavar(name_generator & ngen, optional<expr> const & type, tag g);
+    expr mk_metavar(name_generator & ngen, optional<name> const & suffix, optional<expr> const & type, tag g);
 
     /** \brief Given <tt>type[l_1, ..., l_n]</tt> and assuming \c m_ctx is
            <tt>[l_n : A_n[l_1, ..., l_{n-1}], ..., l_1 : A_1 ]</tt>,
@@ -70,8 +72,13 @@ public:
         created using \c mk_metavar.
 
         \see mk_metavar
+
+        \remark If \c suffix is not none, then it is appended to the (fresh) metavariable name.
     */
-    expr mk_meta(name_generator & ngen, optional<expr> const & type, tag g);
+    expr mk_meta(name_generator & ngen, optional<name> const & suffix, optional<expr> const & type, tag g);
+    expr mk_meta(name_generator & ngen, optional<expr> const & type, tag g) {
+        return mk_meta(ngen, optional<name>(), type, g);
+    }
 
     /** \brief Return context as a list */
     list<expr> const & get_data() const;

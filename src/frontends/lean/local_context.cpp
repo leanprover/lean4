@@ -81,15 +81,17 @@ expr local_context::mk_type_meta(name_generator & ngen, tag g) {
     return apply_context(mk_type_metavar(ngen, g), g);
 }
 
-expr local_context::mk_metavar(name_generator & ngen, optional<expr> const & type, tag g) {
+expr local_context::mk_metavar(name_generator & ngen, optional<name> const & suffix, optional<expr> const & type, tag g) {
     name n      = ngen.next();
+    if (suffix)
+        n = n + *suffix;
     expr r_type = type ? *type : mk_type_meta(ngen, g);
     expr t      = pi_abstract_context(r_type, g);
     return ::lean::mk_metavar(n, t, g);
 }
 
-expr local_context::mk_meta(name_generator & ngen, optional<expr> const & type, tag g) {
-    expr mvar = mk_metavar(ngen, type, g);
+expr local_context::mk_meta(name_generator & ngen, optional<name> const & suffix, optional<expr> const & type, tag g) {
+    expr mvar = mk_metavar(ngen, suffix, type, g);
     expr meta = apply_context(mvar, g);
     return meta;
 }

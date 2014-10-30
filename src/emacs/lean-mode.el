@@ -125,8 +125,6 @@
   '(
     ;; Handle events that may start automatic syntax checks
     (after-save-hook                     . lean-server-after-save)
-    (after-change-functions              . lean-after-change-function)
-    (before-change-functions             . lean-before-change-function)
     ;; ;; Handle events that may triggered pending deferred checks
     ;; (window-configuration-change-hook . lean-perform-deferred-syntax-check)
     ;; (post-command-hook                . lean-perform-deferred-syntax-check)
@@ -148,6 +146,10 @@
 The `car' of each pair is a hook variable, the `cdr' a function
 to be added or removed from the hook variable if Flycheck mode is
 enabled and disabled respectively.")
+
+(when lean-follow-changes
+  (add-to-list 'lean-hooks-alist '(after-change-functions  . lean-after-change-function))
+  (add-to-list 'lean-hooks-alist '(before-change-functions . lean-before-change-function)))
 
 (defun lean-mode-setup ()
   "Default lean-mode setup"

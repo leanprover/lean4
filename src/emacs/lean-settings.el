@@ -141,4 +141,8 @@ false (nil)."
                  (const :tag "Show only the first" show-first)
                  (const :tag "Show the first goal, and the conclusions of all other goals" show-first-and-other-conclusions)))
 
+(defcustom lean-follow-changes 't
+  "Disable this if we don't need to keep track of the changes. A usage
+  is to batch-process .org files to .html files")
+
 (provide 'lean-settings)

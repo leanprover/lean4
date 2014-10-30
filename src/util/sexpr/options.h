@@ -33,6 +33,7 @@ public:
     unsigned size() const;
     bool contains(name const & n) const;
     bool contains(char const * n) const;
+    unsigned hash() const { return m_value.hash(); }
 
     bool         get_bool(name const & n, bool default_value = false) const;
     int          get_int(name const & n, int default_value = 0) const;

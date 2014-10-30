@@ -277,7 +277,8 @@ environment set_option_cmd(parser & p) {
         throw parser_error("invalid option value, 'true', 'false', string, integer or decimal value expected", p.pos());
     }
     p.updt_options();
-    return p.env();
+    environment env = p.env();
+    return update_fingerprint(env, p.get_options().hash());
 }
 
 static name parse_class(parser & p) {

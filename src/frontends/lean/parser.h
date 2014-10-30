@@ -244,6 +244,7 @@ public:
     bool keep_new_thms() const { return m_keep_theorem_mode != keep_theorem_mode::DiscardAll; }
 
     void updt_options();
+    options get_options() const { return m_ios.get_options(); }
     template<typename T> void set_option(name const & n, T const & v) { m_ios.set_option(n, v); }
 
     name mk_fresh_name() { return m_ngen.next(); }

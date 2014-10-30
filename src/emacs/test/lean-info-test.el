@@ -13,16 +13,16 @@
   (should (lean-info-type-p "-- TYPE|121|2"))
   (should (lean-info-type-p '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
   (should (equal (lean-info-type-parse-header "-- TYPE|121|2")
-                    '(121 2)))
+                 '(121 2)))
   (should (equal (lean-info-type-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))"))
-                    '(TYPE
-                      (121 2)
-                      ("not (eq zero (succ m'))"
-                       "→ decidable (eq zero (succ m'))"))))
+                 '(TYPE
+                   (121 2)
+                   ("not (eq zero (succ m'))"
+                    "→ decidable (eq zero (succ m'))"))))
   (should (equal
-              (lean-info-type-pos
-               (lean-info-type-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
-              '(121 2))))
+           (lean-info-type-pos
+            (lean-info-type-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+           '(121 2))))
 
 (ert-deftest lean-test-info-overload ()
   "Test lean-info-overload"
@@ -205,8 +205,8 @@
        "H_3 : c"
        "⊢ and b c"))
     '(PROOF_STATE (6 17)
-                 (("a : Prop," "b : Prop," "c : Prop," "H_1 : a," "H_2 : b," "H_3 : c" "⊢ a")
-                  ("a : Prop," "b : Prop," "c : Prop," "H_1 : a," "H_2 : b," "H_3 : c" "⊢ and b c")))))
+                  (("a : Prop," "b : Prop," "c : Prop," "H_1 : a," "H_2 : b," "H_3 : c" "⊢ a")
+                   ("a : Prop," "b : Prop," "c : Prop," "H_1 : a," "H_2 : b," "H_3 : c" "⊢ and b c")))))
   (should (equal
            (lean-info-proofstate-pos
             (lean-info-proofstate-parse
@@ -228,42 +228,155 @@
                "⊢ and b c")))
            '(6 17)))
   (should (equal (lean-info-proofstate-states (lean-info-proofstate-parse
-                                            '("-- PROOF_STATE|6|17"
-               "a : Prop,"
-               "b : Prop,"
-               "c : Prop,"
-               "H_1 : a,"
-               "H_2 : b,"
-               "H_3 : c"
-               "⊢ a"
-               "--"
-               "a : Prop,"
-               "b : Prop,"
-               "c : Prop,"
-               "H_1 : a,"
-               "H_2 : b,"
-               "H_3 : c"
-               "⊢ and b c")))
+                                               '("-- PROOF_STATE|6|17"
+                                                 "a : Prop,"
+                                                 "b : Prop,"
+                                                 "c : Prop,"
+                                                 "H_1 : a,"
+                                                 "H_2 : b,"
+                                                 "H_3 : c"
+                                                 "⊢ a"
+                                                 "--"
+                                                 "a : Prop,"
+                                                 "b : Prop,"
+                                                 "c : Prop,"
+                                                 "H_1 : a,"
+                                                 "H_2 : b,"
+                                                 "H_3 : c"
+                                                 "⊢ and b c")))
 
                  '(("a : Prop," "b : Prop," "c : Prop," "H_1 : a," "H_2 : b," "H_3 : c" "⊢ a")
-                   ("a : Prop," "b : Prop," "c : Prop," "H_1 : a," "H_2 : b," "H_3 : c" "⊢ and b c")))))
+                   ("a : Prop," "b : Prop," "c : Prop," "H_1 : a," "H_2 : b," "H_3 : c" "⊢ and b c"))))
+  (should (equal (lean-info-proofstate-extract-conclusion
+                  '("a : Prop,"
+                    "b : Prop,"
+                    "c : Prop,"
+                    "H_1 : a,"
+                    "H_2 : b,"
+                    "H_3 : c"
+                    "⊢ b ∧ c"
+                    "..."))
+                 '("⊢ b ∧ c" "...")))
+  (should (equal (lean-info-proofstate-extract-premises
+                  '("a : Prop,"
+                    "b : Prop,"
+                    "c : Prop,"
+                    "H_1 : a,"
+                    "H_2 : b,"
+                    "H_3 : c"
+                    "⊢ b ∧ c"
+                    "..."))
+                 '("a : Prop,"
+                   "b : Prop,"
+                   "c : Prop,"
+                   "H_1 : a,"
+                   "H_2 : b,"
+                   "H_3 : c")))
+  (should (equal (lean-info-proofstate-states-str
+                  (lean-info-proofstate-parse
+                   '("-- PROOF_STATE|6|17"
+                     "a : Prop,"
+                     "b : Prop,"
+                     "c : Prop,"
+                     "H_1 : a,"
+                     "H_2 : b,"
+                     "H_3 : c"
+                     "⊢ a"
+                     "--"
+                     "a : Prop,"
+                     "b : Prop,"
+                     "c : Prop,"
+                     "H_1 : a,"
+                     "H_2 : b,"
+                     "H_3 : c"
+                     "⊢ and b c"))
+                  'show-all)
+                 (string-join '("a : Prop,"
+                                "b : Prop,"
+                                "c : Prop,"
+                                "H_1 : a,"
+                                "H_2 : b,"
+                                "H_3 : c"
+                                "⊢ a"
+                                ""
+                                "a : Prop,"
+                                "b : Prop,"
+                                "c : Prop,"
+                                "H_1 : a,"
+                                "H_2 : b,"
+                                "H_3 : c"
+                                "⊢ and b c") "\n")))
+  (should (equal (lean-info-proofstate-states-str
+                  (lean-info-proofstate-parse
+                   '("-- PROOF_STATE|6|17"
+                     "a : Prop,"
+                     "b : Prop,"
+                     "c : Prop,"
+                     "H_1 : a,"
+                     "H_2 : b,"
+                     "H_3 : c"
+                     "⊢ a"
+                     "--"
+                     "a : Prop,"
+                     "b : Prop,"
+                     "c : Prop,"
+                     "H_1 : a,"
+                     "H_2 : b,"
+                     "H_3 : c"
+                     "⊢ and b c"))
+                  'show-first)
+                 (string-join '("a : Prop,"
+                                "b : Prop,"
+                                "c : Prop,"
+                                "H_1 : a,"
+                                "H_2 : b,"
+                                "H_3 : c"
+                                "⊢ a") "\n")))
+  (should (equal (lean-info-proofstate-states-str
+                  (lean-info-proofstate-parse
+                   '("-- PROOF_STATE|6|17"
+                     "a : Prop,"
+                     "b : Prop,"
+                     "c : Prop,"
+                     "H_1 : a,"
+                     "H_2 : b,"
+                     "H_3 : c"
+                     "⊢ a"
+                     "--"
+                     "a : Prop,"
+                     "b : Prop,"
+                     "c : Prop,"
+                     "H_1 : a,"
+                     "H_2 : b,"
+                     "H_3 : c"
+                     "⊢ and b c"))
+                  'show-first-and-other-conclusions)
+                 (string-join '("a : Prop,"
+                                "b : Prop,"
+                                "c : Prop,"
+                                "H_1 : a,"
+                                "H_2 : b,"
+                                "H_3 : c"
+                                "⊢ a"
+                                ""
+                                "⊢ and b c") "\n"))))
 
 (ert-deftest lean-test-info-pos ()
   "Test lean-info-pos"
   (should (equal
-              (lean-info-pos
-               (lean-info-type-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
-              '(121 2)))
+           (lean-info-pos
+            (lean-info-type-parse '("-- TYPE|121|2" "not (eq zero (succ m'))" "→ decidable (eq zero (succ m'))")))
+           '(121 2)))
   (should (equal
-              (lean-info-pos
-               (lean-info-overload-parse
-                '("-- OVERLOAD|121|2"
-                  "not (eq zero (succ m'))"
-                  "→ decidable (eq zero (succ m'))"
-                  "--"
-                  "not (eq one (succ m'))"
-                  "→ decidable (eq zero (succ m'))"
-                  "--"
-                  "not (eq two (succ m'))"
-                  "→ decidable (eq zero (succ m'))")))
-              '(121 2))))
+           (lean-info-pos
+            (lean-info-overload-parse
+             '("-- OVERLOAD|121|2"
+               "not (eq zero (succ m'))"
+               "→ decidable (eq zero (succ m'))"
+               "--"
+               "not (eq one (succ m'))"
+               "→ decidable (eq zero (succ m'))"
+               "--"
+               "not (eq two (succ m'))"
+               "→ decidable (eq zero (succ m'))")))
+           '(121 2))))

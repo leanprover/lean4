@@ -442,6 +442,7 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
     }
 
     if (!found_cached) {
+        p.remove_proof_state_info(n_pos, p.pos());
         if (is_theorem) {
             auto type_pos = p.pos_of(type);
             bool clear_pre_info = false; // we don't want to clear pre_info data until we process the proof.

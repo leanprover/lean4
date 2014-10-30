@@ -69,6 +69,7 @@ public:
     bool is_cheap() const { return m_ptr->is_cheap(); }
     void display(io_state_stream const & ios, unsigned line) const { m_ptr->display(ios, line); }
     info_data_cell const * raw() const { return m_ptr; }
+    info_kind kind() const { return m_ptr->kind(); }
 };
 
 struct tmp_info_data : public info_data_cell {
@@ -444,6 +445,30 @@ struct info_manager::imp {
         m_line_data[l].insert(mk_proof_state_info(c, ps));
     }
 
+    void remove_proof_state_info(unsigned start_line, unsigned start_col, unsigned end_line, unsigned end_col) {
+        lock_guard<mutex> lc(m_mutex);
+        if (m_block_new_info || m_line_data.empty())
+            return;
+        if (end_line >= m_line_data.size())
+            end_line = m_line_data.size() - 1;
+        for (unsigned i = start_line; i <= end_line; i++) {
+            info_data_set const & curr_set = m_line_data[i];
+            if (curr_set.find_if([](info_data const & info) { return info.kind() == info_kind::ProofState; })) {
+                info_data_set new_curr_set;
+                curr_set.for_each([&](info_data const & info) {
+                        if (info.kind() == info_kind::ProofState) {
+                            if ((i == start_line && info.get_column() < start_col) ||
+                                (i == end_line && info.get_column() >= end_col))
+                                new_curr_set.insert(info);
+                        } else {
+                            new_curr_set.insert(info);
+                        }
+                    });
+                m_line_data[i] = new_curr_set;
+            }
+        }
+    }
+
     static info_data_set instantiate(info_data_set const & s, substitution & subst) {
         info_data_set r;
         s.for_each([&](info_data const & d) {
@@ -724,4 +749,7 @@ optional<expr> info_manager::get_type_at(unsigned line, unsigned col) const { re
 optional<expr> info_manager::get_meta_at(unsigned line, unsigned col) const { return m_ptr->get_meta_at(line, col); }
 void info_manager::block_new_info() { m_ptr->block_new_info(true); }
 void info_manager::start_from(unsigned l) { m_ptr->start_from(l); }
+void info_manager::remove_proof_state_info(unsigned start_line, unsigned start_col, unsigned end_line, unsigned end_col) {
+    m_ptr->remove_proof_state_info(start_line, start_col, end_line, end_col);
+}
 }

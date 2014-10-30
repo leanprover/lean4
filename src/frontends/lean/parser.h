@@ -226,6 +226,7 @@ public:
 
     bool are_info_lines_valid(unsigned start_line, unsigned end_line) const;
     bool collecting_info() const { return m_info_manager; }
+    void remove_proof_state_info(pos_info const & start, pos_info const & end);
 
     void set_index(declaration_index * i) { m_index = i; }
     void add_decl_index(name const & n, pos_info const & pos, name const & k, expr const & t);

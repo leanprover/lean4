@@ -30,6 +30,9 @@ public:
     void add_identifier_info(unsigned l, unsigned c, name const & full_id);
     void add_proof_state_info(unsigned l, unsigned c, proof_state const & e);
 
+    /** \brief Remove PROO_STATE info from [(start_line, start_line), (end_line, end_col)) */
+    void remove_proof_state_info(unsigned start_line, unsigned start_col, unsigned end_line, unsigned end_col);
+
     void instantiate(substitution const & s);
 
     void merge(info_manager const & m, bool overwrite);

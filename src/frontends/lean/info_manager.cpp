@@ -429,7 +429,16 @@ struct info_manager::imp {
         m_line_data[l].insert(mk_symbol_info(c, s));
     }
 
+    static bool is_tactic_id(name const & id) {
+        if (id.is_atomic())
+            return id == get_tactic_name();
+        else
+            return is_tactic_id(id.get_prefix());
+    }
+
     void add_identifier_info(unsigned l, unsigned c, name const & full_id) {
+        if (is_tactic_id(full_id))
+            return;
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
             return;

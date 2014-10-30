@@ -27,6 +27,8 @@ bool has_tactic_decls(environment const & env);
 */
 tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr const & e, pos_info_provider const * p);
 
+name const & get_tactic_name();
+
 expr const & get_tactic_expr_type();
 expr mk_tactic_expr(expr const & e);
 bool is_tactic_expr(expr const & e);

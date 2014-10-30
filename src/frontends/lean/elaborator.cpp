@@ -88,7 +88,7 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
     }
 };
 
-elaborator::elaborator(elaborator_context & ctx, name_generator const & ngen):
+elaborator::elaborator(elaborator_context & ctx, name_generator const & ngen, bool nice_mvar_names):
     m_ctx(ctx),
     m_ngen(ngen),
     m_context(),
@@ -100,6 +100,7 @@ elaborator::elaborator(elaborator_context & ctx, name_generator const & ngen):
     m_no_info = false;
     m_tc[0]  = mk_type_checker(ctx.m_env, m_ngen.mk_child(), false);
     m_tc[1]  = mk_type_checker(ctx.m_env, m_ngen.mk_child(), true);
+    m_nice_mvar_names = nice_mvar_names;
 }
 
 expr elaborator::mk_local(name const & n, expr const & t, binder_info const & bi) {
@@ -218,7 +219,7 @@ void elaborator::copy_info_to_manager(substitution s) {
 }
 
 optional<name> elaborator::mk_mvar_suffix(expr const & b) {
-    if (!infom())
+    if (!infom() && !m_nice_mvar_names)
         return optional<name>();
     else
         return optional<name>(binding_name(b));
@@ -1270,8 +1271,8 @@ pair<expr, constraints> elaborator::elaborate_nested(list<expr> const & ctx, exp
 static name * g_tmp_prefix = nullptr;
 
 std::tuple<expr, level_param_names> elaborate(elaborator_context & env, list<expr> const & ctx, expr const & e,
-                                              bool relax_main_opaque, bool ensure_type) {
-    return elaborator(env, name_generator(*g_tmp_prefix))(ctx, e, ensure_type, relax_main_opaque);
+                                              bool relax_main_opaque, bool ensure_type, bool nice_mvar_names) {
+    return elaborator(env, name_generator(*g_tmp_prefix), nice_mvar_names)(ctx, e, ensure_type, relax_main_opaque);
 }
 
 std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t, expr const & v,

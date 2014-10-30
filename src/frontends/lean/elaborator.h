@@ -56,6 +56,9 @@ class elaborator : public coercion_info_manager {
     info_manager         m_pre_info_data;
     bool                 m_has_sorry;
     unifier_config       m_unifier_config;
+    // If m_nice_mvar_names is true, we append (when possible) a more informative name for a metavariable.
+    // That is, whenever a metavariables comes from a binding, we add the binding name as a suffix
+    bool                 m_nice_mvar_names;
     struct choice_expr_elaborator;
 
     environment const & env() const { return m_ctx.m_env; }
@@ -147,14 +150,14 @@ class elaborator : public coercion_info_manager {
     pair<expr, constraints> elaborate_nested(list<expr> const & g, expr const & e,
                                              bool relax, bool use_tactic_hints);
 public:
-    elaborator(elaborator_context & ctx, name_generator const & ngen);
+    elaborator(elaborator_context & ctx, name_generator const & ngen, bool nice_mvar_names = false);
     std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type,
                                                    bool relax_main_opaque);
     std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n, bool is_opaque);
 };
 
 std::tuple<expr, level_param_names> elaborate(elaborator_context & env, list<expr> const & ctx, expr const & e,
-                                              bool relax_main_opaque, bool ensure_type = false);
+                                              bool relax_main_opaque, bool ensure_type = false, bool nice_mvar_names = false);
 
 std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t, expr const & v,
                                                     bool is_opaque);

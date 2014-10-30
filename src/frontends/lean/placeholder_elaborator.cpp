@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/lazy_list_fn.h"
 #include "util/flet.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
@@ -18,7 +19,28 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_context.h"
 #include "frontends/lean/choice_iterator.h"
 
+#ifndef LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES
+#define LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES false
+#endif
+
 namespace lean {
+static name * g_elaborator_unique_class_instances = nullptr;
+
+void initialize_placeholder_elaborator() {
+    g_elaborator_unique_class_instances = new name{"elaborator", "unique_class_instances"};
+    register_bool_option(*g_elaborator_unique_class_instances,  LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES,
+                         "(elaborator) generate an error if there is more than one solution "
+                         "for a class-instance resolution problem");
+}
+
+void finalize_placeholder_elaborator() {
+    delete g_elaborator_unique_class_instances;
+}
+
+bool get_elaborator_unique_class_instances(options const & o) {
+    return o.get_bool(*g_elaborator_unique_class_instances, LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES);
+}
+
 /** \brief Context for handling placeholder metavariable choice constraint */
 struct placeholder_context {
     io_state         m_ios;
@@ -217,6 +239,7 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
                                      unifier_config const & cfg, delay_factor const & factor) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
+
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
                          name_generator const & ngen) {
         if (!is_ext_class(C->tc(), meta_type)) {
@@ -230,32 +253,63 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
         unifier_config new_cfg(cfg);
         new_cfg.m_discard        = false;
         new_cfg.m_use_exceptions = false;
+
+        auto to_cnstrs_fn = [=](substitution const & subst, constraints const & cnstrs) {
+            substitution new_s = subst;
+            // some constraints may have been postponed (example: universe level constraints)
+            constraints  postponed = map(cnstrs,
+                                         [&](constraint const & c) {
+                                             // we erase internal justifications
+                                             return update_justification(c, mk_composite1(j, new_j));
+                                         });
+            metavar_closure cls(new_meta);
+            cls.add(meta_type);
+            bool relax     = C->m_relax;
+            constraints cs = cls.mk_constraints(new_s, new_j, relax);
+            return append(cs, postponed);
+        };
+
         unify_result_seq seq1    = unify(env, 1, &c, ngen, substitution(), new_cfg);
-        unify_result_seq seq2    = filter(seq1, [=](pair<substitution, constraints> const & p) {
-                substitution new_s     = p.first;
-                expr result = new_s.instantiate(new_meta);
-                // We only keep complete solution (modulo universe metavariables)
-                return !has_expr_metavar_relaxed(result);
-            });
-        lazy_list<constraints> seq3 = map2<constraints>(seq2, [=](pair<substitution, constraints> const & p) {
-                substitution new_s     = p.first;
+        if (get_elaborator_unique_class_instances(C->m_ios.get_options())) {
+            optional<expr> solution;
+            substitution subst;
+            constraints  cnstrs;
+            for_each(seq1, [&](pair<substitution, constraints> const & p) {
+                    subst  = p.first;
+                    cnstrs = p.second;
+                    expr next_solution = subst.instantiate(new_meta);
+                    if (solution) {
+                        // TODO(Leo): more informative error message
+                        throw exception("ambiguous class-instance resolution, there is more than one solution");
+                    } else {
+                        solution = next_solution;
+                    }
+                });
+            if (!solution) {
+                if (is_strict)
+                    return lazy_list<constraints>();
+                else
+                    return lazy_list<constraints>(constraints());
+            } else {
                 // some constraints may have been postponed (example: universe level constraints)
-                constraints  postponed = map(p.second,
-                                             [&](constraint const & c) {
-                                                 // we erase internal justifications
-                                                 return update_justification(c, mk_composite1(j, new_j));
-                                             });
-                metavar_closure cls(new_meta);
-                cls.add(meta_type);
-                bool relax     = C->m_relax;
-                constraints cs = cls.mk_constraints(new_s, new_j, relax);
-                return append(cs, postponed);
-            });
-        if (is_strict) {
-            return seq3;
+                return lazy_list<constraints>(to_cnstrs_fn(subst, cnstrs));
+            }
         } else {
-            // make sure it does not fail by appending empty set of constraints
-            return append(seq3, lazy_list<constraints>(constraints()));
+            unify_result_seq seq2      = filter(seq1, [=](pair<substitution, constraints> const & p) {
+                    substitution new_s = p.first;
+                    expr result = new_s.instantiate(new_meta);
+                    // We only keep complete solutions (modulo universe metavariables)
+                    return !has_expr_metavar_relaxed(result);
+                });
+            lazy_list<constraints> seq3 = map2<constraints>(seq2, [=](pair<substitution, constraints> const & p) {
+                    return to_cnstrs_fn(p.first, p.second);
+                });
+            if (is_strict) {
+                return seq3;
+            } else {
+                // make sure it does not fail by appending empty set of constraints
+                return append(seq3, lazy_list<constraints>(constraints()));
+            }
         }
     };
     bool owner = false;

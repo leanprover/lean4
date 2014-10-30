@@ -98,6 +98,12 @@ void remove_local_vars(parser const & p, buffer<expr> & locals) {
     locals.shrink(j);
 }
 
+levels remove_local_vars(parser const & p, levels const & ls) {
+    return filter(ls, [&](level const & l) {
+            return !is_param(l) || !p.is_local_level_variable(param_id(l));
+        });
+}
+
 list<expr> locals_to_context(expr const & e, parser const & p) {
     expr_struct_set ls;
     collect_locals(e, ls);

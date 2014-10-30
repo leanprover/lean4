@@ -32,6 +32,8 @@ void collect_locals(expr const & type, expr const & value, parser const & p, buf
 void sort_locals(expr_struct_set const & locals, parser const & p, buffer<expr> & ps);
 /** \brief Remove from \c ps local constants that are tagged as variables. */
 void remove_local_vars(parser const & p, buffer<expr> & ps);
+/** \brief Remove from \c ls any universe level that is tagged as variable in \c p */
+levels remove_local_vars(parser const & p, levels const & ls);
 list<expr> locals_to_context(expr const & e, parser const & p);
 /** \brief Create the term <tt>(as_atomic (@n.{ls} @params[0] ... @params[num_params-1]))</tt>
     When we declare \c n inside of a context, the parameters and universes are fixed.

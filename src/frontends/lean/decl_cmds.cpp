@@ -26,7 +26,7 @@ Author: Leonardo de Moura
 namespace lean {
 static environment declare_universe(parser & p, environment env, name const & n, bool local) {
     if (in_context(env) || local) {
-        p.add_local_level(n, mk_param_univ(n));
+        p.add_local_level(n, mk_param_univ(n), local);
     } else {
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
@@ -399,9 +399,10 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
         erase_local_binder_info(new_locals);
         value = Fun_as_is(new_locals, value, p);
         update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
+        remove_local_vars(p, locals);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
         levels local_ls = collect_local_nonvar_levels(p, ls);
-        remove_local_vars(p, locals);
+        local_ls = remove_local_vars(p, local_ls);
         if (!locals.empty()) {
             expr ref = mk_local_ref(real_n, local_ls, locals);
             p.add_local_expr(n, ref);

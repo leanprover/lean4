@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
+#include "kernel/error_msgs.h"
 #include "library/unifier.h"
 #include "library/reducible.h"
 #include "library/metavar_closure.h"
@@ -18,6 +19,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/class.h"
 #include "frontends/lean/local_context.h"
 #include "frontends/lean/choice_iterator.h"
+#include "frontends/lean/elaborator_exception.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES false
@@ -279,8 +281,14 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
                     cnstrs = p.second;
                     expr next_solution = subst.instantiate(new_meta);
                     if (solution) {
-                        // TODO(Leo): more informative error message
-                        throw exception("ambiguous class-instance resolution, there is more than one solution");
+                        throw_elaborator_exception(env, m, [=](formatter const & fmt) {
+                                format r = format("ambiguous class-instance resolution, "
+                                                  "there is more than one solution");
+                                r += pp_indent_expr(fmt, *solution);
+                                r += compose(line(), format("and"));
+                                r += pp_indent_expr(fmt, next_solution);
+                                return r;
+                            });
                     } else {
                         solution = next_solution;
                     }

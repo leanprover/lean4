@@ -46,6 +46,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_tactic.h"
 #include "frontends/lean/pp_options.h"
 #include "frontends/lean/begin_end_ext.h"
+#include "frontends/lean/elaborator_exception.h"
 
 namespace lean {
 /** \brief 'Choice' expressions <tt>(choice e_1 ... e_n)</tt> are mapped into a metavariable \c ?m
@@ -1212,9 +1213,7 @@ static expr translate_local_name(environment const & env, list<expr> const & ctx
         if (local_pp_name(local) == local_name)
             return copy(local);
     }
-    // TODO(Leo): we should create an elaborator exception.
-    // Using kernel_exception here is just a dirty hack.
-    throw_kernel_exception(env, sstream() << "unknown identifier '" << local_name << "'", src);
+    throw_elaborator_exception(env, sstream() << "unknown identifier '" << local_name << "'", src);
 }
 
 /** \brief Translated local constants (and undefined constants) occurring in \c e into

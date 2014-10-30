@@ -273,7 +273,7 @@ void register_unary_num_tac(name const & n, std::function<tactic(tactic const &,
 }
 
 void register_num_tac(name const & n, std::function<tactic(unsigned k)> f) {
-    register_tac(n, [=](type_checker & tc, elaborate_fn const &, expr const & e, pos_info_provider const * p) {
+    register_tac(n, [=](type_checker & tc, elaborate_fn const &, expr const & e, pos_info_provider const *) {
             buffer<expr> args;
             get_app_args(e, args);
             if (args.size() != 1)

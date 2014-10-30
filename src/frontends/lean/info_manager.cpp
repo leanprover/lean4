@@ -350,7 +350,9 @@ struct info_manager::imp {
                 ++it;
             }
         }
-        m_env_info.insert(env_info(l, m_iteration, env, o));
+        env_info info(l, m_iteration, env, o);
+        m_env_info.erase(info);
+        m_env_info.insert(info);
     }
 
     static bool is_tactic_type(expr const & e) {

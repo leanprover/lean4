@@ -1,0 +1,14 @@
+VISIT info.lean
+SYNC 9
+import logic
+-- print "hello"
+theorem tst (a b : Prop) : a ∧ b → b ∧ a :=
+begin
+  intro H,
+  apply and.intro,
+  apply (and.elim_right H),
+  apply (and.elim_left H),
+end
+WAIT
+INFO 6
+INFO 7

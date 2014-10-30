@@ -1,0 +1,10 @@
+gen_bug.lean:9:2: error: tactic failed
+A : Type,
+B : Type,
+a : A,
+b : B,
+H : @heq A a B b
+⊢ @heq B b A a
+gen_bug.lean:12:0: error: failed to add declaration 'tst' to environment, value has metavariables
+  λ (A B : Type) (a : A) (b : B),
+    ?M_1

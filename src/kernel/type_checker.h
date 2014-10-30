@@ -145,6 +145,8 @@ public:
        The result is meaningful only if the generated constraints can be solved.
     */
     pair<expr, constraint_seq> check(expr const & t, level_param_names const & ps = level_param_names());
+    /** \brief Like \c check, but ignores undefined universe level parameters */
+    pair<expr, constraint_seq> check_ignore_levels(expr const & e);
 
     /** \brief Return true iff t is definitionally equal to s. */
     pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s);

@@ -362,6 +362,11 @@ pair<expr, constraint_seq> type_checker::check(expr const & e, level_param_names
     return infer_type_core(e, false);
 }
 
+pair<expr, constraint_seq> type_checker::check_ignore_levels(expr const & e) {
+    flet<level_param_names const *> updt(m_params, nullptr);
+    return infer_type_core(e, false);
+}
+
 pair<expr, constraint_seq> type_checker::ensure_sort(expr const & e, expr const & s) {
     return ensure_sort_core(e, s);
 }

@@ -45,14 +45,12 @@ namespace category
   theorem id_compose (a : ob) : (ID a) ∘ id = id := !id_left
 
   theorem left_id_unique (H : Π{b} {f : hom b a}, i ∘ f = f) : i = id :=
-  calc
-    i = i ∘ id : symm !id_right
-    ... = id : H
+  calc i = i ∘ id : id_right
+     ... = id     : H
 
   theorem right_id_unique (H : Π{b} {f : hom a b}, f ∘ i = f) : i = id :=
-  calc
-    i = id ∘ i : eq.symm !id_left
-    ... = id : H
+  calc i = id ∘ i : id_left
+     ... = id     : H
 end category
 
 inductive Category : Type := mk : Π (ob : Type), category ob → Category
@@ -97,10 +95,10 @@ namespace functor
     (λx, G (F x))
     (λ a b f, G (F f))
     (λ a, calc
-      G (F (ID a)) = G id : {respect_id F a}
+      G (F (ID a)) = G id : respect_id F a
                ... = id   : respect_id G (F a))
     (λ a b c g f, calc
-      G (F (g ∘ f)) = G (F g ∘ F f)     : {respect_comp F g f}
+      G (F (g ∘ f)) = G (F g ∘ F f)     : respect_comp F g f
                 ... = G (F g) ∘ G (F f) : respect_comp G (F g) (F f))
 
   infixr `∘f`:60 := compose
@@ -145,7 +143,7 @@ open functor
 
 inductive natural_transformation {obC obD : Type} {C : category obC} {D : category obD}
     (F G : functor C D) : Type :=
-mk : Π (η : Π(a : obC), hom (object F a) (object G a)), (Π{a b : obC} (f : hom a b), morphism G f ∘ η a = η b ∘ morphism F f)
+mk : Π (η : Π(a : obC), hom (F a) (G a)), (Π{a b : obC} (f : hom a b), G f ∘ η a = η b ∘ F f)
  → natural_transformation F G
 
 -- inductive Natural_transformation {C D : Category} (F G : Functor C D) : Type :=
@@ -157,11 +155,11 @@ namespace natural_transformation
   variables {obC obD : Type} {C : category obC} {D : category obD} {F G H : C ⇒ D}
 
   definition natural_map [coercion] (η : F ⟹ G) :
-      Π(a : obC), hom (object F a) (object G a) :=
+      Π(a : obC), hom (F a) (G a) :=
   rec (λ x y, x) η
 
   definition naturality (η : F ⟹ G) :
-      Π{a b : obC} (f : hom a b), morphism G f ∘ η a = η b ∘ morphism F f :=
+      Π{a b : obC} (f : hom a b), G f ∘ η a = η b ∘ F f :=
   rec (λ x y, y) η
 
   protected definition compose (η : G ⟹ H) (θ : F ⟹ G) : F ⟹ H :=
@@ -169,11 +167,11 @@ namespace natural_transformation
     (λ a, η a ∘ θ a)
     (λ a b f,
       calc
-        morphism H f ∘ (η a ∘ θ a) = (morphism H f ∘ η a) ∘ θ a : !assoc
-          ... = (η b ∘ morphism G f) ∘ θ a : {naturality η f}
-          ... = η b ∘ (morphism G f ∘ θ a) : symm !assoc
-          ... = η b ∘ (θ b ∘ morphism F f) : {naturality θ f}
-          ... = (η b ∘ θ b) ∘ morphism F f : !assoc)
+        H f ∘ (η a ∘ θ a) = (H f ∘ η a) ∘ θ a : assoc
+                      ... = (η b ∘ G f) ∘ θ a : naturality η f
+                      ... = η b ∘ (G f ∘ θ a) : assoc
+                      ... = η b ∘ (θ b ∘ F f) : naturality θ f
+                      ... = (η b ∘ θ b) ∘ F f : assoc)
 
   precedence `∘n` : 60
   infixr `∘n` := compose

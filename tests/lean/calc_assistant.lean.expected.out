@@ -1,0 +1,13 @@
+calc_assistant.lean:7:14: error: type mismatch at term
+  H₁
+has type
+  ∀ (x : num),
+    b = x
+but is expected to have type
+  a = b
+calc_assistant.lean:12:14: error: type mismatch at term
+  H₂
+has type
+  c = b
+but is expected to have type
+  b = c

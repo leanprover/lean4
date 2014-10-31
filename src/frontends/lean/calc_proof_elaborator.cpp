@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/sexpr/option_declarations.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
 #include "library/unifier.h"
@@ -14,7 +15,28 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/calc.h"
 
+#ifndef LEAN_DEFAULT_CALC_ASSISTANT
+#define LEAN_DEFAULT_CALC_ASSISTANT true
+#endif
+
 namespace lean {
+static name * g_elaborator_calc_assistant = nullptr;
+
+void initialize_calc_proof_elaborator() {
+    g_elaborator_calc_assistant = new name{"elaborator", "calc_assistant"};
+    register_bool_option(*g_elaborator_calc_assistant,  LEAN_DEFAULT_CALC_ASSISTANT,
+                         "(elaborator) when needed lean automatically adds symmetry, "
+                         "inserts missing arguments, and applies substitutions");
+}
+
+void finalize_calc_proof_elaborator() {
+    delete g_elaborator_calc_assistant;
+}
+
+bool get_elaborator_calc_assistant(options const & o) {
+    return o.get_bool(*g_elaborator_calc_assistant, LEAN_DEFAULT_CALC_ASSISTANT);
+}
+
 static optional<pair<expr, expr>> mk_op(environment const & env, local_context & ctx, name_generator & ngen, type_checker_ptr & tc,
                                         name const & op, unsigned nunivs, unsigned nargs, std::initializer_list<expr> const & explicit_args,
                                         constraint_seq & cs, tag g) {
@@ -95,8 +117,8 @@ static optional<pair<expr, expr>> apply_subst(environment const & env, local_con
       - adding !
       - adding subst
 */
-constraint mk_calc_proof_cnstr(environment const & env, local_context const & _ctx,
-                               expr const & m, expr const & _e,
+constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
+                               local_context const & _ctx, expr const & m, expr const & _e,
                                constraint_seq const & cs, unifier_config const & cfg,
                                info_manager * im, bool relax) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
@@ -112,19 +134,23 @@ constraint mk_calc_proof_cnstr(environment const & env, local_context const & _c
         e_type      = s.instantiate(e_type);
         e_type      = tc->whnf(e_type, new_cs);
         tag g       = e.get_tag();
-        // add '!' is needed
-        while (is_pi(e_type)) {
-            binder_info bi = binding_info(e_type);
-            if (!bi.is_implicit() && !bi.is_inst_implicit()) {
-                if (!has_free_var(binding_body(e_type), 0)) {
-                    // if the rest of the type does not reference argument,
-                    // then we also stop consuming arguments
-                    break;
+        bool calc_assistant = get_elaborator_calc_assistant(opts);
+
+        if (calc_assistant) {
+            // add '!' is needed
+            while (is_pi(e_type)) {
+                binder_info bi = binding_info(e_type);
+                if (!bi.is_implicit() && !bi.is_inst_implicit()) {
+                    if (!has_free_var(binding_body(e_type), 0)) {
+                        // if the rest of the type does not reference argument,
+                        // then we also stop consuming arguments
+                        break;
+                    }
                 }
+                expr imp_arg = ctx.mk_meta(ngen, some_expr(binding_domain(e_type)), g);
+                e            = mk_app(e, imp_arg, g);
+                e_type       = tc->whnf(instantiate(binding_body(e_type), imp_arg), new_cs);
             }
-            expr imp_arg = ctx.mk_meta(ngen, some_expr(binding_domain(e_type)), g);
-            e            = mk_app(e, imp_arg, g);
-            e_type       = tc->whnf(instantiate(binding_body(e_type), imp_arg), new_cs);
         }
 
         auto try_alternative = [&](expr const & e, expr const & e_type, constraint_seq fcs) {
@@ -155,33 +181,37 @@ constraint mk_calc_proof_cnstr(environment const & env, local_context const & _c
             return append(r, postponed);
         };
 
-        std::unique_ptr<exception> saved_ex;
-        try {
+        if (!get_elaborator_calc_assistant(opts)) {
             return try_alternative(e, e_type, new_cs);
-        } catch (exception & ex) {
-            saved_ex.reset(ex.clone());
-        }
+        } else {
+            std::unique_ptr<exception> saved_ex;
+            try {
+                return try_alternative(e, e_type, new_cs);
+            } catch (exception & ex) {
+                saved_ex.reset(ex.clone());
+            }
 
-        constraint_seq symm_cs = new_cs;
-        auto symm = apply_symmetry(env, ctx, ngen, tc, e, e_type, symm_cs, g);
-        if (symm) {
-            try { return try_alternative(symm->first, symm->second, symm_cs); } catch (exception &) {}
-        }
+            constraint_seq symm_cs = new_cs;
+            auto symm = apply_symmetry(env, ctx, ngen, tc, e, e_type, symm_cs, g);
+            if (symm) {
+                try { return try_alternative(symm->first, symm->second, symm_cs); } catch (exception &) {}
+            }
 
-        constraint_seq subst_cs = new_cs;
-        if (auto subst = apply_subst(env, ctx, ngen, tc, e, e_type, meta_type, subst_cs, g)) {
-            try { return try_alternative(subst->first, subst->second, subst_cs); } catch (exception&) {}
-        }
-
-        if (symm) {
-            constraint_seq subst_cs = symm_cs;
-            if (auto subst = apply_subst(env, ctx, ngen, tc, symm->first, symm->second, meta_type, subst_cs, g)) {
+            constraint_seq subst_cs = new_cs;
+            if (auto subst = apply_subst(env, ctx, ngen, tc, e, e_type, meta_type, subst_cs, g)) {
                 try { return try_alternative(subst->first, subst->second, subst_cs); } catch (exception&) {}
             }
-        }
 
-        saved_ex->rethrow();
-        lean_unreachable();
+            if (symm) {
+                constraint_seq subst_cs = symm_cs;
+                if (auto subst = apply_subst(env, ctx, ngen, tc, symm->first, symm->second, meta_type, subst_cs, g)) {
+                    try { return try_alternative(subst->first, subst->second, subst_cs); } catch (exception&) {}
+                }
+            }
+
+            saved_ex->rethrow();
+            lean_unreachable();
+        }
     };
     bool owner = false;
     return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::Epilogue), owner, j, relax);

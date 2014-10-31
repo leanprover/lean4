@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/info_tactic.h"
 #include "frontends/lean/placeholder_elaborator.h"
+#include "frontends/lean/calc_proof_elaborator.h"
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/server.h"
@@ -54,10 +55,12 @@ void initialize_frontend_lean_module() {
     initialize_info_tactic();
     initialize_pp();
     initialize_placeholder_elaborator();
+    initialize_calc_proof_elaborator();
     initialize_server();
 }
 void finalize_frontend_lean_module() {
     finalize_server();
+    finalize_calc_proof_elaborator();
     finalize_placeholder_elaborator();
     finalize_pp();
     finalize_info_tactic();

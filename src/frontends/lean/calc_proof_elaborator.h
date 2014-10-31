@@ -16,8 +16,11 @@ namespace lean {
       - adding !
       - adding subst
 */
-constraint mk_calc_proof_cnstr(environment const & env, local_context const & ctx,
-                               expr const & m, expr const & e,
+constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
+                               local_context const & ctx, expr const & m, expr const & e,
                                constraint_seq const & cs, unifier_config const & cfg,
                                info_manager * im, bool relax);
+
+void initialize_calc_proof_elaborator();
+void finalize_calc_proof_elaborator();
 }

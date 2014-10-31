@@ -10,6 +10,7 @@ namespace lean {
 class parser;
 void register_calc_cmds(cmd_table & r);
 expr parse_calc(parser & p);
+bool is_calc_annotation(expr const & e);
 void initialize_calc();
 void finalize_calc();
 }

@@ -103,6 +103,7 @@ class elaborator : public coercion_info_manager {
     expr visit_choice(expr const & e, optional<expr> const & t, constraint_seq & cs);
     expr visit_by(expr const & e, optional<expr> const & t, constraint_seq & cs);
     expr visit_proof_qed(expr const & e, optional<expr> const & t, constraint_seq & cs);
+    expr visit_calc_proof(expr const & e, optional<expr> const & t, constraint_seq & cs);
     expr add_implict_args(expr e, constraint_seq & cs, bool relax);
     pair<expr, expr> ensure_fun(expr f, constraint_seq & cs);
     bool has_coercions_from(expr const & a_type);

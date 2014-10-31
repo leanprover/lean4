@@ -43,10 +43,12 @@ Author: Leonardo de Moura
 #include "frontends/lean/choice_iterator.h"
 #include "frontends/lean/placeholder_elaborator.h"
 #include "frontends/lean/proof_qed_elaborator.h"
+#include "frontends/lean/calc_proof_elaborator.h"
 #include "frontends/lean/info_tactic.h"
 #include "frontends/lean/pp_options.h"
 #include "frontends/lean/begin_end_ext.h"
 #include "frontends/lean/elaborator_exception.h"
+#include "frontends/lean/calc.h"
 
 namespace lean {
 /** \brief 'Choice' expressions <tt>(choice e_1 ... e_n)</tt> are mapped into a metavariable \c ?m
@@ -265,6 +267,8 @@ expr elaborator::visit_expecting_type_of(expr const & e, expr const & t, constra
         return visit_choice(e, some_expr(t), cs);
     } else if (is_by(e)) {
         return visit_by(e, some_expr(t), cs);
+    } else if (is_calc_annotation(e)) {
+        return visit_calc_proof(e, some_expr(t), cs);
     } else if (is_proof_qed_annotation(e)) {
         return visit_proof_qed(e, some_expr(t), cs);
     } else {
@@ -295,6 +299,20 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & t, constraint_s
     expr m   = m_context.mk_meta(m_ngen, t, e.get_tag());
     register_meta(m);
     m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
+    return m;
+}
+
+expr elaborator::visit_calc_proof(expr const & e, optional<expr> const & t, constraint_seq & cs) {
+    lean_assert(is_calc_annotation(e));
+    info_manager * im = nullptr;
+    if (infom())
+        im = &m_pre_info_data;
+    pair<expr, constraint_seq> ecs = visit(get_annotation_arg(e));
+    expr m                         = m_full_context.mk_meta(m_ngen, t, e.get_tag());
+    register_meta(m);
+    constraint c                   = mk_calc_proof_cnstr(env(), m_context, m, ecs.first, ecs.second, m_unifier_config,
+                                                         im, m_relax_main_opaque);
+    cs += c;
     return m;
 }
 
@@ -801,6 +819,8 @@ expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit_let_value(e, cs);
     } else if (is_by(e)) {
         return visit_by(e, none_expr(), cs);
+    } else if (is_calc_annotation(e)) {
+        return visit_calc_proof(e, none_expr(), cs);
     } else if (is_proof_qed_annotation(e)) {
         return visit_proof_qed(e, none_expr(), cs);
     } else if (is_no_info(e)) {

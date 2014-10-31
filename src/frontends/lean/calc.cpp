@@ -155,6 +155,16 @@ void register_calc_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("calc_trans",     "set the transitivity rule for a pair of operators, this command is relevant for the calculational proof '{...}' notation", calc_trans_cmd));
 }
 
+static expr mk_calc_annotation_core(expr const & e) { return mk_annotation(*g_calc_name, e); }
+static expr mk_calc_annotation(expr const & pr) {
+    if (is_by(pr) || is_begin_end_annotation(pr) || is_sorry(pr)) {
+        return pr;
+    } else {
+        return mk_calc_annotation_core(pr);
+    }
+}
+bool is_calc_annotation(expr const & e) { return is_annotation(e, *g_calc_name); }
+
 typedef std::tuple<name, expr, expr>  calc_pred;
 typedef pair<calc_pred, expr>         calc_step;
 inline name const & pred_op(calc_pred const & p) { return std::get<0>(p); }
@@ -196,16 +206,6 @@ static expr mk_op_fn(parser & p, name const & op, unsigned num_placeholders, pos
         r = p.mk_app(r, p.save_pos(mk_expr_placeholder(), pos), pos);
     }
     return r;
-}
-
-static expr mk_calc_annotation(expr const & pr) {
-    if (is_by(pr) || is_begin_end_annotation(pr) || is_sorry(pr)) {
-        return pr;
-    } else {
-        // TODO(Leo): replace with custom annotation for calc
-        // that will influence the elaborator
-        return mk_proof_qed_annotation(pr);
-    }
 }
 
 static void parse_calc_proof(parser & p, buffer<calc_pred> const & preds, std::vector<calc_step> & steps) {
@@ -310,6 +310,7 @@ void initialize_calc() {
     g_calc_name = new name("calc");
     g_key       = new std::string("calc");
     calc_ext::initialize();
+    register_annotation(*g_calc_name);
 }
 
 void finalize_calc() {

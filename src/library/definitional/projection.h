@@ -8,6 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names);
-environment mk_projections(environment const & env, name const & n);
+environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names, bool inst_implicit = false);
+environment mk_projections(environment const & env, name const & n, bool inst_implicit = false);
 }

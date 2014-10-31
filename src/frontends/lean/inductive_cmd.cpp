@@ -263,9 +263,14 @@ struct inductive_cmd_fn {
                 m_p.check_token_next(get_rparen_tk(), "invalid introduction rule, ')' expected");
                 m_implicit_infer_map.insert(intro_name, implicit_infer_kind::None);
             }
-            m_p.check_token_next(get_colon_tk(), "invalid introduction rule, ':' expected");
-            expr intro_type = m_p.parse_expr();
-            intros.push_back(intro_rule(intro_name, intro_type));
+            if (!m_params.empty() || m_p.curr_is_token(get_colon_tk())) {
+                m_p.check_token_next(get_colon_tk(), "invalid introduction rule, ':' expected");
+                expr intro_type = m_p.parse_expr();
+                intros.push_back(intro_rule(intro_name, intro_type));
+            } else {
+                expr intro_type = mk_constant(ind_name);
+                intros.push_back(intro_rule(intro_name, intro_type));
+            }
             if (!m_p.curr_is_token(get_comma_tk()))
                 break;
             m_p.next();

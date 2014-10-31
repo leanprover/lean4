@@ -12,6 +12,7 @@
 ;;
 ;; Released under Apache 2.0 license as described in the file LICENSE.
 ;;
+(require 'pcase)
 (require 'lean-require)
 (require 'eri)
 (require 'lean-variable)
@@ -169,8 +170,7 @@ enabled and disabled respectively.")
   ;; Delete Trailing Whitespace
   (if lean-delete-trailing-whitespace
       (progn (require 'whitespace-cleanup-mode)
-             (whitespace-cleanup-mode t))
-    (whitespace-cleanup-mode nil))
+             (whitespace-cleanup-mode t)))
   ;; eldoc
   (when lean-eldoc-use
     (set (make-local-variable 'eldoc-documentation-function)

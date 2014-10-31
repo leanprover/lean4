@@ -7,7 +7,6 @@
 (require 'cl-lib)
 (require 'dash)
 (require 'dash-functional)
-(require 'flycheck)
 (require 'lean-util)
 (require 'lean-debug)
 

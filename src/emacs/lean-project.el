@@ -4,7 +4,6 @@
 ;; Author: Soonho Kong
 ;;
 
-(require 'flycheck)
 (require 'lean-util)
 
 (defconst lean-project-file-name ".project"

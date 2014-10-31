@@ -122,11 +122,11 @@ theorem comp {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (H : forall (r s : A) (H' : R r s), eq.drec_on (eq_abs Q H') (f r) = f s)
   {a : A} (Ha : R a a) : rec Q f (abs a) = f a :=
 have H2 [visible] : R a (rep (abs a)), from R_rep_abs Q Ha,
+let Heq : abs (rep (abs a)) = abs a := abs_rep Q (abs a) in
 calc
-  rec Q f (abs a) =  eq.drec_on _ (f (rep (abs a))) : rfl
-    ... = eq.drec_on _ (eq.drec_on _ (f a)) : {(H _ _ H2)⁻¹}
-    ... = eq.drec_on _ (f a) : eq.rec_on_compose (eq_abs Q H2) _ _
-    ... = f a : eq.rec_on_id (eq.trans (eq_abs Q H2) (abs_rep Q (abs a))) _
+  rec Q f (abs a) =  eq.drec_on Heq (f (rep (abs a))) : rfl
+    ... = eq.drec_on Heq (eq.drec_on (Heq⁻¹) (f a)) : {(H _ _ H2)⁻¹}
+    ... = f a : eq.rec_on_compose (eq_abs Q H2) _ _
 
 definition rec_constant {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {C : Type} (f : A → C) (b : B) : C :=

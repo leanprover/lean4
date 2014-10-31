@@ -19,9 +19,13 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/explicit.h"
 #include "library/scoped_ext.h"
+#include "library/annotation.h"
+#include "library/sorry.h"
+#include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
+#include "frontends/lean/begin_end_ext.h"
 
 namespace lean {
 // Check whether e is of the form (f ...) where f is a constant. If it is return f.
@@ -194,6 +198,16 @@ static expr mk_op_fn(parser & p, name const & op, unsigned num_placeholders, pos
     return r;
 }
 
+static expr mk_calc_annotation(expr const & pr) {
+    if (is_by(pr) || is_begin_end_annotation(pr) || is_sorry(pr)) {
+        return pr;
+    } else {
+        // TODO(Leo): replace with custom annotation for calc
+        // that will influence the elaborator
+        return mk_proof_qed_annotation(pr);
+    }
+}
+
 static void parse_calc_proof(parser & p, buffer<calc_pred> const & preds, std::vector<calc_step> & steps) {
     steps.clear();
     auto pos = p.pos();
@@ -219,7 +233,7 @@ static void parse_calc_proof(parser & p, buffer<calc_pred> const & preds, std::v
      } else {
         expr pr = p.parse_expr();
         for (auto const & pred : preds)
-            steps.emplace_back(pred, pr);
+            steps.emplace_back(pred, mk_calc_annotation(pr));
     }
 }
 

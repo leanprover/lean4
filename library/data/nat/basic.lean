@@ -53,7 +53,7 @@ have H2 : true = false, from
   let f := (nat.rec false (fun a b, true)) in
     calc
       true = f (succ n) : rfl
-       ... = f 0        : {H}
+       ... = f 0        : H
        ... = false      : rfl,
 absurd H2 true_ne_false
 
@@ -88,7 +88,7 @@ or.elim (zero_or_succ_pred n)
 theorem succ.inj {n m : ℕ} (H : succ n = succ m) : n = m :=
 calc
     n = pred (succ n) : pred.succ
-  ... = pred (succ m) : {H}
+  ... = pred (succ m) : H
   ... = m             : pred.succ
 
 theorem succ.ne_self {n : ℕ} : succ n ≠ n :=
@@ -155,14 +155,14 @@ induction_on n
     (take m IH, show 0 + succ m = succ m, from
       calc
         0 + succ m = succ (0 + m) : add.succ_right
-               ... = succ m       : {IH})
+               ... = succ m       : IH)
 
 theorem add.succ_left (n m : ℕ) : (succ n) + m = succ (n + m) :=
 induction_on m
     (!add.zero_right ▸ !add.zero_right)
     (take k IH, calc
       succ n + succ k = succ (succ n + k)    : add.succ_right
-                  ... = succ (succ (n + k))  : {IH}
+                  ... = succ (succ (n + k))  : IH
                   ... = succ (n + succ k)    : add.succ_right)
 
 theorem add.comm (n m : ℕ) : n + m = m + n :=
@@ -170,7 +170,7 @@ induction_on m
     (!add.zero_right ⬝ !add.zero_left⁻¹)
     (take k IH, calc
         n + succ k = succ (n+k)   : add.succ_right
-               ... = succ (k + n) : {IH}
+               ... = succ (k + n) : IH
                ... = succ k + n   : add.succ_left)
 
 theorem add.move_succ (n m : ℕ) : succ n + m = n + succ m :=
@@ -185,15 +185,15 @@ induction_on k
     (take l IH,
       calc
         (n + m) + succ l = succ ((n + m) + l)  : add.succ_right
-                     ... = succ (n + (m + l))  : {IH}
+                     ... = succ (n + (m + l))  : IH
                      ... = n + succ (m + l)    : add.succ_right
                      ... = n + (m + succ l)    : add.succ_right)
 
 theorem add.left_comm (n m k : ℕ) : n + (m + k) = m + (n + k) :=
-left_comm @add.comm @add.assoc n m k
+left_comm add.comm add.assoc n m k
 
 theorem add.right_comm (n m k : ℕ) : n + m + k = n + k + m :=
-right_comm @add.comm @add.assoc n m k
+right_comm add.comm add.assoc n m k
 
 -- ### cancelation
 
@@ -268,7 +268,7 @@ induction_on m
   (!mul.zero_right ⬝ !mul.zero_right⁻¹ ⬝ !add.zero_right⁻¹)
   (take k IH, calc
     succ n * succ k = (succ n * k) + succ n   : mul.succ_right
-                ... = (n * k) + k + succ n    : {IH}
+                ... = (n * k) + k + succ n    : IH
                 ... = (n * k) + (k + succ n)  : add.assoc
                 ... = (n * k) + (n + succ k)  : add.comm_succ
                 ... = (n * k) + n + succ k    : add.assoc
@@ -279,7 +279,7 @@ induction_on m
   (!mul.zero_right ⬝ !mul.zero_left⁻¹)
   (take k IH, calc
     n * succ k = n * k + n    : mul.succ_right
-           ... = k * n + n    : {IH}
+           ... = k * n + n    : IH
            ... = (succ k) * n : mul.succ_left)
 
 theorem mul.distr_right (n m k : ℕ) : (n + m) * k = n * k + m * k :=
@@ -291,7 +291,7 @@ induction_on k
             ... = n * 0 + m * 0 : mul.zero_right)
   (take l IH, calc
     (n + m) * succ l = (n + m) * l + (n + m)    : mul.succ_right
-                 ... = n * l + m * l + (n + m)  : {IH}
+                 ... = n * l + m * l + (n + m)  : IH
                  ... = n * l + m * l + n + m    : add.assoc
                  ... = n * l + n + m * l + m    : add.right_comm
                  ... = n * l + n + (m * l + m)  : add.assoc
@@ -314,7 +314,7 @@ induction_on k
   (take l IH,
     calc
       (n * m) * succ l = (n * m) * l + n * m : mul.succ_right
-                   ... = n * (m * l) + n * m : {IH}
+                   ... = n * (m * l) + n * m : IH
                    ... = n * (m * l + m)     : mul.distr_left
                    ... = n * (m * succ l)    : mul.succ_right)
 
@@ -346,8 +346,8 @@ discriminate
         assume (Hl : m = succ l),
         have Heq : succ (k * succ l + l) = n * m, from
          (calc
-            n * m = n * succ l            : {Hl}
-              ... = succ k * succ l       : {Hk}
+            n * m = n * succ l            : Hl
+              ... = succ k * succ l       : Hk
               ... = k * succ l + succ l   : mul.succ_left
               ... = succ (k * succ l + l) : add.succ_right)⁻¹,
         absurd (Heq ⬝ H) !succ_ne_zero))

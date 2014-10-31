@@ -39,7 +39,8 @@ to use full features of ``lean-mode``.
 Install
 =======
 
-Put the following elisp code on your emacs setup (e.g. ``.emacs.d/init.el``):
+Put the following elisp code on your emacs setup 
+(e.g. ``.emacs.d/init.el`` [GNU Emacs], ``~/Library/Preferences/Aquamacs Emacs/Preferences.el`` [Aquamacs]) :
 
 ```elisp
 (require 'package)
@@ -60,7 +61,7 @@ Put the following elisp code on your emacs setup (e.g. ``.emacs.d/init.el``):
       (package-install p))))
 
 ;; Set up lean-root path
-(setq lean-rootdir "~/projects/lean")
+(setq lean-rootdir "~/projects/lean")  ;; <=== YOU NEED TO MODIFY THIS
 (setq-local lean-emacs-path
             (concat (file-name-as-directory lean-rootdir)
                     (file-name-as-directory "src")

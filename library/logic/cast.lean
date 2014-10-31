@@ -63,6 +63,7 @@ end heq
 calc_trans heq.trans
 calc_trans heq.trans_left
 calc_trans heq.trans_right
+calc_symm  heq.symm
 
 theorem cast_heq {A B : Type} (H : A = B) (a : A) : cast H a == a :=
 have H₁ : ∀ (H : A = A) (a : A), cast H a == a, from

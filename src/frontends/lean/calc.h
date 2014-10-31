@@ -11,6 +11,10 @@ class parser;
 void register_calc_cmds(cmd_table & r);
 expr parse_calc(parser & p);
 bool is_calc_annotation(expr const & e);
+/** \brief Given an operator name \c op, return the symmetry rule associated with, number of arguments, and universe parameters.
+    Return none if the operator does not have a symmetry rule associated with it.
+*/
+optional<std::tuple<name, unsigned, unsigned>> get_calc_symm_info(environment const & env, name const & op);
 void initialize_calc();
 void finalize_calc();
 }

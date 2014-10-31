@@ -207,7 +207,7 @@ rec_on p idp
 calc_subst transport
 calc_trans concat
 calc_refl idpath
-
+calc_symm inverse
 
 -- More theorems for moving things around in equations
 -- ---------------------------------------------------

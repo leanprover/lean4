@@ -36,16 +36,21 @@ static name const & get_fn_const(expr const & e, char const * msg) {
     return const_name(fn);
 }
 
-static expr extract_arg_types(environment const & env, name const & f, buffer<expr> & arg_types) {
-    expr f_type = env.get(f).get_type();
+static pair<expr, unsigned> extract_arg_types_core(environment const & env, name const & f, buffer<expr> & arg_types) {
+    declaration d = env.get(f);
+    expr f_type = d.get_type();
     while (is_pi(f_type)) {
         arg_types.push_back(binding_domain(f_type));
         f_type = binding_body(f_type);
     }
-    return f_type;
+    return mk_pair(f_type, length(d.get_univ_params()));
 }
 
-enum class calc_cmd { Subst, Trans, Refl };
+static expr extract_arg_types(environment const & env, name const & f, buffer<expr> & arg_types) {
+    return extract_arg_types_core(env, f, arg_types).first;
+}
+
+enum class calc_cmd { Subst, Trans, Refl, Symm };
 
 struct calc_entry {
     calc_cmd m_cmd;
@@ -57,12 +62,13 @@ struct calc_entry {
 struct calc_state {
     typedef name_map<pair<name, unsigned>> refl_table;
     typedef name_map<pair<name, unsigned>> subst_table;
+    typedef name_map<std::tuple<name, unsigned, unsigned>> symm_table;
     typedef rb_map<name_pair, std::tuple<name, name, unsigned>, name_pair_quick_cmp> trans_table;
     trans_table    m_trans_table;
     refl_table     m_refl_table;
     subst_table    m_subst_table;
+    symm_table     m_symm_table;
     calc_state() {}
-
 
     void add_calc_subst(environment const & env, name const & subst) {
         buffer<expr> arg_types;
@@ -95,6 +101,18 @@ struct calc_state {
         name const & op2 = get_fn_const(arg_types[nargs-1], "invalid calc transitivity rule, last argument must be an operator application");
         m_trans_table.insert(name_pair(op1, op2), std::make_tuple(trans, rop, nargs));
     }
+
+    void add_calc_symm(environment const & env, name const & symm) {
+        buffer<expr> arg_types;
+        auto p          = extract_arg_types_core(env, symm, arg_types);
+        expr r_type     = p.first;
+        unsigned nunivs = p.second;
+        unsigned nargs  = arg_types.size();
+        if (nargs < 3)
+            throw exception("invalid calc symmetry rule, it must have at least 3 arguments");
+        name const & rop = get_fn_const(r_type, "invalid calc symmetry rule, result type must be an operator application");
+        m_symm_table.insert(rop, std::make_tuple(symm, nargs, nunivs));
+    }
 };
 
 static name * g_calc_name  = nullptr;
@@ -108,6 +126,7 @@ struct calc_config {
         case calc_cmd::Refl:  s.add_calc_refl(env, e.m_name); break;
         case calc_cmd::Subst: s.add_calc_subst(env, e.m_name); break;
         case calc_cmd::Trans: s.add_calc_trans(env, e.m_name); break;
+        case calc_cmd::Symm:  s.add_calc_symm(env, e.m_name); break;
         }
     }
     static name const & get_class_name() {
@@ -149,10 +168,25 @@ environment calc_trans_cmd(parser & p) {
     return calc_ext::add_entry(p.env(), get_dummy_ios(), calc_entry(calc_cmd::Trans, id));
 }
 
+environment calc_symm_cmd(parser & p) {
+    name id = p.check_constant_next("invalid 'calc_symm' command, constant expected");
+    return calc_ext::add_entry(p.env(), get_dummy_ios(), calc_entry(calc_cmd::Symm, id));
+}
+
 void register_calc_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("calc_subst",     "set the substitution rule that is used by the calculational proof '{...}' notation", calc_subst_cmd));
     add_cmd(r, cmd_info("calc_refl",      "set the reflexivity rule for an operator, this command is relevant for the calculational proof '{...}' notation", calc_refl_cmd));
     add_cmd(r, cmd_info("calc_trans",     "set the transitivity rule for a pair of operators, this command is relevant for the calculational proof '{...}' notation", calc_trans_cmd));
+    add_cmd(r, cmd_info("calc_symm",      "set the symmetry rule for an operator, this command is relevant for the calculational proof '{...}' notation", calc_symm_cmd));
+}
+
+optional<std::tuple<name, unsigned, unsigned>> get_calc_symm_info(environment const & env, name const & rop) {
+    auto const & s = calc_ext::get_state(env);
+    if (auto it = s.m_symm_table.find(rop)) {
+        return optional<std::tuple<name, unsigned, unsigned>>(*it);
+    } else {
+        return optional<std::tuple<name, unsigned, unsigned>>();
+    }
 }
 
 static expr mk_calc_annotation_core(expr const & e) { return mk_annotation(*g_calc_name, e); }

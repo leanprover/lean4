@@ -49,6 +49,7 @@ end eq
 calc_subst eq.subst
 calc_refl  eq.refl
 calc_trans eq.trans
+calc_symm  eq.symm
 
 open eq.ops
 

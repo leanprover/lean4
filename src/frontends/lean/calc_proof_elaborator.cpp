@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_context.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/calc.h"
+#include "frontends/lean/calc_proof_elaborator.h"
 
 #ifndef LEAN_DEFAULT_CALC_ASSISTANT
 #define LEAN_DEFAULT_CALC_ASSISTANT true
@@ -101,7 +102,8 @@ static optional<pair<expr, expr>> apply_subst(environment const & env, local_con
             if (auto refl_it = get_calc_refl_info(env, const_name(op))) {
                 name refl; unsigned refl_nargs; unsigned refl_univs;
                 std::tie(refl, refl_nargs, refl_univs) = *refl_it;
-                if (auto refl_pair = mk_op(env, ctx, ngen, tc, refl, refl_univs, refl_nargs-1, { pred_args[npargs-2] }, cs, g)) {
+                if (auto refl_pair = mk_op(env, ctx, ngen, tc, refl, refl_univs, refl_nargs-1,
+                                           { pred_args[npargs-2] }, cs, g)) {
                     return mk_op(env, ctx, ngen, tc, subst, subst_univs, subst_nargs-2, {e, refl_pair->first}, cs, g);
                 }
             }
@@ -120,7 +122,7 @@ static optional<pair<expr, expr>> apply_subst(environment const & env, local_con
 constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                                local_context const & _ctx, expr const & m, expr const & _e,
                                constraint_seq const & cs, unifier_config const & cfg,
-                               info_manager * im, bool relax) {
+                               info_manager * im, bool relax, update_type_info_fn const & fn) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & _s,
                          name_generator const & _ngen) {
@@ -151,6 +153,8 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                 e            = mk_app(e, imp_arg, g);
                 e_type       = tc->whnf(instantiate(binding_body(e_type), imp_arg), new_cs);
             }
+            if (im)
+                fn(e);
         }
 
         auto try_alternative = [&](expr const & e, expr const & e_type, constraint_seq fcs) {

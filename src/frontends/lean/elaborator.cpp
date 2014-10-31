@@ -310,9 +310,10 @@ expr elaborator::visit_calc_proof(expr const & e, optional<expr> const & t, cons
     pair<expr, constraint_seq> ecs = visit(get_annotation_arg(e));
     expr m                         = m_full_context.mk_meta(m_ngen, t, e.get_tag());
     register_meta(m);
+    auto fn = [=](expr const & t) { save_type_data(get_annotation_arg(e), t); };
     constraint c                   = mk_calc_proof_cnstr(env(), ios().get_options(),
                                                          m_context, m, ecs.first, ecs.second, m_unifier_config,
-                                                         im, m_relax_main_opaque);
+                                                         im, m_relax_main_opaque, fn);
     cs += c;
     return m;
 }

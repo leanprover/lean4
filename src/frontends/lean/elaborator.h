@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/coercion_elaborator.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/local_context.h"
+#include "frontends/lean/calc_proof_elaborator.h"
 
 namespace lean {
 /** \brief Mapping from metavariable names to metavariable applications (?M ...) */

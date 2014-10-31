@@ -87,9 +87,9 @@ or.elim (zero_or_succ_pred n)
 
 theorem succ.inj {n m : ℕ} (H : succ n = succ m) : n = m :=
 calc
-    n = pred (succ n) : !pred.succ⁻¹
+    n = pred (succ n) : pred.succ
   ... = pred (succ m) : {H}
-  ... = m             : !pred.succ
+  ... = m             : pred.succ
 
 theorem succ.ne_self {n : ℕ} : succ n ≠ n :=
 induction_on n
@@ -154,14 +154,14 @@ induction_on n
     !add.zero_right
     (take m IH, show 0 + succ m = succ m, from
       calc
-        0 + succ m = succ (0 + m) : !add.succ_right
+        0 + succ m = succ (0 + m) : add.succ_right
                ... = succ m       : {IH})
 
 theorem add.succ_left (n m : ℕ) : (succ n) + m = succ (n + m) :=
 induction_on m
     (!add.zero_right ▸ !add.zero_right)
     (take k IH, calc
-      succ n + succ k = succ (succ n + k)    : !add.succ_right
+      succ n + succ k = succ (succ n + k)    : add.succ_right
                   ... = succ (succ (n + k))  : {IH}
                   ... = succ (n + succ k)    : {!add.succ_right⁻¹})
 
@@ -169,9 +169,9 @@ theorem add.comm (n m : ℕ) : n + m = m + n :=
 induction_on m
     (!add.zero_right ⬝ !add.zero_left⁻¹)
     (take k IH, calc
-        n + succ k = succ (n+k)   : !add.succ_right
+        n + succ k = succ (n+k)   : add.succ_right
                ... = succ (k + n) : {IH}
-               ... = succ k + n   : !add.succ_left⁻¹)
+               ... = succ k + n   : add.succ_left)
 
 theorem add.move_succ (n m : ℕ) : succ n + m = n + succ m :=
 !add.succ_left ⬝ !add.succ_right⁻¹
@@ -184,9 +184,9 @@ induction_on k
     (!add.zero_right ▸ !add.zero_right)
     (take l IH,
       calc
-        (n + m) + succ l = succ ((n + m) + l)  : !add.succ_right
+        (n + m) + succ l = succ ((n + m) + l)  : add.succ_right
                      ... = succ (n + (m + l))  : {IH}
-                     ... = n + succ (m + l)    : !add.succ_right⁻¹
+                     ... = n + succ (m + l)    : add.succ_right
                      ... = n + (m + succ l)    : {!add.succ_right⁻¹})
 
 theorem add.left_comm (n m k : ℕ) : n + (m + k) = m + (n + k) :=
@@ -204,9 +204,9 @@ induction_on n
   (take (n : ℕ) (IH : n + m = n + k → m = k) (H : succ n + m = succ n + k),
     have H2 : succ (n + m) = succ (n + k),
     from calc
-      succ (n + m) = succ n + m   : !add.succ_left⁻¹
+      succ (n + m) = succ n + m   : add.succ_left
                ... = succ n + k   : H
-               ... = succ (n + k) : !add.succ_left,
+               ... = succ (n + k) : add.succ_left,
     have H3 : n + m = n + k, from succ.inj H2,
     IH H3)
 
@@ -221,7 +221,7 @@ induction_on n
     assume H : succ k + m = 0,
     absurd
       (show succ (k + m) = 0, from calc
-         succ (k + m) = succ k + m : !add.succ_left⁻¹
+         succ (k + m) = succ k + m : add.succ_left
                   ... = 0          : H)
       !succ_ne_zero)
 
@@ -267,55 +267,55 @@ theorem mul.succ_left (n m : ℕ) : (succ n) * m = (n * m) + m :=
 induction_on m
   (!mul.zero_right ⬝ !mul.zero_right⁻¹ ⬝ !add.zero_right⁻¹)
   (take k IH, calc
-    succ n * succ k = (succ n * k) + succ n   : !mul.succ_right
+    succ n * succ k = (succ n * k) + succ n   : mul.succ_right
                 ... = (n * k) + k + succ n    : {IH}
-                ... = (n * k) + (k + succ n)  : !add.assoc
+                ... = (n * k) + (k + succ n)  : add.assoc
                 ... = (n * k) + (n + succ k)  : {!add.comm_succ}
-                ... = (n * k) + n + succ k    : !add.assoc⁻¹
+                ... = (n * k) + n + succ k    : add.assoc
                 ... = (n * succ k) + succ k   : {!mul.succ_right⁻¹})
 
 theorem mul.comm (n m : ℕ) : n * m = m * n :=
 induction_on m
   (!mul.zero_right ⬝ !mul.zero_left⁻¹)
   (take k IH, calc
-    n * succ k = n * k + n    : !mul.succ_right
+    n * succ k = n * k + n    : mul.succ_right
            ... = k * n + n    : {IH}
-           ... = (succ k) * n : !mul.succ_left⁻¹)
+           ... = (succ k) * n : mul.succ_left)
 
 theorem mul.distr_right (n m k : ℕ) : (n + m) * k = n * k + m * k :=
 induction_on k
   (calc
-    (n + m) * 0 = 0             : !mul.zero_right
-            ... = 0 + 0         : !add.zero_right⁻¹
+    (n + m) * 0 = 0             : mul.zero_right
+            ... = 0 + 0         : add.zero_right
             ... = n * 0 + 0     : {!mul.zero_right⁻¹}
             ... = n * 0 + m * 0 : {!mul.zero_right⁻¹})
   (take l IH, calc
-    (n + m) * succ l = (n + m) * l + (n + m)    : !mul.succ_right
+    (n + m) * succ l = (n + m) * l + (n + m)    : mul.succ_right
                  ... = n * l + m * l + (n + m)  : {IH}
-                 ... = n * l + m * l + n + m    : !add.assoc⁻¹
+                 ... = n * l + m * l + n + m    : add.assoc
                  ... = n * l + n + m * l + m    : {!add.right_comm}
-                 ... = n * l + n + (m * l + m)  : !add.assoc
+                 ... = n * l + n + (m * l + m)  : add.assoc
                  ... = n * succ l + (m * l + m) : {!mul.succ_right⁻¹}
                  ... = n * succ l + m * succ l  : {!mul.succ_right⁻¹})
 
 theorem mul.distr_left (n m k : ℕ) : n * (m + k) = n * m + n * k :=
 calc
-  n * (m + k) = (m + k) * n    : !mul.comm
-          ... = m * n + k * n  : !mul.distr_right
+  n * (m + k) = (m + k) * n    : mul.comm
+          ... = m * n + k * n  : mul.distr_right
           ... = n * m + k * n  : {!mul.comm}
           ... = n * m + n * k  : {!mul.comm}
 
 theorem mul.assoc (n m k : ℕ) : (n * m) * k = n * (m * k) :=
 induction_on k
   (calc
-    (n * m) * 0 = 0           : !mul.zero_right
-            ... = n * 0       : !mul.zero_right⁻¹
+    (n * m) * 0 = 0           : mul.zero_right
+            ... = n * 0       : mul.zero_right
             ... = n * (m * 0) : {!mul.zero_right⁻¹})
   (take l IH,
     calc
-      (n * m) * succ l = (n * m) * l + n * m : !mul.succ_right
+      (n * m) * succ l = (n * m) * l + n * m : mul.succ_right
                    ... = n * (m * l) + n * m : {IH}
-                   ... = n * (m * l + m)     : !mul.distr_left⁻¹
+                   ... = n * (m * l + m)     : mul.distr_left
                    ... = n * (m * succ l)    : {!mul.succ_right⁻¹})
 
 theorem mul.left_comm (n m k : ℕ) : n * (m * k) = m * (n * k) :=
@@ -326,14 +326,14 @@ right_comm mul.comm mul.assoc n m k
 
 theorem mul.one_right (n : ℕ) : n * 1 = n :=
 calc
-  n * 1 = n * 0 + n : !mul.succ_right
+  n * 1 = n * 0 + n : mul.succ_right
     ... = 0 + n     : {!mul.zero_right}
-    ... = n         : !add.zero_left
+    ... = n         : add.zero_left
 
 theorem mul.one_left (n : ℕ) : 1 * n = n :=
 calc
-  1 * n = n * 1 : !mul.comm
-    ... = n     : !mul.one_right
+  1 * n = n * 1 : mul.comm
+    ... = n     : mul.one_right
 
 theorem mul.eq_zero {n m : ℕ} (H : n * m = 0) : n = 0 ∨ m = 0 :=
 discriminate
@@ -348,8 +348,8 @@ discriminate
          (calc
             n * m = n * succ l            : {Hl}
               ... = succ k * succ l       : {Hk}
-              ... = k * succ l + succ l   : !mul.succ_left
-              ... = succ (k * succ l + l) : !add.succ_right)⁻¹,
+              ... = k * succ l + succ l   : mul.succ_left
+              ... = succ (k * succ l + l) : add.succ_right)⁻¹,
         absurd (Heq ⬝ H) !succ_ne_zero))
 
 end nat

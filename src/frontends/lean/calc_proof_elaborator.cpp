@@ -161,13 +161,21 @@ constraint mk_calc_proof_cnstr(environment const & env, local_context const & _c
         }
 
         constraint_seq symm_cs = new_cs;
-        if (auto symm = apply_symmetry(env, ctx, ngen, tc, e, e_type, symm_cs, g)) {
+        auto symm = apply_symmetry(env, ctx, ngen, tc, e, e_type, symm_cs, g);
+        if (symm) {
             try { return try_alternative(symm->first, symm->second, symm_cs); } catch (exception &) {}
         }
 
         constraint_seq subst_cs = new_cs;
         if (auto subst = apply_subst(env, ctx, ngen, tc, e, e_type, meta_type, subst_cs, g)) {
             try { return try_alternative(subst->first, subst->second, subst_cs); } catch (exception&) {}
+        }
+
+        if (symm) {
+            constraint_seq subst_cs = symm_cs;
+            if (auto subst = apply_subst(env, ctx, ngen, tc, symm->first, symm->second, meta_type, subst_cs, g)) {
+                try { return try_alternative(subst->first, subst->second, subst_cs); } catch (exception&) {}
+            }
         }
 
         saved_ex->rethrow();

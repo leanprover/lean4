@@ -100,14 +100,16 @@ constraint mk_calc_proof_cnstr(environment const & env, local_context const & _c
                                constraint_seq const & cs, unifier_config const & cfg,
                                info_manager * im, bool relax) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
-    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
+    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & _s,
                          name_generator const & _ngen) {
         local_context ctx = _ctx;
         expr e            = _e;
+        substitution s    = _s;
         name_generator ngen(_ngen);
         type_checker_ptr tc(mk_type_checker(env, ngen.mk_child(), relax));
         constraint_seq new_cs = cs;
         expr e_type = tc->infer(e, new_cs);
+        e_type      = s.instantiate(e_type);
         e_type      = tc->whnf(e_type, new_cs);
         tag g       = e.get_tag();
         // add '!' is needed

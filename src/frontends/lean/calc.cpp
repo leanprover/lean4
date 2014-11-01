@@ -112,8 +112,8 @@ struct calc_state {
         expr r_type     = p.first;
         unsigned nunivs = p.second;
         unsigned nargs  = arg_types.size();
-        if (nargs < 3)
-            throw exception("invalid calc symmetry rule, it must have at least 3 arguments");
+        if (nargs < 1)
+            throw exception("invalid calc symmetry rule, it must have at least 1 argument");
         name const & rop = get_fn_const(r_type, "invalid calc symmetry rule, result type must be an operator application");
         m_symm_table.insert(rop, std::make_tuple(symm, nargs, nunivs));
     }

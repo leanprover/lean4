@@ -72,14 +72,11 @@ static optional<pair<expr, expr>> apply_symmetry(environment const & env, local_
                                                  expr const & e, expr const & e_type, constraint_seq & cs, tag g) {
     buffer<expr> args;
     expr const & op = get_app_args(e_type, args);
-    if (is_constant(op) && args.size() >= 2) {
+    if (is_constant(op)) {
         if (auto t = get_calc_symm_info(env, const_name(op))) {
             name symm; unsigned nargs; unsigned nunivs;
             std::tie(symm, nargs, nunivs) = *t;
-            unsigned sz  = args.size();
-            expr  lhs    = args[sz-2];
-            expr  rhs    = args[sz-1];
-            return mk_op(env, ctx, ngen, tc, symm, nunivs, nargs-3, {lhs, rhs, e}, cs, g);
+            return mk_op(env, ctx, ngen, tc, symm, nunivs, nargs-1, {e}, cs, g);
         }
     }
     return optional<pair<expr, expr>>();

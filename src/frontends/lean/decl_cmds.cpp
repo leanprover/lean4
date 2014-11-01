@@ -164,7 +164,7 @@ static void check_variable_kind(parser & p, variable_kind k) {
     }
 }
 
-environment variable_cmd_core(parser & p, variable_kind k) {
+static environment variable_cmd_core(parser & p, variable_kind k) {
     check_variable_kind(p, k);
     auto pos = p.pos();
     optional<binder_info> bi = parse_binder_info(p, k);
@@ -202,16 +202,16 @@ environment variable_cmd_core(parser & p, variable_kind k) {
         update_local_levels(p, new_ls, k == variable_kind::Variable);
     return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos);
 }
-environment variable_cmd(parser & p) {
+static environment variable_cmd(parser & p) {
     return variable_cmd_core(p, variable_kind::Variable);
 }
-environment axiom_cmd(parser & p)    {
+static environment axiom_cmd(parser & p)    {
     return variable_cmd_core(p, variable_kind::Axiom);
 }
-environment constant_cmd(parser & p)    {
+static environment constant_cmd(parser & p)    {
     return variable_cmd_core(p, variable_kind::Constant);
 }
-environment parameter_cmd(parser & p)    {
+static environment parameter_cmd(parser & p)    {
     return variable_cmd_core(p, variable_kind::Parameter);
 }
 
@@ -308,7 +308,7 @@ static void erase_local_binder_info(buffer<expr> & ps) {
         p = update_local(p, binder_info());
 }
 
-environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, bool is_private, bool is_protected) {
+static environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, bool is_private, bool is_protected) {
     lean_assert(!(is_theorem && !is_opaque));
     lean_assert(!(is_private && is_protected));
     auto n_pos = p.pos();
@@ -497,17 +497,17 @@ environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, boo
         env = set_reducible(env, real_n, reducible_status::On);
     return env;
 }
-environment definition_cmd(parser & p) {
+static environment definition_cmd(parser & p) {
     return definition_cmd_core(p, false, false, false, false);
 }
-environment opaque_definition_cmd(parser & p) {
+static environment opaque_definition_cmd(parser & p) {
     p.check_token_next(get_definition_tk(), "invalid 'opaque' definition, 'definition' expected");
     return definition_cmd_core(p, false, true, false, false);
 }
-environment theorem_cmd(parser & p) {
+static environment theorem_cmd(parser & p) {
     return definition_cmd_core(p, true, true, false, false);
 }
-environment private_definition_cmd(parser & p) {
+static environment private_definition_cmd(parser & p) {
     bool is_theorem = false;
     bool is_opaque  = false;
     if (p.curr_is_token_or_id(get_opaque_tk())) {
@@ -525,7 +525,7 @@ environment private_definition_cmd(parser & p) {
     }
     return definition_cmd_core(p, is_theorem, is_opaque, true, false);
 }
-environment protected_definition_cmd(parser & p) {
+static environment protected_definition_cmd(parser & p) {
     bool is_theorem = false;
     bool is_opaque  = false;
     if (p.curr_is_token_or_id(get_opaque_tk())) {
@@ -544,7 +544,7 @@ environment protected_definition_cmd(parser & p) {
     return definition_cmd_core(p, is_theorem, is_opaque, false, true);
 }
 
-environment include_cmd_core(parser & p, bool include) {
+static environment include_cmd_core(parser & p, bool include) {
     if (!p.curr_is_identifier())
         throw parser_error(sstream() << "invalid include/omit command, identifier expected", p.pos());
     while (p.curr_is_identifier()) {
@@ -566,11 +566,11 @@ environment include_cmd_core(parser & p, bool include) {
     return p.env();
 }
 
-environment include_cmd(parser & p) {
+static environment include_cmd(parser & p) {
     return include_cmd_core(p, true);
 }
 
-environment omit_cmd(parser & p) {
+static environment omit_cmd(parser & p) {
     return include_cmd_core(p, false);
 }
 

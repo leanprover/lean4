@@ -317,7 +317,11 @@ static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_op
     lean_assert(!(is_private && is_protected));
     auto n_pos = p.pos();
     unsigned start_line = n_pos.first;
-    name n     = p.check_id_next("invalid declaration, identifier expected");
+    name n;
+    if (kind == Example)
+        n = p.mk_fresh_name();
+    else
+        n = p.check_id_next("invalid declaration, identifier expected");
     decl_modifiers modifiers;
     name real_n; // real name for this declaration
     buffer<name> ls_buffer;

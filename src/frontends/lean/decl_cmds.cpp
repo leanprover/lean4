@@ -308,8 +308,12 @@ static void erase_local_binder_info(buffer<expr> & ps) {
         p = update_local(p, binder_info());
 }
 
-static environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaque, bool is_private, bool is_protected) {
-    lean_assert(!(is_theorem && !is_opaque));
+// An Lean example is not really a definition, but we use the definition infrastructure to simulate it.
+enum def_cmd_kind { Theorem, Definition, Example };
+
+static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_opaque, bool is_private, bool is_protected) {
+    bool is_definition = kind == Definition;
+    lean_assert(!(!is_definition && !is_opaque));
     lean_assert(!(is_private && is_protected));
     auto n_pos = p.pos();
     unsigned start_line = n_pos.first;
@@ -336,7 +340,7 @@ static environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaq
             p.next();
             auto pos = p.pos();
             type = p.parse_expr();
-            if (is_theorem && !p.curr_is_token(get_assign_tk())) {
+            if (!is_definition && !p.curr_is_token(get_assign_tk())) {
                 check_end_of_theorem(p);
                 value = mk_expr_placeholder();
             } else {
@@ -352,7 +356,7 @@ static environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaq
             if (p.curr_is_token(get_colon_tk())) {
                 p.next();
                 type = p.parse_scoped_expr(ps, *lenv);
-                if (is_theorem && !p.curr_is_token(get_assign_tk())) {
+                if (!is_definition && !p.curr_is_token(get_assign_tk())) {
                     check_end_of_theorem(p);
                     value = p.save_pos(mk_expr_placeholder(), pos);
                 } else {
@@ -418,14 +422,15 @@ static environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaq
     expr pre_value = value;
     level_param_names new_ls;
     bool found_cached = false;
-    if (p.are_info_lines_valid(start_line, end_line)) {
+    // We don't cache examples
+    if (kind != Example && p.are_info_lines_valid(start_line, end_line)) {
         // we only use the cache if the information associated with the line is valid
         if (auto it = p.find_cached_definition(real_n, pre_type, pre_value)) {
             optional<certified_declaration> cd;
             try {
                 level_param_names c_ls; expr c_type, c_value;
                 std::tie(c_ls, c_type, c_value) = *it;
-                if (is_theorem) {
+                if (kind == Theorem) {
                     cd = check(env, mk_theorem(real_n, c_ls, c_type, c_value));
                     if (!p.keep_new_thms()) {
                         // discard theorem
@@ -444,27 +449,32 @@ static environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaq
 
     if (!found_cached) {
         p.remove_proof_state_info(n_pos, p.pos());
-        if (is_theorem) {
+        if (!is_definition) {
+            // Theorems and Examples
             auto type_pos = p.pos_of(type);
             bool clear_pre_info = false; // we don't want to clear pre_info data until we process the proof.
             std::tie(type, new_ls) = p.elaborate_type(type, list<expr>(), clear_pre_info);
             check_no_metavar(env, real_n, type, true);
             ls = append(ls, new_ls);
             expr type_as_is = p.save_pos(mk_as_is(type), type_pos);
-            if (!p.collecting_info() && p.num_threads() > 1) {
-                // add as axiom, and create a task to prove the theorem
+            if (!p.collecting_info() && kind == Theorem && p.num_threads() > 1) {
+                // Add as axiom, and create a task to prove the theorem.
+                // Remark: we don't postpone the "proof" of Examples.
                 p.add_delayed_theorem(env, real_n, ls, type_as_is, value);
                 env = module::add(env, check(env, mk_axiom(real_n, ls, type)));
             } else {
                 std::tie(type, value, new_ls) = p.elaborate_definition(n, type_as_is, value, is_opaque);
                 new_ls = append(ls, new_ls);
                 auto cd = check(env, mk_theorem(real_n, new_ls, type, value));
-                if (!p.keep_new_thms()) {
-                    // discard theorem
-                    cd = check(env, mk_axiom(real_n, new_ls, type));
+                if (kind == Theorem) {
+                    // Remark: we don't keep examples
+                    if (!p.keep_new_thms()) {
+                        // discard theorem
+                        cd = check(env, mk_axiom(real_n, new_ls, type));
+                    }
+                    env = module::add(env, cd);
+                    p.cache_definition(real_n, pre_type, pre_value, new_ls, type, value);
                 }
-                env = module::add(env, cd);
-                p.cache_definition(real_n, pre_type, pre_value, new_ls, type, value);
             }
         } else {
             std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value, is_opaque);
@@ -476,39 +486,44 @@ static environment definition_cmd_core(parser & p, bool is_theorem, bool is_opaq
             p.add_decl_index(real_n, n_pos, p.get_cmd_token(), type);
     }
 
-    if (real_n != n)
-        env = add_expr_alias_rec(env, n, real_n);
-    if (modifiers.m_is_instance) {
-        bool persistent = true;
-        if (modifiers.m_priority) {
-            #if defined(__GNUC__) && !defined(__CLANG__)
-            #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-            #endif
-            env = add_instance(env, real_n, *modifiers.m_priority, persistent);
-        } else {
-            env = add_instance(env, real_n, persistent);
+    if (kind != Example) {
+        if (real_n != n)
+            env = add_expr_alias_rec(env, n, real_n);
+        if (modifiers.m_is_instance) {
+            bool persistent = true;
+            if (modifiers.m_priority) {
+                #if defined(__GNUC__) && !defined(__CLANG__)
+                #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+                #endif
+                env = add_instance(env, real_n, *modifiers.m_priority, persistent);
+            } else {
+                env = add_instance(env, real_n, persistent);
+            }
         }
+        if (modifiers.m_is_coercion)
+            env = add_coercion(env, real_n, p.ios());
+        if (is_protected)
+            env = add_protected(env, real_n);
+        if (modifiers.m_is_reducible)
+            env = set_reducible(env, real_n, reducible_status::On);
     }
-    if (modifiers.m_is_coercion)
-        env = add_coercion(env, real_n, p.ios());
-    if (is_protected)
-        env = add_protected(env, real_n);
-    if (modifiers.m_is_reducible)
-        env = set_reducible(env, real_n, reducible_status::On);
     return env;
 }
 static environment definition_cmd(parser & p) {
-    return definition_cmd_core(p, false, false, false, false);
+    return definition_cmd_core(p, Definition, false, false, false);
 }
 static environment opaque_definition_cmd(parser & p) {
     p.check_token_next(get_definition_tk(), "invalid 'opaque' definition, 'definition' expected");
-    return definition_cmd_core(p, false, true, false, false);
+    return definition_cmd_core(p, Definition, true, false, false);
 }
 static environment theorem_cmd(parser & p) {
-    return definition_cmd_core(p, true, true, false, false);
+    return definition_cmd_core(p, Theorem, true, false, false);
+}
+static environment example_cmd(parser & p) {
+    return definition_cmd_core(p, Example, true, false, false);
 }
 static environment private_definition_cmd(parser & p) {
-    bool is_theorem = false;
+    def_cmd_kind kind = Definition;
     bool is_opaque  = false;
     if (p.curr_is_token_or_id(get_opaque_tk())) {
         is_opaque = true;
@@ -518,15 +533,15 @@ static environment private_definition_cmd(parser & p) {
         p.next();
     } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
-        is_theorem = true;
+        kind = Theorem;
         is_opaque  = true;
     } else {
         throw parser_error("invalid 'private' definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
-    return definition_cmd_core(p, is_theorem, is_opaque, true, false);
+    return definition_cmd_core(p, kind, is_opaque, true, false);
 }
 static environment protected_definition_cmd(parser & p) {
-    bool is_theorem = false;
+    def_cmd_kind kind = Definition;
     bool is_opaque  = false;
     if (p.curr_is_token_or_id(get_opaque_tk())) {
         is_opaque = true;
@@ -536,12 +551,12 @@ static environment protected_definition_cmd(parser & p) {
         p.next();
     } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
-        is_theorem = true;
+        kind       = Theorem;
         is_opaque  = true;
     } else {
         throw parser_error("invalid 'protected' definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
-    return definition_cmd_core(p, is_theorem, is_opaque, false, true);
+    return definition_cmd_core(p, kind, is_opaque, false, true);
 }
 
 static environment include_cmd_core(parser & p, bool include) {
@@ -585,6 +600,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("parameters",   "declare new parameters", parameters_cmd));
     add_cmd(r, cmd_info("constants",    "declare new constants (aka top-level variables)", constants_cmd));
     add_cmd(r, cmd_info("definition",   "add new definition", definition_cmd));
+    add_cmd(r, cmd_info("example",      "add new example", example_cmd));
     add_cmd(r, cmd_info("opaque",       "add new opaque definition", opaque_definition_cmd));
     add_cmd(r, cmd_info("private",      "add new private definition/theorem", private_definition_cmd));
     add_cmd(r, cmd_info("protected",    "add new protected definition/theorem", protected_definition_cmd));

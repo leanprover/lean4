@@ -95,6 +95,18 @@ optional<name> to_valid_namespace_name(environment const & env, name const & n) 
 }
 
 static std::string * g_new_namespace_key = nullptr;
+
+environment add_namespace(environment const & env, name const & ns) {
+    scope_mng_ext ext = get_extension(env);
+    if (!ext.m_namespace_set.contains(ns)) {
+        ext.m_namespace_set.insert(ns);
+        environment r = update(env, ext);
+        return module::add(r, *g_new_namespace_key, [=](serializer & s) { s << ns; });
+    } else {
+        return env;
+    }
+}
+
 environment push_scope(environment const & env, io_state const & ios, scope_kind k, name const & n) {
     if (k == scope_kind::Namespace && in_section_or_context(env))
         throw exception("invalid namespace declaration, a namespace cannot be declared inside a section or context");

@@ -682,6 +682,14 @@ struct inductive_cmd_fn {
         return env;
     }
 
+    /** \brief Add a namespace for each inductive datatype */
+    environment add_namespaces(environment env, buffer<inductive_decl> const & decls) {
+        for (inductive_decl const & d : decls) {
+            env = add_namespace(env, inductive_decl_name(d));
+        }
+        return env;
+    }
+
     /** \brief Auxiliary method used for debugging */
     void display(std::ostream & out, buffer<inductive_decl> const & decls) {
         if (!m_levels.empty()) {
@@ -718,6 +726,7 @@ struct inductive_cmd_fn {
         env = mk_aux_decls(env, decls);
         update_declaration_index(env);
         env = add_aliases(env, ls, locals, decls);
+        env = add_namespaces(env, decls);
         return apply_modifiers(env);
     }
 };

@@ -35,6 +35,9 @@ environment push_scope(environment const & env, io_state const & ios, scope_kind
 environment pop_scope(environment const & env, name const & n = name());
 bool has_open_scopes(environment const & env);
 
+/** \brief Add a new namespace (if it does not exist) */
+environment add_namespace(environment const & env, name const & ns);
+
 name const & get_namespace(environment const & env);
 list<name> const & get_namespaces(environment const & env);
 bool in_context(environment const & env);

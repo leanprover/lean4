@@ -129,7 +129,7 @@ environment push_scope(environment const & env, io_state const & ios, scope_kind
         r = std::get<3>(t)(r, k);
     }
     if (k == scope_kind::Namespace)
-        r = using_namespace(r, ios, n);
+        r = using_namespace(r, ios, new_n);
     if (save_ns)
         r = module::add(r, *g_new_namespace_key, [=](serializer & s) { s << new_n; });
     return r;

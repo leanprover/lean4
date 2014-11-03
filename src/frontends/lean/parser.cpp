@@ -1033,14 +1033,12 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         ls = to_list(lvl_buffer.begin(), lvl_buffer.end());
     }
 
-    if (id.is_atomic()) {
-        // locals
-        if (auto it1 = m_local_decls.find(id)) {
-            auto r = copy_with_new_pos(propagate_levels(*it1, ls), p);
-            save_type_info(r);
-            save_identifier_info(p, id);
-            return r;
-        }
+    // locals
+    if (auto it1 = m_local_decls.find(id)) {
+        auto r = copy_with_new_pos(propagate_levels(*it1, ls), p);
+        save_type_info(r);
+        save_identifier_info(p, id);
+        return r;
     }
 
     for (name const & ns : get_namespaces(m_env)) {

@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/locals.h"
 #include "library/explicit.h"
+#include "library/placeholder.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 
@@ -150,7 +151,7 @@ expr update_local_ref(expr const & e, name_set const & lvls_to_remove, name_set 
         expr const & c = get_explicit_arg(f);
         lean_assert(is_constant(c));
         new_f = mk_explicit(update_constant(c, filter(const_levels(c), [&](level const & l) {
-                        return is_param(l) && !lvls_to_remove.contains(param_id(l));
+                        return is_placeholder(l) || (is_param(l) && !lvls_to_remove.contains(param_id(l)));
                     })));
     } else {
         new_f = f;

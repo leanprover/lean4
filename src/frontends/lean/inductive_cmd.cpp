@@ -571,19 +571,29 @@ struct inductive_cmd_fn {
         }
     }
 
+    /** \brief Return true if eliminator/recursor can eliminate into any universe */
+    bool has_general_eliminator(environment const & env, name const & d_name) {
+        declaration d = env.get(d_name);
+        declaration r = env.get(mk_rec_name(d_name));
+        return length(d.get_univ_params()) != length(r.get_univ_params());
+    }
+
     /** \brief Add aliases for the inductive datatype, introduction and elimination rules */
     environment add_aliases(environment env, level_param_names const & ls, buffer<expr> const & locals,
                             buffer<inductive_decl> const & decls) {
         buffer<expr> params_only(locals);
         remove_local_vars(m_p, params_only);
         // Create aliases/local refs
-        levels ctx_levels = collect_local_nonvar_levels(m_p, ls);
+        levels ctx_levels     = collect_local_nonvar_levels(m_p, ls);
         for (auto & d : decls) {
             name d_name = inductive_decl_name(d);
             name d_short_name(d_name.get_string());
             env = add_alias(m_p, env, false, d_name, ctx_levels, params_only);
             name rec_name = mk_rec_name(d_name);
-            env = add_alias(m_p, env, true, rec_name, ctx_levels, params_only);
+            levels rec_ctx_levels = ctx_levels;
+            if (ctx_levels && has_general_eliminator(env, d_name))
+                rec_ctx_levels = levels(mk_level_placeholder(), rec_ctx_levels);
+            env = add_alias(m_p, env, true, rec_name, rec_ctx_levels, params_only);
             env = add_protected(env, rec_name);
             for (intro_rule const & ir : inductive_decl_intros(d)) {
                 name ir_name = intro_rule_name(ir);

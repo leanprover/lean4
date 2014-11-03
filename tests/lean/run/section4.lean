@@ -1,5 +1,8 @@
 import logic
 
+  set_option pp.universes true
+  set_option pp.implicit true
+
 context
   universe k
   parameter A : Type
@@ -12,7 +15,13 @@ context
 
     inductive mypair :=
     mk : A → B → mypair
+
+    definition pr1' (p : mypair) : A := mypair.rec (λ a b, a) p
+    definition pr2' (p : mypair) : B := mypair.rec (λ a b, b) p
+    check mypair.rec
+
   end
+  check mypair.rec
   variable a : A
   check foo num a 0
   definition pr1 (p : mypair num) : A   := mypair.rec (λ a b, a) p

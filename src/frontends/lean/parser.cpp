@@ -1111,6 +1111,9 @@ name parser::check_constant_next(char const * msg) {
             e = get_explicit_arg(e);
     }
 
+    while (is_choice(e))
+        e = get_choice(e, 0);
+
     if (is_constant(e)) {
         return const_name(e);
     } else {

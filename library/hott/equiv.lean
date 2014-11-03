@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jeremy Avigad, Jakob von Raumer
 -- Ported from Coq HoTT
-import .path
+import .path .trunc
 open path function
 
 -- Equivalences
@@ -186,7 +186,8 @@ namespace IsEquiv
   definition cancel_L (Hg : IsEquiv g) (Hgf : IsEquiv (g ∘ f)) : (IsEquiv f) :=
     homotopic (comp_closed Hgf (inv_closed Hg)) (λa, sect Hg (f a))
 
-  definition transport (P : A → Type) {x y : A} (p : x ≈ y) : (IsEquiv (transport P p)) :=
+  --Transporting is an equivalence
+  definition transport [instance] (P : A → Type) {x y : A} (p : x ≈ y) : (IsEquiv (transport P p)) :=
     IsEquiv_mk (transport P (p⁻¹)) (transport_pV P p) (transport_Vp P p) (transport_pVp P p)
 
   --Rewrite rules
@@ -205,6 +206,40 @@ namespace IsEquiv
   definition moveL_V {x : B} {y : A} (p : f y ≈ x) : y ≈ (inv Hf) x :=
     (moveR_V (p⁻¹))⁻¹
 
+  definition contr (HA: Contr A) : (Contr B) :=
+    Contr.Contr_mk (f (center HA)) (λb, moveR_M (contr HA (inv Hf b)))
+
+  end
+
+  --If pre- or post-composing with a function is always an equivalence,
+  --then that function is also an equivalence.  It's convenient to know
+  --that we only need to assume the equivalence when the other type is
+  --the domain or the codomain.
+  section
+
+  definition precomp (C : Type) (h : B → C) : A → C := h ∘ f
+
+  definition inv_precomp (C D : Type) (Ceq : IsEquiv (precomp C))
+      (Deq : IsEquiv (@precomp A B f D)) (k : C → D) (h : A → C) :
+      k ∘ (inv Ceq) h ≈ (inv Deq) (k ∘ h) :=
+    have eq1 : (inv Deq) (k ∘ h) ≈ k ∘ ((inv Ceq) h),
+      from calc (inv Deq) (k ∘ h) ≈ (inv Deq) (k ∘ (precomp C ((inv Ceq) h))) : retr Ceq h
+                ... ≈ k ∘ ((inv Ceq) h) : !sect,
+      eq1⁻¹
+
+  definition isequiv_precompose (Aeq : IsEquiv (@precomp A B f A))
+      (Beq : IsEquiv (@precomp A B f B)) : (IsEquiv f) :=
+    let sect' : Sect ((inv Aeq) id) f := (λx,
+      calc f (inv Aeq id x) ≈ (f ∘ (inv Aeq) id) x : idp
+        ... ≈ (inv Beq) (f ∘ id) x : apD10 (!inv_precomp)
+        ... ≈ (inv Beq) (@precomp A B f B id) x : idp
+        ... ≈ x : apD10 (sect Beq id))
+      in
+    let retr' : Sect f ((inv Aeq) id) := (λx,
+      calc inv Aeq id (f x) ≈ @precomp A B f A ((inv Aeq) id) x : idp
+        ... ≈ x : apD10 (retr Aeq id)) in
+    adjointify f ((inv Aeq) id) sect' retr'
+
   end
 
 end IsEquiv
@@ -212,7 +247,7 @@ end IsEquiv
 namespace Equiv
   variables {A B C : Type} (eqf : A ≃ B)
 
-  theorem id : A ≃ A := Equiv_mk id IsEquiv.id_closed
+  definition id : A ≃ A := Equiv_mk id IsEquiv.id_closed
 
   theorem compose (eqg: B ≃ C) : A ≃ C :=
     Equiv_mk ((equiv_fun eqg) ∘ (equiv_fun eqf))
@@ -234,5 +269,20 @@ namespace Equiv
 
   theorem transport (P : A → Type) {x y : A} {p : x ≈ y} : (P x) ≃ (P y) :=
     Equiv_mk (transport P p) (IsEquiv.transport P p)
+
+  theorem contr_closed (HA: Contr A) : (Contr B) :=
+    @IsEquiv.contr A B (equiv_fun eqf) (equiv_isequiv eqf) HA
+
+end Equiv
+
+namespace Equiv
+  variables {A B : Type} {HA : Contr A} {HB : Contr B}
+
+  --Each two contractible types are equivalent.
+  definition contr_contr : A ≃ B :=
+    Equiv_mk
+      (λa, center HB)
+      (IsEquiv.adjointify (λa, center HB) (λb, center HA) 
+        (contr HB) (contr HA))
 
 end Equiv

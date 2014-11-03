@@ -22,7 +22,7 @@ namespace sigma
   protected theorem destruct {P : sigma B → Prop} (p : sigma B) (H : ∀a b, P (dpair a b)) : P p :=
   rec H p
 
-  theorem dpair_ext (p : sigma B) : dpair (dpr1 p) (dpr2 p) = p :=
+  protected theorem eta (p : sigma B) : dpair (dpr1 p) (dpr2 p) = p :=
   destruct p (take a b, rfl)
 
   theorem dpair_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂) (H₂ : eq.drec_on H₁ b₁ = b₂) :

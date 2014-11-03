@@ -201,7 +201,7 @@ exists_intro (pr1 (rep a))
   (exists_intro (pr2 (rep a))
     (calc
       a = psub (rep a) : (psub_rep a)⁻¹
-    ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {(prod_ext (rep a))⁻¹}))
+    ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {(prod.eta (rep a))⁻¹}))
 
 -- TODO it should not be opaque.
 protected opaque definition has_decidable_eq [instance] : decidable_eq ℤ :=
@@ -312,7 +312,7 @@ or.imp_or (or.swap (proj_zero_or (rep a)))
     exists_intro (pr1 (rep a))
       (calc
         a = psub (rep a) : (psub_rep a)⁻¹
-          ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {(prod_ext (rep a))⁻¹}
+          ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {(prod.eta (rep a))⁻¹}
           ... = psub (pair (pr1 (rep a)) 0) : {H2}
           ... = of_nat (pr1 (rep a)) : rfl))
   (assume H : pr1 (proj (rep a)) = 0,
@@ -320,7 +320,7 @@ or.imp_or (or.swap (proj_zero_or (rep a)))
     exists_intro (pr2 (rep a))
       (calc
         a = psub (rep a) : (psub_rep a)⁻¹
-          ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {(prod_ext (rep a))⁻¹}
+          ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {(prod.eta (rep a))⁻¹}
           ... = psub (pair 0 (pr2 (rep a))) : {H2}
           ... = -(psub (pair (pr2 (rep a)) 0)) : by simp
           ... = -(of_nat (pr2 (rep a))) : rfl))

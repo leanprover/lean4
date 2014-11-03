@@ -37,7 +37,7 @@ namespace prod
   theorem pr2.pair : pr₂ (a, b) = b :=
   rfl
 
-  theorem prod_ext (p : prod A B) : pair (pr₁ p) (pr₂ p) = p :=
+  protected theorem eta (p : prod A B) : pair (pr₁ p) (pr₂ p) = p :=
   destruct p (λx y, eq.refl (x, y))
 
   variables {a₁ a₂ : A} {b₁ b₂ : B}

@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/unifier.h"
 #include "library/module.h"
+#include "library/protected.h"
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
 #include "library/definitional/cases_on.h"
@@ -524,8 +525,11 @@ struct structure_cmd_fn {
         inductive::inductive_decl  decl(m_name, structure_type, to_list(intro));
         m_env = module::add_inductive(m_env, lnames, m_params.size(), to_list(decl));
         save_info(m_name, "structure", m_name_pos);
-        save_info(inductive::get_elim_name(m_name), "recursor", m_name_pos);
+        name rec_name = inductive::get_elim_name(m_name);
+        save_info(rec_name, "recursor", m_name_pos);
         save_info(m_mk, "intro", m_mk_pos);
+        m_env = add_namespace(m_env, m_name);
+        m_env = add_protected(m_env, rec_name);
     }
 
     void declare_projections() {

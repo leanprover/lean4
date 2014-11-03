@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/unifier.h"
 #include "library/module.h"
+#include "library/aliases.h"
 #include "library/protected.h"
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
@@ -72,6 +73,8 @@ struct structure_cmd_fn {
     std::vector<field_map>     m_field_maps;
     bool                       m_infer_result_universe;
     bool                       m_using_explicit_levels;
+    levels                     m_ctx_levels; // context levels for creating aliases
+    buffer<expr>               m_ctx_locals; // context local constants for creating aliases
 
     structure_cmd_fn(parser & p):m_p(p), m_env(p.env()), m_ngen(p.mk_ngen()), m_namespace(get_namespace(m_env)) {
         m_tc = mk_type_checker(m_env, m_p.mk_ngen(), false);
@@ -516,6 +519,15 @@ struct structure_cmd_fn {
         m_p.add_decl_index(n, pos, k, type);
     }
 
+    void add_alias(name const & n, bool composite = true) {
+        m_env = ::lean::add_alias(m_p, m_env, composite, n, m_ctx_levels, m_ctx_locals);
+    }
+
+    void add_rec_alias(name const & n) {
+        bool composite = true;
+        m_env = ::lean::add_alias(m_p, m_env, composite, n, levels(mk_level_placeholder(), m_ctx_levels), m_ctx_locals);
+    }
+
     void declare_inductive_type() {
         expr structure_type = mk_structure_type();
         expr intro_type     = mk_intro_type();
@@ -530,25 +542,39 @@ struct structure_cmd_fn {
         save_info(m_mk, "intro", m_mk_pos);
         m_env = add_namespace(m_env, m_name);
         m_env = add_protected(m_env, rec_name);
-    }
-
-    void declare_projections() {
-        m_env = mk_projections(m_env, m_name, m_modifiers.is_class());
+        add_alias(m_name, false);
+        add_alias(m_mk);
+        add_rec_alias(rec_name);
     }
 
     void save_def_info(name const & n) {
         save_info(n, "definition", m_name_pos);
     }
 
+    void declare_projections() {
+        m_env = mk_projections(m_env, m_name, m_modifiers.is_class());
+        for (expr const & field : m_fields) {
+            name field_name = m_name + mlocal_name(field);
+            save_def_info(field_name);
+            add_alias(field_name);
+        }
+    }
+
     void declare_auxiliary() {
         bool has_unit = has_unit_decls(m_env);
         m_env = mk_rec_on(m_env, m_name);
         m_env = mk_induction_on(m_env, m_name);
-        save_def_info(name(m_name, "rec_on"));
-        save_def_info(name(m_name, "induction_on"));
+        name rec_on_name(m_name, "rec_on");
+        name induction_on_name(m_name, "induction_on");
+        add_rec_alias(rec_on_name);
+        add_rec_alias(induction_on_name);
+        save_def_info(rec_on_name);
+        save_def_info(induction_on_name);
         if (has_unit) {
             m_env = mk_cases_on(m_env, m_name);
-            save_def_info(name(m_name, "cases_on"));
+            name cases_on_name(m_name, "cases_on");
+            save_def_info(cases_on_name);
+            add_rec_alias(cases_on_name);
         }
     }
 
@@ -562,10 +588,10 @@ struct structure_cmd_fn {
         m_p.check_token_next(get_dcolon_tk(), "invalid 'structure', '::' expected");
         process_new_fields();
         infer_resultant_universe();
-        buffer<expr> ctx_locals;
-        collect_ctx_locals(ctx_locals);
-        add_ctx_locals(ctx_locals);
+        collect_ctx_locals(m_ctx_locals);
+        add_ctx_locals(m_ctx_locals);
         include_ctx_levels();
+        m_ctx_levels = collect_local_nonvar_levels(m_p, to_list(m_level_names.begin(), m_level_names.end()));
         declare_inductive_type();
         declare_projections();
         declare_auxiliary();

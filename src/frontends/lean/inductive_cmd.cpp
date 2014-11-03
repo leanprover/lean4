@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/class.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
+#include "frontends/lean/type_util.h"
 
 namespace lean {
 using inductive::intro_rule;
@@ -76,23 +77,8 @@ void finalize_inductive_cmd() {
 
 struct inductive_cmd_fn {
     typedef std::unique_ptr<type_checker> type_checker_ptr;
-    struct modifiers {
-        bool m_is_class;
-        modifiers():m_is_class(false) {}
-        void parse(parser & p) {
-            while (true) {
-                if (p.curr_is_token(get_class_tk())) {
-                    m_is_class = true;
-                    p.next();
-                } else {
-                    break;
-                }
-            }
-        }
-    };
-
-    enum class implicit_infer_kind { Implicit, RelaxedImplicit, None };
     typedef name_map<implicit_infer_kind> implicit_infer_map;
+    typedef type_modifiers modifiers;
 
     parser &            m_p;
     environment         m_env;
@@ -253,16 +239,8 @@ struct inductive_cmd_fn {
         buffer<intro_rule> intros;
         while (true) {
             name intro_name = parse_intro_decl_name(ind_name);
-            if (m_p.curr_is_token(get_lcurly_tk())) {
-                m_p.next();
-                m_p.check_token_next(get_rcurly_tk(), "invalid introduction rule, '}' expected");
-                m_implicit_infer_map.insert(intro_name, implicit_infer_kind::RelaxedImplicit);
-            }
-            if (m_p.curr_is_token(get_lparen_tk())) {
-                m_p.next();
-                m_p.check_token_next(get_rparen_tk(), "invalid introduction rule, ')' expected");
-                m_implicit_infer_map.insert(intro_name, implicit_infer_kind::None);
-            }
+            implicit_infer_kind k = parse_implicit_infer_modifier(m_p);
+            m_implicit_infer_map.insert(intro_name, k);
             if (!m_params.empty() || m_p.curr_is_token(get_colon_tk())) {
                 m_p.check_token_next(get_colon_tk(), "invalid introduction rule, ':' expected");
                 expr intro_type = m_p.parse_expr();
@@ -528,19 +506,7 @@ struct inductive_cmd_fn {
         type = Pi(nparams, params, type);
         type = Pi(locals, type);
         implicit_infer_kind k = get_implicit_infer_kind(ir_name);
-        switch (k) {
-        case implicit_infer_kind::Implicit: {
-            bool strict = true;
-            return infer_implicit(type, locals.size() + nparams, strict);
-        }
-        case implicit_infer_kind::RelaxedImplicit: {
-            bool strict = false;
-            return infer_implicit(type, locals.size() + nparams, strict);
-        }
-        case implicit_infer_kind::None:
-            return type;
-        }
-        lean_unreachable();
+        return infer_implicit_params(type, locals.size() + nparams, k);
     }
 
     /** \brief Elaborate inductive datatypes and their introduction rules. */
@@ -605,23 +571,6 @@ struct inductive_cmd_fn {
         }
     }
 
-    /** \brief Create an alias for the fully qualified name \c full_id. */
-    environment create_alias(environment env, bool composite, name const & full_id,
-                             levels const & ctx_levels, buffer<expr> const & ctx_params) {
-        name id;
-        if (composite)
-            id = name(name(full_id.get_prefix().get_string()), full_id.get_string());
-        else
-            id = name(full_id.get_string());
-        if (!empty(ctx_levels) || !ctx_params.empty()) {
-            expr r = mk_local_ref(full_id, ctx_levels, ctx_params);
-            m_p.add_local_expr(id, r);
-        }
-        if (full_id != id)
-            env = add_expr_alias_rec(env, id, full_id);
-        return env;
-    }
-
     /** \brief Add aliases for the inductive datatype, introduction and elimination rules */
     environment add_aliases(environment env, level_param_names const & ls, buffer<expr> const & locals,
                             buffer<inductive_decl> const & decls) {
@@ -632,13 +581,13 @@ struct inductive_cmd_fn {
         for (auto & d : decls) {
             name d_name = inductive_decl_name(d);
             name d_short_name(d_name.get_string());
-            env = create_alias(env, false, d_name, ctx_levels, params_only);
+            env = add_alias(m_p, env, false, d_name, ctx_levels, params_only);
             name rec_name = mk_rec_name(d_name);
-            env = create_alias(env, true, rec_name, ctx_levels, params_only);
+            env = add_alias(m_p, env, true, rec_name, ctx_levels, params_only);
             env = add_protected(env, rec_name);
             for (intro_rule const & ir : inductive_decl_intros(d)) {
                 name ir_name = intro_rule_name(ir);
-                env = create_alias(env, true, ir_name, ctx_levels, params_only);
+                env = add_alias(m_p, env, true, ir_name, ctx_levels, params_only);
             }
         }
         return env;
@@ -655,7 +604,7 @@ struct inductive_cmd_fn {
 
     environment apply_modifiers(environment env) {
         m_modifiers.for_each([&](name const & n, modifiers const & m) {
-                if (m.m_is_class)
+                if (m.is_class())
                     env = add_class(env, n);
             });
         return env;

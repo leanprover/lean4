@@ -211,14 +211,15 @@ struct inductive_cmd_fn {
 
     /** \brief Create a local constant based on the given binding */
     expr mk_local_for(expr const & b) {
-        return mk_local(m_p.mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b));
+        return mk_local(m_p.mk_fresh_name(), binding_name(b), binding_domain(b), binding_info(b), b.get_tag());
     }
 
     /** \brief Set explicit datatype parameters as local constants in m_params */
     void set_params(expr d_type) {
         lean_assert(m_params.empty());
         for (unsigned i = 0; i < m_num_params; i++) {
-            expr l = mk_local(binding_name(d_type), binding_name(d_type), binding_domain(d_type), binding_info(d_type));
+            expr l = mk_local(binding_name(d_type), binding_name(d_type), binding_domain(d_type), binding_info(d_type),
+                              d_type.get_tag());
             m_params.push_back(l);
             d_type = instantiate(binding_body(d_type), l);
         }
@@ -342,7 +343,8 @@ struct inductive_cmd_fn {
             ::lean::collect_locals(inductive_decl_type(d), ls);
             for (auto const & ir : inductive_decl_intros(d)) {
                 expr ir_type = intro_rule_type(ir);
-                ir_type = Pi(m_params, ir_type);
+                bool use_cache = false;
+                ir_type = Pi(m_params, ir_type, use_cache);
                 ::lean::collect_locals(ir_type, ls);
             }
         }
@@ -391,7 +393,7 @@ struct inductive_cmd_fn {
                 type = update_result_sort(type, m_u);
                 m_infer_result_universe = true;
             }
-            expr local = mk_local(m_p.mk_fresh_name(), n, type, binder_info());
+            expr local = mk_local(m_p.mk_fresh_name(), n, type, binder_info(), type.get_tag());
             r.push_back(local);
             map.insert(n, local);
         }
@@ -503,8 +505,9 @@ struct inductive_cmd_fn {
                     return none_expr();
                 }
             });
-        type = Pi(nparams, params, type);
-        type = Pi(locals, type);
+        bool use_cache = false;
+        type = Pi(nparams, params, type, use_cache);
+        type = Pi(locals, type, use_cache);
         implicit_infer_kind k = get_implicit_infer_kind(ir_name);
         return infer_implicit_params(type, locals.size() + nparams, k);
     }
@@ -548,8 +551,9 @@ struct inductive_cmd_fn {
             expr type = mlocal_type(to_elab[i]);
             if (m_infer_result_universe)
                 type = update_result_sort(type, resultant_level);
-            type = Pi(nparams, to_elab.data(), type);
-            type = Pi(locals, type);
+            bool use_cache = false;
+            type = Pi(nparams, to_elab.data(), type, use_cache);
+            type = Pi(locals, type, use_cache);
             decl = update_inductive_decl(decl, type);
             i++;
         }

@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/module.h"
 #include "library/aliases.h"
+#include "library/explicit.h"
 #include "library/protected.h"
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
@@ -220,6 +221,15 @@ struct structure_cmd_fn {
         return new_tmp;
     }
 
+    expr update_parents(expr new_tmp) {
+        for (unsigned i = 0; i < m_parents.size(); i++) {
+            m_parents[i]   = copy_tag(m_parents[i], expr(binding_domain(new_tmp)));
+            new_tmp        = binding_body(new_tmp);
+            lean_assert(closed(new_tmp));
+        }
+        return new_tmp;
+    }
+
     /** \brief elaborate parameters and "parent" types */
     void elaborate_header() {
         buffer<expr> include_vars;
@@ -242,11 +252,7 @@ struct structure_cmd_fn {
         m_params.clear();
         m_params.append(include_vars);
         m_params.append(explicit_params);
-        for (unsigned i = 0; i < m_parents.size(); i++) {
-            m_parents[i]   = copy_tag(m_parents[i], expr(binding_domain(new_tmp)));
-            new_tmp        = binding_body(new_tmp);
-            lean_assert(closed(new_tmp));
-        }
+        new_tmp = update_parents(new_tmp);
         m_type = new_tmp;
     }
 
@@ -345,6 +351,7 @@ struct structure_cmd_fn {
                 intro_type = instantiate(binding_body(intro_type), field);
             }
         }
+        lean_assert(m_parents.size() == m_field_maps.size());
         return cseq;
     }
 
@@ -406,12 +413,17 @@ struct structure_cmd_fn {
         check_new_field_names(new_fields);
     }
 
+
     /** \brief Elaborate new fields, and copy them to m_fields */
     void elaborate_new_fields(buffer<expr> & new_fields) {
         list<expr> ctx = m_p.locals_to_context();
-        expr tmp   = m_type;
         expr dummy = mk_Prop();
-        tmp = Pi_as_is(m_params, Pi_as_is(m_fields, Pi(new_fields, dummy, m_p), m_p), m_p);
+        unsigned j = m_parents.size();
+        while (j > 0) {
+            --j;
+            dummy = mk_arrow(mk_as_is(m_parents[j]), dummy);
+        }
+        expr tmp = Pi_as_is(m_params, Pi_as_is(m_fields, Pi(new_fields, dummy, m_p), m_p), m_p);
         level_param_names new_ls;
         expr new_tmp;
         std::tie(new_tmp, new_ls) = m_p.elaborate_type(tmp, ctx);
@@ -420,7 +432,8 @@ struct structure_cmd_fn {
         new_tmp = update_locals(new_tmp, m_params);
         new_tmp = update_locals(new_tmp, m_fields);
         new_tmp = update_locals(new_tmp, new_fields);
-        lean_assert(new_tmp == dummy);
+        new_tmp = update_parents(new_tmp);
+        lean_assert(new_tmp == mk_Prop());
         m_fields.append(new_fields);
     }
 
@@ -551,11 +564,15 @@ struct structure_cmd_fn {
         save_info(n, "definition", m_name_pos);
     }
 
+    void save_proj_info(name const & n) {
+        save_info(n, "projection", m_name_pos);
+    }
+
     void declare_projections() {
         m_env = mk_projections(m_env, m_name, m_modifiers.is_class());
         for (expr const & field : m_fields) {
             name field_name = m_name + mlocal_name(field);
-            save_def_info(field_name);
+            save_proj_info(field_name);
             add_alias(field_name);
         }
     }
@@ -578,6 +595,52 @@ struct structure_cmd_fn {
         }
     }
 
+    void declare_coercions() {
+        lean_assert(m_parents.size() == m_field_maps.size());
+        level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
+        levels st_ls             = param_names_to_levels(lnames);
+        for (unsigned i = 0; i < m_parents.size(); i++) {
+            expr const & parent            = m_parents[i];
+            field_map const & fmap         = m_field_maps[i];
+            buffer<expr> parent_params;
+            expr const & parent_fn         = get_app_args(parent, parent_params);
+            levels const & parent_ls       = const_levels(parent_fn);
+            name const & parent_name       = const_name(parent_fn);
+            auto parent_info               = get_parent_info(parent_name);
+            name const & parent_intro_name = inductive::intro_rule_name(std::get<2>(parent_info));
+            expr parent_intro              = mk_app(mk_constant(parent_intro_name, parent_ls), parent_params);
+            expr parent_type               = m_tc->infer(parent).first;
+            if (!is_sort(parent_type))
+                throw_ill_formed_parent(parent_name);
+            level parent_rlvl              = sort_level(parent_type);
+            expr st_type                   = mk_app(mk_constant(m_name, st_ls), m_params);
+            binder_info bi;
+            if (m_modifiers.is_class())
+                bi = mk_inst_implicit_binder_info();
+            expr st                        = mk_local(m_ngen.next(), "s", st_type, bi);
+            expr coercion_type             = infer_implicit(Pi(m_params, Pi(st, parent)), m_params.size(), true);;
+            levels rec_ls                  = levels(parent_rlvl, st_ls);
+            expr rec                       = mk_app(mk_constant(inductive::get_elim_name(m_name), rec_ls), m_params);
+            expr type_former               = Fun(st, parent);
+            rec                            = mk_app(rec, type_former);
+            expr minor_premise             = parent_intro;
+            for (unsigned idx : fmap)
+                minor_premise = mk_app(minor_premise, m_fields[idx]);
+            minor_premise                  = Fun(m_fields, minor_premise);
+            rec                            = mk_app(rec, minor_premise, st);
+            expr coercion_value            = Fun(m_params, Fun(st, rec));
+            name coercion_name             = m_name + parent_name.append_before("to_");
+
+            bool opaque                    = false;
+            declaration coercion_decl      = mk_definition(m_env, coercion_name, lnames, coercion_type, coercion_value,
+                                                           opaque);
+            m_env = module::add(m_env, check(m_env, coercion_decl));
+            m_env = set_reducible(m_env, coercion_name, reducible_status::On);
+            save_def_info(coercion_name);
+            add_alias(coercion_name);
+        }
+    }
+
     environment operator()() {
         process_header();
         m_p.check_token_next(get_assign_tk(), "invalid 'structure', ':=' expected");
@@ -595,6 +658,7 @@ struct structure_cmd_fn {
         declare_inductive_type();
         declare_projections();
         declare_auxiliary();
+        declare_coercions();
         return m_env;
     }
 };

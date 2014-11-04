@@ -5,7 +5,7 @@ structure point (A : Type) (B : Type) :=
 mk :: (x : A) (y : B)
 
 check point
-check point.rec
+check @ point.rec
 check point.mk
 check point.x
 check point.y
@@ -21,6 +21,7 @@ mk :: (c : color)
 
 check @color_point.rec_on
 check color_point.rec_on
+check color_point.to_point
 
 section
 variables a b : num
@@ -40,5 +41,8 @@ example : color_point.y (color_point.mk a b cc) = b :=
 rfl
 
 example : color_point.c (color_point.mk a b cc) = cc :=
+rfl
+
+example : color_point.to_point (color_point.mk a b cc) = point.mk a b :=
 rfl
 end

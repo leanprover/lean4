@@ -74,6 +74,7 @@ struct structure_cmd_fn {
     buffer<expr>               m_parents;
     buffer<bool>               m_private_parents;
     name                       m_mk;
+    name                       m_mk_short;
     pos_info                   m_mk_pos;
     implicit_infer_kind        m_mk_infer;
     buffer<expr>               m_fields;
@@ -703,26 +704,55 @@ struct structure_cmd_fn {
         add_alias(eta_name);
     }
 
+    void declare_proj_over_mk() {
+        if (!has_eq_decls(m_env))
+            return;
+        level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
+        levels st_ls             = param_names_to_levels(lnames);
+        expr st_type             = mk_app(mk_constant(m_name, st_ls), m_params);
+        expr mk_fields           = mk_app(mk_app(mk_constant(m_mk, st_ls), m_params), m_fields);
+        for (unsigned i = 0; i < m_fields.size(); i++) {
+            expr const & field      = m_fields[i];
+            name const & field_name = mlocal_name(field);
+            expr const & field_type = mlocal_type(field);
+            level field_level       = sort_level(m_tc->ensure_type(field_type).first);
+            name proj_name          = m_name + field_name;
+            expr lhs                = mk_app(mk_app(mk_constant(proj_name, st_ls), m_params), mk_fields);
+            expr rhs                = field;
+            expr eq                 = mk_app(mk_constant("eq", to_list(field_level)), field_type, lhs, rhs);
+            expr refl               = mk_app(mk_constant(name{"eq", "refl"}, to_list(field_level)), field_type, lhs);
+            name proj_over_name     = m_name + field_name + m_mk_short;
+            expr proj_over_type     = infer_implicit(Pi(m_params, Pi(m_fields, eq)), m_params.size(), true);
+            expr proj_over_value    = Fun(m_params, Fun(m_fields, refl));
+
+            declaration proj_over_decl = mk_theorem(proj_over_name, lnames, proj_over_type, proj_over_value);
+            m_env = module::add(m_env, check(m_env, proj_over_decl));
+            save_thm_info(proj_over_name);
+            add_alias(proj_over_name);
+        }
+    }
+
     environment operator()() {
         process_header();
         if (m_p.curr_is_token(get_assign_tk())) {
             m_p.check_token_next(get_assign_tk(), "invalid 'structure', ':=' expected");
             m_mk_pos = m_p.pos();
             if (m_p.curr_is_token(get_lparen_tk()) || m_p.curr_is_token(get_lcurly_tk()) || m_p.curr_is_token(get_lbracket_tk())) {
-                m_mk       = m_name + LEAN_DEFAULT_STRUCTURE_INTRO;
+                m_mk_short = LEAN_DEFAULT_STRUCTURE_INTRO;
                 m_mk_infer = implicit_infer_kind::Implicit;
             } else {
-                m_mk = m_p.check_atomic_id_next("invalid 'structure', identifier expected");
-                m_mk = m_name + m_mk;
+                m_mk_short = m_p.check_atomic_id_next("invalid 'structure', identifier expected");
                 m_mk_infer = parse_implicit_infer_modifier(m_p);
                 if (!m_p.curr_is_command_like())
                     m_p.check_token_next(get_dcolon_tk(), "invalid 'structure', '::' expected");
             }
+            m_mk = m_name + m_mk_short;
             process_new_fields();
         } else {
             m_mk_pos   = m_name_pos;
-            m_mk       = m_name + LEAN_DEFAULT_STRUCTURE_INTRO;
+            m_mk_short = LEAN_DEFAULT_STRUCTURE_INTRO;
             m_mk_infer = implicit_infer_kind::Implicit;
+            m_mk       = m_name + m_mk_short;
             process_empty_new_fields();
         }
         infer_resultant_universe();
@@ -735,6 +765,7 @@ struct structure_cmd_fn {
         declare_auxiliary();
         declare_coercions();
         declare_eta();
+        declare_proj_over_mk();
         return m_env;
     }
 };

@@ -26,12 +26,6 @@ namespace prod
 
   variables (a : A) (b : B)
 
-  theorem pr1.pair : pr₁ (a, b) = a :=
-  rfl
-
-  theorem pr2.pair : pr₂ (a, b) = b :=
-  rfl
-
   variables {a₁ a₂ : A} {b₁ b₂ : B}
 
   theorem pair_eq : a₁ = a₂ → b₁ = b₂ → (a₁, b₁) = (a₂, b₂) :=

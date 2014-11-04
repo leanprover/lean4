@@ -47,13 +47,13 @@ rfl
 
 theorem map_pair_pair {A B : Type} (f : A → B) (a a' : A)
   : map_pair f (pair a a') = pair (f a) (f a') :=
-(pr1.pair a a') ▸ (pr2.pair a a') ▸ rfl
+(pr1.mk a a') ▸ (pr2.mk a a') ▸ rfl
 
 theorem map_pair_pr1 {A B : Type} (f : A → B) (a : A × A) : pr1 (map_pair f a) = f (pr1 a) :=
-!pr1.pair
+!pr1.mk
 
 theorem map_pair_pr2 {A B : Type} (f : A → B) (a : A × A) : pr2 (map_pair f a) = f (pr2 a) :=
-!pr2.pair
+!pr2.mk
 
 -- ### coordinatewise binary maps
 
@@ -68,16 +68,16 @@ theorem map_pair2_pair {A B C : Type} (f : A → B → C) (a a' : A) (b b' : B) 
 calc
   map_pair2 f (pair a a') (pair b b')
         = pair (f (pr1 (pair a a')) b) (f (pr2 (pair a a')) (pr2 (pair b b')))
-            : {pr1.pair b b'}
-    ... = pair (f (pr1 (pair a a')) b) (f (pr2 (pair a a')) b') : {pr2.pair b b'}
-    ... = pair (f (pr1 (pair a a')) b) (f a' b') : {pr2.pair a a'}
-    ... = pair (f a b) (f a' b') : {pr1.pair a a'}
+            : {pr1.mk b b'}
+    ... = pair (f (pr1 (pair a a')) b) (f (pr2 (pair a a')) b') : {pr2.mk b b'}
+    ... = pair (f (pr1 (pair a a')) b) (f a' b') : {pr2.mk a a'}
+    ... = pair (f a b) (f a' b') : {pr1.mk a a'}
 
 theorem map_pair2_pr1 {A B C : Type} (f : A → B → C) (a : A × A) (b : B × B) :
-pr1 (map_pair2 f a b) = f (pr1 a) (pr1 b) := !pr1.pair
+pr1 (map_pair2 f a b) = f (pr1 a) (pr1 b) := !pr1.mk
 
 theorem map_pair2_pr2 {A B C : Type} (f : A → B → C) (a : A × A) (b : B × B) :
-pr2 (map_pair2 f a b) = f (pr2 a) (pr2 b) := !pr2.pair
+pr2 (map_pair2 f a b) = f (pr2 a) (pr2 b) := !pr2.mk
 
 theorem map_pair2_flip {A B C : Type} (f : A → B → C) (a : A × A) (b : B × B) :
   flip (map_pair2 f a b) = map_pair2 f (flip a) (flip b) :=

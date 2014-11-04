@@ -610,7 +610,7 @@ show lhs = rhs, from
         ... = rhs : (if_pos H1)⁻¹)
     (assume H1 : y ≠ 0,
       have ypos : y > 0, from ne_zero_imp_pos H1,
-      have H2 : gcd_aux_measure p' = x mod y, from pr2.pair _ _,
+      have H2 : gcd_aux_measure p' = x mod y, from pr2.mk _ _,
       have H3 : gcd_aux_measure p' < gcd_aux_measure p, from H2⁻¹ ▸ mod_lt ypos,
       calc
         lhs = g1 p' : if_neg H1

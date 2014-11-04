@@ -13,9 +13,6 @@ namespace sigma
   universe variables u v
   variables {A A' : Type.{u}} {B : A → Type.{v}} {B' : A' → Type.{v}}
 
-  theorem dpr1_dpair (a : A) (b : B a) : dpr1 (dpair a b) = a := rfl
-  theorem dpr2_dpair (a : A) (b : B a) : dpr2 (dpair a b) = b := rfl
-
   theorem dpair_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) :
     dpair a₁ b₁ = dpair a₂ b₂ :=
   dcongr_arg2 dpair H₁ H₂

@@ -832,12 +832,12 @@ void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentr
 }
 
 local_environment parser::parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries,
-                                        bool & last_block_delimited) {
+                                        bool & last_block_delimited, bool allow_empty) {
     flet<environment> save(m_env, m_env); // save environment
     local_expr_decls::mk_scope scope(m_local_decls);
     unsigned old_sz = r.size();
     parse_binders_core(r, nentries, last_block_delimited);
-    if (old_sz == r.size())
+    if (!allow_empty && old_sz == r.size())
         throw_invalid_open_binder(pos());
     return local_environment(m_env);
 }

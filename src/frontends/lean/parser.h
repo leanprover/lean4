@@ -185,7 +185,7 @@ class parser {
     expr parse_binder_core(binder_info const & bi);
     void parse_binder_block(buffer<expr> & r, binder_info const & bi);
     void parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited);
-    local_environment parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited);
+    local_environment parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited, bool allow_empty = false);
     bool parse_local_notation_decl(buffer<notation_entry> * entries);
 
     friend environment section_cmd(parser & p);
@@ -327,6 +327,9 @@ public:
     }
     local_environment parse_binders(buffer<expr> & r) {
         bool tmp; return parse_binders(r, nullptr, tmp);
+    }
+    local_environment parse_optional_binders(buffer<expr> & r) {
+        bool tmp; return parse_binders(r, nullptr, tmp, true);
     }
     local_environment parse_binders(buffer<expr> & r, buffer<notation_entry> & nentries) {
         bool tmp; return parse_binders(r, &nentries, tmp);

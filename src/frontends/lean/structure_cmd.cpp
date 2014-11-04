@@ -416,7 +416,7 @@ struct structure_cmd_fn {
     void parse_new_fields(buffer<expr> & new_fields) {
         parser::local_scope scope(m_p);
         add_locals();
-        m_p.parse_binders(new_fields);
+        m_p.parse_optional_binders(new_fields);
         check_new_field_names(new_fields);
     }
 
@@ -704,7 +704,8 @@ struct structure_cmd_fn {
                 m_mk = m_p.check_atomic_id_next("invalid 'structure', identifier expected");
                 m_mk = m_name + m_mk;
                 m_mk_infer = parse_implicit_infer_modifier(m_p);
-                m_p.check_token_next(get_dcolon_tk(), "invalid 'structure', '::' expected");
+                if (!m_p.curr_is_command_like())
+                    m_p.check_token_next(get_dcolon_tk(), "invalid 'structure', '::' expected");
             }
             process_new_fields();
         } else {

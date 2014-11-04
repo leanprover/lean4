@@ -28,7 +28,6 @@ Author: Leonardo de Moura
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
 #include "library/definitional/cases_on.h"
-#include "library/definitional/unit.h"
 #include "library/definitional/eq.h"
 #include "library/definitional/projection.h"
 #include "frontends/lean/parser.h"
@@ -597,7 +596,6 @@ struct structure_cmd_fn {
     }
 
     void declare_auxiliary() {
-        bool has_unit = has_unit_decls(m_env);
         m_env = mk_rec_on(m_env, m_name);
         m_env = mk_induction_on(m_env, m_name);
         name rec_on_name(m_name, "rec_on");
@@ -606,12 +604,16 @@ struct structure_cmd_fn {
         add_rec_alias(induction_on_name);
         save_def_info(rec_on_name);
         save_def_info(induction_on_name);
-        if (has_unit) {
-            m_env = mk_cases_on(m_env, m_name);
-            name cases_on_name(m_name, "cases_on");
-            save_def_info(cases_on_name);
-            add_rec_alias(cases_on_name);
-        }
+        name destruct_name(m_name, "destruct");
+        bool opaque = false;
+        declaration rec_on_decl = m_env.get(rec_on_name);
+        declaration destruct_decl = mk_definition(m_env, destruct_name, rec_on_decl.get_univ_params(),
+                                                  rec_on_decl.get_type(), rec_on_decl.get_value(),
+                                                  opaque);
+        m_env = module::add(m_env, check(m_env, destruct_decl));
+        m_env = set_reducible(m_env, destruct_name, reducible_status::On);
+        save_def_info(destruct_name);
+        add_alias(destruct_name);
     }
 
     void declare_coercions() {

@@ -105,7 +105,7 @@
      (,(rx (or "λ" "→" "∃" "∀" ":=")) . 'font-lock-constant-face )
      ;; universe/inductive/theorem... "names"
      (,(rx word-start
-           (group (or "inductive" "theorem" "example" "axiom" "lemma" "hypothesis" "definition" "constant"))
+           (group (or "inductive" "theorem" "axiom" "lemma" "hypothesis" "definition" "constant"))
            word-end
            (zero-or-more (or whitespace "(" "{" "["))
            (group (zero-or-more (not (any " \t\n\r")))))

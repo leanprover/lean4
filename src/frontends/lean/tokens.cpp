@@ -62,6 +62,7 @@ static name * g_proof        = nullptr;
 static name * g_qed          = nullptr;
 static name * g_begin        = nullptr;
 static name * g_end          = nullptr;
+static name * g_private      = nullptr;
 static name * g_definition   = nullptr;
 static name * g_theorem      = nullptr;
 static name * g_axiom        = nullptr;
@@ -147,6 +148,7 @@ void initialize_tokens() {
     g_qed          = new name("qed");
     g_begin        = new name("begin");
     g_end          = new name("end");
+    g_private      = new name("private");
     g_definition   = new name("definition");
     g_theorem      = new name("theorem");
     g_opaque       = new name("opaque");
@@ -195,6 +197,7 @@ void finalize_tokens() {
     delete g_call;
     delete g_with;
     delete g_class;
+    delete g_private;
     delete g_definition;
     delete g_theorem;
     delete g_opaque;
@@ -318,6 +321,7 @@ name const & get_proof_tk() { return *g_proof; }
 name const & get_qed_tk() { return *g_qed; }
 name const & get_begin_tk() { return *g_begin; }
 name const & get_end_tk() { return *g_end; }
+name const & get_private_tk() { return *g_private; }
 name const & get_definition_tk() { return *g_definition; }
 name const & get_theorem_tk() { return *g_theorem; }
 name const & get_axiom_tk() { return *g_axiom; }

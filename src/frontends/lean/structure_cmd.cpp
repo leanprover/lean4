@@ -72,6 +72,7 @@ struct structure_cmd_fn {
     buffer<expr>               m_params;
     expr                       m_type;
     buffer<expr>               m_parents;
+    buffer<bool>               m_private_parents;
     name                       m_mk;
     pos_info                   m_mk_pos;
     implicit_infer_kind        m_mk_infer;
@@ -153,8 +154,14 @@ struct structure_cmd_fn {
             m_p.next();
             while (true) {
                 auto pos = m_p.pos();
+                bool is_private_parent = false;
+                if (m_p.curr_is_token(get_private_tk())) {
+                    m_p.next();
+                    is_private_parent  = true;
+                }
                 expr parent = m_p.parse_expr();
                 m_parents.push_back(parent);
+                m_private_parents.push_back(is_private_parent);
                 check_parent(parent, pos);
                 name const & parent_name = const_name(get_app_fn(parent));
                 auto parent_info         = get_parent_info(parent_name);
@@ -656,10 +663,12 @@ struct structure_cmd_fn {
             m_env = set_reducible(m_env, coercion_name, reducible_status::On);
             save_def_info(coercion_name);
             add_alias(coercion_name);
-            m_env = add_coercion(m_env, coercion_name, m_p.ios());
-            if (m_modifiers.is_class() && is_class(m_env, parent_name)) {
-                // if both are classes, then we also mark coercion_name as an instance
-                m_env = add_instance(m_env, coercion_name);
+            if (!m_private_parents[i]) {
+                m_env = add_coercion(m_env, coercion_name, m_p.ios());
+                if (m_modifiers.is_class() && is_class(m_env, parent_name)) {
+                    // if both are classes, then we also mark coercion_name as an instance
+                    m_env = add_instance(m_env, coercion_name);
+                }
             }
         }
     }

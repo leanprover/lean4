@@ -6,17 +6,34 @@ import .equiv .funext
 open path function
 
 namespace IsEquiv
-
-  --If pre- or post-composing with a function is always an equivalence,
-  --then that function is also an equivalence.  It's convenient to know
-  --that we only need to assume the equivalence when the other type is
-  --the domain or the codomain.
   context
   parameters {A B : Type} (f : A → B)
 
+  --Precomposition of arbitrary functions with f
   definition precomp (C : Type) (h : B → C) : A → C := h ∘ f
 
-  definition inv_precomp (C D : Type) (Ceq : IsEquiv (precomp C))
+  --Postcomposition of arbitrary functions with f
+  definition postcomp (C : Type) (l : C → A) : C → B := f ∘ l
+
+  --Precomposing with an equivalence is an equivalence
+  definition precompose [instance] [Hf : IsEquiv f] (C : Type):
+      IsEquiv (precomp C) :=
+    adjointify (precomp C) (λh, h ∘ f⁻¹)
+      (λh, path_forall _ _ (λx, ap h (sect f x)))
+      (λg, path_forall _ _ (λy, ap g (retr f y)))
+
+  --Postcomposing with an equivalence is an equivalence
+  definition postcompose [instance] [Hf : IsEquiv f] (C : Type):
+      IsEquiv (postcomp C) :=
+    adjointify (postcomp C) (λl, f⁻¹ ∘ l)
+      (λh, path_forall _ _ (λx, retr f (h x)))
+      (λg, path_forall _ _ (λy, sect f (g y)))
+
+  --Conversely, if pre- or post-composing with a function is always an equivalence,
+  --then that function is also an equivalence.  It's convenient to know
+  --that we only need to assume the equivalence when the other type is
+  --the domain or the codomain.
+  private definition isequiv_precompose_eq (C D : Type) (Ceq : IsEquiv (precomp C))
       (Deq : IsEquiv (precomp D)) (k : C → D) (h : A → C) :
       k ∘ (inv (precomp C)) h ≈ (inv (precomp D)) (k ∘ h) :=
     let invD := inv (precomp D) in
@@ -32,7 +49,7 @@ namespace IsEquiv
     let invB := inv (precomp B) in
     let sect' : Sect (invA id) f := (λx,
       calc f (invA id x) ≈ (f ∘ invA id) x : idp
-	... ≈ invB (f ∘ id) x : apD10 (!inv_precomp)
+	... ≈ invB (f ∘ id) x : apD10 (!isequiv_precompose_eq)
 	... ≈ invB (precomp B id) x : idp
 	... ≈ x : apD10 (sect (precomp B) id))
       in
@@ -44,3 +61,24 @@ namespace IsEquiv
   end
 
 end IsEquiv
+
+--Bundled versions of the previous theorems
+namespace Equiv
+
+  context
+  parameters {A B C : Type} {eqf : A ≃ B}
+
+  private definition f := equiv_fun eqf
+  private definition Hf := equiv_isequiv eqf
+
+  definition precompose : (B → C) ≃ (A → C) :=
+    Equiv_mk (IsEquiv.precomp f C)
+      (@IsEquiv.precompose A B f Hf C)
+
+  definition postcompose : (C → A) ≃ (C → B) :=
+    Equiv_mk (IsEquiv.postcomp f C)
+      (@IsEquiv.postcompose A B f Hf C)
+
+  end
+
+end Equiv

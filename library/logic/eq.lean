@@ -54,30 +54,65 @@ calc_symm  eq.symm
 open eq.ops
 
 namespace eq
-  definition drec_on {A : Type} {a a' : A} {B : Πa' : A, a = a' → Type} (H₁ : a = a') (H₂ : B a (refl a)) : B a' H₁ :=
+  variables {A B : Type} {a a' a₁ a₂ a₃ a₄ : A}
+  definition drec_on {B : Πa' : A, a = a' → Type} (H₁ : a = a') (H₂ : B a (refl a)) : B a' H₁ :=
   eq.rec (λH₁ : a = a, show B a H₁, from H₂) H₁ H₁
 
-  theorem rec_on_id {A : Type} {a : A} {B : Πa' : A, a = a' → Type} (H : a = a) (b : B a H) : drec_on H b = b :=
+--can we remove the theorems about drec_on and only have the rec_on versions?
+  -- theorem drec_on_id {B : Πa' : A, a = a' → Type} (H : a = a) (b : B a H) : drec_on H b = b :=
+  -- rfl
+
+  -- theorem drec_on_constant (H : a = a') {B : Type} (b : B) : drec_on H b = b :=
+  -- drec_on H rfl
+
+  -- theorem drec_on_constant2 (H₁ : a₁ = a₂) (H₂ : a₃ = a₄) (b : B) : drec_on H₁ b = drec_on H₂ b :=
+  -- drec_on_constant H₁ b ⬝ (drec_on_constant H₂ b)⁻¹
+
+  
+  -- theorem drec_on_irrel_arg {f : A → B} {D : B → Type} (H : a = a') (H' : f a = f a') 
+  --     (b : D (f a)) : drec_on H b = drec_on H' b :=
+  -- drec_on H (λ(H' : f a = f a), !drec_on_id⁻¹) H'
+
+  -- theorem drec_on_irrel {D : A → Type} (H H' : a = a') (b : D a) : 
+  --     drec_on H b = drec_on H' b :=
+  -- !drec_on_irrel_arg
+
+  -- theorem drec_on_compose {a b c : A} {P : A → Type} (H₁ : a = b) (H₂ : b = c)
+  --         (u : P a) : drec_on H₂ (drec_on H₁ u) = drec_on (trans H₁ H₂) u :=
+  --   (show ∀ H₂ : b = c, drec_on H₂ (drec_on H₁ u) = drec_on (trans H₁ H₂) u,
+  --     from drec_on H₂ (take (H₂ : b = b), drec_on_id H₂ _))
+  --   H₂
+
+  theorem rec_on_id {B : A → Type} (H : a = a) (b : B a) : rec_on H b = b :=
   rfl
 
-  theorem rec_on_constant {A : Type} {a a' : A} {B : Type} (H : a = a') (b : B) : drec_on H b = b :=
-  drec_on H (λ(H' : a = a), rec_on_id H' b) H
+  theorem rec_on_constant (H : a = a') {B : Type} (b : B) : rec_on H b = b :=
+  drec_on H rfl
 
-  theorem rec_on_constant2 {A : Type} {a₁ a₂ a₃ a₄ : A} {B : Type} (H₁ : a₁ = a₂) (H₂ : a₃ = a₄) (b : B) :
-                           drec_on H₁ b = drec_on H₂ b :=
+  theorem rec_on_constant2 (H₁ : a₁ = a₂) (H₂ : a₃ = a₄) (b : B) : rec_on H₁ b = rec_on H₂ b :=
   rec_on_constant H₁ b ⬝ (rec_on_constant H₂ b)⁻¹
 
-  theorem rec_on_irrel {A B : Type} {a a' : A} {f : A → B} {D : B → Type} (H : a = a') (H' : f a = f a') (b : D (f a)) :
-                       drec_on H b = drec_on H' b :=
-  drec_on H (λ(H : a = a) (H' : f a = f a), rec_on_id H b ⬝ rec_on_id H' b⁻¹) H H'
+  theorem rec_on_irrel_arg {f : A → B} {D : B → Type} (H : a = a') (H' : f a = f a') (b : D (f a)) :
+                       rec_on H b = rec_on H' b :=
+  drec_on H (λ(H' : f a = f a), !rec_on_id⁻¹) H'
 
-  theorem rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : rec b H = b :=
-  rfl
+  theorem rec_on_irrel {a a' : A} {D : A → Type} (H H' : a = a') (b : D a) : 
+      drec_on H b = drec_on H' b :=
+  !rec_on_irrel_arg
 
-  theorem rec_on_compose {A : Type} {a b c : A} {P : A → Type} (H₁ : a = b) (H₂ : b = c)
-          (u : P a) :
-    drec_on H₂ (drec_on H₁ u) = drec_on (trans H₁ H₂) u :=
-    (show ∀ H₂ : b = c, drec_on H₂ (drec_on H₁ u) = drec_on (trans H₁ H₂) u,
+  --do we need the following?
+  -- theorem rec_on_irrel_fun {B : A → Type} {a : A} {f f' : Π x, B x} {D : Π a, B a → Type} (H : f = f') (H' : f a = f' a) (b : D a (f a)) :
+  --                      rec_on H b = rec_on H' b :=
+  -- sorry
+
+  -- the
+  -- theorem rec_on_comm_ap {B : A → Type} {C : Πa, B a → Type} {a a' : A} {f : Π x, C a x} 
+  --   (H : a = a') (H' : a = a') (b : B a) : rec_on H f b = rec_on H' (f b) :=
+  -- sorry
+
+  theorem rec_on_compose {a b c : A} {P : A → Type} (H₁ : a = b) (H₂ : b = c)
+          (u : P a) : rec_on H₂ (rec_on H₁ u) = rec_on (trans H₁ H₂) u :=
+    (show ∀ H₂ : b = c, rec_on H₂ (rec_on H₁ u) = rec_on (trans H₁ H₂) u,
       from drec_on H₂ (take (H₂ : b = b), rec_on_id H₂ _))
     H₂
 end eq
@@ -86,7 +121,7 @@ open eq
 
 section
   variables {A B C D E F : Type}
-  variables {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E} {f f' : F}
+  variables {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E}
 
   theorem congr_fun {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a :=
   H ▸ rfl
@@ -100,74 +135,35 @@ section
   theorem congr_arg2 (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
   congr (congr_arg f Ha) Hb
 
-  theorem congr_arg3 (f : A → B → C → D) (Ha : a = a') (Hb : b = b') (Hc : c = c') : f a b c = f a' b' c' :=
+  theorem congr_arg3 (f : A → B → C → D) (Ha : a = a') (Hb : b = b') (Hc : c = c') 
+      : f a b c = f a' b' c' :=
   congr (congr_arg2 f Ha Hb) Hc
 
-  theorem congr_arg4 (f : A → B → C → D → E) (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') : f a b c d = f a' b' c' d' :=
+  theorem congr_arg4 (f : A → B → C → D → E) (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d')
+      : f a b c d = f a' b' c' d' :=
   congr (congr_arg3 f Ha Hb Hc) Hd
 
-  theorem congr_arg5 (f : A → B → C → D → E → F) (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') (He : e = e')
-                     : f a b c d e = f a' b' c' d' e' :=
+  theorem congr_arg5 (f : A → B → C → D → E → F) 
+      (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') (He : e = e') 
+        : f a b c d e = f a' b' c' d' e' :=
   congr (congr_arg4 f Ha Hb Hc Hd) He
 
   theorem congr2 (f f' : A → B → C) (Hf : f = f') (Ha : a = a') (Hb : b = b') : f a b = f' a' b' :=
   Hf ▸ congr_arg2 f Ha Hb
 
-  theorem congr3 (f f' : A → B → C → D) (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') : f a b c = f' a' b' c' :=
+  theorem congr3 (f f' : A → B → C → D) (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') 
+      : f a b c = f' a' b' c' :=
   Hf ▸ congr_arg3 f Ha Hb Hc
 
-  theorem congr4 (f f' : A → B → C → D → E) (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d')
-                 : f a b c d = f' a' b' c' d' :=
+  theorem congr4 (f f' : A → B → C → D → E) 
+      (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d')
+        : f a b c d = f' a' b' c' d' :=
   Hf ▸ congr_arg4 f Ha Hb Hc Hd
 
-  theorem congr5 (f f' : A → B → C → D → E → F) (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') (He : e = e')
-                 : f a b c d e = f' a' b' c' d' e' :=
+  theorem congr5 (f f' : A → B → C → D → E → F) 
+      (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') (He : e = e')
+        : f a b c d e = f' a' b' c' d' e' :=
   Hf ▸ congr_arg5 f Ha Hb Hc Hd He
-end
-
-section
-  variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type} {R : Type}
-  variables {a₁ a₂ : A}
-            {b₁ : B a₁} {b₂ : B a₂}
-            {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
-            {d₁ : D a₁ b₁ c₁} {d₂ : D a₂ b₂ c₂}
-
-  theorem congr_arg2_dep (f : Πa, B a → R) (H₁ : a₁ = a₂) (H₂ : eq.drec_on H₁ b₁ = b₂)
-      : f a₁ b₁ = f a₂ b₂ :=
-  eq.drec_on H₁
-    (λ (b₂ : B a₁) (H₁ : a₁ = a₁) (H₂ : eq.drec_on H₁ b₁ = b₂),
-      calc
-        f a₁ b₁ = f a₁ (eq.drec_on H₁ b₁) : {(eq.rec_on_id H₁ b₁)⁻¹}
-            ... = f a₁ b₂                : {H₂})
-    b₂ H₁ H₂
-
-  theorem congr_arg3_dep (f : Πa b, C a b → R) (H₁ : a₁ = a₂) (H₂ : eq.drec_on H₁ b₁ = b₂)
-      (H₃ : eq.drec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂) : f a₁ b₁ c₁ = f a₂ b₂ c₂ :=
-  eq.drec_on H₁
-    (λ (b₂ : B a₁) (H₂ : b₁ = b₂) (c₂ : C a₁ b₂)
-      (H₃ : (drec_on (congr_arg2_dep C (refl a₁) H₂) c₁) = c₂),
-      have H₃' : eq.drec_on H₂ c₁ = c₂, from rec_on_irrel H₂ _ c₁ ⬝ H₃,
-      congr_arg2_dep (f a₁) H₂ H₃')
-    b₂ H₂ c₂ H₃
-
-  -- for the moment the following theorem is commented out, because it takes long to prove
-  -- theorem congr_arg4_dep (f : Πa b c, D a b c → R) (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂)
-  --     (H₃ : eq.rec_on (congr_arg2_dep C H₁ H₂) c₁ = c₂)
-  --     (H₄ : eq.rec_on (congr_arg3_dep D H₁ H₂ H₃) d₁ = d₂) : f a₁ b₁ c₁ d₁ = f a₂ b₂ c₂ d₂ :=
-  -- eq.rec_on H₁
-  --   (λ b₂ H₂ c₂ H₃ d₂ (H₄ : _),
-  --     have H₃' [visible] : eq.rec_on H₂ c₁ = c₂, from rec_on_irrel H₂ _ c₁ ⬝ H₃,
-  --     have H₄' : rec_on (congr_arg2_dep (D a₁) H₂ H₃') d₁ = d₂, from rec_on_irrel _ _ d₁ ⬝ H₄,
-  --     congr_arg3_dep (f a₁) H₂ H₃' H₄')
-  --   b₂ H₂ c₂ H₃ d₂ H₄
-end
-
-section
-  variables {A B : Type} {C : A → B → Type} {R : Type}
-  variables {a₁ a₂ : A} {b₁ b₂ : B} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
-  theorem congr_arg3_ndep_dep (f : Πa b, C a b → R) (H₁ : a₁ = a₂) (H₂ : b₁ = b₂) (H₃ : eq.drec_on (congr_arg2 C H₁ H₂) c₁ = c₂) :
-                              f a₁ b₁ c₁ = f a₂ b₂ c₂ :=
-  congr_arg3_dep f H₁ (rec_on_constant H₁ b₁ ⬝ H₂) H₃
 end
 
 theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀x, f x = g x :=
@@ -255,8 +251,7 @@ inductive subsingleton [class] (A : Type) : Prop :=
 intro : (∀ a b : A, a = b) -> subsingleton A
 
 namespace subsingleton
-definition elim {A : Type} (H : subsingleton A) : ∀(a b : A), a = b :=
-rec (fun p, p) H
+definition elim {A : Type} {H : subsingleton A} : ∀(a b : A), a = b := rec (fun p, p) H
 end subsingleton
 
 protected definition prop.subsingleton [instance] (P : Prop) : subsingleton P :=

@@ -5,11 +5,11 @@
 -- logic.axioms.funext
 -- ===================
 
-import logic.eq algebra.function
-open function
+import logic.cast algebra.function data.sigma
+open function eq.ops
 
 -- Function extensionality
-axiom funext : ∀ {A : Type} {B : A → Type} {f g : Π x, B x} (H : ∀ x, f x = g x), f = g
+axiom funext : ∀ {A : Type} {B : A → Type} {f g : Π a, B a} (H : ∀ a, f a = g a), f = g
 
 namespace function
   variables {A B C D: Type}
@@ -25,4 +25,10 @@ namespace function
 
   theorem compose_const_right (f : B → C) (b : B) : f ∘ (const A b) = const A (f b) :=
   funext (take x, rfl)
+
+  theorem hfunext {A : Type} {B : A → Type} {B' : A → Type} {f : Π x, B x} {g : Π x, B' x}
+      (H : ∀ a, f a == g a) : f == g :=
+  let HH : B = B' := (funext (λ x, heq.type_eq (H x))) in
+  cast_to_heq (funext (λ a, heq.to_eq (heq.trans (cast_app' HH f a) (H a))))
+
 end function

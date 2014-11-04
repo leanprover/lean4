@@ -5,48 +5,46 @@
 -- This file contains basic constructions on categories, including common categories
 
 
-import .basic
+import .natural_transformation
 import data.unit data.sigma data.prod data.empty data.bool
 
 open eq eq.ops prod
 namespace category
-  section
-  open unit
-  definition category_one : category unit :=
-  mk (λa b, unit)
-     (λ a b c f g, star)
-     (λ a, star)
-     (λ a b c d f g h, !unit.equal)
-     (λ a b f, !unit.equal)
-     (λ a b f, !unit.equal)
-  end
-
   namespace opposite
   section
-  variables {ob : Type} {C : category ob} {a b c : ob}
-  definition opposite (C : category ob) : category ob :=
+  definition opposite {ob : Type} (C : category ob) : category ob :=
   mk (λa b, hom b a)
      (λ a b c f g, g ∘ f)
      (λ a, id)
      (λ a b c d f g h, symm !assoc)
      (λ a b f, !id_right)
      (λ a b f, !id_left)
-  --definition compose_opposite {C : category ob} {a b c : ob} {g : a => b} {f : b => c} : compose
-  precedence `∘op` : 60
-  infixr `∘op` := @compose _ (opposite _) _ _ _
 
-  theorem compose_op {f : @hom ob C a b} {g : hom b c} : f ∘op g = g ∘ f :=
-  rfl
+  definition Opposite (C : Category) : Category := Mk (opposite C)
+  --direct construction:
+  -- MK C
+  --    (λa b, hom b a)
+  --    (λ a b c f g, g ∘ f)
+  --    (λ a, id)
+  --    (λ a b c d f g h, symm !assoc)
+  --    (λ a b f, !id_right)
+  --    (λ a b f, !id_left)
 
-  theorem op_op {C : category ob} : opposite (opposite C) = C :=
+  infixr `∘op`:60 := @compose _ (opposite _) _ _ _
+
+  variables {C : Category} {a b c : C}
+
+  theorem compose_op {f : hom a b} {g : hom b c} : f ∘op g = g ∘ f := rfl
+
+  theorem op_op' {ob : Type} (C : category ob) : opposite (opposite C) = C :=
   category.rec (λ hom comp id assoc idl idr, refl (mk _ _ _ _ _ _)) C
-  end
 
-  definition Opposite (C : Category) : Category :=
-  Category.mk (objects C) (opposite (category_instance C))
+  theorem op_op : Opposite (Opposite C) = C :=
+  (@congr_arg _ _ _ _ (Category.mk C) (op_op' C)) ⬝ !Category.equal
+
+  end
   end opposite
 
-  section
   definition type_category : category Type :=
   mk (λa b, a → b)
      (λ a b c, function.compose)
@@ -54,7 +52,8 @@ namespace category
      (λ a b c d h g f, symm (function.compose_assoc h g f))
      (λ a b f, function.compose_id_left f)
      (λ a b f, function.compose_id_right f)
-  end
+
+  definition Type_category : Category := Mk type_category
 
   section
   open decidable unit empty
@@ -70,31 +69,23 @@ namespace category
       (λ Hab f, rec_on_true (trans Hab Hbc) ⋆)
       (λh f, empty.rec _ f) f)
     (λh (g : empty), empty.rec _ g) g
-
+  omit H
   definition set_category (A : Type) [H : decidable_eq A] : category A :=
   mk (λa b, set_hom a b)
      (λ a b c g f, set_compose g f)
-     (λ a, rec_on_true rfl ⋆)
-     (λ a b c d h g f, subsingleton.elim _ _ _)
-     (λ a b f, subsingleton.elim _ _ _)
-     (λ a b f, subsingleton.elim _ _ _)
+     (λ a, decidable.rec_on_true rfl ⋆)
+     (λ a b c d h g f, @subsingleton.elim (set_hom a d) _ _ _)
+     (λ a b f, @subsingleton.elim (set_hom a b) _ _ _)
+     (λ a b f, @subsingleton.elim (set_hom a b) _ _ _)
+  definition Set_category (A : Type) [H : decidable_eq A] := Mk (set_category A)
   end
-
   section
-  open bool
+  open unit bool
+  definition category_one := set_category unit
+  definition Category_one := Mk category_one
   definition category_two := set_category bool
+  definition Category_two := Mk category_two
   end
-
-
-  section cat_of_cat
-  definition category_of_categories : category Category :=
-  mk (λ a b, Functor a b)
-     (λ a b c g f, functor.Compose g f)
-     (λ a, functor.Id)
-     (λ a b c d h g f, !functor.Assoc)
-     (λ a b f, !functor.Id_left)
-     (λ a b f, !functor.Id_right)
-  end cat_of_cat
 
   namespace product
   section
@@ -107,25 +98,28 @@ namespace category
      (λ a b c d h g f, pair_eq    !assoc    !assoc   )
      (λ a b f,         prod.equal !id_left  !id_left )
      (λ a b f,         prod.equal !id_right !id_right)
+
+  definition Prod_category (C D : Category) : Category := Mk (prod_category C D)
+
   end
   end product
 
-namespace ops
-  notation `Cat` := category_of_categories
-  notation `type` := type_category
-  notation 1 := category_one
-  postfix `ᵒᵖ`:max := opposite.opposite
-  infixr `×c`:30 := product.prod_category
-  instance [persistent] category_of_categories type_category category_one product.prod_category
-end ops
+  namespace ops
+    notation `type`:max := Type_category
+    notation 1 := Category_one --it was confusing for me (Floris) that no ``s are needed here
+    notation 2 := Category_two
+    postfix `ᵒᵖ`:max := opposite.Opposite
+    infixr `×c`:30 := product.Prod_category
+    instance [persistent] type_category category_one 
+                          category_two product.prod_category
+  end ops
+
   open ops
   namespace opposite
   section
   open ops functor
-  --set_option pp.implicit true
-  definition opposite_functor {obC obD : Type} {C : category obC} {D : category obD} (F : C ⇒ D)
-      : Cᵒᵖ ⇒ Dᵒᵖ :=
-  @functor.mk obC obD (Cᵒᵖ) (Dᵒᵖ)
+  definition opposite_functor {C D : Category} (F : C ⇒ D) : Cᵒᵖ ⇒ Dᵒᵖ :=
+  @functor.mk (Cᵒᵖ) (Dᵒᵖ)
               (λ a, F a)
               (λ a b f, F f)
               (λ a, !respect_id)
@@ -136,8 +130,7 @@ end ops
   namespace product
   section
   open ops functor
-  definition prod_functor {obC obC' obD obD' : Type} {C : category obC} {C' : category obC'}
-    {D : category obD} {D' : category obD'} (F : C ⇒ D) (G : C' ⇒ D') : C ×c C' ⇒ D ×c D' :=
+  definition prod_functor {C C' D D' : Category} (F : C ⇒ D) (G : C' ⇒ D') : C ×c C' ⇒ D ×c D' :=
   functor.mk (λ a, pair (F (pr1 a)) (G (pr2 a)))
              (λ a b f, pair (F (pr1 f)) (G (pr2 f)))
              (λ a, pair_eq !respect_id !respect_id)
@@ -151,7 +144,7 @@ end ops
   end ops
 
   section functor_category
-  variables {obC obD : Type} (C : category obC) (D : category obD)
+  variables (C D : Category)
   definition functor_category : category (functor C D) :=
   mk (λa b, natural_transformation a b)
      (λ a b c g f, natural_transformation.compose g f)
@@ -161,79 +154,136 @@ end ops
      (λ a b f, !natural_transformation.id_right)
   end functor_category
 
-  section
-  open sigma
+  namespace slice
+  open sigma function
+  variables {ob : Type} {C : category ob} {c : ob}
+  protected definition slice_obs (C : category ob) (c : ob) := Σ(b : ob), hom b c
+  variables {a b : slice_obs C c}
+  protected definition to_ob  (a : slice_obs C c) : ob              := dpr1 a
+  protected definition to_ob_def (a : slice_obs C c) : to_ob a = dpr1 a := rfl
+  protected definition ob_hom (a : slice_obs C c) : hom (to_ob a) c := dpr2 a
+  -- protected theorem slice_obs_equal (H₁ : to_ob a = to_ob b) 
+  --     (H₂ : eq.drec_on H₁ (ob_hom a) = ob_hom b) : a = b :=
+  -- sigma.equal H₁ H₂
 
-  definition slice_category [reducible] {ob : Type} (C : category ob) (c : ob) : category (Σ(b : ob), hom b c) :=
-  mk (λa b, Σ(g : hom (dpr1 a) (dpr1 b)), dpr2 b ∘ g = dpr2 a)
-     (λ a b c g f, dpair (dpr1 g ∘ dpr1 f)
-       (show dpr2 c ∘ (dpr1 g ∘ dpr1 f) = dpr2 a,
+
+  protected definition slice_hom (a b : slice_obs C c) : Type :=
+  Σ(g : hom (to_ob a) (to_ob b)), ob_hom b ∘ g = ob_hom a
+
+  protected definition hom_hom  (f : slice_hom a b) : hom (to_ob a) (to_ob b)          := dpr1 f
+  protected definition commute (f : slice_hom a b) : ob_hom b ∘ (hom_hom f) = ob_hom a := dpr2 f
+  -- protected theorem slice_hom_equal (f g : slice_hom a b) (H : hom_hom f = hom_hom g) : f = g :=
+  -- sigma.equal H !proof_irrel
+
+  definition slice_category (C : category ob) (c : ob) : category (slice_obs C c) :=
+  mk (λa b, slice_hom a b)
+     (λ a b c g f, dpair (hom_hom g ∘ hom_hom f)
+       (show ob_hom c ∘ (hom_hom g ∘ hom_hom f) = ob_hom a,
          proof
          calc
-           dpr2 c ∘ (dpr1 g ∘ dpr1 f) = (dpr2 c ∘ dpr1 g) ∘ dpr1 f : !assoc
-             ... = dpr2 b ∘ dpr1 f : {dpr2 g}
-             ... = dpr2 a : {dpr2 f}
+           ob_hom c ∘ (hom_hom g ∘ hom_hom f) = (ob_hom c ∘ hom_hom g) ∘ hom_hom f : !assoc
+             ... = ob_hom b ∘ hom_hom f : {commute g}
+             ... = ob_hom a : {commute f}
          qed))
      (λ a, dpair id !id_right)
      (λ a b c d h g f, dpair_eq    !assoc    !proof_irrel)
      (λ a b f,         sigma.equal !id_left  !proof_irrel)
      (λ a b f,         sigma.equal !id_right !proof_irrel)
   -- We use !proof_irrel instead of rfl, to give the unifier an easier time
-  end --remove
-  namespace slice
-  section --remove
-  open sigma category.ops --remove sigma
+
+  -- definition slice_category {ob : Type} (C : category ob) (c : ob) : category (Σ(b : ob), hom b c) 
+  -- :=
+  -- mk (λa b, Σ(g : hom (dpr1 a) (dpr1 b)), dpr2 b ∘ g = dpr2 a)
+  --    (λ a b c g f, dpair (dpr1 g ∘ dpr1 f)
+  --      (show dpr2 c ∘ (dpr1 g ∘ dpr1 f) = dpr2 a,
+  --        proof
+  --        calc
+  --          dpr2 c ∘ (dpr1 g ∘ dpr1 f) = (dpr2 c ∘ dpr1 g) ∘ dpr1 f : !assoc
+  --            ... = dpr2 b ∘ dpr1 f : {dpr2 g}
+  --            ... = dpr2 a : {dpr2 f}
+  --        qed))
+  --    (λ a, dpair id !id_right)
+  --    (λ a b c d h g f, dpair_eq    !assoc    !proof_irrel)
+  --    (λ a b f,         sigma.equal !id_left  !proof_irrel)
+  --    (λ a b f,         sigma.equal !id_right !proof_irrel)
+  -- We use !proof_irrel instead of rfl, to give the unifier an easier time
+
+  definition Slice_category [reducible] (C : Category) (c : C) := Mk (slice_category C c)
+  open category.ops
   instance [persistent] slice_category
-  variables {ob : Type} (C : category ob)
-  definition forgetful (x : ob) : (slice_category C x) ⇒ C :=
-  functor.mk (λ a, dpr1 a)
-             (λ a b f, dpr1 f)
+  variables {D : Category}
+  definition forgetful (x : D) : (Slice_category D x) ⇒ D :=
+  functor.mk (λ a, to_ob a)
+             (λ a b f, hom_hom f)
              (λ a, rfl)
              (λ a b c g f, rfl)
-  definition composition_functor {x y : ob} (h : x ⟶ y) : slice_category C x ⇒ slice_category C y :=
-  functor.mk (λ a, dpair (dpr1 a) (h ∘ dpr2 a))
-             (λ a b f, dpair (dpr1 f)
-               (calc
-                 (h ∘ dpr2 b) ∘ dpr1 f = h ∘ (dpr2 b ∘ dpr1 f) : !assoc⁻¹
-                    ... = h ∘ dpr2 a : {dpr2 f}))
+
+  definition postcomposition_functor {x y : D} (h : x ⟶ y) 
+      : Slice_category D x ⇒ Slice_category D y :=
+  functor.mk (λ a, dpair (to_ob a) (h ∘ ob_hom a))
+             (λ a b f, dpair (hom_hom f)
+       (calc
+         (h ∘ ob_hom b) ∘ hom_hom f = h ∘ (ob_hom b ∘ hom_hom f) : assoc h (ob_hom b) (hom_hom f)⁻¹
+           ... = h ∘ ob_hom a : congr_arg (λx, h ∘ x) (commute f)))
              (λ a, rfl)
              (λ a b c g f, dpair_eq rfl !proof_irrel)
-  -- the following definition becomes complicated
-  -- definition slice_functor : C ⇒ category_of_categories :=
-  -- functor.mk (λ a, Category.mk _ (slice_category C a))
-  --            (λ a b f, Functor.mk (composition_functor f))
-  --            (λ a, congr_arg Functor.mk
-  --              (congr_arg4_dep functor.mk
-  --             (funext (λx, sigma.equal rfl !id_left))
-  --             sorry
+
+  -- -- in the following comment I tried to have (A = B) in the type of a == b, but that doesn't solve the problems
+  -- definition heq2 {A B : Type} (H : A = B) (a : A) (b : B) := a == b
+  -- definition heq2.intro {A B : Type} {a : A} {b : B} (H : a == b) : heq2 (heq.type_eq H) a b := H
+  -- definition heq2.elim {A B : Type} {a : A} {b : B} (H : A = B) (H2 : heq2 H a b) : a == b := H2
+  -- definition heq2.proof_irrel {A B : Prop} (a : A) (b : B) (H : A = B) : heq2 H a b := 
+  -- hproof_irrel H a b
+  -- theorem functor.mk_eq2 {C D : Category} {obF obG : C → D} {homF homG idF idG compF compG} 
+  --    (Hob : ∀x, obF x = obG x)
+  --    (Hmor : ∀(a b : C) (f : a ⟶ b), heq2 (congr_arg (λ x, x a ⟶ x b) (funext Hob)) (homF a b f) (homG a b f))
+  --      : functor.mk obF homF idF compF = functor.mk obG homG idG compG :=
+  -- hddcongr_arg4 functor.mk
+  --             (funext Hob)
+  --             (hfunext (λ a, hfunext (λ b, hfunext (λ f, !Hmor))))
   --             !proof_irrel
-  --             !proof_irrel))
-  --            (λ a b c g f, sorry)
-  end
+  --             !proof_irrel
+
+--  set_option pp.implicit true
+--  set_option pp.coercions true
+
+  -- definition slice_functor : D ⇒ Category_of_categories :=
+  -- functor.mk (λ a, Category.mk (slice_obs D a) (slice_category D a))
+  --            (λ a b f, postcomposition_functor f)
+  --            (λ a, functor.mk_heq
+  --              (λx, sigma.equal rfl !id_left)
+  --              (λb c f, sigma.hequal sorry !heq.refl (hproof_irrel sorry _ _)))
+  --            (λ a b c g f, functor.mk_heq
+  --                    (λx, sigma.equal (sorry ⬝ refl (dpr1 x)) sorry)
+  --                    (λb c f, sorry))
+
+  --the error message generated here is really confusing: the type of the above refl should be
+  -- "@dpr1 D (λ (a_1 : D), a_1 ⟶ a) x = @dpr1 D (λ (a_1 : D), a_1 ⟶ c) x", but the second dpr1 is not even well-typed
+
   end slice
 
-  section coslice
-  open sigma
+  -- section coslice
+  -- open sigma
 
-  definition coslice {ob : Type} (C : category ob) (c : ob) : category (Σ(b : ob), hom c b) :=
-  mk (λa b, Σ(g : hom (dpr1 a) (dpr1 b)), g ∘ dpr2 a = dpr2 b)
-     (λ a b c g f, dpair (dpr1 g ∘ dpr1 f)
-       (show (dpr1 g ∘ dpr1 f) ∘ dpr2 a = dpr2 c,
-         proof
-         calc
-           (dpr1 g ∘ dpr1 f) ∘ dpr2 a = dpr1 g ∘ (dpr1 f ∘ dpr2 a): symm !assoc
-             ... = dpr1 g ∘ dpr2 b : {dpr2 f}
-             ... = dpr2 c : {dpr2 g}
-         qed))
-     (λ a, dpair id !id_left)
-     (λ a b c d h g f, dpair_eq    !assoc    !proof_irrel)
-     (λ a b f,         sigma.equal !id_left  !proof_irrel)
-     (λ a b f,         sigma.equal !id_right !proof_irrel)
+  -- definition coslice {ob : Type} (C : category ob) (c : ob) : category (Σ(b : ob), hom c b) :=
+  -- mk (λa b, Σ(g : hom (dpr1 a) (dpr1 b)), g ∘ dpr2 a = dpr2 b)
+  --    (λ a b c g f, dpair (dpr1 g ∘ dpr1 f)
+  --      (show (dpr1 g ∘ dpr1 f) ∘ dpr2 a = dpr2 c,
+  --        proof
+  --        calc
+  --          (dpr1 g ∘ dpr1 f) ∘ dpr2 a = dpr1 g ∘ (dpr1 f ∘ dpr2 a): symm !assoc
+  --            ... = dpr1 g ∘ dpr2 b : {dpr2 f}
+  --            ... = dpr2 c : {dpr2 g}
+  --        qed))
+  --    (λ a, dpair id !id_left)
+  --    (λ a b c d h g f, dpair_eq    !assoc    !proof_irrel)
+  --    (λ a b f,         sigma.equal !id_left  !proof_irrel)
+  --    (λ a b f,         sigma.equal !id_right !proof_irrel)
 
-  -- theorem slice_coslice_opp {ob : Type} (C : category ob) (c : ob) :
-  --     coslice C c = opposite (slice (opposite C) c) :=
-  -- sorry
-  end coslice
+  -- -- theorem slice_coslice_opp {ob : Type} (C : category ob) (c : ob) :
+  -- --     coslice C c = opposite (slice (opposite C) c) :=
+  -- -- sorry
+  -- end coslice
 
   section arrow
   open sigma eq.ops
@@ -287,9 +337,9 @@ end ops
          qed)
        ))
      (λ a, dpair id (dpair id (!id_right ⬝ (symm !id_left))))
-     (λ a b c d h g f, dtrip_eq_ndep   !assoc    !assoc    !proof_irrel)
-     (λ a b f,         trip.equal_ndep !id_left  !id_left  !proof_irrel)
-     (λ a b f,         trip.equal_ndep !id_right !id_right !proof_irrel)
+     (λ a b c d h g f, ndtrip_eq       !assoc    !assoc    !proof_irrel)
+     (λ a b f,         ndtrip_equal !id_left  !id_left  !proof_irrel)
+     (λ a b f,         ndtrip_equal !id_right !id_right !proof_irrel)
 
   end arrow
 

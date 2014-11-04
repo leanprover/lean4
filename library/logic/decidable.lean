@@ -38,14 +38,14 @@ namespace decidable
         d2)
       d1)
 
-  theorem em (p : Prop) [H : decidable p] : p ∨ ¬p :=
-  induction_on H (λ Hp, or.inl Hp) (λ Hnp, or.inr Hnp)
-
   definition by_cases {q : Type} [C : decidable p] (Hpq : p → q) (Hnpq : ¬p → q) : q :=
   rec_on C (assume Hp, Hpq Hp) (assume Hnp, Hnpq Hnp)
 
+  theorem em (p : Prop) [H : decidable p] : p ∨ ¬p :=
+  by_cases (λ Hp, or.inl Hp) (λ Hnp, or.inr Hnp)
+
   theorem by_contradiction [Hp : decidable p] (H : ¬p → false) : p :=
-  or.elim (em p)
+  by_cases
     (assume H1 : p, H1)
     (assume H1 : ¬p, false_elim (H H1))
 
@@ -91,10 +91,10 @@ namespace decidable
   rec_on H (λh, H3 h) (λh, H4 h) --this can be proven using dependent version of "by_cases"
 end decidable
 
-definition decidable_rel  {A : Type} (R : A     → Prop) := Π (a   : A), decidable (R a)
+definition decidable_rel  {A : Type} (R : A   →   Prop) := Π (a   : A), decidable (R a)
 definition decidable_rel2 {A : Type} (R : A → A → Prop) := Π (a b : A), decidable (R a b)
 definition decidable_eq (A : Type) := decidable_rel2 (@eq A)
 
---empty cannot depend on decidable
+--empty cannot depend on decidable, so we prove this here
 protected definition empty.has_decidable_eq [instance] : decidable_eq empty :=
 take (a b : empty), decidable.inl (!empty.elim a)

@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn
 
-import .basic
+import .natural_transformation
 import data.sigma
 
 open eq eq.ops category functor natural_transformation
@@ -10,15 +10,15 @@ open eq eq.ops category functor natural_transformation
 namespace limits
 --representable functor
   section
-  variables {obI ob : Type} {I : category obI} {C : category ob} {D : I ⇒ C}
+  variables {I C : Category} {D : I ⇒ C}
 
-  definition constant_diagram (a : ob) : I ⇒ C :=
+  definition constant_diagram (a : C) : I ⇒ C :=
   mk (λ i, a)
      (λ i j u, id)
      (λ i, rfl)
      (λ i j k v u, symm !id_compose)
 
-  definition cone := Σ(a : ob), constant_diagram a ⟹ D
+  definition cone := Σ(a : C), constant_diagram a ⟹ D
   -- definition cone_category : category cone :=
   -- mk (λa b, sorry)
   --    (λ a b c g f, sorry)

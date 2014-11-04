@@ -6,56 +6,63 @@ open eq.ops
 
 -- cast.lean
 -- =========
-definition cast {A B : Type} (H : A = B) (a : A) : B :=
-eq.rec a H
 
-theorem cast_refl {A : Type} (a : A) : cast (eq.refl A) a = a :=
-rfl
+section
+  universe variable u
+  variables {A B : Type.{u}}
+  definition cast (H : A = B) (a : A) : B :=
+  eq.rec a H
 
-theorem cast_proof_irrel {A B : Type} (H₁ H₂ : A = B) (a : A) : cast H₁ a = cast H₂ a :=
-rfl
+  theorem cast_refl (a : A) : cast (eq.refl A) a = a :=
+  rfl
 
-theorem cast_eq {A : Type} (H : A = A) (a : A) : cast H a = a :=
-rfl
+  theorem cast_proof_irrel (H₁ H₂ : A = B) (a : A) : cast H₁ a = cast H₂ a :=
+  rfl
+
+  theorem cast_eq (H : A = A) (a : A) : cast H a = a :=
+  rfl
+end
 
 inductive heq {A : Type} (a : A) : Π {B : Type}, B → Prop :=
 refl : heq a a
 infixl `==`:50 := heq
 
 namespace heq
-  theorem drec_on {A B : Type} {a : A} {b : B} {C : Π {B : Type} (b : B), a == b → Type} (H₁ : a == b) (H₂ : C a (refl a)) : C b H₁ :=
+  universe variable u
+  variables {A B C : Type.{u}} {a a' : A} {b b' : B} {c : C}
+  theorem drec_on {C : Π {B : Type} (b : B), a == b → Type} (H₁ : a == b) (H₂ : C a (refl a)) : C b H₁ :=
   rec (λ H₁ : a == a, show C a H₁, from H₂) H₁ H₁
 
-  theorem subst {A B : Type} {a : A} {b : B} {P : ∀T : Type, T → Prop} (H₁ : a == b) (H₂ : P A a) : P B b :=
+  theorem subst {P : ∀T : Type, T → Prop} (H₁ : a == b) (H₂ : P A a) : P B b :=
   rec_on H₁ H₂
 
-  theorem symm {A B : Type} {a : A} {b : B} (H : a == b) : b == a :=
+  theorem symm (H : a == b) : b == a :=
   subst H (refl a)
 
-  theorem type_eq {A B : Type} {a : A} {b : B} (H : a == b) : A = B :=
+  theorem type_eq (H : a == b) : A = B :=
   subst H (eq.refl A)
 
-  theorem from_eq {A : Type} {a b : A} (H : a = b) : a == b :=
+  theorem from_eq (H : a = a') : a == a' :=
   eq.subst H (refl a)
 
-  theorem trans {A B C : Type} {a : A} {b : B} {c : C} (H₁ : a == b) (H₂ : b == c) : a == c :=
+  theorem trans (H₁ : a == b) (H₂ : b == c) : a == c :=
   subst H₂ H₁
 
-  theorem trans_left {A B : Type} {a : A} {b c : B} (H₁ : a == b) (H₂ : b = c) : a == c :=
+  theorem trans_left (H₁ : a == b) (H₂ : b = b') : a == b' :=
   trans H₁ (from_eq H₂)
 
-  theorem trans_right {A C : Type} {a b : A} {c : C} (H₁ : a = b) (H₂ : b == c) : a == c :=
+  theorem trans_right (H₁ : a = a') (H₂ : a' == b) : a == b :=
   trans (from_eq H₁) H₂
 
-  theorem to_cast_eq {A B : Type} {a : A} {b : B} (H : a == b) : cast (type_eq H) a = b :=
+  theorem to_cast_eq (H : a == b) : cast (type_eq H) a = b :=
   drec_on H !cast_eq
 
-  theorem to_eq {A : Type} {a b : A} (H : a == b) : a = b :=
-  calc a = cast (eq.refl A) a : !cast_eq⁻¹
-     ... = b                  : to_cast_eq H
+  theorem to_eq (H : a == a') : a = a' :=
+  calc 
+    a = cast (eq.refl A) a : cast_eq
+  ... = a'                 : to_cast_eq H
 
-  theorem elim {A B : Type} {C : Prop} {a : A} {b : B} (H₁ : a == b)
-    (H₂ : ∀ (Hab : A = B), cast Hab a = b → C) : C :=
+  theorem elim {D : Type} (H₁ : a == b) (H₂ : ∀ (Hab : A = B), cast Hab a = b → D) : D :=
   H₂ (type_eq H₁) (to_cast_eq H₁)
 
 end heq
@@ -65,53 +72,140 @@ calc_trans heq.trans_left
 calc_trans heq.trans_right
 calc_symm  heq.symm
 
-theorem cast_heq {A B : Type} (H : A = B) (a : A) : cast H a == a :=
-have H₁ : ∀ (H : A = A) (a : A), cast H a == a, from
-assume H a, heq.from_eq (cast_eq H a),
-eq.subst H H₁ H a
+section
+  universe variables u v
+  variables {A A' B C : Type.{u}} {P P' : A → Type.{v}} {a a' : A} {b : B}
 
-theorem cast_eq_to_heq {A B : Type} {a : A} {b : B} {H : A = B} (H₁ : cast H a = b) : a == b :=
-calc a  == cast H a : heq.symm (cast_heq H a)
-    ... =  b        : H₁
+  theorem eq_rec_heq (H : a = a') (p : P a) : eq.rec_on H p == p :=
+  eq.drec_on H !heq.refl
 
-theorem heq.true_elim {a : Prop} (H : a == true) : a :=
-eq_true_elim (heq.to_eq H)
+  -- should H₁ be explicit (useful in e.g. hproof_irrel)
+  theorem eq_rec_to_heq {H₁ : a = a'} {p : P a} {p' : P a'} (H₂ : eq.rec_on H₁ p = p') : p == p' :=
+  calc 
+    p == eq.rec_on H₁ p : heq.symm (eq_rec_heq H₁ p)
+   ... =  p'            : H₂
 
-theorem cast_trans {A B C : Type} (Hab : A = B) (Hbc : B = C) (a : A) :
-  cast Hbc (cast Hab a) = cast (Hab ⬝ Hbc) a :=
-heq.to_eq (calc cast Hbc (cast Hab a)   == cast Hab a          : cast_heq Hbc (cast Hab a)
-                                   ...  == a                   : cast_heq Hab a
-                                   ...  == cast (Hab ⬝ Hbc) a : heq.symm (cast_heq (Hab ⬝ Hbc) a))
+  theorem cast_to_heq {H₁ : A = B} (H₂ : cast H₁ a = b) : a == b :=
+  eq_rec_to_heq H₂
 
-theorem pi_eq {A : Type} {B B' : A → Type} (H : B = B') : (Π x, B x) = (Π x, B' x) :=
-H ▸ (eq.refl (Π x, B x))
+  theorem hproof_irrel {a b : Prop} (H : a = b) (H₁ : a) (H₂ : b) : H₁ == H₂ :=
+  eq_rec_to_heq (proof_irrel (cast H H₁) H₂)
 
-theorem dcongr_arg {A : Type} {B : A → Type} (f : Πx, B x) {a b : A} (H : a = b) : f a == f b :=
-have e1 : ∀ (H : B a = B a), cast H (f a) = f a, from
-  assume H, cast_eq H (f a),
-have e2 : ∀ (H : B a = B b), cast H (f a) = f b, from
-  H ▸ e1,
-have e3 : cast (congr_arg B H) (f a) = f b, from
-  e2 (congr_arg B H),
-cast_eq_to_heq e3
+  theorem heq.true_elim {a : Prop} (H : a == true) : a :=
+  eq_true_elim (heq.to_eq H)
 
-theorem cast_app' {A : Type} {B B' : A → Type} (H : B = B') (f : Π x, B x) (a : A) :
-  cast (pi_eq H) f a == f a :=
-have H₁ : ∀ (H : (Π x, B x) = (Π x, B x)), cast H f a == f a, from
-  assume H, heq.from_eq (congr_fun (cast_eq H f) a),
-have H₂ : ∀ (H : (Π x, B x) = (Π x, B' x)), cast H f a == f a, from
-  H ▸ H₁,
-H₂ (pi_eq H)
+  --TODO: generalize to eq.rec. This is a special case of rec_on_compose in eq.lean
+  theorem cast_trans (Hab : A = B) (Hbc : B = C) (a : A) : 
+    cast Hbc (cast Hab a) = cast (Hab ⬝ Hbc) a :=
+  heq.to_eq (calc 
+    cast Hbc (cast Hab a)  == cast Hab a         : eq_rec_heq Hbc (cast Hab a)
+                       ... == a                  : eq_rec_heq Hab a
+                       ... == cast (Hab ⬝ Hbc) a : heq.symm (eq_rec_heq (Hab ⬝ Hbc) a))
 
-theorem cast_pull {A : Type} {B B' : A → Type} (H : B = B') (f : Π x, B x) (a : A) :
-                  cast (pi_eq H) f a = cast (congr_fun H a) (f a) :=
-heq.to_eq (calc cast (pi_eq H) f a == f a                        : cast_app' H f a
-                             ...   == cast (congr_fun H a) (f a) : heq.symm (cast_heq (congr_fun H a) (f a)))
+  theorem pi_eq (H : P = P') : (Π x, P x) = (Π x, P' x) :=
+  H ▸ (eq.refl (Π x, P x))
 
-theorem hcongr_fun' {A : Type} {B B' : A → Type} {f : Π x, B x} {f' : Π x, B' x} (a : A)
-    (H₁ : f == f') (H₂ : B = B')
-  : f a == f' a :=
-heq.elim H₁ (λ (Ht : (Π x, B x) = (Π x, B' x)) (Hw : cast Ht f = f'),
-  calc f a == cast (pi_eq H₂) f a  : heq.symm (cast_app' H₂ f a)
-       ... =  cast Ht f a          : eq.refl (cast Ht f a)
-       ... =  f' a                 : congr_fun Hw a)
+  theorem hcongr_arg (f : Πx, P x) {a b : A} (H : a = b) : f a == f b :=
+  have e1 : ∀ (H : P a = P a), cast H (f a) = f a, from
+    assume H, cast_eq H (f a),
+  have e2 : ∀ (H : P a = P b), cast H (f a) = f b, from
+    H ▸ e1,
+  have e3 : cast (congr_arg P H) (f a) = f b, from
+    e2 (congr_arg P H),
+  eq_rec_to_heq e3
+
+  -- TODO: generalize to eq_rec
+  theorem cast_app' (H : P = P') (f : Π x, P x) (a : A) :
+    cast (pi_eq H) f a == f a :=
+  have H₁ : ∀ (H : (Π x, P x) = (Π x, P x)), cast H f a == f a, from
+    assume H, heq.from_eq (congr_fun (cast_eq H f) a),
+  have H₂ : ∀ (H : (Π x, P x) = (Π x, P' x)), cast H f a == f a, from
+    H ▸ H₁,
+  H₂ (pi_eq H)
+
+  -- TODO: generalize to eq_rec
+  theorem cast_pull (H : P = P') (f : Π x, P x) (a : A) :
+                    cast (pi_eq H) f a = cast (congr_fun H a) (f a) :=
+  heq.to_eq (calc 
+    cast (pi_eq H) f a == f a                        : cast_app' H f a
+                 ...   == cast (congr_fun H a) (f a) : heq.symm (eq_rec_heq (congr_fun H a) (f a)))
+
+  theorem hcongr_fun' {f : Π x, P x} {f' : Π x, P' x} (a : A)
+      (H₁ : f == f') (H₂ : P = P') : f a == f' a :=
+  heq.elim H₁ (λ (Ht : (Π x, P x) = (Π x, P' x)) (Hw : cast Ht f = f'),
+    calc f a == cast (pi_eq H₂) f a  : heq.symm (cast_app' H₂ f a)
+         ... =  cast Ht f a          : eq.refl (cast Ht f a)
+         ... =  f' a                 : congr_fun Hw a)
+
+  theorem hcongr' {P' : A' → Type} {f : Π a, P a} {f' : Π a', P' a'} {a : A} {a' : A'}
+      (Hf : f == f') (HP : P == P') (Ha : a == a') : f a == f' a' :=
+  have H1 : ∀ (B P' : A → Type) (f : Π x, P x) (f' : Π x, P' x), f == f' → (λx, P x) == (λx, P' x) 
+              → f a == f' a, from
+    take P P' f f' Hf HB, hcongr_fun' a Hf (heq.to_eq HB),
+  have H2 : ∀ (B : A → Type) (P' : A' → Type) (f : Π x, P x) (f' : Π x, P' x),
+      f == f' → (λx, P x) == (λx, P' x) → f a == f' a', from heq.subst Ha H1,
+  H2 P P' f f' Hf HP
+end
+
+
+section
+  variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type} 
+            {E : Πa b c, D a b c → Type} {F : Type}
+  variables {a a' : A}
+            {b : B a} {b' : B a'}
+            {c : C a b} {c' : C a' b'}
+            {d : D a b c} {d' : D a' b' c'}
+
+  theorem hcongr_arg2 (f : Πa b, C a b) (Ha : a = a') (Hb : b == b') : f a b == f a' b' :=
+  hcongr' (hcongr_arg f Ha) (hcongr_arg C Ha) Hb
+
+  theorem hcongr_arg3 (f : Πa b c, D a b c) (Ha : a = a') (Hb : b == b') (Hc : c == c') 
+      : f a b c == f a' b' c' :=
+  hcongr' (hcongr_arg2 f Ha Hb) (hcongr_arg2 D Ha Hb) Hc
+
+  theorem hcongr_arg4 (f : Πa b c d, E a b c d) 
+    (Ha : a = a') (Hb : b == b') (Hc : c == c') (Hd : d == d') : f a b c d == f a' b' c' d' :=
+  hcongr' (hcongr_arg3 f Ha Hb Hc) (hcongr_arg3 E Ha Hb Hc) Hd
+
+  theorem dcongr_arg2 (f : Πa, B a → F) (Ha : a = a') (Hb : eq.rec_on Ha b = b')
+      : f a b = f a' b' :=
+  heq.to_eq (hcongr_arg2 f Ha (eq_rec_to_heq Hb))
+
+  theorem dcongr_arg3 (f : Πa b, C a b → F) (Ha : a = a') (Hb : eq.rec_on Ha b = b')
+      (Hc : cast (dcongr_arg2 C Ha Hb) c = c') : f a b c = f a' b' c' :=
+  heq.to_eq (hcongr_arg3 f Ha (eq_rec_to_heq Hb) (eq_rec_to_heq Hc))
+
+  theorem dcongr_arg4 (f : Πa b c, D a b c → F) (Ha : a = a') (Hb : eq.rec_on Ha b = b')
+      (Hc : cast (dcongr_arg2 C Ha Hb) c = c') 
+      (Hd : cast (dcongr_arg3 D Ha Hb Hc) d = d') : f a b c d = f a' b' c' d' :=
+  heq.to_eq (hcongr_arg4 f Ha (eq_rec_to_heq Hb) (eq_rec_to_heq Hc) (eq_rec_to_heq Hd))
+
+  --mixed versions (we want them for example if C a' b' is a subsingleton, like a proposition. Then proving eq is easier than proving heq)
+  theorem hdcongr_arg3 (f : Πa b, C a b → F) (Ha : a = a') (Hb : b == b')
+      (Hc : cast (heq.to_eq (hcongr_arg2 C Ha Hb)) c = c') 
+        : f a b c = f a' b' c' :=
+  heq.to_eq (hcongr_arg3 f Ha Hb (eq_rec_to_heq Hc))
+
+  theorem hhdcongr_arg4 (f : Πa b c, D a b c → F) (Ha : a = a') (Hb : b == b')
+      (Hc : c == c') 
+      (Hd : cast (dcongr_arg3 D Ha (!eq.rec_on_irrel_arg ⬝ heq.to_cast_eq Hb) 
+                                   (!eq.rec_on_irrel_arg ⬝ heq.to_cast_eq Hc)) d = d') 
+        : f a b c d = f a' b' c' d' :=
+  heq.to_eq (hcongr_arg4 f Ha Hb Hc (eq_rec_to_heq Hd))
+
+  theorem hddcongr_arg4 (f : Πa b c, D a b c → F) (Ha : a = a') (Hb : b == b')
+      (Hc : cast (heq.to_eq (hcongr_arg2 C Ha Hb)) c = c') 
+      (Hd : cast (hdcongr_arg3 D Ha Hb Hc) d = d') 
+        : f a b c d = f a' b' c' d' :=
+  heq.to_eq (hcongr_arg4 f Ha Hb (eq_rec_to_heq Hc) (eq_rec_to_heq Hd))
+
+  --Is a reasonable version of "hcongr2" provable without pi_ext and funext? 
+  --It looks like you need some ugly extra conditions
+
+  -- theorem hcongr2' {A A' : Type} {B : A → Type} {B' : A' → Type} {C : Πa, B a → Type} {C' : Πa, B' a  → Type}
+  --     {f : Π a b, C a b} {f' : Π a' b', C' a' b'} {a : A} {a' : A'} {b : B a} {b' : B' a'} 
+  --     (HBB' : B == B') (HCC' : C == C') 
+  --     (Hff' : f == f') (Haa' : a == a') (Hbb' : b == b') : f a b == f' a' b' :=
+  -- hcongr' (hcongr' Hff' (sorry) Haa') (hcongr' HCC' (sorry) Haa') Hbb'
+
+end

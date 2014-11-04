@@ -486,7 +486,7 @@ static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_op
             env = module::add(env, check(env, mk_definition(env, real_n, new_ls, type, value, is_opaque)));
             p.cache_definition(real_n, pre_type, pre_value, new_ls, type, value);
         }
-        if (!is_private)
+        if (!is_private && kind != Example)
             p.add_decl_index(real_n, n_pos, p.get_cmd_token(), type);
     }
 

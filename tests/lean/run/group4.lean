@@ -61,7 +61,7 @@ namespace comm_semigroup
     binary.left_comm mul_comm mul_assoc a b c
 end comm_semigroup
 
-structure monoid [class] (A : Type) extends semigroup A, has_one A:=
+structure monoid [class] (A : Type) extends semigroup A, has_one A :=
 mk :: (right_id : ∀a, mul a one = a) (left_id : ∀a, mul one a = a)
 
 section
@@ -73,70 +73,32 @@ section
   theorem mul_left_id  : 1 * a = a := !monoid.left_id
 end
 
-exit
-structure comm_monoid [class] (A : Type) extends monoid A, comm_semigroup A :=
-mk ::
+structure comm_monoid [class] (A : Type) extends monoid A, comm_semigroup A
 
-exit
+structure Semigroup :=
+mk :: (carrier : Type) (struct : semigroup carrier)
 
-namespace comm_monoid
-  section
-  variables {A : Type} [s : comm_monoid A]
-  variables a b c : A
-  definition mul := comm_monoid.rec (λmul one assoc right_id left_id comm, mul) s a b
-  definition one := comm_monoid.rec (λmul one assoc right_id left_id comm, one) s
-  definition assoc : mul (mul a b) c = mul a (mul b c) :=
-    comm_monoid.rec (λmul one assoc right_id left_id comm, assoc) s a b c
-  definition right_id : mul a one = a :=
-    comm_monoid.rec (λmul one assoc right_id left_id comm, right_id) s a
-  definition left_id : mul one a = a :=
-    comm_monoid.rec (λmul one assoc right_id left_id comm, left_id) s a
-  definition comm : mul a b = mul b a :=
-    comm_monoid.rec (λmul one assoc right_id left_id comm, comm) s a b
-  end
-end comm_monoid
+coercion Semigroup.carrier
+instance Semigroup.struct
 
-section
-  variables {A : Type} [s : comm_monoid A]
-  include s
-  definition comm_monoid_monoid [instance] : monoid A :=
-    monoid.mk comm_monoid.mul comm_monoid.one comm_monoid.assoc
-              comm_monoid.right_id comm_monoid.left_id
-  definition comm_monoid_comm_semigroup [instance] : comm_semigroup A :=
-    comm_semigroup.mk comm_monoid.mul comm_monoid.assoc comm_monoid.comm
-end
+structure CommSemigroup :=
+mk :: (carrier : Type) (struct : comm_semigroup carrier)
 
--- bundled structures
--- ------------------
+coercion CommSemigroup.carrier
+instance CommSemigroup.struct
 
-inductive Semigroup [class] : Type := mk : Π carrier : Type, semigroup carrier → Semigroup
-section
-  variable S : Semigroup
-  definition Semigroup.carrier [coercion] : Type := Semigroup.rec (λc s, c) S
-  definition Semigroup.struc   [instance] : semigroup S := Semigroup.rec (λc s, s) S
-end
+structure Monoid :=
+mk :: (carrier : Type) (struct : monoid carrier)
 
-inductive CommSemigroup [class] : Type :=
-  mk : Π carrier : Type, comm_semigroup carrier → CommSemigroup
-section
-  variable S : CommSemigroup
-  definition CommSemigroup.carrier [coercion] : Type := CommSemigroup.rec (λc s, c) S
-  definition CommSemigroup.struc [instance] : comm_semigroup S := CommSemigroup.rec (λc s, s) S
-end
+coercion Monoid.carrier
+instance Monoid.struct
 
-inductive Monoid [class] : Type := mk : Π carrier : Type, monoid carrier → Monoid
-section
-  variable S : Monoid
-  definition Monoid.carrier [coercion] : Type := Monoid.rec (λc s, c) S
-  definition Monoid.struc [instance] : monoid S := Monoid.rec (λc s, s) S
-end
+structure CommMonoid :=
+mk :: (carrier : Type) (struct : comm_monoid carrier)
 
-inductive CommMonoid : Type := mk : Π carrier : Type, comm_monoid carrier → CommMonoid
-section
-  variable S : CommMonoid
-  definition CommMonoid.carrier [coercion] : Type := CommMonoid.rec (λc s, c) S
-  definition CommMonoid.struc [instance] : comm_monoid S := CommMonoid.rec (λc s, s) S
-end
+coercion CommMonoid.carrier
+instance CommMonoid.struct
+
 end algebra
 
 open algebra
@@ -156,7 +118,7 @@ calc
               ... = a * b * (c * d) : !mul_assoc
 
 -- for test4b to work, we need instances at the level of the bundled structures as well
-definition Monoid_Semigroup [instance] (M : Monoid) : Semigroup :=
+definition Monoid_Semigroup [coercion] (M : Monoid) : Semigroup :=
 Semigroup.mk (Monoid.carrier M) _
 
 theorem test4 {M : Monoid} (a b c d : M) : a * (b * c) * d = a * b * (c * d) :=

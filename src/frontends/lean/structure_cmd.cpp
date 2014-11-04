@@ -447,6 +447,12 @@ struct structure_cmd_fn {
         elaborate_new_fields(new_fields);
     }
 
+    void process_empty_new_fields() {
+        buffer<expr> new_fields;
+        elaborate_new_fields(new_fields);
+    }
+
+
     /** \brief Traverse fields and collect the universes they reside in \c r_lvls.
         This information is used to compute the resultant universe level for the inductive datatype declaration.
     */
@@ -684,13 +690,19 @@ struct structure_cmd_fn {
 
     environment operator()() {
         process_header();
-        m_p.check_token_next(get_assign_tk(), "invalid 'structure', ':=' expected");
-        m_mk_pos = m_p.pos();
-        m_mk = m_p.check_atomic_id_next("invalid 'structure', identifier expected");
-        m_mk = m_name + m_mk;
-        m_mk_infer = parse_implicit_infer_modifier(m_p);
-        m_p.check_token_next(get_dcolon_tk(), "invalid 'structure', '::' expected");
-        process_new_fields();
+        if (m_p.curr_is_token(get_assign_tk())) {
+            m_p.check_token_next(get_assign_tk(), "invalid 'structure', ':=' expected");
+            m_mk_pos = m_p.pos();
+            m_mk = m_p.check_atomic_id_next("invalid 'structure', identifier expected");
+            m_mk = m_name + m_mk;
+            m_mk_infer = parse_implicit_infer_modifier(m_p);
+            m_p.check_token_next(get_dcolon_tk(), "invalid 'structure', '::' expected");
+            process_new_fields();
+        } else {
+            m_mk_pos = m_name_pos;
+            m_mk     = m_name + "mk";
+            process_empty_new_fields();
+        }
         infer_resultant_universe();
         collect_ctx_locals(m_ctx_locals);
         add_ctx_locals(m_ctx_locals);

@@ -39,6 +39,10 @@ Author: Leonardo de Moura
 #include "frontends/lean/type_util.h"
 #include "frontends/lean/class.h"
 
+#ifndef LEAN_DEFAULT_STRUCTURE_INTRO
+#define LEAN_DEFAULT_STRUCTURE_INTRO "mk"
+#endif
+
 namespace lean {
 static name * g_tmp_prefix = nullptr;
 
@@ -693,14 +697,20 @@ struct structure_cmd_fn {
         if (m_p.curr_is_token(get_assign_tk())) {
             m_p.check_token_next(get_assign_tk(), "invalid 'structure', ':=' expected");
             m_mk_pos = m_p.pos();
-            m_mk = m_p.check_atomic_id_next("invalid 'structure', identifier expected");
-            m_mk = m_name + m_mk;
-            m_mk_infer = parse_implicit_infer_modifier(m_p);
-            m_p.check_token_next(get_dcolon_tk(), "invalid 'structure', '::' expected");
+            if (m_p.curr_is_token(get_lparen_tk()) || m_p.curr_is_token(get_lcurly_tk()) || m_p.curr_is_token(get_lbracket_tk())) {
+                m_mk       = m_name + LEAN_DEFAULT_STRUCTURE_INTRO;
+                m_mk_infer = implicit_infer_kind::Implicit;
+            } else {
+                m_mk = m_p.check_atomic_id_next("invalid 'structure', identifier expected");
+                m_mk = m_name + m_mk;
+                m_mk_infer = parse_implicit_infer_modifier(m_p);
+                m_p.check_token_next(get_dcolon_tk(), "invalid 'structure', '::' expected");
+            }
             process_new_fields();
         } else {
-            m_mk_pos = m_name_pos;
-            m_mk     = m_name + "mk";
+            m_mk_pos   = m_name_pos;
+            m_mk       = m_name + LEAN_DEFAULT_STRUCTURE_INTRO;
+            m_mk_infer = implicit_infer_kind::Implicit;
             process_empty_new_fields();
         }
         infer_resultant_universe();

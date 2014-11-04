@@ -29,6 +29,7 @@ Author: Leonardo de Moura
 #include "library/definitional/induction_on.h"
 #include "library/definitional/cases_on.h"
 #include "library/definitional/unit.h"
+#include "library/definitional/eq.h"
 #include "library/definitional/projection.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
@@ -572,6 +573,10 @@ struct structure_cmd_fn {
         save_info(n, "projection", m_name_pos);
     }
 
+    void save_thm_info(name const & n) {
+        save_info(n, "theorem", m_name_pos);
+    }
+
     void declare_projections() {
         m_env = mk_projections(m_env, m_name, m_modifiers.is_class());
         for (expr const & field : m_fields) {
@@ -650,6 +655,36 @@ struct structure_cmd_fn {
         }
     }
 
+    void declare_eta() {
+        if (!has_eq_decls(m_env))
+            return;
+        level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
+        levels st_ls             = param_names_to_levels(lnames);
+        expr st_type             = mk_app(mk_constant(m_name, st_ls), m_params);
+        expr st                  = mk_local(m_ngen.next(), "s", st_type, binder_info());
+        expr lhs                 = mk_app(mk_constant(m_mk, st_ls), m_params);
+        for (expr const & field : m_fields) {
+            expr proj = mk_app(mk_app(mk_constant(m_name + mlocal_name(field), st_ls), m_params), st);
+            lhs       = mk_app(lhs, proj);
+        }
+        expr eq                  = mk_app(mk_constant("eq", to_list(sort_level(m_type))), st_type, lhs, st);
+        levels rec_ls            = levels(mk_level_zero(), st_ls);
+        expr rec                 = mk_app(mk_constant(inductive::get_elim_name(m_name), rec_ls), m_params);
+        expr type_former         = Fun(st, eq);
+        expr mk                  = mk_app(mk_app(mk_constant(m_mk, st_ls), m_params), m_fields);
+        expr refl                = mk_app(mk_constant(name{"eq", "refl"}, to_list(sort_level(m_type))), st_type, mk);
+        refl                     = Fun(m_fields, refl);
+        rec                      = mk_app(rec, type_former, refl, st);
+        expr eta_type            = infer_implicit(Pi(m_params, Pi(st, eq)), true);
+        expr eta_value           = Fun(m_params, Fun(st, rec));
+        name eta_name(m_name, "eta");
+
+        declaration eta_decl     = mk_theorem(eta_name, lnames, eta_type, eta_value);
+        m_env = module::add(m_env, check(m_env, eta_decl));
+        save_thm_info(eta_name);
+        add_alias(eta_name);
+    }
+
     environment operator()() {
         process_header();
         m_p.check_token_next(get_assign_tk(), "invalid 'structure', ':=' expected");
@@ -668,6 +703,7 @@ struct structure_cmd_fn {
         declare_projections();
         declare_auxiliary();
         declare_coercions();
+        declare_eta();
         return m_env;
     }
 };

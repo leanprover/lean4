@@ -75,6 +75,8 @@ end
 
 structure comm_monoid [class] (A : Type) extends monoid A, comm_semigroup A
 
+print prefix algebra.comm_monoid
+
 structure Semigroup :=
 mk :: (carrier : Type) (struct : semigroup carrier)
 
@@ -107,15 +109,15 @@ section examples
 
 theorem test1 {S : Semigroup} (a b c d : S) : a * (b * c) * d = a * b * (c * d) :=
 calc
-  a * (b * c) * d = a * b * c * d   : {symm !mul_assoc}
-              ... = a * b * (c * d) : !mul_assoc
+  a * (b * c) * d = a * b * c * d   : mul_assoc
+              ... = a * b * (c * d) : mul_assoc
 
 theorem test2 {M : CommSemigroup} (a b : M) : a * b = a * b := rfl
 
 theorem test3 {M : Monoid} (a b c d : M) : a * (b * c) * d = a * b * (c * d) :=
 calc
-  a * (b * c) * d = a * b * c * d   : {symm !mul_assoc}
-              ... = a * b * (c * d) : !mul_assoc
+  a * (b * c) * d = a * b * c * d   : mul_assoc
+              ... = a * b * (c * d) : mul_assoc
 
 -- for test4b to work, we need instances at the level of the bundled structures as well
 definition Monoid_Semigroup [coercion] (M : Monoid) : Semigroup :=
@@ -126,21 +128,21 @@ test1 a b c d
 
 theorem test5 {M : Monoid} (a b c : M) : a * 1 * b * c = a * (b * c) :=
 calc
-  a * 1 * b * c = a * b * c   : {!mul_right_id}
-            ... = a * (b * c) : !mul_assoc
+  a * 1 * b * c = a * b * c   : mul_right_id
+            ... = a * (b * c) : mul_assoc
 
 theorem test5a {M : Monoid} (a b c : M) : a * 1 * b * c = a * (b * c) :=
 calc
-  a * 1 * b * c = a * b * c   : {!mul_right_id}
-            ... = a * (b * c) : !mul_assoc
+  a * 1 * b * c = a * b * c   : mul_right_id
+            ... = a * (b * c) : mul_assoc
 
 theorem test5b {A : Type} {M : monoid A} (a b c : A) : a * 1 * b * c = a * (b * c) :=
 calc
-  a * 1 * b * c = a * b * c   : {!mul_right_id}
-            ... = a * (b * c) : !mul_assoc
+  a * 1 * b * c = a * b * c   : mul_right_id
+            ... = a * (b * c) : mul_assoc
 
 theorem test6 {M : CommMonoid} (a b c : M) : a * 1 * b * c = a * (b * c) :=
 calc
-  a * 1 * b * c = a * b * c   : {!mul_right_id}
-            ... = a * (b * c) : !mul_assoc
+  a * 1 * b * c = a * b * c   : mul_right_id
+            ... = a * (b * c) : mul_assoc
 end examples

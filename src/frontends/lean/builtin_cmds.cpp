@@ -73,6 +73,23 @@ static void print_axioms(parser & p) {
         p.regular_stream() << "no axioms" << endl;
 }
 
+static void print_prefix(parser & p) {
+    name prefix = p.check_id_next("invalid 'print prefix' command, identifier expected");
+    environment const & env = p.env();
+    buffer<declaration> to_print;
+    env.for_each_declaration([&](declaration const & d) {
+            if (is_prefix_of(prefix, d.get_name())) {
+                to_print.push_back(d);
+            }
+        });
+    std::sort(to_print.begin(), to_print.end(), [](declaration const & d1, declaration const & d2) { return d1.get_name() < d2.get_name(); });
+    for (declaration const & d : to_print) {
+        p.regular_stream() << d.get_name() << " : " << d.get_type() << endl;
+    }
+    if (to_print.empty())
+        p.regular_stream() << "no declaration starting with prefix '" << prefix << "'" << endl;
+}
+
 environment print_cmd(parser & p) {
     if (p.curr() == scanner::token_kind::String) {
         p.regular_stream() << p.get_str_val() << endl;
@@ -112,6 +129,9 @@ environment print_cmd(parser & p) {
         for (name const & c : classes) {
             p.regular_stream() << c << " : " << env.get(c).get_type() << endl;
         }
+    } else if (p.curr_is_token_or_id(get_prefix_tk())) {
+        p.next();
+        print_prefix(p);
     } else if (p.curr_is_token_or_id(get_coercions_tk())) {
         p.next();
         optional<name> C;

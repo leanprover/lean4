@@ -15,11 +15,11 @@ namespace fibrant
 axiom unit_fibrant : fibrant unit
 axiom nat_fibrant : fibrant nat
 axiom bool_fibrant : fibrant bool
-axiom sum_fibrant {A B : Type} (C1 : fibrant A) (C2 : fibrant B) : fibrant (A ⊎ B)
-axiom prod_fibrant {A B : Type} (C1 : fibrant A) (C2 : fibrant B) : fibrant (A × B)
-axiom sigma_fibrant {A : Type} {B : A → Type} (C1 : fibrant A) (C2 : Πx : A, fibrant (B x)) :
+axiom sum_fibrant {A B : Type} [C1 : fibrant A] [C2 : fibrant B] : fibrant (A ⊎ B)
+axiom prod_fibrant {A B : Type} [C1 : fibrant A] [C2 : fibrant B] : fibrant (A × B)
+axiom sigma_fibrant {A : Type} {B : A → Type} [C1 : fibrant A] [C2 : Πx : A, fibrant (B x)] :
   fibrant (Σx : A, B x)
-axiom pi_fibrant {A : Type} {B : A → Type} (C1 : fibrant A) (C2 : Πx : A, fibrant (B x)) :
+axiom pi_fibrant {A : Type} {B : A → Type} [C1 : fibrant A] [C2 : Πx : A, fibrant (B x)] :
   fibrant (Πx : A, B x)
 
 instance [persistent] unit_fibrant

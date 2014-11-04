@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/elaborator_exception.h"
 #include "frontends/lean/type_util.h"
+#include "frontends/lean/class.h"
 
 namespace lean {
 static name * g_tmp_prefix = nullptr;
@@ -558,6 +559,8 @@ struct structure_cmd_fn {
         add_alias(m_name, false);
         add_alias(m_mk);
         add_rec_alias(rec_name);
+        if (m_modifiers.is_class())
+            m_env = add_class(m_env, m_name);
     }
 
     void save_def_info(name const & n) {

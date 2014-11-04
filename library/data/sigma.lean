@@ -4,8 +4,8 @@
 import logic.inhabited logic.cast
 open inhabited eq.ops
 
-inductive sigma {A : Type} (B : A → Type) : Type :=
-dpair : Πx : A, B x → sigma B
+structure sigma {A : Type} (B : A → Type) :=
+dpair :: (dpr1 : A) (dpr2 : B dpr1)
 
 notation `Σ` binders `,` r:(scoped P, sigma P) := r
 
@@ -13,18 +13,11 @@ namespace sigma
   universe variables u v
   variables {A A' : Type.{u}} {B : A → Type.{v}} {B' : A' → Type.{v}}
 
-  --without reducible tag, slice.composition_functor in algebra.category.constructions fails
-  definition dpr1 [reducible] (p : Σ x, B x) : A := rec (λ a b, a) p
-  definition dpr2 [reducible] (p : Σ x, B x) : B (dpr1 p) := rec (λ a b, b) p
-
   theorem dpr1_dpair (a : A) (b : B a) : dpr1 (dpair a b) = a := rfl
   theorem dpr2_dpair (a : A) (b : B a) : dpr2 (dpair a b) = b := rfl
 
   protected theorem destruct {P : sigma B → Prop} (p : sigma B) (H : ∀a b, P (dpair a b)) : P p :=
   rec H p
-
-  protected theorem eta (p : sigma B) : dpair (dpr1 p) (dpr2 p) = p :=
-  destruct p (take a b, rfl)
 
   theorem dpair_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) :
     dpair a₁ b₁ = dpair a₂ b₂ :=

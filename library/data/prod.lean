@@ -8,9 +8,8 @@ import logic.inhabited logic.eq logic.decidable general_notation
 
 open inhabited decidable eq.ops
 
--- The cartesian product.
-inductive prod (A B : Type) : Type :=
-  mk : A → B → prod A B
+structure prod (A B : Type) :=
+mk :: (pr1 : A) (pr2 : B)
 
 definition pair := @prod.mk
 
@@ -24,8 +23,6 @@ namespace prod
   protected theorem destruct {P : A × B → Prop} (p : A × B) (H : ∀a b, P (a, b)) : P p :=
   rec H p
 
-  definition pr1 (p : prod A B) := rec (λ x y, x) p
-  definition pr2 (p : prod A B) := rec (λ x y, y) p
   notation `pr₁` := pr1
   notation `pr₂` := pr2
 
@@ -36,9 +33,6 @@ namespace prod
 
   theorem pr2.pair : pr₂ (a, b) = b :=
   rfl
-
-  protected theorem eta (p : prod A B) : pair (pr₁ p) (pr₂ p) = p :=
-  destruct p (λx y, eq.refl (x, y))
 
   variables {a₁ a₂ : A} {b₁ b₂ : B}
 

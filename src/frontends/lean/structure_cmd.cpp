@@ -628,16 +628,13 @@ struct structure_cmd_fn {
                 bi = mk_inst_implicit_binder_info();
             expr st                        = mk_local(m_ngen.next(), "s", st_type, bi);
             expr coercion_type             = infer_implicit(Pi(m_params, Pi(st, parent)), m_params.size(), true);;
-            levels rec_ls                  = levels(parent_rlvl, st_ls);
-            expr rec                       = mk_app(mk_constant(inductive::get_elim_name(m_name), rec_ls), m_params);
-            expr type_former               = Fun(st, parent);
-            rec                            = mk_app(rec, type_former);
-            expr minor_premise             = parent_intro;
-            for (unsigned idx : fmap)
-                minor_premise = mk_app(minor_premise, m_fields[idx]);
-            minor_premise                  = Fun(m_fields, minor_premise);
-            rec                            = mk_app(rec, minor_premise, st);
-            expr coercion_value            = Fun(m_params, Fun(st, rec));
+            expr coercion_value            = parent_intro;
+            for (unsigned idx : fmap) {
+                expr const & field = m_fields[idx];
+                expr proj          = mk_app(mk_app(mk_constant(m_name + mlocal_name(field), st_ls), m_params), st);
+                coercion_value     = mk_app(coercion_value, proj);
+            }
+            coercion_value                 = Fun(m_params, Fun(st, coercion_value));
             name coercion_name             = m_name + parent_name.append_before("to_");
 
             bool opaque                    = false;

@@ -661,8 +661,36 @@ struct structure_cmd_fn {
         add_alias(destruct_name);
     }
 
+    void get_parent_names(buffer<name> & parent_names) {
+        for (expr const & parent : m_parents)
+            parent_names.push_back(const_name(get_app_fn(parent)));
+    }
+
+    void mk_coercion_names(buffer<name> & coercion_names) {
+        buffer<name> parent_names;
+        get_parent_names(parent_names);
+        name_set           found;
+        name_map<unsigned> non_unique;
+        for (name const & n : parent_names) {
+            if (found.contains(n))
+                non_unique.insert(n, 1);
+            found.insert(n);
+        }
+        for (name & n : parent_names) {
+            if (auto it = non_unique.find(n)) {
+                unsigned idx = *it;
+                non_unique.insert(n, idx+1);
+                n = n.append_after(idx);
+            }
+            name coercion_name = m_name + n.append_before("to_");
+            coercion_names.push_back(coercion_name);
+        }
+    }
+
     void declare_coercions() {
         lean_assert(m_parents.size() == m_field_maps.size());
+        buffer<name> coercion_names;
+        mk_coercion_names(coercion_names);
         level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
         levels st_ls             = param_names_to_levels(lnames);
         for (unsigned i = 0; i < m_parents.size(); i++) {
@@ -692,7 +720,7 @@ struct structure_cmd_fn {
                 coercion_value     = mk_app(coercion_value, proj);
             }
             coercion_value                 = Fun(m_params, Fun(st, coercion_value));
-            name coercion_name             = m_name + parent_name.append_before("to_");
+            name coercion_name             = coercion_names[i];
 
             bool opaque                    = false;
             declaration coercion_decl      = mk_definition(m_env, coercion_name, lnames, coercion_type, coercion_value,

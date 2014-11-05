@@ -32,7 +32,7 @@
 
 (defun lean-compile-string (exe-name args file-name)
   "Concatenate exe-name, args, and file-name"
-  (format "\"%s\" %s \"%s\"" exe-name args file-name))
+  (format "%s %s %s" exe-name args file-name))
 
 (defun lean-create-temp-in-system-tempdir (file-name prefix)
   "Create a temp lean file and return its name"

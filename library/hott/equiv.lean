@@ -212,19 +212,19 @@ namespace IsEquiv
 
   definition ap (Hf : IsEquiv f) (x y : A) : IsEquiv (@ap A B f x y) := 
     adjointify (ap f) 
-      (λq, (inverse (sect f x)) ⬝ ap (f⁻¹) q ⬝ sect f y) --sorry sorry
-      (λq, ap_pp f _ _
-        ⬝ whiskerR (ap_pp f _ _) _
-        ⬝ ((ap_V f _ ⬝ inverse2 (inverse (adj f _)))
+      (λq, (inverse (sect f x)) ⬝ ap (f⁻¹) q ⬝ sect f y)
+      (λq, !ap_pp
+        ⬝ whiskerR !ap_pp _
+        ⬝ ((!ap_V ⬝ inverse2 ((adj f _)⁻¹))
           ◾ (inverse (ap_compose (f⁻¹) f _))
           ◾ (adj f _)⁻¹)
         ⬝ concat_pA1_p (retr f) _ _
-        ⬝ whiskerR (concat_Vp _) _
-        ⬝ concat_1p _)
-      (λp, whiskerR (whiskerL _ (inverse (ap_compose f (f⁻¹) _))) _
+        ⬝ whiskerR !concat_Vp _
+        ⬝ !concat_1p)
+      (λp, whiskerR (whiskerL _ ((ap_compose f (f⁻¹) _)⁻¹)) _
         ⬝ concat_pA1_p (sect f) _ _
-        ⬝ whiskerR (concat_Vp _) _
-        ⬝ concat_1p _)
+        ⬝ whiskerR !concat_Vp _
+        ⬝ !concat_1p)
 
   end
 

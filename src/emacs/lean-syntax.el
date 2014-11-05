@@ -11,7 +11,7 @@
   '("import" "reducible" "irreducible" "tactic_hint" "protected" "private" "opaque" "definition" "renaming"
     "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture" "constant" "constants"
     "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem" "example"
-    "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "universe" "universes"
+    "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "record" "universe" "universes"
     "alias" "help" "environment" "options" "precedence" "reserve" "postfix" "prefix"
     "calc_trans" "calc_subst" "calc_refl" "calc_symm"
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
@@ -105,7 +105,7 @@
      (,(rx (or "λ" "→" "∃" "∀" ":=")) . 'font-lock-constant-face )
      ;; universe/inductive/theorem... "names"
      (,(rx word-start
-           (group (or "inductive" "theorem" "axiom" "lemma" "hypothesis" "definition" "constant"))
+           (group (or "inductive" "structure" "record" "theorem" "axiom" "lemma" "hypothesis" "definition" "constant"))
            word-end
            (zero-or-more (or whitespace "(" "{" "["))
            (group (zero-or-more (not (any " \t\n\r")))))

@@ -95,7 +95,7 @@ void init_token_table(token_table & t) {
 
     pair<char const *, char const *> cmd_aliases[] =
         {{"lemma", "theorem"}, {"corollary", "theorem"}, {"hypothesis", "parameter"}, {"conjecture", "parameter"},
-         {nullptr, nullptr}};
+         {"record", "structure"}, {nullptr, nullptr}};
 
     auto it = builtin;
     while (it->first) {

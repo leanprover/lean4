@@ -70,18 +70,18 @@ expr local_context::apply_context(expr const & f, tag g) const {
     return apply_context_core(f, m_ctx, g);
 }
 
-expr local_context::mk_type_metavar(name_generator & ngen, tag g) {
+expr local_context::mk_type_metavar(name_generator & ngen, tag g) const {
     name n = ngen.next();
     expr s = mk_sort(mk_meta_univ(ngen.next()), g);
     expr t = pi_abstract_context(s, g);
     return ::lean::mk_metavar(n, t, g);
 }
 
-expr local_context::mk_type_meta(name_generator & ngen, tag g) {
+expr local_context::mk_type_meta(name_generator & ngen, tag g) const {
     return apply_context(mk_type_metavar(ngen, g), g);
 }
 
-expr local_context::mk_metavar(name_generator & ngen, optional<name> const & suffix, optional<expr> const & type, tag g) {
+expr local_context::mk_metavar(name_generator & ngen, optional<name> const & suffix, optional<expr> const & type, tag g) const {
     name n      = ngen.next();
     if (suffix)
         n = n + *suffix;
@@ -90,7 +90,7 @@ expr local_context::mk_metavar(name_generator & ngen, optional<name> const & suf
     return ::lean::mk_metavar(n, t, g);
 }
 
-expr local_context::mk_meta(name_generator & ngen, optional<name> const & suffix, optional<expr> const & type, tag g) {
+expr local_context::mk_meta(name_generator & ngen, optional<name> const & suffix, optional<expr> const & type, tag g) const {
     expr mvar = mk_metavar(ngen, suffix, type, g);
     expr meta = apply_context(mvar, g);
     return meta;

@@ -201,6 +201,10 @@ struct structure_cmd_fn {
         }
     }
 
+    void throw_explicit_universe(pos_info const & pos) {
+        throw parser_error("invalid 'structure', the resultant universe must be provided when explicit universe levels are being used", pos);
+    }
+
     /** \brief Parse resultant universe */
     void parse_result_type() {
         auto pos = m_p.pos();
@@ -209,7 +213,14 @@ struct structure_cmd_fn {
             m_type = m_p.parse_expr();
             if (!is_sort(m_type))
                 throw parser_error("invalid 'structure', 'Type' expected", pos);
+            if (has_placeholder(m_type))
+                throw_explicit_universe(pos);
+            level l = sort_level(m_type);
+            if (m_env.impredicative() && !is_not_zero(l))
+                throw parser_error("invalid 'structure', the resultant universe level should not be zero for any universe parameter assignment", pos);
         } else {
+            if (!m_infer_result_universe)
+                throw_explicit_universe(pos);
             m_type = m_p.save_pos(mk_sort(mk_level_placeholder()), pos);
         }
     }

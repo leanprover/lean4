@@ -9,8 +9,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/pp_options.h"
 #include "frontends/lean/parser.h"
-#include "frontends/lean/no_info.h"
-#include "frontends/lean/extra_info.h"
+#include "frontends/lean/info_annotation.h"
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/class.h"
 #include "frontends/lean/parser_config.h"
@@ -42,8 +41,7 @@ void initialize_frontend_lean_module() {
     initialize_pp_options();
     initialize_scanner();
     initialize_parser();
-    initialize_no_info();
-    initialize_extra_info();
+    initialize_info_annotation();
     initialize_tactic_hint();
     initialize_class();
     initialize_parser_config();
@@ -72,8 +70,7 @@ void finalize_frontend_lean_module() {
     finalize_parser_config();
     finalize_class();
     finalize_tactic_hint();
-    finalize_extra_info();
-    finalize_no_info();
+    finalize_info_annotation();
     finalize_parser();
     finalize_scanner();
     finalize_pp_options();

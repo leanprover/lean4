@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/parser.h"
-#include "frontends/lean/no_info.h"
+#include "frontends/lean/info_annotation.h"
 
 namespace lean {
 namespace notation {

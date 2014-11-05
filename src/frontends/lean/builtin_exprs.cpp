@@ -23,10 +23,10 @@ Author: Leonardo de Moura
 #include "frontends/lean/calc.h"
 #include "frontends/lean/begin_end_ext.h"
 #include "frontends/lean/parser.h"
-#include "frontends/lean/extra_info.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/info_tactic.h"
+#include "frontends/lean/info_annotation.h"
 
 namespace lean {
 namespace notation {

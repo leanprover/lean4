@@ -4,9 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "frontends/lean/extra_info.h"
+#include "frontends/lean/info_annotation.h"
 
 namespace lean {
+static name * g_no_info = nullptr;
+name const & get_no_info() { return *g_no_info; }
+
+expr mk_no_info(expr const & e) { return mk_annotation(get_no_info(), e); }
+bool is_no_info(expr const & e) { return is_annotation(e, get_no_info()); }
+
 static name * g_extra_info = nullptr;
 name const & get_extra_info() { return *g_extra_info; }
 
@@ -14,12 +20,15 @@ expr mk_extra_info(expr const & e, tag g) { return mk_annotation(get_extra_info(
 expr mk_extra_info(expr const & e) { return mk_annotation(get_extra_info(), e); }
 bool is_extra_info(expr const & e) { return is_annotation(e, get_extra_info()); }
 
-void initialize_extra_info() {
+void initialize_info_annotation() {
+    g_no_info = new name("no_info");
+    register_annotation(*g_no_info);
     g_extra_info = new name("extra_info");
     register_annotation(*g_extra_info);
 }
 
-void finalize_extra_info() {
+void finalize_info_annotation() {
+    delete g_no_info;
     delete g_extra_info;
 }
 }

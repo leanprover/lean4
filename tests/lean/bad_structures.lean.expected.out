@@ -1,10 +1,3 @@
 bad_structures.lean:1:49: error: invalid 'structure', the resultant universe must be provided when explicit universe levels are being used
 bad_structures.lean:4:49: error: invalid 'structure', the resultant universe must be provided when explicit universe levels are being used
 bad_structures.lean:7:49: error: invalid 'structure', the resultant universe level should not be zero for any universe parameter assignment
-generated type
-proj_type: Pi {A : Type.{l}} {B : Type.{l}} (c : prod.{l} A B), A
-proj_val: fun {A : Type.{l}} {B : Type.{l}} (c : prod.{l} A B), (prod.rec.{l l} A B (fun (c : prod.{l} A B), A) (fun (pr1 : A) (pr2 : B), pr1) c)
-proj_type: Pi {A : Type.{l}} {B : Type.{l}} (c : prod.{l} A B), B
-proj_val: fun {A : Type.{l}} {B : Type.{l}} (c : prod.{l} A B), (prod.rec.{l l} A B (fun (c : prod.{l} A B), B) (fun (pr1 : A) (pr2 : B), pr2) c)
-generated projs
-generated auxiliary

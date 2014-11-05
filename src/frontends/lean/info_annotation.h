@@ -28,6 +28,16 @@ expr mk_extra_info(expr const & e);
 /** \brief Return true iff \c e is a term annotated with mk_extra_info */
 bool is_extra_info(expr const & e);
 
+/** \brief Annotate \c e with "notation-info" annotation.
+    It instructs the elaborator to store the type of \c e.
+    We use this feature to store the type of atomic notation (i.e.,
+    notation without parameters).
+*/
+expr mk_notation_info(expr const & e, tag g);
+expr mk_notation_info(expr const & e);
+/** \brief Return true iff \c e is a term annotated with mk_notation_info */
+bool is_notation_info(expr const & e);
+
 void initialize_info_annotation();
 void finalize_info_annotation();
 }

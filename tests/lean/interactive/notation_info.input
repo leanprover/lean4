@@ -1,0 +1,8 @@
+VISIT notation_info.lean
+SYNC 4
+import data.nat
+open nat
+notation `one` := (succ 0)
+check one + one
+WAIT
+INFO 4

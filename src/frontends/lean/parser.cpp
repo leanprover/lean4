@@ -42,6 +42,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/pp_options.h"
+#include "frontends/lean/info_annotation.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -1002,7 +1003,13 @@ expr parser::parse_notation(parse_table t, expr * left) {
     }
     buffer<expr> cs;
     for (expr const & a : as) {
-        expr r = instantiate_rev(copy_with_new_pos(a, p), args.size(), args.data());
+        expr r = copy_with_new_pos(a, p);
+        if (args.empty()) {
+            // Notation does not have arguments. Thus, the info-manager should treat is as a single thing.
+            r = mk_notation_info(r, r.get_tag());
+        } else {
+            r = instantiate_rev(r, args.size(), args.data());
+        }
         cs.push_back(r);
     }
     expr r = save_pos(mk_choice(cs.size(), cs.data()), p);

@@ -1,0 +1,22 @@
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGININFO
+-- TYPE|4|6
+ℕ
+-- ACK
+-- SYMBOL|4|6
+one
+-- ACK
+-- TYPE|4|10
+ℕ → ℕ → ℕ
+-- ACK
+-- SYMBOL|4|10
++
+-- ACK
+-- TYPE|4|12
+ℕ
+-- ACK
+-- SYMBOL|4|12
+one
+-- ACK
+-- ENDINFO

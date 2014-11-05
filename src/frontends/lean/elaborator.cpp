@@ -132,7 +132,8 @@ optional<expr> elaborator::mvar_to_meta(expr const & mvar) {
 /** \brief Store the pair (pos(e), type(r)) in the info_data if m_info_manager is available. */
 void elaborator::save_type_data(expr const & e, expr const & r) {
     if (!m_no_info && infom() && pip() &&
-        (is_constant(e) || is_local(e) || is_placeholder(e) || is_as_atomic(e) || is_consume_args(e))) {
+        (is_constant(e) || is_local(e) || is_placeholder(e) || is_as_atomic(e) ||
+         is_consume_args(e) || is_notation_info(e))) {
         if (auto p = pip()->get_pos_info(e)) {
             expr t = m_tc[m_relax_main_opaque]->infer(r).first;
             m_pre_info_data.add_type_info(p->first, p->second, t);
@@ -860,6 +861,15 @@ pair<expr, constraint_seq> elaborator::visit(expr const & e) {
     if (is_extra_info(e)) {
         auto ecs = visit(get_annotation_arg(e));
         save_extra_type_data(e, ecs.first);
+        return ecs;
+    }
+    if (is_notation_info(e)) {
+        pair<expr, constraint_seq> ecs;
+        {
+            flet<bool> let(m_no_info, true);
+            ecs = visit(get_annotation_arg(e));
+        }
+        save_type_data(e, ecs.first);
         return ecs;
     }
     expr r;

@@ -108,7 +108,7 @@ struct structure_cmd_fn {
 
     /** \brief Parse structure parameters */
     void parse_params() {
-        if (!m_p.curr_is_token(get_extends_tk()) && !m_p.curr_is_token(get_assign_tk()))
+        if (!m_p.curr_is_token(get_extends_tk()) && !m_p.curr_is_token(get_assign_tk()) && !m_p.curr_is_token(get_colon_tk()))
             m_p.parse_binders(m_params);
         for (expr const & l : m_params)
             m_p.add_local(l);

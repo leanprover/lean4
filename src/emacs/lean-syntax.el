@@ -15,7 +15,7 @@
     "alias" "help" "environment" "options" "precedence" "reserve" "postfix" "prefix"
     "calc_trans" "calc_subst" "calc_refl" "calc_symm"
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
-    "using" "namespace" "instance" "class" "section"
+    "using" "namespace" "instance" "class" "section" "fields"
     "set_option" "add_rewrite" "extends" "include" "omit" "classes" "instances" "coercions" "raw")
   "lean keywords")
 

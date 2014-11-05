@@ -90,6 +90,20 @@ static void print_prefix(parser & p) {
         p.regular_stream() << "no declaration starting with prefix '" << prefix << "'" << endl;
 }
 
+static void print_fields(parser & p) {
+    auto pos = p.pos();
+    environment const & env = p.env();
+    name S = p.check_constant_next("invalid 'print fields' command, constant expected");
+    if (!is_structure(env, S))
+        throw parser_error(sstream() << "invalid 'print fields' command, '" << S << "' is not a structure", pos);
+    buffer<name> field_names;
+    get_structure_fields(env, S, field_names);
+    for (name const & field_name : field_names) {
+        declaration d = env.get(field_name);
+        p.regular_stream() << d.get_name() << " : " << d.get_type() << endl;
+    }
+}
+
 environment print_cmd(parser & p) {
     if (p.curr() == scanner::token_kind::String) {
         p.regular_stream() << p.get_str_val() << endl;
@@ -141,6 +155,9 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_axioms_tk())) {
         p.next();
         print_axioms(p);
+    } else if (p.curr_is_token_or_id(get_fields_tk())) {
+        p.next();
+        print_fields(p);
     } else {
         throw parser_error("invalid print command", p.pos());
     }

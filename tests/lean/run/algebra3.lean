@@ -27,6 +27,8 @@ structure monoid [class] (A : Type) extends semigroup A, has_one A :=
 -- We can suppress := and :: when we are not declaring any new field.
 structure comm_monoid [class] (A : Type) extends monoid A renaming mul→add, comm_semigroup A
 
+print fields comm_monoid
+
 structure group [class] (A : Type) extends monoid A, has_inv A :=
 (is_inv : ∀ a, mul a (inv a) = one)
 
@@ -48,6 +50,8 @@ structure ring [class] (A : Type)
 :=
 (dist_left  : ∀ a b c, mul a (add b c) = add (mul a b) (mul a c))
 (dist_right : ∀ a b c, mul (add a b) c = add (mul a c) (mul b c))
+
+print fields ring
 
 variable A : Type₁
 variables a b c d : A

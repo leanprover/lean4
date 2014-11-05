@@ -53,6 +53,31 @@ void finalize_structure_cmd() {
     delete g_tmp_prefix;
 }
 
+/** \brief Return true iff the type named \c S can be viewed as
+    a structure in the given environment.
+
+    If not, generate an error message using \c pos.
+*/
+bool is_structure(environment const & env, name const & S) {
+    optional<inductive::inductive_decls> idecls = inductive::is_inductive_decl(env, S);
+    if (!idecls || length(std::get<2>(*idecls)) != 1)
+        return false;
+    inductive::inductive_decl decl   = head(std::get<2>(*idecls));
+    return length(inductive::inductive_decl_intros(decl)) == 1 && *inductive::get_num_indices(env, S) == 0;
+}
+
+/** \brief Return the universe parameters, number of parameters and introduction rule for the given parent structure
+
+    \pre is_structure(env, S)
+*/
+static auto get_structure_info(environment const & env, name const & S)
+-> std::tuple<level_param_names, unsigned, inductive::intro_rule> {
+    lean_assert(is_structure(env, S));
+    inductive::inductive_decls idecls = *inductive::is_inductive_decl(env, S);
+    inductive::intro_rule intro = head(inductive::inductive_decl_intros(head(std::get<2>(idecls))));
+    return std::make_tuple(std::get<0>(idecls), std::get<1>(idecls), intro);
+}
+
 struct structure_cmd_fn {
     typedef std::unique_ptr<type_checker> type_checker_ptr;
     typedef std::vector<pair<name, name>> rename_vector;
@@ -123,19 +148,13 @@ struct structure_cmd_fn {
         if (!is_constant(fn))
             throw parser_error("invalid 'structure', expression must be a 'parent' structure", pos);
         name const & S = const_name(fn);
-        optional<inductive::inductive_decls> idecls = inductive::is_inductive_decl(m_env, S);
-        if (!idecls || length(std::get<2>(*idecls)) != 1)
-            throw parser_error(sstream() << "invalid 'structure' extends, '" << S << "' is not a structure", pos);
-        inductive::inductive_decl decl   = head(std::get<2>(*idecls));
-        if (length(inductive::inductive_decl_intros(decl)) != 1 || *inductive::get_num_indices(m_env, S) != 0)
+        if (!is_structure(m_env, S))
             throw parser_error(sstream() << "invalid 'structure' extends, '" << S << "' is not a structure", pos);
     }
 
     /** \brief Return the universe parameters, number of parameters and introduction rule for the given parent structure */
     std::tuple<level_param_names, unsigned, inductive::intro_rule> get_parent_info(name const & parent) {
-        inductive::inductive_decls idecls = *inductive::is_inductive_decl(m_env, parent);
-        inductive::intro_rule intro = head(inductive::inductive_decl_intros(head(std::get<2>(idecls))));
-        return std::make_tuple(std::get<0>(idecls), std::get<1>(idecls), intro);
+        return get_structure_info(m_env, parent);
     }
 
     /** \brief Sign an error if the constructor \c intro_type does not have a field named \c from_id */
@@ -790,6 +809,20 @@ struct structure_cmd_fn {
 
 environment structure_cmd(parser & p) {
     return structure_cmd_fn(p)();
+}
+
+void get_structure_fields(environment const & env, name const & S, buffer<name> & fields) {
+    lean_assert(is_structure(env, S));
+    level_param_names ls; unsigned nparams; inductive::intro_rule intro;
+    std::tie(ls, nparams, intro) = get_structure_info(env, S);
+    expr intro_type = inductive::intro_rule_type(intro);
+    unsigned i = 0;
+    while (is_pi(intro_type)) {
+        if (i >= nparams)
+            fields.push_back(S + binding_name(intro_type));
+        i++;
+        intro_type = binding_body(intro_type);
+    }
 }
 
 void register_structure_cmd(cmd_table & r) {

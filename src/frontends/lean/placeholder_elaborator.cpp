@@ -48,15 +48,13 @@ struct placeholder_context {
     io_state         m_ios;
     name_generator   m_ngen;
     type_checker_ptr m_tc;
-    local_context    m_ctx;
     bool             m_relax;
     bool             m_use_local_instances;
-    placeholder_context(environment const & env, io_state const & ios, local_context const & ctx,
+    placeholder_context(environment const & env, io_state const & ios,
                         name const & prefix, bool relax, bool use_local_instances):
         m_ios(ios),
         m_ngen(prefix),
         m_tc(mk_type_checker(env, m_ngen.mk_child(), relax)),
-        m_ctx(ctx),
         m_relax(relax),
         m_use_local_instances(use_local_instances) {
     }
@@ -67,7 +65,7 @@ struct placeholder_context {
     type_checker & tc() const { return *m_tc; }
 };
 
-pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C,
+pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
                                                  optional<expr> const & type, tag g);
 
 /** \brief Whenever the elaborator finds a placeholder '_' or introduces an
@@ -82,6 +80,7 @@ pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_con
 */
 struct placeholder_elaborator : public choice_iterator {
     std::shared_ptr<placeholder_context> m_C;
+    local_context           m_ctx;
     expr                    m_meta;
     // elaborated type of the metavariable
     expr                    m_meta_type;
@@ -94,11 +93,11 @@ struct placeholder_elaborator : public choice_iterator {
     list<name>              m_instances;
     justification           m_jst;
 
-    placeholder_elaborator(std::shared_ptr<placeholder_context> const & C,
+    placeholder_elaborator(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
                            expr const & meta, expr const & meta_type,
                            list<expr> const & local_insts, list<name> const & instances,
                            justification const & j):
-        choice_iterator(), m_C(C), m_meta(meta), m_meta_type(meta_type),
+        choice_iterator(), m_C(C), m_ctx(ctx), m_meta(meta), m_meta_type(meta_type),
         m_local_instances(local_insts), m_instances(instances), m_jst(j) {
     }
 
@@ -110,9 +109,8 @@ struct placeholder_elaborator : public choice_iterator {
         type_checker & tc     = m_C->tc();
         name_generator & ngen = m_C->m_ngen;
         tag g                 = inst.get_tag();
-        local_context & ctx   = m_C->m_ctx;
         try {
-            flet<local_context> scope(ctx, ctx);
+            flet<local_context> scope(m_ctx, m_ctx);
             buffer<expr> locals;
             expr meta_type = m_meta_type;
             while (true) {
@@ -121,7 +119,7 @@ struct placeholder_elaborator : public choice_iterator {
                     break;
                 expr local  = mk_local(ngen.next(), binding_name(meta_type),
                                        binding_domain(meta_type), binding_info(meta_type));
-                ctx.add_local(local);
+                m_ctx.add_local(local);
                 locals.push_back(local);
                 meta_type = instantiate(binding_body(meta_type), local);
             }
@@ -132,7 +130,7 @@ struct placeholder_elaborator : public choice_iterator {
                 type = tc.whnf(type).first;
                 if (!is_pi(type))
                     break;
-                pair<expr, constraint> ac = mk_placeholder_elaborator(m_C, some_expr(binding_domain(type)), g);
+                pair<expr, constraint> ac = mk_placeholder_elaborator(m_C, m_ctx, some_expr(binding_domain(type)), g);
                 expr arg = ac.first;
                 cs.push_back(ac.second);
                 r    = mk_app(r, arg, g);
@@ -184,21 +182,21 @@ struct placeholder_elaborator : public choice_iterator {
 };
 
 
-constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, expr const & m) {
+constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, local_context const & ctx, expr const & m) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const &, name_generator const &) {
         if (auto cls_name_it = is_ext_class(C->tc(), meta_type)) {
             name cls_name = *cls_name_it;
-            list<expr> const & ctx = C->m_ctx.get_data();
+            list<expr> const & ctx_lst = ctx.get_data();
             list<expr> local_insts;
             if (C->use_local_instances())
-                local_insts = get_local_instances(C->tc(), ctx, cls_name);
+                local_insts = get_local_instances(C->tc(), ctx_lst, cls_name);
             list<name>  insts = get_class_instances(env, cls_name);
             if (empty(local_insts) && empty(insts))
                 return lazy_list<constraints>(); // nothing to be done
             // we are always strict with placeholders associated with classes
-            return choose(std::make_shared<placeholder_elaborator>(C, meta, meta_type, local_insts, insts, j));
+            return choose(std::make_shared<placeholder_elaborator>(C, ctx, meta, meta_type, local_insts, insts, j));
         } else {
             // do nothing, type is not a class...
             return lazy_list<constraints>(constraints());
@@ -210,10 +208,10 @@ constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, 
                            owner, j, relax);
 }
 
-pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C,
+pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
                                                  optional<expr> const & type, tag g) {
-    expr m       = C->m_ctx.mk_meta(C->m_ngen, type, g);
-    constraint c = mk_placeholder_cnstr(C, m);
+    expr m       = ctx.mk_meta(C->m_ngen, type, g);
+    constraint c = mk_placeholder_cnstr(C, ctx, m);
     return mk_pair(m, c);
 }
 
@@ -237,8 +235,8 @@ static bool has_expr_metavar_relaxed(expr const & e) {
     return found;
 }
 
-constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const & C, expr const & m, bool is_strict,
-                                     unifier_config const & cfg, delay_factor const & factor) {
+constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
+                                     expr const & m, bool is_strict, unifier_config const & cfg, delay_factor const & factor) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
 
@@ -251,7 +249,7 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
         pair<expr, justification> mj = update_meta(meta, s);
         expr new_meta            = mj.first;
         justification new_j      = mj.second;
-        constraint c             = mk_placeholder_cnstr(C, new_meta);
+        constraint c             = mk_placeholder_cnstr(C, ctx, new_meta);
         unifier_config new_cfg(cfg);
         new_cfg.m_discard        = false;
         new_cfg.m_use_exceptions = false;
@@ -332,9 +330,9 @@ pair<expr, constraint> mk_placeholder_elaborator(
     environment const & env, io_state const & ios, local_context const & ctx,
     name const & prefix, optional<name> const & suffix, bool relax, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg) {
-    auto C       = std::make_shared<placeholder_context>(env, ios, ctx, prefix, relax, use_local_instances);
-    expr m       = C->m_ctx.mk_meta(C->m_ngen, suffix, type, g);
-    constraint c = mk_placeholder_root_cnstr(C, m, is_strict, cfg, delay_factor());
+    auto C       = std::make_shared<placeholder_context>(env, ios, prefix, relax, use_local_instances);
+    expr m       = ctx.mk_meta(C->m_ngen, suffix, type, g);
+    constraint c = mk_placeholder_root_cnstr(C, ctx, m, is_strict, cfg, delay_factor());
     return mk_pair(m, c);
 }
 }

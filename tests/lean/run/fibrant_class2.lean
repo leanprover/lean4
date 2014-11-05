@@ -1,0 +1,34 @@
+import general_notation
+
+inductive fibrant [class] (T : Type) : Type :=
+fibrant_mk : fibrant T
+
+axiom pi_fibrant {A : Type} {B : A → Type} [C1 : fibrant A] [C2 : Πx : A, fibrant (B x)] :
+  fibrant (Πx : A, B x)
+instance pi_fibrant
+
+inductive path {A : Type} [fA : fibrant A] (a : A) : A → Type :=
+idpath : path a a
+
+axiom path_fibrant {A : Type} [fA : fibrant A] (a b : A) : fibrant (path a b)
+instance [persistent] path_fibrant
+
+notation a ≈ b := path a b
+
+definition test {A : Type} [fA : fibrant A] {x y : A} :
+  Π (z : A), y ≈ z → fibrant (x ≈ y → x ≈ z) := take z p, _
+
+definition test2 {A : Type} [fA : fibrant A] {x y : A} :
+Π (z : A), y ≈ z → fibrant (x ≈ y → x ≈ z) := _
+
+definition test3 {A : Type} [fA : fibrant A] {x y : A} :
+  Π (z : A), y ≈ z → fibrant (x ≈ z) := _
+
+definition test4 {A : Type} [fA : fibrant A] {x y z : A} :
+  fibrant (x ≈ y → x ≈ z) := _
+
+axiom imp_fibrant {A : Type} {B : Type} [C1 : fibrant A] [C2 : fibrant B] : fibrant (A → B)
+instance imp_fibrant
+
+definition test5 {A : Type} [fA : fibrant A] {x y : A} :
+Π (z : A), y ≈ z → fibrant (x ≈ y → x ≈ z) := _

@@ -210,7 +210,7 @@ namespace IsEquiv
   definition contr (Hf : IsEquiv f) (HA: Contr A) : (Contr B) :=
     Contr.Contr_mk (f (center HA)) (λb, moveR_M Hf (contr HA (inv f b)))
 
-  definition ap (Hf : IsEquiv f) (x y : A) : IsEquiv (@ap A B f x y) := 
+  definition ap_closed (Hf : IsEquiv f) (x y : A) : IsEquiv (@ap A B f x y) := 
     adjointify (ap f) 
       (λq, (inverse (sect f x)) ⬝ ap (f⁻¹) q ⬝ sect f y)
       (λq, !ap_pp

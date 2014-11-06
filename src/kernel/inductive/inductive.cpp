@@ -484,18 +484,34 @@ struct add_inductive_fn {
             return false;
         }
         // We have only one introduction rule, the final check is, the type of each argument
-        // that is not a parameter must live in Type.{0}.
+        // that is not a parameter:
+        //  1- It must live in Type.{0}, *OR*
+        //  2- It must occur in the return type. (this is essentially what is called a non-uniform parameter in Coq).
+        //     We can justify 2 by observing that this information is not a *secret* it is part of the type.
+        //     By eliminating to a non-proposition, we would not be revealing anything that is not already known.
         auto ir    = head(inductive_decl_intros(head(m_decls)));
         expr t     = intro_rule_type(ir);
         unsigned i = 0;
+        buffer<expr> to_check; // arguments that we must check if occur in the result type
         while (is_pi(t)) {
+            expr local = mk_local_for(t);
             if (i >= m_num_params) {
                 expr s = ensure_type(binding_domain(t));
-                if (!is_zero(sort_level(s)))
-                    return true;
+                if (!is_zero(sort_level(s))) {
+                    // Current argument is not in Type.{0} (i.e., condition 1 failed).
+                    // We save it in to_check to be able to try condition 2 above.
+                    to_check.push_back(local);
+                }
             }
-            t = instantiate(binding_body(t), mk_local_for(t));
+            t = instantiate(binding_body(t), local);
             i++;
+        }
+        buffer<expr> result_args;
+        get_app_args(t, result_args);
+        // Check condition 2: every argument in to_check must occur in result_args
+        for (expr const & arg : to_check) {
+            if (std::find(result_args.begin(), result_args.end(), arg) == result_args.end())
+                return true; // condition 2 failed
         }
         return false;
     }

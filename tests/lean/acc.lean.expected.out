@@ -1,0 +1,4 @@
+acc.rec :
+  Π {A : Type} {R : A → A → Prop} {C : A → Type},
+    (Π (x : A), (∀ (y : A), R y x → acc A R y) → (Π (y : A), R y x → C y) → C x) →
+    (Π {a : A}, acc A R a → C a)

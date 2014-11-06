@@ -29,6 +29,6 @@ namespace function
   theorem hfunext {A : Type} {B : A → Type} {B' : A → Type} {f : Π x, B x} {g : Π x, B' x}
       (H : ∀ a, f a == g a) : f == g :=
   let HH : B = B' := (funext (λ x, heq.type_eq (H x))) in
-  cast_to_heq (funext (λ a, heq.to_eq (heq.trans (cast_app' HH f a) (H a))))
+  cast_to_heq (funext (λ a, heq.to_eq (heq.trans (cast_app HH f a) (H a))))
 
 end function

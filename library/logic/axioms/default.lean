@@ -4,5 +4,5 @@
 --- Author: Jeremy Avigad
 ----------------------------------------------------------------------------------------------------
 
-import logic.axioms.classical logic.axioms.funext logic.axioms.hilbert logic.axioms.piext
+import logic.axioms.classical logic.axioms.funext logic.axioms.hilbert
 import logic.axioms.prop_decidable

@@ -193,7 +193,6 @@ namespace IsEquiv
 
   --Rewrite rules
   section
-  variables (Hf : IsEquiv f)
 
   definition moveR_M (Hf : IsEquiv f) {x : A} {y : B} (p : x ≈ (inv f) y) : (f x ≈ y) :=
     (ap f p) ⬝ (retr f y)
@@ -225,6 +224,27 @@ namespace IsEquiv
         ⬝ concat_pA1_p (sect f) _ _
         ⬝ whiskerR !concat_Vp _
         ⬝ !concat_1p)
+
+  -- The function equiv_rect says that given an equivalence f : A → B,
+  -- and a hypothesis from B, one may always assume that the hypothesis
+  -- is in the image of e.
+
+  -- In fibrational terms, if we have a fibration over B which has a section
+  -- once pulled back along an equivalence f : A → B, then it has a section
+  -- over all of B.
+
+  definition equiv_rect (Hf : IsEquiv f) (P : B -> Type) :
+      (Πx, P (f x)) → (Πy, P y) :=
+    (λg y, path.transport _ (retr f y) (g (f⁻¹ y)))
+
+  definition equiv_rect_comp (Hf : IsEquiv f) (P : B → Type)
+      (df : Π (x : A), P (f x)) (x : A) : equiv_rect Hf P df (f x) ≈ df x :=
+    let eq1 := (apD df (sect f x)) in
+    calc equiv_rect Hf P df (f x)
+          ≈ path.transport P (retr f (f x)) (df (f⁻¹ (f x))) : idp
+      ... ≈ path.transport P (ap f (sect f x)) (df (f⁻¹ (f x))) : adj f
+      ... ≈ path.transport (P ∘ f) (sect f x) (df (f⁻¹ (f x))) : transport_compose
+      ... ≈ df x : eq1
 
   end
 

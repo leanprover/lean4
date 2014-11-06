@@ -1,4 +1,4 @@
-import data.nat
+import data.nat.basic
 namespace foo
 open nat
 inductive nat : Type := zero, foosucc : nat → nat

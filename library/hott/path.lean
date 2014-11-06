@@ -23,6 +23,15 @@ notation a ≈ b := path a b
 notation x ≈ y `:>`:50 A:49 := @path A x y
 definition idp {A : Type} {a : A} := idpath a
 
+-- unbased path induction
+definition rec' {A : Type} {P : Π (a b : A), (a ≈ b) -> Type}
+    (H : Π (a : A), P a a idp) {a b : A} (p : a ≈ b) : P a b p :=
+path.rec (H a) p
+
+definition rec_on' {A : Type} {P : Π (a b : A), (a ≈ b) -> Type} {a b : A} (p : a ≈ b)
+    (H : Π (a : A), P a a idp) : P a b p :=
+path.rec (H a) p
+
 -- Concatenation and inverse
 -- -------------------------
 

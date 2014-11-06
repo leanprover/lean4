@@ -2,8 +2,8 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jeremy Avigad, Floris van Doorn
 -- Ported from Coq HoTT
-import .path data.nat.basic data.empty data.unit
-open path nat
+import .path data.nat.basic data.empty data.unit data.sigma
+open path nat sigma
 
 -- Truncation levels
 -- -----------------
@@ -45,6 +45,7 @@ trunc_index.rec_on n (λA, contr_internal A) (λn trunc_n A, (Π(x y : A), trunc
 structure is_trunc [class] (n : trunc_index) (A : Type) :=
 mk :: (to_internal : is_trunc_internal n A)
 
+-- should this be notation or definitions
 --prefix `is_contr`:max := is_trunc -2
 definition is_contr := is_trunc -2
 definition is_hprop := is_trunc -1
@@ -72,8 +73,7 @@ definition path_contr [H : is_contr A] (x y : A) : x ≈ y :=
 (contr x)⁻¹ ⬝ (contr y)
 
 definition path2_contr {A : Type₁} [H : is_contr A] {x y : A} (p q : x ≈ y) : p ≈ q :=
-have K : ∀ (r : x ≈ y), path_contr x y ≈ r, from
-  (λ r, path.rec_on r !concat_Vp),
+have K : ∀ (r : x ≈ y), path_contr x y ≈ r, from (λ r, path.rec_on r !concat_Vp),
 K p⁻¹ ⬝ K q
 
 definition contr_paths_contr [instance] {A : Type₁} [H : is_contr A] (x y : A) : is_contr (x ≈ y) :=
@@ -85,6 +85,18 @@ trunc_index.rec_on n
   (λ n IH A (H : is_trunc (n.+1) A), @is_trunc_succ _ _ (λ x y, IH _ !succ_is_trunc))
   A H
 --in the proof the type of H is given explicitly to make it available for class inference
+
+definition contr_basedpaths [instance] {A : Type₁} (a : A) : is_contr (Σ(x : A), a ≈ x) :=
+is_contr.mk (dpair a idp) (λp, sorry)
+
+-- Definition trunc_contr {n} {A} `{Contr A} : IsTrunc n A
+--   := (@trunc_leq -2 n tt _ _).
+
+-- Definition trunc_hprop {n} {A} `{IsHProp A} : IsTrunc n.+1 A
+--   := (@trunc_leq -1 n.+1 tt _ _).
+
+-- Definition trunc_hset {n} {A} `{IsHSet A} : IsTrunc n.+1.+1 A
+--   := (@trunc_leq 0 n.+1.+1 tt _ _).
 
 definition trunc_leq [instance] {A : Type₁} {m n : trunc_index} (H : m ≤ n)
   [H : is_trunc m A] : is_trunc n A :=

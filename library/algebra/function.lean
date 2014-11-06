@@ -29,10 +29,6 @@ definition flip {A : Type} {B : Type} {C : A → B → Type} (f : Πx y, C x y) 
 definition app {A : Type} {B : A → Type} (f : Πx, B x) (x : A) : B x :=
 f x
 
--- Yet another trick to anotate an expression with a type
-definition is_typeof (A : Type) (a : A) : A :=
-a
-
 precedence `∘`:60
 precedence `∘'`:60
 precedence `on`:1
@@ -41,7 +37,6 @@ precedence `$`:1
 infixr  ∘                  := compose
 infixr  ∘'                 := dcompose
 infixl  on                 := on_fun
-notation `typeof` t `:` T  := is_typeof T t
 infixr  $                  := app
 notation f `-[` op `]-` g  := combine f op g
 -- Trick for using any binary function as infix operator

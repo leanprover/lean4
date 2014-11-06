@@ -4,8 +4,7 @@
 
 import .basic
 import logic.cast
-import algebra.function --remove if "typeof" is moved
-open function --remove if "typeof" is moved
+open function
 open category eq eq.ops heq
 
 inductive functor (C D : Category) : Type :=

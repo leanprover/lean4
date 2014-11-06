@@ -1,4 +1,4 @@
-import logic
+import logic.prop
 
 inductive acc {A : Type} (R : A → A → Prop) : A → Prop :=
 intro : ∀x, (∀ y, R y x → acc R y) → acc R x

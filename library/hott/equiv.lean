@@ -251,43 +251,45 @@ namespace IsEquiv
 end IsEquiv
 
 namespace Equiv
-  variables {A B C : Type} (eqf : A ≃ B)
+  context
+  parameters {A B : Type} (eqf : A ≃ B)
 
-  definition f : A → B := equiv_fun eqf
+  private definition f : A → B := equiv_fun eqf
+  private definition Hf [instance] : IsEquiv f := equiv_isequiv eqf
 
   definition id : A ≃ A := Equiv_mk id IsEquiv.id_closed
 
-  theorem compose (eqg: B ≃ C) : A ≃ C :=
-    Equiv_mk ((equiv_fun eqg) ∘ (equiv_fun eqf))
-             (IsEquiv.comp_closed (equiv_isequiv eqf) (equiv_isequiv eqg))
+  theorem compose {C : Type} (eqg: B ≃ C) : A ≃ C :=
+    Equiv_mk ((equiv_fun eqg) ∘ f)
+             (IsEquiv.comp_closed Hf (equiv_isequiv eqg))
 
   theorem path_closed (f' : A → B) (Heq : equiv_fun eqf ≈ f') : A ≃ B :=
-    Equiv_mk f' (IsEquiv.path_closed (equiv_isequiv eqf) Heq)
+    Equiv_mk f' (IsEquiv.path_closed Hf Heq)
 
   theorem inv_closed : B ≃ A :=
-    Equiv_mk (@IsEquiv.inv _ _ (equiv_fun eqf) (equiv_isequiv eqf))
-      (IsEquiv.inv_closed (equiv_isequiv eqf))
+    Equiv_mk (IsEquiv.inv f) (IsEquiv.inv_closed Hf)
 
-  theorem cancel_L {f : A → B} {g : B → C}
-                   (Hf : IsEquiv f) (Hgf : IsEquiv (g ∘ f)) : B ≃ C :=
-    Equiv_mk g (IsEquiv.cancel_R _ _)
+  theorem cancel_R {C : Type} {g : B → C} (Hgf : IsEquiv (g ∘ f)) : B ≃ C :=
+    Equiv_mk g (IsEquiv.cancel_R Hf _)
 
-  theorem cancel_R {f : A → B} {g : B → C}
-                   (Hg : IsEquiv g) (Hgf : IsEquiv (g ∘ f)) : A ≃ B :=
-    Equiv_mk f (!IsEquiv.cancel_L _ _)
+  theorem cancel_L {C : Type} {g : C → A} (Hgf : IsEquiv (f ∘ g)) : C ≃ A :=
+    Equiv_mk g (IsEquiv.cancel_L Hf _)
 
   theorem transport (P : A → Type) {x y : A} {p : x ≈ y} : (P x) ≃ (P y) :=
     Equiv_mk (transport P p) (IsEquiv.transport P p)
 
   theorem contr_closed (HA: Contr A) : (Contr B) :=
-    @IsEquiv.contr A B (equiv_fun eqf) (equiv_isequiv eqf) HA
+    IsEquiv.contr Hf HA
 
   -- calc enviroment
   -- TODO: find a transport lemma?
+  -- theorem foo (P : Type → Type) : P A → P B := sorry
   -- calc_subst transport
-  calc_trans compose
+  --calc_trans Equiv.compose
   calc_refl id
   calc_symm inv_closed
+
+  end
 
 end Equiv
 

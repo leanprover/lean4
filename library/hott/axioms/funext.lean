@@ -3,9 +3,8 @@
 -- Author: Jeremy Avigad, Jakob von Raumer
 -- Ported from Coq HoTT
 
--- TODO: move this to an "axioms" folder
 -- TODO: take a look at the Coq tricks
-import .path .equiv
+import hott.path hott.equiv
 open path
 
 -- Funext

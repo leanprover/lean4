@@ -85,6 +85,10 @@ inline options read_options(deserializer & d) { return options(read_sexpr(d)); }
 inline deserializer & operator>>(deserializer & d, options & o) { o = read_options(d); return d; }
 template<typename T> options update(options const & o, name const & n, T const & v) { return o.update(n, sexpr(v)); }
 
+inline options operator+(options const & opts1, options const & opts2) {
+    return join(opts1, opts2);
+}
+
 struct mk_option_declaration {
     mk_option_declaration(name const & n, option_kind k, char const * default_value, char const * description);
 };

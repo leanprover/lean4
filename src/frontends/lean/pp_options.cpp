@@ -93,13 +93,14 @@ void initialize_pp_options() {
                          "(pretty printer) apply beta-reduction when pretty printing");
 
     options universes_true(*g_pp_universes, true);
+    options full_names_true(*g_pp_full_names, true);
     options implicit_true(*g_pp_implicit, true);
     options coercions_true(*g_pp_coercions, true);
     options notation_false(*g_pp_notation, false);
     options implicit_coercions = join(coercions_true, implicit_true);
     options implicit_notation  = join(notation_false, implicit_true);
-    options all = join(join(universes_true, implicit_true), join(coercions_true, notation_false));
-    g_distinguishing_pp_options = new list<options>({implicit_true, coercions_true, implicit_coercions,
+    options all = universes_true + implicit_true + coercions_true + notation_false + full_names_true;
+    g_distinguishing_pp_options = new list<options>({implicit_true, full_names_true, coercions_true, implicit_coercions,
                 implicit_notation, universes_true, all});
 }
 

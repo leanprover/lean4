@@ -401,11 +401,12 @@ struct inductive_cmd_fn {
 
     /** \brief Replace every occurrences of the inductive datatypes (in decls) in \c type with a local constant */
     expr fix_intro_rule_type(expr const & type, name_map<expr> const & ind_to_local) {
-        unsigned nparams = 0; // number of explicit parameters
+        buffer<expr> explicit_params;
         for (expr const & param : m_params) {
             if (is_explicit(local_info(param)))
-                nparams++;
+                explicit_params.push_back(param);
         }
+        unsigned neparams = explicit_params.size();
         return replace(type, [&](expr const & e) {
                 expr const & fn = get_app_fn(e);
                 if (!is_constant(fn))
@@ -413,13 +414,19 @@ struct inductive_cmd_fn {
                 if (auto it = ind_to_local.find(const_name(fn))) {
                     buffer<expr> args;
                     get_app_args(e, args);
-                    if (args.size() < nparams)
-                        throw parser_error(sstream() << "invalide datatype declaration, "
+                    if (args.size() < neparams)
+                        throw parser_error(sstream() << "invalid datatype declaration, "
                                            << "incorrect number of arguments to datatype '"
                                            << const_name(fn) << "'", m_p.pos_of(e));
+                    for (unsigned i = 0; i < neparams; i++) {
+                        if (args[i] != explicit_params[i])
+                            throw parser_error(sstream() << "invalid datatype declaration, "
+                                               << "mismatch in the #" << (i+1) << " explicit parameter",
+                                               m_p.pos_of(e));
+                    }
                     pos_info pos = m_p.pos_of(e);
                     expr r       = m_p.save_pos(copy(*it), pos);
-                    for (unsigned i = nparams; i < args.size(); i++)
+                    for (unsigned i = neparams; i < args.size(); i++)
                         r = m_p.mk_app(r, args[i], pos);
                     return some_expr(r);
                 } else {

@@ -1,0 +1,3 @@
+ind_parser_bug.lean:4:39: error: invalid datatype declaration, mismatch in the #3 explicit parameter
+ind_parser_bug.lean:11:41: error: invalid datatype declaration, mismatch in the #1 explicit parameter
+done

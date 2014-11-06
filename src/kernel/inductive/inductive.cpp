@@ -768,22 +768,20 @@ struct add_inductive_fn {
                     i++;
                 }
                 buffer<expr> v;
-                if (m_dep_elim) {
-                    for (unsigned i = 0; i < u.size(); i++) {
-                        expr u_i    = u[i];
-                        expr u_i_ty = whnf(mlocal_type(u_i));
-                        buffer<expr> xs;
-                        while (is_pi(u_i_ty)) {
-                            expr x = mk_local_for(u_i_ty);
-                            xs.push_back(x);
-                            u_i_ty = whnf(instantiate(binding_body(u_i_ty), x));
-                        }
-                        buffer<expr> it_indices;
-                        unsigned it_idx = get_I_indices(u_i_ty, it_indices);
-                        expr elim_app = mk_constant(get_elim_name(it_idx), ls);
-                        elim_app = mk_app(mk_app(mk_app(mk_app(mk_app(elim_app, m_param_consts), C), e), it_indices), mk_app(u_i, xs));
-                        v.push_back(Fun(xs, elim_app));
+                for (unsigned i = 0; i < u.size(); i++) {
+                    expr u_i    = u[i];
+                    expr u_i_ty = whnf(mlocal_type(u_i));
+                    buffer<expr> xs;
+                    while (is_pi(u_i_ty)) {
+                        expr x = mk_local_for(u_i_ty);
+                        xs.push_back(x);
+                        u_i_ty = whnf(instantiate(binding_body(u_i_ty), x));
                     }
+                    buffer<expr> it_indices;
+                    unsigned it_idx = get_I_indices(u_i_ty, it_indices);
+                    expr elim_app = mk_constant(get_elim_name(it_idx), ls);
+                    elim_app = mk_app(mk_app(mk_app(mk_app(mk_app(elim_app, m_param_consts), C), e), it_indices), mk_app(u_i, xs));
+                    v.push_back(Fun(xs, elim_app));
                 }
                 expr e_app = mk_app(mk_app(mk_app(e[minor_idx], b), u), v);
                 expr comp_rhs   = Fun(m_param_consts, Fun(C, Fun(e, Fun(b, Fun(u, e_app)))));

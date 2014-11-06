@@ -1,0 +1,12 @@
+F x₁
+  (λ (y : A) (a : R y x₁),
+     acc.rec (λ (x₂ : A) (ac : ∀ (y : A), R y x₂ → acc R y) (iH : Π (y : A), R y x₂ → C y), F x₂ iH)
+       (ac y a))
+acc.rec (λ (x₂ : A) (ac : ∀ (y : A), R y x₂ → acc R y) (iH : Π (y : A), R y x₂ → C y), F x₂ iH)
+  (acc.intro x₁ ac) :
+  C x₁
+F x₁
+  (λ (y : A) (a : R y x₁),
+     acc.rec (λ (x₂ : A) (ac : ∀ (y : A), R y x₂ → acc R y) (iH : Π (y : A), R y x₂ → C y), F x₂ iH)
+       (ac y a)) :
+  C x₁

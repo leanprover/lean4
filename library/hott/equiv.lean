@@ -179,37 +179,34 @@ namespace IsEquiv
 end IsEquiv
 
 namespace IsEquiv
-  variables {A B C : Type} {f : A → B} {g : B → C} {f' : A → B}
+  variables {A : Type}
+  section
+  variables {B C : Type} (f : A → B) {f' : A → B} [Hf : IsEquiv f]
+  include Hf
 
-  definition cancel_R (Hf : IsEquiv f) (Hgf : IsEquiv (g ∘ f)) : (IsEquiv g) :=
+  definition cancel_R (g : B → C) [Hgf : IsEquiv (g ∘ f)] : (IsEquiv g) :=
     homotopic (comp_closed (inv_closed Hf) Hgf) (λb, ap g (retr f b))
 
-  definition cancel_L (Hg : IsEquiv g) (Hgf : IsEquiv (g ∘ f)) : (IsEquiv f) :=
-    homotopic (comp_closed Hgf (inv_closed Hg)) (λa, sect g (f a))
-
-  --Transporting is an equivalence
-  definition transport [instance] (P : A → Type) {x y : A} (p : x ≈ y) : (IsEquiv (transport P p)) :=
-    IsEquiv_mk (transport P (p⁻¹)) (transport_pV P p) (transport_Vp P p) (transport_pVp P p)
+  definition cancel_L (g : C → A) [Hgf : IsEquiv (f ∘ g)] : (IsEquiv g) :=
+    homotopic (comp_closed Hgf (inv_closed Hf)) (λa, sect f (g a))
 
   --Rewrite rules
-  section
-
-  definition moveR_M (Hf : IsEquiv f) {x : A} {y : B} (p : x ≈ (inv f) y) : (f x ≈ y) :=
+  definition moveR_M {x : A} {y : B} (p : x ≈ (inv f) y) : (f x ≈ y) :=
     (ap f p) ⬝ (retr f y)
 
-  definition moveL_M (Hf : IsEquiv f) {x : A} {y : B} (p : (inv f) y ≈ x) : (y ≈ f x) :=
-    (moveR_M Hf (p⁻¹))⁻¹
+  definition moveL_M {x : A} {y : B} (p : (inv f) y ≈ x) : (y ≈ f x) :=
+    (moveR_M f (p⁻¹))⁻¹
 
-  definition moveR_V (Hf : IsEquiv f) {x : B} {y : A} (p : x ≈ f y) : (inv f) x ≈ y :=
+  definition moveR_V {x : B} {y : A} (p : x ≈ f y) : (inv f) x ≈ y :=
     ap (inv f) p ⬝ sect f y
 
-  definition moveL_V (Hf : IsEquiv f) {x : B} {y : A} (p : f y ≈ x) : y ≈ (inv f) x :=
-    (moveR_V Hf (p⁻¹))⁻¹
+  definition moveL_V {x : B} {y : A} (p : f y ≈ x) : y ≈ (inv f) x :=
+    (moveR_V f (p⁻¹))⁻¹
 
-  definition contr (Hf : IsEquiv f) (HA: Contr A) : (Contr B) :=
-    Contr.Contr_mk (f (center HA)) (λb, moveR_M Hf (contr HA (inv f b)))
+  definition contr (HA: Contr A) : (Contr B) :=
+    Contr.Contr_mk (f (center HA)) (λb, moveR_M f (contr HA (inv f b)))
 
-  definition ap_closed (Hf : IsEquiv f) (x y : A) : IsEquiv (@ap A B f x y) := 
+  definition ap_closed (x y : A) : IsEquiv (@ap A B f x y) := 
     adjointify (ap f) 
       (λq, (inverse (sect f x)) ⬝ ap (f⁻¹) q ⬝ sect f y)
       (λq, !ap_pp
@@ -233,33 +230,37 @@ namespace IsEquiv
   -- once pulled back along an equivalence f : A → B, then it has a section
   -- over all of B.
 
-  definition equiv_rect (Hf : IsEquiv f) (P : B -> Type) :
+  definition equiv_rect (P : B -> Type) :
       (Πx, P (f x)) → (Πy, P y) :=
     (λg y, path.transport _ (retr f y) (g (f⁻¹ y)))
 
-  definition equiv_rect_comp (Hf : IsEquiv f) (P : B → Type)
-      (df : Π (x : A), P (f x)) (x : A) : equiv_rect Hf P df (f x) ≈ df x :=
+  definition equiv_rect_comp (P : B → Type)
+      (df : Π (x : A), P (f x)) (x : A) : equiv_rect f P df (f x) ≈ df x :=
     let eq1 := (apD df (sect f x)) in
-    calc equiv_rect Hf P df (f x)
-          ≈ path.transport P (retr f (f x)) (df (f⁻¹ (f x))) : idp
-      ... ≈ path.transport P (ap f (sect f x)) (df (f⁻¹ (f x))) : adj f
-      ... ≈ path.transport (P ∘ f) (sect f x) (df (f⁻¹ (f x))) : transport_compose
+    calc equiv_rect f P df (f x)
+          ≈ transport P (retr f (f x)) (df (f⁻¹ (f x))) : idp
+      ... ≈ transport P (ap f (sect f x)) (df (f⁻¹ (f x))) : adj f
+      ... ≈ transport (P ∘ f) (sect f x) (df (f⁻¹ (f x))) : transport_compose
       ... ≈ df x : eq1
 
   end
+
+  --Transporting is an equivalence
+  definition transport [instance] (P : A → Type) {x y : A} (p : x ≈ y) : (IsEquiv (transport P p)) :=
+    IsEquiv_mk (transport P (p⁻¹)) (transport_pV P p) (transport_Vp P p) (transport_pVp P p)
 
 end IsEquiv
 
 namespace Equiv
   context
-  parameters {A B : Type} (eqf : A ≃ B)
+  parameters {A B C : Type} (eqf : A ≃ B)
 
   private definition f : A → B := equiv_fun eqf
   private definition Hf [instance] : IsEquiv f := equiv_isequiv eqf
 
-  definition id : A ≃ A := Equiv_mk id IsEquiv.id_closed
+  protected definition id : A ≃ A := Equiv_mk id IsEquiv.id_closed
 
-  theorem compose {C : Type} (eqg: B ≃ C) : A ≃ C :=
+  theorem compose (eqg: B ≃ C) : A ≃ C :=
     Equiv_mk ((equiv_fun eqg) ∘ f)
              (IsEquiv.comp_closed Hf (equiv_isequiv eqg))
 
@@ -269,27 +270,27 @@ namespace Equiv
   theorem inv_closed : B ≃ A :=
     Equiv_mk (IsEquiv.inv f) (IsEquiv.inv_closed Hf)
 
-  theorem cancel_R {C : Type} {g : B → C} (Hgf : IsEquiv (g ∘ f)) : B ≃ C :=
-    Equiv_mk g (IsEquiv.cancel_R Hf _)
+  theorem cancel_R {g : B → C} (Hgf : IsEquiv (g ∘ f)) : B ≃ C :=
+    Equiv_mk g (IsEquiv.cancel_R f _)
 
-  theorem cancel_L {C : Type} {g : C → A} (Hgf : IsEquiv (f ∘ g)) : C ≃ A :=
-    Equiv_mk g (IsEquiv.cancel_L Hf _)
+  theorem cancel_L {g : C → A} (Hgf : IsEquiv (f ∘ g)) : C ≃ A :=
+    Equiv_mk g (IsEquiv.cancel_L f _)
 
   theorem transport (P : A → Type) {x y : A} {p : x ≈ y} : (P x) ≃ (P y) :=
     Equiv_mk (transport P p) (IsEquiv.transport P p)
 
   theorem contr_closed (HA: Contr A) : (Contr B) :=
-    IsEquiv.contr Hf HA
-
-  -- calc enviroment
-  -- TODO: find a transport lemma?
-  -- theorem foo (P : Type → Type) : P A → P B := sorry
-  -- calc_subst transport
-  --calc_trans Equiv.compose
-  calc_refl id
-  calc_symm inv_closed
+    IsEquiv.contr f HA
 
   end
+
+  -- calc enviroment
+  -- TODO: transport lemma without univalence?
+  -- theorem foo (P : Type → Type) (A B : Type) (H : A ≃ B) : P A → P B := sorry
+  -- calc_subst foo
+  calc_trans compose
+  calc_refl id
+  calc_symm inv_closed
 
 end Equiv
 

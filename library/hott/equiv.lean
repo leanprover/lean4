@@ -282,6 +282,13 @@ namespace Equiv
   theorem contr_closed (HA: Contr A) : (Contr B) :=
     @IsEquiv.contr A B (equiv_fun eqf) (equiv_isequiv eqf) HA
 
+  -- calc enviroment
+  -- TODO: find a transport lemma?
+  -- calc_subst transport
+  calc_trans compose
+  calc_refl id
+  calc_symm inv_closed
+
 end Equiv
 
 namespace Equiv

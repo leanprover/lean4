@@ -7,4 +7,5 @@ Algebraic structures.
 * [relation](relation.lean)
 * [binary](binary.lean) : binary operations
 * [wf](wf.lean) : well-founded relations
+* [group](group.lean)
 * [category](category.lean)

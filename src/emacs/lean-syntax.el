@@ -101,14 +101,15 @@
      ;; String
      ("\"[^\"]*\"" . 'font-lock-string-face)
      ;; Constants
-     (,(rx (or "#" "@" "->" "∼" "↔" "/" "==" "=" ":=" "<->" "/\\" "\\/" "∧" "∨" "≠" "<" ">" "≤" "≥" "¬" "<=" ">=" "⁻¹" "⬝" "▸" "+" "*" "-" "/")) . 'font-lock-constant-face)
-     (,(rx (or "λ" "→" "∃" "∀" ":=")) . 'font-lock-constant-face )
+     (,(rx symbol-start (or "#" "@" "->" "∼" "↔" "/" "==" "=" ":=" "<->" "/\\" "\\/" "∧" "∨" "≠" "<" ">" "≤" "≥" "¬" "<=" ">=" "⁻¹" "⬝" "▸" "+" "*" "-" "/") symbol-end)
+      . 'font-lock-constant-face)
+     (,(rx symbol-start (or "λ" "→" "∃" "∀" ":=") symbol-end) . 'font-lock-constant-face )
      ;; universe/inductive/theorem... "names"
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "lemma" "hypothesis" "definition" "constant"))
            word-end
            (zero-or-more (or whitespace "(" "{" "["))
-           (group (zero-or-more (not (any " \t\n\r")))))
+           (group (zero-or-more (not (any " \t\n\r{([")))))
       (2 'font-lock-function-name-face))
      ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
      ;; place holder
@@ -124,7 +125,8 @@
            word-end)
       . 'font-lock-constant-face)
      ;; Types
-     (,(rx symbol-start (or "Prop" "Type" "Type'" "Type₊" "Type₁" "Type₂" "Type₃") symbol-end) . 'font-lock-type-face)
+     (,(rx word-start (or "Prop" "Type" "Type'" "Type₊" "Type₁" "Type₂" "Type₃") symbol-end) . 'font-lock-type-face)
+     (,(rx word-start (group "Type") ".") (1 'font-lock-type-face))
      ;; sorry
      (,(rx word-start "sorry" word-end) . 'font-lock-warning-face)
      ;; extra-keywords

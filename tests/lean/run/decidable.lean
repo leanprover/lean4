@@ -1,4 +1,4 @@
-import logic data.unit
+import logic data.unit data.bool
 open bool unit decidable
 
 constants a b c : bool

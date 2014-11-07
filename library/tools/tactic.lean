@@ -3,8 +3,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
-
-import data.string data.num.decl
+import data.string.decl data.num.decl
 -- This is just a trick to embed the 'tactic language' as a
 -- Lean expression. We should view 'tactic' as automation
 -- that when execute produces a term.

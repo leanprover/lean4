@@ -1,4 +1,4 @@
-import tools.tactic
+import tools.tactic logic
 open tactic
 
 theorem foo (A : Type) (a b c : A) : a = b → b = c → a = c ∧ c = a :=

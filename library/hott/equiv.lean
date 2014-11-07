@@ -285,9 +285,7 @@ namespace Equiv
   end
 
   -- calc enviroment
-  -- TODO: transport lemma without univalence?
-  -- theorem foo (P : Type → Type) (A B : Type) (H : A ≃ B) : P A → P B := sorry
-  -- calc_subst foo
+  -- Note: Calculating with substitutions needs univalence
   calc_trans compose
   calc_refl id
   calc_symm inv_closed

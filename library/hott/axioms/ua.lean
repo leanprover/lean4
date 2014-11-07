@@ -6,7 +6,7 @@ import hott.path hott.equiv
 open path Equiv
 
 --Ensure that the types compared are in the same universe
-universe l
+universe variable l
 variables (A B : Type.{l})
 
 private definition isequiv_path (H : A ≈ B) :=

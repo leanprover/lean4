@@ -8,4 +8,5 @@ Algebraic structures.
 * [binary](binary.lean) : binary operations
 * [wf](wf.lean) : well-founded relations
 * [group](group.lean)
-* [category](category.lean)
+* [category](category/category.md) : category theory
+

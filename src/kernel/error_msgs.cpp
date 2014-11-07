@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "kernel/replace_fn.h"
 #include "kernel/error_msgs.h"
 
 namespace lean {
@@ -28,13 +29,26 @@ list<options> set_distinguishing_pp_options(list<options> const & opts) {
     return r;
 }
 
+static expr erase_binder_info(expr const & e) {
+    return replace(e, [](expr const & e) {
+            if (is_binding(e) && binding_info(e) != binder_info()) {
+                return some_expr(update_binding(e, erase_binder_info(binding_domain(e)),
+                                                erase_binder_info(binding_body(e)), binder_info()));
+            } else {
+                return none_expr();
+            }
+        });
+}
+
 static std::tuple<format, format> pp_until_different(formatter const & fmt, expr const & e1, expr const & e2, list<options> extra) {
     formatter fmt1 = fmt;
+    expr n_e1 = erase_binder_info(e1);
+    expr n_e2 = erase_binder_info(e2);
     while (true) {
-        format r1 = pp_indent_expr(fmt1, e1);
-        format r2 = pp_indent_expr(fmt1, e2);
+        format r1 = pp_indent_expr(fmt1, n_e1);
+        format r2 = pp_indent_expr(fmt1, n_e2);
         if (!format_pp_eq(r1, r2, fmt1.get_options()))
-            return mk_pair(r1, r2);
+            return mk_pair(pp_indent_expr(fmt1, e1), pp_indent_expr(fmt1, e2));
         if (!extra)
             return mk_pair(pp_indent_expr(fmt, e1), pp_indent_expr(fmt, e2));
         options o = join(head(extra), fmt.get_options());

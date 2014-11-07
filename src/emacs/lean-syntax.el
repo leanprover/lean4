@@ -28,8 +28,8 @@
     (modify-syntax-entry ?\} "){" st)
 
     ;; comment
-    (modify-syntax-entry ?/ "_ 14nb" st)
-    (modify-syntax-entry ?- "_ 123" st)
+    (modify-syntax-entry ?/ ". 14nb" st)
+    (modify-syntax-entry ?- ". 123" st)
     (modify-syntax-entry ?\n ">" st)
 
     ;; Word constituent

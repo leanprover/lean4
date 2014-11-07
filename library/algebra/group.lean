@@ -175,7 +175,7 @@ calc
     ... = 1 * b : mul_left_inv
     ... = b : mul_left_id
 
-theorem group.to_left_cancel_semigroup [instance] [s : group A] : left_cancel_semigroup A :=
+definition group.to_left_cancel_semigroup [instance] [s : group A] : left_cancel_semigroup A :=
 left_cancel_semigroup.mk (@group.mul A s) (@group.mul_assoc A s)
   (take a b c,
     assume H : a * b = a * c,
@@ -184,7 +184,7 @@ left_cancel_semigroup.mk (@group.mul A s) (@group.mul_assoc A s)
         ... = a⁻¹ * (a * c) : H
         ... = c : mul_cancel_inv_left)
 
-theorem group.to_right_cancel_semigroup [instance] [s : group A] : right_cancel_semigroup A :=
+definition group.to_right_cancel_semigroup [instance] [s : group A] : right_cancel_semigroup A :=
 right_cancel_semigroup.mk (@group.mul A s) (@group.mul_assoc A s)
   (take a b c,
     assume H : a * b = c * b,
@@ -229,7 +229,7 @@ calc
     ... = 0 + b : add_left_inv
     ... = b : add_left_id
 
-theorem add_group.to_left_cancel_semigroup [instance] [s : add_group A] : 
+definition add_group.to_left_cancel_semigroup [instance] [s : add_group A] : 
   add_left_cancel_semigroup A :=
 add_left_cancel_semigroup.mk (@add_group.add A s) (@add_group.add_assoc A s)
   (take a b c,
@@ -239,7 +239,7 @@ add_left_cancel_semigroup.mk (@add_group.add A s) (@add_group.add_assoc A s)
         ... = -a + (a + c) : H
         ... = c : add_cancel_inv_left)
 
-theorem add_group.to_add_right_cancel_semigroup [instance] [s : add_group A] : 
+definition add_group.to_add_right_cancel_semigroup [instance] [s : add_group A] : 
   add_right_cancel_semigroup A :=
 add_right_cancel_semigroup.mk (@add_group.add A s) (@add_group.add_assoc A s)
   (take a b c,

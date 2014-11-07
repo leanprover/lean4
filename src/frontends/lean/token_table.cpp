@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static unsigned g_arrow_prec = 25;
-static unsigned g_max_prec   = std::numeric_limits<unsigned>::max();
+static unsigned g_max_prec   = 1024;
 static unsigned g_plus_prec  = 65;
 static unsigned g_cup_prec   = 60;
 unsigned get_max_prec() { return g_max_prec; }

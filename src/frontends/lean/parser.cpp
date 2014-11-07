@@ -1022,10 +1022,11 @@ expr parser::parse_nud_notation() {
 }
 
 expr parser::parse_led_notation(expr left) {
-    if (led().find(get_token_info().value()))
+    if (led().find(get_token_info().value())) {
         return parse_notation(led(), &left);
-    else
-        return mk_app(left, parse_nud_notation(), pos_of(left));
+    } else {
+        return mk_app(left, parse_expr(get_max_prec()), pos_of(left));
+    }
 }
 
 expr parser::id_to_expr(name const & id, pos_info const & p) {
@@ -1188,12 +1189,8 @@ expr parser::parse_nud() {
 
 expr parser::parse_led(expr left) {
     switch (curr()) {
-    case scanner::token_kind::Keyword:     return parse_led_notation(left);
-    case scanner::token_kind::Identifier:  return mk_app(left, parse_id(), pos_of(left));
-    case scanner::token_kind::Numeral:     return mk_app(left, parse_numeral_expr(), pos_of(left));
-    case scanner::token_kind::Decimal:     return mk_app(left, parse_decimal_expr(), pos_of(left));
-    case scanner::token_kind::String:      return mk_app(left, parse_string_expr(), pos_of(left));
-    default:                               return left;
+    case scanner::token_kind::Keyword: return parse_led_notation(left);
+    default:                           return mk_app(left, parse_expr(get_max_prec()), pos_of(left));
     }
 }
 
@@ -1206,7 +1203,7 @@ unsigned parser::curr_lbp() const {
         return 0;
     case scanner::token_kind::Identifier:     case scanner::token_kind::Numeral:
     case scanner::token_kind::Decimal:        case scanner::token_kind::String:
-        return std::numeric_limits<unsigned>::max();
+        return get_max_prec();
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

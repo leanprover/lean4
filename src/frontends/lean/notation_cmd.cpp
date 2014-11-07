@@ -35,7 +35,7 @@ static optional<unsigned> parse_optional_precedence(parser & p) {
         return optional<unsigned>(p.parse_small_nat());
     } else if (p.curr_is_token_or_id(get_max_tk())) {
         p.next();
-        return optional<unsigned>(std::numeric_limits<unsigned>::max());
+        return optional<unsigned>(get_max_prec());
     } else {
         return optional<unsigned>();
     }

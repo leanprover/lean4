@@ -21,14 +21,15 @@ class notation_entry;
 
 class pretty_fn {
 public:
-    static unsigned max_bp() { return std::numeric_limits<unsigned>::max(); }
+    static unsigned max_bp() { return get_max_prec(); }
+    static unsigned inf_bp() { return std::numeric_limits<unsigned>::max(); }
     class result {
         unsigned m_lbp;
         unsigned m_rbp;
         format   m_fmt;
     public:
         result():m_lbp(max_bp()), m_rbp(max_bp()) {}
-        result(format const & fmt):m_lbp(max_bp()), m_rbp(max_bp()), m_fmt(fmt) {}
+        result(format const & fmt):m_lbp(inf_bp()), m_rbp(inf_bp()), m_fmt(fmt) {}
         result(unsigned rbp, format const & fmt):m_lbp(max_bp()), m_rbp(rbp), m_fmt(fmt) {}
         result(unsigned lbp, unsigned rbp, format const & fmt):m_lbp(lbp), m_rbp(rbp), m_fmt(fmt) {}
         unsigned lbp() const { return m_lbp; }

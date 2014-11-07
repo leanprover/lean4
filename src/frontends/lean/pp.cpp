@@ -766,7 +766,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
         to_buffer(entry.get_transitions(), ts);
         format fmt;
         unsigned i         = ts.size();
-        unsigned last_rbp  = max_bp()-1;
+        unsigned last_rbp  = inf_bp()-1;
         unsigned token_lbp = 0;
         bool extra_space   = false;
         bool last          = true;
@@ -779,7 +779,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             case notation::action_kind::Skip:
                 curr = format(tk);
                 if (last)
-                    last_rbp = max_bp();
+                    last_rbp = inf_bp();
                 break;
             case notation::action_kind::Expr:
                 if (args.empty() || !args.back()) {
@@ -915,7 +915,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             }
             extra_space = add_extra_space(tk);
         }
-        unsigned first_lbp = max_bp();
+        unsigned first_lbp = inf_bp();
         if (!entry.is_nud()) {
             first_lbp = token_lbp;
             lean_assert(!last);

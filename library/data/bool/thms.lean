@@ -1,17 +1,13 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-import general_notation
+import data.bool.ops
 import logic.connectives logic.decidable logic.inhabited
 
 open eq eq.ops decidable
 
-inductive bool : Type :=
-  ff : bool,
-  tt : bool
 namespace bool
-  definition cond {A : Type} (b : bool) (t e : A) :=
-  rec_on b e t
+  reducible bor band rec_on
 
   theorem dichotomy (b : bool) : b = ff ∨ b = tt :=
   cases_on b (or.inl rfl) (or.inr rfl)
@@ -26,11 +22,8 @@ namespace bool
   assume H : ff = tt, absurd
     (calc true  = cond tt true false : !cond.tt⁻¹
             ... = cond ff true false : {H⁻¹}
-            ... = false              : !cond.ff)
+            ... = false              : cond.ff)
     true_ne_false
-
-  definition bor (a b : bool) :=
-  rec_on a (rec_on b ff tt) tt
 
   theorem bor.tt_left (a : bool) : bor tt a = tt :=
   rfl
@@ -68,11 +61,6 @@ namespace bool
       have Hb : b = tt, from !bor.ff_left ▸ H,
       or.inr Hb)
     (assume H, or.inl rfl)
-
-  definition band (a b : bool) :=
-  rec_on a ff (rec_on b ff tt)
-
-  notation a && b := band a b
 
   theorem band.ff_left (a : bool) : ff && a = ff :=
   rfl
@@ -115,9 +103,6 @@ namespace bool
   theorem band.eq_tt_elim_right {a b : bool} (H : a && b = tt) : b = tt :=
   band.eq_tt_elim_left (!band.comm ⬝ H)
 
-  definition bnot (a : bool) :=
-  rec_on a tt ff
-
   theorem bnot.bnot (a : bool) : bnot (bnot a) = a :=
   cases_on a rfl rfl
 
@@ -135,4 +120,5 @@ namespace bool
     rec_on a
       (rec_on b (inl rfl) (inr ff_ne_tt))
       (rec_on b (inr (ne.symm ff_ne_tt)) (inl rfl))
+
 end bool

@@ -86,6 +86,7 @@
 (defun lean-set-keys ()
   (local-set-key "\C-c\C-x"  'lean-std-exe)
   (local-set-key "\C-c\C-l"  'lean-std-exe)
+  (local-set-key "\C-c\C-k"  'quail-show-key)
   (local-set-key "\C-c\C-o"  'lean-set-option)
   (local-set-key "\C-c\C-e"  'lean-eval-cmd)
   (local-set-key "\C-c\C-t"  'lean-show-type)

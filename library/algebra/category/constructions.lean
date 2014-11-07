@@ -70,20 +70,20 @@ namespace category
       (λh f, empty.rec _ f) f)
     (λh (g : empty), empty.rec _ g) g
   omit H
-  definition set_category (A : Type) [H : decidable_eq A] : category A :=
+  definition discrete_category (A : Type) [H : decidable_eq A] : category A :=
   mk (λa b, set_hom a b)
      (λ a b c g f, set_compose g f)
      (λ a, decidable.rec_on_true rfl ⋆)
      (λ a b c d h g f, @subsingleton.elim (set_hom a d) _ _ _)
      (λ a b f, @subsingleton.elim (set_hom a b) _ _ _)
      (λ a b f, @subsingleton.elim (set_hom a b) _ _ _)
-  definition Set_category (A : Type) [H : decidable_eq A] := Mk (set_category A)
+  definition Discrete_category (A : Type) [H : decidable_eq A] := Mk (discrete_category A)
   end
   section
   open unit bool
-  definition category_one := set_category unit
+  definition category_one := discrete_category unit
   definition Category_one := Mk category_one
-  definition category_two := set_category bool
+  definition category_two := discrete_category bool
   definition Category_two := Mk category_two
   end
 

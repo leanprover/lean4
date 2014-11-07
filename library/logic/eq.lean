@@ -90,7 +90,7 @@ namespace eq
   drec_on H rfl
 
   theorem rec_on_constant2 (H₁ : a₁ = a₂) (H₂ : a₃ = a₄) (b : B) : rec_on H₁ b = rec_on H₂ b :=
-  rec_on_constant H₁ b ⬝ (rec_on_constant H₂ b)⁻¹
+  rec_on_constant H₁ b ⬝ rec_on_constant H₂ b⁻¹
 
   theorem rec_on_irrel_arg {f : A → B} {D : B → Type} (H : a = a') (H' : f a = f a') (b : D (f a)) :
                        rec_on H b = rec_on H' b :=

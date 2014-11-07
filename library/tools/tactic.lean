@@ -4,7 +4,7 @@
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
 
-import data.string data.num
+import data.string data.num.decl
 -- This is just a trick to embed the 'tactic language' as a
 -- Lean expression. We should view 'tactic' as automation
 -- that when execute produces a term.

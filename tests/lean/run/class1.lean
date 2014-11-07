@@ -1,4 +1,4 @@
-import logic data.prod
+import logic data.prod data.num
 open prod inhabited
 
 definition H : inhabited (Prop × num × (num → num)) := _

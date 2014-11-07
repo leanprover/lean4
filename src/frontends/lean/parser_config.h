@@ -31,11 +31,12 @@ class notation_entry {
     bool                 m_overload;
     bool                 m_safe_ascii;
     bool                 m_reserve;
+    bool                 m_parse_only;
 public:
     notation_entry();
     notation_entry(notation_entry const & e);
-    notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload, bool reserve);
-    notation_entry(mpz const & val, expr const & e, bool overload);
+    notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload, bool reserve, bool parse_only);
+    notation_entry(mpz const & val, expr const & e, bool overload, bool parse_only);
     notation_entry(notation_entry const & e, bool overload);
     ~notation_entry();
     notation_entry_kind kind() const { return m_kind; }
@@ -47,6 +48,7 @@ public:
     bool overload() const { return m_overload; }
     bool is_safe_ascii() const { return m_safe_ascii; }
     bool reserve() const { return m_reserve; }
+    bool parse_only() const { return m_parse_only; }
 };
 bool operator==(notation_entry const & e1, notation_entry const & e2);
 inline bool operator!=(notation_entry const & e1, notation_entry const & e2) {
@@ -61,13 +63,13 @@ environment add_notation(environment const & env, notation_entry const & e);
 
 environment add_token(environment const & env, char const * val, unsigned prec);
 environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a,
-                             bool overload = true, bool reserve = false);
+                             bool overload = true, bool reserve = false, bool parse_only = false);
 environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a,
-                             bool overload = true, bool reserve = false);
+                             bool overload = true, bool reserve = false, bool parse_only = false);
 environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a,
-                             bool overload = true);
+                             bool overload = true, bool parse_only = false);
 environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a,
-                             bool overload = true);
+                             bool overload = true, bool parse_only = false);
 token_table const & get_token_table(environment const & env);
 parse_table const & get_nud_table(environment const & env);
 parse_table const & get_led_table(environment const & env);
@@ -78,7 +80,7 @@ cmd_table const & get_cmd_table(environment const & env);
 environment overwrite_notation(environment const & env, name const & n);
 
 /** \brief Add \c n as notation for \c e */
-environment add_mpz_notation(environment const & env, mpz const & n, expr const & e, bool overload = true);
+environment add_mpz_notation(environment const & env, mpz const & n, expr const & e, bool overload = true, bool parse_only = false);
 /** \brief Return the additional interpretations for \c n in the current environment.
 
     \remark It does not include the default one based on the \c num inductive datatype.

@@ -78,8 +78,21 @@ void check_not_forbidden(char const * tk) {
     }
 }
 
+struct notation_modifiers {
+    bool m_parse_only;
+    notation_modifiers():m_parse_only(false) {}
+    void parse(parser & p) {
+        if (p.curr_is_token(get_parsing_only_tk())) {
+            p.next();
+            m_parse_only = true;
+        }
+    }
+};
+
 static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool reserve)
 -> pair<notation_entry, optional<token_entry>> {
+    notation_modifiers mod;
+    mod.parse(p);
     std::string tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
     char const * tks = tk.c_str();
     check_not_forbidden(tks);
@@ -156,16 +169,16 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool
         switch (k) {
         case mixfix_kind::infixl:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
-                                          dummy, overload, reserve), new_token);
+                                          dummy, overload, reserve, mod.m_parse_only), new_token);
         case mixfix_kind::infixr:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec-1))),
-                                          dummy, overload, reserve), new_token);
+                                          dummy, overload, reserve, mod.m_parse_only), new_token);
         case mixfix_kind::postfix:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action())),
-                                          dummy, overload, reserve), new_token);
+                                          dummy, overload, reserve, mod.m_parse_only), new_token);
         case mixfix_kind::prefix:
             return mk_pair(notation_entry(true, to_list(transition(tks, mk_expr_action(*prec))),
-                                          dummy, overload, reserve), new_token);
+                                          dummy, overload, reserve, mod.m_parse_only), new_token);
         }
     } else {
         p.check_token_next(get_assign_tk(), "invalid notation declaration, ':=' expected");
@@ -175,16 +188,16 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool
         switch (k) {
         case mixfix_kind::infixl:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
-                                          mk_app(f, Var(1), Var(0)), overload, reserve), new_token);
+                                          mk_app(f, Var(1), Var(0)), overload, reserve, mod.m_parse_only), new_token);
         case mixfix_kind::infixr:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec-1))),
-                                          mk_app(f, Var(1), Var(0)), overload, reserve), new_token);
+                                          mk_app(f, Var(1), Var(0)), overload, reserve, mod.m_parse_only), new_token);
         case mixfix_kind::postfix:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action())),
-                                          mk_app(f, Var(0)), overload, reserve), new_token);
+                                          mk_app(f, Var(0)), overload, reserve, mod.m_parse_only), new_token);
         case mixfix_kind::prefix:
             return mk_pair(notation_entry(true, to_list(transition(tks, mk_expr_action(*prec))),
-                                          mk_app(f, Var(0)), overload, reserve), new_token);
+                                          mk_app(f, Var(0)), overload, reserve, mod.m_parse_only), new_token);
         }
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -372,6 +385,8 @@ static notation_entry parse_notation_core(parser & p, bool overload, bool reserv
     bool is_nud = true;
     optional<parse_table> pt;
     optional<parse_table> reserved_pt;
+    notation_modifiers mod;
+    mod.parse(p);
     if (p.curr_is_numeral()) {
         lean_assert(p.curr_is_numeral());
         mpz num = p.get_num_val().get_numerator();
@@ -380,7 +395,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, bool reserv
         auto e_pos = p.pos();
         expr e     = p.parse_expr();
         check_notation_expr(e, e_pos);
-        return notation_entry(num, e, overload);
+        return notation_entry(num, e, overload, mod.m_parse_only);
     } else if (p.curr_is_identifier()) {
         parse_notation_local(p, locals);
         is_nud = false;
@@ -474,7 +489,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, bool reserv
             throw parser_error("invalid notation declaration, empty notation is not allowed", p.pos());
         n = parse_notation_expr(p, locals);
     }
-    return notation_entry(is_nud, to_list(ts.begin(), ts.end()), n, overload, reserve);
+    return notation_entry(is_nud, to_list(ts.begin(), ts.end()), n, overload, reserve, mod.m_parse_only);
 }
 
 bool curr_is_notation_decl(parser & p) {

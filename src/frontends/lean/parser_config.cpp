@@ -20,26 +20,26 @@ using notation::action_kind;
 
 notation_entry replace(notation_entry const & e, std::function<expr(expr const &)> const & f) {
     if (e.is_numeral())
-        return notation_entry(e.get_num(), f(e.get_expr()), e.overload());
+        return notation_entry(e.get_num(), f(e.get_expr()), e.overload(), e.parse_only());
     else
         return notation_entry(e.is_nud(),
                               map(e.get_transitions(), [&](transition const & t) { return notation::replace(t, f); }),
-                              f(e.get_expr()), e.overload(), e.reserve());
+                              f(e.get_expr()), e.overload(), e.reserve(), e.parse_only());
 }
 
 notation_entry::notation_entry():m_kind(notation_entry_kind::NuD) {}
 notation_entry::notation_entry(notation_entry const & e):
     m_kind(e.m_kind), m_expr(e.m_expr), m_overload(e.m_overload),
-    m_safe_ascii(e.m_safe_ascii), m_reserve(e.m_reserve) {
+    m_safe_ascii(e.m_safe_ascii), m_reserve(e.m_reserve), m_parse_only(e.m_parse_only) {
     if (is_numeral())
         new (&m_num) mpz(e.m_num);
     else
         new (&m_transitions) list<transition>(e.m_transitions);
 }
 
-notation_entry::notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload, bool reserve):
+notation_entry::notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload, bool reserve, bool parse_only):
     m_kind(is_nud ? notation_entry_kind::NuD : notation_entry_kind::LeD),
-    m_expr(e), m_overload(overload), m_reserve(reserve) {
+    m_expr(e), m_overload(overload), m_reserve(reserve), m_parse_only(parse_only) {
     new (&m_transitions) list<transition>(ts);
     m_safe_ascii = std::all_of(ts.begin(), ts.end(), [](transition const & t) { return t.is_safe_ascii(); });
 }
@@ -47,8 +47,8 @@ notation_entry::notation_entry(notation_entry const & e, bool overload):
     notation_entry(e) {
     m_overload = overload;
 }
-notation_entry::notation_entry(mpz const & val, expr const & e, bool overload):
-    m_kind(notation_entry_kind::Numeral), m_expr(e), m_overload(overload), m_safe_ascii(true), m_reserve(false) {
+notation_entry::notation_entry(mpz const & val, expr const & e, bool overload, bool parse_only):
+    m_kind(notation_entry_kind::Numeral), m_expr(e), m_overload(overload), m_safe_ascii(true), m_reserve(false), m_parse_only(parse_only) {
     new (&m_num) mpz(val);
 }
 
@@ -61,7 +61,7 @@ notation_entry::~notation_entry() {
 
 bool operator==(notation_entry const & e1, notation_entry const & e2) {
     if (e1.kind() != e2.kind() || e1.overload() != e2.overload() || e1.get_expr() != e2.get_expr() ||
-        e1.reserve() != e2.reserve())
+        e1.reserve() != e2.reserve() || e1.parse_only() != e2.parse_only())
         return false;
     if (e1.is_numeral())
         return e1.get_num() == e2.get_num();
@@ -217,7 +217,8 @@ struct notation_config {
     static std::string * g_key;
 
     static void updt_inv_map(state & s, head_index const & idx, entry const & e) {
-        s.m_inv_map.insert(idx, e);
+        if (!e.parse_only())
+            s.m_inv_map.insert(idx, e);
     }
 
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
@@ -259,7 +260,7 @@ struct notation_config {
         return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
-        s << static_cast<char>(e.kind()) << e.overload() << e.get_expr();
+        s << static_cast<char>(e.kind()) << e.overload() << e.parse_only() << e.get_expr();
         if (e.is_numeral()) {
             s << e.get_num();
         } else {
@@ -270,12 +271,12 @@ struct notation_config {
     }
     static entry read_entry(deserializer & d) {
         notation_entry_kind k = static_cast<notation_entry_kind>(d.read_char());
-        bool overload; expr e;
-        d >> overload >> e;
+        bool overload, parse_only; expr e;
+        d >> overload >> parse_only >> e;
         if (k == notation_entry_kind::Numeral) {
             mpz val;
             d >> val;
-            return entry(val, e, overload);
+            return entry(val, e, overload, parse_only);
         } else {
             bool is_nud = k == notation_entry_kind::NuD;
             bool reserve;
@@ -284,7 +285,7 @@ struct notation_config {
             buffer<transition> ts;
             for (unsigned i = 0; i < sz; i++)
                 ts.push_back(read_transition(d));
-            return entry(is_nud, to_list(ts.begin(), ts.end()), e, overload, reserve);
+            return entry(is_nud, to_list(ts.begin(), ts.end()), e, overload, reserve, parse_only);
         }
     }
     static optional<unsigned> get_fingerprint(entry const &) {
@@ -302,25 +303,25 @@ environment add_notation(environment const & env, notation_entry const & e) {
 }
 
 environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts,
-                             expr const & a, bool overload, bool reserve) {
-    return add_notation(env, notation_entry(true, to_list(ts, ts+num), a, overload, reserve));
+                             expr const & a, bool overload, bool reserve, bool parse_only) {
+    return add_notation(env, notation_entry(true, to_list(ts, ts+num), a, overload, reserve, parse_only));
 }
 
 environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts,
-                             expr const & a, bool overload, bool reserve) {
-    return add_notation(env, notation_entry(false, to_list(ts, ts+num), a, overload, reserve));
+                             expr const & a, bool overload, bool reserve, bool parse_only) {
+    return add_notation(env, notation_entry(false, to_list(ts, ts+num), a, overload, reserve, parse_only));
 }
 
 environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts,
-                             expr const & a, bool overload) {
+                             expr const & a, bool overload, bool parse_only) {
     bool reserve = false;
-    return add_nud_notation(env, ts.size(), ts.begin(), a, overload, reserve);
+    return add_nud_notation(env, ts.size(), ts.begin(), a, overload, reserve, parse_only);
 }
 
 environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts,
-                             expr const & a, bool overload) {
+                             expr const & a, bool overload, bool parse_only) {
     bool reserve = false;
-    return add_led_notation(env, ts.size(), ts.begin(), a, overload, reserve);
+    return add_led_notation(env, ts.size(), ts.begin(), a, overload, reserve, parse_only);
 }
 
 parse_table const & get_nud_table(environment const & env) {
@@ -339,8 +340,8 @@ parse_table const & get_reserved_led_table(environment const & env) {
     return notation_ext::get_state(env).m_reserved_led;
 }
 
-environment add_mpz_notation(environment const & env, mpz const & n, expr const & e, bool overload) {
-    return add_notation(env, notation_entry(n, e, overload));
+environment add_mpz_notation(environment const & env, mpz const & n, expr const & e, bool overload, bool parse_only) {
+    return add_notation(env, notation_entry(n, e, overload, parse_only));
 }
 
 list<expr> get_mpz_notation(environment const & env, mpz const & n) {

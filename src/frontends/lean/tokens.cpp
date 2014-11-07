@@ -74,6 +74,7 @@ static name * g_instance     = nullptr;
 static name * g_priority     = nullptr;
 static name * g_coercion     = nullptr;
 static name * g_reducible    = nullptr;
+static name * g_parsing_only = nullptr;
 static name * g_with         = nullptr;
 static name * g_class        = nullptr;
 static name * g_prev         = nullptr;
@@ -161,6 +162,7 @@ void initialize_tokens() {
     g_priority     = new name("[priority");
     g_coercion     = new name("[coercion]");
     g_reducible    = new name("[reducible]");
+    g_parsing_only = new name("[parsing-only]");
     g_with         = new name("with");
     g_class        = new name("[class]");
     g_prev         = new name("prev");
@@ -212,6 +214,7 @@ void finalize_tokens() {
     delete g_priority;
     delete g_coercion;
     delete g_reducible;
+    delete g_parsing_only;
     delete g_in;
     delete g_assign;
     delete g_visible;
@@ -336,6 +339,7 @@ name const & get_instance_tk() { return *g_instance; }
 name const & get_priority_tk() { return *g_priority; }
 name const & get_coercion_tk() { return *g_coercion; }
 name const & get_reducible_tk() { return *g_reducible; }
+name const & get_parsing_only_tk() { return *g_parsing_only; }
 name const & get_class_tk() { return *g_class; }
 name const & get_with_tk() { return *g_with; }
 name const & get_prev_tk() { return *g_prev; }

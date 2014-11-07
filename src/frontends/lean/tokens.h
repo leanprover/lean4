@@ -76,6 +76,7 @@ name const & get_instance_tk();
 name const & get_priority_tk();
 name const & get_coercion_tk();
 name const & get_reducible_tk();
+name const & get_parsing_only_tk();
 name const & get_class_tk();
 name const & get_with_tk();
 name const & get_prev_tk();

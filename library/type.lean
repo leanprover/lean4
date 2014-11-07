@@ -3,8 +3,8 @@
 -- Authors: Leonardo de Moura
 
 notation `Prop`  := Type.{0}
-notation `Type'` := Type.{_+1}
-notation `Type₊` := Type.{_+1}
+notation [parsing-only] `Type'` := Type.{_+1}
+notation [parsing-only] `Type₊` := Type.{_+1}
 notation `Type₁` := Type.{1}
 notation `Type₂` := Type.{2}
 notation `Type₃` := Type.{3}

@@ -266,9 +266,20 @@ environment check_cmd(parser & p) {
 }
 
 environment eval_cmd(parser & p) {
+    bool whnf = false;
+    if (p.curr_is_token(get_whnf_tk())) {
+        p.next();
+        whnf = true;
+    }
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
-    expr r = normalize(p.env(), ls, e);
+    expr r;
+    if (whnf) {
+        auto tc = mk_type_checker(p.env(), p.mk_ngen(), true);
+        r = tc->whnf(e).first;
+    } else {
+        r = normalize(p.env(), ls, e);
+    }
     p.regular_stream() << r << endl;
     return p.env();
 }

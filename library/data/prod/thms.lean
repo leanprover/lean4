@@ -1,32 +1,12 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura, Jeremy Avigad
-import logic.inhabited logic.eq logic.decidable general_notation
-
--- data.prod
--- =========
+import data.prod.decl logic.inhabited logic.eq logic.decidable
 
 open inhabited decidable eq.ops
 
-structure prod (A B : Type) :=
-mk :: (pr1 : A) (pr2 : B)
-
-definition pair := @prod.mk
-
 namespace prod
-  notation A × B := prod A B
-
-  -- notation for n-ary tuples
-  notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
-
-  variables {A B : Type}
-
-  notation `pr₁` := pr1
-  notation `pr₂` := pr2
-
-  variables (a : A) (b : B)
-
-  variables {a₁ a₂ : A} {b₁ b₂ : B}
+  variables {A B : Type} {a₁ a₂ : A} {b₁ b₂ : B}
 
   theorem pair_eq : a₁ = a₂ → b₁ = b₂ → (a₁, b₁) = (a₂, b₂) :=
   assume H1 H2, H1 ▸ H2 ▸ rfl

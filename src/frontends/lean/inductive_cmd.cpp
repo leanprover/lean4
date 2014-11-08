@@ -24,6 +24,9 @@ Author: Leonardo de Moura
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
 #include "library/definitional/cases_on.h"
+#include "library/definitional/no_confusion.h"
+#include "library/definitional/eq.h"
+#include "library/definitional/heq.h"
 #include "library/definitional/unit.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/util.h"
@@ -637,6 +640,8 @@ struct inductive_cmd_fn {
 
     environment mk_aux_decls(environment env, buffer<inductive_decl> const & decls) {
         bool has_unit = has_unit_decls(env);
+        bool has_eq   = has_eq_decls(env);
+        bool has_heq  = has_heq_decls(env);
         for (inductive_decl const & d : decls) {
             name const & n = inductive_decl_name(d);
             pos_info pos   = *m_decl_pos_map.find(n);
@@ -647,6 +652,14 @@ struct inductive_cmd_fn {
             if (has_unit) {
                 env = mk_cases_on(env, inductive_decl_name(d));
                 save_def_info(name(n, "cases_on"), pos);
+                if (has_eq && has_heq) {
+                    env = mk_no_confusion(env, inductive_decl_name(d));
+                    name no_confusion_type_name{n, "no_confusion_type"};
+                    if (env.find(no_confusion_type_name)) {
+                        save_def_info(no_confusion_type_name, pos);
+                        // save_def_info(name(n, "no_confusion"), pos);
+                    }
+                }
             }
         }
         return env;

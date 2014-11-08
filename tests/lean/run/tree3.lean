@@ -36,15 +36,6 @@ namespace tree
        pr₁ general
   end
 
-  definition no_confusion_type {A : Type} (P : Type) (t₁ t₂ : tree A) : Type :=
-  cases_on t₁
-   (λ a₁, cases_on t₂
-     (λ a₂,    (a₁ = a₂ → P) → P)
-     (λ l₂ r₂, P))
-   (λ l₁ r₁, cases_on t₂
-     (λ a₂,    P)
-     (λ l₂ r₂, (l₁ = l₂ → r₁ = r₂ → P) → P))
-
   set_option pp.universes true
   check no_confusion_type
 

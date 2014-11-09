@@ -164,7 +164,7 @@ struct placeholder_elaborator : public choice_iterator {
         return cons(c, to_list(cs.begin(), cs.end()));
     }
 
-    void trace(expr const & r) {
+    void trace(expr const & t, expr const & r) {
         if (!m_C->trace_instances())
             return;
         auto out = diagnostic(m_C->env(), m_C->ios());
@@ -181,7 +181,7 @@ struct placeholder_elaborator : public choice_iterator {
             out << " ";
         if (m_depth > 0)
             out << "[" << m_depth << "] ";
-        out << m_meta << " := " << r << endl;
+        out << m_meta << " : " << t << " := " << r << endl;
     }
 
     optional<constraints> try_instance(expr const & inst, expr const & inst_type) {
@@ -216,7 +216,7 @@ struct placeholder_elaborator : public choice_iterator {
                 type = instantiate(binding_body(type), arg);
             }
             r = Fun(locals, r);
-            trace(r);
+            trace(meta_type, r);
             bool relax   = m_C->m_relax;
             constraint c = mk_eq_cnstr(m_meta, r, m_jst, relax);
             return optional<constraints>(mk_constraints(c, cs));

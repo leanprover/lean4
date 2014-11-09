@@ -1,0 +1,1 @@
+bad_id.lean:5:12: error: invalid binder, '(', '{', '[', '{{', '⦃' or identifier expected

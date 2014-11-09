@@ -354,7 +354,7 @@ auto scanner::read_key_cmd_id() -> token_kind {
             } else if (cs[i] == '.') {
                 next_utf(cs);
                 num_utfs++;
-                if (!is_id_rest(cs, i+1))
+                if (!is_id_first(cs, i+1))
                     break;
             } else {
                 break;

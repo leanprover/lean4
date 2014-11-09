@@ -1,114 +1,243 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Jeremy Avigad, Floris van Doorn
+-- Authors: Jeremy Avigad, Floris van Doorn
 -- Ported from Coq HoTT
-import .path data.nat.basic data.empty data.unit data.sigma
-open path nat sigma
+
+import .path .logic data.nat.basic data.empty data.unit data.sigma .equiv
+open path nat sigma unit
 
 -- Truncation levels
 -- -----------------
 
 -- TODO: make everything universe polymorphic
 
-structure contr_internal (A : Type₊) :=
-mk :: (center : A) (contr : Π(a : A), center ≈ a)
+-- TODO: everything definition with a hprop as codomain can be a theorem?
 
-inductive trunc_index : Type :=
-minus_two : trunc_index,
-trunc_S : trunc_index → trunc_index
+/- truncation indices -/
 
 namespace truncation
 
-postfix `.+1`:max := trunc_index.trunc_S
-postfix `.+2`:max := λn, (n .+1 .+1)
-notation `-2` := trunc_index.minus_two
-notation `-1` := (-2.+1)
+  inductive trunc_index : Type :=
+  minus_two : trunc_index,
+  trunc_S : trunc_index → trunc_index
 
-definition trunc_index_add (n m : trunc_index) : trunc_index :=
-trunc_index.rec_on m n (λ k l, l .+1)
+  postfix `.+1`:10000 := trunc_index.trunc_S
+  postfix `.+2`:10000 := λn, (n .+1 .+1)
+  notation `-2` := trunc_index.minus_two
+  notation `-1` := (-2.+1)
 
--- Coq calls this `-2+`, but `+2+` looks more natural, since trunc_index_add 0 0 = 2
-infix `+2+`:65 := trunc_index_add
+  namespace trunc_index
+  definition add (n m : trunc_index) : trunc_index :=
+  trunc_index.rec_on m n (λ k l, l .+1)
 
-definition trunc_index_leq (n m : trunc_index) : Type₁ :=
-trunc_index.rec_on n (λm, unit) (λ n p m, trunc_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
+  definition leq (n m : trunc_index) : Type₁ :=
+  trunc_index.rec_on n (λm, unit) (λ n p m, trunc_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
+  end trunc_index
 
-notation x <= y := trunc_index_leq x y
-notation x ≤ y := trunc_index_leq x y
+  -- Coq calls this `-2+`, but `+2+` looks more natural, since trunc_index_add 0 0 = 2
+  infix `+2+`:65 := add
 
-definition nat_to_trunc_index [coercion] (n : nat) : trunc_index :=
-nat.rec_on n (-1.+1) (λ n k, k.+1)
+  notation x <= y := trunc_index.leq x y
+  notation x ≤ y := trunc_index.leq x y
 
-definition is_trunc_internal (n : trunc_index) : Type₁ → Type₁ :=
-trunc_index.rec_on n (λA, contr_internal A) (λn trunc_n A, (Π(x y : A), trunc_n (x ≈ y)))
+  namespace trunc_index
+  definition succ_le {n m : trunc_index} (H : n ≤ m) : n.+1 ≤ m.+1 := H
+  definition succ_le_cancel {n m : trunc_index} (H : n.+1 ≤ m.+1) : n ≤ m := H
+  definition minus_two_le (n : trunc_index) : -2 ≤ n := star
+  definition not_succ_le_minus_two {n : trunc_index} (H : n .+1 ≤ -2) : empty := H
+  end trunc_index
 
-structure is_trunc [class] (n : trunc_index) (A : Type) :=
-mk :: (to_internal : is_trunc_internal n A)
+  definition nat_to_trunc_index [coercion] (n : nat) : trunc_index :=
+  nat.rec_on n (-1.+1) (λ n k, k.+1)
 
--- should this be notation or definitions
---prefix `is_contr`:max := is_trunc -2
-definition is_contr := is_trunc -2
-definition is_hprop := is_trunc -1
-definition is_hset := is_trunc nat.zero
+  /- truncated types -/
 
-variable {A : Type₁}
+  /-
+    Just as in Coq HoTT we define an internal version of contractibility and is_trunc, but we only
+    use `is_trunc` and `is_contr`
+  -/
 
-definition is_contr.mk (center : A) (contr : Π(a : A), center ≈ a) : is_contr A :=
-is_trunc.mk (contr_internal.mk center contr)
+  structure contr_internal (A : Type₊) :=
+  (center : A) (contr : Π(a : A), center ≈ a)
 
-definition center (A : Type₁) [H : is_contr A] : A :=
-@contr_internal.center A is_trunc.to_internal
+  definition is_trunc_internal (n : trunc_index) : Type₁ → Type₁ :=
+  trunc_index.rec_on n (λA, contr_internal A) (λn trunc_n A, (Π(x y : A), trunc_n (x ≈ y)))
 
-definition contr [H : is_contr A] (a : A) : !center ≈ a :=
-@contr_internal.contr A is_trunc.to_internal a
+  structure is_trunc [class] (n : trunc_index) (A : Type₁) :=
+  (to_internal : is_trunc_internal n A)
 
-definition is_trunc_succ (A : Type₁) {n : trunc_index} [H : ∀x y : A, is_trunc n (x ≈ y)]
-  : is_trunc (n.+1) A :=
-is_trunc.mk (λ x y, is_trunc.to_internal)
+  -- should this be notation or definitions?
+  notation `is_contr` := is_trunc -2
+  notation `is_hprop` := is_trunc -1
+  notation `is_hset`  := is_trunc nat.zero
+  -- definition is_contr := is_trunc -2
+  -- definition is_hprop := is_trunc -1
+  -- definition is_hset  := is_trunc 0
 
-definition succ_is_trunc {n : trunc_index} [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x ≈ y) :=
-is_trunc.mk (is_trunc.to_internal x y)
+  variables {A B : Type₁}
 
-definition path_contr [H : is_contr A] (x y : A) : x ≈ y :=
-(contr x)⁻¹ ⬝ (contr y)
+  -- maybe rename to is_trunc_succ.mk
+  definition is_trunc_succ (A : Type₁) {n : trunc_index} [H : ∀x y : A, is_trunc n (x ≈ y)]
+    : is_trunc n.+1 A :=
+  is_trunc.mk (λ x y, is_trunc.to_internal)
 
-definition path2_contr {A : Type₁} [H : is_contr A] {x y : A} (p q : x ≈ y) : p ≈ q :=
-have K : ∀ (r : x ≈ y), path_contr x y ≈ r, from (λ r, path.rec_on r !concat_Vp),
-K p⁻¹ ⬝ K q
+  -- maybe rename to is_trunc_succ.elim
+  definition succ_is_trunc {n : trunc_index} [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x ≈ y) :=
+  is_trunc.mk (is_trunc.to_internal x y)
 
-definition contr_paths_contr [instance] {A : Type₁} [H : is_contr A] (x y : A) : is_contr (x ≈ y) :=
-is_contr.mk !path_contr (λ p, !path2_contr)
+  /- contractibility -/
 
-definition trunc_succ (A : Type₁) (n : trunc_index) [H : is_trunc n A] : is_trunc (n.+1) A :=
-trunc_index.rec_on n
-  (λ A (H : is_contr A), !is_trunc_succ)
-  (λ n IH A (H : is_trunc (n.+1) A), @is_trunc_succ _ _ (λ x y, IH _ !succ_is_trunc))
-  A H
---in the proof the type of H is given explicitly to make it available for class inference
+  definition is_contr.mk (center : A) (contr : Π(a : A), center ≈ a) : is_contr A :=
+  is_trunc.mk (contr_internal.mk center contr)
 
-definition contr_basedpaths [instance] {A : Type₁} (a : A) : is_contr (Σ(x : A), a ≈ x) :=
-is_contr.mk (dpair a idp) (λp, sorry)
+  definition center (A : Type₁) [H : is_contr A] : A :=
+  @contr_internal.center A is_trunc.to_internal
 
--- Definition trunc_contr {n} {A} `{Contr A} : IsTrunc n A
---   := (@trunc_leq -2 n tt _ _).
+  definition contr [H : is_contr A] (a : A) : !center ≈ a :=
+  @contr_internal.contr A is_trunc.to_internal a
 
--- Definition trunc_hprop {n} {A} `{IsHProp A} : IsTrunc n.+1 A
---   := (@trunc_leq -1 n.+1 tt _ _).
+  definition path_contr [H : is_contr A] (x y : A) : x ≈ y :=
+  contr x⁻¹ ⬝ (contr y)
 
--- Definition trunc_hset {n} {A} `{IsHSet A} : IsTrunc n.+1.+1 A
---   := (@trunc_leq 0 n.+1.+1 tt _ _).
+  definition path2_contr {A : Type₁} [H : is_contr A] {x y : A} (p q : x ≈ y) : p ≈ q :=
+  have K : ∀ (r : x ≈ y), path_contr x y ≈ r, from (λ r, path.rec_on r !concat_Vp),
+  K p⁻¹ ⬝ K q
 
-definition trunc_leq [instance] {A : Type₁} {m n : trunc_index} (H : m ≤ n)
-  [H : is_trunc m A] : is_trunc n A :=
-sorry
+  definition contr_paths_contr [instance] {A : Type₁} [H : is_contr A] (x y : A) : is_contr (x ≈ y) :=
+  is_contr.mk !path_contr (λ p, !path2_contr)
 
-definition is_hprop.mk (A : Type₁) (H : ∀x y : A, x ≈ y) : is_hprop A := sorry
-definition is_hprop.elim [H : is_hprop A] (x y : A) : x ≈ y := sorry
+  /- truncation is upward close -/
 
-definition is_trunc_is_hprop {n : trunc_index} : is_hprop (is_trunc n A) := sorry
+  -- n-types are also (n+1)-types
+  definition trunc_succ [instance] (A : Type₁) (n : trunc_index) [H : is_trunc n A] : is_trunc (n.+1) A :=
+  trunc_index.rec_on n
+    (λ A (H : is_contr A), !is_trunc_succ)
+    (λ n IH A (H : is_trunc (n.+1) A), @is_trunc_succ _ _ (λ x y, IH _ !succ_is_trunc))
+    A H
+  --in the proof the type of H is given explicitly to make it available for class inference
 
-definition is_hset.mk (A : Type₁) (H : ∀(x y : A) (p q : x ≈ y), p ≈ q) : is_hset A := sorry
-definition is_hset.elim [H : is_hset A] ⦃x y : A⦄ (p q : x ≈ y) : p ≈ q := sorry
 
+  definition trunc_leq (A : Type₁) (n m : trunc_index) (Hnm : n ≤ m)
+    [Hn : is_trunc n A] : is_trunc m A :=
+  have base : ∀k A, k ≤ -2 → is_trunc k A → (is_trunc -2 A), from
+    λ k A, trunc_index.cases_on k
+           (λh1 h2, h2)
+           (λk h1 h2, empty.elim (is_trunc -2 A) (trunc_index.not_succ_le_minus_two h1)),
+  have step : Π (m : trunc_index)
+                (IHm : Π (n : trunc_index) (A : Type₁), n ≤ m → is_trunc n A → is_trunc m A)
+                (n : trunc_index) (A : Type₁)
+                (Hnm : n ≤ m .+1) (Hn : is_trunc n A), is_trunc m .+1 A, from
+    λm IHm n, trunc_index.rec_on n
+           (λA Hnm Hn, @trunc_succ A m (IHm -2 A star Hn))
+           (λn IHn A Hnm (Hn : is_trunc n.+1 A),
+           @is_trunc_succ A m (λx y, IHm n (x≈y) (trunc_index.succ_le_cancel Hnm) !succ_is_trunc)),
+  trunc_index.rec_on m base step n A Hnm Hn
+
+  -- the following cannot be instances in their current form, because it is looping
+  definition trunc_contr (A : Type₁) (n : trunc_index) [H : is_contr A] : is_trunc n A :=
+  trunc_index.rec_on n H _
+
+  definition trunc_hprop (A : Type₁) (n : trunc_index) [H : is_hprop A]
+      : is_trunc (n.+1) A :=
+  trunc_leq A -1 (n.+1) star
+
+  definition trunc_hset (A : Type₁) (n : trunc_index) [H : is_hset A]
+      : is_trunc (n.+2) A :=
+  trunc_leq A 0 (n.+2) star
+
+  /- hprops -/
+
+  definition is_hprop.elim [H : is_hprop A] (x y : A) : x ≈ y :=
+  @center _ !succ_is_trunc
+
+  definition contr_inhabited_hprop {A : Type₁} [H : is_hprop A] (x : A) : is_contr A :=
+  is_contr.mk x (λy, !is_hprop.elim)
+
+  --Coq has the following as instance, but doesn't look too useful
+  definition hprop_inhabited_contr {A : Type₁} (H : A → is_contr A) : is_hprop A :=
+  @is_trunc_succ A -2
+    (λx y,
+      have H2 [visible] : is_contr A, from H x,
+      !contr_paths_contr)
+
+  definition is_hprop.mk {A : Type₁} (H : ∀x y : A, x ≈ y) : is_hprop A :=
+  hprop_inhabited_contr (λ x, is_contr.mk x (H x))
+
+  /- hsets -/
+
+  definition is_hset.mk (A : Type₁) (H : ∀(x y : A) (p q : x ≈ y), p ≈ q) : is_hset A :=
+  @is_trunc_succ _ _ (λ x y, is_hprop.mk (H x y))
+
+  definition is_hset.elim [H : is_hset A] ⦃x y : A⦄ (p q : x ≈ y) : p ≈ q :=
+  @is_hprop.elim _ !succ_is_trunc p q
+
+  /- instances -/
+
+  definition contr_basedpaths [instance] {A : Type₁} (a : A) : is_contr (Σ(x : A), a ≈ x) :=
+  is_contr.mk (dpair a idp) (λp, sigma.rec_on p (λ b q, path.rec_on q idp))
+
+  definition is_trunc_is_hprop [instance] {n : trunc_index} : is_hprop (is_trunc n A) := sorry
+
+  definition unit_contr [instance] : is_contr unit :=
+  is_contr.mk star (λp, unit.rec_on p idp)
+
+  definition empty_hprop [instance] : is_hprop empty :=
+  is_hprop.mk (λx, !empty.elim x)
+
+  /- truncated universe -/
+
+  structure trunctype (n : trunc_index) :=
+  (trunctype_type : Type₁) (is_trunc_trunctype_type : is_trunc n trunctype_type)
+  coercion trunctype.trunctype_type
+
+  notation n `-Type` := trunctype n
+  notation `hprop` := -1-Type.
+  notation `hset` := 0-Type.
+
+  definition hprop.mk := @trunctype.mk -1
+  definition hset.mk := @trunctype.mk 0
+
+  --what does the following line in Coq do?
+  --Canonical Structure default_TruncType := fun n T P => (@BuildTruncType n T P).
+
+  /- interaction with equivalences -/
+
+  section
+  open IsEquiv Equiv
+
+  --should we remove the following two theorems as they are special cases of "trunc_equiv"
+  definition equiv_preserves_contr (f : A → B) [Hf : IsEquiv f] [HA: is_contr A] : (is_contr B) :=
+  is_contr.mk (f (center A)) (λp, moveR_M f !contr)
+
+  theorem contr_equiv (f : A ≃ B) [HA: is_contr A] : is_contr B :=
+  equiv_preserves_contr f
+
+  definition contr_equiv_contr [HA : is_contr A] [HB : is_contr B] : A ≃ B :=
+  Equiv.mk
+    (λa, center B)
+    (IsEquiv.adjointify (λa, center B) (λb, center A) contr contr)
+
+  definition trunc_equiv (n : trunc_index) (f : A → B) [H : IsEquiv f] [HA : is_trunc n A]
+      : is_trunc n B :=
+  trunc_index.rec_on n
+    (λA (HA : is_contr A) B f (H : IsEquiv f), !equiv_preserves_contr)
+    (λn IH A (HA : is_trunc n.+1 A) B f (H : IsEquiv f), @is_trunc_succ _ _ (λ x y : B,
+      IH (f⁻¹ x ≈ f⁻¹ y) !succ_is_trunc (x ≈ y) ((ap (f⁻¹))⁻¹) !inv_closed))
+    A HA B f H
+
+  definition trunc_equiv' (n : trunc_index) (f : A ≃ B) [HA : is_trunc n A] : is_trunc n B :=
+  trunc_equiv n f
+
+  definition isequiv_iff_hprop [HA : is_hprop A] [HB : is_hprop B] (f : A → B) (g : B → A)
+      : IsEquiv f :=
+  IsEquiv.adjointify f g (λb, !is_hprop.elim) (λa, !is_hprop.elim)
+
+  -- definition equiv_iff_hprop_uncurried [HA : is_hprop A] [HB : is_hprop B] : (A ↔ B) → (A ≃ B)  := sorry
+
+  definition equiv_iff_hprop [HA : is_hprop A] [HB : is_hprop B] (f : A → B) (g : B → A) : A ≃ B :=
+  Equiv.mk f (isequiv_iff_hprop f g)
+  end
+
+  -- TODO: port "Truncated morphisms"
 
 end truncation

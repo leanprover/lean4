@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jeremy Avigad, Jakob von Raumer
 -- Ported from Coq HoTT
-import .path .trunc
+import .path
 open path function
 
 -- Equivalences
@@ -16,38 +16,37 @@ definition Sect {A B : Type} (s : A → B) (r : B → A) := Πx : A, r (s x) ≈
 -- Structure IsEquiv
 
 inductive IsEquiv [class] {A B : Type} (f : A → B) :=
-IsEquiv_mk : Π
+mk : Π
   (inv : B → A)
   (retr : Sect inv f)
   (sect : Sect f inv)
   (adj : Πx, retr (f x) ≈ ap f (sect x)),
 IsEquiv f
 
-
 namespace IsEquiv
 
-  definition inv [coercion] {A B : Type} (f : A → B) [H : IsEquiv f] : B → A :=
+  definition inv {A B : Type} (f : A → B) [H : IsEquiv f] : B → A :=
     IsEquiv.rec (λinv retr sect adj, inv) H
 
   -- TODO: note: does not type check without giving the type
-  definition retr [coercion] {A B : Type} (f : A → B) [H : IsEquiv f] : Sect (inv f) f :=
+  definition retr {A B : Type} (f : A → B) [H : IsEquiv f] : Sect (inv f) f :=
     IsEquiv.rec (λinv retr sect adj, retr) H
 
-  definition sect [coercion] {A B : Type} (f : A → B) [H : IsEquiv f] : Sect f (inv f) :=
+  definition sect {A B : Type} (f : A → B) [H : IsEquiv f] : Sect f (inv f) :=
     IsEquiv.rec (λinv retr sect adj, sect) H
 
-  definition adj [coercion] {A B : Type} (f : A → B) [H : IsEquiv f] :
+  definition adj {A B : Type} (f : A → B) [H : IsEquiv f] :
              Πx, retr f (f x) ≈ ap f (sect f x) :=
     IsEquiv.rec (λinv retr sect adj, adj) H
 
-  notation e `⁻¹` := inv e
+  postfix `⁻¹` := inv
 
 end IsEquiv
 
 -- Structure Equiv
 
 inductive Equiv (A B : Type) : Type :=
-Equiv_mk : Π
+mk : Π
   (equiv_fun : A → B)
   (equiv_isequiv : IsEquiv equiv_fun),
 Equiv A B
@@ -57,7 +56,7 @@ namespace Equiv
   definition equiv_fun [coercion] {A B : Type} (e : Equiv A B) : A → B :=
     Equiv.rec (λequiv_fun equiv_isequiv, equiv_fun) e
 
-  definition equiv_isequiv [coercion] {A B : Type} (e : Equiv A B) : IsEquiv (equiv_fun e) :=
+  definition equiv_isequiv [instance] {A B : Type} (e : Equiv A B) : IsEquiv (equiv_fun e) :=
     Equiv.rec (λequiv_fun equiv_isequiv, equiv_isequiv) e
 
   infix `≃`:25 := Equiv
@@ -71,12 +70,12 @@ namespace IsEquiv
 
   -- The identity function is an equivalence.
 
-  definition id_closed [instance] : (@IsEquiv A A id) := IsEquiv_mk id (λa, idp) (λa, idp) (λa, idp)
+  definition id_closed [instance] : (@IsEquiv A A id) := IsEquiv.mk id (λa, idp) (λa, idp) (λa, idp)
 
   -- The composition of two equivalences is, again, an equivalence.
 
-  definition comp_closed (Hf : IsEquiv f) (Hg : IsEquiv g) : (IsEquiv (g ∘ f)) :=
-    IsEquiv_mk ((inv f) ∘ (inv g))
+  definition comp_closed [instance] (Hf : IsEquiv f) (Hg : IsEquiv g) : (IsEquiv (g ∘ f)) :=
+    IsEquiv.mk ((inv f) ∘ (inv g))
                (λc, ap g (retr f (g⁻¹ c)) ⬝ retr g c)
                (λa, ap (inv f) (sect g (f a)) ⬝ sect f a)
                (λa, (whiskerL _ (adj g (f a))) ⬝
@@ -123,7 +122,7 @@ namespace IsEquiv
           ... ≈ (ap f' ((ap invf ff'a)⁻¹)) ⬝ ap f' secta : {!ap_V⁻¹}
           ... ≈ ap f' ((ap invf ff'a)⁻¹ ⬝ secta) : !ap_pp⁻¹,
     eq3) in
-  IsEquiv_mk (inv f) sect' retr' adj'
+  IsEquiv.mk (inv f) sect' retr' adj'
 end IsEquiv
 
 namespace IsEquiv
@@ -165,15 +164,15 @@ namespace IsEquiv
       have eq4 : ret (f a) ≈ ap f ((ap g (ap f ((sec a)⁻¹)) ⬝ ap g (ret (f a))) ⬝ sec a),
         from moveR_M1 _ _ eq3,
       eq4) in
-    IsEquiv_mk g ret sect' adj'
+    IsEquiv.mk g ret sect' adj'
   end
 end IsEquiv
 
 namespace IsEquiv
-  variables {A B: Type} {f : A → B} 
+  variables {A B: Type} (f : A → B)
   
   --The inverse of an equivalence is, again, an equivalence.
-  definition inv_closed (Hf : IsEquiv f) : (IsEquiv (inv f)) :=
+  definition inv_closed [instance] [Hf : IsEquiv f] : (IsEquiv (inv f)) :=
     adjointify (inv f) f (sect f) (retr f)
 
 end IsEquiv
@@ -185,10 +184,10 @@ namespace IsEquiv
   include Hf
 
   definition cancel_R (g : B → C) [Hgf : IsEquiv (g ∘ f)] : (IsEquiv g) :=
-    homotopic (comp_closed (inv_closed Hf) Hgf) (λb, ap g (retr f b))
+    homotopic (comp_closed !inv_closed Hgf) (λb, ap g (retr f b))
 
   definition cancel_L (g : C → A) [Hgf : IsEquiv (f ∘ g)] : (IsEquiv g) :=
-    homotopic (comp_closed Hgf (inv_closed Hf)) (λa, sect f (g a))
+    homotopic (comp_closed Hgf !inv_closed) (λa, sect f (g a))
 
   --Rewrite rules
   definition moveR_M {x : A} {y : B} (p : x ≈ (inv f) y) : (f x ≈ y) :=
@@ -203,10 +202,7 @@ namespace IsEquiv
   definition moveL_V {x : B} {y : A} (p : f y ≈ x) : y ≈ (inv f) x :=
     (moveR_V f (p⁻¹))⁻¹
 
-  definition contr (HA: Contr A) : (Contr B) :=
-    Contr.Contr_mk (f (center HA)) (λb, moveR_M f (contr HA (inv f b)))
-
-  definition ap_closed (x y : A) : IsEquiv (@ap A B f x y) := 
+  definition ap_closed [instance] (x y : A) : IsEquiv (ap f) := 
     adjointify (ap f) 
       (λq, (inverse (sect f x)) ⬝ ap (f⁻¹) q ⬝ sect f y)
       (λq, !ap_pp
@@ -247,7 +243,7 @@ namespace IsEquiv
 
   --Transporting is an equivalence
   definition transport [instance] (P : A → Type) {x y : A} (p : x ≈ y) : (IsEquiv (transport P p)) :=
-    IsEquiv_mk (transport P (p⁻¹)) (transport_pV P p) (transport_Vp P p) (transport_pVp P p)
+    IsEquiv.mk (transport P (p⁻¹)) (transport_pV P p) (transport_Vp P p) (transport_pVp P p)
 
 end IsEquiv
 
@@ -256,31 +252,28 @@ namespace Equiv
   parameters {A B C : Type} (eqf : A ≃ B)
 
   private definition f : A → B := equiv_fun eqf
-  private definition Hf [instance] : IsEquiv f := equiv_isequiv eqf
+  private definition Hf : IsEquiv f := equiv_isequiv eqf
 
-  protected definition id : A ≃ A := Equiv_mk id IsEquiv.id_closed
+  protected definition id : A ≃ A := Equiv.mk id IsEquiv.id_closed
 
   theorem compose (eqg: B ≃ C) : A ≃ C :=
-    Equiv_mk ((equiv_fun eqg) ∘ f)
+    Equiv.mk ((equiv_fun eqg) ∘ f)
              (IsEquiv.comp_closed Hf (equiv_isequiv eqg))
 
   theorem path_closed (f' : A → B) (Heq : equiv_fun eqf ≈ f') : A ≃ B :=
-    Equiv_mk f' (IsEquiv.path_closed Hf Heq)
+    Equiv.mk f' (IsEquiv.path_closed Hf Heq)
 
   theorem inv_closed : B ≃ A :=
-    Equiv_mk (IsEquiv.inv f) (IsEquiv.inv_closed Hf)
+    Equiv.mk (IsEquiv.inv f) !IsEquiv.inv_closed
 
   theorem cancel_R {g : B → C} (Hgf : IsEquiv (g ∘ f)) : B ≃ C :=
-    Equiv_mk g (IsEquiv.cancel_R f _)
+    Equiv.mk g (IsEquiv.cancel_R f _)
 
   theorem cancel_L {g : C → A} (Hgf : IsEquiv (f ∘ g)) : C ≃ A :=
-    Equiv_mk g (IsEquiv.cancel_L f _)
+    Equiv.mk g (IsEquiv.cancel_L f _)
 
   theorem transport (P : A → Type) {x y : A} {p : x ≈ y} : (P x) ≃ (P y) :=
-    Equiv_mk (transport P p) (IsEquiv.transport P p)
-
-  theorem contr_closed (HA: Contr A) : (Contr B) :=
-    IsEquiv.contr f HA
+    Equiv.mk (transport P p) (IsEquiv.transport P p)
 
   end
 
@@ -289,17 +282,5 @@ namespace Equiv
   calc_trans compose
   calc_refl id
   calc_symm inv_closed
-
-end Equiv
-
-namespace Equiv
-  variables {A B : Type} {HA : Contr A} {HB : Contr B}
-
-  --Each two contractible types are equivalent.
-  definition contr_contr : A ≃ B :=
-    Equiv_mk
-      (λa, center HB)
-      (IsEquiv.adjointify (λa, center HB) (λb, center HA) 
-        (contr HB) (contr HA))
 
 end Equiv

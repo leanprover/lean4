@@ -72,11 +72,11 @@ namespace Equiv
   private definition Hf := equiv_isequiv eqf
 
   definition precompose : (B → C) ≃ (A → C) :=
-    Equiv_mk (IsEquiv.precomp f C)
+    Equiv.mk (IsEquiv.precomp f C)
       (@IsEquiv.precompose A B f Hf C)
 
   definition postcompose : (C → A) ≃ (C → B) :=
-    Equiv_mk (IsEquiv.postcomp f C)
+    Equiv.mk (IsEquiv.postcomp f C)
       (@IsEquiv.postcompose A B f Hf C)
 
   end

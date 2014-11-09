@@ -13,7 +13,7 @@ private definition isequiv_path (H : A ≈ B) :=
   (@IsEquiv.transport Type (λX, X) A B H)
 
 definition equiv_path (H : A ≈ B) : A ≃ B :=
-  Equiv_mk _ (isequiv_path A B H)
+  Equiv.mk _ (isequiv_path A B H)
 
 axiom ua_equiv (A B : Type) : IsEquiv (equiv_path A B)
 

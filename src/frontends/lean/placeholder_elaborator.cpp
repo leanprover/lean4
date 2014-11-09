@@ -30,13 +30,19 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_ELABORATOR_TRACE_INSTANCES false
 #endif
 
+#ifndef LEAN_DEFAULT_ELABORATOR_INSTANCE_MAX_DEPTH
+#define LEAN_DEFAULT_ELABORATOR_INSTANCE_MAX_DEPTH 32
+#endif
+
 namespace lean {
 static name * g_elaborator_unique_class_instances = nullptr;
 static name * g_elaborator_trace_instances        = nullptr;
+static name * g_elaborator_instance_max_depth     = nullptr;
 
 void initialize_placeholder_elaborator() {
     g_elaborator_unique_class_instances = new name{"elaborator", "unique_class_instances"};
     g_elaborator_trace_instances        = new name{"elaborator", "trace_instances"};
+    g_elaborator_instance_max_depth     = new name{"elaborator", "instance_max_depth"};
 
     register_bool_option(*g_elaborator_unique_class_instances,  LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES,
                          "(elaborator) generate an error if there is more than one solution "
@@ -44,11 +50,15 @@ void initialize_placeholder_elaborator() {
 
     register_bool_option(*g_elaborator_trace_instances,  LEAN_DEFAULT_ELABORATOR_TRACE_INSTANCES,
                          "(elaborator) display messages showing the class-instances resolution execution trace");
+
+    register_unsigned_option(*g_elaborator_instance_max_depth, LEAN_DEFAULT_ELABORATOR_INSTANCE_MAX_DEPTH,
+                             "(elaborator) max allowed depth in class-instance resolution");
 }
 
 void finalize_placeholder_elaborator() {
     delete g_elaborator_unique_class_instances;
     delete g_elaborator_trace_instances;
+    delete g_elaborator_instance_max_depth;
 }
 
 bool get_elaborator_unique_class_instances(options const & o) {
@@ -59,14 +69,20 @@ bool get_elaborator_trace_instances(options const & o) {
     return o.get_bool(*g_elaborator_trace_instances, LEAN_DEFAULT_ELABORATOR_TRACE_INSTANCES);
 }
 
+unsigned get_elaborator_instance_max_depth(options const & o) {
+    return o.get_unsigned(*g_elaborator_instance_max_depth, LEAN_DEFAULT_ELABORATOR_INSTANCE_MAX_DEPTH);
+}
+
 /** \brief Context for handling placeholder metavariable choice constraint */
 struct placeholder_context {
     io_state                  m_ios;
     name_generator            m_ngen;
     type_checker_ptr          m_tc;
+    expr                      m_main_meta;
     bool                      m_relax;
     bool                      m_use_local_instances;
     bool                      m_trace_instances;
+    unsigned                  m_max_depth;
     char const *              m_fname;
     optional<pos_info>        m_pos;
     placeholder_context(environment const & env, io_state const & ios,
@@ -78,6 +94,7 @@ struct placeholder_context {
         m_use_local_instances(use_local_instances) {
         m_fname           = nullptr;
         m_trace_instances = get_elaborator_trace_instances(ios.get_options());
+        m_max_depth       = get_elaborator_instance_max_depth(ios.get_options());
         options opts      = m_ios.get_options();
         opts              = opts.update(get_pp_purify_metavars_name(), false);
         opts              = opts.update(get_pp_implicit_name(), true);
@@ -89,12 +106,15 @@ struct placeholder_context {
     bool use_local_instances() const { return m_use_local_instances; }
     type_checker & tc() const { return *m_tc; }
     bool trace_instances() const { return m_trace_instances; }
+    void set_main_meta(expr const & meta) { m_main_meta = meta; }
+    expr const & get_main_meta() const { return m_main_meta; }
     void set_pos(char const * fname, optional<pos_info> const & pos) {
         m_fname = fname;
         m_pos   = pos;
     }
     optional<pos_info> const & get_pos() const { return m_pos; }
     char const * get_file_name() const { return m_fname; }
+    unsigned get_max_depth() const { return m_max_depth; }
 };
 
 pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
@@ -132,6 +152,12 @@ struct placeholder_elaborator : public choice_iterator {
                            justification const & j, unsigned depth):
         choice_iterator(), m_C(C), m_ctx(ctx), m_meta(meta), m_meta_type(meta_type),
         m_local_instances(local_insts), m_instances(instances), m_jst(j), m_depth(depth) {
+        if (m_depth > m_C->get_max_depth()) {
+            throw_elaborator_exception(C->env(), "maximum class-instance resolution depth has been reached "
+                                       "(the limit can be increased by setting option 'elaborator.instance_max_depth') "
+                                       "(the class-instance resolution trace can be visualized by setting option 'elaborator.trace_instances')",
+                                       C->get_main_meta());
+        }
     }
 
     constraints mk_constraints(constraint const & c, buffer<constraint> const & cs) {
@@ -388,6 +414,7 @@ pair<expr, constraint> mk_placeholder_elaborator(
     pos_info_provider const * pip) {
     auto C       = std::make_shared<placeholder_context>(env, ios, prefix, relax, use_local_instances);
     expr m       = ctx.mk_meta(C->m_ngen, suffix, type, g);
+    C->set_main_meta(m);
     if (pip)
         C->set_pos(pip->get_file_name(), pip->get_pos_info(m));
     constraint c = mk_placeholder_root_cnstr(C, ctx, m, is_strict, cfg, delay_factor());

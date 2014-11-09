@@ -67,16 +67,16 @@ struct placeholder_context {
     bool                      m_relax;
     bool                      m_use_local_instances;
     bool                      m_trace_instances;
-    pos_info_provider const * m_pos_provider;
+    char const *              m_fname;
+    optional<pos_info>        m_pos;
     placeholder_context(environment const & env, io_state const & ios,
-                        name const & prefix, bool relax, bool use_local_instances,
-                        pos_info_provider const * pip):
+                        name const & prefix, bool relax, bool use_local_instances):
         m_ios(ios),
         m_ngen(prefix),
         m_tc(mk_type_checker(env, m_ngen.mk_child(), relax)),
         m_relax(relax),
-        m_use_local_instances(use_local_instances),
-        m_pos_provider(pip) {
+        m_use_local_instances(use_local_instances) {
+        m_fname           = nullptr;
         m_trace_instances = get_elaborator_trace_instances(ios.get_options());
         options opts      = m_ios.get_options();
         opts              = opts.update(get_pp_purify_metavars_name(), false);
@@ -88,8 +88,13 @@ struct placeholder_context {
     io_state const & ios() const { return m_ios; }
     bool use_local_instances() const { return m_use_local_instances; }
     type_checker & tc() const { return *m_tc; }
-    pos_info_provider const * pip() const { return m_pos_provider; }
     bool trace_instances() const { return m_trace_instances; }
+    void set_pos(char const * fname, optional<pos_info> const & pos) {
+        m_fname = fname;
+        m_pos   = pos;
+    }
+    optional<pos_info> const & get_pos() const { return m_pos; }
+    char const * get_file_name() const { return m_fname; }
 };
 
 pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
@@ -137,15 +142,20 @@ struct placeholder_elaborator : public choice_iterator {
         if (!m_C->trace_instances())
             return;
         auto out = diagnostic(m_C->env(), m_C->ios());
+        if (m_depth == 0) {
+            if (auto fname = m_C->get_file_name()) {
+                out << fname << ":";
+            }
+            if (auto pos = m_C->get_pos()) {
+                out << pos->first << ":" << pos->second << ":";
+            }
+            out << " class-instance resolution trace" << endl;
+        }
         for (unsigned i = 0; i < m_depth; i++)
             out << " ";
-        out << "[" << m_depth << "]";
-        if (m_C->pip()) {
-            if (auto pos = m_C->pip()->get_pos_info(m_meta)) {
-                out << ":" << pos->first << ":" << pos->second;
-            }
-        }
-        out << " " << m_meta << " := " << r << "\n";
+        if (m_depth > 0)
+            out << "[" << m_depth << "] ";
+        out << m_meta << " := " << r << endl;
     }
 
     optional<constraints> try_instance(expr const & inst, expr const & inst_type) {
@@ -376,8 +386,10 @@ pair<expr, constraint> mk_placeholder_elaborator(
     name const & prefix, optional<name> const & suffix, bool relax, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg,
     pos_info_provider const * pip) {
-    auto C       = std::make_shared<placeholder_context>(env, ios, prefix, relax, use_local_instances, pip);
+    auto C       = std::make_shared<placeholder_context>(env, ios, prefix, relax, use_local_instances);
     expr m       = ctx.mk_meta(C->m_ngen, suffix, type, g);
+    if (pip)
+        C->set_pos(pip->get_file_name(), pip->get_pos_info(m));
     constraint c = mk_placeholder_root_cnstr(C, ctx, m, is_strict, cfg, delay_factor());
     return mk_pair(m, c);
 }

@@ -48,14 +48,7 @@ num.rec zero
 -- -------------------------
 
 theorem succ_ne_zero (n : ℕ) : succ n ≠ 0 :=
-assume H : succ n = 0,
-have H2 : true = false, from
-  let f := (nat.rec false (fun a b, true)) in
-    calc
-      true = f (succ n) : rfl
-       ... = f 0        : H
-       ... = false      : rfl,
-absurd H2 true_ne_false
+assume H, no_confusion H
 
 -- add_rewrite succ_ne_zero
 
@@ -86,10 +79,7 @@ or.elim (zero_or_succ_pred n)
   (take H3 : n = succ (pred n), H2 (pred n) H3)
 
 theorem succ.inj {n m : ℕ} (H : succ n = succ m) : n = m :=
-calc
-    n = pred (succ n) : pred.succ
-  ... = pred (succ m) : H
-  ... = m             : pred.succ
+no_confusion H (λe, e)
 
 theorem succ.ne_self {n : ℕ} : succ n ≠ n :=
 induction_on n

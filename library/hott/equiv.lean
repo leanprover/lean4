@@ -243,7 +243,7 @@ namespace IsEquiv
   end
 
   --Transporting is an equivalence
-  definition transport [instance] (P : A → Type) {x y : A} (p : x ≈ y) : (IsEquiv (transport P p)) :=
+  protected definition transport [instance] (P : A → Type) {x y : A} (p : x ≈ y) : (IsEquiv (transport P p)) :=
     IsEquiv.mk (transport P (p⁻¹)) (transport_pV P p) (transport_Vp P p) (transport_pVp P p)
 
 end IsEquiv
@@ -257,7 +257,7 @@ namespace Equiv
 
   protected definition id : A ≃ A := Equiv.mk id IsEquiv.id_closed
 
-  theorem compose (eqg: B ≃ C) : A ≃ C :=
+  protected theorem compose (eqg: B ≃ C) : A ≃ C :=
     Equiv.mk ((equiv_fun eqg) ∘ f)
              (IsEquiv.comp_closed Hf (equiv_isequiv eqg))
 
@@ -273,7 +273,7 @@ namespace Equiv
   theorem cancel_L {g : C → A} (Hgf : IsEquiv (f ∘ g)) : C ≃ A :=
     Equiv.mk g (IsEquiv.cancel_L f _)
 
-  theorem transport (P : A → Type) {x y : A} {p : x ≈ y} : (P x) ≃ (P y) :=
+  protected theorem transport (P : A → Type) {x y : A} {p : x ≈ y} : (P x) ≃ (P y) :=
     Equiv.mk (transport P p) (IsEquiv.transport P p)
 
   end

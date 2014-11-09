@@ -8,7 +8,7 @@
 -- o Try doing these proofs with tactics.
 -- o Try using the simplifier on some of these proofs.
 
-import general_notation algebra.function tools.tactic
+import general_notation type algebra.function tools.tactic
 
 open function
 
@@ -356,7 +356,7 @@ definition concat_p_A1p {A : Type} {g : A → A} (p : Πx, x ≈ g x) {x y : A} 
 begin
   apply (rec_on s),
   apply (rec_on q),
-  apply (concat_1p _ ▹ idp)
+  apply (concat_1p (p x) ▹ idp)
 end
 
 -- Action of [apD10] and [ap10] on paths
@@ -477,6 +477,7 @@ definition transport2_const {A B : Type} {x1 x2 : A} {p q : x1 ≈ x2} (r : p �
 rec_on r (concat_1p _)⁻¹
 
 -- Transporting in a pulled back fibration.
+-- TODO: P can probably be implicit
 definition transport_compose {A B} {x y : A} (P : B → Type) (f : A → B) (p : x ≈ y) (z : P (f x)) :
   transport (λx, P (f x)) p z  ≈  transport P (ap f p) z :=
 rec_on p idp

@@ -5,8 +5,22 @@ import data.sigma.decl
 open inhabited eq.ops
 
 namespace sigma
+
+  notation `dpr₁` := dpr1
+  notation `dpr₂` := dpr2
+
+  namespace ops
+  postfix `.1`:10000 := dpr1
+  postfix `.2`:10000 := dpr2
+  notation `(` t:(foldr `;`:0 (e r, sigma.dpair e r)) `)` := t
+  end ops
+
+  open ops
   universe variables u v
   variables {A A' : Type.{u}} {B : A → Type.{v}} {B' : A' → Type.{v}}
+
+  definition unpack {C : (Σa, B a) → Type} {u : Σa, B a} (H : C ( u.1 ; u.2)) : C u :=
+  destruct u (λx y H, H) H
 
   theorem dpair_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) :
     dpair a₁ b₁ = dpair a₂ b₂ :=
@@ -34,24 +48,23 @@ namespace sigma
 
   variables {C : Πa, B a → Type} {D : Πa b, C a b → Type}
 
-  definition dtrip (a : A) (b : B a) (c : C a b) := dpair a (dpair b c)
-  definition dquad (a : A) (b : B a) (c : C a b) (d : D a b c) := dpair a (dpair b (dpair c d))
+  definition dtrip (a : A) (b : B a) (c : C a b) := (a; b; c)
+  definition dquad (a : A) (b : B a) (c : C a b) (d : D a b c) := (a; b; c; d)
 
-  definition dpr1' (x : Σ a, B a) := dpr1 x
-  definition dpr2' (x : Σ a b, C a b) := dpr1 (dpr2 x)
-  definition dpr3  (x : Σ a b, C a b) := dpr2 (dpr2 x)
-  definition dpr3' (x : Σ a b c, D a b c) := dpr1 (dpr2 (dpr2 x))
-  definition dpr4  (x : Σ a b c, D a b c) := dpr2 (dpr2 (dpr2 x))
+  definition dpr1' (x : Σ a, B a) := x.1
+  definition dpr2' (x : Σ a b, C a b) := x.2.1
+  definition dpr3  (x : Σ a b, C a b) := x.2.2
+  definition dpr3' (x : Σ a b c, D a b c) := x.2.2.1
+  definition dpr4  (x : Σ a b c, D a b c) := x.2.2.2
 
   theorem dtrip_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
       (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) (H₃ : cast (dcongr_arg2 C H₁ H₂) c₁ = c₂) :
-    dtrip a₁ b₁ c₁ = dtrip a₂ b₂ c₂ :=
+    (a₁; b₁; c₁) = (a₂; b₂; c₂) :=
   dcongr_arg3 dtrip H₁ H₂ H₃
 
   theorem ndtrip_eq {A B : Type} {C : A → B → Type} {a₁ a₂ : A} {b₁ b₂ : B}
       {c₁ : C a₁ b₁} {c₂ : C a₂ b₂} (H₁ : a₁ = a₂) (H₂ : b₁ = b₂)
-      (H₃ : cast (congr_arg2 C H₁ H₂) c₁ = c₂) :
-    dtrip a₁ b₁ c₁ = dtrip a₂ b₂ c₂ :=
+      (H₃ : cast (congr_arg2 C H₁ H₂) c₁ = c₂) : (a₁; b₁; c₁) = (a₂; b₂; c₂) :=
   hdcongr_arg3 dtrip H₁ (heq.from_eq H₂) H₃
 
   theorem ndtrip_equal {A B : Type} {C : A → B → Type} {p₁ p₂ : Σa b, C a b} :

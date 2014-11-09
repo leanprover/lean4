@@ -40,7 +40,7 @@ namespace eq
   subst H (refl a)
 
   namespace ops
-    notation H `⁻¹` := symm H
+    notation H `⁻¹` := symm H --input with \sy or \-1 or \inv 
     notation H1 ⬝ H2 := trans H1 H2
     notation H1 ▸ H2 := subst H1 H2
  end ops

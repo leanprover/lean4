@@ -5,7 +5,7 @@
 import logic.connectives data.empty
 
 inductive decidable [class] (p : Prop) : Type :=
-inl : p  → decidable p,
+inl :  p → decidable p,
 inr : ¬p → decidable p
 
 namespace decidable

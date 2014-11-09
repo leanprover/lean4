@@ -15,6 +15,7 @@ definition imp (a b : Prop) : Prop := a → b
 
 inductive false : Prop
 
+-- make c explicit and rename to false.elim
 theorem false_elim {c : Prop} (H : false) : c :=
 false.rec c H
 
@@ -30,11 +31,13 @@ prefix `¬` := not
 -- not
 -- ---
 
+--rename to not.intro or neg.intro
 theorem not_intro {a : Prop} (H : a → false) : ¬a := H
 
+--rename to not.elim or neg.elim
 theorem not_elim {a : Prop} (H1 : ¬a) (H2 : a) : false := H1 H2
 
-theorem absurd {a : Prop} {b : Prop} (H1 : a) (H2 : ¬a) : b :=
+theorem absurd {a b : Prop} (H1 : a) (H2 : ¬a) : b :=
 false_elim (H2 H1)
 
 theorem not_not_intro {a : Prop} (Ha : a) : ¬¬a :=

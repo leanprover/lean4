@@ -17,8 +17,11 @@ notation `take`   binders `,` r:(scoped f, f) := r
 -- If a module reassigns these, it will be incompatible with other modules that adhere to these
 -- conventions.
 
+-- When hovering over a symbol, use "C-u C-x =" to see how to input it
+
 -- ### Logical operations and relations
 reserve prefix `¬`:40
+reserve prefix `~`:40
 reserve infixr `∧`:35
 reserve infixr `/\`:35
 reserve infixr `‌\/`:30
@@ -30,7 +33,7 @@ reserve infix `≠`:50
 reserve infix `≈`:50
 reserve infix `∼`:50
 
-reserve postfix `⁻¹`:100
+reserve postfix `⁻¹`:100 --input with \sy or \-1 or \inv
 reserve infixl `⬝`:75
 reserve infixr `▸`:75
 

@@ -127,6 +127,7 @@
 (defconst lean-hooks-alist
   '(
     ;; Handle events that may start automatic syntax checks
+    (before-save-hook                    . lean-whitespace-cleanup)
     (after-save-hook                     . lean-server-after-save)
     ;; ;; Handle events that may triggered pending deferred checks
     ;; (window-configuration-change-hook . lean-perform-deferred-syntax-check)
@@ -169,10 +170,6 @@ enabled and disabled respectively.")
               (setq fci-rule-column lean-rule-column)
               (setq fci-rule-color lean-rule-color)
               (fci-mode t))))
-  ;; Delete Trailing Whitespace
-  (if lean-delete-trailing-whitespace
-      (progn (require 'whitespace-cleanup-mode)
-             (whitespace-cleanup-mode t)))
   ;; eldoc
   (when lean-eldoc-use
     (set (make-local-variable 'eldoc-documentation-function)

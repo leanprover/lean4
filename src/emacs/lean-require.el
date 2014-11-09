@@ -24,8 +24,7 @@
   (lean-mode-check-package 'package)
   (lean-mode-check-package 'dash)
   (let ((required-packages '(cl-lib compile dash dash-functional f flymake s))
-        (optional-packages '(flycheck whitespace-cleanup-mode fill-column-indicator
-                                      lua-mode mmm-mode)))
+        (optional-packages '(flycheck fill-column-indicator lua-mode mmm-mode)))
     (-each required-packages 'lean-mode-require-package)
     (-each optional-packages 'lean-mode-check-package)))
 

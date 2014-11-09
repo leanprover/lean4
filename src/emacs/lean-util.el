@@ -180,4 +180,8 @@
         (pos (point)))
     (- pos bol-pos)))
 
+(defun lean-whitespace-cleanup ()
+    (when lean-delete-trailing-whitespace
+      (delete-trailing-whitespace)))
+
 (provide 'lean-util)

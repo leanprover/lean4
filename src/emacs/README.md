@@ -27,19 +27,17 @@ to use full features of ``lean-mode``.
  - [fill-column-indicator][fci]
  - [lua-mode][lua-mode]
  - [mmm-mode][mmm-mode]
- - [whitespace-cleanup-mode][wcm]
 
 [company]: http://company-mode.github.io/
 [flycheck]: http://flycheck.readthedocs.org/en/latest
 [fci]: https://github.com/alpaker/Fill-Column-Indicator
 [lua-mode]: http://immerrr.github.io/lua-mode/
 [mmm-mode]: https://github.com/purcell/mmm-mode
-[wcm]: https://github.com/purcell/whitespace-cleanup-mode
 
 Install
 =======
 
-Put the following elisp code on your emacs setup 
+Put the following elisp code on your emacs setup
 (e.g. ``.emacs.d/init.el`` [GNU Emacs], ``~/Library/Preferences/Aquamacs Emacs/Preferences.el`` [Aquamacs]) :
 
 ```elisp
@@ -50,8 +48,8 @@ Put the following elisp code on your emacs setup
 
 ;; Install required/optional packages for lean-mode
 (defvar lean-mode-required-packages
-  '(company dash dash-functional flycheck whitespace-cleanup-mode
-    f fill-column-indicator s lua-mode mmm-mode))
+  '(company dash dash-functional flycheck f
+            fill-column-indicator s lua-mode mmm-mode))
 (let ((need-to-refresh t))
   (dolist (p lean-mode-required-packages)
     (when (not (package-installed-p p))

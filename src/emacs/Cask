@@ -10,7 +10,6 @@
  (depends-on "flycheck")
  (depends-on "flymake")
  (depends-on "fill-column-indicator")
- (depends-on "whitespace-cleanup-mode")
  (depends-on "lua-mode")
  (depends-on "mmm-mode")
  (depends-on "s"))

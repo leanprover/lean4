@@ -236,7 +236,7 @@ expr elaborator::mk_placeholder_meta(optional<name> const & suffix, optional<exp
     if (is_inst_implicit) {
         auto ec = mk_placeholder_elaborator(env(), ios(), m_context,
                                             m_ngen.next(), suffix, m_relax_main_opaque, use_local_instances(),
-                                            is_strict, type, g, m_unifier_config);
+                                            is_strict, type, g, m_unifier_config, m_ctx.m_pos_provider);
         register_meta(ec.first);
         cs += ec.second;
         return ec.first;

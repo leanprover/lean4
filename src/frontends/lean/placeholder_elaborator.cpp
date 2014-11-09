@@ -20,53 +20,80 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_context.h"
 #include "frontends/lean/choice_iterator.h"
 #include "frontends/lean/elaborator_exception.h"
+#include "frontends/lean/pp_options.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES false
 #endif
 
+#ifndef LEAN_DEFAULT_ELABORATOR_TRACE_INSTANCES
+#define LEAN_DEFAULT_ELABORATOR_TRACE_INSTANCES false
+#endif
+
 namespace lean {
 static name * g_elaborator_unique_class_instances = nullptr;
+static name * g_elaborator_trace_instances        = nullptr;
 
 void initialize_placeholder_elaborator() {
     g_elaborator_unique_class_instances = new name{"elaborator", "unique_class_instances"};
+    g_elaborator_trace_instances        = new name{"elaborator", "trace_instances"};
+
     register_bool_option(*g_elaborator_unique_class_instances,  LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES,
                          "(elaborator) generate an error if there is more than one solution "
                          "for a class-instance resolution problem");
+
+    register_bool_option(*g_elaborator_trace_instances,  LEAN_DEFAULT_ELABORATOR_TRACE_INSTANCES,
+                         "(elaborator) display messages showing the class-instances resolution execution trace");
 }
 
 void finalize_placeholder_elaborator() {
     delete g_elaborator_unique_class_instances;
+    delete g_elaborator_trace_instances;
 }
 
 bool get_elaborator_unique_class_instances(options const & o) {
     return o.get_bool(*g_elaborator_unique_class_instances, LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES);
 }
 
+bool get_elaborator_trace_instances(options const & o) {
+    return o.get_bool(*g_elaborator_trace_instances, LEAN_DEFAULT_ELABORATOR_TRACE_INSTANCES);
+}
+
 /** \brief Context for handling placeholder metavariable choice constraint */
 struct placeholder_context {
-    io_state         m_ios;
-    name_generator   m_ngen;
-    type_checker_ptr m_tc;
-    bool             m_relax;
-    bool             m_use_local_instances;
+    io_state                  m_ios;
+    name_generator            m_ngen;
+    type_checker_ptr          m_tc;
+    bool                      m_relax;
+    bool                      m_use_local_instances;
+    bool                      m_trace_instances;
+    pos_info_provider const * m_pos_provider;
     placeholder_context(environment const & env, io_state const & ios,
-                        name const & prefix, bool relax, bool use_local_instances):
+                        name const & prefix, bool relax, bool use_local_instances,
+                        pos_info_provider const * pip):
         m_ios(ios),
         m_ngen(prefix),
         m_tc(mk_type_checker(env, m_ngen.mk_child(), relax)),
         m_relax(relax),
-        m_use_local_instances(use_local_instances) {
+        m_use_local_instances(use_local_instances),
+        m_pos_provider(pip) {
+        m_trace_instances = get_elaborator_trace_instances(ios.get_options());
+        options opts      = m_ios.get_options();
+        opts              = opts.update(get_pp_purify_metavars_name(), false);
+        opts              = opts.update(get_pp_implicit_name(), true);
+        m_ios.set_options(opts);
     }
 
     environment const & env() const { return m_tc->env(); }
     io_state const & ios() const { return m_ios; }
     bool use_local_instances() const { return m_use_local_instances; }
     type_checker & tc() const { return *m_tc; }
+    pos_info_provider const * pip() const { return m_pos_provider; }
+    bool trace_instances() const { return m_trace_instances; }
 };
 
 pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
-                                                 optional<expr> const & type, tag g);
+                                                 optional<expr> const & type, tag g, unsigned depth);
 
 /** \brief Whenever the elaborator finds a placeholder '_' or introduces an
     implicit argument, it creates a metavariable \c ?m. It also creates a
@@ -92,17 +119,33 @@ struct placeholder_elaborator : public choice_iterator {
     // This information is retrieved using #get_class_instances.
     list<name>              m_instances;
     justification           m_jst;
+    unsigned                m_depth;
 
     placeholder_elaborator(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
                            expr const & meta, expr const & meta_type,
                            list<expr> const & local_insts, list<name> const & instances,
-                           justification const & j):
+                           justification const & j, unsigned depth):
         choice_iterator(), m_C(C), m_ctx(ctx), m_meta(meta), m_meta_type(meta_type),
-        m_local_instances(local_insts), m_instances(instances), m_jst(j) {
+        m_local_instances(local_insts), m_instances(instances), m_jst(j), m_depth(depth) {
     }
 
     constraints mk_constraints(constraint const & c, buffer<constraint> const & cs) {
         return cons(c, to_list(cs.begin(), cs.end()));
+    }
+
+    void trace(expr const & r) {
+        if (!m_C->trace_instances())
+            return;
+        auto out = diagnostic(m_C->env(), m_C->ios());
+        for (unsigned i = 0; i < m_depth; i++)
+            out << " ";
+        out << "[" << m_depth << "]";
+        if (m_C->pip()) {
+            if (auto pos = m_C->pip()->get_pos_info(m_meta)) {
+                out << ":" << pos->first << ":" << pos->second;
+            }
+        }
+        out << " " << m_meta << " := " << r << "\n";
     }
 
     optional<constraints> try_instance(expr const & inst, expr const & inst_type) {
@@ -130,13 +173,14 @@ struct placeholder_elaborator : public choice_iterator {
                 type = tc.whnf(type).first;
                 if (!is_pi(type))
                     break;
-                pair<expr, constraint> ac = mk_placeholder_elaborator(m_C, m_ctx, some_expr(binding_domain(type)), g);
+                pair<expr, constraint> ac = mk_placeholder_elaborator(m_C, m_ctx, some_expr(binding_domain(type)), g, m_depth+1);
                 expr arg = ac.first;
                 cs.push_back(ac.second);
                 r    = mk_app(r, arg, g);
                 type = instantiate(binding_body(type), arg);
             }
             r = Fun(locals, r);
+            trace(r);
             bool relax   = m_C->m_relax;
             constraint c = mk_eq_cnstr(m_meta, r, m_jst, relax);
             return optional<constraints>(mk_constraints(c, cs));
@@ -182,7 +226,7 @@ struct placeholder_elaborator : public choice_iterator {
 };
 
 
-constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, local_context const & ctx, expr const & m) {
+constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, local_context const & ctx, expr const & m, unsigned depth) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const &, name_generator const &) {
@@ -196,7 +240,7 @@ constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, 
             if (empty(local_insts) && empty(insts))
                 return lazy_list<constraints>(); // nothing to be done
             // we are always strict with placeholders associated with classes
-            return choose(std::make_shared<placeholder_elaborator>(C, ctx, meta, meta_type, local_insts, insts, j));
+            return choose(std::make_shared<placeholder_elaborator>(C, ctx, meta, meta_type, local_insts, insts, j, depth));
         } else {
             // do nothing, type is not a class...
             return lazy_list<constraints>(constraints());
@@ -209,9 +253,9 @@ constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, 
 }
 
 pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
-                                                 optional<expr> const & type, tag g) {
+                                                 optional<expr> const & type, tag g, unsigned depth) {
     expr m       = ctx.mk_meta(C->m_ngen, type, g);
-    constraint c = mk_placeholder_cnstr(C, ctx, m);
+    constraint c = mk_placeholder_cnstr(C, ctx, m, depth);
     return mk_pair(m, c);
 }
 
@@ -249,7 +293,8 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
         pair<expr, justification> mj = update_meta(meta, s);
         expr new_meta            = mj.first;
         justification new_j      = mj.second;
-        constraint c             = mk_placeholder_cnstr(C, ctx, new_meta);
+        unsigned depth           = 0;
+        constraint c             = mk_placeholder_cnstr(C, ctx, new_meta, depth);
         unifier_config new_cfg(cfg);
         new_cfg.m_discard        = false;
         new_cfg.m_use_exceptions = false;
@@ -329,8 +374,9 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
 pair<expr, constraint> mk_placeholder_elaborator(
     environment const & env, io_state const & ios, local_context const & ctx,
     name const & prefix, optional<name> const & suffix, bool relax, bool use_local_instances,
-    bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg) {
-    auto C       = std::make_shared<placeholder_context>(env, ios, prefix, relax, use_local_instances);
+    bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg,
+    pos_info_provider const * pip) {
+    auto C       = std::make_shared<placeholder_context>(env, ios, prefix, relax, use_local_instances, pip);
     expr m       = ctx.mk_meta(C->m_ngen, suffix, type, g);
     constraint c = mk_placeholder_root_cnstr(C, ctx, m, is_strict, cfg, delay_factor());
     return mk_pair(m, c);

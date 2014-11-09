@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/sexpr/options.h"
 namespace lean {
+name const & get_pp_implicit_name();
 name const & get_pp_coercions_option_name();
 name const & get_pp_full_names_option_name();
 name const & get_pp_universes_option_name();

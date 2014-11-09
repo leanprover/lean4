@@ -128,6 +128,7 @@ void finalize_pp_options() {
     delete g_distinguishing_pp_options;
 }
 
+name const & get_pp_implicit_name() { return *g_pp_implicit; }
 name const & get_pp_coercions_option_name() { return *g_pp_coercions; }
 name const & get_pp_full_names_option_name() { return *g_pp_full_names; }
 name const & get_pp_universes_option_name() { return *g_pp_universes; }

@@ -28,7 +28,8 @@ namespace lean {
 pair<expr, constraint> mk_placeholder_elaborator(
     environment const & env, io_state const & ios, local_context const & ctx,
     name const & prefix, optional<name> const & suffix, bool relax_opaque, bool use_local_instances,
-    bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg);
+    bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg,
+    pos_info_provider const * pip);
 
 void initialize_placeholder_elaborator();
 void finalize_placeholder_elaborator();

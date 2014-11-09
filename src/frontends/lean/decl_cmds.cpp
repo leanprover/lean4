@@ -346,7 +346,7 @@ static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_op
             type = p.parse_expr();
             if (!is_definition && !p.curr_is_token(get_assign_tk())) {
                 check_end_of_theorem(p);
-                value = mk_expr_placeholder();
+                value = p.save_pos(mk_expr_placeholder(), pos);
             } else {
                 p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
                 value = p.save_pos(p.parse_expr(), pos);

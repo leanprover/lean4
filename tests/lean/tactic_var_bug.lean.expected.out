@@ -1,2 +1,0 @@
-type:  Pi (q : notation_info (no_info Prop)) (a : q), true
-value: fun (q : notation_info (no_info Prop)), (by (begin_end (tactic.and_then (begin_end_element (tactic.intro r)) (begin_end_element (tactic.apply true.intro)))))

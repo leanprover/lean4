@@ -741,6 +741,13 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
     }
 }
 
+static bool add_extra_space_first(name const & tk) {
+    // TODO(Leo): this is a hard-coded temporary solution for deciding whether extra
+    // spaces should be added or not when pretty printing notation.
+    // We should implement a better solution in the future.
+    return tk != "(" && tk != ")";
+}
+
 static bool add_extra_space(name const & tk) {
     // TODO(Leo): this is a hard-coded temporary solution for deciding whether extra
     // spaces should be added or not when pretty printing notation.
@@ -852,7 +859,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                         --i;
                         result arg_res = pp_notation_child(rec_args[i], curr_lbp, a.rbp());
                         if (i == 0) {
-                            if (add_extra_space(tk))
+                            if (add_extra_space_first(tk))
                                 curr = format(tk) + space() + arg_res.fmt() + curr;
                             else
                                 curr = format(tk) + arg_res.fmt() + curr;

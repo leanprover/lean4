@@ -360,6 +360,7 @@ public:
     void add_local_level(name const & n, level const & l, bool is_variable = false);
     void add_local_expr(name const & n, expr const & p, bool is_variable = false);
     void add_local(expr const & p) { return add_local_expr(local_pp_name(p), p); }
+    bool is_local_decl(expr const & l) const { return is_local(l) && m_local_decls.contains(local_pp_name(l)); }
     bool is_local_level_variable(name const & n) const { return m_level_variables.contains(n); }
     bool is_local_variable(name const & n) const { return m_variables.contains(n); }
     bool is_local_variable(expr const & e) const { return is_local_variable(local_pp_name(e)); }

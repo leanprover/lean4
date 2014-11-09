@@ -1102,10 +1102,11 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         save_overload(*r);
     }
     if (!r) {
-        if (m_undef_id_behavior == undef_id_behavior::AssumeConstant)
+        if (m_undef_id_behavior == undef_id_behavior::AssumeConstant) {
             r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
-        else if (m_undef_id_behavior == undef_id_behavior::AssumeLocal)
+        } else if (m_undef_id_behavior == undef_id_behavior::AssumeLocal) {
             r = save_pos(mk_local(id, mk_expr_placeholder()), p);
+        }
     }
     if (!r)
         throw parser_error(sstream() << "unknown identifier '" << id << "'", p);

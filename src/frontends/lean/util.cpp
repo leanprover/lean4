@@ -47,8 +47,11 @@ name remove_root_prefix(name const & n) {
 
 // Sort local names by order of occurrence, and copy the associated parameters to ps
 void sort_locals(expr_struct_set const & locals, parser const & p, buffer<expr> & ps) {
-    for (expr const & l : locals)
-        ps.push_back(l);
+    for (expr const & l : locals) {
+        // we only copy the locals that are in p's local context
+        if (p.is_local_decl(l))
+            ps.push_back(l);
+    }
     std::sort(ps.begin(), ps.end(), [&](expr const & p1, expr const & p2) {
             bool is_var1 = p.is_local_variable(p1);
             bool is_var2 = p.is_local_variable(p2);

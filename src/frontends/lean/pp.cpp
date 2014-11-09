@@ -162,7 +162,7 @@ name pretty_fn::mk_local_name(name const & n, name const & suggested) {
 }
 
 level pretty_fn::purify(level const & l) {
-    if (!m_universes || !has_meta(l))
+    if (!m_universes || !m_purify_metavars || !has_meta(l))
         return l;
     return replace(l, [&](level const & l) {
             if (!has_meta(l))
@@ -185,7 +185,7 @@ expr pretty_fn::purify(expr const & e) {
     return replace(e, [&](expr const & e, unsigned) {
             if (!has_expr_metavar(e) && !has_local(e) && (!m_universes || !has_univ_metavar(e)))
                 return some_expr(e);
-            else if (is_metavar(e))
+            else if (is_metavar(e) && m_purify_metavars)
                 return some_expr(mk_metavar(mk_metavar_name(mlocal_name(e)), mlocal_type(e)));
             else if (is_local(e))
                 return some_expr(mk_local(mlocal_name(e), mk_local_name(mlocal_name(e), local_pp_name(e)), mlocal_type(e), local_info(e)));
@@ -199,19 +199,20 @@ expr pretty_fn::purify(expr const & e) {
 }
 
 void pretty_fn::set_options_core(options const & o) {
-    m_options       = o;
-    m_indent        = get_pp_indent(o);
-    m_max_depth     = get_pp_max_depth(o);
-    m_max_steps     = get_pp_max_steps(o);
-    m_implict       = get_pp_implicit(o);
-    m_unicode       = get_pp_unicode(o);
-    m_coercion      = get_pp_coercions(o);
-    m_notation      = get_pp_notation(o);
-    m_universes     = get_pp_universes(o);
-    m_full_names    = get_pp_full_names(o);
-    m_private_names = get_pp_private_names(o);
-    m_metavar_args  = get_pp_metavar_args(o);
-    m_beta          = get_pp_beta(o);
+    m_options         = o;
+    m_indent          = get_pp_indent(o);
+    m_max_depth       = get_pp_max_depth(o);
+    m_max_steps       = get_pp_max_steps(o);
+    m_implict         = get_pp_implicit(o);
+    m_unicode         = get_pp_unicode(o);
+    m_coercion        = get_pp_coercions(o);
+    m_notation        = get_pp_notation(o);
+    m_universes       = get_pp_universes(o);
+    m_full_names      = get_pp_full_names(o);
+    m_private_names   = get_pp_private_names(o);
+    m_metavar_args    = get_pp_metavar_args(o);
+    m_purify_metavars = get_pp_purify_metavars(o);
+    m_beta            = get_pp_beta(o);
 }
 
 void pretty_fn::set_options(options const & o) {
@@ -373,7 +374,10 @@ auto pretty_fn::pp_const(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_meta(expr const & e) -> result {
-    return result(compose(format("?"), format(mlocal_name(e))));
+    if (m_purify_metavars)
+        return result(compose(format("?"), format(mlocal_name(e))));
+    else
+        return result(compose(format("?M."), format(mlocal_name(e))));
 }
 
 auto pretty_fn::pp_local(expr const & e) -> result {

@@ -43,34 +43,40 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_METAVAR_ARGS false
 #endif
 
+#ifndef LEAN_DEFAULT_PP_PURIFY_METAVARS
+#define LEAN_DEFAULT_PP_PURIFY_METAVARS true
+#endif
+
 #ifndef LEAN_DEFAULT_PP_BETA
 #define LEAN_DEFAULT_PP_BETA false
 #endif
 
 namespace lean {
-static name * g_pp_max_depth     = nullptr;
-static name * g_pp_max_steps     = nullptr;
-static name * g_pp_notation      = nullptr;
-static name * g_pp_implicit      = nullptr;
-static name * g_pp_coercions     = nullptr;
-static name * g_pp_universes     = nullptr;
-static name * g_pp_full_names    = nullptr;
-static name * g_pp_private_names = nullptr;
-static name * g_pp_metavar_args  = nullptr;
-static name * g_pp_beta          = nullptr;
+static name * g_pp_max_depth       = nullptr;
+static name * g_pp_max_steps       = nullptr;
+static name * g_pp_notation        = nullptr;
+static name * g_pp_implicit        = nullptr;
+static name * g_pp_coercions       = nullptr;
+static name * g_pp_universes       = nullptr;
+static name * g_pp_full_names      = nullptr;
+static name * g_pp_private_names   = nullptr;
+static name * g_pp_metavar_args    = nullptr;
+static name * g_pp_purify_metavars = nullptr;
+static name * g_pp_beta            = nullptr;
 static list<options> * g_distinguishing_pp_options = nullptr;
 
 void initialize_pp_options() {
-    g_pp_max_depth     = new name{"pp", "max_depth"};
-    g_pp_max_steps     = new name{"pp", "max_steps"};
-    g_pp_notation      = new name{"pp", "notation"};
-    g_pp_implicit      = new name{"pp", "implicit"};
-    g_pp_coercions     = new name{"pp", "coercions"};
-    g_pp_universes     = new name{"pp", "universes"};
-    g_pp_full_names    = new name{"pp", "full_names"};
-    g_pp_private_names = new name{"pp", "private_names"};
-    g_pp_metavar_args  = new name{"pp", "metavar_args"};
-    g_pp_beta          = new name{"pp", "beta"};
+    g_pp_max_depth       = new name{"pp", "max_depth"};
+    g_pp_max_steps       = new name{"pp", "max_steps"};
+    g_pp_notation        = new name{"pp", "notation"};
+    g_pp_implicit        = new name{"pp", "implicit"};
+    g_pp_coercions       = new name{"pp", "coercions"};
+    g_pp_universes       = new name{"pp", "universes"};
+    g_pp_full_names      = new name{"pp", "full_names"};
+    g_pp_private_names   = new name{"pp", "private_names"};
+    g_pp_metavar_args    = new name{"pp", "metavar_args"};
+    g_pp_purify_metavars = new name{"pp", "purify_metavars"};
+    g_pp_beta            = new name{"pp", "beta"};
     register_unsigned_option(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH,
                              "(pretty printer) maximum expression depth, after that it will use ellipsis");
     register_unsigned_option(*g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS,
@@ -89,6 +95,9 @@ void initialize_pp_options() {
                          "(pretty printer) display internal names assigned to private declarations");
     register_bool_option(*g_pp_metavar_args,  LEAN_DEFAULT_PP_METAVAR_ARGS,
                          "(pretty printer) display metavariable arguments");
+    register_bool_option(*g_pp_purify_metavars, LEAN_DEFAULT_PP_PURIFY_METAVARS,
+                         "(pretty printer) rename internal metavariable names (with \"user-friendly\" ones) "
+                         "before pretty printing");
     register_bool_option(*g_pp_beta,  LEAN_DEFAULT_PP_BETA,
                          "(pretty printer) apply beta-reduction when pretty printing");
 
@@ -114,6 +123,7 @@ void finalize_pp_options() {
     delete g_pp_full_names;
     delete g_pp_private_names;
     delete g_pp_metavar_args;
+    delete g_pp_purify_metavars;
     delete g_pp_beta;
     delete g_distinguishing_pp_options;
 }
@@ -123,16 +133,18 @@ name const & get_pp_full_names_option_name() { return *g_pp_full_names; }
 name const & get_pp_universes_option_name() { return *g_pp_universes; }
 name const & get_pp_notation_option_name() { return *g_pp_notation; }
 name const & get_pp_metavar_args_name() { return *g_pp_metavar_args; }
+name const & get_pp_purify_metavars_name() { return *g_pp_purify_metavars; }
 
-unsigned get_pp_max_depth(options const & opts)     { return opts.get_unsigned(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
-unsigned get_pp_max_steps(options const & opts)     { return opts.get_unsigned(*g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }
-bool     get_pp_notation(options const & opts)      { return opts.get_bool(*g_pp_notation, LEAN_DEFAULT_PP_NOTATION); }
-bool     get_pp_implicit(options const & opts)      { return opts.get_bool(*g_pp_implicit, LEAN_DEFAULT_PP_IMPLICIT); }
-bool     get_pp_coercions(options const & opts)     { return opts.get_bool(*g_pp_coercions, LEAN_DEFAULT_PP_COERCIONS); }
-bool     get_pp_universes(options const & opts)     { return opts.get_bool(*g_pp_universes, LEAN_DEFAULT_PP_UNIVERSES); }
-bool     get_pp_full_names(options const & opts)    { return opts.get_bool(*g_pp_full_names, LEAN_DEFAULT_PP_FULL_NAMES); }
-bool     get_pp_private_names(options const & opts) { return opts.get_bool(*g_pp_private_names, LEAN_DEFAULT_PP_PRIVATE_NAMES); }
-bool     get_pp_metavar_args(options const & opts)  { return opts.get_bool(*g_pp_metavar_args, LEAN_DEFAULT_PP_METAVAR_ARGS); }
-bool     get_pp_beta(options const & opts)          { return opts.get_bool(*g_pp_beta, LEAN_DEFAULT_PP_BETA); }
+unsigned get_pp_max_depth(options const & opts)       { return opts.get_unsigned(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
+unsigned get_pp_max_steps(options const & opts)       { return opts.get_unsigned(*g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }
+bool     get_pp_notation(options const & opts)        { return opts.get_bool(*g_pp_notation, LEAN_DEFAULT_PP_NOTATION); }
+bool     get_pp_implicit(options const & opts)        { return opts.get_bool(*g_pp_implicit, LEAN_DEFAULT_PP_IMPLICIT); }
+bool     get_pp_coercions(options const & opts)       { return opts.get_bool(*g_pp_coercions, LEAN_DEFAULT_PP_COERCIONS); }
+bool     get_pp_universes(options const & opts)       { return opts.get_bool(*g_pp_universes, LEAN_DEFAULT_PP_UNIVERSES); }
+bool     get_pp_full_names(options const & opts)      { return opts.get_bool(*g_pp_full_names, LEAN_DEFAULT_PP_FULL_NAMES); }
+bool     get_pp_private_names(options const & opts)   { return opts.get_bool(*g_pp_private_names, LEAN_DEFAULT_PP_PRIVATE_NAMES); }
+bool     get_pp_metavar_args(options const & opts)    { return opts.get_bool(*g_pp_metavar_args, LEAN_DEFAULT_PP_METAVAR_ARGS); }
+bool     get_pp_purify_metavars(options const & opts) { return opts.get_bool(*g_pp_purify_metavars, LEAN_DEFAULT_PP_PURIFY_METAVARS); }
+bool     get_pp_beta(options const & opts)            { return opts.get_bool(*g_pp_beta, LEAN_DEFAULT_PP_BETA); }
 list<options> const & get_distinguishing_pp_options() { return *g_distinguishing_pp_options; }
 }

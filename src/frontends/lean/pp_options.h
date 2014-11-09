@@ -12,6 +12,7 @@ name const & get_pp_full_names_option_name();
 name const & get_pp_universes_option_name();
 name const & get_pp_notation_option_name();
 name const & get_pp_metavar_args_name();
+name const & get_pp_purify_metavars_name();
 
 unsigned get_pp_max_depth(options const & opts);
 unsigned get_pp_max_steps(options const & opts);
@@ -23,6 +24,7 @@ bool     get_pp_full_names(options const & opts);
 bool     get_pp_private_names(options const & opts);
 bool     get_pp_metavar_args(options const & opts);
 bool     get_pp_beta(options const & opts);
+bool     get_pp_purify_metavars(options const & opts);
 list<options> const & get_distinguishing_pp_options();
 
 void initialize_pp_options();

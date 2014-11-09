@@ -145,6 +145,7 @@ struct placeholder_elaborator : public choice_iterator {
     list<name>              m_instances;
     justification           m_jst;
     unsigned                m_depth;
+    bool                    m_displayed_trace_header;
 
     placeholder_elaborator(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
                            expr const & meta, expr const & meta_type,
@@ -158,6 +159,7 @@ struct placeholder_elaborator : public choice_iterator {
                                        "(the class-instance resolution trace can be visualized by setting option 'elaborator.trace_instances')",
                                        C->get_main_meta());
         }
+        m_displayed_trace_header = false;
     }
 
     constraints mk_constraints(constraint const & c, buffer<constraint> const & cs) {
@@ -168,7 +170,7 @@ struct placeholder_elaborator : public choice_iterator {
         if (!m_C->trace_instances())
             return;
         auto out = diagnostic(m_C->env(), m_C->ios());
-        if (m_depth == 0) {
+        if (!m_displayed_trace_header && m_depth == 0) {
             if (auto fname = m_C->get_file_name()) {
                 out << fname << ":";
             }
@@ -176,6 +178,7 @@ struct placeholder_elaborator : public choice_iterator {
                 out << pos->first << ":" << pos->second << ":";
             }
             out << " class-instance resolution trace" << endl;
+            m_displayed_trace_header = true;
         }
         for (unsigned i = 0; i < m_depth; i++)
             out << " ";

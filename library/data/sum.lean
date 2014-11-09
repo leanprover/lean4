@@ -21,32 +21,14 @@ namespace sum
   variables {A B : Type}
   variables {a a₁ a₂ : A} {b b₁ b₂ : B}
 
-  -- Here is the trick for the theorems that follow:
-  -- Fixing a₁, "f s" is a recursive description of "inl B a₁ = s".
-  -- When s is (inl B a₁), it reduces to a₁ = a₁.
-  -- When s is (inl B a₂), it reduces to a₁ = a₂.
-  -- When s is (inr A b), it reduces to false.
+  theorem inl_neq_inr : inl B a ≠ inr A b :=
+  assume H, no_confusion H
 
   theorem inl_inj : inl B a₁ = inl B a₂ → a₁ = a₂ :=
-  assume H,
-  let f := λs, rec_on s (λa, a₁ = a) (λb, false) in
-  have H₁ : f (inl B a₁), from rfl,
-  have H₂ : f (inl B a₂), from H ▸ H₁,
-  H₂
-
-  theorem inl_neq_inr : inl B a ≠ inr A b :=
-  assume H,
-  let f := λs, rec_on s (λa', a = a') (λb, false) in
-  have H₁ : f (inl B a), from rfl,
-  have H₂ : f (inr A b), from H ▸ H₁,
-  H₂
+  assume H, no_confusion H (λe, e)
 
   theorem inr_inj : inr A b₁ = inr A b₂ → b₁ = b₂ :=
-  assume H,
-  let f := λs, rec_on s (λa, false) (λb, b₁ = b) in
-  have H₁ : f (inr A b₁), from rfl,
-  have H₂ : f (inr A b₂), from H ▸ H₁,
-  H₂
+  assume H, no_confusion H (λe, e)
 
   protected definition is_inhabited_left [instance] : inhabited A → inhabited (A ⊎ B) :=
   assume H : inhabited A, inhabited.mk (inl B (default A))

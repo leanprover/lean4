@@ -133,6 +133,8 @@
 
 (defun lean-find-hname-beg ()
   (save-excursion
+    (when (looking-at ".")
+      (backward-char 1))
     (let* ((new-id-beg (lean-find-id-beg))
            old-id-beg)
       (while new-id-beg

@@ -6,7 +6,7 @@ vnil  : vector A zero,
 vcons : Π {n : nat}, A → vector A n → vector A (succ n)
 
 namespace vector
-  definition no_confusion {A : Type} {n : nat} {P : Type} {v₁ v₂ : vector A n} : v₁ = v₂ → no_confusion_type P v₁ v₂ :=
+  definition no_confusion2 {A : Type} {n : nat} {P : Type} {v₁ v₂ : vector A n} : v₁ = v₂ → no_confusion_type P v₁ v₂ :=
   assume H₁₂ : v₁ = v₂,
     begin
        show no_confusion_type P v₁ v₂, from

@@ -12,6 +12,8 @@ namespace lean {
     <tt>n.no_confusion_type</tt> and <tt>n.no_confusion</tt> to the environment.
 
     \remark This procedure assumes the environment contains eq, heq, n.cases_on</tt>
+
+    \remark Return none if did not create constructions because type is a proposition.
 */
-environment mk_no_confusion(environment const & env, name const & n);
+optional<environment> mk_no_confusion(environment const & env, name const & n);
 }

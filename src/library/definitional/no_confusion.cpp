@@ -18,7 +18,7 @@ static void throw_corrupted(name const & n) {
     throw exception(sstream() << "error in 'no_confusion' generation, '" << n << "' inductive datatype declaration is corrupted");
 }
 
-environment mk_no_confusion_type(environment const & env, name const & n) {
+optional<environment> mk_no_confusion_type(environment const & env, name const & n) {
     optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
     if (!decls)
         throw exception(sstream() << "error in 'no_confusion' generation, '" << n << "' is not an inductive datatype");
@@ -30,12 +30,10 @@ environment mk_no_confusion_type(environment const & env, name const & n) {
     level  rlvl            = mk_param_univ(head(lps));
     levels ilvls           = param_names_to_levels(tail(lps));
     if (length(ilvls) != length(ind_decl.get_univ_params()))
-        return env; // type is a proposition
+        return optional<environment>(); // type is a proposition
     expr ind_type          = instantiate_type_univ_params(ind_decl, ilvls);
     name eq_name("eq");
     name heq_name("heq");
-    name eq_refl_name{"eq", "refl"};
-    name heq_refl_name{"heq", "refl"};
     // All inductive datatype parameters and indices are arguments
     buffer<expr> args;
     while (is_pi(ind_type)) {
@@ -46,7 +44,7 @@ environment mk_no_confusion_type(environment const & env, name const & n) {
     if (!is_sort(ind_type) || args.size() < nparams)
         throw_corrupted(n);
     if (env.impredicative() && is_zero(sort_level(ind_type)))
-        return env; // do nothing, inductive type is a proposition
+        return optional<environment>(); // do nothing, inductive type is a proposition
     unsigned nindices      = args.size() - nparams;
     // Create inductive datatype
     expr I = mk_app(mk_constant(n, ilvls), args);
@@ -135,10 +133,127 @@ environment mk_no_confusion_type(environment const & env, name const & n) {
     declaration new_d = mk_definition(env, no_confusion_type_name, lps, no_confusion_type_type, no_confusion_type_value,
                                       opaque, ind_decl.get_module_idx(), use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
-    return add_protected(new_env, no_confusion_type_name);
+    return some(add_protected(new_env, no_confusion_type_name));
 }
 
-environment mk_no_confusion(environment const & env, name const & n) {
-    return mk_no_confusion_type(env, n);
+optional<environment> mk_no_confusion(environment const & env, name const & n) {
+    optional<environment> env1 = mk_no_confusion_type(env, n);
+    if (!env1)
+        return env1;
+    environment new_env = *env1;
+    type_checker tc(new_env);
+    inductive::inductive_decls decls   = *inductive::is_inductive_decl(new_env, n);
+    unsigned nparams                   = std::get<1>(decls);
+    name_generator ngen;
+    declaration no_confusion_type_decl = new_env.get(name{n, "no_confusion_type"});
+    declaration cases_decl             = new_env.get(name(n, "cases_on"));
+    level_param_names lps              = no_confusion_type_decl.get_univ_params();
+    levels ls                          = param_names_to_levels(lps);
+    expr no_confusion_type_type        = instantiate_type_univ_params(no_confusion_type_decl, ls);
+    name eq_name("eq");
+    name heq_name("heq");
+    name eq_refl_name{"eq", "refl"};
+    name heq_refl_name{"heq", "refl"};
+    buffer<expr> args;
+    expr type = no_confusion_type_type;
+    while (is_pi(type)) {
+        expr arg = mk_local(ngen.next(), binding_name(type), binding_domain(type), mk_implicit_binder_info());
+        args.push_back(arg);
+        type = instantiate(binding_body(type), arg);
+    }
+    lean_assert(args.size() >= nparams + 3);
+    unsigned nindices = args.size() - nparams - 3; // 3 is for P v1 v2
+    expr range        = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), args);
+    expr P            = args[args.size()-3];
+    expr v1           = args[args.size()-2];
+    expr v2           = args[args.size()-1];
+    expr v_type       = mlocal_type(v1);
+    level v_lvl       = sort_level(tc.ensure_type(v_type).first);
+    expr eq_v         = mk_app(mk_constant(eq_name, to_list(v_lvl)), v_type);
+    expr H12          = mk_local(ngen.next(), "H12", mk_app(eq_v, v1, v2), binder_info());
+    args.push_back(H12);
+    name no_confusion_name{n, "no_confusion"};
+    expr no_confusion_ty = Pi(args, range);
+    // The gen proof is of the form
+    //   (fun H11 : v1 = v1, cases_on Params (fun Indices v1, no_confusion_type Params Indices P v1 v1) Indices v1
+    //        <for-each case>
+    //        (fun H : (equations -> P), H (refl) ... (refl))
+    //        ...
+    //   )
+
+    // H11 is for creating the generalization
+    expr H11          = mk_local(ngen.next(), "H11", mk_app(eq_v, v1, v1), binder_info());
+    // Create the type former (fun Indices v1, no_confusion_type Params Indices P v1 v1)
+    buffer<expr> type_former_args;
+    for (unsigned i = nparams; i < nparams + nindices; i++)
+        type_former_args.push_back(args[i]);
+    type_former_args.push_back(v1);
+    buffer<expr> no_confusion_type_args;
+    for (unsigned i = 0; i < nparams + nindices; i++)
+        no_confusion_type_args.push_back(args[i]);
+    no_confusion_type_args.push_back(P);
+    no_confusion_type_args.push_back(v1);
+    no_confusion_type_args.push_back(v1);
+    expr no_confusion_type_app = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), no_confusion_type_args);
+    expr type_former = Fun(type_former_args, no_confusion_type_app);
+    // create cases_on
+    levels clvls   = ls;
+    expr cases_on  = mk_app(mk_app(mk_constant(cases_decl.get_name(), clvls), nparams, args.data()), type_former);
+    cases_on       = mk_app(mk_app(cases_on, nindices, args.data() + nparams), v1);
+    expr cot       = tc.infer(cases_on).first;
+
+    while (is_pi(cot)) {
+        expr minor = tc.whnf(binding_domain(cot)).first;
+        buffer<expr> minor_args;
+        while (is_pi(minor)) {
+            expr arg = mk_local(ngen.next(), binding_name(minor), binding_domain(minor), binding_info(minor));
+            minor_args.push_back(arg);
+            minor   = tc.whnf(instantiate(binding_body(minor), arg)).first;
+        }
+        lean_assert(!minor_args.empty());
+        expr H  = minor_args.back();
+        expr Ht = mlocal_type(H);
+        buffer<expr> refl_args;
+        while (is_pi(Ht)) {
+            buffer<expr> eq_args;
+            expr eq_fn = get_app_args(binding_domain(Ht), eq_args);
+            if (const_name(eq_fn) == eq_name) {
+                refl_args.push_back(mk_app(mk_constant(eq_refl_name, const_levels(eq_fn)), eq_args[0], eq_args[1]));
+            } else {
+                refl_args.push_back(mk_app(mk_constant(heq_refl_name, const_levels(eq_fn)), eq_args[0], eq_args[1]));
+            }
+            Ht = binding_body(Ht);
+        }
+        expr pr  = mk_app(H, refl_args);
+        cases_on = mk_app(cases_on, Fun(minor_args, pr));
+        cot = binding_body(cot);
+    }
+    expr gen = Fun(H11, cases_on);
+    // Now, we use gen to build the final proof using eq.rec
+    //
+    //  eq.rec InductiveType v1 (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a) gen v2 H12 H12
+    //
+    name eq_rec_name{"eq", "rec"};
+    expr eq_rec = mk_app(mk_constant(eq_rec_name, {head(ls), v_lvl}), v_type, v1);
+    // create eq_rec type_former
+    //    (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a)
+    expr a   = mk_local(ngen.next(), "a",   v_type, binder_info());
+    expr H1a = mk_local(ngen.next(), "H1a", mk_app(eq_v, v1, a), binder_info());
+    // reusing no_confusion_type_args... we just replace the last argument with a
+    no_confusion_type_args.pop_back();
+    no_confusion_type_args.push_back(a);
+    expr no_confusion_type_app_1a = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), no_confusion_type_args);
+    expr rec_type_former = Fun(a, Pi(H1a, no_confusion_type_app_1a));
+    // finalize eq_rec
+    eq_rec = mk_app(mk_app(eq_rec, rec_type_former, gen, v2, H12), H12);
+    //
+    expr no_confusion_val = Fun(args, eq_rec);
+
+    bool opaque       = false;
+    bool use_conv_opt = true;
+    declaration new_d = mk_definition(new_env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,
+                                      opaque, no_confusion_type_decl.get_module_idx(), use_conv_opt);
+    new_env = module::add(new_env, check(new_env, new_d));
+    return some(add_protected(new_env, no_confusion_name));
 }
 }

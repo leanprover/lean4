@@ -60,7 +60,7 @@ public:
 
     friend void initialize_parse_table();
     friend action mk_expr_action(unsigned rbp);
-    friend action mk_exprs_action(name const & sep, expr const & rec, expr const & ini,
+    friend action mk_exprs_action(name const & sep, expr const & rec, optional<expr> const & ini,
                                   optional<name> const & terminator, bool right, unsigned rbp);
     friend action mk_scoped_expr_action(expr const & rec, unsigned rbp, bool lambda);
     friend action mk_ext_action_core(parse_fn const & fn);
@@ -71,7 +71,7 @@ public:
     unsigned rbp() const;
     name const & get_sep() const;
     expr const & get_rec() const;
-    expr const & get_initial() const;
+    optional<expr> const & get_initial() const;
     optional<name> const & get_terminator() const;
     bool is_fold_right() const;
     bool use_lambda_abstraction() const;
@@ -89,7 +89,7 @@ inline bool operator!=(action const & a1, action const & a2) { return !a1.is_equ
 
 action mk_skip_action();
 action mk_expr_action(unsigned rbp = 0);
-action mk_exprs_action(name const & sep, expr const & rec, expr const & ini, optional<name> const & terminator, bool right,
+action mk_exprs_action(name const & sep, expr const & rec, optional<expr> const & ini, optional<name> const & terminator, bool right,
                        unsigned rbp = 0);
 action mk_binder_action();
 action mk_binders_action();

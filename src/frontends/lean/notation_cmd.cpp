@@ -309,7 +309,9 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
                     locals.pop_back();
                     locals.pop_back();
                 }
-                expr ini  = parse_notation_expr(p, locals);
+                optional<expr> ini;
+                if (!p.curr_is_token(get_rparen_tk()) && !p.curr_is_quoted_symbol())
+                    ini = parse_notation_expr(p, locals);
                 optional<name> terminator;
                 if (!p.curr_is_token(get_rparen_tk()))
                     terminator = parse_quoted_symbol_or_token(p, new_tokens);

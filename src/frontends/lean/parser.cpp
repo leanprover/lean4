@@ -903,9 +903,15 @@ expr parser::parse_notation(parse_table t, expr * left) {
                     throw parser_error(sstream() << "invalid composite expression, '" << *terminator << "' expected", pos());
                 }
             }
-            expr r   = instantiate_rev(copy_with_new_pos(a.get_initial(), p), args.size(), args.data());
             expr rec = copy_with_new_pos(a.get_rec(), p);
+            expr r;
             if (a.is_fold_right()) {
+                if (a.get_initial()) {
+                    r = instantiate_rev(copy_with_new_pos(*a.get_initial(), p), args.size(), args.data());
+                } else {
+                    r = r_args.back();
+                    r_args.pop_back();
+                }
                 unsigned i = r_args.size();
                 while (i > 0) {
                     --i;
@@ -915,7 +921,14 @@ expr parser::parse_notation(parse_table t, expr * left) {
                     args.pop_back(); args.pop_back();
                 }
             } else {
-                for (unsigned i = 0; i < r_args.size(); i++) {
+                unsigned fidx = 0;
+                if (a.get_initial()) {
+                    r = instantiate_rev(copy_with_new_pos(*a.get_initial(), p), args.size(), args.data());
+                } else {
+                    r = r_args[0];
+                    fidx++;
+                }
+                for (unsigned i = fidx; i < r_args.size(); i++) {
                     args.push_back(r_args[i]);
                     args.push_back(r);
                     r = instantiate_rev(rec, args.size(), args.data());

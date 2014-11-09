@@ -83,10 +83,10 @@ struct expr_action_cell : public action_cell {
 struct exprs_action_cell : public expr_action_cell {
     name           m_token_sep;
     expr           m_rec;
-    expr           m_ini;
+    optional<expr> m_ini;
     optional<name> m_terminator;
     bool           m_fold_right;
-    exprs_action_cell(name const & sep, expr const & rec, expr const & ini,
+    exprs_action_cell(name const & sep, expr const & rec, optional<expr> const & ini,
                       optional<name> const & terminator, bool right, unsigned rbp):
         expr_action_cell(action_kind::Exprs, rbp),
         m_token_sep(sep), m_rec(rec), m_ini(ini), m_terminator(terminator), m_fold_right(right) {}
@@ -151,7 +151,7 @@ expr const & action::get_rec() const {
         return to_exprs_action(m_ptr)->m_rec;
 }
 bool action::use_lambda_abstraction() const { return to_scoped_expr_action(m_ptr)->m_lambda; }
-expr const & action::get_initial() const { return to_exprs_action(m_ptr)->m_ini; }
+optional<expr> const & action::get_initial() const { return to_exprs_action(m_ptr)->m_ini; }
 bool action::is_fold_right() const { return to_exprs_action(m_ptr)->m_fold_right; }
 parse_fn const & action::get_parse_fn() const { return to_ext_action(m_ptr)->m_parse_fn; }
 std::string const & action::get_lua_fn() const { return to_ext_lua_action(m_ptr)->m_lua_fn; }
@@ -193,7 +193,9 @@ void action::display(std::ostream & out) const {
         out << "(fold" << (is_fold_right() ? "r" : "l");
         if (get_terminator())
             out << "*";
-        out << " " << rbp() << " " << get_rec() << " " << get_initial();
+        out << " " << rbp() << " " << get_rec();
+        if (get_initial())
+            out << " " << *get_initial();
         if (get_terminator())
             out << *get_terminator();
         out << ")";
@@ -239,13 +241,13 @@ void finalize_parse_table() {
 }
 
 action mk_expr_action(unsigned rbp) { return action(new expr_action_cell(rbp)); }
-action mk_exprs_action(name const & sep, expr const & rec, expr const & ini,
+action mk_exprs_action(name const & sep, expr const & rec, optional<expr> const & ini,
                        optional<name> const & terminator, bool right, unsigned rbp) {
     if (get_free_var_range(rec) > 2)
         throw exception("invalid notation, the expression used to combine a sequence of expressions "
                         "must not contain free variables with de Bruijn indices greater than 1");
     expr new_rec = annotate_macro_subterms(rec);
-    expr new_ini = annotate_macro_subterms(ini);
+    optional<expr> new_ini = ini ? some_expr(annotate_macro_subterms(*ini)) : none_expr();
     return action(new exprs_action_cell(sep, new_rec, new_ini, terminator, right, rbp));
 }
 action mk_scoped_expr_action(expr const & rec, unsigned rb, bool lambda) {
@@ -269,7 +271,7 @@ action replace(action const & a, std::function<expr(expr const &)> const & f) {
     case action_kind::Ext:  case action_kind::LuaExt: case action_kind::Expr:
         return a;
     case action_kind::Exprs:
-        return mk_exprs_action(a.get_sep(), f(a.get_rec()), f(a.get_initial()), a.get_terminator(),
+        return mk_exprs_action(a.get_sep(), f(a.get_rec()), a.get_initial() ? some_expr(f(*a.get_initial())) : none_expr(), a.get_terminator(),
                                a.is_fold_right(), a.rbp());
     case action_kind::ScopedExpr:
         return mk_scoped_expr_action(f(a.get_rec()), a.rbp(), a.use_lambda_abstraction());
@@ -498,7 +500,7 @@ static int mk_exprs_action(lua_State * L) {
     if (nargs >= 4) terminator = to_optional_name(L, 4);
     return push_notation_action(L, mk_exprs_action(to_name_ext(L, 1),
                                                    to_expr(L, 2),
-                                                   to_expr(L, 3),
+                                                   lua_isnil(L, 3) ? none_expr() : some_expr(to_expr(L, 3)),
                                                    terminator,
                                                    lua_toboolean(L, 5),
                                                    rbp));
@@ -540,7 +542,7 @@ static int rec(lua_State * L) {
 }
 static int initial(lua_State * L) {
     check_action(L, 1, { action_kind::Exprs });
-    return push_expr(L, to_notation_action(L, 1).get_initial());
+    return push_optional_expr(L, to_notation_action(L, 1).get_initial());
 }
 static int is_fold_right(lua_State * L) {
     check_action(L, 1, { action_kind::Exprs });

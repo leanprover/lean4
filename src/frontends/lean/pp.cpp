@@ -808,7 +808,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     expr e = *args.back();
                     args.pop_back();
                     expr const & rec = a.get_rec();
-                    expr const & ini = a.get_initial();
+                    optional<expr> const & ini = a.get_initial();
                     buffer<expr> rec_args;
                     bool matched_once = false;
                     while (true) {
@@ -818,7 +818,6 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                             args.pop_back();
                             break;
                         }
-                        matched_once = true;
                         optional<expr> new_e = args.back();
                         args.pop_back();
                         optional<expr> rec_arg = args.back();
@@ -827,11 +826,16 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                             return optional<result>();
                         rec_args.push_back(*rec_arg);
                         e = *new_e;
+                        matched_once = true;
                     }
                     if (!matched_once)
                         return optional<result>();
-                    if (!match(ini, e, args))
-                        return optional<result>();
+                    if (ini) {
+                        if (!match(*ini, e, args))
+                            return optional<result>();
+                    } else {
+                        rec_args.push_back(e);
+                    }
                     if (!a.is_fold_right())
                         std::reverse(rec_args.begin(), rec_args.end());
                     unsigned curr_lbp = token_lbp;
@@ -847,9 +851,14 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     while (i > 0) {
                         --i;
                         result arg_res = pp_notation_child(rec_args[i], curr_lbp, a.rbp());
-                        if (i == 0)
-                            sep_fmt = format(tk);
-                        curr = sep_fmt + space() + arg_res.fmt() + curr;
+                        if (i == 0) {
+                            if (add_extra_space(tk))
+                                curr = format(tk) + space() + arg_res.fmt() + curr;
+                            else
+                                curr = format(tk) + arg_res.fmt() + curr;
+                        } else {
+                            curr = sep_fmt + space() + arg_res.fmt() + curr;
+                        }
                         if (i > 0 && add_extra_space(a.get_sep()))
                             curr = space() + curr;
                         curr_lbp = sep_lbp;

@@ -27,6 +27,8 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     declaration ind_decl   = env.get(n);
     declaration cases_decl = env.get(name(n, "cases_on"));
     level_param_names lps  = cases_decl.get_univ_params();
+    if (is_nil(lps))
+        return optional<environment>(); // type is a proposition
     level  rlvl            = mk_param_univ(head(lps));
     levels ilvls           = param_names_to_levels(tail(lps));
     if (length(ilvls) != length(ind_decl.get_univ_params()))

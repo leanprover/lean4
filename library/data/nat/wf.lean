@@ -4,7 +4,7 @@
 import data.nat.order logic.wf
 open nat eq.ops
 
-theorem lt.wf [instance] : well_founded lt :=
+definition lt.wf [instance] : well_founded lt :=
 well_founded.intro
  (take n, nat.induction_on n
     (acc.intro zero (λ (y : nat) (H : y < 0),

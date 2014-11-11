@@ -125,7 +125,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     for (unsigned i = 0; i < num_idx_major; i++)
         cases_on_params.push_back(rec_params[num_params + num_types + num_minors + i]);
 
-    // Ad minor premises to rec_params and rec_args
+    // Add minor premises to rec_params and rec_args
     i = num_params + num_types;
     for (auto const & d : idecls) {
         bool is_main = inductive::inductive_decl_name(d) == n;
@@ -139,8 +139,11 @@ environment mk_cases_on(environment const & env, name const & n) {
                 while (is_pi(minor_type)) {
                     expr local = mk_local(ngen.next(), binding_name(minor_type), binding_domain(minor_type),
                                           binding_info(minor_type));
-                    if (is_type_former_arg(C_names, binding_domain(minor_type))) {
-                        if (mlocal_name(get_app_fn(binding_domain(minor_type))) == C_main) {
+                    expr curr_type = mlocal_type(local);
+                    while (is_pi(curr_type))
+                        curr_type = binding_body(curr_type);
+                    if (is_type_former_arg(C_names, curr_type)) {
+                        if (mlocal_name(get_app_fn(curr_type)) == C_main) {
                             minor_params.push_back(local);
                         } else {
                             minor_params.push_back(update_mlocal(local, *unit));

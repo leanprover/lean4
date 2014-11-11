@@ -654,9 +654,9 @@ struct inductive_cmd_fn {
                 save_def_info(name(n, "cases_on"), pos);
                 if (has_eq && has_heq) {
                     if (optional<environment> new_env = mk_no_confusion(env, inductive_decl_name(d))) {
-                        env = *new_env;
-                        save_def_info(name{n, "no_confusion_type"}, pos);
-                        // save_def_info(name(n, "no_confusion"), pos);
+                       env = *new_env;
+                       save_def_info(name{n, "no_confusion_type"}, pos);
+                       save_def_info(name(n, "no_confusion"), pos);
                     }
                 }
                 // if (has_prod) {

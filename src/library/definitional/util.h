@@ -13,8 +13,14 @@ namespace lean {
 
     \remark Records are inductive datatypes, but they are not recursive.
 
-    \remerk For mutually indutive datatypes, \c n is considered recursive
+    \remark For mutually indutive datatypes, \c n is considered recursive
     if there is a constructor taking \c n.
 */
 bool is_recursive_datatype(environment const & env, name const & n);
+
+/** \brief Return true iff \c n is an inductive predicate, i.e., an inductive datatype that is in Prop.
+
+    \remark If \c env does not have Prop (i.e., Type.{0} is not impredicative), then this method always return false.
+*/
+bool is_inductive_predicate(environment const & env, name const & n);
 }

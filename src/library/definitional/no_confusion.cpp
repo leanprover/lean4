@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/protected.h"
 #include "library/module.h"
+#include "library/definitional/util.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -22,17 +23,17 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
     if (!decls)
         throw exception(sstream() << "error in 'no_confusion' generation, '" << n << "' is not an inductive datatype");
+    if (is_inductive_predicate(env, n))
+        return optional<environment>(); // type is a proposition
     name_generator ngen;
     unsigned nparams       = std::get<1>(*decls);
     declaration ind_decl   = env.get(n);
     declaration cases_decl = env.get(name(n, "cases_on"));
     level_param_names lps  = cases_decl.get_univ_params();
-    if (is_nil(lps))
-        return optional<environment>(); // type is a proposition
     level  rlvl            = mk_param_univ(head(lps));
     levels ilvls           = param_names_to_levels(tail(lps));
     if (length(ilvls) != length(ind_decl.get_univ_params()))
-        return optional<environment>(); // type is a proposition
+        return optional<environment>(); // type does not have only a restricted eliminator
     expr ind_type          = instantiate_type_univ_params(ind_decl, ilvls);
     name eq_name("eq");
     name heq_name("heq");
@@ -45,8 +46,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     }
     if (!is_sort(ind_type) || args.size() < nparams)
         throw_corrupted(n);
-    if (env.impredicative() && is_zero(sort_level(ind_type)))
-        return optional<environment>(); // do nothing, inductive type is a proposition
+    lean_assert(!(env.impredicative() && is_zero(sort_level(ind_type))));
     unsigned nindices      = args.size() - nparams;
     // Create inductive datatype
     expr I = mk_app(mk_constant(n, ilvls), args);

@@ -25,4 +25,16 @@ bool is_recursive_datatype(environment const & env, name const & n) {
     }
     return false;
 }
+
+bool is_inductive_predicate(environment const & env, name const & n) {
+    if (!env.impredicative())
+        return false; // environment does not have Prop
+    if (!inductive::is_inductive_decl(env, n))
+        return false; // n is not inductive datatype
+    expr type = env.get(n).get_type();
+    while (is_pi(type)) {
+        type = binding_body(type);
+    }
+    return is_sort(type) && is_zero(sort_level(type));
+}
 }

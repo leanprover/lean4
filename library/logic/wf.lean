@@ -16,10 +16,10 @@ end acc
 inductive well_founded [class] {A : Type} (R : A → A → Prop) : Prop :=
 intro : (∀ a, acc R a) → well_founded R
 
-definition well_founded.apply [coercion] {A : Type} {R : A → A → Prop} (wf : well_founded R) : ∀a, acc R a :=
-take a, well_founded.rec_on wf (λp, p) a
-
 namespace well_founded
+  definition apply [coercion] {A : Type} {R : A → A → Prop} (wf : well_founded R) : ∀a, acc R a :=
+  take a, well_founded.rec_on wf (λp, p) a
+
   context
   parameters {A : Type} {R : A → A → Prop}
   infix `≺`:50    := R
@@ -66,6 +66,8 @@ namespace well_founded
     ... = F x (λy h, fix F y)                       : rfl  -- proof irrelevance is used here
 
 end well_founded
+
+open well_founded
 
 -- Empty relation is well-founded
 definition empty.wf {A : Type} : well_founded (λa b : A, false) :=

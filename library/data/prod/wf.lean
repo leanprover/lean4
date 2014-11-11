@@ -37,7 +37,8 @@ namespace prod
                 (λa b₁ b₂ (H : Rb b₁ b₂) (eq₂ : a = xa) (eq₃ : b₂ = xb),
                   show acc (lex Ra Rb) (a, b₁), from
                   have Rb₁  : Rb b₁ xb, from eq.rec_on eq₃ H,
-                  eq.rec_on (eq.symm eq₂) (iHb b₁ Rb₁)),
+                  have eq₂' : xa = a, from eq.rec_on eq₂ rfl,
+                  eq.rec_on eq₂' (iHb b₁ Rb₁)),
             aux rfl rfl)))
 
   -- The lexicographical order of well founded relations is well-founded

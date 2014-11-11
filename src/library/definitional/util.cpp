@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/find_fn.h"
+#include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 
 namespace lean {
@@ -39,6 +40,10 @@ bool has_heq_decls(environment const & env) {
     return has_constructor(env, name{"heq", "refl"}, "heq", 2);
 }
 
+bool has_prod_decls(environment const & env) {
+    return has_constructor(env, name{"prod", "mk"}, "prod", 4);
+}
+
 bool is_recursive_datatype(environment const & env, name const & n) {
     optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
     if (!decls)
@@ -48,8 +53,9 @@ bool is_recursive_datatype(environment const & env, name const & n) {
             expr type = inductive::intro_rule_type(intro);
             while (is_pi(type)) {
                 if (find(binding_domain(type), [&](expr const & e, unsigned) {
-                            return is_constant(e) && const_name(e) == n; }))
+                            return is_constant(e) && const_name(e) == n; })) {
                     return true;
+                }
                 type = binding_body(type);
             }
         }
@@ -67,5 +73,18 @@ bool is_inductive_predicate(environment const & env, name const & n) {
         type = binding_body(type);
     }
     return is_sort(type) && is_zero(sort_level(type));
+}
+
+expr to_telescope(name_generator & ngen, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
+    while (is_pi(type)) {
+        expr local;
+        if (binfo)
+            local = mk_local(ngen.next(), binding_name(type), binding_domain(type), *binfo);
+        else
+            local = mk_local(ngen.next(), binding_name(type), binding_domain(type), binder_info(type));
+        telescope.push_back(local);
+        type = instantiate(binding_body(type), local);
+    }
+    return type;
 }
 }

@@ -11,6 +11,7 @@ namespace lean {
 bool has_unit_decls(environment const & env);
 bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);
+bool has_prod_decls(environment const & env);
 /** \brief Return true iff \c n is the name of a recursive datatype in \c env.
     That is, it must be an inductive datatype AND contain a recursive constructor.
 
@@ -26,4 +27,12 @@ bool is_recursive_datatype(environment const & env, name const & n);
     \remark If \c env does not have Prop (i.e., Type.{0} is not impredicative), then this method always return false.
 */
 bool is_inductive_predicate(environment const & env, name const & n);
+
+/** \brief "Consume" Pi-type \c type. This method creates local constants based on the domain of \c type
+    and store them in telescope. If \c binfo is provided, then the local constants are annoted with the given
+    binder_info, otherwise the procedure uses the one attached in the domain.
+    The procedure returns the "body" of type.
+*/
+expr to_telescope(name_generator & ngen, expr type, buffer<expr> & telescope,
+                  optional<binder_info> const & binfo = optional<binder_info>());
 }

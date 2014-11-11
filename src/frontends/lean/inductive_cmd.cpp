@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
 #include "library/definitional/cases_on.h"
+#include "library/definitional/brec_on.h"
 #include "library/definitional/no_confusion.h"
 #include "library/definitional/util.h"
 #include "frontends/lean/decl_cmds.h"
@@ -640,6 +641,7 @@ struct inductive_cmd_fn {
         bool has_unit = has_unit_decls(env);
         bool has_eq   = has_eq_decls(env);
         bool has_heq  = has_heq_decls(env);
+        // bool has_prod = has_prod_decls(env);
         for (inductive_decl const & d : decls) {
             name const & n = inductive_decl_name(d);
             pos_info pos   = *m_decl_pos_map.find(n);
@@ -657,6 +659,9 @@ struct inductive_cmd_fn {
                         // save_def_info(name(n, "no_confusion"), pos);
                     }
                 }
+                // if (has_prod) {
+                //    env = mk_below(env, inductive_decl_name(d));
+                // }
             }
         }
         return env;

@@ -8,49 +8,35 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 
 namespace lean {
+/** \brief Return true if environment has a constructor named \c c that returns
+    an element of the inductive datatype named \c I, and \c c must have \c nparams parameters.
+*/
+bool has_constructor(environment const & env, name const & c, name const & I, unsigned nparams) {
+    auto d = env.find(c);
+    if (!d || d->is_definition())
+        return false;
+    expr type = d->get_type();
+    unsigned i = 0;
+    while (is_pi(type)) {
+        i++;
+        type = binding_body(type);
+    }
+    if (i != nparams)
+        return false;
+    type = get_app_fn(type);
+    return is_constant(type) && const_name(type) == I;
+}
+
 bool has_unit_decls(environment const & env) {
-    auto d = env.find(name({"unit", "star"}));
-    if (!d)
-        return false;
-    if (length(d->get_univ_params()) != 1)
-        return false;
-    expr const & type = d->get_type();
-    if (!is_constant(type))
-        return false;
-    return const_name(type) == "unit";
+    return has_constructor(env, name{"unit", "star"}, "unit", 0);
 }
 
 bool has_eq_decls(environment const & env) {
-    auto d = env.find(name({"eq", "refl"}));
-    if (!d)
-        return false;
-    if (length(d->get_univ_params()) != 1)
-        return false;
-    expr type = d->get_type();
-    if (!is_pi(type) || !is_pi(binding_body(type)))
-        return false;
-    type = get_app_fn(binding_body(binding_body(type)));
-    if (!is_constant(type))
-        return false;
-    return const_name(type) == "eq";
+    return has_constructor(env, name{"eq", "refl"}, "eq", 2);
 }
 
 bool has_heq_decls(environment const & env) {
-    auto d = env.find(name({"heq", "refl"}));
-    if (!d)
-        return false;
-    if (length(d->get_univ_params()) != 1)
-        return false;
-    expr type = d->get_type();
-    for (unsigned i = 0; i < 2; i++) {
-        if (!is_pi(type))
-            return type;
-        type = binding_body(type);
-    }
-    type = get_app_fn(type);
-    if (!is_constant(type))
-        return false;
-    return const_name(type) == "heq";
+    return has_constructor(env, name{"heq", "refl"}, "heq", 2);
 }
 
 bool is_recursive_datatype(environment const & env, name const & n) {

@@ -43,4 +43,10 @@ well_founded.intro
           (assume Hlt : m < n, acc.inv iH Hlt)
           (assume Heq : m = n, Heq⁻¹ ▸ iH))))
 
+definition measure {A : Type} (f : A → nat) : A → A → Prop :=
+inv_image lt f
+
+definition measure.wf {A : Type} (f : A → nat) : well_founded (measure f) :=
+inv_image.wf f lt.wf
+
 end nat

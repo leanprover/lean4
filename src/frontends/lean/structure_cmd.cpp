@@ -28,7 +28,7 @@ Author: Leonardo de Moura
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
 #include "library/definitional/cases_on.h"
-#include "library/definitional/eq.h"
+#include "library/definitional/util.h"
 #include "library/definitional/projection.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"

@@ -8,6 +8,51 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 
 namespace lean {
+bool has_unit_decls(environment const & env) {
+    auto d = env.find(name({"unit", "star"}));
+    if (!d)
+        return false;
+    if (length(d->get_univ_params()) != 1)
+        return false;
+    expr const & type = d->get_type();
+    if (!is_constant(type))
+        return false;
+    return const_name(type) == "unit";
+}
+
+bool has_eq_decls(environment const & env) {
+    auto d = env.find(name({"eq", "refl"}));
+    if (!d)
+        return false;
+    if (length(d->get_univ_params()) != 1)
+        return false;
+    expr type = d->get_type();
+    if (!is_pi(type) || !is_pi(binding_body(type)))
+        return false;
+    type = get_app_fn(binding_body(binding_body(type)));
+    if (!is_constant(type))
+        return false;
+    return const_name(type) == "eq";
+}
+
+bool has_heq_decls(environment const & env) {
+    auto d = env.find(name({"heq", "refl"}));
+    if (!d)
+        return false;
+    if (length(d->get_univ_params()) != 1)
+        return false;
+    expr type = d->get_type();
+    for (unsigned i = 0; i < 2; i++) {
+        if (!is_pi(type))
+            return type;
+        type = binding_body(type);
+    }
+    type = get_app_fn(type);
+    if (!is_constant(type))
+        return false;
+    return const_name(type) == "heq";
+}
+
 bool is_recursive_datatype(environment const & env, name const & n) {
     optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
     if (!decls)

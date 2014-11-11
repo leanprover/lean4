@@ -104,9 +104,8 @@ context
   definition accessible {a : A} (ac : acc R (f a)) : acc (inv_image R f) a :=
   have gen : ∀x, f x = f a → acc (inv_image R f) x, from
     acc.rec_on ac
-      (λ (x : B) (ax : _)
-         (iH : ∀y, R y x → (∀z, f z = y → acc (inv_image R f) z))
-         (z : A) (eq₁ : f z = x),
+      (λx acx (iH : ∀y, R y x → (∀z, f z = y → acc (inv_image R f) z))
+          (z : A) (eq₁ : f z = x),
         acc.intro z (λ (y : A) (lt : R (f y) (f z)),
           iH (f y) (eq.rec_on eq₁ lt) y rfl)),
   gen a rfl
@@ -125,19 +124,19 @@ trans : ∀a b c, tc R a b → tc R b c → tc R a c
 namespace tc
 context
   parameters {A : Type} {R : A → A → Prop}
-  notation `R⁺` := tc R
+  notation `R⁺`:max := tc R
 
   definition accessible {z} (ac: acc R z) : acc R⁺ z :=
   acc.rec_on ac
-    (λ (x : A) (ax : _) (iH : ∀y, R y x → acc (tc R) y),
+    (λ x acx (iH : ∀y, R y x → acc R⁺ y),
       acc.intro x (λ (y : A) (lt : R⁺ y x),
-        have gen : x = x → acc (tc R) y, from
+        have gen : x = x → acc R⁺ y, from
           tc.rec_on lt
             (λa b (H : R a b) (Heq : b = x),
                iH a (eq.rec_on Heq H))
             (λa b c (H₁ : R⁺ a b) (H₂ : R⁺ b c)
-                (iH₁ : b = x → acc (tc R) a)
-                (iH₂ : c = x → acc (tc R) b)
+                (iH₁ : b = x → acc R⁺ a)
+                (iH₂ : c = x → acc R⁺ b)
                 (Heq : c = x),
               acc.inv (iH₂ Heq) H₁),
         gen rfl))

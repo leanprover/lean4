@@ -16,10 +16,10 @@ end acc
 inductive well_founded [class] {A : Type} (R : A → A → Prop) : Prop :=
 intro : (∀ a, acc R a) → well_founded R
 
-namespace well_founded
-  definition apply [coercion] {A : Type} {R : A → A → Prop} (wf : well_founded R) : ∀a, acc R a :=
-  take a, well_founded.rec_on wf (λp, p) a
+definition well_founded.apply [coercion] {A : Type} {R : A → A → Prop} (wf : well_founded R) : ∀a, acc R a :=
+take a, well_founded.rec_on wf (λp, p) a
 
+namespace well_founded
   context
   parameters {A : Type} {R : A → A → Prop}
   infix `≺`:50    := R
@@ -66,3 +66,50 @@ namespace well_founded
     ... = F x (λy h, fix F y)                       : rfl  -- proof irrelevance is used here
 
 end well_founded
+
+-- Empty relation is well-founded
+definition empty.wf {A : Type} : well_founded (λa b : A, false) :=
+well_founded.intro (λ (a : A),
+  acc.intro a (λ (b : A) (lt : false), false.rec _ lt))
+
+-- Subrelation of a well-founded relation is well-founded
+namespace subrel
+context
+  parameters {A : Type} {R Q : A → A → Prop}
+  parameters (H₁ : ∀{x y}, Q x y → R x y)
+  parameters (H₂ : well_founded R)
+
+  definition accessible {a : A} (ac : acc R a) : acc Q a :=
+  acc.rec_on ac
+    (λ (x : A) (ax : _) (iH : ∀ (y : A), R y x → acc Q y),
+      acc.intro x (λ (y : A) (lt : Q y x), iH y (H₁ lt)))
+
+  definition wf : well_founded Q :=
+  well_founded.intro (λ a, accessible (H₂ a))
+end
+end subrel
+
+definition inv_image {A B : Type} (R : B → B → Prop) (f : A → B) : A → A → Prop :=
+λa₁ a₂, R (f a₁) (f a₂)
+
+-- The inverse image of a well-founded relation is well-founded
+namespace inv_image
+context
+  parameters {A B : Type} {R : B → B → Prop}
+  parameters (f : A → B)
+  parameters (H : well_founded R)
+
+  definition accessible {a : A} (ac : acc R (f a)) : acc (inv_image R f) a :=
+  have gen : ∀x, f x = f a → acc (inv_image R f) x, from
+    acc.rec_on ac
+      (λ (x : B) (ax : _)
+         (iH : ∀y, R y x → (∀z, f z = y → acc (inv_image R f) z))
+         (z : A) (eq₁ : f z = x),
+        acc.intro z (λ (y : A) (lt : R (f y) (f z)),
+          iH (f y) (eq.rec_on eq₁ lt) y rfl)),
+  gen a rfl
+
+  definition wf : well_founded (inv_image R f) :=
+  well_founded.intro (λ a, accessible (H (f a)))
+end
+end inv_image

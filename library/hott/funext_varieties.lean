@@ -4,7 +4,7 @@
 -- Ported from Coq HoTT
 import hott.path hott.trunc hott.equiv
 
-open path truncation sigma
+open path truncation sigma function
 
 /- In hott.axioms.funext, we defined function extensionality to be the assertion
    that the map apD10 is an equivalence.   We now prove that this follows
@@ -36,12 +36,17 @@ definition funext_implies_naive_funext : funext_type → naive_funext :=
     eq1
   )
 
-/-definition naive_funext_implies_weak_funext : naive_funext → weak_funext :=
+definition naive_funext_implies_weak_funext : naive_funext → weak_funext :=
   (λ nf A P Pc,
     let c := λx, @center (P x) (Pc x) in
-    let p : Π (f : Πx, P x) (x : A), (c x) ≈ (f x) := sorry in
-    is_contr.mk c (λ f, nf A P c f (λx, p f x))
-  )-/
+    is_contr.mk c (λ f,
+      have eq' : (λx, @center (P x) (Pc x)) ∼ f,
+        from (λx, @contr (P x) (Pc x) (f x)),
+      have eq : (λx, @center (P x) (Pc x)) ≈ f,
+        from nf A P (λx, @center (P x) (Pc x)) f eq',
+      eq
+    )
+  )
 
 
 /- The less obvious direction is that WeakFunext implies Funext
@@ -54,7 +59,7 @@ context
 
   protected definition idhtpy : f ∼ f := (λx, idp)
 
-  definition contr_basedhtpy : is_contr (Σ (g : Πx, B x), f ∼ g) :=
+  definition contr_basedhtpy [instance] : is_contr (Σ (g : Πx, B x), f ∼ g) :=
     is_contr.mk (dpair f idhtpy)
       (λ dp, sigma.rec_on dp
         (λ (g : Πx, B x) (h : f ∼ g),
@@ -62,7 +67,7 @@ context
             @dpair _ (λg, f ∼ g)
               (λx, dpr1 (k x)) (λx, dpr2 (k x)) in
           let s := λ g h x, @dpair _ (λy, f x ≈ y) (g x) (h x) in
-          have t1 : Πx, is_contr (Σ y, f x ≈ y),
+          have t1 [visible] : Πx, is_contr (Σ y, f x ≈ y),
             from (λx, !contr_basedpaths),
           have t2 : is_contr (Πx, Σ (y : B x), f x ≈ y),
             from wf _ _ t1,
@@ -78,6 +83,29 @@ context
 
   parameters (Q : Π g (h : f ∼ g), Type) (d : Q f idhtpy)
 
+  definition htpy_ind (g : Πx, B x) (h : f ∼ g) : Q g h :=
+    @transport _ (λ gh, Q (dpr1 gh) (dpr2 gh)) (dpair f idhtpy) (dpair g h)
+      (@path_contr _ contr_basedhtpy _ _) d
 
+  definition htpy_ind_beta : htpy_ind f idhtpy ≈ d :=
+    (@path2_contr _ _ _ _ !path_contr idp)⁻¹ ▹ idp
 
 end
+
+-- Now the proof is fairly easy; we can just use the same induction principle on both sides.
+theorem weak_funext_implies_funext : weak_funext → funext_type :=
+  (λ wf A B f g,
+    let eq_to_f := (λ g' x, f ≈ g') in
+    let sim2path := htpy_ind wf f eq_to_f idp in
+    have t1 : sim2path f (idhtpy f) ≈ idp,
+      proof htpy_ind_beta wf f eq_to_f idp qed,
+    have t2 : apD10 (sim2path f (idhtpy f)) ≈ (idhtpy f),
+      proof ap apD10 t1 qed,
+    have sect : Sect (sim2path g) apD10,
+      proof (htpy_ind wf f (λ g' x, apD10 (sim2path g' x) ≈ x) t2) g qed,
+    have retr : Sect apD10 (sim2path g),
+      from (λ h, path.rec_on h (htpy_ind_beta wf f _ idp)),
+    IsEquiv.adjointify apD10 (sim2path g) sect retr)
+
+definition naive_funext_implies_funext : naive_funext -> funext_type :=
+  compose weak_funext_implies_funext naive_funext_implies_weak_funext

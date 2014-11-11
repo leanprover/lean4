@@ -1,0 +1,20 @@
+/*
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#pragma once
+#include "kernel/environment.h"
+
+namespace lean {
+/** \brief Return true iff \c n is the name of a recursive datatype in \c env.
+    That is, it must be an inductive datatype AND contain a recursive constructor.
+
+    \remark Records are inductive datatypes, but they are not recursive.
+
+    \remerk For mutually indutive datatypes, \c n is considered recursive
+    if there is a constructor taking \c n.
+*/
+bool is_recursive_datatype(environment const & env, name const & n);
+}

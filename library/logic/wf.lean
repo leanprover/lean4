@@ -115,3 +115,35 @@ context
   well_founded.intro (λ a, accessible (H (f a)))
 end
 end inv_image
+
+-- Transitive closure
+inductive tc {A : Type} (R : A → A → Prop) : A → A → Prop :=
+base  : ∀a b, R a b → tc R a b,
+trans : ∀a b c, tc R a b → tc R b c → tc R a c
+
+-- The transitive closure of a well-founded relation is well-founded
+namespace tc
+context
+  parameters {A : Type} {R : A → A → Prop}
+  notation `R⁺` := tc R
+
+  definition accessible {z} (ac: acc R z) : acc R⁺ z :=
+  acc.rec_on ac
+    (λ (x : A) (ax : _) (iH : ∀y, R y x → acc (tc R) y),
+      acc.intro x (λ (y : A) (lt : R⁺ y x),
+        have gen : x = x → acc (tc R) y, from
+          tc.rec_on lt
+            (λa b (H : R a b) (Heq : b = x),
+               iH a (eq.rec_on Heq H))
+            (λa b c (H₁ : R⁺ a b) (H₂ : R⁺ b c)
+                (iH₁ : b = x → acc (tc R) a)
+                (iH₂ : c = x → acc (tc R) b)
+                (Heq : c = x),
+              acc.inv (iH₂ Heq) H₁),
+        gen rfl))
+
+  definition wf (H : well_founded R) : well_founded R⁺ :=
+  well_founded.intro (λ a, accessible (H a))
+
+end
+end tc

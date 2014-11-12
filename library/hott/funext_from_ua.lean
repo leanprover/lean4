@@ -2,10 +2,10 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jakob von Raumer
 -- Ported from Coq HoTT
-import hott.axioms.ua hott.equiv hott.equiv_precomp
-import data.prod data.sigma
+import hott.axioms.ua hott.equiv hott.equiv_precomp hott.funext_varieties
+import data.prod data.sigma data.unit
 
-open path function prod sigma
+open path function prod sigma truncation Equiv unit
 
 -- First, define an axiom free variant of Univalence
 definition ua_type := Π (A B : Type), IsEquiv (equiv_path A B)
@@ -46,8 +46,8 @@ context
             (λ xy, prod.rec_on xy
               (λ b c p, path.rec_on p idp))))
 
-  theorem univalence_implies_funext_nondep (A B : Type)
-      : Π (f g : A → B), f ∼ g → f ≈ g
+  theorem ua_implies_funext_nondep {A B : Type}
+      : Π {f g : A → B}, f ∼ g → f ≈ g
     := (λ (f g : A → B) (p : f ∼ g),
           let d := λ (x : A), dpair (f x , f x) idp in
           let e := λ (x : A), dpair (f x , g x) (p x) in
@@ -70,12 +70,36 @@ context
 
 end
 
+context
+  universe l
+  parameters {ua1 ua2 : ua_type.{1}}
 
+  -- Now we use this to prove weak funext, which as we know
+  -- implies (with dependent eta) also the strong dependent funext.
+  theorem ua_implies_weak_funext : weak_funext
+    := (λ A P allcontr,
+          let U := (λ (x : A), unit) in
+          have pequiv : Πx, P x ≃ U x,
+            from (λ x, @equiv_contr_unit (P x) (allcontr x)),
+          have psim : Πx, P x ≈ U x,
+            from (λ x, @IsEquiv.inv _ _
+              (equiv_path.{1} (P x) (U x)) (ua1 (P x) (U x)) (pequiv x)),
+          have p : P ≈ U,
+            from ua_implies_funext_nondep psim,
+          have tU' : is_contr (A → unit),
+            from is_contr.mk (λ x, ⋆)
+              (λ f, ua_implies_funext_nondep
+                (λ x, unit.rec_on (f x) idp)),
+          have tU : is_contr (Πx, U x),
+            from tU',
+          have tlast : is_contr (Πx, P x),
+            from path.transport _ (p⁻¹) tU,
+          tlast
+       )
 
-
-
+end
 
 -- In the following we will proof function extensionality using the univalence axiom
-definition funext_from_ua {A : Type} {P : A → Type} (f g : Πx, P x)
-    : IsEquiv (@apD10 A P f g) :=
-  sorry
+-- TODO: check out why I have to generalize on A and P here
+definition ua_implies_funext_type {ua : ua_type.{1}} : @funext_type :=
+  (λ A P, weak_funext_implies_funext (@ua_implies_weak_funext ua))

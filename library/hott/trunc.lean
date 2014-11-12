@@ -238,6 +238,16 @@ namespace truncation
   Equiv.mk f (isequiv_iff_hprop f g)
   end
 
+  /- interaction with the Unit type -/
+
+  -- A contractible type is equivalent to [Unit]. *)
+  definition equiv_contr_unit [H : is_contr A] : A ≃ unit :=
+    Equiv.mk (λ (x : A), ⋆)
+      (IsEquiv.mk (λ (u : unit), center A)
+        (λ (u : unit), unit.rec_on u idp)
+        (λ (x : A), contr x)
+        (λ (x : A), (!ap_const)⁻¹))
+
   -- TODO: port "Truncated morphisms"
 
 end truncation

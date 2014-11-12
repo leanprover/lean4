@@ -15,5 +15,5 @@ namespace lean {
 
     \remark Return none if did not create constructions because type is a proposition.
 */
-optional<environment> mk_no_confusion(environment const & env, name const & n);
+environment mk_no_confusion(environment const & env, name const & n);
 }

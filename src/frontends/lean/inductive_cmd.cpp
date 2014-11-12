@@ -637,6 +637,12 @@ struct inductive_cmd_fn {
         m_decl_info.emplace_back(n, *g_definition, pos);
     }
 
+    void save_if_defined(name const & n, pos_info pos) {
+        if (m_env.find(n)) {
+            m_decl_info.emplace_back(n, *g_definition, pos);
+        }
+    }
+
     environment mk_aux_decls(environment env, buffer<inductive_decl> const & decls) {
         bool has_unit = has_unit_decls(env);
         bool has_eq   = has_eq_decls(env);
@@ -653,11 +659,9 @@ struct inductive_cmd_fn {
                 env = mk_cases_on(env, inductive_decl_name(d));
                 save_def_info(name(n, "cases_on"), pos);
                 if (has_eq && has_heq) {
-                    if (optional<environment> new_env = mk_no_confusion(env, inductive_decl_name(d))) {
-                       env = *new_env;
-                       save_def_info(name{n, "no_confusion_type"}, pos);
-                       save_def_info(name(n, "no_confusion"), pos);
-                    }
+                    env = mk_no_confusion(env, inductive_decl_name(d));
+                    save_if_defined(name{n, "no_confusion_type"}, pos);
+                    save_if_defined(name(n, "no_confusion"), pos);
                 }
                 // if (has_prod) {
                 //    env = mk_below(env, inductive_decl_name(d));

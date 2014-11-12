@@ -138,10 +138,10 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     return some(add_protected(new_env, no_confusion_type_name));
 }
 
-optional<environment> mk_no_confusion(environment const & env, name const & n) {
+environment mk_no_confusion(environment const & env, name const & n) {
     optional<environment> env1 = mk_no_confusion_type(env, n);
     if (!env1)
-        return env1;
+        return env;
     environment new_env = *env1;
     type_checker tc(new_env);
     inductive::inductive_decls decls   = *inductive::is_inductive_decl(new_env, n);
@@ -256,6 +256,6 @@ optional<environment> mk_no_confusion(environment const & env, name const & n) {
     declaration new_d = mk_definition(new_env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,
                                       opaque, no_confusion_type_decl.get_module_idx(), use_conv_opt);
     new_env = module::add(new_env, check(new_env, new_d));
-    return some(add_protected(new_env, no_confusion_name));
+    return add_protected(new_env, no_confusion_name);
 }
 }

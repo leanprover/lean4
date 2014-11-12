@@ -547,6 +547,26 @@ struct inductive_cmd_fn {
         return infer_implicit_params(type, locals.size() + nparams, k);
     }
 
+    level replace_u(level const & l, level const & rlvl) {
+        return replace(l, [&](level const & l) {
+                if (l == m_u) return some_level(rlvl);
+                else return none_level();
+            });
+    }
+
+    expr replace_u(expr const & type, level const & rlvl) {
+        return replace(type, [&](expr const & e) {
+                if (is_sort(e)) {
+                    return some_expr(update_sort(e, replace_u(sort_level(e), rlvl)));
+                } else if (is_constant(e)) {
+                    return some_expr(update_constant(e, map(const_levels(e),
+                                                            [&](level const & l) { return replace_u(l, rlvl); })));
+                } else {
+                    return none_expr();
+                }
+            });
+    }
+
     /** \brief Elaborate inductive datatypes and their introduction rules. */
     void elaborate_decls(buffer<inductive_decl> & decls, buffer<expr> const & locals) {
         // We create an elaboration problem of the form
@@ -603,6 +623,8 @@ struct inductive_cmd_fn {
             for (intro_rule const & ir : inductive_decl_intros(decl)) {
                 expr type = mlocal_type(to_elab[i]);
                 type = mk_intro_rule_type(intro_rule_name(ir), locals, nparams, to_elab.data(), local_to_ind, type);
+                if (m_infer_result_universe)
+                    type = replace_u(type, resultant_level);
                 new_irs.push_back(update_intro_rule(ir, type));
                 i++;
             }

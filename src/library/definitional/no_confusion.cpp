@@ -39,11 +39,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     name heq_name("heq");
     // All inductive datatype parameters and indices are arguments
     buffer<expr> args;
-    while (is_pi(ind_type)) {
-        expr arg = mk_local(ngen.next(), binding_name(ind_type), binding_domain(ind_type), mk_implicit_binder_info());
-        args.push_back(arg);
-        ind_type = instantiate(binding_body(ind_type), arg);
-    }
+    ind_type = to_telescope(ngen, ind_type, args, some(mk_implicit_binder_info()));
     if (!is_sort(ind_type) || args.size() < nparams)
         throw_corrupted(n);
     lean_assert(!(env.impredicative() && is_zero(sort_level(ind_type))));
@@ -79,24 +75,14 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     buffer<expr> outer_cases_on_args;
     unsigned idx1 = 0;
     while (is_pi(t1)) {
-        expr minor1 = tc.whnf(binding_domain(t1)).first;
         buffer<expr> minor1_args;
-        while (is_pi(minor1)) {
-            expr arg = mk_local(ngen.next(), binding_name(minor1), binding_domain(minor1), binding_info(minor1));
-            minor1_args.push_back(arg);
-            minor1   = tc.whnf(instantiate(binding_body(minor1), arg)).first;
-        }
+        expr minor1 = to_telescope(tc, binding_domain(t1), minor1_args);
         expr curr_t2  = t2;
         buffer<expr> inner_cases_on_args;
         unsigned idx2 = 0;
         while (is_pi(curr_t2)) {
-            expr minor2 = tc.whnf(binding_domain(curr_t2)).first;
             buffer<expr> minor2_args;
-            while (is_pi(minor2)) {
-                expr arg = mk_local(ngen.next(), binding_name(minor2), binding_domain(minor2), binding_info(minor2));
-                minor2_args.push_back(arg);
-                minor2   = tc.whnf(instantiate(binding_body(minor2), arg)).first;
-            }
+            expr minor2 = to_telescope(tc, binding_domain(curr_t2), minor2_args);
             if (idx1 != idx2) {
                 // infeasible case, constructors do not match
                 inner_cases_on_args.push_back(Fun(minor2_args, P));
@@ -158,11 +144,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     name heq_refl_name{"heq", "refl"};
     buffer<expr> args;
     expr type = no_confusion_type_type;
-    while (is_pi(type)) {
-        expr arg = mk_local(ngen.next(), binding_name(type), binding_domain(type), mk_implicit_binder_info());
-        args.push_back(arg);
-        type = instantiate(binding_body(type), arg);
-    }
+    type = to_telescope(ngen, type, args, some(mk_implicit_binder_info()));
     lean_assert(args.size() >= nparams + 3);
     unsigned nindices = args.size() - nparams - 3; // 3 is for P v1 v2
     expr range        = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), args);
@@ -205,13 +187,8 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr cot       = tc.infer(cases_on).first;
 
     while (is_pi(cot)) {
-        expr minor = tc.whnf(binding_domain(cot)).first;
         buffer<expr> minor_args;
-        while (is_pi(minor)) {
-            expr arg = mk_local(ngen.next(), binding_name(minor), binding_domain(minor), binding_info(minor));
-            minor_args.push_back(arg);
-            minor   = tc.whnf(instantiate(binding_body(minor), arg)).first;
-        }
+        expr minor = to_telescope(tc, binding_domain(cot), minor_args);
         lean_assert(!minor_args.empty());
         expr H  = minor_args.back();
         expr Ht = mlocal_type(H);

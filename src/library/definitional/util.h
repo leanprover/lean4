@@ -35,6 +35,9 @@ bool is_inductive_predicate(environment const & env, name const & n);
 */
 expr to_telescope(name_generator & ngen, expr type, buffer<expr> & telescope,
                   optional<binder_info> const & binfo = optional<binder_info>());
+/** \brief Similar to previous method, but puts \c type in whnf */
+expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope,
+                  optional<binder_info> const & binfo = optional<binder_info>());
 
 /** \brief Return the universe where inductive datatype resides
     \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt>

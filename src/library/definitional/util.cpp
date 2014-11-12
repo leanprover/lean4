@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
+#include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
 
 namespace lean {
@@ -90,6 +91,20 @@ expr to_telescope(name_generator & ngen, expr type, buffer<expr> & telescope, op
             local = mk_local(ngen.next(), binding_name(type), binding_domain(type), binder_info(type));
         telescope.push_back(local);
         type = instantiate(binding_body(type), local);
+    }
+    return type;
+}
+
+expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
+    type = tc.whnf(type).first;
+    while (is_pi(type)) {
+        expr local;
+        if (binfo)
+            local = mk_local(tc.mk_fresh_name(), binding_name(type), binding_domain(type), *binfo);
+        else
+            local = mk_local(tc.mk_fresh_name(), binding_name(type), binding_domain(type), binder_info(type));
+        telescope.push_back(local);
+        type = tc.whnf(instantiate(binding_body(type), local)).first;
     }
     return type;
 }

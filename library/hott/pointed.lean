@@ -4,20 +4,20 @@
 -- Ported from Coq HoTT
 import hott.path hott.trunc data.sigma data.prod
 
-open path prod
+open path prod truncation
 
 inductive is_pointed [class] (A : Type) :=
   pointed_mk : Π(a : A), is_pointed A
 
 namespace is_pointed
-  variables {A B : Type} (f : A → B)
+  variables {A B : Type.{1}} (f : A → B)
 
   definition point (A : Type) [H : is_pointed A] : A :=
     is_pointed.rec (λinv, inv) H
 
   -- Any contractible type is pointed
-  protected definition contr [instance] (H : Contr A) : is_pointed A :=
-    pointed_mk (center H)
+  protected definition contr [instance] [H : is_contr A] : is_pointed A :=
+    pointed_mk (center A)
 
   -- A pi type with a pointed target is pointed
   protected definition pi [instance] {P : A → Type} [H : Πx, is_pointed (P x)]

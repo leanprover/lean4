@@ -447,21 +447,47 @@ struct inductive_cmd_fn {
         }
     }
 
+    /* \brief Add \c lvl to \c r_lvls (if it is not already there.
+
+       \pre lvl does not contain m_u.
+    */
+    void accumulate_level(level const & lvl, buffer<level> & r_lvls) {
+        if (occurs(m_u, lvl)) {
+            throw exception("failed to infer inductive datatype resultant universe, "
+                            "provide the universe levels explicitly");
+        } else if (std::find(r_lvls.begin(), r_lvls.end(), lvl) == r_lvls.end()) {
+            r_lvls.push_back(lvl);
+        }
+    }
+
+    /** \bried Accumulate the universe levels occurring in an introduction rule argument universe.
+        In general, the argument of an introduction rule has type
+                 Pi (a_1 : A_1) (a_2 : A_1[a_1]) ..., B[a_1, a_2, ...]
+        The universe associated with it will be
+                 imax(l_1, imax(l_2, ..., r))
+        where l_1 is the unvierse of A_1, l_2 of A_2, and r of B[a_1, ..., a_n].
+        The result placeholder m_u must only appear as r.
+    */
+    void accumulate_levels(level const & lvl, buffer<level> & r_lvls) {
+        if (lvl == m_u) {
+            // ignore this is the auxiliary lvl
+        } else if (is_imax(lvl)) {
+            level lhs = imax_lhs(lvl);
+            level rhs = imax_rhs(lvl);
+            accumulate_level(lhs, r_lvls);
+            accumulate_levels(rhs, r_lvls);
+        } else {
+            accumulate_level(lvl, r_lvls);
+        }
+    }
+
     /** \brief Traverse the introduction rule type and collect the universes where arguments reside in \c r_lvls.
         This information is used to compute the resultant universe level for the inductive datatype declaration.
     */
     void accumulate_levels(expr intro_type, buffer<level> & r_lvls) {
         while (is_pi(intro_type)) {
             expr s  = m_tc->ensure_type(binding_domain(intro_type)).first;
-            level l = sort_level(s);
-            if (l == m_u) {
-                // ignore, this is the auxiliary level
-            } else if (occurs(m_u, l)) {
-                throw exception("failed to infer inductive datatype resultant universe, "
-                                "provide the universe levels explicitly");
-            } else if (std::find(r_lvls.begin(), r_lvls.end(), l) == r_lvls.end()) {
-                r_lvls.push_back(l);
-            }
+            accumulate_levels(sort_level(s), r_lvls);
             intro_type = instantiate(binding_body(intro_type), mk_local_for(intro_type));
         }
     }

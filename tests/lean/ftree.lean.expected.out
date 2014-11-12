@@ -1,0 +1,2 @@
+ftree.{l_1 l_2} : Type.{l_1} → Type.{l_2} → Type.{max 1 l_1 l_2}
+ftree.{l_1 l_2} : Type.{l_1} → Type.{l_2} → Type.{max 1 l_1 l_2}

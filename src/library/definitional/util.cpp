@@ -63,16 +63,22 @@ bool is_recursive_datatype(environment const & env, name const & n) {
     return false;
 }
 
+level get_datatype_level(expr ind_type) {
+    while (is_pi(ind_type))
+        ind_type = binding_body(ind_type);
+    return sort_level(ind_type);
+}
+
 bool is_inductive_predicate(environment const & env, name const & n) {
     if (!env.impredicative())
         return false; // environment does not have Prop
     if (!inductive::is_inductive_decl(env, n))
         return false; // n is not inductive datatype
-    expr type = env.get(n).get_type();
-    while (is_pi(type)) {
-        type = binding_body(type);
-    }
-    return is_sort(type) && is_zero(sort_level(type));
+    return is_zero(get_datatype_level(env.get(n).get_type()));
+}
+
+expr instantiate_univ_param (expr const & e, name const & p, level const & l) {
+    return instantiate_univ_params(e, to_list(p), to_list(l));
 }
 
 expr to_telescope(name_generator & ngen, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {

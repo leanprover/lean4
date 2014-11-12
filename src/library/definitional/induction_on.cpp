@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/module.h"
 #include "library/protected.h"
+#include "library/definitional/util.h"
 
 namespace lean {
 environment mk_induction_on(environment const & env, name const & n) {
@@ -35,10 +36,10 @@ environment mk_induction_on(environment const & env, name const & n) {
         new_env = module::add(new_env, cdecl);
     } else {
         level_param_names induction_on_univs = tail(rec_on_decl.get_univ_params());
-        level_param_names from = to_list(head(rec_on_decl.get_univ_params()));
-        levels            to   = to_list(mk_level_zero());
-        expr induction_on_type  = instantiate_univ_params(rec_on_decl.get_type(), from, to);
-        expr induction_on_value = instantiate_univ_params(rec_on_decl.get_value(), from, to);
+        name              from  = head(rec_on_decl.get_univ_params());
+        level             to    = mk_level_zero();
+        expr induction_on_type  = instantiate_univ_param(rec_on_decl.get_type(), from, to);
+        expr induction_on_value = instantiate_univ_param(rec_on_decl.get_value(), from, to);
         certified_declaration cdecl = check(new_env,
                                             mk_definition(new_env, induction_on_name, induction_on_univs,
                                                           induction_on_type, induction_on_value,

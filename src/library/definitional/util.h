@@ -35,4 +35,11 @@ bool is_inductive_predicate(environment const & env, name const & n);
 */
 expr to_telescope(name_generator & ngen, expr type, buffer<expr> & telescope,
                   optional<binder_info> const & binfo = optional<binder_info>());
+
+/** \brief Return the universe where inductive datatype resides
+    \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt>
+*/
+level get_datatype_level(expr ind_type);
+
+expr instantiate_univ_param (expr const & e, name const & p, level const & l);
 }

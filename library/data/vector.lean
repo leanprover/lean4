@@ -1,8 +1,8 @@
 -- Copyright (c) 2014 Floris van Doorn. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Floris van Doorn
-import data.nat.basic data.empty
-open nat eq.ops
+-- Author: Floris van Doorn, Leonardo de Moura
+import data.nat.basic data.empty data.prod
+open nat eq.ops prod
 
 inductive vector (T : Type) : ℕ → Type :=
   nil {} : vector T 0,
@@ -15,17 +15,13 @@ namespace vector
   section sc_vector
   variable {T : Type}
 
-  protected theorem case_on {C : ∀ (n : ℕ), vector T n → Type} {n : ℕ} (v : vector T n) (Hnil : C 0 nil)
-    (Hcons : ∀(x : T) {n : ℕ} (w : vector T n), C (succ n) (cons x w)) : C n v :=
-  rec_on v Hnil (take x n v IH, Hcons x v)
-
   protected definition is_inhabited [instance] (A : Type) (H : inhabited A) (n : nat) : inhabited (vector A n) :=
   nat.rec_on n
-    (inhabited.mk (@vector.nil A))
+    (inhabited.mk nil)
     (λ (n : nat) (iH : inhabited (vector A n)),
       inhabited.destruct H
         (λa, inhabited.destruct iH
-          (λv, inhabited.mk (vector.cons a v))))
+          (λv, inhabited.mk (a :: v))))
 
   -- TODO(Leo): mark_it_private
   theorem case_zero_lem_aux {C : vector T 0 → Type} {n : ℕ} (v : vector T n) (Hnil : C nil) :
@@ -34,13 +30,121 @@ namespace vector
   (take (x : T) (n : ℕ) (w : vector T n) IH (H : succ n = 0),
      false.rec _ (absurd H !succ_ne_zero))
 
-  theorem case_zero {C : vector T 0 → Type} (v : vector T 0) (Hnil : C nil) : C v :=
+  theorem z_cases_on {C : vector T 0 → Type} (v : vector T 0) (Hnil : C nil) : C v :=
   eq.rec (case_zero_lem_aux v Hnil (eq.refl 0)) (cast_eq _ v)
+
+  theorem vector0_eq_nil (v : vector T 0) : v = nil :=
+  z_cases_on v rfl
+
+  definition cast_v {A : Type} {n n' : nat} (Heq : n = n') (v : vector A n) : vector A n' :=
+  eq.rec_on Heq v
+
+  definition destruct {A : Type} {n : nat} (v : vector A (succ n)) {P : Π {n : nat}, vector A (succ n) → Type}
+                      (H : Π {n : nat} (h : A) (t : vector A n), P (h :: t)) : P v :=
+  have gen : ∀ Heq : succ n = succ n, P (cast_v Heq v), from
+    cases_on v
+      (λ Heq : zero = succ n, nat.no_confusion Heq)
+      (λ (h' : A) (n' : nat) (t' : vector A n') (Heq : succ n' = succ n),
+        have gen : ∀ Heq : succ n' = succ n', @P (pred (succ n')) (cast_v Heq (h' :: t')), from
+          take Heq, H h' t',
+        have e : n' = n,  from nat.no_confusion Heq (λe, e),
+        eq.rec_on e gen Heq),
+  gen (eq.refl (succ n))
+
+  definition nz_cases_on := @destruct
+
+  definition head {A : Type} {n : nat} (v : vector A (succ n)) : A :=
+  destruct v (λ n h t, h)
+
+  definition tail {A : Type} {n : nat} (v : vector A (succ n)) : vector A n :=
+  destruct v (λ n h t, t)
+
+  theorem eta {A : Type} {n : nat} (v : vector A (succ n)) : head v :: tail v = v :=
+  destruct v (λ n h t, rfl)
+
+  theorem head_vcons {A : Type} {n : nat} (h : A) (t : vector A n) : head (h :: t) = h :=
+  rfl
+
+  theorem tail_vcons {A : Type} {n : nat} (h : A) (t : vector A n) : tail (h :: t) = t :=
+  rfl
+
+  definition map {A B : Type} {n : nat} (f : A → B) (v : vector A n) : vector B n :=
+  nat.rec_on n
+    (λ v, nil)
+    (λ n₁ r v, f (head v) :: r (tail v))
+    v
+
+  theorem map_vnil {A B : Type} {n : nat} (f : A → B) : map f nil = nil :=
+  rfl
+
+  theorem map_vcons {A B : Type} {n : nat} (f : A → B) (h : A) (t : vector A n) : map f (h :: t) =  f h :: map f t :=
+  rfl
+
+  definition map2 {A B C : Type} {n : nat} (f : A → B → C) (v₁ : vector A n) (v₂ : vector B n) : vector C n :=
+  nat.rec_on n
+    (λ v₁ v₂, nil)
+    (λ n₁ r v₁ v₂, f (head v₁) (head v₂) :: r (tail v₁) (tail v₂))
+    v₁ v₂
+
+  theorem map2_vnil {A B C : Type} {n : nat} (f : A → B → C) : map2 f nil nil = nil :=
+  rfl
+
+  theorem map2_vcons {A B C : Type} {n : nat} (f : A → B → C) (h₁ : A) (h₂ : B) (t₁ : vector A n) (t₂ : vector B n) :
+                     map2 f (h₁ :: t₁) (h₂ :: t₂) = f h₁ h₂ :: map2 f t₁ t₂ :=
+  rfl
+
+  definition append_core {A : Type} {n m : nat} (w : vector A m) (v : vector A n) : vector A (n + m) :=
+  rec_on w
+    v
+    (λ (a₁ : A) (m₁ : nat) (v₁ : vector A m₁) (r₁ : vector A (n + m₁)), a₁ :: r₁)
+
+  theorem append_vnil {A : Type} {n : nat} (v : vector A n) : append_core nil v = v :=
+  rfl
+
+  theorem append_vcons {A : Type} {n m : nat} (h : A) (t : vector A n) (v : vector A m) :
+    append_core (h :: t) v = h :: (append_core t v) :=
+  rfl
+
+  definition append {A : Type} {n m : nat} (w : vector A n) (v : vector A m) : vector A (n + m) :=
+  eq.rec_on !add.comm (append_core w v)
+
+  example : append (1 :: 2 :: nil) (3 :: nil) = 1 :: 2 :: 3 :: nil :=
+  rfl
+
+  section
+    universe variables l₁ l₂
+    variable {A : Type.{l₁}}
+    variable C : Π (n : nat), vector A n → Type.{l₂}
+    definition below {n : nat} (v : vector A n) :=
+    rec_on v unit.{max 1 l₂} (λ (a₁ : A) (n₁ : nat) (v₁ : vector A n₁) (r₁ : Type.{max 1 l₂}), C n₁ v₁ × r₁)
+
+   definition bw {n : nat} {A : Type} {C : Π (n : nat), vector A n → Type} (v : vector A n) := @below A C n v
+  end
+
+  section
+    universe variables l₁ l₂
+    variable {A : Type.{l₁}}
+    variable {C : Π (n : nat), vector A n → Type.{l₂}}
+    definition brec_on {n : nat} (v : vector A n) (H : Π (n : nat) (v : vector A n), below C v → C n v) : C n v :=
+    have general : C n v × below C v, from
+      rec_on v
+       (pair (H zero nil unit.star) unit.star)
+       (λ (a₁ : A) (n₁ : nat) (v₁ : vector A n₁) (r₁ : C n₁ v₁ × below C v₁),
+          have b : below C (a₁ :: v₁), from
+            r₁,
+          have c : C (succ n₁) (a₁ :: v₁), from
+            H (succ n₁) (a₁ :: v₁) b,
+          pair c b),
+    pr₁ general
+  end
+
+  -- STOPPED HERE
+
 
   private theorem rec_nonempty_lem {C : Π{n}, vector T (succ n) → Type} {n : ℕ} (v : vector T n)
     (Hone : Πa, C [a]) (Hcons : Πa {n} (v : vector T (succ n)), C v → C (a :: v))
     : ∀{m} (H : n = succ m), C (cast (congr_arg (vector T) H) v) :=
-  case_on v (take m (H : 0 = succ m), false.rec _ (absurd (H⁻¹) !succ_ne_zero))
+  cases_on v (take m (H : 0 = succ m), false.rec _ (absurd (H⁻¹) !succ_ne_zero))
     (take x n v m H,
       have H2 : C (x::v), from
         sorry,
@@ -63,9 +167,6 @@ namespace vector
   theorem case_succ {C : Π{n}, vector T (succ n) → Type} {n : ℕ} (v : vector T (succ n))
     (H : Πa {n} (v : vector T n), C (a :: v)) : C v :=
   sorry
-
-  theorem vector0_eq_nil (v : vector T 0) : v = nil :=
-  case_zero v rfl
 
   -- Concat
   -- ------
@@ -185,12 +286,6 @@ namespace vector
 
 -- -- Head and tail
 -- -- -------------
-
--- definition head (x0 : T) : list T → T := list_rec x0 (fun x l h, x)
-
--- theorem head_nil (x0 : T) : head x0 (@nil T) = x0 := refl _
-
--- theorem head_cons (x : T) (x0 : T) (t : list T) : head x0 (x :: t) = x := refl _
 
 -- theorem head_concat (s t : list T) (x0 : T) : s ≠ nil → (head x0 (s ++ t) = head x0 s) :=
 -- list_cases_on s

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/module.h"
+#include "library/reducible.h"
 #include "library/protected.h"
 
 namespace lean {
@@ -53,8 +54,10 @@ environment mk_rec_on(environment const & env, name const & n) {
     bool opaque       = false;
     bool use_conv_opt = true;
     environment new_env = module::add(env,
-                                      check(env, mk_definition(env, rec_on_name, rec_decl.get_univ_params(), rec_on_type, rec_on_val,
+                                      check(env, mk_definition(env, rec_on_name, rec_decl.get_univ_params(),
+                                                               rec_on_type, rec_on_val,
                                                                opaque, rec_decl.get_module_idx(), use_conv_opt)));
+    new_env = set_reducible(new_env, rec_on_name, reducible_status::On);
     return add_protected(new_env, rec_on_name);
 }
 }

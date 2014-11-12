@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/module.h"
 #include "library/protected.h"
+#include "library/reducible.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -178,6 +179,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     declaration new_d = mk_definition(env, cases_on_name, rec_decl.get_univ_params(), cases_on_type, cases_on_value,
                                       opaque, rec_decl.get_module_idx(), use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
+    new_env = set_reducible(new_env, cases_on_name, reducible_status::On);
     return add_protected(new_env, cases_on_name);
 }
 }

@@ -17,15 +17,15 @@ open path truncation sigma function
 -- Naive funext is the simple assertion that pointwise equal functions are equal.
 -- TODO think about universe levels
 definition naive_funext :=
-  Π (A : Type) (P : A → Type) (f g : Πx, P x), (f ∼ g) → f ≈ g
+  Π {A : Type} {P : A → Type} (f g : Πx, P x), (f ∼ g) → f ≈ g
 
 -- Weak funext says that a product of contractible types is contractible.
 definition weak_funext :=
-  Π (A : Type₁) (P : A → Type₁), (Πx, is_contr (P x)) → is_contr (Πx, P x)
+  Π {A : Type₁} (P : A → Type₁) [H: Πx, is_contr (P x)], is_contr (Πx, P x)
 
 -- We define a variant of [Funext] which does not invoke an axiom.
 definition funext_type :=
-  Π (A : Type₁) (P : A → Type₁) (f g : Πx, P x), IsEquiv (@apD10 A P f g)
+  Π {A : Type₁} {P : A → Type₁} (f g : Πx, P x), IsEquiv (@apD10 A P f g)
 
 -- The obvious implications are Funext -> NaiveFunext -> WeakFunext
 -- TODO: Get class inference to work locally
@@ -37,13 +37,13 @@ definition funext_implies_naive_funext : funext_type → naive_funext :=
   )
 
 definition naive_funext_implies_weak_funext : naive_funext → weak_funext :=
-  (λ nf A P Pc,
-    let c := λx, @center (P x) (Pc x) in
+  (λ nf A P (Pc : Πx, is_contr (P x)),
+    let c := λx, center (P x) in
     is_contr.mk c (λ f,
-      have eq' : (λx, @center (P x) (Pc x)) ∼ f,
-        from (λx, @contr (P x) (Pc x) (f x)),
-      have eq : (λx, @center (P x) (Pc x)) ≈ f,
-        from nf A P (λx, @center (P x) (Pc x)) f eq',
+      have eq' : (λx, center (P x)) ∼ f,
+        from (λx, contr (f x)),
+      have eq : (λx, center (P x)) ≈ f,
+        from nf A P (λx, center (P x)) f eq',
       eq
     )
   )
@@ -62,17 +62,17 @@ context
   definition contr_basedhtpy [instance] : is_contr (Σ (g : Πx, B x), f ∼ g) :=
     is_contr.mk (dpair f idhtpy)
       (λ dp, sigma.rec_on dp
-        (λ (g : Πx, B x) (h : f ∼ g),
-          let r := λ (k : Πx, Σ (y : B x), f x ≈ y),
+        (λ (g : Π x, B x) (h : f ∼ g),
+          let r := λ (k : Π x, Σ y, f x ≈ y),
             @dpair _ (λg, f ∼ g)
               (λx, dpr1 (k x)) (λx, dpr2 (k x)) in
           let s := λ g h x, @dpair _ (λy, f x ≈ y) (g x) (h x) in
-          have t1 [visible] : Πx, is_contr (Σ y, f x ≈ y),
+          have t1 : Πx, is_contr (Σ y, f x ≈ y),
             from (λx, !contr_basedpaths),
-          have t2 : is_contr (Πx, Σ (y : B x), f x ≈ y),
-            from wf _ _ t1,
-          have t3 : (λ x, @dpair _ (λy, f x ≈ y) (f x) idp) ≈ s g h,
-            from @path_contr (Πx, Σ (y : B x), f x ≈ y) t2 _ _,
+          have t2 : is_contr (Πx, Σ y, f x ≈ y),
+            from !wf,
+          have t3 : (λ x, @dpair _ (λ y, f x ≈ y) (f x) idp) ≈ s g h,
+            from @path_contr (Π x, Σ y, f x ≈ y) t2 _ _,
           have t4 : r (λ x, dpair (f x) idp) ≈ r (s g h),
             from ap r t3,
           have endt : dpair f idhtpy ≈ dpair g h,

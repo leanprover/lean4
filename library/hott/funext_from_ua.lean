@@ -2,13 +2,20 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jakob von Raumer
 -- Ported from Coq HoTT
-import hott.axioms.ua hott.equiv hott.equiv_precomp hott.funext_varieties
+import hott.equiv hott.equiv_precomp hott.funext_varieties
 import data.prod data.sigma data.unit
 
 open path function prod sigma truncation Equiv unit
 
+definition isequiv_path {A B : Type} (H : A ≈ B) :=
+  (@IsEquiv.transport Type (λX, X) A B H)
+
+
+definition equiv_path {A B : Type} (H : A ≈ B) : A ≃ B :=
+  Equiv.mk _ (isequiv_path H)
+
 -- First, define an axiom free variant of Univalence
-definition ua_type := Π (A B : Type), IsEquiv (equiv_path A B)
+definition ua_type := Π (A B : Type), IsEquiv (@equiv_path A B)
 
 context
   parameters {ua : ua_type}
@@ -83,7 +90,7 @@ context
             from (λ x, @equiv_contr_unit (P x) (allcontr x)),
           have psim : Πx, P x ≈ U x,
             from (λ x, @IsEquiv.inv _ _
-              (equiv_path.{1} (P x) (U x)) (ua1 (P x) (U x)) (pequiv x)),
+              (@equiv_path.{1} (P x) (U x)) (ua1 (P x) (U x)) (pequiv x)),
           have p : P ≈ U,
             from ua_implies_funext_nondep psim,
           have tU' : is_contr (A → unit),

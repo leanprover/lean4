@@ -11,6 +11,7 @@ star : one
 set_option pp.universes true
 
 namespace tree
+namespace manual
   section
     universe variables l₁ l₂
     variable {A : Type.{l₁}}
@@ -30,6 +31,23 @@ namespace tree
           (λ (l r : tree A) (Hl : C l × below C l) (Hr : C r × below C r),
             have b : below C (node l r), from
               (pr₁ Hl, pr₁ Hr, pr₂ Hl, pr₂ Hr),
+            have c : C (node l r), from
+              H (node l r) b,
+            (c, b)),
+       pr₁ general
+  end
+end manual
+  section
+    universe variables l₁ l₂
+    variable {A : Type.{l₁}}
+    variable {C : tree A → Type.{l₂+1}}
+    definition below_rec_on (t : tree A) (H : Π (n : tree A), @below A C n → C n) : C t
+    := have general : C t × @below A C t, from
+        rec_on t
+          (λa, (H (leaf a) unit.star, unit.star))
+          (λ (l r : tree A) (Hl : C l × @below A C l) (Hr : C r × @below A C r),
+            have b : @below A C (node l r), from
+              ((pr₁ Hl, pr₂ Hl), (pr₁ Hr, pr₂ Hr)),
             have c : C (node l r), from
               H (node l r) b,
             (c, b)),

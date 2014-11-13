@@ -4,8 +4,12 @@ inductive ftree (A : Type) (B : Type) : Type :=
 leafa : ftree A B,
 node  : (A → B → ftree A B) → (B → ftree A B) → ftree A B
 
+set_option pp.universes true
+check @ftree
+
 namespace ftree
 
+namespace manual
 definition below.{l l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} (C : ftree A B → Type.{l+1}) (t : ftree A B)
            : Type.{max l₁ l₂ (l+1)} :=
 @rec.{(max l₁ l₂ (l+1))+1 l₁ l₂}
@@ -45,30 +49,31 @@ definition pbelow.{l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} (C : ftree A B
      let p₂  : Prop := fc₂ ∧ fr₂ in
      p₁ ∧ p₂)
   t
+end manual
 
 definition brec_on.{l l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} {C : ftree A B → Type.{l+1}}
                   (t : ftree A B)
-                  (F : Π (t : ftree A B), below C t → C t)
+                  (F : Π (t : ftree A B), @below A B C t → C t)
               : C t :=
-have gen : prod.{(l+1) (max l₁ l₂ (l+1))} (C t) (below C t), from
+have gen : prod.{(l+1) (max l₁ l₂ (l+1))} (C t) (@below A B C t), from
   @rec.{(max l₁ l₂ (l+1)) l₁ l₂}
     A
     B
-    (λ t : ftree A B, prod.{(l+1) (max l₁ l₂ (l+1))} (C t) (below C t))
-    (have b : below C (leafa A B), from
+    (λ t : ftree A B, prod.{(l+1) (max l₁ l₂ (l+1))} (C t) (@below A B C t))
+    (have b : @below A B C (leafa A B), from
        unit.star.{max l₁ l₂ (l+1)},
      have c : C (leafa A B), from
        F (leafa A B) b,
      prod.mk.{(l+1) (max l₁ l₂ (l+1))} c b)
     (λ (f₁ : A → B → ftree A B)
        (f₂ : B → ftree A B)
-       (r₁ : Π (a : A) (b : B), prod.{(l+1) (max l₁ l₂ (l+1))} (C (f₁ a b)) (below C (f₁ a b)))
-       (r₂ : Π (b : B), prod.{(l+1) (max l₁ l₂ (l+1))} (C (f₂ b)) (below C (f₂ b))),
+       (r₁ : Π (a : A) (b : B), prod.{(l+1) (max l₁ l₂ (l+1))} (C (f₁ a b)) (@below A B C (f₁ a b)))
+       (r₂ : Π (b : B), prod.{(l+1) (max l₁ l₂ (l+1))} (C (f₂ b)) (@below A B C (f₂ b))),
        let fc₁ : Π (a : A) (b : B), C (f₁ a b)       := λ (a : A) (b : B), prod.pr1 (r₁ a b) in
-       let fr₁ : Π (a : A) (b : B), below C (f₁ a b) := λ (a : A) (b : B), prod.pr2 (r₁ a b) in
+       let fr₁ : Π (a : A) (b : B), @below A B C (f₁ a b) := λ (a : A) (b : B), prod.pr2 (r₁ a b) in
        let fc₂ : Π (b : B), C (f₂ b)                 := λ (b : B), prod.pr1 (r₂ b) in
-       let fr₂ : Π (b : B), below C (f₂ b)           := λ (b : B), prod.pr2 (r₂ b) in
-       have b : below C (node f₁ f₂), from
+       let fr₂ : Π (b : B), @below A B C (f₂ b)           := λ (b : B), prod.pr2 (r₂ b) in
+       have b : @below A B C (node f₁ f₂), from
          prod.mk (prod.mk fc₁ fr₁) (prod.mk fc₂ fr₂),
        have c : C (node f₁ f₂), from
          F (node f₁ f₂) b,
@@ -78,32 +83,31 @@ prod.pr1 gen
 
 definition binduction_on.{l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} {C : ftree A B → Prop}
                (t : ftree A B)
-               (F : Π (t : ftree A B), pbelow C t → C t)
+               (F : Π (t : ftree A B), @ibelow A B C t → C t)
             : C t :=
-have gen : C t ∧ pbelow C t, from
+have gen : C t ∧ @ibelow A B C t, from
   @rec.{0 l₁ l₂}
     A
     B
-    (λ t : ftree A B, C t ∧ pbelow C t)
-    (have b : pbelow C (leafa A B), from
+    (λ t : ftree A B, C t ∧ @ibelow A B C t)
+    (have b : @ibelow A B C (leafa A B), from
        true.intro,
      have c : C (leafa A B), from
        F (leafa A B) b,
      and.intro c b)
     (λ (f₁ : A → B → ftree A B)
        (f₂ : B → ftree A B)
-       (r₁ : ∀ (a : A) (b : B), C (f₁ a b) ∧ pbelow C (f₁ a b))
-       (r₂ : ∀ (b : B), C (f₂ b) ∧ pbelow C (f₂ b)),
+       (r₁ : ∀ (a : A) (b : B), C (f₁ a b) ∧ @ibelow A B C (f₁ a b))
+       (r₂ : ∀ (b : B), C (f₂ b) ∧ @ibelow A B C (f₂ b)),
        let fc₁ : ∀ (a : A) (b : B), C (f₁ a b)        := λ (a : A) (b : B), and.elim_left  (r₁ a b) in
-       let fr₁ : ∀ (a : A) (b : B), pbelow C (f₁ a b) := λ (a : A) (b : B), and.elim_right (r₁ a b) in
+       let fr₁ : ∀ (a : A) (b : B), @ibelow A B C (f₁ a b) := λ (a : A) (b : B), and.elim_right (r₁ a b) in
        let fc₂ : ∀ (b : B), C (f₂ b)                  := λ (b : B), and.elim_left  (r₂ b) in
-       let fr₂ : ∀ (b : B), pbelow C (f₂ b)           := λ (b : B), and.elim_right (r₂ b) in
-       have b : pbelow C (node f₁ f₂), from
+       let fr₂ : ∀ (b : B), @ibelow A B C (f₂ b)           := λ (b : B), and.elim_right (r₂ b) in
+       have b : @ibelow A B C (node f₁ f₂), from
          and.intro (and.intro fc₁ fr₁) (and.intro fc₂ fr₂),
        have c : C (node f₁ f₂), from
          F (node f₁ f₂) b,
        and.intro c b)
     t,
 and.elim_left gen
-
 end ftree

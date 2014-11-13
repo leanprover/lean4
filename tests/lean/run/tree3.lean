@@ -11,6 +11,7 @@ star : one
 set_option pp.universes true
 
 namespace tree
+  namespace manual
   section
     universe variables l₁ l₂
     variable {A : Type.{l₁}}
@@ -35,6 +36,7 @@ namespace tree
             (c, b)),
        pr₁ general
   end
+  end manual
 
   check no_confusion
 

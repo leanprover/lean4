@@ -12,4 +12,5 @@ namespace lean {
     <tt>n.brec_on</tt> (aka below recursion on) to the environment.
 */
 environment mk_below(environment const & env, name const & n);
+environment mk_ibelow(environment const & env, name const & n);
 }

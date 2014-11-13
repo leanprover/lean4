@@ -114,23 +114,13 @@ namespace vector
   section
     universe variables l₁ l₂
     variable {A : Type.{l₁}}
-    variable C : Π (n : nat), vector A n → Type.{l₂}
-    definition below {n : nat} (v : vector A n) :=
-    rec_on v unit.{max 1 l₂} (λ (a₁ : A) (n₁ : nat) (v₁ : vector A n₁) (r₁ : Type.{max 1 l₂}), C n₁ v₁ × r₁)
-
-   definition bw {n : nat} {A : Type} {C : Π (n : nat), vector A n → Type} (v : vector A n) := @below A C n v
-  end
-
-  section
-    universe variables l₁ l₂
-    variable {A : Type.{l₁}}
-    variable {C : Π (n : nat), vector A n → Type.{l₂}}
-    definition brec_on {n : nat} (v : vector A n) (H : Π (n : nat) (v : vector A n), below C v → C n v) : C n v :=
-    have general : C n v × below C v, from
+    variable {C : Π (n : nat), vector A n → Type.{l₂+1}}
+    definition brec_on {n : nat} (v : vector A n) (H : Π (n : nat) (v : vector A n), @below A C n v → C n v) : C n v :=
+    have general : C n v × @below A C n v, from
       rec_on v
        (pair (H zero nil unit.star) unit.star)
-       (λ (a₁ : A) (n₁ : nat) (v₁ : vector A n₁) (r₁ : C n₁ v₁ × below C v₁),
-          have b : below C (a₁ :: v₁), from
+       (λ (a₁ : A) (n₁ : nat) (v₁ : vector A n₁) (r₁ : C n₁ v₁ × @below A C n₁ v₁),
+          have b : @below A C _ (a₁ :: v₁), from
             r₁,
           have c : C (succ n₁) (a₁ :: v₁), from
             H (succ n₁) (a₁ :: v₁) b,

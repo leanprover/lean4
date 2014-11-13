@@ -695,7 +695,7 @@ struct inductive_cmd_fn {
         bool has_unit = has_unit_decls(env);
         bool has_eq   = has_eq_decls(env);
         bool has_heq  = has_heq_decls(env);
-        // bool has_prod = has_prod_decls(env);
+        bool has_prod = has_prod_decls(env);
         for (inductive_decl const & d : decls) {
             name const & n = inductive_decl_name(d);
             pos_info pos   = *m_decl_pos_map.find(n);
@@ -711,9 +711,12 @@ struct inductive_cmd_fn {
                     save_if_defined(name{n, "no_confusion_type"}, pos);
                     save_if_defined(name(n, "no_confusion"), pos);
                 }
-                // if (has_prod) {
-                //    env = mk_below(env, inductive_decl_name(d));
-                // }
+                if (has_prod) {
+                    env = mk_below(env, inductive_decl_name(d));
+                    env = mk_ibelow(env, inductive_decl_name(d));
+                    save_if_defined(name{n, "below"}, pos);
+                    save_if_defined(name(n, "ibelow"), pos);
+                }
             }
         }
         return env;

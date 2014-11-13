@@ -7,6 +7,7 @@ with forest : Type :=
 nil  : forest A,
 cons : tree A → forest A → forest A
 
+namespace manual
 definition tree.below.{l₁ l₂}
      (A : Type.{l₁})
      (C₁ : tree A → Type.{l₂})
@@ -106,3 +107,4 @@ have general : prod.{l₂ (max 1 l₂)} (C₂ f) (forest.below A C₁ C₂ f), f
        F₂ (forest.cons t f) b,
      prod.mk.{l₂ (max 1 l₂)} c b),
 pr₁ general
+end manual

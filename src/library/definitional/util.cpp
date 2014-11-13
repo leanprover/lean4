@@ -88,7 +88,7 @@ expr to_telescope(name_generator & ngen, expr type, buffer<expr> & telescope, op
         if (binfo)
             local = mk_local(ngen.next(), binding_name(type), binding_domain(type), *binfo);
         else
-            local = mk_local(ngen.next(), binding_name(type), binding_domain(type), binder_info(type));
+            local = mk_local(ngen.next(), binding_name(type), binding_domain(type), binding_info(type));
         telescope.push_back(local);
         type = instantiate(binding_body(type), local);
     }
@@ -102,7 +102,7 @@ expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, option
         if (binfo)
             local = mk_local(tc.mk_fresh_name(), binding_name(type), binding_domain(type), *binfo);
         else
-            local = mk_local(tc.mk_fresh_name(), binding_name(type), binding_domain(type), binder_info(type));
+            local = mk_local(tc.mk_fresh_name(), binding_name(type), binding_domain(type), binding_info(type));
         telescope.push_back(local);
         type = tc.whnf(instantiate(binding_body(type), local)).first;
     }

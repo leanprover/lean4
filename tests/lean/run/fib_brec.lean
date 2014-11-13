@@ -2,9 +2,6 @@ import data.nat.basic data.prod
 open prod
 
 namespace nat
-  definition below.{l} {C : nat → Type.{l}} (n : nat) :=
-  rec_on n unit.{max 1 l} (λ (n₁ : nat) (r₁ : Type.{max 1 l}), C n₁ × r₁)
-
   definition brec_on {C : nat → Type} (n : nat) (F : Π (n : nat), @below C n → C n) : C n :=
   have general : C n × @below C n, from
     rec_on n

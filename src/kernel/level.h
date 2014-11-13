@@ -85,6 +85,9 @@ level mk_param_univ(name const & n);
 level mk_global_univ(name const & n);
 level mk_meta_univ(name const & n);
 
+/** \brief Convert (succ^k l) into (l, k). If l is not a succ, then return (l, 0) */
+pair<level, unsigned> to_offset(level l);
+
 inline unsigned hash(level const & l) { return l.hash(); }
 inline level_kind kind(level const & l) { return l.kind(); }
 inline bool is_zero(level const & l)   { return kind(l) == level_kind::Zero; }

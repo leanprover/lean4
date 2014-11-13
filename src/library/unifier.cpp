@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <vector>
 #include <limits>
+#include <algorithm>
 #include "util/interrupt.h"
 #include "util/luaref.h"
 #include "util/lazy_list_fn.h"
@@ -2043,7 +2044,7 @@ struct unifier_fn {
         }
     }
 
-    /** \brief Return true iff \c is a constraint of the form
+    /** \brief Return solved iff \c c is a constraint of the form
                    lhs =?= max(rest, lhs)
                and is successfully solved.
     */
@@ -2058,6 +2059,43 @@ struct unifier_fn {
             return process_l_eq_max_core(rhs, lhs, jst);
         else
             return Continue;
+    }
+
+    /** Auxiliary method for process_succ_eq_max */
+    status process_succ_eq_max_core(level const & lhs, level const & rhs, justification const & jst) {
+        if (!is_succ(lhs) || !is_max(rhs))
+            return Continue;
+        level rhs_l = max_lhs(rhs);
+        level rhs_r = max_rhs(rhs);
+        if (is_meta(rhs_l))
+            std::swap(rhs_l, rhs_r);
+        if (!is_meta(rhs_r) || !is_explicit(rhs_l))
+            return Continue;
+        unsigned k_2 = to_explicit(rhs_l);
+        pair<level, unsigned> lhs_k = to_offset(lhs);
+        if (lhs_k.second < k_2)
+            return Continue;
+        if (assign(rhs_r, lhs, jst)) {
+            return Solved;
+        } else {
+            set_conflict(jst);
+            return Failed;
+        }
+    }
+
+    /** \brief Return Solved iff \c c is a constraint of the form
+                  succ^k_1 a =?= max(k_2, ?m)
+               where k_1 >= k_2
+              and is successfully solved
+    */
+    status process_succ_eq_max(constraint const & c) {
+        lean_assert(is_level_eq_cnstr(c));
+        level lhs = cnstr_lhs_level(c);
+        level rhs = cnstr_rhs_level(c);
+        justification jst = c.get_justification();
+        status st = process_succ_eq_max_core(lhs, rhs, jst);
+        if (st != Continue) return st;
+        return process_succ_eq_max_core(rhs, lhs, jst);
     }
 
     /**
@@ -2151,6 +2189,8 @@ struct unifier_fn {
                     return process_constraint(c);
                 }
                 status st = process_l_eq_max(c);
+                if (st != Continue) return st == Solved;
+                st = process_succ_eq_max(c);
                 if (st != Continue) return st == Solved;
                 if (m_config.m_discard) {
                     // we only try try_level_eq_zero and try_merge_max when we are discarding

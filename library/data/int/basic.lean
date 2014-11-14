@@ -256,8 +256,7 @@ calc
 
 definition neg : ℤ → ℤ := quotient_map quotient flip
 
--- TODO: is this good? Note: replacing 100 by max makes it bind stronger than application.
-notation `-` x:100 := neg x
+notation `-` x := neg x
 
 theorem neg_comp (n m : ℕ) : -(psub (pair n m)) = psub (pair m n) :=
 have H : ∀a, -(psub a) = psub (flip a),

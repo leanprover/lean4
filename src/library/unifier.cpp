@@ -2065,17 +2065,21 @@ struct unifier_fn {
     status process_succ_eq_max_core(level const & lhs, level const & rhs, justification const & jst) {
         if (!is_succ(lhs) || !is_max(rhs))
             return Continue;
-        level rhs_l = max_lhs(rhs);
-        level rhs_r = max_rhs(rhs);
-        if (is_meta(rhs_l))
-            std::swap(rhs_l, rhs_r);
-        if (!is_meta(rhs_r) || !is_explicit(rhs_l))
+        level m = rhs;
+        while (is_max(m)) {
+            level m1 = max_lhs(m);
+            level m2 = max_rhs(m);
+            if (is_geq(lhs, m1)) {
+                m = m2;
+            } else if (is_geq(lhs, m2)) {
+                m = m1;
+            } else {
+                return Continue;
+            }
+        }
+        if (!is_meta(m))
             return Continue;
-        unsigned k_2 = to_explicit(rhs_l);
-        pair<level, unsigned> lhs_k = to_offset(lhs);
-        if (lhs_k.second < k_2)
-            return Continue;
-        if (assign(rhs_r, lhs, jst)) {
+        if (assign(m, lhs, jst)) {
             return Solved;
         } else {
             set_conflict(jst);
@@ -2084,9 +2088,10 @@ struct unifier_fn {
     }
 
     /** \brief Return Solved iff \c c is a constraint of the form
-                  succ^k_1 a =?= max(k_2, ?m)
-               where k_1 >= k_2
-              and is successfully solved
+                  succ^k_1 a =?= max(succ^k_2 b, ?m)
+               where k_1 >= k_2 and a == b or b == zero
+
+              and is successfully solved by assigning ?m := succ^k_1 a
     */
     status process_succ_eq_max(constraint const & c) {
         lean_assert(is_level_eq_cnstr(c));

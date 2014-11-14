@@ -517,8 +517,10 @@ format pp(level l, bool unicode, unsigned indent) {
             return format(to_param_core(l).m_id);
         case level_kind::Meta:
             return format("?") + format(meta_id(l));
-        case level_kind::Succ:
-            return group(compose(format("succ"), nest(indent, compose(line(), pp_child(succ_of(l), unicode, indent)))));
+        case level_kind::Succ: {
+            auto p = to_offset(l);
+            return format{pp_child(p.first, unicode, indent), format("+"), format(p.second)};
+        }
         case level_kind::Max: case level_kind::IMax: {
             format r = format(is_max(l) ? "max" : "imax");
             r += nest(indent, compose(line(), pp_child(to_max_core(l).m_lhs, unicode, indent)));

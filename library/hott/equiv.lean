@@ -53,7 +53,8 @@ Equiv A B
 
 namespace Equiv
 
-  definition equiv_fun [coercion] {A B : Type} (e : Equiv A B) : A → B :=
+  --Note: No coercion here
+  definition equiv_fun {A B : Type} (e : Equiv A B) : A → B :=
     Equiv.rec (λequiv_fun equiv_isequiv, equiv_fun) e
 
   definition equiv_isequiv [instance] {A B : Type} (e : Equiv A B) : IsEquiv (equiv_fun e) :=
@@ -170,7 +171,7 @@ end IsEquiv
 
 namespace IsEquiv
   variables {A B: Type} (f : A → B)
-  
+
   --The inverse of an equivalence is, again, an equivalence.
   definition inv_closed [instance] [Hf : IsEquiv f] : (IsEquiv (inv f)) :=
     adjointify (inv f) f (sect f) (retr f)
@@ -202,8 +203,8 @@ namespace IsEquiv
   definition moveL_V {x : B} {y : A} (p : f y ≈ x) : y ≈ (inv f) x :=
     (moveR_V f (p⁻¹))⁻¹
 
-  definition ap_closed [instance] (x y : A) : IsEquiv (ap f) := 
-    adjointify (ap f) 
+  definition ap_closed [instance] (x y : A) : IsEquiv (ap f) :=
+    adjointify (ap f)
       (λq, (inverse (sect f x)) ⬝ ap (f⁻¹) q ⬝ sect f y)
       (λq, !ap_pp
         ⬝ whiskerR !ap_pp _
@@ -274,6 +275,18 @@ namespace Equiv
 
   theorem transport (P : A → Type) {x y : A} {p : x ≈ y} : (P x) ≃ (P y) :=
     Equiv.mk (transport P p) (IsEquiv.transport P p)
+
+  end
+
+  context
+  parameters {A B : Type} (eqf eqg : A ≃ B)
+
+  private definition Hf [instance] : IsEquiv (equiv_fun eqf) := equiv_isequiv eqf
+  private definition Hg [instance] : IsEquiv (equiv_fun eqg) := equiv_isequiv eqg
+
+  theorem inv_eq (p : eqf ≈ eqg)
+      : IsEquiv.inv (equiv_fun eqf) ≈ IsEquiv.inv (equiv_fun eqg) :=
+    path.rec_on p idp
 
   end
 

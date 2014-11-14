@@ -2,10 +2,10 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jakob von Raumer
 -- Ported from Coq HoTT
-import hott.equiv hott.equiv_precomp hott.funext_varieties
+import hott.equiv hott.funext_varieties
 import data.prod data.sigma data.unit
 
-open path function prod sigma truncation Equiv unit
+open path function prod sigma truncation Equiv IsEquiv unit
 
 definition isequiv_path {A B : Type} (H : A ≈ B) :=
   (@IsEquiv.transport Type (λX, X) A B H)
@@ -18,14 +18,36 @@ definition equiv_path {A B : Type} (H : A ≈ B) : A ≃ B :=
 definition ua_type := Π (A B : Type), IsEquiv (@equiv_path A B)
 
 context
-  parameters {ua : ua_type}
+  parameters {ua : ua_type.{1}}
 
   -- TODO base this theorem on UA instead of FunExt.
   -- IsEquiv.postcompose relies on FunExt!
-  protected theorem ua_isequiv_postcompose {A B C : Type} {w : A → B} {H0 : IsEquiv w}
-      : IsEquiv (@compose C A B w) :=
-    !IsEquiv.postcompose
-
+  protected theorem ua_isequiv_postcompose {A B C : Type.{1}} {w : A → B} {H0 : IsEquiv w}
+      : IsEquiv (@compose C A B w)
+    := IsEquiv.adjointify (@compose C A B w)
+         (@compose C B A (IsEquiv.inv w))
+         (λ (x : C → B),
+           let w' := Equiv.mk w H0 in
+           have foo : Equiv.equiv_fun w' ≈ w,
+             from idp,
+           have eqretr : equiv_path (equiv_path⁻¹ w') ≈ w',
+             from (@retr _ _ (@equiv_path A B) (ua A B) w'),
+           have eqinv : A ≈ B,
+             from (@inv _ _ (@equiv_path A B) (ua A B) w'),
+           have thoseeqs [visible] : Π (p : A ≈ B), IsEquiv (Equiv.equiv_fun (equiv_path p)),
+             from (λp, Equiv.equiv_isequiv (equiv_path p)),
+           have eqp : Π (p : A ≈ B) (x : C → B), equiv_path p ∘ ((equiv_path p)⁻¹ ∘ x) ≈ x,
+             from (λ p,
+               (@path.rec_on Type.{1} A
+                 (λ B' p', Π (x' : C → B'), (@equiv_path A B' p') ∘ ((equiv_path p')⁻¹ ∘ x') ≈ x')
+                 B p (λ x', idp))
+               ),
+           --have eqfin : equiv_path eqinv ∘ ((equiv_path eqinv)⁻¹ eqinv ∘ x) ≈ x,
+           --  from eqp eqinv,
+           sorry
+         )
+         (λ x, sorry)
+exit
   -- We are ready to prove functional extensionality,
   -- starting with the naive non-dependent version.
   protected definition diagonal [reducible] (B : Type) : Type

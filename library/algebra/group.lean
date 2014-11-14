@@ -16,8 +16,6 @@ open eq eq.ops   -- note: ⁻¹ will be overloaded
 
 namespace algebra
 
-
-section A_Type
 variable {A : Type}
 
 /- overloaded symbols -/
@@ -92,10 +90,10 @@ theorem add_assoc [s : add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
 !add_semigroup.add_assoc
 
 structure add_comm_semigroup [class] (A : Type) extends add_semigroup A :=
-(comm : ∀a b, add a b = add b a)
+(add_comm : ∀a b, add a b = add b a)
 
 theorem add_comm [s : add_comm_semigroup A] (a b : A) : a + b = b + a :=
-!add_comm_semigroup.comm
+!add_comm_semigroup.add_comm
 
 theorem add_left_comm [s : add_comm_semigroup A] (a b c : A) :
   a + (b + c) = b + (a + c) :=
@@ -480,8 +478,6 @@ include s
 
 
 end add_comm_group
-
-end A_Type
 
 
 /- bundled structures -/

@@ -89,6 +89,9 @@ struct notation_modifiers {
     }
 };
 
+
+
+
 static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool reserve)
 -> pair<notation_entry, optional<token_entry>> {
     notation_modifiers mod;
@@ -124,10 +127,25 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool
         prec = parse_precedence(p, "invalid notation declaration, numeral or 'max' expected");
     }
 
+    if (prec && k == mixfix_kind::infixr && *prec == 0)
+        throw parser_error("invalid infixr declaration, precedence must be greater than zero", p.pos());
+
     if (!prec) {
-        prec = get_precedence(get_token_table(env), tk.c_str());
-    } else if (prec != get_precedence(get_token_table(env), tk.c_str())) {
-        new_token = token_entry(tk.c_str(), *prec);
+        if (reserved_action && k == mixfix_kind::prefix && reserved_action->kind() == notation::action_kind::Expr) {
+            prec = reserved_action->rbp();
+        } else if (reserved_action && k == mixfix_kind::infixr && reserved_action->kind() == notation::action_kind::Expr) {
+            prec = reserved_action->rbp();
+        } else {
+            prec = get_precedence(get_token_table(env), tk.c_str());
+            if (prec && k == mixfix_kind::infixr)
+                prec = *prec - 1;
+        }
+    } else {
+        auto old_prec = get_precedence(get_token_table(env), tk.c_str());
+        if (!old_prec || (k != mixfix_kind::prefix && old_prec != prec))
+            new_token = token_entry(tk.c_str(), *prec);
+        if (k == mixfix_kind::infixr)
+            prec = *prec - 1;
     }
 
     if (!prec) {
@@ -137,9 +155,6 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool
                            "solution: use the 'precedence' command", p.pos());
     }
 
-    if (k == mixfix_kind::infixr && *prec == 0)
-        throw parser_error("invalid infixr declaration, precedence must be greater than zero", p.pos());
-
     if (reserved_action) {
         switch (k) {
         case mixfix_kind::infixl:
@@ -147,7 +162,7 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool
                 throw parser_error("invalid infixl declaration, declaration conflicts with reserved notation", p.pos());
             break;
         case mixfix_kind::infixr:
-            if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != *prec-1)
+            if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != *prec)
                 throw parser_error("invalid infixr declaration, declaration conflicts with reserved notation", p.pos());
             break;
         case mixfix_kind::postfix:
@@ -171,7 +186,7 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
                                           dummy, overload, reserve, mod.m_parse_only), new_token);
         case mixfix_kind::infixr:
-            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec-1))),
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
                                           dummy, overload, reserve, mod.m_parse_only), new_token);
         case mixfix_kind::postfix:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action())),
@@ -187,10 +202,13 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool
         check_notation_expr(f, f_pos);
         switch (k) {
         case mixfix_kind::infixl:
+            #if defined(__GNUC__) && !defined(__CLANG__)
+            #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
                                           mk_app(f, Var(1), Var(0)), overload, reserve, mod.m_parse_only), new_token);
+            #endif
         case mixfix_kind::infixr:
-            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec-1))),
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
                                           mk_app(f, Var(1), Var(0)), overload, reserve, mod.m_parse_only), new_token);
         case mixfix_kind::postfix:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action())),

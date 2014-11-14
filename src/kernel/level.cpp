@@ -695,7 +695,7 @@ bool is_geq_core(level l1, level l2) {
         return is_geq(imax_rhs(l1), l2);
     auto p1 = to_offset(l1);
     auto p2 = to_offset(l2);
-    if (p1.first == p2.first)
+    if (p1.first == p2.first || is_zero(p2.first))
         return p1.second >= p2.second;
     if (p1.second == p2.second && p1.second > 0)
         return is_geq(p1.first, p2.first);

@@ -377,6 +377,24 @@ struct inductive_cmd_fn {
         }
     }
 
+    /** \brief Conservative test for checking whether a datatype that may be Prop for some universe parameter instantiations
+        will be able to eliminate to any Type.
+
+        TODO(Leo): implement a more complete version
+    */
+    bool is_prop_as_type(buffer<inductive_decl> const & decls) {
+        if (decls.size() != 1)
+            return false;
+        inductive_decl const & decl = decls[0];
+        unsigned nintro = length(inductive_decl_intros(decl));
+        if (nintro == 0)
+            return true;
+        if (nintro > 1)
+            return false;
+        expr intro_type = intro_rule_type(head(inductive_decl_intros(decl)));
+        return !is_pi(m_tc->whnf(intro_type).first);
+    }
+
     /** \brief Convert inductive datatype declarations into local constants, and store them into \c r and \c map.
         \c map is a mapping from inductive datatype name into local constant. */
     void inductive_types_to_locals(buffer<inductive_decl> const & decls, buffer<expr> & r, name_map<expr> & map) {
@@ -394,6 +412,14 @@ struct inductive_cmd_fn {
                     throw_error("resultant universe must be provided, when using explicit universe levels");
                 type = update_result_sort(type, m_u);
                 m_infer_result_universe = true;
+            } else if (m_env.impredicative() && !is_zero(l) && !is_not_zero(l)) {
+                // If the resultant universe can be Prop for some parameter instantiations, then
+                // the kernel will produce an eliminator that only eliminates to Prop.
+                // There is on exception the singleton case. We perform a concervative check here,
+                // we generate the error only if decls is not the singleton case
+                if (!is_prop_as_type(decls))
+                    throw_error("invalid universe polymorphic inductive declaration, the resultant universe is not Prop (i.e., 0), but it may "
+                                "be Prop for some parameter values (solution: use 'l+1' or 'max 1 l')");
             }
             expr local = mk_local(m_p.mk_fresh_name(), n, type, binder_info(), type.get_tag());
             r.push_back(local);

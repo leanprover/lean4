@@ -23,37 +23,50 @@ context
   -- TODO base this theorem on UA instead of FunExt.
   -- IsEquiv.postcompose relies on FunExt!
   protected theorem ua_isequiv_postcompose {A B C : Type.{1}} {w : A → B} {H0 : IsEquiv w}
-      : IsEquiv (@compose C A B w)
-    := IsEquiv.adjointify (@compose C A B w)
-         (@compose C B A (IsEquiv.inv w))
-         (λ (x : C → B),
-           let w' := Equiv.mk w H0 in
-           have foo : Equiv.equiv_fun w' ≈ w,
-             from idp,
-           have eqretr : equiv_path (equiv_path⁻¹ w') ≈ w',
-             from (@retr _ _ (@equiv_path A B) (ua A B) w'),
-           have eqinv : A ≈ B,
-             from (@inv _ _ (@equiv_path A B) (ua A B) w'),
-           have thoseeqs [visible] : Π (p : A ≈ B), IsEquiv (Equiv.equiv_fun (equiv_path p)),
-             from (λp, Equiv.equiv_isequiv (equiv_path p)),
-           have eqp : Π (p : A ≈ B) (x : C → B), equiv_path p ∘ ((equiv_path p)⁻¹ ∘ x) ≈ x,
-             from (λ p,
-               (@path.rec_on Type.{1} A
-                 (λ B' p', Π (x' : C → B'), (@equiv_path A B' p') ∘ ((equiv_path p')⁻¹ ∘ x') ≈ x')
-                 B p (λ x', idp))
-               ),
-           --have eqfin : equiv_path eqinv ∘ ((equiv_path eqinv)⁻¹ eqinv ∘ x) ≈ x,
-           --  from eqp eqinv,
-           sorry
-         )
-         (λ x, sorry)
-exit
+      : IsEquiv (@compose C A B w) :=
+    let w' := Equiv.mk w H0 in
+    let eqinv : A ≈ B := (equiv_path⁻¹ w') in
+    let eq' := equiv_path eqinv in
+    IsEquiv.adjointify (@compose C A B w)
+      (@compose C B A (IsEquiv.inv w))
+      (λ (x : C → B),
+        have eqretr : eq' ≈ w',
+          from (@retr _ _ (@equiv_path A B) (ua A B) w'),
+        have invs_eq : (equiv_fun eq')⁻¹ ≈ (equiv_fun w')⁻¹,
+          from inv_eq eq' w' eqretr,
+        have eqfin : (equiv_fun eq') ∘ ((equiv_fun eq')⁻¹ ∘ x) ≈ x,
+          from (λ p,
+            (@path.rec_on Type.{1} A
+              (λ B' p', Π (x' : C → B'), (equiv_fun (equiv_path p'))
+                ∘ ((equiv_fun (equiv_path p'))⁻¹ ∘ x') ≈ x')
+              B p (λ x', idp))
+            ) eqinv x,
+        have eqfin' : (equiv_fun w') ∘ ((equiv_fun eq')⁻¹ ∘ x) ≈ x,
+          from eqretr ▹ eqfin,
+        have eqfin'' : (equiv_fun w') ∘ ((equiv_fun w')⁻¹ ∘ x) ≈ x,
+          from invs_eq ▹ eqfin',
+        eqfin''
+      )
+      (λ (x : C → A),
+        have eqretr : eq' ≈ w',
+          from (@retr _ _ (@equiv_path A B) (ua A B) w'),
+        have invs_eq : (equiv_fun eq')⁻¹ ≈ (equiv_fun w')⁻¹,
+          from inv_eq eq' w' eqretr,
+        have eqfin : (equiv_fun eq')⁻¹ ∘ ((equiv_fun eq') ∘ x) ≈ x,
+          from (λ p, path.rec_on p idp) eqinv,
+        have eqfin' : (equiv_fun eq')⁻¹ ∘ ((equiv_fun w') ∘ x) ≈ x,
+          from eqretr ▹ eqfin,
+        have eqfin'' : (equiv_fun w')⁻¹ ∘ ((equiv_fun w') ∘ x) ≈ x,
+          from invs_eq ▹ eqfin',
+        eqfin''
+      )
+
   -- We are ready to prove functional extensionality,
   -- starting with the naive non-dependent version.
   protected definition diagonal [reducible] (B : Type) : Type
     := Σ xy : B × B, pr₁ xy ≈ pr₂ xy
 
-  protected definition isequiv_src_compose {A B C : Type}
+  protected definition isequiv_src_compose {A B C : Type.{1}}
       : @IsEquiv (A → diagonal B)
                  (A → B)
                  (compose (pr₁ ∘ dpr1))
@@ -64,7 +77,7 @@ exit
             (λ xy, prod.rec_on xy
               (λ b c p, path.rec_on p idp))))
 
-  protected definition isequiv_tgt_compose {A B C : Type}
+  protected definition isequiv_tgt_compose {A B C : Type.{1}}
       : @IsEquiv (A → diagonal B)
                  (A → B)
                  (compose (pr₂ ∘ dpr1))
@@ -75,7 +88,7 @@ exit
             (λ xy, prod.rec_on xy
               (λ b c p, path.rec_on p idp))))
 
-  theorem ua_implies_funext_nondep {A B : Type}
+  theorem ua_implies_funext_nondep {A B : Type.{1}}
       : Π {f g : A → B}, f ∼ g → f ≈ g
     := (λ (f g : A → B) (p : f ∼ g),
           let d := λ (x : A), dpair (f x , f x) idp in
@@ -101,12 +114,13 @@ end
 
 context
   universe l
-  parameters {ua1 ua2 : ua_type.{1}}
+  parameters {ua1 : ua_type.{1}} {ua2 : ua_type.{2}}
 
   -- Now we use this to prove weak funext, which as we know
   -- implies (with dependent eta) also the strong dependent funext.
+  set_option pp.universes true
   theorem ua_implies_weak_funext : weak_funext
-    := (λ A P allcontr,
+    := (λ (A : Type.{1}) (P : A → Type.{1}) allcontr,
           let U := (λ (x : A), unit) in
           have pequiv : Πx, P x ≃ U x,
             from (λ x, @equiv_contr_unit (P x) (allcontr x)),
@@ -114,10 +128,10 @@ context
             from (λ x, @IsEquiv.inv _ _
               (@equiv_path.{1} (P x) (U x)) (ua1 (P x) (U x)) (pequiv x)),
           have p : P ≈ U,
-            from ua_implies_funext_nondep psim,
+            from sorry, --ua_implies_funext_nondep psim,
           have tU' : is_contr (A → unit),
             from is_contr.mk (λ x, ⋆)
-              (λ f, ua_implies_funext_nondep
+              (λ f, @ua_implies_funext_nondep ua1 _ _ _ _
                 (λ x, unit.rec_on (f x) idp)),
           have tU : is_contr (Πx, U x),
             from tU',

@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/definitional/cases_on.h"
 #include "library/definitional/util.h"
 #include "library/definitional/projection.h"
+#include "library/definitional/no_confusion.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_cmds.h"
@@ -640,6 +641,19 @@ struct structure_cmd_fn {
         }
     }
 
+    void add_rec_on_alias(name const & n) {
+        bool opaque = false;
+        name rec_on_name(m_name, "rec_on");
+        declaration rec_on_decl = m_env.get(rec_on_name);
+        declaration new_decl = mk_definition(m_env, n, rec_on_decl.get_univ_params(),
+                                             rec_on_decl.get_type(), rec_on_decl.get_value(),
+                                             opaque);
+        m_env = module::add(m_env, check(m_env, new_decl));
+        m_env = set_reducible(m_env, n, reducible_status::On);
+        save_def_info(n);
+        add_alias(n);
+    }
+
     void declare_auxiliary() {
         m_env = mk_rec_on(m_env, m_name);
         m_env = mk_induction_on(m_env, m_name);
@@ -649,16 +663,8 @@ struct structure_cmd_fn {
         add_rec_alias(induction_on_name);
         save_def_info(rec_on_name);
         save_def_info(induction_on_name);
-        name destruct_name(m_name, "destruct");
-        bool opaque = false;
-        declaration rec_on_decl = m_env.get(rec_on_name);
-        declaration destruct_decl = mk_definition(m_env, destruct_name, rec_on_decl.get_univ_params(),
-                                                  rec_on_decl.get_type(), rec_on_decl.get_value(),
-                                                  opaque);
-        m_env = module::add(m_env, check(m_env, destruct_decl));
-        m_env = set_reducible(m_env, destruct_name, reducible_status::On);
-        save_def_info(destruct_name);
-        add_alias(destruct_name);
+        add_rec_on_alias(name(m_name, "destruct"));
+        add_rec_on_alias(name(m_name, "cases_on"));
     }
 
     void get_parent_names(buffer<name> & parent_names) {
@@ -797,6 +803,15 @@ struct structure_cmd_fn {
         }
     }
 
+    void declare_no_confustion() {
+        if (!has_eq_decls(m_env) || !has_heq_decls(m_env))
+            return;
+        m_env = mk_no_confusion(m_env, m_name);
+        name no_confusion_name(m_name, "no_confusion");
+        save_def_info(no_confusion_name);
+        add_alias(no_confusion_name);
+    }
+
     environment operator()() {
         process_header();
         if (m_p.curr_is_token(get_assign_tk())) {
@@ -831,6 +846,7 @@ struct structure_cmd_fn {
         declare_coercions();
         declare_eta();
         declare_proj_over_mk();
+        declare_no_confustion();
         return m_env;
     }
 };

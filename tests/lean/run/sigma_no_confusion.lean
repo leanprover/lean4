@@ -1,6 +1,7 @@
 import data.sigma tools.tactic
 
 namespace sigma
+  namespace manual
   definition no_confusion_type {A : Type} {B : A → Type} (P : Type) (v₁ v₂ : sigma B) : Type :=
   rec_on v₁
     (λ (a₁ : A) (b₁ : B a₁), rec_on v₂
@@ -14,14 +15,14 @@ namespace sigma
         (λ (a₁ : A) (b₁ : B a₁) (h : Π (eq₁ : a₁ = a₁), eq.rec_on eq₁ b₁ = b₁ → P),
            h rfl rfl),
     eq.rec_on H₁₂ aux H₁₂
+ end manual
 
  theorem sigma.mk.inj_1 {A : Type} {B : A → Type} {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (Heq : dpair a₁ b₁ = dpair a₂ b₂) : a₁ = a₂ :=
  begin
    apply (no_confusion Heq), intros, assumption
  end
 
- theorem sigma.mk.inj_2 {A : Type} {B : A → Type} (a₁ a₂ : A) (b₁ : B a₁) (b₂ : B a₂) (Heq : dpair a₁ b₁ = dpair a₂ b₂) :
-   eq.rec_on (sigma.mk.inj_1 Heq) b₁ = b₂ :=
+ theorem sigma.mk.inj_2 {A : Type} {B : A → Type} (a₁ a₂ : A) (b₁ : B a₁) (b₂ : B a₂) (Heq : dpair a₁ b₁ = dpair a₂ b₂) : b₁ == b₂ :=
  begin
    apply (no_confusion Heq), intros, eassumption
  end

@@ -124,7 +124,7 @@ trans : ∀a b c, tc R a b → tc R b c → tc R a c
 namespace tc
 context
   parameters {A : Type} {R : A → A → Prop}
-  notation `R⁺`:max := tc R
+  notation `R⁺` := tc R
 
   definition accessible {z} (ac: acc R z) : acc R⁺ z :=
   acc.rec_on ac

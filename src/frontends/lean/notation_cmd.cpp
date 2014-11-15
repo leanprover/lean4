@@ -89,11 +89,7 @@ struct notation_modifiers {
     }
 };
 
-
-
-
-static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool reserve)
--> pair<notation_entry, optional<token_entry>> {
+static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool reserve) -> pair<notation_entry, optional<token_entry>> {
     notation_modifiers mod;
     mod.parse(p);
     std::string tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
@@ -202,11 +198,11 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool
         check_notation_expr(f, f_pos);
         switch (k) {
         case mixfix_kind::infixl:
-            #if defined(__GNUC__) && !defined(__CLANG__)
-            #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#if defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
                                           mk_app(f, Var(1), Var(0)), overload, reserve, mod.m_parse_only), new_token);
-            #endif
+#endif
         case mixfix_kind::infixr:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
                                           mk_app(f, Var(1), Var(0)), overload, reserve, mod.m_parse_only), new_token);
@@ -229,7 +225,8 @@ static notation_entry parse_mixfix_notation(parser & p, mixfix_kind k, bool over
     return nt.first;
 }
 
-static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens) {
+static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens, bool & used_default) {
+    used_default = false;
     if (p.curr_is_quoted_symbol()) {
         environment const & env = p.env();
         auto tk   = p.get_name_val();
@@ -245,6 +242,7 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
                 new_tokens.push_back(token_entry(tkcs, prec));
         } else if (!get_precedence(get_token_table(env), tkcs)) {
             new_tokens.push_back(token_entry(tkcs, LEAN_DEFAULT_PRECEDENCE));
+            used_default = true;
         }
         return tk;
     } else if (p.curr_is_keyword()) {
@@ -255,6 +253,11 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
     } else {
         throw parser_error("invalid notation declaration, symbol expected", p.pos());
     }
+}
+
+static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens) {
+    bool dummy;
+    return parse_quoted_symbol_or_token(p, new_tokens, dummy);
 }
 
 static expr parse_notation_expr(parser & p, buffer<expr> const & locals) {
@@ -427,9 +430,10 @@ static notation_entry parse_notation_core(parser & p, bool overload, bool reserv
         if (!reserve)
             reserved_pt = get_reserved_nud_table(p.env());
     }
+    bool used_default = false;
     while ((!reserve && !p.curr_is_token(get_assign_tk())) ||
            (reserve && !p.curr_is_command() && !p.curr_is_eof())) {
-        name tk = parse_quoted_symbol_or_token(p, new_tokens);
+        name tk = parse_quoted_symbol_or_token(p, new_tokens, used_default);
         if (auto at = find_next(reserved_pt, tk)) {
             action const & a = at->first;
             reserved_pt      = at->second;
@@ -495,6 +499,11 @@ static notation_entry parse_notation_core(parser & p, bool overload, bool reserv
             }
         }
         pt = find_match(pt, ts.back());
+    }
+    // for atomic notation where binding power was not set, we set it to max
+    if (used_default && ts.size() == 1 && ts.back().get_action().kind() == notation::action_kind::Skip) {
+        lean_assert(!new_tokens.empty());
+        new_tokens.back().m_prec = get_max_prec();
     }
     expr n;
     if (reserve) {

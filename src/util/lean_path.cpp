@@ -125,12 +125,12 @@ void init_lean_path() {
 #else
     char * r = getenv("LEAN_PATH");
     if (r == nullptr) {
-        *g_lean_path  = ".";
         std::string exe_path = get_path(get_exe_location());
-        *g_lean_path += g_path_sep;
-        *g_lean_path += exe_path + g_sep + ".." + g_sep + "library";
+        *g_lean_path  = exe_path + g_sep + ".." + g_sep + "library";
         *g_lean_path += g_path_sep;
         *g_lean_path += exe_path + g_sep + ".." + g_sep + "lib" + g_sep + "lean";
+        *g_lean_path += g_path_sep;
+        *g_lean_path += ".";
     } else {
         *g_lean_path = r;
     }

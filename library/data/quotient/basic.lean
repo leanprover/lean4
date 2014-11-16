@@ -212,7 +212,7 @@ theorem fun_image_def {A B : Type} (f : A → B) (a : A) :
   fun_image f a = tag (f a) (exists_intro a rfl) := rfl
 
 theorem elt_of_fun_image {A B : Type} (f : A → B) (a : A) : elt_of (fun_image f a) = f a :=
-elt_of_tag _ _
+elt_of.tag _ _
 
 theorem image_elt_of {A B : Type} {f : A → B} (u : image f) : ∃a, f a = elt_of u :=
 has_property u

@@ -19,7 +19,7 @@ open subtype inhabited nonempty
 -- ---------
 
 axiom strong_indefinite_description {A : Type} (P : A → Prop) (H : nonempty A) :
-  {x : A, (∃x : A, P x) → P x}
+  { x | (∃y : A, P y) → P x}
 
 -- In the presence of classical logic, we could prove this from the weaker
 -- axiom indefinite_description {A : Type} {P : A->Prop} (H : ∃x, P x) : {x : A, P x}
@@ -28,7 +28,7 @@ theorem nonempty_imp_exists_true {A : Type} (H : nonempty A) : ∃x : A, true :=
 nonempty.elim H (take x, exists_intro x trivial)
 
 theorem nonempty_imp_inhabited {A : Type} (H : nonempty A) : inhabited A :=
-let u : {x : A, (∃x : A, true) → true} := strong_indefinite_description (λa, true) H in
+let u : {x | (∃y : A, true) → true} := strong_indefinite_description (λa, true) H in
 inhabited.mk (elt_of u)
 
 theorem exists_imp_inhabited {A : Type} {P : A → Prop} (H : ∃x, P x) : inhabited A :=
@@ -39,13 +39,13 @@ nonempty_imp_inhabited (obtain w Hw, from H, nonempty.intro w)
 -- ----------------------------
 
 opaque definition epsilon {A : Type} [H : nonempty A] (P : A → Prop) : A :=
-let u : {x : A, (∃y, P y) → P x} :=
+let u : {x | (∃y, P y) → P x} :=
   strong_indefinite_description P H in
 elt_of u
 
 theorem epsilon_spec_aux {A : Type} (H : nonempty A) (P : A → Prop) (Hex : ∃y, P y) :
     P (@epsilon A H P) :=
-let u : {x : A, (∃y, P y) → P x} :=
+let u : {x | (∃y, P y) → P x} :=
   strong_indefinite_description P H in
 has_property u Hex
 

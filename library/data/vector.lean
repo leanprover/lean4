@@ -23,33 +23,30 @@ namespace vector
         (λa, inhabited.destruct iH
           (λv, inhabited.mk (a :: v))))
 
-  -- TODO(Leo): mark_it_private
-  theorem case_zero_lem_aux {C : vector T 0 → Type} {n : ℕ} (v : vector T n) (Hnil : C nil) :
-    ∀ H : n = 0, C (cast (congr_arg (vector T) H) v) :=
-  rec_on v (take H : 0 = 0, (eq.rec Hnil (cast_eq _ nil⁻¹)))
-  (take (x : T) (n : ℕ) (w : vector T n) IH (H : succ n = 0),
-     false.rec _ (absurd H !succ_ne_zero))
-
-  theorem z_cases_on {C : vector T 0 → Type} (v : vector T 0) (Hnil : C nil) : C v :=
-  eq.rec (case_zero_lem_aux v Hnil (eq.refl 0)) (cast_eq _ v)
+  theorem z_cases_on {A : Type} {C : vector A 0 → Type} (v : vector A 0) (Hnil : C nil) : C v :=
+  have aux : ∀ (n₁ : nat) (v₁ : vector A n₁) (eq₁ : n₁ = 0) (eq₂ : v₁ == v) (Hnil : C nil), C v, from
+    λ n₁ v₁, vector.rec_on v₁
+      (λ (eq₁ : 0 = 0) (eq₂ : nil == v) (Hnil : C nil), eq.rec_on (heq.to_eq eq₂) Hnil)
+      (λ h₂ n₂ v₂ ih eq₁ eq₂ hnil, nat.no_confusion eq₁),
+  aux 0 v rfl !heq.refl Hnil
 
   theorem vector0_eq_nil (v : vector T 0) : v = nil :=
   z_cases_on v rfl
 
-  definition cast_v {A : Type} {n n' : nat} (Heq : n = n') (v : vector A n) : vector A n' :=
-  eq.rec_on Heq v
-
-  definition destruct {A : Type} {n : nat} (v : vector A (succ n)) {P : Π {n : nat}, vector A (succ n) → Type}
+  protected definition destruct {A : Type} {n : nat} (v : vector A (succ n)) {P : Π {n : nat}, vector A (succ n) → Type}
                       (H : Π {n : nat} (h : A) (t : vector A n), P (h :: t)) : P v :=
-  have gen : ∀ Heq : succ n = succ n, P (cast_v Heq v), from
-    cases_on v
-      (λ Heq : zero = succ n, nat.no_confusion Heq)
-      (λ (h' : A) (n' : nat) (t' : vector A n') (Heq : succ n' = succ n),
-        have gen : ∀ Heq : succ n' = succ n', @P (pred (succ n')) (cast_v Heq (h' :: t')), from
-          take Heq, H h' t',
-        have e : n' = n,  from nat.no_confusion Heq (λe, e),
-        eq.rec_on e gen Heq),
-  gen (eq.refl (succ n))
+  have aux : ∀ (n₁ : nat) (v₁ : vector A n₁) (eq₁ : n₁ = succ n) (eq₂ : v₁ == v), P v, from
+    (λ n₁ v₁, vector.rec_on v₁
+       (λ eq₁, nat.no_confusion eq₁)
+       (λ h₂ n₂ v₂ ih eq₁ eq₂,
+          nat.no_confusion eq₁ (λ e₃ : n₂ = n,
+            have aux : Π (n₂ : nat) (e₃ : n₂ = n) (v₂ : vector A n₂) (eq₂ : h₂ :: v₂ == v), P v, from
+              λ n₂ e₃, eq.rec_on (eq.rec_on e₃ rfl)
+                (λ (v₂ : vector A n) (eq₂ : h₂ :: v₂ == v),
+                  have Phv : P (h₂ :: v₂), from H h₂ v₂,
+                  eq.rec_on (heq.to_eq eq₂) Phv),
+            aux n₂ e₃ v₂ eq₂))),
+  aux (succ n) v rfl !heq.refl
 
   definition nz_cases_on := @destruct
 
@@ -59,14 +56,43 @@ namespace vector
   definition tail {A : Type} {n : nat} (v : vector A (succ n)) : vector A n :=
   destruct v (λ n h t, t)
 
+  example (A : Type) (n : nat) (h : A) (t : vector A n) : head (h :: t) :: tail (h :: t) = h :: t :=
+  rfl
+
+  theorem head_cons {A : Type} {n : nat} (h : A) (t : vector A n) : head (h :: t) = h :=
+  rfl
+
+  theorem tail_cons {A : Type} {n : nat} (h : A) (t : vector A n) : tail (h :: t) = t :=
+  rfl
+
   theorem eta {A : Type} {n : nat} (v : vector A (succ n)) : head v :: tail v = v :=
-  destruct v (λ n h t, rfl)
+  -- TODO(Leo): replace 'head_cons h t ▸ tail_cons h t ▸ rfl' with rfl
+  -- after issue #318 is fixed
+  destruct v (λ n h t, head_cons h t ▸ tail_cons h t ▸ rfl)
 
-  theorem head_vcons {A : Type} {n : nat} (h : A) (t : vector A n) : head (h :: t) = h :=
+  definition last {A : Type} {n : nat} : vector A (succ n) → A :=
+  nat.rec_on n
+    (λ (v : vector A (succ zero)), head v)
+    (λ n₁ r v, r (tail v))
+
+  theorem last_singleton {A : Type} (a : A) : last (a :: nil) = a :=
   rfl
 
-  theorem tail_vcons {A : Type} {n : nat} (h : A) (t : vector A n) : tail (h :: t) = t :=
+  theorem last_cons {A : Type} {n} (a : A) (v : vector A (succ n)) : last (a :: v) = last v :=
   rfl
+
+  definition const {A : Type} (n : nat) (a : A) : vector A n :=
+  nat.rec_on n
+    nil
+    (λ n₁ r, a :: r)
+
+  theorem head_const {A : Type} (n : nat) (a : A) : head (const (succ n) a) = a :=
+  rfl
+
+  theorem last_const {A : Type} (n : nat) (a : A) : last (const (succ n) a) = a :=
+  nat.induction_on n
+    rfl
+    (λ n₁ ih, ih)
 
   definition map {A B : Type} {n : nat} (f : A → B) (v : vector A n) : vector B n :=
   nat.rec_on n

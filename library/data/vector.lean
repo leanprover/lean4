@@ -137,6 +137,46 @@ namespace vector
   example : append (1 :: 2 :: nil) (3 :: nil) = 1 :: 2 :: 3 :: nil :=
   rfl
 
+  definition unzip {A B : Type} {n : nat} : vector (A × B) n → vector A n × vector B n :=
+  nat.rec_on n
+    (λ v, (nil, nil))
+    (λ a r v,
+      let t := r (tail v) in
+      (pr₁ (head v) :: pr₁ t, pr₂ (head v) :: pr₂ t))
+
+  definition zip {A B : Type} {n : nat} : vector A n → vector B n → vector (A × B) n :=
+  nat.rec_on n
+    (λ v₁ v₂, nil)
+    (λ a r v₁ v₂, (head v₁, head v₂) :: r (tail v₁) (tail v₂))
+
+  theorem unzip_zip {A B : Type} {n : nat} : ∀ (v₁ : vector A n) (v₂ : vector B n), unzip (zip v₁ v₂) = (v₁, v₂) :=
+  nat.induction_on n
+    (λ (v₁ : vector A zero) (v₂ : vector B zero),
+       z_cases_on v₁ (z_cases_on v₂ rfl))
+    (λ (n₁ : nat) (ih : ∀ (v₁ : vector A n₁) (v₂ : vector B n₁), unzip (zip v₁ v₂) = (v₁, v₂))
+       (v₁ : vector A (succ n₁)) (v₂ : vector B (succ n₁)), calc
+       unzip (zip v₁ v₂) = unzip ((head v₁, head v₂) :: zip (tail v₁) (tail v₂)) : rfl
+                     ... = (head v₁ :: pr₁ (unzip (zip (tail v₁) (tail v₂))),
+                            head v₂ :: pr₂ (unzip (zip (tail v₁) (tail v₂))))    : rfl
+                     ... = (head v₁ :: pr₁ (tail v₁, tail v₂),
+                            head v₂ :: pr₂ (tail v₁, tail v₂))                   : ih
+                     ... = (head v₁ :: tail v₁, head v₂ :: tail v₂)              : rfl
+                     ... = (v₁, head v₂ :: tail v₂)                              : vector.eta
+                     ... = (v₁, v₂)                                              : vector.eta)
+
+  theorem zip_unzip {A B : Type} {n : nat} : ∀ (v : vector (A × B) n), zip (pr₁ (unzip v)) (pr₂ (unzip v)) = v :=
+  nat.induction_on n
+    (λ (v : vector (A × B) zero),
+       z_cases_on v rfl)
+    (λ (n₁ : nat) (ih : ∀ v, zip (pr₁ (unzip v)) (pr₂ (unzip v)) = v) (v : vector (A × B) (succ n₁)), calc
+       zip (pr₁ (unzip v)) (pr₂ (unzip v)) = zip (pr₁ (head v) :: pr₁ (unzip (tail v)))
+                                                 (pr₂ (head v) :: pr₂ (unzip (tail v)))                  : rfl
+                 ... = (pr₁ (head v), pr₂ (head v)) :: zip (pr₁ (unzip (tail v))) (pr₂ (unzip (tail v))) : rfl
+                 ... = (pr₁ (head v), pr₂ (head v)) :: tail v                                            : ih
+                 ... = head v :: tail v                                                                  : prod.eta
+                 ... = v                                                                                 : vector.eta)
+
+
   section
     universe variables l₁ l₂
     variable {A : Type.{l₁}}

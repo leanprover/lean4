@@ -210,7 +210,7 @@ namespace truncation
   is_contr.mk (f (center A)) (λp, moveR_M f !contr)
 
   theorem contr_equiv (f : A ≃ B) [HA: is_contr A] : is_contr B :=
-  equiv_preserves_contr f
+  equiv_preserves_contr (equiv_fun f)
 
   definition contr_equiv_contr [HA : is_contr A] [HB : is_contr B] : A ≃ B :=
   Equiv.mk
@@ -226,7 +226,7 @@ namespace truncation
     A HA B f H
 
   definition trunc_equiv' (n : trunc_index) (f : A ≃ B) [HA : is_trunc n A] : is_trunc n B :=
-  trunc_equiv n f
+  trunc_equiv n (equiv_fun f)
 
   definition isequiv_iff_hprop [HA : is_hprop A] [HB : is_hprop B] (f : A → B) (g : B → A)
       : IsEquiv f :=

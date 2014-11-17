@@ -202,16 +202,14 @@ public:
         if (auto h = get_fingerprint(e)) {
             env = update_fingerprint(env, *h);
         }
-        if (in_context(env)) {
+        if (in_context(env) || !persistent) {
             return update(env, get(env)._add_tmp_entry(env, ios, e));
         } else {
             name n = get_namespace(env);
-            if (persistent) {
-                env = module::add(env, get_serialization_key(), [=](serializer & s) {
-                        s << n;
-                        write_entry(s, e);
-                    });
-            }
+            env = module::add(env, get_serialization_key(), [=](serializer & s) {
+                    s << n;
+                    write_entry(s, e);
+                });
             return update(env, get(env)._add_entry(env, ios, e));
         }
     }

@@ -93,6 +93,7 @@ static name * g_prefix       = nullptr;
 static name * g_notation     = nullptr;
 static name * g_call         = nullptr;
 static name * g_persistent   = nullptr;
+static name * g_local        = nullptr;
 static name * g_root         = nullptr;
 static name * g_fields       = nullptr;
 
@@ -183,12 +184,14 @@ void initialize_tokens() {
     g_notation     = new name("notation");
     g_call         = new name("call");
     g_persistent   = new name("[persistent]");
+    g_local        = new name("[local]");
     g_root         = new name("_root_");
     g_fields       = new name("fields");
 }
 
 void finalize_tokens() {
     delete g_persistent;
+    delete g_local;
     delete g_root;
     delete g_fields;
     delete g_prev;
@@ -364,6 +367,7 @@ name const & get_prefix_tk() { return *g_prefix; }
 name const & get_notation_tk() { return *g_notation; }
 name const & get_call_tk() { return *g_call; }
 name const & get_persistent_tk() { return *g_persistent; }
+name const & get_local_tk() { return *g_local; }
 name const & get_root_tk() { return *g_root; }
 name const & get_fields_tk() { return *g_fields; }
 }

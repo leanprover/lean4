@@ -12,7 +12,7 @@ namespace int
   constant add : int → int → int
   infixl + := add
   constant of_nat : nat → int
-  coercion of_nat
+  coercion [persistent] of_nat
 end int
 
 open int

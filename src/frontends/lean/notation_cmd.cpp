@@ -78,20 +78,8 @@ void check_not_forbidden(char const * tk) {
     }
 }
 
-struct notation_modifiers {
-    bool m_parse_only;
-    notation_modifiers():m_parse_only(false) {}
-    void parse(parser & p) {
-        if (p.curr_is_token(get_parsing_only_tk())) {
-            p.next();
-            m_parse_only = true;
-        }
-    }
-};
-
-static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool reserve) -> pair<notation_entry, optional<token_entry>> {
-    notation_modifiers mod;
-    mod.parse(p);
+static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool reserve, bool parse_only)
+-> pair<notation_entry, optional<token_entry>> {
     std::string tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
     char const * tks = tk.c_str();
     check_not_forbidden(tks);
@@ -180,16 +168,16 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool
         switch (k) {
         case mixfix_kind::infixl:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
-                                          dummy, overload, reserve, mod.m_parse_only), new_token);
+                                          dummy, overload, reserve, parse_only), new_token);
         case mixfix_kind::infixr:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
-                                          dummy, overload, reserve, mod.m_parse_only), new_token);
+                                          dummy, overload, reserve, parse_only), new_token);
         case mixfix_kind::postfix:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action())),
-                                          dummy, overload, reserve, mod.m_parse_only), new_token);
+                                          dummy, overload, reserve, parse_only), new_token);
         case mixfix_kind::prefix:
             return mk_pair(notation_entry(true, to_list(transition(tks, mk_expr_action(*prec))),
-                                          dummy, overload, reserve, mod.m_parse_only), new_token);
+                                          dummy, overload, reserve, parse_only), new_token);
         }
     } else {
         p.check_token_next(get_assign_tk(), "invalid notation declaration, ':=' expected");
@@ -201,25 +189,25 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool
 #if defined(__GNUC__) && !defined(__CLANG__)
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
-                                          mk_app(f, Var(1), Var(0)), overload, reserve, mod.m_parse_only), new_token);
+                                          mk_app(f, Var(1), Var(0)), overload, reserve, parse_only), new_token);
 #endif
         case mixfix_kind::infixr:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
-                                          mk_app(f, Var(1), Var(0)), overload, reserve, mod.m_parse_only), new_token);
+                                          mk_app(f, Var(1), Var(0)), overload, reserve, parse_only), new_token);
         case mixfix_kind::postfix:
             return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action())),
-                                          mk_app(f, Var(0)), overload, reserve, mod.m_parse_only), new_token);
+                                          mk_app(f, Var(0)), overload, reserve, parse_only), new_token);
         case mixfix_kind::prefix:
             return mk_pair(notation_entry(true, to_list(transition(tks, mk_expr_action(*prec))),
-                                          mk_app(f, Var(0)), overload, reserve, mod.m_parse_only), new_token);
+                                          mk_app(f, Var(0)), overload, reserve, parse_only), new_token);
         }
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 static notation_entry parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool reserve,
-                                            buffer<token_entry> & new_tokens) {
-    auto nt = parse_mixfix_notation(p, k, overload, reserve);
+                                            buffer<token_entry> & new_tokens, bool parse_only) {
+    auto nt = parse_mixfix_notation(p, k, overload, reserve, parse_only);
     if (nt.second)
         new_tokens.push_back(*nt.second);
     return nt.first;
@@ -401,15 +389,13 @@ static optional<pair<action, parse_table>> find_next(optional<parse_table> const
         return optional<pair<action, parse_table>>();
 }
 
-static notation_entry parse_notation_core(parser & p, bool overload, bool reserve, buffer<token_entry> & new_tokens) {
+static notation_entry parse_notation_core(parser & p, bool overload, bool reserve, buffer<token_entry> & new_tokens, bool parse_only) {
     buffer<expr>       locals;
     buffer<transition> ts;
     parser::local_scope scope(p);
     bool is_nud = true;
     optional<parse_table> pt;
     optional<parse_table> reserved_pt;
-    notation_modifiers mod;
-    mod.parse(p);
     if (p.curr_is_numeral()) {
         lean_assert(p.curr_is_numeral());
         mpz num = p.get_num_val().get_numerator();
@@ -418,7 +404,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, bool reserv
         auto e_pos = p.pos();
         expr e     = p.parse_expr();
         check_notation_expr(e, e_pos);
-        return notation_entry(num, e, overload, mod.m_parse_only);
+        return notation_entry(num, e, overload, parse_only);
     } else if (p.curr_is_identifier()) {
         parse_notation_local(p, locals);
         is_nud = false;
@@ -518,7 +504,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, bool reserv
             throw parser_error("invalid notation declaration, empty notation is not allowed", p.pos());
         n = parse_notation_expr(p, locals);
     }
-    return notation_entry(is_nud, to_list(ts.begin(), ts.end()), n, overload, reserve, mod.m_parse_only);
+    return notation_entry(is_nud, to_list(ts.begin(), ts.end()), n, overload, reserve, parse_only);
 }
 
 bool curr_is_notation_decl(parser & p) {
@@ -529,22 +515,23 @@ bool curr_is_notation_decl(parser & p) {
 
 static notation_entry parse_notation(parser & p, bool overload, bool reserve, buffer<token_entry> & new_tokens,
                                      bool allow_local) {
+    bool parse_only = false;
     flet<bool> set_allow_local(g_allow_local, allow_local);
     if (p.curr_is_token(get_infix_tk()) || p.curr_is_token(get_infixl_tk())) {
         p.next();
-        return parse_mixfix_notation(p, mixfix_kind::infixl, overload, reserve, new_tokens);
+        return parse_mixfix_notation(p, mixfix_kind::infixl, overload, reserve, new_tokens, parse_only);
     } else if (p.curr_is_token(get_infixr_tk())) {
         p.next();
-        return parse_mixfix_notation(p, mixfix_kind::infixr, overload, reserve, new_tokens);
+        return parse_mixfix_notation(p, mixfix_kind::infixr, overload, reserve, new_tokens, parse_only);
     } else if (p.curr_is_token(get_postfix_tk())) {
         p.next();
-        return parse_mixfix_notation(p, mixfix_kind::postfix, overload, reserve, new_tokens);
+        return parse_mixfix_notation(p, mixfix_kind::postfix, overload, reserve, new_tokens, parse_only);
     } else if (p.curr_is_token(get_prefix_tk())) {
         p.next();
-        return parse_mixfix_notation(p, mixfix_kind::prefix, overload, reserve, new_tokens);
+        return parse_mixfix_notation(p, mixfix_kind::prefix, overload, reserve, new_tokens, parse_only);
     } else if (p.curr_is_token(get_notation_tk())) {
         p.next();
-        return parse_notation_core(p, overload, reserve, new_tokens);
+        return parse_notation_core(p, overload, reserve, new_tokens, parse_only);
     } else {
         throw parser_error("invalid notation, 'infix', 'infixl', 'infixr', 'prefix', "
                            "'postfix' or 'notation' expected", p.pos());
@@ -583,9 +570,9 @@ static void check_token(char const * tk) {
     }
 }
 
-static environment add_user_token(environment const & env, token_entry const & e) {
+static environment add_user_token(environment const & env, token_entry const & e, bool persistent) {
     check_token(e.m_token.c_str());
-    return add_token(env, e);
+    return add_token(env, e, persistent);
 }
 
 static environment add_user_token(environment const & env, char const * val, unsigned prec) {
@@ -593,23 +580,47 @@ static environment add_user_token(environment const & env, char const * val, uns
     return add_token(env, val, prec);
 }
 
+struct notation_modifiers {
+    bool m_persistent;
+    bool m_parse_only;
+    notation_modifiers():m_persistent(true), m_parse_only(false) {}
+    void parse(parser & p) {
+        while (true) {
+            if (p.curr_is_token(get_local_tk())) {
+                p.next();
+                m_persistent = false;
+            } else if (p.curr_is_token(get_parsing_only_tk())) {
+                p.next();
+                m_parse_only = true;
+            } else {
+                return;
+            }
+        }
+    }
+};
+
 static environment notation_cmd_core(parser & p, bool overload, bool reserve) {
-    flet<bool> set_allow_local(g_allow_local, in_context(p.env()));
+    notation_modifiers mods;
+    mods.parse(p);
+    flet<bool> set_allow_local(g_allow_local, in_context(p.env()) || !mods.m_persistent);
     environment env = p.env();
     buffer<token_entry> new_tokens;
-    auto ne = parse_notation_core(p, overload, reserve, new_tokens);
+    auto ne = parse_notation_core(p, overload, reserve, new_tokens, mods.m_parse_only);
     for (auto const & te : new_tokens)
-        env = add_user_token(env, te);
-    env = add_notation(env, ne);
+        env = add_user_token(env, te, mods.m_persistent);
+    env = add_notation(env, ne, mods.m_persistent);
     return env;
 }
+
 static environment mixfix_cmd(parser & p, mixfix_kind k, bool overload, bool reserve) {
-    flet<bool> set_allow_local(g_allow_local, in_context(p.env()));
-    auto nt = parse_mixfix_notation(p, k, overload, reserve);
+    notation_modifiers mods;
+    mods.parse(p);
+    flet<bool> set_allow_local(g_allow_local, in_context(p.env()) || !mods.m_persistent);
+    auto nt = parse_mixfix_notation(p, k, overload, reserve, mods.m_parse_only);
     environment env = p.env();
     if (nt.second)
-        env = add_user_token(env, *nt.second);
-    env = add_notation(env, nt.first);
+        env = add_user_token(env, *nt.second, mods.m_persistent);
+    env = add_notation(env, nt.first, mods.m_persistent);
     return env;
 }
 

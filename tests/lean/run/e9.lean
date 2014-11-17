@@ -15,7 +15,7 @@ namespace int
 end int
 
 namespace int_coercions
-  coercion int.of_nat
+  coercion [persistent] int.of_nat
 end int_coercions
 
 -- Open "only" the notation and declarations from the namespaces nat and int

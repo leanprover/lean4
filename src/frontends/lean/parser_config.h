@@ -58,8 +58,8 @@ inline bool operator!=(notation_entry const & e1, notation_entry const & e2) {
 /** \brief Apply \c f to expressions embedded in the notation entry */
 notation_entry replace(notation_entry const & e, std::function<expr(expr const &)> const & f);
 
-environment add_token(environment const & env, token_entry const & e);
-environment add_notation(environment const & env, notation_entry const & e);
+environment add_token(environment const & env, token_entry const & e, bool persistent = true);
+environment add_notation(environment const & env, notation_entry const & e, bool persistent = true);
 
 environment add_token(environment const & env, char const * val, unsigned prec);
 environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a,

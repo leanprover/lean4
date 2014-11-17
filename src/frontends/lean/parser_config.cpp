@@ -107,8 +107,8 @@ std::string * token_config::g_key = nullptr;
 template class scoped_ext<token_config>;
 typedef scoped_ext<token_config> token_ext;
 
-environment add_token(environment const & env, token_entry const & e) {
-    return token_ext::add_entry(env, get_dummy_ios(), e);
+environment add_token(environment const & env, token_entry const & e, bool persistent) {
+    return token_ext::add_entry(env, get_dummy_ios(), e, persistent);
 }
 
 environment add_token(environment const & env, char const * val, unsigned prec) {
@@ -307,8 +307,8 @@ std::string * notation_config::g_key = nullptr;
 template class scoped_ext<notation_config>;
 typedef scoped_ext<notation_config> notation_ext;
 
-environment add_notation(environment const & env, notation_entry const & e) {
-    return notation_ext::add_entry(env, get_dummy_ios(), e);
+environment add_notation(environment const & env, notation_entry const & e, bool persistent) {
+    return notation_ext::add_entry(env, get_dummy_ios(), e, persistent);
 }
 
 environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts,

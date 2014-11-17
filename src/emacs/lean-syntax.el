@@ -116,7 +116,7 @@
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; modifiers
      (,(rx (or "\[persistent\]" "\[notation\]" "\[visible\]" "\[instance\]" "\[class\]" "\[parsing-only\]"
-               "\[coercion\]" "\[reducible\]" "\[off\]" "\[none\]" "\[on\]" "\[whnf\]" "\[decls\]" "\[strict\]"))
+               "\[coercion\]" "\[reducible\]" "\[off\]" "\[none\]" "\[on\]" "\[whnf\]" "\[decls\]" "\[strict\]" "\[local\]"))
       . 'font-lock-doc-face)
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      ;; tactics

@@ -50,13 +50,6 @@ namespace prod
   definition lex.wf (Ha : well_founded Ra) (Hb : well_founded Rb) : well_founded (lex Ra Rb) :=
   well_founded.intro (λp, destruct p (λa b, lex.accessible (Ha a) (well_founded.apply Hb) b))
 
-  end
-
-  context
-  parameters {A B : Type}
-  parameters {Ra  : A → A → Prop} {Rb  : B → B → Prop}
-  infix `≺`:50 := rprod Ra Rb
-
   -- Relational product is a subrelation of the lex
   definition rprod.sub_lex : ∀ a b, rprod Ra Rb a b → lex Ra Rb a b :=
   λa b H, rprod.rec_on H (λ a₁ b₁ a₂ b₂ H₁ H₂, lex.left Rb a₂ b₂ H₁)

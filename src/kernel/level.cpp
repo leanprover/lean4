@@ -219,6 +219,10 @@ level mk_max(level const & l1, level const & l2)  {
         return l2;
     } else if (is_zero(l2)) {
         return l1;
+    } else if (is_max(l2) && (max_lhs(l2) == l1 || max_rhs(l2) == l1)) {
+        return l2;  // if l2 == (max l1 l'), then max l1 l2 == l2
+    } else if (is_max(l1) && (max_lhs(l1) == l2 || max_rhs(l1) == l2)) {
+        return l1;  // if l1 == (max l2 l'), then max l1 l2 == l1
     } else {
         auto p1 = to_offset(l1);
         auto p2 = to_offset(l2);

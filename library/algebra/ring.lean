@@ -172,34 +172,74 @@ semiring.mk ring.add ring.add_assoc ring.zero ring.add_left_id
 
 section
 
-  variables [s : ring A] (a b c : A)
+  variables [s : ring A] (a b c d e : A)
   include s
 
-  theorem neg_mul_left : -(a * b) = (-a) * b :=
+  theorem neg_mul_left : -(a * b) = -a * b :=
   neg_unique
     (calc
-      a * b + (-a) * b = (a + -a) * b : distrib_right
+      a * b + -a * b = (a + -a) * b : distrib_right
         ... = 0 * b : add_right_inv
         ... = 0 : mul_zero_left)
 
-  theorem neg_mul_right : -(a * b) = a * (-b) :=
+  theorem neg_mul_right : -(a * b) = a * -b :=
   neg_unique
     (calc
-      a * b + a * (-b) = a * (b + -b) : distrib_left
+      a * b + a * -b = a * (b + -b) : distrib_left
         ... = a * 0 : add_right_inv
         ... = 0 : mul_zero_right)
 
-  theorem neg_mul_neg : (-a) * (-b) = a * b :=
+  theorem neg_mul_neg : -a * -b = a * b :=
   calc
-     (-a) * (-b) = -(a * -b) : neg_mul_left
+     -a * -b = -(a * -b) : neg_mul_left
        ... = - -(a * b) : neg_mul_right
        ... = a * b : neg_neg
+
+  theorem neg_mul_comm : -a * b = a * -b := !neg_mul_left⁻¹ ⬝ !neg_mul_right
+
+  theorem minus_distrib_left : a * (b - c) = a * b - a * c :=
+  calc
+    a * (b - c) = a * b + a * -c : distrib_left
+      ... = a * b + - (a * c) : neg_mul_right
+      ... = a * b - a * c : rfl
+
+  theorem minus_distrib_right : (a - b) * c = a * c - b * c :=
+  calc
+    (a - b) * c = a * c  + -b * c : distrib_right
+      ... = a * c + - (b * c) : neg_mul_left
+      ... = a * c - b * c : rfl
+
+  -- TODO: can calc mode be improved to make this easier?
+  -- TODO: there is also the other direction. It will be easier when we
+  -- have the simplifier.
+  theorem eq_add_iff1 : a * e + c = b * e + d ↔ (a - b) * e + c = d :=
+  calc
+    a * e + c = b * e + d ↔ a * e + c = d + b * e : !add_comm ▸ !iff.refl
+      ... ↔ a * e + c - b * e = d : iff.symm !minus_eq_iff_eq_add
+      ... ↔ a * e - b * e + c = d : !minus_add_right_comm ▸ !iff.refl
+      ... ↔ (a - b) * e + c = d : !minus_distrib_right ▸ !iff.refl
 
 end
 
 structure comm_ring [class] (A : Type) extends ring A, comm_semigroup A
 
-/- TODO: show a comm_ring is a comm-semiring -/
+definition comm_ring.to_comm_semiring [instance] [s : comm_ring A] : comm_semiring A :=
+comm_semiring.mk has_add.add add_assoc has_zero.zero add_left_id add_right_id add_comm
+  has_mul.mul mul_assoc has_one.one mul_left_id mul_right_id distrib_left distrib_right
+  mul_zero_left mul_zero_right zero_ne_one mul_comm
+
+section
+
+  variables [s : comm_ring A] (a b c d e : A)
+  include s
+
+  -- TODO: wait for the simplifier
+  theorem square_minus_square_eq : a * a - b * b = (a + b) * (a - b) := sorry
+
+  theorem square_minus_one_eq : a * a - 1 = (a + 1) * (a - 1) :=
+  !mul_right_id ▸ !square_minus_square_eq
+
+end
 
 structure comm_ring_dvd [class] (A : Type) extends comm_ring A, has_dvd A
 
@@ -207,5 +247,53 @@ definition comm_ring_dvd.to_comm_semiring_dvd [instance] [s : comm_ring_dvd A] :
 comm_semiring_dvd.mk has_add.add add_assoc has_zero.zero add_left_id add_right_id add_comm
   has_mul.mul mul_assoc has_one.one mul_left_id mul_right_id distrib_left distrib_right
   mul_zero_left mul_zero_right zero_ne_one mul_comm dvd (@dvd_intro A s) (@dvd_imp_exists A s)
+
+section
+
+  variables [s : comm_ring_dvd A] (a b c d e : A)
+  include s
+
+  theorem dvd_neg_iff : a | -b ↔ a | b :=
+  iff.intro
+    (assume H : a | -b,
+      dvd_elim H
+        (take c, assume H' : a * c = -b,
+          dvd_intro
+            (calc
+              a * -c = -(a * c) : neg_mul_right
+                ... = -(-b) : H'
+                ... = b : neg_neg)))
+    (assume H : a | b,
+      dvd_elim H
+        (take c, assume H' : a * c = b,
+          dvd_intro
+            (calc
+              a * -c = -(a * c) : neg_mul_right
+                ... = -b : H')))
+
+  theorem neg_dvd_iff : -a | b ↔ a | b :=
+  iff.intro
+    (assume H : -a | b,
+      dvd_elim H
+        (take c, assume H' : -a * c = b,
+          dvd_intro
+            (calc
+              a * -c = -a * c : neg_mul_comm
+                ... = b : H')))
+    (assume H : a | b,
+      dvd_elim H
+        (take c, assume H' : a * c = b,
+          dvd_intro
+            (calc
+              -a * -c = a * c : neg_mul_neg
+                ... = b : H')))
+
+    theorem dvd_diff (H₁ : a | b) (H₂ : a | c) : a | (b - c) :=
+    dvd_add H₁ (iff.elim_right !dvd_neg_iff H₂)
+
+end
+
+/- ring no_zero_divisors -/
+
 
 end algebra

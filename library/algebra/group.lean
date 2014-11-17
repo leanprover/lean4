@@ -116,7 +116,6 @@ theorem add_right_cancel [s : add_right_cancel_semigroup A] {a b c : A} :
   a + b = c + b → a = c :=
 !add_right_cancel_semigroup.add_right_cancel
 
-
 /- monoid -/
 
 structure monoid [class] (A : Type) extends semigroup A, has_one A :=

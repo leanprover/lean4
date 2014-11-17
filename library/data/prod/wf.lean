@@ -10,9 +10,14 @@ namespace prod
   variable  (Ra  : A → A → Prop)
   variable  (Rb  : B → B → Prop)
 
+  -- Lexicographical order based on Ra and Rb
   inductive lex : A × B → A × B → Prop :=
-  left  : ∀a₁ b₁ a₂ b₂, Ra a₁ a₂ → lex (a₁, b₁) (a₂, b₂),
-  right : ∀a b₁ b₂,     Rb b₁ b₂ → lex (a, b₁)  (a, b₂)
+  left  : ∀{a₁ b₁} a₂ b₂, Ra a₁ a₂ → lex (a₁, b₁) (a₂, b₂),
+  right : ∀a {b₁ b₂},     Rb b₁ b₂ → lex (a, b₁)  (a, b₂)
+
+  -- Relational product based on Ra and Rb
+  inductive rprod : A × B → A × B → Prop :=
+  intro : ∀{a₁ b₁ a₂ b₂}, Ra a₁ a₂ → Rb b₁ b₂ → rprod (a₁, b₁) (a₂, b₂)
   end
 
   context
@@ -20,7 +25,7 @@ namespace prod
   parameters {Ra  : A → A → Prop} {Rb  : B → B → Prop}
   infix `≺`:50 := lex Ra Rb
 
-  definition accessible {a} (aca : acc Ra a) (acb : ∀b, acc Rb b): ∀b, acc (lex Ra Rb) (a, b) :=
+  definition lex.accessible {a} (aca : acc Ra a) (acb : ∀b, acc Rb b): ∀b, acc (lex Ra Rb) (a, b) :=
   acc.rec_on aca
     (λxa aca (iHa : ∀y, Ra y xa → ∀b, acc (lex Ra Rb) (y, b)),
       λb, acc.rec_on (acb b)
@@ -42,8 +47,23 @@ namespace prod
             aux rfl rfl)))
 
   -- The lexicographical order of well founded relations is well-founded
-  definition wf (Ha : well_founded Ra) (Hb : well_founded Rb) : well_founded (lex Ra Rb) :=
-  well_founded.intro (λp, destruct p (λa b, accessible (Ha a) (well_founded.apply Hb) b))
+  definition lex.wf (Ha : well_founded Ra) (Hb : well_founded Rb) : well_founded (lex Ra Rb) :=
+  well_founded.intro (λp, destruct p (λa b, lex.accessible (Ha a) (well_founded.apply Hb) b))
+
+  end
+
+  context
+  parameters {A B : Type}
+  parameters {Ra  : A → A → Prop} {Rb  : B → B → Prop}
+  infix `≺`:50 := rprod Ra Rb
+
+  -- Relational product is a subrelation of the lex
+  definition rprod.sub_lex : ∀ a b, rprod Ra Rb a b → lex Ra Rb a b :=
+  λa b H, rprod.rec_on H (λ a₁ b₁ a₂ b₂ H₁ H₂, lex.left Rb a₂ b₂ H₁)
+
+  -- The relational product of well founded relations is well-founded
+  definition rprod.wf (Ha : well_founded Ra) (Hb : well_founded Rb) : well_founded (rprod Ra Rb) :=
+  subrel.wf (rprod.sub_lex) (lex.wf Ha Hb)
 
   end
 end prod

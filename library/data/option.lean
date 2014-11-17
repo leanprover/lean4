@@ -1,7 +1,6 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-
 import logic.eq logic.inhabited logic.decidable
 open eq.ops decidable
 
@@ -20,12 +19,10 @@ namespace option
   not_false_trivial
 
   theorem none_ne_some {A : Type} (a : A) : none ≠ some a :=
-  assume H : none = some a, absurd
-    (H ▸ is_none_none)
-    (not_is_none_some a)
+  assume H, no_confusion H
 
-  protected theorem equal {A : Type} {a₁ a₂ : A} (H : some a₁ = some a₂) : a₁ = a₂ :=
-  congr_arg (option.rec a₁ (λ a, a)) H
+  theorem some.inj {A : Type} {a₁ a₂ : A} (H : some a₁ = some a₂) : a₁ = a₂ :=
+  no_confusion H (λe, e)
 
   protected definition is_inhabited [instance] (A : Type) : inhabited (option A) :=
   inhabited.mk none
@@ -38,5 +35,5 @@ namespace option
         (inr (ne.symm (none_ne_some a₁)))
         (take a₂ : A, decidable.rec_on (H a₁ a₂)
           (assume Heq : a₁ = a₂, inl (Heq ▸ rfl))
-          (assume Hne : a₁ ≠ a₂, inr (assume Hn : some a₁ = some a₂, absurd (equal Hn) Hne))))
+          (assume Hne : a₁ ≠ a₂, inr (assume Hn : some a₁ = some a₂, absurd (some.inj Hn) Hne))))
 end option

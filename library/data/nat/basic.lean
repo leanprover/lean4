@@ -40,6 +40,36 @@ definition add (x y : ℕ) : ℕ :=
 nat.rec x (λ n r, succ r) y
 notation a + b := add a b
 
+definition addl (x y : ℕ) : ℕ :=
+nat.rec y (λ n r, succ r) x
+infix `⊕`:65 := addl
+
+theorem addl.succ_right (n m : ℕ) : n ⊕ succ m = succ (n ⊕ m) :=
+nat.induction_on n
+  rfl
+  (λ n₁ ih, calc
+    succ n₁ ⊕ succ m = succ (n₁ ⊕ succ m)   : rfl
+             ...     = succ (succ (n₁ ⊕ m)) : ih
+             ...     = succ (succ n₁ ⊕ m)   : rfl)
+
+theorem add_eq_addl (x : ℕ) : ∀y, x + y = x ⊕ y :=
+nat.induction_on x
+  (λ y, nat.induction_on y
+    rfl
+    (λ y₁ ih, calc
+      zero + succ y₁ = succ (zero + y₁)  : rfl
+              ...    = succ (zero ⊕ y₁) : {ih}
+              ...    = zero ⊕ (succ y₁) : rfl))
+  (λ x₁ ih₁ y, nat.induction_on y
+    (calc
+      succ x₁ + zero  = succ (x₁ + zero)  : rfl
+                  ... = succ (x₁ ⊕ zero) : {ih₁ zero}
+                  ... = succ x₁ ⊕ zero   : rfl)
+    (λ y₁ ih₂, calc
+      succ x₁ + succ y₁ = succ (succ x₁ + y₁) : rfl
+                   ...  = succ (succ x₁ ⊕ y₁) : {ih₂}
+                   ...  = succ x₁ ⊕ succ y₁   : addl.succ_right))
+
 definition of_num [coercion] [reducible] (n : num) : ℕ :=
 num.rec zero
     (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n

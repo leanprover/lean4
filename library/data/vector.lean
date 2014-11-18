@@ -116,20 +116,17 @@ namespace vector
                      map2 f (h₁ :: t₁) (h₂ :: t₂) = f h₁ h₂ :: map2 f t₁ t₂ :=
   rfl
 
-  definition append_core (w : vector A m) (v : vector A n) : vector A (n + m) :=
+  definition append (w : vector A n) (v : vector A m) : vector A (n ⊕ m) :=
   rec_on w
     v
-    (λ (a₁ : A) (m₁ : nat) (v₁ : vector A m₁) (r₁ : vector A (n + m₁)), a₁ :: r₁)
+    (λ (a₁ : A) (n₁ : nat) (v₁ : vector A n₁) (r₁ : vector A (n₁ ⊕ m)), a₁ :: r₁)
 
-  theorem append_vnil (v : vector A n) : append_core nil v = v :=
+  theorem append_nil (v : vector A n) : append nil v = v :=
   rfl
 
-  theorem append_vcons (h : A) (t : vector A n) (v : vector A m) :
-    append_core (h :: t) v = h :: (append_core t v) :=
+  theorem append_cons (h : A) (t : vector A n) (v : vector A m) :
+    append (h :: t) v = h :: (append t v) :=
   rfl
-
-  definition append (w : vector A n) (v : vector A m) : vector A (n + m) :=
-  eq.rec_on !add.comm (append_core w v)
 
   definition unzip : vector (A × B) n → vector A n × vector B n :=
   nat.rec_on n
@@ -183,7 +180,8 @@ namespace vector
   rfl
 
   theorem length_append (v₁ : vector A n) (v₂ : vector A m) : length (append v₁ v₂) = length v₁ + length v₂ :=
-  rfl
+  calc length (append v₁ v₂) = length v₁ ⊕ length v₂ : rfl
+                         ... = length v₁ + length v₂ : add_eq_addl
 
   -- Concat
   -- ------

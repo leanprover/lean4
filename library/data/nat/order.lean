@@ -334,6 +334,27 @@ le_trans (succ_le H1) H2
 theorem lt_trans {n m k : ℕ} (H1 : n < m) (H2 : m < k) : n < k :=
 lt_le_trans H1 (lt_imp_le H2)
 
+theorem eq_le_trans {n m k : ℕ} (H1 : n = m) (H2 : m ≤ k) : n ≤ k :=
+H1⁻¹ ▸ H2
+
+theorem eq_lt_trans {n m k : ℕ} (H1 : n = m) (H2 : m < k) : n < k :=
+H1⁻¹ ▸ H2
+
+theorem le_eq_trans {n m k : ℕ} (H1 : n ≤ m) (H2 : m = k) : n ≤ k :=
+H2 ▸ H1
+
+theorem lt_eq_trans {n m k : ℕ} (H1 : n < m) (H2 : m = k) : n < k :=
+H2 ▸ H1
+
+calc_trans le_trans
+calc_trans lt_trans
+calc_trans lt_le_trans
+calc_trans le_lt_trans
+calc_trans eq_le_trans
+calc_trans eq_lt_trans
+calc_trans le_eq_trans
+calc_trans lt_eq_trans
+
 theorem le_imp_not_gt {n m : ℕ} (H : n ≤ m) : ¬ n > m :=
 not_intro (assume H2 : m < n, absurd (le_lt_trans H H2) !lt_irrefl)
 

@@ -56,7 +56,7 @@ namespace prod
 
   -- The relational product of well founded relations is well-founded
   definition rprod.wf (Ha : well_founded Ra) (Hb : well_founded Rb) : well_founded (rprod Ra Rb) :=
-  subrel.wf (rprod.sub_lex) (lex.wf Ha Hb)
+  subrelation.wf (rprod.sub_lex) (lex.wf Ha Hb)
 
   end
 end prod

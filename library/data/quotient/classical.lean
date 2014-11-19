@@ -27,8 +27,8 @@ epsilon_spec (exists_intro a (reflR a))
 -- TODO: only needed: R PER
 theorem prelim_map_congr {A : Type} {R : A → A → Prop} (H1 : is_equivalence R) {a b : A}
   (H2 : R a b) : prelim_map R a = prelim_map R b :=
-have symmR : symmetric R, from is_symmetric.infer R,
-have transR : transitive R, from is_transitive.infer R,
+have symmR : relation.symmetric R, from is_symmetric.infer R,
+have transR : relation.transitive R, from is_transitive.infer R,
 have H3 : ∀c, R a c ↔ R b c, from
   take c,
     iff.intro

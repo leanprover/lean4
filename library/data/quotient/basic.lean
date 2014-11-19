@@ -302,8 +302,8 @@ theorem representative_map_equiv_inj {A : Type} {R : A → A → Prop}
     (equiv : is_equivalence R) {f : A → A}
     (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b → f a = f b) {a b : A} (H3 : f a = f b) :
   R a b :=
-have symmR : symmetric R, from rel_symm R,
-have transR : transitive R, from rel_trans R,
+have symmR : relation.symmetric R, from rel_symm R,
+have transR : relation.transitive R, from rel_trans R,
 show R a b, from
   have H2 : R a (f b), from H3 ▸ (H1 a),
   have H3 : R (f b) b, from symmR (H1 b),

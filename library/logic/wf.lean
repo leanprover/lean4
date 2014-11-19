@@ -1,7 +1,7 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-import logic.eq
+import logic.eq logic.relation
 
 inductive acc {A : Type} (R : A → A → Prop) : A → Prop :=
 intro : ∀x, (∀ y, R y x → acc R y) → acc R x
@@ -70,15 +70,15 @@ end well_founded
 open well_founded
 
 -- Empty relation is well-founded
-definition empty.wf {A : Type} : well_founded (λa b : A, false) :=
+definition empty.wf {A : Type} : well_founded empty_relation :=
 well_founded.intro (λ (a : A),
   acc.intro a (λ (b : A) (lt : false), false.rec _ lt))
 
 -- Subrelation of a well-founded relation is well-founded
-namespace subrel
+namespace subrelation
 context
   parameters {A : Type} {R Q : A → A → Prop}
-  parameters (H₁ : ∀{x y}, Q x y → R x y)
+  parameters (H₁ : subrelation Q R)
   parameters (H₂ : well_founded R)
 
   definition accessible {a : A} (ac : acc R a) : acc Q a :=
@@ -89,10 +89,7 @@ context
   definition wf : well_founded Q :=
   well_founded.intro (λ a, accessible (H₂ a))
 end
-end subrel
-
-definition inv_image {A B : Type} (R : B → B → Prop) (f : A → B) : A → A → Prop :=
-λa₁ a₂, R (f a₁) (f a₂)
+end subrelation
 
 -- The inverse image of a well-founded relation is well-founded
 namespace inv_image
@@ -114,11 +111,6 @@ context
   well_founded.intro (λ a, accessible (H (f a)))
 end
 end inv_image
-
--- Transitive closure
-inductive tc {A : Type} (R : A → A → Prop) : A → A → Prop :=
-base  : ∀a b, R a b → tc R a b,
-trans : ∀a b c, tc R a b → tc R b c → tc R a c
 
 -- The transitive closure of a well-founded relation is well-founded
 namespace tc

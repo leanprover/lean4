@@ -368,13 +368,17 @@ sub_split
 definition max (n m : ℕ) : ℕ := n + (m - n)
 definition min (n m : ℕ) : ℕ := m - (m - n)
 
-theorem max_le {n m : ℕ} (H : n ≤ m) : n + (m - n) = m := add_sub_le H
+theorem max_le {n m : ℕ} (H : n ≤ m) : max n m = m :=
+add_sub_le H
 
-theorem max_ge {n m : ℕ} (H : n ≥ m) : n + (m - n) = n := add_sub_ge H
+theorem max_ge {n m : ℕ} (H : n ≥ m) : max n m = n :=
+add_sub_ge H
 
-theorem left_le_max (n m : ℕ) : n ≤ n + (m - n) := !le_add_sub_left
+theorem left_le_max (n m : ℕ) : n ≤ max n m :=
+!le_add_sub_left
 
-theorem right_le_max (n m : ℕ) : m ≤ max n m := !le_add_sub_right
+theorem right_le_max (n m : ℕ) : m ≤ max n m :=
+!le_add_sub_right
 
 -- ### absolute difference
 

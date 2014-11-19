@@ -1,4 +1,4 @@
-import data.nat data.prod
+import data.nat data.prod logic.wf_k
 open nat well_founded decidable prod eq.ops
 
 -- I use "dependent" if-then-else to be able to communicate the if-then-else condition
@@ -20,8 +20,6 @@ dif 0 < y ∧ y ≤ x then (λ Hp, f (x - y) (lt_aux Hp) y + 1) else (λ Hn, zer
 definition wdiv (x y : nat) :=
 fix wdiv.F x y
 
-eval wdiv 6 2
-
 theorem wdiv_def (x y : nat) : wdiv x y = if 0 < y ∧ y ≤ x then wdiv (x - y) y + 1 else 0 :=
 congr_fun (well_founded.fix_eq wdiv.F x) y
 
@@ -31,7 +29,8 @@ congr_fun (well_founded.fix_eq wdiv.F x) y
 -- It will always pack things.
 
 definition pair_nat.lt    := lex lt lt  -- Could also be (lex lt empty_rel)
-definition pair_nat.lt.wf [instance] : well_founded pair_nat.lt := prod.lex.wf lt.wf lt.wf
+definition pair_nat.lt.wf [instance] : well_founded pair_nat.lt :=
+intro_k (prod.lex.wf lt.wf lt.wf) 20 -- allow 20 recursive calls without computing with proofs
 infixl `≺`:50 := pair_nat.lt
 
 -- Recursive lemma used to justify recursive call
@@ -48,8 +47,6 @@ dif 0 < y ∧ y ≤ x then (λ Hp, f (x - y, y) (plt_aux p₁ Hp) + 1) else (λ 
 definition pdiv (x y : nat) :=
 fix pdiv.F (x, y)
 
-eval pdiv 9 2
-
 theorem pdiv_def (x y : nat) : pdiv x y = if 0 < y ∧ y ≤ x then pdiv (x - y) y + 1 else zero :=
 well_founded.fix_eq pdiv.F (x, y)
 
@@ -57,4 +54,7 @@ well_founded.fix_eq pdiv.F (x, y)
 -- I used that, when I wrote div_def and pdiv_def.
 theorem dite_ite_eq (c : Prop) [H : decidable c] {A : Type} (t : A) (e : A) :
       dite c (λ Hc, t) (λ Hnc, e) = ite c t e :=
+rfl
+
+example : pdiv 398 23 = 17 :=
 rfl

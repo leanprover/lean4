@@ -16,16 +16,16 @@ open path truncation sigma function
 
 -- Naive funext is the simple assertion that pointwise equal functions are equal.
 -- TODO think about universe levels
-definition naive_funext :=
-  Π {A : Type} {P : A → Type} (f g : Πx, P x), (f ∼ g) → f ≈ g
+definition naive_funext.{l} :=
+  Π {A : Type.{l+1}} {P : A → Type.{l+2}} (f g : Πx, P x), (f ∼ g) → f ≈ g
 
 -- Weak funext says that a product of contractible types is contractible.
-definition weak_funext :=
-  Π {A : Type₁} (P : A → Type₁) [H: Πx, is_contr (P x)], is_contr (Πx, P x)
+definition weak_funext.{l} :=
+  Π {A : Type.{l+1}} (P : A → Type.{l+2}) [H: Πx, is_contr (P x)], is_contr (Πx, P x)
 
 -- We define a variant of [Funext] which does not invoke an axiom.
-definition funext_type :=
-  Π {A : Type₁} {P : A → Type₁} (f g : Πx, P x), IsEquiv (@apD10 A P f g)
+definition funext_type.{l} :=
+  Π {A : Type.{l+1}} {P : A → Type.{l+2}} (f g : Πx, P x), IsEquiv (@apD10 A P f g)
 
 -- The obvious implications are Funext -> NaiveFunext -> WeakFunext
 -- TODO: Get class inference to work locally
@@ -48,18 +48,18 @@ definition naive_funext_implies_weak_funext : naive_funext → weak_funext :=
     )
   )
 
-
 /- The less obvious direction is that WeakFunext implies Funext
   (and hence all three are logically equivalent).  The point is that under weak
   funext, the space of "pointwise homotopies" has the same universal property as
   the space of paths. -/
 
 context
-  parameters (wf : weak_funext) {A : Type₁} {B : A → Type₁} (f : Πx, B x)
+  universe l
+  parameters (wf : weak_funext.{l}) {A : Type.{l+1}} {B : A → Type.{l+2}} (f : Π x, B x)
 
-  protected definition idhtpy : f ∼ f := (λx, idp)
+  protected definition idhtpy : f ∼ f := (λ x, idp)
 
-  definition contr_basedhtpy [instance] : is_contr (Σ (g : Πx, B x), f ∼ g) :=
+  definition contr_basedhtpy [instance] : is_contr (Σ (g : Π x, B x), f ∼ g) :=
     is_contr.mk (dpair f idhtpy)
       (λ dp, sigma.rec_on dp
         (λ (g : Π x, B x) (h : f ∼ g),
@@ -93,7 +93,9 @@ context
 end
 
 -- Now the proof is fairly easy; we can just use the same induction principle on both sides.
-theorem weak_funext_implies_funext : weak_funext → funext_type :=
+universe variable l
+
+theorem weak_funext_implies_funext : weak_funext.{l} → funext_type.{l} :=
   (λ wf A B f g,
     let eq_to_f := (λ g' x, f ≈ g') in
     let sim2path := htpy_ind wf f eq_to_f idp in

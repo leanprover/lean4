@@ -15,7 +15,7 @@ open function
 -- Path
 -- ----
 
-inductive path {A : Type} (a : A) : A → Type :=
+inductive path.{l} {A : Type.{l}} (a : A) : A → Type.{l} :=
 idpath : path a a
 
 namespace path

@@ -7,6 +7,8 @@ import data.prod data.sigma data.unit
 
 open path function prod sigma truncation Equiv IsEquiv unit
 
+set_option pp.universes true
+
 definition isequiv_path {A B : Type} (H : A ≈ B) :=
   (@IsEquiv.transport Type (λX, X) A B H)
 
@@ -18,12 +20,11 @@ definition equiv_path {A B : Type} (H : A ≈ B) : A ≃ B :=
 definition ua_type := Π (A B : Type), IsEquiv (@equiv_path A B)
 
 context
-  parameters {ua : ua_type.{1}}
+  universe variables l k
+  parameter {ua : ua_type.{l+1}}
 
-  -- TODO base this theorem on UA instead of FunExt.
-  -- IsEquiv.postcompose relies on FunExt!
-  protected theorem ua_isequiv_postcompose {A B C : Type.{1}} {w : A → B} {H0 : IsEquiv w}
-      : IsEquiv (@compose C A B w) :=
+  protected theorem ua_isequiv_postcompose {A B : Type.{l+1}} {C : Type}
+      {w : A → B} {H0 : IsEquiv w} : IsEquiv (@compose C A B w) :=
     let w' := Equiv.mk w H0 in
     let eqinv : A ≈ B := (equiv_path⁻¹ w') in
     let eq' := equiv_path eqinv in
@@ -36,7 +37,7 @@ context
           from inv_eq eq' w' eqretr,
         have eqfin : (equiv_fun eq') ∘ ((equiv_fun eq')⁻¹ ∘ x) ≈ x,
           from (λ p,
-            (@path.rec_on Type.{1} A
+            (@path.rec_on Type.{l+1} A
               (λ B' p', Π (x' : C → B'), (equiv_fun (equiv_path p'))
                 ∘ ((equiv_fun (equiv_path p'))⁻¹ ∘ x') ≈ x')
               B p (λ x', idp))
@@ -66,7 +67,7 @@ context
   protected definition diagonal [reducible] (B : Type) : Type
     := Σ xy : B × B, pr₁ xy ≈ pr₂ xy
 
-  protected definition isequiv_src_compose {A B C : Type.{1}}
+  protected definition isequiv_src_compose {A B C : Type}
       : @IsEquiv (A → diagonal B)
                  (A → B)
                  (compose (pr₁ ∘ dpr1))
@@ -77,7 +78,7 @@ context
             (λ xy, prod.rec_on xy
               (λ b c p, path.rec_on p idp))))
 
-  protected definition isequiv_tgt_compose {A B C : Type.{1}}
+  protected definition isequiv_tgt_compose {A B C : Type}
       : @IsEquiv (A → diagonal B)
                  (A → B)
                  (compose (pr₂ ∘ dpr1))
@@ -88,7 +89,7 @@ context
             (λ xy, prod.rec_on xy
               (λ b c p, path.rec_on p idp))))
 
-  theorem ua_implies_funext_nondep {A B : Type.{1}}
+  theorem ua_implies_funext_nondep {A B : Type.{l+1}}
       : Π {f g : A → B}, f ∼ g → f ≈ g
     := (λ (f g : A → B) (p : f ∼ g),
           let d := λ (x : A), dpair (f x , f x) idp in
@@ -113,22 +114,30 @@ context
 end
 
 context
-  universe l
-  parameters {ua1 : ua_type.{1}} {ua2 : ua_type.{2}}
+  universe variables l k
+  parameters {ua1 : ua_type.{l+1}} {ua2 : ua_type.{l+2}}
+  --parameters {ua1 ua2 : ua_type}
 
   -- Now we use this to prove weak funext, which as we know
   -- implies (with dependent eta) also the strong dependent funext.
   set_option pp.universes true
+  check @ua_implies_funext_nondep
+  check @weak_funext_implies_funext
+  check @ua_type
+  definition lift : Type.{l+1} → Type.{l+2} := sorry
+
   theorem ua_implies_weak_funext : weak_funext
-    := (λ (A : Type.{1}) (P : A → Type.{1}) allcontr,
+    := (λ (A : Type.{l+1}) (P : A → Type.{l+1}) allcontr,
+          have liftA : Type.{l+2},
+            from lift A,
           let U := (λ (x : A), unit) in
           have pequiv : Πx, P x ≃ U x,
-            from (λ x, @equiv_contr_unit (P x) (allcontr x)),
+            from (λ x, @equiv_contr_unit(P x) (allcontr x)),
           have psim : Πx, P x ≈ U x,
             from (λ x, @IsEquiv.inv _ _
-              (@equiv_path.{1} (P x) (U x)) (ua1 (P x) (U x)) (pequiv x)),
+              (@equiv_path (P x) (U x)) (ua1 (P x) (U x)) (pequiv x)),
           have p : P ≈ U,
-            from sorry, --ua_implies_funext_nondep psim,
+            from @ua_implies_funext_nondep.{l} ua1 A Type.{l+1} P U psim,
           have tU' : is_contr (A → unit),
             from is_contr.mk (λ x, ⋆)
               (λ f, @ua_implies_funext_nondep ua1 _ _ _ _

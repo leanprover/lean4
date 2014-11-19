@@ -67,91 +67,83 @@ context
   protected definition diagonal [reducible] (B : Type) : Type
     := Σ xy : B × B, pr₁ xy ≈ pr₂ xy
 
-  protected definition isequiv_src_compose {A B C : Type}
+  protected definition isequiv_src_compose {A B : Type}
       : @IsEquiv (A → diagonal B)
                  (A → B)
-                 (compose (pr₁ ∘ dpr1))
-    := @ua_isequiv_postcompose _ _ _ (pr₁ ∘ dpr1)
+                 (compose (pr₁ ∘ dpr1)) :=
+    @ua_isequiv_postcompose _ _ _ (pr₁ ∘ dpr1)
         (IsEquiv.adjointify (pr₁ ∘ dpr1)
           (λ x, dpair (x , x) idp) (λx, idp)
           (λ x, sigma.rec_on x
             (λ xy, prod.rec_on xy
               (λ b c p, path.rec_on p idp))))
 
-  protected definition isequiv_tgt_compose {A B C : Type}
+  protected definition isequiv_tgt_compose {A B : Type}
       : @IsEquiv (A → diagonal B)
                  (A → B)
-                 (compose (pr₂ ∘ dpr1))
-    := @ua_isequiv_postcompose _ _ _ (pr2 ∘ dpr1)
+                 (compose (pr₂ ∘ dpr1)) :=
+    @ua_isequiv_postcompose _ _ _ (pr2 ∘ dpr1)
         (IsEquiv.adjointify (pr2 ∘ dpr1)
           (λ x, dpair (x , x) idp) (λx, idp)
           (λ x, sigma.rec_on x
             (λ xy, prod.rec_on xy
               (λ b c p, path.rec_on p idp))))
 
-  theorem ua_implies_funext_nondep {A B : Type.{l+1}}
-      : Π {f g : A → B}, f ∼ g → f ≈ g
-    := (λ (f g : A → B) (p : f ∼ g),
-          let d := λ (x : A), dpair (f x , f x) idp in
-          let e := λ (x : A), dpair (f x , g x) (p x) in
-          let precomp1 :=  compose (pr₁ ∘ dpr1) in
-          have equiv1 [visible] : IsEquiv precomp1,
-            from @isequiv_src_compose A B (diagonal B),
-          have equiv2 [visible] : Π x y, IsEquiv (ap precomp1),
-            from IsEquiv.ap_closed precomp1,
-          have H' : Π (x y : A → diagonal B),
-              pr₁ ∘ dpr1 ∘ x ≈ pr₁ ∘ dpr1 ∘ y → x ≈ y,
-            from (λ x y, IsEquiv.inv (ap precomp1)),
-          have eq2 : pr₁ ∘ dpr1 ∘ d ≈ pr₁ ∘ dpr1 ∘ e,
-            from idp,
-          have eq0 : d ≈ e,
-            from H' d e eq2,
-          have eq1 : (pr₂ ∘ dpr1) ∘ d ≈ (pr₂ ∘ dpr1) ∘ e,
-            from ap _ eq0,
-          eq1
-       )
+  theorem ua_implies_funext_nondep {A : Type} {B : Type.{l+1}}
+      : Π {f g : A → B}, f ∼ g → f ≈ g :=
+    (λ (f g : A → B) (p : f ∼ g),
+        let d := λ (x : A), dpair (f x , f x) idp in
+        let e := λ (x : A), dpair (f x , g x) (p x) in
+        let precomp1 :=  compose (pr₁ ∘ dpr1) in
+        have equiv1 [visible] : IsEquiv precomp1,
+          from @isequiv_src_compose A B,
+        have equiv2 [visible] : Π x y, IsEquiv (ap precomp1),
+          from IsEquiv.ap_closed precomp1,
+        have H' : Π (x y : A → diagonal B),
+            pr₁ ∘ dpr1 ∘ x ≈ pr₁ ∘ dpr1 ∘ y → x ≈ y,
+          from (λ x y, IsEquiv.inv (ap precomp1)),
+        have eq2 : pr₁ ∘ dpr1 ∘ d ≈ pr₁ ∘ dpr1 ∘ e,
+          from idp,
+        have eq0 : d ≈ e,
+          from H' d e eq2,
+        have eq1 : (pr₂ ∘ dpr1) ∘ d ≈ (pr₂ ∘ dpr1) ∘ e,
+          from ap _ eq0,
+        eq1
+    )
 
 end
 
 context
-  universe variables l k
-  parameters {ua1 : ua_type.{l+1}} {ua2 : ua_type.{l+2}}
-  --parameters {ua1 ua2 : ua_type}
+  universe variables l
+  parameters {ua2 : ua_type.{l+2}} {ua3 : ua_type.{l+3}}
 
   -- Now we use this to prove weak funext, which as we know
   -- implies (with dependent eta) also the strong dependent funext.
-  set_option pp.universes true
-  check @ua_implies_funext_nondep
-  check @weak_funext_implies_funext
-  check @ua_type
-  definition lift : Type.{l+1} → Type.{l+2} := sorry
-
-  theorem ua_implies_weak_funext : weak_funext
-    := (λ (A : Type.{l+1}) (P : A → Type.{l+1}) allcontr,
-          have liftA : Type.{l+2},
-            from lift A,
-          let U := (λ (x : A), unit) in
-          have pequiv : Πx, P x ≃ U x,
-            from (λ x, @equiv_contr_unit(P x) (allcontr x)),
-          have psim : Πx, P x ≈ U x,
-            from (λ x, @IsEquiv.inv _ _
-              (@equiv_path (P x) (U x)) (ua1 (P x) (U x)) (pequiv x)),
-          have p : P ≈ U,
-            from @ua_implies_funext_nondep.{l} ua1 A Type.{l+1} P U psim,
-          have tU' : is_contr (A → unit),
-            from is_contr.mk (λ x, ⋆)
-              (λ f, @ua_implies_funext_nondep ua1 _ _ _ _
-                (λ x, unit.rec_on (f x) idp)),
-          have tU : is_contr (Πx, U x),
-            from tU',
-          have tlast : is_contr (Πx, P x),
-            from path.transport _ (p⁻¹) tU,
-          tlast
-       )
+  theorem ua_implies_weak_funext : weak_funext.{l} :=
+    (λ (A : Type.{l+1}) (P : A → Type.{l+2}) allcontr,
+      let U := (λ (x : A), unit) in
+      have pequiv : Π (x : A), P x ≃ U x,
+        from (λ x, @equiv_contr_unit(P x) (allcontr x)),
+      have psim : Π (x : A), P x ≈ U x,
+        from (λ x, @IsEquiv.inv _ _
+          (@equiv_path (P x) (U x)) (ua2 (P x) (U x)) (pequiv x)),
+      have p : P ≈ U,
+        from @ua_implies_funext_nondep.{l+2 l+1} ua3 A Type.{l+2} P U psim,
+      have tU' : is_contr (A → unit),
+        from is_contr.mk (λ x, ⋆)
+          (λ f, @ua_implies_funext_nondep ua2 A unit (λ x, ⋆) f
+            (λ x, unit.rec_on (f x) idp)),
+      have tU : is_contr (Π x, U x),
+        from tU',
+      have tlast : is_contr (Πx, P x),
+        from path.transport _ (p⁻¹) tU,
+      tlast
+    )
 
 end
 
+exit
 -- In the following we will proof function extensionality using the univalence axiom
 -- TODO: check out why I have to generalize on A and P here
-definition ua_implies_funext_type {ua : ua_type.{1}} : @funext_type :=
-  (λ A P, weak_funext_implies_funext (@ua_implies_weak_funext ua))
+definition ua_implies_funext_type {ua : ua_type} : @funext_type :=
+  (λ A P, weak_funext_implies_funext (@ua_implies_visible]weak_funext ua))

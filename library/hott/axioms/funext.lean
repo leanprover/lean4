@@ -23,11 +23,11 @@ namespace funext
     universe l
     parameters [F : funext.{l}] {A : Type.{l+1}} {P : A → Type.{l+2}} (f g : Π x, P x)
 
-    protected definition equiv [instance] : IsEquiv (@apD10 A P f g) :=
+    protected definition apply [instance] : IsEquiv (@apD10 A P f g) :=
       rec_on F (λ H, sorry)
 
     definition path_forall : f ∼ g → f ≈ g :=
-      @IsEquiv.inv _ _ (@apD10 A P f g) equiv
+      @IsEquiv.inv _ _ (@apD10 A P f g) apply
 
   end
 

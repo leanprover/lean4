@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Jakob von Raumer
 -- Ported from Coq HoTT
-import hott.path hott.trunc hott.equiv
+import hott.path hott.trunc hott.equiv hott.axioms.funext
 
 open path truncation sigma function
 
@@ -23,15 +23,12 @@ definition naive_funext.{l} :=
 definition weak_funext.{l} :=
   Π {A : Type.{l+1}} (P : A → Type.{l+2}) [H: Πx, is_contr (P x)], is_contr (Πx, P x)
 
--- We define a variant of [Funext] which does not invoke an axiom.
-definition funext_type.{l} :=
-  Π {A : Type.{l+1}} {P : A → Type.{l+2}} (f g : Πx, P x), IsEquiv (@apD10 A P f g)
-
 -- The obvious implications are Funext -> NaiveFunext -> WeakFunext
 -- TODO: Get class inference to work locally
-definition funext_implies_naive_funext : funext_type → naive_funext :=
-  (λ Fe A P f g h,
-    have Fefg: IsEquiv (@apD10 A P f g), from Fe A P f g,
+definition funext_implies_naive_funext [F : funext] : naive_funext :=
+  (λ A P f g h,
+    have Fefg: IsEquiv (@apD10 A P f g),
+      from (@funext.apply F A P f g),
     have eq1 : _, from (@IsEquiv.inv _ _ (@apD10 A P f g) Fefg h),
     eq1
   )
@@ -95,19 +92,19 @@ end
 -- Now the proof is fairly easy; we can just use the same induction principle on both sides.
 universe variable l
 
-theorem weak_funext_implies_funext : weak_funext.{l} → funext_type.{l} :=
-  (λ wf A B f g,
+theorem weak_funext_implies_funext (wf : weak_funext.{l}) : funext.{l} :=
+  funext.mk (λ A B f g,
     let eq_to_f := (λ g' x, f ≈ g') in
-    let sim2path := htpy_ind wf f eq_to_f idp in
+    let sim2path := htpy_ind _ f eq_to_f idp in
     have t1 : sim2path f (idhtpy f) ≈ idp,
-      proof htpy_ind_beta wf f eq_to_f idp qed,
+      proof htpy_ind_beta _ f eq_to_f idp qed,
     have t2 : apD10 (sim2path f (idhtpy f)) ≈ (idhtpy f),
       proof ap apD10 t1 qed,
     have sect : Sect (sim2path g) apD10,
-      proof (htpy_ind wf f (λ g' x, apD10 (sim2path g' x) ≈ x) t2) g qed,
+      proof (htpy_ind _ f (λ g' x, apD10 (sim2path g' x) ≈ x) t2) g qed,
     have retr : Sect apD10 (sim2path g),
-      from (λ h, path.rec_on h (htpy_ind_beta wf f _ idp)),
+      from (λ h, path.rec_on h (htpy_ind_beta _ f _ idp)),
     IsEquiv.adjointify apD10 (sim2path g) sect retr)
 
-definition naive_funext_implies_funext : naive_funext -> funext_type :=
+definition naive_funext_implies_funext : naive_funext -> funext :=
   compose weak_funext_implies_funext naive_funext_implies_weak_funext

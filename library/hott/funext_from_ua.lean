@@ -7,8 +7,6 @@ import data.prod data.sigma data.unit
 
 open path function prod sigma truncation Equiv IsEquiv unit
 
-set_option pp.universes true
-
 definition isequiv_path {A B : Type} (H : A ≈ B) :=
   (@IsEquiv.transport Type (λX, X) A B H)
 
@@ -20,7 +18,7 @@ definition equiv_path {A B : Type} (H : A ≈ B) : A ≃ B :=
 definition ua_type := Π (A B : Type), IsEquiv (@equiv_path A B)
 
 context
-  universe variables l k
+  universe variables l
   parameter {ua : ua_type.{l+1}}
 
   protected theorem ua_isequiv_postcompose {A B : Type.{l+1}} {C : Type}

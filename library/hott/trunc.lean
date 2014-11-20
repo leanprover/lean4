@@ -178,7 +178,7 @@ namespace truncation
   definition contr_basedpaths [instance] {A : Type} (a : A) : is_contr (Σ(x : A), a ≈ x) :=
   is_contr.mk (dpair a idp) (λp, sigma.rec_on p (λ b q, path.rec_on q idp))
 
-  definition is_trunc_is_hprop [instance] {n : trunc_index} : is_hprop (is_trunc n A) := sorry
+  -- definition is_trunc_is_hprop [instance] {n : trunc_index} : is_hprop (is_trunc n A) := sorry
 
   definition unit_contr [instance] : is_contr unit :=
   is_contr.mk star (λp, unit.rec_on p idp)

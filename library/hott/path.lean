@@ -419,15 +419,19 @@ definition transport_pVp {A} (P : A → Type) {x y : A} (p : x ≈ y) (z : P x) 
 rec_on p idp
 
 -- Dependent transport in a doubly dependent type.
+-- should B, C and y all be explicit here?
 definition transportD {A : Type} (B : A → Type) (C : Π a : A, B a → Type)
-    {x1 x2 : A} (p : x1 ≈ x2) (y : B x1) (z : C x1 y) :
-  C x2 (p ▹ y) :=
+    {x1 x2 : A} (p : x1 ≈ x2) (y : B x1) (z : C x1 y) : C x2 (p ▹ y) :=
 rec_on p z
+-- In Coq the variables B, C and y are explicit, but in Lean we can probably have them implicit using the following notation
+notation p `▹D`:65 x:64 := transportD _ _ p _ x
 
 -- Transporting along higher-dimensional paths
 definition transport2 {A : Type} (P : A → Type) {x y : A} {p q : x ≈ y} (r : p ≈ q) (z : P x) :
   p ▹ z ≈ q ▹ z :=
 ap (λp', p' ▹ z) r
+
+notation p `▹2`:65 x:64 := transport2 _ p _ x
 
 -- An alternative definition.
 definition transport2_is_ap10 {A : Type} (Q : A → Type) {x y : A} {p q : x ≈ y} (r : p ≈ q)
@@ -443,6 +447,12 @@ rec_on r1 (rec_on r2 idp)
 definition transport2_V {A : Type} (Q : A → Type) {x y : A} {p q : x ≈ y} (r : p ≈ q) (z : Q x) :
   transport2 Q (r⁻¹) z ≈ ((transport2 Q r z)⁻¹) :=
 rec_on r idp
+
+definition transportD2 {A : Type} (B C : A → Type) (D : Π(a:A), B a → C a → Type)
+  {x1 x2 : A} (p : x1 ≈ x2) (y : B x1) (z : C x1) (w : D x1 y z) : D x2 (p ▹ y) (p ▹ z) :=
+rec_on p w
+
+notation p `▹D2`:65 x:64 := transportD2 _ _ _ p _ _ x
 
 definition concat_AT {A : Type} (P : A → Type) {x y : A} {p q : x ≈ y} {z w : P x} (r : p ≈ q)
     (s : z ≈ w) :

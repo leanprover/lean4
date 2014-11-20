@@ -8,18 +8,18 @@ open path Equiv
 --Ensure that the types compared are in the same universe
 section
   universe variable l
-  variables (A B : Type.{l})
+  variables {A B : Type.{l}}
 
   definition isequiv_path (H : A ≈ B) :=
     (@IsEquiv.transport Type (λX, X) A B H)
 
   definition equiv_path (H : A ≈ B) : A ≃ B :=
-    Equiv.mk _ (isequiv_path A B H)
+    Equiv.mk _ (isequiv_path H)
 
 end
 
 inductive ua_type [class] : Type :=
-  mk : (Π (A B : Type), IsEquiv (equiv_path A B)) → ua_type
+  mk : (Π (A B : Type), IsEquiv (@equiv_path A B)) → ua_type
 
 namespace ua_type
 
@@ -28,7 +28,7 @@ namespace ua_type
     parameters [F : ua_type.{k}] {A B: Type.{k}}
 
     -- Make the Equivalence given by the axiom an instance
-    protected definition inst [instance] : IsEquiv (equiv_path.{k} A B) :=
+    protected definition inst [instance] : IsEquiv (@equiv_path.{k} A B) :=
       rec_on F (λ H, H A B)
 
     -- This is the version of univalence axiom we will probably use most often

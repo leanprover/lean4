@@ -2,35 +2,25 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jakob von Raumer
 -- Ported from Coq HoTT
-import hott.equiv hott.funext_varieties
+import hott.equiv hott.funext_varieties hott.axioms.ua
 import data.prod data.sigma data.unit
 
-open path function prod sigma truncation Equiv IsEquiv unit
-
-definition isequiv_path {A B : Type} (H : A ≈ B) :=
-  (@IsEquiv.transport Type (λX, X) A B H)
-
-
-definition equiv_path {A B : Type} (H : A ≈ B) : A ≃ B :=
-  Equiv.mk _ (isequiv_path H)
-
--- First, define an axiom free variant of Univalence
-definition ua_type := Π (A B : Type), IsEquiv (@equiv_path A B)
+open path function prod sigma truncation Equiv IsEquiv unit ua_type
 
 context
   universe variables l
-  parameter {ua : ua_type.{l+1}}
+  parameter [UA : ua_type.{l+1}]
 
   protected theorem ua_isequiv_postcompose {A B : Type.{l+1}} {C : Type}
       {w : A → B} {H0 : IsEquiv w} : IsEquiv (@compose C A B w) :=
     let w' := Equiv.mk w H0 in
-    let eqinv : A ≈ B := (equiv_path⁻¹ w') in
+    let eqinv : A ≈ B := ((@IsEquiv.inv _ _ _ (@ua_type.inst UA A B)) w') in
     let eq' := equiv_path eqinv in
     IsEquiv.adjointify (@compose C A B w)
       (@compose C B A (IsEquiv.inv w))
       (λ (x : C → B),
         have eqretr : eq' ≈ w',
-          from (@retr _ _ (@equiv_path A B) (ua A B) w'),
+          from (@retr _ _ (@equiv_path A B) (@ua_type.inst UA A B) w'),
         have invs_eq : (equiv_fun eq')⁻¹ ≈ (equiv_fun w')⁻¹,
           from inv_eq eq' w' eqretr,
         have eqfin : (equiv_fun eq') ∘ ((equiv_fun eq')⁻¹ ∘ x) ≈ x,
@@ -48,7 +38,7 @@ context
       )
       (λ (x : C → A),
         have eqretr : eq' ≈ w',
-          from (@retr _ _ (@equiv_path A B) (ua A B) w'),
+          from (@retr _ _ (@equiv_path A B) ua_type.inst w'),
         have invs_eq : (equiv_fun eq')⁻¹ ≈ (equiv_fun w')⁻¹,
           from inv_eq eq' w' eqretr,
         have eqfin : (equiv_fun eq')⁻¹ ∘ ((equiv_fun eq') ∘ x) ≈ x,
@@ -124,7 +114,7 @@ context
         from (λ x, @equiv_contr_unit(P x) (allcontr x)),
       have psim : Π (x : A), P x ≈ U x,
         from (λ x, @IsEquiv.inv _ _
-          (@equiv_path (P x) (U x)) (ua2 (P x) (U x)) (pequiv x)),
+          equiv_path ua_type.inst (pequiv x)),
       have p : P ≈ U,
         from @ua_implies_funext_nondep.{l+2 l+1} ua3 A Type.{l+2} P U psim,
       have tU' : is_contr (A → unit),

@@ -28,7 +28,7 @@ definition weak_funext.{l} :=
 definition funext_implies_naive_funext [F : funext] : naive_funext :=
   (λ A P f g h,
     have Fefg: IsEquiv (@apD10 A P f g),
-      from (@funext.apply F A P f g),
+      from (@funext.ap F A P f g),
     have eq1 : _, from (@IsEquiv.inv _ _ (@apD10 A P f g) Fefg h),
     eq1
   )

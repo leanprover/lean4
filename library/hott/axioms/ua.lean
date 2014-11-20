@@ -5,7 +5,6 @@
 import hott.path hott.equiv
 open path Equiv
 
-set_option pp.universes true
 --Ensure that the types compared are in the same universe
 section
   universe variable l
@@ -29,8 +28,8 @@ namespace ua_type
     parameters [F : ua_type.{k}] {A B: Type.{k}}
 
     -- Make the Equivalence given by the axiom an instance
-    protected definition inst [instance] : IsEquiv (equiv_path A B) :=
-      rec_on F (λ H, sorry)
+    protected definition inst [instance] : IsEquiv (equiv_path.{k} A B) :=
+      rec_on F (λ H, H A B)
 
     -- This is the version of univalence axiom we will probably use most often
     definition ua : A ≃ B →  A ≈ B :=

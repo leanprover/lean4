@@ -14,7 +14,7 @@ set_option pp.universes true
 
 -- Define function extensionality as a type class
 inductive funext.{l} [class] : Type.{l+3} :=
-  mk : (Π {A : Type.{l+1}} {P : A → Type.{l+2}} (f g : Π x, P x), IsEquiv (@apD10 A P f g))
+  mk : (Π (A : Type.{l+1}) (P : A → Type.{l+2}) (f g : Π x, P x), IsEquiv (@apD10 A P f g))
          → funext.{l}
 
 namespace funext
@@ -23,11 +23,11 @@ namespace funext
     universe l
     parameters [F : funext.{l}] {A : Type.{l+1}} {P : A → Type.{l+2}} (f g : Π x, P x)
 
-    protected definition apply [instance] : IsEquiv (@apD10 A P f g) :=
-      rec_on F (λ H, sorry)
+    protected definition ap [instance] : IsEquiv (@apD10 A P f g) :=
+      rec_on F (λ (H : Π A P f g, _), !H)
 
     definition path_forall : f ∼ g → f ≈ g :=
-      @IsEquiv.inv _ _ (@apD10 A P f g) apply
+      @IsEquiv.inv _ _ (@apD10 A P f g) ap
 
   end
 

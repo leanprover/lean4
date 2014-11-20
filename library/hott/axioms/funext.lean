@@ -7,18 +7,32 @@
 import hott.path hott.equiv
 open path
 
+set_option pp.universes true
+
 -- Funext
 -- ------
 
-axiom funext {A : Type} {P : A → Type} (f g : Πx, P x) : IsEquiv (@apD10 A P f g)
+-- Define function extensionality as a type class
+inductive funext.{l} [class] : Type.{l+3} :=
+  mk : (Π {A : Type.{l+1}} {P : A → Type.{l+2}} (f g : Π x, P x), IsEquiv (@apD10 A P f g))
+         → funext.{l}
 
-theorem funext_instance [instance] {A : Type} {P : A → Type} (f g : Πx, P x) :
-    IsEquiv (@apD10 A P f g) :=
-  @funext A P f g
+namespace funext
 
-definition path_forall {A : Type} {P : A → Type} (f g : Πx, P x) : f ∼ g → f ≈ g :=
-  IsEquiv.inv !apD10
+  context
+    universe l
+    parameters [F : funext.{l}] {A : Type.{l+1}} {P : A → Type.{l+2}} (f g : Π x, P x)
 
-definition path_forall2 {A B : Type} {P : A → B → Type} (f g : Πx y, P x y) :
-    (Πx y, f x y ≈ g x y) → f ≈ g :=
-  λE, path_forall f g (λx, path_forall (f x) (g x) (E x))
+    protected definition equiv [instance] : IsEquiv (@apD10 A P f g) :=
+      rec_on F (λ H, sorry)
+
+    definition path_forall : f ∼ g → f ≈ g :=
+      @IsEquiv.inv _ _ (@apD10 A P f g) equiv
+
+  end
+
+  definition path_forall2 [F : funext] {A B : Type} {P : A → B → Type}
+      (f g : Πx y, P x y) : (Πx y, f x y ≈ g x y) → f ≈ g :=
+    λ E, path_forall f g (λx, path_forall (f x) (g x) (E x))
+
+end funext

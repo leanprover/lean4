@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/explicit.h"
 #include "library/placeholder.h"
+#include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 
@@ -76,17 +77,33 @@ levels collect_local_nonvar_levels(parser & p, level_param_names const & ls) {
     return to_list(section_ls_buffer.begin(), section_ls_buffer.end());
 }
 
+// Version of collect_locals(expr const & e, expr_struct_set & ls) that ignores local constants occurring in
+// tactics.
+static void collect_locals_ignoring_tactics(expr const & e, expr_struct_set & ls) {
+    if (!has_local(e))
+        return;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_local(e))
+                return false;
+            if (is_by(e))
+                return false; // do not visit children
+            if (is_local(e))
+                ls.insert(e);
+            return true;
+        });
+}
+
 // Collect local constants occurring in type and value, sort them, and store in ctx_ps
 void collect_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & ctx_ps) {
     expr_struct_set ls;
     buffer<expr> include_vars;
     p.get_include_variables(include_vars);
     for (expr const & param : include_vars) {
-        collect_locals(mlocal_type(param), ls);
+        collect_locals_ignoring_tactics(mlocal_type(param), ls);
         ls.insert(param);
     }
-    collect_locals(type, ls);
-    collect_locals(value, ls);
+    collect_locals_ignoring_tactics(type, ls);
+    collect_locals_ignoring_tactics(value, ls);
     sort_locals(ls, p, ctx_ps);
 }
 
@@ -110,7 +127,7 @@ levels remove_local_vars(parser const & p, levels const & ls) {
 
 list<expr> locals_to_context(expr const & e, parser const & p) {
     expr_struct_set ls;
-    collect_locals(e, ls);
+    collect_locals_ignoring_tactics(e, ls);
     buffer<expr> locals;
     sort_locals(ls, p, locals);
     std::reverse(locals.begin(), locals.end());

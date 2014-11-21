@@ -11,6 +11,7 @@ section
   check H1
   check H
   check H2
+  include H
   theorem test : a = b ∧ a = a
   := by apply and.intro; apply H; apply eq.refl
 end

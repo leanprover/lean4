@@ -91,9 +91,9 @@ namespace decidable
   rec_on H (λh, H3 h) (λh, H4 h) --this can be proven using dependent version of "by_cases"
 end decidable
 
-definition decidable_rel  {A : Type} (R : A   →   Prop) := Π (a   : A), decidable (R a)
-definition decidable_rel2 {A : Type} (R : A → A → Prop) := Π (a b : A), decidable (R a b)
-definition decidable_eq (A : Type) := decidable_rel2 (@eq A)
+definition decidable_pred {A : Type} (R : A   →   Prop) := Π (a   : A), decidable (R a)
+definition decidable_rel  {A : Type} (R : A → A → Prop) := Π (a b : A), decidable (R a b)
+definition decidable_eq   (A : Type) := decidable_rel (@eq A)
 
 --empty cannot depend on decidable, so we prove this here
 protected definition empty.has_decidable_eq [instance] : decidable_eq empty :=

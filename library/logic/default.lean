@@ -3,7 +3,7 @@
 --- Author: Jeremy Avigad
 
 import logic.connectives logic.eq logic.heq
-import logic.cast logic.wf
+import logic.cast logic.wf logic.wf_k
 -- We need unit and prod available for generating constructions used by definitional package
 import data.unit.decl data.prod.decl
 import logic.quantifiers logic.if

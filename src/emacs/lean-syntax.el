@@ -96,7 +96,7 @@
 (defconst lean-font-lock-defaults
   `((;; Keywords
      (,(rx word-start (or "calc" "have" "obtains" "show" "by" "in" "let" "forall" "fun"
-                            "exists" "if" "then" "else" "assume" "take" "obtain" "from") word-end)
+                            "exists" "if" "dif" "then" "else" "assume" "take" "obtain" "from") word-end)
       . font-lock-keyword-face)
      ;; String
      ("\"[^\"]*\"" . 'font-lock-string-face)

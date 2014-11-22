@@ -29,7 +29,7 @@ namespace well_founded
   theorem recursion {C : A → Type} (a : A) (H : Πx, (Πy, y ≺ x → C y) → C x) : C a :=
   acc.rec_on (Hwf a) (λ x₁ ac₁ iH, H x₁ iH)
 
-  theorem indunction {C : A → Prop} (a : A) (H : ∀x, (∀y, y ≺ x → C y) → C x) : C a :=
+  theorem induction {C : A → Prop} (a : A) (H : ∀x, (∀y, y ≺ x → C y) → C x) : C a :=
   recursion a H
 
   variable {C : A → Type}

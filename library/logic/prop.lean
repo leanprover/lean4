@@ -37,8 +37,8 @@ theorem not_intro {a : Prop} (H : a → false) : ¬a := H
 --rename to not.elim or neg.elim
 theorem not_elim {a : Prop} (H1 : ¬a) (H2 : a) : false := H1 H2
 
-theorem absurd {a b : Prop} (H1 : a) (H2 : ¬a) : b :=
-false_elim (H2 H1)
+definition absurd {a : Prop} {b : Type} (H1 : a) (H2 : ¬a) : b :=
+false.rec b (H2 H1)
 
 theorem not_not_intro {a : Prop} (Ha : a) : ¬¬a :=
 assume Hna : ¬a, absurd Ha Hna

@@ -16,8 +16,8 @@ open path truncation sigma function
 
 -- Naive funext is the simple assertion that pointwise equal functions are equal.
 -- TODO think about universe levels
-definition naive_funext.{l} :=
-  Π {A : Type.{l+1}} {P : A → Type.{l+2}} (f g : Πx, P x), (f ∼ g) → f ≈ g
+definition naive_funext.{l k} :=
+  Π {A : Type.{l}} {P : A → Type.{k}} (f g : Πx, P x), (f ∼ g) → f ≈ g
 
 -- Weak funext says that a product of contractible types is contractible.
 definition weak_funext.{l} :=
@@ -92,7 +92,7 @@ end
 -- Now the proof is fairly easy; we can just use the same induction principle on both sides.
 universe variable l
 
-theorem weak_funext_implies_funext (wf : weak_funext.{l}) : funext.{l} :=
+theorem weak_funext_implies_funext (wf : weak_funext.{l}) : funext.{l+1 l+2} :=
   funext.mk (λ A B f g,
     let eq_to_f := (λ g' x, f ≈ g') in
     let sim2path := htpy_ind _ f eq_to_f idp in

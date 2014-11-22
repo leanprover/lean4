@@ -7,21 +7,19 @@
 import hott.path hott.equiv
 open path
 
-set_option pp.universes true
-
 -- Funext
 -- ------
 
 -- Define function extensionality as a type class
-inductive funext.{l} [class] : Type.{l+3} :=
-  mk : (Π (A : Type.{l+1}) (P : A → Type.{l+2}) (f g : Π x, P x), IsEquiv (@apD10 A P f g))
-         → funext.{l}
+inductive funext [class] : Type  :=
+  mk : (Π (A : Type) (P : A → Type ) (f g : Π x, P x), IsEquiv (@apD10 A P f g))
+         → funext
 
 namespace funext
 
   context
-    universe l
-    parameters [F : funext.{l}] {A : Type.{l+1}} {P : A → Type.{l+2}} (f g : Π x, P x)
+    universe variables l k
+    parameters [F : funext.{l k}] {A : Type.{l}} {P : A → Type.{k}} (f g : Π x, P x)
 
     protected definition ap [instance] : IsEquiv (@apD10 A P f g) :=
       rec_on F (λ (H : Π A P f g, _), !H)

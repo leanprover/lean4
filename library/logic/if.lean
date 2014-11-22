@@ -12,28 +12,28 @@ decidable.rec_on H (assume Hc,  t) (assume Hnc, e)
 
 notation `if` c `then` t:45 `else` e:45 := ite c t e
 
-theorem if_pos {c : Prop} [H : decidable c] (Hc : c) {A : Type} {t e : A} : (if c then t else e) = t :=
+definition if_pos {c : Prop} [H : decidable c] (Hc : c) {A : Type} {t e : A} : (if c then t else e) = t :=
 decidable.rec
   (assume Hc : c,    eq.refl (@ite c (inl Hc) A t e))
   (assume Hnc : ¬c,  absurd Hc Hnc)
   H
 
-theorem if_neg {c : Prop} [H : decidable c] (Hnc : ¬c) {A : Type} {t e : A} : (if c then t else e) = e :=
+definition if_neg {c : Prop} [H : decidable c] (Hnc : ¬c) {A : Type} {t e : A} : (if c then t else e) = e :=
 decidable.rec
   (assume Hc : c,    absurd Hc Hnc)
   (assume Hnc : ¬c,  eq.refl (@ite c (inr Hnc) A t e))
   H
 
-theorem if_t_t (c : Prop) [H : decidable c] {A : Type} (t : A) : (if c then t else t) = t :=
+definition if_t_t (c : Prop) [H : decidable c] {A : Type} (t : A) : (if c then t else t) = t :=
 decidable.rec
   (assume Hc  : c,  eq.refl (@ite c (inl Hc)  A t t))
   (assume Hnc : ¬c, eq.refl (@ite c (inr Hnc) A t t))
   H
 
-theorem if_true {A : Type} (t e : A) : (if true then t else e) = t :=
+definition if_true {A : Type} (t e : A) : (if true then t else e) = t :=
 if_pos trivial
 
-theorem if_false {A : Type} (t e : A) : (if false then t else e) = e :=
+definition if_false {A : Type} (t e : A) : (if false then t else e) = e :=
 if_neg not_false_trivial
 
 theorem if_cond_congr {c₁ c₂ : Prop} [H₁ : decidable c₁] [H₂ : decidable c₂] (Heq : c₁ ↔ c₂) {A : Type} (t e : A)

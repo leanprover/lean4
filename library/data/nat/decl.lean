@@ -314,4 +314,14 @@ namespace nat
             (lt.trans (@ih b₁ bpos) (lt.base a₁)))),
   λ h₁ h₂, aux h₁ h₂
 
+  definition sub_pred (a : nat) : pred a ≤ a :=
+  cases_on a
+    (le.refl zero)
+    (λ a₁, le.of_lt (lt.base a₁))
+
+  definition sub_le_self (a b : nat) : a - b ≤ a :=
+  induction_on b
+    (le.refl a)
+    (λ b₁ ih, le.trans !sub_pred ih)
+
 end nat

@@ -222,11 +222,6 @@ or.elim !le_total
   (assume H3 : n ≤ m, (le_imp_sub_eq_zero H3)⁻¹ ▸ (H1 H3))
   (assume H3 : m ≤ n, H2 (n - m) (add_sub_le H3))
 
-theorem sub_le_self (n m : ℕ) : n - m ≤ n :=
-sub_split
-  (assume H : n ≤ m, !zero_le)
-  (take k : ℕ, assume H : m + k = n, le_intro (!add.comm ▸ H))
-
 theorem le_elim_sub {n m : ℕ} (H : n ≤ m) : ∃k, m - k = n :=
 obtain (k : ℕ) (Hk : n + k = m), from le_elim H,
 exists_intro k

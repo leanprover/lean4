@@ -52,7 +52,10 @@ calc (x + z) div z
 ... = succ (x div z)                                            : sub_add_left
 
 theorem div_add_mul_self_right {x y z : ℕ} (H : z > 0) : (x + y * z) div z = x div z + y :=
-induction_on y (by simp)
+induction_on y
+  (calc (x + zero * z) div z = (x + zero) div z : mul.zero_left
+                       ...   = x div z          : add.zero_right
+                       ...   = x div z + zero   : add.zero_right)
   (take y,
     assume IH : (x + y * z) div z = x div z + y,
     calc
@@ -222,13 +225,13 @@ by_cases -- (y = 0)
           ... = z * (x div y * y) + z * (x mod y) : !mul.distr_left
           ... = (x div y) * (z * y) + z * (x mod y) : {!mul.left_comm}))
 
-theorem mod_one {x : ℕ} : x mod 1 = 0 :=
+theorem mod_one (x : ℕ) : x mod 1 = 0 :=
 have H1 : x mod 1 < 1, from mod_lt !succ_pos,
 le_zero (lt_succ_imp_le H1)
 
 -- add_rewrite mod_one
 
-theorem mod_self {n : ℕ} : n mod n = 0 :=
+theorem mod_self (n : ℕ) : n mod n = 0 :=
 case n (by simp)
   (take n,
     have H : (succ n * 1) mod (succ n * 1) = succ n * (1 mod 1),
@@ -237,7 +240,7 @@ case n (by simp)
 
 -- add_rewrite mod_self
 
-theorem div_one {n : ℕ} : n div 1 = n :=
+theorem div_one (n : ℕ) : n div 1 = n :=
 have H : n div 1 * 1 + n mod 1 = n, from div_mod_eq⁻¹,
 (by simp) ▸ H
 
@@ -297,7 +300,7 @@ show x mod y = 0, from
             ... = 0 * y : {H6}
             ... = 0 : !mul.zero_left)
 
-theorem dvd_iff_exists_mul {x y : ℕ} : x | y ↔ ∃z, z * x = y :=
+theorem dvd_iff_exists_mul (x y : ℕ) : x | y ↔ ∃z, z * x = y :=
 iff.intro
   (assume H : x | y,
     show ∃z, z * x = y, from exists_intro _ (dvd_imp_div_mul_eq H))
@@ -305,33 +308,33 @@ iff.intro
     obtain (z : ℕ) (zx_eq : z * x = y), from H,
     show x | y, from mul_eq_imp_dvd zx_eq)
 
-theorem dvd_zero {n : ℕ} : n | 0 := sorry
--- (by simp) (dvd_iff_mod_eq_zero n 0)
+theorem dvd_zero {n : ℕ} : n | 0 :=
+zero_mod n
 
 -- add_rewrite dvd_zero
 
-theorem zero_dvd_iff {n : ℕ} : (0 | n) = (n = 0) := sorry
--- (by simp) (dvd_iff_mod_eq_zero 0 n)
+theorem zero_dvd_iff {n : ℕ} : (0 | n) = (n = 0) :=
+mod_zero n ▸ eq.refl (0 | n)
 
 -- add_rewrite zero_dvd_iff
 
-theorem one_dvd {n : ℕ} : 1 | n := sorry
--- (by simp) (dvd_iff_mod_eq_zero 1 n)
+theorem one_dvd (n : ℕ) : 1 | n :=
+mod_one n
 
 -- add_rewrite one_dvd
 
-theorem dvd_self {n : ℕ} : n | n := sorry
--- (by simp) (dvd_iff_mod_eq_zero n n)
+theorem dvd_self (n : ℕ) : n | n :=
+mod_self n
 
 -- add_rewrite dvd_self
 
-theorem dvd_mul_self_left {m n : ℕ} : m | (m * n) := sorry
--- (by simp) (dvd_iff_mod_eq_zero m (m * n))
+theorem dvd_mul_self_left (m n : ℕ) : m | (m * n) :=
+!mod_mul_self_left
 
 -- add_rewrite dvd_mul_self_left
 
-theorem dvd_mul_self_right {m n : ℕ} : m | (n * m) := sorry
--- (by simp) (dvd_iff_mod_eq_zero m (n * m))
+theorem dvd_mul_self_right (m n : ℕ) : m | (n * m) :=
+!mod_mul_self_right
 
 -- add_rewrite dvd_mul_self_left
 
@@ -342,11 +345,11 @@ have H4 : k = k div n * (n div m) * m, from
     k = k div n * n : by simp
       ... = k div n * (n div m * m) : {H3}
       ... = k div n * (n div m) * m : !mul.assoc⁻¹,
-mp (dvd_iff_exists_mul⁻¹) (exists_intro (k div n * (n div m)) (H4⁻¹))
+mp (!dvd_iff_exists_mul⁻¹) (exists_intro (k div n * (n div m)) (H4⁻¹))
 
 theorem dvd_add {m n1 n2 : ℕ} (H1 : m | n1) (H2 : m | n2) : m | (n1 + n2) :=
 have H : (n1 div m + n2 div m) * m = n1 + n2, by simp,
-mp (dvd_iff_exists_mul⁻¹) (exists_intro _ H)
+mp (!dvd_iff_exists_mul⁻¹) (exists_intro _ H)
 
 theorem dvd_add_cancel_left {m n1 n2 : ℕ} : m | (n1 + n2) → m | n1 → m | n2 :=
 case_zero_pos m
@@ -370,7 +373,7 @@ case_zero_pos m
          ... = n1 div m * m + n2 div m * m   : !add.comm
          ... = n1 + n2 div m * m : by simp,
     have H4 : n2 = n2 div m * m, from add.cancel_left H3,
-    mp (dvd_iff_exists_mul⁻¹) (exists_intro _ (H4⁻¹)))
+    mp (!dvd_iff_exists_mul⁻¹) (exists_intro _ (H4⁻¹)))
 
 theorem dvd_add_cancel_right {m n1 n2 : ℕ} (H : m | (n1 + n2)) : m | n2 → m | n1 :=
 dvd_add_cancel_left (!add.comm ▸ H)

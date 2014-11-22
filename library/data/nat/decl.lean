@@ -232,15 +232,21 @@ namespace nat
   definition max_a_a (a : nat) : a = max a a :=
   eq.rec_on !if_t_t rfl
 
-  definition max.eq_right {a b : nat} (H : a < b) : b = max a b :=
-  eq.rec_on (if_pos H) rfl
+  definition max.eq_right {a b : nat} (H : a < b) : max a b = b :=
+  if_pos H
 
-  definition max.eq_left {a b : nat} (H : ¬ a < b) : a = max a b :=
-  eq.rec_on (if_neg H) rfl
+  definition max.eq_left {a b : nat} (H : ¬ a < b) : max a b = a :=
+  if_neg H
+
+  definition max.eq_right_symm {a b : nat} (H : a < b) : b = max a b :=
+  eq.rec_on (max.eq_right H) rfl
+
+  definition max.eq_left_symm {a b : nat} (H : ¬ a < b) : a = max a b :=
+  eq.rec_on (max.eq_left H) rfl
 
   definition max.left (a b : nat) : a ≤ max a b :=
   by_cases
-    (λ h : a < b,   le.of_lt (eq.rec_on (max.eq_right h) h))
+    (λ h : a < b,   le.of_lt (eq.rec_on (max.eq_right_symm h) h))
     (λ h : ¬ a < b, eq.rec_on (max.eq_left h) !le.refl)
 
   definition max.right (a b : nat) : b ≤ max a b :=
@@ -249,7 +255,7 @@ namespace nat
     (λ h : ¬ a < b, or.rec_on (not_lt h)
       (λ heq, eq.rec_on heq (eq.rec_on (max_a_a a) !le.refl))
       (λ h : b < a,
-        have aux : a = max a b, from max.eq_left (lt.asymm h),
+        have aux : a = max a b, from max.eq_left_symm (lt.asymm h),
         eq.rec_on aux (le.of_lt h)))
 
   definition gt a b := lt b a
@@ -274,4 +280,38 @@ namespace nat
   rec_on b zero (λ b₁ r, r + a)
 
   notation a * b := mul a b
+
+  definition sub.succ_succ (a b : nat) : succ a - succ b = a - b :=
+  induction_on b
+    rfl
+    (λ b₁ (ih : succ a - succ b₁ = a - b₁),
+      eq.rec_on ih (eq.refl (pred (succ a - succ b₁))))
+
+  definition sub.succ_succ_symm (a b : nat) : a - b = succ a - succ b :=
+  eq.rec_on (sub.succ_succ a b) rfl
+
+  definition sub.zero_left (a : nat) : zero - a = zero :=
+  induction_on a
+    rfl
+    (λ a₁ (ih : zero - a₁ = zero),
+      eq.rec_on ih (eq.refl (pred (zero - a₁))))
+
+  definition sub.zero_left_symm (a : nat) : zero = zero - a :=
+  eq.rec_on (sub.zero_left a) rfl
+
+  definition sub.lt {a b : nat} : zero < a → zero < b → a - b < a :=
+  have aux : Π {a}, zero < a → Π {b}, zero < b → a - b < a, from
+    λa h₁, lt.rec_on h₁
+      (λb h₂, lt.cases_on h₂
+        (lt.base zero)
+        (λ b₁ bpos,
+          eq.rec_on (sub.succ_succ_symm zero b₁)
+           (eq.rec_on (sub.zero_left_symm b₁) (lt.base zero))))
+      (λa₁ apos ih b h₂, lt.cases_on h₂
+        (lt.base a₁)
+        (λ b₁ bpos,
+          eq.rec_on (sub.succ_succ_symm a₁ b₁)
+            (lt.trans (@ih b₁ bpos) (lt.base a₁)))),
+  λ h₁ h₂, aux h₁ h₂
+
 end nat

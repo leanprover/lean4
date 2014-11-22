@@ -36,18 +36,7 @@ induction_on n !sub_zero_right
              ... = 0            : pred.zero)
 
 theorem sub_succ_succ (n m : ℕ) : succ n - succ m = n - m :=
-induction_on m
-  (calc
-    succ n - 1 = pred (succ n - 0) : !sub_succ_right
-           ... = pred (succ n)     : {!sub_zero_right}
-           ... = n                 : !pred.succ
-           ... = n - 0             : !sub_zero_right⁻¹)
-  (take k : nat,
-    assume IH : succ n - succ k = n - k,
-    calc
-      succ n - succ (succ k) = pred (succ n - succ k) : !sub_succ_right
-                         ... = pred (n - k)           : {IH}
-                         ... = n - succ k             : !sub_succ_right⁻¹)
+sub.succ_succ n m
 
 theorem sub_self (n : ℕ) : n - n = 0 :=
 induction_on n !sub_zero_right (take k IH, !sub_succ_succ ⬝ IH)
@@ -290,15 +279,7 @@ have H2 : k - n + n = m + n, from
 add.cancel_right H2
 
 theorem sub_lt {x y : ℕ} (xpos : x > 0) (ypos : y > 0) : x - y < x :=
-obtain (x' : ℕ) (xeq : x = succ x'), from pos_imp_eq_succ xpos,
-obtain (y' : ℕ) (yeq : y = succ y'), from pos_imp_eq_succ ypos,
-have xsuby_eq : x - y = x' - y', from calc
-  x - y = succ x' - y       : {xeq}
-    ... = succ x' - succ y' : {yeq}
-    ... = x' - y'           : !sub_succ_succ,
-have H1 : x' - y' ≤ x', from !sub_le_self,
-have H2 : x' < succ x', from !self_lt_succ,
-show x - y < x, from xeq⁻¹ ▸ xsuby_eq⁻¹ ▸ le_lt.trans H1 H2
+sub.lt xpos ypos
 
 theorem sub_le_right {n m : ℕ} (H : n ≤ m) (k : nat) : n - k ≤ m - k :=
 obtain (l : ℕ) (Hl : n + l = m), from le_elim H,

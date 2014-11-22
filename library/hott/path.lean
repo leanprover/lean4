@@ -24,11 +24,11 @@ notation x ≈ y `:>`:50 A:49 := @path A x y
 definition idp {A : Type} {a : A} := idpath a
 
 -- unbased path induction
-definition rec' {A : Type} {P : Π (a b : A), (a ≈ b) -> Type}
+definition rec' [reducible] {A : Type} {P : Π (a b : A), (a ≈ b) -> Type}
     (H : Π (a : A), P a a idp) {a b : A} (p : a ≈ b) : P a b p :=
 path.rec (H a) p
 
-definition rec_on' {A : Type} {P : Π (a b : A), (a ≈ b) -> Type} {a b : A} (p : a ≈ b)
+definition rec_on' [reducible] {A : Type} {P : Π (a b : A), (a ≈ b) -> Type} {a b : A} (p : a ≈ b)
     (H : Π (a : A), P a a idp) : P a b p :=
 path.rec (H a) p
 
@@ -182,7 +182,7 @@ rec_on p (take q h, h ⬝ (concat_1p _)) q
 -- Transport
 -- ---------
 
-definition transport {A : Type} (P : A → Type) {x y : A} (p : x ≈ y) (u : P x) : P y :=
+definition transport [reducible] {A : Type} (P : A → Type) {x y : A} (p : x ≈ y) (u : P x) : P y :=
 path.rec_on p u
 
 -- This idiom makes the operation right associative.

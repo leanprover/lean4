@@ -11,7 +11,7 @@ notation `dif` c `then` t:45 `else` e:45 := dite c t e
 -- Auxiliary lemma used to justify recursive call
 private lemma lt_aux {x y : nat} (H : 0 < y ∧ y ≤ x) : x - y < x :=
 have y0 : 0 < y, from and.elim_left H,
-have x0 : 0 < x, from lt_le_trans y0 (and.elim_right H),
+have x0 : 0 < x, from lt_le.trans y0 (and.elim_right H),
 sub_lt x0 y0
 
 definition wdiv.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=

@@ -1,44 +1,18 @@
 --- Copyright (c) 2014 Floris van Doorn. All rights reserved.
 --- Released under Apache 2.0 license as described in the file LICENSE.
---- Author: Floris van Doorn
+--- Author: Floris van Doorn, Leonardo de Moura
 
--- data.nat.basic
--- ==============
---
 -- Basic operations on the natural numbers.
 
-import logic data.num tools.tactic algebra.binary tools.helper_tactics
-import logic.inhabited
+import .decl data.num algebra.binary
 
-open tactic binary eq.ops
-open decidable
-open relation -- for subst_iff
-open helper_tactics
-
--- Definition of the type
--- ----------------------
-inductive nat : Type :=
-  zero : nat,
-  succ : nat → nat
+open eq.ops binary
 
 namespace nat
 
-notation `ℕ` := nat
-
-theorem rec_zero {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) : nat.rec x f zero = x
-
-theorem rec_succ {P : ℕ → Type} (x : P zero) (f : ∀m, P m → P (succ m)) (n : ℕ) :
-  nat.rec x f (succ n) = f n (nat.rec x f n)
-
-protected definition is_inhabited [instance] : inhabited nat :=
-inhabited.mk zero
-
--- Coercion from num
--- -----------------
-
-definition add (x y : ℕ) : ℕ :=
-nat.rec x (λ n r, succ r) y
-notation a + b := add a b
+definition of_num [coercion] [reducible] (n : num) : ℕ :=
+num.rec zero
+  (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n
 
 definition addl (x y : ℕ) : ℕ :=
 nat.rec y (λ n r, succ r) x
@@ -70,10 +44,6 @@ nat.induction_on x
                    ...  = succ (succ x₁ ⊕ y₁) : {ih₂}
                    ...  = succ x₁ ⊕ succ y₁   : addl.succ_right))
 
-definition of_num [coercion] [reducible] (n : num) : ℕ :=
-num.rec zero
-    (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n
-
 -- Successor and predecessor
 -- -------------------------
 
@@ -82,11 +52,11 @@ assume H, no_confusion H
 
 -- add_rewrite succ_ne_zero
 
-definition pred (n : ℕ) := nat.rec 0 (fun m x, m) n
+theorem pred.zero : pred 0 = 0 :=
+rfl
 
-theorem pred.zero : pred 0 = 0
-
-theorem pred.succ (n : ℕ) : pred (succ n) = n
+theorem pred.succ (n : ℕ) : pred (succ n) = n :=
+rfl
 
 irreducible pred
 
@@ -103,11 +73,6 @@ or.imp_or (zero_or_succ_pred n) (assume H, H)
 theorem case {P : ℕ → Prop} (n : ℕ) (H1: P 0) (H2 : ∀m, P (succ m)) : P n :=
 induction_on n H1 (take m IH, H2 m)
 
-theorem discriminate {B : Prop} {n : ℕ} (H1: n = 0 → B) (H2 : ∀m, n = succ m → B) : B :=
-or.elim (zero_or_succ_pred n)
-  (take H3 : n = 0, H1 H3)
-  (take H3 : n = succ (pred n), H2 (pred n) H3)
-
 theorem succ.inj {n m : ℕ} (H : succ n = succ m) : n = m :=
 no_confusion H (λe, e)
 
@@ -118,25 +83,11 @@ induction_on n
     absurd H ne)
   (take k IH H, IH (succ.inj H))
 
-protected definition has_decidable_eq [instance] : decidable_eq ℕ :=
-take n m : ℕ,
-have general : ∀n, decidable (n = m), from
-  rec_on m
-    (take n,
-      rec_on n
-        (inl rfl)
-        (λ m iH, inr !succ_ne_zero))
-    (λ (m' : ℕ) (iH1 : ∀n, decidable (n = m')),
-      take n, rec_on n
-        (inr (ne.symm !succ_ne_zero))
-        (λ (n' : ℕ) (iH2 : decidable (n' = succ m')),
-          decidable.by_cases
-            (assume Heq : n' = m', inl (congr_arg succ Heq))
-            (assume Hne : n' ≠ m',
-              have H1 : succ n' ≠ succ m', from
-                assume Heq, absurd (succ.inj Heq) Hne,
-              inr H1))),
-general n
+
+theorem discriminate {B : Prop} {n : ℕ} (H1: n = 0 → B) (H2 : ∀m, n = succ m → B) : B :=
+or.elim (zero_or_succ_pred n)
+  (take H3 : n = 0, H1 H3)
+  (take H3 : n = succ (pred n), H2 (pred n) H3)
 
 theorem two_step_induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P 0) (H2 : P 1)
     (H3 : ∀ (n : ℕ) (IH1 : P n) (IH2 : P (succ n)), P (succ (succ n))) : P a :=
@@ -163,9 +114,11 @@ general m
 
 -- Addition
 -- --------
-theorem add.zero_right (n : ℕ) : n + 0 = n
+theorem add.zero_right (n : ℕ) : n + 0 = n :=
+rfl
 
-theorem add.succ_right (n m : ℕ) : n + succ m = succ (n + m)
+theorem add.succ_right (n m : ℕ) : n + succ m = succ (n + m) :=
+rfl
 
 irreducible add
 
@@ -267,12 +220,11 @@ nat.rec H1 (take n IH, !add.one ▸ (H2 n IH)) a
 -- Multiplication
 -- --------------
 
-definition mul (n m : ℕ) := nat.rec 0 (fun m x, x + n) m
-notation a * b := mul a b
+theorem mul.zero_right (n : ℕ) : n * 0 = 0 :=
+rfl
 
-theorem mul.zero_right (n : ℕ) : n * 0 = 0
-
-theorem mul.succ_right (n m : ℕ) : n * succ m = n * m + n
+theorem mul.succ_right (n m : ℕ) : n * succ m = n * m + n :=
+rfl
 
 irreducible mul
 

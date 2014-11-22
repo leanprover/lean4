@@ -74,8 +74,8 @@ namespace fin
        to_nat (of_nat_core (succ p₁)) = succ (to_nat (of_nat_core p₁)) : rfl
                                 ...   = succ p₁                        : ih)
 
-  private lemma of_nat_eq {p : nat} {n : nat} (H : p < n) : n - succ p + succ p = n :=
-  add_sub_ge_left (eq.subst (lt_def p n) H)
+  private lemma of_nat_eq {p n : nat} (H : p < n) : n - succ p + succ p = n :=
+  add_sub_ge_left (lt_imp_le_succ H)
 
   definition of_nat (p : nat) (n : nat) : p < n → fin n :=
   λ H : p < n,

@@ -11,7 +11,7 @@
 import logic .sub algebra.relation data.prod
 import tools.fake_simplifier
 
-open nat relation relation.iff_ops prod
+open relation relation.iff_ops prod
 open fake_simplifier decidable
 open eq.ops
 
@@ -87,7 +87,7 @@ case_strong_induction_on m
               assume Hzx : measure z < measure x,
               calc
                 f' m z = restrict default measure f m z : IH m !le_refl z
-                  ... = f z : restrict_lt_eq _ _ _ _ _ (lt_le_trans Hzx (lt_succ_imp_le H1)),
+                  ... = f z : restrict_lt_eq _ _ _ _ _ (lt_le.trans Hzx (lt_succ_imp_le H1)),
           have H2 : f' (succ m) x = rec_val x f, from
             calc
               f' (succ m) x = if measure x < succ m then rec_val x (f' m) else default : rfl
@@ -168,7 +168,7 @@ show lhs = rhs, from
      have H2b : ¬ x < y, from assume H, H1 (or.inr H),
       have ypos : y > 0, from ne_zero_imp_pos H2a,
       have xgey : x ≥ y, from not_lt_imp_ge H2b,
-      have H4 : x - y < x, from sub_lt (lt_le_trans ypos xgey) ypos,
+      have H4 : x - y < x, from sub_lt (lt_le.trans ypos xgey) ypos,
       calc
         lhs = succ (g1 (x - y)) : if_neg H1
           ... = succ (g2 (x - y)) : {H _ H4}
@@ -244,7 +244,7 @@ show lhs = rhs, from
       have H2b : ¬ x < y, from assume H, H1 (or.inr H),
       have ypos : y > 0, from ne_zero_imp_pos H2a,
       have xgey : x ≥ y, from not_lt_imp_ge H2b,
-      have H4 : x - y < x, from sub_lt (lt_le_trans ypos xgey) ypos,
+      have H4 : x - y < x, from sub_lt (lt_le.trans ypos xgey) ypos,
       calc
         lhs = g1 (x - y) : if_neg H1
           ... = g2 (x - y) : H _ H4
@@ -382,7 +382,7 @@ theorem quotient_unique {y : ℕ} (H : y > 0) {q1 r1 q2 r2 : ℕ} (H1 : r1 < y) 
   (H3 : q1 * y + r1 = q2 * y + r2) : q1 = q2 :=
 have H4 : q1 * y + r2 = q2 * y + r2, from (remainder_unique H H1 H2 H3) ▸ H3,
 have H5 : q1 * y = q2 * y, from add.cancel_right H4,
-have H6 : y > 0, from le_lt_trans !zero_le H1,
+have H6 : y > 0, from le_lt.trans !zero_le H1,
 show q1 = q2, from mul_cancel_right H6 H5
 
 theorem div_mul_mul {z x y : ℕ} (zpos : z > 0) : (z * x) div (z * y) = x div y :=

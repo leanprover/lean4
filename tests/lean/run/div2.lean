@@ -78,7 +78,7 @@ case_strong_induction_on m
               assume Hzx : measure z < measure x,
               calc
                 f' m z = restrict default measure f m z : IH m !le_refl z
-                  ... = f z : !restrict_lt_eq (lt_le_trans Hzx (lt_succ_imp_le H1))
+                  ... = f z : !restrict_lt_eq (lt_le.trans Hzx (lt_succ_imp_le H1))
           ∎,
           have H2 : f' (succ m) x = rec_val x f,
           proof

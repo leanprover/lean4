@@ -235,7 +235,7 @@ theorem lt_of_nat (n m : ℕ) : (of_nat n < of_nat m) ↔ (n < m) :=
 calc
   (of_nat n + 1 ≤ of_nat m) ↔ (of_nat (succ n) ≤ of_nat m) : by simp
     ... ↔ (succ n ≤ m) : le_of_nat (succ n) m
-    ... ↔ (n < m) : iff.symm (eq_to_iff (nat.lt_def n m))
+    ... ↔ (n < m) : iff.symm (nat.lt_def n m)
 
 theorem gt_of_nat (n m : ℕ) : (of_nat n > of_nat m) ↔ (n > m) :=
 lt_of_nat m n

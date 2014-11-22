@@ -19,13 +19,13 @@ definition height_lt.wf (A : Type) : well_founded (@height_lt A) :=
 inv_image.wf height lt.wf
 
 theorem height_lt.node_left {A : Type} (t₁ t₂ : tree A) : height_lt t₁ (node t₁ t₂) :=
-le_imp_lt_succ (left_le_max (height t₁) (height t₂))
+le_imp_lt_succ (max.left (height t₁) (height t₂))
 
 theorem height_lt.node_right {A : Type} (t₁ t₂ : tree A) : height_lt t₂ (node t₁ t₂) :=
-le_imp_lt_succ (right_le_max (height t₁) (height t₂))
+le_imp_lt_succ (max.right (height t₁) (height t₂))
 
 theorem height_lt.trans {A : Type} : transitive (@height_lt A) :=
-inv_image.trans lt height @lt_trans
+inv_image.trans lt height @lt.trans
 
 example : height_lt (leaf 2) (node (leaf 1) (leaf 2)) :=
 !height_lt.node_right

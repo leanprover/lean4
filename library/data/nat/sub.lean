@@ -7,11 +7,10 @@
 --
 -- Subtraction on the natural numbers, as well as min, max, and distance.
 
-import data.nat.order
+import .order
 import tools.fake_simplifier
 
-open nat eq.ops tactic
-open helper_tactics
+open eq.ops
 open fake_simplifier
 
 namespace nat
@@ -19,12 +18,11 @@ namespace nat
 -- subtraction
 -- -----------
 
-definition sub (n m : ℕ) : nat := rec n (fun m x, pred x) m
-notation a - b := sub a b
+theorem sub_zero_right (n : ℕ) : n - 0 = n :=
+rfl
 
-theorem sub_zero_right (n : ℕ) : n - 0 = n
-
-theorem sub_succ_right (n m : ℕ) : n - succ m = pred (n - m)
+theorem sub_succ_right (n m : ℕ) : n - succ m = pred (n - m) :=
+rfl
 
 irreducible sub
 
@@ -300,7 +298,7 @@ have xsuby_eq : x - y = x' - y', from calc
     ... = x' - y'           : !sub_succ_succ,
 have H1 : x' - y' ≤ x', from !sub_le_self,
 have H2 : x' < succ x', from !self_lt_succ,
-show x - y < x, from xeq⁻¹ ▸ xsuby_eq⁻¹ ▸ le_lt_trans H1 H2
+show x - y < x, from xeq⁻¹ ▸ xsuby_eq⁻¹ ▸ le_lt.trans H1 H2
 
 theorem sub_le_right {n m : ℕ} (H : n ≤ m) (k : nat) : n - k ≤ m - k :=
 obtain (l : ℕ) (Hl : n + l = m), from le_elim H,
@@ -309,7 +307,7 @@ or.elim !le_total
   (assume H2 : k ≤ n,
     have H3 : n - k + l = m - k, from
       calc
-        n - k + l = l + (n - k) : by simp
+        n - k + l = l + (n - k) : add.comm
               ... = l + n - k   : (add_sub_assoc H2 l)⁻¹
               ... = n + l - k   : {!add.comm}
               ... = m - k       : {Hl},
@@ -324,10 +322,12 @@ sub_split
     have H3 : n ≤ k, from le_trans H (le_intro Hm),
     have H4 : m' + l + n = k - n + n, from
       calc
-        m' + l + n = n + l + m' : by simp
-               ... = m + m'     : {Hl}
-               ... = k          : Hm
-               ... = k - n + n  : (add_sub_ge_left H3)⁻¹,
+        m' + l + n = n + (m' + l) : add.comm
+               ... = n + (l + m') : add.comm
+               ... = n + l + m'   : add.assoc
+               ... = m + m'       : {Hl}
+               ... = k            : Hm
+               ... = k - n + n    : (add_sub_ge_left H3)⁻¹,
     le_intro (add.cancel_right H4))
 
 -- theorem sub_lt_cancel_right {n m k : ℕ) (H : n - k < m - k) : n < m
@@ -352,9 +352,10 @@ sub_split
         assume Hkm : k + km = m,
         have H : k + (mn + km) = n, from
           calc
-            k + (mn + km) = k + km + mn : by simp
-                      ... = m + mn      : {Hkm}
-                      ... = n           : Hmn,
+            k + (mn + km) = k + (km + mn): add.comm
+                      ... = k + km + mn  : add.assoc
+                      ... = m + mn       : Hkm
+                      ... = n            : Hmn,
         have H2 : n - k = mn + km, from sub_intro H,
         H2 ▸ !le_refl))
 
@@ -362,23 +363,8 @@ sub_split
 -- add_rewrite sub_self mul_sub_distr_left mul_sub_distr_right
 
 
--- Max, min, iteration, and absolute difference
+-- absolute difference
 -- --------------------------------------------
-
-definition max (n m : ℕ) : ℕ := n + (m - n)
-definition min (n m : ℕ) : ℕ := m - (m - n)
-
-theorem max_le {n m : ℕ} (H : n ≤ m) : max n m = m :=
-add_sub_le H
-
-theorem max_ge {n m : ℕ} (H : n ≥ m) : max n m = n :=
-add_sub_ge H
-
-theorem left_le_max (n m : ℕ) : n ≤ max n m :=
-!le_add_sub_left
-
-theorem right_le_max (n m : ℕ) : m ≤ max n m :=
-!le_add_sub_right
 
 -- ### absolute difference
 
@@ -391,8 +377,9 @@ theorem dist_comm (n m : ℕ) : dist n m = dist m n :=
 
 theorem dist_self (n : ℕ) : dist n n = 0 :=
 calc
-  (n - n) + (n - n) = 0 + 0 : by simp
-                ... = 0     : by simp
+  (n - n) + (n - n) = 0 + (n - n) : sub_self
+                ... = 0 + 0       : sub_self
+                ... = 0           : rfl
 
 theorem dist_eq_zero {n m : ℕ} (H : dist n m = 0) : n = m :=
 have H2 : n - m = 0, from add.eq_zero_left H,
@@ -445,9 +432,10 @@ calc
 theorem dist_sub_move_add {n m : ℕ} (H : n ≥ m) (k : ℕ) : dist (n - m) k = dist n (k + m) :=
 have H2 : n - m + (k + m) = k + n, from
   calc
-    n - m + (k + m) = n - m + m + k : by simp
-                ... = n + k         : {add_sub_ge_left H}
-                ... = k + n         : by simp,
+    n - m + (k + m) = n - m + (m + k) : add.comm
+                ... = n - m + m + k   : add.assoc
+                ... = n + k           : {add_sub_ge_left H}
+                ... = k + n           : add.comm,
 dist_eq_intro H2
 
 theorem dist_sub_move_add' {k m : ℕ} (H : k ≥ m) (n : ℕ) : dist n (k - m) = dist (n + m) k :=

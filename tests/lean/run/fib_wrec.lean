@@ -7,8 +7,8 @@ nat.cases_on n
   (λ (n₁ : nat), nat.cases_on n₁
     (λ (f : Π (m : nat), m < (succ zero) → nat), succ zero)
     (λ (n₂ : nat) (f : Π (m : nat), m < (succ (succ n₂)) → nat),
-       have l₁ : succ n₂ < succ (succ n₂), from self_lt_succ (succ n₂),
-       have l₂ : n₂ < succ (succ n₂), from lt_trans (self_lt_succ n₂) l₁,
+       have l₁ : succ n₂ < succ (succ n₂), from lt.base (succ n₂),
+       have l₂ : n₂ < succ (succ n₂), from lt.trans (lt.base n₂) l₁,
          f (succ n₂) l₁ + f n₂ l₂))
 
 definition fib (n : nat) :=
@@ -23,6 +23,8 @@ well_founded.fix_eq fib.F 1
 theorem fib.succ_succ_eq (n : nat) : fib (succ (succ n)) = fib (succ n) + fib n :=
 well_founded.fix_eq fib.F (succ (succ n))
 
-eval fib 5 -- ignores opaque annotations
-eval fib 6
-eval [strict] fib 5 -- take opaque/irreducible annotations into account
+example : fib 5 = 8 :=
+rfl
+
+example : fib 6 = 13 :=
+rfl

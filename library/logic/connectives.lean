@@ -7,7 +7,7 @@ import general_notation .eq
 -- and
 -- ---
 inductive and (a b : Prop) : Prop :=
-  intro : a → b → and a b
+intro : a → b → and a b
 
 notation a /\ b := and a b
 notation a ∧ b  := and a b
@@ -18,19 +18,19 @@ namespace and
   theorem elim (H₁ : a ∧ b) (H₂ : a → b → c) : c :=
   rec H₂ H₁
 
-  theorem elim_left (H : a ∧ b) : a  :=
+  definition elim_left (H : a ∧ b) : a  :=
   rec (λa b, a) H
 
-  theorem elim_right (H : a ∧ b) : b :=
+  definition elim_right (H : a ∧ b) : b :=
   rec (λa b, b) H
 
   theorem swap (H : a ∧ b) : b ∧ a :=
   intro (elim_right H) (elim_left H)
 
-  theorem not_left (b : Prop) (Hna : ¬a) : ¬(a ∧ b) :=
+  definition not_left (b : Prop) (Hna : ¬a) : ¬(a ∧ b) :=
   assume H : a ∧ b, absurd (elim_left H) Hna
 
-  theorem not_right (a : Prop) {b : Prop} (Hnb : ¬b) : ¬(a ∧ b) :=
+  definition not_right (a : Prop) {b : Prop} (Hnb : ¬b) : ¬(a ∧ b) :=
   assume H : a ∧ b, absurd (elim_right H) Hnb
 
   theorem imp_and (H₁ : a ∧ b) (H₂ : a → c) (H₃ : b → d) : c ∧ d :=
@@ -53,10 +53,10 @@ notation a `\/` b := or a b
 notation a ∨ b := or a b
 
 namespace or
-  theorem inl (Ha : a) : a ∨ b :=
+  definition inl (Ha : a) : a ∨ b :=
   intro_left b Ha
 
-  theorem inr (Hb : b) : a ∨ b :=
+  definition inr (Hb : b) : a ∨ b :=
   intro_right a Hb
 
   theorem elim (H₁ : a ∨ b) (H₂ : a → c) (H₃ : b → c) : c :=
@@ -74,8 +74,8 @@ namespace or
   theorem swap (H : a ∨ b) : b ∨ a :=
   elim H (assume Ha, inr Ha) (assume Hb, inl Hb)
 
-  theorem not_intro (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b) :=
-  assume H : a ∨ b, elim H
+  definition not_intro (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b) :=
+  assume H : a ∨ b, or.rec_on H
     (assume Ha, absurd Ha Hna)
     (assume Hb, absurd Hb Hnb)
 
@@ -109,32 +109,32 @@ notation a <-> b := iff a b
 notation a ↔ b := iff a b
 
 namespace iff
-  theorem def : (a ↔ b) = ((a → b) ∧ (b → a)) :=
+  definition def : (a ↔ b) = ((a → b) ∧ (b → a)) :=
   rfl
 
-  theorem intro (H₁ : a → b) (H₂ : b → a) : a ↔ b :=
+  definition intro (H₁ : a → b) (H₂ : b → a) : a ↔ b :=
   and.intro H₁ H₂
 
-  theorem elim (H₁ : (a → b) → (b → a) → c) (H₂ : a ↔ b) : c :=
+  definition elim (H₁ : (a → b) → (b → a) → c) (H₂ : a ↔ b) : c :=
   and.rec H₁ H₂
 
-  theorem elim_left (H : a ↔ b) : a → b :=
+  definition elim_left (H : a ↔ b) : a → b :=
   elim (assume H₁ H₂, H₁) H
 
   definition mp := @elim_left
 
-  theorem elim_right (H : a ↔ b) : b → a :=
+  definition elim_right (H : a ↔ b) : b → a :=
   elim (assume H₁ H₂, H₂) H
 
-  theorem flip_sign (H₁ : a ↔ b) : ¬a ↔ ¬b :=
+  definition flip_sign (H₁ : a ↔ b) : ¬a ↔ ¬b :=
   intro
     (assume Hna, mt (elim_right H₁) Hna)
     (assume Hnb, mt (elim_left H₁) Hnb)
 
-  theorem refl (a : Prop) : a ↔ a :=
+  definition refl (a : Prop) : a ↔ a :=
   intro (assume H, H) (assume H, H)
 
-  theorem rfl {a : Prop} : a ↔ a :=
+  definition rfl {a : Prop} : a ↔ a :=
   refl a
 
   theorem trans (H₁ : a ↔ b) (H₂ : b ↔ c) : a ↔ c :=

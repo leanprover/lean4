@@ -5,8 +5,6 @@
 import hott.equiv hott.axioms.funext
 open path function funext
 
-set_option pp.universes true
-
 namespace IsEquiv
   context
 
@@ -44,8 +42,7 @@ namespace IsEquiv
 		... ≈ k ∘ (invC h) : !sect,
       eq1⁻¹
 
-  universe variable l
-  definition isequiv_precompose {A B : Type.{l}} (f : A → B) (Aeq : IsEquiv (precomp f A))
+  definition isequiv_precompose {A B : Type} (f : A → B) (Aeq : IsEquiv (precomp f A))
       (Beq : IsEquiv (precomp f B)) : (IsEquiv f) :=
     let invA := inv (precomp f A) in
     let invB := inv (precomp f B) in

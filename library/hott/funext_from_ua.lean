@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jakob von Raumer
 -- Ported from Coq HoTT
-import hott.equiv hott.funext_varieties hott.axioms.ua
+import hott.equiv hott.funext_varieties hott.axioms.ua hott.axioms.funext
 import data.prod data.sigma data.unit
 
 open path function prod sigma truncation Equiv IsEquiv unit ua_type
@@ -101,37 +101,30 @@ context
 
 end
 
-context
-  universe variables l
-  parameters {ua2 : ua_type.{l+2}} {ua3 : ua_type.{l+3}}
+-- Now we use this to prove weak funext, which as we know
+-- implies (with dependent eta) also the strong dependent funext.
+universe variables l k
+theorem ua_implies_weak_funext [ua3 : ua_type.{k+1}] [ua4 : ua_type.{k+2}] : weak_funext.{l+1 k+1} :=
+  (λ (A : Type) (P : A → Type) allcontr,
+    let U := (λ (x : A), unit) in
+  have pequiv : Π (x : A), P x ≃ U x,
+    from (λ x, @equiv_contr_unit(P x) (allcontr x)),
+  have psim : Π (x : A), P x ≈ U x,
+    from (λ x, @IsEquiv.inv _ _
+      equiv_path ua_type.inst (pequiv x)),
+  have p : P ≈ U,
+    from @ua_implies_funext_nondep _ A Type P U psim,
+  have tU' : is_contr (A → unit),
+    from is_contr.mk (λ x, ⋆)
+      (λ f, @ua_implies_funext_nondep _ A unit (λ x, ⋆) f
+        (λ x, unit.rec_on (f x) idp)),
+  have tU : is_contr (Π x, U x),
+    from tU',
+  have tlast : is_contr (Πx, P x),
+    from path.transport _ (p⁻¹) tU,
+  tlast
+)
 
-  -- Now we use this to prove weak funext, which as we know
-  -- implies (with dependent eta) also the strong dependent funext.
-  theorem ua_implies_weak_funext : weak_funext.{l} :=
-    (λ (A : Type.{l+1}) (P : A → Type.{l+2}) allcontr,
-      let U := (λ (x : A), unit) in
-      have pequiv : Π (x : A), P x ≃ U x,
-        from (λ x, @equiv_contr_unit(P x) (allcontr x)),
-      have psim : Π (x : A), P x ≈ U x,
-        from (λ x, @IsEquiv.inv _ _
-          equiv_path ua_type.inst (pequiv x)),
-      have p : P ≈ U,
-        from @ua_implies_funext_nondep.{l+2 l+1} ua3 A Type.{l+2} P U psim,
-      have tU' : is_contr (A → unit),
-        from is_contr.mk (λ x, ⋆)
-          (λ f, @ua_implies_funext_nondep ua2 A unit (λ x, ⋆) f
-            (λ x, unit.rec_on (f x) idp)),
-      have tU : is_contr (Π x, U x),
-        from tU',
-      have tlast : is_contr (Πx, P x),
-        from path.transport _ (p⁻¹) tU,
-      tlast
-    )
-
-end
-
-exit
 -- In the following we will proof function extensionality using the univalence axiom
--- TODO: check out why I have to generalize on A and P here
-definition ua_implies_funext_type {ua : ua_type} : @funext_type :=
-  (λ A P, weak_funext_implies_funext (@ua_implies_visible]weak_funext ua))
+definition ua_implies_funext {ua ua2 : ua_type} : funext :=
+  weak_funext_implies_funext (@ua_implies_weak_funext ua ua2)

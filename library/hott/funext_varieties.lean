@@ -16,12 +16,12 @@ open path truncation sigma function
 
 -- Naive funext is the simple assertion that pointwise equal functions are equal.
 -- TODO think about universe levels
-definition naive_funext.{l k} :=
-  Π {A : Type.{l}} {P : A → Type.{k}} (f g : Πx, P x), (f ∼ g) → f ≈ g
+definition naive_funext :=
+  Π {A : Type} {P : A → Type} (f g : Πx, P x), (f ∼ g) → f ≈ g
 
 -- Weak funext says that a product of contractible types is contractible.
-definition weak_funext.{l} :=
-  Π {A : Type.{l+1}} (P : A → Type.{l+2}) [H: Πx, is_contr (P x)], is_contr (Πx, P x)
+definition weak_funext.{l k} :=
+  Π {A : Type.{l}} (P : A → Type.{k}) [H: Πx, is_contr (P x)], is_contr (Πx, P x)
 
 -- The obvious implications are Funext -> NaiveFunext -> WeakFunext
 -- TODO: Get class inference to work locally
@@ -51,8 +51,8 @@ definition naive_funext_implies_weak_funext : naive_funext → weak_funext :=
   the space of paths. -/
 
 context
-  universe l
-  parameters (wf : weak_funext.{l}) {A : Type.{l+1}} {B : A → Type.{l+2}} (f : Π x, B x)
+  universes l k
+  parameters (wf : weak_funext.{l+1 k+1}) {A : Type.{l+1}} {B : A → Type.{k+1}} (f : Π x, B x)
 
   protected definition idhtpy : f ∼ f := (λ x, idp)
 
@@ -90,9 +90,9 @@ context
 end
 
 -- Now the proof is fairly easy; we can just use the same induction principle on both sides.
-universe variable l
+universe variables l k
 
-theorem weak_funext_implies_funext (wf : weak_funext.{l}) : funext.{l+1 l+2} :=
+theorem weak_funext_implies_funext (wf : weak_funext.{l+1 k+1}) : funext.{l+1 k+1} :=
   funext.mk (λ A B f g,
     let eq_to_f := (λ g' x, f ≈ g') in
     let sim2path := htpy_ind _ f eq_to_f idp in

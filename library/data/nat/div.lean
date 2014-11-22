@@ -1,6 +1,6 @@
 --- Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 --- Released under Apache 2.0 license as described in the file LICENSE.
---- Author: Jeremy Avigad
+--- Author: Jeremy Avigad, Leonardo de Moura
 
 -- div.lean
 -- ========
@@ -8,208 +8,48 @@
 -- This is a continuation of the development of the natural numbers, with a general way of
 -- defining recursive functions, and definitions of div, mod, and gcd.
 
-import logic .sub algebra.relation data.prod
+import data.nat.sub logic data.prod.wf
+import algebra.relation
 import tools.fake_simplifier
 
-open relation relation.iff_ops prod
-open fake_simplifier decidable
-open eq.ops
+open eq.ops well_founded decidable fake_simplifier prod
+open relation relation.iff_ops
 
 namespace nat
 
--- A general recursion principle
--- -----------------------------
---
--- Data:
---
---   dom, codom : Type
---   default : codom
---   measure : dom → ℕ
---   rec_val : dom → (dom → codom) → codom
---
--- and a proof
---
---   rec_decreasing : ∀m, m ≥ measure x, rec_val x f = rec_val x (restrict f m)
---
--- ... which says that the recursive call only depends on f at values with measure less than x,
--- in the sense that changing other values to the default value doesn't change the result.
---
--- The result is a function f = rec_measure, satisfying
---
---   f x = rec_val x f
+-- Auxiliary lemma used to justify div
+private definition div_rec_lemma {x y : nat} (H : 0 < y ∧ y ≤ x) : x - y < x :=
+and.rec_on H (λ ypos ylex,
+  sub.lt (lt_le.trans ypos ylex) ypos)
 
-definition restrict {dom codom : Type} (default : codom) (measure : dom → ℕ) (f : dom → codom)
-    (m : ℕ) (x : dom) :=
-if measure x < m then f x else default
+private definition div.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
+dif 0 < y ∧ y ≤ x then (λ Hp, f (x - y) (div_rec_lemma Hp) y + 1) else (λ Hn, zero)
 
-theorem restrict_lt_eq {dom codom : Type} (default : codom) (measure : dom → ℕ) (f : dom → codom)
-    (m : ℕ) (x : dom) (H : measure x < m) :
-  restrict default measure f m x = f x :=
-if_pos H
+definition divide (x y : nat) :=
+fix div.F x y
 
-theorem restrict_not_lt_eq {dom codom : Type} (default : codom) (measure : dom → ℕ)
-    (f : dom → codom) (m : ℕ) (x : dom) (H : ¬ measure x < m) :
-  restrict default measure f m x = default :=
-if_neg H
+theorem divide_def (x y : nat) : divide x y = if 0 < y ∧ y ≤ x then divide (x - y) y + 1 else 0 :=
+congr_fun (fix_eq div.F x) y
 
-definition rec_measure_aux {dom codom : Type} (default : codom) (measure : dom → ℕ)
-    (rec_val : dom → (dom → codom) → codom) : ℕ → dom → codom :=
-rec (λx, default) (λm g x, if measure x < succ m then rec_val x g else default)
+notation a div b := divide a b
 
-definition rec_measure {dom codom : Type} (default : codom) (measure : dom → ℕ)
-    (rec_val : dom → (dom → codom) → codom) (x : dom) : codom :=
-rec_measure_aux default measure rec_val (succ (measure x)) x
+theorem div_zero (a : ℕ) : a div 0 = 0 :=
+divide_def a 0 ⬝ if_neg (!and.not_left (lt.irrefl 0))
 
-theorem rec_measure_aux_spec {dom codom : Type} (default : codom) (measure : dom → ℕ)
-    (rec_val : dom → (dom → codom) → codom)
-    (rec_decreasing : ∀g1 g2 x, (∀z, measure z < measure x → g1 z = g2 z) →
-        rec_val x g1 = rec_val x g2)
-    (m : ℕ) :
-  let f' := rec_measure_aux default measure rec_val in
-  let f := rec_measure default measure rec_val in
-  ∀x, f' m x = restrict default measure f m x :=
-let f' := rec_measure_aux default measure rec_val in
-let f  := rec_measure default measure rec_val in
-case_strong_induction_on m
-  (take x,
-    have H1 : f' 0 x = default, from rfl,
-    have H2 : ¬ measure x < 0, from !not_lt_zero,
-    have H3 : restrict default measure f 0 x = default, from if_neg H2,
-    show f' 0 x = restrict default measure f 0 x, from H1 ⬝ H3⁻¹)
-  (take m,
-    assume IH: ∀n, n ≤ m → ∀x, f' n x = restrict default measure f n x,
-    take x : dom,
-    show f' (succ m) x = restrict default measure f (succ m) x, from
-      by_cases -- (measure x < succ m)
-        (assume H1 : measure x < succ m,
-          have H2a : ∀z, measure z < measure x → f' m z = f z, from
-            take z,
-              assume Hzx : measure z < measure x,
-              calc
-                f' m z = restrict default measure f m z : IH m !le_refl z
-                  ... = f z : restrict_lt_eq _ _ _ _ _ (lt_le.trans Hzx (lt_succ_imp_le H1)),
-          have H2 : f' (succ m) x = rec_val x f, from
-            calc
-              f' (succ m) x = if measure x < succ m then rec_val x (f' m) else default : rfl
-                ... = rec_val x (f' m) : if_pos H1
-                ... = rec_val x f : rec_decreasing (f' m) f x H2a,
-          let m' := measure x in
-          have H3a : ∀z, measure z < m' → f' m' z = f z, from
-            take z,
-              assume Hzx : measure z < measure x,
-              calc
-                f' m' z = restrict default measure f m' z : IH _ (lt_succ_imp_le H1) _
-                  ... = f z : restrict_lt_eq _ _ _ _ _ Hzx,
-          have H3 : restrict default measure f (succ m) x = rec_val x f, from
-            calc
-              restrict default measure f (succ m) x = f x : if_pos H1
-                ... = f' (succ m') x : eq.refl _
-                ... = if measure x < succ m' then rec_val x (f' m') else default : rfl
-                ... = rec_val x (f' m') : if_pos !self_lt_succ
-                ... = rec_val x f : rec_decreasing _ _ _ H3a,
-          show f' (succ m) x = restrict default measure f (succ m) x,
-            from H2 ⬝ H3⁻¹)
-        (assume H1 : ¬ measure x < succ m,
-          have H2 : f' (succ m) x = default, from
-            calc
-              f' (succ m) x = if measure x < succ m then rec_val x (f' m) else default : rfl
-                ... = default : if_neg H1,
-          have H3 : restrict default measure f (succ m) x = default,
-            from if_neg H1,
-          show f' (succ m) x = restrict default measure f (succ m) x,
-            from H2 ⬝ H3⁻¹))
+theorem div_less {a b : ℕ} (h : a < b) : a div b = 0 :=
+divide_def a b ⬝ if_neg (!and.not_right (lt_imp_not_ge h))
 
-theorem rec_measure_spec {dom codom : Type} {default : codom} {measure : dom → ℕ}
-    (rec_val : dom → (dom → codom) → codom)
-    (rec_decreasing : ∀g1 g2 x, (∀z, measure z < measure x → g1 z = g2 z) →
-        rec_val x g1 = rec_val x g2)
-    (x : dom):
-  let f := rec_measure default measure rec_val in
-  f x = rec_val x f :=
-let f' := rec_measure_aux default measure rec_val in
-let f  := rec_measure default measure rec_val in
-let m  := measure x in
-have H : ∀z, measure z < measure x → f' m z = f z, from
-  take z,
-    assume H1 : measure z < measure x,
-    calc
-      f' m z = restrict default measure f m z : rec_measure_aux_spec _ _ _ rec_decreasing m z
-        ... = f z : restrict_lt_eq _ _ _ _ _ H1,
-calc
-  f x = f' (succ m) x : rfl
-    ... = if measure x < succ m then rec_val x (f' m) else default : rfl
-    ... = rec_val x (f' m) : if_pos !self_lt_succ
-    ... = rec_val x f : rec_decreasing _ _ _ H
+theorem zero_div (b : ℕ) : 0 div b = 0 :=
+divide_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_le.trans l r) (lt.irrefl 0)))
 
-
--- Div and mod
--- -----------
-
--- ### the definition of div
-
--- for fixed y, recursive call for x div y
-definition div_aux_rec (y : ℕ) (x : ℕ) (div_aux' : ℕ → ℕ) : ℕ :=
-if (y = 0 ∨ x < y) then 0 else succ (div_aux' (x - y))
-
-definition div_aux (y : ℕ) : ℕ → ℕ := rec_measure 0 (fun x, x) (div_aux_rec y)
-
-theorem div_aux_decreasing (y : ℕ) (g1 g2 : ℕ → ℕ) (x : ℕ) (H : ∀z, z < x → g1 z = g2 z) :
-  div_aux_rec y x g1 = div_aux_rec y x g2 :=
-let lhs := div_aux_rec y x g1 in
-let rhs := div_aux_rec y x g2 in
-show lhs = rhs, from
-  by_cases -- (y = 0 ∨ x < y)
-    (assume H1 : y = 0 ∨ x < y,
-      calc
-        lhs = 0     : if_pos H1
-          ... = rhs : (if_pos H1)⁻¹)
-    (assume H1 : ¬ (y = 0 ∨ x < y),
-      have H2a : y ≠ 0, from assume H, H1 (or.inl H),
-     have H2b : ¬ x < y, from assume H, H1 (or.inr H),
-      have ypos : y > 0, from ne_zero_imp_pos H2a,
-      have xgey : x ≥ y, from not_lt_imp_ge H2b,
-      have H4 : x - y < x, from sub_lt (lt_le.trans ypos xgey) ypos,
-      calc
-        lhs = succ (g1 (x - y)) : if_neg H1
-          ... = succ (g2 (x - y)) : {H _ H4}
-          ... = rhs : (if_neg H1)⁻¹)
-
-theorem div_aux_spec (y : ℕ) (x : ℕ) :
-  div_aux y x = if (y = 0 ∨ x < y) then 0 else succ (div_aux y (x - y)) :=
-rec_measure_spec (div_aux_rec y) (div_aux_decreasing y) x
-
-definition idivide (x : ℕ) (y : ℕ) : ℕ := div_aux y x
-
-notation a div b := idivide a b
-
-theorem div_zero {x : ℕ} : x div 0 = 0 :=
-div_aux_spec _ _ ⬝ if_pos (or.inl rfl)
-
--- add_rewrite div_zero
-
-theorem div_less {x y : ℕ} (H : x < y) : x div y = 0 :=
-div_aux_spec _ _ ⬝ if_pos (or.inr H)
-
--- add_rewrite div_less
-
-theorem zero_div {y : ℕ} : 0 div y = 0 :=
-case y div_zero (take y', div_less !succ_pos)
-
--- add_rewrite zero_div
-
-theorem div_rec {x y : ℕ} (H1 : y > 0) (H2 : x ≥ y) : x div y = succ ((x - y) div y) :=
-have H3 : ¬ (y = 0 ∨ x < y), from
-  not_intro
-    (assume H4 : y = 0 ∨ x < y,
-      or.elim H4
-        (assume H5 : y = 0, not_elim !lt_irrefl (H5 ▸ H1))
-        (assume H5 : x < y, not_elim (lt_imp_not_ge H5) H2)),
-div_aux_spec _ _ ⬝ if_neg H3
+theorem div_rec {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a div b = succ ((a - b) div b) :=
+divide_def a b ⬝ if_pos (and.intro h₁ h₂)
 
 theorem div_add_self_right {x z : ℕ} (H : z > 0) : (x + z) div z = succ (x div z) :=
-have H1 : z ≤ x + z, by simp,
-let H2 := div_rec H H1 in
-by simp
+calc (x + z) div z
+    = if 0 < z ∧ z ≤ x + z then divide (x + z - z) z + 1 else 0 : !divide_def
+... = divide (x + z - z) z + 1                                  : if_pos (and.intro H (le_add_left z x))
+... = succ (x div z)                                            : sub_add_left
 
 theorem div_add_mul_self_right {x y z : ℕ} (H : z > 0) : (x + y * z) div z = x div z + y :=
 induction_on y (by simp)
@@ -220,82 +60,47 @@ induction_on y (by simp)
                          ... = succ ((x + y * z) div z) : div_add_self_right H
                          ... = x div z + succ y         : by simp)
 
+private definition mod.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
+dif 0 < y ∧ y ≤ x then (λh, f (x - y) (div_rec_lemma h) y) else (λh, x)
 
--- ### The definition of mod
-
--- for fixed y, recursive call for x mod y
-definition mod_aux_rec (y : ℕ) (x : ℕ) (mod_aux' : ℕ → ℕ) : ℕ :=
-if (y = 0 ∨ x < y) then x else mod_aux' (x - y)
-
-definition mod_aux (y : ℕ) : ℕ → ℕ := rec_measure 0 (fun x, x) (mod_aux_rec y)
-
-theorem mod_aux_decreasing (y : ℕ) (g1 g2 : ℕ → ℕ) (x : ℕ) (H : ∀z, z < x → g1 z = g2 z) :
-  mod_aux_rec y x g1 = mod_aux_rec y x g2 :=
-let lhs := mod_aux_rec y x g1 in
-let rhs := mod_aux_rec y x g2 in
-show lhs = rhs, from
-  by_cases -- (y = 0 ∨ x < y)
-    (assume H1 : y = 0 ∨ x < y,
-      calc
-        lhs = x : if_pos H1
-          ... = rhs : (if_pos H1)⁻¹)
-    (assume H1 : ¬ (y = 0 ∨ x < y),
-      have H2a : y ≠ 0, from assume H, H1 (or.inl H),
-      have H2b : ¬ x < y, from assume H, H1 (or.inr H),
-      have ypos : y > 0, from ne_zero_imp_pos H2a,
-      have xgey : x ≥ y, from not_lt_imp_ge H2b,
-      have H4 : x - y < x, from sub_lt (lt_le.trans ypos xgey) ypos,
-      calc
-        lhs = g1 (x - y) : if_neg H1
-          ... = g2 (x - y) : H _ H4
-          ... = rhs : (if_neg H1)⁻¹)
-
-theorem mod_aux_spec (y : ℕ) (x : ℕ) :
-  mod_aux y x = if (y = 0 ∨ x < y) then x else mod_aux y (x - y) :=
-rec_measure_spec (mod_aux_rec y) (mod_aux_decreasing y) x
-
-definition modulo (x : ℕ) (y : ℕ) : ℕ := mod_aux y x
+definition modulo (x y : nat) :=
+fix mod.F x y
 
 notation a mod b := modulo a b
 
-theorem mod_zero {x : ℕ} : x mod 0 = x :=
-mod_aux_spec _ _ ⬝ if_pos (or.inl rfl)
+theorem modulo_def (x y : nat) : modulo x y = if 0 < y ∧ y ≤ x then modulo (x - y) y else x :=
+congr_fun (fix_eq mod.F x) y
 
--- add_rewrite mod_zero
+theorem mod_zero (a : ℕ) : a mod 0 = a :=
+modulo_def a 0 ⬝ if_neg (!and.not_left (lt.irrefl 0))
 
-theorem mod_lt_eq {x y : ℕ} (H : x < y) : x mod y = x :=
-mod_aux_spec _ _ ⬝ if_pos (or.inr H)
+theorem mod_less {a b : ℕ} (h : a < b) : a mod b = a :=
+modulo_def a b ⬝ if_neg (!and.not_right (lt_imp_not_ge h))
 
--- add_rewrite mod_lt_eq
+theorem zero_mod (b : ℕ) : 0 mod b = 0 :=
+modulo_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_le.trans l r) (lt.irrefl 0)))
 
-theorem zero_mod {y : ℕ} : 0 mod y = 0 :=
-case y mod_zero (take y', mod_lt_eq !succ_pos)
+theorem mod_rec {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a mod b = (a - b) mod b :=
+modulo_def a b ⬝ if_pos (and.intro h₁ h₂)
 
--- add_rewrite zero_mod
-
-theorem mod_rec {x y : ℕ} (H1 : y > 0) (H2 : x ≥ y) : x mod y = (x - y) mod y :=
-have H3 : ¬ (y = 0 ∨ x < y), from
-  not_intro
-    (assume H4 : y = 0 ∨ x < y,
-      or.elim H4
-        (assume H5 : y = 0, not_elim !lt_irrefl (H5 ▸ H1))
-        (assume H5 : x < y, not_elim (lt_imp_not_ge H5) H2)),
-mod_aux_spec _ _ ⬝ if_neg H3
-
--- need more of these, add as rewrite rules
 theorem mod_add_self_right {x z : ℕ} (H : z > 0) : (x + z) mod z = x mod z :=
-have H1 : z ≤ x + z, by simp,
-let H2 := mod_rec H H1 in
-by simp
+calc (x + z) mod z
+    = if 0 < z ∧ z ≤ x + z then (x + z - z) mod z else _ : !modulo_def
+... = (x + z - z) mod z                                  : if_pos (and.intro H (le_add_left z x))
+... = x mod z                                            : sub_add_left
+
 
 theorem mod_add_mul_self_right {x y z : ℕ} (H : z > 0) : (x + y * z) mod z = x mod z :=
-induction_on y (by simp)
+induction_on y
+  (calc (x + zero * z) mod z = (x + zero) mod z : mul.zero_left
+                         ... = x mod z          : add.zero_right)
   (take y,
     assume IH : (x + y * z) mod z = x mod z,
     calc
-      (x + succ y * z) mod z = (x + y * z + z) mod z : by simp
-                         ... = (x + y * z) mod z     : mod_add_self_right H
-                         ... = x mod z               : IH)
+      (x + succ y * z) mod z = (x + (y * z + z)) mod z : mul.succ_left
+                         ... = (x + y * z + z) mod z   : add.assoc
+                         ... = (x + y * z) mod z       : mod_add_self_right H
+                         ... = x mod z                 : IH)
 
 theorem mod_mul_self_right {m n : ℕ} : (m * n) mod n = 0 :=
 case_zero_pos n (by simp)
@@ -314,13 +119,13 @@ theorem mod_mul_self_left {m n : ℕ} : (m * n) mod m = 0 :=
 
 theorem mod_lt {x y : ℕ} (H : y > 0) : x mod y < y :=
 case_strong_induction_on x
-  (show 0 mod y < y, from zero_mod⁻¹ ▸ H)
+  (show 0 mod y < y, from !zero_mod⁻¹ ▸ H)
   (take x,
     assume IH : ∀x', x' ≤ x → x' mod y < y,
     show succ x mod y < y, from
       by_cases -- (succ x < y)
         (assume H1 : succ x < y,
-          have H2 : succ x mod y = succ x, from mod_lt_eq H1,
+          have H2 : succ x mod y = succ x, from mod_less H1,
           show succ x mod y < y, from H2⁻¹ ▸ H1)
         (assume H1 : ¬ succ x < y,
           have H2 : y ≤ succ x, from not_lt_imp_ge H1,
@@ -347,7 +152,7 @@ case_zero_pos y
             by_cases -- (succ x < y)
               (assume H1 : succ x < y,
                 have H2 : succ x div y = 0, from div_less H1,
-                have H3 : succ x mod y = succ x, from mod_lt_eq H1,
+                have H3 : succ x mod y = succ x, from mod_less H1,
                 by simp)
               (assume H1 : ¬ succ x < y,
                 have H2 : y ≤ succ x, from not_lt_imp_ge H1,
@@ -446,13 +251,12 @@ have H1 : (n * 1) div (n * 1) = 1 div 1, from div_mul_mul H,
 
 -- Divides
 -- -------
-
 definition dvd (x y : ℕ) : Prop := y mod x = 0
 
 infix `|` := dvd
 
 theorem dvd_iff_mod_eq_zero {x y : ℕ} : x | y ↔ y mod x = 0 :=
-refl _
+eq_to_iff rfl
 
 theorem dvd_imp_div_mul_eq {x y : ℕ} (H : y | x) : x div y * y = x :=
 (calc
@@ -561,9 +365,9 @@ case_zero_pos m
        n1 + n2 = (n1 + n2) div m * m : by simp
          ... = (n1 div m * m + n2) div m * m : by simp
          ... = (n2 + n1 div m * m) div m * m : {!add.comm}
-         ... = (n2 div m + n1 div m) * m : {div_add_mul_self_right mpos}
-         ... = n2 div m * m + n1 div m * m : !mul.distr_right
-         ... = n1 div m * m + n2 div m * m : !add.comm
+         ... = (n2 div m + n1 div m) * m     : {div_add_mul_self_right mpos}
+         ... = n2 div m * m + n1 div m * m   : !mul.distr_right
+         ... = n1 div m * m + n2 div m * m   : !add.comm
          ... = n1 + n2 div m * m : by simp,
     have H4 : n2 = n2 div m * m, from add.cancel_left H3,
     mp (dvd_iff_exists_mul⁻¹) (exists_intro _ (H4⁻¹)))
@@ -580,62 +384,123 @@ by_cases
     have H4 : n1 - n2 = 0, from le_imp_sub_eq_zero (lt_imp_le (not_le_imp_gt H3)),
     show m | n1 - n2, from H4⁻¹ ▸ dvd_zero)
 
-
 -- Gcd and lcm
 -- -----------
 
--- ### definition of gcd
+definition pair_nat.lt    := lex lt lt
+definition pair_nat.lt.wf [instance] : well_founded pair_nat.lt :=
+prod.lex.wf lt.wf lt.wf
+infixl `≺`:50 := pair_nat.lt
 
-definition gcd_aux_measure (p : ℕ × ℕ) : ℕ :=
-pr2 p
+-- Lemma for justifying recursive call
+private definition gcd.lt1 (x₁ y₁ : nat) : (x₁ - y₁, succ y₁) ≺ (succ x₁, succ y₁) :=
+!lex.left (le_imp_lt_succ (sub_le_self x₁ y₁))
 
-definition gcd_aux_rec (p : ℕ × ℕ) (gcd_aux' : ℕ × ℕ → ℕ) : ℕ :=
-let x := pr1 p, y := pr2 p in
-if y = 0 then x else gcd_aux' (pair y (x mod y))
+-- Lemma for justifying recursive call
+private definition gcd.lt2 (x₁ y₁ : nat) : (succ x₁, y₁ - x₁) ≺ (succ x₁, succ y₁) :=
+!lex.right (le_imp_lt_succ (sub_le_self y₁ x₁))
 
-definition gcd_aux : ℕ × ℕ → ℕ := rec_measure 0 gcd_aux_measure gcd_aux_rec
+private definition gcd.F (p₁ : nat × nat) : (Π p₂ : nat × nat, p₂ ≺ p₁ → nat) → nat :=
+prod.cases_on p₁ (λ (x y : nat),
+nat.cases_on x
+  (λ f, y) -- x = 0
+  (λ x₁, nat.cases_on y
+     (λ f, succ x₁) -- y = 0
+     (λ y₁ (f : (Π p₂ : nat × nat, p₂ ≺ (succ x₁, succ y₁) → nat)),
+        if y₁ ≤ x₁ then f (x₁ - y₁, succ y₁) !gcd.lt1
+                   else f (succ x₁, y₁ - x₁) !gcd.lt2)))
 
-theorem gcd_aux_decreasing (g1 g2 : ℕ × ℕ → ℕ) (p : ℕ × ℕ)
-    (H : ∀p', gcd_aux_measure p' < gcd_aux_measure p → g1 p' = g2 p') :
-  gcd_aux_rec p g1 = gcd_aux_rec p g2 :=
-let x := pr1 p, y := pr2 p in
-let p' := pair y (x mod y) in
-let lhs := gcd_aux_rec p g1 in
-let rhs := gcd_aux_rec p g2 in
-show lhs = rhs, from
-  by_cases -- (y = 0)
-    (assume H1 : y = 0,
-      calc
-        lhs = x   : if_pos H1
-        ... = rhs : (if_pos H1)⁻¹)
-    (assume H1 : y ≠ 0,
-      have ypos : y > 0, from ne_zero_imp_pos H1,
-      have H2 : gcd_aux_measure p' = x mod y, from pr2.mk _ _,
-      have H3 : gcd_aux_measure p' < gcd_aux_measure p, from H2⁻¹ ▸ mod_lt ypos,
-      calc
-        lhs = g1 p' : if_neg H1
-          ... = g2 p' : H _ H3
-          ... = rhs : (if_neg H1)⁻¹)
+definition gcd (x y : nat) :=
+fix gcd.F (pair x y)
 
-theorem gcd_aux_spec (p : ℕ × ℕ) : gcd_aux p =
-let x := pr1 p, y := pr2 p in
-if y = 0 then x else gcd_aux (pair y (x mod y)) :=
-rec_measure_spec gcd_aux_rec gcd_aux_decreasing p
+example : gcd 15 6 = 3 :=
+rfl
 
-definition gcd (x y : ℕ) : ℕ := gcd_aux (pair x y)
+theorem gcd_zero_left (y : nat) : gcd 0 y = y :=
+well_founded.fix_eq gcd.F (0, y)
 
-theorem gcd_def (x y : ℕ) : gcd x y = if y = 0 then x else gcd y (x mod y) :=
-let x' := pr1 (pair x y), y' := pr2 (pair x y) in
-calc
-  gcd x y = if y' = 0 then x' else gcd_aux (pair y' (x' mod y'))
-      : gcd_aux_spec (pair x y)
-    ... = if y = 0 then x else gcd y (x mod y) : rfl
+theorem gcd_succ_zero (x : nat) : gcd (succ x) 0 = succ x :=
+well_founded.fix_eq gcd.F (succ x, 0)
 
-theorem gcd_zero (x : ℕ) : gcd x 0 = x :=
-(gcd_def x 0) ⬝ (if_pos rfl)
+theorem gcd_zero (x : nat) : gcd x 0 = x :=
+cases_on x
+  (gcd_zero_left 0)
+  (λ x₁, !gcd_succ_zero)
 
--- add_rewrite gcd_zero
+theorem gcd_succ_succ (x y : nat) : gcd (succ x) (succ y) = if y ≤ x then gcd (x-y) (succ y) else gcd (succ x) (y-x) :=
+well_founded.fix_eq gcd.F (succ x, succ y)
 
+theorem gcd_one (n : ℕ) : gcd n 1 = 1 :=
+induction_on n
+  !gcd_zero_left
+  (λ n₁ ih, calc gcd (succ n₁) 1
+        = if 0 ≤ n₁ then gcd (n₁ - 0) 1 else gcd (succ n₁) (0 - n₁) : gcd_succ_succ
+    ... = gcd (n₁ - 0) 1 : if_pos (zero_le n₁)
+    ... = gcd n₁ 1       : rfl
+    ... = 1              : ih)
+
+theorem gcd_self (n : ℕ) : gcd n n = n :=
+induction_on n
+  !gcd_zero_left
+  (λ n₁ ih, calc gcd (succ n₁) (succ n₁)
+       = if n₁ ≤ n₁ then gcd (n₁-n₁) (succ n₁) else gcd (succ n₁) (n₁-n₁) : gcd_succ_succ
+   ... = gcd (n₁-n₁) (succ n₁) : if_pos (le.refl n₁)
+   ... = gcd 0 (succ n₁)       : sub_self
+   ... = succ n₁               : gcd_zero_left)
+
+theorem gcd_left {m n : ℕ} (H  : m < n) : gcd (succ m) (succ n) = gcd (succ m) (n - m) :=
+gcd_succ_succ m n ⬝ if_neg (lt_imp_not_ge H)
+
+theorem gcd_right {m n : ℕ} (H : n < m) : gcd (succ m) (succ n) = gcd (m - n) (succ n) :=
+gcd_succ_succ m n ⬝ if_pos (le.of_lt H)
+
+private definition gcd_dvd_prop (m n : ℕ) : Prop :=
+(gcd m n | m) ∧ (gcd m n | n)
+
+private lemma gcd_arith_eq {m n : ℕ} (h : m > n) : m - n + succ n = succ m :=
+calc m - n + succ n = succ (m - n + n) : rfl
+                ... = succ m           : @add_sub_ge_left m n (le.of_lt h)
+
+private lemma gcd_dvd.F (p₁ : nat × nat) : (∀p₂, p₂ ≺ p₁ → gcd_dvd_prop (pr₁ p₂) (pr₂ p₂)) → gcd_dvd_prop (pr₁ p₁) (pr₂ p₁) :=
+prod.cases_on p₁ (λ m n, cases_on m
+  (λ ih, and.intro !dvd_zero (!gcd_zero_left⁻¹ ▸ !dvd_self))
+  (λ m₁, cases_on n
+    (λ ih, and.intro (!gcd_zero⁻¹ ▸ !dvd_self) !dvd_zero)
+    (λ n₁ (ih_core : ∀p₂, p₂ ≺ (succ m₁, succ n₁) → gcd_dvd_prop (pr₁ p₂) (pr₂ p₂)),
+      have ih : ∀{m₂ n₂}, (m₂, n₂) ≺ (succ m₁, succ n₁) → gcd m₂ n₂ | m₂ ∧ gcd m₂ n₂ | n₂, from
+        λ m₂ n₂ hlt, ih_core (m₂, n₂) hlt,
+      show (gcd (succ m₁) (succ n₁) | (succ m₁)) ∧ (gcd (succ m₁) (succ n₁) | (succ n₁)), from
+      or.elim (trichotomy n₁ m₁)
+        (λ hlt : n₁ < m₁,
+          have aux₁ : gcd (succ m₁) (succ n₁) = gcd (m₁ - n₁) (succ n₁), from gcd_right hlt,
+          have aux₂ : gcd (m₁ - n₁) (succ n₁) | (m₁ - n₁),   from and.elim_left  (ih !gcd.lt1),
+          have aux₃ : gcd (m₁ - n₁) (succ n₁) | succ n₁,     from and.elim_right (ih !gcd.lt1),
+          have aux₄ : gcd (m₁ - n₁) (succ n₁) | succ m₁,     from gcd_arith_eq hlt ▸ dvd_add aux₂ aux₃,
+          and.intro (aux₁⁻¹ ▸ aux₄) (aux₁⁻¹ ▸ aux₃))
+        (λ h, or.elim h
+        (λ heq : n₁ = m₁,
+           have aux : gcd (succ n₁) (succ n₁) | (succ n₁), from gcd_self (succ n₁) ▸ !dvd_self,
+           eq.rec_on heq (and.intro aux aux))
+        (λ hgt : n₁ > m₁,
+          have aux₁ : gcd (succ m₁) (succ n₁) = gcd (succ m₁) (n₁ - m₁), from gcd_left hgt,
+          have aux₂ : gcd (succ m₁) (n₁ - m₁) | succ m₁,   from and.elim_left  (ih !gcd.lt2),
+          have aux₃ : gcd (succ m₁) (n₁ - m₁) | (n₁ - m₁), from and.elim_right (ih !gcd.lt2),
+          have aux₄ : gcd (succ m₁) (n₁ - m₁) | succ n₁,   from gcd_arith_eq hgt ▸ dvd_add aux₃ aux₂,
+          and.intro (aux₁⁻¹ ▸ aux₂) (aux₁⁻¹ ▸ aux₄))))))
+
+theorem gcd_dvd (m n : ℕ) : (gcd m n | m) ∧ (gcd m n | n) :=
+well_founded.induction (m, n) gcd_dvd.F
+
+theorem gcd_dvd_left (m n : ℕ) : (gcd m n | m) := and.elim_left !gcd_dvd
+
+theorem gcd_dvd_right (m n : ℕ) : (gcd m n | n) := and.elim_right !gcd_dvd
+
+theorem gcd_greatest {m n k : ℕ} : k | m → k | n → k | (gcd m n) :=
+sorry
+
+end nat
+
+/-
 theorem gcd_pos (m : ℕ) {n : ℕ} (H : n > 0) : gcd m n = gcd n (m mod n) :=
 gcd_def m n ⬝ if_neg (pos_imp_ne_zero H)
 
@@ -659,31 +524,6 @@ aux m
 theorem gcd_succ (m n : ℕ) : gcd m (succ n) = gcd (succ n) (m mod succ n) :=
 !gcd_def ⬝ if_neg !succ_ne_zero
 
-theorem gcd_one (n : ℕ) : gcd n 1 = 1 := sorry
--- (by simp) (gcd_succ n 0)
-
-theorem gcd_self (n : ℕ) : gcd n n = n := sorry
--- case n (by simp) (take n, (by simp) (gcd_succ (succ n) n))
-
-theorem gcd_dvd (m n : ℕ) : (gcd m n | m) ∧ (gcd m n | n) :=
-gcd_induct m n
-  (take m,
-    show (gcd m 0 | m) ∧ (gcd m 0 | 0), by simp)
-  (take m n,
-    assume npos : 0 < n,
-    assume IH : (gcd n (m mod n) | n) ∧ (gcd n (m mod n) | (m mod n)),
-    have H : gcd n (m mod n) | (m div n * n + m mod n), from
-      dvd_add (dvd_trans (and.elim_left IH) dvd_mul_self_right) (and.elim_right IH),
-    have H1 : gcd n (m mod n) | m, from div_mod_eq⁻¹ ▸ H,
-    have gcd_eq : gcd n (m mod n) = gcd m n, from (gcd_pos _ npos)⁻¹,
-    show (gcd m n | m) ∧ (gcd m n | n), from gcd_eq ▸ (and.intro H1 (and.elim_left IH)))
-
-theorem gcd_dvd_left (m n : ℕ) : (gcd m n | m) := and.elim_left (gcd_dvd _ _)
-
-theorem gcd_dvd_right (m n : ℕ) : (gcd m n | n) := and.elim_right (gcd_dvd _ _)
-
--- add_rewrite gcd_dvd_left gcd_dvd_right
-
 theorem gcd_greatest {m n k : ℕ} : k | m → k | n → k | (gcd m n) :=
 gcd_induct m n
   (take m, assume H : k | m, sorry) -- by simp)
@@ -696,5 +536,4 @@ gcd_induct m n
     have H4 : k | m mod n, from dvd_add_cancel_left H3 (dvd_trans H2 (by simp)),
     have gcd_eq : gcd n (m mod n) = gcd m n, from (gcd_pos _ npos)⁻¹,
     show k | gcd m n, from gcd_eq ▸ IH H2 H4)
-
-end nat
+-/

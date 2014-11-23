@@ -122,7 +122,7 @@
      ;; tactics
      (,(rx (not (any "\.")) word-start
            (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "eassumption" "rapply" "apply" "rename" "intro" "intros"
-               "generalize" "back" "beta" "done" "exact" "repeat" "whnf" "rotate" "rotate_left" "rotate_right")
+               "generalize" "generalizes" "back" "beta" "done" "exact" "repeat" "whnf" "rotate" "rotate_left" "rotate_right")
            word-end)
       . 'font-lock-constant-face)
      ;; Types

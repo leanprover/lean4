@@ -55,6 +55,21 @@ void initialize_generalize_tactic() {
                      // TODO(Leo): allow user to provide name to abstract variable
                      return generalize_tactic(fn, get_tactic_expr_expr(app_arg(e)), "x");
                  });
+
+    register_tac(name({"tactic", "generalize_list"}),
+                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                     buffer<expr> args;
+                     get_tactic_expr_list_elements(app_arg(e), args, "invalid 'generalizes' tactic, list of expressions expected");
+                     if (args.empty())
+                         return id_tactic();
+                     tactic r = generalize_tactic(fn, args.back(), "x");
+                     args.pop_back();
+                     while (!args.empty()) {
+                         r = then(generalize_tactic(fn, args.back(), "x"), r);
+                         args.pop_back();
+                     }
+                     return r;
+                 });
 }
 
 void finalize_generalize_tactic() {

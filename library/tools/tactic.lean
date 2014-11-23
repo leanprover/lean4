@@ -61,6 +61,11 @@ opaque definition intro_list (es : expr_list) : tactic := builtin
 notation `intros`   := intro_list expr_list.nil
 notation `intros` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := intro_list l
 
+opaque definition generalize_list (es : expr_list) : tactic := builtin
+notation `generalizes` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := generalize_list l
+
+opaque definition clear (e : expr) : tactic := builtin
+
 opaque definition unfold      (e : expr) : tactic := builtin
 opaque definition exact       (e : expr) : tactic := builtin
 opaque definition trace       (s : string) : tactic := builtin

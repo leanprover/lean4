@@ -92,7 +92,6 @@ calc (x + z) mod z
 ... = (x + z - z) mod z                                  : if_pos (and.intro H (le_add_left z x))
 ... = x mod z                                            : sub_add_left
 
-
 theorem mod_add_mul_self_right {x y z : ℕ} (H : z > 0) : (x + y * z) mod z = x mod z :=
 induction_on y
   (calc (x + zero * z) mod z = (x + zero) mod z : mul.zero_left
@@ -313,7 +312,7 @@ zero_mod n
 
 -- add_rewrite dvd_zero
 
-theorem zero_dvd_iff {n : ℕ} : (0 | n) = (n = 0) :=
+theorem zero_dvd_eq (n : ℕ) : (0 | n) = (n = 0) :=
 mod_zero n ▸ eq.refl (0 | n)
 
 -- add_rewrite zero_dvd_iff
@@ -339,39 +338,45 @@ theorem dvd_mul_self_right (m n : ℕ) : m | (n * m) :=
 -- add_rewrite dvd_mul_self_left
 
 theorem dvd_trans {m n k : ℕ} (H1 : m | n) (H2 : n | k) : m | k :=
-have H3 : n = n div m * m, by simp,
+have H3 : n = n div m * m, from (dvd_imp_div_mul_eq H1)⁻¹,
 have H4 : k = k div n * (n div m) * m, from
   calc
-    k = k div n * n : by simp
-      ... = k div n * (n div m * m) : {H3}
-      ... = k div n * (n div m) * m : !mul.assoc⁻¹,
+    k     = k div n * n             : dvd_imp_div_mul_eq H2
+      ... = k div n * (n div m * m) : H3
+      ... = k div n * (n div m) * m : mul.assoc,
 mp (!dvd_iff_exists_mul⁻¹) (exists_intro (k div n * (n div m)) (H4⁻¹))
 
 theorem dvd_add {m n1 n2 : ℕ} (H1 : m | n1) (H2 : m | n2) : m | (n1 + n2) :=
-have H : (n1 div m + n2 div m) * m = n1 + n2, by simp,
+have H : (n1 div m + n2 div m) * m = n1 + n2, from calc
+  (n1 div m + n2 div m) * m = n1 div m * m + n2 div m * m : mul.distr_right
+                       ...  = n1 + n2 div m * m           : dvd_imp_div_mul_eq H1
+                       ...  = n1 + n2                     : dvd_imp_div_mul_eq H2,
 mp (!dvd_iff_exists_mul⁻¹) (exists_intro _ H)
 
 theorem dvd_add_cancel_left {m n1 n2 : ℕ} : m | (n1 + n2) → m | n1 → m | n2 :=
 case_zero_pos m
   (assume H1 : 0 | n1 + n2,
     assume H2 : 0 | n1,
-    have H3 : n1 + n2 = 0, from zero_dvd_iff ▸ H1,
-    have H4 : n1 = 0, from zero_dvd_iff ▸ H2,
-    have H5 : n2 = 0, from mp (by simp) (H4 ▸ H3),
-    show 0 | n2, by simp)
+    have H3 : n1 + n2 = 0, from (zero_dvd_eq (n1 + n2)) ▸ H1,
+    have H4 : n1 = 0, from (zero_dvd_eq n1) ▸ H2,
+    have H5 : n2 = 0, from calc
+      n2   = 0  + n2 : add.zero_left
+       ... = n1 + n2 : H4
+       ... = 0       : H3,
+    show 0 | n2, from H5 ▸ dvd_self n2)
   (take m,
     assume mpos : m > 0,
     assume H1 : m | (n1 + n2),
     assume H2 : m | n1,
     have H3 : n1 + n2 = n1 + n2 div m * m, from
      calc
-       n1 + n2 = (n1 + n2) div m * m : by simp
-         ... = (n1 div m * m + n2) div m * m : by simp
-         ... = (n2 + n1 div m * m) div m * m : {!add.comm}
-         ... = (n2 div m + n1 div m) * m     : {div_add_mul_self_right mpos}
-         ... = n2 div m * m + n1 div m * m   : !mul.distr_right
-         ... = n1 div m * m + n2 div m * m   : !add.comm
-         ... = n1 + n2 div m * m : by simp,
+       n1 + n2 = (n1 + n2) div m * m         : dvd_imp_div_mul_eq H1
+         ... = (n1 div m * m + n2) div m * m : dvd_imp_div_mul_eq H2
+         ... = (n2 + n1 div m * m) div m * m : add.comm
+         ... = (n2 div m + n1 div m) * m     : div_add_mul_self_right mpos
+         ... = n2 div m * m + n1 div m * m   : mul.distr_right
+         ... = n1 div m * m + n2 div m * m   : add.comm
+         ... = n1 + n2 div m * m             : dvd_imp_div_mul_eq H2,
     have H4 : n2 = n2 div m * m, from add.cancel_left H3,
     mp (!dvd_iff_exists_mul⁻¹) (exists_intro _ (H4⁻¹)))
 
@@ -390,146 +395,100 @@ by_cases
 -- Gcd and lcm
 -- -----------
 
-definition pair_nat.lt    := lex lt lt
-definition pair_nat.lt.wf [instance] : well_founded pair_nat.lt :=
-prod.lex.wf lt.wf lt.wf
+private definition pair_nat.lt : nat × nat → nat × nat → Prop := measure pr₂
+private definition pair_nat.lt.wf : well_founded pair_nat.lt :=
+intro_k (measure.wf pr₂) 20  -- Remark: we use intro_k to be able to execute gcd efficiently in the kernel
+instance pair_nat.lt.wf -- Remark: instance will not be saved in .olean
 infixl `≺`:50 := pair_nat.lt
 
--- Lemma for justifying recursive call
-private definition gcd.lt1 (x₁ y₁ : nat) : (x₁ - y₁, succ y₁) ≺ (succ x₁, succ y₁) :=
-!lex.left (le_imp_lt_succ (sub_le_self x₁ y₁))
+private definition gcd.lt.dec (x y₁ : nat) : (succ y₁, x mod succ y₁) ≺ (x, succ y₁) :=
+mod_lt (succ_pos y₁)
 
--- Lemma for justifying recursive call
-private definition gcd.lt2 (x₁ y₁ : nat) : (succ x₁, y₁ - x₁) ≺ (succ x₁, succ y₁) :=
-!lex.right (le_imp_lt_succ (sub_le_self y₁ x₁))
-
-private definition gcd.F (p₁ : nat × nat) : (Π p₂ : nat × nat, p₂ ≺ p₁ → nat) → nat :=
-prod.cases_on p₁ (λ (x y : nat),
-nat.cases_on x
-  (λ f, y) -- x = 0
-  (λ x₁, nat.cases_on y
-     (λ f, succ x₁) -- y = 0
-     (λ y₁ (f : (Π p₂ : nat × nat, p₂ ≺ (succ x₁, succ y₁) → nat)),
-        if y₁ ≤ x₁ then f (x₁ - y₁, succ y₁) !gcd.lt1
-                   else f (succ x₁, y₁ - x₁) !gcd.lt2)))
+definition gcd.F (p₁ : nat × nat) : (Π p₂ : nat × nat, p₂ ≺ p₁ → nat) → nat :=
+prod.cases_on p₁ (λx y, cases_on y
+  (λ f, x)
+  (λ y₁ (f : Πp₂, p₂ ≺ (x, succ y₁) → nat), f (succ y₁, x mod succ y₁) !gcd.lt.dec))
 
 definition gcd (x y : nat) :=
 fix gcd.F (pair x y)
 
-example : gcd 15 6 = 3 :=
-rfl
-
-theorem gcd_zero_left (y : nat) : gcd 0 y = y :=
-well_founded.fix_eq gcd.F (0, y)
-
-theorem gcd_succ_zero (x : nat) : gcd (succ x) 0 = succ x :=
-well_founded.fix_eq gcd.F (succ x, 0)
-
 theorem gcd_zero (x : nat) : gcd x 0 = x :=
-cases_on x
-  (gcd_zero_left 0)
-  (λ x₁, !gcd_succ_zero)
+well_founded.fix_eq gcd.F (x, 0)
 
-theorem gcd_succ_succ (x y : nat) : gcd (succ x) (succ y) = if y ≤ x then gcd (x-y) (succ y) else gcd (succ x) (y-x) :=
-well_founded.fix_eq gcd.F (succ x, succ y)
+theorem gcd_succ (x y : nat) : gcd x (succ y) = gcd (succ y) (x mod succ y) :=
+well_founded.fix_eq gcd.F (x, succ y)
 
 theorem gcd_one (n : ℕ) : gcd n 1 = 1 :=
-induction_on n
-  !gcd_zero_left
-  (λ n₁ ih, calc gcd (succ n₁) 1
-        = if 0 ≤ n₁ then gcd (n₁ - 0) 1 else gcd (succ n₁) (0 - n₁) : gcd_succ_succ
-    ... = gcd (n₁ - 0) 1 : if_pos (zero_le n₁)
-    ... = gcd n₁ 1       : rfl
-    ... = 1              : ih)
+calc gcd n 1 = gcd 1 (n mod 1) : gcd_succ n zero
+         ... = gcd 1 0         : mod_one
+         ... = 1               : gcd_zero
+
+theorem gcd_def (x y : ℕ) : gcd x y = if y = 0 then x else gcd y (x mod y) :=
+cases_on y
+  (calc gcd x 0 = x                                          : gcd_zero x
+           ...  = if 0 = 0 then x else gcd zero (x mod zero) : (if_pos rfl)⁻¹)
+  (λy₁, calc
+    gcd x (succ y₁) = gcd (succ y₁) (x mod succ y₁)                            : gcd_succ x y₁
+              ...   = if succ y₁ = 0 then x else gcd (succ y₁) (x mod succ y₁) : (if_neg (succ_ne_zero y₁))⁻¹)
+
+theorem gcd_pos (m : ℕ) {n : ℕ} (H : n > 0) : gcd m n = gcd n (m mod n) :=
+gcd_def m n ⬝ if_neg (pos_imp_ne_zero H)
 
 theorem gcd_self (n : ℕ) : gcd n n = n :=
-induction_on n
-  !gcd_zero_left
-  (λ n₁ ih, calc gcd (succ n₁) (succ n₁)
-       = if n₁ ≤ n₁ then gcd (n₁-n₁) (succ n₁) else gcd (succ n₁) (n₁-n₁) : gcd_succ_succ
-   ... = gcd (n₁-n₁) (succ n₁) : if_pos (le.refl n₁)
-   ... = gcd 0 (succ n₁)       : sub_self
-   ... = succ n₁               : gcd_zero_left)
+cases_on n
+  rfl
+  (λn₁, calc
+    gcd (succ n₁) (succ n₁) = gcd (succ n₁) (succ n₁ mod succ n₁) : gcd_succ (succ n₁) n₁
+                      ...   = gcd (succ n₁) 0                     : mod_self (succ n₁)
+                      ...   = succ n₁                             : gcd_zero)
 
-theorem gcd_left {m n : ℕ} (H  : m < n) : gcd (succ m) (succ n) = gcd (succ m) (n - m) :=
-gcd_succ_succ m n ⬝ if_neg (lt_imp_not_ge H)
+theorem gcd_zero_left (n : nat) : gcd 0 n = n :=
+cases_on n
+  rfl
+  (λ n₁, calc
+    gcd 0 (succ n₁) = gcd (succ n₁) (0 mod succ n₁) : gcd_succ
+                ... = gcd (succ n₁) 0               : zero_mod
+                ... = (succ n₁)                     : gcd_zero)
 
-theorem gcd_right {m n : ℕ} (H : n < m) : gcd (succ m) (succ n) = gcd (m - n) (succ n) :=
-gcd_succ_succ m n ⬝ if_pos (le.of_lt H)
-
-private definition gcd_dvd_prop (m n : ℕ) : Prop :=
-(gcd m n | m) ∧ (gcd m n | n)
-
-private lemma gcd_arith_eq {m n : ℕ} (h : m > n) : m - n + succ n = succ m :=
-calc m - n + succ n = succ (m - n + n) : rfl
-                ... = succ m           : @add_sub_ge_left m n (le.of_lt h)
-
-private lemma gcd_dvd.F (p₁ : nat × nat) : (∀p₂, p₂ ≺ p₁ → gcd_dvd_prop (pr₁ p₂) (pr₂ p₂)) → gcd_dvd_prop (pr₁ p₁) (pr₂ p₁) :=
-prod.cases_on p₁ (λ m n, cases_on m
-  (λ ih, and.intro !dvd_zero (!gcd_zero_left⁻¹ ▸ !dvd_self))
-  (λ m₁, cases_on n
-    (λ ih, and.intro (!gcd_zero⁻¹ ▸ !dvd_self) !dvd_zero)
-    (λ n₁ (ih_core : ∀p₂, p₂ ≺ (succ m₁, succ n₁) → gcd_dvd_prop (pr₁ p₂) (pr₂ p₂)),
-      have ih : ∀{m₂ n₂}, (m₂, n₂) ≺ (succ m₁, succ n₁) → gcd m₂ n₂ | m₂ ∧ gcd m₂ n₂ | n₂, from
-        λ m₂ n₂ hlt, ih_core (m₂, n₂) hlt,
-      show (gcd (succ m₁) (succ n₁) | (succ m₁)) ∧ (gcd (succ m₁) (succ n₁) | (succ n₁)), from
-      or.elim (trichotomy n₁ m₁)
-        (λ hlt : n₁ < m₁,
-          have aux₁ : gcd (succ m₁) (succ n₁) = gcd (m₁ - n₁) (succ n₁), from gcd_right hlt,
-          have aux₂ : gcd (m₁ - n₁) (succ n₁) | (m₁ - n₁),   from and.elim_left  (ih !gcd.lt1),
-          have aux₃ : gcd (m₁ - n₁) (succ n₁) | succ n₁,     from and.elim_right (ih !gcd.lt1),
-          have aux₄ : gcd (m₁ - n₁) (succ n₁) | succ m₁,     from gcd_arith_eq hlt ▸ dvd_add aux₂ aux₃,
-          and.intro (aux₁⁻¹ ▸ aux₄) (aux₁⁻¹ ▸ aux₃))
-        (λ h, or.elim h
-        (λ heq : n₁ = m₁,
-           have aux : gcd (succ n₁) (succ n₁) | (succ n₁), from gcd_self (succ n₁) ▸ !dvd_self,
-           eq.rec_on heq (and.intro aux aux))
-        (λ hgt : n₁ > m₁,
-          have aux₁ : gcd (succ m₁) (succ n₁) = gcd (succ m₁) (n₁ - m₁), from gcd_left hgt,
-          have aux₂ : gcd (succ m₁) (n₁ - m₁) | succ m₁,   from and.elim_left  (ih !gcd.lt2),
-          have aux₃ : gcd (succ m₁) (n₁ - m₁) | (n₁ - m₁), from and.elim_right (ih !gcd.lt2),
-          have aux₄ : gcd (succ m₁) (n₁ - m₁) | succ n₁,   from gcd_arith_eq hgt ▸ dvd_add aux₃ aux₂,
-          and.intro (aux₁⁻¹ ▸ aux₂) (aux₁⁻¹ ▸ aux₄))))))
+theorem gcd_induct {P : ℕ → ℕ → Prop}
+                   (m n : ℕ)
+                   (H0 : ∀m, P m 0)
+                   (H1 : ∀m n, 0 < n → P n (m mod n) → P m n)
+                   : P m n :=
+let Q : nat × nat → Prop := λ p : nat × nat, P (pr₁ p) (pr₂ p) in
+have aux : Q (m, n), from
+  well_founded.induction (m, n) (λp, prod.cases_on p
+    (λm n, cases_on n
+      (λ ih, show P (pr₁ (m, 0)) (pr₂ (m, 0)), from H0 m)
+      (λ n₁ (ih : ∀p₂, p₂ ≺ (m, succ n₁) → P (pr₁ p₂) (pr₂ p₂)),
+        have hlt₁ : 0 < succ n₁, from succ_pos n₁,
+        have hlt₂ : (succ n₁, m mod succ n₁) ≺ (m, succ n₁), from gcd.lt.dec _ _,
+        have hp   : P (succ n₁) (m mod succ n₁), from ih _ hlt₂,
+        show P m (succ n₁), from
+          H1 m (succ n₁) hlt₁ hp))),
+aux
 
 theorem gcd_dvd (m n : ℕ) : (gcd m n | m) ∧ (gcd m n | n) :=
-well_founded.induction (m, n) gcd_dvd.F
+gcd_induct m n
+  (take m,
+    show (gcd m 0 | m) ∧ (gcd m 0 | 0), by simp)
+  (take m n,
+    assume npos : 0 < n,
+    assume IH : (gcd n (m mod n) | n) ∧ (gcd n (m mod n) | (m mod n)),
+    have H : gcd n (m mod n) | (m div n * n + m mod n), from
+      dvd_add (dvd_trans (and.elim_left IH) !dvd_mul_self_right) (and.elim_right IH),
+    have H1 : gcd n (m mod n) | m, from div_mod_eq⁻¹ ▸ H,
+    have gcd_eq : gcd n (m mod n) = gcd m n, from (gcd_pos _ npos)⁻¹,
+    show (gcd m n | m) ∧ (gcd m n | n), from gcd_eq ▸ (and.intro H1 (and.elim_left IH)))
 
 theorem gcd_dvd_left (m n : ℕ) : (gcd m n | m) := and.elim_left !gcd_dvd
 
 theorem gcd_dvd_right (m n : ℕ) : (gcd m n | n) := and.elim_right !gcd_dvd
 
 theorem gcd_greatest {m n k : ℕ} : k | m → k | n → k | (gcd m n) :=
-sorry
-
-end nat
-
-/-
-theorem gcd_pos (m : ℕ) {n : ℕ} (H : n > 0) : gcd m n = gcd n (m mod n) :=
-gcd_def m n ⬝ if_neg (pos_imp_ne_zero H)
-
-theorem gcd_zero_left (x : ℕ) : gcd 0 x = x :=
-case x (by simp) (take x, (gcd_def _ _) ⬝ (by simp))
-
--- add_rewrite gcd_zero_left
-
-theorem gcd_induct {P : ℕ → ℕ → Prop} (m n : ℕ) (H0 : ∀m, P m 0)
-  (H1 : ∀m n, 0 < n → P n (m mod n) → P m n) : P m n :=
-have aux : ∀m, P m n, from
-  case_strong_induction_on n H0
-    (take n,
-      assume IH : ∀k, k ≤ n → ∀m, P m k,
-      take m,
-      have H2 : m mod succ n ≤ n, from lt_succ_imp_le (mod_lt !succ_pos),
-      have H3 : P (succ n) (m mod succ n), from IH _ H2 _,
-      show P m (succ n), from H1 _ _ !succ_pos H3),
-aux m
-
-theorem gcd_succ (m n : ℕ) : gcd m (succ n) = gcd (succ n) (m mod succ n) :=
-!gcd_def ⬝ if_neg !succ_ne_zero
-
-theorem gcd_greatest {m n k : ℕ} : k | m → k | n → k | (gcd m n) :=
 gcd_induct m n
-  (take m, assume H : k | m, sorry) -- by simp)
+  (take m, assume (h₁ : k | m) (h₂ : k | 0),
+   show k | gcd m 0, from !gcd_zero⁻¹ ▸ h₁)
   (take m n,
     assume npos : n > 0,
     assume IH : k | n → k | (m mod n) → k | gcd n (m mod n),
@@ -539,4 +498,5 @@ gcd_induct m n
     have H4 : k | m mod n, from dvd_add_cancel_left H3 (dvd_trans H2 (by simp)),
     have gcd_eq : gcd n (m mod n) = gcd m n, from (gcd_pos _ npos)⁻¹,
     show k | gcd m n, from gcd_eq ▸ IH H2 H4)
--/
+
+end nat

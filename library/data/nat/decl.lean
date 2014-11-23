@@ -69,6 +69,12 @@ namespace nat
                 acc.inv (eq.rec_on e ih) hlt)),
         aux hlt rfl)))
 
+  definition measure {A : Type} (f : A → nat) : A → A → Prop :=
+  inv_image lt f
+
+  definition measure.wf {A : Type} (f : A → nat) : well_founded (measure f) :=
+  inv_image.wf f lt.wf
+
   definition not_lt_zero (a : nat) : ¬ a < zero :=
   have aux : ∀ {b}, a < b → b = zero → false, from
     λ b H, lt.cases_on H

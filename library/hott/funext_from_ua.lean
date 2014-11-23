@@ -126,5 +126,5 @@ theorem ua_implies_weak_funext [ua3 : ua_type.{k+1}] [ua4 : ua_type.{k+2}] : wea
 )
 
 -- In the following we will proof function extensionality using the univalence axiom
-definition ua_implies_funext {ua ua2 : ua_type} : funext :=
+definition ua_implies_funext [instance] [ua ua2 : ua_type] : funext :=
   weak_funext_implies_funext (@ua_implies_weak_funext ua ua2)

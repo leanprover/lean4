@@ -1,5 +1,5 @@
 import logic
-
+namespace experiment
 namespace algebra
   inductive mul_struct [class] (A : Type) : Type :=
   mk : (A → A → A) → mul_struct A
@@ -33,7 +33,7 @@ end
 section
   open [notation] algebra
   open nat
-  -- check mul_struct nat  << This is an error, we are open only the notation from algebra
+  -- check mul_struct nat  << This is an error, we opened only the notation from algebra
   variables a b c : nat
   check a * b * c
   definition tst2 : nat := a * b * c
@@ -41,10 +41,10 @@ end
 
 section
   open nat
-  -- check mul_struct nat  << This is an error, we are open only the notation from algebra
+  -- check mul_struct nat  << This is an error, we opened only the notation from algebra
   variables a b c : nat
-  check #algebra a*b*c
-  definition tst3 : nat := #algebra a*b*c
+  check a*b*c
+  definition tst3 : nat := #nat a*b*c
 end
 
 section
@@ -54,6 +54,7 @@ section
   := algebra.mul_struct.mk add
 
   variables a b c : nat
-  check #algebra a*b*c  -- << is open add instead of mul
-  definition tst4 : nat := #algebra a*b*c
+  check #experiment.algebra a*b*c  -- << is open add instead of mul
+  definition tst4 : nat := #experiment.algebra a*b*c
 end
+end experiment

@@ -6,7 +6,7 @@
 import logic algebra.binary
 open tactic binary eq.ops eq
 open decidable
-
+namespace experiment
 definition refl := @eq.refl
 definition and_intro := @and.intro
 definition or_intro_left := @or.intro_left
@@ -1410,3 +1410,4 @@ theorem dist_eq_intro {n m k l : ℕ} (H : n + m = k + l) : dist n k = dist l m
       ... = dist l m : dist_add_left k l m
 
 end nat
+end experiment

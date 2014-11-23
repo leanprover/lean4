@@ -1,5 +1,5 @@
 import logic
-
+namespace experiment
 constant nat : Type.{1}
 constant int : Type.{1}
 
@@ -24,3 +24,4 @@ definition c2 := i + j
 
 theorem T2 : c2 = int_add i j :=
 eq.refl _
+exit

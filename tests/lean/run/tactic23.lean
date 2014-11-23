@@ -1,5 +1,5 @@
 import logic
-
+namespace experiment
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
@@ -35,3 +35,4 @@ theorem T2 : ∃ a, (is_zero a) = true
 := by apply exists_intro; apply eq.refl
 
 end nat
+end experiment

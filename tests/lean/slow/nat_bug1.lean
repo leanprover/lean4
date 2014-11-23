@@ -6,6 +6,7 @@
 import logic
 open tactic
 
+namespace foo
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
@@ -23,3 +24,4 @@ print "=================="
 theorem nat_rec_zero {P : ℕ → Type} (x : P 0) (f : ∀m, P m → P (succ m)) : nat.rec x f 0 = x :=
 eq.refl _
 end nat
+end foo

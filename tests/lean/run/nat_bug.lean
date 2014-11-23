@@ -1,7 +1,7 @@
 import logic
 open decidable
 open eq
-
+namespace experiment
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
@@ -24,3 +24,4 @@ theorem zero_or_succ2 (n : nat) : n = zero ∨ n = succ (pred n)
     (take m IH, or.intro_right _
       (show succ m = succ (pred (succ m)), from congr_arg succ (symm (pred_succ m))))
 end nat
+end experiment

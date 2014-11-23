@@ -1,5 +1,5 @@
 import logic
-
+namespace experiment
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
@@ -48,3 +48,4 @@ end
 
 test_unify(env, f(t(m)), f(tt), 1)
 *)
+exit

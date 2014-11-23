@@ -1,5 +1,5 @@
 import logic
-
+namespace experiment
 constant nat : Type.{1}
 constant int : Type.{1}
 constant of_nat : nat → int

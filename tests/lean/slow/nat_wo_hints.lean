@@ -7,6 +7,7 @@ import logic algebra.binary
 open tactic binary eq.ops eq
 open decidable
 
+namespace experiment
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
@@ -1415,3 +1416,4 @@ theorem dist_eq_intro {n m k l : ℕ} (H : n + m = k + l) : dist n k = dist l m
 
 
 end nat
+end experiment

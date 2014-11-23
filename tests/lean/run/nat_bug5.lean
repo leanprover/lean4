@@ -1,6 +1,6 @@
 import logic
 open eq.ops eq
-
+namespace foo
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
@@ -33,3 +33,4 @@ theorem mul_add_distr_left (n m k : nat) : (n + m) * k = n * k + m * k
           ... = n * succ l + (m * l + m) : {symm (mul_succ_right _ _)}
           ... = n * succ l + m * succ l : {symm (mul_succ_right _ _)})
 end nat
+end foo

@@ -1,5 +1,6 @@
 import logic
 
+namespace experiment
 definition Type1 := Type.{1}
 
 context
@@ -49,7 +50,7 @@ namespace nat
   := algebra.add_struct.mk add
 
   definition to_nat (n : num) : nat
-  := #algebra
+  := #experiment.algebra
     num.rec nat.zero (λ n, pos_num.rec (succ zero) (λ n r, r + r) (λ n r, r + r + succ zero) n) n
 end nat
 
@@ -111,3 +112,4 @@ section
   check a*b*c*a*b*c*a*b*a*b*c*a
   check a*b
 end
+end experiment

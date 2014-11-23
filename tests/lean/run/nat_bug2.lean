@@ -1,6 +1,6 @@
 import logic
 open eq.ops
-
+namespace experiment
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
@@ -23,3 +23,4 @@ theorem succ_le {n m : nat} (H : n ≤ m) : succ n ≤ succ m
 := add_one m ▸ add_one n ▸ add_le_right H 1
 
 end nat
+end experiment

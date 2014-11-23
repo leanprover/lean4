@@ -1,5 +1,5 @@
 import logic
-
+namespace experiment
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
@@ -90,3 +90,4 @@ reducible [off] add
 check dvd a (a + (succ b))
 
 end nat
+end experiment

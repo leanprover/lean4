@@ -1,5 +1,5 @@
 import logic
-
+namespace experiment
 namespace nat
 constant nat : Type.{1}
 constant add : nat → nat → nat
@@ -29,3 +29,4 @@ open nat
 open eq
 theorem add_lt_left {a b : int} (H : a < b) (c : int) : c + a < c + b :=
 subst (symm (add_assoc c a one)) (add_le_left H c)
+end experiment

@@ -1,6 +1,6 @@
 import logic
 open eq.ops
-
+namespace experiment
 inductive nat : Type :=
 zero : nat,
 succ : nat → nat
@@ -19,3 +19,4 @@ print "==========================="
 theorem tst (n : nat) (H : P (n * zero)) : P zero
 := eq.subst (mul_zero_right _) H
 end nat
+exit

@@ -57,8 +57,7 @@ induction_on y
                        ...   = x div z          : add.zero_right
                        ...   = x div z + zero   : add.zero_right)
   (take y,
-    assume IH : (x + y * z) div z = x div z + y,
-    calc
+    assume IH : (x + y * z) div z = x div z + y, calc
       (x + succ y * z) div z = (x + y * z + z) div z    : by simp
                          ... = succ ((x + y * z) div z) : div_add_self_right H
                          ... = x div z + succ y         : by simp)
@@ -88,7 +87,7 @@ modulo_def a b ⬝ if_pos (and.intro h₁ h₂)
 
 theorem mod_add_self_right {x z : ℕ} (H : z > 0) : (x + z) mod z = x mod z :=
 calc (x + z) mod z
-    = if 0 < z ∧ z ≤ x + z then (x + z - z) mod z else _ : !modulo_def
+    = if 0 < z ∧ z ≤ x + z then (x + z - z) mod z else _ : modulo_def
 ... = (x + z - z) mod z                                  : if_pos (and.intro H (le_add_left z x))
 ... = x mod z                                            : sub_add_left
 
@@ -140,9 +139,9 @@ theorem div_mod_eq {x y : ℕ} : x = x div y * y + x mod y :=
 case_zero_pos y
   (show x = x div 0 * 0 + x mod 0, from
     (calc
-      x div 0 * 0 + x mod 0 = 0 + x mod 0 : {!mul.zero_right}
-        ... = x mod 0 : !add.zero_left
-        ... = x : mod_zero)⁻¹)
+      x div 0 * 0 + x mod 0 = 0 + x mod 0 : mul.zero_right
+        ... = x mod 0                     : add.zero_left
+        ... = x                           : mod_zero)⁻¹)
   (take y,
     assume H : y > 0,
     show x = x div y * y + x mod y, from
@@ -163,13 +162,12 @@ case_zero_pos y
                 have H5 : succ x - y < succ x, from sub_lt !succ_pos H,
                 have H6 : succ x - y ≤ x, from lt_succ_imp_le H5,
                 (calc
-                  succ x div y * y + succ x mod y = succ ((succ x - y) div y) * y + succ x mod y :
-                      {H3}
-                    ... = ((succ x - y) div y) * y + y + succ x mod y : {!mul.succ_left}
-                    ... = ((succ x - y) div y) * y + y + (succ x - y) mod y : {H4}
-                    ... = ((succ x - y) div y) * y + (succ x - y) mod y + y : !add.right_comm
-                    ... = succ x - y + y : {(IH _ H6)⁻¹}
-                    ... = succ x : add_sub_ge_left H2)⁻¹)))
+                  succ x div y * y + succ x mod y = succ ((succ x - y) div y) * y + succ x mod y : H3
+                    ... = ((succ x - y) div y) * y + y + succ x mod y       : mul.succ_left
+                    ... = ((succ x - y) div y) * y + y + (succ x - y) mod y : H4
+                    ... = ((succ x - y) div y) * y + (succ x - y) mod y + y : add.right_comm
+                    ... = succ x - y + y                                    : {!(IH _ H6)⁻¹}
+                    ... = succ x                                            : add_sub_ge_left H2)⁻¹)))
 
 theorem mod_le {x y : ℕ} : x mod y ≤ x :=
 div_mod_eq⁻¹ ▸ !le_add_left
@@ -180,7 +178,7 @@ theorem remainder_unique {y : ℕ} (H : y > 0) {q1 r1 q2 r2 : ℕ} (H1 : r1 < y)
 calc
   r1 = r1 mod y : by simp
     ... = (r1 + q1 * y) mod y : (mod_add_mul_self_right H)⁻¹
-    ... = (q1 * y + r1) mod y : {!add.comm}
+    ... = (q1 * y + r1) mod y : add.comm
     ... = (r2 + q2 * y) mod y : by simp
     ... = r2 mod y            : mod_add_mul_self_right H
     ... = r2                  : by simp
@@ -202,10 +200,10 @@ by_cases -- (y = 0)
     have H2 : z * (x mod y) < z * y, from mul_lt_left zpos (mod_lt ypos),
     quotient_unique zypos H1 H2
       (calc
-        ((z * x) div (z * y)) * (z * y) + (z * x) mod (z * y) = z * x : div_mod_eq⁻¹
-          ... = z * (x div y * y + x mod y)                           : {div_mod_eq}
-          ... = z * (x div y * y) + z * (x mod y)                     : !mul.distr_left
-          ... = (x div y) * (z * y) + z * (x mod y)                   : {!mul.left_comm}))
+        ((z * x) div (z * y)) * (z * y) + (z * x) mod (z * y) = z * x : div_mod_eq
+          ... = z * (x div y * y + x mod y)                           : div_mod_eq
+          ... = z * (x div y * y) + z * (x mod y)                     : mul.distr_left
+          ... = (x div y) * (z * y) + z * (x mod y)                   : mul.left_comm))
 --- something wrong with the term order
 ---            ... = (x div y) * (z * y) + z * (x mod y) : by simp))
 
@@ -219,10 +217,10 @@ by_cases -- (y = 0)
     have H2 : z * (x mod y) < z * y, from mul_lt_left zpos (mod_lt ypos),
     remainder_unique zypos H1 H2
       (calc
-        ((z * x) div (z * y)) * (z * y) + (z * x) mod (z * y) = z * x : div_mod_eq⁻¹
-          ... = z * (x div y * y + x mod y) : {div_mod_eq}
-          ... = z * (x div y * y) + z * (x mod y) : !mul.distr_left
-          ... = (x div y) * (z * y) + z * (x mod y) : {!mul.left_comm}))
+        ((z * x) div (z * y)) * (z * y) + (z * x) mod (z * y) = z * x : div_mod_eq
+          ... = z * (x div y * y + x mod y)                           : div_mod_eq
+          ... = z * (x div y * y) + z * (x mod y)                     : mul.distr_left
+          ... = (x div y) * (z * y) + z * (x mod y)                   : mul.left_comm))
 
 theorem mod_one (x : ℕ) : x mod 1 = 0 :=
 have H1 : x mod 1 < 1, from mod_lt !succ_pos,
@@ -273,19 +271,19 @@ have H1 : z * y = x mod y + x div y * y, from
   H ⬝ div_mod_eq ⬝ !add.comm,
 have H2 : (z - x div y) * y = x mod y, from
   calc
-    (z - x div y) * y = z * y - x div y * y      : !mul_sub_distr_right
-       ... = x mod y + x div y * y - x div y * y : {H1}
-       ... = x mod y                             : !sub_add_left,
+    (z - x div y) * y = z * y - x div y * y      : mul_sub_distr_right
+       ... = x mod y + x div y * y - x div y * y : H1
+       ... = x mod y                             : sub_add_left,
 show x mod y = 0, from
   by_cases
     (assume yz : y = 0,
       have xz : x = 0, from
         calc
-          x = z * y     : H⁻¹
-            ... = z * 0 : {yz}
-            ... = 0     : !mul.zero_right,
+          x = z * y     : H
+            ... = z * 0 : yz
+            ... = 0     : mul.zero_right,
       calc
-        x mod y = x mod 0 : {yz}
+        x mod y = x mod 0 : yz
           ... = x         : mod_zero
           ... = 0         : xz)
     (assume ynz : y ≠ 0,
@@ -295,9 +293,9 @@ show x mod y = 0, from
       have H5 : z - x div y < 1, from mul_lt_cancel_right H4,
       have H6 : z - x div y = 0, from le_zero (lt_succ_imp_le H5),
       calc
-        x mod y = (z - x div y) * y : H2⁻¹
-            ... = 0 * y : {H6}
-            ... = 0 : !mul.zero_left)
+        x mod y = (z - x div y) * y : H2
+            ... = 0 * y             : H6
+            ... = 0                 : mul.zero_left)
 
 theorem dvd_iff_exists_mul (x y : ℕ) : x | y ↔ ∃z, z * x = y :=
 iff.intro
@@ -339,11 +337,10 @@ theorem dvd_mul_self_right (m n : ℕ) : m | (n * m) :=
 
 theorem dvd_trans {m n k : ℕ} (H1 : m | n) (H2 : n | k) : m | k :=
 have H3 : n = n div m * m, from (dvd_imp_div_mul_eq H1)⁻¹,
-have H4 : k = k div n * (n div m) * m, from
-  calc
-    k     = k div n * n             : dvd_imp_div_mul_eq H2
-      ... = k div n * (n div m * m) : H3
-      ... = k div n * (n div m) * m : mul.assoc,
+have H4 : k = k div n * (n div m) * m, from calc
+  k     = k div n * n             : dvd_imp_div_mul_eq H2
+    ... = k div n * (n div m * m) : H3
+    ... = k div n * (n div m) * m : mul.assoc,
 mp (!dvd_iff_exists_mul⁻¹) (exists_intro (k div n * (n div m)) (H4⁻¹))
 
 theorem dvd_add {m n1 n2 : ℕ} (H1 : m | n1) (H2 : m | n2) : m | (n1 + n2) :=
@@ -355,8 +352,7 @@ mp (!dvd_iff_exists_mul⁻¹) (exists_intro _ H)
 
 theorem dvd_add_cancel_left {m n1 n2 : ℕ} : m | (n1 + n2) → m | n1 → m | n2 :=
 case_zero_pos m
-  (assume H1 : 0 | n1 + n2,
-    assume H2 : 0 | n1,
+  (assume (H1 : 0 | n1 + n2) (H2 : 0 | n1),
     have H3 : n1 + n2 = 0, from (zero_dvd_eq (n1 + n2)) ▸ H1,
     have H4 : n1 = 0, from (zero_dvd_eq n1) ▸ H2,
     have H5 : n2 = 0, from calc
@@ -368,15 +364,14 @@ case_zero_pos m
     assume mpos : m > 0,
     assume H1 : m | (n1 + n2),
     assume H2 : m | n1,
-    have H3 : n1 + n2 = n1 + n2 div m * m, from
-     calc
-       n1 + n2 = (n1 + n2) div m * m         : dvd_imp_div_mul_eq H1
-         ... = (n1 div m * m + n2) div m * m : dvd_imp_div_mul_eq H2
-         ... = (n2 + n1 div m * m) div m * m : add.comm
-         ... = (n2 div m + n1 div m) * m     : div_add_mul_self_right mpos
-         ... = n2 div m * m + n1 div m * m   : mul.distr_right
-         ... = n1 div m * m + n2 div m * m   : add.comm
-         ... = n1 + n2 div m * m             : dvd_imp_div_mul_eq H2,
+    have H3 : n1 + n2 = n1 + n2 div m * m, from calc
+      n1 + n2 = (n1 + n2) div m * m         : dvd_imp_div_mul_eq H1
+          ... = (n1 div m * m + n2) div m * m : dvd_imp_div_mul_eq H2
+          ... = (n2 + n1 div m * m) div m * m : add.comm
+          ... = (n2 div m + n1 div m) * m     : div_add_mul_self_right mpos
+          ... = n2 div m * m + n1 div m * m   : mul.distr_right
+          ... = n1 div m * m + n2 div m * m   : add.comm
+          ... = n1 + n2 div m * m             : dvd_imp_div_mul_eq H2,
     have H4 : n2 = n2 div m * m, from add.cancel_left H3,
     mp (!dvd_iff_exists_mul⁻¹) (exists_intro _ (H4⁻¹)))
 

@@ -15,6 +15,7 @@ class flycheck_scope {
 public:
     flycheck_scope(io_state_stream const & ios, char const * kind);
     ~flycheck_scope();
+    bool enabled() const { return m_flycheck; }
 };
 
 struct flycheck_error : public flycheck_scope {
@@ -25,11 +26,7 @@ struct flycheck_warning : public flycheck_scope {
     flycheck_warning(io_state_stream const & ios):flycheck_scope(ios, "WARNING") {}
 };
 
-class flyinfo_scope {
-    io_state_stream const & m_ios;
-    bool                    m_flyinfo;
-public:
-    flyinfo_scope(io_state_stream const & ios);
-    ~flyinfo_scope();
+struct flycheck_information : public flycheck_scope {
+    flycheck_information(io_state_stream const & ios):flycheck_scope(ios, "INFORMATION") {}
 };
 }

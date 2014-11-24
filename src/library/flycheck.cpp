@@ -15,13 +15,4 @@ flycheck_scope::flycheck_scope(io_state_stream const & ios, char const * kind):
 flycheck_scope::~flycheck_scope() {
     if (m_flycheck) m_ios << "FLYCHECK_END" << endl;
 }
-
-flyinfo_scope::flyinfo_scope(io_state_stream const & ios):
-    m_ios(ios),
-    m_flyinfo(m_ios.get_options().get_bool("flyinfo", false)) {
-    if (m_flyinfo) m_ios << "FLYCHECK_BEGIN INFO" << endl;
-}
-flyinfo_scope::~flyinfo_scope() {
-    if (m_flyinfo) m_ios << "FLYCHECK_END" << endl;
-}
 }

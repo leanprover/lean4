@@ -212,6 +212,10 @@ void parser::display_warning_pos(unsigned line, unsigned pos) {
 }
 void parser::display_warning_pos(pos_info p) { display_warning_pos(p.first, p.second); }
 
+void parser::display_information_pos(pos_info pos) {
+    ::lean::display_information_pos(regular_stream(), get_stream_name().c_str(), pos.first, pos.second);
+}
+
 void parser::display_error_pos(unsigned line, unsigned pos) {
     ::lean::display_error_pos(regular_stream(), get_stream_name().c_str(), line, pos);
 }

@@ -19,6 +19,7 @@ void display_error_pos(io_state_stream const & ios, pos_info_provider const * p,
 void display_error_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos);
 /** \brief Similar to #display_error_pos, but displays a "warning:" */
 void display_warning_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos);
+void display_information_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos);
 /**
    \brief Display exception in the regular stream of \c ios, using the configuration options and formatter from \c ios.
    Exceptions that contain expressions use the given \c pos_info_provider (if available) to retrieve line number information.

@@ -42,6 +42,11 @@ void display_warning_pos(io_state_stream const & ios, char const * strm_name, un
     ios << " warning:";
 }
 
+void display_information_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
+    display_pos(ios, strm_name, line, pos);
+    ios << " information:";
+}
+
 void display_error_pos(io_state_stream const & ios, pos_info_provider const * p, expr const & e) {
     if (p) {
         auto pos = p->get_pos_info_or_some(e);

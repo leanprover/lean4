@@ -415,6 +415,7 @@ public:
     void declare_sorry();
 
     parser_pos_provider get_pos_provider() const { return parser_pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos); }
+    void display_information_pos(pos_info p);
 
     /** parse all commands in the input stream */
     bool operator()() { return parse_commands(); }

@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/normalize.h"
 #include "library/print.h"
+#include "library/flycheck.h"
 #include "library/definitional/projection.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -252,6 +253,11 @@ environment check_cmd(parser & p) {
     fmt                   = fmt.update_options(opts);
     unsigned indent       = get_pp_indent(opts);
     format r = group(fmt(e) + space() + colon() + nest(indent, line() + fmt(type)));
+    flycheck_information info(p.regular_stream());
+    if (info.enabled()) {
+        p.display_information_pos(p.cmd_pos());
+        p.regular_stream() << "check result:\n";
+    }
     reg << mk_pair(r, opts) << endl;
     return p.env();
 }
@@ -277,6 +283,11 @@ environment eval_cmd(parser & p) {
     } else {
         transparent_scope scope;
         r = normalize(p.env(), ls, e);
+    }
+    flycheck_information info(p.regular_stream());
+    if (info.enabled()) {
+        p.display_information_pos(p.cmd_pos());
+        p.regular_stream() << "eval result:\n";
     }
     p.regular_stream() << r << endl;
     return p.env();

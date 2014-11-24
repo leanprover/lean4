@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/type_util.h"
 #include "library/reducible.h"
+#include "library/flycheck.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
@@ -102,6 +103,10 @@ environment find_cmd(parser & p) {
     parse_filters(p, pos_names, neg_names);
     environment env = p.env();
     auto tc = mk_opaque_type_checker(env, p.mk_ngen());
+    flycheck_information info(p.regular_stream());
+    if (info.enabled()) {
+        p.display_information_pos(p.cmd_pos());
+    }
     p.regular_stream() << "find_decl result:\n";
 
     unsigned max_steps = get_find_max_steps(p.get_options());

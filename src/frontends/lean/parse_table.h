@@ -60,6 +60,8 @@ public:
 
     friend void initialize_parse_table();
     friend action mk_expr_action(unsigned rbp);
+    friend action mk_binders_action(unsigned rbp);
+    friend action mk_binder_action(unsigned rbp);
     friend action mk_exprs_action(name const & sep, expr const & rec, optional<expr> const & ini,
                                   optional<name> const & terminator, bool right, unsigned rbp);
     friend action mk_scoped_expr_action(expr const & rec, unsigned rbp, bool lambda);
@@ -91,8 +93,8 @@ action mk_skip_action();
 action mk_expr_action(unsigned rbp = 0);
 action mk_exprs_action(name const & sep, expr const & rec, optional<expr> const & ini, optional<name> const & terminator, bool right,
                        unsigned rbp = 0);
-action mk_binder_action();
-action mk_binders_action();
+action mk_binder_action(unsigned rbp = 0);
+action mk_binders_action(unsigned rbp = 0);
 action mk_scoped_expr_action(expr const & rec, unsigned rbp = 0, bool lambda = true);
 action mk_ext_action_core(parse_fn const & fn);
 action mk_ext_action(parse_fn const & fn);

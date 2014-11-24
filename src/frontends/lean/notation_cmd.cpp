@@ -389,6 +389,15 @@ static optional<pair<action, parse_table>> find_next(optional<parse_table> const
         return optional<pair<action, parse_table>>();
 }
 
+static unsigned parse_binders_rbp(parser & p) {
+    if (p.curr_is_token(get_colon_tk())) {
+        p.next();
+        return parse_precedence(p, "invalid binder/binders, precedence expected");
+    } else {
+        return 0;
+    }
+}
+
 static notation_entry parse_notation_core(parser & p, bool overload, bool reserve, buffer<token_entry> & new_tokens, bool parse_only) {
     buffer<expr>       locals;
     buffer<transition> ts;
@@ -462,10 +471,12 @@ static notation_entry parse_notation_core(parser & p, bool overload, bool reserv
             reserved_pt = optional<parse_table>();
             if (p.curr_is_token_or_id(get_binder_tk())) {
                 p.next();
-                ts.push_back(transition(tk, mk_binder_action()));
+                unsigned rbp = parse_binders_rbp(p);
+                ts.push_back(transition(tk, mk_binder_action(rbp)));
             } else if (p.curr_is_token_or_id(get_binders_tk())) {
                 p.next();
-                ts.push_back(transition(tk, mk_binders_action()));
+                unsigned rbp = parse_binders_rbp(p);
+                ts.push_back(transition(tk, mk_binders_action(rbp)));
             } else if (p.curr_is_identifier()) {
                 unsigned default_prec = get_default_prec(pt, tk);
                 name n   = p.get_name_val();

@@ -761,13 +761,13 @@ void parser::parse_close_binder_info(optional<binder_info> const & bi) {
 }
 
 /** \brief Parse <tt>ID ':' expr</tt>, where the expression represents the type of the identifier. */
-expr parser::parse_binder_core(binder_info const & bi) {
+expr parser::parse_binder_core(binder_info const & bi, unsigned rbp) {
     auto p  = pos();
     name id = check_atomic_id_next("invalid binder, atomic identifier expected");
     expr type;
     if (curr_is_token(get_colon_tk())) {
         next();
-        type = parse_expr();
+        type = parse_expr(rbp);
     } else {
         type = save_pos(mk_expr_placeholder(), p);
     }
@@ -775,12 +775,13 @@ expr parser::parse_binder_core(binder_info const & bi) {
     return save_pos(mk_local(id, type, bi), p);
 }
 
-expr parser::parse_binder() {
+expr parser::parse_binder(unsigned rbp) {
     if (curr_is_identifier()) {
-        return parse_binder_core(binder_info());
+        return parse_binder_core(binder_info(), rbp);
     } else {
         binder_info bi = parse_binder_info();
-        auto r = parse_binder_core(bi);
+        rbp = 0;
+        auto r = parse_binder_core(bi, rbp);
         parse_close_binder_info(bi);
         return r;
     }
@@ -790,7 +791,7 @@ expr parser::parse_binder() {
    \brief Parse <tt>ID ... ID ':' expr</tt>, where the expression
    represents the type of the identifiers.
 */
-void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi) {
+void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsigned rbp) {
     buffer<pair<pos_info, name>> names;
     while (curr_is_identifier()) {
         auto p = pos();
@@ -801,7 +802,7 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi) {
     optional<expr> type;
     if (curr_is_token(get_colon_tk())) {
         next();
-        type = parse_expr();
+        type = parse_expr(rbp);
     }
     for (auto p : names) {
         expr arg_type = type ? *type : save_pos(mk_expr_placeholder(), p.first);
@@ -813,17 +814,18 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi) {
 }
 
 void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries,
-                                bool & last_block_delimited) {
+                                bool & last_block_delimited, unsigned rbp) {
     while (true) {
         if (curr_is_identifier()) {
-            parse_binder_block(r, binder_info());
+            parse_binder_block(r, binder_info(), rbp);
             last_block_delimited = false;
         } else {
             optional<binder_info> bi = parse_optional_binder_info();
             if (bi) {
+                rbp = 0;
                 last_block_delimited = true;
                 if (!parse_local_notation_decl(nentries))
-                    parse_binder_block(r, *bi);
+                    parse_binder_block(r, *bi, rbp);
                 parse_close_binder_info(bi);
             } else {
                 return;
@@ -833,11 +835,11 @@ void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentr
 }
 
 local_environment parser::parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries,
-                                        bool & last_block_delimited, bool allow_empty) {
+                                        bool & last_block_delimited, bool allow_empty, unsigned rbp) {
     flet<environment> save(m_env, m_env); // save environment
     local_expr_decls::mk_scope scope(m_local_decls);
     unsigned old_sz = r.size();
-    parse_binders_core(r, nentries, last_block_delimited);
+    parse_binders_core(r, nentries, last_block_delimited, rbp);
     if (!allow_empty && old_sz == r.size())
         throw_invalid_open_binder(pos());
     return local_environment(m_env);
@@ -941,12 +943,12 @@ expr parser::parse_notation(parse_table t, expr * left) {
         case notation::action_kind::Binder:
             next();
             binder_pos = pos();
-            ps.push_back(parse_binder());
+            ps.push_back(parse_binder(a.rbp()));
             break;
         case notation::action_kind::Binders:
             next();
             binder_pos = pos();
-            lenv = parse_binders(ps);
+            lenv = parse_binders(ps, a.rbp());
             break;
         case notation::action_kind::ScopedExpr: {
             next();

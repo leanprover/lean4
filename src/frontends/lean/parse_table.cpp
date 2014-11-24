@@ -80,6 +80,16 @@ struct expr_action_cell : public action_cell {
         expr_action_cell(action_kind::Expr, rbp) {}
 };
 
+struct binder_action_cell : public expr_action_cell {
+    binder_action_cell(unsigned rbp):
+        expr_action_cell(action_kind::Binder, rbp) {}
+};
+
+struct binders_action_cell : public expr_action_cell {
+    binders_action_cell(unsigned rbp):
+        expr_action_cell(action_kind::Binders, rbp) {}
+};
+
 struct exprs_action_cell : public expr_action_cell {
     name           m_token_sep;
     expr           m_rec;
@@ -122,7 +132,8 @@ action & action::operator=(action const & s) { LEAN_COPY_REF(s); }
 action & action::operator=(action && s) { LEAN_MOVE_REF(s); }
 action_kind action::kind() const { return m_ptr->m_kind; }
 expr_action_cell * to_expr_action(action_cell * c) {
-    lean_assert(c->m_kind == action_kind::Expr || c->m_kind == action_kind::Exprs || c->m_kind == action_kind::ScopedExpr);
+    lean_assert(c->m_kind == action_kind::Expr || c->m_kind == action_kind::Exprs || c->m_kind == action_kind::ScopedExpr ||
+                c->m_kind == action_kind::Binder || c->m_kind == action_kind::Binders);
     return static_cast<expr_action_cell*>(c);
 }
 exprs_action_cell * to_exprs_action(action_cell * c) {
@@ -159,14 +170,14 @@ bool action::is_equal(action const & a) const {
     if (kind() != a.kind())
         return false;
     switch (kind()) {
-    case action_kind::Skip: case action_kind::Binder: case action_kind::Binders:
+    case action_kind::Skip:
         return true;
+    case action_kind::Binder: case action_kind::Binders: case action_kind::Expr:
+        return rbp() == a.rbp();
     case action_kind::Ext:
         return m_ptr == a.m_ptr;
     case action_kind::LuaExt:
         return get_lua_fn() == a.get_lua_fn();
-    case action_kind::Expr:
-        return rbp() == a.rbp();
     case action_kind::Exprs:
         return
             rbp() == a.rbp() &&
@@ -184,8 +195,18 @@ bool action::is_equal(action const & a) const {
 void action::display(std::ostream & out) const {
     switch (kind()) {
     case action_kind::Skip:    out << "skip"; break;
-    case action_kind::Binder:  out << "binder"; break;
-    case action_kind::Binders: out << "binders"; break;
+    case action_kind::Binder:
+        if (rbp() != 0)
+            out << "binder:" << rbp();
+        else
+            out << "binder";
+        break;
+    case action_kind::Binders:
+        if (rbp() != 0)
+            out << "binders:" << rbp();
+        else
+            out << "binders";
+        break;
     case action_kind::Ext:     out << "ext"; break;
     case action_kind::LuaExt:  out << "luaext"; break;
     case action_kind::Expr:    out << rbp(); break;
@@ -212,6 +233,8 @@ bool action::is_simple() const {
 void action_cell::dealloc() {
     switch (m_kind) {
     case action_kind::Expr:       delete(to_expr_action(this)); break;
+    case action_kind::Binder:     delete(to_expr_action(this)); break;
+    case action_kind::Binders:    delete(to_expr_action(this)); break;
     case action_kind::Exprs:      delete(to_exprs_action(this)); break;
     case action_kind::ScopedExpr: delete(to_scoped_expr_action(this)); break;
     case action_kind::Ext:        delete(to_ext_action(this)); break;
@@ -221,25 +244,18 @@ void action_cell::dealloc() {
 }
 
 static action * g_skip_action = nullptr;
-static action * g_binder_action = nullptr;
-static action * g_binders_action = nullptr;
-
 action mk_skip_action() { return *g_skip_action; }
-action mk_binder_action() { return *g_binder_action; }
-action mk_binders_action() { return *g_binders_action; }
 
 void initialize_parse_table() {
     g_skip_action    = new action(new action_cell(action_kind::Skip));
-    g_binder_action  = new action(new action_cell(action_kind::Binder));
-    g_binders_action = new action(new action_cell(action_kind::Binders));
 }
 
 void finalize_parse_table() {
-    delete g_binders_action;
-    delete g_binder_action;
     delete g_skip_action;
 }
 
+action mk_binder_action(unsigned rbp) { return action(new binder_action_cell(rbp)); }
+action mk_binders_action(unsigned rbp) { return action(new binders_action_cell(rbp)); }
 action mk_expr_action(unsigned rbp) { return action(new expr_action_cell(rbp)); }
 action mk_exprs_action(name const & sep, expr const & rec, optional<expr> const & ini,
                        optional<name> const & terminator, bool right, unsigned rbp) {

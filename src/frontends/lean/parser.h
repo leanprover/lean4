@@ -182,10 +182,11 @@ class parser {
     expr parse_numeral_expr();
     expr parse_decimal_expr();
     expr parse_string_expr();
-    expr parse_binder_core(binder_info const & bi);
-    void parse_binder_block(buffer<expr> & r, binder_info const & bi);
-    void parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited);
-    local_environment parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited, bool allow_empty = false);
+    expr parse_binder_core(binder_info const & bi, unsigned rbp);
+    void parse_binder_block(buffer<expr> & r, binder_info const & bi, unsigned rbp);
+    void parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited, unsigned rbp);
+    local_environment parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries, bool & last_block_delimited,
+                                    bool allow_empty, unsigned rbp);
     bool parse_local_notation_decl(buffer<notation_entry> * entries);
 
     friend environment section_cmd(parser & p);
@@ -321,18 +322,22 @@ public:
 
     level parse_level(unsigned rbp = 0);
 
-    expr parse_binder();
+    expr parse_binder(unsigned rbp);
     local_environment parse_binders(buffer<expr> & r, bool & last_block_delimited) {
-        return parse_binders(r, nullptr, last_block_delimited);
+        unsigned rbp = 0; bool allow_empty = false;
+        return parse_binders(r, nullptr, last_block_delimited, allow_empty, rbp);
     }
-    local_environment parse_binders(buffer<expr> & r) {
-        bool tmp; return parse_binders(r, nullptr, tmp);
+    local_environment parse_binders(buffer<expr> & r, unsigned rbp) {
+        bool tmp; bool allow_empty = false;
+        return parse_binders(r, nullptr, tmp, allow_empty, rbp);
     }
     local_environment parse_optional_binders(buffer<expr> & r) {
-        bool tmp; return parse_binders(r, nullptr, tmp, true);
+        bool tmp; bool allow_empty = true; unsigned rbp = 0;
+        return parse_binders(r, nullptr, tmp, allow_empty, rbp);
     }
     local_environment parse_binders(buffer<expr> & r, buffer<notation_entry> & nentries) {
-        bool tmp; return parse_binders(r, &nentries, tmp);
+        bool tmp; bool allow_empty = false; unsigned rbp = 0;
+        return parse_binders(r, &nentries, tmp, allow_empty, rbp);
     }
     optional<binder_info> parse_optional_binder_info();
     binder_info parse_binder_info();

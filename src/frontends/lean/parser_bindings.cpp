@@ -78,12 +78,14 @@ static int parse_expr(lua_State * L) { return push_expr(L, gparser.parse_expr(to
 static int parse_led(lua_State * L) { return push_expr(L, gparser.parse_led(to_expr(L, 1))); }
 static int parse_binders(lua_State * L) {
     buffer<expr> ps;
-    auto lenv = gparser.parse_binders(ps);
+    unsigned rbp = 0;
+    auto lenv    = gparser.parse_binders(ps, rbp);
     return push_local_scope_ext(L, lenv, ps);
 }
 static int parse_binder(lua_State * L) {
     buffer<expr> ps;
-    ps.push_back(gparser.parse_binder());
+    unsigned rbp = 0;
+    ps.push_back(gparser.parse_binder(rbp));
     return push_local_scope_ext(L, gparser.env(), ps);
 }
 static int parse_scoped_expr(lua_State * L) {

@@ -181,7 +181,8 @@ struct inductive_cmd_fn {
             type = mk_sort(mk_level_placeholder());
         } else if (m_first && !m_p.curr_is_token(get_colon_tk())) {
             lean_assert(m_params.empty());
-            m_p.parse_binders(ps);
+            unsigned rbp = 0;
+            m_p.parse_binders(ps, rbp);
             m_num_params = ps.size();
             if (m_p.curr_is_token(get_colon_tk())) {
                 m_p.next();

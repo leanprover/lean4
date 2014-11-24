@@ -87,7 +87,8 @@ static expr parse_let(parser & p, pos_info const & pos) {
         } else {
             parser::local_scope scope2(p);
             buffer<expr> ps;
-            auto lenv = p.parse_binders(ps);
+            unsigned rbp = 0;
+            auto lenv = p.parse_binders(ps, rbp);
             if (p.curr_is_token(get_colon_tk())) {
                 p.next();
                 type  = p.parse_scoped_expr(ps, lenv);
@@ -333,7 +334,8 @@ static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & po
     // exists_elim {A : Type} {P : A → Prop} {B : Prop} (H1 : ∃ x : A, P x) (H2 : ∀ (a : A) (H : P a), B)
     buffer<expr> ps;
     auto b_pos = p.pos();
-    environment env = p.parse_binders(ps);
+    unsigned rbp = 0;
+    environment env = p.parse_binders(ps, rbp);
     unsigned num_ps = ps.size();
     if (num_ps < 2)
         throw parser_error("invalid 'obtain' expression, at least 2 binders expected", b_pos);

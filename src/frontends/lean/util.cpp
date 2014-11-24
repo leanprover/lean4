@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/locals.h"
 #include "library/explicit.h"
+#include "library/aliases.h"
 #include "library/placeholder.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
@@ -383,5 +384,35 @@ pair<expr, justification> update_meta(expr const & meta, substitution s) {
         j      = mk_composite1(j, p.second);
     }
     return mk_pair(mk_app(mvar, args), j);
+}
+
+std::tuple<expr, level_param_names> parse_local_expr(parser & p) {
+    expr e   = p.parse_expr();
+    list<expr> ctx = p.locals_to_context();
+    level_param_names new_ls;
+    std::tie(e, new_ls) = p.elaborate_relaxed(e, ctx);
+    level_param_names ls = to_level_param_names(collect_univ_params(e));
+    return std::make_tuple(e, ls);
+}
+
+optional<name> is_uniquely_aliased(environment const & env, name const & n) {
+    if (auto it = is_expr_aliased(env, n))
+        if (length(get_expr_aliases(env, *it)) == 1)
+            return it;
+    return optional<name>();
+}
+
+name get_decl_short_name(name const & d, environment const & env) {
+    // using namespace override resolution rule
+    list<name> const & ns_list = get_namespaces(env);
+    for (name const & ns : ns_list) {
+        if (is_prefix_of(ns, d) && ns != d)
+            return d.replace_prefix(ns, name());
+    }
+    // if the alias is unique use it
+    if (auto it = is_uniquely_aliased(env, d))
+        return *it;
+    else
+        return d;
 }
 }

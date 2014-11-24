@@ -69,6 +69,7 @@ unifier_config::unifier_config(bool use_exceptions, bool discard):
     m_expensive_classes(LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES),
     m_discard(discard) {
     m_cheap = false;
+    m_ignore_context_check = false;
 }
 
 unifier_config::unifier_config(options const & o, bool use_exceptions, bool discard):
@@ -78,6 +79,7 @@ unifier_config::unifier_config(options const & o, bool use_exceptions, bool disc
     m_expensive_classes(get_unifier_expensive_classes(o)),
     m_discard(discard) {
     m_cheap = false;
+    m_ignore_context_check = false;
 }
 
 // If \c e is a metavariable ?m or a term of the form (?m l_1 ... l_n) where
@@ -735,7 +737,11 @@ struct unifier_fn {
         if (!m || is_meta(rhs))
             return Continue;
         expr bad_local;
-        auto status = occurs_context_check(m_subst, rhs, *m, locals, bad_local);
+        occurs_check_status status;
+        if (m_config.m_ignore_context_check)
+            status = occurs_check_status::Ok;
+        else
+            status = occurs_context_check(m_subst, rhs, *m, locals, bad_local);
         if (status == occurs_check_status::FailLocal || status == occurs_check_status::FailCircular) {
             // Try to normalize rhs
             // Example:  ?M := f (pr1 (pair 0 ?M))

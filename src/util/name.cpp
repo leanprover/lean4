@@ -401,6 +401,19 @@ name name::replace_prefix(name const & prefix, name const & new_prefix) const {
         return name(p, get_numeral());
 }
 
+bool is_part_of(std::string const & p, name n) {
+    while (true) {
+        if (n.is_string()) {
+            std::string s(n.get_string());
+            if (s.find(p) != std::string::npos)
+                return true;
+        }
+        if (n.is_atomic() || n.is_anonymous())
+            return false;
+        n = n.get_prefix();
+    }
+}
+
 name string_to_name(std::string const & str) {
     static_assert(*(lean_name_separator+1) == 0, "this function assumes the length of lean_name_separator is 1");
     name result;

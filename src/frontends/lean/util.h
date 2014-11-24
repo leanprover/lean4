@@ -99,4 +99,12 @@ inline justification mk_type_mismatch_jst(expr const & v, expr const & v_type, e
     Return the updated expression and a justification for all substitutions.
 */
 pair<expr, justification> update_meta(expr const & meta, substitution s);
+
+/** \brief Auxiliary function for check/eval/find_decl */
+std::tuple<expr, level_param_names> parse_local_expr(parser & p);
+
+optional<name> is_uniquely_aliased(environment const & env, name const & n);
+
+/** \brief Get declaration 'short-name' that can uniquely identify it. */
+name get_decl_short_name(name const & d, environment const & env);
 }

@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/tactic/goal.h"
 #include "frontends/lean/server.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/util.h"
 
 // #define LEAN_SERVER_DIAGNOSTIC
 
@@ -560,13 +561,6 @@ void server::display_decl(name const & short_name, name const & long_name, envir
     out << short_name << "|" << mk_pair(flatten(out.get_formatter()(type)), o) << "\n";
 }
 
-optional<name> is_uniquely_aliased(environment const & env, name const & n) {
-    if (auto it = is_expr_aliased(env, n))
-        if (length(get_expr_aliases(env, *it)) == 1)
-            return it;
-    return optional<name>();
-}
-
 /** \brief Return an (atomic) name if \c n can be referenced by this atomic
     name in the given environment. */
 optional<name> is_essentially_atomic(environment const & env, name const & n) {
@@ -718,19 +712,6 @@ void consume_pos_neg_strs(std::string const & filters, buffer<std::string> & pos
         } else {
             throw exception("invalid filter, '+' or '-' expected");
         }
-    }
-}
-
-bool is_part_of(std::string const & p, name n) {
-    while (true) {
-        if (n.is_string()) {
-            std::string s(n.get_string());
-            if (s.find(p) != std::string::npos)
-                return true;
-        }
-        if (n.is_atomic() || n.is_anonymous())
-            return false;
-        n = n.get_prefix();
     }
 }
 

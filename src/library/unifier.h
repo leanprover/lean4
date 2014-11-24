@@ -43,6 +43,9 @@ struct unifier_config {
     // If m_cheap is true, then expensive case-analysis is not performed (e.g., delta).
     // Default is m_cheap == false
     bool     m_cheap;
+    // If m_ignore_context_check == true, then occurs-check is skipped.
+    // Default is m_ignore_context_check == false
+    bool     m_ignore_context_check;
     unifier_config(bool use_exceptions = false, bool discard = false);
     explicit unifier_config(options const & o, bool use_exceptions = false, bool discard = false);
 };

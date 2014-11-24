@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/inductive_cmd.h"
 #include "frontends/lean/structure_cmd.h"
+#include "frontends/lean/find_cmd.h"
 #include "frontends/lean/begin_end_ext.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/class.h"
@@ -237,16 +238,6 @@ environment end_scoped_cmd(parser & p) {
         redeclare_aliases(p, level_entries, entries);
         return env;
     }
-}
-
-/** \brief Auxiliary function for check/eval */
-static std::tuple<expr, level_param_names> parse_local_expr(parser & p) {
-    expr e   = p.parse_expr();
-    list<expr> ctx = p.locals_to_context();
-    level_param_names new_ls;
-    std::tie(e, new_ls) = p.elaborate_relaxed(e, ctx);
-    level_param_names ls = to_level_param_names(collect_univ_params(e));
-    return std::make_tuple(e, ls);
 }
 
 environment check_cmd(parser & p) {
@@ -575,8 +566,9 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("coercion",     "add a new coercion", coercion_cmd));
     add_cmd(r, cmd_info("reducible",    "mark definitions as reducible/irreducible for automation", reducible_cmd));
     add_cmd(r, cmd_info("irreducible",  "mark definitions as irreducible for automation", irreducible_cmd));
+    add_cmd(r, cmd_info("find_decl",    "find definitions and/or theorems", find_cmd));
     add_cmd(r, cmd_info("#erase_cache", "erase cached definition (for debugging purposes)", erase_cache_cmd));
-    add_cmd(r, cmd_info("#projections", "generate projections for inductive datatype (for debugging)", projections_cmd));
+    add_cmd(r, cmd_info("#projections", "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
 
     register_decl_cmds(r);
     register_inductive_cmd(r);

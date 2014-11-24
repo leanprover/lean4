@@ -163,6 +163,9 @@ struct name_eq { bool operator()(name const & n1, name const & n2) const { retur
 struct name_cmp { int operator()(name const & n1, name const & n2) const { return cmp(n1, n2); } };
 struct name_quick_cmp { int operator()(name const & n1, name const & n2) const { return quick_cmp(n1, n2); } };
 
+/** \brief Return true if \c p is part of \c n */
+bool is_part_of(std::string const & p, name n);
+
 /**
    \brief Return true iff the two given names are independent.
    That \c a is not a prefix of \c b, nor \c b is a prefix of \c a

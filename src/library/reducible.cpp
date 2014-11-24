@@ -136,7 +136,16 @@ std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_gene
                                                                                               memoize, pred)));
     }
 }
+
 std::unique_ptr<type_checker> mk_type_checker(environment const & env, bool relax_main_opaque, bool only_main_reducible) {
     return mk_type_checker(env, name_generator(*g_tmp_prefix), relax_main_opaque, only_main_reducible);
+}
+
+std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, name_generator const & ngen) {
+    extra_opaque_pred pred([=](name const &) { return true; }); // everything is opaque
+    bool relax_main_opaque = false;
+    bool memoize = true;
+    return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, relax_main_opaque,
+                                                                                          memoize, pred)));
 }
 }

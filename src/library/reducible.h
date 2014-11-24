@@ -39,6 +39,9 @@ std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_gene
                                               bool memoize = true);
 std::unique_ptr<type_checker> mk_type_checker(environment const & env, bool relax_main_opaque, bool only_main_reducible = false);
 
+/** \brief Create a type checker that treats all definitions as opaque. */
+std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, name_generator const & ngen);
+
 void initialize_reducible();
 void finalize_reducible();
 }

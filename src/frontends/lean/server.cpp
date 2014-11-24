@@ -760,11 +760,16 @@ bool match_type(type_checker & tc, expr const & meta, expr const & expected_type
     try {
         unifier_config cfg;
         cfg.m_max_steps = LEAN_FINDG_MAX_STEPS;
+        cfg.m_cheap     = true;
         auto r = unify(tc.env(), dt, expected_type, tc.mk_ngen(), true, substitution(), cfg);
         return static_cast<bool>(r.pull());
     } catch (exception&) {
         return false;
     }
+}
+
+static std::unique_ptr<type_checker> mk_find_goal_type_checker(environment const & env, name_generator const & ngen) {
+    return mk_opaque_type_checker(env, ngen);
 }
 
 static name * g_tmp_prefix = nullptr;
@@ -784,7 +789,7 @@ void server::find_goal_matches(unsigned line_num, unsigned col_num, std::string 
     environment const & env = env_opts->first;
     options const & opts    = env_opts->second;
     name_generator ngen(*g_tmp_prefix);
-    std::unique_ptr<type_checker> tc = mk_type_checker(env, ngen, true);
+    std::unique_ptr<type_checker> tc = mk_find_goal_type_checker(env, ngen);
     if (auto meta = m_file->infom().get_meta_at(line_num, col_num)) {
     if (is_meta(*meta)) {
     if (auto type = m_file->infom().get_type_at(line_num, col_num)) {

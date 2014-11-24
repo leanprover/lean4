@@ -68,6 +68,7 @@ unifier_config::unifier_config(bool use_exceptions, bool discard):
     m_computation(LEAN_DEFAULT_UNIFIER_COMPUTATION),
     m_expensive_classes(LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES),
     m_discard(discard) {
+    m_cheap = false;
 }
 
 unifier_config::unifier_config(options const & o, bool use_exceptions, bool discard):
@@ -76,6 +77,7 @@ unifier_config::unifier_config(options const & o, bool use_exceptions, bool disc
     m_computation(get_unifier_computation(o)),
     m_expensive_classes(get_unifier_expensive_classes(o)),
     m_discard(discard) {
+    m_cheap = false;
 }
 
 // If \c e is a metavariable ?m or a term of the form (?m l_1 ... l_n) where
@@ -301,7 +303,7 @@ struct unifier_fn {
     typedef name_map<cnstr_idx_set> name_to_cnstrs;
     typedef name_map<unsigned> owned_map;
     typedef rb_map<expr, pair<expr, justification>, expr_quick_cmp> expr_map;
-    typedef std::unique_ptr<type_checker> type_checker_ptr;
+    typedef std::shared_ptr<type_checker> type_checker_ptr;
     environment      m_env;
     name_generator   m_ngen;
     substitution     m_subst;
@@ -419,11 +421,19 @@ struct unifier_fn {
                unifier_config const & cfg):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(get_unifier_plugin(env)),
         m_config(cfg), m_num_steps(0), m_pattern(false) {
-        m_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false);
-        m_tc[1] = mk_type_checker(env, m_ngen.mk_child(), true);
-        if (!cfg.m_computation) {
-            m_flex_rigid_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false, true);
-            m_flex_rigid_tc[1] = mk_type_checker(env, m_ngen.mk_child(), true,  true);
+        if (m_config.m_cheap) {
+            m_tc[0] = mk_opaque_type_checker(env, m_ngen.mk_child());
+            m_tc[1] = m_tc[0];
+            m_flex_rigid_tc[0] = m_tc[0];
+            m_flex_rigid_tc[1] = m_tc[0];
+            m_config.m_computation = false;
+        } else {
+            m_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false);
+            m_tc[1] = mk_type_checker(env, m_ngen.mk_child(), true);
+            if (!cfg.m_computation) {
+                m_flex_rigid_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false, true);
+                m_flex_rigid_tc[1] = mk_type_checker(env, m_ngen.mk_child(), true,  true);
+            }
         }
         m_next_assumption_idx = 0;
         m_next_cidx = 0;
@@ -1319,7 +1329,7 @@ struct unifier_fn {
 
         justification a;
         bool relax = relax_main_opaque(c);
-        if (m_config.m_computation || module::is_definition(m_env, d.get_name()) || is_reducible_on(m_env, d.get_name())) {
+        if (!m_config.m_cheap && (m_config.m_computation || module::is_definition(m_env, d.get_name()) || is_reducible_on(m_env, d.get_name()))) {
             // add case_split for t =?= s
             a = mk_assumption_justification(m_next_assumption_idx);
             add_case_split(std::unique_ptr<case_split>(new delta_unfold_case_split(*this, j, c)));
@@ -1379,6 +1389,8 @@ struct unifier_fn {
         buffer<constraints> & alts; // result: alternatives
 
         optional<bool>        _has_meta_args;
+
+        bool cheap() const { return u.m_config.m_cheap; }
 
         type_checker & tc() {
             return *u.m_tc[relax];
@@ -1545,6 +1557,8 @@ struct unifier_fn {
                 if ((!is_local(marg) && !is_local(rhs)) || (is_meta(marg) && is_local(rhs))) {
                     // if rhs is not local, then we only add projections for the nonlocal arguments of lhs
                     mk_simple_nonlocal_projection(i);
+                    if (cheap())
+                        return;
                 } else if (is_local(marg) && is_local(rhs) && mlocal_name(marg) == mlocal_name(rhs)) {
                     // if the argument is local, and rhs is equal to it, then we also add a projection
                     constraint_seq cs;
@@ -1552,6 +1566,8 @@ struct unifier_fn {
                     expr v = mk_lambda_for(new_mtype, mk_var(vidx));
                     cs = cs + mk_eq_cnstr(m, v, j, relax);
                     alts.push_back(cs.to_list());
+                    if (cheap())
+                        return;
                 }
             }
         }
@@ -1592,17 +1608,15 @@ struct unifier_fn {
         void mk_app_projections() {
             lean_assert(is_metavar(m));
             lean_assert(is_app(rhs));
-            if (!u.m_pattern) {
+            if (!u.m_pattern && !cheap()) {
                 expr const & f = get_app_fn(rhs);
                 lean_assert(is_constant(f) || is_local(f));
                 if (is_local(f)) {
                     unsigned i = margs.size();
-                    if (!u.m_pattern) {
-                        while (i > 0) {
-                            --i;
-                            if (!(is_local(margs[i]) && mlocal_name(margs[i]) == mlocal_name(f)))
-                                mk_simple_nonlocal_projection(i);
-                        }
+                    while (i > 0) {
+                        --i;
+                        if (!(is_local(margs[i]) && mlocal_name(margs[i]) == mlocal_name(f)))
+                            mk_simple_nonlocal_projection(i);
                     }
                 } else {
                     mk_simple_projections();
@@ -1789,12 +1803,12 @@ struct unifier_fn {
                 mk_simple_projections();
                 break;
             case expr_kind::Sort: case expr_kind::Constant:
-                if (!u.m_pattern)
+                if (!u.m_pattern && !cheap())
                     mk_simple_projections();
                 mk_simple_imitation();
                 break;
             case expr_kind::Pi: case expr_kind::Lambda:
-                if (!u.m_pattern)
+                if (!u.m_pattern && !cheap())
                     mk_simple_projections();
                 mk_bindings_imitation();
                 break;
@@ -1861,6 +1875,8 @@ struct unifier_fn {
     */
     bool use_flex_rigid_whnf_split(expr const & lhs, expr const & rhs) {
         lean_assert(is_meta(lhs));
+        if (m_config.m_cheap)
+            return false;
         if (m_config.m_computation)
             return true; // if unifier.computation is true, we always consider the additional whnf split
         buffer<expr> locals;

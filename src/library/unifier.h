@@ -40,6 +40,9 @@ struct unifier_config {
     // If m_discard is true, then constraints that cannot be solved are discarded (or incomplete methods are used)
     // If m_discard is false, unify returns the set of constraints that could not be handled.
     bool     m_discard;
+    // If m_cheap is true, then expensive case-analysis is not performed (e.g., delta).
+    // Default is m_cheap == false
+    bool     m_cheap;
     unifier_config(bool use_exceptions = false, bool discard = false);
     explicit unifier_config(options const & o, bool use_exceptions = false, bool discard = false);
 };

@@ -122,9 +122,9 @@ token_table const & get_token_table(environment const & env) {
 serializer & operator<<(serializer & s, action const & a) {
     s << static_cast<char>(a.kind());
     switch (a.kind()) {
-    case action_kind::Skip: case action_kind::Binder: case action_kind::Binders:
+    case action_kind::Skip:
         break;
-    case action_kind::Expr:
+    case action_kind::Expr: case action_kind::Binder: case action_kind::Binders:
         s << a.rbp();
         break;
     case action_kind::Exprs:
@@ -159,9 +159,11 @@ action read_action(deserializer & d) {
     case action_kind::Skip:
         return notation::mk_skip_action();
     case action_kind::Binder:
-        return notation::mk_binder_action();
+        d >> rbp;
+        return notation::mk_binder_action(rbp);
     case action_kind::Binders:
-        return notation::mk_binders_action();
+        d >> rbp;
+        return notation::mk_binders_action(rbp);
     case action_kind::Expr:
         d >> rbp;
         return notation::mk_expr_action(rbp);

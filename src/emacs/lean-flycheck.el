@@ -29,25 +29,15 @@
       "A Lean syntax checker."
       :command ,(lean-flycheck-command)
       :error-patterns
-      ;; ((error line-start "FLYCHECK_BEGIN ERROR" (? "\r") "\n"
-      ;;         (file-name) ":" line ":" (? column ":") " error: "
-      ;;         (minimal-match
-      ;;          (message (+ (+ not-newline) (? "\r") "\n")))
-      ;;         "FLYCHECK_END" line-end)
-      ;;  (warning line-start "FLYCHECK_BEGIN WARNING" (? "\r") "\n"
-      ;;           (file-name) ":" line ":" (? column ":") " warning "
-      ;;           (minimal-match
-      ;;            (message (+ (* not-newline) (? "\r") "\n") ))
-      ;;           "FLYCHECK_END" line-end))
       ((error line-start "FLYCHECK_BEGIN ERROR" (? "\r") "\n"
               (file-name) ":" line ":" (? column ":") " error: "
               (minimal-match
                (message (one-or-more (zero-or-more not-newline) (? "\r") "\n")))
               "FLYCHECK_END" (? "\r") line-end)
        (warning line-start "FLYCHECK_BEGIN WARNING" (? "\r") "\n"
-                (file-name) ":" line ":" (? column ":") " warning "
+                (file-name) ":" line ":" (? column ":") " warning: "
                 (minimal-match
-                 (message (one-or-more (one-or-more not-newline) (? "\r") "\n")))
+                 (message (one-or-more (zero-or-more not-newline) (? "\r") "\n")))
                 "FLYCHECK_END" (? "\r") line-end))
       :modes (lean-mode)))
   (add-to-list 'flycheck-checkers 'lean-checker))
@@ -79,7 +69,7 @@
      (after lean-flycheck-try-parse-error-with-pattern activate)
      "Add 1 to error-column."
      (let* ((err ad-return-value)
-            (col (flycheck-error-column err)))
+            (col (and err (flycheck-error-column err))))
        (when (and (string= major-mode "lean-mode") col)
          (setf (flycheck-error-column ad-return-value) (1+ col))))))
 

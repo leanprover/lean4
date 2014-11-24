@@ -84,5 +84,8 @@ public:
     list<expr> const & get_data() const;
 
     void add_local(expr const & l);
+
+    /** \brief Instantiate metavariables occurring this local context using \c s, and return updated local_context */
+    local_context instantiate(substitution s) const;
 };
 }

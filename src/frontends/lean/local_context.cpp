@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
+#include "kernel/metavar.h"
 #include "frontends/lean/local_context.h"
 
 namespace lean {
@@ -106,5 +107,13 @@ void local_context::add_local(expr const & l) {
 
 list<expr> const & local_context::get_data() const {
     return m_ctx;
+}
+
+static list<expr> instantiate_locals(list<expr> const & ls, substitution & s) {
+    return map(ls, [&](expr const & l) { return update_mlocal(l, s.instantiate(mlocal_type(l))); });
+}
+
+local_context local_context::instantiate(substitution s) const {
+    return local_context(instantiate_locals(m_ctx, s));
 }
 }

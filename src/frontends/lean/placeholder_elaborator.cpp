@@ -264,7 +264,6 @@ struct placeholder_elaborator : public choice_iterator {
     }
 };
 
-
 constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, local_context const & ctx, expr const & m, unsigned depth) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
@@ -318,7 +317,7 @@ static bool has_expr_metavar_relaxed(expr const & e) {
     return found;
 }
 
-constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
+constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const & C, local_context const & _ctx,
                                      expr const & m, bool is_strict, unifier_config const & cfg, delay_factor const & factor) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
@@ -329,6 +328,7 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
             // do nothing, since type is not a class.
             return lazy_list<constraints>(constraints());
         }
+        local_context ctx        = _ctx.instantiate(substitution(s));
         pair<expr, justification> mj = update_meta(meta, s);
         expr new_meta            = mj.first;
         justification new_j      = mj.second;

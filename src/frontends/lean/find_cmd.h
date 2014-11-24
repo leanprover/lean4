@@ -9,4 +9,6 @@ Author: Leonardo de Moura
 namespace lean {
 class parser;
 environment find_cmd(parser & p);
+void initialize_find_cmd();
+void finalize_find_cmd();
 }

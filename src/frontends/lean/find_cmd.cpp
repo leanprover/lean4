@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "library/unifier.h"
 #include "library/type_util.h"
@@ -13,8 +14,43 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
 
+#ifndef LEAN_DEFAULT_FIND_MAX_STEPS
+#define LEAN_DEFAULT_FIND_MAX_STEPS 128
+#endif
+
+#ifndef LEAN_DEFAULT_FIND_EXPENSIVE
+#define LEAN_DEFAULT_FIND_EXPENSIVE false
+#endif
+
+
 namespace lean {
-bool match_pattern(type_checker & tc, expr const & pattern, declaration const & d) {
+static name * g_find_max_steps = nullptr;
+static name * g_find_expensive = nullptr;
+
+void initialize_find_cmd() {
+    g_find_max_steps = new name{"find_decl", "max_steps"};
+    g_find_expensive = new name{"find_decl", "expensive"};
+    register_unsigned_option(*g_find_max_steps, LEAN_DEFAULT_FIND_MAX_STEPS,
+                         "(find_decl) maximum number of steps to be performed when trying to match the type of a declaration");
+    register_bool_option(*g_find_expensive, LEAN_DEFAULT_FIND_EXPENSIVE,
+                         "(find_decl) if true, then matcher will unfold definitions, perform reductions, and higher-order matching");
+}
+
+void finalize_find_cmd() {
+    delete g_find_max_steps;
+    delete g_find_expensive;
+}
+
+unsigned get_find_max_steps(options const & opts) {
+    return opts.get_unsigned(*g_find_max_steps, LEAN_DEFAULT_FIND_MAX_STEPS);
+}
+
+bool get_find_expensive(options const & opts) {
+    return opts.get_bool(*g_find_expensive, LEAN_DEFAULT_FIND_EXPENSIVE);
+}
+
+
+bool match_pattern(type_checker & tc, expr const & pattern, declaration const & d, unsigned max_steps, bool cheap) {
     name_generator ngen = tc.mk_ngen();
      buffer<level> ls;
     unsigned num_ls = length(d.get_univ_params());
@@ -33,8 +69,8 @@ bool match_pattern(type_checker & tc, expr const & pattern, declaration const & 
     }
     try {
         unifier_config cfg;
-        cfg.m_max_steps            = 128;
-        cfg.m_cheap                = true;
+        cfg.m_max_steps            = max_steps;
+        cfg.m_cheap                = cheap;
         cfg.m_ignore_context_check = true;
         auto r = unify(tc.env(), pattern, dt, tc.mk_ngen(), true, substitution(), cfg);
         return static_cast<bool>(r.pull());
@@ -67,13 +103,16 @@ environment find_cmd(parser & p) {
     environment env = p.env();
     auto tc = mk_opaque_type_checker(env, p.mk_ngen());
     p.regular_stream() << "find_decl result:\n";
+
+    unsigned max_steps = get_find_max_steps(p.get_options());
+    bool cheap         = !get_find_expensive(p.get_options());
     bool found = false;
     env.for_each_declaration([&](declaration const & d) {
             if (std::all_of(pos_names.begin(), pos_names.end(),
                             [&](std::string const & pos) { return is_part_of(pos, d.get_name()); }) &&
                 std::all_of(neg_names.begin(), neg_names.end(),
                             [&](std::string const & neg) { return !is_part_of(neg, d.get_name()); }) &&
-                match_pattern(*tc.get(), e, d)) {
+                match_pattern(*tc.get(), e, d, max_steps, cheap)) {
                 found = true;
                 p.regular_stream() << " " << get_decl_short_name(d.get_name(), env) << " : " << d.get_type() << endl;
             }

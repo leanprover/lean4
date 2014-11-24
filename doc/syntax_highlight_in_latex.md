@@ -9,7 +9,7 @@ Checkout [Pygments development repository][pygments-dev] and build Pygments:
 
 ```bash
 hg clone https://bitbucket.org/birkenfeld/pygments-main/
-cd pygmentsd-main
+cd pygments-main
 make mapfiles
 sudo ./setup.py install
 ````

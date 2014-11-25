@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 
 namespace lean {
+name const & get_elaborator_ignore_instances_name();
 /** \brief Environment for elaboration, it contains all the information that is "scope-indenpendent" */
 class elaborator_context {
     environment               m_env;
@@ -21,6 +22,7 @@ class elaborator_context {
     // configuration
     bool                      m_check_unassigned;
     bool                      m_use_local_instances;
+    bool                      m_ignore_instances;
     friend class elaborator;
 public:
     elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,

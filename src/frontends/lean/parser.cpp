@@ -67,9 +67,9 @@ bool get_parser_parallel_import(options const & opts) {
 }
 // ==========================================
 
-parser::local_scope::local_scope(parser & p):
+parser::local_scope::local_scope(parser & p, bool save_options):
     m_p(p), m_env(p.env()) {
-    m_p.push_local_scope();
+    m_p.push_local_scope(save_options);
 }
 parser::local_scope::local_scope(parser & p, environment const & env):
     m_p(p), m_env(p.env()) {

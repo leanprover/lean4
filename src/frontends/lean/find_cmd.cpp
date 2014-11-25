@@ -98,7 +98,12 @@ static void parse_filters(parser & p, buffer<std::string> & pos_names, buffer<st
 
 environment find_cmd(parser & p) {
     expr e; level_param_names ls;
-    std::tie(e, ls) = parse_local_expr(p);
+    {
+        bool save_options = true;
+        parser::local_scope scope(p, save_options);
+        p.set_option(get_elaborator_ignore_instances_name(), true);
+        std::tie(e, ls) = parse_local_expr(p);
+    }
     buffer<std::string> pos_names, neg_names;
     parse_filters(p, pos_names, neg_names);
     environment env = p.env();

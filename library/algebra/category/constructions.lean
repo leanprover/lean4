@@ -12,7 +12,7 @@ open eq eq.ops prod
 namespace category
   namespace opposite
   section
-  definition opposite {ob : Type} (C : category ob) : category ob :=
+  definition opposite [reducible] {ob : Type} (C : category ob) : category ob :=
   mk (λa b, hom b a)
      (λ a b c f g, g ∘ f)
      (λ a, id)
@@ -20,7 +20,7 @@ namespace category
      (λ a b f, !id_right)
      (λ a b f, !id_left)
 
-  definition Opposite (C : Category) : Category := Mk (opposite C)
+  definition Opposite [reducible] (C : Category) : Category := Mk (opposite C)
   --direct construction:
   -- MK C
   --    (λa b, hom b a)
@@ -45,7 +45,7 @@ namespace category
   end
   end opposite
 
-  definition type_category : category Type :=
+  definition type_category [reducible] : category Type :=
   mk (λa b, a → b)
      (λ a b c, function.compose)
      (λ a, function.id)
@@ -53,15 +53,15 @@ namespace category
      (λ a b f, function.compose_id_left f)
      (λ a b f, function.compose_id_right f)
 
-  definition Type_category : Category := Mk type_category
+  definition Type_category [reducible] : Category := Mk type_category
 
   section
   open decidable unit empty
   variables {A : Type} [H : decidable_eq A]
   include H
-  definition set_hom (a b : A) := decidable.rec_on (H a b) (λh, unit) (λh, empty)
+  definition set_hom [reducible] (a b : A) := decidable.rec_on (H a b) (λh, unit) (λh, empty)
   theorem set_hom_subsingleton [instance] (a b : A) : subsingleton (set_hom a b) := _
-  definition set_compose {a b c : A} (g : set_hom b c) (f : set_hom a b) : set_hom a c :=
+  definition set_compose [reducible] {a b c : A} (g : set_hom b c) (f : set_hom a b) : set_hom a c :=
   decidable.rec_on
     (H b c)
     (λ Hbc g, decidable.rec_on
@@ -78,6 +78,21 @@ namespace category
      (λ a b f, @subsingleton.elim (set_hom a b) _ _ _)
      (λ a b f, @subsingleton.elim (set_hom a b) _ _ _)
   definition Discrete_category (A : Type) [H : decidable_eq A] := Mk (discrete_category A)
+    context
+    instance discrete_category
+    include H
+    theorem dicrete_category.endomorphism {a b : A} (f : a ⟶ b) : a = b :=
+    decidable.rec_on (H a b) (λh f, h) (λh f, empty.rec _ f) f
+
+    theorem dicrete_category.discrete {a b : A} (f : a ⟶ b)
+      : eq.rec_on (dicrete_category.endomorphism f) f = (ID b) :=
+    @subsingleton.elim _ !set_hom_subsingleton _ _
+
+    definition discrete_category.rec_on {P : Πa b, a ⟶ b → Type} {a b : A} (f : a ⟶ b)
+        (H : ∀a, P a a id) : P a b f :=
+    cast (dcongr_arg3 P rfl (dicrete_category.endomorphism f⁻¹)
+                            (@subsingleton.elim _ !set_hom_subsingleton _ _) ⁻¹) (H a)
+    end
   end
   section
   open unit bool
@@ -88,49 +103,49 @@ namespace category
   end
 
   namespace product
-  section
-  open prod
-  definition prod_category {obC obD : Type} (C : category obC) (D : category obD)
-      : category (obC × obD) :=
-  mk (λa b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
-     (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f) )
-     (λ a, (id,id))
-     (λ a b c d h g f, pair_eq    !assoc    !assoc   )
-     (λ a b f,         prod.equal !id_left  !id_left )
-     (λ a b f,         prod.equal !id_right !id_right)
+    section
+    open prod
+    definition prod_category [reducible] {obC obD : Type} (C : category obC) (D : category obD)
+        : category (obC × obD) :=
+    mk (λa b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
+       (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f) )
+       (λ a, (id,id))
+       (λ a b c d h g f, pair_eq    !assoc    !assoc   )
+       (λ a b f,         prod.equal !id_left  !id_left )
+       (λ a b f,         prod.equal !id_right !id_right)
 
-  definition Prod_category (C D : Category) : Category := Mk (prod_category C D)
-
-  end
+    definition Prod_category [reducible] (C D : Category) : Category := Mk (prod_category C D)
+    end
   end product
 
   namespace ops
     notation `type`:max := Type_category
-    notation 1 := Category_one --it was confusing for me (Floris) that no ``s are needed here
+    notation 1 := Category_one
     notation 2 := Category_two
     postfix `ᵒᵖ`:max := opposite.Opposite
     infixr `×c`:30 := product.Prod_category
-    instance [persistent] type_category category_one 
+    instance [persistent] type_category category_one
                           category_two product.prod_category
   end ops
 
   open ops
   namespace opposite
   section
-  open ops functor
-  definition opposite_functor {C D : Category} (F : C ⇒ D) : Cᵒᵖ ⇒ Dᵒᵖ :=
+  open functor
+  definition opposite_functor [reducible] {C D : Category} (F : C ⇒ D) : Cᵒᵖ ⇒ Dᵒᵖ :=
   @functor.mk (Cᵒᵖ) (Dᵒᵖ)
               (λ a, F a)
               (λ a b f, F f)
-              (λ a, !respect_id)
-              (λ a b c g f, !respect_comp)
+              (λ a, respect_id F a)
+              (λ a b c g f, respect_comp F f g)
   end
   end opposite
 
   namespace product
   section
   open ops functor
-  definition prod_functor {C C' D D' : Category} (F : C ⇒ D) (G : C' ⇒ D') : C ×c C' ⇒ D ×c D' :=
+  definition prod_functor [reducible] {C C' D D' : Category} (F : C ⇒ D) (G : C' ⇒ D')
+      : C ×c C' ⇒ D ×c D' :=
   functor.mk (λ a, pair (F (pr1 a)) (G (pr2 a)))
              (λ a b f, pair (F (pr1 f)) (G (pr2 f)))
              (λ a, pair_eq !respect_id !respect_id)
@@ -162,7 +177,7 @@ namespace category
   protected definition to_ob  (a : slice_obs C c) : ob              := dpr1 a
   protected definition to_ob_def (a : slice_obs C c) : to_ob a = dpr1 a := rfl
   protected definition ob_hom (a : slice_obs C c) : hom (to_ob a) c := dpr2 a
-  -- protected theorem slice_obs_equal (H₁ : to_ob a = to_ob b) 
+  -- protected theorem slice_obs_equal (H₁ : to_ob a = to_ob b)
   --     (H₂ : eq.drec_on H₁ (ob_hom a) = ob_hom b) : a = b :=
   -- sigma.equal H₁ H₂
 
@@ -191,7 +206,7 @@ namespace category
      (λ a b f,         sigma.equal !id_right !proof_irrel)
   -- We use !proof_irrel instead of rfl, to give the unifier an easier time
 
-  -- definition slice_category {ob : Type} (C : category ob) (c : ob) : category (Σ(b : ob), hom b c) 
+  -- definition slice_category {ob : Type} (C : category ob) (c : ob) : category (Σ(b : ob), hom b c)
   -- :=
   -- mk (λa b, Σ(g : hom (dpr1 a) (dpr1 b)), dpr2 b ∘ g = dpr2 a)
   --    (λ a b c g f, dpair (dpr1 g ∘ dpr1 f)
@@ -218,7 +233,7 @@ namespace category
              (λ a, rfl)
              (λ a b c g f, rfl)
 
-  definition postcomposition_functor {x y : D} (h : x ⟶ y) 
+  definition postcomposition_functor {x y : D} (h : x ⟶ y)
       : Slice_category D x ⇒ Slice_category D y :=
   functor.mk (λ a, dpair (to_ob a) (h ∘ ob_hom a))
              (λ a b f, dpair (hom_hom f)
@@ -232,9 +247,9 @@ namespace category
   -- definition heq2 {A B : Type} (H : A = B) (a : A) (b : B) := a == b
   -- definition heq2.intro {A B : Type} {a : A} {b : B} (H : a == b) : heq2 (heq.type_eq H) a b := H
   -- definition heq2.elim {A B : Type} {a : A} {b : B} (H : A = B) (H2 : heq2 H a b) : a == b := H2
-  -- definition heq2.proof_irrel {A B : Prop} (a : A) (b : B) (H : A = B) : heq2 H a b := 
+  -- definition heq2.proof_irrel {A B : Prop} (a : A) (b : B) (H : A = B) : heq2 H a b :=
   -- hproof_irrel H a b
-  -- theorem functor.mk_eq2 {C D : Category} {obF obG : C → D} {homF homG idF idG compF compG} 
+  -- theorem functor.mk_eq2 {C D : Category} {obF obG : C → D} {homF homG idF idG compF compG}
   --    (Hob : ∀x, obF x = obG x)
   --    (Hmor : ∀(a b : C) (f : a ⟶ b), heq2 (congr_arg (λ x, x a ⟶ x b) (funext Hob)) (homF a b f) (homG a b f))
   --      : functor.mk obF homF idF compF = functor.mk obG homG idG compG :=
@@ -345,8 +360,7 @@ namespace category
 
 end category
 
-  -- definition foo
-  --     : category (sorry) :=
+  -- definition foo : category (sorry) :=
   -- mk (λa b, sorry)
   --    (λ a b c g f, sorry)
   --    (λ a, sorry)

@@ -7,48 +7,43 @@ import logic.cast
 open function
 open category eq eq.ops heq
 
-inductive functor (C D : Category) : Type :=
-mk : Π (obF : C → D) (homF : Π(a b : C), hom a b → hom (obF a) (obF b)),
-    (Π (a : C), homF a a (ID a) = ID (obF a)) →
-    (Π (a b c : C) {g : hom b c} {f : hom a b}, homF a c (g ∘ f) = homF b c g ∘ homF a b f) →
-     functor C D
+structure functor (C D : Category) : Type :=
+  (object : C → D)
+  (morphism : Π⦃a b : C⦄, hom a b → hom (object a) (object b))
+  (respect_id : Π (a : C), morphism (ID a) = ID (object a))
+  (respect_comp : Π ⦃a b c : C⦄ (g : hom b c) (f : hom a b),
+      morphism (g ∘ f) = morphism g ∘ morphism f)
 
 infixl `⇒`:25 := functor
 
 namespace functor
-  variables {C D E : Category}
-  definition object [coercion] (F : functor C D) : C → D := rec (λ obF homF Hid Hcomp, obF) F
+  coercion [persistent] object
+  coercion [persistent] morphism
+  irreducible [persistent] respect_id respect_comp
 
-  definition morphism [coercion] (F : functor C D) : Π⦃a b : C⦄, hom a b → hom (F a) (F b) :=
-  rec (λ obF homF Hid Hcomp, homF) F
+  variables {A B C D : Category}
 
-  theorem respect_id (F : functor C D) : Π (a : C), F (ID a) = id :=
-  rec (λ obF homF Hid Hcomp, Hid) F
-
-  theorem respect_comp (F : functor C D) : Π ⦃a b c : C⦄ (g : hom b c) (f : hom a b),
-      F (g ∘ f) = F g ∘ F f :=
-  rec (λ obF homF Hid Hcomp, Hcomp) F
-
-  protected definition compose (G : functor D E) (F : functor C D) : functor C E :=
+  protected definition compose [reducible] (G : functor B C) (F : functor A B) : functor A C :=
   functor.mk
     (λx, G (F x))
     (λ a b f, G (F f))
-    (λ a, calc
-      G (F (ID a)) = G id : {respect_id F a} --not giving the braces explicitly makes the elaborator compute a couple more seconds
-               ... = id   : respect_id G (F a))
-    (λ a b c g f, calc
+    (λ a, proof calc
+      G (F (ID a)) = G id : {respect_id F a}
+      --not giving the braces explicitly makes the elaborator compute a couple more seconds
+               ... = id   : respect_id G (F a) qed)
+    (λ a b c g f, proof calc
       G (F (g ∘ f)) = G (F g ∘ F f)     : respect_comp F g f
-                ... = G (F g) ∘ G (F f) : respect_comp G (F g) (F f))
+                ... = G (F g) ∘ G (F f) : respect_comp G (F g) (F f) qed)
 
   infixr `∘f`:60 := compose
 
-  protected theorem assoc {A B C D : Category} (H : functor C D) (G : functor B C) (F : functor A B) :
+  protected theorem assoc (H : functor C D) (G : functor B C) (F : functor A B) :
       H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
   rfl
 
-  protected definition id {C : Category} : functor C C :=
+  protected definition id [reducible] {C : Category} : functor C C :=
   mk (λa, a) (λ a b f, f) (λ a, rfl) (λ a b c f g, rfl)
-  protected definition ID (C : Category) : functor C C := id
+  protected definition ID [reducible] (C : Category) : functor C C := id
 
   protected theorem id_left  (F : functor C D) : id ∘f F = F :=
   functor.rec (λ obF homF idF compF, dcongr_arg4 mk rfl rfl !proof_irrel !proof_irrel) F
@@ -66,6 +61,7 @@ namespace category
      (λ a b c d h g f, !functor.assoc)
      (λ a b f, !functor.id_left)
      (λ a b f, !functor.id_right)
+
   definition Category_of_categories [reducible] := Mk category_of_categories
 
   namespace ops
@@ -75,32 +71,8 @@ namespace category
 end category
 
 namespace functor
---  open category.ops
---   universes l m
+
    variables {C D : Category}
---   check hom C D
---   variables (F : C ⟶ D) (G : D ⇒ C)
---   check G ∘ F
---   check F ∘f G
---   variables (a b : C) (f : a ⟶ b)
---   check F a
---   check F b
---   check F f
---   check G (F f)
---   print "---"
--- --  check (G ∘ F) f --error
---   check (λ(x : functor C C), x) (G ∘ F) f
---   check (G ∘f F) f
---   print "---"
--- --  check (G ∘ F) a --error
---   check (G ∘f F) a
---   print "---"
--- --  check λ(H : hom C D) (x : C), H x  --error
---   check λ(H : @hom _ Cat C D) (x : C), H x
---   check λ(H : C ⇒ D) (x : C), H x
---   print "---"
---   -- variables {obF obG : C → D} (Hob : ∀x, obF x = obG x) (homF : Π(a b : C) (f : a ⟶ b), obF a ⟶ obF b) (homG : Π(a b : C) (f : a ⟶ b), obG a ⟶ obG b)
--- --  check eq.rec_on (funext Hob) homF = homG
 
   theorem mk_heq {obF obG : C → D} {homF homG idF idG compF compG} (Hob : ∀x, obF x = obG x)
      (Hmor : ∀(a b : C) (f : a ⟶ b), homF a b f == homG a b f)

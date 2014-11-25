@@ -596,9 +596,13 @@ optional<expr> has_expr_metavar_strict(expr const & e) {
     return r;
 }
 
-static bool has_free_var_in_domain(expr const & b, unsigned vidx) {
+static bool has_free_var_in_domain(expr const & b, unsigned vidx, bool strict) {
     if (is_pi(b)) {
-        return has_free_var(binding_domain(b), vidx) || has_free_var_in_domain(binding_body(b), vidx+1);
+        return
+            (has_free_var(binding_domain(b), vidx) && is_explicit(binding_info(b))) ||
+            has_free_var_in_domain(binding_body(b), vidx+1, strict);
+    } else if (!strict) {
+        return has_free_var(b, vidx);
     } else {
         return false;
     }
@@ -612,8 +616,7 @@ expr infer_implicit(expr const & t, unsigned num_params, bool strict) {
         if (binding_info(t).is_implicit() || binding_info(t).is_strict_implicit()) {
             // argument is already marked as implicit
             return update_binding(t, binding_domain(t), new_body);
-        } else if ((strict  && has_free_var_in_domain(new_body, 0)) ||
-                   (!strict && has_free_var(new_body, 0))) {
+        } else if (has_free_var_in_domain(new_body, 0, strict)) {
             return update_binding(t, binding_domain(t), new_body, mk_implicit_binder_info());
         } else {
             return update_binding(t, binding_domain(t), new_body);

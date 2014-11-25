@@ -68,7 +68,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
     for (unsigned i = 0; i < nparams; i++) {
         if (!is_pi(intro_type))
             throw_ill_formed(n);
-        expr param = mk_local(ngen.next(), binding_name(intro_type), binding_domain(intro_type), mk_implicit_binder_info());
+        expr param = mk_local(ngen.next(), binding_name(intro_type), binding_domain(intro_type), binder_info());
         intro_type = instantiate(binding_body(intro_type), param);
         params.push_back(param);
     }
@@ -107,6 +107,8 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         rec_args.push_back(major_premise);
         expr rec_app      = mk_app(rec, rec_args);
         expr proj_type    = Pi(proj_args, result_type);
+        bool strict       = false;
+        proj_type         = infer_implicit(proj_type, nparams, strict);
         expr proj_val     = Fun(proj_args, rec_app);
         bool opaque       = false;
         bool use_conv_opt = false;

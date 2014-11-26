@@ -15,14 +15,14 @@ namespace is_equiv
   definition postcomp {A B : Type} (f : A → B) (C : Type) (l : C → A) : C → B := f ∘ l
 
   --Precomposing with an equivalence is an equivalence
-  definition precompose [instance] {A B : Type} (f : A → B) [F : funext] [Hf : is_equiv f] (C : Type)
+  definition precomp_closed [instance] {A B : Type} (f : A → B) [F : funext] [Hf : is_equiv f] (C : Type)
       : is_equiv (precomp f C) :=
     adjointify (precomp f C) (λh, h ∘ f⁻¹)
       (λh, path_forall _ _ (λx, ap h (sect f x)))
       (λg, path_forall _ _ (λy, ap g (retr f y)))
 
   --Postcomposing with an equivalence is an equivalence
-  definition postcompose [instance] {A B : Type} (f : A → B) [F : funext] [Hf : is_equiv f] (C : Type)
+  definition postcomp_closed [instance] {A B : Type} (f : A → B) [F : funext] [Hf : is_equiv f] (C : Type)
       : is_equiv (postcomp f C) :=
     adjointify (postcomp f C) (λl, f⁻¹ ∘ l)
       (λh, path_forall _ _ (λx, retr f (h x)))
@@ -42,7 +42,7 @@ namespace is_equiv
 		... ≈ k ∘ (invC h) : !sect,
       eq1⁻¹
 
-  definition isequiv_precompose {A B : Type} (f : A → B) (Aeq : is_equiv (precomp f A))
+  definition from_isequiv_precomp {A B : Type} (f : A → B) (Aeq : is_equiv (precomp f A))
       (Beq : is_equiv (precomp f B)) : (is_equiv f) :=
     let invA := inv (precomp f A) in
     let invB := inv (precomp f B) in
@@ -64,18 +64,18 @@ end is_equiv
 --Bundled versions of the previous theorems
 namespace equiv
 
-  definition precompose [F : funext] {A B C : Type} {eqf : A ≃ B}
+  definition precomp_closed [F : funext] {A B C : Type} {eqf : A ≃ B}
       : (B → C) ≃ (A → C) :=
     let f := to_fun eqf in
     let Hf := to_is_equiv eqf in
     equiv.mk (is_equiv.precomp f C)
-      (@is_equiv.precompose A B f F Hf C)
+      (@is_equiv.precomp_closed A B f F Hf C)
 
-  definition postcompose [F : funext] {A B C : Type} {eqf : A ≃ B}
+  definition postcomp_closed [F : funext] {A B C : Type} {eqf : A ≃ B}
       : (C → A) ≃ (C → B) :=
     let f := to_fun eqf in
     let Hf := to_is_equiv eqf in
     equiv.mk (is_equiv.postcomp f C)
-      (@is_equiv.postcompose A B f F Hf C)
+      (@is_equiv.postcomp_closed A B f F Hf C)
 
 end equiv

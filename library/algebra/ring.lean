@@ -44,14 +44,6 @@ theorem zero_ne_one [s: zero_ne_one_class A] : 0 ≠ 1 := !zero_ne_one_class.zer
 structure semiring [class] (A : Type) extends add_comm_monoid A, monoid A, distrib A, mul_zero A,
     zero_ne_one_class A
 
-section
-
-  variable [s : semiring A]
-  include s
-
-  /- -/
-end
-
 structure comm_semiring [class] (A : Type) extends semiring A, comm_semigroup A
 
 
@@ -292,7 +284,64 @@ section
 
 end
 
-/- ring no_zero_divisors -/
 
+/- integral domains -/
+
+-- TODO: some properties here may extend to cancellative semirings. It is worth the effort?
+
+structure no_zero_divisors [class] (A : Type) extends has_mul A, has_zero A :=
+(eq_zero_or_eq_zero_of_mul_eq_zero : ∀a b, mul a b = zero → a = zero ∨ b = zero)
+
+theorem eq_zero_or_eq_zero_of_mul_eq_zero {A : Type} [s : no_zero_divisors A] {a b : A} (H : a * b = 0) :
+  a = 0 ∨ b = 0 := !no_zero_divisors.eq_zero_or_eq_zero_of_mul_eq_zero H
+
+structure integral_domain [class] (A : Type) extends comm_ring_dvd A, no_zero_divisors A
+
+section
+
+  variables [s : integral_domain A] (a b c d e : A)
+  include s
+
+  theorem mul_ne_zero_of_ne_zero_ne_zero {a b : A} (H1 : a ≠ 0) (H2 : b ≠ 0) : a * b ≠ 0 :=
+  assume H : a * b = 0,
+    or.elim (eq_zero_or_eq_zero_of_mul_eq_zero H) (assume H3, H1 H3) (assume H4, H2 H4)
+
+  theorem mul.cancel_right {a b c : A} (Ha : a ≠ 0) (H : b * a = c * a) : b = c :=
+  have H1 : b * a - c * a = 0, from iff.mp !eq_iff_minus_eq_zero H,
+  have H2 : (b - c) * a = 0, from eq.trans !minus_distrib_right H1,
+  have H3 : b - c = 0, from or.resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H2) Ha,
+  iff.elim_right !eq_iff_minus_eq_zero H3
+
+  theorem mul.cancel_left {a b c : A} (Ha : a ≠ 0) (H : a * b = a * c) : b = c :=
+  have H1 : a * b - a * c = 0, from iff.mp !eq_iff_minus_eq_zero H,
+  have H2 : a * (b - c) = 0, from eq.trans !minus_distrib_left H1,
+  have H3 : b - c = 0, from or.resolve_right (eq_zero_or_eq_zero_of_mul_eq_zero H2) Ha,
+  iff.elim_right !eq_iff_minus_eq_zero H3
+
+  -- TODO: do we want the iff versions?
+
+  -- TODO: wait for simplifier
+  theorem square_eq_square_iff (a b : A) : a * a = b * b ↔ a = b ∨ a = -b := sorry
+
+  theorem square_eq_one_iff (a : A) : a * a = 1 ↔ a = 1 ∨ a = -1 := sorry
+
+  -- TODO: c - b * c → c = 0 ∨ b = 1 and variants
+
+  theorem dvd_of_mul_dvd_mul_left {a b c : A} (Ha : a ≠ 0) (Hdvd : a * b | a * c) : b | c :=
+  dvd_elim Hdvd
+    (take d,
+      assume H : a * b * d = a * c,
+      have H1 : b * d = c, from mul.cancel_left Ha (!mul_assoc ▸ H),
+      dvd_intro H1)
+
+  theorem dvd_of_mul_dvd_mul_right {a b c : A} (Ha : a ≠ 0) (Hdvd : b * a | c * a) : b | c :=
+  dvd_elim Hdvd
+    (take d,
+      assume H : b * a * d = c * a,
+      have H1 : b * d * a = c * a, from eq.trans !mul_right_comm H,
+      have H2 : b * d = c, from mul.cancel_right Ha H1,
+      dvd_intro H2)
+
+end
 
 end algebra

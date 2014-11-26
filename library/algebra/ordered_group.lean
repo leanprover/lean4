@@ -153,8 +153,8 @@ end
 
 -- TODO: there is more we can do if we have max and min (in order.lean as well)
 
--- TODO: there is more we can do if we assume a ≤ b ↔ ∃c. a + c = b, but it is not clear whether
--- this gives us any useful generality
+-- TODO: there is more we can do if we assume a ≤ b ↔ ∃c. a + c = b. This covers the natural numbers,
+-- but it is not clear whether it provides any further useful generality.
 
 structure ordered_comm_group [class] (A : Type) extends add_comm_group A, order_pair A :=
 (add_le_left : ∀a b c, le a b → le (add c a) (add c b))
@@ -170,5 +170,139 @@ proof
   have H' : -c + (c + a) ≤ -c + (c + b), from ordered_comm_group.add_le_left _ _ _ H,
   !neg_add_cancel_left ▸ !neg_add_cancel_left ▸ H'
 qed
+
+section
+
+  variables [s : ordered_comm_group A] (a b c d e : A)
+  include s
+
+  theorem le_imp_neg_le_neg {a b : A} (H : a ≤ b) : -b ≤ -a :=
+  have H1 : 0 ≤ -a + b, from !add_left_inv ▸ !(add_le_left H),
+  !add_neg_cancel_right ▸ !add_left_id ▸ add_le_right H1 (-b)
+--  !add_left_id ▸ !add_neg_cancel_right ▸ add_le_right H1 (-b)  -- doesn't work?
+
+  theorem neg_le_neg_iff : -a ≤ -b ↔ b ≤ a :=
+  iff.intro (take H, neg_neg a ▸ neg_neg b ▸ le_imp_neg_le_neg H) le_imp_neg_le_neg
+
+  theorem neg_le_zero_iff : -a ≤ 0 ↔ 0 ≤ a :=
+  neg_zero ▸ neg_le_neg_iff a 0
+
+  theorem zero_le_neg_iff : 0 ≤ -a ↔ a ≤ 0 :=
+  neg_zero ▸ neg_le_neg_iff 0 a
+
+  theorem lt_imp_neg_lt_neg {a b : A} (H : a < b) : -b < -a :=
+  have H1 : 0 < -a + b, from !add_left_inv ▸ !(add_lt_left H),
+  !add_neg_cancel_right ▸ !add_left_id ▸ add_lt_right H1 (-b)
+
+  theorem neg_lt_neg_iff : -a < -b ↔ b < a :=
+  iff.intro (take H, neg_neg a ▸ neg_neg b ▸ lt_imp_neg_lt_neg H) lt_imp_neg_lt_neg
+
+  theorem neg_lt_zero_iff : -a < 0 ↔ 0 < a :=
+  neg_zero ▸ neg_lt_neg_iff a 0
+
+  theorem zero_lt_neg_iff : 0 < -a ↔ a < 0 :=
+  neg_zero ▸ neg_lt_neg_iff 0 a
+
+  theorem le_neg_iff : a ≤ -b ↔ b ≤ -a := !neg_neg ▸ !neg_le_neg_iff
+
+  theorem neg_le_iff : -a ≤ b ↔ -b ≤ a := !neg_neg ▸ !neg_le_neg_iff
+
+  theorem lt_neg_iff : a < -b ↔ b < -a := !neg_neg ▸ !neg_lt_neg_iff
+
+  theorem neg_lt_iff : -a < b ↔ -b < a := !neg_neg ▸ !neg_lt_neg_iff
+
+  theorem minus_nonneg_iff : 0 ≤ a - b ↔ b ≤ a := !minus_self ▸ !add_le_right_iff
+
+  theorem minus_nonpos_iff : a - b ≤ 0 ↔ a ≤ b := !minus_self ▸ !add_le_right_iff
+
+  theorem minus_pos_iff : 0 < a - b ↔ b < a := !minus_self ▸ !add_lt_right_iff
+
+  theorem minus_neg_iff : a - b < 0 ↔ a < b := !minus_self ▸ !add_lt_right_iff
+
+  theorem add_le_iff_le_neg_add : a + b ≤ c ↔ b ≤ -a + c :=
+  have H: a + b ≤ c ↔ -a + (a + b) ≤ -a + c, from iff.symm (!add_le_left_iff),
+  !neg_add_cancel_left ▸ H
+
+  theorem add_le_iff_le_minus_left : a + b ≤ c ↔ b ≤ c - a :=
+  !add_comm ▸ !add_le_iff_le_neg_add
+
+  theorem add_le_iff_le_minus_right : a + b ≤ c ↔ a ≤ c - b :=
+  have H: a + b ≤ c ↔ a + b - b ≤ c - b, from iff.symm (!add_le_right_iff),
+  !add_neg_cancel_right ▸ H
+
+  theorem le_add_iff_neg_add_le : a ≤ b + c ↔ -b + a ≤ c :=
+  have H: a ≤ b + c ↔ -b + a ≤ -b + (b + c), from iff.symm (!add_le_left_iff),
+  !neg_add_cancel_left ▸ H
+
+  theorem le_add_iff_minus_left_le : a ≤ b + c ↔ a - b ≤ c :=
+  !add_comm ▸ !le_add_iff_neg_add_le
+
+  theorem le_add_iff_minus_right_le : a ≤ b + c ↔ a - c ≤ b :=
+  have H: a ≤ b + c ↔ a - c ≤ b + c - c, from iff.symm (!add_le_right_iff),
+  !add_neg_cancel_right ▸ H
+
+  theorem add_lt_iff_lt_neg_add : a + b < c ↔ b < -a + c :=
+  have H: a + b < c ↔ -a + (a + b) < -a + c, from iff.symm (!add_lt_left_iff),
+  !neg_add_cancel_left ▸ H
+
+  theorem add_lt_iff_lt_minus_left : a + b < c ↔ b < c - a :=
+  !add_comm ▸ !add_lt_iff_lt_neg_add
+
+  theorem add_lt_iff_lt_minus_right : a + b < c ↔ a < c - b :=
+  have H: a + b < c ↔ a + b - b < c - b, from iff.symm (!add_lt_right_iff),
+  !add_neg_cancel_right ▸ H
+
+  theorem lt_add_iff_neg_add_lt : a < b + c ↔ -b + a < c :=
+  have H: a < b + c ↔ -b + a < -b + (b + c), from iff.symm (!add_lt_left_iff),
+  !neg_add_cancel_left ▸ H
+
+  theorem lt_add_iff_minus_left_lt : a < b + c ↔ a - b < c :=
+  !add_comm ▸ !lt_add_iff_neg_add_lt
+
+  theorem lt_add_iff_minus_right_lt : a < b + c ↔ a - c < b :=
+  have H: a < b + c ↔ a - c < b + c - c, from iff.symm (!add_lt_right_iff),
+  !add_neg_cancel_right ▸ H
+
+  -- TODO: the Isabelle library has varations on a + b ≤ b ↔ a ≤ 0
+
+  theorem minus_eq_imp_le_iff {a b c d : A} (H : a - b = c - d) : a ≤ b ↔ c ≤ d :=
+  calc
+    a ≤ b ↔ a - b ≤ 0 : iff.symm (minus_nonpos_iff a b)
+      ... ↔ c - d ≤ 0 : H ▸ !iff.refl
+      ... ↔ c ≤ d : minus_nonpos_iff c d
+
+  theorem minus_eq_imp_lt_iff {a b c d : A} (H : a - b = c - d) : a < b ↔ c < d :=
+  calc
+    a < b ↔ a - b < 0 : iff.symm (minus_neg_iff a b)
+      ... ↔ c - d < 0 : H ▸ !iff.refl
+      ... ↔ c < d : minus_neg_iff c d
+
+  theorem minus_le_left {a b : A} (H : a ≤ b) (c : A) : c - b ≤ c - a :=
+  add_le_left (le_imp_neg_le_neg H) c
+
+  theorem minus_le_right {a b : A} (H : a ≤ b) (c : A) : a - c ≤ b - c := add_le_right H (-c)
+
+  theorem minus_le {a b c d : A} (Hab : a ≤ b) (Hcd : c ≤ d) : a - d ≤ b - c :=
+  add_le Hab (le_imp_neg_le_neg Hcd)
+
+  theorem minus_lt_left {a b : A} (H : a < b) (c : A) : c - b < c - a :=
+  add_lt_left (lt_imp_neg_lt_neg H) c
+
+  theorem minus_lt_right {a b : A} (H : a < b) (c : A) : a - c < b - c := add_lt_right H (-c)
+
+  theorem minus_lt {a b c d : A} (Hab : a < b) (Hcd : c < d) : a - d < b - c :=
+  add_lt Hab (lt_imp_neg_lt_neg Hcd)
+
+  theorem minus_le_lt {a b c d : A} (Hab : a ≤ b) (Hcd : c < d) : a - d < b - c :=
+  add_le_lt Hab (lt_imp_neg_lt_neg Hcd)
+
+  theorem minus_lt_le {a b c d : A} (Hab : a < b) (Hcd : c ≤ d) : a - d < b - c :=
+  add_lt_le Hab (le_imp_neg_le_neg Hcd)
+
+end
+
+-- TODO: additional facts if the ordering is a linear ordering (e.g. -a = a ↔ a = 0)
+
+-- TODO: structures with abs
 
 end algebra

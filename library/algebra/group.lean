@@ -249,6 +249,12 @@ section group
   theorem eq_mul_inv_imp_mul_eq {a b c : A} (H : a = b * c⁻¹) : a * c = b :=
   !inv_inv ▸ (eq_mul_imp_mul_inv_eq H)
 
+  theorem mul_eq_iff_eq_inv_mul (a b c : A) : a * b = c ↔ b = a⁻¹ * c :=
+  iff.intro mul_eq_imp_eq_inv_mul eq_inv_mul_imp_mul_eq
+
+  theorem mul_eq_iff_eq_mul_inv (a b c : A) : a * b = c ↔ a = c * b⁻¹ :=
+  iff.intro mul_eq_imp_eq_mul_inv eq_mul_inv_imp_mul_eq
+
   definition group.to_left_cancel_semigroup [instance] : left_cancel_semigroup A :=
   left_cancel_semigroup.mk (@group.mul A s) (@group.mul_assoc A s)
     (take a b c,
@@ -370,6 +376,12 @@ section add_group
 
   theorem eq_add_neg_imp_add_eq {a b c : A} (H : a = b + -c) : a + c = b :=
   !neg_neg ▸ (eq_add_imp_add_neg_eq H)
+
+  theorem add_eq_iff_eq_neg_add (a b c : A) : a + b = c ↔ b = -a + c :=
+  iff.intro add_eq_imp_eq_neg_add eq_neg_add_imp_add_eq
+
+  theorem add_eq_iff_eq_add_neg (a b c : A) : a + b = c ↔ a = c + -b :=
+  iff.intro add_eq_imp_eq_add_neg eq_add_neg_imp_add_eq
 
   definition add_group.to_left_cancel_semigroup [instance] :
     add_left_cancel_semigroup A :=

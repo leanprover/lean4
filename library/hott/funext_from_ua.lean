@@ -77,7 +77,7 @@ context
             (λ xy, prod.rec_on xy
               (λ b c p, path.rec_on p idp))))
 
-  theorem ua_implies_funext_nondep {A : Type} {B : Type.{l+1}}
+  theorem nondep_funext_from_ua {A : Type} {B : Type.{l+1}}
       : Π {f g : A → B}, f ∼ g → f ≈ g :=
     (λ (f g : A → B) (p : f ∼ g),
         let d := λ (x : A), dpair (f x , f x) idp in
@@ -104,7 +104,7 @@ end
 -- Now we use this to prove weak funext, which as we know
 -- implies (with dependent eta) also the strong dependent funext.
 universe variables l k
-theorem ua_implies_weak_funext [ua3 : ua_type.{k+1}] [ua4 : ua_type.{k+2}] : weak_funext.{l+1 k+1} :=
+theorem weak_funext_from_ua [ua3 : ua_type.{k+1}] [ua4 : ua_type.{k+2}] : weak_funext.{l+1 k+1} :=
   (λ (A : Type) (P : A → Type) allcontr,
     let U := (λ (x : A), unit) in
   have pequiv : Π (x : A), P x ≃ U x,
@@ -113,10 +113,10 @@ theorem ua_implies_weak_funext [ua3 : ua_type.{k+1}] [ua4 : ua_type.{k+2}] : wea
     from (λ x, @is_equiv.inv _ _
       equiv_path ua_type.inst (pequiv x)),
   have p : P ≈ U,
-    from @ua_implies_funext_nondep _ A Type P U psim,
+    from @nondep_funext_from_ua _ A Type P U psim,
   have tU' : is_contr (A → unit),
     from is_contr.mk (λ x, ⋆)
-      (λ f, @ua_implies_funext_nondep _ A unit (λ x, ⋆) f
+      (λ f, @nondep_funext_from_ua _ A unit (λ x, ⋆) f
         (λ x, unit.rec_on (f x) idp)),
   have tU : is_contr (Π x, U x),
     from tU',
@@ -126,5 +126,5 @@ theorem ua_implies_weak_funext [ua3 : ua_type.{k+1}] [ua4 : ua_type.{k+2}] : wea
 )
 
 -- In the following we will proof function extensionality using the univalence axiom
-definition ua_implies_funext [instance] [ua ua2 : ua_type] : funext :=
-  weak_funext_implies_funext (@ua_implies_weak_funext ua ua2)
+definition funext_from_ua [instance] [ua ua2 : ua_type] : funext :=
+  funext_from_weak_funext (@weak_funext_from_ua ua ua2)

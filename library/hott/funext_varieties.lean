@@ -25,7 +25,7 @@ definition weak_funext.{l k} :=
 
 -- The obvious implications are Funext -> NaiveFunext -> WeakFunext
 -- TODO: Get class inference to work locally
-definition funext_implies_naive_funext [F : funext] : naive_funext :=
+definition naive_funext_from_funext [F : funext] : naive_funext :=
   (λ A P f g h,
     have Fefg: is_equiv (@apD10 A P f g),
       from (@funext.ap F A P f g),
@@ -33,7 +33,7 @@ definition funext_implies_naive_funext [F : funext] : naive_funext :=
     eq1
   )
 
-definition naive_funext_implies_weak_funext : naive_funext → weak_funext :=
+definition weak_funext_from_naive_funext : naive_funext → weak_funext :=
   (λ nf A P (Pc : Πx, is_contr (P x)),
     let c := λx, center (P x) in
     is_contr.mk c (λ f,
@@ -92,7 +92,7 @@ end
 -- Now the proof is fairly easy; we can just use the same induction principle on both sides.
 universe variables l k
 
-theorem weak_funext_implies_funext (wf : weak_funext.{l+1 k+1}) : funext.{l+1 k+1} :=
+theorem funext_from_weak_funext (wf : weak_funext.{l+1 k+1}) : funext.{l+1 k+1} :=
   funext.mk (λ A B f g,
     let eq_to_f := (λ g' x, f ≈ g') in
     let sim2path := htpy_ind _ f eq_to_f idp in
@@ -106,5 +106,5 @@ theorem weak_funext_implies_funext (wf : weak_funext.{l+1 k+1}) : funext.{l+1 k+
       from (λ h, path.rec_on h (htpy_ind_beta _ f _ idp)),
     is_equiv.adjointify apD10 (sim2path g) sect retr)
 
-definition naive_funext_implies_funext : naive_funext -> funext :=
-  compose weak_funext_implies_funext naive_funext_implies_weak_funext
+definition funext_from_naive_funext : naive_funext -> funext :=
+  compose funext_from_weak_funext weak_funext_from_naive_funext

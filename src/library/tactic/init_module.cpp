@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/tactic/generalize_tactic.h"
 #include "library/tactic/whnf_tactic.h"
 #include "library/tactic/clear_tactic.h"
+#include "library/tactic/revert_tactic.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -31,9 +32,11 @@ void initialize_tactic_module() {
     initialize_generalize_tactic();
     initialize_whnf_tactic();
     initialize_clear_tactic();
+    initialize_revert_tactic();
 }
 
 void finalize_tactic_module() {
+    finalize_revert_tactic();
     finalize_clear_tactic();
     finalize_whnf_tactic();
     finalize_generalize_tactic();

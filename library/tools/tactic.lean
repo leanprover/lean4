@@ -65,6 +65,7 @@ opaque definition generalize_list (es : expr_list) : tactic := builtin
 notation `generalizes` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := generalize_list l
 
 opaque definition clear (e : expr) : tactic := builtin
+opaque definition revert (e : expr) : tactic := builtin
 
 opaque definition unfold      (e : expr) : tactic := builtin
 opaque definition exact       (e : expr) : tactic := builtin

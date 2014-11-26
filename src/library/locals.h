@@ -22,4 +22,7 @@ template<typename It> bool contains_local(expr const & local, It const & begin_l
 inline bool contains_local(expr const & local, buffer<expr> const & locals) {
     return contains_local(local, locals.begin(), locals.end());
 }
+
+/** \brief Return true iff \c e contains a local constant named \c n (it uses mlocal_name) */
+bool contains_local(expr const & e, name const & n);
 }

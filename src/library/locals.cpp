@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/name_set.h"
 #include "kernel/expr.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/find_fn.h"
 
 namespace lean {
 void collect_univ_params_core(level const & l, name_set & r) {
@@ -57,5 +58,22 @@ void collect_locals(expr const & e, expr_struct_set & ls) {
                 ls.insert(e);
             return true;
         });
+}
+
+bool contains_local(expr const & e, name const & n) {
+    if (!has_local(e))
+        return false;
+    bool result = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (result || !has_local(e))  {
+                return false;
+            } else if (is_local(e) && mlocal_name(e) == n) {
+                result = true;
+                return false;
+            } else {
+                return true;
+            }
+        });
+    return result;
 }
 }

@@ -1292,7 +1292,7 @@ pair<expr, constraints> elaborator::elaborate_nested(list<expr> const & ctx, exp
     lean_assert(p);
     substitution s  = p->first.first;
     constraints rcs = p->first.second;
-    r = s.instantiate(r);
+    r = s.instantiate_all(r);
     r = solve_unassigned_mvars(s, r);
     copy_info_to_manager(s);
     return mk_pair(r, rcs);

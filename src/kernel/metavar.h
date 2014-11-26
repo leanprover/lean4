@@ -70,7 +70,7 @@ public:
     level instantiate(level const & l) { return instantiate_metavars(l, false).first; }
 
     /** \brief Instantiate metavariables occurring in \c e, by default this method does not visit the
-        types of local constants.
+        types of local constants and metavariables.
         For substituting the metavariables occurring in local constants, use instantiate_metavars_all.
     */
     pair<expr, justification> instantiate_metavars(expr const & e) { return instantiate_metavars_core(e, false); }
@@ -78,7 +78,7 @@ public:
     pair<expr, justification> instantiate_metavars_all(expr const & e) { return instantiate_metavars_core(e, true); }
     /** \brief Similar to \c instantiate_metavars, but does not compute a justification for the substitutions. */
     expr instantiate(expr const & e) { return instantiate_metavars_wo_jst(e, false); }
-    /** \brief Similar to instantiate, but also substitute metavariables occurring in the types of local constansts */
+    /** \brief Similar to instantiate, but also substitute metavariables occurring in the types of local constansts and metavariables */
     expr instantiate_all(expr const & e) { return instantiate_metavars_wo_jst(e, true); }
 
     void forget_justifications() { m_expr_jsts  = jst_map(); m_level_jsts = jst_map(); }

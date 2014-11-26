@@ -142,6 +142,7 @@ protected:
     cache_ref      m_cache;
     justification  m_jst;
     bool           m_use_jst;
+    // if m_inst_local_types, then instantiate metavariables nested in the types of local constants and metavariables.
     bool           m_inst_local_types;
 
     void save_jst(justification const & j) { m_jst = mk_composite1(m_jst, j); }
@@ -187,7 +188,10 @@ protected:
                 return p2.first;
             }
         } else {
-            return m;
+            if (m_inst_local_types)
+                return update_mlocal(m, visit(mlocal_type(m)));
+            else
+                return m;
         }
     }
 

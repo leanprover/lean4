@@ -8,7 +8,7 @@ Theorems about sigma-types (dependent sums)
 -/
 
 import ..trunc .prod
-open path sigma sigma.ops Equiv IsEquiv
+open path sigma sigma.ops equiv is_equiv
 
 namespace sigma
   -- remove the ₁'s (globally)
@@ -104,17 +104,17 @@ namespace sigma
 
   definition transport_pr1_path_sigma_uncurried {B' : A → Type} (pq : Σ(p : u.1 ≈ v.1), p ▹ u.2 ≈ v.2)
       : transport (λx, B' x.1) (@path_sigma_uncurried A B u v pq) ≈ transport B' pq.1 :=
-  destruct pq transport_pr1_path_sigma
+    destruct pq transport_pr1_path_sigma
 
   definition isequiv_path_sigma /-[instance]-/ (u v : Σa, B a)
-      : IsEquiv (@path_sigma_uncurried A B u v) :=
+      : is_equiv (@path_sigma_uncurried A B u v) :=
   adjointify path_sigma_uncurried
              (λp, ⟨p..1, p..2⟩)
              eta_path_sigma_uncurried
              dpair_path_sigma_uncurried
 
   definition equiv_path_sigma (u v : Σa, B a) : (Σ(p : u.1 ≈ v.1),  p ▹ u.2 ≈ v.2) ≃ (u ≈ v) :=
-  Equiv.mk path_sigma_uncurried !isequiv_path_sigma
+    equiv.mk path_sigma_uncurried !isequiv_path_sigma
 
   definition path_sigma_dpair_pp_pp (p1 : a  ≈ a' ) (q1 : p1 ▹ b  ≈ b' )
                                     (p2 : a' ≈ a'') (q2 : p2 ▹ b' ≈ b'') :
@@ -239,39 +239,39 @@ namespace sigma
   /- Equivalences -/
 
   --remove explicit arguments of IsEquiv
-  definition isequiv_functor_sigma [H1 : IsEquiv f] [H2 : Π a, @IsEquiv (B a) (B' (f a)) (g a)]
-      : IsEquiv (functor_sigma f g) :=
-  adjointify (functor_sigma f g)
+  definition isequiv_functor_sigma [H1 : is_equiv f] [H2 : Π a, @is_equiv (B a) (B' (f a)) (g a)]
+      : is_equiv (functor_sigma f g) :=
+  /-adjointify (functor_sigma f g)
              (functor_sigma (f⁻¹) (λ(x : A') (y : B' x), ((g (f⁻¹ x))⁻¹ ((retr f x)⁻¹ ▹ y))))
-             sorry
+             sorry-/
              sorry
 
-  definition equiv_functor_sigma [H1 : IsEquiv f] [H2 : Π a, IsEquiv (g a)] : (Σa, B a) ≃ (Σa', B' a') :=
-  Equiv.mk (functor_sigma f g) !isequiv_functor_sigma
+  definition equiv_functor_sigma [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)] : (Σa, B a) ≃ (Σa', B' a') :=
+  equiv.mk (functor_sigma f g) !isequiv_functor_sigma
 
   context --remove
   irreducible inv function.compose --remove
-  definition equiv_functor_sigma' (Hf : A ≃ A') (Hg : Π a, B a ≃ B' (equiv_fun Hf a)) :
+  definition equiv_functor_sigma' (Hf : A ≃ A') (Hg : Π a, B a ≃ B' (to_fun Hf a)) :
       (Σa, B a) ≃ (Σa', B' a') :=
-  equiv_functor_sigma (equiv_fun Hf) (λ a, equiv_fun (Hg a))
+  equiv_functor_sigma (to_fun Hf) (λ a, to_fun (Hg a))
   end --remove
 
   /- definition 3.11.9(i): Summing up a contractible family of types does nothing. -/
   open truncation
   definition isequiv_pr1_contr [instance] (B : A → Type) [H : Π a, is_contr (B a)]
-      : IsEquiv (@dpr1 A B) :=
+      : is_equiv (@dpr1 A B) :=
   adjointify dpr1
              (λa, ⟨a, !center⟩)
              (λa, idp)
              (λu, path_sigma idp !contr)
 
   definition equiv_sigma_contr [H : Π a, is_contr (B a)] : (Σa, B a) ≃ A :=
-  Equiv.mk dpr1 _
+  equiv.mk dpr1 _
 
   /- definition 3.11.9(ii): Dually, summing up over a contractible type does nothing. -/
 
   definition equiv_contr_sigma (B : A → Type) [H : is_contr A] : (Σa, B a) ≃ B (center A) :=
-  Equiv.mk _ (adjointify
+  equiv.mk _ (adjointify
     (λu, contr u.1⁻¹ ▹ u.2)
     (λb, ⟨!center, b⟩)
     (λb, ap (λx, x ▹ b) !path2_contr)
@@ -292,7 +292,7 @@ namespace sigma
   --               apply (destruct v), intros (b, c),
   --               apply idp,
   -- end
-  Equiv.mk _ (adjointify
+  equiv.mk _ (adjointify
     (λav, ⟨⟨av.1, av.2.1⟩, av.2.2⟩)
     (λuc, ⟨uc.1.1, uc.1.2, !eta_sigma⁻¹ ▹ uc.2⟩)
     proof (λuc, destruct uc (λu, destruct u (λa b c, idp))) qed
@@ -300,7 +300,7 @@ namespace sigma
 
   open prod
   definition equiv_sigma_prod (C : (A × A') → Type) : (Σa a', C (a,a')) ≃ (Σu, C u) :=
-  Equiv.mk _ (adjointify
+  equiv.mk _ (adjointify
     (λav, ⟨(av.1, av.2.1), av.2.2⟩)
     (λuc, ⟨pr₁ (uc.1), pr₂ (uc.1), !eta_prod⁻¹ ▹ uc.2⟩)
     proof (λuc, destruct uc (λu, prod.destruct u (λa b c, idp))) qed
@@ -313,14 +313,14 @@ namespace sigma
   calc
     (Σa a', C (a, a')) ≃ Σu, C u : equiv_sigma_prod
                  ... ≃ Σv, C (flip v) : equiv_functor_sigma' !equiv_prod_symm
-                                          (λu, prod.destruct u (λa a', Equiv.id))
+                                          (λu, prod.destruct u (λa a', equiv.refl))
                  ... ≃ (Σa' a, C (a, a')) : equiv_sigma_prod
 
   definition equiv_sigma_symm (C : A → A' → Type) : (Σa a', C a a') ≃ (Σa' a, C a a') :=
   sigma.equiv_sigma_symm_prod (λu, C (pr1 u) (pr2 u))
 
   definition equiv_sigma0_prod (A B : Type) : (Σ(a : A), B) ≃ A × B :=
-  Equiv.mk _ (adjointify
+  equiv.mk _ (adjointify
     (λs, (s.1, s.2))
     (λp, ⟨pr₁ p, pr₂ p⟩)
     proof (λp, prod.destruct p (λa b, idp)) qed
@@ -340,7 +340,7 @@ begin
   apply (truncation.trunc_index.rec_on n),
     intros (A, B, HA, HB),
       apply trunc_equiv',
-        apply Equiv.inv_closed,
+        apply equiv.symm,
           apply equiv_contr_sigma, apply HA,
       apply HB,
      intros (n, IH, A, B, HA, HB),

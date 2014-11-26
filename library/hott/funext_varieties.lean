@@ -27,9 +27,9 @@ definition weak_funext.{l k} :=
 -- TODO: Get class inference to work locally
 definition funext_implies_naive_funext [F : funext] : naive_funext :=
   (λ A P f g h,
-    have Fefg: IsEquiv (@apD10 A P f g),
+    have Fefg: is_equiv (@apD10 A P f g),
       from (@funext.ap F A P f g),
-    have eq1 : _, from (@IsEquiv.inv _ _ (@apD10 A P f g) Fefg h),
+    have eq1 : _, from (@is_equiv.inv _ _ (@apD10 A P f g) Fefg h),
     eq1
   )
 
@@ -100,11 +100,11 @@ theorem weak_funext_implies_funext (wf : weak_funext.{l+1 k+1}) : funext.{l+1 k+
       proof htpy_ind_beta _ f eq_to_f idp qed,
     have t2 : apD10 (sim2path f (idhtpy f)) ≈ (idhtpy f),
       proof ap apD10 t1 qed,
-    have sect : Sect (sim2path g) apD10,
+    have sect : apD10 ∘ (sim2path g) ∼ id,
       proof (htpy_ind _ f (λ g' x, apD10 (sim2path g' x) ≈ x) t2) g qed,
-    have retr : Sect apD10 (sim2path g),
+    have retr : (sim2path g) ∘ apD10 ∼ id,
       from (λ h, path.rec_on h (htpy_ind_beta _ f _ idp)),
-    IsEquiv.adjointify apD10 (sim2path g) sect retr)
+    is_equiv.adjointify apD10 (sim2path g) sect retr)
 
 definition naive_funext_implies_funext : naive_funext -> funext :=
   compose weak_funext_implies_funext naive_funext_implies_weak_funext

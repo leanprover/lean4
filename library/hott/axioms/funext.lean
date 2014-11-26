@@ -3,7 +3,6 @@
 -- Author: Jeremy Avigad, Jakob von Raumer
 -- Ported from Coq HoTT
 
--- TODO: take a look at the Coq tricks
 import hott.path hott.equiv
 open path
 
@@ -12,7 +11,7 @@ open path
 
 -- Define function extensionality as a type class
 inductive funext [class] : Type  :=
-  mk : (Π (A : Type) (P : A → Type ) (f g : Π x, P x), IsEquiv (@apD10 A P f g))
+  mk : (Π (A : Type) (P : A → Type ) (f g : Π x, P x), is_equiv (@apD10 A P f g))
          → funext
 
 namespace funext
@@ -21,11 +20,11 @@ namespace funext
     universe variables l k
     parameters [F : funext.{l k}] {A : Type.{l}} {P : A → Type.{k}} (f g : Π x, P x)
 
-    protected definition ap [instance] : IsEquiv (@apD10 A P f g) :=
+    protected definition ap [instance] : is_equiv (@apD10 A P f g) :=
       rec_on F (λ (H : Π A P f g, _), !H)
 
     definition path_forall : f ∼ g → f ≈ g :=
-      @IsEquiv.inv _ _ (@apD10 A P f g) ap
+      @is_equiv.inv _ _ (@apD10 A P f g) ap
 
   end
 

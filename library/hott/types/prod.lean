@@ -8,7 +8,7 @@ Theorems about products
 -/
 
 import ..trunc data.prod
-open path Equiv IsEquiv truncation prod
+open path equiv is_equiv truncation prod
 
 variables {A A' B B' C D : Type}
           {a a' a'' : A} {b b₁ b₂ b' b'' : B} {u v w : A × B}
@@ -21,15 +21,13 @@ namespace prod
 
   /- Symmetry -/
 
-  definition isequiv_prod_symm [instance] (A B : Type) : IsEquiv (@flip A B) :=
+  definition isequiv_prod_symm [instance] (A B : Type) : is_equiv (@flip A B) :=
   adjointify flip
              flip
              (λu, destruct u (λb a, idp))
              (λu, destruct u (λa b, idp))
 
   definition equiv_prod_symm (A B : Type) : A × B ≃ B × A :=
-  Equiv.mk flip _
-
-  check typeof idp : flip (flip (a,b)) ≈ (a,b)
+    equiv.mk flip _
 
 end prod

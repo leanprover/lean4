@@ -193,10 +193,10 @@ path.rec_on p idp
 
 definition ap01 := ap
 
-definition pointwise_paths {A : Type} {P : A → Type} (f g : Πx, P x) : Type :=
+definition homotopy [reducible] {A : Type} {P : A → Type} (f g : Πx, P x) : Type :=
 Πx : A, f x ≈ g x
 
-notation f ∼ g := pointwise_paths f g
+notation f ∼ g := homotopy f g
 
 definition apD10 {A} {B : A → Type} {f g : Πx, B x} (H : f ≈ g) : f ∼ g :=
 λx, path.rec_on H idp

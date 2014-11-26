@@ -3,7 +3,7 @@
 -- Author: Jakob von Raumer
 -- Ported from Coq HoTT
 import hott.path hott.equiv
-open path Equiv
+open path equiv
 
 --Ensure that the types compared are in the same universe
 section
@@ -11,15 +11,15 @@ section
   variables {A B : Type.{l}}
 
   definition isequiv_path (H : A ≈ B) :=
-    (@IsEquiv.transport Type (λX, X) A B H)
+    (@is_equiv.transport Type (λX, X) A B H)
 
   definition equiv_path (H : A ≈ B) : A ≃ B :=
-    Equiv.mk _ (isequiv_path H)
+    equiv.mk _ (isequiv_path H)
 
 end
 
 inductive ua_type [class] : Type :=
-  mk : (Π (A B : Type), IsEquiv (@equiv_path A B)) → ua_type
+  mk : (Π (A B : Type), is_equiv (@equiv_path A B)) → ua_type
 
 namespace ua_type
 
@@ -28,12 +28,12 @@ namespace ua_type
     parameters [F : ua_type.{k}] {A B: Type.{k}}
 
     -- Make the Equivalence given by the axiom an instance
-    protected definition inst [instance] : IsEquiv (@equiv_path.{k} A B) :=
+    protected definition inst [instance] : is_equiv (@equiv_path.{k} A B) :=
       rec_on F (λ H, H A B)
 
     -- This is the version of univalence axiom we will probably use most often
     definition ua : A ≃ B →  A ≈ B :=
-      @IsEquiv.inv _ _ (@equiv_path A B) inst
+      @is_equiv.inv _ _ (@equiv_path A B) inst
 
   end
 

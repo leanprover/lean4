@@ -205,47 +205,48 @@ namespace truncation
   /- interaction with equivalences -/
 
   section
-  open IsEquiv Equiv
+  open is_equiv equiv
 
   --should we remove the following two theorems as they are special cases of "trunc_equiv"
-  definition equiv_preserves_contr (f : A → B) [Hf : IsEquiv f] [HA: is_contr A] : (is_contr B) :=
-  is_contr.mk (f (center A)) (λp, moveR_M f !contr)
+  definition equiv_preserves_contr (f : A → B) [Hf : is_equiv f] [HA: is_contr A] : (is_contr B) :=
+    is_contr.mk (f (center A)) (λp, moveR_M f !contr)
 
-  theorem contr_equiv (f : A ≃ B) [HA: is_contr A] : is_contr B :=
-  equiv_preserves_contr (equiv_fun f)
+  set_option elaborator.trace_instances true
+  theorem contr_equiv (H : A ≃ B) [HA: is_contr A] : is_contr B :=
+    @equiv_preserves_contr _ _ (to_fun H) (to_is_equiv H) _
 
   definition contr_equiv_contr [HA : is_contr A] [HB : is_contr B] : A ≃ B :=
-  Equiv.mk
+  equiv.mk
     (λa, center B)
-    (IsEquiv.adjointify (λa, center B) (λb, center A) contr contr)
+    (is_equiv.adjointify (λa, center B) (λb, center A) contr contr)
 
-  definition trunc_equiv (n : trunc_index) (f : A → B) [H : IsEquiv f] [HA : is_trunc n A]
+  definition trunc_equiv (n : trunc_index) (f : A → B) [H : is_equiv f] [HA : is_trunc n A]
       : is_trunc n B :=
   trunc_index.rec_on n
-    (λA (HA : is_contr A) B f (H : IsEquiv f), !equiv_preserves_contr)
-    (λn IH A (HA : is_trunc n.+1 A) B f (H : IsEquiv f), @is_trunc_succ _ _ (λ x y : B,
+    (λA (HA : is_contr A) B f (H : is_equiv f), !equiv_preserves_contr)
+    (λn IH A (HA : is_trunc n.+1 A) B f (H : is_equiv f), @is_trunc_succ _ _ (λ x y : B,
       IH (f⁻¹ x ≈ f⁻¹ y) !succ_is_trunc (x ≈ y) ((ap (f⁻¹))⁻¹) !inv_closed))
     A HA B f H
 
   definition trunc_equiv' (n : trunc_index) (f : A ≃ B) [HA : is_trunc n A] : is_trunc n B :=
-  trunc_equiv n (equiv_fun f)
+  trunc_equiv n (to_fun f)
 
   definition isequiv_iff_hprop [HA : is_hprop A] [HB : is_hprop B] (f : A → B) (g : B → A)
-      : IsEquiv f :=
-  IsEquiv.adjointify f g (λb, !is_hprop.elim) (λa, !is_hprop.elim)
+      : is_equiv f :=
+  is_equiv.adjointify f g (λb, !is_hprop.elim) (λa, !is_hprop.elim)
 
   -- definition equiv_iff_hprop_uncurried [HA : is_hprop A] [HB : is_hprop B] : (A ↔ B) → (A ≃ B)  := sorry
 
   definition equiv_iff_hprop [HA : is_hprop A] [HB : is_hprop B] (f : A → B) (g : B → A) : A ≃ B :=
-  Equiv.mk f (isequiv_iff_hprop f g)
+  equiv.mk f (isequiv_iff_hprop f g)
   end
 
   /- interaction with the Unit type -/
 
   -- A contractible type is equivalent to [Unit]. *)
   definition equiv_contr_unit [H : is_contr A] : A ≃ unit :=
-    Equiv.mk (λ (x : A), ⋆)
-      (IsEquiv.mk (λ (u : unit), center A)
+    equiv.mk (λ (x : A), ⋆)
+      (is_equiv.mk (λ (u : unit), center A)
         (λ (u : unit), unit.rec_on u idp)
         (λ (x : A), contr x)
         (λ (x : A), (!ap_const)⁻¹))

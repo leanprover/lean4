@@ -56,7 +56,7 @@ void initialize_generalize_tactic() {
                      return generalize_tactic(fn, get_tactic_expr_expr(app_arg(e)), "x");
                  });
 
-    register_tac(name({"tactic", "generalize_list"}),
+    register_tac(name({"tactic", "generalize_lst"}),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      buffer<expr> args;
                      get_tactic_expr_list_elements(app_arg(e), args, "invalid 'generalizes' tactic, list of expressions expected");

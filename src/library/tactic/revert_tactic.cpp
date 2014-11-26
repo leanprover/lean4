@@ -51,15 +51,21 @@ tactic revert_tactic(name const & n) {
     return tactic01(fn);
 }
 
-static name const & get_revert_arg(expr const & e) {
-    return tactic_expr_to_id(e, "invalid 'revert' tactic, argument must be an identifier");
-}
-
 void initialize_revert_tactic() {
     register_tac(name({"tactic", "revert"}),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     name n = get_revert_arg(app_arg(e));
+                     name n = tactic_expr_to_id(app_arg(e), "invalid 'revert' tactic, argument must be an identifier");
                      return revert_tactic(n);
+                 });
+
+    register_tac(name({"tactic", "revert_lst"}),
+                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                     buffer<name> ns;
+                     get_tactic_id_list_elements(app_arg(e), ns, "invalid 'reverts' tactic, list of identifiers expected");
+                     tactic r = revert_tactic(ns[0]);
+                     for (unsigned i = 1; i < ns.size(); i++)
+                         r = then(revert_tactic(ns[i]), r);
+                     return r;
                  });
 }
 void finalize_revert_tactic() {}

@@ -52,15 +52,23 @@ tactic clear_tactic(name const & n) {
     return tactic01(fn);
 }
 
-static name const & get_clear_arg(expr const & e) {
-    return tactic_expr_to_id(e, "invalid 'clear' tactic, argument must be an identifier");
-}
-
 void initialize_clear_tactic() {
     register_tac(name({"tactic", "clear"}),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     name n = get_clear_arg(app_arg(e));
+                     name n = tactic_expr_to_id(app_arg(e), "invalid 'clear' tactic, argument must be an identifier");
                      return clear_tactic(n);
+                 });
+    register_tac(name({"tactic", "clear_lst"}),
+                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                     buffer<name> ns;
+                     get_tactic_id_list_elements(app_arg(e), ns, "invalid 'clears' tactic, list of identifiers expected");
+                     tactic r = clear_tactic(ns.back());
+                     ns.pop_back();
+                     while (!ns.empty()) {
+                         r = then(clear_tactic(ns.back()), r);
+                         ns.pop_back();
+                     }
+                     return r;
                  });
 }
 void finalize_clear_tactic() {}

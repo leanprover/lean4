@@ -47,31 +47,37 @@ definition rotate (k : num) := rotate_left k
 inductive expr : Type :=
 builtin : expr
 
-opaque definition apply   (e : expr) : tactic := builtin
-opaque definition rapply  (e : expr) : tactic := builtin
-opaque definition rename  (a b : expr) : tactic := builtin
-opaque definition intro   (e : expr) : tactic := builtin
-opaque definition generalize (e : expr) : tactic := builtin
+opaque definition apply      (e : expr)   : tactic := builtin
+opaque definition rapply     (e : expr)   : tactic := builtin
+opaque definition rename     (a b : expr) : tactic := builtin
+opaque definition intro      (e : expr)   : tactic := builtin
+opaque definition generalize (e : expr)   : tactic := builtin
+opaque definition clear      (e : expr)   : tactic := builtin
+opaque definition revert     (e : expr)   : tactic := builtin
+opaque definition unfold     (e : expr)   : tactic := builtin
+opaque definition exact      (e : expr)   : tactic := builtin
+opaque definition trace      (s : string) : tactic := builtin
 
 inductive expr_list : Type :=
 nil  : expr_list,
 cons : expr → expr_list → expr_list
 
-opaque definition intro_list (es : expr_list) : tactic := builtin
-notation `intros`   := intro_list expr_list.nil
-notation `intros` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := intro_list l
+opaque definition intro_lst (es : expr_list) : tactic := builtin
+notation `intros`   := intro_lst expr_list.nil
+notation `intros` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := intro_lst l
 
-opaque definition generalize_list (es : expr_list) : tactic := builtin
-notation `generalizes` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := generalize_list l
+opaque definition generalize_lst (es : expr_list) : tactic := builtin
+notation `generalizes` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := generalize_lst l
 
-opaque definition clear (e : expr) : tactic := builtin
-opaque definition revert (e : expr) : tactic := builtin
+opaque definition clear_lst  (es : expr_list) : tactic := builtin
+notation `clears` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := clear_lst l
 
-opaque definition unfold      (e : expr) : tactic := builtin
-opaque definition exact       (e : expr) : tactic := builtin
-opaque definition trace       (s : string) : tactic := builtin
+opaque definition revert_lst (es : expr_list) : tactic := builtin
+notation `reverts` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := revert_lst l
+
 infixl `;`:15 := and_then
 notation `[` h:10 `|`:10 r:(foldl 10 `|` (e r, or_else r e) h) `]` := r
+
 definition try         (t : tactic) : tactic := [t | id]
 definition repeat1     (t : tactic) : tactic := t ; repeat t
 definition focus       (t : tactic) : tactic := focus_at t 0

@@ -42,8 +42,8 @@ infixl `*`   := has_mul.mul
 infixl `+`   := has_add.add
 postfix `⁻¹` := has_inv.inv
 prefix `-`   := has_neg.neg
-notation 1   := has_one.one
-notation 0   := has_zero.zero
+notation 1   := !has_one.one
+notation 0   := !has_zero.zero
 
 
 /- semigroup -/

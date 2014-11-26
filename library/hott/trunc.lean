@@ -81,11 +81,11 @@ namespace truncation
   -- maybe rename to is_trunc_succ.mk
   definition is_trunc_succ (A : Type) {n : trunc_index} [H : ∀x y : A, is_trunc n (x ≈ y)]
     : is_trunc n.+1 A :=
-  is_trunc.mk (λ x y, is_trunc.to_internal)
+  is_trunc.mk (λ x y, !is_trunc.to_internal)
 
   -- maybe rename to is_trunc_succ.elim
   definition succ_is_trunc {n : trunc_index} [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x ≈ y) :=
-  is_trunc.mk (is_trunc.to_internal x y)
+  is_trunc.mk (!is_trunc.to_internal x y)
 
   /- contractibility -/
 
@@ -93,10 +93,10 @@ namespace truncation
   is_trunc.mk (contr_internal.mk center contr)
 
   definition center (A : Type) [H : is_contr A] : A :=
-  @contr_internal.center A is_trunc.to_internal
+  @contr_internal.center A !is_trunc.to_internal
 
   definition contr [H : is_contr A] (a : A) : !center ≈ a :=
-  @contr_internal.contr A is_trunc.to_internal a
+  @contr_internal.contr A !is_trunc.to_internal a
 
   definition path_contr [H : is_contr A] (x y : A) : x ≈ y :=
   contr x⁻¹ ⬝ (contr y)

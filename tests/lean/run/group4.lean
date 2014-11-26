@@ -26,7 +26,7 @@ mk :: (inv : A → A)
 
 infixl `*`   := has_mul.mul
 postfix `⁻¹` := has_inv.inv
-notation 1   := has_one.one
+notation 1   := !has_one.one
 
 structure semigroup [class] (A : Type) extends has_mul A :=
 mk :: (assoc : ∀ a b c, mul (mul a b) c = mul a (mul b c))

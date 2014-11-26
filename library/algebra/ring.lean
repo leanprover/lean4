@@ -38,8 +38,7 @@ theorem mul_zero_right [s : mul_zero A] (a : A) : a * 0 = 0 := !mul_zero.mul_zer
 structure zero_ne_one_class [class] (A : Type) extends has_zero A, has_one A :=
 (zero_ne_one : zero ≠ one)
 
-theorem zero_ne_one [s: zero_ne_one_class A] : 0 ≠ 1 := zero_ne_one_class.zero_ne_one
-
+theorem zero_ne_one [s: zero_ne_one_class A] : 0 ≠ 1 := !zero_ne_one_class.zero_ne_one
 
 /- semiring -/
 structure semiring [class] (A : Type) extends add_comm_monoid A, monoid A, distrib A, mul_zero A,
@@ -150,9 +149,9 @@ end comm_semiring_dvd
 structure ring [class] (A : Type) extends add_comm_group A, monoid A, distrib A, zero_ne_one_class A
 
 definition ring.to_semiring [instance] [s : ring A] : semiring A :=
-semiring.mk ring.add ring.add_assoc ring.zero ring.add_left_id
+semiring.mk ring.add ring.add_assoc !ring.zero ring.add_left_id
   add_right_id   -- note: we've shown that add_right_id follows from add_left_id in add_comm_group
-  ring.add_comm ring.mul ring.mul_assoc ring.one ring.mul_left_id ring.mul_right_id
+  ring.add_comm ring.mul ring.mul_assoc !ring.one ring.mul_left_id ring.mul_right_id
   ring.distrib_left ring.distrib_right
   (take a,
     have H : 0 * a  + 0 = 0 * a + 0 * a, from
@@ -168,7 +167,7 @@ semiring.mk ring.add ring.add_assoc ring.zero ring.add_left_id
           ... = a * (0 + 0) : add_right_id
           ... = a * 0 + a * 0 : ring.distrib_left,
     show a * 0 = 0, from  (add_left_cancel H)⁻¹)
-  ring.zero_ne_one
+  !ring.zero_ne_one
 
 section
 
@@ -224,8 +223,8 @@ end
 structure comm_ring [class] (A : Type) extends ring A, comm_semigroup A
 
 definition comm_ring.to_comm_semiring [instance] [s : comm_ring A] : comm_semiring A :=
-comm_semiring.mk has_add.add add_assoc has_zero.zero add_left_id add_right_id add_comm
-  has_mul.mul mul_assoc has_one.one mul_left_id mul_right_id distrib_left distrib_right
+comm_semiring.mk has_add.add add_assoc !has_zero.zero add_left_id add_right_id add_comm
+  has_mul.mul mul_assoc !has_one.one mul_left_id mul_right_id distrib_left distrib_right
   mul_zero_left mul_zero_right zero_ne_one mul_comm
 
 section
@@ -244,8 +243,8 @@ end
 structure comm_ring_dvd [class] (A : Type) extends comm_ring A, has_dvd A
 
 definition comm_ring_dvd.to_comm_semiring_dvd [instance] [s : comm_ring_dvd A] : comm_semiring_dvd A :=
-comm_semiring_dvd.mk has_add.add add_assoc has_zero.zero add_left_id add_right_id add_comm
-  has_mul.mul mul_assoc has_one.one mul_left_id mul_right_id distrib_left distrib_right
+comm_semiring_dvd.mk has_add.add add_assoc !has_zero.zero add_left_id add_right_id add_comm
+  has_mul.mul mul_assoc !has_one.one mul_left_id mul_right_id distrib_left distrib_right
   mul_zero_left mul_zero_right zero_ne_one mul_comm dvd (@dvd_intro A s) (@dvd_imp_exists A s)
 
 section

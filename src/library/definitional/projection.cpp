@@ -107,7 +107,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         rec_args.push_back(major_premise);
         expr rec_app      = mk_app(rec, rec_args);
         expr proj_type    = Pi(proj_args, result_type);
-        bool strict       = false;
+        bool strict       = true;
         proj_type         = infer_implicit(proj_type, nparams, strict);
         expr proj_val     = Fun(proj_args, rec_app);
         bool opaque       = false;

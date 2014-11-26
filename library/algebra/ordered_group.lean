@@ -161,7 +161,7 @@ structure ordered_comm_group [class] (A : Type) extends add_comm_group A, order_
 
 definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] (A : Type)
     [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
-ordered_cancel_comm_monoid.mk has_add.add add_assoc has_zero.zero add_left_id add_right_id add_comm
+ordered_cancel_comm_monoid.mk has_add.add add_assoc !has_zero.zero add_left_id add_right_id add_comm
 (@add_left_cancel _ _) (@add_right_cancel _ _) has_le.le le_refl (@le_trans _ _) (@le_antisym _ _)
 has_lt.lt (@lt_iff_le_ne _ _) ordered_comm_group.add_le_left
 proof

@@ -96,10 +96,7 @@
   (local-set-key (kbd "TAB") 'lean-tab-indent-or-complete))
 
 (define-abbrev-table 'lean-abbrev-table
-  '(("var"    "variable")
-    ("vars"   "variables")
-    ("def"    "definition")
-    ("th"     "theorem")))
+  '())
 
 (defvar lean-mode-map (make-sparse-keymap)
   "Keymap used in Lean mode")

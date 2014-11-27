@@ -68,6 +68,16 @@ optional<name> is_elim_rule(environment const & env, name const & n);
 optional<unsigned> get_elim_major_idx(environment const & env, name const & n);
 bool is_elim_meta_app(type_checker & tc, expr const & e);
 
+/** \brief Return the number of parameters in the given inductive datatype.
+    If \c n is not an inductive datatype in \c env, then return none.
+*/
+inline optional<unsigned> get_num_params(environment const & env, name const & n) {
+    if (auto ds = is_inductive_decl(env, n))
+        return optional<unsigned>(std::get<1>(*ds));
+    else
+        return optional<unsigned>();
+}
+
 /** \brief Return the number of indices in the given inductive datatype.
     If \c n is not an inductive datatype in \c env, then return none.
 */

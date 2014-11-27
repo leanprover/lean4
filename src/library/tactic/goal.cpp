@@ -144,9 +144,7 @@ void goal::get_hyps(buffer<expr> & r) const {
     get_app_args(m_meta, r);
 }
 
-name goal::get_unused_name(name const & prefix, unsigned & idx) const {
-    buffer<expr> locals;
-    get_app_rev_args(get_meta(), locals);
+name get_unused_name(name const & prefix, unsigned & idx, buffer<expr> const & locals) {
     while (true) {
         bool used = false;
         name curr = prefix.append_after(idx);
@@ -160,6 +158,17 @@ name goal::get_unused_name(name const & prefix, unsigned & idx) const {
         if (!used)
             return curr;
     }
+}
+
+name get_unused_name(name const & prefix, buffer<expr> const & locals) {
+    unsigned idx = 1;
+    return get_unused_name(prefix, idx, locals);
+}
+
+name goal::get_unused_name(name const & prefix, unsigned & idx) const {
+    buffer<expr> locals;
+    get_app_rev_args(get_meta(), locals);
+    return ::lean::get_unused_name(prefix, idx, locals);
 }
 
 name goal::get_unused_name(name const & prefix) const {

@@ -32,7 +32,7 @@ tactic trace_tactic(char const * msg) {
 tactic trace_state_tactic(std::string const & fname, pair<unsigned, unsigned> const & pos) {
     return tactic1([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state {
             diagnostic(env, ios) << fname << ":" << pos.first << ":" << pos.second << ": proof state\n"
-                                 << s << endl;
+                                 << s.pp(env, ios) << endl;
             ios.get_diagnostic_channel().get_stream().flush();
             return s;
         });
@@ -40,7 +40,7 @@ tactic trace_state_tactic(std::string const & fname, pair<unsigned, unsigned> co
 
 tactic trace_state_tactic() {
     return tactic1([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state {
-            diagnostic(env, ios) << "proof state\n" << s << endl;
+            diagnostic(env, ios) << "proof state\n" << s.pp(env, ios) << endl;
             ios.get_diagnostic_channel().get_stream().flush();
             return s;
         });

@@ -23,4 +23,10 @@ io_state_stream const & operator<<(io_state_stream const & out, kernel_exception
     out.get_stream() << mk_pair(ex.pp(out.get_formatter()), opts);
     return out;
 }
+
+io_state_stream const & operator<<(io_state_stream const & out, format const & f) {
+    options const & opts = out.get_options();
+    out.get_stream() << mk_pair(f, opts);
+    return out;
+}
 }

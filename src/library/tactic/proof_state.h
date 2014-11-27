@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <utility>
 #include <algorithm>
+#include <functional>
 #include "util/lua.h"
 #include "util/optional.h"
 #include "util/name_set.h"
@@ -21,6 +22,9 @@ class proof_state {
     name_generator   m_ngen;
     constraints      m_postponed;
     bool             m_relax_main_opaque;
+
+    format pp_core(std::function<formatter()> const & mk_fmt, options const & opts) const;
+
 public:
     proof_state(goals const & gs, substitution const & s, name_generator const & ngen, constraints const & postponed,
                 bool relax_main_opaque);
@@ -48,6 +52,13 @@ public:
 
     /** \brief Return true iff this state does not have any goals left */
     bool is_final_state() const { return empty(m_goals); }
+
+    /** \remark This pretty printing method creates a fresh formatter object for each goal.
+        Some format objects "purify" local constant names by renaming.
+        The local constants in different goals are independent of each other.
+        So, this trick/hack avoids "unwanted purification".
+    */
+    format pp(environment const & env, io_state const & ios) const;
     format pp(formatter const & fmt) const;
 };
 
@@ -59,7 +70,6 @@ proof_state to_proof_state(expr const & meta, expr const & type, substitution co
 proof_state to_proof_state(expr const & meta, expr const & type, name_generator ngen, bool relax_main_opaque);
 
 goals map_goals(proof_state const & s, std::function<optional<goal>(goal const & g)> f);
-io_state_stream const & operator<<(io_state_stream const & out, proof_state const & s);
 
 UDATA_DEFS_CORE(goals)
 UDATA_DEFS(proof_state)

@@ -39,14 +39,14 @@ proof_state::proof_state(goals const & gs, substitution const & s, name_generato
     }
 }
 
-format proof_state::pp(formatter const & fmt) const {
-    options const & opts = fmt.get_options();
+format proof_state::pp_core(std::function<formatter()> const & mk_fmt, options const & opts) const {
     bool show_goal_names = get_proof_state_goal_names(opts);
     unsigned indent      = get_pp_indent(opts);
     format r;
     bool first = true;
 
     for (auto const & g : get_goals()) {
+        formatter fmt = mk_fmt();
         if (first) first = false; else r += line() + line();
         if (show_goal_names) {
             r += group(format(g.get_name()) + colon() + nest(indent, line() + g.pp(fmt, m_subst)));
@@ -56,6 +56,15 @@ format proof_state::pp(formatter const & fmt) const {
     }
     if (first) r = format("no goals");
     return r;
+}
+
+format proof_state::pp(formatter const & fmt) const {
+    return pp_core([&]() { return fmt; }, fmt.get_options());
+}
+
+format proof_state::pp(environment const & env, io_state const & ios) const {
+    return pp_core([&]() { return ios.get_formatter_factory()(env, ios.get_options()); },
+                   ios.get_options());
 }
 
 goals map_goals(proof_state const & s, std::function<optional<goal>(goal const & g)> f) {
@@ -69,12 +78,6 @@ goals map_goals(proof_state const & s, std::function<optional<goal>(goal const &
                 return false;
             }
         });
-}
-
-io_state_stream const & operator<<(io_state_stream const & out, proof_state const & s) {
-    options const & opts = out.get_options();
-    out.get_stream() << mk_pair(s.pp(out.get_formatter()), opts);
-    return out;
 }
 
 proof_state to_proof_state(expr const & meta, expr const & type, substitution const & subst, name_generator ngen,
@@ -187,9 +190,8 @@ static int to_proof_state(lua_State * L) {
 static int proof_state_tostring(lua_State * L) {
     std::ostringstream out;
     proof_state & s = to_proof_state(L, 1);
-    formatter fmt   = mk_formatter(L);
     options opts    = get_global_options(L);
-    out << mk_pair(s.pp(fmt), opts);
+    out << mk_pair(s.pp(get_global_environment(L), get_io_state(L)), opts);
     lua_pushstring(L, out.str().c_str());
     return 1;
 }
@@ -202,9 +204,9 @@ static int proof_state_pp(lua_State * L) {
     int nargs = lua_gettop(L);
     proof_state & s = to_proof_state(L, 1);
     if (nargs == 1)
-        return push_format(L, s.pp(mk_formatter(L)));
+        return push_format(L, s.pp(get_global_environment(L), get_io_state(L)));
     else
-        return push_format(L, s.pp(to_formatter(L, 2)));
+        return push_format(L, s.pp(to_environment(L, 1), to_io_state(L, 2)));
 }
 
 static const struct luaL_Reg proof_state_m[] = {

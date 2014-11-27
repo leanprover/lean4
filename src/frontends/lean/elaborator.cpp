@@ -942,7 +942,7 @@ void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state con
         auto out = regular(env(), ios());
         flycheck_error err(out);
         display_error_pos(out, pip(), pos);
-        out << " " << msg << "\n" << ps << endl;
+        out << " " << msg << "\n" << ps.pp(env(), ios()) << endl;
     }
 }
 

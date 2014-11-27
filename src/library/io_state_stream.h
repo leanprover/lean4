@@ -41,6 +41,7 @@ class kernel_exception;
 io_state_stream const & operator<<(io_state_stream const & out, endl_class);
 io_state_stream const & operator<<(io_state_stream const & out, expr const & e);
 io_state_stream const & operator<<(io_state_stream const & out, kernel_exception const & ex);
+io_state_stream const & operator<<(io_state_stream const & out, format const & f);
 template<typename T> io_state_stream const & operator<<(io_state_stream const & out, T const & t) {
     out.get_stream() << t;
     return out;

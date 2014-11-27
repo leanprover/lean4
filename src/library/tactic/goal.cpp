@@ -127,6 +127,23 @@ list<expr> goal::to_context() const {
     return to_list(locals.begin(), locals.end());
 }
 
+optional<pair<expr, unsigned>> goal::find_hyp(name const & uname) const {
+    expr const * it = &m_meta;
+    unsigned i = 0;
+    while (is_app(*it)) {
+        expr const & h = app_arg(*it);
+        if (local_pp_name(h) == uname)
+            return some(mk_pair(h, i));
+        i++;
+        it = &app_fn(*it);
+    }
+    return optional<pair<expr, unsigned>>();
+}
+
+void goal::get_hyps(buffer<expr> & r) const {
+    get_app_args(m_meta, r);
+}
+
 io_state_stream const & operator<<(io_state_stream const & out, goal const & g) {
     options const & opts = out.get_options();
     out.get_stream() << mk_pair(g.pp(out.get_formatter()), opts);

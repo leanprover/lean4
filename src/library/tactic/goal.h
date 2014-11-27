@@ -74,6 +74,20 @@ public:
     /** \brief Apply given substitution to goal */
     goal instantiate(substitution const & s) const;
 
+    /** \brief Return hypothesis (and its position) with "user name" uname (i.e., local_pp_name).
+
+        \remark The position is right to left. In the following goal (Ha is 2), (Hb is 1) and (Hc is 0):
+
+        Ha : a, Hb : b, Hc : c |- P
+    */
+    optional<pair<expr, unsigned>> find_hyp(name const & uname) const;
+
+    /** \brief Store hypotheses in the given buffer.
+
+        \remark The hypotheses are stored from left to right.
+    */
+    void get_hyps(buffer<expr> & r) const;
+
     format pp(formatter const & fmt, substitution const & s) const;
     format pp(formatter const & fmt) const;
 };

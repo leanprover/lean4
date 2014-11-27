@@ -17,36 +17,26 @@ tactic revert_tactic(name const & n) {
             return none_proof_state();
         goal  g          = head(gs);
         goals tail_gs    = tail(gs);
-        expr meta        = g.get_meta();
-        buffer<expr> locals;
-        get_app_args(meta, locals);
-        unsigned i = locals.size();
-        while (i > 0) {
-            --i;
-            if (local_pp_name(locals[i]) == n) {
-                // found target
-                name real_n = mlocal_name(locals[i]);
-                for (unsigned j = i+1; j < locals.size(); j++) {
-                    if (contains_local(mlocal_type(locals[j]), real_n))
-                        return none_proof_state(); // other variables depends on n
-                }
-                buffer<expr> new_locals;
-                for (unsigned j = 0; j < i; j++)
-                    new_locals.push_back(locals[j]);
-                for (unsigned j = i+1; j < locals.size(); j++)
-                    new_locals.push_back(locals[j]);
-                name_generator ngen = s.get_ngen();
-                expr new_type = Pi(locals[i], g.get_type());
-                expr new_meta = mk_app(mk_metavar(ngen.next(), Pi(new_locals, new_type)), new_locals);
-                goal new_g(new_meta, new_type);
-                expr val      = Fun(locals, mk_app(new_meta, locals[i]));
-                substitution new_subst = s.get_subst();
-                new_subst.assign(g.get_name(), val);
-                proof_state new_s(s, goals(new_g, tail_gs), new_subst, ngen);
-                return some_proof_state(new_s);
-            }
+        if (auto p = g.find_hyp(n)) {
+            expr const & h = p->first;
+            unsigned i     = p->second;
+            buffer<expr> hyps;
+            g.get_hyps(hyps);
+            hyps.erase(hyps.size() - i - 1);
+            if (depends_on(i, hyps.end() - i, h))
+                return none_proof_state(); // other hypotheses depend on h
+            name_generator ngen = s.get_ngen();
+            expr new_type = Pi(h, g.get_type());
+            expr new_meta = mk_app(mk_metavar(ngen.next(), Pi(hyps, new_type)), hyps);
+            goal new_g(new_meta, new_type);
+            expr val      = g.abstract(mk_app(new_meta, h));
+            substitution new_subst = s.get_subst();
+            new_subst.assign(g.get_name(), val);
+            proof_state new_s(s, goals(new_g, tail_gs), new_subst, ngen);
+            return some_proof_state(new_s);
+        } else {
+            return none_proof_state();
         }
-        return none_proof_state();
     };
     return tactic01(fn);
 }

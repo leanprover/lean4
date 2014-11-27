@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
+#include "library/locals.h"
 
 namespace lean {
 void collect_univ_params_core(level const & l, name_set & r) {
@@ -75,5 +76,12 @@ bool contains_local(expr const & e, name const & n) {
             }
         });
     return result;
+}
+
+bool depends_on(unsigned sz, expr const * es, expr const & h) {
+    for (unsigned i = 0; i < sz; i++)
+        if (depends_on(es[i], h))
+            return true;
+    return false;
 }
 }

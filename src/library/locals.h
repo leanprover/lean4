@@ -25,4 +25,12 @@ inline bool contains_local(expr const & local, buffer<expr> const & locals) {
 
 /** \brief Return true iff \c e contains a local constant named \c n (it uses mlocal_name) */
 bool contains_local(expr const & e, name const & n);
+
+/** \brief Return true iff \e contains the local constant \c h */
+inline bool depends_on(expr const & e, expr const & h) {
+    return contains_local(e, mlocal_name(h));
+}
+
+/** \brief Return true iff one of \c es contains the local constant \c h */
+bool depends_on(unsigned sz, expr const * es, expr const & h);
 }

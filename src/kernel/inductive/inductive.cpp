@@ -115,11 +115,13 @@ struct inductive_env_ext : public environment_extension {
             Another example is heterogeneous equality.
         */
         bool              m_K_target;
+        /** \brief m_dep_elim == true, if dependent elimination is used for this eliminator */
+        bool              m_dep_elim;
         elim_info() {}
         elim_info(name const & id_name, level_param_names const & ls, unsigned num_ps, unsigned num_ACe, unsigned num_indices,
-                  bool is_K_target):
+                  bool is_K_target, bool dep_elim):
             m_inductive_name(id_name), m_level_names(ls), m_num_params(num_ps), m_num_ACe(num_ACe),
-            m_num_indices(num_indices), m_K_target(is_K_target) {}
+            m_num_indices(num_indices), m_K_target(is_K_target), m_dep_elim(dep_elim) {}
     };
 
     struct comp_rule {
@@ -145,8 +147,9 @@ struct inductive_env_ext : public environment_extension {
     inductive_env_ext() {}
 
     void add_elim(name const & n, name const & id_name, level_param_names const & ls,
-                  unsigned num_ps, unsigned num_ace, unsigned num_indices, bool is_K_target) {
-        m_elim_info.insert(n, elim_info(id_name, ls, num_ps, num_ace, num_indices, is_K_target));
+                  unsigned num_ps, unsigned num_ace, unsigned num_indices, bool is_K_target,
+                  bool dep_elim) {
+        m_elim_info.insert(n, elim_info(id_name, ls, num_ps, num_ace, num_indices, is_K_target, dep_elim));
     }
 
     void add_comp_rhs(name const & n, name const & e, unsigned num_bu, expr const & rhs) {
@@ -748,7 +751,7 @@ struct add_inductive_fn {
         inductive_env_ext ext(get_extension(m_env));
         for (auto d : m_decls) {
             ext.add_elim(get_elim_name(d), inductive_decl_name(d), get_elim_level_param_names(), m_num_params,
-                         m_num_params + C.size() + e.size(), get_num_indices(d_idx), is_K_target(d_idx));
+                         m_num_params + C.size() + e.size(), get_num_indices(d_idx), is_K_target(d_idx), m_dep_elim);
             for (auto ir : inductive_decl_intros(d)) {
                 buffer<expr> b;
                 buffer<expr> u;
@@ -1008,6 +1011,14 @@ optional<unsigned> get_num_minor_premises(environment const & env, name const & 
     } else {
         return optional<unsigned>();
     }
+}
+
+bool has_dep_elim(environment const & env, name const & n) {
+    inductive_env_ext const & ext = get_extension(env);
+    if (auto it = ext.m_elim_info.find(get_elim_name(n)))
+        return it->m_dep_elim;
+    else
+        return false;
 }
 
 optional<name> is_intro_rule(environment const & env, name const & n) {

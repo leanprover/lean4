@@ -91,6 +91,9 @@ optional<unsigned> get_num_minor_premises(environment const & env, name const & 
 */
 optional<unsigned> get_num_type_formers(environment const & env, name const & n);
 
+/** \brief Return true if the given datatype uses dependent elimination. */
+bool has_dep_elim(environment const & env, name const & n);
+
 /** \brief Return the eliminator/recursor associated with an inductive datatype */
 name get_elim_name(name const & n);
 }

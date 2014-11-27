@@ -144,6 +144,29 @@ void goal::get_hyps(buffer<expr> & r) const {
     get_app_args(m_meta, r);
 }
 
+name goal::get_unused_name(name const & prefix, unsigned & idx) const {
+    buffer<expr> locals;
+    get_app_rev_args(get_meta(), locals);
+    while (true) {
+        bool used = false;
+        name curr = prefix.append_after(idx);
+        idx++;
+        for (expr const & local : locals) {
+            if (is_local(local) && local_pp_name(local) == curr) {
+                used = true;
+                break;
+            }
+        }
+        if (!used)
+            return curr;
+    }
+}
+
+name goal::get_unused_name(name const & prefix) const {
+    unsigned idx = 1;
+    return get_unused_name(prefix, idx);
+}
+
 io_state_stream const & operator<<(io_state_stream const & out, goal const & g) {
     options const & opts = out.get_options();
     out.get_stream() << mk_pair(g.pp(out.get_formatter()), opts);

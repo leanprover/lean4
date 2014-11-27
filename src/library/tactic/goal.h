@@ -88,6 +88,11 @@ public:
     */
     void get_hyps(buffer<expr> & r) const;
 
+    /** \brief Return a "user" name that is not used by any local constant in the given goal */
+    name get_unused_name(name const & prefix, unsigned & idx) const;
+
+    name get_unused_name(name const & prefix) const;
+
     format pp(formatter const & fmt, substitution const & s) const;
     format pp(formatter const & fmt) const;
 };

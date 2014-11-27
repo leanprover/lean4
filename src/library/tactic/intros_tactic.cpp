@@ -10,25 +10,6 @@ Author: Leonardo de Moura
 #include "library/tactic/expr_to_tactic.h"
 
 namespace lean {
-/** \brief Return a "user" name that is not used by any local constant in the given goal */
-static name get_unused_name(goal const & g, name const & prefix, unsigned & idx) {
-    buffer<expr> locals;
-    get_app_rev_args(g.get_meta(), locals);
-    while (true) {
-        bool used = false;
-        name curr = prefix.append_after(idx);
-        idx++;
-        for (expr const & local : locals) {
-            if (is_local(local) && local_pp_name(local) == curr) {
-                used = true;
-                break;
-            }
-        }
-        if (!used)
-            return curr;
-    }
-}
-
 tactic intros_tactic(list<name> _ns, bool relax_main_opaque) {
     auto fn = [=](environment const & env, io_state const &, proof_state const & s) {
         list<name> ns    = _ns;
@@ -60,7 +41,7 @@ tactic intros_tactic(list<name> _ns, bool relax_main_opaque) {
                     new_name = head(ns);
                     ns       = tail(ns);
                 } else {
-                    new_name = get_unused_name(g, name("H"), nidx);
+                    new_name = g.get_unused_name(name("H"), nidx);
                 }
                 expr new_local = mk_local(ngen.next(), new_name, binding_domain(t), binding_info(t));
                 t              = instantiate(binding_body(t), new_local);

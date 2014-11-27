@@ -57,6 +57,7 @@ opaque definition revert     (e : expr)   : tactic := builtin
 opaque definition unfold     (e : expr)   : tactic := builtin
 opaque definition exact      (e : expr)   : tactic := builtin
 opaque definition trace      (s : string) : tactic := builtin
+opaque definition inversion  (e : expr)   : tactic := builtin
 
 notation a `↦` b := rename a b
 

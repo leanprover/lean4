@@ -21,6 +21,7 @@ class inversion_tac {
     substitution                  m_subst;
     std::unique_ptr<type_checker> m_tc;
 
+    bool                          m_dep_elim;
     unsigned                      m_nparams;
     unsigned                      m_nindices;
     unsigned                      m_nminors;
@@ -28,6 +29,7 @@ class inversion_tac {
     declaration                   m_cases_on_decl;
 
     void init_inductive_info(name const & n) {
+        m_dep_elim      = inductive::has_dep_elim(m_env, n);
         m_nindices      = *inductive::get_num_indices(m_env, n);
         m_nparams       = *inductive::get_num_params(m_env, n);
         m_nminors       = *inductive::get_num_minor_premises(m_env, n);
@@ -73,47 +75,43 @@ class inversion_tac {
         name h_new_name   = g.get_unused_name(local_pp_name(h));
         buffer<expr> I_args;
         expr const & I    = get_app_args(h_type, I_args);
-        if (m_nindices > 0) {
-            expr h_new_type  = mk_app(I, I_args.size() - m_nindices, I_args.data());
-            expr d           = m_tc->whnf(m_tc->infer(h_new_type).first).first;
-            unsigned eq_idx  = 1;
-            name eq_prefix("H");
-            buffer<expr> ts;
-            buffer<expr> eqs;
-            buffer<expr> refls;
-            name t_prefix("t");
-            unsigned nidx = 1;
-            for (unsigned i = I_args.size() - m_nindices; i < I_args.size(); i++) {
-                expr t_type = binding_domain(d);
-                expr t      = mk_local(m_ngen.next(), g.get_unused_name(t_prefix, nidx), t_type, binder_info());
-                expr const & index = I_args[i];
-                pair<expr, expr> p = mk_eq(t, index);
-                expr new_eq   = p.first;
-                expr new_refl = p.second;
-                eqs.push_back(mk_local(m_ngen.next(), g.get_unused_name(eq_prefix, eq_idx), new_eq, binder_info()));
-                refls.push_back(new_refl);
-                h_new_type  = mk_app(h_new_type, t);
-                hyps.push_back(t);
-                ts.push_back(t);
-                d           = instantiate(binding_body(d), t);
-            }
-            expr h_new    = mk_local(m_ngen.next(), h_new_name, h_new_type, local_info(h));
-            hyps.push_back(h_new);
-            expr new_type = Pi(eqs, g.get_type());
-            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
-            goal new_g(new_meta, new_type);
-            expr val      = g.abstract(mk_app(mk_app(mk_app(Fun(ts, Fun(h_new, new_meta)), m_nindices, I_args.end() - m_nindices), h), refls));
-            m_subst.assign(g.get_name(), val);
-            return new_g;
-        } else {
-            expr h_new    = mk_local(m_ngen.next(), h_new_name, h_type, local_info(h));
-            hyps.push_back(h_new);
-            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, g.get_type())), hyps);
-            goal new_g(new_meta, g.get_type());
-            expr val      = g.abstract(mk_app(new_meta, h));
-            m_subst.assign(g.get_name(), val);
-            return new_g;
+        expr h_new_type  = mk_app(I, I_args.size() - m_nindices, I_args.data());
+        expr d           = m_tc->whnf(m_tc->infer(h_new_type).first).first;
+        unsigned eq_idx  = 1;
+        name eq_prefix("H");
+        buffer<expr> ts;
+        buffer<expr> eqs;
+        buffer<expr> refls;
+        name t_prefix("t");
+        unsigned nidx = 1;
+        auto add_eq = [&](expr const & lhs, expr const & rhs) {
+            pair<expr, expr> p = mk_eq(lhs, rhs);
+            expr new_eq   = p.first;
+            expr new_refl = p.second;
+            eqs.push_back(mk_local(m_ngen.next(), g.get_unused_name(eq_prefix, eq_idx), new_eq, binder_info()));
+            refls.push_back(new_refl);
+        };
+        for (unsigned i = I_args.size() - m_nindices; i < I_args.size(); i++) {
+            expr t_type = binding_domain(d);
+            expr t      = mk_local(m_ngen.next(), g.get_unused_name(t_prefix, nidx), t_type, binder_info());
+            expr const & index = I_args[i];
+            add_eq(t, index);
+            h_new_type  = mk_app(h_new_type, t);
+            hyps.push_back(t);
+            ts.push_back(t);
+            d           = instantiate(binding_body(d), t);
         }
+        expr h_new    = mk_local(m_ngen.next(), h_new_name, h_new_type, local_info(h));
+        if (m_dep_elim)
+            add_eq(h_new, h);
+        hyps.push_back(h_new);
+        expr new_type = Pi(eqs, g.get_type());
+        expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+        goal new_g(new_meta, new_type);
+        expr val      = g.abstract(mk_app(mk_app(mk_app(Fun(ts, Fun(h_new, new_meta)), m_nindices, I_args.end() - m_nindices), h),
+                                          refls));
+        m_subst.assign(g.get_name(), val);
+        return new_g;
     }
 
     list<goal> apply_cases_on(goal const & g) {
@@ -134,7 +132,10 @@ class inversion_tac {
         // add params
         cases_on          = mk_app(cases_on, m_nparams, I_args.data());
         // add type former
-        expr type_former  = Fun(m_nindices, I_args.end() - m_nindices, g_type);
+        expr type_former  = g_type;
+        if (m_dep_elim)
+            type_former   = Fun(h, type_former);
+        type_former       = Fun(m_nindices, I_args.end() - m_nindices, type_former);
         cases_on          = mk_app(cases_on, type_former);
         // add indices
         cases_on          = mk_app(cases_on, m_nindices, I_args.end() - m_nindices);
@@ -226,9 +227,9 @@ public:
         if (!is_inversion_applicable(h_type))
             return none_proof_state();
         goal g1           = generalize_indices(g, h, h_type);
-        list<goal> g2s    = apply_cases_on(g1);
-        list<goal> g3s    = intros_minors_args(g2s);
-        proof_state new_s(m_ps, append(g3s, tail_gs), m_subst, m_ngen);
+        list<goal> gs2    = apply_cases_on(g1);
+        list<goal> gs3    = intros_minors_args(gs2);
+        proof_state new_s(m_ps, append(gs3, tail_gs), m_subst, m_ngen);
         return some_proof_state(new_s);
     }
 };

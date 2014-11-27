@@ -58,6 +58,8 @@ opaque definition unfold     (e : expr)   : tactic := builtin
 opaque definition exact      (e : expr)   : tactic := builtin
 opaque definition trace      (s : string) : tactic := builtin
 
+notation a `↦` b := rename a b
+
 inductive expr_list : Type :=
 nil  : expr_list,
 cons : expr → expr_list → expr_list

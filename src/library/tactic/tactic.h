@@ -27,7 +27,7 @@ public:
 
 typedef lazy_list<proof_state> proof_state_seq;
 
-typedef std::function<proof_state_seq(environment const &, io_state const & ios, proof_state const &)> tactic;
+typedef std::function<proof_state_seq(environment const &, io_state const &, proof_state const &)> tactic;
 
 inline optional<tactic> none_tactic() { return optional<tactic>(); }
 inline optional<tactic> some_tactic(tactic const & t) { return optional<tactic>(t); }

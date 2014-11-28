@@ -1,25 +1,25 @@
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura, Jeremy Avigad
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: data.sum
+Authors: Leonardo de Moura, Jeremy Avigad
+
+The sum type, aka disjoint union.
+-/
 
 import logic.prop logic.inhabited logic.decidable
 open inhabited decidable eq.ops
-
--- data.sum
--- ========
--- The sum type, aka disjoint union.
 
 inductive sum (A B : Type) : Type :=
   inl : A → sum A B,
   inr : B → sum A B
 
 namespace sum
-
   notation A ⊎ B := sum A B
   notation A + B := sum A B
-
   namespace low_precedence_plus
-    reserve infixr `+`:25 -- conflicts with notation for addition
+    reserve infixr `+`:25  -- conflicts with notation for addition
     infixr `+` := sum
   end low_precedence_plus
 
@@ -35,15 +35,16 @@ namespace sum
   theorem inr_inj : inr A b₁ = inr A b₂ → b₁ = b₂ :=
   assume H, no_confusion H (λe, e)
 
-  protected definition is_inhabited_left [instance] : inhabited A → inhabited (A ⊎ B) :=
+  protected definition is_inhabited_left [instance] : inhabited A → inhabited (A + B) :=
   assume H : inhabited A, inhabited.mk (inl B (default A))
 
-  protected definition is_inhabited_right [instance] : inhabited B → inhabited (A ⊎ B) :=
+  protected definition is_inhabited_right [instance] : inhabited B → inhabited (A + B) :=
   assume H : inhabited B, inhabited.mk (inr A (default B))
 
-  protected definition has_eq_decidable [instance] : decidable_eq A → decidable_eq B → decidable_eq (A ⊎ B) :=
+  protected definition has_eq_decidable [instance] :
+    decidable_eq A → decidable_eq B → decidable_eq (A + B) :=
   assume (H₁ : decidable_eq A) (H₂ : decidable_eq B),
-  take s₁ s₂ : A ⊎ B,
+  take s₁ s₂ : A + B,
     rec_on s₁
       (take a₁, show decidable (inl B a₁ = s₂), from
         rec_on s₂

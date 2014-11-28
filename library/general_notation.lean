@@ -1,25 +1,27 @@
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura, Jeremy Avigad
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
 
--- general_notation
--- ================
+Module: general_notation
+Authors: Leonardo de Moura, Jeremy Avigad
+-/
 
--- General operations
--- ------------------
+/- General operations -/
 
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
 
--- Global declarations of right binding strength
--- ---------------------------------------------
+/-
+  Global declarations of right binding strength
 
--- If a module reassigns these, it will be incompatible with other modules that adhere to these
--- conventions.
+  If a module reassigns these, it will be incompatible with other modules that adhere to these
+  conventions.
 
--- When hovering over a symbol, use "C-u C-x =" to see how to input it
+  When hovering over a symbol, use "C-u C-x =" to see how to input it.
+-/
 
--- ### Logical operations and relations
+/- Logical operations and relations -/
+
 reserve prefix `¬`:40
 reserve prefix `~`:40
 reserve infixr `∧`:35
@@ -33,16 +35,17 @@ reserve infix `≠`:50
 reserve infix `≈`:50
 reserve infix `∼`:50
 
-reserve postfix `⁻¹`:100 --input with \sy or \-1 or \inv
+reserve infix `∘`:60      -- input with \comp
+reserve postfix `⁻¹`:100  --input with \sy or \-1 or \inv
 reserve infixl `⬝`:75
 reserve infixr `▸`:75
 
--- ### types and type constructors
+/- types and type constructors -/
 
 reserve infixl `⊎`:25
 reserve infixl `×`:30
 
--- ### arithmetic operations
+/- arithmetic operations -/
 
 reserve infixl `+`:65
 reserve infixl `-`:65
@@ -58,18 +61,19 @@ reserve infix `>=`:50
 reserve infix `≥`:50
 reserve infix `>`:50
 
--- ### boolean operations
+/- boolean operations -/
 
 reserve infixl `&&`:70
 reserve infixl `||`:65
 
--- ### set operations
+/- set operations -/
 
 reserve infix `∈`:50
 reserve infixl `∩`:70
 reserve infixl `∪`:65
 
--- ### other symbols
+/- other symbols -/
+
 precedence `|`:55
 reserve notation | a:55 |
 reserve infixl `++`:65

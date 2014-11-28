@@ -191,7 +191,7 @@ class inversion_tac {
             expr g_type    = g.get_type();
             for (unsigned i = 0; i < nargs; i++) {
                 expr type  = binding_domain(g_type);
-                expr new_h = mk_local(m_ngen.next(), get_unused_name(binding_name(g_type), hyps), type, binder_info());
+                expr new_h = mk_local(m_ngen.next(), get_unused_name(binding_name(g_type), new_hyps), type, binder_info());
                 new_hyps.push_back(new_h);
                 g_type     = instantiate(binding_body(g_type), new_h);
             }

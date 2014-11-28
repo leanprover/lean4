@@ -1,47 +1,38 @@
---- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
---- Released under Apache 2.0 license as described in the file LICENSE.
---- Author: Jeremy Avigad
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: logic.examples.instances_test
+Author: Jeremy Avigad
+
+Illustrates substitution and congruence with iff.
+-/
 
 import ..instances
-
 open relation
-open relation.general_operations
+open relation.general_subst
 open relation.iff_ops
 open eq.ops
 
-section
+example (a b : Prop) (H : a ↔ b) (H1 : a) : b := mp H H1
 
-theorem test1 (a b : Prop) (H : a ↔ b) (H1 : a) : b := mp H H1
-
-end
-
-
-section
-
-theorem test2 (a b c d e : Prop) (H1 : a ↔ b) (H2 : a ∨ c → ¬(d → a)) : b ∨ c → ¬(d → b) :=
+example (a b c d e : Prop) (H1 : a ↔ b) (H2 : a ∨ c → ¬(d → a)) : b ∨ c → ¬(d → b) :=
 subst iff H1 H2
 
-theorem test3 (a b c d e : Prop) (H1 : a ↔ b) (H2 : a ∨ c → ¬(d → a)) : b ∨ c → ¬(d → b) :=
+example (a b c d e : Prop) (H1 : a ↔ b) (H2 : a ∨ c → ¬(d → a)) : b ∨ c → ¬(d → b) :=
 H1 ▸ H2
 
-end
+example (a b c d e : Prop) (H1 : a ↔ b) : (a ∨ c → ¬(d → a)) ↔ (b ∨ c → ¬(d → b)) :=
+is_congruence.congr iff (λa, (a ∨ c → ¬(d → a))) H1
 
-
-theorem test4 (a b c d e : Prop) (H1 : a ↔ b) : (a ∨ c → ¬(d → a)) ↔ (b ∨ c → ¬(d → b)) :=
-congruence.infer iff iff (λa, (a ∨ c → ¬(d → a))) H1
-
-
-section
-
-theorem test5 (T : Type) (a b c d : T) (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
+example (T : Type) (a b c d : T) (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
 H1 ⬝ H2⁻¹ ⬝ H3
 
-theorem test6 (a b c d : Prop) (H1 : a ↔ b) (H2 : c ↔ b) (H3 : c ↔ d) : a ↔ d :=
+example (a b c d : Prop) (H1 : a ↔ b) (H2 : c ↔ b) (H3 : c ↔ d) : a ↔ d :=
 H1 ⬝ (H2⁻¹ ⬝ H3)
 
-theorem test7 (T : Type) (a b c d : T) (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
+example (T : Type) (a b c d : T) (H1 : a = b) (H2 : c = b) (H3 : c = d) : a = d :=
 H1 ⬝ H2⁻¹ ⬝ H3
 
-theorem test8 (a b c d : Prop) (H1 : a ↔ b) (H2 : c ↔ b) (H3 : c ↔ d) : a ↔ d :=
+example (a b c d : Prop) (H1 : a ↔ b) (H2 : c ↔ b) (H3 : c ↔ d) : a ↔ d :=
 H1 ⬝ H2⁻¹ ⬝ H3
-end

@@ -21,14 +21,14 @@ definition prelim_map {A : Type} (R : A → A → Prop) (a : A) :=
 -- TODO: only needed R reflexive (or weaker: R a a)
 theorem prelim_map_rel {A : Type} {R : A → A → Prop} (H : is_equivalence R) (a : A)
   : R a (prelim_map R a) :=
-have reflR : reflexive R, from is_reflexive.infer R,
+have reflR : reflexive R, from is_equivalence.refl R,
 epsilon_spec (exists_intro a (reflR a))
 
 -- TODO: only needed: R PER
 theorem prelim_map_congr {A : Type} {R : A → A → Prop} (H1 : is_equivalence R) {a b : A}
   (H2 : R a b) : prelim_map R a = prelim_map R b :=
-have symmR : relation.symmetric R, from is_symmetric.infer R,
-have transR : relation.transitive R, from is_transitive.infer R,
+have symmR : relation.symmetric R, from is_equivalence.symm R,
+have transR : relation.transitive R, from is_equivalence.trans R,
 have H3 : ∀c, R a c ↔ R b c, from
   take c,
     iff.intro

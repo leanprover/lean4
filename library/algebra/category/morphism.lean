@@ -132,7 +132,7 @@ namespace morphism
   theorem symm  ⦃a b   : ob⦄ (H  : a ≅ b)              : b ≅ a := mk (inverse (iso H))
   theorem trans ⦃a b c : ob⦄ (H1 : a ≅ b) (H2 : b ≅ c) : a ≅ c := mk (iso H2 ∘ iso H1)
   theorem is_equivalence_eq [instance] (T : Type) : is_equivalence isomorphic :=
-  is_equivalence.mk (is_reflexive.mk refl) (is_symmetric.mk symm) (is_transitive.mk trans)
+  is_equivalence.mk refl symm trans
   end isomorphic
 
   inductive is_mono [class] (f : a ⟶ b) : Prop :=

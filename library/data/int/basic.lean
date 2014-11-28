@@ -47,10 +47,7 @@ have H3 : pr1 a + pr2 c + pr2 b = pr2 a + pr1 c + pr2 b, from
 show pr1 a + pr2 c = pr2 a + pr1 c, from add.cancel_right H3
 
 theorem rel_equiv : is_equivalence rel :=
-is_equivalence.mk
-  (is_reflexive.mk @rel_refl)
-  (is_symmetric.mk @rel_symm)
-  (is_transitive.mk @rel_trans)
+is_equivalence.mk @rel_refl @rel_symm @rel_trans
 
 theorem rel_flip {a b : ℕ × ℕ} (H : rel a b) : rel (flip a) (flip b) :=
 calc

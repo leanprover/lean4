@@ -1,9 +1,10 @@
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
 
--- logic.axioms.classical
--- ======================
+Module: logic.axims.classical
+Author: Leonardo de Moura
+-/
 
 import logic.quantifiers logic.cast algebra.relation
 
@@ -49,8 +50,8 @@ propext
   (assume H, eq_to_iff H)
 
 open relation
-theorem iff_congruence [instance] (P : Prop → Prop) : congruence iff iff P :=
-congruence.mk
+theorem iff_congruence [instance] (P : Prop → Prop) : is_congruence iff iff P :=
+is_congruence.mk
   (take (a b : Prop),
     assume H : a ↔ b,
     show P a ↔ P b, from eq_to_iff (iff_to_eq H ▸ eq.refl (P a)))

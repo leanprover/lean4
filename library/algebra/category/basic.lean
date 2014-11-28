@@ -29,7 +29,7 @@ namespace category
   definition id [reducible] : Π {a : ob}, hom a a := rec (λ hom compose id assoc idr idl, id) C
   definition ID [reducible] (a : ob) : hom a a := id
 
-  infixr `∘`:60 := compose
+  infixr `∘` := compose
   infixl `⟶`:25 := hom -- input ⟶ using \--> (this is a different arrow than \-> (→))
 
   variables {h : hom c d} {g : hom b c} {f : hom a b} {i : hom a a}
@@ -61,7 +61,7 @@ namespace category
   definition Mk {ob} (C) : Category := Category.mk ob C
   definition MK (a b c d e f g) : Category := Category.mk a (category.mk b c d e f g)
 
-  definition objects [coercion] [reducible] (C : Category) : Type 
+  definition objects [coercion] [reducible] (C : Category) : Type
   := Category.rec (fun c s, c) C
 
   definition category_instance [instance] [coercion] [reducible] (C : Category) : category (objects C)

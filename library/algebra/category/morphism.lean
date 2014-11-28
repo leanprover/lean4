@@ -54,7 +54,7 @@ namespace morphism
   calc
     g = g ∘ id : symm !id_right
      ... = g ∘ f ∘ g' : {symm Hr}
-     ... = (g ∘ f) ∘ g' : !assoc
+     ... = (g ∘ f) ∘ g' : sorry -- !assoc
      ... = id ∘ g' : {Hl}
      ... = g' : !id_left
 

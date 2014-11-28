@@ -35,7 +35,7 @@ reserve infix `≠`:50
 reserve infix `≈`:50
 reserve infix `∼`:50
 
-reserve infix `∘`:60      -- input with \comp
+reserve infixr `∘`:60      -- input with \comp
 reserve postfix `⁻¹`:100  --input with \sy or \-1 or \inv
 reserve infixl `⬝`:75
 reserve infixr `▸`:75

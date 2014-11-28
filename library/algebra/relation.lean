@@ -1,22 +1,24 @@
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Jeremy Avigad
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
 
--- algebra.relation
--- ==============
+Module: algebra.relation
+Author: Jeremy Avigad
+
+General properties of relations, and classes for equivalence relations and congruences.
+-/
 
 import logic.prop
 
-
--- General properties of relations
--- -------------------------------
-
 namespace relation
 
-definition reflexive {T : Type} (R : T → T → Type) : Type := ∀x, R x x
-definition symmetric {T : Type} (R : T → T → Type) : Type := ∀⦃x y⦄, R x y → R y x
-definition transitive {T : Type} (R : T → T → Type) : Type := ∀⦃x y z⦄, R x y → R y z → R x z
+  section
+    variables {T : Type} (R : T → T → Type)
 
+    definition reflexive : Type := ∀x, R x x
+    definition symmetric : Type := ∀⦃x y⦄, R x y → R y x
+    definition transitive : Type := ∀⦃x y z⦄, R x y → R y z → R x z
+  end
 
 inductive is_reflexive [class] {T : Type} (R : T → T → Type) : Prop :=
 mk : reflexive R → is_reflexive R

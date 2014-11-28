@@ -158,7 +158,7 @@ tactic apply_tactic(elaborate_fn const & elab, expr const & e, bool rev) {
             name_generator ngen = s.get_ngen();
             expr       new_e;
             buffer<constraint> cs;
-            auto ecs = elab(g, ngen.mk_child(), e);
+            auto ecs = elab(g, ngen.mk_child(), e, false);
             new_e    = ecs.first;
             to_buffer(ecs.second, cs);
             to_buffer(s.get_postponed(), cs);

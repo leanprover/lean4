@@ -17,7 +17,8 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e) {
             if (!gs)
                 return none_proof_state();
             expr t            = head(gs).get_type();
-            if (auto new_e = elaborate_with_respect_to(env, ios, elab, new_s, e, some_expr(t))) {
+            bool report_unassigned = true;
+            if (auto new_e = elaborate_with_respect_to(env, ios, elab, new_s, e, some_expr(t), report_unassigned)) {
                 goals const & gs   = new_s.get_goals();
                 goal const & g     = head(gs);
                 expr new_p         = g.abstract(*new_e);

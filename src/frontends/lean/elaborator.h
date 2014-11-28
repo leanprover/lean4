@@ -150,7 +150,7 @@ class elaborator : public coercion_info_manager {
     expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params);
     std::tuple<expr, level_param_names> apply(substitution & s, expr const & e);
     pair<expr, constraints> elaborate_nested(list<expr> const & g, expr const & e,
-                                             bool relax, bool use_tactic_hints);
+                                             bool relax, bool use_tactic_hints, bool report_unassigned);
 public:
     elaborator(elaborator_context & ctx, name_generator const & ngen, bool nice_mvar_names = false);
     std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type,

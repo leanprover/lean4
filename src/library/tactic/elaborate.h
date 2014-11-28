@@ -12,8 +12,13 @@ bool solve_constraints(environment const & env, io_state const & ios, proof_stat
 
 /** \brief Function for elaborating expressions nested in tactics.
     Some tactics contain nested expression (aka pre-terms) that need to be elaborated.
+    The arguments are:
+    1- goal that will provide the context where the expression will be elaborated
+    2- name generator
+    3- expression to be elaborated
+    4- a flag indicating whether the elaborator should report unassigned/unsolved placeholders
 */
-typedef std::function<pair<expr, constraints>(goal const &, name_generator const &, expr const &)> elaborate_fn;
+typedef std::function<pair<expr, constraints>(goal const &, name_generator const &, expr const &, bool)> elaborate_fn;
 
 /** \brief Try to elaborate expression \c e using the elaboration function \c elab. The elaboration is performed
     with respect to (local context of) the first goal in \c s. The constraints generated during elaboration
@@ -26,5 +31,6 @@ typedef std::function<pair<expr, constraints>(goal const &, name_generator const
     is not modified.
 */
 optional<expr> elaborate_with_respect_to(environment const & env, io_state const & ios, elaborate_fn const & elab,
-                                         proof_state & s, expr const & e, optional<expr> const & expected_type = optional<expr>());
+                                         proof_state & s, expr const & e, optional<expr> const & expected_type = optional<expr>(),
+                                         bool report_unassigned = false);
 }

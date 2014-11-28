@@ -47,6 +47,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_PURIFY_METAVARS true
 #endif
 
+#ifndef LEAN_DEFAULT_PP_PURIFY_LOCALS
+#define LEAN_DEFAULT_PP_PURIFY_LOCALS true
+#endif
+
 #ifndef LEAN_DEFAULT_PP_BETA
 #define LEAN_DEFAULT_PP_BETA false
 #endif
@@ -62,6 +66,7 @@ static name * g_pp_full_names      = nullptr;
 static name * g_pp_private_names   = nullptr;
 static name * g_pp_metavar_args    = nullptr;
 static name * g_pp_purify_metavars = nullptr;
+static name * g_pp_purify_locals   = nullptr;
 static name * g_pp_beta            = nullptr;
 static list<options> * g_distinguishing_pp_options = nullptr;
 
@@ -76,6 +81,7 @@ void initialize_pp_options() {
     g_pp_private_names   = new name{"pp", "private_names"};
     g_pp_metavar_args    = new name{"pp", "metavar_args"};
     g_pp_purify_metavars = new name{"pp", "purify_metavars"};
+    g_pp_purify_locals   = new name{"pp", "purify_locals"};
     g_pp_beta            = new name{"pp", "beta"};
     register_unsigned_option(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH,
                              "(pretty printer) maximum expression depth, after that it will use ellipsis");
@@ -97,6 +103,9 @@ void initialize_pp_options() {
                          "(pretty printer) display metavariable arguments");
     register_bool_option(*g_pp_purify_metavars, LEAN_DEFAULT_PP_PURIFY_METAVARS,
                          "(pretty printer) rename internal metavariable names (with \"user-friendly\" ones) "
+                         "before pretty printing");
+    register_bool_option(*g_pp_purify_locals, LEAN_DEFAULT_PP_PURIFY_LOCALS,
+                         "(pretty printer) rename local names to avoid name capture, "
                          "before pretty printing");
     register_bool_option(*g_pp_beta,  LEAN_DEFAULT_PP_BETA,
                          "(pretty printer) apply beta-reduction when pretty printing");
@@ -124,6 +133,7 @@ void finalize_pp_options() {
     delete g_pp_private_names;
     delete g_pp_metavar_args;
     delete g_pp_purify_metavars;
+    delete g_pp_purify_locals;
     delete g_pp_beta;
     delete g_distinguishing_pp_options;
 }
@@ -146,6 +156,7 @@ bool     get_pp_full_names(options const & opts)      { return opts.get_bool(*g_
 bool     get_pp_private_names(options const & opts)   { return opts.get_bool(*g_pp_private_names, LEAN_DEFAULT_PP_PRIVATE_NAMES); }
 bool     get_pp_metavar_args(options const & opts)    { return opts.get_bool(*g_pp_metavar_args, LEAN_DEFAULT_PP_METAVAR_ARGS); }
 bool     get_pp_purify_metavars(options const & opts) { return opts.get_bool(*g_pp_purify_metavars, LEAN_DEFAULT_PP_PURIFY_METAVARS); }
+bool     get_pp_purify_locals(options const & opts)   { return opts.get_bool(*g_pp_purify_locals, LEAN_DEFAULT_PP_PURIFY_LOCALS); }
 bool     get_pp_beta(options const & opts)            { return opts.get_bool(*g_pp_beta, LEAN_DEFAULT_PP_BETA); }
 list<options> const & get_distinguishing_pp_options() { return *g_distinguishing_pp_options; }
 }

@@ -148,6 +148,8 @@ name pretty_fn::mk_metavar_name(name const & m) {
 }
 
 name pretty_fn::mk_local_name(name const & n, name const & suggested) {
+    if (!m_purify_locals)
+        return suggested;
     if (auto it = m_purify_local_table.find(n))
         return *it;
     unsigned i = 1;
@@ -212,6 +214,7 @@ void pretty_fn::set_options_core(options const & o) {
     m_private_names   = get_pp_private_names(o);
     m_metavar_args    = get_pp_metavar_args(o);
     m_purify_metavars = get_pp_purify_metavars(o);
+    m_purify_locals   = get_pp_purify_locals(o);
     m_beta            = get_pp_beta(o);
 }
 

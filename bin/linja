@@ -104,6 +104,8 @@ class FlycheckItemList:
         self.items = filter(pred, self.items)
     def append(self, item):
         self.items.append(item)
+    def truncate(self, n):
+        del self.items[n:]
     def removeExtraItemsStartswith(self, text):
         self.sort()
         newItems = self.items[:1]
@@ -407,7 +409,7 @@ def process_lean_output(target, out, args):
     # Add tooManyItemsError at the end if we truncated the list
     if n and len(flycheckItemList) > n:
         count = len(flycheckItemList)
-        flycheckItemList = flycheckItemList[:n]
+        flycheckItemList.truncate(n)
         tooManyItemsError = FlycheckItem(target, 1, 0, "error", "For performance, we only display %d errors/warnings out of %d. (lean-flycheck-max-messages-to-display)" % (n, count))
         flycheckItemList.append(tooManyItemsError)
     print flycheckItemList

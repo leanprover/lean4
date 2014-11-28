@@ -36,27 +36,27 @@ section
   (add_comm c a) ▸ (add_comm c b) ▸ (add_le_left H c)
 
   theorem add_le {a b c d : A} (Hab : a ≤ b) (Hcd : c ≤ d) : a + c ≤ b + d :=
-  le_trans (add_le_right Hab c) (add_le_left Hcd b)
+  le.trans (add_le_right Hab c) (add_le_left Hcd b)
 
   theorem add_lt_left {a b : A} (H : a < b) (c : A) : c + a < c + b :=
-  have H1 : c + a ≤ c + b, from add_le_left (lt_imp_le H) c,
+  have H1 : c + a ≤ c + b, from add_le_left (le_of_lt H) c,
   have H2 : c + a ≠ c + b, from
     take H3 : c + a = c + b,
     have H4 : a = b, from add_left_cancel H3,
-    lt_imp_ne H H4,
-  le_ne_imp_lt H1 H2
+    lt.ne H H4,
+  lt_of_le_of_ne H1 H2
 
   theorem add_lt_right {a b : A} (H : a < b) (c : A) : a + c < b + c :=
   (add_comm c a) ▸ (add_comm c b) ▸ (add_lt_left H c)
 
   theorem add_lt {a b c d : A} (Hab : a < b) (Hcd : c < d) : a + c < b + d :=
-  lt_trans (add_lt_right Hab c) (add_lt_left Hcd b)
+  lt.trans (add_lt_right Hab c) (add_lt_left Hcd b)
 
   theorem add_le_lt {a b c d : A} (Hab : a ≤ b) (Hcd : c < d) : a + c < b + d :=
-  le_lt_trans (add_le_right Hab c) (add_lt_left Hcd b)
+  lt_of_le_of_lt (add_le_right Hab c) (add_lt_left Hcd b)
 
   theorem add_lt_le {a b c d : A} (Hab : a < b) (Hcd : c ≤ d) : a + c < b + d :=
-  lt_le_trans (add_lt_right Hab c) (add_le_left Hcd b)
+  lt_of_lt_of_le (add_lt_right Hab c) (add_le_left Hcd b)
 
   -- here we start using add_le_left_cancel.
   theorem add_le_left_cancel {a b c : A} (H : a + b ≤ a + c) : b ≤ c :=
@@ -66,10 +66,10 @@ section
   add_le_left_cancel ((add_comm a b) ▸ (add_comm c b) ▸ H)
 
   theorem add_lt_left_cancel {a b c : A} (H : a + b < a + c) : b < c :=
-  have H1 : b ≤ c, from add_le_left_cancel (lt_imp_le H),
+  have H1 : b ≤ c, from add_le_left_cancel (le_of_lt H),
   have H2 : b ≠ c, from
-    assume H3 : b = c, lt_irrefl _ (H3 ▸ H),
-  le_ne_imp_lt H1 H2
+    assume H3 : b = c, lt.irrefl _ (H3 ▸ H),
+  lt_of_le_of_ne H1 H2
 
   theorem add_lt_right_cancel {a b c : A} (H : a + b < c + b) : a < c :=
   add_lt_left_cancel ((add_comm a b) ▸ (add_comm c b) ▸ H)
@@ -101,7 +101,6 @@ section
 
   theorem add_nonpos_nonpos {a b : A} (Ha : a ≤ 0) (Hb : b ≤ 0) : a + b ≤ 0 :=
   !add_left_id ▸ (add_le Ha Hb)
-  calc_trans le_eq_trans
 
   theorem add_neg_nonpos {a b : A} (Ha : a < 0) (Hb : b ≤ 0) : a + b < 0 :=
   !add_left_id ▸ (add_lt_le Ha Hb)
@@ -121,13 +120,13 @@ section
           a = a + 0 : add_right_id
             ... ≤ a + b : add_le_left Hb
             ... = 0 : Hab,
-      have Haz : a = 0, from le_antisym Ha' Ha,
+      have Haz : a = 0, from le.antisym Ha' Ha,
       have Hb' : b ≤ 0, from
         calc
           b = 0 + b : add_left_id
             ... ≤ a + b : add_le_right Ha
             ... = 0 : Hab,
-      have Hbz : b = 0, from le_antisym Hb' Hb,
+      have Hbz : b = 0, from le.antisym Hb' Hb,
       and.intro Haz Hbz)
     (assume Hab : a = 0 ∧ b = 0,
       (and.elim_left Hab)⁻¹ ▸ (and.elim_right Hab)⁻¹ ▸ (add_right_id 0))
@@ -161,8 +160,8 @@ structure ordered_comm_group [class] (A : Type) extends add_comm_group A, order_
 definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] (A : Type)
     [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
 ordered_cancel_comm_monoid.mk has_add.add add_assoc !has_zero.zero add_left_id add_right_id add_comm
-(@add_left_cancel _ _) (@add_right_cancel _ _) has_le.le le_refl (@le_trans _ _) (@le_antisym _ _)
-has_lt.lt (@lt_iff_le_ne _ _) ordered_comm_group.add_le_left
+(@add_left_cancel _ _) (@add_right_cancel _ _) has_le.le le.refl (@le.trans _ _) (@le.antisym _ _)
+has_lt.lt (@lt_iff_le_and_ne _ _) ordered_comm_group.add_le_left
 proof
   take a b c : A,
   assume H : c + a ≤ c + b,

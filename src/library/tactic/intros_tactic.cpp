@@ -40,7 +40,7 @@ tactic intros_tactic(list<name> _ns, bool relax_main_opaque) {
                     new_name = head(ns);
                     ns       = tail(ns);
                 } else {
-                    new_name = g.get_unused_name(binding_name(t));
+                    new_name = get_unused_name(binding_name(t), m);
                 }
                 expr new_local = mk_local(ngen.next(), new_name, binding_domain(t), binding_info(t));
                 t              = instantiate(binding_body(t), new_local);

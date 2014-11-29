@@ -144,36 +144,48 @@ void goal::get_hyps(buffer<expr> & r) const {
     get_app_args(m_meta, r);
 }
 
+static bool uses_name(name const & n, buffer<expr> const & locals) {
+    for (expr const & local : locals) {
+        if (is_local(local) && local_pp_name(local) == n)
+            return true;
+    }
+    return false;
+}
+
 name get_unused_name(name const & prefix, unsigned & idx, buffer<expr> const & locals) {
     while (true) {
-        bool used = false;
         name curr = prefix.append_after(idx);
         idx++;
-        for (expr const & local : locals) {
-            if (is_local(local) && local_pp_name(local) == curr) {
-                used = true;
-                break;
-            }
-        }
-        if (!used)
+        if (!uses_name(curr, locals))
             return curr;
     }
 }
 
 name get_unused_name(name const & prefix, buffer<expr> const & locals) {
+    if (!uses_name(prefix, locals))
+        return prefix;
     unsigned idx = 1;
     return get_unused_name(prefix, idx, locals);
 }
 
-name goal::get_unused_name(name const & prefix, unsigned & idx) const {
+name get_unused_name(name const & prefix, unsigned & idx, expr const & meta) {
     buffer<expr> locals;
-    get_app_rev_args(get_meta(), locals);
-    return ::lean::get_unused_name(prefix, idx, locals);
+    get_app_rev_args(meta, locals);
+    return get_unused_name(prefix, idx, locals);
+}
+
+name get_unused_name(name const & prefix, expr const & meta) {
+    buffer<expr> locals;
+    get_app_rev_args(meta, locals);
+    return get_unused_name(prefix, locals);
+}
+
+name goal::get_unused_name(name const & prefix, unsigned & idx) const {
+    return ::lean::get_unused_name(prefix, idx, m_meta);
 }
 
 name goal::get_unused_name(name const & prefix) const {
-    unsigned idx = 1;
-    return get_unused_name(prefix, idx);
+    return ::lean::get_unused_name(prefix, m_meta);
 }
 
 io_state_stream const & operator<<(io_state_stream const & out, goal const & g) {

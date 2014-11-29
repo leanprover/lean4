@@ -99,6 +99,8 @@ public:
 
 name get_unused_name(name const & prefix, unsigned & idx, buffer<expr> const & locals);
 name get_unused_name(name const & prefix, buffer<expr> const & locals);
+name get_unused_name(name const & prefix, unsigned & idx, expr const & meta);
+name get_unused_name(name const & prefix, expr const & meta);
 
 io_state_stream const & operator<<(io_state_stream const & out, goal const & g);
 

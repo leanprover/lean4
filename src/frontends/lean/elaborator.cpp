@@ -1053,8 +1053,10 @@ void elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
                     if (auto p = pip()->get_pos_info(ptac)) {
                         auto out = regular(env(), ios());
                         flycheck_information info(out);
-                        display_information_pos(out, pip()->get_file_name(), p->first, p->second);
-                        out << " proof state:\n" << ps.pp(env(), ios()) << "\n";
+                        if (info.enabled()) {
+                            display_information_pos(out, pip()->get_file_name(), p->first, p->second);
+                            out << " proof state:\n" << ps.pp(env(), ios()) << "\n";
+                        }
                     }
                 }
                 ps = r->first;

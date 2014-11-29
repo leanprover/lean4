@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 
 namespace lean {
-tactic inversion_tactic(name const & from, name const & to);
+tactic inversion_tactic(name const & n, list<name> const & ids = list<name>());
 void initialize_inversion_tactic();
 void finalize_inversion_tactic();
 }

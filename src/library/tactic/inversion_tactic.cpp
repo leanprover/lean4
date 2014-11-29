@@ -18,6 +18,7 @@ class inversion_tac {
     environment const &           m_env;
     io_state const &              m_ios;
     proof_state const &           m_ps;
+    list<name>                    m_ids;
     name_generator                m_ngen;
     substitution                  m_subst;
     std::unique_ptr<type_checker> m_tc;
@@ -192,7 +193,14 @@ class inversion_tac {
             expr g_type    = g.get_type();
             for (unsigned i = 0; i < nargs; i++) {
                 expr type  = binding_domain(g_type);
-                expr new_h = mk_local(m_ngen.next(), get_unused_name(binding_name(g_type), new_hyps), type, binder_info());
+                name new_h_name;
+                if (m_ids) {
+                    new_h_name = head(m_ids);
+                    m_ids      = tail(m_ids);
+                } else {
+                    new_h_name = binding_name(g_type);
+                }
+                expr new_h = mk_local(m_ngen.next(), get_unused_name(new_h_name, new_hyps), type, binder_info());
                 new_hyps.push_back(new_h);
                 g_type     = instantiate(binding_body(g_type), new_h);
             }
@@ -400,8 +408,8 @@ class inversion_tac {
     }
 
 public:
-    inversion_tac(environment const & env, io_state const & ios, proof_state const & ps):
-        m_env(env), m_ios(ios), m_ps(ps),
+    inversion_tac(environment const & env, io_state const & ios, proof_state const & ps, list<name> const & ids):
+        m_env(env), m_ios(ios), m_ps(ps), m_ids(ids),
         m_ngen(m_ps.get_ngen()),
         m_tc(mk_type_checker(m_env, m_ngen.mk_child(), m_ps.relax_main_opaque())) {
     }
@@ -432,9 +440,9 @@ public:
     }
 };
 
-tactic inversion_tactic(name const & n) {
+tactic inversion_tactic(name const & n, list<name> const & ids) {
     auto fn = [=](environment const & env, io_state const & ios, proof_state const & ps) -> optional<proof_state> {
-        inversion_tac tac(env, ios, ps);
+        inversion_tac tac(env, ios, ps, ids);
         return tac.execute(n);
     };
     return tactic01(fn);
@@ -443,8 +451,15 @@ tactic inversion_tactic(name const & n) {
 void initialize_inversion_tactic() {
     register_tac(name({"tactic", "inversion"}),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     name n = tactic_expr_to_id(app_arg(e), "invalid 'inversion' tactic, argument must be an identifier");
-                     return inversion_tactic(n);
+                     name n = tactic_expr_to_id(app_arg(e), "invalid 'inversion/cases' tactic, argument must be an identifier");
+                     return inversion_tactic(n, list<name>());
+                 });
+    register_tac(name({"tactic", "inversion_with"}),
+                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                     name n = tactic_expr_to_id(app_arg(app_fn(e)), "invalid 'cases-with' tactic, argument must be an identifier");
+                     buffer<name> ids;
+                     get_tactic_id_list_elements(app_arg(e), ids, "invalid 'cases-with' tactic, list of identifiers expected");
+                     return inversion_tactic(n, to_list(ids.begin(), ids.end()));
                  });
 }
 void finalize_inversion_tactic() {}

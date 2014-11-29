@@ -273,11 +273,6 @@ class inversion_tac {
         }
     }
 
-    goal clear_eq(goal g) {
-        // TODO(Leo): delete last hypothesis
-        return g;
-    }
-
     // Split hyps into two "telescopes".
     //   - non_deps : hypotheses that do not depend on rhs
     //   - deps     : hypotheses that depend on rhs (directly or indirectly)
@@ -308,7 +303,13 @@ class inversion_tac {
         constraint_seq cs;
         if (m_tc->is_def_eq(lhs, rhs, justification(), cs) && !cs) {
             // deletion transition: t == t
-            return unify_eqs(clear_eq(g), neqs-1);
+            hyps.pop_back(); // remove t == t equality
+            expr new_type = g.get_type();
+            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+            goal new_g(new_meta, new_type);
+            expr val      = g.abstract(new_meta);
+            m_subst.assign(g.get_name(), val);
+            return unify_eqs(new_g, neqs-1);
         }
         buffer<expr> lhs_args, rhs_args;
         expr const & lhs_fn = get_app_args(lhs, lhs_args);

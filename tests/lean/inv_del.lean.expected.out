@@ -1,0 +1,10 @@
+inv_del.lean:15:2: error: unsolved subgoals
+A : Type,
+P : vec A (succ zero) → Type,
+H : Π (a : A), P (vone a),
+v : vec A (succ zero),
+a : A
+⊢ P (vone a)
+inv_del.lean:15:2: error: failed to add declaration 'vec.eone' to environment, value has metavariables
+  λ (A : Type) (P : vec A (succ zero) → Type) (H : Π (a : A), P (vone a)) (v : vec A (succ zero)),
+    ?M_1

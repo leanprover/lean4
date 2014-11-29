@@ -328,8 +328,9 @@ class inversion_tac {
                 goal new_g(new_meta, new_type);
                 expr val      = g.abstract(mk_app(no_confusion, new_meta));
                 m_subst.assign(g.get_name(), val);
-                lean_assert(lhs_args.size() >= m_nparams);
-                return unify_eqs(new_g, neqs - 1 + lhs_args.size() - m_nparams);
+                unsigned A_nparams = *inductive::get_num_params(m_env, const_name(A_fn));
+                lean_assert(lhs_args.size() >= A_nparams);
+                return unify_eqs(new_g, neqs - 1 + lhs_args.size() - A_nparams);
             } else {
                 // conflict transition, eq is of the form c_1 ... = c_2 ..., where c_1 and c_2 are different constructors/intro rules.
                 expr val      = g.abstract(no_confusion);

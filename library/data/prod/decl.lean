@@ -14,8 +14,8 @@ mk :: (pr1 : A) (pr2 : B)
 definition pair := @prod.mk
 
 namespace prod
-  notation A × B := prod A B
   notation A * B := prod A B
+  notation A × B := prod A B
   namespace low_precedence_times
     reserve infixr `*`:30  -- conflicts with notation for multiplication
     infixr `*` := prod

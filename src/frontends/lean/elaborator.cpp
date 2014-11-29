@@ -1049,6 +1049,14 @@ void elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
                     display_unsolved_proof_state(mvar, ps, "tactic failed", ptac);
                     return;
                 }
+                if (m_ctx.m_flycheck_goals) {
+                    if (auto p = pip()->get_pos_info(ptac)) {
+                        auto out = regular(env(), ios());
+                        flycheck_information info(out);
+                        display_information_pos(out, pip()->get_file_name(), p->first, p->second);
+                        out << " proof state:\n" << ps.pp(env(), ios()) << "\n";
+                    }
+                }
                 ps = r->first;
             } catch (tactic_exception & ex) {
                 auto out = regular(env(), ios());

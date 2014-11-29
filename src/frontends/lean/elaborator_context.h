@@ -23,6 +23,7 @@ class elaborator_context {
     bool                      m_check_unassigned;
     bool                      m_use_local_instances;
     bool                      m_ignore_instances;
+    bool                      m_flycheck_goals;
     friend class elaborator;
 public:
     elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,

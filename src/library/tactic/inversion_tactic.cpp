@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/sstream.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
@@ -72,7 +73,7 @@ class inversion_tac {
         g.get_hyps(hyps);
         expr m            = g.get_meta();
         expr m_type       = g.get_type();
-        name h_new_name   = g.get_unused_name(local_pp_name(h));
+        name h_new_name   = get_unused_name(local_pp_name(h), hyps);
         buffer<expr> I_args;
         expr const & I    = get_app_args(h_type, I_args);
         expr h_new_type  = mk_app(I, I_args.size() - m_nindices, I_args.data());
@@ -206,6 +207,197 @@ class inversion_tac {
         return to_list(new_gs.begin(), new_gs.end());
     }
 
+    struct inversion_exception : public exception {
+        inversion_exception(char const * msg):exception(msg) {}
+        inversion_exception(sstream const & strm):exception(strm) {}
+    };
+
+    [[ noreturn ]] void throw_ill_formed_goal() {
+        throw inversion_exception("ill-formed goal");
+    }
+
+    [[ noreturn ]] void throw_ill_typed_goal() {
+        throw inversion_exception("ill-typed goal");
+    }
+
+    goal intro_next_eq(goal const & g) {
+        expr const & type  = g.get_type();
+        if (!is_pi(type))
+            throw_ill_formed_goal();
+        expr eq            = binding_domain(type);
+        expr const & eq_fn = get_app_fn(eq);
+        if (!is_constant(eq_fn))
+            throw_ill_formed_goal();
+        buffer<expr> hyps;
+        g.get_hyps(hyps);
+        if (const_name(eq_fn) == "eq") {
+            expr new_hyp  = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
+            expr new_type = instantiate(binding_body(type), new_hyp);
+            hyps.push_back(new_hyp);
+            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+            goal new_g(new_meta, new_type);
+            expr val      = g.abstract(Fun(new_hyp, new_meta));
+            m_subst.assign(g.get_name(), val);
+            return new_g;
+        } else if (const_name(eq_fn) == "heq") {
+            buffer<expr> args;
+            expr const & heq_fn = get_app_args(eq, args);
+            constraint_seq cs;
+            if (m_tc->is_def_eq(args[0], args[2], justification(), cs) && !cs) {
+                expr new_eq   = mk_app(mk_constant("eq", const_levels(heq_fn)), args[0], args[1], args[3]);
+                expr new_hyp  = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), new_eq, binder_info());
+                expr new_type = instantiate(binding_body(type), new_hyp);
+                hyps.push_back(new_hyp);
+                expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
+                expr new_meta = mk_app(new_mvar, hyps);
+                goal new_g(new_meta, new_type);
+                hyps.pop_back();
+                expr H        = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
+                expr to_eq    = mk_app(mk_constant({"heq", "to_eq"}, const_levels(heq_fn)), args[0], args[1], args[3], H);
+                expr val      = g.abstract(Fun(H, mk_app(mk_app(new_mvar, hyps), to_eq)));
+                m_subst.assign(g.get_name(), val);
+                return new_g;
+            } else {
+                throw inversion_exception("unification failed to reduce heterogeneous equality into homogeneous one");
+            }
+        } else {
+            throw_ill_formed_goal();
+        }
+    }
+
+    goal clear_eq(goal g) {
+        // TODO(Leo): delete last hypothesis
+        return g;
+    }
+
+    // Split hyps into two "telescopes".
+    //   - non_deps : hypotheses that do not depend on rhs
+    //   - deps     : hypotheses that depend on rhs (directly or indirectly)
+    void split_deps(buffer<expr> const & hyps, expr const & rhs, buffer<expr> & non_deps, buffer<expr> & deps) {
+        for (expr const & hyp : hyps) {
+            expr const & hyp_type = mlocal_type(hyp);
+            if (depends_on(hyp_type, rhs) || std::any_of(deps.begin(), deps.end(), [&](expr const & dep) { return depends_on(hyp_type, dep); })) {
+                deps.push_back(hyp);
+            } else {
+                non_deps.push_back(hyp);
+            }
+        }
+    }
+
+    optional<goal> unify_eqs(goal g, unsigned neqs) {
+        if (neqs == 0)
+            return optional<goal>(g); // done
+        g = intro_next_eq(g);
+        buffer<expr> hyps;
+        g.get_hyps(hyps);
+        lean_assert(!hyps.empty());
+        expr const & eq  = hyps.back();
+        buffer<expr> eq_args;
+        get_app_args(mlocal_type(eq), eq_args);
+        expr const & A   = m_tc->whnf(eq_args[0]).first;
+        expr lhs         = m_tc->whnf(eq_args[1]).first;
+        expr rhs         = m_tc->whnf(eq_args[2]).first;
+        constraint_seq cs;
+        if (m_tc->is_def_eq(lhs, rhs, justification(), cs) && !cs) {
+            // deletion transition: t == t
+            return unify_eqs(clear_eq(g), neqs-1);
+        }
+        buffer<expr> lhs_args, rhs_args;
+        expr const & lhs_fn = get_app_args(lhs, lhs_args);
+        expr const & rhs_fn = get_app_args(rhs, rhs_args);
+        expr const & g_type = g.get_type();
+        level const & g_lvl = sort_level(m_tc->ensure_type(g_type).first);
+        if (is_constant(lhs_fn) &&
+            is_constant(rhs_fn) &&
+            inductive::is_intro_rule(m_env, const_name(lhs_fn)) &&
+            inductive::is_intro_rule(m_env, const_name(rhs_fn))) {
+            buffer<expr> A_args;
+            expr const & A_fn   = get_app_args(A, A_args);
+            if (!is_constant(A_fn) || !inductive::is_inductive_decl(m_env, const_name(A_fn)))
+                throw_ill_typed_goal();
+            name no_confusion_name(const_name(A_fn), "no_confusion");
+            if (!m_env.find(no_confusion_name))
+                throw inversion_exception(sstream() << "construction '" << no_confusion_name << "' is not available in the environment");
+            expr no_confusion = mk_app(mk_app(mk_constant(no_confusion_name, cons(g_lvl, const_levels(A_fn))), A_args), g_type, lhs, rhs, eq);
+            if (const_name(lhs_fn) == const_name(rhs_fn)) {
+                // injectivity transition
+                expr new_type = binding_domain(m_tc->whnf(m_tc->infer(no_confusion).first).first);
+                hyps.pop_back(); // remove processed equality
+                expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
+                expr new_meta = mk_app(new_mvar, hyps);
+                goal new_g(new_meta, new_type);
+                expr val      = g.abstract(mk_app(no_confusion, new_meta));
+                m_subst.assign(g.get_name(), val);
+                lean_assert(lhs_args.size() >= m_nparams);
+                return unify_eqs(new_g, neqs - 1 + lhs_args.size() - m_nparams);
+            } else {
+                // conflict transition, eq is of the form c_1 ... = c_2 ..., where c_1 and c_2 are different constructors/intro rules.
+                expr val      = g.abstract(no_confusion);
+                m_subst.assign(g.get_name(), val);
+                return optional<goal>(); // goal has been solved
+            }
+        }
+        if (is_local(rhs)) {
+            // solution transition, eq is of the form t = y, where y is a local constant
+
+            // assume the current goal is of the form
+            //
+            //  non_deps, deps[rhs], H : lhs = rhs |- C[rhs]
+            //
+            //  We use non_deps to denote hypotheses that do not depend on rhs,
+            //  and deps[rhs] to denote hypotheses that depend on it.
+            //
+            //  The resultant goal is of the form
+            //
+            //  non_deps, deps[lhs] |- C[lhs]
+            //
+            // Now, assume ?m1 is a solution for the resultant goal.
+            // Then,
+            //
+            //     @eq.rec A lhs (fun rhs, Pi(deps[rhs], C[rhs])) (?m1 non_deps) rhs H deps[rhs]
+            //
+            // is a solution for the original goal.
+            // Remark: A is the type of lhs and rhs
+            hyps.pop_back(); // remove processed equality
+            buffer<expr> non_deps, deps;
+            split_deps(hyps, rhs, non_deps, deps);
+            expr deps_g_type    = Pi(deps, g_type);
+            level eq_rec_lvl1   = sort_level(m_tc->ensure_type(deps_g_type).first);
+            level eq_rec_lvl2   = sort_level(m_tc->ensure_type(A).first);
+            expr tformer        = Fun(rhs, deps_g_type);
+            expr eq_rec         = mk_constant(name{"eq", "rec"}, {eq_rec_lvl1, eq_rec_lvl2});
+            eq_rec              = mk_app(eq_rec, A, lhs, tformer);
+            buffer<expr> new_hyps;
+            new_hyps.append(non_deps);
+            expr new_type       = instantiate(abstract(deps_g_type, rhs), lhs);
+            for (unsigned i = 0; i < deps.size(); i++) {
+                expr new_hyp = mk_local(m_ngen.next(), binding_name(new_type), binding_domain(new_type), binding_info(new_type));
+                new_hyps.push_back(new_hyp);
+                new_type     = instantiate(binding_body(new_type), new_hyp);
+            }
+            expr new_mvar       = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
+            expr new_meta       = mk_app(new_mvar, new_hyps);
+            goal new_g(new_meta, new_type);
+            expr eq_rec_minor   = mk_app(new_mvar, non_deps);
+            eq_rec              = mk_app(eq_rec, eq_rec_minor, rhs, eq);
+            expr val            = g.abstract(mk_app(eq_rec, deps));
+            m_subst.assign(g.get_name(), val);
+            return unify_eqs(new_g, neqs-1);
+        }
+        // unification failed
+        return optional<goal>(g);
+    }
+
+    list<goal> unify_eqs(list<goal> const & gs) {
+        unsigned neqs = m_nindices + (m_dep_elim ? 1 : 0);
+        buffer<goal> new_goals;
+        for (goal const & g : gs) {
+            if (optional<goal> new_g = unify_eqs(g, neqs))
+                new_goals.push_back(*new_g);
+        }
+        return to_list(new_goals.begin(), new_goals.end());
+    }
+
 public:
     inversion_tac(environment const & env, io_state const & ios, proof_state const & ps):
         m_env(env), m_ios(ios), m_ps(ps),
@@ -214,23 +406,28 @@ public:
     }
 
     optional<proof_state> execute(name const & n) {
-        goals const & gs  = m_ps.get_goals();
-        if (empty(gs))
+        try {
+            goals const & gs  = m_ps.get_goals();
+            if (empty(gs))
+                return none_proof_state();
+            goal  g           = head(gs);
+            goals tail_gs     = tail(gs);
+            auto p = g.find_hyp(n);
+            if (!p)
+                return none_proof_state();
+            expr const & h    = p->first;
+            expr h_type       = m_tc->whnf(mlocal_type(h)).first;
+            if (!is_inversion_applicable(h_type))
+                return none_proof_state();
+            goal g1           = generalize_indices(g, h, h_type);
+            list<goal> gs2    = apply_cases_on(g1);
+            list<goal> gs3    = intros_minors_args(gs2);
+            list<goal> gs4    = unify_eqs(gs3);
+            proof_state new_s(m_ps, append(gs4, tail_gs), m_subst, m_ngen);
+            return some_proof_state(new_s);
+        } catch (inversion_exception & ex) {
             return none_proof_state();
-        goal  g           = head(gs);
-        goals tail_gs     = tail(gs);
-        auto p = g.find_hyp(n);
-        if (!p)
-            return none_proof_state();
-        expr const & h    = p->first;
-        expr h_type       = m_tc->whnf(mlocal_type(h)).first;
-        if (!is_inversion_applicable(h_type))
-            return none_proof_state();
-        goal g1           = generalize_indices(g, h, h_type);
-        list<goal> gs2    = apply_cases_on(g1);
-        list<goal> gs3    = intros_minors_args(gs2);
-        proof_state new_s(m_ps, append(gs3, tail_gs), m_subst, m_ngen);
-        return some_proof_state(new_s);
+        }
     }
 };
 

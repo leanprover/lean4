@@ -24,29 +24,20 @@ namespace vector
           (λv, inhabited.mk (a :: v))))
 
   theorem z_cases_on {C : vector A 0 → Type} (v : vector A 0) (Hnil : C nil) : C v :=
-  have aux : ∀ (n₁ : nat) (v₁ : vector A n₁) (eq₁ : n₁ = 0) (eq₂ : v₁ == v) (Hnil : C nil), C v, from
-    λ n₁ v₁, vector.rec_on v₁
-      (λ (eq₁ : 0 = 0) (eq₂ : nil == v) (Hnil : C nil), eq.rec_on (heq.to_eq eq₂) Hnil)
-      (λ h₂ n₂ v₂ ih eq₁ eq₂ hnil, nat.no_confusion eq₁),
-  aux 0 v rfl !heq.refl Hnil
+  begin
+    cases v,
+    apply Hnil
+  end
 
   theorem vector0_eq_nil (v : vector A 0) : v = nil :=
   z_cases_on v rfl
 
   protected definition destruct (v : vector A (succ n)) {P : Π {n : nat}, vector A (succ n) → Type}
                       (H : Π {n : nat} (h : A) (t : vector A n), P (h :: t)) : P v :=
-  have aux : ∀ (n₁ : nat) (v₁ : vector A n₁) (eq₁ : n₁ = succ n) (eq₂ : v₁ == v), P v, from
-    (λ n₁ v₁, vector.rec_on v₁
-       (λ eq₁, nat.no_confusion eq₁)
-       (λ h₂ n₂ v₂ ih eq₁ eq₂,
-          nat.no_confusion eq₁ (λ e₃ : n₂ = n,
-            have aux : Π (n₂ : nat) (e₃ : n₂ = n) (v₂ : vector A n₂) (eq₂ : h₂ :: v₂ == v), P v, from
-              λ n₂ e₃, eq.rec_on (eq.rec_on e₃ rfl)
-                (λ (v₂ : vector A n) (eq₂ : h₂ :: v₂ == v),
-                  have Phv : P (h₂ :: v₂), from H h₂ v₂,
-                  eq.rec_on (heq.to_eq eq₂) Phv),
-            aux n₂ e₃ v₂ eq₂))),
-  aux (succ n) v rfl !heq.refl
+  begin
+    cases v with (h', n', t'),
+    apply (H h' t')
+  end
 
   definition nz_cases_on := @destruct
 
@@ -197,7 +188,7 @@ namespace vector
   vector.induction_on v
     rfl
     (λ h n t ih, calc
-      last (concat (h :: t) a) = last (concat t a) : rfl
-                           ... = a : ih)
+      last (concat (h :: t) a) = last (concat t a) : last_cons
+                           ... = a                 : ih)
 
 end vector

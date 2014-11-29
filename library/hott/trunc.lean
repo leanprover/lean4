@@ -211,7 +211,6 @@ namespace truncation
   definition equiv_preserves_contr (f : A → B) [Hf : is_equiv f] [HA: is_contr A] : (is_contr B) :=
     is_contr.mk (f (center A)) (λp, moveR_M f !contr)
 
-  set_option elaborator.trace_instances true
   theorem contr_equiv (H : A ≃ B) [HA: is_contr A] : is_contr B :=
     @equiv_preserves_contr _ _ (to_fun H) (to_is_equiv H) _
 

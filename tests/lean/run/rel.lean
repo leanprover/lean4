@@ -2,23 +2,10 @@ import logic algebra.relation
 open relation
 
 namespace is_equivalence
-  inductive cls {T : Type} (R : T → T → Type) : Prop :=
+  inductive cls {T : Type} (R : T → T → Prop) : Prop :=
   mk : is_reflexive R → is_symmetric R → is_transitive R → cls R
 
-  theorem is_reflexive {T : Type} {R : T → T → Type} {C : cls R} : is_reflexive R :=
-  cls.rec (λx y z, x) C
-
-  theorem is_symmetric {T : Type} {R : T → T → Type} {C : cls R} : is_symmetric R :=
-  cls.rec (λx y z, y) C
-
-  theorem is_transitive {T : Type} {R : T → T → Type} {C : cls R} : is_transitive R :=
-  cls.rec (λx y z, z) C
-
 end is_equivalence
-
-instance is_equivalence.is_reflexive
-instance is_equivalence.is_symmetric
-instance is_equivalence.is_transitive
 
 theorem and_inhabited_left {a : Prop} (b : Prop) (Ha : a) : a ∧ b ↔ b :=
 iff.intro (take Hab, and.elim_right Hab) (take Hb, and.intro Ha Hb)

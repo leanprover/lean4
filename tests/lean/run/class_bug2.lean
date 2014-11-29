@@ -20,6 +20,6 @@ section sec_cat
   variables {ob : Type} {mor : ob → ob → Type} {Cat : category ob mor}
   definition compose := rec (λ comp id assoc idr idl, comp) Cat
   definition id := rec (λ comp id assoc idr idl, id) Cat
-  infixr `∘`:60 := compose
+  infixr ∘ := compose
 end sec_cat
 end category

@@ -20,7 +20,7 @@ context sec_cat
   parameters {ob : Type} {mor : ob → ob → Type} {Cat : category ob mor}
   definition compose := rec (λ comp id assoc idr idl, comp) Cat
   definition id := rec (λ comp id assoc idr idl, id) Cat
-  infixr `∘`:60 := compose
+  infixr ∘ := compose
   inductive is_section {A B : ob} (f : mor A B) : Type :=
   mk : ∀g, g ∘ f = id → is_section f
 end sec_cat

@@ -8,32 +8,18 @@ fs : Π {n}, fin n → fin (succ n)
 namespace fin
 
   definition z_cases_on (C : fin zero → Type) (p : fin zero) : C p :=
-  have aux : Π (C : Type) (n : nat) (p : fin n), n = zero → C, from
-    λ C n p, fin.rec_on p
-      (λ n h, nat.no_confusion h)
-      (λ n f ih h, nat.no_confusion h),
-  aux (C p) zero p rfl
+  by cases p
 
   definition nz_cases_on {C  : Π n, fin (succ n) → Type}
                          (H₁ : Π n, C n (fz n))
                          (H₂ : Π n (f : fin n), C n (fs f))
                          {n  : nat}
                          (f  : fin (succ n)) : C n f :=
-  have aux : Π (n₁ : nat) (f₁ : fin n₁) (heq₁ : n₁ = succ n) (f : fin (succ n)) (heq₂ : f₁ == f), C n f, from
-    λ n₁ f₁, fin.rec_on f₁
-      (λ (n₁ : nat) (heq₁ : succ n₁ = succ n),
-         have heq₁' : n₁ = n, from nat.no_confusion heq₁ (λ e, e),
-         eq.rec_on heq₁' (λ (f : fin (succ n₁)) (heq₂ : fz n₁ == f),
-           have heq₂' : fz n₁ = f, from heq.to_eq heq₂,
-           have Cfz   : C n₁ (fz n₁), from H₁ n₁,
-           eq.rec_on heq₂' Cfz))
-      (λ (n₁ : nat) (f₁ : fin n₁) (ih : _) (heq₁ : succ n₁ = succ n),
-         have heq₁' : n₁ = n, from nat.no_confusion heq₁ (λ e, e),
-         eq.rec_on heq₁' (λ (f : fin (succ n₁)) (heq₂ : @fs n₁ f₁ == f),
-           have heq₂' : @fs n₁ f₁ = f, from heq.to_eq heq₂,
-           have Cfs   : C n₁ (@fs n₁ f₁), from H₂ n₁ f₁,
-           eq.rec_on heq₂' Cfs)),
-  aux (succ n) f rfl f !heq.refl
+  begin
+    cases f with (n', n', f'),
+    apply (H₁ n'),
+    apply (H₂ n' f')
+  end
 
   definition to_nat {n : nat} (f : fin n) : nat :=
   fin.rec_on f

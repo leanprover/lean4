@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/scoped_ext.h"
 #include "library/annotation.h"
+#include "library/typed_expr.h"
 #include "library/sorry.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
@@ -296,8 +297,8 @@ static void collect_rhss(std::vector<calc_step> const & steps, buffer<expr> & rh
     lean_assert(!rhss.empty());
 }
 
-static void join(parser & p, std::vector<calc_step> const & steps1, std::vector<calc_step> const & steps2, std::vector<calc_step> & res_steps,
-                 pos_info const & pos) {
+static void join(parser & p, std::vector<calc_step> const & steps1, std::vector<calc_step> const & steps2,
+                 std::vector<calc_step> & res_steps, pos_info const & pos) {
     res_steps.clear();
     calc_state const & state = calc_ext::get_state(p.env());
     for (calc_step const & s1 : steps1) {
@@ -324,11 +325,14 @@ expr parse_calc(parser & p) {
     buffer<expr>      rhss;
     std::vector<calc_step> steps, new_steps, next_steps;
     auto pos             = p.pos();
-    decode_expr(p.parse_expr(), preds, pos);
+    expr first_pred      = p.parse_expr();
+    decode_expr(first_pred, preds, pos);
     parse_calc_proof(p, preds, steps);
+    bool single    = true; // true if calc has only one step
     expr dummy     = mk_expr_placeholder();
     while (p.curr_is_token(get_ellipsis_tk())) {
-        pos = p.pos();
+        single = false;
+        pos    = p.pos();
         p.next();
         decode_expr(p.parse_led(dummy), preds, pos);
         collect_rhss(steps, rhss);
@@ -348,8 +352,14 @@ expr parse_calc(parser & p) {
         steps.swap(next_steps);
     }
     buffer<expr> choices;
-    for (auto const & s : steps)
-        choices.push_back(step_proof(s));
+    for (auto const & s : steps) {
+        if (single) {
+            expr new_s = p.save_pos(mk_typed_expr(first_pred, step_proof(s)), pos);
+            choices.push_back(new_s);
+        } else {
+            choices.push_back(step_proof(s));
+        }
+    }
     return p.save_pos(mk_choice(choices.size(), choices.data()), pos);
 }
 

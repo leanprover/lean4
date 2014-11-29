@@ -107,6 +107,11 @@ static void print_fields(parser & p) {
 }
 
 environment print_cmd(parser & p) {
+    flycheck_information info(p.regular_stream());
+    if (info.enabled()) {
+        p.display_information_pos(p.cmd_pos());
+        p.regular_stream() << "print result:\n";
+    }
     if (p.curr() == scanner::token_kind::String) {
         p.regular_stream() << p.get_str_val() << endl;
         p.next();

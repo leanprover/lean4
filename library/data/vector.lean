@@ -188,7 +188,7 @@ namespace vector
   vector.induction_on v
     rfl
     (λ h n t ih, calc
-      last (concat (h :: t) a) = last (concat t a) : last_cons
+      last (concat (h :: t) a) = last (concat t a) : rfl
                            ... = a                 : ih)
 
 end vector

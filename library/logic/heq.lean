@@ -19,18 +19,16 @@ namespace heq
   theorem symm (H : a == b) : b == a :=
   subst H (refl a)
 
-  theorem type_eq (H : a == b) : A = B :=
-  subst H (eq.refl A)
+  definition type_eq (H : a == b) : A = B :=
+  heq.rec_on H (eq.refl A)
 
   theorem from_eq (H : a = a') : a == a' :=
   eq.subst H (refl a)
 
-  theorem to_eq (H : a == a') : a = a' :=
+  definition to_eq (H : a == a') : a = a' :=
   have H₁ : ∀ (Ht : A = A), eq.rec_on Ht a = a, from
-    take Ht, eq.refl (eq.rec_on Ht a),
-  have H₂ : ∀ (Ht : A = A), eq.rec_on Ht a = a', from
-    heq.rec_on H H₁,
-  H₂ (type_eq H)
+    λ Ht, eq.refl (eq.rec_on Ht a),
+  heq.rec_on H H₁ (eq.refl A)
 
   theorem trans (H₁ : a == b) (H₂ : b == c) : a == c :=
   subst H₂ H₁

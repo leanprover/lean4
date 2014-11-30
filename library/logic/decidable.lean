@@ -83,7 +83,7 @@ namespace decidable
     (assume Hnp : ¬p, inr (iff.elim_left (iff.flip_sign H) Hnp))
 
   definition decidable_eq_equiv (Hp : decidable p) (H : p = q) : decidable q :=
-  decidable_iff_equiv Hp (eq_to_iff H)
+  decidable_iff_equiv Hp (iff.of_eq H)
 
   protected theorem rec_subsingleton [instance] [H : decidable p] {H1 : p → Type} {H2 : ¬p → Type}
       (H3 : Π(h : p), subsingleton (H1 h)) (H4 : Π(h : ¬p), subsingleton (H2 h))

@@ -152,15 +152,14 @@ namespace iff
 
   theorem false_elim (H : a ↔ false) : ¬a :=
   assume Ha : a, mp H Ha
+
+  open eq.ops
+  theorem of_eq {a b : Prop} (H : a = b) : a ↔ b :=
+  iff.intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 end iff
 
 calc_refl iff.refl
 calc_trans iff.trans
-
-open eq.ops
-
-theorem eq_to_iff {a b : Prop} (H : a = b) : a ↔ b :=
-iff.intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 
 -- comm and assoc for and / or
 -- ---------------------------

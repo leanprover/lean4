@@ -36,7 +36,7 @@ induction_on n !sub_zero_right
              ... = 0            : pred.zero)
 
 theorem sub_succ_succ (n m : ℕ) : succ n - succ m = n - m :=
-sub.succ_succ n m
+succ_sub_succ_eq_sub n m
 
 theorem sub_self (n : ℕ) : n - n = 0 :=
 induction_on n !sub_zero_right (take k IH, !sub_succ_succ ⬝ IH)

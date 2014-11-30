@@ -11,11 +11,11 @@ infixl `≺`:50 := pair_nat.lt
 
 -- Lemma for justifying recursive call
 private lemma lt₁ (x₁ y₁ : nat) : (x₁ - y₁, succ y₁) ≺ (succ x₁, succ y₁) :=
-!lex.left (le_imp_lt_succ (sub_le_self x₁ y₁))
+!lex.left (lt_succ_of_le (sub_le x₁ y₁))
 
 -- Lemma for justifying recursive call
 private lemma lt₂ (x₁ y₁ : nat) : (succ x₁, y₁ - x₁) ≺ (succ x₁, succ y₁) :=
-!lex.right (le_imp_lt_succ (sub_le_self y₁ x₁))
+!lex.right (lt_succ_of_le (sub_le y₁ x₁))
 
 definition gcd.F (p₁ : nat × nat) : (Π p₂ : nat × nat, p₂ ≺ p₁ → nat) → nat :=
 prod.cases_on p₁ (λ (x y : nat),

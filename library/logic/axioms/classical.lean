@@ -41,17 +41,17 @@ or.elim (prop_complete a)
     (assume Hbt,  false_elim (Haf ▸ (Hba (eq_true_elim Hbt))))
     (assume Hbf, Haf ⬝ Hbf⁻¹))
 
-theorem iff_to_eq {a b : Prop} (H : a ↔ b) : a = b :=
+theorem eq.of_iff {a b : Prop} (H : a ↔ b) : a = b :=
 iff.elim (assume H1 H2, propext H1 H2) H
 
 theorem iff_eq_eq {a b : Prop} : (a ↔ b) = (a = b) :=
 propext
-  (assume H, iff_to_eq H)
-  (assume H, eq_to_iff H)
+  (assume H, eq.of_iff H)
+  (assume H, iff.of_eq H)
 
 open relation
 theorem iff_congruence [instance] (P : Prop → Prop) : is_congruence iff iff P :=
 is_congruence.mk
   (take (a b : Prop),
     assume H : a ↔ b,
-    show P a ↔ P b, from eq_to_iff (iff_to_eq H ▸ eq.refl (P a)))
+    show P a ↔ P b, from iff.of_eq (eq.of_iff H ▸ eq.refl (P a)))

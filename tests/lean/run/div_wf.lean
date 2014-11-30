@@ -4,7 +4,7 @@ open nat well_founded decidable prod eq.ops
 -- Auxiliary lemma used to justify recursive call
 private definition lt_aux {x y : nat} (H : 0 < y ∧ y ≤ x) : x - y < x :=
 and.rec_on H (λ ypos ylex,
-  sub.lt (lt_le.trans ypos ylex) ypos)
+  sub.lt (lt.of_lt_of_le ypos ylex) ypos)
 
 definition wdiv.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
 dif 0 < y ∧ y ≤ x then (λ Hp, f (x - y) (lt_aux Hp) y + 1) else (λ Hn, zero)

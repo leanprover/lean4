@@ -42,12 +42,12 @@ aux
 
 definition tree_forest.height_lt.cons₁ {A : Type} (t : tree A) (f : forest A) : sum.inl _ t ≺ sum.inr _ (forest.cons t f) :=
 have aux : tree.height t < forest.height (forest.cons t f), from
-  le_imp_lt_succ (max.left _ _),
+  lt_succ_of_le (max.left _ _),
 aux
 
 definition tree_forest.height_lt.cons₂ {A : Type} (t : tree A) (f : forest A) : sum.inr _ f ≺ sum.inr _ (forest.cons t f) :=
 have aux : forest.height f < forest.height (forest.cons t f), from
-  le_imp_lt_succ (max.right _ _),
+  lt_succ_of_le (max.right _ _),
 aux
 
 definition kind {A : Type} (t : tree_forest A) : bool :=

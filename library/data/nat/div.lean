@@ -20,7 +20,7 @@ namespace nat
 -- Auxiliary lemma used to justify div
 private definition div_rec_lemma {x y : nat} (H : 0 < y ∧ y ≤ x) : x - y < x :=
 and.rec_on H (λ ypos ylex,
-  sub.lt (lt_le.trans ypos ylex) ypos)
+  sub.lt (lt.of_lt_of_le ypos ylex) ypos)
 
 private definition div.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
 dif 0 < y ∧ y ≤ x then (λ Hp, f (x - y) (div_rec_lemma Hp) y + 1) else (λ Hn, zero)
@@ -40,7 +40,7 @@ theorem div_less {a b : ℕ} (h : a < b) : a div b = 0 :=
 divide_def a b ⬝ if_neg (!and.not_right (lt_imp_not_ge h))
 
 theorem zero_div (b : ℕ) : 0 div b = 0 :=
-divide_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_le.trans l r) (lt.irrefl 0)))
+divide_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt.of_lt_of_le l r) (lt.irrefl 0)))
 
 theorem div_rec {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a div b = succ ((a - b) div b) :=
 divide_def a b ⬝ if_pos (and.intro h₁ h₂)
@@ -80,7 +80,7 @@ theorem mod_less {a b : ℕ} (h : a < b) : a mod b = a :=
 modulo_def a b ⬝ if_neg (!and.not_right (lt_imp_not_ge h))
 
 theorem zero_mod (b : ℕ) : 0 mod b = 0 :=
-modulo_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_le.trans l r) (lt.irrefl 0)))
+modulo_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt.of_lt_of_le l r) (lt.irrefl 0)))
 
 theorem mod_rec {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a mod b = (a - b) mod b :=
 modulo_def a b ⬝ if_pos (and.intro h₁ h₂)
@@ -187,7 +187,7 @@ theorem quotient_unique {y : ℕ} (H : y > 0) {q1 r1 q2 r2 : ℕ} (H1 : r1 < y) 
   (H3 : q1 * y + r1 = q2 * y + r2) : q1 = q2 :=
 have H4 : q1 * y + r2 = q2 * y + r2, from (remainder_unique H H1 H2 H3) ▸ H3,
 have H5 : q1 * y = q2 * y, from add.cancel_right H4,
-have H6 : y > 0, from le_lt.trans !zero_le H1,
+have H6 : y > 0, from lt.of_le_of_lt !zero_le H1,
 show q1 = q2, from mul_cancel_right H6 H5
 
 theorem div_mul_mul {z x y : ℕ} (zpos : z > 0) : (z * x) div (z * y) = x div y :=
@@ -256,7 +256,7 @@ definition dvd (x y : ℕ) : Prop := y mod x = 0
 infix `|` := dvd
 
 theorem dvd_iff_mod_eq_zero {x y : ℕ} : x | y ↔ y mod x = 0 :=
-eq_to_iff rfl
+iff.of_eq rfl
 
 theorem dvd_imp_div_mul_eq {x y : ℕ} (H : y | x) : x div y * y = x :=
 (calc

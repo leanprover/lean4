@@ -61,7 +61,7 @@ namespace fin
                                 ...   = succ p₁                        : ih)
 
   private lemma of_nat_eq {p n : nat} (H : p < n) : n - succ p + succ p = n :=
-  add_sub_ge_left (lt_imp_le_succ H)
+  add_sub_ge_left (succ_le_of_lt H)
 
   definition of_nat (p : nat) (n : nat) : p < n → fin n :=
   λ H : p < n,

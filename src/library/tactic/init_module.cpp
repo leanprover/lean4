@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/tactic/clear_tactic.h"
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/inversion_tactic.h"
+#include "library/tactic/assert_tactic.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -35,9 +36,11 @@ void initialize_tactic_module() {
     initialize_clear_tactic();
     initialize_revert_tactic();
     initialize_inversion_tactic();
+    initialize_assert_tactic();
 }
 
 void finalize_tactic_module() {
+    finalize_assert_tactic();
     finalize_inversion_tactic();
     finalize_revert_tactic();
     finalize_clear_tactic();

@@ -147,10 +147,6 @@ namespace nat
   definition le.is_decidable_rel [instance] : decidable_rel le :=
   λ a b, decidable_iff_equiv _ (iff.intro le.of_eq_or_lt eq_or_lt_of_le)
 
-  inductive le2 (a : nat) : nat → Prop :=
-  refl    : le2 a a,
-  of_lt : ∀ {b}, lt a b → le2 a b
-
   definition le.rec_on {a : nat} {P : nat → Prop} {b : nat} (H : a ≤ b) (H₁ : P a) (H₂ : ∀ b, a < b → P b) : P b :=
   begin
     cases H with (b', hlt),

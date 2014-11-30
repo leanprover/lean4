@@ -122,7 +122,7 @@
      ;; tactics
      ("cases[ \t\n]+[^ \t\n]+[ \t\n]+\\(with\\)" (1 'font-lock-constant-face))
      (,(rx (not (any "\.")) word-start
-           (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "eassumption" "rapply" "apply" "rename" "intro" "intros"
+           (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "eassumption" "rapply" "apply" "fapply" "rename" "intro" "intros"
                "generalize" "generalizes" "clear" "clears" "revert" "reverts" "back" "beta" "done" "exact" "repeat"
                "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases")
            word-end)

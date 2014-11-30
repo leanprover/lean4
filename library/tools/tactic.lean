@@ -3,7 +3,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
-import data.string.decl data.num.decl
+import data.string.decl data.num.decl general_notation
 -- This is just a trick to embed the 'tactic language' as a
 -- Lean expression. We should view 'tactic' as automation
 -- that when execute produces a term.
@@ -60,15 +60,15 @@ opaque definition exact      (e : expr)   : tactic := builtin
 opaque definition trace      (s : string) : tactic := builtin
 opaque definition inversion  (id : expr)  : tactic := builtin
 
-notation a `↦` b := rename a b
+notation a `↦` b:max := rename a b
 
 inductive expr_list : Type :=
 nil  : expr_list,
 cons : expr → expr_list → expr_list
 
 opaque definition inversion_with  (id : expr) (ids : expr_list) : tactic := builtin
-notation `cases` a := inversion a
-notation `cases` a `with` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := inversion_with a l
+notation `cases` a:max := inversion a
+notation `cases` a:max `with` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := inversion_with a l
 
 opaque definition intro_lst (ids : expr_list) : tactic := builtin
 notation `intros`   := intro_lst expr_list.nil

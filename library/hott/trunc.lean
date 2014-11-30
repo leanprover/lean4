@@ -22,8 +22,8 @@ namespace truncation
   minus_two : trunc_index,
   trunc_S : trunc_index → trunc_index
 
-  postfix `.+1`:10000 := trunc_index.trunc_S
-  postfix `.+2`:10000 := λn, (n .+1 .+1)
+  postfix `.+1`:(max+1) := trunc_index.trunc_S
+  postfix `.+2`:(max+1) := λn, (n .+1 .+1)
   notation `-2` := trunc_index.minus_two
   notation `-1` := (-2.+1)
 

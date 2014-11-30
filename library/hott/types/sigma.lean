@@ -39,14 +39,14 @@ namespace sigma
   definition pr1_path (p : u ≈ v) : u.1 ≈ v.1 :=
   ap dpr1 p
 
-  postfix `..1`:10000 := pr1_path
+  postfix `..1`:(max+1) := pr1_path
 
   definition pr2_path (p : u ≈ v) : p..1 ▹ u.2 ≈ v.2 :=
   path.rec_on p idp
   --Coq uses the following proof, which only computes if u,v are dpairs AND p is idp
   --(transport_compose B dpr1 p u.2)⁻¹ ⬝ apD dpr2 p
 
-  postfix `..2`:10000 := pr2_path
+  postfix `..2`:(max+1) := pr2_path
 
   definition dpair_path_sigma (p : u.1 ≈ v.1) (q : p ▹ u.2 ≈ v.2)
       :  dpair (path_sigma p q)..1 (path_sigma p q)..2 ≈ ⟨p, q⟩ :=

@@ -415,4 +415,25 @@ name get_decl_short_name(name const & d, environment const & env) {
     else
         return d;
 }
+
+environment open_num_notation(environment const & env) {
+    name num("num");
+    try {
+        environment new_env = overwrite_notation(env, num);
+        return overwrite_aliases(new_env, num, name());
+    } catch (exception &) {
+        // num namespace is not available, then use only the aliases
+        return overwrite_aliases(env, num, name());
+    }
+}
+
+environment open_prec_aliases(environment const & env) {
+    name prec("std", "prec");
+    return overwrite_aliases(env, prec, name());
+}
+
+environment open_priority_aliases(environment const & env) {
+    name prio("std", "priority");
+    return overwrite_aliases(env, prio, name());
+}
 }

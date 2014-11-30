@@ -14,9 +14,11 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/explicit.h"
 #include "library/num.h"
+#include "library/normalize.h"
 #include "library/aliases.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
+#include "frontends/lean/util.h"
 
 namespace lean {
 static std::string parse_symbol(parser & p, char const * msg) {
@@ -32,21 +34,15 @@ static std::string parse_symbol(parser & p, char const * msg) {
     return n.to_string();
 }
 
-static environment open_prec_namespace(parser & p) {
-    name prec("std", "prec");
-    environment env = using_namespace(p.env(), p.ios(), prec);
-    return overwrite_aliases(env, prec, name());
-}
-
 static unsigned parse_precedence_core(parser & p) {
     auto pos = p.pos();
     if (p.curr_is_numeral()) {
         return p.parse_small_nat();
     } else {
-        environment env = open_prec_namespace(p);
+        environment env = open_prec_aliases(open_num_notation(p.env()));
         parser::local_scope scope(p, env);
         expr val = p.parse_expr(get_max_prec());
-        val = type_checker(p.env()).whnf(val).first;
+        val = normalize(p.env(), val);
         if (optional<mpz> mpz_val = to_num(val)) {
             if (!mpz_val->is_unsigned_int())
                 throw parser_error("invalid 'precedence', argument does not fit in a machine integer", pos);

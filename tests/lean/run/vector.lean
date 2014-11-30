@@ -111,7 +111,7 @@ namespace vector
          end
      end) v
 
-  example : map num.add (1 :: 2 :: vnil) (3 :: 5 :: vnil) = 4 :: 7 :: vnil :=
+  example : map nat.add (1 :: 2 :: vnil) (3 :: 5 :: vnil) = 4 :: 7 :: vnil :=
   rfl
 
   print definition map

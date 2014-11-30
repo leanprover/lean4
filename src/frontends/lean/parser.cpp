@@ -1167,10 +1167,12 @@ expr parser::parse_numeral_expr() {
                            "(solution: use 'import data.num', or define notation for the given numeral)", p);
     }
     buffer<expr> cs;
-    for (expr const & c : vals)
-        cs.push_back(copy_with_new_pos(c, p));
     if (*m_has_num)
         cs.push_back(save_pos(from_num(n), p));
+    for (expr const & c : vals)
+        cs.push_back(copy_with_new_pos(c, p));
+    // Remark: choices are processed from right to left.
+    // We want to process user provided notation before the default 'num'.
     lean_assert(!cs.empty());
     if (cs.size() == 1)
         return cs[0];

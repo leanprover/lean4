@@ -20,8 +20,8 @@ namespace binary
     notation [local] a ⁻¹  := inv a
     notation [local] 1     := one
 
-    definition commutative := ∀a b, a*b = b*a
-    definition associative := ∀a b c, (a*b)*c = a*(b*c)
+    definition commutative := ∀a b, a * b = b * a
+    definition associative := ∀a b c, (a * b) * c = a * (b * c)
     definition left_identity := ∀a, 1 * a = a
     definition right_identity := ∀a, a * 1 = a
     definition left_inverse := ∀a, a⁻¹ * a = 1

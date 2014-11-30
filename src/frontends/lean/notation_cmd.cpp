@@ -13,6 +13,8 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "library/scoped_ext.h"
 #include "library/explicit.h"
+#include "library/num.h"
+#include "library/aliases.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 
@@ -30,22 +32,42 @@ static std::string parse_symbol(parser & p, char const * msg) {
     return n.to_string();
 }
 
-static optional<unsigned> parse_optional_precedence(parser & p) {
+static environment open_prec_namespace(parser & p) {
+    name prec("std", "prec");
+    environment env = using_namespace(p.env(), p.ios(), prec);
+    return overwrite_aliases(env, prec, name());
+}
+
+static unsigned parse_precedence_core(parser & p) {
+    auto pos = p.pos();
     if (p.curr_is_numeral()) {
-        return optional<unsigned>(p.parse_small_nat());
-    } else if (p.curr_is_token_or_id(get_max_tk())) {
+        return p.parse_small_nat();
+    } else {
+        environment env = open_prec_namespace(p);
+        parser::local_scope scope(p, env);
+        expr val = p.parse_expr(get_max_prec());
+        val = type_checker(p.env()).whnf(val).first;
+        if (optional<mpz> mpz_val = to_num(val)) {
+            if (!mpz_val->is_unsigned_int())
+                throw parser_error("invalid 'precedence', argument does not fit in a machine integer", pos);
+            return mpz_val->get_unsigned_int();
+        } else {
+            throw parser_error("invalid 'precedence', argument does not evaluate to a numeral", pos);
+        }
+    }
+}
+
+static optional<unsigned> parse_optional_precedence(parser & p) {
+    if (p.curr_is_token(get_colon_tk())) {
         p.next();
-        return optional<unsigned>(get_max_prec());
+        return some(parse_precedence_core(p));
     } else {
         return optional<unsigned>();
     }
 }
 
-static unsigned parse_precedence(parser & p, char const * msg) {
-    auto r = parse_optional_precedence(p);
-    if (!r)
-        throw parser_error(msg, p.pos());
-    return *r;
+static unsigned parse_precedence(parser & p) {
+    return parse_precedence_core(p);
 }
 
 LEAN_THREAD_VALUE(bool, g_allow_local, false);
@@ -108,7 +130,7 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, bool
             throw parser_error("invalid notation declaration, invalid ':' occurrence "
                                "(declaration matches reserved notation)", p.pos());
         p.next();
-        prec = parse_precedence(p, "invalid notation declaration, numeral or 'max' expected");
+        prec = parse_precedence(p);
     }
 
     if (prec && k == mixfix_kind::infixr && *prec == 0)
@@ -224,7 +246,7 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
         p.next();
         if (p.curr_is_token(get_colon_tk())) {
             p.next();
-            unsigned prec = parse_precedence(p, "invalid notation declaration, precedence (small numeral) expected");
+            unsigned prec = parse_precedence(p);
             auto old_prec = get_precedence(get_token_table(env), tkcs);
             if (!old_prec || prec != *old_prec)
                 new_tokens.push_back(token_entry(tkcs, prec));
@@ -287,7 +309,7 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
     if (p.curr_is_token(get_colon_tk())) {
         p.next();
         if (p.curr_is_numeral() || p.curr_is_token_or_id(get_max_tk())) {
-            unsigned prec = parse_precedence(p, "invalid notation declaration, small numeral expected");
+            unsigned prec = parse_precedence(p);
             return mk_expr_action(prec);
         } else if (p.curr_is_token_or_id(get_prev_tk())) {
             p.next();
@@ -392,7 +414,7 @@ static optional<pair<action, parse_table>> find_next(optional<parse_table> const
 static unsigned parse_binders_rbp(parser & p) {
     if (p.curr_is_token(get_colon_tk())) {
         p.next();
-        return parse_precedence(p, "invalid binder/binders, precedence expected");
+        return parse_precedence(p);
     } else {
         return 0;
     }
@@ -695,7 +717,7 @@ static environment reserve_cmd(parser & p) {
 static environment precedence_cmd(parser & p) {
     std::string tk = parse_symbol(p, "invalid precedence declaration, quoted symbol or identifier expected");
     p.check_token_next(get_colon_tk(), "invalid precedence declaration, ':' expected");
-    unsigned prec = parse_precedence(p, "invalid precedence declaration, numeral or 'max' expected");
+    unsigned prec = parse_precedence(p);
     return add_user_token(p.env(), tk.c_str(), prec);
 }
 

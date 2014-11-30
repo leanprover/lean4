@@ -1,5 +1,4 @@
 import logic data.prod priority
-open priority
 set_option pp.notation false
 
 inductive C [class] (A : Type) :=

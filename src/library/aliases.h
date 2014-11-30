@@ -11,12 +11,12 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \brief Add the alias \c a for \c e. */
-environment add_expr_alias(environment const & env, name const & a, name const & e);
+environment add_expr_alias(environment const & env, name const & a, name const & e, bool overwrite = false);
 /**
    \brief Add alias \c a for \c e, and also add it to all parent scopes
    until in a namespace scope.
 */
-environment add_expr_alias_rec(environment const & env, name const & a, name const & e);
+environment add_expr_alias_rec(environment const & env, name const & a, name const & e, bool overwrite = false);
 
 /** \brief If \c t is aliased in \c env, then return its name. Otherwise, return none. */
 optional<name> is_expr_aliased(environment const & env, name const & t);
@@ -48,7 +48,10 @@ optional<name> get_level_alias(environment const & env, name const & n);
    \remark \c new_prefix may be the anonymous name.
 */
 environment add_aliases(environment const & env, name const & prefix, name const & new_prefix,
-                        unsigned num_exceptions = 0, name const * exceptions = nullptr);
+                        unsigned num_exceptions = 0, name const * exceptions = nullptr, bool overwrite = false);
+inline environment overwrite_aliases(environment const & env, name const & prefix, name const & new_prefix) {
+    return add_aliases(env, prefix, new_prefix, 0, nullptr, true);
+}
 
 bool is_exception(name const & n, name const & prefix, unsigned num_exceptions, name const * exceptions);
 

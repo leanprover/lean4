@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: general_notation
 Authors: Leonardo de Moura, Jeremy Avigad
 -/
+import data.num.decl
 
 /- General operations -/
 
@@ -21,6 +22,9 @@ notation `take`   binders `,` r:(scoped f, f) := r
 -/
 
 /- Logical operations and relations -/
+
+definition std.prec.max   : num := 1024 -- reflects max precedence used internally
+definition std.prec.arrow : num := 25
 
 reserve prefix `¬`:40
 reserve prefix `~`:40

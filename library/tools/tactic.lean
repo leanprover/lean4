@@ -83,7 +83,7 @@ opaque definition revert_lst (ids : expr_list) : tactic := builtin
 notation `reverts` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := revert_lst l
 
 infixl `;`:15 := and_then
-notation `[` h:10 `|`:10 r:(foldl 10 `|` (e r, or_else r e) h) `]` := r
+notation `[` h:10 `|`:10 r:(foldl:10 `|` (e r, or_else r e) h) `]` := r
 
 definition try         (t : tactic) : tactic := [t | id]
 definition repeat1     (t : tactic) : tactic := t ; repeat t

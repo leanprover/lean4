@@ -9,7 +9,7 @@ open decidable
 structure subtype {A : Type} (P : A → Prop) :=
 tag :: (elt_of : A) (has_property : P elt_of)
 
-notation `{` binders:55 `|` r:(scoped 1 P, subtype P) `}` := r
+notation `{` binders:55 `|` r:(scoped:1 P, subtype P) `}` := r
 
 namespace subtype
   variables {A : Type} {P : A → Prop}

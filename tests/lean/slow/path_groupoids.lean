@@ -2,13 +2,14 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jeremy Avigad
 -- Ported from Coq HoTT
+import general_notation
 
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r
 
 definition id {A : Type} (a : A) := a
 definition compose {A : Type} {B : Type} {C : Type} (g : B → C) (f : A → B) := λ x, g (f x)
-infixl `∘`:60 := compose
+infixr ∘ := compose
 
 -- Path
 -- ----
@@ -17,7 +18,7 @@ set_option unifier.max_steps 100000
 inductive path {A : Type} (a : A) : A → Type :=
 idpath : path a a
 definition idpath := @path.idpath
-infix `≈`:50 := path
+infix `≈` := path
 -- TODO: is this right?
 notation x `≈`:50 y `:>`:0 A:0 := @path A x y
 notation `idp`:max := idpath _     -- TODO: can we / should we use `1`?
@@ -32,7 +33,7 @@ path.rec (λu, u) q p
 definition inverse {A : Type} {x y : A} (p : x ≈ y) : y ≈ x :=
 path.rec (idpath x) p
 
-infixl `⬝`:75 := concat
+infixl `⬝` := concat
 postfix `^`:100 := inverse
 
 -- In Coq, these are not needed, because concat and inv are kept transparent
@@ -201,7 +202,7 @@ definition ap01 := ap
 definition pointwise_paths {A : Type} {P : A → Type} (f g : Πx, P x) : Type :=
 Πx : A, f x ≈ g x
 
-infix `∼`:50 := pointwise_paths
+infix `∼` := pointwise_paths
 
 definition apD10 {A} {B : A → Type} {f g : Πx, B x} (H : f ≈ g) : f ∼ g :=
 λx, path.rec_on H idp

@@ -32,9 +32,9 @@ struct aliases_ext : public environment_extension {
         name_map<name>        m_inv_level_aliases;
         state():m_in_context(false) {}
 
-        void add_expr_alias(name const & a, name const & e) {
+        void add_expr_alias(name const & a, name const & e, bool overwrite) {
             auto it = m_aliases.find(a);
-            if (it)
+            if (it && !overwrite)
                 m_aliases.insert(a, cons(e, filter(*it, [&](name const & t) { return t != e; })));
             else
                 m_aliases.insert(a, to_list(e));
@@ -45,8 +45,8 @@ struct aliases_ext : public environment_extension {
     state       m_state;
     list<state> m_scopes;
 
-    void add_expr_alias(name const & a, name const & e) {
-        m_state.add_expr_alias(a, e);
+    void add_expr_alias(name const & a, name const & e, bool overwrite) {
+        m_state.add_expr_alias(a, e, overwrite);
     }
 
     void add_level_alias(name const & a, name const & l) {
@@ -57,25 +57,25 @@ struct aliases_ext : public environment_extension {
         m_state.m_inv_level_aliases.insert(l, a);
     }
 
-    list<state> add_expr_alias_rec_core(list<state> const & scopes, name const & a, name const & e) {
+    list<state> add_expr_alias_rec_core(list<state> const & scopes, name const & a, name const & e, bool overwrite) {
         if (empty(scopes)) {
             return scopes;
         } else {
             state s = head(scopes);
-            s.add_expr_alias(a, e);
+            s.add_expr_alias(a, e, overwrite);
             if (s.m_in_context) {
-                return cons(s, add_expr_alias_rec_core(tail(scopes), a, e));
+                return cons(s, add_expr_alias_rec_core(tail(scopes), a, e, overwrite));
             } else {
                 return cons(s, tail(scopes));
             }
         }
     }
 
-    void add_expr_alias_rec(name const & a, name const & e) {
+    void add_expr_alias_rec(name const & a, name const & e, bool overwrite = false) {
         if (m_state.m_in_context) {
-            m_scopes = add_expr_alias_rec_core(m_scopes, a, e);
+            m_scopes = add_expr_alias_rec_core(m_scopes, a, e, overwrite);
         } else {
-            add_expr_alias(a, e);
+            add_expr_alias(a, e, overwrite);
         }
     }
 
@@ -138,15 +138,15 @@ static environment update(environment const & env, aliases_ext const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<aliases_ext>(ext));
 }
 
-environment add_expr_alias(environment const & env, name const & a, name const & e) {
+environment add_expr_alias(environment const & env, name const & a, name const & e, bool overwrite) {
     aliases_ext ext = get_extension(env);
-    ext.add_expr_alias(a, e);
+    ext.add_expr_alias(a, e, overwrite);
     return update(env, ext);
 }
 
-environment add_expr_alias_rec(environment const & env, name const & a, name const & e) {
+environment add_expr_alias_rec(environment const & env, name const & a, name const & e, bool overwrite) {
     aliases_ext ext = get_extension(env);
-    ext.add_expr_alias_rec(a, e);
+    ext.add_expr_alias_rec(a, e, overwrite);
     return update(env, ext);
 }
 
@@ -187,14 +187,14 @@ bool is_exception(name const & n, name const & prefix, unsigned num_exceptions, 
 }
 
 environment add_aliases(environment const & env, name const & prefix, name const & new_prefix,
-                        unsigned num_exceptions, name const * exceptions) {
+                        unsigned num_exceptions, name const * exceptions, bool overwrite) {
     aliases_ext ext = get_extension(env);
     env.for_each_declaration([&](declaration const & d) {
             if (!is_protected(env, d.get_name()) &&
                 is_prefix_of(prefix, d.get_name()) && !is_exception(d.get_name(), prefix, num_exceptions, exceptions)) {
                 name a        = d.get_name().replace_prefix(prefix, new_prefix);
                 if (!a.is_anonymous())
-                    ext.add_expr_alias(a, d.get_name());
+                    ext.add_expr_alias(a, d.get_name(), overwrite);
             }
         });
     env.for_each_universe([&](name const & u) {

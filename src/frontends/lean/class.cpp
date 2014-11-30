@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 #include "library/reducible.h"
 #include "library/num.h"
+#include "library/aliases.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
@@ -180,10 +181,18 @@ list<name> get_class_instances(environment const & env, name const & c) {
     return ptr_to_list(s.m_instances.find(c));
 }
 
+static environment open_priority_namespace(parser & p) {
+    name prio("std", "priority");
+    environment env = using_namespace(p.env(), p.ios(), prio);
+    return overwrite_aliases(env, prio, name());
+}
+
 optional<unsigned> parse_instance_priority(parser & p) {
     if (p.curr_is_token(get_priority_tk())) {
         p.next();
         auto pos = p.pos();
+        environment env = open_priority_namespace(p);
+        parser::local_scope scope(p, env);
         expr val = p.parse_expr();
         val = type_checker(p.env()).whnf(val).first;
         if (optional<mpz> mpz_val = to_num(val)) {

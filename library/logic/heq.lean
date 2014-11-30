@@ -10,6 +10,15 @@ infixl `==`:50 := heq
 namespace heq
   universe variable u
   variables {A B C : Type.{u}} {a a' : A} {b b' : B} {c : C}
+
+  definition to_eq (H : a == a') : a = a' :=
+  have H₁ : ∀ (Ht : A = A), eq.rec_on Ht a = a, from
+    λ Ht, eq.refl (eq.rec_on Ht a),
+  heq.rec_on H H₁ (eq.refl A)
+
+  definition elim {A : Type} {a : A} {P : A → Type} {b : A} (H₁ : a == b) (H₂ : P a) : P b :=
+  eq.rec_on (to_eq H₁) H₂
+
   theorem drec_on {C : Π {B : Type} (b : B), a == b → Type} (H₁ : a == b) (H₂ : C a (refl a)) : C b H₁ :=
   rec (λ H₁ : a == a, show C a H₁, from H₂) H₁ H₁
 
@@ -17,18 +26,13 @@ namespace heq
   rec_on H₁ H₂
 
   theorem symm (H : a == b) : b == a :=
-  subst H (refl a)
+  rec_on H (refl a)
 
   definition type_eq (H : a == b) : A = B :=
   heq.rec_on H (eq.refl A)
 
   theorem from_eq (H : a = a') : a == a' :=
   eq.subst H (refl a)
-
-  definition to_eq (H : a == a') : a = a' :=
-  have H₁ : ∀ (Ht : A = A), eq.rec_on Ht a = a, from
-    λ Ht, eq.refl (eq.rec_on Ht a),
-  heq.rec_on H H₁ (eq.refl A)
 
   theorem trans (H₁ : a == b) (H₂ : b == c) : a == c :=
   subst H₂ H₁

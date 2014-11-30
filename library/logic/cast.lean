@@ -29,9 +29,6 @@ namespace heq
 
   theorem to_cast_eq (H : a == b) : cast (type_eq H) a = b :=
   drec_on H !cast_eq
-
-  theorem elim {D : Type} (H₁ : a == b) (H₂ : ∀ (Hab : A = B), cast Hab a = b → D) : D :=
-  H₂ (type_eq H₁) (to_cast_eq H₁)
 end heq
 
 section

@@ -8,7 +8,8 @@
 import .natural_transformation
 import data.unit data.sigma data.prod data.empty data.bool
 
-open eq eq.ops prod
+open path prod
+
 namespace category
   namespace opposite
   section

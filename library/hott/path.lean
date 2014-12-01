@@ -642,6 +642,36 @@ definition apD02_pp {A} (B : A → Type) (f : Π x:A, B x) {x y : A}
     ⬝ (whiskerR ((transport2_p2p B r1 r2 (f x))⁻¹) (apD f p3)) :=
 rec_on r2 (rec_on r1 (rec_on p1 idp))
 
+section
+variables {A B C D E : Type} {a a' : A} {b b' : B} {c c' : C} {d d' : D}
+
+theorem congr_arg2 (f : A → B → C) (Ha : a ≈ a') (Hb : b ≈ b') : f a b ≈ f a' b' :=
+rec_on Ha (rec_on Hb idp)
+
+theorem congr_arg3 (f : A → B → C → D) (Ha : a ≈ a') (Hb : b ≈ b') (Hc : c ≈ c')
+    : f a b c ≈ f a' b' c' :=
+rec_on Ha (congr_arg2 (f a) Hb Hc)
+
+theorem congr_arg4 (f : A → B → C → D → E) (Ha : a ≈ a') (Hb : b ≈ b') (Hc : c ≈ c') (Hd : d ≈ d')
+    : f a b c d ≈ f a' b' c' d' :=
+rec_on Ha (congr_arg3 (f a) Hb Hc Hd)
+
+end
+
+section
+variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
+          {E : Πa b c, D a b c → Type} {F : Type}
+variables {a a' : A}
+          {b : B a} {b' : B a'}
+          {c : C a b} {c' : C a' b'}
+          {d : D a b c} {d' : D a' b' c'}
+
+theorem dcongr_arg2 (f : Πa, B a → F) (Ha : a ≈ a') (Hb : Ha ▹ b ≈ b')
+    : f a b ≈ f a' b' :=
+rec_on Hb (rec_on Ha idp)
+
+end
+
 /- From the Coq version:
 
 -- ** Tactics, hints, and aliases
@@ -694,4 +724,5 @@ Ltac hott_simpl :=
   autorewrite with paths in * |- * ; auto with path_hints.
 
 -/
+
 end path

@@ -16,6 +16,7 @@ structure is_equiv [class] {A B : Type} (f : A → B) :=
   (sect : (inv ∘ f) ∼ id)
   (adj : Πx, retr (f x) ≈ ap f (sect x))
 
+
 -- A more bundled version of equivalence to calculate with
 structure equiv (A B : Type) :=
   (to_fun : A → B)

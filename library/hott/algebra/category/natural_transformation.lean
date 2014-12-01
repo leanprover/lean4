@@ -3,7 +3,7 @@
 -- Author: Floris van Doorn, Jakob von Raumer
 
 import .functor hott.axioms.funext
-open precategory path functor
+open precategory path functor truncation
 
 inductive natural_transformation {C D : Precategory} (F G : C ⇒ D) : Type :=
 mk : Π (η : Π (a : C), hom (F a) (G a))
@@ -35,20 +35,35 @@ namespace natural_transformation
 
   infixr `∘n`:60 := compose
 
-  definition foo (C : Precategory) (a b : C) (f g : hom a b) (p q : f ≈ g) : p ≈ q :=
+  /-definition foo (C : Precategory) (a b : C) (f g : hom a b) (p q : f ≈ g) : p ≈ q :=
   @truncation.is_hset.elim _ !homH f g p q
+
+  definition nt_is_hset {F G : functor C D} : is_hset (F ⟹ G) := sorry
+
+  definition eta_nat_path {η₁ η₂ : F ⟹ G} (H1 : natural_map η₁ ≈ natural_map η₂)
+      (H2 : (H1 ▹ naturality η₁) ≈ naturality η₂) : η₁ ≈ η₂ :=
+  rec_on η₁ (λ eta1 nat1, rec_on η₂ (λ eta2 nat2, sorry))-/
 
   protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) [fext : funext.{l_1 l_4}] :
       η₃ ∘n (η₂ ∘n η₁) ≈ (η₃ ∘n η₂) ∘n η₁ :=
-  dcongr_arg2 mk (funext.path_forall _ _ (λ x, !assoc)) sorry
+  have prir [visible] : is_hset (Π {a b : C} (f : hom a b), I f ∘ (η₃ ∘n η₂) a ∘ η₁ a ≈ ((η₃ ∘n η₂) b ∘ η₁ b) ∘ F f),
+    from sorry,
+  path.dcongr_arg2 mk
+    (funext.path_forall
+      (λ (x : C), η₃ x ∘ (η₂ x ∘ η₁ x))
+      (λ (x : C), (η₃ x ∘ η₂ x) ∘ η₁ x)
+      (λ x, assoc (η₃ x) (η₂ x) (η₁ x))
+    )
+    sorry --(@is_hset.elim _ _ _ _ _ _)
 
   protected definition id {C D : Precategory} {F : functor C D} : natural_transformation F F :=
   mk (λa, id) (λa b f, !id_right ⬝ (!id_left⁻¹))
   protected definition ID {C D : Precategory} (F : functor C D) : natural_transformation F F := id
 
   protected theorem id_left (η : F ⟹ G) [fext : funext] : natural_transformation.compose id η ≈ η :=
-  rec (λf H, path.dcongr_arg2 mk (funext.path_forall _ _ (λ x, !id_left)) sorry) η
+  rec_on η (λf H, path.dcongr_arg2 mk (funext.path_forall _ _ (λ x, !id_left)) sorry)
 
   protected theorem id_right (η : F ⟹ G) [fext : funext] : natural_transformation.compose η id ≈ η :=
   rec (λf H, path.dcongr_arg2 mk (funext.path_forall _ _ (λ x, !id_right)) sorry) η
+
 end natural_transformation

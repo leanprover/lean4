@@ -1,25 +1,15 @@
 logic
 =====
 
-Logical constructions and axioms. By default, `import logic` does not
-import any additional axioms.
+Additional constructions and axioms. By default, `import logic` does not
+import any axioms.
 
 Logical operations and connectives.
 
-* [prop](prop.lean) : the type Prop
-* [eq](eq.lean) : equality and disequality
-* [connectives](connectives.lean) : propositional connectives
+* [eq](eq.lean) : additional theorems for equality and disequality
 * [cast](cast.lean) : casts and heterogeneous equality
 * [quantifiers](quantifiers.lean) : existential and universal quantifiers
-* [if](if.lean) : if-then-else
 * [identities](identities.lean) : some useful identities
-
-Type classes for general logical manipulations:
-
-* [inhabited](inhabited.lean) : inhabited types
-* [nonempty](nonempty.lean) : nonempty type
-* [decidable](decidable.lean) : decidable types
-* [instances](instances.lean) : type class instances
 
 Constructively, inhabited types have a witness, while nonempty types
 are "proof irrelevant". Classically (assuming the axioms in

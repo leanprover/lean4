@@ -1,3 +1,4 @@
+prelude
 constant N : Type.{1}
 constant f : N → N → N → N
 constant g : N → N → N

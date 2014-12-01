@@ -1,4 +1,4 @@
-import hott.path tools.tactic
+import hott.path
 
 open path tactic
 open path (rec_on)

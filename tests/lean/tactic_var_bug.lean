@@ -1,4 +1,4 @@
-import tools.tactic logic.prop
+--
 
 variable p : Prop
 definition foo (q : Prop) : q → true :=

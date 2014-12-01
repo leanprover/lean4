@@ -1,6 +1,6 @@
 import data.unit
 open unit
-
+namespace play
 constant int : Type.{1}
 constant nat : Type.{1}
 constant izero : int
@@ -13,3 +13,4 @@ definition g [coercion] (a : unit) : nat := nzero
 set_option pp.coercions true
 check isucc star
 check nsucc star
+end play

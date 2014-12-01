@@ -1,4 +1,4 @@
-import data.sigma tools.tactic
+import data.sigma
 
 namespace sigma
   namespace manual

@@ -1,3 +1,4 @@
+prelude
 constant int : Type.{1}
 constant nat : Type.{1}
 namespace int

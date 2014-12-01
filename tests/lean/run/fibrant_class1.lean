@@ -1,5 +1,3 @@
-import general_notation type
-
 inductive fibrant [class] (T : Type) : Type :=
 fibrant_mk : fibrant T
 

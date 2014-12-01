@@ -1,4 +1,4 @@
--- Correct version
+prelude -- Correct version
 check let bool                      := Type.{0},
           and  (p q : bool)         := ∀ c : bool, (p → q → c) → c,
           infixl `∧`:25             := and,

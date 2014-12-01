@@ -1,4 +1,4 @@
-import tools.tactic logic.eq
+prelude import logic.eq
 open tactic
 set_option pp.notation false
 

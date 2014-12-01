@@ -1,3 +1,4 @@
+prelude
 definition Prop : Type.{1} := Type.{0}
 constants a b c : Prop
 axiom Ha : a

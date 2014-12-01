@@ -1,3 +1,4 @@
+prelude
 constant nat : Type.{1}
 constant f : nat → nat
 

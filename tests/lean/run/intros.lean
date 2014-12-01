@@ -1,4 +1,4 @@
-import logic tools.tactic
+import logic
 open tactic
 
 theorem tst1 (a b : Prop) : a → b → b :=

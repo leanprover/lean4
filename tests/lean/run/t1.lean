@@ -1,3 +1,4 @@
+prelude
 definition Prop : Type.{1} := Type.{0}
 print raw ((Prop))
 print raw Prop

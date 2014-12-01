@@ -1,18 +1,18 @@
-import logic
+import logic.eq
 
-inductive sigma {A : Type} (B : A → Type) :=
-mk : Π (a : A), B a → sigma B
+inductive sigma2 {A : Type} (B : A → Type) :=
+mk : Π (a : A), B a → sigma2 B
 
-#projections sigma :: proj1 proj2
+#projections sigma2 :: proj1 proj2
 
-check sigma.proj1
-check sigma.proj2
+check sigma2.proj1
+check sigma2.proj2
 
 variables {A : Type} {B : A → Type}
 variables (a : A) (b : B a)
 
-theorem tst1 : sigma.proj1 (sigma.mk a b) = a :=
+theorem tst1 : sigma2.proj1 (sigma2.mk a b) = a :=
 rfl
 
-theorem tst2 : sigma.proj2 (sigma.mk a b) = b :=
+theorem tst2 : sigma2.proj2 (sigma2.mk a b) = b :=
 rfl

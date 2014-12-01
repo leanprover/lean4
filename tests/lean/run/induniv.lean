@@ -1,3 +1,4 @@
+prelude
 inductive list (A : Type) : Type :=
 nil {} : list A,
 cons   : A → list A → list A

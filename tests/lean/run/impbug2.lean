@@ -1,3 +1,4 @@
+prelude
 -- category
 
 definition Prop := Type.{0}

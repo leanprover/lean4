@@ -1,4 +1,4 @@
-set_option pp.notation false
+prelude set_option pp.notation false
 definition Prop := Type.{0}
 constant eq {A : Type} : A → A → Prop
 infixl `=`:50 := eq

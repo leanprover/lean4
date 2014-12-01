@@ -1,3 +1,4 @@
+prelude
 definition Prop : Type.{1} := Type.{0}
 constant eq : forall {A : Type}, A → A → Prop
 constant N : Type.{1}

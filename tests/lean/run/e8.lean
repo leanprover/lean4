@@ -1,3 +1,4 @@
+prelude
 precedence `+`:65
 
 namespace nat

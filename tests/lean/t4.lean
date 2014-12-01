@@ -1,4 +1,4 @@
-definition Prop : Type.{1} := Type.{0}
+prelude definition Prop : Type.{1} := Type.{0}
 constant N : Type.{1}
 check N
 constant a : N

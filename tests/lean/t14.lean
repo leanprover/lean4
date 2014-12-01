@@ -1,4 +1,4 @@
-namespace foo
+prelude namespace foo
   constant A : Type.{1}
   constant a : A
   constant x : A

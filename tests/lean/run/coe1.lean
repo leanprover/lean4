@@ -1,3 +1,5 @@
+prelude
+
 constant A : Type.{1}
 constant B : Type.{1}
 constant f : A → B

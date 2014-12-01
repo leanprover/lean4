@@ -1,1 +1,1 @@
-prod.{l_1 l_2} : Type.{l_1+1} → Type.{l_2+1} → Type.{max (l_1+1) (l_2+1)}
+prod2.{l_1 l_2} : Type.{l_1+1} → Type.{l_2+1} → Type.{max (l_1+1) (l_2+1)}

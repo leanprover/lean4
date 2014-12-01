@@ -7,7 +7,7 @@
 
 -- Various structures with 1, *, inv, including groups.
 
-import logic.eq logic.connectives
+import logic.eq
 import data.unit data.sigma data.prod
 import algebra.function algebra.binary
 

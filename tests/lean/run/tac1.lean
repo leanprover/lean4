@@ -1,4 +1,4 @@
-import tools.tactic logic
+import logic
 open tactic
 
 definition mytac := apply @and.intro; apply @eq.refl

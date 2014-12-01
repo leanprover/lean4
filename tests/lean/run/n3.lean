@@ -1,3 +1,4 @@
+prelude
 definition Prop : Type.{1} := Type.{0}
 constant N : Type.{1}
 constant and : Prop → Prop → Prop

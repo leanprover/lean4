@@ -1,3 +1,4 @@
+prelude
 precedence `+`  : 65
 precedence `++` : 100
 constant N : Type.{1}

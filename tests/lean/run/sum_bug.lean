@@ -1,9 +1,8 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura, Jeremy Avigad
-import logic.prop logic.inhabited logic.decidable
 open inhabited decidable
-
+namespace play
 -- TODO: take this outside the namespace when the inductive package handles it better
 inductive sum (A B : Type) : Type :=
 inl : A → sum A B,
@@ -59,3 +58,4 @@ rec_on s1
       (take b2, show decidable (inr A b1 = inr A b2), from H2 b1 b2))
 
 end sum
+end play

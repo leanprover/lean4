@@ -1,6 +1,6 @@
 import data.num
 
-
+namespace play
 constants int nat real : Type.{1}
 constant nat_add  : nat → nat → nat
 constant int_add  : int → int → int
@@ -53,3 +53,4 @@ definition id (A : Type) (a : A) := a
 notation A `=` B `:` C := @eq C A B
 check nat_to_int n + nat_to_int m = (n + m) : int
 end foo
+end play

@@ -1,5 +1,4 @@
-import logic.prop
-
+namespace play
 inductive acc {A : Type} (R : A → A → Prop) : A → Prop :=
 intro : ∀x, (∀ y, R y x → acc R y) → acc R x
 
@@ -20,3 +19,4 @@ check F x₁
   (λ (y : A) (a : R y x₁),
      acc.rec (λ (x₂ : A) (ac : ∀ (y : A), R y x₂ → acc R y) (iH : Π (y : A), R y x₂ → C y), F x₂ iH)
        (ac y a))
+end play

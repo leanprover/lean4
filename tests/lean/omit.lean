@@ -1,4 +1,4 @@
-section
+prelude section
   variable A : Type
   variable a : A
   variable c : A

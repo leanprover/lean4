@@ -1,4 +1,4 @@
-constant A    : Type.{1}
+prelude constant A    : Type.{1}
 definition bool : Type.{1} := Type.{0}
 constant Exists (P : A → bool) : bool
 notation `exists` binders `,` b:(scoped b, Exists b) := b

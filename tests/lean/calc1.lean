@@ -1,4 +1,4 @@
-constant A : Type.{1}
+prelude constant A : Type.{1}
 definition bool : Type.{1} := Type.{0}
 constant eq : A → A → bool
 infixl `=`:50 := eq

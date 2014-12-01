@@ -1,4 +1,4 @@
-import tools.tactic logic.eq
+import logic.eq
 variable {a : Type}
 
 definition foo {A : Type} : A → A :=

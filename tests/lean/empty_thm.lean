@@ -1,4 +1,4 @@
-import logic tools.tactic
+import logic
 open tactic
 
 definition simple := apply trivial

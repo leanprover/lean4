@@ -1,4 +1,4 @@
-import tools.tactic logic.eq
+import logic.eq
 open tactic
 
 theorem foo (A : Type) (a b c : A) (Hab : a = b) (Hbc : b = c) : a = c :=

@@ -1,4 +1,4 @@
-import hott.path tools.tactic
+import hott.path
 open path
 
 definition concat_pV_p {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) : (p ⬝ q⁻¹) ⬝ q ≈ p :=

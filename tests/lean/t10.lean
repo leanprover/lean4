@@ -1,4 +1,4 @@
-constant N : Type.{1}
+prelude constant N : Type.{1}
 definition B : Type.{1} := Type.{0}
 constant ite : B → N → N → N
 constant and : B → B → B

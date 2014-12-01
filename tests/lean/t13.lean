@@ -1,4 +1,4 @@
-constant A : Type.{1}
+prelude constant A : Type.{1}
 constant f : A → A → A
 constant g : A → A → A
 precedence `+` : 65

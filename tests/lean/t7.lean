@@ -1,4 +1,4 @@
-definition Prop : Type.{1} := Type.{0}
+prelude definition Prop : Type.{1} := Type.{0}
 constant and : Prop → Prop → Prop
 context
   parameter {A : Type}  -- Mark A as implicit parameter

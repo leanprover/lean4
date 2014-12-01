@@ -1,3 +1,4 @@
+prelude
 import logic
 namespace experiment
 inductive nat : Type :=
@@ -22,10 +23,10 @@ definition is_zero (x : nat)
 := nat.rec true (λ n r, false) x
 
 theorem is_zero_zero : is_zero zero
-:= eq_true_elim (refl _)
+:= eq.true_elim (refl _)
 
 theorem not_is_zero_succ (x : nat) : ¬ is_zero (succ x)
-:= eq_false_elim (refl _)
+:= eq.false_elim (refl _)
 
 theorem dichotomy (m : nat) : m = zero ∨ (∃ n, m = succ n)
 := nat.rec

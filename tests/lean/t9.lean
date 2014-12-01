@@ -1,4 +1,4 @@
-precedence `+` : 65
+prelude precedence `+` : 65
 precedence `*` : 75
 precedence `=` : 50
 precedence `≃` : 50

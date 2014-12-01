@@ -1,4 +1,4 @@
-import data.nat.basic data.sum data.sigma logic.wf data.bool
+import data.nat.basic data.sum data.sigma data.bool
 open nat sigma
 
 inductive tree (A : Type) : Type :=

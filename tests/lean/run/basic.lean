@@ -1,3 +1,4 @@
+prelude
 constant A.{l1 l2} : Type.{l1} → Type.{l2}
 check A
 definition tst.{l} (A : Type) (B : Type) (C : Type.{l}) : Type := A → B → C

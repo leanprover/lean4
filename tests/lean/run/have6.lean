@@ -1,3 +1,4 @@
+prelude
 definition Prop : Type.{1} := Type.{0}
 constant and : Prop → Prop → Prop
 infixl `∧`:25 := and

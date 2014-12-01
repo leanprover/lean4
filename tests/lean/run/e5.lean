@@ -1,3 +1,4 @@
+prelude
 definition Prop := Type.{0}
 
 definition false : Prop := ∀x : Prop, x

@@ -1,3 +1,4 @@
+prelude
 -- Porting Vladimir's file to Lean
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r

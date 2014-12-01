@@ -1,4 +1,4 @@
-import data.nat data.prod logic.wf_k
+import data.nat data.prod
 open nat well_founded decidable prod eq.ops
 
 namespace playground

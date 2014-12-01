@@ -8,7 +8,7 @@
 -- Useful logical identities. In the absence of propositional extensionality, some of the
 -- calculations use the type class support provided by logic.instances
 
-import logic.instances logic.decidable logic.quantifiers logic.cast
+import logic.instances logic.quantifiers logic.cast
 
 open relation decidable relation.iff_ops
 
@@ -46,10 +46,10 @@ iff.intro
 theorem not_not_elim {a : Prop} [D : decidable a] (H : ¬¬a) : a :=
 iff.mp not_not_iff H
 
-theorem not_true : (¬true) ↔ false :=
+theorem not_true_iff_false : (¬true) ↔ false :=
 iff.intro (assume H, H trivial) false_elim
 
-theorem not_false : (¬false) ↔ true :=
+theorem not_false_iff_true : (¬false) ↔ true :=
 iff.intro (assume H, trivial) (assume H H', H')
 
 theorem not_or {a b : Prop} [Da : decidable a] [Db : decidable b] : (¬(a ∨ b)) ↔ (¬a ∧ ¬b) :=
@@ -104,7 +104,7 @@ theorem not_forall_exists {A : Type} {P : A → Prop} [D : ∀x, decidable (P x)
     [D' : decidable (∃x, ¬P x)] (H : ¬∀x, P x) :
   ∃x, ¬P x :=
 @by_contradiction _ D' (assume H1 : ¬∃x, ¬P x,
-  have H2 : ∀x, ¬¬P x, from @not_exists_forall _ _ (take x, not_decidable (D x)) H1,
+  have H2 : ∀x, ¬¬P x, from @not_exists_forall _ _ (take x, not.decidable (D x)) H1,
   have H3 : ∀x, P x, from take x, @not_not_elim _ (D x) (H2 x),
   absurd H3 H)
 
@@ -120,7 +120,7 @@ iff.intro
 
 theorem a_neq_a {A : Type} (a : A) : (a ≠ a) ↔ false :=
 iff.intro
-  (assume H, a_neq_a_elim H)
+  (assume H, false.of_ne H)
   (assume H, false_elim H)
 
 theorem eq_id {A : Type} (a : A) : (a = a) ↔ true :=
@@ -137,10 +137,10 @@ iff.intro
   (assume H, false_elim H)
 
 theorem true_eq_false : (true ↔ false) ↔ false :=
-not_true ▸ (a_iff_not_a true)
+not_true_iff_false ▸ (a_iff_not_a true)
 
 theorem false_eq_true : (false ↔ true) ↔ false :=
-not_false ▸ (a_iff_not_a false)
+not_false_iff_true ▸ (a_iff_not_a false)
 
 theorem a_eq_true (a : Prop) : (a ↔ true) ↔ a :=
 iff.intro (assume H, iff.true_elim H) (assume H, iff_true_intro H)

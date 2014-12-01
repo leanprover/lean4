@@ -7,13 +7,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 
 The sum type, aka disjoint union.
 -/
-
-import logic.prop logic.inhabited logic.decidable
 open inhabited decidable eq.ops
-
-inductive sum (A B : Type) : Type :=
-  inl : A → sum A B,
-  inr : B → sum A B
 
 namespace sum
   notation A ⊎ B := sum A B

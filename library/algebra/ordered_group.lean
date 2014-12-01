@@ -9,8 +9,7 @@ Partially ordered additive groups. Modeled on Isabelle's library. The comments b
 we could refine the structures, though we would have to declare more inheritance paths.
 -/
 
-import logic.eq logic.connectives
-import data.unit data.sigma data.prod
+import logic.eq data.unit data.sigma data.prod
 import algebra.function algebra.binary
 import algebra.group algebra.order
 

@@ -8,8 +8,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 Various multiplicative and additive structures. Partially modeled on Isabelle's library.
 -/
 
-import logic.eq logic.connectives
-import data.unit data.sigma data.prod
+import logic.eq data.unit data.sigma data.prod
 import algebra.function algebra.binary
 
 open eq eq.ops   -- note: ⁻¹ will be overloaded

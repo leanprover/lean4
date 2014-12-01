@@ -1,7 +1,7 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-import logic.eq logic.inhabited logic.decidable
+import logic.eq
 open eq.ops decidable
 
 inductive option (A : Type) : Type :=
@@ -16,7 +16,7 @@ namespace option
   trivial
 
   theorem not_is_none_some {A : Type} (a : A) : ¬ is_none (some a) :=
-  not_false_trivial
+  not_false
 
   theorem none_ne_some {A : Type} (a : A) : none ≠ some a :=
   assume H, no_confusion H

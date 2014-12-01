@@ -1,7 +1,7 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-import logic.eq logic.heq logic.quantifiers
+import logic.eq logic.quantifiers
 open eq.ops
 
 -- cast.lean
@@ -35,9 +35,6 @@ section
   universe variables u v
   variables {A A' B C : Type.{u}} {P P' : A → Type.{v}} {a a' : A} {b : B}
 
-  theorem eq_rec_heq (H : a = a') (p : P a) : eq.rec_on H p == p :=
-  eq.drec_on H !heq.refl
-
   -- should H₁ be explicit (useful in e.g. hproof_irrel)
   theorem eq_rec_to_heq {H₁ : a = a'} {p : P a} {p' : P a'} (H₂ : eq.rec_on H₁ p = p') : p == p' :=
   calc
@@ -61,18 +58,10 @@ section
   theorem pi_eq (H : P = P') : (Π x, P x) = (Π x, P' x) :=
   H ▸ (eq.refl (Π x, P x))
 
-  theorem hcongr_arg (f : Πx, P x) {a b : A} (H : a = b) : f a == f b :=
-  H ▸ (heq.refl (f a))
-
   theorem rec_on_app (H : P = P') (f : Π x, P x) (a : A) : eq.rec_on H f a == f a :=
   have aux : ∀ H : P = P, eq.rec_on H f a == f a, from
     take H : P = P, heq.refl (eq.rec_on H f a),
   (H ▸ aux) H
-
-  theorem hcongr_fun {f : Π x, P x} {f' : Π x, P' x} (a : A) (H₁ : f == f') (H₂ : P = P') : f a == f' a :=
-  have aux : ∀ (f : Π x, P x) (f' : Π x, P x), f == f' → f a == f' a, from
-    take f f' H, heq.to_eq H ▸ heq.refl (f a),
-  (H₂ ▸ aux) f f' H₁
 
   theorem rec_on_pull (H : P = P') (f : Π x, P x) (a : A) : eq.rec_on H f a = eq.rec_on (congr_fun H a) (f a) :=
   heq.to_eq (calc
@@ -86,14 +75,6 @@ section
     H ▸ H₁,
   H₂ (pi_eq H)
 
-  theorem hcongr {P' : A' → Type} {f : Π a, P a} {f' : Π a', P' a'} {a : A} {a' : A'}
-      (Hf : f == f') (HP : P == P') (Ha : a == a') : f a == f' a' :=
-  have H1 : ∀ (B P' : A → Type) (f : Π x, P x) (f' : Π x, P' x), f == f' → (λx, P x) == (λx, P' x)
-              → f a == f' a, from
-    take P P' f f' Hf HB, hcongr_fun a Hf (heq.to_eq HB),
-  have H2 : ∀ (B : A → Type) (P' : A' → Type) (f : Π x, P x) (f' : Π x, P' x),
-      f == f' → (λx, P x) == (λx, P' x) → f a == f' a', from heq.subst Ha H1,
-  H2 P P' f f' Hf HP
 end
 
 section
@@ -103,13 +84,6 @@ section
             {b : B a} {b' : B a'}
             {c : C a b} {c' : C a' b'}
             {d : D a b c} {d' : D a' b' c'}
-
-  theorem hcongr_arg2 (f : Πa b, C a b) (Ha : a = a') (Hb : b == b') : f a b == f a' b' :=
-  hcongr (hcongr_arg f Ha) (hcongr_arg C Ha) Hb
-
-  theorem hcongr_arg3 (f : Πa b c, D a b c) (Ha : a = a') (Hb : b == b') (Hc : c == c')
-      : f a b c == f a' b' c' :=
-  hcongr (hcongr_arg2 f Ha Hb) (hcongr_arg2 D Ha Hb) Hc
 
   theorem hcongr_arg4 (f : Πa b c d, E a b c d)
     (Ha : a = a') (Hb : b == b') (Hc : c == c') (Hd : d == d') : f a b c d == f a' b' c' d' :=

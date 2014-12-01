@@ -1,7 +1,8 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-import general_notation data.bool.decl
+prelude
+import init.datatypes init.reserved_notation
 
 namespace bool
   definition cond {A : Type} (b : bool) (t e : A) :=

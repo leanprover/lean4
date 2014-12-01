@@ -1,10 +1,31 @@
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura
-import data.prod.decl logic.wf
-open well_founded
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: data.prod.decl
+Author: Leonardo de Moura, Jeremy Avigad
+-/
+prelude
+import init.wf
+
+definition pair := @prod.mk
 
 namespace prod
+  notation A * B := prod A B
+  notation A × B := prod A B
+  namespace low_precedence_times
+    reserve infixr `*`:30  -- conflicts with notation for multiplication
+    infixr `*` := prod
+  end low_precedence_times
+
+  notation `pr₁` := pr1
+  notation `pr₂` := pr2
+
+  -- notation for n-ary tuples
+  notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
+
+  open well_founded
+
   section
   variables {A B : Type}
   variable  (Ra  : A → A → Prop)

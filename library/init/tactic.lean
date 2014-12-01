@@ -1,16 +1,19 @@
-----------------------------------------------------------------------------------------------------
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura
-----------------------------------------------------------------------------------------------------
-import data.string.decl data.num.decl general_notation
--- This is just a trick to embed the 'tactic language' as a
--- Lean expression. We should view 'tactic' as automation
--- that when execute produces a term.
--- tactic.builtin is just a "dummy" for creating the
--- definitions that are actually implemented in C++
-inductive tactic : Type :=
-builtin : tactic
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+
+This is just a trick to embed the 'tactic language' as a Lean
+expression. We should view 'tactic' as automation that when execute
+produces a term.  tactic.builtin is just a "dummy" for creating the
+definitions that are actually implemented in C++
+-/
+prelude
+import init.datatypes init.reserved_notation
+
+inductive tactic :
+Type := builtin : tactic
 
 namespace tactic
 -- Remark the following names are not arbitrary, the tactic module

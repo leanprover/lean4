@@ -7,9 +7,6 @@ Author: Leonardo de Moura
 
 General operations on functions.
 -/
-
-import general_notation
-
 namespace function
 
 variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}

@@ -3,7 +3,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
-import data.num.ops logic.eq
+import logic.eq
 open bool
 
 namespace pos_num

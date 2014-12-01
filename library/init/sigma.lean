@@ -1,10 +1,27 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura
-import data.sigma.decl logic.wf logic.cast
-open well_founded
+-- Author: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
+prelude
+import init.num init.wf init.logic init.tactic
+
+structure sigma {A : Type} (B : A → Type) :=
+dpair :: (dpr1 : A) (dpr2 : B dpr1)
+
+notation `Σ` binders `,` r:(scoped P, sigma P) := r
 
 namespace sigma
+
+  notation `dpr₁` := dpr1
+  notation `dpr₂` := dpr2
+
+  namespace ops
+  postfix `.1`:(max+1) := dpr1
+  postfix `.2`:(max+1) := dpr2
+  notation `⟨` t:(foldr `,` (e r, sigma.dpair e r)) `⟩`:0 := t --input ⟨ ⟩ as \< \>
+  end ops
+
+  open well_founded
+
   section
   variables {A : Type} {B : A → Type}
   variable  (Ra  : A → A → Prop)
@@ -22,6 +39,19 @@ namespace sigma
   infix `≺`:50 := lex Ra Rb
 
   set_option pp.beta true
+
+  variables {C : Πa, B a → Type} {D : Πa b, C a b → Type}
+  variables {a a' : A}
+            {b : B a} {b' : B a'}
+            {c : C a b} {c' : C a' b'}
+            {d : D a b c} {d' : D a' b' c'}
+
+  private theorem hcongr_arg2 (f : Πa b, C a b) (Ha : a = a') (Hb : b == b') : f a b == f a' b' :=
+  hcongr (hcongr_arg f Ha) (hcongr_arg C Ha) Hb
+
+  private theorem hcongr_arg3 (f : Πa b c, D a b c) (Ha : a = a') (Hb : b == b') (Hc : c == c')
+      : f a b c == f a' b' c' :=
+  hcongr (hcongr_arg2 f Ha Hb) (hcongr_arg2 D Ha Hb) Hc
 
   definition lex.accessible {a} (aca : acc Ra a) (acb : ∀a, well_founded (Rb a)) : ∀ (b : B a), acc (lex Ra Rb) (dpair a b) :=
   acc.rec_on aca
@@ -61,5 +91,4 @@ namespace sigma
   well_founded.intro (λp, destruct p (λa b, lex.accessible (Ha a) Hb b))
 
   end
-
 end sigma

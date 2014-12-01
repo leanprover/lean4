@@ -7,7 +7,7 @@
 
 -- Useful tactics.
 
-import tools.tactic logic.eq
+import logic.eq
 
 open tactic
 

@@ -5,3 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import init.datatypes init.reserved_notation init.tactic init.logic
+import init.relation init.wf init.nat init.wf_k init.prod init.priority
+import init.bool init.num init.sigma

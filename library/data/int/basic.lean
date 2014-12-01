@@ -7,7 +7,7 @@
 
 -- The integers, with addition, multiplication, and subtraction.
 
-import data.nat.basic data.nat.order data.nat.sub data.prod data.quotient tools.tactic algebra.relation
+import data.nat.basic data.nat.order data.nat.sub data.prod data.quotient algebra.relation
 import algebra.binary
 import tools.fake_simplifier
 

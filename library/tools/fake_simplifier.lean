@@ -1,4 +1,3 @@
-import .tactic
 open tactic
 
 namespace fake_simplifier

@@ -5,9 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: general_notation
 Authors: Leonardo de Moura, Jeremy Avigad
 -/
-import data.num.decl
-
-/- General operations -/
+prelude
+import init.datatypes
 
 notation `assume` binders `,` r:(scoped f, f) := r
 notation `take`   binders `,` r:(scoped f, f) := r

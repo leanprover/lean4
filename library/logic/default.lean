@@ -2,11 +2,5 @@
 --- Released under Apache 2.0 license as described in the file LICENSE.
 --- Author: Jeremy Avigad
 
-import logic.connectives logic.eq logic.heq
-import logic.cast logic.wf logic.wf_k
--- We need unit and prod available for generating constructions used by definitional package
-import data.unit.decl data.prod.decl
-import logic.quantifiers logic.if
-import logic.decidable logic.inhabited logic.nonempty
-import logic.instances
-import logic.identities
+import logic.eq logic.cast logic.subsingleton
+import logic.quantifiers logic.instances logic.identities

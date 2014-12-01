@@ -3,7 +3,7 @@
 --- Released under Apache 2.0 license as described in the file LICENSE.
 --- Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura
 ----------------------------------------------------------------------------------------------------
-import logic tools.helper_tactics tools.tactic data.nat.basic
+import logic tools.helper_tactics data.nat.basic
 
 -- Theory list
 -- ===========

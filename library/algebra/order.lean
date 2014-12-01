@@ -15,7 +15,7 @@ These might not hold constructively in some applications, but we can define addi
 with both < and ≤ as needed.
 -/
 
-import logic.eq logic.connectives
+import logic.eq
 import data.unit data.sigma data.prod
 import algebra.function algebra.binary
 

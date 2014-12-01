@@ -1,7 +1,10 @@
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Authors: Leonardo de Moura
-import logic.eq
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Leonardo de Moura
+-/
+prelude
+import init.logic
 
 -- TODO(Leo): remove duplication between this file and algebra/relation.lean
 -- We need some of the following definitions asap when "initializing" Lean.

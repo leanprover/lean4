@@ -2,8 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn
 
-import algebra.relation logic.nonempty data.subtype
-import logic.axioms.classical logic.axioms.hilbert logic.axioms.funext
+import algebra.relation data.subtype logic.axioms.classical logic.axioms.hilbert logic.axioms.funext
 import .basic
 
 namespace quotient

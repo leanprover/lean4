@@ -4,10 +4,7 @@
 
 -- Empty type
 -- ----------
-
-import logic.cast
-
-inductive empty : Type
+import logic.cast logic.subsingleton
 
 namespace empty
   protected theorem elim (A : Type) (H : empty) : A :=
@@ -16,6 +13,9 @@ namespace empty
   protected theorem subsingleton [instance] : subsingleton empty :=
   subsingleton.intro (λ a b, !elim a)
 end empty
+
+protected definition empty.has_decidable_eq [instance] : decidable_eq empty :=
+take (a b : empty), decidable.inl (!empty.elim a)
 
 definition tneg.tneg (A : Type) := A → empty
 prefix `~` := tneg.tneg

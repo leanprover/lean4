@@ -1,10 +1,10 @@
 -- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
-import logic.wf data.nat.basic
+prelude
+import init.nat
 
 namespace well_founded
-
   -- This is an auxiliary definition that useful for generating a new "proof" for (well_founded R)
   -- that allows us to use well_founded.fix and execute the definitions up to k nested recursive
   -- calls without "computing" with the proofs in Hwf.

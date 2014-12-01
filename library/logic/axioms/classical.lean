@@ -23,8 +23,8 @@ cases P H1 H2 a
 -- this supercedes the em in decidable
 theorem em (a : Prop) : a ∨ ¬a :=
 or.elim (prop_complete a)
-  (assume Ht : a = true,  or.inl (eq_true_elim Ht))
-  (assume Hf : a = false, or.inr (eq_false_elim Hf))
+  (assume Ht : a = true,  or.inl (eq.true_elim Ht))
+  (assume Hf : a = false, or.inr (eq.false_elim Hf))
 
 theorem prop_complete_swapped (a : Prop) : a = false ∨ a = true :=
 cases (λ x, x = false ∨ x = true)
@@ -36,9 +36,9 @@ theorem propext {a b : Prop} (Hab : a → b) (Hba : b → a) : a = b :=
 or.elim (prop_complete a)
   (assume Hat,  or.elim (prop_complete b)
     (assume Hbt,  Hat ⬝ Hbt⁻¹)
-    (assume Hbf, false_elim (Hbf ▸ (Hab (eq_true_elim Hat)))))
+    (assume Hbf, false_elim (Hbf ▸ (Hab (eq.true_elim Hat)))))
   (assume Haf, or.elim (prop_complete b)
-    (assume Hbt,  false_elim (Haf ▸ (Hba (eq_true_elim Hbt))))
+    (assume Hbt,  false_elim (Haf ▸ (Hba (eq.true_elim Hbt))))
     (assume Hbf, Haf ⬝ Hbf⁻¹))
 
 theorem eq.of_iff {a b : Prop} (H : a ↔ b) : a = b :=

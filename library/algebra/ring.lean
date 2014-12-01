@@ -9,8 +9,7 @@ Structures with multiplicative and additive components, including semirings, rin
 The development is modeled after Isabelle's library.
 -/
 
-import logic.eq logic.connectives
-import data.unit data.sigma data.prod
+import logic.eq data.unit data.sigma data.prod
 import algebra.function algebra.binary algebra.group
 
 open eq eq.ops

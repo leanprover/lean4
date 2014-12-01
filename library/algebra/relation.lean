@@ -8,8 +8,6 @@ Author: Jeremy Avigad
 General properties of relations, and classes for equivalence relations and congruences.
 -/
 
-import logic.prop
-
 namespace relation
 
 /- properties of binary relations -/

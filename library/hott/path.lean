@@ -8,7 +8,7 @@
 -- o Try doing these proofs with tactics.
 -- o Try using the simplifier on some of these proofs.
 
-import general_notation type algebra.function tools.tactic
+import algebra.function
 
 open function
 

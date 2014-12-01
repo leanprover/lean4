@@ -69,6 +69,10 @@ class inversion_tac {
         }
     }
 
+    void assign(name const & n, expr const & val) {
+        m_subst.assign(n, val);
+    }
+
     goal generalize_indices(goal const & g, expr const & h, expr const & h_type) {
         buffer<expr> hyps;
         g.get_hyps(hyps);
@@ -112,7 +116,7 @@ class inversion_tac {
         goal new_g(new_meta, new_type);
         expr val      = g.abstract(mk_app(mk_app(mk_app(Fun(ts, Fun(h_new, new_meta)), m_nindices, I_args.end() - m_nindices), h),
                                           refls));
-        m_subst.assign(g.get_name(), val);
+        assign(g.get_name(), val);
         return new_g;
     }
 
@@ -157,7 +161,7 @@ class inversion_tac {
             cases_on_type = m_tc->whnf(binding_body(cases_on_type)).first; // the minor premises do not depend on each other
         }
         expr val        = g.abstract(cases_on);
-        m_subst.assign(g.get_name(), val);
+        assign(g.get_name(), val);
         return to_list(new_goals.begin(), new_goals.end());
     }
 
@@ -209,7 +213,7 @@ class inversion_tac {
             goal new_g(new_meta, g_type);
             new_gs.push_back(new_g);
             expr val      = g.abstract(Fun(nargs, new_hyps.end() - nargs, new_meta));
-            m_subst.assign(g.get_name(), val);
+            assign(g.get_name(), val);
             gs = tail(gs);
         }
         return to_list(new_gs.begin(), new_gs.end());
@@ -245,7 +249,7 @@ class inversion_tac {
             expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
             goal new_g(new_meta, new_type);
             expr val      = g.abstract(Fun(new_hyp, new_meta));
-            m_subst.assign(g.get_name(), val);
+            assign(g.get_name(), val);
             return new_g;
         } else if (const_name(eq_fn) == "heq") {
             buffer<expr> args;
@@ -263,7 +267,7 @@ class inversion_tac {
                 expr H        = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
                 expr to_eq    = mk_app(mk_constant({"heq", "to_eq"}, const_levels(heq_fn)), args[0], args[1], args[3], H);
                 expr val      = g.abstract(Fun(H, mk_app(mk_app(new_mvar, hyps), to_eq)));
-                m_subst.assign(g.get_name(), val);
+                assign(g.get_name(), val);
                 return new_g;
             } else {
                 throw inversion_exception("unification failed to reduce heterogeneous equality into homogeneous one");
@@ -308,7 +312,7 @@ class inversion_tac {
             expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
             goal new_g(new_meta, new_type);
             expr val      = g.abstract(new_meta);
-            m_subst.assign(g.get_name(), val);
+            assign(g.get_name(), val);
             return unify_eqs(new_g, neqs-1);
         }
         buffer<expr> lhs_args, rhs_args;
@@ -336,14 +340,14 @@ class inversion_tac {
                 expr new_meta = mk_app(new_mvar, hyps);
                 goal new_g(new_meta, new_type);
                 expr val      = g.abstract(mk_app(no_confusion, new_meta));
-                m_subst.assign(g.get_name(), val);
+                assign(g.get_name(), val);
                 unsigned A_nparams = *inductive::get_num_params(m_env, const_name(A_fn));
                 lean_assert(lhs_args.size() >= A_nparams);
                 return unify_eqs(new_g, neqs - 1 + lhs_args.size() - A_nparams);
             } else {
                 // conflict transition, eq is of the form c_1 ... = c_2 ..., where c_1 and c_2 are different constructors/intro rules.
                 expr val      = g.abstract(no_confusion);
-                m_subst.assign(g.get_name(), val);
+                assign(g.get_name(), val);
                 return optional<goal>(); // goal has been solved
             }
         }
@@ -391,7 +395,7 @@ class inversion_tac {
             expr eq_rec_minor   = mk_app(new_mvar, non_deps);
             eq_rec              = mk_app(eq_rec, eq_rec_minor, rhs, eq);
             expr val            = g.abstract(mk_app(eq_rec, deps));
-            m_subst.assign(g.get_name(), val);
+            assign(g.get_name(), val);
             return unify_eqs(new_g, neqs-1);
         }
         // unification failed
@@ -411,7 +415,7 @@ class inversion_tac {
 public:
     inversion_tac(environment const & env, io_state const & ios, proof_state const & ps, list<name> const & ids):
         m_env(env), m_ios(ios), m_ps(ps), m_ids(ids),
-        m_ngen(m_ps.get_ngen()),
+        m_ngen(m_ps.get_ngen()), m_subst(m_ps.get_subst()),
         m_tc(mk_type_checker(m_env, m_ngen.mk_child(), m_ps.relax_main_opaque())) {
     }
 

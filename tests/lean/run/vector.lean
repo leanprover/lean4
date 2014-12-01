@@ -94,7 +94,7 @@ namespace vector
   example : add (1 :: 2 :: vnil) (3 :: 5 :: vnil) = 4 :: 7 :: vnil :=
   rfl
 
-  definition map {A B C : Type} {n : nat} (f : A → B → C) (w : vector A n) (v : vector B n) : vector C n :=
+  definition map {A B C : Type'} {n : nat} (f : A → B → C) (w : vector A n) (v : vector B n) : vector C n :=
   let P := λ (n : nat) (v : vector A n), vector B n → vector C n in
   @brec_on A P n w
   (λ (n : nat) (w : vector A n),

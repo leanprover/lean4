@@ -56,6 +56,7 @@ private:
     bool                m_implict;          //!< if true show implicit arguments
     bool                m_unicode;          //!< if true use unicode chars
     bool                m_coercion;         //!< if true show coercions
+    bool                m_num_nat_coe;      //!< truen when !m_coercion && env has coercion from num -> nat
     bool                m_notation;
     bool                m_universes;
     bool                m_full_names;

@@ -50,6 +50,58 @@ static format * g_show_fmt        = nullptr;
 static format * g_explicit_fmt    = nullptr;
 static name   * g_tmp_prefix      = nullptr;
 
+class nat_numeral_pp {
+    expr m_num_type;
+    name m_nat;
+    expr m_nat_of_num;
+    expr m_zero;
+    expr m_succ;
+public:
+    nat_numeral_pp():
+        m_num_type(mk_constant("num")), m_nat("nat"),
+        m_nat_of_num(mk_constant(name{"nat", "of_num"})),
+        m_zero(mk_constant(name{"nat", "zero"})),
+        m_succ(mk_constant(name{"nat", "succ"})) {
+    }
+
+    // Return ture if the environment has a coercion from num->nat
+    bool has_coercion_num_nat(environment const & env) const {
+        list<expr> coes = get_coercions(env, m_num_type, m_nat);
+        if (length(coes) != 1)
+            return false;
+        return head(coes) == m_nat_of_num;
+    }
+
+    // Return an unsigned if \c e if of the form (succ^k zero), and k
+    // fits in a machine unsigned integer.
+    optional<unsigned> to_unsigned(expr const & e) const {
+        unsigned r = 0;
+        expr const * it = &e;
+        while (true) {
+            if (*it == m_zero) {
+                return optional<unsigned>(r);
+            } else if (is_app(*it) && app_fn(*it) == m_succ) {
+                if (r == std::numeric_limits<unsigned>::max())
+                    return optional<unsigned>(); // just in case, it does not really happen in practice
+                r++;
+                it = &app_arg(*it);
+            } else {
+                return optional<unsigned>();
+            }
+        }
+    }
+};
+
+static nat_numeral_pp * g_nat_numeral_pp = nullptr;
+
+static bool has_coercion_num_nat(environment const & env) {
+    return g_nat_numeral_pp->has_coercion_num_nat(env);
+}
+
+static optional<unsigned> to_unsigned(expr const & e) {
+    return g_nat_numeral_pp->to_unsigned(e);
+}
+
 void initialize_pp() {
     g_ellipsis_n_fmt  = new format(highlight(format("\u2026")));
     g_ellipsis_fmt    = new format(highlight(format("...")));
@@ -71,9 +123,11 @@ void initialize_pp() {
     g_show_fmt        = new format(highlight_keyword(format("show")));
     g_explicit_fmt    = new format(highlight_keyword(format("@")));
     g_tmp_prefix      = new name(name::mk_internal_unique_name());
+    g_nat_numeral_pp  = new nat_numeral_pp();
 }
 
 void finalize_pp() {
+    delete g_nat_numeral_pp;
     delete g_ellipsis_n_fmt;
     delete g_ellipsis_fmt;
     delete g_placeholder_fmt;
@@ -216,6 +270,7 @@ void pretty_fn::set_options_core(options const & o) {
     m_purify_metavars = get_pp_purify_metavars(o);
     m_purify_locals   = get_pp_purify_locals(o);
     m_beta            = get_pp_beta(o);
+    m_num_nat_coe     = !m_coercion && has_coercion_num_nat(m_env);
 }
 
 void pretty_fn::set_options(options const & o) {
@@ -986,6 +1041,9 @@ auto pretty_fn::pp(expr const & e) -> result {
     if (is_typed_expr(e))   return pp(get_typed_expr_expr(e));
     if (is_let_value(e))    return pp(get_let_value_expr(e));
     if (auto n = to_num(e)) return pp_num(*n);
+    if (m_num_nat_coe)
+        if (auto k = to_unsigned(e))
+            return format(*k);
     if (!m_metavar_args && is_meta(e))
         return pp_meta(get_app_fn(e));
 

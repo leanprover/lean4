@@ -29,6 +29,7 @@ name const & get_max_tk();
 name const & get_imax_tk();
 name const & get_cup_tk();
 name const & get_import_tk();
+name const & get_prelude_tk();
 name const & get_show_tk();
 name const & get_have_tk();
 name const & get_assume_tk();

@@ -27,6 +27,7 @@ static name * g_max          = nullptr;
 static name * g_imax         = nullptr;
 static name * g_cup          = nullptr;
 static name * g_import       = nullptr;
+static name * g_prelude      = nullptr;
 static name * g_show         = nullptr;
 static name * g_have         = nullptr;
 static name * g_assume       = nullptr;
@@ -118,6 +119,7 @@ void initialize_tokens() {
     g_imax         = new name("imax");
     g_cup          = new name("\u2294");
     g_import       = new name("import");
+    g_prelude      = new name("prelude");
     g_show         = new name("show");
     g_have         = new name("have");
     g_assume       = new name("assume");
@@ -260,6 +262,7 @@ void finalize_tokens() {
     delete g_have;
     delete g_show;
     delete g_import;
+    delete g_prelude;
     delete g_cup;
     delete g_imax;
     delete g_max;
@@ -301,6 +304,7 @@ name const & get_max_tk() { return *g_max; }
 name const & get_imax_tk() { return *g_imax; }
 name const & get_cup_tk() { return *g_cup; }
 name const & get_import_tk() { return *g_import; }
+name const & get_prelude_tk() { return *g_prelude; }
 name const & get_show_tk() { return *g_show; }
 name const & get_have_tk() { return *g_have; }
 name const & get_assume_tk() { return *g_assume; }

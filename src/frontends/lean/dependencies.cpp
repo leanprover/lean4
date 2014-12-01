@@ -12,8 +12,11 @@ Author: Leonardo de Moura
 #include "frontends/lean/scanner.h"
 
 namespace lean {
+
+
 bool display_deps(environment const & env, std::ostream & out, std::ostream & err, char const * fname) {
     name import("import");
+    name prelude("prelude");
     name period(".");
     std::ifstream in(fname);
     if (in.bad() || in.fail()) {
@@ -26,6 +29,25 @@ bool display_deps(environment const & env, std::ostream & out, std::ostream & er
     bool import_prefix = false;
     bool import_args   = false;
     bool ok            = true;
+    bool is_prelude    = false;
+    auto display_dep = [&](optional<unsigned> const & k, name const & f) {
+        import_args = true;
+        try {
+            std::string m_name = find_file(base, k, name_to_file(f), {".lean", ".olean", ".lua"});
+            int last_idx = m_name.find_last_of(".");
+            std::string rawname = m_name.substr(0, last_idx);
+            std::string ext = m_name.substr(last_idx);
+            if (ext == ".lean")
+                m_name = rawname + ".olean";
+            display_path(out, m_name);
+            import_prefix = true;
+            out << "\n";
+        } catch (exception & new_ex) {
+            err << "error: file '" << name_to_file(s.get_name_val()) << "' not found in the LEAN_PATH" << std::endl;
+            ok  = false;
+        }
+    };
+
     while (true) {
         scanner::token_kind t = scanner::token_kind::Identifier;
         try {
@@ -34,7 +56,11 @@ bool display_deps(environment const & env, std::ostream & out, std::ostream & er
             continue;
         }
         if (t == scanner::token_kind::Eof) {
+            if (!is_prelude)
+                display_dep(optional<unsigned>(), name("init"));
             return ok;
+        } else if (t == scanner::token_kind::CommandKeyword && s.get_token_info().value() == prelude) {
+            is_prelude = true;
         } else if (t == scanner::token_kind::CommandKeyword && s.get_token_info().value() == import) {
             k = optional<unsigned>();
             import_prefix = true;
@@ -44,22 +70,8 @@ bool display_deps(environment const & env, std::ostream & out, std::ostream & er
             else
                 k = *k + 1;
         } else if ((import_prefix || import_args) && t == scanner::token_kind::Identifier) {
-            import_args = true;
-            try {
-                std::string m_name = find_file(base, k, name_to_file(s.get_name_val()), {".lean", ".olean", ".lua"});
-                int last_idx = m_name.find_last_of(".");
-                std::string rawname = m_name.substr(0, last_idx);
-                std::string ext = m_name.substr(last_idx);
-                if (ext == ".lean")
-                    m_name = rawname + ".olean";
-                display_path(out, m_name);
-                k = optional<unsigned>();
-                import_prefix = true;
-                out << "\n";
-            } catch (exception & new_ex) {
-                err << "error: file '" << name_to_file(s.get_name_val()) << "' not found in the LEAN_PATH" << std::endl;
-                ok  = false;
-            }
+            display_dep(k, s.get_name_val());
+            k = optional<unsigned>();
         } else {
             import_args   = false;
             import_prefix = false;

@@ -1304,8 +1304,30 @@ static void lua_module_reader(deserializer & d, module_idx, shared_environment &
 void parser::parse_imports() {
     buffer<module_name> olean_files;
     buffer<name>        lua_files;
+    bool prelude     = false;
     std::string base = dirname(get_stream_name().c_str());
     bool imported    = false;
+    if (curr_is_token(get_prelude_tk())) {
+        next();
+        prelude = true;
+    }
+    auto import_olean = [&](optional<unsigned> const & k, name const & f) {
+        if (auto it = try_file(base, k, f, ".olean")) {
+            olean_files.push_back(module_name(k, f));
+        } else {
+            m_found_errors = true;
+            if (!m_use_exceptions && m_show_errors) {
+                flycheck_error err(regular_stream());
+                display_error_pos(pos());
+                regular_stream() << " invalid import, unknown module '" << f << "'" << endl;
+            }
+            if (m_use_exceptions)
+                throw parser_error(sstream() << "invalid import, unknown module '" << f << "'", pos());
+        }
+    };
+    if (!prelude) {
+        import_olean(optional<unsigned>(), "init");
+    }
     while (curr_is_token(get_import_tk())) {
         imported       = true;
         m_last_cmd_pos = pos();
@@ -1327,17 +1349,8 @@ void parser::parse_imports() {
                     throw parser_error(sstream() << "invalid import, failed to import '" << f
                                        << "', relative paths are not supported for .lua files", pos());
                 lua_files.push_back(f);
-            } else if (auto it = try_file(base, k, f, ".olean")) {
-                olean_files.push_back(module_name(k, f));
             } else {
-                m_found_errors = true;
-                if (!m_use_exceptions && m_show_errors) {
-                    flycheck_error err(regular_stream());
-                    display_error_pos(pos());
-                    regular_stream() << " invalid import, unknown module '" << f << "'" << endl;
-                }
-                if (m_use_exceptions)
-                    throw parser_error(sstream() << "invalid import, unknown module '" << f << "'", pos());
+                import_olean(k, f);
             }
             next();
         }

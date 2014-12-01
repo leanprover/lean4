@@ -10,10 +10,6 @@ open eq.ops binary
 
 namespace nat
 
-definition of_num [coercion] [reducible] (n : num) : ℕ :=
-num.rec zero
-  (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n
-
 definition addl (x y : ℕ) : ℕ :=
 nat.rec y (λ n r, succ r) x
 infix `⊕`:65 := addl

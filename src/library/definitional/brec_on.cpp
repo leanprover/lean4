@@ -47,15 +47,17 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     unsigned nminors       = *inductive::get_num_minor_premises(env, n);
     unsigned ntypeformers  = length(std::get<2>(decls));
     level_param_names lps  = rec_decl.get_univ_params();
-    level  lvl             = mk_param_univ(head(lps)); // universe we are eliminating too
+    bool is_reflexive      = is_reflexive_datatype(tc, n);
+    level  lvl             = mk_param_univ(head(lps)); // universe we are eliminating to
     levels lvls            = param_names_to_levels(tail(lps));
-    levels blvls;
-    level  rlvl;
+    levels blvls; // universe level parameters of ibelow/below
+    level  rlvl;  // universe level of the resultant type
     name prod_name;
-    expr unit, outer_prod;
+    expr unit, outer_prod, inner_prod;
     // The arguments of below (ibelow) are the ones in the recursor - minor premises.
     // The universe we map to is also different (l+1 for below) and (0 fo ibelow).
     expr ref_type;
+    expr Type_result;
     if (ibelow) {
         // we are eliminating to Prop
         blvls      = lvls;
@@ -63,8 +65,10 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
         unit       = mk_constant("true");
         prod_name  = name("and");
         outer_prod = mk_constant(prod_name);
+        inner_prod = outer_prod;
         ref_type   = instantiate_univ_param(rec_decl.get_type(), param_id(lvl), mk_level_zero());
-    } else {
+        Type_result        = mk_sort(rlvl);
+    } else if (is_reflexive) {
         blvls = cons(lvl, lvls);
         rlvl  = get_datatype_level(ind_decl.get_type());
         // if rlvl is of the form (max 1 l), then rlvl <- l
@@ -75,8 +79,18 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
         prod_name  = name("prod");
         outer_prod = mk_constant(prod_name, {rlvl, rlvl});
         ref_type   = instantiate_univ_param(rec_decl.get_type(), param_id(lvl), mk_succ(lvl));
+        Type_result        = mk_sort(rlvl);
+    } else {
+        // we can simplify the universe levels for non-reflexive datatypes
+        blvls       = cons(lvl, lvls);
+        rlvl        = mk_max(mk_level_one(), lvl);
+        unit        = mk_constant("unit", rlvl);
+        prod_name   = name("prod");
+        outer_prod  = mk_constant(prod_name, {rlvl, rlvl});
+        inner_prod  = mk_constant(prod_name, {lvl, rlvl});
+        ref_type    = rec_decl.get_type();
+        Type_result        = mk_sort(rlvl);
     }
-    expr Type_result       = mk_sort(rlvl);
     buffer<expr> ref_args;
     to_telescope(ngen, ref_type, ref_args);
     if (ref_args.size() != nparams + ntypeformers + nminors + nindices + 1)
@@ -121,10 +135,8 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
                 expr r = minor_arg;
                 expr fst = mlocal_type(minor_arg);
                 expr snd = Pi(minor_arg_args, mk_app(r, minor_arg_args));
-                expr inner_prod;
-                if (ibelow) {
-                    inner_prod = outer_prod; // and
-                } else {
+                if (!ibelow && is_reflexive) {
+                    // inner product is not constant
                     level fst_lvl   = sort_level(tc.ensure_type(fst).first);
                     inner_prod = mk_constant(prod_name, {fst_lvl, rlvl});
                 }

@@ -6,7 +6,7 @@ vnil {} : vector A zero,
 vcons   : Π {n : nat}, A → vector A n → vector A (succ n)
 
 namespace vector
-  print definition no_confusion
+  -- print definition no_confusion
   infixr `::` := vcons
 
   theorem vcons.inj₁ {A : Type} {n : nat} (a₁ a₂ : A) (v₁ v₂ : vector A n) : vcons a₁ v₁ = vcons a₂ v₂ → a₁ = a₂ :=
@@ -19,10 +19,13 @@ namespace vector
      intro h, apply heq.to_eq, apply (no_confusion h), intros, eassumption,
   end
 
+  set_option pp.universes true
+  check @below
+
   section
     universe variables l₁ l₂
     variable {A : Type.{l₁}}
-    variable {C : Π (n : nat), vector A n → Type.{l₂+1}}
+    variable {C : Π (n : nat), vector A n → Type.{l₂}}
     definition brec_on {n : nat} (v : vector A n) (H : Π (n : nat) (v : vector A n), @below A C n v → C n v) : C n v :=
     have general : C n v × @below A C n v, from
       rec_on v
@@ -36,7 +39,7 @@ namespace vector
     pr₁ general
   end
 
-  check brec_on
+  -- check brec_on
 
   definition bw := @below
 
@@ -94,7 +97,7 @@ namespace vector
   example : add (1 :: 2 :: vnil) (3 :: 5 :: vnil) = 4 :: 7 :: vnil :=
   rfl
 
-  definition map {A B C : Type'} {n : nat} (f : A → B → C) (w : vector A n) (v : vector B n) : vector C n :=
+  definition map {A B C : Type} {n : nat} (f : A → B → C) (w : vector A n) (v : vector B n) : vector C n :=
   let P := λ (n : nat) (v : vector A n), vector B n → vector C n in
   @brec_on A P n w
   (λ (n : nat) (w : vector A n),
@@ -110,6 +113,13 @@ namespace vector
            (f h₁ h₂) :: r t₂,
          end
      end) v
+
+  theorem map_nil_nil {A B C : Type} (f : A → B → C) : map f vnil vnil = vnil :=
+  rfl
+
+  theorem map_cons_cons {A B C : Type} (f : A → B → C) (a : A) (b : B) {n : nat} (va : vector A n) (vb : vector B n) :
+          map f (a :: va) (b :: vb) = f a b :: map f va vb :=
+  rfl
 
   example : map nat.add (1 :: 2 :: vnil) (3 :: 5 :: vnil) = 4 :: 7 :: vnil :=
   rfl

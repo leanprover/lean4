@@ -64,6 +64,28 @@ bool is_recursive_datatype(environment const & env, name const & n) {
     return false;
 }
 
+bool is_reflexive_datatype(type_checker & tc, name const & n) {
+    environment const & env = tc.env();
+    name_generator ngen     = tc.mk_ngen();
+    optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
+    if (!decls)
+        return false;
+    for (inductive::inductive_decl const & decl : std::get<2>(*decls)) {
+        for (inductive::intro_rule const & intro : inductive::inductive_decl_intros(decl)) {
+            expr type = inductive::intro_rule_type(intro);
+            while (is_pi(type)) {
+                expr arg   = tc.whnf(binding_domain(type)).first;
+                if (is_pi(arg) && find(arg, [&](expr const & e, unsigned) { return is_constant(e) && const_name(e) == n; })) {
+                    return true;
+                }
+                expr local = mk_local(ngen.next(), binding_domain(type));
+                type = instantiate(binding_body(type), local);
+            }
+        }
+    }
+    return false;
+}
+
 level get_datatype_level(expr ind_type) {
     while (is_pi(ind_type))
         ind_type = binding_body(ind_type);

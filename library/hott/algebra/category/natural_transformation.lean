@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn, Jakob von Raumer
 
-import .functor hott.axioms.funext
+import .functor hott.axioms.funext hott.types.pi
 open precategory path functor truncation
 
 inductive natural_transformation {C D : Precategory} (F G : C ⇒ D) : Type :=
@@ -43,19 +43,18 @@ namespace natural_transformation
   definition eta_nat_path {η₁ η₂ : F ⟹ G} (H1 : natural_map η₁ ≈ natural_map η₂)
       (H2 : (H1 ▹ naturality η₁) ≈ naturality η₂) : η₁ ≈ η₂ :=
   rec_on η₁ (λ eta1 nat1, rec_on η₂ (λ eta2 nat2, sorry))-/
-
-  protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) [fext : funext.{l_1 l_4}] :
+  protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) [fext : funext] :
       η₃ ∘n (η₂ ∘n η₁) ≈ (η₃ ∘n η₂) ∘n η₁ :=
-  have prir [visible] : is_hset (Π {a b : C} (f : hom a b), I f ∘ (η₃ ∘n η₂) a ∘ η₁ a ≈ ((η₃ ∘n η₂) b ∘ η₁ b) ∘ F f),
-    from sorry,
-  path.dcongr_arg2 mk
-    (funext.path_forall
-      (λ (x : C), η₃ x ∘ (η₂ x ∘ η₁ x))
-      (λ (x : C), (η₃ x ∘ η₂ x) ∘ η₁ x)
-      (λ x, assoc (η₃ x) (η₂ x) (η₁ x))
-    )
-    sorry --(@is_hset.elim _ _ _ _ _ _)
+  have aux4 [visible] : is_hprop (Π (a b : C) (f : hom a b), I f ∘ (η₃ ∘n η₂) a ∘ η₁ a ≈ ((η₃ ∘n η₂) b ∘ η₁ b) ∘ F f),
+  begin
+    apply trunc_pi, intro a,
+    apply trunc_pi, intro b,
+    apply trunc_pi, intro f,
+    apply (@succ_is_trunc _ -1 _ (I f ∘ (η₃ ∘n η₂) a ∘ η₁ a) (((η₃ ∘n η₂) b ∘ η₁ b) ∘ F f)),
+  end,
+  path.dcongr_arg2 mk (funext.path_forall _ _ (λ x, !assoc)) !is_hprop.elim
 
+exit
   protected definition id {C D : Precategory} {F : functor C D} : natural_transformation F F :=
   mk (λa, id) (λa b f, !id_right ⬝ (!id_left⁻¹))
   protected definition ID {C D : Precategory} (F : functor C D) : natural_transformation F F := id

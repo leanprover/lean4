@@ -86,6 +86,10 @@ optional<unsigned> get_num_indices(environment const & env, name const & n);
     If \c n is not an inductive datatype in \c env, then return none.
 */
 optional<unsigned> get_num_minor_premises(environment const & env, name const & n);
+/** \brief Return the number of introduction rules in the given inductive datatype.
+    If \c n is not an inductive datatype in \c env, then return none.
+*/
+optional<unsigned> get_num_intro_rules(environment const & env, name const & n);
 /** \brief Return the number of type formers in the given inductive datatype.
     If \c n is not an inductive datatype in \c env, then return none.
 */

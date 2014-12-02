@@ -1013,6 +1013,18 @@ optional<unsigned> get_num_minor_premises(environment const & env, name const & 
     }
 }
 
+optional<unsigned> get_num_intro_rules(environment const & env, name const & n) {
+    if (auto decls = is_inductive_decl(env, n)) {
+        for (auto const & decl : std::get<2>(*decls)) {
+            if (inductive_decl_name(decl) == n)
+                return some(length(inductive_decl_intros(decl)));
+        }
+        lean_unreachable();
+    } else {
+        return optional<unsigned>();
+    }
+}
+
 bool has_dep_elim(environment const & env, name const & n) {
     inductive_env_ext const & ext = get_extension(env);
     if (auto it = ext.m_elim_info.find(get_elim_name(n)))

@@ -34,7 +34,10 @@ class inversion_tac {
         m_dep_elim      = inductive::has_dep_elim(m_env, n);
         m_nindices      = *inductive::get_num_indices(m_env, n);
         m_nparams       = *inductive::get_num_params(m_env, n);
-        m_nminors       = *inductive::get_num_minor_premises(m_env, n);
+        // This tactic is bases on cases_on construction which only has
+        // minor premises for the introduction rules of this datatype.
+        // For non-mutually recursive datatypes inductive::get_num_intro_rules == inductive::get_num_minor_premises
+        m_nminors       = *inductive::get_num_intro_rules(m_env, n);
         m_I_decl        = m_env.get(n);
         m_cases_on_decl = m_env.get({n, "cases_on"});
     }

@@ -4,7 +4,7 @@
 
 import .basic
 
-open path precategory
+open path precategory sigma sigma.ops
 
 namespace morphism
   variables {ob : Type} [C : precategory ob] include C
@@ -45,6 +45,10 @@ namespace morphism
 
   theorem id_is_iso [instance] : is_iso (ID a) :=
   is_iso.mk !id_compose !id_compose
+
+  -- In a precategory, equal objects are isomorphic
+  definition iso_of_path (p : a ≈ b) : Σ (f : hom a b), is_iso f :=
+  path.rec_on p ⟨ id , id_is_iso ⟩
 
   theorem inverse_is_iso [instance] (f : a ⟶ b) [H : is_iso f] : is_iso (f⁻¹) :=
   is_iso.mk !compose_inverse !inverse_compose

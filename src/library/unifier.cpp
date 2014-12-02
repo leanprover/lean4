@@ -2191,7 +2191,7 @@ struct unifier_fn {
         constraint c   = p->first;
         unsigned cidx  = p->second;
         if (cidx >= get_group_first_index(cnstr_group::ClassInstance) &&
-            !m_config.m_discard && cnstr_on_demand(c)) {
+            !m_config.m_discard && is_choice_cnstr(c) && cnstr_on_demand(c)) {
             // we postpone class-instance constraints whose type still contains metavariables
             m_cnstrs.erase_min();
             postpone(c);

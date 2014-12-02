@@ -10,15 +10,17 @@ structure category [class] (ob : Type) : Type :=
   (hom : ob → ob → Type)
   (comp : Π⦃a b c : ob⦄, hom b c → hom a b → hom a c)
   (ID : Π (a : ob), hom a a)
-  (assoc : Π ⦃a b c d : ob⦄ {h : hom c d} {g : hom b c} {f : hom a b},
+  (assoc : Π ⦃a b c d : ob⦄ (h : hom c d) (g : hom b c) (f : hom a b),
      comp h (comp g f) = comp (comp h g) f)
-  (id_left : Π ⦃a b : ob⦄ {f : hom a b}, comp !ID f = f)
-  (id_right : Π ⦃a b : ob⦄ {f : hom a b}, comp f !ID = f)
+  (id_left : Π ⦃a b : ob⦄ (f : hom a b), comp !ID f = f)
+  (id_right : Π ⦃a b : ob⦄ (f : hom a b), comp f !ID = f)
 
 namespace category
   variables {ob : Type} [C : category ob]
   variables {a b c d : ob}
   include C
+
+  definition compose := comp
 
   definition id [reducible] {a : ob} : hom a a := ID a
 

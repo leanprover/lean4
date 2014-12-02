@@ -301,7 +301,7 @@ class inversion_tac {
         buffer<expr> hyps;
         g.get_hyps(hyps);
         lean_assert(!hyps.empty());
-        expr const & eq  = hyps.back();
+        expr eq = hyps.back();
         buffer<expr> eq_args;
         get_app_args(mlocal_type(eq), eq_args);
         expr const & A   = m_tc->whnf(eq_args[0]).first;
@@ -388,7 +388,8 @@ class inversion_tac {
             new_hyps.append(non_deps);
             expr new_type       = instantiate(abstract(deps_g_type, rhs), lhs);
             for (unsigned i = 0; i < deps.size(); i++) {
-                expr new_hyp = mk_local(m_ngen.next(), binding_name(new_type), binding_domain(new_type), binding_info(new_type));
+                expr new_hyp = mk_local(m_ngen.next(), binding_name(new_type), binding_domain(new_type),
+                                        binding_info(new_type));
                 new_hyps.push_back(new_hyp);
                 new_type     = instantiate(binding_body(new_type), new_hyp);
             }
@@ -400,6 +401,20 @@ class inversion_tac {
             expr val            = g.abstract(mk_app(eq_rec, deps));
             assign(g.get_name(), val);
             return unify_eqs(new_g, neqs-1);
+        } else if (is_local(lhs)) {
+            // flip equation and reduce to previous case
+            hyps.pop_back(); // remove processed equality
+            expr symm_eq  = mk_eq(rhs, lhs).first;
+            expr new_type = mk_arrow(symm_eq, g_type);
+            expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
+            expr new_meta = mk_app(new_mvar, hyps);
+            goal new_g(new_meta, new_type);
+            level eq_symm_lvl = sort_level(m_tc->ensure_type(A).first);
+            expr symm_pr  = mk_constant(name{"eq", "symm"}, {eq_symm_lvl});
+            symm_pr       = mk_app(symm_pr, A, lhs, rhs, eq);
+            expr val      = g.abstract(mk_app(new_meta, symm_pr));
+            assign(g.get_name(), val);
+            return unify_eqs(new_g, neqs);
         }
         // unification failed
         return optional<goal>(g);

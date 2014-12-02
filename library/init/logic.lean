@@ -75,7 +75,7 @@ namespace eq
   theorem trans (H₁ : a = b) (H₂ : b = c) : a = c :=
   subst H₂ H₁
 
-  theorem symm (H : a = b) : b = a :=
+  definition symm (H : a = b) : b = a :=
   subst H (refl a)
 
   namespace ops

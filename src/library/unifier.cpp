@@ -266,15 +266,6 @@ static unsigned g_cnstr_group_first_index[g_num_groups] = { 0, g_group_size, 2*g
 static unsigned get_group_first_index(cnstr_group g) {
     return g_cnstr_group_first_index[static_cast<unsigned>(g)];
 }
-static unsigned get_group_last_index(cnstr_group g) {
-    unsigned g_idx = static_cast<unsigned>(g);
-    if (g_idx + 1 < g_num_groups) {
-        lean_assert(g_cnstr_group_first_index[g_idx+1] != 0);
-        return g_cnstr_group_first_index[g_idx+1]-1;
-    } else {
-        return std::numeric_limits<unsigned>::max();
-    }
-}
 static cnstr_group to_cnstr_group(unsigned d) {
     if (d >= g_num_groups)
         d = g_num_groups-1;
@@ -518,13 +509,7 @@ struct unifier_fn {
 
     /** \brief Add constraint to the constraint queue */
     unsigned add_cnstr(constraint const & c, cnstr_group g) {
-        unsigned cidx;
-        if (g == cnstr_group::ClassInstance) {
-            // we use a stack discipline for solving class instances
-            cidx = get_group_last_index(g) - m_next_cidx;
-        } else {
-            cidx = m_next_cidx + get_group_first_index(g);
-        }
+        unsigned cidx = m_next_cidx + get_group_first_index(g);
         m_cnstrs.insert(cnstr(c, cidx));
         m_next_cidx++;
         return cidx;

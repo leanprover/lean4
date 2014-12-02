@@ -10,8 +10,8 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief Auxiliary object for "inserting" delimiters for flycheck */
 class flycheck_scope {
-    io_state_stream const & m_ios;
-    bool                    m_flycheck;
+    io_state_stream m_ios;
+    bool            m_flycheck;
 public:
     flycheck_scope(io_state_stream const & ios, char const * kind);
     ~flycheck_scope();

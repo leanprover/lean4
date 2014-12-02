@@ -349,7 +349,9 @@ begin
          apply equiv_path_sigma,
          apply IH,
            apply succ_is_trunc,
-           intro aa, apply (succ_is_trunc (aa ▹ u.2) (v.2)),
+           intro aa,
+             show is_trunc n (aa ▹ u .2 ≈ v .2), from
+             succ_is_trunc (aa ▹ u.2) (v.2),
 end
 
 end sigma

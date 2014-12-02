@@ -1960,9 +1960,13 @@ struct unifier_fn {
             return process_flex_rigid(rhs, lhs, c.get_justification(), relax);
     }
 
+    void postpone(constraint const & c) {
+        m_postponed = cons(c, m_postponed);
+    }
+
     void discard(constraint const & c) {
         if (!m_config.m_discard)
-            m_postponed = cons(c, m_postponed);
+            postpone(c);
     }
 
     bool process_flex_flex(constraint const & c) {
@@ -2184,10 +2188,18 @@ struct unifier_fn {
     bool process_next() {
         lean_assert(!m_cnstrs.empty());
         auto const * p = m_cnstrs.min();
+        constraint c   = p->first;
         unsigned cidx  = p->second;
+        if (cidx >= get_group_first_index(cnstr_group::ClassInstance) &&
+            !m_config.m_discard && cnstr_on_demand(c)) {
+            // we postpone class-instance constraints whose type still contains metavariables
+            m_cnstrs.erase_min();
+            postpone(c);
+            return true;
+        }
+        // The following condition is "dead-code"
         if (!m_config.m_expensive_classes && cidx >= get_group_first_index(cnstr_group::ClassInstance))
             m_pattern = true; // use only higher-order (pattern) matching after we start processing class-instance constraints
-        constraint c   = p->first;
         // std::cout << "process_next: " << c << "\n";
         m_cnstrs.erase_min();
         if (is_choice_cnstr(c)) {

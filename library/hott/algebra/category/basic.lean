@@ -75,5 +75,5 @@ end precategory
 
 open precategory
 
-theorem Category.equal (C : Precategory) : Precategory.mk C C = C :=
-  Precategory.rec (λ ob c, rfl) C
+theorem Precategory.equal (C : Precategory) : Precategory.mk C C ≈ C :=
+  Precategory.rec (λ ob c, idp) C

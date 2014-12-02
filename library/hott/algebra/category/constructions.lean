@@ -1,27 +1,28 @@
 -- Copyright (c) 2014 Floris van Doorn. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Floris van Doorn, Jakob von Raumer
+-- Authors: Floris van Doorn, Jakob von Raumer
 
--- This file contains basic constructions on precategories, including common categories
+-- This file contains basic constructions on precategories, including common precategories
 
 
-import .natural_transformation
-import data.unit data.sigma data.prod data.empty data.bool
+import .natural_transformation hott.path
+import data.unit data.sigma data.prod data.empty data.bool hott.types.prod
 
-open path prod
+open path prod eq eq.ops
 
-namespace category
+namespace precategory
   namespace opposite
   section
-  definition opposite {ob : Type} (C : category ob) : category ob :=
-  mk (λa b, hom b a)
+  definition opposite {ob : Type} (C : precategory ob) : precategory ob :=
+  mk (λ a b, hom b a)
+     (λ b a, !homH)
      (λ a b c f g, g ∘ f)
      (λ a, id)
-     (λ a b c d f g h, symm !assoc)
+     (λ a b c d f g h, !assoc⁻¹)
      (λ a b f, !id_right)
      (λ a b f, !id_left)
 
-  definition Opposite (C : Category) : Category := Mk (opposite C)
+  definition Opposite (C : Precategory) : Precategory := Mk (opposite C)
   --direct construction:
   -- MK C
   --    (λa b, hom b a)
@@ -33,20 +34,20 @@ namespace category
 
   infixr `∘op`:60 := @compose _ (opposite _) _ _ _
 
-  variables {C : Category} {a b c : C}
+  variables {C : Precategory} {a b c : C}
 
-  theorem compose_op {f : hom a b} {g : hom b c} : f ∘op g = g ∘ f := rfl
+  theorem compose_op {f : hom a b} {g : hom b c} : f ∘op g ≈ g ∘ f := idp
 
-  theorem op_op' {ob : Type} (C : category ob) : opposite (opposite C) = C :=
-  category.rec (λ hom comp id assoc idl idr, refl (mk _ _ _ _ _ _)) C
+  theorem op_op' {ob : Type} (C : precategory ob) : opposite (opposite C) ≈ C :=
+  sorry --precategory.rec (λ hom homH comp id assoc idl idr, idpath (mk _ _ _ _ _ _)) C
 
-  theorem op_op : Opposite (Opposite C) = C :=
-  (@congr_arg _ _ _ _ (Category.mk C) (op_op' C)) ⬝ !Category.equal
+  theorem op_op : Opposite (Opposite C) ≈ C :=
+  (ap (Precategory.mk C) (op_op' C)) ⬝ !Precategory.equal
 
   end
   end opposite
 
-  definition type_category : category Type :=
+  /-definition type_category : precategory Type :=
   mk (λa b, a → b)
      (λ a b c, function.compose)
      (λ a, function.id)
@@ -54,9 +55,11 @@ namespace category
      (λ a b f, function.compose_id_left f)
      (λ a b f, function.compose_id_right f)
 
-  definition Type_category : Category := Mk type_category
+  definition Type_category : Category := Mk type_category-/
 
-  section
+  -- Note: Discrete precategory doesn't really make sense in HoTT,
+  -- We'll define a discrete _category_ later.
+  /-section
   open decidable unit empty
   variables {A : Type} [H : decidable_eq A]
   include H
@@ -71,7 +74,7 @@ namespace category
       (λh f, empty.rec _ f) f)
     (λh (g : empty), empty.rec _ g) g
   omit H
-  definition discrete_category (A : Type) [H : decidable_eq A] : category A :=
+  definition discrete_precategory (A : Type) [H : decidable_eq A] : precategory A :=
   mk (λa b, set_hom a b)
      (λ a b c g f, set_compose g f)
      (λ a, decidable.rec_on_true rfl ⋆)
@@ -86,40 +89,45 @@ namespace category
   definition Category_one := Mk category_one
   definition category_two := discrete_category bool
   definition Category_two := Mk category_two
-  end
+  end-/
 
   namespace product
   section
-  open prod
-  definition prod_category {obC obD : Type} (C : category obC) (D : category obD)
-      : category (obC × obD) :=
-  mk (λa b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
-     (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f) )
-     (λ a, (id,id))
-     (λ a b c d h g f, pair_eq    !assoc    !assoc   )
-     (λ a b f,         prod.equal !id_left  !id_left )
-     (λ a b f,         prod.equal !id_right !id_right)
+  open prod truncation
 
-  definition Prod_category (C D : Category) : Category := Mk (prod_category C D)
+  definition prod_precategory {obC obD : Type} (C : precategory obC) (D : precategory obD)
+      : precategory (obC × obD) :=
+  mk (λ a b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
+     (λ a b, trunc_prod nat.zero (!homH) (!homH))
+     (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f) )
+     (λ a, (id, id))
+     (λ a b c d h g f, pair_path  !assoc    !assoc   )
+     (λ a b f,         prod.path  !id_left  !id_left )
+     (λ a b f,         prod.path  !id_right !id_right)
+
+  definition Prod_precategory (C D : Precategory) : Precategory := Mk (prod_precategory C D)
 
   end
   end product
 
   namespace ops
-    notation `type`:max := Type_category
-    notation 1 := Category_one --it was confusing for me (Floris) that no ``s are needed here
-    notation 2 := Category_two
+
+    --notation `type`:max := Type_category
+    --notation 1 := Category_one --it was confusing for me (Floris) that no ``s are needed here
+    --notation 2 := Category_two
     postfix `ᵒᵖ`:max := opposite.Opposite
-    infixr `×c`:30 := product.Prod_category
-    instance [persistent] type_category category_one
-                          category_two product.prod_category
+    infixr `×c`:30 := product.Prod_precategory
+    --instance [persistent] type_category category_one
+    --                      category_two product.prod_category
+    instance [persistent] product.prod_precategory
+
   end ops
 
   open ops
   namespace opposite
   section
   open ops functor
-  definition opposite_functor {C D : Category} (F : C ⇒ D) : Cᵒᵖ ⇒ Dᵒᵖ :=
+  definition opposite_functor {C D : Precategory} (F : C ⇒ D) : Cᵒᵖ ⇒ Dᵒᵖ :=
   @functor.mk (Cᵒᵖ) (Dᵒᵖ)
               (λ a, F a)
               (λ a b f, F f)
@@ -131,11 +139,11 @@ namespace category
   namespace product
   section
   open ops functor
-  definition prod_functor {C C' D D' : Category} (F : C ⇒ D) (G : C' ⇒ D') : C ×c C' ⇒ D ×c D' :=
+  definition prod_functor {C C' D D' : Precategory} (F : C ⇒ D) (G : C' ⇒ D') : C ×c C' ⇒ D ×c D' :=
   functor.mk (λ a, pair (F (pr1 a)) (G (pr2 a)))
              (λ a b f, pair (F (pr1 f)) (G (pr2 f)))
-             (λ a, pair_eq !respect_id !respect_id)
-             (λ a b c g f, pair_eq !respect_comp !respect_comp)
+             (λ a, pair_path !respect_id !respect_id)
+             (λ a b c g f, pair_path !respect_comp !respect_comp)
   end
   end product
 
@@ -145,9 +153,10 @@ namespace category
   end ops
 
   section functor_category
-  variables (C D : Category)
-  definition functor_category : category (functor C D) :=
+  variables (C D : Precategory)
+  definition functor_category [fx : funext] : precategory (functor C D) :=
   mk (λa b, natural_transformation a b)
+     sorry --TODO: Prove that the nat trafos between two functors are an hset
      (λ a b c g f, natural_transformation.compose g f)
      (λ a, natural_transformation.id)
      (λ a b c d h g f, !natural_transformation.assoc)
@@ -157,8 +166,8 @@ namespace category
 
   namespace slice
   open sigma function
-  variables {ob : Type} {C : category ob} {c : ob}
-  protected definition slice_obs (C : category ob) (c : ob) := Σ(b : ob), hom b c
+  variables {ob : Type} {C : precategory ob} {c : ob}
+  protected definition slice_obs (C : precategory ob) (c : ob) := Σ(b : ob), hom b c
   variables {a b : slice_obs C c}
   protected definition to_ob  (a : slice_obs C c) : ob              := dpr1 a
   protected definition to_ob_def (a : slice_obs C c) : to_ob a = dpr1 a := rfl
@@ -176,21 +185,24 @@ namespace category
   -- protected theorem slice_hom_equal (f g : slice_hom a b) (H : hom_hom f = hom_hom g) : f = g :=
   -- sigma.equal H !proof_irrel
 
-  definition slice_category (C : category ob) (c : ob) : category (slice_obs C c) :=
+  /- TODO wait for some helping lemmas
+  definition slice_category (C : precategory ob) (c : ob) : precategory (slice_obs C c) :=
   mk (λa b, slice_hom a b)
+     sorry
      (λ a b c g f, dpair (hom_hom g ∘ hom_hom f)
-       (show ob_hom c ∘ (hom_hom g ∘ hom_hom f) = ob_hom a,
+       (show ob_hom c ∘ (hom_hom g ∘ hom_hom f) ≈ ob_hom a,
          proof
          calc
-           ob_hom c ∘ (hom_hom g ∘ hom_hom f) = (ob_hom c ∘ hom_hom g) ∘ hom_hom f : !assoc
-             ... = ob_hom b ∘ hom_hom f : {commute g}
-             ... = ob_hom a : {commute f}
+           ob_hom c ∘ (hom_hom g ∘ hom_hom f) ≈ (ob_hom c ∘ hom_hom g) ∘ hom_hom f : !assoc
+             ... ≈ ob_hom b ∘ hom_hom f : {commute g}
+             ... ≈ ob_hom a : {commute f}
          qed))
      (λ a, dpair id !id_right)
-     (λ a b c d h g f, dpair_eq    !assoc    !proof_irrel)
-     (λ a b f,         sigma.equal !id_left  !proof_irrel)
-     (λ a b f,         sigma.equal !id_right !proof_irrel)
-  -- We use !proof_irrel instead of rfl, to give the unifier an easier time
+     (λ a b c d h g f, dpair_path  !assoc    sorry)
+     (λ a b f,         sigma.path !id_left  sorry)
+     (λ a b f,         sigma.path !id_right sorry)
+  -/
+
 
   -- definition slice_category {ob : Type} (C : category ob) (c : ob) : category (Σ(b : ob), hom b c)
   -- :=
@@ -209,6 +221,7 @@ namespace category
   --    (λ a b f,         sigma.equal !id_right !proof_irrel)
   -- We use !proof_irrel instead of rfl, to give the unifier an easier time
 
+exit
   definition Slice_category [reducible] (C : Category) (c : C) := Mk (slice_category C c)
   open category.ops
   instance [persistent] slice_category

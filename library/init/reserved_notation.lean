@@ -29,7 +29,7 @@ reserve prefix `¬`:40
 reserve prefix `~`:40
 reserve infixr `∧`:35
 reserve infixr `/\`:35
-reserve infixr `‌\/`:30
+reserve infixr `\/`:30
 reserve infixr `∨`:30
 reserve infix `<->`:25
 reserve infix `↔`:25

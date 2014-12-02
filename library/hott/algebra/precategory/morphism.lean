@@ -58,7 +58,7 @@ namespace morphism
   calc
     g ≈ g ∘ id : !id_right
      ... ≈ g ∘ f ∘ g' : Hr
-     ... ≈ (g ∘ f) ∘ g' : assoc
+     ... ≈ (g ∘ f) ∘ g' : !assoc
      ... ≈ id ∘ g' : Hl
      ... ≈ g' : id_left
 
@@ -99,21 +99,26 @@ namespace morphism
 
   theorem composition_is_section [instance] [Hf : is_section f] [Hg : is_section g]
       : is_section (g ∘ f) :=
+  have aux : retraction_of g ∘ g ∘ f ≈ (retraction_of g ∘ g) ∘ f,
+    from !assoc,
   is_section.mk
     (calc
       (retraction_of f ∘ retraction_of g) ∘ g ∘ f
-            ≈ retraction_of f ∘ retraction_of g ∘ g ∘ f : assoc _ _ (g ∘ f)
-        ... ≈ retraction_of f ∘ (retraction_of g ∘ g) ∘ f : assoc _ g f
-        ... ≈ retraction_of f ∘ id ∘ f : retraction_compose g
+            ≈ retraction_of f ∘ retraction_of g ∘ g ∘ f : assoc
+        ... ≈ retraction_of f ∘ ((retraction_of g ∘ g) ∘ f) : aux
+        ... ≈ retraction_of f ∘ id ∘ f : {retraction_compose g}
         ... ≈ retraction_of f ∘ f : id_left f
-        ... ≈ id : retraction_compose)
+        ... ≈ id : retraction_compose f)
 
   theorem composition_is_retraction [instance] (Hf : is_retraction f) (Hg : is_retraction g)
       : is_retraction (g ∘ f) :=
+  have aux : f ∘ section_of f ∘ section_of g ≈ (f ∘ section_of f) ∘ section_of g,
+    from !assoc,
   is_retraction.mk
     (calc
-      (g ∘ f) ∘ section_of f ∘ section_of g ≈ g ∘ f ∘ section_of f ∘ section_of g : assoc
-        ... ≈ g ∘ (f ∘ section_of f) ∘ section_of g : assoc f _ _
+      (g ∘ f) ∘ section_of f ∘ section_of g
+            ≈ g ∘ f ∘ section_of f ∘ section_of g : assoc
+        ... ≈ g ∘ (f ∘ section_of f) ∘ section_of g : aux
         ... ≈ g ∘ id ∘ section_of g : compose_section f
         ... ≈ g ∘ section_of g : id_left (section_of g)
         ... ≈ id : compose_section)
@@ -181,14 +186,18 @@ namespace morphism
   theorem composition_is_mono [instance] [Hf : is_mono f] [Hg : is_mono g] : is_mono (g ∘ f) :=
   is_mono.mk
     (λ d h₁ h₂ H,
-    have H2 : g ∘ (f ∘ h₁) ≈ g ∘ (f ∘ h₂), from (assoc g f h₁)⁻¹  ▹ (assoc g f h₂)⁻¹ ▹ H,
-    mono_elim (mono_elim H2))
+      have H2 : g ∘ (f ∘ h₁) ≈ g ∘ (f ∘ h₂),
+        from calc g ∘ (f ∘ h₁) ≈ (g ∘ f) ∘ h₁ : !assoc
+                          ... ≈ (g ∘ f) ∘ h₂ : H
+                          ... ≈ g ∘ (f ∘ h₂) : !assoc, mono_elim (mono_elim H2))
 
   theorem composition_is_epi  [instance] [Hf : is_epi f] [Hg : is_epi g] : is_epi  (g ∘ f) :=
   is_epi.mk
     (λ d h₁ h₂ H,
-    have H2 : (h₁ ∘ g) ∘ f ≈ (h₂ ∘ g) ∘ f, from assoc h₁ g f  ▹ assoc h₂ g f ▹ H,
-    epi_elim (epi_elim H2))
+      have H2 : (h₁ ∘ g) ∘ f ≈ (h₂ ∘ g) ∘ f,
+        from calc (h₁ ∘ g) ∘ f ≈ h₁ ∘ g ∘ f : !assoc
+                          ... ≈ h₂ ∘ g ∘ f : H
+                          ... ≈ (h₂ ∘ g) ∘ f: !assoc, epi_elim (epi_elim H2))
 
 end morphism
 namespace morphism

@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class parser;
+class io_state_stream;
 namespace notation {
 typedef std::function<expr(parser &, unsigned, expr const *, pos_info const &)> parse_fn;
 
@@ -81,7 +82,7 @@ public:
     std::string const & get_lua_fn() const;
 
     bool is_equal(action const & a) const;
-    void display(std::ostream & out) const;
+    void display(io_state_stream & out) const;
 
     /** \brief Return true iff the action is not Ext or LuaExt */
     bool is_simple() const;
@@ -124,6 +125,9 @@ inline bool operator!=(transition const & t1, transition const & t2) {
 /** \brief Apply \c f to expressions embedded in the given transition */
 transition replace(transition const & t, std::function<expr(expr const &)> const & f);
 
+void display(io_state_stream & out, unsigned num, transition const * ts, list<expr> const & es, bool nud,
+             optional<token_table> const & tt);
+
 /**
    \brief Parse table "transition rules" for implementing a Pratt's parser.
    The table supports "left factoring" in the methods \c add and \c merge.
@@ -152,7 +156,7 @@ public:
     list<expr> const & is_accepting() const;
     void for_each(std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const;
 
-    void display(std::ostream & out) const;
+    void display(io_state_stream & out, optional<token_table> const & tk) const;
 };
 
 /** \brief Given a notation definition, return the "head symbol" of

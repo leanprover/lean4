@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/replace_fn.h"
 #include "library/kernel_bindings.h"
+#include "library/io_state_stream.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/info_annotation.h"
@@ -192,7 +193,7 @@ bool action::is_equal(action const & a) const {
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
-void action::display(std::ostream & out) const {
+void action::display(io_state_stream & out) const {
     switch (kind()) {
     case action_kind::Skip:    out << "skip"; break;
     case action_kind::Binder:
@@ -207,7 +208,7 @@ void action::display(std::ostream & out) const {
         else
             out << "binders";
         break;
-    case action_kind::Ext:     out << "ext"; break;
+    case action_kind::Ext:     out << "builtin"; break;
     case action_kind::LuaExt:  out << "luaext"; break;
     case action_kind::Expr:    out << rbp(); break;
     case action_kind::Exprs:
@@ -479,22 +480,47 @@ parse_table parse_table::merge(parse_table const & s, bool overload) const {
 
 bool parse_table::is_nud() const { return m_ptr->m_nud; }
 
-void parse_table::display(std::ostream & out) const {
+void display(io_state_stream & out, unsigned num, transition const * ts, list<expr> const & es, bool nud,
+             optional<token_table> const & tt) {
+    if (!nud)
+        out << "_ ";
+    for (unsigned i = 0; i < num; i++) {
+        if (i > 0) out << " ";
+        out << "`" << ts[i].get_token() << "`";
+        if (tt) {
+            if (auto prec = get_precedence(*tt, ts[i].get_token().to_string().c_str())) {
+                out << ":" << *prec;
+            }
+        }
+        switch (ts[i].get_action().kind()) {
+        case action_kind::Skip:
+            break;
+        case action_kind::Expr:
+            out << " _:"; ts[i].get_action().display(out);
+            break;
+        default:
+            out << " "; ts[i].get_action().display(out);
+            break;
+        }
+    }
+    out << " :=";
+    if (length(es) == 1) {
+        out << " " << head(es) << "\n";
+    } else {
+        buffer<expr> tmp;
+        to_buffer(es, tmp);
+        out << "\n";
+        unsigned i = tmp.size();
+        while (i > 0) {
+            --i;
+            out << "  | " << tmp[i] << "\n";
+        }
+    }
+}
+
+void parse_table::display(io_state_stream & out, optional<token_table> const & tt) const {
     for_each([&](unsigned num, transition const * ts, list<expr> const & es) {
-            for (unsigned i = 0; i < num; i++) {
-                if (i > 0) out << " ";
-                out << "`" << ts[i].get_token() << "`:";
-                ts[i].get_action().display(out);
-            }
-            out << " :=";
-            if (length(es) == 1) {
-                out << " " << head(es) << "\n";
-            } else {
-                out << "\n";
-                for (auto e : es) {
-                    out << "  | " << e << "\n";
-                }
-            }
+            ::lean::notation::display(out, num, ts, es, is_nud(), tt);
         });
 }
 

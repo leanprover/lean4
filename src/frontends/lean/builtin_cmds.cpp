@@ -36,6 +36,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/pp_options.h"
+#include "frontends/lean/parse_table.h"
 
 namespace lean {
 static void print_coercions(parser & p, optional<name> const & C) {
@@ -106,6 +107,53 @@ static void print_fields(parser & p) {
     }
 }
 
+static bool uses_token(unsigned num, notation::transition const * ts, name const & token) {
+    for (unsigned i = 0; i < num; i++) {
+        if (ts[i].get_token() == token)
+            return true;
+    }
+    return false;
+}
+
+static bool uses_some_token(unsigned num, notation::transition const * ts, buffer<name> const & tokens) {
+    return
+        tokens.empty() ||
+        std::any_of(tokens.begin(), tokens.end(), [&](name const & token) { return uses_token(num, ts, token); });
+}
+
+static bool print_parse_table(parser & p, parse_table const & t, bool nud, buffer<name> const & tokens) {
+    bool found = false;
+    io_state ios = p.ios();
+    options os   = ios.get_options();
+    os = os.update(get_pp_full_names_option_name(), true);
+    os = os.update(get_pp_notation_option_name(), false);
+    ios.set_options(os);
+    optional<token_table> tt(get_token_table(p.env()));
+    t.for_each([&](unsigned num, notation::transition const * ts, list<expr> const & overloads) {
+            if (uses_some_token(num, ts, tokens)) {
+                found = true;
+                io_state_stream out = regular(p.env(), ios);
+                notation::display(out, num, ts, overloads, nud, tt);
+            }
+        });
+    return found;
+}
+
+static void print_notation(parser & p) {
+    buffer<name> tokens;
+    while (p.curr_is_keyword()) {
+        tokens.push_back(p.get_token_info().token());
+        p.next();
+    }
+    bool found = false;
+    if (print_parse_table(p, get_nud_table(p.env()), true, tokens))
+        found = true;
+    if (print_parse_table(p, get_led_table(p.env()), false, tokens))
+        found = true;
+    if (!found)
+        p.regular_stream() << "no notation" << endl;
+}
+
 environment print_cmd(parser & p) {
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {
@@ -165,6 +213,9 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_fields_tk())) {
         p.next();
         print_fields(p);
+    } else if (p.curr_is_token_or_id(get_notation_tk())) {
+        p.next();
+        print_notation(p);
     } else {
         throw parser_error("invalid print command", p.pos());
     }

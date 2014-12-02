@@ -127,12 +127,15 @@ namespace precategory
   namespace opposite
   section
   open ops functor
+  set_option pp.universes true
+
   definition opposite_functor {C D : Precategory} (F : C ⇒ D) : Cᵒᵖ ⇒ Dᵒᵖ :=
-  @functor.mk (Cᵒᵖ) (Dᵒᵖ)
-              (λ a, F a)
-              (λ a b f, F f)
-              (λ a, !respect_id)
-              (λ a b c g f, !respect_comp)
+  /-begin
+    apply (@functor.mk (Cᵒᵖ) (Dᵒᵖ)),
+      intro a, apply (respect_id F),
+      intros, apply (@respect_comp C D)
+  end-/ sorry
+
   end
   end opposite
 

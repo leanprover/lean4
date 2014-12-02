@@ -20,6 +20,7 @@ namespace precategory
   variables {ob : Type} [C : precategory ob]
   variables {a b c d : ob}
   include C
+  instance [persistent] homH
 
   definition compose := comp
 

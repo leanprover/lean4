@@ -15,7 +15,7 @@ mk : Π (obF : C → D) (homF : Π(a b : C), hom a b → hom (obF a) (obF b)),
 
 infixl `⇒`:25 := functor
 
--- I think we only have a precategory of stict catetories.
+-- I think we only have a precategory of stict categories.
 -- Maybe better implement this using univalence.
 namespace functor
   variables {C D E : Precategory}

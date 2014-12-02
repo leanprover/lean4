@@ -79,12 +79,12 @@ namespace truncation
   variables {A B : Type}
 
   -- maybe rename to is_trunc_succ.mk
-  definition is_trunc_succ (A : Type) {n : trunc_index} [H : ∀x y : A, is_trunc n (x ≈ y)]
+  definition is_trunc_succ (A : Type) (n : trunc_index) [H : ∀x y : A, is_trunc n (x ≈ y)]
     : is_trunc n.+1 A :=
   is_trunc.mk (λ x y, !is_trunc.to_internal)
 
   -- maybe rename to is_trunc_succ.elim
-  definition succ_is_trunc {n : trunc_index} [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x ≈ y) :=
+  definition succ_is_trunc (n : trunc_index) [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x ≈ y) :=
   is_trunc.mk (!is_trunc.to_internal x y)
 
   /- contractibility -/

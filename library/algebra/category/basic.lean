@@ -8,23 +8,26 @@ open eq eq.ops
 
 structure category [class] (ob : Type) : Type :=
   (hom : ob → ob → Type)
-  (compose : Π⦃a b c : ob⦄, hom b c → hom a b → hom a c)
+  (comp : Π⦃a b c : ob⦄, hom b c → hom a b → hom a c)
   (ID : Π (a : ob), hom a a)
-  (assoc : Π ⦃a b c d : ob⦄ (h : hom c d) (g : hom b c) (f : hom a b),
-     compose h (compose g f) = compose (compose h g) f)
-  (id_left : Π ⦃a b : ob⦄ (f : hom a b), compose !ID f = f)
-  (id_right : Π ⦃a b : ob⦄ (f : hom a b), compose f !ID = f)
+  (assoc : Π ⦃a b c d : ob⦄ {h : hom c d} {g : hom b c} {f : hom a b},
+     comp h (comp g f) = comp (comp h g) f)
+  (id_left : Π ⦃a b : ob⦄ {f : hom a b}, comp !ID f = f)
+  (id_right : Π ⦃a b : ob⦄ {f : hom a b}, comp f !ID = f)
 
 namespace category
   variables {ob : Type} [C : category ob]
-  variables {a b c d : ob} {h : hom c d} {g : hom b c} {f : hom a b} {i : hom a a}
+  variables {a b c d : ob}
   include C
 
   definition id [reducible] {a : ob} : hom a a := ID a
 
-  infixr `∘` := compose
+  infixr `∘` := comp
   infixl `⟶`:25 := hom -- input ⟶ using \--> (this is a different arrow than \-> (→))
 
+  variables {h : hom c d} {g : hom b c} {f : hom a b} {i : hom a a}
+
+  --the following is the only theorem for which "include C" is necessary if C is a variable (why?)
   theorem id_compose (a : ob) : (ID a) ∘ id = id := !id_left
 
   theorem left_id_unique (H : Π{b} {f : hom b a}, i ∘ f = f) : i = id :=
@@ -36,15 +39,18 @@ namespace category
      ... = id     : H
 end category
 
-structure Category : Type :=
-  (objects : Type)
-  (category_instance : category objects)
+inductive Category : Type := mk : Π (ob : Type), category ob → Category
 
 namespace category
   definition Mk {ob} (C) : Category := Category.mk ob C
-  definition MK (o h c i a l r) : Category := Category.mk o (category.mk h c i a l r)
-  definition objects [coercion] [reducible] := Category.objects
-  definition category_instance [instance] [coercion] [reducible] := Category.category_instance
+  definition MK (a b c d e f g) : Category := Category.mk a (category.mk b c d e f g)
+
+  definition objects [coercion] [reducible] (C : Category) : Type
+  := Category.rec (fun c s, c) C
+
+  definition category_instance [instance] [coercion] [reducible] (C : Category) : category (objects C)
+  := Category.rec (fun c s, s) C
+
 end category
 
 open category

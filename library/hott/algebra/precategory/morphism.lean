@@ -126,24 +126,30 @@ namespace morphism
   theorem composition_is_inverse [instance] (Hf : is_iso f) (Hg : is_iso g) : is_iso (g ∘ f) :=
   !section_retraction_imp_iso
 
-  inductive isomorphic (a b : ob) : Type := mk : ∀(g : a ⟶ b) [H : is_iso g], isomorphic a b
-/-
-  namespace isomorphic
-  open relation
-  -- should these be coercions?
-  definition iso [coercion] (H : isomorphic a b) : a ⟶ b :=
-  isomorphic.rec (λg h, g) H
-  theorem is_iso [instance] (H : isomorphic a b) : is_iso (isomorphic.iso H) :=
-  isomorphic.rec (λg h, h) H
-  infix `≅`:50 := isomorphic
+  structure isomorphic (a b : ob) :=
+    (iso : hom a b)
+    [is_iso : is_iso iso]
 
-  theorem refl  (a     : ob)                            : a ≅ a := mk id
-  theorem symm  ⦃a b   : ob⦄ (H  : a ≅ b)              : b ≅ a := mk (inverse (iso H))
-  theorem trans ⦃a b c : ob⦄ (H1 : a ≅ b) (H2 : b ≅ c) : a ≅ c := mk (iso H2 ∘ iso H1)
-  theorem is_equivalence_eq [instance] (T : Type) : is_equivalence isomorphic :=
-  is_equivalence.mk (is_reflexive.mk refl) (is_symmetric.mk symm) (is_transitive.mk trans)
+  infix `≅`:50 := morphism.isomorphic
+
+  namespace isomorphic
+
+    --open relation
+    instance [persistent] is_iso
+
+    theorem refl  (a     : ob)                           : isomorphic a a :=
+    mk id
+
+    theorem symm  ⦃a b   : ob⦄ (H  : isomorphic a b)     : isomorphic b a :=
+    mk (inverse (iso H))
+
+    theorem trans ⦃a b c : ob⦄ (H1 : isomorphic a b) (H2 : isomorphic b c) : isomorphic a c :=
+    mk (iso H2 ∘ iso H1)
+
+  --theorem is_equivalence_eq [instance] (T : Type) : is_equivalence isomorphic :=
+  --is_equivalence.mk (is_reflexive.mk refl) (is_symmetric.mk symm) (is_transitive.mk trans)
   end isomorphic
--/
+
   inductive is_mono [class] (f : a ⟶ b) : Type :=
   mk : (∀c (g h : hom c a), f ∘ g ≈ f ∘ h → g ≈ h) → is_mono f
   inductive is_epi  [class] (f : a ⟶ b) : Type :=

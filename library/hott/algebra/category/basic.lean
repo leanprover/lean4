@@ -14,17 +14,26 @@ structure category [class] (ob : Type) extends (precategory ob) :=
   (iso_of_path_equiv : Π {a b : ob}, is_equiv (@iso_of_path ob (precategory.mk hom _ comp ID assoc id_left id_right) a b))
 
 namespace category
-  variables {ob : Type} (C : category ob) {a b : ob}
+  variables {ob : Type} {C : category ob} {a b : ob}
   include C
 
   -- Make iso_of_path_equiv a class instance
   -- TODO: Unsafe class instance?
   instance [persistent] iso_of_path_equiv
 
-  definition path_of_iso {a b : ob} : (Σ (f : hom a b), is_iso f) → a ≈ b :=
+  definition path_of_iso {a b : ob} : a ≅ b → a ≈ b :=
   iso_of_path⁻¹
 
-  definition ob_1_type : is_trunc 1 ob := sorry
+  definition foo {a b : ob} :
+
+  definition ob_1_type : is_trunc -2 .+1 .+1 .+1 ob :=
+  begin
+    apply is_trunc_succ, intros (a, b),
+    /-fapply trunc_equiv,
+      exact (@path_of_iso ob C a b),
+      apply inv_closed,
+    exact sorry,-/
+  end
 
 end category
 

@@ -1,10 +1,10 @@
 -- Copyright (c) 2014 Floris van Doorn. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Floris van Doorn
+-- Authors: Floris van Doorn, Jakob von Raumer
 
-import .basic
+import .basic hott.types.sigma
 
-open path precategory sigma sigma.ops
+open path precategory sigma sigma.ops equiv is_equiv function truncation
 
 namespace morphism
   variables {ob : Type} [C : precategory ob] include C
@@ -130,25 +130,21 @@ namespace morphism
 
   namespace isomorphic
 
-    --open relation
+    -- openrelation
     instance [persistent] is_iso
 
-    theorem refl  (a     : ob)                           : isomorphic a a :=
+    definition refl (a : ob) : a ≅ a :=
     mk id
 
-    theorem symm  ⦃a b   : ob⦄ (H  : isomorphic a b)     : isomorphic b a :=
+    definition symm ⦃a b : ob⦄ (H : a ≅ b) : b ≅ a :=
     mk (inverse (iso H))
 
-    theorem trans ⦃a b c : ob⦄ (H1 : isomorphic a b) (H2 : isomorphic b c) : isomorphic a c :=
+    definition trans ⦃a b c : ob⦄ (H1 : a ≅ b) (H2 : b ≅ c) : a ≅ c :=
     mk (iso H2 ∘ iso H1)
 
   --theorem is_equivalence_eq [instance] (T : Type) : is_equivalence isomorphic :=
   --is_equivalence.mk (is_reflexive.mk refl) (is_symmetric.mk symm) (is_transitive.mk trans)
   end isomorphic
-
-  -- In a precategory, equal objects are isomorphic
-  definition iso_of_path (p : a ≈ b) : isomorphic a b :=
-  path.rec_on p (isomorphic.mk id)
 
   inductive is_mono [class] (f : a ⟶ b) : Type :=
   mk : (∀c (g h : hom c a), f ∘ g ≈ f ∘ h → g ≈ h) → is_mono f

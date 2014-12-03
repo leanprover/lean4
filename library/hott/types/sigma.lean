@@ -11,6 +11,7 @@ import ..trunc .prod
 open path sigma sigma.ops equiv is_equiv
 
 namespace sigma
+  -- remove the ₁'s (globally)
   variables {A A' : Type} {B : A → Type} {B' : A' → Type} {C : Πa, B a → Type}
             {D : Πa b, C a b → Type}
             {a a' a'' : A} {b b₁ b₂ : B a} {b' : B a'} {b'' : B a''} {u v w : Σa, B a}
@@ -50,9 +51,9 @@ namespace sigma
   definition dpair_path_sigma (p : u.1 ≈ v.1) (q : p ▹ u.2 ≈ v.2)
       :  dpair (path_sigma p q)..1 (path_sigma p q)..2 ≈ ⟨p, q⟩ :=
   begin
-    reverts (p, q),
+    generalize q, generalize p,
     apply (destruct u), intros (u1, u2),
-    apply (destruct v), intros (v1, v2, p), generalize v2, --change to revert
+    apply (destruct v), intros (v1, v2, p), generalize v2,
     apply (path.rec_on p), intros (v2, q),
     apply (path.rec_on q), apply idp
   end
@@ -74,7 +75,7 @@ namespace sigma
   definition transport_pr1_path_sigma {B' : A → Type} (p : u.1 ≈ v.1) (q : p ▹ u.2 ≈ v.2)
       : transport (λx, B' x.1) (path_sigma p q) ≈ transport B' p :=
   begin
-    reverts (p, q),
+    generalize q, generalize p,
     apply (destruct u), intros (u1, u2),
     apply (destruct v), intros (v1, v2, p), generalize v2,
     apply (path.rec_on p), intros (v2, q),
@@ -120,7 +121,7 @@ namespace sigma
       path_sigma_dpair (p1 ⬝ p2) (transport_pp B p1 p2 b ⬝ ap (transport B p2) q1 ⬝ q2)
     ≈ path_sigma_dpair p1 q1 ⬝ path_sigma_dpair  p2 q2 :=
   begin
-    reverts (b', p2, b'', q1, q2),
+    generalize q2, generalize q1, generalize b'', generalize p2, generalize b',
     apply (path.rec_on p1), intros (b', p2),
     apply (path.rec_on p2), intros (b'', q1),
     apply (path.rec_on q1), intro q2,
@@ -132,7 +133,7 @@ namespace sigma
       path_sigma (p1 ⬝ p2) (transport_pp B p1 p2 u.2 ⬝ ap (transport B p2) q1 ⬝ q2)
     ≈ path_sigma p1 q1 ⬝ path_sigma p2 q2 :=
   begin
-    reverts (p1, q1, p2, q2),
+    generalize q2, generalize p2, generalize q1, generalize p1,
     apply (destruct u), intros (u1, u2),
     apply (destruct v), intros (v1, v2),
     apply (destruct w), intros,
@@ -142,7 +143,7 @@ namespace sigma
   definition path_sigma_dpair_p1_1p (p : a ≈ a') (q : p ▹ b ≈ b') :
       path_sigma_dpair p q ≈ path_sigma_dpair p idp ⬝ path_sigma_dpair idp q :=
   begin
-    reverts (b', q),
+    generalize q, generalize b',
     apply (path.rec_on p), intros (b', q),
     apply (path.rec_on q), apply idp
   end
@@ -171,7 +172,7 @@ namespace sigma
               q2
               s
   -- begin
-  --   reverts (q2, s),
+  --   generalize s, generalize q2,
   --   apply (path.rec_on r), intros (q2, s),
   --   apply (path.rec_on s), apply idp
   -- end
@@ -180,13 +181,14 @@ namespace sigma
   /- A path between paths in a total space is commonly shown component wise. -/
   definition path_path_sigma {p q : u ≈ v} (r : p..1 ≈ q..1) (s : r ▹ p..2 ≈ q..2) : p ≈ q :=
   begin
-    reverts (q, r, s),
+    generalize s, generalize r, generalize q,
     apply (path.rec_on p),
     apply (destruct u), intros (u1, u2, q, r, s),
     apply concat, rotate 1,
     apply eta_path_sigma,
     apply (path_path_sigma_path_sigma r s)
   end
+
 
   /- In Coq they often have to give u and v explicitly when using the following definition -/
   definition path_path_sigma_uncurried {p q : u ≈ v}
@@ -221,7 +223,7 @@ namespace sigma
   definition transport_sigma_' {C : A → Type} {D : Π a:A, B a → C a → Type} (p : a ≈ a')
       (bcd : Σ(b : B a) (c : C a), D a b c) : p ▹ bcd ≈ ⟨p ▹ bcd.1, p ▹ bcd.2.1, p ▹D2 bcd.2.2⟩ :=
   begin
-    revert bcd,
+    generalize bcd,
     apply (path.rec_on p), intro bcd,
     apply (destruct bcd), intros (b, cd),
     apply (destruct cd), intros (c, d),
@@ -234,35 +236,15 @@ namespace sigma
   definition functor_sigma (u : Σa, B a) : Σa', B' a' :=
   ⟨f u.1, g u.1 u.2⟩
 
-  -- variables {A A' : Type} {B : A → Type} {B' : A' → Type} (f : A → A') (g : Πa, B a → B' (f a))
-  --           (H1 : is_equiv f) (H2 : Π (a : A), is_equiv (g a)) (u' : Σ (a' : A'), B' a')
-  --           (a' : A') (b' : B' a')
-  -- check retr f a' ▹ (g (f⁻¹ a') (g (f⁻¹ a')⁻¹ ((retr f a')⁻¹ ▹ b'))) ≈ b'
-  -- check retr f a' ▹ (g (f⁻¹ a') (g (f⁻¹ a')⁻¹ ((retr f a')⁻¹ ▹ b')))
-  -- check (g (f⁻¹ a') (g (f⁻¹ a')⁻¹ ((retr f a')⁻¹ ▹ b')))
-  -- check retr f a'
-
   /- Equivalences -/
-  irreducible inv --function.compose
-  --TODO: remove explicit arguments of IsEquiv
+
+  --remove explicit arguments of IsEquiv
   definition isequiv_functor_sigma [H1 : is_equiv f] [H2 : Π a, @is_equiv (B a) (B' (f a)) (g a)]
       : is_equiv (functor_sigma f g) :=
-  adjointify (functor_sigma f g)
-             (functor_sigma (f⁻¹) (λ(x : A') (y : B' x),
-               ((g (f⁻¹ x))⁻¹ (transport B' (retr f x)⁻¹ y))))
-  -- begin
-  --   intro u',
-  --   apply (destruct u'), intros (a', b'),
-  --   apply (path_sigma (retr f a')),
-  --   -- show retr f a' ▹ (g (f⁻¹ a') (g (f⁻¹ a')⁻¹ ((retr f a')⁻¹ ▹ b'))) ≈ b',
-  --   -- from sorry
-  --   -- exact (calc
-  --   --   retr f a' ▹ g (f⁻¹ a') (g (f⁻¹ a')⁻¹ ((retr f a')⁻¹ ▹ b'))
-  --   --          ≈ retr f a' ▹ ((retr f a')⁻¹ ▹ b') : {retr (g (f⁻¹ a')) _}
-  --   --      ... ≈ b' : transport_pV)
-  -- end
-             proof (λu', sorry) qed
-             proof (λu, sorry) qed
+  /-adjointify (functor_sigma f g)
+             (functor_sigma (f⁻¹) (λ(x : A') (y : B' x), ((g (f⁻¹ x))⁻¹ ((retr f x)⁻¹ ▹ y))))
+             sorry-/
+             sorry
 
   definition equiv_functor_sigma [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)] : (Σa, B a) ≃ (Σa', B' a') :=
   equiv.mk (functor_sigma f g) !isequiv_functor_sigma

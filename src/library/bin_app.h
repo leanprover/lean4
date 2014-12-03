@@ -20,6 +20,21 @@ bool is_bin_app(expr const & t, expr const & f, expr & lhs, expr & rhs);
 expr mk_bin_rop(expr const & op, expr const & unit, unsigned num_args, expr const * args);
 expr mk_bin_rop(expr const & op, expr const & unit, std::initializer_list<expr> const & l);
 
+template<typename MkBin, typename MkUnit>
+expr foldr(MkBin && mkb, MkUnit && mku, unsigned num_args, expr const * args) {
+    if (num_args == 0) {
+        return mku();
+    } else {
+        expr r = args[num_args - 1];
+        unsigned i = num_args - 1;
+        while (i > 0) {
+            --i;
+            r = mkb(args[i], r);
+        }
+        return r;
+    }
+}
+
 /**
    \brief Return unit if <tt>num_args == 0</tt>, args[0] if <tt>num_args == 1</tt>, and
    <tt>(op ... (op (op args[0] args[1]) args[2]) ...)</tt>

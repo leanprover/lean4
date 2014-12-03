@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/init_module.h"
 #include "library/tactic/init_module.h"
+#include "library/definitional/init_module.h"
 #include "library/print.h"
 #include "frontends/lean/init_module.h"
 #include "frontends/lua/register_modules.h"
@@ -29,12 +30,14 @@ void initialize() {
     init_default_print_fn();
     initialize_library_module();
     initialize_tactic_module();
+    initialize_definitional_module();
     initialize_frontend_lean_module();
     register_modules();
 }
 void finalize() {
     run_thread_finalizers();
     finalize_frontend_lean_module();
+    finalize_definitional_module();
     finalize_tactic_module();
     finalize_library_module();
     finalize_inductive_module();

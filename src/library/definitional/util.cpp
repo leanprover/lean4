@@ -130,4 +130,132 @@ expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, option
     }
     return type;
 }
+
+static expr * g_true = nullptr;
+static expr * g_and = nullptr;
+static expr * g_and_intro = nullptr;
+static expr * g_and_elim_left = nullptr;
+static expr * g_and_elim_right = nullptr;
+
+static name * g_unit = nullptr;
+static name * g_prod_name = nullptr;
+static name * g_prod_mk_name = nullptr;
+static name * g_pr1_name = nullptr;
+static name * g_pr2_name = nullptr;
+
+void initialize_definitional_util() {
+    g_true           = new expr(mk_constant("true"));
+    g_and            = new expr(mk_constant("and"));
+    g_and_intro      = new expr(mk_constant({"and", "intro"}));
+    g_and_elim_left  = new expr(mk_constant({"and", "elim_left"}));
+    g_and_elim_right = new expr(mk_constant({"and", "elim_right"}));
+
+    g_unit           = new name("unit");
+    g_prod_name      = new name("prod");
+    g_prod_mk_name   = new name{"prod", "mk"};
+    g_pr1_name       = new name{"prod", "pr1"};
+    g_pr2_name       = new name{"prod", "pr2"};
+}
+
+void finalize_definitional_util() {
+    delete g_true;
+    delete g_and;
+    delete g_and_intro;
+    delete g_and_elim_left;
+    delete g_and_elim_right;
+    delete g_unit;
+    delete g_prod_name;
+    delete g_prod_mk_name;
+    delete g_pr1_name;
+    delete g_pr2_name;
+}
+
+expr mk_true() {
+    return *g_true;
+}
+
+expr mk_and(expr const & a, expr const & b) {
+    return mk_app(*g_and, a, b);
+}
+
+expr mk_and_intro(type_checker & tc, expr const & Ha, expr const & Hb) {
+    return mk_app(*g_and_intro, tc.infer(Ha).first, tc.infer(Hb).first, Ha, Hb);
+}
+
+expr mk_and_elim_left(type_checker & tc, expr const & H) {
+    expr a_and_b = tc.whnf(tc.infer(H).first).first;
+    return mk_app(*g_and_elim_left, app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
+}
+
+expr mk_and_elim_right(type_checker & tc, expr const & H) {
+    expr a_and_b = tc.whnf(tc.infer(H).first).first;
+    return mk_app(*g_and_elim_right, app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
+}
+
+expr mk_unit(level const & l) {
+    return mk_constant(*g_unit, {l});
+}
+
+expr mk_prod(type_checker & tc, expr const & A, expr const & B) {
+    level l1 = sort_level(tc.ensure_type(A).first);
+    level l2 = sort_level(tc.ensure_type(B).first);
+    return mk_app(mk_constant(*g_prod_name, {l1, l2}), A, B);
+}
+
+expr mk_pair(type_checker & tc, expr const & a, expr const & b) {
+    expr A = tc.infer(a).first;
+    expr B = tc.infer(b).first;
+    level l1 = sort_level(tc.ensure_type(A).first);
+    level l2 = sort_level(tc.ensure_type(B).first);
+    return mk_app(mk_constant(*g_prod_mk_name, {l1, l2}), A, B, a, b);
+}
+
+expr mk_pr1(type_checker & tc, expr const & p) {
+    expr AxB = tc.whnf(tc.infer(p).first).first;
+    expr const & A = app_arg(app_fn(AxB));
+    expr const & B = app_arg(AxB);
+    return mk_app(mk_constant(*g_pr1_name, const_levels(AxB)), A, B, p);
+}
+
+expr mk_pr2(type_checker & tc, expr const & p) {
+    expr AxB = tc.whnf(tc.infer(p).first).first;
+    expr const & A = app_arg(app_fn(AxB));
+    expr const & B = app_arg(AxB);
+    return mk_app(mk_constant(*g_pr2_name, const_levels(AxB)), A, B, p);
+}
+
+expr mk_unit(level const & l, bool prop) {
+    if (prop)
+        return mk_true();
+    else
+        return mk_unit(l);
+}
+
+expr mk_prod(type_checker & tc, expr const & a, expr const & b, bool prop) {
+    if (prop)
+        return mk_and(a, b);
+    else
+        return mk_prod(tc, a, b);
+}
+
+expr mk_pair(type_checker & tc, expr const & a, expr const & b, bool prop) {
+    if (prop)
+        return mk_and_intro(tc, a, b);
+    else
+        return mk_pair(tc, a, b);
+}
+
+expr mk_pr1(type_checker & tc, expr const & p, bool prop) {
+    if (prop)
+        return mk_and_elim_left(tc, p);
+    else
+        return mk_pr1(tc, p);
+}
+
+expr mk_pr2(type_checker & tc, expr const & p, bool prop) {
+    if (prop)
+        return mk_and_elim_right(tc, p);
+    else
+        return mk_pr2(tc, p);
+}
 }

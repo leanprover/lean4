@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jakob von Raumer
 
-import ..precategory.basic ..precategory.morphism
+import ..precategory.basic ..precategory.morphism ..precategory.iso
 import hott.equiv hott.trunc
 
 open precategory morphism is_equiv path truncation nat sigma sigma.ops
@@ -24,15 +24,13 @@ namespace category
   definition path_of_iso {a b : ob} : a ≅ b → a ≈ b :=
   iso_of_path⁻¹
 
-  definition foo {a b : ob} :
-
-  definition ob_1_type : is_trunc -2 .+1 .+1 .+1 ob :=
+  definition ob_1_type : is_trunc nat.zero .+1 ob :=
   begin
     apply is_trunc_succ, intros (a, b),
-    /-fapply trunc_equiv,
-      exact (@path_of_iso ob C a b),
-      apply inv_closed,
-    exact sorry,-/
+    fapply trunc_equiv,
+          exact (@path_of_iso _ _ a b),
+        apply inv_closed,
+    apply is_hset_iso,
   end
 
 end category

@@ -108,6 +108,28 @@ void collect_locals(expr const & type, expr const & value, parser const & p, buf
     sort_locals(ls, p, ctx_ps);
 }
 
+name_set collect_univ_params_ignoring_tactics(expr const & e, name_set const & ls) {
+    if (!has_param_univ(e)) {
+        return ls;
+    } else {
+        name_set r = ls;
+        for_each(e, [&](expr const & e, unsigned) {
+                if (!has_param_univ(e)) {
+                    return false;
+                } else if (is_by(e)) {
+                    return false; // do not visit children
+                } else if (is_sort(e)) {
+                    collect_univ_params_core(sort_level(e), r);
+                } else if (is_constant(e)) {
+                    for (auto const & l : const_levels(e))
+                        collect_univ_params_core(l, r);
+                }
+                return true;
+            });
+        return r;
+    }
+}
+
 void remove_local_vars(parser const & p, buffer<expr> & locals) {
     unsigned j = 0;
     for (unsigned i = 0; i < locals.size(); i++) {

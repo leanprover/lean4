@@ -407,7 +407,7 @@ static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_op
         new_locals.append(locals);
         erase_local_binder_info(new_locals);
         value = Fun_as_is(new_locals, value, p);
-        update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
+        update_univ_parameters(ls_buffer, collect_univ_params_ignoring_tactics(value, collect_univ_params_ignoring_tactics(type)), p);
         remove_local_vars(p, locals);
         ls = to_list(ls_buffer.begin(), ls_buffer.end());
         levels local_ls = collect_local_nonvar_levels(p, ls);

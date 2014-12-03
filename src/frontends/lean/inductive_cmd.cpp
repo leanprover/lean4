@@ -726,24 +726,34 @@ struct inductive_cmd_fn {
         for (inductive_decl const & d : decls) {
             name const & n = inductive_decl_name(d);
             pos_info pos   = *m_decl_pos_map.find(n);
-            env = mk_rec_on(env, inductive_decl_name(d));
-            env = mk_induction_on(env, inductive_decl_name(d));
+            env = mk_rec_on(env, n);
+            env = mk_induction_on(env, n);
             save_def_info(name(n, "rec_on"), pos);
             save_def_info(name(n, "induction_on"), pos);
             if (has_unit) {
-                env = mk_cases_on(env, inductive_decl_name(d));
+                env = mk_cases_on(env, n);
                 save_def_info(name(n, "cases_on"), pos);
                 if (has_eq && has_heq) {
-                    env = mk_no_confusion(env, inductive_decl_name(d));
+                    env = mk_no_confusion(env, n);
                     save_if_defined(name{n, "no_confusion_type"}, pos);
                     save_if_defined(name(n, "no_confusion"), pos);
                 }
                 if (has_prod) {
-                    env = mk_below(env, inductive_decl_name(d));
-                    env = mk_ibelow(env, inductive_decl_name(d));
+                    env = mk_below(env, n);
+                    env = mk_ibelow(env, n);
                     save_if_defined(name{n, "below"}, pos);
                     save_if_defined(name(n, "ibelow"), pos);
                 }
+            }
+        }
+        for (inductive_decl const & d : decls) {
+            name const & n = inductive_decl_name(d);
+            pos_info pos   = *m_decl_pos_map.find(n);
+            if (has_unit && has_prod) {
+                env = mk_brec_on(env, n);
+                env = mk_binduction_on(env, n);
+                save_if_defined(name{n, "brec_on"}, pos);
+                save_if_defined(name(n, "binduction_on"), pos);
             }
         }
         return env;

@@ -9,8 +9,12 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \brief Given an inductive datatype \c n in \c env, add
-    <tt>n.brec_on</tt> (aka below recursion on) to the environment.
+    <tt>n.below</tt> auxiliary construction for <tt>n.brec_on</t>
+    (aka below recursion on) to the environment.
 */
 environment mk_below(environment const & env, name const & n);
 environment mk_ibelow(environment const & env, name const & n);
+
+environment mk_brec_on(environment const & env, name const & n);
+environment mk_binduction_on(environment const & env, name const & n);
 }

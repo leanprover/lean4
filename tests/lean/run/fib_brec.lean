@@ -2,6 +2,7 @@ import data.nat.basic data.prod
 open prod
 
 namespace nat
+  namespace manual
   definition brec_on {C : nat → Type} (n : nat) (F : Π (n : nat), @below C n → C n) : C n :=
   have general : C n × @below C n, from
     rec_on n
@@ -13,6 +14,7 @@ namespace nat
            F (succ n₁) b,
          pair c b),
   pr₁ general
+  end manual
 
   definition fib (n : nat) :=
   brec_on n (λ (n : nat),

@@ -22,6 +22,7 @@ namespace vector
   set_option pp.universes true
   check @below
 
+  namespace manual
   section
     universe variables l₁ l₂
     variable {A : Type.{l₁}}
@@ -38,6 +39,7 @@ namespace vector
           pair c b),
     pr₁ general
   end
+  end manual
 
   -- check brec_on
 

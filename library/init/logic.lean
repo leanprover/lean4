@@ -235,12 +235,6 @@ namespace and
   theorem elim (H₁ : a ∧ b) (H₂ : a → b → c) : c :=
   rec H₂ H₁
 
-  definition elim_left (H : a ∧ b) : a  :=
-  rec (λa b, a) H
-
-  definition elim_right (H : a ∧ b) : b :=
-  rec (λa b, b) H
-
   theorem swap (H : a ∧ b) : b ∧ a :=
   intro (elim_right H) (elim_left H)
 

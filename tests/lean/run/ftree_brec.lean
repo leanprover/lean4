@@ -49,7 +49,6 @@ definition pbelow.{l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} (C : ftree A B
      let p₂  : Prop := fc₂ ∧ fr₂ in
      p₁ ∧ p₂)
   t
-end manual
 
 definition brec_on.{l l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} {C : ftree A B → Type.{l+1}}
                   (t : ftree A B)
@@ -110,4 +109,5 @@ have gen : C t ∧ @ibelow A B C t, from
        and.intro c b)
     t,
 and.elim_left gen
+end manual
 end ftree

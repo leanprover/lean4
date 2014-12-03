@@ -54,18 +54,21 @@ level get_datatype_level(expr ind_type);
 expr instantiate_univ_param (expr const & e, name const & p, level const & l);
 
 expr mk_true();
+expr mk_true_intro();
 expr mk_and(expr const & a, expr const & b);
 expr mk_and_intro(type_checker & tc, expr const & Ha, expr const & Hb);
 expr mk_and_elim_left(type_checker & tc, expr const & H);
 expr mk_and_elim_right(type_checker & tc, expr const & H);
 
 expr mk_unit(level const & l);
+expr mk_unit_mk(level const & l);
 expr mk_prod(type_checker & tc, expr const & A, expr const & B);
 expr mk_pair(type_checker & tc, expr const & a, expr const & b);
 expr mk_pr1(type_checker & tc, expr const & p);
 expr mk_pr2(type_checker & tc, expr const & p);
 
 expr mk_unit(level const & l, bool prop);
+expr mk_unit_mk(level const & l, bool prop);
 expr mk_prod(type_checker & tc, expr const & a, expr const & b, bool prop);
 expr mk_pair(type_checker & tc, expr const & a, expr const & b, bool prop);
 expr mk_pr1(type_checker & tc, expr const & p, bool prop);

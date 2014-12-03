@@ -9,6 +9,7 @@ namespace vector
   print definition no_confusion
   infixr `::` := vcons
 
+  namespace play
   section
     universe variables l₁ l₂
     variable {A : Type.{l₁}}
@@ -25,6 +26,7 @@ namespace vector
           pair c b),
     pr₁ general
   end
+  end play
 
   print "====================="
   definition append {A : Type} {n m : nat} (w : vector A m) (v : vector A n) : vector A (n + m) :=

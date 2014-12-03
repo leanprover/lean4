@@ -36,6 +36,12 @@ mk :: (pr1 : A) (pr2 : B)
 inductive and (a b : Prop) : Prop :=
 intro : a → b → and a b
 
+definition and.elim_left {a b : Prop} (H : and a b) : a  :=
+and.rec (λa b, a) H
+
+definition and.elim_right {a b : Prop} (H : and a b) : b :=
+and.rec (λa b, b) H
+
 inductive sum (A B : Type) : Type :=
 inl : A → sum A B,
 inr : B → sum A B

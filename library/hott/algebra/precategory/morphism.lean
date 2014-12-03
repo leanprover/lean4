@@ -46,10 +46,6 @@ namespace morphism
   theorem id_is_iso [instance] : is_iso (ID a) :=
   is_iso.mk !id_compose !id_compose
 
-  -- In a precategory, equal objects are isomorphic
-  definition iso_of_path (p : a ≈ b) : Σ (f : hom a b), is_iso f :=
-  path.rec_on p ⟨ id , id_is_iso ⟩
-
   theorem inverse_is_iso [instance] (f : a ⟶ b) [H : is_iso f] : is_iso (f⁻¹) :=
   is_iso.mk !compose_inverse !inverse_compose
 
@@ -149,6 +145,10 @@ namespace morphism
   --theorem is_equivalence_eq [instance] (T : Type) : is_equivalence isomorphic :=
   --is_equivalence.mk (is_reflexive.mk refl) (is_symmetric.mk symm) (is_transitive.mk trans)
   end isomorphic
+
+  -- In a precategory, equal objects are isomorphic
+  definition iso_of_path (p : a ≈ b) : isomorphic a b :=
+  path.rec_on p (isomorphic.mk id)
 
   inductive is_mono [class] (f : a ⟶ b) : Type :=
   mk : (∀c (g h : hom c a), f ∘ g ≈ f ∘ h → g ≈ h) → is_mono f

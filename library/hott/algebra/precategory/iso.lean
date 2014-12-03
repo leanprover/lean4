@@ -12,7 +12,7 @@ namespace morphism
   variables {a b c : ob} {g : b ⟶ c} {f : a ⟶ b} {h : b ⟶ a}
 
   -- "is_iso f" is equivalent to a certain sigma type
-  definition sigma_equiv_of_is_iso (f : hom a b) :
+  definition sigma_char (f : hom a b) :
     (Σ (g : hom b a), (g ∘ f ≈ id) × (f ∘ g ≈ id)) ≃ is_iso f :=
   begin
     fapply (equiv.mk),
@@ -44,7 +44,7 @@ namespace morphism
   definition is_hprop_of_is_iso : is_hset (is_iso f) :=
   begin
     apply trunc_equiv,
-      apply (equiv.to_is_equiv (!sigma_equiv_of_is_iso)),
+      apply (equiv.to_is_equiv (!sigma_char)),
     apply sigma_trunc,
       apply (!homH),
     intro g, apply trunc_prod,

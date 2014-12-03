@@ -2,8 +2,8 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn, Jakob von Raumer
 
-import .functor hott.axioms.funext hott.types.pi
-open precategory path functor truncation
+import .functor hott.axioms.funext hott.types.pi hott.types.sigma
+open precategory path functor truncation equiv sigma.ops sigma is_equiv function
 
 inductive natural_transformation {C D : Precategory} (F G : C ⇒ D) : Type :=
 mk : Π (η : Π (a : C), hom (F a) (G a))
@@ -20,6 +20,27 @@ namespace natural_transformation
 
   theorem naturality (η : F ⟹ G) : Π⦃a b : C⦄ (f : a ⟶ b), G f ∘ η a ≈ η b ∘ F f :=
   rec (λ x y, y) η
+
+  protected definition sigma_char :
+    (Σ (η : Π (a : C), hom (F a) (G a)), Π (a b : C) (f : hom a b), G f ∘ η a ≈ η b ∘ F f) ≃ (F ⟹ G) :=
+  /-equiv.mk (λ S, natural_transformation.mk S.1 S.2)
+    (adjointify (λ S, natural_transformation.mk S.1 S.2)
+      (λ H, natural_transformation.rec_on H (λ η nat, dpair η nat))
+      (λ H, natural_transformation.rec_on H (λ η nat, idpath (natural_transformation.mk η nat)))
+      (λ S, sigma.rec_on S (λ η nat, idpath (dpair η nat))))-/
+
+  /- THE FOLLLOWING CAUSES LEAN TO SEGFAULT?
+  begin
+    fapply equiv.mk,
+      intro S, apply natural_transformation.mk, exact (S.2),
+    fapply adjointify,
+        intro H, apply (natural_transformation.rec_on H), intros (η, natu),
+        exact (dpair η @natu),
+      intro H, apply (natural_transformation.rec_on _ _ _),
+    intros,
+  end
+  check sigma_char-/
+  sorry
 
   protected definition compose (η : G ⟹ H) (θ : F ⟹ G) : F ⟹ H :=
   natural_transformation.mk
@@ -48,7 +69,7 @@ namespace natural_transformation
   mk (λa, id) (λa b f, !id_right ⬝ (!id_left⁻¹))
   protected definition ID {C D : Precategory} (F : functor C D) : natural_transformation F F := id
 
-  protected theorem id_left (η : F ⟹ G) [fext : funext.{l_1 l_4}] :
+  protected definition id_left (η : F ⟹ G) [fext : funext.{l_1 l_4}] :
       id ∘n η ≈ η :=
   begin
     apply (rec_on η), intros (f, H),
@@ -60,7 +81,7 @@ namespace natural_transformation
     apply (!is_hprop.elim),
   end
 
-  protected theorem id_right (η : F ⟹ G) [fext : funext.{l_1 l_4}] :
+  protected definition id_right (η : F ⟹ G) [fext : funext.{l_1 l_4}] :
       η ∘n id ≈ η :=
   begin
     apply (rec_on η), intros (f, H),
@@ -70,6 +91,16 @@ namespace natural_transformation
       repeat (apply trunc_pi; intros),
       apply (succ_is_trunc -1 (G a_2 ∘ f a) (f a_1 ∘ F a_2)),
     apply (!is_hprop.elim),
+  end
+
+  protected definition to_hset : is_hset (F ⟹ G) :=
+  begin
+    apply trunc_equiv, apply (equiv.to_is_equiv sigma_char),
+    apply sigma_trunc,
+      apply trunc_pi, intro a, exact (@homH (objects D) _ (F a) (G a)),
+    intro η, apply trunc_pi, intro a,
+      apply trunc_pi, intro b, apply trunc_pi, intro f,
+      apply succ_is_trunc, apply trunc_succ, exact (@homH (objects D) _ (F a) (G b)),
   end
 
 end natural_transformation

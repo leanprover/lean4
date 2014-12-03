@@ -23,14 +23,6 @@ namespace precategory
      (λ a b f, !id_left)
 
   definition Opposite (C : Precategory) : Precategory := Mk (opposite C)
-  --direct construction:
-  -- MK C
-  --    (λa b, hom b a)
-  --    (λ a b c f g, g ∘ f)
-  --    (λ a, id)
-  --    (λ a b c d f g h, symm !assoc)
-  --    (λ a b f, !id_right)
-  --    (λ a b f, !id_left)
 
   infixr `∘op`:60 := @compose _ (opposite _) _ _ _
 
@@ -38,8 +30,12 @@ namespace precategory
 
   theorem compose_op {f : hom a b} {g : hom b c} : f ∘op g ≈ g ∘ f := idp
 
+  -- TODO: Decide whether just to use funext for this theorem or
+  --       take the trick they use in Coq-HoTT, and introduce a further
+  --       axiom in the definition of precategories that provides thee
+  --       symmetric associativity proof.
   theorem op_op' {ob : Type} (C : precategory ob) : opposite (opposite C) ≈ C :=
-  sorry --precategory.rec (λ hom homH comp id assoc idl idr, idpath (mk _ _ _ _ _ _)) C
+  sorry
 
   theorem op_op : Opposite (Opposite C) ≈ C :=
   (ap (Precategory.mk C) (op_op' C)) ⬝ !Precategory.equal

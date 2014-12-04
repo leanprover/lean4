@@ -1,4 +1,3 @@
-whnf.lean:2:0: warning: imported file uses 'sorry'
 succ (nat.rec 2 (λ (b₁ r : ℕ), succ r) 0)
 3
 succ (nat.rec a (λ (b₁ r : ℕ), succ r) 0)

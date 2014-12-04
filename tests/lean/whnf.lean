@@ -1,4 +1,4 @@
-import data.nat
+import data.nat.basic
 open nat
 
 eval [whnf] (fun x, x + 1) 2

@@ -10,12 +10,14 @@ Author: Leonardo de Moura
 #include "frontends/lean/token_table.h"
 
 namespace lean {
-static unsigned g_arrow_prec = 25;
-static unsigned g_max_prec   = 1024;
-static unsigned g_plus_prec  = 65;
-static unsigned g_cup_prec   = 60;
+static unsigned g_arrow_prec      = 25;
+static unsigned g_decreasing_prec = 25;
+static unsigned g_max_prec        = 1024;
+static unsigned g_plus_prec       = 65;
+static unsigned g_cup_prec        = 60;
 unsigned get_max_prec() { return g_max_prec; }
 unsigned get_arrow_prec() { return g_arrow_prec; }
+unsigned get_decreasing_prec() { return g_decreasing_prec; }
 token_table add_command_token(token_table const & s, char const * token) {
     return insert(s, token, token_info(token));
 }
@@ -60,12 +62,13 @@ void display(std::ostream & out, token_table const & s) {
         });
 }
 
-static char const * g_lambda_unicode = "\u03BB";
-static char const * g_pi_unicode     = "\u03A0";
-static char const * g_forall_unicode = "\u2200";
-static char const * g_arrow_unicode  = "\u2192";
-static char const * g_cup            = "\u2294";
-static char const * g_qed_unicode    = "∎";
+static char const * g_lambda_unicode     = "\u03BB";
+static char const * g_pi_unicode         = "\u03A0";
+static char const * g_forall_unicode     = "\u2200";
+static char const * g_arrow_unicode      = "\u2192";
+static char const * g_cup                = "\u2294";
+static char const * g_qed_unicode        = "∎";
+static char const * g_decreasing_unicode = "↓";
 
 void init_token_table(token_table & t) {
     pair<char const *, unsigned> builtin[] =
@@ -76,8 +79,8 @@ void init_token_table(token_table & t) {
          {"using", 0}, {"|", 0}, {"!", g_max_prec}, {"with", 0}, {"...", 0}, {",", 0},
          {".", 0}, {":", 0}, {"::", 0}, {"calc", 0}, {":=", 0}, {"--", 0}, {"#", 0},
          {"(*", 0}, {"/-", 0}, {"begin", g_max_prec}, {"proof", g_max_prec}, {"qed", 0}, {"@", g_max_prec},
-         {"sorry", g_max_prec}, {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec}, {"local", 0},
-         {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
+         {"sorry", g_max_prec}, {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec},
+         {"<d", g_decreasing_prec}, {"local", 0}, {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
 
     char const * commands[] =
         {"theorem", "axiom", "variable", "protected", "private", "opaque", "definition", "example", "coercion",
@@ -116,6 +119,7 @@ void init_token_table(token_table & t) {
         it3++;
     }
     t = add_token(t, g_arrow_unicode, "->", get_arrow_prec());
+    t = add_token(t, g_decreasing_unicode, "<d", get_decreasing_prec());
 
     auto it4 = cmd_aliases;
     while (it4->first) {

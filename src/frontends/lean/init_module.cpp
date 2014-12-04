@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 void initialize_frontend_lean_module() {
+    initialize_info_annotation();
     initialize_tokens();
     initialize_token_table();
     initialize_parse_table();
@@ -42,7 +43,6 @@ void initialize_frontend_lean_module() {
     initialize_pp_options();
     initialize_scanner();
     initialize_parser();
-    initialize_info_annotation();
     initialize_tactic_hint();
     initialize_class();
     initialize_parser_config();
@@ -73,7 +73,6 @@ void finalize_frontend_lean_module() {
     finalize_parser_config();
     finalize_class();
     finalize_tactic_hint();
-    finalize_info_annotation();
     finalize_parser();
     finalize_scanner();
     finalize_pp_options();
@@ -84,5 +83,6 @@ void finalize_frontend_lean_module() {
     finalize_parse_table();
     finalize_token_table();
     finalize_tokens();
+    finalize_info_annotation();
 }
 }

@@ -71,7 +71,7 @@ namespace truncation
   -- should this be notation or definitions?
   notation `is_contr` := is_trunc -2
   notation `is_hprop` := is_trunc -1
-  notation `is_hset`  := is_trunc nat.zero
+  notation `is_hset`  := is_trunc (nat_to_trunc_index nat.zero)
   -- definition is_contr := is_trunc -2
   -- definition is_hprop := is_trunc -1
   -- definition is_hset  := is_trunc 0

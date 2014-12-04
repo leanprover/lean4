@@ -5,22 +5,25 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/expr.h"
+#include "library/kernel_serializer.h"
 
 namespace lean {
 static name * g_equations_name  = nullptr;
 static name * g_equation_name   = nullptr;
 static name * g_decreasing_name = nullptr;
+static std::string * g_equations_opcode  = nullptr;
+static std::string * g_equation_opcode   = nullptr;
+static std::string * g_decreasing_opcode = nullptr;
 
 [[ noreturn ]] static void throw_eqs_ex() { throw exception("unexpected occurrence of 'equations' expression"); }
 [[ noreturn ]] static void throw_eq_ex() { throw exception("unexpected occurrence of 'equation' expression"); }
-[[ noreturn ]] static void throw_dec_ex() { throw exception("unexpected occurrence of 'decreasing' expression"); }
 
 class equations_macro_cell : public macro_definition_cell {
 public:
     virtual name get_name() const { return *g_equations_name; }
     virtual pair<expr, constraint_seq> get_type(expr const &, extension_context &) const { throw_eqs_ex(); }
     virtual optional<expr> expand(expr const &, extension_context &) const { throw_eqs_ex(); }
-    virtual void write(serializer &) const { throw_eqs_ex(); }
+    virtual void write(serializer & s) const { s.write_string(*g_equations_opcode); }
 };
 
 class equation_macro_cell : public macro_definition_cell {
@@ -28,7 +31,7 @@ public:
     virtual name get_name() const { return *g_equation_name; }
     virtual pair<expr, constraint_seq> get_type(expr const &, extension_context &) const { throw_eq_ex(); }
     virtual optional<expr> expand(expr const &, extension_context &) const { throw_eq_ex(); }
-    virtual void write(serializer &) const { throw_eq_ex(); }
+    virtual void write(serializer & s) const { s.write_string(*g_equation_opcode); }
 };
 
 class decreasing_macro_cell : public macro_definition_cell {
@@ -47,7 +50,7 @@ public:
         check_macro(m);
         return some_expr(macro_arg(m, 0));
     }
-    virtual void write(serializer &) const { throw_dec_ex(); }
+    virtual void write(serializer & s) const { s.write_string(*g_decreasing_opcode); }
 };
 
 static macro_definition * g_equations  = nullptr;
@@ -107,15 +110,45 @@ expr mk_equations(unsigned num, expr const * eqns, expr const & Hwf) {
 }
 
 void initialize_equations() {
-    g_equations_name  = new name("equations");
-    g_equation_name   = new name("equation");
-    g_decreasing_name = new name("decreasing");
-    g_equations       = new macro_definition(new equations_macro_cell());
-    g_equation        = new macro_definition(new equation_macro_cell());
-    g_decreasing      = new macro_definition(new decreasing_macro_cell());
+    g_equations_name    = new name("equations");
+    g_equation_name     = new name("equation");
+    g_decreasing_name   = new name("decreasing");
+    g_equations         = new macro_definition(new equations_macro_cell());
+    g_equation          = new macro_definition(new equation_macro_cell());
+    g_decreasing        = new macro_definition(new decreasing_macro_cell());
+    g_equations_opcode  = new std::string("Eqns");
+    g_equation_opcode   = new std::string("Eqn");
+    g_decreasing_opcode = new std::string("Decr");
+    register_macro_deserializer(*g_equations_opcode,
+                                [](deserializer &, unsigned num, expr const * args) {
+                                    if (num == 0)
+                                        throw corrupted_stream_exception();
+                                    if (!is_equation(args[num-1])) {
+                                        if (num == 1)
+                                            throw corrupted_stream_exception();
+                                        return mk_equations(num-1, args, args[num-1]);
+                                    } else {
+                                        return mk_equations(num, args);
+                                    }
+                                });
+    register_macro_deserializer(*g_equation_opcode,
+                                [](deserializer &, unsigned num, expr const * args) {
+                                    if (num != 2)
+                                        throw corrupted_stream_exception();
+                                    return mk_equation(args[0], args[1]);
+                                });
+    register_macro_deserializer(*g_decreasing_opcode,
+                                [](deserializer &, unsigned num, expr const * args) {
+                                    if (num != 2)
+                                        throw corrupted_stream_exception();
+                                    return mk_decreasing(args[0], args[1]);
+                                });
 }
 
 void finalize_equations() {
+    delete g_equation_opcode;
+    delete g_equations_opcode;
+    delete g_decreasing_opcode;
     delete g_equations;
     delete g_equation;
     delete g_decreasing;

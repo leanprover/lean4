@@ -28,6 +28,6 @@ namespace prod
              (λu, destruct u (λa b, idp))
 
   definition equiv_prod_symm (A B : Type) : A × B ≃ B × A :=
-    equiv.mk flip _
+  equiv.mk flip _
 
 end prod

@@ -5,13 +5,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/definitional/util.h"
+#include "library/definitional/equations.h"
 
 namespace lean{
 void initialize_definitional_module() {
     initialize_definitional_util();
+    initialize_equations();
 }
 
 void finalize_definitional_module() {
+    finalize_equations();
     finalize_definitional_util();
 }
 }

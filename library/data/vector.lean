@@ -54,9 +54,7 @@ namespace vector
   rfl
 
   theorem eta (v : vector A (succ n)) : head v :: tail v = v :=
-  -- TODO(Leo): replace 'head_cons h t ▸ tail_cons h t ▸ rfl' with rfl
-  -- after issue #318 is fixed
-  destruct v (λ n h t, head_cons h t ▸ tail_cons h t ▸ rfl)
+  destruct v (λ n h t, rfl)
 
   definition last : vector A (succ n) → A :=
   nat.rec_on n

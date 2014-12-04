@@ -370,6 +370,65 @@ static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & po
     return p.rec_save_pos(r, pos);
 }
 
+static name * g_ite  = nullptr;
+static name * g_dite = nullptr;
+static expr * g_not  = nullptr;
+static unsigned g_then_else_prec = 45;
+
+static expr parse_ite(parser & p, expr const & c, pos_info const & pos) {
+    if (!p.env().find(*g_ite))
+        throw parser_error("invalid use of 'if-then-else' expression, environment does not contain 'ite' definition", pos);
+    p.check_token_next(get_then_tk(), "invalid 'if-then-else' expression, 'then' expected");
+    expr t = p.parse_expr(g_then_else_prec);
+    p.check_token_next(get_else_tk(), "invalid 'if-then-else' expression, 'else' expected");
+    expr e = p.parse_expr(g_then_else_prec);
+    return mk_app(mk_constant(*g_ite), c, t, e);
+}
+
+static expr parse_dite(parser & p, name const & H_name, pos_info const & pos) {
+    if (!p.env().find(*g_dite))
+        throw parser_error("invalid use of (dependent) 'if-then-else' expression, environment does "
+                           "not contain 'dite' definition", pos);
+    expr c = p.parse_expr();
+    p.check_token_next(get_then_tk(), "invalid 'if-then-else' expression, 'then' expected");
+    expr t, e;
+    {
+        parser::local_scope scope(p);
+        expr H = mk_local(H_name, c);
+        p.add_local(H);
+        t = Fun(H, p.parse_expr(g_then_else_prec));
+    }
+    p.check_token_next(get_else_tk(), "invalid 'if-then-else' expression, 'else' expected");
+    {
+        parser::local_scope scope(p);
+        expr H = mk_local(H_name, mk_app(*g_not, c));
+        p.add_local(H);
+        e = Fun(H, p.parse_expr(g_then_else_prec));
+    }
+    return mk_app(mk_constant(*g_dite), c, t, e);
+}
+
+static expr parse_if_then_else(parser & p, unsigned, expr const *, pos_info const & pos) {
+    if (p.curr_is_identifier()) {
+        auto id_pos = p.pos();
+        name id = p.get_name_val();
+        p.next();
+        if (p.curr_is_token(get_colon_tk())) {
+            p.next();
+            return parse_dite(p, id, pos);
+        } else {
+            expr e = p.id_to_expr(id, id_pos);
+            while (!p.curr_is_token(get_then_tk())) {
+                e = p.parse_led(e);
+            }
+            return parse_ite(p, e, pos);
+        }
+    } else {
+        expr c = p.parse_expr();
+        return parse_ite(p, c, pos);
+    }
+}
+
 static expr parse_calc_expr(parser & p, unsigned, expr const *, pos_info const &) {
     return parse_calc(p);
 }
@@ -430,6 +489,7 @@ parse_table init_nud_table() {
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("obtain", mk_ext_action(parse_obtain))}, x0);
+    r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
     r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);
     r = r.add({transition("Pi", Binders), transition(",", mk_scoped_expr_action(x0, 0, false))}, x0);
@@ -467,6 +527,9 @@ parse_table get_builtin_led_table() {
 void initialize_builtin_exprs() {
     notation::H_show        = new name("H_show");
     notation::g_exists_elim = new name("exists_elim");
+    notation::g_ite         = new name("ite");
+    notation::g_dite        = new name("dite");
+    notation::g_not         = new expr(mk_constant("not"));
     g_nud_table             = new parse_table();
     *g_nud_table            = notation::init_nud_table();
     g_led_table             = new parse_table();
@@ -478,5 +541,8 @@ void finalize_builtin_exprs() {
     delete g_nud_table;
     delete notation::H_show;
     delete notation::g_exists_elim;
+    delete notation::g_ite;
+    delete notation::g_dite;
+    delete notation::g_not;
 }
 }

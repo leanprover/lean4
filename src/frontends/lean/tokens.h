@@ -62,6 +62,7 @@ name const & get_visible_tk();
 name const & get_from_tk();
 name const & get_using_tk();
 name const & get_then_tk();
+name const & get_else_tk();
 name const & get_by_tk();
 name const & get_proof_tk();
 name const & get_begin_tk();

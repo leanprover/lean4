@@ -14,6 +14,6 @@ eq.false_elim|?p = false → ¬ ?p
 p_ne_false|?p → ?p ≠ false
 decidable.rec_on_false|Π (H3 : ¬ ?p), ?H2 H3 → decidable.rec_on ?H ?H1 ?H2
 not_false|¬ false
-if_false|∀ (t e : ?A), (if false then t else e) = e
+if_false|∀ (t e : ?A), ite false t e = e
 iff.false_elim|?a ↔ false → ¬ ?a
 -- ENDFINDP

@@ -7,7 +7,7 @@ and.rec_on H (λ ypos ylex,
   sub.lt (lt.of_lt_of_le ypos ylex) ypos)
 
 definition wdiv.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
-dif 0 < y ∧ y ≤ x then (λ Hp, f (x - y) (lt_aux Hp) y + 1) else (λ Hn, zero)
+if H : 0 < y ∧ y ≤ x then f (x - y) (lt_aux H) y + 1 else zero
 
 definition wdiv (x y : nat) :=
 fix wdiv.F x y
@@ -37,7 +37,7 @@ definition plt_aux (x y : nat) (H : 0 < y ∧ y ≤ x) : (x - y, y) ≺ (x, y) :
 
 definition pdiv.F (p₁ : nat × nat) : (Π p₂ : nat × nat, p₂ ≺ p₁ → nat) → nat :=
 prod.cases_on p₁ (λ x y f,
-  dif 0 < y ∧ y ≤ x then (λ Hp, f (x - y, y) (plt_aux x y Hp) + 1) else (λ Hnp, zero))
+  if H : 0 < y ∧ y ≤ x then f (x - y, y) (plt_aux x y H) + 1 else zero)
 
 definition pdiv (x y : nat) :=
 fix pdiv.F (x, y)

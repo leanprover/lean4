@@ -541,8 +541,6 @@ end nonempty
 definition ite (c : Prop) [H : decidable c] {A : Type} (t e : A) : A :=
 decidable.rec_on H (λ Hc, t) (λ Hnc, e)
 
-notation `if` c `then` t:45 `else` e:45 := ite c t e
-
 definition if_pos {c : Prop} [H : decidable c] (Hc : c) {A : Type} {t e : A} : (if c then t else e) = t :=
 decidable.rec
   (λ Hc : c,    eq.refl (@ite c (decidable.inl Hc) A t e))
@@ -592,15 +590,13 @@ if_congr_aux Hc Ht He
 definition dite (c : Prop) [H : decidable c] {A : Type} (t : c → A) (e : ¬ c → A) : A :=
 decidable.rec_on H (λ Hc, t Hc) (λ Hnc, e Hnc)
 
-notation `dif` c `then` t:45 `else` e:45 := dite c t e
-
-definition dif_pos {c : Prop} [H : decidable c] (Hc : c) {A : Type} {t : c → A} {e : ¬ c → A} : (dif c then t else e) = t Hc :=
+definition dif_pos {c : Prop} [H : decidable c] (Hc : c) {A : Type} {t : c → A} {e : ¬ c → A} : (if H : c then t H else e H) = t Hc :=
 decidable.rec
   (λ Hc : c,    eq.refl (@dite c (decidable.inl Hc) A t e))
   (λ Hnc : ¬c,  absurd Hc Hnc)
   H
 
-definition dif_neg {c : Prop} [H : decidable c] (Hnc : ¬c) {A : Type} {t : c → A} {e : ¬ c → A} : (dif c then t else e) = e Hnc :=
+definition dif_neg {c : Prop} [H : decidable c] (Hnc : ¬c) {A : Type} {t : c → A} {e : ¬ c → A} : (if H : c then t H else e H) = e Hnc :=
 decidable.rec
   (λ Hc : c,    absurd Hc Hnc)
   (λ Hnc : ¬c,  eq.refl (@dite c (decidable.inr Hnc) A t e))

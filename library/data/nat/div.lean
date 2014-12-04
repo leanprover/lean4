@@ -23,7 +23,7 @@ and.rec_on H (λ ypos ylex,
   sub.lt (lt.of_lt_of_le ypos ylex) ypos)
 
 private definition div.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
-dif 0 < y ∧ y ≤ x then (λ Hp, f (x - y) (div_rec_lemma Hp) y + 1) else (λ Hn, zero)
+if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y + 1 else zero
 
 definition divide (x y : nat) :=
 fix div.F x y
@@ -63,7 +63,7 @@ induction_on y
                          ... = x div z + succ y         : by simp)
 
 private definition mod.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
-dif 0 < y ∧ y ≤ x then (λh, f (x - y) (div_rec_lemma h) y) else (λh, x)
+if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y else x
 
 definition modulo (x y : nat) :=
 fix mod.F x y

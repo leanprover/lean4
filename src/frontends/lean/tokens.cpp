@@ -60,6 +60,7 @@ static name * g_visible      = nullptr;
 static name * g_from         = nullptr;
 static name * g_using        = nullptr;
 static name * g_then         = nullptr;
+static name * g_else         = nullptr;
 static name * g_by           = nullptr;
 static name * g_proof        = nullptr;
 static name * g_qed          = nullptr;
@@ -152,6 +153,7 @@ void initialize_tokens() {
     g_from         = new name("from");
     g_using        = new name("using");
     g_then         = new name("then");
+    g_else         = new name("else");
     g_by           = new name("by");
     g_proof        = new name("proof");
     g_qed          = new name("qed");
@@ -230,6 +232,7 @@ void finalize_tokens() {
     delete g_from;
     delete g_using;
     delete g_then;
+    delete g_else;
     delete g_by;
     delete g_proof;
     delete g_qed;
@@ -337,6 +340,7 @@ name const & get_visible_tk() { return *g_visible; }
 name const & get_from_tk() { return *g_from; }
 name const & get_using_tk() { return *g_using; }
 name const & get_then_tk() { return *g_then; }
+name const & get_else_tk() { return *g_else; }
 name const & get_by_tk() { return *g_by; }
 name const & get_proof_tk() { return *g_proof; }
 name const & get_qed_tk() { return *g_qed; }

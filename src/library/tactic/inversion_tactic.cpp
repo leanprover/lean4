@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 namespace lean {
 class inversion_tac {
     environment const &           m_env;
-    io_state const &              m_ios;
     proof_state const &           m_ps;
     list<name>                    m_ids;
     name_generator                m_ngen;
@@ -431,8 +430,8 @@ class inversion_tac {
     }
 
 public:
-    inversion_tac(environment const & env, io_state const & ios, proof_state const & ps, list<name> const & ids):
-        m_env(env), m_ios(ios), m_ps(ps), m_ids(ids),
+    inversion_tac(environment const & env, proof_state const & ps, list<name> const & ids):
+        m_env(env), m_ps(ps), m_ids(ids),
         m_ngen(m_ps.get_ngen()), m_subst(m_ps.get_subst()),
         m_tc(mk_type_checker(m_env, m_ngen.mk_child(), m_ps.relax_main_opaque())) {
     }
@@ -464,8 +463,8 @@ public:
 };
 
 tactic inversion_tactic(name const & n, list<name> const & ids) {
-    auto fn = [=](environment const & env, io_state const & ios, proof_state const & ps) -> optional<proof_state> {
-        inversion_tac tac(env, ios, ps, ids);
+    auto fn = [=](environment const & env, io_state const &, proof_state const & ps) -> optional<proof_state> {
+        inversion_tac tac(env, ps, ids);
         return tac.execute(n);
     };
     return tactic01(fn);

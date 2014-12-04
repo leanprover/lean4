@@ -33,6 +33,7 @@ tactic intros_tactic(list<name> _ns, bool relax_main_opaque) {
                         expr new_t = tc->whnf(t).first;
                         if (!is_pi(new_t))
                             break;
+                        t = new_t;
                     }
                 }
                 name new_name;

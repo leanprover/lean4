@@ -4,10 +4,6 @@
 import logic.eq
 open eq.ops decidable
 
-inductive option (A : Type) : Type :=
-  none {} : option A,
-  some    : A → option A
-
 namespace option
   definition is_none {A : Type} (o : option A) : Prop :=
   rec true (λ a, false) o

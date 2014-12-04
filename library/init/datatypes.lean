@@ -76,3 +76,7 @@ str   : char → string → string
 inductive nat :=
 zero : nat,
 succ : nat → nat
+
+inductive option (A : Type) : Type :=
+none {} : option A,
+some    : A → option A

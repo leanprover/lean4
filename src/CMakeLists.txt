@@ -373,6 +373,12 @@ else()
     DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
     )
+  add_custom_target(
+    hott_lib ALL
+    COMMAND ${PYTHON_EXECUTABLE} ${LEAN_SOURCE_DIR}/../bin/linja all tags
+    DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../hott
+    )
 endif()
 
 add_custom_target(clean-olean

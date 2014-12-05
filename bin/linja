@@ -506,7 +506,7 @@ def find_lean_files(args):
         files -= set(find_files(project_dir, pattern))
     has_lean  = False
     has_hlean = False
-    for file in args.targets:
+    for file in files:
         if file.endswith(".lean"):
             has_lean = True
         if file.endswith(".hlean"):

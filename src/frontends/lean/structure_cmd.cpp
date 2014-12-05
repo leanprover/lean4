@@ -658,13 +658,15 @@ struct structure_cmd_fn {
 
     void declare_auxiliary() {
         m_env = mk_rec_on(m_env, m_name);
-        m_env = mk_induction_on(m_env, m_name);
         name rec_on_name(m_name, "rec_on");
-        name induction_on_name(m_name, "induction_on");
         add_rec_alias(rec_on_name);
-        add_rec_alias(induction_on_name);
         save_def_info(rec_on_name);
-        save_def_info(induction_on_name);
+        if (m_env.impredicative()) {
+            m_env = mk_induction_on(m_env, m_name);
+            name induction_on_name(m_name, "induction_on");
+            add_rec_alias(induction_on_name);
+            save_def_info(induction_on_name);
+        }
         add_rec_on_alias(name(m_name, "destruct"));
         add_rec_on_alias(name(m_name, "cases_on"));
     }

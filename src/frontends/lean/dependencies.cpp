@@ -33,11 +33,11 @@ bool display_deps(environment const & env, std::ostream & out, std::ostream & er
     auto display_dep = [&](optional<unsigned> const & k, name const & f) {
         import_args = true;
         try {
-            std::string m_name = find_file(base, k, name_to_file(f), {".lean", ".olean", ".lua"});
+            std::string m_name = find_file(base, k, name_to_file(f), {".lean", ".hlean", ".olean", ".lua"});
             int last_idx = m_name.find_last_of(".");
             std::string rawname = m_name.substr(0, last_idx);
             std::string ext = m_name.substr(last_idx);
-            if (ext == ".lean")
+            if (ext == ".lean" || ext == ".hlean")
                 m_name = rawname + ".olean";
             display_path(out, m_name);
             import_prefix = true;

@@ -118,15 +118,22 @@ std::string get_path(std::string f) {
 static std::string *              g_lean_path = nullptr;
 static std::vector<std::string> * g_lean_path_vector = nullptr;
 
-void init_lean_path() {
+void init_lean_path(bool use_hott) {
 #if defined(LEAN_EMSCRIPTEN)
     *g_lean_path = "/library";
     g_lean_path_vector->push_back(*g_lean_path);
 #else
-    char * r = getenv("LEAN_PATH");
+    char * r = nullptr;
+    if (use_hott)
+        r = getenv("LEAN_PATH");
+    else
+        r = getenv("HLEAN_PATH");
     if (r == nullptr) {
         std::string exe_path = get_path(get_exe_location());
-        *g_lean_path  = exe_path + g_sep + ".." + g_sep + "library";
+        if (use_hott)
+            *g_lean_path  = exe_path + g_sep + ".." + g_sep + "hott";
+        else
+            *g_lean_path  = exe_path + g_sep + ".." + g_sep + "library";
         *g_lean_path += g_path_sep;
         *g_lean_path += exe_path + g_sep + ".." + g_sep + "lib" + g_sep + "lean";
         *g_lean_path += g_path_sep;
@@ -153,13 +160,13 @@ void init_lean_path() {
 
 static char g_sep_str[2];
 
-void initialize_lean_path() {
+void initialize_lean_path(bool use_hott) {
     g_default_file_name = new std::string(LEAN_DEFAULT_MODULE_FILE_NAME);
     g_lean_path         = new std::string();
     g_lean_path_vector  = new std::vector<std::string>();
     g_sep_str[0]        = g_sep;
     g_sep_str[1]        = 0;
-    init_lean_path();
+    init_lean_path(use_hott);
 }
 
 void finalize_lean_path() {
@@ -171,6 +178,10 @@ void finalize_lean_path() {
 bool has_file_ext(std::string const & fname, char const * ext) {
     unsigned ext_len = strlen(ext);
     return fname.size() > ext_len && fname.substr(fname.size() - ext_len, ext_len) == ext;
+}
+
+bool is_hlean_file(std::string const & fname) {
+    return has_file_ext(fname, ".hlean");
 }
 
 bool is_lean_file(std::string const & fname) {
@@ -186,7 +197,7 @@ bool is_lua_file(std::string const & fname) {
 }
 
 bool is_known_file_ext(std::string const & fname) {
-    return is_lean_file(fname) || is_olean_file(fname) || is_lua_file(fname);
+    return is_lean_file(fname) || is_hlean_file(fname) || is_olean_file(fname) || is_lua_file(fname);
 }
 
 optional<std::string> check_file_core(std::string file, char const * ext) {

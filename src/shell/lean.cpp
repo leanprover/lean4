@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/formatter.h"
 #include "library/standard_kernel.h"
+#include "library/hott_kernel.h"
 #include "library/module.h"
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
@@ -45,6 +46,7 @@ using lean::io_state;
 using lean::io_state_stream;
 using lean::regular;
 using lean::mk_environment;
+using lean::mk_hott_environment;
 using lean::set_environment;
 using lean::set_io_state;
 using lean::definition_cache;
@@ -57,7 +59,7 @@ using lean::declaration_index;
 using lean::keep_theorem_mode;
 using lean::module_name;
 
-enum class input_kind { Unspecified, Lean, Lua, Trace };
+enum class input_kind { Unspecified, Lean, HLean, Lua, Trace };
 
 static void on_ctrl_c(int ) {
     lean::request_interrupt();
@@ -81,6 +83,8 @@ static void display_help(std::ostream & out) {
     std::cout << "Input format:\n";
     std::cout << "  --lean            use parser for Lean default input format for files,\n";
     std::cout << "                    with unknown extension (default)\n";
+    std::cout << "  --hlean           use parser for Lean default input format \n";
+    std::cout << "                    and use HoTT compatible kernel for files, with unknown extension\n";
     std::cout << "  --lua             use Lua parser for files with unknown extension\n";
     std::cout << "  --server-trace    use lean server trace parser for files with unknown extension\n";
     std::cout << "Miscellaneous:\n";
@@ -130,6 +134,7 @@ static struct option g_long_options[] = {
     {"version",      no_argument,       0, 'v'},
     {"help",         no_argument,       0, 'h'},
     {"lean",         no_argument,       0, 'l'},
+    {"hlean",        no_argument,       0, 'H'},
     {"lua",          no_argument,       0, 'u'},
     {"server-trace", no_argument,       0, 'R'},
     {"path",         no_argument,       0, 'p'},
@@ -155,7 +160,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define BASIC_OPT_STR "RXTFC:dD:qlupgvhk:012t:012o:c:i:"
+#define BASIC_OPT_STR "HRXTFC:dD:qlupgvhk:012t:012o:c:i:"
 
 #if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
 static char const * g_opt_str = BASIC_OPT_STR "Sj:012s:012";
@@ -327,7 +332,7 @@ int main(int argc, char ** argv) {
     std::string cpp_output;
     std::string cache_name;
     std::string index_name;
-    input_kind default_k = input_kind::Lean; // default
+    input_kind default_k = input_kind::Unspecified;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
@@ -350,6 +355,9 @@ int main(int argc, char ** argv) {
             return 0;
         case 'l':
             default_k = input_kind::Lean;
+            break;
+        case 'H':
+            default_k = input_kind::HLean;
             break;
         case 'u':
             default_k = input_kind::Lua;
@@ -419,7 +427,35 @@ int main(int argc, char ** argv) {
     lean_assert(num_threads == 1);
     #endif
 
-    environment env = mk_environment(trust_lvl);
+    bool has_lean  = (default_k == input_kind::Lean);
+    bool has_hlean = (default_k == input_kind::HLean);
+    for (int i = optind; i < argc; i++) {
+        char const * ext = get_file_extension(argv[i]);
+        if (strcmp(ext, "lean") == 0) {
+            has_lean = true;
+            if (has_hlean) {
+                std::cerr << ".hlean file cannot be mixed with .lean files\n";
+                return 1;
+            }
+            if (default_k == input_kind::Unspecified)
+                default_k = input_kind::Lean;
+        } else if (strcmp(ext, "hlean") == 0) {
+            has_hlean = true;
+            if (has_lean) {
+                std::cerr << ".lean file cannot be mixed with .hlean files\n";
+                return 1;
+            }
+            if (default_k == input_kind::Unspecified)
+                default_k = input_kind::HLean;
+        }
+    }
+    if (default_k == input_kind::Unspecified)
+        default_k = input_kind::Lean;
+
+    if (has_hlean)
+        lean::initialize_lean_path(true);
+
+    environment env = has_hlean ? mk_hott_environment(trust_lvl) : mk_environment(trust_lvl);
     io_state ios(opts, lean::mk_pretty_formatter_factory());
     script_state S = lean::get_thread_script_state();
     set_environment set1(S, env);
@@ -446,12 +482,15 @@ int main(int argc, char ** argv) {
                 if (ext) {
                     if (strcmp(ext, "lean") == 0) {
                         k = input_kind::Lean;
+                    } else if (strcmp(ext, "hlean") == 0) {
+                        k = input_kind::HLean;
                     } else if (strcmp(ext, "lua") == 0) {
                         k = input_kind::Lua;
                     }
                 }
                 switch (k) {
                 case input_kind::Lean:
+                case input_kind::HLean:
                     if (only_deps) {
                         if (!display_deps(env, std::cout, std::cerr, argv[i]))
                             ok = false;

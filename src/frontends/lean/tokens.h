@@ -55,6 +55,7 @@ name const & get_on_tk();
 name const & get_off_tk();
 name const & get_none_tk();
 name const & get_whnf_tk();
+name const & get_wf_tk();
 name const & get_strict_tk();
 name const & get_in_tk();
 name const & get_assign_tk();

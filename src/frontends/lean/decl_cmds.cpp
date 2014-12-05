@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/reducible.h"
 #include "library/coercion.h"
+#include "library/definitional/equations.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/class.h"
@@ -309,6 +310,50 @@ static void erase_local_binder_info(buffer<expr> & ps) {
         p = update_local(p, binder_info());
 }
 
+static bool is_curr_with_or_comma(parser & p) {
+    return p.curr_is_token(get_with_tk()) || p.curr_is_token(get_comma_tk());
+}
+
+expr parse_equations(parser & p, name const & n, expr const & type, buffer<expr> & auxs) {
+    buffer<expr> eqns;
+    {
+        parser::local_scope scope1(p);
+        parser::undef_id_to_local_scope scope2(p);
+        lean_assert(is_curr_with_or_comma(p));
+        expr f = mk_local(n, type);
+        if (p.curr_is_token(get_with_tk())) {
+            while (p.curr_is_token(get_with_tk())) {
+                p.next();
+                name g_name = p.check_id_next("invalid declaration, identifier expected");
+                p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
+                expr g_type = p.parse_expr();
+                expr g      = mk_local(g_name, g_type);
+                auxs.push_back(g);
+            }
+        }
+        p.check_token_next(get_comma_tk(), "invalid declaration, ',' expected");
+        p.add_local(f);
+        for (expr const & g : auxs)
+            p.add_local(g);
+        while (true) {
+            expr lhs = p.parse_expr();
+            p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
+            expr rhs = p.parse_expr();
+            eqns.push_back(mk_equation(lhs, rhs));
+            if (!p.curr_is_token(get_comma_tk()))
+                break;
+            p.next();
+        }
+    }
+    if (p.curr_is_token(get_wf_tk())) {
+        p.next();
+        expr Hwf = p.parse_expr();
+        return mk_equations(eqns.size(), eqns.data(), Hwf);
+    } else {
+        return mk_equations(eqns.size(), eqns.data());
+    }
+}
+
 // An Lean example is not really a definition, but we use the definition infrastructure to simulate it.
 enum def_cmd_kind { Theorem, Definition, Example };
 
@@ -325,6 +370,7 @@ class definition_cmd_fn {
     decl_modifiers    m_modifiers;
     name              m_real_name; // real name for this declaration
     buffer<name>      m_ls_buffer;
+    buffer<expr>      m_aux_decls;
     expr              m_type;
     expr              m_value;
     level_param_names m_ls;
@@ -361,7 +407,9 @@ class definition_cmd_fn {
             m_p.next();
             auto pos = m_p.pos();
             m_type = m_p.parse_expr();
-            if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
+            if (is_curr_with_or_comma(m_p)) {
+                m_value = parse_equations(m_p, m_name, m_type, m_aux_decls);
+            } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
                 check_end_of_theorem(m_p);
                 m_value = m_p.save_pos(mk_expr_placeholder(), pos);
             } else {
@@ -377,7 +425,9 @@ class definition_cmd_fn {
             if (m_p.curr_is_token(get_colon_tk())) {
                 m_p.next();
                 m_type = m_p.parse_scoped_expr(ps, *lenv);
-                if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
+                if (is_curr_with_or_comma(m_p)) {
+                    m_value = parse_equations(m_p, m_name, m_type, m_aux_decls);
+                } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
                     check_end_of_theorem(m_p);
                     m_value = m_p.save_pos(mk_expr_placeholder(), pos);
                 } else {

@@ -53,6 +53,7 @@ static name * g_on           = nullptr;
 static name * g_off          = nullptr;
 static name * g_none         = nullptr;
 static name * g_whnf         = nullptr;
+static name * g_wf           = nullptr;
 static name * g_strict       = nullptr;
 static name * g_in           = nullptr;
 static name * g_assign       = nullptr;
@@ -146,6 +147,7 @@ void initialize_tokens() {
     g_off          = new name("[off]");
     g_none         = new name("[none]");
     g_whnf         = new name("[whnf]");
+    g_wf           = new name("[wf]");
     g_strict       = new name("[strict]");
     g_in           = new name("in");
     g_assign       = new name(":=");
@@ -257,6 +259,7 @@ void finalize_tokens() {
     delete g_off;
     delete g_none;
     delete g_whnf;
+    delete g_wf;
     delete g_strict;
     delete g_ellipsis;
     delete g_fun;
@@ -333,6 +336,7 @@ name const & get_on_tk() { return *g_on; }
 name const & get_off_tk() { return *g_off; }
 name const & get_none_tk() { return *g_none; }
 name const & get_whnf_tk() { return *g_whnf; }
+name const & get_wf_tk() { return *g_wf; }
 name const & get_strict_tk() { return *g_strict; }
 name const & get_in_tk() { return *g_in; }
 name const & get_assign_tk() { return *g_assign; }

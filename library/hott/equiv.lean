@@ -30,7 +30,7 @@ namespace is_equiv
   variables {A B C : Type} (f : A → B) (g : B → C) {f' : A → B}
 
   -- The identity function is an equivalence.
-  protected definition id_is_equiv : (@is_equiv A A id) := is_equiv.mk id (λa, idp) (λa, idp) (λa, idp)
+  definition id_is_equiv : (@is_equiv A A id) := is_equiv.mk id (λa, idp) (λa, idp) (λa, idp)
 
   -- The composition of two equivalences is, again, an equivalence.
   protected definition compose [Hf : is_equiv f] [Hg : is_equiv g] : (is_equiv (g ∘ f)) :=

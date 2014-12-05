@@ -18,15 +18,15 @@ namespace is_equiv
   definition precomp_closed [instance] {A B : Type} (f : A → B) [F : funext] [Hf : is_equiv f] (C : Type)
       : is_equiv (precomp f C) :=
     adjointify (precomp f C) (λh, h ∘ f⁻¹)
-      (λh, path_forall _ _ (λx, ap h (sect f x)))
-      (λg, path_forall _ _ (λy, ap g (retr f y)))
+      (λh, path_pi (λx, ap h (sect f x)))
+      (λg, path_pi (λy, ap g (retr f y)))
 
   --Postcomposing with an equivalence is an equivalence
   definition postcomp_closed [instance] {A B : Type} (f : A → B) [F : funext] [Hf : is_equiv f] (C : Type)
       : is_equiv (postcomp f C) :=
     adjointify (postcomp f C) (λl, f⁻¹ ∘ l)
-      (λh, path_forall _ _ (λx, retr f (h x)))
-      (λg, path_forall _ _ (λy, sect f (g y)))
+      (λh, path_pi (λx, retr f (h x)))
+      (λg, path_pi (λy, sect f (g y)))
 
   --Conversely, if pre- or post-composing with a function is always an equivalence,
   --then that function is also an equivalence.  It's convenient to know

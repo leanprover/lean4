@@ -10,30 +10,30 @@ import .sigma .pi
 open path sigma sigma.ops equiv is_equiv
 
 
-inductive W {A : Type} (B : A → Type) :=
-sup : Π(a : A), (B a → W B) → W B
+inductive Wtype {A : Type} (B : A → Type) :=
+sup : Π(a : A), (B a → Wtype B) → Wtype B
 
-namespace W
-  notation `WW` binders `,` r:(scoped B, W B) := r
+namespace Wtype
+  notation `W` binders `,` r:(scoped B, Wtype B) := r
 
-  universe variables l k
-  variables {A A' : Type.{l}} {B B' : A → Type.{k}} {C : Π(a : A), B a → Type}
-            {a a' : A} {f : B a → W B} {f' : B a' → W B} {w w' : WW(a : A), B a}
+  universe variables u v
+  variables {A A' : Type.{u}} {B B' : A → Type.{v}} {C : Π(a : A), B a → Type}
+            {a a' : A} {f : B a → W a, B a} {f' : B a' → W a, B a} {w w' : W(a : A), B a}
 
-  definition pr1 (w : WW(a : A), B a) : A :=
-  W.rec_on w (λa f IH, a)
+  definition pr1 (w : W(a : A), B a) : A :=
+  Wtype.rec_on w (λa f IH, a)
 
-  definition pr2 (w : WW(a : A), B a) : B (pr1 w) → WW(a : A), B a :=
-  W.rec_on w (λa f IH, f)
+  definition pr2 (w : W(a : A), B a) : B (pr1 w) → W(a : A), B a :=
+  Wtype.rec_on w (λa f IH, f)
 
   namespace ops
-  postfix `.1`:(max+1) := W.pr1
-  postfix `.2`:(max+1) := W.pr2
-  notation `⟨` a `,` f `⟩`:0 := W.sup a f --input ⟨ ⟩ as \< \>
+  postfix `.1`:(max+1) := Wtype.pr1
+  postfix `.2`:(max+1) := Wtype.pr2
+  notation `⟨` a `,` f `⟩`:0 := Wtype.sup a f --input ⟨ ⟩ as \< \>
   end ops
   open ops
 
-  protected definition eta (w : WW a, B a) : ⟨w.1 , w.2⟩ ≈ w :=
+  protected definition eta (w : W a, B a) : ⟨w.1 , w.2⟩ ≈ w :=
   cases_on w (λa f, idp)
 
   definition path_W_sup (p : a ≈ a') (q : p ▹ f ≈ f') : ⟨a, f⟩ ≈ ⟨a', f'⟩ :=
@@ -112,18 +112,18 @@ namespace W
       : transport (λx, B' x.1) (@path_W_uncurried A B w w' pq) ≈ transport B' pq.1 :=
     destruct pq transport_pr1_path_W
 
-  definition isequiv_path_W /-[instance]-/ (w w' : W B)
+  definition isequiv_path_W /-[instance]-/ (w w' : W a, B a)
       : is_equiv (@path_W_uncurried A B w w') :=
   adjointify path_W_uncurried
              (λp, dpair (p..1) (p..2))
              eta_path_W_uncurried
              sup_path_W_uncurried
 
-  definition equiv_path_W (w w' : W B) : (Σ(p : w.1 ≈ w'.1),  p ▹ w.2 ≈ w'.2) ≃ (w ≈ w') :=
+  definition equiv_path_W (w w' : W a, B a) : (Σ(p : w.1 ≈ w'.1),  p ▹ w.2 ≈ w'.2) ≃ (w ≈ w') :=
   equiv.mk path_W_uncurried !isequiv_path_W
 
-  definition double_induction_on {P : W B → W B → Type} (w w' : W B)
-    (H : ∀ (a a' : A) (f : B a → W B) (f' : B a' → W B),
+  definition double_induction_on {P : (W a, B a) → (W a, B a) → Type} (w w' : W a, B a)
+    (H : ∀ (a a' : A) (f : B a → W a, B a) (f' : B a' → W a, B a),
       (∀ (b : B a) (b' : B a'), P (f b) (f' b')) → P (sup a f) (sup a' f')) : P w w' :=
   begin
     revert w',
@@ -135,8 +135,8 @@ namespace W
 
   /- truncatedness -/
   open truncation
-  definition trunc_W [FUN : funext.{k (max 1 l k)}] (n : trunc_index) [HA : is_trunc (n.+1) A]
-    : is_trunc (n.+1) (WW a, B a) :=
+  definition trunc_W [FUN : funext.{v (max 1 u v)}] (n : trunc_index) [HA : is_trunc (n.+1) A]
+    : is_trunc (n.+1) (W a, B a) :=
   begin
   fapply is_trunc_succ, intros (w, w'),
   apply (double_induction_on w w'), intros (a, a', f, f', IH),
@@ -146,8 +146,8 @@ namespace W
       fapply (succ_is_trunc n),
       intro p, revert IH, generalize f', --change to revert after simpl
       apply (path.rec_on p), intros (f', IH),
-      apply (@pi.trunc_path_pi FUN (B a) (λx, W B) n f f'), intro b,
+      apply pi.trunc_path_pi, intro b,
       apply IH
   end
 
-end W
+end Wtype

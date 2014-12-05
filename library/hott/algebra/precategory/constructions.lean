@@ -6,7 +6,7 @@
 
 
 import .natural_transformation hott.path
-import data.unit data.sigma data.prod data.empty data.bool hott.types.prod
+import data.unit data.sigma data.prod data.empty data.bool hott.types.prod hott.types.sigma
 
 open path prod eq eq.ops
 
@@ -94,7 +94,7 @@ namespace precategory
   definition prod_precategory {obC obD : Type} (C : precategory obC) (D : precategory obD)
       : precategory (obC × obD) :=
   mk (λ a b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
-     (λ a b, trunc_prod nat.zero (!homH) (!homH))
+     (λ a b, !trunc_prod)
      (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f) )
      (λ a, (id, id))
      (λ a b c d h g f, pair_path  !assoc    !assoc   )

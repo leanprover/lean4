@@ -381,10 +381,18 @@ else()
     )
 endif()
 
-add_custom_target(clean-olean
+add_custom_target(clean-std-lib
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_MODULE_PATH}CleanOlean.cmake
   )
+
+add_custom_target(clean-hott-lib
+  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../hott
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_MODULE_PATH}CleanOlean.cmake
+  )
+
+add_custom_target(clean-olean
+  DEPENDS clean-std-lib clean-hott-lib)
 
 install(FILES ${CMAKE_SOURCE_DIR}/../bin/linja ${CMAKE_SOURCE_DIR}/../bin/ltags
   DESTINATION bin

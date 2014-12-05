@@ -29,7 +29,7 @@ namespace pi
 
   open truncation
   definition trunc_pi [instance] (B : A → Type.{k}) (n : trunc_index)
-      [H : ∀a, is_trunc n (B a)] : is_trunc n (Πa, B a) :=
+      [H : Πa, is_trunc n (B a)] : is_trunc n (Πa, B a) :=
   begin
     reverts (B, H),
     apply (truncation.trunc_index.rec_on n),
@@ -45,7 +45,7 @@ namespace pi
             apply IH,
               intro a,
               show is_trunc n (f a ≈ g a), from
-              succ_is_trunc (f a) (g a)
+              succ_is_trunc n (f a) (g a)
   end
 
   definition trunc_path_pi [instance] (n : trunc_index) (f g : Πa, B a)

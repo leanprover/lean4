@@ -45,7 +45,7 @@ namespace morphism
   begin
     apply trunc_equiv,
       apply (equiv.to_is_equiv (!sigma_char)),
-    apply sigma_trunc,
+    apply trunc_sigma,
       apply (!homH),
     intro g, apply trunc_prod,
       repeat (apply succ_is_trunc; apply trunc_succ; apply (!homH)),
@@ -56,7 +56,7 @@ namespace morphism
   begin
     apply trunc_equiv,
       apply (equiv.to_is_equiv (!sigma_is_iso_equiv)),
-    apply sigma_trunc,
+    apply trunc_sigma,
       apply homH,
     intro f, apply is_hprop_of_is_iso,
   end

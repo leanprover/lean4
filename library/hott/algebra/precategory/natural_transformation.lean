@@ -3,7 +3,7 @@
 -- Author: Floris van Doorn, Jakob von Raumer
 
 import .functor hott.axioms.funext hott.types.pi hott.types.sigma
-open precategory path functor truncation equiv sigma.ops sigma is_equiv function
+open precategory path functor truncation equiv sigma.ops sigma is_equiv function pi
 
 inductive natural_transformation {C D : Precategory} (F G : C ⇒ D) : Type :=
 mk : Π (η : Π (a : C), hom (F a) (G a))
@@ -56,14 +56,16 @@ namespace natural_transformation
 
   infixr `∘n`:60 := compose
 
-  protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) [fext : funext] :
+  protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) [fext fext2 fext3 : funext] :
       η₃ ∘n (η₂ ∘n η₁) ≈ (η₃ ∘n η₂) ∘n η₁ :=
-  have aux [visible] : is_hprop (Π (a b : C) (f : hom a b), I f ∘ (η₃ ∘n η₂) a ∘ η₁ a ≈ ((η₃ ∘n η₂) b ∘ η₁ b) ∘ F f),
+  -- Proof broken, universe issues?
+  /-have aux [visible] : is_hprop (Π (a b : C) (f : hom a b), I f ∘ (η₃ ∘n η₂) a ∘ η₁ a ≈ ((η₃ ∘n η₂) b ∘ η₁ b) ∘ F f),
     begin
       repeat (apply trunc_pi; intros),
       apply (succ_is_trunc -1 (I a_2 ∘ (η₃ ∘n η₂) a ∘ η₁ a)),
     end,
-  dcongr_arg2 mk (funext.path_forall _ _ (λ x, !assoc)) !is_hprop.elim
+  dcongr_arg2 mk (funext.path_forall _ _ (λ x, !assoc)) !is_hprop.elim-/
+  sorry
 
   protected definition id {C D : Precategory} {F : functor C D} : natural_transformation F F :=
   mk (λa, id) (λa b f, !id_right ⬝ (!id_left⁻¹))
@@ -71,19 +73,23 @@ namespace natural_transformation
 
   protected definition id_left (η : F ⟹ G) [fext : funext.{l_1 l_4}] :
       id ∘n η ≈ η :=
-  begin
+  --Proof broken like all trunc_pi proofs
+  /-begin
     apply (rec_on η), intros (f, H),
     fapply (path.dcongr_arg2 mk),
       apply (funext.path_forall _ f (λa, !id_left)),
     assert (H1 : is_hprop (Π {a b : C} (g : hom a b), G g ∘ f a ≈ f b ∘ F g)),
-      repeat (apply trunc_pi; intros),
-      apply (succ_is_trunc -1 (G a_2 ∘ f a) (f a_1 ∘ F a_2)),
-    apply (!is_hprop.elim),
-  end
+      --repeat (apply trunc_pi; intros),
+      apply (@trunc_pi _ _ _ (-2 .+1) _),
+    /-  apply (succ_is_trunc -1 (G a_2 ∘ f a) (f a_1 ∘ F a_2)),
+    apply (!is_hprop.elim),-/
+  end-/
+  sorry
 
   protected definition id_right (η : F ⟹ G) [fext : funext.{l_1 l_4}] :
       η ∘n id ≈ η :=
-  begin
+  --Proof broken like all trunc_pi proofs
+  /-begin
     apply (rec_on η), intros (f, H),
     fapply (path.dcongr_arg2 mk),
       apply (funext.path_forall _ f (λa, !id_right)),
@@ -91,16 +97,19 @@ namespace natural_transformation
       repeat (apply trunc_pi; intros),
       apply (succ_is_trunc -1 (G a_2 ∘ f a) (f a_1 ∘ F a_2)),
     apply (!is_hprop.elim),
-  end
+  end-/
+  sorry
 
-  protected definition to_hset : is_hset (F ⟹ G) :=
-  begin
+  protected definition to_hset [fx : funext] : is_hset (F ⟹ G) :=
+  --Proof broken like all trunc_pi proofs
+  /-begin
     apply trunc_equiv, apply (equiv.to_is_equiv sigma_char),
-    apply sigma_trunc,
+    apply trunc_sigma,
       apply trunc_pi, intro a, exact (@homH (objects D) _ (F a) (G a)),
     intro η, apply trunc_pi, intro a,
       apply trunc_pi, intro b, apply trunc_pi, intro f,
       apply succ_is_trunc, apply trunc_succ, exact (@homH (objects D) _ (F a) (G b)),
-  end
+  end-/
+  sorry
 
 end natural_transformation

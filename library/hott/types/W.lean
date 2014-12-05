@@ -143,7 +143,7 @@ namespace W
   fapply trunc_equiv',
     apply equiv_path_W,
     apply trunc_sigma,
-      fapply succ_is_trunc,
+      fapply (succ_is_trunc n),
       intro p, revert IH, generalize f', --change to revert after simpl
       apply (path.rec_on p), intros (f', IH),
       apply (@pi.trunc_path_pi FUN (B a) (λx, W B) n f f'), intro b,

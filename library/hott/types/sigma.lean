@@ -348,10 +348,10 @@ begin
       fapply trunc_equiv',
          apply equiv_path_sigma,
          apply IH,
-           apply succ_is_trunc,
+           apply (succ_is_trunc n),
            intro p,
              show is_trunc n (p ▹ u .2 ≈ v .2), from
-             succ_is_trunc (p ▹ u.2) (v.2),
+             succ_is_trunc n (p ▹ u.2) (v.2),
 end
 
 end sigma

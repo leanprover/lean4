@@ -1,330 +1,394 @@
--- Copyright (c) 2014 Floris van Doorn. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Authors: Floris van Doorn, Jeremy Avigad
+/-
+Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
 
--- int.basic
--- =========
+Module: int.basic
+Authors: Floris van Doorn, Jeremy Avigad
 
--- The integers, with addition, multiplication, and subtraction.
+The integers, with addition, multiplication, and subtraction.
 
-import data.nat.basic data.nat.order data.nat.sub data.prod data.quotient algebra.relation
+The representation of the integers is chosen to compute efficiently; see the examples in the
+comments at the end of this file.
+
+To faciliate proving things about these operations, we show that the integers are a quotient of
+ℕ × ℕ with the usual equivalence relation ≡, and functions
+
+  abstr : ℕ × ℕ → ℤ
+  repr : ℤ → ℕ × ℕ
+
+satisfying
+
+  abstr_repr (a : ℤ) : abstr (repr a) = a
+  repr_abstr (p : ℕ × ℕ) : repr (abstr p) ≡ p
+  abstr_eq (p q : ℕ × ℕ) : p ≡ q → abstr p = abstr q
+
+For example, to "lift" statements about add to statements about padd, we need to prove the
+following:
+
+  repr_add (a b : ℤ) : repr (a + b) = padd (repr a) (repr b)
+  padd_congr (p p' q q' : ℕ × ℕ) (H1 : p ≡ p') (H2 : q ≡ q') : padd p q ≡ p' q'
+
+-/
+
+import data.nat.basic data.nat.order data.nat.sub data.prod algebra.relation
 import algebra.binary
 import tools.fake_simplifier
 
-open nat
-open quotient subtype prod relation
+open prod relation
 open decidable binary fake_simplifier
 open eq.ops
 
-namespace int
--- ## The defining equivalence relation on ℕ × ℕ
-definition rel (a b : ℕ × ℕ) : Prop :=  pr1 a + pr2 b = pr2 a + pr1 b
+-- TODO: move
+namespace nat
 
-theorem rel_comp (n m k l : ℕ) : (rel (pair n m) (pair k l)) ↔ (n + l = m + k) :=
-have H : (pr1 (pair n m) + pr2 (pair k l) = pr2 (pair n m) + pr1 (pair k l)) ↔ (n + l = m + k),
-  by simp,
-H
+theorem succ_pred_of_pos {n : ℕ} (H : n > 0) : succ (pred n) = n :=
+(or.resolve_right (zero_or_succ_pred n) (ne.symm (lt_imp_ne H))⁻¹)
 
--- add_rewrite rel_comp --local
+theorem sub_pos_of_gt {m n : ℕ} (H : n > m) : n - m > 0 :=
+have H1 : n = n - m + m, from (add_sub_ge_left (lt_imp_le H))⁻¹,
+have H2 : 0 + m < n - m + m, from (add.zero_left m)⁻¹ ▸ H1 ▸ H,
+!add_lt_cancel_right H2
 
-theorem rel_refl {a : ℕ × ℕ} : rel a a :=
-!add.comm
+end nat
 
-theorem rel_symm {a b : ℕ × ℕ} (H : rel a b) : rel b a :=
-calc
-  pr1 b + pr2 a = pr2 a + pr1 b : !add.comm
-    ... = pr1 a + pr2 b         : H⁻¹
-    ... = pr2 b + pr1 a         : !add.comm
+open nat
 
-theorem rel_trans {a b c : ℕ × ℕ} (H1 : rel a b) (H2 : rel b c) : rel a c :=
-have H3 : pr1 a + pr2 c + pr2 b = pr2 a + pr1 c + pr2 b, from
-  calc
-   pr1 a + pr2 c + pr2 b = pr1 a + pr2 b + pr2 c : by simp
-    ... = pr2 a + pr1 b + pr2 c                  : {H1}
-    ... = pr2 a + (pr1 b + pr2 c)                : by simp
-    ... = pr2 a + (pr2 b + pr1 c)                : {H2}
-    ... = pr2 a + pr1 c + pr2 b                  : by simp,
-show pr1 a + pr2 c = pr2 a + pr1 c, from add.cancel_right H3
+/- the type of integers -/
 
-theorem rel_equiv : is_equivalence rel :=
-is_equivalence.mk @rel_refl @rel_symm @rel_trans
+inductive int : Type :=
+  of_nat : nat → int,
+  neg_succ_of_nat : nat → int
 
-theorem rel_flip {a b : ℕ × ℕ} (H : rel a b) : rel (flip a) (flip b) :=
-calc
-  pr1 (flip a) + pr2 (flip b) = pr2 a + pr1 b : by simp
-    ... = pr1 a + pr2 b                       : H⁻¹
-    ... = pr2 (flip a) + pr1 (flip b)         : by simp
-
--- ## The canonical representative of each equivalence class
-
-definition proj (a : ℕ × ℕ) : ℕ × ℕ :=
-if pr1 a ≥ pr2 a then pair (pr1 a - pr2 a) 0 else pair 0 (pr2 a - pr1 a)
-
-theorem proj_ge {a : ℕ × ℕ} (H : pr1 a ≥ pr2 a) : proj a = pair (pr1 a - pr2 a) 0 :=
-if_pos H
-
-theorem proj_lt {a : ℕ × ℕ} (H : pr1 a < pr2 a) : proj a = pair 0 (pr2 a - pr1 a) :=
-have H2 : ¬ pr1 a ≥ pr2 a, from lt_imp_not_ge H,
-if_neg H2
-
-theorem proj_le {a : ℕ × ℕ} (H : pr1 a ≤ pr2 a) : proj a = pair 0 (pr2 a - pr1 a) :=
-or.elim le_or_gt
-  (assume H2 : pr2 a ≤ pr1 a,
-    have H3 : pr1 a = pr2 a, from le_antisym H H2,
-    calc
-      proj a = pair (pr1 a - pr2 a) 0 : proj_ge H2
-        ... = pair (pr1 a - pr2 a) (pr1 a - pr1 a) : {!sub_self⁻¹}
-        ... = pair (pr2 a - pr2 a) (pr2 a - pr1 a) : {H3}
-        ... = pair 0 (pr2 a - pr1 a)               : {!sub_self})
-  (assume H2 : pr1 a < pr2 a, proj_lt H2)
-
-theorem proj_ge_pr1 {a : ℕ × ℕ} (H : pr1 a ≥ pr2 a) : pr1 (proj a) = pr1 a - pr2 a :=
-calc
-  pr1 (proj a) = pr1 (pair (pr1 a - pr2 a) 0) : {proj_ge H}
-    ... = pr1 a - pr2 a : pr1.mk (pr1 a - pr2 a) 0
-
-theorem proj_ge_pr2 {a : ℕ × ℕ} (H : pr1 a ≥ pr2 a) : pr2 (proj a) = 0 :=
-calc
-  pr2 (proj a) = pr2 (pair (pr1 a - pr2 a) 0) : {proj_ge H}
-    ... = 0 : pr2.mk (pr1 a - pr2 a) 0
-
-theorem proj_le_pr1 {a : ℕ × ℕ} (H : pr1 a ≤ pr2 a) : pr1 (proj a) = 0 :=
-calc
-  pr1 (proj a) = pr1 (pair 0 (pr2 a - pr1 a)) : {proj_le H}
-    ... = 0 : pr1.mk 0 (pr2 a - pr1 a)
-
-theorem proj_le_pr2 {a : ℕ × ℕ} (H : pr1 a ≤ pr2 a) : pr2 (proj a) = pr2 a - pr1 a :=
-calc
-  pr2 (proj a) = pr2 (pair 0 (pr2 a - pr1 a)) : {proj_le H}
-    ... = pr2 a - pr1 a : pr2.mk 0 (pr2 a - pr1 a)
-
-theorem proj_flip (a : ℕ × ℕ) : proj (flip a) = flip (proj a) :=
-have special : ∀a, pr2 a ≤ pr1 a → proj (flip a) = flip (proj a), from
-  take a,
-  assume H : pr2 a ≤ pr1 a,
-  have H2 : pr1 (flip a) ≤ pr2 (flip a), from P_flip a H,
-  have H3 : pr1 (proj (flip a)) = pr1 (flip (proj a)), from
-    calc
-      pr1 (proj (flip a)) = 0 : proj_le_pr1 H2
-        ... = pr2 (proj a) : (proj_ge_pr2 H)⁻¹
-        ... = pr1 (flip (proj a)) : (flip_pr1 (proj a))⁻¹,
-  have H4 : pr2 (proj (flip a)) = pr2 (flip (proj a)), from
-    calc
-      pr2 (proj (flip a)) = pr2 (flip a) - pr1 (flip a) : proj_le_pr2 H2
-        ... = pr1 a - pr1 (flip a)                      : {flip_pr2 a}
-        ... = pr1 a - pr2 a                             : {flip_pr1 a}
-        ... = pr1 (proj a)                              : (proj_ge_pr1 H)⁻¹
-        ... = pr2 (flip (proj a))                       : (flip_pr2 (proj a))⁻¹,
-  prod.equal H3 H4,
-or.elim !le_total
-  (assume H : pr2 a ≤ pr1 a, special a H)
-  (assume H : pr1 a ≤ pr2 a,
-    have H2 : pr2 (flip a) ≤ pr1 (flip a), from P_flip a H,
-    calc
-      proj (flip a) = flip (flip (proj (flip a))) : (flip_flip (proj (flip a)))⁻¹
-        ... = flip (proj (flip (flip a)))         : {(special (flip a) H2)⁻¹}
-        ... = flip (proj a)                       : {flip_flip a})
-
-theorem proj_rel (a : ℕ × ℕ) : rel a (proj a) :=
-or.elim !le_total
-  (assume H : pr2 a ≤ pr1 a,
-    calc
-      pr1 a + pr2 (proj a) = pr1 a + 0 : {proj_ge_pr2 H}
-        ... = pr1 a                    : !add.zero_right
-        ... = pr2 a + (pr1 a - pr2 a)  : (add_sub_le H)⁻¹
-        ... = pr2 a + pr1 (proj a)     : {(proj_ge_pr1 H)⁻¹})
-  (assume H : pr1 a ≤ pr2 a,
-    calc
-      pr1 a + pr2 (proj a) = pr1 a + (pr2 a - pr1 a) : {proj_le_pr2 H}
-        ... = pr2 a                                  : add_sub_le H
-        ... = pr2 a + 0                              : !add.zero_right⁻¹
-        ... = pr2 a + pr1 (proj a)                   : {(proj_le_pr1 H)⁻¹})
-
-theorem proj_congr {a b : ℕ × ℕ} (H : rel a b) : proj a = proj b :=
-have special : ∀a b, pr2 a ≤ pr1 a → rel a b → proj a = proj b, from
-  take a b,
-  assume H2 : pr2 a ≤ pr1 a,
-  assume H : rel a b,
-  have H3 : pr1 a + pr2 b ≤ pr2 a + pr1 b, from H ▸ !le_refl,
-  have H4 : pr2 b ≤ pr1 b, from add_le_inv H3 H2,
-  have H5 : pr1 (proj a) = pr1 (proj b), from
-    calc
-      pr1 (proj a) = pr1 a - pr2 a          : proj_ge_pr1 H2
-        ... = pr1 a + pr2 b - pr2 b - pr2 a : {!sub_add_left⁻¹}
-        ... = pr2 a + pr1 b - pr2 b - pr2 a : {H}
-        ... = pr2 a + pr1 b - pr2 a - pr2 b : {!sub_comm}
-        ... = pr1 b - pr2 b                 : {!sub_add_left2}
-        ... = pr1 (proj b)                  : (proj_ge_pr1 H4)⁻¹,
-  have H6 : pr2 (proj a) = pr2 (proj b), from
-    calc
-      pr2 (proj a) = 0 : proj_ge_pr2 H2
-        ... = pr2 (proj b) : {(proj_ge_pr2 H4)⁻¹},
-  prod.equal H5 H6,
-or.elim !le_total
-  (assume H2 : pr2 a ≤ pr1 a, special a b H2 H)
-  (assume H2 : pr1 a ≤ pr2 a,
-    have H3 : pr2 (flip a) ≤ pr1 (flip a), from P_flip a H2,
-    have H4 : proj (flip a) = proj (flip b), from special (flip a) (flip b) H3 (rel_flip H),
-    have H5 : flip (proj a) = flip (proj b), from proj_flip a ▸ proj_flip b ▸ H4,
-    show proj a = proj b, from flip_inj H5)
-
-theorem proj_inj {a b : ℕ × ℕ} (H : proj a = proj b) : rel a b :=
-representative_map_equiv_inj rel_equiv proj_rel @proj_congr H
-
-theorem proj_zero_or (a : ℕ × ℕ) : pr1 (proj a) = 0 ∨ pr2 (proj a) = 0 :=
-or.elim !le_total
-  (assume H : pr2 a ≤ pr1 a, or.inr (proj_ge_pr2 H))
-  (assume H : pr1 a ≤ pr2 a, or.inl (proj_le_pr1 H))
-
-theorem proj_idempotent (a : ℕ × ℕ) : proj (proj a) = proj a :=
-representative_map_idempotent_equiv proj_rel @proj_congr a
-
--- ## Definition of ℤ and basic theorems and definitions
-
-protected opaque definition int := image proj
 notation `ℤ` := int
+coercion [persistent] int.of_nat
+definition int.of_num [coercion] (n : num) : ℤ := int.of_nat (nat.of_num n)
 
-opaque definition psub : ℕ × ℕ → ℤ := fun_image proj
-opaque definition rep  : ℤ → ℕ × ℕ := subtype.elt_of
+namespace int
 
-theorem quotient : is_quotient rel psub rep :=
-representative_map_to_quotient_equiv rel_equiv proj_rel @proj_congr
 
-theorem psub_rep (a : ℤ) : psub (rep a) = a :=
-abs_rep quotient a
+/- define key functions so that they compute well -/
 
-theorem destruct (a : ℤ) : ∃n m : ℕ, a = psub (pair n m) :=
-exists_intro (pr1 (rep a))
-  (exists_intro (pr2 (rep a))
-    (calc
-      a = psub (rep a) : (psub_rep a)⁻¹
-    ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {(prod.eta (rep a))⁻¹}))
+definition neg_of_nat (m : ℕ) : ℤ :=
+nat.cases_on m 0 (take m', neg_succ_of_nat m')
 
--- TODO it should not be opaque.
-protected opaque definition has_decidable_eq [instance] : decidable_eq ℤ :=
-_
+definition sub_nat_nat (m n : ℕ) : ℤ :=
+nat.cases_on (n - m)
+  (of_nat (m - n))     -- m ≥ n
+  (take k, neg_succ_of_nat k)   -- m < n, and n - m = succ k
 
-irreducible int
-definition of_nat [coercion] [reducible] (n : ℕ) : ℤ := psub (pair n 0)
-definition of_num [coercion] [reducible] (n : num) : ℤ := of_nat (nat.of_num n)
+definition neg (a : ℤ) : ℤ :=
+  cases_on a
+    (take m,                                           -- a = of_nat m
+      nat.cases_on m 0 (take m', neg_succ_of_nat m'))
+    (take m, of_nat (succ m))                          -- a = neg_succ_of_nat m
 
-theorem eq_zero_intro (n : ℕ) : psub (pair n n) = 0 :=
-have H : rel (pair n n) (pair 0 0), by simp,
-eq_abs quotient H
+definition add (a b : ℤ) : ℤ :=
+  cases_on a
+    (take m,                                           -- a = of_nat m
+      cases_on b
+        (take n, of_nat (m + n))                         -- b = of_nat n
+        (take n, sub_nat_nat m (succ n)))          -- b = neg_succ_of_nat n
+    (take m,                                           -- a = neg_succ_of_nat m
+      cases_on b
+        (take n, sub_nat_nat n (succ m))           -- b = of_nat n
+        (take n, neg_of_nat (succ m + succ n)))              -- b = neg_succ_of_nat n
 
-definition to_nat : ℤ → ℕ := rec_constant quotient (fun v, dist (pr1 v) (pr2 v))
+definition mul (a b : ℤ) : ℤ :=
+  cases_on a
+    (take m,                                           -- a = of_nat m
+      cases_on b
+        (take n, of_nat (m * n))                         -- b = of_nat n
+        (take n, neg_of_nat (m * succ n)))               -- b = neg_succ_of_nat n
+    (take m,                                           -- a = neg_succ_of_nat m
+      cases_on b
+        (take n, neg_of_nat (succ m * n))              -- b = of_nat n
+        (take n, of_nat (succ m * succ n)))              -- b = neg_succ_of_nat n
 
-theorem to_nat_comp (n m : ℕ) : (to_nat (psub (pair n m))) = dist n m :=
-have H : ∀v w : ℕ × ℕ, rel v w → dist (pr1 v) (pr2 v) = dist (pr1 w) (pr2 w),
-  from take v w H, dist_eq_intro H,
-have H2 : ∀v : ℕ × ℕ, (to_nat (psub v)) = dist (pr1 v) (pr2 v),
-  from take v, (comp_constant quotient H rel_refl),
-iff.mp (by simp) H2 (pair n m)
+definition sub (a b : ℤ) : ℤ := add a (neg b)
 
--- add_rewrite to_nat_comp --local
+definition nonneg (a : ℤ) : Prop := cases_on a (take n, true) (take n, false)
 
-theorem to_nat_of_nat (n : ℕ) : to_nat (of_nat n) = n :=
+definition le (a b : ℤ) : Prop := nonneg (sub b a)
+
+definition lt (a b : ℤ) : Prop := le (add a 1) b
+
+
+/- notation -/
+
+notation `-[` n `+1]` := int.neg_succ_of_nat n    -- for pretty-printing output
+prefix - := int.neg
+infix +  := int.add
+infix *  := int.mul
+infix -  := int.sub
+infix <= := int.le
+infix ≤  := int.le
+infix <  := int.lt
+
+
+/- some basic functions and properties -/
+
+theorem of_nat_inj {m n : ℕ} (H : of_nat m = of_nat n) : m = n :=
+no_confusion H (λe, e)
+
+theorem neg_succ_of_nat_inj {m n : ℕ} (H : neg_succ_of_nat m = neg_succ_of_nat n) : m = n :=
+no_confusion H (λe, e)
+
+definition has_decidable_eq [instance] : decidable_eq ℤ :=
+take a b,
+cases_on a
+  (take m,
+    cases_on b
+      (take n,
+        if H : m = n then inl (congr_arg of_nat H) else inr (take H1, H (of_nat_inj H1)))
+      (take n', inr (assume H, no_confusion H)))
+  (take m',
+    cases_on b
+      (take n, inr (assume H, no_confusion H))
+      (take n',
+        (if H : m' = n' then inl (congr_arg neg_succ_of_nat H) else
+            inr (take H1, H (neg_succ_of_nat_inj H1)))))
+
+definition decidable_nonneg [instance] (a : ℤ) : decidable (nonneg a) := cases_on a _ _
+
+definition decidable_le [instance] (a b : ℤ) : decidable (a ≤ b) := decidable_nonneg _
+
+definition decidable_lt [instance] (a b : ℤ) : decidable (a < b) := decidable_nonneg _
+
+theorem sub_nat_nat_of_ge {m n : ℕ} (H : m ≥ n) : sub_nat_nat m n = of_nat (m - n) :=
+have H1 : n - m = 0, from le_imp_sub_eq_zero H,
 calc
-  (to_nat (psub (pair n 0))) = dist n 0 : by simp
-    ... = n : by simp
+  sub_nat_nat m n = nat.cases_on 0 (of_nat (m - n)) _ : H1 ▸ rfl
+    ... = of_nat (m - n) : rfl
 
-theorem of_nat_inj {n m : ℕ} (H : of_nat n = of_nat m) : n = m :=
+theorem sub_nat_nat_of_lt {m n : ℕ} (H : m < n) :
+  sub_nat_nat m n = neg_succ_of_nat (pred (n - m)) :=
+have H1 : n - m = succ (pred (n - m)), from (succ_pred_of_pos (sub_pos_of_gt H))⁻¹,
 calc
-  n = to_nat (of_nat n) : (to_nat_of_nat n)⁻¹
-    ... = to_nat (of_nat m) : {H}
-    ... = m : to_nat_of_nat m
+  sub_nat_nat m n = nat.cases_on (succ (pred (n - m))) (of_nat (m - n))
+        (take k, neg_succ_of_nat k) : H1 ▸ rfl
+    ... = neg_succ_of_nat (pred (n - m)) : rfl
 
-theorem to_nat_eq_zero {a : ℤ} (H : to_nat a = 0) : a = 0 :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-have H2 : dist xa ya = 0, from
+definition nat_abs (a : ℤ) : ℕ := cases_on a (take n, n) (take n', succ n')
+
+theorem nat_abs_of_nat (n : ℕ) : nat_abs (of_nat n) = n := rfl
+
+
+/-
+  Show int is a quotient of ordered pairs of natural numbers, with the usual
+  equivalence relation.
+-/
+
+definition equiv (p q : ℕ × ℕ) : Prop :=  pr1 p + pr2 q = pr2 p + pr1 q
+
+notation [local] p `≡` q := equiv p q
+
+theorem equiv_refl {p : ℕ × ℕ} : p ≡ p := !add.comm
+
+theorem equiv_symm {p q : ℕ × ℕ} (H : p ≡ q) : q ≡ p :=
+calc
+  pr1 q + pr2 p = pr2 p + pr1 q : !add.comm
+    ... = pr1 p + pr2 q         : H⁻¹
+    ... = pr2 q + pr1 p         : !add.comm
+
+theorem equiv_trans {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
+have H3 : pr1 p + pr2 r + pr2 q = pr2 p + pr1 r + pr2 q, from
   calc
-    dist xa ya = (to_nat (psub (pair xa ya))) : by simp
-      ... = (to_nat a) : {Ha⁻¹}
-      ... = 0 : H,
-have H3 : xa = ya, from dist_eq_zero H2,
+   pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : by simp
+    ... = pr2 p + pr1 q + pr2 r                  : {H1}
+    ... = pr2 p + (pr1 q + pr2 r)                : by simp
+    ... = pr2 p + (pr2 q + pr1 r)                : {H2}
+    ... = pr2 p + pr1 r + pr2 q                  : by simp,
+show pr1 p + pr2 r = pr2 p + pr1 r, from add.cancel_right H3
+
+theorem equiv_equiv : is_equivalence equiv :=
+is_equivalence.mk @equiv_refl @equiv_symm @equiv_trans
+
+theorem equiv_cases {p q : ℕ × ℕ} (H : equiv p q) :
+    (pr1 p ≥ pr2 p ∧ pr1 q ≥ pr2 q) ∨ (pr1 p < pr2 p ∧ pr1 q < pr2 q) :=
+or.elim (@le_or_gt (pr2 p) (pr1 p))
+  (assume H1: pr1 p ≥ pr2 p,
+    have H2 : pr2 p + pr1 q ≥ pr2 p + pr2 q, from H ▸ add_le_right H1 (pr2 q),
+    or.inl (and.intro H1 (add_le_cancel_left H2)))
+  (assume H1: pr1 p < pr2 p,
+    have H2 : pr2 p + pr1 q < pr2 p + pr2 q, from H ▸ add_lt_right H1 (pr2 q),
+    or.inr (and.intro H1 (add_lt_cancel_left H2)))
+
+theorem equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ equiv_refl
+
+theorem eq_equiv_trans {p q r : ℕ × ℕ} (H1 : p = q) (H2 : q ≡ r) : p ≡ r := H1⁻¹ ▸ H2
+
+theorem equiv_eq_trans {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q = r) : p ≡ r := H2 ▸ H1
+
+calc_trans equiv_trans
+calc_refl equiv_refl
+calc_symm equiv_symm
+calc_trans eq_equiv_trans
+calc_trans equiv_eq_trans
+
+
+/- the representation and abstraction functions -/
+
+definition abstr (a : ℕ × ℕ) : ℤ := sub_nat_nat (pr1 a) (pr2 a)
+
+theorem abstr_of_ge {p : ℕ × ℕ} (H : pr1 p ≥ pr2 p) : abstr p = of_nat (pr1 p - pr2 p) :=
+sub_nat_nat_of_ge H
+
+theorem abstr_of_lt {p : ℕ × ℕ} (H : pr1 p < pr2 p) :
+  abstr p = neg_succ_of_nat (pred (pr2 p - pr1 p)) :=
+sub_nat_nat_of_lt H
+
+definition repr (a : ℤ) : ℕ × ℕ := cases_on a (take m, (m, 0)) (take m, (0, succ m))
+
+theorem abstr_repr (a : ℤ) : abstr (repr a) = a :=
+cases_on a (take m, (sub_nat_nat_of_ge (zero_le m))) (take m, rfl)
+
+theorem repr_sub_nat_nat (m n : ℕ) : repr (sub_nat_nat m n) ≡ (m, n) :=
+or.elim (@le_or_gt n m)
+  (take H : m ≥ n,
+    have H1 : repr (sub_nat_nat m n) = (m - n, 0), from sub_nat_nat_of_ge H ▸ rfl,
+    H1⁻¹ ▸
+      (calc
+        m - n + n = m : add_sub_ge_left H
+          ... = 0 + m : add.zero_left))
+  (take H : m < n,
+    have H1 : repr (sub_nat_nat m n) = (0, succ (pred (n - m))), from sub_nat_nat_of_lt H ▸ rfl,
+    H1⁻¹ ▸
+      (calc
+        0 + n = n : add.zero_left
+          ... = n - m + m : add_sub_ge_left (lt_imp_le H)
+          ... = succ (pred (n - m)) + m : (succ_pred_of_pos (sub_pos_of_gt H))⁻¹))
+
+theorem repr_abstr (p : ℕ × ℕ) : repr (abstr p) ≡ p :=
+!prod.eta ▸ !repr_sub_nat_nat
+
+theorem abstr_eq {p q : ℕ × ℕ} (Hequiv : p ≡ q) : abstr p = abstr q :=
+or.elim (equiv_cases Hequiv)
+  (assume H2,
+    have H3 : pr1 p ≥ pr2 p, from and.elim_left H2,
+    have H4 : pr1 q ≥ pr2 q, from and.elim_right H2,
+    have H5 : pr1 p = pr1 q - pr2 q + pr2 p, from
+      calc
+        pr1 p = pr1 p + pr2 q - pr2 q : sub_add_left
+          ... = pr2 p + pr1 q - pr2 q : Hequiv
+          ... = pr2 p + (pr1 q - pr2 q) : add_sub_assoc H4
+          ... = pr1 q - pr2 q + pr2 p : add.comm,
+    have H6 : pr1 p - pr2 p = pr1 q - pr2 q, from
+      calc
+        pr1 p - pr2 p = pr1 q - pr2 q + pr2 p - pr2 p : H5
+          ... = pr1 q - pr2 q : sub_add_left,
+    abstr_of_ge H3 ⬝ congr_arg of_nat H6 ⬝ (abstr_of_ge H4)⁻¹)
+  (assume H2,
+    have H3 : pr1 p < pr2 p, from and.elim_left H2,
+    have H4 : pr1 q < pr2 q, from and.elim_right H2,
+    have H5 : pr2 p = pr2 q - pr1 q + pr1 p, from
+      calc
+        pr2 p = pr2 p + pr1 q - pr1 q : sub_add_left
+          ... = pr1 p + pr2 q - pr1 q : Hequiv
+          ... = pr1 p + (pr2 q - pr1 q) : add_sub_assoc (lt_imp_le H4)
+          ... = pr2 q - pr1 q + pr1 p : add.comm,
+    have H6 : pr2 p - pr1 p = pr2 q - pr1 q, from
+      calc
+        pr2 p - pr1 p = pr2 q - pr1 q + pr1 p - pr1 p : H5
+          ... = pr2 q - pr1 q : sub_add_left,
+    abstr_of_lt H3 ⬝ congr_arg neg_succ_of_nat (congr_arg pred H6)⬝ (abstr_of_lt H4)⁻¹)
+
+theorem equiv_iff (p q : ℕ × ℕ) : (p ≡ q) ↔ ((p ≡ p) ∧ (q ≡ q) ∧ (abstr p = abstr q)) :=
+iff.intro
+  (assume H : equiv p q,
+    and.intro !equiv_refl (and.intro !equiv_refl (abstr_eq H)))
+  (assume H : equiv p p ∧ equiv q q ∧ abstr p = abstr q,
+    have H1 : abstr p = abstr q, from and.elim_right (and.elim_right H),
+    equiv_trans (H1 ▸ equiv_symm (repr_abstr p)) (repr_abstr q))
+
+theorem eq_abstr_of_equiv_repr {a : ℤ} {p : ℕ × ℕ} (Hequiv : repr a ≡ p) : a = abstr p :=
 calc
-  a = psub (pair xa ya) : Ha
-... = psub (pair ya ya) : {H3}
-... = 0 : eq_zero_intro ya
+  a = abstr (repr a) : abstr_repr
+   ... = abstr p : abstr_eq Hequiv
 
--- add_rewrite to_nat_of_nat
-
--- ## neg
-
-definition neg : ℤ → ℤ := quotient_map quotient flip
-
-notation `-` x := neg x
-
-theorem neg_comp (n m : ℕ) : -(psub (pair n m)) = psub (pair m n) :=
-have H : ∀a, -(psub a) = psub (flip a),
-  from take a, comp_quotient_map quotient @rel_flip rel_refl,
+theorem eq_of_repr_equiv_repr {a b : ℤ} (H : repr a ≡ repr b) : a = b :=
 calc
-  -(psub (pair n m)) = psub (flip (pair n m)) : H (pair n m)
-    ... = psub (pair m n) : by simp
+  a = abstr (repr a) : abstr_repr
+    ... = abstr (repr b) : abstr_eq H
+    ... = b : abstr_repr
 
--- add_rewrite neg_comp --local
+theorem nat_abs_abstr (p : ℕ × ℕ) : nat_abs (abstr p) = dist (pr1 p) (pr2 p) :=
+let m := pr1 p, n := pr2 p in
+or.elim (@le_or_gt n m)
+  (assume H : m ≥ n,
+    calc
+      nat_abs (abstr (m, n)) = nat_abs (of_nat (m - n)) : int.abstr_of_ge H
+        ... = dist m n : dist_ge H)
+  (assume H : m < n,
+    calc
+      nat_abs (abstr (m, n)) = nat_abs (neg_succ_of_nat (pred (n - m))) : int.abstr_of_lt H
+        ... = succ (pred (n - m)) : rfl
+        ... = n - m : succ_pred_of_pos (sub_pos_of_gt H)
+        ... = dist m n : dist_le (lt_imp_le H))
 
-theorem neg_zero : -0 = 0 :=
-calc -(psub (pair 0 0)) = psub (pair 0 0) : neg_comp 0 0
+theorem nat_abs_eq_zero {a : ℤ} : nat_abs a = 0 → a = 0 :=
+cases_on a
+  (take m, assume H : nat_abs (of_nat m) = 0, congr_arg of_nat H)
+  (take m', assume H : nat_abs (neg_succ_of_nat m') = 0, absurd H (succ_ne_zero _))
+
+
+/-
+  Properties of the basic operations.
+-/
+
+/- negation -/
+
+definition pneg (p : ℕ × ℕ) : ℕ × ℕ := (pr2 p, pr1 p)
+
+-- note: this is =, not just ≡
+theorem repr_neg (a : ℤ) : repr (- a) = pneg (repr a) :=
+cases_on a
+  (take m,
+    nat.cases_on m rfl (take m', rfl))
+  (take m', rfl)
+
+theorem pneg_congr {p p' : ℕ × ℕ} (H : p ≡ p') : pneg p ≡ pneg p' := eq.symm H
+
+theorem pneg_pneg (p : ℕ × ℕ) : pneg (pneg p) = p := !prod.eta
+
+theorem neg_zero : -0 = 0 := rfl
 
 theorem neg_neg (a : ℤ) : -(-a) = a :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-by simp
-
--- add_rewrite neg_neg neg_zero
+have H : repr (-(-a)) = repr a, from
+  (calc
+    repr (-(-a)) = pneg (repr (-a)) : repr_neg
+      ... = pneg (pneg (repr a)) : repr_neg
+      ... = repr a : pneg_pneg),
+eq_of_repr_equiv_repr (H ▸ equiv_refl)
 
 theorem neg_inj {a b : ℤ} (H : -a = -b) : a = b :=
-iff.mp (by simp) (congr_arg neg H)
+calc
+  a = -(-a) : neg_neg
+    ... = -(-b) : H
+    ... = b : neg_neg
 
 theorem neg_move {a b : ℤ} (H : -a = b) : -b = a :=
 H ▸ neg_neg a
 
-theorem to_nat_neg (a : ℤ) : (to_nat (-a)) = (to_nat a) :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-by simp
+theorem nat_abs_neg (a : ℤ) : nat_abs (-a) = nat_abs a :=
+calc
+  nat_abs (-a) = nat_abs (abstr (repr (-a))) : abstr_repr
+    ... = nat_abs (abstr (pneg (repr a))) : repr_neg
+    ... = dist (pr1 (pneg (repr a))) (pr2 (pneg (repr a))) : nat_abs_abstr
+    ... = dist (pr2 (pneg (repr a))) (pr1 (pneg (repr a))) : dist_comm
+    ... = nat_abs (abstr (repr a)) : nat_abs_abstr
+    ... = nat_abs a : abstr_repr
 
-theorem pos_eq_neg {n m : ℕ} (H : n = -m) : n = 0 ∧ m = 0 :=
-have H2 : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, rfl,
-have H3 : psub (pair n 0) = psub (pair 0 m), from iff.mp (by simp) H,
-have H4 : rel (pair n 0) (pair 0 m), from R_intro_refl quotient @rel_refl H3,
-have H5 : n + m = 0, from
-  calc
-    n + m = pr1 (pair n 0) + pr2 (pair 0 m) : by simp
-      ... = pr2 (pair n 0) + pr1 (pair 0 m) : H4
-      ... = 0                               : by simp,
- add.eq_zero H5
-
--- add_rewrite to_nat_neg
-
----reverse equalities
-
-reducible int
+theorem pos_eq_neg {n m : ℕ} : n = -m → n = 0 ∧ m = 0 :=
+nat.cases_on m
+  (take H, and.intro (of_nat_inj H) rfl)
+  (take m' H, no_confusion H)
 
 theorem cases (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - n) :=
-have Hrep : proj (rep a) = rep a, from @idempotent_image_fix _ proj proj_idempotent a,
-or.imp_or (or.swap (proj_zero_or (rep a)))
-  (assume H : pr2 (proj (rep a)) = 0,
-    have H2 : pr2 (rep a) = 0, from Hrep ▸ H,
-    exists_intro (pr1 (rep a))
-      (calc
-        a = psub (rep a) : (psub_rep a)⁻¹
-          ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {(prod.eta (rep a))⁻¹}
-          ... = psub (pair (pr1 (rep a)) 0) : {H2}
-          ... = of_nat (pr1 (rep a)) : rfl))
-  (assume H : pr1 (proj (rep a)) = 0,
-    have H2 : pr1 (rep a) = 0, from Hrep ▸ H,
-    exists_intro (pr2 (rep a))
-      (calc
-        a = psub (rep a) : (psub_rep a)⁻¹
-          ... = psub (pair (pr1 (rep a)) (pr2 (rep a))) : {(prod.eta (rep a))⁻¹}
-          ... = psub (pair 0 (pr2 (rep a))) : {H2}
-          ... = -(psub (pair (pr2 (rep a)) 0)) : by simp
-          ... = -(of_nat (pr2 (rep a))) : rfl))
+cases_on a
+  (take n, or.inl (exists_intro n rfl))
+  (take n', or.inr (exists_intro (succ n') rfl))
 
-irreducible int
-
----rename to by_cases in Lean 0.2 (for now using this to avoid name clash)
-theorem int_by_cases {P : ℤ → Prop} (a : ℤ) (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-n)) :
+theorem by_cases {P : ℤ → Prop} (a : ℤ) (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-n)) :
   P a :=
 or.elim (cases a)
   (assume H, obtain (n : ℕ) (H3 : a = n), from H, H3⁻¹ ▸ H1 n)
@@ -355,39 +419,78 @@ or.elim (cases_succ a)
   (assume H, obtain (n : ℕ) (H3 : a = of_nat n), from H, H3⁻¹ ▸ H1 n)
   (assume H, obtain (n : ℕ) (H3 : a = -(of_nat (succ n))), from H, H3⁻¹ ▸ H2 n)
 
---some of these had to be transparent for theorem cases
-irreducible psub proj
 
--- ## add
+/- addition -/
 
-theorem rel_add {a a' b b' : ℕ × ℕ} (Ha : rel a a') (Hb : rel b b')
-  : rel (map_pair2 add a b) (map_pair2 add a' b') :=
+definition padd (p q : ℕ × ℕ) : ℕ × ℕ := map_pair2 nat.add p q
+
+theorem repr_add (a b : ℤ) :  repr (add a b) ≡ padd (repr a) (repr b) :=
+cases_on a
+  (take m,
+    cases_on b
+      (take n, !equiv_refl)
+      (take n',
+        have H1 : equiv (repr (add (of_nat m) (neg_succ_of_nat n'))) (m, succ n'),
+          from !repr_sub_nat_nat,
+        have H2 : padd (repr (of_nat m)) (repr (neg_succ_of_nat n')) = (m, 0 + succ n'),
+          from rfl,
+        (!add.zero_left ▸ H2)⁻¹ ▸ H1))
+  (take m',
+    cases_on b
+      (take n,
+        have H1 : equiv (repr (add (neg_succ_of_nat m') (of_nat n))) (n, succ m'),
+          from !repr_sub_nat_nat,
+        have H2 : padd (repr (neg_succ_of_nat m')) (repr (of_nat n)) = (0 + n, succ m'),
+          from rfl,
+        (!add.zero_left ▸ H2)⁻¹ ▸ H1)
+       (take n',!repr_sub_nat_nat))
+
+theorem padd_congr {p p' q q' : ℕ × ℕ} (Ha : p ≡ p') (Hb : q ≡ q') : padd p q ≡ padd p' q' :=
 calc
-  pr1 (map_pair2 add a b) + pr2 (map_pair2 add a' b')  = pr1 a + pr2 a' + (pr1 b + pr2 b') : by simp
-    ... = pr2 a + pr1 a' + (pr1 b + pr2 b') : {Ha}
-    ... = pr2 a + pr1 a' + (pr2 b + pr1 b') : {Hb}
-    ... = pr2 (map_pair2 add a b) + pr1 (map_pair2 add a' b') : by simp
+  pr1 (padd p q) + pr2 (padd p' q') = pr1 p + pr2 p' + (pr1 q + pr2 q') : by simp
+    ... = pr2 p + pr1 p' + (pr1 q + pr2 q') : {Ha}
+    ... = pr2 p + pr1 p' + (pr2 q + pr1 q') : {Hb}
+    ... = pr2 (padd p q) + pr1 (padd p' q') : by simp
 
-definition add : ℤ → ℤ → ℤ := quotient_map_binary quotient (map_pair2 nat.add)
-notation a + b := int.add a b
+theorem padd_comm (p q : ℕ × ℕ) : padd p q = padd q p :=
+calc
+  padd p q = (pr1 p + pr1 q, pr2 p + pr2 q) : rfl
+    ... = (pr1 q + pr1 p, pr2 p + pr2 q) : add.comm
+    ... = (pr1 q + pr1 p, pr2 q + pr2 p) : add.comm
+    ... = padd q p : rfl
 
-theorem add_comp (n m k l : ℕ) : psub (pair n m) + psub (pair k l) = psub (pair (n + k) (m + l)) :=
-have H : ∀a b, psub a + psub b = psub (map_pair2 nat.add a b),
-  from comp_quotient_map_binary_refl @rel_refl quotient @rel_add,
-H (pair n m) (pair k l) ⬝ by simp
-
--- add_rewrite add_comp --local
+theorem padd_assoc (p q r : ℕ × ℕ) : padd (padd p q) r = padd p (padd q r) :=
+calc
+  padd (padd p q) r = (pr1 p + pr1 q + pr1 r, pr2 p + pr2 q + pr2 r) : rfl
+    ... = (pr1 p + (pr1 q + pr1 r), pr2 p + pr2 q + pr2 r) : add.assoc
+    ... = (pr1 p + (pr1 q + pr1 r), pr2 p + (pr2 q + pr2 r)) : add.assoc
+    ... = padd p (padd q r) : rfl
 
 theorem add_comm (a b : ℤ) : a + b = b + a :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
-by simp
+begin
+  apply eq_of_repr_equiv_repr,
+  apply equiv_trans,
+  apply repr_add,
+  apply equiv_symm,
+  apply (eq.subst (padd_comm (repr b) (repr a))),
+  apply repr_add
+end
 
 theorem add_assoc (a b c : ℤ) : a + b + c = a + (b + c) :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
-obtain (xc yc : ℕ) (Hc : c = psub (pair xc yc)), from destruct c,
-by simp
+have H1 [visible]: repr (a + b + c) ≡ padd (padd (repr a) (repr b)) (repr c), from
+  equiv_trans (repr_add (a + b) c) (padd_congr !repr_add !equiv_refl),
+have H2 [visible]: repr (a + (b + c)) ≡ padd (repr a) (padd (repr b) (repr c)), from
+  equiv_trans (repr_add a (b + c)) (padd_congr !equiv_refl !repr_add),
+begin
+  apply eq_of_repr_equiv_repr,
+  apply equiv_trans,
+  apply H1,
+  apply (eq.subst ((padd_assoc _ _ _)⁻¹)),
+  apply equiv_symm,
+  apply H2
+end
+
+theorem add_zero_right (a : ℤ) : a + 0 = a := cases_on a (take m, rfl) (take m', rfl)
 
 theorem add_left_comm (a b c : ℤ) : a + (b + c) = b + (a + c) :=
 left_comm add_comm add_assoc a b c
@@ -395,50 +498,67 @@ left_comm add_comm add_assoc a b c
 theorem add_right_comm (a b c : ℤ) : a + b + c = a + c + b :=
 right_comm add_comm add_assoc a b c
 
--- ### interaction of add with other functions and constants
-
-theorem add_zero_right (a : ℤ) : a + 0 = a :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-have H0 : 0 = psub (pair 0 0), from rfl,
-by simp
-
 theorem add_zero_left (a : ℤ) : 0 + a = a :=
 add_comm a 0 ▸ add_zero_right a
 
+theorem padd_pneg (p : ℕ × ℕ) : padd p (pneg p) ≡ (0, 0) :=
+show pr1 p + pr2 p + 0 = pr2 p + pr1 p + 0, from !add.comm ▸ rfl
+
+theorem padd_padd_pneg (p q : ℕ × ℕ) : padd (padd p q) (pneg q) ≡ p :=
+show pr1 p + pr1 q + pr2 q + pr2 p = pr2 p + pr2 q + pr1 q + pr1 p, by simp
+
 theorem add_inverse_right (a : ℤ) : a + -a = 0 :=
-have H : ∀n, psub (pair n n) = 0, from eq_zero_intro,
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-by simp
+have H : repr (a + -a) ≡ repr 0, from
+  calc
+    repr (a + -a) ≡ padd (repr a) (repr (neg a)) : repr_add
+      ... = padd (repr a) (pneg (repr a)) : repr_neg
+      ... ≡ repr 0 : padd_pneg,
+eq_of_repr_equiv_repr H
 
 theorem add_inverse_left (a : ℤ) : -a + a = 0 :=
 add_comm a (-a) ▸ add_inverse_right a
 
+theorem pneg_padd_distr (p q : ℕ × ℕ) : pneg (padd p q) = padd (pneg p) (pneg q) := rfl
+
 theorem neg_add_distr (a b : ℤ) : -(a + b) = -a + -b :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
-by simp
+eq_of_repr_equiv_repr
+  (calc
+    repr (-(a + b)) = pneg (repr (a + b)) : repr_neg
+      ... ≡ pneg (padd (repr a) (repr b)) : pneg_congr (!repr_add)
+      ... = padd (pneg (repr a)) (pneg (repr b)) : pneg_padd_distr
+      ... = padd (repr (-a)) (pneg (repr b)) : repr_neg
+      ... = padd (repr (-a)) (repr (-b)) : repr_neg
+      ... ≡ repr (-a + -b) : equiv_symm (!repr_add))
+                -- TODO: should calc reorient this for us?
 
-theorem to_nat_add_le (a b : ℤ) : to_nat (a + b) ≤ to_nat a + to_nat b :=
-  --note: ≤ is nat::≤
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
-have H : dist (xa + xb) (ya + yb) ≤ dist xa ya + dist xb yb,
-  from !dist_add_le_add_dist,
-by simp
+definition pabs (p : ℕ × ℕ) : ℕ := dist (pr1 p) (pr2 p)
 
--- TODO: note, we have to add #nat to get the right interpretation
-theorem add_of_nat (n m : nat) : of_nat n + of_nat m = #nat n + m := -- this is of_nat (n + m)
-have H : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, rfl,
-by simp
+theorem pabs_congr {p q : ℕ × ℕ} (H : p ≡ q) : pabs p = pabs q :=
+calc
+  pabs p = nat_abs (abstr p) : nat_abs_abstr
+    ... = nat_abs (abstr q) : abstr_eq H
+    ... = pabs q : nat_abs_abstr
 
--- add_rewrite add_of_nat
+theorem nat_abs_eq_pabs_repr (a : ℤ) : nat_abs a = pabs (repr a) :=
+calc
+  nat_abs a = nat_abs (abstr (repr a)) : abstr_repr
+    ... = pabs (repr a) : nat_abs_abstr
 
-theorem of_nat_succ (n : ℕ) : of_nat (succ n) = of_nat n + 1 :=
-by simp
+theorem nat_abs_add_le (a b : ℤ) : nat_abs (a + b) ≤ nat_abs a + nat_abs b :=
+have H : nat_abs (a + b) = pabs (padd (repr a) (repr b)), from
+  calc
+    nat_abs (a + b) = pabs (repr (a + b)) : nat_abs_eq_pabs_repr
+      ... = pabs (padd (repr a) (repr b)) : pabs_congr !repr_add,
+have H1 : nat_abs a = pabs (repr a), from !nat_abs_eq_pabs_repr,
+have H2 : nat_abs b = pabs (repr b), from !nat_abs_eq_pabs_repr,
+have H3 : pabs (padd (repr a) (repr b)) ≤ pabs (repr a) + pabs (repr b), from !dist_add_le_add_dist,
+H⁻¹ ▸ H1⁻¹ ▸ H2⁻¹ ▸ H3
 
--- ## sub
-definition sub (a b : ℤ) : ℤ := a + -b
-notation a - b := int.sub a b
+theorem add_of_nat (n m : nat) : of_nat n + of_nat m = #nat n + m := rfl
+
+theorem of_nat_succ (n : ℕ) : of_nat (succ n) = of_nat n + 1 := rfl
+
+/- subtraction -/
 
 theorem sub_def (a b : ℤ) : a - b = a + -b :=
 rfl
@@ -562,17 +682,48 @@ calc
 theorem sub_add_add_left (a b c : ℤ) : c + a - (c + b) = a - b :=
 add_comm b c ▸ add_comm a c ▸ sub_add_add_right a b c
 
-theorem dist_def (n m : ℕ) : dist n m = (to_nat (of_nat n - m)) :=
-have H : of_nat n - m = psub (pair n m), from
-  calc
-    psub (pair n 0) + -psub (pair m 0) = psub (pair (n + 0) (0 + m)) : by simp
-      ... = psub (pair n m) : by simp,
-calc
-  dist n m = (to_nat (psub (pair n m))) : by simp
-    ... = (to_nat (of_nat n - m)) : {H⁻¹}
 
--- ## mul
-theorem rel_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
+/- multiplication -/
+
+definition pmul (p q : ℕ × ℕ) : ℕ × ℕ :=
+  (pr1 p * pr1 q + pr2 p * pr2 q, pr1 p * pr2 q + pr2 p * pr1 q)
+
+theorem repr_neg_of_nat (m : ℕ) : repr (neg_of_nat m) = (0, m) :=
+nat.cases_on m rfl (take m', rfl)
+
+-- note: we have =, not just ≡
+theorem repr_mul (a b : ℤ) :  repr (mul a b) = pmul (repr a) (repr b) :=
+cases_on a
+  (take m,
+    cases_on b
+      (take n,
+        (calc
+          pmul (repr m) (repr n) = (m * n + 0 * 0, m * 0 + 0 * n) : rfl
+            ... = (m * n + 0 * 0, m * 0 + 0) : mul.zero_left)⁻¹)
+      (take n',
+        (calc
+          pmul (repr m) (repr (neg_succ_of_nat n')) =
+              (m * 0 + 0 * succ n', m * succ n' + 0 * 0) : rfl
+            ... = (m * 0 + 0, m * succ n' + 0 * 0) : mul.zero_left
+            ... = repr (mul m (neg_succ_of_nat n')) : repr_neg_of_nat)⁻¹))
+  (take m',
+    cases_on b
+      (take n,
+        (calc
+          pmul (repr (neg_succ_of_nat m')) (repr n) =
+              (0 * n + succ m' * 0, 0 * 0 + succ m' * n) : rfl
+            ... = (0 + succ m' * 0, 0 * 0 + succ m' * n) : mul.zero_left
+            ... = (0 + succ m' * 0, succ m' * n) : add.zero_left
+            ... = repr (mul (neg_succ_of_nat m') n) : repr_neg_of_nat)⁻¹)
+      (take n',
+        (calc
+          pmul (repr (neg_succ_of_nat m')) (repr (neg_succ_of_nat n')) =
+              (0 + succ m' * succ n', 0 * succ n') : rfl
+            ... = (succ m' * succ n', 0 * succ n') : add.zero_left
+            ... = (succ m' * succ n', 0) : mul.zero_left
+            ... = repr (mul (neg_succ_of_nat m') (neg_succ_of_nat n')) : rfl)⁻¹))
+
+theorem equiv_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
   (H1 : xa + yb = ya + xb) (H2 : xn + ym = yn + xm)
 : xa * xn + ya * yn + (xb * ym + yb * xm) = xa * yn + ya * xn + (xb * xm + yb * ym) :=
 have H3 : xa * xn + ya * yn + (xb * ym + yb * xm) + (yb * xn + xb * yn + (xb * xn + yb * yn))
@@ -589,41 +740,36 @@ have H3 : xa * xn + ya * yn + (xb * ym + yb * xm) + (yb * xn + xb * yn + (xb * x
             : by simp,
 nat.add.cancel_right H3
 
-theorem rel_mul {u u' v v' : ℕ × ℕ} (H1 : rel u u') (H2 : rel v v') :
-  rel (pair (pr1 u * pr1 v + pr2 u * pr2 v) (pr1 u * pr2 v + pr2 u * pr1 v))
-        (pair (pr1 u' * pr1 v' + pr2 u' * pr2 v') (pr1 u' * pr2 v' + pr2 u' * pr1 v')) :=
+theorem pmul_congr {p p' q q' : ℕ × ℕ} (H1 : p ≡ p') (H2 : q ≡ q') : pmul p q ≡ pmul p' q' :=
+equiv_mul_prep H1 H2
+
+theorem pmul_comm (p q : ℕ × ℕ) : pmul p q = pmul q p :=
 calc
-    pr1 (pair (pr1 u * pr1 v + pr2 u * pr2 v) (pr1 u * pr2 v + pr2 u * pr1 v))
-  + pr2 (pair (pr1 u' * pr1 v' + pr2 u' * pr2 v') (pr1 u' * pr2 v' + pr2 u' * pr1 v'))
-  = (pr1 u * pr1 v + pr2 u * pr2 v) + (pr1 u' * pr2 v' + pr2 u' * pr1 v') : by simp
-... = (pr1 u * pr2 v + pr2 u * pr1 v) + (pr1 u' * pr1 v' + pr2 u' * pr2 v') : rel_mul_prep H1 H2
-... = pr2 (pair (pr1 u * pr1 v + pr2 u * pr2 v) (pr1 u * pr2 v + pr2 u * pr1 v))
-  + pr1 (pair (pr1 u' * pr1 v' + pr2 u' * pr2 v') (pr1 u' * pr2 v' + pr2 u' * pr1 v')) : by simp
-
-definition mul : ℤ → ℤ → ℤ := quotient_map_binary quotient
-  (fun u v : ℕ × ℕ, pair (pr1 u * pr1 v + pr2 u * pr2 v) (pr1 u * pr2 v + pr2 u * pr1 v))
-
-notation a * b := int.mul a b
-
-theorem mul_comp (n m k l : ℕ) :
-  psub (pair n m) * psub (pair k l) = psub (pair (n * k + m * l) (n * l + m * k)) :=
-have H : ∀u v,
-    psub u * psub v = psub (pair (pr1 u * pr1 v + pr2 u * pr2 v) (pr1 u * pr2 v + pr2 u * pr1 v)),
-  from comp_quotient_map_binary_refl @rel_refl quotient @rel_mul,
-H (pair n m) (pair k l) ⬝ by simp
-
--- add_rewrite mul_comp
+  (pr1 p * pr1 q + pr2 p * pr2 q, pr1 p * pr2 q + pr2 p * pr1 q) =
+      (pr1 q * pr1 p + pr2 p * pr2 q, pr1 p * pr2 q + pr2 p * pr1 q) : mul.comm
+    ... = (pr1 q * pr1 p + pr2 q * pr2 p, pr1 p * pr2 q + pr2 p * pr1 q) : mul.comm
+    ... = (pr1 q * pr1 p + pr2 q * pr2 p, pr2 q * pr1 p + pr2 p * pr1 q) : mul.comm
+    ... = (pr1 q * pr1 p + pr2 q * pr2 p, pr2 q * pr1 p + pr1 q * pr2 p) : mul.comm
+    ... = (pr1 q * pr1 p + pr2 q * pr2 p, pr1 q * pr2 p + pr2 q * pr1 p) : add.comm
 
 theorem mul_comm (a b : ℤ) : a * b = b * a :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
+eq_of_repr_equiv_repr
+  ((calc
+    repr (a * b) = pmul (repr a) (repr b) : repr_mul
+      ... = pmul (repr b) (repr a) : pmul_comm
+      ... = repr (b * a) : repr_mul) ▸ !equiv_refl)
+
+theorem pmul_assoc (p q r: ℕ × ℕ) : pmul (pmul p q) r = pmul p (pmul q r) :=
 by simp
 
 theorem mul_assoc (a b c : ℤ) : (a * b) * c = a * (b * c) :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
-obtain (xc yc : ℕ) (Hc : c = psub (pair xc yc)), from destruct c,
-by simp
+eq_of_repr_equiv_repr
+  ((calc
+    repr (a * b * c) = pmul (repr (a * b)) (repr c) : repr_mul
+      ... = pmul (pmul (repr a) (repr b)) (repr c) : repr_mul
+      ... = pmul (repr a) (pmul (repr b) (repr c)) : pmul_assoc
+      ... = pmul (repr a) (repr (b * c)) : repr_mul
+      ... = repr (a * (b * c)) : repr_mul) ▸ !equiv_refl)
 
 theorem mul_left_comm : ∀a b c : ℤ, a * (b * c) = b * (a * c) :=
 left_comm mul_comm mul_assoc
@@ -631,28 +777,35 @@ left_comm mul_comm mul_assoc
 theorem mul_right_comm : ∀a b c : ℤ, a * b * c = a * c * b :=
 right_comm mul_comm mul_assoc
 
--- ### interaction with other objects
-
 theorem mul_zero_right (a : ℤ) : a * 0 = 0 :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-have H0 : 0 = psub (pair 0 0), from rfl,
-by simp
+eq_of_repr_equiv_repr (equiv_of_eq
+  ((calc
+    repr (a * 0) = pmul (repr a) (repr 0) : repr_mul
+      ... = (0, 0) : by simp)))
 
 theorem mul_zero_left (a : ℤ) : 0 * a = 0 :=
 mul_comm a 0 ▸ mul_zero_right a
 
 theorem mul_one_right (a : ℤ) : a * 1 = a :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-have H1 : 1 = psub (pair 1 0), from rfl,
-by simp
+eq_of_repr_equiv_repr (equiv_of_eq
+  ((calc
+    repr (a * 1) = pmul (repr a) (repr 1) : repr_mul
+      ... = (pr1 (repr a), pr2 (repr a)) : by simp
+      ... = repr a : prod.eta)))
 
 theorem mul_one_left (a : ℤ) : 1 * a = a :=
 mul_comm a 1 ▸ mul_one_right a
 
 theorem mul_neg_right (a b : ℤ) : a * -b = -(a * b) :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
-by simp
+let a1 := pr1 (repr a), a2 := pr2 (repr a), b1 := pr1 (repr b), b2 := pr2 (repr b) in
+eq_of_repr_equiv_repr (equiv_of_eq
+  ((calc
+    repr (a * -b) = pmul (repr a) (repr (-b)) : repr_mul
+      ... = pmul (repr a) (pneg (repr b)) : repr_neg
+      ... = (a1 * b2 + a2 * b1, a1 * b1 + a2 * b2) : rfl
+      ... = pneg (pmul (repr a) (repr b)) : rfl
+      ... = pneg (repr (a * b)) : repr_mul
+      ... = repr (-(a * b)) : repr_neg)))
 
 theorem mul_neg_left (a b : ℤ) : -a * b = -(a * b) :=
 mul_comm b a ▸ mul_comm b (-a) ▸ mul_neg_right b a
@@ -663,10 +816,14 @@ theorem mul_neg_neg (a b : ℤ) : -a * -b = a * b :=
 by simp
 
 theorem mul_right_distr (a b c : ℤ) : (a + b) * c = a * c + b * c :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
-obtain (xc yc : ℕ) (Hc : c = psub (pair xc yc)), from destruct c,
-by simp
+eq_of_repr_equiv_repr
+  (calc
+    repr ((a + b) * c) = pmul (repr (a + b)) (repr c) : repr_mul
+      ... ≡ pmul (padd (repr a) (repr b)) (repr c) : pmul_congr !repr_add equiv_refl
+      ... = padd (pmul (repr a) (repr c)) (pmul (repr b) (repr c)) : by simp
+      ... = padd (repr (a * c)) (pmul (repr b) (repr c)) : {(repr_mul a c)⁻¹}
+      ... = padd (repr (a * c)) (repr (b * c)) : repr_mul
+      ... ≡ repr (a * c + b * c) : equiv_symm !repr_add)
 
 theorem mul_left_distr (a b c : ℤ) : a * (b + c) = a * b + a * c :=
 calc
@@ -685,34 +842,33 @@ calc
   a * (b + -c) = a * b + a * -c : mul_left_distr a b (-c)
     ... = a * b + - (a * c) : {mul_neg_right a c}
 
-theorem mul_of_nat (n m : ℕ) : of_nat n * of_nat m = n * m :=
-have H : ∀n : ℕ, n = psub (pair n 0), from take n : ℕ, rfl,
-by simp
+theorem mul_of_nat (n m : ℕ) : of_nat n * of_nat m = n * m := rfl
 
-theorem mul_to_nat (a b : ℤ) : (to_nat (a * b)) = #nat (to_nat a) * (to_nat b) :=
-obtain (xa ya : ℕ) (Ha : a = psub (pair xa ya)), from destruct a,
-obtain (xb yb : ℕ) (Hb : b = psub (pair xb yb)), from destruct b,
-have H : dist xa ya * dist xb yb = dist (xa * xb + ya * yb) (xa * yb + ya * xb),
-  from !dist_mul_dist,
-by simp
+theorem mul_nat_abs (a b : ℤ) : (nat_abs (a * b)) = #nat (nat_abs a) * (nat_abs b) :=
+cases_on a
+  (take m,
+    cases_on b
+      (take n, rfl)
+      (take n', !nat_abs_neg ▸ rfl))
+  (take m',
+    cases_on b
+      (take n, !nat_abs_neg ▸ rfl)
+      (take n', rfl))
 
 -- add_rewrite mul_zero_left mul_zero_right mul_one_right mul_one_left
 -- add_rewrite mul_comm mul_assoc mul_left_comm
 -- add_rewrite mul_distr_right mul_distr_left mul_of_nat mul_sub_distr_left mul_sub_distr_right
 
-
--- ---------- inversion
-
 theorem mul_eq_zero {a b : ℤ} (H : a * b = 0) : a = 0 ∨ b = 0 :=
-have H2 : (to_nat a) * (to_nat b) = 0, from
+have H2 : (nat_abs a) * (nat_abs b) = 0, from
   calc
-    (to_nat a) * (to_nat b) = (to_nat (a * b)) : (mul_to_nat a b)⁻¹
-      ... = (to_nat 0) : {H}
-      ... = 0 : to_nat_of_nat 0,
-have H3 : (to_nat a) = 0 ∨ (to_nat b) = 0, from mul.eq_zero H2,
+    (nat_abs a) * (nat_abs b) = (nat_abs (a * b)) : (mul_nat_abs a b)⁻¹
+      ... = (nat_abs 0) : {H}
+      ... = 0 : nat_abs_of_nat 0,
+have H3 : (nat_abs a) = 0 ∨ (nat_abs b) = 0, from mul.eq_zero H2,
 or.imp_or H3
-  (assume H : (to_nat a) = 0, to_nat_eq_zero H)
-  (assume H : (to_nat b) = 0, to_nat_eq_zero H)
+  (assume H : (nat_abs a) = 0, nat_abs_eq_zero H)
+  (assume H : (nat_abs b) = 0, nat_abs_eq_zero H)
 
 theorem mul_cancel_left_or {a b c : ℤ} (H : a * b = a * c) : a = 0 ∨ b = c :=
 have H2 : a * (b - c) = 0, by simp,
@@ -745,4 +901,41 @@ theorem mul_ne_zero_right {a b : ℤ} (H : a * b ≠ 0) : b ≠ 0 :=
 mul_ne_zero_left (mul_comm a b ▸ H)
 
 end int
-definition int := int.int
+
+
+/- tests -/
+
+/- open int
+
+eval -100
+eval -(-100)
+
+eval #int (5 + 7)
+eval -5 + 7
+eval 5 + -7
+eval -5 + -7
+
+eval #int 155 + 277
+eval -155 + 277
+eval 155 + -277
+eval -155 + -277
+
+eval #int 155 - 277
+eval #int 277 - 155
+
+eval #int 2 * 3
+eval -2 * 3
+eval 2 * -3
+eval -2 * -3
+
+eval 22 * 33
+eval -22 * 33
+eval 22 * -33
+eval -22 * -33
+
+eval #int 22 ≤ 33
+eval #int 33 ≤ 22
+
+example : #int 22 ≤ 33 := true.intro
+example : #int -5 < 7 := true.intro
+-/

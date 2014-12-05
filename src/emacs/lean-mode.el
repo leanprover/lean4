@@ -214,10 +214,12 @@ Invokes `lean-mode-hook'.
 ;; Automatically use lean-mode for .lean files.
 ;;;###autoload
 (push '("\\.lean$" . lean-mode) auto-mode-alist)
+(push '("\\.hlean$" . lean-mode) auto-mode-alist)
 
 ;; Use utf-8 encoding
 ;;;### autoload
 (modify-coding-system-alist 'file "\\.lean\\'" 'utf-8)
+(modify-coding-system-alist 'file "\\.hlean\\'" 'utf-8)
 
 ;; Flycheck init
 (when lean-flycheck-use

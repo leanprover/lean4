@@ -318,9 +318,12 @@ def process_args(args):
         args.cache = process_target(args.cache)
         if len(args.targets) != 1:
             error("--cache option can only be used with one target")
-        if not args.cache.endswith(".lean"):
-            error("cache argument has to be ends with .lean")
-        args.cache = args.cache[:-4] + "clean"
+        if not args.cache.endswith(".lean") and not args.cache.endswith(".hlean"):
+            error("cache argument has to end with .lean or .hlean")
+        if args.cache.endswith(".lean"):
+            args.cache = args.cache[:-4] + "clean"
+        else:
+            args.cache = args.cache[:-5] + "clean"
     args.phony_targets = list(set(g_phony_targets) & set(args.targets))
     if args.verbose:
         g_logger.setLevel(logging.INFO)
@@ -394,11 +397,14 @@ def handle_flycheck_failure(out, err, args):
     if failed:
         call_lean(target, args)
 
-def process_lean_output(target, out, args):
+def process_lean_output(target, out, args, using_hlean):
     n = args.flycheck_max_messages
     if target.endswith(".olean"):
-        target = target[:-5] + "lean"
-    if not target.endswith(".lean"):
+        if using_hlean:
+            target = target[:-5] + "hlean"
+        else:
+            target = target[:-5] + "lean"
+    if (not target.endswith(".lean") and not using_hlean) or (not target.endswith(".hlean") and using_hlean):
         print out
         return
     # Parse, filter, and remove extra items
@@ -419,6 +425,8 @@ def call_ninja(args):
     for item in args.targets:
         if item.endswith(".lean"):
             targets.append(item[:-4] + "olean")
+        elif item.endswith(".hlean"):
+            targets.append(item[:-5] + "olean")
         else:
             targets.append(item)
     proc_out = proc_err = None
@@ -431,8 +439,8 @@ def call_ninja(args):
     proc = subprocess.Popen([g_ninja_path] + ninja_option + targets, stdout=proc_out, stderr=proc_err)
     (out, err) = proc.communicate()
     if args.flycheck:
-        if len(args.targets) == 1 and args.targets[0].endswith(".lean"):
-            process_lean_output(targets[0], out, args)
+        if len(args.targets) == 1 and (args.targets[0].endswith(".lean") or args.targets[0].endswith(".hlean")):
+            process_lean_output(targets[0], out, args, args.targets[0].endswith(".hlean"))
             handle_flycheck_failure(out, err, args)
         else:
             print out + err
@@ -443,17 +451,20 @@ def call_lean(filename, args):
     proc = subprocess.Popen([g_lean_path] + args.lean_options + [filename],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = proc.communicate()[0]
-    process_lean_output(filename, out, args)
+    process_lean_output(filename, out, args, filename.endswith(".hlean"))
     return proc.returncode
 
-def get_lean_names(lean_file, args):
+def get_lean_names(lean_file, args, using_hlean):
     lean_file = os.path.abspath(lean_file)
     basename, ext = os.path.splitext(lean_file)
     basename = normalize_drive_name(basename)
-    lean_name_exts = ["lean", "olean", "clean", "ilean", "d"]
     item = {"base" : basename}
+    lean_name_exts = ["lean", "olean", "clean", "ilean", "d"]
     for ext in lean_name_exts:
-        item[ext] = basename + "." + ext
+        if ext == "lean" and using_hlean:
+            item[ext] = basename + ".hlean"
+        else:
+            item[ext] = basename + "." + ext
     if args.cache and len(args.targets) == 1 and item['lean'] == args.targets[0]:
         item['clean'] = args.cache
     return item
@@ -493,13 +504,25 @@ def find_lean_files(args):
         files |= set(find_files(project_dir, pattern))
     for pattern in exclude_patterns:
         files -= set(find_files(project_dir, pattern))
+    has_lean  = False
+    has_hlean = False
     for file in args.targets:
         if file.endswith(".lean"):
+            has_lean = True
+        if file.endswith(".hlean"):
+            has_hlean = True
+    if has_lean and has_hlean:
+        error("project cannot mix .lean and .hlean files")
+    for file in args.targets:
+        if file.endswith(".lean") or file.endswith(".hlean"):
             files.add(file)
         elif file.endswith(".olean"):
-            file.add(file[:-5] + "lean")
+            if has_hlean:
+                file.add(file[:-5] + "hlean")
+            else:
+                file.add(file[:-5] + "lean")
     for f in files:
-        find_lean_files.cached_list.append(get_lean_names(f, args))
+        find_lean_files.cached_list.append(get_lean_names(f, args, has_hlean))
     return find_lean_files.cached_list
 
 # Initialize static variable
@@ -590,9 +613,9 @@ def make_deps_all_files(args):
     threads = []
     i, num_of_files = 1, len(lean_files)
     for item in lean_files:
-        lean_file  = item['lean']
-        dlean_file = item['d']
-        olean_file = item['olean']
+        lean_file   = item['lean']
+        dlean_file  = item['d']
+        olean_file  = item['olean']
         if not os.path.isfile(dlean_file) or os.path.getmtime(dlean_file) < os.path.getmtime(lean_file):
             thread = threading.Thread(target=make_deps, args = [lean_file, dlean_file, olean_file])
             sys.stderr.write("[%i/%i] generating dep... % -80s" % (i, num_of_files, dlean_file))
@@ -630,7 +653,7 @@ def main(argv=None):
                    + g_project_filename + " file at the project root.")
         returncode = 0
         for filename in args.targets:
-            if os.path.isfile(filename) and filename.endswith(".lean"):
+            if os.path.isfile(filename) and (filename.endswith(".lean") or filename.endswith(".hlean")):
                 returncode |= call_lean(filename, args)
         return returncode
 

@@ -312,61 +312,77 @@ static void erase_local_binder_info(buffer<expr> & ps) {
 // An Lean example is not really a definition, but we use the definition infrastructure to simulate it.
 enum def_cmd_kind { Theorem, Definition, Example };
 
-static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_opaque, bool is_private, bool is_protected) {
-    bool is_definition = kind == Definition;
-    lean_assert(!(!is_definition && !is_opaque));
-    lean_assert(!(is_private && is_protected));
-    auto n_pos = p.pos();
-    unsigned start_line = n_pos.first;
-    name n;
-    if (kind == Example)
-        n = p.mk_fresh_name();
-    else
-        n = p.check_id_next("invalid declaration, identifier expected");
-    decl_modifiers modifiers;
-    name real_n; // real name for this declaration
-    buffer<name> ls_buffer;
-    expr type, value;
-    level_param_names ls;
-    {
+class definition_cmd_fn {
+    parser &          m_p;
+    environment       m_env;
+    def_cmd_kind      m_kind;
+    bool              m_is_opaque;
+    bool              m_is_private;
+    bool              m_is_protected;
+    pos_info          m_pos;
+
+    name              m_name;
+    decl_modifiers    m_modifiers;
+    name              m_real_name; // real name for this declaration
+    buffer<name>      m_ls_buffer;
+    expr              m_type;
+    expr              m_value;
+    level_param_names m_ls;
+    pos_info          m_end_pos;
+
+    expr              m_pre_type;
+    expr              m_pre_value;
+
+    bool is_definition() const { return m_kind == Definition; }
+    unsigned start_line() const { return m_pos.first; }
+    unsigned end_line() const { return m_end_pos.first; }
+
+    void parse_name() {
+        if (m_kind == Example)
+            m_name = m_p.mk_fresh_name();
+        else
+            m_name = m_p.check_id_next("invalid declaration, identifier expected");
+    }
+
+    void parse_type_value() {
         // Parse universe parameters
-        parser::local_scope scope1(p);
-        parse_univ_params(p, ls_buffer);
+        parser::local_scope scope1(m_p);
+        parse_univ_params(m_p, m_ls_buffer);
 
         // Parse modifiers
-        modifiers.parse(p);
+        m_modifiers.parse(m_p);
 
-        if (p.curr_is_token(get_assign_tk())) {
-            auto pos = p.pos();
-            p.next();
-            type  = p.save_pos(mk_expr_placeholder(), pos);
-            value = p.parse_expr();
-        } else if (p.curr_is_token(get_colon_tk())) {
-            p.next();
-            auto pos = p.pos();
-            type = p.parse_expr();
-            if (!is_definition && !p.curr_is_token(get_assign_tk())) {
-                check_end_of_theorem(p);
-                value = p.save_pos(mk_expr_placeholder(), pos);
+        if (m_p.curr_is_token(get_assign_tk())) {
+            auto pos = m_p.pos();
+            m_p.next();
+            m_type  = m_p.save_pos(mk_expr_placeholder(), pos);
+            m_value = m_p.parse_expr();
+        } else if (m_p.curr_is_token(get_colon_tk())) {
+            m_p.next();
+            auto pos = m_p.pos();
+            m_type = m_p.parse_expr();
+            if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
+                check_end_of_theorem(m_p);
+                m_value = m_p.save_pos(mk_expr_placeholder(), pos);
             } else {
-                p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
-                value = p.save_pos(p.parse_expr(), pos);
+                m_p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
+                m_value = m_p.save_pos(m_p.parse_expr(), pos);
             }
         } else {
             buffer<expr> ps;
             optional<local_environment> lenv;
             bool last_block_delimited = false;
-            lenv = p.parse_binders(ps, last_block_delimited);
-            auto pos = p.pos();
-            if (p.curr_is_token(get_colon_tk())) {
-                p.next();
-                type = p.parse_scoped_expr(ps, *lenv);
-                if (!is_definition && !p.curr_is_token(get_assign_tk())) {
-                    check_end_of_theorem(p);
-                    value = p.save_pos(mk_expr_placeholder(), pos);
+            lenv     = m_p.parse_binders(ps, last_block_delimited);
+            auto pos = m_p.pos();
+            if (m_p.curr_is_token(get_colon_tk())) {
+                m_p.next();
+                m_type = m_p.parse_scoped_expr(ps, *lenv);
+                if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
+                    check_end_of_theorem(m_p);
+                    m_value = m_p.save_pos(mk_expr_placeholder(), pos);
                 } else {
-                    p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
-                    value = p.parse_scoped_expr(ps, *lenv);
+                    m_p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
+                    m_value = m_p.parse_scoped_expr(ps, *lenv);
                 }
             } else {
                 if (!last_block_delimited && !ps.empty() &&
@@ -375,144 +391,183 @@ static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_op
                                        "(solution: put parentheses around parameters)",
                                        pos);
                 }
-                type = p.save_pos(mk_expr_placeholder(), p.pos());
-                p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
-                value = p.parse_scoped_expr(ps, *lenv);
+                m_type = m_p.save_pos(mk_expr_placeholder(), m_p.pos());
+                m_p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
+                m_value = m_p.parse_scoped_expr(ps, *lenv);
             }
-            type  = Pi(ps, type, p);
+            m_type  = Pi(ps, m_type, m_p);
             erase_local_binder_info(ps);
-            value = Fun(ps, value, p);
+            m_value = Fun(ps, m_value, m_p);
         }
-    }
-    unsigned end_line = p.pos().first;
-
-    if (p.used_sorry())
-        p.declare_sorry();
-    environment env = p.env();
-
-    if (is_private) {
-        auto env_n = add_private_name(env, n, optional<unsigned>(hash(p.pos().first, p.pos().second)));
-        env    = env_n.first;
-        real_n = env_n.second;
-    } else {
-        name const & ns = get_namespace(env);
-        real_n     = ns + n;
+        m_end_pos = m_p.pos();
     }
 
-    if (p.has_locals()) {
-        buffer<expr> locals;
-        collect_locals(type, value, p, locals);
-        type = Pi_as_is(locals, type, p);
-        buffer<expr> new_locals;
-        new_locals.append(locals);
-        erase_local_binder_info(new_locals);
-        value = Fun_as_is(new_locals, value, p);
-        update_univ_parameters(ls_buffer, collect_univ_params_ignoring_tactics(value, collect_univ_params_ignoring_tactics(type)), p);
-        remove_local_vars(p, locals);
-        ls = to_list(ls_buffer.begin(), ls_buffer.end());
-        levels local_ls = collect_local_nonvar_levels(p, ls);
-        local_ls = remove_local_vars(p, local_ls);
-        if (!locals.empty()) {
-            expr ref = mk_local_ref(real_n, local_ls, locals);
-            p.add_local_expr(n, ref);
-        } else if (local_ls) {
-            expr ref = mk_constant(real_n, local_ls);
-            p.add_local_expr(n, ref);
-        }
-    } else {
-        update_univ_parameters(ls_buffer, collect_univ_params(value, collect_univ_params(type)), p);
-        ls = to_list(ls_buffer.begin(), ls_buffer.end());
-    }
-    expr pre_type  = type;
-    expr pre_value = value;
-    level_param_names new_ls;
-    bool found_cached = false;
-    // We don't cache examples
-    if (kind != Example && p.are_info_lines_valid(start_line, end_line)) {
-        // we only use the cache if the information associated with the line is valid
-        if (auto it = p.find_cached_definition(real_n, pre_type, pre_value)) {
-            optional<certified_declaration> cd;
-            try {
-                level_param_names c_ls; expr c_type, c_value;
-                std::tie(c_ls, c_type, c_value) = *it;
-                if (kind == Theorem) {
-                    cd = check(env, mk_theorem(real_n, c_ls, c_type, c_value));
-                    if (!p.keep_new_thms()) {
-                        // discard theorem
-                        cd = check(env, mk_axiom(real_n, c_ls, c_type));
-                    }
-                } else {
-                    cd = check(env, mk_definition(env, real_n, c_ls, c_type, c_value, is_opaque));
-                }
-                if (!is_private)
-                    p.add_decl_index(real_n, n_pos, p.get_cmd_token(), c_type);
-                env = module::add(env, *cd);
-                found_cached = true;
-            } catch (exception&) {}
+    void mk_real_name() {
+        if (m_is_private) {
+            auto env_n  = add_private_name(m_env, m_name, optional<unsigned>(hash(m_pos.first, m_pos.second)));
+            m_env       = env_n.first;
+            m_real_name = env_n.second;
+        } else {
+            name const & ns = get_namespace(m_env);
+            m_real_name     = ns + m_name;
         }
     }
 
-    if (!found_cached) {
-        p.remove_proof_state_info(n_pos, p.pos());
-        if (!is_definition) {
-            // Theorems and Examples
-            auto type_pos = p.pos_of(type);
-            bool clear_pre_info = false; // we don't want to clear pre_info data until we process the proof.
-            std::tie(type, new_ls) = p.elaborate_type(type, list<expr>(), clear_pre_info);
-            check_no_metavar(env, real_n, type, true);
-            ls = append(ls, new_ls);
-            expr type_as_is = p.save_pos(mk_as_is(type), type_pos);
-            if (!p.collecting_info() && kind == Theorem && p.num_threads() > 1) {
-                // Add as axiom, and create a task to prove the theorem.
-                // Remark: we don't postpone the "proof" of Examples.
-                p.add_delayed_theorem(env, real_n, ls, type_as_is, value);
-                env = module::add(env, check(env, mk_axiom(real_n, ls, type)));
-            } else {
-                std::tie(type, value, new_ls) = p.elaborate_definition(n, type_as_is, value, is_opaque);
-                new_ls = append(ls, new_ls);
-                auto cd = check(env, mk_theorem(real_n, new_ls, type, value));
-                if (kind == Theorem) {
-                    // Remark: we don't keep examples
-                    if (!p.keep_new_thms()) {
-                        // discard theorem
-                        cd = check(env, mk_axiom(real_n, new_ls, type));
-                    }
-                    env = module::add(env, cd);
-                    p.cache_definition(real_n, pre_type, pre_value, new_ls, type, value);
-                }
+    void parse() {
+        parse_name();
+        parse_type_value();
+        if (m_p.used_sorry())
+            m_p.declare_sorry();
+        m_env = m_p.env();
+        mk_real_name();
+    }
+
+    void process_locals() {
+        if (m_p.has_locals()) {
+            buffer<expr> locals;
+            collect_locals(m_type, m_value, m_p, locals);
+            m_type = Pi_as_is(locals, m_type, m_p);
+            buffer<expr> new_locals;
+            new_locals.append(locals);
+            erase_local_binder_info(new_locals);
+            m_value = Fun_as_is(new_locals, m_value, m_p);
+            auto ps = collect_univ_params_ignoring_tactics(m_type);
+            ps      = collect_univ_params_ignoring_tactics(m_value, ps);
+            update_univ_parameters(m_ls_buffer, ps, m_p);
+            remove_local_vars(m_p, locals);
+            m_ls = to_list(m_ls_buffer.begin(), m_ls_buffer.end());
+            levels local_ls = collect_local_nonvar_levels(m_p, m_ls);
+            local_ls = remove_local_vars(m_p, local_ls);
+            if (!locals.empty()) {
+                expr ref = mk_local_ref(m_real_name, local_ls, locals);
+                m_p.add_local_expr(m_name, ref);
+            } else if (local_ls) {
+                expr ref = mk_constant(m_real_name, local_ls);
+                m_p.add_local_expr(m_name, ref);
             }
         } else {
-            std::tie(type, value, new_ls) = p.elaborate_definition(n, type, value, is_opaque);
-            new_ls = append(ls, new_ls);
-            env = module::add(env, check(env, mk_definition(env, real_n, new_ls, type, value, is_opaque)));
-            p.cache_definition(real_n, pre_type, pre_value, new_ls, type, value);
+            update_univ_parameters(m_ls_buffer, collect_univ_params(m_value, collect_univ_params(m_type)), m_p);
+            m_ls = to_list(m_ls_buffer.begin(), m_ls_buffer.end());
         }
-        if (!is_private && kind != Example)
-            p.add_decl_index(real_n, n_pos, p.get_cmd_token(), type);
     }
 
-    if (kind != Example) {
-        if (real_n != n)
-            env = add_expr_alias_rec(env, n, real_n);
-        if (modifiers.m_is_instance) {
-            bool persistent = true;
-            if (modifiers.m_priority) {
-                #if defined(__GNUC__) && !defined(__CLANG__)
-                #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-                #endif
-                env = add_instance(env, real_n, *modifiers.m_priority, persistent);
-            } else {
-                env = add_instance(env, real_n, persistent);
+    bool try_cache() {
+        // We don't cache examples
+        if (m_kind != Example && m_p.are_info_lines_valid(start_line(), end_line())) {
+            // we only use the cache if the information associated with the line is valid
+            if (auto it = m_p.find_cached_definition(m_real_name, m_type, m_value)) {
+                optional<certified_declaration> cd;
+                try {
+                    level_param_names c_ls; expr c_type, c_value;
+                    std::tie(c_ls, c_type, c_value) = *it;
+                    if (m_kind == Theorem) {
+                        cd = check(m_env, mk_theorem(m_real_name, c_ls, c_type, c_value));
+                        if (!m_p.keep_new_thms()) {
+                            // discard theorem
+                            cd = check(m_env, mk_axiom(m_real_name, c_ls, c_type));
+                        }
+                    } else {
+                        cd = check(m_env, mk_definition(m_env, m_real_name, c_ls, c_type, c_value, m_is_opaque));
+                    }
+                    if (!m_is_private)
+                        m_p.add_decl_index(m_real_name, m_pos, m_p.get_cmd_token(), c_type);
+                    m_env = module::add(m_env, *cd);
+                    return true;
+                } catch (exception&) {}
             }
         }
-        if (modifiers.m_is_coercion)
-            env = add_coercion(env, real_n, p.ios());
-        if (is_protected)
-            env = add_protected(env, real_n);
-        if (modifiers.m_is_reducible)
-            env = set_reducible(env, real_n, reducible_status::On);
+        return false;
     }
-    return env;
+
+    void register_decl() {
+        if (m_kind != Example) {
+            if (!m_is_private)
+                m_p.add_decl_index(m_real_name, m_pos, m_p.get_cmd_token(), m_type);
+            if (m_real_name != m_name)
+                m_env = add_expr_alias_rec(m_env, m_name, m_real_name);
+            if (m_modifiers.m_is_instance) {
+                bool persistent = true;
+                if (m_modifiers.m_priority) {
+                    #if defined(__GNUC__) && !defined(__CLANG__)
+                    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+                    #endif
+                    m_env = add_instance(m_env, m_real_name, *m_modifiers.m_priority, persistent);
+                } else {
+                    m_env = add_instance(m_env, m_real_name, persistent);
+                }
+            }
+            if (m_modifiers.m_is_coercion)
+                m_env = add_coercion(m_env, m_real_name, m_p.ios());
+            if (m_is_protected)
+                m_env = add_protected(m_env, m_real_name);
+            if (m_modifiers.m_is_reducible)
+                m_env = set_reducible(m_env, m_real_name, reducible_status::On);
+        }
+    }
+
+    void elaborate() {
+        if (!try_cache()) {
+            expr pre_type  = m_type;
+            expr pre_value = m_value;
+            level_param_names new_ls;
+            m_p.remove_proof_state_info(m_pos, m_p.pos());
+            if (!is_definition()) {
+                // Theorems and Examples
+                auto type_pos = m_p.pos_of(m_type);
+                bool clear_pre_info = false; // we don't want to clear pre_info data until we process the proof.
+                std::tie(m_type, new_ls) = m_p.elaborate_type(m_type, list<expr>(), clear_pre_info);
+                check_no_metavar(m_env, m_real_name, m_type, true);
+                m_ls = append(m_ls, new_ls);
+                expr type_as_is = m_p.save_pos(mk_as_is(m_type), type_pos);
+                if (!m_p.collecting_info() && m_kind == Theorem && m_p.num_threads() > 1) {
+                    // Add as axiom, and create a task to prove the theorem.
+                    // Remark: we don't postpone the "proof" of Examples.
+                    m_p.add_delayed_theorem(m_env, m_real_name, m_ls, type_as_is, m_value);
+                    m_env = module::add(m_env, check(m_env, mk_axiom(m_real_name, m_ls, m_type)));
+                } else {
+                    std::tie(m_type, m_value, new_ls) = m_p.elaborate_definition(m_name, type_as_is, m_value, m_is_opaque);
+                    new_ls = append(m_ls, new_ls);
+                    auto cd = check(m_env, mk_theorem(m_real_name, new_ls, m_type, m_value));
+                    if (m_kind == Theorem) {
+                        // Remark: we don't keep examples
+                        if (!m_p.keep_new_thms()) {
+                            // discard theorem
+                            cd = check(m_env, mk_axiom(m_real_name, new_ls, m_type));
+                        }
+                        m_env = module::add(m_env, cd);
+                        m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value);
+                    }
+                }
+            } else {
+                std::tie(m_type, m_value, new_ls) = m_p.elaborate_definition(m_name, m_type, m_value, m_is_opaque);
+                new_ls = append(m_ls, new_ls);
+                m_env = module::add(m_env, check(m_env, mk_definition(m_env, m_real_name, new_ls,
+                                                                      m_type, m_value, m_is_opaque)));
+                m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value);
+            }
+        }
+    }
+
+public:
+    definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_opaque, bool is_private, bool is_protected):
+        m_p(p), m_env(m_p.env()), m_kind(kind), m_is_opaque(is_opaque),
+        m_is_private(is_private), m_is_protected(is_protected),
+        m_pos(p.pos()) {
+        lean_assert(!(!is_definition() && !m_is_opaque));
+        lean_assert(!(m_is_private && m_is_protected));
+    }
+
+    environment operator()() {
+        parse();
+        process_locals();
+        elaborate();
+        register_decl();
+        return m_env;
+    }
+};
+
+static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_opaque, bool is_private, bool is_protected) {
+    return definition_cmd_fn(p, kind, is_opaque, is_private, is_protected)();
 }
 static environment definition_cmd(parser & p) {
     return definition_cmd_core(p, Definition, false, false, false);

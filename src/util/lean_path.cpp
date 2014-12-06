@@ -125,9 +125,9 @@ void init_lean_path(bool use_hott) {
 #else
     char * r = nullptr;
     if (use_hott)
-        r = getenv("LEAN_PATH");
-    else
         r = getenv("HLEAN_PATH");
+    else
+        r = getenv("LEAN_PATH");
     if (r == nullptr) {
         std::string exe_path = get_path(get_exe_location());
         if (use_hott)

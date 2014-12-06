@@ -19,7 +19,7 @@ star : unit
 
 inductive empty : Type
 
-inductive eq {A : Type} (a : A) : A → Type :=
+inductive eq.{l} {A : Type.{l}} (a : A) : A → Type.{l} :=
 refl : eq a a
 
 structure prod (A B : Type) :=

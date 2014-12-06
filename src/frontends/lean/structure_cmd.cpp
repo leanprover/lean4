@@ -762,7 +762,8 @@ struct structure_cmd_fn {
             lhs       = mk_app(lhs, proj);
         }
         expr eq                  = mk_app(mk_constant("eq", to_list(sort_level(m_type))), st_type, lhs, st);
-        levels rec_ls            = levels(mk_level_zero(), st_ls);
+        level eq_lvl             = sort_level(m_tc->ensure_type(eq).first);
+        levels rec_ls            = levels(eq_lvl, st_ls);
         expr rec                 = mk_app(mk_constant(inductive::get_elim_name(m_name), rec_ls), m_params);
         expr type_former         = Fun(st, eq);
         expr mk                  = mk_app(mk_app(mk_constant(m_mk, st_ls), m_params), m_fields);

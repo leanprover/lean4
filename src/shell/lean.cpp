@@ -515,7 +515,7 @@ int main(int argc, char ** argv) {
                 lean::display_error(diagnostic(env, ios), &pp, ex);
             }
         }
-        if (ok && server && default_k == input_kind::Lean) {
+        if (ok && server && (default_k == input_kind::Lean || default_k == input_kind::HLean)) {
             signal(SIGINT, on_ctrl_c);
             ios.set_option(lean::name("pp", "beta"), true);
             lean::server Sv(env, ios, num_threads);

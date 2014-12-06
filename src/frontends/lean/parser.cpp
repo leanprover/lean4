@@ -1433,7 +1433,9 @@ bool parser::parse_commands() {
             else if (m_use_exceptions)
                 throw_parser_exception("invalid end of module, expecting 'end'", pos());
         }
-    } catch (interrupt_parser) {}
+    } catch (interrupt_parser) {
+        display_error("parser has been interrupted", m_last_cmd_pos);
+    }
     commit_info(m_scanner.get_line()+1);
     for (certified_declaration const & thm : m_theorem_queue.join()) {
         if (keep_new_thms())

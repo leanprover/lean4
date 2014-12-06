@@ -175,11 +175,12 @@ def find_makefile_upward(path, makefile_names):
     return False
 
 def filter_ilean_files(ilean_files):
-    """Remove .ilean file if a corresponding .lean file does not exist."""
+    """Remove .ilean file if a corresponding .lean/.hlean file does not exist."""
     result = []
     for ilean_file in ilean_files:
         lean_file = ilean_file[:-5] + "lean"
-        if os.path.isfile(lean_file) and os.path.isfile(ilean_file):
+        hlean_file = ilean_file[:-5] + "hlean"
+        if (os.path.isfile(lean_file) or os.path.isfile(hlean_file)) and os.path.isfile(ilean_file):
             result.append(ilean_file)
     return result
 

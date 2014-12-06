@@ -6,4 +6,4 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.datatypes init.reserved_notation init.tactic init.logic
-import init.bool init.num init.priority init.relation
+import init.bool init.num init.priority init.relation init.wf init.prod

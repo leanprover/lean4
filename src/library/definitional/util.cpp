@@ -238,45 +238,12 @@ expr mk_pr2(type_checker & tc, expr const & p) {
     return mk_app(mk_constant(*g_pr2_name, const_levels(get_app_fn(AxB))), A, B, p);
 }
 
-expr mk_unit(level const & l, bool prop) {
-    if (prop)
-        return mk_true();
-    else
-        return mk_unit(l);
-}
-
-expr mk_unit_mk(level const & l, bool prop) {
-    if (prop)
-        return mk_true_intro();
-    else
-        return mk_unit_mk(l);
-}
-
-expr mk_prod(type_checker & tc, expr const & a, expr const & b, bool prop) {
-    if (prop)
-        return mk_and(a, b);
-    else
-        return mk_prod(tc, a, b);
-}
-
+expr mk_unit(level const & l, bool prop) { return prop ? mk_true() : mk_unit(l); }
+expr mk_unit_mk(level const & l, bool prop) { return prop ? mk_true_intro() : mk_unit_mk(l); }
+expr mk_prod(type_checker & tc, expr const & a, expr const & b, bool prop) { return prop ? mk_and(a, b) : mk_prod(tc, a, b); }
 expr mk_pair(type_checker & tc, expr const & a, expr const & b, bool prop) {
-    if (prop)
-        return mk_and_intro(tc, a, b);
-    else
-        return mk_pair(tc, a, b);
+    return prop ? mk_and_intro(tc, a, b) : mk_pair(tc, a, b);
 }
-
-expr mk_pr1(type_checker & tc, expr const & p, bool prop) {
-    if (prop)
-        return mk_and_elim_left(tc, p);
-    else
-        return mk_pr1(tc, p);
-}
-
-expr mk_pr2(type_checker & tc, expr const & p, bool prop) {
-    if (prop)
-        return mk_and_elim_right(tc, p);
-    else
-        return mk_pr2(tc, p);
-}
+expr mk_pr1(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_left(tc, p) : mk_pr1(tc, p); }
+expr mk_pr2(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_right(tc, p) : mk_pr2(tc, p); }
 }

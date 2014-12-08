@@ -13,26 +13,26 @@ prefix `¬` := not
 definition absurd {a : Type} {b : Type} (H₁ : a) (H₂ : ¬a) : b :=
 empty.rec (λ e, b) (H₂ H₁)
 
-theorem mt {a b : Type} (H₁ : a → b) (H₂ : ¬b) : ¬a :=
+definition mt {a b : Type} (H₁ : a → b) (H₂ : ¬b) : ¬a :=
 assume Ha : a, absurd (H₁ Ha) H₂
 
 -- not
 -- ---
 
-theorem not_empty : ¬ empty :=
+definition not_empty : ¬ empty :=
 assume H : empty, H
 
-theorem not_not_intro {a : Type} (Ha : a) : ¬¬a :=
+definition not_not_intro {a : Type} (Ha : a) : ¬¬a :=
 assume Hna : ¬a, absurd Ha Hna
 
-theorem not_intro {a : Type} (H : a → empty) : ¬a := H
+definition not_intro {a : Type} (H : a → empty) : ¬a := H
 
-theorem not_elim {a : Type} (H₁ : ¬a) (H₂ : a) : empty := H₁ H₂
+definition not_elim {a : Type} (H₁ : ¬a) (H₂ : a) : empty := H₁ H₂
 
-theorem not_implies_left {a b : Type} (H : ¬(a → b)) : ¬¬a :=
+definition not_implies_left {a b : Type} (H : ¬(a → b)) : ¬¬a :=
 assume Hna : ¬a, absurd (assume Ha : a, absurd Ha Hna) H
 
-theorem not_implies_right {a b : Type} (H : ¬(a → b)) : ¬b :=
+definition not_implies_right {a b : Type} (H : ¬(a → b)) : ¬b :=
 assume Hb : b, absurd (assume Ha : a, Hb) H
 
 -- eq
@@ -45,10 +45,10 @@ namespace eq
   variables {A : Type}
   variables {a b c a': A}
 
-  theorem subst {P : A → Type} (H₁ : a = b) (H₂ : P a) : P b :=
+  definition subst {P : A → Type} (H₁ : a = b) (H₂ : P a) : P b :=
   rec H₂ H₁
 
-  theorem trans (H₁ : a = b) (H₂ : b = c) : a = c :=
+  definition trans (H₁ : a = b) (H₂ : b = c) : a = c :=
   subst H₂ H₁
 
   definition symm (H : a = b) : b = a :=
@@ -85,16 +85,16 @@ namespace ne
   variable {A : Type}
   variables {a b : A}
 
-  theorem intro : (a = b → empty) → a ≠ b :=
+  definition intro : (a = b → empty) → a ≠ b :=
   assume H, H
 
-  theorem elim : a ≠ b → a = b → empty :=
+  definition elim : a ≠ b → a = b → empty :=
   assume H₁ H₂, H₁ H₂
 
-  theorem irrefl : a ≠ a → empty :=
+  definition irrefl : a ≠ a → empty :=
   assume H, H rfl
 
-  theorem symm : a ≠ b → b ≠ a :=
+  definition symm : a ≠ b → b ≠ a :=
   assume (H : a ≠ b) (H₁ : b = a), H (H₁⁻¹)
 end ne
 
@@ -102,13 +102,13 @@ section
   open eq.ops
   variables {A : Type} {a b c : A}
 
-  theorem false.of_ne : a ≠ a → empty :=
+  definition false.of_ne : a ≠ a → empty :=
   assume H, H rfl
 
-  theorem ne.of_eq_of_ne : a = b → b ≠ c → a ≠ c :=
+  definition ne.of_eq_of_ne : a = b → b ≠ c → a ≠ c :=
   assume H₁ H₂, H₁⁻¹ ▸ H₂
 
-  theorem ne.of_ne_of_eq : a ≠ b → b = c → a ≠ c :=
+  definition ne.of_ne_of_eq : a ≠ b → b = c → a ≠ c :=
   assume H₁ H₂, H₂ ▸ H₁
 end
 
@@ -154,24 +154,24 @@ namespace iff
   definition rfl {a : Type} : a ↔ a :=
   refl a
 
-  theorem trans (H₁ : a ↔ b) (H₂ : b ↔ c) : a ↔ c :=
+  definition trans (H₁ : a ↔ b) (H₂ : b ↔ c) : a ↔ c :=
   intro
     (assume Ha, elim_left H₂ (elim_left H₁ Ha))
     (assume Hc, elim_right H₁ (elim_right H₂ Hc))
 
-  theorem symm (H : a ↔ b) : b ↔ a :=
+  definition symm (H : a ↔ b) : b ↔ a :=
   intro
     (assume Hb, elim_right H Hb)
     (assume Ha, elim_left H Ha)
 
-  theorem true_elim (H : a ↔ unit) : a :=
+  definition true_elim (H : a ↔ unit) : a :=
   mp (symm H) unit.star
 
-  theorem false_elim (H : a ↔ empty) : ¬a :=
+  definition false_elim (H : a ↔ empty) : ¬a :=
   assume Ha : a, mp H Ha
 
   open eq.ops
-  theorem of_eq {a b : Type} (H : a = b) : a ↔ b :=
+  definition of_eq {a b : Type} (H : a = b) : a ↔ b :=
   iff.intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 end iff
 
@@ -219,10 +219,10 @@ namespace decidable
   definition by_cases {q : Type} [C : decidable p] (Hpq : p → q) (Hnpq : ¬p → q) : q :=
   rec_on C (assume Hp, Hpq Hp) (assume Hnp, Hnpq Hnp)
 
-  theorem em (p : Type) [H : decidable p] : sum p ¬p :=
+  definition em (p : Type) [H : decidable p] : sum p ¬p :=
   by_cases (λ Hp, sum.inl Hp) (λ Hnp, sum.inr Hnp)
 
-  theorem by_contradiction [Hp : decidable p] (H : ¬p → empty) : p :=
+  definition by_contradiction [Hp : decidable p] (H : ¬p → empty) : p :=
   by_cases
     (assume H₁ : p, H₁)
     (assume H₁ : ¬p, empty.rec (λ e, p) (H H₁))
@@ -306,7 +306,7 @@ if_pos unit.star
 definition if_empty {A : Type} (t e : A) : (if empty then t else e) = e :=
 if_neg not_empty
 
-theorem if_cond_congr {c₁ c₂ : Type} [H₁ : decidable c₁] [H₂ : decidable c₂] (Heq : c₁ ↔ c₂) {A : Type} (t e : A)
+definition if_cond_congr {c₁ c₂ : Type} [H₁ : decidable c₁] [H₂ : decidable c₂] (Heq : c₁ ↔ c₂) {A : Type} (t e : A)
                       : (if c₁ then t else e) = (if c₂ then t else e) :=
 decidable.rec_on H₁
  (λ Hc₁  : c₁,  decidable.rec_on H₂
@@ -316,12 +316,12 @@ decidable.rec_on H₁
    (λ Hc₂  : c₂,  absurd (iff.elim_right Heq Hc₂) Hnc₁)
    (λ Hnc₂ : ¬c₂, if_neg Hnc₁ ⬝ (if_neg Hnc₂)⁻¹))
 
-theorem if_congr_aux {c₁ c₂ : Type} [H₁ : decidable c₁] [H₂ : decidable c₂] {A : Type} {t₁ t₂ e₁ e₂ : A}
+definition if_congr_aux {c₁ c₂ : Type} [H₁ : decidable c₁] [H₂ : decidable c₂] {A : Type} {t₁ t₂ e₁ e₂ : A}
                      (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂) (He : e₁ = e₂) :
                  (if c₁ then t₁ else e₁) = (if c₂ then t₂ else e₂) :=
 Ht ▸ He ▸ (if_cond_congr Hc t₁ e₁)
 
-theorem if_congr {c₁ c₂ : Type} [H₁ : decidable c₁] {A : Type} {t₁ t₂ e₁ e₂ : A} (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂) (He : e₁ = e₂) :
+definition if_congr {c₁ c₂ : Type} [H₁ : decidable c₁] {A : Type} {t₁ t₂ e₁ e₂ : A} (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂) (He : e₁ = e₂) :
                  (if c₁ then t₁ else e₁) = (@ite c₂ (decidable.decidable_iff_equiv H₁ Hc) A t₂ e₂) :=
 have H2 [visible] : decidable c₂, from (decidable.decidable_iff_equiv H₁ Hc),
 if_congr_aux Hc Ht He
@@ -345,5 +345,5 @@ decidable.rec
   H
 
 -- Remark: dite and ite are "definitionally equal" when we ignore the proofs.
-theorem dite_ite_eq (c : Type) [H : decidable c] {A : Type} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=
+definition dite_ite_eq (c : Type) [H : decidable c] {A : Type} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=
 rfl

@@ -29,10 +29,10 @@ definition subrelation (Q R : B → B → Type) := ∀⦃x y⦄, Q x y → R x y
 definition inv_image (f : A → B) : A → A → Type :=
 λa₁ a₂, f a₁ ≺ f a₂
 
-theorem inv_image.trans (f : A → B) (H : transitive R) : transitive (inv_image R f) :=
+definition inv_image.trans (f : A → B) (H : transitive R) : transitive (inv_image R f) :=
 λ (a₁ a₂ a₃ : A) (H₁ : inv_image R f a₁ a₂) (H₂ : inv_image R f a₂ a₃), H H₁ H₂
 
-theorem inv_image.irreflexive (f : A → B) (H : irreflexive R) : irreflexive (inv_image R f) :=
+definition inv_image.irreflexive (f : A → B) (H : irreflexive R) : irreflexive (inv_image R f) :=
 λ (a : A) (H₁ : inv_image R f a a), H (f a) H₁
 
 inductive tc {A : Type} (R : A → A → Type) : A → A → Type :=

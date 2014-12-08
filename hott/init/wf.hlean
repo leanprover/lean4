@@ -29,10 +29,10 @@ namespace well_founded
 
   hypothesis [Hwf : well_founded R]
 
-  theorem recursion {C : A → Type} (a : A) (H : Πx, (Πy, y ≺ x → C y) → C x) : C a :=
+  definition recursion {C : A → Type} (a : A) (H : Πx, (Πy, y ≺ x → C y) → C x) : C a :=
   acc.rec_on (Hwf a) (λ x₁ ac₁ iH, H x₁ iH)
 
-  theorem induction {C : A → Type} (a : A) (H : ∀x, (∀y, y ≺ x → C y) → C x) : C a :=
+  definition induction {C : A → Type} (a : A) (H : ∀x, (∀y, y ≺ x → C y) → C x) : C a :=
   recursion a H
 
   parameter {C : A → Type}
@@ -41,7 +41,7 @@ namespace well_founded
   definition fix_F (x : A) (a : acc R x) : C x :=
   acc.rec_on a (λ x₁ ac₁ iH, F x₁ iH)
 
-  theorem fix_F_eq (x : A) (r : acc R x) :
+  definition fix_F_eq (x : A) (r : acc R x) :
     fix_F x r = F x (λ (y : A) (p : y ≺ x), fix_F y (acc.inv r p)) :=
   acc.rec_on r (λ x H ih, rfl)
 
@@ -75,7 +75,7 @@ namespace well_founded
   fix_F x (Hwf x)
 
   -- Well-founded fixpoint satisfies fixpoint equation
-  theorem fix_eq (x : A) : fix x = F x (λy h, fix y) :=
+  definition fix_eq (x : A) : fix x = F x (λy h, fix y) :=
   calc
     fix x
         = fix_F x (Hwf x)                         : rfl

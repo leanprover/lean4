@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/print.h"
 #include "library/flycheck.h"
 #include "library/definitional/projection.h"
+#include "library/definitional/util.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -616,26 +617,46 @@ environment projections_cmd(parser & p) {
     }
 }
 
+environment telescope_eq_cmd(parser & p) {
+    expr e; level_param_names ls;
+    std::tie(e, ls) = parse_local_expr(p);
+    buffer<expr> t;
+    while (is_pi(e)) {
+        expr local = mk_local(p.mk_fresh_name(), binding_name(e), binding_domain(e), binder_info());
+        t.push_back(local);
+        e = instantiate(binding_body(e), local);
+    }
+    auto tc = mk_type_checker(p.env(), p.mk_ngen(), true);
+    buffer<expr> eqs;
+    mk_telescopic_eq(*tc, t, eqs);
+    for (expr const & eq : eqs) {
+        regular(p.env(), p.ios()) << local_pp_name(eq) << " : " << mlocal_type(eq) << "\n";
+        tc->check(mlocal_type(eq), ls);
+    }
+    return p.env();
+}
+
 void init_cmd_table(cmd_table & r) {
-    add_cmd(r, cmd_info("open",         "create aliases for declarations, and use objects defined in other namespaces",
+    add_cmd(r, cmd_info("open",          "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
-    add_cmd(r, cmd_info("export",       "create abbreviations for declarations, "
+    add_cmd(r, cmd_info("export",        "create abbreviations for declarations, "
                         "and export objects defined in other namespaces", export_cmd));
-    add_cmd(r, cmd_info("set_option",   "set configuration option", set_option_cmd));
-    add_cmd(r, cmd_info("exit",         "exit", exit_cmd));
-    add_cmd(r, cmd_info("print",        "print a string", print_cmd));
-    add_cmd(r, cmd_info("section",      "open a new section", section_cmd));
-    add_cmd(r, cmd_info("context",      "open a new context", context_cmd));
-    add_cmd(r, cmd_info("namespace",    "open a new namespace", namespace_cmd));
-    add_cmd(r, cmd_info("end",          "close the current namespace/section", end_scoped_cmd));
-    add_cmd(r, cmd_info("check",        "type check given expression, and display its type", check_cmd));
-    add_cmd(r, cmd_info("eval",         "evaluate given expression", eval_cmd));
-    add_cmd(r, cmd_info("coercion",     "add a new coercion", coercion_cmd));
-    add_cmd(r, cmd_info("reducible",    "mark definitions as reducible/irreducible for automation", reducible_cmd));
-    add_cmd(r, cmd_info("irreducible",  "mark definitions as irreducible for automation", irreducible_cmd));
-    add_cmd(r, cmd_info("find_decl",    "find definitions and/or theorems", find_cmd));
-    add_cmd(r, cmd_info("#erase_cache", "erase cached definition (for debugging purposes)", erase_cache_cmd));
-    add_cmd(r, cmd_info("#projections", "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
+    add_cmd(r, cmd_info("set_option",    "set configuration option", set_option_cmd));
+    add_cmd(r, cmd_info("exit",          "exit", exit_cmd));
+    add_cmd(r, cmd_info("print",         "print a string", print_cmd));
+    add_cmd(r, cmd_info("section",       "open a new section", section_cmd));
+    add_cmd(r, cmd_info("context",       "open a new context", context_cmd));
+    add_cmd(r, cmd_info("namespace",     "open a new namespace", namespace_cmd));
+    add_cmd(r, cmd_info("end",           "close the current namespace/section", end_scoped_cmd));
+    add_cmd(r, cmd_info("check",         "type check given expression, and display its type", check_cmd));
+    add_cmd(r, cmd_info("eval",          "evaluate given expression", eval_cmd));
+    add_cmd(r, cmd_info("coercion",      "add a new coercion", coercion_cmd));
+    add_cmd(r, cmd_info("reducible",     "mark definitions as reducible/irreducible for automation", reducible_cmd));
+    add_cmd(r, cmd_info("irreducible",   "mark definitions as irreducible for automation", irreducible_cmd));
+    add_cmd(r, cmd_info("find_decl",     "find definitions and/or theorems", find_cmd));
+    add_cmd(r, cmd_info("#erase_cache",  "erase cached definition (for debugging purposes)", erase_cache_cmd));
+    add_cmd(r, cmd_info("#projections",  "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
+    add_cmd(r, cmd_info("#telescope_eq", "(for debugging purposes)", telescope_eq_cmd));
 
     register_decl_cmds(r);
     register_inductive_cmd(r);

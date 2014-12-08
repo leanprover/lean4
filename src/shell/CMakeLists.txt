@@ -50,6 +50,15 @@ FOREACH(T ${LEANRUNTESTS})
            COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t 100000" ${T_NAME})
 ENDFOREACH(T)
 
+# LEAN RUN HoTT TESTS
+file(GLOB LEANRUNHTESTS "${LEAN_SOURCE_DIR}/../tests/lean/hott/*.hlean")
+FOREACH(T ${LEANRUNHTESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leanhotttest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/hott"
+           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean -t 100000" ${T_NAME})
+ENDFOREACH(T)
+
 if("${MULTI_THREAD}" MATCHES "ON")
 # LEAN INTERACTIVE TESTS
 file(GLOB LEANITTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.input")

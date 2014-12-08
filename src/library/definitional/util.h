@@ -74,6 +74,15 @@ expr mk_pair(type_checker & tc, expr const & a, expr const & b, bool prop);
 expr mk_pr1(type_checker & tc, expr const & p, bool prop);
 expr mk_pr2(type_checker & tc, expr const & p, bool prop);
 
+expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs);
+
+/** \brief Create a telescope equality for HoTT library.
+    This procedure assumes eq supports dependent elimination.
+    For HoTT, we can't use heterogeneous equality.
+*/
+void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs);
+void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> & eqs);
+
 void initialize_definitional_util();
 void finalize_definitional_util();
 }

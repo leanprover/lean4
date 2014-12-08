@@ -5,7 +5,7 @@ if [ $# -ne 2 ]; then
 fi
 ulimit -s 8192
 LEAN=$1
-export LEAN_PATH=.:../../../library/hott
+export HLEAN_PATH=../../../hott:.
 f=$2
 echo "-- testing $f"
 if $LEAN $f; then

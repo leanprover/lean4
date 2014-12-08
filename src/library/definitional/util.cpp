@@ -6,8 +6,10 @@ Author: Leonardo de Moura
 */
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
+#include "kernel/abstract.h"
 #include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
+#include "library/locals.h"
 
 namespace lean {
 /** \brief Return true if environment has a constructor named \c c that returns
@@ -145,6 +147,10 @@ static name * g_prod_mk_name = nullptr;
 static name * g_pr1_name = nullptr;
 static name * g_pr2_name = nullptr;
 
+static name * g_eq_name = nullptr;
+static name * g_eq_refl_name = nullptr;
+static name * g_eq_rec_name = nullptr;
+
 void initialize_definitional_util() {
     g_true           = new expr(mk_constant("true"));
     g_true_intro     = new expr(mk_constant(name({"true", "intro"})));
@@ -159,6 +165,10 @@ void initialize_definitional_util() {
     g_prod_mk_name   = new name{"prod", "mk"};
     g_pr1_name       = new name{"prod", "pr1"};
     g_pr2_name       = new name{"prod", "pr2"};
+
+    g_eq_name        = new name("eq");
+    g_eq_refl_name   = new name{"eq", "refl"};
+    g_eq_rec_name    = new name{"eq", "rec"};
 }
 
 void finalize_definitional_util() {
@@ -174,6 +184,9 @@ void finalize_definitional_util() {
     delete g_prod_mk_name;
     delete g_pr1_name;
     delete g_pr2_name;
+    delete g_eq_name;
+    delete g_eq_refl_name;
+    delete g_eq_rec_name;
 }
 
 expr mk_true() {
@@ -246,4 +259,66 @@ expr mk_pair(type_checker & tc, expr const & a, expr const & b, bool prop) {
 }
 expr mk_pr1(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_left(tc, p) : mk_pr1(tc, p); }
 expr mk_pr2(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_right(tc, p) : mk_pr2(tc, p); }
+
+expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs) {
+    expr A    = tc.infer(lhs).first;
+    level lvl = sort_level(tc.ensure_type(A).first);
+    return mk_app(mk_constant(*g_eq_name, {lvl}), A, lhs, rhs);
+}
+
+void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs) {
+    lean_assert(t.size() == s.size());
+    lean_assert(std::all_of(t.begin(), t.end(), is_local));
+    lean_assert(std::all_of(s.begin(), s.end(), is_local));
+    lean_assert(inductive::has_dep_elim(tc.env(), *g_eq_name));
+    buffer<buffer<expr>> t_aux;
+    name e_name("e");
+    for (unsigned i = 0; i < t.size(); i++) {
+        expr t_i = t[i];
+        expr s_i = s[i];
+        expr t_i_ty   = mlocal_type(t_i);
+        expr t_i_ty_a = abstract_locals(t_i_ty, i, t.data());
+        t_aux.push_back(buffer<expr>());
+        t_aux.back().push_back(t_i);
+        for (unsigned j = 0; j < i; j++) {
+            if (depends_on(t_i_ty, t[j])) {
+                // we need to "cast"
+                buffer<expr> ty_inst_args;
+                for (unsigned k = 0; k <= j; k++)
+                    ty_inst_args.push_back(s[k]);
+                for (unsigned k = j + 1; k < i; k++)
+                    ty_inst_args.push_back(t_aux[k][j+1]);
+                lean_assert(ty_inst_args.size() == i);
+                expr t_i_ty = instantiate_rev(t_i_ty_a, i, ty_inst_args.data());
+                buffer<expr> rec_args;
+                rec_args.push_back(mlocal_type(s[j]));
+                rec_args.push_back(t_aux[j][j]);
+                rec_args.push_back(Fun(s[j], Fun(eqs[j], t_i_ty))); // type former ("promise")
+                rec_args.push_back(t_i); // minor premise
+                rec_args.push_back(s[j]);
+                rec_args.push_back(eqs[j]);
+                level rec_l1 = sort_level(tc.ensure_type(t_i_ty).first);
+                level rec_l2 = sort_level(tc.ensure_type(mlocal_type(s[j])).first);
+                t_i = mk_app(mk_constant(*g_eq_rec_name, {rec_l1, rec_l2}), rec_args.size(), rec_args.data());
+            }
+            t_aux.back().push_back(t_i);
+        }
+        expr eq = mk_local(tc.mk_fresh_name(), e_name.append_after(i+1), mk_eq(tc, t_i, s_i), binder_info());
+        eqs.push_back(eq);
+    }
+}
+
+void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> & eqs) {
+    lean_assert(std::all_of(t.begin(), t.end(), is_local));
+    lean_assert(inductive::has_dep_elim(tc.env(), *g_eq_name));
+    buffer<expr> s;
+    for (unsigned i = 0; i < t.size(); i++) {
+        expr ty = mlocal_type(t[i]);
+        ty = abstract_locals(ty, i, t.data());
+        ty = instantiate_rev(ty, i, s.data());
+        expr local = mk_local(tc.mk_fresh_name(), local_pp_name(t[i]).append_after("'"), ty, local_info(t[i]));
+        s.push_back(local);
+    }
+    return mk_telescopic_eq(tc, t, s, eqs);
+}
 }

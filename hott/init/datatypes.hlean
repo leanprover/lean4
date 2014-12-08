@@ -22,6 +22,9 @@ inductive empty : Type
 inductive eq.{l} {A : Type.{l}} (a : A) : A → Type.{l} :=
 refl : eq a a
 
+structure lift.{l₁ l₂} (A : Type.{l₁}) : Type.{max l₁ l₂} :=
+up :: (down : A)
+
 structure prod (A B : Type) :=
 mk :: (pr1 : A) (pr2 : B)
 

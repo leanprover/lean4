@@ -66,6 +66,14 @@ calc_refl  eq.refl
 calc_trans eq.trans
 calc_symm  eq.symm
 
+namespace lift
+  definition down_up.{l₁ l₂} {A : Type.{l₁}} (a : A) : down (up.{l₁ l₂} a) = a :=
+  rfl
+
+  definition up_down.{l₁ l₂} {A : Type.{l₁}} (a : lift.{l₁ l₂} A) : up (down a) = a :=
+  lift.rec_on a (λ d, rfl)
+end lift
+
 -- ne
 -- --
 

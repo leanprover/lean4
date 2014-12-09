@@ -4,7 +4,7 @@
 -- Ported from Coq HoTT
 import .precategory.basic .precategory.morphism .group
 
-open path function prod sigma truncation morphism nat path_algebra
+open path function prod sigma truncation morphism nat path_algebra unit
 
 structure foo (A : Type) := (bsp : A)
 
@@ -20,8 +20,18 @@ instance [persistent] all_iso
 --set_option pp.implicit true
 universe variable l
 definition path_groupoid (A : Type.{l})
-    (H : is_trunc 1 A) : groupoid.{l l} A :=
-have C [visible] : precategory.{l l} A, from precategory.mk
+    (H : is_trunc (nat.zero .+1) A) : groupoid.{l l} A :=
+groupoid.mk
+  (λ (a b : A), a ≈ b)
+  (λ (a b : A), have ish : is_hset (a ≈ b), from succ_is_trunc nat.zero a b, ish)
+  (λ (a b c : A) (p : b ≈ c) (q : a ≈ b), q ⬝ p)
+  (λ (a : A), idpath a)
+  (λ (a b c d : A) (p : c ≈ d) (q : b ≈ c) (r : a ≈ b), concat_pp_p r q p)
+  (λ (a b : A) (p : a ≈ b), concat_p1 p)
+  (λ (a b : A) (p : a ≈ b), concat_1p p)
+  (λ (a b : A) (p : a ≈ b), @is_iso.mk A _ a b p (path.inverse p)
+    sorry sorry)
+/-have C [visible] : precategory.{l l} A, from precategory.mk
   (λ a b, a ≈ b)
   (λ (a b : A), have ish : is_hset (a ≈ b), from succ_is_trunc 0 a b, ish)
   (λ (a b c : A) (p : b ≈ c) (q : a ≈ b), q ⬝ p)
@@ -41,9 +51,10 @@ groupoid.mk (precategory.hom)
      have aux2 : p⁻¹ ∘ p ≈ idpath b, from aux,
      have aux3 : p⁻¹ ∘ p ≈ id, from sorry, aux3)
     (have aux : p ⬝ p⁻¹ ≈ idpath a, from concat_pV p,
-     sorry))
+     sorry))-/
 
-definition group_from_contr {ob : Type} (H : is_contr ob)
+-- A groupoid with a contractible carrier is a group
+definition group_of_contr {ob : Type} (H : is_contr ob)
   (G : groupoid ob) : group (hom (center ob) (center ob)) :=
 begin
   fapply group.mk,
@@ -55,6 +66,22 @@ begin
     intro f, apply id_right,
     intro f, exact (morphism.inverse f),
     intro f, exact (morphism.inverse_compose f),
+end
+
+-- Conversely we can turn each group into a groupoid on the unit type
+definition of_group {A : Type.{l}} (G : group A) : groupoid.{l l} unit :=
+begin
+  fapply groupoid.mk,
+    intros, exact A,
+    intros, apply (@group.carrier_hset A G),
+    intros (a, b, c, g, h), exact (@group.mul A G g h),
+    intro a, exact (@group.one A G),
+    intros, exact ((@group.mul_assoc A G h g f)⁻¹),
+    intros, exact (@group.mul_left_id A G f),
+    intros, exact (@group.mul_right_id A G f),
+    intros, apply is_iso.mk,
+      apply mul_left_inv,
+      apply mul_right_inv,
 end
 
 end groupoid

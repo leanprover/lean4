@@ -1,5 +1,7 @@
 import logic data.unit
 
+set_option structure.eta_thm true
+
 structure point (A : Type) (B : Type) :=
 mk :: (x : A) (y : B)
 

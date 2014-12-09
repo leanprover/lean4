@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <algorithm>
 #include "util/sstream.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -43,16 +44,37 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_STRUCTURE_INTRO "mk"
 #endif
 
+#ifndef LEAN_DEFAULT_STRUCTURE_ETA
+#define LEAN_DEFAULT_STRUCTURE_ETA false
+#endif
+
+#ifndef LEAN_DEFAULT_STRUCTURE_PROJ_MK
+#define LEAN_DEFAULT_STRUCTURE_PROJ_MK false
+#endif
+
 namespace lean {
-static name * g_tmp_prefix = nullptr;
+static name * g_tmp_prefix  = nullptr;
+static name * g_gen_eta     = nullptr;
+static name * g_gen_proj_mk = nullptr;
 
 void initialize_structure_cmd() {
-    g_tmp_prefix = new name(name::mk_internal_unique_name());
+    g_tmp_prefix  = new name(name::mk_internal_unique_name());
+    g_gen_eta     = new name{"structure", "eta_thm"};
+    g_gen_proj_mk = new name{"structure", "proj_mk_thm"};
+    register_bool_option(*g_gen_eta, LEAN_DEFAULT_STRUCTURE_ETA,
+                         "(structure) automatically generate 'eta' theorem whenever declaring a new structure");
+    register_bool_option(*g_gen_proj_mk, LEAN_DEFAULT_STRUCTURE_PROJ_MK,
+                         "(structure) automatically gneerate projection over introduction theorem when declaring a new structure, the theorem is never generated for proof irrelevant fields");
 }
 
 void finalize_structure_cmd() {
     delete g_tmp_prefix;
+    delete g_gen_eta;
+    delete g_gen_proj_mk;
 }
+
+bool get_structure_eta_thm(options const & o) { return o.get_bool(*g_gen_eta, LEAN_DEFAULT_STRUCTURE_ETA); }
+bool get_structure_proj_mk_thm(options const & o) { return o.get_bool(*g_gen_proj_mk, LEAN_DEFAULT_STRUCTURE_ETA); }
 
 /** \brief Return true iff the type named \c S can be viewed as
     a structure in the given environment.
@@ -111,10 +133,15 @@ struct structure_cmd_fn {
     levels                     m_ctx_levels; // context levels for creating aliases
     buffer<expr>               m_ctx_locals; // context local constants for creating aliases
 
+    bool                       m_gen_eta;
+    bool                       m_gen_proj_mk;
+
     structure_cmd_fn(parser & p):m_p(p), m_env(p.env()), m_ngen(p.mk_ngen()), m_namespace(get_namespace(m_env)) {
         m_tc = mk_type_checker(m_env, m_p.mk_ngen(), false);
         m_infer_result_universe = false;
         m_using_explicit_levels = false;
+        m_gen_eta     = get_structure_eta_thm(p.get_options());
+        m_gen_proj_mk = get_structure_proj_mk_thm(p.get_options());
     }
 
     /** \brief Parse structure name and (optional) universe parameters */
@@ -750,6 +777,8 @@ struct structure_cmd_fn {
     }
 
     void declare_eta() {
+        if (!m_gen_eta)
+            return;
         if (!has_eq_decls(m_env))
             return;
         level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
@@ -781,6 +810,8 @@ struct structure_cmd_fn {
     }
 
     void declare_proj_over_mk() {
+        if (!m_gen_proj_mk)
+            return;
         if (!has_eq_decls(m_env))
             return;
         level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
@@ -791,6 +822,8 @@ struct structure_cmd_fn {
             expr const & field      = m_fields[i];
             name const & field_name = mlocal_name(field);
             expr const & field_type = mlocal_type(field);
+            if (m_env.prop_proof_irrel() && m_tc->is_prop(field_type).first)
+                continue;
             level field_level       = sort_level(m_tc->ensure_type(field_type).first);
             name proj_name          = m_name + field_name;
             expr lhs                = mk_app(mk_app(mk_constant(proj_name, st_ls), m_params), mk_fields);

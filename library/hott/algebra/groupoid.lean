@@ -2,31 +2,59 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jakob von Raumer
 -- Ported from Coq HoTT
-import .precategory.basic .precategory.morphism
+import .precategory.basic .precategory.morphism .group
 
-open path function prod sigma truncation morphism nat precategory
+open path function prod sigma truncation morphism nat path_algebra
 
 structure foo (A : Type) := (bsp : A)
 
 structure groupoid [class] (ob : Type) extends precategory ob :=
-  (all_iso : Π ⦃a b : ob⦄ (f : hom a b),
-    @is_iso ob (precategory.mk hom _ _ _ assoc id_left id_right) a b f)
+(all_iso : Π ⦃a b : ob⦄ (f : hom a b),
+  @is_iso ob (precategory.mk hom _ _ _ assoc id_left id_right) a b f)
 
 namespace groupoid
 
-set_option pp.universes true
+instance [persistent] all_iso
+
+--set_option pp.universes true
+--set_option pp.implicit true
 universe variable l
-definition path_precategory (A : Type.{l})
-    (H : is_trunc 1 A) : precategory.{l l} A :=
+definition path_groupoid (A : Type.{l})
+    (H : is_trunc 1 A) : groupoid.{l l} A :=
+have C [visible] : precategory.{l l} A, from precategory.mk
+  (λ a b, a ≈ b)
+  (λ (a b : A), have ish : is_hset (a ≈ b), from succ_is_trunc 0 a b, ish)
+  (λ (a b c : A) (p : b ≈ c) (q : a ≈ b), q ⬝ p)
+  (λ (a : A), idpath a)
+  (λ (a b c d : A) (p : c ≈ d) (q : b ≈ c) (r : a ≈ b), concat_pp_p r q p)
+  (λ (a b : A) (p : a ≈ b), concat_p1 p)
+  (λ (a b : A) (p : a ≈ b), concat_1p p),
+groupoid.mk (precategory.hom)
+  (@precategory.homH A C) --(λ (a b : A), have ish : is_hset (a ≈ b), from succ_is_trunc 0 a b, ish)
+  (precategory.comp) --(λ (a b c : A) (p : b ≈ c) (q : a ≈ b), q ⬝ p)
+  (precategory.ID) --(λ (a : A), idpath a)
+  (precategory.assoc) --(λ (a b c d : A) (p : c ≈ d) (q : b ≈ c) (r : a ≈ b), concat_pp_p r q p)
+  (precategory.id_left) --(λ (a b : A) (p : a ≈ b), concat_p1 p)
+  (precategory.id_right) --(λ (a b : A) (p : a ≈ b), concat_1p p)
+  (λ (a b : A) (p : @hom A C a b), @is_iso.mk A C a b p (path.inverse p)
+    (have aux : p⁻¹ ⬝ p ≈ idpath b, from concat_Vp p,
+     have aux2 : p⁻¹ ∘ p ≈ idpath b, from aux,
+     have aux3 : p⁻¹ ∘ p ≈ id, from sorry, aux3)
+    (have aux : p ⬝ p⁻¹ ≈ idpath a, from concat_pV p,
+     sorry))
+
+definition group_from_contr {ob : Type} (H : is_contr ob)
+  (G : groupoid ob) : group (hom (center ob) (center ob)) :=
 begin
-  fapply precategory.mk,
-    intros (a, b), exact (a ≈ b),
-    intros, apply succ_is_trunc, exact H,
-    intros (a, b, c, p, q), exact (@concat A a b c q p),
-    intro a, apply idp,
-    intros, apply concat_pp_p,
-    intros, apply concat_p1,
-    intros, apply concat_1p,
+  fapply group.mk,
+    intros (f, g), apply (comp f g),
+    apply homH,
+    intros (f, g, h), apply ((assoc f g h)⁻¹),
+    apply (ID (center ob)),
+    intro f, apply id_left,
+    intro f, apply id_right,
+    intro f, exact (morphism.inverse f),
+    intro f, exact (morphism.inverse_compose f),
 end
 
 end groupoid

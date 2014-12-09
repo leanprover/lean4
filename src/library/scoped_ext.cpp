@@ -147,13 +147,10 @@ static void namespace_reader(deserializer & d, module_idx, shared_environment &,
         });
 }
 
-environment pop_scope(environment const & env, name const & n) {
+environment pop_scope_core(environment const & env) {
     scope_mng_ext ext = get_extension(env);
     if (is_nil(ext.m_namespaces))
-        throw exception("invalid end of scope, there are no open namespaces/sections/contexts");
-    if (n != head(ext.m_headers))
-        throw exception(sstream() << "invalid end of scope, begin/end mistmatch, scope starts with '"
-                        << head(ext.m_headers) << "', and ends with '" << n << "'");
+        return env;
     scope_kind k      = head(ext.m_scope_kinds);
     ext.m_namespaces  = tail(ext.m_namespaces);
     ext.m_headers     = tail(ext.m_headers);
@@ -163,6 +160,16 @@ environment pop_scope(environment const & env, name const & n) {
         r = std::get<4>(t)(r, k);
     }
     return r;
+}
+
+environment pop_scope(environment const & env, name const & n) {
+    scope_mng_ext ext = get_extension(env);
+    if (is_nil(ext.m_namespaces))
+        throw exception("invalid end of scope, there are no open namespaces/sections/contexts");
+    if (n != head(ext.m_headers))
+        throw exception(sstream() << "invalid end of scope, begin/end mistmatch, scope starts with '"
+                        << head(ext.m_headers) << "', and ends with '" << n << "'");
+    return pop_scope_core(env);
 }
 
 bool has_open_scopes(environment const & env) {

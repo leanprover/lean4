@@ -31,8 +31,15 @@ environment export_namespace(environment const & env, io_state const & ios, name
 
 /** \brief Create a new scope, all scoped extensions are notified. */
 environment push_scope(environment const & env, io_state const & ios, scope_kind k, name const & n = name());
-/** \brief Delete the most recent scope, all scoped extensions are notified. */
+/** \brief Delete the most recent scope, all scoped extensions are notified.
+    \remark method throws an exception if there are no open scopes, or \c n does not match the name of the open scope
+*/
 environment pop_scope(environment const & env, name const & n = name());
+/** \brief Similar to \c pop_scope, but it always succeed.
+    It always pops the current open scope, and does nothing if there are no open scope.
+*/
+environment pop_scope_core(environment const & env);
+/** \brief Return true iff there are open scopes */
 bool has_open_scopes(environment const & env);
 
 /** \brief Add a new namespace (if it does not exist) */

@@ -1434,7 +1434,8 @@ bool parser::parse_commands() {
                 throw_parser_exception("invalid end of module, expecting 'end'", pos());
         }
     } catch (interrupt_parser) {
-        display_error("parser has been interrupted", m_last_cmd_pos);
+        while (has_open_scopes(m_env))
+            m_env = pop_scope_core(m_env);
     }
     commit_info(m_scanner.get_line()+1);
     for (certified_declaration const & thm : m_theorem_queue.join()) {

@@ -12,6 +12,7 @@ bool has_unit_decls(environment const & env);
 bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);
 bool has_prod_decls(environment const & env);
+bool has_lift_decls(environment const & env);
 /** \brief Return true iff \c n is the name of a recursive datatype in \c env.
     That is, it must be an inductive datatype AND contain a recursive constructor.
 
@@ -82,6 +83,8 @@ expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs);
 */
 void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs);
 void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> & eqs);
+
+level mk_max(levels const & ls);
 
 void initialize_definitional_util();
 void finalize_definitional_util();

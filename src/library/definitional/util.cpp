@@ -47,6 +47,10 @@ bool has_prod_decls(environment const & env) {
     return has_constructor(env, name{"prod", "mk"}, "prod", 4);
 }
 
+bool has_lift_decls(environment const & env) {
+    return has_constructor(env, name{"lift", "up"}, "lift", 2);
+}
+
 bool is_recursive_datatype(environment const & env, name const & n) {
     optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
     if (!decls)
@@ -261,7 +265,7 @@ expr mk_pr1(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and
 expr mk_pr2(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_right(tc, p) : mk_pr2(tc, p); }
 
 expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs) {
-    expr A    = tc.infer(lhs).first;
+    expr A    = tc.whnf(tc.infer(lhs).first).first;
     level lvl = sort_level(tc.ensure_type(A).first);
     return mk_app(mk_constant(*g_eq_name, {lvl}), A, lhs, rhs);
 }
@@ -320,5 +324,14 @@ void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> & 
         s.push_back(local);
     }
     return mk_telescopic_eq(tc, t, s, eqs);
+}
+
+level mk_max(levels const & ls) {
+    if (!ls)
+        return mk_level_zero();
+    else if (!tail(ls))
+        return head(ls);
+    else
+        return mk_max(head(ls), mk_max(tail(ls)));
 }
 }

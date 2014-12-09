@@ -723,6 +723,7 @@ struct inductive_cmd_fn {
         bool has_eq   = has_eq_decls(env);
         bool has_heq  = has_heq_decls(env);
         bool has_prod = has_prod_decls(env);
+        bool has_lift = has_lift_decls(env);
         for (inductive_decl const & d : decls) {
             name const & n = inductive_decl_name(d);
             pos_info pos   = *m_decl_pos_map.find(n);
@@ -735,7 +736,7 @@ struct inductive_cmd_fn {
             if (has_unit) {
                 env = mk_cases_on(env, n);
                 save_def_info(name(n, "cases_on"), pos);
-                if (has_eq && has_heq) {
+                if (has_eq && ((env.prop_proof_irrel() && has_heq) || (!env.prop_proof_irrel() && has_lift))) {
                     env = mk_no_confusion(env, n);
                     save_if_defined(name{n, "no_confusion_type"}, pos);
                     save_if_defined(name(n, "no_confusion"), pos);

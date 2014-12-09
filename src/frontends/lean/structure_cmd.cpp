@@ -809,7 +809,11 @@ struct structure_cmd_fn {
     }
 
     void declare_no_confustion() {
-        if (!has_eq_decls(m_env) || !has_heq_decls(m_env))
+        if (!has_eq_decls(m_env))
+            return;
+        if (m_env.impredicative() && !has_heq_decls(m_env))
+            return;
+        if (!m_env.impredicative() && !has_lift_decls(m_env))
             return;
         m_env = mk_no_confusion(m_env, m_name);
         name no_confusion_name(m_name, "no_confusion");

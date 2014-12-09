@@ -26,15 +26,22 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     if (is_inductive_predicate(env, n))
         return optional<environment>(); // type is a proposition
     name_generator ngen;
+    bool impredicative     = env.impredicative();
     unsigned nparams       = std::get<1>(*decls);
     declaration ind_decl   = env.get(n);
     declaration cases_decl = env.get(name(n, "cases_on"));
     level_param_names lps  = cases_decl.get_univ_params();
-    level  rlvl            = mk_param_univ(head(lps));
+    level  plvl            = mk_param_univ(head(lps));
     levels ilvls           = param_names_to_levels(tail(lps));
+    level rlvl;
+    expr ind_type          = instantiate_type_univ_params(ind_decl, ilvls);
+    level ind_lvl          = get_datatype_level(ind_type);
+    if (impredicative)
+        rlvl = plvl;
+    else
+        rlvl = mk_max(plvl, ind_lvl);
     if (length(ilvls) != length(ind_decl.get_univ_params()))
         return optional<environment>(); // type does not have only a restricted eliminator
-    expr ind_type          = instantiate_type_univ_params(ind_decl, ilvls);
     name eq_name("eq");
     name heq_name("heq");
     // All inductive datatype parameters and indices are arguments
@@ -47,14 +54,19 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     // Create inductive datatype
     expr I = mk_app(mk_constant(n, ilvls), args);
     // Add (P : Type)
-    expr P = mk_local(ngen.next(), "P", mk_sort(rlvl), binder_info());
+    expr P = mk_local(ngen.next(), "P", mk_sort(plvl), binder_info());
     args.push_back(P);
     // add v1 and v2 elements of the inductive type
     expr v1 = mk_local(ngen.next(), "v1", I, binder_info());
     expr v2 = mk_local(ngen.next(), "v2", I, binder_info());
     args.push_back(v1);
     args.push_back(v2);
-    expr R  = mk_sort(rlvl);
+    expr R = mk_sort(rlvl);
+    expr Pres;
+    if (impredicative)
+        Pres = P;
+    else
+        Pres = mk_app(mk_constant("lift", {plvl, ind_lvl}), P);
     name no_confusion_type_name{n, "no_confusion_type"};
     expr no_confusion_type_type = Pi(args, R);
     // Create type former
@@ -85,27 +97,33 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
             expr minor2 = to_telescope(tc, binding_domain(curr_t2), minor2_args);
             if (idx1 != idx2) {
                 // infeasible case, constructors do not match
-                inner_cases_on_args.push_back(Fun(minor2_args, P));
+                inner_cases_on_args.push_back(Fun(minor2_args, Pres));
             } else {
                 if (minor1_args.size() != minor2_args.size())
                     throw_corrupted(n);
                 buffer<expr> rtype_hyp;
                 // add equalities
-                for (unsigned i = 0; i < minor1_args.size(); i++) {
-                    expr lhs      = minor1_args[i];
-                    expr rhs      = minor2_args[i];
-                    expr lhs_type = mlocal_type(lhs);
-                    expr rhs_type = mlocal_type(rhs);
-                    level l       = sort_level(tc.ensure_type(lhs_type).first);
-                    expr h_type;
-                    if (tc.is_def_eq(lhs_type, rhs_type).first) {
-                        h_type = mk_app(mk_constant(eq_name, to_list(l)), lhs_type, lhs, rhs);
-                    } else {
-                        h_type = mk_app(mk_constant(heq_name, to_list(l)), lhs_type, lhs, rhs_type, rhs);
+                if (env.prop_proof_irrel()) {
+                    // proof irrelevance version using heterogeneous equality
+                    for (unsigned i = 0; i < minor1_args.size(); i++) {
+                        expr lhs      = minor1_args[i];
+                        expr rhs      = minor2_args[i];
+                        expr lhs_type = mlocal_type(lhs);
+                        expr rhs_type = mlocal_type(rhs);
+                        level l       = sort_level(tc.ensure_type(lhs_type).first);
+                        expr h_type;
+                        if (tc.is_def_eq(lhs_type, rhs_type).first) {
+                            h_type = mk_app(mk_constant(eq_name, to_list(l)), lhs_type, lhs, rhs);
+                        } else {
+                            h_type = mk_app(mk_constant(heq_name, to_list(l)), lhs_type, lhs, rhs_type, rhs);
+                        }
+                        rtype_hyp.push_back(mk_local(ngen.next(), local_pp_name(lhs).append_after("_eq"), h_type, binder_info()));
                     }
-                    rtype_hyp.push_back(mk_local(ngen.next(), local_pp_name(lhs).append_after("_eq"), h_type, binder_info()));
+                } else {
+                    // we use telescope equality (with casts) when proof irrelevance is not available
+                    mk_telescopic_eq(tc, minor1_args, minor2_args, rtype_hyp);
                 }
-                inner_cases_on_args.push_back(Fun(minor2_args, mk_arrow(Pi(rtype_hyp, P), P)));
+                inner_cases_on_args.push_back(Fun(minor2_args, mk_arrow(Pi(rtype_hyp, P), Pres)));
             }
             idx2++;
             curr_t2 = binding_body(curr_t2);
@@ -130,13 +148,17 @@ environment mk_no_confusion(environment const & env, name const & n) {
         return env;
     environment new_env = *env1;
     type_checker tc(new_env);
+    bool impredicative                 = env.impredicative();
     inductive::inductive_decls decls   = *inductive::is_inductive_decl(new_env, n);
     unsigned nparams                   = std::get<1>(decls);
     name_generator ngen;
+    declaration ind_decl               = env.get(n);
     declaration no_confusion_type_decl = new_env.get(name{n, "no_confusion_type"});
     declaration cases_decl             = new_env.get(name(n, "cases_on"));
     level_param_names lps              = no_confusion_type_decl.get_univ_params();
     levels ls                          = param_names_to_levels(lps);
+    expr ind_type                      = instantiate_type_univ_params(ind_decl, tail(ls));
+    level ind_lvl                      = get_datatype_level(ind_type);
     expr no_confusion_type_type        = instantiate_type_univ_params(no_confusion_type_decl, ls);
     name eq_name("eq");
     name heq_name("heq");
@@ -152,9 +174,14 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr v1           = args[args.size()-2];
     expr v2           = args[args.size()-1];
     expr v_type       = mlocal_type(v1);
+    expr lift_up;
+    if (!impredicative) {
+        lift_up = mk_app(mk_constant(name{"lift", "up"}, {head(ls), ind_lvl}), P);
+    }
     level v_lvl       = sort_level(tc.ensure_type(v_type).first);
     expr eq_v         = mk_app(mk_constant(eq_name, to_list(v_lvl)), v_type);
     expr H12          = mk_local(ngen.next(), "H12", mk_app(eq_v, v1, v2), binder_info());
+    lean_assert(impredicative != inductive::has_dep_elim(env, eq_name));
     args.push_back(H12);
     name no_confusion_name{n, "no_confusion"};
     expr no_confusion_ty = Pi(args, range);
@@ -181,7 +208,11 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr no_confusion_type_app = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), no_confusion_type_args);
     expr type_former = Fun(type_former_args, no_confusion_type_app);
     // create cases_on
-    levels clvls   = ls;
+    levels clvls;
+    if (impredicative)
+        clvls = ls;
+    else
+        clvls = cons(mk_max(head(ls), ind_lvl), tail(ls));
     expr cases_on  = mk_app(mk_app(mk_constant(cases_decl.get_name(), clvls), nparams, args.data()), type_former);
     cases_on       = mk_app(mk_app(cases_on, nindices, args.data() + nparams), v1);
     expr cot       = tc.infer(cases_on).first;
@@ -197,23 +228,32 @@ environment mk_no_confusion(environment const & env, name const & n) {
             buffer<expr> eq_args;
             expr eq_fn = get_app_args(binding_domain(Ht), eq_args);
             if (const_name(eq_fn) == eq_name) {
-                refl_args.push_back(mk_app(mk_constant(eq_refl_name, const_levels(eq_fn)), eq_args[0], eq_args[1]));
+                refl_args.push_back(mk_app(mk_constant(eq_refl_name, const_levels(eq_fn)), eq_args[0], eq_args[2]));
             } else {
                 refl_args.push_back(mk_app(mk_constant(heq_refl_name, const_levels(eq_fn)), eq_args[0], eq_args[1]));
             }
             Ht = binding_body(Ht);
         }
         expr pr  = mk_app(H, refl_args);
+        if (!impredicative)
+            pr   = mk_app(lift_up, pr);
         cases_on = mk_app(cases_on, Fun(minor_args, pr));
         cot = binding_body(cot);
     }
-    expr gen = Fun(H11, cases_on);
+    expr gen = cases_on;
+    if (impredicative)
+        gen = Fun(H11, gen);
     // Now, we use gen to build the final proof using eq.rec
     //
     //  eq.rec InductiveType v1 (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a) gen v2 H12 H12
     //
     name eq_rec_name{"eq", "rec"};
-    expr eq_rec = mk_app(mk_constant(eq_rec_name, {head(ls), v_lvl}), v_type, v1);
+    level eq_rec_l1;
+    if (impredicative)
+        eq_rec_l1 = head(ls);
+    else
+        eq_rec_l1 = mk_max(head(ls), ind_lvl);
+    expr eq_rec = mk_app(mk_constant(eq_rec_name, {eq_rec_l1, v_lvl}), v_type, v1);
     // create eq_rec type_former
     //    (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a)
     expr a   = mk_local(ngen.next(), "a",   v_type, binder_info());
@@ -222,12 +262,17 @@ environment mk_no_confusion(environment const & env, name const & n) {
     no_confusion_type_args.pop_back();
     no_confusion_type_args.push_back(a);
     expr no_confusion_type_app_1a = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), no_confusion_type_args);
-    expr rec_type_former = Fun(a, Pi(H1a, no_confusion_type_app_1a));
-    // finalize eq_rec
-    eq_rec = mk_app(mk_app(eq_rec, rec_type_former, gen, v2, H12), H12);
+    if (impredicative) {
+        expr rec_type_former = Fun(a, Pi(H1a, no_confusion_type_app_1a));
+        // finalize eq_rec
+        eq_rec = mk_app(mk_app(eq_rec, rec_type_former, gen, v2, H12), H12);
+    } else {
+        expr rec_type_former = Fun(a, Fun(H1a, no_confusion_type_app_1a));
+        // finalize eq_rec
+        eq_rec = mk_app(eq_rec, rec_type_former, gen, v2, H12);
+    }
     //
     expr no_confusion_val = Fun(args, eq_rec);
-
     bool opaque       = false;
     bool use_conv_opt = true;
     declaration new_d = mk_definition(new_env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,

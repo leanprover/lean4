@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/coercion.h"
 #include "library/explicit.h"
 #include "library/protected.h"
+#include "library/class.h"
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"
 #include "library/definitional/cases_on.h"
@@ -38,7 +39,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/elaborator_exception.h"
 #include "frontends/lean/type_util.h"
-#include "frontends/lean/class.h"
 
 #ifndef LEAN_DEFAULT_STRUCTURE_INTRO
 #define LEAN_DEFAULT_STRUCTURE_INTRO "mk"

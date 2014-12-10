@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/normalize.h"
 #include "library/print.h"
+#include "library/class.h"
 #include "library/flycheck.h"
 #include "library/definitional/projection.h"
 #include "library/definitional/util.h"

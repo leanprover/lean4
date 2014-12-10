@@ -7,7 +7,7 @@ add_library(library deep_copy.cpp expr_lt.cpp io_state.cpp occurs.cpp
   standard_kernel.cpp sorry.cpp replace_visitor.cpp
   unifier.cpp unifier_plugin.cpp inductive_unifier_plugin.cpp
   explicit.cpp num.cpp string.cpp head_map.cpp match.cpp
-  definition_cache.cpp declaration_index.cpp
+  definition_cache.cpp declaration_index.cpp class.cpp
   print.cpp annotation.cpp typed_expr.cpp let.cpp type_util.cpp
   protected.cpp metavar_closure.cpp reducible.cpp init_module.cpp
   fingerprint.cpp flycheck.cpp hott_kernel.cpp)

@@ -18,10 +18,11 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/reducible.h"
 #include "library/coercion.h"
+#include "library/class.h"
 #include "library/definitional/equations.h"
 #include "frontends/lean/parser.h"
-#include "frontends/lean/util.h"
 #include "frontends/lean/class.h"
+#include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
 
 namespace lean {

@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/tactic_hint.h"
-#include "frontends/lean/class.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/calc.h"
 #include "frontends/lean/begin_end_ext.h"
@@ -44,7 +43,6 @@ void initialize_frontend_lean_module() {
     initialize_scanner();
     initialize_parser();
     initialize_tactic_hint();
-    initialize_class();
     initialize_parser_config();
     initialize_calc();
     initialize_begin_end_ext();
@@ -71,7 +69,6 @@ void finalize_frontend_lean_module() {
     finalize_begin_end_ext();
     finalize_calc();
     finalize_parser_config();
-    finalize_class();
     finalize_tactic_hint();
     finalize_parser();
     finalize_scanner();

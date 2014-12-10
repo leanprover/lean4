@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/let.h"
 #include "library/typed_expr.h"
 #include "library/choice.h"
+#include "library/class.h"
 #include "library/string.h"
 #include "library/num.h"
 #include "library/resolve_macro.h"
@@ -57,9 +58,11 @@ void initialize_library_module() {
     initialize_coercion();
     initialize_unifier_plugin();
     initialize_sorry();
+    initialize_class();
 }
 
 void finalize_library_module() {
+    finalize_class();
     finalize_sorry();
     finalize_unifier_plugin();
     finalize_coercion();

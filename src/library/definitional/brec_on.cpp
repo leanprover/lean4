@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/module.h"
 #include "library/bin_app.h"
-#include "library/definitional/util.h"
+#include "library/util.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {

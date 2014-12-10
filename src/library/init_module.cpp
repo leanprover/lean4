@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/print.h"
 #include "library/fingerprint.h"
+#include "library/util.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -59,9 +60,11 @@ void initialize_library_module() {
     initialize_unifier_plugin();
     initialize_sorry();
     initialize_class();
+    initialize_library_util();
 }
 
 void finalize_library_module() {
+    finalize_library_util();
     finalize_class();
     finalize_sorry();
     finalize_unifier_plugin();

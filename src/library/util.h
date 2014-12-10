@@ -86,6 +86,6 @@ void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> & 
 
 level mk_max(levels const & ls);
 
-void initialize_definitional_util();
-void finalize_definitional_util();
+void initialize_library_util();
+void finalize_library_util();
 }

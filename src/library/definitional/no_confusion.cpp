@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/protected.h"
 #include "library/module.h"
-#include "library/definitional/util.h"
+#include "library/util.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {

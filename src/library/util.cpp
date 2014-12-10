@@ -155,7 +155,7 @@ static name * g_eq_name = nullptr;
 static name * g_eq_refl_name = nullptr;
 static name * g_eq_rec_name = nullptr;
 
-void initialize_definitional_util() {
+void initialize_library_util() {
     g_true           = new expr(mk_constant("true"));
     g_true_intro     = new expr(mk_constant(name({"true", "intro"})));
     g_and            = new expr(mk_constant("and"));
@@ -175,7 +175,7 @@ void initialize_definitional_util() {
     g_eq_rec_name    = new name{"eq", "rec"};
 }
 
-void finalize_definitional_util() {
+void finalize_library_util() {
     delete g_true;
     delete g_true_intro;
     delete g_and;

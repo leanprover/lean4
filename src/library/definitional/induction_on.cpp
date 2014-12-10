@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/module.h"
 #include "library/protected.h"
-#include "library/definitional/util.h"
+#include "library/util.h"
 
 namespace lean {
 environment mk_induction_on(environment const & env, name const & n) {

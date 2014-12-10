@@ -26,6 +26,9 @@ expr const & equations_wf_proof(expr const & e);
 expr mk_equations(unsigned num, expr const * eqns);
 expr mk_equations(unsigned num, expr const * eqns, expr const & Hwf);
 
+expr mk_inaccessible(expr const & e);
+bool is_inaccessible(expr const & e);
+
 void initialize_equations();
 void finalize_equations();
 }

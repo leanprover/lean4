@@ -7,11 +7,13 @@ Author: Leonardo de Moura
 #include <string>
 #include "kernel/expr.h"
 #include "library/kernel_serializer.h"
+#include "library/annotation.h"
 
 namespace lean {
-static name * g_equations_name  = nullptr;
-static name * g_equation_name   = nullptr;
-static name * g_decreasing_name = nullptr;
+static name * g_equations_name    = nullptr;
+static name * g_equation_name     = nullptr;
+static name * g_decreasing_name   = nullptr;
+static name * g_inaccessible_name = nullptr;
 static std::string * g_equations_opcode  = nullptr;
 static std::string * g_equation_opcode   = nullptr;
 static std::string * g_decreasing_opcode = nullptr;
@@ -110,16 +112,21 @@ expr mk_equations(unsigned num, expr const * eqns, expr const & Hwf) {
     return mk_macro(*g_equations, args.size(), args.data());
 }
 
+expr mk_inaccessible(expr const & e) { return mk_annotation(*g_inaccessible_name, e); }
+bool is_inaccessible(expr const & e) { return is_annotation(e, *g_inaccessible_name); }
+
 void initialize_equations() {
     g_equations_name    = new name("equations");
     g_equation_name     = new name("equation");
     g_decreasing_name   = new name("decreasing");
+    g_inaccessible_name = new name("innaccessible");
     g_equations         = new macro_definition(new equations_macro_cell());
     g_equation          = new macro_definition(new equation_macro_cell());
     g_decreasing        = new macro_definition(new decreasing_macro_cell());
     g_equations_opcode  = new std::string("Eqns");
     g_equation_opcode   = new std::string("Eqn");
     g_decreasing_opcode = new std::string("Decr");
+    register_annotation(*g_inaccessible_name);
     register_macro_deserializer(*g_equations_opcode,
                                 [](deserializer &, unsigned num, expr const * args) {
                                     if (num == 0)
@@ -156,5 +163,6 @@ void finalize_equations() {
     delete g_equations_name;
     delete g_equation_name;
     delete g_decreasing_name;
+    delete g_inaccessible_name;
 }
 }

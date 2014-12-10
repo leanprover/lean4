@@ -19,6 +19,7 @@ instance [persistent] all_iso
 --set_option pp.universes true
 --set_option pp.implicit true
 universe variable l
+open precategory
 definition path_groupoid (A : Type.{l})
     (H : is_trunc (nat.zero .+1) A) : groupoid.{l l} A :=
 groupoid.mk
@@ -30,28 +31,7 @@ groupoid.mk
   (λ (a b : A) (p : a ≈ b), concat_p1 p)
   (λ (a b : A) (p : a ≈ b), concat_1p p)
   (λ (a b : A) (p : a ≈ b), @is_iso.mk A _ a b p (path.inverse p)
-    sorry sorry)
-/-have C [visible] : precategory.{l l} A, from precategory.mk
-  (λ a b, a ≈ b)
-  (λ (a b : A), have ish : is_hset (a ≈ b), from succ_is_trunc 0 a b, ish)
-  (λ (a b c : A) (p : b ≈ c) (q : a ≈ b), q ⬝ p)
-  (λ (a : A), idpath a)
-  (λ (a b c d : A) (p : c ≈ d) (q : b ≈ c) (r : a ≈ b), concat_pp_p r q p)
-  (λ (a b : A) (p : a ≈ b), concat_p1 p)
-  (λ (a b : A) (p : a ≈ b), concat_1p p),
-groupoid.mk (precategory.hom)
-  (@precategory.homH A C) --(λ (a b : A), have ish : is_hset (a ≈ b), from succ_is_trunc 0 a b, ish)
-  (precategory.comp) --(λ (a b c : A) (p : b ≈ c) (q : a ≈ b), q ⬝ p)
-  (precategory.ID) --(λ (a : A), idpath a)
-  (precategory.assoc) --(λ (a b c d : A) (p : c ≈ d) (q : b ≈ c) (r : a ≈ b), concat_pp_p r q p)
-  (precategory.id_left) --(λ (a b : A) (p : a ≈ b), concat_p1 p)
-  (precategory.id_right) --(λ (a b : A) (p : a ≈ b), concat_1p p)
-  (λ (a b : A) (p : @hom A C a b), @is_iso.mk A C a b p (path.inverse p)
-    (have aux : p⁻¹ ⬝ p ≈ idpath b, from concat_Vp p,
-     have aux2 : p⁻¹ ∘ p ≈ idpath b, from aux,
-     have aux3 : p⁻¹ ∘ p ≈ id, from sorry, aux3)
-    (have aux : p ⬝ p⁻¹ ≈ idpath a, from concat_pV p,
-     sorry))-/
+    !concat_pV !concat_Vp)
 
 -- A groupoid with a contractible carrier is a group
 definition group_of_contr {ob : Type} (H : is_contr ob)
@@ -68,8 +48,21 @@ begin
     intro f, exact (morphism.inverse_compose f),
 end
 
+definition group_of_unit (G : groupoid unit) : group (hom ⋆ ⋆) :=
+begin
+  fapply group.mk,
+    intros (f, g), apply (comp f g),
+    apply homH,
+    intros (f, g, h), apply ((assoc f g h)⁻¹),
+    apply (ID ⋆),
+    intro f, apply id_left,
+    intro f, apply id_right,
+    intro f, exact (morphism.inverse f),
+    intro f, exact (morphism.inverse_compose f),
+end
+
 -- Conversely we can turn each group into a groupoid on the unit type
-definition of_group {A : Type.{l}} (G : group A) : groupoid.{l l} unit :=
+definition of_group (A : Type.{l}) [G : group A] : groupoid.{l l} unit :=
 begin
   fapply groupoid.mk,
     intros, exact A,
@@ -83,5 +76,12 @@ begin
       apply mul_left_inv,
       apply mul_right_inv,
 end
+
+-- TODO: This is probably wrong
+open equiv is_equiv
+definition group_equiv {A : Type.{l}} [fx : funext]
+  : group A ≃ Σ (G : groupoid.{l l} unit), @hom unit G ⋆ ⋆ ≈ A :=
+sorry
+
 
 end groupoid

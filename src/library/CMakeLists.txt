@@ -10,6 +10,6 @@ add_library(library deep_copy.cpp expr_lt.cpp io_state.cpp occurs.cpp
   definition_cache.cpp declaration_index.cpp class.cpp util.cpp
   print.cpp annotation.cpp typed_expr.cpp let.cpp type_util.cpp
   protected.cpp metavar_closure.cpp reducible.cpp init_module.cpp
-  fingerprint.cpp flycheck.cpp hott_kernel.cpp)
+  fingerprint.cpp flycheck.cpp hott_kernel.cpp local_context.cpp)
 
 target_link_libraries(library ${LEAN_LIBS})

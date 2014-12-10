@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include <functional>
 #include "library/unifier.h"
+#include "library/local_context.h"
 #include "frontends/lean/info_manager.h"
-#include "frontends/lean/local_context.h"
 
 namespace lean {
 typedef std::function<void(expr const &)> update_type_info_fn;

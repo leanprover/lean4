@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "library/io_state.h"
-#include "frontends/lean/local_context.h"
+#include "library/local_context.h"
 
 namespace lean {
 /** \brief Create a metavariable, and attach choice constraint for generating

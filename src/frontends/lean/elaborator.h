@@ -13,10 +13,10 @@ Author: Leonardo de Moura
 #include "library/expr_lt.h"
 #include "library/unifier.h"
 #include "library/tactic/tactic.h"
+#include "library/local_context.h"
 #include "frontends/lean/elaborator_context.h"
 #include "frontends/lean/coercion_elaborator.h"
 #include "frontends/lean/util.h"
-#include "frontends/lean/local_context.h"
 #include "frontends/lean/calc_proof_elaborator.h"
 
 namespace lean {

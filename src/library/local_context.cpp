@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/metavar.h"
-#include "frontends/lean/local_context.h"
+#include "library/local_context.h"
 
 namespace lean {
 /** \brief Given a list of local constants \c locals

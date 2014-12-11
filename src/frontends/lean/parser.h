@@ -52,8 +52,10 @@ struct parser_scope_stack_elem {
     name_set           m_level_variables;
     name_set           m_variables;
     name_set           m_include_vars;
-    parser_scope_stack_elem(optional<options> const & o, name_set const & lvs, name_set const & vs, name_set const & ivs):
-        m_options(o), m_level_variables(lvs), m_variables(vs), m_include_vars(ivs) {}
+    unsigned           m_num_undef_ids;
+    parser_scope_stack_elem(optional<options> const & o, name_set const & lvs, name_set const & vs, name_set const & ivs,
+                            unsigned num_undef_ids):
+        m_options(o), m_level_variables(lvs), m_variables(vs), m_include_vars(ivs), m_num_undef_ids(num_undef_ids) {}
 };
 typedef list<parser_scope_stack_elem> parser_scope_stack;
 
@@ -129,6 +131,8 @@ class parser {
 
     // curr command token
     name                   m_cmd_token;
+
+    buffer<expr>           m_undef_ids;
 
     void display_warning_pos(unsigned line, unsigned pos);
     void display_warning_pos(pos_info p);
@@ -255,8 +259,8 @@ public:
     pos_info pos() const { return pos_info(m_scanner.get_line(), m_scanner.get_pos()); }
     expr save_pos(expr e, pos_info p);
     expr rec_save_pos(expr const & e, pos_info p);
-    pos_info pos_of(expr const & e, pos_info default_pos);
-    pos_info pos_of(expr const & e) { return pos_of(e, pos()); }
+    pos_info pos_of(expr const & e, pos_info default_pos) const;
+    pos_info pos_of(expr const & e) const { return pos_of(e, pos()); }
     pos_info cmd_pos() const { return m_last_cmd_pos; }
     name const & get_cmd_token() const { return m_cmd_token; }
     void set_line(unsigned p) { return m_scanner.set_line(p); }
@@ -359,7 +363,10 @@ public:
     expr parse_scoped_expr(buffer<expr> const & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
 
     struct local_scope { parser & m_p; environment m_env;
-        local_scope(parser & p, bool save_options = false); local_scope(parser & p, environment const & env); ~local_scope();
+        local_scope(parser & p, bool save_options = false);
+        local_scope(parser & p, environment const & env);
+        local_scope(parser & p, optional<environment> const & env);
+        ~local_scope();
     };
     bool has_locals() const { return !m_local_decls.empty() || !m_local_level_decls.empty(); }
     void add_local_level(name const & n, level const & l, bool is_variable = false);
@@ -394,6 +401,11 @@ public:
     */
     struct undef_id_to_const_scope : public flet<undef_id_behavior> { undef_id_to_const_scope(parser & p); };
     struct undef_id_to_local_scope : public flet<undef_id_behavior> { undef_id_to_local_scope(parser &); };
+
+    /** \brief Return the size of the stack of undefined local constants */
+    unsigned get_num_undef_ids() const { return m_undef_ids.size(); }
+    /** \brief Return the i-th undefined local constants */
+    expr const & get_undef_id(unsigned i) const { return m_undef_ids[i]; }
 
     /** \brief Elaborate \c e, and tolerate metavariables in the result. */
     std::tuple<expr, level_param_names> elaborate_relaxed(expr const & e, list<expr> const & ctx = list<expr>());

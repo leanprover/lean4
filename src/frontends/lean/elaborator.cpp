@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "library/local_context.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/error_handling/error_handling.h"
+#include "library/definitional/equations.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/class.h"
 #include "frontends/lean/tactic_hint.h"
@@ -99,10 +100,11 @@ elaborator::elaborator(elaborator_context & ctx, name_generator const & ngen, bo
     m_has_sorry = has_sorry(m_ctx.m_env);
     m_relax_main_opaque = false;
     m_use_tactic_hints  = true;
-    m_no_info = false;
-    m_tc[0]  = mk_type_checker(ctx.m_env, m_ngen.mk_child(), false);
-    m_tc[1]  = mk_type_checker(ctx.m_env, m_ngen.mk_child(), true);
-    m_nice_mvar_names = nice_mvar_names;
+    m_no_info           = false;
+    m_in_equation_lhs   = false;
+    m_tc[0]             = mk_type_checker(ctx.m_env, m_ngen.mk_child(), false);
+    m_tc[1]             = mk_type_checker(ctx.m_env, m_ngen.mk_child(), true);
+    m_nice_mvar_names   = nice_mvar_names;
 }
 
 expr elaborator::mk_local(name const & n, expr const & t, binder_info const & bi) {
@@ -812,6 +814,155 @@ expr elaborator::visit_sorry(expr const & e) {
     return mk_app(update_constant(e, to_list(u)), m, e.get_tag());
 }
 
+expr const & elaborator::get_equation_fn(expr const & eq) const {
+    expr it = eq;
+    while (is_lambda(it))
+        it = binding_body(it);
+    if (!is_equation(it))
+        throw_elaborator_exception(env(), "ill-formed equation", eq);
+    expr const & fn = get_app_fn(equation_lhs(it));
+    if (!is_local(fn))
+        throw_elaborator_exception(env(), "ill-formed equation", eq);
+    return fn;
+}
+
+static expr copy_domain(unsigned num, expr const & source, expr const & target) {
+    if (num == 0) {
+        return target;
+    } else {
+        lean_assert(is_binding(source) && is_binding(target));
+        return update_binding(source, mk_as_is(binding_domain(source)), copy_domain(num-1, binding_body(source), binding_body(target)));
+    }
+}
+
+static constraint mk_equations_cnstr(environment const & env, io_state const & ios, expr const & m, expr const & eqns) {
+    justification j         = mk_failed_to_synthesize_jst(env, m);
+    auto choice_fn = [=](expr const & , expr const &, substitution const & s,
+                         name_generator const &) {
+        expr new_eqns = substitution(s).instantiate(eqns);
+        regular(env, ios) << "Equations:\n" << new_eqns << "\n\n";
+        // TODO(Leo);
+        return lazy_list<constraints>(constraints());
+    };
+    bool owner = true;
+    bool relax = false;
+    return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), owner, j, relax);
+}
+
+expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
+    buffer<expr> eqs;
+    buffer<expr> new_eqs;
+    optional<expr> new_R;
+    optional<expr> new_Hwf;
+
+    to_equations(eqns, eqs);
+
+    if (eqs.empty())
+        throw_elaborator_exception(env(), "invalid empty set of recursive equations", eqns);
+
+    if (is_wf_equations(eqns)) {
+        new_R   = visit(equations_wf_rel(eqns), cs);
+        new_Hwf = visit(equations_wf_proof(eqns), cs);
+        expr Hwf_type   = infer_type(*new_Hwf, cs);
+        expr wf         = visit(mk_constant("well_founded"), cs);
+        wf              = ::lean::mk_app(wf, *new_R);
+        justification j = mk_type_mismatch_jst(*new_Hwf, Hwf_type, wf, equations_wf_proof(eqns));
+        auto new_Hwf_cs = ensure_has_type(*new_Hwf, Hwf_type, wf, j, m_relax_main_opaque);
+        new_Hwf         = new_Hwf_cs.first;
+        cs             += new_Hwf_cs.second;
+    }
+
+    flet<optional<expr>> set1(m_equation_R, new_R);
+    unsigned num_fns = equations_num_fns(eqns);
+
+    optional<expr> first_eq;
+    for (expr const & eq : eqs) {
+        expr new_eq;
+        if (first_eq) {
+            // Replace first num_fns domains of eq with the ones in first_eq.
+            // This is a trick/hack to ensure the fns in each equation have
+            // the same elaborated type.
+            new_eq = visit(copy_domain(num_fns, *first_eq, eq), cs);
+        } else {
+            new_eq = visit(eq, cs);
+            first_eq = new_eq;
+        }
+        new_eqs.push_back(new_eq);
+    }
+
+    expr new_eqns;
+    if (new_R) {
+        new_eqns = mk_equations(num_fns, new_eqs.size(), new_eqs.data(), *new_R, *new_Hwf);
+    } else {
+        new_eqns = mk_equations(num_fns, new_eqs.size(), new_eqs.data());
+    }
+
+    lean_assert(first_eq && is_lambda(*first_eq));
+    expr type = binding_domain(*first_eq);
+    expr m = m_full_context.mk_meta(m_ngen, some_expr(type), eqns.get_tag());
+    register_meta(m);
+    constraint c = mk_equations_cnstr(env(), ios(), m, new_eqns);
+    cs += c;
+    return m;
+}
+
+expr elaborator::visit_equation(expr const & eq, constraint_seq & cs) {
+    expr const & lhs = equation_lhs(eq);
+    expr const & rhs = equation_rhs(eq);
+    expr lhs_fn = get_app_fn(lhs);
+    if (is_explicit(lhs_fn))
+        lhs_fn = get_explicit_arg(lhs_fn);
+    if (!is_local(lhs_fn))
+        throw exception("ill-formed equation");
+    expr new_lhs, new_rhs;
+    {
+        flet<bool> set(m_in_equation_lhs, true);
+        new_lhs = visit(lhs, cs);
+    }
+    {
+        optional<expr> some_new_lhs(new_lhs);
+        flet<optional<expr>> set1(m_equation_lhs, some_new_lhs);
+        new_rhs = visit(rhs, cs);
+    }
+
+    expr lhs_type = infer_type(new_lhs, cs);
+    expr rhs_type = infer_type(new_rhs, cs);
+    justification j = mk_justification(eq, [=](formatter const & fmt, substitution const & subst) {
+            substitution s(subst);
+            return pp_def_type_mismatch(fmt, local_pp_name(lhs_fn), s.instantiate(lhs_type), s.instantiate(rhs_type));
+        });
+    pair<expr, constraint_seq> new_rhs_cs = ensure_has_type(new_rhs, rhs_type, lhs_type, j, m_relax_main_opaque);
+    new_rhs = new_rhs_cs.first;
+    cs     += new_rhs_cs.second;
+    return mk_equation(new_lhs, new_rhs);
+}
+
+expr elaborator::visit_inaccessible(expr const & e, constraint_seq & cs) {
+    if (!m_in_equation_lhs)
+        throw_elaborator_exception(env(), "invalid occurrence of 'inaccessible' annotation, it must only occur in the "
+                                   "left-hand-side of recursive equations", e);
+    return mk_inaccessible(visit(get_annotation_arg(e), cs));
+}
+
+expr elaborator::visit_decreasing(expr const & e, constraint_seq & cs) {
+    if (!m_equation_lhs)
+        throw_elaborator_exception(env(), "invalid occurrence of 'decreasing' annotation, it must only occur in "
+                                   "the right-hand-side of recursive equations", e);
+    if (!m_equation_R)
+        throw_elaborator_exception(env(), "invalid occurrence of 'decreasing' annotation, it can only be used when "
+                                   "recursive equations are being defined by well-founded recursion", e);
+    expr const & lhs_fn = get_app_fn(*m_equation_lhs);
+    if (get_app_fn(decreasing_app(e)) != lhs_fn)
+        throw_elaborator_exception(env(), "invalid occurrence of 'decreasing' annotation, expression must be an "
+                                   "application of the recursive function being defined", e);
+    expr dec_app        = visit(decreasing_app(e), cs);
+    expr dec_proof      = visit(decreasing_proof(e), cs);
+    // Remark: perhaps we should enforce the type of dec_proof here.
+    // We may have enough information to wrap the arguments in a sigma type (reason: the type of the function being elaborated has holes).
+    // Possible solution: create a constraint that enforces the type as soon the type of function has been elaborated.
+    return mk_decreasing(dec_app, dec_proof);
+}
+
 expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
     if (is_placeholder(e)) {
         return visit_placeholder(e, cs);
@@ -841,6 +992,14 @@ expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit_core(get_explicit_arg(e), cs);
     } else if (is_sorry(e)) {
         return visit_sorry(e);
+    } else if (is_equations(e)) {
+        lean_unreachable();
+    } else if (is_equation(e)) {
+        return visit_equation(e, cs);
+    } else if (is_inaccessible(e)) {
+        return visit_inaccessible(e, cs);
+    } else if (is_decreasing(e)) {
+        return visit_decreasing(e, cs);
     } else {
         switch (e.kind()) {
         case expr_kind::Local:      return e;
@@ -882,6 +1041,8 @@ pair<expr, constraint_seq> elaborator::visit(expr const & e) {
         } else {
             r = visit_core(b, cs);
         }
+    } else if (is_equations(e)) {
+        r    = visit_equations(e, cs);
     } else if (is_explicit(get_app_fn(e))) {
         r    = visit_core(e, cs);
     } else {

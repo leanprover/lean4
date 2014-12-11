@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
+#include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
@@ -315,13 +316,87 @@ static bool is_curr_with_or_comma(parser & p) {
     return p.curr_is_token(get_with_tk()) || p.curr_is_token(get_comma_tk());
 }
 
-expr parse_equations(parser & p, name const & n, expr const & type, buffer<expr> & auxs) {
+/**
+   For convenience, the left-hand-side of a recursive equation may contain
+   undeclared variables.
+   We use parser::undef_id_to_local_scope to force the parser to create a local constant for
+   each undefined identifier.
+
+   This method validates occurrences of these variables. They can only occur as an application
+   or macro argument.
+*/
+static void validate_equation_lhs(parser const & p, expr const & lhs, buffer<expr> const & locals) {
+    if (is_app(lhs)) {
+        validate_equation_lhs(p, app_fn(lhs), locals);
+        validate_equation_lhs(p, app_arg(lhs), locals);
+    } else if (is_macro(lhs)) {
+        for (unsigned i = 0; i < macro_num_args(lhs); i++)
+            validate_equation_lhs(p, macro_arg(lhs, i), locals);
+    } else if (!is_local(lhs)) {
+        for_each(lhs, [&](expr const & e, unsigned) {
+                if (is_local(e) &&
+                    std::any_of(locals.begin(), locals.end(), [&](expr const & local) {
+                            return mlocal_name(e) == mlocal_name(local);
+                        })) {
+                    throw parser_error(sstream() << "invalid occurrence of variable '" << mlocal_name(lhs) <<
+                                       "' in the left-hand-side of recursive equation", p.pos_of(lhs));
+                }
+                return has_local(e);
+            });
+    }
+}
+
+/**
+   \brief Merge multiple occurrences of a variable in the left-hand-side of a recursive equation.
+
+   \see validate_equation_lhs
+*/
+static expr merge_equation_lhs_vars(expr const & lhs, buffer<expr> & locals) {
+    expr_map<expr> m;
+    unsigned j = 0;
+    for (unsigned i = 0; i < locals.size(); i++) {
+        unsigned k;
+        for (k = 0; k < i; k++) {
+            if (mlocal_name(locals[k]) == mlocal_name(locals[i])) {
+                m.insert(mk_pair(locals[i], locals[k]));
+                break;
+            }
+        }
+        if (k == i) {
+            locals[j] = locals[i];
+            j++;
+        }
+    }
+    if (j == locals.size())
+        return lhs;
+    locals.shrink(j);
+    return replace(lhs, [&](expr const & e) {
+            if (!has_local(e))
+                return some_expr(e);
+            if (is_local(e)) {
+                auto it = m.find(e);
+                if (it != m.end())
+                    return some_expr(it->second);
+            }
+            return none_expr();
+        });
+}
+
+static void throw_invalid_equation_lhs(name const & n, pos_info const & p) {
+    throw parser_error(sstream() << "invalid recursive equation, head symbol '"
+                       << n << "' in the left-hand-side does not correspond to function(s) being defined", p);
+}
+
+expr parse_equations(parser & p, name const & n, expr const & type, buffer<expr> & auxs,
+                     optional<local_environment> const & lenv, buffer<expr> const & ps) {
     buffer<expr> eqns;
+    buffer<expr> fns;
     {
-        parser::local_scope scope1(p);
-        parser::undef_id_to_local_scope scope2(p);
+        parser::local_scope scope1(p, lenv);
+        for (expr const & param : ps)
+            p.add_local(param);
         lean_assert(is_curr_with_or_comma(p));
-        expr f = mk_local(n, type);
+        fns.push_back(mk_local(n, type));
         if (p.curr_is_token(get_with_tk())) {
             while (p.curr_is_token(get_with_tk())) {
                 p.next();
@@ -330,28 +405,57 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<expr>
                 expr g_type = p.parse_expr();
                 expr g      = mk_local(g_name, g_type);
                 auxs.push_back(g);
+                fns.push_back(g);
             }
         }
         p.check_token_next(get_comma_tk(), "invalid declaration, ',' expected");
-        p.add_local(f);
-        for (expr const & g : auxs)
-            p.add_local(g);
+        for (expr const & fn : fns)
+            p.add_local(fn);
         while (true) {
-            expr lhs = p.parse_expr();
+            expr lhs;
+            unsigned prev_num_undef_ids = p.get_num_undef_ids();
+            buffer<expr> locals;
+            {
+                parser::undef_id_to_local_scope scope2(p);
+                auto lhs_pos = p.pos();
+                lhs = p.parse_expr();
+                expr lhs_fn = get_app_fn(lhs);
+                if (is_explicit(lhs_fn))
+                    lhs_fn = get_explicit_arg(lhs_fn);
+                if (is_constant(lhs_fn))
+                    throw_invalid_equation_lhs(const_name(lhs_fn), lhs_pos);
+                if (is_local(lhs_fn) && std::all_of(fns.begin(), fns.end(), [&](expr const & fn) { return fn != lhs_fn; }))
+                    throw_invalid_equation_lhs(local_pp_name(lhs_fn), lhs_pos);
+                if (!is_local(lhs_fn))
+                    throw parser_error("invalid recursive equation, head symbol in left-hand-side is not a constant", lhs_pos);
+                unsigned num_undef_ids = p.get_num_undef_ids();
+                for (unsigned i = prev_num_undef_ids; i < num_undef_ids; i++) {
+                    locals.push_back(p.get_undef_id(i));
+                }
+            }
+            validate_equation_lhs(p, lhs, locals);
+            lhs = merge_equation_lhs_vars(lhs, locals);
             p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
-            expr rhs = p.parse_expr();
-            eqns.push_back(mk_equation(lhs, rhs));
+            {
+                parser::local_scope scope2(p);
+                for (expr const & local : locals)
+                    p.add_local(local);
+                expr rhs = p.parse_expr();
+                eqns.push_back(Fun(fns, Fun(locals, mk_equation(lhs, rhs), p)));
+            }
             if (!p.curr_is_token(get_comma_tk()))
                 break;
             p.next();
         }
     }
     if (p.curr_is_token(get_wf_tk())) {
+        auto pos = p.pos();
         p.next();
+        expr R   = p.save_pos(mk_expr_placeholder(), pos);
         expr Hwf = p.parse_expr();
-        return mk_equations(eqns.size(), eqns.data(), Hwf);
+        return mk_equations(fns.size(), eqns.size(), eqns.data(), R, Hwf);
     } else {
-        return mk_equations(eqns.size(), eqns.data());
+        return mk_equations(fns.size(), eqns.size(), eqns.data());
     }
 }
 
@@ -409,7 +513,7 @@ class definition_cmd_fn {
             auto pos = m_p.pos();
             m_type = m_p.parse_expr();
             if (is_curr_with_or_comma(m_p)) {
-                m_value = parse_equations(m_p, m_name, m_type, m_aux_decls);
+                m_value = parse_equations(m_p, m_name, m_type, m_aux_decls, optional<local_environment>(), buffer<expr>());
             } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
                 check_end_of_theorem(m_p);
                 m_value = m_p.save_pos(mk_expr_placeholder(), pos);
@@ -427,7 +531,7 @@ class definition_cmd_fn {
                 m_p.next();
                 m_type = m_p.parse_scoped_expr(ps, *lenv);
                 if (is_curr_with_or_comma(m_p)) {
-                    m_value = parse_equations(m_p, m_name, m_type, m_aux_decls);
+                    m_value = parse_equations(m_p, m_name, m_type, m_aux_decls, lenv, ps);
                 } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
                     check_end_of_theorem(m_p);
                     m_value = m_p.save_pos(mk_expr_placeholder(), pos);

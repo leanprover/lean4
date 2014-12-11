@@ -76,6 +76,12 @@ parser::local_scope::local_scope(parser & p, environment const & env):
     m_p.m_env = env;
     m_p.push_local_scope();
 }
+parser::local_scope::local_scope(parser & p, optional<environment> const & env):
+    m_p(p), m_env(p.env()) {
+    if (env)
+        m_p.m_env = *env;
+    m_p.push_local_scope();
+}
 parser::local_scope::~local_scope() {
     m_p.pop_local_scope();
     m_p.m_env = m_env;
@@ -362,8 +368,11 @@ expr parser::propagate_levels(expr const & e, levels const & ls) {
     }
 }
 
-pos_info parser::pos_of(expr const & e, pos_info default_pos) {
-    if (auto it = m_pos_table.find(get_tag(e)))
+pos_info parser::pos_of(expr const & e, pos_info default_pos) const {
+    tag t = e.get_tag();
+    if (t == nulltag)
+        return default_pos;
+    if (auto it = m_pos_table.find(t))
         return *it;
     else
         return default_pos;
@@ -432,7 +441,7 @@ void parser::push_local_scope(bool save_options) {
     optional<options> opts;
     if (save_options)
         opts = m_ios.get_options();
-    m_parser_scope_stack = cons(parser_scope_stack_elem(opts, m_level_variables, m_variables, m_include_vars),
+    m_parser_scope_stack = cons(parser_scope_stack_elem(opts, m_level_variables, m_variables, m_include_vars, m_undef_ids.size()),
                                 m_parser_scope_stack);
 }
 
@@ -451,6 +460,7 @@ void parser::pop_local_scope() {
     m_level_variables    = s.m_level_variables;
     m_variables          = s.m_variables;
     m_include_vars       = s.m_include_vars;
+    m_undef_ids.shrink(s.m_num_undef_ids);
     m_parser_scope_stack = tail(m_parser_scope_stack);
 }
 
@@ -1111,7 +1121,9 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         if (m_undef_id_behavior == undef_id_behavior::AssumeConstant) {
             r = save_pos(mk_constant(get_namespace(m_env) + id, ls), p);
         } else if (m_undef_id_behavior == undef_id_behavior::AssumeLocal) {
-            r = save_pos(mk_local(id, mk_expr_placeholder()), p);
+            expr local = mk_local(id, mk_expr_placeholder());
+            m_undef_ids.push_back(local);
+            r = save_pos(local, p);
         }
     }
     if (!r)

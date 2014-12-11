@@ -53,6 +53,14 @@ class elaborator : public coercion_info_manager {
     // if m_no_info is true, we do not collect information when true,
     // we set is to true whenever we find no_info annotation.
     bool                 m_no_info;
+    // if m_in_equation_lhs is true, we are processing the left-hand-side of an equation
+    // and inaccessible expressions are allowed
+    bool                 m_in_equation_lhs;
+    // if m_equation_lhs is not none, we are processing the right-hand-side of an equation
+    // and decreasing expressions are allowed
+    optional<expr>       m_equation_lhs;
+    // if m_equation_R is not none when elaborator is processing recursive equation using the well-founded relation R.
+    optional<expr>       m_equation_R;
     bool                 m_use_tactic_hints;
     info_manager         m_pre_info_data;
     bool                 m_has_sorry;
@@ -151,6 +159,13 @@ class elaborator : public coercion_info_manager {
     std::tuple<expr, level_param_names> apply(substitution & s, expr const & e);
     pair<expr, constraints> elaborate_nested(list<expr> const & g, expr const & e,
                                              bool relax, bool use_tactic_hints, bool report_unassigned);
+
+    expr const & get_equation_fn(expr const & eq) const;
+    expr visit_equations(expr const & eqns, constraint_seq & cs);
+    expr visit_equation(expr const & e, constraint_seq & cs);
+    expr visit_inaccessible(expr const & e, constraint_seq & cs);
+    expr visit_decreasing(expr const & e, constraint_seq & cs);
+
 public:
     elaborator(elaborator_context & ctx, name_generator const & ngen, bool nice_mvar_names = false);
     std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type,

@@ -12,27 +12,27 @@ namespace sigma
   destruct u (λx y H, H) H
 
   theorem dpair_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) :
-    dpair a₁ b₁ = dpair a₂ b₂ :=
+    ⟨a₁, b₁⟩ = ⟨a₂, b₂⟩ :=
   dcongr_arg2 dpair H₁ H₂
 
   theorem dpair_heq {a : A} {a' : A'} {b : B a} {b' : B' a'}
-      (HB : B == B') (Ha : a == a') (Hb : b == b') : dpair a b == dpair a' b' :=
+      (HB : B == B') (Ha : a == a') (Hb : b == b') : ⟨a, b⟩ == ⟨a', b'⟩ :=
   hcongr_arg4 @dpair (heq.type_eq Ha) HB Ha Hb
 
   protected theorem equal {p₁ p₂ : Σa : A, B a} :
-    ∀(H₁ : dpr1 p₁ = dpr1 p₂) (H₂ : eq.rec_on H₁ (dpr2 p₁) = dpr2 p₂), p₁ = p₂ :=
+    ∀(H₁ : p₁.1 = p₂.1) (H₂ : eq.rec_on H₁ p₁.2 = p₂.2), p₁ = p₂ :=
   destruct p₁ (take a₁ b₁, destruct p₂ (take a₂ b₂ H₁ H₂, dpair_eq H₁ H₂))
 
   protected theorem hequal {p : Σa : A, B a} {p' : Σa' : A', B' a'} (HB : B == B') :
-    ∀(H₁ : dpr1 p == dpr1 p') (H₂ : dpr2 p == dpr2 p'), p == p' :=
+    ∀(H₁ : p.1 == p'.1) (H₂ : p.2 == p'.2), p == p' :=
   destruct p (take a₁ b₁, destruct p' (take a₂ b₂ H₁ H₂, dpair_heq HB H₁ H₂))
 
   protected definition is_inhabited [instance] (H₁ : inhabited A) (H₂ : inhabited (B (default A))) :
     inhabited (sigma B) :=
-  inhabited.destruct H₁ (λa, inhabited.destruct H₂ (λb, inhabited.mk (dpair (default A) b)))
+  inhabited.destruct H₁ (λa, inhabited.destruct H₂ (λb, inhabited.mk ⟨default A, b⟩))
 
   theorem eq_rec_dpair_commute {C : Πa, B a → Type} {a a' : A} (H : a = a') (b : B a) (c : C a b) :
-      eq.rec_on H (dpair b c) = dpair (eq.rec_on H b) (eq.rec_on (dcongr_arg2 C H rfl) c) :=
+      eq.rec_on H ⟨b, c⟩ = ⟨eq.rec_on H b, eq.rec_on (dcongr_arg2 C H rfl) c⟩ :=
   eq.drec_on H (dpair_eq rfl (!eq.rec_on_id⁻¹))
 
   variables {C : Πa, B a → Type} {D : Πa b, C a b → Type}

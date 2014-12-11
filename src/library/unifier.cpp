@@ -1975,6 +1975,8 @@ struct unifier_fn {
         // We ignore almost all flex-flex constraints.
         // We just handle flex_flex "first-order" case
         //   ?M_1 l_1 ... l_k =?= ?M_2 l_1 ... l_k
+        //   ?M_1 l_1 ... l_k =?= ?M_2 l_1 ... l_k ... l_n
+        //   ?M_1 l_1 ... l_k ... l_n =?= ?M_2 l_1 ... l_k
         if (!is_simple_meta(lhs) || !is_simple_meta(rhs)) {
             discard(c);
             return true;
@@ -1982,18 +1984,25 @@ struct unifier_fn {
         buffer<expr> lhs_args, rhs_args;
         expr ml = get_app_args(lhs, lhs_args);
         expr mr = get_app_args(rhs, rhs_args);
-        if (ml == mr || lhs_args.size() != rhs_args.size()) {
+        if (ml == mr) {
             discard(c);
             return true;
         }
+        unsigned min_sz = std::min(lhs_args.size(), rhs_args.size());
         lean_assert(!m_subst.is_assigned(ml));
         lean_assert(!m_subst.is_assigned(mr));
         unsigned i = 0;
-        for (; i < lhs_args.size(); i++)
+        for (; i < min_sz; i++)
             if (mlocal_name(lhs_args[i]) != mlocal_name(rhs_args[i]))
                 break;
-        if (i == lhs_args.size()) {
-            return assign(ml, mr, c.get_justification(), relax_main_opaque(c), lhs, rhs);
+        if (i == min_sz) {
+            if (lhs_args.size() == rhs_args.size()) {
+                return assign(ml, mr, c.get_justification(), relax_main_opaque(c), lhs, rhs);
+            } else if (lhs_args.size() < rhs_args.size()) {
+                return assign(mr, Fun(rhs_args, lhs), c.get_justification(), relax_main_opaque(c), rhs, lhs);
+            } else {
+                return assign(ml, Fun(lhs_args, rhs), c.get_justification(), relax_main_opaque(c), lhs, rhs);
+            }
         } else {
             discard(c);
             return true;

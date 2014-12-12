@@ -271,7 +271,8 @@ void pretty_fn::set_options_core(options const & o) {
     m_purify_metavars = get_pp_purify_metavars(o);
     m_purify_locals   = get_pp_purify_locals(o);
     m_beta            = get_pp_beta(o);
-    m_num_nat_coe     = !m_coercion && has_coercion_num_nat(m_env);
+    m_numerals        = get_pp_numerals(o);
+    m_num_nat_coe     = m_numerals && !m_coercion && has_coercion_num_nat(m_env);
 }
 
 void pretty_fn::set_options(options const & o) {
@@ -1041,7 +1042,8 @@ auto pretty_fn::pp(expr const & e) -> result {
     if (is_let(e))          return pp_let(e);
     if (is_typed_expr(e))   return pp(get_typed_expr_expr(e));
     if (is_let_value(e))    return pp(get_let_value_expr(e));
-    if (auto n = to_num(e)) return pp_num(*n);
+    if (m_numerals)
+        if (auto n = to_num(e)) return pp_num(*n);
     if (m_num_nat_coe)
         if (auto k = to_unsigned(e))
             return format(*k);

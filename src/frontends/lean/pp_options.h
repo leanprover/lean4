@@ -27,6 +27,7 @@ bool     get_pp_metavar_args(options const & opts);
 bool     get_pp_beta(options const & opts);
 bool     get_pp_purify_metavars(options const & opts);
 bool     get_pp_purify_locals(options const & opts);
+bool     get_pp_numerals(options const & opts);
 list<options> const & get_distinguishing_pp_options();
 
 void initialize_pp_options();

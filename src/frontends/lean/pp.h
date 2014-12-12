@@ -65,6 +65,7 @@ private:
     bool                m_purify_metavars;
     bool                m_purify_locals;
     bool                m_beta;
+    bool                m_numerals;
 
     name mk_metavar_name(name const & m);
     name mk_local_name(name const & n, name const & suggested);

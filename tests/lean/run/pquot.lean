@@ -55,7 +55,7 @@ definition pquot.lift {A : Type} {R : A → A → Prop} {B : Type}
                       (sound : ∀ (a b : A), R a b → f a = f b)
                       (q : pquot R)
                       : B :=
-pquot.rec_on q f (λ (a b : A) (H : R a b), heq.from_eq (sound a b H))
+pquot.rec_on q f (λ (a b : A) (H : R a b), heq.of_eq (sound a b H))
 
 theorem pquot.induction_on {A : Type} {R : A → A → Prop} {P : pquot R → Prop}
                            (q : pquot R)

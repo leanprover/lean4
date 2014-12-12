@@ -8,7 +8,7 @@ Author: Jeremy Avigad
 Class instances for iff and eq.
 -/
 
-import algebra.relation
+import logic.connectives algebra.relation
 
 namespace relation
 

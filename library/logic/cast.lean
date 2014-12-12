@@ -27,6 +27,12 @@ namespace heq
   universe variable u
   variables {A B C : Type.{u}} {a a' : A} {b b' : B} {c : C}
 
+  definition type_eq (H : a == b) : A = B :=
+  heq.rec_on H (eq.refl A)
+
+  theorem drec_on {C : Π {B : Type} (b : B), a == b → Type} (H₁ : a == b) (H₂ : C a (refl a)) : C b H₁ :=
+  rec (λ H₁ : a == a, show C a H₁, from H₂) H₁ H₁
+
   theorem to_cast_eq (H : a == b) : cast (type_eq H) a = b :=
   drec_on H !cast_eq
 end heq
@@ -106,7 +112,7 @@ section
 
   theorem cast_app (H : P = P') (f : Π x, P x) (a : A) : cast (pi_eq H) f a == f a :=
   have H₁ : ∀ (H : (Π x, P x) = (Π x, P x)), cast H f a == f a, from
-    assume H, heq.from_eq (congr_fun (cast_eq H f) a),
+    assume H, heq.of_eq (congr_fun (cast_eq H f) a),
   have H₂ : ∀ (H : (Π x, P x) = (Π x, P' x)), cast H f a == f a, from
     H ▸ H₁,
   H₂ (pi_eq H)

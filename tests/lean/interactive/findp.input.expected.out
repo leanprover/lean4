@@ -3,7 +3,6 @@
 -- BEGINFINDP STALE
 false|Prop
 false.rec|Π (C : Type), false → C
-false_elim|false → ?c
 false.of_ne|?a ≠ ?a → false
 false.rec_on|Π (C : Type), false → C
 false.cases_on|Π (C : Type), false → C

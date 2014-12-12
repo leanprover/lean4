@@ -6,7 +6,7 @@ Module: logic.axims.classical
 Author: Leonardo de Moura
 -/
 
-import logic.quantifiers logic.cast algebra.relation
+import logic.connectives logic.quantifiers logic.cast algebra.relation
 
 open eq.ops
 

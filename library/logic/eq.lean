@@ -15,6 +15,16 @@ open eq.ops
 
 namespace eq
   variables {A B : Type} {a a' a₁ a₂ a₃ a₄ : A}
+
+  theorem irrel (H₁ H₂ : a = a') : H₁ = H₂ :=
+  !proof_irrel
+
+  theorem id_refl (H₁ : a = a) : H₁ = (eq.refl a) :=
+  rfl
+
+  definition drec_on {B : Πa' : A, a = a' → Type} (H₁ : a = a') (H₂ : B a (refl a)) : B a' H₁ :=
+  eq.rec (λH₁ : a = a, show B a H₁, from H₂) H₁ H₁
+
   theorem rec_on_id {B : A → Type} (H : a = a) (b : B a) : rec_on H b = b :=
   rfl
 

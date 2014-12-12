@@ -54,7 +54,7 @@ namespace sigma
   theorem ndtrip_eq {A B : Type} {C : A → B → Type} {a₁ a₂ : A} {b₁ b₂ : B}
       {c₁ : C a₁ b₁} {c₂ : C a₂ b₂} (H₁ : a₁ = a₂) (H₂ : b₁ = b₂)
       (H₃ : cast (congr_arg2 C H₁ H₂) c₁ = c₂) : ⟨a₁, b₁, c₁⟩ = ⟨a₂, b₂, c₂⟩ :=
-  hdcongr_arg3 dtrip H₁ (heq.from_eq H₂) H₃
+  hdcongr_arg3 dtrip H₁ (heq.of_eq H₂) H₃
 
   theorem ndtrip_equal {A B : Type} {C : A → B → Type} {p₁ p₂ : Σa b, C a b} :
       ∀(H₁ : dpr1 p₁ = dpr1 p₂) (H₂ : dpr2' p₁ = dpr2' p₂)

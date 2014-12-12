@@ -4,7 +4,7 @@
 
 -- Basic operations on the natural numbers.
 
-import data.num algebra.binary
+import logic.connectives data.num algebra.binary
 
 open eq.ops binary
 

@@ -2,5 +2,5 @@
 --- Released under Apache 2.0 license as described in the file LICENSE.
 --- Author: Jeremy Avigad
 
-import logic.eq logic.cast logic.subsingleton
+import logic.eq logic.connectives logic.cast logic.subsingleton
 import logic.quantifiers logic.instances logic.identities

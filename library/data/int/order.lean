@@ -221,19 +221,18 @@ exists_intro n H2
 -- -- ### basic facts
 
 theorem lt_irrefl (a : ℤ) : ¬ a < a :=
-not_intro
-  (assume H : a < a,
-    obtain (n : ℕ) (Hn : a + succ n = a), from lt_elim H,
-    have H2 : a + succ n = a + 0, from
-      calc
-        a + succ n = a : Hn
-          ... = a + 0 : by simp,
-    have H3 : succ n = 0, from add_cancel_left H2,
-    have H4 : succ n = 0, from of_nat_inj H3,
-    absurd H4 !succ_ne_zero)
+(assume H : a < a,
+  obtain (n : ℕ) (Hn : a + succ n = a), from lt_elim H,
+  have H2 : a + succ n = a + 0, from
+    calc
+      a + succ n = a : Hn
+        ... = a + 0 : by simp,
+  have H3 : succ n = 0, from add_cancel_left H2,
+  have H4 : succ n = 0, from of_nat_inj H3,
+  absurd H4 !succ_ne_zero)
 
 theorem lt_imp_ne {a b : ℤ} (H : a < b) : a ≠ b :=
-not_intro (assume H2 : a = b, absurd (H2 ▸ H) (lt_irrefl b))
+(assume H2 : a = b, absurd (H2 ▸ H) (lt_irrefl b))
 
 theorem lt_of_nat (n m : ℕ) : (of_nat n < of_nat m) ↔ (n < m) :=
 calc
@@ -284,10 +283,10 @@ theorem lt_trans {a b c : ℤ} (H1 : a < b) (H2 : b < c) : a < c :=
 lt_le_trans H1 (lt_imp_le H2)
 
 theorem le_imp_not_gt {a b : ℤ} (H : a ≤ b) : ¬ a > b :=
-not_intro (assume H2 : a > b, absurd (le_lt_trans H H2) (lt_irrefl a))
+(assume H2 : a > b, absurd (le_lt_trans H H2) (lt_irrefl a))
 
 theorem lt_imp_not_ge {a b : ℤ} (H : a < b) : ¬ a ≥ b :=
-not_intro (assume H2 : a ≥ b, absurd (lt_le_trans H H2) (lt_irrefl a))
+(assume H2 : a ≥ b, absurd (lt_le_trans H H2) (lt_irrefl a))
 
 theorem lt_antisym {a b : ℤ} (H : a < b) : ¬ b < a :=
 le_imp_not_gt (lt_imp_le H)

@@ -79,6 +79,6 @@ namespace fin
   have aux₂ : to_nat (lift (of_nat_core p) (n - succ p)) = p, from calc
     to_nat (lift (of_nat_core p) (n - succ p)) = to_nat (of_nat_core p) : to_nat.lift
                                          ...   = p                      : to_nat.of_nat_core,
-  heq.to_eq (heq.trans aux₁ (heq.from_eq aux₂))
+  heq.to_eq (heq.trans aux₁ (heq.of_eq aux₂))
 
 end fin

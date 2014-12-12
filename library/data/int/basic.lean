@@ -885,17 +885,15 @@ theorem mul_cancel_right {a b c : ℤ} (H1 : c ≠ 0) (H2 : a * c = b * c) : a =
 or.resolve_right (mul_cancel_right_or H2) H1
 
 theorem mul_ne_zero {a b : ℤ} (Ha : a ≠ 0) (Hb : b ≠ 0) : a * b ≠ 0 :=
-not_intro
-  (assume H : a * b = 0,
-    or.elim (mul_eq_zero H)
-      (assume H2 : a = 0, absurd H2 Ha)
-      (assume H2 : b = 0, absurd H2 Hb))
+(assume H : a * b = 0,
+  or.elim (mul_eq_zero H)
+    (assume H2 : a = 0, absurd H2 Ha)
+    (assume H2 : b = 0, absurd H2 Hb))
 
 theorem mul_ne_zero_left {a b : ℤ} (H : a * b ≠ 0) : a ≠ 0 :=
-not_intro
-  (assume H2 : a = 0,
-    have H3 : a * b = 0, by simp,
-    absurd H3 H)
+(assume H2 : a = 0,
+  have H3 : a * b = 0, by simp,
+  absurd H3 H)
 
 theorem mul_ne_zero_right {a b : ℤ} (H : a * b ≠ 0) : b ≠ 0 :=
 mul_ne_zero_left (mul_comm a b ▸ H)

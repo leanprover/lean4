@@ -54,10 +54,9 @@ obtain (k : ℕ) (Hk : n + k = 0), from le_elim H,
 add.eq_zero_left Hk
 
 theorem not_succ_zero_le (n : ℕ) : ¬ succ n ≤ 0 :=
-not_intro
-  (assume H : succ n ≤ 0,
-    have H2 : succ n = 0, from le_zero H,
-    absurd H2 !succ_ne_zero)
+(assume H : succ n ≤ 0,
+  have H2 : succ n = 0, from le_zero H,
+  absurd H2 !succ_ne_zero)
 
 theorem le_trans {n m k : ℕ} (H1 : n ≤ m) (H2 : m ≤ k) : n ≤ k :=
 le.trans H1 H2
@@ -249,7 +248,7 @@ theorem lt_imp_ne {n m : ℕ} (H : n < m) : n ≠ m :=
 λ heq : n = m, absurd H (heq ▸ !lt.irrefl)
 
 theorem lt_irrefl (n : ℕ) : ¬ n < n :=
-not_intro (assume H : n < n, absurd rfl (lt_imp_ne H))
+(assume H : n < n, absurd rfl (lt_imp_ne H))
 
 theorem lt_def (n m : ℕ) : n < m ↔ succ n ≤ m :=
 iff.intro
@@ -287,7 +286,7 @@ le.rec_on H
   (λ m (h : n < m), lt.asymm h)
 
 theorem lt_imp_not_ge {n m : ℕ} (H : n < m) : ¬ n ≥ m :=
-not_intro (assume H2 : m ≤ n, absurd (lt.of_lt_of_le H H2) !lt_irrefl)
+(assume H2 : m ≤ n, absurd (lt.of_lt_of_le H H2) !lt_irrefl)
 
 theorem lt_antisym {n m : ℕ} (H : n < m) : ¬ m < n :=
 lt.asymm H

@@ -185,6 +185,7 @@ public:
     expr ensure_pi(expr const & e, constraint_seq & cs) { auto r = ensure_pi(e); cs += r.second; return r.first; }
     expr ensure_pi(expr const & e, expr const & s, constraint_seq & cs) { auto r = ensure_pi(e, s); cs += r.second; return r.first; }
     expr ensure_sort(expr const & t, expr const & s, constraint_seq & cs) { auto r = ensure_sort(t, s); cs += r.second; return r.first; }
+    expr ensure_type(expr const & e, constraint_seq & cs) { auto r = ensure_type(e); cs += r.second; return r.first; }
 
     bool is_def_eq(expr const & t, expr const & s, justification const & j, constraint_seq & cs) {
         auto r = is_def_eq(t, s, j);

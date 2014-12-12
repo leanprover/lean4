@@ -605,3 +605,21 @@ decidable.rec
 -- Remark: dite and ite are "definitionally equal" when we ignore the proofs.
 theorem dite_ite_eq (c : Prop) [H : decidable c] {A : Type} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=
 rfl
+
+definition is_true (c : Prop) [H : decidable c] : Prop :=
+if c then true else false
+
+definition is_false (c : Prop) [H : decidable c] : Prop :=
+if c then false else true
+
+theorem of_is_true {c : Prop} [H₁ : decidable c] (H₂ : is_true c) : c :=
+decidable.rec_on H₁ (λ Hc, Hc) (λ Hnc, false_elim (if_neg Hnc ▸ H₂))
+
+theorem not_of_not_is_true {c : Prop} [H₁ : decidable c] (H₂ : ¬ is_true c) : ¬ c :=
+decidable.rec_on H₁ (λ Hc, absurd true.intro (if_pos Hc ▸ H₂)) (λ Hnc, Hnc)
+
+theorem not_of_is_false {c : Prop} [H₁ : decidable c] (H₂ : is_false c) : ¬ c :=
+decidable.rec_on H₁ (λ Hc, false_elim (if_pos Hc ▸ H₂)) (λ Hnc, Hnc)
+
+theorem of_not_is_false {c : Prop} [H₁ : decidable c] (H₂ : ¬ is_false c) : c :=
+decidable.rec_on H₁ (λ Hc, Hc) (λ Hnc, absurd true.intro (if_neg Hnc ▸ H₂))

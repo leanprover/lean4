@@ -2,13 +2,13 @@
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
+Module: init.logic
 Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
 import init.datatypes init.reserved_notation
 
--- implication
--- -----------
+/- implication -/
 
 definition trivial := true.intro
 
@@ -18,14 +18,12 @@ prefix `¬` := not
 definition absurd {a : Prop} {b : Type} (H1 : a) (H2 : ¬a) : b :=
 false.rec b (H2 H1)
 
--- not
--- ---
+/- not -/
 
 theorem not_false : ¬false :=
 assume H : false, H
 
--- eq
--- --
+/- eq -/
 
 notation a = b := eq a b
 definition rfl {A : Type} {a : A} := eq.refl a
@@ -71,8 +69,7 @@ calc_refl  eq.refl
 calc_trans eq.trans
 calc_symm  eq.symm
 
--- ne
--- --
+/- ne -/
 
 definition ne {A : Type} (a b : A) := ¬(a = b)
 notation a ≠ b := ne a b
@@ -153,8 +150,7 @@ calc_trans heq.of_heq_of_eq
 calc_trans heq.of_eq_of_heq
 calc_symm  heq.symm
 
--- and
--- ---
+/- and -/
 
 notation a /\ b := and a b
 notation a ∧ b  := and a b
@@ -164,8 +160,8 @@ variables {a b c d : Prop}
 theorem and.elim (H₁ : a ∧ b) (H₂ : a → b → c) : c :=
 and.rec H₂ H₁
 
--- or
--- --
+/- or -/
+
 notation a `\/` b := or a b
 notation a ∨ b := or a b
 
@@ -180,8 +176,8 @@ namespace or
   rec H₂ H₃ H₁
 end or
 
--- iff
--- ---
+/- iff -/
+
 definition iff (a b : Prop) := (a → b) ∧ (b → a)
 
 notation a <-> b := iff a b
@@ -201,6 +197,8 @@ namespace iff
 
   definition elim_right (H : a ↔ b) : b → a :=
   elim (assume H₁ H₂, H₂) H
+
+  definition mp' := @elim_right
 
   definition flip_sign (H₁ : a ↔ b) : ¬a ↔ ¬b :=
   intro

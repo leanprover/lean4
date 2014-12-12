@@ -43,10 +43,13 @@ structure zero_ne_one_class [class] (A : Type) extends has_zero A, has_one A :=
 theorem zero_ne_one [s: zero_ne_one_class A] : 0 ≠ 1 := @zero_ne_one_class.zero_ne_one A s
 
 /- semiring -/
+
 structure semiring [class] (A : Type) extends add_comm_monoid A, monoid A, distrib A, mul_zero A,
     zero_ne_one_class A
 
 structure comm_semiring [class] (A : Type) extends semiring A, comm_semigroup A
+
+-- TODO: we could also define a cancelative comm_semiring, i.e. satisfying c ≠ 0 → c * a = c * b → a = b.
 
 /- abstract divisibility -/
 
@@ -147,7 +150,7 @@ semiring.mk ring.add ring.add_assoc !ring.zero ring.add_left_id
   ring.add_comm ring.mul ring.mul_assoc !ring.one ring.mul_left_id ring.mul_right_id
   ring.left_distrib ring.right_distrib
   (take a,
-    have H : 0 * a  + 0 = 0 * a + 0 * a, from
+    have H : 0 * a + 0 = 0 * a + 0 * a, from
       calc
         0 * a + 0 = 0 * a : add.right_id
           ... = (0 + 0) * a : {(add.right_id 0)⁻¹}
@@ -159,7 +162,7 @@ semiring.mk ring.add ring.add_assoc !ring.zero ring.add_left_id
         a * 0 + 0 = a * 0 : add.right_id
           ... = a * (0 + 0) : {(add.right_id 0)⁻¹}
           ... = a * 0 + a * 0 : ring.left_distrib,
-    show a * 0 = 0, from  (add.left_cancel H)⁻¹)
+    show a * 0 = 0, from (add.left_cancel H)⁻¹)
   !ring.zero_ne_one
 
 section

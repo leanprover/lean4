@@ -123,8 +123,9 @@ expr to_telescope(name_generator & ngen, expr type, buffer<expr> & telescope, op
     return type;
 }
 
-expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
-    type = tc.whnf(type).first;
+expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo,
+                  constraint_seq & cs) {
+    type = tc.whnf(type, cs);
     while (is_pi(type)) {
         expr local;
         if (binfo)
@@ -132,9 +133,14 @@ expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, option
         else
             local = mk_local(tc.mk_fresh_name(), binding_name(type), binding_domain(type), binding_info(type));
         telescope.push_back(local);
-        type = tc.whnf(instantiate(binding_body(type), local)).first;
+        type = tc.whnf(instantiate(binding_body(type), local), cs);
     }
     return type;
+}
+
+expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
+    constraint_seq cs;
+    return to_telescope(tc, type, telescope, binfo, cs);
 }
 
 static expr * g_true = nullptr;
@@ -155,6 +161,9 @@ static name * g_eq_name = nullptr;
 static name * g_eq_refl_name = nullptr;
 static name * g_eq_rec_name = nullptr;
 
+static name * g_sigma_name = nullptr;
+static name * g_sigma_mk_name = nullptr;
+
 void initialize_library_util() {
     g_true           = new expr(mk_constant("true"));
     g_true_intro     = new expr(mk_constant(name({"true", "intro"})));
@@ -173,6 +182,9 @@ void initialize_library_util() {
     g_eq_name        = new name("eq");
     g_eq_refl_name   = new name{"eq", "refl"};
     g_eq_rec_name    = new name{"eq", "rec"};
+
+    g_sigma_name     = new name("sigma");
+    g_sigma_mk_name  = new name{"sigma", "dpair"};
 }
 
 void finalize_library_util() {
@@ -191,6 +203,8 @@ void finalize_library_util() {
     delete g_eq_name;
     delete g_eq_refl_name;
     delete g_eq_rec_name;
+    delete g_sigma_name;
+    delete g_sigma_mk_name;
 }
 
 expr mk_true() {
@@ -334,4 +348,43 @@ level mk_max(levels const & ls) {
     else
         return mk_max(head(ls), mk_max(tail(ls)));
 }
+
+expr telescope_to_sigma(type_checker & tc, unsigned sz, expr const * ts, constraint_seq & cs) {
+    lean_assert(sz > 0);
+    unsigned i = sz - 1;
+    expr r = mlocal_type(ts[i]);
+    while (i > 0) {
+        --i;
+        expr const & a  = ts[i];
+        expr const & A  = mlocal_type(a);
+        expr const & Ba = r;
+        level l1        = sort_level(tc.ensure_type(A, cs));
+        level l2        = sort_level(tc.ensure_type(Ba, cs));
+        r = mk_app(mk_constant(*g_sigma_name, {l1, l2}), A, Fun(a, Ba));
+    }
+    return r;
+}
+
+expr mk_sigma_mk(type_checker & tc, unsigned sz, expr const * ts, expr const * as, constraint_seq & cs) {
+    lean_assert(sz > 0);
+    if (sz == 1)
+        return as[0];
+    buffer<expr> new_ts;
+    for (unsigned i = 1; i < sz; i++)
+        new_ts.push_back(instantiate(abstract_local(ts[i], ts[0]), as[0]));
+    expr arg1      = mlocal_type(ts[0]);
+    expr arg2_core = telescope_to_sigma(tc, sz-1, ts+1, cs);
+    expr arg2      = Fun(ts[0], arg2_core);
+    expr arg3      = as[0];
+    expr arg4      = mk_sigma_mk(tc, sz-1, new_ts.data(), as+1, cs);
+    level l1       = sort_level(tc.ensure_type(arg1, cs));
+    level l2       = sort_level(tc.ensure_type(arg2_core, cs));
+    return mk_app(mk_constant(*g_sigma_mk_name, {l1, l2}), arg1, arg2, arg3, arg4);
+}
+
+expr mk_sigma_mk(type_checker & tc, buffer<expr> const & ts, buffer<expr> const & as, constraint_seq & cs) {
+    lean_assert(ts.size() == as.size());
+    return mk_sigma_mk(tc, ts.size(), ts.data(), as.data(), cs);
+}
+
 }

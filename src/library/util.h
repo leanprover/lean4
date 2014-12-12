@@ -43,10 +43,16 @@ bool is_inductive_predicate(environment const & env, name const & n);
 */
 expr to_telescope(name_generator & ngen, expr type, buffer<expr> & telescope,
                   optional<binder_info> const & binfo = optional<binder_info>());
-/** \brief Similar to previous method, but puts \c type in whnf */
+/** \brief Similar to previous procedure, but puts \c type in whnf */
 expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope,
                   optional<binder_info> const & binfo = optional<binder_info>());
+/** \brief Similar to previous procedure, but also accumulates constraints generated while
+    normalizing type.
 
+    \remark Constraints are generated only if \c type constains metavariables.
+*/
+expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo,
+                  constraint_seq & cs);
 /** \brief Return the universe where inductive datatype resides
     \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt>
 */
@@ -85,6 +91,8 @@ void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> co
 void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> & eqs);
 
 level mk_max(levels const & ls);
+
+expr mk_sigma_mk(type_checker & tc, buffer<expr> const & ts, buffer<expr> const & as, constraint_seq & cs);
 
 void initialize_library_util();
 void finalize_library_util();

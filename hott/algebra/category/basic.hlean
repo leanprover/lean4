@@ -3,9 +3,8 @@
 -- Author: Jakob von Raumer
 
 import ..precategory.basic ..precategory.morphism ..precategory.iso
-import hott.equiv hott.trunc
 
-open precategory morphism is_equiv path truncation nat sigma sigma.ops
+open precategory morphism is_equiv eq truncation nat sigma sigma.ops
 
 -- A category is a precategory extended by a witness,
 -- that the function assigning to each isomorphism a path,
@@ -21,7 +20,7 @@ namespace category
   -- TODO: Unsafe class instance?
   instance [persistent] iso_of_path_equiv
 
-  definition path_of_iso {a b : ob} : a ≅ b → a ≈ b :=
+  definition path_of_iso {a b : ob} : a ≅ b → a = b :=
   iso_of_path⁻¹
 
   definition ob_1_type : is_trunc nat.zero .+1 ob :=

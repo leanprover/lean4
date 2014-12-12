@@ -3,14 +3,13 @@
 -- Authors: Floris van Doorn, Jakob von Raumer
 
 import .basic
-import hott.path
-open function
-open precategory path heq
+
+open function precategory eq
 
 inductive functor (C D : Precategory) : Type :=
 mk : Π (obF : C → D) (homF : Π(a b : C), hom a b → hom (obF a) (obF b)),
-    (Π (a : C), homF a a (ID a) ≈ ID (obF a)) →
-    (Π (a b c : C) {g : hom b c} {f : hom a b}, homF a c (g ∘ f) ≈ homF b c g ∘ homF a b f) →
+    (Π (a : C), homF a a (ID a) = ID (obF a)) →
+    (Π (a b c : C) {g : hom b c} {f : hom a b}, homF a c (g ∘ f) = homF b c g ∘ homF a b f) →
      functor C D
 
 infixl `⇒`:25 := functor
@@ -24,11 +23,11 @@ namespace functor
   definition morphism [coercion] (F : functor C D) : Π⦃a b : C⦄, hom a b → hom (F a) (F b) :=
   rec (λ obF homF Hid Hcomp, homF) F
 
-  theorem respect_id (F : functor C D) : Π (a : C), F (ID a) ≈ id :=
+  theorem respect_id (F : functor C D) : Π (a : C), F (ID a) = id :=
   rec (λ obF homF Hid Hcomp, Hid) F
 
   theorem respect_comp (F : functor C D) : Π ⦃a b c : C⦄ (g : hom b c) (f : hom a b),
-      F (g ∘ f) ≈ F g ∘ F f :=
+      F (g ∘ f) = F g ∘ F f :=
   rec (λ obF homF Hid Hcomp, Hcomp) F
 
   protected definition compose (G : functor D E) (F : functor C D) : functor C E :=
@@ -36,17 +35,17 @@ namespace functor
     (λx, G (F x))
     (λ a b f, G (F f))
     (λ a, calc
-      G (F (ID a)) ≈ G id : {respect_id F a} --not giving the braces explicitly makes the elaborator compute a couple more seconds
-               ... ≈ id   : respect_id G (F a))
+      G (F (ID a)) = G id : {respect_id F a} --not giving the braces explicitly makes the elaborator compute a couple more seconds
+               ... = id   : respect_id G (F a))
     (λ a b c g f, calc
-      G (F (g ∘ f)) ≈ G (F g ∘ F f)     : respect_comp F g f
-                ... ≈ G (F g) ∘ G (F f) : respect_comp G (F g) (F f))
+      G (F (g ∘ f)) = G (F g ∘ F f)     : respect_comp F g f
+                ... = G (F g) ∘ G (F f) : respect_comp G (F g) (F f))
 
   infixr `∘f`:60 := compose
 
   /-
   protected theorem assoc {A B C D : Precategory} (H : functor C D) (G : functor B C) (F : functor A B) :
-      H ∘f (G ∘f F) ≈ (H ∘f G) ∘f F :=
+      H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
    sorry
   -/
 
@@ -54,9 +53,9 @@ namespace functor
   mk (λa, a) (λ a b f, f) (λ a, idp) (λ a b c f g, idp)
   protected definition ID (C : Precategory) : functor C C := id
 
-  protected theorem id_left  (F : functor C D) : id ∘f F ≈ F :=
+  protected theorem id_left  (F : functor C D) : id ∘f F = F :=
   functor.rec (λ obF homF idF compF, dcongr_arg4 mk idp idp !proof_irrel !proof_irrel) F
-  protected theorem id_right (F : functor C D) : F ∘f id ≈ F :=
+  protected theorem id_right (F : functor C D) : F ∘f id = F :=
   functor.rec (λ obF homF idF compF, dcongr_arg4 mk idp idp !proof_irrel !proof_irrel) F-/
 
 end functor

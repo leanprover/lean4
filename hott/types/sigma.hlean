@@ -6,8 +6,8 @@ Ported from Coq HoTT
 
 Theorems about sigma-types (dependent sums)
 -/
+import types.prod
 
-import init.trunc init.axioms.funext init.types.prod
 open eq sigma sigma.ops equiv is_equiv
 
 namespace sigma
@@ -400,7 +400,7 @@ namespace sigma
     : is_equiv (@sigma.rec _ _ C) :=
   adjointify _ (λ g a b, g ⟨a, b⟩)
                (λ g, proof path_pi (λu, destruct u (λa b, idp)) qed)
-               (λ f, idpath f)
+               (λ f, refl f)
 
   definition equiv_sigma_rec [FUN : funext] (C : (Σa, B a) → Type)
     : (Π(a : A) (b: B a), C ⟨a, b⟩) ≃ (Πxy, C xy) :=

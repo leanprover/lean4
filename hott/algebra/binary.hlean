@@ -10,7 +10,7 @@ General properties of binary operations.
 
 open eq
 
-namespace path_binary
+namespace binary
   section
     variable {A : Type}
     variables (op₁ : A → A → A) (inv : A → A) (one : A)
@@ -71,4 +71,4 @@ namespace path_binary
               ... = a*((b*c)*d) : H_assoc
   end
 
-end path_binary
+end binary

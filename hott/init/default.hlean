@@ -9,3 +9,4 @@ import init.datatypes init.reserved_notation init.tactic init.logic
 import init.bool init.num init.priority init.relation init.wf
 import init.types.sigma init.types.prod
 import init.trunc init.path init.equiv
+import init.axioms.funext

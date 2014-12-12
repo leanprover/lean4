@@ -2,9 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn
 
-import hott.axioms.funext hott.trunc hott.equiv
-
-open path truncation
+open eq truncation
 
 structure precategory [class] (ob : Type) : Type :=
   (hom : ob → ob → Type)
@@ -12,9 +10,9 @@ structure precategory [class] (ob : Type) : Type :=
   (comp : Π⦃a b c : ob⦄, hom b c → hom a b → hom a c)
   (ID : Π (a : ob), hom a a)
   (assoc : Π ⦃a b c d : ob⦄ (h : hom c d) (g : hom b c) (f : hom a b),
-     comp h (comp g f) ≈ comp (comp h g) f)
-  (id_left : Π ⦃a b : ob⦄ (f : hom a b), comp !ID f ≈ f)
-  (id_right : Π ⦃a b : ob⦄ (f : hom a b), comp f !ID ≈ f)
+     comp h (comp g f) = comp (comp h g) f)
+  (id_left : Π ⦃a b : ob⦄ (f : hom a b), comp !ID f = f)
+  (id_right : Π ⦃a b : ob⦄ (f : hom a b), comp f !ID = f)
 
 namespace precategory
   variables {ob : Type} [C : precategory ob]
@@ -33,15 +31,15 @@ namespace precategory
 
 
   --the following is the only theorem for which "include C" is necessary if C is a variable (why?)
-  theorem id_compose (a : ob) : (ID a) ∘ id ≈ id := !id_left
+  theorem id_compose (a : ob) : (ID a) ∘ id = id := !id_left
 
-  theorem left_id_unique (H : Π{b} {f : hom b a}, i ∘ f ≈ f) : i ≈ id :=
-  calc i ≈ i ∘ id : id_right
-     ... ≈ id     : H
+  theorem left_id_unique (H : Π{b} {f : hom b a}, i ∘ f = f) : i = id :=
+  calc i = i ∘ id : id_right
+     ... = id     : H
 
-  theorem right_id_unique (H : Π{b} {f : hom a b}, f ∘ i ≈ f) : i ≈ id :=
-  calc i ≈ id ∘ i : id_left
-     ... ≈ id     : H
+  theorem right_id_unique (H : Π{b} {f : hom a b}, f ∘ i = f) : i = id :=
+  calc i = id ∘ i : id_left
+     ... = id     : H
 end precategory
 
 inductive Precategory : Type := mk : Π (ob : Type), precategory ob → Precategory
@@ -60,5 +58,5 @@ end precategory
 
 open precategory
 
-theorem Precategory.equal (C : Precategory) : Precategory.mk C C ≈ C :=
+theorem Precategory.equal (C : Precategory) : Precategory.mk C C = C :=
   Precategory.rec (λ ob c, idp) C

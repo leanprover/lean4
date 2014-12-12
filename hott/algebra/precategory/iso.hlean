@@ -2,9 +2,9 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Floris van Doorn, Jakob von Raumer
 
-import .basic .morphism hott.types.prod
+import .basic .morphism types.sigma
 
-open path precategory sigma sigma.ops equiv is_equiv function truncation
+open eq precategory sigma sigma.ops equiv is_equiv function truncation
 open prod
 
 namespace morphism
@@ -12,8 +12,8 @@ namespace morphism
   variables {a b c : ob} {g : b ⟶ c} {f : a ⟶ b} {h : b ⟶ a}
 
   -- "is_iso f" is equivalent to a certain sigma type
-  definition sigma_char (f : hom a b) :
-    (Σ (g : hom b a), (g ∘ f ≈ id) × (f ∘ g ≈ id)) ≃ is_iso f :=
+  protected definition sigma_char (f : hom a b) :
+    (Σ (g : hom b a), (g ∘ f = id) × (f ∘ g = id)) ≃ is_iso f :=
   begin
     fapply (equiv.mk),
       intro S, apply is_iso.mk,
@@ -62,7 +62,7 @@ namespace morphism
   end
 
   -- In a precategory, equal objects are isomorphic
-  definition iso_of_path (p : a ≈ b) : isomorphic a b :=
-  path.rec_on p (isomorphic.mk id)
+  definition iso_of_path (p : a = b) : isomorphic a b :=
+  eq.rec_on p (isomorphic.mk id)
 
 end morphism

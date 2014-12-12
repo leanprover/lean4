@@ -4,7 +4,7 @@
 -- Ported from Coq HoTT
 import .precategory.basic .precategory.morphism .group
 
-open path function prod sigma truncation morphism nat path_algebra unit
+open eq function prod sigma truncation morphism nat path_algebra unit
 
 structure foo (A : Type) := (bsp : A)
 
@@ -23,14 +23,14 @@ open precategory
 definition path_groupoid (A : Type.{l})
     (H : is_trunc (nat.zero .+1) A) : groupoid.{l l} A :=
 groupoid.mk
-  (λ (a b : A), a ≈ b)
-  (λ (a b : A), have ish : is_hset (a ≈ b), from succ_is_trunc nat.zero a b, ish)
-  (λ (a b c : A) (p : b ≈ c) (q : a ≈ b), q ⬝ p)
-  (λ (a : A), idpath a)
-  (λ (a b c d : A) (p : c ≈ d) (q : b ≈ c) (r : a ≈ b), concat_pp_p r q p)
-  (λ (a b : A) (p : a ≈ b), concat_p1 p)
-  (λ (a b : A) (p : a ≈ b), concat_1p p)
-  (λ (a b : A) (p : a ≈ b), @is_iso.mk A _ a b p (path.inverse p)
+  (λ (a b : A), a = b)
+  (λ (a b : A), have ish : is_hset (a = b), from succ_is_trunc nat.zero a b, ish)
+  (λ (a b c : A) (p : b = c) (q : a = b), q ⬝ p)
+  (λ (a : A), refl a)
+  (λ (a b c d : A) (p : c = d) (q : b = c) (r : a = b), concat_pp_p r q p)
+  (λ (a b : A) (p : a = b), concat_p1 p)
+  (λ (a b : A) (p : a = b), concat_1p p)
+  (λ (a b : A) (p : a = b), @is_iso.mk A _ a b p (p⁻¹)
     !concat_pV !concat_Vp)
 
 -- A groupoid with a contractible carrier is a group
@@ -80,7 +80,7 @@ end
 -- TODO: This is probably wrong
 open equiv is_equiv
 definition group_equiv {A : Type.{l}} [fx : funext]
-  : group A ≃ Σ (G : groupoid.{l l} unit), @hom unit G ⋆ ⋆ ≈ A :=
+  : group A ≃ Σ (G : groupoid.{l l} unit), @hom unit G ⋆ ⋆ = A :=
 sorry
 
 

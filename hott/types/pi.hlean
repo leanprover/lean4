@@ -6,7 +6,8 @@ Ported from Coq HoTT
 
 Theorems about pi-types (dependent function spaces)
 -/
-import init.equiv init.axioms.funext types.sigma
+import types.sigma
+
 open eq equiv is_equiv funext
 
 namespace pi

@@ -5,10 +5,10 @@
 -- This file contains basic constructions on precategories, including common precategories
 
 
-import .natural_transformation hott.path
-import data.unit data.sigma data.prod data.empty data.bool hott.types.prod hott.types.sigma
+import .natural_transformation
+import types.prod types.sigma
 
-open path prod eq eq.ops
+open eq prod eq eq.ops
 
 namespace precategory
   namespace opposite
@@ -28,16 +28,16 @@ namespace precategory
 
   variables {C : Precategory} {a b c : C}
 
-  theorem compose_op {f : hom a b} {g : hom b c} : f ∘op g ≈ g ∘ f := idp
+  theorem compose_op {f : hom a b} {g : hom b c} : f ∘op g = g ∘ f := idp
 
   -- TODO: Decide whether just to use funext for this theorem or
   --       take the trick they use in Coq-HoTT, and introduce a further
   --       axiom in the definition of precategories that provides thee
   --       symmetric associativity proof.
-  theorem op_op' {ob : Type} (C : precategory ob) : opposite (opposite C) ≈ C :=
+  theorem op_op' {ob : Type} (C : precategory ob) : opposite (opposite C) = C :=
   sorry
 
-  theorem op_op : Opposite (Opposite C) ≈ C :=
+  theorem op_op : Opposite (Opposite C) = C :=
   (ap (Precategory.mk C) (op_op' C)) ⬝ !Precategory.equal
 
   end
@@ -189,12 +189,12 @@ namespace precategory
   mk (λa b, slice_hom a b)
      sorry
      (λ a b c g f, dpair (hom_hom g ∘ hom_hom f)
-       (show ob_hom c ∘ (hom_hom g ∘ hom_hom f) ≈ ob_hom a,
+       (show ob_hom c ∘ (hom_hom g ∘ hom_hom f) = ob_hom a,
          proof
          calc
-           ob_hom c ∘ (hom_hom g ∘ hom_hom f) ≈ (ob_hom c ∘ hom_hom g) ∘ hom_hom f : !assoc
-             ... ≈ ob_hom b ∘ hom_hom f : {commute g}
-             ... ≈ ob_hom a : {commute f}
+           ob_hom c ∘ (hom_hom g ∘ hom_hom f) = (ob_hom c ∘ hom_hom g) ∘ hom_hom f : !assoc
+             ... = ob_hom b ∘ hom_hom f : {commute g}
+             ... = ob_hom a : {commute f}
          qed))
      (λ a, dpair id !id_right)
      (λ a b c d h g f, dpair_path  !assoc    sorry)

@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/find_fn.h"
 #include "kernel/replace_fn.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/error_msgs.h"
@@ -827,26 +828,154 @@ expr const & elaborator::get_equation_fn(expr const & eq) const {
     return fn;
 }
 
+/**
+   \brief Given two binding expressions \c source and \c target
+   s.t. they have at least \c num binders, replace the first \c num binders of \c target with \c source.
+   The binder types are wrapped with \c mk_as_is to make sure the elaborator will not process
+   them again.
+*/
 static expr copy_domain(unsigned num, expr const & source, expr const & target) {
     if (num == 0) {
         return target;
     } else {
         lean_assert(is_binding(source) && is_binding(target));
-        return update_binding(source, mk_as_is(binding_domain(source)), copy_domain(num-1, binding_body(source), binding_body(target)));
+        return update_binding(source, mk_as_is(binding_domain(source)),
+                              copy_domain(num-1, binding_body(source), binding_body(target)));
     }
 }
 
-static constraint mk_equations_cnstr(environment const & env, io_state const & ios, expr const & m, expr const & eqns) {
+/**
+   \brief The left-hand-side of recursive equations may contain metavariables associated with
+   implicit parameters. This procedure replaces them with fresh local constants.
+
+   Example 1)
+   Suppose we are defining
+   map : Pi {n}, vec A n -> vec B n -> vec C n,
+   map nil nil             := nil,
+   map (a :: va) (b :: vb) := f a b :: map va vb
+
+   After elaboration the second equation will be
+
+   @map (succ ?M) (@cons A ?M a va) (@cons A ?M b vb) := @cons A ?M (f ab) (@map ?M va vb)
+
+   This procedure replaces ?M with (x_1 : nat), where x_1 is a new local constant.
+   The resultant eqns object is:
+   [equations
+     (λ (map : Π {n : ℕ}, vector A n → vector B n → vector C n), [equation (map nil nil) nil])
+     (λ (map : Π {n : ℕ}, vector A n → vector B n → vector C n) (a : A) (x_1 : ℕ) (va : vector A x_1) (b : B)
+        (vb : vector B x_1),
+          [equation (map (a :: va) (b :: vb)) (f a b :: map va vb)])]
+
+
+   Example 2)
+   Suppose we are defining
+   definition ideq : Π {A : Type} {a b : A}, a = b → a = b,
+   ideq H := H
+
+   After elaboration the equation is:
+   @ideq ?M1 ?M2 ?M3 H := H
+
+   This procedure replaces ?M1 ?M2 ?M3 with
+   (x_1 : Type) (x_2 : x_1) (x_3 : x_1)
+   The resultant eqns object is
+
+   [equations
+    (λ (ideq : ∀ {A : Type} {a b : A}, @eq A a b → @eq A a b) (x_1 : Type) (x_2 x_3 : x_1) (H : @eq x_1 x_2 x_3),
+       [equation (@ideq x_1 x_2 x_3 H) H])]
+*/
+static expr assign_equation_lhs_metas(type_checker & tc, expr const & eqns) {
+    lean_assert(is_equations(eqns));
+    if (!has_metavar(eqns))
+        return eqns;
+    buffer<expr> eqs;
+    buffer<expr> new_eqs;
+    to_equations(eqns, eqs);
+    unsigned num_fns = equations_num_fns(eqns);
+
+    auto replace_meta = [](expr const & e, expr const & meta, expr const & local) {
+        expr mvar = get_app_fn(meta);
+        return replace(e, [&](expr const & e, unsigned) {
+                if (is_meta(e) && mlocal_name(get_app_fn(e)) == mlocal_name(mvar)) {
+                    return some_expr(local);
+                } else if (!has_metavar(e)) {
+                    return some_expr(e);
+                } else {
+                    return none_expr();
+                }
+            });
+    };
+
+    for (expr eq : eqs) {
+        if (!has_metavar(eq)) {
+            new_eqs.push_back(eq);
+        } else {
+            name x("x");
+            buffer<expr> locals;
+            while (is_lambda(eq)) {
+                expr local = mk_local(tc.mk_fresh_name(), binding_name(eq), binding_domain(eq), binding_info(eq));
+                locals.push_back(local);
+                eq = instantiate(binding_body(eq), local);
+            }
+            lean_assert(num_fns <= locals.size());
+            lean_assert(is_equation(eq));
+            unsigned idx = 1;
+            while (true) {
+                expr lhs = equation_lhs(eq);
+                optional<expr> meta;
+                optional<expr> meta_type;
+                for_each(lhs, [&](expr const & e, unsigned offset) {
+                        if (meta) return false; // already found target
+                        if (offset > 0) return false;
+                        if (is_meta(e)) {
+                            expr type = tc.infer(e).first;
+                            if (!has_expr_metavar_strict(type)) {
+                                meta      = e;
+                                meta_type = type;
+                                return false; // stop search, found
+                            }
+                        }
+                        return has_metavar(e);
+                    });
+                if (!meta)
+                    break;
+                expr new_local = mk_local(tc.mk_fresh_name(), x.append_after(idx), *meta_type, binder_info());
+                for (expr & local : locals)
+                    local = update_mlocal(local, replace_meta(mlocal_type(local), *meta, new_local));
+                eq  = replace_meta(eq, *meta, new_local);
+                unsigned i = num_fns;
+                for (; i < locals.size(); i++) {
+                    if (depends_on(mlocal_type(locals[i]), new_local)) {
+                        break;
+                    }
+                }
+                locals.insert(i, new_local);
+                idx++;
+            }
+            new_eqs.push_back(Fun(locals, eq));
+        }
+    }
+
+    if (is_wf_equations(eqns)) {
+        return mk_equations(num_fns, new_eqs.size(), new_eqs.data(), equations_wf_rel(eqns), equations_wf_proof(eqns));
+    } else {
+        return mk_equations(num_fns, new_eqs.size(), new_eqs.data());
+    }
+}
+
+static constraint mk_equations_cnstr(environment const & env, io_state const & ios, expr const & m, expr const & eqns,
+                                     bool relax) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & , expr const &, substitution const & s,
-                         name_generator const &) {
-        expr new_eqns = substitution(s).instantiate(eqns);
+                         name_generator const & ngen) {
+        substitution new_s  = s;
+        expr new_eqns       = substitution(s).instantiate_all(eqns);
+        type_checker_ptr tc = mk_type_checker(env, ngen, relax);
+        new_eqns            = assign_equation_lhs_metas(*tc, new_eqns);
         regular(env, ios) << "Equations:\n" << new_eqns << "\n\n";
-        // TODO(Leo);
+        // TODO(Leo): invoke equations compiler
         return lazy_list<constraints>(constraints());
     };
     bool owner = true;
-    bool relax = false;
     return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), owner, j, relax);
 }
 
@@ -902,7 +1031,7 @@ expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
     expr type = binding_domain(*first_eq);
     expr m = m_full_context.mk_meta(m_ngen, some_expr(type), eqns.get_tag());
     register_meta(m);
-    constraint c = mk_equations_cnstr(env(), ios(), m, new_eqns);
+    constraint c = mk_equations_cnstr(env(), ios(), m, new_eqns, m_relax_main_opaque);
     cs += c;
     return m;
 }

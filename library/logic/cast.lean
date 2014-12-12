@@ -31,6 +31,42 @@ namespace heq
   drec_on H !cast_eq
 end heq
 
+theorem eq_rec_heq {A : Type} {P : A → Type} {a a' : A} (H : a = a') (p : P a) : eq.rec_on H p == p :=
+eq.drec_on H !heq.refl
+
+section
+  universe variables u v
+  variables {A A' B C : Type.{u}} {P P' : A → Type.{v}} {a a' : A} {b : B}
+  theorem hcongr_fun {f : Π x, P x} {f' : Π x, P' x} (a : A) (H₁ : f == f') (H₂ : P = P') : f a == f' a :=
+  have aux : ∀ (f : Π x, P x) (f' : Π x, P x), f == f' → f a == f' a, from
+    take f f' H, heq.to_eq H ▸ heq.refl (f a),
+  (H₂ ▸ aux) f f' H₁
+
+  theorem hcongr {P' : A' → Type} {f : Π a, P a} {f' : Π a', P' a'} {a : A} {a' : A'}
+      (Hf : f == f') (HP : P == P') (Ha : a == a') : f a == f' a' :=
+  have H1 : ∀ (B P' : A → Type) (f : Π x, P x) (f' : Π x, P' x), f == f' → (λx, P x) == (λx, P' x)
+              → f a == f' a, from
+    take P P' f f' Hf HB, hcongr_fun a Hf (heq.to_eq HB),
+  have H2 : ∀ (B : A → Type) (P' : A' → Type) (f : Π x, P x) (f' : Π x, P' x),
+      f == f' → (λx, P x) == (λx, P' x) → f a == f' a', from heq.subst Ha H1,
+  H2 P P' f f' Hf HP
+
+  theorem hcongr_arg (f : Πx, P x) {a b : A} (H : a = b) : f a == f b :=
+  H ▸ (heq.refl (f a))
+end
+
+section
+  variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
+  variables {a a' : A} {b : B a} {b' : B a'} {c : C a b} {c' : C a' b'}
+
+  theorem hcongr_arg2 (f : Πa b, C a b) (Ha : a = a') (Hb : b == b') : f a b == f a' b' :=
+  hcongr (hcongr_arg f Ha) (hcongr_arg C Ha) Hb
+
+  theorem hcongr_arg3 (f : Πa b c, D a b c) (Ha : a = a') (Hb : b == b') (Hc : c == c')
+      : f a b c == f a' b' c' :=
+  hcongr (hcongr_arg2 f Ha Hb) (hcongr_arg2 D Ha Hb) Hc
+end
+
 section
   universe variables u v
   variables {A A' B C : Type.{u}} {P P' : A → Type.{v}} {a a' : A} {b : B}

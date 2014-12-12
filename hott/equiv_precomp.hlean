@@ -2,8 +2,8 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jakob von Raumer
 -- Ported from Coq HoTT
-import hott.equiv hott.axioms.funext
-open path function funext
+import init.equiv init.axioms.funext
+open eq function funext
 
 namespace is_equiv
   context
@@ -34,12 +34,12 @@ namespace is_equiv
   --the domain or the codomain.
   protected definition isequiv_precompose_eq {A B : Type} (f : A → B) (C D : Type)
       (Ceq : is_equiv (precomp f C)) (Deq : is_equiv (precomp f D)) (k : C → D) (h : A → C) :
-      k ∘ (inv (precomp f C)) h ≈ (inv (precomp f D)) (k ∘ h) :=
+      k ∘ (inv (precomp f C)) h = (inv (precomp f D)) (k ∘ h) :=
     let invD := inv (precomp f D) in
     let invC := inv (precomp f C) in
-    have eq1 : invD (k ∘ h) ≈ k ∘ (invC h),
-      from calc invD (k ∘ h) ≈ invD (k ∘ (precomp f C (invC h))) : retr (precomp f C) h
-		... ≈ k ∘ (invC h) : !sect,
+    have eq1 : invD (k ∘ h) = k ∘ (invC h),
+      from calc invD (k ∘ h) = invD (k ∘ (precomp f C (invC h))) : retr (precomp f C) h
+		... = k ∘ (invC h) : !sect,
       eq1⁻¹
 
   definition from_isequiv_precomp {A B : Type} (f : A → B) (Aeq : is_equiv (precomp f A))
@@ -47,14 +47,14 @@ namespace is_equiv
     let invA := inv (precomp f A) in
     let invB := inv (precomp f B) in
     let sect' : f ∘ (invA id) ∼ id  := (λx,
-      calc f (invA id x) ≈ (f ∘ invA id) x : idp
-	... ≈ invB (f ∘ id) x : apD10 (!isequiv_precompose_eq)
-	... ≈ invB (precomp f B id) x : idp
-	... ≈ x : apD10 (sect (precomp f B) id))
+      calc f (invA id x) = (f ∘ invA id) x : idp
+	... = invB (f ∘ id) x : apD10 (!isequiv_precompose_eq)
+	... = invB (precomp f B id) x : idp
+	... = x : apD10 (sect (precomp f B) id))
       in
     let retr' : (invA id) ∘ f ∼ id := (λx,
-      calc invA id (f x) ≈ precomp f A (invA id) x : idp
-	... ≈ x : apD10 (retr (precomp f A) id)) in
+      calc invA id (f x) = precomp f A (invA id) x : idp
+	... = x : apD10 (retr (precomp f A) id)) in
     adjointify f (invA id) sect' retr'
 
   end

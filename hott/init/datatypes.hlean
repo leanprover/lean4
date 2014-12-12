@@ -2,7 +2,7 @@
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Jakob von Raumer
 
 Basic datatypes
 -/
@@ -17,7 +17,13 @@ notation `Type₃` := Type.{3}
 inductive unit.{l} : Type.{l} :=
 star : unit
 
-inductive empty : Type
+namespace unit
+
+  notation `⋆` := star
+
+end unit
+
+inductive empty.{l} : Type.{l}
 
 inductive eq.{l} {A : Type.{l}} (a : A) : A → Type.{l} :=
 refl : eq a a

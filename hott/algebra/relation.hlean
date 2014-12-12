@@ -94,14 +94,14 @@ namespace is_congruence
   is_congruence.mk (λx1 x2 H, app2 C3 (app C1 H) (app C2 H))
 
   theorem const {T2 : Type} (R2 : T2 → T2 → Type) (H : relation.reflexive R2)
-      ⦃T1 : Type⦄ (R1 : T1 → T1 → Prop) (c : T2) :
+      ⦃T1 : Type⦄ (R1 : T1 → T1 → Type) (c : T2) :
     is_congruence R1 R2 (λu : T1, c) :=
   is_congruence.mk (λx y H1, H c)
 
 end is_congruence
 
 theorem congruence_const [instance] {T2 : Type} (R2 : T2 → T2 → Type)
-    [C : is_reflexive R2] ⦃T1 : Type⦄ (R1 : T1 → T1 → Prop) (c : T2) :
+    [C : is_reflexive R2] ⦃T1 : Type⦄ (R1 : T1 → T1 → Type) (c : T2) :
   is_congruence R1 R2 (λu : T1, c) :=
 is_congruence.const R2 (is_reflexive.refl R2) R1 c
 

@@ -2,8 +2,9 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jeremy Avigad, Jakob von Raumer
 -- Ported from Coq HoTT
-import .path
-open path function
+prelude
+import .path .function
+open eq function
 
 -- Equivalences
 -- ------------
@@ -14,7 +15,7 @@ structure is_equiv [class] {A B : Type} (f : A → B) :=
   (inv : B → A)
   (retr : (f ∘ inv) ∼ id)
   (sect : (inv ∘ f) ∼ id)
-  (adj : Πx, retr (f x) ≈ ap f (sect x))
+  (adj : Πx, retr (f x) = ap f (sect x))
 
 
 -- A more bundled version of equivalence to calculate with
@@ -47,8 +48,8 @@ namespace is_equiv
                )
 
   -- Any function equal to an equivalence is an equivlance as well.
-  definition path_closed [Hf : is_equiv f] (Heq : f ≈ f') : (is_equiv f') :=
-     path.rec_on Heq Hf
+  definition path_closed [Hf : is_equiv f] (Heq : f = f') : (is_equiv f') :=
+     eq.rec_on Heq Hf
 
   -- Any function pointwise equal to an equivalence is an equivalence as well.
   definition homotopy_closed [Hf : is_equiv f] (Hty : f ∼ f') : (is_equiv f') :=
@@ -60,26 +61,26 @@ namespace is_equiv
       let secta := sect f a in
       let retrfa := retr f (f a) in
       let retrf'a := retr f (f' a) in
-      have eq1 : _ ≈ _,
+      have eq1 : _ = _,
         from calc ap f secta ⬝ ff'a
-              ≈ retrfa ⬝ ff'a : ap _ (@adj _ _ f _ _)
-          ... ≈ ap (f ∘ invf) ff'a ⬝ retrf'a : concat_A1p
-          ... ≈ ap f (ap invf ff'a) ⬝ retrf'a : ap_compose invf f,
-      have eq2 : _ ≈ _,
+              = retrfa ⬝ ff'a : ap _ (@adj _ _ f _ _)
+          ... = ap (f ∘ invf) ff'a ⬝ retrf'a : concat_A1p
+          ... = ap f (ap invf ff'a) ⬝ retrf'a : ap_compose invf f,
+      have eq2 : _ = _,
         from calc retrf'a
-              ≈ (ap f (ap invf ff'a))⁻¹ ⬝ (ap f secta ⬝ ff'a) : moveL_Vp _ _ _ (eq1⁻¹)
-          ... ≈ ap f (ap invf ff'a)⁻¹ ⬝ (ap f secta ⬝ Hty a) : ap_V invf ff'a
-          ... ≈ ap f (ap invf ff'a)⁻¹ ⬝ (Hty (invf (f a)) ⬝ ap f' secta) : concat_Ap
-          ... ≈ (ap f (ap invf ff'a)⁻¹ ⬝ Hty (invf (f a))) ⬝ ap f' secta : concat_pp_p
-          ... ≈ (ap f ((ap invf ff'a)⁻¹) ⬝ Hty (invf (f a))) ⬝ ap f' secta : ap_V
-          ... ≈ (Hty (invf (f' a)) ⬝ ap f' ((ap invf ff'a)⁻¹)) ⬝ ap f' secta : concat_Ap
-          ... ≈ (Hty (invf (f' a)) ⬝ (ap f' (ap invf ff'a))⁻¹) ⬝ ap f' secta : ap_V
-          ... ≈ Hty (invf (f' a)) ⬝ ((ap f' (ap invf ff'a))⁻¹ ⬝ ap f' secta) : concat_pp_p,
-      have eq3 : _ ≈ _,
+              = (ap f (ap invf ff'a))⁻¹ ⬝ (ap f secta ⬝ ff'a) : moveL_Vp _ _ _ (eq1⁻¹)
+          ... = ap f (ap invf ff'a)⁻¹ ⬝ (ap f secta ⬝ Hty a) : ap_V invf ff'a
+          ... = ap f (ap invf ff'a)⁻¹ ⬝ (Hty (invf (f a)) ⬝ ap f' secta) : concat_Ap
+          ... = (ap f (ap invf ff'a)⁻¹ ⬝ Hty (invf (f a))) ⬝ ap f' secta : concat_pp_p
+          ... = (ap f ((ap invf ff'a)⁻¹) ⬝ Hty (invf (f a))) ⬝ ap f' secta : ap_V
+          ... = (Hty (invf (f' a)) ⬝ ap f' ((ap invf ff'a)⁻¹)) ⬝ ap f' secta : concat_Ap
+          ... = (Hty (invf (f' a)) ⬝ (ap f' (ap invf ff'a))⁻¹) ⬝ ap f' secta : ap_V
+          ... = Hty (invf (f' a)) ⬝ ((ap f' (ap invf ff'a))⁻¹ ⬝ ap f' secta) : concat_pp_p,
+      have eq3 : _ = _,
         from calc (Hty (invf (f' a)))⁻¹ ⬝ retrf'a
-              ≈ (ap f' (ap invf ff'a))⁻¹ ⬝ ap f' secta : moveR_Vp _ _ _ eq2
-          ... ≈ (ap f' ((ap invf ff'a)⁻¹)) ⬝ ap f' secta : ap_V
-          ... ≈ ap f' ((ap invf ff'a)⁻¹ ⬝ secta) : ap_pp,
+              = (ap f' (ap invf ff'a))⁻¹ ⬝ ap f' secta : moveR_Vp _ _ _ eq2
+          ... = (ap f' ((ap invf ff'a)⁻¹)) ⬝ ap f' secta : ap_V
+          ... = ap f' ((ap invf ff'a)⁻¹ ⬝ secta) : ap_pp,
     eq3) in
   is_equiv.mk (inv f) sect' retr' adj'
 end is_equiv
@@ -92,34 +93,34 @@ namespace is_equiv
   definition adjointify_sect' : g ∘ f ∼ id :=
     (λx, ap g (ap f (inverse (sec x))) ⬝ ap g (ret (f x)) ⬝ sec x)
 
-  definition adjointify_adj' : Π (x : A), ret (f x) ≈ ap f (adjointify_sect' x) :=
+  definition adjointify_adj' : Π (x : A), ret (f x) = ap f (adjointify_sect' x) :=
     (λ (a : A),
       let fgretrfa := ap f (ap g (ret (f a))) in
       let fgfinvsect := ap f (ap g (ap f ((sec a)⁻¹))) in
       let fgfa := f (g (f a)) in
       let retrfa := ret (f a) in
-      have eq1 : ap f (sec a) ≈ _,
+      have eq1 : ap f (sec a) = _,
         from calc ap f (sec a)
-              ≈ idp ⬝ ap f (sec a) : !concat_1p⁻¹
-          ... ≈ (ret (f a) ⬝ (ret (f a)⁻¹)) ⬝ ap f (sec a) : concat_pV
-          ... ≈ ((ret (fgfa))⁻¹ ⬝ ap (f ∘ g) (ret (f a))) ⬝ ap f (sec a) : {!concat_pA1⁻¹}
-          ... ≈ ((ret (fgfa))⁻¹ ⬝ fgretrfa) ⬝ ap f (sec a) : {ap_compose g f _}
-          ... ≈ (ret (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a)) : !concat_pp_p,
-      have eq2 : ap f (sec a) ⬝ idp ≈ (ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a)),
+              = idp ⬝ ap f (sec a) : !concat_1p⁻¹
+          ... = (ret (f a) ⬝ (ret (f a)⁻¹)) ⬝ ap f (sec a) : concat_pV
+          ... = ((ret (fgfa))⁻¹ ⬝ ap (f ∘ g) (ret (f a))) ⬝ ap f (sec a) : {!concat_pA1⁻¹}
+          ... = ((ret (fgfa))⁻¹ ⬝ fgretrfa) ⬝ ap f (sec a) : {ap_compose g f _}
+          ... = (ret (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a)) : !concat_pp_p,
+      have eq2 : ap f (sec a) ⬝ idp = (ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a)),
         from !concat_p1 ⬝ eq1,
-      have eq3 : idp ≈ _,
+      have eq3 : idp = _,
         from calc idp
-              ≈ (ap f (sec a))⁻¹ ⬝ ((ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a))) : moveL_Vp _ _ _ eq2
-          ... ≈ (ap f (sec a)⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a)) : !concat_p_pp
-          ... ≈ (ap f ((sec a)⁻¹) ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a)) : {!ap_V⁻¹}
-          ... ≈ ((ap f ((sec a)⁻¹) ⬝ (ret fgfa)⁻¹) ⬝ fgretrfa) ⬝ ap f (sec a) : !concat_p_pp
-          ... ≈ ((retrfa⁻¹ ⬝ ap (f ∘ g) (ap f ((sec a)⁻¹))) ⬝ fgretrfa) ⬝ ap f (sec a) : {!concat_pA1⁻¹}
-          ... ≈ ((retrfa⁻¹ ⬝ fgfinvsect) ⬝ fgretrfa) ⬝ ap f (sec a) : {ap_compose g f _}
-          ... ≈ (retrfa⁻¹ ⬝ (fgfinvsect ⬝ fgretrfa)) ⬝ ap f (sec a) : {!concat_p_pp⁻¹}
-          ... ≈ retrfa⁻¹ ⬝ ap f (ap g (ap f ((sec a)⁻¹)) ⬝ ap g (ret (f a))) ⬝ ap f (sec a) : {!ap_pp⁻¹}
-          ... ≈ retrfa⁻¹ ⬝ (ap f (ap g (ap f ((sec a)⁻¹)) ⬝ ap g (ret (f a))) ⬝ ap f (sec a)) : !concat_p_pp⁻¹
-          ... ≈ retrfa⁻¹ ⬝ ap f ((ap g (ap f ((sec a)⁻¹)) ⬝ ap g (ret (f a))) ⬝ sec a) : {!ap_pp⁻¹},
-      have eq4 : ret (f a) ≈ ap f ((ap g (ap f ((sec a)⁻¹)) ⬝ ap g (ret (f a))) ⬝ sec a),
+              = (ap f (sec a))⁻¹ ⬝ ((ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a))) : moveL_Vp _ _ _ eq2
+          ... = (ap f (sec a)⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a)) : !concat_p_pp
+          ... = (ap f ((sec a)⁻¹) ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a)) : {!ap_V⁻¹}
+          ... = ((ap f ((sec a)⁻¹) ⬝ (ret fgfa)⁻¹) ⬝ fgretrfa) ⬝ ap f (sec a) : !concat_p_pp
+          ... = ((retrfa⁻¹ ⬝ ap (f ∘ g) (ap f ((sec a)⁻¹))) ⬝ fgretrfa) ⬝ ap f (sec a) : {!concat_pA1⁻¹}
+          ... = ((retrfa⁻¹ ⬝ fgfinvsect) ⬝ fgretrfa) ⬝ ap f (sec a) : {ap_compose g f _}
+          ... = (retrfa⁻¹ ⬝ (fgfinvsect ⬝ fgretrfa)) ⬝ ap f (sec a) : {!concat_p_pp⁻¹}
+          ... = retrfa⁻¹ ⬝ ap f (ap g (ap f ((sec a)⁻¹)) ⬝ ap g (ret (f a))) ⬝ ap f (sec a) : {!ap_pp⁻¹}
+          ... = retrfa⁻¹ ⬝ (ap f (ap g (ap f ((sec a)⁻¹)) ⬝ ap g (ret (f a))) ⬝ ap f (sec a)) : !concat_p_pp⁻¹
+          ... = retrfa⁻¹ ⬝ ap f ((ap g (ap f ((sec a)⁻¹)) ⬝ ap g (ret (f a))) ⬝ sec a) : {!ap_pp⁻¹},
+      have eq4 : ret (f a) = ap f ((ap g (ap f ((sec a)⁻¹)) ⬝ ap g (ret (f a))) ⬝ sec a),
         from moveR_M1 _ _ eq3,
       eq4)
 
@@ -153,16 +154,16 @@ namespace is_equiv
     @homotopy_closed _ _ _ _ (compose (f ∘ g) (f⁻¹)) (λa, sect f (g a))
 
   --Rewrite rules
-  definition moveR_M {x : A} {y : B} (p : x ≈ (inv f) y) : (f x ≈ y) :=
+  definition moveR_M {x : A} {y : B} (p : x = (inv f) y) : (f x = y) :=
     (ap f p) ⬝ (@retr _ _ f _ y)
 
-  definition moveL_M {x : A} {y : B} (p : (inv f) y ≈ x) : (y ≈ f x) :=
+  definition moveL_M {x : A} {y : B} (p : (inv f) y = x) : (y = f x) :=
     (moveR_M f (p⁻¹))⁻¹
 
-  definition moveR_V {x : B} {y : A} (p : x ≈ f y) : (inv f) x ≈ y :=
+  definition moveR_V {x : B} {y : A} (p : x = f y) : (inv f) x = y :=
     ap (f⁻¹) p ⬝ sect f y
 
-  definition moveL_V {x : B} {y : A} (p : f y ≈ x) : y ≈ (inv f) x :=
+  definition moveL_V {x : B} {y : A} (p : f y = x) : y = (inv f) x :=
     (moveR_V f (p⁻¹))⁻¹
 
   definition ap_closed [instance] (x y : A) : is_equiv (ap f) :=
@@ -191,20 +192,20 @@ namespace is_equiv
 
   definition equiv_rect (P : B -> Type) :
       (Πx, P (f x)) → (Πy, P y) :=
-    (λg y, path.transport _ (retr f y) (g (f⁻¹ y)))
+    (λg y, eq.transport _ (retr f y) (g (f⁻¹ y)))
 
   definition equiv_rect_comp (P : B → Type)
-      (df : Π (x : A), P (f x)) (x : A) : equiv_rect f P df (f x) ≈ df x :=
+      (df : Π (x : A), P (f x)) (x : A) : equiv_rect f P df (f x) = df x :=
     calc equiv_rect f P df (f x)
-          ≈ transport P (retr f (f x)) (df (f⁻¹ (f x))) : idp
-      ... ≈ transport P (ap f (sect f x)) (df (f⁻¹ (f x))) : adj f
-      ... ≈ transport (P ∘ f) (sect f x) (df (f⁻¹ (f x))) : transport_compose
-      ... ≈ df x : apD df (sect f x)
+          = transport P (retr f (f x)) (df (f⁻¹ (f x))) : idp
+      ... = transport P (ap f (sect f x)) (df (f⁻¹ (f x))) : adj f
+      ... = transport (P ∘ f) (sect f x) (df (f⁻¹ (f x))) : transport_compose
+      ... = df x : apD df (sect f x)
 
   end
 
   --Transporting is an equivalence
-  protected definition transport [instance] (P : A → Type) {x y : A} (p : x ≈ y) : (is_equiv (transport P p)) :=
+  protected definition transport [instance] (P : A → Type) {x y : A} (p : x = y) : (is_equiv (transport P p)) :=
     is_equiv.mk (transport P (p⁻¹)) (transport_pV P p) (transport_Vp P p) (transport_pVp P p)
 
 end is_equiv
@@ -227,7 +228,7 @@ namespace equiv
     equiv.mk ((to_fun eqg) ∘ f)
              (is_equiv.compose f (to_fun eqg))
 
-  theorem path_closed (f' : A → B) (Heq : to_fun eqf ≈ f') : A ≃ B :=
+  theorem path_closed (f' : A → B) (Heq : to_fun eqf = f') : A ≃ B :=
     equiv.mk f' (is_equiv.path_closed f Heq)
 
   theorem symm : B ≃ A :=
@@ -239,7 +240,7 @@ namespace equiv
   theorem cancel_L (g : C → A) [Hgf : is_equiv (f ∘ g)] : C ≃ A :=
     equiv.mk g (is_equiv.cancel_L f _)
 
-  protected theorem transport (P : A → Type) {x y : A} {p : x ≈ y} : (P x) ≃ (P y) :=
+  protected theorem transport (P : A → Type) {x y : A} {p : x = y} : (P x) ≃ (P y) :=
     equiv.mk (transport P p) (is_equiv.transport P p)
 
   end
@@ -251,9 +252,9 @@ namespace equiv
   private definition Hg [instance] : is_equiv (to_fun eqg) := to_is_equiv eqg
 
   --We need this theorem for the funext_from_ua proof
-  theorem inv_eq (p : eqf ≈ eqg)
-      : is_equiv.inv (to_fun eqf) ≈ is_equiv.inv (to_fun eqg) :=
-    path.rec_on p idp
+  theorem inv_eq (p : eqf = eqg)
+      : is_equiv.inv (to_fun eqf) = is_equiv.inv (to_fun eqg) :=
+    eq.rec_on p idp
 
   end
 

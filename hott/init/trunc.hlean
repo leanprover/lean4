@@ -2,9 +2,9 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Jeremy Avigad, Floris van Doorn
 -- Ported from Coq HoTT
-
-import .path .logic data.nat.basic data.empty data.unit data.sigma .equiv
-open path nat sigma unit
+prelude
+import .path .logic .datatypes .equiv .types.empty .types.sigma
+open eq nat sigma unit
 set_option pp.universes true
 
 -- Truncation levels
@@ -59,11 +59,11 @@ namespace truncation
   -/
 
   structure contr_internal (A : Type) :=
-    (center : A) (contr : Π(a : A), center ≈ a)
+    (center : A) (contr : Π(a : A), center = a)
 
   definition is_trunc_internal (n : trunc_index) : Type → Type :=
     trunc_index.rec_on n (λA, contr_internal A)
-      (λn trunc_n A, (Π(x y : A), trunc_n (x ≈ y)))
+      (λn trunc_n A, (Π(x y : A), trunc_n (x = y)))
 
   structure is_trunc [class] (n : trunc_index) (A : Type) :=
     (to_internal : is_trunc_internal n A)
@@ -79,33 +79,33 @@ namespace truncation
   variables {A B : Type}
 
   -- TODO: rename to is_trunc_succ
-  definition is_trunc_succ (A : Type) (n : trunc_index) [H : ∀x y : A, is_trunc n (x ≈ y)]
+  definition is_trunc_succ (A : Type) (n : trunc_index) [H : ∀x y : A, is_trunc n (x = y)]
     : is_trunc n.+1 A :=
   is_trunc.mk (λ x y, !is_trunc.to_internal)
 
   -- TODO: rename to is_trunc_path
-  definition succ_is_trunc (n : trunc_index) [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x ≈ y) :=
+  definition succ_is_trunc (n : trunc_index) [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x = y) :=
   is_trunc.mk (!is_trunc.to_internal x y)
 
   /- contractibility -/
 
-  definition is_contr.mk (center : A) (contr : Π(a : A), center ≈ a) : is_contr A :=
+  definition is_contr.mk (center : A) (contr : Π(a : A), center = a) : is_contr A :=
   is_trunc.mk (contr_internal.mk center contr)
 
   definition center (A : Type) [H : is_contr A] : A :=
   @contr_internal.center A !is_trunc.to_internal
 
-  definition contr [H : is_contr A] (a : A) : !center ≈ a :=
+  definition contr [H : is_contr A] (a : A) : !center = a :=
   @contr_internal.contr A !is_trunc.to_internal a
 
-  definition path_contr [H : is_contr A] (x y : A) : x ≈ y :=
+  definition path_contr [H : is_contr A] (x y : A) : x = y :=
   contr x⁻¹ ⬝ (contr y)
 
-  definition path2_contr {A : Type} [H : is_contr A] {x y : A} (p q : x ≈ y) : p ≈ q :=
-  have K : ∀ (r : x ≈ y), path_contr x y ≈ r, from (λ r, path.rec_on r !concat_Vp),
+  definition path2_contr {A : Type} [H : is_contr A] {x y : A} (p q : x = y) : p = q :=
+  have K : ∀ (r : x = y), path_contr x y = r, from (λ r, eq.rec_on r !concat_Vp),
   K p⁻¹ ⬝ K q
 
-  definition contr_paths_contr [instance] {A : Type} [H : is_contr A] (x y : A) : is_contr (x ≈ y) :=
+  definition contr_paths_contr [instance] {A : Type} [H : is_contr A] (x y : A) : is_contr (x = y) :=
   is_contr.mk !path_contr (λ p, !path2_contr)
 
   /- truncation is upward close -/
@@ -132,7 +132,7 @@ namespace truncation
     λm IHm n, trunc_index.rec_on n
            (λA Hnm Hn, @trunc_succ A m (IHm -2 A star Hn))
            (λn IHn A Hnm (Hn : is_trunc n.+1 A),
-           @is_trunc_succ A m (λx y, IHm n (x≈y) (trunc_index.succ_le_cancel Hnm) !succ_is_trunc)),
+           @is_trunc_succ A m (λx y, IHm n (x = y) (trunc_index.succ_le_cancel Hnm) !succ_is_trunc)),
   trunc_index.rec_on m base step n A Hnm Hn
 
   -- the following cannot be instances in their current form, because it is looping
@@ -145,11 +145,11 @@ namespace truncation
 
   definition trunc_hset (A : Type) (n : trunc_index) [H : is_hset A]
       : is_trunc (n.+2) A :=
-  trunc_leq A 0 (n.+2) star
+  trunc_leq A nat.zero (n.+2) star
 
   /- hprops -/
 
-  definition is_hprop.elim [H : is_hprop A] (x y : A) : x ≈ y :=
+  definition is_hprop.elim [H : is_hprop A] (x y : A) : x = y :=
   @center _ !succ_is_trunc
 
   definition contr_inhabited_hprop {A : Type} [H : is_hprop A] (x : A) : is_contr A :=
@@ -162,21 +162,21 @@ namespace truncation
       have H2 [visible] : is_contr A, from H x,
       !contr_paths_contr)
 
-  definition is_hprop.mk {A : Type} (H : ∀x y : A, x ≈ y) : is_hprop A :=
+  definition is_hprop.mk {A : Type} (H : ∀x y : A, x = y) : is_hprop A :=
   hprop_inhabited_contr (λ x, is_contr.mk x (H x))
 
   /- hsets -/
 
-  definition is_hset.mk (A : Type) (H : ∀(x y : A) (p q : x ≈ y), p ≈ q) : is_hset A :=
+  definition is_hset.mk (A : Type) (H : ∀(x y : A) (p q : x = y), p = q) : is_hset A :=
   @is_trunc_succ _ _ (λ x y, is_hprop.mk (H x y))
 
-  definition is_hset.elim [H : is_hset A] ⦃x y : A⦄ (p q : x ≈ y) : p ≈ q :=
+  definition is_hset.elim [H : is_hset A] ⦃x y : A⦄ (p q : x = y) : p = q :=
   @is_hprop.elim _ !succ_is_trunc p q
 
   /- instances -/
 
-  definition contr_basedpaths [instance] {A : Type} (a : A) : is_contr (Σ(x : A), a ≈ x) :=
-  is_contr.mk (dpair a idp) (λp, sigma.rec_on p (λ b q, path.rec_on q idp))
+  definition contr_basedpaths [instance] {A : Type} (a : A) : is_contr (Σ(x : A), a = x) :=
+  is_contr.mk (dpair a idp) (λp, sigma.rec_on p (λ b q, eq.rec_on q idp))
 
   -- definition is_trunc_is_hprop [instance] {n : trunc_index} : is_hprop (is_trunc n A) := sorry
 
@@ -197,7 +197,7 @@ namespace truncation
   notation `hset` := 0-Type
 
   definition hprop.mk := @trunctype.mk -1
-  definition hset.mk := @trunctype.mk 0
+  definition hset.mk := @trunctype.mk nat.zero
 
   --what does the following line in Coq do?
   --Canonical Structure default_TruncType := fun n T P => (@BuildTruncType n T P).
@@ -224,7 +224,7 @@ namespace truncation
   trunc_index.rec_on n
     (λA (HA : is_contr A) B f (H : is_equiv f), !equiv_preserves_contr)
     (λn IH A (HA : is_trunc n.+1 A) B f (H : is_equiv f), @is_trunc_succ _ _ (λ x y : B,
-      IH (f⁻¹ x ≈ f⁻¹ y) !succ_is_trunc (x ≈ y) ((ap (f⁻¹))⁻¹) !inv_closed))
+      IH (f⁻¹ x = f⁻¹ y) !succ_is_trunc (x = y) ((ap (f⁻¹))⁻¹) !inv_closed))
     A HA B f H
 
   definition trunc_equiv' (n : trunc_index) (f : A ≃ B) [HA : is_trunc n A] : is_trunc n B :=

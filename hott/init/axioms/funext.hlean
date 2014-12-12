@@ -2,9 +2,9 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jeremy Avigad, Jakob von Raumer
 -- Ported from Coq HoTT
-
-import hott.path hott.equiv
-open path
+prelude
+import ..path ..equiv
+open eq
 
 -- Funext
 -- ------
@@ -23,12 +23,12 @@ namespace funext
   protected definition ap [instance] (f g : Π x, P x) : is_equiv (@apD10 A P f g) :=
     rec_on F (λ(H : Π A P f g, _), !H)
 
-  definition path_pi {f g : Π x, P x} : f ∼ g → f ≈ g :=
+  definition path_pi {f g : Π x, P x} : f ∼ g → f = g :=
   is_equiv.inv (@apD10 A P f g)
 
   omit F
   definition path_pi2 [F : funext] {A B : Type} {P : A → B → Type}
-      (f g : Πx y, P x y) : (Πx y, f x y ≈ g x y) → f ≈ g :=
+      (f g : Πx y, P x y) : (Πx y, f x y = g x y) → f = g :=
     λ E, path_pi (λx, path_pi (E x))
 
 end funext

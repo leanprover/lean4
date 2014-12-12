@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
-import init.num init.wf init.logic init.tactic
+import ..num ..wf ..logic ..tactic
 
 structure sigma {A : Type} (B : A → Type) :=
 dpair :: (dpr1 : A) (dpr2 : B dpr1)

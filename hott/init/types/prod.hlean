@@ -6,7 +6,7 @@ Module: data.prod.decl
 Author: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
-import init.wf
+import ..wf
 
 definition pair := @prod.mk
 
@@ -17,6 +17,8 @@ namespace prod
     reserve infixr `*`:30  -- conflicts with notation for multiplication
     infixr `*` := prod
   end low_precedence_times
+
+  definition flip {A B : Type} (a : A × B) : B × A := pair (pr2 a) (pr1 a)
 
   notation `pr₁` := pr1
   notation `pr₂` := pr2
@@ -80,4 +82,5 @@ namespace prod
   subrelation.wf (rprod.sub_lex) (lex.wf Ha Hb)
 
   end
+
 end prod

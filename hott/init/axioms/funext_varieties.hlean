@@ -2,9 +2,9 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Jakob von Raumer
 -- Ported from Coq HoTT
-import hott.path hott.trunc hott.equiv hott.axioms.funext
+import ..path ..trunc ..equiv .funext
 
-open path truncation sigma function
+open eq truncation sigma function
 
 /- In hott.axioms.funext, we defined function extensionality to be the assertion
    that the map apD10 is an equivalence.   We now prove that this follows
@@ -17,7 +17,7 @@ open path truncation sigma function
 -- Naive funext is the simple assertion that pointwise equal functions are equal.
 -- TODO think about universe levels
 definition naive_funext :=
-  Π {A : Type} {P : A → Type} (f g : Πx, P x), (f ∼ g) → f ≈ g
+  Π {A : Type} {P : A → Type} (f g : Πx, P x), (f ∼ g) → f = g
 
 -- Weak funext says that a product of contractible types is contractible.
 definition weak_funext.{l k} :=
@@ -39,7 +39,7 @@ definition weak_funext_from_naive_funext : naive_funext → weak_funext :=
     is_contr.mk c (λ f,
       have eq' : (λx, center (P x)) ∼ f,
         from (λx, contr (f x)),
-      have eq : (λx, center (P x)) ≈ f,
+      have eq : (λx, center (P x)) = f,
         from nf A P (λx, center (P x)) f eq',
       eq
     )
@@ -60,19 +60,19 @@ context
     is_contr.mk (dpair f idhtpy)
       (λ dp, sigma.rec_on dp
         (λ (g : Π x, B x) (h : f ∼ g),
-          let r := λ (k : Π x, Σ y, f x ≈ y),
+          let r := λ (k : Π x, Σ y, f x = y),
             @dpair _ (λg, f ∼ g)
               (λx, dpr1 (k x)) (λx, dpr2 (k x)) in
-          let s := λ g h x, @dpair _ (λy, f x ≈ y) (g x) (h x) in
-          have t1 : Πx, is_contr (Σ y, f x ≈ y),
+          let s := λ g h x, @dpair _ (λy, f x = y) (g x) (h x) in
+          have t1 : Πx, is_contr (Σ y, f x = y),
             from (λx, !contr_basedpaths),
-          have t2 : is_contr (Πx, Σ y, f x ≈ y),
+          have t2 : is_contr (Πx, Σ y, f x = y),
             from !wf,
-          have t3 : (λ x, @dpair _ (λ y, f x ≈ y) (f x) idp) ≈ s g h,
-            from @path_contr (Π x, Σ y, f x ≈ y) t2 _ _,
-          have t4 : r (λ x, dpair (f x) idp) ≈ r (s g h),
+          have t3 : (λ x, @dpair _ (λ y, f x = y) (f x) idp) = s g h,
+            from @path_contr (Π x, Σ y, f x = y) t2 _ _,
+          have t4 : r (λ x, dpair (f x) idp) = r (s g h),
             from ap r t3,
-          have endt : dpair f idhtpy ≈ dpair g h,
+          have endt : dpair f idhtpy = dpair g h,
             from t4,
           endt
         )
@@ -84,7 +84,7 @@ context
     @transport _ (λ gh, Q (dpr1 gh) (dpr2 gh)) (dpair f idhtpy) (dpair g h)
       (@path_contr _ contr_basedhtpy _ _) d
 
-  definition htpy_ind_beta : htpy_ind f idhtpy ≈ d :=
+  definition htpy_ind_beta : htpy_ind f idhtpy = d :=
     (@path2_contr _ _ _ _ !path_contr idp)⁻¹ ▹ idp
 
 end
@@ -94,16 +94,16 @@ universe variables l k
 
 theorem funext_from_weak_funext (wf : weak_funext.{l+1 k+1}) : funext.{l+1 k+1} :=
   funext.mk (λ A B f g,
-    let eq_to_f := (λ g' x, f ≈ g') in
+    let eq_to_f := (λ g' x, f = g') in
     let sim2path := htpy_ind _ f eq_to_f idp in
-    have t1 : sim2path f (idhtpy f) ≈ idp,
+    have t1 : sim2path f (idhtpy f) = idp,
       proof htpy_ind_beta _ f eq_to_f idp qed,
-    have t2 : apD10 (sim2path f (idhtpy f)) ≈ (idhtpy f),
+    have t2 : apD10 (sim2path f (idhtpy f)) = (idhtpy f),
       proof ap apD10 t1 qed,
     have sect : apD10 ∘ (sim2path g) ∼ id,
-      proof (htpy_ind _ f (λ g' x, apD10 (sim2path g' x) ≈ x) t2) g qed,
+      proof (htpy_ind _ f (λ g' x, apD10 (sim2path g' x) = x) t2) g qed,
     have retr : (sim2path g) ∘ apD10 ∼ id,
-      from (λ h, path.rec_on h (htpy_ind_beta _ f _ idp)),
+      from (λ h, eq.rec_on h (htpy_ind_beta _ f _ idp)),
     is_equiv.adjointify apD10 (sim2path g) sect retr)
 
 definition funext_from_naive_funext : naive_funext -> funext :=

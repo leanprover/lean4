@@ -2,9 +2,8 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jakob von Raumer
 -- Ported from Coq HoTT
-import hott.path hott.trunc data.sigma data.prod
-
-open path prod truncation
+import init.trunc
+open eq prod truncation
 
 structure is_pointed [class] (A : Type) :=
   (point : A)
@@ -30,7 +29,7 @@ namespace is_pointed
       : is_pointed (A × B) :=
     is_pointed.mk (prod.mk (point A) (point B))
 
-  protected definition loop_space (a : A) : is_pointed (a ≈ a) :=
+  protected definition loop_space (a : A) : is_pointed (a = a) :=
     is_pointed.mk idp
 
 end is_pointed

@@ -2,18 +2,19 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jakob von Raumer
 -- Ported from Coq HoTT
-import hott.path hott.equiv
-open path equiv
+prelude
+import ..path ..equiv
+open eq equiv
 
 --Ensure that the types compared are in the same universe
 section
   universe variable l
   variables {A B : Type.{l}}
 
-  definition isequiv_path (H : A ≈ B) :=
+  definition isequiv_path (H : A = B) :=
     (@is_equiv.transport Type (λX, X) A B H)
 
-  definition equiv_path (H : A ≈ B) : A ≃ B :=
+  definition equiv_path (H : A = B) : A ≃ B :=
     equiv.mk _ (isequiv_path H)
 
 end
@@ -32,7 +33,7 @@ namespace ua_type
       rec_on F (λ H, H A B)
 
     -- This is the version of univalence axiom we will probably use most often
-    definition ua : A ≃ B →  A ≈ B :=
+    definition ua : A ≃ B →  A = B :=
       @is_equiv.inv _ _ (@equiv_path A B) inst
 
   end
@@ -45,7 +46,7 @@ namespace Equiv
 
   protected definition subst [UA : ua_type] (P : Type → Type) {A B : Type.{l}} (H : A ≃ B)
       : P A → P B :=
-    path.transport P (ua_type.ua H)
+    eq.transport P (ua_type.ua H)
 
   -- We can use this for calculation evironments
   calc_subst subst

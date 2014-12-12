@@ -153,6 +153,17 @@ public:
         m_pos--;
     }
 
+    void insert(unsigned idx, T const & elem) {
+        using std::swap;
+        lean_assert(idx <= size());
+        push_back(elem);
+        unsigned i = size();
+        while (i > idx + 1) {
+            --i;
+            swap(m_buffer[i], m_buffer[i-1]);
+        }
+    }
+
     void shrink(unsigned nsz) {
         unsigned sz = size();
         lean_assert(nsz <= sz);

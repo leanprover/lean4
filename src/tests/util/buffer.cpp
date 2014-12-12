@@ -58,9 +58,33 @@ static void tst2() {
     lean_assert(b2.size() == 1);
 }
 
+static void check(buffer<int> const & b, std::initializer_list<int> const & l) {
+    lean_assert(b.size() == l.size());
+    unsigned i = 0;
+    for (int v : l) {
+        lean_assert(b[i] == v);
+        i++;
+    }
+}
+
+static void tst3() {
+    buffer<int> b;
+    for (unsigned i = 0; i < 5; i++)
+        b.push_back(i);
+    b.insert(0, 1000);
+    check(b, {1000, 0, 1, 2, 3, 4});
+    b.insert(1, 2000);
+    check(b, {1000, 2000, 0, 1, 2, 3, 4});
+    b.insert(6, 100);
+    check(b, {1000, 2000, 0, 1, 2, 3, 100, 4});
+    b.insert(8, 300);
+    check(b, {1000, 2000, 0, 1, 2, 3, 100, 4, 300});
+}
+
 int main() {
     loop<buffer<int>>(100);
     tst1();
     tst2();
+    tst3();
     return has_violations() ? 1 : 0;
 }

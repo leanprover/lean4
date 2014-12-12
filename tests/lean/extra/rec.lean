@@ -1,8 +1,19 @@
 import data.vector
 open nat vector
 
-check lt.base
-set_option pp.implicit true
+definition fib : nat → nat,
+fib 0     := 1,
+fib 1     := 1,
+fib (a+2) := (fib a ↓ lt.step (lt.base a)) + (fib (a+1) ↓ lt.base (a+1))
+[wf] lt.wf
+
+definition gcd : nat → nat → nat,
+gcd 0 x               := x,
+gcd x 0               := x,
+gcd (succ x) (succ y) := if y ≤ x
+                         then gcd (x - y) (succ y) ↓ !sigma.lex.left (lt_succ_of_le (sub_le x y))
+                         else gcd (succ x) (y - x) ↓ !sigma.lex.right (lt_succ_of_le (sub_le y x))
+[wf] sigma.lex.wf lt.wf (λ x, lt.wf)
 
 definition add : nat → nat → nat,
 add zero b     := b,
@@ -12,11 +23,6 @@ definition map {A B C : Type} (f : A → B → C) : Π {n}, vector A n → vecto
 map nil nil             := nil,
 map (a :: va) (b :: vb) := f a b :: map va vb
 
-definition fib : nat → nat,
-fib 0     := 1,
-fib 1     := 1,
-fib (a+2) := (fib a ↓ lt.step (lt.base a)) + (fib (a+1) ↓ lt.base (a+1))
-[wf] lt.wf
 
 definition half : nat → nat,
 half 0     := 0,

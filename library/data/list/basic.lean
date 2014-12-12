@@ -183,7 +183,7 @@ induction_on l
 
 definition mem.is_decidable [instance] (H : decidable_eq T) (x : T) (l : list T) : decidable (x ∈ l) :=
 rec_on l
-  (decidable.inr (iff.false_elim !mem.nil))
+  (decidable.inr (not_of_iff_false !mem.nil))
   (take (h : T) (l : list T) (iH : decidable (x ∈ l)),
     show decidable (x ∈ h::l), from
     decidable.rec_on iH

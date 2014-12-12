@@ -143,7 +143,7 @@ theorem false_eq_true : (false ↔ true) ↔ false :=
 not_false_iff_true ▸ (a_iff_not_a false)
 
 theorem a_eq_true (a : Prop) : (a ↔ true) ↔ a :=
-iff.intro (assume H, iff.true_elim H) (assume H, iff_true_intro H)
+iff.intro (assume H, of_iff_true H) (assume H, iff_true_intro H)
 
 theorem a_eq_false (a : Prop) : (a ↔ false) ↔ ¬a :=
-iff.intro (assume H, iff.false_elim H) (assume H, iff_false_intro H)
+iff.intro (assume H, not_of_iff_false H) (assume H, iff_false_intro H)

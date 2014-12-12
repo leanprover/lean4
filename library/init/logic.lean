@@ -53,15 +53,18 @@ namespace eq
     notation H1 ▸ H2 := subst H1 H2
   end ops
 
-  variable {p : Prop}
-  open ops
+end eq
 
-  theorem true_elim (H : p = true) : p :=
+section
+  variable {p : Prop}
+  open eq.ops
+
+  theorem of_eq_true (H : p = true) : p :=
   H⁻¹ ▸ trivial
 
-  theorem false_elim (H : p = false) : ¬p :=
+  theorem not_of_eq_false (H : p = false) : ¬p :=
   assume Hp, H ▸ Hp
-end eq
+end
 
 calc_subst eq.subst
 calc_refl  eq.refl
@@ -140,10 +143,10 @@ namespace heq
 
   theorem of_eq_of_heq (H₁ : a = a') (H₂ : a' == b) : a == b :=
   trans (of_eq H₁) H₂
-
-  theorem true_elim {a : Prop} (H : a == true) : a :=
-  eq.true_elim (heq.to_eq H)
 end heq
+
+theorem of_heq_true {a : Prop} (H : a == true) : a :=
+of_eq_true (heq.to_eq H)
 
 calc_trans heq.trans
 calc_trans heq.of_heq_of_eq
@@ -158,16 +161,8 @@ notation a ∧ b  := and a b
 
 variables {a b c d : Prop}
 
-namespace and
-  theorem elim (H₁ : a ∧ b) (H₂ : a → b → c) : c :=
-  rec H₂ H₁
-
-  definition not_left (b : Prop) (Hna : ¬a) : ¬(a ∧ b) :=
-  assume H : a ∧ b, absurd (elim_left H) Hna
-
-  definition not_right (a : Prop) {b : Prop} (Hnb : ¬b) : ¬(a ∧ b) :=
-  assume H : a ∧ b, absurd (elim_right H) Hnb
-end and
+theorem and.elim (H₁ : a ∧ b) (H₂ : a → b → c) : c :=
+and.rec H₂ H₁
 
 -- or
 -- --
@@ -183,11 +178,6 @@ namespace or
 
   theorem elim (H₁ : a ∨ b) (H₂ : a → c) (H₃ : b → c) : c :=
   rec H₂ H₃ H₁
-
-  definition not_intro (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b) :=
-  assume H : a ∨ b, or.rec_on H
-    (assume Ha, absurd Ha Hna)
-    (assume Hb, absurd Hb Hnb)
 end or
 
 -- iff
@@ -233,16 +223,16 @@ namespace iff
     (assume Hb, elim_right H Hb)
     (assume Ha, elim_left H Ha)
 
-  theorem true_elim (H : a ↔ true) : a :=
-  mp (symm H) trivial
-
-  theorem false_elim (H : a ↔ false) : ¬a :=
-  assume Ha : a, mp H Ha
-
   open eq.ops
   theorem of_eq {a b : Prop} (H : a = b) : a ↔ b :=
   iff.intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 end iff
+
+theorem of_iff_true (H : a ↔ true) : a :=
+iff.mp (iff.symm H) trivial
+
+theorem not_of_iff_false (H : a ↔ false) : ¬a :=
+assume Ha : a, iff.mp H Ha
 
 calc_refl iff.refl
 calc_trans iff.trans
@@ -307,15 +297,15 @@ section
   rec_on Hp
     (assume Hp  : p, rec_on Hq
       (assume Hq  : q,  inl (and.intro Hp Hq))
-      (assume Hnq : ¬q, inr (and.not_right p Hnq)))
-    (assume Hnp : ¬p, inr (and.not_left q Hnp))
+      (assume Hnq : ¬q, inr (assume H : p ∧ q, and.rec_on H (assume Hp Hq, absurd Hq Hnq))))
+    (assume Hnp : ¬p, inr (assume H : p ∧ q, and.rec_on H (assume Hp Hq, absurd Hp Hnp)))
 
   definition or.decidable [instance] (Hp : decidable p) (Hq : decidable q) : decidable (p ∨ q) :=
   rec_on Hp
     (assume Hp  : p, inl (or.inl Hp))
     (assume Hnp : ¬p, rec_on Hq
       (assume Hq  : q,  inl (or.inr Hq))
-      (assume Hnq : ¬q, inr (or.not_intro Hnp Hnq)))
+      (assume Hnq : ¬q, inr (assume H : p ∨ q, or.elim H (assume Hp, absurd Hp Hnp) (assume Hq, absurd Hq Hnq))))
 
   definition not.decidable [instance] (Hp : decidable p) : decidable (¬p) :=
   rec_on Hp
@@ -389,32 +379,6 @@ decidable.rec
   (λ Hc  : c,  eq.refl (@ite c (decidable.inl Hc)  A t t))
   (λ Hnc : ¬c, eq.refl (@ite c (decidable.inr Hnc) A t t))
   H
-
-definition if_true {A : Type} (t e : A) : (if true then t else e) = t :=
-if_pos trivial
-
-definition if_false {A : Type} (t e : A) : (if false then t else e) = e :=
-if_neg not_false
-
-theorem if_cond_congr {c₁ c₂ : Prop} [H₁ : decidable c₁] [H₂ : decidable c₂] (Heq : c₁ ↔ c₂) {A : Type} (t e : A)
-                      : (if c₁ then t else e) = (if c₂ then t else e) :=
-decidable.rec_on H₁
- (λ Hc₁  : c₁,  decidable.rec_on H₂
-   (λ Hc₂  : c₂,  if_pos Hc₁ ⬝ (if_pos Hc₂)⁻¹)
-   (λ Hnc₂ : ¬c₂, absurd (iff.elim_left Heq Hc₁) Hnc₂))
- (λ Hnc₁ : ¬c₁, decidable.rec_on H₂
-   (λ Hc₂  : c₂,  absurd (iff.elim_right Heq Hc₂) Hnc₁)
-   (λ Hnc₂ : ¬c₂, if_neg Hnc₁ ⬝ (if_neg Hnc₂)⁻¹))
-
-theorem if_congr_aux {c₁ c₂ : Prop} [H₁ : decidable c₁] [H₂ : decidable c₂] {A : Type} {t₁ t₂ e₁ e₂ : A}
-                     (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂) (He : e₁ = e₂) :
-                 (if c₁ then t₁ else e₁) = (if c₂ then t₂ else e₂) :=
-Ht ▸ He ▸ (if_cond_congr Hc t₁ e₁)
-
-theorem if_congr {c₁ c₂ : Prop} [H₁ : decidable c₁] {A : Type} {t₁ t₂ e₁ e₂ : A} (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂) (He : e₁ = e₂) :
-                 (if c₁ then t₁ else e₁) = (@ite c₂ (decidable.decidable_iff_equiv H₁ Hc) A t₂ e₂) :=
-have H2 [visible] : decidable c₂, from (decidable.decidable_iff_equiv H₁ Hc),
-if_congr_aux Hc Ht He
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches

@@ -39,6 +39,12 @@ assume not_em : ¬(a ∨ ¬a),
 -- ---
 
 namespace and
+  definition not_left (b : Prop) (Hna : ¬a) : ¬(a ∧ b) :=
+  assume H : a ∧ b, absurd (elim_left H) Hna
+
+  definition not_right (a : Prop) {b : Prop} (Hnb : ¬b) : ¬(a ∧ b) :=
+  assume H : a ∧ b, absurd (elim_right H) Hnb
+
   theorem swap (H : a ∧ b) : b ∧ a :=
   intro (elim_right H) (elim_left H)
 
@@ -68,6 +74,11 @@ end and
 -- --
 
 namespace or
+  definition not_intro (Hna : ¬a) (Hnb : ¬b) : ¬(a ∨ b) :=
+  assume H : a ∨ b, or.rec_on H
+    (assume Ha, absurd Ha Hna)
+    (assume Hb, absurd Hb Hnb)
+
   theorem imp_or (H₁ : a ∨ b) (H₂ : a → c) (H₃ : b → d) : c ∨ d :=
   elim H₁
     (assume Ha : a, inl (H₂ Ha))
@@ -136,3 +147,37 @@ theorem exists_unique_elim {A : Type} {p : A → Prop} {b : Prop}
                            (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, p y → y = x) → b) : b :=
 obtain w Hw, from H2,
 H1 w (and.elim_left Hw) (and.elim_right Hw)
+
+-- if-then-else
+-- ------------
+section
+  open eq.ops
+
+  variables {A : Type} {c₁ c₂ : Prop}
+
+  definition if_true (t e : A) : (if true then t else e) = t :=
+  if_pos trivial
+
+  definition if_false (t e : A) : (if false then t else e) = e :=
+  if_neg not_false
+
+  theorem if_cond_congr [H₁ : decidable c₁] [H₂ : decidable c₂] (Heq : c₁ ↔ c₂) (t e : A)
+                        : (if c₁ then t else e) = (if c₂ then t else e) :=
+  decidable.rec_on H₁
+   (λ Hc₁  : c₁,  decidable.rec_on H₂
+     (λ Hc₂  : c₂,  if_pos Hc₁ ⬝ (if_pos Hc₂)⁻¹)
+     (λ Hnc₂ : ¬c₂, absurd (iff.elim_left Heq Hc₁) Hnc₂))
+   (λ Hnc₁ : ¬c₁, decidable.rec_on H₂
+     (λ Hc₂  : c₂,  absurd (iff.elim_right Heq Hc₂) Hnc₁)
+     (λ Hnc₂ : ¬c₂, if_neg Hnc₁ ⬝ (if_neg Hnc₂)⁻¹))
+
+  theorem if_congr_aux [H₁ : decidable c₁] [H₂ : decidable c₂] {t₁ t₂ e₁ e₂ : A}
+                       (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂) (He : e₁ = e₂) :
+                   (if c₁ then t₁ else e₁) = (if c₂ then t₂ else e₂) :=
+  Ht ▸ He ▸ (if_cond_congr Hc t₁ e₁)
+
+  theorem if_congr [H₁ : decidable c₁] {t₁ t₂ e₁ e₂ : A} (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂) (He : e₁ = e₂) :
+                   (if c₁ then t₁ else e₁) = (@ite c₂ (decidable.decidable_iff_equiv H₁ Hc) A t₂ e₂) :=
+  have H2 [visible] : decidable c₂, from (decidable.decidable_iff_equiv H₁ Hc),
+  if_congr_aux Hc Ht He
+end

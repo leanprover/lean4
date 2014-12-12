@@ -23,10 +23,10 @@ definition is_zero (x : nat)
 := nat.rec true (λ n r, false) x
 
 theorem is_zero_zero : is_zero zero
-:= eq.true_elim (refl _)
+:= of_eq_true (refl _)
 
 theorem not_is_zero_succ (x : nat) : ¬ is_zero (succ x)
-:= eq.false_elim (refl _)
+:= not_of_eq_false (refl _)
 
 theorem dichotomy (m : nat) : m = zero ∨ (∃ n, m = succ n)
 := nat.rec

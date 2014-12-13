@@ -34,6 +34,14 @@ section
   variables (a b c d e : A)
   include s
 
+  -- TODO: remove after we short-circuit class-graph
+  definition ordered_semiring.to_mul [instance] [priority 100000] : has_mul A :=
+  has_mul.mk (@ordered_semiring.mul A s)
+  definition ordered_semiring.to_lt [instance] [priority 100000] : has_lt A :=
+  has_lt.mk (@ordered_semiring.lt A s)
+  definition ordered_semiring.to_zero [instance] [priority 100000] : has_zero A :=
+  has_zero.mk (@ordered_semiring.zero A s)
+
   theorem mul_le_mul_of_nonneg_left {a b c : A} (Hab : a ≤ b) (Hc : 0 ≤ c) :
     c * a ≤ c * b := !ordered_semiring.mul_le_mul_left Hab Hc
 
@@ -94,6 +102,14 @@ section
   variable [s : linear_ordered_semiring A]
   variables (a b c : A)
   include s
+
+  -- TODO: remove after we short-circuit class-graph
+  definition linear_ordered_semiring.to_mul [instance] [priority 100000] : has_mul A :=
+  has_mul.mk (@linear_ordered_semiring.mul A s)
+  definition linear_ordered_semiring.to_lt [instance] [priority 100000] : has_lt A :=
+  has_lt.mk (@linear_ordered_semiring.lt A s)
+  definition linear_ordered_semiring.to_zero [instance] [priority 100000] : has_zero A :=
+  has_zero.mk (@linear_ordered_semiring.zero A s)
 
   theorem lt_of_mul_lt_mul_left {a b c : A} (H : c * a < c * b) (Hc : c ≥ 0) : a < b :=
   lt_of_not_le
@@ -190,6 +206,14 @@ section
   variables (a b c : A)
   include s
 
+  -- TODO: remove after we short-circuit class-graph
+  definition ordered_ring.to_mul [instance] [priority 100000] : has_mul A :=
+  has_mul.mk (@ordered_ring.mul A s)
+  definition ordered_ring.to_lt [instance] [priority 100000] : has_lt A :=
+  has_lt.mk (@ordered_ring.lt A s)
+  definition ordered_ring.to_zero [instance] [priority 100000] : has_zero A :=
+  has_zero.mk (@ordered_ring.zero A s)
+
   theorem mul_le_mul_of_nonpos_left {a b c : A} (H : b ≤ a) (Hc : c ≤ 0) : c * a ≤ c * b :=
   have Hc' : -c ≥ 0, from iff.mp' !neg_nonneg_iff_nonpos Hc,
   have H1 : -c * b ≤ -c * a, from mul_le_mul_of_nonneg_left H Hc',
@@ -249,6 +273,14 @@ section
   theorem le_add_of_nonneg_right {a b : A} (H : b ≥ 0) : a ≤ a + b := !add.right_id ▸ add_le_add_left H a
   theorem le_add_of_nonneg_left {a b : A} (H : b ≥ 0) : a ≤ b + a := !add.left_id ▸ add_le_add_right H a
 
+  -- TODO: remove after we short-circuit class-graph
+  definition linear_ordered_ring.to_mul [instance] [priority 100000] : has_mul A :=
+  has_mul.mk (@linear_ordered_ring.mul A s)
+  definition linear_ordered_ring.to_lt [instance] [priority 100000] : has_lt A :=
+  has_lt.mk (@linear_ordered_ring.lt A s)
+  definition linear_ordered_ring.to_zero [instance] [priority 100000] : has_zero A :=
+  has_zero.mk (@linear_ordered_ring.zero A s)
+
   /- TODO: a good example of a performance bottleneck.
 
   Without any of the "proof ... qed" pairs, it exceeds the unifier maximum number of steps.
@@ -265,72 +297,27 @@ section
   theorem pos_and_pos_or_neg_and_neg_of_mul_pos (Hab : a * b > 0) :
     (a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0) :=
   lt_or_eq_or_lt_cases
-  -- @lt_or_eq_or_lt_cases A s 0 a ((a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0))
     (assume Ha : 0 < a,
-    proof
       lt_or_eq_or_lt_cases
-      -- @lt_or_eq_or_lt_cases A s 0 b ((a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0))
         (assume Hb : 0 < b, or.inl (and.intro Ha Hb))
         (assume Hb : 0 = b,
-          have H : 0 > 0, from !mul_zero_eq ▸ Hb⁻¹ ▸ Hab,
-          absurd H (lt.irrefl 0))
+          absurd (!mul_zero_eq ▸ Hb⁻¹ ▸ Hab) (lt.irrefl 0))
         (assume Hb : b < 0,
-          have Hab' : a * b < 0, from mul_neg_of_pos_of_neg Ha Hb,
-          absurd Hab (not_lt_of_lt Hab'))
-    qed)
+          absurd Hab (not_lt_of_lt (mul_neg_of_pos_of_neg Ha Hb))))
     (assume Ha : 0 = a,
-    proof
-      have H : 0 > 0, from !zero_mul_eq ▸ Ha⁻¹ ▸ Hab,
-      absurd H (lt.irrefl 0)
-    qed)
+      absurd (!zero_mul_eq ▸ Ha⁻¹ ▸ Hab) (lt.irrefl 0))
     (assume Ha : a < 0,
-    proof
       lt_or_eq_or_lt_cases
-      -- @lt_or_eq_or_lt_cases A s 0 b ((a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0))
         (assume Hb : 0 < b,
-          have Hab' : a * b < 0, from mul_neg_of_neg_of_pos Ha Hb,
-          absurd Hab (not_lt_of_lt Hab'))
+          absurd Hab (not_lt_of_lt (mul_neg_of_neg_of_pos Ha Hb)))
         (assume Hb : 0 = b,
-          have H : 0 > 0, from !mul_zero_eq ▸ Hb⁻¹ ▸ Hab,
-          absurd H (lt.irrefl 0))
-        (assume Hb : b < 0, or.inr (and.intro Ha Hb))
-     qed)
+          absurd (!mul_zero_eq ▸ Hb⁻¹ ▸ Hab) (lt.irrefl 0))
+        (assume Hb : b < 0, or.inr (and.intro Ha Hb)))
 
-  /-
-  This version, with tactics, is also slow.
-  Also, I do not understand why I cannot succesfully return to "proof mode"
-  in the proof below. I think "s" is not visible there. Can I make it visible?
-
-  Here is the really strange thing: compiling the file with both proofs seems faster than
-  compiling the file with just one of them.
-  -/
-  theorem pos_and_pos_or_neg_and_neg_of_mul_pos' (Hab : a * b > 0) :
-    (a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0) :=
-  begin
-    apply (@lt_or_eq_or_lt_cases _ _ 0 a),
-      intro Ha,
-        apply (@lt_or_eq_or_lt_cases _ _ 0 b),
-          intro Hb, apply (or.inl (and.intro Ha Hb)),
-          intro Hb,
-            /-
-            proof -- gives invalid local context
-              have H : 0 > 0, from !mul_zero_eq ▸ (eq.symm Hb) ▸ Hab,
-              absurd H (lt.irrefl 0)
-            qed
-            -/
-            apply (absurd (!mul_zero_eq ▸ (eq.symm Hb) ▸ Hab) (lt.irrefl 0)),
-          intro Hb,
-            apply (absurd Hab (not_lt_of_lt (mul_neg_of_pos_of_neg Ha Hb))),
-      intro Ha,
-        apply (absurd (!zero_mul_eq ▸ Ha⁻¹ ▸ Hab) (lt.irrefl 0)),
-      intro Ha,
-        apply (@lt_or_eq_or_lt_cases _ _ 0 b),
-          intro Hb,
-            apply (absurd Hab (not_lt_of_lt (mul_neg_of_neg_of_pos Ha Hb))),
-          intro Hb,
-            apply (absurd (!mul_zero_eq ▸ (eq.symm Hb) ▸ Hab) (lt.irrefl 0)),
-          intro Hb, apply (or.inr (and.intro Ha Hb))
-  end
+  set_option pp.coercions true
+  set_option pp.implicit true
+  set_option pp.notation false
+  -- print definition pos_and_pos_or_neg_and_neg_of_mul_pos
 
   -- TODO: use previous and integral domain
   theorem noneg_and_nonneg_or_nonpos_and_nonpos_of_mul_nonneg (Hab : a * b ≥ 0) :

@@ -698,14 +698,19 @@ struct structure_cmd_fn {
         add_rec_on_alias(name(m_name, "cases_on"));
     }
 
-    void get_parent_names(buffer<name> & parent_names) {
-        for (expr const & parent : m_parents)
-            parent_names.push_back(const_name(get_app_fn(parent)));
+    // Return the parent names without namespace prefix
+    void get_truncated_parent_names(buffer<name> & parent_names) {
+        for (expr const & parent : m_parents) {
+            name n = const_name(get_app_fn(parent));
+            if (!n.is_atomic() && n.is_string())
+                n = name(n.get_string());
+            parent_names.push_back(n);
+        }
     }
 
     void mk_coercion_names(buffer<name> & coercion_names) {
         buffer<name> parent_names;
-        get_parent_names(parent_names);
+        get_truncated_parent_names(parent_names);
         name_set           found;
         name_map<unsigned> non_unique;
         for (name const & n : parent_names) {

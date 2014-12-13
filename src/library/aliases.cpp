@@ -74,9 +74,8 @@ struct aliases_ext : public environment_extension {
     void add_expr_alias_rec(name const & a, name const & e, bool overwrite = false) {
         if (m_state.m_in_context) {
             m_scopes = add_expr_alias_rec_core(m_scopes, a, e, overwrite);
-        } else {
-            add_expr_alias(a, e, overwrite);
         }
+        add_expr_alias(a, e, overwrite);
     }
 
     void push(bool in_context) {
@@ -107,7 +106,7 @@ struct aliases_ext : public environment_extension {
         aliases_ext ext = get_extension(env);
         ext.push(k != scope_kind::Namespace);
         environment new_env = update(env, ext);
-        if (!::lean::in_context(new_env))
+        if (!::lean::in_context(new_env) && !::lean::in_section(new_env))
             new_env = add_aliases(new_env, get_namespace(new_env), name());
         return new_env;
     }

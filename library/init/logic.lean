@@ -327,35 +327,30 @@ definition decidable_eq   (A : Type) := decidable_rel (@eq A)
 inductive inhabited [class] (A : Type) : Type :=
 mk : A → inhabited A
 
-namespace inhabited
-
-protected definition destruct {A : Type} {B : Type} (H1 : inhabited A) (H2 : A → B) : B :=
+protected definition inhabited.destruct {A : Type} {B : Type} (H1 : inhabited A) (H2 : A → B) : B :=
 inhabited.rec H2 H1
 
+definition inhabited.default (A : Type) [H : inhabited A] : A :=
+inhabited.rec (λa, a) H
+
 definition Prop_inhabited [instance] : inhabited Prop :=
-mk true
+inhabited.mk true
 
 definition fun_inhabited [instance] (A : Type) {B : Type} (H : inhabited B) : inhabited (A → B) :=
-destruct H (λb, mk (λa, b))
+inhabited.rec_on H (λb, inhabited.mk (λa, b))
 
 definition dfun_inhabited [instance] (A : Type) {B : A → Type} (H : Πx, inhabited (B x)) :
   inhabited (Πx, B x) :=
-mk (λa, destruct (H a) (λb, b))
-
-definition default (A : Type) [H : inhabited A] : A := destruct H (take a, a)
-
-end inhabited
+inhabited.mk (λa, inhabited.rec_on (H a) (λb, b))
 
 inductive nonempty [class] (A : Type) : Prop :=
 intro : A → nonempty A
 
-namespace nonempty
-  protected definition elim {A : Type} {B : Prop} (H1 : nonempty A) (H2 : A → B) : B :=
-  rec H2 H1
+protected definition nonempty.elim {A : Type} {B : Prop} (H1 : nonempty A) (H2 : A → B) : B :=
+nonempty.rec H2 H1
 
-  theorem inhabited_imp_nonempty [instance] {A : Type} (H : inhabited A) : nonempty A :=
-  intro (inhabited.default A)
-end nonempty
+theorem inhabited_imp_nonempty [instance] {A : Type} (H : inhabited A) : nonempty A :=
+nonempty.intro (inhabited.default A)
 
 definition ite (c : Prop) [H : decidable c] {A : Type} (t e : A) : A :=
 decidable.rec_on H (λ Hc, t) (λ Hnc, e)

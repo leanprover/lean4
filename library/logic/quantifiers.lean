@@ -55,3 +55,22 @@ iff.intro
 
 theorem exists_imp_nonempty {A : Type} {P : A → Prop} (H : ∃x, P x) : nonempty A :=
 obtain w Hw, from H, nonempty.intro w
+
+section
+  open decidable eq.ops
+
+  variables {A : Type} (P : A → Prop) (a : A) [H : decidable (P a)]
+  include H
+
+  definition decidable_forall_eq [instance] : decidable (∀ x, x = a → P x) :=
+  decidable.rec_on H
+     (λ pa,  inl (λ x heq, eq.rec_on (eq.rec_on heq rfl) pa))
+     (λ npa, inr (λ h, absurd (h a rfl) npa))
+
+  definition decidable_exists_eq [instance] : decidable (∃ x, x = a ∧ P x) :=
+  decidable.rec_on H
+     (λ pa, inl (exists_intro a (and.intro rfl pa)))
+     (λ npa, inr (λ h,
+       obtain (w : A) (Hw : w = a ∧ P w), from h,
+       absurd (and.rec_on Hw (λ h₁ h₂, h₁ ▸ h₂)) npa))
+end

@@ -73,6 +73,7 @@ reserve infixl `||`:65
 /- set operations -/
 
 reserve infix `∈`:50
+reserve infix `∉`:50
 reserve infixl `∩`:70
 reserve infixl `∪`:65
 

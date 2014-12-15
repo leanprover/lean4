@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "kernel/inductive/inductive.h"
 #include "library/reducible.h"
 
 namespace lean {
@@ -28,10 +29,22 @@ class normalize_fn {
 
     expr normalize_app(expr const & e) {
         buffer<expr> args;
+        bool modified = false;
         expr f = get_app_rev_args(e, args);
-        for (expr & a : args)
-            a = normalize(a);
-        return mk_rev_app(f, args);
+        for (expr & a : args) {
+            expr new_a = normalize(a);
+            if (new_a != a)
+                modified = true;
+            a = new_a;
+        }
+        if (!modified)
+            return e;
+        expr r = mk_rev_app(f, args);
+        if (is_constant(f) && inductive::is_elim_rule(m_tc.env(), const_name(f))) {
+            return normalize(r);
+        } else {
+            return r;
+        }
     }
 
     expr normalize(expr e) {

@@ -4,16 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Module: logic.quantifiers
 Authors: Leonardo de Moura, Jeremy Avigad
+
+Universal and existential quantifiers. See also init.logic.
 -/
 
 open inhabited nonempty
 
-theorem exists_not_forall {A : Type} {p : A → Prop} (H : ∃x, p x) : ¬∀x, ¬p x :=
+theorem not_forall_not_of_exists {A : Type} {p : A → Prop} (H : ∃x, p x) : ¬∀x, ¬p x :=
 assume H1 : ∀x, ¬p x,
   obtain (w : A) (Hw : p w), from H,
   absurd Hw (H1 w)
 
-theorem forall_not_exists {A : Type} {p : A → Prop} (H2 : ∀x, p x) : ¬∃x, ¬p x :=
+theorem not_exists_not_of_forall {A : Type} {p : A → Prop} (H2 : ∀x, p x) : ¬∃x, ¬p x :=
 assume H1 : ∃x, ¬p x,
   obtain (w : A) (Hw : ¬p w), from H1,
   absurd (H2 w) Hw
@@ -41,12 +43,14 @@ iff.intro
   (assume Hl, obtain a Hp, from Hl, Hp)
   (assume Hr, inhabited.destruct H (take a, exists_intro a Hr))
 
-theorem forall_and_distribute {A : Type} (φ ψ : A → Prop) : (∀x, φ x ∧ ψ x) ↔ (∀x, φ x) ∧ (∀x, ψ x) :=
+theorem forall_and_distribute {A : Type} (φ ψ : A → Prop) :
+  (∀x, φ x ∧ ψ x) ↔ (∀x, φ x) ∧ (∀x, ψ x) :=
 iff.intro
   (assume H, and.intro (take x, and.elim_left (H x)) (take x, and.elim_right (H x)))
   (assume H, take x, and.intro (and.elim_left H x) (and.elim_right H x))
 
-theorem exists_or_distribute {A : Type} (φ ψ : A → Prop) : (∃x, φ x ∨ ψ x) ↔ (∃x, φ x) ∨ (∃x, ψ x) :=
+theorem exists_or_distribute {A : Type} (φ ψ : A → Prop) :
+  (∃x, φ x ∨ ψ x) ↔ (∃x, φ x) ∨ (∃x, ψ x) :=
 iff.intro
   (assume H, obtain (w : A) (Hw : φ w ∨ ψ w), from H,
     or.elim Hw
@@ -58,7 +62,7 @@ iff.intro
     (assume H2, obtain (w : A) (Hw : ψ w), from H2,
       exists_intro w (or.inr Hw)))
 
-theorem exists_imp_nonempty {A : Type} {P : A → Prop} (H : ∃x, P x) : nonempty A :=
+theorem nonempty_of_exists {A : Type} {P : A → Prop} (H : ∃x, P x) : nonempty A :=
 obtain w Hw, from H, nonempty.intro w
 
 section

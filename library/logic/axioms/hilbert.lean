@@ -48,8 +48,8 @@ let u : {x | (∃y, P y) → P x} :=
 has_property u Hex
 
 theorem epsilon_spec {A : Type} {P : A → Prop} (Hex : ∃y, P y) :
-    P (@epsilon A (exists_imp_nonempty Hex) P) :=
-epsilon_spec_aux (exists_imp_nonempty Hex) P Hex
+    P (@epsilon A (nonempty_of_exists Hex) P) :=
+epsilon_spec_aux (nonempty_of_exists Hex) P Hex
 
 theorem epsilon_singleton {A : Type} (a : A) : @epsilon A (nonempty.intro a) (λx, x = a) = a :=
 epsilon_spec (exists_intro a (eq.refl a))
@@ -60,7 +60,7 @@ epsilon_spec (exists_intro a (eq.refl a))
 
 theorem axiom_of_choice {A : Type} {B : A → Type} {R : Πx, B x → Prop} (H : ∀x, ∃y, R x y) :
   ∃f, ∀x, R x (f x) :=
-let f := λx, @epsilon _ (exists_imp_nonempty (H x)) (λy, R x y),
+let f := λx, @epsilon _ (nonempty_of_exists (H x)) (λy, R x y),
     H := take x, epsilon_spec (H x)
 in exists_intro f H
 

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: logic.connectives
 Authors: Jeremy Avigad, Leonardo de Moura
 
-The propositional connectives. See also init.datatypes.
+The propositional connectives. See also init.datatypes and init.logic.
 -/
 
 variables {a b c d : Prop}

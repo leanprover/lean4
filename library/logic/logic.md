@@ -1,22 +1,22 @@
 logic
 =====
 
-Additional constructions and axioms. By default, `import logic` does not
-import any axioms.
+Logical constructions and theorems, beyond what has already been
+declared in init.datatypes and init.logic. 
 
-Logical operations and connectives.
+The subfolder logic.axioms declares additional axioms. The command
+`import logic` does not import any axioms by default.
 
+* [connectives](connectives.lean) : the propositional connectives
 * [eq](eq.lean) : additional theorems for equality and disequality
 * [cast](cast.lean) : casts and heterogeneous equality
 * [quantifiers](quantifiers.lean) : existential and universal quantifiers
 * [identities](identities.lean) : some useful identities
+* [instances](instances.lean) : class instances for eq and iff
+* [subsingleton](subsingleton.lean)
+* [default](default.lean)
 
-Constructively, inhabited types have a witness, while nonempty types
-are "proof irrelevant". Classically (assuming the axioms in
-logic.axioms.hilbert) the two are equivalent. Type class inferences
-are set up to use "inhabited" however, so users should use that to
-declare that types have an element. Use "nonempty" in the hypothesis
-of a theorem when the theorem does not depend on the witness chosen.
+Subfolders:
 
 * [axioms](axioms/axioms.md) : additional axioms
 * [examples](examples/examples.md)

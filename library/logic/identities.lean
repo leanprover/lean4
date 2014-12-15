@@ -1,36 +1,37 @@
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Authors: Jeremy Avigad, Leonardo de Moura
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
 
--- logic.identities
--- ============================
+Module: logic.identities
+Authors: Jeremy Avigad, Leonardo de Moura
 
--- Useful logical identities. In the absence of propositional extensionality, some of the
--- calculations use the type class support provided by logic.instances
+Useful logical identities. Since we are not using propositional extensionality, some of the
+calculations use the type class support provided by logic.instances.
+-/
 
 import logic.connectives logic.instances logic.quantifiers logic.cast
 
 open relation decidable relation.iff_ops
 
-theorem or_right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
+theorem or.right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
 calc
   (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) : or.assoc
     ... ↔ a ∨ (c ∨ b)       : {or.comm}
      ... ↔ (a ∨ c) ∨ b      : iff.symm or.assoc
 
-theorem or_left_comm (a b c : Prop) : a ∨ (b ∨ c)↔ b ∨ (a ∨ c) :=
+theorem or.left_comm (a b c : Prop) : a ∨ (b ∨ c)↔ b ∨ (a ∨ c) :=
 calc
   a ∨ (b ∨ c) ↔ (a ∨ b) ∨ c : iff.symm or.assoc
     ... ↔ (b ∨ a) ∨ c       : {or.comm}
      ... ↔ b ∨ (a ∨ c)      : or.assoc
 
-theorem and_right_comm (a b c : Prop) : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b :=
+theorem and.right_comm (a b c : Prop) : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b :=
 calc
   (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) : and.assoc
     ... ↔ a ∧ (c ∧ b)       : {and.comm}
      ... ↔ (a ∧ c) ∧ b      : iff.symm and.assoc
 
-theorem and_left_comm (a b c : Prop) : a ∧ (b ∧ c)↔ b ∧ (a ∧ c) :=
+theorem and.left_comm (a b c : Prop) : a ∧ (b ∧ c)↔ b ∧ (a ∧ c) :=
 calc
   a ∧ (b ∧ c) ↔ (a ∧ b) ∧ c : iff.symm and.assoc
     ... ↔ (b ∧ a) ∧ c       : {and.comm}
@@ -46,14 +47,14 @@ iff.intro
 theorem not_not_elim {a : Prop} [D : decidable a] (H : ¬¬a) : a :=
 iff.mp not_not_iff H
 
-theorem not_true_iff_false : (¬true) ↔ false :=
+theorem not_true_iff_false : ¬true ↔ false :=
 iff.intro (assume H, H trivial) false.elim
 
-theorem not_false_iff_true : (¬false) ↔ true :=
+theorem not_false_iff_true : ¬false ↔ true :=
 iff.intro (assume H, trivial) (assume H H', H')
 
 theorem not_or_iff_not_and_not {a b : Prop} [Da : decidable a] [Db : decidable b] :
-  (¬(a ∨ b)) ↔ (¬a ∧ ¬b) :=
+  ¬(a ∨ b) ↔ ¬a ∧ ¬b :=
 iff.intro
   (assume H, or.elim (em a)
     (assume Ha, absurd (or.inl Ha) H)
@@ -65,7 +66,8 @@ iff.intro
       (assume Ha, absurd Ha (and.elim_left H))
       (assume Hb, absurd Hb (and.elim_right H)))
 
-theorem not_and {a b : Prop} [Da : decidable a] [Db : decidable b] : (¬(a ∧ b)) ↔ (¬a ∨ ¬b) :=
+theorem not_and_iff_not_or_not {a b : Prop} [Da : decidable a] [Db : decidable b] :
+  ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
 iff.intro
   (assume H, or.elim (em a)
     (assume Ha, or.elim (em b)
@@ -77,7 +79,7 @@ iff.intro
       (assume Hna, absurd (and.elim_left N) Hna)
       (assume Hnb, absurd (and.elim_right N) Hnb))
 
-theorem imp_or {a b : Prop} [Da : decidable a] : (a → b) ↔ (¬a ∨ b) :=
+theorem imp_iff_not_or {a b : Prop} [Da : decidable a] : (a → b) ↔ ¬a ∨ b :=
 iff.intro
   (assume H : a → b, (or.elim (em a)
     (assume Ha  : a,   or.inr (H Ha))
@@ -85,27 +87,29 @@ iff.intro
   (assume (H : ¬a ∨ b) (Ha : a),
     or_resolve_right H (not_not_iff⁻¹ ▸ Ha))
 
-theorem not_implies {a b : Prop} [Da : decidable a] [Db : decidable b] : (¬(a → b)) ↔ (a ∧ ¬b) :=
-calc (¬(a → b)) ↔ (¬(¬a ∨ b)) : {imp_or}
-            ... ↔ (¬¬a ∧ ¬b)  : not_or_iff_not_and_not
-            ... ↔ (a ∧ ¬b)    : {not_not_iff}
+theorem not_implies_iff_and_not {a b : Prop} [Da : decidable a] [Db : decidable b] :
+  ¬(a → b) ↔ a ∧ ¬b :=
+calc
+  ¬(a → b) ↔ ¬(¬a ∨ b) : {imp_iff_not_or}
+       ... ↔ ¬¬a ∧ ¬b  : not_or_iff_not_and_not
+       ... ↔ a ∧ ¬b    : {not_not_iff}
 
 theorem peirce {a b : Prop} [D : decidable a] : ((a → b) → a) → a :=
 assume H, by_contradiction (assume Hna : ¬a,
   have Hnna : ¬¬a, from not_not_of_not_implies (mt H Hna),
   absurd (not_not_elim Hnna) Hna)
 
-theorem not_exists_forall {A : Type} {P : A → Prop} [D : ∀x, decidable (P x)]
+theorem forall_not_of_not_exists {A : Type} {P : A → Prop} [D : ∀x, decidable (P x)]
     (H : ¬∃x, P x) : ∀x, ¬P x :=
 take x, or.elim (em (P x))
   (assume Hp : P x,   absurd (exists_intro x Hp) H)
   (assume Hn : ¬P x, Hn)
 
-theorem not_forall_exists {A : Type} {P : A → Prop} [D : ∀x, decidable (P x)]
+theorem exists_not_of_not_forall {A : Type} {P : A → Prop} [D : ∀x, decidable (P x)]
     [D' : decidable (∃x, ¬P x)] (H : ¬∀x, P x) :
   ∃x, ¬P x :=
 @by_contradiction _ D' (assume H1 : ¬∃x, ¬P x,
-  have H2 : ∀x, ¬¬P x, from @not_exists_forall _ _ (take x, not.decidable (D x)) H1,
+  have H2 : ∀x, ¬¬P x, from @forall_not_of_not_exists _ _ (take x, not.decidable (D x)) H1,
   have H3 : ∀x, P x, from take x, @not_not_elim _ (D x) (H2 x),
   absurd H3 H)
 
@@ -119,32 +123,32 @@ iff.intro
   (assume H1 : a,     absurd H1 H)
   (assume H2 : false, false.elim H2)
 
-theorem a_neq_a {A : Type} (a : A) : (a ≠ a) ↔ false :=
+theorem ne_self_iff_false {A : Type} (a : A) : (a ≠ a) ↔ false :=
 iff.intro
   (assume H, false.of_ne H)
   (assume H, false.elim H)
 
-theorem eq_id {A : Type} (a : A) : (a = a) ↔ true :=
+theorem eq_self_iff_true {A : Type} (a : A) : (a = a) ↔ true :=
 iff_true_intro rfl
 
-theorem heq_id {A : Type} (a : A) : (a == a) ↔ true :=
+theorem heq_self_iff_true {A : Type} (a : A) : (a == a) ↔ true :=
 iff_true_intro (heq.refl a)
 
-theorem a_iff_not_a (a : Prop) : (a ↔ ¬a) ↔ false :=
+theorem iff_not_self (a : Prop) : (a ↔ ¬a) ↔ false :=
 iff.intro
   (assume H,
     have H' : ¬a, from assume Ha, (H ▸ Ha) Ha,
     H' (H⁻¹ ▸ H'))
   (assume H, false.elim H)
 
-theorem true_eq_false : (true ↔ false) ↔ false :=
-not_true_iff_false ▸ (a_iff_not_a true)
+theorem true_iff_false : (true ↔ false) ↔ false :=
+not_true_iff_false ▸ (iff_not_self true)
 
-theorem false_eq_true : (false ↔ true) ↔ false :=
-not_false_iff_true ▸ (a_iff_not_a false)
+theorem false_iff_true : (false ↔ true) ↔ false :=
+not_false_iff_true ▸ (iff_not_self false)
 
-theorem a_eq_true (a : Prop) : (a ↔ true) ↔ a :=
+theorem iff_true_iff (a : Prop) : (a ↔ true) ↔ a :=
 iff.intro (assume H, of_iff_true H) (assume H, iff_true_intro H)
 
-theorem a_eq_false (a : Prop) : (a ↔ false) ↔ ¬a :=
+theorem iff_false_iff_not (a : Prop) : (a ↔ false) ↔ ¬a :=
 iff.intro (assume H, not_of_iff_false H) (assume H, iff_false_intro H)

@@ -20,7 +20,6 @@ relation.is_equivalence.mk (@eq.refl T) (@eq.symm T) (@eq.trans T)
 theorem is_equivalence_iff [instance] : relation.is_equivalence iff :=
 relation.is_equivalence.mk @iff.refl @iff.symm @iff.trans
 
-
 /- congruences for logic operations -/
 
 theorem is_congruence_not : is_congruence iff iff not :=
@@ -62,13 +61,11 @@ is_congruence2.mk
       (assume H3 : a1 ↔ a2, iff.trans (iff.symm H1) (iff.trans H3 H2))
       (assume H3 : b1 ↔ b2, iff.trans H1 (iff.trans H3 (iff.symm H2))))
 
--- theorem is_congruence_const_iff [instance] := is_congruence.const iff iff.refl
 definition is_congruence_not_compose [instance] := is_congruence.compose is_congruence_not
 definition is_congruence_and_compose [instance] := is_congruence.compose21 is_congruence_and
 definition is_congruence_or_compose [instance] := is_congruence.compose21 is_congruence_or
 definition is_congruence_implies_compose [instance] := is_congruence.compose21 is_congruence_imp
 definition is_congruence_iff_compose [instance] := is_congruence.compose21 is_congruence_iff
-
 
 /- a general substitution operation with respect to an arbitrary congruence -/
 
@@ -77,12 +74,10 @@ namespace general_subst
     {a b : T} (H : R a b) (H1 : P a) : P b := iff.elim_left (is_congruence.app C H) H1
 end general_subst
 
-
 /- iff can be coerced to implication -/
 
 definition mp_like_iff [instance] : relation.mp_like iff :=
 relation.mp_like.mk (λa b (H : a ↔ b), iff.elim_left H)
-
 
 /- support for calculations with iff -/
 

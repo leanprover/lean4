@@ -1,11 +1,15 @@
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: cast.lean
+Author: Leonardo de Moura
+
+Casts and heterogeneous equality. See also init.datatypes and init.logic.
+-/
+
 import logic.eq logic.quantifiers
 open eq.ops
-
--- cast.lean
--- =========
 
 section
   universe variable u
@@ -30,20 +34,24 @@ namespace heq
   definition type_eq (H : a == b) : A = B :=
   heq.rec_on H (eq.refl A)
 
-  theorem drec_on {C : Π {B : Type} (b : B), a == b → Type} (H₁ : a == b) (H₂ : C a (refl a)) : C b H₁ :=
+  theorem drec_on {C : Π {B : Type} (b : B), a == b → Type} (H₁ : a == b) (H₂ : C a (refl a)) :
+    C b H₁ :=
   rec (λ H₁ : a == a, show C a H₁, from H₂) H₁ H₁
 
   theorem to_cast_eq (H : a == b) : cast (type_eq H) a = b :=
   drec_on H !cast_eq
 end heq
 
-theorem eq_rec_heq {A : Type} {P : A → Type} {a a' : A} (H : a = a') (p : P a) : eq.rec_on H p == p :=
+theorem eq_rec_heq {A : Type} {P : A → Type} {a a' : A} (H : a = a') (p : P a) :
+  eq.rec_on H p == p :=
 eq.drec_on H !heq.refl
 
 section
   universe variables u v
   variables {A A' B C : Type.{u}} {P P' : A → Type.{v}} {a a' : A} {b : B}
-  theorem hcongr_fun {f : Π x, P x} {f' : Π x, P' x} (a : A) (H₁ : f == f') (H₂ : P = P') : f a == f' a :=
+
+  theorem hcongr_fun {f : Π x, P x} {f' : Π x, P' x} (a : A) (H₁ : f == f') (H₂ : P = P') :
+    f a == f' a :=
   have aux : ∀ (f : Π x, P x) (f' : Π x, P x), f == f' → f a == f' a, from
     take f f' H, heq.to_eq H ▸ heq.refl (f a),
   (H₂ ▸ aux) f f' H₁
@@ -105,10 +113,11 @@ section
     take H : P = P, heq.refl (eq.rec_on H f a),
   (H ▸ aux) H
 
-  theorem rec_on_pull (H : P = P') (f : Π x, P x) (a : A) : eq.rec_on H f a = eq.rec_on (congr_fun H a) (f a) :=
+  theorem rec_on_pull (H : P = P') (f : Π x, P x) (a : A) :
+    eq.rec_on H f a = eq.rec_on (congr_fun H a) (f a) :=
   heq.to_eq (calc
-    eq.rec_on H f a == f a                             : rec_on_app H f a
-              ...   == eq.rec_on (congr_fun H a) (f a) : heq.symm (eq_rec_heq (congr_fun H a) (f a)))
+    eq.rec_on H f a == f a                   : rec_on_app H f a
+      ... == eq.rec_on (congr_fun H a) (f a) : heq.symm (eq_rec_heq (congr_fun H a) (f a)))
 
   theorem cast_app (H : P = P') (f : Π x, P x) (a : A) : cast (pi_eq H) f a == f a :=
   have H₁ : ∀ (H : (Π x, P x) = (Π x, P x)), cast H f a == f a, from
@@ -116,7 +125,6 @@ section
   have H₂ : ∀ (H : (Π x, P x) = (Π x, P' x)), cast H f a == f a, from
     H ▸ H₁,
   H₂ (pi_eq H)
-
 end
 
 section
@@ -144,7 +152,8 @@ section
       (Hd : cast (dcongr_arg3 D Ha Hb Hc) d = d') : f a b c d = f a' b' c' d' :=
   heq.to_eq (hcongr_arg4 f Ha (eq_rec_to_heq Hb) (eq_rec_to_heq Hc) (eq_rec_to_heq Hd))
 
-  --mixed versions (we want them for example if C a' b' is a subsingleton, like a proposition. Then proving eq is easier than proving heq)
+  -- mixed versions (we want them for example if C a' b' is a subsingleton, like a proposition.
+  -- Then proving eq is easier than proving heq)
   theorem hdcongr_arg3 (f : Πa b, C a b → F) (Ha : a = a') (Hb : b == b')
       (Hc : cast (heq.to_eq (hcongr_arg2 C Ha Hb)) c = c')
         : f a b c = f a' b' c' :=

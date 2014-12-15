@@ -1,8 +1,11 @@
 /-
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Floris van Doorn
+
+Module: logic.subsingleton
+Author: Floris van Doorn
 -/
+
 import logic.eq
 
 inductive subsingleton [class] (A : Type) : Prop :=
@@ -28,7 +31,8 @@ subsingleton.intro (fun d1 d2,
       d2)
    d1)
 
-protected theorem rec_subsingleton [instance] {p : Prop} [H : decidable p] {H1 : p → Type} {H2 : ¬p → Type}
+protected theorem rec_subsingleton [instance] {p : Prop} [H : decidable p]
+    {H1 : p → Type} {H2 : ¬p → Type}
     (H3 : Π(h : p), subsingleton (H1 h)) (H4 : Π(h : ¬p), subsingleton (H2 h))
-    : subsingleton (decidable.rec_on H H1 H2) :=
+  : subsingleton (decidable.rec_on H H1 H2) :=
 decidable.rec_on H (λh, H3 h) (λh, H4 h) --this can be proven using dependent version of "by_cases"

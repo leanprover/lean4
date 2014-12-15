@@ -79,7 +79,7 @@ def convert_position_to_etag_style(info):
 
 def extract_info_from_ilean(ilean_file, decl_dict, args):
     info = []
-    with open(ilean_file) as f:
+    with codecs.open(ilean_file, "r", "utf-8") as f:
         for line in f:
             array = line[:-1].split("|")
             item = {}

@@ -154,7 +154,7 @@ struct placeholder_elaborator : public choice_iterator {
         choice_iterator(), m_C(C), m_ctx(ctx), m_meta(meta), m_meta_type(meta_type),
         m_local_instances(local_insts), m_instances(instances), m_jst(j), m_depth(depth) {
         if (m_depth > m_C->get_max_depth()) {
-            throw_elaborator_exception(C->env(), "maximum class-instance resolution depth has been reached "
+            throw_elaborator_exception("maximum class-instance resolution depth has been reached "
                                        "(the limit can be increased by setting option 'elaborator.instance_max_depth') "
                                        "(the class-instance resolution trace can be visualized by setting option 'elaborator.trace_instances')",
                                        C->get_main_meta());
@@ -363,7 +363,7 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
                     cnstrs = p.second;
                     expr next_solution = subst.instantiate(new_meta);
                     if (solution) {
-                        throw_elaborator_exception(env, m, [=](formatter const & fmt) {
+                        throw_elaborator_exception(m, [=](formatter const & fmt) {
                                 format r = format("ambiguous class-instance resolution, "
                                                   "there is more than one solution");
                                 r += pp_indent_expr(fmt, *solution);

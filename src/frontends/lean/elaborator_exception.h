@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include "kernel/formatter.h"
 
 namespace lean {
-[[ noreturn ]] void throw_elaborator_exception(environment const & env, char const * msg, expr const & m);
-[[ noreturn ]] void throw_elaborator_exception(environment const & env, sstream const & strm, expr const & m);
-[[ noreturn ]] void throw_elaborator_exception(environment const & env, char const * msg, expr const & m, pp_fn const & fn);
-[[ noreturn ]] void throw_elaborator_exception(environment const & env, expr const & m, pp_fn const & fn);
+[[ noreturn ]] void throw_elaborator_exception(char const * msg, expr const & m);
+[[ noreturn ]] void throw_elaborator_exception(sstream const & strm, expr const & m);
+[[ noreturn ]] void throw_elaborator_exception(char const * msg, expr const & m, pp_fn const & fn);
+[[ noreturn ]] void throw_elaborator_exception(expr const & m, pp_fn const & fn);
 }

@@ -8,6 +8,9 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
+class type_checker;
+class io_state;
+
 bool is_equation(expr const & e);
 expr const & equation_lhs(expr const & e);
 expr const & equation_rhs(expr const & e);
@@ -29,9 +32,13 @@ expr const & equations_wf_proof(expr const & e);
 expr const & equations_wf_rel(expr const & e);
 expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs);
 expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs, expr const & R, expr const & Hwf);
+expr update_equations(expr const & eqns, buffer<expr> const & new_eqs);
 
 expr mk_inaccessible(expr const & e);
 bool is_inaccessible(expr const & e);
+
+expr compile_equations(type_checker & tc, io_state const & ios, expr const & eqns,
+                       expr const & meta, expr const & meta_type, bool relax);
 
 void initialize_equations();
 void finalize_equations();

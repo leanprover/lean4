@@ -13,8 +13,9 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/unifier.h"
 #include "library/parser_nested_exception.h"
-#include "library/error_handling/error_handling.h"
+#include "library/generic_exception.h"
 #include "library/flycheck.h"
+#include "library/error_handling/error_handling.h"
 
 namespace lean {
 void display_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
@@ -70,6 +71,11 @@ void display_error_pos(io_state_stream const & ios, pos_info_provider const * p,
 void display_error(io_state_stream const & ios, pos_info_provider const * p, exception const & ex);
 
 static void display_error(io_state_stream const & ios, pos_info_provider const * p, kernel_exception const & ex) {
+    display_error_pos(ios, p, ex.get_main_expr());
+    ios << " " << ex << endl;
+}
+
+static void display_error(io_state_stream const & ios, pos_info_provider const * p, generic_exception const & ex) {
     display_error_pos(ios, p, ex.get_main_expr());
     ios << " " << ex << endl;
 }
@@ -142,6 +148,8 @@ void display_error(io_state_stream const & ios, pos_info_provider const * p, exc
     flycheck_error err(ios);
     if (auto k_ex = dynamic_cast<kernel_exception const *>(&ex)) {
         display_error(ios, p, *k_ex);
+    } else if (auto g_ex = dynamic_cast<generic_exception const *>(&ex)) {
+        display_error(ios, p, *g_ex);
     } else if (auto e_ex = dynamic_cast<unifier_exception const *>(&ex)) {
         display_error(ios, p, *e_ex);
     } else if (auto ls_ex = dynamic_cast<script_nested_exception const *>(&ex)) {

@@ -36,12 +36,12 @@ bool is_reflexive_datatype(type_checker & tc, name const & n);
 */
 bool is_inductive_predicate(environment const & env, name const & n);
 
-/** \brief "Consume" Pi-type \c type. This method creates local constants based on the domain of \c type
+/** \brief "Consume" Pi-type \c type. This procedure creates local constants based on the domain of \c type
     and store them in telescope. If \c binfo is provided, then the local constants are annoted with the given
     binder_info, otherwise the procedure uses the one attached in the domain.
     The procedure returns the "body" of type.
 */
-expr to_telescope(name_generator & ngen, expr type, buffer<expr> & telescope,
+expr to_telescope(name_generator & ngen, expr const & type, buffer<expr> & telescope,
                   optional<binder_info> const & binfo = optional<binder_info>());
 /** \brief Similar to previous procedure, but puts \c type in whnf */
 expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope,
@@ -53,6 +53,14 @@ expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope,
 */
 expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo,
                   constraint_seq & cs);
+
+/** \brief "Consume" fun/lambda. This procedure creates local constants based on the arguments of \c e
+    and store them in telescope. If \c binfo is provided, then the local constants are annoted with the given
+    binder_info, otherwise the procedure uses the one attached to the arguments.
+    The procedure returns the "body" of function.
+*/
+expr fun_to_telescope(name_generator & ngen, expr const & e, buffer<expr> & telescope, optional<binder_info> const & binfo);
+
 /** \brief Return the universe where inductive datatype resides
     \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt>
 */

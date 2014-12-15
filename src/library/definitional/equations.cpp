@@ -6,8 +6,15 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "kernel/expr.h"
+#include "kernel/type_checker.h"
+#include "kernel/abstract.h"
+#include "kernel/error_msgs.h"
+#include "library/generic_exception.h"
 #include "library/kernel_serializer.h"
+#include "library/io_state_stream.h"
 #include "library/annotation.h"
+#include "library/util.h"
+#include "library/tactic/inversion_tactic.h"
 
 namespace lean {
 static name * g_equations_name    = nullptr;
@@ -142,6 +149,17 @@ expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs, expr con
     return mk_macro(def, args.size(), args.data());
 }
 
+expr update_equations(expr const & eqns, buffer<expr> const & new_eqs) {
+    lean_assert(is_equations(eqns));
+    lean_assert(!new_eqs.empty());
+    if (is_wf_equations(eqns)) {
+        return mk_equations(equations_num_fns(eqns), new_eqs.size(), new_eqs.data(),
+                            equations_wf_rel(eqns), equations_wf_proof(eqns));
+    } else {
+        return mk_equations(equations_num_fns(eqns), new_eqs.size(), new_eqs.data());
+    }
+}
+
 expr mk_inaccessible(expr const & e) { return mk_annotation(*g_inaccessible_name, e); }
 bool is_inaccessible(expr const & e) { return is_annotation(e, *g_inaccessible_name); }
 
@@ -194,5 +212,103 @@ void finalize_equations() {
     delete g_equation_name;
     delete g_decreasing_name;
     delete g_inaccessible_name;
+}
+
+class equation_compiler_fn {
+    type_checker &   m_tc;
+    io_state const & m_ios;
+    expr             m_meta;
+    expr             m_meta_type;
+    bool             m_relax;
+
+    environment const & env() const { return m_tc.env(); }
+
+    struct validate_exception {
+        expr m_expr;
+        validate_exception(expr const & e):m_expr(e) {}
+    };
+
+    [[ noreturn ]] void throw_error(char const * msg, expr const & src) { throw_generic_exception(msg, src); }
+    [[ noreturn ]] void throw_error(expr const & src, pp_fn const & fn) { throw_generic_exception(src, fn); }
+
+    // --------------------------------
+    // Pattern validation/normalization
+    // --------------------------------
+
+    expr validate_lhs_arg(expr arg) {
+        if (is_inaccessible(arg))
+            return arg;
+        if (is_local(arg))
+            return arg;
+        expr new_arg = m_tc.whnf(arg).first;
+        if (is_local(new_arg))
+            return new_arg;
+        buffer<expr> arg_args;
+        expr const & fn = get_app_args(new_arg, arg_args);
+        if (!is_constant(fn) || !inductive::is_intro_rule(env(), const_name(fn)))
+            throw validate_exception(arg);
+        for (expr & arg_arg : arg_args)
+            arg_arg = validate_lhs_arg(arg_arg);
+        return mk_app(fn, arg_args);
+    }
+
+    expr validate_lhs(expr const & lhs) {
+        buffer<expr> args;
+        expr fn = get_app_args(lhs, args);
+        for (expr & arg : args) {
+            try {
+                arg = validate_lhs_arg(arg);
+            } catch (validate_exception & ex) {
+                expr problem_expr = ex.m_expr;
+                throw_error(lhs, [=](formatter const & fmt) {
+                        format r("invalid argument, it is not a constructor, variable, "
+                                 "nor it is marked as an inaccessible pattern");
+                        r += pp_indent_expr(fmt, problem_expr);
+                        r += compose(line(), format("in the following equation left-hand-side"));
+                        r += pp_indent_expr(fmt, lhs);
+                        return r;
+                    });
+            }
+        }
+        return mk_app(fn, args);
+    }
+
+    expr validate_patterns_core(expr eq) {
+        buffer<expr> args;
+        name_generator ngen = m_tc.mk_ngen();
+        eq = fun_to_telescope(ngen, eq, args, optional<binder_info>());
+        lean_assert(is_equation(eq));
+        expr new_lhs = validate_lhs(equation_lhs(eq));
+        return Fun(args, mk_equation(new_lhs, equation_rhs(eq)));
+    }
+
+    expr validate_patterns(expr const & eqns) {
+        lean_assert(is_equations(eqns));
+        buffer<expr> eqs;
+        buffer<expr> new_eqs;
+        to_equations(eqns, eqs);
+        for (expr const & eq : eqs) {
+            new_eqs.push_back(validate_patterns_core(eq));
+        }
+        return update_equations(eqns, new_eqs);
+    }
+
+public:
+    equation_compiler_fn(type_checker & tc, io_state const & ios, expr const & meta, expr const & meta_type, bool relax):
+        m_tc(tc), m_ios(ios), m_meta(meta), m_meta_type(meta_type), m_relax(relax) {
+    }
+
+    expr operator()(expr eqns) {
+        proof_state ps = to_proof_state(m_meta, m_meta_type, m_tc.mk_ngen(), m_relax);
+        eqns = validate_patterns(eqns);
+        regular(env(), m_ios) << "Equations:\n" << eqns << "\n";
+        regular(env(), m_ios) << ps.pp(env(), m_ios) << "\n\n";
+        return eqns;
+    }
+};
+
+expr compile_equations(type_checker & tc, io_state const & ios, expr const & eqns,
+                       expr const & meta, expr const & meta_type, bool relax) {
+    return equation_compiler_fn(tc, ios, meta, meta_type, relax)(eqns);
 }
 }

@@ -110,17 +110,27 @@ expr instantiate_univ_param (expr const & e, name const & p, level const & l) {
     return instantiate_univ_params(e, to_list(p), to_list(l));
 }
 
-expr to_telescope(name_generator & ngen, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
-    while (is_pi(type)) {
+expr to_telescope(bool pi, name_generator & ngen, expr e, buffer<expr> & telescope,
+                  optional<binder_info> const & binfo) {
+    while ((pi && is_pi(e)) || (!pi && is_lambda(e))) {
         expr local;
         if (binfo)
-            local = mk_local(ngen.next(), binding_name(type), binding_domain(type), *binfo);
+            local = mk_local(ngen.next(), binding_name(e), binding_domain(e), *binfo);
         else
-            local = mk_local(ngen.next(), binding_name(type), binding_domain(type), binding_info(type));
+            local = mk_local(ngen.next(), binding_name(e), binding_domain(e), binding_info(e));
         telescope.push_back(local);
-        type = instantiate(binding_body(type), local);
+        e = instantiate(binding_body(e), local);
     }
-    return type;
+    return e;
+}
+
+expr to_telescope(name_generator & ngen, expr const & type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
+    return to_telescope(true, ngen, type, telescope, binfo);
+}
+
+expr fun_to_telescope(name_generator & ngen, expr const & e, buffer<expr> & telescope,
+                      optional<binder_info> const & binfo) {
+    return to_telescope(false, ngen, e, telescope, binfo);
 }
 
 expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo,

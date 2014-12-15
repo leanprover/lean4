@@ -821,10 +821,10 @@ expr const & elaborator::get_equation_fn(expr const & eq) const {
     while (is_lambda(it))
         it = binding_body(it);
     if (!is_equation(it))
-        throw_elaborator_exception(env(), "ill-formed equation", eq);
+        throw_elaborator_exception("ill-formed equation", eq);
     expr const & fn = get_app_fn(equation_lhs(it));
     if (!is_local(fn))
-        throw_elaborator_exception(env(), "ill-formed equation", eq);
+        throw_elaborator_exception("ill-formed equation", eq);
     return fn;
 }
 
@@ -911,11 +911,8 @@ static expr assign_equation_lhs_metas(type_checker & tc, expr const & eqns) {
         } else {
             name x("x");
             buffer<expr> locals;
-            while (is_lambda(eq)) {
-                expr local = mk_local(tc.mk_fresh_name(), binding_name(eq), binding_domain(eq), binding_info(eq));
-                locals.push_back(local);
-                eq = instantiate(binding_body(eq), local);
-            }
+            name_generator ngen = tc.mk_ngen();
+            eq = fun_to_telescope(ngen, eq, locals, optional<binder_info>());
             lean_assert(num_fns <= locals.size());
             lean_assert(is_equation(eq));
             unsigned idx = 1;
@@ -955,25 +952,22 @@ static expr assign_equation_lhs_metas(type_checker & tc, expr const & eqns) {
         }
     }
 
-    if (is_wf_equations(eqns)) {
-        return mk_equations(num_fns, new_eqs.size(), new_eqs.data(), equations_wf_rel(eqns), equations_wf_proof(eqns));
-    } else {
-        return mk_equations(num_fns, new_eqs.size(), new_eqs.data());
-    }
+    return update_equations(eqns, new_eqs);
 }
 
 static constraint mk_equations_cnstr(environment const & env, io_state const & ios, expr const & m, expr const & eqns,
                                      bool relax) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
-    auto choice_fn = [=](expr const & , expr const &, substitution const & s,
+    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
                          name_generator const & ngen) {
         substitution new_s  = s;
         expr new_eqns       = substitution(s).instantiate_all(eqns);
         type_checker_ptr tc = mk_type_checker(env, ngen, relax);
         new_eqns            = assign_equation_lhs_metas(*tc, new_eqns);
-        regular(env, ios) << "Equations:\n" << new_eqns << "\n\n";
-        // TODO(Leo): invoke equations compiler
-        return lazy_list<constraints>(constraints());
+        expr val            = compile_equations(*tc, ios, new_eqns, meta, meta_type, relax);
+        justification j     = mk_justification("equation compilation", some_expr(eqns));
+        constraint c        = mk_eq_cnstr(meta, val, j, relax);
+        return lazy_list<constraints>(c);
     };
     bool owner = true;
     return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), owner, j, relax);
@@ -988,7 +982,7 @@ expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
     to_equations(eqns, eqs);
 
     if (eqs.empty())
-        throw_elaborator_exception(env(), "invalid empty set of recursive equations", eqns);
+        throw_elaborator_exception("invalid empty set of recursive equations", eqns);
 
     if (is_wf_equations(eqns)) {
         new_R   = visit(equations_wf_rel(eqns), cs);
@@ -1069,21 +1063,21 @@ expr elaborator::visit_equation(expr const & eq, constraint_seq & cs) {
 
 expr elaborator::visit_inaccessible(expr const & e, constraint_seq & cs) {
     if (!m_in_equation_lhs)
-        throw_elaborator_exception(env(), "invalid occurrence of 'inaccessible' annotation, it must only occur in the "
+        throw_elaborator_exception("invalid occurrence of 'inaccessible' annotation, it must only occur in the "
                                    "left-hand-side of recursive equations", e);
     return mk_inaccessible(visit(get_annotation_arg(e), cs));
 }
 
 expr elaborator::visit_decreasing(expr const & e, constraint_seq & cs) {
     if (!m_equation_lhs)
-        throw_elaborator_exception(env(), "invalid occurrence of 'decreasing' annotation, it must only occur in "
+        throw_elaborator_exception("invalid occurrence of 'decreasing' annotation, it must only occur in "
                                    "the right-hand-side of recursive equations", e);
     if (!m_equation_R)
-        throw_elaborator_exception(env(), "invalid occurrence of 'decreasing' annotation, it can only be used when "
+        throw_elaborator_exception("invalid occurrence of 'decreasing' annotation, it can only be used when "
                                    "recursive equations are being defined by well-founded recursion", e);
     expr const & lhs_fn = get_app_fn(*m_equation_lhs);
     if (get_app_fn(decreasing_app(e)) != lhs_fn)
-        throw_elaborator_exception(env(), "invalid occurrence of 'decreasing' annotation, expression must be an "
+        throw_elaborator_exception("invalid occurrence of 'decreasing' annotation, expression must be an "
                                    "application of the recursive function being defined", e);
     expr dec_app        = visit(decreasing_app(e), cs);
     expr dec_proof      = visit(decreasing_proof(e), cs);
@@ -1096,7 +1090,7 @@ expr elaborator::visit_decreasing(expr const & e, constraint_seq & cs) {
     get_app_args(*m_equation_lhs, old_args);
     get_app_args(dec_app, new_args);
     if (new_args.size() != old_args.size() || new_args.size() != ts.size())
-        throw_elaborator_exception(env(), "invalid recursive application, mistmatch in the number of arguments", e);
+        throw_elaborator_exception("invalid recursive application, mistmatch in the number of arguments", e);
     expr old_tuple  = mk_sigma_mk(tc, ts, old_args, cs);
     expr new_tuple  = mk_sigma_mk(tc, ts, new_args, cs);
     expr expected_dec_proof_type = mk_app(mk_app(*m_equation_R, new_tuple, e.get_tag()), old_tuple, e.get_tag());
@@ -1554,13 +1548,13 @@ std::tuple<expr, expr, level_param_names> elaborator::operator()(
 }
 
 // Auxiliary procedure for #translate
-static expr translate_local_name(environment const & env, list<expr> const & ctx, name const & local_name,
+static expr translate_local_name(list<expr> const & ctx, name const & local_name,
                                  expr const & src) {
     for (expr const & local : ctx) {
         if (local_pp_name(local) == local_name)
             return copy(local);
     }
-    throw_elaborator_exception(env, sstream() << "unknown identifier '" << local_name << "'", src);
+    throw_elaborator_exception(sstream() << "unknown identifier '" << local_name << "'", src);
 }
 
 /** \brief Translated local constants (and undefined constants) occurring in \c e into
@@ -1573,13 +1567,13 @@ static expr translate(environment const & env, list<expr> const & ctx, expr cons
             return some_expr(e); // ignore placeholders
         } else if (is_constant(e)) {
             if (!env.find(const_name(e))) {
-                expr new_e = copy_tag(e, translate_local_name(env, ctx, const_name(e), e));
+                expr new_e = copy_tag(e, translate_local_name(ctx, const_name(e), e));
                 return some_expr(new_e);
             } else {
                 return none_expr();
             }
         } else if (is_local(e)) {
-            expr new_e = copy_tag(e, translate_local_name(env, ctx, local_pp_name(e), e));
+            expr new_e = copy_tag(e, translate_local_name(ctx, local_pp_name(e), e));
             return some_expr(new_e);
         } else {
             return none_expr();

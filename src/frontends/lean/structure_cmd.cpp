@@ -360,7 +360,7 @@ struct structure_cmd_fn {
                     return optional<unsigned>(i);
                 } else {
                     expr prev_ftype = mlocal_type(m_fields[i]);
-                    throw_elaborator_exception(m_env, parent, [=](formatter const & fmt) {
+                    throw_elaborator_exception(parent, [=](formatter const & fmt) {
                             format r = format("invalid 'structure' header, field '");
                             r += format(fname);
                             r += format("' from '");
@@ -400,8 +400,7 @@ struct structure_cmd_fn {
             expr intro_type = inductive::intro_rule_type(intro);
             intro_type      = instantiate_univ_params(intro_type, lparams, const_levels(parent_fn));
             if (nparams != args.size()) {
-                throw_elaborator_exception(m_env,
-                                           sstream() << "invalid 'structure' header, number of argument "
+                throw_elaborator_exception(sstream() << "invalid 'structure' header, number of argument "
                                            "mismatch for parent structure '" << parent_name << "'",
                                            parent);
             }
@@ -419,8 +418,7 @@ struct structure_cmd_fn {
                     fmap.push_back(*fidx);
                     field = m_fields[*fidx];
                     if (local_info(field) != binding_info(intro_type)) {
-                        throw_elaborator_exception(m_env,
-                                                   sstream() << "invalid 'structure' header, field '" << fname <<
+                        throw_elaborator_exception(sstream() << "invalid 'structure' header, field '" << fname <<
                                                    "' has already been declared with a different binder annotation",
                                                    parent);
                     }
@@ -479,7 +477,7 @@ struct structure_cmd_fn {
                              [&](expr const & inherited_field) {
                                  return local_pp_name(inherited_field) == local_pp_name(new_field);
                              }) != m_fields.end()) {
-                throw_elaborator_exception(m_env, sstream() << "field '" << local_pp_name(new_field) <<
+                throw_elaborator_exception(sstream() << "field '" << local_pp_name(new_field) <<
                                            "' has been declared in parent structure",
                                            new_field);
             }

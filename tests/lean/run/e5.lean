@@ -4,7 +4,7 @@ definition Prop := Type.{0}
 definition false : Prop := ∀x : Prop, x
 check false
 
-theorem false_elim (C : Prop) (H : false) : C
+theorem false.elim (C : Prop) (H : false) : C
 := H C
 
 definition eq {A : Type} (a b : A)

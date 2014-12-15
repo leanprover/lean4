@@ -47,12 +47,13 @@ theorem not_not_elim {a : Prop} [D : decidable a] (H : ¬¬a) : a :=
 iff.mp not_not_iff H
 
 theorem not_true_iff_false : (¬true) ↔ false :=
-iff.intro (assume H, H trivial) false_elim
+iff.intro (assume H, H trivial) false.elim
 
 theorem not_false_iff_true : (¬false) ↔ true :=
 iff.intro (assume H, trivial) (assume H H', H')
 
-theorem not_or {a b : Prop} [Da : decidable a] [Db : decidable b] : (¬(a ∨ b)) ↔ (¬a ∧ ¬b) :=
+theorem not_or_iff_not_and_not {a b : Prop} [Da : decidable a] [Db : decidable b] :
+  (¬(a ∨ b)) ↔ (¬a ∧ ¬b) :=
 iff.intro
   (assume H, or.elim (em a)
     (assume Ha, absurd (or.inl Ha) H)
@@ -82,16 +83,16 @@ iff.intro
     (assume Ha  : a,   or.inr (H Ha))
     (assume Hna : ¬a, or.inl Hna)))
   (assume (H : ¬a ∨ b) (Ha : a),
-    or.resolve_right H (not_not_iff⁻¹ ▸ Ha))
+    or_resolve_right H (not_not_iff⁻¹ ▸ Ha))
 
 theorem not_implies {a b : Prop} [Da : decidable a] [Db : decidable b] : (¬(a → b)) ↔ (a ∧ ¬b) :=
 calc (¬(a → b)) ↔ (¬(¬a ∨ b)) : {imp_or}
-            ... ↔ (¬¬a ∧ ¬b)  : not_or
+            ... ↔ (¬¬a ∧ ¬b)  : not_or_iff_not_and_not
             ... ↔ (a ∧ ¬b)    : {not_not_iff}
 
 theorem peirce {a b : Prop} [D : decidable a] : ((a → b) → a) → a :=
 assume H, by_contradiction (assume Hna : ¬a,
-  have Hnna : ¬¬a, from not_implies_left (mt H Hna),
+  have Hnna : ¬¬a, from not_not_of_not_implies (mt H Hna),
   absurd (not_not_elim Hnna) Hna)
 
 theorem not_exists_forall {A : Type} {P : A → Prop} [D : ∀x, decidable (P x)]
@@ -116,12 +117,12 @@ iff.intro
 theorem iff_false_intro {a : Prop} (H : ¬a) : a ↔ false :=
 iff.intro
   (assume H1 : a,     absurd H1 H)
-  (assume H2 : false, false_elim H2)
+  (assume H2 : false, false.elim H2)
 
 theorem a_neq_a {A : Type} (a : A) : (a ≠ a) ↔ false :=
 iff.intro
   (assume H, false.of_ne H)
-  (assume H, false_elim H)
+  (assume H, false.elim H)
 
 theorem eq_id {A : Type} (a : A) : (a = a) ↔ true :=
 iff_true_intro rfl
@@ -134,7 +135,7 @@ iff.intro
   (assume H,
     have H' : ¬a, from assume Ha, (H ▸ Ha) Ha,
     H' (H⁻¹ ▸ H'))
-  (assume H, false_elim H)
+  (assume H, false.elim H)
 
 theorem true_eq_false : (true ↔ false) ↔ false :=
 not_true_iff_false ▸ (a_iff_not_a true)

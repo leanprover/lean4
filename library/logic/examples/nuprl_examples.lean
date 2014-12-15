@@ -185,7 +185,7 @@ assume Hem H1,
       have Hx : ∀x, P x, from
         take x,
         have H1 : P x ∨ C, from H1 x,
-        or.resolve_left H1 Hnc,
+        or_resolve_left H1 Hnc,
       or.inl Hx)
 
 theorem thm23a : (∃x, P x) ∧ C → (∃x, P x ∧ C) :=

@@ -1,6 +1,11 @@
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Authors: Leonardo de Moura, Jeremy Avigad
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: logic.quantifiers
+Authors: Leonardo de Moura, Jeremy Avigad
+-/
+
 open inhabited nonempty
 
 theorem exists_not_forall {A : Type} {p : A → Prop} (H : ∃x, p x) : ¬∀x, ¬p x :=

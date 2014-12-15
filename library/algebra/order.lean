@@ -252,7 +252,7 @@ strong_order_pair.mk strict_order_with_le.le
       (assume H : a ≤ b ∧ a ≠ b,
         have H1 : a < b ∨ a = b,
           from iff.mp !strict_order_with_le.le_iff_lt_or_eq (and.elim_left H),
-        show a < b, from or.resolve_left H1 (and.elim_right H)))
+        show a < b, from or_resolve_left H1 (and.elim_right H)))
   strict_order_with_le.le_iff_lt_or_eq
 
 

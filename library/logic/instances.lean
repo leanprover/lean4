@@ -35,16 +35,16 @@ is_congruence2.mk
   (take a1 b1 a2 b2,
     assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
     iff.intro
-      (assume H3 : a1 ∧ a2, and.imp_and H3 (iff.elim_left H1) (iff.elim_left H2))
-      (assume H3 : b1 ∧ b2, and.imp_and H3 (iff.elim_right H1) (iff.elim_right H2)))
+      (assume H3 : a1 ∧ a2, and_of_and_of_imp_of_imp H3 (iff.elim_left H1) (iff.elim_left H2))
+      (assume H3 : b1 ∧ b2, and_of_and_of_imp_of_imp H3 (iff.elim_right H1) (iff.elim_right H2)))
 
 theorem is_congruence_or : is_congruence2 iff iff iff or :=
 is_congruence2.mk
   (take a1 b1 a2 b2,
     assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
     iff.intro
-      (assume H3 : a1 ∨ a2, or.imp_or H3 (iff.elim_left H1) (iff.elim_left H2))
-      (assume H3 : b1 ∨ b2, or.imp_or H3 (iff.elim_right H1) (iff.elim_right H2)))
+      (assume H3 : a1 ∨ a2, or_of_or_of_imp_of_imp H3 (iff.elim_left H1) (iff.elim_left H2))
+      (assume H3 : b1 ∨ b2, or_of_or_of_imp_of_imp H3 (iff.elim_right H1) (iff.elim_right H2)))
 
 theorem is_congruence_imp : is_congruence2 iff iff iff imp :=
 is_congruence2.mk
@@ -87,8 +87,8 @@ relation.mp_like.mk (λa b (H : a ↔ b), iff.elim_left H)
 /- support for calculations with iff -/
 
 namespace iff
-  theorem subst {P : Prop → Prop} [C : is_congruence iff iff P] {a b : Prop} (H : a ↔ b) (H1 : P a) :
-    P b :=
+  theorem subst {P : Prop → Prop} [C : is_congruence iff iff P] {a b : Prop}
+    (H : a ↔ b) (H1 : P a) : P b :=
   @general_subst.subst Prop iff P C a b H H1
 end iff
 

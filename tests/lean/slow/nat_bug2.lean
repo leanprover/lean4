@@ -60,7 +60,7 @@ theorem zero_or_succ (n : ℕ) : n = 0 ∨ n = succ (pred n)
       (show succ m = succ (pred (succ m)), from congr_arg succ (pred_succ m⁻¹)))
 
 theorem zero_or_succ2 (n : ℕ) : n = 0 ∨ ∃k, n = succ k
-:= or.imp_or (zero_or_succ n) (assume H, H) (assume H : n = succ (pred n), exists_intro (pred n) H)
+:= or_of_or_of_imp_of_imp (zero_or_succ n) (assume H, H) (assume H : n = succ (pred n), exists_intro (pred n) H)
 
 theorem case {P : ℕ → Prop} (n : ℕ) (H1: P 0) (H2 : ∀m, P (succ m)) : P n
 := induction_on n H1 (take m IH, H2 m)
@@ -502,10 +502,10 @@ theorem succ_le_left_or {n m : ℕ} (H : n ≤ m) : succ n ≤ m ∨ n = m
       or_intro_left _ Hlt)
 
 theorem succ_le_left {n m : ℕ} (H1 : n ≤ m) (H2 : n ≠ m) : succ n ≤ m
-:= or.resolve_left (succ_le_left_or H1) H2
+:= or_resolve_left (succ_le_left_or H1) H2
 
 theorem succ_le_right_inv {n m : ℕ} (H : n ≤ succ m) : n ≤ m ∨ n = succ m
-:= or.imp_or (succ_le_left_or H)
+:= or_of_or_of_imp_of_imp (succ_le_left_or H)
      (take H2 : succ n ≤ succ m, show n ≤ m, from succ_le_cancel H2)
      (take H2 : n = succ m, H2)
 
@@ -561,7 +561,7 @@ theorem pred_le_left_inv {n m : ℕ} (H : pred n ≤ m) : n ≤ m ∨ n = succ m
       have H3 : k ≤ m, from subst H2 H,
       have H4 : succ k ≤ m ∨ k = m, from succ_le_left_or H3,
       show n ≤ m ∨ n = succ m, from
-        or.imp_or H4
+        or_of_or_of_imp_of_imp H4
           (take H5 : succ k ≤ m, show n ≤ m, from subst (symm Hn) H5)
           (take H5 : k = m, show n = succ m, from subst H5 Hn))
 
@@ -589,7 +589,7 @@ theorem le_imp_succ_le_or_eq {n m : ℕ} (H : n ≤ m) : succ n ≤ m ∨ n = m
       or_intro_left _ Hlt)
 
 theorem le_ne_imp_succ_le {n m : ℕ} (H1 : n ≤ m) (H2 : n ≠ m) : succ n ≤ m
-:= or.resolve_left (le_imp_succ_le_or_eq H1) H2
+:= or_resolve_left (le_imp_succ_le_or_eq H1) H2
 
 theorem succ_le_imp_le_and_ne {n m : ℕ} (H : succ n ≤ m) : n ≤ m ∧ n ≠ m
 :=
@@ -620,7 +620,7 @@ theorem pred_le_imp_le_or_eq {n m : ℕ} (H : pred n ≤ m) : n ≤ m ∨ n = su
       have H3 : k ≤ m, from subst H2 H,
       have H4 : succ k ≤ m ∨ k = m, from le_imp_succ_le_or_eq H3,
       show n ≤ m ∨ n = succ m, from
-        or.imp_or H4
+        or_of_or_of_imp_of_imp H4
           (take H5 : succ k ≤ m, show n ≤ m, from subst (symm Hn) H5)
           (take H5 : k = m, show n = succ m, from subst H5 Hn))
 
@@ -806,13 +806,13 @@ theorem le_or_lt (n m : ℕ) : n ≤ m ∨ m < n
         (assume H : m < k, or_intro_right _ (succ_lt_right H)))
 
 theorem trichotomy_alt (n m : ℕ) : (n < m ∨ n = m) ∨ m < n
-:= or.imp_or (le_or_lt n m) (assume H : n ≤ m, le_imp_lt_or_eq H) (assume H : m < n, H)
+:= or_of_or_of_imp_of_imp (le_or_lt n m) (assume H : n ≤ m, le_imp_lt_or_eq H) (assume H : m < n, H)
 
 theorem trichotomy (n m : ℕ) : n < m ∨ n = m ∨ m < n
 := iff.elim_left or.assoc (trichotomy_alt n m)
 
 theorem le_total (n m : ℕ) : n ≤ m ∨ m ≤ n
-:= or.imp_or (le_or_lt n m) (assume H : n ≤ m, H) (assume H : m < n, lt_imp_le H)
+:= or_of_or_of_imp_of_imp (le_or_lt n m) (assume H : n ≤ m, H) (assume H : m < n, lt_imp_le H)
 
 -- interaction with mul under "positivity"
 
@@ -871,7 +871,7 @@ theorem add_eq_self {n m : ℕ} (H : n + m = n) : m = 0
 ---------- basic
 
 theorem zero_or_positive (n : ℕ) : n = 0 ∨ n > 0
-:= or.imp_or (or.swap (le_imp_lt_or_eq (zero_le n))) (take H : 0 = n, symm H) (take H : n > 0, H)
+:= or_of_or_of_imp_of_imp (or.swap (le_imp_lt_or_eq (zero_le n))) (take H : 0 = n, symm H) (take H : n > 0, H)
 
 theorem succ_positive {n m : ℕ} (H : n = succ m) : n > 0
 := subst (symm H) (lt_zero m)
@@ -954,7 +954,7 @@ theorem mul_left_inj {n m k : ℕ} (Hn : n > 0) (H : n * m = n * k) : m = k
             n * m = n * 0 : H
               ... = 0 : mul_zero_right n,
         have H3 : n = 0 ∨ m = 0, from mul_eq_zero H2,
-        or.resolve_right H3 (ne.symm (lt_ne Hn)))
+        or_resolve_right H3 (ne.symm (lt_ne Hn)))
       (take (l : ℕ),
         assume (IH : ∀ m, n * m = n * l → m = l),
         take (m : ℕ),

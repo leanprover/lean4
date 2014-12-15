@@ -14,7 +14,7 @@ section
   notation `∅` := empty
 
   theorem mem_empty (x : T) : ¬ (x ∈ ∅)
-  := not_intro (λH : x ∈ ∅, absurd H ff_ne_tt)
+  := not.intro (λH : x ∈ ∅, absurd H ff_ne_tt)
 end
 
 end set

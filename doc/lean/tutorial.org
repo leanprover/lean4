@@ -537,7 +537,7 @@ We now use =not_intro= and =absurd= to produce a proof term for
   import logic
   constants a b : Prop
   check fun (Hab : a → b) (Hnb : ¬ b),
-            not_intro (fun Ha : a, absurd (Hab Ha) Hnb)
+            not.intro (fun Ha : a, absurd (Hab Ha) Hnb)
 
 #+END_SRC
 
@@ -743,7 +743,7 @@ if we can derive =B= using an "abstract" witness =w= and a proof term =Hw : B w=
 
 #+BEGIN_SRC lean
   import logic
-  check @exists_elim
+   check @exists_elim
 #+END_SRC
 
 In the following example, we define =even a= as =∃ b, a = 2*b=, and then we show that the sum

@@ -321,13 +321,13 @@ section
   theorem mul.cancel_right {a b c : A} (Ha : a ≠ 0) (H : b * a = c * a) : b = c :=
   have H1 : b * a - c * a = 0, from iff.mp !eq_iff_sub_eq_zero H,
   have H2 : (b - c) * a = 0, from eq.trans !mul_sub_right_distrib H1,
-  have H3 : b - c = 0, from or.resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H2) Ha,
+  have H3 : b - c = 0, from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H2) Ha,
   iff.elim_right !eq_iff_sub_eq_zero H3
 
   theorem mul.cancel_left {a b c : A} (Ha : a ≠ 0) (H : a * b = a * c) : b = c :=
   have H1 : a * b - a * c = 0, from iff.mp !eq_iff_sub_eq_zero H,
   have H2 : a * (b - c) = 0, from eq.trans !mul_sub_left_distrib H1,
-  have H3 : b - c = 0, from or.resolve_right (eq_zero_or_eq_zero_of_mul_eq_zero H2) Ha,
+  have H3 : b - c = 0, from or_resolve_right (eq_zero_or_eq_zero_of_mul_eq_zero H2) Ha,
   iff.elim_right !eq_iff_sub_eq_zero H3
 
   -- TODO: do we want the iff versions?

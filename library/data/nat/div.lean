@@ -34,10 +34,10 @@ congr_fun (fix_eq div.F x) y
 notation a div b := divide a b
 
 theorem div_zero (a : ℕ) : a div 0 = 0 :=
-divide_def a 0 ⬝ if_neg (!and.not_left (lt.irrefl 0))
+divide_def a 0 ⬝ if_neg (!not_and_of_not_left (lt.irrefl 0))
 
 theorem div_less {a b : ℕ} (h : a < b) : a div b = 0 :=
-divide_def a b ⬝ if_neg (!and.not_right (lt_imp_not_ge h))
+divide_def a b ⬝ if_neg (!not_and_of_not_right (lt_imp_not_ge h))
 
 theorem zero_div (b : ℕ) : 0 div b = 0 :=
 divide_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt.of_lt_of_le l r) (lt.irrefl 0)))
@@ -74,10 +74,10 @@ theorem modulo_def (x y : nat) : modulo x y = if 0 < y ∧ y ≤ x then modulo (
 congr_fun (fix_eq mod.F x) y
 
 theorem mod_zero (a : ℕ) : a mod 0 = a :=
-modulo_def a 0 ⬝ if_neg (!and.not_left (lt.irrefl 0))
+modulo_def a 0 ⬝ if_neg (!not_and_of_not_left (lt.irrefl 0))
 
 theorem mod_less {a b : ℕ} (h : a < b) : a mod b = a :=
-modulo_def a b ⬝ if_neg (!and.not_right (lt_imp_not_ge h))
+modulo_def a b ⬝ if_neg (!not_and_of_not_right (lt_imp_not_ge h))
 
 theorem zero_mod (b : ℕ) : 0 mod b = 0 :=
 modulo_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt.of_lt_of_le l r) (lt.irrefl 0)))

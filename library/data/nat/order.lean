@@ -152,10 +152,10 @@ discriminate
     or.inl Hlt)
 
 theorem le_ne_imp_succ_le {n m : ℕ} (H1 : n ≤ m) (H2 : n ≠ m) : succ n ≤ m :=
-or.resolve_left (le_imp_succ_le_or_eq H1) H2
+or_resolve_left (le_imp_succ_le_or_eq H1) H2
 
 theorem le_succ_imp_le_or_eq {n m : ℕ} (H : n ≤ succ m) : n ≤ m ∨ n = succ m :=
-or.imp_or_left (le_imp_succ_le_or_eq H)
+or_of_or_of_imp_left (le_imp_succ_le_or_eq H)
    (take H2 : succ n ≤ succ m, show n ≤ m, from succ_le_cancel H2)
 
 theorem succ_le_imp_le_and_ne {n m : ℕ} (H : succ n ≤ m) : n ≤ m ∧ n ≠ m :=
@@ -210,7 +210,7 @@ discriminate
     have H3 : k ≤ m, from H2 ▸ H,
     have H4 : succ k ≤ m ∨ k = m, from le_imp_succ_le_or_eq H3,
     show n ≤ m ∨ n = succ m, from
-      or.imp_or H4
+      or_of_or_of_imp_of_imp H4
         (take H5 : succ k ≤ m, show n ≤ m, from Hn⁻¹ ▸ H5)
         (take H5 : k = m, show n = succ m, from H5 ▸ Hn))
 
@@ -275,7 +275,7 @@ theorem le_imp_lt_or_eq {n m : ℕ} (H : n ≤ m) : n < m ∨ n = m :=
 or.swap (eq_or_lt_of_le H)
 
 theorem le_ne_imp_lt {n m : ℕ} (H1 : n ≤ m) (H2 : n ≠ m) : n < m :=
-or.resolve_left (le_imp_lt_or_eq H1) H2
+or_resolve_left (le_imp_lt_or_eq H1) H2
 
 theorem lt_succ_imp_le {n m : ℕ} (H : n < succ m) : n ≤ m :=
 succ_le_cancel (succ_le_of_lt H)
@@ -347,13 +347,13 @@ theorem trichotomy (n m : ℕ) : n < m ∨ n = m ∨ n > m :=
 lt.trichotomy n m
 
 theorem le_total (n m : ℕ) : n ≤ m ∨ m ≤ n :=
-or.imp_or_right le_or_gt (assume H : m < n, lt_imp_le H)
+or_of_or_of_imp_right le_or_gt (assume H : m < n, lt_imp_le H)
 
 theorem not_lt_imp_ge {n m : ℕ} (H : ¬ n < m) : n ≥ m :=
-or.resolve_left le_or_gt H
+or_resolve_left le_or_gt H
 
 theorem not_le_imp_gt {n m : ℕ} (H : ¬ n ≤ m) : n > m :=
-or.resolve_right le_or_gt H
+or_resolve_right le_or_gt H
 
 -- ### misc
 
@@ -396,7 +396,7 @@ theorem case_zero_pos {P : ℕ → Prop} (y : ℕ) (H0 : P 0) (H1 : ∀ {y : nat
 case y H0 (take y, H1 !succ_pos)
 
 theorem zero_or_pos {n : ℕ} : n = 0 ∨ n > 0 :=
-or.imp_or_left
+or_of_or_of_imp_left
   (or.swap (le_imp_lt_or_eq !zero_le))
   (take H : 0 = n, H⁻¹)
 
@@ -493,7 +493,7 @@ have H5 : k ≤ m, from mul_le_cancel_left Hn H3,
 le_antisym H4 H5
 
 theorem mul_cancel_left_or {n m k : ℕ} (H : n * m = n * k) : n = 0 ∨ m = k :=
-or.imp_or_right zero_or_pos
+or_of_or_of_imp_right zero_or_pos
   (assume Hn : n > 0, mul_cancel_left Hn H)
 
 theorem mul_cancel_right {n m k : ℕ} (Hm : m > 0) (H : n * m = k * m) : n = k :=

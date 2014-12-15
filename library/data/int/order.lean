@@ -18,7 +18,7 @@ open int eq.ops
 namespace int
 
 theorem nonneg_elim {a : ℤ} : nonneg a → ∃n : ℕ, a = n :=
-cases_on a (take n H, exists_intro n rfl) (take n' H, false_elim H)
+cases_on a (take n H, exists_intro n rfl) (take n' H, false.elim H)
 
 theorem le_intro {a b : ℤ} {n : ℕ} (H : a + n = b) : a ≤ b :=
 have H1 : b - a = n, from add_imp_sub_right (!add_comm ▸ H),
@@ -262,7 +262,7 @@ theorem le_imp_lt_or_eq {a b : ℤ} (H : a ≤ b) : a < b ∨ a = b :=
 le_imp_succ_le_or_eq H
 
 theorem le_ne_imp_lt {a b : ℤ} (H1 : a ≤ b)  (H2 : a ≠ b) : a < b :=
-or.resolve_left (le_imp_lt_or_eq H1) H2
+or_resolve_left (le_imp_lt_or_eq H1) H2
 
 theorem le_imp_lt_succ {a b : ℤ} (H : a ≤ b) : a < b + 1 :=
 add_le_right H 1
@@ -379,26 +379,26 @@ by_cases a
           or.inl (neg_le_pos n m))
       (take m : ℕ,
          show -n ≤ -succ m ∨ -n > -succ m, from
-          or.imp_or le_or_gt
+          or_of_or_of_imp_of_imp le_or_gt
             (assume H : succ m ≤ n,
               le_neg (iff.elim_left (iff.symm (le_of_nat (succ m) n)) H))
             (assume H : succ m > n,
               lt_neg (iff.elim_left (iff.symm (lt_of_nat n (succ m))) H))))
 
 theorem trichotomy_alt (a b : ℤ) : (a < b ∨ a = b) ∨ a > b :=
-or.imp_or_left (le_or_gt a b) (assume H : a ≤ b, le_imp_lt_or_eq H)
+or_of_or_of_imp_left (le_or_gt a b) (assume H : a ≤ b, le_imp_lt_or_eq H)
 
 theorem trichotomy (a b : ℤ) : a < b ∨ a = b ∨ a > b :=
 iff.elim_left or.assoc (trichotomy_alt a b)
 
 theorem le_total (a b : ℤ) : a ≤ b ∨ b ≤ a :=
-or.imp_or_right (le_or_gt a b) (assume H : b < a, lt_imp_le H)
+or_of_or_of_imp_right (le_or_gt a b) (assume H : b < a, lt_imp_le H)
 
 theorem not_lt_imp_le {a b : ℤ} (H : ¬ a < b) : b ≤ a :=
-or.resolve_left (le_or_gt b a) H
+or_resolve_left (le_or_gt b a) H
 
 theorem not_le_imp_lt {a b : ℤ} (H : ¬ a ≤ b) : b < a :=
-or.resolve_right (le_or_gt a b) H
+or_resolve_right (le_or_gt a b) H
 
 -- (non)positivity and (non)negativity
 -- -------------------------------------
@@ -448,7 +448,7 @@ calc
   ... = -a : (neg_move (Hn⁻¹))⁻¹
 
 theorem nat_abs_cases (a : ℤ) : a = (nat_abs a) ∨ a = - (nat_abs a) :=
-or.imp_or (le_total 0 a)
+or_of_or_of_imp_of_imp (le_total 0 a)
   (assume H : a ≥ 0, (nat_abs_nonneg_eq H)⁻¹)
   (assume H : a ≤ 0, (neg_move ((nat_abs_negative H)⁻¹))⁻¹)
 
@@ -564,7 +564,7 @@ have H2 : (nat_abs a) * (nat_abs b) = 1, from
                         ... = (nat_abs 1)       : {H}
                         ... = 1                : nat_abs_of_nat 1,
 have H3 : (nat_abs a) = 1, from mul_eq_one_left H2,
-or.imp_or (nat_abs_cases a)
+or_of_or_of_imp_of_imp (nat_abs_cases a)
   (assume H4 : a = (nat_abs a), H3 ▸ H4)
   (assume H4 : a = - (nat_abs a), H3 ▸ H4)
 

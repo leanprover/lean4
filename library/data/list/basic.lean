@@ -146,12 +146,12 @@ induction_on s or.inr
     assume IH : x ∈ s ++ t → x ∈ s ∨ x ∈ t,
     assume H1 : x ∈ y::s ++ t,
     have H2 : x = y ∨ x ∈ s ++ t, from H1,
-    have H3 : x = y ∨ x ∈ s ∨ x ∈ t, from or.imp_or_right H2 IH,
+    have H3 : x = y ∨ x ∈ s ∨ x ∈ t, from or_of_or_of_imp_right H2 IH,
     iff.elim_right or.assoc H3)
 
 theorem mem.or_imp_concat {x : T} {s t : list T} : x ∈ s ∨ x ∈ t → x ∈ s ++ t :=
 induction_on s
-  (take H, or.elim H false_elim (assume H, H))
+  (take H, or.elim H false.elim (assume H, H))
   (take y s,
     assume IH : x ∈ s ∨ x ∈ t → x ∈ s ++ t,
     assume H : x ∈ y::s ∨ x ∈ t,
@@ -167,7 +167,7 @@ iff.intro mem.concat_imp_or mem.or_imp_concat
 
 theorem mem.split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x::t) :=
 induction_on l
-  (take H : x ∈ nil, false_elim (iff.elim_left !mem.nil H))
+  (take H : x ∈ nil, false.elim (iff.elim_left !mem.nil H))
   (take y l,
     assume IH : x ∈ l → ∃s t : list T, l = s ++ (x::t),
     assume H : x ∈ y::l,
@@ -226,7 +226,7 @@ rec_on l
       assume iH : ¬x ∈ l → find x l = length l,
       assume P₁ : ¬x ∈ y::l,
       have P₂ : ¬(x = y ∨ x ∈ l), from iff.elim_right (iff.flip_sign !mem.cons) P₁,
-      have P₃ : ¬x = y ∧ ¬x ∈ l, from (iff.elim_left not_or P₂),
+      have P₃ : ¬x = y ∧ ¬x ∈ l, from (iff.elim_left not_or_iff_not_and_not P₂),
       calc
         find x (y::l) = if x = y then 0 else succ (find x l) : !find.cons
                   ... = succ (find x l)                      : if_neg (and.elim_left P₃)

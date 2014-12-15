@@ -42,7 +42,7 @@ open eq.ops
 namespace nat
 
 theorem succ_pred_of_pos {n : ℕ} (H : n > 0) : succ (pred n) = n :=
-(or.resolve_right (zero_or_succ_pred n) (ne.symm (lt_imp_ne H))⁻¹)
+(or_resolve_right (zero_or_succ_pred n) (ne.symm (lt_imp_ne H))⁻¹)
 
 theorem sub_pos_of_gt {m n : ℕ} (H : n > m) : n - m > 0 :=
 have H1 : n = n - m + m, from (add_sub_ge_left (lt_imp_le H))⁻¹,
@@ -866,23 +866,23 @@ have H2 : (nat_abs a) * (nat_abs b) = 0, from
       ... = (nat_abs 0) : {H}
       ... = 0 : nat_abs_of_nat 0,
 have H3 : (nat_abs a) = 0 ∨ (nat_abs b) = 0, from mul.eq_zero H2,
-or.imp_or H3
+or_of_or_of_imp_of_imp H3
   (assume H : (nat_abs a) = 0, nat_abs_eq_zero H)
   (assume H : (nat_abs b) = 0, nat_abs_eq_zero H)
 
 theorem mul_cancel_left_or {a b c : ℤ} (H : a * b = a * c) : a = 0 ∨ b = c :=
 have H2 : a * (b - c) = 0, by simp,
 have H3 : a = 0 ∨ b - c = 0, from mul_eq_zero H2,
-or.imp_or_right H3 (assume H4 : b - c = 0, sub_eq_zero H4)
+or_of_or_of_imp_right H3 (assume H4 : b - c = 0, sub_eq_zero H4)
 
 theorem mul_cancel_left {a b c : ℤ} (H1 : a ≠ 0) (H2 : a * b = a * c) : b = c :=
-or.resolve_right (mul_cancel_left_or H2) H1
+or_resolve_right (mul_cancel_left_or H2) H1
 
 theorem mul_cancel_right_or {a b c : ℤ} (H : b * a = c * a) : a = 0 ∨ b = c :=
 mul_cancel_left_or ((H ▸ (mul_comm b a)) ▸ mul_comm c a)
 
 theorem mul_cancel_right {a b c : ℤ} (H1 : c ≠ 0) (H2 : a * c = b * c) : a = b :=
-or.resolve_right (mul_cancel_right_or H2) H1
+or_resolve_right (mul_cancel_right_or H2) H1
 
 theorem mul_ne_zero {a b : ℤ} (Ha : a ≠ 0) (Hb : b ≠ 0) : a * b ≠ 0 :=
 (assume H : a * b = 0,

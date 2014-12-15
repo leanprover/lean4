@@ -63,7 +63,7 @@ induction_on n
     (show succ m = succ (pred (succ m)), from congr_arg succ !pred.succ⁻¹))
 
 theorem zero_or_exists_succ (n : ℕ) : n = 0 ∨ ∃k, n = succ k :=
-or.imp_or (zero_or_succ_pred n) (assume H, H)
+or_of_or_of_imp_of_imp (zero_or_succ_pred n) (assume H, H)
     (assume H : n = succ (pred n), exists_intro (pred n) H)
 
 theorem case {P : ℕ → Prop} (n : ℕ) (H1: P 0) (H2 : ∀m, P (succ m)) : P n :=

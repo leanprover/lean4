@@ -146,7 +146,7 @@ namespace nat
     (λ hr, le.of_lt hr)
 
   definition le.is_decidable_rel [instance] : decidable_rel le :=
-  λ a b, decidable_iff_equiv _ (iff.intro le.of_eq_or_lt eq_or_lt_of_le)
+  λ a b, decidable_of_decidable_of_iff _ (iff.intro le.of_eq_or_lt eq_or_lt_of_le)
 
   definition le.rec_on {a : nat} {P : nat → Prop} {b : nat} (H : a ≤ b) (H₁ : P a) (H₂ : ∀ b, a < b → P b) : P b :=
   begin

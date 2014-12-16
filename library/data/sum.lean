@@ -50,13 +50,13 @@ namespace sum
           (take b₂,
             have H₃ : (inl B a₁ = inr A b₂) ↔ false,
               from iff.intro inl_neq_inr (assume H₄, !false.rec H₄),
-            show decidable (inl B a₁ = inr A b₂), from decidable_iff_equiv _ (iff.symm H₃)))
+            show decidable (inl B a₁ = inr A b₂), from decidable_of_decidable_of_iff _ (iff.symm H₃)))
       (take b₁, show decidable (inr A b₁ = s₂), from
         rec_on s₂
           (take a₂,
             have H₃ : (inr A b₁ = inl B a₂) ↔ false,
               from iff.intro (assume H₄, inl_neq_inr (H₄⁻¹)) (assume H₄, !false.rec H₄),
-            show decidable (inr A b₁ = inl B a₂), from decidable_iff_equiv _ (iff.symm H₃))
+            show decidable (inr A b₁ = inl B a₂), from decidable_of_decidable_of_iff _ (iff.symm H₃))
           (take b₂, show decidable (inr A b₁ = inr A b₂), from
             decidable.rec_on (H₂ b₁ b₂)
               (assume Heq : b₁ = b₂, decidable.inl (Heq ▸ rfl))

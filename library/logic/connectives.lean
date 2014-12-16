@@ -176,7 +176,7 @@ section
 
   theorem if_congr [H₁ : decidable c₁] {t₁ t₂ e₁ e₂ : A} (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂)
       (He : e₁ = e₂) :
-    (if c₁ then t₁ else e₁) = (@ite c₂ (decidable.decidable_iff_equiv H₁ Hc) A t₂ e₂) :=
-  have H2 [visible] : decidable c₂, from (decidable.decidable_iff_equiv H₁ Hc),
+    (if c₁ then t₁ else e₁) = (@ite c₂ (decidable_of_decidable_of_iff H₁ Hc) A t₂ e₂) :=
+  have H2 [visible] : decidable c₂, from (decidable_of_decidable_of_iff H₁ Hc),
   if_congr_aux Hc Ht He
 end

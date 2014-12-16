@@ -200,11 +200,6 @@ namespace iff
 
   definition mp' := @elim_right
 
-  definition flip_sign (H₁ : a ↔ b) : ¬a ↔ ¬b :=
-  intro
-    (assume (Hna : ¬ a) (Hb : b), absurd (elim_right H₁ Hb) Hna)
-    (assume (Hnb : ¬ b) (Ha : a), absurd (elim_left H₁ Ha) Hnb)
-
   definition refl (a : Prop) : a ↔ a :=
   intro (assume H, H) (assume H, H)
 
@@ -225,6 +220,11 @@ namespace iff
   theorem of_eq {a b : Prop} (H : a = b) : a ↔ b :=
   iff.intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 end iff
+
+definition not_iff_not_of_iff (H₁ : a ↔ b) : ¬a ↔ ¬b :=
+iff.intro
+ (assume (Hna : ¬ a) (Hb : b), absurd (iff.elim_right H₁ Hb) Hna)
+ (assume (Hnb : ¬ b) (Ha : a), absurd (iff.elim_left H₁ Ha) Hnb)
 
 theorem of_iff_true (H : a ↔ true) : a :=
 iff.mp (iff.symm H) trivial
@@ -278,14 +278,19 @@ namespace decidable
     (assume H1 : p, H1)
     (assume H1 : ¬p, false.rec _ (H H1))
 
-  definition decidable_iff_equiv (Hp : decidable p) (H : p ↔ q) : decidable q :=
-  rec_on Hp
-    (assume Hp : p,   inl (iff.elim_left H Hp))
-    (assume Hnp : ¬p, inr (iff.elim_left (iff.flip_sign H) Hnp))
-
-  definition decidable_eq_equiv (Hp : decidable p) (H : p = q) : decidable q :=
-  decidable_iff_equiv Hp (iff.of_eq H)
 end decidable
+
+section
+  variables {p q : Prop}
+  open decidable
+  definition  decidable_of_decidable_of_iff (Hp : decidable p) (H : p ↔ q) : decidable q :=
+  decidable.rec_on Hp
+    (assume Hp : p,   inl (iff.elim_left H Hp))
+    (assume Hnp : ¬p, inr (iff.elim_left (not_iff_not_of_iff H) Hnp))
+
+  definition  decidable_of_decidable_of_eq (Hp : decidable p) (H : p = q) : decidable q :=
+  decidable_of_decidable_of_iff Hp (iff.of_eq H)
+end
 
 section
   variables {p q : Prop}

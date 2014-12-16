@@ -29,5 +29,5 @@ namespace subtype
   take a1 a2 : {x | P x},
     have H1 : (a1 = a2) ↔ (elt_of a1 = elt_of a2), from
       iff.intro (assume H, eq.subst H rfl) (assume H, equal H),
-    decidable_iff_equiv _ (iff.symm H1)
+    decidable_of_decidable_of_iff _ (iff.symm H1)
 end subtype

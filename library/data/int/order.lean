@@ -431,8 +431,8 @@ have aux : Πx, decidable (0 ≤ x), from
       iff.intro
         (assume H1, nat_abs_nonneg_eq H1)
         (assume H1, H1 ▸ of_nat_nonneg (nat_abs x)),
-    decidable_iff_equiv _ (iff.symm H),
-decidable_iff_equiv !aux (iff.symm (le_iff_sub_nonneg a b))
+    decidable_of_decidable_of_iff _ (iff.symm H),
+decidable_of_decidable_of_iff !aux (iff.symm (le_iff_sub_nonneg a b))
 
 definition ge_decidable [instance] {a b : ℤ} : decidable (a ≥ b) := _
 definition lt_decidable [instance] {a b : ℤ} : decidable (a < b) := _

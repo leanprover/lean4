@@ -23,7 +23,7 @@ namespace prod
       iff.intro
         (assume H, H ▸ and.intro rfl rfl)
         (assume H, and.elim H (assume H₄ H₅, equal H₄ H₅)),
-    decidable_iff_equiv _ (iff.symm H₃)
+    decidable_of_decidable_of_iff _ (iff.symm H₃)
 
   -- ### flip operation
 

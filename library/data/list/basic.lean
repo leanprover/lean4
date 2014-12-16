@@ -203,7 +203,7 @@ rec_on l
                 (assume Heq, absurd Heq Hne)
                 (assume Hp,  absurd Hp Hn),
             have H2 : ¬x ∈ h::l, from
-              iff.elim_right (iff.flip_sign !mem.cons) H1,
+              iff.elim_right (not_iff_not_of_iff !mem.cons) H1,
             decidable.inr H2)))
 
 -- Find
@@ -225,7 +225,7 @@ rec_on l
    (take y l,
       assume iH : ¬x ∈ l → find x l = length l,
       assume P₁ : ¬x ∈ y::l,
-      have P₂ : ¬(x = y ∨ x ∈ l), from iff.elim_right (iff.flip_sign !mem.cons) P₁,
+      have P₂ : ¬(x = y ∨ x ∈ l), from iff.elim_right (not_iff_not_of_iff !mem.cons) P₁,
       have P₃ : ¬x = y ∧ ¬x ∈ l, from (iff.elim_left not_or_iff_not_and_not P₂),
       calc
         find x (y::l) = if x = y then 0 else succ (find x l) : !find.cons

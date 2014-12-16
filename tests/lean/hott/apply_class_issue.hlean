@@ -1,9 +1,7 @@
-import hott.trunc
 open truncation
---structure is_contr [class] (A : Type) : Type
 
 context
-parameters {P : Π(A : Type), A → Prop}
+parameters {P : Π(A : Type), A → Type}
 
 definition my_contr {A : Type} [H : is_contr A] (a : A) : P A a := sorry
 

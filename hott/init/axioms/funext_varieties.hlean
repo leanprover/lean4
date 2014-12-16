@@ -2,6 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Jakob von Raumer
 -- Ported from Coq HoTT
+prelude
 import ..path ..trunc ..equiv .funext
 
 open eq truncation sigma function

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 General operations on functions.
 -/
 prelude
+import init.reserved_notation
 
 namespace function
 
@@ -36,7 +37,6 @@ definition flip {A : Type} {B : Type} {C : A → B → Type} (f : Πx y, C x y) 
 definition app {A : Type} {B : A → Type} (f : Πx, B x) (x : A) : B x :=
 f x
 
-precedence `∘`:60
 precedence `∘'`:60
 precedence `on`:1
 precedence `$`:1
@@ -44,7 +44,7 @@ precedence `$`:1
 variables {f g : A → B}
 
 
-infixr  ∘                 := compose
+infixr  ∘                  := compose
 infixr  ∘'                 := dcompose
 infixl  on                 := on_fun
 infixr  $                  := app

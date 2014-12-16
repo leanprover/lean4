@@ -4,12 +4,15 @@
 
 prelude
 import ..datatypes ..logic
+
 -- Empty type
 -- ----------
 
 namespace empty
+
   protected theorem elim (A : Type) (H : empty) : A :=
   rec (λe, A) H
+
 end empty
 
 protected definition empty.has_decidable_eq [instance] : decidable_eq empty :=

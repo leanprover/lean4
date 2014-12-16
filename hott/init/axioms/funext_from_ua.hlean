@@ -3,7 +3,7 @@
 -- Author: Jakob von Raumer
 -- Ported from Coq HoTT
 prelude
-import ..equiv ..datatypes
+import ..equiv ..datatypes ..types.prod
 import .funext_varieties .ua .funext
 
 open eq function prod sigma truncation equiv is_equiv unit ua_type

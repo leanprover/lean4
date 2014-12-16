@@ -66,7 +66,7 @@ theorem dvd.intro [s : has_dvd A] {a b c : A} : a * b = c → a | c := !has_dvd.
 theorem dvd.ex [s : has_dvd A] {a b : A} : a | b → ∃c, a * c = b := !has_dvd.dvd_ex
 
 theorem dvd.elim [s : has_dvd A] {P : Prop} {a b : A} (H₁ : a | b) (H₂ : ∀c, a * c = b → P) : P :=
-exists_elim (dvd.ex H₁) H₂
+exists.elim (dvd.ex H₁) H₂
 
 structure comm_semiring_dvd [class] (A : Type) extends comm_semiring A, has_dvd A
 

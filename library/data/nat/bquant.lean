@@ -29,16 +29,16 @@ namespace nat
 
   definition bex_succ {P : nat → Prop} {n : nat} (H : bex n P) : bex (succ n) P :=
   obtain (w : nat) (Hw : w < n ∧ P w), from H,
-    and.rec_on Hw (λ hlt hp, exists_intro w (and.intro (lt.step hlt) hp))
+    and.rec_on Hw (λ hlt hp, exists.intro w (and.intro (lt.step hlt) hp))
 
   definition bex_succ_of_pred {P : nat → Prop} {a : nat} (H : P a) : bex (succ a) P :=
-  exists_intro a (and.intro (lt.base a) H)
+  exists.intro a (and.intro (lt.base a) H)
 
   definition not_bex_succ {P : nat → Prop} {n : nat} (H₁ : ¬ bex n P) (H₂ : ¬ P n) : ¬ bex (succ n) P :=
   λ H, obtain (w : nat) (Hw : w < succ n ∧ P w), from H,
     and.rec_on Hw (λ hltsn hp, or.rec_on (eq_or_lt_of_le hltsn)
       (λ heq : w = n, absurd (eq.rec_on heq hp) H₂)
-      (λ hltn : w < n, absurd (exists_intro w (and.intro hltn hp)) H₁))
+      (λ hltn : w < n, absurd (exists.intro w (and.intro hltn hp)) H₁))
 
   definition ball_zero (P : nat → Prop) : ball zero P :=
   λ x Hlt, absurd Hlt !not_lt_zero

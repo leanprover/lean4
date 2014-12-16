@@ -28,9 +28,9 @@ iff.intro
 theorem exists_congr {A : Type} {φ ψ : A → Prop} (H : ∀x, φ x ↔ ψ x) : (∃x, φ x) ↔ (∃x, ψ x) :=
 iff.intro
   (assume Hex, obtain w Pw, from Hex,
-    exists_intro w (iff.elim_left (H w) Pw))
+    exists.intro w (iff.elim_left (H w) Pw))
   (assume Hex, obtain w Qw, from Hex,
-    exists_intro w (iff.elim_right (H w) Qw))
+    exists.intro w (iff.elim_right (H w) Qw))
 
 theorem forall_true_iff_true (A : Type) : (∀x : A, true) ↔ true :=
 iff.intro (assume H, trivial) (assume H, take x, trivial)
@@ -41,7 +41,7 @@ iff.intro (assume Hl, inhabited.destruct H (take x, Hl x)) (assume Hr, take x, H
 theorem exists_p_iff_p (A : Type) [H : inhabited A] (p : Prop) : (∃x : A, p) ↔ p :=
 iff.intro
   (assume Hl, obtain a Hp, from Hl, Hp)
-  (assume Hr, inhabited.destruct H (take a, exists_intro a Hr))
+  (assume Hr, inhabited.destruct H (take a, exists.intro a Hr))
 
 theorem forall_and_distribute {A : Type} (φ ψ : A → Prop) :
   (∀x, φ x ∧ ψ x) ↔ (∀x, φ x) ∧ (∀x, ψ x) :=
@@ -54,13 +54,13 @@ theorem exists_or_distribute {A : Type} (φ ψ : A → Prop) :
 iff.intro
   (assume H, obtain (w : A) (Hw : φ w ∨ ψ w), from H,
     or.elim Hw
-      (assume Hw1 : φ w, or.inl (exists_intro w Hw1))
-      (assume Hw2 : ψ w, or.inr (exists_intro w Hw2)))
+      (assume Hw1 : φ w, or.inl (exists.intro w Hw1))
+      (assume Hw2 : ψ w, or.inr (exists.intro w Hw2)))
   (assume H, or.elim H
     (assume H1, obtain (w : A) (Hw : φ w), from H1,
-      exists_intro w (or.inl Hw))
+      exists.intro w (or.inl Hw))
     (assume H2, obtain (w : A) (Hw : ψ w), from H2,
-      exists_intro w (or.inr Hw)))
+      exists.intro w (or.inr Hw)))
 
 theorem nonempty_of_exists {A : Type} {P : A → Prop} (H : ∃x, P x) : nonempty A :=
 obtain w Hw, from H, nonempty.intro w
@@ -78,7 +78,7 @@ section
 
   definition decidable_exists_eq [instance] : decidable (∃ x, x = a ∧ P x) :=
   decidable.rec_on H
-     (λ pa, inl (exists_intro a (and.intro rfl pa)))
+     (λ pa, inl (exists.intro a (and.intro rfl pa)))
      (λ npa, inr (λ h,
        obtain (w : A) (Hw : w = a ∧ P w), from h,
        absurd (and.rec_on Hw (λ h₁ h₂, h₁ ▸ h₂)) npa))

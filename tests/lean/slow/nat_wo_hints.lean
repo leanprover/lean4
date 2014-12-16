@@ -54,7 +54,7 @@ theorem zero_or_succ (n : ℕ) : n = 0 ∨ n = succ (pred n)
       (show succ m = succ (pred (succ m)), from congr_arg succ (pred_succ m⁻¹)))
 
 theorem zero_or_succ2 (n : ℕ) : n = 0 ∨ ∃k, n = succ k
-:= or_of_or_of_imp_of_imp (zero_or_succ n) (assume H, H) (assume H : n = succ (pred n), exists_intro (pred n) H)
+:= or_of_or_of_imp_of_imp (zero_or_succ n) (assume H, H) (assume H : n = succ (pred n), exists.intro (pred n) H)
 
 theorem case {P : ℕ → Prop} (n : ℕ) (H1: P 0) (H2 : ∀m, P (succ m)) : P n
 := induction_on n H1 (take m IH, H2 m)
@@ -380,7 +380,7 @@ infix  `<=` := le
 infix  `≤`  := le
 
 theorem le_intro {n m k : ℕ} (H : n + k = m) : n ≤ m
-:= exists_intro k H
+:= exists.intro k H
 
 theorem le_elim {n m : ℕ} (H : n ≤ m) : ∃ k, n + k = m
 := H
@@ -689,7 +689,7 @@ theorem lt_zero_inv (n : ℕ) : ¬ n < 0
 theorem lt_positive {n m : ℕ} (H : n < m) : ∃k, m = succ k
 := discriminate
     (take (Hm : m = 0), absurd (subst Hm H) (lt_zero_inv n))
-    (take (l : ℕ) (Hm : m = succ l), exists_intro l Hm)
+    (take (l : ℕ) (Hm : m = succ l), exists.intro l Hm)
 
 ---------- interaction with le
 
@@ -880,7 +880,7 @@ theorem ne_zero_positive {n : ℕ} (H : n ≠ 0) : n > 0
 theorem pos_imp_eq_succ {n : ℕ} (H : n > 0) : ∃l, n = succ l
 := discriminate
     (take H2, absurd (subst H2 H) (lt_irrefl 0))
-    (take l Hl, exists_intro l Hl)
+    (take l Hl, exists.intro l Hl)
 
 theorem add_positive_right (n : ℕ) {k : ℕ} (H : k > 0) : n + k > n
 := obtain (l : ℕ) (Hl : k = succ l), from pos_imp_eq_succ H,
@@ -1280,7 +1280,7 @@ theorem sub_le_self (n m : ℕ) : n - m ≤ n
 theorem le_elim_sub (n m : ℕ) (H : n ≤ m) : ∃k, m - k = n
 :=
   obtain (k : ℕ) (Hk : n + k = m), from le_elim H,
-  exists_intro k
+  exists.intro k
     (calc
       m - k = n + k - k : {symm Hk}
         ... = n : sub_add_left n k)

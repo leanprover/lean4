@@ -300,7 +300,7 @@ show x mod y = 0, from
 theorem dvd_iff_exists_mul (x y : ℕ) : x | y ↔ ∃z, z * x = y :=
 iff.intro
   (assume H : x | y,
-    show ∃z, z * x = y, from exists_intro _ (dvd_imp_div_mul_eq H))
+    show ∃z, z * x = y, from exists.intro _ (dvd_imp_div_mul_eq H))
   (assume H : ∃z, z * x = y,
     obtain (z : ℕ) (zx_eq : z * x = y), from H,
     show x | y, from mul_eq_imp_dvd zx_eq)
@@ -341,14 +341,14 @@ have H4 : k = k div n * (n div m) * m, from calc
   k     = k div n * n             : dvd_imp_div_mul_eq H2
     ... = k div n * (n div m * m) : H3
     ... = k div n * (n div m) * m : mul.assoc,
-mp (!dvd_iff_exists_mul⁻¹) (exists_intro (k div n * (n div m)) (H4⁻¹))
+mp (!dvd_iff_exists_mul⁻¹) (exists.intro (k div n * (n div m)) (H4⁻¹))
 
 theorem dvd_add {m n1 n2 : ℕ} (H1 : m | n1) (H2 : m | n2) : m | (n1 + n2) :=
 have H : (n1 div m + n2 div m) * m = n1 + n2, from calc
   (n1 div m + n2 div m) * m = n1 div m * m + n2 div m * m : mul.distr_right
                        ...  = n1 + n2 div m * m           : dvd_imp_div_mul_eq H1
                        ...  = n1 + n2                     : dvd_imp_div_mul_eq H2,
-mp (!dvd_iff_exists_mul⁻¹) (exists_intro _ H)
+mp (!dvd_iff_exists_mul⁻¹) (exists.intro _ H)
 
 theorem dvd_add_cancel_left {m n1 n2 : ℕ} : m | (n1 + n2) → m | n1 → m | n2 :=
 case_zero_pos m
@@ -373,7 +373,7 @@ case_zero_pos m
           ... = n1 div m * m + n2 div m * m   : add.comm
           ... = n1 + n2 div m * m             : dvd_imp_div_mul_eq H2,
     have H4 : n2 = n2 div m * m, from add.cancel_left H3,
-    mp (!dvd_iff_exists_mul⁻¹) (exists_intro _ (H4⁻¹)))
+    mp (!dvd_iff_exists_mul⁻¹) (exists.intro _ (H4⁻¹)))
 
 theorem dvd_add_cancel_right {m n1 n2 : ℕ} (H : m | (n1 + n2)) : m | n2 → m | n1 :=
 dvd_add_cancel_left (!add.comm ▸ H)

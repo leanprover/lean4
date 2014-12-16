@@ -685,8 +685,8 @@ In Lean, the existential quantifier can be written as =exists x : A, B
 x= or =∃ x : A, B x=. Actually both versions are just
 notational convenience for =Exists (fun x : A, B x)=. That is, the existential quantifier
 is actually a constant defined in the file =logic.lean=.
-This file also defines the =exists_intro= and =exists_elim=.
-To build a proof for =∃ x : A, B x=, we should provide a term =w : A= and a proof term =Hw : B w= to =exists_intro=.
+This file also defines the =exists.intro= and =exists.elim=.
+To build a proof for =∃ x : A, B x=, we should provide a term =w : A= and a proof term =Hw : B w= to =exists.intro=.
 We say =w= is the witness for the existential introduction. In previous examples,
 =nat_trans3i Hxy Hzy Hzw= was a proof term for =x = w=. Then, we can create a proof term
 for =∃ a : nat, a = w= using
@@ -703,32 +703,32 @@ for =∃ a : nat, a = w= using
   axiom Hzy : z = y
   axiom Hzw : z = w
 
-  theorem ex_a_eq_w : exists a, a = w  := exists_intro x (nat_trans3i Hxy Hzy Hzw)
+  theorem ex_a_eq_w : exists a, a = w  := exists.intro x (nat_trans3i Hxy Hzy Hzw)
   check ex_a_eq_w
 #+END_SRC
 
 
-Note that =exists_intro= also has implicit arguments. For example, Lean has to infer the implicit argument
+Note that =exists.intro= also has implicit arguments. For example, Lean has to infer the implicit argument
 =P : A → Bool=, a predicate (aka function to Prop). This creates complications. For example, suppose
-we have =Hg : g 0 0 = 0= and we invoke =exists_intro 0 Hg=. There are different possible values for =P=.
+we have =Hg : g 0 0 = 0= and we invoke =exists.intro 0 Hg=. There are different possible values for =P=.
 Each possible value corresponds to a different theorem: =∃ x, g x x = x=, =∃ x, g x x = 0=,
-=∃ x, g x 0 = x=, etc. Lean uses the context where =exists_intro= occurs to infer the users intent.
+=∃ x, g x 0 = x=, etc. Lean uses the context where =exists.intro= occurs to infer the users intent.
 In the example above, we were trying to prove the theorem =∃ a, a = w=. So, we are implicitly telling
 Lean how to choose =P=. In the following example, we demonstrate this issue. We ask Lean to display
-the implicit arguments using the option =pp.implicit=. We see that each instance of =exists_intro 0 Hg=
+the implicit arguments using the option =pp.implicit=. We see that each instance of =exists.intro 0 Hg=
 has different values for the implicit argument =P=.
 
 #+BEGIN_SRC lean
   import data.nat
   open nat
 
-  check @exists_intro
+  check @exists.intro
   constant g : nat → nat → nat
   axiom Hg : g 0 0 = 0
-  theorem gex1 : ∃ x, g x x = x := exists_intro 0 Hg
-  theorem gex2 : ∃ x, g x 0 = x := exists_intro 0 Hg
-  theorem gex3 : ∃ x, g 0 0 = x := exists_intro 0 Hg
-  theorem gex4 : ∃ x, g x x = 0 := exists_intro 0 Hg
+  theorem gex1 : ∃ x, g x x = x := exists.intro 0 Hg
+  theorem gex2 : ∃ x, g x 0 = x := exists.intro 0 Hg
+  theorem gex3 : ∃ x, g 0 0 = x := exists.intro 0 Hg
+  theorem gex4 : ∃ x, g x x = 0 := exists.intro 0 Hg
   set_option pp.implicit true  -- display implicit arguments
   check gex1
   check gex2
@@ -736,14 +736,14 @@ has different values for the implicit argument =P=.
   check gex4
 #+END_SRC
 
-We can view =exists_intro= (aka existential introduction) as an information hiding procedure.
+We can view =exists.intro= (aka existential introduction) as an information hiding procedure.
 We are "hiding" what is the witness for some fact. The existential elimination performs the opposite
-operation. The =exists_elim= theorem allows us to prove some proposition =B= from =∃ x : A, B x=
+operation. The =exists.elim= theorem allows us to prove some proposition =B= from =∃ x : A, B x=
 if we can derive =B= using an "abstract" witness =w= and a proof term =Hw : B w=.
 
 #+BEGIN_SRC lean
   import logic
-   check @exists_elim
+   check @exists.elim
 #+END_SRC
 
 In the following example, we define =even a= as =∃ b, a = 2*b=, and then we show that the sum
@@ -755,9 +755,9 @@ of two even numbers is an even number.
 
   definition even (a : nat) := ∃ b, a = 2*b
   theorem EvenPlusEven {a b : nat} (H1 : even a) (H2 : even b) : even (a + b) :=
-  exists_elim H1 (fun (w1 : nat) (Hw1 : a = 2*w1),
-  exists_elim H2 (fun (w2 : nat) (Hw2 : b = 2*w2),
-    exists_intro (w1 + w2)
+  exists.elim H1 (fun (w1 : nat) (Hw1 : a = 2*w1),
+  exists.elim H2 (fun (w2 : nat) (Hw2 : b = 2*w2),
+    exists.intro (w1 + w2)
       (calc a + b  =  2*w1 + b      : {Hw1}
               ...  =  2*w1 + 2*w2   : {Hw2}
               ...  =  2*(w1 + w2)   : eq.symm !mul.distr_left)))
@@ -767,7 +767,7 @@ of two even numbers is an even number.
 The example above also uses [[./calc.org][calculational proofs]] to show that =a + b = 2*(w1 + w2)=.
 The =calc= construct is just syntax sugar for creating proofs using transitivity and substitution.
 
-In Lean, we can use =obtain _, from _, _= as syntax sugar for =exists_elim=.
+In Lean, we can use =obtain _, from _, _= as syntax sugar for =exists.elim=.
 With this macro we can write the example above in a more natural way
 
 #+BEGIN_SRC lean
@@ -777,7 +777,7 @@ With this macro we can write the example above in a more natural way
   theorem EvenPlusEven {a b : nat} (H1 : even a) (H2 : even b) : even (a + b) :=
   obtain (w1 : nat) (Hw1 : a = 2*w1), from H1,
   obtain (w2 : nat) (Hw2 : b = 2*w2), from H2,
-    exists_intro (w1 + w2)
+    exists.intro (w1 + w2)
       (calc a + b  =  2*w1 + b      : {Hw1}
               ...  =  2*w1 + 2*w2   : {Hw2}
               ...  =  2*(w1 + w2)   : eq.symm !mul.distr_left)

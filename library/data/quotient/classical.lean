@@ -21,7 +21,7 @@ definition prelim_map {A : Type} (R : A → A → Prop) (a : A) :=
 theorem prelim_map_rel {A : Type} {R : A → A → Prop} (H : is_equivalence R) (a : A)
   : R a (prelim_map R a) :=
 have reflR : reflexive R, from is_equivalence.refl R,
-epsilon_spec (exists_intro a (reflR a))
+epsilon_spec (exists.intro a (reflR a))
 
 -- TODO: only needed: R PER
 theorem prelim_map_congr {A : Type} {R : A → A → Prop} (H1 : is_equivalence R) {a b : A}

@@ -31,14 +31,14 @@ theorem not_is_zero_succ (x : nat) : ¬ is_zero (succ x)
 theorem dichotomy (m : nat) : m = zero ∨ (∃ n, m = succ n)
 := nat.rec
      (or.intro_left _ (refl zero))
-     (λ m H, or.intro_right _ (exists_intro m (refl (succ m))))
+     (λ m H, or.intro_right _ (exists.intro m (refl (succ m))))
      m
 
 theorem is_zero_to_eq (x : nat) (H : is_zero x) : x = zero
 := or.elim (dichotomy x)
      (assume Hz : x = zero, Hz)
      (assume Hs : (∃ n, x = succ n),
-       exists_elim Hs (λ (w : nat) (Hw : x = succ w),
+       exists.elim Hs (λ (w : nat) (Hw : x = succ w),
          absurd H (eq.subst (symm Hw) (not_is_zero_succ w))))
 
 theorem is_not_zero_to_eq {x : nat} (H : ¬ is_zero x) : ∃ n, x = succ n
@@ -48,7 +48,7 @@ theorem is_not_zero_to_eq {x : nat} (H : ¬ is_zero x) : ∃ n, x = succ n
      (assume Hs, Hs)
 
 theorem not_zero_add (x y : nat) (H : ¬ is_zero y) : ¬ is_zero (x + y)
-:= exists_elim (is_not_zero_to_eq H)
+:= exists.elim (is_not_zero_to_eq H)
      (λ (w : nat) (Hw : y = succ w),
         have H1 : x + y = succ (x + w), from
           calc x + y = x + succ w   : {Hw}

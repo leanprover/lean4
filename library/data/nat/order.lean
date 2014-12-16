@@ -32,12 +32,12 @@ h ▸ le.add_right n k
 
 theorem le_elim {n m : ℕ} (h : n ≤ m) : ∃k, n + k = m :=
 le.rec_on h
-  (exists_intro 0 rfl)
+  (exists.intro 0 rfl)
   (λ m (h : n < m), lt.rec_on h
-    (exists_intro 1 rfl)
+    (exists.intro 1 rfl)
     (λ b hlt (ih : ∃ (k : ℕ), n + k = b),
       obtain (k : ℕ) (h : n + k = b), from ih,
-      exists_intro (succ k) (calc
+      exists.intro (succ k) (calc
         n + succ k = succ (n + k) : add.succ_right
                ... = succ b       : h)))
 
@@ -261,7 +261,7 @@ theorem succ_pos (n : ℕ) : 0 < succ n :=
 theorem lt_imp_eq_succ {n m : ℕ} (H : n < m) : exists k, m = succ k :=
 discriminate
   (take (Hm : m = 0), absurd (Hm ▸ H) !not_lt_zero)
-  (take (l : ℕ) (Hm : m = succ l), exists_intro l Hm)
+  (take (l : ℕ) (Hm : m = succ l), exists.intro l Hm)
 
 -- ### interaction with le
 

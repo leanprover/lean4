@@ -139,7 +139,7 @@ notation `∃!` binders `,` r:(scoped P, exists_unique P) := r
 
 theorem exists_unique.intro {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, p y → y = w) :
   ∃!x, p x :=
-exists_intro w (and.intro H1 H2)
+exists.intro w (and.intro H1 H2)
 
 theorem exists_unique.elim {A : Type} {p : A → Prop} {b : Prop}
     (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, p y → y = x) → b) : b :=

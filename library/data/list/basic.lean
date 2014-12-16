@@ -173,13 +173,13 @@ induction_on l
     assume H : x ∈ y::l,
     or.elim H
       (assume H1 : x = y,
-        exists_intro nil (!exists_intro (H1 ▸ rfl)))
+        exists.intro nil (!exists.intro (H1 ▸ rfl)))
       (assume H1 : x ∈ l,
         obtain s (H2 : ∃t : list T, l = s ++ (x::t)), from IH H1,
         obtain t (H3 : l = s ++ (x::t)), from H2,
         have H4 : y :: l = (y::s) ++ (x::t),
           from H3 ▸ rfl,
-        !exists_intro (!exists_intro H4)))
+        !exists.intro (!exists.intro H4)))
 
 definition mem.is_decidable [instance] (H : decidable_eq T) (x : T) (l : list T) : decidable (x ∈ l) :=
 rec_on l

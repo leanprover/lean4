@@ -385,8 +385,8 @@ nat.cases_on m
 
 theorem cases (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - n) :=
 cases_on a
-  (take n, or.inl (exists_intro n rfl))
-  (take n', or.inr (exists_intro (succ n') rfl))
+  (take n, or.inl (exists.intro n rfl))
+  (take n', or.inr (exists.intro (succ n') rfl))
 
 theorem by_cases {P : ℤ → Prop} (a : ℤ) (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-n)) :
   P a :=
@@ -407,11 +407,11 @@ or.elim (cases a)
             a = -(of_nat n) : H2
           ... = -(of_nat 0) : {H3}
           ... = of_nat 0 : neg_zero,
-        or.inl (exists_intro 0 H4))
+        or.inl (exists.intro 0 H4))
       (take k : ℕ,
         assume H3 : n = succ k,
         have H4 : a = -(of_nat (succ k)), from H3 ▸ H2,
-        or.inr (exists_intro k H4)))
+        or.inr (exists.intro k H4)))
 
 theorem int_by_cases_succ {P : ℤ → Prop} (a : ℤ)
   (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-(of_nat (succ n)))) : P a :=

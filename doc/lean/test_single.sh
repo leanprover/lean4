@@ -22,7 +22,7 @@ while read -r line; do
         rm -f $f.$i.lean
     elif [[ $line =~ ^#\+END_SRC ]]; then
         if [[ $in_code_block -eq 1 ]]; then
-            if $LEAN $f.$i.lean > $f.$i.produced.out; then
+            if $LEAN -t 100000 $f.$i.lean > $f.$i.produced.out; then
                 echo "code fragment #$i worked"
             else
                 echo "ERROR executing $f.$i.lean, for in_code_block block starting at $lastbegin, produced output:"

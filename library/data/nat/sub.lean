@@ -224,7 +224,7 @@ or.elim !le_total
 
 theorem le_elim_sub {n m : ℕ} (H : n ≤ m) : ∃k, m - k = n :=
 obtain (k : ℕ) (Hk : n + k = m), from le_elim H,
-exists_intro k
+exists.intro k
   (calc
     m - k = n + k - k : {Hk⁻¹}
       ... = n         : !sub_add_left)

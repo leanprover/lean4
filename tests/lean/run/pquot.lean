@@ -69,7 +69,7 @@ pquot.rec_on q f (λ (a b : A) (H : R a b),
     @cast_to_heq _ _ _ _ aux₂ aux₃)
 
 theorem pquot.abs.surjective {A : Type} {R : A → A → Prop} : ∀ q : pquot R, ∃ x : A, pquot.abs R x = q :=
-take q, pquot.induction_on q (take a, exists_intro a rfl)
+take q, pquot.induction_on q (take a, exists.intro a rfl)
 
 definition pquot.exact {A : Type} (R : A → A → Prop) :=
 ∀ a b : A, pquot.abs R a = pquot.abs R b → R a b

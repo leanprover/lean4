@@ -102,7 +102,7 @@ assume H, by_contradiction (assume Hna : ¬a,
 theorem forall_not_of_not_exists {A : Type} {P : A → Prop} [D : ∀x, decidable (P x)]
     (H : ¬∃x, P x) : ∀x, ¬P x :=
 take x, or.elim (em (P x))
-  (assume Hp : P x,   absurd (exists_intro x Hp) H)
+  (assume Hp : P x,   absurd (exists.intro x Hp) H)
   (assume Hn : ¬P x, Hn)
 
 theorem exists_not_of_not_forall {A : Type} {P : A → Prop} [D : ∀x, decidable (P x)]

@@ -64,7 +64,7 @@ induction_on n
 
 theorem zero_or_exists_succ (n : ℕ) : n = 0 ∨ ∃k, n = succ k :=
 or_of_or_of_imp_of_imp (zero_or_succ_pred n) (assume H, H)
-    (assume H : n = succ (pred n), exists_intro (pred n) H)
+    (assume H : n = succ (pred n), exists.intro (pred n) H)
 
 theorem case {P : ℕ → Prop} (n : ℕ) (H1: P 0) (H2 : ∀m, P (succ m)) : P n :=
 induction_on n H1 (take m IH, H2 m)

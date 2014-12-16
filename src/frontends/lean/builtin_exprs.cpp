@@ -331,7 +331,7 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
 static name * g_exists_elim = nullptr;
 static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & pos) {
     if (!p.env().find(*g_exists_elim))
-        throw parser_error("invalid use of 'obtain' expression, environment does not contain 'exists_elim' theorem", pos);
+        throw parser_error("invalid use of 'obtain' expression, environment does not contain 'exists.elim' theorem", pos);
     // exists_elim {A : Type} {P : A → Prop} {B : Prop} (H1 : ∃ x : A, P x) (H2 : ∀ (a : A) (H : P a), B)
     buffer<expr> ps;
     auto b_pos = p.pos();
@@ -534,7 +534,7 @@ parse_table get_builtin_led_table() {
 
 void initialize_builtin_exprs() {
     notation::H_show        = new name("H_show");
-    notation::g_exists_elim = new name("exists_elim");
+    notation::g_exists_elim = new name{"exists", "elim"};
     notation::g_ite         = new name("ite");
     notation::g_dite        = new name("dite");
     notation::g_not         = new expr(mk_constant("not"));

@@ -23,7 +23,7 @@ axiom strong_indefinite_description {A : Type} (P : A → Prop) (H : nonempty A)
 -- axiom indefinite_description {A : Type} {P : A->Prop} (H : ∃x, P x) : {x : A, P x}
 
 theorem nonempty_imp_exists_true {A : Type} (H : nonempty A) : ∃x : A, true :=
-nonempty.elim H (take x, exists_intro x trivial)
+nonempty.elim H (take x, exists.intro x trivial)
 
 theorem nonempty_imp_inhabited {A : Type} (H : nonempty A) : inhabited A :=
 let u : {x | (∃y : A, true) → true} := strong_indefinite_description (λa, true) H in
@@ -52,7 +52,7 @@ theorem epsilon_spec {A : Type} {P : A → Prop} (Hex : ∃y, P y) :
 epsilon_spec_aux (nonempty_of_exists Hex) P Hex
 
 theorem epsilon_singleton {A : Type} (a : A) : @epsilon A (nonempty.intro a) (λx, x = a) = a :=
-epsilon_spec (exists_intro a (eq.refl a))
+epsilon_spec (exists.intro a (eq.refl a))
 
 
 -- the axiom of choice
@@ -62,7 +62,7 @@ theorem axiom_of_choice {A : Type} {B : A → Type} {R : Πx, B x → Prop} (H :
   ∃f, ∀x, R x (f x) :=
 let f := λx, @epsilon _ (nonempty_of_exists (H x)) (λy, R x y),
     H := take x, epsilon_spec (H x)
-in exists_intro f H
+in exists.intro f H
 
 theorem skolem {A : Type} {B : A → Type} {P : Πx, B x → Prop} :
   (∀x, ∃y, P x y) ↔ ∃f, (∀x, P x (f x)) :=
@@ -70,4 +70,4 @@ iff.intro
   (assume H : (∀x, ∃y, P x y), axiom_of_choice H)
   (assume H : (∃f, (∀x, P x (f x))),
     take x, obtain (fw : ∀x, B x) (Hw : ∀x, P x (fw x)), from H,
-      exists_intro (fw x) (Hw x))
+      exists.intro (fw x) (Hw x))

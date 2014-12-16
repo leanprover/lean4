@@ -18,7 +18,7 @@ open int eq.ops
 namespace int
 
 theorem nonneg_elim {a : ℤ} : nonneg a → ∃n : ℕ, a = n :=
-cases_on a (take n H, exists_intro n rfl) (take n' H, false.elim H)
+cases_on a (take n H, exists.intro n rfl) (take n' H, false.elim H)
 
 theorem le_intro {a b : ℤ} {n : ℕ} (H : a + n = b) : a ≤ b :=
 have H1 : b - a = n, from add_imp_sub_right (!add_comm ▸ H),
@@ -27,7 +27,7 @@ show nonneg (b - a), from H1⁻¹ ▸ H2
 
 theorem le_elim {a b : ℤ} (H : a ≤ b) : ∃n : ℕ, a + n = b :=
 obtain (n : ℕ) (H1 : b - a = n), from nonneg_elim H,
-exists_intro n (!add_comm ▸ sub_imp_add H1)
+exists.intro n (!add_comm ▸ sub_imp_add H1)
 
 -- ### partial order
 
@@ -216,7 +216,7 @@ have H2 : a + succ n = b, from
   calc
     a + succ n = a + 1 + n : by simp
       ... = b : Hn,
-exists_intro n H2
+exists.intro n H2
 
 -- -- ### basic facts
 
@@ -409,13 +409,13 @@ or_resolve_right (le_or_gt a b) H
 
 theorem pos_imp_exists_nat {a : ℤ} (H : a ≥ 0) : ∃n : ℕ, a = n :=
 obtain (n : ℕ) (Hn : of_nat 0 + n = a), from le_elim H,
-exists_intro n (Hn⁻¹ ⬝ add_zero_left n)
+exists.intro n (Hn⁻¹ ⬝ add_zero_left n)
 
 theorem neg_imp_exists_nat {a : ℤ} (H : a ≤ 0) : ∃n : ℕ, a = -n :=
 have H2 : -a ≥ 0, from zero_le_neg H,
 obtain (n : ℕ) (Hn : -a = n), from pos_imp_exists_nat H2,
 have H3 : a = -n, from (neg_move Hn)⁻¹,
-exists_intro n H3
+exists.intro n H3
 
 theorem nat_abs_nonneg_eq {a : ℤ} (H : a ≥ 0) : (nat_abs a) = a :=
 obtain (n : ℕ) (Hn : a = n), from pos_imp_exists_nat H,

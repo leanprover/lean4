@@ -17,10 +17,10 @@ private definition u := epsilon (λx, x = true ∨ p)
 private definition v := epsilon (λx, x = false ∨ p)
 
 private lemma u_def : u = true ∨ p :=
-epsilon_spec (exists_intro true (or.inl rfl))
+epsilon_spec (exists.intro true (or.inl rfl))
 
 private lemma v_def : v = false ∨ p :=
-epsilon_spec (exists_intro false (or.inl rfl))
+epsilon_spec (exists.intro false (or.inl rfl))
 
 private lemma uv_implies_p : ¬(u = v) ∨ p :=
 or.elim u_def

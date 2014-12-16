@@ -200,16 +200,16 @@ comp_quotient_map_binary Q H (Hrefl a) (Hrefl b)
 definition image {A B : Type} (f : A → B) := subtype (fun b, ∃a, f a = b)
 
 theorem image_inhabited {A B : Type} (f : A → B) (H : inhabited A) : inhabited (image f) :=
-inhabited.mk (tag (f (default A)) (exists_intro (default A) rfl))
+inhabited.mk (tag (f (default A)) (exists.intro (default A) rfl))
 
 theorem image_inhabited2 {A B : Type} (f : A → B) (a : A) : inhabited (image f) :=
 image_inhabited f (inhabited.mk a)
 
 definition fun_image {A B : Type} (f : A → B) (a : A) : image f :=
-tag (f a) (exists_intro a rfl)
+tag (f a) (exists.intro a rfl)
 
 theorem fun_image_def {A B : Type} (f : A → B) (a : A) :
-  fun_image f a = tag (f a) (exists_intro a rfl) := rfl
+  fun_image f a = tag (f a) (exists.intro a rfl) := rfl
 
 theorem elt_of_fun_image {A B : Type} (f : A → B) (a : A) : elt_of (fun_image f a) = f a :=
 elt_of.tag _ _
@@ -221,11 +221,11 @@ theorem fun_image_surj {A B : Type} {f : A → B} (u : image f) : ∃a, fun_imag
 subtype.destruct u
   (take (b : B) (H : ∃a, f a = b),
     obtain a (H': f a = b), from H,
-    (exists_intro a (tag_eq H')))
+    (exists.intro a (tag_eq H')))
 
 theorem image_tag {A B : Type} {f : A → B} (u : image f) : ∃a H, tag (f a) H = u :=
 obtain a (H : fun_image f a = u), from fun_image_surj u,
-exists_intro a (exists_intro (exists_intro a rfl) H)
+exists.intro a (exists.intro (exists.intro a rfl) H)
 
 open eq.ops
 

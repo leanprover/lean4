@@ -19,20 +19,20 @@ assume Ha : a, absurd (H₁ Ha) H₂
 -- not
 -- ---
 
-definition not_empty : ¬ empty :=
+protected definition not_empty : ¬ empty :=
 assume H : empty, H
 
 definition not_not_intro {a : Type} (Ha : a) : ¬¬a :=
 assume Hna : ¬a, absurd Ha Hna
 
-definition not_intro {a : Type} (H : a → empty) : ¬a := H
+definition not.intro {a : Type} (H : a → empty) : ¬a := H
 
-definition not_elim {a : Type} (H₁ : ¬a) (H₂ : a) : empty := H₁ H₂
+definition not.elim {a : Type} (H₁ : ¬a) (H₂ : a) : empty := H₁ H₂
 
-definition not_implies_left {a b : Type} (H : ¬(a → b)) : ¬¬a :=
+definition not_not_of_not_implies {a b : Type} (H : ¬(a → b)) : ¬¬a :=
 assume Hna : ¬a, absurd (assume Ha : a, absurd Ha Hna) H
 
-definition not_implies_right {a b : Type} (H : ¬(a → b)) : ¬b :=
+definition not_of_not_implies {a b : Type} (H : ¬(a → b)) : ¬b :=
 assume Hb : b, absurd (assume Ha : a, Hb) H
 
 -- eq
@@ -43,7 +43,7 @@ definition rfl {A : Type} {a : A} := eq.refl a
 
 namespace eq
   variables {A : Type}
-  variables {a b c a': A}
+  variables {a b c a' : A}
 
   definition subst {P : A → Type} (H₁ : a = b) (H₂ : P a) : P b :=
   rec H₂ H₁

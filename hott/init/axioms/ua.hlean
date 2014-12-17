@@ -19,34 +19,23 @@ section
 
 end
 
-inductive ua_type [class] : Type :=
-  mk : (Π (A B : Type), is_equiv (@equiv_path A B)) → ua_type
+axiom ua_is_equiv (A B : Type) : is_equiv (@equiv_path A B)
 
-namespace ua_type
+-- Make the Equivalence given by the axiom an instance
+protected definition inst [instance] (A B : Type) : is_equiv (@equiv_path A B) :=
+ua_is_equiv A B
 
-  context
-    universe k
-    parameters [F : ua_type.{k}] {A B: Type.{k}}
-
-    -- Make the Equivalence given by the axiom an instance
-    protected definition inst [instance] : is_equiv (@equiv_path.{k} A B) :=
-      rec_on F (λ H, H A B)
-
-    -- This is the version of univalence axiom we will probably use most often
-    definition ua : A ≃ B →  A = B :=
-      @is_equiv.inv _ _ (@equiv_path A B) inst
-
-  end
-
-end ua_type
+-- This is the version of univalence axiom we will probably use most often
+definition ua {A B : Type} : A ≃ B →  A = B :=
+@is_equiv.inv _ _ (@equiv_path A B) (inst A B)
 
 -- One consequence of UA is that we can transport along equivalencies of types
 namespace Equiv
   universe variable l
 
-  protected definition subst [UA : ua_type] (P : Type → Type) {A B : Type.{l}} (H : A ≃ B)
-      : P A → P B :=
-    eq.transport P (ua_type.ua H)
+  protected definition subst (P : Type → Type) {A B : Type.{l}} (H : A ≃ B)
+    : P A → P B :=
+  eq.transport P (ua H)
 
   -- We can use this for calculation evironments
   calc_subst subst

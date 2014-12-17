@@ -6,22 +6,21 @@ prelude
 import ..equiv ..datatypes ..types.prod
 import .funext_varieties .ua .funext
 
-open eq function prod sigma truncation equiv is_equiv unit ua_type
+open eq function prod sigma truncation equiv is_equiv unit
 
 context
   universe variables l
-  parameter [UA : ua_type.{l+1}]
 
   protected theorem ua_isequiv_postcompose {A B : Type.{l+1}} {C : Type}
       {w : A → B} {H0 : is_equiv w} : is_equiv (@compose C A B w) :=
     let w' := equiv.mk w H0 in
-    let eqinv : A = B := ((@is_equiv.inv _ _ _ (@ua_type.inst UA A B)) w') in
+    let eqinv : A = B := ((@is_equiv.inv _ _ _ (ua_is_equiv A B)) w') in
     let eq' := equiv_path eqinv in
     is_equiv.adjointify (@compose C A B w)
       (@compose C B A (is_equiv.inv w))
       (λ (x : C → B),
         have eqretr : eq' = w',
-          from (@retr _ _ (@equiv_path A B) (@ua_type.inst UA A B) w'),
+          from (@retr _ _ (@equiv_path A B) (ua_is_equiv A B) w'),
         have invs_eq : (to_fun eq')⁻¹ = (to_fun w')⁻¹,
           from inv_eq eq' w' eqretr,
         have eqfin : (to_fun eq') ∘ ((to_fun eq')⁻¹ ∘ x) = x,
@@ -39,7 +38,7 @@ context
       )
       (λ (x : C → A),
         have eqretr : eq' = w',
-          from (@retr _ _ (@equiv_path A B) ua_type.inst w'),
+          from (@retr _ _ (@equiv_path A B) (ua_is_equiv A B) w'),
         have invs_eq : (to_fun eq')⁻¹ = (to_fun w')⁻¹,
           from inv_eq eq' w' eqretr,
         have eqfin : (to_fun eq')⁻¹ ∘ ((to_fun eq') ∘ x) = x,
@@ -105,19 +104,19 @@ end
 -- Now we use this to prove weak funext, which as we know
 -- implies (with dependent eta) also the strong dependent funext.
 universe variables l k
-theorem weak_funext_from_ua [ua3 : ua_type.{k+1}] [ua4 : ua_type.{k+2}] : weak_funext.{l+1 k+1} :=
+theorem weak_funext_from_ua : weak_funext.{l+1 k+1} :=
   (λ (A : Type) (P : A → Type) allcontr,
     let U := (λ (x : A), unit) in
   have pequiv : Π (x : A), P x ≃ U x,
     from (λ x, @equiv_contr_unit(P x) (allcontr x)),
   have psim : Π (x : A), P x = U x,
     from (λ x, @is_equiv.inv _ _
-      equiv_path ua_type.inst (pequiv x)),
+      equiv_path (ua_is_equiv _ _) (pequiv x)),
   have p : P = U,
-    from @nondep_funext_from_ua _ A Type P U psim,
+    from @nondep_funext_from_ua A Type P U psim,
   have tU' : is_contr (A → unit),
     from is_contr.mk (λ x, ⋆)
-      (λ f, @nondep_funext_from_ua _ A unit (λ x, ⋆) f
+      (λ f, @nondep_funext_from_ua A unit (λ x, ⋆) f
         (λ x, unit.rec_on (f x) idp)),
   have tU : is_contr (Π x, U x),
     from tU',
@@ -127,5 +126,5 @@ theorem weak_funext_from_ua [ua3 : ua_type.{k+1}] [ua4 : ua_type.{k+2}] : weak_f
 )
 
 -- In the following we will proof function extensionality using the univalence axiom
-definition funext_from_ua [instance] [ua ua2 : ua_type] : funext :=
-  funext_from_weak_funext (@weak_funext_from_ua ua ua2)
+definition funext_from_ua [instance] : funext :=
+  funext_from_weak_funext (@weak_funext_from_ua)

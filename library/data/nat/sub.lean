@@ -306,6 +306,11 @@ sub_split
                ... = k - n + n    : (add_sub_ge_left H3)⁻¹,
     le_intro (add.cancel_right H4))
 
+theorem sub_pos_of_gt {m n : ℕ} (H : n > m) : n - m > 0 :=
+have H1 : n = n - m + m, from (add_sub_ge_left (lt_imp_le H))⁻¹,
+have H2 : 0 + m < n - m + m, from (add.zero_left m)⁻¹ ▸ H1 ▸ H,
+!add_lt_cancel_right H2
+
 -- theorem sub_lt_cancel_right {n m k : ℕ) (H : n - k < m - k) : n < m
 -- :=
 --   _

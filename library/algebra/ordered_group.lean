@@ -216,34 +216,34 @@ section
 --  !add.left_id ▸ !add_neg_cancel_right ▸ add_le_add_right H1 (-b)  -- doesn't work?
 
   theorem neg_le_neg_iff_le : -a ≤ -b ↔ b ≤ a :=
-  iff.intro (take H, neg_neg_eq a ▸ neg_neg_eq b ▸ neg_le_neg_of_le H) neg_le_neg_of_le
+  iff.intro (take H, neg_neg a ▸ neg_neg b ▸ neg_le_neg_of_le H) neg_le_neg_of_le
 
   theorem neg_nonpos_iff_nonneg : -a ≤ 0 ↔ 0 ≤ a :=
-  neg_zero_eq ▸ neg_le_neg_iff_le a 0
+  neg_zero ▸ neg_le_neg_iff_le a 0
 
   theorem neg_nonneg_iff_nonpos : 0 ≤ -a ↔ a ≤ 0 :=
-  neg_zero_eq ▸ neg_le_neg_iff_le 0 a
+  neg_zero ▸ neg_le_neg_iff_le 0 a
 
   theorem neg_lt_neg_of_lt {a b : A} (H : a < b) : -b < -a :=
   have H1 : 0 < -a + b, from !add.left_inv ▸ !(add_lt_add_left H),
   !add_neg_cancel_right ▸ !add.left_id ▸ add_lt_add_right H1 (-b)
 
   theorem neg_lt_neg_iff_lt : -a < -b ↔ b < a :=
-  iff.intro (take H, neg_neg_eq a ▸ neg_neg_eq b ▸ neg_lt_neg_of_lt H) neg_lt_neg_of_lt
+  iff.intro (take H, neg_neg a ▸ neg_neg b ▸ neg_lt_neg_of_lt H) neg_lt_neg_of_lt
 
   theorem neg_neg_iff_pos : -a < 0 ↔ 0 < a :=
-  neg_zero_eq ▸ neg_lt_neg_iff_lt a 0
+  neg_zero ▸ neg_lt_neg_iff_lt a 0
 
   theorem neg_pos_iff_neg : 0 < -a ↔ a < 0 :=
-  neg_zero_eq ▸ neg_lt_neg_iff_lt 0 a
+  neg_zero ▸ neg_lt_neg_iff_lt 0 a
 
-  theorem le_neg_iff_le_neg : a ≤ -b ↔ b ≤ -a := !neg_neg_eq ▸ !neg_le_neg_iff_le
+  theorem le_neg_iff_le_neg : a ≤ -b ↔ b ≤ -a := !neg_neg ▸ !neg_le_neg_iff_le
 
-  theorem neg_le_iff_neg_le : -a ≤ b ↔ -b ≤ a := !neg_neg_eq ▸ !neg_le_neg_iff_le
+  theorem neg_le_iff_neg_le : -a ≤ b ↔ -b ≤ a := !neg_neg ▸ !neg_le_neg_iff_le
 
-  theorem lt_neg_iff_lt_neg : a < -b ↔ b < -a := !neg_neg_eq ▸ !neg_lt_neg_iff_lt
+  theorem lt_neg_iff_lt_neg : a < -b ↔ b < -a := !neg_neg ▸ !neg_lt_neg_iff_lt
 
-  theorem neg_lt_iff_neg_lt : -a < b ↔ -b < a := !neg_neg_eq ▸ !neg_lt_neg_iff_lt
+  theorem neg_lt_iff_neg_lt : -a < b ↔ -b < a := !neg_neg ▸ !neg_lt_neg_iff_lt
 
   theorem sub_nonneg_iff_le : 0 ≤ a - b ↔ b ≤ a := !sub_self ▸ !add_le_add_right_iff
 

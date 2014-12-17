@@ -188,7 +188,7 @@ section
   calc
      -a * -b = -(a * -b) : !neg_mul_eq_neg_mul⁻¹
        ... = - -(a * b) : neg_mul_eq_mul_neg
-       ... = a * b : neg_neg_eq
+       ... = a * b : neg_neg
 
   theorem neg_mul_comm : -a * b = a * -b := !neg_mul_eq_neg_mul⁻¹ ⬝ !neg_mul_eq_mul_neg
 
@@ -264,7 +264,7 @@ section
             (calc
               a * -c = -(a * c) : {!neg_mul_eq_mul_neg⁻¹}
                 ... = -(-b) : H'
-                ... = b : neg_neg_eq)))
+                ... = b : neg_neg)))
     (assume H : a | b,
       dvd.elim H
         (take c, assume H' : a * c = b,

@@ -258,6 +258,9 @@ iff.intro
 theorem succ_pos (n : ℕ) : 0 < succ n :=
 !zero_lt_succ
 
+theorem succ_pred_of_pos {n : ℕ} (H : n > 0) : succ (pred n) = n :=
+(or_resolve_right (zero_or_succ_pred n) (ne.symm (lt_imp_ne H))⁻¹)
+
 theorem lt_imp_eq_succ {n m : ℕ} (H : n < m) : exists k, m = succ k :=
 discriminate
   (take (Hm : m = 0), absurd (Hm ▸ H) !not_lt_zero)

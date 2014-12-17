@@ -21,18 +21,18 @@ theorem nonneg_elim {a : ℤ} : nonneg a → ∃n : ℕ, a = n :=
 cases_on a (take n H, exists.intro n rfl) (take n' H, false.elim H)
 
 theorem le_intro {a b : ℤ} {n : ℕ} (H : a + n = b) : a ≤ b :=
-have H1 : b - a = n, from add_imp_sub_right (!add_comm ▸ H),
+have H1 : b - a = n, from (eq_add_neg_of_add_eq (!add.comm ▸ H))⁻¹,
 have H2 : nonneg n, from true.intro,
 show nonneg (b - a), from H1⁻¹ ▸ H2
 
 theorem le_elim {a b : ℤ} (H : a ≤ b) : ∃n : ℕ, a + n = b :=
 obtain (n : ℕ) (H1 : b - a = n), from nonneg_elim H,
-exists.intro n (!add_comm ▸ sub_imp_add H1)
+exists.intro n (!add.comm ▸ iff.mp' !add_eq_iff_eq_add_neg (H1⁻¹))
 
 -- ### partial order
 
 theorem le_refl (a : ℤ) : a ≤ a :=
-le_intro (add_zero_right a)
+le_intro (add.right_id a)
 
 theorem le_of_nat (n m : ℕ) : (of_nat n ≤ of_nat m) ↔ (n ≤ m) :=
 iff.intro
@@ -51,7 +51,7 @@ obtain (m : ℕ) (Hm : b + m = c), from le_elim H2,
 have H3 : a + of_nat (n + m) = c, from
   calc
     a + of_nat (n + m) = a + (of_nat n + m) : {(add_of_nat n m)⁻¹}
-      ... = a + n + m : (add_assoc a n m)⁻¹
+      ... = a + n + m : (add.assoc a n m)⁻¹
       ... = b + m : {Hn}
       ... = c : Hm,
 le_intro H3
@@ -62,16 +62,16 @@ obtain (m : ℕ) (Hm : b + m = a), from le_elim H2,
 have H3 : a + of_nat (n + m) = a + 0, from
   calc
     a + of_nat (n + m) = a + (of_nat n + m) : {(add_of_nat n m)⁻¹}
-      ... = a + n + m : (add_assoc a n m)⁻¹
+      ... = a + n + m : (add.assoc a n m)⁻¹
       ... = b + m : {Hn}
       ... = a : Hm
-      ... = a + 0 : (add_zero_right a)⁻¹,
-have H4 : of_nat (n + m) = of_nat 0, from add_cancel_left H3,
+      ... = a + 0 : (add.right_id a)⁻¹,
+have H4 : of_nat (n + m) = of_nat 0, from add.left_cancel H3,
 have H5 : n + m = 0, from of_nat_inj H4,
 have H6 : n = 0, from nat.add.eq_zero_left H5,
 show a = b, from
   calc
-    a = a + of_nat 0 : (add_zero_right a)⁻¹
+    a = a + of_nat 0 : (add.right_id a)⁻¹
       ... = a + n : {H6⁻¹}
       ... = b : Hn
 
@@ -81,33 +81,32 @@ theorem le_add_of_nat_right (a : ℤ) (n : ℕ) : a ≤ a + n :=
 le_intro (eq.refl (a + n))
 
 theorem le_add_of_nat_left (a : ℤ) (n : ℕ) : a ≤ n + a :=
-le_intro (add_comm a n)
+le_intro (add.comm a n)
 
 theorem add_le_left {a b : ℤ} (H : a ≤ b) (c : ℤ) : c + a ≤ c + b :=
 obtain (n : ℕ) (Hn : a + n = b), from le_elim H,
 have H2 : c + a + n = c + b, from
   calc
-    c + a + n = c + (a + n) : add_assoc c a n
+    c + a + n = c + (a + n) : add.assoc c a n
       ... = c + b : {Hn},
 le_intro H2
 
 theorem add_le_right {a b : ℤ} (H : a ≤ b) (c : ℤ) : a + c ≤ b + c :=
-add_comm c b ▸ add_comm c a ▸ add_le_left H c
+add.comm c b ▸ add.comm c a ▸ add_le_left H c
 
 theorem add_le {a b c d : ℤ} (H1 : a ≤ b) (H2 : c ≤ d) : a + c ≤ b + d :=
 le_trans (add_le_right H1 c) (add_le_left H2 b)
 
 theorem add_le_cancel_right {a b c : ℤ} (H : a + c ≤ b + c) : a ≤ b :=
 have H1 : a + c + -c ≤ b + c + -c, from add_le_right H (-c),
-have H2 : a + c - c ≤ b + c - c, from !add_neg_right ▸ !add_neg_right ▸ H1,
-add_sub_inverse b c ▸ add_sub_inverse a c ▸ H2
+!add_neg_cancel_right ▸ !add_neg_cancel_right ▸ H1
 
 theorem add_le_cancel_left {a b c : ℤ} (H : c + a ≤ c + b) : a ≤ b :=
-add_le_cancel_right (add_comm c b ▸ add_comm c a ▸ H)
+add_le_cancel_right (add.comm c b ▸ add.comm c a ▸ H)
 
 theorem add_le_inv {a b c d : ℤ} (H1 : a + b ≤ c + d) (H2 : c ≤ a) : b ≤ d :=
 obtain (n : ℕ) (Hn : c + n = a), from le_elim H2,
-have H3 : c + (n + b) ≤ c + d, from add_assoc c n b ▸ Hn⁻¹ ▸ H1,
+have H3 : c + (n + b) ≤ c + d, from add.assoc c n b ▸ Hn⁻¹ ▸ H1,
 have H4 : n + b ≤ d, from add_le_cancel_left H3,
 show b ≤ d, from le_trans (le_add_of_nat_left b n) H4
 
@@ -120,7 +119,7 @@ discriminate
   (assume H2 : n = 0,
     have H3 : a = b, from
       calc
-        a = a + 0 : (add_zero_right a)⁻¹
+        a = a + 0 : (add.right_id a)⁻¹
           ... = a + n : {H2⁻¹}
           ... = b : Hn,
     or.inr H3)
@@ -137,12 +136,11 @@ discriminate
 
 theorem le_neg {a b : ℤ} (H : a ≤ b) : -b ≤ -a :=
 obtain (n : ℕ) (Hn : a + n = b), from le_elim H,
-have H2 : b - n = a, from add_imp_sub_right Hn,
+have H2 : b - n = a, from (iff.mp !add_eq_iff_eq_add_neg Hn)⁻¹,
 have H3 : -b + n = -a, from
   calc
     -b + n = -b + -(-n) : {(neg_neg n)⁻¹}
-      ... = -(b + -n) : (neg_add_distr b (-n))⁻¹
-      ... = -(b - n) : {!add_neg_right}
+      ... = -(b + -n) : (neg_add_distrib b (-n))⁻¹
       ... = -a : {H2},
 le_intro H3
 
@@ -156,32 +154,30 @@ theorem le_neg_inv {a b : ℤ} (H : -a ≤ -b) : b ≤ a :=
 neg_neg b ▸ neg_neg a ▸ le_neg H
 
 theorem le_sub_of_nat (a : ℤ) (n : ℕ) : a - n ≤ a :=
-le_intro (sub_add_inverse a n)
+le_intro (neg_add_cancel_right a n)
 
 theorem sub_le_right {a b : ℤ} (H : a ≤ b) (c : ℤ) : a - c ≤ b - c :=
-!add_neg_right ▸ !add_neg_right ▸ add_le_right H _
+add_le_right H _
 
 theorem sub_le_left {a b : ℤ} (H : a ≤ b) (c : ℤ) : c - b ≤ c - a :=
-!add_neg_right ▸ !add_neg_right ▸ add_le_left (le_neg H) _
+add_le_left (le_neg H) _
 
 theorem sub_le {a b c d : ℤ} (H1 : a ≤ b) (H2 : d ≤ c) : a - c ≤ b - d :=
-!add_neg_right ▸ !add_neg_right ▸ add_le H1 (le_neg H2)
+add_le H1 (le_neg H2)
 
 theorem sub_le_right_inv {a b c : ℤ} (H : a - c ≤ b - c) : a ≤ b :=
-add_le_cancel_right (!add_neg_right⁻¹ ▸ !add_neg_right⁻¹ ▸ H)
+add_le_cancel_right H
 
 theorem sub_le_left_inv {a b c : ℤ} (H : c - a ≤ c - b) : b ≤ a :=
-le_neg_inv (add_le_cancel_left (!add_neg_right⁻¹ ▸ !add_neg_right⁻¹ ▸ H))
+le_neg_inv (add_le_cancel_left H)
 
 theorem le_iff_sub_nonneg (a b : ℤ) : a ≤ b ↔ 0 ≤ b - a :=
 iff.intro
   (assume H, !sub_self ▸ sub_le_right H a)
   (assume H,
-     have H1 : a ≤ b - a + a, from add_zero_left a ▸ add_le_right H a,
-     !sub_add_inverse ▸ H1)
+     have H1 : a ≤ b - a + a, from add.left_id a ▸ add_le_right H a,
+     !neg_add_cancel_right ▸ H1)
 
--- TODO: this no longer works:
---!sub_add_inverse ▸ add_zero_left a ▸ add_le_right H a)
 
 -- Less than, Greater than, Greater than or equal
 -- ----------------------------------------------
@@ -227,7 +223,7 @@ theorem lt_irrefl (a : ℤ) : ¬ a < a :=
     calc
       a + succ n = a : Hn
         ... = a + 0 : by simp,
-  have H3 : succ n = 0, from add_cancel_left H2,
+  have H3 : succ n = 0, from add.left_cancel H2,
   have H4 : succ n = 0, from of_nat_inj H3,
   absurd H4 !succ_ne_zero)
 
@@ -295,10 +291,10 @@ le_imp_not_gt (lt_imp_le H)
 
 -- TODO: note: no longer works without the "show"
 theorem add_lt_left {a b : ℤ} (H : a < b) (c : ℤ) : c + a < c + b :=
-show (c + a) + 1 ≤ c + b, from (add_assoc c a 1)⁻¹ ▸ add_le_left H c
+show (c + a) + 1 ≤ c + b, from (add.assoc c a 1)⁻¹ ▸ add_le_left H c
 
 theorem add_lt_right {a b : ℤ} (H : a < b) (c : ℤ) : a + c < b + c :=
-add_comm c b ▸ add_comm c a ▸ add_lt_left H c
+add.comm c b ▸ add.comm c a ▸ add_lt_left H c
 
 theorem add_le_lt {a b c d : ℤ} (H1 : a ≤ c) (H2 : b < d) : a + b < c + d :=
 le_lt_trans (add_le_right H1 b) (add_lt_left H2 c)
@@ -310,10 +306,10 @@ theorem add_lt {a b c d : ℤ} (H1 : a < c) (H2 : b < d) : a + b < c + d :=
 add_lt_le H1 (lt_imp_le H2)
 
 theorem add_lt_cancel_left {a b c : ℤ} (H : c + a < c + b) : a < b :=
-show a + 1 ≤ b, from add_le_cancel_left (add_assoc c a 1 ▸ H)
+show a + 1 ≤ b, from add_le_cancel_left (add.assoc c a 1 ▸ H)
 
 theorem add_lt_cancel_right {a b c : ℤ} (H : a + c < b + c) : a < b :=
-add_lt_cancel_left (add_comm b c ▸ add_comm a c ▸ H)
+add_lt_cancel_left (add.comm b c ▸ add.comm a c ▸ H)
 
 -- ### interaction with neg and sub
 
@@ -333,22 +329,22 @@ theorem lt_neg_inv {a b : ℤ} (H : -a < -b) : b < a :=
 neg_neg b ▸ neg_neg a ▸ lt_neg H
 
 theorem lt_sub_of_nat_succ (a : ℤ) (n : ℕ) : a - succ n < a :=
-lt_intro (sub_add_inverse a (succ n))
+lt_intro (neg_add_cancel_right a (succ n))
 
 theorem sub_lt_right {a b : ℤ} (H : a < b) (c : ℤ) : a - c < b - c :=
-!add_neg_right ▸ !add_neg_right ▸ add_lt_right H _
+add_lt_right H _
 
 theorem sub_lt_left {a b : ℤ} (H : a < b) (c : ℤ) : c - b < c - a :=
-!add_neg_right ▸ !add_neg_right ▸ add_lt_left (lt_neg H) _
+add_lt_left (lt_neg H) _
 
 theorem sub_lt {a b c d : ℤ} (H1 : a < b) (H2 : d < c) : a - c < b - d :=
-!add_neg_right ▸ !add_neg_right ▸ add_lt H1 (lt_neg H2)
+add_lt H1 (lt_neg H2)
 
 theorem sub_lt_right_inv {a b c : ℤ} (H : a - c < b - c) : a < b :=
-add_lt_cancel_right (!add_neg_right⁻¹ ▸ !add_neg_right⁻¹ ▸ H)
+add_lt_cancel_right H
 
 theorem sub_lt_left_inv {a b c : ℤ} (H : c - a < c - b) : b < a :=
-lt_neg_inv (add_lt_cancel_left (!add_neg_right⁻¹ ▸ !add_neg_right⁻¹ ▸ H))
+lt_neg_inv (add_lt_cancel_left H)
 
 -- ### totality of lt and le
 
@@ -409,12 +405,12 @@ or_resolve_right (le_or_gt a b) H
 
 theorem pos_imp_exists_nat {a : ℤ} (H : a ≥ 0) : ∃n : ℕ, a = n :=
 obtain (n : ℕ) (Hn : of_nat 0 + n = a), from le_elim H,
-exists.intro n (Hn⁻¹ ⬝ add_zero_left n)
+exists.intro n (Hn⁻¹ ⬝ add.left_id n)
 
 theorem neg_imp_exists_nat {a : ℤ} (H : a ≤ 0) : ∃n : ℕ, a = -n :=
 have H2 : -a ≥ 0, from zero_le_neg H,
 obtain (n : ℕ) (Hn : -a = n), from pos_imp_exists_nat H2,
-have H3 : a = -n, from (neg_move Hn)⁻¹,
+have H3 : a = -n, from (eq_neg_of_eq_neg (Hn⁻¹)),
 exists.intro n H3
 
 theorem nat_abs_nonneg_eq {a : ℤ} (H : a ≥ 0) : (nat_abs a) = a :=
@@ -423,16 +419,6 @@ Hn⁻¹ ▸ congr_arg of_nat (nat_abs_of_nat n)
 
 theorem of_nat_nonneg (n : ℕ) : of_nat n ≥ 0 :=
 iff.mp (iff.symm !le_of_nat) !zero_le
-
-definition le_decidable [instance] {a b : ℤ} : decidable (a ≤ b) :=
-have aux : Πx, decidable (0 ≤ x), from
-  take x,
-    have H : 0 ≤ x ↔ of_nat (nat_abs x) = x, from
-      iff.intro
-        (assume H1, nat_abs_nonneg_eq H1)
-        (assume H1, H1 ▸ of_nat_nonneg (nat_abs x)),
-    decidable_of_decidable_of_iff _ (iff.symm H),
-decidable_of_decidable_of_iff !aux (iff.symm (le_iff_sub_nonneg a b))
 
 definition ge_decidable [instance] {a b : ℤ} : decidable (a ≥ b) := _
 definition lt_decidable [instance] {a b : ℤ} : decidable (a < b) := _
@@ -445,12 +431,12 @@ calc
   (nat_abs a) = (nat_abs (-n)) : {Hn}
   ... = (nat_abs n) : nat_abs_neg
   ... = n : {nat_abs_of_nat n}
-  ... = -a : (neg_move (Hn⁻¹))⁻¹
+  ... = -a : (eq_neg_of_eq_neg Hn)⁻¹
 
 theorem nat_abs_cases (a : ℤ) : a = (nat_abs a) ∨ a = - (nat_abs a) :=
 or_of_or_of_imp_of_imp (le_total 0 a)
   (assume H : a ≥ 0, (nat_abs_nonneg_eq H)⁻¹)
-  (assume H : a ≤ 0, (neg_move ((nat_abs_negative H)⁻¹))⁻¹)
+  (assume H : a ≤ 0, (eq_neg_of_eq_neg (nat_abs_negative H)))
 
 -- ### interaction of mul with le and lt
 
@@ -465,15 +451,15 @@ have H2 : a * b + of_nat ((nat_abs a) * n) = a * c, from
 le_intro H2
 
 theorem mul_le_right_nonneg {a b c : ℤ} (Hb : b ≥ 0) (H : a ≤ c) : a * b ≤ c * b :=
-!mul_comm ▸ !mul_comm ▸ mul_le_left_nonneg Hb H
+!mul.comm ▸ !mul.comm ▸ mul_le_left_nonneg Hb H
 
 theorem mul_le_left_nonpos {a b c : ℤ} (Ha : a ≤ 0) (H : b ≤ c) : a * c ≤ a * b :=
 have H2 : -a * b ≤ -a * c, from mul_le_left_nonneg (zero_le_neg Ha) H,
-have H3 : -(a * b) ≤ -(a * c), from !mul_neg_left ▸ !mul_neg_left ▸ H2,
+have H3 : -(a * b) ≤ -(a * c), from !neg_mul_eq_neg_mul⁻¹ ▸ !neg_mul_eq_neg_mul⁻¹ ▸ H2,
 le_neg_inv H3
 
 theorem mul_le_right_nonpos {a b c : ℤ} (Hb : b ≤ 0) (H : c ≤ a) : a * b ≤ c * b :=
-!mul_comm ▸ !mul_comm ▸ mul_le_left_nonpos Hb H
+!mul.comm ▸ !mul.comm ▸ mul_le_left_nonpos Hb H
 
 ---this theorem can be made more general by replacing either Ha with 0 ≤ a or Hb with 0 ≤ d...
 theorem mul_le_nonneg {a b c d : ℤ} (Ha : a ≥ 0) (Hb : b ≥ 0) (Hc : a ≤ c) (Hd : b ≤ d)
@@ -485,20 +471,20 @@ theorem mul_le_nonpos {a b c d : ℤ} (Ha : a ≤ 0) (Hb : b ≤ 0) (Hc : c ≤ 
 le_trans (mul_le_right_nonpos Hb Hc) (mul_le_left_nonpos (le_trans Hc Ha) Hd)
 
 theorem mul_lt_left_pos {a b c : ℤ} (Ha : a > 0) (H : b < c) : a * b < a * c :=
-have H2 : a * b < a * b + a, from add_zero_right (a * b) ▸ add_lt_left Ha (a * b),
+have H2 : a * b < a * b + a, from add.right_id (a * b) ▸ add_lt_left Ha (a * b),
 have H3 : a * b + a ≤ a * c, from (by simp) ▸ mul_le_left_nonneg (lt_imp_le Ha) H,
 lt_le_trans H2 H3
 
 theorem mul_lt_right_pos {a b c : ℤ} (Hb : b > 0) (H : a < c) : a * b < c * b :=
-mul_comm b c ▸ mul_comm b a ▸ mul_lt_left_pos Hb H
+mul.comm b c ▸ mul.comm b a ▸ mul_lt_left_pos Hb H
 
 theorem mul_lt_left_neg {a b c : ℤ} (Ha : a < 0) (H : b < c) : a * c < a * b :=
 have H2 : -a * b < -a * c, from mul_lt_left_pos (zero_lt_neg Ha) H,
-have H3 : -(a * b) < -(a * c), from mul_neg_left a c ▸ mul_neg_left a b ▸ H2,
+have H3 : -(a * b) < -(a * c), from !neg_mul_eq_neg_mul⁻¹ ▸ !neg_mul_eq_neg_mul⁻¹ ▸ H2,
 lt_neg_inv H3
 
 theorem mul_lt_right_neg {a b c : ℤ} (Hb : b < 0) (H : c < a) : a * b < c * b :=
-!mul_comm ▸ !mul_comm ▸ mul_lt_left_neg Hb H
+!mul.comm ▸ !mul.comm ▸ mul_lt_left_neg Hb H
 
 theorem mul_le_lt_pos {a b c d : ℤ} (Ha : a > 0) (Hb : b ≥ 0) (Hc : a ≤ c) (Hd : b < d)
   : a * b < c * d :=
@@ -526,16 +512,16 @@ or.elim (le_or_gt b a)
   (assume H2 : a < b, H2)
 
 theorem mul_lt_cancel_right_nonneg {a b c : ℤ} (Hc : c ≥ 0) (H : a * c < b * c) : a < b :=
-mul_lt_cancel_left_nonneg Hc (mul_comm b c ▸ mul_comm a c ▸ H)
+mul_lt_cancel_left_nonneg Hc (mul.comm b c ▸ mul.comm a c ▸ H)
 
 theorem mul_lt_cancel_left_nonpos {a b c : ℤ} (Hc : c ≤ 0) (H : c * b < c * a) : a < b :=
 have H2 : -(c * a) < -(c * b), from lt_neg H,
-have H3 : -c * a < -c * b, from !mul_neg_left⁻¹ ▸ !mul_neg_left⁻¹ ▸ H2,
+have H3 : -c * a < -c * b, from !neg_mul_eq_neg_mul ▸ !neg_mul_eq_neg_mul ▸ H2,
 have H4 : -c ≥ 0, from zero_le_neg Hc,
 mul_lt_cancel_left_nonneg H4 H3
 
 theorem mul_lt_cancel_right_nonpos {a b c : ℤ} (Hc : c ≤ 0) (H : b * c < a * c) : a < b :=
-mul_lt_cancel_left_nonpos Hc (!mul_comm ▸ !mul_comm ▸ H)
+mul_lt_cancel_left_nonpos Hc (!mul.comm ▸ !mul.comm ▸ H)
 
 theorem mul_le_cancel_left_pos {a b c : ℤ} (Hc : c > 0) (H : c * a ≤ c * b) : a ≤ b :=
 or.elim (le_or_gt a b)
@@ -545,17 +531,17 @@ or.elim (le_or_gt a b)
     absurd H3 (le_imp_not_gt H))
 
 theorem mul_le_cancel_right_pos {a b c : ℤ} (Hc : c > 0) (H : a * c ≤ b * c) : a ≤ b :=
-mul_le_cancel_left_pos Hc (!mul_comm ▸ !mul_comm ▸ H)
+mul_le_cancel_left_pos Hc (!mul.comm ▸ !mul.comm ▸ H)
 
 theorem mul_le_cancel_left_neg {a b c : ℤ} (Hc : c < 0) (H : c * b ≤ c * a) : a ≤ b :=
 have H2 : -(c * a) ≤ -(c * b), from le_neg H,
 have H3 : -c * a ≤ -c * b,
-  from (mul_neg_left c b)⁻¹ ▸ (mul_neg_left c a)⁻¹ ▸ H2,
+  from neg_mul_eq_neg_mul c b ▸ neg_mul_eq_neg_mul c a ▸ H2,
 have H4 : -c > 0, from zero_lt_neg Hc,
 mul_le_cancel_left_pos H4 H3
 
 theorem mul_le_cancel_right_neg {a b c : ℤ} (Hc : c < 0) (H : b * c ≤ a * c) : a ≤ b :=
-mul_le_cancel_left_neg Hc (!mul_comm ▸ !mul_comm ▸ H)
+mul_le_cancel_left_neg Hc (!mul.comm ▸ !mul.comm ▸ H)
 
 theorem mul_eq_one_left {a b : ℤ} (H : a * b = 1) : a = 1 ∨ a = - 1 :=
 have H2 : (nat_abs a) * (nat_abs b) = 1, from
@@ -569,7 +555,7 @@ or_of_or_of_imp_of_imp (nat_abs_cases a)
   (assume H4 : a = - (nat_abs a), H3 ▸ H4)
 
 theorem mul_eq_one_right {a b : ℤ} (H : a * b = 1) : b = 1 ∨ b = - 1 :=
-mul_eq_one_left (!mul_comm ▸ H)
+mul_eq_one_left (!mul.comm ▸ H)
 
 
 -- sign function

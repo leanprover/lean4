@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/optional.h"
 #include "util/memory_pool.h"
+#include "util/buffer.h"
 
 namespace lean {
 /**
@@ -198,6 +199,11 @@ to_list(It const & begin, It const & end,
         r = cons(*it, r);
     }
     return r;
+}
+
+template<typename T>
+list<T> to_list(buffer<T> const & b) {
+    return to_list(b.begin(), b.end());
 }
 
 /** \brief Return <tt>reverse(to_list(begin, end))</tt> */

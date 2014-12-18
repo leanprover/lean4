@@ -4,31 +4,44 @@
 
 import .basic
 
-open function precategory eq
+open function precategory eq prod equiv is_equiv sigma sigma.ops
 
-inductive functor (C D : Precategory) : Type :=
-mk : Π (obF : C → D) (homF : Π(a b : C), hom a b → hom (obF a) (obF b)),
-    (Π (a : C), homF a a (ID a) = ID (obF a)) →
-    (Π (a b c : C) {g : hom b c} {f : hom a b}, homF a c (g ∘ f) = homF b c g ∘ homF a b f) →
-     functor C D
+structure functor (C D : Precategory) : Type :=
+  (obF : C → D)
+  (homF : Π ⦃a b : C⦄, hom a b → hom (obF a) (obF b))
+  (respect_id : Π (a : C), homF (ID a) = ID (obF a))
+  (respect_comp : Π {a b c : C} (g : hom b c) (f : hom a b),
+    homF (g ∘ f) = homF g ∘ homF f)
 
 infixl `⇒`:25 := functor
 
--- I think we only have a precategory of stict categories.
--- Maybe better implement this using univalence.
 namespace functor
   variables {C D E : Precategory}
-  definition object [coercion] (F : functor C D) : C → D := rec (λ obF homF Hid Hcomp, obF) F
 
-  definition morphism [coercion] (F : functor C D) : Π⦃a b : C⦄, hom a b → hom (F a) (F b) :=
-  rec (λ obF homF Hid Hcomp, homF) F
+  coercion [persistent] obF
+  coercion [persistent] homF
 
-  theorem respect_id (F : functor C D) : Π (a : C), F (ID a) = id :=
-  rec (λ obF homF Hid Hcomp, Hid) F
-
-  theorem respect_comp (F : functor C D) : Π ⦃a b c : C⦄ (g : hom b c) (f : hom a b),
-      F (g ∘ f) = F g ∘ F f :=
-  rec (λ obF homF Hid Hcomp, Hcomp) F
+  -- "functor C D" is equivalent to a certain sigma type
+  set_option unifier.max_steps 38500
+  protected definition sigma_char :
+    (Σ   (obF : C → D)
+    (homF : Π ⦃a b : C⦄, hom a b → hom (obF a) (obF b)),
+    (Π (a : C), homF (ID a) = ID (obF a)) ×
+    (Π {a b c : C} (g : hom b c) (f : hom a b),
+      homF (g ∘ f) = homF g ∘ homF f)) ≃ (functor C D) :=
+  begin
+    fapply equiv.mk,
+      intro S, fapply functor.mk,
+        exact (S.1), exact (S.2.1),
+        exact (pr₁ S.2.2), exact (pr₂ S.2.2),
+    fapply adjointify,
+      intro F, apply (functor.rec_on F), intros (d1, d2, d3, d4),
+      exact (dpair d1 (dpair d2 (pair d3 (@d4)))),
+    intro F, apply (functor.rec_on F), intros (d1, d2, d3, d4), apply idp,
+    intro S, apply (sigma.rec_on S), intros (d1, S2),
+    apply (sigma.rec_on S2), intros (d2, P1),
+    apply (prod.rec_on P1), intros (d3, d4), apply idp,
+  end
 
   protected definition compose (G : functor D E) (F : functor C D) : functor C E :=
   functor.mk
@@ -43,11 +56,10 @@ namespace functor
 
   infixr `∘f`:60 := compose
 
-  /-
+
   protected theorem assoc {A B C D : Precategory} (H : functor C D) (G : functor B C) (F : functor A B) :
       H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
-   sorry
-  -/
+  sorry
 
   /-protected definition id {C : Precategory} : functor C C :=
   mk (λa, a) (λ a b f, f) (λ a, idp) (λ a b c f g, idp)

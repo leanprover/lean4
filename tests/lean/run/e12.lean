@@ -20,8 +20,8 @@ constants n m : nat.nat
 constants i j : int.int
 
 section
-  open [notation] nat
-  open [notation] int
+  open [notations] nat
+  open [notations] int
   open [decls] nat
   open [decls] int
   check n+m
@@ -39,8 +39,8 @@ namespace int
 end int
 
 section
-  open [notation] nat
-  open [notation] int
+  open [notations] nat
+  open [notations] int
   open [declarations] nat
   open [declarations] int
   check n+m

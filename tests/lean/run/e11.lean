@@ -18,8 +18,8 @@ end int
 
 section
   -- Open "only" the notation and declarations from the namespaces nat and int
-  open [notation] nat
-  open [notation] int
+  open [notations] nat
+  open [notations] int
   open [decls] nat
   open [decls] int
 

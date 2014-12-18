@@ -41,7 +41,7 @@ context
 end
 
 context
-  open [notation] foo -- use only the notation
+  open [notations] foo -- use only the notation
   check foo.a * foo.c
   check a * c -- Error
 end

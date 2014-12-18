@@ -296,20 +296,19 @@ expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs) {
 
 void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs) {
     lean_assert(t.size() == s.size());
-    lean_assert(std::all_of(t.begin(), t.end(), is_local));
     lean_assert(std::all_of(s.begin(), s.end(), is_local));
     lean_assert(inductive::has_dep_elim(tc.env(), *g_eq_name));
     buffer<buffer<expr>> t_aux;
     name e_name("e");
     for (unsigned i = 0; i < t.size(); i++) {
-        expr t_i = t[i];
         expr s_i = s[i];
-        expr t_i_ty   = mlocal_type(t_i);
-        expr t_i_ty_a = abstract_locals(t_i_ty, i, t.data());
+        expr s_i_ty   = mlocal_type(s_i);
+        expr s_i_ty_a = abstract_locals(s_i_ty, i, s.data());
+        expr t_i = t[i];
         t_aux.push_back(buffer<expr>());
         t_aux.back().push_back(t_i);
         for (unsigned j = 0; j < i; j++) {
-            if (depends_on(t_i_ty, t[j])) {
+            if (depends_on(s_i_ty, s[j])) {
                 // we need to "cast"
                 buffer<expr> ty_inst_args;
                 for (unsigned k = 0; k <= j; k++)
@@ -317,15 +316,15 @@ void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> co
                 for (unsigned k = j + 1; k < i; k++)
                     ty_inst_args.push_back(t_aux[k][j+1]);
                 lean_assert(ty_inst_args.size() == i);
-                expr t_i_ty = instantiate_rev(t_i_ty_a, i, ty_inst_args.data());
+                expr s_i_ty = instantiate_rev(s_i_ty_a, i, ty_inst_args.data());
                 buffer<expr> rec_args;
                 rec_args.push_back(mlocal_type(s[j]));
                 rec_args.push_back(t_aux[j][j]);
-                rec_args.push_back(Fun(s[j], Fun(eqs[j], t_i_ty))); // type former ("promise")
+                rec_args.push_back(Fun(s[j], Fun(eqs[j], s_i_ty))); // type former ("promise")
                 rec_args.push_back(t_i); // minor premise
                 rec_args.push_back(s[j]);
                 rec_args.push_back(eqs[j]);
-                level rec_l1 = sort_level(tc.ensure_type(t_i_ty).first);
+                level rec_l1 = sort_level(tc.ensure_type(s_i_ty).first);
                 level rec_l2 = sort_level(tc.ensure_type(mlocal_type(s[j])).first);
                 t_i = mk_app(mk_constant(*g_eq_rec_name, {rec_l1, rec_l2}), rec_args.size(), rec_args.data());
             }

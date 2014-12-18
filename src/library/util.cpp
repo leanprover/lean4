@@ -171,6 +171,8 @@ static name * g_eq_name = nullptr;
 static name * g_eq_refl_name = nullptr;
 static name * g_eq_rec_name = nullptr;
 
+static name * g_heq_name = nullptr;
+
 static name * g_sigma_name = nullptr;
 static name * g_sigma_mk_name = nullptr;
 
@@ -193,6 +195,8 @@ void initialize_library_util() {
     g_eq_refl_name   = new name{"eq", "refl"};
     g_eq_rec_name    = new name{"eq", "rec"};
 
+    g_heq_name       = new name("heq");
+
     g_sigma_name     = new name("sigma");
     g_sigma_mk_name  = new name{"sigma", "dpair"};
 }
@@ -213,6 +217,7 @@ void finalize_library_util() {
     delete g_eq_name;
     delete g_eq_refl_name;
     delete g_eq_rec_name;
+    delete g_heq_name;
     delete g_sigma_name;
     delete g_sigma_mk_name;
 }
@@ -292,6 +297,13 @@ expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs) {
     expr A    = tc.whnf(tc.infer(lhs).first).first;
     level lvl = sort_level(tc.ensure_type(A).first);
     return mk_app(mk_constant(*g_eq_name, {lvl}), A, lhs, rhs);
+}
+
+expr mk_heq(type_checker & tc, expr const & lhs, expr const & rhs) {
+    expr A    = tc.whnf(tc.infer(lhs).first).first;
+    expr B    = tc.whnf(tc.infer(rhs).first).first;
+    level lvl = sort_level(tc.ensure_type(A).first);
+    return mk_app(mk_constant(*g_heq_name, {lvl}), A, lhs, B, rhs);
 }
 
 void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs) {

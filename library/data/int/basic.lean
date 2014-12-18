@@ -115,12 +115,6 @@ cases_on a
         (if H : m' = n' then inl (congr_arg neg_succ_of_nat H) else
             inr (take H1, H (neg_succ_of_nat_inj H1)))))
 
-definition decidable_nonneg [instance] (a : ℤ) : decidable (nonneg a) := cases_on a _ _
-
-definition decidable_le [instance] (a b : ℤ) : decidable (a ≤ b) := decidable_nonneg _
-
-definition decidable_lt [instance] (a b : ℤ) : decidable (a < b) := decidable_nonneg _
-
 theorem sub_nat_nat_of_ge {m n : ℕ} (H : m ≥ n) : sub_nat_nat m n = of_nat (m - n) :=
 have H1 : n - m = 0, from le_imp_sub_eq_zero H,
 calc
@@ -651,6 +645,10 @@ infix - := int.sub
 infix <= := int.le
 infix ≤  := int.le
 infix <  := int.lt
+
+definition decidable_nonneg [instance] (a : ℤ) : decidable (nonneg a) := cases_on a _ _
+definition decidable_le [instance] (a b : ℤ) : decidable (a ≤ b) := decidable_nonneg _
+definition decidable_lt [instance] (a b : ℤ) : decidable (a < b) := decidable_nonneg _
 
 /-
   Other stuff.

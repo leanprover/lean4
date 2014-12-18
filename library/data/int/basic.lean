@@ -85,24 +85,12 @@ definition mul (a b : ℤ) : ℤ :=
         (take n, neg_of_nat (succ m * n))                -- b = of_nat n
         (take n, of_nat (succ m * succ n)))              -- b = neg_succ_of_nat n
 
-definition sub (a b : ℤ) : ℤ := add a (neg b)
-
-definition nonneg (a : ℤ) : Prop := cases_on a (take n, true) (take n, false)
-
-definition le (a b : ℤ) : Prop := nonneg (sub b a)
-
-definition lt (a b : ℤ) : Prop := le (add a 1) b
-
 /- notation -/
 
 notation `-[` n `+1]` := int.neg_succ_of_nat n    -- for pretty-printing output
 prefix - := int.neg
 infix +  := int.add
 infix *  := int.mul
-infix -  := int.sub
-infix <= := int.le
-infix ≤  := int.le
-infix <  := int.lt
 
 /- some basic functions and properties -/
 
@@ -563,7 +551,7 @@ zero_ne_one mul.comm
 Instantiate ring theorems to int
 -/
 
-section port_algebra
+context port_algebra
   open algebra    -- TODO: can we "open" algebra only for the duration of this section?
   instance comm_ring
 
@@ -608,13 +596,16 @@ section port_algebra
     @algebra.add_eq_iff_eq_neg_add _ _
   theorem add_eq_iff_eq_add_neg : ∀a b c : ℤ, a + b = c ↔ a = c + -b :=
     @algebra.add_eq_iff_eq_add_neg _ _
+
+  definition sub (a b : ℤ) : ℤ := algebra.sub a b
+  infix - := int.sub
+
   theorem sub_self : ∀a : ℤ, a - a = 0 := algebra.sub_self
   theorem sub_add_cancel : ∀a b : ℤ, a - b + b = a := algebra.sub_add_cancel
   theorem add_sub_cancel : ∀a b : ℤ, a + b - b = a := algebra.add_sub_cancel
   theorem eq_of_sub_eq_zero : ∀{a b : ℤ}, a - b = 0 → a = b := @algebra.eq_of_sub_eq_zero _ _
   theorem eq_iff_sub_eq_zero : ∀a b : ℤ, a = b ↔ a - b = 0 := algebra.eq_iff_sub_eq_zero
--- TODO: is there a bug here? see below
--- theorem zero_sub_eq : ∀a : ℤ, 0 - a = -a := algebra.zero_sub_eq
+  theorem zero_sub_eq : ∀a : ℤ, 0 - a = -a := algebra.zero_sub_eq
   theorem sub_zero_eq : ∀a : ℤ, a - 0 = a := algebra.sub_zero_eq
   theorem sub_neg_eq_add : ∀a b : ℤ, a - (-b) = a + b := algebra.sub_neg_eq_add
   theorem neg_sub_eq : ∀a b : ℤ, -(a - b) = b - a := algebra.neg_sub_eq
@@ -650,48 +641,16 @@ section port_algebra
   theorem mul_self_sub_one_eq : ∀a : ℤ, a * a - 1 = (a + 1) * (a - 1) :=
     algebra.mul_self_sub_one_eq
 
-/-
--- TODO: Something strange is going on this this theorem.
-
-set_option pp.implicit true
-set_option pp.coercions true
-set_option pp.notation false
-
-theorem zero_sub_eq : ∀a : ℤ, 0 - a = -a := algebra.zero_sub_eq
-
--- Lean reports a type mismatch, but evaluating both sides gives exactly the same result.
-
-eval
-   ∀ (a : int),
-    @eq int
-      (@algebra.sub int
-         (@add_comm_group.to_add_group int
-            (@ring.to_add_comm_group int (@comm_ring.to_ring int comm_ring)))
-         (@has_zero.zero int
-            (@add_monoid.to_has_zero int
-               (@add_group.to_add_monoid int
-                  (@add_comm_group.to_add_group int
-                     (@ring.to_add_comm_group int (@comm_ring.to_ring int comm_ring))))))
-         a)
-      (@has_neg.neg int
-         (@add_group.to_has_neg int
-            (@add_comm_group.to_add_group int
-               (@ring.to_add_comm_group int (@comm_ring.to_ring int comm_ring))))
-         a)
-
-eval
-   ∀ (a : int),
-    @eq int
-      (sub
-         (@has_zero.zero int
-            (@zero_ne_one_class.to_has_zero int
-               (@ring.to_zero_ne_one_class int (@comm_ring.to_ring int comm_ring))))
-         a)
-      (neg a)
--/
-
 end port_algebra
 
+definition nonneg (a : ℤ) : Prop := cases_on a (take n, true) (take n, false)
+definition le (a b : ℤ) : Prop := nonneg (sub b a)
+definition lt (a b : ℤ) : Prop := le (add a 1) b
+
+infix - := int.sub
+infix <= := int.le
+infix ≤  := int.le
+infix <  := int.lt
 
 /-
   Other stuff.

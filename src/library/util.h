@@ -6,8 +6,11 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
+#include "kernel/type_checker.h"
 
 namespace lean {
+typedef std::unique_ptr<type_checker> type_checker_ptr;
+
 bool has_unit_decls(environment const & env);
 bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);

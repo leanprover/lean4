@@ -8,11 +8,11 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
 #include "kernel/type_checker.h"
+#include "library/util.h"
 #include "frontends/lean/local_decls.h"
+
 namespace lean {
 class parser;
-typedef std::unique_ptr<type_checker> type_checker_ptr;
-
 /** \brief Parse optional '[persistent]' modifier.
     return true if it is was found, and paremeter \c persistent to true.
 */

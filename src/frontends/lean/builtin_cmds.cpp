@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/class.h"
 #include "library/flycheck.h"
 #include "library/util.h"
+#include "library/pp_options.h"
 #include "library/definitional/projection.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -37,7 +38,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/class.h"
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/tokens.h"
-#include "frontends/lean/pp_options.h"
 #include "frontends/lean/parse_table.h"
 
 namespace lean {

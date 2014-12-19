@@ -18,9 +18,9 @@ Author: Leonardo de Moura
 #include "library/class.h"
 #include "library/local_context.h"
 #include "library/choice_iterator.h"
+#include "library/pp_options.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/elaborator_exception.h"
-#include "frontends/lean/pp_options.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES false

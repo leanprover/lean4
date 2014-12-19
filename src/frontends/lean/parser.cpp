@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "library/string.h"
 #include "library/sorry.h"
 #include "library/flycheck.h"
+#include "library/pp_options.h"
 #include "library/error_handling/error_handling.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/tokens.h"
@@ -41,7 +42,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_bindings.h"
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/elaborator.h"
-#include "frontends/lean/pp_options.h"
 #include "frontends/lean/info_annotation.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS

@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/print.h"
 #include "library/fingerprint.h"
 #include "library/util.h"
+#include "library/pp_options.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -61,9 +62,11 @@ void initialize_library_module() {
     initialize_sorry();
     initialize_class();
     initialize_library_util();
+    initialize_pp_options();
 }
 
 void finalize_library_module() {
+    finalize_pp_options();
     finalize_library_util();
     finalize_class();
     finalize_sorry();

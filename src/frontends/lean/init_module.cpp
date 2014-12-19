@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/elaborator_context.h"
 #include "frontends/lean/elaborator.h"
-#include "frontends/lean/pp_options.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/tactic_hint.h"
@@ -39,7 +38,6 @@ void initialize_frontend_lean_module() {
     initialize_builtin_exprs();
     initialize_elaborator_context();
     initialize_elaborator();
-    initialize_pp_options();
     initialize_scanner();
     initialize_parser();
     initialize_tactic_hint();
@@ -72,7 +70,6 @@ void finalize_frontend_lean_module() {
     finalize_tactic_hint();
     finalize_parser();
     finalize_scanner();
-    finalize_pp_options();
     finalize_elaborator();
     finalize_elaborator_context();
     finalize_builtin_exprs();

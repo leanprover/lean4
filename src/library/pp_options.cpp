@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sexpr/option_declarations.h"
-#include "frontends/lean/pp_options.h"
+#include "library/pp_options.h"
 
 #ifndef LEAN_DEFAULT_PP_MAX_DEPTH
 #define LEAN_DEFAULT_PP_MAX_DEPTH 1000000

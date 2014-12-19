@@ -11,10 +11,10 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "library/choice.h"
 #include "library/scoped_ext.h"
+#include "library/pp_options.h"
 #include "library/tactic/proof_state.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/info_manager.h"
-#include "frontends/lean/pp_options.h"
 
 namespace lean {
 class info_data;

@@ -8,14 +8,62 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
+#include "library/io_state_stream.h"
 #include "library/locals.h"
-#include "library/tactic/tactic.h"
+#include "library/util.h"
 #include "library/reducible.h"
+#include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
+#include "library/tactic/class_instance_synth.h"
 
 namespace lean {
+/**
+    \brief Given eq_rec of the form <tt>@eq.rec.{l₂ l₁} A a (λ (a' : A) (h : a = a'), B a') b a p</tt>,
+    apply the eq_rec_eq definition to produce the equality
+
+       b = @eq.rec.{l₂ l₁} A a (λ (a' : A) (h : a = a'), B a') b a p
+
+    The eq_rec_eq definition is of the form
+
+    definition eq_rec_eq.{l₁ l₂} {A : Type.{l₁}} {B : A → Type.{l₂}} [h : is_hset A] {a : A} (b : B a) (p : a = a) :
+       b = @eq.rec.{l₂ l₁} A a (λ (a' : A) (h : a = a'), B a') b a p :=
+    ...
+*/
+optional<expr> apply_eq_rec_eq(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & eq_rec) {
+    buffer<expr> args;
+    expr const & eq_rec_fn = get_app_args(eq_rec, args);
+    if (args.size() != 6)
+        return none_expr();
+    expr const & p = args[5];
+    if (!is_local(p) || !is_eq_a_a(mlocal_type(p)))
+        return none_expr();
+    expr const & A = args[0];
+    auto is_hset_A = mk_hset_instance(tc, ios, ctx, A);
+    if (!is_hset_A)
+        return none_expr();
+    levels ls = const_levels(eq_rec_fn);
+    level l2  = head(ls);
+    level l1  = head(tail(ls));
+    expr C    = tc.whnf(args[2]).first;
+    if (!is_lambda(C))
+        return none_expr();
+    expr a1   = mk_local(tc.mk_fresh_name(), binding_domain(C));
+    C         = tc.whnf(instantiate(binding_body(C), a1)).first;
+    if (!is_lambda(C))
+        return none_expr();
+    C         = binding_body(C);
+    if (!closed(C))
+        return none_expr();
+    expr B    = Fun(a1, C);
+    expr a    = args[1];
+    expr b    = args[3];
+    expr r    = mk_constant("eq_rec_eq", {l1, l2});
+    return some_expr(mk_app({r, A, B, *is_hset_A, a, b, p}));
+}
+
 class inversion_tac {
     environment const &           m_env;
+    io_state const &              m_ios;
     proof_state const &           m_ps;
     list<name>                    m_ids;
     name_generator                m_ngen;
@@ -23,22 +71,24 @@ class inversion_tac {
     std::unique_ptr<type_checker> m_tc;
 
     bool                          m_dep_elim;
+    bool                          m_proof_irrel;
     unsigned                      m_nparams;
     unsigned                      m_nindices;
     unsigned                      m_nminors;
     declaration                   m_I_decl;
     declaration                   m_cases_on_decl;
 
+
     void init_inductive_info(name const & n) {
-        m_dep_elim      = inductive::has_dep_elim(m_env, n);
-        m_nindices      = *inductive::get_num_indices(m_env, n);
-        m_nparams       = *inductive::get_num_params(m_env, n);
+        m_dep_elim       = inductive::has_dep_elim(m_env, n);
+        m_nindices       = *inductive::get_num_indices(m_env, n);
+        m_nparams        = *inductive::get_num_params(m_env, n);
         // This tactic is bases on cases_on construction which only has
         // minor premises for the introduction rules of this datatype.
         // For non-mutually recursive datatypes inductive::get_num_intro_rules == inductive::get_num_minor_premises
-        m_nminors       = *inductive::get_num_intro_rules(m_env, n);
-        m_I_decl        = m_env.get(n);
-        m_cases_on_decl = m_env.get({n, "cases_on"});
+        m_nminors        = *inductive::get_num_intro_rules(m_env, n);
+        m_I_decl         = m_env.get(n);
+        m_cases_on_decl  = m_env.get({n, "cases_on"});
     }
 
     bool is_inversion_applicable(expr const & t) {
@@ -48,8 +98,9 @@ class inversion_tac {
             return false;
         if (!inductive::is_inductive_decl(m_env, const_name(fn)))
             return false;
-        if (!m_env.find(name{const_name(fn), "cases_on"}) ||
-            !m_env.find(name("eq")) || !m_env.find(name("heq")))
+        if (!m_env.find(name{const_name(fn), "cases_on"}) || !m_env.find(name("eq")))
+            return false;
+        if (m_proof_irrel && !m_env.find(name("heq")))
             return false;
         init_inductive_info(const_name(fn));
         if (args.size() != m_nindices + m_nparams)
@@ -85,41 +136,73 @@ class inversion_tac {
         expr const & I    = get_app_args(h_type, I_args);
         expr h_new_type  = mk_app(I, I_args.size() - m_nindices, I_args.data());
         expr d           = m_tc->whnf(m_tc->infer(h_new_type).first).first;
-        unsigned eq_idx  = 1;
-        name eq_prefix("H");
-        buffer<expr> ts;
-        buffer<expr> eqs;
-        buffer<expr> refls;
         name t_prefix("t");
         unsigned nidx = 1;
-        auto add_eq = [&](expr const & lhs, expr const & rhs) {
-            pair<expr, expr> p = mk_eq(lhs, rhs);
-            expr new_eq   = p.first;
-            expr new_refl = p.second;
-            eqs.push_back(mk_local(m_ngen.next(), g.get_unused_name(eq_prefix, eq_idx), new_eq, binder_info()));
-            refls.push_back(new_refl);
-        };
-        for (unsigned i = I_args.size() - m_nindices; i < I_args.size(); i++) {
-            expr t_type = binding_domain(d);
-            expr t      = mk_local(m_ngen.next(), g.get_unused_name(t_prefix, nidx), t_type, binder_info());
-            expr const & index = I_args[i];
-            add_eq(t, index);
-            h_new_type  = mk_app(h_new_type, t);
-            hyps.push_back(t);
-            ts.push_back(t);
-            d           = instantiate(binding_body(d), t);
+        if (m_proof_irrel) {
+            unsigned eq_idx  = 1;
+            name eq_prefix("H");
+            buffer<expr> ts;
+            buffer<expr> eqs;
+            buffer<expr> refls;
+            auto add_eq = [&](expr const & lhs, expr const & rhs) {
+                pair<expr, expr> p = mk_eq(lhs, rhs);
+                expr new_eq   = p.first;
+                expr new_refl = p.second;
+                eqs.push_back(mk_local(m_ngen.next(), g.get_unused_name(eq_prefix, eq_idx), new_eq, binder_info()));
+                refls.push_back(new_refl);
+            };
+            for (unsigned i = I_args.size() - m_nindices; i < I_args.size(); i++) {
+                expr t_type = binding_domain(d);
+                expr t      = mk_local(m_ngen.next(), g.get_unused_name(t_prefix, nidx), t_type, binder_info());
+                expr const & index = I_args[i];
+                add_eq(t, index);
+                h_new_type  = mk_app(h_new_type, t);
+                hyps.push_back(t);
+                ts.push_back(t);
+                d           = instantiate(binding_body(d), t);
+            }
+            expr h_new    = mk_local(m_ngen.next(), h_new_name, h_new_type, local_info(h));
+            if (m_dep_elim)
+                add_eq(h_new, h);
+            hyps.push_back(h_new);
+            expr new_type = Pi(eqs, g.get_type());
+            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+            goal new_g(new_meta, new_type);
+            expr val      = g.abstract(mk_app(mk_app(mk_app(Fun(ts, Fun(h_new, new_meta)), m_nindices, I_args.end() - m_nindices), h),
+                                              refls));
+            assign(g.get_name(), val);
+            return new_g;
+        } else {
+            // proof relevant version
+            buffer<expr> ss;
+            buffer<expr> ts;
+            buffer<expr> refls;
+            for (unsigned i = I_args.size() - m_nindices; i < I_args.size(); i++) {
+                expr t_type = binding_domain(d);
+                expr t      = mk_local(m_ngen.next(), g.get_unused_name(t_prefix, nidx), t_type, binder_info());
+                h_new_type  = mk_app(h_new_type, t);
+                ss.push_back(I_args[i]);
+                refls.push_back(mk_refl(*m_tc, I_args[i]));
+                hyps.push_back(t);
+                ts.push_back(t);
+                d           = instantiate(binding_body(d), t);
+            }
+            expr h_new    = mk_local(m_ngen.next(), h_new_name, h_new_type, local_info(h));
+            ts.push_back(h_new);
+            ss.push_back(h);
+            refls.push_back(mk_refl(*m_tc, h));
+            hyps.push_back(h_new);
+            buffer<expr> eqs;
+            mk_telescopic_eq(*m_tc, ss, ts, eqs);
+            ts.pop_back();
+            expr new_type = Pi(eqs, g.get_type());
+            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+            goal new_g(new_meta, new_type);
+            expr val      = g.abstract(mk_app(mk_app(mk_app(Fun(ts, Fun(h_new, new_meta)), m_nindices, I_args.end() - m_nindices), h),
+                                              refls));
+            assign(g.get_name(), val);
+            return new_g;
         }
-        expr h_new    = mk_local(m_ngen.next(), h_new_name, h_new_type, local_info(h));
-        if (m_dep_elim)
-            add_eq(h_new, h);
-        hyps.push_back(h_new);
-        expr new_type = Pi(eqs, g.get_type());
-        expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
-        goal new_g(new_meta, new_type);
-        expr val      = g.abstract(mk_app(mk_app(mk_app(Fun(ts, Fun(h_new, new_meta)), m_nindices, I_args.end() - m_nindices), h),
-                                          refls));
-        assign(g.get_name(), val);
-        return new_g;
     }
 
     list<goal> apply_cases_on(goal const & g) {
@@ -234,46 +317,121 @@ class inversion_tac {
         throw inversion_exception("ill-typed goal");
     }
 
+    void throw_unification_eq_rec_failure() {
+        throw inversion_exception("unification failed to eliminate eq.rec in homogeneous equality");
+    }
+
+    // Process goal of the form:  Pi (H : eq.rec A s C a s p = b), R
+    // The idea is to reduce it to
+    //        Pi (H : a = b), R
+    // when A is a hset
+    // and then invoke intro_next_eq recursively.
+    //
+    // \remark \c type is the type of \c g after whnf
+    goal intro_next_eq_rec(goal const & g, expr const & type) {
+        lean_assert(is_pi(type));
+        buffer<expr> hyps;
+        g.get_hyps(hyps);
+        expr const & eq  = binding_domain(type);
+        expr const & lhs = app_arg(app_fn(eq));
+        expr const & rhs = app_arg(eq);
+        lean_assert(is_eq_rec(lhs));
+        // lhs is of the form  (eq.rec A s C a s p)
+        // aux_eq is a term of type ((eq.rec A s C a s p) = a)
+        auto aux_eq = apply_eq_rec_eq(*m_tc, m_ios, to_list(hyps), lhs);
+        if (!aux_eq)
+            throw_unification_eq_rec_failure();
+        buffer<expr> lhs_args;
+        get_app_args(lhs, lhs_args);
+        expr const & reduced_lhs = lhs_args[3];
+        expr new_eq      = ::lean::mk_eq(*m_tc, reduced_lhs, rhs);
+        expr new_type    = update_binding(type, new_eq, binding_body(type));
+        expr new_meta    = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+        goal new_g(new_meta, new_type);
+        // create assignment for g
+        expr A           = m_tc->infer(lhs).first;
+        level lvl        = sort_level(m_tc->ensure_type(A).first);
+        // old_eq : eq.rec A s C a s p = b
+        expr old_eq      = mk_local(m_ngen.next(), binding_name(type), eq, binder_info());
+        // aux_eq : a = eq.rec A s C a s p
+        expr trans_eq    = mk_app({mk_constant(name{"eq", "trans"}, {lvl}), A, reduced_lhs, lhs, rhs, *aux_eq, old_eq});
+        // trans_eq : a = b
+        expr val         = g.abstract(Fun(old_eq, mk_app(new_meta, trans_eq)));
+        assign(g.get_name(), val);
+        return intro_next_eq(new_g);
+    }
+
+    // Process goal of the form:  Ctx |- Pi (H : a == b), R   when a and b have the same type
+    // The idea is to reduce it to
+    //        Ctx, H : a = b |- R
+    // This method is only used if the environment has a proof irrelevant Prop.
+    //
+    // \remark \c type is the type of \c g after whnf
+    goal intro_next_heq(goal const & g, expr const & type) {
+        lean_assert(m_proof_irrel);
+        expr eq             = binding_domain(type);
+        lean_assert(const_name(get_app_fn(eq)) == "heq");
+        buffer<expr> args;
+        expr const & heq_fn = get_app_args(eq, args);
+        constraint_seq cs;
+        if (m_tc->is_def_eq(args[0], args[2], justification(), cs) && !cs) {
+            buffer<expr> hyps;
+            g.get_hyps(hyps);
+            expr new_eq   = mk_app(mk_constant("eq", const_levels(heq_fn)), args[0], args[1], args[3]);
+            expr new_hyp  = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), new_eq, binder_info());
+            expr new_type = instantiate(binding_body(type), new_hyp);
+            hyps.push_back(new_hyp);
+            expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
+            expr new_meta = mk_app(new_mvar, hyps);
+            goal new_g(new_meta, new_type);
+            hyps.pop_back();
+            expr H        = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
+            expr to_eq    = mk_app(mk_constant({"heq", "to_eq"}, const_levels(heq_fn)), args[0], args[1], args[3], H);
+            expr val      = g.abstract(Fun(H, mk_app(mk_app(new_mvar, hyps), to_eq)));
+            assign(g.get_name(), val);
+            return new_g;
+        } else {
+            throw inversion_exception("unification failed to reduce heterogeneous equality into homogeneous one");
+        }
+    }
+
+    // Process goal of the form:  Ctx |- Pi (H : a = b), R
+    // The idea is to reduce it to
+    //        Ctx, H : a = b |- R
+    //
+    // \remark \c type is the type of \c g after whnf
+    goal intro_next_eq_simple(goal const & g, expr const & type) {
+        expr eq            = binding_domain(type);
+        lean_assert(const_name(get_app_fn(eq)) == "eq");
+        buffer<expr> hyps;
+        g.get_hyps(hyps);
+        expr new_hyp  = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
+        expr new_type = instantiate(binding_body(type), new_hyp);
+        hyps.push_back(new_hyp);
+        expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+        goal new_g(new_meta, new_type);
+        expr val      = g.abstract(Fun(new_hyp, new_meta));
+        assign(g.get_name(), val);
+        return new_g;
+    }
+
     goal intro_next_eq(goal const & g) {
-        expr const & type  = g.get_type();
+        expr const & type  = m_tc->whnf(g.get_type()).first;
         if (!is_pi(type))
             throw_ill_formed_goal();
         expr eq            = binding_domain(type);
         expr const & eq_fn = get_app_fn(eq);
         if (!is_constant(eq_fn))
             throw_ill_formed_goal();
-        buffer<expr> hyps;
-        g.get_hyps(hyps);
         if (const_name(eq_fn) == "eq") {
-            expr new_hyp  = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
-            expr new_type = instantiate(binding_body(type), new_hyp);
-            hyps.push_back(new_hyp);
-            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
-            goal new_g(new_meta, new_type);
-            expr val      = g.abstract(Fun(new_hyp, new_meta));
-            assign(g.get_name(), val);
-            return new_g;
-        } else if (const_name(eq_fn) == "heq") {
-            buffer<expr> args;
-            expr const & heq_fn = get_app_args(eq, args);
-            constraint_seq cs;
-            if (m_tc->is_def_eq(args[0], args[2], justification(), cs) && !cs) {
-                expr new_eq   = mk_app(mk_constant("eq", const_levels(heq_fn)), args[0], args[1], args[3]);
-                expr new_hyp  = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), new_eq, binder_info());
-                expr new_type = instantiate(binding_body(type), new_hyp);
-                hyps.push_back(new_hyp);
-                expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
-                expr new_meta = mk_app(new_mvar, hyps);
-                goal new_g(new_meta, new_type);
-                hyps.pop_back();
-                expr H        = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
-                expr to_eq    = mk_app(mk_constant({"heq", "to_eq"}, const_levels(heq_fn)), args[0], args[1], args[3], H);
-                expr val      = g.abstract(Fun(H, mk_app(mk_app(new_mvar, hyps), to_eq)));
-                assign(g.get_name(), val);
-                return new_g;
+            expr const & lhs = app_arg(app_fn(eq));
+            if (!m_proof_irrel && is_eq_rec(lhs)) {
+                return intro_next_eq_rec(g, type);
             } else {
-                throw inversion_exception("unification failed to reduce heterogeneous equality into homogeneous one");
+                return intro_next_eq_simple(g, type);
             }
+        } else if (m_proof_irrel && const_name(eq_fn) == "heq") {
+            return intro_next_heq(g, type);
         } else {
             throw_ill_formed_goal();
         }
@@ -293,6 +451,22 @@ class inversion_tac {
         }
     }
 
+    // The no_confusion constructions uses lifts in the proof relevant version.
+    // We must apply lift.down to eliminate the auxiliary lift.
+    expr lift_down(expr const & v) {
+        if (!m_proof_irrel) {
+            expr v_type       = m_tc->whnf(m_tc->infer(v).first).first;
+            if (!is_app(v_type))
+                throw_unification_eq_rec_failure();
+            expr const & lift = app_fn(v_type);
+            if (!is_constant(lift) || const_name(lift) != "lift")
+                throw_unification_eq_rec_failure();
+            return mk_app(mk_constant(name{"lift", "down"}, const_levels(lift)), app_arg(v_type), v);
+        } else {
+            return v;
+        }
+    }
+
     optional<goal> unify_eqs(goal g, unsigned neqs) {
         if (neqs == 0)
             return optional<goal>(g); // done
@@ -307,7 +481,7 @@ class inversion_tac {
         expr lhs         = m_tc->whnf(eq_args[1]).first;
         expr rhs         = m_tc->whnf(eq_args[2]).first;
         constraint_seq cs;
-        if (m_tc->is_def_eq(lhs, rhs, justification(), cs) && !cs) {
+        if (m_proof_irrel && m_tc->is_def_eq(lhs, rhs, justification(), cs) && !cs) {
             // deletion transition: t == t
             hyps.pop_back(); // remove t == t equality
             expr new_type = g.get_type();
@@ -337,18 +511,19 @@ class inversion_tac {
             if (const_name(lhs_fn) == const_name(rhs_fn)) {
                 // injectivity transition
                 expr new_type = binding_domain(m_tc->whnf(m_tc->infer(no_confusion).first).first);
-                hyps.pop_back(); // remove processed equality
+                if (m_proof_irrel)
+                    hyps.pop_back(); // remove processed equality
                 expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
                 expr new_meta = mk_app(new_mvar, hyps);
                 goal new_g(new_meta, new_type);
-                expr val      = g.abstract(mk_app(no_confusion, new_meta));
+                expr val      = g.abstract(lift_down(mk_app(no_confusion, new_meta)));
                 assign(g.get_name(), val);
                 unsigned A_nparams = *inductive::get_num_params(m_env, const_name(A_fn));
                 lean_assert(lhs_args.size() >= A_nparams);
                 return unify_eqs(new_g, neqs - 1 + lhs_args.size() - A_nparams);
             } else {
                 // conflict transition, eq is of the form c_1 ... = c_2 ..., where c_1 and c_2 are different constructors/intro rules.
-                expr val      = g.abstract(no_confusion);
+                expr val      = g.abstract(lift_down(no_confusion));
                 assign(g.get_name(), val);
                 return optional<goal>(); // goal has been solved
             }
@@ -380,12 +555,20 @@ class inversion_tac {
             expr deps_g_type    = Pi(deps, g_type);
             level eq_rec_lvl1   = sort_level(m_tc->ensure_type(deps_g_type).first);
             level eq_rec_lvl2   = sort_level(m_tc->ensure_type(A).first);
-            expr tformer        = Fun(rhs, deps_g_type);
+            expr tformer;
+            if (m_proof_irrel)
+                tformer = Fun(rhs, deps_g_type);
+            else
+                tformer = Fun(rhs, Fun(eq, deps_g_type));
             expr eq_rec         = mk_constant(name{"eq", "rec"}, {eq_rec_lvl1, eq_rec_lvl2});
             eq_rec              = mk_app(eq_rec, A, lhs, tformer);
             buffer<expr> new_hyps;
             new_hyps.append(non_deps);
-            expr new_type       = instantiate(abstract(deps_g_type, rhs), lhs);
+            expr new_type       = instantiate(abstract_local(deps_g_type, rhs), lhs);
+            if (!m_proof_irrel) {
+                new_type = abstract_local(new_type, eq);
+                new_type = instantiate(new_type, mk_refl(*m_tc, lhs));
+            }
             for (unsigned i = 0; i < deps.size(); i++) {
                 expr new_hyp = mk_local(m_ngen.next(), binding_name(new_type), binding_domain(new_type),
                                         binding_info(new_type));
@@ -402,9 +585,10 @@ class inversion_tac {
             return unify_eqs(new_g, neqs-1);
         } else if (is_local(lhs)) {
             // flip equation and reduce to previous case
-            hyps.pop_back(); // remove processed equality
-            expr symm_eq  = mk_eq(rhs, lhs).first;
-            expr new_type = mk_arrow(symm_eq, g_type);
+            if (m_proof_irrel)
+                hyps.pop_back(); // remove processed equality
+            expr symm_eq   = mk_eq(rhs, lhs).first;
+            expr new_type  = mk_arrow(symm_eq, g_type);
             expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
             expr new_meta = mk_app(new_mvar, hyps);
             goal new_g(new_meta, new_type);
@@ -430,10 +614,11 @@ class inversion_tac {
     }
 
 public:
-    inversion_tac(environment const & env, proof_state const & ps, list<name> const & ids):
-        m_env(env), m_ps(ps), m_ids(ids),
+    inversion_tac(environment const & env, io_state const & ios, proof_state const & ps, list<name> const & ids):
+        m_env(env), m_ios(ios), m_ps(ps), m_ids(ids),
         m_ngen(m_ps.get_ngen()), m_subst(m_ps.get_subst()),
         m_tc(mk_type_checker(m_env, m_ngen.mk_child(), m_ps.relax_main_opaque())) {
+        m_proof_irrel = m_env.prop_proof_irrel();
     }
 
     optional<proof_state> execute(name const & n) {
@@ -463,8 +648,8 @@ public:
 };
 
 tactic inversion_tactic(name const & n, list<name> const & ids) {
-    auto fn = [=](environment const & env, io_state const &, proof_state const & ps) -> optional<proof_state> {
-        inversion_tac tac(env, ps, ids);
+    auto fn = [=](environment const & env, io_state const & ios, proof_state const & ps) -> optional<proof_state> {
+        inversion_tac tac(env, ios, ps, ids);
         return tac.execute(n);
     };
     return tactic01(fn);

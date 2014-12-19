@@ -42,4 +42,9 @@ namespace foo
 
   definition foo.inj₄ (H : mk A₁ B₁ a₁ b₁ = mk A₂ B₂ a₂ b₂) : eq.rec (eq.rec (eq.rec b₁ (foo.inj₁ H)) (foo.inj₂ H)) (foo.inj₃ H) = b₂ :=
   (foo.inj H).2.2.2
+
+  definition foo.inj_inv (e₁ : A₁ = A₂) (e₂ : eq.rec B₁ e₁ = B₂) (e₃ : eq.rec a₁ e₁ = a₂) (e₄ : eq.rec (eq.rec (eq.rec b₁ e₁) e₂) e₃ = b₂) :
+     mk A₁ B₁ a₁ b₁ = mk A₂ B₂ a₂ b₂ :=
+  eq.rec_on e₄ (eq.rec_on e₃ (eq.rec_on e₂ (eq.rec_on e₁ rfl)))
+
 end foo

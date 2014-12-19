@@ -19,58 +19,61 @@ Author: Leonardo de Moura
 #include "library/local_context.h"
 #include "library/choice_iterator.h"
 #include "library/pp_options.h"
+#include "library/generic_exception.h"
 #include "frontends/lean/util.h"
-#include "frontends/lean/elaborator_exception.h"
 
-#ifndef LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES
-#define LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES false
+#ifndef LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES
+#define LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES false
 #endif
 
-#ifndef LEAN_DEFAULT_ELABORATOR_TRACE_INSTANCES
-#define LEAN_DEFAULT_ELABORATOR_TRACE_INSTANCES false
+#ifndef LEAN_DEFAULT_CLASS_TRACE_INSTANCES
+#define LEAN_DEFAULT_CLASS_TRACE_INSTANCES false
 #endif
 
-#ifndef LEAN_DEFAULT_ELABORATOR_INSTANCE_MAX_DEPTH
-#define LEAN_DEFAULT_ELABORATOR_INSTANCE_MAX_DEPTH 32
+#ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
+#define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
 #endif
 
 namespace lean {
-static name * g_elaborator_unique_class_instances = nullptr;
-static name * g_elaborator_trace_instances        = nullptr;
-static name * g_elaborator_instance_max_depth     = nullptr;
+static name * g_class_unique_class_instances = nullptr;
+static name * g_class_trace_instances        = nullptr;
+static name * g_class_instance_max_depth     = nullptr;
+
+[[ noreturn ]] void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
+[[ noreturn ]] void throw_class_exception(expr const & m, pp_fn const & fn) { throw_generic_exception(m, fn); }
 
 void initialize_placeholder_elaborator() {
-    g_elaborator_unique_class_instances = new name{"elaborator", "unique_class_instances"};
-    g_elaborator_trace_instances        = new name{"elaborator", "trace_instances"};
-    g_elaborator_instance_max_depth     = new name{"elaborator", "instance_max_depth"};
+    g_class_unique_class_instances = new name{"class", "unique_instances"};
+    g_class_trace_instances        = new name{"class", "trace_instances"};
+    g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
 
-    register_bool_option(*g_elaborator_unique_class_instances,  LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES,
-                         "(elaborator) generate an error if there is more than one solution "
+    register_bool_option(*g_class_unique_class_instances,  LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES,
+                         "(class) generate an error if there is more than one solution "
                          "for a class-instance resolution problem");
 
-    register_bool_option(*g_elaborator_trace_instances,  LEAN_DEFAULT_ELABORATOR_TRACE_INSTANCES,
-                         "(elaborator) display messages showing the class-instances resolution execution trace");
+    register_bool_option(*g_class_trace_instances,  LEAN_DEFAULT_CLASS_TRACE_INSTANCES,
+                         "(class) display messages showing the class-instances resolution execution trace");
 
-    register_unsigned_option(*g_elaborator_instance_max_depth, LEAN_DEFAULT_ELABORATOR_INSTANCE_MAX_DEPTH,
-                             "(elaborator) max allowed depth in class-instance resolution");
+    register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
+                             "(class) max allowed depth in class-instance resolution");
 }
 
 void finalize_placeholder_elaborator() {
-    delete g_elaborator_unique_class_instances;
-    delete g_elaborator_trace_instances;
-    delete g_elaborator_instance_max_depth;
+    delete g_class_unique_class_instances;
+    delete g_class_trace_instances;
+    delete g_class_instance_max_depth;
 }
 
-bool get_elaborator_unique_class_instances(options const & o) {
-    return o.get_bool(*g_elaborator_unique_class_instances, LEAN_DEFAULT_ELABORATOR_UNIQUE_CLASS_INSTANCES);
+bool get_class_unique_class_instances(options const & o) {
+    return o.get_bool(*g_class_unique_class_instances, LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES);
 }
 
-bool get_elaborator_trace_instances(options const & o) {
-    return o.get_bool(*g_elaborator_trace_instances, LEAN_DEFAULT_ELABORATOR_TRACE_INSTANCES);
+bool get_class_trace_instances(options const & o) {
+    return o.get_bool(*g_class_trace_instances, LEAN_DEFAULT_CLASS_TRACE_INSTANCES);
 }
 
-unsigned get_elaborator_instance_max_depth(options const & o) {
-    return o.get_unsigned(*g_elaborator_instance_max_depth, LEAN_DEFAULT_ELABORATOR_INSTANCE_MAX_DEPTH);
+unsigned get_class_instance_max_depth(options const & o) {
+    return o.get_unsigned(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH);
 }
 
 /** \brief Context for handling placeholder metavariable choice constraint */
@@ -93,8 +96,8 @@ struct placeholder_context {
         m_relax(relax),
         m_use_local_instances(use_local_instances) {
         m_fname           = nullptr;
-        m_trace_instances = get_elaborator_trace_instances(ios.get_options());
-        m_max_depth       = get_elaborator_instance_max_depth(ios.get_options());
+        m_trace_instances = get_class_trace_instances(ios.get_options());
+        m_max_depth       = get_class_instance_max_depth(ios.get_options());
         options opts      = m_ios.get_options();
         opts              = opts.update(get_pp_purify_metavars_name(), false);
         opts              = opts.update(get_pp_implicit_name(), true);
@@ -154,10 +157,10 @@ struct placeholder_elaborator : public choice_iterator {
         choice_iterator(), m_C(C), m_ctx(ctx), m_meta(meta), m_meta_type(meta_type),
         m_local_instances(local_insts), m_instances(instances), m_jst(j), m_depth(depth) {
         if (m_depth > m_C->get_max_depth()) {
-            throw_elaborator_exception("maximum class-instance resolution depth has been reached "
-                                       "(the limit can be increased by setting option 'elaborator.instance_max_depth') "
-                                       "(the class-instance resolution trace can be visualized by setting option 'elaborator.trace_instances')",
-                                       C->get_main_meta());
+            throw_class_exception("maximum class-instance resolution depth has been reached "
+                                  "(the limit can be increased by setting option 'class.instance_max_depth') "
+                                  "(the class-instance resolution trace can be visualized by setting option 'class.trace_instances')",
+                                  C->get_main_meta());
         }
         m_displayed_trace_header = false;
     }
@@ -354,7 +357,7 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
         };
 
         unify_result_seq seq1    = unify(env, 1, &c, ngen, substitution(), new_cfg);
-        if (get_elaborator_unique_class_instances(C->m_ios.get_options())) {
+        if (get_class_unique_class_instances(C->m_ios.get_options())) {
             optional<expr> solution;
             substitution subst;
             constraints  cnstrs;
@@ -363,7 +366,7 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
                     cnstrs = p.second;
                     expr next_solution = subst.instantiate(new_meta);
                     if (solution) {
-                        throw_elaborator_exception(m, [=](formatter const & fmt) {
+                        throw_class_exception(m, [=](formatter const & fmt) {
                                 format r = format("ambiguous class-instance resolution, "
                                                   "there is more than one solution");
                                 r += pp_indent_expr(fmt, *solution);

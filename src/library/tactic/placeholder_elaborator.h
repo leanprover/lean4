@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "library/io_state.h"
+#include "library/unifier.h"
 #include "library/local_context.h"
 
 namespace lean {

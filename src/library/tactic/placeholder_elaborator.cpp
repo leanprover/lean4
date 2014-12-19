@@ -20,7 +20,8 @@ Author: Leonardo de Moura
 #include "library/choice_iterator.h"
 #include "library/pp_options.h"
 #include "library/generic_exception.h"
-#include "frontends/lean/util.h"
+#include "library/util.h"
+#include "library/tactic/util.h"
 
 #ifndef LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES
 #define LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES false

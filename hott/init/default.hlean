@@ -8,6 +8,6 @@ prelude
 import init.datatypes init.reserved_notation init.tactic init.logic
 import init.bool init.num init.priority init.relation init.wf
 import init.types.sigma init.types.prod init.types.empty
-import init.trunc init.path init.equiv
+import init.trunc init.path init.equiv init.util
 import init.axioms.ua init.axioms.funext init.axioms.funext_from_ua
 import init.hedberg

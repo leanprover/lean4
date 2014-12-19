@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/constraint.h"
 #include "library/coercion.h"
 #include "library/unifier.h"
-#include "frontends/lean/choice_iterator.h"
+#include "library/choice_iterator.h"
 #include "frontends/lean/coercion_elaborator.h"
 
 namespace lean {

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "kernel/type_checker.h"
-#include "frontends/lean/choice_iterator.h"
+#include "library/choice_iterator.h"
 
 namespace lean {
 /** \brief Abstract class for hiding details of the info_manager from the coercion_elaborator */

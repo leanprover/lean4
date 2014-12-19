@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "frontends/lean/choice_iterator.h"
+#include "library/choice_iterator.h"
 
 namespace lean {
 lazy_list<constraints> choose(std::shared_ptr<choice_iterator> c, bool ignore_failure) {

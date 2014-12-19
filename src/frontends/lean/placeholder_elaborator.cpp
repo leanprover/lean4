@@ -17,8 +17,8 @@ Author: Leonardo de Moura
 #include "library/error_handling/error_handling.h"
 #include "library/class.h"
 #include "library/local_context.h"
+#include "library/choice_iterator.h"
 #include "frontends/lean/util.h"
-#include "frontends/lean/choice_iterator.h"
 #include "frontends/lean/elaborator_exception.h"
 #include "frontends/lean/pp_options.h"
 

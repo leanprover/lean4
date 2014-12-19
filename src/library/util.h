@@ -90,6 +90,7 @@ expr mk_pr1(type_checker & tc, expr const & p, bool prop);
 expr mk_pr2(type_checker & tc, expr const & p, bool prop);
 
 expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs);
+expr mk_refl(type_checker & tc, expr const & a);
 
 /** \brief Create a telescope equality for HoTT library.
     This procedure assumes eq supports dependent elimination.

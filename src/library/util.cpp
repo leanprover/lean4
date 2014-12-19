@@ -299,6 +299,12 @@ expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs) {
     return mk_app(mk_constant(*g_eq_name, {lvl}), A, lhs, rhs);
 }
 
+expr mk_refl(type_checker & tc, expr const & a) {
+    expr A    = tc.whnf(tc.infer(a).first).first;
+    level lvl = sort_level(tc.ensure_type(A).first);
+    return mk_app(mk_constant(*g_eq_refl_name, {lvl}), A, a);
+}
+
 expr mk_heq(type_checker & tc, expr const & lhs, expr const & rhs) {
     expr A    = tc.whnf(tc.infer(lhs).first).first;
     expr B    = tc.whnf(tc.infer(rhs).first).first;

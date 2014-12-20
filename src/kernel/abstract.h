@@ -25,6 +25,7 @@ expr abstract(expr const & e, expr const & s, unsigned i);
 /** \brief Similar to abstract, but all values in s are local constants. */
 expr abstract_locals(expr const & e, unsigned n, expr const * s);
 inline expr abstract_local(expr const & e, expr const & s) { return abstract_locals(e, 1, &s); }
+expr abstract_local(expr const & e, name const & l);
 
 /**
    \brief Create a lambda expression (lambda (x : t) b), the term b is abstracted using abstract(b, constant(x)).

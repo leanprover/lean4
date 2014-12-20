@@ -48,6 +48,12 @@ expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
         });
 }
 
+expr abstract_local(expr const & e, name const & l) {
+    expr dummy = mk_Prop();
+    expr local = mk_local(l, dummy);
+    return abstract_locals(e, 1, &local);
+}
+
 /**
    \brief Auxiliary datastructure for caching the types of locals constants after abstraction.
    It is very common to invoke mk_bindings(num, locals, b) with the same set of locals but

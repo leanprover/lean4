@@ -312,6 +312,24 @@ expr mk_heq(type_checker & tc, expr const & lhs, expr const & rhs) {
     return mk_app(mk_constant(*g_heq_name, {lvl}), A, lhs, B, rhs);
 }
 
+bool is_eq_rec(expr const & e) {
+    expr const & fn = get_app_fn(e);
+    return is_constant(fn) && const_name(fn) == *g_eq_rec_name;
+}
+
+bool is_eq(expr const & e) {
+    expr const & fn = get_app_fn(e);
+    return is_constant(fn) && const_name(fn) == *g_eq_name;
+}
+
+bool is_eq_a_a(expr const & e) {
+    if (!is_eq(e))
+        return false;
+    buffer<expr> args;
+    get_app_args(e, args);
+    return args.size() == 3 && args[1] == args[2];
+}
+
 void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs) {
     lean_assert(t.size() == s.size());
     lean_assert(std::all_of(s.begin(), s.end(), is_local));

@@ -38,6 +38,12 @@ inductive sum (A B : Type) : Type :=
 inl {} : A → sum A B,
 inr {} : B → sum A B
 
+definition sum.intro_left [reducible] {A : Type} (B : Type) (a : A) : sum A B :=
+sum.inl a
+
+definition sum.intro_right [reducible] (A : Type) {B : Type} (b : B) : sum A B :=
+sum.inr b
+
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.
 -- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).
 -- This representation can be coerced in whatever we want (e.g., naturals, integers, reals, etc).

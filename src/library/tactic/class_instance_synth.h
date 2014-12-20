@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class local_context;
+class type_checker;
 
 /** \brief Create a metavariable, and attach choice constraint for generating
     solutions using class-instances.
@@ -41,6 +42,9 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
 optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx,
                                  name const & prefix, expr const & type, bool relax_opaque = true, bool use_local_instances = true,
                                  unifier_config const & cfg = unifier_config());
+
+/** \breif Try to synthesize an inhabitant for (is_hset type) using class instance resolution */
+optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type);
 
 void initialize_class_instance_elaborator();
 void finalize_class_instance_elaborator();

@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/generic_exception.h"
 #include "library/util.h"
 #include "library/tactic/util.h"
+#include "library/tactic/class_instance_synth.h"
 
 #ifndef LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES
 #define LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES false
@@ -454,5 +455,13 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
                                  unifier_config const & cfg) {
     local_context lctx(ctx);
     return mk_class_instance(env, ios, lctx, prefix, type, relax_opaque, use_local_instances, cfg);
+}
+
+optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type) {
+    name is_trunc{"truncation", "is_trunc"};
+    expr trunc_index = mk_app(mk_constant(name{"truncation", "nat_to_trunc_index"}), mk_constant(name{"nat", "zero"}));
+    level lvl        = sort_level(tc.ensure_type(type).first);
+    expr is_hset     = mk_app(mk_constant(name{"truncation", "is_trunc"}, {lvl}), trunc_index, type);
+    return mk_class_instance(tc.env(), ios, ctx, tc.mk_fresh_name(), is_hset);
 }
 }

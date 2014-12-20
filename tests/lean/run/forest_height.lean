@@ -35,17 +35,17 @@ inv_image.wf tree_forest_height lt.wf
 
 infix [local] `≺`:50 := tree_forest.subterm
 
-definition tree_forest.height_lt.node {A : Type} (a : A) (f : forest A) : sum.inr _ f ≺ sum.inl _ (tree.node a f) :=
+definition tree_forest.height_lt.node {A : Type} (a : A) (f : forest A) : sum.inr f ≺ sum.inl (tree.node a f) :=
 have aux : forest.height f < tree.height (tree.node a f), from
   lt.base (forest.height f),
 aux
 
-definition tree_forest.height_lt.cons₁ {A : Type} (t : tree A) (f : forest A) : sum.inl _ t ≺ sum.inr _ (forest.cons t f) :=
+definition tree_forest.height_lt.cons₁ {A : Type} (t : tree A) (f : forest A) : sum.inl t ≺ sum.inr (forest.cons t f) :=
 have aux : tree.height t < forest.height (forest.cons t f), from
   lt_succ_of_le (max.left _ _),
 aux
 
-definition tree_forest.height_lt.cons₂ {A : Type} (t : tree A) (f : forest A) : sum.inr _ f ≺ sum.inr _ (forest.cons t f) :=
+definition tree_forest.height_lt.cons₂ {A : Type} (t : tree A) (f : forest A) : sum.inr f ≺ sum.inr (forest.cons t f) :=
 have aux : forest.height f < forest.height (forest.cons t f), from
   lt_succ_of_le (max.right _ _),
 aux
@@ -65,35 +65,35 @@ find_decl bool.ff ≠ bool.tt
 definition map.F {A B : Type} (f : A → B) (tf₁ : tree_forest A) : (Π tf₂ : tree_forest A, tf₂ ≺ tf₁ → map.res B tf₂) → map.res B tf₁ :=
 sum.cases_on tf₁
   (λ t : tree A, tree.cases_on t
-    (λ a₁ f₁ (r : Π (tf₂ : tree_forest A), tf₂ ≺ sum.inl (forest A) (tree.node a₁ f₁) → map.res B tf₂),
-       show map.res B (sum.inl (forest A) (tree.node a₁ f₁)), from
-       have rf₁ : map.res B (sum.inr _ f₁), from r (sum.inr _ f₁) (tree_forest.height_lt.node a₁ f₁),
+    (λ a₁ f₁ (r : Π (tf₂ : tree_forest A), tf₂ ≺ sum.inl (tree.node a₁ f₁) → map.res B tf₂),
+       show map.res B (sum.inl (tree.node a₁ f₁)), from
+       have rf₁ : map.res B (sum.inr f₁), from r (sum.inr f₁) (tree_forest.height_lt.node a₁ f₁),
        have nf₁ : forest B, from sum.cases_on (dpr₁ rf₁)
-          (λf (h : kind (sum.inl (forest B) f) = kind (sum.inr (tree A) f₁)), absurd (eq.symm h) bool.ff_ne_tt)
+          (λf (h : kind (sum.inl f) = kind (sum.inr f₁)), absurd (eq.symm h) bool.ff_ne_tt)
           (λf h, f)
           (dpr₂ rf₁),
-       dpair (sum.inl (forest B) (tree.node (f a₁) nf₁)) rfl))
+       dpair (sum.inl (tree.node (f a₁) nf₁)) rfl))
   (λ f : forest A, forest.cases_on f
-    (λ r : Π (tf₂ : tree_forest A), tf₂ ≺ sum.inr (tree A) (forest.nil A) → map.res B tf₂,
-       show map.res B (sum.inr (tree A) (forest.nil A)), from
-       dpair (sum.inr (tree B) (forest.nil B)) rfl)
-    (λ t₁ f₁ (r : Π (tf₂ : tree_forest A), tf₂ ≺ sum.inr (tree A) (forest.cons t₁ f₁) → map.res B tf₂),
-       show map.res B (sum.inr (tree A) (forest.cons t₁ f₁)), from
-       have rt₁ : map.res B (sum.inl _ t₁), from r (sum.inl _ t₁) (tree_forest.height_lt.cons₁ t₁ f₁),
-       have rf₁ : map.res B (sum.inr _ f₁), from r (sum.inr _ f₁) (tree_forest.height_lt.cons₂ t₁ f₁),
+    (λ r : Π (tf₂ : tree_forest A), tf₂ ≺ sum.inr (forest.nil A) → map.res B tf₂,
+       show map.res B (sum.inr (forest.nil A)), from
+       dpair (sum.inr (forest.nil B)) rfl)
+    (λ t₁ f₁ (r : Π (tf₂ : tree_forest A), tf₂ ≺ sum.inr (forest.cons t₁ f₁) → map.res B tf₂),
+       show map.res B (sum.inr (forest.cons t₁ f₁)), from
+       have rt₁ : map.res B (sum.inl t₁), from r (sum.inl t₁) (tree_forest.height_lt.cons₁ t₁ f₁),
+       have rf₁ : map.res B (sum.inr f₁), from r (sum.inr f₁) (tree_forest.height_lt.cons₂ t₁ f₁),
        have nt₁ : tree B, from sum.cases_on (dpr₁ rt₁)
          (λ t h, t)
          (λ f h, absurd h bool.ff_ne_tt)
          (dpr₂ rt₁),
        have nf₁ : forest B, from sum.cases_on (dpr₁ rf₁)
-          (λf (h : kind (sum.inl (forest B) f) = kind (sum.inr (tree A) f₁)), absurd (eq.symm h) bool.ff_ne_tt)
+          (λf (h : kind (sum.inl f) = kind (sum.inr f₁)), absurd (eq.symm h) bool.ff_ne_tt)
           (λf h, f)
           (dpr₂ rf₁),
-       dpair (sum.inr (tree B) (forest.cons nt₁ nf₁)) rfl))
+       dpair (sum.inr (forest.cons nt₁ nf₁)) rfl))
 
 definition map {A B : Type} (f : A → B) (tf : tree_forest A) : map.res B tf :=
 well_founded.fix (@map.F A B f) tf
 
-eval map succ (sum.inl (forest nat) (tree.node 2 (forest.cons (tree.node 1 (forest.nil nat)) (forest.nil nat))))
+eval map succ (sum.inl (tree.node 2 (forest.cons (tree.node 1 (forest.nil nat)) (forest.nil nat))))
 
 end manual

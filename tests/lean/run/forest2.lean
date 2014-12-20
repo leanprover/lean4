@@ -29,23 +29,23 @@ namespace solution2
 variables {A B : Type}
 
 inductive same_kind : sum A B → sum A B → Prop :=
-isl : Π (a₁ a₂ : A), same_kind (sum.inl B a₁) (sum.inl B a₂),
-isr : Π (b₁ b₂ : B), same_kind (sum.inr A b₁) (sum.inr A b₂)
+isl : Π (a₁ a₂ : A), same_kind (sum.inl a₁) (sum.inl a₂),
+isr : Π (b₁ b₂ : B), same_kind (sum.inr b₁) (sum.inr b₂)
 
-definition to_left (s : sum A B) (a : A) : same_kind s (sum.inl B a) → A :=
+definition to_left (s : sum A B) (a : A) : same_kind s (sum.inl a) → A :=
 sum.cases_on s
   (λ a₁ H, a₁)
   (λ b₁ H, false.rec _ (by cases H))
 
-definition to_right (s : sum A B) (b : B) : same_kind s (sum.inr A b) → B :=
+definition to_right (s : sum A B) (b : B) : same_kind s (sum.inr b) → B :=
 sum.cases_on s
   (λ a₁ H, false.rec _ (by cases H))
   (λ b₁ H, b₁)
 
-theorem to_left_inl (a₁ a₂ : A) (H : same_kind (sum.inl B a₁) (sum.inl B a₂)) : to_left (sum.inl B a₁) a₂ H = a₁ :=
+theorem to_left_inl (a₁ a₂ : A) (H : same_kind (sum.intro_left B a₁) (sum.inl a₂)) : to_left (sum.inl a₁) a₂ H = a₁ :=
 rfl
 
-theorem to_right_inr (b₁ b₂ : B) (H : same_kind (sum.inr A b₁) (sum.inr A b₂)) : to_right (sum.inr A b₁) b₂ H = b₁ :=
+theorem to_right_inr (b₁ b₂ : B) (H : same_kind (sum.intro_right A b₁) (sum.inr b₂)) : to_right (sum.inr b₁) b₂ H = b₁ :=
 rfl
 
 end solution2

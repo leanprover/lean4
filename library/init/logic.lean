@@ -166,12 +166,6 @@ notation a `\/` b := or a b
 notation a ∨ b := or a b
 
 namespace or
-  definition inl (Ha : a) : a ∨ b :=
-  intro_left b Ha
-
-  definition inr (Hb : b) : a ∨ b :=
-  intro_right a Hb
-
   theorem elim (H₁ : a ∨ b) (H₂ : a → c) (H₃ : b → c) : c :=
   rec H₂ H₃ H₁
 end or

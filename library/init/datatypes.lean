@@ -46,12 +46,24 @@ definition and.elim_right {a b : Prop} (H : and a b) : b :=
 and.rec (λa b, b) H
 
 inductive sum (A B : Type) : Type :=
-inl : A → sum A B,
-inr : B → sum A B
+inl {} : A → sum A B,
+inr {} : B → sum A B
+
+definition sum.intro_left [reducible] {A : Type} (B : Type) (a : A) : sum A B :=
+sum.inl a
+
+definition sum.intro_right [reducible] (A : Type) {B : Type} (b : B) : sum A B :=
+sum.inr b
 
 inductive or (a b : Prop) : Prop :=
-intro_left  : a → or a b,
-intro_right : b → or a b
+inl {} : a → or a b,
+inr {} : b → or a b
+
+definition or.intro_left {a : Prop} (b : Prop) (Ha : a) : or a b :=
+or.inl Ha
+
+definition or.intro_right (a : Prop) {b : Prop} (Hb : b) : or a b :=
+or.inr Hb
 
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.
 -- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).

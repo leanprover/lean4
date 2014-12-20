@@ -43,7 +43,7 @@ static name * g_class_instance_max_depth     = nullptr;
 [[ noreturn ]] void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
 [[ noreturn ]] void throw_class_exception(expr const & m, pp_fn const & fn) { throw_generic_exception(m, fn); }
 
-void initialize_placeholder_elaborator() {
+void initialize_class_instance_elaborator() {
     g_class_unique_class_instances = new name{"class", "unique_instances"};
     g_class_trace_instances        = new name{"class", "trace_instances"};
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
@@ -59,7 +59,7 @@ void initialize_placeholder_elaborator() {
                              "(class) max allowed depth in class-instance resolution");
 }
 
-void finalize_placeholder_elaborator() {
+void finalize_class_instance_elaborator() {
     delete g_class_unique_class_instances;
     delete g_class_trace_instances;
     delete g_class_instance_max_depth;
@@ -77,8 +77,8 @@ unsigned get_class_instance_max_depth(options const & o) {
     return o.get_unsigned(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH);
 }
 
-/** \brief Context for handling placeholder metavariable choice constraint */
-struct placeholder_context {
+/** \brief Context for handling class-instance metavariable choice constraint */
+struct class_instance_context {
     io_state                  m_ios;
     name_generator            m_ngen;
     type_checker_ptr          m_tc;
@@ -89,8 +89,8 @@ struct placeholder_context {
     unsigned                  m_max_depth;
     char const *              m_fname;
     optional<pos_info>        m_pos;
-    placeholder_context(environment const & env, io_state const & ios,
-                        name const & prefix, bool relax, bool use_local_instances):
+    class_instance_context(environment const & env, io_state const & ios,
+                           name const & prefix, bool relax, bool use_local_instances):
         m_ios(ios),
         m_ngen(prefix),
         m_tc(mk_type_checker(env, m_ngen.mk_child(), relax)),
@@ -121,12 +121,11 @@ struct placeholder_context {
     unsigned get_max_depth() const { return m_max_depth; }
 };
 
-pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
+pair<expr, constraint> mk_class_instance_elaborator(std::shared_ptr<class_instance_context> const & C, local_context const & ctx,
                                                  optional<expr> const & type, tag g, unsigned depth);
 
-/** \brief Whenever the elaborator finds a placeholder '_' or introduces an
-    implicit argument, it creates a metavariable \c ?m. It also creates a
-    delayed choice constraint (?m in fn).
+/** \brief Choice function \c fn for synthesizing class instances.
+
 
     The function \c fn produces a stream of alternative solutions for ?m.
     In this case, \c fn will do the following:
@@ -134,8 +133,8 @@ pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_con
          a) all local instances of class C (if elaborator.local_instances == true)
          b) all global instances of class C
 */
-struct placeholder_elaborator : public choice_iterator {
-    std::shared_ptr<placeholder_context> m_C;
+struct class_instance_elaborator : public choice_iterator {
+    std::shared_ptr<class_instance_context> m_C;
     local_context           m_ctx;
     expr                    m_meta;
     // elaborated type of the metavariable
@@ -151,10 +150,10 @@ struct placeholder_elaborator : public choice_iterator {
     unsigned                m_depth;
     bool                    m_displayed_trace_header;
 
-    placeholder_elaborator(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
-                           expr const & meta, expr const & meta_type,
-                           list<expr> const & local_insts, list<name> const & instances,
-                           justification const & j, unsigned depth):
+    class_instance_elaborator(std::shared_ptr<class_instance_context> const & C, local_context const & ctx,
+                              expr const & meta, expr const & meta_type,
+                              list<expr> const & local_insts, list<name> const & instances,
+                              justification const & j, unsigned depth):
         choice_iterator(), m_C(C), m_ctx(ctx), m_meta(meta), m_meta_type(meta_type),
         m_local_instances(local_insts), m_instances(instances), m_jst(j), m_depth(depth) {
         if (m_depth > m_C->get_max_depth()) {
@@ -216,7 +215,7 @@ struct placeholder_elaborator : public choice_iterator {
                 type = tc.whnf(type).first;
                 if (!is_pi(type))
                     break;
-                pair<expr, constraint> ac = mk_placeholder_elaborator(m_C, m_ctx, some_expr(binding_domain(type)), g, m_depth+1);
+                pair<expr, constraint> ac = mk_class_instance_elaborator(m_C, m_ctx, some_expr(binding_domain(type)), g, m_depth+1);
                 expr arg = ac.first;
                 cs.push_back(ac.second);
                 r    = mk_app(r, arg, g);
@@ -268,7 +267,7 @@ struct placeholder_elaborator : public choice_iterator {
     }
 };
 
-constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, local_context const & ctx, expr const & m, unsigned depth) {
+constraint mk_class_instance_cnstr(std::shared_ptr<class_instance_context> const & C, local_context const & ctx, expr const & m, unsigned depth) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const &, name_generator const &) {
@@ -282,7 +281,7 @@ constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, 
             if (empty(local_insts) && empty(insts))
                 return lazy_list<constraints>(); // nothing to be done
             // we are always strict with placeholders associated with classes
-            return choose(std::make_shared<placeholder_elaborator>(C, ctx, meta, meta_type, local_insts, insts, j, depth));
+            return choose(std::make_shared<class_instance_elaborator>(C, ctx, meta, meta_type, local_insts, insts, j, depth));
         } else {
             // do nothing, type is not a class...
             return lazy_list<constraints>(constraints());
@@ -294,10 +293,10 @@ constraint mk_placeholder_cnstr(std::shared_ptr<placeholder_context> const & C, 
                            owner, j, relax);
 }
 
-pair<expr, constraint> mk_placeholder_elaborator(std::shared_ptr<placeholder_context> const & C, local_context const & ctx,
-                                                 optional<expr> const & type, tag g, unsigned depth) {
+pair<expr, constraint> mk_class_instance_elaborator(std::shared_ptr<class_instance_context> const & C, local_context const & ctx,
+                                                    optional<expr> const & type, tag g, unsigned depth) {
     expr m       = ctx.mk_meta(C->m_ngen, type, g);
-    constraint c = mk_placeholder_cnstr(C, ctx, m, depth);
+    constraint c = mk_class_instance_cnstr(C, ctx, m, depth);
     return mk_pair(m, c);
 }
 
@@ -321,8 +320,8 @@ static bool has_expr_metavar_relaxed(expr const & e) {
     return found;
 }
 
-constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const & C, local_context const & _ctx,
-                                     expr const & m, bool is_strict, unifier_config const & cfg, delay_factor const & factor) {
+constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> const & C, local_context const & _ctx,
+                                        expr const & m, bool is_strict, unifier_config const & cfg, delay_factor const & factor) {
     environment const & env = C->env();
     justification j         = mk_failed_to_synthesize_jst(env, m);
 
@@ -337,7 +336,7 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
         expr new_meta            = mj.first;
         justification new_j      = mj.second;
         unsigned depth           = 0;
-        constraint c             = mk_placeholder_cnstr(C, ctx, new_meta, depth);
+        constraint c             = mk_class_instance_cnstr(C, ctx, new_meta, depth);
         unifier_config new_cfg(cfg);
         new_cfg.m_discard        = false;
         new_cfg.m_use_exceptions = false;
@@ -414,17 +413,17 @@ constraint mk_placeholder_root_cnstr(std::shared_ptr<placeholder_context> const 
 /** \brief Create a metavariable, and attach choice constraint for generating
     solutions using class-instances
 */
-pair<expr, constraint> mk_placeholder_elaborator(
+pair<expr, constraint> mk_class_instance_elaborator(
     environment const & env, io_state const & ios, local_context const & ctx,
     name const & prefix, optional<name> const & suffix, bool relax, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg,
     pos_info_provider const * pip) {
-    auto C       = std::make_shared<placeholder_context>(env, ios, prefix, relax, use_local_instances);
+    auto C       = std::make_shared<class_instance_context>(env, ios, prefix, relax, use_local_instances);
     expr m       = ctx.mk_meta(C->m_ngen, suffix, type, g);
     C->set_main_meta(m);
     if (pip)
         C->set_pos(pip->get_file_name(), pip->get_pos_info(m));
-    constraint c = mk_placeholder_root_cnstr(C, ctx, m, is_strict, cfg, delay_factor());
+    constraint c = mk_class_instance_root_cnstr(C, ctx, m, is_strict, cfg, delay_factor());
     return mk_pair(m, c);
 }
 }

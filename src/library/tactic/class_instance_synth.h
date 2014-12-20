@@ -8,11 +8,12 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "library/io_state.h"
 #include "library/unifier.h"
-#include "library/local_context.h"
 
 namespace lean {
+class local_context;
+
 /** \brief Create a metavariable, and attach choice constraint for generating
-    solutions using class-instances and tactic-hints.
+    solutions using class-instances.
 
     \param ctx Local context where placeholder is located
     \param prefix Prefix for metavariables that will be created by this procedure
@@ -26,12 +27,12 @@ namespace lean {
     \param type Expected type for the placeholder (if known)
     \param tag  To be associated with new metavariables and expressions (for error localization).
 */
-pair<expr, constraint> mk_placeholder_elaborator(
+pair<expr, constraint> mk_class_instance_elaborator(
     environment const & env, io_state const & ios, local_context const & ctx,
     name const & prefix, optional<name> const & suffix, bool relax_opaque, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg,
     pos_info_provider const * pip);
 
-void initialize_placeholder_elaborator();
-void finalize_placeholder_elaborator();
+void initialize_class_instance_elaborator();
+void finalize_class_instance_elaborator();
 }

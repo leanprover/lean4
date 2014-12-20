@@ -36,7 +36,7 @@ Author: Leonardo de Moura
 #include "library/choice_iterator.h"
 #include "library/pp_options.h"
 #include "library/tactic/expr_to_tactic.h"
-#include "library/tactic/placeholder_elaborator.h"
+#include "library/tactic/class_instance_synth.h"
 #include "library/error_handling/error_handling.h"
 #include "library/definitional/equations.h"
 #include "frontends/lean/local_decls.h"
@@ -238,9 +238,9 @@ optional<name> elaborator::mk_mvar_suffix(expr const & b) {
 expr elaborator::mk_placeholder_meta(optional<name> const & suffix, optional<expr> const & type,
                                      tag g, bool is_strict, bool is_inst_implicit, constraint_seq & cs) {
     if (is_inst_implicit && !m_ctx.m_ignore_instances) {
-        auto ec = mk_placeholder_elaborator(env(), ios(), m_context,
-                                            m_ngen.next(), suffix, m_relax_main_opaque, use_local_instances(),
-                                            is_strict, type, g, m_unifier_config, m_ctx.m_pos_provider);
+        auto ec = mk_class_instance_elaborator(
+            env(), ios(), m_context, m_ngen.next(), suffix, m_relax_main_opaque,
+            use_local_instances(), is_strict, type, g, m_unifier_config, m_ctx.m_pos_provider);
         register_meta(ec.first);
         cs += ec.second;
         return ec.first;

@@ -7,7 +7,7 @@ Authors: Leonardo de Moura
 prelude
 import init.datatypes init.reserved_notation
 
-definition not (a : Type) := a → empty
+definition not.{l} (a : Type.{l}) := a → empty.{l}
 prefix `¬` := not
 
 definition absurd {a : Type} {b : Type} (H₁ : a) (H₂ : ¬a) : b :=
@@ -203,7 +203,7 @@ end inhabited
 -- decidable
 -- ---------
 
-inductive decidable [class] (p : Type) : Type :=
+inductive decidable.{l} [class] (p : Type.{l}) : Type.{l} :=
 inl :  p → decidable p,
 inr : ¬p → decidable p
 

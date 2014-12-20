@@ -174,9 +174,9 @@ namespace category
   variables {ob : Type} {C : category ob} {c : ob}
   protected definition slice_obs (C : category ob) (c : ob) := Σ(b : ob), hom b c
   variables {a b : slice_obs C c}
-  protected definition to_ob  (a : slice_obs C c) : ob              := dpr1 a
-  protected definition to_ob_def (a : slice_obs C c) : to_ob a = dpr1 a := rfl
-  protected definition ob_hom (a : slice_obs C c) : hom (to_ob a) c := dpr2 a
+  protected definition to_ob  (a : slice_obs C c) : ob              := sigma.pr1 a
+  protected definition to_ob_def (a : slice_obs C c) : to_ob a = sigma.pr1 a := rfl
+  protected definition ob_hom (a : slice_obs C c) : hom (to_ob a) c := sigma.pr2 a
   -- protected theorem slice_obs_equal (H₁ : to_ob a = to_ob b)
   --     (H₂ : eq.drec_on H₁ (ob_hom a) = ob_hom b) : a = b :=
   -- sigma.equal H₁ H₂
@@ -185,14 +185,14 @@ namespace category
   protected definition slice_hom (a b : slice_obs C c) : Type :=
   Σ(g : hom (to_ob a) (to_ob b)), ob_hom b ∘ g = ob_hom a
 
-  protected definition hom_hom  (f : slice_hom a b) : hom (to_ob a) (to_ob b)          := dpr1 f
-  protected definition commute (f : slice_hom a b) : ob_hom b ∘ (hom_hom f) = ob_hom a := dpr2 f
+  protected definition hom_hom  (f : slice_hom a b) : hom (to_ob a) (to_ob b)          := sigma.pr1 f
+  protected definition commute (f : slice_hom a b) : ob_hom b ∘ (hom_hom f) = ob_hom a := sigma.pr2 f
   -- protected theorem slice_hom_equal (f g : slice_hom a b) (H : hom_hom f = hom_hom g) : f = g :=
   -- sigma.equal H !proof_irrel
 
   definition slice_category (C : category ob) (c : ob) : category (slice_obs C c) :=
   mk (λa b, slice_hom a b)
-     (λ a b c g f, dpair (hom_hom g ∘ hom_hom f)
+     (λ a b c g f, sigma.mk (hom_hom g ∘ hom_hom f)
        (show ob_hom c ∘ (hom_hom g ∘ hom_hom f) = ob_hom a,
          proof
          calc
@@ -200,7 +200,7 @@ namespace category
              ... = ob_hom b ∘ hom_hom f : {commute g}
              ... = ob_hom a : {commute f}
          qed))
-     (λ a, dpair id !id_right)
+     (λ a, sigma.mk id !id_right)
      (λ a b c d h g f, dpair_eq    !assoc    !proof_irrel)
      (λ a b f,         sigma.equal !id_left  !proof_irrel)
      (λ a b f,         sigma.equal !id_right !proof_irrel)
@@ -235,8 +235,8 @@ namespace category
 
   definition postcomposition_functor {x y : D} (h : x ⟶ y)
       : Slice_category D x ⇒ Slice_category D y :=
-  functor.mk (λ a, dpair (to_ob a) (h ∘ ob_hom a))
-             (λ a b f, dpair (hom_hom f)
+  functor.mk (λ a, sigma.mk (to_ob a) (h ∘ ob_hom a))
+             (λ a b f, sigma.mk (hom_hom f)
        (calc
          (h ∘ ob_hom b) ∘ hom_hom f = h ∘ (ob_hom b ∘ hom_hom f) : assoc h (ob_hom b) (hom_hom f)⁻¹
            ... = h ∘ ob_hom a : congr_arg (λx, h ∘ x) (commute f)))
@@ -326,21 +326,21 @@ namespace category
   variables {ob : Type} {C : category ob}
   protected definition arrow_obs (ob : Type) (C : category ob) := Σ(a b : ob), hom a b
   variables {a b : arrow_obs ob C}
-  protected definition src    (a : arrow_obs ob C) : ob                  := dpr1 a
-  protected definition dst    (a : arrow_obs ob C) : ob                  := dpr2' a
-  protected definition to_hom (a : arrow_obs ob C) : hom (src a) (dst a) := dpr3 a
+  protected definition src    (a : arrow_obs ob C) : ob                  := sigma.pr1 a
+  protected definition dst    (a : arrow_obs ob C) : ob                  := sigma.pr2' a
+  protected definition to_hom (a : arrow_obs ob C) : hom (src a) (dst a) := sigma.pr3 a
 
   protected definition arrow_hom (a b : arrow_obs ob C) : Type :=
   Σ (g : hom (src a) (src b)) (h : hom (dst a) (dst b)), to_hom b ∘ g = h ∘ to_hom a
 
-  protected definition hom_src (m : arrow_hom a b) : hom (src a) (src b) := dpr1 m
-  protected definition hom_dst (m : arrow_hom a b) : hom (dst a) (dst b) := dpr2' m
+  protected definition hom_src (m : arrow_hom a b) : hom (src a) (src b) := sigma.pr1 m
+  protected definition hom_dst (m : arrow_hom a b) : hom (dst a) (dst b) := sigma.pr2' m
   protected definition commute (m : arrow_hom a b) : to_hom b ∘ (hom_src m) = (hom_dst m) ∘ to_hom a
-  := dpr3 m
+  := sigma.pr3 m
 
   definition arrow (ob : Type) (C : category ob) : category (arrow_obs ob C) :=
   mk (λa b, arrow_hom a b)
-     (λ a b c g f, dpair (hom_src g ∘ hom_src f) (dpair (hom_dst g ∘ hom_dst f)
+     (λ a b c g f, sigma.mk (hom_src g ∘ hom_src f) (sigma.mk (hom_dst g ∘ hom_dst f)
         (show to_hom c ∘ (hom_src g ∘ hom_src f) = (hom_dst g ∘ hom_dst f) ∘ to_hom a,
          proof
          calc
@@ -351,7 +351,7 @@ namespace category
            ... = (hom_dst g ∘ hom_dst f) ∘ to_hom a  : !assoc
          qed)
        ))
-     (λ a, dpair id (dpair id (!id_right ⬝ (symm !id_left))))
+     (λ a, sigma.mk id (sigma.mk id (!id_right ⬝ (symm !id_left))))
      (λ a b c d h g f, ndtrip_eq       !assoc    !assoc    !proof_irrel)
      (λ a b f,         ndtrip_equal !id_left  !id_left  !proof_irrel)
      (λ a b f,         ndtrip_equal !id_right !id_right !proof_irrel)

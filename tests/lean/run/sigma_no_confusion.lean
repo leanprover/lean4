@@ -17,12 +17,12 @@ namespace sigma
     eq.rec_on H₁₂ aux H₁₂
  end manual
 
- theorem sigma.mk.inj_1 {A : Type} {B : A → Type} {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (Heq : dpair a₁ b₁ = dpair a₂ b₂) : a₁ = a₂ :=
+ theorem sigma.mk.inj_1 {A : Type} {B : A → Type} {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (Heq : mk a₁ b₁ = mk a₂ b₂) : a₁ = a₂ :=
  begin
    apply (no_confusion Heq), intros, assumption
  end
 
- theorem sigma.mk.inj_2 {A : Type} {B : A → Type} (a₁ a₂ : A) (b₁ : B a₁) (b₂ : B a₂) (Heq : dpair a₁ b₁ = dpair a₂ b₂) : b₁ == b₂ :=
+ theorem sigma.mk.inj_2 {A : Type} {B : A → Type} (a₁ a₂ : A) (b₁ : B a₁) (b₂ : B a₂) (Heq : mk a₁ b₁ = mk a₂ b₂) : b₁ == b₂ :=
  begin
    apply (no_confusion Heq), intros, eassumption
  end

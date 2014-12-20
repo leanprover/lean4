@@ -68,28 +68,28 @@ sum.cases_on tf₁
     (λ a₁ f₁ (r : Π (tf₂ : tree_forest A), tf₂ ≺ sum.inl (tree.node a₁ f₁) → map.res B tf₂),
        show map.res B (sum.inl (tree.node a₁ f₁)), from
        have rf₁ : map.res B (sum.inr f₁), from r (sum.inr f₁) (tree_forest.height_lt.node a₁ f₁),
-       have nf₁ : forest B, from sum.cases_on (dpr₁ rf₁)
+       have nf₁ : forest B, from sum.cases_on (pr₁ rf₁)
           (λf (h : kind (sum.inl f) = kind (sum.inr f₁)), absurd (eq.symm h) bool.ff_ne_tt)
           (λf h, f)
-          (dpr₂ rf₁),
-       dpair (sum.inl (tree.node (f a₁) nf₁)) rfl))
+          (pr₂ rf₁),
+       sigma.mk (sum.inl (tree.node (f a₁) nf₁)) rfl))
   (λ f : forest A, forest.cases_on f
     (λ r : Π (tf₂ : tree_forest A), tf₂ ≺ sum.inr (forest.nil A) → map.res B tf₂,
        show map.res B (sum.inr (forest.nil A)), from
-       dpair (sum.inr (forest.nil B)) rfl)
+       sigma.mk (sum.inr (forest.nil B)) rfl)
     (λ t₁ f₁ (r : Π (tf₂ : tree_forest A), tf₂ ≺ sum.inr (forest.cons t₁ f₁) → map.res B tf₂),
        show map.res B (sum.inr (forest.cons t₁ f₁)), from
        have rt₁ : map.res B (sum.inl t₁), from r (sum.inl t₁) (tree_forest.height_lt.cons₁ t₁ f₁),
        have rf₁ : map.res B (sum.inr f₁), from r (sum.inr f₁) (tree_forest.height_lt.cons₂ t₁ f₁),
-       have nt₁ : tree B, from sum.cases_on (dpr₁ rt₁)
+       have nt₁ : tree B, from sum.cases_on (pr₁ rt₁)
          (λ t h, t)
          (λ f h, absurd h bool.ff_ne_tt)
-         (dpr₂ rt₁),
-       have nf₁ : forest B, from sum.cases_on (dpr₁ rf₁)
+         (pr₂ rt₁),
+       have nf₁ : forest B, from sum.cases_on (pr₁ rf₁)
           (λf (h : kind (sum.inl f) = kind (sum.inr f₁)), absurd (eq.symm h) bool.ff_ne_tt)
           (λf h, f)
-          (dpr₂ rf₁),
-       dpair (sum.inr (forest.cons nt₁ nf₁)) rfl))
+          (pr₂ rf₁),
+       sigma.mk (sum.inr (forest.cons nt₁ nf₁)) rfl))
 
 definition map {A B : Type} (f : A → B) (tf : tree_forest A) : map.res B tf :=
 well_founded.fix (@map.F A B f) tf

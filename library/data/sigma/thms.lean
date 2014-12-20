@@ -13,11 +13,11 @@ namespace sigma
 
   theorem dpair_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) :
     ⟨a₁, b₁⟩ = ⟨a₂, b₂⟩ :=
-  dcongr_arg2 dpair H₁ H₂
+  dcongr_arg2 mk H₁ H₂
 
   theorem dpair_heq {a : A} {a' : A'} {b : B a} {b' : B' a'}
       (HB : B == B') (Ha : a == a') (Hb : b == b') : ⟨a, b⟩ == ⟨a', b'⟩ :=
-  hcongr_arg4 @dpair (heq.type_eq Ha) HB Ha Hb
+  hcongr_arg4 @mk (heq.type_eq Ha) HB Ha Hb
 
   protected theorem equal {p₁ p₂ : Σa : A, B a} :
     ∀(H₁ : p₁.1 = p₂.1) (H₂ : eq.rec_on H₁ p₁.2 = p₂.2), p₁ = p₂ :=
@@ -40,11 +40,11 @@ namespace sigma
   definition dtrip (a : A) (b : B a) (c : C a b) := ⟨a, b, c⟩
   definition dquad (a : A) (b : B a) (c : C a b) (d : D a b c) := ⟨a, b, c, d⟩
 
-  definition dpr1' (x : Σ a, B a) := x.1
-  definition dpr2' (x : Σ a b, C a b) := x.2.1
-  definition dpr3  (x : Σ a b, C a b) := x.2.2
-  definition dpr3' (x : Σ a b c, D a b c) := x.2.2.1
-  definition dpr4  (x : Σ a b c, D a b c) := x.2.2.2
+  definition pr1' (x : Σ a, B a) := x.1
+  definition pr2' (x : Σ a b, C a b) := x.2.1
+  definition pr3  (x : Σ a b, C a b) := x.2.2
+  definition pr3' (x : Σ a b c, D a b c) := x.2.2.1
+  definition pr4  (x : Σ a b c, D a b c) := x.2.2.2
 
   theorem dtrip_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
       (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) (H₃ : cast (dcongr_arg2 C H₁ H₂) c₁ = c₂) :
@@ -57,8 +57,8 @@ namespace sigma
   hdcongr_arg3 dtrip H₁ (heq.of_eq H₂) H₃
 
   theorem ndtrip_equal {A B : Type} {C : A → B → Type} {p₁ p₂ : Σa b, C a b} :
-      ∀(H₁ : dpr1 p₁ = dpr1 p₂) (H₂ : dpr2' p₁ = dpr2' p₂)
-      (H₃ : eq.rec_on (congr_arg2 C H₁ H₂) (dpr3 p₁) = dpr3 p₂), p₁ = p₂ :=
+      ∀(H₁ : pr1 p₁ = pr1 p₂) (H₂ : pr2' p₁ = pr2' p₂)
+      (H₃ : eq.rec_on (congr_arg2 C H₁ H₂) (pr3 p₁) = pr3 p₂), p₁ = p₂ :=
   destruct p₁ (take a₁ q₁, destruct q₁ (take b₁ c₁, destruct p₂ (take a₂ q₂, destruct q₂
     (take b₂ c₂ H₁ H₂ H₃, ndtrip_eq H₁ H₂ H₃))))
 

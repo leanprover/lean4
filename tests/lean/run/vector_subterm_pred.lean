@@ -9,7 +9,7 @@ namespace vector
 
 definition vec (A : Type) : Type := Σ n : nat, vector A n
 
-definition to_vec {A : Type} {n : nat} (v : vector A n) : vec A := dpair n v
+definition to_vec {A : Type} {n : nat} (v : vector A n) : vec A := ⟨n, v⟩
 
 inductive direct_subterm (A : Type) : vec A → vec A → Prop :=
 cons : Π (n : nat) (a : A) (v : vector A n), direct_subterm A (to_vec v) (to_vec (cons a v))

@@ -168,9 +168,9 @@ namespace precategory
   variables {ob : Type} {C : precategory ob} {c : ob}
   protected definition slice_obs (C : precategory ob) (c : ob) := Σ(b : ob), hom b c
   variables {a b : slice_obs C c}
-  protected definition to_ob  (a : slice_obs C c) : ob              := dpr1 a
-  protected definition to_ob_def (a : slice_obs C c) : to_ob a = dpr1 a := rfl
-  protected definition ob_hom (a : slice_obs C c) : hom (to_ob a) c := dpr2 a
+  protected definition to_ob  (a : slice_obs C c) : ob              := pr1 a
+  protected definition to_ob_def (a : slice_obs C c) : to_ob a = pr1 a := rfl
+  protected definition ob_hom (a : slice_obs C c) : hom (to_ob a) c := pr2 a
   -- protected theorem slice_obs_equal (H₁ : to_ob a = to_ob b)
   --     (H₂ : eq.drec_on H₁ (ob_hom a) = ob_hom b) : a = b :=
   -- sigma.equal H₁ H₂
@@ -179,8 +179,8 @@ namespace precategory
   protected definition slice_hom (a b : slice_obs C c) : Type :=
   Σ(g : hom (to_ob a) (to_ob b)), ob_hom b ∘ g = ob_hom a
 
-  protected definition hom_hom  (f : slice_hom a b) : hom (to_ob a) (to_ob b)          := dpr1 f
-  protected definition commute (f : slice_hom a b) : ob_hom b ∘ (hom_hom f) = ob_hom a := dpr2 f
+  protected definition hom_hom  (f : slice_hom a b) : hom (to_ob a) (to_ob b)          := pr1 f
+  protected definition commute (f : slice_hom a b) : ob_hom b ∘ (hom_hom f) = ob_hom a := pr2 f
   -- protected theorem slice_hom_equal (f g : slice_hom a b) (H : hom_hom f = hom_hom g) : f = g :=
   -- sigma.equal H !proof_irrel
 

@@ -58,22 +58,22 @@ context
   protected definition idhtpy : f ∼ f := (λ x, idp)
 
   definition contr_basedhtpy [instance] : is_contr (Σ (g : Π x, B x), f ∼ g) :=
-    is_contr.mk (dpair f idhtpy)
+    is_contr.mk (sigma.mk f idhtpy)
       (λ dp, sigma.rec_on dp
         (λ (g : Π x, B x) (h : f ∼ g),
           let r := λ (k : Π x, Σ y, f x = y),
-            @dpair _ (λg, f ∼ g)
-              (λx, dpr1 (k x)) (λx, dpr2 (k x)) in
-          let s := λ g h x, @dpair _ (λy, f x = y) (g x) (h x) in
+            @sigma.mk _ (λg, f ∼ g)
+              (λx, pr1 (k x)) (λx, pr2 (k x)) in
+          let s := λ g h x, @sigma.mk _ (λy, f x = y) (g x) (h x) in
           have t1 : Πx, is_contr (Σ y, f x = y),
             from (λx, !contr_basedpaths),
           have t2 : is_contr (Πx, Σ y, f x = y),
             from !wf,
-          have t3 : (λ x, @dpair _ (λ y, f x = y) (f x) idp) = s g h,
+          have t3 : (λ x, @sigma.mk _ (λ y, f x = y) (f x) idp) = s g h,
             from @path_contr (Π x, Σ y, f x = y) t2 _ _,
-          have t4 : r (λ x, dpair (f x) idp) = r (s g h),
+          have t4 : r (λ x, sigma.mk (f x) idp) = r (s g h),
             from ap r t3,
-          have endt : dpair f idhtpy = dpair g h,
+          have endt : sigma.mk f idhtpy = sigma.mk g h,
             from t4,
           endt
         )
@@ -82,7 +82,7 @@ context
   parameters (Q : Π g (h : f ∼ g), Type) (d : Q f idhtpy)
 
   definition htpy_ind (g : Πx, B x) (h : f ∼ g) : Q g h :=
-    @transport _ (λ gh, Q (dpr1 gh) (dpr2 gh)) (dpair f idhtpy) (dpair g h)
+    @transport _ (λ gh, Q (pr1 gh) (pr2 gh)) (sigma.mk f idhtpy) (sigma.mk g h)
       (@path_contr _ contr_basedhtpy _ _) d
 
   definition htpy_ind_beta : htpy_ind f idhtpy = d :=

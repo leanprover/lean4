@@ -1,6 +1,6 @@
 namespace sigma
   open lift
-  open sigma.ops
+  open sigma.ops sigma
   variables {A : Type} {B : A → Type}
 
   variables {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂}
@@ -22,7 +22,7 @@ mk :: (A : Type) (B : A → Type) (a : A) (b : B a)
 set_option pp.implicit true
 
 namespace foo
-  open lift sigma.ops
+  open lift sigma sigma.ops
   universe variables l₁ l₂
   variables {A₁ : Type.{l₁}} {B₁ : A₁ → Type.{l₂}} {a₁ : A₁} {b₁ : B₁ a₁}
   variables {A₂ : Type.{l₁}} {B₂ : A₂ → Type.{l₂}} {a₂ : A₂} {b₂ : B₂ a₂}

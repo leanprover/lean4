@@ -23,7 +23,7 @@ namespace is_pointed
   -- A sigma type of pointed components is pointed
   protected definition sigma [instance] {P : A → Type} [G : is_pointed A]
       [H : is_pointed (P (point A))] : is_pointed (Σx, P x) :=
-    is_pointed.mk (sigma.dpair (point A) (point (P (point A))))
+    is_pointed.mk (sigma.mk (point A) (point (P (point A))))
 
   protected definition prod [H1 : is_pointed A] [H2 : is_pointed B]
       : is_pointed (A × B) :=

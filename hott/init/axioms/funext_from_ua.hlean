@@ -59,10 +59,10 @@ context
   protected definition isequiv_src_compose {A B : Type}
       : @is_equiv (A → diagonal B)
                  (A → B)
-                 (compose (pr₁ ∘ dpr1)) :=
-    @ua_isequiv_postcompose _ _ _ (pr₁ ∘ dpr1)
-        (is_equiv.adjointify (pr₁ ∘ dpr1)
-          (λ x, dpair (x , x) idp) (λx, idp)
+                 (compose (pr₁ ∘ pr1)) :=
+    @ua_isequiv_postcompose _ _ _ (pr₁ ∘ pr1)
+        (is_equiv.adjointify (pr₁ ∘ pr1)
+          (λ x, sigma.mk (x , x) idp) (λx, idp)
           (λ x, sigma.rec_on x
             (λ xy, prod.rec_on xy
               (λ b c p, eq.rec_on p idp))))
@@ -70,10 +70,10 @@ context
   protected definition isequiv_tgt_compose {A B : Type}
       : @is_equiv (A → diagonal B)
                  (A → B)
-                 (compose (pr₂ ∘ dpr1)) :=
-    @ua_isequiv_postcompose _ _ _ (pr2 ∘ dpr1)
-        (is_equiv.adjointify (pr2 ∘ dpr1)
-          (λ x, dpair (x , x) idp) (λx, idp)
+                 (compose (pr₂ ∘ pr1)) :=
+    @ua_isequiv_postcompose _ _ _ (pr2 ∘ pr1)
+        (is_equiv.adjointify (pr2 ∘ pr1)
+          (λ x, sigma.mk (x , x) idp) (λx, idp)
           (λ x, sigma.rec_on x
             (λ xy, prod.rec_on xy
               (λ b c p, eq.rec_on p idp))))
@@ -81,21 +81,21 @@ context
   theorem nondep_funext_from_ua {A : Type} {B : Type.{l+1}}
       : Π {f g : A → B}, f ∼ g → f = g :=
     (λ (f g : A → B) (p : f ∼ g),
-        let d := λ (x : A), dpair (f x , f x) idp in
-        let e := λ (x : A), dpair (f x , g x) (p x) in
-        let precomp1 :=  compose (pr₁ ∘ dpr1) in
+        let d := λ (x : A), sigma.mk (f x , f x) idp in
+        let e := λ (x : A), sigma.mk (f x , g x) (p x) in
+        let precomp1 :=  compose (pr₁ ∘ pr1) in
         have equiv1 [visible] : is_equiv precomp1,
           from @isequiv_src_compose A B,
         have equiv2 [visible] : Π x y, is_equiv (ap precomp1),
           from is_equiv.ap_closed precomp1,
         have H' : Π (x y : A → diagonal B),
-            pr₁ ∘ dpr1 ∘ x = pr₁ ∘ dpr1 ∘ y → x = y,
+            pr₁ ∘ pr1 ∘ x = pr₁ ∘ pr1 ∘ y → x = y,
           from (λ x y, is_equiv.inv (ap precomp1)),
-        have eq2 : pr₁ ∘ dpr1 ∘ d = pr₁ ∘ dpr1 ∘ e,
+        have eq2 : pr₁ ∘ pr1 ∘ d = pr₁ ∘ pr1 ∘ e,
           from idp,
         have eq0 : d = e,
           from H' d e eq2,
-        have eq1 : (pr₂ ∘ dpr1) ∘ d = (pr₂ ∘ dpr1) ∘ e,
+        have eq1 : (pr₂ ∘ pr1) ∘ d = (pr₂ ∘ pr1) ∘ e,
           from ap _ eq0,
         eq1
     )

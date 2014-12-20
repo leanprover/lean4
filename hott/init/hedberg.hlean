@@ -8,7 +8,7 @@ Hedberg's Theorem: every type with decidable equality is a hset
 -/
 prelude
 import init.nat init.trunc
-open eq eq.ops nat truncation sigma.ops
+open eq eq.ops nat truncation sigma
 
 -- TODO(Leo): move const coll and path_coll to a different file?
 private definition const {A B : Type} (f : A → B) := ∀ x y, f x = f y

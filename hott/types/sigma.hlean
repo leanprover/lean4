@@ -26,7 +26,7 @@ namespace sigma
   definition eta3 (u : Σa b c, D a b c) : ⟨u.1, u.2.1, u.2.2.1, u.2.2.2⟩ = u :=
   destruct u (λu1 u2, destruct u2 (λu21 u22, destruct u22 (λu221 u222, idp)))
 
-  definition dpair_eq_dpair (p : a = a') (q : p ▹ b = b') : dpair a b = dpair a' b' :=
+  definition dpair_eq_dpair (p : a = a') (q : p ▹ b = b') : sigma.mk a b = sigma.mk a' b' :=
   eq.rec_on p (λb b' q, eq.rec_on q idp) b b' q
 
   /- In Coq they often have to give u and v explicitly -/
@@ -38,7 +38,7 @@ namespace sigma
   /- Projections of paths from a total space -/
 
   definition path_pr1 (p : u = v) : u.1 = v.1 :=
-  ap dpr1 p
+  ap pr1 p
 
   postfix `..1`:(max+1) := path_pr1
 
@@ -50,7 +50,7 @@ namespace sigma
   postfix `..2`:(max+1) := path_pr2
 
   definition dpair_sigma_path (p : u.1 = v.1) (q : p ▹ u.2 = v.2)
-      :  dpair (sigma.path p q)..1 (sigma.path p q)..2 = ⟨p, q⟩ :=
+      :  sigma.mk (sigma.path p q)..1 (sigma.path p q)..2 = ⟨p, q⟩ :=
   begin
     reverts (p, q),
     apply (destruct u), intros (u1, u2),
@@ -85,11 +85,11 @@ namespace sigma
 
   /- the uncurried version of sigma_eq. We will prove that this is an equivalence -/
 
-  definition sigma_path_uncurried (pq : Σ(p : dpr1 u = dpr1 v), p ▹ (dpr2 u) = dpr2 v) : u = v :=
+  definition sigma_path_uncurried (pq : Σ(p : pr1 u = pr1 v), p ▹ (pr2 u) = pr2 v) : u = v :=
   destruct pq sigma.path
 
   definition dpair_sigma_path_uncurried (pq : Σ(p : u.1 = v.1), p ▹ u.2 = v.2)
-      :  dpair (sigma_path_uncurried pq)..1 (sigma_path_uncurried pq)..2 = pq :=
+      :  sigma.mk (sigma_path_uncurried pq)..1 (sigma_path_uncurried pq)..2 = pq :=
   destruct pq dpair_sigma_path
 
   definition sigma_path_pr1_uncurried (pq : Σ(p : u.1 = v.1), p ▹ u.2 = v.2)
@@ -100,7 +100,7 @@ namespace sigma
       : (sigma_path_pr1_uncurried pq) ▹ (sigma_path_uncurried pq)..2 = pq.2 :=
   (!dpair_sigma_path_uncurried)..2
 
-  definition sigma_path_eta_uncurried (p : u = v) : sigma_path_uncurried (dpair p..1 p..2) = p :=
+  definition sigma_path_eta_uncurried (p : u = v) : sigma_path_uncurried (sigma.mk p..1 p..2) = p :=
   !sigma_path_eta
 
   definition transport_sigma_path_dpr1_uncurried {B' : A → Type}
@@ -158,7 +158,7 @@ namespace sigma
 
   /- Applying dpair to one argument is the same as dpair_eq_dpair with reflexivity in the first place. -/
 
-  definition ap_dpair (q : b₁ = b₂) : ap (dpair a) q = dpair_eq_dpair idp q :=
+  definition ap_dpair (q : b₁ = b₂) : ap (sigma.mk a) q = dpair_eq_dpair idp q :=
   eq.rec_on q idp
 
   /- Dependent transport is the same as transport along a sigma_eq. -/
@@ -318,14 +318,14 @@ namespace sigma
   /- definition 3.11.9(i): Summing up a contractible family of types does nothing. -/
   open truncation
   definition is_equiv_dpr1 [instance] (B : A → Type) [H : Π a, is_contr (B a)]
-      : is_equiv (@dpr1 A B) :=
-  adjointify dpr1
+      : is_equiv (@pr1 A B) :=
+  adjointify pr1
              (λa, ⟨a, !center⟩)
              (λa, idp)
              (λu, sigma.path idp !contr)
 
   definition equiv_of_all_contr [H : Π a, is_contr (B a)] : (Σa, B a) ≃ A :=
-  equiv.mk dpr1 _
+  equiv.mk pr1 _
 
   /- definition 3.11.9(ii): Dually, summing up over a contractible type does nothing. -/
 
@@ -375,7 +375,7 @@ namespace sigma
                  ... ≃ (Σa' a, C (a, a')) : assoc_equiv_prod
 
   definition symm_equiv (C : A → A' → Type) : (Σa a', C a a') ≃ (Σa' a, C a a') :=
-  symm_equiv_uncurried (λu, C (pr1 u) (pr2 u))
+  symm_equiv_uncurried (λu, C (prod.pr1 u) (prod.pr2 u))
 
   definition equiv_prod (A B : Type) : (Σ(a : A), B) ≃ A × B :=
   equiv.mk _ (adjointify
@@ -430,7 +430,7 @@ namespace sigma
 
   /- To prove equality in a subtype, we only need equality of the first component. -/
   definition path_hprop [H : Πa, is_hprop (B a)] (u v : Σa, B a) : u.1 = v.1 → u = v :=
-  (sigma_path_uncurried ∘ (@inv _ _ dpr1 (@is_equiv_dpr1 _ _ (λp, !succ_is_trunc))))
+  (sigma_path_uncurried ∘ (@inv _ _ pr1 (@is_equiv_dpr1 _ _ (λp, !succ_is_trunc))))
 
   definition is_equiv_path_hprop [instance] [H : Πa, is_hprop (B a)] (u v : Σa, B a)
       : is_equiv (path_hprop u v) :=

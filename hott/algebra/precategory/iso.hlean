@@ -21,7 +21,7 @@ namespace morphism
         exact (pr₂ S.2),
     fapply adjointify,
         intro H, apply (is_iso.rec_on H), intros (g, η, ε),
-        exact (dpair g (pair η ε)),
+        exact (sigma.mk g (pair η ε)),
       intro H, apply (is_iso.rec_on H), intros (g, η, ε), apply idp,
     intro S, apply (sigma.rec_on S), intros (g, ηε),
     apply (prod.rec_on ηε), intros (η, ε), apply idp,
@@ -35,7 +35,7 @@ namespace morphism
       intro S, apply isomorphic.mk, apply (S.2),
       fapply adjointify,
         intro p, apply (isomorphic.rec_on p), intros (f, H),
-        exact (dpair f H),
+        exact (sigma.mk f H),
       intro p, apply (isomorphic.rec_on p), intros (f, H), apply idp,
     intro S, apply (sigma.rec_on S), intros (f, H), apply idp,
   end

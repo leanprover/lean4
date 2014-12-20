@@ -79,7 +79,7 @@ namespace pi
     : (Π(b : B a), p ▹D (f b) = g (p ▹ b)) ≃ (p ▹ f = g) :=
   eq.rec_on p (λg, !homotopy_equiv_path) g
 
-  section open sigma.ops
+  section open sigma sigma.ops
   /- more implicit arguments:
   (Π(b : B a), eq.transport C (sigma.path p idp) (f b) = g (p ▹ b)) ≃
   (Π(b : B a), transportD B (λ(a : A) (b : B a), C ⟨a, b⟩) p b (f b) = g (eq.transport B p b)) -/

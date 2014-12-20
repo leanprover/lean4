@@ -4,22 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
-import ..num ..wf ..logic ..tactic
+import init.num
 
 structure sigma {A : Type} (B : A → Type) :=
-dpair :: (dpr1 : A) (dpr2 : B dpr1)
+mk :: (pr1 : A) (pr2 : B pr1)
 
 notation `Σ` binders `,` r:(scoped P, sigma P) := r
 
 namespace sigma
-
-  notation `dpr₁` := dpr1
-  notation `dpr₂` := dpr2
+  notation `pr₁` := pr1
+  notation `pr₂` := pr2
+  notation `⟨`:max t:(foldr `,` (e r, mk e r)) `⟩`:0 := t --input ⟨ ⟩ as \< \>
 
   namespace ops
-  postfix `.1`:(max+1) := dpr1
-  postfix `.2`:(max+1) := dpr2
-  notation `⟨` t:(foldr `,` (e r, sigma.dpair e r)) `⟩`:0 := t --input ⟨ ⟩ as \< \>
+  postfix `.1`:(max+1) := pr1
+  postfix `.2`:(max+1) := pr2
   end ops
-
 end sigma

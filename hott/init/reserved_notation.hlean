@@ -46,8 +46,8 @@ reserve infixr `▸`:75
 
 /- types and type constructors -/
 
-reserve infixl `⊎`:25
-reserve infixl `×`:30
+reserve infixr `⊎`:25
+reserve infixr `×`:30
 
 /- arithmetic operations -/
 

@@ -106,6 +106,18 @@ bool is_inductive_predicate(environment const & env, name const & n) {
     return is_zero(get_datatype_level(env.get(n).get_type()));
 }
 
+void get_intro_rule_names(environment const & env, name const & n, buffer<name> & result) {
+    if (auto decls = inductive::is_inductive_decl(env, n)) {
+        for (inductive::inductive_decl const & decl : std::get<2>(*decls)) {
+            if (inductive::inductive_decl_name(decl) == n) {
+                for (inductive::intro_rule const & ir : inductive::inductive_decl_intros(decl))
+                    result.push_back(inductive::intro_rule_name(ir));
+                return;
+            }
+        }
+    }
+}
+
 expr instantiate_univ_param (expr const & e, name const & p, level const & l) {
     return instantiate_univ_params(e, to_list(p), to_list(l));
 }

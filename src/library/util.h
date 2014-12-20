@@ -39,6 +39,11 @@ bool is_reflexive_datatype(type_checker & tc, name const & n);
 */
 bool is_inductive_predicate(environment const & env, name const & n);
 
+/** \brief Store in \c result the introduction rules of the given inductive datatype.
+    \remark this procedure does nothing if \c n is not an inductive datatype.
+*/
+void get_intro_rule_names(environment const & env, name const & n, buffer<name> & result);
+
 /** \brief "Consume" Pi-type \c type. This procedure creates local constants based on the domain of \c type
     and store them in telescope. If \c binfo is provided, then the local constants are annoted with the given
     binder_info, otherwise the procedure uses the one attached in the domain.

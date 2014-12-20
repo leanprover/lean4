@@ -426,4 +426,33 @@ pair<expr, constraint> mk_class_instance_elaborator(
     constraint c = mk_class_instance_root_cnstr(C, ctx, m, is_strict, cfg, delay_factor());
     return mk_pair(m, c);
 }
+
+optional<expr> mk_class_instance(environment const & env, io_state const & ios, local_context const & ctx,
+                                 name const & prefix, expr const & type, bool relax_opaque, bool use_local_instances,
+                                 unifier_config const & cfg) {
+    auto C = std::make_shared<class_instance_context>(env, ios, prefix, relax_opaque, use_local_instances);
+    if (!is_ext_class(C->tc(), type))
+        return none_expr();
+    expr meta       = ctx.mk_meta(C->m_ngen, some_expr(type), type.get_tag());
+    unsigned depth  = 0;
+    constraint c    = mk_class_instance_cnstr(C, ctx, meta, depth);
+    unifier_config new_cfg(cfg);
+    new_cfg.m_discard        = true;
+    new_cfg.m_use_exceptions = true;
+    try {
+        auto p  = unify(env, 1, &c, C->m_ngen.mk_child(), substitution(), new_cfg).pull();
+        lean_assert(p);
+        substitution s = p->first.first;
+        return some_expr(s.instantiate_all(meta));
+    } catch (exception &) {
+        return none_expr();
+    }
+}
+
+optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx,
+                                 name const & prefix, expr const & type, bool relax_opaque, bool use_local_instances,
+                                 unifier_config const & cfg) {
+    local_context lctx(ctx);
+    return mk_class_instance(env, ios, lctx, prefix, type, relax_opaque, use_local_instances, cfg);
+}
 }

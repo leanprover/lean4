@@ -33,6 +33,15 @@ pair<expr, constraint> mk_class_instance_elaborator(
     bool is_strict, optional<expr> const & type, tag g, unifier_config const & cfg,
     pos_info_provider const * pip);
 
+/** \brief Create/synthesize a term of the class instance \c type. */
+optional<expr> mk_class_instance(environment const & env, io_state const & ios, local_context const & ctx,
+                                 name const & prefix, expr const & type, bool relax_opaque = true, bool use_local_instances = true,
+                                 unifier_config const & cfg = unifier_config());
+
+optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx,
+                                 name const & prefix, expr const & type, bool relax_opaque = true, bool use_local_instances = true,
+                                 unifier_config const & cfg = unifier_config());
+
 void initialize_class_instance_elaborator();
 void finalize_class_instance_elaborator();
 }

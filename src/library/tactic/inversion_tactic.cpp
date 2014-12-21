@@ -327,7 +327,7 @@ class inversion_tac {
     // when A is a hset
     // and then invoke intro_next_eq recursively.
     //
-    // \remark \c type is the type of \c g after whnf
+    // \remark \c type is the type of \c g after some normalization
     goal intro_next_eq_rec(goal const & g, expr const & type) {
         lean_assert(is_pi(type));
         buffer<expr> hyps;
@@ -365,10 +365,9 @@ class inversion_tac {
     // The idea is to reduce it to
     //        Ctx, H : a = b |- R
     // This method is only used if the environment has a proof irrelevant Prop.
-    //
-    // \remark \c type is the type of \c g after whnf
-    goal intro_next_heq(goal const & g, expr const & type) {
+    goal intro_next_heq(goal const & g) {
         lean_assert(m_proof_irrel);
+        expr const & type   = g.get_type();
         expr eq             = binding_domain(type);
         lean_assert(const_name(get_app_fn(eq)) == "heq");
         buffer<expr> args;
@@ -399,7 +398,7 @@ class inversion_tac {
     // The idea is to reduce it to
     //        Ctx, H : a = b |- R
     //
-    // \remark \c type is the type of \c g after whnf
+    // \remark \c type is the type of \c g after some normalization
     goal intro_next_eq_simple(goal const & g, expr const & type) {
         expr eq            = binding_domain(type);
         lean_assert(const_name(get_app_fn(eq)) == "eq");
@@ -416,7 +415,7 @@ class inversion_tac {
     }
 
     goal intro_next_eq(goal const & g) {
-        expr const & type  = m_tc->whnf(g.get_type()).first;
+        expr type          = g.get_type();
         if (!is_pi(type))
             throw_ill_formed_goal();
         expr eq            = binding_domain(type);
@@ -425,13 +424,20 @@ class inversion_tac {
             throw_ill_formed_goal();
         if (const_name(eq_fn) == "eq") {
             expr const & lhs = app_arg(app_fn(eq));
-            if (!m_proof_irrel && is_eq_rec(lhs)) {
+            expr const & rhs = app_arg(eq);
+            expr new_lhs     = m_tc->whnf(lhs).first;
+            expr new_rhs     = m_tc->whnf(rhs).first;
+            if (lhs != new_lhs || rhs != new_rhs) {
+                eq   = mk_app(app_fn(app_fn(eq)), new_lhs, new_rhs);
+                type = update_binding(type, eq, binding_body(type));
+            }
+            if (!m_proof_irrel && is_eq_rec(new_lhs)) {
                 return intro_next_eq_rec(g, type);
             } else {
                 return intro_next_eq_simple(g, type);
             }
         } else if (m_proof_irrel && const_name(eq_fn) == "heq") {
-            return intro_next_heq(g, type);
+            return intro_next_heq(g);
         } else {
             throw_ill_formed_goal();
         }

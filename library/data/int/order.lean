@@ -17,6 +17,19 @@ open int eq.ops
 
 namespace int
 
+definition nonneg (a : ℤ) : Prop := cases_on a (take n, true) (take n, false)
+definition le (a b : ℤ) : Prop := nonneg (sub b a)
+definition lt (a b : ℤ) : Prop := le (add a 1) b
+
+infix - := int.sub
+infix <= := int.le
+infix ≤  := int.le
+infix <  := int.lt
+
+definition decidable_nonneg [instance] (a : ℤ) : decidable (nonneg a) := cases_on a _ _
+definition decidable_le [instance] (a b : ℤ) : decidable (a ≤ b) := decidable_nonneg _
+definition decidable_lt [instance] (a b : ℤ) : decidable (a < b) := decidable_nonneg _
+
 theorem nonneg_elim {a : ℤ} : nonneg a → ∃n : ℕ, a = n :=
 cases_on a (take n H, exists.intro n rfl) (take n' H, false.elim H)
 
@@ -358,9 +371,9 @@ have H2 : -n ≤ 0, by simp,
 le_trans H2 H1
 
 theorem le_or_gt (a b : ℤ) : a ≤ b ∨ a > b :=
-by_cases a
+by_cases_of_nat a
   (take n : ℕ,
-    int_by_cases_succ b
+    by_cases_of_nat_succ b
       (take m : ℕ,
         show of_nat n ≤ m ∨ of_nat n > m, by simp) -- from (by simp) ◂ (le_or_gt n m))
       (take m : ℕ,
@@ -369,7 +382,7 @@ by_cases a
           have H : -succ m < n, from lt_le_trans H0 (neg_le_pos m n),
           or.inr H))
   (take n : ℕ,
-    int_by_cases_succ b
+    by_cases_of_nat_succ b
       (take m : ℕ,
         show -n ≤ m ∨ -n > m, from
           or.inl (neg_le_pos n m))
@@ -599,7 +612,7 @@ or.elim (em (a = 0))
         have H2 : (nat_abs (a * b)) ≠ 0, from
           take H2', mul_ne_zero Ha Hb (nat_abs_eq_zero H2'),
         have H3 : (nat_abs (a * b)) ≠ of_nat 0, from mt of_nat_inj H2,
-        mul_cancel_right H3 H))
+        mul.cancel_right H3 H))
 
 theorem sign_idempotent (a : ℤ) : sign (sign a) = sign a :=
 have temp : of_nat 1 > 0, from iff.elim_left (iff.symm (lt_of_nat 0 1)) !succ_pos,

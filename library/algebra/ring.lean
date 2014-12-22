@@ -47,11 +47,28 @@ theorem zero_ne_one [s: zero_ne_one_class A] : 0 ≠ 1 := @zero_ne_one_class.zer
 structure semiring [class] (A : Type) extends add_comm_monoid A, monoid A, distrib A, mul_zero A,
     zero_ne_one_class A
 
+section semiring
+
+  variables [s : semiring A] (a b c : A)
+  include s
+
+  theorem ne_zero_of_mul_ne_zero_right {a b : A} (H : a * b ≠ 0) : a ≠ 0 :=
+  assume H1 : a = 0,
+  have H2 : a * b = 0, from H1⁻¹ ▸ zero_mul_eq b,
+  H H2
+
+  theorem ne_zero_of_mul_ne_zero_left {a b : A} (H : a * b ≠ 0) : b ≠ 0 :=
+  assume H1 : b = 0,
+  have H2 : a * b = 0, from H1⁻¹ ▸ mul_zero_eq a,
+  H H2
+
+end semiring
+
+/- comm semiring -/
+
 structure comm_semiring [class] (A : Type) extends semiring A, comm_semigroup A
 
 -- TODO: we could also define a cancelative comm_semiring, i.e. satisfying c ≠ 0 → c * a = c * b → a = b.
-
-/- abstract divisibility -/
 
 section comm_semiring
 
@@ -68,7 +85,6 @@ section comm_semiring
 
   theorem dvd.elim {P : Prop} {a b : A} (H₁ : a | b) (H₂ : ∀c, a * c = b → P) : P :=
   exists.elim H₁ H₂
-
 
   theorem dvd.refl : a | a := dvd.intro (!mul.right_id)
 
@@ -274,8 +290,8 @@ section
               -a * -c = a * c : neg_mul_neg_eq
                 ... = b : H')))
 
-    theorem dvd_sub (H₁ : a | b) (H₂ : a | c) : a | (b - c) :=
-    dvd_add H₁ (iff.elim_right !dvd_neg_iff_dvd H₂)
+  theorem dvd_sub (H₁ : a | b) (H₂ : a | c) : a | (b - c) :=
+  dvd_add H₁ (iff.elim_right !dvd_neg_iff_dvd H₂)
 
 end
 
@@ -298,7 +314,7 @@ section
   variables [s : integral_domain A] (a b c d e : A)
   include s
 
-  theorem mul_ne_zero_of_ne_zero_ne_zero {a b : A} (H1 : a ≠ 0) (H2 : b ≠ 0) : a * b ≠ 0 :=
+  theorem mul_ne_zero {a b : A} (H1 : a ≠ 0) (H2 : b ≠ 0) : a * b ≠ 0 :=
   assume H : a * b = 0,
     or.elim (eq_zero_or_eq_zero_of_mul_eq_zero H) (assume H3, H1 H3) (assume H4, H2 H4)
 

@@ -47,7 +47,7 @@ definition int.of_num [coercion] (n : num) : ℤ := int.of_nat (nat.of_num n)
 
 namespace int
 
-/- computational definitions of basic functions -/
+/- definitions of basic functions -/
 
 definition neg_of_nat (m : ℕ) : ℤ :=
 nat.cases_on m 0 (take m', neg_succ_of_nat m')
@@ -114,6 +114,12 @@ cases_on a
       (take n',
         (if H : m' = n' then inl (congr_arg neg_succ_of_nat H) else
             inr (take H1, H (neg_succ_of_nat_inj H1)))))
+
+theorem add_of_nat (n m : nat) : of_nat n + of_nat m = #nat n + m := rfl
+
+theorem of_nat_succ (n : ℕ) : of_nat (succ n) = of_nat n + 1 := rfl
+
+theorem mul_of_nat (n m : ℕ) : of_nat n * of_nat m = n * m := rfl
 
 theorem sub_nat_nat_of_ge {m n : ℕ} (H : m ≥ n) : sub_nat_nat m n = of_nat (m - n) :=
 have H1 : n - m = 0, from le_imp_sub_eq_zero H,
@@ -290,16 +296,27 @@ or.elim (@le_or_gt n m)
         ... = n - m : succ_pred_of_pos (sub_pos_of_gt H)
         ... = dist m n : dist_le (lt_imp_le H))
 
-theorem cases (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - of_nat n) :=
+theorem cases_of_nat (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - of_nat n) :=
 cases_on a
   (take n, or.inl (exists.intro n rfl))
   (take n', or.inr (exists.intro (succ n') rfl))
 
-theorem by_cases {P : ℤ → Prop} (a : ℤ) (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (- of_nat n)) :
+theorem cases_of_nat_succ (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - (of_nat (succ n))) :=
+int.cases_on a (take m, or.inl (exists.intro _ rfl)) (take m, or.inr (exists.intro _ rfl))
+
+theorem by_cases_of_nat {P : ℤ → Prop} (a : ℤ)
+    (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (- of_nat n)) :
   P a :=
-or.elim (cases a)
+or.elim (cases_of_nat a)
   (assume H, obtain (n : ℕ) (H3 : a = n), from H, H3⁻¹ ▸ H1 n)
   (assume H, obtain (n : ℕ) (H3 : a = -n), from H, H3⁻¹ ▸ H2 n)
+
+theorem by_cases_of_nat_succ {P : ℤ → Prop} (a : ℤ)
+    (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (- of_nat (succ n))) :
+  P a :=
+or.elim (cases_of_nat_succ a)
+  (assume H, obtain (n : ℕ) (H3 : a = n), from H, H3⁻¹ ▸ H1 n)
+  (assume H, obtain (n : ℕ) (H3 : a = -(succ n)), from H, H3⁻¹ ▸ H2 n)
 
 /-
 Show int is a ring.
@@ -416,6 +433,42 @@ have H : repr (-a + a) ≡ repr 0, from
       ... = padd (pneg (repr a)) (repr a) : repr_neg
       ... ≡ repr 0 : padd_pneg,
 eq_of_repr_equiv_repr H
+
+/- nat -/
+
+definition pabs (p : ℕ × ℕ) : ℕ := dist (pr1 p) (pr2 p)
+
+theorem pabs_congr {p q : ℕ × ℕ} (H : p ≡ q) : pabs p = pabs q :=
+calc
+  pabs p = nat_abs (abstr p) : nat_abs_abstr
+    ... = nat_abs (abstr q) : abstr_eq H
+    ... = pabs q : nat_abs_abstr
+
+theorem nat_abs_eq_pabs_repr (a : ℤ) : nat_abs a = pabs (repr a) :=
+calc
+  nat_abs a = nat_abs (abstr (repr a)) : abstr_repr
+    ... = pabs (repr a) : nat_abs_abstr
+
+theorem nat_abs_add_le (a b : ℤ) : nat_abs (a + b) ≤ nat_abs a + nat_abs b :=
+have H : nat_abs (a + b) = pabs (padd (repr a) (repr b)), from
+  calc
+    nat_abs (a + b) = pabs (repr (a + b)) : nat_abs_eq_pabs_repr
+      ... = pabs (padd (repr a) (repr b)) : pabs_congr !repr_add,
+have H1 : nat_abs a = pabs (repr a), from !nat_abs_eq_pabs_repr,
+have H2 : nat_abs b = pabs (repr b), from !nat_abs_eq_pabs_repr,
+have H3 : pabs (padd (repr a) (repr b)) ≤ pabs (repr a) + pabs (repr b), from !dist_add_le_add_dist,
+H⁻¹ ▸ H1⁻¹ ▸ H2⁻¹ ▸ H3
+
+theorem mul_nat_abs (a b : ℤ) : nat_abs (a * b) = #nat (nat_abs a) * (nat_abs b) :=
+cases_on a
+  (take m,
+    cases_on b
+      (take n, rfl)
+      (take n', !nat_abs_neg ▸ rfl))
+  (take m',
+    cases_on b
+      (take n, !nat_abs_neg ▸ rfl)
+      (take n', rfl))
 
 /- multiplication -/
 
@@ -536,18 +589,30 @@ theorem zero_ne_one : (typeof 0 : int) ≠ 1 :=
 assume H : 0 = 1,
 show false, from succ_ne_zero 0 ((of_nat_inj H)⁻¹)
 
-definition comm_ring : algebra.comm_ring int :=
-algebra.comm_ring.mk add add.assoc zero add.left_id add.right_id neg add.left_inv
+theorem eq_zero_or_eq_zero_of_mul_eq_zero {a b : ℤ} (H : a * b = 0) : a = 0 ∨ b = 0 :=
+have H2 : (nat_abs a) * (nat_abs b) = nat.zero, from
+  calc
+    (nat_abs a) * (nat_abs b) = (nat_abs (a * b)) : (mul_nat_abs a b)⁻¹
+      ... = (nat_abs 0) : {H}
+      ... = nat.zero : nat_abs_of_nat nat.zero,
+have H3 : (nat_abs a) = nat.zero ∨ (nat_abs b) = nat.zero, from mul.eq_zero H2,
+or_of_or_of_imp_of_imp H3
+  (assume H : (nat_abs a) = nat.zero, nat_abs_eq_zero H)
+  (assume H : (nat_abs b) = nat.zero, nat_abs_eq_zero H)
+
+definition integral_domain : algebra.integral_domain int :=
+algebra.integral_domain.mk add add.assoc zero add.left_id add.right_id neg add.left_inv
 add.comm mul mul.assoc (of_num 1) mul.left_id mul.right_id mul.left_distrib mul.right_distrib
-zero_ne_one mul.comm
+zero_ne_one mul.comm @eq_zero_or_eq_zero_of_mul_eq_zero
 
 /-
 Instantiate ring theorems to int
 -/
 
+-- TODO: make this "section" when scoping bug is fixed
 context port_algebra
-  open algebra    -- TODO: can we "open" algebra only for the duration of this section?
-  instance comm_ring
+  open algebra
+  instance integral_domain
 
   theorem mul.left_comm : ∀a b c : ℤ, a * (b * c) = b * (a * c) := algebra.mul.left_comm
   theorem mul.right_comm : ∀a b c : ℤ, (a * b) * c = (a * c) * b := algebra.mul.right_comm
@@ -590,10 +655,8 @@ context port_algebra
     @algebra.add_eq_iff_eq_neg_add _ _
   theorem add_eq_iff_eq_add_neg : ∀a b c : ℤ, a + b = c ↔ a = c + -b :=
     @algebra.add_eq_iff_eq_add_neg _ _
-
   definition sub (a b : ℤ) : ℤ := algebra.sub a b
   infix - := int.sub
-
   theorem sub_self : ∀a : ℤ, a - a = 0 := algebra.sub_self
   theorem sub_add_cancel : ∀a b : ℤ, a - b + b = a := algebra.sub_add_cancel
   theorem add_sub_cancel : ∀a b : ℤ, a + b - b = a := algebra.add_sub_cancel
@@ -617,6 +680,34 @@ context port_algebra
   theorem sub_sub_eq : ∀a b c : ℤ, a - b - c = a - (b + c) := algebra.sub_sub_eq
   theorem add_sub_add_left_eq_sub : ∀a b c : ℤ, (c + a) - (c + b) = a - b :=
     algebra.add_sub_add_left_eq_sub
+  theorem ne_zero_of_mul_ne_zero_right : ∀{a b : ℤ}, a * b ≠ 0 → a ≠ 0 :=
+    @algebra.ne_zero_of_mul_ne_zero_right _ _
+  theorem ne_zero_of_mul_ne_zero_left : ∀{a b : ℤ}, a * b ≠ 0 → b ≠ 0 :=
+    @algebra.ne_zero_of_mul_ne_zero_left _ _
+  definition dvd (a b : ℤ) : Prop := algebra.dvd a b
+  infix `|` := dvd
+  theorem dvd.intro : ∀{a b c : ℤ} (H : a * b = c), a | c := @algebra.dvd.intro _ _
+  theorem dvd.ex : ∀{a b : ℤ} (H : a | b), ∃c, a * c = b := @algebra.dvd.ex _ _
+  theorem dvd.elim : ∀{P : Prop} {a b : ℤ} (H₁ : a | b) (H₂ : ∀c, a * c = b → P), P :=
+    @algebra.dvd.elim _ _
+  theorem dvd.refl : ∀a : ℤ, a | a := algebra.dvd.refl
+  theorem dvd.trans : ∀{a b c : ℤ} (H₁ : a | b) (H₂ : b | c), a | c := @algebra.dvd.trans _ _
+  theorem eq_zero_of_zero_dvd : ∀(a : ℤ) {H : 0 | a}, a = 0 := @algebra.eq_zero_of_zero_dvd _ _
+  theorem dvd_zero : ∀a : ℤ, a | 0 := algebra.dvd_zero
+  theorem one_dvd : ∀a : ℤ, 1 | a := algebra.one_dvd
+  theorem dvd_mul_right : ∀a b : ℤ, a | a * b := algebra.dvd_mul_right
+  theorem dvd_mul_left : ∀a b : ℤ, a | b * a := algebra.dvd_mul_left
+  theorem dvd_mul_of_dvd_left : ∀{a b : ℤ} (H : a | b) (c : ℤ), a | b * c :=
+    @algebra.dvd_mul_of_dvd_left _ _
+  theorem dvd_mul_of_dvd_right : ∀{a b : ℤ} (H : a | b) (c : ℤ), a | c * b :=
+    @algebra.dvd_mul_of_dvd_right _ _
+  theorem mul_dvd_mul : ∀{a b c d : ℤ}, a | b → c | d → a * c | b * d :=
+    @algebra.mul_dvd_mul _ _
+  theorem dvd_of_mul_right_dvd : ∀{a b c : ℤ}, a * b | c → a | c :=
+    @algebra.dvd_of_mul_right_dvd _ _
+  theorem dvd_of_mul_left_dvd : ∀{a b c : ℤ}, a * b | c → b | c :=
+    @algebra.dvd_of_mul_left_dvd _ _
+  theorem dvd_add : ∀{a b c : ℤ}, a | b → a | c → a | b + c := @algebra.dvd_add _ _
   theorem zero_mul_eq : ∀a : ℤ, 0 * a = 0 := algebra.zero_mul_eq
   theorem mul_zero_eq : ∀a : ℤ, a * 0 = 0 := algebra.mul_zero_eq
   theorem neg_mul_eq_neg_mul : ∀a b : ℤ, -(a * b) = -a * b := algebra.neg_mul_eq_neg_mul
@@ -634,108 +725,26 @@ context port_algebra
     algebra.mul_self_sub_mul_self_eq
   theorem mul_self_sub_one_eq : ∀a : ℤ, a * a - 1 = (a + 1) * (a - 1) :=
     algebra.mul_self_sub_one_eq
+  theorem dvd_neg_iff_dvd : ∀a b : ℤ, a | -b ↔ a | b := algebra.dvd_neg_iff_dvd
+  theorem neg_dvd_iff_dvd : ∀a b : ℤ, -a | b ↔ a | b := algebra.neg_dvd_iff_dvd
+  theorem dvd_sub : ∀a b c : ℤ, a | b → a | c → a | (b - c) := algebra.dvd_sub
+  theorem mul_ne_zero : ∀{a b : ℤ}, a ≠ 0 → b ≠ 0 → a * b ≠ 0 := @algebra.mul_ne_zero _ _
+  theorem mul.cancel_right : ∀{a b c : ℤ}, a ≠ 0 → b * a = c * a → b = c :=
+    @algebra.mul.cancel_right _ _
+  theorem mul.cancel_left : ∀{a b c : ℤ}, a ≠ 0 → a * b = a * c → b = c :=
+    @algebra.mul.cancel_left _ _
+  theorem mul_self_eq_mul_self_iff : ∀a b : ℤ, a * a = b * b ↔ a = b ∨ a = -b :=
+    algebra.mul_self_eq_mul_self_iff
+  theorem mul_self_eq_one_iff : ∀a : ℤ, a * a = 1 ↔ a = 1 ∨ a = -1 :=
+    algebra.mul_self_eq_one_iff
+  theorem dvd_of_mul_dvd_mul_left : ∀{a b c : ℤ}, a ≠ 0 → a * b | a * c → b | c :=
+    @algebra.dvd_of_mul_dvd_mul_left _ _
+  theorem dvd_of_mul_dvd_mul_right : ∀{a b c : ℤ}, a ≠ 0 → b * a | c * a → b | c :=
+    @algebra.dvd_of_mul_dvd_mul_right _ _
 
 end port_algebra
 
-definition nonneg (a : ℤ) : Prop := cases_on a (take n, true) (take n, false)
-definition le (a b : ℤ) : Prop := nonneg (sub b a)
-definition lt (a b : ℤ) : Prop := le (add a 1) b
-
-infix - := int.sub
-infix <= := int.le
-infix ≤  := int.le
-infix <  := int.lt
-
-definition decidable_nonneg [instance] (a : ℤ) : decidable (nonneg a) := cases_on a _ _
-definition decidable_le [instance] (a b : ℤ) : decidable (a ≤ b) := decidable_nonneg _
-definition decidable_lt [instance] (a b : ℤ) : decidable (a < b) := decidable_nonneg _
-
-/-
-  Other stuff.
-  TODO: pare down and clean up.
--/
-
-definition pabs (p : ℕ × ℕ) : ℕ := dist (pr1 p) (pr2 p)
-
-theorem pabs_congr {p q : ℕ × ℕ} (H : p ≡ q) : pabs p = pabs q :=
-calc
-  pabs p = nat_abs (abstr p) : nat_abs_abstr
-    ... = nat_abs (abstr q) : abstr_eq H
-    ... = pabs q : nat_abs_abstr
-
-theorem nat_abs_eq_pabs_repr (a : ℤ) : nat_abs a = pabs (repr a) :=
-calc
-  nat_abs a = nat_abs (abstr (repr a)) : abstr_repr
-    ... = pabs (repr a) : nat_abs_abstr
-
-theorem nat_abs_add_le (a b : ℤ) : nat_abs (a + b) ≤ nat_abs a + nat_abs b :=
-have H : nat_abs (a + b) = pabs (padd (repr a) (repr b)), from
-  calc
-    nat_abs (a + b) = pabs (repr (a + b)) : nat_abs_eq_pabs_repr
-      ... = pabs (padd (repr a) (repr b)) : pabs_congr !repr_add,
-have H1 : nat_abs a = pabs (repr a), from !nat_abs_eq_pabs_repr,
-have H2 : nat_abs b = pabs (repr b), from !nat_abs_eq_pabs_repr,
-have H3 : pabs (padd (repr a) (repr b)) ≤ pabs (repr a) + pabs (repr b), from !dist_add_le_add_dist,
-H⁻¹ ▸ H1⁻¹ ▸ H2⁻¹ ▸ H3
-
-theorem add_of_nat (n m : nat) : of_nat n + of_nat m = #nat n + m := rfl
-
-theorem of_nat_succ (n : ℕ) : of_nat (succ n) = of_nat n + 1 := rfl
-
-theorem mul_of_nat (n m : ℕ) : of_nat n * of_nat m = n * m := rfl
-
-theorem mul_nat_abs (a b : ℤ) : (nat_abs (a * b)) = #nat (nat_abs a) * (nat_abs b) :=
-cases_on a
-  (take m,
-    cases_on b
-      (take n, rfl)
-      (take n', !nat_abs_neg ▸ rfl))
-  (take m',
-    cases_on b
-      (take n, !nat_abs_neg ▸ rfl)
-      (take n', rfl))
-
----reverse equalities, rename
-theorem cases_succ (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - (of_nat (succ n))) :=
-or.elim (cases a)
-  (assume H : (∃n : ℕ, a = of_nat n), or.inl H)
-  (assume H,
-    obtain (n : ℕ) (H2 : a = -(of_nat n)), from H,
-    discriminate
-      (assume H3 : n = nat.zero,
-        have H4 : a = of_nat nat.zero, from
-          calc
-            a = -(of_nat n) : H2
-          ... = -(of_nat nat.zero) : {H3}
-          ... = of_nat nat.zero : neg_zero,
-        or.inl (exists.intro nat.zero H4))
-      (take k : ℕ,
-        assume H3 : n = succ k,
-        have H4 : a = -(of_nat (succ k)), from H3 ▸ H2,
-        or.inr (exists.intro k H4)))
-
-theorem int_by_cases_succ {P : ℤ → Prop} (a : ℤ)
-  (H1 : ∀n : ℕ, P (of_nat n)) (H2 : ∀n : ℕ, P (-(of_nat (succ n)))) : P a :=
-or.elim (cases_succ a)
-  (assume H, obtain (n : ℕ) (H3 : a = of_nat n), from H, H3⁻¹ ▸ H1 n)
-  (assume H, obtain (n : ℕ) (H3 : a = -(of_nat (succ n))), from H, H3⁻¹ ▸ H2 n)
-
-theorem neg_sub'  (a b : ℤ) : -(a - b) = -a + b :=
-calc
-  -(a - b) = -a + -(-b) : neg_add_distrib a (-b)
-    ... = -a + b : {neg_neg b}
-
-theorem sub_add_assoc (a b c : ℤ) : a - b + c = a - (b - c) :=
-calc
-  a - b + c = a + (-b + c) : add.assoc a (-b) c
-    ... = a + -(b - c) : {(neg_sub' b c)⁻¹}
-
-theorem add_sub_assoc (a b c : ℤ) : a + b - c = a + (b - c) :=
-add.assoc a b (-c)
-
-theorem add_sub_inverse2 (a b : ℤ) : a + b - a = b :=
-add.comm b a ▸ !add_sub_cancel
-
+-- TODO: declare appropriate rewrite rules
 -- add_rewrite add_left_id add_right_id
 -- add_rewrite add_comm add.assoc add_left_comm
 -- add_rewrite sub_def add_inverse_right add_inverse_left
@@ -743,51 +752,6 @@ add.comm b a ▸ !add_sub_cancel
 ---- add_rewrite sub_sub_assoc sub_add_assoc add_sub_assoc
 ---- add_rewrite add_neg_right add_neg_left
 ---- add_rewrite sub_self
-
-theorem mul_eq_zero {a b : ℤ} (H : a * b = 0) : a = 0 ∨ b = 0 :=
-have H2 : (nat_abs a) * (nat_abs b) = nat.zero, from
-  calc
-    (nat_abs a) * (nat_abs b) = (nat_abs (a * b)) : (mul_nat_abs a b)⁻¹
-      ... = (nat_abs 0) : {H}
-      ... = nat.zero : nat_abs_of_nat nat.zero,
-have H3 : (nat_abs a) = nat.zero ∨ (nat_abs b) = nat.zero, from mul.eq_zero H2,
-or_of_or_of_imp_of_imp H3
-  (assume H : (nat_abs a) = nat.zero, nat_abs_eq_zero H)
-  (assume H : (nat_abs b) = nat.zero, nat_abs_eq_zero H)
-
-theorem mul_cancel_left_or {a b c : ℤ} (H : a * b = a * c) : a = 0 ∨ b = c :=
-have H2 : a * (b - c) = 0, by simp,
-have H3 : a = 0 ∨ b - c = 0, from mul_eq_zero H2,
-or_of_or_of_imp_right H3 eq_of_sub_eq_zero
-
-theorem mul_cancel_left {a b c : ℤ} (H1 : a ≠ 0) (H2 : a * b = a * c) : b = c :=
-or_resolve_right (mul_cancel_left_or H2) H1
-
-theorem mul_cancel_right_or {a b c : ℤ} (H : b * a = c * a) : a = 0 ∨ b = c :=
-mul_cancel_left_or ((H ▸ (mul.comm b a)) ▸ mul.comm c a)
-
-theorem mul_cancel_right {a b c : ℤ} (H1 : c ≠ 0) (H2 : a * c = b * c) : a = b :=
-or_resolve_right (mul_cancel_right_or H2) H1
-
-theorem mul_ne_zero {a b : ℤ} (Ha : a ≠ 0) (Hb : b ≠ 0) : a * b ≠ 0 :=
-(assume H : a * b = 0,
-  or.elim (mul_eq_zero H)
-    (assume H2 : a = 0, absurd H2 Ha)
-    (assume H2 : b = 0, absurd H2 Hb))
-
-theorem mul_ne_zero_left {a b : ℤ} (H : a * b ≠ 0) : a ≠ 0 :=
-(assume H2 : a = 0,
-  have H3 : a * b = 0, by simp,
-  absurd H3 H)
-
-theorem mul_ne_zero_right {a b : ℤ} (H : a * b ≠ 0) : b ≠ 0 :=
-mul_ne_zero_left (mul.comm a b ▸ H)
-
-theorem sub_inj_left {a b c : ℤ} (H : a - b = a - c) : b = c :=
-neg.inj (add.left_cancel H)
-
-theorem sub_inj_right {a b c : ℤ} (H : a - b = c - b) : a = c :=
-add.right_cancel H
 
 end int
 

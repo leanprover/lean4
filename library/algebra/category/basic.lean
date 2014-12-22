@@ -15,6 +15,8 @@ structure category [class] (ob : Type) : Type :=
   (id_left : Π ⦃a b : ob⦄ (f : hom a b), comp !ID f = f)
   (id_right : Π ⦃a b : ob⦄ (f : hom a b), comp f !ID = f)
 
+multiple_instances [persistent] category
+
 namespace category
   variables {ob : Type} [C : category ob]
   variables {a b c d : ob}

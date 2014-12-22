@@ -12,6 +12,8 @@ open precategory morphism is_equiv eq truncation nat sigma sigma.ops
 structure category [class] (ob : Type) extends (precategory ob) :=
   (iso_of_path_equiv : Π {a b : ob}, is_equiv (@iso_of_path ob (precategory.mk hom _ comp ID assoc id_left id_right) a b))
 
+multiple_instances [persistent] category
+
 namespace category
   variables {ob : Type} {C : category ob} {a b : ob}
   include C

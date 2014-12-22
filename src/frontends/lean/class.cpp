@@ -69,8 +69,24 @@ environment add_class_cmd(parser & p) {
     return env;
 }
 
+environment multiple_instances_cmd(parser & p) {
+    bool found = false;
+    environment env = p.env();
+    bool persistent = false;
+    parse_persistent(p, persistent);
+    while (p.curr_is_identifier()) {
+        found    = true;
+        name c   = p.check_constant_next("invalid 'multiple_instances' command, constant expected");
+        env = mark_multiple_instances(env, c, persistent);
+    }
+    if (!found)
+        throw parser_error("invalid 'multiple_instances' command, at least one identifier expected", p.pos());
+    return env;
+}
+
 void register_class_cmds(cmd_table & r) {
-    add_cmd(r, cmd_info("instance", "add a new instance", add_instance_cmd));
-    add_cmd(r, cmd_info("class",    "add a new class", add_class_cmd));
+    add_cmd(r, cmd_info("instance",           "add a new instance", add_instance_cmd));
+    add_cmd(r, cmd_info("class",              "add a new class", add_class_cmd));
+    add_cmd(r, cmd_info("multiple_instances", "mark that Lean must explore multiple instances of the given class", multiple_instances_cmd));
 }
 }

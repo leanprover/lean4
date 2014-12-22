@@ -21,6 +21,11 @@ list<name> get_class_instances(environment const & env, name const & c);
 void get_classes(environment const & env, buffer<name> & classes);
 name get_class_name(environment const & env, expr const & e);
 
+/** \brief Mark that multiple instances of class \c n must be explored. */
+environment mark_multiple_instances(environment const & env, name const & n, bool persistent);
+/** \brief Return true iff multiple instances of class \c n must be explored. */
+bool try_multiple_instances(environment const & env, name const & n);
+
 /** \brief Return true iff \c type is a class or Pi that produces a class. */
 optional<name> is_ext_class(type_checker & tc, expr const & type);
 

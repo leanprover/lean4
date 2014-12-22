@@ -18,15 +18,18 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+enum class class_entry_kind { ClassCmd, InstanceCmd, MultiCmd };
 struct class_entry {
-    bool     m_class_cmd;
-    name     m_class;
-    name     m_instance; // only relevant if m_class_cmd == false
-    unsigned m_priority; // only relevant if m_class_cmd == false
-    class_entry():m_class_cmd(false), m_priority(0) {}
-    explicit class_entry(name const & c):m_class_cmd(true), m_class(c), m_priority(0) {}
+    class_entry_kind m_cmd_kind;
+    name             m_class;
+    name             m_instance; // only relevant if m_cmd_kind == InstanceCmd
+    unsigned         m_priority; // only relevant if m_cmd_kind == InstanceCmd
+    class_entry():m_cmd_kind(class_entry_kind::ClassCmd), m_priority(0) {}
+    explicit class_entry(name const & c):m_cmd_kind(class_entry_kind::ClassCmd), m_class(c), m_priority(0) {}
     class_entry(name const & c, name const & i, unsigned p):
-        m_class_cmd(false), m_class(c), m_instance(i), m_priority(p) {}
+        m_cmd_kind(class_entry_kind::InstanceCmd), m_class(c), m_instance(i), m_priority(p) {}
+    class_entry(name const & c, bool):
+        m_cmd_kind(class_entry_kind::MultiCmd), m_class(c) {}
 };
 
 struct class_state {
@@ -34,12 +37,17 @@ struct class_state {
     typedef name_map<unsigned>   instance_priorities;
     class_instances     m_instances;
     instance_priorities m_priorities;
+    name_set            m_multiple; // set of classes that allow multiple solutions/instances
 
     unsigned get_priority(name const & i) const {
         if (auto it = m_priorities.find(i))
             return *it;
         else
             return LEAN_INSTANCE_DEFAULT_PRIORITY;
+    }
+
+    bool try_multiple_instances(name const & c) const {
+        return m_multiple.contains(c);
     }
 
     list<name> insert(name const & inst, unsigned priority, list<name> const & insts) const {
@@ -68,6 +76,11 @@ struct class_state {
         if (p != LEAN_INSTANCE_DEFAULT_PRIORITY)
             m_priorities.insert(i, p);
     }
+
+    void add_multiple(name const & c) {
+        add_class(c);
+        m_multiple.insert(c);
+    }
 };
 
 static name * g_class_name = nullptr;
@@ -77,10 +90,17 @@ struct class_config {
     typedef class_state state;
     typedef class_entry entry;
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
-        if (e.m_class_cmd)
+        switch (e.m_cmd_kind) {
+        case class_entry_kind::ClassCmd:
             s.add_class(e.m_class);
-        else
+            break;
+        case class_entry_kind::InstanceCmd:
             s.add_instance(e.m_class, e.m_instance, e.m_priority);
+            break;
+        case class_entry_kind::MultiCmd:
+            s.add_multiple(e.m_class);
+            break;
+        }
     }
     static name const & get_class_name() {
         return *g_class_name;
@@ -89,25 +109,38 @@ struct class_config {
         return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
-        if (e.m_class_cmd)
-            s << true << e.m_class;
-        else
-            s << false << e.m_class << e.m_instance << e.m_priority;
+        s << static_cast<char>(e.m_cmd_kind);
+        switch (e.m_cmd_kind) {
+        case class_entry_kind::ClassCmd: case class_entry_kind::MultiCmd:
+            s << e.m_class;
+            break;
+        case class_entry_kind::InstanceCmd:
+            s << e.m_class << e.m_instance << e.m_priority;
+            break;
+        }
     }
     static entry read_entry(deserializer & d) {
-        entry e;
-        d >> e.m_class_cmd;
-        if (e.m_class_cmd)
+        entry e; char k;
+        d >> k;
+        e.m_cmd_kind = static_cast<class_entry_kind>(k);
+        switch (e.m_cmd_kind) {
+        case class_entry_kind::ClassCmd: case class_entry_kind::MultiCmd:
             d >> e.m_class;
-        else
+            break;
+        case class_entry_kind::InstanceCmd:
             d >> e.m_class >> e.m_instance >> e.m_priority;
+            break;
+        }
         return e;
     }
     static optional<unsigned> get_fingerprint(entry const & e) {
-        if (e.m_class_cmd)
+        switch (e.m_cmd_kind) {
+        case class_entry_kind::ClassCmd: case class_entry_kind::MultiCmd:
             return some(e.m_class.hash());
-        else
+        case class_entry_kind::InstanceCmd:
             return some(hash(hash(e.m_class.hash(), e.m_instance.hash()), e.m_priority));
+        }
+        lean_unreachable();
     }
 };
 
@@ -165,6 +198,16 @@ environment add_instance(environment const & env, name const & n, unsigned prior
 
 environment add_instance(environment const & env, name const & n, bool persistent) {
     return add_instance(env, n, LEAN_INSTANCE_DEFAULT_PRIORITY, persistent);
+}
+
+environment mark_multiple_instances(environment const & env, name const & n, bool persistent) {
+    check_class(env, n);
+    return class_ext::add_entry(env, get_dummy_ios(), class_entry(n, true), persistent);
+}
+
+bool try_multiple_instances(environment const & env, name const & n) {
+    class_state const & s = class_ext::get_state(env);
+    return s.try_multiple_instances(n);
 }
 
 bool is_class(environment const & env, name const & c) {

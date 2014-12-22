@@ -91,7 +91,7 @@ void init_token_table(token_table & t) {
          "import", "inductive", "record", "structure", "module", "universe", "universes",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation", "context",
          "exit", "set_option", "open", "export", "calc_subst", "calc_refl", "calc_trans", "calc_symm", "tactic_hint",
-         "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class", "find_decl",
+         "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class", "multiple_instances", "find_decl",
          "include", "omit", "#erase_cache", "#projections", "#telescope_eq", nullptr};
 
     pair<char const *, char const *> aliases[] =

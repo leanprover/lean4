@@ -16,6 +16,8 @@ namespace morphism
   inductive is_iso        [class] (f : a ⟶ b) : Type
   := mk : ∀{g}, g ∘ f = id → f ∘ g = id → is_iso f
 
+  multiple_instances [persistent] is_iso
+
   definition retraction_of (f : a ⟶ b) [H : is_section f] : hom b a :=
   is_section.rec (λg h, g) H
   definition section_of    (f : a ⟶ b) [H : is_retraction f] : hom b a :=

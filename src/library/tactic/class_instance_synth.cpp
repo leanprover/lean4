@@ -328,7 +328,9 @@ constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> 
 
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
                          name_generator const & ngen) {
-        if (!is_ext_class(C->tc(), meta_type)) {
+        environment const & env  = C->env();
+        auto cls_name_it = is_ext_class(C->tc(), meta_type);
+        if (!cls_name_it) {
             // do nothing, since type is not a class.
             return lazy_list<constraints>(constraints());
         }
@@ -342,7 +344,7 @@ constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> 
         new_cfg.m_discard        = false;
         new_cfg.m_use_exceptions = false;
 
-        auto to_cnstrs_fn = [=](substitution const & subst, constraints const & cnstrs) {
+        auto to_cnstrs_fn = [=](substitution const & subst, constraints const & cnstrs) -> constraints {
             substitution new_s = subst;
             // some constraints may have been postponed (example: universe level constraints)
             constraints  postponed = map(cnstrs,
@@ -355,6 +357,13 @@ constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> 
             bool relax     = C->m_relax;
             constraints cs = cls.mk_constraints(new_s, new_j, relax);
             return append(cs, postponed);
+        };
+
+        auto no_solution_fn = [=]() {
+            if (is_strict)
+                return lazy_list<constraints>();
+            else
+                return lazy_list<constraints>(constraints());
         };
 
         unify_result_seq seq1    = unify(env, 1, &c, ngen, substitution(), new_cfg);
@@ -380,10 +389,7 @@ constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> 
                     }
                 });
             if (!solution) {
-                if (is_strict)
-                    return lazy_list<constraints>();
-                else
-                    return lazy_list<constraints>(constraints());
+                return no_solution_fn();
             } else {
                 // some constraints may have been postponed (example: universe level constraints)
                 return lazy_list<constraints>(to_cnstrs_fn(subst, cnstrs));
@@ -395,14 +401,22 @@ constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> 
                     // We only keep complete solutions (modulo universe metavariables)
                     return !has_expr_metavar_relaxed(result);
                 });
-            lazy_list<constraints> seq3 = map2<constraints>(seq2, [=](pair<substitution, constraints> const & p) {
-                    return to_cnstrs_fn(p.first, p.second);
-                });
-            if (is_strict) {
-                return seq3;
+            if (try_multiple_instances(env, *cls_name_it)) {
+                lazy_list<constraints> seq3 = map2<constraints>(seq2, [=](pair<substitution, constraints> const & p) {
+                        return to_cnstrs_fn(p.first, p.second);
+                    });
+                if (is_strict) {
+                    return seq3;
+                } else {
+                    // make sure it does not fail by appending empty set of constraints
+                    return append(seq3, lazy_list<constraints>(constraints()));
+                }
             } else {
-                // make sure it does not fail by appending empty set of constraints
-                return append(seq3, lazy_list<constraints>(constraints()));
+                auto p  = seq2.pull();
+                if (!p)
+                    return no_solution_fn();
+                else
+                    return lazy_list<constraints>(to_cnstrs_fn(p->first.first, p->first.second));
             }
         }
     };

@@ -1,6 +1,10 @@
--- Copyright (c) 2014 Floris van Doorn. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Floris van Doorn
+/-
+Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: algebra.category.adjoint
+Author: Floris van Doorn
+-/
 
 import .constructions
 

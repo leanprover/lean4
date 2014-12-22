@@ -7,10 +7,11 @@ Basic types:
 
 * [empty](empty.lean) : the empty type
 * [unit](unit.lean) : the singleton type
-* [bool](bool.lean) : the boolean values
-* [num](num.lean) : generic numerals
+* [bool](bool/bool.md) : the boolean values
+* [num](num/num.md) : generic numerals
 * [string](string.lean) : ascii strings
 * [nat](nat/nat.md) : the natural numbers
+* [fin](fin.lean) : finite ordinals
 * [int](int/int.md) : the integers
 
 Constructors:
@@ -23,3 +24,4 @@ Constructors:
 * [quotient](quotient/quotient.md)
 * [list](list/list.md)
 * [set](set.lean)
+* [vector](vector.lean)

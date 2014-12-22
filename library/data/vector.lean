@@ -1,6 +1,11 @@
--- Copyright (c) 2014 Floris van Doorn. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Floris van Doorn, Leonardo de Moura
+/-
+Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: data.vector
+Author: Floris van Doorn, Leonardo de Moura
+-/
+
 import data.nat.basic data.empty data.prod
 open nat eq.ops prod
 
@@ -156,8 +161,7 @@ namespace vector
                  ... = head v :: tail v                                                                  : prod.eta
                  ... = v                                                                                 : vector.eta)
 
-  -- Length
-  -- ------
+  /- Length -/
 
   definition length (v : vector A n) :=
   n
@@ -172,8 +176,8 @@ namespace vector
   calc length (append v₁ v₂) = length v₁ ⊕ length v₂ : rfl
                          ... = length v₁ + length v₂ : add_eq_addl
 
-  -- Concat
-  -- ------
+  /- Concat -/
+
   definition concat (v : vector A n) (a : A) : vector A (succ n) :=
   vector.rec_on v
     (a :: nil)

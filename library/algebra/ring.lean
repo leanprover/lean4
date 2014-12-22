@@ -53,27 +53,22 @@ structure comm_semiring [class] (A : Type) extends semiring A, comm_semigroup A
 
 /- abstract divisibility -/
 
-structure has_dvd [class] (A : Type) extends has_mul A :=
-(dvd : A → A → Prop)
-(dvd_intro : ∀a b c, mul a b = c → dvd a c)
-(dvd_ex : ∀ a b, dvd a b → ∃c, mul a c = b)
+section comm_semiring
 
-definition dvd [s : has_dvd A] (a b : A) : Prop := has_dvd.dvd a b
-infix `|` := dvd
-
-theorem dvd.intro [s : has_dvd A] {a b c : A} : a * b = c → a | c := !has_dvd.dvd_intro
-
-theorem dvd.ex [s : has_dvd A] {a b : A} : a | b → ∃c, a * c = b := !has_dvd.dvd_ex
-
-theorem dvd.elim [s : has_dvd A] {P : Prop} {a b : A} (H₁ : a | b) (H₂ : ∀c, a * c = b → P) : P :=
-exists.elim (dvd.ex H₁) H₂
-
-structure comm_semiring_dvd [class] (A : Type) extends comm_semiring A, has_dvd A
-
-section comm_semiring_dvd
-
-  variables [s : comm_semiring_dvd A] (a b c : A)
+  variables [s : comm_semiring A] (a b c : A)
   include s
+
+  definition dvd (a b : A) : Prop := ∃c, a * c = b
+  infix `|` := dvd
+
+  theorem dvd.intro {a b c : A} (H : a * b = c) : a | c :=
+  exists.intro _ H
+
+  theorem dvd.ex {a b : A} (H : a | b) : ∃c, a * c = b := H
+
+  theorem dvd.elim {P : Prop} {a b : A} (H₁ : a | b) (H₂ : ∀c, a * c = b → P) : P :=
+  exists.elim H₁ H₂
+
 
   theorem dvd.refl : a | a := dvd.intro (!mul.right_id)
 
@@ -137,7 +132,7 @@ section comm_semiring_dvd
         (take e, assume Haec : a * e = c,
           dvd.intro (show a * (d + e) = b + c, from Hadb ▸ Haec ▸ left_distrib a d e)))
 
-end comm_semiring_dvd
+end comm_semiring
 
 
 /- ring -/
@@ -239,20 +234,9 @@ section
 
 end
 
-structure comm_ring_dvd [class] (A : Type) extends comm_ring A, has_dvd A
-
-definition comm_ring_dvd.to_comm_semiring_dvd [instance] [s : comm_ring_dvd A] :
-    comm_semiring_dvd A :=
-comm_semiring_dvd.mk comm_ring_dvd.add comm_ring_dvd.add_assoc (@comm_ring_dvd.zero A s)
-  comm_ring_dvd.add_left_id comm_ring_dvd.add_right_id comm_ring_dvd.add_comm
-  comm_ring_dvd.mul comm_ring_dvd.mul_assoc (@comm_ring_dvd.one A s) comm_ring_dvd.mul_left_id
-  comm_ring_dvd.mul_right_id comm_ring_dvd.left_distrib comm_ring_dvd.right_distrib
-  zero_mul_eq mul_zero_eq (@comm_ring_dvd.zero_ne_one A s) comm_ring_dvd.mul_comm
-  comm_ring_dvd.dvd (@comm_ring_dvd.dvd_intro A s) (@comm_ring_dvd.dvd_ex A s)
-
 section
 
-  variables [s : comm_ring_dvd A] (a b c d e : A)
+  variables [s : comm_ring A] (a b c d e : A)
   include s
 
   theorem dvd_neg_iff_dvd : a | -b ↔ a | b :=
@@ -307,7 +291,7 @@ theorem eq_zero_or_eq_zero_of_mul_eq_zero {A : Type} [s : no_zero_divisors A] {a
     (H : a * b = 0) :
   a = 0 ∨ b = 0 := !no_zero_divisors.eq_zero_or_eq_zero_of_mul_eq_zero H
 
-structure integral_domain [class] (A : Type) extends comm_ring_dvd A, no_zero_divisors A
+structure integral_domain [class] (A : Type) extends comm_ring A, no_zero_divisors A
 
 section
 

@@ -1,9 +1,10 @@
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
 
--- logic.axioms.prop_decidable
--- ===========================
+Module: logic.axioms.prop_decidable
+Author: Leonardo de Moura
+-/
 
 import logic.axioms.classical logic.axioms.hilbert
 open decidable inhabited nonempty
@@ -12,7 +13,7 @@ open decidable inhabited nonempty
 
 -- First, we show that (decidable a) is inhabited for any 'a' using the excluded middle
 theorem decidable_inhabited [instance] (a : Prop) : inhabited (decidable a) :=
-nonempty_imp_inhabited
+inhabited_of_nonempty
   (or.elim (em a)
     (assume Ha, nonempty.intro (inl Ha))
     (assume Hna, nonempty.intro (inr Hna)))

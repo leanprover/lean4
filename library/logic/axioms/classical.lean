@@ -12,6 +12,8 @@ open eq.ops
 
 axiom prop_complete (a : Prop) : a = true ∨ a = false
 
+definition eq_true_or_eq_false := prop_complete
+
 theorem cases (P : Prop → Prop) (H1 : P true) (H2 : P false) (a : Prop) : P a :=
 or.elim (prop_complete a)
   (assume Ht : a = true,  Ht⁻¹ ▸ H1)
@@ -26,7 +28,7 @@ or.elim (prop_complete a)
   (assume Ht : a = true,  or.inl (of_eq_true Ht))
   (assume Hf : a = false, or.inr (not_of_eq_false Hf))
 
-theorem prop_complete_swapped (a : Prop) : a = false ∨ a = true :=
+theorem eq_false_or_eq_true (a : Prop) : a = false ∨ a = true :=
 cases (λ x, x = false ∨ x = true)
   (or.inr rfl)
   (or.inl rfl)

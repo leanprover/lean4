@@ -14,13 +14,13 @@ axiom funext : ∀ {A : Type} {B : A → Type} {f g : Π a, B a} (H : ∀ a, f a
 namespace function
   variables {A B C D: Type}
 
-  theorem compose_assoc (f : C → D) (g : B → C) (h : A → B) : (f ∘ g) ∘ h = f ∘ (g ∘ h) :=
+  theorem compose.assoc (f : C → D) (g : B → C) (h : A → B) : (f ∘ g) ∘ h = f ∘ (g ∘ h) :=
   funext (take x, rfl)
 
-  theorem compose_id_left (f : A → B) : id ∘ f = f :=
+  theorem compose.left_id (f : A → B) : id ∘ f = f :=
   funext (take x, rfl)
 
-  theorem compose_id_right (f : A → B) : f ∘ id = f :=
+  theorem compose.right_id (f : A → B) : f ∘ id = f :=
   funext (take x, rfl)
 
   theorem compose_const_right (f : B → C) (b : B) : f ∘ (const A b) = const A (f b) :=

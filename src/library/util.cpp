@@ -342,6 +342,17 @@ bool is_eq_a_a(expr const & e) {
     return args.size() == 3 && args[1] == args[2];
 }
 
+bool is_eq_a_a(type_checker & tc, expr const & e) {
+    if (!is_eq(e))
+        return false;
+    buffer<expr> args;
+    get_app_args(e, args);
+    if (args.size() != 3)
+        return false;
+    pair<bool, constraint_seq> d = tc.is_def_eq(args[1], args[2]);
+    return d.first && !d.second;
+}
+
 void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs) {
     lean_assert(t.size() == s.size());
     lean_assert(std::all_of(s.begin(), s.end(), is_local));

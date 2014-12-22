@@ -35,7 +35,7 @@ optional<expr> apply_eq_rec_eq(type_checker & tc, io_state const & ios, list<exp
     if (args.size() != 6)
         return none_expr();
     expr const & p = args[5];
-    if (!is_local(p) || !is_eq_a_a(mlocal_type(p)))
+    if (!is_local(p) || !is_eq_a_a(tc, mlocal_type(p)))
         return none_expr();
     expr const & A = args[0];
     auto is_hset_A = mk_hset_instance(tc, ios, ctx, A);

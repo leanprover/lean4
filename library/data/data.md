@@ -7,8 +7,8 @@ Basic types:
 
 * [empty](empty.lean) : the empty type
 * [unit](unit.lean) : the singleton type
-* [bool](bool/bool.md) : the boolean values
-* [num](num/num.md) : generic numerals
+* [bool](bool.lean) : the boolean values
+* [num](num.lean) : generic numerals
 * [string](string.lean) : ascii strings
 * [nat](nat/nat.md) : the natural numbers
 * [fin](fin.lean) : finite ordinals

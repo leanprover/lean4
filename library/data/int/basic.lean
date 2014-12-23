@@ -220,12 +220,12 @@ or.elim (@le_or_gt n m)
     H1⁻¹ ▸
       (calc
         m - n + n = m : add_sub_ge_left H
-          ... = 0 + m : add.zero_left))
+          ... = 0 + m : add.left_id))
   (take H : m < n,
     have H1 : repr (sub_nat_nat m n) = (0, succ (pred (n - m))), from sub_nat_nat_of_lt H ▸ rfl,
     H1⁻¹ ▸
       (calc
-        0 + n = n : add.zero_left
+        0 + n = n : add.left_id
           ... = n - m + m : add_sub_ge_left (lt_imp_le H)
           ... = succ (pred (n - m)) + m : (succ_pred_of_pos (sub_pos_of_gt H))⁻¹))
 
@@ -336,7 +336,7 @@ cases_on a
           from !repr_sub_nat_nat,
         have H2 : padd (repr (of_nat m)) (repr (neg_succ_of_nat n')) = (m, 0 + succ n'),
           from rfl,
-        (!add.zero_left ▸ H2)⁻¹ ▸ H1))
+        (!add.left_id ▸ H2)⁻¹ ▸ H1))
   (take m',
     cases_on b
       (take n,
@@ -344,7 +344,7 @@ cases_on a
           from !repr_sub_nat_nat,
         have H2 : padd (repr (neg_succ_of_nat m')) (repr (of_nat n)) = (0 + n, succ m'),
           from rfl,
-        (!add.zero_left ▸ H2)⁻¹ ▸ H1)
+        (!add.left_id ▸ H2)⁻¹ ▸ H1)
        (take n',!repr_sub_nat_nat))
 
 theorem padd_congr {p p' q q' : ℕ × ℕ} (Ha : p ≡ p') (Hb : q ≡ q') : padd p q ≡ padd p' q' :=
@@ -486,12 +486,12 @@ cases_on a
       (take n,
         (calc
           pmul (repr m) (repr n) = (m * n + 0 * 0, m * 0 + 0 * n) : rfl
-            ... = (m * n + 0 * 0, m * 0 + 0) : mul.zero_left)⁻¹)
+            ... = (m * n + 0 * 0, m * 0 + 0) : zero_mul)⁻¹)
       (take n',
         (calc
           pmul (repr m) (repr (neg_succ_of_nat n')) =
               (m * 0 + 0 * succ n', m * succ n' + 0 * 0) : rfl
-            ... = (m * 0 + 0, m * succ n' + 0 * 0) : mul.zero_left
+            ... = (m * 0 + 0, m * succ n' + 0 * 0) : zero_mul
             ... = repr (mul m (neg_succ_of_nat n')) : repr_neg_of_nat)⁻¹))
   (take m',
     cases_on b
@@ -499,15 +499,15 @@ cases_on a
         (calc
           pmul (repr (neg_succ_of_nat m')) (repr n) =
               (0 * n + succ m' * 0, 0 * 0 + succ m' * n) : rfl
-            ... = (0 + succ m' * 0, 0 * 0 + succ m' * n) : mul.zero_left
-            ... = (0 + succ m' * 0, succ m' * n) : add.zero_left
+            ... = (0 + succ m' * 0, 0 * 0 + succ m' * n) : zero_mul
+            ... = (0 + succ m' * 0, succ m' * n) : nat.add.left_id
             ... = repr (mul (neg_succ_of_nat m') n) : repr_neg_of_nat)⁻¹)
       (take n',
         (calc
           pmul (repr (neg_succ_of_nat m')) (repr (neg_succ_of_nat n')) =
               (0 + succ m' * succ n', 0 * succ n') : rfl
-            ... = (succ m' * succ n', 0 * succ n') : add.zero_left
-            ... = (succ m' * succ n', 0) : mul.zero_left
+            ... = (succ m' * succ n', 0 * succ n') : nat.add.left_id
+            ... = (succ m' * succ n', 0) : zero_mul
             ... = repr (mul (neg_succ_of_nat m') (neg_succ_of_nat n')) : rfl)⁻¹))
 
 theorem equiv_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
@@ -595,7 +595,7 @@ have H2 : (nat_abs a) * (nat_abs b) = nat.zero, from
     (nat_abs a) * (nat_abs b) = (nat_abs (a * b)) : (mul_nat_abs a b)⁻¹
       ... = (nat_abs 0) : {H}
       ... = nat.zero : nat_abs_of_nat nat.zero,
-have H3 : (nat_abs a) = nat.zero ∨ (nat_abs b) = nat.zero, from mul.eq_zero H2,
+have H3 : (nat_abs a) = nat.zero ∨ (nat_abs b) = nat.zero, from eq_zero_or_eq_zero_of_mul_eq_zero H2,
 or_of_or_of_imp_of_imp H3
   (assume H : (nat_abs a) = nat.zero, nat_abs_eq_zero H)
   (assume H : (nat_abs b) = nat.zero, nat_abs_eq_zero H)
@@ -708,8 +708,8 @@ context port_algebra
   theorem dvd_of_mul_left_dvd : ∀{a b c : ℤ}, a * b | c → b | c :=
     @algebra.dvd_of_mul_left_dvd _ _
   theorem dvd_add : ∀{a b c : ℤ}, a | b → a | c → a | b + c := @algebra.dvd_add _ _
-  theorem zero_mul_eq : ∀a : ℤ, 0 * a = 0 := algebra.zero_mul_eq
-  theorem mul_zero_eq : ∀a : ℤ, a * 0 = 0 := algebra.mul_zero_eq
+  theorem zero_mul : ∀a : ℤ, 0 * a = 0 := algebra.zero_mul
+  theorem mul_zero : ∀a : ℤ, a * 0 = 0 := algebra.mul_zero
   theorem neg_mul_eq_neg_mul : ∀a b : ℤ, -(a * b) = -a * b := algebra.neg_mul_eq_neg_mul
   theorem neg_mul_eq_mul_neg : ∀a b : ℤ, -(a * b) = a * -b := algebra.neg_mul_eq_mul_neg
   theorem neg_mul_neg_eq : ∀a b : ℤ, -a * -b = a * b := algebra.neg_mul_neg_eq

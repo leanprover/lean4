@@ -760,7 +760,7 @@ of two even numbers is an even number.
     exists.intro (w1 + w2)
       (calc a + b  =  2*w1 + b      : {Hw1}
               ...  =  2*w1 + 2*w2   : {Hw2}
-              ...  =  2*(w1 + w2)   : eq.symm !mul.distr_left)))
+              ...  =  2*(w1 + w2)   : eq.symm !mul.left_distrib)))
 
 #+END_SRC
 
@@ -780,5 +780,5 @@ With this macro we can write the example above in a more natural way
     exists.intro (w1 + w2)
       (calc a + b  =  2*w1 + b      : {Hw1}
               ...  =  2*w1 + 2*w2   : {Hw2}
-              ...  =  2*(w1 + w2)   : eq.symm !mul.distr_left)
+              ...  =  2*(w1 + w2)   : eq.symm !mul.left_distrib)
 #+END_SRC

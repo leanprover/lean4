@@ -110,7 +110,7 @@ theorem length_concat (s t : list T) : length (s ++ t) = length s + length t :=
 list_induction_on s
   (calc
     length (concat nil t) = length t : refl _
-      ... = 0 + length t : {symm !add.zero_left}
+      ... = 0 + length t : {symm !add.left_id}
       ... = length (@nil T) + length t : refl _)
   (take x s,
     assume H : length (concat s t) = length s + length t,

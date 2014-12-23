@@ -22,10 +22,10 @@ lt.step h
 theorem le.add_right (n k : ℕ) : n ≤ n + k :=
 induction_on k
   (calc n ≤ n        : le.refl n
-     ...  = n + zero : add.zero_right)
+     ...  = n + zero : add.right_id)
   (λ k (ih : n ≤ n + k), calc
      n   ≤ succ (n + k) : le.succ_right ih
-     ... = n + succ k   : add.succ_right)
+     ... = n + succ k   : add_succ)
 
 theorem le_intro {n m k : ℕ} (h : n + k = m) : n ≤ m :=
 h ▸ le.add_right n k
@@ -38,7 +38,7 @@ le.rec_on h
     (λ b hlt (ih : ∃ (k : ℕ), n + k = b),
       obtain (k : ℕ) (h : n + k = b), from ih,
       exists.intro (succ k) (calc
-        n + succ k = succ (n + k) : add.succ_right
+        n + succ k = succ (n + k) : add_succ
                ... = succ b       : h)))
 
 -- ### partial order (totality is part of less than)
@@ -47,11 +47,11 @@ theorem le_refl (n : ℕ) : n ≤ n :=
 le.refl n
 
 theorem zero_le (n : ℕ) : 0 ≤ n :=
-le_intro !add.zero_left
+le_intro !add.left_id
 
 theorem le_zero {n : ℕ} (H : n ≤ 0) : n = 0 :=
 obtain (k : ℕ) (Hk : n + k = 0), from le_elim H,
-add.eq_zero_left Hk
+eq_zero_of_add_eq_zero_right Hk
 
 theorem not_succ_zero_le (n : ℕ) : ¬ succ n ≤ 0 :=
 (assume H : succ n ≤ 0,
@@ -70,10 +70,10 @@ have L1 : k + l = 0, from
       n + (k + l) = n + k + l : !add.assoc⁻¹
         ... = m + l           : {Hk}
         ... = n               : Hl
-        ... = n + 0           : !add.zero_right⁻¹),
-have L2 : k = 0, from add.eq_zero_left L1,
+        ... = n + 0           : !add.right_id⁻¹),
+have L2 : k = 0, from eq_zero_of_add_eq_zero_right L1,
 calc
-  n = n + 0  : !add.zero_right⁻¹
+  n = n + 0  : !add.right_id⁻¹
 ... = n  + k : {L2⁻¹}
 ... = m      : Hk
 
@@ -120,13 +120,13 @@ show m ≤ l, from le_trans !le_add_left H4
 -- ### interaction with successor and predecessor
 
 theorem succ_le {n m : ℕ} (H : n ≤ m) : succ n ≤ succ m :=
-!add.one ▸ !add.one ▸ add_le_right H 1
+!add_one ▸ !add_one ▸ add_le_right H 1
 
 theorem succ_le_cancel {n m : ℕ} (H : succ n ≤ succ m) :  n ≤ m :=
-add_le_cancel_right (!add.one⁻¹ ▸ !add.one⁻¹ ▸ H)
+add_le_cancel_right (!add_one⁻¹ ▸ !add_one⁻¹ ▸ H)
 
 theorem self_le_succ (n : ℕ) : n ≤ succ n :=
-le_intro !add.one
+le_intro !add_one
 
 theorem le_imp_le_succ {n m : ℕ} (H : n ≤ m) : n ≤ succ m :=
 le_trans H !self_le_succ
@@ -137,7 +137,7 @@ discriminate
   (assume H3 : k = 0,
     have Heq : n = m,
       from calc
-        n = n + 0   : !add.zero_right⁻¹
+        n = n + 0   : !add.right_id⁻¹
         ... = n + k : {H3⁻¹}
         ... = m     : Hk,
     or.inr Heq)
@@ -146,7 +146,7 @@ discriminate
     have Hlt : succ n ≤ m, from
       (le_intro
         (calc
-          succ n + l = n + succ l : !add.move_succ
+          succ n + l = n + succ l : !succ_add_eq_add_succ
                  ... = n + k      : {H3⁻¹}
                  ... = m          : Hk)),
     or.inl Hlt)
@@ -163,7 +163,7 @@ obtain (k : ℕ) (H2 : succ n + k = m), from (le_elim H),
  and.intro
   (have H3 : n + succ k = m,
     from calc
-      n + succ k = succ n + k : !add.move_succ⁻¹
+      n + succ k = succ n + k : !succ_add_eq_add_succ⁻¹
              ... = m          : H2,
     show n ≤ m, from le_intro H3)
   (assume H3 : n = m,
@@ -172,7 +172,7 @@ obtain (k : ℕ) (H2 : succ n + k = m), from (le_elim H),
       show false, from absurd H5 succ.ne_self)
 
 theorem le_pred_self (n : ℕ) : pred n ≤ n :=
-case n
+cases_on n
   (pred.zero⁻¹ ▸ !le_refl)
   (take k : ℕ, !pred.succ⁻¹ ▸ !self_le_succ)
 
@@ -220,7 +220,7 @@ theorem mul_le_left {n m : ℕ} (H : n ≤ m) (k : ℕ) : k * n ≤ k * m :=
 obtain (l : ℕ) (Hl : n + l = m), from (le_elim H),
 have H2 : k * n + k * l = k * m, from
   calc
-    k * n + k * l = k * (n + l) : mul.distr_left
+    k * n + k * l = k * (n + l) : mul.left_distrib
               ... = k * m       : {Hl},
 le_intro H2
 
@@ -240,7 +240,7 @@ theorem lt_elim {n m : ℕ} (H : n < m) : ∃ k, succ n + k = m :=
 le_elim (succ_le_of_lt H)
 
 theorem lt_add_succ (n m : ℕ) : n < n + succ m :=
-lt_intro !add.move_succ
+lt_intro !succ_add_eq_add_succ
 
 -- ### basic facts
 
@@ -259,7 +259,7 @@ theorem succ_pos (n : ℕ) : 0 < succ n :=
 !zero_lt_succ
 
 theorem succ_pred_of_pos {n : ℕ} (H : n > 0) : succ (pred n) = n :=
-(or_resolve_right (zero_or_succ_pred n) (ne.symm (lt_imp_ne H))⁻¹)
+(or_resolve_right (eq_zero_or_eq_succ_pred n) (ne.symm (lt_imp_ne H))⁻¹)
 
 theorem lt_imp_eq_succ {n m : ℕ} (H : n < m) : exists k, m = succ k :=
 discriminate
@@ -299,7 +299,7 @@ lt.asymm H
 -- ### interaction with addition
 
 theorem add_lt_left {n m : ℕ} (H : n < m) (k : ℕ) : k + n < k + m :=
-lt_of_succ_le (!add.succ_right ▸ add_le_left (succ_le_of_lt H) k)
+lt_of_succ_le (!add_succ ▸ add_le_left (succ_le_of_lt H) k)
 
 theorem add_lt_right {n m : ℕ} (H : n < m) (k : ℕ) : n + k < m + k :=
 !add.comm ▸ !add.comm ▸ add_lt_left H k
@@ -314,7 +314,7 @@ theorem add_lt {n m k l : ℕ} (H1 : n < k) (H2 : m < l) : n + m < k + l :=
 add_lt_le H1 (lt_imp_le H2)
 
 theorem add_lt_cancel_left {n m k : ℕ} (H : k + n < k + m) : n < m :=
-lt_of_succ_le (add_le_cancel_left (!add.succ_right⁻¹ ▸ (succ_le_of_lt H)))
+lt_of_succ_le (add_le_cancel_left (!add_succ⁻¹ ▸ (succ_le_of_lt H)))
 
 theorem add_lt_cancel_right {n m k : ℕ} (H : n + k < m + k) : n < m :=
 add_lt_cancel_left (!add.comm ▸ !add.comm ▸ H)
@@ -322,10 +322,10 @@ add_lt_cancel_left (!add.comm ▸ !add.comm ▸ H)
 -- ### interaction with successor (see also the interaction with le)
 
 theorem succ_lt {n m : ℕ} (H : n < m) : succ n < succ m :=
-!add.one ▸ !add.one ▸ add_lt_right H 1
+!add_one ▸ !add_one ▸ add_lt_right H 1
 
 theorem succ_lt_cancel {n m : ℕ} (H : succ n < succ m) :  n < m :=
-add_lt_cancel_right (!add.one⁻¹ ▸ !add.one⁻¹ ▸ H)
+add_lt_cancel_right (!add_one⁻¹ ▸ !add_one⁻¹ ▸ H)
 
 theorem lt_imp_lt_succ {n m : ℕ} (H : n < m) : n < succ m :=
 lt.step H
@@ -381,7 +381,7 @@ protected theorem case_strong_induction_on {P : nat → Prop} (a : nat) (H0 : P 
 strong_induction_on a (
   take n,
   show (∀m, m < n → P m) → P n, from
-    case n
+    cases_on n
        (assume H : (∀m, m < 0 → P m), show P 0, from H0)
        (take n,
          assume H : (∀m, m < succ n → P m),
@@ -396,7 +396,7 @@ strong_induction_on a (
 -- ### basic
 
 theorem case_zero_pos {P : ℕ → Prop} (y : ℕ) (H0 : P 0) (H1 : ∀ {y : nat}, y > 0 → P y) : P y :=
-case y H0 (take y, H1 !succ_pos)
+cases_on y H0 (take y, H1 !succ_pos)
 
 theorem zero_or_pos {n : ℕ} : n = 0 ∨ n > 0 :=
 or_of_or_of_imp_left
@@ -416,7 +416,7 @@ theorem pos_imp_eq_succ {n : ℕ} (H : n > 0) : exists l, n = succ l :=
 lt_imp_eq_succ H
 
 theorem add_pos_right {n k : ℕ} (H : k > 0) : n + k > n :=
-!add.zero_right ▸ add_lt_left H n
+!add.right_id ▸ add_lt_left H n
 
 theorem add_pos_left {n : ℕ} {k : ℕ} (H : k > 0) : k + n > n :=
 !add.comm ▸ add_pos_right H
@@ -429,8 +429,8 @@ obtain (l : ℕ) (Hl : m = succ l), from pos_imp_eq_succ Hm,
 succ_imp_pos (calc
   n * m = succ k * m            : {Hk}
     ... = succ k * succ l       : {Hl}
-    ... = succ k * l + succ k   : !mul.succ_right
-    ... = succ (succ k * l + k) : !add.succ_right)
+    ... = succ k * l + succ k   : !mul_succ
+    ... = succ (succ k * l + k) : !add_succ)
 
 theorem mul_pos_imp_pos_left {n m : ℕ} (H : n * m > 0) : n > 0 :=
 discriminate
@@ -438,7 +438,7 @@ discriminate
     have H3 : n * m = 0,
       from calc
         n * m = 0 * m : {H2}
-          ... = 0     : !mul.zero_left,
+          ... = 0     : !zero_mul,
     have H4 : 0 > 0, from H3 ▸ H,
     absurd H4 !lt_irrefl)
   (take l : nat,
@@ -452,7 +452,7 @@ mul_pos_imp_pos_left (!mul.comm ▸ H)
 
 theorem mul_lt_left {n m k : ℕ} (Hk : k > 0) (H : n < m) : k * n < k * m :=
 have H2 : k * n < k * n + k, from add_pos_right Hk,
-have H3 : k * n + k ≤ k * m, from !mul.succ_right ▸ mul_le_left (succ_le_of_lt H) k,
+have H3 : k * n + k ≤ k * m, from !mul_succ ▸ mul_le_left (succ_le_of_lt H) k,
 lt.of_lt_of_le H2 H3
 
 theorem mul_lt_right {n m k : ℕ} (Hk : k > 0) (H : n < m)  : n * k < m * k :=
@@ -481,7 +481,7 @@ mul_lt_cancel_left (!mul.comm ▸ !mul.comm ▸ H)
 
 theorem mul_le_cancel_left {n m k : ℕ} (Hk : k > 0) (H : k * n ≤ k * m) : n ≤ m :=
 have H2 : k * n < k * m + k, from lt.of_le_of_lt H (add_pos_right Hk),
-have H3 : k * n < k * succ m, from !mul.succ_right⁻¹ ▸ H2,
+have H3 : k * n < k * succ m, from !mul_succ⁻¹ ▸ H2,
 have H4 : n < succ m, from mul_lt_cancel_left H3,
 show n ≤ m, from lt_succ_imp_le H4
 
@@ -514,7 +514,7 @@ or.elim le_or_gt
     show n = 1, from le_antisym H5 (succ_le_of_lt H3))
   (assume H5 : n > 1,
     have H6 : n * m ≥ 2 * 1, from mul_le (succ_le_of_lt H5) (succ_le_of_lt H4),
-    have H7 : 1 ≥ 2, from !mul.one_right ▸ H ▸ H6,
+    have H7 : 1 ≥ 2, from !mul.right_id ▸ H ▸ H6,
     absurd !self_lt_succ (le_imp_not_gt H7))
 
 theorem mul_eq_one_right {n m : ℕ} (H : n * m = 1) : m = 1 :=

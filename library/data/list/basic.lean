@@ -1,14 +1,15 @@
-----------------------------------------------------------------------------------------------------
---- Copyright (c) 2014 Parikshit Khanna. All rights reserved.
---- Released under Apache 2.0 license as described in the file LICENSE.
---- Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura
-----------------------------------------------------------------------------------------------------
+/-
+Copyright (c) 2014 Parikshit Khanna. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: data.list.basic
+Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura
+
+Basic properties of lists.
+-/
+
 import logic tools.helper_tactics data.nat.basic
 
--- Theory list
--- ===========
---
--- Basic properties of lists.
 open eq.ops helper_tactics nat
 
 inductive list (T : Type) : Type :=
@@ -21,8 +22,7 @@ notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
 
 variable {T : Type}
 
--- Concat
--- ------
+/- append -/
 
 definition append (s t : list T) : list T :=
 rec t (λx l u, x::u) s
@@ -39,8 +39,7 @@ induction_on t rfl (λx l H, H ▸ rfl)
 theorem append.assoc (s t u : list T) : s ++ t ++ u = s ++ (t ++ u) :=
 induction_on s rfl (λx l H, H ▸ rfl)
 
--- Length
--- ------
+/- length -/
 
 definition length : list T → nat :=
 rec 0 (λx l m, succ m)
@@ -50,12 +49,11 @@ theorem length.nil : length (@nil T) = 0
 theorem length.cons (x : T) (t : list T) : length (x::t) = succ (length t)
 
 theorem length.append (s t : list T) : length (s ++ t) = length s + length t :=
-induction_on s (!add.zero_left⁻¹) (λx s H, !add.succ_left⁻¹ ▸ H ▸ rfl)
+induction_on s (!add.left_id⁻¹) (λx s H, !add.succ_left⁻¹ ▸ H ▸ rfl)
 
 -- add_rewrite length_nil length_cons
 
--- Append
--- ------
+/- concat -/
 
 definition concat (x : T) : list T → list T :=
 rec [x] (λy l l', y::l')
@@ -68,8 +66,7 @@ theorem concat.eq_append (x : T) (l : list T) : concat x l = l ++ [x]
 
 -- add_rewrite append_nil append_cons
 
--- Reverse
--- -------
+/- reverse -/
 
 definition reverse : list T → list T :=
 rec nil (λx l r, r ++ [x])
@@ -95,8 +92,7 @@ induction_on l rfl
     concat x (y::l') = (y::l') ++ [x]                   : !concat.eq_append
                  ... = reverse (reverse (y::l')) ++ [x] : {!reverse.reverse⁻¹})
 
--- Head and tail
--- -------------
+/- head and tail -/
 
 definition head (x : T) : list T → T :=
 rec x (λx l h, x)
@@ -126,8 +122,7 @@ cases_on l
   (assume H : nil ≠ nil, absurd rfl H)
   (take x l, assume H : x::l ≠ nil, rfl)
 
--- List membership
--- ---------------
+/- list membership -/
 
 definition mem (x : T) : list T → Prop :=
 rec false (λy l H, x = y ∨ H)
@@ -206,8 +201,8 @@ rec_on l
               iff.elim_right (not_iff_not_of_iff !mem.cons) H1,
             decidable.inr H2)))
 
--- Find
--- ----
+/- find -/
+
 section
 variable [H : decidable_eq T]
 include H
@@ -234,8 +229,7 @@ rec_on l
                   ... = length (y::l)                        : !length.cons⁻¹)
 end
 
--- nth element
--- -----------
+/- nth element -/
 
 definition nth (x : T) (l : list T) (n : nat) : T :=
 nat.rec (λl, head x l) (λm f l, f (tail l)) n l

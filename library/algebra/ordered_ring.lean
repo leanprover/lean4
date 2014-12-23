@@ -57,15 +57,15 @@ section
 
   theorem mul_nonneg_of_nonneg_of_nonneg {a b : A} (Ha : a ≥ 0) (Hb : b ≥ 0) : a * b ≥ 0 :=
   have H : 0 * b ≤ a * b, from mul_le_mul_of_nonneg_right Ha Hb,
-  !zero_mul_eq ▸ H
+  !zero_mul ▸ H
 
   theorem mul_nonpos_of_nonneg_of_nonpos {a b : A} (Ha : a ≥ 0) (Hb : b ≤ 0) : a * b ≤ 0 :=
   have H : a * b ≤ a * 0, from mul_le_mul_of_nonneg_left Hb Ha,
-  !mul_zero_eq ▸ H
+  !mul_zero ▸ H
 
   theorem mul_nonpos_of_nonpos_of_nonneg {a b : A} (Ha : a ≤ 0) (Hb : b ≥ 0) : a * b ≤ 0 :=
   have H : a * b ≤ 0 * b, from mul_le_mul_of_nonneg_right Ha Hb,
-  !zero_mul_eq ▸ H
+  !zero_mul ▸ H
 
   theorem mul_lt_mul_of_pos_left {a b c : A} (Hab : a < b) (Hc : 0 < c) :
     c * a < c * b := !ordered_semiring.mul_lt_mul_left Hab Hc
@@ -82,15 +82,15 @@ section
 
   theorem mul_pos_of_pos_of_pos {a b : A} (Ha : a > 0) (Hb : b > 0) : a * b > 0 :=
   have H : 0 * b < a * b, from mul_lt_mul_of_pos_right Ha Hb,
-  !zero_mul_eq ▸ H
+  !zero_mul ▸ H
 
   theorem mul_neg_of_pos_of_neg {a b : A} (Ha : a > 0) (Hb : b < 0) : a * b < 0 :=
   have H : a * b < a * 0, from mul_lt_mul_of_pos_left Hb Ha,
-  !mul_zero_eq ▸ H
+  !mul_zero ▸ H
 
   theorem mul_neg_of_neg_of_pos {a b : A} (Ha : a < 0) (Hb : b > 0) : a * b < 0 :=
   have H : a * b < 0 * b, from mul_lt_mul_of_pos_right Ha Hb,
-  !zero_mul_eq ▸ H
+  !zero_mul ▸ H
 
 end
 
@@ -158,7 +158,7 @@ ordered_semiring.mk ordered_ring.add ordered_ring.add_assoc !ordered_ring.zero
   ordered_ring.add_left_id ordered_ring.add_right_id ordered_ring.add_comm ordered_ring.mul
   ordered_ring.mul_assoc !ordered_ring.one ordered_ring.mul_left_id ordered_ring.mul_right_id
   ordered_ring.left_distrib ordered_ring.right_distrib
-  zero_mul_eq mul_zero_eq !ordered_ring.zero_ne_one
+  zero_mul mul_zero !ordered_ring.zero_ne_one
   (@add.left_cancel A _) (@add.right_cancel A _)
   ordered_ring.le ordered_ring.le_refl ordered_ring.le_trans ordered_ring.le_antisym
   ordered_ring.lt ordered_ring.lt_iff_le_ne ordered_ring.add_le_add_left
@@ -227,7 +227,7 @@ section
   iff.mp !neg_le_neg_iff_le H2
 
   theorem mul_nonneg_of_nonpos_of_nonpos {a b : A} (Ha : a ≤ 0) (Hb : b ≤ 0) : 0 ≤ a * b :=
-  !zero_mul_eq ▸ mul_le_mul_of_nonpos_right Ha Hb
+  !zero_mul ▸ mul_le_mul_of_nonpos_right Ha Hb
 
   theorem mul_lt_mul_of_neg_left {a b c : A} (H : b < a) (Hc : c < 0) : c * a < c * b :=
   have Hc' : -c > 0, from iff.mp' !neg_pos_iff_neg Hc,
@@ -242,7 +242,7 @@ section
   iff.mp !neg_lt_neg_iff_lt H2
 
   theorem mul_pos_of_neg_of_neg {a b : A} (Ha : a < 0) (Hb : b < 0) : 0 < a * b :=
-  !zero_mul_eq ▸ mul_lt_mul_of_neg_right Ha Hb
+  !zero_mul ▸ mul_lt_mul_of_neg_right Ha Hb
 
 end
 
@@ -291,7 +291,7 @@ section
   Adding the explicit arguments to lt_or_eq_or_lt_cases does not seem to help at all. (The proof
     still works if all the instances are replaced by "lt_or_eq_or_lt_cases" alone.)
 
-  Adding an extra "proof ... qed" around "!mul_zero_eq ▸ Hb⁻¹ ▸ Hab" fails with "value has
+  Adding an extra "proof ... qed" around "!mul_zero ▸ Hb⁻¹ ▸ Hab" fails with "value has
   metavariables". I am not sure why.
   -/
   theorem pos_and_pos_or_neg_and_neg_of_mul_pos (Hab : a * b > 0) :
@@ -301,17 +301,17 @@ section
       lt_or_eq_or_lt_cases
         (assume Hb : 0 < b, or.inl (and.intro Ha Hb))
         (assume Hb : 0 = b,
-          absurd (!mul_zero_eq ▸ Hb⁻¹ ▸ Hab) (lt.irrefl 0))
+          absurd (!mul_zero ▸ Hb⁻¹ ▸ Hab) (lt.irrefl 0))
         (assume Hb : b < 0,
           absurd Hab (not_lt_of_lt (mul_neg_of_pos_of_neg Ha Hb))))
     (assume Ha : 0 = a,
-      absurd (!zero_mul_eq ▸ Ha⁻¹ ▸ Hab) (lt.irrefl 0))
+      absurd (!zero_mul ▸ Ha⁻¹ ▸ Hab) (lt.irrefl 0))
     (assume Ha : a < 0,
       lt_or_eq_or_lt_cases
         (assume Hb : 0 < b,
           absurd Hab (not_lt_of_lt (mul_neg_of_neg_of_pos Ha Hb)))
         (assume Hb : 0 = b,
-          absurd (!mul_zero_eq ▸ Hb⁻¹ ▸ Hab) (lt.irrefl 0))
+          absurd (!mul_zero ▸ Hb⁻¹ ▸ Hab) (lt.irrefl 0))
         (assume Hb : b < 0, or.inr (and.intro Ha Hb)))
 
   set_option pp.coercions true

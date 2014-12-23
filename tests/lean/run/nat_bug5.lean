@@ -13,7 +13,7 @@ infixl `*` := mul
 
 axiom add_one (n:nat) : n + (succ zero) = succ n
 axiom mul_zero_right (n : nat) : n * zero = zero
-axiom add_zero_right (n : nat) : n + zero = n
+axiom add.right_id (n : nat) : n + zero = n
 axiom mul_succ_right (n m : nat) : n * succ m = n * m + n
 axiom add_assoc (n m k : nat) : (n + m) + k = n + (m + k)
 axiom add_right_comm (n m k : nat) : n + m + k = n + k + m

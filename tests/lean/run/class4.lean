@@ -13,10 +13,10 @@ definition add (x y : nat)
 
 infixl `+` := add
 
-theorem add_zero_left (x : nat) : x + zero = x
+theorem add.left_id (x : nat) : x + zero = x
 := refl _
 
-theorem add_succ_left (x y : nat) : x + (succ y) = succ (x + y)
+theorem succ_add (x y : nat) : x + (succ y) = succ (x + y)
 := refl _
 
 definition is_zero (x : nat)

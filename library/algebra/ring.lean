@@ -30,12 +30,12 @@ theorem left_distrib [s : distrib A] (a b c : A) : a * (b + c) = a * b + a * c :
 theorem right_distrib [s: distrib A] (a b c : A) : (a + b) * c = a * c + b * c :=
 !distrib.right_distrib
 
-structure mul_zero [class] (A : Type) extends has_mul A, has_zero A :=
-(zero_mul_eq : ∀a, mul zero a = zero)
-(mul_zero_eq : ∀a, mul a zero = zero)
+structure mul_zero_class [class] (A : Type) extends has_mul A, has_zero A :=
+(zero_mul : ∀a, mul zero a = zero)
+(mul_zero : ∀a, mul a zero = zero)
 
-theorem zero_mul_eq [s : mul_zero A] (a : A) : 0 * a = 0 := !mul_zero.zero_mul_eq
-theorem mul_zero_eq [s : mul_zero A] (a : A) : a * 0 = 0 := !mul_zero.mul_zero_eq
+theorem zero_mul [s : mul_zero_class A] (a : A) : 0 * a = 0 := !mul_zero_class.zero_mul
+theorem mul_zero [s : mul_zero_class A] (a : A) : a * 0 = 0 := !mul_zero_class.mul_zero
 
 structure zero_ne_one_class [class] (A : Type) extends has_zero A, has_one A :=
 (zero_ne_one : zero ≠ one)
@@ -44,8 +44,8 @@ theorem zero_ne_one [s: zero_ne_one_class A] : 0 ≠ 1 := @zero_ne_one_class.zer
 
 /- semiring -/
 
-structure semiring [class] (A : Type) extends add_comm_monoid A, monoid A, distrib A, mul_zero A,
-    zero_ne_one_class A
+structure semiring [class] (A : Type) extends add_comm_monoid A, monoid A, distrib A,
+    mul_zero_class A, zero_ne_one_class A
 
 section semiring
 
@@ -54,12 +54,12 @@ section semiring
 
   theorem ne_zero_of_mul_ne_zero_right {a b : A} (H : a * b ≠ 0) : a ≠ 0 :=
   assume H1 : a = 0,
-  have H2 : a * b = 0, from H1⁻¹ ▸ zero_mul_eq b,
+  have H2 : a * b = 0, from H1⁻¹ ▸ zero_mul b,
   H H2
 
   theorem ne_zero_of_mul_ne_zero_left {a b : A} (H : a * b ≠ 0) : b ≠ 0 :=
   assume H1 : b = 0,
-  have H2 : a * b = 0, from H1⁻¹ ▸ mul_zero_eq a,
+  have H2 : a * b = 0, from H1⁻¹ ▸ mul_zero a,
   H H2
 
 end semiring
@@ -100,9 +100,9 @@ section comm_semiring
                 ... = c : H₄)))
 
   theorem eq_zero_of_zero_dvd {H : 0 | a} : a = 0 :=
-    dvd.elim H (take c, assume H' : 0 * c = a, (H')⁻¹ ⬝ !zero_mul_eq)
+    dvd.elim H (take c, assume H' : 0 * c = a, (H')⁻¹ ⬝ !zero_mul)
 
-  theorem dvd_zero : a | 0 := dvd.intro !mul_zero_eq
+  theorem dvd_zero : a | 0 := dvd.intro !mul_zero
 
   theorem one_dvd : 1 | a := dvd.intro !mul.left_id
 
@@ -186,14 +186,14 @@ section
     (calc
       a * b + -a * b = (a + -a) * b : right_distrib
         ... = 0 * b : add.right_inv
-        ... = 0 : zero_mul_eq)
+        ... = 0 : zero_mul)
 
   theorem neg_mul_eq_mul_neg : -(a * b) = a * -b :=
   neg_eq_of_add_eq_zero
     (calc
       a * b + a * -b = a * (b + -b) : left_distrib
         ... = a * 0 : add.right_inv
-        ... = 0 : mul_zero_eq)
+        ... = 0 : mul_zero)
 
   theorem neg_mul_neg_eq : -a * -b = a * b :=
   calc
@@ -234,7 +234,7 @@ definition comm_ring.to_comm_semiring [instance] [s : comm_ring A] : comm_semiri
 comm_semiring.mk comm_ring.add comm_ring.add_assoc (@comm_ring.zero A s)
   comm_ring.add_left_id comm_ring.add_right_id comm_ring.add_comm comm_ring.mul comm_ring.mul_assoc
   (@comm_ring.one A s) comm_ring.mul_left_id comm_ring.mul_right_id comm_ring.left_distrib
-  comm_ring.right_distrib zero_mul_eq mul_zero_eq (@comm_ring.zero_ne_one A s)
+  comm_ring.right_distrib zero_mul mul_zero (@comm_ring.zero_ne_one A s)
   comm_ring.mul_comm
 
 section

@@ -10,7 +10,7 @@ The order relation on the integers, and the sign function.
 
 import .basic
 
-open nat (hiding case)
+open nat
 open decidable
 open fake_simplifier
 open int eq.ops
@@ -81,7 +81,7 @@ have H3 : a + of_nat (n + m) = a + 0, from
       ... = a + 0 : (add.right_id a)⁻¹,
 have H4 : of_nat (n + m) = of_nat 0, from add.left_cancel H3,
 have H5 : n + m = 0, from of_nat_inj H4,
-have H6 : n = 0, from nat.add.eq_zero_left H5,
+have H6 : n = 0, from nat.eq_zero_of_add_eq_zero_right H5,
 show a = b, from
   calc
     a = a + of_nat 0 : (add.right_id a)⁻¹

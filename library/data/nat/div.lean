@@ -55,8 +55,8 @@ calc (x + z) div z
 theorem div_add_mul_self_right {x y z : ℕ} (H : z > 0) : (x + y * z) div z = x div z + y :=
 induction_on y
   (calc (x + zero * z) div z = (x + zero) div z : zero_mul
-                       ...   = x div z          : add.right_id
-                       ...   = x div z + zero   : add.right_id)
+                       ...   = x div z          : add_zero
+                       ...   = x div z + zero   : add_zero)
   (take y,
     assume IH : (x + y * z) div z = x div z + y, calc
       (x + succ y * z) div z = (x + y * z + z) div z    : by simp
@@ -95,7 +95,7 @@ calc (x + z) mod z
 theorem mod_add_mul_self_right {x y z : ℕ} (H : z > 0) : (x + y * z) mod z = x mod z :=
 induction_on y
   (calc (x + zero * z) mod z = (x + zero) mod z : zero_mul
-                         ... = x mod z          : add.right_id)
+                         ... = x mod z          : add_zero)
   (take y,
     assume IH : (x + y * z) mod z = x mod z,
     calc
@@ -141,7 +141,7 @@ case_zero_pos y
   (show x = x div 0 * 0 + x mod 0, from
     (calc
       x div 0 * 0 + x mod 0 = 0 + x mod 0 : mul_zero
-        ... = x mod 0                     : add.left_id
+        ... = x mod 0                     : zero_add
         ... = x                           : mod_zero)⁻¹)
   (take y,
     assume H : y > 0,
@@ -264,7 +264,7 @@ theorem mod_eq_zero_imp_div_mul_eq {x y : ℕ} (H : x mod y = 0) : x div y * y =
 (calc
   x = x div y * y + x mod y : div_mod_eq
     ... = x div y * y + 0 : H
-    ... = x div y * y : !add.right_id)⁻¹
+    ... = x div y * y : !add_zero)⁻¹
 
 -- add_rewrite dvd_imp_div_mul_eq
 
@@ -291,7 +291,7 @@ show x mod y = 0, from
     (assume ynz : y ≠ 0,
       have ypos : y > 0, from ne_zero_imp_pos ynz,
       have H3 : (z - x div y) * y < y, from H2⁻¹ ▸ mod_lt ypos,
-      have H4 : (z - x div y) * y < 1 * y, from !mul.left_id⁻¹ ▸ H3,
+      have H4 : (z - x div y) * y < 1 * y, from !one_mul⁻¹ ▸ H3,
       have H5 : z - x div y < 1, from mul_lt_cancel_right H4,
       have H6 : z - x div y = 0, from le_zero (lt_succ_imp_le H5),
       calc
@@ -323,7 +323,7 @@ case_zero_pos m
     have H3 : n1 + n2 = 0, from eq_zero_of_zero_dvd H1,
     have H4 : n1 = 0, from eq_zero_of_zero_dvd H2,
     have H5 : n2 = 0, from calc
-      n2   = 0  + n2 : add.left_id
+      n2   = 0  + n2 : zero_add
        ... = n1 + n2 : H4
        ... = 0       : H3,
     show 0 | n2, from H5 ▸ dvd.refl n2)

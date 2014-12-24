@@ -49,7 +49,7 @@ theorem length.nil : length (@nil T) = 0
 theorem length.cons (x : T) (t : list T) : length (x::t) = succ (length t)
 
 theorem length.append (s t : list T) : length (s ++ t) = length s + length t :=
-induction_on s (!add.left_id⁻¹) (λx s H, !add.succ_left⁻¹ ▸ H ▸ rfl)
+induction_on s (!zero_add⁻¹) (λx s H, !add.succ_left⁻¹ ▸ H ▸ rfl)
 
 -- add_rewrite length_nil length_cons
 

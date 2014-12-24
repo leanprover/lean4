@@ -155,8 +155,8 @@ structure ordered_ring [class] (A : Type) extends ring A, ordered_comm_group A :
 
 definition ordered_ring.to_ordered_semiring [instance] [s : ordered_ring A] : ordered_semiring A :=
 ordered_semiring.mk ordered_ring.add ordered_ring.add_assoc !ordered_ring.zero
-  ordered_ring.add_left_id ordered_ring.add_right_id ordered_ring.add_comm ordered_ring.mul
-  ordered_ring.mul_assoc !ordered_ring.one ordered_ring.mul_left_id ordered_ring.mul_right_id
+  ordered_ring.zero_add ordered_ring.add_zero ordered_ring.add_comm ordered_ring.mul
+  ordered_ring.mul_assoc !ordered_ring.one ordered_ring.one_mul ordered_ring.mul_one
   ordered_ring.left_distrib ordered_ring.right_distrib
   zero_mul mul_zero !ordered_ring.zero_ne_one
   (@add.left_cancel A _) (@add.right_cancel A _)
@@ -263,15 +263,15 @@ section
     (assume H : a ≥ 0, mul_nonneg_of_nonneg_of_nonneg H H)
     (assume H : a ≤ 0, mul_nonneg_of_nonpos_of_nonpos H H)
 
-  theorem zero_le_one : 0 ≤ 1 := mul.left_id 1 ▸ mul_self_nonneg 1
+  theorem zero_le_one : 0 ≤ 1 := one_mul 1 ▸ mul_self_nonneg 1
 
   theorem zero_lt_one : 0 < 1 := lt_of_le_of_ne zero_le_one zero_ne_one
 
   -- TODO: move these to ordered_group.lean
-  theorem lt_add_of_pos_right {a b : A} (H : b > 0) : a < a + b := !add.right_id ▸ add_lt_add_left H a
-  theorem lt_add_of_pos_left {a b : A} (H : b > 0) : a < b + a := !add.left_id ▸ add_lt_add_right H a
-  theorem le_add_of_nonneg_right {a b : A} (H : b ≥ 0) : a ≤ a + b := !add.right_id ▸ add_le_add_left H a
-  theorem le_add_of_nonneg_left {a b : A} (H : b ≥ 0) : a ≤ b + a := !add.left_id ▸ add_le_add_right H a
+  theorem lt_add_of_pos_right {a b : A} (H : b > 0) : a < a + b := !add_zero ▸ add_lt_add_left H a
+  theorem lt_add_of_pos_left {a b : A} (H : b > 0) : a < b + a := !zero_add ▸ add_lt_add_right H a
+  theorem le_add_of_nonneg_right {a b : A} (H : b ≥ 0) : a ≤ a + b := !add_zero ▸ add_le_add_left H a
+  theorem le_add_of_nonneg_left {a b : A} (H : b ≥ 0) : a ≤ b + a := !zero_add ▸ add_le_add_right H a
 
   -- TODO: remove after we short-circuit class-graph
   definition linear_ordered_ring.to_mul [instance] [priority 100000] : has_mul A :=

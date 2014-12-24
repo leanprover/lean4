@@ -22,7 +22,7 @@ lt.step h
 theorem le.add_right (n k : ℕ) : n ≤ n + k :=
 induction_on k
   (calc n ≤ n        : le.refl n
-     ...  = n + zero : add.right_id)
+     ...  = n + zero : add_zero)
   (λ k (ih : n ≤ n + k), calc
      n   ≤ succ (n + k) : le.succ_right ih
      ... = n + succ k   : add_succ)
@@ -47,7 +47,7 @@ theorem le_refl (n : ℕ) : n ≤ n :=
 le.refl n
 
 theorem zero_le (n : ℕ) : 0 ≤ n :=
-le_intro !add.left_id
+le_intro !zero_add
 
 theorem le_zero {n : ℕ} (H : n ≤ 0) : n = 0 :=
 obtain (k : ℕ) (Hk : n + k = 0), from le_elim H,
@@ -70,10 +70,10 @@ have L1 : k + l = 0, from
       n + (k + l) = n + k + l : !add.assoc⁻¹
         ... = m + l           : {Hk}
         ... = n               : Hl
-        ... = n + 0           : !add.right_id⁻¹),
+        ... = n + 0           : !add_zero⁻¹),
 have L2 : k = 0, from eq_zero_of_add_eq_zero_right L1,
 calc
-  n = n + 0  : !add.right_id⁻¹
+  n = n + 0  : !add_zero⁻¹
 ... = n  + k : {L2⁻¹}
 ... = m      : Hk
 
@@ -137,7 +137,7 @@ discriminate
   (assume H3 : k = 0,
     have Heq : n = m,
       from calc
-        n = n + 0   : !add.right_id⁻¹
+        n = n + 0   : !add_zero⁻¹
         ... = n + k : {H3⁻¹}
         ... = m     : Hk,
     or.inr Heq)
@@ -416,7 +416,7 @@ theorem pos_imp_eq_succ {n : ℕ} (H : n > 0) : exists l, n = succ l :=
 lt_imp_eq_succ H
 
 theorem add_pos_right {n k : ℕ} (H : k > 0) : n + k > n :=
-!add.right_id ▸ add_lt_left H n
+!add_zero ▸ add_lt_left H n
 
 theorem add_pos_left {n : ℕ} {k : ℕ} (H : k > 0) : k + n > n :=
 !add.comm ▸ add_pos_right H
@@ -514,7 +514,7 @@ or.elim le_or_gt
     show n = 1, from le_antisym H5 (succ_le_of_lt H3))
   (assume H5 : n > 1,
     have H6 : n * m ≥ 2 * 1, from mul_le (succ_le_of_lt H5) (succ_le_of_lt H4),
-    have H7 : 1 ≥ 2, from !mul.right_id ▸ H ▸ H6,
+    have H7 : 1 ≥ 2, from !mul_one ▸ H ▸ H6,
     absurd !self_lt_succ (le_imp_not_gt H7))
 
 theorem mul_eq_one_right {n m : ℕ} (H : n * m = 1) : m = 1 :=

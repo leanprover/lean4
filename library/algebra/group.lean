@@ -119,11 +119,11 @@ theorem add.right_cancel [s : add_right_cancel_semigroup A] {a b c : A} :
 /- monoid -/
 
 structure monoid [class] (A : Type) extends semigroup A, has_one A :=
-(mul_left_id : ∀a, mul one a = a) (mul_right_id : ∀a, mul a one = a)
+(one_mul : ∀a, mul one a = a) (mul_one : ∀a, mul a one = a)
 
-theorem mul.left_id [s : monoid A] (a : A) : 1 * a = a := !monoid.mul_left_id
+theorem one_mul [s : monoid A] (a : A) : 1 * a = a := !monoid.one_mul
 
-theorem mul.right_id [s : monoid A] (a : A) : a * 1 = a := !monoid.mul_right_id
+theorem mul_one [s : monoid A] (a : A) : a * 1 = a := !monoid.mul_one
 
 structure comm_monoid [class] (A : Type) extends monoid A, comm_semigroup A
 
@@ -131,11 +131,11 @@ structure comm_monoid [class] (A : Type) extends monoid A, comm_semigroup A
 /- additive monoid -/
 
 structure add_monoid [class] (A : Type) extends add_semigroup A, has_zero A :=
-(add_left_id : ∀a, add zero a = a) (add_right_id : ∀a, add a zero = a)
+(zero_add : ∀a, add zero a = a) (add_zero : ∀a, add a zero = a)
 
-theorem add.left_id [s : add_monoid A] (a : A) : 0 + a = a := !add_monoid.add_left_id
+theorem zero_add [s : add_monoid A] (a : A) : 0 + a = a := !add_monoid.zero_add
 
-theorem add.right_id [s : add_monoid A] (a : A) : a + 0 = a := !add_monoid.add_right_id
+theorem add_zero [s : add_monoid A] (a : A) : a + 0 = a := !add_monoid.add_zero
 
 structure add_comm_monoid [class] (A : Type) extends add_monoid A, add_comm_semigroup A
 
@@ -145,7 +145,7 @@ structure add_comm_monoid [class] (A : Type) extends add_monoid A, add_comm_semi
 structure group [class] (A : Type) extends monoid A, has_inv A :=
 (mul_left_inv : ∀a, mul (inv a) a = one)
 
--- Note: with more work, we could derive the axiom mul_left_id
+-- Note: with more work, we could derive the axiom one_mul
 
 section group
 
@@ -158,21 +158,21 @@ section group
   calc
     a⁻¹ * (a * b) = a⁻¹ * a * b : !mul.assoc⁻¹
       ... = 1 * b : mul.left_inv
-      ... = b : mul.left_id
+      ... = b : one_mul
 
   theorem inv_mul_cancel_right (a b : A) : a * b⁻¹ * b = a :=
   calc
     a * b⁻¹ * b = a * (b⁻¹ * b) : mul.assoc
       ... = a * 1 : mul.left_inv
-    ... = a : mul.right_id
+    ... = a : mul_one
 
   theorem inv_eq_of_mul_eq_one {a b : A} (H : a * b = 1) : a⁻¹ = b :=
   calc
-    a⁻¹ = a⁻¹ * 1 : !mul.right_id⁻¹
+    a⁻¹ = a⁻¹ * 1 : !mul_one⁻¹
       ... = a⁻¹ * (a * b) : H
       ... = b : inv_mul_cancel_left
 
-  theorem inv_one : 1⁻¹ = 1 := inv_eq_of_mul_eq_one (mul.left_id 1)
+  theorem inv_one : 1⁻¹ = 1 := inv_eq_of_mul_eq_one (one_mul 1)
 
   theorem inv_inv (a : A) : (a⁻¹)⁻¹ = a := inv_eq_of_mul_eq_one (mul.left_inv a)
 
@@ -203,13 +203,13 @@ section group
   calc
     a * (a⁻¹ * b) = a * a⁻¹ * b : !mul.assoc⁻¹
       ... = 1 * b : mul.right_inv
-      ... = b : mul.left_id
+      ... = b : one_mul
 
   theorem mul_inv_cancel_right (a b : A) : a * b * b⁻¹ = a :=
   calc
     a * b * b⁻¹ = a * (b * b⁻¹) : mul.assoc
       ... = a * 1 : mul.right_inv
-      ... = a : mul.right_id
+      ... = a : mul_one
 
   theorem inv_mul_eq (a b : A) : (a * b)⁻¹ = b⁻¹ * a⁻¹ :=
   inv_eq_of_mul_eq_one
@@ -222,7 +222,7 @@ section group
   calc
     a = a * b⁻¹ * b : !inv_mul_cancel_right⁻¹
       ... = 1 * b : H
-      ... = b : mul.left_id
+      ... = b : one_mul
 
   -- TODO: better names for the next eight theorems? (Also for additive ones.)
   theorem eq_mul_inv_of_mul_eq {a b c : A} (H : a * b = c) : a = c * b⁻¹ :=
@@ -294,21 +294,21 @@ section add_group
   calc
     -a + (a + b) = -a + a + b : add.assoc
       ... = 0 + b : add.left_inv
-      ... = b : add.left_id
+      ... = b : zero_add
 
   theorem neg_add_cancel_right (a b : A) : a + -b + b = a :=
   calc
     a + -b + b = a + (-b + b) : add.assoc
       ... = a + 0 : add.left_inv
-      ... = a : add.right_id
+      ... = a : add_zero
 
   theorem neg_eq_of_add_eq_zero {a b : A} (H : a + b = 0) : -a = b :=
   calc
-    -a = -a + 0 : add.right_id
+    -a = -a + 0 : add_zero
       ... = -a + (a + b) : H
       ... = b : neg_add_cancel_left
 
-  theorem neg_zero : -0 = 0 := neg_eq_of_add_eq_zero (add.left_id 0)
+  theorem neg_zero : -0 = 0 := neg_eq_of_add_eq_zero (zero_add 0)
 
   theorem neg_neg (a : A) : -(-a) = a := neg_eq_of_add_eq_zero (add.left_inv a)
 
@@ -338,13 +338,13 @@ section add_group
   calc
     a + (-a + b) = a + -a + b : add.assoc
       ... = 0 + b : add.right_inv
-      ... = b : add.left_id
+      ... = b : zero_add
 
   theorem add_neg_cancel_right (a b : A) : a + b + -b = a :=
   calc
     a + b + -b = a + (b + -b) : add.assoc
       ... = a + 0 : add.right_inv
-      ... = a : add.right_id
+      ... = a : add_zero
 
   theorem neg_add_eq (a b : A) : -(a + b) = -b + -a :=
   neg_eq_of_add_eq_zero
@@ -420,14 +420,14 @@ section add_group
   calc
     a = (a - b) + b : !sub_add_cancel⁻¹
       ... = 0 + b : H
-      ... = b : add.left_id
+      ... = b : zero_add
 
   theorem eq_iff_sub_eq_zero (a b : A) : a = b ↔ a - b = 0 :=
   iff.intro (assume H, H ▸ !sub_self) (assume H, eq_of_sub_eq_zero H)
 
-  theorem zero_sub_eq (a : A) : 0 - a = -a := !add.left_id
+  theorem zero_sub_eq (a : A) : 0 - a = -a := !zero_add
 
-  theorem sub_zero_eq (a : A) : a - 0 = a := subst (eq.symm neg_zero) !add.right_id
+  theorem sub_zero_eq (a : A) : a - 0 = a := subst (eq.symm neg_zero) !add_zero
 
   theorem sub_neg_eq_add (a b : A) : a - (-b) = a + b := !neg_neg⁻¹ ▸ rfl
 

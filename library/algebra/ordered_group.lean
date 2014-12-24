@@ -88,28 +88,28 @@ section
 
   -- here we start using properties of zero.
   theorem add_nonneg {a b : A} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : 0 ≤ a + b :=
-  !add.left_id ▸ (add_le_add Ha Hb)
+  !zero_add ▸ (add_le_add Ha Hb)
 
   theorem add_pos_of_pos_of_nonneg {a b : A} (Ha : 0 < a) (Hb : 0 ≤ b) : 0 < a + b :=
-  !add.left_id ▸ (add_lt_add_of_lt_of_le Ha Hb)
+  !zero_add ▸ (add_lt_add_of_lt_of_le Ha Hb)
 
   theorem add_pos_of_nonneg_of_pos {a b : A} (Ha : 0 ≤ a) (Hb : 0 < b) : 0 < a + b :=
-  !add.left_id ▸ (add_lt_add_of_le_of_lt Ha Hb)
+  !zero_add ▸ (add_lt_add_of_le_of_lt Ha Hb)
 
   theorem add_pos_of_pos_of_pos {a b : A} (Ha : 0 < a) (Hb : 0 < b) : 0 < a + b :=
-  !add.left_id ▸ (add_lt_add_of_lt_of_lt Ha Hb)
+  !zero_add ▸ (add_lt_add_of_lt_of_lt Ha Hb)
 
   theorem add_nonpos {a b : A} (Ha : a ≤ 0) (Hb : b ≤ 0) : a + b ≤ 0 :=
-  !add.left_id ▸ (add_le_add Ha Hb)
+  !zero_add ▸ (add_le_add Ha Hb)
 
   theorem add_neg_of_neg_of_nonpos {a b : A} (Ha : a < 0) (Hb : b ≤ 0) : a + b < 0 :=
-  !add.left_id ▸ (add_lt_add_of_lt_of_le Ha Hb)
+  !zero_add ▸ (add_lt_add_of_lt_of_le Ha Hb)
 
   theorem add_neg_of_nonpos_of_neg {a b : A} (Ha : a ≤ 0) (Hb : b < 0) : a + b < 0 :=
-  !add.left_id ▸ (add_lt_add_of_le_of_lt Ha Hb)
+  !zero_add ▸ (add_lt_add_of_le_of_lt Ha Hb)
 
   theorem add_neg_of_neg_of_neg {a b : A} (Ha : a < 0) (Hb : b < 0) : a + b < 0 :=
-  !add.left_id ▸ (add_lt_add_of_lt_of_lt Ha Hb)
+  !zero_add ▸ (add_lt_add_of_lt_of_lt Ha Hb)
 
   -- TODO: add nonpos version (will be easier with simplifier)
   theorem add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_noneng {a b : A}
@@ -118,67 +118,67 @@ section
     (assume Hab : a + b = 0,
       have Ha' : a ≤ 0, from
         calc
-          a = a + 0 : add.right_id
+          a = a + 0 : add_zero
             ... ≤ a + b : add_le_add_left Hb
             ... = 0 : Hab,
       have Haz : a = 0, from le.antisym Ha' Ha,
       have Hb' : b ≤ 0, from
         calc
-          b = 0 + b : add.left_id
+          b = 0 + b : zero_add
             ... ≤ a + b : add_le_add_right Ha
             ... = 0 : Hab,
       have Hbz : b = 0, from le.antisym Hb' Hb,
       and.intro Haz Hbz)
     (assume Hab : a = 0 ∧ b = 0,
-      (and.elim_left Hab)⁻¹ ▸ (and.elim_right Hab)⁻¹ ▸ (add.right_id 0))
+      (and.elim_left Hab)⁻¹ ▸ (and.elim_right Hab)⁻¹ ▸ (add_zero 0))
 
   theorem le_add_of_nonneg_of_le (Ha : 0 ≤ a) (Hbc : b ≤ c) : b ≤ a + c :=
-  !add.left_id ▸ add_le_add Ha Hbc
+  !zero_add ▸ add_le_add Ha Hbc
 
   theorem le_add_of_le_of_nonneg (Hbc : b ≤ c) (Ha : 0 ≤ a) : b ≤ c + a :=
-  !add.right_id ▸ add_le_add Hbc Ha
+  !add_zero ▸ add_le_add Hbc Ha
 
   theorem lt_add_of_pos_of_le (Ha : 0 < a) (Hbc : b ≤ c) : b < a + c :=
-  !add.left_id ▸ add_lt_add_of_lt_of_le Ha Hbc
+  !zero_add ▸ add_lt_add_of_lt_of_le Ha Hbc
 
   theorem lt_add_of_le_of_pos (Hbc : b ≤ c) (Ha : 0 < a) : b < c + a :=
-  !add.right_id ▸ add_lt_add_of_le_of_lt Hbc Ha
+  !add_zero ▸ add_lt_add_of_le_of_lt Hbc Ha
 
   theorem add_le_of_nonpos_of_le (Ha : a ≤ 0) (Hbc : b ≤ c) : a + b ≤ c :=
-  !add.left_id ▸ add_le_add Ha Hbc
+  !zero_add ▸ add_le_add Ha Hbc
 
   theorem add_le_of_le_of_nonpos (Hbc : b ≤ c) (Ha : a ≤ 0) : b + a ≤ c :=
-  !add.right_id ▸ add_le_add Hbc Ha
+  !add_zero ▸ add_le_add Hbc Ha
 
   theorem add_lt_of_neg_of_le (Ha : a < 0) (Hbc : b ≤ c) : a + b < c :=
-  !add.left_id ▸ add_lt_add_of_lt_of_le Ha Hbc
+  !zero_add ▸ add_lt_add_of_lt_of_le Ha Hbc
 
   theorem add_lt_of_le_of_neg (Hbc : b ≤ c) (Ha : a < 0) : b + a < c :=
-  !add.right_id ▸ add_lt_add_of_le_of_lt Hbc Ha
+  !add_zero ▸ add_lt_add_of_le_of_lt Hbc Ha
 
   theorem lt_add_of_nonneg_of_lt (Ha : 0 ≤ a) (Hbc : b < c) : b < a + c :=
-  !add.left_id ▸ add_lt_add_of_le_of_lt Ha Hbc
+  !zero_add ▸ add_lt_add_of_le_of_lt Ha Hbc
 
   theorem lt_add_of_lt_of_nonneg (Hbc : b < c) (Ha : 0 ≤ a) : b < c + a :=
-  !add.right_id ▸ add_lt_add_of_lt_of_le Hbc Ha
+  !add_zero ▸ add_lt_add_of_lt_of_le Hbc Ha
 
   theorem lt_add_of_pos_of_lt (Ha : 0 < a) (Hbc : b < c) : b < a + c :=
-  !add.left_id ▸ add_lt_add_of_lt_of_lt Ha Hbc
+  !zero_add ▸ add_lt_add_of_lt_of_lt Ha Hbc
 
   theorem lt_add_of_lt_of_pos (Hbc : b < c) (Ha : 0 < a) : b < c + a :=
-  !add.right_id ▸ add_lt_add_of_lt_of_lt Hbc Ha
+  !add_zero ▸ add_lt_add_of_lt_of_lt Hbc Ha
 
   theorem add_lt_of_nonpos_of_lt (Ha : a ≤ 0) (Hbc : b < c) : a + b < c :=
-  !add.left_id ▸ add_lt_add_of_le_of_lt Ha Hbc
+  !zero_add ▸ add_lt_add_of_le_of_lt Ha Hbc
 
   theorem add_lt_of_lt_of_nonpos (Hbc : b < c) (Ha : a ≤ 0)  : b + a < c :=
-  !add.right_id ▸ add_lt_add_of_lt_of_le Hbc Ha
+  !add_zero ▸ add_lt_add_of_lt_of_le Hbc Ha
 
   theorem add_lt_of_neg_of_lt (Ha : a < 0) (Hbc : b < c) : a + b < c :=
-  !add.left_id ▸ add_lt_add_of_lt_of_lt Ha Hbc
+  !zero_add ▸ add_lt_add_of_lt_of_lt Ha Hbc
 
   theorem add_lt_of_lt_of_neg (Hbc : b < c) (Ha : a < 0) : b + a < c :=
-  !add.right_id ▸ add_lt_add_of_lt_of_lt Hbc Ha
+  !add_zero ▸ add_lt_add_of_lt_of_lt Hbc Ha
 
 end
 
@@ -194,7 +194,7 @@ structure ordered_comm_group [class] (A : Type) extends add_comm_group A, order_
 definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] (A : Type)
     [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
 ordered_cancel_comm_monoid.mk ordered_comm_group.add ordered_comm_group.add_assoc
-  (@ordered_comm_group.zero A s) add.left_id add.right_id ordered_comm_group.add_comm
+  (@ordered_comm_group.zero A s) zero_add add_zero ordered_comm_group.add_comm
   (@add.left_cancel _ _) (@add.right_cancel _ _)
   has_le.le le.refl (@le.trans _ _) (@le.antisym _ _)
   has_lt.lt (@lt_iff_le_and_ne _ _) ordered_comm_group.add_le_add_left
@@ -212,8 +212,8 @@ section
 
   theorem neg_le_neg_of_le {a b : A} (H : a ≤ b) : -b ≤ -a :=
   have H1 : 0 ≤ -a + b, from !add.left_inv ▸ !(add_le_add_left H),
-  !add_neg_cancel_right ▸ !add.left_id ▸ add_le_add_right H1 (-b)
---  !add.left_id ▸ !add_neg_cancel_right ▸ add_le_add_right H1 (-b)  -- doesn't work?
+  !add_neg_cancel_right ▸ !zero_add ▸ add_le_add_right H1 (-b)
+--  !zero_add ▸ !add_neg_cancel_right ▸ add_le_add_right H1 (-b)  -- doesn't work?
 
   theorem neg_le_neg_iff_le : -a ≤ -b ↔ b ≤ a :=
   iff.intro (take H, neg_neg a ▸ neg_neg b ▸ neg_le_neg_of_le H) neg_le_neg_of_le
@@ -226,7 +226,7 @@ section
 
   theorem neg_lt_neg_of_lt {a b : A} (H : a < b) : -b < -a :=
   have H1 : 0 < -a + b, from !add.left_inv ▸ !(add_lt_add_left H),
-  !add_neg_cancel_right ▸ !add.left_id ▸ add_lt_add_right H1 (-b)
+  !add_neg_cancel_right ▸ !zero_add ▸ add_lt_add_right H1 (-b)
 
   theorem neg_lt_neg_iff_lt : -a < -b ↔ b < a :=
   iff.intro (take H, neg_neg a ▸ neg_neg b ▸ neg_lt_neg_of_lt H) neg_lt_neg_of_lt

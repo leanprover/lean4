@@ -45,7 +45,7 @@ exists.intro n (!add.comm ▸ iff.mp' !add_eq_iff_eq_add_neg (H1⁻¹))
 -- ### partial order
 
 theorem le_refl (a : ℤ) : a ≤ a :=
-le_intro (add.right_id a)
+le_intro (add_zero a)
 
 theorem le_of_nat (n m : ℕ) : (of_nat n ≤ of_nat m) ↔ (n ≤ m) :=
 iff.intro
@@ -78,13 +78,13 @@ have H3 : a + of_nat (n + m) = a + 0, from
       ... = a + n + m : (add.assoc a n m)⁻¹
       ... = b + m : {Hn}
       ... = a : Hm
-      ... = a + 0 : (add.right_id a)⁻¹,
+      ... = a + 0 : (add_zero a)⁻¹,
 have H4 : of_nat (n + m) = of_nat 0, from add.left_cancel H3,
 have H5 : n + m = 0, from of_nat_inj H4,
 have H6 : n = 0, from nat.eq_zero_of_add_eq_zero_right H5,
 show a = b, from
   calc
-    a = a + of_nat 0 : (add.right_id a)⁻¹
+    a = a + of_nat 0 : (add_zero a)⁻¹
       ... = a + n : {H6⁻¹}
       ... = b : Hn
 
@@ -132,7 +132,7 @@ discriminate
   (assume H2 : n = 0,
     have H3 : a = b, from
       calc
-        a = a + 0 : (add.right_id a)⁻¹
+        a = a + 0 : (add_zero a)⁻¹
           ... = a + n : {H2⁻¹}
           ... = b : Hn,
     or.inr H3)
@@ -188,7 +188,7 @@ theorem le_iff_sub_nonneg (a b : ℤ) : a ≤ b ↔ 0 ≤ b - a :=
 iff.intro
   (assume H, !sub_self ▸ sub_le_right H a)
   (assume H,
-     have H1 : a ≤ b - a + a, from add.left_id a ▸ add_le_right H a,
+     have H1 : a ≤ b - a + a, from zero_add a ▸ add_le_right H a,
      !neg_add_cancel_right ▸ H1)
 
 
@@ -418,7 +418,7 @@ or_resolve_right (le_or_gt a b) H
 
 theorem pos_imp_exists_nat {a : ℤ} (H : a ≥ 0) : ∃n : ℕ, a = n :=
 obtain (n : ℕ) (Hn : of_nat 0 + n = a), from le_elim H,
-exists.intro n (Hn⁻¹ ⬝ add.left_id n)
+exists.intro n (Hn⁻¹ ⬝ zero_add n)
 
 theorem neg_imp_exists_nat {a : ℤ} (H : a ≤ 0) : ∃n : ℕ, a = -n :=
 have H2 : -a ≥ 0, from zero_le_neg H,
@@ -484,7 +484,7 @@ theorem mul_le_nonpos {a b c d : ℤ} (Ha : a ≤ 0) (Hb : b ≤ 0) (Hc : c ≤ 
 le_trans (mul_le_right_nonpos Hb Hc) (mul_le_left_nonpos (le_trans Hc Ha) Hd)
 
 theorem mul_lt_left_pos {a b c : ℤ} (Ha : a > 0) (H : b < c) : a * b < a * c :=
-have H2 : a * b < a * b + a, from add.right_id (a * b) ▸ add_lt_left Ha (a * b),
+have H2 : a * b < a * b + a, from add_zero (a * b) ▸ add_lt_left Ha (a * b),
 have H3 : a * b + a ≤ a * c, from (by simp) ▸ mul_le_left_nonneg (lt_imp_le Ha) H,
 lt_le_trans H2 H3
 

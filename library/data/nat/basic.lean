@@ -59,8 +59,6 @@ rfl
 theorem pred.succ (n : ℕ) : pred (succ n) = n :=
 rfl
 
-irreducible pred
-
 theorem eq_zero_or_eq_succ_pred (n : ℕ) : n = 0 ∨ n = succ (pred n) :=
 induction_on n
   (or.inl rfl)
@@ -104,17 +102,15 @@ general m
 
 /- addition -/
 
-theorem add.right_id (n : ℕ) : n + 0 = n :=
+theorem add_zero (n : ℕ) : n + 0 = n :=
 rfl
 
 theorem add_succ (n m : ℕ) : n + succ m = succ (n + m) :=
 rfl
 
-irreducible add
-
-theorem add.left_id (n : ℕ) : 0 + n = n :=
+theorem zero_add (n : ℕ) : 0 + n = n :=
 induction_on n
-    !add.right_id
+    !add_zero
     (take m IH, show 0 + succ m = succ m, from
       calc
         0 + succ m = succ (0 + m) : add_succ
@@ -122,7 +118,7 @@ induction_on n
 
 theorem add.succ_left (n m : ℕ) : (succ n) + m = succ (n + m) :=
 induction_on m
-    (!add.right_id ▸ !add.right_id)
+    (!add_zero ▸ !add_zero)
     (take k IH, calc
       succ n + succ k = succ (succ n + k)    : add_succ
                   ... = succ (succ (n + k))  : IH
@@ -130,7 +126,7 @@ induction_on m
 
 theorem add.comm (n m : ℕ) : n + m = m + n :=
 induction_on m
-    (!add.right_id ⬝ !add.left_id⁻¹)
+    (!add_zero ⬝ !zero_add⁻¹)
     (take k IH, calc
         n + succ k = succ (n+k)   : add_succ
                ... = succ (k + n) : IH
@@ -141,7 +137,7 @@ theorem succ_add_eq_add_succ (n m : ℕ) : succ n + m = n + succ m :=
 
 theorem add.assoc (n m k : ℕ) : (n + m) + k = n + (m + k) :=
 induction_on k
-    (!add.right_id ▸ !add.right_id)
+    (!add_zero ▸ !add_zero)
     (take l IH,
       calc
         (n + m) + succ l = succ ((n + m) + l)  : add_succ
@@ -158,7 +154,7 @@ right_comm add.comm add.assoc n m k
 theorem add.cancel_left {n m k : ℕ} : n + m = n + k → m = k :=
 induction_on n
   (take H : 0 + m = 0 + k,
-    !add.left_id⁻¹ ⬝ H ⬝ !add.left_id)
+    !zero_add⁻¹ ⬝ H ⬝ !zero_add)
   (take (n : ℕ) (IH : n + m = n + k → m = k) (H : succ n + m = succ n + k),
     have H2 : succ (n + m) = succ (n + k),
     from calc
@@ -190,10 +186,10 @@ theorem add.eq_zero {n m : ℕ} (H : n + m = 0) : n = 0 ∧ m = 0 :=
 and.intro (eq_zero_of_add_eq_zero_right H) (eq_zero_of_add_eq_zero_left H)
 
 theorem add_one (n : ℕ) : n + 1 = succ n :=
-!add.right_id ▸ !add_succ
+!add_zero ▸ !add_succ
 
 theorem one_add (n : ℕ) : 1 + n = succ n :=
-!add.left_id ▸ !add.succ_left
+!zero_add ▸ !add.succ_left
 
 /- multiplication -/
 
@@ -203,18 +199,16 @@ rfl
 theorem mul_succ (n m : ℕ) : n * succ m = n * m + n :=
 rfl
 
-irreducible mul
-
 -- commutativity, distributivity, associativity, identity
 
 theorem zero_mul (n : ℕ) : 0 * n = 0 :=
 induction_on n
   !mul_zero
-  (take m IH, !mul_succ ⬝ !add.right_id ⬝ IH)
+  (take m IH, !mul_succ ⬝ !add_zero ⬝ IH)
 
 theorem succ_mul (n m : ℕ) : (succ n) * m = (n * m) + m :=
 induction_on m
-  (!mul_zero ⬝ !mul_zero⁻¹ ⬝ !add.right_id⁻¹)
+  (!mul_zero ⬝ !mul_zero⁻¹ ⬝ !add_zero⁻¹)
   (take k IH, calc
     succ n * succ k = succ n * k + succ n   : mul_succ
                 ... = n * k + k + succ n    : IH
@@ -236,7 +230,7 @@ theorem mul.right_distrib (n m k : ℕ) : (n + m) * k = n * k + m * k :=
 induction_on k
   (calc
     (n + m) * 0 = 0             : mul_zero
-            ... = 0 + 0         : add.right_id
+            ... = 0 + 0         : add_zero
             ... = n * 0 + 0     : mul_zero
             ... = n * 0 + m * 0 : mul_zero)
   (take l IH, calc
@@ -258,9 +252,7 @@ calc
 theorem mul.assoc (n m k : ℕ) : (n * m) * k = n * (m * k) :=
 induction_on k
   (calc
-    (n * m) * 0 = 0           : mul_zero
-            ... = n * 0       : mul_zero
-            ... = n * (m * 0) : mul_zero)
+    (n * m) * 0 = n * (m * 0) : mul_zero)
   (take l IH,
     calc
       (n * m) * succ l = (n * m) * l + n * m : mul_succ
@@ -268,16 +260,16 @@ induction_on k
                    ... = n * (m * l + m)     : mul.left_distrib
                    ... = n * (m * succ l)    : mul_succ)
 
-theorem mul.right_id (n : ℕ) : n * 1 = n :=
+theorem mul_one (n : ℕ) : n * 1 = n :=
 calc
   n * 1 = n * 0 + n : mul_succ
     ... = 0 + n     : mul_zero
-    ... = n         : add.left_id
+    ... = n         : zero_add
 
-theorem mul.left_id (n : ℕ) : 1 * n = n :=
+theorem one_mul (n : ℕ) : 1 * n = n :=
 calc
   1 * n = n * 1 : mul.comm
-    ... = n     : mul.right_id
+    ... = n     : mul_one
 
 theorem eq_zero_or_eq_zero_of_mul_eq_zero {n m : ℕ} : n * m = 0 → n = 0 ∨ m = 0 :=
 cases_on n
@@ -299,8 +291,8 @@ section port_algebra
   open algebra
 
   protected definition comm_semiring [instance] : algebra.comm_semiring nat :=
-  algebra.comm_semiring.mk add add.assoc zero add.left_id add.right_id add.comm
-  mul mul.assoc (succ zero) mul.left_id mul.right_id mul.left_distrib mul.right_distrib
+  algebra.comm_semiring.mk add add.assoc zero zero_add add_zero add.comm
+  mul mul.assoc (succ zero) one_mul mul_one mul.left_distrib mul.right_distrib
   zero_mul mul_zero (ne.symm (succ_ne_zero zero)) mul.comm
 
   theorem mul.left_comm : ∀a b c : ℕ, a * (b * c) = b * (a * c) := algebra.mul.left_comm

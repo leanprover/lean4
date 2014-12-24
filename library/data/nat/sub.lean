@@ -44,8 +44,8 @@ induction_on n !sub_zero_right (take k IH, !sub_succ_succ ⬝ IH)
 theorem sub_add_add_right (n k m : ℕ) : (n + k) - (m + k) = n - m :=
 induction_on k
   (calc
-    (n + 0) - (m + 0) = n - (m + 0) : {!add.right_id}
-                  ... = n - m       : {!add.right_id})
+    (n + 0) - (m + 0) = n - (m + 0) : {!add_zero}
+                  ... = n - m       : {!add_zero})
   (take l : nat,
     assume IH : (n + l) - (m + l) = n - m,
     calc
@@ -59,7 +59,7 @@ theorem sub_add_add_left (k n m : ℕ) : (k + n) - (k + m) = n - m :=
 
 theorem sub_add_left (n m : ℕ) : n + m - m = n :=
 induction_on m
-  (!add.right_id⁻¹ ▸ !sub_zero_right)
+  (!add_zero⁻¹ ▸ !sub_zero_right)
   (take k : ℕ,
     assume IH : n + k - k = n,
     calc
@@ -75,7 +75,7 @@ theorem sub_sub (n m k : ℕ) : n - m - k = n - (m + k) :=
 induction_on k
   (calc
     n - m - 0 = n - m        : !sub_zero_right
-          ... =  n - (m + 0) : {!add.right_id⁻¹})
+          ... =  n - (m + 0) : {!add_zero⁻¹})
   (take l : nat,
     assume IH : n - m - l = n - (m + l),
     calc
@@ -184,7 +184,7 @@ sub_induction n m
   (take k,
     assume H : 0 ≤ k,
     calc
-      0 + (k - 0) = k - 0 : !add.left_id
+      0 + (k - 0) = k - 0 : !zero_add
               ... = k     : !sub_zero_right)
   (take k, assume H : succ k ≤ 0, absurd H !not_succ_zero_le)
   (take k l,
@@ -201,7 +201,7 @@ theorem add_sub_ge_left {n m : ℕ} : n ≥ m → n - m + m = n :=
 theorem add_sub_ge {n m : ℕ} (H : n ≥ m) : n + (m - n) = n :=
 calc
   n + (m - n) = n + 0 : {le_imp_sub_eq_zero H}
-          ... = n     : !add.right_id
+          ... = n     : !add_zero
 
 theorem add_sub_le_left {n m : ℕ} : n ≤ m → n - m + m = m :=
 !add.comm ▸ add_sub_ge
@@ -254,7 +254,7 @@ sub_split
   (take k : ℕ,
     assume H1 : m + k = n,
     assume H2 : k = 0,
-    have H3 : n = m, from !add.right_id ▸ H2 ▸ H1⁻¹,
+    have H3 : n = m, from !add_zero ▸ H2 ▸ H1⁻¹,
     H3 ▸ !le_refl)
 
 theorem sub_sub_split {P : ℕ → ℕ → Prop} {n m : ℕ} (H1 : ∀k, n = m + k -> P k 0)
@@ -308,7 +308,7 @@ sub_split
 
 theorem sub_pos_of_gt {m n : ℕ} (H : n > m) : n - m > 0 :=
 have H1 : n = n - m + m, from (add_sub_ge_left (lt_imp_le H))⁻¹,
-have H2 : 0 + m < n - m + m, from (add.left_id m)⁻¹ ▸ H1 ▸ H,
+have H2 : 0 + m < n - m + m, from (zero_add m)⁻¹ ▸ H1 ▸ H,
 !add_lt_cancel_right H2
 
 -- theorem sub_lt_cancel_right {n m k : ℕ) (H : n - k < m - k) : n < m
@@ -321,14 +321,14 @@ have H2 : 0 + m < n - m + m, from (add.left_id m)⁻¹ ▸ H1 ▸ H,
 
 theorem sub_triangle_inequality (n m k : ℕ) : n - k ≤ (n - m) + (m - k) :=
 sub_split
-  (assume H : n ≤ m, !add.left_id⁻¹ ▸ sub_le_right H k)
+  (assume H : n ≤ m, !zero_add⁻¹ ▸ sub_le_right H k)
   (take mn : ℕ,
     assume Hmn : m + mn = n,
     sub_split
       (assume H : m ≤ k,
         have H2 : n - k ≤ n - m, from sub_le_left H n,
         have H3 : n - k ≤ mn, from sub_intro Hmn ▸ H2,
-        show n - k ≤ mn + 0, from !add.right_id⁻¹ ▸ H3)
+        show n - k ≤ mn + 0, from !add_zero⁻¹ ▸ H3)
       (take km : ℕ,
         assume Hkm : k + km = m,
         have H : k + (mn + km) = n, from
@@ -372,7 +372,7 @@ le_antisym H3 H5
 theorem dist_le {n m : ℕ} (H : n ≤ m) : dist n m = m - n :=
 calc
   dist n m = 0 + (m - n) : {le_imp_sub_eq_zero H}
-       ... = m - n       : !add.left_id
+       ... = m - n       : !zero_add
 
 theorem dist_ge {n m : ℕ} (H : n ≥ m) : dist n m = n - m :=
 !dist_comm ▸ dist_le H

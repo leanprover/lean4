@@ -220,12 +220,12 @@ or.elim (@le_or_gt n m)
     H1⁻¹ ▸
       (calc
         m - n + n = m : add_sub_ge_left H
-          ... = 0 + m : add.left_id))
+          ... = 0 + m : zero_add))
   (take H : m < n,
     have H1 : repr (sub_nat_nat m n) = (0, succ (pred (n - m))), from sub_nat_nat_of_lt H ▸ rfl,
     H1⁻¹ ▸
       (calc
-        0 + n = n : add.left_id
+        0 + n = n : zero_add
           ... = n - m + m : add_sub_ge_left (lt_imp_le H)
           ... = succ (pred (n - m)) + m : (succ_pred_of_pos (sub_pos_of_gt H))⁻¹))
 
@@ -336,7 +336,7 @@ cases_on a
           from !repr_sub_nat_nat,
         have H2 : padd (repr (of_nat m)) (repr (neg_succ_of_nat n')) = (m, 0 + succ n'),
           from rfl,
-        (!add.left_id ▸ H2)⁻¹ ▸ H1))
+        (!zero_add ▸ H2)⁻¹ ▸ H1))
   (take m',
     cases_on b
       (take n,
@@ -344,7 +344,7 @@ cases_on a
           from !repr_sub_nat_nat,
         have H2 : padd (repr (neg_succ_of_nat m')) (repr (of_nat n)) = (0 + n, succ m'),
           from rfl,
-        (!add.left_id ▸ H2)⁻¹ ▸ H1)
+        (!zero_add ▸ H2)⁻¹ ▸ H1)
        (take n',!repr_sub_nat_nat))
 
 theorem padd_congr {p p' q q' : ℕ × ℕ} (Ha : p ≡ p') (Hb : q ≡ q') : padd p q ≡ padd p' q' :=
@@ -392,9 +392,9 @@ begin
   apply H2
 end
 
-theorem add.right_id (a : ℤ) : a + 0 = a := cases_on a (take m, rfl) (take m', rfl)
+theorem add_zero (a : ℤ) : a + 0 = a := cases_on a (take m, rfl) (take m', rfl)
 
-theorem add.left_id (a : ℤ) : 0 + a = a := add.comm a 0 ▸ add.right_id a
+theorem zero_add (a : ℤ) : 0 + a = a := add.comm a 0 ▸ add_zero a
 
 /- negation -/
 
@@ -500,13 +500,13 @@ cases_on a
           pmul (repr (neg_succ_of_nat m')) (repr n) =
               (0 * n + succ m' * 0, 0 * 0 + succ m' * n) : rfl
             ... = (0 + succ m' * 0, 0 * 0 + succ m' * n) : zero_mul
-            ... = (0 + succ m' * 0, succ m' * n) : nat.add.left_id
+            ... = (0 + succ m' * 0, succ m' * n) : nat.zero_add
             ... = repr (mul (neg_succ_of_nat m') n) : repr_neg_of_nat)⁻¹)
       (take n',
         (calc
           pmul (repr (neg_succ_of_nat m')) (repr (neg_succ_of_nat n')) =
               (0 + succ m' * succ n', 0 * succ n') : rfl
-            ... = (succ m' * succ n', 0 * succ n') : nat.add.left_id
+            ... = (succ m' * succ n', 0 * succ n') : nat.zero_add
             ... = (succ m' * succ n', 0) : zero_mul
             ... = repr (mul (neg_succ_of_nat m') (neg_succ_of_nat n')) : rfl)⁻¹))
 
@@ -558,15 +558,15 @@ eq_of_repr_equiv_repr
       ... = pmul (repr a) (repr (b * c)) : repr_mul
       ... = repr (a * (b * c)) : repr_mul) ▸ !equiv.refl)
 
-theorem mul.right_id (a : ℤ) : a * 1 = a :=
+theorem mul_one (a : ℤ) : a * 1 = a :=
 eq_of_repr_equiv_repr (equiv_of_eq
   ((calc
     repr (a * 1) = pmul (repr a) (repr 1) : repr_mul
       ... = (pr1 (repr a), pr2 (repr a)) : by simp
       ... = repr a : prod.eta)))
 
-theorem mul.left_id (a : ℤ) : 1 * a = a :=
-mul.comm a 1 ▸ mul.right_id a
+theorem one_mul (a : ℤ) : 1 * a = a :=
+mul.comm a 1 ▸ mul_one a
 
 theorem mul.right_distrib (a b c : ℤ) : (a + b) * c = a * c + b * c :=
 eq_of_repr_equiv_repr
@@ -601,8 +601,8 @@ or_of_or_of_imp_of_imp H3
   (assume H : (nat_abs b) = nat.zero, nat_abs_eq_zero H)
 
 definition integral_domain : algebra.integral_domain int :=
-algebra.integral_domain.mk add add.assoc zero add.left_id add.right_id neg add.left_inv
-add.comm mul mul.assoc (of_num 1) mul.left_id mul.right_id mul.left_distrib mul.right_distrib
+algebra.integral_domain.mk add add.assoc zero zero_add add_zero neg add.left_inv
+add.comm mul mul.assoc (of_num 1) one_mul mul_one mul.left_distrib mul.right_distrib
 zero_ne_one mul.comm @eq_zero_or_eq_zero_of_mul_eq_zero
 
 /-
@@ -745,7 +745,7 @@ context port_algebra
 end port_algebra
 
 -- TODO: declare appropriate rewrite rules
--- add_rewrite add_left_id add_right_id
+-- add_rewrite zero_add add_zero
 -- add_rewrite add_comm add.assoc add_left_comm
 -- add_rewrite sub_def add_inverse_right add_inverse_left
 -- add_rewrite neg_add_distr

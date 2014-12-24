@@ -39,7 +39,7 @@ structure ring [class] (A : Type)
     assoc→add.assoc
     comm→add.comm
     one→zero
-    right_id→add.right_id
+    right_id→add_zero
     left_id→add.left_id
     inv→uminus
     is_inv→uminus_is_inv,

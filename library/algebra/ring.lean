@@ -86,7 +86,7 @@ section comm_semiring
   theorem dvd.elim {P : Prop} {a b : A} (H₁ : a | b) (H₂ : ∀c, a * c = b → P) : P :=
   exists.elim H₁ H₂
 
-  theorem dvd.refl : a | a := dvd.intro (!mul.right_id)
+  theorem dvd.refl : a | a := dvd.intro !mul_one
 
   theorem dvd.trans {a b c : A} (H₁ : a | b) (H₂ : b | c) : a | c :=
   dvd.elim H₁
@@ -104,7 +104,7 @@ section comm_semiring
 
   theorem dvd_zero : a | 0 := dvd.intro !mul_zero
 
-  theorem one_dvd : 1 | a := dvd.intro !mul.left_id
+  theorem one_dvd : 1 | a := dvd.intro !one_mul
 
   theorem dvd_mul_right : a | a * b := dvd.intro rfl
 
@@ -156,22 +156,22 @@ end comm_semiring
 structure ring [class] (A : Type) extends add_comm_group A, monoid A, distrib A, zero_ne_one_class A
 
 definition ring.to_semiring [instance] [s : ring A] : semiring A :=
-semiring.mk ring.add ring.add_assoc !ring.zero ring.add_left_id
-  add.right_id   -- note: we've shown that add_right_id follows from add_left_id in add_comm_group
-  ring.add_comm ring.mul ring.mul_assoc !ring.one ring.mul_left_id ring.mul_right_id
+semiring.mk ring.add ring.add_assoc !ring.zero ring.zero_add
+  add_zero   -- note: we've shown that add_zero follows from zero_add in add_comm_group
+  ring.add_comm ring.mul ring.mul_assoc !ring.one ring.one_mul ring.mul_one
   ring.left_distrib ring.right_distrib
   (take a,
     have H : 0 * a + 0 = 0 * a + 0 * a, from
       calc
-        0 * a + 0 = 0 * a : add.right_id
-          ... = (0 + 0) * a : {(add.right_id 0)⁻¹}
+        0 * a + 0 = 0 * a : add_zero
+          ... = (0 + 0) * a : {(add_zero 0)⁻¹}
           ... = 0 * a + 0 * a : ring.right_distrib,
     show 0 * a = 0, from  (add.left_cancel H)⁻¹)
   (take a,
     have H : a * 0 + 0 = a * 0 + a * 0, from
       calc
-        a * 0 + 0 = a * 0 : add.right_id
-          ... = a * (0 + 0) : {(add.right_id 0)⁻¹}
+        a * 0 + 0 = a * 0 : add_zero
+          ... = a * (0 + 0) : {(add_zero 0)⁻¹}
           ... = a * 0 + a * 0 : ring.left_distrib,
     show a * 0 = 0, from (add.left_cancel H)⁻¹)
   !ring.zero_ne_one
@@ -232,8 +232,8 @@ structure comm_ring [class] (A : Type) extends ring A, comm_semigroup A
 
 definition comm_ring.to_comm_semiring [instance] [s : comm_ring A] : comm_semiring A :=
 comm_semiring.mk comm_ring.add comm_ring.add_assoc (@comm_ring.zero A s)
-  comm_ring.add_left_id comm_ring.add_right_id comm_ring.add_comm comm_ring.mul comm_ring.mul_assoc
-  (@comm_ring.one A s) comm_ring.mul_left_id comm_ring.mul_right_id comm_ring.left_distrib
+  comm_ring.zero_add comm_ring.add_zero comm_ring.add_comm comm_ring.mul comm_ring.mul_assoc
+  (@comm_ring.one A s) comm_ring.one_mul comm_ring.mul_one comm_ring.left_distrib
   comm_ring.right_distrib zero_mul mul_zero (@comm_ring.zero_ne_one A s)
   comm_ring.mul_comm
 
@@ -246,7 +246,7 @@ section
   theorem mul_self_sub_mul_self_eq : a * a - b * b = (a + b) * (a - b) := sorry
 
   theorem mul_self_sub_one_eq : a * a - 1 = (a + 1) * (a - 1) :=
-  mul.right_id 1 ▸ mul_self_sub_mul_self_eq a 1
+  mul_one 1 ▸ mul_self_sub_mul_self_eq a 1
 
 end
 

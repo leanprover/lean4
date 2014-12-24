@@ -1,4 +1,4 @@
-import data.nat.basic data.prod
+import data.prod
 open nat prod
 
 constant R : nat → nat → Prop

@@ -1,4 +1,4 @@
-import logic data.num data.nat.basic
+import logic data.num
 open num
 constant b : num
 check b + b + b

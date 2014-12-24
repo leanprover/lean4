@@ -1,4 +1,3 @@
-import data.nat.basic
 open nat
 
 constant list.{l} : Type.{l} → Type.{l}

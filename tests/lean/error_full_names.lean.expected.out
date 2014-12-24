@@ -1,4 +1,4 @@
-error_full_names.lean:5:8: error: type mismatch at application
+error_full_names.lean:4:8: error: type mismatch at application
   0 + nat.zero
 term
   nat.zero
@@ -6,7 +6,7 @@ has type
   nat
 but is expected to have type
   ℕ
-error_full_names.lean:9:6: error: type mismatch at application
+error_full_names.lean:8:6: error: type mismatch at application
   nat.succ nat.zero
 term
   nat.zero

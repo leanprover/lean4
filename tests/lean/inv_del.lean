@@ -1,4 +1,4 @@
-import logic data.nat.basic
+import logic
 open nat
 
 inductive vec (A : Type) : nat → Type :=

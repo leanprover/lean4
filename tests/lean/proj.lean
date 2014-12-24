@@ -1,4 +1,4 @@
-import logic data.nat.basic
+import logic
 
 inductive vector (T : Type) : nat → Type :=
   nil {} : vector T nat.zero,

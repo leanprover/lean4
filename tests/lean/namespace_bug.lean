@@ -1,5 +1,3 @@
-import data.nat.basic
-
 namespace playground
 namespace nat
 check 2+3 -- Should produce error

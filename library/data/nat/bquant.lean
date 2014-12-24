@@ -1,6 +1,8 @@
 /-
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: data.nat.bquant
 Author: Leonardo de Moura
 
 Show that "bounded" quantifiers: (∃x, x < n ∧ P x) and (∀x, x < n → P x)
@@ -14,7 +16,7 @@ without assuming classical axioms.
 
 More importantly, they can be reduced inside of the Lean kernel.
 -/
-import data.nat
+import data.nat.order
 
 namespace nat
   definition bex (n : nat) (P : nat → Prop) : Prop :=

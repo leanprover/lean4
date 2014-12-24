@@ -1,12 +1,13 @@
---- Copyright (c) 2014 Jeremy Avigad. All rights reserved.
---- Released under Apache 2.0 license as described in the file LICENSE.
---- Author: Jeremy Avigad, Leonardo de Moura
+/-
+Copyright (c) 2014 Jeremy Avigad. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
 
--- div.lean
--- ========
---
--- This is a continuation of the development of the natural numbers, with a general way of
--- defining recursive functions, and definitions of div, mod, and gcd.
+Module: data.nat.div
+Authors: Jeremy Avigad, Leonardo de Moura
+
+This is a continuation of the development of the natural numbers, with a general way of
+defining recursive functions, and definitions of div, mod, and gcd.
+-/
 
 import data.nat.sub logic
 import algebra.relation
@@ -251,22 +252,23 @@ have H1 : (n * 1) div (n * 1) = 1 div 1, from div_mul_mul H,
 
 -- Divides
 -- -------
-definition dvd (x y : ℕ) : Prop := y mod x = 0
 
-infix `|` := dvd
+-- definition dvd (x y : ℕ) : Prop := y mod x = 0
 
-theorem dvd_iff_mod_eq_zero {x y : ℕ} : x | y ↔ y mod x = 0 :=
-iff.of_eq rfl
+-- infix `|` := dvd
 
-theorem dvd_imp_div_mul_eq {x y : ℕ} (H : y | x) : x div y * y = x :=
+-- theorem dvd_iff_mod_eq_zero {x y : ℕ} : x | y ↔ y mod x = 0 :=
+-- iff.of_eq rfl
+
+theorem mod_eq_zero_imp_div_mul_eq {x y : ℕ} (H : x mod y = 0) : x div y * y = x :=
 (calc
   x = x div y * y + x mod y : div_mod_eq
-    ... = x div y * y + 0 : {mp dvd_iff_mod_eq_zero H}
+    ... = x div y * y + 0 : H
     ... = x div y * y : !add.right_id)⁻¹
 
 -- add_rewrite dvd_imp_div_mul_eq
 
-theorem mul_eq_imp_dvd {z x y : ℕ} (H : z * y = x) :  y | x :=
+theorem mul_eq_imp_mod_eq_zero {z x y : ℕ} (H : z * y = x) :  x mod y = 0 :=
 have H1 : z * y = x mod y + x div y * y, from
   H ⬝ div_mod_eq ⬝ !add.comm,
 have H2 : (z - x div y) * y = x mod y, from
@@ -297,69 +299,34 @@ show x mod y = 0, from
             ... = 0 * y             : H6
             ... = 0                 : zero_mul)
 
-theorem dvd_iff_exists_mul (x y : ℕ) : x | y ↔ ∃z, z * x = y :=
-iff.intro
-  (assume H : x | y,
-    show ∃z, z * x = y, from exists.intro _ (dvd_imp_div_mul_eq H))
-  (assume H : ∃z, z * x = y,
-    obtain (z : ℕ) (zx_eq : z * x = y), from H,
-    show x | y, from mul_eq_imp_dvd zx_eq)
+theorem dvd_of_mod_eq_zero {x y : ℕ} (H : y mod x = 0) : x | y :=
+dvd.intro (!mul.comm ▸ mod_eq_zero_imp_div_mul_eq H)
 
-theorem dvd_zero {n : ℕ} : n | 0 :=
-zero_mod n
+theorem mod_eq_zero_of_dvd {x y : ℕ} (H : x | y) : y mod x = 0 :=
+dvd.elim H (
+  take z,
+    assume H1 : x * z = y,
+    mul_eq_imp_mod_eq_zero (!mul.comm ▸ H1))
 
--- add_rewrite dvd_zero
+theorem dvd_iff_mod_eq_zero (x y : ℕ) : x | y ↔ y mod x = 0 :=
+iff.intro mod_eq_zero_of_dvd dvd_of_mod_eq_zero
 
-theorem zero_dvd_eq (n : ℕ) : (0 | n) = (n = 0) :=
-mod_zero n ▸ eq.refl (0 | n)
+theorem dvd.decidable_rel [instance] : decidable_rel dvd :=
+take m n, decidable_of_decidable_of_iff _ (!dvd_iff_mod_eq_zero⁻¹)
 
--- add_rewrite zero_dvd_iff
+theorem dvd_imp_div_mul_eq {x y : ℕ} (H : y | x) : x div y * y = x :=
+mod_eq_zero_imp_div_mul_eq (mod_eq_zero_of_dvd H)
 
-theorem one_dvd (n : ℕ) : 1 | n :=
-mod_one n
-
--- add_rewrite one_dvd
-
-theorem dvd_self (n : ℕ) : n | n :=
-mod_self n
-
--- add_rewrite dvd_self
-
-theorem dvd_mul_self_left (m n : ℕ) : m | (m * n) :=
-!mod_mul_self_left
-
--- add_rewrite dvd_mul_self_left
-
-theorem dvd_mul_self_right (m n : ℕ) : m | (n * m) :=
-!mod_mul_self_right
-
--- add_rewrite dvd_mul_self_left
-
-theorem dvd_trans {m n k : ℕ} (H1 : m | n) (H2 : n | k) : m | k :=
-have H3 : n = n div m * m, from (dvd_imp_div_mul_eq H1)⁻¹,
-have H4 : k = k div n * (n div m) * m, from calc
-  k     = k div n * n             : dvd_imp_div_mul_eq H2
-    ... = k div n * (n div m * m) : H3
-    ... = k div n * (n div m) * m : mul.assoc,
-mp (!dvd_iff_exists_mul⁻¹) (exists.intro (k div n * (n div m)) (H4⁻¹))
-
-theorem dvd_add {m n1 n2 : ℕ} (H1 : m | n1) (H2 : m | n2) : m | (n1 + n2) :=
-have H : (n1 div m + n2 div m) * m = n1 + n2, from calc
-  (n1 div m + n2 div m) * m = n1 div m * m + n2 div m * m : mul.right_distrib
-                       ...  = n1 + n2 div m * m           : dvd_imp_div_mul_eq H1
-                       ...  = n1 + n2                     : dvd_imp_div_mul_eq H2,
-mp (!dvd_iff_exists_mul⁻¹) (exists.intro _ H)
-
-theorem dvd_add_cancel_left {m n1 n2 : ℕ} : m | (n1 + n2) → m | n1 → m | n2 :=
+theorem dvd_of_dvd_add_left {m n1 n2 : ℕ} : m | (n1 + n2) → m | n1 → m | n2 :=
 case_zero_pos m
   (assume (H1 : 0 | n1 + n2) (H2 : 0 | n1),
-    have H3 : n1 + n2 = 0, from (zero_dvd_eq (n1 + n2)) ▸ H1,
-    have H4 : n1 = 0, from (zero_dvd_eq n1) ▸ H2,
+    have H3 : n1 + n2 = 0, from eq_zero_of_zero_dvd H1,
+    have H4 : n1 = 0, from eq_zero_of_zero_dvd H2,
     have H5 : n2 = 0, from calc
       n2   = 0  + n2 : add.left_id
        ... = n1 + n2 : H4
        ... = 0       : H3,
-    show 0 | n2, from H5 ▸ dvd_self n2)
+    show 0 | n2, from H5 ▸ dvd.refl n2)
   (take m,
     assume mpos : m > 0,
     assume H1 : m | (n1 + n2),
@@ -373,10 +340,11 @@ case_zero_pos m
           ... = n1 div m * m + n2 div m * m   : add.comm
           ... = n1 + n2 div m * m             : dvd_imp_div_mul_eq H2,
     have H4 : n2 = n2 div m * m, from add.cancel_left H3,
-    mp (!dvd_iff_exists_mul⁻¹) (exists.intro _ (H4⁻¹)))
+    have H5 : m * (n2 div m) = n2, from !mul.comm ▸ H4⁻¹,
+    dvd.intro H5)
 
 theorem dvd_add_cancel_right {m n1 n2 : ℕ} (H : m | (n1 + n2)) : m | n2 → m | n1 :=
-dvd_add_cancel_left (!add.comm ▸ H)
+dvd_of_dvd_add_left (!add.comm ▸ H)
 
 theorem dvd_sub {m n1 n2 : ℕ} (H1 : m | n1) (H2 : m | n2) : m | (n1 - n2) :=
 by_cases
@@ -385,7 +353,7 @@ by_cases
     show m | n1 - n2, from dvd_add_cancel_right (H4 ▸ H1) H2)
   (assume H3 : ¬ (n1 ≥ n2),
     have H4 : n1 - n2 = 0, from le_imp_sub_eq_zero (lt_imp_le (not_le_imp_gt H3)),
-    show m | n1 - n2, from H4⁻¹ ▸ dvd_zero)
+    show m | n1 - n2, from H4⁻¹ ▸ dvd_zero _)
 
 -- Gcd and lcm
 -- -----------
@@ -471,7 +439,7 @@ gcd_induct m n
     assume npos : 0 < n,
     assume IH : (gcd n (m mod n) | n) ∧ (gcd n (m mod n) | (m mod n)),
     have H : gcd n (m mod n) | (m div n * n + m mod n), from
-      dvd_add (dvd_trans (and.elim_left IH) !dvd_mul_self_right) (and.elim_right IH),
+      dvd_add (dvd.trans (and.elim_left IH) !dvd_mul_left) (and.elim_right IH),
     have H1 : gcd n (m mod n) | m, from div_mod_eq⁻¹ ▸ H,
     have gcd_eq : gcd n (m mod n) = gcd m n, from (gcd_pos _ npos)⁻¹,
     show (gcd m n | m) ∧ (gcd m n | n), from gcd_eq ▸ (and.intro H1 (and.elim_left IH)))
@@ -490,7 +458,7 @@ gcd_induct m n
     assume H1 : k | m,
     assume H2 : k | n,
     have H3 : k | m div n * n + m mod n, from div_mod_eq ▸ H1,
-    have H4 : k | m mod n, from dvd_add_cancel_left H3 (dvd_trans H2 (by simp)),
+    have H4 : k | m mod n, from nat.dvd_of_dvd_add_left H3 (dvd.trans H2 (by simp)),
     have gcd_eq : gcd n (m mod n) = gcd m n, from (gcd_pos _ npos)⁻¹,
     show k | gcd m n, from gcd_eq ▸ IH H2 H4)
 

@@ -692,7 +692,7 @@ context port_algebra
     @algebra.dvd.elim _ _
   theorem dvd.refl : ∀a : ℤ, a | a := algebra.dvd.refl
   theorem dvd.trans : ∀{a b c : ℤ} (H₁ : a | b) (H₂ : b | c), a | c := @algebra.dvd.trans _ _
-  theorem eq_zero_of_zero_dvd : ∀(a : ℤ) {H : 0 | a}, a = 0 := @algebra.eq_zero_of_zero_dvd _ _
+  theorem eq_zero_of_zero_dvd : ∀{a : ℤ} (H : 0 | a), a = 0 := @algebra.eq_zero_of_zero_dvd _ _
   theorem dvd_zero : ∀a : ℤ, a | 0 := algebra.dvd_zero
   theorem one_dvd : ∀a : ℤ, 1 | a := algebra.one_dvd
   theorem dvd_mul_right : ∀a b : ℤ, a | a * b := algebra.dvd_mul_right

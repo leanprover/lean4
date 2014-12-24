@@ -8,7 +8,7 @@ Authors: Floris van Doorn, Leonardo de Moura, Jeremy Avigad
 Basic operations on the natural numbers.
 -/
 
-import logic.connectives data.num algebra.binary
+import logic.connectives data.num algebra.binary algebra.ring
 
 open eq.ops binary
 
@@ -67,10 +67,6 @@ induction_on n
   (take m IH, or.inr
     (show succ m = succ (pred (succ m)), from congr_arg succ !pred.succ⁻¹))
 
---theorem eq_zero_or_exists_eq_succ (n : ℕ) : n = 0 ∨ ∃k, n = succ k :=
---or_of_or_of_imp_of_imp (eq_zero_or_eq_succ_pred n) (assume H, H)
---    (assume H : n = succ (pred n), exists.intro (pred n) H)
-
 theorem succ.inj {n m : ℕ} (H : succ n = succ m) : n = m :=
 no_confusion H (λe, e)
 
@@ -105,13 +101,6 @@ have general : ∀m, P n m, from induction_on n
     take m : ℕ,
     cases_on m (H2 k) (take l, (H3 k l (IH l)))),
 general m
-
-/-
-    discriminate
-      (assume Hm : m = 0, Hm⁻¹ ▸ (H2 k))
-      (take l : ℕ, assume Hm : m = succ l, Hm⁻¹ ▸ (H3 k l (IH l)))),
-general m
--/
 
 /- addition -/
 
@@ -150,9 +139,6 @@ induction_on m
 theorem succ_add_eq_add_succ (n m : ℕ) : succ n + m = n + succ m :=
 !add.succ_left ⬝ !add_succ⁻¹
 
--- theorem add.comm_succ (n m : ℕ) : n + succ m = m + succ n :=
--- !succ_add_eq_add_succ⁻¹ ⬝ !add.comm
-
 theorem add.assoc (n m k : ℕ) : (n + m) + k = n + (m + k) :=
 induction_on k
     (!add.right_id ▸ !add.right_id)
@@ -168,8 +154,6 @@ left_comm add.comm add.assoc n m k
 
 theorem add.right_comm (n m k : ℕ) : n + m + k = n + k + m :=
 right_comm add.comm add.assoc n m k
-
--- ### cancelation
 
 theorem add.cancel_left {n m k : ℕ} : n + m = n + k → m = k :=
 induction_on n
@@ -205,18 +189,11 @@ eq_zero_of_add_eq_zero_right (!add.comm ⬝ H)
 theorem add.eq_zero {n m : ℕ} (H : n + m = 0) : n = 0 ∧ m = 0 :=
 and.intro (eq_zero_of_add_eq_zero_right H) (eq_zero_of_add_eq_zero_left H)
 
--- ### misc
-
 theorem add_one (n : ℕ) : n + 1 = succ n :=
 !add.right_id ▸ !add_succ
 
 theorem one_add (n : ℕ) : 1 + n = succ n :=
 !add.left_id ▸ !add.succ_left
-
--- TODO: rename? remove?
--- theorem induction_plus_one {P : nat → Prop} (a : ℕ) (H1 : P 0)
---     (H2 : ∀ (n : ℕ) (IH : P n), P (n + 1)) : P a :=
--- nat.rec H1 (take n IH, !add.one ▸ (H2 n IH)) a
 
 /- multiplication -/
 
@@ -228,7 +205,7 @@ rfl
 
 irreducible mul
 
--- ### commutativity, distributivity, associativity, identity
+-- commutativity, distributivity, associativity, identity
 
 theorem zero_mul (n : ℕ) : 0 * n = 0 :=
 induction_on n
@@ -291,12 +268,6 @@ induction_on k
                    ... = n * (m * l + m)     : mul.left_distrib
                    ... = n * (m * succ l)    : mul_succ)
 
-theorem mul.left_comm (n m k : ℕ) : n * (m * k) = m * (n * k) :=
-left_comm mul.comm mul.assoc n m k
-
-theorem mul.right_comm (n m k : ℕ) : n * m * k = n * k * m :=
-right_comm mul.comm mul.assoc n m k
-
 theorem mul.right_id (n : ℕ) : n * 1 = n :=
 calc
   n * 1 = n * 0 + n : mul_succ
@@ -322,5 +293,44 @@ cases_on n
              ... = succ n' * m' + succ n' : mul_succ
              ... = succ (succ n' * m' + n') : add_succ)⁻¹)
           !succ_ne_zero))
+
+section port_algebra
+
+  open algebra
+
+  protected definition comm_semiring [instance] : algebra.comm_semiring nat :=
+  algebra.comm_semiring.mk add add.assoc zero add.left_id add.right_id add.comm
+  mul mul.assoc (succ zero) mul.left_id mul.right_id mul.left_distrib mul.right_distrib
+  zero_mul mul_zero (ne.symm (succ_ne_zero zero)) mul.comm
+
+  theorem mul.left_comm : ∀a b c : ℕ, a * (b * c) = b * (a * c) := algebra.mul.left_comm
+  theorem mul.right_comm : ∀a b c : ℕ, (a * b) * c = (a * c) * b := algebra.mul.right_comm
+
+  definition dvd (a b : ℕ) : Prop := algebra.dvd a b
+  infix `|` := dvd
+  theorem dvd.intro : ∀{a b c : ℕ} (H : a * b = c), a | c := @algebra.dvd.intro _ _
+  theorem dvd.ex : ∀{a b : ℕ} (H : a | b), ∃c, a * c = b := @algebra.dvd.ex _ _
+  theorem dvd.elim : ∀{P : Prop} {a b : ℕ} (H₁ : a | b) (H₂ : ∀c, a * c = b → P), P :=
+    @algebra.dvd.elim _ _
+  theorem dvd.refl : ∀a : ℕ, a | a := algebra.dvd.refl
+  theorem dvd.trans : ∀{a b c : ℕ} (H₁ : a | b) (H₂ : b | c), a | c := @algebra.dvd.trans _ _
+  theorem eq_zero_of_zero_dvd : ∀{a : ℕ} (H : 0 | a), a = 0 := @algebra.eq_zero_of_zero_dvd _ _
+  theorem dvd_zero : ∀a : ℕ, a | 0 := algebra.dvd_zero
+  theorem one_dvd : ∀a : ℕ, 1 | a := algebra.one_dvd
+  theorem dvd_mul_right : ∀a b : ℕ, a | a * b := algebra.dvd_mul_right
+  theorem dvd_mul_left : ∀a b : ℕ, a | b * a := algebra.dvd_mul_left
+  theorem dvd_mul_of_dvd_left : ∀{a b : ℕ} (H : a | b) (c : ℕ), a | b * c :=
+    @algebra.dvd_mul_of_dvd_left _ _
+  theorem dvd_mul_of_dvd_right : ∀{a b : ℕ} (H : a | b) (c : ℕ), a | c * b :=
+    @algebra.dvd_mul_of_dvd_right _ _
+  theorem mul_dvd_mul : ∀{a b c d : ℕ}, a | b → c | d → a * c | b * d :=
+    @algebra.mul_dvd_mul _ _
+  theorem dvd_of_mul_right_dvd : ∀{a b c : ℕ}, a * b | c → a | c :=
+    @algebra.dvd_of_mul_right_dvd _ _
+  theorem dvd_of_mul_left_dvd : ∀{a b c : ℕ}, a * b | c → b | c :=
+    @algebra.dvd_of_mul_left_dvd _ _
+  theorem dvd_add : ∀{a b c : ℕ}, a | b → a | c → a | b + c := @algebra.dvd_add _ _
+
+end port_algebra
 
 end nat

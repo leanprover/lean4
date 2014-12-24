@@ -99,7 +99,7 @@ section comm_semiring
                 ... = b * e : H₃
                 ... = c : H₄)))
 
-  theorem eq_zero_of_zero_dvd {H : 0 | a} : a = 0 :=
+  theorem eq_zero_of_zero_dvd {a : A} (H : 0 | a) : a = 0 :=
     dvd.elim H (take c, assume H' : 0 * c = a, (H')⁻¹ ⬝ !zero_mul)
 
   theorem dvd_zero : a | 0 := dvd.intro !mul_zero

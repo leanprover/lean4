@@ -311,7 +311,7 @@ dvd.elim H (
 theorem dvd_iff_mod_eq_zero (x y : ℕ) : x | y ↔ y mod x = 0 :=
 iff.intro mod_eq_zero_of_dvd dvd_of_mod_eq_zero
 
-theorem dvd.decidable_rel [instance] : decidable_rel dvd :=
+definition dvd.decidable_rel [instance] : decidable_rel dvd :=
 take m n, decidable_of_decidable_of_iff _ (!dvd_iff_mod_eq_zero⁻¹)
 
 theorem dvd_imp_div_mul_eq {x y : ℕ} (H : y | x) : x div y * y = x :=

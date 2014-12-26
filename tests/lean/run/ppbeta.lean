@@ -7,4 +7,4 @@ infix `<`     := lt
 infixl `+` := int.add
 
 theorem lt_add_succ2 (a : int) (n : nat) : a < a + nat.succ n :=
-int.le_intro (show a + 1 + n = a + nat.succ n, from sorry)
+int.le.intro (show a + 1 + n = a + nat.succ n, from sorry)

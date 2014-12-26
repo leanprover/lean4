@@ -65,6 +65,9 @@ induction_on n
   (take m IH, or.inr
     (show succ m = succ (pred (succ m)), from congr_arg succ !pred.succ⁻¹))
 
+theorem exists_eq_succ_of_ne_zero {n : ℕ} (H : n ≠ 0) : ∃k : ℕ, n = succ k :=
+exists.intro _ (or_resolve_right !eq_zero_or_eq_succ_pred H)
+
 theorem succ.inj {n m : ℕ} (H : succ n = succ m) : n = m :=
 no_confusion H (λe, e)
 

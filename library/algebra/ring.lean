@@ -11,7 +11,6 @@ The development is modeled after Isabelle's library.
 
 import logic.eq logic.connectives data.unit data.sigma data.prod
 import algebra.function algebra.binary algebra.group
-
 open eq eq.ops
 
 namespace algebra
@@ -48,7 +47,6 @@ structure semiring [class] (A : Type) extends add_comm_monoid A, monoid A, distr
     mul_zero_class A, zero_ne_one_class A
 
 section semiring
-
   variables [s : semiring A] (a b c : A)
   include s
 
@@ -61,17 +59,15 @@ section semiring
   assume H1 : b = 0,
   have H2 : a * b = 0, from H1⁻¹ ▸ mul_zero a,
   H H2
-
 end semiring
 
 /- comm semiring -/
 
 structure comm_semiring [class] (A : Type) extends semiring A, comm_semigroup A
-
--- TODO: we could also define a cancelative comm_semiring, i.e. satisfying c ≠ 0 → c * a = c * b → a = b.
+-- TODO: we could also define a cancelative comm_semiring, i.e. satisfying
+-- c ≠ 0 → c * a = c * b → a = b.
 
 section comm_semiring
-
   variables [s : comm_semiring A] (a b c : A)
   include s
 
@@ -80,6 +76,9 @@ section comm_semiring
 
   theorem dvd.intro {a b c : A} (H : a * b = c) : a | c :=
   exists.intro _ H
+
+  theorem dvd.intro_right {a b c : A} (H : a * b = c) : b | c :=
+  dvd.intro (!mul.comm ▸ H)
 
   theorem dvd.ex {a b : A} (H : a | b) : ∃c, a * c = b := H
 
@@ -147,15 +146,13 @@ section comm_semiring
       dvd.elim Hac
         (take e, assume Haec : a * e = c,
           dvd.intro (show a * (d + e) = b + c, from Hadb ▸ Haec ▸ left_distrib a d e)))
-
 end comm_semiring
-
 
 /- ring -/
 
 structure ring [class] (A : Type) extends add_comm_group A, monoid A, distrib A, zero_ne_one_class A
 
-definition ring.to_semiring [instance] [s : ring A] : semiring A :=
+definition ring.to_semiring [instance] [coercion] [s : ring A] : semiring A :=
 semiring.mk ring.add ring.add_assoc !ring.zero ring.zero_add
   add_zero   -- note: we've shown that add_zero follows from zero_add in add_comm_group
   ring.add_comm ring.mul ring.mul_assoc !ring.one ring.one_mul ring.mul_one
@@ -177,7 +174,6 @@ semiring.mk ring.add ring.add_assoc !ring.zero ring.zero_add
   !ring.zero_ne_one
 
 section
-
   variables [s : ring A] (a b c d e : A)
   include s
 
@@ -225,12 +221,11 @@ section
       ... ↔ a * e + c - b * e = d : iff.symm !sub_eq_iff_eq_add
       ... ↔ a * e - b * e + c = d : !sub_add_eq_add_sub ▸ !iff.refl
       ... ↔ (a - b) * e + c = d : !mul_sub_right_distrib ▸ !iff.refl
-
 end
 
 structure comm_ring [class] (A : Type) extends ring A, comm_semigroup A
 
-definition comm_ring.to_comm_semiring [instance] [s : comm_ring A] : comm_semiring A :=
+definition comm_ring.to_comm_semiring [instance] [coercion] [s : comm_ring A] : comm_semiring A :=
 comm_semiring.mk comm_ring.add comm_ring.add_assoc (@comm_ring.zero A s)
   comm_ring.zero_add comm_ring.add_zero comm_ring.add_comm comm_ring.mul comm_ring.mul_assoc
   (@comm_ring.one A s) comm_ring.one_mul comm_ring.mul_one comm_ring.left_distrib
@@ -238,7 +233,6 @@ comm_semiring.mk comm_ring.add comm_ring.add_assoc (@comm_ring.zero A s)
   comm_ring.mul_comm
 
 section
-
   variables [s : comm_ring A] (a b c d e : A)
   include s
 
@@ -247,13 +241,6 @@ section
 
   theorem mul_self_sub_one_eq : a * a - 1 = (a + 1) * (a - 1) :=
   mul_one 1 ▸ mul_self_sub_mul_self_eq a 1
-
-end
-
-section
-
-  variables [s : comm_ring A] (a b c d e : A)
-  include s
 
   theorem dvd_neg_iff_dvd : a | -b ↔ a | b :=
   iff.intro
@@ -292,13 +279,9 @@ section
 
   theorem dvd_sub (H₁ : a | b) (H₂ : a | c) : a | (b - c) :=
   dvd_add H₁ (iff.elim_right !dvd_neg_iff_dvd H₂)
-
 end
 
-
 /- integral domains -/
-
--- TODO: some properties here may extend to cancellative semirings. It is worth the effort?
 
 structure no_zero_divisors [class] (A : Type) extends has_mul A, has_zero A :=
 (eq_zero_or_eq_zero_of_mul_eq_zero : ∀a b, mul a b = zero → a = zero ∨ b = zero)
@@ -353,7 +336,6 @@ section
       have H1 : b * d * a = c * a, from eq.trans !mul.right_comm H,
       have H2 : b * d = c, from mul.cancel_right Ha H1,
       dvd.intro H2)
-
 end
 
 end algebra

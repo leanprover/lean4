@@ -255,7 +255,7 @@ section group
   theorem mul_eq_iff_eq_mul_inv (a b c : A) : a * b = c ↔ a = c * b⁻¹ :=
   iff.intro eq_mul_inv_of_mul_eq mul_eq_of_eq_mul_inv
 
-  definition group.to_left_cancel_semigroup [instance] : left_cancel_semigroup A :=
+  definition group.to_left_cancel_semigroup [instance] [coercion] : left_cancel_semigroup A :=
   left_cancel_semigroup.mk (@group.mul A s) (@group.mul_assoc A s)
     (take a b c,
       assume H : a * b = a * c,
@@ -264,7 +264,7 @@ section group
           ... = a⁻¹ * (a * c) : H
           ... = c : inv_mul_cancel_left)
 
-  definition group.to_right_cancel_semigroup [instance] : right_cancel_semigroup A :=
+  definition group.to_right_cancel_semigroup [instance] [coercion] : right_cancel_semigroup A :=
   right_cancel_semigroup.mk (@group.mul A s) (@group.mul_assoc A s)
     (take a b c,
       assume H : a * b = c * b,
@@ -383,7 +383,7 @@ section add_group
   theorem add_eq_iff_eq_add_neg (a b c : A) : a + b = c ↔ a = c + -b :=
   iff.intro eq_add_neg_of_add_eq add_eq_of_eq_add_neg
 
-  definition add_group.to_left_cancel_semigroup [instance] :
+  definition add_group.to_left_cancel_semigroup [instance] [coercion] :
     add_left_cancel_semigroup A :=
   add_left_cancel_semigroup.mk add_group.add add_group.add_assoc
     (take a b c,
@@ -393,7 +393,7 @@ section add_group
           ... = -a + (a + c) : H
           ... = c : neg_add_cancel_left)
 
-  definition add_group.to_add_right_cancel_semigroup [instance] :
+  definition add_group.to_add_right_cancel_semigroup [instance] [coercion] :
     add_right_cancel_semigroup A :=
   add_right_cancel_semigroup.mk add_group.add add_group.add_assoc
     (take a b c,

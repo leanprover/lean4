@@ -6,15 +6,15 @@ Module: int.basic
 Authors: Floris van Doorn, Jeremy Avigad
 
 The integers, with addition, multiplication, and subtraction. The representation of the integers is
-chosen to compute efficiently; see the examples in the comments at the end of this file.
+chosen to compute efficiently.
 
 To faciliate proving things about these operations, we show that the integers are a quotient of
-ℕ × ℕ with the usual equivalence relation ≡, and functions
+ℕ × ℕ with the usual equivalence relation, ≡, and functions
 
   abstr : ℕ × ℕ → ℤ
   repr : ℤ → ℕ × ℕ
 
-satisfying
+satisfying:
 
   abstr_repr (a : ℤ) : abstr (repr a) = a
   repr_abstr (p : ℕ × ℕ) : repr (abstr p) ≡ p
@@ -25,12 +25,12 @@ following:
 
   repr_add (a b : ℤ) : repr (a + b) = padd (repr a) (repr b)
   padd_congr (p p' q q' : ℕ × ℕ) (H1 : p ≡ p') (H2 : q ≡ q') : padd p q ≡ p' q'
+
 -/
 
 import data.nat.basic data.nat.order data.nat.sub data.prod
 import algebra.relation algebra.binary algebra.ordered_ring
 import tools.fake_simplifier
-
 open eq.ops
 open prod relation nat
 open decidable binary fake_simplifier
@@ -54,8 +54,8 @@ nat.cases_on m 0 (take m', neg_succ_of_nat m')
 
 definition sub_nat_nat (m n : ℕ) : ℤ :=
 nat.cases_on (n - m)
-  (of_nat (m - n))     -- m ≥ n
-  (take k, neg_succ_of_nat k)   -- m < n, and n - m = succ k
+  (of_nat (m - n))                                     -- m ≥ n
+  (take k, neg_succ_of_nat k)                          -- m < n, and n - m = succ k
 
 definition neg (a : ℤ) : ℤ :=
   cases_on a
@@ -144,11 +144,7 @@ cases_on a
   (take m, assume H : nat_abs (of_nat m) = 0, congr_arg of_nat H)
   (take m', assume H : nat_abs (neg_succ_of_nat m') = 0, absurd H (succ_ne_zero _))
 
-
-/-
-Show int is a quotient of ordered pairs of natural numbers, with the usual
-equivalence relation.
--/
+/- int is a quotient of ordered pairs of natural numbers -/
 
 definition equiv (p q : ℕ × ℕ) : Prop :=  pr1 p + pr2 q = pr2 p + pr1 q
 
@@ -319,7 +315,7 @@ or.elim (cases_of_nat_succ a)
   (assume H, obtain (n : ℕ) (H3 : a = -(succ n)), from H, H3⁻¹ ▸ H2 n)
 
 /-
-Show int is a ring.
+   int is a ring
 -/
 
 /- addition -/
@@ -434,7 +430,7 @@ have H : repr (-a + a) ≡ repr 0, from
       ... ≡ repr 0 : padd_pneg,
 eq_of_repr_equiv_repr H
 
-/- nat -/
+/- nat abs -/
 
 definition pabs (p : ℕ × ℕ) : ℕ := dist (pr1 p) (pr2 p)
 
@@ -595,24 +591,27 @@ have H2 : (nat_abs a) * (nat_abs b) = nat.zero, from
     (nat_abs a) * (nat_abs b) = (nat_abs (a * b)) : (mul_nat_abs a b)⁻¹
       ... = (nat_abs 0) : {H}
       ... = nat.zero : nat_abs_of_nat nat.zero,
-have H3 : (nat_abs a) = nat.zero ∨ (nat_abs b) = nat.zero, from eq_zero_or_eq_zero_of_mul_eq_zero H2,
+have H3 : (nat_abs a) = nat.zero ∨ (nat_abs b) = nat.zero,
+  from eq_zero_or_eq_zero_of_mul_eq_zero H2,
 or_of_or_of_imp_of_imp H3
   (assume H : (nat_abs a) = nat.zero, nat_abs_eq_zero H)
   (assume H : (nat_abs b) = nat.zero, nat_abs_eq_zero H)
 
-definition integral_domain : algebra.integral_domain int :=
+protected definition integral_domain : algebra.integral_domain int :=
 algebra.integral_domain.mk add add.assoc zero zero_add add_zero neg add.left_inv
 add.comm mul mul.assoc (of_num 1) one_mul mul_one mul.left_distrib mul.right_distrib
 zero_ne_one mul.comm @eq_zero_or_eq_zero_of_mul_eq_zero
 
-/-
-Instantiate ring theorems to int
--/
+--namespace algebra
+--  open algebra    -- TODO: why do we have to do this?
+--  instance [persistent] int.integral_domain
+--end algebra
 
--- TODO: make this "section" when scoping bug is fixed
-context port_algebra
+/- instantiate ring theorems to int -/
+
+section port_algebra
   open algebra
-  instance integral_domain
+  instance int.integral_domain  -- TODO: why didn't the setting above persist?
 
   theorem mul.left_comm : ∀a b c : ℤ, a * (b * c) = b * (a * c) := algebra.mul.left_comm
   theorem mul.right_comm : ∀a b c : ℤ, (a * b) * c = (a * c) * b := algebra.mul.right_comm
@@ -687,6 +686,7 @@ context port_algebra
   definition dvd (a b : ℤ) : Prop := algebra.dvd a b
   infix `|` := dvd
   theorem dvd.intro : ∀{a b c : ℤ} (H : a * b = c), a | c := @algebra.dvd.intro _ _
+  theorem dvd.intro_right : ∀{a b c : ℤ} (H : a * b = c), b | c := @algebra.dvd.intro_right _ _
   theorem dvd.ex : ∀{a b : ℤ} (H : a | b), ∃c, a * c = b := @algebra.dvd.ex _ _
   theorem dvd.elim : ∀{P : Prop} {a b : ℤ} (H₁ : a | b) (H₂ : ∀c, a * c = b → P), P :=
     @algebra.dvd.elim _ _
@@ -741,54 +741,6 @@ context port_algebra
     @algebra.dvd_of_mul_dvd_mul_left _ _
   theorem dvd_of_mul_dvd_mul_right : ∀{a b c : ℤ}, a ≠ 0 → b * a | c * a → b | c :=
     @algebra.dvd_of_mul_dvd_mul_right _ _
-
 end port_algebra
 
--- TODO: declare appropriate rewrite rules
--- add_rewrite zero_add add_zero
--- add_rewrite add_comm add.assoc add_left_comm
--- add_rewrite sub_def add_inverse_right add_inverse_left
--- add_rewrite neg_add_distr
----- add_rewrite sub_sub_assoc sub_add_assoc add_sub_assoc
----- add_rewrite add_neg_right add_neg_left
----- add_rewrite sub_self
-
 end int
-
-
-/- tests -/
-
-/- open int
-
-eval -100
-eval -(-100)
-
-eval #int (5 + 7)
-eval -5 + 7
-eval 5 + -7
-eval -5 + -7
-
-eval #int 155 + 277
-eval -155 + 277
-eval 155 + -277
-eval -155 + -277
-
-eval #int 155 - 277
-eval #int 277 - 155
-
-eval #int 2 * 3
-eval -2 * 3
-eval 2 * -3
-eval -2 * -3
-
-eval 22 * 33
-eval -22 * 33
-eval 22 * -33
-eval -22 * -33
-
-eval #int 22 ≤ 33
-eval #int 33 ≤ 22
-
-example : #int 22 ≤ 33 := true.intro
-example : #int -5 < 7 := true.intro
--/

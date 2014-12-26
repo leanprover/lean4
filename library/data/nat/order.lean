@@ -13,6 +13,10 @@ open eq.ops
 
 namespace nat
 
+-- TODO: move this
+theorem lt_iff_succ_le (m n : nat) : m < n ↔ succ m ≤ n :=
+iff.intro succ_le_of_lt lt_of_succ_le
+
 -- Less than or equal
 -- ------------------
 

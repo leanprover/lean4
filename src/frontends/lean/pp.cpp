@@ -396,7 +396,8 @@ auto pretty_fn::pp_const(expr const & e) -> result {
     name n = const_name(e);
     if (!m_full_names) {
         if (auto it = is_aliased(n)) {
-            n = *it;
+            if (!m_private_names || !hidden_to_user_name(m_env, n))
+                n = *it;
         } else {
             for (name const & ns : get_namespaces(m_env)) {
                 if (!ns.is_anonymous()) {

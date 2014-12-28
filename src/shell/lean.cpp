@@ -431,7 +431,7 @@ int main(int argc, char ** argv) {
     bool has_hlean = (default_k == input_kind::HLean);
     for (int i = optind; i < argc; i++) {
         char const * ext = get_file_extension(argv[i]);
-        if (strcmp(ext, "lean") == 0) {
+        if (ext && strcmp(ext, "lean") == 0) {
             has_lean = true;
             if (has_hlean) {
                 std::cerr << ".hlean file cannot be mixed with .lean files\n";
@@ -439,7 +439,7 @@ int main(int argc, char ** argv) {
             }
             if (default_k == input_kind::Unspecified)
                 default_k = input_kind::Lean;
-        } else if (strcmp(ext, "hlean") == 0) {
+        } else if (ext && strcmp(ext, "hlean") == 0) {
             has_hlean = true;
             if (has_lean) {
                 std::cerr << ".lean file cannot be mixed with .hlean files\n";

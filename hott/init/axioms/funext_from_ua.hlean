@@ -11,7 +11,7 @@ open eq function prod sigma truncation equiv is_equiv unit
 context
   universe variables l
 
-  protected theorem ua_isequiv_postcompose {A B : Type.{l+1}} {C : Type}
+  protected theorem ua_isequiv_postcompose {A B : Type.{l}} {C : Type}
       {w : A → B} {H0 : is_equiv w} : is_equiv (@compose C A B w) :=
     let w' := equiv.mk w H0 in
     let eqinv : A = B := ((@is_equiv.inv _ _ _ (ua_is_equiv A B)) w') in
@@ -25,7 +25,7 @@ context
           from inv_eq eq' w' eqretr,
         have eqfin : (to_fun eq') ∘ ((to_fun eq')⁻¹ ∘ x) = x,
           from (λ p,
-            (@eq.rec_on Type.{l+1} A
+            (@eq.rec_on Type.{l} A
               (λ B' p', Π (x' : C → B'), (to_fun (equiv_path p'))
                 ∘ ((to_fun (equiv_path p'))⁻¹ ∘ x') = x')
               B p (λ x', idp))
@@ -77,7 +77,7 @@ context
             (λ xy, prod.rec_on xy
               (λ b c p, eq.rec_on p idp))))
 
-  theorem nondep_funext_from_ua {A : Type} {B : Type.{l+1}}
+  theorem nondep_funext_from_ua {A : Type} {B : Type}
       : Π {f g : A → B}, f ∼ g → f = g :=
     (λ (f g : A → B) (p : f ∼ g),
         let d := λ (x : A), sigma.mk (f x , f x) idp in
@@ -103,8 +103,7 @@ end
 
 -- Now we use this to prove weak funext, which as we know
 -- implies (with dependent eta) also the strong dependent funext.
-universe variables l k
-theorem weak_funext_from_ua : weak_funext.{l+1 k+1} :=
+theorem weak_funext_from_ua : weak_funext :=
   (λ (A : Type) (P : A → Type) allcontr,
     let U := (λ (x : A), unit) in
   have pequiv : Π (x : A), P x ≃ U x,

@@ -21,8 +21,8 @@ definition naive_funext :=
   Π {A : Type} {P : A → Type} (f g : Πx, P x), (f ∼ g) → f = g
 
 -- Weak funext says that a product of contractible types is contractible.
-definition weak_funext.{l k} :=
-  Π {A : Type.{l}} (P : A → Type.{k}) [H: Πx, is_contr (P x)], is_contr (Πx, P x)
+definition weak_funext :=
+  Π {A : Type} (P : A → Type) [H: Πx, is_contr (P x)], is_contr (Πx, P x)
 
 -- The obvious implications are Funext -> NaiveFunext -> WeakFunext
 -- TODO: Get class inference to work locally
@@ -53,7 +53,7 @@ definition weak_funext_from_naive_funext : naive_funext → weak_funext :=
 
 context
   universes l k
-  parameters (wf : weak_funext.{l+1 k+1}) {A : Type.{l+1}} {B : A → Type.{k+1}} (f : Π x, B x)
+  parameters (wf : weak_funext.{l k}) {A : Type.{l}} {B : A → Type.{k}} (f : Π x, B x)
 
   protected definition idhtpy : f ∼ f := (λ x, idp)
 
@@ -93,7 +93,7 @@ end
 -- Now the proof is fairly easy; we can just use the same induction principle on both sides.
 universe variables l k
 
-theorem funext_from_weak_funext (wf : weak_funext.{l+1 k+1}) : funext.{l+1 k+1} :=
+theorem funext_from_weak_funext (wf : weak_funext.{l k}) : funext.{l k} :=
   funext.mk (λ A B f g,
     let eq_to_f := (λ g' x, f = g') in
     let sim2path := htpy_ind _ f eq_to_f idp in

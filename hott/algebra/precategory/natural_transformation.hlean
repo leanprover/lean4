@@ -47,6 +47,7 @@ namespace natural_transformation
     apply (dcongr_arg2 (@natural_transformation.mk C D F G) p₁ p₂),
   end
 
+
   protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) :
       η₃ ∘n (η₂ ∘n η₁) = (η₃ ∘n η₂) ∘n η₁ :=
   begin
@@ -92,28 +93,34 @@ namespace natural_transformation
     apply (@is_hset.elim), apply !homH,
   end
 
-  protected definition sigma_char :
-  (Σ (η : Π (a : C), hom (F a) (G a)), Π (a b : C) (f : hom a b), G f ∘ η a = η b ∘ F f) ≃ (F ⟹ G) :=
-  /-begin
-    intro what,
+  --set_option pp.implicit true
+  protected definition sigma_char (F G : C ⇒ D) :
+    (Σ (η : Π (a : C), hom (F a) (G a)), Π (a b : C) (f : hom a b), G f ∘ η a = η b ∘ F f) ≃  (F ⟹ G) :=
+  begin
     fapply equiv.mk,
       intro S, apply natural_transformation.mk, exact (S.2),
     fapply adjointify,
-      intro H, apply (natural_transformation.rec_on H), intros (η, natu),
-      exact (sigma.mk η @natu),
-    intro H, apply (natural_transformation.rec_on _ _ _),
-    intro S2,
-  end-/
-  /-(λ x, equiv.mk (λ S, natural_transformation.mk S.1 S.2)
-  (adjointify (λ S, natural_transformation.mk S.1 S.2)
-  (λ H, natural_transformation.rec_on H (λ η nat, sigma.mk η nat))
-  (λ H, natural_transformation.rec_on H (λ η nat, refl (natural_transformation.mk η nat)))
-  (λ S, sigma.rec_on S (λ η nat, refl (sigma.mk η nat)))))-/
-  sorry
+      intro H,
+          fapply sigma.mk,
+            intro a, exact (H a),
+          intros (a, b, f), exact (naturality H f),
+    intro H, apply (natural_transformation.rec_on H),
+    intros (eta, nat), unfold function.id,
+    fapply natural_transformation.congr,
+        apply idp,
+      repeat ( apply funext.path_pi ; intro a ),
+      apply (@is_hset.elim), apply !homH,
+    intro S,
+    fapply sigma.path,
+      apply funext.path_pi, intro a,
+      apply idp,
+    repeat ( apply funext.path_pi ; intro a ),
+    apply (@is_hset.elim), apply !homH,
+  end
 
   protected definition to_hset : is_hset (F ⟹ G) :=
   begin
-    apply trunc_equiv, apply (equiv.to_is_equiv sigma_char),
+    apply trunc_equiv, apply (equiv.to_is_equiv !sigma_char),
     apply trunc_sigma,
       apply trunc_pi, intro a, exact (@homH (objects D) _ (F a) (G a)),
     intro η, apply trunc_pi, intro a,

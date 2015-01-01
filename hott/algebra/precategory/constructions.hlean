@@ -34,27 +34,14 @@ namespace precategory
   --       take the trick they use in Coq-HoTT, and introduce a further
   --       axiom in the definition of precategories that provides thee
   --       symmetric associativity proof.
-  universe variables l k
-  definition op_op' {ob : Type} (C : precategory.{l k} ob) : opposite (opposite C) = C :=
-  sorry
-  /-begin
+  definition op_op' {ob : Type} (C : precategory ob) : opposite (opposite C) = C :=
+  begin
     apply (rec_on C), intros (hom', homH', comp', ID', assoc', id_left', id_right'),
     apply (ap (λassoc'', precategory.mk hom' @homH' comp' ID' assoc'' id_left' id_right')),
-    apply (@funext.path_pi _ _ _ _ assoc'), intro a,
-    apply (@funext.path_pi _ _ _ _ (@assoc' a)), intro b,
-    apply (@funext.path_pi _ _ _ _ (@assoc' a b)), intro c,
-    apply (@funext.path_pi _ _ _ _ (@assoc' a b c)), intro d,
-    apply (@funext.path_pi _ _ _ _ (@assoc' a b c d)), intro f,
-    apply (@funext.path_pi _ _ _ _ (@assoc' a b c d f)), intro g,
-    apply (@funext.path_pi _ _ _ _ (@assoc' a b c d f g)), intro h,
+    repeat ( apply funext.path_pi ; intros ),
     apply ap,
-    show @assoc ob (@opposite ob (@precategory.mk ob hom' @homH' comp' ID' assoc' id_left' id_right')) d c b a h
-    g
-    f ⁻¹ = @assoc' a b c d f g h,
-    begin
-      apply is_hset.elim,
-    end
-  end-/
+    apply (@is_hset.elim), apply !homH',
+  end
 
   theorem op_op : Opposite (Opposite C) = C :=
   (ap (Precategory.mk C) (op_op' C)) ⬝ !Precategory.equal

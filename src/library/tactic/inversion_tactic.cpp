@@ -615,45 +615,57 @@ class inversion_tac {
             hyps.pop_back(); // remove processed equality
             buffer<expr> non_deps, deps;
             split_deps(hyps, rhs, non_deps, deps);
-            expr deps_g_type    = Pi(deps, g_type);
-            abstract_locals(m_imps, deps);
-            level eq_rec_lvl1   = sort_level(m_tc.ensure_type(deps_g_type).first);
-            level eq_rec_lvl2   = sort_level(m_tc.ensure_type(A).first);
-            expr tformer;
-            if (m_proof_irrel)
-                tformer = Fun(rhs, deps_g_type);
-            else
-                tformer = Fun(rhs, Fun(eq, deps_g_type));
-            expr eq_rec         = mk_constant(name{"eq", "rec"}, {eq_rec_lvl1, eq_rec_lvl2});
-            eq_rec              = mk_app(eq_rec, A, lhs, tformer);
-            buffer<expr> new_hyps;
-            new_hyps.append(non_deps);
-            expr new_type       = instantiate(abstract_local(deps_g_type, rhs), lhs);
-            abstract_local(m_imps, rhs);
-            instantiate(m_imps, lhs);
-            if (!m_proof_irrel) {
-                new_type = abstract_local(new_type, eq);
-                new_type = instantiate(new_type, mk_refl(m_tc, lhs));
+            if (deps.empty() && !depends_on(g_type, rhs)) {
+                // eq.rec is not necessary
+                buffer<expr> & new_hyps = non_deps;
+                expr new_type           = g_type;
+                expr new_mvar           = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
+                expr new_meta           = mk_app(new_mvar, new_hyps);
+                goal new_g(new_meta, new_type);
+                expr val                = g.abstract(new_meta);
+                assign(g.get_name(), val);
+                return unify_eqs(new_g, neqs-1);
+            } else {
+                expr deps_g_type    = Pi(deps, g_type);
+                abstract_locals(m_imps, deps);
+                level eq_rec_lvl1   = sort_level(m_tc.ensure_type(deps_g_type).first);
+                level eq_rec_lvl2   = sort_level(m_tc.ensure_type(A).first);
+                expr tformer;
+                if (m_proof_irrel)
+                    tformer = Fun(rhs, deps_g_type);
+                else
+                    tformer = Fun(rhs, Fun(eq, deps_g_type));
+                expr eq_rec         = mk_constant(name{"eq", "rec"}, {eq_rec_lvl1, eq_rec_lvl2});
+                eq_rec              = mk_app(eq_rec, A, lhs, tformer);
+                buffer<expr> new_hyps;
+                new_hyps.append(non_deps);
+                expr new_type       = instantiate(abstract_local(deps_g_type, rhs), lhs);
+                abstract_local(m_imps, rhs);
+                instantiate(m_imps, lhs);
+                if (!m_proof_irrel) {
+                    new_type = abstract_local(new_type, eq);
+                    new_type = instantiate(new_type, mk_refl(m_tc, lhs));
+                }
+                buffer<expr> new_deps;
+                for (unsigned i = 0; i < deps.size(); i++) {
+                    expr new_hyp = mk_local(m_ngen.next(), binding_name(new_type), binding_domain(new_type),
+                                            binding_info(new_type));
+                    new_hyps.push_back(new_hyp);
+                    new_deps.push_back(new_hyp);
+                    new_type     = instantiate(binding_body(new_type), new_hyp);
+                    instantiate(m_imps, new_hyp);
+                }
+                lean_assert(deps.size() == new_deps.size());
+                store_renames(deps, new_deps);
+                expr new_mvar       = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
+                expr new_meta       = mk_app(new_mvar, new_hyps);
+                goal new_g(new_meta, new_type);
+                expr eq_rec_minor   = mk_app(new_mvar, non_deps);
+                eq_rec              = mk_app(eq_rec, eq_rec_minor, rhs, eq);
+                expr val            = g.abstract(mk_app(eq_rec, deps));
+                assign(g.get_name(), val);
+                return unify_eqs(new_g, neqs-1);
             }
-            buffer<expr> new_deps;
-            for (unsigned i = 0; i < deps.size(); i++) {
-                expr new_hyp = mk_local(m_ngen.next(), binding_name(new_type), binding_domain(new_type),
-                                        binding_info(new_type));
-                new_hyps.push_back(new_hyp);
-                new_deps.push_back(new_hyp);
-                new_type     = instantiate(binding_body(new_type), new_hyp);
-                instantiate(m_imps, new_hyp);
-            }
-            lean_assert(deps.size() == new_deps.size());
-            store_renames(deps, new_deps);
-            expr new_mvar       = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
-            expr new_meta       = mk_app(new_mvar, new_hyps);
-            goal new_g(new_meta, new_type);
-            expr eq_rec_minor   = mk_app(new_mvar, non_deps);
-            eq_rec              = mk_app(eq_rec, eq_rec_minor, rhs, eq);
-            expr val            = g.abstract(mk_app(eq_rec, deps));
-            assign(g.get_name(), val);
-            return unify_eqs(new_g, neqs-1);
         } else if (is_local(lhs)) {
             // flip equation and reduce to previous case
             if (m_proof_irrel)

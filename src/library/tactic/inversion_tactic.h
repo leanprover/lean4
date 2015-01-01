@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <functional>
 #include <memory>
+#include "util/name_map.h"
 #include "library/tactic/tactic.h"
 
 namespace lean {
@@ -43,19 +44,22 @@ typedef list<implementation_ptr> implementation_list;
 
 struct result {
     list<goal>                 m_goals;
-    list<unsigned>             m_num_args;
+    list<list<name>>           m_args; // arguments of the constructor/intro rule
     list<implementation_list>  m_implementation_lists;
-    // invariant: length(m_goals) == length(m_num_args);
+    list<rename_map>           m_renames;
+    // invariant: length(m_goals) == length(m_args);
     // invariant: length(m_goals) == length(m_implementation_lists);
+    // invariant: length(m_goals) == length(m_renames);
     name_generator             m_ngen;
     substitution               m_subst;
-    result(list<goal> const & gs, list<unsigned> const & num_args, list<implementation_list> const & imps,
-           name_generator const & ngen, substitution const & subst);
+    result(list<goal> const & gs, list<list<name>> const & args, list<implementation_list> const & imps,
+           list<rename_map> const & rs, name_generator const & ngen, substitution const & subst);
 };
 
 optional<result> apply(environment const & env, io_state const & ios, type_checker & tc,
-                       goal const & g, name const & n, implementation_list const & imps);
+                       goal const & g, expr const & h, implementation_list const & imps);
 }
+
 tactic inversion_tactic(name const & n, list<name> const & ids = list<name>());
 void initialize_inversion_tactic();
 void finalize_inversion_tactic();

@@ -6,13 +6,13 @@
 
 
 import .natural_transformation
-import types.prod types.sigma
+import types.prod types.sigma types.pi
 
-open eq prod eq eq.ops
+open eq prod eq eq.ops equiv truncation
 
 namespace precategory
   namespace opposite
-  section
+
   definition opposite {ob : Type} (C : precategory ob) : precategory ob :=
   mk (λ a b, hom b a)
      (λ b a, !homH)
@@ -34,24 +34,32 @@ namespace precategory
   --       take the trick they use in Coq-HoTT, and introduce a further
   --       axiom in the definition of precategories that provides thee
   --       symmetric associativity proof.
-  theorem op_op' {ob : Type} (C : precategory ob) : opposite (opposite C) = C :=
+  universe variables l k
+  definition op_op' {ob : Type} (C : precategory.{l k} ob) : opposite (opposite C) = C :=
   sorry
+  /-begin
+    apply (rec_on C), intros (hom', homH', comp', ID', assoc', id_left', id_right'),
+    apply (ap (λassoc'', precategory.mk hom' @homH' comp' ID' assoc'' id_left' id_right')),
+    apply (@funext.path_pi _ _ _ _ assoc'), intro a,
+    apply (@funext.path_pi _ _ _ _ (@assoc' a)), intro b,
+    apply (@funext.path_pi _ _ _ _ (@assoc' a b)), intro c,
+    apply (@funext.path_pi _ _ _ _ (@assoc' a b c)), intro d,
+    apply (@funext.path_pi _ _ _ _ (@assoc' a b c d)), intro f,
+    apply (@funext.path_pi _ _ _ _ (@assoc' a b c d f)), intro g,
+    apply (@funext.path_pi _ _ _ _ (@assoc' a b c d f g)), intro h,
+    apply ap,
+    show @assoc ob (@opposite ob (@precategory.mk ob hom' @homH' comp' ID' assoc' id_left' id_right')) d c b a h
+    g
+    f ⁻¹ = @assoc' a b c d f g h,
+    begin
+      apply is_hset.elim,
+    end
+  end-/
 
   theorem op_op : Opposite (Opposite C) = C :=
   (ap (Precategory.mk C) (op_op' C)) ⬝ !Precategory.equal
 
-  end
   end opposite
-
-  /-definition type_category : precategory Type :=
-  mk (λa b, a → b)
-     (λ a b c, function.compose)
-     (λ a, function.id)
-     (λ a b c d h g f, symm (function.compose_assoc h g f))
-     (λ a b f, function.compose_id_left f)
-     (λ a b f, function.compose_id_right f)
-
-  definition Type_category : Category := Mk type_category-/
 
   -- Note: Discrete precategory doesn't really make sense in HoTT,
   -- We'll define a discrete _category_ later.
@@ -155,7 +163,7 @@ namespace precategory
   variables (C D : Precategory)
   definition functor_category [fx : funext] : precategory (functor C D) :=
   mk (λa b, natural_transformation a b)
-     sorry --TODO: Prove that the nat trafos between two functors are an hset
+     (λ a b, @natural_transformation.to_hset C D a b)
      (λ a b c g f, natural_transformation.compose g f)
      (λ a, natural_transformation.id)
      (λ a b c d h g f, !natural_transformation.assoc)

@@ -112,7 +112,6 @@ class inversion_tac {
     declaration                   m_I_decl;
     declaration                   m_cases_on_decl;
 
-
     void init_inductive_info(name const & n) {
         m_dep_elim       = inductive::has_dep_elim(m_env, n);
         m_nindices       = *inductive::get_num_indices(m_env, n);
@@ -160,6 +159,42 @@ class inversion_tac {
         m_subst.assign(n, val);
     }
 
+    /** \brief Split hyps into two "telescopes".
+        - non_deps : hypotheses that do not depend on H
+        - deps     : hypotheses that depend on H (directly or indirectly)
+    */
+    void split_deps(buffer<expr> const & hyps, expr const & H, buffer<expr> & non_deps, buffer<expr> & deps) {
+        for (expr const & hyp : hyps) {
+            expr const & hyp_type = mlocal_type(hyp);
+            if (depends_on(hyp_type, H) || std::any_of(deps.begin(), deps.end(), [&](expr const & dep) { return depends_on(hyp_type, dep); })) {
+                deps.push_back(hyp);
+            } else {
+                non_deps.push_back(hyp);
+            }
+        }
+    }
+
+    /** \brief Given a goal of the form
+
+              Ctx, h : I A j, D |- T
+
+        where the type of h is the inductive datatype (I A j) where A are parameters,
+        and j the indices. Generate the goal
+
+              Ctx, h : I A j, D, j' : J, h' : I A j' |- j == j' -> h == h' -> T
+
+        Remark: (j == j' -> h == h') is a "telescopic" equality. If the environment
+        is proof irrelevant, it is built using homogenous and heterogeneous equalities.
+        If the environment is proof relevant, it is built using homogeneous equality
+        and the eq.rec (this construction is much more complex than the proof irrelevant
+        one).
+
+        Remark: j is sequence of terms, and j' a sequence of local constants.
+
+        The original goal is solved if we can solve the produced goal.
+
+        \remark h_type is mlocal_type(h) after normalization
+    */
     goal generalize_indices(goal const & g, expr const & h, expr const & h_type) {
         buffer<expr> hyps;
         g.get_hyps(hyps);
@@ -239,6 +274,52 @@ class inversion_tac {
         }
     }
 
+    /** \brief Generalize h dependencies.
+
+        This tactic uses this method only for non-indexed inductive families.
+
+        The hypotheses that depend on h are stored in deps.
+    */
+    goal generalize_dependecies(goal const & g, expr const & h, buffer<expr> & deps) {
+        buffer<expr> hyps;
+        g.get_hyps(hyps);
+        hyps.erase_elem(h);
+        buffer<expr> non_deps;
+        split_deps(hyps, h, non_deps, deps);
+        buffer<expr> & new_hyps = non_deps;
+        new_hyps.push_back(h);
+        expr new_type = Pi(deps, g.get_type());
+        expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(new_hyps, new_type)), new_hyps);
+        goal new_g(new_meta, new_type);
+        expr val      = g.abstract(mk_app(new_meta, deps));
+        assign(g.get_name(), val);
+        return new_g;
+    }
+
+    /**
+       \brief Given a goal of the form
+
+                 Ctx, h : I A j |- T[h]
+
+        produce the subgoals
+
+                 Ctx, h : I A j |- b_1 : B_1 -> T [C_1 A b_1]
+                 ...
+                 Ctx, h : I A j |- b_n : B_n -> T [C_n A b_n]
+
+        where the C_i's are the constructors (aka introduction rules) of the inductive datatype h.
+
+        The hypothesis h must be the last hypothesis in the input goal. Consequently, no other
+        hypothesis depends on it.
+
+        The implementation list is external auxiliary data associated with constructors.
+        For example, we use it to compile recursive equations. Each implementation corresponds to one
+        equation. Each equation is tagged with a constructor C_i. The constructor is retrieved using
+        the virtual method get_constructor_name. We split the list imps in n lists. One for each
+        subgoal. An implementation associated with the constructor i is in the i-th resulting list.
+
+        \remark This method assumes the indices j are local constants, and only h and j may depend on j.
+    */
     std::pair<list<goal>, list<implementation_list>> apply_cases_on(goal const & g, implementation_list const & imps) {
         buffer<expr> hyps;
         g.get_hyps(hyps);
@@ -308,6 +389,14 @@ class inversion_tac {
         }
     }
 
+    /**
+       The method apply_cases_on produces subgoals of the form
+
+                 Ctx, h : I A j |- b_i : B_i -> T [C_i A b_i]
+
+       The b_i are the arguments of the constructor C_i.
+       This method moves the b_i's to the hypotheses list.
+    */
     std::pair<list<goal>, list<list<name>>> intros_minors_args(list<goal> gs) {
         buffer<unsigned> minors_nargs;
         get_minors_nargs(minors_nargs);
@@ -366,13 +455,14 @@ class inversion_tac {
         throw inversion_exception("unification failed to eliminate eq.rec in homogeneous equality");
     }
 
-    // Process goal of the form:  Pi (H : eq.rec A s C a s p = b), R
-    // The idea is to reduce it to
-    //        Pi (H : a = b), R
-    // when A is a hset
-    // and then invoke intro_next_eq recursively.
-    //
-    // \remark \c type is the type of \c g after some normalization
+    /** \brief Process goal of the form:  Pi (H : eq.rec A s C a s p = b), R
+        The idea is to reduce it to
+            Pi (H : a = b), R
+        when A is a hset
+        and then invoke intro_next_eq recursively.
+
+        \remark \c type is the type of \c g after some normalization
+    */
     goal intro_next_eq_rec(goal const & g, expr const & type) {
         lean_assert(is_pi(type));
         buffer<expr> hyps;
@@ -406,10 +496,12 @@ class inversion_tac {
         return intro_next_eq(new_g);
     }
 
-    // Process goal of the form:  Ctx |- Pi (H : a == b), R   when a and b have the same type
-    // The idea is to reduce it to
-    //        Ctx, H : a = b |- R
-    // This method is only used if the environment has a proof irrelevant Prop.
+    /**
+       \brief Process goal of the form:  Ctx |- Pi (H : a == b), R   when a and b have the same type
+       The idea is to reduce it to
+           Ctx, H : a = b |- R
+       This method is only used if the environment has a proof irrelevant Prop.
+    */
     goal intro_next_heq(goal const & g) {
         lean_assert(m_proof_irrel);
         expr const & type   = g.get_type();
@@ -439,11 +531,12 @@ class inversion_tac {
         }
     }
 
-    // Process goal of the form:  Ctx |- Pi (H : a = b), R
-    // The idea is to reduce it to
-    //        Ctx, H : a = b |- R
-    //
-    // \remark \c type is the type of \c g after some normalization
+    /** \brief Process goal of the form:  Ctx |- Pi (H : a = b), R
+        The idea is to reduce it to
+            Ctx, H : a = b |- R
+
+         \remark \c type is the type of \c g after some normalization
+    */
     goal intro_next_eq_simple(goal const & g, expr const & type) {
         expr eq            = binding_domain(type);
         lean_assert(const_name(get_app_fn(eq)) == "eq");
@@ -488,22 +581,10 @@ class inversion_tac {
         }
     }
 
-    // Split hyps into two "telescopes".
-    //   - non_deps : hypotheses that do not depend on rhs
-    //   - deps     : hypotheses that depend on rhs (directly or indirectly)
-    void split_deps(buffer<expr> const & hyps, expr const & rhs, buffer<expr> & non_deps, buffer<expr> & deps) {
-        for (expr const & hyp : hyps) {
-            expr const & hyp_type = mlocal_type(hyp);
-            if (depends_on(hyp_type, rhs) || std::any_of(deps.begin(), deps.end(), [&](expr const & dep) { return depends_on(hyp_type, dep); })) {
-                deps.push_back(hyp);
-            } else {
-                non_deps.push_back(hyp);
-            }
-        }
-    }
-
-    // The no_confusion constructions uses lifts in the proof relevant version.
-    // We must apply lift.down to eliminate the auxiliary lift.
+    /**
+       \brief The no_confusion constructions uses lifts in the proof relevant version.
+       We must apply lift.down to eliminate the auxiliary lift.
+    */
     expr lift_down(expr const & v) {
         if (!m_proof_irrel) {
             expr v_type       = m_tc.whnf(m_tc.infer(v).first).first;
@@ -521,7 +602,7 @@ class inversion_tac {
     rename_map          m_renames;
     implementation_list m_imps;
 
-    // update m_renames with old_hyps --> new_hyps.
+    /** \brief Update m_renames with old_hyps --> new_hyps. */
     void store_renames(buffer<expr> const & old_hyps, buffer<expr> const & new_hyps) {
         lean_assert(old_hyps.size() == new_hyps.size());
         for (unsigned i = 0; i < old_hyps.size(); i++) {
@@ -709,6 +790,39 @@ class inversion_tac {
         return std::make_tuple(to_list(new_goals), to_list(new_args), to_list(new_imps), to_list(new_renames));
     }
 
+    std::pair<goal, rename_map> intro_deps(goal const & g, buffer<expr> const & deps) {
+        buffer<expr> hyps;
+        g.get_hyps(hyps);
+        buffer<expr> new_hyps;
+        new_hyps.append(hyps);
+        rename_map rs;
+        expr g_type    = g.get_type();
+        for (expr const & d : deps) {
+            expr type  = binding_domain(g_type);
+            expr new_d = mk_local(m_ngen.next(), get_unused_name(local_pp_name(d), new_hyps), type, local_info(d));
+            rs.insert(mlocal_name(d), mlocal_name(new_d));
+            new_hyps.push_back(new_d);
+            g_type     = instantiate(binding_body(g_type), new_d);
+        }
+        expr new_meta  = mk_app(mk_metavar(m_ngen.next(), Pi(new_hyps, g_type)), new_hyps);
+        goal new_g(new_meta, g_type);
+        unsigned ndeps = deps.size();
+        expr val       = g.abstract(Fun(ndeps, new_hyps.end() - ndeps, new_meta));
+        assign(g.get_name(), val);
+        return mk_pair(new_g, rs);
+    }
+
+    std::pair<list<goal>, list<rename_map>> intro_deps(list<goal> const & gs, buffer<expr> const & deps) {
+        buffer<goal> new_goals;
+        buffer<rename_map> new_rs;
+        for (goal const & g : gs) {
+            auto p = intro_deps(g, deps);
+            new_goals.push_back(p.first);
+            new_rs.push_back(p.second);
+        }
+        return mk_pair(to_list(new_goals), to_list(new_rs));
+    }
+
 public:
     inversion_tac(environment const & env, io_state const & ios, name_generator const & ngen,
                   type_checker & tc, substitution const & subst, list<name> const & ids):
@@ -727,17 +841,32 @@ public:
             expr h_type                         = m_tc.whnf(mlocal_type(h)).first;
             if (!is_inversion_applicable(h_type))
                 return optional<result>();
-            goal g1                             = generalize_indices(g, h, h_type);
-            auto gs_imps_pair                   = apply_cases_on(g1, imps);
-            list<goal> gs2                      = gs_imps_pair.first;
-            list<implementation_list> new_imps  = gs_imps_pair.second;
-            auto gs_args_pair                   = intros_minors_args(gs2);
-            list<goal> gs3                      = gs_args_pair.first;
-            list<list<name>> args               = gs_args_pair.second;
-            list<goal> gs4;
-            list<rename_map> rs;
-            std::tie(gs4, args, new_imps, rs)   = unify_eqs(gs3, args, new_imps);
-            return optional<result>(result(gs4, args, new_imps, rs, m_ngen, m_subst));
+            if (m_nindices == 0) {
+                buffer<expr> deps;
+                goal g1                             = generalize_dependecies(g, h, deps);
+                auto gs_imps_pair                   = apply_cases_on(g1, imps);
+                list<goal> gs2                      = gs_imps_pair.first;
+                list<implementation_list> new_imps  = gs_imps_pair.second;
+                auto gs_args_pair                   = intros_minors_args(gs2);
+                list<goal> gs3                      = gs_args_pair.first;
+                list<list<name>> args               = gs_args_pair.second;
+                auto gs_rs_pair                     = intro_deps(gs3, deps);
+                list<goal> gs4                      = gs_rs_pair.first;
+                list<rename_map> rs                 = gs_rs_pair.second;
+                return optional<result>(result(gs4, args, new_imps, rs, m_ngen, m_subst));
+            } else {
+                goal g1                             = generalize_indices(g, h, h_type);
+                auto gs_imps_pair                   = apply_cases_on(g1, imps);
+                list<goal> gs2                      = gs_imps_pair.first;
+                list<implementation_list> new_imps  = gs_imps_pair.second;
+                auto gs_args_pair                   = intros_minors_args(gs2);
+                list<goal> gs3                      = gs_args_pair.first;
+                list<list<name>> args               = gs_args_pair.second;
+                list<goal> gs4;
+                list<rename_map> rs;
+                std::tie(gs4, args, new_imps, rs)   = unify_eqs(gs3, args, new_imps);
+                return optional<result>(result(gs4, args, new_imps, rs, m_ngen, m_subst));
+            }
         } catch (inversion_exception & ex) {
             return optional<result>();
         }

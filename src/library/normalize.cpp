@@ -75,7 +75,7 @@ public:
 
     normalize_fn(type_checker & tc, std::function<bool(expr const &)> const & fn): // NOLINT
         m_tc(tc), m_ngen(m_tc.mk_ngen()),
-        m_pred(fn) {}
+        m_pred(fn), m_save_cnstrs(true) {}
 
     expr operator()(expr const & e) {
         m_cnstrs = constraint_seq();

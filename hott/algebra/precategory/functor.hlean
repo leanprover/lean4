@@ -2,9 +2,10 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Floris van Doorn, Jakob von Raumer
 
-import .basic
+import .basic types.pi
 
-open function precategory eq prod equiv is_equiv sigma sigma.ops
+open function precategory eq prod equiv is_equiv sigma sigma.ops truncation
+open pi
 
 structure functor (C D : Precategory) : Type :=
   (obF : C → D)
@@ -24,7 +25,7 @@ namespace functor
   -- "functor C D" is equivalent to a certain sigma type
   set_option unifier.max_steps 38500
   protected definition sigma_char :
-    (Σ   (obF : C → D)
+    (Σ (obF : C → D)
     (homF : Π ⦃a b : C⦄, hom a b → hom (obF a) (obF b)),
     (Π (a : C), homF (ID a) = ID (obF a)) ×
     (Π {a b c : C} (g : hom b c) (f : hom a b),
@@ -36,20 +37,22 @@ namespace functor
         exact (pr₁ S.2.2), exact (pr₂ S.2.2),
     fapply adjointify,
       intro F, apply (functor.rec_on F), intros (d1, d2, d3, d4),
-      exact (dpair d1 (dpair d2 (pair d3 (@d4)))),
+      exact (sigma.mk d1 (sigma.mk d2 (pair d3 (@d4)))),
     intro F, apply (functor.rec_on F), intros (d1, d2, d3, d4), apply idp,
     intro S, apply (sigma.rec_on S), intros (d1, S2),
     apply (sigma.rec_on S2), intros (d2, P1),
     apply (prod.rec_on P1), intros (d3, d4), apply idp,
   end
 
+  -- The following lemmas will later be used to prove that the type of
+  -- precategories formes a precategory itself
   protected definition compose (G : functor D E) (F : functor C D) : functor C E :=
   functor.mk
-    (λx, G (F x))
+    (λ x, G (F x))
     (λ a b f, G (F f))
     (λ a, calc
-      G (F (ID a)) = G id : {respect_id F a} --not giving the braces explicitly makes the elaborator compute a couple more seconds
-               ... = id   : respect_id G (F a))
+      G (F (ID a)) = G (ID (F a)) : {respect_id F a}
+               ... = ID (G (F a)) : respect_id G (F a))
     (λ a b c g f, calc
       G (F (g ∘ f)) = G (F g ∘ F f)     : respect_comp F g f
                 ... = G (F g) ∘ G (F f) : respect_comp G (F g) (F f))
@@ -57,38 +60,87 @@ namespace functor
   infixr `∘f`:60 := compose
 
 
+
+  protected theorem congr
+    {C : Precategory} {D : Precategory}
+    (F : C → D)
+    (foo2 : Π ⦃a b : C⦄, hom a b → hom (F a) (F b))
+    (foo3a foo3b : Π (a : C), foo2 (ID a) = ID (F a))
+    (foo4a foo4b : Π {a b c : C} (g : @hom C C b c) (f : @hom C C a b),
+      foo2 (g ∘ f) = foo2 g ∘ foo2 f)
+    (p3 : foo3a = foo3b) (p4 : @foo4a = @foo4b)
+      : functor.mk F foo2 foo3a @foo4a = functor.mk F foo2 foo3b @foo4b
+  :=
+  begin
+    apply (eq.rec_on p3), intros,
+    apply (eq.rec_on p4), intros,
+    apply idp,
+  end
+
   protected theorem assoc {A B C D : Precategory} (H : functor C D) (G : functor B C) (F : functor A B) :
       H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
-  sorry
+  begin
+    apply (functor.rec_on H), intros (H1, H2, H3, H4),
+    apply (functor.rec_on G), intros (G1, G2, G3, G4),
+    apply (functor.rec_on F), intros (F1, F2, F3, F4),
+    fapply functor.congr,
+      apply funext.path_pi, intro a,
+      apply (@is_hset.elim), apply !homH,
+    apply funext.path_pi, intro a,
+    repeat (apply funext.path_pi; intros),
+    apply (@is_hset.elim), apply !homH,
+  end
 
-  /-protected definition id {C : Precategory} : functor C C :=
+  protected definition id {C : Precategory} : functor C C :=
   mk (λa, a) (λ a b f, f) (λ a, idp) (λ a b c f g, idp)
+
   protected definition ID (C : Precategory) : functor C C := id
 
   protected theorem id_left  (F : functor C D) : id ∘f F = F :=
-  functor.rec (λ obF homF idF compF, dcongr_arg4 mk idp idp !proof_irrel !proof_irrel) F
+  begin
+    apply (functor.rec_on F), intros (F1, F2, F3, F4),
+    fapply functor.congr,
+      apply funext.path_pi, intro a,
+      apply (@is_hset.elim), apply !homH,
+    repeat (apply funext.path_pi; intros),
+    apply (@is_hset.elim), apply !homH,
+  end
+
   protected theorem id_right (F : functor C D) : F ∘f id = F :=
-  functor.rec (λ obF homF idF compF, dcongr_arg4 mk idp idp !proof_irrel !proof_irrel) F-/
+  begin
+    apply (functor.rec_on F), intros (F1, F2, F3, F4),
+    fapply functor.congr,
+      apply funext.path_pi, intro a,
+      apply (@is_hset.elim), apply !homH,
+    repeat (apply funext.path_pi; intros),
+    apply (@is_hset.elim), apply !homH,
+  end
 
 end functor
 
-/-
+
 namespace category
   open functor
-  definition category_of_categories [reducible] : category Category :=
+
+  definition precategory_of_precategories : precategory Precategory :=
   mk (λ a b, functor a b)
+     sorry -- TODO: Show that functors form a set?
      (λ a b c g f, functor.compose g f)
      (λ a, functor.id)
      (λ a b c d h g f, !functor.assoc)
      (λ a b f, !functor.id_left)
      (λ a b f, !functor.id_right)
-  definition Category_of_categories [reducible] := Mk category_of_categories
+
+  definition Precategory_of_categories := Mk precategory_of_precategories
 
   namespace ops
-    notation `Cat`:max := Category_of_categories
-    instance [persistent] category_of_categories
+
+    notation `PreCat`:max := Precategory_of_categories
+    instance [persistent] precategory_of_precategories
+
   end ops
-end category-/
+
+end category
 
 namespace functor
 --  open category.ops

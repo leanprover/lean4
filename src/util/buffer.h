@@ -153,6 +153,15 @@ public:
         m_pos--;
     }
 
+    void erase_elem(T const & elem) {
+        for (unsigned i = 0; i < size(); i++) {
+            if (m_buffer[i] == elem) {
+                erase(i);
+                return;
+            }
+        }
+    }
+
     void insert(unsigned idx, T const & elem) {
         using std::swap;
         lean_assert(idx <= size());

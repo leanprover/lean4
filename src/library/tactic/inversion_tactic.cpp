@@ -159,6 +159,41 @@ class inversion_tac {
         m_subst.assign(n, val);
     }
 
+    /** \brief We say h has independent indices IF
+        1- it is *not* an indexed inductive family, OR
+        2- it is an indexed inductive family, but all indices are distinct local constants,
+        and all hypotheses of g different from h and indices, do not depend on the indices.
+    */
+    bool has_indep_indices(goal const & g, expr const & h, expr const & h_type) {
+        if (m_nindices == 0)
+            return true;
+        buffer<expr> args;
+        get_app_args(h_type, args);
+        lean_assert(m_nindices <= args.size());
+        unsigned fidx = args.size() - m_nindices;
+        for (unsigned i = fidx; i < args.size(); i++) {
+            if (!is_local(args[i]))
+                return false; // the indices must be local constants
+            for (unsigned j = fidx; j < i; j++) {
+                if (mlocal_name(args[j]) == mlocal_name(args[i]))
+                    return false; // the indices must be distinct local constants
+            }
+        }
+        buffer<expr> hyps;
+        g.get_hyps(hyps);
+        for (expr const & h1 : hyps) {
+            if (mlocal_name(h1) == mlocal_name(h))
+                continue;
+            if (std::any_of(args.end() - m_nindices, args.end(), [&](expr const & arg) { return mlocal_name(arg) == mlocal_name(h1); }))
+                continue;
+            // h1 is not h nor any of the indices
+            // Thus, it must not depend on the indices
+            if (std::any_of(args.end() - m_nindices, args.end(), [&](expr const & arg) { return depends_on(h1, arg); }))
+                return false;
+        }
+        return true;
+    }
+
     /** \brief Split hyps into two "telescopes".
         - non_deps : hypotheses that do not depend on H
         - deps     : hypotheses that depend on H (directly or indirectly)
@@ -276,7 +311,7 @@ class inversion_tac {
 
     /** \brief Generalize h dependencies.
 
-        This tactic uses this method only for non-indexed inductive families.
+        This tactic uses this method only if has_indep_indices(hyps, h, h_type) returns true.
 
         The hypotheses that depend on h are stored in deps.
     */
@@ -841,7 +876,7 @@ public:
             expr h_type                         = m_tc.whnf(mlocal_type(h)).first;
             if (!is_inversion_applicable(h_type))
                 return optional<result>();
-            if (m_nindices == 0) {
+            if (has_indep_indices(g, h, h_type)) {
                 buffer<expr> deps;
                 goal g1                             = generalize_dependecies(g, h, deps);
                 auto gs_imps_pair                   = apply_cases_on(g1, imps);

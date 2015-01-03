@@ -44,6 +44,26 @@ namespace functor
     apply (prod.rec_on P1), intros (d3, d4), apply idp,
   end
 
+  protected definition strict_cat_has_functor_hset
+    [HD : is_hset (objects D)] : is_hset (functor C D) :=
+  begin
+    apply trunc_equiv, apply equiv.to_is_equiv,
+      apply sigma_char,
+    apply trunc_sigma, apply trunc_pi, intros, exact HD, intro F,
+    apply trunc_sigma, apply trunc_pi, intro a,
+      apply trunc_pi, intro b,
+      apply trunc_pi, intro c, apply !homH,
+    intro H, apply trunc_prod,
+      apply trunc_pi, intro a,
+      apply succ_is_trunc, apply trunc_succ, apply !homH,
+    apply trunc_pi, intro a,
+    apply trunc_pi, intro b,
+    apply trunc_pi, intro c,
+    apply trunc_pi, intro g,
+    apply trunc_pi, intro f,
+      apply succ_is_trunc, apply trunc_succ, apply !homH,
+  end
+
   -- The following lemmas will later be used to prove that the type of
   -- precategories formes a precategory itself
   protected definition compose (G : functor D E) (F : functor C D) : functor C E :=
@@ -119,28 +139,28 @@ namespace functor
 end functor
 
 
-namespace category
+namespace precategory
   open functor
 
-  definition precategory_of_precategories : precategory Precategory :=
-  mk (λ a b, functor a b)
-     sorry -- TODO: Show that functors form a set?
+  definition precat_of_strict_precats : precategory (Σ (C : Precategory), is_hset (objects C)) :=
+  precategory.mk (λ a b, functor a.1 b.1)
+     (λ a b, @functor.strict_cat_has_functor_hset a.1 b.1 b.2)
      (λ a b c g f, functor.compose g f)
      (λ a, functor.id)
      (λ a b c d h g f, !functor.assoc)
      (λ a b f, !functor.id_left)
      (λ a b f, !functor.id_right)
 
-  definition Precategory_of_categories := Mk precategory_of_precategories
+  definition Precat_of_strict_cats := Mk precat_of_strict_precats
 
   namespace ops
 
-    notation `PreCat`:max := Precategory_of_categories
-    instance [persistent] precategory_of_precategories
+    notation `PreCat`:max := Precat_of_strict_cats
+    instance [persistent] precat_of_strict_precats
 
   end ops
 
-end category
+end precategory
 
 namespace functor
 --  open category.ops

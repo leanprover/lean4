@@ -44,7 +44,7 @@ typedef list<implementation_ptr> implementation_list;
 
 struct result {
     list<goal>                 m_goals;
-    list<list<name>>           m_args; // arguments of the constructor/intro rule
+    list<list<expr>>           m_args; // arguments of the constructor/intro rule
     list<implementation_list>  m_implementation_lists;
     list<rename_map>           m_renames;
     // invariant: length(m_goals) == length(m_args);
@@ -52,7 +52,7 @@ struct result {
     // invariant: length(m_goals) == length(m_renames);
     name_generator             m_ngen;
     substitution               m_subst;
-    result(list<goal> const & gs, list<list<name>> const & args, list<implementation_list> const & imps,
+    result(list<goal> const & gs, list<list<expr>> const & args, list<implementation_list> const & imps,
            list<rename_map> const & rs, name_generator const & ngen, substitution const & subst);
 };
 

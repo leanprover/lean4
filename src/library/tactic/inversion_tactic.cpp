@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace inversion {
-result::result(list<goal> const & gs, list<list<name>> const & args, list<implementation_list> const & imps,
+result::result(list<goal> const & gs, list<list<expr>> const & args, list<implementation_list> const & imps,
                list<rename_map> const & rs, name_generator const & ngen, substitution const & subst):
     m_goals(gs), m_args(args), m_implementation_lists(imps),
     m_renames(rs), m_ngen(ngen), m_subst(subst) {
@@ -432,12 +432,12 @@ class inversion_tac {
        The b_i are the arguments of the constructor C_i.
        This method moves the b_i's to the hypotheses list.
     */
-    std::pair<list<goal>, list<list<name>>> intros_minors_args(list<goal> gs) {
+    std::pair<list<goal>, list<list<expr>>> intros_minors_args(list<goal> gs) {
         buffer<unsigned> minors_nargs;
         get_minors_nargs(minors_nargs);
         lean_assert(length(gs) == minors_nargs.size());
         buffer<goal> new_gs;
-        buffer<list<name>> new_args;
+        buffer<list<expr>> new_args;
         for (unsigned i = 0; i < minors_nargs.size(); i++) {
             goal const & g = head(gs);
             unsigned nargs = minors_nargs[i];
@@ -446,7 +446,7 @@ class inversion_tac {
             buffer<expr> new_hyps;
             new_hyps.append(hyps);
             expr g_type    = g.get_type();
-            buffer<name> curr_new_args;
+            buffer<expr> curr_new_args;
             for (unsigned i = 0; i < nargs; i++) {
                 expr type  = binding_domain(g_type);
                 name new_h_name;
@@ -457,7 +457,7 @@ class inversion_tac {
                     new_h_name = binding_name(g_type);
                 }
                 expr new_h = mk_local(m_ngen.next(), get_unused_name(new_h_name, new_hyps), type, binder_info());
-                curr_new_args.push_back(mlocal_name(new_h));
+                curr_new_args.push_back(new_h);
                 new_hyps.push_back(new_h);
                 g_type     = instantiate(binding_body(g_type), new_h);
             }
@@ -634,14 +634,24 @@ class inversion_tac {
         }
     }
 
+    buffer<expr>        m_c_args; // current intro/constructor args that may be renamed by unify_eqs
     rename_map          m_renames;
     implementation_list m_imps;
+
+    void store_rename(expr const & old_hyp, expr const & new_hyp) {
+        for (expr & c_arg : m_c_args) {
+            if (is_local(c_arg) && mlocal_name(old_hyp) == mlocal_name(c_arg))
+                c_arg = new_hyp;
+        }
+        if (is_local(new_hyp))
+            m_renames.insert(mlocal_name(old_hyp), mlocal_name(new_hyp));
+    }
 
     /** \brief Update m_renames with old_hyps --> new_hyps. */
     void store_renames(buffer<expr> const & old_hyps, buffer<expr> const & new_hyps) {
         lean_assert(old_hyps.size() == new_hyps.size());
         for (unsigned i = 0; i < old_hyps.size(); i++) {
-            m_renames.insert(mlocal_name(old_hyps[i]), mlocal_name(new_hyps[i]));
+            store_rename(old_hyps[i], new_hyps[i]);
         }
     }
 
@@ -756,6 +766,7 @@ class inversion_tac {
                 buffer<expr> new_hyps;
                 new_hyps.append(non_deps);
                 expr new_type       = instantiate(abstract_local(deps_g_type, rhs), lhs);
+                store_rename(rhs, lhs);
                 abstract_local(m_imps, rhs);
                 instantiate(m_imps, lhs);
                 if (!m_proof_irrel) {
@@ -801,20 +812,22 @@ class inversion_tac {
         throw inversion_exception("unification failed");
     }
 
-    auto unify_eqs(list<goal> const & gs, list<list<name>> args, list<implementation_list> imps) ->
-        std::tuple<list<goal>, list<list<name>>, list<implementation_list>, list<rename_map>> {
+    auto unify_eqs(list<goal> const & gs, list<list<expr>> args, list<implementation_list> imps) ->
+        std::tuple<list<goal>, list<list<expr>>, list<implementation_list>, list<rename_map>> {
         lean_assert(length(gs) == length(imps));
         unsigned neqs = m_nindices + (m_dep_elim ? 1 : 0);
         buffer<goal>                new_goals;
-        buffer<list<name>>          new_args;
+        buffer<list<expr>>          new_args;
         buffer<implementation_list> new_imps;
         buffer<rename_map>          new_renames;
         for (goal const & g : gs) {
             flet<rename_map>          set1(m_renames, rename_map());
             flet<implementation_list> set2(m_imps,    head(imps));
+            m_c_args.clear();
+            to_buffer(head(args), m_c_args);
             if (optional<goal> new_g = unify_eqs(g, neqs)) {
                 new_goals.push_back(*new_g);
-                list<name> new_as = map(head(args), [&](name const & n) { return m_renames.find(n); });
+                list<expr> new_as = to_list(m_c_args);
                 new_args.push_back(new_as);
                 new_imps.push_back(m_imps);
                 new_renames.push_back(m_renames);
@@ -884,7 +897,7 @@ public:
                 list<implementation_list> new_imps  = gs_imps_pair.second;
                 auto gs_args_pair                   = intros_minors_args(gs2);
                 list<goal> gs3                      = gs_args_pair.first;
-                list<list<name>> args               = gs_args_pair.second;
+                list<list<expr>> args               = gs_args_pair.second;
                 auto gs_rs_pair                     = intro_deps(gs3, deps);
                 list<goal> gs4                      = gs_rs_pair.first;
                 list<rename_map> rs                 = gs_rs_pair.second;
@@ -896,7 +909,7 @@ public:
                 list<implementation_list> new_imps  = gs_imps_pair.second;
                 auto gs_args_pair                   = intros_minors_args(gs2);
                 list<goal> gs3                      = gs_args_pair.first;
-                list<list<name>> args               = gs_args_pair.second;
+                list<list<expr>> args               = gs_args_pair.second;
                 list<goal> gs4;
                 list<rename_map> rs;
                 std::tie(gs4, args, new_imps, rs)   = unify_eqs(gs3, args, new_imps);

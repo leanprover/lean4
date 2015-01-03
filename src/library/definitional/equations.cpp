@@ -235,6 +235,7 @@ class equation_compiler_fn {
     expr whnf(expr const & e) { return m_tc.whnf(e).first; }
     expr infer_type(expr const & e) { return m_tc.infer(e).first; }
     bool is_def_eq(expr const & e1, expr const & e2) { return m_tc.is_def_eq(e1, e2).first; }
+    bool is_proof_irrelevant() const { return m_tc.env().prop_proof_irrel(); }
 
     optional<name> is_constructor(expr const & e) const {
        if (!is_constant(e))
@@ -325,6 +326,8 @@ class equation_compiler_fn {
         }
         program(program const & p, list<optional<name>> const & new_s, list<eqn> const & new_e):
             program(p.m_fn, p.m_context, new_s, new_e, p.m_type) {}
+        program(program const & p, list<expr> const & ctx):
+            program(p.m_fn, ctx, p.m_var_stack, p.m_eqns, p.m_type) {}
         program() {}
         expr const & get_var(name const & n) const {
             for (expr const & v : m_context) {
@@ -796,8 +799,15 @@ class equation_compiler_fn {
     expr compile(program const & p) {
         buffer<expr> vars;
         to_buffer(p.m_context, vars);
-        expr r = compile_core(p);
-        return Fun(vars, r);
+        if (!is_proof_irrelevant()) {
+            // We have to include the global context because the proof relevant version
+            // uses the class-instance resolution, and must be able to "see" the complete
+            // context.
+            program new_p(p, append(to_list(m_global_context), p.m_context));
+            return Fun(vars, compile_core(new_p));
+        } else {
+            return Fun(vars, compile_core(p));
+        }
     }
 
     /** \brief Return true iff \c e is one of the functions being defined */

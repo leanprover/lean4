@@ -31,7 +31,6 @@ namespace category
   universe variable l
   instance precategory.set_precategory.{l+1 l}
 
-  check @equiv
   definition set_category_equiv_iso (a b : (Σ (A : Type.{l}), is_hset A))
     : (a ≅ b) = (a.1 ≃ b.1) :=
   /-begin
@@ -48,12 +47,12 @@ namespace category
   end-/ sorry
 
   definition set_category : category.{l+1 l} (Σ (A : Type.{l}), is_hset A) :=
-  begin
+  /-begin
     assert (C : precategory.{l+1 l} (Σ (A : Type.{l}), is_hset A)),
       apply precategory.set_precategory,
     apply category.mk,
     assert (p : (λ A B p, (set_category_equiv_iso A B) ▹ iso_of_path p) = (λ A B p, @equiv_path A.1 B.1 p)),
-    /-apply is_equiv.adjointify,
+    apply is_equiv.adjointify,
         intros,
         apply (isomorphic.rec_on a_1), intros (iso', is_iso'),
         apply (is_iso.rec_on is_iso'), intros (f', f'sect, f'retr),
@@ -65,7 +64,7 @@ namespace category
           intros, apply (f'sect ▹ _),
         apply (@is_hprop.elim),
         apply is_trunc_is_hprop,
-      intros, -/
-  end
+      intros,
+  end -/ sorry
 
 end category

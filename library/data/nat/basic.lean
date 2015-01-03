@@ -289,15 +289,16 @@ cases_on n
              ... = succ (succ n' * m' + n') : add_succ)⁻¹)
           !succ_ne_zero))
 
-section port_algebra
-
-  open algebra
+section
+  open [classes] algebra
 
   protected definition comm_semiring [instance] : algebra.comm_semiring nat :=
   algebra.comm_semiring.mk add add.assoc zero zero_add add_zero add.comm
   mul mul.assoc (succ zero) one_mul mul_one mul.left_distrib mul.right_distrib
   zero_mul mul_zero (ne.symm (succ_ne_zero zero)) mul.comm
+end
 
+section port_algebra
   theorem mul.left_comm : ∀a b c : ℕ, a * (b * c) = b * (a * c) := algebra.mul.left_comm
   theorem mul.right_comm : ∀a b c : ℕ, (a * b) * c = (a * c) * b := algebra.mul.right_comm
 
@@ -325,7 +326,6 @@ section port_algebra
   theorem dvd_of_mul_left_dvd : ∀{a b c : ℕ}, a * b | c → b | c :=
     @algebra.dvd_of_mul_left_dvd _ _
   theorem dvd_add : ∀{a b c : ℕ}, a | b → a | c → a | b + c := @algebra.dvd_add _ _
-
 end port_algebra
 
 end nat

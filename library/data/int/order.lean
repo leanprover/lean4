@@ -211,23 +211,19 @@ lt.intro
         ... = of_nat (succ (succ n * m + n))   : nat.add_succ
         ... = 0 + succ (succ n * m + n)        : zero_add))
 
-protected definition linear_ordered_comm_ring : algebra.linear_ordered_comm_ring int :=
-algebra.linear_ordered_comm_ring.mk add add.assoc zero zero_add add_zero neg add.left_inv
-  add.comm mul mul.assoc (of_num 1) one_mul mul_one mul.left_distrib mul.right_distrib
-  zero_ne_one le le.refl @le.trans @le.antisymm lt lt_iff_le_and_ne @add_le_add_left
-  @mul_nonneg @mul_pos le_iff_lt_or_eq le.total mul.comm
+section
+  open [classes] algebra
+
+  protected definition linear_ordered_comm_ring [instance] : algebra.linear_ordered_comm_ring int :=
+  algebra.linear_ordered_comm_ring.mk add add.assoc zero zero_add add_zero neg add.left_inv
+    add.comm mul mul.assoc (of_num 1) one_mul mul_one mul.left_distrib mul.right_distrib
+    zero_ne_one le le.refl @le.trans @le.antisymm lt lt_iff_le_and_ne @add_le_add_left
+    @mul_nonneg @mul_pos le_iff_lt_or_eq le.total mul.comm
+end
 
 /- instantiate ordered ring theorems to int -/
 
-namespace algebra
-  open algebra
-  instance [persistent] int.linear_ordered_comm_ring
-end algebra
-
 section port_algebra
-  open algebra
-  instance int.linear_ordered_comm_ring
-
   definition ge (a b : ℤ) := algebra.has_le.ge a b
   definition gt (a b : ℤ) := algebra.has_lt.gt a b
   infix >= := int.ge
@@ -452,8 +448,8 @@ section port_algebra
     @algebra.mul_pos_of_neg_of_neg _ _
 
   theorem mul_self_nonneg : ∀a : ℤ, a * a ≥ 0 := algebra.mul_self_nonneg
-  theorem zero_le_one : #int 0 ≤ 1 := @algebra.zero_le_one int int.linear_ordered_comm_ring
-  theorem zero_lt_one : #int 0 < 1 := @algebra.zero_lt_one int int.linear_ordered_comm_ring
+  theorem zero_le_one : #int 0 ≤ 1 := trivial
+  theorem zero_lt_one : #int 0 < 1 := trivial
   theorem pos_and_pos_or_neg_and_neg_of_mul_pos : ∀{a b : ℤ}, a * b > 0 →
     (a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0) := @algebra.pos_and_pos_or_neg_and_neg_of_mul_pos _ _
 end port_algebra

@@ -597,22 +597,18 @@ or_of_or_of_imp_of_imp H3
   (assume H : (nat_abs a) = nat.zero, nat_abs_eq_zero H)
   (assume H : (nat_abs b) = nat.zero, nat_abs_eq_zero H)
 
-protected definition integral_domain : algebra.integral_domain int :=
-algebra.integral_domain.mk add add.assoc zero zero_add add_zero neg add.left_inv
-add.comm mul mul.assoc (of_num 1) one_mul mul_one mul.left_distrib mul.right_distrib
-zero_ne_one mul.comm @eq_zero_or_eq_zero_of_mul_eq_zero
+section
+  open [classes] algebra
 
---namespace algebra
---  open algebra    -- TODO: why do we have to do this?
---  instance [persistent] int.integral_domain
---end algebra
+  protected definition integral_domain [instance] : algebra.integral_domain int :=
+  algebra.integral_domain.mk add add.assoc zero zero_add add_zero neg add.left_inv
+  add.comm mul mul.assoc (of_num 1) one_mul mul_one mul.left_distrib mul.right_distrib
+  zero_ne_one mul.comm @eq_zero_or_eq_zero_of_mul_eq_zero
+end
 
 /- instantiate ring theorems to int -/
 
 section port_algebra
-  open algebra
-  instance int.integral_domain  -- TODO: why didn't the setting above persist?
-
   theorem mul.left_comm : ∀a b c : ℤ, a * (b * c) = b * (a * c) := algebra.mul.left_comm
   theorem mul.right_comm : ∀a b c : ℤ, (a * b) * c = (a * c) * b := algebra.mul.right_comm
   theorem add.left_comm : ∀a b c : ℤ, a + (b + c) = b + (a + c) := algebra.add.left_comm

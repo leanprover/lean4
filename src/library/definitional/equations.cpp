@@ -867,7 +867,7 @@ class equation_compiler_fn {
 
     /** \brief Return true iff \c t1 and \c t2 are instances of the same inductive datatype */
     static bool is_same_inductive(expr const & t1, expr const & t2) {
-        return const_name(get_app_fn(t1)) != const_name(get_app_fn(t2));
+        return const_name(get_app_fn(t1)) == const_name(get_app_fn(t2));
     }
 
     /** \brief Return true iff \c s is structurally smaller than \c t OR equal to \c t */
@@ -929,6 +929,8 @@ class equation_compiler_fn {
                                 // arg_j must be structurally smaller than arg
                                 if (!m_main.is_lt(arg_j, arg))
                                     return false;
+                            } else {
+                                return false;
                             }
                             break;
                         }

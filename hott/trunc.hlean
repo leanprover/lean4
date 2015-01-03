@@ -11,11 +11,30 @@ namespace truncation
 
   definition is_contr.sigma_char (A : Type) :
     (Σ (center : A), Π (a : A), center = a) ≃ (is_contr A) :=
-  sorry
+  begin
+    fapply equiv.mk,
+      intro S, apply is_contr.mk, exact S.2,
+    fapply is_equiv.adjointify,
+        intro H, apply sigma.mk, exact (@contr A H),
+      intro H, apply (is_trunc.rec_on H), intro Hint,
+      apply (contr_internal.rec_on Hint), intros (H1, H2),
+      apply idp,
+    intro S, apply (sigma.rec_on S), intros (H1, H2),
+    apply idp,
+  end
 
+  set_option pp.implicit true
   definition is_trunc.pi_char (n : trunc_index) (A : Type) :
     (Π (x y : A), is_trunc n (x = y)) ≃ (is_trunc (n .+1) A) :=
-  sorry
+  begin
+    fapply equiv.mk,
+      intro H, apply is_trunc_succ, exact H,
+    fapply is_equiv.adjointify,
+        intros (H, x, y), apply succ_is_trunc, exact H,
+      intro H, apply (is_trunc.rec_on H), intro Hint, apply idp,
+    intro P,
+   exact sorry,
+  end
 
   definition is_trunc_is_hprop {n : trunc_index} :
     Π (A : Type), is_hprop (is_trunc n A) :=

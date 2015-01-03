@@ -43,7 +43,7 @@ namespace eq
   subst H₂ H₁
 
   definition symm (H : a = b) : b = a :=
-  subst H (refl a)
+  rec (refl a) H
 
   namespace ops
     notation H `⁻¹` := symm H --input with \sy or \-1 or \inv

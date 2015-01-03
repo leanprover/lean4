@@ -210,7 +210,7 @@ void initialize_library_util() {
     g_heq_name       = new name("heq");
 
     g_sigma_name     = new name("sigma");
-    g_sigma_mk_name  = new name{"sigma", "dpair"};
+    g_sigma_mk_name  = new name{"sigma", "mk"};
 }
 
 void finalize_library_util() {

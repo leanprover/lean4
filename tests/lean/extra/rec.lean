@@ -23,7 +23,6 @@ definition map {A B C : Type} (f : A → B → C) : Π {n}, vector A n → vecto
 map nil nil             := nil,
 map (a :: va) (b :: vb) := f a b :: map va vb
 
-
 definition half : nat → nat,
 half 0     := 0,
 half 1     := 0,
@@ -35,3 +34,24 @@ mk : Π a, image_of f (f a)
 
 definition inv {f : A → B} : Π b, image_of f b → A,
 inv ⌞f a⌟ (image_of.mk f a) := a
+
+namespace tst
+
+definition fib : nat → nat,
+fib 0     := 1,
+fib 1     := 1,
+fib (a+2) := fib a + fib (a+1)
+
+end tst
+
+definition simple : nat → nat → nat,
+simple x y := x + y
+
+definition simple2 : nat → nat → nat,
+simple2 (x+1) y := x + y,
+simple2 ⌞y+1⌟ y := y
+
+
+
+check @vector.brec_on
+check @vector.cases_on

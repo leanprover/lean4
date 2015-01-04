@@ -15,13 +15,15 @@ void collect_locals(expr const & e, expr_struct_set & ls);
 level_param_names to_level_param_names(name_set const & ls);
 
 /** \brief Return true iff \c [begin_locals, end_locals) contains \c local */
-template<typename It> bool contains_local(expr const & local, It const & begin_locals, It const & end_locals) {
+template<typename It>
+bool contains_local(expr const & local, It const & begin_locals, It const & end_locals) {
     return std::any_of(begin_locals, end_locals, [&](expr const & l) { return mlocal_name(local) == mlocal_name(l); });
 }
 
-/** \brief Return true iff \c locals contains \c local */
-inline bool contains_local(expr const & local, buffer<expr> const & locals) {
-    return contains_local(local, locals.begin(), locals.end());
+template<typename T>
+bool contains_local(expr const & l, T const & locals) {
+    return std::any_of(locals.begin(), locals.end(),
+                       [&](expr const & l1) { return mlocal_name(l1) == mlocal_name(l); });
 }
 
 /** \brief Return true iff \c e contains a local constant named \c n (it uses mlocal_name) */

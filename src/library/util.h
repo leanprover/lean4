@@ -11,6 +11,11 @@ Author: Leonardo de Moura
 namespace lean {
 typedef std::unique_ptr<type_checker> type_checker_ptr;
 
+/** \brief Reduce (if possible) universe level by 1.
+    \pre is_not_zero(l)
+*/
+optional<level> dec_level(level const & l);
+
 bool has_unit_decls(environment const & env);
 bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);

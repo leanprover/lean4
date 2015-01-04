@@ -32,7 +32,6 @@ static std::string * g_equation_opcode   = nullptr;
 static std::string * g_decreasing_opcode = nullptr;
 
 [[ noreturn ]] static void throw_eqs_ex() { throw exception("unexpected occurrence of 'equations' expression"); }
-[[ noreturn ]] static void throw_eq_ex() { throw exception("unexpected occurrence of 'equation' expression"); }
 
 class equations_macro_cell : public macro_definition_cell {
     unsigned m_num_fns;
@@ -225,7 +224,6 @@ class equation_compiler_fn {
     io_state const & m_ios;
     expr             m_meta;
     expr             m_meta_type;
-    bool             m_relax;
     buffer<expr>     m_global_context;
     buffer<expr>     m_fns; // functions being defined
 
@@ -722,7 +720,7 @@ class equation_compiler_fn {
                                                                      });
                 rename_map const & rn         = head(rn_maps);
                 list<optional<name>> new_var_stack = map(tail(p.m_var_stack),
-                                                         [&](optional<name> const & n) {
+                                                         [&](optional<name> const & n) -> optional<name> {
                                                              if (n)
                                                                  return optional<name>(rn.find(*n));
                                                              else
@@ -1162,8 +1160,8 @@ class equation_compiler_fn {
 
 
 public:
-    equation_compiler_fn(type_checker & tc, io_state const & ios, expr const & meta, expr const & meta_type, bool relax):
-        m_tc(tc), m_ios(ios), m_meta(meta), m_meta_type(meta_type), m_relax(relax) {
+    equation_compiler_fn(type_checker & tc, io_state const & ios, expr const & meta, expr const & meta_type, bool /* relax */):
+        m_tc(tc), m_ios(ios), m_meta(meta), m_meta_type(meta_type) {
         get_app_args(m_meta, m_global_context);
     }
 

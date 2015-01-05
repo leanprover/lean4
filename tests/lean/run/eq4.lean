@@ -1,0 +1,21 @@
+open nat
+
+definition half : nat → nat,
+half 0     := 0,
+half 1     := 0,
+half (x+2) := half x + 1
+
+theorem half0 : half 0 = 0 :=
+rfl
+
+theorem half1 : half 1 = 0 :=
+rfl
+
+theorem half_succ_succ (a : nat) : half (a + 2) = half a + 1 :=
+rfl
+
+example : half 5 = 2 :=
+rfl
+
+example : half 8 = 4 :=
+rfl

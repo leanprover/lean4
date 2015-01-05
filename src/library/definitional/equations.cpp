@@ -305,6 +305,8 @@ class equation_compiler_fn {
         expr       m_rhs;      // right-hand-side
         eqn(list<expr> const & c, list<expr> const & p, expr const & r):
             m_local_context(c), m_patterns(p), m_rhs(r) {}
+        eqn(eqn const & e, list<expr> const & c, list<expr> const & p):
+            eqn(c, p, e.m_rhs) {}
     };
 
     // Data-structure used to store for compiling pattern matching.
@@ -328,6 +330,8 @@ class equation_compiler_fn {
             program(p.m_fn, p.m_context, new_s, new_e, p.m_type) {}
         program(program const & p, list<expr> const & ctx):
             program(p.m_fn, ctx, p.m_var_stack, p.m_eqns, p.m_type) {}
+        program(program const & p, list<eqn> const & new_e):
+            program(p, p.m_var_stack, new_e) {}
         program() {}
         expr const & get_var(name const & n) const {
             for (expr const & v : m_context) {
@@ -777,13 +781,45 @@ class equation_compiler_fn {
             return compile_variable(p);
     }
 
-    expr compile_complete(program const & /* p */) {
+    expr mk_constructor(name const & n, levels const & ls, buffer<expr> const & params, buffer<expr> & args) {
+        expr c = mk_app(mk_constant(n, ls), params);
+        expr t = infer_type(c);
+        to_telescope_ext(t, args);
+        return mk_app(c, args);
+    }
+
+    expr compile_complete(program const & prg) {
         // The next pattern of every equation is a constructor or variable.
         // We split the equations where the next pattern is a variable into cases.
         // That is, we are reducing this case to the compile_constructor case.
-
-        // TODO(Leo)
-        return expr();
+        buffer<eqn> new_eqns;
+        for (eqn const & e : prg.m_eqns) {
+            expr const & p = head(e.m_patterns);
+            if (is_local(p)) {
+                list<expr> rest_ctx = remove(e.m_local_context, p);
+                expr x              = prg.get_var(*head(prg.m_var_stack));
+                expr x_type         = whnf(mlocal_type(x));
+                buffer<expr> I_args;
+                expr const & I      = get_app_args(x_type, I_args);
+                name const & I_name = const_name(I);
+                levels const & I_ls = const_levels(I);
+                unsigned nparams    = *inductive::get_num_params(env(), I_name);
+                buffer<expr> I_params;
+                I_params.append(nparams, I_args.data());
+                buffer<name> constructor_names;
+                get_intro_rule_names(env(), I_name, constructor_names);
+                for (name const & c_name : constructor_names) {
+                    buffer<expr> new_args;
+                    expr c = mk_constructor(c_name, I_ls, I_params, new_args);
+                    list<expr> new_ctx      = to_list(new_args.begin(), new_args.end(), rest_ctx);
+                    list<expr> new_patterns = cons(c, tail(e.m_patterns));
+                    new_eqns.push_back(eqn(e, new_ctx, new_patterns));
+                }
+            } else {
+                new_eqns.push_back(e);
+            }
+        }
+        return compile_core(program(prg, to_list(new_eqns)));
     }
 
     expr compile_core(program const & p) {

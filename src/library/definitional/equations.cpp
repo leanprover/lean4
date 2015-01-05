@@ -226,6 +226,22 @@ class equation_compiler_fn {
     expr             m_meta;
     expr             m_meta_type;
     buffer<expr>     m_global_context;
+    // The additional context is used to store inductive datatype parameters that occur as arguments in recursive equations.
+    // For example, suppose the user writes
+    //
+    //   definition append : Π (A : Type), list A → list A → list A,
+    //   append A nil      l := l,
+    //   append A (h :: t) l := h :: (append t l)
+    //
+    // instead of
+    //
+    //   definition append (A : Type) : list A → list A → list A,
+    //   append nil      l := l,
+    //   append (h :: t) l := h :: (append t l)
+    //
+    // In this case, we move the parameter (A : Type) to m_additional_context and simplify the recursive equations.
+    // The simplification is necessary when we are translating the recursive applications into a brec_on recursor.
+    buffer<expr>     m_additional_context;
     buffer<expr>     m_fns; // functions being defined
 
     environment const & env() const { return m_tc.env(); }
@@ -326,6 +342,8 @@ class equation_compiler_fn {
             m_fn(fn), m_context(ctx), m_var_stack(s), m_eqns(e), m_type(t) {
             lean_assert(contained(m_var_stack, m_context));
         }
+        program(program const & p, list<expr> const & ctx, list<optional<name>> const & new_s, list<eqn> const & new_e):
+            program(p.m_fn, ctx, new_s, new_e, p.m_type) {}
         program(program const & p, list<optional<name>> const & new_s, list<eqn> const & new_e):
             program(p.m_fn, p.m_context, new_s, new_e, p.m_type) {}
         program(program const & p, list<expr> const & ctx):
@@ -350,6 +368,7 @@ class equation_compiler_fn {
                 if (is_local(e) &&
                     !(contains_local(e, local_context) ||
                       contains_local(e, context) ||
+                      contains_local(e, m_additional_context) ||
                       contains_local(e, m_global_context) ||
                       contains_local(e, m_fns))) {
                     lean_unreachable();
@@ -613,21 +632,27 @@ class equation_compiler_fn {
             return cons(head(local_ctx), remove(tail(local_ctx), l));
     }
 
-    // Replace local constant \c from with \c to in the expression \c e.
-    static expr replace(expr const & e, expr const & from, expr const & to) {
-        return instantiate(abstract_local(e, from), to);
+    static expr replace(expr const & e, buffer<expr> const & from_buffer, buffer<expr> const & to_buffer) {
+        lean_assert(from_buffer.size() == to_buffer.size());
+        return instantiate_rev(abstract_locals(e, from_buffer.size(), from_buffer.data()),
+                               to_buffer.size(), to_buffer.data());
     }
 
-    static expr replace(expr const & e, name const & from, expr const & to) {
-        return instantiate(abstract_local(e, from), to);
-    }
-
-    static expr replace(expr const & e, name_map<expr> const & subst) {
-        expr r = e;
-        subst.for_each([&](name const & l, expr const & v) {
-                r = replace(r, l, v);
-            });
-        return r;
+    eqn replace(eqn const & e, expr const & from, expr const & to) {
+        buffer<expr> from_buffer; from_buffer.push_back(from);
+        buffer<expr> to_buffer;   to_buffer.push_back(to);
+        buffer<expr> new_ctx;
+        for (expr const & l : e.m_local_context) {
+            expr new_l = replace(l, from_buffer, to_buffer);
+            if (new_l != l) {
+                from_buffer.push_back(l);
+                to_buffer.push_back(new_l);
+            }
+            new_ctx.push_back(new_l);
+        }
+        list<expr> new_patterns = map(e.m_patterns, [&](expr const & p) { return replace(p, from_buffer, to_buffer); });
+        expr new_rhs = replace(e.m_rhs, from_buffer, to_buffer);
+        return eqn(to_list(new_ctx), new_patterns, new_rhs);
     }
 
     expr compile_skip(program const & prg) {
@@ -656,14 +681,10 @@ class equation_compiler_fn {
             } else {
                 lean_assert(is_local(p));
                 if (contains_local(p, e.m_local_context)) {
-                    list<expr> new_local_ctx = e.m_local_context;
-                    new_local_ctx      = remove(new_local_ctx, p);
-                    new_local_ctx      = map(new_local_ctx, [&](expr const & l) { return replace(l, p, x); });
-                    auto new_patterns  = map(tail(e.m_patterns), [&](expr const & p2) { return replace(p2, p, x); });
-                    auto new_rhs       = replace(e.m_rhs, p, x);
-                    new_eqs.emplace_back(new_local_ctx, new_patterns, new_rhs);
+                    list<expr> new_local_ctx = remove(e.m_local_context, p);
+                    new_eqs.push_back(replace(eqn(e, new_local_ctx, tail(e.m_patterns)), p, x));
                 } else {
-                    new_eqs.emplace_back(e.m_local_context, tail(e.m_patterns), e.m_rhs);
+                    new_eqs.emplace_back(eqn(e, e.m_local_context, tail(e.m_patterns)));
                 }
             }
         }
@@ -1222,14 +1243,79 @@ class equation_compiler_fn {
         }
     };
 
-    expr compile_brec_on(buffer<program> const & prgs) {
+    // Move inductive datatype parameters occuring in prg to m_additional_context
+    pair<program, unsigned> move_params(program const & prg, unsigned arg_pos) {
+        expr const & a_type = mlocal_type(get_ith(prg.m_context, arg_pos));
+        buffer<expr> a_type_args;
+        expr const & I      = get_app_args(a_type, a_type_args);
+        unsigned nparams    = *inductive::get_num_params(env(), const_name(I));
+        buffer<expr> params;
+        params.append(nparams, a_type_args.data());
+        if (std::all_of(params.begin(), params.end(), [&](expr const & p) { return contains_local(p, m_global_context); })) {
+            return mk_pair(prg, arg_pos);
+        } else {
+            list<expr>             new_context = prg.m_context;
+            buffer<optional<name>> new_var_stack;
+            buffer<eqn>            new_eqns;
+            to_buffer(prg.m_var_stack, new_var_stack);
+            to_buffer(prg.m_eqns, new_eqns);
+            for (expr const & param : params) {
+                if (!contains_local(param, m_global_context)) {
+                    m_additional_context.push_back(param);
+                    new_context = remove(new_context, param);
+                    unsigned i  = 0;
+                    for (; i < new_var_stack.size(); i++) {
+                        if (*new_var_stack[i] == mlocal_name(param))
+                            break;
+                    }
+                    lean_assert(i < new_var_stack.size());
+                    lean_assert(i != arg_pos);
+                    if (i < arg_pos)
+                        arg_pos--;
+                    new_var_stack.erase(i);
+                    for (eqn & e : new_eqns) {
+                        expr const & p = get_ith(e.m_patterns, i);
+                        if (!is_local(p)) {
+                            throw_error(sstream() << "invalid recursive equations, "
+                                        << "trying to pattern match inductive datatype parameter '" << p << "'");
+                        } else {
+                            list<expr> new_local_ctx = remove(e.m_local_context, p);
+                            list<expr> new_patterns  = ::lean::remove(e.m_patterns, p);
+                            e = replace(eqn(e, new_local_ctx, new_patterns), p, param);
+                        }
+                    }
+                }
+            }
+            return mk_pair(program(prg, new_context, to_list(new_var_stack), to_list(new_eqns)), arg_pos);
+        }
+    }
+
+    // Move inductive datatype parameters occuring in prg to m_additional_context
+    void move_params(buffer<program> & prgs, buffer<unsigned> & arg_pos) {
+        if (prgs.size() != 1) {
+            // The parameters already occur in m_global_context when there is more than one program.
+            return;
+        }
+        auto p     = move_params(prgs[0], arg_pos[0]);
+        prgs[0]    = p.first;
+        arg_pos[0] = p.second;
+        lean_assert(check_program(prgs[0]));
+    }
+
+    expr compile_brec_on(buffer<program> & prgs) {
         lean_assert(!prgs.empty());
-        buffer<unsigned> arg_pos;
-        if (!find_rec_args(prgs, arg_pos)) {
+        buffer<unsigned> rec_arg_pos;
+        if (!find_rec_args(prgs, rec_arg_pos)) {
             throw_error(sstream() << "invalid recursive equations, "
                         << "failed to find recursive arguments that are structurally smaller "
                         << "(possible solution: use well-founded recursion)");
         }
+        // Remark: move_params updates argument positions.
+        // Thus, we copy rec_arg_pos to arg_pos.
+        // We use rec_arg_pos when invoking elim_rec_apps_fn
+        buffer<unsigned> arg_pos;
+        arg_pos.append(rec_arg_pos);
+        move_params(prgs, arg_pos);
 
         // Return the recursive argument of the i-th program
         auto get_rec_arg = [&](unsigned i) -> expr {
@@ -1263,9 +1349,6 @@ class equation_compiler_fn {
         buffer<expr> params;
         params.append(nparams, a0_type_args.data());
 
-        // TODO(Leo): move parameters to global context.
-        // we should also check if the user tried to perform pattern matching on parameters
-
         // Distribute parameters of the ith program intro three groups:
         //    indices, major premise (arg), and remaining arguments (rest)
         // We store the position of the rest arguments in the buffer rest_pos.
@@ -1281,7 +1364,7 @@ class equation_compiler_fn {
             indices.append(arg_args.size() - nparams, arg_args.data() + nparams);
             unsigned j = 0;
             for (expr const & l : ctx) {
-                if (mlocal_name(l) == mlocal_name(arg)) {
+                if (mlocal_name(l) == mlocal_name(arg) || contains_local(l, params)) {
                     // do nothing
                 } else if (contains_local(l, indices)) {
                     indices_pos.push_back(j);
@@ -1419,13 +1502,13 @@ class equation_compiler_fn {
             brec_on = mk_app(brec_on, F);
             i++;
         }
-        expr r = elim_rec_apps_fn(*this, prgs, nparams, below_cnsts, Cs_locals, arg_pos, rest_arg_pos)(brec_on);
+        expr r = elim_rec_apps_fn(*this, prgs, nparams, below_cnsts, Cs_locals, rec_arg_pos, rest_arg_pos)(brec_on);
         // add remaining arguments
         r = mk_app(r, rest0);
 
         buffer<expr> ctx0_buffer;
         to_buffer(prgs[0].m_context, ctx0_buffer);
-        r = Fun(ctx0_buffer, r);
+        r = Fun(m_additional_context, Fun(ctx0_buffer, r));
         return r;
     }
 

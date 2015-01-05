@@ -76,24 +76,23 @@ optional<expr> apply_eq_rec_eq(type_checker & tc, io_state const & ios, list<exp
 
 typedef inversion::implementation_ptr  implementation_ptr;
 typedef inversion::implementation_list implementation_list;
-static void abstract_locals(implementation_list const & imps, unsigned nlocals, expr const * locals) {
+
+static void replace(implementation_list const & imps, unsigned sz, expr const * from, expr const * to) {
+    lean_assert(std::all_of(from, from+sz, is_local));
     for (implementation_ptr const & imp : imps) {
-        imp->update_exprs([&](expr const & e) { return abstract_locals(e, nlocals, locals); });
+        imp->update_exprs([&](expr const & e) {
+                return instantiate_rev(abstract_locals(e, sz, from), sz, to);
+            });
     }
 }
 
-static void instantiate(implementation_list const & imps, expr const & local) {
-    for (implementation_ptr const & imp : imps) {
-        imp->update_exprs([&](expr const & e) { return instantiate(e, local); });
-    }
+static void replace(implementation_list const & imps, buffer<expr> const & from, buffer<expr> const & to) {
+    lean_assert(from.size() == to.size());
+    return replace(imps, from.size(), from.data(), to.data());
 }
 
-static void abstract_locals(implementation_list const & imps, buffer<expr> const & locals) {
-    abstract_locals(imps, locals.size(), locals.data());
-}
-
-static void abstract_local(implementation_list const & imps, expr const & local) {
-    abstract_locals(imps, 1, &local);
+static void replace(implementation_list const & imps, expr const & from, expr const & to) {
+    return replace(imps, 1, &from, &to);
 }
 
 class inversion_tac {
@@ -753,7 +752,6 @@ class inversion_tac {
                 return unify_eqs(new_g, neqs-1);
             } else {
                 expr deps_g_type    = Pi(deps, g_type);
-                abstract_locals(m_imps, deps);
                 level eq_rec_lvl1   = sort_level(m_tc.ensure_type(deps_g_type).first);
                 level eq_rec_lvl2   = sort_level(m_tc.ensure_type(A).first);
                 expr tformer;
@@ -767,8 +765,7 @@ class inversion_tac {
                 new_hyps.append(non_deps);
                 expr new_type       = instantiate(abstract_local(deps_g_type, rhs), lhs);
                 store_rename(rhs, lhs);
-                abstract_local(m_imps, rhs);
-                instantiate(m_imps, lhs);
+                replace(m_imps, rhs, lhs);
                 if (!m_proof_irrel) {
                     new_type = abstract_local(new_type, eq);
                     new_type = instantiate(new_type, mk_refl(m_tc, lhs));
@@ -780,8 +777,8 @@ class inversion_tac {
                     new_hyps.push_back(new_hyp);
                     new_deps.push_back(new_hyp);
                     new_type     = instantiate(binding_body(new_type), new_hyp);
-                    instantiate(m_imps, new_hyp);
                 }
+                replace(m_imps, deps, new_deps);
                 lean_assert(deps.size() == new_deps.size());
                 store_renames(deps, new_deps);
                 expr new_mvar       = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));

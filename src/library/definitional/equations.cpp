@@ -1100,8 +1100,8 @@ class equation_compiler_fn {
         buffer<buffer<unsigned>> const & m_rest_pos;    // position of remaining arguments for each program
 
         elim_rec_apps_fn(equation_compiler_fn & m, buffer<program> const & prgs, unsigned nparams,
-                         buffer<expr> const & below_cnsts, buffer<expr> const & Cs_locals, buffer<unsigned> const & rec_arg_pos,
-                         buffer<buffer<unsigned>> const & rest_pos):
+                         buffer<expr> const & below_cnsts, buffer<expr> const & Cs_locals,
+                         buffer<unsigned> const & rec_arg_pos, buffer<buffer<unsigned>> const & rest_pos):
             m_main(m), m_prgs(prgs), m_nparams(nparams), m_below_cnsts(below_cnsts), m_Cs_locals(Cs_locals),
             m_rec_arg_pos(rec_arg_pos), m_rest_pos(rest_pos) {}
 
@@ -1165,7 +1165,8 @@ class equation_compiler_fn {
                     r = mk_app(r, args[rest_pos]);
                 return r;
             } else {
-                m_main.throw_error(sstream() << "failed to compile recursive equations using brec_on approach (possible solution: use well-founded recursion)");
+                m_main.throw_error(sstream() << "failed to compile recursive equations using "
+                                   << "brec_on approach (possible solution: use well-founded recursion)");
             }
         }
 
@@ -1225,7 +1226,8 @@ class equation_compiler_fn {
         lean_assert(!prgs.empty());
         buffer<unsigned> arg_pos;
         if (!find_rec_args(prgs, arg_pos)) {
-            throw_error(sstream() << "invalid recursive equations, failed to find recursive arguments that are structurally smaller "
+            throw_error(sstream() << "invalid recursive equations, "
+                        << "failed to find recursive arguments that are structurally smaller "
                         << "(possible solution: use well-founded recursion)");
         }
 
@@ -1258,6 +1260,8 @@ class equation_compiler_fn {
         inductive::inductive_decls t = *inductive::is_inductive_decl(env(), const_name(I0));
         unsigned nparams                      = std::get<1>(t);
         list<inductive::inductive_decl> decls = std::get<2>(t);
+        buffer<expr> params;
+        params.append(nparams, a0_type_args.data());
 
         // TODO(Leo): move parameters to global context.
         // we should also check if the user tried to perform pattern matching on parameters
@@ -1307,8 +1311,10 @@ class equation_compiler_fn {
         bool use_ibelow     = reflexive && is_zero(rlvl);
         if (reflexive) {
             if (!is_zero(rlvl) && !is_not_zero(rlvl))
-                throw_error(sstream() << "invalid recursive equations, when trying to recurse over reflexive inductive datatype, "
-                            << "the universe level of the resultant universe must be zero OR not zero for every level assignment");
+                throw_error(sstream() << "invalid recursive equations, "
+                            << "when trying to recurse over reflexive inductive datatype, "
+                            << "the universe level of the resultant universe must be zero OR "
+                            << "not zero for every level assignment");
             if (!is_zero(rlvl)) {
                 // For reflexive type, the type of brec_on and ibelow perform a +1 on the motive universe.
                 // Example: for a reflexive formula type, we have:
@@ -1316,9 +1322,12 @@ class equation_compiler_fn {
                 if (auto dlvl = dec_level(rlvl)) {
                     rlvl = *dlvl;
                 } else {
-                    throw_error(sstream() << "invalid recursive equations, when trying to recurse over reflexive inductive datatype, "
-                                << "the universe level of the resultant universe must be zero OR not zero for every level assignment, "
-                                << "the compiler managed to establish that the resultant universe level L is never zero, but fail to comput L-1");
+                    throw_error(sstream() << "invalid recursive equations, "
+                                << "when trying to recurse over reflexive inductive datatype, "
+                                << "the universe level of the resultant universe must be zero OR "
+                                << "not zero for every level assignment, "
+                                << "the compiler managed to establish that the resultant "
+                                << "universe level L is never zero, but fail to comput L-1");
                 }
             }
         }
@@ -1331,12 +1340,8 @@ class equation_compiler_fn {
             brec_on_lvls = cons(rlvl, const_levels(I0));
             brec_on      = mk_constant(name{const_name(I0), "brec_on"}, brec_on_lvls);
         }
-        buffer<expr> params;
         // add parameters
-        for (unsigned i = 0; i < nparams; i++) {
-            params.push_back(a0_type_args[i]);
-            brec_on = mk_app(brec_on, a0_type_args[i]);
-        }
+        brec_on = mk_app(brec_on, params);
 
         buffer<expr> Cs; // brec_on "motives"
         // The following loop fills Cs_locals with auxiliary local constants that will be used to
@@ -1431,7 +1436,8 @@ class equation_compiler_fn {
 
 
 public:
-    equation_compiler_fn(type_checker & tc, io_state const & ios, expr const & meta, expr const & meta_type, bool /* relax */):
+    equation_compiler_fn(type_checker & tc, io_state const & ios, expr const & meta, expr const & meta_type,
+                         bool /* relax */):
         m_tc(tc), m_ios(ios), m_meta(meta), m_meta_type(meta_type) {
         get_app_args(m_meta, m_global_context);
     }

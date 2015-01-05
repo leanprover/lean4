@@ -13,9 +13,6 @@ definition pos_num.is_inhabited [instance] : inhabited pos_num :=
 inhabited.mk pos_num.one
 
 namespace pos_num
-  definition succ (a : pos_num) : pos_num :=
-  rec_on a (bit0 one) (λn r, bit0 r) (λn r, bit1 n)
-
   definition is_one (a : pos_num) : bool :=
   rec_on a tt (λn r, ff) (λn r, ff)
 
@@ -55,8 +52,6 @@ inhabited.mk num.zero
 
 namespace num
   open pos_num
-  definition succ (a : num) : num :=
-  rec_on a (pos one) (λp, pos (succ p))
 
   definition pred (a : num) : num :=
   rec_on a zero (λp, cond (is_one p) zero (pos (pred p)))

@@ -1101,8 +1101,11 @@ class equation_compiler_fn {
                 }
                 return none_expr();
             } else if (is_pi(d)) {
-                // TODO(Leo)
-                return none_expr();
+                if (is_app(a)) {
+                    return to_below(instantiate(binding_body(d), app_arg(a)), a, mk_app(b, app_arg(a)));
+                } else {
+                    return none_expr();
+                }
             } else {
                 return none_expr();
             }

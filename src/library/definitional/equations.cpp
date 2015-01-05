@@ -554,7 +554,7 @@ class equation_compiler_fn {
         return true;
     }
 
-    // Return true iff the next pattern in all equations is a constructor
+    // Return true iff the next pattern in all equations is a constructor.
     bool is_constructor_transition(program const & p) const {
         for (eqn const & e : p.m_eqns) {
             lean_assert(e.m_patterns);
@@ -562,6 +562,22 @@ class equation_compiler_fn {
                 return false;
         }
         return true;
+    }
+
+    // Return true if there are no equations, and the next variable is an indexed inductive datatype.
+    // In this case, it is worth trying the cases tactic, since this may be a conflicting state.
+    bool is_no_equation_constructor_transition(program const & p) {
+        lean_assert(p.m_var_stack);
+        if (!p.m_eqns && head(p.m_var_stack)) {
+            expr const & x = p.get_var(*head(p.m_var_stack));
+            expr const & I = get_app_fn(mlocal_type(x));
+            return
+                is_constant(I) &&
+                inductive::is_inductive_decl(env(), const_name(I)) &&
+                *inductive::get_num_indices(env(), const_name(I)) > 0;
+        } else {
+            return false;
+        }
     }
 
     // Return true iff the next pattern of every equation is a constructor or variable,
@@ -702,7 +718,10 @@ class equation_compiler_fn {
         return program(fn, to_list(new_context), new_var_stack, to_list(new_equations), new_type);
     }
 
-    expr compile_constructor(program const & p) {
+    /** \brief Compile constructor transition.
+        \remark if fail_if_subgoals is true, then it returns none if there are subgoals.
+    */
+    optional<expr> compile_constructor_core(program const & p, bool fail_if_subgoals) {
         expr h                    = p.get_var(*head(p.m_var_stack));
         goal g                    = to_goal(p);
         auto imps                 = to_implementation_list(p);
@@ -711,6 +730,8 @@ class equation_compiler_fn {
             list<list<expr>> args    = r->m_args;
             list<rename_map> rn_maps = r->m_renames;
             list<inversion::implementation_list> imps_list = r->m_implementation_lists;
+            if (fail_if_subgoals && r->m_goals)
+                return none_expr();
             for (goal const & new_g : r->m_goals) {
                 list<optional<name>> new_vars = map2<optional<name>>(head(args),
                                                                      [](expr const & a) {
@@ -737,10 +758,23 @@ class equation_compiler_fn {
             }
             expr t = subst.instantiate_all(g.get_meta());
             // out() << "RESULT: " << t << "\n";
-            return t;
+            return some_expr(t);
         } else {
             throw_error(sstream() << "patter matching failed");
         }
+    }
+
+    expr compile_constructor(program const & p) {
+        bool fail_if_subgoals = false;
+        return *compile_constructor_core(p, fail_if_subgoals);
+    }
+
+    expr compile_no_equations(program const & p) {
+        bool fail_if_subgoals = true;
+        if (auto r = compile_constructor_core(p, fail_if_subgoals))
+            return *r;
+        else
+            return compile_variable(p);
     }
 
     expr compile_complete(program const & /* p */) {
@@ -760,6 +794,8 @@ class equation_compiler_fn {
         if (p.m_var_stack) {
             if (!head(p.m_var_stack)) {
                 return compile_skip(p);
+            } else if (is_no_equation_constructor_transition(p)) {
+                return compile_no_equations(p);
             } else if (is_variable_transition(p)) {
                 return compile_variable(p);
             } else if (is_constructor_transition(p)) {

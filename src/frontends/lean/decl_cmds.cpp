@@ -400,10 +400,11 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
         if (p.curr_is_token(get_with_tk())) {
             while (p.curr_is_token(get_with_tk())) {
                 p.next();
+                auto pos = p.pos();
                 name g_name = p.check_id_next("invalid declaration, identifier expected");
                 p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
                 expr g_type = p.parse_expr();
-                expr g      = mk_local(g_name, g_type);
+                expr g      = p.save_pos(mk_local(g_name, g_type), pos);
                 auxs.push_back(g_name);
                 fns.push_back(g);
             }
@@ -435,13 +436,14 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
             }
             validate_equation_lhs(p, lhs, locals);
             lhs = merge_equation_lhs_vars(lhs, locals);
+            auto assign_pos = p.pos();
             p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
             {
                 parser::local_scope scope2(p);
                 for (expr const & local : locals)
                     p.add_local(local);
                 expr rhs = p.parse_expr();
-                eqns.push_back(Fun(fns, Fun(locals, mk_equation(lhs, rhs), p)));
+                eqns.push_back(Fun(fns, Fun(locals, p.save_pos(mk_equation(lhs, rhs), assign_pos), p)));
             }
             if (!p.curr_is_token(get_comma_tk()))
                 break;

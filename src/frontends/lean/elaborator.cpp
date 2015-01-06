@@ -1058,7 +1058,7 @@ expr elaborator::visit_equation(expr const & eq, constraint_seq & cs) {
     pair<expr, constraint_seq> new_rhs_cs = ensure_has_type(new_rhs, rhs_type, lhs_type, j, m_relax_main_opaque);
     new_rhs = new_rhs_cs.first;
     cs     += new_rhs_cs.second;
-    return mk_equation(new_lhs, new_rhs);
+    return copy_tag(eq, mk_equation(new_lhs, new_rhs));
 }
 
 expr elaborator::visit_inaccessible(expr const & e, constraint_seq & cs) {

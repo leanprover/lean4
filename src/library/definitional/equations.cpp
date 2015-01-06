@@ -764,7 +764,8 @@ class equation_compiler_fn {
 
     // Convert goal and implementation_list back into a program.
     //  - nvars is the number of new variables in the variable stack.
-    program to_program(expr const & fn, goal const & g, unsigned nvars, list<optional<name>> const & new_var_stack, inversion::implementation_list const & imps) {
+    program to_program(expr const & fn, goal const & g, unsigned nvars, list<optional<name>> const & new_var_stack,
+                       inversion::implementation_list const & imps) {
         buffer<expr> new_context;
         g.get_hyps(new_context);
         expr new_type = g.get_type();
@@ -819,7 +820,6 @@ class equation_compiler_fn {
                 subst.assign(new_g.get_name(), new_g.abstract(t));
             }
             expr t = subst.instantiate_all(g.get_meta());
-            // out() << "RESULT: " << t << "\n";
             return some_expr(t);
         } else {
             throw_error(sstream() << "patter matching failed");
@@ -970,7 +970,8 @@ class equation_compiler_fn {
                 get_app_args(I, args);
                 return
                     all_distinct_locals(nindices, args.end() - nindices) &&
-                    std::all_of(args.end() - nindices, args.end(), [&](expr const & idx) { return contains_local(idx, ctx); });
+                    std::all_of(args.end() - nindices, args.end(),
+                                [&](expr const & idx) { return contains_local(idx, ctx); });
             } else {
                 return true;
             }
@@ -1588,7 +1589,6 @@ public:
 
     expr operator()(expr eqns) {
         check_limitations(eqns);
-        // out() << "Equations:\n" << eqns << "\n";
         buffer<program> prgs;
         initialize(eqns, prgs);
         if (is_recursive(prgs)) {

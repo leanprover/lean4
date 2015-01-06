@@ -476,6 +476,7 @@ class definition_cmd_fn {
     name              m_real_name; // real name for this declaration
     buffer<name>      m_ls_buffer;
     buffer<expr>      m_aux_decls;
+    buffer<name>      m_real_aux_names; // real names for aux_decls
     expr              m_type;
     expr              m_value;
     level_param_names m_ls;
@@ -559,12 +560,20 @@ class definition_cmd_fn {
 
     void mk_real_name() {
         if (m_is_private) {
-            auto env_n  = add_private_name(m_env, m_name, optional<unsigned>(hash(m_pos.first, m_pos.second)));
+            unsigned h  = hash(m_pos.first, m_pos.second);
+            auto env_n  = add_private_name(m_env, m_name, optional<unsigned>(h));
             m_env       = env_n.first;
             m_real_name = env_n.second;
+            for (expr const & aux : m_aux_decls) {
+                auto env_n = add_private_name(m_env, local_pp_name(aux), optional<unsigned>(h));
+                m_env      = env_n.first;
+                m_real_aux_names.push_back(env_n.second);
+            }
         } else {
             name const & ns = get_namespace(m_env);
             m_real_name     = ns + m_name;
+            for (expr const & aux : m_aux_decls)
+                m_real_aux_names.push_back(ns + local_pp_name(aux));
         }
     }
 
@@ -607,8 +616,11 @@ class definition_cmd_fn {
     }
 
     bool try_cache() {
-        // We don't cache examples
-        if (m_kind != Example && m_p.are_info_lines_valid(start_line(), end_line())) {
+        // We don't cache examples.
+        // We don't cache mutually recursive definitions (if this becomes a performance problem, we can fix it).
+        if (m_kind != Example &&
+            m_p.are_info_lines_valid(start_line(), end_line()) &&
+            m_aux_decls.size() == 0) {
             // we only use the cache if the information associated with the line is valid
             if (auto it = m_p.find_cached_definition(m_real_name, m_type, m_value)) {
                 optional<certified_declaration> cd;
@@ -636,6 +648,7 @@ class definition_cmd_fn {
 
     void register_decl() {
         if (m_kind != Example) {
+            // TODO(Leo): register aux_decls
             if (!m_is_private)
                 m_p.add_decl_index(m_real_name, m_pos, m_p.get_cmd_token(), m_type);
             if (m_real_name != m_name)
@@ -666,7 +679,14 @@ class definition_cmd_fn {
             expr pre_value = m_value;
             level_param_names new_ls;
             m_p.remove_proof_state_info(m_pos, m_p.pos());
-            if (!is_definition()) {
+            if (!m_aux_decls.empty()) {
+                // TODO(Leo): split equations_result
+                std::tie(m_type, m_value, new_ls) = m_p.elaborate_definition(m_name, m_type, m_value, m_is_opaque);
+                new_ls = append(m_ls, new_ls);
+                m_env = module::add(m_env, check(m_env, mk_definition(m_env, m_real_name, new_ls,
+                                                                      m_type, m_value, m_is_opaque)));
+                // Remark: we do not cache mutually recursive declarations.
+            } else if (!is_definition()) {
                 // Theorems and Examples
                 auto type_pos = m_p.pos_of(m_type);
                 bool clear_pre_info = false; // we don't want to clear pre_info data until we process the proof.

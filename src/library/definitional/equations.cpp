@@ -1231,8 +1231,9 @@ class equation_compiler_fn {
                 return Fun(local, new_body);
             }
             case expr_kind::Pi: {
-                expr local    = mk_local(m_main.mk_fresh_name(), binding_name(e), binding_domain(e), binding_info(e));
-                expr new_body = elim(instantiate(binding_body(e), local), b);
+                expr new_domain = elim(binding_domain(e), b);
+                expr local      = mk_local(m_main.mk_fresh_name(), binding_name(e), new_domain, binding_info(e));
+                expr new_body   = elim(instantiate(binding_body(e), local), b);
                 return Pi(local, new_body);
             }}
             lean_unreachable();

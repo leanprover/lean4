@@ -29,7 +29,9 @@ file_not_found_exception::file_not_found_exception(std::string const & fname):
     exception(sstream() << "file '" << fname << "' not found in the LEAN_PATH"),
     m_fname(fname) {}
 
-static std::string * g_default_file_name = nullptr;
+static std::string * g_default_file_name             = nullptr;
+static std::string *              g_lean_path        = nullptr;
+static std::vector<std::string> * g_lean_path_vector = nullptr;
 
 bool is_directory(char const * pathname) {
     struct stat info;
@@ -115,9 +117,6 @@ std::string get_path(std::string f) {
     }
 }
 
-static std::string *              g_lean_path = nullptr;
-static std::vector<std::string> * g_lean_path_vector = nullptr;
-
 void init_lean_path(bool use_hott) {
 #if defined(LEAN_EMSCRIPTEN)
     *g_lean_path = "/library";
@@ -161,6 +160,8 @@ void init_lean_path(bool use_hott) {
 static char g_sep_str[2];
 
 void initialize_lean_path(bool use_hott) {
+    if (g_default_file_name != nullptr)
+        finalize_lean_path();
     g_default_file_name = new std::string(LEAN_DEFAULT_MODULE_FILE_NAME);
     g_lean_path         = new std::string();
     g_lean_path_vector  = new std::vector<std::string>();

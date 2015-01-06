@@ -42,7 +42,7 @@ expr compile_equations(type_checker & tc, io_state const & ios, expr const & eqn
 
 /** \brief Return true if \c e is an auxiliary macro used to store the result of mutually recursive declarations.
     For example, if a set of recursive equations is defining \c n mutually recursive functions, we wrap
-    the \c n resulting functions with an \c equations_result macro.
+    the \c n resulting functions (and their types) with an \c equations_result macro.
 */
 bool is_equations_result(expr const & e);
 unsigned get_equations_result_size(expr const & e);

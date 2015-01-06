@@ -1553,6 +1553,8 @@ class equation_compiler_fn {
         move_params(prgs, arg_pos);
         buffer<expr> rs;
         for (unsigned i = 0; i < prgs.size(); i++) {
+            if (i > 0)
+                rs.push_back(mlocal_type(prgs[i].m_fn));
             // Remark: this loop is very hackish.
             // We are "compiling" the code prgs.size() times!
             // This is wasteful. We should rewrite this.

@@ -131,6 +131,7 @@ void initialize_pp_options() {
 }
 
 void finalize_pp_options() {
+    delete g_pp_numerals;
     delete g_pp_max_depth;
     delete g_pp_max_steps;
     delete g_pp_notation;

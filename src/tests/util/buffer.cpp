@@ -81,10 +81,26 @@ static void tst3() {
     check(b, {1000, 2000, 0, 1, 2, 3, 100, 4, 300});
 }
 
+static void tst4() {
+    buffer<buffer<int>> b;
+    for (unsigned j = 38; j < 40; j++) {
+        for (unsigned i = 0; i < j; i++) {
+            b.push_back(buffer<int>());
+            for (unsigned k = 0; k < 10; k++) {
+                b.back().push_back(k);
+            }
+        }
+        lean_assert(b.size() == j);
+        b.clear();
+        lean_assert(b.size() == 0);
+    }
+}
+
 int main() {
     loop<buffer<int>>(100);
     tst1();
     tst2();
     tst3();
+    tst4();
     return has_violations() ? 1 : 0;
 }

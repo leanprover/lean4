@@ -834,7 +834,7 @@ class equation_compiler_fn {
                     expr c = mk_constructor(c_name, I_ls, I_params, new_args);
                     list<expr> new_ctx      = to_list(new_args.begin(), new_args.end(), rest_ctx);
                     list<expr> new_patterns = cons(c, tail(e.m_patterns));
-                    new_eqns.push_back(eqn(e, new_ctx, new_patterns));
+                    new_eqns.push_back(replace(eqn(e, new_ctx, new_patterns), p, c));
                 }
             } else {
                 new_eqns.push_back(e);

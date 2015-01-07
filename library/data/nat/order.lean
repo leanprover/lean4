@@ -285,16 +285,16 @@ nat.cases_on n
   (assume H : pred 0 ≤ m, !zero_le)
   (take n',
     assume H : pred (succ n') ≤ m,
-    have H1 : n' ≤ m, from pred.succ n' ▸ H,
+    have H1 : n' ≤ m, from pred_succ n' ▸ H,
     succ_le_succ H1)
 
 theorem pred_le_of_le_succ {n m : ℕ} : n ≤ succ m → pred n ≤ m :=
 nat.cases_on n
-  (assume H, !pred.zero⁻¹ ▸ zero_le m)
+  (assume H, !pred_zero⁻¹ ▸ zero_le m)
   (take n',
     assume H : succ n' ≤ succ m,
     have H1 : n' ≤ m, from le_of_succ_le_succ H,
-    !pred.succ⁻¹ ▸ H1)
+    !pred_succ⁻¹ ▸ H1)
 
 theorem succ_le_of_le_pred {n m : ℕ} : succ n ≤ m → n ≤ pred m :=
 nat.cases_on m
@@ -302,14 +302,14 @@ nat.cases_on m
   (take m',
     assume H : succ n ≤ succ m',
     have H1 : n ≤ m', from le_of_succ_le_succ H,
-    !pred.succ⁻¹ ▸ H1)
+    !pred_succ⁻¹ ▸ H1)
 
 theorem pred_le_pred_of_le {n m : ℕ} : n ≤ m → pred n ≤ pred m :=
 nat.cases_on n
-  (assume H, pred.zero⁻¹ ▸ zero_le (pred m))
+  (assume H, pred_zero⁻¹ ▸ zero_le (pred m))
   (take n',
     assume H : succ n' ≤ m,
-    !pred.succ⁻¹ ▸ succ_le_of_le_pred H)
+    !pred_succ⁻¹ ▸ succ_le_of_le_pred H)
 
 theorem le_or_eq_succ_of_le_succ {n m : ℕ} (H : n ≤ succ m) : n ≤ m ∨ n = succ m :=
 or_of_or_of_imp_left (succ_le_or_eq_of_le H)
@@ -317,8 +317,8 @@ or_of_or_of_imp_left (succ_le_or_eq_of_le H)
 
 theorem le_pred_self (n : ℕ) : pred n ≤ n :=
 cases_on n
-  (pred.zero⁻¹ ▸ !le.refl)
-  (take k : ℕ, (!pred.succ)⁻¹ ▸ !self_le_succ)
+  (pred_zero⁻¹ ▸ !le.refl)
+  (take k : ℕ, (!pred_succ)⁻¹ ▸ !self_le_succ)
 
 theorem succ_pos (n : ℕ) : 0 < succ n :=
 !zero_lt_succ

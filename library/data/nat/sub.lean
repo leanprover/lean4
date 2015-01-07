@@ -33,7 +33,7 @@ induction_on n !sub_zero_right
     calc
       0 - succ k = pred (0 - k) : !sub_succ_right
              ... = pred 0       : {IH}
-             ... = 0            : pred.zero)
+             ... = 0            : pred_zero)
 
 theorem sub_succ_succ (n m : ℕ) : succ n - succ m = n - m :=
 succ_sub_succ_eq_sub n m
@@ -118,14 +118,14 @@ theorem succ_sub_one (n : ℕ) : succ n - 1 = n :=
 theorem mul_pred_left (n m : ℕ) : pred n * m = n * m - m :=
 induction_on n
   (calc
-    pred 0 * m = 0 * m     : {pred.zero}
+    pred 0 * m = 0 * m     : {pred_zero}
            ... = 0         : !zero_mul
            ... = 0 - m     : !sub_zero_left⁻¹
            ... = 0 * m - m : {!zero_mul⁻¹})
   (take k : nat,
     assume IH : pred k * m = k * m - m,
     calc
-      pred (succ k) * m = k * m          : {!pred.succ}
+      pred (succ k) * m = k * m          : {!pred_succ}
                     ... = k * m + m - m  : !sub_add_left⁻¹
                     ... = succ k * m - m : {!succ_mul⁻¹})
 

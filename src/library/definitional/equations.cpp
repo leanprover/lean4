@@ -494,7 +494,7 @@ class equation_compiler_fn {
             unsigned num_params = *inductive::get_num_params(env(), *in);
             for (unsigned i = num_params; i < pat_args.size(); i++)
                 pat_args[i] = validate_pattern(pat_args[i], reachable_vars);
-            return mk_app(fn, pat_args);
+            return mk_app(fn, pat_args, pat.get_tag());
         } else {
             throw validate_exception(pat);
         }
@@ -1206,7 +1206,7 @@ class equation_compiler_fn {
             }
         }
 
-        expr elim(unsigned prg_idx, buffer<expr> const & args, expr const & below) {
+        expr elim(unsigned prg_idx, buffer<expr> const & args, expr const & below, tag g) {
             // Replace motives with abstract ones. We use the abstract motives (m_Cs_locals) as "markers"
             buffer<expr> below_args;
             expr const & below_cnst = get_app_args(mlocal_type(below), below_args);
@@ -1221,7 +1221,7 @@ class equation_compiler_fn {
             if (optional<expr> b = to_below(below_dict, rec_arg, below)) {
                 expr r = *b;
                 for (unsigned rest_pos : m_rest_pos[prg_idx])
-                    r = mk_app(r, args[rest_pos]);
+                    r = mk_app(r, args[rest_pos], g);
                 return r;
             } else {
                 m_main.throw_error(sstream() << "failed to compile recursive equations using "
@@ -1252,11 +1252,11 @@ class equation_compiler_fn {
                 if (is_local(fn) && b) {
                     for (unsigned j = 0; j < m_prgs.size(); j++) {
                         if (mlocal_name(fn) == mlocal_name(m_prgs[j].m_fn)) {
-                            return elim(j, new_args, *b);
+                            return elim(j, new_args, *b, e.get_tag());
                         }
                     }
                 }
-                return mk_app(new_fn, new_args);
+                return mk_app(new_fn, new_args, e.get_tag());
             }
             case expr_kind::Lambda: {
                 expr local    = mk_local(m_main.mk_fresh_name(), binding_name(e), binding_domain(e), binding_info(e));
@@ -1266,13 +1266,13 @@ class equation_compiler_fn {
                     new_body = elim(body, some_expr(local));
                 else
                     new_body = elim(body, b);
-                return Fun(local, new_body);
+                return copy_tag(e, Fun(local, new_body));
             }
             case expr_kind::Pi: {
                 expr new_domain = elim(binding_domain(e), b);
                 expr local      = mk_local(m_main.mk_fresh_name(), binding_name(e), new_domain, binding_info(e));
                 expr new_body   = elim(instantiate(binding_body(e), local), b);
-                return Pi(local, new_body);
+                return copy_tag(e, Pi(local, new_body));
             }}
             lean_unreachable();
         }

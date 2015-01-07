@@ -24,118 +24,154 @@ variable {T : Type}
 
 /- append -/
 
-definition append (s t : list T) : list T :=
-rec t (λx l u, x::u) s
+definition append : list T → list T → list T,
+append nil l      := l,
+append (h :: s) t := h :: (append s t)
 
 notation l₁ ++ l₂ := append l₁ l₂
 
-theorem append.nil_left (t : list T) : nil ++ t = t
+theorem append_nil_left (t : list T) : nil ++ t = t
 
-theorem append.cons (x : T) (s t : list T) : x::s ++ t = x::(s ++ t)
+theorem append_cons (x : T) (s t : list T) : (x::s) ++ t = x::(s ++ t)
 
-theorem append.nil_right (t : list T) : t ++ nil = t :=
-induction_on t rfl (λx l H, H ▸ rfl)
+theorem append_nil_right : ∀ (t : list T), t ++ nil = t,
+append_nil_right nil      := rfl,
+append_nil_right (a :: l) := calc
+  (a :: l) ++ nil = a :: (l ++ nil) : rfl
+              ... = a :: l          : append_nil_right l
 
-theorem append.assoc (s t u : list T) : s ++ t ++ u = s ++ (t ++ u) :=
-induction_on s rfl (λx l H, H ▸ rfl)
+theorem append.assoc : ∀ (s t u : list T), s ++ t ++ u = s ++ (t ++ u),
+append.assoc nil t u      := rfl,
+append.assoc (a :: l) t u := calc
+  (a :: l) ++ t ++ u = a :: (l ++ t ++ u)   : rfl
+                 ... = a :: (l ++ (t ++ u)) : append.assoc l t u
+                 ... = (a :: l) ++ (t ++ u) : rfl
 
 /- length -/
 
-definition length : list T → nat :=
-rec 0 (λx l m, succ m)
+definition length : list T → nat,
+length nil      := 0,
+length (a :: l) := length l + 1
 
-theorem length.nil : length (@nil T) = 0
+theorem length_nil : length (@nil T) = 0
 
-theorem length.cons (x : T) (t : list T) : length (x::t) = succ (length t)
+theorem length_cons (x : T) (t : list T) : length (x::t) = length t + 1
 
-theorem length.append (s t : list T) : length (s ++ t) = length s + length t :=
-induction_on s (!zero_add⁻¹) (λx s H, !add.succ_left⁻¹ ▸ H ▸ rfl)
+theorem length_append : ∀ (s t : list T), length (s ++ t) = length s + length t,
+length_append nil t      := calc
+  length (nil ++ t)  = length t : rfl
+                 ... = length nil + length t : zero_add,
+length_append (a :: s) t := calc
+  length (a :: s ++ t) = length (s ++ t) + 1        : rfl
+                  ...  = length s + length t + 1    : length_append s t
+                  ...  = (length s + 1) + length t  : add.succ_left
+                  ...  = length (a :: s) + length t : rfl
 
 -- add_rewrite length_nil length_cons
 
 /- concat -/
 
-definition concat (x : T) : list T → list T :=
-rec [x] (λy l l', y::l')
+definition concat : Π (x : T), list T → list T,
+concat a nil      := [a],
+concat a (b :: l) := b :: concat a l
 
-theorem concat.nil (x : T) : concat x nil = [x]
+theorem concat_nil (x : T) : concat x nil = [x]
 
-theorem concat.cons (x y : T) (l : list T) : concat x (y::l)  = y::(concat x l)
+theorem concat_cons (x y : T) (l : list T) : concat x (y::l)  = y::(concat x l)
 
-theorem concat.eq_append (x : T) (l : list T) : concat x l = l ++ [x]
+theorem concat_eq_append (a : T) : ∀ (l : list T), concat a l = l ++ [a],
+concat_eq_append nil      := rfl,
+concat_eq_append (b :: l) := calc
+  concat a (b :: l) = b :: (concat a l) : rfl
+               ...  = b :: (l ++ [a])   : concat_eq_append l
+               ...  = (b :: l) ++ [a]   : rfl
 
 -- add_rewrite append_nil append_cons
 
 /- reverse -/
 
-definition reverse : list T → list T :=
-rec nil (λx l r, r ++ [x])
+definition reverse : list T → list T,
+reverse nil      := nil,
+reverse (a :: l) := concat a (reverse l)
 
-theorem reverse.nil : reverse (@nil T) = nil
+theorem reverse_nil : reverse (@nil T) = nil
 
-theorem reverse.cons (x : T) (l : list T) : reverse (x::l) = concat x (reverse l)
+theorem reverse_cons (x : T) (l : list T) : reverse (x::l) = concat x (reverse l)
 
-theorem reverse.singleton (x : T) : reverse [x] = [x]
+theorem reverse_singleton (x : T) : reverse [x] = [x]
 
-theorem reverse.append (s t : list T) : reverse (s ++ t) = (reverse t) ++ (reverse s) :=
-induction_on s (!append.nil_right⁻¹)
-  (λx s H, calc
-    reverse (x::s ++ t) = reverse t ++ reverse s ++ [x]   : {H}
-                    ... = reverse t ++ (reverse s ++ [x]) : !append.assoc)
+theorem reverse_append : ∀ (s t : list T), reverse (s ++ t) = (reverse t) ++ (reverse s),
+reverse_append nil t2      := calc
+  reverse (nil ++ t2) = reverse t2                    : rfl
+               ...    = (reverse t2) ++ nil           : (append_nil_right (reverse t2))⁻¹
+               ...    = (reverse t2) ++ (reverse nil) : {reverse_nil⁻¹},
+reverse_append (a2 :: s2) t2 := calc
+  reverse ((a2 :: s2) ++ t2) = concat a2 (reverse (s2 ++ t2))         : rfl
+                      ...    = concat a2 (reverse t2 ++ reverse s2)   : {reverse_append s2 t2}
+                      ...    = (reverse t2 ++ reverse s2) ++ [a2]     : concat_eq_append
+                      ...    = reverse t2 ++ (reverse s2 ++ [a2])     : append.assoc
+                      ...    = reverse t2 ++ concat a2 (reverse s2)   : {concat_eq_append a2 (reverse s2)⁻¹}
+                      ...    = reverse t2 ++ reverse (a2 :: s2)       : rfl
 
-theorem reverse.reverse (l : list T) : reverse (reverse l) = l :=
-induction_on l rfl (λx l' H, H ▸ !reverse.append)
+theorem reverse_reverse : ∀ (l : list T), reverse (reverse l) = l,
+reverse_reverse nil      := rfl,
+reverse_reverse (a :: l) := calc
+  reverse (reverse (a :: l)) = reverse (concat a (reverse l))     : rfl
+                        ...  = reverse (reverse l ++ [a])         : concat_eq_append
+                        ...  = reverse [a] ++ reverse (reverse l) : reverse_append
+                        ...  = reverse [a] ++ l                   : reverse_reverse
+                        ...  = a :: l                             : rfl
 
-theorem concat.eq_reverse_cons  (x : T) (l : list T) : concat x l = reverse (x :: reverse l) :=
-induction_on l rfl
-  (λy l' H, calc
-    concat x (y::l') = (y::l') ++ [x]                   : !concat.eq_append
-                 ... = reverse (reverse (y::l')) ++ [x] : {!reverse.reverse⁻¹})
+theorem concat_eq_reverse_cons (x : T) (l : list T) : concat x l = reverse (x :: reverse l) :=
+calc
+  concat x l = concat x (reverse (reverse l)) : {(reverse_reverse l)⁻¹}
+         ... = reverse (x :: reverse l)       : rfl
 
 /- head and tail -/
 
-definition head (x : T) : list T → T :=
-rec x (λx l h, x)
+definition head [h : inhabited T] : list T → T,
+head nil      := arbitrary T,
+head (a :: l) := a
 
-theorem head.nil (x : T) : head x nil = x
+theorem head_cons [h : inhabited T] (a : T) (l : list T) : head (a::l) = a
 
-theorem head.cons (x x' : T) (t : list T) : head x' (x::t) = x
-
-theorem head.concat {s : list T} (t : list T) (x : T) : s ≠ nil → (head x (s ++ t) = head x s) :=
+theorem head_concat [h : inhabited T] {s : list T} (t : list T) : s ≠ nil → head (s ++ t) = head s :=
 cases_on s
   (take H : nil ≠ nil, absurd rfl H)
   (take x s, take H : x::s ≠ nil,
     calc
-      head x (x::s ++ t) = head x (x::(s ++ t)) : {!append.cons}
-                     ... = x                    : !head.cons
-                     ... = head x (x::s)        : !head.cons⁻¹)
+      head (x::s ++ t) = head (x::(s ++ t)) : {!append_cons}
+                   ... = x                  : !head_cons
+                   ... = head (x::s)        : !head_cons⁻¹)
 
-definition tail : list T → list T :=
-rec nil (λx l b, l)
+definition tail : list T → list T,
+tail nil      := nil,
+tail (a :: l) := l
 
-theorem tail.nil : tail (@nil T) = nil
+theorem tail_nil : tail (@nil T) = nil
 
-theorem tail.cons (x : T) (l : list T) : tail (x::l) = l
+theorem tail_cons (a : T) (l : list T) : tail (a::l) = l
 
-theorem cons_head_tail {l : list T} (x : T) : l ≠ nil → (head x l)::(tail l) = l :=
+theorem cons_head_tail [h : inhabited T] {l : list T} : l ≠ nil → (head l)::(tail l) = l :=
 cases_on l
   (assume H : nil ≠ nil, absurd rfl H)
   (take x l, assume H : x::l ≠ nil, rfl)
 
 /- list membership -/
 
-definition mem (x : T) : list T → Prop :=
-rec false (λy l H, x = y ∨ H)
+definition mem : T → list T → Prop,
+mem a nil      := false,
+mem a (b :: l) := a = b ∨ mem a l
 
 notation e ∈ s := mem e s
 
-theorem mem.nil (x : T) : x ∈ nil ↔ false :=
+theorem mem_nil (x : T) : x ∈ nil ↔ false :=
 iff.rfl
 
-theorem mem.cons (x y : T) (l : list T) : x ∈ y::l ↔ (x = y ∨ x ∈ l) :=
+theorem mem_cons (x y : T) (l : list T) : x ∈ y::l ↔ (x = y ∨ x ∈ l) :=
 iff.rfl
 
-theorem mem.concat_imp_or {x : T} {s t : list T} : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
+theorem mem_concat_imp_or {x : T} {s t : list T} : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
 induction_on s or.inr
   (take y s,
     assume IH : x ∈ s ++ t → x ∈ s ∨ x ∈ t,
@@ -144,7 +180,7 @@ induction_on s or.inr
     have H3 : x = y ∨ x ∈ s ∨ x ∈ t, from or_of_or_of_imp_right H2 IH,
     iff.elim_right or.assoc H3)
 
-theorem mem.or_imp_concat {x : T} {s t : list T} : x ∈ s ∨ x ∈ t → x ∈ s ++ t :=
+theorem mem_or_imp_concat {x : T} {s t : list T} : x ∈ s ∨ x ∈ t → x ∈ s ++ t :=
 induction_on s
   (take H, or.elim H false.elim (assume H, H))
   (take y s,
@@ -157,12 +193,12 @@ induction_on s
             (take H2 : x ∈ s, or.inr (IH (or.inl H2))))
         (assume H1 : x ∈ t, or.inr (IH (or.inr H1))))
 
-theorem mem.concat (x : T) (s t : list T) : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t :=
-iff.intro mem.concat_imp_or mem.or_imp_concat
+theorem mem_concat (x : T) (s t : list T) : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t :=
+iff.intro mem_concat_imp_or mem_or_imp_concat
 
-theorem mem.split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x::t) :=
+theorem mem_split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x::t) :=
 induction_on l
-  (take H : x ∈ nil, false.elim (iff.elim_left !mem.nil H))
+  (take H : x ∈ nil, false.elim (iff.elim_left !mem_nil H))
   (take y l,
     assume IH : x ∈ l → ∃s t : list T, l = s ++ (x::t),
     assume H : x ∈ y::l,
@@ -178,7 +214,7 @@ induction_on l
 
 definition mem.is_decidable [instance] (H : decidable_eq T) (x : T) (l : list T) : decidable (x ∈ l) :=
 rec_on l
-  (decidable.inr (not_of_iff_false !mem.nil))
+  (decidable.inr (not_of_iff_false !mem_nil))
   (take (h : T) (l : list T) (iH : decidable (x ∈ l)),
     show decidable (x ∈ h::l), from
     decidable.rec_on iH
@@ -198,7 +234,7 @@ rec_on l
                 (assume Heq, absurd Heq Hne)
                 (assume Hp,  absurd Hp Hn),
             have H2 : ¬x ∈ h::l, from
-              iff.elim_right (not_iff_not_of_iff !mem.cons) H1,
+              iff.elim_right (not_iff_not_of_iff !mem_cons) H1,
             decidable.inr H2)))
 
 /- find -/
@@ -207,35 +243,38 @@ section
 variable [H : decidable_eq T]
 include H
 
-definition find (x : T) : list T → nat :=
-rec 0 (λy l b, if x = y then 0 else succ b)
+definition find : T → list T → nat,
+find a nil      := 0,
+find a (b :: l) := if a = b then 0 else succ (find a l)
 
-theorem find.nil (x : T) : find x nil = 0
+theorem find_nil (x : T) : find x nil = 0
 
-theorem find.cons (x y : T) (l : list T) : find x (y::l) = if x = y then 0 else succ (find x l)
+theorem find_cons (x y : T) (l : list T) : find x (y::l) = if x = y then 0 else succ (find x l)
 
 theorem find.not_mem {l : list T} {x : T} : ¬x ∈ l → find x l = length l :=
 rec_on l
-   (assume P₁ : ¬x ∈ nil, rfl)
+   (assume P₁ : ¬x ∈ nil, _)
    (take y l,
       assume iH : ¬x ∈ l → find x l = length l,
       assume P₁ : ¬x ∈ y::l,
-      have P₂ : ¬(x = y ∨ x ∈ l), from iff.elim_right (not_iff_not_of_iff !mem.cons) P₁,
+      have P₂ : ¬(x = y ∨ x ∈ l), from iff.elim_right (not_iff_not_of_iff !mem_cons) P₁,
       have P₃ : ¬x = y ∧ ¬x ∈ l, from (iff.elim_left not_or_iff_not_and_not P₂),
       calc
-        find x (y::l) = if x = y then 0 else succ (find x l) : !find.cons
+        find x (y::l) = if x = y then 0 else succ (find x l) : !find_cons
                   ... = succ (find x l)                      : if_neg (and.elim_left P₃)
                   ... = succ (length l)                      : {iH (and.elim_right P₃)}
-                  ... = length (y::l)                        : !length.cons⁻¹)
+                  ... = length (y::l)                        : !length_cons⁻¹)
 end
 
 /- nth element -/
 
-definition nth (x : T) (l : list T) (n : nat) : T :=
-nat.rec (λl, head x l) (λm f l, f (tail l)) n l
+definition nth [h : inhabited T] : list T → nat → T,
+nth nil      n     := arbitrary T,
+nth (a :: l) 0     := a,
+nth (a :: l) (n+1) := nth l n
 
-theorem nth.zero (x : T) (l : list T) : nth x l 0 = head x l
+theorem nth_zero [h : inhabited T] (a : T) (l : list T) : nth (a :: l) 0 = a
 
-theorem nth.succ (x : T) (l : list T) (n : nat) : nth x l (succ n) = nth x (tail l) n
+theorem nth_succ [h : inhabited T] (a : T) (l : list T) (n : nat) : nth (a::l) (n+1) = nth l n
 
 end list

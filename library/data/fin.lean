@@ -31,7 +31,7 @@ namespace fin
              ...  < n+1  : succ_pos n,
   to_nat_lt (@fs n f) := calc
      to_nat (fs f) = (to_nat f)+1 : rfl
-              ...  < n+1          : succ_lt (to_nat_lt f)
+              ...  < n+1          : succ_lt_succ (to_nat_lt f)
 
   definition lift : Π {n : nat}, fin n → Π (m : nat), fin (m + n),
   @lift ⌞n+1⌟ (fz n)     m := fz (m + n),

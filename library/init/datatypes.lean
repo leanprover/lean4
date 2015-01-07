@@ -42,8 +42,12 @@ intro : a → b → and a b
 definition and.elim_left {a b : Prop} (H : and a b) : a  :=
 and.rec (λa b, a) H
 
+definition and.left := @and.elim_left
+
 definition and.elim_right {a b : Prop} (H : and a b) : b :=
 and.rec (λa b, b) H
+
+definition and.right := @and.elim_right
 
 inductive sum (A B : Type) : Type :=
 inl {} : A → sum A B,

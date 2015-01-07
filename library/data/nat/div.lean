@@ -5,8 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: data.nat.div
 Authors: Jeremy Avigad, Leonardo de Moura
 
-This is a continuation of the development of the natural numbers, with a general way of
-defining recursive functions, and definitions of div, mod, and gcd.
+Definitions of div, mod, and gcd on the natural numbers.
 -/
 
 import data.nat.sub logic
@@ -38,7 +37,7 @@ theorem div_zero (a : ℕ) : a div 0 = 0 :=
 divide_def a 0 ⬝ if_neg (!not_and_of_not_left (lt.irrefl 0))
 
 theorem div_less {a b : ℕ} (h : a < b) : a div b = 0 :=
-divide_def a b ⬝ if_neg (!not_and_of_not_right (lt_imp_not_ge h))
+divide_def a b ⬝ if_neg (!not_and_of_not_right (not_le_of_lt h))
 
 theorem zero_div (b : ℕ) : 0 div b = 0 :=
 divide_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt.of_lt_of_le l r) (lt.irrefl 0)))
@@ -78,7 +77,7 @@ theorem mod_zero (a : ℕ) : a mod 0 = a :=
 modulo_def a 0 ⬝ if_neg (!not_and_of_not_left (lt.irrefl 0))
 
 theorem mod_less {a b : ℕ} (h : a < b) : a mod b = a :=
-modulo_def a b ⬝ if_neg (!not_and_of_not_right (lt_imp_not_ge h))
+modulo_def a b ⬝ if_neg (!not_and_of_not_right (not_le_of_lt h))
 
 theorem zero_mod (b : ℕ) : 0 mod b = 0 :=
 modulo_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt.of_lt_of_le l r) (lt.irrefl 0)))
@@ -105,7 +104,7 @@ induction_on y
                          ... = x mod z                 : IH)
 
 theorem mod_mul_self_right {m n : ℕ} : (m * n) mod n = 0 :=
-case_zero_pos n (by simp)
+by_cases_zero_pos n (by simp)
   (take n,
     assume npos : n > 0,
     (by simp) ▸ (@mod_add_mul_self_right 0 m _ npos))
@@ -130,14 +129,14 @@ case_strong_induction_on x
           have H2 : succ x mod y = succ x, from mod_less H1,
           show succ x mod y < y, from H2⁻¹ ▸ H1)
         (assume H1 : ¬ succ x < y,
-          have H2 : y ≤ succ x, from not_lt_imp_ge H1,
+          have H2 : y ≤ succ x, from le_of_not_lt H1,
           have H3 : succ x mod y = (succ x - y) mod y, from mod_rec H H2,
           have H4 : succ x - y < succ x, from sub_lt !succ_pos H,
-          have H5 : succ x - y ≤ x, from lt_succ_imp_le H4,
+          have H5 : succ x - y ≤ x, from le_of_lt_succ H4,
           show succ x mod y < y, from H3⁻¹ ▸ IH _ H5))
 
 theorem div_mod_eq {x y : ℕ} : x = x div y * y + x mod y :=
-case_zero_pos y
+by_cases_zero_pos y
   (show x = x div 0 * 0 + x mod 0, from
     (calc
       x div 0 * 0 + x mod 0 = 0 + x mod 0 : mul_zero
@@ -157,11 +156,11 @@ case_zero_pos y
                 have H3 : succ x mod y = succ x, from mod_less H1,
                 by simp)
               (assume H1 : ¬ succ x < y,
-                have H2 : y ≤ succ x, from not_lt_imp_ge H1,
+                have H2 : y ≤ succ x, from le_of_not_lt H1,
                 have H3 : succ x div y = succ ((succ x - y) div y), from div_rec H H2,
                 have H4 : succ x mod y = (succ x - y) mod y, from mod_rec H H2,
                 have H5 : succ x - y < succ x, from sub_lt !succ_pos H,
-                have H6 : succ x - y ≤ x, from lt_succ_imp_le H5,
+                have H6 : succ x - y ≤ x, from le_of_lt_succ H5,
                 (calc
                   succ x div y * y + succ x mod y = succ ((succ x - y) div y) * y + succ x mod y : H3
                     ... = ((succ x - y) div y) * y + y + succ x mod y       : succ_mul
@@ -189,16 +188,16 @@ theorem quotient_unique {y : ℕ} (H : y > 0) {q1 r1 q2 r2 : ℕ} (H1 : r1 < y) 
 have H4 : q1 * y + r2 = q2 * y + r2, from (remainder_unique H H1 H2 H3) ▸ H3,
 have H5 : q1 * y = q2 * y, from add.cancel_right H4,
 have H6 : y > 0, from lt.of_le_of_lt !zero_le H1,
-show q1 = q2, from mul_cancel_right H6 H5
+show q1 = q2, from eq_of_mul_eq_mul_right H6 H5
 
 theorem div_mul_mul {z x y : ℕ} (zpos : z > 0) : (z * x) div (z * y) = x div y :=
 by_cases -- (y = 0)
   (assume H : y = 0, by simp)
   (assume H : y ≠ 0,
-    have ypos : y > 0, from ne_zero_imp_pos H,
+    have ypos : y > 0, from pos_of_ne_zero H,
     have zypos : z * y > 0, from mul_pos zpos ypos,
     have H1 : (z * x) mod (z * y) < z * y, from mod_lt zypos,
-    have H2 : z * (x mod y) < z * y, from mul_lt_left zpos (mod_lt ypos),
+    have H2 : z * (x mod y) < z * y, from mul_lt_mul_of_pos_left (mod_lt ypos) zpos,
     quotient_unique zypos H1 H2
       (calc
         ((z * x) div (z * y)) * (z * y) + (z * x) mod (z * y) = z * x : div_mod_eq
@@ -212,10 +211,10 @@ theorem mod_mul_mul {z x y : ℕ} (zpos : z > 0) : (z * x) mod (z * y) = z * (x 
 by_cases -- (y = 0)
   (assume H : y = 0, by simp)
   (assume H : y ≠ 0,
-    have ypos : y > 0, from ne_zero_imp_pos H,
+    have ypos : y > 0, from pos_of_ne_zero H,
     have zypos : z * y > 0, from mul_pos zpos ypos,
     have H1 : (z * x) mod (z * y) < z * y, from mod_lt zypos,
-    have H2 : z * (x mod y) < z * y, from mul_lt_left zpos (mod_lt ypos),
+    have H2 : z * (x mod y) < z * y, from mul_lt_mul_of_pos_left (mod_lt ypos) zpos,
     remainder_unique zypos H1 H2
       (calc
         ((z * x) div (z * y)) * (z * y) + (z * x) mod (z * y) = z * x : div_mod_eq
@@ -225,7 +224,7 @@ by_cases -- (y = 0)
 
 theorem mod_one (x : ℕ) : x mod 1 = 0 :=
 have H1 : x mod 1 < 1, from mod_lt !succ_pos,
-le_zero (lt_succ_imp_le H1)
+eq_zero_of_le_zero (le_of_lt_succ H1)
 
 -- add_rewrite mod_one
 
@@ -289,11 +288,11 @@ show x mod y = 0, from
           ... = x         : mod_zero
           ... = 0         : xz)
     (assume ynz : y ≠ 0,
-      have ypos : y > 0, from ne_zero_imp_pos ynz,
+      have ypos : y > 0, from pos_of_ne_zero ynz,
       have H3 : (z - x div y) * y < y, from H2⁻¹ ▸ mod_lt ypos,
       have H4 : (z - x div y) * y < 1 * y, from !one_mul⁻¹ ▸ H3,
-      have H5 : z - x div y < 1, from mul_lt_cancel_right H4,
-      have H6 : z - x div y = 0, from le_zero (lt_succ_imp_le H5),
+      have H5 : z - x div y < 1, from lt_of_mul_lt_mul_right H4,
+      have H6 : z - x div y = 0, from eq_zero_of_le_zero (le_of_lt_succ H5),
       calc
         x mod y = (z - x div y) * y : H2
             ... = 0 * y             : H6
@@ -318,7 +317,7 @@ theorem dvd_imp_div_mul_eq {x y : ℕ} (H : y | x) : x div y * y = x :=
 mod_eq_zero_imp_div_mul_eq (mod_eq_zero_of_dvd H)
 
 theorem dvd_of_dvd_add_left {m n1 n2 : ℕ} : m | (n1 + n2) → m | n1 → m | n2 :=
-case_zero_pos m
+by_cases_zero_pos m
   (assume (H1 : 0 | n1 + n2) (H2 : 0 | n1),
     have H3 : n1 + n2 = 0, from eq_zero_of_zero_dvd H1,
     have H4 : n1 = 0, from eq_zero_of_zero_dvd H2,
@@ -352,7 +351,7 @@ by_cases
     have H4 : n1 = n1 - n2 + n2, from (add_sub_ge_left H3)⁻¹,
     show m | n1 - n2, from dvd_add_cancel_right (H4 ▸ H1) H2)
   (assume H3 : ¬ (n1 ≥ n2),
-    have H4 : n1 - n2 = 0, from le_imp_sub_eq_zero (lt_imp_le (not_le_imp_gt H3)),
+    have H4 : n1 - n2 = 0, from le_imp_sub_eq_zero (le.of_lt (lt_of_not_le H3)),
     show m | n1 - n2, from H4⁻¹ ▸ dvd_zero _)
 
 -- Gcd and lcm
@@ -395,7 +394,7 @@ cases_on y
               ...   = if succ y₁ = 0 then x else gcd (succ y₁) (x mod succ y₁) : (if_neg (succ_ne_zero y₁))⁻¹)
 
 theorem gcd_pos (m : ℕ) {n : ℕ} (H : n > 0) : gcd m n = gcd n (m mod n) :=
-gcd_def m n ⬝ if_neg (pos_imp_ne_zero H)
+gcd_def m n ⬝ if_neg (ne_zero_of_pos H)
 
 theorem gcd_self (n : ℕ) : gcd n n = n :=
 cases_on n

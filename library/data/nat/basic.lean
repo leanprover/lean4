@@ -294,8 +294,8 @@ section
 
   protected definition comm_semiring [instance] : algebra.comm_semiring nat :=
   algebra.comm_semiring.mk add add.assoc zero zero_add add_zero add.comm
-  mul mul.assoc (succ zero) one_mul mul_one mul.left_distrib mul.right_distrib
-  zero_mul mul_zero (ne.symm (succ_ne_zero zero)) mul.comm
+    mul mul.assoc (succ zero) one_mul mul_one mul.left_distrib mul.right_distrib
+    zero_mul mul_zero (ne.symm (succ_ne_zero zero)) mul.comm
 end
 
 section port_algebra

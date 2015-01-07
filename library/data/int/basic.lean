@@ -175,11 +175,11 @@ theorem equiv_cases {p q : ℕ × ℕ} (H : equiv p q) :
     (pr1 p ≥ pr2 p ∧ pr1 q ≥ pr2 q) ∨ (pr1 p < pr2 p ∧ pr1 q < pr2 q) :=
 or.elim (@le_or_gt (pr2 p) (pr1 p))
   (assume H1: pr1 p ≥ pr2 p,
-    have H2 : pr2 p + pr1 q ≥ pr2 p + pr2 q, from H ▸ add_le_right H1 (pr2 q),
-    or.inl (and.intro H1 (add_le_cancel_left H2)))
+    have H2 : pr2 p + pr1 q ≥ pr2 p + pr2 q, from H ▸ add_le_add_right H1 (pr2 q),
+    or.inl (and.intro H1 (le_of_add_le_add_left H2)))
   (assume H1: pr1 p < pr2 p,
-    have H2 : pr2 p + pr1 q < pr2 p + pr2 q, from H ▸ add_lt_right H1 (pr2 q),
-    or.inr (and.intro H1 (add_lt_cancel_left H2)))
+    have H2 : pr2 p + pr1 q < pr2 p + pr2 q, from H ▸ add_lt_add_right H1 (pr2 q),
+    or.inr (and.intro H1 (lt_of_add_lt_add_left H2)))
 
 theorem equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ equiv.refl
 
@@ -222,7 +222,7 @@ or.elim (@le_or_gt n m)
     H1⁻¹ ▸
       (calc
         0 + n = n : zero_add
-          ... = n - m + m : add_sub_ge_left (lt_imp_le H)
+          ... = n - m + m : add_sub_ge_left (le.of_lt H)
           ... = succ (pred (n - m)) + m : (succ_pred_of_pos (sub_pos_of_gt H))⁻¹))
 
 theorem repr_abstr (p : ℕ × ℕ) : repr (abstr p) ≡ p :=
@@ -251,7 +251,7 @@ or.elim (equiv_cases Hequiv)
       calc
         pr2 p = pr2 p + pr1 q - pr1 q : sub_add_left
           ... = pr1 p + pr2 q - pr1 q : Hequiv
-          ... = pr1 p + (pr2 q - pr1 q) : add_sub_assoc (lt_imp_le H4)
+          ... = pr1 p + (pr2 q - pr1 q) : add_sub_assoc (le.of_lt H4)
           ... = pr2 q - pr1 q + pr1 p : add.comm,
     have H6 : pr2 p - pr1 p = pr2 q - pr1 q, from
       calc
@@ -290,7 +290,7 @@ or.elim (@le_or_gt n m)
       nat_abs (abstr (m, n)) = nat_abs (neg_succ_of_nat (pred (n - m))) : int.abstr_of_lt H
         ... = succ (pred (n - m)) : rfl
         ... = n - m : succ_pred_of_pos (sub_pos_of_gt H)
-        ... = dist m n : dist_le (lt_imp_le H))
+        ... = dist m n : dist_le (le.of_lt H))
 
 theorem cases_of_nat (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - of_nat n) :=
 cases_on a
@@ -629,7 +629,7 @@ section port_algebra
   theorem add.right_inv : ∀a : ℤ, a + -a = 0 := algebra.add.right_inv
   theorem add_neg_cancel_left : ∀a b : ℤ, a + (-a + b) = b := algebra.add_neg_cancel_left
   theorem add_neg_cancel_right : ∀a b : ℤ, a + b + -b = a := algebra.add_neg_cancel_right
-  theorem neg_add_eq : ∀a b : ℤ, -(a + b) = -b + -a := algebra.neg_add_eq
+  theorem neg_add : ∀a b : ℤ, -(a + b) = -b + -a := algebra.neg_add
   theorem eq_add_neg_of_add_eq : ∀{a b c : ℤ}, a + b = c → a = c + -b :=
     @algebra.eq_add_neg_of_add_eq _ _
   theorem eq_neg_add_of_add_eq : ∀{a b c : ℤ}, a + b = c → b = -a + c :=
@@ -657,11 +657,11 @@ section port_algebra
   theorem add_sub_cancel : ∀a b : ℤ, a + b - b = a := algebra.add_sub_cancel
   theorem eq_of_sub_eq_zero : ∀{a b : ℤ}, a - b = 0 → a = b := @algebra.eq_of_sub_eq_zero _ _
   theorem eq_iff_sub_eq_zero : ∀a b : ℤ, a = b ↔ a - b = 0 := algebra.eq_iff_sub_eq_zero
-  theorem zero_sub_eq : ∀a : ℤ, 0 - a = -a := algebra.zero_sub_eq
-  theorem sub_zero_eq : ∀a : ℤ, a - 0 = a := algebra.sub_zero_eq
+  theorem zero_sub : ∀a : ℤ, 0 - a = -a := algebra.zero_sub
+  theorem sub_zero : ∀a : ℤ, a - 0 = a := algebra.sub_zero
   theorem sub_neg_eq_add : ∀a b : ℤ, a - (-b) = a + b := algebra.sub_neg_eq_add
-  theorem neg_sub_eq : ∀a b : ℤ, -(a - b) = b - a := algebra.neg_sub_eq
-  theorem add_sub_eq : ∀a b c : ℤ, a + (b - c) = a + b - c := algebra.add_sub_eq
+  theorem neg_sub : ∀a b : ℤ, -(a - b) = b - a := algebra.neg_sub
+  theorem add_sub : ∀a b c : ℤ, a + (b - c) = a + b - c := algebra.add_sub
   theorem sub_add_eq_sub_sub_swap : ∀a b c : ℤ, a - (b + c) = a - c - b :=
     algebra.sub_add_eq_sub_sub_swap
   theorem sub_eq_iff_eq_add : ∀a b c : ℤ, a - b = c ↔ a = c + b := algebra.sub_eq_iff_eq_add
@@ -672,7 +672,7 @@ section port_algebra
   theorem neg_add_eq_sub : ∀a b : ℤ, -a + b = b - a := algebra.neg_add_eq_sub
   theorem neg_add_distrib : ∀a b : ℤ, -(a + b) = -a + -b := algebra.neg_add_distrib
   theorem sub_add_eq_add_sub : ∀a b c : ℤ, a - b + c = a + c - b := algebra.sub_add_eq_add_sub
-  theorem sub_sub_eq : ∀a b c : ℤ, a - b - c = a - (b + c) := algebra.sub_sub_eq
+  theorem sub_sub_ : ∀a b c : ℤ, a - b - c = a - (b + c) := algebra.sub_sub
   theorem add_sub_add_left_eq_sub : ∀a b c : ℤ, (c + a) - (c + b) = a - b :=
     algebra.add_sub_add_left_eq_sub
   theorem ne_zero_of_mul_ne_zero_right : ∀{a b : ℤ}, a * b ≠ 0 → a ≠ 0 :=

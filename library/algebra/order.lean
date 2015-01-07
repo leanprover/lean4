@@ -293,14 +293,23 @@ section
         (assume H1 : a = b, or.inl (H1 ▸ !le.refl))
         (assume H1 : b < a, or.inr (le_of_lt H1)))
 
-  definition le_of_not_lt {a b : A} (H : ¬ a < b) : b ≤ a :=
+  theorem le_of_not_lt {a b : A} (H : ¬ a < b) : b ≤ a :=
   lt.by_cases (assume H', absurd H' H) (assume H', H' ▸ !le.refl) (assume H', le_of_lt H')
 
-  definition lt_of_not_le {a b : A} (H : ¬ a ≤ b) : b < a :=
+  theorem lt_of_not_le {a b : A} (H : ¬ a ≤ b) : b < a :=
   lt.by_cases
     (assume H', absurd (le_of_lt H') H)
     (assume H', absurd (H' ▸ !le.refl) H)
     (assume H', H')
+
+  theorem lt_or_ge (a b : A) : a < b ∨ a ≥ b :=
+  lt.by_cases
+    (assume H1 : a < b, or.inl H1)
+    (assume H1 : a = b, or.inr (H1 ▸ le.refl a))
+    (assume H1 : a > b, or.inr (le_of_lt H1))
+
+  theorem le_or_gt (a b : A) : a ≤ b ∨ a > b :=
+  !or.swap (lt_or_ge b a)
 end
 
 end algebra

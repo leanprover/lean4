@@ -211,7 +211,7 @@ section group
       ... = a * 1 : mul.right_inv
       ... = a : mul_one
 
-  theorem inv_mul_eq (a b : A) : (a * b)⁻¹ = b⁻¹ * a⁻¹ :=
+  theorem inv_mul (a b : A) : (a * b)⁻¹ = b⁻¹ * a⁻¹ :=
   inv_eq_of_mul_eq_one
     (calc
       a * b * (b⁻¹ * a⁻¹) = a * (b * (b⁻¹ * a⁻¹)) : mul.assoc
@@ -346,7 +346,7 @@ section add_group
       ... = a + 0 : add.right_inv
       ... = a : add_zero
 
-  theorem neg_add_eq (a b : A) : -(a + b) = -b + -a :=
+  theorem neg_add (a b : A) : -(a + b) = -b + -a :=
   neg_eq_of_add_eq_zero
     (calc
       a + b + (-b + -a) = a + (b + (-b + -a)) : add.assoc
@@ -425,24 +425,24 @@ section add_group
   theorem eq_iff_sub_eq_zero (a b : A) : a = b ↔ a - b = 0 :=
   iff.intro (assume H, H ▸ !sub_self) (assume H, eq_of_sub_eq_zero H)
 
-  theorem zero_sub_eq (a : A) : 0 - a = -a := !zero_add
+  theorem zero_sub (a : A) : 0 - a = -a := !zero_add
 
-  theorem sub_zero_eq (a : A) : a - 0 = a := subst (eq.symm neg_zero) !add_zero
+  theorem sub_zero (a : A) : a - 0 = a := subst (eq.symm neg_zero) !add_zero
 
   theorem sub_neg_eq_add (a b : A) : a - (-b) = a + b := !neg_neg⁻¹ ▸ rfl
 
-  theorem neg_sub_eq (a b : A) : -(a - b) = b - a :=
+  theorem neg_sub (a b : A) : -(a - b) = b - a :=
   neg_eq_of_add_eq_zero
     (calc
       a - b + (b - a) = a - b + b - a : !add.assoc⁻¹
         ... = a - a : sub_add_cancel
         ... = 0 : sub_self)
 
-  theorem add_sub_eq (a b c : A) : a + (b - c) = a + b - c := !add.assoc⁻¹
+  theorem add_sub (a b c : A) : a + (b - c) = a + b - c := !add.assoc⁻¹
 
   theorem sub_add_eq_sub_sub_swap (a b c : A) : a - (b + c) = a - c - b :=
   calc
-    a - (b + c) = a + (-c - b) : neg_add_eq
+    a - (b + c) = a + (-c - b) : neg_add
       ... = a - c - b : !add.assoc⁻¹
 
   theorem sub_eq_iff_eq_add (a b c : A) : a - b = c ↔ a = c + b :=
@@ -471,11 +471,11 @@ include s
 
   theorem neg_add_eq_sub (a b : A) : -a + b = b - a := !add.comm
 
-  theorem neg_add_distrib (a b : A) : -(a + b) = -a + -b := add.comm (-b) (-a) ▸ neg_add_eq a b
+  theorem neg_add_distrib (a b : A) : -(a + b) = -a + -b := add.comm (-b) (-a) ▸ neg_add a b
 
   theorem sub_add_eq_add_sub (a b c : A) : a - b + c = a + c - b := !add.right_comm
 
-  theorem sub_sub_eq (a b c : A) : a - b - c = a - (b + c) :=
+  theorem sub_sub (a b c : A) : a - b - c = a - (b + c) :=
   calc
     a - b - c = a + (-b + -c) : add.assoc
       ... = a + -(b + c) : {(neg_add_distrib b c)⁻¹}

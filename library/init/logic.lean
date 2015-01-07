@@ -271,7 +271,6 @@ namespace decidable
   by_cases
     (assume H1 : p, H1)
     (assume H1 : ¬p, false.rec _ (H H1))
-
 end decidable
 
 section
@@ -404,6 +403,8 @@ if c then false else true
 
 theorem of_is_true {c : Prop} [H₁ : decidable c] (H₂ : is_true c) : c :=
 decidable.rec_on H₁ (λ Hc, Hc) (λ Hnc, !false.rec (if_neg Hnc ▸ H₂))
+
+notation `dec_trivial` := of_is_true trivial
 
 theorem not_of_not_is_true {c : Prop} [H₁ : decidable c] (H₂ : ¬ is_true c) : ¬ c :=
 decidable.rec_on H₁ (λ Hc, absurd true.intro (if_pos Hc ▸ H₂)) (λ Hnc, Hnc)

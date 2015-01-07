@@ -50,7 +50,7 @@ theorem le.total (a b : ℤ) : a ≤ b ∨ b ≤ a :=
 or.elim (nonneg_or_nonneg_neg (b - a))
   (assume H, or.inl H)
   (assume H : nonneg (-(b - a)),
-    have H0 : -(b - a) = a - b, from neg_sub_eq b a,
+    have H0 : -(b - a) = a - b, from neg_sub b a,
     have H1 : nonneg (a - b), from H0 ▸ H,    -- too bad: can't do it in one step
     or.inr H1)
 
@@ -59,9 +59,9 @@ iff.intro
   (assume H : of_nat n ≤ of_nat m,
     obtain (k : ℕ) (Hk : of_nat n + of_nat k = of_nat m), from le.elim H,
     have H2 : n + k = m, from of_nat_inj ((add_of_nat n k)⁻¹ ⬝ Hk),
-    nat.le_intro H2)
+    nat.le.intro H2)
   (assume H : n ≤ m,
-    obtain (k : ℕ) (Hk : n + k = m), from nat.le_elim H,
+    obtain (k : ℕ) (Hk : n + k = m), from nat.le.elim H,
     have H2 : of_nat n + of_nat k = of_nat m, from Hk ▸ add_of_nat n k,
     le.intro H2)
 
@@ -252,8 +252,10 @@ section port_algebra
   theorem lt.trichotomy : ∀a b : ℤ, a < b ∨ a = b ∨ b < a := algebra.lt.trichotomy
   theorem lt.by_cases : ∀{a b : ℤ} {P : Prop}, (a < b → P) → (a = b → P) → (b < a → P) → P :=
     @algebra.lt.by_cases _ _
-  definition le_of_not_lt : ∀{a b : ℤ}, ¬ a < b → b ≤ a := @algebra.le_of_not_lt _ _
-  definition lt_of_not_le : ∀{a b : ℤ}, ¬ a ≤ b → b < a := @algebra.lt_of_not_le _ _
+  theorem le_of_not_lt : ∀{a b : ℤ}, ¬ a < b → b ≤ a := @algebra.le_of_not_lt _ _
+  theorem lt_of_not_le : ∀{a b : ℤ}, ¬ a ≤ b → b < a := @algebra.lt_of_not_le _ _
+  theorem lt_or_ge : ∀a b : ℤ, a < b ∨ a ≥ b := @algebra.lt_or_ge _ _
+  theorem le_or_gt : ∀a b : ℤ, a ≤ b ∨ a > b := @algebra.le_or_gt _ _
 
   theorem add_le_add_right : ∀{a b : ℤ}, a ≤ b → ∀c : ℤ, a + c ≤ b + c :=
     @algebra.add_le_add_right _ _
@@ -421,8 +423,8 @@ section port_algebra
     @algebra.mul_neg_of_pos_of_neg _ _
   theorem mul_neg_of_neg_of_pos : ∀{a b : ℤ}, a < 0 → b > 0 → a * b < 0 :=
     @algebra.mul_neg_of_neg_of_pos _ _
-  theorem lt_of_mul_lt_mul_left : ∀{a b c : ℤ}, c * a < c * b → c ≥ zero → a < b :=
-    @algebra.lt_of_mul_lt_mul_left int _
+  theorem lt_of_mul_lt_mul_left : ∀{a b c : ℤ}, c * a < c * b → c ≥ 0 → a < b :=
+    @algebra.lt_of_mul_lt_mul_left _ _
   theorem lt_of_mul_lt_mul_right : ∀{a b c : ℤ}, a * c < b * c → c ≥ 0 → a < b :=
     @algebra.lt_of_mul_lt_mul_right _ _
   theorem le_of_mul_le_mul_left : ∀{a b c : ℤ}, c * a ≤ c * b → c > 0 → a ≤ b :=

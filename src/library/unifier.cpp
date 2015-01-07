@@ -1315,6 +1315,7 @@ struct unifier_fn {
             length(lhs_lvls) != length(rhs_lvls) ||
             length(d.get_univ_params()) != length(lhs_lvls)) {
             // the constraint is not well-formed, this can happen when users are abusing the API
+            set_conflict(j);
             return false;
         }
 

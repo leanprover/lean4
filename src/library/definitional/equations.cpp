@@ -967,7 +967,8 @@ class equation_compiler_fn {
             unsigned nindices = *inductive::get_num_indices(env(), const_name(I));
             if (nindices > 0) {
                 buffer<expr> args;
-                get_app_args(I, args);
+                get_app_args(t, args);
+                lean_assert(args.size() >= nindices);
                 return
                     all_distinct_locals(nindices, args.end() - nindices) &&
                     std::all_of(args.end() - nindices, args.end(),

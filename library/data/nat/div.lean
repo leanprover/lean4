@@ -20,7 +20,7 @@ namespace nat
 -- Auxiliary lemma used to justify div
 private definition div_rec_lemma {x y : nat} (H : 0 < y ∧ y ≤ x) : x - y < x :=
 and.rec_on H (λ ypos ylex,
-  sub.lt (lt.of_lt_of_le ypos ylex) ypos)
+  sub_lt (lt_of_lt_of_le ypos ylex) ypos)
 
 private definition div.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
 if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y + 1 else zero
@@ -40,7 +40,7 @@ theorem div_less {a b : ℕ} (h : a < b) : a div b = 0 :=
 divide_def a b ⬝ if_neg (!not_and_of_not_right (not_le_of_lt h))
 
 theorem zero_div (b : ℕ) : 0 div b = 0 :=
-divide_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt.of_lt_of_le l r) (lt.irrefl 0)))
+divide_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_of_lt_of_le l r) (lt.irrefl 0)))
 
 theorem div_rec {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a div b = succ ((a - b) div b) :=
 divide_def a b ⬝ if_pos (and.intro h₁ h₂)
@@ -80,7 +80,7 @@ theorem mod_less {a b : ℕ} (h : a < b) : a mod b = a :=
 modulo_def a b ⬝ if_neg (!not_and_of_not_right (not_le_of_lt h))
 
 theorem zero_mod (b : ℕ) : 0 mod b = 0 :=
-modulo_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt.of_lt_of_le l r) (lt.irrefl 0)))
+modulo_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_of_lt_of_le l r) (lt.irrefl 0)))
 
 theorem mod_rec {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a mod b = (a - b) mod b :=
 modulo_def a b ⬝ if_pos (and.intro h₁ h₂)
@@ -187,7 +187,7 @@ theorem quotient_unique {y : ℕ} (H : y > 0) {q1 r1 q2 r2 : ℕ} (H1 : r1 < y) 
   (H3 : q1 * y + r1 = q2 * y + r2) : q1 = q2 :=
 have H4 : q1 * y + r2 = q2 * y + r2, from (remainder_unique H H1 H2 H3) ▸ H3,
 have H5 : q1 * y = q2 * y, from add.cancel_right H4,
-have H6 : y > 0, from lt.of_le_of_lt !zero_le H1,
+have H6 : y > 0, from lt_of_le_of_lt !zero_le H1,
 show q1 = q2, from eq_of_mul_eq_mul_right H6 H5
 
 theorem div_mul_mul {z x y : ℕ} (zpos : z > 0) : (z * x) div (z * y) = x div y :=
@@ -351,7 +351,7 @@ by_cases
     have H4 : n1 = n1 - n2 + n2, from (add_sub_ge_left H3)⁻¹,
     show m | n1 - n2, from dvd_add_cancel_right (H4 ▸ H1) H2)
   (assume H3 : ¬ (n1 ≥ n2),
-    have H4 : n1 - n2 = 0, from le_imp_sub_eq_zero (le.of_lt (lt_of_not_le H3)),
+    have H4 : n1 - n2 = 0, from le_imp_sub_eq_zero (le_of_lt (lt_of_not_le H3)),
     show m | n1 - n2, from H4⁻¹ ▸ dvd_zero _)
 
 -- Gcd and lcm

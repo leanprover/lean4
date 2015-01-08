@@ -54,13 +54,13 @@ namespace fin
   of_nat 0     0     h := absurd h (not_lt_zero zero),
   of_nat 0     (n+1) h := fz n,
   of_nat (p+1) 0     h := absurd h (not_lt_zero (succ p)),
-  of_nat (p+1) (n+1) h := fs (of_nat p n (lt.of_succ_lt_succ h))
+  of_nat (p+1) (n+1) h := fs (of_nat p n (lt_of_succ_lt_succ h))
 
   theorem of_nat_zero_succ (n : nat) (h : 0 < n+1) : of_nat 0 (n+1) h = fz n :=
   rfl
 
   theorem of_nat_succ_succ (p n : nat) (h : p+1 < n+1) :
-               of_nat (p+1) (n+1) h = fs (of_nat p n (lt.of_succ_lt_succ h)) :=
+               of_nat (p+1) (n+1) h = fs (of_nat p n (lt_of_succ_lt_succ h)) :=
   rfl
 
   theorem to_nat_of_nat : ∀ (p : nat) (n : nat) (h : p < n), to_nat (of_nat p n h) = p,

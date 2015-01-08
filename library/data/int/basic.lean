@@ -222,7 +222,7 @@ or.elim (@le_or_gt n m)
     H1⁻¹ ▸
       (calc
         0 + n = n : zero_add
-          ... = n - m + m : add_sub_ge_left (le.of_lt H)
+          ... = n - m + m : add_sub_ge_left (le_of_lt H)
           ... = succ (pred (n - m)) + m : (succ_pred_of_pos (sub_pos_of_gt H))⁻¹))
 
 theorem repr_abstr (p : ℕ × ℕ) : repr (abstr p) ≡ p :=
@@ -251,7 +251,7 @@ or.elim (equiv_cases Hequiv)
       calc
         pr2 p = pr2 p + pr1 q - pr1 q : sub_add_left
           ... = pr1 p + pr2 q - pr1 q : Hequiv
-          ... = pr1 p + (pr2 q - pr1 q) : add_sub_assoc (le.of_lt H4)
+          ... = pr1 p + (pr2 q - pr1 q) : add_sub_assoc (le_of_lt H4)
           ... = pr2 q - pr1 q + pr1 p : add.comm,
     have H6 : pr2 p - pr1 p = pr2 q - pr1 q, from
       calc
@@ -290,7 +290,7 @@ or.elim (@le_or_gt n m)
       nat_abs (abstr (m, n)) = nat_abs (neg_succ_of_nat (pred (n - m))) : int.abstr_of_lt H
         ... = succ (pred (n - m)) : rfl
         ... = n - m : succ_pred_of_pos (sub_pos_of_gt H)
-        ... = dist m n : dist_le (le.of_lt H))
+        ... = dist m n : dist_le (le_of_lt H))
 
 theorem cases_of_nat (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - of_nat n) :=
 cases_on a

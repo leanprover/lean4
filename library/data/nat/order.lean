@@ -16,7 +16,7 @@ namespace nat
 /- lt and le -/
 
 theorem le_of_lt_or_eq {m n : ℕ} (H : m < n ∨ m = n) : m ≤ n :=
-or.elim H (take H1, le.of_lt H1) (take H1, H1 ▸ !le.refl)
+or.elim H (take H1, le_of_lt H1) (take H1, H1 ▸ !le.refl)
 
 theorem lt.by_cases {a b : ℕ} {P : Prop}
   (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) : P :=
@@ -28,7 +28,7 @@ theorem lt_or_eq_of_le {m n : ℕ} (H : m ≤ n) : m < n ∨ m = n :=
 lt.by_cases
   (assume H1 : m < n, or.inl H1)
   (assume H1 : m = n, or.inr H1)
-  (assume H1 : m > n, absurd (lt.of_le_of_lt H H1) !lt.irrefl)
+  (assume H1 : m > n, absurd (lt_of_le_of_lt H H1) !lt.irrefl)
 
 theorem le_iff_lt_or_eq (m n : ℕ) : m ≤ n ↔ m < n ∨ m = n :=
 iff.intro lt_or_eq_of_le le_of_lt_or_eq
@@ -40,11 +40,8 @@ or.elim (lt_or_eq_of_le H1)
 
 theorem lt_iff_le_and_ne (m n : ℕ) : m < n ↔ m ≤ n ∧ m ≠ n :=
 iff.intro
-  (take H, and.intro (le.of_lt H) (take H1, lt.irrefl _ (H1 ▸ H)))
+  (take H, and.intro (le_of_lt H) (take H1, lt.irrefl _ (H1 ▸ H)))
   (take H, lt_of_le_and_ne (and.elim_left H) (and.elim_right H))
-
-theorem le_succ_of_le {n m : ℕ} (h : n ≤ m) : n ≤ succ m :=
-lt.step h
 
 theorem le_add_right (n k : ℕ) : n ≤ n + k :=
 induction_on k
@@ -73,9 +70,9 @@ le.rec_on h
 
 theorem le.total {m n : ℕ} : m ≤ n ∨ n ≤ m :=
 lt.by_cases
-  (assume H : m < n, or.inl (le.of_lt H))
+  (assume H : m < n, or.inl (le_of_lt H))
   (assume H : m = n, or.inl (H ▸ !le.refl))
-  (assume H : m > n, or.inr (le.of_lt H))
+  (assume H : m > n, or.inr (le_of_lt H))
 
 /- addition -/
 
@@ -124,7 +121,7 @@ le.trans (mul_le_mul_right H1 m) (mul_le_mul_left H2 k)
 theorem mul_lt_mul_of_pos_left {n m k : ℕ} (H : n < m) (Hk : k > 0) : k * n < k * m :=
 have H2 : k * n < k * n + k, from lt_add_of_pos_right Hk,
 have H3 : k * n + k ≤ k * m, from !mul_succ ▸ mul_le_mul_left (succ_le_of_lt H) k,
-lt.of_lt_of_le H2 H3
+lt_of_lt_of_le H2 H3
 
 theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0) : n * k < m * k :=
 !mul.comm ▸ !mul.comm ▸ mul_lt_mul_of_pos_left H Hk
@@ -337,9 +334,6 @@ lt.base n
 theorem le_of_lt_succ {n m : ℕ} (H : n < succ m) : n ≤ m :=
 le_of_succ_le_succ (succ_le_of_lt H)
 
-theorem succ_lt_succ {n m : ℕ} (H : n < m) : succ n < succ m :=
-!add_one ▸ !add_one ▸ add_lt_add_right H 1
-
 /- other forms of induction -/
 
 protected theorem strong_induction_on {P : nat → Prop} (n : ℕ) (H : ∀n, (∀m, m < n → P m) → P n) :
@@ -394,16 +388,16 @@ exists_eq_succ_of_lt H
 
 theorem mul_lt_mul_of_le_of_lt {n m k l : ℕ} (Hk : k > 0) (H1 : n ≤ k) (H2 : m < l) :
   n * m < k * l :=
-lt.of_le_of_lt (mul_le_mul_right H1 m) (mul_lt_mul_of_pos_left H2 Hk)
+lt_of_le_of_lt (mul_le_mul_right H1 m) (mul_lt_mul_of_pos_left H2 Hk)
 
 theorem mul_lt_mul_of_lt_of_le {n m k l : ℕ} (Hl : l > 0) (H1 : n < k) (H2 : m ≤ l) :
   n * m < k * l :=
-lt.of_le_of_lt (mul_le_mul_left H2 n) (mul_lt_mul_of_pos_right H1 Hl)
+lt_of_le_of_lt (mul_le_mul_left H2 n) (mul_lt_mul_of_pos_right H1 Hl)
 
 theorem mul_lt_mul_of_le_of_le {n m k l : ℕ} (H1 : n < k) (H2 : m < l) : n * m < k * l :=
-have H3 : n * m ≤ k * m, from mul_le_mul_right (le.of_lt H1) m,
-have H4 : k * m < k * l, from mul_lt_mul_of_pos_left H2 (lt.of_le_of_lt !zero_le H1),
-lt.of_le_of_lt H3 H4
+have H3 : n * m ≤ k * m, from mul_le_mul_right (le_of_lt H1) m,
+have H4 : k * m < k * l, from mul_lt_mul_of_pos_left H2 (lt_of_le_of_lt !zero_le H1),
+lt_of_le_of_lt H3 H4
 
 theorem eq_of_mul_eq_mul_left {m k n : ℕ} (Hn : n > 0) (H : n * m = n * k) : m = k :=
 have H2 : n * m ≤ n * k, from H ▸ !le.refl,

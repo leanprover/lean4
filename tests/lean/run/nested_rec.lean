@@ -9,9 +9,9 @@ nat.cases_on x
   (λ x₁ (f : Π y, y < succ x₁ → Σ r : nat, r ≤ y),
      let p₁    := f x₁ (lt.base x₁) in
      let gx₁   := pr₁ p₁ in
-     let p₂    := f gx₁ (lt.of_le_of_lt (pr₂ p₁) (lt.base x₁)) in
+     let p₂    := f gx₁ (lt_of_le_of_lt (pr₂ p₁) (lt.base x₁)) in
      let ggx₁  := pr₁ p₂ in
-     ⟨ggx₁, le.step (le.trans (pr₂ p₂) (pr₂ p₁))⟩)
+     ⟨ggx₁, le_succ_of_le (le.trans (pr₂ p₂) (pr₂ p₁))⟩)
 
 definition g (x : nat) : nat :=
 pr₁ (well_founded.fix g.F x)

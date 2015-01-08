@@ -273,9 +273,6 @@ have H2 : k - n + n = m + n, from
           ... = m + n : !add.comm,
 add.cancel_right H2
 
-theorem sub_lt {x y : ℕ} (xpos : x > 0) (ypos : y > 0) : x - y < x :=
-sub.lt xpos ypos
-
 theorem sub_le_right {n m : ℕ} (H : n ≤ m) (k : nat) : n - k ≤ m - k :=
 obtain (l : ℕ) (Hl : n + l = m), from le.elim H,
 or.elim !le.total
@@ -307,7 +304,7 @@ sub_split
     le.intro (add.cancel_right H4))
 
 theorem sub_pos_of_gt {m n : ℕ} (H : n > m) : n - m > 0 :=
-have H1 : n = n - m + m, from (add_sub_ge_left (le.of_lt H))⁻¹,
+have H1 : n = n - m + m, from (add_sub_ge_left (le_of_lt H))⁻¹,
 have H2 : 0 + m < n - m + m, from (zero_add m)⁻¹ ▸ H1 ▸ H,
 !lt_of_add_lt_add_right H2
 

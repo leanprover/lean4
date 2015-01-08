@@ -1259,33 +1259,38 @@ struct unifier_fn {
         }
     }
 
+    bool unfold_delta(constraint const & c, justification const & extra_j) {
+        expr const & lhs = cnstr_lhs_expr(c);
+        expr const & rhs = cnstr_rhs_expr(c);
+        buffer<expr> lhs_args, rhs_args;
+        justification j = c.get_justification();
+        expr lhs_fn     = get_app_rev_args(lhs, lhs_args);
+        expr rhs_fn     = get_app_rev_args(rhs, rhs_args);
+        declaration d   = *m_env.find(const_name(lhs_fn));
+        levels lhs_lvls = const_levels(lhs_fn);
+        levels rhs_lvls = const_levels(lhs_fn);
+        bool relax = relax_main_opaque(c);
+        expr lhs_fn_val = instantiate_value_univ_params(d, const_levels(lhs_fn));
+        expr rhs_fn_val = instantiate_value_univ_params(d, const_levels(rhs_fn));
+        expr t = apply_beta(lhs_fn_val, lhs_args.size(), lhs_args.data());
+        expr s = apply_beta(rhs_fn_val, rhs_args.size(), rhs_args.data());
+        auto dcs = m_tc[relax]->is_def_eq(t, s, j);
+        if (dcs.first) {
+            constraints cnstrs = dcs.second.to_list();
+            return process_constraints(cnstrs, extra_j);
+        } else {
+            set_conflict(j);
+            return false;
+        }
+    }
+
     bool next_delta_unfold_case_split(delta_unfold_case_split & cs) {
         if (!cs.m_done) {
             cs.restore_state(*this);
             cs.m_done = true;
             constraint const & c = cs.m_cnstr;
-            expr const & lhs = cnstr_lhs_expr(c);
-            expr const & rhs = cnstr_rhs_expr(c);
-            buffer<expr> lhs_args, rhs_args;
-            justification j = c.get_justification();
-            expr lhs_fn     = get_app_rev_args(lhs, lhs_args);
-            expr rhs_fn     = get_app_rev_args(rhs, rhs_args);
-            declaration d   = *m_env.find(const_name(lhs_fn));
-            levels lhs_lvls = const_levels(lhs_fn);
-            levels rhs_lvls = const_levels(lhs_fn);
-            bool relax = relax_main_opaque(c);
-            expr lhs_fn_val = instantiate_value_univ_params(d, const_levels(lhs_fn));
-            expr rhs_fn_val = instantiate_value_univ_params(d, const_levels(rhs_fn));
-            expr t = apply_beta(lhs_fn_val, lhs_args.size(), lhs_args.data());
-            expr s = apply_beta(rhs_fn_val, rhs_args.size(), rhs_args.data());
-            auto dcs = m_tc[relax]->is_def_eq(t, s, j);
-            if (dcs.first) {
-                constraints cnstrs = dcs.second.to_list();
-                return process_constraints(cnstrs, mk_composite1(cs.get_jst(), mk_assumption_justification(cs.m_assumption_idx)));
-            } else {
-                set_conflict(j);
-                return false;
-            }
+            justification j      = mk_composite1(cs.get_jst(), mk_assumption_justification(cs.m_assumption_idx));
+            return unfold_delta(c, j);
         } else {
             // update conflict
             update_conflict(mk_composite1(*m_conflict, cs.m_failed_justifications));
@@ -1311,13 +1316,15 @@ struct unifier_fn {
         declaration d   = *m_env.find(const_name(lhs_fn));
         levels lhs_lvls = const_levels(lhs_fn);
         levels rhs_lvls = const_levels(lhs_fn);
-        if (lhs_args.size() != rhs_args.size() ||
-            length(lhs_lvls) != length(rhs_lvls) ||
+        if (length(lhs_lvls) != length(rhs_lvls) ||
             length(d.get_univ_params()) != length(lhs_lvls)) {
             // the constraint is not well-formed, this can happen when users are abusing the API
             set_conflict(j);
             return false;
         }
+
+        if (lhs_args.size() != rhs_args.size())
+            return unfold_delta(c, justification());
 
         justification a;
         bool relax = relax_main_opaque(c);

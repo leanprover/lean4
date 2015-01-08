@@ -117,9 +117,9 @@ theorem reverse_reverse : ∀ (l : list T), reverse (reverse l) = l,
 reverse_reverse nil      := rfl,
 reverse_reverse (a :: l) := calc
   reverse (reverse (a :: l)) = reverse (concat a (reverse l))     : rfl
-                        ...  = reverse (reverse l ++ [a])         : concat_eq_append
-                        ...  = reverse [a] ++ reverse (reverse l) : reverse_append
-                        ...  = reverse [a] ++ l                   : reverse_reverse
+                        ...  = reverse (reverse l ++ [a])         : {concat_eq_append a (reverse l)}
+                        ...  = reverse [a] ++ reverse (reverse l) : {reverse_append (reverse l) [a]}
+                        ...  = reverse [a] ++ l                   : {reverse_reverse l}
                         ...  = a :: l                             : rfl
 
 theorem concat_eq_reverse_cons (x : T) (l : list T) : concat x l = reverse (x :: reverse l) :=

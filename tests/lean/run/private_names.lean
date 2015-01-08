@@ -5,7 +5,7 @@ section
 
   instance [priority 1000] foo
 
-  example : inhabited.default Prop = false :=
+  example : default Prop = false :=
   rfl
 end
 end bla

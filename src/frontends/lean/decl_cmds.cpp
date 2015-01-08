@@ -388,7 +388,8 @@ static void throw_invalid_equation_lhs(name const & n, pos_info const & p) {
 }
 
 expr parse_equations(parser & p, name const & n, expr const & type, buffer<name> & auxs,
-                     optional<local_environment> const & lenv, buffer<expr> const & ps) {
+                     optional<local_environment> const & lenv, buffer<expr> const & ps,
+                     pos_info const & def_pos) {
     buffer<expr> eqns;
     buffer<expr> fns;
     {
@@ -455,9 +456,9 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
         p.next();
         expr R   = p.save_pos(mk_expr_placeholder(), pos);
         expr Hwf = p.parse_expr();
-        return mk_equations(fns.size(), eqns.size(), eqns.data(), R, Hwf);
+        return p.save_pos(mk_equations(fns.size(), eqns.size(), eqns.data(), R, Hwf), def_pos);
     } else {
-        return mk_equations(fns.size(), eqns.size(), eqns.data());
+        return p.save_pos(mk_equations(fns.size(), eqns.size(), eqns.data()), def_pos);
     }
 }
 
@@ -517,7 +518,7 @@ class definition_cmd_fn {
             auto pos = m_p.pos();
             m_type = m_p.parse_expr();
             if (is_curr_with_or_comma(m_p)) {
-                m_value = parse_equations(m_p, m_name, m_type, m_aux_decls, optional<local_environment>(), buffer<expr>());
+                m_value = parse_equations(m_p, m_name, m_type, m_aux_decls, optional<local_environment>(), buffer<expr>(), m_pos);
             } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
                 check_end_of_theorem(m_p);
                 m_value = m_p.save_pos(mk_expr_placeholder(), pos);
@@ -535,7 +536,7 @@ class definition_cmd_fn {
                 m_p.next();
                 m_type = m_p.parse_scoped_expr(ps, *lenv);
                 if (is_curr_with_or_comma(m_p)) {
-                    m_value = parse_equations(m_p, m_name, m_type, m_aux_decls, lenv, ps);
+                    m_value = parse_equations(m_p, m_name, m_type, m_aux_decls, lenv, ps, m_pos);
                 } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
                     check_end_of_theorem(m_p);
                     m_value = m_p.save_pos(mk_expr_placeholder(), pos);

@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/locals.h"
 #include "library/normalize.h"
+#include "library/pp_options.h"
 #include "library/tactic/inversion_tactic.h"
 
 namespace lean {
@@ -396,6 +397,10 @@ class equation_compiler_fn {
             lean_unreachable();
         }
     };
+
+    // Auxiliary fields for producing error messages
+    buffer<program>  m_init_prgs;
+    unsigned         m_prg_idx; // current program index being compiled
 
 #ifdef LEAN_DEBUG
     // For debugging purposes: checks whether all local constants occurring in \c e
@@ -880,6 +885,24 @@ class equation_compiler_fn {
         return compile_core(program(prg, to_list(new_eqns)));
     }
 
+    [[ noreturn ]] void throw_non_exhaustive() {
+        program prg = m_init_prgs[m_prg_idx];
+        throw_error(m_meta, [=](formatter const & _fmt) {
+                options opts  = _fmt.get_options().update_if_undef(get_pp_implicit_name(), true);
+                opts          = opts.update_if_undef(get_pp_purify_locals_name(), false);
+                formatter fmt = _fmt.update_options(opts);
+                format r      = format("invalid non-exhaustive set of recursive equations, "
+                                       "left-hand-side(s) after elaboration:");
+                for (eqn const & e : prg.m_eqns) {
+                    expr lhs = prg.m_fn;
+                    for (expr const & p : e.m_patterns) lhs = mk_app(lhs, p);
+                    r += pp_indent_expr(fmt, lhs);
+                    r += line();
+                }
+                return r;
+            });
+    }
+
     expr compile_core(program const & p) {
         lean_assert(check_program(p));
         // out() << "compile_core step\n";
@@ -910,12 +933,13 @@ class equation_compiler_fn {
                 lean_assert(is_def_eq(infer_type(r), p.m_type));
                 return r;
             } else {
-                throw_error(sstream() << "invalid non-exhaustive set of recursive equations");
+                throw_non_exhaustive();
             }
         }
     }
 
-    expr compile_pat_match(program const & p) {
+    expr compile_pat_match(program const & p, unsigned i) {
+        flet<unsigned> set(m_prg_idx, i); // we only use m_prg_idx for producing error messages
         buffer<expr> vars;
         to_buffer(p.m_context, vars);
         if (!is_proof_irrelevant()) {
@@ -1517,7 +1541,7 @@ class equation_compiler_fn {
                 new_ctx.push_back(arg);
                 new_ctx.push_back(b);
                 new_ctx.append(rest);
-                F               = compile_pat_match(program(prg_i, to_list(new_ctx)));
+                F               = compile_pat_match(program(prg_i, to_list(new_ctx)), *p_idx);
             } else {
                 expr star    = mk_constant(name{"unit", "star"}, rlvl);
                 buffer<expr> F_args;
@@ -1592,6 +1616,7 @@ public:
         check_limitations(eqns);
         buffer<program> prgs;
         initialize(eqns, prgs);
+        m_init_prgs.append(prgs);
         if (is_recursive(prgs)) {
             if (is_wf_equations(eqns)) {
                 return compile_wf(prgs);
@@ -1600,7 +1625,7 @@ public:
             }
         } else {
             lean_assert(prgs.size() == 1);
-            return compile_pat_match(prgs[0]);
+            return compile_pat_match(prgs[0], 0);
         }
     }
 };

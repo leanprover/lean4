@@ -1,0 +1,10 @@
+nonexhaustive.lean:6:11: error: invalid non-exhaustive set of recursive equations, left-hand-side(s) after elaboration:
+  @foo 0 (@nil A)
+
+  @foo (succ (succ x_1)) (a :: b :: v)
+
+nonexhaustive.lean:12:11: error: invalid non-exhaustive set of recursive equations, left-hand-side(s) after elaboration:
+  foo nil
+
+  foo (a :: b :: v)
+

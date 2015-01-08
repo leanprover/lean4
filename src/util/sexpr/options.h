@@ -55,6 +55,13 @@ public:
     options update(char const * n, sexpr const & v) const { return update(name(n), v); }
     template<typename T> options update(char const * n, T v) const { return update(n, sexpr(v)); }
 
+    template<typename T> options update_if_undef(name const & n, T v) const {
+        if (contains(n))
+            return *this;
+        else
+            return update(n, sexpr(v));
+    }
+
     friend bool is_eqp(options const & a, options const & b) { return is_eqp(a.m_value, b.m_value); }
 
     /**

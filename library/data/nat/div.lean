@@ -8,7 +8,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 Definitions of div, mod, and gcd on the natural numbers.
 -/
 
-import data.nat.sub logic
+import data.nat.sub data.nat.comm_semiring logic
 import algebra.relation
 import tools.fake_simplifier
 

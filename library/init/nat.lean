@@ -29,23 +29,14 @@ namespace nat
   protected definition is_inhabited [instance] : inhabited nat :=
   inhabited.mk zero
 
-  protected definition has_decidable_eq [instance] : decidable_eq nat :=
-  λn m : nat,
-  have general : ∀n, decidable (n = m), from
-    rec_on m
-      (λ n, cases_on n
-        (inl rfl)
-        (λ m, inr (λ (e : succ m = zero), no_confusion e)))
-      (λ (m' : nat) (ih : ∀n, decidable (n = m')) (n : nat), cases_on n
-        (inr (λ h, no_confusion h))
-        (λ (n' : nat),
-          decidable.rec_on (ih n')
-            (assume Heq : n' = m', inl (eq.rec_on Heq rfl))
-            (assume Hne : n' ≠ m',
-              have H1 : succ n' ≠ succ m', from
-                assume Heq, no_confusion Heq (λ e : n' = m', Hne e),
-              inr H1))),
-  general n
+  protected definition has_decidable_eq [instance] : ∀ x y : nat, decidable (x = y),
+  has_decidable_eq zero     zero     := inl rfl,
+  has_decidable_eq (succ x) zero     := inr (λ h, nat.no_confusion h),
+  has_decidable_eq zero     (succ y) := inr (λ h, nat.no_confusion h),
+  has_decidable_eq (succ x) (succ y) :=
+    if H : x = y
+    then inl (eq.rec_on H rfl)
+    else inr (λ h : succ x = succ y, nat.no_confusion h (λ heq : x = y, absurd heq H))
 
   -- less-than is well-founded
   definition lt.wf [instance] : well_founded lt :=

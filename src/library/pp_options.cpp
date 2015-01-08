@@ -154,6 +154,7 @@ name const & get_pp_universes_option_name() { return *g_pp_universes; }
 name const & get_pp_notation_option_name() { return *g_pp_notation; }
 name const & get_pp_metavar_args_name() { return *g_pp_metavar_args; }
 name const & get_pp_purify_metavars_name() { return *g_pp_purify_metavars; }
+name const & get_pp_purify_locals_name() { return *g_pp_purify_locals; }
 
 unsigned get_pp_max_depth(options const & opts)       { return opts.get_unsigned(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
 unsigned get_pp_max_steps(options const & opts)       { return opts.get_unsigned(*g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }

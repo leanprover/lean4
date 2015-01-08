@@ -14,6 +14,7 @@ name const & get_pp_universes_option_name();
 name const & get_pp_notation_option_name();
 name const & get_pp_metavar_args_name();
 name const & get_pp_purify_metavars_name();
+name const & get_pp_purify_locals_name();
 
 unsigned get_pp_max_depth(options const & opts);
 unsigned get_pp_max_steps(options const & opts);

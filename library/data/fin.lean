@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 
 Finite ordinals.
 -/
-
 import data.nat logic.cast
 open nat
 
@@ -16,79 +15,61 @@ fz : Π n, fin (succ n),
 fs : Π {n}, fin n → fin (succ n)
 
 namespace fin
+  definition to_nat : Π {n}, fin n → nat,
+  @to_nat ⌞n+1⌟ (fz n) := zero,
+  @to_nat ⌞n+1⌟ (fs f) := succ (to_nat f)
 
-  definition z_cases_on (C : fin zero → Type) (p : fin zero) : C p :=
-  by cases p
-
-  definition nz_cases_on {C  : Π n, fin (succ n) → Type}
-                         (H₁ : Π n, C n (fz n))
-                         (H₂ : Π n (f : fin n), C n (fs f))
-                         {n  : nat}
-                         (f  : fin (succ n)) : C n f :=
-  begin
-    cases f with (n', n', f'),
-    apply (H₁ n'),
-    apply (H₂ n' f')
-  end
-
-  definition to_nat {n : nat} (f : fin n) : nat :=
-  fin.rec_on f
-    (λ n, zero)
-    (λ n f r, succ r)
-
-  theorem to_nat.lt {n : nat} (f : fin n) : to_nat f < n :=
-  fin.rec_on f
-    (λ n, calc
-      to_nat (fz n) = 0          : rfl
-               ...  < succ n     : succ_pos n)
-    (λ n f ih, calc
-      to_nat (fs f) = succ (to_nat f) : rfl
-               ...  < succ n          : succ_lt ih)
-
-  definition lift {n : nat} (f : fin n) : Π m, fin (m + n) :=
-  fin.rec_on f
-    (λ n m, fz (m + n))
-    (λ n f ih m, fs (ih m))
-
-  theorem to_nat.lift {n : nat} (f : fin n) : ∀m, to_nat f = to_nat (lift f m) :=
-  fin.rec_on f
-    (λ n m, rfl)
-    (λ n f ih m, calc
-      to_nat (fs f) = succ (to_nat f)          : rfl
-               ...  = succ (to_nat (lift f m)) : ih
-               ...  = to_nat (lift (fs f) m)   : rfl)
-
-  private definition of_nat_core (p : nat) : fin (succ p) :=
-  nat.rec_on p
-    (fz zero)
-    (λ a r, fs r)
-
-  private theorem to_nat.of_nat_core (p : nat) : to_nat (of_nat_core p) = p :=
-  nat.induction_on p
-    rfl
-    (λ p₁ ih, calc
-       to_nat (of_nat_core (succ p₁)) = succ (to_nat (of_nat_core p₁)) : rfl
-                                ...   = succ p₁                        : ih)
-
-  private lemma of_nat_eq {p n : nat} (H : p < n) : n - succ p + succ p = n :=
-  add_sub_ge_left (succ_le_of_lt H)
-
-  definition of_nat (p : nat) (n : nat) : p < n → fin n :=
-  λ H : p < n,
-    eq.rec_on (of_nat_eq H) (lift (of_nat_core p) (n - succ p))
-
-  theorem of_nat_def (p : nat) (n : nat) (H : p < n) : of_nat p n H = eq.rec_on (of_nat_eq H) (lift (of_nat_core p) (n - succ p)) :=
+  theorem to_nat_fz (n : nat) : to_nat (fz n) = zero :=
   rfl
 
-  theorem of_nat_heq (p : nat) (n : nat) (H : p < n) : of_nat p n H == lift (of_nat_core p) (n - succ p) :=
-  heq.symm (eq_rec_to_heq (eq.symm (of_nat_def p n H)))
+  theorem to_nat_fs {n : nat} (f : fin n) : to_nat (fs f) = succ (to_nat f) :=
+  rfl
 
-  theorem to_nat.of_nat (p : nat) (n : nat) (H : p < n) : to_nat (of_nat p n H) = p :=
-  have aux₁ : to_nat (of_nat p n H)  == to_nat (lift (of_nat_core p) (n - succ p)), from
-    hcongr_arg2 @to_nat (eq.symm (of_nat_eq H)) (of_nat_heq p n H),
-  have aux₂ : to_nat (lift (of_nat_core p) (n - succ p)) = p, from calc
-    to_nat (lift (of_nat_core p) (n - succ p)) = to_nat (of_nat_core p) : to_nat.lift
-                                         ...   = p                      : to_nat.of_nat_core,
-  heq.to_eq (heq.trans aux₁ (heq.of_eq aux₂))
+  theorem to_nat_lt : Π {n} (f : fin n), to_nat f < n,
+  to_nat_lt (fz n) :=  calc
+    to_nat (fz n) = 0    : rfl
+             ...  < n+1  : succ_pos n,
+  to_nat_lt (@fs n f) := calc
+     to_nat (fs f) = (to_nat f)+1 : rfl
+              ...  < n+1          : succ_lt (to_nat_lt f)
+
+  definition lift : Π {n : nat}, fin n → Π (m : nat), fin (m + n),
+  @lift ⌞n+1⌟ (fz n)     m := fz (m + n),
+  @lift ⌞n+1⌟ (@fs n f)  m := fs (lift f m)
+
+  theorem lift_fz (n m : nat) : lift (fz n) m = fz (m + n) :=
+  rfl
+
+  theorem lift_fs {n : nat} (f : fin n) (m : nat) : lift (fs f) m = fs (lift f m) :=
+  rfl
+
+  theorem to_nat_lift : ∀ {n : nat} (f : fin n) (m : nat), to_nat f = to_nat (lift f m),
+  to_nat_lift (fz n) m    := rfl,
+  to_nat_lift (@fs n f) m := calc
+      to_nat (fs f) = (to_nat f) + 1           : rfl
+               ...  = (to_nat (lift f m)) + 1  : to_nat_lift f
+               ...  = to_nat (lift (fs f) m)   : rfl
+
+  definition of_nat : Π (p : nat) (n : nat), p < n → fin n,
+  of_nat 0     0     h := absurd h (not_lt_zero zero),
+  of_nat 0     (n+1) h := fz n,
+  of_nat (p+1) 0     h := absurd h (not_lt_zero (succ p)),
+  of_nat (p+1) (n+1) h := fs (of_nat p n (lt.of_succ_lt_succ h))
+
+  theorem of_nat_zero_succ (n : nat) (h : 0 < n+1) : of_nat 0 (n+1) h = fz n :=
+  rfl
+
+  theorem of_nat_succ_succ (p n : nat) (h : p+1 < n+1) :
+               of_nat (p+1) (n+1) h = fs (of_nat p n (lt.of_succ_lt_succ h)) :=
+  rfl
+
+  theorem to_nat_of_nat : ∀ (p : nat) (n : nat) (h : p < n), to_nat (of_nat p n h) = p,
+  to_nat_of_nat 0     0     h := absurd h (not_lt_zero 0),
+  to_nat_of_nat 0     (n+1) h := rfl,
+  to_nat_of_nat (p+1) 0     h := absurd h (not_lt_zero (p+1)),
+  to_nat_of_nat (p+1) (n+1) h := calc
+    to_nat (of_nat (p+1) (n+1) h)
+             = succ (to_nat (of_nat p n _)) : rfl
+         ... = succ p                       : to_nat_of_nat p n _
 
 end fin

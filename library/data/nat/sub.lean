@@ -348,7 +348,7 @@ sub_split
 
 -- This section is still incomplete
 
-definition dist (n m : ℕ) := (n - m) + (m - n)
+definition dist [reducible] (n m : ℕ) := (n - m) + (m - n)
 
 theorem dist_comm (n m : ℕ) : dist n m = dist m n :=
 !add.comm

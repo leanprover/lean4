@@ -33,11 +33,14 @@ bool is_reducible_on(environment const & env, name const & n);
 */
 bool is_reducible_off(environment const & env, name const & n);
 
+enum reducible_behavior { OpaqueIfNotReducibleOn, OpaqueIfReducibleOff };
+
 /** \brief Create a type checker that takes the "reducibility" hints into account. */
 std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator const & ngen,
-                                              bool relax_main_opaque = true, bool only_main_reducible = false,
+                                              bool relax_main_opaque = true, reducible_behavior r = OpaqueIfReducibleOff,
                                               bool memoize = true);
-std::unique_ptr<type_checker> mk_type_checker(environment const & env, bool relax_main_opaque, bool only_main_reducible = false);
+std::unique_ptr<type_checker> mk_type_checker(environment const & env, bool relax_main_opaque,
+                                              reducible_behavior r = OpaqueIfReducibleOff);
 
 /** \brief Create a type checker that treats all definitions as opaque. */
 std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, name_generator const & ngen);

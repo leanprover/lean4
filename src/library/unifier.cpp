@@ -305,8 +305,8 @@ struct unifier_fn {
     expr_map         m_type_map;  // auxiliary map for storing the type of the expr in choice constraints
     unifier_plugin   m_plugin;
     type_checker_ptr m_tc[2];
-    type_checker_ptr m_flex_rigid_tc[2]; // type checker used when solving flex rigid constraints. By default,
-                                         // only the definitions from the main module are treated as transparent.
+    type_checker_ptr m_flex_rigid_tc; // type checker used when solving flex rigid constraints. By default,
+                                      // only the definitions from the main module are treated as transparent.
     unifier_config   m_config;
     unsigned         m_num_steps;
     bool             m_pattern; //!< If true, then only higher-order (pattern) matching is used
@@ -417,16 +417,13 @@ struct unifier_fn {
         if (m_config.m_cheap) {
             m_tc[0] = mk_opaque_type_checker(env, m_ngen.mk_child());
             m_tc[1] = m_tc[0];
-            m_flex_rigid_tc[0] = m_tc[0];
-            m_flex_rigid_tc[1] = m_tc[0];
+            m_flex_rigid_tc = m_tc[0];
             m_config.m_computation = false;
         } else {
             m_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false);
             m_tc[1] = mk_type_checker(env, m_ngen.mk_child(), true);
-            if (!cfg.m_computation) {
-                m_flex_rigid_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false, true);
-                m_flex_rigid_tc[1] = mk_type_checker(env, m_ngen.mk_child(), true,  true);
-            }
+            if (!cfg.m_computation)
+                m_flex_rigid_tc = mk_type_checker(env, m_ngen.mk_child(), false, OpaqueIfNotReducibleOn);
         }
         m_next_assumption_idx = 0;
         m_next_cidx = 0;
@@ -600,7 +597,7 @@ struct unifier_fn {
             return whnf(e, j, relax, cs);
         } else {
             constraint_seq _cs;
-            expr r = m_flex_rigid_tc[relax]->whnf(e, _cs);
+            expr r = m_flex_rigid_tc->whnf(e, _cs);
             to_buffer(_cs, j, cs);
             return r;
         }
@@ -1399,7 +1396,7 @@ struct unifier_fn {
             if (u.m_config.m_computation)
                 return *u.m_tc[relax];
             else
-                return *u.m_flex_rigid_tc[relax];
+                return *u.m_flex_rigid_tc;
         }
 
         /** \brief Return true if margs contains an expression \c e s.t. is_meta(e) */

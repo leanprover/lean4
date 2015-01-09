@@ -42,10 +42,6 @@ if simple unfolding decision then
 else -- complex unfolding decision
   if reducible(C) then
      unfold
-  else if irreducible(C) then
-     do not unfold
-  else if C was defined in the current module then
-     unfold
   else
      do not unfold
   end
@@ -55,7 +51,6 @@ end
 For an opaque definition =D=, the higher-order unification procedure uses the
 same decision tree if =D= was declared in the current module. Otherwise, it does
 not unfold =D=.
-#+END_SRC
 
 The following command declares a transparent definition =pr= and mark it as reducible.
 

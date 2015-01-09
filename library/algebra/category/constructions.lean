@@ -77,6 +77,7 @@ namespace category
      (λ a b c d h g f, @subsingleton.elim (set_hom a d) _ _ _)
      (λ a b f, @subsingleton.elim (set_hom a b) _ _ _)
      (λ a b f, @subsingleton.elim (set_hom a b) _ _ _)
+  reducible discrete_category
   definition Discrete_category (A : Type) [H : decidable_eq A] := Mk (discrete_category A)
     context
     instance discrete_category

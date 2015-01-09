@@ -40,11 +40,11 @@ namespace sigma
   definition dtrip (a : A) (b : B a) (c : C a b) := ⟨a, b, c⟩
   definition dquad (a : A) (b : B a) (c : C a b) (d : D a b c) := ⟨a, b, c, d⟩
 
-  definition pr1' (x : Σ a, B a) := x.1
-  definition pr2' (x : Σ a b, C a b) := x.2.1
-  definition pr3  (x : Σ a b, C a b) := x.2.2
-  definition pr3' (x : Σ a b c, D a b c) := x.2.2.1
-  definition pr4  (x : Σ a b c, D a b c) := x.2.2.2
+  definition pr1' [reducible] (x : Σ a, B a) := x.1
+  definition pr2' [reducible] (x : Σ a b, C a b) := x.2.1
+  definition pr3  [reducible] (x : Σ a b, C a b) := x.2.2
+  definition pr3' [reducible] (x : Σ a b c, D a b c) := x.2.2.1
+  definition pr4  [reducible] (x : Σ a b c, D a b c) := x.2.2.2
 
   theorem dtrip_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} {c₁ : C a₁ b₁} {c₂ : C a₂ b₂}
       (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) (H₃ : cast (dcongr_arg2 C H₁ H₂) c₁ = c₂) :

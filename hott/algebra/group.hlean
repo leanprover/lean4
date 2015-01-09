@@ -404,7 +404,7 @@ section add_group
   /- minus -/
 
   -- TODO: derive corresponding facts for div in a field
-  definition minus (a b : A) : A := a + -b
+  definition minus [reducible] (a b : A) : A := a + -b
 
   infix `-` := minus
 

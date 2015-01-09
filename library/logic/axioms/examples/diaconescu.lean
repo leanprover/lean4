@@ -12,9 +12,9 @@ context
 hypothesis propext {a b : Prop} : (a → b) → (b → a) → a = b
 parameter  p : Prop
 
-private definition u := epsilon (λx, x = true ∨ p)
+private definition u [reducible] := epsilon (λx, x = true ∨ p)
 
-private definition v := epsilon (λx, x = false ∨ p)
+private definition v [reducible] := epsilon (λx, x = false ∨ p)
 
 private lemma u_def : u = true ∨ p :=
 epsilon_spec (exists.intro true (or.inl rfl))

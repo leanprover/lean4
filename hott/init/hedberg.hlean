@@ -20,12 +20,12 @@ context
   hypothesis (h : decidable_eq A)
   variables  {x y : A}
 
-  private definition pc : path_coll A :=
+  private definition pc [reducible] : path_coll A :=
   λ a b, decidable.rec_on (h a b)
     (λ p  : a = b,   ⟨(λ q, p), λ q r, rfl⟩)
     (λ np : ¬ a = b, ⟨(λ q, q), λ q r, absurd q np⟩)
 
-  private definition f : x = y → x = y :=
+  private definition f [reducible] : x = y → x = y :=
   sigma.rec_on (pc x y) (λ f c, f)
 
   private definition f_const (p q : x = y) : f p = f q :=

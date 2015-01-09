@@ -288,11 +288,14 @@ namespace nat
 
   notation a * b := mul a b
 
+  section
+  reducible sub
   definition succ_sub_succ_eq_sub (a b : nat) : succ a - succ b = a - b :=
   induction_on b
     rfl
     (λ b₁ (ih : succ a - succ b₁ = a - b₁),
       eq.rec_on ih (eq.refl (pred (succ a - succ b₁))))
+  end
 
   definition sub_eq_succ_sub_succ (a b : nat) : a - b = succ a - succ b :=
   eq.rec_on (succ_sub_succ_eq_sub a b) rfl

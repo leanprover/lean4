@@ -23,6 +23,7 @@ list.rec Hnil Hind l
 definition concat {T : Type} (s t : list T) : list T :=
 list.rec t (fun x : T, fun l : list T, fun u : list T, cons x u) s
 
+reducible concat
 theorem concat_nil {T : Type} (t : list T) : concat t nil = t :=
 list_induction_on t (eq.refl (concat nil nil))
   (take (x : T) (l : list T) (H : concat l nil = l),

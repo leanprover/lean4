@@ -12,7 +12,7 @@ open eq.ops bool
 namespace set
 definition set (T : Type) :=
 T → bool
-definition mem {T : Type} (x : T) (s : set T) :=
+definition mem [reducible] {T : Type} (x : T) (s : set T) :=
 (s x) = tt
 notation e ∈ s := mem e s
 
@@ -29,7 +29,7 @@ take x, iff.symm (H x)
 theorem eqv_trans {T : Type} {A B C : set T} (H1 : A ∼ B) (H2 : B ∼ C) : A ∼ C :=
 take x, iff.trans (H1 x) (H2 x)
 
-definition empty {T : Type} : set T :=
+definition empty [reducible] {T : Type} : set T :=
 λx, ff
 notation `∅` := empty
 
@@ -42,7 +42,7 @@ definition univ {T : Type} : set T :=
 theorem mem_univ {T : Type} (x : T) : x ∈ univ :=
 rfl
 
-definition inter {T : Type} (A B : set T) : set T :=
+definition inter [reducible] {T : Type} (A B : set T) : set T :=
 λx, A x && B x
 notation a ∩ b := inter a b
 
@@ -69,7 +69,7 @@ take x, band.comm (A x) (B x) ▸ iff.rfl
 theorem inter_assoc {T : Type} (A B C : set T) : (A ∩ B) ∩ C ∼ A ∩ (B ∩ C) :=
 take x, band.assoc (A x) (B x) (C x) ▸ iff.rfl
 
-definition union {T : Type} (A B : set T) : set T :=
+definition union [reducible] {T : Type} (A B : set T) : set T :=
 λx, A x || B x
 notation a ∪ b := union a b
 

@@ -15,6 +15,7 @@ mk : Π (id : Π (A : ob), mor A A),
 definition id (Cat : category) := category.rec (λ id idl, id) Cat
 constant Cat : category
 
+reducible id
 theorem id_left (A : ob) (f : mor A A) : @eq (mor A A) (id Cat A) f :=
 @category.rec (λ (C : category), @eq (mor A A) (id C A) f)
   (λ (id  : Π (T : ob), mor T T)

@@ -165,6 +165,7 @@ class elaborator : public coercion_info_manager {
     expr visit_equation(expr const & e, constraint_seq & cs);
     expr visit_inaccessible(expr const & e, constraint_seq & cs);
     expr visit_decreasing(expr const & e, constraint_seq & cs);
+    constraint mk_equations_cnstr(expr const & m, expr const & eqns);
 
 public:
     elaborator(elaborator_context & ctx, name_generator const & ngen, bool nice_mvar_names = false);

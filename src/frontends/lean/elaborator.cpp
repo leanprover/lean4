@@ -955,16 +955,20 @@ static expr assign_equation_lhs_metas(type_checker & tc, expr const & eqns) {
     return update_equations(eqns, new_eqs);
 }
 
-static constraint mk_equations_cnstr(environment const & env, io_state const & ios, expr const & m, expr const & eqns,
-                                     bool relax) {
-    justification j         = mk_failed_to_synthesize_jst(env, m);
+constraint elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
+    bool relax               = m_relax_main_opaque;
+    environment const & _env = env();
+    io_state const & _ios    = ios();
+    justification j          = mk_failed_to_synthesize_jst(_env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
                          name_generator const & ngen) {
         substitution new_s  = s;
-        expr new_eqns       = substitution(s).instantiate_all(eqns);
-        type_checker_ptr tc = mk_type_checker(env, ngen, relax);
+        expr new_eqns       = new_s.instantiate_all(eqns);
+        new_eqns            = solve_unassigned_mvars(new_s, new_eqns);
+        display_unassigned_mvars(new_eqns, new_s);
+        type_checker_ptr tc = mk_type_checker(_env, ngen, relax);
         new_eqns            = assign_equation_lhs_metas(*tc, new_eqns);
-        expr val            = compile_equations(*tc, ios, new_eqns, meta, meta_type, relax);
+        expr val            = compile_equations(*tc, _ios, new_eqns, meta, meta_type, relax);
         justification j     = mk_justification("equation compilation", some_expr(eqns));
         constraint c        = mk_eq_cnstr(meta, val, j, relax);
         return lazy_list<constraints>(c);
@@ -1025,7 +1029,7 @@ expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
     expr type = binding_domain(*first_eq);
     expr m = m_full_context.mk_meta(m_ngen, some_expr(type), eqns.get_tag());
     register_meta(m);
-    constraint c = mk_equations_cnstr(env(), ios(), m, new_eqns, m_relax_main_opaque);
+    constraint c = mk_equations_cnstr(m, new_eqns);
     cs += c;
     return m;
 }

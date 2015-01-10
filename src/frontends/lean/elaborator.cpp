@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/sorry.h"
 #include "library/flycheck.h"
 #include "library/deep_copy.h"
-#include "library/metavar_closure.h"
 #include "library/typed_expr.h"
 #include "library/local_context.h"
 #include "library/util.h"
@@ -1423,11 +1422,68 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
     }
 }
 
+/** \brief Execute \c fn on every metavariable occurring in \c e.
+    \remark The left-hand-side of equations is ignored.
+*/
+static void visit_unassigned_mvars(expr const & e, std::function<void(expr const &)> const & fn) {
+    if (!has_metavar(e))
+        return;
+
+    expr_set visited;
+
+    auto should_visit = [&](expr const & e) {
+        if (!is_shared(e))
+            return true;
+        if (visited.find(e) != visited.end())
+            return false;
+        visited.insert(e);
+        return true;
+    };
+
+    std::function<void(expr const & e)> visit = [&](expr const & e) {
+        check_interrupted();
+        if (!has_metavar(e))
+            return;
+        switch (e.kind()) {
+        case expr_kind::Var:      case expr_kind::Local:
+        case expr_kind::Constant: case expr_kind::Sort:
+            break; // do nothing
+        case expr_kind::Meta:
+            if (should_visit(e))
+                fn(e);
+            break;
+        case expr_kind::Macro:
+            if (should_visit(e)) {
+                if (is_equation(e)) {
+                    visit(equation_rhs(e));
+                } else {
+                    for (unsigned i = 0; i < macro_num_args(e); i++)
+                        visit(macro_arg(e, i));
+                }
+            }
+            break;
+        case expr_kind::App:
+            if (should_visit(e)) {
+                visit(app_fn(e));
+                visit(app_arg(e));
+            }
+            break;
+        case expr_kind::Lambda:
+        case expr_kind::Pi:
+            if (should_visit(e)) {
+                visit(binding_domain(e));
+                visit(binding_body(e));
+            }
+            break;
+        }
+    };
+
+    visit(e);
+}
+
 expr elaborator::solve_unassigned_mvars(substitution & subst, expr e, name_set & visited) {
     e = subst.instantiate(e);
-    metavar_closure mvars(e);
-    mvars.for_each_expr_mvar([&](expr const & mvar) {
-            check_interrupted();
+    visit_unassigned_mvars(e, [&](expr const & mvar) {
             solve_unassigned_mvar(subst, mvar, visited);
         });
     return subst.instantiate(e);
@@ -1441,16 +1497,14 @@ expr elaborator::solve_unassigned_mvars(substitution & subst, expr const & e) {
 void elaborator::display_unassigned_mvars(expr const & e, substitution const & s) {
     if (check_unassigned() && has_metavar(e)) {
         substitution tmp_s(s);
-        for_each(e, [&](expr const & e, unsigned) {
-                if (!is_metavar(e))
-                    return has_metavar(e);
-                if (auto it = mvar_to_meta(e)) {
+        visit_unassigned_mvars(e, [&](expr const & mvar) {
+                if (auto it = mvar_to_meta(mvar)) {
                     expr meta      = tmp_s.instantiate(*it);
                     expr meta_type = tmp_s.instantiate(type_checker(env()).infer(meta).first);
                     goal g(meta, meta_type);
                     bool relax     = true;
                     proof_state ps(goals(g), s, m_ngen, constraints(), relax);
-                    display_unsolved_proof_state(e, ps, "don't know how to synthesize placeholder");
+                    display_unsolved_proof_state(mvar, ps, "don't know how to synthesize placeholder");
                 }
                 return false;
             });

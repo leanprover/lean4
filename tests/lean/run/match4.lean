@@ -6,6 +6,7 @@ match (a, b, c) with
   (ff, _,  tt) := 2,
   (tt, ff, _)  := 3,
   (_,  _,  _)  := arbitrary nat
+end
 
 theorem diag1 (a : bool) : diag a tt ff = 1 :=
 bool.cases_on a rfl rfl

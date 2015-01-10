@@ -5,6 +5,7 @@ definition foo (a : nat) : nat :=
 match a with
  zero   := zero,
  succ n := n
+end
 
 example : foo 3 = 2 := rfl
 
@@ -18,6 +19,7 @@ dec_eq (succ x) (succ y) :=
   match dec_eq x y with
     inl H := inl (eq.rec_on H rfl),
     inr H := inr (λ h : succ x = succ y, nat.no_confusion h (λ heq : x = y, absurd heq H))
+  end
 
 context
   open list
@@ -32,6 +34,7 @@ context
     match H a with
      inl h := a :: filter l,
      inr h := filter l
+    end
 
   theorem filter_nil : filter nil = nil :=
   rfl
@@ -45,5 +48,6 @@ match a with
  0   := 0,
  1   := 0,
  b+2 := b
+end
 
 example (a : nat) : sub2 (succ (succ a)) = a := rfl

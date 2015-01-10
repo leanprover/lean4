@@ -497,6 +497,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
             break;
         p.next();
     }
+    p.check_token_next(get_end_tk(), "invalid 'match' expression, 'end' expected");
     expr f = p.save_pos(mk_equations(1, eqns.size(), eqns.data()), pos);
     return p.mk_app(f, t, pos);
 }

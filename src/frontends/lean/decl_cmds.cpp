@@ -462,6 +462,45 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
     }
 }
 
+/** \brief Use equations compiler infrastructure to implement match-with */
+expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
+    expr t  = p.parse_expr();
+    p.check_token_next(get_with_tk(), "invalid 'match' expression, 'with' expected");
+    buffer<expr> eqns;
+    expr fn = mk_local(p.mk_fresh_name(), "match", mk_expr_placeholder(), binder_info());
+    while (true) {
+        expr lhs;
+        unsigned prev_num_undef_ids = p.get_num_undef_ids();
+        buffer<expr> locals;
+        {
+            parser::undef_id_to_local_scope scope2(p);
+            auto lhs_pos = p.pos();
+            lhs = p.parse_expr();
+            lhs = p.mk_app(fn, lhs, lhs_pos);
+            unsigned num_undef_ids = p.get_num_undef_ids();
+            for (unsigned i = prev_num_undef_ids; i < num_undef_ids; i++) {
+                locals.push_back(p.get_undef_id(i));
+            }
+        }
+        validate_equation_lhs(p, lhs, locals);
+        lhs = merge_equation_lhs_vars(lhs, locals);
+        auto assign_pos = p.pos();
+        p.check_token_next(get_assign_tk(), "invalid 'match' expression, ':=' expected");
+        {
+            parser::local_scope scope2(p);
+            for (expr const & local : locals)
+                p.add_local(local);
+            expr rhs = p.parse_expr();
+            eqns.push_back(Fun(fn, Fun(locals, p.save_pos(mk_equation(lhs, rhs), assign_pos), p)));
+        }
+        if (!p.curr_is_token(get_comma_tk()))
+            break;
+        p.next();
+    }
+    expr f = p.save_pos(mk_equations(1, eqns.size(), eqns.data()), pos);
+    return p.mk_app(f, t, pos);
+}
+
 // An Lean example is not really a definition, but we use the definition infrastructure to simulate it.
 enum def_cmd_kind { Theorem, Definition, Example };
 

@@ -13,7 +13,7 @@
     "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem" "example"
     "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "record" "universe" "universes"
     "alias" "help" "environment" "options" "precedence" "reserve" "postfix" "prefix"
-    "calc_trans" "calc_subst" "calc_refl" "calc_symm"
+    "calc_trans" "calc_subst" "calc_refl" "calc_symm" "match"
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
     "using" "namespace" "instance" "class" "multiple_instances" "section" "fields" "find_decl"
     "set_option" "add_rewrite" "extends" "include" "omit" "classes" "instances" "coercions" "raw")

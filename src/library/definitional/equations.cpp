@@ -315,6 +315,7 @@ class equation_compiler_fn {
     [[ noreturn ]] static void throw_error(char const * msg, expr const & src) { throw_generic_exception(msg, src); }
     [[ noreturn ]] static void throw_error(expr const & src, pp_fn const & fn) { throw_generic_exception(src, fn); }
     [[ noreturn ]] void throw_error(sstream const & ss) const { throw_generic_exception(ss, m_meta); }
+    [[ noreturn ]] void throw_error(expr const & src, sstream const & ss) const { throw_generic_exception(ss, src); }
 
     void check_limitations(expr const & eqns) const {
         if (is_wf_equations(eqns) && equations_num_fns(eqns) != 1)
@@ -478,19 +479,27 @@ class equation_compiler_fn {
         validate_exception(expr const & e):m_expr(e) {}
     };
 
+    void check_in_local_ctx(expr const & e, buffer<expr> const & local_ctx) {
+        if (!contains_local(e, local_ctx))
+            throw_error(e, sstream() << "invalid recursive equation, variable '" << e
+                        << "' has the same name of a variable in an outer-scope (solution: rename this variable)");
+    }
+
     // Validate/normalize the given pattern.
     // It stores in reachable_vars any variable that does not occur
     // in inaccessible terms.
-    expr validate_pattern(expr pat, name_set & reachable_vars) {
+    expr validate_pattern(expr pat, buffer<expr> const & local_ctx, name_set & reachable_vars) {
         if (is_inaccessible(pat))
             return pat;
         if (is_local(pat)) {
             reachable_vars.insert(mlocal_name(pat));
+            check_in_local_ctx(pat, local_ctx);
             return pat;
         }
         expr new_pat = whnf(pat);
         if (is_local(new_pat)) {
             reachable_vars.insert(mlocal_name(new_pat));
+            check_in_local_ctx(new_pat, local_ctx);
             return new_pat;
         }
         buffer<expr> pat_args;
@@ -498,7 +507,7 @@ class equation_compiler_fn {
         if (auto in = is_constructor(fn)) {
             unsigned num_params = *inductive::get_num_params(env(), *in);
             for (unsigned i = num_params; i < pat_args.size(); i++)
-                pat_args[i] = validate_pattern(pat_args[i], reachable_vars);
+                pat_args[i] = validate_pattern(pat_args[i], local_ctx, reachable_vars);
             return mk_app(fn, pat_args, pat.get_tag());
         } else {
             throw validate_exception(pat);
@@ -509,10 +518,10 @@ class equation_compiler_fn {
     // The lhs is only used to report errors.
     // It stores in reachable_vars any variable that does not occur
     // in inaccessible terms.
-    void validate_patterns(expr const & lhs, buffer<expr> & patterns, name_set & reachable_vars) {
+    void validate_patterns(expr const & lhs, buffer<expr> const & local_ctx, buffer<expr> & patterns, name_set & reachable_vars) {
         for (expr & pat : patterns) {
             try {
-                pat = validate_pattern(pat, reachable_vars);
+                pat = validate_pattern(pat, local_ctx, reachable_vars);
             } catch (validate_exception & ex) {
                 expr problem_expr = ex.m_expr;
                 throw_error(lhs, [=](formatter const & fmt) {
@@ -546,7 +555,7 @@ class equation_compiler_fn {
             buffer<expr> patterns;
             expr const & fn  = get_app_args(lhs, patterns);
             name_set reachable_vars;
-            validate_patterns(lhs, patterns, reachable_vars);
+            validate_patterns(lhs, local_ctx, patterns, reachable_vars);
             for (expr const & v : local_ctx) {
                 // every variable in the local_ctx must be "reachable".
                 if (!reachable_vars.contains(mlocal_name(v))) {

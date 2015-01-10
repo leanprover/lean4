@@ -1,0 +1,1 @@
+shadow.lean:8:11: error: invalid recursive equation, variable 'a' has the same name of a variable in an outer-scope (solution: rename this variable)

@@ -1506,7 +1506,6 @@ void elaborator::display_unassigned_mvars(expr const & e, substitution const & s
                     proof_state ps(goals(g), s, m_ngen, constraints(), relax);
                     display_unsolved_proof_state(mvar, ps, "don't know how to synthesize placeholder");
                 }
-                return false;
             });
     }
 }

@@ -45,7 +45,6 @@ prefix `-`   := has_neg.neg
 notation 1   := !has_one.one
 notation 0   := !has_zero.zero
 
-
 /- semigroup -/
 
 structure semigroup [class] (A : Type) extends has_mul A :=
@@ -79,7 +78,6 @@ structure right_cancel_semigroup [class] (A : Type) extends semigroup A :=
 theorem mul.right_cancel [s : right_cancel_semigroup A] {a b c : A} :
   a * b = c * b → a = c :=
 !right_cancel_semigroup.mul_right_cancel
-
 
 /- additive semigroup -/
 
@@ -127,7 +125,6 @@ theorem mul_one [s : monoid A] (a : A) : a * 1 = a := !monoid.mul_one
 
 structure comm_monoid [class] (A : Type) extends monoid A, comm_semigroup A
 
-
 /- additive monoid -/
 
 structure add_monoid [class] (A : Type) extends add_semigroup A, has_zero A :=
@@ -138,7 +135,6 @@ theorem zero_add [s : add_monoid A] (a : A) : 0 + a = a := !add_monoid.zero_add
 theorem add_zero [s : add_monoid A] (a : A) : a + 0 = a := !add_monoid.add_zero
 
 structure add_comm_monoid [class] (A : Type) extends add_monoid A, add_comm_semigroup A
-
 
 /- group -/
 
@@ -276,7 +272,6 @@ section group
 end group
 
 structure comm_group [class] (A : Type) extends group A, comm_monoid A
-
 
 /- additive group -/
 
@@ -488,7 +483,6 @@ include s
       ... = a - b : add_sub_cancel
 
 end add_comm_group
-
 
 /- bundled structures -/
 

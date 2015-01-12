@@ -1,4 +1,4 @@
-/-
+ /-
 Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
@@ -46,10 +46,10 @@ theorem div_rec {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a div b = succ ((a
 divide_def a b ⬝ if_pos (and.intro h₁ h₂)
 
 theorem div_add_self_right {x z : ℕ} (H : z > 0) : (x + z) div z = succ (x div z) :=
-calc (x + z) div z
-    = if 0 < z ∧ z ≤ x + z then divide (x + z - z) z + 1 else 0 : !divide_def
-... = divide (x + z - z) z + 1                                  : if_pos (and.intro H (le_add_left z x))
-... = succ (x div z)                                            : sub_add_left
+calc
+  (x + z) div z = if 0 < z ∧ z ≤ x + z then (x + z - z) div z + 1 else 0 : !divide_def
+            ... = (x + z - z) div z + 1 : if_pos (and.intro H (le_add_left z x))
+            ... = succ (x div z)        : add_sub_cancel
 
 theorem div_add_mul_self_right {x y z : ℕ} (H : z > 0) : (x + y * z) div z = x div z + y :=
 induction_on y
@@ -89,7 +89,7 @@ theorem mod_add_self_right {x z : ℕ} (H : z > 0) : (x + z) mod z = x mod z :=
 calc (x + z) mod z
     = if 0 < z ∧ z ≤ x + z then (x + z - z) mod z else _ : modulo_def
 ... = (x + z - z) mod z                                  : if_pos (and.intro H (le_add_left z x))
-... = x mod z                                            : sub_add_left
+... = x mod z                                            : add_sub_cancel
 
 theorem mod_add_mul_self_right {x y z : ℕ} (H : z > 0) : (x + y * z) mod z = x mod z :=
 induction_on y
@@ -167,7 +167,7 @@ by_cases_zero_pos y
                     ... = ((succ x - y) div y) * y + y + (succ x - y) mod y : H4
                     ... = ((succ x - y) div y) * y + (succ x - y) mod y + y : add.right_comm
                     ... = succ x - y + y                                    : {!(IH _ H6)⁻¹}
-                    ... = succ x                                            : add_sub_ge_left H2)⁻¹)))
+                    ... = succ x                                            : sub_add_cancel H2)⁻¹)))
 
 theorem mod_le {x y : ℕ} : x mod y ≤ x :=
 div_mod_eq⁻¹ ▸ !le_add_left
@@ -272,9 +272,9 @@ have H1 : z * y = x mod y + x div y * y, from
   H ⬝ div_mod_eq ⬝ !add.comm,
 have H2 : (z - x div y) * y = x mod y, from
   calc
-    (z - x div y) * y = z * y - x div y * y      : mul_sub_distr_right
+    (z - x div y) * y = z * y - x div y * y      : mul_sub_right_distrib
        ... = x mod y + x div y * y - x div y * y : H1
-       ... = x mod y                             : sub_add_left,
+       ... = x mod y                             : add_sub_cancel,
 show x mod y = 0, from
   by_cases
     (assume yz : y = 0,
@@ -348,10 +348,10 @@ dvd_of_dvd_add_left (!add.comm ▸ H)
 theorem dvd_sub {m n1 n2 : ℕ} (H1 : m | n1) (H2 : m | n2) : m | (n1 - n2) :=
 by_cases
   (assume H3 : n1 ≥ n2,
-    have H4 : n1 = n1 - n2 + n2, from (add_sub_ge_left H3)⁻¹,
+    have H4 : n1 = n1 - n2 + n2, from (sub_add_cancel H3)⁻¹,
     show m | n1 - n2, from dvd_add_cancel_right (H4 ▸ H1) H2)
   (assume H3 : ¬ (n1 ≥ n2),
-    have H4 : n1 - n2 = 0, from le_imp_sub_eq_zero (le_of_lt (lt_of_not_le H3)),
+    have H4 : n1 - n2 = 0, from sub_eq_zero_of_le (le_of_lt (lt_of_not_le H3)),
     show m | n1 - n2, from H4⁻¹ ▸ dvd_zero _)
 
 -- Gcd and lcm

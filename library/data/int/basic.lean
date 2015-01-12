@@ -122,7 +122,7 @@ theorem of_nat_succ (n : ℕ) : of_nat (succ n) = of_nat n + 1 := rfl
 theorem mul_of_nat (n m : ℕ) : of_nat n * of_nat m = n * m := rfl
 
 theorem sub_nat_nat_of_ge {m n : ℕ} (H : m ≥ n) : sub_nat_nat m n = of_nat (m - n) :=
-have H1 : n - m = 0, from le_imp_sub_eq_zero H,
+have H1 : n - m = 0, from sub_eq_zero_of_le H,
 calc
   sub_nat_nat m n = nat.cases_on 0 (of_nat (m - n)) _ : H1 ▸ rfl
     ... = of_nat (m - n) : rfl
@@ -131,7 +131,7 @@ context
 reducible sub_nat_nat
 theorem sub_nat_nat_of_lt {m n : ℕ} (H : m < n) :
   sub_nat_nat m n = neg_succ_of_nat (pred (n - m)) :=
-have H1 : n - m = succ (pred (n - m)), from (succ_pred_of_pos (sub_pos_of_gt H))⁻¹,
+have H1 : n - m = succ (pred (n - m)), from (succ_pred_of_pos (sub_pos_of_lt H))⁻¹,
 calc
   sub_nat_nat m n = nat.cases_on (succ (pred (n - m))) (of_nat (m - n))
         (take k, neg_succ_of_nat k) : H1 ▸ rfl
@@ -218,15 +218,15 @@ or.elim (@le_or_gt n m)
     have H1 : repr (sub_nat_nat m n) = (m - n, 0), from sub_nat_nat_of_ge H ▸ rfl,
     H1⁻¹ ▸
       (calc
-        m - n + n = m : add_sub_ge_left H
+        m - n + n = m : sub_add_cancel H
           ... = 0 + m : zero_add))
   (take H : m < n,
     have H1 : repr (sub_nat_nat m n) = (0, succ (pred (n - m))), from sub_nat_nat_of_lt H ▸ rfl,
     H1⁻¹ ▸
       (calc
         0 + n = n : zero_add
-          ... = n - m + m : add_sub_ge_left (le_of_lt H)
-          ... = succ (pred (n - m)) + m : (succ_pred_of_pos (sub_pos_of_gt H))⁻¹))
+          ... = n - m + m : sub_add_cancel (le_of_lt H)
+          ... = succ (pred (n - m)) + m : (succ_pred_of_pos (sub_pos_of_lt H))⁻¹))
 
 theorem repr_abstr (p : ℕ × ℕ) : repr (abstr p) ≡ p :=
 !prod.eta ▸ !repr_sub_nat_nat
@@ -238,28 +238,28 @@ or.elim (equiv_cases Hequiv)
     have H4 : pr1 q ≥ pr2 q, from and.elim_right H2,
     have H5 : pr1 p = pr1 q - pr2 q + pr2 p, from
       calc
-        pr1 p = pr1 p + pr2 q - pr2 q : sub_add_left
+        pr1 p = pr1 p + pr2 q - pr2 q : add_sub_cancel
           ... = pr2 p + pr1 q - pr2 q : Hequiv
           ... = pr2 p + (pr1 q - pr2 q) : add_sub_assoc H4
           ... = pr1 q - pr2 q + pr2 p : add.comm,
     have H6 : pr1 p - pr2 p = pr1 q - pr2 q, from
       calc
         pr1 p - pr2 p = pr1 q - pr2 q + pr2 p - pr2 p : H5
-          ... = pr1 q - pr2 q : sub_add_left,
+                  ... = pr1 q - pr2 q                 : add_sub_cancel,
     abstr_of_ge H3 ⬝ congr_arg of_nat H6 ⬝ (abstr_of_ge H4)⁻¹)
   (assume H2,
     have H3 : pr1 p < pr2 p, from and.elim_left H2,
     have H4 : pr1 q < pr2 q, from and.elim_right H2,
     have H5 : pr2 p = pr2 q - pr1 q + pr1 p, from
       calc
-        pr2 p = pr2 p + pr1 q - pr1 q : sub_add_left
+        pr2 p = pr2 p + pr1 q - pr1 q : add_sub_cancel
           ... = pr1 p + pr2 q - pr1 q : Hequiv
           ... = pr1 p + (pr2 q - pr1 q) : add_sub_assoc (le_of_lt H4)
           ... = pr2 q - pr1 q + pr1 p : add.comm,
     have H6 : pr2 p - pr1 p = pr2 q - pr1 q, from
       calc
         pr2 p - pr1 p = pr2 q - pr1 q + pr1 p - pr1 p : H5
-          ... = pr2 q - pr1 q : sub_add_left,
+                  ... = pr2 q - pr1 q                 : add_sub_cancel,
     abstr_of_lt H3 ⬝ congr_arg neg_succ_of_nat (congr_arg pred H6)⬝ (abstr_of_lt H4)⁻¹)
 
 theorem equiv_iff (p q : ℕ × ℕ) : (p ≡ q) ↔ ((p ≡ p) ∧ (q ≡ q) ∧ (abstr p = abstr q)) :=
@@ -289,13 +289,13 @@ or.elim (@le_or_gt n m)
   (assume H : m ≥ n,
     calc
       nat_abs (abstr (m, n)) = nat_abs (of_nat (m - n)) : int.abstr_of_ge H
-        ... = dist m n : dist_ge H)
+                         ... = dist m n                 : dist_eq_sub_of_ge H)
   (assume H : m < n,
     calc
       nat_abs (abstr (m, n)) = nat_abs (neg_succ_of_nat (pred (n - m))) : int.abstr_of_lt H
         ... = succ (pred (n - m)) : rfl
-        ... = n - m : succ_pred_of_pos (sub_pos_of_gt H)
-        ... = dist m n : dist_le (le_of_lt H))
+        ... = n - m               : succ_pred_of_pos (sub_pos_of_lt H)
+        ... = dist m n            : dist_eq_sub_of_le (le_of_lt H))
 end
 
 theorem cases_of_nat (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - of_nat n) :=
@@ -418,7 +418,7 @@ calc
   nat_abs (-a) = nat_abs (abstr (repr (-a))) : abstr_repr
     ... = nat_abs (abstr (pneg (repr a))) : repr_neg
     ... = dist (pr1 (pneg (repr a))) (pr2 (pneg (repr a))) : nat_abs_abstr
-    ... = dist (pr2 (pneg (repr a))) (pr1 (pneg (repr a))) : dist_comm
+    ... = dist (pr2 (pneg (repr a))) (pr1 (pneg (repr a))) : dist.comm
     ... = nat_abs (abstr (repr a)) : nat_abs_abstr
     ... = nat_abs a : abstr_repr
 
@@ -458,7 +458,8 @@ have H : nat_abs (a + b) = pabs (padd (repr a) (repr b)), from
       ... = pabs (padd (repr a) (repr b)) : pabs_congr !repr_add,
 have H1 : nat_abs a = pabs (repr a), from !nat_abs_eq_pabs_repr,
 have H2 : nat_abs b = pabs (repr b), from !nat_abs_eq_pabs_repr,
-have H3 : pabs (padd (repr a) (repr b)) ≤ pabs (repr a) + pabs (repr b), from !dist_add_le_add_dist,
+have H3 : pabs (padd (repr a) (repr b)) ≤ pabs (repr a) + pabs (repr b),
+  from !dist_add_add_le_add_dist_dist,
 H⁻¹ ▸ H1⁻¹ ▸ H2⁻¹ ▸ H3
 
 context

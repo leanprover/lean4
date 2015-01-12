@@ -308,6 +308,11 @@ nat.cases_on n
     assume H : succ n' ≤ m,
     !pred_succ⁻¹ ▸ succ_le_of_le_pred H)
 
+theorem lt_of_pred_lt_pred {n m : ℕ} (H : pred n < pred m) : n < m :=
+lt_of_not_le
+  (take H1 : m ≤ n,
+    not_lt_of_le (pred_le_pred_of_le H1) H)
+
 theorem le_or_eq_succ_of_le_succ {n m : ℕ} (H : n ≤ succ m) : n ≤ m ∨ n = succ m :=
 or_of_or_of_imp_left (succ_le_or_eq_of_le H)
    (take H2 : succ n ≤ succ m, show n ≤ m, from le_of_succ_le_succ H2)

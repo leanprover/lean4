@@ -560,10 +560,12 @@ class equation_compiler_fn {
                 // every variable in the local_ctx must be "reachable".
                 if (!reachable_vars.contains(mlocal_name(v))) {
                     throw_error(lhs, [=](formatter const & fmt) {
+                            options o = fmt.get_options().update_if_undef(get_pp_implicit_name(), true);
+                            formatter new_fmt = fmt.update_options(o);
                             format r("invalid equation left-hand-side, variable '");
                             r += format(local_pp_name(v));
                             r += format("' only occurs in inaccessible terms in the following equation left-hand-side");
-                            r += pp_indent_expr(fmt, lhs);
+                            r += pp_indent_expr(new_fmt, lhs);
                             return r;
                         });
                 }

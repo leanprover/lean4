@@ -1324,7 +1324,8 @@ class equation_compiler_fn {
         unsigned nparams    = *inductive::get_num_params(env(), const_name(I));
         buffer<expr> params;
         params.append(nparams, a_type_args.data());
-        if (std::all_of(params.begin(), params.end(), [&](expr const & p) { return contains_local(p, m_global_context); })) {
+        if (std::all_of(params.begin(), params.end(),
+                        [&](expr const & p) { return !is_local(p) || contains_local(p, m_global_context); })) {
             return mk_pair(prg, arg_pos);
         } else {
             list<expr>             new_context = prg.m_context;
@@ -1409,6 +1410,17 @@ class equation_compiler_fn {
         buffer<expr> params;
         params.append(nparams, a0_type_args.data());
 
+        // Return true if the local constant l is in the buffer b.
+        // This is similar to contains_local, but b may contain arbitrary terms
+        auto contains_local_at = [&](expr const & l, buffer<expr> const & b) {
+            lean_assert(is_mlocal(l));
+            for (expr const & e : b) {
+                if (is_local(e) && mlocal_name(l) == mlocal_name(e))
+                    return true;
+            }
+            return false;
+        };
+
         // Distribute parameters of the ith program intro three groups:
         //    indices, major premise (arg), and remaining arguments (rest)
         // We store the position of the rest arguments in the buffer rest_pos.
@@ -1424,9 +1436,9 @@ class equation_compiler_fn {
             indices.append(arg_args.size() - nparams, arg_args.data() + nparams);
             unsigned j = 0;
             for (expr const & l : ctx) {
-                if (mlocal_name(l) == mlocal_name(arg) || contains_local(l, params)) {
+                if (mlocal_name(l) == mlocal_name(arg) || contains_local_at(l, params)) {
                     // do nothing
-                } else if (contains_local(l, indices)) {
+                } else if (contains_local_at(l, indices)) {
                     indices_pos.push_back(j);
                 } else {
                     rest.push_back(l);

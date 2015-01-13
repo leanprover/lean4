@@ -10,6 +10,7 @@ The Lean standard library is being developed by
 
 - [Jeremy Avigad](http://www.andrew.cmu.edu/user/avigad) (CMU)
 - [Floris van Doorn](http://www.contrib.andrew.cmu.edu/~fpv/) (CMU)
+- [Jakob von Raumer](http://von-raumer.de/) (CMU)
 - [Leonardo de Moura](http://research.microsoft.com/en-us/um/people/leonardo) (Microsoft Research)
 
 Contributors

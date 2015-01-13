@@ -23,7 +23,8 @@ About
 - [Design](doc/design.md)
 - [To Do list](doc/todo.md)
 - [Authors](doc/authors.md)
-- [Tutorial](doc/lean/tutorial.org)
+- Theorem Proving in Lean: [HTML](https://leanprover.github.io/tutorial/index.html), [PDF](http://leanprover.github.io/tutorial/tutorial.pdf)
+- [Short Tutorial](doc/lean/tutorial.org)
 - [Library](library/library.md)
 
 Requirements

@@ -2,9 +2,7 @@
 -- ENDWAIT
 -- BEGININFO
 -- PROOF_STATE|5|17
-a : Prop,
-b : Prop,
-c : Prop,
+a b c : Prop,
 Ha : a,
 Hb : b
 ⊢ a ∧ b
@@ -12,16 +10,12 @@ Hb : b
 -- ENDINFO
 -- BEGININFO
 -- PROOF_STATE|6|17
-a : Prop,
-b : Prop,
-c : Prop,
+a b c : Prop,
 Ha : a,
 Hb : b
 ⊢ a
 --
-a : Prop,
-b : Prop,
-c : Prop,
+a b c : Prop,
 Ha : a,
 Hb : b
 ⊢ b
@@ -29,9 +23,7 @@ Hb : b
 -- ENDINFO
 -- BEGININFO
 -- PROOF_STATE|7|10
-a : Prop,
-b : Prop,
-c : Prop,
+a b c : Prop,
 Ha : a,
 Hb : b
 ⊢ b

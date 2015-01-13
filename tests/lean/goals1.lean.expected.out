@@ -1,8 +1,6 @@
 goals1.lean:9:0: error: unsolved subgoals
 A : Type,
-a : A,
-b : A,
-c : A,
+a b c : A,
 Hab : eq a b,
 Hbc : eq b c
 ⊢ eq b c

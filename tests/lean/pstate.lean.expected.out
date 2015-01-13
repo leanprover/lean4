@@ -1,8 +1,6 @@
 pstate.lean:4:26: error: don't know how to synthesize placeholder
 A : Type,
-a : A,
-b : A,
-c : A,
+a b c : A,
 h₁ : a = b,
 h₂ : b = c
 ⊢ b = c

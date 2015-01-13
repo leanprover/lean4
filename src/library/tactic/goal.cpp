@@ -48,14 +48,25 @@ format goal::pp(formatter const & fmt, substitution const & s) const {
     expr conclusion  = m_type;
     buffer<expr> tmp;
     get_app_args(m_meta, tmp);
-    bool first = true;
     format r;
-    auto end = tmp.end();
-    for (auto it = tmp.begin(); it != end; ++it) {
-        if (first) first = false; else r += compose(comma(), line());
-        expr l     = *it;
+    unsigned i = 0;
+    while (i < tmp.size()) {
+        if (i > 0)
+            r += compose(comma(), line());
+        expr l     = tmp[i];
+        format ids = fmt(l);
         expr t     = tmp_subst.instantiate(mlocal_type(l));
-        r += group(fmt(l) + space() + colon() + nest(indent, line() + fmt(t)));
+        lean_assert(tmp.size() > 0);
+        while (i < tmp.size() - 1) {
+            expr l2 = tmp[i+1];
+            expr t2 = tmp_subst.instantiate(mlocal_type(l2));
+            if (t2 != t)
+                break;
+            ids += space() + fmt(l2);
+            i++;
+        }
+        r += group(ids + space() + colon() + nest(indent, line() + fmt(t)));
+        i++;
     }
     if (compact)
         r = group(r);

@@ -1,6 +1,5 @@
 gen_bug.lean:9:2: error: tactic failed
-A : Type,
-B : Type,
+A B : Type,
 a : A,
 b : B,
 H : @heq A a B b

@@ -127,7 +127,7 @@ static bool print_parse_table(parser & p, parse_table const & t, bool nud, buffe
     bool found = false;
     io_state ios = p.ios();
     options os   = ios.get_options();
-    os = os.update(get_pp_full_names_option_name(), true);
+    os = os.update_if_undef(get_pp_full_names_option_name(), true);
     os = os.update(get_pp_notation_option_name(), false);
     ios.set_options(os);
     optional<token_table> tt(get_token_table(p.env()));
@@ -307,7 +307,7 @@ environment check_cmd(parser & p) {
     auto reg              = p.regular_stream();
     formatter fmt         = reg.get_formatter();
     options opts          = p.ios().get_options();
-    opts                  = opts.update(get_pp_metavar_args_name(), true);
+    opts                  = opts.update_if_undef(get_pp_metavar_args_name(), true);
     fmt                   = fmt.update_options(opts);
     unsigned indent       = get_pp_indent(opts);
     format r = group(fmt(e) + space() + colon() + nest(indent, line() + fmt(type)));

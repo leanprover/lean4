@@ -101,8 +101,8 @@ struct class_instance_context {
         m_trace_instances = get_class_trace_instances(ios.get_options());
         m_max_depth       = get_class_instance_max_depth(ios.get_options());
         options opts      = m_ios.get_options();
-        opts              = opts.update(get_pp_purify_metavars_name(), false);
-        opts              = opts.update(get_pp_implicit_name(), true);
+        opts              = opts.update_if_undef(get_pp_purify_metavars_name(), false);
+        opts              = opts.update_if_undef(get_pp_implicit_name(), true);
         m_ios.set_options(opts);
     }
 

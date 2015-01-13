@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "kernel/error_msgs.h"
 #include "kernel/free_vars.h"
+#include "kernel/inductive/inductive.h"
 #include "library/coercion.h"
 #include "library/placeholder.h"
 #include "library/choice.h"
@@ -843,9 +844,84 @@ static expr copy_domain(unsigned num, expr const & source, expr const & target) 
     }
 }
 
+
+enum lhs_meta_kind { None, Accessible, Inaccessible };
+
+/**
+   \brief Auxiliary function for searching for metavariable (applications) on the left-hand-side (lhs) of equations.
+   The possible results are:
+      - None: lhs does not contain meta-variables
+      - Accessible: lhs contains meta-variable, and it is located in a position considered by the pattern-matcher.
+      - Inaccessible: lhs contains meta-variable, and it is located in a possible inaccessible/ignored by the pattern-matcher,
+                      or its type also contains meta-variables
+
+   \remark If the lhs contains accessible and inaccessible metavariables, an accessible is returned.
+*/
+static pair<lhs_meta_kind, expr> find_lhs_meta(type_checker & tc, expr const & e) {
+    if (!has_metavar(e))
+        return mk_pair(None, expr());
+    environment const & env = tc.env();
+    optional<expr> acc, inacc;
+    std::function<void(expr const &, bool)> visit = [&](expr const & e, bool accessible) {
+        if (acc || !has_metavar(e)) {
+            return; // done
+        } else if (is_inaccessible(e)) {
+            visit(get_annotation_arg(e), false);
+        } else if (is_meta(e)) {
+            if (accessible && !acc) {
+                expr type = tc.infer(e).first;
+                if (!has_expr_metavar_strict(type))
+                    acc = e;
+                else if (!inacc)
+                    inacc = e;
+            } else if (!accessible && !inacc) {
+                inacc = e;
+            }
+        } else if (is_app(e)) {
+            if (!accessible) {
+                visit(app_fn(e), false);
+                visit(app_arg(e), false);
+            } else {
+                buffer<expr> args;
+                expr const & fn = get_app_args(e, args);
+                if (is_constant(fn) && inductive::is_intro_rule(env, const_name(fn))) {
+                    name I              = *inductive::is_intro_rule(env, const_name(fn));
+                    unsigned num_params = *inductive::get_num_params(env, I);
+                    for (unsigned i = 0; i < num_params; i++)
+                        visit(args[i], false);
+                    for (unsigned i = num_params; i < args.size(); i++)
+                        visit(args[i], accessible);
+                } else {
+                    visit(fn, false);
+                    for (expr const & arg : args)
+                        visit(arg, false);
+                }
+            }
+        } else if (is_macro(e)) {
+            for (unsigned i = 0; i < macro_num_args(e); i++)
+                visit(macro_arg(e, i), false);
+        } else if (is_binding(e)) {
+            visit(binding_domain(e), false);
+            visit(binding_body(e), false);
+        }
+    };
+    buffer<expr> args;
+    get_app_args(e, args);
+    for (expr const & arg : args)
+        visit(arg, true);
+    if (acc)
+        return mk_pair(Accessible, *acc);
+    else if (inacc)
+        return mk_pair(Inaccessible, *inacc);
+    else
+        return mk_pair(None, expr());
+}
+
 /**
    \brief The left-hand-side of recursive equations may contain metavariables associated with
    implicit parameters. This procedure replaces them with fresh local constants.
+
+   \remark only "accessible" metavariables are replaced
 
    Example 1)
    Suppose we are defining
@@ -917,43 +993,43 @@ static expr assign_equation_lhs_metas(type_checker & tc, expr const & eqns) {
             unsigned idx = 1;
             while (true) {
                 expr lhs = equation_lhs(eq);
-                optional<expr> meta;
-                optional<expr> meta_type;
-                for_each(lhs, [&](expr const & e, unsigned offset) {
-                        if (meta) return false; // already found target
-                        if (offset > 0) return false;
-                        if (is_meta(e)) {
-                            expr type = tc.infer(e).first;
-                            if (!has_expr_metavar_strict(type)) {
-                                meta      = e;
-                                meta_type = type;
-                                return false; // stop search, found
-                            }
-                        }
-                        return has_metavar(e);
-                    });
-                if (!meta)
+                auto r = find_lhs_meta(tc, lhs);
+                if (r.first == None) {
                     break;
-                expr new_local = mk_local(tc.mk_fresh_name(), x.append_after(idx), *meta_type, binder_info());
-                for (expr & local : locals)
-                    local = update_mlocal(local, replace_meta(mlocal_type(local), *meta, new_local));
-                eq  = replace_meta(eq, *meta, new_local);
-                unsigned i = num_fns;
-                for (; i < locals.size(); i++) {
-                    if (depends_on(mlocal_type(locals[i]), new_local)) {
-                        break;
+                } else if (r.first == Accessible) {
+                    expr const & meta = r.second;
+                    expr meta_type    = tc.infer(meta).first;
+                    expr new_local    = mk_local(tc.mk_fresh_name(), x.append_after(idx), meta_type, binder_info());
+                    for (expr & local : locals)
+                        local = update_mlocal(local, replace_meta(mlocal_type(local), meta, new_local));
+                    eq  = replace_meta(eq, meta, new_local);
+                    unsigned i = num_fns;
+                    for (; i < locals.size(); i++) {
+                        if (depends_on(mlocal_type(locals[i]), new_local))
+                            break;
                     }
+                    locals.insert(i, new_local);
+                    idx++;
+                } else {
+                    lean_assert(r.first == Inaccessible);
+                    throw_elaborator_exception(eqns, [=](formatter const & fmt) {
+                            options o = fmt.get_options().update_if_undef(get_pp_implicit_name(), true);
+                            o = o.update_if_undef(get_pp_notation_option_name(), false);
+                            formatter new_fmt = fmt.update_options(o);
+                            format r("invalid recursive equation, left-hand-side contains meta-variable");
+                            r += format(" (possible solution: provide implicit parameters occurring in left-hand-side explicitly)");
+                            r += pp_indent_expr(new_fmt, lhs);
+                            return r;
+                        });
                 }
-                locals.insert(i, new_local);
-                idx++;
             }
             new_eqs.push_back(Fun(locals, eq));
         }
     }
-
     return update_equations(eqns, new_eqs);
 }
 
+// \remark original_eqns is eqns before elaboration
 constraint elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
     bool relax               = m_relax_main_opaque;
     environment const & _env = env();
@@ -1019,9 +1095,9 @@ expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
 
     expr new_eqns;
     if (new_R) {
-        new_eqns = mk_equations(num_fns, new_eqs.size(), new_eqs.data(), *new_R, *new_Hwf);
+        new_eqns = copy_tag(eqns, mk_equations(num_fns, new_eqs.size(), new_eqs.data(), *new_R, *new_Hwf));
     } else {
-        new_eqns = mk_equations(num_fns, new_eqs.size(), new_eqs.data());
+        new_eqns = copy_tag(eqns, mk_equations(num_fns, new_eqs.size(), new_eqs.data()));
     }
 
     lean_assert(first_eq && is_lambda(*first_eq));

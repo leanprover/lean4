@@ -20,12 +20,11 @@
 About
 -----
 
-- [Design](doc/design.md)
-- [To Do list](doc/todo.md)
-- [Authors](doc/authors.md)
 - Theorem Proving in Lean: [HTML](https://leanprover.github.io/tutorial/index.html), [PDF](http://leanprover.github.io/tutorial/tutorial.pdf)
-- [Short Tutorial](doc/lean/tutorial.org)
+- [Authors](doc/authors.md)
 - [Library](library/library.md)
+- [Short Tutorial](doc/lean/tutorial.org)
+- [To Do list](doc/todo.md)
 
 Requirements
 ------------

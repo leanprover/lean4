@@ -411,17 +411,17 @@ have H4 : m ≤ k, from le_of_mul_le_mul_left H2 Hn,
 have H5 : k ≤ m, from le_of_mul_le_mul_left H3 Hn,
 le.antisymm H4 H5
 
+theorem eq_of_mul_eq_mul_right {n m k : ℕ} (Hm : m > 0) (H : n * m = k * m) : n = k :=
+eq_of_mul_eq_mul_left Hm (!mul.comm ▸ !mul.comm ▸ H)
+
 theorem eq_zero_or_eq_of_mul_eq_mul_left {n m k : ℕ} (H : n * m = n * k) : n = 0 ∨ m = k :=
 or_of_or_of_imp_right zero_or_pos
   (assume Hn : n > 0, eq_of_mul_eq_mul_left Hn H)
 
-theorem eq_of_mul_eq_mul_right {n m k : ℕ} (Hm : m > 0) (H : n * m = k * m) : n = k :=
-eq_of_mul_eq_mul_left Hm (!mul.comm ▸ !mul.comm ▸ H)
-
 theorem eq_zero_or_eq_of_mul_eq_mul_right  {n m k : ℕ} (H : n * m = k * m) : m = 0 ∨ n = k :=
 eq_zero_or_eq_of_mul_eq_mul_left (!mul.comm ▸ !mul.comm ▸ H)
 
-theorem eq_one_of_mul_eq_one_left {n m : ℕ} (H : n * m = 1) : n = 1 :=
+theorem eq_one_of_mul_eq_one_right {n m : ℕ} (H : n * m = 1) : n = 1 :=
 have H2 : n * m > 0, from H⁻¹ ▸ !succ_pos,
 have H3 : n > 0, from pos_of_mul_pos_right H2,
 have H4 : m > 0, from pos_of_mul_pos_left H2,
@@ -433,7 +433,13 @@ or.elim (le_or_gt n 1)
     have H7 : 1 ≥ 2, from !mul_one ▸ H ▸ H6,
     absurd !self_lt_succ (not_lt_of_le H7))
 
-theorem eq_one_of_mul_eq_one_right {n m : ℕ} (H : n * m = 1) : m = 1 :=
-eq_one_of_mul_eq_one_left (!mul.comm ▸ H)
+theorem eq_one_of_mul_eq_one_left {n m : ℕ} (H : n * m = 1) : m = 1 :=
+eq_one_of_mul_eq_one_right (!mul.comm ▸ H)
+
+theorem eq_one_of_mul_eq_self_left {n m : ℕ} (Hpos : n > 0) (H : m * n = n) : m = 1 :=
+eq_of_mul_eq_mul_right Hpos (H ⬝ !one_mul⁻¹)
+
+theorem eq_one_of_mul_eq_self_right {n m : ℕ} (Hpos : m > 0) (H : m * n = m) : n = 1 :=
+eq_one_of_mul_eq_self_left Hpos (!mul.comm ▸ H)
 
 end nat

@@ -2,10 +2,10 @@
 Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Module: data.nat.algebra
-Authors: Jeremy Avigad
+Module: data.nat.comm_semiring
+Author: Jeremy Avigad
 
-nat is a comm_semiring
+ℕ is a comm_semiring.
 -/
 import data.nat.basic algebra.binary algebra.ring
 open binary

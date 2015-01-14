@@ -16,6 +16,15 @@ the following command executes a simple set of examples
 The Emacs mode is the ideal way to use Lean. It requires at
 least Emacs version 24.3
 
+Documentation
+-------------
+
+The tutorial "Theorem Proving in Lean" describes Lean main features,
+and provides many examples. The tutorial is available in two different forms:
+
+ - Interactive HTML: http://leanprover.github.io/tutorial/index.html
+ - PDF: http://leanprover.github.io/tutorial/tutorial.pdf
+
 Command line options
 --------------------
 

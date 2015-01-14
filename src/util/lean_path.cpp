@@ -134,7 +134,10 @@ void init_lean_path(bool use_hott) {
         else
             *g_lean_path  = exe_path + g_sep + ".." + g_sep + "library";
         *g_lean_path += g_path_sep;
-        *g_lean_path += exe_path + g_sep + ".." + g_sep + "lib" + g_sep + "lean";
+        if (use_hott)
+            *g_lean_path += exe_path + g_sep + ".." + g_sep + "lib" + g_sep + "lean" + g_sep + "hott";
+        else
+            *g_lean_path += exe_path + g_sep + ".." + g_sep + "lib" + g_sep + "lean" + g_sep + "library";
         *g_lean_path += g_path_sep;
         *g_lean_path += ".";
     } else {

@@ -98,7 +98,8 @@ static void display_help(std::ostream & out) {
     std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
     std::cout << "                    0 means 'do not check'.\n";
     std::cout << "  --trust=num -t    trust level (default: 0) \n";
-    std::cout << "  --discard -T      discard the proof of imported theorems after checking\n";
+    std::cout << "  --Trust -T        short-cut for --trust=" << LEAN_BELIEVER_TRUST_LEVEL+1 << "\n";
+    std::cout << "  --discard -r      discard the proof of imported theorems after checking\n";
     std::cout << "  --to_axiom -X     discard proofs of all theorems after checking them, i.e.,\n";
     std::cout << "                    theorems become axioms after checking\n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
@@ -143,7 +144,8 @@ static struct option g_long_options[] = {
     {"output",       required_argument, 0, 'o'},
     {"cpp",          required_argument, 0, 'C'},
     {"trust",        required_argument, 0, 't'},
-    {"discard",      no_argument,       0, 'T'},
+    {"Trust",        no_argument,       0, 'T'},
+    {"discard",      no_argument,       0, 'r'},
     {"to_axiom",     no_argument,       0, 'X'},
 #if defined(LEAN_MULTI_THREAD)
     {"server",       no_argument,       0, 'S'},
@@ -160,7 +162,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define BASIC_OPT_STR "HRXTFC:dD:qlupgvhk:012t:012o:c:i:"
+#define BASIC_OPT_STR "HRXTFC:dD:qrlupgvhk:012t:012o:c:i:"
 
 #if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
 static char const * g_opt_str = BASIC_OPT_STR "Sj:012s:012";
@@ -393,6 +395,9 @@ int main(int argc, char ** argv) {
             trust_lvl = atoi(optarg);
             break;
         case 'T':
+            trust_lvl = LEAN_BELIEVER_TRUST_LEVEL+1;
+            break;
+        case 'r':
             tmode = keep_theorem_mode::DiscardImported;
             break;
         case 'X':

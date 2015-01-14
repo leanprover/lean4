@@ -511,7 +511,7 @@ pair<expr, constraint_seq> elaborator::ensure_has_type(
     justification const & j, bool relax) {
     if (is_meta(expected_type) && has_coercions_from(a_type)) {
         return mk_delayed_coercion(a, a_type, expected_type, j);
-    } else if (is_meta(a_type) && has_coercions_to(expected_type)) {
+    } else if (!m_in_equation_lhs && is_meta(a_type) && has_coercions_to(expected_type)) {
         return mk_delayed_coercion(a, a_type, expected_type, j);
     } else {
         pair<bool, constraint_seq> dcs;

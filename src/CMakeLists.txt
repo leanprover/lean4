@@ -406,3 +406,12 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/../library DESTINATION ${LIBRARY_DIR}
         PATTERN "*.olean"
         PATTERN ".project"
         PATTERN "TAGS")
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/../hott DESTINATION ${LIBRARY_DIR}
+        FILES_MATCHING PATTERN "*.hlean")
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/../hott DESTINATION ${LIBRARY_DIR}
+        FILES_MATCHING
+        PATTERN "*.lean"
+        PATTERN "*.olean"
+        PATTERN ".project"
+        PATTERN "TAGS")

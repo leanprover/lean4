@@ -415,3 +415,6 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/../hott DESTINATION ${LIBRARY_DIR}
         PATTERN "*.olean"
         PATTERN ".project"
         PATTERN "TAGS")
+
+install(FILES ${CMAKE_SOURCE_DIR}/../doc/bin/README.md
+        DESTINATION .)

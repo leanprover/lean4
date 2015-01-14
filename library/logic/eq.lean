@@ -37,7 +37,7 @@ namespace eq
 
   theorem rec_on_irrel {a a' : A} {D : A → Type} (H H' : a = a') (b : D a) :
       drec_on H b = drec_on H' b :=
-  !rec_on_irrel_arg
+  proof_irrel H H' ▸ rfl
 
   theorem rec_on_compose {a b c : A} {P : A → Type} (H₁ : a = b) (H₂ : b = c)
           (u : P a) : rec_on H₂ (rec_on H₁ u) = rec_on (trans H₁ H₂) u :=

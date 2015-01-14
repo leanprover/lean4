@@ -31,11 +31,14 @@ option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
 # When ON we try to minimize the amount of memory needed to compile Lean using gcc.
 # We use this flag when compiling at Travis.
 option(CONSERVE_MEMORY    "CONSERVE_MEMORY"   OFF)
+# Include MSYS2 required DLLs in the binary distribution package
+option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
 
 # emacs site-lisp dir
 set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-lisp dir")
 # library dir
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
+
 
 message(STATUS "Lean emacs-mode will be installed at "
   ${CMAKE_INSTALL_PREFIX}/${EMACS_LISP_DIR})
@@ -418,3 +421,15 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/../hott DESTINATION ${LIBRARY_DIR}
 
 install(FILES ${CMAKE_SOURCE_DIR}/../doc/bin/README.md
         DESTINATION .)
+
+if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
+  # TODO(Leo): do not use hardlinks to required DLLs.
+  # For example, we can try to use ldd to retrieve the list of required DLLs.
+  set(MINGW_LOCAL_DIR C:/msys64/mingw64/bin)
+  set(RUNTIME_LIBRARIES
+         ${MINGW_LOCAL_DIR}/libgmp-10.dll
+         ${MINGW_LOCAL_DIR}/libwinpthread-1.dll
+         ${MINGW_LOCAL_DIR}/libgcc_s_seh-1.dll
+         ${MINGW_LOCAL_DIR}/libstdc++-6.dll)
+  install(PROGRAMS ${RUNTIME_LIBRARIES} DESTINATION bin)
+endif()

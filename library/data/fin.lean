@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 
 Finite ordinals.
 -/
-import data.nat logic.cast
+import data.nat
 open nat
 
 inductive fin : nat → Type :=

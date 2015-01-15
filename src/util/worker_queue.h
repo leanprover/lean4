@@ -19,7 +19,7 @@ template<typename T>
 class worker_queue {
     typedef std::function<T()>                    task;
     typedef std::unique_ptr<interruptible_thread> thread_ptr;
-    typedef std::unique_ptr<exception>            exception_ptr;
+    typedef std::unique_ptr<throwable>            exception_ptr;
     std::vector<thread_ptr>    m_threads;
     std::vector<exception_ptr> m_thread_exceptions;
     std::vector<task>          m_todo;
@@ -70,7 +70,7 @@ public:
                                 }
                                 m_todo_cv.notify_all();
                             } catch (interrupted &) {
-                            } catch (exception & ex) {
+                            } catch (throwable & ex) {
                                 m_thread_exceptions[i].reset(ex.clone());
                                 m_failed_thread = i;
                             } catch (...) {

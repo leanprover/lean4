@@ -45,7 +45,7 @@ bool has_num_decls(environment const & env) {
             tc.infer(*g_one).first  == *g_pos_num &&
             tc.infer(*g_bit0).first == mk_arrow(*g_pos_num, *g_pos_num) &&
             tc.infer(*g_bit1).first == mk_arrow(*g_pos_num, *g_pos_num);
-    } catch (...) {
+    } catch (exception&) {
         return false;
     }
 }

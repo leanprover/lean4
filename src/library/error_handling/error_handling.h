@@ -24,5 +24,5 @@ void display_information_pos(io_state_stream const & ios, char const * strm_name
    \brief Display exception in the regular stream of \c ios, using the configuration options and formatter from \c ios.
    Exceptions that contain expressions use the given \c pos_info_provider (if available) to retrieve line number information.
 */
-void display_error(io_state_stream const & ios, pos_info_provider const * p, exception const & ex);
+void display_error(io_state_stream const & ios, pos_info_provider const * p, throwable const & ex);
 }

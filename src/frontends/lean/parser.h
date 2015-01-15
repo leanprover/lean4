@@ -37,7 +37,7 @@ struct parser_error : public exception {
     pos_info m_pos;
     parser_error(char const * msg, pos_info const & p):exception(msg), m_pos(p) {}
     parser_error(sstream const & msg, pos_info const & p):exception(msg), m_pos(p) {}
-    virtual exception * clone() const { return new parser_error(m_msg.c_str(), m_pos); }
+    virtual throwable * clone() const { return new parser_error(m_msg.c_str(), m_pos); }
     virtual void rethrow() const { throw *this; }
 };
 
@@ -140,10 +140,10 @@ class parser {
     void display_error_pos(pos_info p);
     void display_error(char const * msg, unsigned line, unsigned pos);
     void display_error(char const * msg, pos_info p);
-    void display_error(exception const & ex);
+    void display_error(throwable const & ex);
     void display_error(script_exception const & ex);
     void throw_parser_exception(char const * msg, pos_info p);
-    void throw_nested_exception(exception & ex, pos_info p);
+    void throw_nested_exception(throwable & ex, pos_info p);
 
     void sync_command();
     void protected_call(std::function<void()> && f, std::function<void()> && sync);

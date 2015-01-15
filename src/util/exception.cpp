@@ -11,11 +11,11 @@ Author: Leonardo de Moura
 #include "util/thread.h"
 
 namespace lean {
-exception::exception(char const * msg):m_msg(msg) {}
-exception::exception(std::string const & msg):m_msg(msg) {}
-exception::exception(sstream const & strm):m_msg(strm.str()) {}
-exception::~exception() noexcept {}
-char const * exception::what() const noexcept { return m_msg.c_str(); }
+throwable::throwable(char const * msg):m_msg(msg) {}
+throwable::throwable(std::string const & msg):m_msg(msg) {}
+throwable::throwable(sstream const & strm):m_msg(strm.str()) {}
+throwable::~throwable() noexcept {}
+char const * throwable::what() const noexcept { return m_msg.c_str(); }
 
 parser_exception::parser_exception(char const * msg, char const * fname, unsigned l, unsigned p):
     exception(msg), m_fname(fname), m_line(l), m_pos(p) {}
@@ -55,12 +55,12 @@ char const * memory_exception::what() const noexcept {
 }
 
 constexpr char const * exception_mt = "exception_mt";
-exception const & to_exception(lua_State * L, int i) {
-    return *(*static_cast<exception**>(luaL_checkudata(L, i, exception_mt)));
+throwable const & to_exception(lua_State * L, int i) {
+    return *(*static_cast<throwable**>(luaL_checkudata(L, i, exception_mt)));
 }
 
-int push_exception(lua_State * L, exception const & e) {
-    exception ** mem = static_cast<exception**>(lua_newuserdata(L, sizeof(exception*))); // NOLINT
+int push_exception(lua_State * L, throwable const & e) {
+    throwable ** mem = static_cast<throwable**>(lua_newuserdata(L, sizeof(throwable*))); // NOLINT
     *mem = e.clone();
     luaL_getmetatable(L, exception_mt);
     lua_setmetatable(L, -2);
@@ -68,7 +68,7 @@ int push_exception(lua_State * L, exception const & e) {
 }
 
 static int exception_gc(lua_State * L) {
-    exception ** mem = static_cast<exception**>(lua_touserdata(L, 1));
+    throwable ** mem = static_cast<throwable**>(lua_touserdata(L, 1));
     delete (*mem);
     return 0;
 }

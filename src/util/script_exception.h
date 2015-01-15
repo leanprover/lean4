@@ -30,7 +30,7 @@ public:
     virtual unsigned get_line() const;
     /** \brief Return error message without position information */
     virtual char const * get_msg() const noexcept;
-    virtual exception * clone() const { return new script_exception(m_source, m_file, m_line, m_msg); }
+    virtual throwable * clone() const { return new script_exception(m_source, m_file, m_line, m_msg); }
     virtual void rethrow() const { throw *this; }
 };
 
@@ -38,14 +38,14 @@ public:
    \brief Lean exception occurred inside of a script
 */
 class script_nested_exception : public script_exception {
-    std::shared_ptr<exception> m_exception;
-    script_nested_exception(source s, std::string f, unsigned l, std::shared_ptr<exception> const & ex);
+    std::shared_ptr<throwable> m_exception;
+    script_nested_exception(source s, std::string f, unsigned l, std::shared_ptr<throwable> const & ex);
 public:
-    script_nested_exception(bool file, std::string f, unsigned l, std::shared_ptr<exception> const & ex):script_nested_exception(file ? source::File : source::String, f, l, ex) {}
+    script_nested_exception(bool file, std::string f, unsigned l, std::shared_ptr<throwable> const & ex):script_nested_exception(file ? source::File : source::String, f, l, ex) {}
     virtual ~script_nested_exception();
     virtual char const * what() const noexcept;
-    virtual exception * clone() const { return new script_nested_exception(m_source, m_file, m_line, m_exception); }
+    virtual throwable * clone() const { return new script_nested_exception(m_source, m_file, m_line, m_exception); }
     virtual void rethrow() const { throw *this; }
-    exception const & get_exception() const { return *(m_exception.get()); }
+    throwable const & get_exception() const { return *(m_exception.get()); }
 };
 }

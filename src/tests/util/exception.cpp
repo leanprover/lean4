@@ -38,7 +38,7 @@ static void tst3() {
 static void tst4() {
     try {
         throw interrupted();
-    } catch (exception & ex) {
+    } catch (throwable & ex) {
         lean_assert(std::string("interrupted") == ex.what());
     }
 }
@@ -47,7 +47,7 @@ class ex : public exception {
     std::function<char const *()> m_f;
 public:
     ex(std::function<char const *()> const & f):m_f(f) {}
-    virtual exception * clone() const { return new ex(m_f); }
+    virtual throwable * clone() const { return new ex(m_f); }
     virtual void rethrow() const { throw *this; }
     virtual char const * what() const noexcept { return m_f(); }
 };
@@ -69,7 +69,7 @@ static void throw_catch_rethrow() {
         throw_ex();
     } catch (ex & e) {
         std::cout << "CATCH 1: {" << e.what() << "}\n";
-        std::unique_ptr<exception> new_e(e.clone());
+        std::unique_ptr<throwable> new_e(e.clone());
         new_e->rethrow();
     }
 }

@@ -21,7 +21,7 @@ public:
     unsolved_metavar_exception(sstream const & strm, expr const & e):exception(strm), m_expr(e) {}
     virtual ~unsolved_metavar_exception() {}
     expr get_expr() const { return m_expr; }
-    virtual exception * clone() const { return new unsolved_metavar_exception(m_msg.c_str(), m_expr); }
+    virtual throwable * clone() const { return new unsolved_metavar_exception(m_msg.c_str(), m_expr); }
     virtual void rethrow() const { throw *this; }
 };
 }

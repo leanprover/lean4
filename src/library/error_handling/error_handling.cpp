@@ -68,7 +68,7 @@ void display_error_pos(io_state_stream const & ios, pos_info_provider const * p,
     }
 }
 
-void display_error(io_state_stream const & ios, pos_info_provider const * p, exception const & ex);
+void display_error(io_state_stream const & ios, pos_info_provider const * p, throwable const & ex);
 
 static void display_error(io_state_stream const & ios, pos_info_provider const * p, kernel_exception const & ex) {
     display_error_pos(ios, p, ex.get_main_expr());
@@ -136,15 +136,7 @@ static void display_error(io_state_stream const & ios, pos_info_provider const *
     }
 }
 
-// static void display_error(io_state_stream const & ios, pos_info_provider const *, parser_nested_exception const & ex) {
-//     display_error(ios, &(ex.get_provider()), ex.get_exception());
-// }
-
-// static void display_error(io_state_stream const & ios, pos_info_provider const *, parser_exception const & ex) {
-//     ios << ex.what() << endl;
-// }
-
-void display_error(io_state_stream const & ios, pos_info_provider const * p, exception const & ex) {
+void display_error(io_state_stream const & ios, pos_info_provider const * p, throwable const & ex) {
     flycheck_error err(ios);
     if (auto k_ex = dynamic_cast<kernel_exception const *>(&ex)) {
         display_error(ios, p, *k_ex);
@@ -156,10 +148,6 @@ void display_error(io_state_stream const & ios, pos_info_provider const * p, exc
         display_error(ios, p, *ls_ex);
     } else if (auto s_ex = dynamic_cast<script_exception const *>(&ex)) {
         display_error(ios, p, *s_ex);
-    // } else if (auto n_ex = dynamic_cast<parser_nested_exception const *>(&ex)) {
-    //     display_error(ios, p, *n_ex);
-    // } else if (auto n_ex = dynamic_cast<parser_exception const *>(&ex)) {
-    //     display_error(ios, p, *n_ex);
     } else if (p) {
         display_error_pos(ios, p->get_file_name(), p->get_some_pos().first, p->get_some_pos().second);
         ios << " " << ex.what() << endl;

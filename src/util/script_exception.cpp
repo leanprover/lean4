@@ -86,7 +86,7 @@ char const * script_exception::what() const noexcept {
     return buffer.c_str();
 }
 
-script_nested_exception::script_nested_exception(source s, std::string f, unsigned l, std::shared_ptr<exception> const & ex):
+script_nested_exception::script_nested_exception(source s, std::string f, unsigned l, std::shared_ptr<throwable> const & ex):
     script_exception(s, f, l, "Lean exception"),
     m_exception(ex) {
     lean_assert(ex);

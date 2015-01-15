@@ -119,7 +119,7 @@ public:
 
 // TODO(Leo): use explicit initialization?
 static alloc_info g_global_memory;
-static size_t     g_max_memory = std::numeric_limits<size_t>::max();
+static size_t     g_max_memory = 0;
 
 void set_max_memory(size_t max) {
     g_max_memory = max;
@@ -130,7 +130,7 @@ size_t get_allocated_memory() {
 }
 
 void check_memory(char const * component_name) {
-    if (get_allocated_memory() > g_max_memory)
+    if (g_max_memory != 0 && get_allocated_memory() > g_max_memory)
         throw memory_exception(component_name);
 }
 

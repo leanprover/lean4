@@ -457,7 +457,7 @@ struct import_modules_fn {
         if (m_asynch_tasks.empty())
             return;
         std::vector<std::unique_ptr<interruptible_thread>> extra_threads;
-        std::vector<std::unique_ptr<exception>> thread_exceptions(m_num_threads - 1);
+        std::vector<std::unique_ptr<throwable>> thread_exceptions(m_num_threads - 1);
         atomic<int> failed_thread_idx(-1); // >= 0 if error
         for (unsigned i = 0; i < m_num_threads - 1; i++) {
             extra_threads.push_back(std::unique_ptr<interruptible_thread>(new interruptible_thread([=, &thread_exceptions, &failed_thread_idx]() {
@@ -466,7 +466,7 @@ struct import_modules_fn {
                                     (*t)(m_senv);
                                 }
                                 m_asynch_cv.notify_all();
-                            } catch (exception & ex) {
+                            } catch (throwable & ex) {
                                 thread_exceptions[i].reset(ex.clone());
                                 failed_thread_idx = i;
                             } catch (...) {

@@ -235,7 +235,7 @@ void parser::display_error(char const * msg, unsigned line, unsigned pos) {
 
 void parser::display_error(char const * msg, pos_info p) { display_error(msg, p.first, p.second); }
 
-void parser::display_error(exception const & ex) {
+void parser::display_error(throwable const & ex) {
     parser_pos_provider pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos);
     ::lean::display_error(regular_stream(), &pos_provider, ex);
 }
@@ -249,8 +249,8 @@ void parser::throw_parser_exception(char const * msg, pos_info p) {
     throw parser_exception(msg, get_stream_name().c_str(), p.first, p.second);
 }
 
-void parser::throw_nested_exception(exception & ex, pos_info p) {
-    throw parser_nested_exception(std::shared_ptr<exception>(ex.clone()),
+void parser::throw_nested_exception(throwable & ex, pos_info p) {
+    throw parser_nested_exception(std::shared_ptr<throwable>(ex.clone()),
                                   std::make_shared<parser_pos_provider>(m_pos_table, get_stream_name(), p));
 }
 
@@ -264,9 +264,6 @@ if (m_use_exceptions) { ThrowError ; }
 void parser::protected_call(std::function<void()> && f, std::function<void()> && sync) {
     try {
         f();
-    // } catch (tactic_cmd_error & ex) {
-    //     CATCH(display_error(ex),
-    //           throw parser_exception(ex.what(), m_strm_name.c_str(), ex.m_pos.first, ex.m_pos.second));
     } catch (parser_exception & ex) {
         CATCH(flycheck_error err(regular_stream()); regular_stream() << ex.what() << endl,
               throw);
@@ -284,7 +281,7 @@ void parser::protected_call(std::function<void()> && f, std::function<void()> &&
     } catch (script_exception & ex) {
         reset_interrupt();
         CATCH(display_error(ex), throw_nested_exception(ex, m_last_script_pos));
-    } catch (exception & ex) {
+    } catch (throwable & ex) {
         reset_interrupt();
         CATCH(display_error(ex), throw_nested_exception(ex, m_last_cmd_pos));
     }

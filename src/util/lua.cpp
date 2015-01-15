@@ -174,14 +174,16 @@ void throw_bad_arg_error(lua_State * L, int i, char const * expected_type) {
 int safe_function_wrapper(lua_State * L, lua_CFunction f) {
     try {
         return f(L);
-    } catch (exception & e) {
+    } catch (throwable & e) {
         lua_Debug ar;
         lua_getstack(L, 1, &ar);
         lua_getinfo(L, "Sl", &ar);
         if (ar.source && *(ar.source) == '@')
-            push_exception(L, script_nested_exception(true, ar.source+1, ar.currentline, std::shared_ptr<exception>(e.clone())));
+            push_exception(L, script_nested_exception(true, ar.source+1, ar.currentline,
+                                                      std::shared_ptr<throwable>(e.clone())));
         else if (ar.source)
-            push_exception(L, script_nested_exception(false, ar.source, ar.currentline, std::shared_ptr<exception>(e.clone())));
+            push_exception(L, script_nested_exception(false, ar.source, ar.currentline,
+                                                      std::shared_ptr<throwable>(e.clone())));
         else
             push_exception(L, e);
     } catch (std::bad_alloc &) {

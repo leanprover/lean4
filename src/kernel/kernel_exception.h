@@ -29,7 +29,7 @@ public:
     */
     virtual optional<expr> get_main_expr() const { return none_expr(); }
     virtual format pp(formatter const & fmt) const;
-    virtual exception * clone() const { return new kernel_exception(m_env, m_msg.c_str()); }
+    virtual throwable * clone() const { return new kernel_exception(m_env, m_msg.c_str()); }
     virtual void rethrow() const { throw *this; }
 };
 

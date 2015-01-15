@@ -559,7 +559,7 @@ int main(int argc, char ** argv) {
             export_as_cpp_file(cpp_output, "olean_lib", env);
         }
         return ok ? 0 : 1;
-    } catch (lean::exception & ex) {
+    } catch (lean::throwable & ex) {
         lean::display_error(diagnostic(env, ios), nullptr, ex);
     }
     return 1;

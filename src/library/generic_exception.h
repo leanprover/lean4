@@ -23,7 +23,7 @@ public:
     virtual ~generic_exception() noexcept {}
     virtual optional<expr> get_main_expr() const { return m_main_expr; }
     virtual format pp(formatter const & fmt) const { return m_pp_fn(fmt); }
-    virtual exception * clone() const { return new generic_exception(m_msg.c_str(), m_main_expr, m_pp_fn); }
+    virtual throwable * clone() const { return new generic_exception(m_msg.c_str(), m_main_expr, m_pp_fn); }
     virtual void rethrow() const { throw *this; }
 };
 

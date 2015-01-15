@@ -217,7 +217,7 @@ server::worker::worker(environment const & env, io_state const & ios, definition
                     p();
                 } catch (interrupted &) {
                     worker_interrupted = true;
-                } catch (exception & ex) {
+                } catch (throwable & ex) {
                     DIAG(std::cerr << "worker exception: " << ex.what() << "\n";)
                 }
                 if (!m_terminate && !worker_interrupted) {
@@ -888,7 +888,7 @@ bool server::operator()(std::istream & in) {
             } else {
                 throw exception(sstream() << "unexpected command line: " << line);
             }
-        } catch (exception & ex) {
+        } catch (throwable & ex) {
             m_out << "-- ERROR " << ex.what() << std::endl;
         }
     }

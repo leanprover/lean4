@@ -185,7 +185,7 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
         if (!get_elaborator_calc_assistant(opts)) {
             return try_alternative(e, e_type, new_cs);
         } else {
-            std::unique_ptr<exception> saved_ex;
+            std::unique_ptr<throwable> saved_ex;
             try {
                 return try_alternative(e, e_type, new_cs);
             } catch (exception & ex) {

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/thread.h"
 #include "util/interrupt.h"
 #include "util/exception.h"
+#include "util/memory.h"
 
 namespace lean {
 MK_THREAD_LOCAL_GET(atomic_bool, get_g_interrupt, false);
@@ -28,6 +29,12 @@ void check_interrupted() {
         reset_interrupt();
         throw interrupted();
     }
+}
+
+void check_system(char const * component_name) {
+    check_stack(component_name);
+    check_memory(component_name);
+    check_interrupted();
 }
 
 void sleep_for(unsigned ms, unsigned step_ms) {

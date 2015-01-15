@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "util/debug.h"
 #include "util/sstream.h"
 #include "util/interrupt.h"
+#include "util/memory.h"
 #include "util/script_state.h"
 #include "util/thread.h"
 #include "util/thread_script_state.h"
@@ -103,6 +104,10 @@ static void display_help(std::ostream & out) {
     std::cout << "  --to_axiom -X     discard proofs of all theorems after checking them, i.e.,\n";
     std::cout << "                    theorems become axioms after checking\n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
+#if defined(LEAN_TRACK_MEMORY)
+    std::cout << "  --memory=num -M   maximum amount of memory that should be used by Lean ";
+    std::cout << "                    (in megabytes)\n";
+#endif
 #if defined(LEAN_MULTI_THREAD)
     std::cout << "  --server          start Lean in 'server' mode\n";
     std::cout << "  --threads=num -j  number of threads used to process lean files\n";
@@ -143,6 +148,7 @@ static struct option g_long_options[] = {
     {"githash",      no_argument,       0, 'g'},
     {"output",       required_argument, 0, 'o'},
     {"cpp",          required_argument, 0, 'C'},
+    {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
     {"Trust",        no_argument,       0, 'T'},
     {"discard",      no_argument,       0, 'r'},
@@ -162,14 +168,20 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define BASIC_OPT_STR "HRXTFC:dD:qrlupgvhk:012t:012o:c:i:"
+#define OPT_STR "HRXTFC:dD:qrlupgvhk:012t:012o:c:i:"
+
+#if defined(LEAN_TRACK_MEMORY)
+#define OPT_STR2 OPT_STR "M:012"
+#else
+#define OPT_STR2 OPT_STR
+#endif
 
 #if defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
-static char const * g_opt_str = BASIC_OPT_STR "Sj:012s:012";
+static char const * g_opt_str = OPT_STR2 "Sj:012s:012";
 #elif !defined(LEAN_USE_BOOST) && defined(LEAN_MULTI_THREAD)
-static char const * g_opt_str = BASIC_OPT_STR "Sj:012";
+static char const * g_opt_str = OPT_STR2 "Sj:012";
 #else
-static char const * g_opt_str = BASIC_OPT_STR;
+static char const * g_opt_str = OPT_STR2;
 #endif
 
 class simple_pos_info_provider : public pos_info_provider {
@@ -391,6 +403,9 @@ int main(int argc, char ** argv) {
         case 'i':
             index_name = optarg;
             gen_index  = true;
+        case 'M':
+            lean::set_max_memory(atoi(optarg)*1024*1024);
+            break;
         case 't':
             trust_lvl = atoi(optarg);
             break;

@@ -46,6 +46,14 @@ char const * stack_space_exception::what() const noexcept {
     return buffer.c_str();
 }
 
+char const * memory_exception::what() const noexcept {
+    std::string & buffer = get_g_buffer();
+    std::ostringstream s;
+    s << "excessive memory consumption detected at '" << m_component_name << "' (potential solution: increase memory consumption thresold)";
+    buffer = s.str();
+    return buffer.c_str();
+}
+
 constexpr char const * exception_mt = "exception_mt";
 exception const & to_exception(lua_State * L, int i) {
     return *(*static_cast<exception**>(luaL_checkudata(L, i, exception_mt)));

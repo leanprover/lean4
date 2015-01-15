@@ -6,12 +6,22 @@ Author: Leonardo de Moura
 */
 #include <new>
 #include <cstdlib>
+#include <iostream>
+#include "util/exception.h"
 
 #if !defined(LEAN_TRACK_MEMORY)
-
 namespace lean {
 size_t     get_allocated_memory() {
     return 0;
+}
+
+void set_max_memory(size_t) {
+    throw exception("Lean was compiled without memory consumption tracking "
+                    "(possible solution: compile using LEAN_TRACK_MEMORY)");
+}
+
+void check_memory(char const * component_name) {
+    // do nothing when LEAN_TRACK_MEMORY is not defined
 }
 
 void * malloc(size_t sz, bool use_ex)  {
@@ -108,9 +118,21 @@ public:
 };
 
 // TODO(Leo): use explicit initialization?
-static alloc_info                          g_global_memory;
+static alloc_info g_global_memory;
+static size_t     g_max_memory = std::numeric_limits<size_t>::max();
 
-size_t     get_allocated_memory() { return g_global_memory.size(); }
+void set_max_memory(size_t max) {
+    g_max_memory = max;
+}
+
+size_t get_allocated_memory() {
+    return g_global_memory.size();
+}
+
+void check_memory(char const * component_name) {
+    if (get_allocated_memory() > g_max_memory)
+        throw memory_exception(component_name);
+}
 
 void * malloc(size_t sz, bool use_ex)  {
     void * r = malloc_core(sz);

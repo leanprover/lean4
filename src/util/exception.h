@@ -26,6 +26,7 @@ public:
     virtual exception * clone() const { return new exception(m_msg); }
     virtual void rethrow() const { throw *this; }
 };
+
 /** \brief Exception produced by a Lean parser. */
 class parser_exception : public exception {
 protected:
@@ -55,6 +56,7 @@ public:
     virtual exception * clone() const { return new interrupted(); }
     virtual void rethrow() const { throw *this; }
 };
+
 class stack_space_exception : public exception {
     std::string m_component_name;
 public:
@@ -63,6 +65,16 @@ public:
     virtual exception * clone() const { return new stack_space_exception(m_component_name.c_str()); }
     virtual void rethrow() const { throw *this; }
 };
+
+class memory_exception : public exception {
+    std::string m_component_name;
+public:
+    memory_exception(char const * component_name):m_component_name(component_name) {}
+    virtual char const * what() const noexcept;
+    virtual exception * clone() const { return new memory_exception(m_component_name.c_str()); }
+    virtual void rethrow() const { throw *this; }
+};
+
 int push_exception(lua_State * L, exception const & e);
 exception const & to_exception(lua_State * L, int i);
 bool is_exception(lua_State * L, int i);

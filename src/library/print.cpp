@@ -16,12 +16,20 @@ Author: Leonardo de Moura
 
 namespace lean {
 bool is_used_name(expr const & t, name const & n) {
-    return static_cast<bool>(
-        find(t, [&](expr const & e, unsigned) {
-                return (is_constant(e) && const_name(e) == n)  // t has a constant named n
-                    || (is_local(e) && (mlocal_name(e) == n || local_pp_name(e) == n)) // t has a local constant named n
-                    || (is_let(e) && get_let_var_name(e) == n);
-            }));
+    bool found = false;
+    for_each(t, [&](expr const & e, unsigned) {
+            if (found) return false; // already found
+            if ((is_constant(e) && const_name(e) == n)  // t has a constant named n
+                || (is_local(e) && (mlocal_name(e) == n || local_pp_name(e) == n)) // t has a local constant named n
+                || (is_let(e) && get_let_var_name(e) == n)) {
+                found = true;
+                return false; // found it
+            }
+            if (is_local(e) || is_metavar(e))
+                return false; // do not search their types
+            return true; // continue search
+        });
+    return false;
 }
 
 name pick_unused_name(expr const & t, name const & s) {

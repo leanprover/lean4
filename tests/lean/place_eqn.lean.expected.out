@@ -8,5 +8,5 @@ a : ℕ
 place_eqn.lean:3:0: error: failed to add declaration 'foo' to environment, value has metavariables
   λ (a : ℕ),
     nat.brec_on a
-      (λ (a_1 : ℕ) (b : nat.below a_1),
-         nat.cases_on a_1 (λ (b_1 : nat.below 0), ?M_1) (λ (a_2 : ℕ) (b_1 : nat.below (succ a_2)), ?M_2) b)
+      (λ (a : ℕ) (b : nat.below a),
+         nat.cases_on a (λ (b : nat.below 0), ?M_1) (λ (a : ℕ) (b : nat.below (succ a)), ?M_2) b)

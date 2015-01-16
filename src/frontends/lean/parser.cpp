@@ -1247,6 +1247,26 @@ expr parser::parse_expr(unsigned rbp) {
     return left;
 }
 
+pair<optional<name>, expr> parser::parse_qualified_expr(unsigned rbp) {
+    if (curr_is_identifier()) {
+        auto id_pos = pos();
+        name id = get_name_val();
+        next();
+        if (curr_is_token(get_colon_tk())) {
+            next();
+            return mk_pair(optional<name>(id), parse_expr(rbp));
+        } else {
+            expr left = id_to_expr(id, id_pos);
+            while (rbp < curr_lbp()) {
+                left = parse_led(left);
+            }
+            return mk_pair(optional<name>(), left);
+        }
+    } else {
+        return mk_pair(optional<name>(), parse_expr(rbp));
+    }
+}
+
 expr parser::parse_scoped_expr(unsigned num_ps, expr const * ps, local_environment const & lenv, unsigned rbp) {
     local_scope scope(*this);
     m_env = lenv;

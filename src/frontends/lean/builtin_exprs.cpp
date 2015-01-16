@@ -384,51 +384,36 @@ static expr parse_ite(parser & p, expr const & c, pos_info const & pos) {
     expr t = p.parse_expr(g_then_else_prec);
     p.check_token_next(get_else_tk(), "invalid 'if-then-else' expression, 'else' expected");
     expr e = p.parse_expr(g_then_else_prec);
-    return mk_app(mk_constant(*g_ite), c, t, e);
+    return p.save_pos(mk_app(mk_constant(*g_ite), c, t, e), pos);
 }
 
-static expr parse_dite(parser & p, name const & H_name, pos_info const & pos) {
-    if (!p.env().find(*g_dite))
-        throw parser_error("invalid use of (dependent) 'if-then-else' expression, environment does "
-                           "not contain 'dite' definition", pos);
-    expr c = p.parse_expr();
+static expr parse_dite(parser & p, name const & H_name, expr const & c, pos_info const & pos) {
     p.check_token_next(get_then_tk(), "invalid 'if-then-else' expression, 'then' expected");
     expr t, e;
     {
         parser::local_scope scope(p);
         expr H = mk_local(H_name, c);
         p.add_local(H);
-        t = Fun(H, p.parse_expr(g_then_else_prec));
+        auto pos = p.pos();
+        t = p.save_pos(Fun(H, p.parse_expr(g_then_else_prec)), pos);
     }
     p.check_token_next(get_else_tk(), "invalid 'if-then-else' expression, 'else' expected");
     {
         parser::local_scope scope(p);
         expr H = mk_local(H_name, mk_app(*g_not, c));
         p.add_local(H);
-        e = Fun(H, p.parse_expr(g_then_else_prec));
+        auto pos = p.pos();
+        e = p.save_pos(Fun(H, p.parse_expr(g_then_else_prec)), pos);
     }
-    return mk_app(mk_constant(*g_dite), c, t, e);
+    return p.save_pos(mk_app(p.save_pos(mk_constant(*g_dite), pos), c, t, e), pos);
 }
 
 static expr parse_if_then_else(parser & p, unsigned, expr const *, pos_info const & pos) {
-    if (p.curr_is_identifier()) {
-        auto id_pos = p.pos();
-        name id = p.get_name_val();
-        p.next();
-        if (p.curr_is_token(get_colon_tk())) {
-            p.next();
-            return parse_dite(p, id, pos);
-        } else {
-            expr e = p.id_to_expr(id, id_pos);
-            while (!p.curr_is_token(get_then_tk())) {
-                e = p.parse_led(e);
-            }
-            return parse_ite(p, e, pos);
-        }
-    } else {
-        expr c = p.parse_expr();
-        return parse_ite(p, c, pos);
-    }
+    pair<optional<name>, expr> ie = p.parse_qualified_expr();
+    if (ie.first)
+        return parse_dite(p, *ie.first, ie.second, pos);
+    else
+        return parse_ite(p, ie.second, pos);
 }
 
 static expr parse_calc_expr(parser & p, unsigned, expr const *, pos_info const &) {

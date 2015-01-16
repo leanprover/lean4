@@ -352,6 +352,13 @@ public:
     expr id_to_expr(name const & id, pos_info const & p);
 
     expr parse_expr(unsigned rbp = 0);
+    /**
+       \brief Parse an (optionally) qualified expression.
+       If the input is of the form <id> : <expr>, then return the pair (some(id), expr).
+       Otherwise, parse the next expression and return (none, expr).
+    */
+    pair<optional<name>, expr> parse_qualified_expr(unsigned rbp = 0);
+
     expr parse_led(expr left);
     expr parse_scoped_expr(unsigned num_params, expr const * ps, local_environment const & lenv, unsigned rbp = 0);
     expr parse_scoped_expr(buffer<expr> const & ps, local_environment const & lenv, unsigned rbp = 0) {

@@ -483,10 +483,16 @@ int main(int argc, char ** argv) {
     definition_cache   cache;
     definition_cache * cache_ptr = nullptr;
     if (use_cache) {
-        cache_ptr = &cache;
-        std::ifstream in(cache_name, std::ifstream::binary);
-        if (!in.bad() && !in.fail())
-            cache.load(in);
+        try {
+            cache_ptr = &cache;
+            std::ifstream in(cache_name, std::ifstream::binary);
+            if (!in.bad() && !in.fail())
+                cache.load(in);
+        } catch (lean::throwable & ex) {
+            lean::display_error(diagnostic(env, ios), nullptr, ex);
+            std::cerr << "Failed to load cache file '" << cache_name << "'\n";
+            return 1;
+        }
     }
     declaration_index index;
     declaration_index * index_ptr = nullptr;

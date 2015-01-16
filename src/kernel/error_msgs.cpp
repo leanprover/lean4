@@ -31,7 +31,9 @@ list<options> set_distinguishing_pp_options(list<options> const & opts) {
 
 static expr erase_binder_info(expr const & e) {
     return replace(e, [](expr const & e) {
-            if (is_binding(e) && binding_info(e) != binder_info()) {
+            if (is_local(e) || is_metavar(e)) {
+                return some_expr(e);
+            } else if (is_binding(e) && binding_info(e) != binder_info()) {
                 return some_expr(update_binding(e, erase_binder_info(binding_domain(e)),
                                                 erase_binder_info(binding_body(e)), binder_info()));
             } else {

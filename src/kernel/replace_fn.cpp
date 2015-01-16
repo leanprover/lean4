@@ -151,6 +151,7 @@ public:
         while (!m_fs.empty()) {
           begin_loop:
             check_interrupted();
+            check_memory("replace");
             frame & f = m_fs.back();
             expr const & e   = f.m_expr;
             unsigned offset  = f.m_offset;
@@ -218,6 +219,8 @@ class replace_rec_fn {
                 return *r;
             shared = true;
         }
+        check_interrupted();
+        check_memory("replace");
 
         if (optional<expr> r = m_f(e, offset)) {
             return save_result(e, offset, *r, shared);

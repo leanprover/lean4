@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include <vector>
 #include <utility>
 #include "util/flet.h"
+#include "util/memory.h"
+#include "util/interrupt.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/cache_stack.h"
 
@@ -59,6 +61,8 @@ class for_each_fn {
           begin_loop:
             if (todo.empty())
                 break;
+            check_interrupted();
+            check_memory("expression traversal");
             auto p = todo.back();
             todo.pop_back();
             expr const & e  = p.first;

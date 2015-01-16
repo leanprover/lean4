@@ -119,6 +119,7 @@ struct structure_cmd_fn {
     modifiers                  m_modifiers;
     buffer<expr>               m_params;
     expr                       m_type;
+    buffer<optional<name>>     m_parent_refs;
     buffer<expr>               m_parents;
     buffer<bool>               m_private_parents;
     name                       m_mk;
@@ -209,7 +210,9 @@ struct structure_cmd_fn {
                     m_p.next();
                     is_private_parent  = true;
                 }
-                expr parent = m_p.parse_expr();
+                pair<optional<name>, expr> qparent = m_p.parse_qualified_expr();
+                m_parent_refs.push_back(qparent.first);
+                expr const & parent = qparent.second;
                 m_parents.push_back(parent);
                 m_private_parents.push_back(is_private_parent);
                 check_parent(parent, pos);
@@ -462,12 +465,30 @@ struct structure_cmd_fn {
         solve_constraints(cseq);
     }
 
-    /** \brief Add params and fields to parser local scope */
+    /** \brief Add params, fields and references to parent structures into parser local scope */
     void add_locals() {
         for (expr const & param : m_params)
             m_p.add_local(param);
         for (expr const & field : m_fields)
             m_p.add_local(field);
+        for (unsigned i = 0; i < m_parents.size(); i++) {
+            if (auto n = m_parent_refs[i]) {
+                expr const & parent            = m_parents[i];
+                field_map const & fmap         = m_field_maps[i];
+                buffer<expr> parent_params;
+                expr const & parent_fn         = get_app_args(parent, parent_params);
+                levels const & parent_ls       = const_levels(parent_fn);
+                name const & parent_name       = const_name(parent_fn);
+                auto parent_info               = get_parent_info(parent_name);
+                name const & parent_intro_name = inductive::intro_rule_name(std::get<2>(parent_info));
+                expr parent_intro              = mk_app(mk_constant(parent_intro_name, parent_ls), parent_params);
+                for (unsigned idx : fmap) {
+                    expr const & field = m_fields[idx];
+                    parent_intro = mk_app(parent_intro, field);
+                }
+                m_p.add_local_expr(*n, mk_as_is(parent_intro));
+            }
+        }
     }
 
     /** \brief Check if new field names collide with fields inherited from parent datastructures */

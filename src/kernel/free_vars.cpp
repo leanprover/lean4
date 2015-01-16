@@ -9,19 +9,24 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/expr_sets.h"
 #include "kernel/replace_fn.h"
-#include "kernel/find_fn.h"
+#include "kernel/for_each_fn.h"
 
 namespace lean {
 bool has_free_var(expr const & e, unsigned i) {
-    optional<expr> r = find(e, [&](expr const & e, unsigned offset) {
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned offset) {
+            if (found)
+                return false; // already found
+            if (closed(e))
+                return false; // do not search their types
             if (is_var(e)) {
                 unsigned vidx = var_idx(e);
-                return vidx >= offset && vidx - offset == i;
-            } else {
-                return false;
+                if (vidx >= offset && vidx - offset == i)
+                    found = true;
             }
+            return true; // continue search
         });
-    return static_cast<bool>(r);
+    return found;
 }
 
 expr lower_free_vars(expr const & e, unsigned s, unsigned d) {

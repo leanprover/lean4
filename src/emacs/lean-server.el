@@ -134,10 +134,12 @@
   "Create lean-server process."
   (let ((process-connection-type nil)
         (lean-server-process
-         (start-process lean-server-process-name
-                        lean-server-buffer-name
-                        (lean-get-executable lean-executable-name)
-                        lean-server-option)))
+         (apply 'start-process
+                (append (list lean-server-process-name
+                              lean-server-buffer-name
+                              (lean-get-executable lean-executable-name)
+                              lean-server-option)
+                        lean-server-options))))
     (set-process-coding-system lean-server-process 'utf-8 'utf-8)
     (set-process-filter lean-server-process 'lean-server-output-filter)
     (set-process-sentinel lean-server-process 'lean-server-handle-signal)

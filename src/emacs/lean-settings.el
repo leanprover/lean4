@@ -54,6 +54,12 @@ show both of expressions and types.")
 (defcustom lean-server-retry-time 0.1
   "Retry interval for event-handler")
 
+(defcustom lean-server-options nil
+  "Additional command line options for the Lean background
+   process used to perform tasks such as type information and
+   perform auto-completion"
+  :group 'lean)
+
 (defcustom lean-flycheck-use t
   "Use flycheck for lean."
   :group 'lean

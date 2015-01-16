@@ -17,11 +17,14 @@ bool has_free_var(expr const & e, unsigned i) {
     for_each(e, [&](expr const & e, unsigned offset) {
             if (found)
                 return false; // already found
-            if (closed(e))
-                return false; // do not search their types
+            unsigned n_i = i + offset;
+            if (n_i < i)
+                return false; // overflow, vidx can't be >= max unsigned
+            if (n_i >= get_free_var_range(e))
+                return false; // expression e does not contain free variables with idx >= n_i
             if (is_var(e)) {
                 unsigned vidx = var_idx(e);
-                if (vidx >= offset && vidx - offset == i)
+                if (vidx == n_i)
                     found = true;
             }
             return true; // continue search

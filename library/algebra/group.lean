@@ -252,22 +252,24 @@ section group
   iff.intro eq_mul_inv_of_mul_eq mul_eq_of_eq_mul_inv
 
   definition group.to_left_cancel_semigroup [instance] [coercion] : left_cancel_semigroup A :=
-  left_cancel_semigroup.mk (@group.mul A s) (@group.mul_assoc A s)
-    (take a b c,
+  ⦃ left_cancel_semigroup,
+    mul_left_cancel := take a b c,
       assume H : a * b = a * c,
       calc
         b = a⁻¹ * (a * b) : inv_mul_cancel_left
           ... = a⁻¹ * (a * c) : H
-          ... = c : inv_mul_cancel_left)
+          ... = c : inv_mul_cancel_left,
+    using s ⦄
 
   definition group.to_right_cancel_semigroup [instance] [coercion] : right_cancel_semigroup A :=
-  right_cancel_semigroup.mk (@group.mul A s) (@group.mul_assoc A s)
-    (take a b c,
+  ⦃ right_cancel_semigroup,
+    mul_right_cancel := take a b c,
       assume H : a * b = c * b,
       calc
         a = (a * b) * b⁻¹ : mul_inv_cancel_right
           ... = (c * b) * b⁻¹ : H
-          ... = c : mul_inv_cancel_right)
+          ... = c : mul_inv_cancel_right,
+    using s ⦄
 
 end group
 
@@ -380,23 +382,25 @@ section add_group
 
   definition add_group.to_left_cancel_semigroup [instance] [coercion] :
     add_left_cancel_semigroup A :=
-  add_left_cancel_semigroup.mk add_group.add add_group.add_assoc
-    (take a b c,
+  ⦃ add_left_cancel_semigroup,
+    add_left_cancel := take a b c,
       assume H : a + b = a + c,
       calc
         b = -a + (a + b) : !neg_add_cancel_left⁻¹
           ... = -a + (a + c) : H
-          ... = c : neg_add_cancel_left)
+          ... = c : neg_add_cancel_left,
+    using s ⦄
 
   definition add_group.to_add_right_cancel_semigroup [instance] [coercion] :
     add_right_cancel_semigroup A :=
-  add_right_cancel_semigroup.mk add_group.add add_group.add_assoc
-    (take a b c,
+  ⦃ add_right_cancel_semigroup,
+    add_right_cancel := take a b c,
       assume H : a + b = c + b,
       calc
         a = (a + b) + -b : !add_neg_cancel_right⁻¹
           ... = (c + b) + -b : H
-          ... = c : add_neg_cancel_right)
+          ... = c : add_neg_cancel_right,
+    using s ⦄
 
   /- sub -/
 

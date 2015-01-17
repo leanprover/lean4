@@ -201,17 +201,17 @@ structure ordered_comm_group [class] (A : Type) extends add_comm_group A, order_
 
 definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] [coercion]
     [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
-ordered_cancel_comm_monoid.mk ordered_comm_group.add ordered_comm_group.add_assoc
-  (@ordered_comm_group.zero A s) zero_add add_zero ordered_comm_group.add_comm
-  (@add.left_cancel _ _) (@add.right_cancel _ _)
-  has_le.le le.refl (@le.trans _ _) (@le.antisymm _ _)
-  has_lt.lt (@lt_iff_le_and_ne _ _) ordered_comm_group.add_le_add_left
-proof
-  take a b c : A,
-  assume H : a + b ≤ a + c,
-  have H' : -a + (a + b) ≤ -a + (a + c), from ordered_comm_group.add_le_add_left _ _ H _,
-  !neg_add_cancel_left ▸ !neg_add_cancel_left ▸ H'
-qed
+⦃ ordered_cancel_comm_monoid,
+  add_left_cancel  := @add.left_cancel _ _,
+  add_right_cancel := @add.right_cancel _ _,
+  le_of_add_le_add_left :=
+    proof
+      take a b c : A,
+      assume H : a + b ≤ a + c,
+      have H' : -a + (a + b) ≤ -a + (a + c), from ordered_comm_group.add_le_add_left _ _ H _,
+      !neg_add_cancel_left ▸ !neg_add_cancel_left ▸ H'
+    qed,
+  using s ⦄
 
 section
   variables [s : ordered_comm_group A] (a b c d e : A)

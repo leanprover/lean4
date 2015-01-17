@@ -153,25 +153,22 @@ end comm_semiring
 structure ring [class] (A : Type) extends add_comm_group A, monoid A, distrib A, zero_ne_one_class A
 
 definition ring.to_semiring [instance] [coercion] [s : ring A] : semiring A :=
-semiring.mk ring.add ring.add_assoc !ring.zero ring.zero_add
-  add_zero   -- note: we've shown that add_zero follows from zero_add in add_comm_group
-  ring.add_comm ring.mul ring.mul_assoc !ring.one ring.one_mul ring.mul_one
-  ring.left_distrib ring.right_distrib
-  (take a,
-    have H : 0 * a + 0 = 0 * a + 0 * a, from
-      calc
-        0 * a + 0 = 0 * a : add_zero
-          ... = (0 + 0) * a : {(add_zero 0)⁻¹}
-          ... = 0 * a + 0 * a : ring.right_distrib,
-    show 0 * a = 0, from  (add.left_cancel H)⁻¹)
-  (take a,
+⦃ semiring,
+  mul_zero := take a,
     have H : a * 0 + 0 = a * 0 + a * 0, from
       calc
         a * 0 + 0 = a * 0 : add_zero
           ... = a * (0 + 0) : {(add_zero 0)⁻¹}
           ... = a * 0 + a * 0 : ring.left_distrib,
-    show a * 0 = 0, from (add.left_cancel H)⁻¹)
-  !ring.zero_ne_one
+    show a * 0 = 0, from (add.left_cancel H)⁻¹,
+  zero_mul := take a,
+    have H : 0 * a + 0 = 0 * a + 0 * a, from
+      calc
+        0 * a + 0 = 0 * a : add_zero
+          ... = (0 + 0) * a : {(add_zero 0)⁻¹}
+          ... = 0 * a + 0 * a : ring.right_distrib,
+    show 0 * a = 0, from  (add.left_cancel H)⁻¹,
+  using s ⦄
 
 section
   variables [s : ring A] (a b c d e : A)
@@ -226,11 +223,10 @@ end
 structure comm_ring [class] (A : Type) extends ring A, comm_semigroup A
 
 definition comm_ring.to_comm_semiring [instance] [coercion] [s : comm_ring A] : comm_semiring A :=
-comm_semiring.mk comm_ring.add comm_ring.add_assoc (@comm_ring.zero A s)
-  comm_ring.zero_add comm_ring.add_zero comm_ring.add_comm comm_ring.mul comm_ring.mul_assoc
-  (@comm_ring.one A s) comm_ring.one_mul comm_ring.mul_one comm_ring.left_distrib
-  comm_ring.right_distrib zero_mul mul_zero (@comm_ring.zero_ne_one A s)
-  comm_ring.mul_comm
+⦃ comm_semiring,
+  mul_zero := mul_zero,
+  zero_mul := zero_mul,
+  using s ⦄
 
 section
   variables [s : comm_ring A] (a b c d e : A)

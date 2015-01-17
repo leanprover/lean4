@@ -146,16 +146,13 @@ structure ordered_ring [class] (A : Type) extends ring A, ordered_comm_group A :
 
 definition ordered_ring.to_ordered_semiring [instance] [coercion] [s : ordered_ring A] :
   ordered_semiring A :=
-ordered_semiring.mk ordered_ring.add ordered_ring.add_assoc !ordered_ring.zero
-  ordered_ring.zero_add ordered_ring.add_zero ordered_ring.add_comm ordered_ring.mul
-  ordered_ring.mul_assoc !ordered_ring.one ordered_ring.one_mul ordered_ring.mul_one
-  ordered_ring.left_distrib ordered_ring.right_distrib
-  zero_mul mul_zero !ordered_ring.zero_ne_one
-  (@add.left_cancel A _) (@add.right_cancel A _)
-  ordered_ring.le ordered_ring.le_refl ordered_ring.le_trans ordered_ring.le_antisymm
-  ordered_ring.lt ordered_ring.lt_iff_le_ne ordered_ring.add_le_add_left
-  (@le_of_add_le_add_left A _)
-  (take a b c,
+⦃ ordered_semiring,
+  mul_zero := mul_zero,
+  zero_mul := zero_mul,
+  add_left_cancel  := @add.left_cancel A _,
+  add_right_cancel := @add.right_cancel A _,
+  le_of_add_le_add_left := @le_of_add_le_add_left A _,
+  mul_le_mul_of_nonneg_left := take a b c,
     assume Hab : a ≤ b,
     assume Hc : 0 ≤ c,
     show c * a ≤ c * b,
@@ -163,8 +160,8 @@ ordered_semiring.mk ordered_ring.add ordered_ring.add_assoc !ordered_ring.zero
       have H1 : 0 ≤ b - a, from iff.elim_right !sub_nonneg_iff_le Hab,
       have H2 : 0 ≤ c * (b - a), from ordered_ring.mul_nonneg _ _ Hc H1,
       iff.mp !sub_nonneg_iff_le (!mul_sub_left_distrib ▸ H2)
-    qed)
-  (take a b c,
+    qed,
+  mul_le_mul_of_nonneg_right := take a b c,
     assume Hab : a ≤ b,
     assume Hc : 0 ≤ c,
     show a * c ≤ b * c,
@@ -172,8 +169,8 @@ ordered_semiring.mk ordered_ring.add ordered_ring.add_assoc !ordered_ring.zero
       have H1 : 0 ≤ b - a, from iff.elim_right !sub_nonneg_iff_le Hab,
       have H2 : 0 ≤ (b - a) * c, from ordered_ring.mul_nonneg _ _ H1 Hc,
       iff.mp !sub_nonneg_iff_le (!mul_sub_right_distrib ▸ H2)
-    qed)
-  (take a b c,
+    qed,
+  mul_lt_mul_of_pos_left  := take a b c,
     assume Hab : a < b,
     assume Hc : 0 < c,
     show c * a < c * b,
@@ -181,8 +178,8 @@ ordered_semiring.mk ordered_ring.add ordered_ring.add_assoc !ordered_ring.zero
       have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
       have H2 : 0 < c * (b - a), from ordered_ring.mul_pos _ _ Hc H1,
       iff.mp !sub_pos_iff_lt (!mul_sub_left_distrib ▸ H2)
-    qed)
-  (take a b c,
+    qed,
+  mul_lt_mul_of_pos_right := take a b c,
     assume Hab : a < b,
     assume Hc : 0 < c,
     show a * c < b * c,
@@ -190,7 +187,8 @@ ordered_semiring.mk ordered_ring.add ordered_ring.add_assoc !ordered_ring.zero
       have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
       have H2 : 0 < (b - a) * c, from ordered_ring.mul_pos _ _ H1 Hc,
       iff.mp !sub_pos_iff_lt (!mul_sub_right_distrib ▸ H2)
-    qed)
+    qed,
+  using s ⦄
 
 section
   variable [s : ordered_ring A]
@@ -245,20 +243,18 @@ structure linear_ordered_ring [class] (A : Type) extends ordered_ring A, linear_
 definition linear_ordered_ring.to_linear_ordered_semiring [instance] [coercion]
     [s : linear_ordered_ring A] :
   linear_ordered_semiring A :=
-linear_ordered_semiring.mk linear_ordered_ring.add linear_ordered_ring.add_assoc
-  (@linear_ordered_ring.zero _ _) linear_ordered_ring.zero_add linear_ordered_ring.add_zero
-  linear_ordered_ring.add_comm linear_ordered_ring.mul linear_ordered_ring.mul_assoc
-  (@linear_ordered_ring.one _ _) linear_ordered_ring.one_mul linear_ordered_ring.mul_one
-  linear_ordered_ring.left_distrib linear_ordered_ring.right_distrib
-  zero_mul mul_zero !ordered_ring.zero_ne_one
-  (@add.left_cancel A _) (@add.right_cancel A _)
-  linear_ordered_ring.le linear_ordered_ring.le_refl linear_ordered_ring.le_trans
-  linear_ordered_ring.le_antisymm
-  linear_ordered_ring.lt linear_ordered_ring.lt_iff_le_ne linear_ordered_ring.add_le_add_left
-  (@le_of_add_le_add_left A _)
-  (@mul_le_mul_of_nonneg_left A _) (@mul_le_mul_of_nonneg_right A _)
-  (@mul_lt_mul_of_pos_left A _) (@mul_lt_mul_of_pos_right A _)
-  linear_ordered_ring.le_iff_lt_or_eq linear_ordered_ring.le_total
+⦃ linear_ordered_semiring,
+  mul_zero                   := mul_zero,
+  zero_mul                   := zero_mul,
+  add_left_cancel            := @add.left_cancel A _,
+  add_right_cancel           := @add.right_cancel A _,
+  le_of_add_le_add_left      := @le_of_add_le_add_left A _,
+  mul_le_mul_of_nonneg_left  := @mul_le_mul_of_nonneg_left A _,
+  mul_le_mul_of_nonneg_right := @mul_le_mul_of_nonneg_right A _,
+  mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left A _,
+  mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right A _,
+  le_total                   := linear_ordered_ring.le_total,
+  using s ⦄
 
 structure linear_ordered_comm_ring [class] (A : Type) extends linear_ordered_ring A, comm_monoid A
 
@@ -266,18 +262,8 @@ structure linear_ordered_comm_ring [class] (A : Type) extends linear_ordered_rin
 definition linear_ordered_comm_ring.to_integral_domain [instance] [coercion]
     [s: linear_ordered_comm_ring A] :
   integral_domain A :=
-integral_domain.mk linear_ordered_comm_ring.add linear_ordered_comm_ring.add_assoc
-  (@linear_ordered_comm_ring.zero _ _)
-  linear_ordered_comm_ring.zero_add linear_ordered_comm_ring.add_zero
-  linear_ordered_comm_ring.neg linear_ordered_comm_ring.add_left_inv
-  linear_ordered_comm_ring.add_comm
-  linear_ordered_comm_ring.mul linear_ordered_comm_ring.mul_assoc
-  (@linear_ordered_comm_ring.one _ _)
-  linear_ordered_comm_ring.one_mul linear_ordered_comm_ring.mul_one
-  linear_ordered_comm_ring.left_distrib linear_ordered_comm_ring.right_distrib
-  (@linear_ordered_comm_ring.zero_ne_one _ _)
-  linear_ordered_comm_ring.mul_comm
-  (take a b,
+⦃ integral_domain,
+  eq_zero_or_eq_zero_of_mul_eq_zero := take a b,
     assume H : a * b = 0,
     show a = 0 ∨ b = 0, from
       lt.by_cases
@@ -291,7 +277,8 @@ integral_domain.mk linear_ordered_comm_ring.add linear_ordered_comm_ring.add_ass
           lt.by_cases
             (assume Hb : 0 < b, absurd (H ▸ mul_neg_of_neg_of_pos Ha Hb) (lt.irrefl 0))
             (assume Hb : 0 = b, or.inr (Hb⁻¹))
-            (assume Hb : 0 > b, absurd (H ▸ mul_pos_of_neg_of_neg Ha Hb) (lt.irrefl 0))))
+            (assume Hb : 0 > b, absurd (H ▸ mul_pos_of_neg_of_neg Ha Hb) (lt.irrefl 0))),
+  using s ⦄
 
 section
   variable [s : linear_ordered_ring A]

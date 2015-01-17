@@ -153,7 +153,7 @@ end comm_semiring
 structure ring [class] (A : Type) extends add_comm_group A, monoid A, distrib A, zero_ne_one_class A
 
 definition ring.to_semiring [instance] [coercion] [s : ring A] : semiring A :=
-⦃ semiring,
+⦃ semiring, s,
   mul_zero := take a,
     have H : a * 0 + 0 = a * 0 + a * 0, from
       calc
@@ -167,8 +167,7 @@ definition ring.to_semiring [instance] [coercion] [s : ring A] : semiring A :=
         0 * a + 0 = 0 * a : add_zero
           ... = (0 + 0) * a : {(add_zero 0)⁻¹}
           ... = 0 * a + 0 * a : ring.right_distrib,
-    show 0 * a = 0, from  (add.left_cancel H)⁻¹,
-  using s ⦄
+    show 0 * a = 0, from  (add.left_cancel H)⁻¹ ⦄
 
 section
   variables [s : ring A] (a b c d e : A)
@@ -223,10 +222,9 @@ end
 structure comm_ring [class] (A : Type) extends ring A, comm_semigroup A
 
 definition comm_ring.to_comm_semiring [instance] [coercion] [s : comm_ring A] : comm_semiring A :=
-⦃ comm_semiring,
+⦃ comm_semiring, s,
   mul_zero := mul_zero,
-  zero_mul := zero_mul,
-  using s ⦄
+  zero_mul := zero_mul ⦄
 
 section
   variables [s : comm_ring A] (a b c d e : A)

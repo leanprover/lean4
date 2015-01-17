@@ -11,7 +11,7 @@ definition s2 := ⦃ test, a := 3, b := 10 ⦄
 
 eval s2
 
-definition s3 := {| test, a := 20, using s2 |}
+definition s3 := {| test, a := 20, s2 |}
 
 eval s3
 

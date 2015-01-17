@@ -201,7 +201,7 @@ structure ordered_comm_group [class] (A : Type) extends add_comm_group A, order_
 
 definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] [coercion]
     [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
-⦃ ordered_cancel_comm_monoid,
+⦃ ordered_cancel_comm_monoid, s,
   add_left_cancel  := @add.left_cancel _ _,
   add_right_cancel := @add.right_cancel _ _,
   le_of_add_le_add_left :=
@@ -210,8 +210,7 @@ definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] [coercion
       assume H : a + b ≤ a + c,
       have H' : -a + (a + b) ≤ -a + (a + c), from ordered_comm_group.add_le_add_left _ _ H _,
       !neg_add_cancel_left ▸ !neg_add_cancel_left ▸ H'
-    qed,
-  using s ⦄
+    qed ⦄
 
 section
   variables [s : ordered_comm_group A] (a b c d e : A)

@@ -1247,12 +1247,12 @@ expr parser::parse_expr(unsigned rbp) {
     return left;
 }
 
-pair<optional<name>, expr> parser::parse_qualified_expr(unsigned rbp) {
+pair<optional<name>, expr> parser::parse_id_tk_expr(name const & tk, unsigned rbp) {
     if (curr_is_identifier()) {
         auto id_pos = pos();
         name id = get_name_val();
         next();
-        if (curr_is_token(get_colon_tk())) {
+        if (curr_is_token(tk)) {
             next();
             return mk_pair(optional<name>(id), parse_expr(rbp));
         } else {
@@ -1265,6 +1265,14 @@ pair<optional<name>, expr> parser::parse_qualified_expr(unsigned rbp) {
     } else {
         return mk_pair(optional<name>(), parse_expr(rbp));
     }
+}
+
+pair<optional<name>, expr> parser::parse_qualified_expr(unsigned rbp) {
+    return parse_id_tk_expr(get_colon_tk(), rbp);
+}
+
+pair<optional<name>, expr> parser::parse_optional_assignment(unsigned rbp) {
+    return parse_id_tk_expr(get_assign_tk(), rbp);
 }
 
 expr parser::parse_scoped_expr(unsigned num_ps, expr const * ps, local_environment const & lenv, unsigned rbp) {

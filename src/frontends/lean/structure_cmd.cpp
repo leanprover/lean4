@@ -985,13 +985,12 @@ static expr parse_struct_expr_core(parser & p, pos_info const & pos, bool curly_
     buffer<expr> using_exprs;
     while (p.curr_is_token(get_comma_tk())) {
         p.next();
-        if (p.curr_is_token(get_using_tk())) {
-            p.next();
-            using_exprs.push_back(p.parse_expr());
+        pair<optional<name>, expr> id_e = p.parse_optional_assignment();
+        if (id_e.first) {
+            field_names.push_back(*id_e.first);
+            field_values.push_back(id_e.second);
         } else {
-            field_names.push_back(p.check_atomic_id_next("invalid structure instance, identifier expected"));
-            p.check_token_next(get_assign_tk(), "invalid structure instance, ':=' expected");
-            field_values.push_back(p.parse_expr());
+            using_exprs.push_back(id_e.second);
         }
     }
     if (curly_bar)

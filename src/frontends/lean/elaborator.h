@@ -167,6 +167,9 @@ class elaborator : public coercion_info_manager {
     expr visit_decreasing(expr const & e, constraint_seq & cs);
     constraint mk_equations_cnstr(expr const & m, expr const & eqns);
 
+    bool is_structure(expr const & S);
+    expr visit_structure_instance(expr const & e, constraint_seq & cs);
+
 public:
     elaborator(elaborator_context & ctx, name_generator const & ngen, bool nice_mvar_names = false);
     std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type,

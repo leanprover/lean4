@@ -40,6 +40,7 @@ Author: Leonardo de Moura
 #include "library/error_handling/error_handling.h"
 #include "library/definitional/equations.h"
 #include "frontends/lean/local_decls.h"
+#include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/class.h"
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/info_manager.h"
@@ -1181,6 +1182,120 @@ expr elaborator::visit_decreasing(expr const & e, constraint_seq & cs) {
     return mk_decreasing(dec_app, dec_proof);
 }
 
+bool elaborator::is_structure(expr const & S) {
+    expr const & I = get_app_fn(S);
+    return is_constant(I) &&
+        inductive::is_inductive_decl(env(), const_name(I)) &&
+        *inductive::get_num_intro_rules(env(), const_name(I)) == 1 &&
+        *inductive::get_num_indices(env(), const_name(I)) == 0;
+}
+
+expr elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
+    expr S;
+    buffer<name> field_names;
+    buffer<expr> field_values, using_exprs;
+    destruct_structure_instance(e, S, field_names, field_values, using_exprs);
+    lean_assert(field_names.size() == field_values.size());
+    expr new_S     = visit(S, cs);
+    if (!is_structure(new_S))
+        throw_elaborator_exception("invalid structure instance, given type is not a structure", S);
+    buffer<expr> new_S_args;
+    expr I = get_app_args(new_S, new_S_args);
+    expr new_S_type = whnf(infer_type(new_S, cs), cs);
+    tag S_tag = S.get_tag();
+    while (is_pi(new_S_type)) {
+        expr m     = m_full_context.mk_meta(m_ngen, some_expr(binding_domain(new_S_type)), S_tag);
+        register_meta(m);
+        new_S_args.push_back(m);
+        new_S      = mk_app(new_S, m, S_tag);
+        new_S_type = whnf(instantiate(binding_body(new_S_type), m), cs);
+    }
+    buffer<bool> field_used;
+    field_used.resize(field_names.size(), false);
+    buffer<expr> new_field_values;
+    for (expr const & v : field_values)
+        new_field_values.push_back(visit(v, cs));
+    buffer<bool> using_exprs_used;
+    using_exprs_used.resize(using_exprs.size(), false);
+    buffer<expr> new_using_exprs;
+    buffer<expr> new_using_types;
+    for (expr const & u : using_exprs) {
+        expr new_u = visit(u, cs);
+        expr new_u_type = whnf(infer_type(new_u, cs), cs);
+        if (!is_structure(new_u_type))
+            throw_elaborator_exception("invalid structure instance, type of 'using' argument is not a structure", u);
+        new_using_exprs.push_back(new_u);
+        new_using_types.push_back(new_u_type);
+    }
+    buffer<name> intro_names;
+    get_intro_rule_names(env(), const_name(I), intro_names);
+    lean_assert(intro_names.size() == 1);
+    name const & S_mk_name = intro_names[0];
+    tag  result_tag = e.get_tag();
+    expr S_mk = mk_constant(S_mk_name, const_levels(I), result_tag);
+    for (expr & arg : new_S_args)
+        S_mk  = mk_app(S_mk, arg, result_tag);
+    expr S_mk_type = whnf(infer_type(S_mk, cs), cs);
+    while (is_pi(S_mk_type)) {
+        name n = binding_name(S_mk_type);
+        expr d_type = binding_domain(S_mk_type);
+        expr v;
+        unsigned i = 0;
+        for (; i < field_names.size(); i++) {
+            if (!field_used[i] && field_names[i] == n) {
+                field_used[i] = true;
+                v = new_field_values[i];
+                break;
+            }
+        }
+        if (i == new_field_values.size()) {
+            // did not find explicit field
+            unsigned i = 0;
+            for (; i < new_using_exprs.size(); i++) {
+                // check if u_type structure has the given field.
+                expr const & u_type = new_using_types[i];
+                buffer<expr> u_type_args;
+                expr const & J      = get_app_args(u_type, u_type_args);
+                lean_assert(is_constant(J));
+                name J_field_name = const_name(J) + n;
+                if (env().find(J_field_name)) {
+                    tag u_tag = using_exprs[i].get_tag();
+                    v = mk_constant(J_field_name, const_levels(J), u_tag);
+                    for (expr const & arg : u_type_args)
+                        v = mk_app(v, arg, u_tag);
+                    v = mk_app(v, new_using_exprs[i], u_tag);
+                    using_exprs_used[i] = true;
+                    break;
+                }
+            }
+            if (i == using_exprs.size()) {
+                // did not find field is using structure
+                v = m_full_context.mk_meta(m_ngen, some_expr(d_type), result_tag);
+                register_meta(v);
+            }
+        }
+        S_mk            = mk_app(S_mk, v, result_tag);
+        expr v_type     = infer_type(v, cs);
+        justification j = mk_app_justification(S_mk, v, d_type, v_type);
+        auto new_v_cs   = ensure_has_type(v, v_type, d_type, j, m_relax_main_opaque);
+        expr new_v      = new_v_cs.first;
+        cs             += new_v_cs.second;
+        S_mk            = update_app(S_mk, app_fn(S_mk), new_v);
+        S_mk_type = whnf(instantiate(binding_body(S_mk_type), new_v), cs);
+    }
+    for (unsigned i = 0; i < field_used.size(); i++) {
+        if (!field_used[i])
+            throw_elaborator_exception(sstream() << "invalid structure instance, invalid field name '"
+                                       << field_names[i] << "'", field_values[i]);
+    }
+    for (unsigned i = 0; i < using_exprs_used.size(); i++) {
+        if (!using_exprs_used[i])
+            throw_elaborator_exception(sstream() << "invalid structure instance, 'using' clause #"
+                                       << i + 1 << " is unnecessary", using_exprs[i]);
+    }
+    return S_mk;
+}
+
 expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
     if (is_placeholder(e)) {
         return visit_placeholder(e, cs);
@@ -1218,6 +1333,8 @@ expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit_inaccessible(e, cs);
     } else if (is_decreasing(e)) {
         return visit_decreasing(e, cs);
+    } else if (is_structure_instance(e)) {
+        return visit_structure_instance(e, cs);
     } else {
         switch (e.kind()) {
         case expr_kind::Local:      return e;

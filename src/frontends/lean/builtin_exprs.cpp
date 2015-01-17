@@ -29,6 +29,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/info_tactic.h"
 #include "frontends/lean/info_annotation.h"
+#include "frontends/lean/structure_cmd.h"
 
 namespace lean {
 namespace notation {
@@ -496,6 +497,7 @@ parse_table init_nud_table() {
     r = r.add({transition("proof", mk_ext_action(parse_proof_qed))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
+    init_structure_instance_parsing_rules(r);
     return r;
 }
 

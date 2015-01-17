@@ -6,7 +6,12 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "frontends/lean/cmd_table.h"
+#include "frontends/lean/parse_table.h"
 namespace lean {
+void init_structure_instance_parsing_rules(parse_table & r);
+bool is_structure_instance(expr const & e);
+void destruct_structure_instance(expr const & e, expr & t, buffer<name> & field_names,
+                                 buffer<expr> & field_values, buffer<expr> & using_exprs);
 bool is_structure(environment const & env, name const & S);
 void get_structure_fields(environment const & env, name const & S, buffer<name> & fields);
 void register_structure_cmd(cmd_table & r);

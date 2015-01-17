@@ -20,6 +20,8 @@ name const & get_lcurly_tk();
 name const & get_rcurly_tk();
 name const & get_ldcurly_tk();
 name const & get_rdcurly_tk();
+name const & get_lcurlybar_tk();
+name const & get_rcurlybar_tk();
 name const & get_lbracket_tk();
 name const & get_rbracket_tk();
 name const & get_bar_tk();

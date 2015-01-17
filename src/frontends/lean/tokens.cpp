@@ -18,6 +18,8 @@ static name * g_lcurly       = nullptr;
 static name * g_rcurly       = nullptr;
 static name * g_ldcurly      = nullptr;
 static name * g_rdcurly      = nullptr;
+static name * g_lcurlybar    = nullptr;
+static name * g_rcurlybar    = nullptr;
 static name * g_lbracket     = nullptr;
 static name * g_rbracket     = nullptr;
 static name * g_bar          = nullptr;
@@ -112,6 +114,8 @@ void initialize_tokens() {
     g_rcurly       = new name("}");
     g_ldcurly      = new name("⦃");
     g_rdcurly      = new name("⦄");
+    g_lcurlybar    = new name("{|");
+    g_rcurlybar    = new name("|}");
     g_lbracket     = new name("[");
     g_rbracket     = new name("]");
     g_bar          = new name("|");
@@ -279,6 +283,8 @@ void finalize_tokens() {
     delete g_lbracket;
     delete g_rdcurly;
     delete g_ldcurly;
+    delete g_rcurlybar;
+    delete g_lcurlybar;
     delete g_lcurly;
     delete g_rcurly;
     delete g_llevel_curly;
@@ -301,6 +307,8 @@ name const & get_lcurly_tk() { return *g_lcurly; }
 name const & get_rcurly_tk() { return *g_rcurly; }
 name const & get_ldcurly_tk() { return *g_ldcurly; }
 name const & get_rdcurly_tk() { return *g_rdcurly; }
+name const & get_lcurlybar_tk() { return *g_lcurlybar; }
+name const & get_rcurlybar_tk() { return *g_rcurlybar; }
 name const & get_lbracket_tk() { return *g_lbracket; }
 name const & get_rbracket_tk() { return *g_rbracket; }
 name const & get_bar_tk() { return *g_bar; }

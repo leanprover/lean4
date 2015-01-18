@@ -6,6 +6,9 @@
 # Author: Soonho Kong
 #
 
+# Python 2/3 compatibility
+from __future__ import print_function
+
 import dropbox
 import os
 import argparse
@@ -19,10 +22,10 @@ parser.add_argument('--deletelist',    type=str, help='File containing a list of
 args = parser.parse_args()
 
 if not args.srcpath and not args.copylist and not args.deletelist:
-    print "You need to specify one of the following options:"
-    print "    --srcpath,"
-    print "    --copylist,"
-    print "    --deletelist"
+    print("You need to specify one of the following options:")
+    print("    --srcpath,")
+    print("    --copylist,")
+    print("    --deletelist")
     exit(1)
 
 access_token = args.dropbox_token
@@ -33,7 +36,7 @@ try:
     client = dropbox.client.DropboxClient(access_token)
     client.account_info()
 except:
-    print "Failed to connect to Dropbox. Please check the access token."
+    print("Failed to connect to Dropbox. Please check the access token.")
     exit(1)
 
 count = 0
@@ -86,7 +89,7 @@ if args.copylist:
     try:
         copylist_handle = open(copylist, "r")
     except IOError:
-        print 'Failed to open ' + copylist
+        print('Failed to open ' + copylist)
     for line in copylist_handle:
         fullpath = os.path.normpath(line.strip())
         copy_file_with_retry(fullpath, os.path.normpath(server_path + "/" + fullpath), 5)
@@ -98,7 +101,7 @@ if args.deletelist:
     try:
         deletelist_handle = open(deletelist, "r")
     except IOError:
-        print 'Failed to open ' + deletelist
+        print('Failed to open ' + deletelist)
     deletelist_handle = open(deletelist, "r")
     for line in deletelist_handle:
         fullpath = os.path.normpath(line.strip())

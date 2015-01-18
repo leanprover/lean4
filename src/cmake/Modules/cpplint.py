@@ -76,6 +76,10 @@ We do a small hack, which is to ignore //'s with "'s after them on the
 same line, but it is far from perfect (in either direction).
 """
 
+# Python 2/3 compatibility
+import six
+from six.moves import range, xrange
+
 import codecs
 import copy
 import getopt
@@ -668,7 +672,7 @@ class _CppLintState(object):
 
   def PrintErrorCounts(self):
     """Print a summary of errors by category, and the total."""
-    for category, count in self.errors_by_category.iteritems():
+    for category, count in six.iteritems(self.errors_by_category):
       sys.stderr.write('Category \'%s\' errors found: %d\n' %
                        (category, count))
     sys.stderr.write('Total errors found: %d\n' % self.error_count)
@@ -2837,7 +2841,7 @@ def GetLineWidth(line):
     The width of the line in column positions, accounting for Unicode
     combining characters and wide characters.
   """
-  if isinstance(line, unicode):
+  if isinstance(line, six.string_types):
     width = 0
     for uc in unicodedata.normalize('NFC', line):
       if unicodedata.east_asian_width(uc) in ('W', 'F'):
@@ -3172,7 +3176,7 @@ def _GetTextInside(text, start_pattern):
 
   # Give opening punctuations to get the matching close-punctuations.
   matching_punctuation = {'(': ')', '{': '}', '[': ']'}
-  closing_punctuation = set(matching_punctuation.itervalues())
+  closing_punctuation = set(six.itervalue(matching_punctuation))
 
   # Find the position to start extracting text.
   match = re.search(start_pattern, text, re.M)
@@ -3796,7 +3800,7 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error,
 
   # include_state is modified during iteration, so we iterate over a copy of
   # the keys.
-  header_keys = include_state.keys()
+  header_keys = list(include_state):
   for header in header_keys:
     (same_module, common_path) = FilesBelongToSameModule(abs_filename, header)
     fullpath = common_path + header

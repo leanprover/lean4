@@ -5,6 +5,9 @@
 #
 # Author: Soonho Kong
 
+# Python 2/3 compatibility
+from __future__ import print_function
+
 import argparse
 import fnmatch
 import os
@@ -63,7 +66,7 @@ def build_line_to_byteoffset_map(ilean_filename):
     return (map, lines)
 
 def extract_filename_from_info(info):
-    return next((item['filename'] for item in info if 'filename' in item.keys()), None)
+    return next((item['filename'] for item in info if 'filename' in item), None)
 
 def convert_position_to_etag_style(info):
     """Convert the position format from (line, col) to (line, byteoffset)"""
@@ -131,12 +134,12 @@ def get_etag_def(info):
         return ""
 
 def print_item(item):
-    print "\t%s\t%-60s:%4d:%4d:%6d - %s" \
-        % (item['category'], item['filename'], item['linenum'], item['col'], item['offset'], item['declname'])
+    print("\t%s\t%-60s:%4d:%4d:%6d - %s" \
+        % (item['category'], item['filename'], item['linenum'], item['col'], item['offset'], item['declname']))
 
 def print_items(items):
     for item in items:
-        print get_etag_def_entry(item),
+        print(get_etag_def_entry(item), end=' ')
 
 def find_makefile(path, makefile_names):
     """ Find makefile in a given directory.

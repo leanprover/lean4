@@ -6,6 +6,12 @@
 #
 # Author: Soonho Kong
 #
+
+# Python 2/3 compatibility
+from __future__ import print_function
+import six
+from six.moves import filter, map
+
 import argparse
 import fnmatch
 import glob
@@ -19,11 +25,12 @@ import subprocess
 import sys
 import tempfile
 import threading
-import urllib
+from six.moves import urllib
 
-# Enforce subprocesses to use 'utf-8'
-reload(sys)
-sys.setdefaultencoding("utf-8")
+# Enforce subprocesses to use 'utf-8' in Python 2
+if six.PY2:
+    reload(sys)
+    sys.setdefaultencoding("utf-8")
 
 # Fixate the path separator as '\' on Windows Platform
 # even if users are on CYGWIN/MSYS2 environment
@@ -53,6 +60,7 @@ g_flycheck_footer  = "FLYCHECK_END"
 g_logger = logging.getLogger('linja_logger')
 g_debug_mode = False
 
+@six.python_2_unicode_compatible
 class FlycheckItem:
     def __init__(self, filename, lineno, colno, ty, msg):
         self.filename = filename
@@ -62,8 +70,6 @@ class FlycheckItem:
         self.msg      = msg
         pass
     def __str__(self):
-        return unicode(self).encode('utf-8')
-    def __unicode__(self):
         ret = g_flycheck_header + " " + self.ty.upper() + "\n"
         ret += "%s:%d:%d: %s: %s" % (self.filename, self.lineno, self.colno, self.ty, self.msg) + "\n"
         ret += g_flycheck_footer
@@ -87,13 +93,12 @@ class FlycheckItem:
         msg       = msg.strip()
         return cls(filename, lineno, colno, ty, msg)
 
+@six.python_2_unicode_compatible
 class FlycheckItemList:
     def __init__(self, items):
         self.items = items
     def __str__(self):
-        return unicode(self).encode('utf-8')
-    def __unicode__(self):
-        return "\n".join([unicode(item) for item in self.items])
+        return "\n".join([six.text_type(item) for item in self.items])
     def __getitem__(self, i):
         return self.items[i]
     def __len__(self):
@@ -101,7 +106,7 @@ class FlycheckItemList:
     def sort(self):
         self.items = sorted(self.items)
     def filter(self, pred):
-        self.items = filter(pred, self.items)
+        self.items = list(filter(pred, self.items))
     def append(self, item):
         self.items.append(item)
     def truncate(self, n):
@@ -147,10 +152,10 @@ def init_logger():
         g_logger.addHandler(fileHandler)
 
 def log(msg):
-    print >> sys.stderr, msg
+    print(msg, file=sys.stderr)
 
 def log_nonewline(msg):
-    print >> sys.stderr, ("\r%s" % msg),
+    print(("\r%s" % msg), end=' ', file=sys.stderr)
     sys.stderr.flush()
 
 def error(msg):
@@ -226,7 +231,7 @@ def download_ninja_and_save_at(ninja_path):
     else:
         url = get_ninja_url()
         log("Downloading ninja: %s ===> %s\n" % (url, ninja_path))
-        urllib.urlretrieve(url, ninja_path, show_download_progress)
+        urllib.request.urlretrieve(url, ninja_path, show_download_progress)
         log("\n")
         if not os.path.isfile(ninja_path):
             error("failed to download ninja executable from %s" % url)
@@ -308,7 +313,7 @@ def check_requirements():
 def process_args(args):
     if (args.flycheck == False and args.flycheck_max_messages != None):
         error("Please use --flycheck option with --flycheck-max-messages option.")
-    args.targets = map(process_target, args.targets)
+    args.targets = list(map(process_target, args.targets))
     if args.directory:
         os.chdir(args.directory)
     args.project_dir = find_file_upward(g_project_filename)
@@ -369,17 +374,17 @@ def parse_arg(argv):
     return args
 
 def debug_status(args):
-    print "Working Directory =", os.getcwd()
-    print ""
-    for key, val in vars(args).iteritems():
-        print "Option[" + key + "] =", val
-    print ""
-    print "linja path    =", g_linja_path
-    print "lean/bin dir  =", g_lean_bin_dir
-    print "phony targets =", g_phony_targets
-    print "lean path     =", g_lean_path
-    print "leantags path =", g_leantags_path
-    print "ninja path    =", g_ninja_path
+    print("Working Directory =", os.getcwd())
+    print("")
+    for key, val in six.iteritems(vars(args)):
+        print("Option[" + key + "] =", val)
+    print("")
+    print("linja path    =", g_linja_path)
+    print("lean/bin dir  =", g_lean_bin_dir)
+    print("phony targets =", g_phony_targets)
+    print("lean path     =", g_lean_path)
+    print("leantags path =", g_leantags_path)
+    print("ninja path    =", g_ninja_path)
 
 def handle_flycheck_failure(out, err, args):
     if len(args.targets) == 0:
@@ -393,13 +398,13 @@ def handle_flycheck_failure(out, err, args):
                 if lean in line and lean != target:
                     failed.add(lean)
     for failed_file in failed:
-        print g_flycheck_header, "ERROR"
-        print "%s:1:0: error: failed to compile %s" % (target, failed_file)
-        print g_flycheck_footer
+        print(g_flycheck_header, "ERROR")
+        print("%s:1:0: error: failed to compile %s" % (target, failed_file))
+        print(g_flycheck_footer)
     if err:
-        print g_flycheck_header, "ERROR"
-        print "%s:1:0: error: %s" % (target, err.strip())
-        print g_flycheck_footer
+        print(g_flycheck_header, "ERROR")
+        print("%s:1:0: error: %s" % (target, err.strip()))
+        print(g_flycheck_footer)
     if failed:
         call_lean(target, args)
 
@@ -411,7 +416,7 @@ def process_lean_output(target, out, args, using_hlean):
         else:
             target = target[:-5] + "lean"
     if (not target.endswith(".lean") and not using_hlean) or (not target.endswith(".hlean") and using_hlean):
-        print out
+        print(out)
         return
     # Parse, filter, and remove extra items
     flycheckItemList = FlycheckItemList.fromString(out)
@@ -424,7 +429,7 @@ def process_lean_output(target, out, args, using_hlean):
         flycheckItemList.truncate(n)
         tooManyItemsError = FlycheckItem(target, 1, 0, "error", "For performance, we only display %d errors/warnings out of %d. (lean-flycheck-max-messages-to-display)" % (n, count))
         flycheckItemList.append(tooManyItemsError)
-    print flycheckItemList
+    print(flycheckItemList)
 
 def call_ninja(args):
     targets = []
@@ -449,7 +454,7 @@ def call_ninja(args):
             process_lean_output(targets[0], out, args, args.targets[0].endswith(".hlean"))
             handle_flycheck_failure(out, err, args)
         else:
-            print out + err
+            print(out + err)
 
     return proc.returncode
 
@@ -552,7 +557,7 @@ def clear_cache(args):
         sys.stderr.write("\n")
 
 def build_olean(lean, olean, clean, dlean, ilean, base):
-    (lean, olean, clean, dlean, ilean, base) = map(escape_ninja_char, (lean, olean, clean, dlean, ilean, base))
+    (lean, olean, clean, dlean, ilean, base) = list(map(escape_ninja_char, (lean, olean, clean, dlean, ilean, base)))
     if clean.startswith(base):
         str = """build %s %s %s: LEAN %s | %s\n""" % (olean, ilean, clean, lean, dlean)
     else:
@@ -567,52 +572,52 @@ def make_build_ninja(args):
     with open(os.path.join(args.project_dir, "build.ninja"), "w") as f:
         lean_files = find_lean_files(args)
 
-        print >> f, """rule CLEAN"""
-        print >> f, """  command = """,
-        print >> f, """"%s" -t clean""" % g_ninja_path
-        print >> f, """  description = Cleaning all built files..."""
+        print("""rule CLEAN""", file=f)
+        print("""  command = """, end=' ', file=f)
+        print(""""%s" -t clean""" % g_ninja_path, file=f)
+        print("""  description = Cleaning all built files...""", file=f)
 
-        print >> f, """rule LEAN"""
-        print >> f, """  depfile = ${DLEAN_FILE}"""
-        print >> f, """  command = "%s" %s "$in" -o "${OLEAN_FILE}" -c "${CLEAN_FILE}" -i "${ILEAN_FILE}" """ \
-            % (g_lean_path, " ".join(args.lean_options))
+        print("""rule LEAN""", file=f)
+        print("""  depfile = ${DLEAN_FILE}""", file=f)
+        print("""  command = "%s" %s "$in" -o "${OLEAN_FILE}" -c "${CLEAN_FILE}" -i "${ILEAN_FILE}" """ \
+            % (g_lean_path, " ".join(args.lean_options)), file=f)
 
-        print >> f, """rule LEANTAGS"""
-        print >> f, """  command = """,
+        print("""rule LEANTAGS""", file=f)
+        print("""  command = """, end=' ', file=f)
         if platform.system() == "Windows":
-            print >> f, "python ",
-        print >> f, """"%s" --relative -- $in """ % (g_leantags_path)
+            print("python ", end=' ', file=f)
+        print(""""%s" --relative -- $in """ % (g_leantags_path), file=f)
 
-        print >> f, "build all: phony",
+        print("build all: phony", end=' ', file=f)
         for item in lean_files:
-            print >> f, " " + escape_ninja_char(item['olean']),
-        print >> f, ""
+            print(" " + escape_ninja_char(item['olean']), end=' ', file=f)
+        print("", file=f)
 
         tags_file = "TAGS"
-        print >> f, "build tags: phony " + tags_file
-        print >> f, "build " + tags_file + ": LEANTAGS",
+        print("build tags: phony " + tags_file, file=f)
+        print("build " + tags_file + ": LEANTAGS", end=' ', file=f)
         for item in lean_files:
-            print >> f, " " + escape_ninja_char(item['ilean']),
-        print >> f, ""
+            print(" " + escape_ninja_char(item['ilean']), end=' ', file=f)
+        print("", file=f)
 
-        print >> f, """build clean: CLEAN"""
+        print("""build clean: CLEAN""", file=f)
 
         for item in lean_files:
-            print >> f, build_olean(item['lean'], item['olean'], item['clean'], item['d'], item['ilean'], item['base'])
+            print(build_olean(item['lean'], item['olean'], item['clean'], item['d'], item['ilean'], item['base']), file=f)
 
-        print >> f, """default all"""
+        print("""default all""", file=f)
 
 def make_deps(lean_file, dlean_file, olean_file):
     with open(dlean_file, "w") as f:
         deps = []
         proc = subprocess.Popen([g_lean_path, "--deps", lean_file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]
-        print >> f, olean_file + ": \\"
+        print(olean_file + ": \\", file=f)
         for olean_file in output.strip().splitlines():
             if olean_file:
                 deps.append(normalize_drive_name(os.path.abspath(olean_file)))
         deps_str = " " + (" \\\n ".join(deps))
-        print >> f, deps_str
+        print(deps_str, file=f)
 
 def make_deps_all_files(args):
     lean_files = find_lean_files(args)

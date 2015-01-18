@@ -189,6 +189,7 @@ install:
   - if [[ $REPO == BLESSED && ($UPLOAD || $BUILD_DOXYGEN == TRUE) ]]; then
        sudo apt-get -qq install python python-pip;
        sudo pip install dropbox;
+       sudo pip install six;
     fi
   - if [[ $TESTCOV == ON ]]; then
        wget http://downloads.sourceforge.net/ltp/lcov-1.10.tar.gz;

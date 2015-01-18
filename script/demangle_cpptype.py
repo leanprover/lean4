@@ -16,6 +16,10 @@
 #
 # It calls "c++filt" to do the work.
 #
+
+# Python 2/3 compatibility
+from __future__ import print_function
+
 import re
 import sys
 import subprocess
@@ -29,14 +33,14 @@ cppfilt_option = "--types"
 def process_line(line):
     result = pattern.match(line);
     if result == None:
-        print line,
+        print(line, end=' ')
     else:
         p = subprocess.Popen(cppfilt + " " + cppfilt_option + " " + result.group(2),
                              shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         ty = p.stdout.readlines()[0].strip()
         retval= p.wait()
         new_str = re.sub(pattern_str, r"\1" + ty + r"\3", line);
-        print new_str,
+        print(new_str, end=' ')
 
 if len(sys.argv) > 1:
     for line in fileinput.input():

@@ -45,7 +45,7 @@ g_lean_bin_dir     = os.path.dirname(g_linja_path)
 g_phony_targets    = ["all", "clean", "tags", "clear-cache"]
 g_project_filename = ".project"
 g_lean_path        = "USE DEFAULT" # System will search automatically
-g_ltags_path       = "USE DEFAULT" # System will search automatically
+g_leantags_path    = "USE DEFAULT" # System will search automatically
 g_ninja_path       = "USE DEFAULT" # System will search automatically
 g_flycheck_header  = "FLYCHECK_BEGIN"
 g_flycheck_footer  = "FLYCHECK_END"
@@ -284,8 +284,8 @@ def find_location(exec_name):
     return pathname
 
 def check_requirements():
-    global g_lean_path, g_ltags_path, g_ninja_path
-    ltags_exec_name = "ltags"
+    global g_lean_path, g_leantags_path, g_ninja_path
+    leantags_exec_name = "leantags"
     lean_exec_name  = "lean"
     ninja_exec_name = "ninja"
     if platform.system() == "Windows" or platform.system().startswith("MSYS"):
@@ -294,14 +294,14 @@ def check_requirements():
 
     if g_lean_path == "USE DEFAULT":
         g_lean_path = find_location(lean_exec_name)
-    if g_ltags_path == "USE DEFAULT":
-        g_ltags_path = find_location(ltags_exec_name)
+    if g_leantags_path == "USE DEFAULT":
+        g_leantags_path = find_location(leantags_exec_name)
     if g_ninja_path == "USE DEFAULT":
         g_ninja_path = find_location(ninja_exec_name)
     if not os.path.isfile(g_lean_path):
         error("cannot find lean executable at " + os.path.abspath(g_lean_path))
-    if not os.path.isfile(g_ltags_path):
-        error("cannot find ltags executable at " + os.path.abspath(g_ltags_path))
+    if not os.path.isfile(g_leantags_path):
+        error("cannot find leantags executable at " + os.path.abspath(g_leantags_path))
     if not os.path.isfile(g_ninja_path):
         g_ninja_path = download_ninja_and_save_at(g_ninja_path)
 
@@ -378,7 +378,7 @@ def debug_status(args):
     print "lean/bin dir  =", g_lean_bin_dir
     print "phony targets =", g_phony_targets
     print "lean path     =", g_lean_path
-    print "ltags path    =", g_ltags_path
+    print "leantags path =", g_leantags_path
     print "ninja path    =", g_ninja_path
 
 def handle_flycheck_failure(out, err, args):
@@ -577,11 +577,11 @@ def make_build_ninja(args):
         print >> f, """  command = "%s" %s "$in" -o "${OLEAN_FILE}" -c "${CLEAN_FILE}" -i "${ILEAN_FILE}" """ \
             % (g_lean_path, " ".join(args.lean_options))
 
-        print >> f, """rule LTAGS"""
+        print >> f, """rule LEANTAGS"""
         print >> f, """  command = """,
         if platform.system() == "Windows":
             print >> f, "python ",
-        print >> f, """"%s" --relative -- $in """ % (g_ltags_path)
+        print >> f, """"%s" --relative -- $in """ % (g_leantags_path)
 
         print >> f, "build all: phony",
         for item in lean_files:
@@ -590,7 +590,7 @@ def make_build_ninja(args):
 
         tags_file = "TAGS"
         print >> f, "build tags: phony " + tags_file
-        print >> f, "build " + tags_file + ": LTAGS",
+        print >> f, "build " + tags_file + ": LEANTAGS",
         for item in lean_files:
             print >> f, " " + escape_ninja_char(item['ilean']),
         print >> f, ""

@@ -397,7 +397,7 @@ add_custom_target(clean-hott-lib
 add_custom_target(clean-olean
   DEPENDS clean-std-lib clean-hott-lib)
 
-install(FILES ${CMAKE_SOURCE_DIR}/../bin/linja ${CMAKE_SOURCE_DIR}/../bin/ltags
+install(FILES ${CMAKE_SOURCE_DIR}/../bin/linja ${CMAKE_SOURCE_DIR}/../bin/leantags
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 

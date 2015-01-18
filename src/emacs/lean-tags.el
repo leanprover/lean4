@@ -17,25 +17,25 @@
 (defun lean-generate-tags ()
   "Run linja TAGS and let emacs use the generated TAGS file."
   (interactive)
-  (let* ((ltags-file-name (lean-get-executable "linja"))
-         ltags-command)
-    (setq ltags-command
+  (let* ((leantags-file-name (lean-get-executable "linja"))
+         leantags-command)
+    (setq leantags-command
           (cond ((string= system-type "windows-nt")
 
                  (append '("python" nil "*lean-tags*" nil)
-                         `(,ltags-file-name)
+                         `(,leantags-file-name)
                          lean-flycheck-checker-options
                          '("tags")))
                 (t
-                 (append `(,ltags-file-name nil "*lean-tags*" nil)
+                 (append `(,leantags-file-name nil "*lean-tags*" nil)
                          lean-flycheck-checker-options
                          '("tags")))))
     (message "Generating TAGS...")
-    (apply 'call-process ltags-command)
+    (apply 'call-process leantags-command)
     (message "TAGS generated.")
     (setq tags-table-list (lean-tags-table-list))))
 
-(defmacro lean-tags-make-advice-to-call-ltags (f)
+(defmacro lean-tags-make-advice-to-call-leantags (f)
   (let* ((f-name (symbol-name f))
          (advice-name (concat "lean-tags-advice-"
                               (symbol-name f))))
@@ -45,7 +45,7 @@
        (when (derived-mode-p 'lean-mode)
          (lean-generate-tags)))))
 
-(defvar-local functions-to-call-ltags-before-it
+(defvar-local functions-to-call-leantags-before-it
   '(find-tag-noselect
     tags-search
     tags-query-replace
@@ -53,8 +53,8 @@
     tags-apropos
     select-tags-table))
 
-(-each functions-to-call-ltags-before-it
-  (lambda (f) (eval `(lean-tags-make-advice-to-call-ltags ,f))))
+(-each functions-to-call-leantags-before-it
+  (lambda (f) (eval `(lean-tags-make-advice-to-call-leantags ,f))))
 
 (defun lean-find-tag ()
   "lean-find-tag"

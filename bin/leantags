@@ -24,7 +24,7 @@ def get_ilean_files(directory):
 
 def parse_arg(argv):
     """ Parse arguments """
-    parser = argparse.ArgumentParser(description='ltags: tag generator for Lean theorem prover.')
+    parser = argparse.ArgumentParser(description='leantags: tag generator for Lean theorem prover.')
     parser.add_argument('--etags', '-e', action='store_true', default=True,  help="Generate etags TAGS file.")
     # parser.add_argument('--gtags', '-g', action='store_true', default=False, help="Generate gtags files (GTAGS, GRTAGS, GPATH).")
     parser.add_argument('--relative', action='store', default=None, const=os.getcwd(), nargs='?', help="Generate relative paths based on the parameter.")

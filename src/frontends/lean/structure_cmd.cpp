@@ -62,19 +62,6 @@ static name * g_gen_proj_mk = nullptr;
 bool get_structure_eta_thm(options const & o) { return o.get_bool(*g_gen_eta, LEAN_DEFAULT_STRUCTURE_ETA); }
 bool get_structure_proj_mk_thm(options const & o) { return o.get_bool(*g_gen_proj_mk, LEAN_DEFAULT_STRUCTURE_ETA); }
 
-/** \brief Return true iff the type named \c S can be viewed as
-    a structure in the given environment.
-
-    If not, generate an error message using \c pos.
-*/
-bool is_structure(environment const & env, name const & S) {
-    optional<inductive::inductive_decls> idecls = inductive::is_inductive_decl(env, S);
-    if (!idecls || length(std::get<2>(*idecls)) != 1)
-        return false;
-    inductive::inductive_decl decl   = head(std::get<2>(*idecls));
-    return length(inductive::inductive_decl_intros(decl)) == 1 && *inductive::get_num_indices(env, S) == 0;
-}
-
 /** \brief Return the universe parameters, number of parameters and introduction rule for the given parent structure
 
     \pre is_structure(env, S)

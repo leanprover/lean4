@@ -11,6 +11,13 @@ namespace lean {
 environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names, bool inst_implicit = false);
 environment mk_projections(environment const & env, name const & n, bool inst_implicit = false);
 
+/** \brief Return true iff the type named \c S can be viewed as
+    a structure in the given environment.
+
+    If not, generate an error message using \c pos.
+*/
+bool is_structure(environment const & env, name const & S);
+
 /** \brief Auxiliary information attached to projections. This information
     is used to simplify projection over constructor (efficiently)
 

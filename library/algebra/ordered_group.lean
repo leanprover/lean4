@@ -199,18 +199,16 @@ end
 structure ordered_comm_group [class] (A : Type) extends add_comm_group A, order_pair A :=
 (add_le_add_left : ∀a b, le a b → ∀c, le (add c a) (add c b))
 
+theorem ordered_comm_group.le_of_add_le_add_left [s : ordered_comm_group A] {a b c : A} (H : a + b ≤ a + c) : b ≤ c :=
+have H' : -a + (a + b) ≤ -a + (a + c), from ordered_comm_group.add_le_add_left _ _ H _,
+!neg_add_cancel_left ▸ !neg_add_cancel_left ▸ H'
+
 definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] [coercion]
     [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
 ⦃ ordered_cancel_comm_monoid, s,
-  add_left_cancel  := @add.left_cancel _ _,
-  add_right_cancel := @add.right_cancel _ _,
-  le_of_add_le_add_left :=
-    proof
-      take a b c : A,
-      assume H : a + b ≤ a + c,
-      have H' : -a + (a + b) ≤ -a + (a + c), from ordered_comm_group.add_le_add_left _ _ H _,
-      !neg_add_cancel_left ▸ !neg_add_cancel_left ▸ H'
-    qed ⦄
+  add_left_cancel       := @add.left_cancel A s,
+  add_right_cancel      := @add.right_cancel A s,
+  le_of_add_le_add_left := @ordered_comm_group.le_of_add_le_add_left A s ⦄
 
 section
   variables [s : ordered_comm_group A] (a b c d e : A)

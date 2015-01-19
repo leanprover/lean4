@@ -144,51 +144,42 @@ structure ordered_ring [class] (A : Type) extends ring A, ordered_comm_group A :
 (mul_nonneg : ∀a b, le zero a → le zero b → le zero (mul a b))
 (mul_pos : ∀a b, lt zero a → lt zero b → lt zero (mul a b))
 
+theorem ordered_ring.mul_le_mul_of_nonneg_left [s : ordered_ring A] {a b c : A}
+        (Hab : a ≤ b) (Hc : 0 ≤ c) : c * a ≤ c * b :=
+have H1 : 0 ≤ b - a, from iff.elim_right !sub_nonneg_iff_le Hab,
+have H2 : 0 ≤ c * (b - a), from ordered_ring.mul_nonneg _ _ Hc H1,
+iff.mp !sub_nonneg_iff_le (!mul_sub_left_distrib ▸ H2)
+
+theorem ordered_ring.mul_le_mul_of_nonneg_right [s : ordered_ring A] {a b c : A}
+        (Hab : a ≤ b) (Hc : 0 ≤ c) : a * c ≤ b * c  :=
+have H1 : 0 ≤ b - a, from iff.elim_right !sub_nonneg_iff_le Hab,
+have H2 : 0 ≤ (b - a) * c, from ordered_ring.mul_nonneg _ _ H1 Hc,
+iff.mp !sub_nonneg_iff_le (!mul_sub_right_distrib ▸ H2)
+
+theorem ordered_ring.mul_lt_mul_of_pos_left [s : ordered_ring A] {a b c : A}
+       (Hab : a < b) (Hc : 0 < c) : c * a < c * b :=
+have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
+have H2 : 0 < c * (b - a), from ordered_ring.mul_pos _ _ Hc H1,
+iff.mp !sub_pos_iff_lt (!mul_sub_left_distrib ▸ H2)
+
+theorem ordered_ring.mul_lt_mul_of_pos_right [s : ordered_ring A] {a b c : A}
+       (Hab : a < b) (Hc : 0 < c) : a * c < b * c :=
+have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
+have H2 : 0 < (b - a) * c, from ordered_ring.mul_pos _ _ H1 Hc,
+iff.mp !sub_pos_iff_lt (!mul_sub_right_distrib ▸ H2)
+
 definition ordered_ring.to_ordered_semiring [instance] [coercion] [s : ordered_ring A] :
   ordered_semiring A :=
 ⦃ ordered_semiring, s,
-  mul_zero := mul_zero,
-  zero_mul := zero_mul,
-  add_left_cancel  := @add.left_cancel A _,
-  add_right_cancel := @add.right_cancel A _,
-  le_of_add_le_add_left := @le_of_add_le_add_left A _,
-  mul_le_mul_of_nonneg_left := take a b c,
-    assume Hab : a ≤ b,
-    assume Hc : 0 ≤ c,
-    show c * a ≤ c * b,
-    proof
-      have H1 : 0 ≤ b - a, from iff.elim_right !sub_nonneg_iff_le Hab,
-      have H2 : 0 ≤ c * (b - a), from ordered_ring.mul_nonneg _ _ Hc H1,
-      iff.mp !sub_nonneg_iff_le (!mul_sub_left_distrib ▸ H2)
-    qed,
-  mul_le_mul_of_nonneg_right := take a b c,
-    assume Hab : a ≤ b,
-    assume Hc : 0 ≤ c,
-    show a * c ≤ b * c,
-    proof
-      have H1 : 0 ≤ b - a, from iff.elim_right !sub_nonneg_iff_le Hab,
-      have H2 : 0 ≤ (b - a) * c, from ordered_ring.mul_nonneg _ _ H1 Hc,
-      iff.mp !sub_nonneg_iff_le (!mul_sub_right_distrib ▸ H2)
-    qed,
-  mul_lt_mul_of_pos_left  := take a b c,
-    assume Hab : a < b,
-    assume Hc : 0 < c,
-    show c * a < c * b,
-    proof
-      have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
-      have H2 : 0 < c * (b - a), from ordered_ring.mul_pos _ _ Hc H1,
-      iff.mp !sub_pos_iff_lt (!mul_sub_left_distrib ▸ H2)
-    qed,
-  mul_lt_mul_of_pos_right := take a b c,
-    assume Hab : a < b,
-    assume Hc : 0 < c,
-    show a * c < b * c,
-    proof
-      have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
-      have H2 : 0 < (b - a) * c, from ordered_ring.mul_pos _ _ H1 Hc,
-      iff.mp !sub_pos_iff_lt (!mul_sub_right_distrib ▸ H2)
-    qed
-⦄
+  mul_zero                   := mul_zero,
+  zero_mul                   := zero_mul,
+  add_left_cancel            := @add.left_cancel A s,
+  add_right_cancel           := @add.right_cancel A s,
+  le_of_add_le_add_left      := @le_of_add_le_add_left A s,
+  mul_le_mul_of_nonneg_left  := @ordered_ring.mul_le_mul_of_nonneg_left A s,
+  mul_le_mul_of_nonneg_right := @ordered_ring.mul_le_mul_of_nonneg_right A s,
+  mul_lt_mul_of_pos_left     := @ordered_ring.mul_lt_mul_of_pos_left A s,
+  mul_lt_mul_of_pos_right    := @ordered_ring.mul_lt_mul_of_pos_right A s ⦄
 
 section
   variable [s : ordered_ring A]
@@ -246,39 +237,38 @@ definition linear_ordered_ring.to_linear_ordered_semiring [instance] [coercion]
 ⦃ linear_ordered_semiring, s,
   mul_zero                   := mul_zero,
   zero_mul                   := zero_mul,
-  add_left_cancel            := @add.left_cancel A _,
-  add_right_cancel           := @add.right_cancel A _,
-  le_of_add_le_add_left      := @le_of_add_le_add_left A _,
-  mul_le_mul_of_nonneg_left  := @mul_le_mul_of_nonneg_left A _,
-  mul_le_mul_of_nonneg_right := @mul_le_mul_of_nonneg_right A _,
-  mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left A _,
-  mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right A _,
-  le_total                   := linear_ordered_ring.le_total
-⦄
+  add_left_cancel            := @add.left_cancel A s,
+  add_right_cancel           := @add.right_cancel A s,
+  le_of_add_le_add_left      := @le_of_add_le_add_left A s,
+  mul_le_mul_of_nonneg_left  := @mul_le_mul_of_nonneg_left A s,
+  mul_le_mul_of_nonneg_right := @mul_le_mul_of_nonneg_right A s,
+  mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left A s,
+  mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right A s,
+  le_total                   := linear_ordered_ring.le_total ⦄
 
 structure linear_ordered_comm_ring [class] (A : Type) extends linear_ordered_ring A, comm_monoid A
 
+theorem linear_ordered_comm_ring.eq_zero_or_eq_zero_of_mul_eq_zero [s : linear_ordered_comm_ring A]
+        {a b : A} (H : a * b = 0) : a = 0 ∨ b = 0 :=
+lt.by_cases
+  (assume Ha : 0 < a,
+    lt.by_cases
+      (assume Hb : 0 < b, absurd (H ▸ show 0 < a * b, from mul_pos Ha Hb) (lt.irrefl 0))
+      (assume Hb : 0 = b, or.inr (Hb⁻¹))
+      (assume Hb : 0 > b, absurd (H ▸ show 0 > a * b, from mul_neg_of_pos_of_neg Ha Hb) (lt.irrefl 0)))
+  (assume Ha : 0 = a, or.inl (Ha⁻¹))
+  (assume Ha : 0 > a,
+    lt.by_cases
+      (assume Hb : 0 < b, absurd (H ▸ show 0 > a * b, from mul_neg_of_neg_of_pos Ha Hb) (lt.irrefl 0))
+      (assume Hb : 0 = b, or.inr (Hb⁻¹))
+      (assume Hb : 0 > b, absurd (H ▸ show 0 < a * b, from mul_pos_of_neg_of_neg Ha Hb) (lt.irrefl 0)))
+
 -- Linearity implies no zero divisors. Doesn't need commutativity.
 definition linear_ordered_comm_ring.to_integral_domain [instance] [coercion]
-    [s: linear_ordered_comm_ring A] :
-  integral_domain A :=
+    [s: linear_ordered_comm_ring A] : integral_domain A :=
 ⦃ integral_domain, s,
-  eq_zero_or_eq_zero_of_mul_eq_zero := take a b,
-    assume H : a * b = 0,
-    show a = 0 ∨ b = 0, from
-      lt.by_cases
-        (assume Ha : 0 < a,
-          lt.by_cases
-            (assume Hb : 0 < b, absurd (H ▸ mul_pos Ha Hb) (lt.irrefl 0))
-            (assume Hb : 0 = b, or.inr (Hb⁻¹))
-            (assume Hb : 0 > b, absurd (H ▸ mul_neg_of_pos_of_neg Ha Hb) (lt.irrefl 0)))
-        (assume Ha : 0 = a, or.inl (Ha⁻¹))
-        (assume Ha : 0 > a,
-          lt.by_cases
-            (assume Hb : 0 < b, absurd (H ▸ mul_neg_of_neg_of_pos Ha Hb) (lt.irrefl 0))
-            (assume Hb : 0 = b, or.inr (Hb⁻¹))
-            (assume Hb : 0 > b, absurd (H ▸ mul_pos_of_neg_of_neg Ha Hb) (lt.irrefl 0)))
-⦄
+  eq_zero_or_eq_zero_of_mul_eq_zero :=
+     @linear_ordered_comm_ring.eq_zero_or_eq_zero_of_mul_eq_zero A s ⦄
 
 section
   variable [s : linear_ordered_ring A]

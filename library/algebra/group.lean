@@ -251,23 +251,23 @@ section group
   theorem mul_eq_iff_eq_mul_inv (a b c : A) : a * b = c ↔ a = c * b⁻¹ :=
   iff.intro eq_mul_inv_of_mul_eq mul_eq_of_eq_mul_inv
 
+  theorem mul_left_cancel {a b c : A} (H : a * b = a * c) : b = c :=
+  calc b = a⁻¹ * (a * b) : inv_mul_cancel_left
+     ... = a⁻¹ * (a * c) : H
+     ... = c : inv_mul_cancel_left
+
+  theorem mul_right_cancel {a b c : A} (H : a * b = c * b) : a = c :=
+  calc a = (a * b) * b⁻¹ : mul_inv_cancel_right
+     ... = (c * b) * b⁻¹ : H
+     ... = c : mul_inv_cancel_right
+
   definition group.to_left_cancel_semigroup [instance] [coercion] : left_cancel_semigroup A :=
   ⦃ left_cancel_semigroup, s,
-    mul_left_cancel := take a b c,
-      assume H : a * b = a * c,
-      calc
-        b = a⁻¹ * (a * b) : inv_mul_cancel_left
-          ... = a⁻¹ * (a * c) : H
-          ... = c : inv_mul_cancel_left⦄
+    mul_left_cancel := @mul_left_cancel A s ⦄
 
   definition group.to_right_cancel_semigroup [instance] [coercion] : right_cancel_semigroup A :=
   ⦃ right_cancel_semigroup, s,
-    mul_right_cancel := take a b c,
-      assume H : a * b = c * b,
-      calc
-        a = (a * b) * b⁻¹ : mul_inv_cancel_right
-          ... = (c * b) * b⁻¹ : H
-          ... = c : mul_inv_cancel_right⦄
+    mul_right_cancel := @mul_right_cancel A s ⦄
 
 end group
 
@@ -378,25 +378,25 @@ section add_group
   theorem add_eq_iff_eq_add_neg (a b c : A) : a + b = c ↔ a = c + -b :=
   iff.intro eq_add_neg_of_add_eq add_eq_of_eq_add_neg
 
+  theorem add_left_cancel {a b c : A} (H : a + b = a + c) : b = c :=
+  calc b = -a + (a + b) : !neg_add_cancel_left⁻¹
+     ... = -a + (a + c) : H
+     ... = c : neg_add_cancel_left
+
+  theorem add_right_cancel {a b c : A} (H : a + b = c + b) : a = c :=
+  calc a = (a + b) + -b : !add_neg_cancel_right⁻¹
+     ... = (c + b) + -b : H
+     ... = c : add_neg_cancel_right
+
   definition add_group.to_left_cancel_semigroup [instance] [coercion] :
     add_left_cancel_semigroup A :=
   ⦃ add_left_cancel_semigroup, s,
-    add_left_cancel := take a b c,
-      assume H : a + b = a + c,
-      calc
-        b = -a + (a + b) : !neg_add_cancel_left⁻¹
-          ... = -a + (a + c) : H
-          ... = c : neg_add_cancel_left ⦄
+    add_left_cancel := @add_left_cancel A s ⦄
 
   definition add_group.to_add_right_cancel_semigroup [instance] [coercion] :
     add_right_cancel_semigroup A :=
   ⦃ add_right_cancel_semigroup, s,
-    add_right_cancel := take a b c,
-      assume H : a + b = c + b,
-      calc
-        a = (a + b) + -b : !add_neg_cancel_right⁻¹
-          ... = (c + b) + -b : H
-          ... = c : add_neg_cancel_right ⦄
+    add_right_cancel := @add_right_cancel A s ⦄
 
   /- sub -/
 

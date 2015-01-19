@@ -152,22 +152,24 @@ end comm_semiring
 
 structure ring [class] (A : Type) extends add_comm_group A, monoid A, distrib A, zero_ne_one_class A
 
+theorem ring.mul_zero [s : ring A] (a : A) : a * 0 = 0 :=
+have H : a * 0 + 0 = a * 0 + a * 0, from calc
+  a * 0 + 0 = a * 0 : add_zero
+        ... = a * (0 + 0) : {(add_zero 0)⁻¹}
+        ... = a * 0 + a * 0 : ring.left_distrib,
+show a * 0 = 0, from (add.left_cancel H)⁻¹
+
+theorem ring.zero_mul [s : ring A] (a : A) : 0 * a = 0 :=
+have H : 0 * a + 0 = 0 * a + 0 * a, from calc
+  0 * a + 0 = 0 * a : add_zero
+        ... = (0 + 0) * a : {(add_zero 0)⁻¹}
+        ... = 0 * a + 0 * a : ring.right_distrib,
+show 0 * a = 0, from  (add.left_cancel H)⁻¹
+
 definition ring.to_semiring [instance] [coercion] [s : ring A] : semiring A :=
 ⦃ semiring, s,
-  mul_zero := take a,
-    have H : a * 0 + 0 = a * 0 + a * 0, from
-      calc
-        a * 0 + 0 = a * 0 : add_zero
-          ... = a * (0 + 0) : {(add_zero 0)⁻¹}
-          ... = a * 0 + a * 0 : ring.left_distrib,
-    show a * 0 = 0, from (add.left_cancel H)⁻¹,
-  zero_mul := take a,
-    have H : 0 * a + 0 = 0 * a + 0 * a, from
-      calc
-        0 * a + 0 = 0 * a : add_zero
-          ... = (0 + 0) * a : {(add_zero 0)⁻¹}
-          ... = 0 * a + 0 * a : ring.right_distrib,
-    show 0 * a = 0, from  (add.left_cancel H)⁻¹ ⦄
+  mul_zero := ring.mul_zero,
+  zero_mul := ring.zero_mul ⦄
 
 section
   variables [s : ring A] (a b c d e : A)

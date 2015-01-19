@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include "util/sstream.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -11,8 +12,71 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/reducible.h"
 #include "library/module.h"
+#include "library/definitional/projection.h"
 
 namespace lean {
+/** \brief This environment extension stores information about all projection functions
+    defined in an environment object.
+*/
+struct projection_ext : public environment_extension {
+    name_map<projection_info> m_info;
+    projection_ext() {}
+};
+
+struct projection_ext_reg {
+    unsigned m_ext_id;
+    projection_ext_reg() {
+        m_ext_id = environment::register_extension(std::make_shared<projection_ext>());
+    }
+};
+
+static projection_ext_reg * g_ext = nullptr;
+static projection_ext const & get_extension(environment const & env) {
+    return static_cast<projection_ext const &>(env.get_extension(g_ext->m_ext_id));
+}
+static environment update(environment const & env, projection_ext const & ext) {
+    return env.update(g_ext->m_ext_id, std::make_shared<projection_ext>(ext));
+}
+
+static std::string * g_proj_key = nullptr;
+
+static environment save_projection_info_core(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i) {
+    projection_ext ext = get_extension(env);
+    ext.m_info.insert(p, projection_info(mk, nparams, i));
+    return update(env, ext);
+}
+
+static environment save_projection_info(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i) {
+    environment new_env = save_projection_info_core(env, p, mk, nparams, i);
+    return module::add(new_env, *g_proj_key, [=](serializer & s) { s << p << mk << nparams << i; });
+}
+
+projection_info const * get_projection_info(environment const & env, name const & p) {
+    projection_ext const & ext = get_extension(env);
+    return ext.m_info.find(p);
+}
+
+static void projection_reader(deserializer & d, module_idx, shared_environment & senv,
+                              std::function<void(asynch_update_fn const &)> &,
+                              std::function<void(delayed_update_fn const &)> &) {
+    name p, mk; unsigned nparams, i;
+    d >> p >> mk >> nparams >> i;
+    senv.update([=](environment const & env) -> environment {
+            return save_projection_info_core(env, p, mk, nparams, i);
+        });
+}
+
+void initialize_projection() {
+    g_ext      = new projection_ext_reg();
+    g_proj_key = new std::string("proj");
+    register_module_object_reader(*g_proj_key, projection_reader);
+}
+
+void finalize_projection() {
+    delete g_proj_key;
+    delete g_ext;
+}
+
 [[ noreturn ]] static void throw_ill_formed(name const & n) {
     throw exception(sstream() << "projection generation, '" << n << "' is an ill-formed inductive datatype");
 }
@@ -116,6 +180,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
                                           opaque, rec_decl.get_module_idx(), use_conv_opt);
         new_env = module::add(new_env, check(new_env, new_d));
         new_env = set_reducible(new_env, proj_name, reducible_status::On);
+        new_env = save_projection_info(new_env, proj_name, inductive::intro_rule_name(intro), nparams, i);
         expr proj         = mk_app(mk_app(mk_constant(proj_name, lvls), params), c);
         intro_type        = instantiate(binding_body(intro_type), proj);
         i++;

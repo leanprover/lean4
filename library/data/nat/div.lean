@@ -45,7 +45,7 @@ theorem add_div_left {x z : ℕ} (H : z > 0) : (x + z) div z = succ (x div z) :=
 calc
   (x + z) div z = if 0 < z ∧ z ≤ x + z then (x + z - z) div z + 1 else 0 : !divide_def
             ... = (x + z - z) div z + 1 : if_pos (and.intro H (le_add_left z x))
-            ... = succ (x div z)        : add_sub_cancel
+            ... = succ (x div z)        : {!add_sub_cancel}
 
 theorem add_div_right {x z : ℕ} (H : x > 0) : (x + z) div x = succ (z div x) :=
 !add.comm ▸ add_div_left H

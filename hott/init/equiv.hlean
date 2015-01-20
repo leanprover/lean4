@@ -102,7 +102,7 @@ namespace is_equiv
       have eq1 : ap f (sec a) = _,
         from calc ap f (sec a)
               = idp ⬝ ap f (sec a) : !concat_1p⁻¹
-          ... = (ret (f a) ⬝ (ret (f a)⁻¹)) ⬝ ap f (sec a) : concat_pV
+          ... = (ret (f a) ⬝ (ret (f a)⁻¹)) ⬝ ap f (sec a) : {!concat_pV⁻¹}
           ... = ((ret (fgfa))⁻¹ ⬝ ap (f ∘ g) (ret (f a))) ⬝ ap f (sec a) : {!concat_pA1⁻¹}
           ... = ((ret (fgfa))⁻¹ ⬝ fgretrfa) ⬝ ap f (sec a) : {ap_compose g f _}
           ... = (ret (fgfa))⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a)) : !concat_pp_p,

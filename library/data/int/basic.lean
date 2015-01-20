@@ -43,7 +43,7 @@ inductive int : Type :=
 
 notation `ℤ` := int
 coercion [persistent] int.of_nat
-definition int.of_num [coercion] (n : num) : ℤ := int.of_nat (nat.of_num n)
+definition int.of_num [coercion] [reducible] (n : num) : ℤ := int.of_nat (nat.of_num n)
 
 namespace int
 
@@ -506,7 +506,7 @@ cases_on a
           pmul (repr (neg_succ_of_nat m')) (repr n) =
               (0 * n + succ m' * 0, 0 * 0 + succ m' * n) : rfl
             ... = (0 + succ m' * 0, 0 * 0 + succ m' * n) : zero_mul
-            ... = (0 + succ m' * 0, succ m' * n) : nat.zero_add
+            ... = (0 + succ m' * 0, succ m' * n) : {!nat.zero_add}
             ... = repr (mul (neg_succ_of_nat m') n) : repr_neg_of_nat)⁻¹)
       (take n',
         (calc

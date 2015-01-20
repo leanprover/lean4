@@ -105,7 +105,7 @@ namespace morphism
             = retraction_of f ∘ retraction_of g ∘ g ∘ f : assoc
         ... = retraction_of f ∘ ((retraction_of g ∘ g) ∘ f) : aux
         ... = retraction_of f ∘ id ∘ f : {retraction_compose g}
-        ... = retraction_of f ∘ f : id_left f
+        ... = retraction_of f ∘ f : {id_left f}
         ... = id : retraction_compose f)
 
   theorem composition_is_retraction [instance] (Hf : is_retraction f) (Hg : is_retraction g)
@@ -118,7 +118,7 @@ namespace morphism
             = g ∘ f ∘ section_of f ∘ section_of g : assoc
         ... = g ∘ (f ∘ section_of f) ∘ section_of g : aux
         ... = g ∘ id ∘ section_of g : compose_section f
-        ... = g ∘ section_of g : id_left (section_of g)
+        ... = g ∘ section_of g : {id_left (section_of g)}
         ... = id : compose_section)
 
   theorem composition_is_inverse [instance] (Hf : is_iso f) (Hg : is_iso g) : is_iso (g ∘ f) :=

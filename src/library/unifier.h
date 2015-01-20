@@ -40,7 +40,15 @@ struct unifier_config {
     // If m_discard is true, then constraints that cannot be solved are discarded (or incomplete methods are used)
     // If m_discard is false, unify returns the set of constraints that could not be handled.
     bool     m_discard;
+    // If m_conservative is true, then the following restrictions are imposed:
+    //     - All constants that are not marked as reducible as treated as
+    //       opaque.
+    //     - Disables case-split on delta-delta constraints.
+    //     - Disables reduction case-split on flex-rigid constraints.
+    // Default is m_conservative == false
+    bool     m_conservative;
     // If m_cheap is true, then expensive case-analysis is not performed (e.g., delta).
+    // It is more restrictive than m_conservative
     // Default is m_cheap == false
     bool     m_cheap;
     // If m_ignore_context_check == true, then occurs-check is skipped.

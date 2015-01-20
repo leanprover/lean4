@@ -70,12 +70,12 @@ namespace fin
   to_nat_of_nat (p+1) (n+1) h := calc
     to_nat (of_nat (p+1) (n+1) h)
              = succ (to_nat (of_nat p n _)) : rfl
-         ... = succ p                       : to_nat_of_nat p n _
+         ... = succ p                       : {to_nat_of_nat p n _}
 
   theorem of_nat_to_nat : ∀ {n : nat} (f : fin n) (h : to_nat f < n), of_nat (to_nat f) n h = f,
   of_nat_to_nat (fz n) h    := rfl,
   of_nat_to_nat (@fs n f) h := calc
     of_nat (to_nat (fs f)) (succ n) h = fs (of_nat (to_nat f) n _) : rfl
-                                 ...  = fs f                       : of_nat_to_nat f _
+                                 ...  = fs f                       : {of_nat_to_nat f _}
 
 end fin

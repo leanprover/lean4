@@ -268,7 +268,7 @@ namespace sigma
               : ap (g a⁻¹) !transport_compose
       ... = g a⁻¹ (transport B' (ap f (sect f a)) (transport B' (ap f (sect f a)⁻¹) (g a b)))
            : ap (λ x, g a⁻¹ (transport B' (ap f (sect f a)) (transport B' (x⁻¹) (g a b)))) (adj f a)
-      ... = g a⁻¹ (g a b) : transport_pV
+      ... = g a⁻¹ (g a b) : {!transport_pV}
       ... = b : sect (g a) b
   end
     -- -- "rewrite ap_transport"

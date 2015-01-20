@@ -246,7 +246,7 @@ section
           dvd.intro
             (calc
               a * -c = -(a * c) : {!neg_mul_eq_mul_neg⁻¹}
-                ... = -(-b) : H'
+                ... = -(-b) : {H'}
                 ... = b : neg_neg)))
     (assume H : a | b,
       dvd.elim H
@@ -254,7 +254,7 @@ section
           dvd.intro
             (calc
               a * -c = -(a * c) : {!neg_mul_eq_mul_neg⁻¹}
-                ... = -b : H')))
+                ... = -b : {H'})))
 
   theorem neg_dvd_iff_dvd : -a | b ↔ a | b :=
   iff.intro

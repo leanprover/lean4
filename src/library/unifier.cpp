@@ -45,10 +45,15 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES false
 #endif
 
+#ifndef LEAN_DEFAULT_UNIFIER_CONSERVATIVE
+#define LEAN_DEFAULT_UNIFIER_CONSERVATIVE false
+#endif
+
 namespace lean {
-static name * g_unifier_max_steps         = nullptr;
-static name * g_unifier_computation       = nullptr;
-static name * g_unifier_expensive_classes = nullptr;
+static name * g_unifier_max_steps               = nullptr;
+static name * g_unifier_computation             = nullptr;
+static name * g_unifier_expensive_classes       = nullptr;
+static name * g_unifier_conservative            = nullptr;
 
 unsigned get_unifier_max_steps(options const & opts) {
     return opts.get_unsigned(*g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS);
@@ -62,12 +67,17 @@ bool get_unifier_expensive_classes(options const & opts) {
     return opts.get_bool(*g_unifier_expensive_classes, LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES);
 }
 
+bool get_unifier_conservative(options const & opts) {
+    return opts.get_bool(*g_unifier_conservative, LEAN_DEFAULT_UNIFIER_CONSERVATIVE);
+}
+
 unifier_config::unifier_config(bool use_exceptions, bool discard):
     m_use_exceptions(use_exceptions),
     m_max_steps(LEAN_DEFAULT_UNIFIER_MAX_STEPS),
     m_computation(LEAN_DEFAULT_UNIFIER_COMPUTATION),
     m_expensive_classes(LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES),
-    m_discard(discard) {
+    m_discard(discard),
+    m_conservative(LEAN_DEFAULT_UNIFIER_CONSERVATIVE) {
     m_cheap = false;
     m_ignore_context_check = false;
 }
@@ -77,7 +87,8 @@ unifier_config::unifier_config(options const & o, bool use_exceptions, bool disc
     m_max_steps(get_unifier_max_steps(o)),
     m_computation(get_unifier_computation(o)),
     m_expensive_classes(get_unifier_expensive_classes(o)),
-    m_discard(discard) {
+    m_discard(discard),
+    m_conservative(get_unifier_conservative(o)) {
     m_cheap = false;
     m_ignore_context_check = false;
 }
@@ -416,6 +427,11 @@ struct unifier_fn {
         m_config(cfg), m_num_steps(0), m_pattern(false) {
         if (m_config.m_cheap) {
             m_tc[0] = mk_opaque_type_checker(env, m_ngen.mk_child());
+            m_tc[1] = m_tc[0];
+            m_flex_rigid_tc = m_tc[0];
+            m_config.m_computation = false;
+        } else if (m_config.m_conservative) {
+            m_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false, OpaqueIfNotReducibleOn);
             m_tc[1] = m_tc[0];
             m_flex_rigid_tc = m_tc[0];
             m_config.m_computation = false;
@@ -1325,7 +1341,8 @@ struct unifier_fn {
 
         justification a;
         bool relax = relax_main_opaque(c);
-        if (!m_config.m_cheap && (m_config.m_computation || module::is_definition(m_env, d.get_name()) || is_reducible_on(m_env, d.get_name()))) {
+        if (!m_config.m_cheap && !m_config.m_conservative &&
+            (m_config.m_computation || module::is_definition(m_env, d.get_name()) || is_reducible_on(m_env, d.get_name()))) {
             // add case_split for t =?= s
             a = mk_assumption_justification(m_next_assumption_idx);
             add_case_split(std::unique_ptr<case_split>(new delta_unfold_case_split(*this, j, c)));
@@ -1871,7 +1888,7 @@ struct unifier_fn {
     */
     bool use_flex_rigid_whnf_split(expr const & lhs, expr const & rhs) {
         lean_assert(is_meta(lhs));
-        if (m_config.m_cheap)
+        if (m_config.m_cheap || m_config.m_conservative)
             return false;
         if (m_config.m_computation)
             return true; // if unifier.computation is true, we always consider the additional whnf split
@@ -2514,12 +2531,15 @@ void initialize_unifier() {
     g_unifier_max_steps         = new name{"unifier", "max_steps"};
     g_unifier_computation       = new name{"unifier", "computation"};
     g_unifier_expensive_classes = new name{"unifier", "expensive_classes"};
+    g_unifier_conservative      = new name{"unifier", "conservative"};
 
     register_unsigned_option(*g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS, "(unifier) maximum number of steps");
     register_bool_option(*g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION,
                          "(unifier) always case-split on reduction/computational steps when solving flex-rigid and delta-delta constraints");
     register_bool_option(*g_unifier_expensive_classes, LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES,
                          "(unifier) use \"full\" higher-order unification when solving class instances");
+    register_bool_option(*g_unifier_conservative, LEAN_DEFAULT_UNIFIER_CONSERVATIVE,
+                         "(unifier) unfolds only constants marked as reducible, avoid expensive case-splits (it is faster but less complete)");
 
     g_dont_care_cnstr = new constraint(mk_eq_cnstr(expr(), expr(), justification(), false));
     g_tmp_prefix      = new name(name::mk_internal_unique_name());
@@ -2531,5 +2551,6 @@ void finalize_unifier() {
     delete g_unifier_max_steps;
     delete g_unifier_computation;
     delete g_unifier_expensive_classes;
+    delete g_unifier_conservative;
 }
 }

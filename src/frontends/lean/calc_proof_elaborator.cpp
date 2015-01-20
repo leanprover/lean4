@@ -154,7 +154,7 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                 fn(e);
         }
 
-        auto try_alternative = [&](expr const & e, expr const & e_type, constraint_seq fcs) {
+        auto try_alternative = [&](expr const & e, expr const & e_type, constraint_seq fcs, bool conservative) {
             justification new_j            = mk_type_mismatch_jst(e, e_type, meta_type);
             if (!tc->is_def_eq(e_type, meta_type, new_j, fcs))
                 throw unifier_exception(new_j, s);
@@ -166,8 +166,9 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
             cs_buffer.push_back(mk_eq_cnstr(meta, e, j, relax));
 
             unifier_config new_cfg(cfg);
-            new_cfg.m_discard    = false;
-            unify_result_seq seq = unify(env, cs_buffer.size(), cs_buffer.data(), ngen, substitution(), new_cfg);
+            new_cfg.m_discard      = false;
+            new_cfg.m_conservative = conservative;
+            unify_result_seq seq   = unify(env, cs_buffer.size(), cs_buffer.data(), ngen, substitution(), new_cfg);
             auto p = seq.pull();
             lean_assert(p);
             substitution new_s     = p->first.first;
@@ -183,30 +184,35 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
         };
 
         if (!get_elaborator_calc_assistant(opts)) {
-            return try_alternative(e, e_type, new_cs);
+            bool conservative = false;
+            return try_alternative(e, e_type, new_cs, conservative);
         } else {
             std::unique_ptr<throwable> saved_ex;
             try {
-                return try_alternative(e, e_type, new_cs);
+                bool conservative = false;
+                return try_alternative(e, e_type, new_cs, conservative);
             } catch (exception & ex) {
                 saved_ex.reset(ex.clone());
             }
 
             constraint_seq symm_cs = new_cs;
-            auto symm = apply_symmetry(env, ctx, ngen, tc, e, e_type, symm_cs, g);
+            auto symm  = apply_symmetry(env, ctx, ngen, tc, e, e_type, symm_cs, g);
             if (symm) {
-                try { return try_alternative(symm->first, symm->second, symm_cs); } catch (exception &) {}
+                bool conservative = false;
+                try { return try_alternative(symm->first, symm->second, symm_cs, conservative); } catch (exception &) {}
             }
 
             constraint_seq subst_cs = new_cs;
             if (auto subst = apply_subst(env, ctx, ngen, tc, e, e_type, meta_type, subst_cs, g)) {
-                try { return try_alternative(subst->first, subst->second, subst_cs); } catch (exception&) {}
+                bool conservative = true;
+                try { return try_alternative(subst->first, subst->second, subst_cs, conservative); } catch (exception&) {}
             }
 
             if (symm) {
                 constraint_seq subst_cs = symm_cs;
+                bool conservative = true;
                 if (auto subst = apply_subst(env, ctx, ngen, tc, symm->first, symm->second, meta_type, subst_cs, g)) {
-                    try { return try_alternative(subst->first, subst->second, subst_cs); } catch (exception&) {}
+                    try { return try_alternative(subst->first, subst->second, subst_cs, conservative); } catch (exception&) {}
                 }
             }
 

@@ -579,6 +579,8 @@ struct structure_cmd_fn {
     void include_ctx_levels() {
         name_set all_lvl_params;
         all_lvl_params = collect_univ_params(m_type);
+        for (expr const & p : m_params)
+            all_lvl_params = collect_univ_params(mlocal_type(p), all_lvl_params);
         for (expr const & f : m_fields)
             all_lvl_params = collect_univ_params(mlocal_type(f), all_lvl_params);
         buffer<name> section_lvls;

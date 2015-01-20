@@ -29,7 +29,7 @@ theorem g_succ (a : nat) : g (succ a) = g (g a) :=
 have aux : well_founded.fix g.F (succ a) = sigma.mk (g (g a)) _, from
   well_founded.fix_eq g.F (succ a),
 calc g (succ a) = pr₁ (well_founded.fix g.F (succ a)) : rfl
-          ...   = pr₁ (sigma.mk (g (g a)) _)          : aux
+          ...   = pr₁ (sigma.mk (g (g a)) _)          : {aux}
           ...   = g (g a)                              : rfl
 
 theorem g_all_zero (a : nat) : g a = zero :=

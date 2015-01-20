@@ -12,6 +12,31 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 
 namespace lean {
+bool is_def_app(environment const & env, expr const & e) {
+    if (!is_app(e))
+        return false;
+    expr const & f = get_app_fn(e);
+    if (!is_constant(f))
+        return false;
+    auto decl = env.find(const_name(f));
+    return decl && decl->is_definition() && !decl->is_opaque();
+}
+
+optional<expr> unfold_app(environment const & env, expr const & e) {
+    if (!is_app(e))
+        return none_expr();
+    expr const & f = get_app_fn(e);
+    if (!is_constant(f))
+        return none_expr();
+    auto decl = env.find(const_name(f));
+    if (!decl || !decl->is_definition() || decl->is_opaque())
+        return none_expr();
+    expr d = instantiate_value_univ_params(*decl, const_levels(f));
+    buffer<expr> args;
+    get_app_rev_args(e, args);
+    return some_expr(apply_beta(d, args.size(), args.data()));
+}
+
 optional<level> dec_level(level const & l) {
     switch (kind(l)) {
     case level_kind::Zero: case level_kind::Param: case level_kind::Global: case level_kind::Meta:

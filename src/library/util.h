@@ -11,6 +11,16 @@ Author: Leonardo de Moura
 namespace lean {
 typedef std::unique_ptr<type_checker> type_checker_ptr;
 
+/** \brief Return true iff \c e is of the form <tt>(f ...)</tt> where
+    \c f is a non-opaque constant definition */
+bool is_def_app(environment const & env, expr const & e);
+
+/** \brief If \c e is of the form <tt>(f a_1 ... a_n)</tt>, where \c f is
+    a non-opaque definition, then unfold \c f, and beta reduce.
+    Otherwise, return none.
+*/
+optional<expr> unfold_app(environment const & env, expr const & e);
+
 /** \brief Reduce (if possible) universe level by 1.
     \pre is_not_zero(l)
 */

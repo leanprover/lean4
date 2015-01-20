@@ -192,19 +192,10 @@ pair<expr, constraint_seq> type_checker::infer_macro(expr const & e, bool infer_
     expr t            = tcs.first;
     constraint_seq cs = tcs.second;
     if (!infer_only && def.trust_level() >= m_env.trust_lvl()) {
-        optional<expr> m = expand_macro(e);
-        if (!m)
-            throw_kernel_exception(m_env, "failed to expand macro", e);
-        pair<expr, constraint_seq> tmcs = infer_type_core(*m, infer_only);
-        cs = cs + tmcs.second;
-        simple_delayed_justification jst([=]() { return mk_macro_jst(e); });
-        pair<bool, constraint_seq> bcs  = is_def_eq(t, tmcs.first, jst);
-        if (!bcs.first)
-            throw_kernel_exception(m_env, g_macro_error_msg, e);
-        return mk_pair(t, bcs.second + cs);
-    } else {
-        return mk_pair(t, cs);
+        throw_kernel_exception(m_env, "declaration contains macro with trust-level higher than the one allowed "
+                               "(possible solution: unfold macro, or increase trust-level)", e);
     }
+    return mk_pair(t, cs);
 }
 
 pair<expr, constraint_seq> type_checker::infer_lambda(expr const & _e, bool infer_only) {

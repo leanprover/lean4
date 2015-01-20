@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/coercion.h"
 #include "library/class.h"
+#include "library/unfold_macros.h"
 #include "library/definitional/equations.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/class.h"
@@ -129,12 +130,13 @@ static environment declare_var(parser & p, environment env,
         lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom);
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
+        expr new_type = unfold_untrusted_macros(env, type);
         if (k == variable_kind::Axiom) {
-            env = module::add(env, check(env, mk_axiom(full_n, ls, type)));
-            p.add_decl_index(full_n, pos, get_axiom_tk(), type);
+            env = module::add(env, check(env, mk_axiom(full_n, ls, new_type)));
+            p.add_decl_index(full_n, pos, get_axiom_tk(), new_type);
         } else {
-            env = module::add(env, check(env, mk_constant_assumption(full_n, ls, type)));
-            p.add_decl_index(full_n, pos, get_variable_tk(), type);
+            env = module::add(env, check(env, mk_constant_assumption(full_n, ls, new_type)));
+            p.add_decl_index(full_n, pos, get_variable_tk(), new_type);
         }
         if (!ns.is_anonymous())
             env = add_expr_alias(env, n, full_n);
@@ -671,6 +673,9 @@ class definition_cmd_fn {
                 try {
                     level_param_names c_ls; expr c_type, c_value;
                     std::tie(c_ls, c_type, c_value) = *it;
+                    // cache may have been created using a different trust level
+                    c_type  = unfold_untrusted_macros(m_env, c_type);
+                    c_value = unfold_untrusted_macros(m_env, c_value);
                     if (m_kind == Theorem) {
                         cd = check(m_env, mk_theorem(m_real_name, c_ls, c_type, c_value));
                         if (!m_p.keep_new_thms()) {
@@ -768,6 +773,12 @@ class definition_cmd_fn {
         lean_assert(aux_values.size() == m_aux_types.size());
         if (aux_values.size() != m_real_aux_names.size())
             throw exception("invalid declaration, failed to compile auxiliary declarations");
+        m_type  = unfold_untrusted_macros(m_env, m_type);
+        m_value = unfold_untrusted_macros(m_env, m_value);
+        for (unsigned i = 0; i < aux_values.size(); i++) {
+            m_aux_types[i] = unfold_untrusted_macros(m_env, m_aux_types[i]);
+            aux_values[i]  = unfold_untrusted_macros(m_env, aux_values[i]);
+        }
         if (is_definition()) {
             m_env = module::add(m_env, check(m_env, mk_definition(m_env, m_real_name, new_ls,
                                                                   m_type, m_value, m_is_opaque)));
@@ -798,6 +809,7 @@ class definition_cmd_fn {
                 std::tie(m_type, new_ls) = m_p.elaborate_type(m_type, list<expr>(), clear_pre_info);
                 check_no_metavar(m_env, m_real_name, m_type, true);
                 m_ls = append(m_ls, new_ls);
+                m_type = unfold_untrusted_macros(m_env, m_type);
                 expr type_as_is = m_p.save_pos(mk_as_is(m_type), type_pos);
                 if (!m_p.collecting_info() && m_kind == Theorem && m_p.num_threads() > 1) {
                     // Add as axiom, and create a task to prove the theorem.
@@ -806,6 +818,8 @@ class definition_cmd_fn {
                     m_env = module::add(m_env, check(m_env, mk_axiom(m_real_name, m_ls, m_type)));
                 } else {
                     std::tie(m_type, m_value, new_ls) = m_p.elaborate_definition(m_name, type_as_is, m_value, m_is_opaque);
+                    m_type  = unfold_untrusted_macros(m_env, m_type);
+                    m_value = unfold_untrusted_macros(m_env, m_value);
                     new_ls = append(m_ls, new_ls);
                     auto cd = check(m_env, mk_theorem(m_real_name, new_ls, m_type, m_value));
                     if (m_kind == Theorem) {
@@ -821,6 +835,8 @@ class definition_cmd_fn {
             } else {
                 std::tie(m_type, m_value, new_ls) = m_p.elaborate_definition(m_name, m_type, m_value, m_is_opaque);
                 new_ls = append(m_ls, new_ls);
+                m_type  = unfold_untrusted_macros(m_env, m_type);
+                m_value = unfold_untrusted_macros(m_env, m_value);
                 m_env = module::add(m_env, check(m_env, mk_definition(m_env, m_real_name, new_ls,
                                                                       m_type, m_value, m_is_opaque)));
                 m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value);

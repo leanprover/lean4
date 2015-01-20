@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/sorry.h"
 #include "library/kernel_serializer.h"
+#include "library/unfold_macros.h"
 #include "version.h"
 
 #ifndef LEAN_ASYNCH_IMPORT_THEOREM
@@ -357,6 +358,7 @@ struct import_modules_fn {
         declaration decl = read_declaration(d, midx);
         lean_assert(!decl.is_definition() || decl.get_module_idx() == midx);
         environment env  = m_senv.env();
+        decl = unfold_untrusted_macros(env, decl);
         if (decl.get_name() == get_sorry_name() && has_sorry(env))
             return;
         if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL) {

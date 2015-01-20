@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/reducible.h"
 #include "library/print.h"
+#include "library/unfold_macros.h"
 
 // Lua Bindings for the Kernel classes. We do not include the Lua
 // bindings in the kernel because we do not want to inflate the Kernel.
@@ -1905,14 +1906,15 @@ static int type_check(lua_State * L) {
 static int add_declaration(lua_State * L) {
     int nargs = lua_gettop(L);
     optional<certified_declaration> d;
+    environment const & env = to_environment(L, 1);
     if (nargs == 2) {
-        d = check(to_environment(L, 1), to_declaration(L, 2));
+        d = check(env, unfold_untrusted_macros(env, to_declaration(L, 2)));
     } else if (nargs == 3) {
-        d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3));
+        d = check(env, unfold_untrusted_macros(env, to_declaration(L, 2)), to_name_generator(L, 3));
     } else {
         name_set extra_opaque = to_name_set(L, 4);
         extra_opaque_pred pred([=](name const & n) { return extra_opaque.contains(n); });
-        d = check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3), pred);
+        d = check(env, unfold_untrusted_macros(env, to_declaration(L, 2)), to_name_generator(L, 3), pred);
     }
     return push_environment(L, module::add(to_environment(L, 1), *d));
 }

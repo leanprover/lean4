@@ -18,6 +18,8 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 
 namespace lean {
+/** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
+unsigned get_arity(expr type);
 
 inline pair<expr, constraint_seq> to_ecs(expr const & e) { return mk_pair(e, empty_cs()); }
 inline pair<expr, constraint_seq> to_ecs(expr const & e, constraint const & c, constraint_seq const & cs) {

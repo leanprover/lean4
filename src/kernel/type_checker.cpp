@@ -30,7 +30,7 @@ expr replace_range(expr const & type, expr const & new_range) {
 }
 
 /** \brief Return the "arity" of the given type. The arity is the number of nested pi-expressions. */
-static unsigned get_arity(expr type) {
+unsigned get_arity(expr type) {
     unsigned r = 0;
     while (is_pi(type)) {
         type = binding_body(type);

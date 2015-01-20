@@ -8,7 +8,8 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names, bool inst_implicit = false);
+environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names,
+                           bool inst_implicit = false);
 environment mk_projections(environment const & env, name const & n, bool inst_implicit = false);
 
 /** \brief Return true iff the type named \c S can be viewed as
@@ -42,6 +43,14 @@ struct projection_info {
     If \c p is not a projection, then return nullptr.
 */
 projection_info const * get_projection_info(environment const & env, name const & p);
+
+/** \brief Create a projection macro term that can peform the following reduction efficiently
+
+       pr_i A (mk A f_1 ... f_n) ==> f_i
+
+    \remark proj_name is the name of the definition that implements the actual projection.
+*/
+expr mk_projection_macro(name const & proj_name, expr const & e);
 
 void initialize_projection();
 void finalize_projection();

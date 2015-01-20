@@ -753,7 +753,12 @@ struct structure_cmd_fn {
             expr coercion_value            = parent_intro;
             for (unsigned idx : fmap) {
                 expr const & field = m_fields[idx];
-                expr proj          = mk_app(mk_app(mk_constant(m_name + mlocal_name(field), st_ls), m_params), st);
+                name proj_name = m_name + mlocal_name(field);
+                expr proj;
+                if (m_env.trust_lvl() == 0)
+                    proj = mk_app(mk_app(mk_constant(proj_name, st_ls), m_params), st);
+                else
+                    proj = mk_projection_macro(proj_name, st);
                 coercion_value     = mk_app(coercion_value, proj);
             }
             coercion_value                 = Fun(m_params, Fun(st, coercion_value));

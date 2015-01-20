@@ -29,5 +29,7 @@ public:
     virtual pair<bool, constraint_seq> is_def_eq(expr const & e1, expr const & e2, delayed_justification & j) = 0;
     virtual pair<expr, constraint_seq> infer_type(expr const & e) = 0;
     virtual name mk_fresh_name() = 0;
+    expr whnf(expr const & e, constraint_seq & cs);
+    expr infer_type(expr const & e, constraint_seq & cs);
 };
 }

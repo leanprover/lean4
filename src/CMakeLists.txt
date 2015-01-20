@@ -372,13 +372,13 @@ if("${CROSS_COMPILE}" MATCHES "ON" OR "${CMAKE_C_COMPILER}" MATCHES "emcc")
 else()
   add_custom_target(
     standard_lib ALL
-    COMMAND ${PYTHON_EXECUTABLE} ${LEAN_SOURCE_DIR}/../bin/linja all tags
+    COMMAND ${PYTHON_EXECUTABLE} ${LEAN_SOURCE_DIR}/../bin/linja --Trust all tags
     DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
     )
   add_custom_target(
     hott_lib ALL
-    COMMAND ${PYTHON_EXECUTABLE} ${LEAN_SOURCE_DIR}/../bin/linja all tags
+    COMMAND ${PYTHON_EXECUTABLE} ${LEAN_SOURCE_DIR}/../bin/linja --Trust all tags
     DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../hott
     )

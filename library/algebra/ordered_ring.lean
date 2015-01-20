@@ -17,7 +17,9 @@ namespace algebra
 
 variable {A : Type}
 
-structure ordered_semiring [class] (A : Type) extends semiring A, ordered_cancel_comm_monoid A :=
+structure ordered_semiring [class] (A : Type)
+  extends has_mul A, has_zero A, has_lt A, -- TODO: remove hack for improving performance
+    semiring A, ordered_cancel_comm_monoid A :=
 (mul_le_mul_of_nonneg_left: ∀a b c, le a b → le zero c → le (mul c a) (mul c b))
 (mul_le_mul_of_nonneg_right: ∀a b c, le a b → le zero c → le (mul a c) (mul b c))
 (mul_lt_mul_of_pos_left: ∀a b c, lt a b → lt zero c → lt (mul c a) (mul c b))
@@ -27,14 +29,6 @@ section
   variable [s : ordered_semiring A]
   variables (a b c d e : A)
   include s
-
-  -- TODO: remove after we short-circuit class-graph
-  definition ordered_semiring.to_mul [instance] [priority 100000] : has_mul A :=
-  has_mul.mk (@ordered_semiring.mul A s)
-  definition ordered_semiring.to_lt [instance] [priority 100000] : has_lt A :=
-  has_lt.mk (@ordered_semiring.lt A s)
-  definition ordered_semiring.to_zero [instance] [priority 100000] : has_zero A :=
-  has_zero.mk (@ordered_semiring.zero A s)
 
   theorem mul_le_mul_of_nonneg_left {a b c : A} (Hab : a ≤ b) (Hc : 0 ≤ c) :
     c * a ≤ c * b := !ordered_semiring.mul_le_mul_of_nonneg_left Hab Hc
@@ -94,14 +88,6 @@ section
   variable [s : linear_ordered_semiring A]
   variables {a b c : A}
   include s
-
-  -- TODO: remove after we short-circuit class-graph
-  definition linear_ordered_semiring.to_mul [instance] [priority 100000] : has_mul A :=
-  has_mul.mk (@linear_ordered_semiring.mul A s)
-  definition linear_ordered_semiring.to_lt [instance] [priority 100000] : has_lt A :=
-  has_lt.mk (@linear_ordered_semiring.lt A s)
-  definition linear_ordered_semiring.to_zero [instance] [priority 100000] : has_zero A :=
-  has_zero.mk (@linear_ordered_semiring.zero A s)
 
   theorem lt_of_mul_lt_mul_left (H : c * a < c * b) (Hc : c ≥ 0) : a < b :=
   lt_of_not_le
@@ -185,14 +171,6 @@ section
   variable [s : ordered_ring A]
   variables {a b c : A}
   include s
-
-  -- TODO: remove after we short-circuit class-graph
-  definition ordered_ring.to_mul [instance] [priority 100000] : has_mul A :=
-  has_mul.mk (@ordered_ring.mul A s)
-  definition ordered_ring.to_lt [instance] [priority 100000] : has_lt A :=
-  has_lt.mk (@ordered_ring.lt A s)
-  definition ordered_ring.to_zero [instance] [priority 100000] : has_zero A :=
-  has_zero.mk (@ordered_ring.zero A s)
 
   theorem mul_le_mul_of_nonpos_left (H : b ≤ a) (Hc : c ≤ 0) : c * a ≤ c * b :=
   have Hc' : -c ≥ 0, from iff.mp' !neg_nonneg_iff_nonpos Hc,
@@ -282,14 +260,6 @@ section
 
   theorem zero_le_one : 0 ≤ 1 := one_mul 1 ▸ mul_self_nonneg 1
   theorem zero_lt_one : 0 < 1 := lt_of_le_of_ne zero_le_one zero_ne_one
-
-  -- TODO: remove after we short-circuit class-graph
-  definition linear_ordered_ring.to_mul [instance] [priority 100000] : has_mul A :=
-  has_mul.mk (@linear_ordered_ring.mul A s)
-  definition linear_ordered_ring.to_lt [instance] [priority 100000] : has_lt A :=
-  has_lt.mk (@linear_ordered_ring.lt A s)
-  definition linear_ordered_ring.to_zero [instance] [priority 100000] : has_zero A :=
-  has_zero.mk (@linear_ordered_ring.zero A s)
 
   theorem pos_and_pos_or_neg_and_neg_of_mul_pos {a b : A} (Hab : a * b > 0) :
     (a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0) :=

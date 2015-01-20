@@ -290,14 +290,71 @@ section
     (assume H', absurd (H' ▸ !le.refl) H)
     (assume H', H')
 
-  theorem lt_or_ge (a b : A) : a < b ∨ a ≥ b :=
+  theorem lt_or_ge : a < b ∨ a ≥ b :=
   lt.by_cases
     (assume H1 : a < b, or.inl H1)
     (assume H1 : a = b, or.inr (H1 ▸ le.refl a))
     (assume H1 : a > b, or.inr (le_of_lt H1))
 
-  theorem le_or_gt (a b : A) : a ≤ b ∨ a > b :=
+  theorem le_or_gt : a ≤ b ∨ a > b :=
   !or.swap (lt_or_ge b a)
+
+  theorem lt_or_gt_of_ne {a b : A} (H : a ≠ b) : a < b ∨ a > b :=
+  lt.by_cases (assume H1, or.inl H1) (assume H1, absurd H1 H) (assume H1, or.inr H1)
+end
+
+structure decidable_linear_order [class] (A : Type) extends linear_strong_order_pair A :=
+(decidable_lt : decidable_rel lt)
+
+section
+  variable [s : decidable_linear_order A]
+  variables {a b c d : A}
+  include s
+  open decidable
+
+  definition decidable_lt [instance] : decidable (a < b) :=
+    @decidable_linear_order.decidable_lt _ _ _ _
+
+  definition decidable_le [instance] : decidable (a ≤ b) :=
+  by_cases
+    (assume H : a < b, inl (le_of_lt H))
+    (assume H : ¬ a < b,
+      have H1 : b ≤ a, from le_of_not_lt H,
+      by_cases
+        (assume H2 : b < a, inr (not_le_of_lt H2))
+        (assume H2 : ¬ b < a, inl (le_of_not_lt H2)))
+
+  definition decidable_eq [instance] : decidable (a = b) :=
+  by_cases
+    (assume H : a ≤ b,
+      by_cases
+        (assume H1 : b ≤ a, inl (le.antisymm H H1))
+        (assume H1 : ¬ b ≤ a, inr (assume H2 : a = b, H1 (H2 ▸ le.refl a))))
+    (assume H : ¬ a ≤ b,
+      (inr (assume H1 : a = b, H (H1 ▸ !le.refl))))
+
+  definition lt.by_cases' {a b : A} {P : Type}
+    (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) : P :=
+  if H4 : a < b then H1 H4 else
+    (if H5 : a = b then H2 H5 else
+      H3 (lt_of_le_of_ne (le_of_not_lt H4) (ne.symm H5)))
+
+  definition lt.by_cases'_of_lt {a b : A} {P : Type}
+      (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) (H4 : a < b) :
+    lt.by_cases' H1 H2 H3 = H1 H4 := !dif_pos
+
+  theorem lt.by_cases'_of_eq {a b : A} {P : Type}
+      (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) (H4 : a = b) :
+    lt.by_cases' H1 H2 H3 = H2 H4 :=
+  have H5 [visible] : ¬ a < b, from assume H6 : a < b, ne_of_lt H6 H4,
+  dif_pos H4 ▸ dif_neg H5
+
+  theorem lt.by_cases'_of_gt {a b : A} {P : Type}
+      (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) (H4 : a > b) :
+    lt.by_cases' H1 H2 H3 = H3 H4 :=
+  have H5 [visible] : ¬ a < b, from lt.asymm H4,
+  have H6 [visible] : a ≠ b, from (assume H7: a = b, lt.irrefl b (H7 ▸ H4)),
+  dif_neg H6 ▸ dif_neg H5
 end
 
 end algebra

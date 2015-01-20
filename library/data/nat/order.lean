@@ -182,6 +182,7 @@ section port_algebra
   theorem lt_of_not_le : ∀{a b : ℕ}, ¬ a ≤ b → b < a := @algebra.lt_of_not_le _ _
   theorem lt_or_ge : ∀a b : ℕ, a < b ∨ a ≥ b := @algebra.lt_or_ge _ _
   theorem le_or_gt : ∀a b : ℕ, a ≤ b ∨ a > b := @algebra.le_or_gt _ _
+  theorem lt_or_gt_of_ne : ∀{a b : ℕ}, a ≠ b → a < b ∨ a > b := @algebra.lt_or_gt_of_ne _ _
 
   theorem add_le_add : ∀{a b c d : ℕ}, a ≤ b → c ≤ d → a + c ≤ b + d := @algebra.add_le_add _ _
   theorem add_lt_add : ∀{a b c d : ℕ}, a < b → c < d → a + c < b + d := @algebra.add_lt_add _ _

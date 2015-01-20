@@ -256,6 +256,7 @@ section port_algebra
   theorem lt_of_not_le : ∀{a b : ℤ}, ¬ a ≤ b → b < a := @algebra.lt_of_not_le _ _
   theorem lt_or_ge : ∀a b : ℤ, a < b ∨ a ≥ b := @algebra.lt_or_ge _ _
   theorem le_or_gt : ∀a b : ℤ, a ≤ b ∨ a > b := @algebra.le_or_gt _ _
+  theorem lt_or_gt_of_ne : ∀{a b : ℤ}, a ≠ b → a < b ∨ a > b := @algebra.lt_or_gt_of_ne _ _
 
   theorem add_le_add_right : ∀{a b : ℤ}, a ≤ b → ∀c : ℤ, a + c ≤ b + c :=
     @algebra.add_le_add_right _ _
@@ -339,12 +340,22 @@ section port_algebra
     @algebra.add_lt_of_lt_of_neg _ _
 
   theorem neg_le_neg : ∀{a b : ℤ}, a ≤ b → -b ≤ -a := @algebra.neg_le_neg _ _
+  theorem le_of_neg_le_neg : ∀{a b : ℤ}, -b ≤ -a → a ≤ b := @algebra.le_of_neg_le_neg _ _
   theorem neg_le_neg_iff_le : ∀a b : ℤ, -a ≤ -b ↔ b ≤ a := algebra.neg_le_neg_iff_le
+  theorem nonneg_of_neg_nonpos : ∀{a : ℤ}, -a ≤ 0 → 0 ≤ a := @algebra.nonneg_of_neg_nonpos _ _
+  theorem neg_nonpos_of_nonneg : ∀{a : ℤ}, 0 ≤ a → -a ≤ 0 := @algebra.neg_nonpos_of_nonneg _ _
   theorem neg_nonpos_iff_nonneg : ∀a : ℤ, -a ≤ 0 ↔ 0 ≤ a := algebra.neg_nonpos_iff_nonneg
+  theorem nonpos_of_neg_nonneg : ∀{a : ℤ}, 0 ≤ -a → a ≤ 0 := @algebra.nonpos_of_neg_nonneg _ _
+  theorem neg_nonneg_of_nonpos : ∀{a : ℤ}, a ≤ 0 → 0 ≤ -a := @algebra.neg_nonneg_of_nonpos _ _
   theorem neg_nonneg_iff_nonpos : ∀a : ℤ, 0 ≤ -a ↔ a ≤ 0 := algebra.neg_nonneg_iff_nonpos
   theorem neg_lt_neg : ∀{a b : ℤ}, a < b → -b < -a := @algebra.neg_lt_neg _ _
+  theorem lt_of_neg_lt_neg : ∀{a b : ℤ}, -b < -a → a < b := @algebra.lt_of_neg_lt_neg _ _
   theorem neg_lt_neg_iff_lt : ∀a b : ℤ, -a < -b ↔ b < a := algebra.neg_lt_neg_iff_lt
+  theorem pos_of_neg_neg : ∀{a : ℤ}, -a < 0 →  0 < a := @algebra.pos_of_neg_neg _ _
+  theorem neg_neg_of_pos : ∀{a : ℤ}, 0 < a → -a < 0 := @algebra.neg_neg_of_pos _ _
   theorem neg_neg_iff_pos : ∀a : ℤ, -a < 0 ↔ 0 < a := algebra.neg_neg_iff_pos
+  theorem neg_of_neg_pos : ∀{a : ℤ}, 0 < -a → a < 0 := @algebra.neg_of_neg_pos _ _
+  theorem neg_pos_of_neg : ∀{a : ℤ}, a < 0 → 0 < -a := @algebra.neg_pos_of_neg _ _
   theorem neg_pos_iff_neg : ∀a : ℤ, 0 < -a ↔ a < 0 := algebra.neg_pos_iff_neg
   theorem le_neg_iff_le_neg : ∀a b : ℤ, a ≤ -b ↔ b ≤ -a := algebra.le_neg_iff_le_neg
   theorem neg_le_iff_neg_le : ∀a b : ℤ, -a ≤ b ↔ -b ≤ a := algebra.neg_le_iff_neg_le

@@ -1269,7 +1269,11 @@ expr elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
                 }
             }
             if (i == using_exprs.size()) {
-                // did not find field is using structure
+                // did not find field in using structure
+                if (m_ctx.m_fail_missing_field) {
+                    throw_elaborator_exception(sstream() << "invalid structure instance, field '"
+                                               << n << "' is missing", e);
+                }
                 v = m_full_context.mk_meta(m_ngen, some_expr(d_type), result_tag);
                 register_meta(v);
             }

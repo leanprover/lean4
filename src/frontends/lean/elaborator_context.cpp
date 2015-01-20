@@ -19,12 +19,17 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_ELABORATOR_FLYCHECK_GOALS false
 #endif
 
+#ifndef LEAN_DEFAULT_ELABORATOR_FAIL_MISSING_FIELD
+#define LEAN_DEFAULT_ELABORATOR_FAIL_MISSING_FIELD false
+#endif
+
 namespace lean {
 // ==========================================
 // elaborator configuration options
-static name * g_elaborator_local_instances  = nullptr;
-static name * g_elaborator_ignore_instances = nullptr;
-static name * g_elaborator_flycheck_goals   = nullptr;
+static name * g_elaborator_local_instances    = nullptr;
+static name * g_elaborator_ignore_instances   = nullptr;
+static name * g_elaborator_flycheck_goals     = nullptr;
+static name * g_elaborator_fail_missing_field = nullptr;
 
 name const & get_elaborator_ignore_instances_name() {
     return *g_elaborator_ignore_instances;
@@ -41,6 +46,11 @@ bool get_elaborator_ignore_instances(options const & opts) {
 bool get_elaborator_flycheck_goals(options const & opts) {
     return opts.get_bool(*g_elaborator_flycheck_goals, LEAN_DEFAULT_ELABORATOR_FLYCHECK_GOALS);
 }
+
+bool get_elaborator_fail_missing_field(options const & opts) {
+    return opts.get_bool(*g_elaborator_fail_missing_field, LEAN_DEFAULT_ELABORATOR_FAIL_MISSING_FIELD);
+}
+
 // ==========================================
 
 elaborator_context::elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,
@@ -49,12 +59,14 @@ elaborator_context::elaborator_context(environment const & env, io_state const &
     m_use_local_instances = get_elaborator_local_instances(ios.get_options());
     m_ignore_instances    = get_elaborator_ignore_instances(ios.get_options());
     m_flycheck_goals      = get_elaborator_flycheck_goals(ios.get_options());
+    m_fail_missing_field  = get_elaborator_fail_missing_field(ios.get_options());
 }
 
 void initialize_elaborator_context() {
-    g_elaborator_local_instances  = new name{"elaborator", "local_instances"};
-    g_elaborator_ignore_instances = new name{"elaborator", "ignore_instances"};
-    g_elaborator_flycheck_goals   = new name{"elaborator", "flycheck_goals"};
+    g_elaborator_local_instances    = new name{"elaborator", "local_instances"};
+    g_elaborator_ignore_instances   = new name{"elaborator", "ignore_instances"};
+    g_elaborator_flycheck_goals     = new name{"elaborator", "flycheck_goals"};
+    g_elaborator_fail_missing_field = new name{"elaborator", "fail_if_missing_field"};
     register_bool_option(*g_elaborator_local_instances, LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES,
                          "(lean elaborator) use local declarates as class instances");
     register_bool_option(*g_elaborator_ignore_instances, LEAN_DEFAULT_ELABORATOR_IGNORE_INSTANCES,
@@ -62,6 +74,9 @@ void initialize_elaborator_context() {
     register_bool_option(*g_elaborator_flycheck_goals, LEAN_DEFAULT_ELABORATOR_FLYCHECK_GOALS,
                          "(lean elaborator) if true, then elaborator display current goals for flycheck before each "
                          "tactic is executed in a `begin ... end` block");
+    register_bool_option(*g_elaborator_fail_missing_field, LEAN_DEFAULT_ELABORATOR_FAIL_MISSING_FIELD,
+                         "(lean elaborator) if true, then elaborator generates an error for missing fields instead "
+                         "of adding placeholders");
 }
 void finalize_elaborator_context() {
     delete g_elaborator_local_instances;

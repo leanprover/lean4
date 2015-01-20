@@ -16,7 +16,10 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+// User-level maximum precedence
 unsigned get_max_prec();
+// Internal maximum precedence used for @ and ! operators
+unsigned get_Max_prec();
 unsigned get_arrow_prec();
 unsigned get_decreasing_prec();
 class token_info {

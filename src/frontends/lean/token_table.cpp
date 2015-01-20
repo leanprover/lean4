@@ -13,9 +13,11 @@ namespace lean {
 static unsigned g_arrow_prec      = 25;
 static unsigned g_decreasing_prec = 100;
 static unsigned g_max_prec        = 1024;
+static unsigned g_Max_prec        = 1024*1024;
 static unsigned g_plus_prec       = 65;
 static unsigned g_cup_prec        = 60;
 unsigned get_max_prec() { return g_max_prec; }
+unsigned get_Max_prec() { return g_Max_prec; }
 unsigned get_arrow_prec() { return g_arrow_prec; }
 unsigned get_decreasing_prec() { return g_decreasing_prec; }
 token_table add_command_token(token_table const & s, char const * token) {

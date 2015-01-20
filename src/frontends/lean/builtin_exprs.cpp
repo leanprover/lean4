@@ -428,7 +428,7 @@ static expr parse_overwrite_notation(parser & p, unsigned, expr const *, pos_inf
 }
 
 static expr parse_explicit_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
-    expr e = p.parse_expr(get_max_prec());
+    expr e = p.parse_expr(get_Max_prec());
     if (is_choice(e)) {
         buffer<expr> new_choices;
         for (unsigned i = 0; i < get_num_choices(e); i++)
@@ -440,7 +440,7 @@ static expr parse_explicit_expr(parser & p, unsigned, expr const *, pos_info con
 }
 
 static expr parse_consume_args_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
-    expr e = p.parse_expr(get_max_prec());
+    expr e = p.parse_expr(get_Max_prec());
     if (is_choice(e)) {
         buffer<expr> new_choices;
         for (unsigned i = 0; i < get_num_choices(e); i++)

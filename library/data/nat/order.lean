@@ -8,7 +8,7 @@ Authors: Floris van Doorn, Leonardo de Moura, Jeremy Avigad
 The order relation on the natural numbers.
 -/
 
-import .basic algebra.ordered_ring
+import data.nat.basic data.nat.comm_semiring algebra.ordered_ring
 open eq.ops
 
 namespace nat
@@ -151,12 +151,23 @@ section
   open [classes] algebra
 
   protected definition linear_ordered_semiring [instance] : algebra.linear_ordered_semiring nat :=
-  algebra.linear_ordered_semiring.mk add add.assoc zero zero_add add_zero add.comm
-    mul mul.assoc (succ zero) one_mul mul_one mul.left_distrib mul.right_distrib
-    zero_mul mul_zero (ne.symm (succ_ne_zero zero)) @add.cancel_left @add.cancel_right le le.refl
-    @le.trans @le.antisymm lt lt_iff_le_and_ne @add_le_add_left @le_of_add_le_add_left
-    (take a b c H1 H2, mul_le_mul_left H1 c) (take a b c H1 H2, mul_le_mul_right H1 c)
-    @mul_lt_mul_of_pos_left @mul_lt_mul_of_pos_right @le_iff_lt_or_eq @le.total
+  ⦃ algebra.linear_ordered_semiring, nat.comm_semiring,
+    add_left_cancel            := @add.cancel_left,
+    add_right_cancel           := @add.cancel_right,
+    lt                         := lt,
+    le                         := le,
+    le_refl                    := le.refl,
+    le_trans                   := @le.trans,
+    le_antisymm                := @le.antisymm,
+    le_total                   := @le.total,
+    le_iff_lt_or_eq            := @le_iff_lt_or_eq,
+    lt_iff_le_ne               := lt_iff_le_and_ne,
+    add_le_add_left            := @add_le_add_left,
+    le_of_add_le_add_left      := @le_of_add_le_add_left,
+    mul_le_mul_of_nonneg_left  := (take a b c H1 H2, mul_le_mul_left H1 c),
+    mul_le_mul_of_nonneg_right := (take a b c H1 H2, mul_le_mul_right H1 c),
+    mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left,
+    mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right ⦄
 end
 
 section port_algebra

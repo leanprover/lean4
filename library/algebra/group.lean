@@ -424,7 +424,7 @@ section add_group
 
   theorem sub_zero (a : A) : a - 0 = a := subst (eq.symm neg_zero) !add_zero
 
-  theorem sub_neg_eq_add (a b : A) : a - (-b) = a + b := !neg_neg⁻¹ ▸ rfl
+  theorem sub_neg_eq_add (a b : A) : a - (-b) = a + b := !neg_neg ▸ rfl
 
   theorem neg_sub (a b : A) : -(a - b) = b - a :=
   neg_eq_of_add_eq_zero

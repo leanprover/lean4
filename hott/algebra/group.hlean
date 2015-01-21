@@ -427,7 +427,7 @@ section add_group
 
   theorem minus_zero (a : A) : a - 0 = a := (neg_zero⁻¹) ▹ !add_right_id
 
-  theorem minus_neg_eq_add (a b : A) : a - (-b) = a + b := !neg_neg⁻¹ ▹ idp
+  theorem minus_neg_eq_add (a b : A) : a - (-b) = a + b := !neg_neg ▹ idp
 
   theorem neg_minus_eq (a b : A) : -(a - b) = b - a :=
   neg_unique

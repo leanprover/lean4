@@ -142,7 +142,8 @@ public:
             return mk_pair(instantiate_rev(t, I_args.size(), I_args.data()), cs);
         } else {
             // TODO(Leo)
-            lean_unreachable();
+            throw_kernel_exception(env, sstream() << "projection macros do not support arbitrary terms "
+                                   << "containing metavariables yet (solution: use trust-level 0)", m);
         }
     }
 
